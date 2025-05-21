@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3AB482D98;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B19198845;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747832588; cv=none; b=FvEUePihYe/0YD3RpDaEiRrtXQp11MplY/VzvTHuWXUf66oAIN2bZDtx/GYLKvJkHqyOcakY5fWCmefbpI4cMPwSP/HZA/0/y0YXZqDFfdoSsJcp/CuO6sYQ4q0a2qiG4ckgqwsUxA38/WrqYMEZLp7maIv9JHhof1rTOO+V/Yk=
+	t=1747832588; cv=none; b=uZ2TBVCCO53w51T8JMrQyY6Vun8I4VmSUMJh9+E/nUQgVpQtOnI+0UQkSiOeYjCuMHxnU/TeAeqv5S9Hf0ugho568niprzTCXBQn7FMzDsW6UbSWIJAZBo/EQow918Mk30E5aa6nE/LhebrXXd/KtGAeXWuHMBDhqEyU/xXwiQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747832588; c=relaxed/simple;
-	bh=dtO3sURN+sXxplPWOP3l6xLgl8U3jhJiBHXs0L7iasc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jpaJYmglSDqency1fy17W9M/8uwI36NipBCn61kNgnZFeiZUcqjnzCdXKPoj/FIA4QJ5ZoEmzPU0xazxk4PAkGtoO5NgZ/S4Xf/64CcVRroAskeNrh1PulTtUqXbucodNCcPAlMur+jetIx7NhB3+wgDx+34Fu2n1XB4pgsgLfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K1fmPdFW; arc=none smtp.client-ip=10.30.226.201
+	bh=MuE0RHNWG9vbd8b45RwY4Vuvxd+09YzMmGVNTv4P07g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=KdEcaxqrIi/MkeL7UTX2FT60ea47UTbBUDIxo6t5yUIVbYevlxlom4CVdPL2sZb7xjgK5XwYSgiJz2ZCe/xNzwwSC2y79ZlCa31jzSjayN8ILgkX3kAdXNKxMcAGlwoUndRo92o/64b1Wxm+mwIwB9l9y2xrrwZF5GE4bN+ksYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GdSNj6SY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K1fmPdFW"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3E902C4CEEF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GdSNj6SY"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 23953C4CEE7;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1747832588;
-	bh=dtO3sURN+sXxplPWOP3l6xLgl8U3jhJiBHXs0L7iasc=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=K1fmPdFW3h18HwTI7sxNeE04fXr0xFZaxsCCgU8VNcOl4/yVZN0Hb0/YV+j7EzsC8
-	 ZFMSkZLARGThx75CDx4JZTNwOiYVv4mykkz4g+WeZnH6fdIeD5W9ssuAQY5lK52H4z
-	 TNUzPcZ0TsPy+yn/6zxNLwYRTWUYopZ8tPSsSsPwGR+BKQsGZYfrTfNrhUWhkD0bv6
-	 uuwV7gtUDX9+h960nadXWW2k0cY0lZKDzp4XOxdQmomEeGb5suKSrBYzOZDSRTO1Sg
-	 tclo6RN+aSnC6HYHZGEX8HqX+eTQBZos/zO2rcV3yR3IGQLVxuPzpN0684GSHT7GFX
-	 Nh/MD+DNAUDzw==
+	bh=MuE0RHNWG9vbd8b45RwY4Vuvxd+09YzMmGVNTv4P07g=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=GdSNj6SYT/9gi4LbAhYJ2Xl3zFcTX8DDDGdyBQYo7hX6rRmQ1lpb9uw1Q3bj+eWkZ
+	 lx1rmpYPOQ0urSNJhq1Lx445eBU9fNfQcRZmI91ynxQ7qlMm8a7sayMozCP72sYDKR
+	 pMpwUwcOMICVyT4aVbqz4ejNJLiJXdVh7OWq5AHXFX+sJFUR/sw2/o8rgzGe8LRjc3
+	 8VBTMiomLUzOjaR2qqJ2e8iduJGonzQSyF4qEGeYyeV5LgctJffae/z400Su+syd8i
+	 PoVNRPCskIUUOv6sbf+UbwMZvSjgDX5IazqVN4i7vq4V7Eh9Jcs53iSPzCcLKG8a8R
+	 +xy1PnqO9lwjw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32896C54E92;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 162D9C3ABC9;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Wed, 21 May 2025 14:02:52 +0100
-Subject: [PATCH v4 02/20] mfd: adp5585: only add devices given in FW
+Subject: [PATCH v4 00/20] mfd: adp5585: support keymap events and drop
+ legacy Input driver
+Date: Wed, 21 May 2025 14:02:50 +0100
+Message-Id: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,9 +41,11 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250521-dev-adp5589-fw-v4-2-f2c988d7a7a0@analog.com>
-References: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
-In-Reply-To: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
+X-B4-Tracking: v=1; b=H4sIAPrOLWgC/2XM0Q6CIBiG4VtpHEeDH0joqPtoHaD8Klupg0Y15
+ 72Hbs2Vh9+3Pe9IIgaPkZx2IwmYfPR9l4fc70jV2q5B6l3eBBgoJjinDhO1blBKG1o/KTJZ1c5
+ IBfpIMhoC1v61BC/XvFsfH314L/3E5/ebEv+pxCmjwFAzJ0sn0Z5tZ299c6j6O5lbCVYvudp4y
+ F7YwphKoNMcNl6sXnHYeJE9M1ByWRbGav3jp2n6AH4lFx8tAQAA
+X-Change-ID: 20250311-dev-adp5589-fw-e04cfd945286
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -53,13 +56,15 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Bartosz Golaszewski <brgl@bgdev.pl>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
- Liu Ying <victor.liu@nxp.com>
+ Liu Ying <victor.liu@nxp.com>, 
+ Bartosz Golaszewski <bartosz.golaszewski@linaro.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747832588; l=2516;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747832588; l=4569;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=G8UBYI986KhAQ+BbMQwpvfiU1j4vKu44JXupf7I8CsY=;
- b=1wKsQ38dEz2nO94iQ41ol1xFB/bLoWI82iKkVCO3yraj9zslDYyqnU5Unp3SlInZ60cwRiWng
- zBeZIDA52IeAuvtieFWXWzpfsvaGYiYvzRDIXHiMRMon6LCEvb1/Gth
+ bh=MuE0RHNWG9vbd8b45RwY4Vuvxd+09YzMmGVNTv4P07g=;
+ b=6Cp0nCnry8wBZdQuP/oFpah/vi4bitiIHDp8Irfks3jkxL7x8fPXGu0qbbhFviKCdlp3KsP3x
+ ZJlfSU4dLR6AGm1hx2VQvF7p6B/0rW0Bf6cr63FQo/Tt9sCz/OxkCMO
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -67,92 +72,121 @@ X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
 X-Original-From: =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
 Reply-To: nuno.sa@analog.com
 
-From: Nuno Sá <nuno.sa@analog.com>
+Hi all,
 
-Not all devices (features) of the adp5585 device are mandatory to be
-used in all platforms. Hence, check what's given in FW and dynamically
-create the mfd_cell array to be given to devm_mfd_add_devices().
+Here it goes v4. Main changes is to drop chip info based struct and
+directly use an enum in the FW .data pointer, use the notifier API for
+dispatching events and multiple calls to mfd_add_devices().
 
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Regarding the last point, I think I could have used multiple calls to
+devm_mfd_add_devices() and avoid those gotos in adp5585_add_devices()
+but I do not feel that would have been "correct".
+
+Thanks!
+- Nuno Sá
+
 ---
- drivers/mfd/adp5585.c | 48 +++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 39 insertions(+), 9 deletions(-)
+Changes in v4:
+ - Patch 2:
+   * Directly use mfd_add_devices() to individually add devices
 
-diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
-index 160e0b38106a6d78f7d4b7c866cb603d96ea673e..806867c56d6fb4ef1f461af26a424a3a05f46575 100644
---- a/drivers/mfd/adp5585.c
-+++ b/drivers/mfd/adp5585.c
-@@ -17,7 +17,13 @@
- #include <linux/regmap.h>
- #include <linux/types.h>
- 
--static const struct mfd_cell adp5585_devs[] = {
-+enum {
-+	ADP5585_DEV_GPIO,
-+	ADP5585_DEV_PWM,
-+	ADP5585_DEV_MAX
-+};
-+
-+static const struct mfd_cell adp5585_devs[ADP5585_DEV_MAX] = {
- 	{ .name = "adp5585-gpio", },
- 	{ .name = "adp5585-pwm", },
- };
-@@ -110,6 +116,37 @@ static const struct regmap_config adp5585_regmap_configs[] = {
- 	},
- };
- 
-+static void adp5585_remove_devices(void *dev)
-+{
-+	mfd_remove_devices(dev);
-+}
-+
-+static int adp5585_add_devices(struct device *dev)
-+{
-+	int ret;
-+
-+	if (device_property_present(dev, "#pwm-cells")) {
-+		ret = mfd_add_devices(dev, PLATFORM_DEVID_AUTO,
-+				      &adp5585_devs[ADP5585_DEV_PWM], 1, NULL, 0, NULL);
-+		if (ret)
-+			return dev_err_probe(dev, ret, "Failed to add pwm device\n");
-+	}
-+
-+	if (device_property_present(dev, "#gpio-cells")) {
-+		ret = mfd_add_devices(dev, PLATFORM_DEVID_AUTO,
-+				      &adp5585_devs[ADP5585_DEV_GPIO], 1, NULL, 0, NULL);
-+		if (ret) {
-+			ret = dev_err_probe(dev, ret, "Failed to add gpio device\n");
-+			goto out_error;
-+		}
-+	}
-+
-+	return devm_add_action_or_reset(dev, adp5585_remove_devices, dev);
-+out_error:
-+	mfd_remove_devices(dev);
-+	return ret;
-+}
-+
- static int adp5585_i2c_probe(struct i2c_client *i2c)
- {
- 	const struct regmap_config *regmap_config;
-@@ -138,14 +175,7 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
- 		return dev_err_probe(&i2c->dev, -ENODEV,
- 				     "Invalid device ID 0x%02x\n", id);
- 
--	ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_AUTO,
--				   adp5585_devs, ARRAY_SIZE(adp5585_devs),
--				   NULL, 0, NULL);
--	if (ret)
--		return dev_err_probe(&i2c->dev, ret,
--				     "Failed to add child devices\n");
--
--	return 0;
-+	return adp5585_add_devices(&i2c->dev);
- }
- 
- static int adp5585_suspend(struct device *dev)
+ - Patch 3:
+   * Don't break lines at 80;
+   * Add comment suggested by Laurent;
+   * PWM change squashed in this patch.
 
--- 
-2.49.0
+ - Patch 5:
+   * Pass an enum to the of_id data pointer;
+   * Reference the regmap defaults directly from the variant enum;
+   * Drop chip_info struct and place data directly in struct adp5585_dev.
+
+ - Patch 6:
+   * Adapt to the new way of passing per variant data;
+   * Rename adp5585_fill_regmap_config() to adp5585_fill_variant_config();
+   * Add struct device now to struct adp5585_dev;
+   * Pass adp5585_dev to adp5585_add_devices().
+
+ - Patch 7:
+   * Add regs directly in struct adp5585_dev.
+
+ - Patch 9:
+   * Moved the per variant gpio register into the gpio driver;
+   * Moved ADP558[59]_GPIO_{BANK_BIT} into the gpio driver;
+   * Moved ADP5589_GPIO_MAX and dropped the max_{col|row}.
+
+ - Patch 10:
+   * Adapt to the lack of a chip_info pointer when getting ext_cfg.
+
+ - Patch 12:
+   * Refactor parsing of poll-interval;
+   * Make use of the notifier API instead of "own" dispatcher mechanism;
+   * Improve comments in the code.
+
+ - Patch 13:
+   * Add more comments;
+   * Drop the function callback for validating events;
+   * Renamed has_pin5 to has_pin6;
+ 
+ - Patch 14:
+   * Adapt to the new way of adding MFD cells;
+   * Improve comments.
+
+ - Patch 15:
+   * Use the notifier API and adapt to that.
+
+ - Patch 16:
+   * Use the notifier API and adapt to that;
+   * Move devm_add_action_or_reset() before the for() loop setting the
+     bits in kpad->keypad;
+   * Address Dmitry comment about checking for error instead of
+     directly returning when calling adp5585_keys_check_special_events().
+
+- Link to v3: https://lore.kernel.org/r/20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com
+- Link to v2: https://lore.kernel.org/r/20250415-dev-adp5589-fw-v2-0-3a799c3ed812@analog.com
+- Link to v1: https://lore.kernel.org/r/20250313-dev-adp5589-fw-v1-0-20e80d4bd4ea@analog.com
+
+---
+Nuno Sá (20):
+      dt-bindings: mfd: adp5585: ease on the required properties
+      mfd: adp5585: only add devices given in FW
+      mfd: adp5585: enable oscilator during probe
+      mfd: adp5585: make use of MFD_CELL_NAME()
+      dt-bindings: mfd: adp5585: document adp5589 I/O expander
+      mfd: adp5585: refactor how regmap defaults are handled
+      mfd: adp5585: add support for adp5589
+      mfd: adp5585: add a per chip reg struture
+      gpio: adp5585: add support for the adp5589 expander
+      pwm: adp5585: add support for adp5589
+      dt-bindings: mfd: adp5585: add properties for input events
+      mfd: adp5585: add support for event handling
+      mfd: adp5585: support reset and unlock events
+      mfd: adp5585: add support for input devices
+      gpio: adp5585: support gpi events
+      Input: adp5585: Add Analog Devices ADP5585/89 support
+      Input: adp5589: remove the driver
+      mfd: adp5585: support getting vdd regulator
+      dt-bindings: mfd: adp5585: document reset gpio
+      mfd: adp5585: add support for a reset pin
+
+ .../devicetree/bindings/mfd/adi,adp5585.yaml       |  240 ++++-
+ .../devicetree/bindings/trivial-devices.yaml       |    2 -
+ MAINTAINERS                                        |    1 +
+ drivers/gpio/Kconfig                               |    1 +
+ drivers/gpio/gpio-adp5585.c                        |  364 ++++++-
+ drivers/input/keyboard/Kconfig                     |   21 +-
+ drivers/input/keyboard/Makefile                    |    2 +-
+ drivers/input/keyboard/adp5585-keys.c              |  371 +++++++
+ drivers/input/keyboard/adp5589-keys.c              | 1066 --------------------
+ drivers/mfd/adp5585.c                              |  751 +++++++++++++-
+ drivers/pwm/pwm-adp5585.c                          |   78 +-
+ include/linux/mfd/adp5585.h                        |  116 ++-
+ 12 files changed, 1804 insertions(+), 1209 deletions(-)
+---
+base-commit: 407f60a151df3c44397e5afc0111eb9b026c38d3
+change-id: 20250311-dev-adp5589-fw-e04cfd945286
+--
+
+Thanks!
+- Nuno Sá
 
 

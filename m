@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBEE526F477;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27956270564;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747832589; cv=none; b=lvM6zUmqv8bvEHAzwnANMtMmJ8WBNm9gLNnB2H/GqIRCcr3ZSqHoWww/2QPfhwIhLes1v4x7i9TwWvOQgpfex5rJt/6mYsIElAfXcf7sO2jcciiSgXKxUQMzfnfUZ4ao0EgsnP3BFVlssFmmQULAuOkdvg6ZthV5oDMyWrPSoxQ=
+	t=1747832589; cv=none; b=f8JgudKoRYup1KDMsJGWPQWkmootBqkajCP9IofT47CsvYAG3YJF2NcoKL7RKHFyEPNrhR+xJ0/YUzKx3NOGzSO3hcBSXfjlNZpH+sghi3rwk4yslqkwcN75nwfs/wvzvBC1PybmJDHGIDqxeBhA5Q1Go09c4fu4A9QaVEaZ5Hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747832589; c=relaxed/simple;
-	bh=ZwW1A/+aJqUr1GEJcMoYeT1o5oeVb0lUgal4fzQ59q0=;
+	bh=UMjAhA0/of625MCFMiAwHjc6aT/ETfabVgzkhbFPGLI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=LHdSipzlBybHbsO9rUcNW5br4VZ89tHVS19zoYhvWtn43hAKZiRH6cXbTInmdd6az8aXFJoY4aPEHSBED5FujUmFVvhSP9wvYtpHItXQfL3A+FgZqIFaCvNz2sCtOE8gUmB9yCnEyVXAu7ceOw8zPGntcevx2qL4BwJAEnYx1Kw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YkSPmJUu; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=kn4kPgTOa304mOUB5WbahPUaRofaSAh9Dhk5oCCb1isUAZKTQ12qo4U5Jzn05JZQ6aZ8Y8aa08rFztTpAUEhvtzGe2tIi+LwThUJiVfzj+NszfbO/lgHWxIJ9J6VYh0Np+r8yhCC0+KXjIhn/7/6g6h2oxdJ9gMDvryYUJnsF6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jd/3U8cN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YkSPmJUu"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 942E7C4CEF5;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jd/3U8cN"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AF4C1C4AF1B;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1747832588;
-	bh=ZwW1A/+aJqUr1GEJcMoYeT1o5oeVb0lUgal4fzQ59q0=;
+	bh=UMjAhA0/of625MCFMiAwHjc6aT/ETfabVgzkhbFPGLI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=YkSPmJUuzWwCqX6l8vIExH6VH9KJpjDa5DWOvYXNp22aYoLVNS/mGnWe5VQY3M9/1
-	 gMJUVzRhogCE5vvspQwKccl5Yxk1hzXadYm0/eGLe1P1F/zIA1Av3ZXM/h+BJ+VwnW
-	 5eVgNp9r3f+oaz5od3ipbYPL5I5jdcrrSU3ZYSn3P8NpQ8rZH9g5XpIB9dUyziGJNO
-	 LdtQfH8JEyVjBI4a+70V5+YIbDy5bSoHldC0jFSWJt+tG57djsXGA93bx34iBHtCo/
-	 eLIBuUrTMqwPXipObg1HTYLhfrLLgCVQIf8Y1G7cItj0c+lD/OesRCasqqzRcaSACZ
-	 qomY/25fGtDKQ==
+	b=Jd/3U8cNyP7hDvrddEXuQQQxKj5FQ3pCZtOB6BYPvaCunl6BOOV6cZLfaZknrONUY
+	 reho+gUp0tWdMbS59A4kCyr6n7yFCQc2kAuMmE6mw1Kg/O8f1LH2sOdtO6nxN4UCQG
+	 sXck2szR4T82jSKNNjzMWh+jPKBrH8SlA3FM9+/1FWEkiQdf2WqHWwv/uM+XFZPVJy
+	 yDyHW1rloe6fGQBIn//jfTGKn0xWdlTtj69dP0MQM3Qsa7t7IybpWRx6AVOpoQxgIu
+	 Yc557ZGO8RizWhrdkNJGFo4zendHzreFighnEU+T6oUoO+ComgFMKpz9AhCnPOjJr5
+	 T5B7nE11rPiDQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F153C54E92;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA5B6C3ABC9;
 	Wed, 21 May 2025 13:03:08 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Wed, 21 May 2025 14:02:59 +0100
-Subject: [PATCH v4 09/20] gpio: adp5585: add support for the adp5589
- expander
+Date: Wed, 21 May 2025 14:03:01 +0100
+Subject: [PATCH v4 11/20] dt-bindings: mfd: adp5585: add properties for
+ input events
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250521-dev-adp5589-fw-v4-9-f2c988d7a7a0@analog.com>
+Message-Id: <20250521-dev-adp5589-fw-v4-11-f2c988d7a7a0@analog.com>
 References: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
 In-Reply-To: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -56,11 +56,11 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
  Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747832589; l=11930;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747832589; l=7657;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=CL/hUhA7aHzkpyGSVM07RDNxeibhfST6xnJbIOG5pzI=;
- b=lqo6JN9IFs6COSufs1DeRacUkx5ONBhWjfL3B5/DpajO+8kOw8avCRSb13Ham9bJwmGN47ndG
- bOUhSCwCllPCQDzo829LLoKGftLmp6bZ7t4lIFy4OHW8Oay9RHf6v2i
+ bh=CnRbMPpeu0VTUQwRPy3CZDgnIinA5ERlDv8wycI5H2I=;
+ b=HywHtntrehEv7vtrqw+VuFvC5WaKJlgbRoJOOoVAfcIQjHTXQSNo1qTRoKo5UVIm3WNRS14rU
+ tOl/BAL9PKFBK97c1M2h49K9lBjEn1mYdt9OvW+H1fD8+eg8f3Y1wZm
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -70,336 +70,266 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-Support the adp5589 I/O expander which supports up to 19 pins. We need
-to add a chip_info based struct since accessing register "banks"
-and "bits" differs between devices.
+Add properties related to input events. These devices can act as
+keyboards and can support events either via a keymap Matrix or through
+GPIs. Note that the device needs to be an interrupt controller for GPIs
+based events.
 
-Also some register addresses are different.
+We specifically need a property specifying the pins used by the keymap
+matrix since these devices have no requirement for rows and columns to be
+contiguous without holes which is enforced by the standard input
+properties.
 
-While at it move ADP558X_GPIO_MAX defines to the main header file and
-rename them. That information will be needed by the top level device in
-a following change.
-
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- drivers/gpio/gpio-adp5585.c | 151 ++++++++++++++++++++++++++++++++++----------
- include/linux/mfd/adp5585.h |  18 +++---
- 2 files changed, 126 insertions(+), 43 deletions(-)
+ .../devicetree/bindings/mfd/adi,adp5585.yaml       | 188 ++++++++++++++++++++-
+ 1 file changed, 186 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-adp5585.c b/drivers/gpio/gpio-adp5585.c
-index d5c0f1b267c82a5002b50cbb7a108166439e4785..cdf107742579cb44d73cc030646358ba5a23fd97 100644
---- a/drivers/gpio/gpio-adp5585.c
-+++ b/drivers/gpio/gpio-adp5585.c
-@@ -4,6 +4,7 @@
-  *
-  * Copyright 2022 NXP
-  * Copyright 2024 Ideas on Board Oy
-+ * Copyright 2025 Analog Devices, Inc.
-  */
+diff --git a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
+index 9471af28419d820424745315ffb2129f7dd37581..b3bf2ed586104303fd078bd06683e4f0d3383575 100644
+--- a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
++++ b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
+@@ -49,6 +49,84 @@ properties:
+   "#pwm-cells":
+     const: 3
  
- #include <linux/device.h>
-@@ -14,57 +15,106 @@
- #include <linux/regmap.h>
- #include <linux/types.h>
- 
--#define ADP5585_GPIO_MAX	11
-+/*
-+ * Bank 0 covers pins "GPIO 1/R0" to "GPIO 6/R5", numbered 0 to 5 by the
-+ * driver, and bank 1 covers pins "GPIO 7/C0" to "GPIO 11/C4", numbered 6 to
-+ * 10. Some variants of the ADP5585 don't support "GPIO 6/R5". As the driver
-+ * uses identical GPIO numbering for all variants to avoid confusion, GPIO 5 is
-+ * marked as reserved in the device tree for variants that don't support it.
-+ */
-+#define ADP5585_BANK(n)			((n) >= 6 ? 1 : 0)
-+#define ADP5585_BIT(n)			((n) >= 6 ? BIT((n) - 6) : BIT(n))
++  interrupt-controller: true
 +
-+/*
-+ * Bank 0 covers pins "GPIO 1/R0" to "GPIO 8/R7", numbered 0 to 7 by the
-+ * driver, bank 1 covers pins "GPIO 9/C0" to "GPIO 16/C7", numbered 8 to
-+ * 15 and bank 3 covers pins "GPIO 17/C8" to "GPIO 19/C10", numbered 16 to 18.
-+ */
-+#define ADP5589_BANK(n)			((n) >> 3)
-+#define ADP5589_BIT(n)			BIT((n) & 0x7)
++  '#interrupt-cells':
++    const: 2
 +
-+struct adp5585_gpio_chip {
-+	int (*bank)(unsigned int off);
-+	int (*bit)(unsigned int off);
-+	unsigned int max_gpio;
-+	unsigned int debounce_dis_a;
-+	unsigned int rpull_cfg_a;
-+	unsigned int gpo_data_a;
-+	unsigned int gpo_out_a;
-+	unsigned int gpio_dir_a;
-+	unsigned int gpi_stat_a;
-+	bool has_bias_hole;
-+};
- 
- struct adp5585_gpio_dev {
- 	struct gpio_chip gpio_chip;
-+	const struct adp5585_gpio_chip *info;
- 	struct regmap *regmap;
- };
- 
-+static int adp5585_gpio_bank(unsigned int off)
-+{
-+	return ADP5585_BANK(off);
-+}
++  poll-interval:
++    enum: [10, 20, 30, 40]
++    default: 10
 +
-+static int adp5585_gpio_bit(unsigned int off)
-+{
-+	return ADP5585_BIT(off);
-+}
++  adi,keypad-pins:
++    description: Specifies the pins used for the keypad matrix.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
 +
-+static int adp5589_gpio_bank(unsigned int off)
-+{
-+	return ADP5589_BANK(off);
-+}
++  adi,unlock-events:
++    description:
++      Specifies a maximum of 2 events that can be used to unlock the keypad.
++      If this property is set, the keyboard will be locked and only unlocked
++      after these keys/gpis are pressed. The value 127 serves as a wildcard which
++      means any key can be used for unlocking.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    minItems: 1
++    maxItems: 2
++    items:
++      anyOf:
++        - minimum: 1
++          maximum: 88
++        - minimum: 97
++          maximum: 115
++        - const: 127
 +
-+static int adp5589_gpio_bit(unsigned int off)
-+{
-+	return ADP5589_BIT(off);
-+}
++  adi,unlock-trigger-sec:
++    description:
++      Defines the time in which the second unlock event must occur after the
++      first unlock event has occurred.
++    maximum: 7
++    default: 0
 +
- static int adp5585_gpio_get_direction(struct gpio_chip *chip, unsigned int off)
- {
- 	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
- 	unsigned int val;
- 
--	regmap_read(adp5585_gpio->regmap, ADP5585_GPIO_DIRECTION_A + bank, &val);
-+	regmap_read(adp5585_gpio->regmap, info->gpio_dir_a + info->bank(off), &val);
- 
--	return val & bit ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
-+	return val & info->bit(off) ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
- }
- 
- static int adp5585_gpio_direction_input(struct gpio_chip *chip, unsigned int off)
- {
- 	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
- 
--	return regmap_clear_bits(adp5585_gpio->regmap,
--				 ADP5585_GPIO_DIRECTION_A + bank, bit);
-+	return regmap_clear_bits(adp5585_gpio->regmap, info->gpio_dir_a + info->bank(off),
-+				 info->bit(off));
- }
- 
- static int adp5585_gpio_direction_output(struct gpio_chip *chip, unsigned int off, int val)
- {
- 	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	unsigned int bank = info->bank(off);
-+	unsigned int bit = info->bit(off);
- 	int ret;
- 
--	ret = regmap_update_bits(adp5585_gpio->regmap,
--				 ADP5585_GPO_DATA_OUT_A + bank, bit,
--				 val ? bit : 0);
-+	ret = regmap_update_bits(adp5585_gpio->regmap, info->gpo_data_a + bank,
-+				 bit, val ? bit : 0);
- 	if (ret)
- 		return ret;
- 
--	return regmap_set_bits(adp5585_gpio->regmap,
--			       ADP5585_GPIO_DIRECTION_A + bank, bit);
-+	return regmap_set_bits(adp5585_gpio->regmap, info->gpio_dir_a + bank,
-+			       bit);
- }
- 
- static int adp5585_gpio_get_value(struct gpio_chip *chip, unsigned int off)
- {
- 	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	unsigned int bank = info->bank(off);
-+	unsigned int bit = info->bit(off);
- 	unsigned int reg;
- 	unsigned int val;
- 
-@@ -79,8 +129,8 @@ static int adp5585_gpio_get_value(struct gpio_chip *chip, unsigned int off)
- 	 * .direction_input(), .direction_output() or .set() operations racing
- 	 * with this.
- 	 */
--	regmap_read(adp5585_gpio->regmap, ADP5585_GPIO_DIRECTION_A + bank, &val);
--	reg = val & bit ? ADP5585_GPO_DATA_OUT_A : ADP5585_GPI_STATUS_A;
-+	regmap_read(adp5585_gpio->regmap, info->gpio_dir_a + bank, &val);
-+	reg = val & bit ? info->gpo_data_a : info->gpi_stat_a;
- 	regmap_read(adp5585_gpio->regmap, reg + bank, &val);
- 
- 	return !!(val & bit);
-@@ -90,17 +140,17 @@ static int adp5585_gpio_set_value(struct gpio_chip *chip, unsigned int off,
- 				  int val)
- {
- 	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	unsigned int bit = adp5585_gpio->info->bit(off);
- 
--	return regmap_update_bits(adp5585_gpio->regmap,
--				  ADP5585_GPO_DATA_OUT_A + bank,
-+	return regmap_update_bits(adp5585_gpio->regmap, info->gpo_data_a + info->bank(off),
- 				  bit, val ? bit : 0);
- }
- 
- static int adp5585_gpio_set_bias(struct adp5585_gpio_dev *adp5585_gpio,
- 				 unsigned int off, unsigned int bias)
- {
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
- 	unsigned int bit, reg, mask, val;
- 
- 	/*
-@@ -108,8 +158,10 @@ static int adp5585_gpio_set_bias(struct adp5585_gpio_dev *adp5585_gpio,
- 	 * consecutive registers ADP5585_RPULL_CONFIG_*, with a hole of 4 bits
- 	 * after R5.
- 	 */
--	bit = off * 2 + (off > 5 ? 4 : 0);
--	reg = ADP5585_RPULL_CONFIG_A + bit / 8;
-+	bit = off * 2;
-+	if (info->has_bias_hole)
-+		bit += (off > 5 ? 4 : 0);
-+	reg = info->rpull_cfg_a + bit / 8;
- 	mask = ADP5585_Rx_PULL_CFG_MASK << (bit % 8);
- 	val = bias << (bit % 8);
- 
-@@ -119,22 +171,22 @@ static int adp5585_gpio_set_bias(struct adp5585_gpio_dev *adp5585_gpio,
- static int adp5585_gpio_set_drive(struct adp5585_gpio_dev *adp5585_gpio,
- 				  unsigned int off, enum pin_config_param drive)
- {
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	unsigned int bit = adp5585_gpio->info->bit(off);
- 
- 	return regmap_update_bits(adp5585_gpio->regmap,
--				  ADP5585_GPO_OUT_MODE_A + bank, bit,
-+				  info->gpo_out_a + info->bank(off), bit,
- 				  drive == PIN_CONFIG_DRIVE_OPEN_DRAIN ? bit : 0);
- }
- 
- static int adp5585_gpio_set_debounce(struct adp5585_gpio_dev *adp5585_gpio,
- 				     unsigned int off, unsigned int debounce)
- {
--	unsigned int bank = ADP5585_BANK(off);
--	unsigned int bit = ADP5585_BIT(off);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	unsigned int bit = adp5585_gpio->info->bit(off);
- 
- 	return regmap_update_bits(adp5585_gpio->regmap,
--				  ADP5585_DEBOUNCE_DIS_A + bank, bit,
-+				  info->debounce_dis_a + info->bank(off), bit,
- 				  debounce ? 0 : bit);
- }
- 
-@@ -175,6 +227,7 @@ static int adp5585_gpio_set_config(struct gpio_chip *chip, unsigned int off,
- static int adp5585_gpio_probe(struct platform_device *pdev)
- {
- 	struct adp5585_dev *adp5585 = dev_get_drvdata(pdev->dev.parent);
-+	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	struct adp5585_gpio_dev *adp5585_gpio;
- 	struct device *dev = &pdev->dev;
- 	struct gpio_chip *gc;
-@@ -186,6 +239,10 @@ static int adp5585_gpio_probe(struct platform_device *pdev)
- 
- 	adp5585_gpio->regmap = adp5585->regmap;
- 
-+	adp5585_gpio->info = (const struct adp5585_gpio_chip *)id->driver_data;
-+	if (!adp5585_gpio->info)
-+		return -ENODEV;
++  adi,reset1-events:
++    description:
++      Defines the trigger events (key/gpi presses) that can generate reset
++      conditions one the reset1 block.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    minItems: 1
++    maxItems: 3
 +
- 	device_set_of_node_from_dev(dev, dev->parent);
- 
- 	gc = &adp5585_gpio->gpio_chip;
-@@ -199,7 +256,7 @@ static int adp5585_gpio_probe(struct platform_device *pdev)
- 	gc->can_sleep = true;
- 
- 	gc->base = -1;
--	gc->ngpio = ADP5585_GPIO_MAX;
-+	gc->ngpio = adp5585_gpio->info->max_gpio;
- 	gc->label = pdev->name;
- 	gc->owner = THIS_MODULE;
- 
-@@ -211,8 +268,34 @@ static int adp5585_gpio_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct adp5585_gpio_chip adp5585_gpio_chip_info = {
-+	.bank = adp5585_gpio_bank,
-+	.bit = adp5585_gpio_bit,
-+	.debounce_dis_a = ADP5585_DEBOUNCE_DIS_A,
-+	.rpull_cfg_a = ADP5585_RPULL_CONFIG_A,
-+	.gpo_data_a = ADP5585_GPO_DATA_OUT_A,
-+	.gpo_out_a = ADP5585_GPO_OUT_MODE_A,
-+	.gpio_dir_a = ADP5585_GPIO_DIRECTION_A,
-+	.gpi_stat_a = ADP5585_GPI_STATUS_A,
-+	.max_gpio = ADP5585_PIN_MAX,
-+	.has_bias_hole = true,
-+};
++  adi,reset2-events:
++    description:
++      Defines the trigger events (key/gpi presses) that can generate reset
++      conditions one the reset2 block.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    minItems: 1
++    maxItems: 2
 +
-+static const struct adp5585_gpio_chip adp5589_gpio_chip_info = {
-+	.bank = adp5589_gpio_bank,
-+	.bit = adp5589_gpio_bit,
-+	.debounce_dis_a = ADP5589_DEBOUNCE_DIS_A,
-+	.rpull_cfg_a = ADP5589_RPULL_CONFIG_A,
-+	.gpo_data_a = ADP5589_GPO_DATA_OUT_A,
-+	.gpo_out_a = ADP5589_GPO_OUT_MODE_A,
-+	.gpio_dir_a = ADP5589_GPIO_DIRECTION_A,
-+	.gpi_stat_a = ADP5589_GPI_STATUS_A,
-+	.max_gpio = ADP5589_PIN_MAX,
-+};
++  adi,reset1-active-high:
++    description: Sets the reset1 signal as active high.
++    type: boolean
 +
- static const struct platform_device_id adp5585_gpio_id_table[] = {
--	{ "adp5585-gpio" },
-+	{ "adp5585-gpio", (kernel_ulong_t)&adp5585_gpio_chip_info },
-+	{ "adp5589-gpio", (kernel_ulong_t)&adp5589_gpio_chip_info },
- 	{ /* Sentinel */ }
- };
- MODULE_DEVICE_TABLE(platform, adp5585_gpio_id_table);
-diff --git a/include/linux/mfd/adp5585.h b/include/linux/mfd/adp5585.h
-index a20aa435100aaccb5ed22910933e1856409ba397..df352e39bfd62a17c39b52b0291b18ac4d047d69 100644
---- a/include/linux/mfd/adp5585.h
-+++ b/include/linux/mfd/adp5585.h
-@@ -107,23 +107,23 @@
- 
- #define ADP5585_MAX_REG			ADP5585_INT_EN
- 
--/*
-- * Bank 0 covers pins "GPIO 1/R0" to "GPIO 6/R5", numbered 0 to 5 by the
-- * driver, and bank 1 covers pins "GPIO 7/C0" to "GPIO 11/C4", numbered 6 to
-- * 10. Some variants of the ADP5585 don't support "GPIO 6/R5". As the driver
-- * uses identical GPIO numbering for all variants to avoid confusion, GPIO 5 is
-- * marked as reserved in the device tree for variants that don't support it.
-- */
--#define ADP5585_BANK(n)			((n) >= 6 ? 1 : 0)
--#define ADP5585_BIT(n)			((n) >= 6 ? BIT((n) - 6) : BIT(n))
-+#define ADP5585_PIN_MAX			11
- 
- /* ADP5589 */
- #define		ADP5589_MAN_ID_VALUE		0x10
-+#define ADP5589_GPI_STATUS_A		0x16
- #define ADP5589_GPI_STATUS_C		0x18
-+#define ADP5589_RPULL_CONFIG_A		0x19
-+#define ADP5589_DEBOUNCE_DIS_A		0x27
-+#define ADP5589_GPO_DATA_OUT_A		0x2a
-+#define ADP5589_GPO_OUT_MODE_A		0x2d
-+#define		ADP5589_GPIO_DIRECTION_A	0x30
- #define ADP5589_PIN_CONFIG_D		0x4C
- #define ADP5589_INT_EN			0x4e
- #define ADP5589_MAX_REG			ADP5589_INT_EN
- 
-+#define ADP5589_PIN_MAX			19
++  adi,reset2-active-high:
++    description: Sets the reset2 signal as active high.
++    type: boolean
 +
- struct regmap;
++  adi,rst-passthrough-enable:
++    description: Allows the RST pin to override (OR with) the reset1 signal.
++    type: boolean
++
++  adi,reset-trigger-ms:
++    description:
++      Defines the length of time that the reset events must be active before a
++      reset signal is generated. All events must be active at the same time for
++      the same duration.
++    enum: [0, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
++    default: 0
++
++  adi,reset-pulse-width-us:
++    description: Defines the pulse width of the reset signals.
++    enum: [500, 1000, 2000, 10000]
++    default: 500
++
+ patternProperties:
+   "-hog(-[0-9]+)?$":
+     type: object
+@@ -56,11 +134,28 @@ patternProperties:
+     required:
+       - gpio-hog
  
- enum adp5585_variant {
++dependencies:
++  linux,keymap:
++    - adi,keypad-pins
++    - interrupts
++  interrupt-controller:
++    - interrupts
++  adi,unlock-trigger-sec:
++    - adi,unlock-events
++  adi,reset1-active-high:
++    - adi,reset1-events
++  adi,rst-passtrough-enable:
++    - adi,reset1-events
++  adi,reset2-active-high:
++    - adi,reset2-events
++
+ required:
+   - compatible
+   - reg
+ 
+ allOf:
++  - $ref: /schemas/input/matrix-keymap.yaml#
++  - $ref: /schemas/input/input.yaml#
+   - if:
+       properties:
+         compatible:
+@@ -68,8 +163,29 @@ allOf:
+             const: adi,adp5585-01
+     then:
+       properties:
++        adi,unlock-events: false
++        adi,unlock-trigger-sec: false
+         gpio-reserved-ranges: false
+-
++        adi,keypad-pins:
++          minItems: 2
++          maxItems: 11
++          items:
++            minimum: 0
++            maximum: 10
++        adi,reset1-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 30
++              - minimum: 37
++                maximum: 47
++        adi,reset2-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 30
++              - minimum: 37
++                maximum: 47
+   - if:
+       properties:
+         compatible:
+@@ -81,6 +197,25 @@ allOf:
+               - adi,adp5585-04
+     then:
+       properties:
++        adi,unlock-events: false
++        adi,unlock-trigger-sec: false
++        adi,keypad-pins:
++          minItems: 2
++          maxItems: 10
++          items:
++            enum: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10]
++        adi,reset1-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 25
++              - enum: [37, 38, 39, 40, 41, 43, 44, 45, 46, 47]
++        adi,reset2-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 25
++              - enum: [37, 38, 39, 40, 41, 43, 44, 45, 46, 47]
+         gpio-reserved-ranges:
+           maxItems: 1
+           items:
+@@ -99,11 +234,33 @@ allOf:
+     then:
+       properties:
+         gpio-reserved-ranges: false
++        adi,keypad-pins:
++          minItems: 2
++          maxItems: 19
++          items:
++            minimum: 0
++            maximum: 18
++        adi,reset1-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 88
++              - minimum: 97
++                maximum: 115
++        adi,reset2-events:
++          items:
++            anyOf:
++              - minimum: 1
++                maximum: 88
++              - minimum: 97
++                maximum: 115
+ 
+-additionalProperties: false
++unevaluatedProperties: false
+ 
+ examples:
+   - |
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
+     i2c {
+         #address-cells = <1>;
+         #size-cells = <0>;
+@@ -119,6 +276,33 @@ examples:
+             gpio-reserved-ranges = <5 1>;
+ 
+             #pwm-cells = <3>;
++
++            interrupts = <16 IRQ_TYPE_EDGE_FALLING>;
++            interrupt-parent = <&gpio>;
++
++            adi,reset1-events = <1 43>;
++            adi,reset2-events = <2 3>;
++            adi,reset-trigger-ms = <2000>;
++
++            /*
++             * col0, col1, col2
++             * row0, row1, row2
++             */
++            adi,keypad-pins = <0 1 2 6 7 8>;
++
++            linux,keymap = <
++                MATRIX_KEY(0x00, 0x00, KEY_1)
++                MATRIX_KEY(0x00, 0x01, KEY_2)
++                MATRIX_KEY(0x00, 0x02, KEY_3)
++
++                MATRIX_KEY(0x01, 0x00, KEY_A)
++                MATRIX_KEY(0x01, 0x01, KEY_B)
++                MATRIX_KEY(0x01, 0x02, KEY_C)
++
++                MATRIX_KEY(0x02, 0x00, BTN_1)
++                MATRIX_KEY(0x02, 0x01, BTN_2)
++                MATRIX_KEY(0x02, 0x02, BTN_3)
++            >;
+         };
+     };
+ 
 
 -- 
 2.49.0

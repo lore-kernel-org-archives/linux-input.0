@@ -1,191 +1,107 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B202B22B59D;
-	Wed, 21 May 2025 10:06:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A202AE90;
+	Wed, 21 May 2025 13:03:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747821962; cv=none; b=qF6qi8pGZaQZ0tapH4BhMNOVcUfMdSWpAOl7mQTbLaJFyF7fxbqJ5w57Q7QVfaqoy7JuHp4QcYvabt/8zkcULwskmDm1EcJSeESouKIYUhCYI803DMKpfW7r+yCNLYdFqscR5DlpqCPkolLNA8INgnTGOVye8TNfVs8o8kykCXE=
+	t=1747832588; cv=none; b=RfNXbpQ6cNoL5w5o+z9d9rosNSdKQhMFOrqNIZiVOTokYAfKhX3B7uHBDJoZ7AUd1DnFRc2+nj5fttzib++KyGOL2A90+BQG+Fh41TKAulj1+Jt8zdbm28cnkgkZGzO5QiInFNgIbMkaqutD1R0mn5G/TeNuYBfb3bvRIjqqYws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747821962; c=relaxed/simple;
-	bh=rgpHS6odt8O+9cVHLbseHNc02b3rzGap9plTyMx3efM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=XteMS7gVm405fmfOb3jTmf2dzBJ3646htsR2Zw13IGIgcs81UFU6Vz3VABoUzgxJSVIF1Em8lHlPAesZbo+poAYsdl/sb9c0SQePpNJ+EJC+Ir5D8VoaDS2/F8LwieMzzG/w6uFZTZXthrjEJiJA/fr1UOXd++D5QZRcPE2DQBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RJvVViyn; arc=none smtp.client-ip=209.85.221.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747832588; c=relaxed/simple;
+	bh=GBi36R9hW0zw2IkpPUS+VIpfCR1bDRxMW6EOkIPpIRE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=dPcIq4EOEml3FseG9d4LJ2Zm4JhBLkx2DIaBZe4wPmGW43CnlG0RmfIHfs//Gg1D+QE9iV5hKU5YDv+A/0w0h/3X+GrRkD6K2y5EPqmbSdx8l+5Iu1JohofUY/KozVWLi616/mOGxT7Pxnat2A7XcIfWWlyWoemuwgrOcgHWGr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VK+iVQ+B; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RJvVViyn"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-3a376ba6f08so1642784f8f.1;
-        Wed, 21 May 2025 03:06:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747821959; x=1748426759; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=TTIuF48hT1VIO+kFRM3ZksKoxyuQX1QYGQQ1D+1eNgo=;
-        b=RJvVViynb5vw8oj25KbGKWqR4VicHpQdp1e8HDJkOF6d0DNtB/exqD9t/I9FTdlpS6
-         fcvCIKYBTlOpGBQWpVlnncMk/YquGJsfIhHXw19GuSHApqeVjrF/uIKqdmgT2OWt+LL2
-         K2eZrAQqq2U1+3c8oMMUe7fGFzz6xkLv1ps+3eXDG8ZaxHyy53Dr0wqzSuMZoyOb4DR5
-         kc1sp4EXaLsbFP5COkoEmuEfXvKCfrDvwhqr4f8ofhQFxD8SHWuoHdGN6YeJiyC5gtY5
-         iPJ7y43CZBhSAQh1gNWjyMGKeT+et/76nx86ABVfJCCBCiVIDqIFMnj6Ue4uoHV9Rn73
-         tg9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747821959; x=1748426759;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=TTIuF48hT1VIO+kFRM3ZksKoxyuQX1QYGQQ1D+1eNgo=;
-        b=iieLHu8uTEZ9mbawg4+t4KKMYZW+H0kMvuK0lHrCEyv1XKGUUHOl/uyq0q6pty8MRt
-         clfY0AIwSWynFBigAXAJrvSZo80xwcQVO2oatGc+YfCm+rCdN1YGJx6lE8+6ZOfVfLU0
-         H0f/J8ngdE+OqboqYmxPH1K4QXtvNEai/QpYe0X47tAOYZ8vKcm2pExUycfRQd/cz/PD
-         hj7NSaXMwZdneLVTbXgmrMPCDMoM2utHIl+3R0fgPYRK/sc0mYQkpiAuFaGJz0LHhPVO
-         Uo7bFEsEFXzr+uVVLWQGWxs4CBk+aNtIqDLI8jMQbKVB1rBpRWGQhpt/d3mhsQ4UiXrO
-         N3aw==
-X-Forwarded-Encrypted: i=1; AJvYcCUm4Y+OAvLacYtQwVgRku+LGuv0usGz8+3P/kbSD/rgDiFVPqjkn0WChjAfeUMfgiiVeQ8dCPWodk52@vger.kernel.org, AJvYcCVWUtkLLaFFwo1tMwZXp77girs7ddJfSiuKx8/du1F+vOmh0pHKMYFitSod76PHDGtMuK7A2q7xNhKIBw==@vger.kernel.org, AJvYcCX0PAtLkEPa9SqoXnkn28lChTuXtFbbfD9+TD+vKSbapMtaybw1nWWn5uJtdDsG7vynZPhP95A0/HsrOV0=@vger.kernel.org, AJvYcCXuj3wCA4HGzyilYRrSyWdA9RvnjHChcDD3yrtpWf2YPezkIkjr1qIRsmtEZPk6LTIPjOa+98GVNupq@vger.kernel.org
-X-Gm-Message-State: AOJu0YwdwYveNtWf/Kk7ZIVOk0b2SNKlOaVtitDRqLQvn3BCDa9xRw/O
-	5JNcb7AtkPubJhnDEihL4qy7A76aPj3ylVurwujX4phgUQoPyflBnL+QYYwFhTJR
-X-Gm-Gg: ASbGncvlHJzp/rcYQmJ1o1l7w3LC7EB30lU883pzVskU0IxuoOaq9pZEVPZYp7M7AHy
-	oKFa+FaaEiwwYAi52bvFjQCz8ALexb+bqe4mIotbI923Yf0R1BB01deRimFl2WqhIRnCEg1y4M5
-	Y0mlrkgDaTf9r+xtfkLDQ6E0Tn7HQ7g/4Anhtd7SLsg0sZNqVSx7R+7kc7jRUKoHRP97kqFPoar
-	J5NI5N4RVaiJ/0PRCR7ENOskLapSnS4l+r77BtxjJ58vcdiVBcq+0KfjdofFYJXF2jxxY9776N8
-	OVlZfv3GyCOXLS0C6GehQV5Hn1NdsbDHrRjZ59Ogfo7S4Cgtw1jl5av/9k2Rvg==
-X-Google-Smtp-Source: AGHT+IGqJqjO1k+2GagPj1k1t5vNX5vNx9TGKCAwGHi6OPzScOjdKZTJ+ivLGE03x/gUNfxSIiq3Vg==
-X-Received: by 2002:a5d:64e8:0:b0:3a3:76f5:3b0d with SMTP id ffacd0b85a97d-3a376f53b87mr7693575f8f.57.1747821958734;
-        Wed, 21 May 2025 03:05:58 -0700 (PDT)
-Received: from [10.5.0.2] ([185.174.156.4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a36a83b63bsm13356757f8f.97.2025.05.21.03.05.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 May 2025 03:05:58 -0700 (PDT)
-Message-ID: <497d549b6d055cf6402a9777c1295f5415174c86.camel@gmail.com>
-Subject: Re: [PATCH v3 17/22] Input: adp5585: Add Analog Devices ADP5585/89
- support
-From: Nuno =?ISO-8859-1?Q?S=E1?= <noname.nuno@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: nuno.sa@analog.com, linux-gpio@vger.kernel.org,
- linux-pwm@vger.kernel.org, 	devicetree@vger.kernel.org,
- linux-input@vger.kernel.org, Lee Jones <lee@kernel.org>,  Rob Herring
- <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>,  Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=	
- <ukleinek@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz
- Golaszewski <brgl@bgdev.pl>, Laurent Pinchart
- <laurent.pinchart@ideasonboard.com>, Liu Ying	 <victor.liu@nxp.com>
-Date: Wed, 21 May 2025 11:06:00 +0100
-In-Reply-To: <j2zueeyfq2mkr56b5pauektzqwfmo4ob32fcb7r5oavwdunsab@6knd5a6raaef>
-References: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
-	 <20250512-dev-adp5589-fw-v3-17-092b14b79a88@analog.com>
-	 <gdhn57zkmt5fyq33qsvdbpq3k7ofzycm24ligd3hw2cwdqkn5y@z4sk2arp6ssn>
-	 <0b17ac3e9de55715fe1cd5f836a87664ae6161dd.camel@gmail.com>
-	 <j2zueeyfq2mkr56b5pauektzqwfmo4ob32fcb7r5oavwdunsab@6knd5a6raaef>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.1 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VK+iVQ+B"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 533ACC4CEF4;
+	Wed, 21 May 2025 13:03:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747832588;
+	bh=GBi36R9hW0zw2IkpPUS+VIpfCR1bDRxMW6EOkIPpIRE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=VK+iVQ+BARGs4fUC6x5sAVWfYKaStqU6IU5+KQD1DuNt3t6KIdx7qqSBby7kmW0Rc
+	 hu2ncNDqiNlqFl3LLrCc/i0ZuCiptVaZUH8wkM/4njydq02cMMtBEFyr8KVXuRs2xQ
+	 dTdyYvRBgGJVdSATiJtvgbcsFJBInRWCvKFz/MRhBT2HqQhfUlvnGNWutqeDACzeYj
+	 fOWPiAev8uEVvB5JaM7vH8wQ7BKRC6Fn+AGxyuemBjZdrbS7Ht/dn5eBy1gJu2bNXV
+	 Hay6SIWyKAXaLZ27s8mcRRpD0PYBubedfcwWo7thxkzSennDHtLwG+TlYXkKx8JexD
+	 Y4FwtV5xlIJvQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A7CBC3ABC9;
+	Wed, 21 May 2025 13:03:08 +0000 (UTC)
+From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
+Date: Wed, 21 May 2025 14:02:54 +0100
+Subject: [PATCH v4 04/20] mfd: adp5585: make use of MFD_CELL_NAME()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20250521-dev-adp5589-fw-v4-4-f2c988d7a7a0@analog.com>
+References: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
+In-Reply-To: <20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com>
+To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Linus Walleij <linus.walleij@linaro.org>, 
+ Bartosz Golaszewski <brgl@bgdev.pl>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+ Liu Ying <victor.liu@nxp.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747832588; l=959;
+ i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
+ bh=lWJD4WSbbbXIDQFlsGUw2j1/tWcmQ+L/pW1P3Qzf3s8=;
+ b=tqGyHpFbEEb9Uo/27+9LFnSapZV5D01DxD02izZ0O4nhV/HenPk3GHL8uiSotuzWyWNqCTQhH
+ XzCBGm/25K4CZwMfrr37amYMxIEuxvXvXuUE+g8rLR3NAJqCdxpWr15
+X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
+ pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
+X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
+ auth_id=100
+X-Original-From: =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
+Reply-To: nuno.sa@analog.com
 
-On Tue, 2025-05-20 at 11:33 -0700, Dmitry Torokhov wrote:
-> On Tue, May 20, 2025 at 09:32:53AM +0100, Nuno S=C3=A1 wrote:
-> > On Mon, 2025-05-19 at 15:29 -0700, Dmitry Torokhov wrote:
-> > > Hi Nuno,
-> > >=20
-> > > On Mon, May 12, 2025 at 01:39:09PM +0100, Nuno S=C3=A1 via B4 Relay w=
-rote:
-> > > > +
-> > > > +	for (pin =3D 0; pin < n_pins; pin++) {
-> > > > +		if (keypad_pins[pin] >=3D adp5585->info->n_pins) {
-> > > > +			error =3D dev_err_probe(dev, -EINVAL,
-> > > > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 "Invalid keypad pin(%u)
-> > > > defined\n",
-> > > > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 keypad_pins[pin]);
-> > > > +			goto out_free_map;
-> > > > +		}
-> > > > +
-> > > > +		if (test_and_set_bit(keypad_pins[pin], adp5585-
-> > > > >pin_usage))
-> > > > {
-> > > > +			error =3D dev_err_probe(dev, -EBUSY,
-> > > > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 "Keypad pin(%u) already
-> > > > used\n",
-> > > > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 keypad_pins[pin]);
-> > > > +			goto out_free_map;
-> > >=20
-> > > This jump looked confusing, together with devm, etc. I wonder, can yo=
-u
-> > > move call to devm_add_action_or_reset() before the loop? It looks lik=
-e
-> > > it should handle completely unpopulated pin map just fine...=20
-> >=20
-> > Seemed the logical way but I agree that what you suggest makes it more
-> > simpler.
-> >=20
-> > >=20
-> > > > +		}
-> > > > +
-> > > > +		__set_bit(keypad_pins[pin], &kpad->keypad);
-> > > > +	}
-> > > > +
-> > > > +	error =3D devm_add_action_or_reset(dev, adp5585_keys_pins_free,
-> > > > kpad);
-> > > > +	if (error)
-> > > > +		return error;
-> > > > +
-> > > > +	/*
-> > > > +	 * Note that given that we get a mask (and the HW allows it),
-> > > > we
-> > > > +	 * can have holes in our keypad (eg: row0, row1 and row7
-> > > > enabled).
-> > > > +	 * However, for the matrix parsing functions we need to pass
-> > > > the
-> > > > +	 * number of rows/cols as the maximum row/col used plus 1. This
-> > > > +	 * pretty much means we will also have holes in our SW keypad.
-> > > > +	 */
-> > > > +
-> > > > +	rows =3D find_last_bit(&kpad->keypad, kpad->info->max_rows) + 1;
-> > > > +	if (rows =3D=3D kpad->info->max_rows + 1)
-> > > > +		return dev_err_probe(dev, -EINVAL,
-> > > > +				=C2=A0=C2=A0=C2=A0=C2=A0 "Now rows defined in the
-> > > > keypad!\n");
-> > > > +
-> > > > +	cols =3D find_last_bit(&kpad->keypad, kpad->info->max_cols +
-> > > > kpad-
-> > > > > info->max_rows);
-> > > > +	if (cols < kpad->info->max_rows)
-> > > > +		return dev_err_probe(dev, -EINVAL,
-> > > > +				=C2=A0=C2=A0=C2=A0=C2=A0 "No columns defined in the
-> > > > keypad!\n");
-> > > > +
-> > > > +	cols =3D cols + 1 - kpad->info->max_rows;
-> > > > +
-> > > > +	error =3D matrix_keypad_build_keymap(NULL, NULL, rows, cols,
-> > > > +					=C2=A0=C2=A0 kpad->keycode, kpad->input);
-> > > > +	if (error)
-> > > > +		return error;
-> > > > +
-> > > > +	kpad->row_shift =3D get_count_order(cols);
-> > > > +
-> > > > +	if (device_property_read_bool(kpad->dev, "autorepeat"))
-> > > > +		__set_bit(EV_REP, kpad->input->evbit);
-> > > > +
-> > > > +	return adp5585_keys_check_special_events(adp5585, kpad);
-> > >=20
-> > > 	error =3D adp5585_keys_check_special_events(...);
-> > > 	if (error)
-> > > 		return error;
-> >=20
-> > Curious, any special reason for the above? Or is just personal preferen=
-ce?
->=20
-> More of a personal preference, however there is some logic to it ;) -=20
-> in a function with multiple failure/return points such form allows for
-> easy addition and/or movement of the code.
->=20
-> Thanks.
+From: Nuno Sá <nuno.sa@analog.com>
 
-I get your point. Honestly still prefer returning right away but no strong
-feelings anyways. I'll change it.
+Use the helper macro. No functional change intended...
 
-- Nuno S=C3=A1
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+---
+ drivers/mfd/adp5585.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
+index f3b74f7d6040413d066eb6dbaecfa3d5e6ee06bd..179dc284833ae8f39eefc6787dd2c7158dfd3ad7 100644
+--- a/drivers/mfd/adp5585.c
++++ b/drivers/mfd/adp5585.c
+@@ -4,6 +4,7 @@
+  *
+  * Copyright 2022 NXP
+  * Copyright 2024 Ideas on Board Oy
++ * Copyright 2025 Analog Devices Inc.
+  */
+ 
+ #include <linux/array_size.h>
+@@ -24,8 +25,8 @@ enum {
+ };
+ 
+ static const struct mfd_cell adp5585_devs[ADP5585_DEV_MAX] = {
+-	{ .name = "adp5585-gpio", },
+-	{ .name = "adp5585-pwm", },
++	MFD_CELL_NAME("adp5585-gpio"),
++	MFD_CELL_NAME("adp5585-pwm"),
+ };
+ 
+ static const struct regmap_range adp5585_volatile_ranges[] = {
+
+-- 
+2.49.0
+
+

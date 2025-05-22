@@ -1,37 +1,38 @@
 Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F00433DB;
-	Thu, 22 May 2025 12:06:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21608289E35;
+	Thu, 22 May 2025 12:06:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747915608; cv=none; b=DPIkNYJGsyN43Eh/XLp0zYjj76nhFgWgFdztTX/DpVbrer9pVEzNSEzNr2VHDjsO2cfGypHHSCuFbdFnGUmSgJ6WUW6dZ3UWjy5qXq0K6qtGMj6jZKKGqlNxOf5tsX54mU+IzsJqnGH0EcvQAwWjzg+mgZLwOs+o115m0Mnxqkk=
+	t=1747915609; cv=none; b=uMVDZoSdblotiD+UI5jvZ0VVBFb4g2hPMfffzmbhKSG2qx1Ov3wSuXNTx2kSVJYHG5XvWNmhekqh3aGwfMlUIv1KDlSEZnN2Ll6rZrMjnx+FOvtofgUbzbfJs8NcvN+LH7nlZi0AhzRPKizsNyuE/h/X5BMa7WQZTbSugEYuEzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747915608; c=relaxed/simple;
-	bh=sarlfpjmwco1wBVRTTBDateodZuUqAOn115Z368wacc=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Vk+N3klDSzCUR4eA8brmEmE72mm6WEBTOnRho8dJzUmsFHyf5D1c/UIuA7J4k9U2m4S6VfyksfC8shQnn66mJDyoslVNdQ/kDVnP8vW3ySNOYX1/aMfHX6uH8FTEIS8UX9OZeuW0I+q007hhL0nVS56/YZ1vWOwKGCYxy3jtIxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=RulxBa0V; arc=none smtp.client-ip=217.70.183.195
+	s=arc-20240116; t=1747915609; c=relaxed/simple;
+	bh=+akmWLW9op4JgcAuyMt43ym335BurNgd31VfijKCylU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=cf08Ra5GyYpnQ7mRgjTjd0iDPVHs3eWFioIpn/kPqk/xd4U1ukefzBwis3pT94rBM23poeVagWontWUaBDrFJl28kxKDpGOuZ+7QQfqzgUlG5LYrdiAnQnL/1S60N9fg+91VQqUvqgmRYiPXIEVOByv6akMEXIqFxngCX6qqLTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=WAaSN1K5; arc=none smtp.client-ip=217.70.183.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="RulxBa0V"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id F37851FD48;
-	Thu, 22 May 2025 12:06:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="WAaSN1K5"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 8BD761FCF3;
+	Thu, 22 May 2025 12:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1747915603;
+	t=1747915605;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=xa4FngajQSj/KFbgvgvpRtuRSkbY6yfLKj4dHrHeIRM=;
-	b=RulxBa0Vyjqc+owdBmdIBHviKcMau7F2yIpvEe6hhlPszwIbm9rs2atFMOyI/Z1w6knrTT
-	QnLHZ8NvzZhkPqmFHAJof6vnsbyrTnMTsqdSW0mDhf8X9Ol9oG2Mh97j2i+/nOrwexPyfa
-	9fiLgK4mbkutselTmId4z6TE9F9X2CHh5a0Qo7GRS/ddTgc2AULQyCKY+CzNHk46MueVPy
-	VkVcAPLTdyTS+EyMoABElqhUgVq5x/iT8uhXKWsvpF4SaUeLLMm1d/iEpIX02D9EWfbefi
-	qrd6TfagA74EXjlUsFTNSHgshVBPncGkUkzlstP42PqxkDLF95k1PvKiZoEGCA==
-From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Subject: [PATCH v9 00/11] Add support for MAX7360
-Date: Thu, 22 May 2025 14:06:15 +0200
-Message-Id: <20250522-mdb-max7360-support-v9-0-74fc03517e41@bootlin.com>
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ez+JrwG7KQaKCryUKW2Ux1EEekY5LyIMC3ab9jmtyTA=;
+	b=WAaSN1K5avokAdNhiKr2y088bxS679O/CyuptTMkNsAr6hs4ZnTuUKwWFKkqE4g+Hu7drX
+	MsWMxdhCdyOruYyvvCk+Qo6Sk6x9IsXIxp3r+YoX569/zj1ldSSjFnvszt++yxyAqy6DBX
+	PWELSF7V4aozhkdj0a5mcQo8ZRA4VVP3m+KmXAt6eJaFqQmS6SGrSjBrfYAwDDlYACD5Lh
+	X4Rt8EkMTi3TGUy2Hj1cHyeN2k/wAjSeHwakByhd79mhrWgUj4kH5x+8e95Ik29X/JD01N
+	uEY99z4gNuv1ZRn0O2hxcFlspM36CiKVGO9HrQnxrMIJT9lnjlHfd+0jaq/8sQ==
+From: mathieu.dubois-briand@bootlin.com
+Date: Thu, 22 May 2025 14:06:17 +0200
+Subject: [PATCH v9 02/11] mfd: Add max7360 support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,12 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIADcTL2gC/33QTW7DIBAF4KtErEsFM/x21XtUXTCAG6Q6juzUS
- hX57sWRKqey3eVD8M0bbmzIfckDezncWJ/HMpTuVIN/OrB4DKePzEuqmYEAJUF63ibibbhaNII
- PX+dz1184AAYXs9IUkNWX5z435XpX395rPpbh0vXf9yGjnE//90bJBXfZobTazddeqesun+X0H
- LuWzeIIDwrgtgJVQRtcAohoclor+KtoIeWOglXxWnpSIZKgjS5qUUCqbUXNGwXU0SQib8xa0Yu
- C0m0ruioNgaDQeJuCWCtmUZTY+V1TFRtAo3bWZPRrxT4osNPFVkVlYYRLItimWStuUfReF1cVo
- qycaQxFsn+VaZp+AGU3+qeiAgAA
+Message-Id: <20250522-mdb-max7360-support-v9-2-74fc03517e41@bootlin.com>
+References: <20250522-mdb-max7360-support-v9-0-74fc03517e41@bootlin.com>
+In-Reply-To: <20250522-mdb-max7360-support-v9-0-74fc03517e41@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -62,151 +60,365 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-pwm@vger.kernel.org, andriy.shevchenko@intel.com, 
  =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, 
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+ Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747915601; l=6039;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747915601; l=10501;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=sarlfpjmwco1wBVRTTBDateodZuUqAOn115Z368wacc=;
- b=qHEGL0EaoRkPoiIasJEM9p1K3SVTVHGOE6/CuwcQq2BqVIDWYmzjyY/UlcZXEy9RiY/uc6jb3
- a4i5t1gZsHLDZQcq9bV0Hb5Yb6ViNKvkepfeAdKcqsRNxPJeJzVPrIV
+ bh=GIupl4p/k0jiBxoYEh+9yxR2yubWSq+A0Aa6KSuoV/k=;
+ b=IVTj5lraF9IyTaPG2KMn+7lucdNtOzEkrHWWQ9RfD4/B3n1yUMOHWG/FzPyQHkHsEmf45k9I7
+ i6BhEyzBGgJDMtV9Vg4fQhnj/r6vGfoLyLV05kEC33/0MXTKOo0V3lV
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddtgdehleduucdltddurdegfedvrddttddmucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhufffkfggtgfgvfevofesthejredtredtjeenucfhrhhomhepofgrthhhihgvuhcuffhusghoihhsqdeurhhirghnugcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpefhkeffueegvdekiefhfeejueeukeekgeegjeeghefgvdekveevvdekieetkeelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpddugedqrhgtvddrqdhlihhnkhenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeipdhhvghloheplgduvdejrddtrddurddungdpmhgrihhlfhhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvhedprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhin
- hhushdrfigrlhhlvghijheslhhinhgrrhhordhorhhgpdhrtghpthhtohepsghrohhonhhivgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghnughrihihrdhshhgvvhgthhgvnhhkoheslhhinhhugidrihhnthgvlhdrtghomhdprhgtphhtthhopehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopegumhhithhrhidrthhorhhokhhhohhvsehgmhgrihhlrdgtohhm
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddtgdehleduucdltddurdegfedvrddttddmucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhfffugggtgffkfhgjvfevofesthejredtredtjeenucfhrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhenucggtffrrghtthgvrhhnpeevheffteettefffeetvdelledttddthfevhffgleehfedvveduudfhhedugfelgeenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeipdhhvghloheplgduvdejrddtrddurddungdpmhgrihhlfhhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvfedprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhushdrfigrlhhlvghijheslhhinhgrrhhordhorhhgpdhrtghpthhtohepsghrohhonhhivgeskhgvrhhnvghlrdhorhhgpdhrtghpthhto
+ hepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdprhgtphhtthhopehthhhomhgrshdrphgvthgriiiiohhnihessghoohhtlhhinhdrtghomhdprhgtphhtthhopegsrhhglhessghguggvvhdrphhlpdhrtghpthhtohepughmihhtrhihrdhtohhrohhkhhhovhesghhmrghilhdrtghomhdprhgtphhtthhopeguvghvihgtvghtrhgvvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-This series implements a set of drivers allowing to support the Maxim
-Integrated MAX7360 device.
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-The MAX7360 is an I2C key-switch and led controller, with following
-functionalities:
-- Keypad controller for a key matrix of up to 8 rows and 8 columns.
-- Rotary encoder support, for a single rotary encoder.
-- Up to 8 PWM outputs.
-- Up to 8 GPIOs with support for interrupts and 6 GPOs.
+Add core driver to support MAX7360 i2c chip, multi function device
+with keypad, GPIO, PWM, GPO and rotary encoder submodules.
 
-Chipset pins are shared between all functionalities, so all cannot be
-used at the same time.
-
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Co-developed-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 ---
-Changes in v9:
-- Fix build issue with bad usage of array_size() on intermediate commit.
-- MFD: Fix error strings. Also fix #define style in the header file.
-- Pinctrl: Fix missing include.
-- PWM: Fix register writes in max7360_pwm_waveform() and
-  max7360_pwm_round_waveform_tohw().
-- GPIO: Fix GPIO valid mask initialization.
-- Link to v8: https://lore.kernel.org/r/20250509-mdb-max7360-support-v8-0-bbe486f6bcb7@bootlin.com
+ drivers/mfd/Kconfig         |  14 ++++
+ drivers/mfd/Makefile        |   1 +
+ drivers/mfd/max7360.c       | 171 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/max7360.h | 109 ++++++++++++++++++++++++++++
+ 4 files changed, 295 insertions(+)
 
-Changes in v8:
-- Small changes in drivers.
-- Rebased on v6.15-rc5
-- Link to v7: https://lore.kernel.org/r/20250428-mdb-max7360-support-v7-0-4e0608d0a7ff@bootlin.com
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 22b936310039..c2998c6ce54c 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -2422,5 +2422,19 @@ config MFD_UPBOARD_FPGA
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called upboard-fpga.
+ 
++config MFD_MAX7360
++	tristate "Maxim MAX7360 I2C IO Expander"
++	depends on I2C
++	select MFD_CORE
++	select REGMAP_I2C
++	select REGMAP_IRQ
++	help
++	  Say yes here to add support for Maxim MAX7360 device, embedding
++	  keypad, rotary encoder, PWM and GPIO features.
++
++	  This driver provides common support for accessing the device;
++	  additional drivers must be enabled in order to use the functionality
++	  of the device.
++
+ endmenu
+ endif
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 948cbdf42a18..add9ff58eb25 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -162,6 +162,7 @@ obj-$(CONFIG_MFD_DA9063)	+= da9063.o
+ obj-$(CONFIG_MFD_DA9150)	+= da9150-core.o
+ 
+ obj-$(CONFIG_MFD_MAX14577)	+= max14577.o
++obj-$(CONFIG_MFD_MAX7360)	+= max7360.o
+ obj-$(CONFIG_MFD_MAX77541)	+= max77541.o
+ obj-$(CONFIG_MFD_MAX77620)	+= max77620.o
+ obj-$(CONFIG_MFD_MAX77650)	+= max77650.o
+diff --git a/drivers/mfd/max7360.c b/drivers/mfd/max7360.c
+new file mode 100644
+index 000000000000..5ee459c490ec
+--- /dev/null
++++ b/drivers/mfd/max7360.c
+@@ -0,0 +1,171 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Maxim MAX7360 Core Driver
++ *
++ * Copyright 2025 Bootlin
++ *
++ * Authors:
++ *    Kamel Bouhara <kamel.bouhara@bootlin.com>
++ *    Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
++ */
++
++#include <linux/array_size.h>
++#include <linux/bits.h>
++#include <linux/delay.h>
++#include <linux/device/devres.h>
++#include <linux/dev_printk.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/mfd/core.h>
++#include <linux/mfd/max7360.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
++#include <linux/regmap.h>
++#include <linux/types.h>
++
++static const struct mfd_cell max7360_cells[] = {
++	{ .name           = "max7360-pinctrl" },
++	{ .name           = "max7360-pwm" },
++	{ .name           = "max7360-keypad" },
++	{ .name           = "max7360-rotary" },
++	{
++		.name           = "max7360-gpo",
++		.of_compatible	= "maxim,max7360-gpo",
++	},
++	{
++		.name           = "max7360-gpio",
++		.of_compatible	= "maxim,max7360-gpio",
++	},
++};
++
++static const struct regmap_range max7360_volatile_ranges[] = {
++	regmap_reg_range(MAX7360_REG_KEYFIFO, MAX7360_REG_KEYFIFO),
++	regmap_reg_range(MAX7360_REG_I2C_TIMEOUT, MAX7360_REG_RTR_CNT),
++};
++
++static const struct regmap_access_table max7360_volatile_table = {
++	.yes_ranges = max7360_volatile_ranges,
++	.n_yes_ranges = ARRAY_SIZE(max7360_volatile_ranges),
++};
++
++static const struct regmap_config max7360_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = MAX7360_REG_PWMCFG(MAX7360_PORT_PWM_COUNT - 1),
++	.volatile_table = &max7360_volatile_table,
++	.cache_type = REGCACHE_MAPLE,
++};
++
++static int max7360_mask_irqs(struct regmap *regmap)
++{
++	struct device *dev = regmap_get_device(regmap);
++	unsigned int val;
++	int ret;
++
++	/*
++	 * GPIO/PWM interrupts are not masked on reset: as the MAX7360 "INTI"
++	 * interrupt line is shared between GPIOs and rotary encoder, this could
++	 * result in repeated spurious interrupts on the rotary encoder driver
++	 * if the GPIO driver is not loaded. Mask them now to avoid this
++	 * situation.
++	 */
++	for (unsigned int i = 0; i < MAX7360_PORT_PWM_COUNT; i++) {
++		ret = regmap_write_bits(regmap, MAX7360_REG_PWMCFG(i),
++					MAX7360_PORT_CFG_INTERRUPT_MASK,
++					MAX7360_PORT_CFG_INTERRUPT_MASK);
++		if (ret)
++			return dev_err_probe(dev, ret,
++					     "Failed to write MAX7360 port configuration\n");
++	}
++
++	/* Read GPIO in register, to ACK any pending IRQ. */
++	ret = regmap_read(regmap, MAX7360_REG_GPIOIN, &val);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to read GPIO values\n");
++
++	return 0;
++}
++
++static int max7360_reset(struct regmap *regmap)
++{
++	struct device *dev = regmap_get_device(regmap);
++	int ret;
++
++	ret = regmap_write(regmap, MAX7360_REG_GPIOCFG, MAX7360_GPIO_CFG_GPIO_RST);
++	if (ret) {
++		dev_err(dev, "Failed to reset GPIO configuration: %x\n", ret);
++		return ret;
++	}
++
++	ret = regcache_drop_region(regmap, MAX7360_REG_GPIOCFG, MAX7360_REG_GPIO_LAST);
++	if (ret) {
++		dev_err(dev, "Failed to drop regmap cache: %x\n", ret);
++		return ret;
++	}
++
++	ret = regmap_write(regmap, MAX7360_REG_SLEEP, 0);
++	if (ret) {
++		dev_err(dev, "Failed to reset autosleep configuration: %x\n", ret);
++		return ret;
++	}
++
++	ret = regmap_write(regmap, MAX7360_REG_DEBOUNCE, 0);
++	if (ret)
++		dev_err(dev, "Failed to reset GPO port count: %x\n", ret);
++
++	return ret;
++}
++
++static int max7360_probe(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	struct regmap *regmap;
++	int ret;
++
++	regmap = devm_regmap_init_i2c(client, &max7360_regmap_config);
++	if (IS_ERR(regmap))
++		return dev_err_probe(dev, PTR_ERR(regmap), "Failed to initialise regmap\n");
++
++	ret = max7360_reset(regmap);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to reset device\n");
++
++	/* Get the device out of shutdown mode. */
++	ret = regmap_write_bits(regmap, MAX7360_REG_GPIOCFG,
++				MAX7360_GPIO_CFG_GPIO_EN,
++				MAX7360_GPIO_CFG_GPIO_EN);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to enable GPIO and PWM module\n");
++
++	ret = max7360_mask_irqs(regmap);
++	if (ret)
++		return dev_err_probe(dev, ret, "Could not mask interrupts\n");
++
++	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
++				   max7360_cells, ARRAY_SIZE(max7360_cells),
++				   NULL, 0, NULL);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to register child devices\n");
++
++	return 0;
++}
++
++static const struct of_device_id max7360_dt_match[] = {
++	{ .compatible = "maxim,max7360" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, max7360_dt_match);
++
++static struct i2c_driver max7360_driver = {
++	.driver = {
++		.name = "max7360",
++		.of_match_table = max7360_dt_match,
++	},
++	.probe = max7360_probe,
++};
++module_i2c_driver(max7360_driver);
++
++MODULE_DESCRIPTION("Maxim MAX7360 I2C IO Expander core driver");
++MODULE_AUTHOR("Kamel Bouhara <kamel.bouhara@bootlin.com>");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/mfd/max7360.h b/include/linux/mfd/max7360.h
+new file mode 100644
+index 000000000000..44cf2bf651a2
+--- /dev/null
++++ b/include/linux/mfd/max7360.h
+@@ -0,0 +1,109 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __LINUX_MFD_MAX7360_H
++#define __LINUX_MFD_MAX7360_H
++
++#include <linux/bits.h>
++
++#define MAX7360_MAX_KEY_ROWS		8
++#define MAX7360_MAX_KEY_COLS		8
++#define MAX7360_MAX_KEY_NUM		(MAX7360_MAX_KEY_ROWS * MAX7360_MAX_KEY_COLS)
++#define MAX7360_ROW_SHIFT		3
++
++#define MAX7360_MAX_GPIO		8
++#define MAX7360_MAX_GPO			6
++#define MAX7360_PORT_PWM_COUNT		8
++#define MAX7360_PORT_RTR_PIN		(MAX7360_PORT_PWM_COUNT - 1)
++
++/*
++ * MAX7360 registers
++ */
++#define MAX7360_REG_KEYFIFO		0x00
++#define MAX7360_REG_CONFIG		0x01
++#define MAX7360_REG_DEBOUNCE		0x02
++#define MAX7360_REG_INTERRUPT		0x03
++#define MAX7360_REG_PORTS		0x04
++#define MAX7360_REG_KEYREP		0x05
++#define MAX7360_REG_SLEEP		0x06
++
++/*
++ * MAX7360 GPIO registers
++ *
++ * All these registers are reset together when writing bit 3 of
++ * MAX7360_REG_GPIOCFG.
++ */
++#define MAX7360_REG_GPIOCFG		0x40
++#define MAX7360_REG_GPIOCTRL		0x41
++#define MAX7360_REG_GPIODEB		0x42
++#define MAX7360_REG_GPIOCURR		0x43
++#define MAX7360_REG_GPIOOUTM		0x44
++#define MAX7360_REG_PWMCOM		0x45
++#define MAX7360_REG_RTRCFG		0x46
++#define MAX7360_REG_I2C_TIMEOUT		0x48
++#define MAX7360_REG_GPIOIN		0x49
++#define MAX7360_REG_RTR_CNT		0x4A
++#define MAX7360_REG_PWMBASE		0x50
++#define MAX7360_REG_PWMCFGBASE		0x58
++
++#define MAX7360_REG_GPIO_LAST		0x5F
++
++#define MAX7360_REG_PWM(x)		(MAX7360_REG_PWMBASE + (x))
++#define MAX7360_REG_PWMCFG(x)		(MAX7360_REG_PWMCFGBASE + (x))
++
++/*
++ * Configuration register bits
++ */
++#define MAX7360_FIFO_EMPTY		0x3F
++#define MAX7360_FIFO_OVERFLOW		0x7F
++#define MAX7360_FIFO_RELEASE		BIT(6)
++#define MAX7360_FIFO_COL		GENMASK(5, 3)
++#define MAX7360_FIFO_ROW		GENMASK(2, 0)
++
++#define MAX7360_CFG_SLEEP		BIT(7)
++#define MAX7360_CFG_INTERRUPT		BIT(5)
++#define MAX7360_CFG_KEY_RELEASE		BIT(3)
++#define MAX7360_CFG_WAKEUP		BIT(1)
++#define MAX7360_CFG_TIMEOUT		BIT(0)
++
++#define MAX7360_DEBOUNCE		GENMASK(4, 0)
++#define MAX7360_DEBOUNCE_MIN		9
++#define MAX7360_DEBOUNCE_MAX		40
++#define MAX7360_PORTS			GENMASK(8, 5)
++
++#define MAX7360_INTERRUPT_TIME_MASK	GENMASK(4, 0)
++#define MAX7360_INTERRUPT_FIFO_MASK	GENMASK(7, 5)
++
++#define MAX7360_PORT_CFG_INTERRUPT_MASK		BIT(7)
++#define MAX7360_PORT_CFG_INTERRUPT_EDGES	BIT(6)
++#define MAX7360_PORT_CFG_COMMON_PWM		BIT(5)
++
++/*
++ * Autosleep register values
++ */
++#define MAX7360_AUTOSLEEP_8192MS	0x01
++#define MAX7360_AUTOSLEEP_4096MS	0x02
++#define MAX7360_AUTOSLEEP_2048MS	0x03
++#define MAX7360_AUTOSLEEP_1024MS	0x04
++#define MAX7360_AUTOSLEEP_512MS		0x05
++#define MAX7360_AUTOSLEEP_256MS		0x06
++
++#define MAX7360_GPIO_CFG_RTR_EN		BIT(7)
++#define MAX7360_GPIO_CFG_GPIO_EN	BIT(4)
++#define MAX7360_GPIO_CFG_GPIO_RST	BIT(3)
++
++#define MAX7360_ROT_DEBOUNCE		GENMASK(3, 0)
++#define MAX7360_ROT_DEBOUNCE_MIN	0
++#define MAX7360_ROT_DEBOUNCE_MAX	15
++#define MAX7360_ROT_INTCNT		GENMASK(6, 4)
++#define MAX7360_ROT_INTCNT_DLY		BIT(7)
++
++#define MAX7360_INT_INTI		0
++#define MAX7360_INT_INTK		1
++
++#define MAX7360_INT_GPIO		0
++#define MAX7360_INT_KEYPAD		1
++#define MAX7360_INT_ROTARY		2
++
++#define MAX7360_NR_INTERNAL_IRQS	3
++
++#endif
 
-Changes in v7:
-- Add rotary encoder absolute axis support in device tree bindings and
-  driver.
-- Lot of small changes in keypad, rotary encoder and GPIO drivers.
-- Rebased on v6.15-rc4
-- Link to v6: https://lore.kernel.org/r/20250409-mdb-max7360-support-v6-0-7a2535876e39@bootlin.com
-
-Changes in v6:
-- Rebased on v6.15-rc1.
-- Use device_set_of_node_from_dev() instead of creating PWM and Pinctrl
-  on parent device.
-- Various small fixes in all drivers.
-- Fix pins property pattern in pinctrl dt bindings.
-- Link to v5: https://lore.kernel.org/r/20250318-mdb-max7360-support-v5-0-fb20baf97da0@bootlin.com
-
-Changes in v5:
-- Add pinctrl driver to replace the previous use of request()/free()
-  callbacks for PORT pins.
-- Remove ngpios property from GPIO device tree bindings.
-- Use GPIO valid_mask to mark unusable keypad columns GPOs, instead of
-  changing ngpios.
-- Drop patches adding support for request()/free() callbacks in GPIO
-  regmap and gpio_regmap_get_ngpio().
-- Allow gpio_regmap_register() to create the associated regmap IRQ.
-- Various fixes in MFD, PWM, GPIO and KEYPAD drivers.
-- Link to v4: https://lore.kernel.org/r/20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com
-
-Changes in v4:
-- Modified the GPIO driver to use gpio-regmap and regmap-irq.
-- Add support for request()/free() callbacks in gpio-regmap.
-- Add support for status_is_level in regmap-irq.
-- Switched the PWM driver to waveform callbacks.
-- Various small fixes in MFD, PWM, GPIO drivers and dt bindings.
-- Rebased on v6.14-rc2.
-- Link to v3: https://lore.kernel.org/r/20250113-mdb-max7360-support-v3-0-9519b4acb0b1@bootlin.com
-
-Changes in v3:
-- Fix MFD device tree binding to add gpio child nodes.
-- Fix various small issues in device tree bindings.
-- Add missing line returns in error messages.
-- Use dev_err_probe() when possible.
-- Link to v2: https://lore.kernel.org/r/20241223-mdb-max7360-support-v2-0-37a8d22c36ed@bootlin.com
-
-Changes in v2:
-- Removing device tree subnodes for keypad, rotary encoder and pwm
-  functionalities.
-- Fixed dt-bindings syntax and naming.
-- Fixed missing handling of requested period in PWM driver.
-- Cleanup of the code
-- Link to v1: https://lore.kernel.org/r/20241219-mdb-max7360-support-v1-0-8e8317584121@bootlin.com
-
----
-Kamel Bouhara (2):
-      mfd: Add max7360 support
-      pwm: max7360: Add MAX7360 PWM support
-
-Mathieu Dubois-Briand (9):
-      dt-bindings: mfd: gpio: Add MAX7360
-      pinctrl: Add MAX7360 pinctrl driver
-      regmap: irq: Add support for chips without separate IRQ status
-      gpio: regmap: Allow to allocate regmap-irq device
-      gpio: regmap: Allow to provide init_valid_mask callback
-      gpio: max7360: Add MAX7360 gpio support
-      input: keyboard: Add support for MAX7360 keypad
-      input: misc: Add support for MAX7360 rotary
-      MAINTAINERS: Add entry on MAX7360 driver
-
- .../bindings/gpio/maxim,max7360-gpio.yaml          |  83 ++++++
- .../devicetree/bindings/mfd/maxim,max7360.yaml     | 191 +++++++++++++
- MAINTAINERS                                        |  13 +
- drivers/base/regmap/regmap-irq.c                   |  99 ++++---
- drivers/gpio/Kconfig                               |  12 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max7360.c                        | 257 +++++++++++++++++
- drivers/gpio/gpio-regmap.c                         |  22 +-
- drivers/input/keyboard/Kconfig                     |  12 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/max7360-keypad.c            | 308 +++++++++++++++++++++
- drivers/input/misc/Kconfig                         |  10 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/max7360-rotary.c                | 192 +++++++++++++
- drivers/mfd/Kconfig                                |  14 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max7360.c                              | 171 ++++++++++++
- drivers/pinctrl/Kconfig                            |  11 +
- drivers/pinctrl/Makefile                           |   1 +
- drivers/pinctrl/pinctrl-max7360.c                  | 215 ++++++++++++++
- drivers/pwm/Kconfig                                |  10 +
- drivers/pwm/Makefile                               |   1 +
- drivers/pwm/pwm-max7360.c                          | 180 ++++++++++++
- include/linux/gpio/regmap.h                        |  18 ++
- include/linux/mfd/max7360.h                        | 109 ++++++++
- include/linux/regmap.h                             |   3 +
- 26 files changed, 1903 insertions(+), 33 deletions(-)
----
-base-commit: 92a09c47464d040866cf2b4cd052bc60555185fb
-change-id: 20241219-mdb-max7360-support-223a8ce45ba3
-
-Best regards,
 -- 
-Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
+2.39.5
 

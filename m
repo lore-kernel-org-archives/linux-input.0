@@ -1,143 +1,123 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55DDF20B803;
-	Mon, 26 May 2025 12:52:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C7B1FE470;
+	Mon, 26 May 2025 13:56:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748263925; cv=none; b=ZS8EN0ZqJqW1HKDDBs3/NZPWB0xvfY4moFLBmvZZbW9gSPVX8XxoENw9/ZIGfsJvgnP64gw/9REaWOPYKZuQhAazZWbP+UEwdq7O3QpuYEfYwgkdauXUPFdPBmTx0MFkRWlmB0kVmqmVUZ8qNR1LuNSkXNUbLN6xR/YMRd3rpeI=
+	t=1748267799; cv=none; b=CDSH/tbXDi49MU6JHvHDWt4qNRW30GAc5wNp3F6ykossaDNAAAQXCwQjvDNZnrBDpx3DtW+1FXgA4+A5WFEQOXC0SMq+IwWejv2qiSVKG+erxbQwkfenbLYeud/JPHZA3fAi+OJzt2MJF1/d0Y4wAJuhpX2foPXwdVrHGz+sbaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748263925; c=relaxed/simple;
-	bh=tBP5oLb8ACuC7GOCZhYJUMu3KBz3kbJIztCUV8vrNM8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=V7HAI4lw+J8/prOyro4tva4C4pqGy3EMzvZPnvAwcbNdBkYWUhAbZLIeXgf5jUahRLBpWpZymfsY7KQxBXRs5E+H324ikjmm9d645gmHBLHbs1IcJfcEj9xRY2J3nwyuooxhLNCL/Nqb3FYjSfTlDXoRyNhoqX/oHm9A2Jwe+qc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=as1FBl7E; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1748267799; c=relaxed/simple;
+	bh=hAq26EsJwp1YiANWFZYO6JlZ573De3v+gpFr0luZpQg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tHl0WfNf+xg8efY31zdDPD89IaB91eJtOklhF/FUH7vw30HXXD7aL+vlWKXMcD3XXchgo0pl0wNPphC8xtTSHx6TSJmyAvR1HrNa++lkIvJAzsmF9eqCrEQEnZyUDMyxtLHmqwHt4/3ELR8+1WqJAKzznWg9JhZpYe4IMzHatKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RC8s3gIZ; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="as1FBl7E"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1748263921;
-	bh=tBP5oLb8ACuC7GOCZhYJUMu3KBz3kbJIztCUV8vrNM8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=as1FBl7EVqCmY2+bLxgwRuqfEG1HTD0bbcI641A+tx+BiZihlwzX2g5AASCFMG6H4
-	 d7F8PKFvdSI9Rvwv1HiXuQ2uM3DmzPqn5zRMUJG4A6YeniY5Oar6UIxsLN8D8+vV4d
-	 IOjiV9P5dID1eXmj3/DRWWCAnfkMDPRxu+aV3MEsZG7ddfICoLWNh5CvZC33dPBsYd
-	 gOcLMmQpsmug064TXKLt/QjSNQ2bxJ5UbyDrhu5hfVEAPqyizrs2tWukOtw5BfyuZH
-	 lKyWl8Pf5kYOtmTu1wnKv9x8B3Vqu8jIL9vruFBx5hAUUlPVrmoLh1QwRc9mYQ+TFo
-	 GQUaf2WYtg7Eg==
-Received: from localhost (unknown [82.76.59.134])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: cristicc)
-	by bali.collaboradmins.com (Postfix) with UTF8SMTPSA id 66BB617E36C2;
-	Mon, 26 May 2025 14:52:01 +0200 (CEST)
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Date: Mon, 26 May 2025 15:51:34 +0300
-Subject: [PATCH 11/11] HID: playstation: Support DualSense audio jack event
- reporting
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RC8s3gIZ"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-742c2ed0fe1so1978801b3a.1;
+        Mon, 26 May 2025 06:56:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748267797; x=1748872597; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=859cJo9TYvq1IzsoVeN/+jTfHc2/ejVYnyyvhCL0W0c=;
+        b=RC8s3gIZppzp4AUDr3t59F2FWOfKFWT2uulf/a1CJNVs4ruvlFhj1F9l23Wft12aIA
+         0+108iFAQZMuSQ1FpRyNO0CaWxaHYBLrhPnWV5s5LR7w43Gm7bJ/bKWR3AesvqhzysCG
+         urRBWRkVOSfg3085pZznfgIfM9hNaNWIsWckDHA4LP2Ifighj6Oc1yuLaGKaDLHAdCDQ
+         7i9KJxRR+6YUCJikzDaKzfdE7M7n+lHHm2oJ/u4yU9NE0Mx57OLZPc8QW1s6A9tlvtET
+         Y+MApIn1/ZnGuqi+xPh/Wm4hJACgmC6HG/nxMaU5TC9fPqNSEfnx3ebQhrZ2+O64/DaX
+         M3yQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748267797; x=1748872597;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=859cJo9TYvq1IzsoVeN/+jTfHc2/ejVYnyyvhCL0W0c=;
+        b=fmzVjAuhTIOyIpIKTkdj/ghaRYbx6xVbf6FIJKMaHP6fQebQt8vbbN/ox6t+P+I14F
+         TwSl3t/Z6Jazp9tcirEu7vA/DunEtsKOZovXW+w4Cit54GN8KPVzxX8I//IbTKnpFhRK
+         LLVFUc34hO0yEyt04n91yoZa+TsDYWa1p2YBYvs1DK3eU6as6J1u1jz2pB8Nkoey4ykG
+         WMRP//7fWzWYNQDHq2kLi/lSgw5d7V5O+shu2Sl9HMTwbDZ16syFtS7d8q651KOUMCoS
+         PHW+3/XSZVnuqRFmalnOkJeqKoKsBUL32xnSGQbcPdABxC33dJFyx9RwziN9+JGmkM9C
+         mkzA==
+X-Forwarded-Encrypted: i=1; AJvYcCWy0FjUwf6c199JwAlFdHFRatk2ZmK0qBxKRpvRYzt28s8WUqO64HY2bttnRS3cvFOHoytrRD+Dn69ZYfb9@vger.kernel.org, AJvYcCXqVIAGrFh8zW1sr+I950YtKZXv+B/2tjnSvxqA1KpbSfjnqt6dzFaso9gRuDoZfnY2CQEk0uEdj+g=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwPFQPW7yNCJblFGyob10CDXAByxxYw+pqr6jNDm9rbu5pZzHRb
+	BvdG1D/9m9wooO+sTke87xtzyPKIUfh30uDxRRYFkpluLb2DNGs90Enr
+X-Gm-Gg: ASbGncs3viBd5Ayofr8QVwwHlHb/rolR+P4zD+bNYprKHkAwNXHonLuziGyK4x4nQbM
+	1hVepXfUFGlXw/NtHCPbBuA3bu5JwTC3AyAAGV+kcbDicQseaqHR4wEy9xleAsFWLvopNPKo9P3
+	omewGjLjsYuprXVwaLNyWCV9U+HQ1EyiFsxD7aMdHqiYFwpfn90fdSAfByxdHS1BdVMtpTVLa8M
+	K21G8hqtxGJxCD4dbK9/KkSEZWD0BC7C2kxYgXZYsEXWf1U1TDbX46nY84pfE5xh7F1otM3j9G8
+	YE6Lmw0LRVDOpifHNC39mbnjYpkyFUlnBD3TOg98cnOLr+LK0mKEXO7joNF6o4huu8ac0w==
+X-Google-Smtp-Source: AGHT+IGBWkRiRhCMFT1Pq44qUq2nocKyMI0en1mClBadLXgI7beC+Fngu6Pzn97BlO70EBYQ1uO4Dw==
+X-Received: by 2002:a05:6a21:6d87:b0:1f5:6e71:e55 with SMTP id adf61e73a8af0-2188c1e8722mr15780731637.6.1748267797278;
+        Mon, 26 May 2025 06:56:37 -0700 (PDT)
+Received: from [192.168.0.150] ([103.124.138.155])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-742a96e5f74sm17019095b3a.26.2025.05.26.06.56.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 May 2025 06:56:36 -0700 (PDT)
+Message-ID: <cb2d5cbd-d1e5-4a71-a24d-d02604c4016a@gmail.com>
+Date: Mon, 26 May 2025 20:56:32 +0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/3] input: docs: Fix Amiga joysticks grammar & formatting
+To: Jonathan Corbet <corbet@lwn.net>,
+ George Anthony Vernon <contact@gvernon.com>, dmitry.torokhov@gmail.com,
+ skhan@kernel.org
+Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-kernel-mentees@lists.linux.dev
+References: <20250526011443.136804-1-contact@gvernon.com>
+ <20250526011443.136804-4-contact@gvernon.com> <aDPVOlBIpnqc7Tez@archie.me>
+ <87a56za67l.fsf@trenco.lwn.net>
+Content-Language: en-US
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <87a56za67l.fsf@trenco.lwn.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250526-dualsense-hid-jack-v1-11-a65fee4a60cc@collabora.com>
-References: <20250526-dualsense-hid-jack-v1-0-a65fee4a60cc@collabora.com>
-In-Reply-To: <20250526-dualsense-hid-jack-v1-0-a65fee4a60cc@collabora.com>
-To: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Henrik Rydberg <rydberg@bitmath.org>
-Cc: kernel@collabora.com, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-X-Mailer: b4 0.14.2
 
-The DualSense controller complies with v1.0 of the USB Audio Class spec
-(UAC1), hence it cannot advertise any jack detection capability.
+On 5/26/25 19:48, Jonathan Corbet wrote:
+> Bagas Sanjaya <bagasdotme@gmail.com> writes:
+> 
+>> On Mon, May 26, 2025 at 02:14:43AM +0100, George Anthony Vernon wrote:
+>>> Make small grammar fixes to Amiga joystick documentation.
+>>>
+>>> Also make heading adornments compliant with the guidelines to improve
+>>> organisation of the page.
+>>
+>> Split up these two changes into separate patches.
+> 
+> The word "also" in a changelog is indeed a hint that a patch is doing
+> too many things.
+> 
+> For a simple patch like this, though, I would not force a resend just
+> for that.
+> 
 
-However, this feature can be implemented in the generic USB audio driver
-via quirks, i.e. by configuring an input handler to receive hotplug
-events from the HID driver.
+Do you mean keeping the patch as-is?
 
-Register a dedicated input device for the audio jack and use it to
-report all headphone and headset mic insert events.
+>>> -~~~~~~~~~~~~~~~~~~~~~~~~~
+>>> -Amiga joystick extensions
+>>> -~~~~~~~~~~~~~~~~~~~~~~~~~
+>>> +===============
+>>> +Amiga joysticks
+>>> +===============
+>>
+>> I would prefer to keep section adornments in this doc as-is, though.
+> 
+> ...and why...?  We have a standard progression, why not use it?
+> 
 
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
----
- drivers/hid/hid-playstation.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+I'm leaning towards following doc-specific convention (i.e. on this
+doc). I could adapt to it, but some time later when I re-read the
+source I might be semantically confused.
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index ed8e67c5bf5d3a9e9721da31a6bd84f0b6802b14..1231165098691398cd471e71cb9787651f753023 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -178,6 +178,7 @@ struct dualsense {
- 	struct input_dev *gamepad;
- 	struct input_dev *sensors;
- 	struct input_dev *touchpad;
-+	struct input_dev *jack;
- 
- 	/* Update version is used as a feature/capability version. */
- 	u16 update_version;
-@@ -958,6 +959,25 @@ static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width,
- 	return touchpad;
- }
- 
-+static struct input_dev *ps_headset_jack_create(struct hid_device *hdev)
-+{
-+	struct input_dev *jack;
-+	int ret;
-+
-+	jack = ps_allocate_input_dev(hdev, "Headset Jack");
-+	if (IS_ERR(jack))
-+		return ERR_CAST(jack);
-+
-+	input_set_capability(jack, EV_SW, SW_HEADPHONE_INSERT);
-+	input_set_capability(jack, EV_SW, SW_MICROPHONE_INSERT);
-+
-+	ret = input_register_device(jack);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return jack;
-+}
-+
- static ssize_t firmware_version_show(struct device *dev,
- 				     struct device_attribute *attr, char *buf)
- {
-@@ -1360,8 +1380,15 @@ static void dualsense_output_worker(struct work_struct *work)
- 				common->audio_flags2 =
- 					FIELD_PREP(DS_OUTPUT_AUDIO_FLAGS2_SP_PREAMP_GAIN, 0x2);
- 			}
-+
-+			input_report_switch(ds->jack, SW_HEADPHONE_INSERT, val);
- 		}
- 
-+		val = ds->plugged_state & DS_STATUS_PLUGGED_MIC;
-+		if (val != (ds->prev_plugged_state & DS_STATUS_PLUGGED_MIC))
-+			input_report_switch(ds->jack, SW_MICROPHONE_INSERT, val);
-+
-+		input_sync(ds->jack);
- 		ds->prev_plugged_state = ds->plugged_state;
- 	}
- 
-@@ -1775,6 +1802,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 		goto err;
- 	}
- 
-+	ds->jack = ps_headset_jack_create(hdev);
-+	if (IS_ERR(ds->jack)) {
-+		ret = PTR_ERR(ds->jack);
-+		goto err;
-+	}
-+
- 	ret = ps_device_register_battery(ps_dev);
- 	if (ret)
- 		goto err;
+Thanks.
 
 -- 
-2.49.0
-
+An old man doll... just what I always wanted! - Clara

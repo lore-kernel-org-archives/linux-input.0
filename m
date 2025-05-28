@@ -1,117 +1,139 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C8F221281
-	for <linux-input@vger.kernel.org>; Wed, 28 May 2025 20:22:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86B8211276
+	for <linux-input@vger.kernel.org>; Wed, 28 May 2025 22:08:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748463758; cv=none; b=Z6/feDAK8FV5hMScgbBAG2Ncudgm7XfHHgdgsHPn8qgBKfMoYEJUt2AQNeF+Q0d8Ma1Uv4xirelNDNjitgGWsW1YhA5aK5LrwBpIPM2bGe1S2qGx/EmcZYmX6MkRDPXu9mm1sjOE3E6xjdllwcE4z5eColacytnhrBhvZoSeBbI=
+	t=1748470129; cv=none; b=OTZDUFXZVVdna/i5mW+iAOeUeyqiyYyapGzP+qH6wIug8Psn34lfBlM+38KEJ5mi2ZeNA7teVyBwsQTEVIRjadCEY7d4+0CQ4/Pny0qvQsot+IRMfrR7959VojghOqSsN/7Z4ZZBHFzutuFBYIfRgvoGGFTCj95O2y9o2BTD2SQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748463758; c=relaxed/simple;
-	bh=KkXe+Lm+rabuheSlfIsCTUsWtN9PJTjQap3jOjZ/bdo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mdx9JKjmzDmtAW2rYEGCCUprwlTCc7udu3OK6beePY3KbZHm5USIkTV3rjhgCPQUK84JAJzA+9bz3hiHqaDJoUCcXXrlOoSbBs+LoWBsthgpxFEG+45WLxh2H7hwjDy56QASU3plVoh5Q5Lpdnev6lkTBDqjtTPV4j87IEm8Efk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=HdJaikkz; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HdJaikkz"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-450cf0025c0so1409135e9.3
-        for <linux-input@vger.kernel.org>; Wed, 28 May 2025 13:22:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1748463755; x=1749068555; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=c5CwG2DjF5EIaVt29I4TTm2tkN33VTDrEArKVdA+dcE=;
-        b=HdJaikkzyDyByHHxF984kKe8M1erWDtSOsa/LtecJyQQUaQAnv1g6LaCwpsb74+jgE
-         zk/WatajVgy2WdXOhC2pduB3CBsh/YfwRxS4J6ZHVF/Adi/3POxRMTxQONTVTSEn2Lls
-         Anulpt215clW+kWL9F0E08CRi1ooDYi62T2o5ZfXEjlOz4a/FqVECpHbU04um+YhIThy
-         DuPkXnmNTLRRBaoK00Bjj+nkvV9bOuXfzHjvuop3JZceX9WZsvGaFEGojUVrK7Ov6A2t
-         y67j0slDEDx0AXmjN4t0HwQhWd5t2Csw18JKiEETuf8bTn1TZyKDzYKlt+HTGycDLmMN
-         ZB2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748463755; x=1749068555;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c5CwG2DjF5EIaVt29I4TTm2tkN33VTDrEArKVdA+dcE=;
-        b=uSByzqURiy6Q6rxPI2fK8P/NetnXg3orkDF5RE0tgF3sofTzTzCllDOHJRMKGO5CPy
-         HGXtWVc8eIeBQpVjcI8n/3zY2rGZYbUrWoJRNc4Ldi5FHtwcnmRfC8leLecREFqDuf2U
-         Ei1Z7njLUQaQPv2BWML+4KsQZLe+Y5kmTbxWZtnynXokIcTmPVZoA2BpQVqLFn3mTurw
-         8AxsHqeMwxV0KoPxxQWE4MaWuURmKM8iwhsbsWkfU/8C2wTlsvOy569hY3RIRX8yhYKF
-         YcCeyIRvy82MxJbGuy/awSocsXi2JpTIYjmObFh8v5vbGmXjnO8NTYDs+nr+u4b6skx+
-         FTUA==
-X-Forwarded-Encrypted: i=1; AJvYcCXAJY7WC3ZomGNb8TiYkyxNNngsJKZy4219JmrVp9VOuMqEmvOlsv1DPUcAa+ZdzIO9Js/Zh+FrkSFDKA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxsD9js9InRDLpAIpMGGDEEBpd77avYeyteTdV0QFZOFgYKEwgI
-	J9OnLb/vOcYN0lyISOxi37SD9ATOMcPGAiYbe3vANjmuXDS8uPLUsiDRA9A9HKUscmg=
-X-Gm-Gg: ASbGncsU0r08+zzAZY65NTTSg2vsg+4vxyksoXOfw9qv6T5nFjXso6U/WCw7YnYuDes
-	VerxxPW5yvgdZaKnSTXbxuBeoReON0+vSLU8EXvWaJ2dPPv9yQPIpappj+Wnq4dX3wdxA1H9le3
-	sN8lVgfi4UpSOzxth/aDqlJzmGHo098pkea806x//W5APFIpvMVt3VOAwLpoNoQ77V2uKO14WZc
-	V+Ccbr1xDWRHAsw4fqhfZywqRkxsKQFUhqjAt53CpS72wqDnlTsUHedMwiWJL2Ezed854e5btaB
-	hg0D+X72FtuyAE3qIclhoJO+W6/BiL23hSlfktWonziOmEFvQc6iz/lqokdZXhCOOQ==
-X-Google-Smtp-Source: AGHT+IHpyf0K/RJnIz9oYa7SCeInqhGIp/UYOUV+jDz2DXQY6iQAbI9UyULPYQBzAB+01wRfsWA8zg==
-X-Received: by 2002:a05:600c:4e0a:b0:43c:f895:cb4e with SMTP id 5b1f17b1804b1-44c91dd158bmr173850615e9.17.1748463755420;
-        Wed, 28 May 2025 13:22:35 -0700 (PDT)
-Received: from localhost ([41.210.143.146])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-450cfc03c93sm1116955e9.15.2025.05.28.13.22.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 May 2025 13:22:34 -0700 (PDT)
-Date: Wed, 28 May 2025 23:22:24 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Kees Cook <kees@kernel.org>
-Cc: Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-	David Lechner <dlechner@baylibre.com>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Al Viro <viro@zeniv.linux.org.uk>,
-	Erick Archer <erick.archer@outlook.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] Input: ims-pcu - Check record size in
- ims_pcu_flash_firmware()
-Message-ID: <131fd1ae92c828ee9f4fa2de03d8c210ae1f3524.1748463049.git.dan.carpenter@linaro.org>
-References: <cover.1748463049.git.dan.carpenter@linaro.org>
+	s=arc-20240116; t=1748470129; c=relaxed/simple;
+	bh=fLvT8fRJQGvBHOvfip5imwG2yz8WdwqJxqjGd3Kwg0o=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=R90tiLMnFYnglFCvGc+1LuSRbjRrSkotuVlvNdDeHq/PvcNcjv/hpJ2Ow1Q3NbarCYvgeMTTVo0TEdp/4QSnKQ+FlTlieTxfJU9E3CQNPvLMY8BUqPMwnJ902BvWiw6vN+0+1ytVGpCU8lxp/Io/7mivsIk/4pV4exFaqydeuZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from dude02.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::28])
+	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
+	(envelope-from <m.felsch@pengutronix.de>)
+	id 1uKOx2-0003CA-Tc; Thu, 29 May 2025 00:08:44 +0200
+From: Marco Felsch <m.felsch@pengutronix.de>
+Date: Thu, 29 May 2025 00:08:44 +0200
+Subject: [PATCH v2 3/4] dt-bindings: input: Add TouchNetix axiom
+ touchscreen
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1748463049.git.dan.carpenter@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250529-v6-10-topic-touchscreen-axiom-v2-3-a5edb105a600@pengutronix.de>
+References: <20250529-v6-10-topic-touchscreen-axiom-v2-0-a5edb105a600@pengutronix.de>
+In-Reply-To: <20250529-v6-10-topic-touchscreen-axiom-v2-0-a5edb105a600@pengutronix.de>
+To: Luis Chamberlain <mcgrof@kernel.org>, 
+ Russ Weight <russ.weight@linux.dev>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Andrew Morton <akpm@linux-foundation.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Kamel Bouhara <kamel.bouhara@bootlin.com>, 
+ Marco Felsch <kernel@pengutronix.de>, Henrik Rydberg <rydberg@bitmath.org>, 
+ Danilo Krummrich <dakr@redhat.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-input@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>
+X-Mailer: b4 0.14.2
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:1101:1d::28
+X-SA-Exim-Mail-From: m.felsch@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-The "len" variable comes from the firmware and we generally do
-trust firmware, but it's always better to double check.  If the "len"
-is too large it could result in memory corruption when we do
-"memcpy(fragment->data, rec->data, len);"
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+Add the TouchNetix axiom I2C touchscreen device tree bindings
+documentation.
+
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 ---
-Kees, this is a __counted_by() thing.  Would the checkers catch this?
-We know the maximum valid length for "fragment" is and so it's maybe
-possible to know that "fragment->len = len;" is too long?
+ .../input/touchscreen/touchnetix,ax54a.yaml        | 64 ++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
- drivers/input/misc/ims-pcu.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-index d9ee14b1f451..4581f1c53644 100644
---- a/drivers/input/misc/ims-pcu.c
-+++ b/drivers/input/misc/ims-pcu.c
-@@ -844,6 +844,12 @@ static int ims_pcu_flash_firmware(struct ims_pcu *pcu,
- 		addr = be32_to_cpu(rec->addr) / 2;
- 		len = be16_to_cpu(rec->len);
- 
-+		if (len > sizeof(pcu->cmd_buf) - 1 - sizeof(*fragment)) {
-+			dev_err(pcu->dev,
-+				"Invalid record length in firmware: %d\n", len);
-+			return -EINVAL;
-+		}
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..b32bfb4dcecd5617a5fb7f1e2697138e1783c003
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+@@ -0,0 +1,64 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/touchnetix,ax54a.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- 		fragment = (void *)&pcu->cmd_buf[1];
- 		put_unaligned_le32(addr, &fragment->addr);
- 		fragment->len = len;
++title: TouchNetix Axiom series touchscreen controller
++
++maintainers:
++  - Marco Felsch <kernel@pengutronix.de>
++
++allOf:
++  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
++  - $ref: /schemas/input/input.yaml#
++
++properties:
++  compatible:
++    const: touchnetix,ax54a
++
++  reg:
++    enum: [ 0x66, 0x67 ]
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  panel: true
++
++  vdda-supply:
++    description: Analog power supply regulator on VDDA pin
++
++  vddi-supply:
++    description: I/O power supply regulator on VDDI pin
++
++required:
++  - compatible
++  - reg
++  - vdda-supply
++  - vddi-supply
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      touchscreen@66 {
++        compatible = "touchnetix,ax54a";
++        reg = <0x66>;
++        interrupt-parent = <&gpio2>;
++        interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
++        vdda-supply = <&vdda_reg>;
++        vddi-supply = <&vddi_reg>;
++        poll-interval = <20>;
++      };
++    };
++...
+
 -- 
-2.47.2
+2.39.5
 

@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85F86288C88;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85FEB288C8A;
 	Tue,  3 Jun 2025 18:27:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748975278; cv=none; b=n3cWvPc7AK67+NruatT/go3avs9JIiLAKxaMyIa+q0SJ2ypPKscHJvd1kxVrLCcrZP2BTp0ymMGyFmLQJXH1/55eVPQ9DQtFP01wFG5nOl58ERgG4r0W5U0mS6n7iNDI0z7F48tE2ZAAhpo1OylWqT4nf/niOPfAmU5W8ZrcuHA=
+	t=1748975278; cv=none; b=h71xnQSyuys6cnvxOpGvLS7ZjOTgG6fBtAKfmgKWYgRgIsAAfo2aYOCa46puHDun5OAwPIXnHR+phmjXy0leMfDFZnOEuWCvWXzJkfCMZiTXD/XQJXGrWC9J4goh6wWwKO8eX+5ck63TvwKTODuw59Z0TIsPXnJu8L8clcd0yBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1748975278; c=relaxed/simple;
-	bh=nV1dFZfktcbSjNuTq3cke8ft8C3sf0ueoLgF0KqcVxk=;
+	bh=6Hb65QoBWOuelj3WUTD6CUgcvo7Wmh0qrkmu8gd0ji4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jofk9kMWoYeQt2IircxqE4fTG0ZOLu/IL5MyZfhQUJ8HFArddr7hadskzPMj5+rjNjoh6PMZzp/sbE31QUUO0duN23xFoIn+ECbQaw+JItk+8QqyDQZRLtGLLd395mrFuMtbJSs2yN+SyRjggAtxMF/P8P3s0Jq1/+rU1CUuiTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AzHL7D8C; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=AFmb/BOd+KSMDoF4y/ZHSlDo7XZknDbhOTASFfsL6CPgRVVR57uUfMT5pV8eLmZmK65ovwG4wxWtdK87HqO1NIgUU4ao8vVLn712qQoP2rYB9SNZUH2wwG/MW5LSYxC+KeDCW3tbxhcLTwoGOaabHqmQNp0wys7aIslSGM3y4Bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fXaFENXA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AzHL7D8C"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2AC49C4CEF2;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fXaFENXA"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 06B20C4CEEF;
 	Tue,  3 Jun 2025 18:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1748975278;
-	bh=nV1dFZfktcbSjNuTq3cke8ft8C3sf0ueoLgF0KqcVxk=;
+	bh=6Hb65QoBWOuelj3WUTD6CUgcvo7Wmh0qrkmu8gd0ji4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=AzHL7D8C7BV5D+cw0WVtsCzWfBQUWs+uCURkU+OUtzbEIr0txEvMs9F829pgDX42o
-	 MUojA5eRlcweyOh2Kq98/XSmDXPsNQFnRHjhqclLP0yZsRJjl4GmjPJGxHjLm00b5u
-	 34PwOgaDAy4LLYHnr4yFUMP44+if9H00qeYTzUmf+dEQ16yeQnsoyUNWLBr+O7uLBi
-	 KFyX7fJAzbmY52x4MVolwjIt9DYlPJb5KESKyxXQDngEHbbYt1r4NxUOrTFQp1uZbG
-	 Fwcum9YHGU90Duqu1RnV6ofBa66vg0MWGuHNNxDoqtH37NQ/6NERL0Bys1HOpOYxLD
-	 JujKgcoWTPkbA==
+	b=fXaFENXAjNK9itqxOzRk6ZZii+6QxcOSOXIa1wu3NN+hG8KC3U2LNC4hoZRpLExEh
+	 quukE6KIxw4yF2RqyFngkX11BS4MVX0LTx45c8CfHiFZ5YEqOC3mY2vR5F4hcRNLW3
+	 Jq2KxGoE8s9S2JCZdPfDGui3ayEOtOHYqzsBYe43tLVuahjCUuK+BA9njB9m1kh5FX
+	 zpm4XwTzr/rOpZYOXg0YJ3zOvh56wTFUs/9Jnf+tT0/+VntIlxIPgQePJ902NaXl4n
+	 QBCUKYgKFAAVoU5h6ZfHaPQyCPr2H/n2zzHON39kiuuLMpCuk0KIIVp4lYZo5bst7s
+	 bVBYHSKtBHKgQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EDFAC5AE59;
-	Tue,  3 Jun 2025 18:27:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8887C5B552;
+	Tue,  3 Jun 2025 18:27:57 +0000 (UTC)
 From: Samuel Kayode via B4 Relay <devnull+samuel.kayode.savoirfairelinux.com@kernel.org>
-Date: Tue, 03 Jun 2025 14:27:47 -0400
-Subject: [PATCH v4 3/6] regulator: pf1550: add support for regulator
+Date: Tue, 03 Jun 2025 14:27:45 -0400
+Subject: [PATCH v4 1/6] dt-bindings: mfd: add pf1550
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250603-pf1550-v4-3-bfdf51ee59cc@savoirfairelinux.com>
+Message-Id: <20250603-pf1550-v4-1-bfdf51ee59cc@savoirfairelinux.com>
 References: <20250603-pf1550-v4-0-bfdf51ee59cc@savoirfairelinux.com>
 In-Reply-To: <20250603-pf1550-v4-0-bfdf51ee59cc@savoirfairelinux.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -56,12 +56,12 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Enric Balletbo i Serra <eballetbo@gmail.com>, 
  Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1748975277; l=13916;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1748975277; l=5637;
  i=samuel.kayode@savoirfairelinux.com; s=20250527;
  h=from:subject:message-id;
- bh=8zMFNGnJLn9zCoUN76Q0JtH8aYUWcB+K9qiA6HPuNCI=;
- b=dvcpxzSWVf7yPkpbKmZ4lymWVhn7Rs0Xj78VuIah3kFWAibwyg+qaQz/gTvBpTVUG6e0XjE4H
- eg4yBLKvLSNCgndMFDtyGWkxXBX1p+0V0EVE7CmP/LxSswofBV6idKY
+ bh=/LjZpIGyyBmQxRSfMbmf+8phLgZ3fhYVZkvqK2HSnGg=;
+ b=g+HZtsREbSuPTJ2VArnUlTN1ZxUHppd6wD/vSX5hGt0v3ReHYSpVsNDgA2KJNJL9/db0D02h0
+ UVv7FjsxbMVARWM6deoob7zefaYwe4YNgoKnh7BST6c6449v+i1zjeW
 X-Developer-Key: i=samuel.kayode@savoirfairelinux.com; a=ed25519;
  pk=TPSQGQ5kywnnPyGs0EQqLajLFbdDu17ahXz8/gxMfio=
 X-Endpoint-Received: by B4 Relay for
@@ -71,429 +71,179 @@ Reply-To: samuel.kayode@savoirfairelinux.com
 
 From: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 
-Add regulator support for the pf1550 PMIC.
+Add a DT binding document for pf1550 PMIC. This describes the core mfd
+device along with its children: regulators, charger and onkey.
 
 Signed-off-by: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 ---
 v4:
-- Address Mark's feedback:
-  - Use C++ comments for SPDX license
-  - Add portions copyright to reflect my update
-  - Validate ramp_delay
-  - Report overcurrent and temperature events
-- Use platform_get_irq
+ - Address Krzystof's feedback:
+   - Filename changed to nxp,pf1550.yaml
+   - Replace Freescale with NXP
+   - Define include before battery-cell
+   - Drop operating-range-celsius in example since
+     nxp,thermal-regulation-celsisus already exists
+ - Not sure if there is similar binding to thermal-regulation...
+   for regulating temperature on thermal-zones? @Sebastian and @Krzysztof
 v3:
-- Drop duplicate include
-- Drop unnecessary includes
-- Accept lower case regulator names from devicetree
-- Use virqs mapped in core MFD driver
+ - Address Krzysztof's feedback:
+   - Fold charger and onkey objects
+   - Drop compatible for sub-devices: onkey, charger and regulator.
+   - Drop constant voltage property already included in
+     monitored-battery
+   - Fix whitespace warnings
+   - Fix license
 v2:
-- Add driver for regulator
+ - Add yamls for the PMIC and the sub-devices
 ---
- drivers/regulator/Kconfig            |   9 +
- drivers/regulator/Makefile           |   1 +
- drivers/regulator/pf1550-regulator.c | 361 +++++++++++++++++++++++++++++++++++
- 3 files changed, 371 insertions(+)
+ .../devicetree/bindings/mfd/nxp,pf1550.yaml        | 139 +++++++++++++++++++++
+ 1 file changed, 139 insertions(+)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 6d8988387da4599633ca9bde2698b9711e34a245..de455887f9aeeada5546e44b8dc9d7ed041618a6 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -1049,6 +1049,15 @@ config REGULATOR_PV88090
- 	  Say y here to support the voltage regulators and convertors
- 	  on PV88090
- 
-+config REGULATOR_PF1550
-+	tristate "NXP PF1550 regulator"
-+	depends on MFD_PF1550
-+	help
-+	  Say y here to select this option to enable the regulators on
-+	  the PF1550 PMICs.
-+	  This driver controls the PF1550 regulators via I2C bus.
-+	  The regulators include three bucks and three ldos.
-+
- config REGULATOR_PWM
- 	tristate "PWM voltage regulator"
- 	depends on PWM
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index c0bc7a0f4e67098c50ac3cf887ae95f46b2eac44..891174b511fc0653bac662c71659498122e8441f 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -125,6 +125,7 @@ obj-$(CONFIG_REGULATOR_QCOM_USB_VBUS) += qcom_usb_vbus-regulator.o
- obj-$(CONFIG_REGULATOR_PALMAS) += palmas-regulator.o
- obj-$(CONFIG_REGULATOR_PCA9450) += pca9450-regulator.o
- obj-$(CONFIG_REGULATOR_PF9453) += pf9453-regulator.o
-+obj-$(CONFIG_REGULATOR_PF1550) += pf1550-regulator.o
- obj-$(CONFIG_REGULATOR_PF8X00) += pf8x00-regulator.o
- obj-$(CONFIG_REGULATOR_PFUZE100) += pfuze100-regulator.o
- obj-$(CONFIG_REGULATOR_PV88060) += pv88060-regulator.o
-diff --git a/drivers/regulator/pf1550-regulator.c b/drivers/regulator/pf1550-regulator.c
+diff --git a/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
 new file mode 100644
-index 0000000000000000000000000000000000000000..b956a0cce174a11c289f3a641a30c7a2bf5f356d
+index 0000000000000000000000000000000000000000..add895311b892a6731f54e47fcaaba8dfdac14b3
 --- /dev/null
-+++ b/drivers/regulator/pf1550-regulator.c
-@@ -0,0 +1,361 @@
-+// SPDX-License-Identifier: GPL-2.0
-+//
-+// pf1550.c - regulator driver for the PF1550
-+//
-+// Copyright (C) 2016 Freescale Semiconductor, Inc.
-+// Robin Gong <yibin.gong@freescale.com>
-+//
-+// Portions Copyright (c) 2025 Savoir-faire Linux Inc.
-+// Samuel Kayode <samuel.kayode@savoirfairelinux.com>
-+//
-+// This driver is based on pfuze100-regulator.c
-+//
++++ b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
+@@ -0,0 +1,139 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/nxp,pf1550.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+#include <linux/err.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/pf1550.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regulator/driver.h>
-+#include <linux/regulator/machine.h>
++title: NXP PF1550 Power Management IC
 +
-+#define PF1550_REGULATOR_IRQ_NR		11
-+#define PF1550_MAX_REGULATOR		7
++maintainers:
++  - Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 +
-+struct pf1550_desc {
-+	struct regulator_desc desc;
-+	unsigned char stby_reg;
-+	unsigned char stby_mask;
-+};
++description: |
++  PF1550 PMIC provides battery charging and power supply for low power IoT and
++  wearable applications. This device consists of an i2c controlled MFD that
++  includes regulators, battery charging and an onkey/power button.
 +
-+struct pf1550_regulator_info {
-+	struct device *dev;
-+	const struct pf1550_dev *pf1550;
-+	struct pf1550_desc regulator_descs[PF1550_MAX_REGULATOR];
-+	struct regulator_dev *rdevs[PF1550_MAX_REGULATOR];
-+};
++$ref: /schemas/power/supply/power-supply.yaml
 +
-+static const int pf1550_sw12_volts[] = {
-+	1100000, 1200000, 1350000, 1500000, 1800000, 2500000, 3000000, 3300000,
-+};
++properties:
++  compatible:
++    const: nxp,pf1550
 +
-+static const int pf1550_ldo13_volts[] = {
-+	750000, 800000, 850000, 900000, 950000, 1000000, 1050000, 1100000,
-+	1150000, 1200000, 1250000, 1300000, 1350000, 1400000, 1450000, 1500000,
-+	1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000,
-+	2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000, 3300000,
-+};
++  reg:
++    maxItems: 1
 +
-+static int pf1550_set_ramp_delay(struct regulator_dev *rdev, int ramp_delay)
-+{
-+	int id = rdev_get_id(rdev);
-+	unsigned int ramp_bits = 0;
-+	int ret;
++  interrupts:
++    maxItems: 1
 +
-+	if (id > PF1550_VREFDDR)
-+		return -EACCES;
++  wakeup-source: true
 +
-+	if (ramp_delay > 0) {
-+		ramp_delay = 6250 / ramp_delay;
-+		ramp_bits = ramp_delay >> 1;
-+	}
++  regulators:
++    type: object
 +
-+	ret = regmap_update_bits(rdev->regmap, rdev->desc->vsel_reg + 4, 0x10,
-+				 ramp_bits << 4);
-+	if (ret < 0)
-+		dev_err(&rdev->dev, "ramp failed, err %d\n", ret);
++    patternProperties:
++      "^(ldo[1-3]|sw[1-3]|vrefddr)$":
++        type: object
++        $ref: /schemas/regulator/regulator.yaml
++        description:
++          regulator configuration for ldo1-3, buck converters(sw1-3)
++          and DDR termination reference voltage (vrefddr)
++        unevaluatedProperties: false
 +
-+	return ret;
-+}
++    additionalProperties: false
 +
-+static const struct regulator_ops pf1550_sw1_ops = {
-+	.list_voltage = regulator_list_voltage_table,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.set_ramp_delay = pf1550_set_ramp_delay,
-+};
++  monitored-battery:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description: |
++      A phandle to a monitored battery node that contains a valid value
++      for:
++      constant-charge-voltage-max-microvolt.
 +
-+static const struct regulator_ops pf1550_sw2_ops = {
-+	.list_voltage = regulator_list_voltage_linear,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.set_ramp_delay = pf1550_set_ramp_delay,
-+};
++  nxp,thermal-regulation-celsius:
++    description:
++      Temperature threshold for thermal regulation of charger in celsius.
++    enum: [ 60, 75, 90, 105 ]
 +
-+static const struct regulator_ops pf1550_ldo1_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.list_voltage = regulator_list_voltage_table,
-+	.map_voltage = regulator_map_voltage_ascend,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+};
++  nxp,min-system-microvolt:
++    description:
++      System specific lower limit voltage.
++    enum: [ 3500000, 3700000, 4300000 ]
 +
-+static const struct regulator_ops pf1550_ldo2_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.list_voltage = regulator_list_voltage_linear,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+};
++required:
++  - compatible
++  - reg
++  - interrupts
 +
-+static const struct regulator_ops pf1550_fixed_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.list_voltage = regulator_list_voltage_linear,
-+};
++additionalProperties: false
 +
-+#define PF_VREF(_chip, match, _name, voltage)	{	\
-+	.desc = {	\
-+		.name = #_name,	\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.n_voltages = 1,	\
-+		.ops = &pf1550_fixed_ops,	\
-+		.type = REGULATOR_VOLTAGE,	\
-+		.id = _chip ## _ ## _name,	\
-+		.owner = THIS_MODULE,	\
-+		.min_uV = (voltage),	\
-+		.enable_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+		.enable_mask = 0x1,	\
-+	},	\
-+	.stby_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+	.stby_mask = 0x2,	\
-+}
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/input/linux-event-codes.h>
 +
-+#define PF_SW1(_chip, match, _name, mask, voltages)	{	\
-+	.desc = {	\
-+		.name = #_name,	\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.n_voltages = ARRAY_SIZE(voltages),	\
-+		.ops = &pf1550_sw1_ops,	\
-+		.type = REGULATOR_VOLTAGE,	\
-+		.id = _chip ## _ ## _name,	\
-+		.owner = THIS_MODULE,	\
-+		.volt_table = voltages,	\
-+		.vsel_reg = _chip ## _PMIC_REG_ ## _name ## _VOLT, \
-+		.vsel_mask = (mask),	\
-+	},	\
-+	.stby_reg = _chip ## _PMIC_REG_ ## _name ## _STBY_VOLT,	\
-+	.stby_mask = (mask),	\
-+}
++    battery: battery-cell {
++        compatible = "simple-battery";
++        constant-charge-voltage-max-microvolt = <4400000>;
++    };
 +
-+#define PF_SW3(_chip, match, _name, min, max, mask, step)	{	\
-+	.desc = {	\
-+		.name = #_name,	\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.n_voltages = ((max) - (min)) / (step) + 1,	\
-+		.ops = &pf1550_sw2_ops,	\
-+		.type = REGULATOR_VOLTAGE,	\
-+		.id = _chip ## _ ## _name,	\
-+		.owner = THIS_MODULE,	\
-+		.min_uV = (min),	\
-+		.uV_step = (step),	\
-+		.vsel_reg = _chip ## _PMIC_REG_ ## _name ## _VOLT, \
-+		.vsel_mask = (mask),	\
-+	},	\
-+	.stby_reg = _chip ## _PMIC_REG_ ## _name ## _STBY_VOLT,	\
-+	.stby_mask = (mask),	\
-+}
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
 +
-+#define PF_LDO1(_chip, match, _name, mask, voltages)	{	\
-+	.desc = {	\
-+		.name = #_name,	\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.n_voltages = ARRAY_SIZE(voltages),	\
-+		.ops = &pf1550_ldo1_ops,	\
-+		.type = REGULATOR_VOLTAGE,	\
-+		.id = _chip ## _ ## _name,	\
-+		.owner = THIS_MODULE,	\
-+		.volt_table = voltages, \
-+		.vsel_reg = _chip ## _PMIC_REG_ ## _name ## _VOLT, \
-+		.vsel_mask = (mask),	\
-+		.enable_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+		.enable_mask = 0x1,	\
-+	},	\
-+	.stby_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+	.stby_mask = 0x2,	\
-+}
++        pmic@8 {
++            compatible = "nxp,pf1550";
++            reg = <0x8>;
 +
-+#define PF_LDO2(_chip, match, _name, mask, min, max, step)	{	\
-+	.desc = {	\
-+		.name = #_name,	\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.n_voltages = ((max) - (min)) / (step) + 1,	\
-+		.ops = &pf1550_ldo2_ops,	\
-+		.type = REGULATOR_VOLTAGE,	\
-+		.id = _chip ## _ ## _name,	\
-+		.owner = THIS_MODULE,	\
-+		.min_uV = (min),	\
-+		.uV_step = (step),	\
-+		.vsel_reg = _chip ## _PMIC_REG_ ## _name ## _VOLT, \
-+		.vsel_mask = (mask),	\
-+		.enable_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+		.enable_mask = 0x1,	\
-+	},	\
-+	.stby_reg = _chip ## _PMIC_REG_ ## _name ## _CTRL, \
-+	.stby_mask = 0x2,	\
-+}
++            interrupt-parent = <&gpio1>;
++            interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
++            wakeup-source;
++            monitored-battery = <&battery>;
++            nxp,min-system-microvolt = <4300000>;
++            nxp,thermal-regulation-celsius = <75>;
 +
-+static struct pf1550_desc pf1550_regulators[] = {
-+	PF_SW3(PF1550, "sw1", SW1, 600000, 1387500, 0x3f, 12500),
-+	PF_SW3(PF1550, "sw2", SW2, 600000, 1387500, 0x3f, 12500),
-+	PF_SW3(PF1550, "sw3", SW3, 1800000, 3300000, 0xf, 100000),
-+	PF_VREF(PF1550, "vrefddr", VREFDDR, 1200000),
-+	PF_LDO1(PF1550, "ldo1", LDO1, 0x1f, pf1550_ldo13_volts),
-+	PF_LDO2(PF1550, "ldo2", LDO2, 0xf, 1800000, 3300000, 100000),
-+	PF_LDO1(PF1550, "ldo3", LDO3, 0x1f, pf1550_ldo13_volts),
-+};
++            regulators {
++                sw1_reg: sw1 {
++                    regulator-name = "sw1";
++                    regulator-min-microvolt = <600000>;
++                    regulator-max-microvolt = <1387500>;
++                    regulator-always-on;
++                    regulator-ramp-delay = <6250>;
++                };
 +
-+static irqreturn_t pf1550_regulator_irq_handler(int irq, void *data)
-+{
-+	struct pf1550_regulator_info *info = data;
-+	struct device *dev = info->dev;
-+	struct platform_device *pdev = to_platform_device(dev);
-+	int i, irq_type = -1;
-+	unsigned int event;
++                sw2_reg: sw2 {
++                    regulator-name = "sw2";
++                    regulator-min-microvolt = <600000>;
++                    regulator-max-microvolt = <1387500>;
++                    regulator-always-on;
++                };
 +
-+	for (i = 0; i < PF1550_REGULATOR_IRQ_NR; i++)
-+		if (irq == platform_get_irq(pdev, i))
-+			irq_type = i;
++                sw3_reg: sw3 {
++                    regulator-name = "sw3";
++                    regulator-min-microvolt = <1800000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+	switch (irq_type) {
-+	case PF1550_PMIC_IRQ_SW1_LS:
-+	case PF1550_PMIC_IRQ_SW2_LS:
-+	case PF1550_PMIC_IRQ_SW3_LS:
-+		event = REGULATOR_EVENT_OVER_CURRENT;
-+		for (i = 0; i < PF1550_MAX_REGULATOR; i++)
-+			if (!strcmp(rdev_get_name(info->rdevs[i]), "SW3"))
-+				regulator_notifier_call_chain(info->rdevs[i],
-+							      event, NULL);
-+		break;
-+	case PF1550_PMIC_IRQ_SW1_HS:
-+	case PF1550_PMIC_IRQ_SW2_HS:
-+	case PF1550_PMIC_IRQ_SW3_HS:
-+		event = REGULATOR_EVENT_OVER_CURRENT;
-+		for (i = 0; i < PF1550_MAX_REGULATOR; i++)
-+			if (!strcmp(rdev_get_name(info->rdevs[i]), "SW3"))
-+				regulator_notifier_call_chain(info->rdevs[i],
-+							      event, NULL);
-+		break;
-+	case PF1550_PMIC_IRQ_LDO1_FAULT:
-+	case PF1550_PMIC_IRQ_LDO2_FAULT:
-+	case PF1550_PMIC_IRQ_LDO3_FAULT:
-+		event = REGULATOR_EVENT_OVER_CURRENT;
-+		for (i = 0; i < PF1550_MAX_REGULATOR; i++)
-+			if (!strcmp(rdev_get_name(info->rdevs[i]), "LDO3"))
-+				regulator_notifier_call_chain(info->rdevs[i],
-+							      event, NULL);
-+		break;
-+	case PF1550_PMIC_IRQ_TEMP_110:
-+	case PF1550_PMIC_IRQ_TEMP_125:
-+		event = REGULATOR_EVENT_OVER_TEMP;
-+		for (i = 0; i < PF1550_MAX_REGULATOR; i++)
-+			regulator_notifier_call_chain(info->rdevs[i],
-+						      event, NULL);
-+		break;
-+	default:
-+		dev_err(dev, "regulator interrupt: irq %d occurred\n",
-+			irq_type);
-+	}
++                vldo1_reg: ldo1 {
++                    regulator-name = "ldo1";
++                    regulator-min-microvolt = <750000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+	return IRQ_HANDLED;
-+}
++                vldo2_reg: ldo2 {
++                    regulator-name = "ldo2";
++                    regulator-min-microvolt = <1800000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+static int pf1550_regulator_probe(struct platform_device *pdev)
-+{
-+	const struct pf1550_dev *pf1550 = dev_get_drvdata(pdev->dev.parent);
-+	struct pf1550_regulator_info *info;
-+	int i, ret = 0;
-+	struct regulator_config config = { };
-+
-+	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	config.regmap = dev_get_regmap(pf1550->dev, NULL);
-+	if (!config.regmap)
-+		return dev_err_probe(&pdev->dev, -ENODEV,
-+				     "failed to get parent regmap\n");
-+
-+	config.dev = pf1550->dev;
-+	config.regmap = pf1550->regmap;
-+	info->dev = &pdev->dev;
-+	info->pf1550 = pf1550;
-+
-+	memcpy(info->regulator_descs, pf1550_regulators,
-+	       sizeof(info->regulator_descs));
-+
-+	for (i = 0; i < ARRAY_SIZE(pf1550_regulators); i++) {
-+		struct regulator_desc *desc;
-+		unsigned int val;
-+
-+		desc = &info->regulator_descs[i].desc;
-+
-+		if (desc->id == PF1550_SW2) {
-+			pf1550_read_otp(info->pf1550, 0x1f, &val);
-+			/* OTP_SW2_DVS_ENB == 1? */
-+			if ((val & 0x8)) {
-+				desc->volt_table = pf1550_sw12_volts;
-+				desc->n_voltages = ARRAY_SIZE(pf1550_sw12_volts);
-+				desc->ops = &pf1550_sw1_ops;
-+			}
-+		}
-+
-+		info->rdevs[i] = devm_regulator_register(&pdev->dev, desc,
-+							 &config);
-+		if (IS_ERR(info->rdevs[i]))
-+			return dev_err_probe(&pdev->dev,
-+					     PTR_ERR(info->rdevs[i]),
-+					     "failed to initialize regulator-%d\n",
-+					     i);
-+	}
-+
-+	platform_set_drvdata(pdev, info);
-+
-+	for (i = 0; i < PF1550_REGULATOR_IRQ_NR; i++) {
-+		int irq = platform_get_irq(pdev, i);
-+
-+		if (irq < 0)
-+			return irq;
-+
-+		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-+						pf1550_regulator_irq_handler,
-+						IRQF_NO_SUSPEND,
-+						"pf1550-regulator", info);
-+		if (ret)
-+			return dev_err_probe(&pdev->dev, ret,
-+					     "failed: irq request (IRQ: %d)\n",
-+					     i);
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct platform_device_id pf1550_regulator_id[] = {
-+	{ "pf1550-regulator", 0 },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, pf1550_regulator_id);
-+
-+static struct platform_driver pf1550_regulator_driver = {
-+	.driver = {
-+		   .name = "pf1550-regulator",
-+		   },
-+	.probe = pf1550_regulator_probe,
-+	.id_table = pf1550_regulator_id,
-+};
-+module_platform_driver(pf1550_regulator_driver);
-+
-+MODULE_DESCRIPTION("NXP PF1550 regulator driver");
-+MODULE_AUTHOR("Robin Gong <yibin.gong@freescale.com>");
-+MODULE_LICENSE("GPL");
++                vldo3_reg: ldo3 {
++                    regulator-name = "ldo3";
++                    regulator-min-microvolt = <750000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
++            };
++        };
++    };
 
 -- 
 2.49.0

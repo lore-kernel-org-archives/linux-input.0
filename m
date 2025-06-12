@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D09112D8794;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047522D8DA8;
 	Thu, 12 Jun 2025 21:12:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749762722; cv=none; b=bpMR33PdQNw9cc4puy3I+g99EKKJc6hKnsmVGTIh+XCg6/YE64sLrEEQ4t0vzJAFTwfrbERJeaGORxvT8nioWrnjW+E9lBIkjNcQ0H6VguS6KRoLfpsRg8pmpd9h88qGOnquVxsr/9iO3nYbNi2pX7DTP4hE7hVQmJgPhw68ZT8=
+	t=1749762722; cv=none; b=cbonydtdXjcHb139B0AnGQb0a58f+7U3bsDmXqCuxIYKnYLPFhSkLkfp5+RtYNByfGQ6VEbAJQxTYqFRWjYb0AB2MPa6WYdI0BoDzWr8N3tHnODih3Xb8icW6m6rekHPTR2vv3sYb+C+NlzcxHMSnAmxehmaerjYuAo+yGtMD1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749762722; c=relaxed/simple;
-	bh=NJlC89e85kPwnIrRRCWxs5BdJsq3vAE6W0Ymwg3gpew=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=PvzzpjVZrOzwObPREVKQht5euquvJu3KqSuGWpD9aCD+DDxM83OSR6ATRMq10VClQDaxSkIwDakGFU3q5d2W4356f73dRCgNvVVVZ0i4OaXoL1akZ6Oz+rH4kRsJtm28Stpe+v9vHIWnUKoBv4krwyRw4Vxcrn/77aBX+Ohtteo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iiihbi9s; arc=none smtp.client-ip=10.30.226.201
+	bh=/FOvHL4JoMW59flXeN8dYOocFIaMHLLAYyfKjZ5n94I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=fhM2Ojs0vqwa6NpSnq8jNNC31qjVw1i6bo6eHr1eSN8pEj56IUBYUL8frLJD6TNK8tqoWHg52vjeHjjofMdz/s0vh41OhNdmIwUHl5HOsUVnoP9OejhG4NHv15pku1/nnKsekVYVYlM87LdIpBfz6bF49Wm/5GUS3rViJ1R0RS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eo5g9o6i; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iiihbi9s"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 66850C4CEEA;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eo5g9o6i"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9CB62C4CEF4;
 	Thu, 12 Jun 2025 21:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1749762721;
-	bh=NJlC89e85kPwnIrRRCWxs5BdJsq3vAE6W0Ymwg3gpew=;
-	h=From:Subject:Date:To:Cc:From;
-	b=Iiihbi9s+/pIYtVo3kda9DFbAQHj1W5wOvWbbRaeqNxsjpNokpWuj6L45S2eONyuJ
-	 z5ZjNdbX6l3tfFmftfHTp2/1teSRAWg/3EeiNYV+GJ4wmmedWnf5QH60wONxMU3lTy
-	 n/rRSvlzhpTklFRslxFI2jWl2fc1S88YMZTYYDX0/O7KMgVMucqRcyeOTKlzCOYcrp
-	 Dk80UcrIXXSOdPfmQmlfEosrkWM1jO1oLXrO60K6tLwQgjbUQW3Mx3aLF39efZBQWV
-	 giDzstIr1fU4T6X5SZIjlEt8qb9eLedQQAgFYRM9atModgeD+cb+g6RVGxbR4XjaGt
-	 kFfPnUccqezKQ==
+	bh=/FOvHL4JoMW59flXeN8dYOocFIaMHLLAYyfKjZ5n94I=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=eo5g9o6i1JomDM6VcBR+WurO2DOSDU/niQawU+oxH/fXYlNz37XffXLszSnqjqUEe
+	 3Jn6L45WIH1Rl20iOdyGddZOwB3VsmB1g0fU383Dv564AnAvdYhPjcWqYbCUxJ6ONB
+	 /cHKSflKTI7WSWOqjcO+E+8giyBPz0axluyyz8ho9xKC7a+FOqAhsrgq4CfNJyvreB
+	 ZA+QNME+gpYZ2yVHv0NNFXilQahY082xCo8ITQ8gk1DR0z0ebYZSHNaPUYUugxxboM
+	 XUzvdNcNRWJF1Vtt6T6vCHu+l6zupyPq1qb1GZYPJdV0X58Mswat3+7/r4GpoJl8uB
+	 C9G0Tjej2amIg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB4DC61CE8;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E476C61CE8;
 	Thu, 12 Jun 2025 21:12:01 +0000 (UTC)
 From: Sven Peter <sven@kernel.org>
-Subject: [PATCH 00/11] Drop default ARCH_APPLE from Kconfig and use
- defconfig instead
-Date: Thu, 12 Jun 2025 21:11:24 +0000
-Message-Id: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
+Date: Thu, 12 Jun 2025 21:11:27 +0000
+Subject: [PATCH 03/11] clk: apple-nco: Drop default ARCH_APPLE in Kconfig
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,10 +40,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAHxCS2gC/y2MQQqAIBAAvxJ7biELw/pKdFBbaylMFCII/55Et
- 5nDzAOJIlOCsXog0sWJT19E1BXYTfuVkJfi0DatbHohUIdwEO729I5XXMj9ZKRUqu+0smaAUod
- Iju/vPM05vx3OGPppAAAA
-X-Change-ID: 20250611-apple-kconfig-defconfig-b558863a8cb9
+Message-Id: <20250612-apple-kconfig-defconfig-v1-3-0e6f9cb512c1@kernel.org>
+References: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
+In-Reply-To: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
 To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
  Neal Gompa <neal@gompa.dev>, Ulf Hansson <ulf.hansson@linaro.org>, 
  Michael Turquette <mturquette@baylibre.com>, 
@@ -63,67 +61,43 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-input@vger.kernel.org, dmaengine@vger.kernel.org, 
  linux-sound@vger.kernel.org, Sven Peter <sven@kernel.org>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1992; i=sven@kernel.org;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=986; i=sven@kernel.org;
  h=from:subject:message-id;
- bh=NJlC89e85kPwnIrRRCWxs5BdJsq3vAE6W0Ymwg3gpew=;
- b=owGbwMvMwCHmIlirolUq95LxtFoSQ4a3U6dZ4Ztcjq5zQonza32t3J9YGMQ0PjDSnbD/jIi18
- ITHgQc6SlkYxDgYZMUUWbbvtzd98vCN4NJNl97DzGFlAhnCwMUpABN5Zs/wP5kp4uxT2Zp2YWsl
- +cmOLgVCpo7J3D+thMpvP3pTXrp6IcP/nIMz18Rev6yRM+OVyuwn8YGHl875+rOvr9AyS+ldk5g
- 6BwA=
+ bh=/FOvHL4JoMW59flXeN8dYOocFIaMHLLAYyfKjZ5n94I=;
+ b=owGbwMvMwCHmIlirolUq95LxtFoSQ4a306Q4L2fzPrPu0KMm66q9vrjfcTsSv2dnxWFfleKmF
+ tnzpXYdpSwMYhwMsmKKLNv325s+efhGcOmmS+9h5rAygQxh4OIUgIkoajEyrL1kd7lz5asWXk4N
+ rwfitxTVZobZLD506GTIw/mSsuH9Exj+5z094fuhjFeg8LaiolDTXumOMpO4NYcmL5+62iNA47M
+ NEwA=
 X-Developer-Key: i=sven@kernel.org; a=openpgp;
  fpr=A1E3E34A2B3C820DBC4955E5993B08092F131F93
 X-Endpoint-Received: by B4 Relay for sven@kernel.org/default with
  auth_id=407
 
-Hi,
-
-When support for Apple Silicon was originally upstreamed we somehow
-started using `default ARCH_APPLE` for most drivers. arm64 defconfig
-also contains ARCH_APPLE=y such that this will turn into `default y`
-there by default which is neither what we want nor how this is usually
-done.
-Let's fix all that by dropping the default everywhere and adding the
-drivers to defconfig as modules instead of built-ins.
-None of these patches depend on each other so we can just take them all
-independently through the respective subsystem trees.
-
-Best,
-
-Sven
+When the first driver for Apple Silicon was upstreamed we accidentally
+included `default ARCH_APPLE` in its Kconfig which then spread to almost
+every subsequent driver. As soon as ARCH_APPLE is set to y this will
+pull in many drivers as built-ins which is not what we want.
+Thus, drop `default ARCH_APPLE` from Kconfig.
 
 Signed-off-by: Sven Peter <sven@kernel.org>
 ---
-Sven Peter (11):
-      pmdomain: apple: Drop default ARCH_APPLE in Kconfig
-      soc: apple: Drop default ARCH_APPLE in Kconfig
-      clk: apple-nco: Drop default ARCH_APPLE in Kconfig
-      nvmem: apple: drop default ARCH_APPLE in Kconfig
-      i2c: apple: Drop default ARCH_APPLE in Kconfig
-      cpufreq: apple: drop default ARCH_APPLE in Kconfig
-      iommu/apple-dart: Drop default ARCH_APPLE in Kconfig
-      Input: apple_z2: Drop default ARCH_APPLE in Kconfig
-      dmaengine: apple-admac: Drop default ARCH_APPLE in Kconfig
-      ASoC: apple: mca: Drop default ARCH_APPLE in Kconfig
-      arm64: defconfig: Enable Apple Silicon drivers
+ drivers/clk/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
- arch/arm64/configs/defconfig      | 19 +++++++++++++++++++
- drivers/clk/Kconfig               |  1 -
- drivers/cpufreq/Kconfig.arm       |  1 -
- drivers/dma/Kconfig               |  1 -
- drivers/i2c/busses/Kconfig        |  1 -
- drivers/input/touchscreen/Kconfig |  1 -
- drivers/iommu/Kconfig             |  1 -
- drivers/nvmem/Kconfig             |  1 -
- drivers/pmdomain/apple/Kconfig    |  1 -
- drivers/soc/apple/Kconfig         |  3 ---
- sound/soc/apple/Kconfig           |  1 -
- 11 files changed, 19 insertions(+), 12 deletions(-)
----
-base-commit: 19272b37aa4f83ca52bdf9c16d5d81bdd1354494
-change-id: 20250611-apple-kconfig-defconfig-b558863a8cb9
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 19c1ed280fd7f6958a4144975337abe1728e1e85..561fbc9eef2d82133cab0f165c6c55c5e6ab7fdd 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -61,7 +61,6 @@ config LMK04832
+ config COMMON_CLK_APPLE_NCO
+ 	tristate "Clock driver for Apple SoC NCOs"
+ 	depends on ARCH_APPLE || COMPILE_TEST
+-	default ARCH_APPLE
+ 	help
+ 	  This driver supports NCO (Numerically Controlled Oscillator) blocks
+ 	  found on Apple SoCs such as t8103 (M1). The blocks are typically
 
-Best regards,
 -- 
-Sven Peter <sven@kernel.org>
+2.34.1
 
 

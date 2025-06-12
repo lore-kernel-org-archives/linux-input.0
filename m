@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F91C2DECA4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A98432DFA29;
 	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749762722; cv=none; b=j3vnT2EIMRWa2aBOxZ+WdSLzDsK932h5Efx/m0tZI47Sqc+f6tTTyGL+5qTPjqmS28ufXfCBoSajWDeF1G0uV7vCqt1LLQOhKv4jxaVKcU6rJBoCY99KKso9/qcK7sg2M+zc5WZ88Cg+HKy+b6Fy09ew4cs43fBD+1+u+djllvY=
+	t=1749762722; cv=none; b=aBbRfZx3VVz0njGRjggnN7ndi53NGvpYQif0UThQqGAc2GLwXeLLsySpjazQfqMA5o9Ghm8Wvac0Aa1h9BotRUmiw2U232oe55NJ3wsNFUeVWIw3Lhw4HQRdJDQqJIDTW3xMIYx2U+sRSadgg7nn0dN/34N88zrOsHy2tqqASV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749762722; c=relaxed/simple;
-	bh=f2vJ1VzynNUJ83xEH0r0BrVBF2l+dxGM7bRjxCpAZXQ=;
+	bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=MTHpwSjrTPJrSSNh9mxDV7JQIkyzmmKQWY4hk/oB6ZB0ETCgCDhs6dVH/wJCZlaN549vqb9ssV5MHOl1/OiaRhFU76NemoF9BYnDPtIKgVIBQ10z7iXBF9AkczaiaOZL4gHu/V1zVew1W4aVDyPmRzI+xM8vJ6kbFSOswm8Llbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OB0F4K/L; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=pVqg5lgQZ/qb5UnhRIU18hn804ba7F8YdsOC5orkRBfeLY5VDZFv6N5ENgfmWooHiAD9F8o4pUx33j7FboKh4Uq7ZpbfnzM7ST7lMbflQoisZLDyRYZ6BW/T/OhoWby0/iMarPO3wCipQjaa5KY+YPakly98rhymftLfXVDUmGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m35W7jBM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OB0F4K/L"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DD166C4AF51;
-	Thu, 12 Jun 2025 21:12:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m35W7jBM"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 58A89C4CEF2;
+	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749762721;
-	bh=f2vJ1VzynNUJ83xEH0r0BrVBF2l+dxGM7bRjxCpAZXQ=;
+	s=k20201202; t=1749762722;
+	bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=OB0F4K/L7lc/PtRHOqI0eRMdaNRq0kctxOUqZjpE9Q/Ps6RKplVUuMsSH6glkpqey
-	 BYaiDbzKmrvuB/bYB4e3A2c25FTWW+fj5N73AzJm5MOowKsQ9sJiNQbyd68LveCi/T
-	 xnEAtBRvqAti5YljKNAEUH13Qx/bkYUrC1+VmVVczsTBBrHLYgtkEdEZKz3z381AuT
-	 6yDlvO/kfw0+/VWD9lnedqe1z+FIZqxYNi6QRQvs+tB4wvsqdluhxFVQAzugPVOuuR
-	 d+b7wzV63Ezmi8qfK1zpvx3jLw20KVda26PhF0f2ZJkBiYfXdJE32HcIJm6sFOQ46N
-	 e8G/H+IsbT/8A==
+	b=m35W7jBMER4m6jU1aOYfYRGE65aZVPlqPralPHRh7vzQtkVF1PXTO0WdOCGKidAJt
+	 m5uPMOOPI8JI0PQpqqoCnpImSVurGu1WI48v7iSXPL8PbaCzDT71OmiqZXkiPUbMOp
+	 ukjvjXtK/P/1/krRa6H3DL1+ETLjQ4gsC1oCYqp07nkVbtbns1BGUGppQGenjAdJaI
+	 wBjizqsFaDz254MXAK0PfyOOmAlST0X4r2HmBsxqD7FC78TblUWuUXkAA9g/r2SDXf
+	 +zt/4oI6e0+XpFYxiV+Wy8cvW1be48RCNQ7vR5uPaX5rgbDFb7p2nlLR3ttuUhvfzX
+	 jIRUYvyhTXEjg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CED25C71136;
-	Thu, 12 Jun 2025 21:12:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D429C61CE8;
+	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
 From: Sven Peter <sven@kernel.org>
-Date: Thu, 12 Jun 2025 21:11:30 +0000
-Subject: [PATCH 06/11] cpufreq: apple: drop default ARCH_APPLE in Kconfig
+Date: Thu, 12 Jun 2025 21:11:34 +0000
+Subject: [PATCH 10/11] ASoC: apple: mca: Drop default ARCH_APPLE in Kconfig
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250612-apple-kconfig-defconfig-v1-6-0e6f9cb512c1@kernel.org>
+Message-Id: <20250612-apple-kconfig-defconfig-v1-10-0e6f9cb512c1@kernel.org>
 References: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
 In-Reply-To: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
 To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
@@ -61,13 +61,13 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-input@vger.kernel.org, dmaengine@vger.kernel.org, 
  linux-sound@vger.kernel.org, Sven Peter <sven@kernel.org>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=979; i=sven@kernel.org;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=964; i=sven@kernel.org;
  h=from:subject:message-id;
- bh=f2vJ1VzynNUJ83xEH0r0BrVBF2l+dxGM7bRjxCpAZXQ=;
- b=owGbwMvMwCHmIlirolUq95LxtFoSQ4a30/RTmaqcaVp+85SlLPYmb9cKfWvcKHVPJTr4cH+58
- Mba8jsdpSwMYhwMsmKKLNv325s+efhGcOmmS+9h5rAygQxh4OIUgIksnMXwT9dFNZKh4Volw7T5
- 31edEetf94fJrK262MdAxKtred/8ywz/g0s5NPudk45vitnnr2a0/OUfpcTCHwrH94ke2XC/4qQ
- xIwA=
+ bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
+ b=owGbwMvMwCHmIlirolUq95LxtFoSQ4a30xydBbpqq5VXvmSptO66k2MZp11785gtr2j91R8CB
+ z+4Rst0lLIwiHEwyIopsmzfb2/65OEbwaWbLr2HmcPKBDKEgYtTACZy4A0jw98cpg0xd0T3ip64
+ w7XKZO5Mrz1FD550BPhdlurgZ9hxqY+RYebbP+6/fRZ9VZJTvKSwN+B0xcNfM58VqXYtWZGu86s
+ 9mhsA
 X-Developer-Key: i=sven@kernel.org; a=openpgp;
  fpr=A1E3E34A2B3C820DBC4955E5993B08092F131F93
 X-Endpoint-Received: by B4 Relay for sven@kernel.org/default with
@@ -81,21 +81,21 @@ Thus, drop `default ARCH_APPLE` from Kconfig.
 
 Signed-off-by: Sven Peter <sven@kernel.org>
 ---
- drivers/cpufreq/Kconfig.arm | 1 -
+ sound/soc/apple/Kconfig | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
-index 0d46402e30942e3d15e9aae757d27895c2568fe1..4346629d3bc094cb3317ddff8b45e12ae5c5ca09 100644
---- a/drivers/cpufreq/Kconfig.arm
-+++ b/drivers/cpufreq/Kconfig.arm
-@@ -28,7 +28,6 @@ config ARM_APPLE_SOC_CPUFREQ
- 	tristate "Apple Silicon SoC CPUFreq support"
- 	depends on ARCH_APPLE || (COMPILE_TEST && 64BIT)
- 	select PM_OPP
+diff --git a/sound/soc/apple/Kconfig b/sound/soc/apple/Kconfig
+index 793f7782e0d721a1778a82e3515665c3f9f14ede..e9c777cdb6e39c5446f00faea0e617e51b318000 100644
+--- a/sound/soc/apple/Kconfig
++++ b/sound/soc/apple/Kconfig
+@@ -2,7 +2,6 @@ config SND_SOC_APPLE_MCA
+ 	tristate "Apple Silicon MCA driver"
+ 	depends on ARCH_APPLE || COMPILE_TEST
+ 	select SND_DMAENGINE_PCM
 -	default ARCH_APPLE
  	help
- 	  This adds the CPUFreq driver for Apple Silicon machines
- 	  (e.g. Apple M1).
+ 	  This option enables an ASoC platform driver for MCA peripherals found
+ 	  on Apple Silicon SoCs.
 
 -- 
 2.34.1

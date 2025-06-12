@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 166C926E142;
-	Thu, 12 Jun 2025 14:59:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4971E271449;
+	Thu, 12 Jun 2025 14:59:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749740361; cv=none; b=ksOAhJnQL1H54MQzMOdl9jQKeKEmCtOMJX90qkPRD7MBsOEGUuO4YqYJKnDW7rcullMlI5wVr9Q/QnWwclIuiYBqyYb59G2BTTnT6N6PY1wTf1CysY02lFf8ILkmum3MXndUAbd6pwjMANczgU5nlqKvW+E9f8A/gQNv/voXits=
+	t=1749740361; cv=none; b=KRNy6HXbZVIQbA0O9vttSz6Mfuw/GdzcX4viA2LQqrKoRNfiPuNu+3EWBCmborSZcED1HqHx2Kc5rV85jCFTb7faCzeiaZl3VvZaaySjvKesqc4KiC6lhxclUTmHSIC2GcAZePpApat0lCx21sFoGC8IaaTOd7hqc3z25ScfWOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749740361; c=relaxed/simple;
-	bh=4WhOw5Pc8bV38NNBKDq+M7SXVLk0DorgEecTG6vPvq8=;
+	bh=wRc4J5lTl3LwyvIrnX2/agSOnDCKGpnt1Cg19jfH7QY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=HxMIlT5RVkbaGi0IYHADOjJvtfpkv3mKe/S/6eATZ98CmLlyTh4hwNlKw0T311+bltpACpQLcWrON0XfhBYIaECCgN5h//GqmdOL2XENhq3Phn7Atb+0P97ShQxadu7GOBeMZBaEq/6aUHu1IHwWyGSps/TVo0hoSGacKmaw+E0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kbjhbZ+G; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Ec50X0fXCrCE83jaht0GKIADzo5nqCcFbX5CYsZ5l6gMokcLLUHqk2wj5ya8c/fBYxWIEIOO6bSQnSi8S1UVWXsOC8ISidp5f4TctoiAaGzE+v2kV3trYcaGc64WCV7w5UnbwYKfhzDGXBxBpcC4zsQnNJbU9ygibNMDRObLwd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uYPOu05T; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kbjhbZ+G"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A8A2EC4CEEE;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uYPOu05T"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F0313C4CEFD;
 	Thu, 12 Jun 2025 14:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749740360;
-	bh=4WhOw5Pc8bV38NNBKDq+M7SXVLk0DorgEecTG6vPvq8=;
+	s=k20201202; t=1749740361;
+	bh=wRc4J5lTl3LwyvIrnX2/agSOnDCKGpnt1Cg19jfH7QY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=kbjhbZ+G7Qk9tPQNf/BAYyIP993CXLqvB+HcfboSuGreSTSQeCkLFqgN7i9Osk8Ou
-	 wk3ZFxe6/l6qRQQfXvAbr57SQBmhZPowHoEtrevheuTFcEbSpUX/awMiN6lFrupjex
-	 WXIW86nOl5i3bsaOOBsag4seeAmjyZfrSu8hCP1+eQVYpLqUk1Kg4E6dDqQmqnPE62
-	 QdqmFGLhux9nv0Un1EoG5WWu/XlHz2qTdwBMuPNM04Tci2DYZTOj6oLcymy/gtW2t4
-	 y2vVGYpiCBxQ+AZ94dRVRzQ+IpoouA6UAUo946vkoFHiBAEVYcHiVMaQp7S5eRf+nW
-	 WLkSUSsWo8f7Q==
+	b=uYPOu05TZV6b9+Oiy6usPKKPFsd41unYSUWamiyaJ1402I0LUEN7VxBYN9a9GWOUZ
+	 7PQiQReMWwbmIsura8WuJ+hfOhz0C4ZHXfAkVwEr4YVv5m0HyZcTxWmrBdmAF0aFig
+	 V7gh59GVpW08A9DX+ma28yuNfMiHB28AdQIxiLfkkJvR0zCgbGAuA9ogLDMcdMfP2q
+	 rvvM52FrcRWqMiTY2I1vr8LbSl13CxRPE90G2sSZ8xB1SoXw7kvD4QjfxkOIe+7sLF
+	 lmqLd0eRC5U/bNFGFILM4uzOj1qTQBM4w/dvcDIZGZjCM/y28HjAs5twyU2PTaEQ2E
+	 xw/+4br67H64A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96B13C71136;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E39BFC61CE8;
 	Thu, 12 Jun 2025 14:59:20 +0000 (UTC)
 From: Samuel Kayode via B4 Relay <devnull+samuel.kayode.savoirfairelinux.com@kernel.org>
-Date: Thu, 12 Jun 2025 10:55:43 -0400
-Subject: [PATCH v7 1/6] dt-bindings: mfd: add pf1550
+Date: Thu, 12 Jun 2025 10:55:46 -0400
+Subject: [PATCH v7 4/6] input: pf1550: add onkey support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250612-pf1550-v7-1-0e393b0f45d7@savoirfairelinux.com>
+Message-Id: <20250612-pf1550-v7-4-0e393b0f45d7@savoirfairelinux.com>
 References: <20250612-pf1550-v7-0-0e393b0f45d7@savoirfairelinux.com>
 In-Reply-To: <20250612-pf1550-v7-0-0e393b0f45d7@savoirfairelinux.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -56,15 +56,14 @@ Cc: imx@lists.linux.dev, devicetree@vger.kernel.org,
  Robin Gong <yibin.gong@nxp.com>, 
  Enric Balletbo i Serra <eballetbo@gmail.com>, 
  Samuel Kayode <samuel.kayode@savoirfairelinux.com>, 
- Abel Vesa <abelvesa@kernel.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+ Abel Vesa <abelvesa@kernel.org>, Frank Li <Frank.Li@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1749740359; l=5930;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1749740359; l=8165;
  i=samuel.kayode@savoirfairelinux.com; s=20250527;
  h=from:subject:message-id;
- bh=r8SVeBRmGib5X/fCH5StS6pFWPmPVyMn+NWDHww3thQ=;
- b=BxAqpfO7hNoBRyX3oiHAa2ms9lHpa4SxEE7EkS3VLnlF3dwN8EdZxFkV05jYliWhhRa8vWbe2
- 60NSHCEBJPTC2Ge3w7jKDxtOPQDlYYK9idlJimNY25oAOkPR3tyIOcX
+ bh=/30u4M/fqrOybLKaLrNjTNbzn9NVPxvcjfIrn5ELRPQ=;
+ b=5rCQh20UGfSKVbUrrvYuIsnTH0vkOAQtZ8XlS6Mxmk/qHHrAzJtJ/4ynMVTyPcjWOnxK1459h
+ MG1cjkq/gyoAnd4w86Zd2TDp3VG2DwZCKQi7iHN85G6xTocbEllEbMV
 X-Developer-Key: i=samuel.kayode@savoirfairelinux.com; a=ed25519;
  pk=TPSQGQ5kywnnPyGs0EQqLajLFbdDu17ahXz8/gxMfio=
 X-Endpoint-Received: by B4 Relay for
@@ -74,185 +73,268 @@ Reply-To: samuel.kayode@savoirfairelinux.com
 
 From: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 
-Add a DT binding document for pf1550 PMIC. This describes the core mfd
-device along with its children: regulators, charger and onkey.
+Add support for the onkey of the pf1550 PMIC.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 Signed-off-by: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 ---
-v5:
- - Address Krzystof's feedback:
-   - Drop monitored battery ref already included in power supply schema
-   - Move `additionalProperties` close to `type` for regulator
-   - Drop unneccessary |
-   - Change `additionalProperties` to `unevaluatedProperties` for the
-     PMIC
+v7:
+- Use reverese christmas tree style
+- Drop unecessary 0 in id table's driver data
 v4:
- - Address Krzystof's feedback:
-   - Filename changed to nxp,pf1550.yaml
-   - Replace Freescale with NXP
-   - Define include before battery-cell
-   - Drop operating-range-celsius in example since
-     nxp,thermal-regulation-celsisus already exists
- - Not sure if there is similar binding to thermal-regulation...
-   for regulating temperature on thermal-zones? @Sebastian and @Krzysztof
+- Address Dmitry's feedback
+  - Drop irq variable in onkey_drv_data
+  - Drop keycode variable in onkey_drv_data
+  - Define wakeup as type bool
+  - Use platform_get_irq
+  - Use type const for struct pf1550_dev in onkey_drv_data
+  - Replace (error < 0) with (error) in if statement when applicable
+  - No need to define driver_data in table id
+- Define driver.pm with pm_sleep_ptr
 v3:
- - Address Krzysztof's feedback:
-   - Fold charger and onkey objects
-   - Drop compatible for sub-devices: onkey, charger and regulator.
-   - Drop constant voltage property already included in
-     monitored-battery
-   - Fix whitespace warnings
-   - Fix license
+- Address Dmitry's feedback
+  - Drop compatible string
+  - Remove dependency on OF
+  - Use generic device properties
+  - Drop unnecessary includes
+  - Drop unnecessary initializations in probe
+  - Always use the KEY_POWER property for onkey->keycode
+  - Do mapping of irqs in MFD driver
+  - Define onkey->input before interrupts are active
+  - Drop unnecessary input_free_device since devm
+  - Manage onkey irqs instead of the main interrupt line.
+- Fix integer overflow when unmasking onkey irqs in onkey_resume.
 v2:
- - Add yamls for the PMIC and the sub-devices
+- Add driver for onkey
 ---
- .../devicetree/bindings/mfd/nxp,pf1550.yaml        | 137 +++++++++++++++++++++
- 1 file changed, 137 insertions(+)
+ drivers/input/misc/Kconfig        |  11 +++
+ drivers/input/misc/Makefile       |   1 +
+ drivers/input/misc/pf1550-onkey.c | 183 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 195 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index f5496ca0c0d2bfcb7968503ccd1844ff43bbc1c0..47b3c43ff0550f14d61990997976366436411adc 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -179,6 +179,17 @@ config INPUT_PCSPKR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcspkr.
+ 
++config INPUT_PF1550_ONKEY
++	tristate "NXP PF1550 Onkey support"
++	depends on MFD_PF1550
++	help
++	  Say Y here if you want support for PF1550 PMIC. Onkey can trigger
++	  release and 1s(push hold), 2s, 3s, 4s, 8s interrupt for long press
++	  detect.
++
++	  To compile this driver as a module, choose M here. The module will be
++	  called pf1550-onkey.
++
+ config INPUT_PM8941_PWRKEY
+ 	tristate "Qualcomm PM8941 power key support"
+ 	depends on MFD_SPMI_PMIC
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 6d91804d0a6f761a094e6c380f878f74c3054d63..c652337de464c1eeaf1515d0bc84d10de0cb3a74 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -62,6 +62,7 @@ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
+ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
++obj-$(CONFIG_INPUT_PF1550_ONKEY)	+= pf1550-onkey.o
+ obj-$(CONFIG_INPUT_PM8941_PWRKEY)	+= pm8941-pwrkey.o
+ obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
+ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
+diff --git a/drivers/input/misc/pf1550-onkey.c b/drivers/input/misc/pf1550-onkey.c
 new file mode 100644
-index 0000000000000000000000000000000000000000..a0b412c3468a3d8972e5c129387c5417933c78e3
+index 0000000000000000000000000000000000000000..a93346f5de9ed9c7e64c3a5f559d66380dc35472
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
-@@ -0,0 +1,137 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/nxp,pf1550.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/input/misc/pf1550-onkey.c
+@@ -0,0 +1,183 @@
++// SPDX-License-Identifier: GPL-2.0
++//
++// Driver for the PF1550 ON_KEY
++// Copyright (C) 2016 Freescale Semiconductor, Inc. All Rights Reserved.
++//
++// Portions Copyright (c) 2025 Savoir-faire Linux Inc.
++// Samuel Kayode <samuel.kayode@savoirfairelinux.com>
++//
 +
-+title: NXP PF1550 Power Management IC
++#include <linux/err.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/pf1550.h>
++#include <linux/platform_device.h>
 +
-+maintainers:
-+  - Samuel Kayode <samuel.kayode@savoirfairelinux.com>
++#define PF1550_ONKEY_IRQ_NR	6
 +
-+description:
-+  PF1550 PMIC provides battery charging and power supply for low power IoT and
-+  wearable applications. This device consists of an i2c controlled MFD that
-+  includes regulators, battery charging and an onkey/power button.
++struct onkey_drv_data {
++	struct device *dev;
++	const struct pf1550_dev *pf1550;
++	bool wakeup;
++	struct input_dev *input;
++};
 +
-+$ref: /schemas/power/supply/power-supply.yaml
++static irqreturn_t pf1550_onkey_irq_handler(int irq, void *data)
++{
++	struct onkey_drv_data *onkey = data;
++	struct platform_device *pdev = to_platform_device(onkey->dev);
++	int i, state, irq_type = -1;
 +
-+properties:
-+  compatible:
-+    const: nxp,pf1550
++	for (i = 0; i < PF1550_ONKEY_IRQ_NR; i++)
++		if (irq == platform_get_irq(pdev, i))
++			irq_type = i;
 +
-+  reg:
-+    maxItems: 1
++	switch (irq_type) {
++	case PF1550_ONKEY_IRQ_PUSHI:
++		state = 0;
++		break;
++	case PF1550_ONKEY_IRQ_1SI:
++	case PF1550_ONKEY_IRQ_2SI:
++	case PF1550_ONKEY_IRQ_3SI:
++	case PF1550_ONKEY_IRQ_4SI:
++	case PF1550_ONKEY_IRQ_8SI:
++		state = 1;
++		break;
++	default:
++		dev_err(onkey->dev, "onkey interrupt: irq %d occurred\n",
++			irq_type);
++		return IRQ_HANDLED;
++	}
 +
-+  interrupts:
-+    maxItems: 1
++	input_event(onkey->input, EV_KEY, KEY_POWER, state);
++	input_sync(onkey->input);
 +
-+  wakeup-source: true
++	return IRQ_HANDLED;
++}
 +
-+  regulators:
-+    type: object
-+    additionalProperties: false
++static int pf1550_onkey_probe(struct platform_device *pdev)
++{
++	struct onkey_drv_data *onkey;
++	struct input_dev *input;
++	int i, irq, error;
 +
-+    patternProperties:
-+      "^(ldo[1-3]|sw[1-3]|vrefddr)$":
-+        type: object
-+        $ref: /schemas/regulator/regulator.yaml
-+        description:
-+          regulator configuration for ldo1-3, buck converters(sw1-3)
-+          and DDR termination reference voltage (vrefddr)
-+        unevaluatedProperties: false
++	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
++	if (!onkey)
++		return -ENOMEM;
 +
-+  monitored-battery:
-+    description: |
-+      A phandle to a monitored battery node that contains a valid value
-+      for:
-+      constant-charge-voltage-max-microvolt.
++	onkey->dev = &pdev->dev;
 +
-+  nxp,thermal-regulation-celsius:
-+    description:
-+      Temperature threshold for thermal regulation of charger in celsius.
-+    enum: [ 60, 75, 90, 105 ]
++	onkey->pf1550 = dev_get_drvdata(pdev->dev.parent);
++	if (!onkey->pf1550->regmap)
++		return dev_err_probe(&pdev->dev, -ENODEV,
++				     "failed to get regmap\n");
 +
-+  nxp,min-system-microvolt:
-+    description:
-+      System specific lower limit voltage.
-+    enum: [ 3500000, 3700000, 4300000 ]
++	onkey->wakeup = device_property_read_bool(pdev->dev.parent,
++						  "wakeup-source");
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return dev_err_probe(&pdev->dev, -ENOMEM,
++				     "failed to allocate the input device\n");
 +
-+unevaluatedProperties: false
++	input->name = pdev->name;
++	input->phys = "pf1550-onkey/input0";
++	input->id.bustype = BUS_HOST;
 +
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/input/linux-event-codes.h>
++	input_set_capability(input, EV_KEY, KEY_POWER);
 +
-+    battery: battery-cell {
-+        compatible = "simple-battery";
-+        constant-charge-voltage-max-microvolt = <4400000>;
-+    };
++	onkey->input = input;
++	platform_set_drvdata(pdev, onkey);
 +
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
++	for (i = 0; i < PF1550_ONKEY_IRQ_NR; i++) {
++		irq = platform_get_irq(pdev, i);
++		if (irq < 0)
++			return irq;
 +
-+        pmic@8 {
-+            compatible = "nxp,pf1550";
-+            reg = <0x8>;
++		error = devm_request_threaded_irq(&pdev->dev, irq, NULL,
++						  pf1550_onkey_irq_handler,
++						  IRQF_NO_SUSPEND,
++						  "pf1550-onkey", onkey);
++		if (error)
++			return dev_err_probe(&pdev->dev, error,
++					     "failed: irq request (IRQ: %d)\n",
++					     i);
++	}
 +
-+            interrupt-parent = <&gpio1>;
-+            interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
-+            wakeup-source;
-+            monitored-battery = <&battery>;
-+            nxp,min-system-microvolt = <4300000>;
-+            nxp,thermal-regulation-celsius = <75>;
++	error = input_register_device(input);
++	if (error)
++		return dev_err_probe(&pdev->dev, error,
++				     "failed to register input device\n");
 +
-+            regulators {
-+                sw1_reg: sw1 {
-+                    regulator-name = "sw1";
-+                    regulator-min-microvolt = <600000>;
-+                    regulator-max-microvolt = <1387500>;
-+                    regulator-always-on;
-+                    regulator-ramp-delay = <6250>;
-+                };
++	device_init_wakeup(&pdev->dev, onkey->wakeup);
 +
-+                sw2_reg: sw2 {
-+                    regulator-name = "sw2";
-+                    regulator-min-microvolt = <600000>;
-+                    regulator-max-microvolt = <1387500>;
-+                    regulator-always-on;
-+                };
++	return 0;
++}
 +
-+                sw3_reg: sw3 {
-+                    regulator-name = "sw3";
-+                    regulator-min-microvolt = <1800000>;
-+                    regulator-max-microvolt = <3300000>;
-+                    regulator-always-on;
-+                };
++static int pf1550_onkey_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct onkey_drv_data *onkey = platform_get_drvdata(pdev);
++	int i, irq;
 +
-+                vldo1_reg: ldo1 {
-+                    regulator-name = "ldo1";
-+                    regulator-min-microvolt = <750000>;
-+                    regulator-max-microvolt = <3300000>;
-+                    regulator-always-on;
-+                };
++	if (!device_may_wakeup(&pdev->dev))
++		regmap_write(onkey->pf1550->regmap,
++			     PF1550_PMIC_REG_ONKEY_INT_MASK0,
++			     ONKEY_IRQ_PUSHI | ONKEY_IRQ_1SI | ONKEY_IRQ_2SI |
++			     ONKEY_IRQ_3SI | ONKEY_IRQ_4SI | ONKEY_IRQ_8SI);
++	else
++		for (i = 0; i < PF1550_ONKEY_IRQ_NR; i++) {
++			irq = platform_get_irq(pdev, i);
++			if (irq > 0)
++				enable_irq_wake(irq);
++		}
 +
-+                vldo2_reg: ldo2 {
-+                    regulator-name = "ldo2";
-+                    regulator-min-microvolt = <1800000>;
-+                    regulator-max-microvolt = <3300000>;
-+                    regulator-always-on;
-+                };
++	return 0;
++}
 +
-+                vldo3_reg: ldo3 {
-+                    regulator-name = "ldo3";
-+                    regulator-min-microvolt = <750000>;
-+                    regulator-max-microvolt = <3300000>;
-+                    regulator-always-on;
-+                };
-+            };
-+        };
-+    };
++static int pf1550_onkey_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct onkey_drv_data *onkey = platform_get_drvdata(pdev);
++	int i, irq;
++
++	if (!device_may_wakeup(&pdev->dev))
++		regmap_write(onkey->pf1550->regmap,
++			     PF1550_PMIC_REG_ONKEY_INT_MASK0,
++			     ~((u8)(ONKEY_IRQ_PUSHI | ONKEY_IRQ_1SI |
++			     ONKEY_IRQ_2SI | ONKEY_IRQ_3SI | ONKEY_IRQ_4SI |
++			     ONKEY_IRQ_8SI)));
++	else
++		for (i = 0; i < PF1550_ONKEY_IRQ_NR; i++) {
++			irq = platform_get_irq(pdev, i);
++			if (irq > 0)
++				disable_irq_wake(irq);
++		}
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(pf1550_onkey_pm_ops, pf1550_onkey_suspend,
++			 pf1550_onkey_resume);
++
++static const struct platform_device_id pf1550_onkey_id[] = {
++	{ "pf1550-onkey", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(platform, pf1550_onkey_id);
++
++static struct platform_driver pf1550_onkey_driver = {
++	.driver = {
++		.name = "pf1550-onkey",
++		.pm   = pm_sleep_ptr(&pf1550_onkey_pm_ops),
++	},
++	.probe = pf1550_onkey_probe,
++	.id_table = pf1550_onkey_id,
++};
++module_platform_driver(pf1550_onkey_driver);
++
++MODULE_AUTHOR("Freescale Semiconductor");
++MODULE_DESCRIPTION("PF1550 onkey Driver");
++MODULE_LICENSE("GPL");
 
 -- 
 2.49.0

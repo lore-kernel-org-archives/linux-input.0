@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B7BE2E62D7;
-	Sat, 14 Jun 2025 14:37:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DA6A2E6D0F;
+	Sat, 14 Jun 2025 14:37:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749911831; cv=none; b=WIjGzmK0YfJZdaSECTT+b7CpQoLOAwDnEtKn74boobveR6tbTavHbpDek+NLgAtSluOQLqYkShwbasH0ariYYJdGJdm0Nczz1a2ITMpvONbC/tmxa2oBvRVO+0MkVf1jcNowjtVNnXgrhnQ1yDcStv0ZZDLajSSRxG2aaaZkpzU=
+	t=1749911831; cv=none; b=iZcYHXMJqpAc2tdCRY+P8acQJ6/KNl0aivw4qIXs8dujqtaw3YxouRNNUyixpPAiuXCxlA3CUTk6LCAV7c1+KmPAIEOmDLHpBv4h8QS4mhmWrGOLNhyEaFDZkmIYCAJtZ2kbFXhaM54LgScuj3Aefncze5VmIKjgPmxaXyjxzPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749911831; c=relaxed/simple;
-	bh=/OU5QQy2ON17yJmBZuWfO54vm1YJzjp+Y/+4Mj5OYwI=;
+	bh=M3B8KLYfy6NhXa8X31FFzSD2gB0yQZDOaXYMmw/7ezk=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Q5ZP901OjQmbcRq2J7dcSb0aK+ra2zw5s03LJKDzk2DtDm/DTJF6Ad7nQLj1E42DF0bzp0gNCsy7Eh5bE5ECnxrhNF96WRVlbcECuYOmPnsjvI/RYx9D7KgwN/cifDMMQKaNVra/AxnBAcFXx9tXjIS41a1WDf24AIw00TTU2cY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h/BeNbRF; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=oc52w/4SDqRdFD7B/EZxg8I0xqjMMCw68AeucUxkX4BD+00lIP91zS4UJgS6bQtYP6k+w7/Ck57luUTn8iQ8LSZVhRID3FXnDXHcdEY0zR/8aY2Dqq43r3jj/sBb7b98nmfvtrcymj54tgzj0qv0QEbXgNzUNYx8QSjv1OPVqmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ux0kWrYu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h/BeNbRF"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3B478C4AF1A;
-	Sat, 14 Jun 2025 14:37:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ux0kWrYu"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 79C71C4CEF4;
+	Sat, 14 Jun 2025 14:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749911831;
-	bh=/OU5QQy2ON17yJmBZuWfO54vm1YJzjp+Y/+4Mj5OYwI=;
+	s=k20201202; t=1749911830;
+	bh=M3B8KLYfy6NhXa8X31FFzSD2gB0yQZDOaXYMmw/7ezk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=h/BeNbRF3ycvJ9sWBfvd4gHHErVz77okm+aW/zIg9Cphk4sKcTvn6H1sOxtHTVqZQ
-	 59R6XyyB0QYKV9wsd8HYshDsUxNVEGMbsvTz/SXiYxKPPQib8skjc36s5vwq2QDhA6
-	 xHl7rm/issM7IgKM55Z1ViwUtgUaJ4RmTZK5S2DgGRKlamt/1OMthN7GKIivj21yUc
-	 4GjvC7/bqA/tX381iaOOqRbFWoBab9xKNLW+uwQLr2ps6qmsAcu7HwNQYfDbpaaXDv
-	 lTb9n2m80PZWYgIzR/IeBMKE35fZug+cXD6fHxchUpiIK3XxSV84hjTVUyulW+Ls4p
-	 NC/dbf6P+xubw==
+	b=ux0kWrYuLBfx0rFXkgg5NNBH6XPaweok4XXvNqvmuzwhrq7RdDCgDmhn44MISTH66
+	 tL7fGwSmPt/bEBLASEYCrczn0QF3CfDyUkxJh6eduK3TNL8OKFNQd2s6VEIermzlVm
+	 oBGlp6Vu5wPTr+MZo/DLyDMkwkGK0wnFdW4aLVMWrDtvfVMwFCm3MD3061UwsotSp9
+	 kX54PcwbgndTsjBdjAgRkiHOwiXfeuk2R+1OtQbnwfwzt/E6u8wqQiEDe3bbvXmaM8
+	 exL3p//zYd5a8vu3nqRdL+SMCHX/Z+XQXeLPqT31zklO4Mhv+HWE3petdO+BRKPsLW
+	 K07XWusJFTI1Q==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE2EC71135;
-	Sat, 14 Jun 2025 14:37:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CADDC71153;
+	Sat, 14 Jun 2025 14:37:10 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Sat, 14 Jun 2025 15:36:06 +0100
-Subject: [PATCH v5 15/20] gpio: adp5585: support gpi events
+Date: Sat, 14 Jun 2025 15:35:55 +0100
+Subject: [PATCH v5 04/20] mfd: adp5585: make use of MFD_CELL_NAME()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250614-dev-adp5589-fw-v5-15-7e9d84906268@analog.com>
+Message-Id: <20250614-dev-adp5589-fw-v5-4-7e9d84906268@analog.com>
 References: <20250614-dev-adp5589-fw-v5-0-7e9d84906268@analog.com>
 In-Reply-To: <20250614-dev-adp5589-fw-v5-0-7e9d84906268@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -53,14 +53,13 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Bartosz Golaszewski <brgl@bgdev.pl>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
- Liu Ying <victor.liu@nxp.com>, 
- Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+ Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1749911835; l=11547;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1749911835; l=1034;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=fNhkKwm26/y30Dub2uRd6iuHYZoMLItERd7DBAdK8ZE=;
- b=Nlj8HdmCZJCt9cj4kSymNE0OQxv1f79p5P+0elPnxnn+TvAJq9sTWV2zwpOi75O5Hnf5/dVWb
- AkxF/pFQGTlDKI92236eoTuoYg+n7XGx/DMH8e4Q2svISIvOnNJcPVL
+ bh=7YDK4W0KgBcwWAzPlRAEVBEURpqe5ZQ5VnnkXjuoddA=;
+ b=gjSyR5dJSaFr6bcHpdAO5ijoB9Q8N2d4WzOytlNqkFSqGSEKN053XzfVedfnzH4Kg2zHw2qCm
+ vBzJn705hTjCTD5UN13An1LWKquT2HvfPCtm2s+Yq8OsUTAJI/PNE1O
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -70,348 +69,39 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-Add support for adding GPIs to the event FIFO. This is done by adding
-irq_chip support. Like this, one can use the input gpio_keys driver as a
-"frontend" device and input handler.
+Use the helper macro. No functional change intended...
 
-As part of this change, we now implement .request() and .free() as we can't
-blindly consume all available pins as GPIOs (example: some pins can be
-used for forming a keymap matrix).
+Whilst we're at it, now seems like a good time to update the Copyright.
 
-Also note that the number of pins can now be obtained from the parent,
-top level device. Hence the 'max_gpio' variable can be removed.
-
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- drivers/gpio/Kconfig        |   1 +
- drivers/gpio/gpio-adp5585.c | 221 +++++++++++++++++++++++++++++++++++++++++++-
- include/linux/mfd/adp5585.h |   2 +
- 3 files changed, 220 insertions(+), 4 deletions(-)
+ drivers/mfd/adp5585.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 9ae806f45e19c1494d156b7f04b1882be68d3e3f..0b85d07ccb0b8a41f33fd3d930eb74f70787355d 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1259,6 +1259,7 @@ config GPIO_ADP5520
- config GPIO_ADP5585
- 	tristate "GPIO Support for ADP5585"
- 	depends on MFD_ADP5585
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  This option enables support for the GPIO function found in the Analog
- 	  Devices ADP5585.
-diff --git a/drivers/gpio/gpio-adp5585.c b/drivers/gpio/gpio-adp5585.c
-index cdf107742579cb44d73cc030646358ba5a23fd97..b2c8836c5f8477ebeea516b4eedc7d3d2aad59dd 100644
---- a/drivers/gpio/gpio-adp5585.c
-+++ b/drivers/gpio/gpio-adp5585.c
-@@ -7,10 +7,15 @@
-  * Copyright 2025 Analog Devices, Inc.
+diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
+index e4a75ae9b2696d5ca8dfe7882660ed08bcd5ba2d..c764f481875831ff55bccb8cdc59421719afbedd 100644
+--- a/drivers/mfd/adp5585.c
++++ b/drivers/mfd/adp5585.c
+@@ -4,6 +4,7 @@
+  *
+  * Copyright 2022 NXP
+  * Copyright 2024 Ideas on Board Oy
++ * Copyright 2025 Analog Devices Inc.
   */
  
-+#include <linux/bitmap.h>
-+#include <linux/bitops.h>
-+#include <linux/container_of.h>
- #include <linux/device.h>
- #include <linux/gpio/driver.h>
- #include <linux/mfd/adp5585.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/notifier.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/types.h>
-@@ -36,20 +41,29 @@
- struct adp5585_gpio_chip {
- 	int (*bank)(unsigned int off);
- 	int (*bit)(unsigned int off);
--	unsigned int max_gpio;
- 	unsigned int debounce_dis_a;
- 	unsigned int rpull_cfg_a;
- 	unsigned int gpo_data_a;
- 	unsigned int gpo_out_a;
- 	unsigned int gpio_dir_a;
- 	unsigned int gpi_stat_a;
-+	unsigned int gpi_int_lvl_a;
-+	unsigned int gpi_ev_a;
-+	unsigned int gpi_ev_min;
-+	unsigned int gpi_ev_max;
- 	bool has_bias_hole;
+ #include <linux/array_size.h>
+@@ -24,8 +25,8 @@ enum {
  };
  
- struct adp5585_gpio_dev {
- 	struct gpio_chip gpio_chip;
-+	struct notifier_block nb;
- 	const struct adp5585_gpio_chip *info;
- 	struct regmap *regmap;
-+	unsigned long irq_mask;
-+	unsigned long irq_en;
-+	unsigned long irq_active_high;
-+	/* used for irqchip bus locking */
-+	struct mutex bus_lock;
+ static const struct mfd_cell adp5585_devs[ADP5585_DEV_MAX] = {
+-	{ .name = "adp5585-gpio", },
+-	{ .name = "adp5585-pwm", },
++	MFD_CELL_NAME("adp5585-gpio"),
++	MFD_CELL_NAME("adp5585-pwm"),
  };
  
- static int adp5585_gpio_bank(unsigned int off)
-@@ -224,12 +238,175 @@ static int adp5585_gpio_set_config(struct gpio_chip *chip, unsigned int off,
- 	};
- }
- 
-+static int adp5585_gpio_request(struct gpio_chip *chip, unsigned int off)
-+{
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	struct device *dev = chip->parent;
-+	struct adp5585_dev *adp5585 = dev_get_drvdata(dev->parent);
-+	const struct adp5585_regs *regs = adp5585->regs;
-+	int ret;
-+
-+	ret = test_and_set_bit(off, adp5585->pin_usage);
-+	if (ret)
-+		return -EBUSY;
-+
-+	/* make sure it's configured for GPIO */
-+	return regmap_clear_bits(adp5585_gpio->regmap,
-+				 regs->pin_cfg_a + info->bank(off),
-+				 info->bit(off));
-+}
-+
-+static void adp5585_gpio_free(struct gpio_chip *chip, unsigned int off)
-+{
-+	struct device *dev = chip->parent;
-+	struct adp5585_dev *adp5585 = dev_get_drvdata(dev->parent);
-+
-+	clear_bit(off, adp5585->pin_usage);
-+}
-+
-+static int adp5585_gpio_key_event(struct notifier_block *nb, unsigned long key,
-+				  void *data)
-+{
-+	struct adp5585_gpio_dev *adp5585_gpio = container_of(nb, struct adp5585_gpio_dev, nb);
-+	struct device *dev = adp5585_gpio->gpio_chip.parent;
-+	unsigned long key_press = (unsigned long)data;
-+	unsigned int irq, irq_type;
-+	struct irq_data *irqd;
-+	bool active_high;
-+	unsigned int off;
-+
-+	/* make sure the event is for me */
-+	if (key < adp5585_gpio->info->gpi_ev_min || key > adp5585_gpio->info->gpi_ev_max)
-+		return NOTIFY_DONE;
-+
-+	off = key - adp5585_gpio->info->gpi_ev_min;
-+	active_high = test_bit(off, &adp5585_gpio->irq_active_high);
-+
-+	irq = irq_find_mapping(adp5585_gpio->gpio_chip.irq.domain, off);
-+	if (!irq)
-+		return NOTIFY_BAD;
-+
-+	irqd = irq_get_irq_data(irq);
-+	if (!irqd) {
-+		dev_err(dev, "Could not get irq(%u) data\n", irq);
-+		return NOTIFY_BAD;
-+	}
-+
-+	dev_dbg_ratelimited(dev, "gpio-keys event(%u) press=%lu, a_high=%u\n",
-+			    off, key_press, active_high);
-+
-+	if (!active_high)
-+		key_press = !key_press;
-+
-+	irq_type = irqd_get_trigger_type(irqd);
-+
-+	if ((irq_type & IRQ_TYPE_EDGE_RISING && key_press) ||
-+	    (irq_type & IRQ_TYPE_EDGE_FALLING && !key_press))
-+		handle_nested_irq(irq);
-+
-+	return NOTIFY_STOP;
-+}
-+
-+static void adp5585_irq_bus_lock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(gc);
-+
-+	mutex_lock(&adp5585_gpio->bus_lock);
-+}
-+
-+static void adp5585_irq_bus_sync_unlock(struct irq_data *d)
-+{
-+	struct gpio_chip *chip = irq_data_get_irq_chip_data(d);
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(chip);
-+	const struct adp5585_gpio_chip *info = adp5585_gpio->info;
-+	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+	bool active_high = test_bit(hwirq, &adp5585_gpio->irq_active_high);
-+	bool enabled = test_bit(hwirq, &adp5585_gpio->irq_en);
-+	bool masked = test_bit(hwirq, &adp5585_gpio->irq_mask);
-+	unsigned int bank = adp5585_gpio->info->bank(hwirq);
-+	unsigned int bit = adp5585_gpio->info->bit(hwirq);
-+
-+	if (masked && !enabled)
-+		goto out_unlock;
-+	if (!masked && enabled)
-+		goto out_unlock;
-+
-+	regmap_update_bits(adp5585_gpio->regmap, info->gpi_int_lvl_a + bank, bit,
-+			   active_high ? bit : 0);
-+	regmap_update_bits(adp5585_gpio->regmap, info->gpi_ev_a + bank, bit,
-+			   masked ? 0 : bit);
-+	assign_bit(hwirq, &adp5585_gpio->irq_en, !masked);
-+
-+out_unlock:
-+	mutex_unlock(&adp5585_gpio->bus_lock);
-+}
-+
-+static void adp5585_irq_mask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(gc);
-+	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+
-+	__set_bit(hwirq, &adp5585_gpio->irq_mask);
-+	gpiochip_disable_irq(gc, hwirq);
-+}
-+
-+static void adp5585_irq_unmask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(gc);
-+	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+
-+	gpiochip_enable_irq(gc, hwirq);
-+	__clear_bit(hwirq, &adp5585_gpio->irq_mask);
-+}
-+
-+static int adp5585_irq_set_type(struct irq_data *d, unsigned int type)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct adp5585_gpio_dev *adp5585_gpio = gpiochip_get_data(gc);
-+	irq_hw_number_t hwirq = irqd_to_hwirq(d);
-+
-+	if (!(type & IRQ_TYPE_EDGE_BOTH))
-+		return -EINVAL;
-+
-+	assign_bit(hwirq, &adp5585_gpio->irq_active_high,
-+		   type == IRQ_TYPE_EDGE_RISING);
-+
-+	irq_set_handler_locked(d, handle_edge_irq);
-+	return 0;
-+}
-+
-+static const struct irq_chip adp5585_irq_chip = {
-+	.name = "adp5585",
-+	.irq_mask = adp5585_irq_mask,
-+	.irq_unmask = adp5585_irq_unmask,
-+	.irq_bus_lock = adp5585_irq_bus_lock,
-+	.irq_bus_sync_unlock = adp5585_irq_bus_sync_unlock,
-+	.irq_set_type = adp5585_irq_set_type,
-+	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_IMMUTABLE,
-+	GPIOCHIP_IRQ_RESOURCE_HELPERS,
-+};
-+
-+static void adp5585_gpio_unreg_notifier(void *data)
-+{
-+	struct adp5585_gpio_dev *adp5585_gpio = data;
-+	struct device *dev = adp5585_gpio->gpio_chip.parent;
-+	struct adp5585_dev *adp5585 = dev_get_drvdata(dev->parent);
-+
-+	blocking_notifier_chain_unregister(&adp5585->event_notifier,
-+					   &adp5585_gpio->nb);
-+}
-+
- static int adp5585_gpio_probe(struct platform_device *pdev)
- {
- 	struct adp5585_dev *adp5585 = dev_get_drvdata(pdev->dev.parent);
- 	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	struct adp5585_gpio_dev *adp5585_gpio;
- 	struct device *dev = &pdev->dev;
-+	struct gpio_irq_chip *girq;
- 	struct gpio_chip *gc;
- 	int ret;
- 
-@@ -253,13 +430,43 @@ static int adp5585_gpio_probe(struct platform_device *pdev)
- 	gc->get = adp5585_gpio_get_value;
- 	gc->set_rv = adp5585_gpio_set_value;
- 	gc->set_config = adp5585_gpio_set_config;
-+	gc->request = adp5585_gpio_request;
-+	gc->free = adp5585_gpio_free;
- 	gc->can_sleep = true;
- 
- 	gc->base = -1;
--	gc->ngpio = adp5585_gpio->info->max_gpio;
-+	gc->ngpio = adp5585->n_pins;
- 	gc->label = pdev->name;
- 	gc->owner = THIS_MODULE;
- 
-+	if (device_property_present(dev->parent, "interrupt-controller")) {
-+		if (!adp5585->irq)
-+			return dev_err_probe(dev, -EINVAL,
-+					     "Unable to serve as interrupt controller without IRQ\n");
-+
-+		girq = &adp5585_gpio->gpio_chip.irq;
-+		gpio_irq_chip_set_chip(girq, &adp5585_irq_chip);
-+		girq->handler = handle_bad_irq;
-+		girq->threaded = true;
-+
-+		adp5585_gpio->nb.notifier_call = adp5585_gpio_key_event;
-+		ret = blocking_notifier_chain_register(&adp5585->event_notifier,
-+						       &adp5585_gpio->nb);
-+		if (ret)
-+			return ret;
-+
-+		ret = devm_add_action_or_reset(dev, adp5585_gpio_unreg_notifier,
-+					       adp5585_gpio);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	/* everything masked by default */
-+	adp5585_gpio->irq_mask = ~0UL;
-+
-+	ret = devm_mutex_init(dev, &adp5585_gpio->bus_lock);
-+	if (ret)
-+		return ret;
- 	ret = devm_gpiochip_add_data(dev, &adp5585_gpio->gpio_chip,
- 				     adp5585_gpio);
- 	if (ret)
-@@ -277,8 +484,11 @@ static const struct adp5585_gpio_chip adp5585_gpio_chip_info = {
- 	.gpo_out_a = ADP5585_GPO_OUT_MODE_A,
- 	.gpio_dir_a = ADP5585_GPIO_DIRECTION_A,
- 	.gpi_stat_a = ADP5585_GPI_STATUS_A,
--	.max_gpio = ADP5585_PIN_MAX,
- 	.has_bias_hole = true,
-+	.gpi_ev_min = ADP5585_GPI_EVENT_START,
-+	.gpi_ev_max = ADP5585_GPI_EVENT_END,
-+	.gpi_int_lvl_a = ADP5585_GPI_INT_LEVEL_A,
-+	.gpi_ev_a = ADP5585_GPI_EVENT_EN_A,
- };
- 
- static const struct adp5585_gpio_chip adp5589_gpio_chip_info = {
-@@ -290,7 +500,10 @@ static const struct adp5585_gpio_chip adp5589_gpio_chip_info = {
- 	.gpo_out_a = ADP5589_GPO_OUT_MODE_A,
- 	.gpio_dir_a = ADP5589_GPIO_DIRECTION_A,
- 	.gpi_stat_a = ADP5589_GPI_STATUS_A,
--	.max_gpio = ADP5589_PIN_MAX,
-+	.gpi_ev_min = ADP5589_GPI_EVENT_START,
-+	.gpi_ev_max = ADP5589_GPI_EVENT_END,
-+	.gpi_int_lvl_a = ADP5589_GPI_INT_LEVEL_A,
-+	.gpi_ev_a = ADP5589_GPI_EVENT_EN_A,
- };
- 
- static const struct platform_device_id adp5585_gpio_id_table[] = {
-diff --git a/include/linux/mfd/adp5585.h b/include/linux/mfd/adp5585.h
-index 41c5d2e1cc7ca40aa5192296ecc5ff8d737cb3e6..5237da6b4a9f2f3424e5f0c4814c5d08aebf080e 100644
---- a/include/linux/mfd/adp5585.h
-+++ b/include/linux/mfd/adp5585.h
-@@ -136,6 +136,8 @@
- #define ADP5589_GPI_STATUS_A		0x16
- #define ADP5589_GPI_STATUS_C		0x18
- #define ADP5589_RPULL_CONFIG_A		0x19
-+#define ADP5589_GPI_INT_LEVEL_A		0x1e
-+#define ADP5589_GPI_EVENT_EN_A		0x21
- #define ADP5589_DEBOUNCE_DIS_A		0x27
- #define ADP5589_GPO_DATA_OUT_A		0x2a
- #define ADP5589_GPO_OUT_MODE_A		0x2d
+ static const struct regmap_range adp5585_volatile_ranges[] = {
 
 -- 
 2.49.0

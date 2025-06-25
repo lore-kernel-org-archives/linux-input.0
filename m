@@ -1,35 +1,33 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7F371EA7CF
-	for <linux-input@vger.kernel.org>; Wed, 25 Jun 2025 09:06:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3511F2868B0;
+	Wed, 25 Jun 2025 09:09:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750842407; cv=none; b=G/tq42V76lw22cXFrAl36/gLC9UrfU3ktpW2bjUWefvcSqFvp5FGy1ur7gY2fRVDNcmj3zn0bYjh/dfqkIOQ3vPhyCndMlbqbJFt+0mN1P6zbQRhBpt+UlSRwk+ZebWMGptGSc5h/H6m8mpM7OR98xDAGsCyylJBnrxmp6ptzXw=
+	t=1750842570; cv=none; b=Ij2yBAdDR7yp8Q7SVzk9MGmtrRk9/HbdPRbFtn4XROyv1cpqdsON+zI4UzV4pfIzoNFLmrkbom6kHPI96RMHir8lfLTtmcJtecmYTDpk6XjSHu5r0H6TjR60NoYbD2oD91W/h8ctQcOK7epgKh7k4warQWan79yBWj8ojs7JJvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750842407; c=relaxed/simple;
-	bh=HSpdkq72Px0xetP/0z+N3WieYqQ5EeVGs+k/WNFX6T8=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:References:
-	 In-Reply-To:Content-Type; b=inLDxEylui2ZopXRl0SAuCvzpFBU6RZhk/dmPdS4S/CprkoNvL+A6dO30b5hSIm9OUvLb6w3g8InN3I5IfgCtG7SuoViQBgZvUrqenO0LpqUaiRXUvJbSw+jFEdzvaVIF9S5T03UNJWKxUsvr4vvpBT39dNLdSOeCZI8FOFMmuA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=rTnJhQCf; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1750842570; c=relaxed/simple;
+	bh=V7vBNEydW/amovR7HdFYagGMzsF2AlhBDhoAZzPiFLg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sE9TbEjk7AjEZnv9Ye83wOZQxdHQZAkCJBM10YRyGBWX6YnzKSGRakDNa3nNACbv+ocMoy7V3iVx2/s6yxDkPDsOoNBun8aD19ViH5p3UraNaSlnM8d3eOJ8Ui5YG+3tMrTpSsKD15049EiCqAJcVR/ixTJ5qwuGB3Gg8Vo0wv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Aeb4qS6+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="rTnJhQCf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1750841872; bh=HSpdkq72Px0xetP/0z+N3WieYqQ5EeVGs+k/WNFX6T8=;
-	h=Date:Subject:From:To:References:In-Reply-To:From;
-	b=rTnJhQCfTbSKWaaHNZmz8+E/FPw4dillc1kKhukyAx/ohfVC3Aqv59+qvgMvob2an
-	 gkUj5n69lgpxmvLQwkEZCEaQCQJcWmXrPzQb2Hn7DAWR1ltZSTMvfQazGTlbTgEbfq
-	 xWk83CT1huqvG9emWUotugq0y8CeE7y4O0O0IIAUYWsnejS7M6SA8ba3PpzJOa7nY1
-	 1igcTNJ2hz9GMSr+4HywO80/Xx0wZ2OvcflhEbSRxPUNzYg9vQsO3VY6A/7AvOadM/
-	 irabfUEYmpMIAu3nujdmVdOovAPe9/FJ97x/x5j3rU8V8YoE7eekcZ33eaDXkqo3ig
-	 wU6IT/cWGwFHw==
-Received: from [192.168.0.22] (71-212-74-234.tukw.qwest.net [71.212.74.234])
-	by endrift.com (Postfix) with ESMTPSA id B5A23A028;
-	Wed, 25 Jun 2025 01:57:52 -0700 (PDT)
-Message-ID: <625ccbb5-4bd7-4d09-8422-e111c2ab407a@endrift.com>
-Date: Wed, 25 Jun 2025 01:57:52 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Aeb4qS6+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9490AC4CEEA;
+	Wed, 25 Jun 2025 09:09:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750842569;
+	bh=V7vBNEydW/amovR7HdFYagGMzsF2AlhBDhoAZzPiFLg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Aeb4qS6+iSx5NBdAf2CwapAU13Y0cQ8XFTH1s3biTjv3vB+OqElVo0KBd7L0j5hQc
+	 c3LNriL7pCBmZWwznVJWhkwhywx028azM7lgM5RtdhHZxknoMNi038iLXwT3iXv/Qn
+	 qOS3vyiAnZVxUWgI2VNEY+rEHLl91Kds/xRp+/lDx3lMWfkJzFwFtQ9Nq+behErpJg
+	 4srLJl/OZfOlhlbSSgdFEtALl2CwBLZSdEGTDqqkBDNSX7ieevsaI48AFhOFLIK8eB
+	 oTzzGZpmQo4ZC5Hl+yTHds3+93791L9dMIlT1+wsx3cbPYorHXIr01c6Cym7eBKQok
+	 +WcolL9/ZziZw==
+Message-ID: <4a4d577b-a085-46e8-97b9-6df27461c870@kernel.org>
+Date: Wed, 25 Jun 2025 11:09:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -37,40 +35,92 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: Adding more ABS axes and BTN spaces to evdev
-From: Vicki Pfau <vi@endrift.com>
-To: Jiri Kosina <jikos@kernel.org>, bentiss@kernel.org,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
-References: <d04aee95-df86-4863-bd54-b9d7957199c7@endrift.com>
-Content-Language: en-US
-In-Reply-To: <d04aee95-df86-4863-bd54-b9d7957199c7@endrift.com>
+Subject: Re: [PATCH 2/2] Revert "Input: soc_button_array - debounce the
+ buttons"
+To: Mario Limonciello <superm1@kernel.org>,
+ Mika Westerberg <westeri@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski
+ <brgl@bgdev.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:GPIO ACPI SUPPORT" <linux-gpio@vger.kernel.org>,
+ "open list:GPIO ACPI SUPPORT" <linux-acpi@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..."
+ <linux-input@vger.kernel.org>, Mario Limonciello <mario.limonciello@amd.com>
+References: <20250624202211.1088738-1-superm1@kernel.org>
+ <20250624202211.1088738-3-superm1@kernel.org>
+Content-Language: en-US, nl
+From: Hans de Goede <hansg@kernel.org>
+In-Reply-To: <20250624202211.1088738-3-superm1@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Hello again,
+Hi Mario,
 
-On 6/16/25 7:34 PM, Vicki Pfau wrote:
-> Hello,
+On 24-Jun-25 10:22 PM, Mario Limonciello wrote:
+> From: Mario Limonciello <mario.limonciello@amd.com>
 > 
-> I've recently been doing some bringup work on some flight stick and racing wheel controllers and have run into a few issues with how to expose it to userspace that I'm not sure the best way to solve.
+> commit 5c4fa2a6da7fb ("Input: soc_button_array - debounce the buttons")
+> hardcoded all soc-button-array devices to use a 50ms debounce timeout
+> but this doesn't work on all hardware.  The hardware I have on hand
+> actually prescribes in the ASL that the timeout should be 0:
 > 
-> For flight sticks, the protocol I'm working with allows for up to 64 buttons on top of a set few, as well as up to 16 axes. There doesn't appear to be good spaces within within either ABS or BTN for these. Though I don't know any devices that use that many, I am worried about the space for axes especially. Though I can probably fit a few after ABS_MISC, but really not that many.
+> GpioInt (Edge, ActiveBoth, Exclusive, PullUp, 0x0000,
+>          "\\_SB.GPIO", 0x00, ResourceConsumer, ,)
+> {   // Pin list
+>     0x0000
+> }
 > 
-> More directly important, though, is the racing wheel controllers. The protocol specifies four types of axes and one thing that would fit fairly well as an axis: accelerator, brake, clutch, handbrake, and shifter. It looks like Windows treats the shifter as a series of buttons, one for each location on the shifter, but that's a little less desirable than using an axis for it in my opinion. Regardless, there's no good place to map clutch and handbrake. For clutch, at least, I would assume the best approach would actually be to add a new axis: ABS_CLUTCH, perhaps at 0x1d. Would this be a good idea? And if so, would adding ABS_SHIFTER and/or ABS_HANDBRAKE at 0x1e/0x1f also make sense? Barring that, I can use a few ABS_MISC axes, but that is perhaps suboptimal for conveying intent to userspace programs.
+> Let the GPIO core program the debounce instead of hardcoding it into a
+> driver.
+> 
+> This reverts commit 5c4fa2a6da7fbc76290d1cb54a7e35633517a522.
 
-I realized while looking at this again that 0xb-0xf are also unused, so perhaps ABS_CLUTCH at 0xb, ABS_SHIFTER at 0xc, and ABS_HANDBRAKE at 0xd.
+This is going to cause problems I'm afraid I just checked and
+based on randomly checking a few DSDTs of the tablets this driver
+is used on, it seems the DSDT always specifies a debounce timeout
+of 0 like your example above. And on many many devices using
+the soc_button_array driver debouncing is actually necessary.
+
+May I ask what problem you are seeing with the 50ms debounce timeout /
+what problem you are exactly trying to fix here ?
+
+drivers/input/keyboard/gpio_keys.c first will call gpiod_set_debounce()
+it self with the 50 ms provided by soc_button_array and if that does
+not work it will fall back to software debouncing. So I don't see how
+the 50 ms debounce can cause problems, other then maybe making
+really really (impossible?) fast double-clicks register as a single
+click .
+
+These buttons (e.g. volume up/down) are almost always simply mechanical
+switches and these definitely will need debouncing, the 0 value from
+the DSDT is plainly just wrong. There is no such thing as a not bouncing
+mechanical switch.
+
+Regards,
+
+Hans
+
+
 
 > 
-> I looked around other devices in the kernel to try to figure out what prior art there was for this stuff, without much luck. I saw ABS_RUDDER in use in a few places, but it wasn't quite clear to me what that's being used for without the devices in question. I'm also not clear on what the HID driver does for things like this.
+> Cc: Hans de Goede <hansg@kernel.org>
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> ---
+>  drivers/input/misc/soc_button_array.c | 2 --
+>  1 file changed, 2 deletions(-)
 > 
-> How should I start moving forwards with this?
-> 
-> Thanks,
-> Vicki
-
-If I were to go about doing this, should I just put it as one of the patches in a series with the first use of it?
-
-Thanks,
-Vicki
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index b8cad415c62ca..99490df42b6f2 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -219,8 +219,6 @@ soc_button_device_create(struct platform_device *pdev,
+>  		gpio_keys[n_buttons].active_low = info->active_low;
+>  		gpio_keys[n_buttons].desc = info->name;
+>  		gpio_keys[n_buttons].wakeup = info->wakeup;
+> -		/* These devices often use cheap buttons, use 50 ms debounce */
+> -		gpio_keys[n_buttons].debounce_interval = 50;
+>  		n_buttons++;
+>  	}
+>  
 

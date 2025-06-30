@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33183284B37;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 418DE284B51;
 	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751284366; cv=none; b=bULTivAqleLIr8D9CP8QixJFuuetFbcTM8J8Ov24FLkIKId1Pk4H8zWY61839FFXpqIASvmHiteKkXno/3ToHoo8NSXg3KQJC/OOZgG0oy3aR/Q2o7lBOJw0eeyMLPqRpJhUioOeAltxo8mVE42qTCkE5wNUSXixAo0o2+0U+M0=
+	t=1751284366; cv=none; b=Sgi246P90fYPawKM8NZP8HbtE4aHOhaHbPvX51/SeazyPj4LNPGiNJ+I7KOdg/NTHnXguccfNSTxYM7/SRBo6nW8HecNeKjunwdslMmEPa8s4R/EwMOLxNCRdmHO2TbHK+y5UGItiWpd+1R236rZJP+41Bc5P/KBRjBqcu3Nxnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1751284366; c=relaxed/simple;
-	bh=GF8xEOeCE6BwQnk/0jEUEp3RK7X5IgnWu6Xb4tca73U=;
+	bh=UA8ZRnneixw+HFszwl5T6ikg29x4Iqi1PbHF5yOpOgc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=dHkFI6i8xq8OXEOAXnfOFkJiyuqkeuXHJG1q36zmNMVMj5Kw6k7uW039xEft39r9hViDmP5bOtxXb3jBDg1Z1oQmGKk4je6s2pHnQ5vS8RxYkfk7iAIPjEXuqChGMLYXG6ivLo++10AV5cn/z1St1wrEWiPoarqPSdbNwjL9d30=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sDx8Pfv7; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=jHen+EdEOQmCTdd99VXVJW1ss2hfRDz0FHd39AgchLY/IHLb3hVbRL0gGrV7xt7v0kULSRB4fjr0zI0AuwJIJfvI7zJFaDZzDt1ujezwpbVqHnMuurLuVtxdDv/FBknz5QxSGy5ACUfYaDOpmBuCJmB8GNilGkhOZ8kJsVmbBeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lmjw0BML; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sDx8Pfv7"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EF4F8C19422;
-	Mon, 30 Jun 2025 11:52:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lmjw0BML"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1DD1AC4CEE3;
+	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1751284366;
-	bh=GF8xEOeCE6BwQnk/0jEUEp3RK7X5IgnWu6Xb4tca73U=;
+	bh=UA8ZRnneixw+HFszwl5T6ikg29x4Iqi1PbHF5yOpOgc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=sDx8Pfv7rjbCH6Ps4DQxT01PVwk90eJuaTPkxXKI9aH87tKqslqwmJznrcPRFkK+X
-	 Wk3pILRuj8uKUBGnVEHyxTMEu5lKv8mwyuiv5SQdMaJTXFhQd+YxqtytRxvK/EPeMa
-	 EvO0nOgZB2O9oK65w76lBJyPKrmDdLuDLGWimt1jEqzsgGQyDkdkGeiMG9dCdzJqkO
-	 NE1wcn4mY+T5Z/yeHg3b6wUOsPq2k+vpNhjXmPLzGBbtVOflF5ya6YfEnHkbbXxOkD
-	 AQo1xvPjL8jOH0O2ri1F9fA9pckXgpto1M4B4QR4s0K8yLLIcD1TjUXmEcb1w45cQQ
-	 nIc1zZP2E+8YQ==
+	b=Lmjw0BML++hvpc8NQFE5YfVv/IS9jkymT/FV+/9oWtsY7JnZBbPRmk22W69hbnb0O
+	 1VUih/1tLDDZu7npWYCckR9pitDfMaQdKXTwh4eVmBWZe5A4iNwEirTILK18YWuN5v
+	 DPx8SW+1bQcpfFQYpIimQ9eDYcjl14azsQHHMJnnQz0E+mVYRuI97i1+1MBb/4M5GC
+	 j758Y9UfULYZpQ4p2fUxZ3drW/meT8STaCwQ5jAzbxcEk7OF+54mchG22UdLRGEvwl
+	 8Prso7/ykF0xaH+MKZefzbKPzc76cCdFm5sHFDj9AlRnEYT/1lgwkJgXvAsIqegTln
+	 FASb8b5Ukv9yQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E673CC7EE2A;
-	Mon, 30 Jun 2025 11:52:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EF26C8302F;
+	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Mon, 30 Jun 2025 12:53:03 +0100
-Subject: [PATCH v6 12/20] mfd: adp5585: Add support for event handling
+Date: Mon, 30 Jun 2025 12:53:05 +0100
+Subject: [PATCH v6 14/20] mfd: adp5585: Add support for input devices
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250630-dev-adp5589-fw-v6-12-a0f392a0ba91@analog.com>
+Message-Id: <20250630-dev-adp5589-fw-v6-14-a0f392a0ba91@analog.com>
 References: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
 In-Reply-To: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -55,11 +55,11 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
  Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=9516;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=6706;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=gfKVYUzw0oeR1Xq8JRRLn3CGAP9k2n1/6w6AHZiG2mQ=;
- b=onDnrVFircndmIeyddxpikfZXlDz7kvV3E0QHiPGZqF5xk3vbLyJI1NumYaFxHXGAhiqaTVgn
- WooAwb1uJLSAExkGbAdCDl/rRkwcH56H/30ukTRYCczKquJBT8cZW+m
+ bh=IPhMnQj3mFzEobuEj1rJnJkmDQmlygfVu3q3tyD8Axw=;
+ b=PgyBSU2q08tLjUZwxOhkOPqG+rU8vgP0d/BvN9KrF6ddquMBZrZoCFLAHGfiKQ4fs2Y89k9Hu
+ 4WRS7J9IY05DodkHQUiACoubUCYOothOALxooP+pRjeC13whBvCRmiH
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -69,333 +69,193 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-These devices are capable of generate FIFO based events based on KEY or
-GPI presses. Add support for handling these events. This is in
-preparation of adding full support for keymap and gpis based events.
+The ADP558x family supports a built in keypad matrix decoder which can
+be added as an Input device. In order to both support the Input and the
+GPIO device, we need to create a bitmap of the supported pins and track
+their usage since they can either be used as GPIOs (GPIs) or as part of
+the keymap.
 
-Reviewed-by: Lee Jones <lee@kernel.org>
+We also need to mark special pins busy in case some features are being
+used (ex: pwm or reset events).
+
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- drivers/mfd/adp5585.c       | 176 ++++++++++++++++++++++++++++++++++++++++++--
- include/linux/mfd/adp5585.h |  18 +++++
- 2 files changed, 186 insertions(+), 8 deletions(-)
+ drivers/mfd/adp5585.c       | 31 +++++++++++++++++++++++++++++++
+ include/linux/mfd/adp5585.h | 10 ++++++++++
+ 2 files changed, 41 insertions(+)
 
 diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
-index ae12372bdde9141034b28731e22758948438cb31..ae2448697ef48fe84303de54dac1f49aab1da6d5 100644
+index 30014deee41fa9d0b0f663dccd2ecb24af999376..8f0fd737442611e00e61ea992dd6437dbaf31292 100644
 --- a/drivers/mfd/adp5585.c
 +++ b/drivers/mfd/adp5585.c
-@@ -8,6 +8,7 @@
-  */
+@@ -22,17 +22,20 @@
+ enum {
+ 	ADP5585_DEV_GPIO,
+ 	ADP5585_DEV_PWM,
++	ADP5585_DEV_INPUT,
+ 	ADP5585_DEV_MAX
+ };
  
- #include <linux/array_size.h>
-+#include <linux/bitfield.h>
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
-@@ -165,10 +166,16 @@ static const struct regmap_config adp5589_regmap_config_template = {
+ static const struct mfd_cell adp5585_devs[ADP5585_DEV_MAX] = {
+ 	MFD_CELL_NAME("adp5585-gpio"),
+ 	MFD_CELL_NAME("adp5585-pwm"),
++	MFD_CELL_NAME("adp5585-keys"),
+ };
  
- static const struct adp5585_regs adp5585_regs = {
- 	.ext_cfg = ADP5585_PIN_CONFIG_C,
-+	.int_en = ADP5585_INT_EN,
-+	.gen_cfg = ADP5585_GENERAL_CFG,
-+	.poll_ptime_cfg = ADP5585_POLL_PTIME_CFG,
+ static const struct mfd_cell adp5589_devs[] = {
+ 	MFD_CELL_NAME("adp5589-gpio"),
+ 	MFD_CELL_NAME("adp5589-pwm"),
++	MFD_CELL_NAME("adp5589-keys"),
+ };
+ 
+ static const struct regmap_range adp5585_volatile_ranges[] = {
+@@ -172,6 +175,7 @@ static const struct adp5585_regs adp5585_regs = {
+ 	.reset_cfg = ADP5585_RESET_CFG,
+ 	.reset1_event_a = ADP5585_RESET1_EVENT_A,
+ 	.reset2_event_a = ADP5585_RESET2_EVENT_A,
++	.pin_cfg_a = ADP5585_PIN_CONFIG_A,
  };
  
  static const struct adp5585_regs adp5589_regs = {
- 	.ext_cfg = ADP5589_PIN_CONFIG_D,
-+	.int_en = ADP5589_INT_EN,
-+	.gen_cfg = ADP5589_GENERAL_CFG,
-+	.poll_ptime_cfg = ADP5589_POLL_PTIME_CFG,
+@@ -182,6 +186,7 @@ static const struct adp5585_regs adp5589_regs = {
+ 	.reset_cfg = ADP5589_RESET_CFG,
+ 	.reset1_event_a = ADP5589_RESET1_EVENT_A,
+ 	.reset2_event_a = ADP5589_RESET2_EVENT_A,
++	.pin_cfg_a = ADP5589_PIN_CONFIG_A,
  };
  
- static struct regmap_config *adp5585_fill_variant_config(struct adp5585_dev *adp5585)
-@@ -241,6 +248,146 @@ static void adp5585_osc_disable(void *data)
- 	regmap_write(adp5585->regmap, ADP5585_GENERAL_CFG, 0);
+ static int adp5585_validate_event(const struct adp5585_dev *adp5585, unsigned int ev)
+@@ -239,6 +244,8 @@ static struct regmap_config *adp5585_fill_variant_config(struct adp5585_dev *adp
+ 	case ADP5585_04:
+ 		adp5585->id = ADP5585_MAN_ID_VALUE;
+ 		adp5585->regs = &adp5585_regs;
++		adp5585->n_pins = ADP5585_PIN_MAX;
++		adp5585->reset2_out = ADP5585_RESET2_OUT;
+ 		if (adp5585->variant == ADP5585_01)
+ 			adp5585->has_pin6 = true;
+ 		regmap_config = devm_kmemdup(adp5585->dev, &adp5585_regmap_config_template,
+@@ -251,6 +258,8 @@ static struct regmap_config *adp5585_fill_variant_config(struct adp5585_dev *adp
+ 		adp5585->regs = &adp5589_regs;
+ 		adp5585->has_unlock = true;
+ 		adp5585->has_pin6 = true;
++		adp5585->n_pins = ADP5589_PIN_MAX;
++		adp5585->reset2_out = ADP5589_RESET2_OUT;
+ 		regmap_config = devm_kmemdup(adp5585->dev, &adp5589_regmap_config_template,
+ 					     sizeof(*regmap_config), GFP_KERNEL);
+ 		break;
+@@ -439,6 +448,8 @@ static int adp5585_add_devices(const struct adp5585_dev *adp5585)
+ 		cells = adp5589_devs;
+ 
+ 	if (device_property_present(dev, "#pwm-cells")) {
++		/* Make sure the PWM output pin is not used by the GPIO or INPUT devices */
++		__set_bit(ADP5585_PWM_OUT, adp5585->pin_usage);
+ 		ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_AUTO,
+ 					   &cells[ADP5585_DEV_PWM], 1, NULL, 0, NULL);
+ 		if (ret)
+@@ -452,6 +463,13 @@ static int adp5585_add_devices(const struct adp5585_dev *adp5585)
+ 			return dev_err_probe(dev, ret, "Failed to add GPIO device\n");
+ 	}
+ 
++	if (device_property_present(adp5585->dev, "adi,keypad-pins")) {
++		ret = devm_mfd_add_devices(adp5585->dev, PLATFORM_DEVID_AUTO,
++					   &cells[ADP5585_DEV_INPUT], 1, NULL, 0, NULL);
++		if (ret)
++			return dev_err_probe(dev, ret, "Failed to add input device\n");
++	}
++
+ 	return 0;
  }
  
-+static void adp5585_report_events(struct adp5585_dev *adp5585, int ev_cnt)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < ev_cnt; i++) {
-+		unsigned long key_val, key_press;
-+		unsigned int key;
-+		int ret;
-+
-+		ret = regmap_read(adp5585->regmap, ADP5585_FIFO_1 + i, &key);
-+		if (ret)
-+			return;
-+
-+		key_val = FIELD_GET(ADP5585_KEY_EVENT_MASK, key);
-+		key_press = FIELD_GET(ADP5585_KEV_EV_PRESS_MASK, key);
-+
-+		blocking_notifier_call_chain(&adp5585->event_notifier, key_val, (void *)key_press);
-+	}
-+}
-+
-+static irqreturn_t adp5585_irq(int irq, void *data)
-+{
-+	struct adp5585_dev *adp5585 = data;
-+	unsigned int status, ev_cnt;
-+	int ret;
-+
-+	ret = regmap_read(adp5585->regmap, ADP5585_INT_STATUS, &status);
-+	if (ret)
-+		return IRQ_HANDLED;
-+
-+	if (status & ADP5585_OVRFLOW_INT)
-+		dev_err_ratelimited(adp5585->dev, "Event overflow error\n");
-+
-+	if (!(status & ADP5585_EVENT_INT))
-+		goto out_irq;
-+
-+	ret = regmap_read(adp5585->regmap, ADP5585_STATUS, &ev_cnt);
-+	if (ret)
-+		goto out_irq;
-+
-+	ev_cnt = FIELD_GET(ADP5585_EC_MASK, ev_cnt);
-+	if (!ev_cnt)
-+		goto out_irq;
-+
-+	adp5585_report_events(adp5585, ev_cnt);
-+out_irq:
-+	regmap_write(adp5585->regmap, ADP5585_INT_STATUS, status);
-+	return IRQ_HANDLED;
-+}
-+
-+static int adp5585_setup(struct adp5585_dev *adp5585)
-+{
-+	const struct adp5585_regs *regs = adp5585->regs;
-+	unsigned int reg_val, i;
-+	int ret;
-+
-+	/* Clear any possible event by reading all the FIFO entries */
-+	for (i = 0; i < ADP5585_EV_MAX; i++) {
-+		ret = regmap_read(adp5585->regmap, ADP5585_FIFO_1 + i, &reg_val);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret = regmap_write(adp5585->regmap, regs->poll_ptime_cfg, adp5585->ev_poll_time);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Enable the internal oscillator, as it's shared between multiple
-+	 * functions.
-+	 */
-+	ret = regmap_write(adp5585->regmap, regs->gen_cfg,
-+			   ADP5585_OSC_FREQ_500KHZ | ADP5585_INT_CFG | ADP5585_OSC_EN);
-+	if (ret)
-+		return ret;
-+
-+	return devm_add_action_or_reset(adp5585->dev, adp5585_osc_disable, adp5585);
-+}
-+
-+static int adp5585_parse_fw(struct adp5585_dev *adp5585)
-+{
-+	unsigned int prop_val;
-+	int ret;
-+
-+	ret = device_property_read_u32(adp5585->dev, "poll-interval", &prop_val);
-+	if (!ret) {
-+		adp5585->ev_poll_time = prop_val / 10 - 1;
-+		/*
-+		 * ev_poll_time is the raw value to be written on the register and 0 to 3 are the
-+		 * valid values.
-+		 */
-+		if (adp5585->ev_poll_time > 3)
-+			return dev_err_probe(adp5585->dev, -EINVAL,
-+					     "Invalid value(%u) for poll-interval\n", prop_val);
-+	}
-+
-+	return 0;
-+}
-+
-+static void adp5585_irq_disable(void *data)
-+{
-+	struct adp5585_dev *adp5585 = data;
-+
-+	regmap_write(adp5585->regmap, adp5585->regs->int_en, 0);
-+}
-+
-+static int adp5585_irq_enable(struct i2c_client *i2c,
-+			      struct adp5585_dev *adp5585)
-+{
-+	const struct adp5585_regs *regs = adp5585->regs;
-+	unsigned int stat;
-+	int ret;
-+
-+	if (i2c->irq <= 0)
-+		return 0;
-+
-+	ret = devm_request_threaded_irq(&i2c->dev, i2c->irq, NULL, adp5585_irq,
-+					IRQF_ONESHOT, i2c->name, adp5585);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Clear any possible outstanding interrupt before enabling them. We do that by reading
-+	 * the status register and writing back the same value.
-+	 */
-+	ret = regmap_read(adp5585->regmap, ADP5585_INT_STATUS, &stat);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(adp5585->regmap, ADP5585_INT_STATUS, stat);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(adp5585->regmap, regs->int_en, ADP5585_OVRFLOW_IEN | ADP5585_EVENT_IEN);
-+	if (ret)
-+		return ret;
-+
-+	return devm_add_action_or_reset(&i2c->dev, adp5585_irq_disable, adp5585);
-+}
-+
- static int adp5585_i2c_probe(struct i2c_client *i2c)
- {
- 	struct regmap_config *regmap_config;
-@@ -254,6 +401,8 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+@@ -518,6 +536,10 @@ static int adp5585_setup(struct adp5585_dev *adp5585)
+ 	unsigned int reg_val = 0, i;
+ 	int ret;
  
- 	i2c_set_clientdata(i2c, adp5585);
- 	adp5585->dev = &i2c->dev;
-+	adp5585->irq = i2c->irq;
-+	BLOCKING_INIT_NOTIFIER_HEAD(&adp5585->event_notifier);
++	/* If pin_6 (ROW5/GPI6) is not available, make sure to mark it as "busy" */
++	if (!adp5585->has_pin6)
++		__set_bit(ADP5585_ROW5, adp5585->pin_usage);
++
+ 	/* Configure the device with reset and unlock events */
+ 	for (i = 0; i < adp5585->nkeys_unlock; i++) {
+ 		ret = regmap_write(adp5585->regmap, ADP5589_UNLOCK1 + i,
+@@ -542,6 +564,9 @@ static int adp5585_setup(struct adp5585_dev *adp5585)
+ 				   adp5585->reset1_keys[i] | ADP5585_RESET_EV_PRESS);
+ 		if (ret)
+ 			return ret;
++
++		/* Mark that pin as not usable for the INPUT and GPIO devices. */
++		__set_bit(ADP5585_RESET1_OUT, adp5585->pin_usage);
+ 	}
  
- 	adp5585->variant = (enum adp5585_variant)(uintptr_t)i2c_get_match_data(i2c);
- 	if (!adp5585->variant)
-@@ -278,25 +427,28 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ 	for (i = 0; i < adp5585->nkeys_reset2; i++) {
+@@ -549,6 +574,8 @@ static int adp5585_setup(struct adp5585_dev *adp5585)
+ 				   adp5585->reset2_keys[i] | ADP5585_RESET_EV_PRESS);
+ 		if (ret)
+ 			return ret;
++
++		__set_bit(adp5585->reset2_out, adp5585->pin_usage);
+ 	}
+ 
+ 	if (adp5585->nkeys_reset1 || adp5585->nkeys_reset2) {
+@@ -697,6 +724,10 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
  		return dev_err_probe(&i2c->dev, -ENODEV,
  				     "Invalid device ID 0x%02x\n", id);
  
--	/*
--	 * Enable the internal oscillator, as it's shared between multiple
--	 * functions.
--	 */
--	ret = regmap_set_bits(adp5585->regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
-+	ret = adp5585_parse_fw(adp5585);
++	adp5585->pin_usage = devm_bitmap_zalloc(&i2c->dev, adp5585->n_pins, GFP_KERNEL);
++	if (!adp5585->pin_usage)
++		return -ENOMEM;
++
+ 	ret = adp5585_parse_fw(adp5585);
  	if (ret)
  		return ret;
- 
--	ret = devm_add_action_or_reset(&i2c->dev, adp5585_osc_disable, adp5585);
-+	ret = adp5585_setup(adp5585);
- 	if (ret)
- 		return ret;
- 
--	return adp5585_add_devices(adp5585);
-+	ret = adp5585_add_devices(adp5585);
-+	if (ret)
-+		return ret;
-+
-+	return adp5585_irq_enable(i2c, adp5585);
- }
- 
- static int adp5585_suspend(struct device *dev)
- {
- 	struct adp5585_dev *adp5585 = dev_get_drvdata(dev);
- 
-+	if (adp5585->irq)
-+		disable_irq(adp5585->irq);
-+
- 	regcache_cache_only(adp5585->regmap, true);
- 
- 	return 0;
-@@ -305,11 +457,19 @@ static int adp5585_suspend(struct device *dev)
- static int adp5585_resume(struct device *dev)
- {
- 	struct adp5585_dev *adp5585 = dev_get_drvdata(dev);
-+	int ret;
- 
- 	regcache_cache_only(adp5585->regmap, false);
- 	regcache_mark_dirty(adp5585->regmap);
- 
--	return regcache_sync(adp5585->regmap);
-+	ret = regcache_sync(adp5585->regmap);
-+	if (ret)
-+		return ret;
-+
-+	if (adp5585->irq)
-+		enable_irq(adp5585->irq);
-+
-+	return 0;
- }
- 
- static DEFINE_SIMPLE_DEV_PM_OPS(adp5585_pm, adp5585_suspend, adp5585_resume);
 diff --git a/include/linux/mfd/adp5585.h b/include/linux/mfd/adp5585.h
-index 77f7c74f084dde01e11816fb7ed099721b6ed78d..43a33a3d3f5a1b4fe3a9c46335d29dee6e9d60f5 100644
+index db483ef9693a41d29a36910952e7a0bc54f86631..41c5d2e1cc7ca40aa5192296ecc5ff8d737cb3e6 100644
 --- a/include/linux/mfd/adp5585.h
 +++ b/include/linux/mfd/adp5585.h
-@@ -10,13 +10,20 @@
- #define __MFD_ADP5585_H_
+@@ -126,6 +126,10 @@
+ #define ADP5585_GPI_EVENT_END		47
+ #define ADP5585_ROW5_KEY_EVENT_START	1
+ #define ADP5585_ROW5_KEY_EVENT_END	30
++#define ADP5585_PWM_OUT			3
++#define ADP5585_RESET1_OUT		4
++#define ADP5585_RESET2_OUT		9
++#define ADP5585_ROW5			5
  
- #include <linux/bits.h>
-+#include <linux/notifier.h>
- 
- #define ADP5585_ID			0x00
- #define		ADP5585_MAN_ID_VALUE		0x20
- #define		ADP5585_MAN_ID_MASK		GENMASK(7, 4)
-+#define		ADP5585_REV_ID_MASK		GENMASK(3, 0)
- #define ADP5585_INT_STATUS		0x01
-+#define		ADP5585_OVRFLOW_INT		BIT(2)
-+#define		ADP5585_EVENT_INT		BIT(0)
- #define ADP5585_STATUS			0x02
-+#define		ADP5585_EC_MASK			GENMASK(4, 0)
- #define ADP5585_FIFO_1			0x03
-+#define		ADP5585_KEV_EV_PRESS_MASK	BIT(7)
-+#define		ADP5585_KEY_EVENT_MASK		GENMASK(6, 0)
- #define ADP5585_FIFO_2			0x04
- #define ADP5585_FIFO_3			0x05
- #define ADP5585_FIFO_4			0x06
-@@ -32,6 +39,7 @@
- #define ADP5585_FIFO_14			0x10
- #define ADP5585_FIFO_15			0x11
- #define ADP5585_FIFO_16			0x12
-+#define		ADP5585_EV_MAX			(ADP5585_FIFO_16 - ADP5585_FIFO_1 + 1)
- #define ADP5585_GPI_INT_STAT_A		0x13
- #define ADP5585_GPI_INT_STAT_B		0x14
- #define ADP5585_GPI_STATUS_A		0x15
-@@ -104,6 +112,8 @@
- #define		ADP5585_INT_CFG			BIT(1)
- #define		ADP5585_RST_CFG			BIT(0)
- #define ADP5585_INT_EN			0x3c
-+#define		ADP5585_OVRFLOW_IEN		BIT(2)
-+#define		ADP5585_EVENT_IEN		BIT(0)
- 
- #define ADP5585_MAX_REG			ADP5585_INT_EN
- 
-@@ -121,7 +131,9 @@
- #define ADP5589_PWM_OFFT_LOW		0x3e
+ /* ADP5589 */
+ #define		ADP5589_MAN_ID_VALUE		0x10
+@@ -154,6 +158,7 @@
  #define ADP5589_PWM_ONT_LOW		0x40
  #define ADP5589_PWM_CFG			0x42
-+#define ADP5589_POLL_PTIME_CFG		0x48
+ #define ADP5589_POLL_PTIME_CFG		0x48
++#define ADP5589_PIN_CONFIG_A		0x49
  #define ADP5589_PIN_CONFIG_D		0x4C
-+#define ADP5589_GENERAL_CFG		0x4d
+ #define ADP5589_GENERAL_CFG		0x4d
  #define ADP5589_INT_EN			0x4e
- #define ADP5589_MAX_REG			ADP5589_INT_EN
+@@ -165,6 +170,7 @@
+ #define ADP5589_GPI_EVENT_START		97
+ #define ADP5589_GPI_EVENT_END		115
+ #define ADP5589_UNLOCK_WILDCARD		127
++#define ADP5589_RESET2_OUT		12
  
-@@ -142,15 +154,21 @@ enum adp5585_variant {
- };
+ struct regmap;
  
- struct adp5585_regs {
-+	unsigned int gen_cfg;
- 	unsigned int ext_cfg;
-+	unsigned int int_en;
-+	unsigned int poll_ptime_cfg;
+@@ -188,6 +194,7 @@ struct adp5585_regs {
+ 	unsigned int reset_cfg;
+ 	unsigned int reset1_event_a;
+ 	unsigned int reset2_event_a;
++	unsigned int pin_cfg_a;
  };
  
  struct adp5585_dev {
- 	struct device *dev;
+@@ -195,6 +202,9 @@ struct adp5585_dev {
  	struct regmap *regmap;
  	const struct adp5585_regs *regs;
-+	struct blocking_notifier_head event_notifier;
+ 	struct blocking_notifier_head event_notifier;
++	unsigned long *pin_usage;
++	unsigned int n_pins;
++	unsigned int reset2_out;
  	enum adp5585_variant variant;
  	unsigned int id;
-+	int irq;
-+	unsigned int ev_poll_time;
- };
- 
- #endif
+ 	bool has_unlock;
 
 -- 
 2.50.0

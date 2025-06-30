@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D680285079;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97C6E285412;
 	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751284366; cv=none; b=qPcerXJeIB2u+v3p5A352lPmYV2eGFmtzm3xSGYD1h7DrFjUOaBPeLKHEV3uQ++GFCUaF2GLjP7a3yqxFIbnUyZoBVSnW2K71qAvaoHrQEypXIErhIppfgNKcOWffzQIEAmvN9uhVQgJaU9TDd4iwfxZDfD/T2cpE1clsmZS+Yk=
+	t=1751284366; cv=none; b=XwEdC1yK64HQ4p5ZX8/p9vFfGfYz4aoXNwpd3udfs5wYFO6/i/25yNwIQF8SbLslfS9y0NJvp0elAShsswmhC43895RGVtyZVRO7b2ddLDBLxwUpUGfOUFac7CTua6lzx0I1hkSyIKvh/TutPGO78t09Q9pyC+1gRmQPyWkgaBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1751284366; c=relaxed/simple;
-	bh=n7IfybdreFFu9Z1UbOn7l3K91l8Xmbuv9f2TzS/VHzY=;
+	bh=nFZOQexnNjnUMXtGPF7ep9n0MIVjVa8TN2/NZxxIAd8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=S3ZS3gc6SJyF3s7dauvMfKw9l0EJKwEP6rR1wL8mcOsMcmSYgztiJ7QobXG9jK73CaUsBs92p6A2kNxgi0sZ6MBUp3GcNPdfTsDZjRuyhGOb7xAqjVCj/yNBFZ5QqBJEeHzzi5q13g90syUYn7MlY6JJkr72teKnNP1yxMvWUa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TZZJTbAh; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=RGDlIPt6shkOWOE7Ggu0FbaZYVIyqTMCRXKG5+WoRRYjCwfDjgC7GFxndfEe6n6LfSq2mq7AfjLArMICRCXHyVnuzbKP6RrB+/OriZ+sM160TvrYLs9EgvMGD2E4hPJWbiVk+Z4zJEwA2i2gEh0gPdbXR7HKUY+gbzsXSecGBwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FL3lqLzC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZZJTbAh"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 56723C4AF18;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FL3lqLzC"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B471C4CEF6;
 	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1751284366;
-	bh=n7IfybdreFFu9Z1UbOn7l3K91l8Xmbuv9f2TzS/VHzY=;
+	bh=nFZOQexnNjnUMXtGPF7ep9n0MIVjVa8TN2/NZxxIAd8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=TZZJTbAhqCnR9Y5MX6cEeZmq7/815FX7t4wtCnQ6m8TE0EK2zO9VnX4fCw3nQ4ESp
-	 1cARjlKHLpM7Gpoq0HVaCrq82/ozevg3nTJiKlU1WwIFeyezqKfdzbVtR++4kxDFk/
-	 9xxFxowEVa9bIZtr/gUwVDHWkCm0WbhQKrkA389n1YKOzgbvwmZqGDrcVB3KeyEium
-	 9JMfrLBTGf6YHAzWzAzzNsmIwglqEfGfcazKOCoaE3C31vypmaYZRR65xQjHhVqKDV
-	 p5T2OJ98iNrjUzDRPFWpMckUhAnmd7Y/JgVNuXUGp7yFpkhB3/wWZvqnpYnIt9zpKC
-	 rZywDrvoeadHA==
+	b=FL3lqLzC+MQ+WZK7Bc05sS7xo7u03E0blBiQHHwAYBxezh9VS4Zaal2cNEtdib+mW
+	 XQOvsTVQQqP4xcF239IIARn74S24b5Wr8Xc3pGxbV20GHU1FxobOV+mwmCePwYYlas
+	 PG62ywEtoOoj781MmuhT+MGr1hU6NUNtVPNYbCRg6jjqdi71CvIHtOLzwZhOEfHAav
+	 UuDrLZJ2KnV/7s3HBvT7z+5PECYZlor+7XO4KrG0L4JZzIzQphhT3Ju35utDM6MuDJ
+	 NOkjJV55jRrBc9bxVeTU+yO9sq0OnLT637S1Dxm29fDbnKv5ZnOGYGuTqBSJ3bZAcv
+	 VOGETAShamufg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49781C83033;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62B8EC8302F;
 	Mon, 30 Jun 2025 11:52:46 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Mon, 30 Jun 2025 12:53:09 +0100
-Subject: [PATCH v6 18/20] mfd: adp5585: Support getting vdd regulator
+Date: Mon, 30 Jun 2025 12:53:11 +0100
+Subject: [PATCH v6 20/20] mfd: adp5585: Add support for a reset pin
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250630-dev-adp5589-fw-v6-18-a0f392a0ba91@analog.com>
+Message-Id: <20250630-dev-adp5589-fw-v6-20-a0f392a0ba91@analog.com>
 References: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
 In-Reply-To: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -55,11 +55,11 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
  Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=1087;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=1501;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=x/mc8NclA80MCHF0JDZl1lnL1soLtt2QZ9mBVZ2A8xU=;
- b=qesuR8bNax19aAOUadW4u9yUw9c1KbxolkphPxA1YQgpcF0jWmgbN5rEe2PfeRKtJO0ghYvDb
- +xHly3ITyA6Cayg+pPm3FlXC7uGEMFEU1aw/Jmg8mfMayTUQhF9kET8
+ bh=mo45c0YcZpaHsHxCU2xPefftxnua9GwC2/0PBDuFfIU=;
+ b=w9qqEVYe1DCLUB/Au+QawoAJxdOWuNowpU1r5yG6miF1ipXK2pLicpAjOhPlVi5UpCDr0AhjG
+ dKtsaWqOr1kAiU8f7eoUpCqyurBU4WqNAD4ZMT/sVS2fIzc1fPzl2tw
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -69,36 +69,51 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-Make sure we get and enable the VDD supply (if available).
+Make sure to perform an Hardware reset during probe  if the pin is given
+in FW.
 
-Changes in v6:
- - Removed new line added by mistake.
-
-Reviewed-by: Lee Jones <lee@kernel.org>
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- drivers/mfd/adp5585.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mfd/adp5585.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
-index 8f0fd737442611e00e61ea992dd6437dbaf31292..11a26f668653439378f9eb31d053c45772a940d0 100644
+index 11a26f668653439378f9eb31d053c45772a940d0..58f7cebe2ea4f2c68f64370449f5fbce8a2f14ed 100644
 --- a/drivers/mfd/adp5585.c
 +++ b/drivers/mfd/adp5585.c
-@@ -17,6 +17,7 @@
+@@ -12,6 +12,7 @@
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/mfd/adp5585.h>
+ #include <linux/mfd/core.h>
  #include <linux/mod_devicetable.h>
- #include <linux/module.h>
- #include <linux/regmap.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/types.h>
+@@ -690,6 +691,7 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ {
+ 	struct regmap_config *regmap_config;
+ 	struct adp5585_dev *adp5585;
++	struct gpio_desc *gpio;
+ 	unsigned int id;
+ 	int ret;
  
- enum {
-@@ -709,6 +710,10 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
- 	if (IS_ERR(regmap_config))
- 		return PTR_ERR(regmap_config);
+@@ -714,6 +716,20 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ 	if (ret)
+ 		return ret;
  
-+	ret = devm_regulator_get_enable(&i2c->dev, "vdd");
-+	if (ret)
-+		return ret;
++	gpio = devm_gpiod_get_optional(&i2c->dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(gpio))
++		return PTR_ERR(gpio);
++
++	/*
++	 * Note the timings are not documented anywhere in the datasheet. They are just
++	 * reasonable values that work.
++	 */
++	if (gpio) {
++		fsleep(30);
++		gpiod_set_value_cansleep(gpio, 0);
++		fsleep(60);
++	}
 +
  	adp5585->regmap = devm_regmap_init_i2c(i2c, regmap_config);
  	if (IS_ERR(adp5585->regmap))

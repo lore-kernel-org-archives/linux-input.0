@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8CA1283FC9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D809425F976;
 	Mon, 30 Jun 2025 11:52:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751284365; cv=none; b=amT8/s2lbnBexf9bK2LW/7aOf40WoQagOCWiC8FOK9pBjgaNqIvTvUtPt5GiCDXFPD3y6tB8yZlYP1blxbJ3nZvIR3rEaGsArXRgWccuG15YwTiOn8kIS0IfudfKL3/NGXlDkfyO/nQKCav7TUMB1mUVR47bDkJ3mOzbSuk3604=
+	t=1751284366; cv=none; b=R7MwuiWaNsSpNpyn0+46NhMeOdHPpVicnNRFU/HWMSjIWuJhxn188sOl5RcwAfCA9FdxcMJHTk5qh+PbNwLhFwUawGSbVJWC5xEibnWp+80NXtovIUHkNjwItR44+rWYA75XktoRFf5gLmQUXau9NiJC5h20vU8eNVLDdIk3LR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751284365; c=relaxed/simple;
-	bh=Tuue1hmuHDuh+BsGUr9KiLI1MbJGf/yvmllNqLm9VGE=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=jsfhJJZZbIQZ6uFfr9BtrlYKUrdmZgEC+k6drJSUXOxKZYyHsO6ZqSDHP/+HiDl/HTUH+jsVJ48J2GyjbHM12kuTwX30PKcH9+HFnUjqJek0K4fOvPJeo6hNaHCrvgVvl43Nxdgvom6JBnlgr+usGqffy67H6z9X6rGV0pCfu7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NniqNchQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751284366; c=relaxed/simple;
+	bh=4PvbGlrI1P+giC0KvVcc0NiGRwA6ey+0tghLU2TBysI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=dzHIw8Q4wnDVIO3hOnD8lydMeGd09C5pl9JgnGrslIhNt4KElqY3IT5PFu4CO9IvkNTDhELkuw/bPPiLCq7nwIu609tkbRyPWRBU1UqyC4WCob7GJ3X9O3zNKHlZx7lewCIhLL/TD+cSFpyXTnGWsB2YTo36GfnX48V8QqrZWNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TEXOU9h/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NniqNchQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4B003C4CEE3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TEXOU9h/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7303DC4CEF5;
 	Mon, 30 Jun 2025 11:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1751284365;
-	bh=Tuue1hmuHDuh+BsGUr9KiLI1MbJGf/yvmllNqLm9VGE=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=NniqNchQdMIfX6R+8zW+bTPZ+MNGxEt3srOG0zqd2hJCEXIIOzFQJeWErPwzU42yW
-	 UAbd9mpE4v6QDa+MWBfBmgMoKjhzPvylhWblOI7Ov1JuMKh1MDOyGPrxAfMn5T/L/D
-	 /eBDdZYxvqFXdGpG5tXR5/0MPrQik1dTWzRqCYl6i4CO3mp6Nks+cU7H8M/xIjDwqA
-	 9vVQtB+Ospsiq8tBWnZmVP/UYYg4KgvTTkJoWEEvdhV8lwnP23Rh0Iq+t1KngUWoiV
-	 1x+lsHrG2dt91BsZVq5NIpFLok3noMrV81lMcdb13eHYpGbw9tmOw3S3uaW97ql3SO
-	 ejCYuGm7hU68A==
+	bh=4PvbGlrI1P+giC0KvVcc0NiGRwA6ey+0tghLU2TBysI=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=TEXOU9h/ejFYpaAuf6MGglSVJAgHMWVL7Ji6KpJwCmbdkcxH/twSrlRtHiqdUfmRP
+	 daKE6cYgztPcPD4MbWWJzRrf22qd68INfuO8zjAnu23WfzlRSbAXSbW90Wspc+Pr6+
+	 pyS+hVPNvrn482lRG4AF+xFH5lJDLQen01OmafUClDM5L5ioDwO+1hleYNahjSO+Eg
+	 JR+Nt+01g8grGHZpAwMqMffa/AnrdAH8whzU+gcIJnqSFgm3u05/5xTT2UpHNkV67R
+	 5GwhiolAl/MxkuNPcfydH638DHmNhRwh/9KohLLwSyAhhHo2om08mU7DTPVR0iCrYu
+	 t2HEL9Xs1WWZA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42057C7EE2A;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B42AC7EE2A;
 	Mon, 30 Jun 2025 11:52:45 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Subject: [PATCH v6 00/20] mfd: adp5585: support keymap events and drop
- legacy Input driver
-Date: Mon, 30 Jun 2025 12:52:51 +0100
-Message-Id: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
+Date: Mon, 30 Jun 2025 12:52:54 +0100
+Subject: [PATCH v6 03/20] mfd: adp5585: Enable oscilator during probe
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,12 +40,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAJR6YmgC/2XQ3UoDMRCG4VspOTaSTCY/0yPvQzzIJrNtQHfLr
- kSl7L2bFmTVHH6B5x3IVay8FF7F8XAVC9eylnlqwz0cRDrH6cSy5LYFKLDKaC0zVxnzxdpAcvy
- QrDCNmdBCcKKhy8Jj+bwHn1/aPpf1fV6+7v2qb68/KfM/VbVUEhQHlXHIyPEpTvF1Pj2m+U3cW
- hV2j9p2Hpo30RMlwzlo6LzZvdXQedO8Ihg0Dp5iCJ3HXx66r6jY/AiJQsg++qg6b3fvNHbeNu+
- ZckBSDtzf+9u2fQPH5YZUrQEAAA==
-X-Change-ID: 20250311-dev-adp5589-fw-e04cfd945286
+Message-Id: <20250630-dev-adp5589-fw-v6-3-a0f392a0ba91@analog.com>
+References: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
+In-Reply-To: <20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -57,15 +53,13 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Bartosz Golaszewski <brgl@bgdev.pl>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
- Liu Ying <victor.liu@nxp.com>, 
- Bartosz Golaszewski <bartosz.golaszewski@linaro.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+ Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=2695;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751284374; l=2443;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=Tuue1hmuHDuh+BsGUr9KiLI1MbJGf/yvmllNqLm9VGE=;
- b=pLHQvRZYzYYmUWhmgrGGvtuvkgUi3oa8Ds3SLuTCixTMwA0ncawRA4rRyqbFTx4tZLewRx9AM
- 2FXWfuuSOFVA0u0gqF+LBmrK6Cmrt6boKbedcpdYQamXgah0wzuouuY
+ bh=F/DXXnAPAkUgV64qgRRmO7h2jG/qAQ82WBe+62i0xRU=;
+ b=ipoQMw3RECRN9nilRAoS4GDR2xhrgJygmTm+whzNsy1k2R5hExRKo77P+qxzFM4oF9y5BuqlX
+ wGCdSipYk9QDQaHTT3k5D/zRBtRI8KPnyAMk70ja5Cq6lSP55K00ZWh
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -73,63 +67,82 @@ X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
 X-Original-From: =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
 Reply-To: nuno.sa@analog.com
 
-Hi all,
+From: Nuno Sá <nuno.sa@analog.com>
 
-Here it goes v6. Lee, note that I did not added changelog for changing
-the the git subject on MFD patches.
+Make sure to enable the oscillator in the top device. This will allow to
+not control this in the child PWM device as that would not work with
+future support for keyboard matrix where the oscillator needs to be
+always enabled (and so cannot be disabled by disabling PWM).
 
-Thanks!
-- Nuno Sá
-
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
-- Link to v5: https://lore.kernel.org/r/20250614-dev-adp5589-fw-v5-0-7e9d84906268@analog.com
-- Link to v4: https://lore.kernel.org/r/20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com
-- Link to v3: https://lore.kernel.org/r/20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com
-- Link to v2: https://lore.kernel.org/r/20250415-dev-adp5589-fw-v2-0-3a799c3ed812@analog.com
-- Link to v1: https://lore.kernel.org/r/20250313-dev-adp5589-fw-v1-0-20e80d4bd4ea@analog.com
+ drivers/mfd/adp5585.c     | 19 +++++++++++++++++++
+ drivers/pwm/pwm-adp5585.c |  5 -----
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
----
-Nuno Sá (20):
-      dt-bindings: mfd: adp5585: ease on the required properties
-      mfd: adp5585: Only add devices given in FW
-      mfd: adp5585: Enable oscilator during probe
-      mfd: adp5585: Make use of MFD_CELL_NAME()
-      dt-bindings: mfd: adp5585: document adp5589 I/O expander
-      mfd: adp5585: Refactor how regmap defaults are handled
-      mfd: adp5585: Add support for adp5589
-      mfd: adp5585: Add a per chip reg struture
-      gpio: adp5585: add support for the adp5589 expander
-      pwm: adp5585: add support for adp5589
-      dt-bindings: mfd: adp5585: add properties for input events
-      mfd: adp5585: Add support for event handling
-      mfd: adp5585: Support reset and unlock events
-      mfd: adp5585: Add support for input devices
-      gpio: adp5585: support gpi events
-      Input: adp5585: Add Analog Devices ADP5585/89 support
-      Input: adp5589: remove the driver
-      mfd: adp5585: Support getting vdd regulator
-      dt-bindings: mfd: adp5585: document reset gpio
-      mfd: adp5585: Add support for a reset pin
+diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
+index 53a46734f2d022ec54b3efc2ebbf389357f8d85a..e4a75ae9b2696d5ca8dfe7882660ed08bcd5ba2d 100644
+--- a/drivers/mfd/adp5585.c
++++ b/drivers/mfd/adp5585.c
+@@ -137,6 +137,13 @@ static int adp5585_add_devices(struct device *dev)
+ 	return 0;
+ }
+ 
++static void adp5585_osc_disable(void *data)
++{
++	const struct adp5585_dev *adp5585 = data;
++
++	regmap_write(adp5585->regmap, ADP5585_GENERAL_CFG, 0);
++}
++
+ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ {
+ 	const struct regmap_config *regmap_config;
+@@ -165,6 +172,18 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ 		return dev_err_probe(&i2c->dev, -ENODEV,
+ 				     "Invalid device ID 0x%02x\n", id);
+ 
++	/*
++	 * Enable the internal oscillator, as it's shared between multiple
++	 * functions.
++	 */
++	ret = regmap_set_bits(adp5585->regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
++	if (ret)
++		return ret;
++
++	ret = devm_add_action_or_reset(&i2c->dev, adp5585_osc_disable, adp5585);
++	if (ret)
++		return ret;
++
+ 	return adp5585_add_devices(&i2c->dev);
+ }
+ 
+diff --git a/drivers/pwm/pwm-adp5585.c b/drivers/pwm/pwm-adp5585.c
+index 40472ac5db6410a33e4f790fe8e6c23b517502be..c8821035b7c1412a55a642e6e8a46b66e693a5af 100644
+--- a/drivers/pwm/pwm-adp5585.c
++++ b/drivers/pwm/pwm-adp5585.c
+@@ -62,7 +62,6 @@ static int pwm_adp5585_apply(struct pwm_chip *chip,
+ 	int ret;
+ 
+ 	if (!state->enabled) {
+-		regmap_clear_bits(regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
+ 		regmap_clear_bits(regmap, ADP5585_PWM_CFG, ADP5585_PWM_EN);
+ 		return 0;
+ 	}
+@@ -100,10 +99,6 @@ static int pwm_adp5585_apply(struct pwm_chip *chip,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = regmap_set_bits(regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
+-	if (ret)
+-		return ret;
+-
+ 	return regmap_set_bits(regmap, ADP5585_PWM_CFG, ADP5585_PWM_EN);
+ }
+ 
 
- .../devicetree/bindings/mfd/adi,adp5585.yaml       |  240 ++++-
- .../devicetree/bindings/trivial-devices.yaml       |    2 -
- MAINTAINERS                                        |    1 +
- drivers/gpio/Kconfig                               |    1 +
- drivers/gpio/gpio-adp5585.c                        |  364 ++++++-
- drivers/input/keyboard/Kconfig                     |   21 +-
- drivers/input/keyboard/Makefile                    |    2 +-
- drivers/input/keyboard/adp5585-keys.c              |  371 +++++++
- drivers/input/keyboard/adp5589-keys.c              | 1066 --------------------
- drivers/mfd/adp5585.c                              |  741 +++++++++++++-
- drivers/pwm/pwm-adp5585.c                          |   78 +-
- include/linux/mfd/adp5585.h                        |  118 ++-
- 12 files changed, 1797 insertions(+), 1208 deletions(-)
----
-base-commit: 407f60a151df3c44397e5afc0111eb9b026c38d3
-change-id: 20250311-dev-adp5589-fw-e04cfd945286
---
-
-Thanks!
-- Nuno Sá
+-- 
+2.50.0
 
 

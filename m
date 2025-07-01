@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3492C859;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3971487E9;
 	Tue,  1 Jul 2025 14:31:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751380311; cv=none; b=XgycVY7heS0lrftrH4Pd1F5+jhjVjZ5ZBhWrx6gm2XgxqCUDYOnJAcb3NbBNUpcHbCeT+xAN9iSaJIC7jqjCdC9Am88f+ZDnDFCoZq0tw5XaG/2mz5JYvWRfCDmsx0TMbdxML0vzRvhQEP8UoecznCefefnw2NDEyriu1/rBuUE=
+	t=1751380311; cv=none; b=pEU3cL+N5xOW7VQBrjx5hndtPwf/DxkcY5H7OqrVS3dlHKQO8VvCnlFU0oNNtx+rFz3glrODDzHd/NX1VzYq/9MAvr7VafR6HphqEjYs/xbAOVha4t4X4lVkSVeniXfMkFjtN3z/hVZtegIb+Q3cXMS3cTAOi4MFtnfH33qSkQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1751380311; c=relaxed/simple;
-	bh=xE9LEXnv+f+pNg2IH3v72SIq7f78Vz1orUlvYd/H3bA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qFJFR7b9gXM/oOAXzvI3pCpDxuUFuHx0v5FlNm7LIL1XPPuKYzVpinvbNjfkQBBr4+4QpqLt/bHrrmZaiuyvyuHaC9gDGTjGa7SciLHe2WIQ+S3Kz367MxdJAnXeGDySg2WPEzVhgD1r8LkFU39OiXCxl9mLawqavvDvO9Q+bsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QJQ0GJBR; arc=none smtp.client-ip=10.30.226.201
+	bh=rqJXkoluTBUb8/TC3f6BkLvnwz9KDd39/fIEKWYuoQ8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=epMm8l9RiluSp60WssWWBq4k6x7PINdpmktv0Di75dIQDXHI61XjH4SaFSQA06nall+QpUj71w+IFRv00wSU6wJGnlH+IDxzMxffXI9jFEMWYXeEJRFvqkr7NfjWihp3XZca4txiAPNE+cjKTYy8UVAL6bhh4Bt1L+2lOuAT8sU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KHmWtcue; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QJQ0GJBR"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9B999C4CEEF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KHmWtcue"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8C119C4CEEB;
 	Tue,  1 Jul 2025 14:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1751380310;
-	bh=xE9LEXnv+f+pNg2IH3v72SIq7f78Vz1orUlvYd/H3bA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=QJQ0GJBR0U1kfetG2uyVBjfZ5W63Nt/V8c+/Jg5zaAXzkVQsQ+qR2O1liw9Li2i4e
-	 yMnkO0y8/jl6T1Xbt4lbiP7Jr7npTSwLl39Z+HdxXuBF1GWR5rWMksBz/ZwreuwZoZ
-	 aWPU3KVmaibp0jXxmXope55o5kMaVDxL4fgkwpbnpKagHwg3MZth7zxp4vav8XjBmw
-	 nW7E5bQ8NaX99hB7VZV0wm3b6lAidBfGrSc7lMtEWrapjxY4oSoUWHU8C46pG+980A
-	 XTUN5PspxnQgLvpkCED2CLBiIHELcltTsmsrbH/7gc14oh7UTzpg5Ad+80f6C/VPDl
-	 kdAuqQYCKbNiQ==
+	bh=rqJXkoluTBUb8/TC3f6BkLvnwz9KDd39/fIEKWYuoQ8=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=KHmWtcueEWDiKBVPFLkfp0EfLw6+rbrYzow6QeTfFzYOaVTQ9pWSy392n3rQf5tMd
+	 Mtj3rsQDJaIp3syKOaDJnldi/Qf8mMw9JO5YWKeFudq3FMWHQ0vUmdbURYCx9C0m+j
+	 GgtafA7cr6Rln12HOY5YDZmAltnzNB66Xw+QJ+bNkXXia70wUvxb6eP0ayCuypr3dm
+	 j+3emo0cqfMkxoeZ5a/f5/vhMBfPI52p3In9KkcblWDk9aFMlKFGWm1Hnm0cUxS4E+
+	 8vIL6TY7lFJJdWTbQPhA85ZTGW6dSlMdLsvIKvF/aNpa28Dz616xiG0/AJ4dcKHg/x
+	 Nnne9cceybvvA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CCC7C83038;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D036C8302F;
 	Tue,  1 Jul 2025 14:31:50 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Tue, 01 Jul 2025 15:31:56 +0100
-Subject: [PATCH v7 01/20] dt-bindings: mfd: adp5585: ease on the required
- properties
+Subject: [PATCH v7 00/20] mfd: adp5585: support keymap events and drop
+ legacy Input driver
+Date: Tue, 01 Jul 2025 15:31:55 +0100
+Message-Id: <20250701-dev-adp5589-fw-v7-0-b1fcfe9e9826@analog.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,9 +41,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250701-dev-adp5589-fw-v7-1-b1fcfe9e9826@analog.com>
-References: <20250701-dev-adp5589-fw-v7-0-b1fcfe9e9826@analog.com>
-In-Reply-To: <20250701-dev-adp5589-fw-v7-0-b1fcfe9e9826@analog.com>
+X-B4-Tracking: v=1; b=H4sIAFzxY2gC/2XQ3UoDMRCG4VspOTYymfyOR96HeDCbZNuA7pZdi
+ UrZezctyFZz+AWedyAXseal5FU8HS5iybWsZZ7a8A8HEU88HbMsqW2BgBa0UjLlKjmdrQ0kx0+
+ ZwcQxkbEYnGjovOSxfN2CL69tn8r6MS/ft35V19fflP6fqkqCRMgBkhmSyfzME7/Nx8c4v4trq
+ +LujbKdx+Y1e6KocwoKO693bxV2XjcPhIMygycOofPmzmP3FdU0P2KkEJJnz9B5u3unTOdt8z5
+ TCobAoevvuzuvofOueYZREzIMTOqP37btB2Uk0RztAQAA
+X-Change-ID: 20250311-dev-adp5589-fw-e04cfd945286
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -54,13 +57,15 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Bartosz Golaszewski <brgl@bgdev.pl>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
- Liu Ying <victor.liu@nxp.com>
+ Liu Ying <victor.liu@nxp.com>, 
+ Bartosz Golaszewski <bartosz.golaszewski@linaro.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1751380320; l=1054;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751380320; l=2789;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=fiqzA9oHr6utDnbinR+jWc5MyikFuofO+NDW02/Pf/k=;
- b=o+PSJdFr5dWxcowKAMvAiCrBfmIS7LrYCenIVhDwPOLdRXkuzaLIFxe6Gk11SEaNAqZAJoKF0
- y7o6uiCuJnzA3F7maZodeomTE27ihBABdg9gEkTH8zM2CWbgfA+HSHJ
+ bh=rqJXkoluTBUb8/TC3f6BkLvnwz9KDd39/fIEKWYuoQ8=;
+ b=kdpaPC6QvTEVwYqCdDRCXSZVZxESkOXpnXuXJRkJ980kTIWXdAyFO/WBXgXMk05xtioAStEU1
+ 3z00gUZ7yi3AVcgA1+03fBy17Ya+OwUo4MQen3OvYLAtHAckqxsqJAF
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -68,36 +73,64 @@ X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
 X-Original-From: =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
 Reply-To: nuno.sa@analog.com
 
-From: Nuno Sá <nuno.sa@analog.com>
+Hi all,
 
-It is not mandatory to use all the capabilities of the device. One can
-very well only use it as a gpio controller without the PWM support. This
-will be even more evident when support for the matrix keymap is added.
-Hence drop the requirements for PWM and GPIO.
+Here it goes v7 with proper changelogs. Also took opportunity to fix
+some spelling issues brought by Uwe.
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Thanks!
+- Nuno Sá
+
 ---
- Documentation/devicetree/bindings/mfd/adi,adp5585.yaml | 3 ---
- 1 file changed, 3 deletions(-)
+- Link to v5: https://lore.kernel.org/r/20250614-dev-adp5589-fw-v5-0-7e9d84906268@analog.com
+- Link to v4: https://lore.kernel.org/r/20250521-dev-adp5589-fw-v4-0-f2c988d7a7a0@analog.com
+- Link to v3: https://lore.kernel.org/r/20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com
+- Link to v2: https://lore.kernel.org/r/20250415-dev-adp5589-fw-v2-0-3a799c3ed812@analog.com
+- Link to v1: https://lore.kernel.org/r/20250313-dev-adp5589-fw-v1-0-20e80d4bd4ea@analog.com
+- Link to v6: https://lore.kernel.org/r/20250630-dev-adp5589-fw-v6-0-a0f392a0ba91@analog.com
 
-diff --git a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-index ee2272f754a339569c793102928ddd13249f8fee..e30e22f964f78519b2ec207e9415e4897db5c702 100644
---- a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-+++ b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-@@ -52,9 +52,6 @@ patternProperties:
- required:
-   - compatible
-   - reg
--  - gpio-controller
--  - "#gpio-cells"
--  - "#pwm-cells"
- 
- allOf:
-   - if:
+---
+Nuno Sá (20):
+      dt-bindings: mfd: adp5585: ease on the required properties
+      mfd: adp5585: Only add devices given in FW
+      mfd: adp5585: Enable oscillator during probe
+      mfd: adp5585: Make use of MFD_CELL_NAME()
+      dt-bindings: mfd: adp5585: document adp5589 I/O expander
+      mfd: adp5585: Refactor how regmap defaults are handled
+      mfd: adp5585: Add support for adp5589
+      mfd: adp5585: Add a per chip reg struture
+      gpio: adp5585: add support for the adp5589 expander
+      pwm: adp5585: add support for adp5589
+      dt-bindings: mfd: adp5585: add properties for input events
+      mfd: adp5585: Add support for event handling
+      mfd: adp5585: Support reset and unlock events
+      mfd: adp5585: Add support for input devices
+      gpio: adp5585: support gpi events
+      Input: adp5585: Add Analog Devices ADP5585/89 support
+      Input: adp5589: remove the driver
+      mfd: adp5585: Support getting vdd regulator
+      dt-bindings: mfd: adp5585: document reset gpio
+      mfd: adp5585: Add support for a reset pin
 
--- 
-2.50.0
+ .../devicetree/bindings/mfd/adi,adp5585.yaml       |  240 ++++-
+ .../devicetree/bindings/trivial-devices.yaml       |    2 -
+ MAINTAINERS                                        |    1 +
+ drivers/gpio/Kconfig                               |    1 +
+ drivers/gpio/gpio-adp5585.c                        |  364 ++++++-
+ drivers/input/keyboard/Kconfig                     |   21 +-
+ drivers/input/keyboard/Makefile                    |    2 +-
+ drivers/input/keyboard/adp5585-keys.c              |  371 +++++++
+ drivers/input/keyboard/adp5589-keys.c              | 1066 --------------------
+ drivers/mfd/adp5585.c                              |  741 +++++++++++++-
+ drivers/pwm/pwm-adp5585.c                          |   78 +-
+ include/linux/mfd/adp5585.h                        |  118 ++-
+ 12 files changed, 1797 insertions(+), 1208 deletions(-)
+---
+base-commit: 407f60a151df3c44397e5afc0111eb9b026c38d3
+change-id: 20250311-dev-adp5589-fw-e04cfd945286
+--
+
+Thanks!
+- Nuno Sá
 
 

@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6F514A62B;
-	Mon,  7 Jul 2025 19:54:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C47C2877E3;
+	Mon,  7 Jul 2025 21:37:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751918099; cv=none; b=uDo2FXzmFWZGikO6ceAV1HheYRMaTNz5N4hcfHyS3zE9sn8TvrOHCiejW2j1sFbZmX3OcLmuZ/Q+USNW854dN7kNIPyBrJlTzM+FxM4wJdj+/VhlZnz7nzEDe4pBK7UTmnXfaaBBDTOH23o0Q37d7cV2IQFC3WpqJcKX2fpS5Dc=
+	t=1751924246; cv=none; b=DhOkIhhqVtr7TSuzBvlwHS24akiIEu4wO/3sVHyufcScjVuew1OO3weQ7q/aSdlscT/Sv+EIENBrelLYozK2hDSelpygnoqMrp2ff8HcVGl618GUwH0aY87kK6lmwohnCWfONAP05pCLvOLBM/Q7dA9uLh5RIlj/iovB2ashCR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751918099; c=relaxed/simple;
-	bh=bVFepWKjqJUGQp3Hbl6LiTadytvGMPtrFiUhO8aCs10=;
+	s=arc-20240116; t=1751924246; c=relaxed/simple;
+	bh=4WhOw5Pc8bV38NNBKDq+M7SXVLk0DorgEecTG6vPvq8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=i/xKm0DpENEVj8hTpIxbLqLe2VcF5hgPPrcbe6NUqKGM7b9XpbIlelgYPLmDDfOZaghoATu9H2DvhJgiXSj7qLBWioCWmeQkqIIv6Qzlri9Pe6BbZ4pM2n0YpsZLgc9Bazq1an3GgBNM8+y8E8/48KbuZzBjuncfgSNwgQTzWMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uWO0QkEt; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=BBQhlWTlpIPNcCGtYY5UmKcErlo92FYgdxiPHIgOBm5x04PfV+l+19TbzM4i8f2LtcT+BlfHLvctlL7WOFVbBbOlKGezfEm267YNMMwaELyaaEfgVwB/2kA6sS5UcKjNYWBcHPZGRfSwWAQIjqK79WJnWnndcPbP+TyZTrVp6k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NLOKtWJZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uWO0QkEt"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3EE2BC4CEEF;
-	Mon,  7 Jul 2025 19:54:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NLOKtWJZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5C41FC4CEF5;
+	Mon,  7 Jul 2025 21:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751918099;
-	bh=bVFepWKjqJUGQp3Hbl6LiTadytvGMPtrFiUhO8aCs10=;
+	s=k20201202; t=1751924246;
+	bh=4WhOw5Pc8bV38NNBKDq+M7SXVLk0DorgEecTG6vPvq8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=uWO0QkEtalAsY+arDDxY5tzdibLyrPkNcwhIP52WPkn9ghZdMZGXoKKva9/3Y6a0a
-	 Rck6XlBFXD04Te/rARFGMfXRd3x5ij23qNsUdRnZf0RCU3KX+0f1zK7+DIhOQYHPqz
-	 v2u8KO3exzC7X7xzDkhXaFSyEAxj1vIBgGYFmtbkqr8oq78EXEeQkNeXVXlNXglIWE
-	 zMKPdWzcOXq/0DarZetwABK077I32kB2kpRt1nzS5ZvSxTm9nReIseGLYCqFnaI+Hq
-	 DqDOWFzEB1yw66UWlUQsN7Hqxbi4rXZnpAxrzHYXOvZc9b4FTl1A584TNurOwRayO7
-	 Y7aoDhfqD5AGQ==
+	b=NLOKtWJZuGKu2+5bdPAnSUhsDftWh53GkMUJmcd6ksHf7E5sB4OtSY3CuwlstG9hE
+	 1Yrj552WmX8rU1GUukJVuHtddonHbcatTMs31LDeuy1d0EYmMbJUX4/5EirBTbpQrs
+	 UKYdIsHTjNjEFPHs29g2IEXCij2/FNOGPKI/1JrH7PYzrj97QCwdaDi/O42OC/ucLy
+	 e7T4lORI+cOn4AqId6Jy2WSifTR/Aaw0Y1ZIxnwCGQNj0JEhQh5heRi+zp2Wdh9mID
+	 KOAyt+b4RMQ816rDVlGx0uI9HlaA/8ABYGMtM+va7r1Hr+01FiqhoCkqHpAUmMtzg3
+	 jJWSjE8xieUrQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3096FC8303C;
-	Mon,  7 Jul 2025 19:54:59 +0000 (UTC)
-From: =?utf-8?q?Andr=C3=A9_Apitzsch_via_B4_Relay?= <devnull+git.apitzsch.eu@kernel.org>
-Date: Mon, 07 Jul 2025 21:54:26 +0200
-Subject: [PATCH 2/2] Input: synaptics-rmi4 - add support for F1A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A3D7C83030;
+	Mon,  7 Jul 2025 21:37:26 +0000 (UTC)
+From: Samuel Kayode via B4 Relay <devnull+samuel.kayode.savoirfairelinux.com@kernel.org>
+Date: Mon, 07 Jul 2025 17:37:20 -0400
+Subject: [PATCH v8 1/6] dt-bindings: mfd: add pf1550
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -39,255 +39,222 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20250707-rmi4_f1a-v1-2-838d83c72e7f@apitzsch.eu>
-References: <20250707-rmi4_f1a-v1-0-838d83c72e7f@apitzsch.eu>
-In-Reply-To: <20250707-rmi4_f1a-v1-0-838d83c72e7f@apitzsch.eu>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
- Vincent Huang <vincent.huang@tw.synaptics.com>
-Cc: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
- linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250707-pf1550-v8-1-6b6eb67c03a0@savoirfairelinux.com>
+References: <20250707-pf1550-v8-0-6b6eb67c03a0@savoirfairelinux.com>
+In-Reply-To: <20250707-pf1550-v8-0-6b6eb67c03a0@savoirfairelinux.com>
+To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Sebastian Reichel <sre@kernel.org>, Frank Li <Frank.li@nxp.com>
+Cc: imx@lists.linux.dev, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ linux-pm@vger.kernel.org, Abel Vesa <abelvesa@kernel.org>, 
+ Abel Vesa <abelvesa@linux.com>, Robin Gong <b38343@freescale.com>, 
+ Robin Gong <yibin.gong@nxp.com>, 
+ Enric Balletbo i Serra <eballetbo@gmail.com>, 
+ Samuel Kayode <samuel.kayode@savoirfairelinux.com>, 
+ Abel Vesa <abelvesa@kernel.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1751918097; l=6632;
- i=git@apitzsch.eu; s=20240325; h=from:subject:message-id;
- bh=chU/vciUONShO2xp5FvxasPrlXeuFhwRzlTtqjnbeJY=;
- b=GyQWyIWwGSSKaOtjQ5lJQVkwHBGY0BBQ7joSKqZE6M+ROcV0M6j/jrSW1Xh6RRRxNBOsoUaai
- idbDBcZZUT4BwOMp/nbq6WLmO4XZK9yyQt/3R7jQ7AG8h/vtpX6NjX0
-X-Developer-Key: i=git@apitzsch.eu; a=ed25519;
- pk=wxovcZRfvNYBMcTw4QFFtNEP4qv39gnBfnfyImXZxiU=
-X-Endpoint-Received: by B4 Relay for git@apitzsch.eu/20240325 with
- auth_id=142
-X-Original-From: =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>
-Reply-To: git@apitzsch.eu
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1751924244; l=5930;
+ i=samuel.kayode@savoirfairelinux.com; s=20250527;
+ h=from:subject:message-id;
+ bh=r8SVeBRmGib5X/fCH5StS6pFWPmPVyMn+NWDHww3thQ=;
+ b=mT2EAkMmiI//ohtjwZCKgPA5OowIQCCeuOPEV+HJ3RCozs8dKYlKHBPh8JtAqojZv+OHi/ezW
+ +TA/b82KhiLAyM+l+Bb4G+aLwPTuSdBdmvduZ9KWJ0wX9ziXWgwMDBQ
+X-Developer-Key: i=samuel.kayode@savoirfairelinux.com; a=ed25519;
+ pk=TPSQGQ5kywnnPyGs0EQqLajLFbdDu17ahXz8/gxMfio=
+X-Endpoint-Received: by B4 Relay for
+ samuel.kayode@savoirfairelinux.com/20250527 with auth_id=412
+X-Original-From: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
+Reply-To: samuel.kayode@savoirfairelinux.com
 
-From: André Apitzsch <git@apitzsch.eu>
+From: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 
-RMI4 F1A implements capacitive keys. Add support for touch keys found in
-some Synaptics touch controller configurations.
+Add a DT binding document for pf1550 PMIC. This describes the core mfd
+device along with its children: regulators, charger and onkey.
 
-Signed-off-by: André Apitzsch <git@apitzsch.eu>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 ---
- drivers/input/rmi4/Kconfig      |   7 ++
- drivers/input/rmi4/Makefile     |   1 +
- drivers/input/rmi4/rmi_bus.c    |   3 +
- drivers/input/rmi4/rmi_driver.h |   1 +
- drivers/input/rmi4/rmi_f1a.c    | 145 ++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 157 insertions(+)
+v5:
+ - Address Krzystof's feedback:
+   - Drop monitored battery ref already included in power supply schema
+   - Move `additionalProperties` close to `type` for regulator
+   - Drop unneccessary |
+   - Change `additionalProperties` to `unevaluatedProperties` for the
+     PMIC
+v4:
+ - Address Krzystof's feedback:
+   - Filename changed to nxp,pf1550.yaml
+   - Replace Freescale with NXP
+   - Define include before battery-cell
+   - Drop operating-range-celsius in example since
+     nxp,thermal-regulation-celsisus already exists
+ - Not sure if there is similar binding to thermal-regulation...
+   for regulating temperature on thermal-zones? @Sebastian and @Krzysztof
+v3:
+ - Address Krzysztof's feedback:
+   - Fold charger and onkey objects
+   - Drop compatible for sub-devices: onkey, charger and regulator.
+   - Drop constant voltage property already included in
+     monitored-battery
+   - Fix whitespace warnings
+   - Fix license
+v2:
+ - Add yamls for the PMIC and the sub-devices
+---
+ .../devicetree/bindings/mfd/nxp,pf1550.yaml        | 137 +++++++++++++++++++++
+ 1 file changed, 137 insertions(+)
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index c0163b983ce698ff241eeb6303d0e29989e0fcb8..c5d18abd28c7c26a9491656608d65fae50e818a8 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -82,6 +82,13 @@ config RMI4_F12
- 	  touchpads. For sensors that support relative pointing, F12 also
- 	  provides mouse input.
- 
-+config RMI4_F1A
-+	bool "RMI4 Function 1A (0D pointing)"
-+	help
-+	  Say Y here if you want to add support for RMI4 function 1A.
-+
-+	  Function 1A provides capacitive keys support for RMI4 devices.
-+
- config RMI4_F30
- 	bool "RMI4 Function 30 (GPIO LED)"
- 	help
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 02f14c84686189b45d6adbbc06e266f64efaa036..70f942196aa2efeeaa7bfd292bcc1b8445761011 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -8,6 +8,7 @@ rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
- rmi_core-$(CONFIG_RMI4_F03) += rmi_f03.o
- rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
- rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
-+rmi_core-$(CONFIG_RMI4_F1A) += rmi_f1a.o
- rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
- rmi_core-$(CONFIG_RMI4_F34) += rmi_f34.o rmi_f34v7.o
- rmi_core-$(CONFIG_RMI4_F3A) += rmi_f3a.o
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 3aee0483720533050c60014d843418740cf04a2d..e04fd6e525dcf474d948380d493249251f83a864 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -360,6 +360,9 @@ static struct rmi_function_handler *fn_handlers[] = {
- #ifdef CONFIG_RMI4_F12
- 	&rmi_f12_handler,
- #endif
-+#ifdef CONFIG_RMI4_F1A
-+	&rmi_f1a_handler,
-+#endif
- #ifdef CONFIG_RMI4_F30
- 	&rmi_f30_handler,
- #endif
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 3bfe9013043ef3dff46249095a5b3116c8f7d9a6..aefe04008509b4363aa1aaf59d9119d95383e942 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -133,6 +133,7 @@ extern struct rmi_function_handler rmi_f01_handler;
- extern struct rmi_function_handler rmi_f03_handler;
- extern struct rmi_function_handler rmi_f11_handler;
- extern struct rmi_function_handler rmi_f12_handler;
-+extern struct rmi_function_handler rmi_f1a_handler;
- extern struct rmi_function_handler rmi_f30_handler;
- extern struct rmi_function_handler rmi_f34_handler;
- extern struct rmi_function_handler rmi_f3a_handler;
-diff --git a/drivers/input/rmi4/rmi_f1a.c b/drivers/input/rmi4/rmi_f1a.c
+diff --git a/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
 new file mode 100644
-index 0000000000000000000000000000000000000000..107f52dd9e1468c2b7c0400bb24f5b0cf2928714
+index 0000000000000000000000000000000000000000..a0b412c3468a3d8972e5c129387c5417933c78e3
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_f1a.c
-@@ -0,0 +1,145 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2025 André Apitzsch <git@apitzsch.eu>
-+ */
++++ b/Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
+@@ -0,0 +1,137 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/nxp,pf1550.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+#include <linux/input.h>
-+#include <linux/property.h>
-+#include "rmi_driver.h"
++title: NXP PF1550 Power Management IC
 +
-+#define RMI_F1A_BUTTON_BITMASK_SIZE		1
++maintainers:
++  - Samuel Kayode <samuel.kayode@savoirfairelinux.com>
 +
-+struct f1a_data {
-+	u32 *keymap;
-+	unsigned int num_keys;
++description:
++  PF1550 PMIC provides battery charging and power supply for low power IoT and
++  wearable applications. This device consists of an i2c controlled MFD that
++  includes regulators, battery charging and an onkey/power button.
 +
-+	struct input_dev *input;
-+};
++$ref: /schemas/power/supply/power-supply.yaml
 +
-+static int rmi_f1a_parse_device_properties(struct rmi_function *fn, struct f1a_data *f1a)
-+{
-+	static const char buttons_property[] = "linux,keycodes";
-+	struct device *dev = &fn->dev;
-+	u32 *buttonmap;
-+	int n_keys;
-+	int ret;
++properties:
++  compatible:
++    const: nxp,pf1550
 +
-+	if (!device_property_present(dev, buttons_property))
-+		return 0;
++  reg:
++    maxItems: 1
 +
-+	n_keys = device_property_count_u32(dev, buttons_property);
-+	if (n_keys <= 0) {
-+		ret = n_keys < 0 ? n_keys : -EINVAL;
-+		dev_err(dev, "Invalid/malformed '%s' property: %d\n",
-+			buttons_property, ret);
-+		return ret;
-+	}
++  interrupts:
++    maxItems: 1
 +
-+	buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
-+				       GFP_KERNEL);
-+	if (!buttonmap)
-+		return -ENOMEM;
++  wakeup-source: true
 +
-+	ret = device_property_read_u32_array(dev, buttons_property, buttonmap,
-+					     n_keys);
-+	if (ret) {
-+		dev_err(dev, "Failed to parse '%s' property: %d\n",
-+			buttons_property, ret);
-+		return ret;
-+	}
++  regulators:
++    type: object
++    additionalProperties: false
 +
-+	f1a->keymap = buttonmap;
-+	f1a->num_keys = n_keys;
++    patternProperties:
++      "^(ldo[1-3]|sw[1-3]|vrefddr)$":
++        type: object
++        $ref: /schemas/regulator/regulator.yaml
++        description:
++          regulator configuration for ldo1-3, buck converters(sw1-3)
++          and DDR termination reference voltage (vrefddr)
++        unevaluatedProperties: false
 +
-+	return 0;
-+}
++  monitored-battery:
++    description: |
++      A phandle to a monitored battery node that contains a valid value
++      for:
++      constant-charge-voltage-max-microvolt.
 +
-+static irqreturn_t rmi_f1a_attention(int irq, void *ctx)
-+{
-+	struct rmi_function *fn = ctx;
-+	struct f1a_data *f1a = dev_get_drvdata(&fn->dev);
-+	char button_bitmask;
-+	int key;
-+	int ret;
++  nxp,thermal-regulation-celsius:
++    description:
++      Temperature threshold for thermal regulation of charger in celsius.
++    enum: [ 60, 75, 90, 105 ]
 +
-+	ret = rmi_read_block(fn->rmi_dev, fn->fd.data_base_addr,
-+			     &button_bitmask, RMI_F1A_BUTTON_BITMASK_SIZE);
-+	if (ret < 0) {
-+		dev_err(&fn->dev, "Failed to read object data. Code: %d.\n",
-+			ret);
-+		return IRQ_RETVAL(ret);
-+	}
++  nxp,min-system-microvolt:
++    description:
++      System specific lower limit voltage.
++    enum: [ 3500000, 3700000, 4300000 ]
 +
-+	for (key = 0; key < f1a->num_keys; key++)
-+		input_report_key(f1a->input, f1a->keymap[key],
-+				button_bitmask & BIT(key));
++required:
++  - compatible
++  - reg
++  - interrupts
 +
-+	return IRQ_HANDLED;
-+}
++unevaluatedProperties: false
 +
-+static int rmi_f1a_config(struct rmi_function *fn)
-+{
-+	struct f1a_data *f1a = dev_get_drvdata(&fn->dev);
-+	struct rmi_driver *drv = fn->rmi_dev->driver;
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/input/linux-event-codes.h>
 +
-+	if (f1a->num_keys)
-+		drv->set_irq_bits(fn->rmi_dev, fn->irq_mask);
++    battery: battery-cell {
++        compatible = "simple-battery";
++        constant-charge-voltage-max-microvolt = <4400000>;
++    };
 +
-+	return 0;
-+}
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
 +
-+static int rmi_f1a_initialize(struct rmi_function *fn, struct f1a_data *f1a)
-+{
-+	int ret;
-+	int i;
++        pmic@8 {
++            compatible = "nxp,pf1550";
++            reg = <0x8>;
 +
-+	ret = rmi_f1a_parse_device_properties(fn, f1a);
-+	if (ret)
-+		return ret;
++            interrupt-parent = <&gpio1>;
++            interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
++            wakeup-source;
++            monitored-battery = <&battery>;
++            nxp,min-system-microvolt = <4300000>;
++            nxp,thermal-regulation-celsius = <75>;
 +
-+	for (i = 0; i < f1a->num_keys; i++)
-+		input_set_capability(f1a->input, EV_KEY, f1a->keymap[i]);
++            regulators {
++                sw1_reg: sw1 {
++                    regulator-name = "sw1";
++                    regulator-min-microvolt = <600000>;
++                    regulator-max-microvolt = <1387500>;
++                    regulator-always-on;
++                    regulator-ramp-delay = <6250>;
++                };
 +
-+	f1a->input->keycode = f1a->keymap;
-+	f1a->input->keycodemax = f1a->num_keys;
-+	f1a->input->keycodesize = sizeof(f1a->keymap[0]);
++                sw2_reg: sw2 {
++                    regulator-name = "sw2";
++                    regulator-min-microvolt = <600000>;
++                    regulator-max-microvolt = <1387500>;
++                    regulator-always-on;
++                };
 +
-+	return 0;
-+}
++                sw3_reg: sw3 {
++                    regulator-name = "sw3";
++                    regulator-min-microvolt = <1800000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+static int rmi_f1a_probe(struct rmi_function *fn)
-+{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
-+	struct f1a_data *f1a;
-+	int ret;
++                vldo1_reg: ldo1 {
++                    regulator-name = "ldo1";
++                    regulator-min-microvolt = <750000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+	if (!drv_data->input) {
-+		dev_info(&fn->dev, "F1A: no input device found, ignoring\n");
-+		return -ENXIO;
-+	}
++                vldo2_reg: ldo2 {
++                    regulator-name = "ldo2";
++                    regulator-min-microvolt = <1800000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
 +
-+	f1a = devm_kzalloc(&fn->dev, sizeof(*f1a), GFP_KERNEL);
-+	if (!f1a)
-+		return -ENOMEM;
-+
-+	f1a->input = drv_data->input;
-+
-+	ret = rmi_f1a_initialize(fn, f1a);
-+	if (ret)
-+		return ret;
-+
-+	dev_set_drvdata(&fn->dev, f1a);
-+
-+	return 0;
-+}
-+
-+struct rmi_function_handler rmi_f1a_handler = {
-+	.driver = {
-+		.name = "rmi4_f1a",
-+	},
-+	.func = 0x1a,
-+	.probe = rmi_f1a_probe,
-+	.config = rmi_f1a_config,
-+	.attention = rmi_f1a_attention,
-+};
++                vldo3_reg: ldo3 {
++                    regulator-name = "ldo3";
++                    regulator-min-microvolt = <750000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
++            };
++        };
++    };
 
 -- 
-2.50.0
+2.49.0
 
 

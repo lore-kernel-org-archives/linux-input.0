@@ -1,38 +1,38 @@
 Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467D02627FC;
-	Fri, 11 Jul 2025 09:30:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467641F3B85;
+	Fri, 11 Jul 2025 09:30:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752226238; cv=none; b=kWXbTgNpnZQ1Q92m2aQ7/mbScaAIs7VtptdjVFcQ4bF8aB7TLS2IY/xzSwgIAXQi2GksKxwB06EOJRAXfYIvQn/lIvBMg/zQTlYD5ELLhIi9f2gJiU/ZyVwRr99N/j05IQf3bVcZg5IuqGBPxURNQcSt5vJrw8YNy2AgAFH0Uik=
+	t=1752226239; cv=none; b=d1fP71l4CQY3FD+2/1dGrvWTXH8JkClxFCKpyuZGAAik2xrZ8Bd2cGS0dwEeQyLqIaAHsNRcqhnbQ7RmmdekZd050h+zhzFOCTwPm7I1K6uvYHqeu4vOouAml33YMmMpTN4motC4nOj37xHNy49tQK322UMnJPS2zjvB17vwvjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752226238; c=relaxed/simple;
-	bh=Vfwr3T6oFIr11ChPVQ4cLfkvMx4CouG1IEddNOdLMdg=;
+	s=arc-20240116; t=1752226239; c=relaxed/simple;
+	bh=ivCv2diegFAI10yvN/kIznk53Nc/V6s4C22VehNSBd4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Z9g9w1FFVcnHqEC7ehfACEI8PCWNp2tgN3bOmTkzjjTOG/A2GzY4l1qLwHEIfuQnprVW6Std8M7hcxMVxWQnq/7cSGNGh10jxYIuWQEM+kGQ8v+wRV14Jb8O+LrFaeKn0rvQ3wFd7za4xiBqkTggcCHu3NSaxYRywjyffP0cKCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=aHVWUFhh; arc=none smtp.client-ip=217.70.183.193
+	 In-Reply-To:To:Cc; b=PWhR3qNJtY4P0lUfDaItlbI99Lzz8ymxlQ+LrnNdH+NWduDH/+z/Zyu6cud3+/ZjsVPTeRUk1/u3rQs222TvU8C7JqIJ9Tf8/noXSCpnxT3fwBy53OeGr9J8h00aYiTBtS9njLqnDQwRl4Ya5r36kWA3bLGykVUy/20TUXDxFmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=R282osRz; arc=none smtp.client-ip=217.70.183.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="aHVWUFhh"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 8267243A1E;
-	Fri, 11 Jul 2025 09:30:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="R282osRz"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id E39A2439EE;
+	Fri, 11 Jul 2025 09:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1752226228;
+	t=1752226233;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=t/2/VGmKfyMKjx1nQXnOEIb84oP44Mh6hiFeixIS2G0=;
-	b=aHVWUFhhVoorpY944GkSJoQ4wkxCY/FhOagC9M30ydgPX+iBI+HLc6I/O+dcAn72ott4nP
-	QKhdae6jEcNM/+p39vFJBKmVhPEjdWC+Czu3DmMXJ7515CwlIXi0SPEkx0PW8zSQPQtyXA
-	98VREFBlwKTMW1GADrZTg9oZ+G7wMMwtVqIzSW+NngbuwqAIDxX0ZwV2Qh32IU1AQp5/NI
-	41W4A03PUj1NH+F8aWzEb4fO7N7YFyfPVt0ujJOgVDX/JV1MZM5PK4TkdbkeTBWIuRYUuo
-	HCvfMxhywQ3ZIwsRuJPsWm9333I+YIJSy2BN0XLHQuoHH6hc5oLrGHBczS4g8w==
+	bh=l3qubtbFuYPrSo/BjVwcQQS6M3xWsCf4JaEdFKScetg=;
+	b=R282osRzJjwbVDYVIkobv4mFWkn3G697uj5sVLp8/qqoHemTsUn6caqXrmwgeE2R0j0Ekk
+	17LY7+Zz6k/L9cbsYGt7tFMuet+344HE2Kc+TC3DohJ5QNRALPxvCW3L9svONLE70ql3/6
+	rXQOmSgwOUJO2MTTSEQbMm+CBWcTeInDtbWTaemF4LKxEwGtsi3Wuk9S9ze+Gf7mIEVtjq
+	gitwB7yDIwJ7+OBEhHFHMVq3zgYdy9MsO7ZBDq+JmVcVQyxavLT7yPup1EBnzhSu2qNiLB
+	SHDD9i4k/P4lmILbxtT36y/di53Uo+5yHgFXV3X7C7s2Ghny+qYgrkawp9fslA==
 From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Date: Fri, 11 Jul 2025 11:29:43 +0200
-Subject: [PATCH v11 03/10] pinctrl: Add MAX7360 pinctrl driver
+Date: Fri, 11 Jul 2025 11:29:49 +0200
+Subject: [PATCH v11 09/10] input: misc: Add support for MAX7360 rotary
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250711-mdb-max7360-support-v11-3-cf1dee2a7d4c@bootlin.com>
+Message-Id: <20250711-mdb-max7360-support-v11-9-cf1dee2a7d4c@bootlin.com>
 References: <20250711-mdb-max7360-support-v11-0-cf1dee2a7d4c@bootlin.com>
 In-Reply-To: <20250711-mdb-max7360-support-v11-0-cf1dee2a7d4c@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -60,74 +60,71 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-pwm@vger.kernel.org, andriy.shevchenko@intel.com, 
  =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, 
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+ Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1752226224; l=9011;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1752226224; l=7729;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=Vfwr3T6oFIr11ChPVQ4cLfkvMx4CouG1IEddNOdLMdg=;
- b=zn4tY80ooTcwHhMyMV+GEzhDZohBc8T+5g5TIAE1I7BO0S+uSY+9lN8LVaw+Kx/7xAvQ7VCUN
- I8yMhcgOYR3Df0V6GGLerVLtMQGy/hr+TdB0+r6InHCijsWQj7nCwlL
+ bh=ivCv2diegFAI10yvN/kIznk53Nc/V6s4C22VehNSBd4=;
+ b=G5BdFszhqk0MwilhnUTaLShZdZMMIc1l5m+lGxrMJzlFav3PZ8HascU706a5/D7Nk9To64wez
+ SiDkHpf6f5SCejki403LbgsWIesQ54s4W4FX9aW70wpQgRRnNK0iOsO
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdegvdeliecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdegpdhrtghpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhpfihmsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepuggrkhhrsehkvghrnhgvl
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdegvdeliecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhpfihmsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepuggrkhhrsehkvghrnhgvl
  hdrohhrghdprhgtphhtthhopehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhrtghpthhtohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopegsrhhoohhnihgvsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlvggvsehkvghrnhgvlhdrohhrgh
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-Add driver for Maxim Integrated MAX7360 pinctrl on the PORT pins. Pins
-can be used either for GPIO, PWM or rotary encoder functionalities.
+Add driver for Maxim Integrated MAX7360 rotary encoder controller,
+supporting a single rotary switch.
 
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/pinctrl/Kconfig           |  11 ++
- drivers/pinctrl/Makefile          |   1 +
- drivers/pinctrl/pinctrl-max7360.c | 215 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 227 insertions(+)
+ drivers/input/misc/Kconfig          |  10 ++
+ drivers/input/misc/Makefile         |   1 +
+ drivers/input/misc/max7360-rotary.c | 192 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 203 insertions(+)
 
-diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
-index 33db9104df17..98448db31456 100644
---- a/drivers/pinctrl/Kconfig
-+++ b/drivers/pinctrl/Kconfig
-@@ -346,6 +346,17 @@ config PINCTRL_LPC18XX
- 	help
- 	  Pinctrl driver for NXP LPC18xx/43xx System Control Unit (SCU).
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index f5496ca0c0d2..0bc9d121c984 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -230,6 +230,16 @@ config INPUT_M68K_BEEP
+ 	tristate "M68k Beeper support"
+ 	depends on M68K
  
-+config PINCTRL_MAX7360
-+	tristate "MAX7360 Pincontrol support"
++config INPUT_MAX7360_ROTARY
++	tristate "Maxim MAX7360 Rotary Encoder"
 +	depends on MFD_MAX7360
-+	select PINMUX
-+	select GENERIC_PINCONF
 +	help
-+	  Say Y here to enable pin control support for Maxim MAX7360 keypad
-+	  controller.
-+	  This keypad controller has 8 GPIO pins that may work as GPIO, or PWM,
-+	  or rotary encoder alternate modes.
++	  If you say yes here you get support for the rotary encoder on the
++	  Maxim MAX7360 I/O Expander.
 +
- config PINCTRL_MAX77620
- 	tristate "MAX77620/MAX20024 Pincontrol support"
- 	depends on MFD_MAX77620 && OF
-diff --git a/drivers/pinctrl/Makefile b/drivers/pinctrl/Makefile
-index ac27e88677d1..974a179b5593 100644
---- a/drivers/pinctrl/Makefile
-+++ b/drivers/pinctrl/Makefile
-@@ -36,6 +36,7 @@ obj-$(CONFIG_PINCTRL_FALCON)	+= pinctrl-falcon.o
- obj-$(CONFIG_PINCTRL_LOONGSON2) += pinctrl-loongson2.o
- obj-$(CONFIG_PINCTRL_XWAY)	+= pinctrl-xway.o
- obj-$(CONFIG_PINCTRL_LPC18XX)	+= pinctrl-lpc18xx.o
-+obj-$(CONFIG_PINCTRL_MAX7360)	+= pinctrl-max7360.o
- obj-$(CONFIG_PINCTRL_MAX77620)	+= pinctrl-max77620.o
- obj-$(CONFIG_PINCTRL_MCP23S08_I2C)	+= pinctrl-mcp23s08_i2c.o
- obj-$(CONFIG_PINCTRL_MCP23S08_SPI)	+= pinctrl-mcp23s08_spi.o
-diff --git a/drivers/pinctrl/pinctrl-max7360.c b/drivers/pinctrl/pinctrl-max7360.c
++	  To compile this driver as a module, choose M here: the module will be
++	  called max7360_rotary.
++
+ config INPUT_MAX77650_ONKEY
+ 	tristate "Maxim MAX77650 ONKEY support"
+ 	depends on MFD_MAX77650
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 6d91804d0a6f..c454fba3a3ae 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -51,6 +51,7 @@ obj-$(CONFIG_INPUT_IQS7222)		+= iqs7222.o
+ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+ obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+ obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
++obj-$(CONFIG_INPUT_MAX7360_ROTARY)	+= max7360-rotary.o
+ obj-$(CONFIG_INPUT_MAX77650_ONKEY)	+= max77650-onkey.o
+ obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
+ obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
+diff --git a/drivers/input/misc/max7360-rotary.c b/drivers/input/misc/max7360-rotary.c
 new file mode 100644
-index 000000000000..abfaff468bad
+index 000000000000..385831ef34b6
 --- /dev/null
-+++ b/drivers/pinctrl/pinctrl-max7360.c
-@@ -0,0 +1,215 @@
++++ b/drivers/input/misc/max7360-rotary.c
+@@ -0,0 +1,192 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright 2025 Bootlin
@@ -135,212 +132,189 @@ index 000000000000..abfaff468bad
 + * Author: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 + */
 +
-+#include <linux/array_size.h>
-+#include <linux/dev_printk.h>
-+#include <linux/device.h>
++#include <linux/bitfield.h>
 +#include <linux/device/devres.h>
-+#include <linux/err.h>
++#include <linux/dev_printk.h>
 +#include <linux/init.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
 +#include <linux/mfd/max7360.h>
-+#include <linux/module.h>
++#include <linux/property.h>
 +#include <linux/platform_device.h>
++#include <linux/pm_wakeirq.h>
 +#include <linux/regmap.h>
-+#include <linux/stddef.h>
++#include <linux/types.h>
 +
-+#include <linux/pinctrl/pinctrl.h>
-+#include <linux/pinctrl/pinconf-generic.h>
-+#include <linux/pinctrl/pinmux.h>
++#define MAX7360_ROTARY_DEFAULT_STEPS 24
 +
-+#include "core.h"
-+#include "pinmux.h"
++struct max7360_rotary {
++	struct input_dev *input;
++	struct regmap *regmap;
++	unsigned int debounce_ms;
 +
-+struct max7360_pinctrl {
-+	struct pinctrl_dev *pctldev;
-+	struct pinctrl_desc pinctrl_desc;
++	unsigned int pos;
++
++	u32 steps;
++	u32 axis;
++	bool relative_axis;
++	bool rollover;
 +};
 +
-+static const struct pinctrl_pin_desc max7360_pins[] = {
-+	PINCTRL_PIN(0, "PORT0"),
-+	PINCTRL_PIN(1, "PORT1"),
-+	PINCTRL_PIN(2, "PORT2"),
-+	PINCTRL_PIN(3, "PORT3"),
-+	PINCTRL_PIN(4, "PORT4"),
-+	PINCTRL_PIN(5, "PORT5"),
-+	PINCTRL_PIN(6, "PORT6"),
-+	PINCTRL_PIN(7, "PORT7"),
-+};
-+
-+static const unsigned int port0_pins[] = {0};
-+static const unsigned int port1_pins[] = {1};
-+static const unsigned int port2_pins[] = {2};
-+static const unsigned int port3_pins[] = {3};
-+static const unsigned int port4_pins[] = {4};
-+static const unsigned int port5_pins[] = {5};
-+static const unsigned int port6_pins[] = {6};
-+static const unsigned int port7_pins[] = {7};
-+static const unsigned int rotary_pins[] = {6, 7};
-+
-+static const struct pingroup max7360_groups[] = {
-+	PINCTRL_PINGROUP("PORT0", port0_pins, ARRAY_SIZE(port0_pins)),
-+	PINCTRL_PINGROUP("PORT1", port1_pins, ARRAY_SIZE(port1_pins)),
-+	PINCTRL_PINGROUP("PORT2", port2_pins, ARRAY_SIZE(port2_pins)),
-+	PINCTRL_PINGROUP("PORT3", port3_pins, ARRAY_SIZE(port3_pins)),
-+	PINCTRL_PINGROUP("PORT4", port4_pins, ARRAY_SIZE(port4_pins)),
-+	PINCTRL_PINGROUP("PORT5", port5_pins, ARRAY_SIZE(port5_pins)),
-+	PINCTRL_PINGROUP("PORT6", port6_pins, ARRAY_SIZE(port6_pins)),
-+	PINCTRL_PINGROUP("PORT7", port7_pins, ARRAY_SIZE(port7_pins)),
-+	PINCTRL_PINGROUP("ROTARY", rotary_pins, ARRAY_SIZE(rotary_pins)),
-+};
-+
-+static int max7360_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
++static void max7360_rotary_report_event(struct max7360_rotary *max7360_rotary, int steps)
 +{
-+	return ARRAY_SIZE(max7360_groups);
-+}
++	if (max7360_rotary->relative_axis) {
++		input_report_rel(max7360_rotary->input, max7360_rotary->axis, steps);
++	} else {
++		int pos = max7360_rotary->pos;
++		int maxval = max7360_rotary->steps;
 +
-+static const char *max7360_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
-+						  unsigned int group)
-+{
-+	return max7360_groups[group].name;
-+}
-+
-+static int max7360_pinctrl_get_group_pins(struct pinctrl_dev *pctldev,
-+					  unsigned int group,
-+					  const unsigned int **pins,
-+					  unsigned int *num_pins)
-+{
-+	*pins = max7360_groups[group].pins;
-+	*num_pins = max7360_groups[group].npins;
-+	return 0;
-+}
-+
-+static const struct pinctrl_ops max7360_pinctrl_ops = {
-+	.get_groups_count = max7360_pinctrl_get_groups_count,
-+	.get_group_name = max7360_pinctrl_get_group_name,
-+	.get_group_pins = max7360_pinctrl_get_group_pins,
-+#ifdef CONFIG_OF
-+	.dt_node_to_map = pinconf_generic_dt_node_to_map_pin,
-+	.dt_free_map = pinconf_generic_dt_free_map,
-+#endif
-+};
-+
-+static const char * const simple_groups[] = {
-+	"PORT0", "PORT1", "PORT2", "PORT3",
-+	"PORT4", "PORT5", "PORT6", "PORT7",
-+};
-+
-+static const char * const rotary_groups[] = { "ROTARY" };
-+
-+#define MAX7360_PINCTRL_FN_GPIO		0
-+#define MAX7360_PINCTRL_FN_PWM		1
-+#define MAX7360_PINCTRL_FN_ROTARY	2
-+static const struct pinfunction max7360_functions[] = {
-+	[MAX7360_PINCTRL_FN_GPIO] = PINCTRL_PINFUNCTION("gpio", simple_groups,
-+							ARRAY_SIZE(simple_groups)),
-+	[MAX7360_PINCTRL_FN_PWM] = PINCTRL_PINFUNCTION("pwm", simple_groups,
-+						       ARRAY_SIZE(simple_groups)),
-+	[MAX7360_PINCTRL_FN_ROTARY] = PINCTRL_PINFUNCTION("rotary", rotary_groups,
-+							  ARRAY_SIZE(rotary_groups)),
-+};
-+
-+static int max7360_get_functions_count(struct pinctrl_dev *pctldev)
-+{
-+	return ARRAY_SIZE(max7360_functions);
-+}
-+
-+static const char *max7360_get_function_name(struct pinctrl_dev *pctldev, unsigned int selector)
-+{
-+	return max7360_functions[selector].name;
-+}
-+
-+static int max7360_get_function_groups(struct pinctrl_dev *pctldev, unsigned int selector,
-+				       const char * const **groups,
-+				       unsigned int * const num_groups)
-+{
-+	*groups = max7360_functions[selector].groups;
-+	*num_groups = max7360_functions[selector].ngroups;
-+
-+	return 0;
-+}
-+
-+static int max7360_set_mux(struct pinctrl_dev *pctldev, unsigned int selector,
-+			   unsigned int group)
-+{
-+	struct regmap *regmap = dev_get_regmap(pctldev->dev->parent, NULL);
-+	int val;
-+
-+	/*
-+	 * GPIO and PWM functions are the same: we only need to handle the
-+	 * rotary encoder function, on pins 6 and 7.
-+	 */
-+	if (max7360_groups[group].pins[0] >= 6) {
-+		if (selector == MAX7360_PINCTRL_FN_ROTARY)
-+			val = MAX7360_GPIO_CFG_RTR_EN;
++		/*
++		 * Add steps to the position.
++		 * Make sure added steps are always in ]-maxval; maxval[
++		 * interval, so (pos + maxval) is always >= 0.
++		 * Then set back pos to the [0; maxval[ interval.
++		 */
++		pos += steps % maxval;
++		if (max7360_rotary->rollover)
++			pos = (pos + maxval) % maxval;
 +		else
-+			val = 0;
++			pos = clamp(pos, 0, maxval - 1);
 +
-+		return regmap_write_bits(regmap, MAX7360_REG_GPIOCFG, MAX7360_GPIO_CFG_RTR_EN, val);
++		max7360_rotary->pos = pos;
++		input_report_abs(max7360_rotary->input, max7360_rotary->axis, max7360_rotary->pos);
 +	}
 +
-+	return 0;
++	input_sync(max7360_rotary->input);
 +}
 +
-+static const struct pinmux_ops max7360_pmxops = {
-+	.get_functions_count = max7360_get_functions_count,
-+	.get_function_name = max7360_get_function_name,
-+	.get_function_groups = max7360_get_function_groups,
-+	.set_mux = max7360_set_mux,
-+	.strict = true,
-+};
-+
-+static int max7360_pinctrl_probe(struct platform_device *pdev)
++static irqreturn_t max7360_rotary_irq(int irq, void *data)
 +{
-+	struct regmap *regmap;
-+	struct pinctrl_desc *pd;
-+	struct max7360_pinctrl *chip;
++	struct max7360_rotary *max7360_rotary = data;
++	struct device *dev = max7360_rotary->input->dev.parent;
++	unsigned int val;
++	int error;
++
++	error = regmap_read(max7360_rotary->regmap, MAX7360_REG_RTR_CNT, &val);
++	if (error < 0) {
++		dev_err(dev, "Failed to read rotary counter\n");
++		return IRQ_NONE;
++	}
++
++	if (val == 0)
++		return IRQ_NONE;
++
++	max7360_rotary_report_event(max7360_rotary, sign_extend32(val, 7));
++
++	return IRQ_HANDLED;
++}
++
++static int max7360_rotary_hw_init(struct max7360_rotary *max7360_rotary)
++{
++	struct device *dev = max7360_rotary->input->dev.parent;
++	int val;
++	int error;
++
++	val = FIELD_PREP(MAX7360_ROT_DEBOUNCE, max7360_rotary->debounce_ms) |
++	      FIELD_PREP(MAX7360_ROT_INTCNT, 1) | MAX7360_ROT_INTCNT_DLY;
++	error = regmap_write(max7360_rotary->regmap, MAX7360_REG_RTRCFG, val);
++	if (error)
++		dev_err(dev, "Failed to set max7360 rotary encoder configuration\n");
++
++	return error;
++}
++
++static int max7360_rotary_probe(struct platform_device *pdev)
++{
++	struct max7360_rotary *max7360_rotary;
 +	struct device *dev = &pdev->dev;
++	struct input_dev *input;
++	struct regmap *regmap;
++	int irq;
++	int error;
 +
 +	regmap = dev_get_regmap(dev->parent, NULL);
 +	if (!regmap)
 +		return dev_err_probe(dev, -ENODEV, "Could not get parent regmap\n");
 +
-+	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
-+	if (!chip)
++	irq = fwnode_irq_get_byname(dev_fwnode(dev->parent), "inti");
++	if (irq < 0)
++		return dev_err_probe(dev, irq, "Failed to get IRQ\n");
++
++	max7360_rotary = devm_kzalloc(dev, sizeof(*max7360_rotary), GFP_KERNEL);
++	if (!max7360_rotary)
 +		return -ENOMEM;
 +
-+	pd = &chip->pinctrl_desc;
++	max7360_rotary->regmap = regmap;
 +
-+	pd->pctlops = &max7360_pinctrl_ops;
-+	pd->pmxops = &max7360_pmxops;
-+	pd->name = dev_name(dev);
-+	pd->pins = max7360_pins;
-+	pd->npins = MAX7360_MAX_GPIO;
-+	pd->owner = THIS_MODULE;
++	device_property_read_u32(dev->parent, "linux,axis", &max7360_rotary->axis);
++	max7360_rotary->rollover = device_property_read_bool(dev->parent,
++							     "rotary-encoder,rollover");
++	max7360_rotary->relative_axis =
++		device_property_read_bool(dev->parent, "rotary-encoder,relative-axis");
 +
-+	/*
-+	 * This MFD sub-device does not have any associated device tree node:
-+	 * properties are stored in the device node of the parent (MFD) device
-+	 * and this same node is used in phandles of client devices.
-+	 * Reuse this device tree node here, as otherwise the pinctrl subsystem
-+	 * would be confused by this topology.
-+	 */
-+	device_set_of_node_from_dev(dev, dev->parent);
++	error = device_property_read_u32(dev->parent, "rotary-encoder,steps",
++					 &max7360_rotary->steps);
++	if (error)
++		max7360_rotary->steps = MAX7360_ROTARY_DEFAULT_STEPS;
 +
-+	chip->pctldev = devm_pinctrl_register(dev, pd, chip);
-+	if (IS_ERR(chip->pctldev))
-+		return dev_err_probe(dev, PTR_ERR(chip->pctldev), "can't register controller\n");
++	device_property_read_u32(dev->parent, "rotary-debounce-delay-ms",
++				 &max7360_rotary->debounce_ms);
++	if (max7360_rotary->debounce_ms > MAX7360_ROT_DEBOUNCE_MAX)
++		return dev_err_probe(dev, -EINVAL, "Invalid debounce timing: %u\n",
++				     max7360_rotary->debounce_ms);
++
++	input = devm_input_allocate_device(dev);
++	if (!input)
++		return -ENOMEM;
++
++	max7360_rotary->input = input;
++
++	input->id.bustype = BUS_I2C;
++	input->name = pdev->name;
++
++	if (max7360_rotary->relative_axis)
++		input_set_capability(input, EV_REL, max7360_rotary->axis);
++	else
++		input_set_abs_params(input, max7360_rotary->axis, 0, max7360_rotary->steps, 0, 1);
++
++	error = devm_request_threaded_irq(dev, irq, NULL, max7360_rotary_irq,
++					  IRQF_ONESHOT | IRQF_SHARED,
++					  "max7360-rotary", max7360_rotary);
++	if (error)
++		return dev_err_probe(dev, error, "Failed to register interrupt\n");
++
++	error = input_register_device(input);
++	if (error)
++		return dev_err_probe(dev, error, "Could not register input device\n");
++
++	error = max7360_rotary_hw_init(max7360_rotary);
++	if (error)
++		return dev_err_probe(dev, error, "Failed to initialize max7360 rotary\n");
++
++	device_init_wakeup(dev, true);
++	error = dev_pm_set_wake_irq(dev, irq);
++	if (error)
++		dev_warn(dev, "Failed to set up wakeup irq: %d\n", error);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver max7360_pinctrl_driver = {
-+	.driver = {
-+		.name	= "max7360-pinctrl",
-+	},
-+	.probe		= max7360_pinctrl_probe,
-+};
-+module_platform_driver(max7360_pinctrl_driver);
++static void max7360_rotary_remove(struct platform_device *pdev)
++{
++	dev_pm_clear_wake_irq(&pdev->dev);
++	device_init_wakeup(&pdev->dev, false);
++}
 +
-+MODULE_DESCRIPTION("MAX7360 pinctrl driver");
++static struct platform_driver max7360_rotary_driver = {
++	.driver = {
++		.name	= "max7360-rotary",
++	},
++	.probe		= max7360_rotary_probe,
++	.remove		= max7360_rotary_remove,
++};
++module_platform_driver(max7360_rotary_driver);
++
++MODULE_DESCRIPTION("MAX7360 Rotary driver");
 +MODULE_AUTHOR("Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>");
 +MODULE_LICENSE("GPL");
 

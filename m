@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D6EF2DCC1F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5F292DCF50;
 	Tue, 15 Jul 2025 11:49:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752580152; cv=none; b=oaduw8G6bq+4N2YKpfAAqdjcs2j+Yk6Fp+5ju6ruvaZNp8yeL4UGb4hT5PxS+Lg1BstsMy1fbLpvz17mevcV56TGc+AQEmpJpHUQNU9KdrFu8Pjkyw1aUwQiqPftd895DuDvPhe370toLr8dFhzu/aY15BnVt6wTmJU0sUVleyQ=
+	t=1752580152; cv=none; b=YXfnkCSajXan6rMocGUJSvRkK0/Gyn5+PUJmDh04jhvJsriQS/RWkdThVyGVL2KC3NhsvnbGlgiQf0/fo+5f0LmUsG0eNtYQkf27YnAJDgi0RzMgVinFk+ixcvq24CnpnkaI9gnVTlbjPq13dsgPTF3Eksfq2+PRgB6Sy3uNsHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1752580152; c=relaxed/simple;
-	bh=K3YyvrVUo9TJ+BoNxaTwXhbXTnbVRUtjpc3gKo2u96g=;
+	bh=CWj2q2iFgW5iCNI6agU0nIdCloBgasfYop+w6kOO7GQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=JoLfu+53OTPnJLRmJ1QGuhHGwiU1c2YnP+ZseqlYZwIZKOHEFiPPG5FjOFVRGFbiK4lmbKsZyss/cEPk7Ra5qzd2ycyDryjMXZS/+OCB87+hRSVhe0fnx/URTHSDdy1ajuB3PHxIFtiIABZDuVtMBGB/4w7523ei1nZYbn3voZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j5EJ9iyw; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Wy/eSIIogwPZjzA/yBoS8VO/vETNNvABEIMj5c/yazrwbbCHfWOfrI3GS67fJcwzENxq4oOUuy5yRkp9Bb9b9wOMIbCBrddxHatBx7QD6gB2twTIoSXNP6as1aSdCTWZ0JBunPT+IHEXTGCuTUwSSDp+s4DRuFdTYdxV792Nx34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JqnFnekX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j5EJ9iyw"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 35965C4CEF9;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JqnFnekX"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 65437C4CEFF;
 	Tue, 15 Jul 2025 11:49:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1752580152;
-	bh=K3YyvrVUo9TJ+BoNxaTwXhbXTnbVRUtjpc3gKo2u96g=;
+	bh=CWj2q2iFgW5iCNI6agU0nIdCloBgasfYop+w6kOO7GQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=j5EJ9iywUgxi5tUx0U3szIAM/W+7FlxmyfQNoMoa+PQNLHSJvwDw6XcR2svW7zjHc
-	 0xoS7q8Lm+Lgi3oDBmOQxlgSL29o0yFGykUQIyqZrAXCEKyQjRF7XsRuHQ74ULuQgq
-	 WJEMgX8R4Ipp2YbZ7MCmrAE8I06s+PZhoc/dayt9vayCJIRrfZCtwSSUZdMy5I2SEf
-	 FLrGatBL7dvo3WRgzptEWhBBJTNR3R5QNo4rp4pkpHeRaWv8NrpxIE6ryUrcI1n9rq
-	 dJix3tjLL5EdXxucJ2vTiM2uXa52w1DCRK99CjCEm++ds4qg4hM0rpgGiF7ci53BHk
-	 4s0P8JnuPlXWg==
+	b=JqnFnekXqlZPsia0NIwrVheBHrOFqW85heXKArhC1oGl5aJvyZWUrL9MAG6UcPUVb
+	 dEWExj4ZhrXNQ+AxyU0VIfbF8K9OBFCRl17XmwuFA+53ctGm9yQ0kglvhxDQRUcxvq
+	 DFBRA/qWrp7fg7jHm6v6QuXipmmN1VjSplYo0B39In1Jr6bvrUK7fYPU80Mg0Aidq4
+	 fBpzKqYUb19nB9H+rzZRUqFaJgSlQ+9F18IJZcAMREuENQQ8IEKeNtM7v885nrZcrh
+	 wEcYJtUw4rk4Koel/Yui4oN/6lSbI4Y0eSdhIUCBQDFP4BqivSYPdisrrMuK6cSjUn
+	 Apcos7CeB3Big==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23DD2C83F27;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CCFEC83F27;
 	Tue, 15 Jul 2025 11:49:12 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Tue, 15 Jul 2025 13:49:01 +0200
-Subject: [PATCH RESEND v5 2/7] Input: synaptics-rmi4 - handle
- duplicate/unknown PDT entries
+Date: Tue, 15 Jul 2025 13:49:05 +0200
+Subject: [PATCH RESEND v5 6/7] Input: synaptics-rmi4 - read product ID on
+ aftermarket touch ICs
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250715-synaptics-rmi4-v5-2-ca255962c122@ixit.cz>
+Message-Id: <20250715-synaptics-rmi4-v5-6-ca255962c122@ixit.cz>
 References: <20250715-synaptics-rmi4-v5-0-ca255962c122@ixit.cz>
 In-Reply-To: <20250715-synaptics-rmi4-v5-0-ca255962c122@ixit.cz>
 To: Kaustabh Chakraborty <kauschluss@disroot.org>, 
@@ -55,150 +55,64 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3909; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1257; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=DMyfmGUjTKWkjf5dJQfenW4XErBynGEc7q5TZ856CIQ=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBodkA0uoNTZ5PIKCSrNjx/8FWKCpvGOHd1NLk8/
- a5zI8/WhnyJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaHZANAAKCRBgAj/E00kg
- cuhFD/9KrJPjQxFYJXITh9nq4LzZhLCkJyy0RMyk438mS+17jD3iAoYVpVgJnSNoyLeY9gqSUb7
- nhR4+LsVLmyQICgGw6ykGjFxc16Q4NUQJzvln2IkRgmcz8U7ZFg3cDDXJ6Tmxnb1GuyGo7xyT9p
- kvFjw1YoxA1AYkw8wxMXMAr5AnrF7KbxnKvFyCQlpdHo3MbqDu7CFsdWUCjHX/dSHbiN7BcaiQG
- 7Bd26T0f9nYxV68VpFiWunYRojavSWk0lmv8qnkXXTkHXTDKu/kw3Lwqs3a2I7EEn06mKOt4fST
- 7LlrzBW9PO5pws5cKWtFTk+b/ZFtVrN9xOWlOKQFq43zNNZ4znnbyKKc2VJ/KJQeCGMCHqHpZnK
- TQIlWIYxE77AOl7IOonCCLTKsKJhlhJ1CRbkDJlRyBh8np4m1fSJa1TTLzdurfyyIersQ29yx/H
- ZjdZ6dfRH8MKq6QicfmcIDOGi+iWQmkXJGrJSuDqWJuWjAuwg3Ek9OlWVHjZInaL957ZW7aSxoc
- rTnxDh0PQwKJOfRtu8FNF46Gx8atfE70pFxLZ2zlbOi46InUzKSqnUnbwXPA0HR2BHV+PAKOWdH
- mAQZZYyxLRtGcK9wJ68+wLhABEyUN4ksyYeM/uDwy0zE8TawI0SwwHDPW08TjoScDKqX5oCUyTx
- eSBRgv0blvUY6xg==
+ bh=Sh+t0WcseDQHFJEFbXieonJc4P0xUM6YkeQyPxTCtsk=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBodkA0Iia17vtPtthzTNCm/Tbp/HKpiHjAJdN11
+ zzrs3FOWEiJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaHZANAAKCRBgAj/E00kg
+ clQSEACEiURfdgKtkgQFtUJQPEC7zzLRG9WdiPIDhH4DtERRzH9DU9E9qlfzF5S+bLnx+F7qdaf
+ 9+wsjRKnTROT+czEhCZrW2f/OmPmOYavRIma5UlF3/NA1LCL636sgt6D2ZUUFDzUvazbofYBdEd
+ z5WkAOZ6VkdOK/HregncRxOCI49gHKRxvfTIU8d3qHYuJjvo6IagSsiD8BC+jBtgSDybdwmLyEK
+ 4al4xI82LY/YLd9j6YFBHUxF7q/58uNw5n6HI628Q9Bj3ry8zGKAPf430Joeg6mTsuJxd3fhVr9
+ cZLTb5VbjCFhM0WLjF+TAlpqIMIcKvsHZiONiX6fmZnL4To9BFCxECD+SW2CubEYtqrNbzVTcE3
+ mONx2gvBxuaLc4Jb43c+y4sEWdyNjCE9h2ZfHo1Um4FnZ9sYcS9m3tf2n1/i52NMKQs3od2VPA/
+ 0lXU5bssRHbXZZGGg1bDZRac9qZW5B45sg4sLZWrLMJC4qrzOQbq2IG5kM5POI3M5asO4iLfQ93
+ DPORPq/YOsnRN2ScaSWs81ra6Lv2urlMls3tXeODJLe8dwSFwnj/aUVbCP0ByBu1UOFJznaPI20
+ 3aDRib/m14dyXS7KWCMM8zokR4U67mCc3NXA3KDAgw9w22WDhClPKsO5RrabgmyUb7zMXudXeHc
+ iVIeLRmxOEJS4uw==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
 X-Original-From: David Heidelberg <david@ixit.cz>
 Reply-To: david@ixit.cz
 
-From: Caleb Connolly <caleb.connolly@linaro.org>
+From: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Some third party rmi4-compatible ICs don't expose their PDT entries
-very well. Add a few checks to skip duplicate entries as well as entries
-for unsupported functions.
+Some replacement displays include third-party touch ICs which do not
+report the product ID correctly unless we read directly from the
+product ID register. Add a check and a fallback read to handle this.
 
-This is required to support some phones with third party displays.
-
-Validated on a stock OnePlus 6T (original parts):
-manufacturer: Synaptics, product: S3706B, fw id: 2852315
-
-Co-developed-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
-Co-developed-by: David Heidelberg <david@ixit.cz>
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- drivers/input/rmi4/rmi_driver.c | 42 +++++++++++++++++++++++++++++++++++------
- drivers/input/rmi4/rmi_driver.h |  8 ++++++++
- 2 files changed, 44 insertions(+), 6 deletions(-)
+ drivers/input/rmi4/rmi_f01.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 2168b6cd7167334d44553c9c566f870a4e034179..0f6dbe586c652d641178f43ec27df3613126ca66 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -493,12 +493,39 @@ static void rmi_driver_copy_pdt_to_fd(const struct pdt_entry *pdt,
- 	fd->function_version = pdt->function_version;
- }
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 47be64284b25ede8103ada86d6b58fd3a26976bb..2278e9b6a920774b07ec9dd3e452cedc69469be8 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -250,6 +250,20 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 		}
+ 	}
  
-+static bool rmi_pdt_entry_is_valid(struct rmi_device *rmi_dev,
-+				   struct pdt_scan_state *state, u8 fn)
-+{
-+	switch (fn) {
-+	case 0x01:
-+	case 0x03:
-+	case 0x11:
-+	case 0x12:
-+	case 0x30:
-+	case 0x34:
-+	case 0x3a:
-+	case 0x54:
-+	case 0x55:
-+		if (state->pdts[fn] == true)
-+			return false;
-+		break;
-+	default:
-+		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
-+			"PDT has unknown function number %#02x\n", fn);
-+		return false;
++	/*
++	 * Some aftermarket ICs put garbage into the product id field unless
++	 * we read directly from the product id register.
++	 */
++	if (props->product_id[0] < 0x20) {
++		ret = rmi_read_block(rmi_dev, query_base_addr + 11,
++				       props->product_id, RMI_PRODUCT_ID_LENGTH);
++		if (ret) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read product id: %d\n", ret);
++			return ret;
++		}
 +	}
 +
-+	state->pdts[fn] = true;
-+	state->pdt_count++;
-+	return true;
-+}
-+
- #define RMI_SCAN_CONTINUE	0
- #define RMI_SCAN_DONE		1
- 
- static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
- 			     int page,
--			     int *empty_pages,
-+			     struct pdt_scan_state *state,
- 			     void *ctx,
- 			     int (*callback)(struct rmi_device *rmi_dev,
- 					     void *ctx,
-@@ -521,6 +548,9 @@ static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
- 		if (RMI4_END_OF_PDT(pdt_entry.function_number))
- 			break;
- 
-+		if (!rmi_pdt_entry_is_valid(rmi_dev, state, pdt_entry.function_number))
-+			continue;
-+
- 		retval = callback(rmi_dev, ctx, &pdt_entry);
- 		if (retval != RMI_SCAN_CONTINUE)
- 			return retval;
-@@ -531,11 +561,11 @@ static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
- 	 * or more is found, stop scanning.
- 	 */
- 	if (addr == pdt_start)
--		++*empty_pages;
-+		++state->empty_pages;
- 	else
--		*empty_pages = 0;
-+		state->empty_pages = 0;
- 
--	return (data->bootloader_mode || *empty_pages >= 2) ?
-+	return (data->bootloader_mode || state->empty_pages >= 2) ?
- 					RMI_SCAN_DONE : RMI_SCAN_CONTINUE;
+ 	return 0;
  }
- 
-@@ -544,11 +574,11 @@ int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
- 		 void *ctx, const struct pdt_entry *entry))
- {
- 	int page;
--	int empty_pages = 0;
-+	struct pdt_scan_state state = {0, 0, {0}};
- 	int retval = RMI_SCAN_DONE;
- 
- 	for (page = 0; page <= RMI4_MAX_PAGE; page++) {
--		retval = rmi_scan_pdt_page(rmi_dev, page, &empty_pages,
-+		retval = rmi_scan_pdt_page(rmi_dev, page, &state,
- 					   ctx, callback);
- 		if (retval != RMI_SCAN_CONTINUE)
- 			break;
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 3bfe9013043ef3dff46249095a5b3116c8f7d9a6..cb1cacd013a3f39db96935f705f18018bf15adff 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -46,6 +46,14 @@ struct pdt_entry {
- 	u8 function_number;
- };
- 
-+#define RMI_PDT_MAX 0x55
-+
-+struct pdt_scan_state {
-+	u8 empty_pages;
-+	u8 pdt_count;
-+	bool pdts[RMI_PDT_MAX];
-+};
-+
- #define RMI_REG_DESC_PRESENSE_BITS	(32 * BITS_PER_BYTE)
- #define RMI_REG_DESC_SUBPACKET_BITS	(37 * BITS_PER_BYTE)
  
 
 -- 

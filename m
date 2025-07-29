@@ -1,345 +1,199 @@
-Received: from m16.mail.126.com (m16.mail.126.com [220.197.31.6])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D23F714A82;
-	Tue, 29 Jul 2025 07:29:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.6
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E3C2248BF;
+	Tue, 29 Jul 2025 07:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753774183; cv=none; b=oJeC920sgCc12IEgflE8waZfThuUXYJyXYPrKB1fqECqJLXijhyWR7aUUUcH4B/jbaWLOvqVgGSQr4OKCuR8UZ8CUAnHPt00yM/SUqKiBvVDd1Mhe3vQ8yx0jq/OUXWAcZI9v95CDTBRAnRBlmOsXHsW3MNOieHecPUzriSnbHE=
+	t=1753774385; cv=none; b=T9h7/1NyZ/Ij7jJei894EwSwSZ2YSXRFDFUOkRQ0GrsDBSUdaU9q5A4muLUTF88A5VJvx+pPuz8jUnTHisZUH5heBLV033v+g1EkSlADCjjD1rfpQrGMyJXgcntIK1qV6uhUxw2W81ATLwitdaL+wtOtSPVP226hDzl93EVWbYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753774183; c=relaxed/simple;
-	bh=V93yTx7ehcSycXqNR++62/oehZaNuMjW2X/UEBdphjk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dZVrIBLNrTaf8hJF6a2yxM/KFnHZQ3fHH60JnX8LsoxYGLdNrSQdP55d0PNrSIqAxNmORLf49tZ1nEatgnCYXj/CRIkQcYEKEpkU7/iRT6l9plRDd34yoel7x/RoJts1/LbzXffk34LVw6a56PWoqLfCj9tnWr3oqR0w9JtIk1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com; spf=pass smtp.mailfrom=126.com; dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b=WAIAAQJ0; arc=none smtp.client-ip=220.197.31.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=126.com
+	s=arc-20240116; t=1753774385; c=relaxed/simple;
+	bh=CxqkaF7ekVdwSdtSEeCYKk2cQa8nwCz+CBmrB3n4Oj8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hT9iE04wrFSLnDDYNkjJqXUwWE4aiVJC/3Yf+lu16SCr3Nphq9t82qrgWXAOofTjt+URarGDF/NZsxG8b1NCu6gjcAD9VsoRERjhIDQU6atAf2YuxBZ0CsN2XhVFzp6aaQNiibdLYGocVEiqn9xpfv4dsQgDQ6cfnsI7kSagSo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gI66fBEA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b="WAIAAQJ0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version:
-	Content-Type; bh=/nKdXuM6iZRQlGcE9DAj9veDYXnOBOk9an4cA5HBMmI=;
-	b=WAIAAQJ0T7VIxX/HKAFfXYcCxSBS4KUBR9YuGzYaTUfeYP448kGSpjYPuOIfMJ
-	mJgefigEEL3OQOPoH8uOpmObFwSQqokYzD5BohnHYgowHuznCtcHNOW+R2ai7saC
-	SCVVYGRH3UeYlqOuPLe1FXKPybRyAPpVrsGSn4Zhv7ozU=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp5 (Coremail) with SMTP id QCkvCgCnjwClbYhou7D5Ag--.23794S5;
-	Tue, 29 Jul 2025 14:43:54 +0800 (CST)
-From: marlonwu@126.com
-To: robh@kernel.org,
-	dmitry.torokhov@gmail.com,
-	krzk+dt@kernel.org
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	marlonwu@126.com,
-	MenglongWoo@aliyun.com
-Subject: [PATCH 1/2] dt-bindings vnc virtual input
-Date: Tue, 29 Jul 2025 14:43:45 +0800
-Message-Id: <20250729064346.22834-2-marlonwu@126.com>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250729064346.22834-1-marlonwu@126.com>
-References: <20250729064346.22834-1-marlonwu@126.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gI66fBEA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C442CC4CEF8;
+	Tue, 29 Jul 2025 07:33:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753774384;
+	bh=CxqkaF7ekVdwSdtSEeCYKk2cQa8nwCz+CBmrB3n4Oj8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=gI66fBEAYeyg+yQpo0/8giOHu/JTcPZE+SfM52Rbbs6IYABr3wc/IfnD7XVDeGkZq
+	 buh9Rv5F3TDx19bk2dvOrX6Rhj8XMtTY6DFQ2bVWNx7BZCXIJk7PaqPNMWZ+4p24rh
+	 hfaWxBfLkhCpucUMSqsyN91RPDlsNUr1Ln8HKEcoY2L8G/qHEsGGLNuKU403uhD+Zs
+	 AijUSdiIo+WfUJbn1xzBejAGj0cPw5P0TfsC2HqHJBSjCD4MpbvmfCRqbJ1ZBeedSe
+	 xlbvaoDguj3Vb1YvS9XhmMBj5beoQFamfAHnDG/ObHgL6fPHfJ4s5YS4wYfO5RiBoU
+	 aHvDE5ijywH/w==
+Message-ID: <8f7cbf16-4cdd-4f95-8ff8-971da749b41e@kernel.org>
+Date: Tue, 29 Jul 2025 09:33:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=y
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:QCkvCgCnjwClbYhou7D5Ag--.23794S5
-X-Coremail-Antispam: 1Uf129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UbIYCTnIWIevJa73UjIFyTuYvjxU7CD7DUUUU
-X-CM-SenderInfo: xpduz0xqzxqiyswou0bp/1tbi7wmZDWiIbKoUogAAsi
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings vnc virtual input
+To: marlonwu@126.com, robh@kernel.org, dmitry.torokhov@gmail.com,
+ krzk+dt@kernel.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ MenglongWoo@aliyun.com
+References: <20250729064346.22834-1-marlonwu@126.com>
+ <20250729064346.22834-2-marlonwu@126.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20250729064346.22834-2-marlonwu@126.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Menglong Wu <marlonwu@126.com>
+On 29/07/2025 08:43, marlonwu@126.com wrote:
+> From: Menglong Wu <marlonwu@126.com>
 
-Add documentation for virtual GPIO keys to enable full ANSI keyboard
-emulation via VNC on embedded devices without physical keyboards.
+Please use subject prefixes matching the subsystem. You can get them for
+example with `git log --oneline -- DIRECTORY_OR_FILE` on the directory
+your patch is touching. For bindings, the preferred subjects are
+explained here:
+https://www.kernel.org/doc/html/latest/devicetree/bindings/submitting-patches.html#i-for-patch-submitters
 
-- vnc-virtual-input.txt: Usage scenario and implementation details
-- vnc-virtual-input.yaml: Formal DT binding specification
-- MAINTAINERS: Add entry for VNC virtual input support
+> 
+> Add documentation for virtual GPIO keys to enable full ANSI keyboard
+> emulation via VNC on embedded devices without physical keyboards.
+> 
+> - vnc-virtual-input.txt: Usage scenario and implementation details
+> - vnc-virtual-input.yaml: Formal DT binding specification
+> - MAINTAINERS: Add entry for VNC virtual input support
+> 
+> The solution registers virtual GPIOs (starting from 400) to avoid conflicts
+> with physical GPIOs while supporting standard Linux input codes.
+> 
+> Signed-off-by: Menglong Wu <marlonwu@126.com>
+> ---
+>  .../bindings/input/vnc-virtual-input.txt      | 153 ++++++++++++++++++
+>  .../bindings/input/vnc-virtual-input.yaml     |  86 ++++++++++
+>  MAINTAINERS                                   |   7 +
+>  3 files changed, 246 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/vnc-virtual-input.txt
 
-The solution registers virtual GPIOs (starting from 400) to avoid conflicts
-with physical GPIOs while supporting standard Linux input codes.
+We do not take txt bindings anymore, sorry.
 
-Signed-off-by: Menglong Wu <marlonwu@126.com>
----
- .../bindings/input/vnc-virtual-input.txt      | 153 ++++++++++++++++++
- .../bindings/input/vnc-virtual-input.yaml     |  86 ++++++++++
- MAINTAINERS                                   |   7 +
- 3 files changed, 246 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/vnc-virtual-input.txt
- create mode 100644 Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
+>  create mode 100644 Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/input/vnc-virtual-input.txt b/Documentation/devicetree/bindings/input/vnc-virtual-input.txt
+> new file mode 100644
+> index 000000000000..77d12308c553
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/vnc-virtual-input.txt
+> @@ -0,0 +1,153 @@
+> +Register virtual GPIO keys for VNC
+> +==========================
+> +
+> +# Purpose
+> +
+> +To emulate a full ANSI keyboard on embedded devices without physical
+> +keyboards.The server responds to key events via x11vnc.
+> +This resolves the limitation where embedded systems only register a few
+> +GPIO keys, making them unable to process full keyboard inputs.
+> +
+> +documented in Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
 
-diff --git a/Documentation/devicetree/bindings/input/vnc-virtual-input.txt b/Documentation/devicetree/bindings/input/vnc-virtual-input.txt
-new file mode 100644
-index 000000000000..77d12308c553
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/vnc-virtual-input.txt
-@@ -0,0 +1,153 @@
-+Register virtual GPIO keys for VNC
-+==========================
-+
-+# Purpose
-+
-+To emulate a full ANSI keyboard on embedded devices without physical
-+keyboards.The server responds to key events via x11vnc.
-+This resolves the limitation where embedded systems only register a few
-+GPIO keys, making them unable to process full keyboard inputs.
-+
-+documented in Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
-+
-+# Scenario
-+
-+- /dev/input/event1: Physical GPIO buttons
-+
-+- /dev/input/event2: Physical touchscreen
-+
-+Assume my-pcb.dts defines two GPIO-based hardware keys (‘A’ and ‘B’).
-+When the VNC server x11vnc is started, a remote PC connects via a VNC
-+client and attempts to send key inputs.
-+Since the Linux kernel only recognizes two keys, the UI on the embedded
-+device only responds to ‘A’ and ‘B’.
-+
-+Start x11vnc server:
-+
-+```
-+    x11vnc -noipv6 -rawfb /dev/fb0 -forever -clip 640x480+0+0 \
-+      -pipeinput UINPUT:touch,tslib_cal=/etc/pointercal,\
-+      direct_key=/dev/input/event1,\
-+      direct_abs=/dev/input/event2
-+```
-+
-+Monitor key events:
-+
-+```
-+    hexdump /dev/input/event1
-+```
-+
-+Check registered virtual GPIOs:
-+
-+```
-+    mount -t debugfs none /sys/kernel/debug/
-+    cat /sys/kernel/debug/gpio
-+
-+    gpiochip5: GPIOs 400-503, parent: platform/gpio_mockup_hw, gpio-mockup-A:
-+    gpio-400 (                    |vk_key_0            ) in  lo
-+    gpio-401 (                    |vk_key_1            ) in  lo
-+```
-+
-+Original my-pcb.dts:
-+
-+
-+```
-+    gpio_keys {
-+        compatible = "gpio-keys";
-+        pinctrl-0 = <&pinctrl_gpio_keys>;
-+
-+        key-a {
-+            label = "btn-key-a";
-+            gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+        };
-+        key-b {
-+            label = "btn-key-b";
-+            gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+        };
-+    };
-+```
-+
-+
-+# Solution
-+
-+Modify my-pcb.dts to support a virtual ANSI keyboard:
-+
-+```
-+    #include "vnc-virtual-input.dtsi"
-+
-+    // Originally, the DTS relied on physical GPIO keys
-+    gpio_keys {
-+        // Disable the original physical key node
-+        status = "disable";
-+    };
-+
-+    // The virtual GPIO DTS node now integrates physical GPIO
-+    vnc_key {
-+        compatible = "gpio-keys";
-+        pinctrl-0 = <&pinctrl_gpio_keys>;
-+
-+        key-a {
-+            label = "btn-key-a";
-+            gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+        };
-+        key-b {
-+            label = "btn-key-b";
-+            gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+        };
-+    }
-+```
-+
-+# Explanation
-+
-+A virtual GPIO driver gpio_mockup_hw is registered, providing 104 GPIOs,
-+starting from number 400.
-+
-+The starting number (400) avoids conflicts with physical GPIOs on
-+commercialSoCs, which typically do not exceed 400. Most SoC vendors also
-+start GPIO numbering from 0 in their drivers.
-+
-+The gpio_key_mockup node defines 100 ANSI standard keyboard keys.
-+
-+Key codes (KEY_xx) follow the definitions in
-+include/uapi/linux/input-event-codes.h.
-+
-+
-+
-+ANSI Keyboard Layout (Symbolic Representation):
-+
-+```
-+L FFFFFFFFFFFFFFF   MMM
-+L NNNNNNNNNNNN  R   CCC   PPPP
-+LL  AAAAAAAAA RRR   CCC   PPPP
-+LLL  AAAAAAA RRRR         PPPP
-+LLL   AAAAA RRRRR    C    PPPP
-+LLLL  LLLLL RRRRR   CCC   PPPP
-+```
-+
-+
-+Key Layout Categories
-+
-+L: Left-side keys (ESC, TAB, CAPS LOCK, etc.)
-+F: Function keys (F1–F12)
-+N: Number row (1–0)
-+A: Alphabet keys (A–Z)
-+R: Right-side keys (BACKSPACE, [, ], , ENTER, etc.)
-+M: Miscellaneous (Print Screen, Scroll Lock, Pause/Break)
-+C: Cursor controls (Insert, Home, Arrow keys, etc.)
-+P: Numpad keys (0–9, -, +, etc.)
-+
-+
-+Example from vnc-virtual-input.dtsi:
-+
-+```
-+    /* Left of a-z */
-+    vk_78 {
-+        label = "vk_key_78";
-+        gpios = <&gpio_mockup_hw 78 GPIO_ACTIVE_HIGH>;
-+        linux,code = <KEY_ESC>;
-+    };
-+```
-diff --git a/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml b/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
-new file mode 100644
-index 000000000000..8b5414cb2bea
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
-@@ -0,0 +1,86 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/a.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: VNC Virtual GPIO Keys
-+
-+maintainers:
-+  - Menglong Wu <marlonwu@126.com>
-+
-+description: |
-+  This binding describes a virtual GPIO key input node for VNC remote
-+  input.
-+  It is based on the standard gpio-keys binding.
-+
-+select: false
-+
-+allOf:
-+  - $ref: gpio-keys.yaml#
-+
-+properties:
-+  compatible:
-+    const: gpio-keys
-+
-+  status:
-+    enum:
-+      - okay
-+      - disabled
-+
-+patternProperties:
-+  "^key(-)?[0-9a-zA-Z_-]+$":
-+    type: object
-+    properties:
-+      label:
-+        description: Descriptive name of the button
-+        $ref: /schemas/types.yaml#/definitions/string
-+
-+      gpios:
-+        maxItems: 1
-+
-+      linux,code:
-+        description: Linux input event code
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+
-+      debounce-interval:
-+        description: Debounce time in milliseconds
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+
-+      gpio-key,wakeup:
-+        description: Enables wakeup function from suspend
-+        type: boolean
-+
-+    required:
-+      - label
-+      - gpios
-+      - linux,code
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    test {
-+      vnc_key: vnc_key {
-+          compatible = "gpio-keys";
-+
-+          key-a {
-+            label = "btn-key-a";
-+            gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+          };
-+          key-b {
-+            label = "btn-key-b";
-+            gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
-+            linux,code = <KEY_A>;
-+          };
-+      };
-+    };
-+
-+...
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c0b444e5fd5a..658ef6619542 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -27476,6 +27476,13 @@ S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/tiwai/sound.git
- F:	sound/pci/hda/patch_senarytech.c
- 
-+VNC VIRTUAL INPUT SUPPORT
-+M:	Menglong Wu <marlonwu@126.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/vnc-virtual-input.txt
-+F:	Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
-+
- THE REST
- M:	Linus Torvalds <torvalds@linux-foundation.org>
- L:	linux-kernel@vger.kernel.org
--- 
-2.39.5
+I don't understand the placement of this file in bindings. What are you
+writing bindings for here?
 
+
+> diff --git a/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml b/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
+> new file mode 100644
+> index 000000000000..8b5414cb2bea
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/vnc-virtual-input.yaml
+> @@ -0,0 +1,86 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/a.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: VNC Virtual GPIO Keys
+> +
+> +maintainers:
+> +  - Menglong Wu <marlonwu@126.com>
+> +
+> +description: |
+> +  This binding describes a virtual GPIO key input node for VNC remote
+> +  input.
+
+Describe the hardware, not the binding...
+
+> +  It is based on the standard gpio-keys binding.
+> +
+> +select: false
+> +
+> +allOf:
+> +  - $ref: gpio-keys.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: gpio-keys
+
+So this is all completely redundant and not needed. Drop the bindings.
+
+> +
+> +  status:
+> +    enum:
+> +      - okay
+> +      - disabled
+
+Do you see any bindings with this?
+
+Srsly, it's second bindings today. I think you send some AI slops to us.
+
+Please confirm:
+
+Did you use any AI tool to generate this file?
+
+Best regards,
+Krzysztof

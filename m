@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3ED125DB1D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1FEE25A2BF;
 	Thu, 31 Jul 2025 21:07:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753996034; cv=none; b=RqVe1jnEkdylB6hyL66AEaXWBXHhvuxMaGf2h1lEZLHB5UBlOcl8V4l8vtQ3ek7aZabV1XRaxnWhxX0JtFaWWkavI6FXyMoFInxWx7h2u+hakxtRxJPtwBmZIB/O0mTpX3KTeDNCsPOVsGZHTwdGq97cR2fvoPvx3X7zCYc1WBQ=
+	t=1753996034; cv=none; b=XwTQe4lslNJRwWDSziUkmWBqHvg/mbNfxTrSFChEkcBHv2QPLgnVU+Wj/ZdHSUrntqyAcTU2D7UTSHVDWHfa4NDEaMlbLmwA6BCPMWlgb4g37XqGa09qqrtEOQ1r9SCpJEQzCodr1KMPwYz3n9Sj1NQVPw2R/exI4sqwJ+IvTJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1753996034; c=relaxed/simple;
-	bh=htFTGLky3TEgi9HsVZOj+L4Uzq4ebrKWnhK5GMMQFs4=;
+	bh=2pHNOV+TAIFZZ9Mpk73B9jYNd9FN+OKd7NX70urKO5s=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FUzFUMwCbB3iwYU2t6W4UVIjjimNz+dvabHJQqkV4r5/V8OQmxqAvPElGdZuDIlVU1rZrSQQ7sq3okjMTCXlPnEKkE8KgbErDdzAVeP4WmiWzg5GcnyDmi/iQdSdbDSGvoB/H4sn2cEXJd1L6zeQoP/kbhUC06kskT+tEi2CzYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=elgbP5jM; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=u3m+4/BJaWVc2neL2zANLl3UmKe6J//OW9mNKmJVzTlnmVULz6zX5wWPDPtkI5FIZtLRAl5xGVLPd4R26E1Ntp6kxszI7g3wr+qoWQWSvHad7mvVMQGFqraKCP3ooaJz19SyUFP0XWC6DusorRWoa34grBMYwJWkDdpYC40CCTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jMY2qboP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="elgbP5jM"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 568CFC4CEFC;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jMY2qboP"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 75B5DC116C6;
 	Thu, 31 Jul 2025 21:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1753996034;
-	bh=htFTGLky3TEgi9HsVZOj+L4Uzq4ebrKWnhK5GMMQFs4=;
+	bh=2pHNOV+TAIFZZ9Mpk73B9jYNd9FN+OKd7NX70urKO5s=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=elgbP5jMJM5GvMQ0rbcrgHPDUzZSni6sEDOCEkcnuh2n8hWGcKsJlh00u/YQ2NOQk
-	 Bly+azUeN69h0Rz2uEZs0RjOreExfHFmmm9GRNOxhgJq3H/ZtDQDcXF2wgJ1gRkXGu
-	 Eb/SWyUUurMBY1jc0Amigb0HzoBNCuspdnGr1fLtWze0p3BmLH0Z9An8K6XCHUeUoK
-	 JXLzlmglaKFc4n0BXOkBsrDECmPSbOSlHdPmn1xmc/ewxqUydI8UBbsoE/tQOpjj5q
-	 mFhk5ki11FXA6/05woxxPpTG/G79rv6kiqiSAoIO/5IE5qJQLHu97J5gBAwZtJOZLz
-	 0lzmebyXHEckw==
+	b=jMY2qboPJo5k37HrT+7Tta1nK4Lvj04gToF/EU+BgmdzQCawLbKfj3g9WF4gLfXcK
+	 WhJIck9Riqrm5NB/9CHUeodxvGe1fkAtursFtlNONcP/r4gw/I+aWpW98UTmT4QjQv
+	 WuMuzd0GF2O1ToiQTd/wCsIhULXkTPlwWPK1bdbMVpurwQp8/RinfziRifPJleDXh/
+	 dS2sNasjtGwRfoUvrYfgovwyTb6YY5wi1ZAOjWU/aiCSpKz5xucycjzCeIVqftEmHd
+	 ZziYGKNSIPP8bga0JmFddOZbfFe0wGuCBJx5+dyZHssK5pq4fjKIm+3ogox0nTSnaF
+	 /II7vjHNgVhWw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49EFDC87FCA;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0E7C87FD3;
 	Thu, 31 Jul 2025 21:07:14 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Thu, 31 Jul 2025 23:06:54 +0200
-Subject: [PATCH RESEND v5 4/7] Input: synaptics-rmi4 - f55: handle zero
- electrode count
+Date: Thu, 31 Jul 2025 23:06:56 +0200
+Subject: [PATCH RESEND v5 6/7] Input: synaptics-rmi4 - read product ID on
+ aftermarket touch ICs
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250731-synaptics-rmi4-v5-4-cd0d87d34afa@ixit.cz>
+Message-Id: <20250731-synaptics-rmi4-v5-6-cd0d87d34afa@ixit.cz>
 References: <20250731-synaptics-rmi4-v5-0-cd0d87d34afa@ixit.cz>
 In-Reply-To: <20250731-synaptics-rmi4-v5-0-cd0d87d34afa@ixit.cz>
 To: Kaustabh Chakraborty <kauschluss@disroot.org>, 
@@ -56,21 +56,21 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  Casey Connolly <casey.connolly@linaro.org>, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1193; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1257; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=wuBeXWxX9IEl8wN119G//hfgPIbwZX/r8TMKzYa1UEA=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBoi9r/6DrNHPt89NnVK8ZIxo7ctM/6RdpRqIImN
- XWRRt0/8jCJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaIva/wAKCRBgAj/E00kg
- cuOcEACH/xHd/nYf9XC5knzgiadJ67qYgQDNUH803fmUoeMuf/5t09OGxrhKVmrWCoF3eltUW9o
- Dsuhcs3tVRUoKmzT717DyXFMFbWR1h+LbtUiwNWn1Au8RcKq8SmnySAbnBzezrQdpxzvBqYBy83
- ww9QwUB1ks1twXrRn79JGNiYJkreh4gpnBRkCo1RWnLhWYJPCj6z/NTGSr8X4onYWqrcnBnumeO
- wXEdX55G3E0eiCFL89dSN/Olca01z5HYOR1klb4Tt8tsAsyngD6olnOvunEAYpFWLl2CiAHDO8n
- 0EMwkbBpnLCYptyXIu8YvvfvIqLGs05oq/X97K1DYMCaKJgogKIc1TedHYbVnQmM6OkovQNY672
- MVcYj/c5hlGu7IYjz3qH1lNJBILE/514qtSku0D2VdjMpoBOBjCoZefDIoSV0vOk1tmAweKP7Qt
- 4QWqFekVEWdh2XIBC2PU5iLr8W/xEXQ4AlAIcgUD40GGvZzzR1IBAZLg02FSmh1mdsO680D8bJj
- pVfTzQFCyurVTxDMdHmlIzsp/C3dhA55K9/oHKFoQ4DNmY39MUOHTQkSK9L6LVU8ZBRFfUS9G3A
- hbsw0uICFop6SqR1NehX06B2U3ETn7P/+xRsYwBP1SsbdLdMQP4w1YsTaa0w1getER2cNf5SQ3t
- ANt1w+V6hnJNYoQ==
+ bh=foQKt41rQkAeUSTCVE7iH9xBlmzERmbzM9YslceBQZg=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBoi9sAu/mrgfMKeArK4vh6IGkuRovnV9p7Dg8Qd
+ izMhSnge8uJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaIvbAAAKCRBgAj/E00kg
+ cvO2D/4758jMTi2wt46u0dMYho4JQK93gvpMFXOmSZ4yEd/qAXieqjaq9KhTlCfR7nq2zT7lC88
+ y4Du/w1Ia56A/x166kgDBHbpCMAV6hsMQC8s8V9LeEx1QHc7+H8nH1MhWY1rsRXLeiCj6qEP1r5
+ aaXLNSg/Xs55Bb4aSePSsStVSoMUkcTTbT6FnYEz6GjkbsUm3iPRwska4ShU+Mgaf3d/eSpld4e
+ 7YGrUk5jniMsnqaUp4lkm/Kqb1gXwn9Mef0VzXAXySuZPBB3mwG4cbLP1psqQmZVAe3cjwiGQ4g
+ rSTy0gPgjYOEveWdf5OBTv5V4bNrtDqaw3+vsJhaiJJfEO9V24vgBZEccBhOSMys4Wpm2HtfYUs
+ OhX+rud5tIDle2BbHJzePCabhfsei7fhK+mJBaMbvbETwpOSblK3l7R6Q0aPwSVWXuAIqpGO/8b
+ lYMetz6P5DzdtHRU7IXVCwkOI3Dll+0guyPy0R+MjLHUfcMGGP7ntzUewKKZLJ1uQd9FMwofYs6
+ ss2ZDXeyXEXGAIQ7S8A8c6xOSovrGKV726iBOhcFyNlvY9iuQ9YhJoVP1aDvTvGXvpFg2o/9uHU
+ 8tD/wbpmoSi0YSxanOyOPwSlRu+YuIEt9qD3oFYNM+GYxIo1ET3qFhOWTk9gi2jISoY0t9iZkrN
+ VXd8ZSXOo62nM4A==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
@@ -79,34 +79,42 @@ Reply-To: david@ixit.cz
 
 From: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Some third party ICs claim to support f55 but report an electrode count
-of 0. Catch this and bail out early so that we don't confuse the i2c bus
-with 0 sized reads.
+Some replacement displays include third-party touch ICs which do not
+report the product ID correctly unless we read directly from the
+product ID register. Add a check and a fallback read to handle this.
 
 Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
-[simplify code, adjust wording]
 Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- drivers/input/rmi4/rmi_f55.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/rmi4/rmi_f01.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
-index 488adaca4dd00482cd1106d813b32871092c83a0..776c915b82e72b8a6eb5ec701cce9059c87089c4 100644
---- a/drivers/input/rmi4/rmi_f55.c
-+++ b/drivers/input/rmi4/rmi_f55.c
-@@ -52,6 +52,11 @@ static int rmi_f55_detect(struct rmi_function *fn)
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 47be64284b25ede8103ada86d6b58fd3a26976bb..2278e9b6a920774b07ec9dd3e452cedc69469be8 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -250,6 +250,20 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 		}
+ 	}
  
- 	f55->num_rx_electrodes = f55->qry[F55_NUM_RX_OFFSET];
- 	f55->num_tx_electrodes = f55->qry[F55_NUM_TX_OFFSET];
-+	if (!f55->num_rx_electrodes || !f55->num_tx_electrodes) {
-+		dev_err(&fn->dev, "%s: F55 query returned no electrodes, giving up\n",
-+			__func__);
-+		return -EINVAL;
++	/*
++	 * Some aftermarket ICs put garbage into the product id field unless
++	 * we read directly from the product id register.
++	 */
++	if (props->product_id[0] < 0x20) {
++		ret = rmi_read_block(rmi_dev, query_base_addr + 11,
++				       props->product_id, RMI_PRODUCT_ID_LENGTH);
++		if (ret) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read product id: %d\n", ret);
++			return ret;
++		}
 +	}
++
+ 	return 0;
+ }
  
- 	f55->cfg_num_rx_electrodes = f55->num_rx_electrodes;
- 	f55->cfg_num_tx_electrodes = f55->num_rx_electrodes;
 
 -- 
 2.50.1

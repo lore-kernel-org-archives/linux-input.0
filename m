@@ -1,72 +1,72 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E35221DF742
-	for <linux-input@vger.kernel.org>; Sun,  3 Aug 2025 18:14:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAA821E500C
+	for <linux-input@vger.kernel.org>; Sun,  3 Aug 2025 18:14:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754244850; cv=none; b=KwbJp6D5sH04InudgakZJTa82I7t9U24NnwQEwfuVmgSQ9nfigOAwD8fXT7kVjsOAAF2+y8BkFXE3jEyHxk/dKGsOIWKwYGzKbsy35HRPeEDuU3j7LydlS8/+xiPBFqrCcIP5s2i9e8+GHvMGsNABHn1d6uMI+AkotwsFpDDgjA=
+	t=1754244851; cv=none; b=MBz/BzArQJnUciMBTEx6e3zRRQbhpL27fhPcAW6w0RpnMsePH3iYMPWRxtUFd5U/kO6ZcXqDol9y6mJBbPg1Udua8KSiSXyRNox2Y3K7X/rvjQCIr9XwjlIqVRINW4ceO7/wRwaNeB6zquZZx3w3R2D7sRqr4HC2eA/lZcnWPCA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754244850; c=relaxed/simple;
-	bh=I19PfO2UxPXkUmsFSm8/QBrCCRr8ThJ952QKIIi/t7I=;
+	s=arc-20240116; t=1754244851; c=relaxed/simple;
+	bh=ipb7CMfVlWDViwMXObbaiI78LBakQnjt/B5a8cgdPZA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=QgUi5wkjswBEVty1NAzKep2ey/JkSV0MB/3952K6sBhkYeTvWyKlkr3V33tYd2KZ7FMG6ZjDH+/KmNMM799lZM+VYKRTR1CfeuWLJZiy1D0b00H+7Ro65GkosBH28UICu7GuEu3FCPNjlNfrYNi/7CI2VHKC+mcaeKFZb4H8als=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WEI+Ilvo; arc=none smtp.client-ip=209.85.218.50
+	 MIME-Version:Content-Type; b=Ry6CZtCaaaa0GbkEkQF2WRd0WO4QMsQjgMQwao5M5EyGUDmacydH34eYwbesQMbU78n5iL2NDNBcDkjouwwoUswJLc3q856g/fJTmyczrur/aXsbOembx42QLtC/w5Uj4K8yztOSjOAP/NuQN5g8UtHTQk3lkDZSkoRKmYYxWHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lR2SWNjo; arc=none smtp.client-ip=209.85.208.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WEI+Ilvo"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-af94440f4ecso26191666b.1
-        for <linux-input@vger.kernel.org>; Sun, 03 Aug 2025 11:14:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lR2SWNjo"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-6158745f51dso589461a12.0
+        for <linux-input@vger.kernel.org>; Sun, 03 Aug 2025 11:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754244846; x=1754849646; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754244848; x=1754849648; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Fw6YTYzP6TeXxjfrPLfYs/o7am5hq49RWRkk3XI3RPA=;
-        b=WEI+IlvonnwoWGFWr7tqeePLSWsB3FIYvDn2nzMVeIqnuPtSnWLS93moqOpNxBCC7O
-         /Ge/rMeXydY9JTr5jDOp2APWmz/s25ilG+j0Uxwp5dARm6WQJMCXM0geDLnfbTmpiKgf
-         o41d+wNMV6sRw8HKBxY3CdV9AwIiRNA077W2jRILe3kkkdGBPYTiQ5Yjfqw5VHMmc2Ll
-         UWOI4jhXy6XzeNU2CzO+cwI0+DVEmswOHybD1mhGBFLU6DCil0/Om2c7Pnc/irfvouFO
-         9Db07vOUztPMwlnb/CXnvHuOMXsDvEKJNbuV28/O1F6C7qrSFwY9J9puD2wS0P+LPEBv
-         Tysg==
+        bh=k5qhecK0dnT1ahGSmzHdyTH/PY5UW7ySDF2bInYw2wI=;
+        b=lR2SWNjo9Njq/0JhvTQLOdySnzPdofANeI2gTgNDmQRXVGSzgV6HMzG1horxDMSKVl
+         uDy82ieWnWvcKe7Cy4G83RudXgh4hKrH/U24ZUV5VGkGsp+b98M40h7ITDjRtLbB/S1u
+         WiEwHd97tic8HW5Z2ccSVsdi687zk2eLg9tFWEuZS9M5IITtBn8QgJd+7Y7HacAcVRBt
+         XuBhVDAEFNZYSlA76vJzgCewtnfOaQMWxG30Tz3AbqNLFXkLP0s/azehZOhSI0rY9FZt
+         iaL+igLOnujnRxO53GrUTcw3/DIfmqWpc8dquoHKRqkAZWRMOHxqjtRh8ik4miVoM9DA
+         +uOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754244846; x=1754849646;
+        d=1e100.net; s=20230601; t=1754244848; x=1754849648;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Fw6YTYzP6TeXxjfrPLfYs/o7am5hq49RWRkk3XI3RPA=;
-        b=LXyKRNwydfA1wPRUPozsWMiepsgN517fzxHc0icr/BoRXpAsoPnJRWesB1qzoQiitW
-         FW1q3nMZh1KLSv7QOM07pYrpir3+BWr75ibSk+siH/Ywhdoz0wx5gyIKX/mUqHpldbPk
-         /g90P0XiSXVolHktoRanwakD64NztvwzHws5N3S6NrtfDowxXWvaEAcgKWzzJFWcjoAi
-         lafi1qZAszL1HF6aHkTD6LcS01ha2HVTUm/8mi/Qczqdlr6E05MMMgv15UQ9vRdPDnbY
-         7LzWpDf327SMZm8ZRcFXBPP48AHnpPIvHxpXrFMDrkVdP5BfIDs/1+cXHI2pyzt1ezRQ
-         LUhw==
-X-Forwarded-Encrypted: i=1; AJvYcCWsOfzDzTrDyqQj3bzrTV6uYzxiRYQKQfWqNxDzqhZUQQD6EKQiA6H1o1JYT7CCtIghkvbNwHDLYJmzIQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwEzK3yeQ7dLfemOlKqlUqWnWO0R0nDfWoFx3O2r7JFaPCTpedG
-	DwhxtzRjRGAFNGMCkosml8q0NcjrhT/vjlalcbqEbSdYl5s8bdddIEGL
-X-Gm-Gg: ASbGncuSdSPciOErP755DyVFZF+RmJQiGTIqjmwH445Le5lvOlC50TZ/RUw+X7s6jd9
-	O/bEbqKTWmiT/f1tjxOQOCEcx9FCGdQLyDWyGakvopvcN6KVsH6xqyju2OKyV93XBz8JN62sU5S
-	cx2VJmU7iv8pHjCg38YILwavjicA3biO1J98grgtFNlear8XxC6Kq/J4pF5RCpvhSev50X/PMmp
-	0KKVThxoC1wHozW5VKX+3IHtlpCeZRsyV6uvxuxQadqOnHPLkPKR7bcMoeLxRvTZR4PwPUjAHy6
-	d8qUaualuVtK3CgltddGXnMXTuVvXdhYLD2oHfiXFh8O4xxHGMWHNbZYNqsh7wBVrfbFiEl5AYr
-	gSkuVQLOF4FWULZyeM98VMLrzvv21kVNBG6Dutt6BOvJvdv4cDW+QFbZKeP7hQazE7Cr1yl3Dk5
-	66eaSeXMK0Gg==
-X-Google-Smtp-Source: AGHT+IEGLlpdvF2pv5svBJr6BReHyxgNNJOL8w9fUio2He/X7eBBpTO6kVvm7QowJdkLUxUEdGGI2A==
-X-Received: by 2002:a17:907:98b:b0:ae3:617a:c52 with SMTP id a640c23a62f3a-af93ffd4788mr297683866b.2.1754244846186;
-        Sun, 03 Aug 2025 11:14:06 -0700 (PDT)
+        bh=k5qhecK0dnT1ahGSmzHdyTH/PY5UW7ySDF2bInYw2wI=;
+        b=GWj5AIuPVxJfqdVoPtBppgwCR73acO3xvLusVNE2J8xvQomYz3qufHZGsWkLFjmleK
+         WD3+J8ib0ENK0woTquygLNqKUD5NON702fWActc4he/VcSKDwhwSOCo/14m6HW0O7WN4
+         n5/HlB/dHN0dF3I6L9F3WApQgsQ9zvD8fHps1lJpIp34S8fc9WviE89ZuSA6lJaA08BG
+         6MHnO91DAEP5VFrGE1pZD932TlmbbTET7e8JzjbcrMRNmuW2MSdrSvlF0SwN0EFVzapp
+         OoZtpRsAZp2GUlHi79LBn6c98eG7AbT++hd4L3M+xK04YCN/+ookxp7kpGqg5qKr52Gk
+         R6og==
+X-Forwarded-Encrypted: i=1; AJvYcCVdA1RxKPUU8l52oGzC1Nwc2jyzXMmALR0qWKSiUSkDL0JcqRJ78S82Ubee6TC7+XS/3n/VQo7D8rz2bA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBmaVGYl5bopG5ne+coboYWRBg5eP/jh6bOM/xi35c1nr7uWUm
+	xqPuGlZOnYSU0YD/2BLJtT03hThcY6Oe0CrXHEWCrsf2MShcOyDe4xXo
+X-Gm-Gg: ASbGnct9OmZaRu6p2WxUA9Ckue4EU9hIvVF3Wze5aWq9trnMqPzQObUnt7UpDGoBBLg
+	rIBrLJl9AVDjFqFZ7noXVrN8TGbr6K5LW28+Ecl6f1OLR1rTprMcO3MoWmO3Be6Tz84bB9YoRum
+	MVwdj+HM8v9HdaYUmJblFdPtmOOSe04JRfYb/RWUyiE3NsletbZdEfXs9SHPbMvUgRlLW64J1Lq
+	zIQ00gHLd21+CM6qsiNmnudDiL6sRC5kGADFgL+OsuXTVBP56JY0KH3PiCmvFx//JxAViBUyuEv
+	GLFWe4xoXx1orT5Gk/RCrzovpCLHRNKcGETOgmmG+qLRHu6k19f1HJc/NdNTLreMcdJzlyaZYyF
+	yPx+K+0dnH0jJJrLz5lFTt0ssh5L8O5T2kfj+CkDuEPcJUQzDzrPfLZfpcPK0Oah4fyvivYVwnu
+	k=
+X-Google-Smtp-Source: AGHT+IFFnM1PSVfpASZHhiLdfllJK7hktmlB8cNdIX0Gh0dYMYCjJelZGRksRMkE3WKRq+Naw4LL+Q==
+X-Received: by 2002:a17:907:f818:b0:ae0:da2d:44bb with SMTP id a640c23a62f3a-af93ffa44e5mr317420766b.1.1754244848115;
+        Sun, 03 Aug 2025 11:14:08 -0700 (PDT)
 Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a750253sm614570366b.86.2025.08.03.11.14.05
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a750253sm614570366b.86.2025.08.03.11.14.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Aug 2025 11:14:05 -0700 (PDT)
+        Sun, 03 Aug 2025 11:14:07 -0700 (PDT)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
 Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org
-Subject: [PATCH 11/17] HID: pidff: Separate check for infinite duration
-Date: Sun,  3 Aug 2025 20:13:48 +0200
-Message-ID: <20250803181354.60034-12-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH 13/17] HID: pidff: Remove Anssi's email address from info msg
+Date: Sun,  3 Aug 2025 20:13:50 +0200
+Message-ID: <20250803181354.60034-14-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250803181354.60034-1-tomasz.pakula.oficjalny@gmail.com>
 References: <20250803181354.60034-1-tomasz.pakula.oficjalny@gmail.com>
@@ -79,44 +79,27 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-It will be used in a few more places so this makes sure it will always
-work the same.
+Some users might try to contact him about issues and he's no longer
+active when it comes to the driver development/fixes.
 
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/hid/usbhid/hid-pidff.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 32d42792c95a..534fb28f6e55 100644
+index 3fd51ad5cf56..ebebac5c4384 100644
 --- a/drivers/hid/usbhid/hid-pidff.c
 +++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -242,6 +242,11 @@ static int pidff_is_effect_conditional(struct ff_effect *effect)
- 	       effect->type == FF_FRICTION;
- }
+@@ -1559,7 +1559,7 @@ int hid_pidff_init_with_quirks(struct hid_device *hid, u32 initial_quirks)
+ 	ff->set_autocenter = pidff_set_autocenter;
+ 	ff->playback = pidff_playback;
  
-+static int pidff_is_duration_infinite(u16 duration)
-+{
-+	return duration == FF_INFINITE || duration == PID_INFINITE;
-+}
-+
- /*
-  * Get PID effect index from FF effect type.
-  * Return 0 if invalid.
-@@ -374,12 +379,8 @@ static void pidff_set_time(struct pidff_usage *usage, u16 time)
+-	hid_info(dev, "Force feedback for USB HID PID devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
++	hid_info(dev, "Force feedback for USB HID PID devices by Anssi Hannula\n");
+ 	hid_dbg(dev, "Active quirks mask: 0x%08x\n", pidff->quirks);
  
- static void pidff_set_duration(struct pidff_usage *usage, u16 duration)
- {
--	/* Infinite value conversion from Linux API -> PID */
--	if (duration == FF_INFINITE)
--		duration = PID_INFINITE;
--
- 	/* PID defines INFINITE as the max possible value for duration field */
--	if (duration == PID_INFINITE) {
-+	if (pidff_is_duration_infinite(duration)) {
- 		usage->value[0] = (1U << usage->field->report_size) - 1;
- 		return;
- 	}
+ 	hid_device_io_stop(hid);
 -- 
 2.50.1
 

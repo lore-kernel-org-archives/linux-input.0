@@ -1,72 +1,72 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D31D82FD7C7
-	for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 20:10:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D235F2FD7C8
+	for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 20:10:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755115820; cv=none; b=twMp7r7mubb5gjVaXb07lvabu8fFBBLn/w5q5BNDrpqlP4VKNly9XQMlzqBMHUrMLxpPTyjkGeemuS45IsIYHnqxZCQDyTjpxq4TpITprxcmLcehBfj3jddUpVT98ttM5KnMXOu8bC9m3jPnd9tNX9+xgLBKY9wKbl3zb//USUI=
+	t=1755115821; cv=none; b=OdXzb9nc/x73F2Q3ii/SioNKHMrRIfyyoY+zrEzjMf2QCos0aOMUEGBK1h1X+uYwHDSmLbccXjAeoP8x3r7AbkfolT1+XG8+DT93rRRhEeiIwrlI9dQU3USLUOejvYGwjSHSYyM6rIw54BKjfavzFLnwwnkgc5oi0vgvRfY/TrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755115820; c=relaxed/simple;
-	bh=yrlhigK1RxXwfStkjT2r3h7LUb7oHvvLZ6lbpzqZ9lU=;
+	s=arc-20240116; t=1755115821; c=relaxed/simple;
+	bh=u6xhrPZq4e6pyBVA7t/jlIxK5Hnm18fptJHtRpS8x6k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OMNqGxubtIMwEfo2lisEaWAsZV9m6QNVBpMOJ+dOkoW+0ir7Xb+xeWRPeELy76HzvtlKNrBhH8vpX/Hl/dFzq77gKc8JZqNDyHSjPxKx4lzF3TPAySen9dQ0HmxMpD1IAPUhow27K1wW9Woda2bVBbsrBjPf+A3qDZz6o7B0FLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EZF4JGoX; arc=none smtp.client-ip=209.85.218.42
+	 MIME-Version:Content-Type; b=IB/VWokakfukXIb0pAapnJhhYpmAx1syKlczU0r+X20Cv8zjqiJr+ovNMPSs0bCnQA0FGQwb69GW7KlQmbEFp6kf7GFw0JH73QnJERdKyZuYL48sxBKNldx2Z6m4FjDCDbgaegSm4gjJoYaV7bR38POhzvskI46JE6TNHeDGsik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L5iG8C6T; arc=none smtp.client-ip=209.85.218.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZF4JGoX"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-afcb7a5cff3so3770966b.3
-        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 13:10:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L5iG8C6T"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-afcb78d1695so3440966b.1
+        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 13:10:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755115814; x=1755720614; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755115817; x=1755720617; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=PkHoZAZTJRN4g81i3DAmyJ5gOdFE6biw+IQS/NMNIl4=;
-        b=EZF4JGoXkhg/v+SHJdaEa6R1TBX+As4Q9bsJwsTZM7oZakTKoWppcNEoY6dwNJOPF1
-         dffsR+ebUdhihyclCQLuWX3o/BsJiRRnaIxFc9j2jplMYyTB1tMu2x4qa4KYctB5KCoQ
-         7nSU6FRFmsfT9vk2CctJM0DiiCUCraTRwMl8JaP2wkTDe+e8FVkMsZVUXHLtrLLOyJz2
-         2n6A/dVcTciLleQhrBd+yUPqLHgzww71krka4hZDGDn8mr7zbvf3RjuAfe07lmFt8aPY
-         LkZ+Df7WOlnZWBnIQb5vCUxvinHDiuzmeQtOQufCr6KMbyRyJhw8qDq9s54z4f5msTce
-         aK3Q==
+        bh=T2vVIAzZ4dAg+21sRBLYMSNKm9HT703Ug1VaYJSoKUw=;
+        b=L5iG8C6TYiXyEezOWXzv3lYzBd6GT2CuyLHGdSQn8HfqSMdHxpOxyLyM+Jpmvh322z
+         UQkiYz1LY5ZsnJrncYK6Nk0YoQqVTMmOpg8MaoUPMe4/wxrM9YlquVj+eZ/lWsQF2HBR
+         B4RaFNpGKvAg/SI6gtTqrxWBTWSLfufnE1U0nl1zxIcLaDxo/sGSNfC8RXwpY4Pf/AEm
+         rBgQ1wSON3dPQRyFTu+Vu68WQBQn+V8gaBhaI546GXvCLt5eljXbgxdq5LCHh4PYXafM
+         ubn3VsbnUdwTZ1jgdEE4HAHDMBMQHiTTAKkOHE8jVyYrwZdJ4S3BhJzYXHvp74Y0S0wu
+         UEUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755115814; x=1755720614;
+        d=1e100.net; s=20230601; t=1755115817; x=1755720617;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=PkHoZAZTJRN4g81i3DAmyJ5gOdFE6biw+IQS/NMNIl4=;
-        b=rnIDNLxq5LYIV1hgS5dNb3PlfuHUhTIBfQtd5OC7QdPpo187iVZ5LW837J06cS5XPA
-         Zq4GV+SZXgSMoT9HDuNoWC4R7sLl8aPrg/7r7p7GFt01iiWm1E+Sf8XjTnM2wvfpnlNN
-         MJt+0IO1m3TfnKqmv5BQ4O/NaJhlD4ZatmJbiticIgVGS0iaEe/xsckhKGpXgmYE0bxT
-         8BthuvwGj+SfMIskm1RaH0lrB9x08UV0EyfQ1Y1sp57XYVs2PQSZbkF6hQjF3VsogEVe
-         GxHhBWSlsZWBghubMAbHO0d5C/5DNDQBtOlGZBd1Vm/Sh5VxlyB29lfq08c2zr/fvBIP
-         9Mfg==
-X-Forwarded-Encrypted: i=1; AJvYcCVjclmfSX2q76AQJc7w+/hgPQn3RwJY6+ROA6eYowlDHfLRy8U4AdJ8S5AWTffstdULo0vvabmgv6N7Jw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxYrlfpykGbfsMalHJPXORxvcy4C4kZBTtZQbak84p1N2Wr1Lt7
-	gxFjca9p/uV9Pmft++O0qDpd9UHD02DZAPNX0K25l0germeRkK4SodRV/XBH4w==
-X-Gm-Gg: ASbGncteG1swMrPC/Jw523PuB+GSDXe0n4WMX0+ZpiFWnCjQJ8dgy2VUlIU4vlna3nT
-	953WqjDpP7mQANPDBBNBl+K8P2jkp/dACqCnI6vpyEWtHJbG7Y8lk1adOiVg/4CwN/d2S86rNkl
-	b/CxvvmGip+cjdw6G33EP7V3Lhpz+EnxMt/TIdgbOiq42KGqMByxV/B00EX4Wf9gY2+9iSQEvA+
-	cGdhEqTHQos0B2k2k5qJNUTluaDtYv31KNpDNILT11XfdrxISli0kst4SJU4YMXR29+fNv+ObYR
-	GA20at/60EtKi+FDtvCZ0QgD76U7yBSibmnrqVS8637kEO3k0tGzG9AlaVvA1IZE3wZg3lcAPQh
-	lqzY04Lc74pePb9Mj6FXkEs95zNiYh95jwEg898iUGp3PkmLZQKRkXsI2X1zkccyvRFDxbiNoz5
-	Q=
-X-Google-Smtp-Source: AGHT+IEmgdpXqITTvtEsdkyag23kTZqTI+VpH3u3zYcJ0S8Lz2otibCOMPIbkOh1gLz9ZE+Pd/iW1w==
-X-Received: by 2002:a17:907:c0d:b0:ad8:9fa3:8dd9 with SMTP id a640c23a62f3a-afcb99dd8d9mr17382366b.13.1755115813983;
-        Wed, 13 Aug 2025 13:10:13 -0700 (PDT)
+        bh=T2vVIAzZ4dAg+21sRBLYMSNKm9HT703Ug1VaYJSoKUw=;
+        b=UIHIUZHxM2u4RS+zyey0eZKFrE5Fs3ojnTyEBUdF/2nj3PuV9I2gI4Tom1LKtSvKcB
+         pWNLN7dEVmnSRRjRwBN0Z4UnufONZPWh5hsxQpyLWeBYcVRG5cyIz5f1rJ4ilAGsbsit
+         rwvY/+gfROqsNJ79qsXHYJsaWexVZKqiz3zQQFxrSrAxktpB/WodzKuQidyYpKyZ8HkO
+         iO6sVCwTAnU0rZdsDc4cduVB5/ZHRPSZm5BABTJbXd4LN8BTTEQjFYHuwmNwVYUK+Svy
+         NENOfQO1oFLm6JcRvpHZhIIC/MvsFcAec9hCIm3OGoxtwCxiCIPpoSzbfYJu8ffw8u4+
+         RowA==
+X-Forwarded-Encrypted: i=1; AJvYcCUPUNMUBtVIP2TXwPpaExsTUaonAibNS7jIIkUZNL2PSIAW+6QUgV4TOto6b2hxGv7pj+5wBodJQ8OGLg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw1qJXyMpW5yXYcPYXvQ4pZBdejkDLXyafzc6MYYuH/OyFZA+jI
+	xqpYd5XFuFBCMCWdA2+5W0YkHewsP6x3CBJLMHy/4immOUUhcwJ4Y8Ai
+X-Gm-Gg: ASbGncu+O2Da2CdXMiQBsjJ7jhVLVc/uycshjxfZALYXdh/CTwlccX8QEcWMNj3zooO
+	oSrbBcHeIFh4Tl4Qbrre07V1iLN3nY0n3xtFS03iFaecZRkBVaR4L3lhPQ52Njx4NMrA5+p6qOF
+	GmXk3O1OH+hw+fQw47A6rC6avPUh9/mfJ+xgeXphrSVj8OY1HpxEYvvFNRYACOk2y+cujzpCfvv
+	40bZYYCIN73AiNkZs1cH7sahmkuyoCaIQpcyl/T9R1QzJfhw86YdmP7VmSft3dDTe/9Er4mQqP5
+	gKYf1/4b54xFcNuzVbrLEFlz6CD+AmAoXtsoZfW/VZDh09+fDAcb9470aoKtcP7kMOeXLSAVkU2
+	K9Alinu4TiKcSaPHnE516m4LV1x3PSrio9fWtxutI727q2QuCqMVIBHXcDHdgASKeHHbPjOIHgb
+	A=
+X-Google-Smtp-Source: AGHT+IFIk2ZHOQiCQqsjycSP9PWreMorn0BgUMiBxkGQeZrU7HDhrZDRRVUCURcvFPsnqAAb3OAJUg==
+X-Received: by 2002:a17:907:7eaa:b0:af9:7e88:e174 with SMTP id a640c23a62f3a-afcb99286e8mr18702166b.12.1755115817173;
+        Wed, 13 Aug 2025 13:10:17 -0700 (PDT)
 Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a21c0ccsm2454092266b.111.2025.08.13.13.10.13
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a21c0ccsm2454092266b.111.2025.08.13.13.10.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Aug 2025 13:10:13 -0700 (PDT)
+        Wed, 13 Aug 2025 13:10:16 -0700 (PDT)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
 Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org
-Subject: [PATCH v2 09/17] HID: pidff: Update debug messages
-Date: Wed, 13 Aug 2025 22:09:57 +0200
-Message-ID: <20250813201005.17819-10-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH v2 12/17] HID: pidff: PERMISSIVE_CONTROL quirk autodetection
+Date: Wed, 13 Aug 2025 22:10:00 +0200
+Message-ID: <20250813201005.17819-13-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250813201005.17819-1-tomasz.pakula.oficjalny@gmail.com>
 References: <20250813201005.17819-1-tomasz.pakula.oficjalny@gmail.com>
@@ -79,74 +79,48 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+Fixes force feedback for devices built with MMOS firmware and many more
+not yet detected devices.
+
+Update quirks mask debug message to always contain all 32 bits of data.
+
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
-
-Better indicate what operation is requested on a given effect (play or
-stop). Previously, we only had the info about requesting playback but
-this could be misleading when the looop count is 0.
-
-Add debug print that shows what device control command was actually sent
-to the device. Print out its hex hid usage.
-
-Make field_index const to make sure it won't be changed by mistake later.
 ---
- drivers/hid/usbhid/hid-pidff.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 0f49d2836e9e..689419b20bf0 100644
+index 534fb28f6e55..3fd51ad5cf56 100644
 --- a/drivers/hid/usbhid/hid-pidff.c
 +++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -623,8 +623,7 @@ static void pidff_set_gain_report(struct pidff_device *pidff, u16 gain)
-  */
- static void pidff_set_device_control(struct pidff_device *pidff, int field)
- {
--	int i, index;
--	int field_index = pidff->control_id[field];
-+	const int field_index = pidff->control_id[field];
- 
- 	if (field_index < 1)
- 		return;
-@@ -634,8 +633,9 @@ static void pidff_set_device_control(struct pidff_device *pidff, int field)
- 		hid_dbg(pidff->hid, "DEVICE_CONTROL is a bitmask\n");
- 
- 		/* Clear current bitmask */
--		for (i = 0; i < ARRAY_SIZE(pidff_device_control); i++) {
--			index = pidff->control_id[i];
-+		for (int i = 0; i < ARRAY_SIZE(pidff_device_control); i++) {
-+			int index = pidff->control_id[i];
+@@ -1210,8 +1210,16 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
+ 					 PID_DIRECTION, 0);
+ 	pidff->device_control =
+ 		pidff_find_special_field(pidff->reports[PID_DEVICE_CONTROL],
+-			PID_DEVICE_CONTROL_ARRAY,
+-			!(pidff->quirks & HID_PIDFF_QUIRK_PERMISSIVE_CONTROL));
++			PID_DEVICE_CONTROL_ARRAY, 1);
 +
- 			if (index < 1)
- 				continue;
++	/* Detect and set permissive control quirk */
++	if (!pidff->device_control) {
++		pr_debug("Setting PERMISSIVE_CONTROL quirk\n");
++		pidff->quirks |= HID_PIDFF_QUIRK_PERMISSIVE_CONTROL;
++		pidff->device_control = pidff_find_special_field(
++			pidff->reports[PID_DEVICE_CONTROL],
++			PID_DEVICE_CONTROL_ARRAY, 0);
++	}
  
-@@ -650,6 +650,8 @@ static void pidff_set_device_control(struct pidff_device *pidff, int field)
+ 	pidff->block_load_status =
+ 		pidff_find_special_field(pidff->reports[PID_BLOCK_LOAD],
+@@ -1552,7 +1560,7 @@ int hid_pidff_init_with_quirks(struct hid_device *hid, u32 initial_quirks)
+ 	ff->playback = pidff_playback;
  
- 	hid_hw_request(pidff->hid, pidff->reports[PID_DEVICE_CONTROL], HID_REQ_SET_REPORT);
- 	hid_hw_wait(pidff->hid);
-+	hid_dbg(pidff->hid, "Device control command 0x%02x sent",
-+		pidff_device_control[field]);
- }
+ 	hid_info(dev, "Force feedback for USB HID PID devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
+-	hid_dbg(dev, "Active quirks mask: 0x%x\n", pidff->quirks);
++	hid_dbg(dev, "Active quirks mask: 0x%08x\n", pidff->quirks);
  
- /*
-@@ -751,6 +753,9 @@ static void pidff_playback_pid(struct pidff_device *pidff, int pid_id, int n)
- {
- 	pidff->effect_operation[PID_EFFECT_BLOCK_INDEX].value[0] = pid_id;
+ 	hid_device_io_stop(hid);
  
-+	hid_dbg(pidff->hid, "%s PID effect %d", n == 0 ? "stopping" : "playing",
-+		pid_id);
-+
- 	if (n == 0) {
- 		pidff->effect_operation_status->value[0] =
- 			pidff->operation_id[PID_EFFECT_STOP];
-@@ -772,6 +777,8 @@ static int pidff_playback(struct input_dev *dev, int effect_id, int value)
- {
- 	struct pidff_device *pidff = dev->ff->private;
- 
-+	hid_dbg(pidff->hid, "requesting %s on FF effect %d",
-+		value == 0 ? "stop" : "playback", effect_id);
- 	pidff_playback_pid(pidff, pidff->pid_id[effect_id], value);
- 	return 0;
- }
 -- 
 2.50.1
 

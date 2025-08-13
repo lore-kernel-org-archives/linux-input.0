@@ -1,72 +1,72 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 080312FD7BC
-	for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 20:10:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D950D2FD7D9
+	for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 20:10:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755115816; cv=none; b=h10VONu2xDS0utzYno+FjEZXEs9/Rn5po20BF0GArmHQxVHeY/z4ZhWbrlHMJlnmNplmYVLL795NkaqZrWrctl73SmkYXde3XVbbv8YXkf0vmbzV/xBhwBLGvIWhnkrx+IbAB92P/YvEHbkJsTZ41GecrPCqQtbc2HtMXdJMVvY=
+	t=1755115818; cv=none; b=ItS0JrIMchDTStm0uCHTa2MUKTxv813uSZEpqowY8Q61Xc6XthhK/+jestWkCC5eBDlqKhenQANbMMlRE8jYf5z0tcmrV782dq0s8dRq/yK1jy1JD1R3IQN4Q15OA2wSSOtYfjR1Lg4sTGjMVY0Z06ll8n4QTPTMqhebznwOCRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755115816; c=relaxed/simple;
-	bh=IaE1dmo1YNSArpI23hT/zFdb3vAwYLY5fZGfbkLLkl8=;
+	s=arc-20240116; t=1755115818; c=relaxed/simple;
+	bh=iEefw58dTjOLDc9LmVjly6bYNwWVitEkzAsmOoqEf8o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YW7vbao5l4fZV/xqrmAIass+Px6HXRH/lEnJSvhoScuZBNL7LAc+4OlcGgKsJ+8xKCb903eBpxuzHpBjN1LbUuGMef9VSmJqJgGQhz1lFpudj7b0HE6bOQiHKj/S720QWOx8GWsfkqYfq+3qi2uo5/8eZ0rImbVesjzS+qJcZcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FjEONOb6; arc=none smtp.client-ip=209.85.218.53
+	 MIME-Version:Content-Type; b=OBs4thWCkDp24Y/RZiUKf1OxfsX02L7fXJWRscrg2xU5Cd1kudvjTWfaf678j+uwDvaJ2tPD4W8I5XQfRHcGcT4F2WcGGysn5b14fjtsspBZIe5qDKdFTwbAzX3+4pzozi8rzbXWxIdN9FULcURICYvklsD/8+X72lSX85HTcr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CBkmiDi8; arc=none smtp.client-ip=209.85.218.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FjEONOb6"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-afcb78d5e13so3239666b.1
-        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 13:10:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CBkmiDi8"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-afcb7322aa0so3047166b.0
+        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2025 13:10:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755115813; x=1755720613; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755115815; x=1755720615; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eUEzdyLXxouEVX/82qJW1stzkgcrAZxhsgDh1/Iofe4=;
-        b=FjEONOb6jcf4wffRl27TaN65f5a+FUW2+gAAu5lefecpY/Y8fb7ACB6kNndPKr1pdV
-         23b7meD7E9xBm/+D4UCdqWqPx/smwmRYt8ohy4x//cwtCxbGY9xPGVEDtIijqs5jwd/Q
-         SH07SiVT2njBDVbdzFGW6xcm6pRAo/s0qX27Rv/iylArGCB6Kn8NTLv0ImyRXnSyE0Od
-         +Sd32yslxL3/7FKBTGvVWeljUufGuvpbkbya9IGt0qvtlF8iA5wk2XMbBKh3yAXtE10a
-         l87a+vxeLGkG9oou4oR/bzFKwQgjXegL7EZZQSFay4ham2FuDkpMcu8JcOwcuDkUA3cG
-         804A==
+        bh=Y1nUT+E5jGxyff1Y6y8RNJPxDE6Ojaw5b70nEDGUEi8=;
+        b=CBkmiDi8R9XXqhLRypvzJeJ6nzP2eE2vzH7/XKPAYRBvZy+a1zGTqXJenfSEdpLC7b
+         FjxQy+Qbqa3dbdCeTOrH1yhT9jW7hNcdh02vRQ5o7gkh7OXPLzWRtJzpHS7r7lh7DyJL
+         dU1eCg0JSWGKLcTNbgicTgt1kAe0tJSUKE26FSYEymx2Xq9YvtQkpYNTou8HG7Sw7l3J
+         +9i60YcLc2FbvEB0NwFpwNA8krA41+BPuJvN04LAVC1RnKw2WJpFFEVkpPcq23eQurJs
+         xkvbLhNTogtToVhbt5tpRQvGKuf/ByzoKh1TS4dnu4evEOdzyR6l1r1mVvcRvDs8+/zU
+         uG/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755115813; x=1755720613;
+        d=1e100.net; s=20230601; t=1755115815; x=1755720615;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=eUEzdyLXxouEVX/82qJW1stzkgcrAZxhsgDh1/Iofe4=;
-        b=J6lbZs5cLBr9pXmVTlVmrlW6FXpKP2Ty1Wf4eTGIbQqzQ/7Igs5cwIQqKecDGNB5Af
-         bLk5Srvdrm+3rOHll/KJCGXQWavnmpfpSs8VRONxu8adApm7WXTqXTayVNbJq9BspnLQ
-         w/I3rG4WLQav0Ew90KYVf2i4nevq/Bwn+E2aHBCQs7kFsEtDpt48gREn93trDpJBE0xb
-         RwsqYE5lj1EQ2zvI5rqnKMz3sVjlQv9+glsbvH6gJwW3s49yU+TamjIAaL76wvJSRpmd
-         ZcG8iQZyZHOWVRAFwSlXADVdwleOfrtNHQML8IOLmeWw/iizpED644MyFPK3grFWwdwB
-         K1BA==
-X-Forwarded-Encrypted: i=1; AJvYcCXbRzWSDxjC9GB+MYcGMbgwQ3WOpy51EVsa39YmLFj8Fu2nvUCsAmYPeOuG2cP3nipRrMfe76uPJhtTnQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxzvkdzaTmPWh1fJSLqnwkNJISkXHrvmGKUnvCca/jLf7E6lj3O
-	HKwcSH8iWnMMJO6uTNhFw6R1hTM8Kbs3ZGdaxioEH7jFUIpiJ2OhOzD/
-X-Gm-Gg: ASbGncuJSlmhge9NeBsbOsZaypkRt4xTswQ3Nvjz5dty6RbJd74kzBObhkIoEroMkbW
-	cuOuc4IeN6tllhIecCw+kJ0r/vI5xyxDnMlXEusP/czyDmnee8XutnmxZoZICoeIPjXXLHRsmEP
-	x23kvqTz8wJDZTvv99/RZKQX6XzV9O3CRPvYQDYazhP0FA8wESuwDoFed/U0qYSYY8JT+jhDFwI
-	CivnB+oTcL4yVOkQ2NU0xIMpG3yk462BErjYVQ8m8j3q8ZLMIquPuqV5QUOc9ipLy8b+5JV5iyn
-	NLOKMBO/ZIu4m/CBj9gRZXohOQyxUZ+l0DW4BEiNJsg1ZHsGphmVUIVWRdtq68ubryTDjZfcnnB
-	r8EYQwkQmVMYM6kuzQiJ1ptog75c4lwttY4fCJOwhA6iliaFsZlq3clLBsz+vlBfc7QFba+nej8
-	Q=
-X-Google-Smtp-Source: AGHT+IEdR6dfKPiOzNc8+6SmMNEywXmtllDvcYt228jZx0lz+PfIPZyNnjkwYizVN1Eg5QVspQvAwA==
-X-Received: by 2002:a17:907:3f8f:b0:af8:fb0a:45d4 with SMTP id a640c23a62f3a-afca4d60b62mr172694866b.5.1755115813262;
-        Wed, 13 Aug 2025 13:10:13 -0700 (PDT)
+        bh=Y1nUT+E5jGxyff1Y6y8RNJPxDE6Ojaw5b70nEDGUEi8=;
+        b=CfDrH0RaKCxtfgJu246ZqDhFA4K08Ev2XGyc5b6QOxFG/zyA+Wq5ge2djAGuxgiGkg
+         oO3c+0YW6KSsuA+lr78XxtDa/WGfqF6Jfcw03k/kgQO+HlnHzj3A9l/zBlAzU31rQHX7
+         5B9PpDcEhuAavuywnEqtdcI6bRe+Y+EVwKpGuL1nSl9jvuMaykrBpaJMWdTgqcZxoWbo
+         IwqlLp18LuwaTaqwYHHkwiEw3K9lhESdFTu5gMU+zUKCX3mGEJxt73ovQpwzDGBze5zH
+         KZBqfv9DHge0Ge1LVYjgmtSgrcn0Su46/udxYa46xFbThAddmbezaQ8mjYiTecQFSKm4
+         D7ug==
+X-Forwarded-Encrypted: i=1; AJvYcCXnUnN1nQK7vInZsedF42rID3AnpHQ4AbhYRXgsoRmbCREHa4nGOemYW9uN/+RdXT04sJD1WEB0Tb+aLQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz7CTjaLxZ1qRwjY2EBBKqbsnDI9sfQK/1cG6ghgTbi6jXNqxhm
+	jeeSlCOuKJajvbeYRXICzn64nqJsIEQIA4OQ4Log/bESphGxV93G3qpR/OaclA==
+X-Gm-Gg: ASbGnctAip4JLq2uSTtApNNe+yGcZwUvWu3kHCL+27itc5uq8u2MoWTMR49U6rblvpC
+	g/WAGa7yi8CJA/GTXMkmflrp+nbAtg3gAvosThNj5fq94ye7DLNl5jldtY+/iZB+Zu1BlNeml96
+	/tEPt4J3863WHkaIY4ROIxslZ/Ricjy7cEnwTwF+qTL/AUbk9ue1WjVnd8KEPYZVFXwbfprbvLB
+	wYxNytYLvGAJkw17OTMJSkzoyQOWEEaKmfKPbR3kr53CaStKjA4Nbvee3BegDWgqpspxA4hZwm3
+	Dzid8+bslBmnMxd5WvaULsh5gsnikwiyC8OxFn5Ykx1UNdLrZTz8P1xMwtdDS5yoV/rYBX5Gctz
+	di4dHftnMoTxxZJ5jY5qWeg9+EQ7rju8WeHmhrL2M9GrtYmrtuezYSRBczFaBTLbjNaluG06cpv
+	c=
+X-Google-Smtp-Source: AGHT+IErFgAolNvLBLTTIBRP1Lpx79yeOXU2tvqagLYvoMQ20D8h+ZCUdZ/pMV6ggblN8zDpa5/LQQ==
+X-Received: by 2002:a17:907:9494:b0:ae6:dab3:7037 with SMTP id a640c23a62f3a-afca4e63912mr173103766b.8.1755115815042;
+        Wed, 13 Aug 2025 13:10:15 -0700 (PDT)
 Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a21c0ccsm2454092266b.111.2025.08.13.13.10.12
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a21c0ccsm2454092266b.111.2025.08.13.13.10.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Aug 2025 13:10:12 -0700 (PDT)
+        Wed, 13 Aug 2025 13:10:14 -0700 (PDT)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
 Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org
-Subject: [PATCH v2 08/17] HID: pidff: Add support for AXES_ENABLE field
-Date: Wed, 13 Aug 2025 22:09:56 +0200
-Message-ID: <20250813201005.17819-9-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH v2 10/17] HID: pidff: Rework pidff_upload_effect
+Date: Wed, 13 Aug 2025 22:09:58 +0200
+Message-ID: <20250813201005.17819-11-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250813201005.17819-1-tomasz.pakula.oficjalny@gmail.com>
 References: <20250813201005.17819-1-tomasz.pakula.oficjalny@gmail.com>
@@ -79,204 +79,397 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-AXES_ENABLE can be used in place of DIRECTION_ENABLE to indicate, which
-FFB-enabled axes will be affected by a given effect. EFFECT_DIRECTION
-enables all and uses the first direction only while AXES_ENABLE is a
-bitmask and bit indexes are the same as the defined GD usages in the
-EFFECT_DIRECTION array. Each axis can have it's own direction in this
-case.
+One of the more complicated functions. Expunge some of the logic to
+separate functions (FF -> PID id conversion)
 
-Search for AXES_ENABLE, set AXES_ENABLE for all axes if DIRECTION_ENABLE
-is not used.
+Add a macro for envelope check to make it more readable in the upload
+function.
 
-Search for specific axes in the direction array. Save their indexes. This
-let us know what axes are actually available on the device and which bit
-in the AXES_ENABLE field corresponds to which axis.
+All this made it possible to to expunge common code from the big switch
+statement and reduce the overall function size considerably. Now it can
+fit on one screen.
+
+Move the effect_cout logic from report functions to upload/erase
+functions.
 
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/hid/usbhid/hid-pidff.c | 91 ++++++++++++++++++++++++++++++++--
- 1 file changed, 87 insertions(+), 4 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 243 ++++++++++++++++-----------------
+ 1 file changed, 115 insertions(+), 128 deletions(-)
 
 diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 2e8eac944be0..0f49d2836e9e 100644
+index 689419b20bf0..32d42792c95a 100644
 --- a/drivers/hid/usbhid/hid-pidff.c
 +++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -51,6 +51,7 @@ static const u8 pidff_reports[] = {
+@@ -142,7 +142,7 @@ static const u8 pidff_effect_types[] = {
+ #define PID_BLOCK_LOAD_SUCCESS	0
+ #define PID_BLOCK_LOAD_FULL	1
+ #define PID_BLOCK_LOAD_ERROR	2
+-static const u8 pidff_block_load_status[] = { 0x8c, 0x8d, 0x8e};
++static const u8 pidff_block_load_status[] = { 0x8c, 0x8d, 0x8e };
  
- /* PID special fields */
- #define PID_EFFECT_TYPE			0x25
-+#define PID_AXES_ENABLE			0x55
- #define PID_DIRECTION			0x57
- #define PID_EFFECT_OPERATION_ARRAY	0x78
- #define PID_BLOCK_LOAD_STATUS		0x8b
-@@ -150,6 +151,31 @@ static const u8 pidff_effect_operation_status[] = { 0x79, 0x7b };
- /* Polar direction 90 degrees (East) */
- #define PIDFF_FIXED_WHEEL_DIRECTION	0x4000
+ #define PID_EFFECT_START	0
+ #define PID_EFFECT_STOP		1
+@@ -242,6 +242,62 @@ static int pidff_is_effect_conditional(struct ff_effect *effect)
+ 	       effect->type == FF_FRICTION;
+ }
  
-+/* AXES_ENABLE and DIRECTION axes */
-+enum pid_axes {
-+	PID_AXIS_X,
-+	PID_AXIS_Y,
-+	PID_AXIS_Z,
-+	PID_AXIS_RX,
-+	PID_AXIS_RY,
-+	PID_AXIS_RZ,
-+	PID_AXIS_SLIDER,
-+	PID_AXIS_DIAL,
-+	PID_AXIS_WHEEL,
-+	PID_AXES_COUNT,
-+};
-+static const u8 pidff_direction_axis[] = {
-+	HID_USAGE & HID_GD_X,
-+	HID_USAGE & HID_GD_Y,
-+	HID_USAGE & HID_GD_Z,
-+	HID_USAGE & HID_GD_RX,
-+	HID_USAGE & HID_GD_RY,
-+	HID_USAGE & HID_GD_RZ,
-+	HID_USAGE & HID_GD_SLIDER,
-+	HID_USAGE & HID_GD_DIAL,
-+	HID_USAGE & HID_GD_WHEEL,
-+};
-+
- struct pidff_usage {
- 	struct hid_field *field;
- 	s32 *value;
-@@ -184,6 +210,7 @@ struct pidff_device {
- 	/* Special fields in set_effect */
- 	struct hid_field *set_effect_type;
- 	struct hid_field *effect_direction;
-+	struct hid_field *axes_enable;
- 
- 	/* Special field in device_control */
- 	struct hid_field *device_control;
-@@ -198,11 +225,13 @@ struct pidff_device {
- 	int type_id[ARRAY_SIZE(pidff_effect_types)];
- 	int status_id[ARRAY_SIZE(pidff_block_load_status)];
- 	int operation_id[ARRAY_SIZE(pidff_effect_operation_status)];
-+	int direction_axis_id[ARRAY_SIZE(pidff_direction_axis)];
- 
- 	int pid_id[PID_EFFECTS_MAX];
- 
- 	u32 quirks;
- 	u8 effect_count;
-+	u8 axis_count;
- };
- 
- static int pidff_is_effect_conditional(struct ff_effect *effect)
-@@ -306,14 +335,37 @@ static void pidff_set_effect_direction(struct pidff_device *pidff,
- 				       struct ff_effect *effect)
- {
- 	u16 direction = effect->direction;
-+	int direction_enable = 1;
- 
- 	/* Use fixed direction if needed */
- 	if (pidff->quirks & HID_PIDFF_QUIRK_FIX_CONDITIONAL_DIRECTION &&
- 	    pidff_is_effect_conditional(effect))
- 		direction = PIDFF_FIXED_WHEEL_DIRECTION;
- 
-+	pidff->set_effect[PID_DIRECTION_ENABLE].value[0] = direction_enable;
- 	pidff->effect_direction->value[0] =
- 		pidff_rescale(direction, U16_MAX, pidff->effect_direction);
-+
-+	if (direction_enable)
-+		return;
-+
-+	/*
-+	 * For use with improved FFB API
-+	 * We want to read the selected axes and their direction from the effect
-+	 * struct and only enable those. For now, enable all axes.
-+	 *
-+	 */
-+	for (int i = 0; i < PID_AXES_COUNT; i++) {
-+		/* HID index starts with 1 */
-+		int index = pidff->direction_axis_id[i] - 1;
-+
-+		if (index < 0)
-+			continue;
-+
-+		pidff->axes_enable->value[index] = 1;
-+		pidff->effect_direction->value[index] = pidff_rescale(
-+			direction, U16_MAX, pidff->effect_direction);
++/*
++ * Get PID effect index from FF effect type.
++ * Return 0 if invalid.
++ */
++static int pidff_effect_ff_to_pid(struct ff_effect *effect)
++{
++	switch (effect->type) {
++	case FF_CONSTANT:
++		return PID_CONSTANT;
++	case FF_RAMP:
++		return PID_RAMP;
++	case FF_SPRING:
++		return PID_SPRING;
++	case FF_DAMPER:
++		return PID_DAMPER;
++	case FF_INERTIA:
++		return PID_INERTIA;
++	case FF_FRICTION:
++		return PID_FRICTION;
++	case FF_PERIODIC:
++		switch (effect->u.periodic.waveform) {
++		case FF_SQUARE:
++			return PID_SQUARE;
++		case FF_TRIANGLE:
++			return PID_TRIANGLE;
++		case FF_SINE:
++			return PID_SINE;
++		case FF_SAW_UP:
++			return PID_SAW_UP;
++		case FF_SAW_DOWN:
++			return PID_SAW_DOWN;
++		}
 +	}
++	pr_err("invalid effect type\n");
++	return -EINVAL;
++}
++
++/*
++ * Get effect id in the device descriptor.
++ * Return 0 if invalid.
++ */
++static int pidff_get_effect_type_id(struct pidff_device *pidff,
++				    struct ff_effect *effect)
++{
++	int id = pidff_effect_ff_to_pid(effect);
++
++	if (id < 0)
++		return 0;
++
++	if (effect->type == FF_PERIODIC &&
++	    pidff->quirks & HID_PIDFF_QUIRK_PERIODIC_SINE_ONLY)
++		id = PID_SINE;
++
++	return pidff->type_id[id];
++}
++
+ /*
+  * Clamp value for a given field
+  */
+@@ -387,12 +443,12 @@ static void pidff_set_envelope_report(struct pidff_device *pidff,
+ 			pidff->set_envelope[PID_FADE_LEVEL].field);
+ 
+ 	pidff_set_time(&pidff->set_envelope[PID_ATTACK_TIME],
+-			envelope->attack_length);
++		       envelope->attack_length);
+ 	pidff_set_time(&pidff->set_envelope[PID_FADE_TIME],
+-			envelope->fade_length);
++		       envelope->fade_length);
+ 
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_SET_ENVELOPE],
+-			HID_REQ_SET_REPORT);
++		       HID_REQ_SET_REPORT);
  }
  
  /*
-@@ -411,7 +463,6 @@ static void pidff_set_effect_report(struct pidff_device *pidff,
- 			effect->trigger.interval);
- 	pidff->set_effect[PID_GAIN].value[0] =
- 		pidff->set_effect[PID_GAIN].field->logical_maximum;
--	pidff->set_effect[PID_DIRECTION_ENABLE].value[0] = 1;
- 
- 	pidff_set_effect_direction(pidff, effect);
- 
-@@ -1122,12 +1173,13 @@ static struct hid_field *pidff_find_special_field(struct hid_report *report,
-  * Fill a pidff->*_id struct table
-  */
- static int pidff_find_special_keys(int *keys, struct hid_field *fld,
--				   const u8 *usagetable, int count)
-+				   const u8 *usagetable, int count,
-+				   unsigned int usage_page)
+@@ -401,7 +457,7 @@ static void pidff_set_envelope_report(struct pidff_device *pidff,
+ static int pidff_needs_set_envelope(struct ff_envelope *envelope,
+ 				    struct ff_envelope *old)
  {
- 	int found = 0;
+-	bool needs_new_envelope;
++	int needs_new_envelope;
  
- 	for (int i = 0; i < count; i++) {
--		keys[i] = pidff_find_usage(fld, HID_UP_PID | usagetable[i]) + 1;
-+		keys[i] = pidff_find_usage(fld, usage_page | usagetable[i]) + 1;
- 		if (keys[i])
- 			found++;
- 	}
-@@ -1136,7 +1188,11 @@ static int pidff_find_special_keys(int *keys, struct hid_field *fld,
+ 	needs_new_envelope = envelope->attack_level  != 0 ||
+ 			     envelope->fade_level    != 0 ||
+@@ -409,8 +465,7 @@ static int pidff_needs_set_envelope(struct ff_envelope *envelope,
+ 			     envelope->fade_length   != 0;
  
- #define PIDFF_FIND_SPECIAL_KEYS(keys, field, name) \
- 	pidff_find_special_keys(pidff->keys, pidff->field, pidff_ ## name, \
--		ARRAY_SIZE(pidff_ ## name))
-+		ARRAY_SIZE(pidff_ ## name), HID_UP_PID)
-+
-+#define PIDFF_FIND_GENERAL_DESKTOP(keys, field, name) \
-+	pidff_find_special_keys(pidff->keys, pidff->field, pidff_ ## name, \
-+		ARRAY_SIZE(pidff_ ## name), HID_UP_GENDESK)
+ 	if (!needs_new_envelope)
+-		return false;
+-
++		return 0;
+ 	if (!old)
+ 		return needs_new_envelope;
+ 
+@@ -423,8 +478,8 @@ static int pidff_needs_set_envelope(struct ff_envelope *envelope,
+ /*
+  * Send constant force report to the device
+  */
+-static void pidff_set_constant_force_report(struct pidff_device *pidff,
+-					    struct ff_effect *effect)
++static void pidff_set_constant_report(struct pidff_device *pidff,
++				      struct ff_effect *effect)
+ {
+ 	pidff->set_constant[PID_EFFECT_BLOCK_INDEX].value[0] =
+ 		pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+@@ -432,7 +487,7 @@ static void pidff_set_constant_force_report(struct pidff_device *pidff,
+ 			 effect->u.constant.level);
+ 
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_SET_CONSTANT],
+-			HID_REQ_SET_REPORT);
++		       HID_REQ_SET_REPORT);
+ }
  
  /*
-  * Find and check the special fields
-@@ -1151,6 +1207,9 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
- 	pidff->set_effect_type =
- 		pidff_find_special_field(pidff->reports[PID_SET_EFFECT],
- 					 PID_EFFECT_TYPE, 1);
-+	pidff->axes_enable =
-+		pidff_find_special_field(pidff->reports[PID_SET_EFFECT],
-+					 PID_AXES_ENABLE, 0);
- 	pidff->effect_direction =
- 		pidff_find_special_field(pidff->reports[PID_SET_EFFECT],
- 					 PID_DIRECTION, 0);
-@@ -1216,6 +1275,30 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
- 		return -1;
+@@ -583,8 +638,8 @@ static int pidff_needs_set_condition(struct ff_effect *effect,
+ /*
+  * Send ramp force report to the device
+  */
+-static void pidff_set_ramp_force_report(struct pidff_device *pidff,
+-					struct ff_effect *effect)
++static void pidff_set_ramp_report(struct pidff_device *pidff,
++				  struct ff_effect *effect)
+ {
+ 	pidff->set_ramp[PID_EFFECT_BLOCK_INDEX].value[0] =
+ 		pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+@@ -593,7 +648,7 @@ static void pidff_set_ramp_force_report(struct pidff_device *pidff,
+ 	pidff_set_signed(&pidff->set_ramp[PID_RAMP_END],
+ 			 effect->u.ramp.end_level);
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_SET_RAMP],
+-			HID_REQ_SET_REPORT);
++		       HID_REQ_SET_REPORT);
+ }
+ 
+ /*
+@@ -703,9 +758,6 @@ static int pidff_request_effect_upload(struct pidff_device *pidff, int efnum)
+ {
+ 	int j;
+ 
+-	if (!pidff->effect_count)
+-		pidff_reset(pidff);
+-
+ 	pidff->create_new_effect_type->value[0] = efnum;
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_CREATE_NEW_EFFECT],
+ 			HID_REQ_SET_REPORT);
+@@ -725,8 +777,6 @@ static int pidff_request_effect_upload(struct pidff_device *pidff, int efnum)
+ 			hid_dbg(pidff->hid, "device reported free memory: %d bytes\n",
+ 				 pidff->block_load[PID_RAM_POOL_AVAILABLE].value ?
+ 				 pidff->block_load[PID_RAM_POOL_AVAILABLE].value[0] : -1);
+-
+-			pidff->effect_count++;
+ 			return 0;
+ 		}
+ 		if (pidff->block_load_status->value[0] ==
+@@ -767,7 +817,7 @@ static void pidff_playback_pid(struct pidff_device *pidff, int pid_id, int n)
  	}
  
-+	if (!pidff->axes_enable)
-+		hid_info(pidff->hid, "axes enable field not found!\n");
-+	else
-+		hid_dbg(pidff->hid, "axes enable report count: %u\n",
-+			pidff->axes_enable->report_count);
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_EFFECT_OPERATION],
+-			HID_REQ_SET_REPORT);
++		       HID_REQ_SET_REPORT);
+ }
+ 
+ /*
+@@ -791,10 +841,7 @@ static void pidff_erase_pid(struct pidff_device *pidff, int pid_id)
+ {
+ 	pidff->block_free[PID_EFFECT_BLOCK_INDEX].value[0] = pid_id;
+ 	hid_hw_request(pidff->hid, pidff->reports[PID_BLOCK_FREE],
+-			HID_REQ_SET_REPORT);
+-
+-	if (pidff->effect_count > 0)
+-		pidff->effect_count--;
++		       HID_REQ_SET_REPORT);
+ }
+ 
+ /*
+@@ -816,139 +863,79 @@ static int pidff_erase_effect(struct input_dev *dev, int effect_id)
+ 	pidff_playback_pid(pidff, pid_id, 0);
+ 	pidff_erase_pid(pidff, pid_id);
+ 
++	if (pidff->effect_count > 0)
++		pidff->effect_count--;
 +
-+	uint found = PIDFF_FIND_GENERAL_DESKTOP(direction_axis_id, axes_enable,
-+						direction_axis);
++	hid_dbg(pidff->hid, "current effect count: %d", pidff->effect_count);
+ 	return 0;
+ }
+ 
++#define PIDFF_SET_REPORT_IF_NEEDED(type, effect, old) \
++	({ if (!old || pidff_needs_set_## type(effect, old)) \
++		pidff_set_ ##type## _report(pidff, effect); })
 +
-+	pidff->axis_count = found;
-+	hid_dbg(pidff->hid, "found direction axes: %u", found);
++#define PIDFF_SET_ENVELOPE_IF_NEEDED(type, effect, old) \
++	({ if (pidff_needs_set_envelope(&effect->u.type.envelope, \
++	       old ? &old->u.type.envelope : NULL)) \
++		pidff_set_envelope_report(pidff, &effect->u.type.envelope); })
 +
-+	for (int i = 0; i < sizeof(pidff_direction_axis); i++) {
-+		if (!pidff->direction_axis_id[i])
-+			continue;
+ /*
+  * Effect upload handler
+  */
+-static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *effect,
++static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *new,
+ 			       struct ff_effect *old)
+ {
+ 	struct pidff_device *pidff = dev->ff->private;
+-	int type_id;
+-	int error;
++	const int type_id = pidff_get_effect_type_id(pidff, new);
+ 
+-	pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] = 0;
+-	if (old) {
+-		pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
+-			pidff->pid_id[effect->id];
++	if (!type_id) {
++		hid_err(pidff->hid, "effect type not supported\n");
++		return -EINVAL;
+ 	}
+ 
+-	switch (effect->type) {
++	if (!pidff->effect_count)
++		pidff_reset(pidff);
 +
-+		hid_dbg(pidff->hid, "axis %d, usage: 0x%04x, index: %d", i + 1,
-+			pidff_direction_axis[i], pidff->direction_axis_id[i]);
++	if (!old) {
++		int error = pidff_request_effect_upload(pidff, type_id);
++
++		if (error)
++			return error;
++
++		pidff->effect_count++;
++		hid_dbg(pidff->hid, "current effect count: %d", pidff->effect_count);
++		pidff->pid_id[new->id] =
++			pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
 +	}
 +
-+	if (pidff->axes_enable && found != pidff->axes_enable->report_count)
-+		hid_warn(pidff->hid, "axes_enable: %u != direction axes: %u",
-+			 pidff->axes_enable->report_count, found);
++	pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
++		pidff->pid_id[new->id];
 +
++	PIDFF_SET_REPORT_IF_NEEDED(effect, new, old);
++	switch (new->type) {
+ 	case FF_CONSTANT:
+-		if (!old) {
+-			error = pidff_request_effect_upload(pidff,
+-					pidff->type_id[PID_CONSTANT]);
+-			if (error)
+-				return error;
+-		}
+-		if (!old || pidff_needs_set_effect(effect, old))
+-			pidff_set_effect_report(pidff, effect);
+-		if (!old || pidff_needs_set_constant(effect, old))
+-			pidff_set_constant_force_report(pidff, effect);
+-		if (pidff_needs_set_envelope(&effect->u.constant.envelope,
+-					old ? &old->u.constant.envelope : NULL))
+-			pidff_set_envelope_report(pidff, &effect->u.constant.envelope);
++		PIDFF_SET_REPORT_IF_NEEDED(constant, new, old);
++		PIDFF_SET_ENVELOPE_IF_NEEDED(constant, new, old);
+ 		break;
+ 
+ 	case FF_PERIODIC:
+-		if (!old) {
+-			switch (effect->u.periodic.waveform) {
+-			case FF_SQUARE:
+-				type_id = PID_SQUARE;
+-				break;
+-			case FF_TRIANGLE:
+-				type_id = PID_TRIANGLE;
+-				break;
+-			case FF_SINE:
+-				type_id = PID_SINE;
+-				break;
+-			case FF_SAW_UP:
+-				type_id = PID_SAW_UP;
+-				break;
+-			case FF_SAW_DOWN:
+-				type_id = PID_SAW_DOWN;
+-				break;
+-			default:
+-				hid_err(pidff->hid, "invalid waveform\n");
+-				return -EINVAL;
+-			}
+-
+-			if (pidff->quirks & HID_PIDFF_QUIRK_PERIODIC_SINE_ONLY)
+-				type_id = PID_SINE;
+-
+-			error = pidff_request_effect_upload(pidff,
+-					pidff->type_id[type_id]);
+-			if (error)
+-				return error;
+-		}
+-		if (!old || pidff_needs_set_effect(effect, old))
+-			pidff_set_effect_report(pidff, effect);
+-		if (!old || pidff_needs_set_periodic(effect, old))
+-			pidff_set_periodic_report(pidff, effect);
+-		if (pidff_needs_set_envelope(&effect->u.periodic.envelope,
+-					old ? &old->u.periodic.envelope : NULL))
+-			pidff_set_envelope_report(pidff, &effect->u.periodic.envelope);
++		PIDFF_SET_REPORT_IF_NEEDED(periodic, new, old);
++		PIDFF_SET_ENVELOPE_IF_NEEDED(periodic, new, old);
+ 		break;
+ 
+ 	case FF_RAMP:
+-		if (!old) {
+-			error = pidff_request_effect_upload(pidff,
+-					pidff->type_id[PID_RAMP]);
+-			if (error)
+-				return error;
+-		}
+-		if (!old || pidff_needs_set_effect(effect, old))
+-			pidff_set_effect_report(pidff, effect);
+-		if (!old || pidff_needs_set_ramp(effect, old))
+-			pidff_set_ramp_force_report(pidff, effect);
+-		if (pidff_needs_set_envelope(&effect->u.ramp.envelope,
+-					old ? &old->u.ramp.envelope : NULL))
+-			pidff_set_envelope_report(pidff, &effect->u.ramp.envelope);
++		PIDFF_SET_REPORT_IF_NEEDED(ramp, new, old);
++		PIDFF_SET_ENVELOPE_IF_NEEDED(ramp, new, old);
+ 		break;
+ 
+ 	case FF_SPRING:
+ 	case FF_DAMPER:
+ 	case FF_INERTIA:
+ 	case FF_FRICTION:
+-		if (!old) {
+-			switch (effect->type) {
+-			case FF_SPRING:
+-				type_id = PID_SPRING;
+-				break;
+-			case FF_DAMPER:
+-				type_id = PID_DAMPER;
+-				break;
+-			case FF_INERTIA:
+-				type_id = PID_INERTIA;
+-				break;
+-			case FF_FRICTION:
+-				type_id = PID_FRICTION;
+-				break;
+-			}
+-			error = pidff_request_effect_upload(pidff,
+-					pidff->type_id[type_id]);
+-			if (error)
+-				return error;
+-		}
+-		if (!old || pidff_needs_set_effect(effect, old))
+-			pidff_set_effect_report(pidff, effect);
+-		if (!old || pidff_needs_set_condition(effect, old))
+-			pidff_set_condition_report(pidff, effect);
++		PIDFF_SET_REPORT_IF_NEEDED(condition, new, old);
+ 		break;
+-
+-	default:
+-		hid_err(pidff->hid, "invalid type\n");
+-		return -EINVAL;
+ 	}
+-
+-	if (!old)
+-		pidff->pid_id[effect->id] =
+-		    pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+-
+ 	hid_dbg(pidff->hid, "uploaded\n");
+-
  	return 0;
  }
  

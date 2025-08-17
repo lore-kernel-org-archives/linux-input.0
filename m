@@ -1,200 +1,125 @@
-Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E4B23D298;
-	Sun, 17 Aug 2025 10:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB391DF72C;
+	Sun, 17 Aug 2025 11:20:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755426183; cv=none; b=jY+9okbXVlWfZEb5ciPNjZfTHgDCfz/7a88ghLp9okjEqmIEP1es7CcQ0qvKcm/Asr3Y1v+e3JH8v4Z7ira6/AymsFZNuK/3vm3smScV6t8/Jzzc6pN6Rmowx5Uf/H3Owz6VJPywx71qo/FnSCGK3fUA+MqKtSsnne001DyZhvE=
+	t=1755429631; cv=none; b=gCy/KArIIYrXzaECCU2utNA4+TDgKmHd1u0MBfhaU8e+MOzVzZHCciQzx0/tCyDYJ60N7yhIEmh5tNYDjXXRWiKl046S+o+NPDJcXxdgINubga50xQVCY27cdRlslYXVTdW9KiaK4GhN6iwOeJKATEVtTGbsermyK6t/41AJD6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755426183; c=relaxed/simple;
-	bh=q8/DbBKbrBgEINTYssy1UUKBdYsb7f2nRa/oHEffnS8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=cP5X9ye7PuDTRKv57Ma0Ru89jFiHxnIssZbgbU1ETEADi3rY0MKqpJvf0vXS1mocI16ygQK6vcip/9FY0vFrcuKkNsrRs6mcquciFAkXEP+BZvm1WGoDwzCyYWzGBPq5Zhl/7fXgpBh1DF0V44CEZSfXlOY2621X3U+zkHaMT6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
-Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57HARr82029784;
-	Sun, 17 Aug 2025 10:27:53 GMT
-Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57HARrHB029779;
-	Sun, 17 Aug 2025 10:27:53 GMT
-From: Alexander Kurz <akurz@blala.de>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dzmitry Sankouski <dsankouski@gmail.com>,
-        "Dr. David Alan Gilbert" <linux@treblig.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH 4/6] Input: mc13783-pwrbutton: convert members to array
-Date: Sun, 17 Aug 2025 10:27:48 +0000
-Message-Id: <20250817102751.29709-5-akurz@blala.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20250817102751.29709-1-akurz@blala.de>
-References: <20250817102751.29709-1-akurz@blala.de>
+	s=arc-20240116; t=1755429631; c=relaxed/simple;
+	bh=1wvZ2IDIaF9XkDgCzflrzoa20I0MXthhV7J//iFVRdc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gpW4RdbgDZsYPHy694AzyYep5ipyAMp0ONnNoXTNCV99xUZvYLjvN91Ah0A2kudPGWqewRRxkhqNhUyqP6zKpkrAhU8UeGpD/dDM6xWGjDudG4AlX4MXL3U9Ms6rOl1npY2RaH23RXNY4FrtdFD0tPWoHQ0TuP2X2H4WeXRKm5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SplVtv2L; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SplVtv2L"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7560C4CEEB;
+	Sun, 17 Aug 2025 11:20:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755429631;
+	bh=1wvZ2IDIaF9XkDgCzflrzoa20I0MXthhV7J//iFVRdc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=SplVtv2L05IgSg3kmApX0hujmX4avkXopuKvkO3/Qij7v/Uur4W8kXm8tM+gxzkAT
+	 ucakaWr/Lgq8bSA5qwFlcqA8PLGg7nopkbzXQEM/8ebnztr+IiAcr8JNL7hYOKuLFq
+	 HRVYjhpxr9uRRhfmR+Zaqm5+/uKMpze6cCCETgnBWca0H/cA/z2pfZXpoBNgsiCDLy
+	 176J5CVGZZS7zJIkL65jp4ybGXxMjrWDi7pyPfqj/I1O0/uGfb5ry6PlMSBd3qxqMS
+	 +Sb1lVaiWoaUqUXnBgAUlcdh062UPA8AaWhnBuHW8JgTcmv+av/4FMCn/mhb4XxGFN
+	 Aq28A6UHrf+cQ==
+Message-ID: <2499a87f-9919-4795-a793-7e3eed0bbb87@kernel.org>
+Date: Sun, 17 Aug 2025 13:20:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/6] dt-bindings: mfd: mc13xxx: add pwrbutton dt support
+To: Alexander Kurz <akurz@blala.de>, Lee Jones <lee@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Dzmitry Sankouski <dsankouski@gmail.com>,
+ "Dr. David Alan Gilbert" <linux@treblig.org>,
+ Heiko Stuebner <heiko@sntech.de>,
+ =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
+ devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+References: <20250817102751.29709-1-akurz@blala.de>
+ <20250817102751.29709-6-akurz@blala.de>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20250817102751.29709-6-akurz@blala.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-As preparation for mc13783-pwrbutton OF support, convert the members of
-mc13xxx_buttons_platform_data to arrays to allow index access within
-the next commit.
+On 17/08/2025 12:27, Alexander Kurz wrote:
+> diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
+> index 8261ea73278a..3c7bad07858f 100644
+> --- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
+> +++ b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
+> @@ -24,6 +24,15 @@ Sub-nodes:
+>    Documentation/devicetree/bindings/leds/common.txt.
+>  - regulators : Contain the regulator nodes. The regulators are bound using
+>    their names as listed below with their registers and bits for enabling.
+> +- pwrbuttons : Contains the onoff input button nodes.
+> +  - #address-cells: Must be 1.
+> +  - #size-cells: Must be 0.
+> +  - reg: Contains the BUTTON ID (see below)
+> +  - linux,code
+> +  - debounce-delay-value: debouncing selection of 0 (0ms), 1 (default 30ms),
+> +    2(150ms) or 3 (750ms).
+> +  - active-low
+> +  - enable-reset
 
-Signed-off-by: Alexander Kurz <akurz@blala.de>
----
- drivers/input/misc/mc13783-pwrbutton.c | 56 +++++++++++++-------------
- include/linux/mfd/mc13xxx.h            |  8 +---
- 2 files changed, 30 insertions(+), 34 deletions(-)
+We do not take new properties in TXT format, especially entire device nodes.
 
-diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index cb2f25a1a757..49bc5d25f098 100644
---- a/drivers/input/misc/mc13783-pwrbutton.c
-+++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -130,28 +130,28 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	/* ONOFD3 is only supported for MC13783. */
--	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE &&
-+	if (pdata->b_on_flags[2] & MC13783_BUTTON_ENABLE &&
- 		chip != MC13XXX_CHIP_TYPE_MC13783)
- 		return -ENODEV;
- 
--	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
--	reg |= (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
--	reg |= (pdata->b3on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
-+	reg |= (pdata->b_on_flags[0] & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
-+	reg |= (pdata->b_on_flags[1] & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
-+	reg |= (pdata->b_on_flags[2] & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
- 
- 	priv->pwr = pwr;
- 	priv->mc13783 = mc13783;
- 
- 	mc13xxx_lock(mc13783);
- 
--	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE) {
--		priv->keymap[0] = pdata->b1on_key;
--		if (pdata->b1on_key != KEY_RESERVED)
--			__set_bit(pdata->b1on_key, pwr->keybit);
-+	if (pdata->b_on_flags[0] & MC13783_BUTTON_ENABLE) {
-+		priv->keymap[0] = pdata->b_on_key[0];
-+		if (pdata->b_on_key[0] != KEY_RESERVED)
-+			__set_bit(pdata->b_on_key[0], pwr->keybit);
- 
--		if (pdata->b1on_flags & MC13783_BUTTON_POL_INVERT)
-+		if (pdata->b_on_flags[0] & MC13783_BUTTON_POL_INVERT)
- 			priv->flags |= MC13783_PWRB_B1_POL_INVERT;
- 
--		if (pdata->b1on_flags & MC13783_BUTTON_RESET_EN)
-+		if (pdata->b_on_flags[0] & MC13783_BUTTON_RESET_EN)
- 			reg |= MC13783_POWER_CONTROL_2_ON1BRSTEN;
- 
- 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD1,
-@@ -162,15 +162,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE) {
--		priv->keymap[1] = pdata->b2on_key;
--		if (pdata->b2on_key != KEY_RESERVED)
--			__set_bit(pdata->b2on_key, pwr->keybit);
-+	if (pdata->b_on_flags[1] & MC13783_BUTTON_ENABLE) {
-+		priv->keymap[1] = pdata->b_on_key[1];
-+		if (pdata->b_on_key[1] != KEY_RESERVED)
-+			__set_bit(pdata->b_on_key[1], pwr->keybit);
- 
--		if (pdata->b2on_flags & MC13783_BUTTON_POL_INVERT)
-+		if (pdata->b_on_flags[1] & MC13783_BUTTON_POL_INVERT)
- 			priv->flags |= MC13783_PWRB_B2_POL_INVERT;
- 
--		if (pdata->b2on_flags & MC13783_BUTTON_RESET_EN)
-+		if (pdata->b_on_flags[1] & MC13783_BUTTON_RESET_EN)
- 			reg |= MC13783_POWER_CONTROL_2_ON2BRSTEN;
- 
- 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD2,
-@@ -181,15 +181,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE) {
--		priv->keymap[2] = pdata->b3on_key;
--		if (pdata->b3on_key != KEY_RESERVED)
--			__set_bit(pdata->b3on_key, pwr->keybit);
-+	if (pdata->b_on_flags[2] & MC13783_BUTTON_ENABLE) {
-+		priv->keymap[2] = pdata->b_on_key[3];
-+		if (pdata->b_on_key[3] != KEY_RESERVED)
-+			__set_bit(pdata->b_on_key[3], pwr->keybit);
- 
--		if (pdata->b3on_flags & MC13783_BUTTON_POL_INVERT)
-+		if (pdata->b_on_flags[2] & MC13783_BUTTON_POL_INVERT)
- 			priv->flags |= MC13783_PWRB_B3_POL_INVERT;
- 
--		if (pdata->b3on_flags & MC13783_BUTTON_RESET_EN)
-+		if (pdata->b_on_flags[2] & MC13783_BUTTON_RESET_EN)
- 			reg |= MC13783_POWER_CONTROL_2_ON3BRSTEN;
- 
- 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD3,
-@@ -225,15 +225,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- free_irq:
- 	mc13xxx_lock(mc13783);
- 
--	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[2] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD3, priv);
- 
- free_irq_b2:
--	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[1] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD2, priv);
- 
- free_irq_b1:
--	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[0] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
- 
- free_mc13xxx_lock:
-@@ -251,11 +251,11 @@ static void mc13783_pwrbutton_remove(struct platform_device *pdev)
- 
- 	mc13xxx_lock(priv->mc13783);
- 
--	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[2] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD3, priv);
--	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[1] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD2, priv);
--	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
-+	if (pdata->b_on_flags[0] & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
- 
- 	mc13xxx_unlock(priv->mc13783);
-diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
-index 6984ea69db3e..8bd25b0532ba 100644
---- a/include/linux/mfd/mc13xxx.h
-+++ b/include/linux/mfd/mc13xxx.h
-@@ -196,12 +196,8 @@ struct mc13xxx_leds_platform_data {
- #define MC13783_BUTTON_RESET_EN		(1 << 4)
- 
- struct mc13xxx_buttons_platform_data {
--	int b1on_flags;
--	unsigned short b1on_key;
--	int b2on_flags;
--	unsigned short b2on_key;
--	int b3on_flags;
--	unsigned short b3on_key;
-+	int b_on_flags[3];
-+	unsigned int b_on_key[3];
- };
- 
- #define MC13783_TS_ATO_FIRST	false
--- 
-2.39.5
+Please convert the binding to DT schema first and then extend it.
 
+
+Best regards,
+Krzysztof

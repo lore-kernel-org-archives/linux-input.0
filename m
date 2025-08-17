@@ -1,24 +1,24 @@
 Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E8E52253FC;
-	Sun, 17 Aug 2025 10:23:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6148A223337;
+	Sun, 17 Aug 2025 10:22:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755426182; cv=none; b=uVjzh4osA5T3zJWtth4+4A/IUQHO8AKM7j4CIhmQ1bbGbokTin8gqm5cjxnAd0qP49TefoqGyB2bpG98oWr6lxZDc4ezHjTUsPNyDnxEokuWfiZ1JuiuNn9dc3Bi/NdNyRWxvDRAIEOsnYRNsngs0b/+xjG+h0e2RNbRTQsMUnk=
+	t=1755426183; cv=none; b=W9MirwoFV19fN7F2KvwSojHEoYX/W3q+XwMaGaON1+pb1WflGyUyw2WZxKHJmly23rAA8LcB6HIbcXSQSx3DKwiPujTfaZp2dvwqvcPZDZg59Bhy2k1zKgZz/KFEbELfieXTQSSedjOWn83dH0zTfgKUxhX8A0Ina0sKXMdWMis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755426182; c=relaxed/simple;
-	bh=I3rayUSW5zuktXOF5XyLNF+Oo33AU9vj7SNG5c3h+Zo=;
+	s=arc-20240116; t=1755426183; c=relaxed/simple;
+	bh=VTgi9DtXP6kPqmsaARkv7ETfo+rq9PKhR/wvxlwOHFI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=cLGaggq0q18pvoEfm0uU3WgXoibjeiSlSCqA1Kt2hu+3yn2scgkHoWr5uZOvfdgQ3X0xnL8aPoKF/TVHDgx9fzWWNByir4ARbMA8PvHstdYjd+3n/+CWPP0/qMYp6A8zMHl+XbbiyWUURwBtbv2ioKqwqzNFgkb9V80UgfiU7Os=
+	 MIME-Version; b=PqO1BechWGCHgPacGTqzY5+tT6kcDSEsofhmgMyhqK/V837XaOsBsHGpBklO5dV7xiEGzj6dYAub1/zES6C36SpLsFtsScKgQ/xZ2dzZIgEHQehwHMg5/F9kOZ8J58rN/nfkG4xWOoBg3wPih0GF1sFyqXMOG9J9du645VZLLok=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
 Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57HARr9A029792;
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57HARruk029768;
 	Sun, 17 Aug 2025 10:27:53 GMT
 Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57HARr3O029787;
+	by blala.de (8.15.2/8.15.2/Submit) id 57HARrq7029764;
 	Sun, 17 Aug 2025 10:27:53 GMT
 From: Alexander Kurz <akurz@blala.de>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
@@ -31,9 +31,9 @@ To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH 5/6] dt-bindings: mfd: mc13xxx: add pwrbutton dt support
-Date: Sun, 17 Aug 2025 10:27:49 +0000
-Message-Id: <20250817102751.29709-6-akurz@blala.de>
+Subject: [PATCH 2/6] Input: mc13783-pwrbutton: use managed resources
+Date: Sun, 17 Aug 2025 10:27:46 +0000
+Message-Id: <20250817102751.29709-3-akurz@blala.de>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20250817102751.29709-1-akurz@blala.de>
 References: <20250817102751.29709-1-akurz@blala.de>
@@ -45,75 +45,91 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The mc13xxx series features two or three power buttons that may be used
-as input device. OF support will be added in a different commit.
-Add a short documentation for it according to the reference- and User-
-manuals of the mc13xxx series.
+Use devres functionality to simplify resource freeing, dev.parent will
+be set by devm_input_allocate_device().
 
 Signed-off-by: Alexander Kurz <akurz@blala.de>
 ---
- .../devicetree/bindings/mfd/mc13xxx.txt       | 35 +++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/input/misc/mc13783-pwrbutton.c | 28 ++++++++------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-index 8261ea73278a..3c7bad07858f 100644
---- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-+++ b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-@@ -24,6 +24,15 @@ Sub-nodes:
-   Documentation/devicetree/bindings/leds/common.txt.
- - regulators : Contain the regulator nodes. The regulators are bound using
-   their names as listed below with their registers and bits for enabling.
-+- pwrbuttons : Contains the onoff input button nodes.
-+  - #address-cells: Must be 1.
-+  - #size-cells: Must be 0.
-+  - reg: Contains the BUTTON ID (see below)
-+  - linux,code
-+  - debounce-delay-value: debouncing selection of 0 (0ms), 1 (default 30ms),
-+    2(150ms) or 3 (750ms).
-+  - active-low
-+  - enable-reset
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index 4765b25bc9f6..9fd84b8d163d 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -21,6 +21,7 @@
  
- MC13783 LED IDs:
-     0  : Main display
-@@ -110,6 +119,20 @@ MC13892 regulators:
-   The bindings details of individual regulator device can be found in:
-   Documentation/devicetree/bindings/regulator/regulator.txt
+ #include <linux/module.h>
+ #include <linux/kernel.h>
++#include <linux/device.h>
+ #include <linux/errno.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+@@ -118,18 +119,13 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
  
-+MC13783 BUTTON IDs:
-+    0  : ONOFD1
-+    1  : ONOFD2
-+    2  : ONOFD3
-+
-+MC13892 BUTTON IDs:
-+    0  : PWRON1
-+    1  : PWRON2
-+    2  : <not supported>
-+
-+MC34708 BUTTON IDs:
-+    0  : PWRON1
-+    1  : PWRON2
-+
- Examples:
+-	pwr = input_allocate_device();
+-	if (!pwr) {
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++	pwr = devm_input_allocate_device(&pdev->dev);
++	if (!pwr)
+ 		return -ENOMEM;
+-	}
  
- ecspi@70010000 { /* ECSPI1 */
-@@ -152,5 +175,17 @@ ecspi@70010000 { /* ECSPI1 */
- 				regulator-always-on;
- 			};
- 		};
-+
-+		pwrbuttons {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			pwrbutton@0 {
-+				reg = <0>;
-+				linux,code = <KEY_POWER>;
-+				debounce-delay-value = <2>;
-+				active-low;
-+				enable-reset;
-+			};
-+		};
- 	};
- };
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv) {
+-		err = -ENOMEM;
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+-		goto free_input_dev;
+-	}
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
+ 
+ 	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
+ 	reg |= (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
+@@ -155,7 +151,7 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 					  button1_irq, "b1on", priv);
+ 		if (err) {
+ 			dev_dbg(&pdev->dev, "Can't request irq\n");
+-			goto free_priv;
++			goto free_mc13xxx_lock;
+ 		}
+ 	}
+ 
+@@ -203,7 +199,6 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 
+ 	pwr->name = "mc13783_pwrbutton";
+ 	pwr->phys = "mc13783_pwrbutton/input0";
+-	pwr->dev.parent = &pdev->dev;
+ 
+ 	pwr->keycode = priv->keymap;
+ 	pwr->keycodemax = ARRAY_SIZE(priv->keymap);
+@@ -234,12 +229,8 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
+ 
+-free_priv:
++free_mc13xxx_lock:
+ 	mc13xxx_unlock(mc13783);
+-	kfree(priv);
+-
+-free_input_dev:
+-	input_free_device(pwr);
+ 
+ 	return err;
+ }
+@@ -261,9 +252,6 @@ static void mc13783_pwrbutton_remove(struct platform_device *pdev)
+ 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
+ 
+ 	mc13xxx_unlock(priv->mc13783);
+-
+-	input_unregister_device(priv->pwr);
+-	kfree(priv);
+ }
+ 
+ static struct platform_driver mc13783_pwrbutton_driver = {
 -- 
 2.39.5
 

@@ -1,54 +1,54 @@
 Received: from mail-io1-f73.google.com (mail-io1-f73.google.com [209.85.166.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F30A27E043
-	for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 23:10:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F7527F010
+	for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 23:10:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755558643; cv=none; b=CIarRYegfKKMbRHkwaAGUhZj2Sy7Qm87c9kswQhEmUPJKdt65Gd8lL/K7LUJq+BrjUANVZH21lqilTTYsMsl25O38yESib0aL7iYhpan5dt/lbFTAOBYRLMjilgcAr9ucwcVbXIRtOtC1dusfuB13aM2AmcWSNTc3l2voRWCpKQ=
+	t=1755558645; cv=none; b=ZE5fahtBW87inSU/QQuZchIR+HSxQFaK60CFR2SbKZ861JCv6rYORWyeRQc8EeGAZVus1B77dfxBAuz34LCQgUKbVXgrW9kZci5R5suAvEPEdYxOQ0EMBjXv2o3MOjbFSsoyoV6y3sP58eN3EJS2bSZqydQzRGdptRG1rW58vT0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755558643; c=relaxed/simple;
-	bh=0zxJTqS++QzeTMN7ELVT/4x9pOXf62yqfBvIp9OiakU=;
+	s=arc-20240116; t=1755558645; c=relaxed/simple;
+	bh=fOUQ9iN+/TFHSMLuk8u/9z0NqvmTbx1gpw+j00H42/I=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=s5bcigIYlJY7MnvZGFlLxrgHHpO83K3WzcMoxZhVlB/GfmJsm6C08V73pFmzMGR8GJpbNwkpVuACIqPB+g53/1LN2j8O1YOyNCBAQ3mqvDIbxT6VsY5t/lB0Ee8LSw8uP1F1mbRi7ARl/FbOf7GPQRxSSbVLzdKp2W3w0lEz6hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MQ9eTwgf; arc=none smtp.client-ip=209.85.166.73
+	 To:Cc:Content-Type; b=oNDHbNOdJSDzhbdtaomnNVajbURH8ObEGThSoixqfrBuBl+2GlOmFo35qP0Fv9D8zxDPfh6T6u06ezXRzWJpxS8pBi1ty9OPoKLx3uJfWJBDHdLSGoen6ROQGttyM9C+HNMQQV14JTUnqxJ+wmKP3uq/eWOeeOD6G4FmtPaY8W4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Pb6gLOym; arc=none smtp.client-ip=209.85.166.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MQ9eTwgf"
-Received: by mail-io1-f73.google.com with SMTP id ca18e2360f4ac-88432e1d004so498699539f.2
-        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 16:10:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Pb6gLOym"
+Received: by mail-io1-f73.google.com with SMTP id ca18e2360f4ac-88432cb7627so476269139f.0
+        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 16:10:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1755558641; x=1756163441; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1755558643; x=1756163443; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bjzFjLZ/9nuKad8tzU4AwxzdMRz4hEl/2ABsOkFafDU=;
-        b=MQ9eTwgfhKPWap+CTiMuwuual5qQnFFkODg5wGKKvtAKNcUMsitkeS3Qe4Vf4x2pPa
-         GJ6SW8HnX/v8s76W5xG9FXUUxEsv/2z1jUm6Zyc5q0OPsIOjMshKMVhECJMDvwwpPEFk
-         3AZrDvEhS+TWSXqBqP7R5EQLZH0oBkwyy33VDBTpeUu2MfUai4CX/H7NhOYugeNIY8yz
-         2BvwLb3YqKKqrbCZnPKQ6S/a6W5TFHTVRUC764ZqWxTbPa8JiGNYTz8qQb4ydwVuYG0D
-         zad28eZJk5cWEgZEUihL1NM/QllI7Tiz3W9iky+DFm+v9eaM7cLMYfGbtbCizAvTl8Ih
-         XcBw==
+        bh=Xze907Psa5S/IYsuccVxAJQ0ljBH6WFw3XWFWUMA8Qk=;
+        b=Pb6gLOymF78pcFKu/yTkaCyui64GqS000a7v2BPGC3fhIQaux2tdTv9ksI2vY48enA
+         yRYJvtOorJN4aT7i5Y20mM8mNC33qiSaSRo6+yoyvquoWzPeFfqKS3Sni+YCGhaBaKuk
+         C2ndCa5NZ5mJojRu5Rung9HUMHDa295rWax81DHaD+lJ0iICaOL8VBdiYhvaiuUdltqK
+         74+vykMcryqxBVfLzk6Mb7RQyWKoyQfIIIRQ5mWPR8sk1xEG4mK4nkO1/CycV7D5aGKn
+         LIvVEFvN6XHMkBQ+0al4MBT+/Pmt6Z5UXvTGYpUn1X9BBb5AcpUeEdPG/+8O5/Gyz+kb
+         OIBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755558641; x=1756163441;
+        d=1e100.net; s=20230601; t=1755558643; x=1756163443;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bjzFjLZ/9nuKad8tzU4AwxzdMRz4hEl/2ABsOkFafDU=;
-        b=jbv+HF3JhqIjdVExsKqtHhSRvN71cQ3ojBUXFd+aRynb4hC6U7TFmsncsr1BxU8kJj
-         skoB+lfkwOFl8iGif0g6W59PbR05H2+jFddaa4G8cPJQKl4L4CjpVv5ChqexCG9dH8GZ
-         8pOaWbfWFgmCy6SLXsaBD+s060sR+LG8XGKLerVu/e0viEoTp9l2MvyyFj7HUJKt4vr4
-         hiqQsIm7UEr976qUCcAzUqqXKmWfas1pkKGX8RDYF+gwnkTjIj2XDAAy0FeHGINfLf/s
-         ihozpFlogElEmhxzNpWW4twSxtaaTakBZjAACcKnhFf+FKJZESnqOccvKxpoQo49vYvW
-         9mlw==
-X-Gm-Message-State: AOJu0YwYCwdlRW8tCWWaVRSG5U/LinSv+gRFd/ittN8IfQD1R3rX8ZGa
-	Ly+M+uh8P4/ZCqVH4SFJqVgpCVp4fM8PBKkuEhV1kVWIguCltuCj5fcXFOTrvUJHpLDZVicpc9e
-	rPDLaC5nAng==
-X-Google-Smtp-Source: AGHT+IGZLTz+lqQtSWbfLXXAEC8acdwTT51EP9+iU8mLrGDi0z1WLLK3wDQzAomLi0As6Qv94y0KEgUeoz/L
-X-Received: from iojp6.prod.google.com ([2002:a5d:8d06:0:b0:881:77ef:6edb])
- (user=jdenose job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6602:3fc3:b0:875:d675:55f2
- with SMTP id ca18e2360f4ac-88467ede8f2mr79072139f.7.1755558641274; Mon, 18
- Aug 2025 16:10:41 -0700 (PDT)
-Date: Mon, 18 Aug 2025 23:08:48 +0000
+        bh=Xze907Psa5S/IYsuccVxAJQ0ljBH6WFw3XWFWUMA8Qk=;
+        b=Sn2W+zee/SuKky9rFjIKCiYWnRoa7aM/OBgzI5wgd/0/TD9as3u37sjWmyGw5g6lsj
+         o+nlYAIXontnc8HHAFg/bypDe793ar3WHpt/OlynxNE3tPrvJOrIYRcX6UbCUjzo37oy
+         IJjDaLaLwleYM+kAkHqf6WnW+TEiXEqIMug3QSTFnbuCnvNwg9WK3vP49QX01iXxiRFd
+         saIhiegfUbfPnnEQRC6XO+GIFRvC/lnvdVew9QRU3qxJ1myhpys01M/4M5FBgjAcJgzI
+         5FH5da2FIvk2nwF6YVET35EgfO92VV6w9CTgwf71uyylgnebwbAfOkeO9Y8dF2xe6ivh
+         SNtQ==
+X-Gm-Message-State: AOJu0Yy3d/xB7akwPk1gED5YG+iMlg4zd4MhUvrATO5Dspk1aa7tDWo0
+	VFAXvD/HYb4y8IxyqY58s1w7xg96tx5MV+kW2bryfKMOmlDvEsPwLSz3apR2rLj/TGCjnAlmKgV
+	NqtgV+eTndQ==
+X-Google-Smtp-Source: AGHT+IEae1a+RGpmevjA4aZuqHwjm+8LM/JeSvDhnxxKn/QsDajDWX8k6ANbWJ5eqhAEwHBj0zXnOe75dCaS
+X-Received: from iobjk23.prod.google.com ([2002:a05:6602:7217:b0:881:8ed2:a750])
+ (user=jdenose job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6602:2d8b:b0:87c:1d65:3aeb
+ with SMTP id ca18e2360f4ac-88467e8caa0mr98419439f.2.1755558643163; Mon, 18
+ Aug 2025 16:10:43 -0700 (PDT)
+Date: Mon, 18 Aug 2025 23:08:50 +0000
 In-Reply-To: <20250818-support-forcepads-v3-0-e4f9ab0add84@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250818-support-forcepads-v3-0-e4f9ab0add84@google.com>
 X-Mailer: b4 0.14.2
-Message-ID: <20250818-support-forcepads-v3-7-e4f9ab0add84@google.com>
-Subject: [PATCH v3 07/11] HID: input: calculate resolution for pressure
+Message-ID: <20250818-support-forcepads-v3-9-e4f9ab0add84@google.com>
+Subject: [PATCH v3 09/11] Input: MT - add INPUT_MT_TOTAL_FORCE flags
 From: Jonathan Denose <jdenose@google.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, 
@@ -71,40 +71,70 @@ Content-Type: text/plain; charset="utf-8"
 
 From: Angela Czubak <aczubak@google.com>
 
-Assume that if the pressure is given in newtons it should be normalized
-to grams. If the pressure has no unit do not calculate resolution.
+Add a flag to generate ABS_PRESSURE as sum of ABS_MT_PRESSURE across
+all slots.
+This flag should be set if one knows a device reports true force and would
+like to report total force to the userspace.
 
 Signed-off-by: Angela Czubak <aczubak@google.com>
 Co-developed-by: Jonathan Denose <jdenose@google.com>
 Signed-off-by: Jonathan Denose <jdenose@google.com>
 ---
- drivers/hid/hid-input.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/input-mt.c | 14 ++++++++++----
+ include/linux/input/mt.h |  1 +
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d42c1fbd20a1cc01c04f93cf10f1d1c18043929c..1d59787bd0c0e251698e2a2944dae1c4a96adefe 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -303,6 +303,19 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 		}
- 		break;
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index 337006dd9dcf72ef2eeb8580e4dd83babf8100be..09f518897d4a71a4a7625367dc2c652ee6035d98 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -198,6 +198,7 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+ 	struct input_mt *mt = dev->mt;
+ 	struct input_mt_slot *oldest;
+ 	int oldid, count, i;
++	int p, reported_p = 0;
  
-+	case ABS_PRESSURE:
-+	case ABS_MT_PRESSURE:
-+		if (field->unit == HID_UNIT_NEWTON) {
-+			/* Convert to grams, 1 newton is 101.97 grams */
-+			prev = physical_extents;
-+			physical_extents *= 10197;
-+			if (physical_extents < prev)
-+				return 0;
-+			unit_exponent -= 2;
-+		} else if (field->unit != HID_UNIT_GRAM) {
-+			return 0;
+ 	if (!mt)
+ 		return;
+@@ -216,6 +217,13 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+ 			oldest = ps;
+ 			oldid = id;
+ 		}
++		if (test_bit(ABS_MT_PRESSURE, dev->absbit)) {
++			p = input_mt_get_value(ps, ABS_MT_PRESSURE);
++			if (mt->flags & INPUT_MT_TOTAL_FORCE)
++				reported_p += p;
++			else if (oldid == id)
++				reported_p = p;
 +		}
-+		break;
- 	default:
- 		return 0;
+ 		count++;
  	}
+ 
+@@ -245,10 +253,8 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+ 		input_event(dev, EV_ABS, ABS_X, x);
+ 		input_event(dev, EV_ABS, ABS_Y, y);
+ 
+-		if (test_bit(ABS_MT_PRESSURE, dev->absbit)) {
+-			int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
+-			input_event(dev, EV_ABS, ABS_PRESSURE, p);
+-		}
++		if (test_bit(ABS_MT_PRESSURE, dev->absbit))
++			input_event(dev, EV_ABS, ABS_PRESSURE, reported_p);
+ 	} else {
+ 		if (test_bit(ABS_MT_PRESSURE, dev->absbit))
+ 			input_event(dev, EV_ABS, ABS_PRESSURE, 0);
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index 2cf89a538b18bbc7c99c8705c2d22bdc95065238..d30286298a00a356bc9db954ae362f034cdd359b 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -17,6 +17,7 @@
+ #define INPUT_MT_DROP_UNUSED	0x0004	/* drop contacts not seen in frame */
+ #define INPUT_MT_TRACK		0x0008	/* use in-kernel tracking */
+ #define INPUT_MT_SEMI_MT	0x0010	/* semi-mt device, finger count handled manually */
++#define INPUT_MT_TOTAL_FORCE	0x0020	/* calculate total force from slots pressure */
+ 
+ /**
+  * struct input_mt_slot - represents the state of an input MT slot
 
 -- 
 2.51.0.rc1.193.gad69d77794-goog

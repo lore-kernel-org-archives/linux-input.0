@@ -1,54 +1,54 @@
-Received: from mail-il1-f201.google.com (mail-il1-f201.google.com [209.85.166.201])
+Received: from mail-io1-f74.google.com (mail-io1-f74.google.com [209.85.166.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3642F26FA6F
-	for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 23:10:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDA5A27146F
+	for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 23:10:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755558636; cv=none; b=SCQC+zE24HZWfWRTrsxyqqZScwk8N8FWK7DXAfkdYMis1CqSlPv/soTX3IjkEU16MVna1fGrpByOoR2FZtjO/emj1BIpmUoOxZRqJ/RF9tHCYoWIs87pC3SYi3+K51ZrAtFj/FWTRHScIpw3t2VJGRWACIGz+lSPLba1CgAsFWQ=
+	t=1755558641; cv=none; b=pU1BrJPvBqefIcJxUdqeP8QwnRuo1Rnt1rQAo0zhWEhzCV3CgBVgeb+lROETIVW1CnpPPTTebCNO/VTsPOeOpQYrT5eUEbn76UtaWpOvNs3Y/4jmDq+34rH/Y3xumOWKm0/k/stkXPvnWywMsYIDekuluIBoGARvTIdwRBT7BTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755558636; c=relaxed/simple;
-	bh=fmhEJJJB/E1FFPI5LjG9ozybSomAbkYBLER6Pk9jyms=;
+	s=arc-20240116; t=1755558641; c=relaxed/simple;
+	bh=kyVuZ1ePOiBKb24SnEItkzkqQ35cVznwS9078OsQVq0=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=bHJRBBgMoqH9Hl0/TkFV8alIq6uDKKjjmJOxYxWvkfim8dtcp60Uqr9wy3gRLxKA+M/IuDkIbOxQ/VcJAmrxwF1QWdWIYDiIIATAb9poNk9M/tzRy1GVPm6gSiS1Dc8/OX4+fvmuRFcmNB0e1USjOBT09D+WJsdtE3VVnmxxNv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=H6pnQoVB; arc=none smtp.client-ip=209.85.166.201
+	 To:Cc:Content-Type; b=K5JL4XDh1c48g5sFrnnhTxKTZIM+NaQBqcnp59fyVQAx47wlEY51lCwfg8E2yKCrBkxmxT5n8LBiaen/lRVTgGyu/oTsfH4d4h6oeaugLLFlES7n27ReT1qJo3zu7eFE+z5IWjt+f117yQCNGsKkRqQ9UxvIX4a3H73lXo4QuLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=u3Lzo8WX; arc=none smtp.client-ip=209.85.166.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="H6pnQoVB"
-Received: by mail-il1-f201.google.com with SMTP id e9e14a558f8ab-3e67189ba24so9994265ab.2
-        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 16:10:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="u3Lzo8WX"
+Received: by mail-io1-f74.google.com with SMTP id ca18e2360f4ac-88428cc6d2fso608668039f.1
+        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2025 16:10:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1755558634; x=1756163434; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1755558639; x=1756163439; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=H0QevRU85Pi+9axz8eFxpRKcQRe8ukOlLHQx9hBgz38=;
-        b=H6pnQoVBSjnxDHOw8nUX5IrGcTb67khWH+mXN0py21h+cRLyrLx//f4BOCbEj00O5g
-         7tHDfWumzYoT6SYRxw75nATdGvB5jnY/2YR9UY4ofnYDcdkzeXwrDEOJX7KXCFQps+Ds
-         9GkTxwcDlwdNFQSZaRjFL+FYaO9sTq133m3KmgOolIjCqFmFTdKGUsjK1D+6VKz1FjSA
-         UELLJNDzOd3Jf2Wp3y9H5prYCVNHlIC8v8C9iXfvoI8i0Iaa8nCvZlGs1IDR57ommzpn
-         KTyD+2Dot2X1GZr0K78chufYGyigTTOGekN8qYMXmI0NwBpMm8gvufYXsxkL7PAeomfo
-         Y+TA==
+        bh=tCcFbkxPQyh6tgMC7pg429eb+U79ldGABIAzkJx5VBc=;
+        b=u3Lzo8WXbQo3EYRwCke8IX9fW4gFHt1yCv/HpHqZ3GVaX9CAR5jDhZNLxBzGWhYvEF
+         qWNtHfVGkCTWXaa1z0LywyGKRsH1D9Wgx9SXA0S2HxZ11HrJTKozL2tMyorOxruisXCS
+         qGMlJYxBpohAXrYuXD0faoDn5k8iek9993JBqYFGcYR5h7vEvalPxU1Nzd5PPrbn/MtV
+         yVCX+iOSe7aTtEjV8Yk090r78LXgSobsypYBqymT5TSrZtnDzlVhLdt+U0I6hfEbYpiC
+         F+3OUCKciY3bVaKE8W8q2q8tnKPMW0IKP4Lz5cU/hDV6oqK3StJLOxk8bbB2lfDzKw0x
+         S3yA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755558634; x=1756163434;
+        d=1e100.net; s=20230601; t=1755558639; x=1756163439;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=H0QevRU85Pi+9axz8eFxpRKcQRe8ukOlLHQx9hBgz38=;
-        b=qCz1wjr8b8ypcxn0+DRbe1iaVrg00hjp/lasCgGD4OxIbZnXy5boi5xqS4GhyAQ058
-         fRau6qzTJRs7IA0+JgnUI9HhB0N4saSJrdXzFY6R+d+061awnAP0Yyw2wCZcFl+GL9sT
-         d9jo8pNy0Hg3dyEmw9R1IeqLZvMMn4oRel9cKG79qGTNQvxg/uSNhqX9xZ2OcoxKPWRJ
-         6Pqvd0Umeb2kWOKVpAxso1pXkFKU6ZcmTXkA9IM7ag76PO/ginN71AJHFGEo7tg/eeQ8
-         6S+tmKTKnGInspGAIHhVCXzgqEbi3hxl1jnLGk0nfi7op8orXl6Rq3jq6MtfX2NuPY/A
-         GEsg==
-X-Gm-Message-State: AOJu0YxcusExyt4eCgwfvnAQ4dg9QaomCf6b9FyBIP13bmii3qL/Fo2O
-	C+B1upMRSn4FeIasyXlydtMMjZyv5M47dmIU5NEht5+Ed/nw94aV0FA/dD3rZ33xGrcStXlpPvS
-	zJTLII0FR6A==
-X-Google-Smtp-Source: AGHT+IFCfiADlQxcsJnYSe59mlfocD3gP94iu57cJNx0vOjYhVOrRJWHhrHJK//rZTjPILcmNtM8bbwrPkcR
-X-Received: from jabc24.prod.google.com ([2002:a05:6638:c218:b0:50a:68a6:1578])
- (user=jdenose job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6e02:1a26:b0:3e3:cc1b:2b5e
- with SMTP id e9e14a558f8ab-3e676627764mr9826585ab.15.1755558634367; Mon, 18
- Aug 2025 16:10:34 -0700 (PDT)
-Date: Mon, 18 Aug 2025 23:08:42 +0000
+        bh=tCcFbkxPQyh6tgMC7pg429eb+U79ldGABIAzkJx5VBc=;
+        b=ARwGCmlTE35KQjY85vrn/tbk6nfuFBFYr+qX/vgslcjOkpQZcrLFyD814zBFbtu6F+
+         G15wXzF4tp/E9VB84tyE2qPm2fLiVHkuYQTkPHJWYMtiCZrUCejKzDgnZFiTWIXvubrG
+         FEu3EXQiRC2FfZ76UsU6t84JIMIzYGkp98POlD5XsQxH/hqZrHcUyfhq/MGhH1ocfcm+
+         mdWHKTdLb1yKMKg+N6jBuZVte1NxSG1U0uIJaBPQ3l1IyFDb/aO5NQcH/cyI0zwrzdXC
+         uSt5GmAbC9ltzfNEV8H3rQN/vba1+g95ocnTOdYLabojOXj5jGd8Sz+EyP0sSGLryacJ
+         CloA==
+X-Gm-Message-State: AOJu0YxNgmj1lXe+IhfoRLUM90QhWhTeXZAghINrRKbeSN4u1r8H8dOr
+	ofRNlf3Kc214yubdwlj+XL6/8FoP9ppqRPRfO9LYWlaq0pU7U9iQEb6BxU25gL5fjJqz1Emne6L
+	ROkvFGro4kw==
+X-Google-Smtp-Source: AGHT+IFH4d2TZoQ5zu2dR3bo/GDEtSZKym2ory9RtgV29M5CZHpcDZ6mOgVVAF88TxZXYNhFPp6HjoXISFcs
+X-Received: from jabhb19.prod.google.com ([2002:a05:6638:6c13:b0:4fd:c6b9:3df7])
+ (user=jdenose job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6e02:1d97:b0:3e5:42aa:4c37
+ with SMTP id e9e14a558f8ab-3e676c09cc3mr5883325ab.2.1755558639036; Mon, 18
+ Aug 2025 16:10:39 -0700 (PDT)
+Date: Mon, 18 Aug 2025 23:08:46 +0000
 In-Reply-To: <20250818-support-forcepads-v3-0-e4f9ab0add84@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250818-support-forcepads-v3-0-e4f9ab0add84@google.com>
 X-Mailer: b4 0.14.2
-Message-ID: <20250818-support-forcepads-v3-1-e4f9ab0add84@google.com>
-Subject: [PATCH v3 01/11] HID: add haptics page defines
+Message-ID: <20250818-support-forcepads-v3-5-e4f9ab0add84@google.com>
+Subject: [PATCH v3 05/11] HID: input: allow mapping of haptic output
 From: Jonathan Denose <jdenose@google.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, 
@@ -71,70 +71,33 @@ Content-Type: text/plain; charset="utf-8"
 
 From: Angela Czubak <aczubak@google.com>
 
-Introduce haptic usages as defined in HID Usage Tables specification.
-Add HID units for newton and gram.
+This change makes it possible to parse output reports by input mapping
+functions by HID drivers.
 
 Signed-off-by: Angela Czubak <aczubak@google.com>
 Co-developed-by: Jonathan Denose <jdenose@google.com>
 Signed-off-by: Jonathan Denose <jdenose@google.com>
 ---
- include/linux/hid.h | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/hid/hid-input.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 568a9d8c749bc5547ff78d5abe6db7bce2f62d2b..344ab0e40f29afe55575e5a7544496b7bb48a266 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -156,6 +156,7 @@ struct hid_item {
- #define HID_UP_TELEPHONY	0x000b0000
- #define HID_UP_CONSUMER		0x000c0000
- #define HID_UP_DIGITIZER	0x000d0000
-+#define HID_UP_HAPTIC		0x000e0000
- #define HID_UP_PID		0x000f0000
- #define HID_UP_BATTERY		0x00850000
- #define HID_UP_CAMERA		0x00900000
-@@ -316,6 +317,28 @@ struct hid_item {
- #define HID_DG_TOOLSERIALNUMBER	0x000d005b
- #define HID_DG_LATENCYMODE	0x000d0060
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 9d80635a91ebd8d8bdafaac07b5f85693b179cb4..d42c1fbd20a1cc01c04f93cf10f1d1c18043929c 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -682,9 +682,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	if (field->report_count < 1)
+ 		goto ignore;
  
-+#define HID_HP_SIMPLECONTROLLER	0x000e0001
-+#define HID_HP_WAVEFORMLIST	0x000e0010
-+#define HID_HP_DURATIONLIST	0x000e0011
-+#define HID_HP_AUTOTRIGGER	0x000e0020
-+#define HID_HP_MANUALTRIGGER	0x000e0021
-+#define HID_HP_AUTOTRIGGERASSOCIATEDCONTROL 0x000e0022
-+#define HID_HP_INTENSITY	0x000e0023
-+#define HID_HP_REPEATCOUNT	0x000e0024
-+#define HID_HP_RETRIGGERPERIOD	0x000e0025
-+#define HID_HP_WAVEFORMVENDORPAGE	0x000e0026
-+#define HID_HP_WAVEFORMVENDORID	0x000e0027
-+#define HID_HP_WAVEFORMCUTOFFTIME	0x000e0028
-+#define HID_HP_WAVEFORMNONE	0x000e1001
-+#define HID_HP_WAVEFORMSTOP	0x000e1002
-+#define HID_HP_WAVEFORMCLICK	0x000e1003
-+#define HID_HP_WAVEFORMBUZZCONTINUOUS	0x000e1004
-+#define HID_HP_WAVEFORMRUMBLECONTINUOUS	0x000e1005
-+#define HID_HP_WAVEFORMPRESS	0x000e1006
-+#define HID_HP_WAVEFORMRELEASE	0x000e1007
-+#define HID_HP_VENDORWAVEFORMMIN	0x000e2001
-+#define HID_HP_VENDORWAVEFORMMAX	0x000e2fff
-+
- #define HID_BAT_ABSOLUTESTATEOFCHARGE	0x00850065
- #define HID_BAT_CHARGING		0x00850044
+-	/* only LED usages are supported in output fields */
++	/* only LED and HAPTIC usages are supported in output fields */
+ 	if (field->report_type == HID_OUTPUT_REPORT &&
+-			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED) {
++	    (usage->hid & HID_USAGE_PAGE) != HID_UP_LED &&
++	    (usage->hid & HID_USAGE_PAGE) != HID_UP_HAPTIC) {
+ 		goto ignore;
+ 	}
  
-@@ -423,6 +446,12 @@ struct hid_item {
- #define HID_REPORT_PROTOCOL	1
- #define HID_BOOT_PROTOCOL	0
- 
-+/*
-+ * HID units
-+ */
-+#define HID_UNIT_GRAM		0x0101
-+#define HID_UNIT_NEWTON		0xe111
-+
- /*
-  * This is the global environment of the parser. This information is
-  * persistent for main-items. The global environment can be saved and
 
 -- 
 2.51.0.rc1.193.gad69d77794-goog

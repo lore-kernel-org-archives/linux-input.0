@@ -1,25 +1,25 @@
 Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 564D925E469;
-	Sat, 23 Aug 2025 14:40:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B99261B6C;
+	Sat, 23 Aug 2025 14:40:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755960003; cv=none; b=q55EcqUffsZTFEcl9PEoWNdPmgrw8436NBn/LBDNImq3+xqIr0HWH5lA4YkUuPmLNxoxQYGSqvNnfZ0lvagXVCYHAhrUpV/W922XILGTqo+C96KM+TAFz4v9wxjNlcPXDLPv2RCnJXG2g62PrsMr37A8n1Jf4pEhavGefUfdmM8=
+	t=1755960003; cv=none; b=CdcdRoM9ves7iPWWF9JigS8/2XjHFFLDRcTC9CW+dwPRu4xuSDECYgYQGgdoHpza9hbdBN/rIvmeDwt46piGs7URjX6prSDsg5OL6DKqvAfw1ALlKxtTxp8lVN/fq5ptl6r/mUnBhy9Nti9SL+TlcAMvyzrvdDOFeqBGHs0RYwk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1755960003; c=relaxed/simple;
-	bh=t4PafNcy4c4y1ZS9W00utdfkHpmQRmiBBhLJvz3xluc=;
+	bh=+beTnrHFYYAkbuJ6t6U2fN6G9ThH7Eu8ABD5TMXa9yM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pAT3qP6NkQotHc+4zmzqv6kvl4ToeIx2bP9nW0/PFTXzA2QvP/BqSjzkkPQKseAnAoV/5v8bdqmwhuUzlj9BojWoIaC97PQKcL7Hu2AF5JWrdj6tdpm+rSzV7xEtIfb3YsxFrtynXSuT8Xj1yfoRX9mLASxMdVtTGtMBDJxQFTU=
+	 MIME-Version; b=aieEZSejHezBqNzIdWwdtbpPjskMru+hGodH+B1IL8wsVMpawEVhlQ5forAZoF16nciK93DW8hSXFbklxleXMWVjcu5actjGpHeUiTB1ipXWrute/+QsmDzYhCk1ZaB5wo8ZRRp+rbu2q0+B+EYwzb2ZffO3p2QHhzF6UMoelb4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
 Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEitFV012755;
-	Sat, 23 Aug 2025 14:44:55 GMT
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEiuNq012771;
+	Sat, 23 Aug 2025 14:44:56 GMT
 Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57NEit2H012749;
-	Sat, 23 Aug 2025 14:44:55 GMT
+	by blala.de (8.15.2/8.15.2/Submit) id 57NEiuXF012766;
+	Sat, 23 Aug 2025 14:44:56 GMT
 From: Alexander Kurz <akurz@blala.de>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -31,9 +31,9 @@ To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v2 7/9] ARM: dts: imx: Use fsl,led-control as mc13xxx node name
-Date: Sat, 23 Aug 2025 14:44:39 +0000
-Message-Id: <20250823144441.12654-8-akurz@blala.de>
+Subject: [PATCH v2 9/9] Input: mc13783-pwrbutton: add OF support
+Date: Sat, 23 Aug 2025 14:44:41 +0000
+Message-Id: <20250823144441.12654-10-akurz@blala.de>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20250823144441.12654-1-akurz@blala.de>
 References: <20250823144441.12654-1-akurz@blala.de>
@@ -45,69 +45,146 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-According to fsl,mc13xxx.yaml, the node name for led-control is
-vendor prefixed. Change it accordingly.
+Add OF support for the mc13783-pwrbutton so that it can be used with
+modern DT based systems.
 
 Signed-off-by: Alexander Kurz <akurz@blala.de>
 ---
- arch/arm/boot/dts/nxp/imx/imx27-phytec-phycore-som.dtsi | 2 +-
- arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts            | 2 +-
- arch/arm/boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts       | 2 +-
- arch/arm/boot/dts/nxp/imx/imx51-zii-scu3-esb.dts        | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/misc/mc13783-pwrbutton.c | 94 +++++++++++++++++++++++---
+ 1 file changed, 86 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/nxp/imx/imx27-phytec-phycore-som.dtsi b/arch/arm/boot/dts/nxp/imx/imx27-phytec-phycore-som.dtsi
-index e958d7286ae9..7785eda84a5d 100644
---- a/arch/arm/boot/dts/nxp/imx/imx27-phytec-phycore-som.dtsi
-+++ b/arch/arm/boot/dts/nxp/imx/imx27-phytec-phycore-som.dtsi
-@@ -75,7 +75,7 @@ pmic: mc13783@0 {
- 		pmicleds: leds {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			led-control = <0x001 0x000 0x000 0x000 0x000 0x000>;
-+			fsl,led-control = <0x001 0x000 0x000 0x000 0x000 0x000>;
- 		};
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index c9eea57ceedd..f06d993b231c 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -27,6 +27,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/mc13783.h>
++#include <linux/property.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
  
- 		regulators {
-diff --git a/arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts b/arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts
-index 06545a6052f7..6bc749c70a44 100644
---- a/arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts
-+++ b/arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts
-@@ -396,7 +396,7 @@ vgen3_reg: vgen3 {
- 		leds {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			led-control = <0x0 0x0 0x3f83f8 0x0>;
-+			fsl,led-control = <0x0 0x0 0x3f83f8 0x0>;
+@@ -109,8 +110,82 @@ static irqreturn_t button3_irq(int irq, void *_priv)
+ 	return button_irq(MC13783_IRQ_ONOFD3, _priv);
+ }
  
- 			sysled0@3 {
- 				reg = <3>;
-diff --git a/arch/arm/boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts b/arch/arm/boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts
-index 26eb7a9506e4..1bc78e88d2a9 100644
---- a/arch/arm/boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts
-+++ b/arch/arm/boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts
-@@ -223,7 +223,7 @@ vgen3_reg: vgen3 {
- 		leds {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			led-control = <0x0 0x0 0x3f83f8 0x0>;
-+			fsl,led-control = <0x0 0x0 0x3f83f8 0x0>;
+-static int mc13783_pwrbutton_probe(struct platform_device *pdev)
++#ifdef CONFIG_OF
++static struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
++	struct platform_device *pdev)
+ {
++	struct mc13xxx_buttons_platform_data *pdata;
++	struct fwnode_handle *child;
++	struct device *dev = &pdev->dev;
++	struct mc13xxx_button_devtype *devtype =
++		(struct mc13xxx_button_devtype *)platform_get_device_id(pdev)->driver_data;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++
++	struct fwnode_handle *parent __free(fwnode_handle) =
++		device_get_named_child_node(dev->parent, "buttons");
++	if (!parent)
++		return ERR_PTR(-ENODATA);
++
++	fwnode_for_each_child_node(parent, child) {
++		u32 idx;
++		u8 dbnc = MC13783_BUTTON_DBNC_30MS;
++		u16 dbnc_ms;
++
++		if (fwnode_property_read_u32(child, "reg", &idx))
++			continue;
++
++		if (idx > devtype->button_id_max) {
++			dev_warn(dev, "reg out of range\n");
++			continue;
++		}
++
++		fwnode_property_read_u16(child, "debounce-delay-ms", &dbnc_ms);
++		switch (dbnc_ms) {
++		case 0:
++			dbnc = MC13783_BUTTON_DBNC_0MS;
++			break;
++		case 30:
++			dbnc = MC13783_BUTTON_DBNC_30MS;
++			break;
++		case 150:
++			dbnc = MC13783_BUTTON_DBNC_150MS;
++			break;
++		case 750:
++			dbnc = MC13783_BUTTON_DBNC_750MS;
++			break;
++		default:
++			dev_warn(dev, "invalid debounce-delay-ms value\n");
++			continue;
++		}
++
++		if (fwnode_property_read_u32(child, "linux,code", &pdata->b_on_key[idx]))
++			continue;
++
++		if (fwnode_property_read_bool(child, "active-low"))
++			pdata->b_on_flags[idx] |= MC13783_BUTTON_POL_INVERT;
++
++		if (fwnode_property_read_bool(child, "fsl,enable-reset"))
++			pdata->b_on_flags[idx] |= MC13783_BUTTON_RESET_EN;
++
++		pdata->b_on_flags[idx] |= MC13783_BUTTON_ENABLE | dbnc;
++	}
++
++	return pdata;
++}
++#else
++static inline struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
++	struct platform_device *pdev)
++{
++	return ERR_PTR(-ENODEV);
++}
++#endif
++
++static int __init mc13783_pwrbutton_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
+ 	const struct mc13xxx_buttons_platform_data *pdata;
+ 	struct mc13xxx *mc13783 = dev_get_drvdata(pdev->dev.parent);
+ 	struct mc13xxx_button_devtype *devtype =
+@@ -121,9 +196,13 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 	int reg = 0;
  
- 			sysled3: led3@3 {
- 				reg = <3>;
-diff --git a/arch/arm/boot/dts/nxp/imx/imx51-zii-scu3-esb.dts b/arch/arm/boot/dts/nxp/imx/imx51-zii-scu3-esb.dts
-index 19a3b142c964..a4fbfaf532ed 100644
---- a/arch/arm/boot/dts/nxp/imx/imx51-zii-scu3-esb.dts
-+++ b/arch/arm/boot/dts/nxp/imx/imx51-zii-scu3-esb.dts
-@@ -151,7 +151,7 @@ vgen3_reg: vgen3 {
- 		leds {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			led-control = <0x0 0x0 0x3f83f8 0x0>;
-+			fsl,led-control = <0x0 0x0 0x3f83f8 0x0>;
+ 	pdata = dev_get_platdata(&pdev->dev);
+-	if (!pdata) {
+-		dev_err(&pdev->dev, "missing platform data\n");
+-		return -ENODEV;
++	if (dev->parent->of_node) {
++		pdata = mc13xxx_pwrbutton_probe_dt(pdev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	} else if (!pdata) {
++		dev_err(dev, "missing platform data\n");
++		return -ENODATA;
+ 	}
  
- 			sysled3: led3@3 {
- 				reg = <3>;
+ 	pwr = devm_input_allocate_device(&pdev->dev);
+@@ -290,15 +369,14 @@ static const struct platform_device_id mc13xxx_pwrbutton_idtable[] = {
+ };
+ 
+ static struct platform_driver mc13783_pwrbutton_driver = {
+-	.id_table	= mc13xxx_pwrbutton_idtable,
+-	.probe		= mc13783_pwrbutton_probe,
+-	.remove		= mc13783_pwrbutton_remove,
+ 	.driver		= {
+ 		.name	= "mc13783-pwrbutton",
+ 	},
++	.id_table	= mc13xxx_pwrbutton_idtable,
++	.remove		= mc13783_pwrbutton_remove,
+ };
+ 
+-module_platform_driver(mc13783_pwrbutton_driver);
++module_platform_driver_probe(mc13783_pwrbutton_driver, mc13783_pwrbutton_probe);
+ 
+ MODULE_ALIAS("platform:mc13783-pwrbutton");
+ MODULE_DESCRIPTION("MC13783 Power Button");
 -- 
 2.39.5
 

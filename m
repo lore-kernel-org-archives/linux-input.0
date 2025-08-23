@@ -1,25 +1,25 @@
 Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B99261B6C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B2A261593;
 	Sat, 23 Aug 2025 14:40:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755960003; cv=none; b=CdcdRoM9ves7iPWWF9JigS8/2XjHFFLDRcTC9CW+dwPRu4xuSDECYgYQGgdoHpza9hbdBN/rIvmeDwt46piGs7URjX6prSDsg5OL6DKqvAfw1ALlKxtTxp8lVN/fq5ptl6r/mUnBhy9Nti9SL+TlcAMvyzrvdDOFeqBGHs0RYwk=
+	t=1755960004; cv=none; b=U/ht+k56RZWXz04nhSaD6vObMSUtf+kd1l18YQD3bitvNYJ9fX9HtNkyjFGsnKQhP1sbRqX7o2jbBVrePU+5qZFHoL7nOSDaKmGb7iRZ4Lbj9eCFGtRrSEkv6h7uIRI9CRk2oR7kxwOfHGqjGv4lA3gWOoMPHnbojRBxPAxPKck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755960003; c=relaxed/simple;
-	bh=+beTnrHFYYAkbuJ6t6U2fN6G9ThH7Eu8ABD5TMXa9yM=;
+	s=arc-20240116; t=1755960004; c=relaxed/simple;
+	bh=SIs0aEfoH2C63Ym6kaAngpsMvUJ2pI+AVn8+CC1FV+Q=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aieEZSejHezBqNzIdWwdtbpPjskMru+hGodH+B1IL8wsVMpawEVhlQ5forAZoF16nciK93DW8hSXFbklxleXMWVjcu5actjGpHeUiTB1ipXWrute/+QsmDzYhCk1ZaB5wo8ZRRp+rbu2q0+B+EYwzb2ZffO3p2QHhzF6UMoelb4=
+	 MIME-Version; b=W+Ncz09tILRCLWroX6mbaeWXuIjvFUBKWm3F8P45YVZ/VFoy6vUrR0gFfTRfoo224rxQO04SX5ut+ja+AgAln3g7pFMe5M/YOBlrwn7BcNb6zYlJOuekHfFc3WJqKS/upqtMF/b0SIjUXuxPVNsT8RbLCcWZnXeVyRi7w3/1JmA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
 Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEiuNq012771;
-	Sat, 23 Aug 2025 14:44:56 GMT
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEitBY012739;
+	Sat, 23 Aug 2025 14:44:55 GMT
 Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57NEiuXF012766;
-	Sat, 23 Aug 2025 14:44:56 GMT
+	by blala.de (8.15.2/8.15.2/Submit) id 57NEit1i012734;
+	Sat, 23 Aug 2025 14:44:55 GMT
 From: Alexander Kurz <akurz@blala.de>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -31,9 +31,9 @@ To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v2 9/9] Input: mc13783-pwrbutton: add OF support
-Date: Sat, 23 Aug 2025 14:44:41 +0000
-Message-Id: <20250823144441.12654-10-akurz@blala.de>
+Subject: [PATCH v2 5/9] dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
+Date: Sat, 23 Aug 2025 14:44:37 +0000
+Message-Id: <20250823144441.12654-6-akurz@blala.de>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20250823144441.12654-1-akurz@blala.de>
 References: <20250823144441.12654-1-akurz@blala.de>
@@ -45,146 +45,401 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add OF support for the mc13783-pwrbutton so that it can be used with
-modern DT based systems.
+Convert the txt mc13xxx bindings to DT schema attempting to keep most
+information. The nodes codec and touchscreen are not part of the new
+schema since it was only briefly mentioned before.
+Following the convention, rename led-control to fsl,led-control.
 
 Signed-off-by: Alexander Kurz <akurz@blala.de>
 ---
- drivers/input/misc/mc13783-pwrbutton.c | 94 +++++++++++++++++++++++---
- 1 file changed, 86 insertions(+), 8 deletions(-)
+ .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 214 ++++++++++++++++++
+ .../devicetree/bindings/mfd/mc13xxx.txt       | 156 -------------
+ 2 files changed, 214 insertions(+), 156 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+ delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
 
-diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index c9eea57ceedd..f06d993b231c 100644
---- a/drivers/input/misc/mc13783-pwrbutton.c
-+++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -27,6 +27,7 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/mfd/mc13783.h>
-+#include <linux/property.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- 
-@@ -109,8 +110,82 @@ static irqreturn_t button3_irq(int irq, void *_priv)
- 	return button_irq(MC13783_IRQ_ONOFD3, _priv);
- }
- 
--static int mc13783_pwrbutton_probe(struct platform_device *pdev)
-+#ifdef CONFIG_OF
-+static struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
-+	struct platform_device *pdev)
- {
-+	struct mc13xxx_buttons_platform_data *pdata;
-+	struct fwnode_handle *child;
-+	struct device *dev = &pdev->dev;
-+	struct mc13xxx_button_devtype *devtype =
-+		(struct mc13xxx_button_devtype *)platform_get_device_id(pdev)->driver_data;
+diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+new file mode 100644
+index 000000000000..94e2f6557376
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+@@ -0,0 +1,214 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/fsl,mc13xxx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
++title: Freescale MC13xxx Power Management Integrated Circuits (PMIC)
 +
-+	struct fwnode_handle *parent __free(fwnode_handle) =
-+		device_get_named_child_node(dev->parent, "buttons");
-+	if (!parent)
-+		return ERR_PTR(-ENODATA);
++maintainers:
++  - Alexander Kurz <akurz@blala.de>
 +
-+	fwnode_for_each_child_node(parent, child) {
-+		u32 idx;
-+		u8 dbnc = MC13783_BUTTON_DBNC_30MS;
-+		u16 dbnc_ms;
++description:
++  The MC13xxx PMIC series consists of the three models MC13783, MC13892
++  and MC34708 and provide regulators and other features like RTC, ADC,
++  LED, touchscreen, codec and input buttons.
 +
-+		if (fwnode_property_read_u32(child, "reg", &idx))
-+			continue;
++  Link to datasheets
++    https://www.nxp.com/docs/en/data-sheet/MC13783.pdf
++    https://www.nxp.com/docs/en/data-sheet/MC13892.pdf
++    https://www.nxp.com/docs/en/data-sheet/MC34708.pdf
 +
-+		if (idx > devtype->button_id_max) {
-+			dev_warn(dev, "reg out of range\n");
-+			continue;
-+		}
++properties:
++  compatible:
++    enum:
++      - fsl,mc13783
++      - fsl,mc13892
++      - fsl,mc34708
 +
-+		fwnode_property_read_u16(child, "debounce-delay-ms", &dbnc_ms);
-+		switch (dbnc_ms) {
-+		case 0:
-+			dbnc = MC13783_BUTTON_DBNC_0MS;
-+			break;
-+		case 30:
-+			dbnc = MC13783_BUTTON_DBNC_30MS;
-+			break;
-+		case 150:
-+			dbnc = MC13783_BUTTON_DBNC_150MS;
-+			break;
-+		case 750:
-+			dbnc = MC13783_BUTTON_DBNC_750MS;
-+			break;
-+		default:
-+			dev_warn(dev, "invalid debounce-delay-ms value\n");
-+			continue;
-+		}
++  reg:
++    description: I2C slave address or SPI chip select number.
++    maxItems: 1
 +
-+		if (fwnode_property_read_u32(child, "linux,code", &pdata->b_on_key[idx]))
-+			continue;
++  spi-max-frequency: true
 +
-+		if (fwnode_property_read_bool(child, "active-low"))
-+			pdata->b_on_flags[idx] |= MC13783_BUTTON_POL_INVERT;
++  spi-cs-high: true
 +
-+		if (fwnode_property_read_bool(child, "fsl,enable-reset"))
-+			pdata->b_on_flags[idx] |= MC13783_BUTTON_RESET_EN;
++  system-power-controller: true
 +
-+		pdata->b_on_flags[idx] |= MC13783_BUTTON_ENABLE | dbnc;
-+	}
++  interrupts:
++    maxItems: 1
 +
-+	return pdata;
-+}
-+#else
-+static inline struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
-+	struct platform_device *pdev)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
-+#endif
++  leds:
++    type: object
++    $ref: /schemas/leds/common.yaml#
++    description: |
++      Leds
++    properties:
++      reg:
++        description: |
++          One of
++          MC13783 LED IDs
++            0: Main display
++            1: AUX display
++            2: Keypad
++            3: Red 1
++            4: Green 1
++            5: Blue 1
++            6: Red 2
++            7: Green 2
++            8: Blue 2
++            9: Red 3
++            10: Green 3
++            11: Blue 3
++          MC13892 LED IDs
++            0: Main display
++            1: AUX display
++            2: Keypad
++            3: Red
++            4: Green
++            5: Blue
++          MC34708 LED IDs
++            0: Charger Red
++            1: Charger Green
++        maxItems: 1
++      fsl,led-control:
++        $ref: /schemas/types.yaml#/definitions/uint32-array
++        description: |
++          Setting for LED-Control register array length depends on model,
++          mc13783: 6, mc13892: 4, mc34708: 1
 +
-+static int __init mc13783_pwrbutton_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
- 	const struct mc13xxx_buttons_platform_data *pdata;
- 	struct mc13xxx *mc13783 = dev_get_drvdata(pdev->dev.parent);
- 	struct mc13xxx_button_devtype *devtype =
-@@ -121,9 +196,13 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 	int reg = 0;
- 
- 	pdata = dev_get_platdata(&pdev->dev);
--	if (!pdata) {
--		dev_err(&pdev->dev, "missing platform data\n");
--		return -ENODEV;
-+	if (dev->parent->of_node) {
-+		pdata = mc13xxx_pwrbutton_probe_dt(pdev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+	} else if (!pdata) {
-+		dev_err(dev, "missing platform data\n");
-+		return -ENODATA;
- 	}
- 
- 	pwr = devm_input_allocate_device(&pdev->dev);
-@@ -290,15 +369,14 @@ static const struct platform_device_id mc13xxx_pwrbutton_idtable[] = {
- };
- 
- static struct platform_driver mc13783_pwrbutton_driver = {
--	.id_table	= mc13xxx_pwrbutton_idtable,
--	.probe		= mc13783_pwrbutton_probe,
--	.remove		= mc13783_pwrbutton_remove,
- 	.driver		= {
- 		.name	= "mc13783-pwrbutton",
- 	},
-+	.id_table	= mc13xxx_pwrbutton_idtable,
-+	.remove		= mc13783_pwrbutton_remove,
- };
- 
--module_platform_driver(mc13783_pwrbutton_driver);
-+module_platform_driver_probe(mc13783_pwrbutton_driver, mc13783_pwrbutton_probe);
- 
- MODULE_ALIAS("platform:mc13783-pwrbutton");
- MODULE_DESCRIPTION("MC13783 Power Button");
++  regulators:
++    type: object
++    $ref: /schemas/regulator/regulator.yaml#
++    description: |
++      List of child nodes specifying the regulators, depending on chip variant:
++      * MC13783: gpo[1-4], pwgt[12]spi, sw[12][ab], sw3, vaudio, vcam, vdig,
++      vesim, vgen, viohi, violo, vmmc[12], vrf[12], vrfbg, vrfcp, vrfdig,
++      vrfref, vsim and vvib.
++      * MC13892: gpo[1-4], pwgt[12]spi, sw[1-4], swbst, vaudio, vcam, vcoincell,
++      vdig, vgen[1-3], viohi, vpll, vsd, vusb, vusb2, vvideo.
++      Each child node is defined using the standard binding for regulators and
++      the optional regulator properties defined below.
++
++  fsl,mc13xxx-uses-adc:
++    type: boolean
++    description: Indicate the ADC is being used
++
++  fsl,mc13xxx-uses-codec:
++    type: boolean
++    description: Indicate the Audio Codec is being used
++
++  fsl,mc13xxx-uses-rtc:
++    type: boolean
++    description: Indicate the RTC is being used
++
++  fsl,mc13xxx-uses-touch:
++    type: boolean
++    description: Indicate the touchscreen controller is being used
++
++required:
++  - compatible
++  - reg
++
++allOf:
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,mc13783
++    then:
++      properties:
++        leds:
++          properties:
++            fsl,led-control:
++              minItems: 6
++              maxItems: 6
++        regulators:
++          patternProperties:
++            "^gpo[1-4]|pwgt[12]spi|sw[12][ab]|sw3|vaudio|vcam|vdig|vesim|vgen|viohi|violo|vmmc[12]|vrf[12]|vrfbg|vrfcp|vrfdig|vrfref|vsim|vvib$":
++              type: object
++              $ref: /schemas/regulator/regulator.yaml#
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,mc13892
++    then:
++      properties:
++        leds:
++          properties:
++            fsl,led-control:
++              minItems: 4
++              maxItems: 4
++        regulators:
++          patternProperties:
++            "^gpo[1-4]|pwgt[12]spi|sw[1-4]|swbst|vaudio|vcam|vcoincell|vdig|vgen[1-3]|viohi|vpll|vsd|vusb|vusb2|vvideo$":
++              type: object
++              $ref: /schemas/regulator/regulator.yaml#
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: fsl,mc34708
++    then:
++      properties:
++        leds:
++          properties:
++            fsl,led-control:
++              minItems: 1
++              maxItems: 1
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/leds/common.h>
++
++    spi {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        pmic: mc13892@0 {
++            compatible = "fsl,mc13892";
++            reg = <0>;
++            spi-max-frequency = <1000000>;
++            spi-cs-high;
++            interrupt-parent = <&gpio0>;
++            interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
++            fsl,mc13xxx-uses-rtc;
++            fsl,mc13xxx-uses-adc;
++
++            leds {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                fsl,led-control = <0x000 0x000 0x0e0 0x000>;
++
++                sysled@3 {
++                    reg = <3>;
++                    label = "system:red:live";
++                    linux,default-trigger = "heartbeat";
++                };
++            };
++
++            regulators {
++                sw1_reg: sw1 {
++                    regulator-min-microvolt = <600000>;
++                    regulator-max-microvolt = <1375000>;
++                    regulator-boot-on;
++                    regulator-always-on;
++                };
++
++                sw2_reg: sw2 {
++                    regulator-min-microvolt = <900000>;
++                    regulator-max-microvolt = <1850000>;
++                    regulator-boot-on;
++                    regulator-always-on;
++                };
++            };
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
+deleted file mode 100644
+index 8261ea73278a..000000000000
+--- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
++++ /dev/null
+@@ -1,156 +0,0 @@
+-* Freescale MC13783/MC13892 Power Management Integrated Circuit (PMIC)
+-
+-Required properties:
+-- compatible : Should be "fsl,mc13783" or "fsl,mc13892"
+-
+-Optional properties:
+-- fsl,mc13xxx-uses-adc : Indicate the ADC is being used
+-- fsl,mc13xxx-uses-codec : Indicate the Audio Codec is being used
+-- fsl,mc13xxx-uses-rtc : Indicate the RTC is being used
+-- fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being used
+-
+-Sub-nodes:
+-- codec: Contain the Audio Codec node.
+-  - adc-port: Contain PMIC SSI port number used for ADC.
+-  - dac-port: Contain PMIC SSI port number used for DAC.
+-- leds : Contain the led nodes and initial register values in property
+-  "led-control". Number of register depends of used IC, for MC13783 is 6,
+-  for MC13892 is 4, for MC34708 is 1. See datasheet for bits definitions of
+-  these registers.
+-  - #address-cells: Must be 1.
+-  - #size-cells: Must be 0.
+-  Each led node should contain "reg", which used as LED ID (described below).
+-  Optional properties "label" and "linux,default-trigger" is described in
+-  Documentation/devicetree/bindings/leds/common.txt.
+-- regulators : Contain the regulator nodes. The regulators are bound using
+-  their names as listed below with their registers and bits for enabling.
+-
+-MC13783 LED IDs:
+-    0  : Main display
+-    1  : AUX display
+-    2  : Keypad
+-    3  : Red 1
+-    4  : Green 1
+-    5  : Blue 1
+-    6  : Red 2
+-    7  : Green 2
+-    8  : Blue 2
+-    9  : Red 3
+-    10 : Green 3
+-    11 : Blue 3
+-
+-MC13892 LED IDs:
+-    0  : Main display
+-    1  : AUX display
+-    2  : Keypad
+-    3  : Red
+-    4  : Green
+-    5  : Blue
+-
+-MC34708 LED IDs:
+-    0  : Charger Red
+-    1  : Charger Green
+-
+-MC13783 regulators:
+-    sw1a      : regulator SW1A      (register 24, bit 0)
+-    sw1b      : regulator SW1B      (register 25, bit 0)
+-    sw2a      : regulator SW2A      (register 26, bit 0)
+-    sw2b      : regulator SW2B      (register 27, bit 0)
+-    sw3       : regulator SW3       (register 29, bit 20)
+-    vaudio    : regulator VAUDIO    (register 32, bit 0)
+-    viohi     : regulator VIOHI     (register 32, bit 3)
+-    violo     : regulator VIOLO     (register 32, bit 6)
+-    vdig      : regulator VDIG      (register 32, bit 9)
+-    vgen      : regulator VGEN      (register 32, bit 12)
+-    vrfdig    : regulator VRFDIG    (register 32, bit 15)
+-    vrfref    : regulator VRFREF    (register 32, bit 18)
+-    vrfcp     : regulator VRFCP     (register 32, bit 21)
+-    vsim      : regulator VSIM      (register 33, bit 0)
+-    vesim     : regulator VESIM     (register 33, bit 3)
+-    vcam      : regulator VCAM      (register 33, bit 6)
+-    vrfbg     : regulator VRFBG     (register 33, bit 9)
+-    vvib      : regulator VVIB      (register 33, bit 11)
+-    vrf1      : regulator VRF1      (register 33, bit 12)
+-    vrf2      : regulator VRF2      (register 33, bit 15)
+-    vmmc1     : regulator VMMC1     (register 33, bit 18)
+-    vmmc2     : regulator VMMC2     (register 33, bit 21)
+-    gpo1      : regulator GPO1      (register 34, bit 6)
+-    gpo2      : regulator GPO2      (register 34, bit 8)
+-    gpo3      : regulator GPO3      (register 34, bit 10)
+-    gpo4      : regulator GPO4      (register 34, bit 12)
+-    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
+-    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
+-
+-MC13892 regulators:
+-    vcoincell : regulator VCOINCELL (register 13, bit 23)
+-    sw1       : regulator SW1	    (register 24, bit 0)
+-    sw2       : regulator SW2	    (register 25, bit 0)
+-    sw3       : regulator SW3	    (register 26, bit 0)
+-    sw4       : regulator SW4	    (register 27, bit 0)
+-    swbst     : regulator SWBST	    (register 29, bit 20)
+-    vgen1     : regulator VGEN1	    (register 32, bit 0)
+-    viohi     : regulator VIOHI	    (register 32, bit 3)
+-    vdig      : regulator VDIG	    (register 32, bit 9)
+-    vgen2     : regulator VGEN2	    (register 32, bit 12)
+-    vpll      : regulator VPLL	    (register 32, bit 15)
+-    vusb2     : regulator VUSB2	    (register 32, bit 18)
+-    vgen3     : regulator VGEN3	    (register 33, bit 0)
+-    vcam      : regulator VCAM	    (register 33, bit 6)
+-    vvideo    : regulator VVIDEO    (register 33, bit 12)
+-    vaudio    : regulator VAUDIO    (register 33, bit 15)
+-    vsd       : regulator VSD	    (register 33, bit 18)
+-    gpo1      : regulator GPO1	    (register 34, bit 6)
+-    gpo2      : regulator GPO2	    (register 34, bit 8)
+-    gpo3      : regulator GPO3	    (register 34, bit 10)
+-    gpo4      : regulator GPO4	    (register 34, bit 12)
+-    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
+-    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
+-    vusb      : regulator VUSB	    (register 50, bit 3)
+-
+-  The bindings details of individual regulator device can be found in:
+-  Documentation/devicetree/bindings/regulator/regulator.txt
+-
+-Examples:
+-
+-ecspi@70010000 { /* ECSPI1 */
+-	cs-gpios = <&gpio4 24 0>, /* GPIO4_24 */
+-		   <&gpio4 25 0>; /* GPIO4_25 */
+-
+-	pmic: mc13892@0 {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		compatible = "fsl,mc13892";
+-		spi-max-frequency = <6000000>;
+-		reg = <0>;
+-		interrupt-parent = <&gpio0>;
+-		interrupts = <8>;
+-
+-		leds {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			led-control = <0x000 0x000 0x0e0 0x000>;
+-
+-			sysled@3 {
+-				reg = <3>;
+-				label = "system:red:live";
+-				linux,default-trigger = "heartbeat";
+-			};
+-		};
+-
+-		regulators {
+-			sw1_reg: mc13892__sw1 {
+-				regulator-min-microvolt = <600000>;
+-				regulator-max-microvolt = <1375000>;
+-				regulator-boot-on;
+-				regulator-always-on;
+-			};
+-
+-			sw2_reg: mc13892__sw2 {
+-				regulator-min-microvolt = <900000>;
+-				regulator-max-microvolt = <1850000>;
+-				regulator-boot-on;
+-				regulator-always-on;
+-			};
+-		};
+-	};
+-};
 -- 
 2.39.5
 

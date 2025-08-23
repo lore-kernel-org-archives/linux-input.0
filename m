@@ -1,24 +1,25 @@
 Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 838A81E9B37;
-	Sat, 23 Aug 2025 14:39:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 565F725E80B;
+	Sat, 23 Aug 2025 14:40:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755960001; cv=none; b=hJ/dAdsVvdriaYwS67cFyzwWUXM4fScA/+1wXqxuVJiaa7H+6+qmrDNAudnc3PGBApKbHQeR0pP0o7f78HKPSxSRyNg26Sroayq+/TFA5FQQNNR1JwddG6X5BE/JHTas+utEh8/qPQdKYPPEetQW4+27HZYBkigDt8Wo+2FS5tM=
+	t=1755960002; cv=none; b=sWrOP08Vd61eevJ3GsrjNTneEERDhJTrfhljxgtiXeALJgQgo2LtVXRMO4DedRMDk4EYHZ6gsdJ/mSn1dGiCTj92lv07kqvaxBFNqRC7a8BH2jDXBFpCySgH4gVd/ri27k21d3ckxTsgBYOhKLAH2PQRCkAWYaT+I/4MHR35ZDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755960001; c=relaxed/simple;
-	bh=n4sdfey+tTi2oj/zLd0U8WbAxCvs6PmVfQkn7X3MUD0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=iC8EXxNG+etXGUsz790Gm4xM3S/kX9LZ0fvmz0Zes+iM2to1Ag2PQGfwzsMcbkt7pLfGd6uBnDYXX4dxspp9IM2jEYol050QxBn3QRt7hdMWT6XH/IRlxMX5VpgjjS0Bj+9dBpcykfy9fN0OJWdeWHXBPfHFBeKNRzVQARKpEcs=
+	s=arc-20240116; t=1755960002; c=relaxed/simple;
+	bh=0+IqykIZ5TbtogQ0NeEszQ9meNkcBVCBP7kmsiruBfc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=OP0RTu0wGQSv2mPKA/9aE2e4Jqw425EIHd8G1j5ZzKdFqGLmA5kXfNKskzI7Jui1Jy9DgdfwN48SIMvwlP3RF46yUQQ40mU6o2T3hDu2ruLeZTxwKe91uqeG0aBwZcoKB5RU+uzMRnAG4sUZbjJjq8ihfoRqgOOw6ypx0ElHlMo=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
 Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEito4012699;
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEit8M012763;
 	Sat, 23 Aug 2025 14:44:55 GMT
 Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57NEishN012698;
-	Sat, 23 Aug 2025 14:44:54 GMT
+	by blala.de (8.15.2/8.15.2/Submit) id 57NEitrp012758;
+	Sat, 23 Aug 2025 14:44:55 GMT
 From: Alexander Kurz <akurz@blala.de>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -30,10 +31,12 @@ To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v2 0/9] Fix, extend and support OF to mc13xxx pwrbutton
-Date: Sat, 23 Aug 2025 14:44:32 +0000
-Message-Id: <20250823144441.12654-1-akurz@blala.de>
+Subject: [PATCH v2 8/9] leds: mc13783: use fsl,led-control as node name
+Date: Sat, 23 Aug 2025 14:44:40 +0000
+Message-Id: <20250823144441.12654-9-akurz@blala.de>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20250823144441.12654-1-akurz@blala.de>
+References: <20250823144441.12654-1-akurz@blala.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,55 +45,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Goal of this patch series is to make the mc13892 PWRON1 button usable,
-found e.g. on amazon kindle D01100/D01200 readers.
-A ten-year-old IRQ issue needed a fix, mc13783-pwrbutton had to be
-extended to the other to mc13xxx PMIC as well (keeping the mc13892
-PWRON3 key unsupported for simplicity) and adding OF support.
-The implementation has been tested on amazon kindle D01100 and D01200
-readers using PWRON1 of a mc13892.
+According to fsl,mc13xxx.yaml, the node name for led-control is
+vendor prefixed. Change it accordingly.
 
-V2:
-- Convert dt-bindings from txt to fsl,mc13xxx.yaml and add vendor prefix
-  to led-control property, causing changes in dts and driver.
-- Change node name from pwrbuttons to buttons
-- Change property debounce-delay-value to debounce-delay-ms
-- Fixed a section mismatch error
-- Fixed https://lore.kernel.org/r/202508210551.VzAtE5re-lkp@intel.com/
-  (wrong index used when converting to array access)
-- Usage of generic device properties API in mc13783-pwrbutton.c
-- Provide chip-specific max button id via platform_device_id, therefore
-  swap patches 3 and 4.
+Signed-off-by: Alexander Kurz <akurz@blala.de>
+---
+ drivers/leds/leds-mc13783.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks in advance for the review effords,
-Cheers, Alexnder
-
-Alexander Kurz (9):
-  Input: mc13783-pwrbutton: fix irq mixup
-  Input: mc13783-pwrbutton: use managed resources
-  Input: mc13783-pwrbutton: convert pdata members to array
-  Input: mc13783-pwrbutton: enable other mc13xxx PMIC
-  dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
-  dt-bindings: mfd: fsl,mc13xxx: add buttons node
-  ARM: dts: imx: Use fsl,led-control as mc13xxx node name
-  leds: mc13783: use fsl,led-control as node name
-  Input: mc13783-pwrbutton: add OF support
-
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 272 ++++++++++++++++++
- .../devicetree/bindings/mfd/mc13xxx.txt       | 156 ----------
- .../dts/nxp/imx/imx27-phytec-phycore-som.dtsi |   2 +-
- arch/arm/boot/dts/nxp/imx/imx51-zii-rdu1.dts  |   2 +-
- .../boot/dts/nxp/imx/imx51-zii-scu2-mezz.dts  |   2 +-
- .../boot/dts/nxp/imx/imx51-zii-scu3-esb.dts   |   2 +-
- drivers/input/misc/Kconfig                    |   4 +-
- drivers/input/misc/mc13783-pwrbutton.c        | 235 +++++++++++----
- drivers/leds/leds-mc13783.c                   |   2 +-
- include/linux/mfd/mc13783.h                   |   4 +-
- include/linux/mfd/mc13xxx.h                   |  10 +-
- 11 files changed, 461 insertions(+), 230 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
-
+diff --git a/drivers/leds/leds-mc13783.c b/drivers/leds/leds-mc13783.c
+index e22f09d13798..11add1fd24ce 100644
+--- a/drivers/leds/leds-mc13783.c
++++ b/drivers/leds/leds-mc13783.c
+@@ -127,7 +127,7 @@ static struct mc13xxx_leds_platform_data __init *mc13xxx_led_probe_dt(
+ 	if (!parent)
+ 		return ERR_PTR(-ENODATA);
+ 
+-	ret = of_property_read_u32_array(parent, "led-control",
++	ret = of_property_read_u32_array(parent, "fsl,led-control",
+ 					 pdata->led_control,
+ 					 leds->devtype->num_regs);
+ 	if (ret)
 -- 
 2.39.5
 

@@ -1,445 +1,142 @@
-Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B2A261593;
-	Sat, 23 Aug 2025 14:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7108014A62B
+	for <linux-input@vger.kernel.org>; Sat, 23 Aug 2025 19:45:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755960004; cv=none; b=U/ht+k56RZWXz04nhSaD6vObMSUtf+kd1l18YQD3bitvNYJ9fX9HtNkyjFGsnKQhP1sbRqX7o2jbBVrePU+5qZFHoL7nOSDaKmGb7iRZ4Lbj9eCFGtRrSEkv6h7uIRI9CRk2oR7kxwOfHGqjGv4lA3gWOoMPHnbojRBxPAxPKck=
+	t=1755978329; cv=none; b=ZUYZdb86Zrma0a0P9gYuDOuwfGvWtifZ6e6sgpMeW8SgiM1HS0GoYfDz+KlZlse4rzB6JNkCIdO2Uvm1q+Lmo0eZ8uV765jtyWN9jsg5HxIGftPZKN95GrNeHy8RjfdyhTEKoGmJRGO9M17ESat+xwWFg6Ljk3WvGXwWDYW3xsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755960004; c=relaxed/simple;
-	bh=SIs0aEfoH2C63Ym6kaAngpsMvUJ2pI+AVn8+CC1FV+Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=W+Ncz09tILRCLWroX6mbaeWXuIjvFUBKWm3F8P45YVZ/VFoy6vUrR0gFfTRfoo224rxQO04SX5ut+ja+AgAln3g7pFMe5M/YOBlrwn7BcNb6zYlJOuekHfFc3WJqKS/upqtMF/b0SIjUXuxPVNsT8RbLCcWZnXeVyRi7w3/1JmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
-Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57NEitBY012739;
-	Sat, 23 Aug 2025 14:44:55 GMT
-Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57NEit1i012734;
-	Sat, 23 Aug 2025 14:44:55 GMT
-From: Alexander Kurz <akurz@blala.de>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dzmitry Sankouski <dsankouski@gmail.com>,
-        "Dr. David Alan Gilbert" <linux@treblig.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v2 5/9] dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
-Date: Sat, 23 Aug 2025 14:44:37 +0000
-Message-Id: <20250823144441.12654-6-akurz@blala.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20250823144441.12654-1-akurz@blala.de>
-References: <20250823144441.12654-1-akurz@blala.de>
+	s=arc-20240116; t=1755978329; c=relaxed/simple;
+	bh=X32LFm7fLA9TbCWBKwozId0Upz2Om58TODsWHfcUbI0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=O+uATLpwHwqvSLm2LK0lMgJduB+wOH/CPitt0pgbv5fZf9iGLlhZl14UqYmWlryzKdQ2RD8mX3dkHVCpxYYW/hEojobnjP7Gr8djPsOfpcy6aJIfwQqrbFHwoCKGgy29S6zWFO9WZwEmRLgAwVnu4r5ORJXVTxdy8WiyenbvC/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NYPncCI0; arc=none smtp.client-ip=209.85.218.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NYPncCI0"
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-afe6a3ba50aso194766b.1
+        for <linux-input@vger.kernel.org>; Sat, 23 Aug 2025 12:45:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1755978323; x=1756583123; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=vNbbB7IIyEBwHUPySIjl5TTKLDxu/ScAvbSjfAi8CT4=;
+        b=NYPncCI02N/EWniRprFsmYsCbRq6mNfaIx/usmQyOpBHMCy35osXJCv992XIrFk0ic
+         XXNLPwkScxM7JpXGq79XsW2in1REorHmvvqLZTypAcP+f7/eubmnNxFLkLJNh+E68gIg
+         weKjuX3UyTKtVWIdNxc958Af6ULPiQ7kimmbHIBYQ+xHQFFkRSzJ7jp7jLJuwt0XOsFK
+         bqS+3sXlO2Wso1VpwhN+SEftbXijshyIxoX9OACbJDtT405L4DiwxkH9ozOkrKDql9Eq
+         XPvkCM43fX15GKfvQEF05Tti+w/ly6/zGkO2Z8X1Yo6r9+TZIhYqb4efOdXb7q3nJn9W
+         Dmug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755978323; x=1756583123;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vNbbB7IIyEBwHUPySIjl5TTKLDxu/ScAvbSjfAi8CT4=;
+        b=YWCTTX0eDS6FEmduZJTonP4mCGcp0Tx61OIz3qs+qp5hr58Z7xT5ZyIftR9G3OqrZv
+         S5QtHe7BGUO02SYnrC75u6e9iWccYcqahHBWc4Lyv/rO7kNk8VcC+1GAqJWuoyY3XBEd
+         sSFl9C+KWWB95WUPuuUVNPbr349GOPyuYsuIM6Fq/XMtV4sXNuQz8gpg/425/SVniDD/
+         N70ZbvHpuKGc56rEhRLKSAhzR9lvEW+fLcVJI2qCEXV8Wxnye9FWj72Cz4qJa95UevL/
+         ltDjuUq3C5yALPTQ1RybrO3oYkgH3eZRui37oR7Y89m3JBeq2EfdqjFcH5gJ9Mh9TN9S
+         4G3w==
+X-Forwarded-Encrypted: i=1; AJvYcCV71uCw5IfIfhVJNcA/+unuEo+4EgefOvp6WDtj79w+Z7m46FhVwy9SJB4cMHWp0wwbxYmeHYrkAE60zg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwXVMZ4dKb14iJFMI6JnvURbOkUyvAkEl2Mrl9SpKup4AMovtg6
+	t5L2P0Q+my/eT4A5/DVs/2psDJYWUEYnXoPjfu7g0W+aZeOgnuqf6l3Z
+X-Gm-Gg: ASbGncum438DKevq5MMod6pDcp78EC+NH6tZ7HpLuwYW44K3/ejtPiA0vAdMD1wwQ0R
+	P+KEhj2YxZWBPTDbUtYMOUhcAMGGNiqVnDiVBSNntPZOn5Hv3lYKFpiN9tLTLTwuLvR9IRXdlXY
+	51kXwHDHynNuD9aMRSnlujFwiYs/9ftxXlrz4H5C8HDQO1Uj8lMQgmluw79QOAgaJmLWIxBRv9S
+	+aT/UEav1eMtXHY6hBOznf50ekygY6nnwgucFpqodHmHe/1QXWrdtKA0aoz7jrsuHTJGOMGxHT0
+	erwRV2JAX0OR8q6ixzpz9WxmOIf/mHgwtk574PlKjDxZCAqW0TMVXtUa9QCuybmyweMnfUfEW32
+	bs3o634sUkR+YRVXCmrZKZ54ZZtmb84AoWTyxhPjE/ZPecuXIyU2tClT+2ot7iL3ZOsTZOuimQf
+	yl
+X-Google-Smtp-Source: AGHT+IFfAqaucWVVRH5E/5e+HQxgeMAhtwWzxtYUZR/LyElJDWpg7o9LTkaNyKHeKBj3muXBVlDV4A==
+X-Received: by 2002:a17:907:6094:b0:af8:fc60:5008 with SMTP id a640c23a62f3a-afe28f09244mr330099466b.4.1755978322417;
+        Sat, 23 Aug 2025 12:45:22 -0700 (PDT)
+Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-afe48e897d0sm226791366b.16.2025.08.23.12.45.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 Aug 2025 12:45:22 -0700 (PDT)
+From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: oleg@makarenk.ooo,
+	linux-input@vger.kernel.org,
+	dan.carpenter@linaro.org
+Subject: [PATCH] HID: pidff: Fix possible null pointer dereference
+Date: Sat, 23 Aug 2025 21:45:16 +0200
+Message-ID: <20250823194516.2425885-1-tomasz.pakula.oficjalny@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Convert the txt mc13xxx bindings to DT schema attempting to keep most
-information. The nodes codec and touchscreen are not part of the new
-schema since it was only briefly mentioned before.
-Following the convention, rename led-control to fsl,led-control.
+As reported by Dan Carpenter, if the axes_enable field wasn't found,
+trying to find the axes themselves will result in a null pointer
+dereference. This could only occur with a broken PID descriptor, but
+it's worth protecting from.
 
-Signed-off-by: Alexander Kurz <akurz@blala.de>
+Exit early if the axes_enable wasn't found AND add a gate to the
+pidff_find_special_keys to exit early if the passed HID field is null.
+This will protect again null dereferencing in the future and properly
+return 0 found special keys.
+
+Fixes:
+Commit 1d72e7bd340b ("HID: pidff: Add support for AXES_ENABLE field")
+Made on top of for-6.18/pidff
+
+Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 214 ++++++++++++++++++
- .../devicetree/bindings/mfd/mc13xxx.txt       | 156 -------------
- 2 files changed, 214 insertions(+), 156 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
+ drivers/hid/usbhid/hid-pidff.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
-new file mode 100644
-index 000000000000..94e2f6557376
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
-@@ -0,0 +1,214 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/fsl,mc13xxx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 0342c0a3f476..edd61ef50e16 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -1194,6 +1194,9 @@ static int pidff_find_special_keys(int *keys, struct hid_field *fld,
+ {
+ 	int found = 0;
+ 
++	if (!fld)
++		return 0;
 +
-+title: Freescale MC13xxx Power Management Integrated Circuits (PMIC)
+ 	for (int i = 0; i < count; i++) {
+ 		keys[i] = pidff_find_usage(fld, usage_page | usagetable[i]) + 1;
+ 		if (keys[i])
+@@ -1299,11 +1302,13 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
+ 		return -1;
+ 	}
+ 
+-	if (!pidff->axes_enable)
++	if (!pidff->axes_enable) {
+ 		hid_info(pidff->hid, "axes enable field not found!\n");
+-	else
+-		hid_dbg(pidff->hid, "axes enable report count: %u\n",
+-			pidff->axes_enable->report_count);
++		return 0;
++	}
 +
-+maintainers:
-+  - Alexander Kurz <akurz@blala.de>
-+
-+description:
-+  The MC13xxx PMIC series consists of the three models MC13783, MC13892
-+  and MC34708 and provide regulators and other features like RTC, ADC,
-+  LED, touchscreen, codec and input buttons.
-+
-+  Link to datasheets
-+    https://www.nxp.com/docs/en/data-sheet/MC13783.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC13892.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC34708.pdf
-+
-+properties:
-+  compatible:
-+    enum:
-+      - fsl,mc13783
-+      - fsl,mc13892
-+      - fsl,mc34708
-+
-+  reg:
-+    description: I2C slave address or SPI chip select number.
-+    maxItems: 1
-+
-+  spi-max-frequency: true
-+
-+  spi-cs-high: true
-+
-+  system-power-controller: true
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  leds:
-+    type: object
-+    $ref: /schemas/leds/common.yaml#
-+    description: |
-+      Leds
-+    properties:
-+      reg:
-+        description: |
-+          One of
-+          MC13783 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red 1
-+            4: Green 1
-+            5: Blue 1
-+            6: Red 2
-+            7: Green 2
-+            8: Blue 2
-+            9: Red 3
-+            10: Green 3
-+            11: Blue 3
-+          MC13892 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red
-+            4: Green
-+            5: Blue
-+          MC34708 LED IDs
-+            0: Charger Red
-+            1: Charger Green
-+        maxItems: 1
-+      fsl,led-control:
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        description: |
-+          Setting for LED-Control register array length depends on model,
-+          mc13783: 6, mc13892: 4, mc34708: 1
-+
-+  regulators:
-+    type: object
-+    $ref: /schemas/regulator/regulator.yaml#
-+    description: |
-+      List of child nodes specifying the regulators, depending on chip variant:
-+      * MC13783: gpo[1-4], pwgt[12]spi, sw[12][ab], sw3, vaudio, vcam, vdig,
-+      vesim, vgen, viohi, violo, vmmc[12], vrf[12], vrfbg, vrfcp, vrfdig,
-+      vrfref, vsim and vvib.
-+      * MC13892: gpo[1-4], pwgt[12]spi, sw[1-4], swbst, vaudio, vcam, vcoincell,
-+      vdig, vgen[1-3], viohi, vpll, vsd, vusb, vusb2, vvideo.
-+      Each child node is defined using the standard binding for regulators and
-+      the optional regulator properties defined below.
-+
-+  fsl,mc13xxx-uses-adc:
-+    type: boolean
-+    description: Indicate the ADC is being used
-+
-+  fsl,mc13xxx-uses-codec:
-+    type: boolean
-+    description: Indicate the Audio Codec is being used
-+
-+  fsl,mc13xxx-uses-rtc:
-+    type: boolean
-+    description: Indicate the RTC is being used
-+
-+  fsl,mc13xxx-uses-touch:
-+    type: boolean
-+    description: Indicate the touchscreen controller is being used
-+
-+required:
-+  - compatible
-+  - reg
-+
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13783
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            fsl,led-control:
-+              minItems: 6
-+              maxItems: 6
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[12][ab]|sw3|vaudio|vcam|vdig|vesim|vgen|viohi|violo|vmmc[12]|vrf[12]|vrfbg|vrfcp|vrfdig|vrfref|vsim|vvib$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13892
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            fsl,led-control:
-+              minItems: 4
-+              maxItems: 4
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[1-4]|swbst|vaudio|vcam|vcoincell|vdig|vgen[1-3]|viohi|vpll|vsd|vusb|vusb2|vvideo$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc34708
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            fsl,led-control:
-+              minItems: 1
-+              maxItems: 1
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/leds/common.h>
-+
-+    spi {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        pmic: mc13892@0 {
-+            compatible = "fsl,mc13892";
-+            reg = <0>;
-+            spi-max-frequency = <1000000>;
-+            spi-cs-high;
-+            interrupt-parent = <&gpio0>;
-+            interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
-+            fsl,mc13xxx-uses-rtc;
-+            fsl,mc13xxx-uses-adc;
-+
-+            leds {
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+                fsl,led-control = <0x000 0x000 0x0e0 0x000>;
-+
-+                sysled@3 {
-+                    reg = <3>;
-+                    label = "system:red:live";
-+                    linux,default-trigger = "heartbeat";
-+                };
-+            };
-+
-+            regulators {
-+                sw1_reg: sw1 {
-+                    regulator-min-microvolt = <600000>;
-+                    regulator-max-microvolt = <1375000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+
-+                sw2_reg: sw2 {
-+                    regulator-min-microvolt = <900000>;
-+                    regulator-max-microvolt = <1850000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+            };
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-deleted file mode 100644
-index 8261ea73278a..000000000000
---- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-+++ /dev/null
-@@ -1,156 +0,0 @@
--* Freescale MC13783/MC13892 Power Management Integrated Circuit (PMIC)
--
--Required properties:
--- compatible : Should be "fsl,mc13783" or "fsl,mc13892"
--
--Optional properties:
--- fsl,mc13xxx-uses-adc : Indicate the ADC is being used
--- fsl,mc13xxx-uses-codec : Indicate the Audio Codec is being used
--- fsl,mc13xxx-uses-rtc : Indicate the RTC is being used
--- fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being used
--
--Sub-nodes:
--- codec: Contain the Audio Codec node.
--  - adc-port: Contain PMIC SSI port number used for ADC.
--  - dac-port: Contain PMIC SSI port number used for DAC.
--- leds : Contain the led nodes and initial register values in property
--  "led-control". Number of register depends of used IC, for MC13783 is 6,
--  for MC13892 is 4, for MC34708 is 1. See datasheet for bits definitions of
--  these registers.
--  - #address-cells: Must be 1.
--  - #size-cells: Must be 0.
--  Each led node should contain "reg", which used as LED ID (described below).
--  Optional properties "label" and "linux,default-trigger" is described in
--  Documentation/devicetree/bindings/leds/common.txt.
--- regulators : Contain the regulator nodes. The regulators are bound using
--  their names as listed below with their registers and bits for enabling.
--
--MC13783 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red 1
--    4  : Green 1
--    5  : Blue 1
--    6  : Red 2
--    7  : Green 2
--    8  : Blue 2
--    9  : Red 3
--    10 : Green 3
--    11 : Blue 3
--
--MC13892 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red
--    4  : Green
--    5  : Blue
--
--MC34708 LED IDs:
--    0  : Charger Red
--    1  : Charger Green
--
--MC13783 regulators:
--    sw1a      : regulator SW1A      (register 24, bit 0)
--    sw1b      : regulator SW1B      (register 25, bit 0)
--    sw2a      : regulator SW2A      (register 26, bit 0)
--    sw2b      : regulator SW2B      (register 27, bit 0)
--    sw3       : regulator SW3       (register 29, bit 20)
--    vaudio    : regulator VAUDIO    (register 32, bit 0)
--    viohi     : regulator VIOHI     (register 32, bit 3)
--    violo     : regulator VIOLO     (register 32, bit 6)
--    vdig      : regulator VDIG      (register 32, bit 9)
--    vgen      : regulator VGEN      (register 32, bit 12)
--    vrfdig    : regulator VRFDIG    (register 32, bit 15)
--    vrfref    : regulator VRFREF    (register 32, bit 18)
--    vrfcp     : regulator VRFCP     (register 32, bit 21)
--    vsim      : regulator VSIM      (register 33, bit 0)
--    vesim     : regulator VESIM     (register 33, bit 3)
--    vcam      : regulator VCAM      (register 33, bit 6)
--    vrfbg     : regulator VRFBG     (register 33, bit 9)
--    vvib      : regulator VVIB      (register 33, bit 11)
--    vrf1      : regulator VRF1      (register 33, bit 12)
--    vrf2      : regulator VRF2      (register 33, bit 15)
--    vmmc1     : regulator VMMC1     (register 33, bit 18)
--    vmmc2     : regulator VMMC2     (register 33, bit 21)
--    gpo1      : regulator GPO1      (register 34, bit 6)
--    gpo2      : regulator GPO2      (register 34, bit 8)
--    gpo3      : regulator GPO3      (register 34, bit 10)
--    gpo4      : regulator GPO4      (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--
--MC13892 regulators:
--    vcoincell : regulator VCOINCELL (register 13, bit 23)
--    sw1       : regulator SW1	    (register 24, bit 0)
--    sw2       : regulator SW2	    (register 25, bit 0)
--    sw3       : regulator SW3	    (register 26, bit 0)
--    sw4       : regulator SW4	    (register 27, bit 0)
--    swbst     : regulator SWBST	    (register 29, bit 20)
--    vgen1     : regulator VGEN1	    (register 32, bit 0)
--    viohi     : regulator VIOHI	    (register 32, bit 3)
--    vdig      : regulator VDIG	    (register 32, bit 9)
--    vgen2     : regulator VGEN2	    (register 32, bit 12)
--    vpll      : regulator VPLL	    (register 32, bit 15)
--    vusb2     : regulator VUSB2	    (register 32, bit 18)
--    vgen3     : regulator VGEN3	    (register 33, bit 0)
--    vcam      : regulator VCAM	    (register 33, bit 6)
--    vvideo    : regulator VVIDEO    (register 33, bit 12)
--    vaudio    : regulator VAUDIO    (register 33, bit 15)
--    vsd       : regulator VSD	    (register 33, bit 18)
--    gpo1      : regulator GPO1	    (register 34, bit 6)
--    gpo2      : regulator GPO2	    (register 34, bit 8)
--    gpo3      : regulator GPO3	    (register 34, bit 10)
--    gpo4      : regulator GPO4	    (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--    vusb      : regulator VUSB	    (register 50, bit 3)
--
--  The bindings details of individual regulator device can be found in:
--  Documentation/devicetree/bindings/regulator/regulator.txt
--
--Examples:
--
--ecspi@70010000 { /* ECSPI1 */
--	cs-gpios = <&gpio4 24 0>, /* GPIO4_24 */
--		   <&gpio4 25 0>; /* GPIO4_25 */
--
--	pmic: mc13892@0 {
--		#address-cells = <1>;
--		#size-cells = <0>;
--		compatible = "fsl,mc13892";
--		spi-max-frequency = <6000000>;
--		reg = <0>;
--		interrupt-parent = <&gpio0>;
--		interrupts = <8>;
--
--		leds {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			led-control = <0x000 0x000 0x0e0 0x000>;
--
--			sysled@3 {
--				reg = <3>;
--				label = "system:red:live";
--				linux,default-trigger = "heartbeat";
--			};
--		};
--
--		regulators {
--			sw1_reg: mc13892__sw1 {
--				regulator-min-microvolt = <600000>;
--				regulator-max-microvolt = <1375000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--
--			sw2_reg: mc13892__sw2 {
--				regulator-min-microvolt = <900000>;
--				regulator-max-microvolt = <1850000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--		};
--	};
--};
++	hid_dbg(pidff->hid, "axes enable report count: %u\n",
++		pidff->axes_enable->report_count);
+ 
+ 	uint found = PIDFF_FIND_GENERAL_DESKTOP(direction_axis_id, axes_enable,
+ 						direction_axis);
+@@ -1311,7 +1316,7 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
+ 	pidff->axis_count = found;
+ 	hid_dbg(pidff->hid, "found direction axes: %u", found);
+ 
+-	for (int i = 0; i < sizeof(pidff_direction_axis); i++) {
++	for (int i = 0; i < ARRAY_SIZE(pidff_direction_axis); i++) {
+ 		if (!pidff->direction_axis_id[i])
+ 			continue;
+ 
 -- 
-2.39.5
+2.50.1
 

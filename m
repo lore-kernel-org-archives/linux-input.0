@@ -1,141 +1,210 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A531DE4C9;
-	Wed, 27 Aug 2025 06:36:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAE731EA7CF;
+	Wed, 27 Aug 2025 07:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756276583; cv=none; b=ZW3LM4aKO4A33LWnREn8qj7eXNTw0RrWk8XG2BCMMRmT+Q2WXXBxDSytPCAuceHas+Xtf7E1PGsUJAnAZ5G7ICadblAWEQq4OL3B2U7sqsDDG179iWdD3KVyWtk3ILFezMJ6cnNuX7NYX2WYIQvYeapFcAwUKwT4TlvLmMVG4F4=
+	t=1756279321; cv=none; b=CS+jNPs1maTG43rq5SYqmXOvLJGlrcvFdRVWYTWphdStY4nV8Cg8EzH3KV6Z2TeYYII1tzu3dfVvzsYK06vtw8ogPqEH8qFTEzPdysSFk/PH8XgC069vt0nsU019ksHh/wgcAhqHAiocctFaG8fypYu+nJ+rZVPdoZ1EPckTxR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756276583; c=relaxed/simple;
-	bh=93mMfqRnIYONl5pXTpzQ+OBdW3kFD6MGOvhnpTBu/BU=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=uU06lZ/7+xNLKXLJJxEcG0guNUJVUjvS78T1qhRUE2UH3j5FAk9GANGOKU9yiDXqjdeWcdmnEcSqlTUJi9VqmPxNqDGHQ66ZFun7ebVs79dOSPC8eJexIDz/hM9AfqJk2wPRyXrrjnZDzjAeYrbIKe4wes1n13CJp6Wnqcs5YdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=IiUsj7Bc; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1756279321; c=relaxed/simple;
+	bh=dlo/9J6rhts2KG0F4PfNSCNpj/HjCVBE3juBwL0eg0w=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=gzEicG0qVkZM9u1KZOkW1t76rzmxZyjfxdyG3CC2B2B02jEhpg/8K5p2QktgdMtJGHgtVPID93JyBSdA6W91VfagBaiEvIskIpIA3/yX+z42WS+0eniQygkTQRaCRCg/jU0i7DD2whz2tHhF1o8z7C3T4ugaH4dREUNb+E2cEC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=W9Gz5mtc; arc=none smtp.client-ip=54.254.200.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="IiUsj7Bc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1756276578;
-	bh=93mMfqRnIYONl5pXTpzQ+OBdW3kFD6MGOvhnpTBu/BU=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=IiUsj7Bce0VvrXbx6mi4//QotPBM1rbFnnFc44N/767VfnumBa66oHwCFQCXu0MEd
-	 bJyYI6f9mAjkT599E67Bql8OELiAV4gzDG+ZNdVF9JwNtEAvEjQ04/YycG46ytI1t7
-	 Pjtb9MFX22PTqZ5HdihfzVfpT5DR+C5s2f96VsarwFo8pp/WS92ExNtxl5HWLFBoX3
-	 frnSiy+MX5L9NoVx5C6UemBAZ1oNeFgDzYs4108gktl5nArV6wdlNdyWT1OzBVQb5F
-	 W0D/oYjinDlL5yxWy2Xqgz8mEJXL4ogey9Nzx2zu2ZekGxLD5sk4rguZhLfJqoQv+N
-	 HoAcmOZHoYfXg==
-Received: from [192.168.1.90] (unknown [82.79.138.60])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: cristicc)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 7BABE17E0593;
-	Wed, 27 Aug 2025 08:36:18 +0200 (CEST)
-Message-ID: <c6a16e71-e431-47dd-a3d1-6a79fd7e4a37@collabora.com>
-Date: Wed, 27 Aug 2025 09:36:18 +0300
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="W9Gz5mtc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1756279303;
+	bh=E49A0qgUBTyj8XWDCdM/eYAU15Zj10Ql4fzxbPmX3Ss=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=W9Gz5mtcMHZmhNqSl8hkrsFZb3oDxRfOReKO5NiABMVAJRzfd4/u/USyiJ1lJRJ2A
+	 oenxKXtK9adCyBVq6JPabMi+TI4KitBrxzRuG0bfDJxKwyb5EK7JysjenUyksGFK+p
+	 +a3atBM8BYpzYWUlAVdN8rFl+omkAHnvl0151ctk=
+X-QQ-mid: zesmtpip2t1756279294tad99e06a
+X-QQ-Originating-IP: 2Cx51Oqqsvj0SfpaTDErqPLoI4bIH6fgC2p7DJ10Xuc=
+Received: from uos-PC ( [localhost])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 27 Aug 2025 15:21:33 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 12414129326743720862
+EX-QQ-RecipientCnt: 6
+From: Morduan Zang <zhangdandan@uniontech.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	liziyao@uniontech.com,
+	WangYuli <wangyuli@uniontech.com>,
+	Morduan Zang <zhangdandan@uniontech.com>
+Subject: [PATCH 2/2 v2] selftests: input: Add tracepoint testing script
+Date: Wed, 27 Aug 2025 15:21:23 +0800
+Message-ID: <1B705FD25232CA91+20250827072125.139887-2-zhangdandan@uniontech.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20250827072125.139887-1-zhangdandan@uniontech.com>
+References: <20250827072125.139887-1-zhangdandan@uniontech.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/11] HID: playstation: Add support for audio jack
- handling on DualSense
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-To: Roderick Colenbrander <thunderbird2k@gmail.com>
-Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>,
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Henrik Rydberg <rydberg@bitmath.org>, kernel@collabora.com,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20250625-dualsense-hid-jack-v2-0-596c0db14128@collabora.com>
- <s4596421-sr43-893r-o90r-86nr588sp32q@xreary.bet>
- <74d4675d-d6f5-41ed-b715-f62fb569df5d@collabora.com>
- <CAEc3jaAFV_PXdFAX9th4-hhKNAhBKdVCNP+Qf8nH=g8FwoCabQ@mail.gmail.com>
- <CAEc3jaAGP3HV_+tGLHWZXA-baD4HkA2nYWGxpmox4cuZMh+ksw@mail.gmail.com>
- <CAEc3jaD8tUNW6hkPHDp=iGmdwD5m3uKg0vNtyZr-u1mmPSAkVQ@mail.gmail.com>
- <ab1c06b1-9b79-426a-a43b-cf5a89688770@collabora.com>
- <CAEc3jaDsX8OSVskO6-Rsvn12BbV2-8ZjhV+tPaRpu9Nai3czEg@mail.gmail.com>
- <8f7242f0-c217-47e4-ad88-fc1481ca936f@collabora.com>
-Content-Language: en-US
-In-Reply-To: <8f7242f0-c217-47e4-ad88-fc1481ca936f@collabora.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpip:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: OcIiaahx2ZjKJoN50pxxtfisxaMxKUqP88QaHsG23uanRVzGmQS7Kmcg
+	GXfkskc0tKOqHg/4Y2JrIsfcAWcQgpDDyGYPdYJlu7xlfNDczzYI+8MVYlbBnEf1lFG/tMB
+	qVWCMxX9m6eG09pSO0KSyaEQmzPElQJdDOsyZ9Nzxp+jVyAEpTrxVuc+ZpmP0x0DfouQPdT
+	JAqxmjlZaneXorErRHy5hv4qIMkbmHN2XMeUivyZNH+BrDNITaGCoNwXuJBJ3PWd3SCdgHS
+	1/W5/WykBc2p/9nTZS8C1OaBnuQz+KqvweZqvqHAq8uVLFh+BbFTObE2kyoxVMbGtgZ7oNz
+	w5gOI8Rs01gvhc+u+Mt5Ll5dikzt7GCq5TaC4cn/ItqFH8EIwxiYe2nztygr/Ppl7kI42T7
+	+KtIPJaQAZRBH3It7Sk5YjcJlStyN85oQT/NInAy84gwADVe3Qb/Kn3+yndsq2JVuVv+yzG
+	xLouZBcF4tMyuLctjZImE0Lh+rvhvQO/6XRoBVjIHDsVLV5GUCut83rTTjOgbzDETyFDx6W
+	13Bc4XvNdimJdaAUonGjPIws1StYU0A2vka0HgQ91xL0gPCIsFLnQ7g2cFn0h+5Rff96/P0
+	nx6kK6GW4dlQ5rA5RcaNIYPOWDaV9g2PRyHyKT6FR3ZSdEfE8+X7jjF7Q2lejq8wG30wr64
+	WeRHSxanzHXfrD5CtFjJD+NEI5PoDXV4KcFWk/SRNacnNKwCtRd14czk9wXE0mqdi6hLpB2
+	7Z4oZ3+R/l2KOENTzcWVAhSi2nHkJnHybfxxwm8CiNSGZvCBowv77V9iEnWQ4ZYfcJSrDCf
+	ZtWAxtsAmUC7yspb1nA5wgmPM4ZrVskhy4knzhrT6uYwuuzV1NpDxxgCbt5NuPbj/HYSWaV
+	zbatRC8fBwdWt5uNzSnWjoJZUjcA15uyhlhnSl9Ztudif98EQIgnWbJew8RRsydSO7gcsfW
+	O1GM1Bo4Pp7elG3rR6RIJ/1dRtHLhURWqQkZK1kG5FeRvSf76Rol9FvXzeHBdtrMLQQl2P3
+	1EbkKUWTwnnafvyFmBTSRuksDoW2Jc39yHpBOKYwIIo/YKr1wBTDzRA3ThuFq8z3t7DFNCQ
+	QfGc/3uw0XHSa0XSq/YC9iCj4/ur0/JzJDrM0l0WcdpEiJgYSiWmYeoUgRBv4gciXFGTysY
+	PctsqjTWkFos0IW4Ltmgqe+G5fRjC7CS12Lpp3cgHL84860=
+X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
+X-QQ-RECHKSPAM: 0
 
-On 7/23/25 10:17 AM, Cristian Ciocaltea wrote:
-> Hi Roderick,
-> 
-> On 7/23/25 7:04 AM, Roderick Colenbrander wrote:
->> Hi Cristian,
->>
->> Thanks for the information on the audio patches in the sound tree. We
->> weren't familiar with that part.
-> 
-> I've actually mentioned that in the cover letter and changelog of this
-> revision.  Couldn't do this previously because I submitted the HID series
-> before the USB audio one.
-> 
->> I talked a bit with my team members as well. In general audio is
->> getting some bigger attention (will see where that goes). I'm getting
->> a bit worried that the HID and usb driver need much closer coupling,
->> the current coupling not being enough.
-> 
-> I think we should keep things simple for now, at least until we land the
-> basic support, also considering the USB part has been already merged.
-> 
->> I don't know the USB audio spec too well, but it is more on the
->> digital interface and a DAC. I'm not sure on the exact circuitry on
->> the DualSense, but there is a lot of logic in the console drivers for
->> volume handling where adjustment of the volume talks to the HID layer
->> to send a new output report. I suspect they had very good reasons for
->> it (e.g. for headphone also dealing with different impedances).
->>
->> So I'm not sure how the volume control is really supposed to work, but
->> I would think to do it properly it requires some interaction between
->> the audio and HID drivers. Just letting the audio side do it right
->> now, is more about leveraging the range of the DAC I guess versus a
->> proper audio amplification stage.
-> 
-> Indeed, it's not possible to support hardware volume control from
-> ALSA/usb-audio without involving HID.  This could be done, or at least it's
-> worth investigating further, but it's not mandatory and definitely beyond
-> the scope of the current work.
-> 
->> Just thinking of things from the user perspective, they should have a
->> unified volume control. I don't know how other devices are doing it,
->> but I think we need to think a bit further and we need to reconsider
->> how things work....
-> 
-> There's a bit more complexity in here than initially anticipated, but the
-> (software) volume control is not really a problem.  It's worth noting I am
-> going to provide some UCM changes, part of the ALSA project:
-> 
->   https://github.com/alsa-project/alsa-ucm-conf
-> 
-> This is to ensure proper support for audio profile switching between
-> headphones/headset and internal speaker/microphone, which also addresses
-> a few volume control related issues.  Those are mainly caused by the haptic
-> feedback functionality, which is controlled by a pair of dedicated channels
-> in a quadraphonic audio stream.  One of the UCM's main jobs is to split the
-> 4.0 PCM stream into 4 mono channels or a pair of stereo (FL+FR) channels,
-> depending on the active output device/profile.
-> 
-> The only blocker now is this HID series, which prevents us moving further.
-> 
-> Therefore, unless there is anything else remaining which requires urgent
-> attention, could you please provide an ack for Jiri to be able to pick this
-> up?
+From: WangYuli <wangyuli@uniontech.com>
 
-It's been over a month now since this was kind of blocked without any clear
-reason, and by the end of next week I'll be on leave, which means we're
-close to missing the merge window once again.
+Add a test script for the input subsystem tracepoints.
 
-Considering the counterpart quirk in the generic USB audio driver has been
-already merged since v6.17, I kindly ask for your support in getting this
-into v6.18.
+The script provides:
+ - Automatic detection of available input tracepoints
+ - Privilege and filesystem mount validation
+ - Interactive testing with real-time trace monitoring
+ - Support for both batch and live trace analysis
 
-Thanks,
-Cristian
+The script enables easy validation and demonstration of the input
+tracepoint functionality, making it easier for developers to verify
+the implementation and understand the tracepoint capabilities.
+
+Usage:
+  sudo ./tools/testing/selftests/input/test_input_tracepoints.sh
+
+Signed-off-by: WangYuli <wangyuli@uniontech.com>
+Signed-off-by: Morduan Zang <zhangdandan@uniontech.com>
+---
+ MAINTAINERS                                   |  2 +
+ .../selftests/input/test_input_tracepoints.sh | 78 +++++++++++++++++++
+ 2 files changed, 80 insertions(+)
+ create mode 100755 tools/testing/selftests/input/test_input_tracepoints.sh
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4dfa2d60faa0..f6e5da714ba9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12099,6 +12099,7 @@ F:	include/uapi/linux/input-event-codes.h
+ F:	include/uapi/linux/input.h
+ F:	include/uapi/linux/serio.h
+ F:	include/uapi/linux/uinput.h
++F:	tools/testing/selftests/input/
+ 
+ INPUT MULTITOUCH (MT) PROTOCOL
+ M:	Henrik Rydberg <rydberg@bitmath.org>
+@@ -25568,6 +25569,7 @@ F:	kernel/trace/
+ F:	kernel/tracepoint.c
+ F:	scripts/tracing/
+ F:	tools/testing/selftests/ftrace/
++F:	tools/testing/selftests/input/test_input_tracepoints.sh
+ 
+ TRACING MMIO ACCESSES (MMIOTRACE)
+ M:	Steven Rostedt <rostedt@goodmis.org>
+diff --git a/tools/testing/selftests/input/test_input_tracepoints.sh b/tools/testing/selftests/input/test_input_tracepoints.sh
+new file mode 100755
+index 000000000000..6ade2619b62d
+--- /dev/null
++++ b/tools/testing/selftests/input/test_input_tracepoints.sh
+@@ -0,0 +1,78 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0-or-later
++
++###############################################################################
++#
++# Input subsystem tracepoint testing script
++#
++# AUTHOR
++#      WangYuli <wangyuli@uniontech.com>
++#
++###############################################################################
++
++DEBUGFS_PATH="/sys/kernel/debug/tracing"
++INPUT_EVENTS_PATH="${DEBUGFS_PATH}/events/input"
++
++# Check if we have sufficient privileges
++if [ ! -w "$DEBUGFS_PATH" ]; then
++    echo "Error: Root privileges required to access tracing system"
++    echo "Please run: sudo $0"
++    exit 1
++fi
++
++# Check if debugfs is mounted
++if [ ! -d "$DEBUGFS_PATH" ]; then
++    echo "Error: debugfs is not mounted"
++    echo "Please run: mount -t debugfs none /sys/kernel/debug"
++    exit 1
++fi
++
++# Check if input tracepoints exist
++if [ ! -d "$INPUT_EVENTS_PATH" ]; then
++    echo "Error: input tracepoints not found, kernel may need to be recompiled"
++    exit 1
++fi
++
++echo "=== Input Subsystem Tracepoint Test ==="
++echo
++
++# Clear existing trace buffer
++echo > "${DEBUGFS_PATH}/trace"
++
++# List available input tracepoints
++echo "Available Input Tracepoints:"
++for event in "${INPUT_EVENTS_PATH}"/*; do
++    if [ -d "$event" ]; then
++        event_name=$(basename "$event")
++        echo "  - $event_name"
++    fi
++done
++echo
++
++# Enable all input tracepoints
++echo "Enabling all input tracepoints..."
++echo 1 > "${INPUT_EVENTS_PATH}/enable"
++
++if [ $? -eq 0 ]; then
++    echo "✓ Successfully enabled input tracepoints"
++else
++    echo "✗ Failed to enable input tracepoints"
++    exit 1
++fi
++
++echo
++echo "Please perform some operations in another terminal (keyboard input, mouse movement, etc.)"
++echo "or plug/unplug USB devices, then come back to view the results..."
++echo
++echo "Press any key to continue viewing trace output (press Ctrl+C to exit)..."
++read -n 1
++
++echo
++echo "=== Trace Output ==="
++echo "(Last 100 lines)"
++tail -n 100 "${DEBUGFS_PATH}/trace"
++
++echo
++echo "=== Real-time Trace Output ==="
++echo "(Press Ctrl+C to stop)"
++cat "${DEBUGFS_PATH}/trace_pipe"
+-- 
+2.50.1
 

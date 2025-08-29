@@ -1,24 +1,25 @@
 Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1E1238171;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7530238D42;
 	Fri, 29 Aug 2025 20:10:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756498222; cv=none; b=NDouchGEHKGZNKGOFpE2ab9mu9C9gIu15gyBF3DoujiJVZ/M1WcNStVKjTNnySliPFjSghuvdX9oh6MTGALV+1XI5RF0/5IhG4i4jTeevfIsqraqSGow+SYPuEkjldx0dXXekMjN/oA6MXo/A3G3tGwbeHSHaQ1tfR8/vM/C57o=
+	t=1756498224; cv=none; b=Cz605no9M90t5dlIoAQteY7b0/MAmXB/hf1LljVtGl7P7A6pzcszzy7gKYFOQ2xFVZKqvslPpPZ+edVRPukNAEsDOq+qAhtSTfBB+rw2EZAdIxzawuSdmY45WyjBpVWej5zLTOS6cX+dVP0/X8MV/qetbZZ14Tl5N8N3PA2G9qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756498222; c=relaxed/simple;
-	bh=9TRcTWzRNNqFqyLL0fhxlFhQ4FTBBHTXpufL0KAG85M=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=GYdKJ+nixJa/IAUd1+CTqFRW4B6mBSYrjRpMneeuSTS/k4XfqytyK+bzj9txeYE1QOQ//cWUv8xSpWLb3zhRj/jRECElaCZGlyjlTcA2utcjs7MzhiX4ktc0e3axVoJvF+UJ6IWvhWr4Z/GcyCjJlwyirh2gM0wojXD2u+CS1Q4=
+	s=arc-20240116; t=1756498224; c=relaxed/simple;
+	bh=MlWD0uXzHVUujtienSVm4PzgEV8DKzyPNLaItkFBVPQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=L7jb5B+PFpjg6YwvErDHRcRaaU34itkZtEkUkiIEcDgoOHCfR0U26cB2QNtI5Si//aIK7G3fuUGmm9EK5+xmM9JwdAgN6D1UiDmcaQgPmG23UhhG0s1X0V6torifnC1R2JEZih6H0f0QWpTgxNWpprU48yQRqzai79+/fDp4B5E=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
 Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57TKFIEV015417;
-	Fri, 29 Aug 2025 20:15:18 GMT
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57TKFJt6015473;
+	Fri, 29 Aug 2025 20:15:19 GMT
 Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57TKFIDH015416;
-	Fri, 29 Aug 2025 20:15:18 GMT
+	by blala.de (8.15.2/8.15.2/Submit) id 57TKFJdN015468;
+	Fri, 29 Aug 2025 20:15:19 GMT
 From: Alexander Kurz <akurz@blala.de>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -30,10 +31,12 @@ To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v3 0/7] Fix, extend and support OF to mc13xxx pwrbutton
-Date: Fri, 29 Aug 2025 20:15:10 +0000
-Message-Id: <20250829201517.15374-1-akurz@blala.de>
+Subject: [PATCH v3 7/7] Input: mc13783-pwrbutton: add OF support
+Date: Fri, 29 Aug 2025 20:15:17 +0000
+Message-Id: <20250829201517.15374-8-akurz@blala.de>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20250829201517.15374-1-akurz@blala.de>
+References: <20250829201517.15374-1-akurz@blala.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,53 +45,146 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Goal of this patch series is to make the mc13892 PWRON1 button usable,
-found e.g. on amazon kindle D01100/D01200/EY21 readers.
-A ten-year-old IRQ issue needed a fix, mc13783-pwrbutton had to be
-extended to the other to mc13xxx PMIC as well (keeping the mc13892
-PWRON3 key unsupported for simplicity) and adding OF support.
-The implementation has been tested on amazon kindle D01100 and D01200
-readers using PWRON1 of a mc13892.
+Add OF support for the mc13783-pwrbutton so that it can be used with
+modern DT based systems.
 
-Changes in v3:
-- Link to v2: https://lore.kernel.org/linux-input/20250823144441.12654-1-akurz@blala.de/
-- Undo all changes to led-control (rename to fsl,led-control), thanks Rob
-- Restructured the new buttons node for unevaluatedProperties: false
-- Various other remarks from Rob
-- Rebase to current state
+Signed-off-by: Alexander Kurz <akurz@blala.de>
+---
+ drivers/input/misc/mc13783-pwrbutton.c | 94 +++++++++++++++++++++++---
+ 1 file changed, 86 insertions(+), 8 deletions(-)
 
-Changes in v2:
-- Link to v1: https://lore.kernel.org/linux-input/20250817102751.29709-1-akurz@blala.de/
-- Convert dt-bindings from txt to fsl,mc13xxx.yaml and add vendor prefix
-  to led-control property, causing changes in dts and driver.
-- Change node name from pwrbuttons to buttons
-- Change property debounce-delay-value to debounce-delay-ms
-- Fixed a section mismatch error
-- Fixed https://lore.kernel.org/r/202508210551.VzAtE5re-lkp@intel.com/
-  (wrong index used when converting to array access)
-- Usage of generic device properties API in mc13783-pwrbutton.c
-- Provide chip-specific max button id via platform_device_id, therefore
-  swap patches 3 and 4.
-
-Alexander Kurz (7):
-  Input: mc13783-pwrbutton: fix irq mixup
-  Input: mc13783-pwrbutton: use managed resources
-  Input: mc13783-pwrbutton: convert pdata members to array
-  Input: mc13783-pwrbutton: enable other mc13xxx PMIC
-  dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
-  dt-bindings: mfd: fsl,mc13xxx: add buttons node
-  Input: mc13783-pwrbutton: add OF support
-
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 288 ++++++++++++++++++
- .../devicetree/bindings/mfd/mc13xxx.txt       | 156 ----------
- drivers/input/misc/Kconfig                    |   4 +-
- drivers/input/misc/mc13783-pwrbutton.c        | 235 ++++++++++----
- include/linux/mfd/mc13783.h                   |   4 +-
- include/linux/mfd/mc13xxx.h                   |  10 +-
- 6 files changed, 472 insertions(+), 225 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
-
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index c9eea57ceedd..a20236b19103 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -27,6 +27,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/mc13783.h>
++#include <linux/property.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ 
+@@ -109,8 +110,82 @@ static irqreturn_t button3_irq(int irq, void *_priv)
+ 	return button_irq(MC13783_IRQ_ONOFD3, _priv);
+ }
+ 
+-static int mc13783_pwrbutton_probe(struct platform_device *pdev)
++#ifdef CONFIG_OF
++static struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
++	struct platform_device *pdev)
+ {
++	struct mc13xxx_buttons_platform_data *pdata;
++	struct fwnode_handle *child;
++	struct device *dev = &pdev->dev;
++	struct mc13xxx_button_devtype *devtype =
++		(struct mc13xxx_button_devtype *)platform_get_device_id(pdev)->driver_data;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++
++	struct fwnode_handle *parent __free(fwnode_handle) =
++		device_get_named_child_node(dev->parent, "buttons");
++	if (!parent)
++		return ERR_PTR(-ENODATA);
++
++	fwnode_for_each_named_child_node(parent, child, "onkey") {
++		u32 idx;
++		u8 dbnc = MC13783_BUTTON_DBNC_30MS;
++		u16 dbnc_ms;
++
++		if (fwnode_property_read_u32(child, "reg", &idx))
++			continue;
++
++		if (idx > devtype->button_id_max) {
++			dev_warn(dev, "reg out of range\n");
++			continue;
++		}
++
++		fwnode_property_read_u16(child, "debounce-delay-ms", &dbnc_ms);
++		switch (dbnc_ms) {
++		case 0:
++			dbnc = MC13783_BUTTON_DBNC_0MS;
++			break;
++		case 30:
++			dbnc = MC13783_BUTTON_DBNC_30MS;
++			break;
++		case 150:
++			dbnc = MC13783_BUTTON_DBNC_150MS;
++			break;
++		case 750:
++			dbnc = MC13783_BUTTON_DBNC_750MS;
++			break;
++		default:
++			dev_warn(dev, "invalid debounce-delay-ms value\n");
++			continue;
++		}
++
++		if (fwnode_property_read_u32(child, "linux,code", &pdata->b_on_key[idx]))
++			continue;
++
++		if (fwnode_property_read_bool(child, "active-low"))
++			pdata->b_on_flags[idx] |= MC13783_BUTTON_POL_INVERT;
++
++		if (fwnode_property_read_bool(child, "fsl,enable-reset"))
++			pdata->b_on_flags[idx] |= MC13783_BUTTON_RESET_EN;
++
++		pdata->b_on_flags[idx] |= MC13783_BUTTON_ENABLE | dbnc;
++	}
++
++	return pdata;
++}
++#else
++static inline struct mc13xxx_buttons_platform_data __init *mc13xxx_pwrbutton_probe_dt(
++	struct platform_device *pdev)
++{
++	return ERR_PTR(-ENODEV);
++}
++#endif
++
++static int __init mc13783_pwrbutton_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
+ 	const struct mc13xxx_buttons_platform_data *pdata;
+ 	struct mc13xxx *mc13783 = dev_get_drvdata(pdev->dev.parent);
+ 	struct mc13xxx_button_devtype *devtype =
+@@ -121,9 +196,13 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 	int reg = 0;
+ 
+ 	pdata = dev_get_platdata(&pdev->dev);
+-	if (!pdata) {
+-		dev_err(&pdev->dev, "missing platform data\n");
+-		return -ENODEV;
++	if (dev->parent->of_node) {
++		pdata = mc13xxx_pwrbutton_probe_dt(pdev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	} else if (!pdata) {
++		dev_err(dev, "missing platform data\n");
++		return -ENODATA;
+ 	}
+ 
+ 	pwr = devm_input_allocate_device(&pdev->dev);
+@@ -290,15 +369,14 @@ static const struct platform_device_id mc13xxx_pwrbutton_idtable[] = {
+ };
+ 
+ static struct platform_driver mc13783_pwrbutton_driver = {
+-	.id_table	= mc13xxx_pwrbutton_idtable,
+-	.probe		= mc13783_pwrbutton_probe,
+-	.remove		= mc13783_pwrbutton_remove,
+ 	.driver		= {
+ 		.name	= "mc13783-pwrbutton",
+ 	},
++	.id_table	= mc13xxx_pwrbutton_idtable,
++	.remove		= mc13783_pwrbutton_remove,
+ };
+ 
+-module_platform_driver(mc13783_pwrbutton_driver);
++module_platform_driver_probe(mc13783_pwrbutton_driver, mc13783_pwrbutton_probe);
+ 
+ MODULE_ALIAS("platform:mc13783-pwrbutton");
+ MODULE_DESCRIPTION("MC13783 Power Button");
 -- 
 2.39.5
 

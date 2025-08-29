@@ -1,449 +1,316 @@
-Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10D112494D8;
-	Fri, 29 Aug 2025 20:10:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0950122B594;
+	Fri, 29 Aug 2025 20:59:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756498224; cv=none; b=irk71ahHVXwBzKEyFhrEqZvim1A/7JEJukL2g9ptgITM5T7qJcBazVp8b2+PKE16Ci0icSgxiag3Yi49/V1CqKH2zWVUFtSfX8tRa+CtBM3ZJ55lWwKwHVtiRM7A/3DbqEJ7yj9bFw0SohNrEHfXljkKaKx2/ZCb/7Yqgz8z5yM=
+	t=1756501180; cv=none; b=isIZRD5OoIYWWQzC5Fyqlx/SqXLuQZjUF6VYg4w0jhRkyk/d/ohBTbkyO+NPyLYnn8/z60l8LZBZzSE0kR/s9Dbb0KsoZj0V2ohVYlcAa3r5u66dx71xL2IhtWCj44PRe6fQTB+OKkU89HvhzIsuDmss687fxkFdgH22RQSv7m8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756498224; c=relaxed/simple;
-	bh=DmzhXWCjdabYnUMwC5X+hM2e6Qhw44ROMKNmOpHX65A=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=E4pF/yTzY/Dm03uRGBXzbIQt1rfjF0YrlVvCXIvuLJLmit3lXYMXDDoxgiX+HwF8EBwqUVAHQosyFrKSS3Zh2Ov1+c7eatP2HS6oWea7r8OB1bbUCfGAfNCfrdDBkXtCa7NFE8MmvQKZbPFWeq9qISIiachijRniz1dz1exlXXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
-Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57TKFJkj015457;
-	Fri, 29 Aug 2025 20:15:19 GMT
-Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 57TKFJ2P015453;
-	Fri, 29 Aug 2025 20:15:19 GMT
-From: Alexander Kurz <akurz@blala.de>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dzmitry Sankouski <dsankouski@gmail.com>,
-        "Dr. David Alan Gilbert" <linux@treblig.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v3 5/7] dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
-Date: Fri, 29 Aug 2025 20:15:15 +0000
-Message-Id: <20250829201517.15374-6-akurz@blala.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20250829201517.15374-1-akurz@blala.de>
-References: <20250829201517.15374-1-akurz@blala.de>
+	s=arc-20240116; t=1756501180; c=relaxed/simple;
+	bh=+2BW0UEG49SU/o/955BEv69wInYx4DfrQgnHNrBDmdc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tt7rTCT6H0/q5rEPXyru7MC5eFsIjG/bz7YGFum1277tNWrf3tT0fTYLKc3XvF/VJbk5EXCp/PF/PIOPCg259Sjl/albHlHrqn/RGTQkk8OgjXArJ5x6GeBdQGCCCSKBYDAqgRegSOASZYQhsQ7irnHf8T0kSPBZq4XT+zsK5WI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=dESvnRAv; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="dESvnRAv"
+Received: from [192.168.0.88] (192-184-212-33.fiber.dynamic.sonic.net [192.184.212.33])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 4CA79211627B;
+	Fri, 29 Aug 2025 13:59:36 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4CA79211627B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1756501177;
+	bh=JFWDwi8WW+5cmq8k1iafkjchsEZ4XvNd8Q16Wo9KAu8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=dESvnRAvmpVLr0VYBZnRRYhqqZR3B639/FohGqaKD2D5bP/9Yrve21Irvr3nS9rb6
+	 oV0XKAIHOKvPIy3mqCdHpdb+o4CglUZTuulng4cFfFX5xmNa+/8oCUYPlxUGlvaNbr
+	 67e3J3ZlD0dwqiTzzvQCWTMikVloz4heqlFWTFCA=
+Message-ID: <0b9ea4e8-3751-0286-4bd9-fe09035dd22d@linux.microsoft.com>
+Date: Fri, 29 Aug 2025 13:59:35 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.1
+Subject: Re: [PATCH V0 1/2] hyper-v: Add CONFIG_HYPERV_VMBUS option
+Content-Language: en-US
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ linux-arch@vger.kernel.org, virtualization@lists.linux.dev
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch, jikos@kernel.org,
+ bentiss@kernel.org, kys@microsoft.com, haiyangz@microsoft.com,
+ wei.liu@kernel.org, decui@microsoft.com, dmitry.torokhov@gmail.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, bhelgaas@google.com,
+ James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
+ gregkh@linuxfoundation.org, deller@gmx.de, arnd@arndb.de,
+ sgarzare@redhat.com, horms@kernel.org
+References: <20250828005952.884343-1-mrathor@linux.microsoft.com>
+ <20250828005952.884343-2-mrathor@linux.microsoft.com>
+ <5003d5e8-a025-4827-b8a0-6fe11877421b@linux.microsoft.com>
+From: Mukesh R <mrathor@linux.microsoft.com>
+In-Reply-To: <5003d5e8-a025-4827-b8a0-6fe11877421b@linux.microsoft.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Convert the txt mc13xxx bindings to DT schema attempting to keep most
-information. The nodes codec and touchscreen are not part of the new
-schema since it was only briefly mentioned before.
-Following the convention, rename led-control to fsl,led-control.
+On 8/28/25 17:29, Nuno Das Neves wrote:
+> On 8/27/2025 5:59 PM, Mukesh Rathor wrote:
+>> Somehow vmbus driver is hinged on CONFIG_HYPERV. It appears this is initial
+>> code that did not get addressed when the scope of CONFIG_HYPERV went beyond
+>> vmbus. This commit creates a fine grained HYPERV_VMBUS option and updates
+>> drivers that depend on VMBUS.
+>>
+> 
+> The commit message can be improved. The docs are helpful here:
+> https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
+> 
+> In particular, some clearer reasons for the change.
+> e.g.
+> - CONFIG_HYPERV encompasses too much right now. It's not always clear what
+>   depends on builtin hyperv code and what depends on vmbus.
+> 
+> - Since there is so much builtin hyperv code, building CONFIG_HYPERV as a
+>   module doesn't make intuitive sense. Building vmbus support as a module does.
+> 
+> - There are actually some real scenarios someone may want to compile with
+>   CONFIG_HYPERV but without vmbus, like baremetal root partition.
+> 
+> FWIW I think it's a good idea, interested to hear what others think.
 
-Signed-off-by: Alexander Kurz <akurz@blala.de>
----
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 218 ++++++++++++++++++
- .../devicetree/bindings/mfd/mc13xxx.txt       | 156 -------------
- 2 files changed, 218 insertions(+), 156 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
+Sorry, you had mentioned it and I expanded the cover letter and forgot the
+commit message here. You said it better than I could above, so I can just use
+that in V1 next week if no other comments.
 
-diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
-new file mode 100644
-index 000000000000..007c2e3eee91
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
-@@ -0,0 +1,218 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/fsl,mc13xxx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Freescale MC13xxx Power Management Integrated Circuits (PMIC)
-+
-+maintainers:
-+  - Alexander Kurz <akurz@blala.de>
-+
-+description: >
-+  The MC13xxx PMIC series consists of the three models MC13783, MC13892
-+  and MC34708 and provide regulators and other features like RTC, ADC,
-+  LED, touchscreen, codec and input buttons.
-+
-+  Link to datasheets
-+    https://www.nxp.com/docs/en/data-sheet/MC13783.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC13892.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC34708.pdf
-+
-+properties:
-+  compatible:
-+    enum:
-+      - fsl,mc13783
-+      - fsl,mc13892
-+      - fsl,mc34708
-+
-+  reg:
-+    description: I2C slave address or SPI chip select number.
-+    maxItems: 1
-+
-+  spi-max-frequency: true
-+
-+  spi-cs-high: true
-+
-+  system-power-controller: true
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  leds:
-+    type: object
-+    $ref: /schemas/leds/common.yaml#
-+
-+    properties:
-+      reg:
-+        description: |
-+          One of
-+          MC13783 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red 1
-+            4: Green 1
-+            5: Blue 1
-+            6: Red 2
-+            7: Green 2
-+            8: Blue 2
-+            9: Red 3
-+            10: Green 3
-+            11: Blue 3
-+
-+          MC13892 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red
-+            4: Green
-+            5: Blue
-+
-+          MC34708 LED IDs
-+            0: Charger Red
-+            1: Charger Green
-+        maxItems: 1
-+
-+      led-control:
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        description: |
-+          Setting for LED-Control register array length depends on model,
-+          mc13783: 6, mc13892: 4, mc34708: 1
-+
-+  regulators:
-+    type: object
-+
-+    additionalProperties:
-+      type: object
-+
-+    description: |
-+      List of child nodes specifying the regulators, depending on chip variant.
-+      Each child node is defined using the standard binding for regulators and
-+      the optional regulator properties defined below.
-+
-+  fsl,mc13xxx-uses-adc:
-+    type: boolean
-+    description: Indicate the ADC is being used
-+
-+  fsl,mc13xxx-uses-codec:
-+    type: boolean
-+    description: Indicate the Audio Codec is being used
-+
-+  fsl,mc13xxx-uses-rtc:
-+    type: boolean
-+    description: Indicate the RTC is being used
-+
-+  fsl,mc13xxx-uses-touch:
-+    type: boolean
-+    description: Indicate the touchscreen controller is being used
-+
-+required:
-+  - compatible
-+  - reg
-+
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13783
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 6
-+              maxItems: 6
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[12][ab]|sw3|vaudio|vcam|vdig|vesim|vgen|viohi|violo|vmmc[12]|vrf[12]|vrfbg|vrfcp|vrfdig|vrfref|vsim|vvib$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+              unevaluatedProperties: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13892
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 4
-+              maxItems: 4
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[1-4]|swbst|vaudio|vcam|vcoincell|vdig|vgen[1-3]|viohi|vpll|vsd|vusb|vusb2|vvideo$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+              unevaluatedProperties: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc34708
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 1
-+              maxItems: 1
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/leds/common.h>
-+
-+    spi {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        pmic: mc13892@0 {
-+            compatible = "fsl,mc13892";
-+            reg = <0>;
-+            spi-max-frequency = <1000000>;
-+            spi-cs-high;
-+            interrupt-parent = <&gpio0>;
-+            interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
-+            fsl,mc13xxx-uses-rtc;
-+            fsl,mc13xxx-uses-adc;
-+
-+            leds {
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+                led-control = <0x000 0x000 0x0e0 0x000>;
-+
-+                sysled@3 {
-+                    reg = <3>;
-+                    label = "system:red:live";
-+                    linux,default-trigger = "heartbeat";
-+                };
-+            };
-+
-+            regulators {
-+                sw1_reg: sw1 {
-+                    regulator-min-microvolt = <600000>;
-+                    regulator-max-microvolt = <1375000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+
-+                sw2_reg: sw2 {
-+                    regulator-min-microvolt = <900000>;
-+                    regulator-max-microvolt = <1850000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+            };
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-deleted file mode 100644
-index 8261ea73278a..000000000000
---- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-+++ /dev/null
-@@ -1,156 +0,0 @@
--* Freescale MC13783/MC13892 Power Management Integrated Circuit (PMIC)
--
--Required properties:
--- compatible : Should be "fsl,mc13783" or "fsl,mc13892"
--
--Optional properties:
--- fsl,mc13xxx-uses-adc : Indicate the ADC is being used
--- fsl,mc13xxx-uses-codec : Indicate the Audio Codec is being used
--- fsl,mc13xxx-uses-rtc : Indicate the RTC is being used
--- fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being used
--
--Sub-nodes:
--- codec: Contain the Audio Codec node.
--  - adc-port: Contain PMIC SSI port number used for ADC.
--  - dac-port: Contain PMIC SSI port number used for DAC.
--- leds : Contain the led nodes and initial register values in property
--  "led-control". Number of register depends of used IC, for MC13783 is 6,
--  for MC13892 is 4, for MC34708 is 1. See datasheet for bits definitions of
--  these registers.
--  - #address-cells: Must be 1.
--  - #size-cells: Must be 0.
--  Each led node should contain "reg", which used as LED ID (described below).
--  Optional properties "label" and "linux,default-trigger" is described in
--  Documentation/devicetree/bindings/leds/common.txt.
--- regulators : Contain the regulator nodes. The regulators are bound using
--  their names as listed below with their registers and bits for enabling.
--
--MC13783 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red 1
--    4  : Green 1
--    5  : Blue 1
--    6  : Red 2
--    7  : Green 2
--    8  : Blue 2
--    9  : Red 3
--    10 : Green 3
--    11 : Blue 3
--
--MC13892 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red
--    4  : Green
--    5  : Blue
--
--MC34708 LED IDs:
--    0  : Charger Red
--    1  : Charger Green
--
--MC13783 regulators:
--    sw1a      : regulator SW1A      (register 24, bit 0)
--    sw1b      : regulator SW1B      (register 25, bit 0)
--    sw2a      : regulator SW2A      (register 26, bit 0)
--    sw2b      : regulator SW2B      (register 27, bit 0)
--    sw3       : regulator SW3       (register 29, bit 20)
--    vaudio    : regulator VAUDIO    (register 32, bit 0)
--    viohi     : regulator VIOHI     (register 32, bit 3)
--    violo     : regulator VIOLO     (register 32, bit 6)
--    vdig      : regulator VDIG      (register 32, bit 9)
--    vgen      : regulator VGEN      (register 32, bit 12)
--    vrfdig    : regulator VRFDIG    (register 32, bit 15)
--    vrfref    : regulator VRFREF    (register 32, bit 18)
--    vrfcp     : regulator VRFCP     (register 32, bit 21)
--    vsim      : regulator VSIM      (register 33, bit 0)
--    vesim     : regulator VESIM     (register 33, bit 3)
--    vcam      : regulator VCAM      (register 33, bit 6)
--    vrfbg     : regulator VRFBG     (register 33, bit 9)
--    vvib      : regulator VVIB      (register 33, bit 11)
--    vrf1      : regulator VRF1      (register 33, bit 12)
--    vrf2      : regulator VRF2      (register 33, bit 15)
--    vmmc1     : regulator VMMC1     (register 33, bit 18)
--    vmmc2     : regulator VMMC2     (register 33, bit 21)
--    gpo1      : regulator GPO1      (register 34, bit 6)
--    gpo2      : regulator GPO2      (register 34, bit 8)
--    gpo3      : regulator GPO3      (register 34, bit 10)
--    gpo4      : regulator GPO4      (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--
--MC13892 regulators:
--    vcoincell : regulator VCOINCELL (register 13, bit 23)
--    sw1       : regulator SW1	    (register 24, bit 0)
--    sw2       : regulator SW2	    (register 25, bit 0)
--    sw3       : regulator SW3	    (register 26, bit 0)
--    sw4       : regulator SW4	    (register 27, bit 0)
--    swbst     : regulator SWBST	    (register 29, bit 20)
--    vgen1     : regulator VGEN1	    (register 32, bit 0)
--    viohi     : regulator VIOHI	    (register 32, bit 3)
--    vdig      : regulator VDIG	    (register 32, bit 9)
--    vgen2     : regulator VGEN2	    (register 32, bit 12)
--    vpll      : regulator VPLL	    (register 32, bit 15)
--    vusb2     : regulator VUSB2	    (register 32, bit 18)
--    vgen3     : regulator VGEN3	    (register 33, bit 0)
--    vcam      : regulator VCAM	    (register 33, bit 6)
--    vvideo    : regulator VVIDEO    (register 33, bit 12)
--    vaudio    : regulator VAUDIO    (register 33, bit 15)
--    vsd       : regulator VSD	    (register 33, bit 18)
--    gpo1      : regulator GPO1	    (register 34, bit 6)
--    gpo2      : regulator GPO2	    (register 34, bit 8)
--    gpo3      : regulator GPO3	    (register 34, bit 10)
--    gpo4      : regulator GPO4	    (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--    vusb      : regulator VUSB	    (register 50, bit 3)
--
--  The bindings details of individual regulator device can be found in:
--  Documentation/devicetree/bindings/regulator/regulator.txt
--
--Examples:
--
--ecspi@70010000 { /* ECSPI1 */
--	cs-gpios = <&gpio4 24 0>, /* GPIO4_24 */
--		   <&gpio4 25 0>; /* GPIO4_25 */
--
--	pmic: mc13892@0 {
--		#address-cells = <1>;
--		#size-cells = <0>;
--		compatible = "fsl,mc13892";
--		spi-max-frequency = <6000000>;
--		reg = <0>;
--		interrupt-parent = <&gpio0>;
--		interrupts = <8>;
--
--		leds {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			led-control = <0x000 0x000 0x0e0 0x000>;
--
--			sysled@3 {
--				reg = <3>;
--				label = "system:red:live";
--				linux,default-trigger = "heartbeat";
--			};
--		};
--
--		regulators {
--			sw1_reg: mc13892__sw1 {
--				regulator-min-microvolt = <600000>;
--				regulator-max-microvolt = <1375000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--
--			sw2_reg: mc13892__sw2 {
--				regulator-min-microvolt = <900000>;
--				regulator-max-microvolt = <1850000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--		};
--	};
--};
--- 
-2.39.5
+Thanks,
+-Mukesh
+
+
+> Nuno
+> 
+>> Signed-off-by: Mukesh Rathor <mrathor@linux.microsoft.com>
+>> ---
+>>  drivers/gpu/drm/Kconfig        |  2 +-
+>>  drivers/hid/Kconfig            |  2 +-
+>>  drivers/hv/Kconfig             | 12 +++++++++---
+>>  drivers/hv/Makefile            |  2 +-
+>>  drivers/input/serio/Kconfig    |  4 ++--
+>>  drivers/net/hyperv/Kconfig     |  2 +-
+>>  drivers/pci/Kconfig            |  2 +-
+>>  drivers/scsi/Kconfig           |  2 +-
+>>  drivers/uio/Kconfig            |  2 +-
+>>  drivers/video/fbdev/Kconfig    |  2 +-
+>>  include/asm-generic/mshyperv.h |  8 +++++---
+>>  net/vmw_vsock/Kconfig          |  2 +-
+>>  12 files changed, 25 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+>> index f7ea8e895c0c..58f34da061c6 100644
+>> --- a/drivers/gpu/drm/Kconfig
+>> +++ b/drivers/gpu/drm/Kconfig
+>> @@ -398,7 +398,7 @@ source "drivers/gpu/drm/imagination/Kconfig"
+>>  
+>>  config DRM_HYPERV
+>>  	tristate "DRM Support for Hyper-V synthetic video device"
+>> -	depends on DRM && PCI && HYPERV
+>> +	depends on DRM && PCI && HYPERV_VMBUS
+>>  	select DRM_CLIENT_SELECTION
+>>  	select DRM_KMS_HELPER
+>>  	select DRM_GEM_SHMEM_HELPER
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index a57901203aeb..fe3dc8c0db99 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -1162,7 +1162,7 @@ config GREENASIA_FF
+>>  
+>>  config HID_HYPERV_MOUSE
+>>  	tristate "Microsoft Hyper-V mouse driver"
+>> -	depends on HYPERV
+>> +	depends on HYPERV_VMBUS
+>>  	help
+>>  	Select this option to enable the Hyper-V mouse driver.
+>>  
+>> diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+>> index 2e8df09db599..08c4ed005137 100644
+>> --- a/drivers/hv/Kconfig
+>> +++ b/drivers/hv/Kconfig
+>> @@ -44,18 +44,24 @@ config HYPERV_TIMER
+>>  
+>>  config HYPERV_UTILS
+>>  	tristate "Microsoft Hyper-V Utilities driver"
+>> -	depends on HYPERV && CONNECTOR && NLS
+>> +	depends on HYPERV_VMBUS && CONNECTOR && NLS
+>>  	depends on PTP_1588_CLOCK_OPTIONAL
+>>  	help
+>>  	  Select this option to enable the Hyper-V Utilities.
+>>  
+>>  config HYPERV_BALLOON
+>>  	tristate "Microsoft Hyper-V Balloon driver"
+>> -	depends on HYPERV
+>> +	depends on HYPERV_VMBUS
+>>  	select PAGE_REPORTING
+>>  	help
+>>  	  Select this option to enable Hyper-V Balloon driver.
+>>  
+>> +config HYPERV_VMBUS
+>> +	tristate "Microsoft Hyper-V Vmbus driver"
+>> +	depends on HYPERV
+>> +	help
+>> +	  Select this option to enable Hyper-V Vmbus driver.
+>> +
+>>  config MSHV_ROOT
+>>  	tristate "Microsoft Hyper-V root partition support"
+>>  	depends on HYPERV && (X86_64 || ARM64)
+>> @@ -75,7 +81,7 @@ config MSHV_ROOT
+>>  
+>>  config MSHV_VTL
+>>  	tristate "Microsoft Hyper-V VTL driver"
+>> -	depends on X86_64 && HYPERV_VTL_MODE
+>> +	depends on X86_64 && HYPERV_VTL_MODE && HYPERV_VMBUS
+>>  	# Mapping VTL0 memory to a userspace process in VTL2 is supported in OpenHCL.
+>>  	# VTL2 for OpenHCL makes use of Huge Pages to improve performance on VMs,
+>>  	# specially with large memory requirements.
+>> diff --git a/drivers/hv/Makefile b/drivers/hv/Makefile
+>> index c53a0df746b7..050517756a82 100644
+>> --- a/drivers/hv/Makefile
+>> +++ b/drivers/hv/Makefile
+>> @@ -1,5 +1,5 @@
+>>  # SPDX-License-Identifier: GPL-2.0
+>> -obj-$(CONFIG_HYPERV)		+= hv_vmbus.o
+>> +obj-$(CONFIG_HYPERV_VMBUS)	+= hv_vmbus.o
+>>  obj-$(CONFIG_HYPERV_UTILS)	+= hv_utils.o
+>>  obj-$(CONFIG_HYPERV_BALLOON)	+= hv_balloon.o
+>>  obj-$(CONFIG_MSHV_ROOT)		+= mshv_root.o
+>> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+>> index 17edc1597446..c7ef347a4dff 100644
+>> --- a/drivers/input/serio/Kconfig
+>> +++ b/drivers/input/serio/Kconfig
+>> @@ -276,8 +276,8 @@ config SERIO_OLPC_APSP
+>>  
+>>  config HYPERV_KEYBOARD
+>>  	tristate "Microsoft Synthetic Keyboard driver"
+>> -	depends on HYPERV
+>> -	default HYPERV
+>> +	depends on HYPERV_VMBUS
+>> +	default HYPERV_VMBUS
+>>  	help
+>>  	  Select this option to enable the Hyper-V Keyboard driver.
+>>  
+>> diff --git a/drivers/net/hyperv/Kconfig b/drivers/net/hyperv/Kconfig
+>> index c8cbd85adcf9..982964c1a9fb 100644
+>> --- a/drivers/net/hyperv/Kconfig
+>> +++ b/drivers/net/hyperv/Kconfig
+>> @@ -1,7 +1,7 @@
+>>  # SPDX-License-Identifier: GPL-2.0-only
+>>  config HYPERV_NET
+>>  	tristate "Microsoft Hyper-V virtual network driver"
+>> -	depends on HYPERV
+>> +	depends on HYPERV_VMBUS
+>>  	select UCS2_STRING
+>>  	select NLS
+>>  	help
+>> diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+>> index 9a249c65aedc..7065a8e5f9b1 100644
+>> --- a/drivers/pci/Kconfig
+>> +++ b/drivers/pci/Kconfig
+>> @@ -221,7 +221,7 @@ config PCI_LABEL
+>>  
+>>  config PCI_HYPERV
+>>  	tristate "Hyper-V PCI Frontend"
+>> -	depends on ((X86 && X86_64) || ARM64) && HYPERV && PCI_MSI && SYSFS
+>> +	depends on ((X86 && X86_64) || ARM64) && HYPERV_VMBUS && PCI_MSI && SYSFS
+>>  	select PCI_HYPERV_INTERFACE
+>>  	select IRQ_MSI_LIB
+>>  	help
+>> diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+>> index 5522310bab8d..19d0884479a2 100644
+>> --- a/drivers/scsi/Kconfig
+>> +++ b/drivers/scsi/Kconfig
+>> @@ -589,7 +589,7 @@ config XEN_SCSI_FRONTEND
+>>  
+>>  config HYPERV_STORAGE
+>>  	tristate "Microsoft Hyper-V virtual storage driver"
+>> -	depends on SCSI && HYPERV
+>> +	depends on SCSI && HYPERV_VMBUS
+>>  	depends on m || SCSI_FC_ATTRS != m
+>>  	default HYPERV
+>>  	help
+>> diff --git a/drivers/uio/Kconfig b/drivers/uio/Kconfig
+>> index b060dcd7c635..6f86a61231e6 100644
+>> --- a/drivers/uio/Kconfig
+>> +++ b/drivers/uio/Kconfig
+>> @@ -140,7 +140,7 @@ config UIO_MF624
+>>  
+>>  config UIO_HV_GENERIC
+>>  	tristate "Generic driver for Hyper-V VMBus"
+>> -	depends on HYPERV
+>> +	depends on HYPERV_VMBUS
+>>  	help
+>>  	  Generic driver that you can bind, dynamically, to any
+>>  	  Hyper-V VMBus device. It is useful to provide direct access
+>> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+>> index c21484d15f0c..72c63eaeb983 100644
+>> --- a/drivers/video/fbdev/Kconfig
+>> +++ b/drivers/video/fbdev/Kconfig
+>> @@ -1774,7 +1774,7 @@ config FB_BROADSHEET
+>>  
+>>  config FB_HYPERV
+>>  	tristate "Microsoft Hyper-V Synthetic Video support"
+>> -	depends on FB && HYPERV
+>> +	depends on FB && HYPERV_VMBUS
+>>  	select DMA_CMA if HAVE_DMA_CONTIGUOUS && CMA
+>>  	select FB_IOMEM_HELPERS_DEFERRED
+>>  	help
+>> diff --git a/include/asm-generic/mshyperv.h b/include/asm-generic/mshyperv.h
+>> index 1d2ad1304ad4..66c58c91b530 100644
+>> --- a/include/asm-generic/mshyperv.h
+>> +++ b/include/asm-generic/mshyperv.h
+>> @@ -165,6 +165,7 @@ static inline u64 hv_generate_guest_id(u64 kernel_version)
+>>  
+>>  void __init hv_mark_resources(void);
+>>  
+>> +#if IS_ENABLED(CONFIG_HYPERV_VMBUS)
+>>  /* Free the message slot and signal end-of-message if required */
+>>  static inline void vmbus_signal_eom(struct hv_message *msg, u32 old_msg_type)
+>>  {
+>> @@ -200,6 +201,10 @@ static inline void vmbus_signal_eom(struct hv_message *msg, u32 old_msg_type)
+>>  	}
+>>  }
+>>  
+>> +extern int vmbus_interrupt;
+>> +extern int vmbus_irq;
+>> +#endif /* CONFIG_HYPERV_VMBUS */
+>> +
+>>  int hv_get_hypervisor_version(union hv_hypervisor_version_info *info);
+>>  
+>>  void hv_setup_vmbus_handler(void (*handler)(void));
+>> @@ -213,9 +218,6 @@ void hv_setup_crash_handler(void (*handler)(struct pt_regs *regs));
+>>  void hv_remove_crash_handler(void);
+>>  void hv_setup_mshv_handler(void (*handler)(void));
+>>  
+>> -extern int vmbus_interrupt;
+>> -extern int vmbus_irq;
+>> -
+>>  #if IS_ENABLED(CONFIG_HYPERV)
+>>  /*
+>>   * Hypervisor's notion of virtual processor ID is different from
+>> diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
+>> index 56356d2980c8..8e803c4828c4 100644
+>> --- a/net/vmw_vsock/Kconfig
+>> +++ b/net/vmw_vsock/Kconfig
+>> @@ -72,7 +72,7 @@ config VIRTIO_VSOCKETS_COMMON
+>>  
+>>  config HYPERV_VSOCKETS
+>>  	tristate "Hyper-V transport for Virtual Sockets"
+>> -	depends on VSOCKETS && HYPERV
+>> +	depends on VSOCKETS && HYPERV_VMBUS
+>>  	help
+>>  	  This module implements a Hyper-V transport for Virtual Sockets.
+>>  
 

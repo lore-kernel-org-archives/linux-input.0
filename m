@@ -1,86 +1,153 @@
-Received: from sender2-of-o51.zoho.eu (sender2-of-o51.zoho.eu [136.143.171.51])
+Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13FFC21019E
-	for <linux-input@vger.kernel.org>; Fri, 29 Aug 2025 18:10:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.171.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756491055; cv=pass; b=UHMoGe1wJMqommzhAsJP5uD3HRk+DFo1qS6qqm2N1BDHjXJL6SFNgVY8GGyfHzxXlGRzE+3PziVXxMjR5wKmv1uQGClFFa8ws+SOpN5bKJU2cRvp94/V4IDFPCeeyV8GQpvuVIiJ70VV+oRhlwt8hUK4TyEw1cdyKC2W//nC1rU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756491055; c=relaxed/simple;
-	bh=hAb6lQUexnkNdskk6vOZusKMuovzzN9Cfq0wS8vNk8I=;
-	h=Date:From:To:Message-ID:In-Reply-To:Subject:MIME-Version:
-	 Content-Type; b=P6h39C21eD/6bg2CupA44FGy+lPR+Z888VJo3qd7eVlMUe/qd3De2TTKfLUgA/yi2usdOF3FXvxds2OSOSUhME+fCyBF9eqF6OiQaCzLi7s+0YRhyCAdRnnJHrUYtUB+b0ik0fYUH3uM0fd8CSjMrGBFLp5u5Kcz64EfjMm1TTc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=emergence.ltd; spf=pass smtp.mailfrom=emergence.ltd; dkim=pass (1024-bit key) header.d=emergence.ltd header.i=brandon@emergence.ltd header.b=QFOaEoqU; arc=pass smtp.client-ip=136.143.171.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=emergence.ltd
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=emergence.ltd
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=emergence.ltd header.i=brandon@emergence.ltd header.b="QFOaEoqU"
-ARC-Seal: i=1; a=rsa-sha256; t=1756491043; cv=none; 
-	d=zohomail.eu; s=zohoarc; 
-	b=ifgnYeGWjxm9WF9KUJlyjX6eFtCuPyKRp87B32kQzUTS6pP2Szg7tXlacHzBS1cORqwLubSzMgHqd9U0iJNOVrEZQBsCQVLrTdRsWEpNzwzhZn+MrJQ4ag2PySY1zrDxOBB5yMBjPDlL6s6cRmhGzHmd5SBw5xYoNXLa7SzLsNM=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-	t=1756491043; h=Content-Type:Content-Transfer-Encoding:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
-	bh=o8a+8O8f/4m8zJrzxZlLSa5bb04Vn32cMQAfVdDaMfo=; 
-	b=PFbKlO1QD0+Xpw1AiK1Q0ppzdNq+f5/dxpVA1D39hU5wpeSqMw1OWOngPW8CjtTCZO4yWjqI1WhJuCYgihx/e4MDZEIl8tfQW5g7ccPY5v+FvCTUjv+ga+/IfnVZjlgQOq/f4h75a0lxLx+YxCfL1mUACDfF8NU2anvljZFelms=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-	dkim=pass  header.i=emergence.ltd;
-	spf=pass  smtp.mailfrom=brandon@emergence.ltd;
-	dmarc=pass header.from=<brandon@emergence.ltd>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1756491043;
-	s=zmail; d=emergence.ltd; i=brandon@emergence.ltd;
-	h=Date:Date:From:From:To:To:Message-ID:In-Reply-To:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
-	bh=o8a+8O8f/4m8zJrzxZlLSa5bb04Vn32cMQAfVdDaMfo=;
-	b=QFOaEoqULyzvO++fYAfQfo/3lJAWNuzfltgMEZ88Kjo7SQzw1u9h0pwM+1IdVxi1
-	rbk0Y3RlBK9fOpCrhc5bdYgXFkbqURKoQyNPHdSzvI1OSFwLxN8KusWdA+LQVUT94cQ
-	XUb6+OdOyx83Y/A7BtMOpBmMnzbjsiw22je0rCMk=
-Received: from mail.zoho.eu by mx.zoho.eu
-	with SMTP id 1756491041598252.66904715773205; Fri, 29 Aug 2025 20:10:41 +0200 (CEST)
-Date: Fri, 29 Aug 2025 19:10:41 +0100
-From: brandon <brandon@emergence.ltd>
-To: "trivial" <trivial@kernel.org>, "vi" <vi@endrift.com>,
-	"linux-input" <linux-input@vger.kernel.org>
-Message-ID: <198f7064b23.1194b1b9d477339.120973386817363979@emergence.ltd>
-In-Reply-To: 
-Subject: Adding Kernel xpad support for Flydigi Apex 5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973E82367C1;
+	Fri, 29 Aug 2025 20:10:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756498221; cv=none; b=YvSlGAZZq6ueFgUqYxAqojLolwyV/LR2JLihP5JKJWpXodhxiFRxJ1DPowjZfVahYIpJaMy/t0G8Ue1w5+lEOPGIkJKJ4gHX8YVuLqklNSe3tCUAbK4bTiC3hswqGVaJovSJ5Njv7I4nwJXBGYxCaXXTWu2n2M/RdvfNGNsfbD4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756498221; c=relaxed/simple;
+	bh=aTTK8wXZDxPXBF8SHgvVkxik6q6jd8mnQIwiJTIgEr8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=LXxjXyxf0WiR8d8CUdHitAkPn1L6YaiwB216TN0GlHVVp0PC1AaZGcQrfve+7l7YhgIrYL0FTBJHXJl4WHI73d3C71mdmSdB2VPbKhcDxeIN6/vuzrMvCKGMj0bDlD+M+MtuB/rcbaRWJgvxTAWMTt5WF1M9H7MicbOCM+oW/8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
+Received: from blala.de (localhost [127.0.0.1])
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 57TKFJs7015465;
+	Fri, 29 Aug 2025 20:15:19 GMT
+Received: (from akurz@localhost)
+	by blala.de (8.15.2/8.15.2/Submit) id 57TKFJkq015459;
+	Fri, 29 Aug 2025 20:15:19 GMT
+From: Alexander Kurz <akurz@blala.de>
+To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dzmitry Sankouski <dsankouski@gmail.com>,
+        "Dr. David Alan Gilbert" <linux@treblig.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
+Subject: [PATCH v3 6/7] dt-bindings: mfd: fsl,mc13xxx: add buttons node
+Date: Fri, 29 Aug 2025 20:15:16 +0000
+Message-Id: <20250829201517.15374-7-akurz@blala.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20250829201517.15374-1-akurz@blala.de>
+References: <20250829201517.15374-1-akurz@blala.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
+Content-Transfer-Encoding: 8bit
 
-Hello,
+Add a buttons node and properties describing the "ONOFD" (MC13783) and
+"PWRON" (MC13892/MC34708) buttons available in the fsl,mc13xxx PMIC ICs.
 
-This adds support for the Flydigi Apex 5 controller to the xpad kernel module. This has been tested as part of: https://github.com/paroj/xpad/pull/328
+Signed-off-by: Alexander Kurz <akurz@blala.de>
+---
+ .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 70 +++++++++++++++++++
+ 1 file changed, 70 insertions(+)
 
-This patch is very small and simple, it simply white lists the controller so it can be used. The trigger and stick mappings are none standard, but SDL has the correct mappings already shipped so it's not a problem in Steam or games I've tried.
+diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+index 007c2e3eee91..d2886f2686a8 100644
+--- a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
++++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+@@ -39,6 +39,58 @@ properties:
+   interrupts:
+     maxItems: 1
+ 
++  buttons:
++    type: object
++    properties:
++      "#address-cells":
++        const: 1
++
++      "#size-cells":
++        const: 0
++
++    patternProperties:
++      "^onkey@[0-2]$":
++        $ref: /schemas/input/input.yaml#
++        unevaluatedProperties: false
++        type: object
++
++        properties:
++          reg:
++            description: |
++              One of
++              MC13783 BUTTON IDs:
++                0: ONOFD1
++                1: ONOFD2
++                2: ONOFD3
++
++              MC13892 BUTTON IDs:
++                0: PWRON1
++                1: PWRON2
++                2: PWRON3
++
++              MC34708 BUTTON IDs:
++                0: PWRON1
++                1: PWRON2
++            maximum: 2
++
++          debounce-delay-ms:
++            enum: [0, 30, 150, 750]
++            default: 30
++            description:
++              Sets the debouncing delay in milliseconds.
++
++          active-low:
++            description: Set active when pin is pulled low.
++
++          linux,code: true
++
++          fsl,enable-reset:
++            description:
++              Setting of the global reset option.
++            type: boolean
++
++    unevaluatedProperties: false
++
+   leds:
+     type: object
+     $ref: /schemas/leds/common.yaml#
+@@ -159,6 +211,12 @@ allOf:
+             const: fsl,mc34708
+     then:
+       properties:
++        buttons:
++          patternProperties:
++            "^onkey@[0-2]$":
++              properties:
++                reg:
++                  maximum: 1
+         leds:
+           properties:
+             led-control:
+@@ -187,6 +245,18 @@ examples:
+             fsl,mc13xxx-uses-rtc;
+             fsl,mc13xxx-uses-adc;
+ 
++            buttons {
++                #address-cells = <1>;
++                #size-cells = <0>;
++
++                onkey@0 {
++                    reg = <0>;
++                    debounce-delay-ms = <30>;
++                    active-low;
++                    fsl,enable-reset;
++                };
++            };
++
+             leds {
+                 #address-cells = <1>;
+                 #size-cells = <0>;
+-- 
+2.39.5
 
-Here is the patch:
-
---- linux/drivers/input/joystick/xpad.c.orig 2025-08-29 18:20:56.157442704 +0100
-+++ linux/drivers/input/joystick/xpad.c 2025-08-29 18:19:29.539174760 +0100
-@@ -422,6 +422,7 @@ static const struct xpad_device {
-{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
-{ 0x366c, 0x0005, "ByoWave Proteus Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE, FLAG_DELAY_INIT },
-{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
-+	{ 0x37d7, 0x2501, "Flydigi Apex 5", 0, XTYPE_XBOX },
-{ 0x413d, 0x2104, "Black Shark Green Ghost Gamepad", 0, XTYPE_XBOX360 },
-{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
-{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-@@ -578,6 +579,7 @@ static const struct usb_device_id xpad_t
-XPAD_XBOX360_VENDOR(0x3537),		/* GameSir Controllers */
-XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
-XPAD_XBOXONE_VENDOR(0x366c),		/* ByoWave controllers */
-+	XPAD_XBOXONE_VENDOR(0x37d7),		/* Flydigi Controllers */
-XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
-{ }
-};
-
-Thanks,
-Brandon Lin

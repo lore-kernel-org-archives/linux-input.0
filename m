@@ -1,90 +1,147 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41A32AF1B
-	for <linux-input@vger.kernel.org>; Tue,  2 Sep 2025 20:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016F2203706;
+	Tue,  2 Sep 2025 20:47:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756843449; cv=none; b=n/OtD7RO0L1tI624FC5JRTkCUrHAVUb1yquGru3DmUnftdF+UAjfY4Dlcg2ii97AE0xSlCHJterx9gcL13lrazeYrs1zkX/UR9gqHN2M8BIqSX+LpGzl/hpzRoZe+i+PQZdqSBcD+jsNhrJmebbfjpl8BOqHia1dQmqVS5UaBkE=
+	t=1756846074; cv=none; b=WzioUZY13nmuWWs1+dlP+cORUzNo+Y+xdmQkTMAOFtQsLP+roU0sHHL6Toe6UYDykeWZ1UL1SyuS6tVpu6+hjQCXfEX0B45nJ6goiuqU71Tm87e24XY+czp4D+zsH/hrwpx8r5BwCk8MI9uqpbzkU+whO2/lOv39LOGFfpAOIfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756843449; c=relaxed/simple;
-	bh=Zs+mtu5xXthktL1feYCHtLu9lPu+5JPgc8V8WtIRKss=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nMem6i2FmBqbeVKMl2gA7GaAyOLD+QjMnF8B11Oy0m3VWwPCNgBfJPOnDxqgbrnnJSTe3a2xi7qetPUa8fHcWLXzwAk9v69PEU13gcfEMP2O6fCFfnXwb0PLXboBMJ+QdluIxtbah3BJ4N0elEgtJH9lyC2DWpwWc5QR/+6Gj54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JT8PIGRU; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756846074; c=relaxed/simple;
+	bh=F2kD4w31rmC8aRc55QM8VeAbD7vVZzwGup32InjmXFY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GLQMsC5fdrCwDlKXw41ab4vY3pUfhW09l8/YcV4Z+PPt7To0UrJsyKQ4WeBQGAvz9uCAlGJ/nnzHpkShosI8/BltUv5yp8q9Um8evOGLphtOD57H8JnDq9YmxM+5nrZ5+vo+2i2N5IPNrzz7AV0uJL7+FNC7XpdbK3poFejjMeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WgLUEb4P; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JT8PIGRU"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-3da9ad0c1f4so813046f8f.3
-        for <linux-input@vger.kernel.org>; Tue, 02 Sep 2025 13:04:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756843446; x=1757448246; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zs+mtu5xXthktL1feYCHtLu9lPu+5JPgc8V8WtIRKss=;
-        b=JT8PIGRU0pktfxUCqyhz8rDlhYcHWrAbhL+LwtAprDquKff4PXijrKhhRb0Ifaoubq
-         qoJWmGP+TdFCr+FQlXhh72GuulBzO7/hOZGJfov3kMT6LS9rzuNPL4Irq9ODjXzFQtad
-         UXwjY8SMhldSLRNudJGwzbnCc6Uc1WS8OaDiUJ5kuxaRHxIegrwii++Jd+MYYUvqvfHB
-         b76ei7uJPcDeOnlvFVoUQ40SCoa8EFVc1y7s32mJtL1LcJ2dxhpb86scO0CWiEUi+oEs
-         QGAz+7SId4psISubj7NF+xLjebkoR/hT9uvvyukyJ7r/n9e6IZGkr245Gc112wE4Dnm/
-         XevA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756843446; x=1757448246;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Zs+mtu5xXthktL1feYCHtLu9lPu+5JPgc8V8WtIRKss=;
-        b=XQRlyXCa+T8H+UcQu97ZUsUJCyT8SQ/RvPX5TdqN71pXcqw4PfOXEmPekDxdwWumNl
-         sBZT9K9naBqQeqHehruAFxhWKADmbqfOAHPV9gqoRqnL75l/inFBwlSdeUWSTtcR8jZX
-         INCXD+rydZudsH/QYCzpCsUrSuPBBDMu8FxGDseGjpMLQ5DuxH+aqaGjaTloNJyMsL7p
-         CdH7+7/A5Nx4oJHWyYhPz9lRFDqtQWo81bOPc+BJpvu4vfqWowiSeu21wSbwr8nxsq/p
-         ttBirUvxMI3CnEJM5otQVIGd7R+nA5YW9X1Tb6SIIzDnbEPVsatVICXsCj/7ptPaC5th
-         rBOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXueBhg16x5gYKNtY6G0LjEJj4EKZPBwE/SPHMSBWP/NJlit817CyXs/Yt+kDaqGC0qEthwUPucsLqhZw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxspeovPbCMwywdNpxZk5358RyBVeL+BavFpl4oN9XrD9i3fUBM
-	zQBbw8kecWV+Ctvketkfrc0ydPz1+KMqFcLidQCy/mRVrWNsYWZMg5GxSX8LkZT8CjttSJdeiQQ
-	TkPYaQEHWPjK5biXbq6y8Ns+4WzqDIt0=
-X-Gm-Gg: ASbGnctEdtqP+xgVQBeOLiPeuPNlJL8kWDaXill350XTKclHkwst8J6hF7hj/A+qL2g
-	JRjpF3UCy43NlRMROqOTlShLqdOmR4q6qgDtemfvYOG95nGtMbwzAV6TfXwkGo2apZH1RbmPejp
-	pSSyo9Nu9m/VbUXX4aZtiXb4oSWtvI2jtaC/4IpocYw4pOcJ9UnI95tnlSEr50BxJu26nAEDqGd
-	B+dbqpy5M0d6eLweHAFnXSH96VCBZT5VhSIwnuP
-X-Google-Smtp-Source: AGHT+IEfseR4UwMkRVvyVlvn2N8YuH2hOrjQymcjWR45zXD4rVsGwqGIRXSkRYusv6AsE/Ue78cxsdj+61cnMc3lwrQ=
-X-Received: by 2002:a5d:64e4:0:b0:3ce:f4fe:403c with SMTP id
- ffacd0b85a97d-3d1dddf0380mr9082878f8f.16.1756843445824; Tue, 02 Sep 2025
- 13:04:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WgLUEb4P"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77EE9C4CEED;
+	Tue,  2 Sep 2025 20:47:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1756846073;
+	bh=F2kD4w31rmC8aRc55QM8VeAbD7vVZzwGup32InjmXFY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=WgLUEb4P3BucztLyEYtKfNbcksfLtRcdtfoZO90JxzgpGZzCs8hwUk8QA5cvR0jUW
+	 ZTBkkco5IlzvxRkHoOEdYhPCLL5oj02TXNMHtyk0aE+djN49Ov+8B9FQzpcoV/Ath1
+	 8ZwoxSXvYk1vHzBJKct89wwCOfRO50a/4ElIARX4Zcsj+3+isPnd23pVQTQG8Lo60x
+	 enNR7yy9R8fP5Qt2XdgfpFT/HMVBfvRJy4O+q0xchVigrvNKG9Aty9aQShIc+6UdmV
+	 c9PAX0rFX7P3/fNyLgNUR/+WN5FixODVqoQ08WW/mVoC8AWEktbHukjERwcnQWCvZd
+	 eMbTjJGLelOZg==
+Message-ID: <9600871d-7a68-4e7e-8cc1-5280af554378@kernel.org>
+Date: Tue, 2 Sep 2025 22:47:48 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250902184128.4100275-1-mavchatz@protonmail.com>
-In-Reply-To: <20250902184128.4100275-1-mavchatz@protonmail.com>
-From: Stuart <stuart.a.hayhurst@gmail.com>
-Date: Tue, 2 Sep 2025 21:03:54 +0100
-X-Gm-Features: Ac12FXxh2trPNqCxyLHMeBzFTt_jGZyoiDpK2JlAG_7vBAnm8S1_EkFWv-m1ir8
-Message-ID: <CALTg27=fZ+_2b2AXmKk5UcZG_2-zm2XP3+xzbSUrWdahD7ShaA@mail.gmail.com>
-Subject: Re: [PATCH v4] HID: logitech-dj: Add support for a new lightspeed
- receiver iteration
-To: Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org, 
-	benjamin.tissoires@redhat.com, hadess@hadess.net, lains@riseup.net
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] HID: lg-g15 - Add support for Logitech G13.
+To: kernel test robot <lkp@intel.com>, "Leo L. Schwab" <ewhac@ewhac.org>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+ Kate Hsuan <hpa@redhat.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20250902003659.361934-2-ewhac@ewhac.org>
+ <202509030200.ITZPZGmG-lkp@intel.com>
+Content-Language: en-US, nl
+From: Hans de Goede <hansg@kernel.org>
+In-Reply-To: <202509030200.ITZPZGmG-lkp@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thanks for rebasing, testing with a Logitech G915 TKL:
- - All the keys work and the media controls work perfectly too.
- - The battery is detected and the sysfs attributes all look correct.
+Hi,
 
-However, caps lock correctly enables caps lock, but the caps lock
-light doesn't respond to it any more (the light works without the
-driver).
-My laptop's internal keyboard lights up correctly when caps lock is
-pressed on either keyboard, but the caps lock light on my G915 TKL
-never lights up.
+On 2-Sep-25 21:46, kernel test robot wrote:
+> Hi Leo,
+> 
+> kernel test robot noticed the following build errors:
+> 
+> [auto build test ERROR on hid/for-next]
+> [also build test ERROR on linus/master v6.17-rc4 next-20250902]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Leo-L-Schwab/HID-lg-g15-Add-support-for-Logitech-G13/20250902-091504
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+> patch link:    https://lore.kernel.org/r/20250902003659.361934-2-ewhac%40ewhac.org
+> patch subject: [PATCH v5] HID: lg-g15 - Add support for Logitech G13.
+> config: i386-buildonly-randconfig-006-20250902 (https://download.01.org/0day-ci/archive/20250903/202509030200.ITZPZGmG-lkp@intel.com/config)
+> compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250903/202509030200.ITZPZGmG-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202509030200.ITZPZGmG-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+>>> drivers/hid/hid-lg-g15.c:692:30: error: no member named 'brightness_hw_changed' in 'struct led_classdev'
+>      692 |                                            ^ (g15->leds[0].cdev.brightness_hw_changed > 0);
+>          |                                               ~~~~~~~~~~~~~~~~~ ^
+>    1 error generated.
 
-I'm happy to check anything you need for troubleshooting, I'm also
-happy to compile more kernels :)
+Ah right, IS_ENABLED() only helps to avoid errors about references which
+are resolved link-time and this is a compile-time issue.
 
-Thanks,
-Stuart
+But as discussed in the v3 thread we don't want to use 
+cdev.brightness_hw_changed anyways.
+
+Regards,
+
+Hans
+
+
+> 
+> vim +692 drivers/hid/hid-lg-g15.c
+> 
+>    655	
+>    656	static int lg_g13_event(struct lg_g15_data *g15, u8 const *data)
+>    657	{
+>    658		struct g13_input_report const * const rep = (struct g13_input_report *) data;
+>    659		int i, val;
+>    660	
+>    661		/*
+>    662		 * Main macropad and menu keys.
+>    663		 * Emit key events defined for each bit position.
+>    664		 */
+>    665		for (i = 0; i < ARRAY_SIZE(g13_keys_for_bits); ++i) {
+>    666			if (g13_keys_for_bits[i]) {
+>    667				val = TEST_BIT(rep->keybits, i);
+>    668				input_report_key(g15->input, g13_keys_for_bits[i], val);
+>    669			}
+>    670		}
+>    671		input_sync(g15->input);
+>    672	
+>    673		/*
+>    674		 * Joystick.
+>    675		 * Emit button and deflection events.
+>    676		 */
+>    677		for (i = 0; i < ARRAY_SIZE(g13_keys_for_bits_js); ++i) {
+>    678			val = TEST_BIT(rep->keybits, i + G13_JS_KEYBITS_OFFSET);
+>    679			input_report_key(g15->input_js, g13_keys_for_bits_js[i], val);
+>    680		}
+>    681		input_report_abs(g15->input_js, ABS_X, rep->joy_x);
+>    682		input_report_abs(g15->input_js, ABS_Y, rep->joy_y);
+>    683		input_sync(g15->input_js);
+>    684	
+>    685		if (IS_ENABLED(CONFIG_LEDS_BRIGHTNESS_HW_CHANGED)) {
+>    686			/*
+>    687			 * Bit 23 of keybits[] reports the current backlight on/off
+>    688			 * state.  If it has changed from the last cached value, apply
+>    689			 * an update.
+>    690			 */
+>    691			bool hw_brightness_changed = (!!TEST_BIT(rep->keybits, 23))
+>  > 692						   ^ (g15->leds[0].cdev.brightness_hw_changed > 0);
+>    693			if (hw_brightness_changed)
+>    694				led_classdev_notify_brightness_hw_changed(
+>    695					&g15->leds[0].cdev,
+>    696					TEST_BIT(rep->keybits, 23) ? LED_FULL : LED_OFF);
+>    697		}
+>    698	
+>    699		return 0;
+>    700	}
+>    701	
+> 
+

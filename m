@@ -1,288 +1,238 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013044.outbound.protection.outlook.com [40.107.162.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D77309F13;
-	Fri,  5 Sep 2025 18:48:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757098138; cv=none; b=SaeqX9obd9XbaynES1VdT9lrHoJxy8PfD1cpQy89Fe3KKbyhy9xrj8FTp8jrZ8+LjIfB7IQfnw12Pmfvh9RRhfBMfBUWno3QBf6DR3Pv2khsaJXZ8dZ0QHj6aIgeDE1cLqd0bghRh9oZyG+f9jAhrRnfnRHFDx/9zqzt1/R93l8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757098138; c=relaxed/simple;
-	bh=Dp5RmIYk2nbwxrj985ZZ3tn3G9Tpdw2szPFrfRBiizM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bZBGgn/uqN0vL6sj25zS0vT8chcacqsXJO6rAb+yGhfmp7jFqu3jVF0SDtAD3T10fItwz1dtCUUyPQG1tKZuCs6dniuCAPmY9knDcLmTLNdby3CVATvB83gfWAjZQf78/tKuN5KyaqHkyQ5X7shSjjcsrYymSNEQwqic+cM7IsM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ByRW68pz; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7CD315D5E;
+	Fri,  5 Sep 2025 19:07:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757099225; cv=fail; b=WvLni4pYnuY+DKsM58YKK1XSFjz0IWpNILpdQ4isE0ppjeu2aGUqCJFahMT1J68KxmV9R+ZvGo5Ipyt3WVAjOy1Do4mvwylv5ghxlHxH6K9aRY+fGwp8IssPOPfQ+ESGEzHjOOcF7LqRxOUtMQ6kShhNNGdkWdzXzxwpMPYhbyg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757099225; c=relaxed/simple;
+	bh=sMymXuCsFpmPXTu3Mf5pjZbpDuczx6SxC1Nl3ZVQiV0=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=K1JZYP1LmTWuIdd4uwS7ao4hFEpocoZVn/UMG00/eQXdHonJwzSTPhOxadswhVzfmboqbuSKWhnkrHMnvqz0chxTg280IlSwcj7WMvqCaT383UFU/flnVR8tOHKReENZl/jWrS0DCBuG0YZVd2wzEp1kEw6IzBmnY6BB3LfqG3M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=WaYhE4Bg; arc=fail smtp.client-ip=40.107.162.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ByRW68pz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1757098136; x=1788634136;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=Dp5RmIYk2nbwxrj985ZZ3tn3G9Tpdw2szPFrfRBiizM=;
-  b=ByRW68pzynt8P6JuKF7RQKKyrsar46kNbAn19cF1fde75lPp0iEm68tp
-   WGf4dXkmNpin+oNAtntXecjl7Glbdc3Td8l/xATBvWVslz1eEKMMiHAOj
-   SUlMym20496BbLSVFPeYURFcQGV98iW7zHkfs5zNwsdIGbNgWTMizhsL7
-   QQVZGLg7mG96mrIPvWjx7tJjyO4kXKO2d6Auo54zEF3oqGrzhw1tiNDmZ
-   TNMNV5zLZoWifBMOE3qOSGR1Y1u2g7r62SzIuh2XBKNYxNnUamcPO5UHP
-   CShNlFccf5EZ5gCBFbu6x/WsaAUpRn3LZcEITPP65Hp+NiSzizs8LwEjk
-   w==;
-X-CSE-ConnectionGUID: 7QcyZHXdTv2sLrp/141qlg==
-X-CSE-MsgGUID: n+nz4hupRN+d8Ta1mD6qYA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="82045546"
-X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
-   d="scan'208";a="82045546"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2025 11:48:55 -0700
-X-CSE-ConnectionGUID: rVFh1n2zQTGYFHzw4m+qyw==
-X-CSE-MsgGUID: 3foXpiZmQRCGBOvJLfl+Mg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,242,1751266800"; 
-   d="scan'208";a="203158361"
-Received: from spandruv-desk2.jf.intel.com (HELO [10.98.25.49]) ([10.98.25.49])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2025 11:48:55 -0700
-Message-ID: <5c83a18128bbc0b8cfd6900439e7349250732659.camel@linux.intel.com>
-Subject: Re: [PATCH RESEND v2] hid: intel-thc-hid: intel-quicki2c: support
- ACPI config for advanced features
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Xinpeng Sun <xinpeng.sun@intel.com>, jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rui Zhang
-	 <rui1.zhang@intel.com>
-Date: Fri, 05 Sep 2025 09:54:36 -0700
-In-Reply-To: <20250905013935.1356008-1-xinpeng.sun@intel.com>
-References: <20250905013935.1356008-1-xinpeng.sun@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="WaYhE4Bg"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=j7wOAHdyb5NIlIvEicnApyNyCj8vveMhRRT4HpcrgVPwYFLsilCkAuXsf+AL7cXUVcMcFrKVGwCD9dtbMrWmAmEMfXpttHQDvk+DPxQFDAz7ngYS+owotl/ZvjfGBldfclkvltBO642crcdl0/HEQedET05wG77NnU/B+t8NNbYw1RbgsJyzXScqs5lJcgRvTsYzv0bFmamHtdr2EM6I8h4mEA0T6UC8AGdKjxuqHiMXUECjb7cE0xAI1xlKWVg43754HOQDSWn7ExlgaG01f3pAyKRNUi0JdL5sx8FgA8vNOr6eZD1yzSqZoG3/jPTTONKvMylbkNZks/f2h9OX7w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=POCFMh7wzF84hVnqVLE0Qvb7GFQQ853N7L7K8BI2YAs=;
+ b=qGgfbyFchEIkG271aQNHcVTEULt/jsbccv9vjEhksPYokwkBxS3USBECAoznFwWxMaNrTfbQ/0LFqm/tGVZN/MerM8lwSYf+dSr3UBwqqYwN413YZBTgxRhFUmBr8/+DvLk95ZKioBI4f5RD+hlFUC7cwLBOd7loZ5FioXgYd0+Zmw6RdNA1q5ZRk3SL7NdrdykXUkB3x+w7akGgl8ALNC/4/6adNICCZxF0TWw3REeaxtupRdr5cjuP2YMBeV+RqdGt5FnGFUnwVgzyLrqKMJeRihwBevjNQxv4qQXWZdeYfvyrOd+0Z5asAi2+j1pJDR2LF9XBuxGtx2+T5075Ng==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=POCFMh7wzF84hVnqVLE0Qvb7GFQQ853N7L7K8BI2YAs=;
+ b=WaYhE4Bgml4UuijcFw6B8EM9MLcQ4h+C+3iz0kfr1JXISPEjsYqHK/mn4Jx3/ulQ2EZMlrFiiFD80H9Q6ZxhiWuitHAYEwnEDEcnasfH+hVHZeuC9lDWWslRX7bshUQNMPJRqP5JCvHxEJf5aLrIF4GZ5OvJnEvtn6UkC51F2bQk8AmJr6p2gpDQYNTUdDTLgOUuJWLui4UJds0qJ88yvp/rJouZu5pjgOT++5BvgM9SKnLSI1a9lYoTf9TBqzep0jBnigvrP6CaEGXED8ag5OUxY1ygRD+pGXxqWfGWQegar4OzdJ/cueo4jC0oUGfzJLOaj2NDFCL9Ptm0YK4Ubg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+Received: from DB9PR04MB9626.eurprd04.prod.outlook.com (2603:10a6:10:309::18)
+ by PAXPR04MB8958.eurprd04.prod.outlook.com (2603:10a6:102:20d::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.16; Fri, 5 Sep
+ 2025 19:07:00 +0000
+Received: from DB9PR04MB9626.eurprd04.prod.outlook.com
+ ([fe80::55ef:fa41:b021:b5dd]) by DB9PR04MB9626.eurprd04.prod.outlook.com
+ ([fe80::55ef:fa41:b021:b5dd%5]) with mapi id 15.20.9094.015; Fri, 5 Sep 2025
+ 19:07:00 +0000
+From: Frank Li <Frank.Li@nxp.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...),
+	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
+	linux-kernel@vger.kernel.org (open list)
+Cc: imx@lists.linux.dev
+Subject: [PATCH 1/1] dt-bindings: input: convert tca8418_keypad.txt to yaml format
+Date: Fri,  5 Sep 2025 15:06:44 -0400
+Message-Id: <20250905190645.609762-1-Frank.Li@nxp.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SJ0PR13CA0065.namprd13.prod.outlook.com
+ (2603:10b6:a03:2c4::10) To DB9PR04MB9626.eurprd04.prod.outlook.com
+ (2603:10a6:10:309::18)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DB9PR04MB9626:EE_|PAXPR04MB8958:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1eec471d-3948-4c9c-7154-08ddecaf6460
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|19092799006|376014|1800799024|52116014|921020|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?hvfd2wN85bTK8Yiz+22TTy6FeuLr11Ur+YQ8WDEMCf7wXOUojPHxtJ2Js1u6?=
+ =?us-ascii?Q?kw9rm+P+N9H+FZxqboODbmtFQjtlzsOrGYaYMRm7jKcBUPNBGmw21u6ylbjf?=
+ =?us-ascii?Q?lPy4F1Tlfv4U/V2+GqsU/5RiCKyyuY6tWGVPfKM+wF8BBnvW2s9+1WbXHloS?=
+ =?us-ascii?Q?8DyWctMIwF7fl+bFVzldhsso7Mb85RKXuc4Id7+iVZ6vFW6tlr0CdwWfgALH?=
+ =?us-ascii?Q?5Q8WV8Bm6wIWFquMk6Lh1MrcjPPfbP8BljgnumZkv0Ndr4S+8+OFUiZoiGzv?=
+ =?us-ascii?Q?tciPztY3/n7wker4B2mNrLuHrloA2+/NwgXCSjbU0JYAoG4pPEiHYEFyX11g?=
+ =?us-ascii?Q?frCEdRYwAi4jcP80yfItNmP9xiNudbSNO5h9on9cUQj4dMxVOCraLaMCv1UW?=
+ =?us-ascii?Q?wK96anFh9kSowEkLUcZG22DoUhMN7b9DpNETykSADeciEk1bmKsWsMf14HnX?=
+ =?us-ascii?Q?LB4NA6NGZfWfIgZ5UZ12mR9xeWEt0YRS09J/wHeGD3Iiuwrwq7jTgruHNiV7?=
+ =?us-ascii?Q?Q15vB4nrmvThNt2rCWEJPasXtVZ4rs+frpohHz++CoTfWT4lMtYiFJwgJGjG?=
+ =?us-ascii?Q?Xzydl1zz4ALfx4imQ2sGqAsP9GGVETkOlOc19claLBh7aa6I1FL48bow+bjV?=
+ =?us-ascii?Q?OqvSSHV1cCiKvED/qRB9hNQ6lwDQhYqEYx/+ArqSTpOUBjanl3Jxc5IQfY5v?=
+ =?us-ascii?Q?F6rdl2Qv1790fY9xPQ6MHFQxKMs+m0u2+1nAu9E3Bk3ya0WFMmX7MYSzXRh2?=
+ =?us-ascii?Q?00ltSHU08jGgN0pM6GucbK0e+Vce8lRbL83sLoACFpVA4gPTf11PX/GEP+p4?=
+ =?us-ascii?Q?vpU72it3kw4QiM4PfEa9sFN1xNhuBS1ecbyTT2mQUNs4gevhjtpXh0qbmlKi?=
+ =?us-ascii?Q?6+0PUp4rhXHADWJFz9jtLFvykohM2kqKxloggslPGw34Br0/ID6wTQFqpEFg?=
+ =?us-ascii?Q?yoCrtZgqQRbLrcQYRuUPktb4maNyq6G8wW/VtFwMHsB16M/TennIn1zoyqYG?=
+ =?us-ascii?Q?VzOwXY1UbG4A9fxeBBZ5nH0fys36G+wNzeb3rGGVAHOJBEiyI8ZrVAnESzZM?=
+ =?us-ascii?Q?/FblfUs5PHjXCBrWIWoI5TToqmE5zq5XT2FBlHpMo/zxAOGfGb7hm7dg6Ucp?=
+ =?us-ascii?Q?PYf+tzlzGcwNCTRqNCriu4pq3pT59bnKLcZP9oWRC1oVd9wGYWMqUZdLLrKr?=
+ =?us-ascii?Q?+A8Zv+L+L4nTh6+AehHQDtsH2NsmOcfU3Ane7j79bsWu2yFUP4AoNMeY/5eu?=
+ =?us-ascii?Q?iTxCTWnSBHTU/Ltqeb5BGjUVRStuhybDiRKlL0LaHUfwA0cgy1QFwHRnzVnA?=
+ =?us-ascii?Q?UhOPqfv/1oRlVUEPjWUgIAdxXUNpu2y4WBjQKeqFEsxFEERoVK8MwPTCoe0h?=
+ =?us-ascii?Q?JtjAWkVHWN8tYN55pPLU8L0zC43dnLaNapZKhS/MZaH/XrzzmMG88BDnO4V/?=
+ =?us-ascii?Q?6oSN3guGH3+aJFcvt2ypSjPxKYD2Vk+v?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR04MB9626.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(19092799006)(376014)(1800799024)(52116014)(921020)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?1qddpy08fel7dzk2JNlNS0XB/6Sw+iqIzMYncKZ87e8E8N2R/LzfBEmzVx+O?=
+ =?us-ascii?Q?xAY1Db7XvmC7dJBb9GD79+7tRt8GhlBubWkzyJAegUjJo/LAP+yWtc+XsLZ4?=
+ =?us-ascii?Q?nQ9+rfzRXSsTUVFVjUPT71qTxLRSfESo6UlJOhbmCfq67WlX7v1tLPjr+xjt?=
+ =?us-ascii?Q?Kwm9Q7mAh5xZ1AM8Y+j9JSw5eCQV2XI8Uk5RSx0ohmdSpP15iMbINvd8MHnr?=
+ =?us-ascii?Q?iYf/aRY9hW2Lnpm3vu1iLxxd7dZj1dPF3dP/X8JluESeoRVyTYtFFe+93sXO?=
+ =?us-ascii?Q?Mk9obTwry9xxUkN8z41XU2fzyfSmSm3ZObxL1KCbvmsGUPCcqnU5QtDjeJv6?=
+ =?us-ascii?Q?KFQD9BgN1ttWATjV4/9dKwNvQPzN+yV9y7QOOEVixdWn/zwaIRQtCV4GzEoL?=
+ =?us-ascii?Q?SrhJ0dTSB7ggPHG9F9fFVMulnih2n7Qdcgqjjl9ZWSXtXBc/nCtpBXC+X9/h?=
+ =?us-ascii?Q?gNlOXRsyOIkfgA3ytrhTiWvz6DmN+ssqYjMe4/kKmlaY7icmZyDXwmsfvXdk?=
+ =?us-ascii?Q?kHO+8dwvke3NsZ1u+WN9JdIqT3Fpz2arDcMO5KfkJQHkOiS4SSJrGmoLFU+1?=
+ =?us-ascii?Q?+mkxd6vCH6ScAOHFoyV1DheBoN9TsNChnhmcZIFrENVcCsaw/QgSxqifDfrv?=
+ =?us-ascii?Q?Y9XBfa/BboxPvB1a/wWqUH3RkytH3Gi1gguiOOkkgaFkEh3SFqbSzAi+NZCf?=
+ =?us-ascii?Q?S1dWN4ZGSJXMGT80nhZNJLWo/paKJZ6XVbdHm7DCt9hidKYXisjZk7h0MPoX?=
+ =?us-ascii?Q?t0xNnh8B32QnmdAVGxFixPKbCKDDhf1Hlx0NwWmQkEK2Dz+4yiT6jq7fDvSf?=
+ =?us-ascii?Q?aVAHKTbLwKmQHh3mRSkAIa0hX+jHONrSGIdCtKWIu/tHSeuB/RSgO2QH2IhY?=
+ =?us-ascii?Q?UObdK+8+elZPGBujk3ANHf0HLaEFQAAIJ+PWhhhxiv5DKKAL9gKoYJ+46gsl?=
+ =?us-ascii?Q?eSk4P+6qQ3cm+ZvlTs1wASbU2tiFMgG/AyTNb4dzLPnf3mcxPol1se2TZ7YV?=
+ =?us-ascii?Q?rVk9MKMMyMimfg1b/0IrGVTocG4ZYqnU1Mn2fJWPWP4YCtwTUbPKm2Oqaakj?=
+ =?us-ascii?Q?cFcAc/CdbO9iiOcoExvhfhqSIgUgVLHiSMwLPBPKUdDX4LfzeHl4V39ki32i?=
+ =?us-ascii?Q?do1tGjhpoEa7soMyIIhKRKaYtYREo1tcVq6PXT96ygbhV70B6MvKMq9yspIP?=
+ =?us-ascii?Q?2U6wlOKQA4jevKNZ9PFSxX5wRWcBTv9u1j1lO9TQCDGlQ5WYujF1UolTPRJP?=
+ =?us-ascii?Q?Kp3QTt8B8yIbKiDlkHvLF1lmg1Ho2gejm1jJTVpLr9Vwyi2VkhbUl1fUbgEu?=
+ =?us-ascii?Q?iodAhBQjwQ3cMxIThg8zbkiFhGQa74OI1ZmYBwnVptp9TH6AOhPDkTkQicw8?=
+ =?us-ascii?Q?ZzE/l6jmOtD2vUhltCxTKaO7IIX1mvwDZwh1oN9SIUYOT+6Zctn26KfxYoHU?=
+ =?us-ascii?Q?BKVxAk4qK4FTfqQfc22tQfBpgnov49T2slhqIgomT/gBY1buQKerz4+Lqtcs?=
+ =?us-ascii?Q?R7JwOPK+i12I8l49OVxnVjTKSaCSGB30UZANflunG8MaMToIwXQpQaH/Od19?=
+ =?us-ascii?Q?K0J7XqzMWkEx6bO5JHL1v5VCvxVvbGZcOKDiUwwJ?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1eec471d-3948-4c9c-7154-08ddecaf6460
+X-MS-Exchange-CrossTenant-AuthSource: DB9PR04MB9626.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Sep 2025 19:07:00.6129
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Fh1AkR6r7PKEClfrVu7DKSOytSxXlSjkB5r4ed4m6fpKc9VNDZgYPNB3j+WFxUxxNUFEvoFkZWQRioDBdc2sVg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB8958
 
-On Fri, 2025-09-05 at 09:39 +0800, Xinpeng Sun wrote:
-> There is a new BIOS enhancement that adds the capability to configure
-> the
-> following two features of I2C subsystem introduced in commit 1ed0b48
-> ("Intel-thc: Introduce max input size control") and commit 3f2a921
-> ("Intel-thc: Introduce interrupt delay control"):
-> - Max input size control
-> - Interrupt delay control
->=20
-> As BIOS is used for the configuration of these two features, change
-> driver
-> data usage to indicate hardware capability, and add corresponding
-> ACPI
-> configuration support in QuickI2C driver.
->=20
-> Signed-off-by: Xinpeng Sun <xinpeng.sun@intel.com>
-> Tested-by: Rui Zhang <rui1.zhang@intel.com>
-> ---
->=20
-Why the patch was resent?
+Convert tca8418_keypad.txt to yaml format.
 
-If maintainer didn't review, just remind them after atleast 2 weeks
-instead of sending again.
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+---
+ .../bindings/input/tca8418_keypad.txt         | 10 ---
+ .../devicetree/bindings/input/ti,tca8418.yaml | 61 +++++++++++++++++++
+ 2 files changed, 61 insertions(+), 10 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/tca8418_keypad.txt
+ create mode 100644 Documentation/devicetree/bindings/input/ti,tca8418.yaml
 
-For any other reason add some change log here.
+diff --git a/Documentation/devicetree/bindings/input/tca8418_keypad.txt b/Documentation/devicetree/bindings/input/tca8418_keypad.txt
+deleted file mode 100644
+index 2551850091678..0000000000000
+--- a/Documentation/devicetree/bindings/input/tca8418_keypad.txt
++++ /dev/null
+@@ -1,10 +0,0 @@
+-This binding is based on the matrix-keymap binding with the following
+-changes:
+-
+-keypad,num-rows and keypad,num-columns are required.
+-
+-Required properties:
+-- compatible: "ti,tca8418"
+-- reg: the I2C address
+-- interrupts: IRQ line number, should trigger on falling edge
+-- linux,keymap: Keys definitions, see keypad-matrix.
+diff --git a/Documentation/devicetree/bindings/input/ti,tca8418.yaml b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
+new file mode 100644
+index 0000000000000..114de435b09d1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
+@@ -0,0 +1,61 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/ti,tca8418.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: I2C/SMBus keypad scanner
++
++maintainers:
++  - Frank Li <Frank.Li@nxp.com>
++
++properties:
++  compatible:
++    enum:
++      - ti,tca8418
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++allOf:
++  - $ref: matrix-keymap.yaml#
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        keypad@34 {
++            compatible = "ti,tca8418";
++            reg = <0x34>;
++            interrupt-parent = <&gpio5>;
++            interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
++            keypad,num-rows = <4>;
++            keypad,num-columns = <4>;
++            linux,keymap = < MATRIX_KEY(0x00, 0x01, BTN_0)
++                             MATRIX_KEY(0x00, 0x00, BTN_1)
++                             MATRIX_KEY(0x01, 0x01, BTN_2)
++                             MATRIX_KEY(0x01, 0x00, BTN_3)
++                             MATRIX_KEY(0x02, 0x00, BTN_4)
++                             MATRIX_KEY(0x00, 0x03, BTN_5)
++                             MATRIX_KEY(0x00, 0x02, BTN_6)
++                             MATRIX_KEY(0x01, 0x03, BTN_7)
++                             MATRIX_KEY(0x01, 0x02, BTN_8)
++                             MATRIX_KEY(0x02, 0x02, BTN_9)
++            >;
++        };
++    };
+-- 
+2.34.1
 
-Thanks,
-Srinivas
-
-
-
-> =C2=A0.../intel-quicki2c/pci-quicki2c.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 43 ++++++++++++++---
-> --
-> =C2=A0.../intel-quicki2c/quicki2c-dev.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 24 ++++++++++-
-> =C2=A02 files changed, 55 insertions(+), 12 deletions(-)
->=20
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> index 854926b3cfd4..787c32557d24 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> @@ -23,6 +23,7 @@
-> =C2=A0
-> =C2=A0static struct quicki2c_ddata ptl_ddata =3D {
-> =C2=A0	.max_detect_size =3D MAX_RX_DETECT_SIZE_PTL,
-> +	.max_interrupt_delay =3D MAX_RX_INTERRUPT_DELAY,
-> =C2=A0};
-> =C2=A0
-> =C2=A0/* THC QuickI2C ACPI method to get device properties */
-> @@ -123,8 +124,8 @@ static int quicki2c_acpi_get_dsd_property(struct
-> acpi_device *adev, acpi_string
-> =C2=A0static int quicki2c_get_acpi_resources(struct quicki2c_device
-> *qcdev)
-> =C2=A0{
-> =C2=A0	struct acpi_device *adev =3D ACPI_COMPANION(qcdev->dev);
-> -	struct quicki2c_subip_acpi_parameter i2c_param;
-> -	struct quicki2c_subip_acpi_config i2c_config;
-> +	struct quicki2c_subip_acpi_parameter i2c_param =3D {0};
-> +	struct quicki2c_subip_acpi_config i2c_config =3D {0};
-> =C2=A0	u32 hid_desc_addr;
-> =C2=A0	int ret =3D -EINVAL;
-> =C2=A0
-> @@ -200,6 +201,21 @@ static int quicki2c_get_acpi_resources(struct
-> quicki2c_device *qcdev)
-> =C2=A0		return -EOPNOTSUPP;
-> =C2=A0	}
-> =C2=A0
-> +	if (qcdev->ddata) {
-> +		qcdev->i2c_max_frame_size_enable =3D i2c_config.FSEN;
-> +		qcdev->i2c_int_delay_enable =3D i2c_config.INDE;
-> +
-> +		if (i2c_config.FSVL <=3D qcdev->ddata-
-> >max_detect_size)
-> +			qcdev->i2c_max_frame_size =3D i2c_config.FSVL;
-> +		else
-> +			qcdev->i2c_max_frame_size =3D qcdev->ddata-
-> >max_detect_size;
-> +
-> +		if (i2c_config.INDV <=3D qcdev->ddata-
-> >max_interrupt_delay)
-> +			qcdev->i2c_int_delay =3D i2c_config.INDV;
-> +		else
-> +			qcdev->i2c_int_delay =3D qcdev->ddata-
-> >max_interrupt_delay;
-> +	}
-> +
-> =C2=A0	return 0;
-> =C2=A0}
-> =C2=A0
-> @@ -441,17 +457,24 @@ static void quicki2c_dma_adv_enable(struct
-> quicki2c_device *qcdev)
-> =C2=A0	 * max input length <=3D THC detect capability, enable the
-> feature with device
-> =C2=A0	 * max input length.
-> =C2=A0	 */
-> -	if (qcdev->ddata->max_detect_size >=3D
-> -	=C2=A0=C2=A0=C2=A0 le16_to_cpu(qcdev->dev_desc.max_input_len)) {
-> -		thc_i2c_set_rx_max_size(qcdev->thc_hw,
-> -					le16_to_cpu(qcdev-
-> >dev_desc.max_input_len));
-> +	if (qcdev->i2c_max_frame_size_enable) {
-> +		if (qcdev->i2c_max_frame_size >=3D
-> +		=C2=A0=C2=A0=C2=A0 le16_to_cpu(qcdev->dev_desc.max_input_len)) {
-> +			thc_i2c_set_rx_max_size(qcdev->thc_hw,
-> +						le16_to_cpu(qcdev-
-> >dev_desc.max_input_len));
-> +		} else {
-> +			dev_warn(qcdev->dev,
-> +				 "Max frame size is smaller than hid
-> max input length!");
-> +			thc_i2c_set_rx_max_size(qcdev->thc_hw,
-> +						le16_to_cpu(qcdev-
-> >i2c_max_frame_size));
-> +		}
-> =C2=A0		thc_i2c_rx_max_size_enable(qcdev->thc_hw, true);
-> =C2=A0	}
-> =C2=A0
-> =C2=A0	/* If platform supports interrupt delay feature, enable it
-> with given delay */
-> -	if (qcdev->ddata->interrupt_delay) {
-> +	if (qcdev->i2c_int_delay_enable) {
-> =C2=A0		thc_i2c_set_rx_int_delay(qcdev->thc_hw,
-> -					 qcdev->ddata-
-> >interrupt_delay);
-> +					 qcdev->i2c_int_delay * 10);
-> =C2=A0		thc_i2c_rx_int_delay_enable(qcdev->thc_hw, true);
-> =C2=A0	}
-> =C2=A0}
-> @@ -464,10 +487,10 @@ static void quicki2c_dma_adv_enable(struct
-> quicki2c_device *qcdev)
-> =C2=A0 */
-> =C2=A0static void quicki2c_dma_adv_disable(struct quicki2c_device *qcdev)
-> =C2=A0{
-> -	if (qcdev->ddata->max_detect_size)
-> +	if (qcdev->i2c_max_frame_size_enable)
-> =C2=A0		thc_i2c_rx_max_size_enable(qcdev->thc_hw, false);
-> =C2=A0
-> -	if (qcdev->ddata->interrupt_delay)
-> +	if (qcdev->i2c_int_delay_enable)
-> =C2=A0		thc_i2c_rx_int_delay_enable(qcdev->thc_hw, false);
-> =C2=A0}
-> =C2=A0
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-> b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-> index d412eafcf9ea..0d423d5dd7a7 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-> @@ -38,6 +38,8 @@
-> =C2=A0
-> =C2=A0/* PTL Max packet size detection capability is 255 Bytes */
-> =C2=A0#define MAX_RX_DETECT_SIZE_PTL			255
-> +/* Max interrupt delay capability is 2.56ms */
-> +#define MAX_RX_INTERRUPT_DELAY			256
-> =C2=A0
-> =C2=A0/* Default interrupt delay is 1ms, suitable for most devices */
-> =C2=A0#define DEFAULT_INTERRUPT_DELAY_US		(1 * USEC_PER_MSEC)
-> @@ -101,6 +103,10 @@ struct quicki2c_subip_acpi_parameter {
-> =C2=A0 * @HMTD: High Speed Mode Plus (3.4Mbits/sec) Serial Data Line
-> Transmit HOLD Period
-> =C2=A0 * @HMRD: High Speed Mode Plus (3.4Mbits/sec) Serial Data Line
-> Receive HOLD Period
-> =C2=A0 * @HMSL: Maximum length (in ic_clk_cycles) of suppressed spikes in
-> High Speed Mode
-> + * @FSEN: Maximum Frame Size Feature Enable Control
-> + * @FSVL: Maximum Frame Size Value (unit in Bytes)
-> + * @INDE: Interrupt Delay Feature Enable Control
-> + * @INDV: Interrupt Delay Value (unit in 10 us)
-> =C2=A0 *
-> =C2=A0 * Those properties get from QUICKI2C_ACPI_METHOD_NAME_ISUB method,
-> used for
-> =C2=A0 * I2C timing configure.
-> @@ -127,17 +133,22 @@ struct quicki2c_subip_acpi_config {
-> =C2=A0	u64 HMTD;
-> =C2=A0	u64 HMRD;
-> =C2=A0	u64 HMSL;
-> +
-> +	u64 FSEN;
-> +	u64 FSVL;
-> +	u64 INDE;
-> +	u64 INDV;
-> =C2=A0	u8 reserved;
-> =C2=A0};
-> =C2=A0
-> =C2=A0/**
-> =C2=A0 * struct quicki2c_ddata - Driver specific data for quicki2c device
-> =C2=A0 * @max_detect_size: Identify max packet size detect for rx
-> - * @interrupt_delay: Identify interrupt detect delay for rx
-> + * @interrupt_delay: Identify max interrupt detect delay for rx
-> =C2=A0 */
-> =C2=A0struct quicki2c_ddata {
-> =C2=A0	u32 max_detect_size;
-> -	u32 interrupt_delay;
-> +	u32 max_interrupt_delay;
-> =C2=A0};
-> =C2=A0
-> =C2=A0struct device;
-> @@ -170,6 +181,10 @@ struct acpi_device;
-> =C2=A0 * @report_len: The length of input/output report packet
-> =C2=A0 * @reset_ack_wq: Workqueue for waiting reset response from device
-> =C2=A0 * @reset_ack: Indicate reset response received or not
-> + * @i2c_max_frame_size_enable: Indicate max frame size feature
-> enabled or not
-> + * @i2c_max_frame_size: Max RX frame size (unit in Bytes)
-> + * @i2c_int_delay_enable: Indicate interrupt delay feature enabled
-> or not
-> + * @i2c_int_delay: Interrupt detection delay value (unit in 10 us)
-> =C2=A0 */
-> =C2=A0struct quicki2c_device {
-> =C2=A0	struct device *dev;
-> @@ -200,6 +215,11 @@ struct quicki2c_device {
-> =C2=A0
-> =C2=A0	wait_queue_head_t reset_ack_wq;
-> =C2=A0	bool reset_ack;
-> +
-> +	u32 i2c_max_frame_size_enable;
-> +	u32 i2c_max_frame_size;
-> +	u32 i2c_int_delay_enable;
-> +	u32 i2c_int_delay;
-> =C2=A0};
-> =C2=A0
-> =C2=A0#endif /* _QUICKI2C_DEV_H_ */

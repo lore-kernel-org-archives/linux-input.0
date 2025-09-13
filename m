@@ -1,118 +1,164 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1C82EAB6C
-	for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 09:27:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B22B42D5946;
+	Sat, 13 Sep 2025 09:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757755638; cv=none; b=b1uHFGMEzbzKcqRPqntDAW2ARmte1yfSFJbdhMIi7gVvX80isFwKe51FgMqxrX6zXHLttxWGJYn+69z4NFDscfh81OePUvq28ksP+jpV3xwqhMWC//YFc8UKHkM9m3a0AiksWYYn74kuBGlpnNwr0a7EpRz115kCErpSrjFhCtA=
+	t=1757755681; cv=none; b=QycCDrcyrx9VY+foF5PiIGd1Lv9kE9FmW9Blz3Lj4DmReYxJyNsaYQ9sIrnYxP5VhoZLQEkFIeYAt7qbfMANcejl71CSKGZZlFkmhTKUy3eikJlASyLQIQyQ+Ekwq8AFJn2lAfulqSMuDpzS/Ly3iGlqY9kaTnFhHIYxdkptUF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757755638; c=relaxed/simple;
-	bh=yrpiAloBhI4p4ZhNenjc/ytnMmXyltlftqvFi3+CYcA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TOmgQE86aTtTyOy2Ip6Nar3MYh3xoUVMEg1wGBp1e3kr2ZBLdjkO6jWKqOnxicdP4UQ+QpH3bQKKaYGoSv9wkzXJQtI1wNbBQD9FE2UqaLFVb8b0XR3/sxXBrSIG4GqMsEXaLDnY3SwgfaKWOBDkoytKLBDgcV4tTwXXx4Ch2vg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com; spf=pass smtp.mailfrom=amarulasolutions.com; dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b=lzeFdCuD; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amarulasolutions.com
+	s=arc-20240116; t=1757755681; c=relaxed/simple;
+	bh=awvsvpXqRlkZ99qbX4b278mAef9+7B1wvnHRlagBzLY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qtvrXjCjwyEQH137hWhx2fk14CQKAZN95cKKp8MUrJg+agL8D4BsyD0wdQk8GdiMXrKUdetjnSBbi+25zAdyId6AulfRZroqWoeRIQ/ownFRpQFYxjqpwYBRbjn5ZeWxfyKoUdd11dfEfNPBnfEebYbrKq0QJjNpx5CFhPhkRHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=QeKv04cO; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b="lzeFdCuD"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-62ee43b5e96so1907892a12.1
-        for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 02:27:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google; t=1757755635; x=1758360435; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZN4beYZHw/m6widRTHsuro02Y0QudB0qsvA1rFXjFHs=;
-        b=lzeFdCuDsgEbKjIVR98zhARXXwYK/iplkNXgoRMed4pemjP2Gh04mmEdpMgHxlR1Jp
-         A4uKxckus2VcJ+iwaqOMNv3/37VWQ9GrooWr2q8ijihdM+ar8kI6rrsdrkdsM55B2014
-         aoHvkos6C8PT21/tx1O/d/8TJcNOI+CaqltLc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757755635; x=1758360435;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZN4beYZHw/m6widRTHsuro02Y0QudB0qsvA1rFXjFHs=;
-        b=DuLfrqWIFFT5P2YPApPPBUFLG/wCeBEyvhQ3CRZl70bKXAnZKiGO8Nj582JSSzmu0F
-         QRyppFF4q03bVDhqcxTTTmXrJsGoNvFnkX5D3of+KZH1nD2Bu5YdDFf/uWUblP11PhXS
-         GcZX47YoNR1nHyEp28UOYx+l7nnlSTi0JbDsY9j0EzpW+ItBtpgR7kHyWHqKXorrhv6z
-         EABaCoLYvn7YokTjPVAxMMf8BQlJ2vr5Bax9Juvn37V1Cwqqo9+CjLTu4U+F0qcgjMGk
-         reCe9VV3N5ciKkzLTQx6zsrOnXpVk4bvTarVGGzmaxYYFhnlfMhW02fxauxnGkiAiy0a
-         PWaw==
-X-Forwarded-Encrypted: i=1; AJvYcCVFr5lTEJ5Hfv6dNrb/gMxys3KWB8a1EDud7LnDSUwJvjU2Z0fJWmFOxkyBSEeDld1emvFHWowhRASMgw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwALkQMEK2nH6bePEU41Y7G8zKOwSBRpWQuET7MrYTEcb0lIm1g
-	GysNtTvOWP8bcps6WD0FoYVE/Foh8a1Wog2E8ALILcHyaGjh8GCqjcVVUlk2+chy/RI=
-X-Gm-Gg: ASbGncvLV0LHAMGIQlO0WxdBUgfVF2pqxgxcHv1xUHRwawBnmjXRXGO/C3GsLzgQi22
-	YRlrY2uAQZMBRcwL2ITbUrskTmaauWvSHhDDP22dF+6Ru+T2BIZMpQupi1rv6mLpXlC2KYGs6qh
-	oiLgTYN4EDvihBMSA1L9okSAq4mPKW/2n6JZkl1tieHUcZxmwyyfOzx2jape8bH2AuIf5T0YrCn
-	z6kWpLs/rfTAiMud5LDxcbYnJdwqbbCG1ygOpyPhtapAeSWyjt1YgjksmL+7h0j/5IXKPbl7cOV
-	i7QlmeT/qB6M9pu1NPnVUOycYPO8dSCWXpAjBGQg+MZKL4Is90WJoQWNTGvVOBGoM+VJXarVVS2
-	ZMViWHDrP6IKLSL+TxkI1qAUUalzCwcMyLsTUPqsuXA2RmoK0K/M0nvQmAIh029uPIisBnP9shk
-	FF6WW4OvlWk6ZPdGLjT9WF7COrBJA6QLpwEMeGRz5sulwZRRzQGTsqlnSRJoS5TBVUM3dFOhOiL
-	7I=
-X-Google-Smtp-Source: AGHT+IHv7bNkL/Bm3DVHJJzKvLokKqToRNVyhlC2S70s85D3t3Bilce6lDaE7bZNFEYk4zHC7lh/yg==
-X-Received: by 2002:a17:907:2d2c:b0:b07:9c13:153e with SMTP id a640c23a62f3a-b07c353e3f8mr586848266b.2.1757755635504;
-        Sat, 13 Sep 2025 02:27:15 -0700 (PDT)
-Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-82-56-38-125.retail.telecomitalia.it. [82.56.38.125])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07b33478besm551705766b.99.2025.09.13.02.27.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Sep 2025 02:27:15 -0700 (PDT)
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-amarula@amarulasolutions.com,
-	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-	Rob Herring <robh@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: [PATCH v2 5/5] dt-bindings: touchscreen: remove touchscreen.txt
-Date: Sat, 13 Sep 2025 11:26:55 +0200
-Message-ID: <20250913092707.1005616-5-dario.binacchi@amarulasolutions.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250913092707.1005616-1-dario.binacchi@amarulasolutions.com>
-References: <20250913092707.1005616-1-dario.binacchi@amarulasolutions.com>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="QeKv04cO"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=wz1Nlepo1I7EPbDFYbA1uUSymAbIx41UYBcLNwJ+PYc=; b=QeKv04cO6mDZSLvW3OACnmxb7i
+	K0Jlp9Ouyy6BecJDom2lxOwncLPnXGR5YSOBMqmAhfH2NL0+cbKvUHD3fnPEelCSJUHGPWJk3YMIf
+	KlJytgg32HZXnQlt2ymr4KnTe+NCA+Dv2BnJFGN8xXw07D+4c2r66JCPwwjDQihsRVFFH3MjRgifY
+	5GNa4nbQ5ooHLnY/kFEnEJNd4+k37ahpZlqRBP7geBejojRf766mY7MzyOLyOiMmle0EDceaPGSU9
+	NOWvGmr4VHgPcWNW85TdGfS/s9l7NjumbkJoeM2CgE6JJprDynTM3KnlBUQ8TdQ1fjjT4416YEXL2
+	LxiTj66g==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <carnil@debian.org>)
+	id 1uxM2e-00AMpN-B5; Sat, 13 Sep 2025 08:55:32 +0000
+Received: by eldamar.lan (Postfix, from userid 1000)
+	id 6F5D9BE2DE0; Sat, 13 Sep 2025 10:55:31 +0200 (CEST)
+Date: Sat, 13 Sep 2025 10:55:31 +0200
+From: Salvatore Bonaccorso <carnil@debian.org>
+To: Staffan Melin <staffan.melin@oscillator.se>
+Cc: zhangheng <zhangheng@kylinos.cn>, Jiri Kosina <jkosina@suse.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	regressions@lists.linux.dev, stable@vger.kernel.org,
+	1114557@bugs.debian.org
+Subject: Re: [regression] 1a8953f4f774 ("HID: Add IGNORE quirk for
+ SMARTLINKTECHNOLOGY") causes issue with ID 4c4a:4155 Jieli Technology USB
+ Composite Device
+Message-ID: <aMUxg6FLqDetwiGu@eldamar.lan>
+References: <aL2gYJaXoB6p_oyM@eldamar.lan>
+ <c8f3d402-e0ec-4767-b925-d7764aec3d93@kylinos.cn>
+ <e81e8d68cb33c7de7b0e353791e21e53@oscillator.se>
+ <aMUxHZF-7p7--1qS@eldamar.lan>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="SSq+zSyke7FBHmjg"
+Content-Disposition: inline
+In-Reply-To: <aMUxHZF-7p7--1qS@eldamar.lan>
+X-Debian-User: carnil
 
-With commit 1d6204e2f51f ("dt-bindings: touchscreen: Add touchscreen
-schema") touchscreen.txt is no longer needed, and since no other file
-refers to it, it can be safely removed.
 
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+--SSq+zSyke7FBHmjg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi Staffan,
+
+chiming in hopefully it is of help.
+
+Now really with the patch ...
+
+On Fri, Sep 12, 2025 at 09:57:04PM +0200, Staffan Melin wrote:
+> Thank you,
+> 
+> I tried to apply this patch to 6.12.39, the first problematic kernel, as
+> well as 6.12.41, the first bad I tried, and on both I got an error message:
+> 
+> Applying: HID: quirks: Add device descriptor for 4c4a:4155
+> error: patch failed: drivers/hid/hid-quirks.c:1068
+> error: drivers/hid/hid-quirks.c: patch does not apply
+> Patch failed at 0001 HID: quirks: Add device descriptor for 4c4a:4155
+> 
+> To which kernel version should I apply the patch?
+
+As the deveopment goes from mainline then down to stable series, the
+fix needs to be developed first for mainline. So the patch is targeted
+there.
+
+But please find attached an updated patch which hopefully should work
+which resolved the context changes on top of 6.12.47.
+
+But ideally you can provide a Tested-by on zhangheng's mainline patch
+to get things rolling as needed.
+
+Regards,
+Salvatore
+
+--SSq+zSyke7FBHmjg
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-HID-quirks-Add-device-descriptor-for-4c4a-4155.patch"
+
+From 16b03e802a858ebf3eafcfdb22e3025e1a840afd Mon Sep 17 00:00:00 2001
+From: Zhang Heng <zhangheng@kylinos.cn>
+Date: Fri, 12 Sep 2025 20:38:18 +0800
+Subject: [PATCH] HID: quirks: Add device descriptor for 4c4a:4155
+
+Two USB devices use the same ID. To avoid affecting functionality,
+device descriptors are added to distinguish between them
+
+Signed-off-by: Zhang Heng <zhangheng@kylinos.cn>
 ---
+ drivers/hid/hid-quirks.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-Changes in v2:
-- Update the commit message
-- Add Acked-by tag of Rob Herring
-- Add patches:
-  - 1/5 dt-bindings: touchscreen: convert bu21013 bindings to json schema
-  - 2/5 dt-bindings: touchscreen: convert eeti bindings to json schema
-  - 3/5 dt-bindings: touchscreen: convert raspberrypi,firmware-ts bindings
-    to json schema
-  - 4/5 dt-bindings: touchscreen: convert zet6223 bindings to json schema
-
- .../devicetree/bindings/input/touchscreen/touchscreen.txt        | 1 -
- 1 file changed, 1 deletion(-)
- delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-deleted file mode 100644
-index e1adb902d503..000000000000
---- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-+++ /dev/null
-@@ -1 +0,0 @@
--See touchscreen.yaml
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 64f9728018b8..cbb658c2c60d 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -898,6 +898,17 @@ static const struct hid_device_id hid_ignore_list[] = {
+ #endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_HP_5MP_CAMERA_5473) },
++	{ }
++};
++/*
++ * hid_ignore_mic - Microphone devices do not require HID core processing
++ *
++ * Now there are two USB devices using the same ID, one is the microphone and the other
++ * is the touch screen. The touch screen requires hid core processing, but the
++ * microphone does not. The two have different bcdIDs, which will be used to
++ * distinguish them in the future
++ */
++static const struct hid_device_id hid_ignore_mic[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SMARTLINKTECHNOLOGY, USB_DEVICE_ID_SMARTLINKTECHNOLOGY_4155) },
+ 	{ }
+ };
+@@ -1061,6 +1072,9 @@ bool hid_ignore(struct hid_device *hdev)
+ 	    hid_match_id(hdev, hid_mouse_ignore_list))
+ 		return true;
+ 
++	if(hid_match_id(hdev, hid_ignore_mic) && (hdev->version > 1.1))
++		return true;
++
+ 	return !!hid_match_id(hdev, hid_ignore_list);
+ }
+ EXPORT_SYMBOL_GPL(hid_ignore);
+@@ -1259,7 +1273,8 @@ static unsigned long hid_gets_squirk(const struct hid_device *hdev)
+ 	const struct hid_device_id *bl_entry;
+ 	unsigned long quirks = hdev->initial_quirks;
+ 
+-	if (hid_match_id(hdev, hid_ignore_list))
++	if (hid_match_id(hdev, hid_ignore_list) ||
++	   (hid_match_id(hdev, hid_ignore_mic) && (hdev->version > 1.1)))
+ 		quirks |= HID_QUIRK_IGNORE;
+ 
+ 	if (hid_match_id(hdev, hid_have_special_driver))
 -- 
-2.43.0
+2.51.0
 
-base-commit: 22f20375f5b71f30c0d6896583b93b6e4bba7279
-branch: drop-touchscreen.txt
+
+--SSq+zSyke7FBHmjg--

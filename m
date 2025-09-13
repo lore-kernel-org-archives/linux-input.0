@@ -1,121 +1,77 @@
-Received: from sv9.manufrog.com (sv9.manufrog.com [46.246.119.84])
+Received: from mail-10629.protonmail.ch (mail-10629.protonmail.ch [79.135.106.29])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062342EC570;
-	Sat, 13 Sep 2025 13:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.246.119.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E038E2C21F0
+	for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 16:13:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.29
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757769085; cv=none; b=VO25nFMjHtIv/E05XRHa0349fGjj1VUtW9AkLmeM4G246yA2pKZWRpZCYlKnGjuDiTuSU8mAEjAeLJasib9qzc+PQyFv4qsYSwldzyiS8gTSoo991d/Y/ZTgxBrehuDoGNw5mPmL1nS8+wKGqYp/6Pwqc5hQsAlWNerVvkqEGAE=
+	t=1757779984; cv=none; b=VykIyC3Ebf/tExb74Wx9EKyI+ffO2vUwX3w0PiD23KVA+CqXNoZtckMSEsRvqOHkXzsM0RQtfFw3JOwXzC7BER3JAMDzME4hcZAJGbb7CuBeh6SPzGoG5x039H+pOehdZEGvAUp/BWiCjf1fYExNHB91cUBsER1Kp/+TmIrzHEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757769085; c=relaxed/simple;
-	bh=v0BBL64UmOk+e62Q4T1pCcqVThxT3xZi5jSjhI5lYy0=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=FK4uTRgORU5kTBp20Wg+eaB6ce7Rc4mJtKQvpMNSmKBFlmmd/XXMBLKyLm1j4F8mVWnC16cxf8PEwBWRPtEiLoSO3HK1vky9yeRJ6nouE7MTeb/XzBWqwybnlNLW5rrCFrZcrqpMEfEmKVGsWOLMzLbiI600kanz+zmHaTF3Ljk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.se; spf=pass smtp.mailfrom=oscillator.se; dkim=pass (2048-bit key) header.d=oscillator.se header.i=@oscillator.se header.b=S1GReF/J; arc=none smtp.client-ip=46.246.119.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oscillator.se
+	s=arc-20240116; t=1757779984; c=relaxed/simple;
+	bh=MuOPTDgQU29247DLgY8+Lmyrxez7rrt9iyp3vKghqp0=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=aNLMzV7000UvHDqwmryrRcFD+o9EakrbWfyXY8/uW+r/12LREg4daX56PcZrD+St61Yr88J3lPAVHHhzRad8o9SsexDCuid8PS45s1ev8fDBZ17A21N8sjr7+eLTYsG8ILFN7hyzBxBzgwTouf+OGlT6k5nP89GMNSEqetfSdqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com; spf=pass smtp.mailfrom=protonmail.com; dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b=b+dgBnBA; arc=none smtp.client-ip=79.135.106.29
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oscillator.se header.i=@oscillator.se header.b="S1GReF/J"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=oscillator.se; s=default; h=Content-Transfer-Encoding:Content-Type:
-	Message-ID:References:In-Reply-To:Subject:Cc:To:From:Date:MIME-Version:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=ImRo0mF6q6nENrBTd4EI8p/Zv5nZZbTSLKettAexwII=; b=S1GReF/JGBFsi0MdL5iOwVTOpw
-	FZyfgj8fepG8l5gsLdVTiDGH5uMdpBHuQcDS5sI4/NSbzVfsABzwshJncYKq3suPDjRURABnxlq1f
-	O1rKWeFSDfTQSV8OH5LGIzXo5iBdOEH8TxNOFxxjtpNGWSkmDetttLi3dmz6wiYTKyENXtZQlJUk/
-	lTZJfsHMi/mevRXSZyL833yNsCsQuIZh0xrCT55biRo/+QFwG2zS+B/C65YDYw5JXNebGeEisTieO
-	AjdNPQWeGd87h3rFRFHaXPEsRT+ly6GFccRa0jTYimouT1t5tzNFtCCvJG9cu4Kal1kxj1yjTJqaF
-	A0a8j0nw==;
-Received: from [::1] (port=55148 helo=sv9.manufrog.com)
-	by sv9.manufrog.com with esmtpa (Exim 4.98.2)
-	(envelope-from <staffan.melin@oscillator.se>)
-	id 1uxQ2F-00000001cTy-1N03;
-	Sat, 13 Sep 2025 15:11:18 +0200
+	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="b+dgBnBA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+	s=protonmail3; t=1757779979; x=1758039179;
+	bh=DVoGha/incWcNsAyXcYxtSakFRN5uHI6li9pSOPUlhc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=b+dgBnBAdYiEhr2DzQXP1fBwGw6setLzJEDt6Y0B9frePGdlbmbDVPNh3TCtzrL52
+	 c5xiB0t7ivjft+feyicAo/q1RvFsDfcw/rhik8h2fossuurd/srH3FlfVeK8taQ3kT
+	 crU0CRpUi3vLKml+y/qbptXIOj1MnJOng5QhL0HVXbT6Z0N1qPWLEwHd88wVwaykYf
+	 sdQBMKih/UwzKMDiUDptBPoU4OQ3mXy1zmwjIpZO3zaA9n9BmcRT/lGHFB+EgBdeB1
+	 dUUavY81+/KIOroFS2OAdRhl9vbVrsWq5GSCQ6cOxgK+tK2w0z98SRmiLeN4Xr2JVA
+	 NBGIAy5JAO/jw==
+Date: Sat, 13 Sep 2025 16:12:54 +0000
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org
+From: Rahul Rameshbabu <sergeantsagara@protonmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, a.hindborg@kernel.org, alex.gaynor@gmail.com, aliceryhl@google.com, benno.lossin@proton.me, Benjamin Tissoires <benjamin.tissoires@redhat.com>, bjorn3_gh@protonmail.com, boqun.feng@gmail.com, dakr@kernel.org, db48x@db48x.net, gary@garyguo.net, ojeda@kernel.org, tmgross@umich.edu, peter.hutterer@who-t.net, Rahul Rameshbabu <sergeantsagara@protonmail.com>
+Subject: [PATCH v3 RESEND RESEND 1/3] HID: core: Change hid_driver to use a const char* for name
+Message-ID: <20250913161222.3889-2-sergeantsagara@protonmail.com>
+In-Reply-To: <20250913161222.3889-1-sergeantsagara@protonmail.com>
+References: <20250913161222.3889-1-sergeantsagara@protonmail.com>
+Feedback-ID: 26003777:user:proton
+X-Pm-Message-ID: 7a44fdbd84a01e3d90b6cdc77a694e065a18ca5d
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Sat, 13 Sep 2025 15:11:16 +0200
-From: Staffan Melin <staffan.melin@oscillator.se>
-To: Salvatore Bonaccorso <carnil@debian.org>
-Cc: zhangheng <zhangheng@kylinos.cn>, Jiri Kosina <jkosina@suse.com>,
- Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, regressions@lists.linux.dev,
- stable@vger.kernel.org, 1114557@bugs.debian.org
-Subject: Re: [regression] 1a8953f4f774 ("HID: Add IGNORE quirk for
- SMARTLINKTECHNOLOGY") causes issue with ID 4c4a:4155 Jieli Technology USB
- Composite Device
-In-Reply-To: <aMUxg6FLqDetwiGu@eldamar.lan>
-References: <aL2gYJaXoB6p_oyM@eldamar.lan>
- <c8f3d402-e0ec-4767-b925-d7764aec3d93@kylinos.cn>
- <e81e8d68cb33c7de7b0e353791e21e53@oscillator.se>
- <aMUxHZF-7p7--1qS@eldamar.lan> <aMUxg6FLqDetwiGu@eldamar.lan>
-User-Agent: Roundcube Webmail/1.6.11
-Message-ID: <f08669ec112d6ab2f62e35c0c96d1f06@oscillator.se>
-X-Sender: staffan.melin@oscillator.se
-Organization: Oscillator
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sv9.manufrog.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - oscillator.se
-X-Get-Message-Sender-Via: sv9.manufrog.com: authenticated_id: staffan.melin@oscillator.se
-X-Authenticated-Sender: sv9.manufrog.com: staffan.melin@oscillator.se
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Ah, thanks, I get it now :)
+name is never mutated by the core HID stack. Making name a const char*
+simplifies passing the string from Rust to C. Otherwise, it becomes
+difficult to pass a 'static lifetime CStr from Rust to a char*, rather than
+a const char*, due to lack of guarantee that the underlying data of the
+CStr will not be mutated by the C code.
 
-So I got 6.16.7, and the patch applied without problems.
+Signed-off-by: Rahul Rameshbabu <sergeantsagara@protonmail.com>
+---
+ include/linux/hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-But no luck, the same results as before: touchscreen not working, xinput 
---list not showing the Jieli touchscreen. dmesg shows the same as 
-before, too.
-
-Best regards,
-
-Staffan
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 568a9d8c749b..d65c202783da 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -816,7 +816,7 @@ struct hid_usage_id {
+  * zero from them.
+  */
+ struct hid_driver {
+-=09char *name;
++=09const char *name;
+ =09const struct hid_device_id *id_table;
+=20
+ =09struct list_head dyn_list;
+--=20
+2.47.2
 
 
-On 2025-09-13 10:55, Salvatore Bonaccorso wrote:
-> Hi Staffan,
-> 
-> chiming in hopefully it is of help.
-> 
-> Now really with the patch ...
-> 
-> On Fri, Sep 12, 2025 at 09:57:04PM +0200, Staffan Melin wrote:
->> Thank you,
->> 
->> I tried to apply this patch to 6.12.39, the first problematic kernel, 
->> as
->> well as 6.12.41, the first bad I tried, and on both I got an error 
->> message:
->> 
->> Applying: HID: quirks: Add device descriptor for 4c4a:4155
->> error: patch failed: drivers/hid/hid-quirks.c:1068
->> error: drivers/hid/hid-quirks.c: patch does not apply
->> Patch failed at 0001 HID: quirks: Add device descriptor for 4c4a:4155
->> 
->> To which kernel version should I apply the patch?
-> 
-> As the deveopment goes from mainline then down to stable series, the
-> fix needs to be developed first for mainline. So the patch is targeted
-> there.
-> 
-> But please find attached an updated patch which hopefully should work
-> which resolved the context changes on top of 6.12.47.
-> 
-> But ideally you can provide a Tested-by on zhangheng's mainline patch
-> to get things rolling as needed.
-> 
-> Regards,
-> Salvatore

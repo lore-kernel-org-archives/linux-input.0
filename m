@@ -1,117 +1,256 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7611A2E1EE4
-	for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 08:53:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A9E2D3EDD
+	for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 09:27:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757753635; cv=none; b=fWqJVBOHtra72c7kCMfJ7JJKZ7D+BgNCVedQuua6GD7fMIXX6j6NsKpHwzvno3bePV+TKxi+WtP3Do5ibvYxDcyAa0xQxavu+EPx6ky6q/w9KaU2NqZeIAMEIKLWjp94qrS04MkH3lQtlQ84RCj1zLnFmm1e4k2Tv7zAr//5eTY=
+	t=1757755634; cv=none; b=sFRHZmiAnym23Gk7t/Kj35/BgYU211pxV3Ly9RtUAcarpfa2TMoRBuBG9GbDYxSmJ3FWKycFKPnOxpktL1Eq0A6CDXlYpjz74SwaLI792XWc6ajVaJIQNvnbrSQhRCtazhgOTX2P2ocJBh6sIo381psWji+N/1YS4UQ/KzAq/2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757753635; c=relaxed/simple;
-	bh=hjX/8U9e+Qrmt58XABWZDNFleTWJFxO/SMBT8NBKylk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UkMLCxf6u+6+G7KKkCtURN5QNJjv/vXD9EM506dcUtBQFKmEKjBQIt6WEJXxrhIjcDMWcxs8Uqmo0sb5zRf2ZObhM/lHREdqbZbx+jUg7A33JR4M0mn7t2H3Zz1nNfTA3fF4jCvoEvNzpR6Xw4ctwW7LeJjgK+mTRQ6uU9j7GVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jTjGpJlp; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757755634; c=relaxed/simple;
+	bh=AIm6v3p8wKnKa1j4npXfFMAQaKbeZOrZfGfBJrym7R0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u9XtxSRUlS62uLgaLE5jwjZp2YS59LtegYGvakG/kMN4CzaE3152CdgwJcpVSKmb+ayr48KDnVLZVMBo+HeuC6uLHyzSfuhr7sAwTWeCl/N5xRAWu6M0va3bom3KfIvUn+tcEvx1yAypp+5WiIZNX+xrPZ1n/+S0DbGFjeUiOJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com; spf=pass smtp.mailfrom=amarulasolutions.com; dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b=I1VQxTsh; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amarulasolutions.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jTjGpJlp"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b07883a5feeso474630766b.1
-        for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 01:53:53 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b="I1VQxTsh"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-b07ba1c3df4so376481766b.3
+        for <linux-input@vger.kernel.org>; Sat, 13 Sep 2025 02:27:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757753632; x=1758358432; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nRBsxly/heSok1/GwCP1v2e7VTjywigrOJtGbwcrN40=;
-        b=jTjGpJlpC0Py7to7GOkrrewUBu15LIyzJ68Cy+vfi/yEzxI/Tt6eQzog15YCgl5IvU
-         cYpojcytMuxRruU3ZrjSr3eRVeyn0i/TpOOk4+RodboCpuk6HI7pENJ9ZOl6o5CnMCQ0
-         WbMyjVv6fD/sFQsLkZ3hxkYb495Uj14AUBf8U/aWTBzlJTrCk7oXAlQ4EF2kjNTa1lxq
-         OY4iYYUPgCNAhyk+TaujDxjXhzGvRayWdX0ZOvnAH2HiT+UXeFFSyVjBPVL/59+1eanq
-         Dib2Os/Z9wJc3pF3iVT0qj4nBmfZxeuMIZlbdmgFM0Uak31WeiYAr3eOJAcD9YqhKKGH
-         UYvg==
+        d=amarulasolutions.com; s=google; t=1757755630; x=1758360430; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=sqXoJTPCt/TEsVffyq8j5TIAdrRKPjQJmGTKxR+1RTc=;
+        b=I1VQxTsh+5JX+dD01wJbOjNn3fRZj1WVHNCYNMw0sCiCgETe3BuNlRVZ2+yWKLZvIc
+         c92X60h2ixqJIB5FasInXHknhb42xYFpCKpVdJ3lhVxiX6Q7hUTMwSVRO5l50WzEexL0
+         VPgdTkYU4Tp5CfrxE0SZWpRNpBOxf/H/7Fe1o=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757753632; x=1758358432;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nRBsxly/heSok1/GwCP1v2e7VTjywigrOJtGbwcrN40=;
-        b=xKhzafoH5vdJG3PG4cL2TBqoTjYoyOJfV6YuorRwOZC/0OQjgwqmAnuM+utx5+o4K8
-         UCaI0KTvIwap3JEUx12wznnuHb+zZz7EPobvo88igyiwjeX0Ca5aqwSrLVeyYO5CUnyq
-         g6pdocwy1jP3rmqZJ/vqN2b4HDZEIWm9sV47yQUTZ33NAeib2Alui/Ohpjk9+VY5XohF
-         Z6Ts0b67lOto3VagGc86RIoQa1F2rDIKawGbv9BQBrPKT2fPTkXPo3VANZaPJjHXtEzD
-         A7ZJsWro4j+b9/QZnpJAqsv+wHrixwFGs/gwhXh+oEVcGDlb5DEeX0a3T8t0EGKqxUHZ
-         w//w==
-X-Forwarded-Encrypted: i=1; AJvYcCUZbG+iF1cAtHj8GdWPOJplMZtJh4GNUPf4dp3jB/E9XU8V6W116BJTmhuCyMOEZHK5vT2DcNAi7NQ5Sw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4UuElIX4oDwvfVvV9L+HBkPgyRldtu5VB4u00f4WRzCNyCCS3
-	3OwDHbTzUgHQlSK4Y2mvU2K177DHDbA5+RXHIFAIUVSMnAyTb0CKY9j+
-X-Gm-Gg: ASbGnctJJCQaGNQEjGWmQfEVlbenaRr+CPOq4vWyDQYh1zlKJbpd4pXh1zl3DUE6/7N
-	/bo73zRs6FS75WVRgwdD9Fr0MVUQkcjMvNZUaXUy6T6Y6N0VPxvOjeFDhTUC1BvmiGVrN5kppmR
-	bjSkYymUZHpcW7nBQ/q8G6J/09fkgZWxuvApi7v4qYqFjcR5H3lCHcCjvrWsFCURigfAcbnLF0K
-	loykL8lpLjKOyG0M/ApmJFUVZzcL4UOiNtyWEBHQURUels6L4YKRhxvo7p8cMZyZ4Lr19UiQ9xC
-	qR/xJGhmhJ3NtOXtATdCplrLroGQGrUqHosyRqzHT2u7I/vlKiwR6vWxhTTCeN15+PuFVU1qoPR
-	c4JbjDeFNlwUejBBfIt3Z8GVBVl9MZCE7Aocx9R7PEewQuQumdlfG8CAqI2akX2IkDZw=
-X-Google-Smtp-Source: AGHT+IGRNH90vlh6pNSpSkah5E3lqgD6Qwr2bzQ2h7i2Vu2i65lG54BlgGQar3DeQCKypUkZNJ4X9A==
-X-Received: by 2002:a17:907:9805:b0:b04:5385:e80 with SMTP id a640c23a62f3a-b07c3a98830mr539708866b.64.1757753631816;
-        Sat, 13 Sep 2025 01:53:51 -0700 (PDT)
-Received: from eldamar.lan (c-82-192-244-13.customer.ggaweb.ch. [82.192.244.13])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07d09e5414sm218564466b.18.2025.09.13.01.53.50
+        d=1e100.net; s=20230601; t=1757755630; x=1758360430;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=sqXoJTPCt/TEsVffyq8j5TIAdrRKPjQJmGTKxR+1RTc=;
+        b=VLBtz0B2popuXtsE4/rKWB3PzdPdgcNYIo/mbG3JsMbkEBHu5pWsTLDghGOHKtCjWa
+         /ouP3l/XFbGjOfYX3tYFsV2ZqwCskILJIQSpuR6YriF50D3AtUgOIwTNOaps/GljwF2l
+         Q82xU61T8y958tAVPqfFZwYlgiSKdZctcqHowV8rNC+31bpPCB+9+pZPiAzRXuawwC/X
+         S4ZkiVOCmkhPz8/W/G8nUE0nDs9UwoDVjEqzvGywhPpcTWQQ5DkTXRxrvs8hafIvcvuu
+         Jy+fstkL6hG8Fl+zUtC9qJ8U1mYWnKicXZhT1bpzS545ykBcsNeEHmnlyWTX43Tm4E/F
+         J1VA==
+X-Forwarded-Encrypted: i=1; AJvYcCVdieh2TmGsQmmWYSjuSKTQnJr75YJajq9lNdGP3oYq81SvD7IItMxvae30DZZ46Fq+UUCKS47TmNKB6Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzSr4c2NbA0u9f2832YIuE49H3aEb7f+Xvs6GUdutT5n4mdcPW8
+	PkcMK43/1FvXcmhd19FShrWetKqIGG4UoInx6qrizPFK0VZaAKg41LaLM/mr26p/Bf5kPozDBVr
+	6/eEn
+X-Gm-Gg: ASbGncsxFAAKlqMPhkhf2XIgGzGndNKj21ZZV9uMP4VJi2ZLirjZh+IwEN49MbUHKTP
+	S7h0BPTZmAqhd/tVlRvYx7mwr4f80JqDIpdztc2MlEikICJDih5v7U8YYAvq6yMxzq0lyrXyaHo
+	Z+PcLLHHh3ESSy6WPeSnHrMOBl2Z2CFvYopa0RyWa2WQG0Tk+xSE5Hio2fLrwyQVimT3qv/81+t
+	QETQqqDM+e+aFwY0p+srJ5rH5sJ4eMuCatEGK+8MdsFxvx3ygFdrCRECAx3O49vasz3DIPKLPBB
+	4by1HHPuGMMrWV2bEr8pFyuMDa9uuBi+ln0OEXzU/GoR4073p5ICYlbmAFKpoEkr1mIX8sbHZk3
+	S9qtOzRGb6M7ywCofZqHoEQpRJFNhVsH4D1bgqxgZSbkd23D9GpVYrYcJ18Nfv+tcc0wDQsXFMJ
+	lKEjXxkaLEKii+30CbwrkaFCBGkQxVkQqJB/BSoB++iLnGujyiNtfTKE0IYaDVv83F
+X-Google-Smtp-Source: AGHT+IG1AZMTx8jwmHsi9JreMHXlOmk0ndpPX03YXoaqCXIRz9MQz7XfAjOe96yGGTUoXrX32mDd6A==
+X-Received: by 2002:a17:907:daa:b0:b04:97a2:64f8 with SMTP id a640c23a62f3a-b07c3532805mr587574766b.2.1757755630506;
+        Sat, 13 Sep 2025 02:27:10 -0700 (PDT)
+Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-82-56-38-125.retail.telecomitalia.it. [82.56.38.125])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07b33478besm551705766b.99.2025.09.13.02.27.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Sep 2025 01:53:50 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-	id E9A76BE2DE0; Sat, 13 Sep 2025 10:53:49 +0200 (CEST)
-Date: Sat, 13 Sep 2025 10:53:49 +0200
-From: Salvatore Bonaccorso <carnil@debian.org>
-To: Staffan Melin <staffan.melin@oscillator.se>
-Cc: zhangheng <zhangheng@kylinos.cn>, Jiri Kosina <jkosina@suse.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	regressions@lists.linux.dev, stable@vger.kernel.org,
-	1114557@bugs.debian.org
-Subject: Re: [regression] 1a8953f4f774 ("HID: Add IGNORE quirk for
- SMARTLINKTECHNOLOGY") causes issue with ID 4c4a:4155 Jieli Technology USB
- Composite Device
-Message-ID: <aMUxHZF-7p7--1qS@eldamar.lan>
-References: <aL2gYJaXoB6p_oyM@eldamar.lan>
- <c8f3d402-e0ec-4767-b925-d7764aec3d93@kylinos.cn>
- <e81e8d68cb33c7de7b0e353791e21e53@oscillator.se>
+        Sat, 13 Sep 2025 02:27:10 -0700 (PDT)
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-amarula@amarulasolutions.com,
+	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCH v2 1/5] dt-bindings: touchscreen: convert bu21013 bindings to json schema
+Date: Sat, 13 Sep 2025 11:26:51 +0200
+Message-ID: <20250913092707.1005616-1-dario.binacchi@amarulasolutions.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e81e8d68cb33c7de7b0e353791e21e53@oscillator.se>
+Content-Transfer-Encoding: 8bit
 
-Hi Staffan,
+Convert Rohm BU21013 I2C touchscreen controller device tree binding to
+json-schema.
 
-chiming in hopefully it is of help.
+Additional changes:
+- Replace <supply_name>-supply with avdd-supply to match example and
+  existing DTS.
+- Add reset-gpios in the example because it is required.
 
-On Fri, Sep 12, 2025 at 09:57:04PM +0200, Staffan Melin wrote:
-> Thank you,
-> 
-> I tried to apply this patch to 6.12.39, the first problematic kernel, as
-> well as 6.12.41, the first bad I tried, and on both I got an error message:
-> 
-> Applying: HID: quirks: Add device descriptor for 4c4a:4155
-> error: patch failed: drivers/hid/hid-quirks.c:1068
-> error: drivers/hid/hid-quirks.c: patch does not apply
-> Patch failed at 0001 HID: quirks: Add device descriptor for 4c4a:4155
-> 
-> To which kernel version should I apply the patch?
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-As the deveopment goes from mainline then down to stable series, the
-fix needs to be developed first for mainline. So the patch is targeted
-there.
+---
 
-But please find attached an updated patch which hopefully should work
-which resolved the context changes.
+Changes in v2:
+- Added in v2
 
-But ideally you can provide a Tested-by on zhangheng's mainline patch
-to get things rolling as needed.
+ .../bindings/input/touchscreen/bu21013.txt    | 43 ---------
+ .../bindings/input/touchscreen/bu21013.yaml   | 96 +++++++++++++++++++
+ 2 files changed, 96 insertions(+), 43 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
 
-Regards,
-Salvatore
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+deleted file mode 100644
+index da4c9d8b99b1..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
++++ /dev/null
+@@ -1,43 +0,0 @@
+-* Rohm BU21013 Touch Screen
+-
+-Required properties:
+- - compatible              : "rohm,bu21013_tp"
+- - reg                     : I2C device address
+- - reset-gpios             : GPIO pin enabling (selecting) chip (CS)
+- - interrupt-parent        : the phandle for the gpio controller
+- - interrupts              : (gpio) interrupt to which the chip is connected
+-
+-Optional properties:
+- - touch-gpios             : GPIO pin registering a touch event
+- - <supply_name>-supply    : Phandle to a regulator supply
+- - touchscreen-size-x      : General touchscreen binding, see [1].
+- - touchscreen-size-y      : General touchscreen binding, see [1].
+- - touchscreen-inverted-x  : General touchscreen binding, see [1].
+- - touchscreen-inverted-y  : General touchscreen binding, see [1].
+- - touchscreen-swapped-x-y : General touchscreen binding, see [1].
+-
+-[1] All general touchscreen properties are described in
+-    Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt.
+-
+-Deprecated properties:
+- - rohm,touch-max-x        : Maximum outward permitted limit in the X axis
+- - rohm,touch-max-y        : Maximum outward permitted limit in the Y axis
+- - rohm,flip-x             : Flip touch coordinates on the X axis
+- - rohm,flip-y             : Flip touch coordinates on the Y axis
+-
+-Example:
+-
+-	i2c@80110000 {
+-		bu21013_tp@5c {
+-			compatible = "rohm,bu21013_tp";
+-			reg = <0x5c>;
+-			interrupt-parent = <&gpio2>;
+-			interrupts <&20 IRQ_TYPE_LEVEL_LOW>;
+-			touch-gpio = <&gpio2 20 GPIO_ACTIVE_LOW>;
+-			avdd-supply = <&ab8500_ldo_aux1_reg>;
+-
+-			touchscreen-size-x = <384>;
+-			touchscreen-size-y = <704>;
+-			touchscreen-inverted-y;
+-		};
+-	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml b/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
+new file mode 100644
+index 000000000000..aeb581fcaf29
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
+@@ -0,0 +1,96 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/bu21013.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Rohm BU21013 touchscreen
++
++description:
++  Rohm BU21013 I2C driven touchscreen controller.
++
++maintainers:
++  - Dario Binacchi <dario.binacchi@amarulasolutions.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - rohm,bu21013_tp
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++    description: GPIO resetting the chip
++
++  touch-gpios:
++    maxItems: 1
++    description: GPIO registering a touch event.
++
++  avdd-supply:
++    description: Phandle to the regulator supplying the analog circuit.
++
++  rohm,touch-max-x:
++    deprecated: true
++    description: Maximum value on the X axis.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
++  rohm,touch-max-y:
++    deprecated: true
++    description: Maximum value on the Y axis.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
++  rohm,flip-x:
++    deprecated: true
++    description: Flip touch coordinates on the X axis
++    type: boolean
++
++  rohm,flip-y:
++    deprecated: true
++    description: Flip touch coordinates on the Y axis
++    type: boolean
++
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - reset-gpios
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        touchscreen@5c {
++            compatible = "rohm,bu21013_tp";
++            reg = <0x5c>;
++
++            interrupt-parent = <&gpio2>;
++            interrupts = <0x20 IRQ_TYPE_LEVEL_LOW>;
++            reset-gpios = <&gpio2 19 GPIO_ACTIVE_LOW>;
++            touch-gpios = <&gpio2 20 GPIO_ACTIVE_LOW>;
++            avdd-supply = <&ab8500_ldo_aux1_reg>;
++
++            touchscreen-size-x = <384>;
++            touchscreen-size-y = <704>;
++            touchscreen-inverted-y;
++        };
++    };
+-- 
+2.43.0
+
+base-commit: 22f20375f5b71f30c0d6896583b93b6e4bba7279
+branch: drop-touchscreen.txt

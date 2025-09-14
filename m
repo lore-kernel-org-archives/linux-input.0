@@ -1,42 +1,74 @@
-Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EFD12E3703;
-	Sun, 14 Sep 2025 19:36:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E2A1DED42
+	for <linux-input@vger.kernel.org>; Sun, 14 Sep 2025 20:38:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757878562; cv=none; b=kx7YbGZ+HM24Gzd5uqY92kVrE+1M/wZKGJyV3DyFGYed0t+4E3TvSqWKjprPC0CLVh+3MCYke3Pey6ofzoX/2J/P9DsBmpQMQDFi1lcdwUQXR8e+cufLz96NEy8d6xhfKgc0bixAZeOxuNaDSP5EB3yRPdGULaDlCJ4ZWwkj6UY=
+	t=1757882309; cv=none; b=Wm9CHjJFM2TuiLlIar7ZajvH2ca4NhXE7KW8EjZeY5RGPusLjSxuB1bnxRkqcJxwIVfvQHo3Cji1uepDcUYw8gp+QksFIEniVO7PehT6tNIlJ2Uy9RiKYg/S2vVAArw4lrvOyxmkrjT7CLXKVVdMpJYTB67/1SU/jqLokkYU9Lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757878562; c=relaxed/simple;
-	bh=DmzhXWCjdabYnUMwC5X+hM2e6Qhw44ROMKNmOpHX65A=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rFM1CXl+3u3I4+/5oyVyx7czB4dDX76L3/lXrwgToqrFxbOFR9XSoWuL+6Tb4mKY7IEDpUtDFZOcRN6nstCCsC9HBDj24KYp3PsyYfpqrj8p9sht8JcCfndDEhPejdN1BDXpoYDr0HR4c+AhhrPefs/+1jNK0FhqQ+oEtSXCF7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
-Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 58EJbPAi010595;
-	Sun, 14 Sep 2025 19:37:25 GMT
-Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 58EJbP7B010591;
-	Sun, 14 Sep 2025 19:37:25 GMT
-From: Alexander Kurz <akurz@blala.de>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dzmitry Sankouski <dsankouski@gmail.com>,
-        "Dr. David Alan Gilbert" <linux@treblig.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v4 1/8] dt-bindings: mfd: fsl,mc13xxx: convert txt to DT schema
-Date: Sun, 14 Sep 2025 19:37:16 +0000
-Message-Id: <20250914193723.10544-2-akurz@blala.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20250914193723.10544-1-akurz@blala.de>
-References: <20250914193723.10544-1-akurz@blala.de>
+	s=arc-20240116; t=1757882309; c=relaxed/simple;
+	bh=riIk5A7/k5jmzqe4kgCxsQ3TRBKkwDnZsBjQ/+gseWk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YVJ5L91EMGZyAFsmUx9MBjCilaIbDRcrNKqFEQUoI5k6geXCahM3ZzEf8H9MX5GdR4nHbeKaT4YIxKjtGSCrA+LRx1RqztQjW5jF9AMuxMU4Gtpn40OZVrcXdIFDI10XelL8MjJL19sHVqI6rBDRrKiSpZoQCk4Z4mTzNlHsZXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com; spf=pass smtp.mailfrom=amarulasolutions.com; dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b=YxrRqjYu; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amarulasolutions.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b="YxrRqjYu"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-afcb7a16441so527825666b.2
+        for <linux-input@vger.kernel.org>; Sun, 14 Sep 2025 13:38:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google; t=1757882304; x=1758487104; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z9VY5ykh5wKPdVnX3qXAuw1qQOw6UnVjhurc+WIYVtA=;
+        b=YxrRqjYujKbbBZ7FBQu8Jj6j9NSiIO9g+ZuOlzPBGGc0o1Pw9THlb2yVVO0Q4brtNA
+         PiAr31PDNJ3FuApAPFXWmhrFDn7PIzrlDXy5RbzVLgYC6AzJcsGYYpQ5Xk3QJ54Otvmp
+         Tw/SUkx79AgIVy3GQ0JTpSyCrd1uG9jOPTPh8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757882304; x=1758487104;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Z9VY5ykh5wKPdVnX3qXAuw1qQOw6UnVjhurc+WIYVtA=;
+        b=jXV1ROpKSngyhKtBh7hiXxImNSU8jNOs1sAFJBk1zR+RGZsrZv6PgKnfq9X7x+7elx
+         h70h/WClkwmEd50PsBy9va2na8MMvNcI7FnsyURTK0ibsFpO2G5EWgkMeof5MWzD5EK4
+         Cs2TYRyA3I+lC8OuWeB+Vip8hQo7PHayRzhpS+RYYshA4+pzhQLdOF/sawgtnp/uXey9
+         26z+IhRF1ggCAhl0XMhLtrmV773yGmGT4KoubU3TbRuQtq0i05MOcPdupbvyYU0vOy+b
+         TwbMXTxXHg9/VKipRofB/tSPumD4KQR5cMOPSGPKun6iQgomb6bvc03KdPAhpnsB4Hr1
+         76hg==
+X-Forwarded-Encrypted: i=1; AJvYcCVjydpigPTxCgfNqg0dtGYgaF+rMptnJQYSgs3VPiHvLN2oiuGH0esoAV4HSbiU+w1c+4Bn8GhK9k1u7w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWmaIAJw0LlNozCvSQSFVFnxipIp+lKPdtIK3DGHBk2T3lzP1v
+	NVdxs2JQy9gPPHs4gaZuxCg/AbVi2waRF50qcQ/qKc6wWl13om9L34ZgriL/pbuDcvk=
+X-Gm-Gg: ASbGnculECQAuYrjz7eYWd5EMA9C04sGP36iK5D5O2MA4B1YB/HJQ3nOlTLQb4NZNUJ
+	pZy4w7GsVe1YZIlkVkieQFpnb29Z4LC4wYDxvX2JlDSy/46uDaIk2PhB6wUYaw4PyMO6fSQFXjO
+	kRpdEVsSM9i1jBeGHhd+cIvYVSBCq1cNdUKKzradpqcQgF7KXLt2Wl2FWzawq9U0k1xzal2MKTU
+	p5QHcumitMXFI2hN9qsDIxSuWeEMyve1gx9gB0B9t7fG86h3vp/eY8JV9uFyF7jkapPaPvwQ9dG
+	BmVKE2poRqTMW6dlw2/W3JbDuCnAy8WESdu2hdPmSEdcxe/9P7Fd4gLNUHlkXDoHssvPiAmgMzQ
+	w4lGRtFXAP4PtuK9wKMwzI3vC4KvkAVJBIXFemT+AVYrXmRr574TBamJJnCXljCP1BwIkbhrkw+
+	Ejs/vaUay6chgsvxRLJ7c5Myrn/WH6E4PiPnzIv0VMuMqQfUDiWEI8p3RoqAEaJwNQuH4EVTkhu
+	Fo=
+X-Google-Smtp-Source: AGHT+IF/4Gm9Dk5Vnsm6Kkt9LidjypRjPXxM0EVBYC3sMhD4EIU/3t2fMNVpEOYVtSuXCXWSqxROjg==
+X-Received: by 2002:a17:907:9443:b0:b09:d915:1416 with SMTP id a640c23a62f3a-b09d91547c7mr524413566b.54.1757882304362;
+        Sun, 14 Sep 2025 13:38:24 -0700 (PDT)
+Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-82-56-38-125.retail.telecomitalia.it. [82.56.38.125])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62ec33ad242sm7803739a12.17.2025.09.14.13.38.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 14 Sep 2025 13:38:24 -0700 (PDT)
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-amarula@amarulasolutions.com,
+	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCH v3 1/5] dt-bindings: touchscreen: convert bu21013 bindings to json schema
+Date: Sun, 14 Sep 2025 22:37:52 +0200
+Message-ID: <20250914203812.1055696-1-dario.binacchi@amarulasolutions.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,405 +77,182 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the txt mc13xxx bindings to DT schema attempting to keep most
-information. The nodes codec and touchscreen are not part of the new
-schema since it was only briefly mentioned before.
-Following the convention, rename led-control to fsl,led-control.
+Convert Rohm BU21013 I2C touchscreen controller device tree binding to
+json-schema.
 
-Signed-off-by: Alexander Kurz <akurz@blala.de>
+Additional changes:
+- Replace <supply_name>-supply with avdd-supply to match example and
+  existing DTS.
+- Add reset-gpios in the example because it is required.
+
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+
 ---
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  | 218 ++++++++++++++++++
- .../devicetree/bindings/mfd/mc13xxx.txt       | 156 -------------
- 2 files changed, 218 insertions(+), 156 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/mc13xxx.txt
 
-diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+(no changes since v2)
+
+Changes in v2:
+- Added in v2
+
+ .../bindings/input/touchscreen/bu21013.txt    | 43 ---------
+ .../bindings/input/touchscreen/bu21013.yaml   | 96 +++++++++++++++++++
+ 2 files changed, 96 insertions(+), 43 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+deleted file mode 100644
+index da4c9d8b99b1..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
++++ /dev/null
+@@ -1,43 +0,0 @@
+-* Rohm BU21013 Touch Screen
+-
+-Required properties:
+- - compatible              : "rohm,bu21013_tp"
+- - reg                     : I2C device address
+- - reset-gpios             : GPIO pin enabling (selecting) chip (CS)
+- - interrupt-parent        : the phandle for the gpio controller
+- - interrupts              : (gpio) interrupt to which the chip is connected
+-
+-Optional properties:
+- - touch-gpios             : GPIO pin registering a touch event
+- - <supply_name>-supply    : Phandle to a regulator supply
+- - touchscreen-size-x      : General touchscreen binding, see [1].
+- - touchscreen-size-y      : General touchscreen binding, see [1].
+- - touchscreen-inverted-x  : General touchscreen binding, see [1].
+- - touchscreen-inverted-y  : General touchscreen binding, see [1].
+- - touchscreen-swapped-x-y : General touchscreen binding, see [1].
+-
+-[1] All general touchscreen properties are described in
+-    Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt.
+-
+-Deprecated properties:
+- - rohm,touch-max-x        : Maximum outward permitted limit in the X axis
+- - rohm,touch-max-y        : Maximum outward permitted limit in the Y axis
+- - rohm,flip-x             : Flip touch coordinates on the X axis
+- - rohm,flip-y             : Flip touch coordinates on the Y axis
+-
+-Example:
+-
+-	i2c@80110000 {
+-		bu21013_tp@5c {
+-			compatible = "rohm,bu21013_tp";
+-			reg = <0x5c>;
+-			interrupt-parent = <&gpio2>;
+-			interrupts <&20 IRQ_TYPE_LEVEL_LOW>;
+-			touch-gpio = <&gpio2 20 GPIO_ACTIVE_LOW>;
+-			avdd-supply = <&ab8500_ldo_aux1_reg>;
+-
+-			touchscreen-size-x = <384>;
+-			touchscreen-size-y = <704>;
+-			touchscreen-inverted-y;
+-		};
+-	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml b/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
 new file mode 100644
-index 000000000000..007c2e3eee91
+index 000000000000..aeb581fcaf29
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
-@@ -0,0 +1,218 @@
++++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.yaml
+@@ -0,0 +1,96 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/mfd/fsl,mc13xxx.yaml#
++$id: http://devicetree.org/schemas/input/touchscreen/bu21013.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Freescale MC13xxx Power Management Integrated Circuits (PMIC)
++title: Rohm BU21013 touchscreen
++
++description:
++  Rohm BU21013 I2C driven touchscreen controller.
 +
 +maintainers:
-+  - Alexander Kurz <akurz@blala.de>
++  - Dario Binacchi <dario.binacchi@amarulasolutions.com>
 +
-+description: >
-+  The MC13xxx PMIC series consists of the three models MC13783, MC13892
-+  and MC34708 and provide regulators and other features like RTC, ADC,
-+  LED, touchscreen, codec and input buttons.
-+
-+  Link to datasheets
-+    https://www.nxp.com/docs/en/data-sheet/MC13783.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC13892.pdf
-+    https://www.nxp.com/docs/en/data-sheet/MC34708.pdf
++allOf:
++  - $ref: touchscreen.yaml#
 +
 +properties:
 +  compatible:
 +    enum:
-+      - fsl,mc13783
-+      - fsl,mc13892
-+      - fsl,mc34708
++      - rohm,bu21013_tp
 +
 +  reg:
-+    description: I2C slave address or SPI chip select number.
 +    maxItems: 1
-+
-+  spi-max-frequency: true
-+
-+  spi-cs-high: true
-+
-+  system-power-controller: true
 +
 +  interrupts:
 +    maxItems: 1
 +
-+  leds:
-+    type: object
-+    $ref: /schemas/leds/common.yaml#
++  reset-gpios:
++    maxItems: 1
++    description: GPIO resetting the chip
 +
-+    properties:
-+      reg:
-+        description: |
-+          One of
-+          MC13783 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red 1
-+            4: Green 1
-+            5: Blue 1
-+            6: Red 2
-+            7: Green 2
-+            8: Blue 2
-+            9: Red 3
-+            10: Green 3
-+            11: Blue 3
++  touch-gpios:
++    maxItems: 1
++    description: GPIO registering a touch event.
 +
-+          MC13892 LED IDs
-+            0: Main display
-+            1: AUX display
-+            2: Keypad
-+            3: Red
-+            4: Green
-+            5: Blue
++  avdd-supply:
++    description: Phandle to the regulator supplying the analog circuit.
 +
-+          MC34708 LED IDs
-+            0: Charger Red
-+            1: Charger Green
-+        maxItems: 1
++  rohm,touch-max-x:
++    deprecated: true
++    description: Maximum value on the X axis.
++    $ref: /schemas/types.yaml#/definitions/uint32
 +
-+      led-control:
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        description: |
-+          Setting for LED-Control register array length depends on model,
-+          mc13783: 6, mc13892: 4, mc34708: 1
++  rohm,touch-max-y:
++    deprecated: true
++    description: Maximum value on the Y axis.
++    $ref: /schemas/types.yaml#/definitions/uint32
 +
-+  regulators:
-+    type: object
-+
-+    additionalProperties:
-+      type: object
-+
-+    description: |
-+      List of child nodes specifying the regulators, depending on chip variant.
-+      Each child node is defined using the standard binding for regulators and
-+      the optional regulator properties defined below.
-+
-+  fsl,mc13xxx-uses-adc:
++  rohm,flip-x:
++    deprecated: true
++    description: Flip touch coordinates on the X axis
 +    type: boolean
-+    description: Indicate the ADC is being used
 +
-+  fsl,mc13xxx-uses-codec:
++  rohm,flip-y:
++    deprecated: true
++    description: Flip touch coordinates on the Y axis
 +    type: boolean
-+    description: Indicate the Audio Codec is being used
 +
-+  fsl,mc13xxx-uses-rtc:
-+    type: boolean
-+    description: Indicate the RTC is being used
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
 +
-+  fsl,mc13xxx-uses-touch:
-+    type: boolean
-+    description: Indicate the touchscreen controller is being used
++additionalProperties: false
 +
 +required:
 +  - compatible
 +  - reg
-+
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13783
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 6
-+              maxItems: 6
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[12][ab]|sw3|vaudio|vcam|vdig|vesim|vgen|viohi|violo|vmmc[12]|vrf[12]|vrfbg|vrfcp|vrfdig|vrfref|vsim|vvib$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+              unevaluatedProperties: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc13892
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 4
-+              maxItems: 4
-+        regulators:
-+          patternProperties:
-+            "^gpo[1-4]|pwgt[12]spi|sw[1-4]|swbst|vaudio|vcam|vcoincell|vdig|vgen[1-3]|viohi|vpll|vsd|vusb|vusb2|vvideo$":
-+              type: object
-+              $ref: /schemas/regulator/regulator.yaml#
-+
-+              unevaluatedProperties: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: fsl,mc34708
-+    then:
-+      properties:
-+        leds:
-+          properties:
-+            led-control:
-+              minItems: 1
-+              maxItems: 1
-+
-+additionalProperties: false
++  - reset-gpios
++  - interrupts
 +
 +examples:
 +  - |
 +    #include <dt-bindings/gpio/gpio.h>
 +    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/leds/common.h>
-+
-+    spi {
++    i2c {
 +        #address-cells = <1>;
 +        #size-cells = <0>;
 +
-+        pmic: mc13892@0 {
-+            compatible = "fsl,mc13892";
-+            reg = <0>;
-+            spi-max-frequency = <1000000>;
-+            spi-cs-high;
-+            interrupt-parent = <&gpio0>;
-+            interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
-+            fsl,mc13xxx-uses-rtc;
-+            fsl,mc13xxx-uses-adc;
++        touchscreen@5c {
++            compatible = "rohm,bu21013_tp";
++            reg = <0x5c>;
 +
-+            leds {
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+                led-control = <0x000 0x000 0x0e0 0x000>;
++            interrupt-parent = <&gpio2>;
++            interrupts = <0x20 IRQ_TYPE_LEVEL_LOW>;
++            reset-gpios = <&gpio2 19 GPIO_ACTIVE_LOW>;
++            touch-gpios = <&gpio2 20 GPIO_ACTIVE_LOW>;
++            avdd-supply = <&ab8500_ldo_aux1_reg>;
 +
-+                sysled@3 {
-+                    reg = <3>;
-+                    label = "system:red:live";
-+                    linux,default-trigger = "heartbeat";
-+                };
-+            };
-+
-+            regulators {
-+                sw1_reg: sw1 {
-+                    regulator-min-microvolt = <600000>;
-+                    regulator-max-microvolt = <1375000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+
-+                sw2_reg: sw2 {
-+                    regulator-min-microvolt = <900000>;
-+                    regulator-max-microvolt = <1850000>;
-+                    regulator-boot-on;
-+                    regulator-always-on;
-+                };
-+            };
++            touchscreen-size-x = <384>;
++            touchscreen-size-y = <704>;
++            touchscreen-inverted-y;
 +        };
 +    };
-diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-deleted file mode 100644
-index 8261ea73278a..000000000000
---- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-+++ /dev/null
-@@ -1,156 +0,0 @@
--* Freescale MC13783/MC13892 Power Management Integrated Circuit (PMIC)
--
--Required properties:
--- compatible : Should be "fsl,mc13783" or "fsl,mc13892"
--
--Optional properties:
--- fsl,mc13xxx-uses-adc : Indicate the ADC is being used
--- fsl,mc13xxx-uses-codec : Indicate the Audio Codec is being used
--- fsl,mc13xxx-uses-rtc : Indicate the RTC is being used
--- fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being used
--
--Sub-nodes:
--- codec: Contain the Audio Codec node.
--  - adc-port: Contain PMIC SSI port number used for ADC.
--  - dac-port: Contain PMIC SSI port number used for DAC.
--- leds : Contain the led nodes and initial register values in property
--  "led-control". Number of register depends of used IC, for MC13783 is 6,
--  for MC13892 is 4, for MC34708 is 1. See datasheet for bits definitions of
--  these registers.
--  - #address-cells: Must be 1.
--  - #size-cells: Must be 0.
--  Each led node should contain "reg", which used as LED ID (described below).
--  Optional properties "label" and "linux,default-trigger" is described in
--  Documentation/devicetree/bindings/leds/common.txt.
--- regulators : Contain the regulator nodes. The regulators are bound using
--  their names as listed below with their registers and bits for enabling.
--
--MC13783 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red 1
--    4  : Green 1
--    5  : Blue 1
--    6  : Red 2
--    7  : Green 2
--    8  : Blue 2
--    9  : Red 3
--    10 : Green 3
--    11 : Blue 3
--
--MC13892 LED IDs:
--    0  : Main display
--    1  : AUX display
--    2  : Keypad
--    3  : Red
--    4  : Green
--    5  : Blue
--
--MC34708 LED IDs:
--    0  : Charger Red
--    1  : Charger Green
--
--MC13783 regulators:
--    sw1a      : regulator SW1A      (register 24, bit 0)
--    sw1b      : regulator SW1B      (register 25, bit 0)
--    sw2a      : regulator SW2A      (register 26, bit 0)
--    sw2b      : regulator SW2B      (register 27, bit 0)
--    sw3       : regulator SW3       (register 29, bit 20)
--    vaudio    : regulator VAUDIO    (register 32, bit 0)
--    viohi     : regulator VIOHI     (register 32, bit 3)
--    violo     : regulator VIOLO     (register 32, bit 6)
--    vdig      : regulator VDIG      (register 32, bit 9)
--    vgen      : regulator VGEN      (register 32, bit 12)
--    vrfdig    : regulator VRFDIG    (register 32, bit 15)
--    vrfref    : regulator VRFREF    (register 32, bit 18)
--    vrfcp     : regulator VRFCP     (register 32, bit 21)
--    vsim      : regulator VSIM      (register 33, bit 0)
--    vesim     : regulator VESIM     (register 33, bit 3)
--    vcam      : regulator VCAM      (register 33, bit 6)
--    vrfbg     : regulator VRFBG     (register 33, bit 9)
--    vvib      : regulator VVIB      (register 33, bit 11)
--    vrf1      : regulator VRF1      (register 33, bit 12)
--    vrf2      : regulator VRF2      (register 33, bit 15)
--    vmmc1     : regulator VMMC1     (register 33, bit 18)
--    vmmc2     : regulator VMMC2     (register 33, bit 21)
--    gpo1      : regulator GPO1      (register 34, bit 6)
--    gpo2      : regulator GPO2      (register 34, bit 8)
--    gpo3      : regulator GPO3      (register 34, bit 10)
--    gpo4      : regulator GPO4      (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--
--MC13892 regulators:
--    vcoincell : regulator VCOINCELL (register 13, bit 23)
--    sw1       : regulator SW1	    (register 24, bit 0)
--    sw2       : regulator SW2	    (register 25, bit 0)
--    sw3       : regulator SW3	    (register 26, bit 0)
--    sw4       : regulator SW4	    (register 27, bit 0)
--    swbst     : regulator SWBST	    (register 29, bit 20)
--    vgen1     : regulator VGEN1	    (register 32, bit 0)
--    viohi     : regulator VIOHI	    (register 32, bit 3)
--    vdig      : regulator VDIG	    (register 32, bit 9)
--    vgen2     : regulator VGEN2	    (register 32, bit 12)
--    vpll      : regulator VPLL	    (register 32, bit 15)
--    vusb2     : regulator VUSB2	    (register 32, bit 18)
--    vgen3     : regulator VGEN3	    (register 33, bit 0)
--    vcam      : regulator VCAM	    (register 33, bit 6)
--    vvideo    : regulator VVIDEO    (register 33, bit 12)
--    vaudio    : regulator VAUDIO    (register 33, bit 15)
--    vsd       : regulator VSD	    (register 33, bit 18)
--    gpo1      : regulator GPO1	    (register 34, bit 6)
--    gpo2      : regulator GPO2	    (register 34, bit 8)
--    gpo3      : regulator GPO3	    (register 34, bit 10)
--    gpo4      : regulator GPO4	    (register 34, bit 12)
--    pwgt1spi  : regulator PWGT1SPI  (register 34, bit 15)
--    pwgt2spi  : regulator PWGT2SPI  (register 34, bit 16)
--    vusb      : regulator VUSB	    (register 50, bit 3)
--
--  The bindings details of individual regulator device can be found in:
--  Documentation/devicetree/bindings/regulator/regulator.txt
--
--Examples:
--
--ecspi@70010000 { /* ECSPI1 */
--	cs-gpios = <&gpio4 24 0>, /* GPIO4_24 */
--		   <&gpio4 25 0>; /* GPIO4_25 */
--
--	pmic: mc13892@0 {
--		#address-cells = <1>;
--		#size-cells = <0>;
--		compatible = "fsl,mc13892";
--		spi-max-frequency = <6000000>;
--		reg = <0>;
--		interrupt-parent = <&gpio0>;
--		interrupts = <8>;
--
--		leds {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			led-control = <0x000 0x000 0x0e0 0x000>;
--
--			sysled@3 {
--				reg = <3>;
--				label = "system:red:live";
--				linux,default-trigger = "heartbeat";
--			};
--		};
--
--		regulators {
--			sw1_reg: mc13892__sw1 {
--				regulator-min-microvolt = <600000>;
--				regulator-max-microvolt = <1375000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--
--			sw2_reg: mc13892__sw2 {
--				regulator-min-microvolt = <900000>;
--				regulator-max-microvolt = <1850000>;
--				regulator-boot-on;
--				regulator-always-on;
--			};
--		};
--	};
--};
 -- 
-2.39.5
+2.43.0
 
+base-commit: df86f912b45c20e236060321c85fe35437e9325d
+branch: drop-touchscreen.txt

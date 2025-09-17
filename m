@@ -1,118 +1,115 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CD5F309F02
-	for <linux-input@vger.kernel.org>; Wed, 17 Sep 2025 08:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E897E225390;
+	Wed, 17 Sep 2025 09:34:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758096351; cv=none; b=F4/bfRMAFIR1I2IhGeTODVX6GpZvtEyvfbjunqxD3qOW89RbUIANTRCMee01ii4kSAg2OxT7+wxhofoFgnPNbqAEiIU3DmSVqULix7QpMr63SqKMz7B10M8Uf8zOizx97p3rXGFqipUexY09DOumlb6n8ezurYrMSGmUrYzg2os=
+	t=1758101676; cv=none; b=BSlav8FUKuNCnYF+hO14VQL/mqjZtp9wkNP31UbhD/6tTajsTmF68Wnrto1wnJ+QZAH9tjzBdhwKMp87WV+uxCGWq06A8I8Bb5gtY/v+z2z1DZODC9cWhr4FABxURL7mw1L/wU83EC6ZvJjKjEwVj+5Jm8WWpzZLxx9xsMZMQ4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758096351; c=relaxed/simple;
-	bh=osi8lZqw36mnUV7ANOU6dNqrRojLcplRBpUBXvUliAI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pPwpX4NYYSAXkap1Y1d5GcjY7wu74UjmjzQ99OdnIbLCvv/tCH923PJht2AXY6dVA5ksBtUp+I8qfJQ+Np3bb2K4PlgBUtwz0rPilZNtQcvbLXxIxJEUWDB+wIZmm32rGbpUzl8oI3+XbxY54wKndsD2QIXF+DiMmN5NTtGzi/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com; spf=pass smtp.mailfrom=amarulasolutions.com; dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b=KoeMk9ia; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=amarulasolutions.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amarulasolutions.com
+	s=arc-20240116; t=1758101676; c=relaxed/simple;
+	bh=0/Q/xtVmvxED0SF1PpOJ5CnswZ2sjSk7MFTqCaY8FN0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=o+o5qx0SWgU1uCI1PTfBg0iec3QUGurP4eEwaiWNH9XrkC8HoA6bDKLBXngH6t+5El2J6m7FpNYSr9YV0sPAWt/nC8i+/n7fo3fwBgJVMrJt2SEnNj+QC0oDEAY3qLo7MlWrYKMN6cUwiZf6rF6TQqLzW0gNEQv+MVkVy/gZU3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PDYbIHRm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amarulasolutions.com header.i=@amarulasolutions.com header.b="KoeMk9ia"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-afcb7ae6ed0so970794266b.3
-        for <linux-input@vger.kernel.org>; Wed, 17 Sep 2025 01:05:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google; t=1758096349; x=1758701149; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dmFa+COnAgPwES0uM9A7F5hfXb6EgxmAXNl0CdhTVj8=;
-        b=KoeMk9iah8jzMGfIie0rugEuOpXavPXj1nbM2KHHBJFxofAXyAgI/N0IN3bmctq1fr
-         I05GAvD5/L05/Ey36+yqzc+fYTHkV/nTQQwQ67E78vMGdUOOrwfLWTpGUSaujh0C45xM
-         KrVTvdmTl8NxTMLpw42XgaOLPV115ad4EVTU8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758096349; x=1758701149;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dmFa+COnAgPwES0uM9A7F5hfXb6EgxmAXNl0CdhTVj8=;
-        b=h7w8i93MHrX1gmCoqrhoPztz9C8qmSpwpEV8ydPEBMaNCdLarorfWsNnrnAR3T6nOU
-         ULyl6tprrKM5ugV3v4UF9s8NfukPdSBDhzFniS12DMWreBtpErmL/MvL2DLy4fODhEe7
-         kyobjzhM0orkdgM2HVJHN7JJtta7+a1/VwMDVOmaIOxPMncYZ1I55yaF7cVwWYxCxsIU
-         fEone4/7POp/YZQOYEXK90rAnlmtwir23z+rqyHHWdFEw051/e7EiGc0oSZi/qf5XOX0
-         HcODtc+2ZJgLozf2zmeMUUPxQS5M6xUDfhGpeRqkBIRx+E1u5P7T+P6BObJTH+ZR9IC/
-         5Ejw==
-X-Forwarded-Encrypted: i=1; AJvYcCUsAMUqO8k47Jraf4FJ3bF5CY8haj4NgzYv3aS4h+5CFzVtVWsxK/cmSJx/vZrlWIeegWN1Hm51AtUgrw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw280Ss2aoID7hV7tZ4cz+MBzS0haBAJ+mYPwRG7HYOGY0NeFPJ
-	vLJHFvFrA1g4PDRmNm3oxw4DUGiddwOzcU5zcfCLaVAR+vlvdiSdpBzWmRKVsPbgveU=
-X-Gm-Gg: ASbGncvXC230PrptlLajHF7ppkCGLvmywhqsXe98Bb2FsJsLA+NiJDfFA5RIrsHdw3C
-	O0+/2LiGPsobqbupKOM6Efk3VtTPfF6o12P5Y21zqUK+a6UO2xQWmxTJiAk1uXJxkGvCfDZVSEP
-	bqZOk/34PUF6jYMIcK4tk16fadjggcfSlDK8AYREWgdkucxdbILhd3eKvoIz1Kdxk+O4gtKvACc
-	eeEMVHL57gAC0RoX7z3zIQVdBZJLz1B1VNEl9EgzEtxYV9CmzuWF5Ea9Qaa8k9gtChqtWRFVG+0
-	YJk7MXLg3AaIVoRFSwHDUWEnFDzN/WvLpVOwAYVc+pGRctVtYix/9yObUAkqMIjJPEbzOXx0aLi
-	8wqI/UDGU3ZQ7PtoUTv9XeoZWrERKMcPQSkdNiF59dljNqaHVSBTwt+gMGYk=
-X-Google-Smtp-Source: AGHT+IGzyypKx+M7bACgg59eJNm7wQj1XbSrIEOljpQMYh6T60VBtLYsEF9CNds7ILed2NSvvzXcHw==
-X-Received: by 2002:a17:907:7ba1:b0:b04:9854:981f with SMTP id a640c23a62f3a-b1bb9268e9cmr163419366b.43.1758096341586;
-        Wed, 17 Sep 2025 01:05:41 -0700 (PDT)
-Received: from localhost.localdomain ([2001:b07:6474:ebbf:1215:4a13:8ee5:da2a])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b07e1aed5ffsm924936766b.81.2025.09.17.01.05.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Sep 2025 01:05:41 -0700 (PDT)
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-amarula@amarulasolutions.com,
-	Frank Li <Frank.Li@nxp.com>,
-	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Javier Carrasco <javier.carrasco@wolfvision.net>,
-	Jeff LaBundy <jeff@labundy.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	devicetree@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: [PATCH v4 3/6] dt-bindings: touchscreen: add touchscreen-glitch-threshold-ns property
-Date: Wed, 17 Sep 2025 10:05:08 +0200
-Message-ID: <20250917080534.1772202-4-dario.binacchi@amarulasolutions.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250917080534.1772202-1-dario.binacchi@amarulasolutions.com>
-References: <20250917080534.1772202-1-dario.binacchi@amarulasolutions.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PDYbIHRm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D458C4CEF0;
+	Wed, 17 Sep 2025 09:34:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758101675;
+	bh=0/Q/xtVmvxED0SF1PpOJ5CnswZ2sjSk7MFTqCaY8FN0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=PDYbIHRmFJ+saF4hnW9ehbIv++SuIQfzNyHCQytIY+JFiFI3EobwRCrCguC+lED+e
+	 3qEK4zuqTE7XzTSpynU5Ljr5YdoS9jz+2kaxi8NlN22r1MiFCWs0lVvdkIHBNb5tBH
+	 /eUAlSs2k/1jWhWMyHt8OPZ/ClVwSRC1bSUH4lJ5e1bkqqXfjIVoDA0su9T/KFkPOG
+	 ulgzjDSYgU9dn+AUyNaRzpfMvrttvIQR8b0S4ie5uYE+wrbqo/V+ak1z4jLcxIe+lY
+	 oQ1xQSFxIH2VRVtBZa90anR9GMZPdu8/a7ulJ2L4LczsLihahK7u8xOjuIlMMoREC0
+	 PQ3iQoIRJFgaw==
+Date: Wed, 17 Sep 2025 11:34:32 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    Henrik Rydberg <rydberg@bitmath.org>, kernel@collabora.com, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 00/11] HID: playstation: Add support for audio jack
+ handling on DualSense
+In-Reply-To: <20250625-dualsense-hid-jack-v2-0-596c0db14128@collabora.com>
+Message-ID: <rs2s0181-65s8-2710-029s-79qq90257p48@xreary.bet>
+References: <20250625-dualsense-hid-jack-v2-0-596c0db14128@collabora.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
-Add support for glitch threshold configuration. A detected signal is valid
-only if it lasts longer than the set threshold; otherwise, it is regarded
-as a glitch.
+On Wed, 25 Jun 2025, Cristian Ciocaltea wrote:
 
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> The Sony DualSense wireless controller (PS5) provides an internal mono
+> speaker, in addition to the 3.5mm jack socket for headphone output and
+> headset microphone input.  However, the default audio output path is set
+> to headphones, regardless of whether they are actually inserted or not.
+> 
+> This patch series aims to improve the audio support when operating in
+> USB mode, by implementing the following changes:
+> 
+> * Detect when the plugged state of the audio jack changes and toggle
+>   audio output between headphones and internal speaker, as required.
+>   The latter is achieved by essentially routing the right channel of the
+>   audio source to the mono speaker.
+> 
+> * Adjust the speaker volume since its default level is too low and,
+>   therefore, cannot generate any audible sound.
+> 
+> * Register a dedicated input device for the audio jack and use it to
+>   report all headphone and headset mic insert events.
+> 
+> It's worth noting the latter is necessary since the controller complies
+> with v1.0 of the USB Audio Class spec (UAC1) and, therefore, cannot
+> advertise any jack detection capability.
+> 
+> However, this feature can be implemented in the generic USB audio driver
+> via quirks, i.e. by configuring an input handler to receive hotplug
+> events from the HID driver.  That's exactly what has been accomplished
+> via the "ALSA: usb-audio: Support jack detection on Sony DualSense"
+> patchset [1], which has been already merged and should be available in
+> v6.17.
+> 
+> Unrelated to the above, also provide a few driver cleanup patches, e.g.
+> make use of bitfields macros, simplify locking, fix coding style.
+> 
+> [1] https://lore.kernel.org/all/20250526-dualsense-alsa-jack-v1-0-1a821463b632@collabora.com/
+> 
+> Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+> ---
+> Changes in v2:
+> - Updated cover letter including a reference to the usb-audio patch series
+> - Updated 'HID: playstation: Make use of bitfield macros' patch to drop
+>   DS_STATUS_CHARGING_SHIFT and use FIELD_GET() for battery status ops
+> - Replaced 'HID: playstation: Rename DualSense input report status
+>   field' with 'HID: playstation: Redefine DualSense input report status
+>   field' changing data type to a 3-byte array instead of renaming the
+>   struct member (Roderick)
+> - Updated 'HID: playstation: Support DualSense audio jack hotplug
+>   detection' according to Roderick's feedback:
+>  * Used DS_STATUS1_ prefixes for the plugged status register and rename
+>    its bits to match the datasheet
+>  * Defined MIC_VOLUME_ENABLE bit of DS_OUTPUT_VALID_FLAG0 register
+>  * Renamed the newly introduced audio controls members in struct
+>    dualsense_output_report_common: headphone_volume, speaker_volume,
+>    mic_volume, audio_control, audio_control2
+> - Restricted audio jack hotplug detection and event reporting to USB
+>   operation mode only, since Bluetooth audio is currently not supported
+>   and it might have a negative impact on the battery life (Roderick)
+> - Rebased series onto next-20250624
+> - Link to v1: https://lore.kernel.org/r/20250526-dualsense-hid-jack-v1-0-a65fee4a60cc@collabora.com
 
----
+This is now queued in hid.git#for-6.18/playstation. Thanks,
 
-(no changes since v2)
-
-Changes in v2:
-- Added in v2.
-
- .../devicetree/bindings/input/touchscreen/touchscreen.yaml    | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-index 3e3572aa483a..a60b4d08620d 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-@@ -206,6 +206,10 @@ properties:
- 
-         unevaluatedProperties: false
- 
-+  touchscreen-glitch-threshold-ns:
-+    description: Minimum duration in nanoseconds a signal must remain stable
-+      to be considered valid.
-+
- dependencies:
-   touchscreen-size-x: [ touchscreen-size-y ]
-   touchscreen-size-y: [ touchscreen-size-x ]
 -- 
-2.43.0
+Jiri Kosina
+SUSE Labs
 

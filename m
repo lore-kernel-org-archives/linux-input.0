@@ -1,54 +1,54 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C9D52BE632;
-	Wed, 24 Sep 2025 07:46:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EFA62BE04C;
+	Wed, 24 Sep 2025 07:46:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758699994; cv=none; b=lAz7+47RzeqmjizUblAlRhD4lc6+Ggps2tETzsqOrelmYtE9JfdjTjQLR2n05lKJz597fD/ytcU1GtPFT1HZJe7LGZKa6fv8RRe27iTfgGURol62iagwb1qoURxJnJ5q9C76kbsELy9/YjT6LWNbN3ks2fNWsWi2wbWD7mKxUtY=
+	t=1758699995; cv=none; b=DDMQ7nF70KnF4VQJRSzvKwqlr/TK+Zglmv6GrJpwZxuKUDa4ip8MfNbR9bj+NwYyFVu7ncAyUDvcNTwy1yVIkpU5IIiu78irToTX1XGCvvzaO/ldvzm75fkKwMJdljEZRU53tkI7plNLJTUtUluTw31i+d3LGaQi+rM4ZMhA8EY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758699994; c=relaxed/simple;
-	bh=Z7kbp96iiS7jPxB2qIweq0saq/r/Z6ptZfNljAcJzG0=;
+	s=arc-20240116; t=1758699995; c=relaxed/simple;
+	bh=B2qYXoILk/DYIyxK+5+jce29Axc6iUgAh2GsD4B1DdI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=SqkP+ME9f92eeXXU0WVBSf1Er/0M+kWW9PaO7f07RcbquP563CZ+6tuSEeJM7+tF9ShRzrdAzNiLnzEb6Mv4d3nJ3xJwf4JDRL1iSwJsXWN6TwA0dviXNR0I7K7DZ0A90fsQAFlWMHEX9ZB/OHxVDd3SfaEt4DZ5fg8JvWPhmKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dF6r6VkU; arc=none smtp.client-ip=192.198.163.15
+	 MIME-Version; b=eItqpirYLLDTlOWPzR5jWTPR7ash2fEa+WF73ymkZ++ZfAMpFSYBOsZ7GvtzrLBtqW0k0CeNvPoBfGJnW29Px5rN1DP0BmzHp9zVEXwHE7tLXigPp7eHSWO54GmuOXX0NdpeuR27c1HUxJn8RGrbLvvDDomT63VyyMg7gK8+W2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kHmEPVPn; arc=none smtp.client-ip=192.198.163.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dF6r6VkU"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kHmEPVPn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758699991; x=1790235991;
+  t=1758699994; x=1790235994;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Z7kbp96iiS7jPxB2qIweq0saq/r/Z6ptZfNljAcJzG0=;
-  b=dF6r6VkUHC/93mVjElTg8sg/tTFSz5QHa2uYLsnGBlNQ9KmlZaAJA8NJ
-   BWMnAu5DXGzSZLHKZi4DFCQhQdxxeUZWiJdNy9MSsACU6zXoEH3Y7qxrt
-   vHQQRXwdA3jroyfcqQ3MAiC8keGIkgsokFeF1PnAF3Op+OLFXGiJOStrQ
-   2M/Wm1F8QjQ+VWZmJDSZmWSpkGpoq5o7GAd/1/B8XN9w5e4OmwA2rjE01
-   XKc7aMrrqokXlOWKiKId2njnXLhbprjxwNQkQziiBKbnIAwF4dGw2QG92
-   LS4oIQFSjdOAFHqBfNG0ArpgKOMG/2Jsj+m3ZB3OGskXa/9tZJoiUnQg8
-   w==;
-X-CSE-ConnectionGUID: 7C5b6ea1RyekuECc7Kb6Kg==
-X-CSE-MsgGUID: CeaiMyOWT0aG71hut7YtSA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11561"; a="61101986"
+  bh=B2qYXoILk/DYIyxK+5+jce29Axc6iUgAh2GsD4B1DdI=;
+  b=kHmEPVPnN1aP2hC5rnfJ+UADE/DxFGyskCfyWBdZionCrB0qWvvTFLXh
+   wiH7uPJdbcOC0ggQu6tBYVA4esN/LbG0Hz70k0D88SB/bUwYy26rptcLv
+   kGHkN4uAE3SKHrhMHjlLqsfXYh18xTQfASz+3dGz/lyHhJ2FEs/A20rqx
+   2oxAz0WNMQHlfaRrnQBnfcPTE1JI9mPR33u+jDzFEYELoEGQyKnUMkEs+
+   EHI48a/qZFj2Gjy9wX9OqJ6G2XMkvORwKmN1yayOb0NGaW9cFSPFH/55c
+   x0YJ26pi51bna0L0hHGIxJTvQ4sbTJqLmpztujpEoI4lct8z011LzyTks
+   Q==;
+X-CSE-ConnectionGUID: BAjlYahOQkW9/VEoo1vA8Q==
+X-CSE-MsgGUID: zXaj7L88RyW9j/RRUbw92A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11561"; a="61101995"
 X-IronPort-AV: E=Sophos;i="6.18,290,1751266800"; 
-   d="scan'208";a="61101986"
+   d="scan'208";a="61101995"
 Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:24 -0700
-X-CSE-ConnectionGUID: eJlUmF9/Qte7PhGtsPvMxQ==
-X-CSE-MsgGUID: /p0bHzVmQ5mQK1KNwYzcAw==
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:33 -0700
+X-CSE-ConnectionGUID: aQ/ramG2R9C1HZvxu+uodw==
+X-CSE-MsgGUID: YLDbUcQOSiCcEGj8VSTxeQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.18,290,1751266800"; 
-   d="scan'208";a="200668544"
+   d="scan'208";a="200668599"
 Received: from sschumil-mobl2.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.245.128])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:16 -0700
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:25 -0700
 Received: from punajuuri.localdomain (unknown [192.168.240.130])
-	by kekkonen.fi.intel.com (Postfix) with ESMTP id BAC75121F25;
+	by kekkonen.fi.intel.com (Postfix) with ESMTP id C27EA121F51;
 	Wed, 24 Sep 2025 10:46:02 +0300 (EEST)
 Received: from sailus by punajuuri.localdomain with local (Exim 4.98.2)
 	(envelope-from <sakari.ailus@linux.intel.com>)
-	id 1v1KCQ-000000017Ip-35Qt;
+	id 1v1KCQ-000000017Iz-3D1s;
 	Wed, 24 Sep 2025 10:46:02 +0300
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
@@ -87,9 +87,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@kernel.org>,
 	Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH v2 14/16] leds: Use fwnode_get_next_child_node() instead
-Date: Wed, 24 Sep 2025 10:46:00 +0300
-Message-ID: <20250924074602.266292-15-sakari.ailus@linux.intel.com>
+Subject: [PATCH v2 16/16] spi: cadence: Remove explicit device node availability check
+Date: Wed, 24 Sep 2025 10:46:02 +0300
+Message-ID: <20250924074602.266292-17-sakari.ailus@linux.intel.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20250924074602.266292-1-sakari.ailus@linux.intel.com>
 References: <20250924074602.266292-1-sakari.ailus@linux.intel.com>
@@ -101,72 +101,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-fwnode_get_next_child_node() is now the same as
-fwnode_get_next_available_child_node() on all backends (OF, ACPI and
-swnode). In order to remove the available variants, switch the uses to
-non-available variants (device_get_next_child_node() in this case).
+Don't check the availability of child device nodes explicitly as this is
+now embedded in device_for_each_child_node().
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 ---
- drivers/leds/flash/leds-rt4505.c   | 2 +-
- drivers/leds/flash/leds-rt8515.c   | 2 +-
- drivers/leds/flash/leds-sgm3140.c  | 3 +--
- drivers/leds/flash/leds-tps6131x.c | 2 +-
- 4 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/spi/spi-cadence-xspi.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/leds/flash/leds-rt4505.c b/drivers/leds/flash/leds-rt4505.c
-index f16358b8dfc1..18fd5b7e528f 100644
---- a/drivers/leds/flash/leds-rt4505.c
-+++ b/drivers/leds/flash/leds-rt4505.c
-@@ -365,7 +365,7 @@ static int rt4505_probe(struct i2c_client *client)
- 		return ret;
- 	}
+diff --git a/drivers/spi/spi-cadence-xspi.c b/drivers/spi/spi-cadence-xspi.c
+index 6dcba0e0ddaa..23e426ef9b9c 100644
+--- a/drivers/spi/spi-cadence-xspi.c
++++ b/drivers/spi/spi-cadence-xspi.c
+@@ -908,9 +908,6 @@ static int cdns_xspi_of_get_plat_data(struct platform_device *pdev)
+ 	unsigned int cs;
  
--	child = fwnode_get_next_available_child_node(client->dev.fwnode, NULL);
-+	child = device_get_next_child_node(&client->dev, NULL);
- 	if (!child) {
- 		dev_err(priv->dev, "Failed to get child node\n");
- 		return -EINVAL;
-diff --git a/drivers/leds/flash/leds-rt8515.c b/drivers/leds/flash/leds-rt8515.c
-index 6af0d2c7fc56..f6b439674c03 100644
---- a/drivers/leds/flash/leds-rt8515.c
-+++ b/drivers/leds/flash/leds-rt8515.c
-@@ -304,7 +304,7 @@ static int rt8515_probe(struct platform_device *pdev)
- 		return dev_err_probe(dev, PTR_ERR(rt->enable_torch),
- 				     "cannot get ENT (enable torch) GPIO\n");
- 
--	child = fwnode_get_next_available_child_node(dev->fwnode, NULL);
-+	child = device_get_next_child_node(dev, NULL);
- 	if (!child) {
- 		dev_err(dev,
- 			"No fwnode child node found for connected LED.\n");
-diff --git a/drivers/leds/flash/leds-sgm3140.c b/drivers/leds/flash/leds-sgm3140.c
-index 3e83200675f2..dc6840357370 100644
---- a/drivers/leds/flash/leds-sgm3140.c
-+++ b/drivers/leds/flash/leds-sgm3140.c
-@@ -214,8 +214,7 @@ static int sgm3140_probe(struct platform_device *pdev)
- 		return dev_err_probe(&pdev->dev, ret,
- 				     "Failed to request regulator\n");
- 
--	child_node = fwnode_get_next_available_child_node(pdev->dev.fwnode,
--							  NULL);
-+	child_node = device_get_next_child_node(&pdev->dev, NULL);
- 	if (!child_node) {
- 		dev_err(&pdev->dev,
- 			"No fwnode child node found for connected LED.\n");
-diff --git a/drivers/leds/flash/leds-tps6131x.c b/drivers/leds/flash/leds-tps6131x.c
-index 6f4d4fd55361..f0f1f2b77d5a 100644
---- a/drivers/leds/flash/leds-tps6131x.c
-+++ b/drivers/leds/flash/leds-tps6131x.c
-@@ -544,7 +544,7 @@ static int tps6131x_parse_node(struct tps6131x *tps6131x)
- 
- 	tps6131x->valley_current_limit = device_property_read_bool(dev, "ti,valley-current-limit");
- 
--	tps6131x->led_node = fwnode_get_next_available_child_node(dev->fwnode, NULL);
-+	tps6131x->led_node = device_get_next_child_node(dev, NULL);
- 	if (!tps6131x->led_node) {
- 		dev_err(dev, "Missing LED node\n");
- 		return -EINVAL;
+ 	device_for_each_child_node(&pdev->dev, fwnode_child) {
+-		if (!fwnode_device_is_available(fwnode_child))
+-			continue;
+-
+ 		if (fwnode_property_read_u32(fwnode_child, "reg", &cs)) {
+ 			dev_err(&pdev->dev, "Couldn't get memory chip select\n");
+ 			fwnode_handle_put(fwnode_child);
 -- 
 2.47.3
 

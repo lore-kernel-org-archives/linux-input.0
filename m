@@ -1,54 +1,54 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58D12288512;
-	Wed, 24 Sep 2025 07:46:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 408D728A704;
+	Wed, 24 Sep 2025 07:46:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758699989; cv=none; b=a1tdnd69f68IujeiJEq/Ttdt6YrNU2Kd824LOoZzs6QzzD6jlEp0FMlvYdWLEo/YTh8bymqYDIHeVSOPKKxhcZwKDNdSMMFVRyMfEfFPl7QixT6hKutXb9bfWrIxbOyMnqcim0oGMJX1RrfNGZ22IKAigl023Ns+gNilYFt4GnM=
+	t=1758699990; cv=none; b=LUbZ5cGlrwv+Ed0DcRSBvRKKARO57ErAM955wJ6fnsrZFeRModefdJvyBAFGXKhX4dATEfBonqLZMQ6CXqNib8evWuJaQSBT01YCpTWYcFOrwLBdALriLT35d6OHUKh3UPkEv1wJ7eeNehaZavKIjOn/Z6Pgz32VnmJimprUfL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758699989; c=relaxed/simple;
-	bh=cf6lF7LyfM0LBjXxUF4rOsMMBytA+CYr8xHGZ4FGSls=;
+	s=arc-20240116; t=1758699990; c=relaxed/simple;
+	bh=SOIIxPHN0pMKXry68YzKaQyiVojN7g77KKyrfmEqRek=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=L8iwYEWWBY9l5WlNWJ3WbgPtzgSCAuiyYZ9N6XOQTWebj8Ff90Wg/le4veydb8EJ2q4XxbH1G6I9Bzo7/54z3Nm4EFW4fdqpin/gSHtkB0EN/edhjJdIXgY243MVC20dyhmVoInqf0rpxvobiFWb03DGwfyWKol+CCjQJQkfLlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JwGIHt3h; arc=none smtp.client-ip=192.198.163.15
+	 MIME-Version; b=tngQCqL2hE+J145/hhNcJtBEdAQzJnjuv7Ps0zuMc/DsMBF9Nat7ETt1ejsq6Onm41jpvdLuiXjvhVngL2x5hT8A9t0rLiWQoeHsRsE9UwPKZtPezXsAKhdZgPPt8u29Y5Yje3sG5T2dqDH8/jxavAIH3iFtOm9gahmZQsnmBfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VBbmdSws; arc=none smtp.client-ip=192.198.163.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JwGIHt3h"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VBbmdSws"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758699987; x=1790235987;
+  t=1758699988; x=1790235988;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=cf6lF7LyfM0LBjXxUF4rOsMMBytA+CYr8xHGZ4FGSls=;
-  b=JwGIHt3hPS4fkG6CwJOReDmeL7W0Y1uTnzaZ7hCKHHRng1CqTw2Pn0S/
-   gt9aaxq+oTvno9bY8Hi770AgFreEWPfKf2KPc/hoT9zjF1Q9aqirK6AMC
-   SqR5Vx5AcUP5PKU5sGbl4PrKN+nqecL3w6Jpyw+jI9D5nwPR2U5/TloeO
-   g57kEU+rcrrOMPHemF/ICpFCbD5pQZlOKvTU4551iNMkmjEHiuQiHLOQZ
-   pYZs8oQrqA0Qne9eKjFKroc4jCxP+GpzbJh4CaBT1jcet91ZYlusr4W48
-   8WkMXW3UYpqE8tPpX84lRwdUZVgJ8LqUvRSbBNiTGs34Eb8JOi8sQuWtR
+  bh=SOIIxPHN0pMKXry68YzKaQyiVojN7g77KKyrfmEqRek=;
+  b=VBbmdSws2F7Xq2g3tM1I8OtSVtPSE0yAgyjSnM/s5ICqKja5kWF/JOVh
+   VNjQaCyMXgGMZvhT4lYUt5y3LekGF3H5a9PjY8lAfvx2aFquqxyADwUuM
+   3VZt3P5AtOr5Ok8rse4ZXZrWig6zDk7n1TwG4fTH/XQRK0Zm3ernLnkqE
+   iT7wyckQYTuQhhwYumQqVgNeyoP57rpY0GWCm1A4PP67uoXZ2hhb8EtY3
+   +sbk4rk2Fyqb1/CSYgB+jRczNWF6eFzn36ke5ghQcoeKzNCpqpY3iqqp1
+   HmQ1P3ob9YEX7pDBGPd9qhm+tVxH7lp6sPVWh8d+AGB07oZuOTrMANeos
    Q==;
-X-CSE-ConnectionGUID: kAPoBRqnRiaamu0i1fbjHQ==
-X-CSE-MsgGUID: 1U/m7iRRQh6QwGPeAPUFIw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11561"; a="61101919"
+X-CSE-ConnectionGUID: UWxWn5F7Q6qSSVrHENMwWA==
+X-CSE-MsgGUID: vYzl/ogdRjueZon6rGbd0A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11561"; a="61101939"
 X-IronPort-AV: E=Sophos;i="6.18,290,1751266800"; 
-   d="scan'208";a="61101919"
+   d="scan'208";a="61101939"
 Received: from fmviesa002.fm.intel.com ([10.60.135.142])
   by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:24 -0700
-X-CSE-ConnectionGUID: gKeYukLbS/SvV6GFWp/bTQ==
-X-CSE-MsgGUID: NJ7DhTidRr21pUzOmcQ97w==
+X-CSE-ConnectionGUID: kOvLmrUXR7mewE4Ks/imKA==
+X-CSE-MsgGUID: nEYBz1pHTYG/vba7Qv0hWQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.18,290,1751266800"; 
-   d="scan'208";a="200668536"
+   d="scan'208";a="200668541"
 Received: from sschumil-mobl2.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.245.128])
   by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2025 00:46:16 -0700
 Received: from punajuuri.localdomain (unknown [192.168.240.130])
-	by kekkonen.fi.intel.com (Postfix) with ESMTP id AA074121F10;
+	by kekkonen.fi.intel.com (Postfix) with ESMTP id B3757121F23;
 	Wed, 24 Sep 2025 10:46:02 +0300 (EEST)
 Received: from sailus by punajuuri.localdomain with local (Exim 4.98.2)
 	(envelope-from <sakari.ailus@linux.intel.com>)
-	id 1v1KCQ-000000017IV-2nEt;
+	id 1v1KCQ-000000017If-2vJX;
 	Wed, 24 Sep 2025 10:46:02 +0300
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
@@ -87,9 +87,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@kernel.org>,
 	Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH v2 10/16] net: lan966x: Use fwnode_for_each_child_node() instead
-Date: Wed, 24 Sep 2025 10:45:56 +0300
-Message-ID: <20250924074602.266292-11-sakari.ailus@linux.intel.com>
+Subject: [PATCH v2 12/16] media: thp7312: Use fwnode_for_each_child_node() instead
+Date: Wed, 24 Sep 2025 10:45:58 +0300
+Message-ID: <20250924074602.266292-13-sakari.ailus@linux.intel.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20250924074602.266292-1-sakari.ailus@linux.intel.com>
 References: <20250924074602.266292-1-sakari.ailus@linux.intel.com>
@@ -108,22 +108,22 @@ non-available variants.
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_main.c | 2 +-
+ drivers/media/i2c/thp7312.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-index 7001584f1b7a..e8f9bf96a63b 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-@@ -1190,7 +1190,7 @@ static int lan966x_probe(struct platform_device *pdev)
- 	lan966x_stats_init(lan966x);
+diff --git a/drivers/media/i2c/thp7312.c b/drivers/media/i2c/thp7312.c
+index 775cfba188d8..86208a47f472 100644
+--- a/drivers/media/i2c/thp7312.c
++++ b/drivers/media/i2c/thp7312.c
+@@ -2064,7 +2064,7 @@ static int thp7312_parse_dt(struct thp7312_device *thp7312)
+ 		return -EINVAL;
+ 	}
  
- 	/* go over the child nodes */
--	fwnode_for_each_available_child_node(ports, portnp) {
-+	fwnode_for_each_child_node(ports, portnp) {
- 		phy_interface_t phy_mode;
- 		struct phy *serdes;
- 		u32 p;
+-	fwnode_for_each_available_child_node(sensors, node) {
++	fwnode_for_each_child_node(sensors, node) {
+ 		if (fwnode_name_eq(node, "sensor")) {
+ 			if (!thp7312_sensor_parse_dt(thp7312, node))
+ 				num_sensors++;
 -- 
 2.47.3
 

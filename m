@@ -1,63 +1,63 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D51CF309EEA
-	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 14:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738853081D7
+	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 14:15:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760364926; cv=none; b=G3NN6H52yLAtaQ9ctRtpgHKbFw5DG/HwIrB0EqbqTWVaMF39IMqU9Iq+dwLdIE5RViXRH8QP5K8ozU4s1HVgoSNtYpfM6sRXGia8ZLR6YntmEUMBOSueF9mlOz2OowNO53ydeNzhgZch6Bd7NGpJinBw+Yj6CG9pnx17do8uczU=
+	t=1760364929; cv=none; b=Voe5nUo+GMgnnMLrl4Y6jb3u2vls9YuFSe5m/THPBO7PVzrGWZPqqE1rvXr2RtlC3TltoLAr24FQb6OVLnuVObEFwn63WM+UOLM5x+cPTRyFNFkSU/Xi+B8rIQiU6yT2fQ05W1NfsNHWNxbG1abh2hXsEF6QEZ0wwVFk4v96/SA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760364926; c=relaxed/simple;
-	bh=ERfT447rtvaR+wf88k95vj4wStZVfwDMtZt0ytTxV+k=;
+	s=arc-20240116; t=1760364929; c=relaxed/simple;
+	bh=5KNyjJbgRQNGFLo6ZpLtI2lNcxP1iC+T2TtMMI7Vg6Y=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Lk441wmbqdGAyPuJhv9ji3r8Lp9nPwHxmXdtOD0wH3ok6gPzO3hgf86Fsvl6oikpbC7ETBdBBrCIZD893VrxU7/UFjo1jI3ddtGGGAtM9zix99gsLYZlxD5aowAP8WpsAJv1dVYs62X5blrttABLCki5FZ83IGL3N+T+Jg5C3kM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=fdZB/LPY; arc=none smtp.client-ip=209.85.167.43
+	 In-Reply-To:To:Cc; b=XTFaaaJhkGfQ3aodp3VqrrPwEE3nvnPBka6N5+OdkYBJDg+chnpDCZ7CoeQvXoaxBHTqQYebVJ5N4Vvk4s+kMaEn0pL8RXVYd5NBOIqR+uudZzGtMlzUzDsa2lXqdhhi74FBXM7iZaLMmhGzUglJGd6EvTl/w4Os6TJkrW2+QbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=VUGcie5S; arc=none smtp.client-ip=209.85.167.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="fdZB/LPY"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-57a292a3a4bso5390447e87.3
-        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 07:15:08 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="VUGcie5S"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-57a292a3a4bso5390571e87.3
+        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 07:15:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1760364905; x=1760969705; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1760364908; x=1760969708; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=MPyzKdSQgEFTOs6vrnV72MjIpSFJDGoFOT83Au3htUM=;
-        b=fdZB/LPYDTqAgmoK9RgXWW2qARG7f7n6iOtTFu9JTzlANYl6jP6FkFxkAu9ft2LXvo
-         qrtXpiWpao5RWeQ4k1uN+T/HOEdl4PYR06nZRvwkzhuOXNNQmOBSapqlKcNFg+3ggEn3
-         ga7E9bDQ+2cwdMofj6s9cOWOxgE18lHLjpyxA=
+        bh=LGG/+lvAfLoFYTFsHBbdKee0g975J4ynYIjn3miRvz8=;
+        b=VUGcie5S1susvs9eOKhoLdi24WXIQZAs74cSlLLObj/4B0VDJ7J255jCsK/xzGZS78
+         7y5FTc+nM1JS6L31w1D+yU4Uoa7NbxZyV+5ypjCnFK/CL5GdhWO+2O5RmFAep9xFciTn
+         O8yUSJ0NtB2k6PrjDzwY1S5fXvWXqNrB8weac=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760364905; x=1760969705;
+        d=1e100.net; s=20230601; t=1760364908; x=1760969708;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MPyzKdSQgEFTOs6vrnV72MjIpSFJDGoFOT83Au3htUM=;
-        b=oiOfcShAZXKulXg3zmGdmES66C3ygArWMg8XIRme2JMIrP7DLF0lFwjrjM52JkCFIV
-         A1pZoobhSzLd/4bmYYE6qmdrDXRyHeL9/76xMHbWAx0CJCoFl1LG9WcD9I+e9Tx4Fd2s
-         /p67GLzx63RnVuk9lUVhzzV2rpjEIJYWoFfsL0Aq2mp/HEnR9ZryFWnFozAQJAE/Bk89
-         3KjL9djkcjrN/hHjJqAVIdOjtEeHiW5Sk9wkHzumrdZHyZWmXtHLY5Ifo5GA9zQeJaLE
-         VadNTonf/AE9hMBXrrR8EX2c7uKAdiKqKgIojmEaEsZPPBf0C1GiP+TH5ix8P/TdhhNY
-         JImQ==
-X-Gm-Message-State: AOJu0YyZiazfzzagRuvAQdd2I7ZzQuWsC8dW0ulQno+oS/aMYeoQfn36
-	T5xPJRGhGbiBewuLmL/E8DSyLEIb7A/RJmi5KbbAH14L4viXjSzrpv7ZhjD8DfgmHg==
-X-Gm-Gg: ASbGnctRvj3y+5zrLlWTtb21t2o8wGRnwNVinHI07a5KeIw/WjR9p3Ghy9X3yVi3AKZ
-	qMgvWfi5d9A9FPDuAUeR/LIg8Q9Bl4UMzk/14keyZ981r4DkA08lr/7NxnpmsTqCa8XrF53kq0z
-	K1vc9rCMjTu1DpuecQrtII4Q4IahFP6+i+xbbYdduEK0LqPjYtiReNDGofRCHRjkj5x/6IckEln
-	WG+m7HD7iwxtPl9kOShnrmZfRogNPvyGozevJwC5a/w5awlyKe8dJtUj0ywN7IjbwO2zISym69T
-	SYKOachLdoSxlOWZ0c0QPgnC8cHF4ecgSXzjGooVKqzKltDHFiqEEzVFjvJw3MQzcey4K3qULmT
-	L5fgtAhAcsb36PUZ6b8F2IrlJ1fq8m/T5O7upJ/9HtLKLeaSZrx7XmrnO2+UMh71W+P/Meo2gw5
-	B1cXWWfK4ZVxaFFHRBpj4iA+kkptMI
-X-Google-Smtp-Source: AGHT+IHCybNyNMb0drsyz0aREmcwI4Uni6luvsP458rJiLZIzoW/QcUDGoAA5wmoQMp1unUYu7EgCQ==
-X-Received: by 2002:a05:6512:2c06:b0:58a:92cc:581d with SMTP id 2adb3069b0e04-5906dafd171mr5060480e87.50.1760364904884;
-        Mon, 13 Oct 2025 07:15:04 -0700 (PDT)
+        bh=LGG/+lvAfLoFYTFsHBbdKee0g975J4ynYIjn3miRvz8=;
+        b=evkMUaIaxaLS5UXvKyx+RPd3ySTBAjF6Aq+TsEp5HGdBsZagHotxcnCGzeThObmUbq
+         RmrynFuPRKogoQSe7UlVda0d7cHh3P7NkF6dk+3bbWie7OhY0598ns6JsYGvt4qe0GyS
+         0hHd8yFcY+57D337AjMVh0wzr7EmnTozdRmBd4kKjCll4vJLqHG2qdPdsIQMh6MRphAf
+         h6S7qgWN+kQIpwUCV0ixsANHBplFLxpbppVPNLCPT/P9KVEN2Wd63i7ey735VeQVfj3F
+         qzfmCatE/Nkhh3rgheROEZ36gvi+b3CV0uB0Gn8fcrZeU3N7AZWlF4UkdVlKTlhrnEPB
+         Qe9Q==
+X-Gm-Message-State: AOJu0YwiH605af8P+Drk7nTP63lnqSoLdIyJDuBXmUNb1t6+isYkKJGl
+	NcIOxh6eGQu+94qBwWkZVOv3VPV92MDDFV0wQcfBArpCpGCJOS21QY5+lZQV9lRoGw==
+X-Gm-Gg: ASbGncuAJuPsqua18EORomffrha4HZnkSczaAbgcMezksyCD/0bQ3TJhLTCgZ0r1iIY
+	vk60Lrf91lx0JJzcsG4j4etTzp1lu9QuyXspkjJr6Cs7D1tw8u3aj+H3kIqvb5XTcZZBZPKgOTw
+	np94dLRAexrwrkcC2t6EslM/TcS4UPHv3TJNZ69Qzco7UiNSX9xjdYh8mw4K8Xc6/j0aE0D7DsY
+	XeuOD/S84c4q8uDr/OpRvb0bbfWwk9YbGzJ75hKNq5+B3+v9h2VCkVxoE7uu/OluaOwgsbiXgqL
+	GUO9iLAYC6AAK78jXWHCbYJXt4A/sqKywBHzo4s/xZLvjrekUPiaIQTlPqzmrmM+r2uz0Q5uYsy
+	Ze1hj5ncb2Wdj1xDaYdArYqFvpnCAg8ix90nQyxUwwJn1ir7pFgsnP6HIeMRvZkVp3KVlB+xirH
+	XU6m5FisRi9hxjB/n2Poh7lQgY5vUNmZfvscaF+xA=
+X-Google-Smtp-Source: AGHT+IHonGCa8by4IRlUhFwqne0G+xChLaB77A4Elu7KHX/ytkwCKxhNDSfo6zsqaOoV+Q8fGGx9SA==
+X-Received: by 2002:a05:6512:1093:b0:587:a4fa:1e50 with SMTP id 2adb3069b0e04-5906dae5b56mr5886844e87.41.1760364908274;
+        Mon, 13 Oct 2025 07:15:08 -0700 (PDT)
 Received: from ribalda.c.googlers.com (56.213.88.34.bc.googleusercontent.com. [34.88.213.56])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-590881e4e58sm4165256e87.25.2025.10.13.07.15.04
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-590881e4e58sm4165256e87.25.2025.10.13.07.15.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 07:15:04 -0700 (PDT)
+        Mon, 13 Oct 2025 07:15:07 -0700 (PDT)
 From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Mon, 13 Oct 2025 14:15:06 +0000
-Subject: [PATCH 26/32] media: platform: rzg2l-cru: Use %pe format specifier
+Date: Mon, 13 Oct 2025 14:15:12 +0000
+Subject: [PATCH 32/32] media: staging/ipu7: Use %pe format specifier
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -66,7 +66,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251013-ptr_err-v1-26-2c5efbd82952@chromium.org>
+Message-Id: <20251013-ptr_err-v1-32-2c5efbd82952@chromium.org>
 References: <20251013-ptr_err-v1-0-2c5efbd82952@chromium.org>
 In-Reply-To: <20251013-ptr_err-v1-0-2c5efbd82952@chromium.org>
 To: Linus Walleij <linus.walleij@linaro.org>, 
@@ -119,40 +119,45 @@ a symbolic error name (eg. -EINVAL) and it makes the code simpler by
 omitting PTR_ERR().
 
 This patch fixes this cocci report:
-./platform/renesas/rzg2l-cru/rzg2l-csi2.c:307:30-37: WARNING: Consider using %pe to print PTR_ERR()
-./platform/renesas/rzg2l-cru/rzg2l-csi2.c:726:30-37: WARNING: Consider using %pe to print PTR_ERR()
+./ipu7/ipu7-isys-csi-phy.c:311:23-30: WARNING: Consider using %pe to print PTR_ERR()
+./ipu7/ipu7-isys-csi2.c:59:22-29: WARNING: Consider using %pe to print PTR_ERR()
 
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 ---
- drivers/media/platform/renesas/rzg2l-cru/rzg2l-csi2.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/media/ipu7/ipu7-isys-csi-phy.c | 4 ++--
+ drivers/staging/media/ipu7/ipu7-isys-csi2.c    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/renesas/rzg2l-cru/rzg2l-csi2.c b/drivers/media/platform/renesas/rzg2l-cru/rzg2l-csi2.c
-index 1520211e74185fea3bca85f36239254f6b4651db..0fbdae280fdc49f963269a4bdaea38ff2e51884e 100644
---- a/drivers/media/platform/renesas/rzg2l-cru/rzg2l-csi2.c
-+++ b/drivers/media/platform/renesas/rzg2l-cru/rzg2l-csi2.c
-@@ -303,8 +303,8 @@ static int rzg2l_csi2_calc_mbps(struct rzg2l_csi2 *csi2)
+diff --git a/drivers/staging/media/ipu7/ipu7-isys-csi-phy.c b/drivers/staging/media/ipu7/ipu7-isys-csi-phy.c
+index b8c5db7ae3009e16264d7aaca6d4d237c1402ab7..2d57178835188a44b002b38712437cbd551751a5 100644
+--- a/drivers/staging/media/ipu7/ipu7-isys-csi-phy.c
++++ b/drivers/staging/media/ipu7/ipu7-isys-csi-phy.c
+@@ -307,8 +307,8 @@ static int ipu7_isys_csi_ctrl_dids_config(struct ipu7_isys_csi2 *csi2, u32 id)
  
- 	remote_pad = media_pad_remote_pad_unique(&csi2->pads[RZG2L_CSI2_SINK]);
- 	if (IS_ERR(remote_pad)) {
--		dev_err(csi2->dev, "can't get source pad of %s (%ld)\n",
--			csi2->remote_source->name, PTR_ERR(remote_pad));
-+		dev_err(csi2->dev, "can't get source pad of %s (%pe)\n",
-+			csi2->remote_source->name, remote_pad);
- 		return PTR_ERR(remote_pad);
+ 	pad = media_entity_remote_source_pad_unique(&csi2->asd.sd.entity);
+ 	if (IS_ERR(pad)) {
+-		dev_warn(dev, "can't get remote source pad of %s (%ld)\n",
+-			 csi2->asd.sd.name, PTR_ERR(pad));
++		dev_warn(dev, "can't get remote source pad of %s (%pe)\n",
++			 csi2->asd.sd.name, pad);
+ 		return PTR_ERR(pad);
  	}
  
-@@ -722,8 +722,8 @@ static int rzg2l_csi2_get_frame_desc(struct v4l2_subdev *sd, unsigned int pad,
- 
- 	remote_pad = media_pad_remote_pad_unique(&csi2->pads[RZG2L_CSI2_SINK]);
- 	if (IS_ERR(remote_pad)) {
--		dev_err(csi2->dev, "can't get source pad of %s (%ld)\n",
--			csi2->remote_source->name, PTR_ERR(remote_pad));
-+		dev_err(csi2->dev, "can't get source pad of %s (%pe)\n",
-+			csi2->remote_source->name, remote_pad);
- 		return PTR_ERR(remote_pad);
+diff --git a/drivers/staging/media/ipu7/ipu7-isys-csi2.c b/drivers/staging/media/ipu7/ipu7-isys-csi2.c
+index 4023db4a6466dd57f0ac007847bdd74bcdf394f7..f34eabfe8a985f29fa48b4a8896a058fde2f2b2f 100644
+--- a/drivers/staging/media/ipu7/ipu7-isys-csi2.c
++++ b/drivers/staging/media/ipu7/ipu7-isys-csi2.c
+@@ -55,8 +55,8 @@ s64 ipu7_isys_csi2_get_link_freq(struct ipu7_isys_csi2 *csi2)
+ 	src_pad = media_entity_remote_source_pad_unique(&csi2->asd.sd.entity);
+ 	if (IS_ERR(src_pad)) {
+ 		dev_err(&csi2->isys->adev->auxdev.dev,
+-			"can't get source pad of %s (%ld)\n",
+-			csi2->asd.sd.name, PTR_ERR(src_pad));
++			"can't get source pad of %s (%pe)\n",
++			csi2->asd.sd.name, src_pad);
+ 		return PTR_ERR(src_pad);
  	}
- 	return v4l2_subdev_call(csi2->remote_source, pad, get_frame_desc,
+ 
 
 -- 
 2.51.0.760.g7b8bcc2412-goog

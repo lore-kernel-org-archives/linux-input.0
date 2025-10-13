@@ -1,42 +1,42 @@
 Received: from relay12.grserver.gr (relay12.grserver.gr [88.99.38.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A632153D2;
-	Mon, 13 Oct 2025 20:17:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CC6626D4DF;
+	Mon, 13 Oct 2025 20:17:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=88.99.38.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760386671; cv=none; b=WeBTjy5t3xAqDm1AHd8FkcD+mOGdwipIlE0ooY4ZXDwEXa/OqAgiiCR4tKlE/meMLD7m9YU62DGY5ClFAWQcbg86FDuFeYbsY+I7V4JGIzp0b+oza5eoBoxLtpsR8uM/dlQt6+DthPZrENi6eStrIbTIwGDDbvOrD8KHZL2GTrA=
+	t=1760386673; cv=none; b=f9iu8bG5/vP0hbrekK97LT/WF8soPHqaL4sk+m6i7Gmxb2L+WLVSpdRleSZQS75YCvdMaPPH4PJAaagTUBliNXJhfJVYYIP/8t5UlqDcVvgPwxDeClVQAJtl8gcrCiUmHcb4UGo89X3fRdBQ5CikSRNJ+GBO3m4SsNUdnxG2dnI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760386671; c=relaxed/simple;
-	bh=rlpDLaaREwfzK6sYx7OycZ3LKmEvwI0ygD0+uGbc7hw=;
+	s=arc-20240116; t=1760386673; c=relaxed/simple;
+	bh=6F512Lws1Yqct1j/nCf5pOXp+PJ7YrOIdz7oRI2Q0aE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nLYcsVj5Ixis/wxjhPWOZ2yxt1AhhJMMo4dJYT7U2MGSQ5rCbRMIUzQclaVTIzzQbivWEj/9PtTi6fuKzGJOJjsqgY/Vl0kem/pmTHWV0CxTQlx4SRFiYSRDn+9Pe+sbw95lQ+3xSXU7aMpeLjvyJb8RECXZjxobeAjvLkb2Uiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=RJ/rOLjJ; arc=none smtp.client-ip=88.99.38.195
+	 MIME-Version; b=rtzn7/b4uvUF+sP3CLLqDWCJIHade/26SLsGGJMBOHqQw2ZhZQSUEDPcIWTsLeRSd/yliSFd1Fwd7j/IpErTm0jBIM4pqJw9hUGXYQRpL2iovV5+rSKBec05yJM+AtkEOTXC/yGE/IIaasDU/EbZ9IjGJebTE7sEimdICRnmFW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=EkW6Ga7L; arc=none smtp.client-ip=88.99.38.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="RJ/rOLjJ"
+	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="EkW6Ga7L"
 Received: from relay12 (localhost [127.0.0.1])
-	by relay12.grserver.gr (Proxmox) with ESMTP id 7DFA8BDA52;
-	Mon, 13 Oct 2025 23:17:42 +0300 (EEST)
+	by relay12.grserver.gr (Proxmox) with ESMTP id 83552BD8AF;
+	Mon, 13 Oct 2025 23:17:49 +0300 (EEST)
 Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by relay12.grserver.gr (Proxmox) with ESMTPS id BCFB8BD71C;
-	Mon, 13 Oct 2025 23:17:41 +0300 (EEST)
+	by relay12.grserver.gr (Proxmox) with ESMTPS id EB038BD71C;
+	Mon, 13 Oct 2025 23:17:48 +0300 (EEST)
 Received: from antheas-z13 (x5996a8de.customers.hiper-net.dk [89.150.168.222])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 7FD731FDC0B;
-	Mon, 13 Oct 2025 23:17:39 +0300 (EEST)
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id C7D1A1FDBBF;
+	Mon, 13 Oct 2025 23:17:46 +0300 (EEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1760386661;
-	bh=qc+3LsItBV+z9wxTS44elVxHa73zsGTlYy1E2ZNNEr8=; h=From:To:Subject;
-	b=RJ/rOLjJaJT1A5NSGrhFEc/R2POqrlcTfRCclng2SzvAce4ds913Xf900NkZP7g32
-	 evdA5VXrrKMC4TMS7WL7/xEBN0ahi2NqJXs8ywFesLrNLXn/1bg+uHawt7H5Vr1vRy
-	 e3g6mr0lBdIeq8NwvT28UswO7PGEuGxk9UlVC+zkJ8DCAv43ldk5uTWoe5oVHM1QTN
-	 /3mY6NkGnVAx1HKvpL2oabeY2+6jkIfsSVs4ADuXomz7BjiXyrjF3pIipjlnRty+7x
-	 Z48FNBgOFQ1eBvOfubF2IcMcTzceVRbEmpe8Zi63lWwU6ZD29gz6ZfBL8BK5qGDU4C
-	 q5LKfyIcu66ag==
+	s=default; t=1760386668;
+	bh=unnD2g3xnhn8qrELEdP2QQJmWZwX9mHbgh96u3AxCq8=; h=From:To:Subject;
+	b=EkW6Ga7LkBqED8F/x2BpNYYQym2vVjvWD5bNveulfw826tmVSQ8Oz2W9cjSf89ACY
+	 9Iv4VicRKkuxkmy5RvQBDKJpyPmvsyObtKPd+L9mlwFAT7+bh81sTtdW1eoSlUmtIx
+	 DiJ/rJpdt6UKhPbHETpDj+oERpTqXiP8v5e9yF0DQ2Vbz1vwQCoZhw5qFl4ggvcQbP
+	 oy/QWhV5Ni4s39NKudSn5G40wgE+6U0LfEQiCvvBrbzdTffjtxsJ9aos+QFa96F9BQ
+	 sc9tafYRE+ol5IDhGVYeVoQpl7fu7uWc3ClR/R//ZcEjo4+epLRC2ldTETuIiTj0xQ
+	 X+RAS6TAm81hQ==
 Authentication-Results: linux3247.grserver.gr;
 	spf=pass (sender IP is 89.150.168.222) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
 Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
@@ -52,9 +52,10 @@ Cc: linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <benato.denis96@gmail.com>,
 	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v6 1/7] HID: asus: refactor init sequence per spec
-Date: Mon, 13 Oct 2025 22:15:29 +0200
-Message-ID: <20251013201535.6737-2-lkml@antheas.dev>
+Subject: [PATCH v6 4/7] HID: asus: listen to the asus-wmi brightness device
+ instead of creating one
+Date: Mon, 13 Oct 2025 22:15:32 +0200
+Message-ID: <20251013201535.6737-5-lkml@antheas.dev>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251013201535.6737-1-lkml@antheas.dev>
 References: <20251013201535.6737-1-lkml@antheas.dev>
@@ -66,162 +67,153 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <176038666140.3397346.12049812251057801568@linux3247.grserver.gr>
+ <176038666859.3397565.3130561150079845048@linux3247.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
 X-Virus-Status: Clean
 
-Currently, asus_kbd_init() uses a reverse engineered init sequence
-from Windows, which contains the handshakes from multiple programs.
-Keep the main one, which is 0x5a (meant for brightness drivers).
+Some ROG laptops expose multiple interfaces for controlling the
+keyboard/RGB brightness. This creates a name conflict under
+asus::kbd_brightness, where the second device ends up being
+named asus::kbd_brightness_1 and they are both broken.
 
-In addition, perform a get_response and check if the response is the
-same. To avoid regressions, print an error if the response does not
-match instead of rejecting device.
+Therefore, register a listener to the asus-wmi brightness device
+instead of creating a new one.
 
-Then, refactor asus_kbd_get_functions() to use the same ID it is called
-with, instead of hardcoding it to 0x5a so that it may be used for 0x0d
-in the future.
-
+Reviewed-by: Luke D. Jones <luke@ljones.dev>
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/hid/hid-asus.c | 91 ++++++++++++++++++++++--------------------
- 1 file changed, 48 insertions(+), 43 deletions(-)
+ drivers/hid/hid-asus.c | 64 +++++++-----------------------------------
+ 1 file changed, 10 insertions(+), 54 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index a444d41e53b6..d0c783df99bc 100644
+index a62559e3e064..0af19c8ef035 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -48,7 +48,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define FEATURE_REPORT_ID 0x0d
- #define INPUT_REPORT_ID 0x5d
- #define FEATURE_KBD_REPORT_ID 0x5a
--#define FEATURE_KBD_REPORT_SIZE 16
-+#define FEATURE_KBD_REPORT_SIZE 64
- #define FEATURE_KBD_LED_REPORT_ID1 0x5d
- #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+@@ -102,7 +102,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
  
-@@ -393,14 +393,37 @@ static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t bu
- 
- static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- {
--	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
--		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	/*
-+	 * The handshake is first sent as a set_report, then retrieved
-+	 * from a get_report. They should be equal.
-+	 */
-+	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20,
-+		0x54, 0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	u8 *readbuf;
- 	int ret;
- 
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
--	if (ret < 0)
--		hid_err(hdev, "Asus failed to send init command: %d\n", ret);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to send handshake: %d\n", ret);
-+		return ret;
-+	}
-+
-+	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	if (!readbuf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, report_id, readbuf,
-+				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
-+				 HID_REQ_GET_REPORT);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to receive handshake ack: %d\n", ret);
-+	} else if (memcmp(readbuf, buf, sizeof(buf)) != 0) {
-+		hid_warn(hdev, "Asus handshake returned invalid response: %*ph\n",
-+			FEATURE_KBD_REPORT_SIZE, readbuf);
-+		// Do not return error if handshake is wrong to avoid regressions
-+	}
- 
-+	kfree(readbuf);
- 	return ret;
+ struct asus_kbd_leds {
+-	struct led_classdev cdev;
++	struct asus_hid_listener listener;
+ 	struct hid_device *hdev;
+ 	struct work_struct work;
+ 	unsigned int brightness;
+@@ -495,11 +495,11 @@ static void asus_schedule_work(struct asus_kbd_leds *led)
+ 	spin_unlock_irqrestore(&led->lock, flags);
  }
  
-@@ -422,7 +445,7 @@ static int asus_kbd_get_functions(struct hid_device *hdev,
- 	if (!readbuf)
- 		return -ENOMEM;
+-static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
+-				   enum led_brightness brightness)
++static void asus_kbd_backlight_set(struct asus_hid_listener *listener,
++				   int brightness)
+ {
+-	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+-						 cdev);
++	struct asus_kbd_leds *led = container_of(listener, struct asus_kbd_leds,
++						 listener);
+ 	unsigned long flags;
  
--	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
-+	ret = hid_hw_raw_request(hdev, report_id, readbuf,
- 				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
- 				 HID_REQ_GET_REPORT);
+ 	spin_lock_irqsave(&led->lock, flags);
+@@ -509,20 +509,6 @@ static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
+ 	asus_schedule_work(led);
+ }
+ 
+-static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
+-{
+-	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+-						 cdev);
+-	enum led_brightness brightness;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&led->lock, flags);
+-	brightness = led->brightness;
+-	spin_unlock_irqrestore(&led->lock, flags);
+-
+-	return brightness;
+-}
+-
+ static void asus_kbd_backlight_work(struct work_struct *work)
+ {
+ 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
+@@ -539,34 +525,6 @@ static void asus_kbd_backlight_work(struct work_struct *work)
+ 		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
+ }
+ 
+-/* WMI-based keyboard backlight LED control (via asus-wmi driver) takes
+- * precedence. We only activate HID-based backlight control when the
+- * WMI control is not available.
+- */
+-static bool asus_kbd_wmi_led_control_present(struct hid_device *hdev)
+-{
+-	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+-	u32 value;
+-	int ret;
+-
+-	if (!IS_ENABLED(CONFIG_ASUS_WMI))
+-		return false;
+-
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD &&
+-			dmi_check_system(asus_use_hid_led_dmi_ids)) {
+-		hid_info(hdev, "using HID for asus::kbd_backlight\n");
+-		return false;
+-	}
+-
+-	ret = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DSTS,
+-				       ASUS_WMI_DEVID_KBD_BACKLIGHT, 0, &value);
+-	hid_dbg(hdev, "WMI backlight check: rc %d value %x", ret, value);
+-	if (ret)
+-		return false;
+-
+-	return !!(value & ASUS_WMI_DSTS_PRESENCE_BIT);
+-}
+-
+ /*
+  * We don't care about any other part of the string except the version section.
+  * Example strings: FGA80100.RC72LA.312_T01, FGA80100.RC71LS.318_T01
+@@ -701,14 +659,11 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 	drvdata->kbd_backlight->removed = false;
+ 	drvdata->kbd_backlight->brightness = 0;
+ 	drvdata->kbd_backlight->hdev = hdev;
+-	drvdata->kbd_backlight->cdev.name = "asus::kbd_backlight";
+-	drvdata->kbd_backlight->cdev.max_brightness = 3;
+-	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
+-	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
++	drvdata->kbd_backlight->listener.brightness_set = asus_kbd_backlight_set;
+ 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
+ 	spin_lock_init(&drvdata->kbd_backlight->lock);
+ 
+-	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
++	ret = asus_hid_register_listener(&drvdata->kbd_backlight->listener);
  	if (ret < 0) {
-@@ -638,50 +661,32 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
- 	unsigned char kbd_func;
- 	int ret;
+ 		/* No need to have this still around */
+ 		devm_kfree(&hdev->dev, drvdata->kbd_backlight);
+@@ -1105,7 +1060,7 @@ static int __maybe_unused asus_resume(struct hid_device *hdev) {
  
--	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
--		/* Initialize keyboard */
--		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
--		if (ret < 0)
--			return ret;
--
--		/* The LED endpoint is initialised in two HID */
--		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
--		if (ret < 0)
--			return ret;
--
--		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID2);
--		if (ret < 0)
--			return ret;
--
--		if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
--			ret = asus_kbd_disable_oobe(hdev);
--			if (ret < 0)
--				return ret;
--		}
--
--		if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
--			intf = to_usb_interface(hdev->dev.parent);
--			udev = interface_to_usbdev(intf);
--			validate_mcu_fw_version(hdev,
--				le16_to_cpu(udev->descriptor.idProduct));
--		}
-+	ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
-+	if (ret < 0)
-+		return ret;
- 
--	} else {
--		/* Initialize keyboard */
--		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
--		if (ret < 0)
--			return ret;
-+	/* Get keyboard functions */
-+	ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
-+	if (ret < 0)
-+		return ret;
- 
--		/* Get keyboard functions */
--		ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
-+	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
-+		ret = asus_kbd_disable_oobe(hdev);
- 		if (ret < 0)
- 			return ret;
-+	}
- 
--		/* Check for backlight support */
--		if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
--			return -ENODEV;
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-+		intf = to_usb_interface(hdev->dev.parent);
-+		udev = interface_to_usbdev(intf);
-+		validate_mcu_fw_version(
-+			hdev, le16_to_cpu(udev->descriptor.idProduct));
+ 	if (drvdata->kbd_backlight) {
+ 		const u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4,
+-				drvdata->kbd_backlight->cdev.brightness };
++				drvdata->kbd_backlight->brightness };
+ 		ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
+ 		if (ret < 0) {
+ 			hid_err(hdev, "Asus failed to set keyboard backlight: %d\n", ret);
+@@ -1241,7 +1196,6 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	}
  
-+	/* Check for backlight support */
-+	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
-+		return -ENODEV;
+ 	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+-	    !asus_kbd_wmi_led_control_present(hdev) &&
+ 	    asus_kbd_register_leds(hdev))
+ 		hid_warn(hdev, "Failed to initialize backlight.\n");
+ 
+@@ -1282,6 +1236,8 @@ static void asus_remove(struct hid_device *hdev)
+ 	unsigned long flags;
+ 
+ 	if (drvdata->kbd_backlight) {
++		asus_hid_unregister_listener(&drvdata->kbd_backlight->listener);
 +
- 	drvdata->kbd_backlight = devm_kzalloc(&hdev->dev,
- 					      sizeof(struct asus_kbd_leds),
- 					      GFP_KERNEL);
+ 		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
+ 		drvdata->kbd_backlight->removed = true;
+ 		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
 -- 
 2.51.0
 

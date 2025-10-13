@@ -1,63 +1,63 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E558A2D372D
-	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 14:15:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 260E9308F2D
+	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 14:15:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760364911; cv=none; b=hsbg/qvpp/8gJO4b5DjOwwWV94HNPdf6dN3ClBaf/fm0AjOvDBYEV5hIbjJcinWnnsY39nboitPQXWrzVgAuoNVevbPydbXjVtq9ySyJpaeF2LdfVvtuAuO2Ld7Vgq6YwSBHikzuFdWi6TI1H+Aag3YT3itZutVDBSNOjp3M4fA=
+	t=1760364915; cv=none; b=m6in5k070ZRDiqus7SMS8/CB1i9s2G9xk5T+lWU7QOxvkAUqTG146TF8dFjuOWzm6JMLkcYsCqNf6h9aK7JyMl3AqKRFySFRnZWD/BrPYCflj5+gQ74xTGrDq3IjtDK0aj1OByiUbqzssmv+/MC3FOgqDmPcYXBkwgrfYDQ7krw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760364911; c=relaxed/simple;
-	bh=I7TGAr67/gQzv/N2orW4jc5CGXZ/k6/Zdc8d4ItKKFs=;
+	s=arc-20240116; t=1760364915; c=relaxed/simple;
+	bh=JPx0giLNBAPr7LhNStN/lfffepZheYGDJQPhVGzb+6U=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rd2zy/asWFq/kSudGNmMqA7fqOsVXb1FFyBANF3VJU6bu5E7xjp1qwRLzNSEnB2oIXzRAwcquYaatz3+rCTObrfvkvl/4GFsdjDeOBkI9S/BiRy9sLLIXlhJ3ozG3kRCw6GkCfyFq5qowRa12aKDRdCJqKdp+n2StHTe3pkUfyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ChKhhebA; arc=none smtp.client-ip=209.85.167.42
+	 In-Reply-To:To:Cc; b=koOUFGDwtA0MGFYZ6Y5OzW75WCZXPQlNmhr3c4oG5wsePLudUdkEX9En4NvETfAPx1nS1GBAhh8FhgHwSzaNlM75A0D3l+OjMRL12KLXt3RIXoyy3xWPZdUKKOB3pkccb11pfKuswzDWJgWBVQAJtzM5zIygiZ22T1K2AxtkVEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=h/H2RjIx; arc=none smtp.client-ip=209.85.167.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ChKhhebA"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-57a292a3a4bso5390287e87.3
-        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 07:15:03 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="h/H2RjIx"
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-578ecc56235so3649678e87.0
+        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 07:15:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1760364899; x=1760969699; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1760364900; x=1760969700; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Kj07cX9dfdog7qE3ITvyCUHudwQ7Qr1GriLN3ezW2JQ=;
-        b=ChKhhebAhE2aPYsXHcKJV616z2lSP5D31R/nxFn427jZQ84CP9KcBHPxktdYOqYVyM
-         F/f3WKuxsRx6YGuwKjW3Kx1GhU+sEBDv/BzmbRz2I+ek+TuHDcv29w9PFykPEZ1054ZC
-         OeAOotwOPMFQmhJo0RO5BXSzBY9bfFjgEIVMw=
+        bh=w8uWudxYngdjU1rcL6v5EBbp/gDU20W7uHc3A+q35uM=;
+        b=h/H2RjIxmODKT6pS6/j7HGH0PivvkPqHlFtbwRpzPHaCFPJBX8vAcx4TvobJEg6GW1
+         mdMuWCWSyuvLusid4Pq0Z9xn6VnjL214RA3NhDRMvUAoJRteM5ag7EMACNz0ObDyixBh
+         Ih40Mwa+8GDJTFMrI0dtajJ0gYzo2p7QiCQXc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760364899; x=1760969699;
+        d=1e100.net; s=20230601; t=1760364900; x=1760969700;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Kj07cX9dfdog7qE3ITvyCUHudwQ7Qr1GriLN3ezW2JQ=;
-        b=M74rZpKqQaL6IOi8mKG4XpCevJdUMAhLJlIuxwUtOm3CQ1SeQt67sGVHgs1stsdwG6
-         009uSgir9rUxMihy0WT1HSfWm9EY7D0bseDaJDS8/mVhHufZOtT7ZJ8QnPRZdTLBWVTu
-         VImWqVhRDbkF75kFyQfRYCIfA7LL6h9E0lFysEYZlFL68NRkPwK0mBSP71G2c2u3oopT
-         hmWZy/UQwCtzhmqxONY9KTdDQuTl027/sWjzKkLxbMGxv2SIY6lPTYo+bD/+IkqL2eOh
-         YD7I8kikSrdsAA8TZ4ZCrI/zuOQo5hQZxGpLmthFwnjbAUXlCIxazUNVf7ll57kDEBXy
-         xCWQ==
-X-Gm-Message-State: AOJu0Yz/ZhkIYbN9BwIPf0LWqY3YRwzI9VVbrA8OZWV6Q1PzRN/Io70L
-	K6kIjhYCXpxhMC031paOOjpzk81LzSW76sBZhrK4ihNCn2/7GZRKDcGqbTKr56cvVg==
-X-Gm-Gg: ASbGnctPB8bNYKY/Xyx5mjZ1lMuH7cXx+F4DxWH3+1jF/7lu8vEjEKu4A3+W8m5aaqw
-	duTU7qDiyJjjv2DYED8n74tylKwx/QWpZebVIw4+xfYJSzQEuLIDj808SrFbWGwdVJ6ffGqt0xb
-	BgU+SDYCltNxtsYRlYDMWPc446q2GcJVxw+tLbsbB1dHZ1lwqwHTkgkFKKBGnm+rnJ0i6GM0HEO
-	/Hf3zOpvPem4PVrl8BVNZOVTqJuGsxEA9RjwHj3brliuz1bQLwxgfOPFoJd7XrqlJ0CRtAu6Ef5
-	hOlCW0GaHrj0ogODqk1uIwEsD66WezPtOkMGSHsmw66VaiSok4C4yaXmkhCDJD2XS8Ykf2Vs25I
-	khEF91CWma90pZds3s262Nh1UAH4IBOUceC3Lrd5iFSgNUDq9pJ2LZP1n3yszdXeXqySjffzaJW
-	eBCPlx4ZJkVhbMXz4tkw==
-X-Google-Smtp-Source: AGHT+IE2HB4PNnNNZPoJgrmm/zoBzzLugjubCTHQBbs/Uafloy4/vUsHxeeEoDk1I+UDuJlRtAHv9Q==
-X-Received: by 2002:a05:6512:3dac:b0:586:7f:a141 with SMTP id 2adb3069b0e04-5906d88e732mr5437316e87.18.1760364899093;
-        Mon, 13 Oct 2025 07:14:59 -0700 (PDT)
+        bh=w8uWudxYngdjU1rcL6v5EBbp/gDU20W7uHc3A+q35uM=;
+        b=kTEiixhy7Jv9KXco3UfFliEV56X+BRj1LrTq/h/KMjrjn4G9chWyuWqeMBHpfLW4iv
+         d0hcWtcYHucEcLaFQyZjWD56vjdONxhVi9cr58PIKBTjDYc8iXD98UVO1XMifzpMeKfb
+         BKYlPx8ZGU6B14d+j/853TCaaAVt8uEnAeKiMB9Qoj4O2nrnnnfXT8gsRJhwgXECPqjR
+         DxAvzGdcKlvT6XKl8LIKqS02YIbgEsRHOAqDCqbTnCu+PzbIZ73Sd/rq72JgkDeCErVW
+         ol2jKeD6BcPnP+NyVDbgTgumMFlt+NjC7z/nVYCJTeu207QwjuBgPmv/krU9eGtsQnDQ
+         PGNw==
+X-Gm-Message-State: AOJu0YymoD8qILM2NZKWMynOzgr2NDj2SnvOnNNAJhxtSIZYwELTp1mr
+	fH3vus8XKDaeWHdM6mECItnzXeBMEynnZXLVwx7Nh4SHU9W1hs9dGolC0afvMPXeTQ==
+X-Gm-Gg: ASbGnct1ES3aKqhVdFYdhuocRxbjHr2goqf2WTxoDipO/IVacUls38rt+T9E7H4/10x
+	BfPrT2CsETB5ArG+jDdZn4AcIHRiifilR8T4d5QsFB0qVECXAnkz0QSlXsgvwLLBIWkjhLOcVZl
+	7QHnzXgJhrJIqtzpFWc5CYbPn+R79Dt+TsiekD+EsXv22YtPbwEB24GJ8Vxav10U7t4aHMx/khB
+	mcS1/kqFbvN6Wxhi91TU5KtWrEYxC5XSTIOOXsWsK6HelkJ02mxWNMguQ6eyKLC0KTelUg0IPyv
+	WH60mX6FE/AHg9fqc5VtpmW/MFcT2bGuQ98Y+LGI18QGLYN7jaxm6ItoJRql0LQ8owRAYlhkS9N
+	SCacT4ALRtylkJQtkptYi/cthkZGcqEUqdgCChT/wKONq3d+TeGP67gSCrzv7QWJFfx+crhPF3P
+	aWwTmTCezAHy/dXTBFMQ==
+X-Google-Smtp-Source: AGHT+IEH9NSSx39JZw7O8X2sLmRDHl36VtDy7qnNgdDgO7X/hYoH/eK9oEmeokNHWwuJqGEVp7ffAA==
+X-Received: by 2002:a05:6512:2388:b0:57a:6d7d:dd7b with SMTP id 2adb3069b0e04-5906d773bedmr6254025e87.8.1760364900095;
+        Mon, 13 Oct 2025 07:15:00 -0700 (PDT)
 Received: from ribalda.c.googlers.com (56.213.88.34.bc.googleusercontent.com. [34.88.213.56])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-590881e4e58sm4165256e87.25.2025.10.13.07.14.58
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-590881e4e58sm4165256e87.25.2025.10.13.07.14.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Oct 2025 07:14:58 -0700 (PDT)
+        Mon, 13 Oct 2025 07:14:59 -0700 (PDT)
 From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Mon, 13 Oct 2025 14:14:56 +0000
-Subject: [PATCH 16/32] media: i2c: ov5675: Use %pe format specifier
+Date: Mon, 13 Oct 2025 14:14:58 +0000
+Subject: [PATCH 18/32] media: i2c: ov9282: Use %pe format specifier
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -66,7 +66,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251013-ptr_err-v1-16-2c5efbd82952@chromium.org>
+Message-Id: <20251013-ptr_err-v1-18-2c5efbd82952@chromium.org>
 References: <20251013-ptr_err-v1-0-2c5efbd82952@chromium.org>
 In-Reply-To: <20251013-ptr_err-v1-0-2c5efbd82952@chromium.org>
 To: Linus Walleij <linus.walleij@linaro.org>, 
@@ -119,28 +119,28 @@ a symbolic error name (eg. -EINVAL) and it makes the code simpler by
 omitting PTR_ERR().
 
 This patch fixes this cocci report:
-./i2c/ov5675.c:1188:9-16: WARNING: Consider using %pe to print PTR_ERR()
+./i2c/ov9282.c:1133:3-10: WARNING: Consider using %pe to print PTR_ERR()
 
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 ---
- drivers/media/i2c/ov5675.c | 4 ++--
+ drivers/media/i2c/ov9282.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5675.c b/drivers/media/i2c/ov5675.c
-index 30e27d39ee445c2603b8fecf7a1107969eb97df3..ea26df328189eef449ce121c0f62a4ef02631830 100644
---- a/drivers/media/i2c/ov5675.c
-+++ b/drivers/media/i2c/ov5675.c
-@@ -1184,8 +1184,8 @@ static int ov5675_get_hwcfg(struct ov5675 *ov5675)
- 	ov5675->xvclk = devm_v4l2_sensor_clk_get(dev, NULL);
- 	if (IS_ERR(ov5675->xvclk))
- 		return dev_err_probe(dev, PTR_ERR(ov5675->xvclk),
--				     "failed to get xvclk: %ld\n",
--				     PTR_ERR(ov5675->xvclk));
-+				     "failed to get xvclk: %pe\n",
-+				     ov5675->xvclk);
+diff --git a/drivers/media/i2c/ov9282.c b/drivers/media/i2c/ov9282.c
+index a9f6176e9729d500a40004de92c35b9abf89b08c..3e24d88f603c1432865b4d880670e4b67f1b5cec 100644
+--- a/drivers/media/i2c/ov9282.c
++++ b/drivers/media/i2c/ov9282.c
+@@ -1129,8 +1129,8 @@ static int ov9282_parse_hw_config(struct ov9282 *ov9282)
+ 	ov9282->reset_gpio = devm_gpiod_get_optional(ov9282->dev, "reset",
+ 						     GPIOD_OUT_LOW);
+ 	if (IS_ERR(ov9282->reset_gpio)) {
+-		dev_err(ov9282->dev, "failed to get reset gpio %ld",
+-			PTR_ERR(ov9282->reset_gpio));
++		dev_err(ov9282->dev, "failed to get reset gpio %pe",
++			ov9282->reset_gpio);
+ 		return PTR_ERR(ov9282->reset_gpio);
+ 	}
  
- 	xvclk_rate = clk_get_rate(ov5675->xvclk);
- 	if (xvclk_rate != OV5675_XVCLK_19_2) {
 
 -- 
 2.51.0.760.g7b8bcc2412-goog

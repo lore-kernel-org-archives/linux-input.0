@@ -1,172 +1,128 @@
-Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f202.google.com (mail-il1-f202.google.com [209.85.166.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FBFC2D94A9;
-	Mon, 13 Oct 2025 20:23:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.46.171.57
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0C462C11D1
+	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 20:55:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760387022; cv=none; b=f6LBqtOCFnxD1g5RsqlxtD0iF59dgZnZfRih3Elu5oS5UatZ7BZFcpESWkxb0qUTzHjqRRRXYraEipCJD20w5Mt/E6RoC6gCbK0u4KAmT1K7arYO2W7/8yFeAVAH4m12yunqn7gKvCybNvrVaSe/4xYoijTM83bXqlKEaovdF6Y=
+	t=1760388943; cv=none; b=pI5JgIhfrrdYemOvAqe0KAgmxna9oykJdpfXU8sgqd3IFrAnUmc0L+LSlbrOK1yQTLMU46eaPY2n/4V3TieBuyQj+Ys/JXbhqU3FI8trWiMDN7SFzZbUsX6yuUNO5ABPAW7sDTxOGbi9cUec/Av4rEyR0205w+CnjIWTZGy04VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760387022; c=relaxed/simple;
-	bh=A3Ymqe4PxFn583o+aAaAPj3qU3+4X72cbIfnRwyCYZY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TXQShjrA7YOlpdC87rW7JfrUlQomUQdiRuK92JpGvaBE7s8vY/7xzpl/c4ED5cxJkhbmjP2UHTIstqbRm86uBncfpNpWt9Jyd/PeqMl4zODwMtWMQtxIy0QejGe8w3/yyAMmSZeYZscyct7vnShML3zenr9crE+VRQedMPConl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=RL+1lKhm; arc=none smtp.client-ip=78.46.171.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+	s=arc-20240116; t=1760388943; c=relaxed/simple;
+	bh=g5aeWjEsyrEgtXYmT9bLZgoNYfmNd7RVniAPQYIhaqU=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=TMi3sb4KHJLLjwiGEU8/YLDRAFtDt0Tuv72o6RBXut0jSlYpM2bcWOnZOclba15hDdqkL3SwDOvxHIg9bSSNdXAi1l3E5xhwUcRJx6CaBKCZLzKbvBj1KWnkiytI1+yginQI9HKN0HA/69YcHf53QS09tOEPCHzNSaUJbHJuAF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gvuPO2Re; arc=none smtp.client-ip=209.85.166.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jdenose.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="RL+1lKhm"
-Received: from relay11 (localhost.localdomain [127.0.0.1])
-	by relay11.grserver.gr (Proxmox) with ESMTP id 3E2E4C4CA2;
-	Mon, 13 Oct 2025 23:17:40 +0300 (EEST)
-Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by relay11.grserver.gr (Proxmox) with ESMTPS id 4F4F3C4CA9;
-	Mon, 13 Oct 2025 23:17:39 +0300 (EEST)
-Received: from antheas-z13 (x5996a8de.customers.hiper-net.dk [89.150.168.222])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 09AE11FDBBF;
-	Mon, 13 Oct 2025 23:17:36 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1760386659;
-	bh=j/OiZLjA0l0ekzdu2qeZVWmhmEiXayHMPlu3k0WwWpY=; h=From:To:Subject;
-	b=RL+1lKhmgASt11O/icU1SGEpPehJp2P9GYz1U0m7ODKcoKcynMndp8jyUEjn1h74O
-	 nDowWfdPohSkCsgWJX7j92Lpzq8iDoi2jhjq04FLiLuWQTL1c21Md35cEtIpnYHRpS
-	 ScVJOkRoDaWiE61w7vA4vnVxg9mcOhNdL4j1kyPWxFDK93JpyKxsTz4SVWZqNORvoS
-	 9fvZSERQ8JWhpDNQvmdEizp9f44aCrOMC37eeBPnRqwCzLFDMOQ2KgJlQCESeH/HuH
-	 FNuj5qU9leDwQ/FiOU95sBi9BNf0cGxypf4O1g8oEZxItjHYJuiE/cOrrCK+jsewaF
-	 veTSi65gsW0tw==
-Authentication-Results: linux3247.grserver.gr;
-	spf=pass (sender IP is 89.150.168.222) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
-Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
-From: Antheas Kapenekakis <lkml@antheas.dev>
-To: platform-driver-x86@vger.kernel.org,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Corentin Chary <corentin.chary@gmail.com>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Denis Benato <benato.denis96@gmail.com>,
-	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v6 0/7] HID: asus: Fix ASUS ROG Laptop's Keyboard backlight
- handling
-Date: Mon, 13 Oct 2025 22:15:28 +0200
-Message-ID: <20251013201535.6737-1-lkml@antheas.dev>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gvuPO2Re"
+Received: by mail-il1-f202.google.com with SMTP id e9e14a558f8ab-42f9f48ee30so7112845ab.2
+        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2025 13:55:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1760388941; x=1760993741; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=n2VkMZvVeagPungxdvXSEeNR4Y/36U6V3Y2qAoJc2LE=;
+        b=gvuPO2ReOeqXobhJqHkJWoAeoB/mIK2uPhtqm0v34xB24+1yxOTSnqiKR7/EzJtJ5p
+         ucFUC0plDsS/dpGNEBoFdgUkynR1EIVJy6xdDF943wLqu6sU2naKrwI3CYLfPUbw+zYT
+         qpwiowL74I4aiY/L1lzdd7X2VdGQT2e6wMtI6oqRZn2EQNZtSIxAtkvJ1WC5egwmllPR
+         V+6PUANBQOnOL9PP3IzXIcaHLEpz6DK3c7YQSXjmhlwZ+Cqr+SZVkGnForXqo6XXtQJP
+         +3vXnUASREQbLBKhsizBLeU9GgGbkeWWxdyjXuGC7KdOBZsOu4AVD49oprRviY5b/Hun
+         14Ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760388941; x=1760993741;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=n2VkMZvVeagPungxdvXSEeNR4Y/36U6V3Y2qAoJc2LE=;
+        b=nvmSNf86SJAsFhd519viGGuZD90l8tQaEsaZy22qFbsCij4dQHrqlsI6jji8f1AHLo
+         anIR3++Nbo6NCvuhwr86R2ioF+EbLTneS69LPYFZh4TlLx8+bEcA28sA6ZITLZLTBIJJ
+         Bxi3So3xA7Fixw8Q18xM9iL9sodSmEwuFr9kQtHefeapRB10oSpDv22PsxYeUnQhr+g1
+         ZpaCySsccVIZ+KR6lcWxCy1GmIfyC9DQLikrhffwVj5JQiyCZ1Sn6WXVkcPqX2C+oXhj
+         AdHKyjzPnKnyjEi/iA6KHYxv9Zf61IGxpl4MHkyKqWAUKJ8q4T0Ue99pJncBAU+tR0aL
+         KWbA==
+X-Forwarded-Encrypted: i=1; AJvYcCVXjEoDC5k1GXWMvfOe3Bi3HJOrA5ATFXOlF7xkut9GH4hg93ITeahgUJ0sd1yhfRk5rokMRje5U3c8MA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzFGfg1KhR26Hrj9oUF1y1dvzYDOwYlmB6Qe0drPkzKsp6mMvrf
+	eKK21STXLJBTumW/NiYZ2fUcK3lOUp/qc29CoLBg/BSlQG//7A7fqGEWnsV+jBvNfw3YXri5t8v
+	Z68E464ti1g==
+X-Google-Smtp-Source: AGHT+IFzT35HVcIiSr0TCH6YF669Y1WMCSqZlPkuDacbU/ha+9HSwmUUwPGAawwWvCgwzzHXwduN3fJZgkT3
+X-Received: from ilvk5.prod.google.com ([2002:a05:6e02:1a85:b0:425:c6a0:25a8])
+ (user=jdenose job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6e02:4509:20b0:42f:9b79:f8cd
+ with SMTP id e9e14a558f8ab-42f9b79fcebmr135607215ab.16.1760388941161; Mon, 13
+ Oct 2025 13:55:41 -0700 (PDT)
+Date: Mon, 13 Oct 2025 20:54:57 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-PPP-Message-ID: 
- <176038665894.3397295.14776036217802633959@linux3247.grserver.gr>
-X-PPP-Vhost: antheas.dev
-X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
-X-Virus-Status: Clean
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIACBn7WgC/x2MywqAIBAAfyX23ILa49CvRAdzV10CC40Ion9PO
+ s7AzAOFs3CBqXkg8yVF9lRBtw24aFNgFKoMRplBK91hFMJoj1Mcbm5PXgJ6uXHsevJmJes0QY2 PzFX/43l53w8+vguDaAAAAA==
+X-Change-Id: 20251013-hid-haptic-kconfig-fix-634df2bdac1d
+X-Mailer: b4 0.14.2
+Message-ID: <20251013-hid-haptic-kconfig-fix-v1-1-b1ad90732625@google.com>
+Subject: [PATCH] HID: Kconfig: Fix build error from CONFIG_HID_HAPTIC
+From: Jonathan Denose <jdenose@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Thorsten Leemhuis <linux@leemhuis.info>, Randy Dunlap <rdunlap@infradead.org>, 
+	Lucas GISSOT <lucas.gissot.pro@gmail.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Jonathan Denose <jdenose@google.com>
+Content-Type: text/plain; charset="utf-8"
 
-This is a two part series which does the following:
-  - Clean-up init sequence
-  - Unify backlight handling to happen under asus-wmi so that all Aura
-    devices have synced brightness controls and the backlight button works
-    properly when it is on a USB laptop keyboard instead of one w/ WMI.
-
-For more context, see cover letter of V1. Since V5, I removed some patches
-to make this easier to merge.
-
-All comments with these patches had been addressed since V4.
+Temporarily change CONFIG_HID_HAPTIC to be bool instead of tristate, until
+we implement a permanent solution.
 
 ---
-V5: https://lore.kernel.org/all/20250325184601.10990-1-lkml@antheas.dev/
-V4: https://lore.kernel.org/lkml/20250324210151.6042-1-lkml@antheas.dev/
-V3: https://lore.kernel.org/lkml/20250322102804.418000-1-lkml@antheas.dev/
-V2: https://lore.kernel.org/all/20250320220924.5023-1-lkml@antheas.dev/
-V1: https://lore.kernel.org/all/20250319191320.10092-1-lkml@antheas.dev/
+Recently the CONFIG_HID_HAPTIC Kconfig option was reported as causing
+the following build errors:
 
-Changes since V5:
-  - It's been a long time
-  - Remove addition of RGB as that had some comments I need to work on
-  - Remove folio patch (already merged)
-  - Remove legacy fix patch 11 from V4. There is a small chance that
-    without this patch, some old NKEY keyboards might not respond to
-    RGB commands according to Luke, but the kernel driver does not do
-    RGB currently. The 0x5d init is done by Armoury crate software in
-    Windows. If an issue is found, we can re-add it or just remove patches
-    1/2 before merging. However, init could use the cleanup.
+  MODPOST Module.symvers
+ERROR: modpost: "hid_haptic_init" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_pressure_increase" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_check_pressure_unit" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_input_configured" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_input_mapping" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_feature_mapping" [drivers/hid/hid-multitouch.ko] undefined!
+ERROR: modpost: "hid_haptic_pressure_reset" [drivers/hid/hid-multitouch.ko] undefined!
+make[3]: *** [/home/thl/var/linux.dev/scripts/Makefile.modpost:147: Module.symvers] Error 1
 
-Changes since V4:
-  - Fix KConfig (reported by kernel robot)
-  - Fix Ilpo's nits, if I missed anything lmk
+when the kernel is compiled with the following configuration:
 
-Changes since V3:
-  - Add initializer for 0x5d for old NKEY keyboards until it is verified
-    that it is not needed for their media keys to function.
-  - Cover init in asus-wmi with spinlock as per Hans
-  - If asus-wmi registers WMI handler with brightness, init the brightness
-    in USB Asus keyboards, per Hans.
-  - Change hid handler name to asus-UNIQ:rgb:peripheral to match led class
-  - Fix oops when unregistering asus-wmi by moving unregister outside of
-    the spin lock (but after the asus reference is set to null)
+CONFIG_HID=y
+CONFIG_HID_MULTITOUCH=m
+CONFIG_HID_HAPTIC=m
 
-Changes since V2:
-  - Check lazy init succeds in asus-wmi before setting register variable
-  - make explicit check in asus_hid_register_listener for listener existing
-    to avoid re-init
-  - rename asus_brt to asus_hid in most places and harmonize everything
-  - switch to a spinlock instead of a mutex to avoid kernel ooops
-  - fixup hid device quirks to avoid multiple RGB devices while still exposing
-    all input vendor devices. This includes moving rgb init to probe
-    instead of the input_configured callbacks.
-  - Remove fan key (during retest it appears to be 0xae that is already
-    supported by hid-asus)
-  - Never unregister asus::kbd_backlight while asus-wmi is active, as that
-  - removes fds from userspace and breaks backlight functionality. All
-  - current mainline drivers do not support backlight hotplugging, so most
-    userspace software (e.g., KDE, UPower) is built with that assumption.
-    For the Ally, since it disconnects its controller during sleep, this
-    caused the backlight slider to not work in KDE.
+To resolve this, temporarily change the CONFIG_HID_HAPTIC option to be
+bool, until we arrive at a permanent solution to enable CONFIG_HID_HAPTIC
+to be tristate.
 
-Changes since V1:
-  - Add basic RGB support on hid-asus, (Z13/Ally) tested in KDE/Z13
-  - Fix ifdef else having an invalid signature (reported by kernel robot)
-  - Restore input arguments to init and keyboard function so they can
-    be re-used for RGB controls.
-  - Remove Z13 delay (it did not work to fix the touchpad) and replace it
-    with a HID_GROUP_GENERIC quirk to allow hid-multitouch to load. Squash
-    keyboard rename into it.
-  - Unregister brightness listener before removing work queue to avoid
-    a race condition causing corruption
-  - Remove spurious mutex unlock in asus_brt_event
-  - Place mutex lock in kbd_led_set after LED_UNREGISTERING check to avoid
-    relocking the mutex and causing a deadlock when unregistering leds
-  - Add extra check during unregistering to avoid calling unregister when
-    no led device is registered.
-  - Temporarily HID_QUIRK_INPUT_PER_APP from the ROG endpoint as it causes
-    the driver to create 4 RGB handlers per device. I also suspect some
-    extra events sneak through (KDE had the @@@@@@).
+For a more detailed discussion, see [1].
 
-Antheas Kapenekakis (7):
-  HID: asus: refactor init sequence per spec
-  HID: asus: prevent binding to all HID devices on ROG
-  platform/x86: asus-wmi: Add support for multiple kbd RGB handlers
-  HID: asus: listen to the asus-wmi brightness device instead of
-    creating one
-  platform/x86: asus-wmi: remove unused keyboard backlight quirk
-  platform/x86: asus-wmi: add keyboard brightness event handler
-  HID: asus: add support for the asus-wmi brightness handler
+[1]: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35inqda3exwzs3tk3ff@oagat6g46zto/
 
- drivers/hid/hid-asus.c                     | 235 +++++++++++----------
- drivers/platform/x86/asus-wmi.c            | 157 ++++++++++++--
- include/linux/platform_data/x86/asus-wmi.h |  69 +++---
- 3 files changed, 291 insertions(+), 170 deletions(-)
+Signed-off-by: Jonathan Denose <jdenose@google.com>
+---
+ drivers/hid/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 5341aa79f387bd0e5a76266b5928d2c978dd81cf..04420a713be085c8871b4d35255fde4cafd8de0f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -93,7 +93,7 @@ config HID_GENERIC
+ 	If unsure, say Y.
+ 
+ config HID_HAPTIC
+-	tristate "Haptic touchpad support"
++	bool "Haptic touchpad support"
+ 	default n
+ 	help
+ 	Support for touchpads with force sensors and haptic actuators instead of a
 
+---
 base-commit: 3a8660878839faadb4f1a6dd72c3179c1df56787
--- 
-2.51.0
+change-id: 20251013-hid-haptic-kconfig-fix-634df2bdac1d
 
+Best regards,
+-- 
+Jonathan Denose <jdenose@google.com>
 

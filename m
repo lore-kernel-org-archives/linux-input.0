@@ -1,122 +1,110 @@
-Received: from outboundhk.mxmail.xiaomi.com (outboundhk.mxmail.xiaomi.com [118.143.206.90])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id EB98322068B;
-	Tue, 14 Oct 2025 01:24:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=118.143.206.90
+Received: from ni.piap.pl (ni.piap.pl [195.187.100.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 413E930AAC8;
+	Tue, 14 Oct 2025 04:24:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.187.100.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760405101; cv=none; b=nL1OBBusTR1QonQC1HTXp3/7HAlTDm72IScz6qxn3reGQygT8kez/s49b8irsbzrH0KQ6Sy9t2iXzeYuUKU+MDTMLaKs3mD0+q9rlgvxMPa4VNpo0K7B7TTafcaefd6Ssjw/B7dLWjgY9Pm7VasNJYeSStQyJOLN0WExDs1Wm9g=
+	t=1760415898; cv=none; b=dE6NsryDXIM3K6XMWXWQcrqPiIRtcXYUnwaveLuM/RpJWozuC+MRVE0rr3fE90KIQag12k+fxDMwUvFhBcoZoPMOHo5IwqqB2y7rfB65mdUTbv4hTpdMnnV95I1CqKsan0gWlOudHyA+qsz/Wo7wi+oHGUCE1aMsdCQXu0kVA7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760405101; c=relaxed/simple;
-	bh=0lfUdQvdldCrhXHTQGEwLkzKT6LKbQZFh3o+ySPk2Ys=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=jPBuLACv1imzFI4ptvCTj28HMAbms8aL0oMAJvUZcOSINesT624KYHHMgxepIgHdJNqjMyynxnzlC5IRJXxCstYrKgp/RJKDMJrMq82LJSCCEUZkRI7hzRPWp78Jr2JQwr6yp68qbBrnHGX5vz+sKZDA4+zcGJrygx9NsvRPjdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=xiaomi.com; spf=pass smtp.mailfrom=xiaomi.com; arc=none smtp.client-ip=118.143.206.90
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=xiaomi.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaomi.com
-X-CSE-ConnectionGUID: C+0glNcCT8Ce9uHwqMr7HA==
-X-CSE-MsgGUID: B+8Fn7WmT2WfgafvMNs5Rg==
-X-IronPort-AV: E=Sophos;i="6.19,226,1754928000"; 
-   d="scan'208";a="129376162"
-From: =?gb2312?B?wqy5+rrq?= <luguohong@xiaomi.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina
-	<jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-CC: "kenalba@google.com" <kenalba@google.com>, "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, =?gb2312?B?wO7F9A==?= <lipeng43@xiaomi.com>,
-	=?gb2312?B?y87D3MPc?= <songmimi@xiaomi.com>, =?gb2312?B?wqy5+rrq?=
-	<luguohong@xiaomi.com>
-Subject: =?gb2312?B?tPC4tDogW0V4dGVybmFsIE1haWxdW1BBVENIXSBISUQ6IGhpZC1pbnB1dDog?=
- =?gb2312?Q?only_ignore_0_battery_events_for_digitizers?=
-Thread-Topic: [External Mail][PATCH] HID: hid-input: only ignore 0 battery
- events for digitizers
-Thread-Index: AQHcOazZHRANaD7djkOKShmNHYh1F7S7MO8bgAWtdUM=
-Date: Tue, 14 Oct 2025 01:24:51 +0000
-Message-ID: <0af10be7ca044b2f981bc6dabaee2df5@xiaomi.com>
-References: <of5qjeij72wduee3zyf26drfcwhpsl4sjs3v6tfjv3tgl3xsol@sss7zcyawwaz>,<6ec0ba2fd4ba42bf91fa8c5dbfb5e1c0@xiaomi.com>
-In-Reply-To: <6ec0ba2fd4ba42bf91fa8c5dbfb5e1c0@xiaomi.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+	s=arc-20240116; t=1760415898; c=relaxed/simple;
+	bh=NkEIvHvSMBdftwCCgim71nKU1aLS5jLHCWC9aM4TShQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=KfujT17SU1ghYIEVNdTGfm3YfXDJmdD8n6OV+ijf5Duzmbw6ih1iknFUDxyX+p9zkUMUViof3QjxzgP2dUpWqM4nvllV9NY2DbkoNN9GdSqac8DWw0Ab8xqTpiAVbhMZdbkGgAO0cNYsb4OxQiKif4ai8gSpvgjlgtYqDwJj6os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=piap.pl; spf=pass smtp.mailfrom=piap.pl; arc=none smtp.client-ip=195.187.100.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=piap.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=piap.pl
+Received: from t19.piap.pl (OSB1819.piap.pl [10.0.9.19])
+	by ni.piap.pl (Postfix) with ESMTPS id 13FA2C3EEAC9;
+	Tue, 14 Oct 2025 06:24:44 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 ni.piap.pl 13FA2C3EEAC9
+From: =?utf-8?Q?Krzysztof_Ha=C5=82asa?= <khalasa@piap.pl>
+To: Ricardo Ribalda <ribalda@chromium.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>,  Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>,  Mauro Carvalho Chehab <mchehab@kernel.org>,
+  Hans Verkuil <hverkuil@kernel.org>,  Sakari Ailus
+ <sakari.ailus@linux.intel.com>,  Tomi Valkeinen
+ <tomi.valkeinen@ideasonboard.com>,  Leon Luo <leonl@leopardimaging.com>,
+  Kieran Bingham <kieran.bingham@ideasonboard.com>,  Jacopo Mondi
+ <jacopo+renesas@jmondi.org>,  Kieran Bingham
+ <kieran.bingham+renesas@ideasonboard.com>,  Laurent Pinchart
+ <laurent.pinchart+renesas@ideasonboard.com>,  Niklas =?utf-8?Q?S=C3=B6der?=
+ =?utf-8?Q?lund?=
+ <niklas.soderlund+renesas@ragnatech.se>,  Julien Massot
+ <julien.massot@collabora.com>,  Jacopo Mondi <jacopo@jmondi.org>,  Daniel
+ Scally <djrscally@gmail.com>,  Dave Stevenson
+ <dave.stevenson@raspberrypi.com>,  Benjamin Mugnier
+ <benjamin.mugnier@foss.st.com>,  Sylvain Petinot
+ <sylvain.petinot@foss.st.com>,  Yong Zhi <yong.zhi@intel.com>,  Bingbu Cao
+ <bingbu.cao@intel.com>,  Tianshu Qiu <tian.shu.qiu@intel.com>,  Tiffany
+ Lin <tiffany.lin@mediatek.com>,  Andrew-CT Chen
+ <andrew-ct.chen@mediatek.com>,  Yunfei Dong <yunfei.dong@mediatek.com>,
+  Matthias Brugger <matthias.bgg@gmail.com>,  AngeloGioacchino Del Regno
+ <angelogioacchino.delregno@collabora.com>,  Rui Miguel Silva
+ <rmfrfs@gmail.com>,  Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+  Martin Kepplinger <martink@posteo.de>,  Purism Kernel Team
+ <kernel@puri.sm>,  Shawn Guo <shawnguo@kernel.org>,  Sascha Hauer
+ <s.hauer@pengutronix.de>,  Pengutronix Kernel Team
+ <kernel@pengutronix.de>,  Fabio Estevam <festevam@gmail.com>,  Dafna
+ Hirschfeld <dafna@fastmail.com>,  Heiko Stuebner <heiko@sntech.de>,
+  Sylwester Nawrocki <s.nawrocki@samsung.com>,  Krzysztof Kozlowski
+ <krzk@kernel.org>,  Alim Akhtar <alim.akhtar@samsung.com>,  Yemike
+ Abhilash Chandra <y-abhilashchandra@ti.com>,  Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>,  linux-input@vger.kernel.org,
+  linux-kernel@vger.kernel.org,  linux-media@vger.kernel.org,
+  linux-arm-kernel@lists.infradead.org,
+  linux-mediatek@lists.infradead.org,  imx@lists.linux.dev,
+  linux-renesas-soc@vger.kernel.org,  linux-rockchip@lists.infradead.org,
+  linux-samsung-soc@vger.kernel.org,  linux-staging@lists.linux.dev
+Subject: Re: [PATCH 05/32] media: ar0521: Use %pe format specifier
+In-Reply-To: <20251013-ptr_err-v1-5-2c5efbd82952@chromium.org> (Ricardo
+	Ribalda's message of "Mon, 13 Oct 2025 14:14:45 +0000")
+References: <20251013-ptr_err-v1-0-2c5efbd82952@chromium.org>
+	<20251013-ptr_err-v1-5-2c5efbd82952@chromium.org>
+Sender: khalasa@piap.pl
+Date: Tue, 14 Oct 2025 06:24:43 +0200
+Message-ID: <m3ldlertys.fsf@t19.piap.pl>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-DQpIaSBKaXJpIEtvc2luYSBhbmQgQmVuamFtaW4gVGlzc29pcmVzISBJcyB0aGVyZSBhbnkgbmV3
-IHByb2dyZXNzIG9uIGdldHRpbmcgdGhpcyBwYXRjaCBpbnRvIHRoZSBrZXJuZWw/IEkgbG9vayBm
-b3J3YXJkIHRvIGhlYXJpbmcgZnJvbSB5b3UuIFRoYW5rIHlvdSB2ZXJ5IG11Y2ghDQoNCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCreivP7Iyzogwqy5+rrqDQq3osvN
-yrG85DogMjAyNcTqMTDUwjEwyNUgMTg6NDMNCsrVvP7IyzogRG1pdHJ5IFRvcm9raG92OyBKaXJp
-IEtvc2luYTsgQmVuamFtaW4gVGlzc29pcmVzDQqzrcvNOiBrZW5hbGJhQGdvb2dsZS5jb207IGxp
-bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsg
-wO7F9Dsgy87D3MPcOyDCrLn6uuoNCtb3zOI6ILTwuLQ6IFtFeHRlcm5hbCBNYWlsXVtQQVRDSF0g
-SElEOiBoaWQtaW5wdXQ6IG9ubHkgaWdub3JlIDAgYmF0dGVyeSBldmVudHMgZm9yIGRpZ2l0aXpl
-cnMNCg0KVGhhbmtzLCBEbWl0cnkuDQoNCkhpIEppcmkgS29zaW5hLCBCZW5qYW1pbiBUaXNzb2ly
-ZXMsIHBsZWFzZSBsZXQgbWUga25vdyBvbmNlIHlvdSd2ZSBtZXJnZWQgdGhpcyBwYXRjaCBpbnRv
-IHRoZSBrZXJuZWwuIFRoYW5rcyENCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXw0Kt6K8/sjLOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5j
-b20+DQq3osvNyrG85DogMjAyNcTqMTDUwjEwyNUgMTQ6MTINCsrVvP7IyzogSmlyaSBLb3NpbmE7
-IEJlbmphbWluIFRpc3NvaXJlcw0Ks63LzTogwqy5+rrqOyBrZW5hbGJhQGdvb2dsZS5jb207IGxp
-bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0K
-1vfM4jogW0V4dGVybmFsIE1haWxdW1BBVENIXSBISUQ6IGhpZC1pbnB1dDogb25seSBpZ25vcmUg
-MCBiYXR0ZXJ5IGV2ZW50cyBmb3IgZGlnaXRpemVycw0KDQpbzeKyv9PKvP5dILTL08q8/sC01LTT
-2tChw9e5q8u+zeKyv6Osx+u998n3tKbA7aGjyPS21NPKvP6wssir0NS05tLJo6zH672r08q8/teq
-t6K4+G1pc2VjQHhpYW9taS5jb229+NDQt7TAoQ0KDQpDb21taXQgNTgxYzQ0ODQ3NjllICgiSElE
-OiBpbnB1dDogbWFwIGRpZ2l0aXplciBiYXR0ZXJ5IHVzYWdlIikgYWRkZWQNCmhhbmRsaW5nIG9m
-IGJhdHRlcnkgZXZlbnRzIGZvciBkaWdpdGl6ZXJzICh0eXBpY2FsbHkgZm9yIGJhdHRlcmllcw0K
-cHJlc2VudGVkIGluIHN0eWxpKS4gRGlnaXRpemVycyB0eXBpY2FsbHkgcmVwb3J0IGNvcnJlY3Qg
-YmF0dGVyeSBsZXZlbHMNCm9ubHkgd2hlbiBzdHlsdXMgaXMgYWN0aXZlbHkgdG91Y2hpbmcgdGhl
-IHN1cmZhY2UsIGFuZCBpbiBvdGhlciBjYXNlcw0KdGhleSBtYXkgcmVwb3J0IGJhdHRlcnkgbGV2
-ZWwgb2YgMC4gVG8gYXZvaWQgY29uZnVzaW5nIGNvbnN1bWVycyBvZiB0aGUNCmJhdHRlcnkgaW5m
-b3JtYXRpb24gdGhlIGNvZGUgd2FzIGFkZGVkIHRvIGZpbGVyIG91dCByZXBvcnRzIHdpdGggMA0K
-YmF0dGVyeSBsZXZlbHMuDQoNCkhvd2V2ZXIgdGhlcmUgZXhpc3Qgb3RoZXIga2luZHMgb2YgZGV2
-aWNlcyB0aGF0IG1heSBsZWdpdGltYXRlbHkgcmVwb3J0DQowIGJhdHRlcnkgbGV2ZWxzLiBGaXgg
-dGhpcyBieSBmaWx0ZXJpbmcgb3V0IDAtbGV2ZWwgcmVwb3J0cyBvbmx5IGZvcg0KZGlnaXRpemVy
-IHVzYWdlcywgYW5kIGNvbnRpbnVlIHJlcG9ydGluZyB0aGVtIGZvciBvdGhlciBraW5kcyBvZiBk
-ZXZpY2VzDQooU21hcnQgQmF0dGVyaWVzLCBldGMpLg0KDQpSZXBvcnRlZC1ieTogwqy5+rrqIDxs
-dWd1b2hvbmdAeGlhb21pLmNvbT4NClRlc3RlZC1ieTogwqy5+rrqIDxsdWd1b2hvbmdAeGlhb21p
-LmNvbT4NCkZpeGVzOiA1ODFjNDQ4NDc2OWUgKCJISUQ6IGlucHV0OiBtYXAgZGlnaXRpemVyIGJh
-dHRlcnkgdXNhZ2UiKQ0KU2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9y
-b2tob3ZAZ21haWwuY29tPg0KLS0tDQogZHJpdmVycy9oaWQvaGlkLWlucHV0LmMgfCAxMCArKysr
-KysrLS0tDQogMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkN
-Cg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jIGIvZHJpdmVycy9oaWQvaGlk
-LWlucHV0LmMNCmluZGV4IGZmMTc4NGI1YzJhNC4uYmEzZjY2NTVhZjllIDEwMDY0NA0KLS0tIGEv
-ZHJpdmVycy9oaWQvaGlkLWlucHV0LmMNCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jDQpA
-QCAtNTk1LDE0ICs1OTUsMTggQEAgc3RhdGljIHZvaWQgaGlkaW5wdXRfY2xlYW51cF9iYXR0ZXJ5
-KHN0cnVjdCBoaWRfZGV2aWNlICpkZXYpDQogICAgICAgIGRldi0+YmF0dGVyeSA9IE5VTEw7DQog
-fQ0KDQotc3RhdGljIHZvaWQgaGlkaW5wdXRfdXBkYXRlX2JhdHRlcnkoc3RydWN0IGhpZF9kZXZp
-Y2UgKmRldiwgaW50IHZhbHVlKQ0KK3N0YXRpYyB2b2lkIGhpZGlucHV0X3VwZGF0ZV9iYXR0ZXJ5
-KHN0cnVjdCBoaWRfZGV2aWNlICpkZXYsDQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB1bnNpZ25lZCBpbnQgdXNhZ2UsIGludCB2YWx1ZSkNCiB7DQogICAgICAgIGludCBjYXBh
-Y2l0eTsNCg0KICAgICAgICBpZiAoIWRldi0+YmF0dGVyeSkNCiAgICAgICAgICAgICAgICByZXR1
-cm47DQoNCi0gICAgICAgaWYgKHZhbHVlID09IDAgfHwgdmFsdWUgPCBkZXYtPmJhdHRlcnlfbWlu
-IHx8IHZhbHVlID4gZGV2LT5iYXR0ZXJ5X21heCkNCisgICAgICAgaWYgKCh1c2FnZSAmIEhJRF9V
-U0FHRV9QQUdFKSA9PSBISURfVVBfRElHSVRJWkVSICYmIHZhbHVlID09IDApDQorICAgICAgICAg
-ICAgICAgcmV0dXJuOw0KKw0KKyAgICAgICBpZiAodmFsdWUgPCBkZXYtPmJhdHRlcnlfbWluIHx8
-IHZhbHVlID4gZGV2LT5iYXR0ZXJ5X21heCkNCiAgICAgICAgICAgICAgICByZXR1cm47DQoNCiAg
-ICAgICAgY2FwYWNpdHkgPSBoaWRpbnB1dF9zY2FsZV9iYXR0ZXJ5X2NhcGFjaXR5KGRldiwgdmFs
-dWUpOw0KQEAgLTE1MTgsNyArMTUyMiw3IEBAIHZvaWQgaGlkaW5wdXRfaGlkX2V2ZW50KHN0cnVj
-dCBoaWRfZGV2aWNlICpoaWQsIHN0cnVjdCBoaWRfZmllbGQgKmZpZWxkLCBzdHJ1Y3QNCiAgICAg
-ICAgICAgICAgICBib29sIGhhbmRsZWQgPSBoaWRpbnB1dF9zZXRfYmF0dGVyeV9jaGFyZ2Vfc3Rh
-dHVzKGhpZCwgdXNhZ2UtPmhpZCwgdmFsdWUpOw0KDQogICAgICAgICAgICAgICAgaWYgKCFoYW5k
-bGVkKQ0KLSAgICAgICAgICAgICAgICAgICAgICAgaGlkaW5wdXRfdXBkYXRlX2JhdHRlcnkoaGlk
-LCB2YWx1ZSk7DQorICAgICAgICAgICAgICAgICAgICAgICBoaWRpbnB1dF91cGRhdGVfYmF0dGVy
-eShoaWQsIHVzYWdlLT5oaWQsIHZhbHVlKTsNCg0KICAgICAgICAgICAgICAgIHJldHVybjsNCiAg
-ICAgICAgfQ0KLS0NCjIuNTEuMC43NDAuZzZhZGIwNTRkMTItZ29vZw0KDQoNCi0tDQpEbWl0cnkN
-CiMvKioqKioqsb7Tyrz+vLDG5Li9vP66rNPQ0KHD17mry761xLGjw9zQxc+io6y99s/e09q3osvN
-uPjJz8PmtdjWt9bQwdCz9rXEuPbIy7vyyLrX6aGjvfvWucjOus7G5Mv7yMvS1MjOus7Qzsq9yrnT
-w6OosPzAqLWrsrvP3tPayKuyv7vysr+31rXY0LnCtqGiuLTWxqGiu/LJoreio6mxvtPKvP7W0LXE
-0MXPoqGjyOe5+8T6tO3K1cHLsb7Tyrz+o6zH68T6waK8tLXnu7C78tPKvP7NqNaqt6K8/sjLsqLJ
-vrP9sb7Tyrz+o6EgVGhpcyBlLW1haWwgYW5kIGl0cyBhdHRhY2htZW50cyBjb250YWluIGNvbmZp
-ZGVudGlhbCBpbmZvcm1hdGlvbiBmcm9tIFhJQU9NSSwgd2hpY2ggaXMgaW50ZW5kZWQgb25seSBm
-b3IgdGhlIHBlcnNvbiBvciBlbnRpdHkgd2hvc2UgYWRkcmVzcyBpcyBsaXN0ZWQgYWJvdmUuIEFu
-eSB1c2Ugb2YgdGhlIGluZm9ybWF0aW9uIGNvbnRhaW5lZCBoZXJlaW4gaW4gYW55IHdheSAoaW5j
-bHVkaW5nLCBidXQgbm90IGxpbWl0ZWQgdG8sIHRvdGFsIG9yIHBhcnRpYWwgZGlzY2xvc3VyZSwg
-cmVwcm9kdWN0aW9uLCBvciBkaXNzZW1pbmF0aW9uKSBieSBwZXJzb25zIG90aGVyIHRoYW4gdGhl
-IGludGVuZGVkIHJlY2lwaWVudChzKSBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgcmVjZWl2ZSB0aGlz
-IGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHBob25lIG9yIGVt
-YWlsIGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgaXQhKioqKioqLyMNCg==
+Ricardo Ribalda <ribalda@chromium.org> writes:
+
+> The %pe format specifier is designed to print error pointers. It prints
+> a symbolic error name (eg. -EINVAL) and it makes the code simpler by
+> omitting PTR_ERR()
+>
+> This patch fixes this cocci report:
+> ./i2c/ar0521.c:1113:31-38: WARNING: Consider using %pe to print PTR_ERR()
+>
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+
+Thanks,
+Acked-by: Krzysztof Ha=C5=82asa <khalasa@piap.pl>
+
+> --- a/drivers/media/i2c/ar0521.c
+> +++ b/drivers/media/i2c/ar0521.c
+> @@ -1109,8 +1109,8 @@ static int ar0521_probe(struct i2c_client *client)
+>                                                 ar0521_supply_names[cnt]);
+>
+>                 if (IS_ERR(supply)) {
+> -                       dev_info(dev, "no %s regulator found: %li\n",
+> -                                ar0521_supply_names[cnt], PTR_ERR(supply=
+));
+> +                       dev_info(dev, "no %s regulator found: %pe\n",
+> +                                ar0521_supply_names[cnt], supply);
+>                         return PTR_ERR(supply);
+>                 }
+>                 sensor->supplies[cnt] =3D supply;
+
+--=20
+Krzysztof "Chris" Ha=C5=82asa
+
+Sie=C4=87 Badawcza =C5=81ukasiewicz
+Przemys=C5=82owy Instytut Automatyki i Pomiar=C3=B3w PIAP
+Al. Jerozolimskie 202, 02-486 Warszawa

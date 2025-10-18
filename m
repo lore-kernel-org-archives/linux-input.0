@@ -1,37 +1,38 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 945D51C28E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5C401F3BA2;
 	Sat, 18 Oct 2025 14:22:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760797329; cv=none; b=eMbwOk7GYbYVIhKt6WpG+D4uWa6ubt7X5mUaZxXHAyXW2YbNFa4zF6MRFLfGfFjYLaL2MinQxGCsL7tEoe2lfgaQZ/GAXEKwhu34y5OcKPU/249uYBw78sF70xCGAv/Ph+PCR4dCIkjBGiv15xTPzc82rVDC36wM9m5y5ozVK2k=
+	t=1760797329; cv=none; b=UJKPDvUfuyzmutVChSKA/1zGeMPHokTB3aPie2PHJuvE46IfHlbGMXSk3buLLrat6AiKRp5oXe1ZYYtaTUvMs0Gv3EGIAdULyQ3fyi1DHN1tKt10mTvMVmE7OFfm55ohwAeQ/f+bAlhKodEmOjPAgDVHtRaRCBb2aa8CFNe/aJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1760797329; c=relaxed/simple;
-	bh=bNCDySUX0gZ9HE/gahHp0G1wmgAlm4IYidL20MOKk7I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IK2po3//9jh0BppQ6dKpYaGEV20Ts7Oy8t6whKZQBDYpR7MlJnAFPQRPOBdTVIO/8+NwbfFW5k1ki/w4xmYTzMbzpFYapExUYitClQkPhXdtJns+Ww+pf4Wp/ChVSGe3IfA+g8d2OauZ7JZH7NIX7kEYPhbey4y0O6TMIsQeJ8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ERKKpJZB; arc=none smtp.client-ip=148.251.105.195
+	bh=9Yp3lWJoa834+XZ6vTMNTzs2BLUob7J+OnRKmzYu8r0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Sc4D6CluVf9/zh7XtM7gVlkBkO1THPCUbewJdVeitg5jJM1o2rewE7qZx8gwIxlaMLnqUajV550t4cgQhG1GzfwCAlOmWDYoFXZAVVrPf2eA6ni8PlvJ2KfRpozQnsf7KobSLyiVl7qA0S84BTCrGIuQKPT1CSlbLaJ6T/nrlHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=Y3QQWzRp; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ERKKpJZB"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Y3QQWzRp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1760797318;
-	bh=bNCDySUX0gZ9HE/gahHp0G1wmgAlm4IYidL20MOKk7I=;
-	h=From:To:Cc:Subject:Date:From;
-	b=ERKKpJZBAH3rK1Dd56cHB1lbuRiXRpNRdWseOd9tN156YhrfHe9TUSJ8iuA6SPeWO
-	 u/3Zfj2a1f9FcrTZ82yiHGbIZqIWB4zdm180vhyCBCoo5iTj9u9CunGEI6Ib4bVsE2
-	 rHt9GpudFaKLhGYg7RM/29qCjMV5SKCf+hQi+5LCJ6MlJGySwpl+XV8tkTLrGC/5mE
-	 OT2s2buH1BKDOj43y02aE4U3MX1pmjKlX+LLKo6DW8tMVPxUvOdz6hQnhwCOogiUfK
-	 aRleBSk+LZBP0tbBc4kMw57VQqZJNqCRSFC27JqjC7x4nG+4mF0aoRHnZGroAh80Ef
-	 vFWEeXHm2Cqlw==
+	s=mail; t=1760797324;
+	bh=9Yp3lWJoa834+XZ6vTMNTzs2BLUob7J+OnRKmzYu8r0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=Y3QQWzRpxO5IXGn61zAoOcjSsRL2U/BnlLMfr1ZqcQIkJo8SUdnBE9ixNQqXmS4r8
+	 ZEZPXXCbr+bQKuUAoAE5ZwjiOLeV2kbo5WtHXxBDCuzfzuM2OsNWqpRVAbB+hYoJoX
+	 2g7ETOuTnXtnUZgVHxD7hdg0LJtUhVDXeGaTEH2KZdixmrq7iqJpKZAs+/wtK4/j62
+	 4uqz5ME8UoQcjq7fR3zdbpQwv/sC0K54CycwqzXKP3nSIlEa3/lZ9N5IsKA2YNGU1I
+	 xcyQysrXeTFjgA7k48QwaEsAAr8EvhTyVYAJVpdWumWiG10wCjBQ87q1KcYS+NyRY1
+	 OEi415JhXtxeA==
 Received: from mt.tail9873f4.ts.net (unknown [144.48.130.189])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: usama.anjum)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 03B5617E0CF8;
-	Sat, 18 Oct 2025 16:21:55 +0200 (CEST)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 957E617E124A;
+	Sat, 18 Oct 2025 16:22:01 +0200 (CEST)
 From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 To: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Len Brown <lenb@kernel.org>,
@@ -48,10 +49,12 @@ To: "Rafael J. Wysocki" <rafael@kernel.org>,
 Cc: Muhammad Usama Anjum <usama.anjum@collabora.com>,
 	kernel@collabora.com,
 	superm1@kernel.org
-Subject: [RFC 0/4] PM: Hibernate: Add hibernation cancellation support
-Date: Sat, 18 Oct 2025 19:21:03 +0500
-Message-ID: <20251018142114.897445-1-usama.anjum@collabora.com>
+Subject: [RFC 2/4] ACPI: button: Cancel hibernation if button is pressed during hibernation
+Date: Sat, 18 Oct 2025 19:21:05 +0500
+Message-ID: <20251018142114.897445-3-usama.anjum@collabora.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20251018142114.897445-1-usama.anjum@collabora.com>
+References: <20251018142114.897445-1-usama.anjum@collabora.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -60,42 +63,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On a normal laptop/PC, the hibernation takes 15-20 seconds which is
-considerable time. Once hibernation is triggered from command line or by
-some GUI option, the hibernation cannot be cancelled until completed.
-Its not a blocker, but poor user experience.
+acpi_pm_wakeup_event() is called from acpi_button_notify() which is
+called when power button is pressed. But system doesn't wake up as
+pm_wakeup_dev_event() isn't called with hard parameter set in case of
+hibernation. It gets set only for s2idle cases.
 
-When power button is pressed during hibernation, it generates interrupt
-and then the event is routed to userspace. If systemd is being used, the
-logind handles these events and performs the specific action.
+Call acpi_pm_wakeup_event() if power button is pressed and hibernation
+is in progress. Set the hard parameter such that pm_system_wakeup()
+gets called which increments pm_abort_suspend counter. Hence hibernation
+would be cancelled as in hibernation path, this counter is checked if it
+should be aborted.
 
-During hibernation, the first stage is to freeze the userspace. Hence
-even if the power button is pressed, it doesn't aborts the hibernation
-as user space daemon is frozen.
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+---
+ drivers/acpi/button.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-My device takes ~19 seconds to hibernate. When I was testing hibernation
-using rtcwake with timeout of 10 seconds, I found out that hibernation
-gets canceled around 10 seconds mark when the interrupt fires.
-
-In this series, the idea is to find a way to cancel the hibernation.
-With this series applied, the hibernation gets cancelled gracefully.
-
-Muhammad Usama Anjum (4):
-  PM: hibernate: export hibernation_in_progress()
-  ACPI: button: Cancel hibernation if button is pressed during
-    hibernation
-  Input: Ignore the KEY_POWER events if hibernation is in progress
-  PM: sleep: clear pm_abort_suspend at suspend
-
- drivers/acpi/button.c     | 12 +++++++++---
- drivers/base/power/main.c |  2 ++
- drivers/input/input.c     |  6 ++++++
- include/linux/suspend.h   |  2 ++
- kernel/cpu.c              |  1 +
- kernel/power/hibernate.c  |  6 +++++-
- kernel/power/process.c    |  1 +
- 7 files changed, 26 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index 0a70260401882..4a2575c0c44e3 100644
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -20,6 +20,7 @@
+ #include <linux/acpi.h>
+ #include <linux/dmi.h>
+ #include <acpi/button.h>
++#include <linux/suspend.h>
+ 
+ #define ACPI_BUTTON_CLASS		"button"
+ #define ACPI_BUTTON_FILE_STATE		"state"
+@@ -458,11 +459,16 @@ static void acpi_button_notify(acpi_handle handle, u32 event, void *data)
+ 	acpi_pm_wakeup_event(&device->dev);
+ 
+ 	button = acpi_driver_data(device);
+-	if (button->suspended || event == ACPI_BUTTON_NOTIFY_WAKE)
+-		return;
+-
+ 	input = button->input;
+ 	keycode = test_bit(KEY_SLEEP, input->keybit) ? KEY_SLEEP : KEY_POWER;
++	if (event == ACPI_BUTTON_NOTIFY_STATUS && keycode == KEY_POWER &&
++	    hibernation_in_progress()) {
++		pm_wakeup_dev_event(&device->dev, 0, true);
++		return;
++	}
++
++	if (button->suspended || event == ACPI_BUTTON_NOTIFY_WAKE)
++		return;
+ 
+ 	input_report_key(input, keycode, 1);
+ 	input_sync(input);
 -- 
 2.47.3
 

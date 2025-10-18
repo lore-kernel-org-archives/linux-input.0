@@ -1,38 +1,38 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC8F2D47EE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC002D193B;
 	Sat, 18 Oct 2025 14:22:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760797330; cv=none; b=qzDlvd/C2EL94kJOpyWfPxWQYbqmUjk/nJY6kceL8meJtlo9EdclTwPtC80C71pPOy+L8iTQw4YlIO5RynLy5YCPwUQfDPxb5vWHUwO/SKQaqAbiPaRhHOLWsxsWKIPT0qG8tWzCTZRYmDHUm2Iu95khR7/LOBJuKT3Jl8u7YxM=
+	t=1760797331; cv=none; b=P1lDNbguBrPOQDjvObg1TQb4FMwOSORy1zFe09Odb989hs1f01ehJ71Ee5bRkxWKYk1knwk/kdMJUBl/DbObwGH7aVS+v20ephI0hNmLRi/embrmaS81w9EnhTZLvsS20knUH9Oo3DOvzxbFXu7Zhx1RwlpbN3tfVtNBABOoQds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760797330; c=relaxed/simple;
-	bh=0GCM+sC4vUY2XQf0nMipoEUodjdAnH62YcPJ2JBPJ8U=;
+	s=arc-20240116; t=1760797331; c=relaxed/simple;
+	bh=EqQ8MAIlBeL0HxmwV1J6+SA32Ee7gxWi1w10nll/Jdc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IaJE8NQHKaCd30HWwW7RL+77/CTIsnTHZN6oaNJjwkG7eNQT+2X80XIlgWUEldjDA/bQPVKVmqK6Gr80ijucHoyzTyEnNl6aEBDGbAjsXYHKZLj6UVM916+JLVQEBaGl5KBvpZHnHyjdqdptcVreyxTPzPvwCNXL1Si8N7ERBfM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=TD+8zrys; arc=none smtp.client-ip=148.251.105.195
+	 MIME-Version; b=T+iGa3ZA3P/KPS3RoQeQOpUQxqoDeLZ6vShsOiIzdJIVqG0Ko6i88cUyVAl8FCEZAWEswyxq654iAX9cu+QKMvTL9L7p1ttHpEs+fjNiqYakrgMuOihsf7SDOShi9VGSZHv8fkNmM5Nq2+nh1PDI5rnVj7BdXVp04+NCs2fjl2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=aaiiLurW; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="TD+8zrys"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="aaiiLurW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1760797326;
-	bh=0GCM+sC4vUY2XQf0nMipoEUodjdAnH62YcPJ2JBPJ8U=;
+	s=mail; t=1760797321;
+	bh=EqQ8MAIlBeL0HxmwV1J6+SA32Ee7gxWi1w10nll/Jdc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=TD+8zryswrNSzOq+8mjBD5lLX2QRNXnHv0MQbMGvTwcjNF5J4e/0ZBdEzSBGRJr0e
-	 +2XhOFnpB055YcsgojqGBpvX8IHd+kF2UmqBzeHzq9DQGRm/1U6qEjQSe7/ffcSO3n
-	 w3E8LidbVdJXn9OaOP73UhkKiEBrX+OD8JynpLk2sfJLIwqbmJ8EJUsTuCG7sjBTVv
-	 7rz2KxikMRwu8JqwXjHjUXQJD+XH2Dr3qnQvPni5yUCeU47wxNnJZEj1qCHNf9IAu6
-	 odj53/098mKCIpz8QtdqVBVVfhpKxOwZIMHXdbC/n1htn0tQk3GQvBbyl/wbQO4GYb
-	 ntdPCvSn/T5SQ==
+	b=aaiiLurWhMWtr8LCK/2dqu39r37+fdrvSOENK6GtOv1lP3Eo/QA5FQd+HuWgOLzMe
+	 BB3tDBSZ7eY7SMl97xEqs1hlSfZW4Z0gF2UM2v7/T2+R13/buCJ6in0Wxi277e5Sav
+	 2/rms0efZg56mg0XBt7IjDPfymZWktn0lc8aVeJTfVv+g0AIsPXcB/CsXF/FClibEP
+	 TQvHkzu4dHP9YrjwLGmYyPgtP3kOcuYuTbaG3fDsMb30DU3IWpO35OIVBItjQYLL+x
+	 rF44c5YKdGA+x+7GCeVp3QQBoUdLjTwstVePwRbMsV3TDkbflrQ7nqQoFh+lhxlZ/v
+	 l1Fj4cWRpO+Yg==
 Received: from mt.tail9873f4.ts.net (unknown [144.48.130.189])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: usama.anjum)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 66F2017E13E0;
-	Sat, 18 Oct 2025 16:22:04 +0200 (CEST)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id C464E17E0DB7;
+	Sat, 18 Oct 2025 16:21:58 +0200 (CEST)
 From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 To: "Rafael J. Wysocki" <rafael@kernel.org>,
 	Len Brown <lenb@kernel.org>,
@@ -49,9 +49,9 @@ To: "Rafael J. Wysocki" <rafael@kernel.org>,
 Cc: Muhammad Usama Anjum <usama.anjum@collabora.com>,
 	kernel@collabora.com,
 	superm1@kernel.org
-Subject: [RFC 3/4] Input: Ignore the KEY_POWER events if hibernation is in progress
-Date: Sat, 18 Oct 2025 19:21:06 +0500
-Message-ID: <20251018142114.897445-4-usama.anjum@collabora.com>
+Subject: [RFC 1/4] PM: hibernate: export hibernation_in_progress()
+Date: Sat, 18 Oct 2025 19:21:04 +0500
+Message-ID: <20251018142114.897445-2-usama.anjum@collabora.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20251018142114.897445-1-usama.anjum@collabora.com>
 References: <20251018142114.897445-1-usama.anjum@collabora.com>
@@ -63,45 +63,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Serio drivers call input_handle_event(). Although the serio drivers have
-duplicate events, they have separate code path and call
-input_handle_event(). Ignore the KEY_POWER such that this event isn't
-sent to the userspace if hibernation is in progress.
-
-Abort the hibernation by calling pm awake API as well.
-
-Without this, the event is sent to the userspace and it suspends the
-device after hibernation cancellation.
+Export hibernation_in_progress() to be used by other modules. Add its
+signature when hibernation config isn't enabled as well.
 
 Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
 ---
- drivers/input/input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/suspend.h  | 2 ++
+ kernel/power/hibernate.c | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index a500e1e276c21..0979f18aae6a2 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -26,6 +26,7 @@
- #include <linux/kstrtox.h>
- #include <linux/mutex.h>
- #include <linux/rcupdate.h>
-+#include <linux/suspend.h>
- #include "input-compat.h"
- #include "input-core-private.h"
- #include "input-poller.h"
-@@ -362,6 +363,11 @@ void input_handle_event(struct input_dev *dev,
+diff --git a/include/linux/suspend.h b/include/linux/suspend.h
+index b02876f1ae38a..348831cdb60e4 100644
+--- a/include/linux/suspend.h
++++ b/include/linux/suspend.h
+@@ -393,6 +393,7 @@ extern void hibernation_set_ops(const struct platform_hibernation_ops *ops);
+ extern int hibernate(void);
+ extern bool system_entering_hibernation(void);
+ extern bool hibernation_available(void);
++extern bool hibernation_in_progress(void);
+ asmlinkage int swsusp_save(void);
+ extern struct pbe *restore_pblist;
+ int pfn_is_nosave(unsigned long pfn);
+@@ -412,6 +413,7 @@ static inline void hibernation_set_ops(const struct platform_hibernation_ops *op
+ static inline int hibernate(void) { return -ENOSYS; }
+ static inline bool system_entering_hibernation(void) { return false; }
+ static inline bool hibernation_available(void) { return false; }
++static inline bool hibernation_in_progress(void) { return false; }
  
- 	lockdep_assert_held(&dev->event_lock);
+ static inline int hibernate_quiet_exec(int (*func)(void *data), void *data) {
+ 	return -ENOTSUPP;
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 14e85ff235512..aadf82f57e868 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -105,6 +105,7 @@ bool hibernation_in_progress(void)
+ {
+ 	return !atomic_read(&hibernate_atomic);
+ }
++EXPORT_SYMBOL_GPL(hibernation_in_progress);
  
-+	if (code == KEY_POWER && hibernation_in_progress()) {
-+		pm_wakeup_dev_event(&dev->dev, 0, true);
-+		return;
-+	}
-+
- 	disposition = input_get_disposition(dev, type, code, &value);
- 	if (disposition != INPUT_IGNORE_EVENT) {
- 		if (type != EV_SYN)
+ bool hibernation_available(void)
+ {
 -- 
 2.47.3
 

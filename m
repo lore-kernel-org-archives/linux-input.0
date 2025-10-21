@@ -1,192 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571B734B180;
-	Tue, 21 Oct 2025 17:18:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3865E34C125;
+	Tue, 21 Oct 2025 17:25:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761067110; cv=none; b=TeztIVlLmhadMg11PVFvyQFKm3a6BcaAM4TDEpiDqtVXZm/L9f02nIFUmANIiX+Y1PIgttDLbgOOZyx7OPQYI0UNj5c8M0IwWDKfg39VU162MdwO+I/83zpwxtzyPZBr1irBPqgQcaekHjEixdpSRPDjQXIZLb01xIBBgj4oIqw=
+	t=1761067551; cv=none; b=clQLDmADRadX5s4CmKXrr9MCCv43+4MtD+ZPP72rpFsD3HsQeAZDK3TPUox5YgEsafDxxaCrlHPKT73AV0WTrAAujScnFV8hkAlrjcPESsAVuEtFJGCI+fym3Ojy+AXNZrSA7daYFQLpZ/oNKF2eNx2xIQC4hsBTwFFGrXZ4Hrw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761067110; c=relaxed/simple;
-	bh=QtLXS3rzu85GPfiyQyWFtuvBX2K+zVl2eqhHbxp7VYc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t9vsjQZgcoclsJQH8itFoE+QQyATD91D3wMWdtISHOspVLYI/Vlw1mLGtF8nuXS7tv4gcYPhbB3cToCL4UAaYodBgt25ZBm6jbUFb3B6H86uHDbU5le/fL4usrs8dQG/akPKX2hslmCmKe6NoDsh1trKZuzjsRDsHNlk7w4bu4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tLFyB1hK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1761067551; c=relaxed/simple;
+	bh=Yo2d8BmvVI13BXWvC99teKJSqgRJdMWLCDpoER2v3Zc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bydswRGKZothYnRYCIUJKZemuVXEqCB6jHKenOW0BPlm+D982V75N2QyBqpNtjwHoFsUsJjoNsttjB71i0TSXY1YLXUEa57ykaXaRzZ+AkXuALqXonQ4rtpM84pw8zXOWSXxMgxE0i5bTcp5L8Jd9U8j8ggZArqhLMbll4DunS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i4IH1Jzf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tLFyB1hK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2101C4CEF1;
-	Tue, 21 Oct 2025 17:18:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i4IH1Jzf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C58EC4CEF7;
+	Tue, 21 Oct 2025 17:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761067109;
-	bh=QtLXS3rzu85GPfiyQyWFtuvBX2K+zVl2eqhHbxp7VYc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=tLFyB1hKmQyILba52G5QPz0hWIrOzggT5rxoOzZqq7ZoR+eRBNGGZrjcdOWAGcQga
-	 rNHX+CSDcSL4YMcZ+OO8a2m42NZgFgVmSoyqjhOR2cUNL3k4nNq+KwBGp9YuvyfV3t
-	 JNeY5ZDJAY6nRuJwNRaGmQVdFfHVI6s4PklmUH5+ae8Xlkb9mXq0dFXmco496qqXYH
-	 +QkgxK/6c8vF4a5RB7VCSWDcwVlsvc43O70bBSY8UDAAgEOE3h0/Ao4JjtgMg1lAd6
-	 Wo4oxiBfX+uaJHpV+JFhCZHHWnBC/jByJQclgtU3EEEWrT9zNnguXO6Pkaf/3WJlcZ
-	 tI/s+XSGpbnxw==
-Message-ID: <7702e4f6-4913-4d9e-bbc4-1fb849507e4c@kernel.org>
-Date: Tue, 21 Oct 2025 19:18:25 +0200
+	s=k20201202; t=1761067551;
+	bh=Yo2d8BmvVI13BXWvC99teKJSqgRJdMWLCDpoER2v3Zc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=i4IH1JzfOOHjChES92XubVNDo3V21W2oVfPiNul1oNL5LoGNB6VqU0uGa08m046rM
+	 CYcSeHNFevZVZQZUQRCsJ0vyHcV/kJod0zQA9TfTYs3l9+E/kJIclwmDCLkdt64/+8
+	 2m4yENiuUoF6uY6ITCGd4xLZIK0MLXcncjggJPUdogYcGdvOEdCNDey5yH1gZQlcXe
+	 qmU+Qkk+PtVNKdi0zqlfHmCMeJ8aMchRmzyO6NCUVw7fc9/IOAJz8jFAMvZAs5j+xi
+	 R4zKSbhIsYzlfDSbH5MG4fX2y9GS+NAz6fdXOcBchVllXyMjZ9VxxGZUXBeRcazt2p
+	 eJryhMEcrJh1A==
+Date: Tue, 21 Oct 2025 18:25:43 +0100
+From: Lee Jones <lee@kernel.org>
+To: samuel.kayode@savoirfairelinux.com
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Sebastian Reichel <sre@kernel.org>, Frank Li <Frank.li@nxp.com>,
+	imx@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org, Abel Vesa <abelvesa@kernel.org>,
+	Abel Vesa <abelvesa@linux.com>, Robin Gong <b38343@freescale.com>,
+	Robin Gong <yibin.gong@nxp.com>,
+	Enric Balletbo i Serra <eballetbo@gmail.com>,
+	Sean Nyekjaer <sean@geanix.com>,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [GIT PULL] Immutable branch between MFD, Input, Power and Regulator
+ due for the v6.19 merge window
+Message-ID: <20251021172543.GL475031@google.com>
+References: <20251001-pf1550-v12-0-a3302aa41687@savoirfairelinux.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: mfd: twl: enable power button also for
- twl603x
-To: Andreas Kemnade <andreas@kemnade.info>
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-omap@vger.kernel.org
-References: <20251020-twl6030-button-v1-0-93e4644ac974@kernel.org>
- <20251020-twl6030-button-v1-1-93e4644ac974@kernel.org>
- <5fd43d2c-3a08-4a51-abb6-38883ee86bf2@kernel.org>
- <20251021104515.5e25bec1@kemnade.info>
- <beabb9f7-fcf4-4c1d-a259-6c48e82fbcf5@kernel.org>
- <20251021183624.6fde0a15@kemnade.info>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGVBBMBCgA/AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJoF1BKBQkWlnSaAAoJEBuTQ307
- QWKbHukP/3t4tRp/bvDnxJfmNdNVn0gv9ep3L39IntPalBFwRKytqeQkzAju0whYWg+R/rwp
- +r2I1Fzwt7+PTjsnMFlh1AZxGDmP5MFkzVsMnfX1lGiXhYSOMP97XL6R1QSXxaWOpGNCDaUl
- ajorB0lJDcC0q3xAdwzRConxYVhlgmTrRiD8oLlSCD5baEAt5Zw17UTNDnDGmZQKR0fqLpWy
- 786Lm5OScb7DjEgcA2PRm17st4UQ1kF0rQHokVaotxRM74PPDB8bCsunlghJl1DRK9s1aSuN
- hL1Pv9VD8b4dFNvCo7b4hfAANPU67W40AaaGZ3UAfmw+1MYyo4QuAZGKzaP2ukbdCD/DYnqi
- tJy88XqWtyb4UQWKNoQqGKzlYXdKsldYqrLHGoMvj1UN9XcRtXHST/IaLn72o7j7/h/Ac5EL
- 8lSUVIG4TYn59NyxxAXa07Wi6zjVL1U11fTnFmE29ALYQEXKBI3KUO1A3p4sQWzU7uRmbuxn
- naUmm8RbpMcOfa9JjlXCLmQ5IP7Rr5tYZUCkZz08LIfF8UMXwH7OOEX87Y++EkAB+pzKZNNd
- hwoXulTAgjSy+OiaLtuCys9VdXLZ3Zy314azaCU3BoWgaMV0eAW/+gprWMXQM1lrlzvwlD/k
- whyy9wGf0AEPpLssLVt9VVxNjo6BIkt6d1pMg6mHsUEVzsFNBFVDXDQBEADNkrQYSREUL4D3
- Gws46JEoZ9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLue
- MNsWLJBvBaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6ei
- OMheesVS5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wA
- GldWsRxbf3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA
- 6z6lBZn0WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9
- YegxWKvXXHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt
- 91pFzBSOIpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gU
- BLHFTg2hYnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/
- JoFzZ4B0p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu
- 4vXVFBYIGmpyNPYzRm0QPwARAQABwsF8BBgBCgAmAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtB
- YpsFAmgXUF8FCRaWWyoACgkQG5NDfTtBYptO0w//dlXJs5/42hAXKsk+PDg3wyEFb4NpyA1v
- qmx7SfAzk9Hf6lWwU1O6AbqNMbh6PjEwadKUk1m04S7EjdQLsj/MBSgoQtCT3MDmWUUtHZd5
- RYIPnPq3WVB47GtuO6/u375tsxhtf7vt95QSYJwCB+ZUgo4T+FV4hquZ4AsRkbgavtIzQisg
- Dgv76tnEv3YHV8Jn9mi/Bu0FURF+5kpdMfgo1sq6RXNQ//TVf8yFgRtTUdXxW/qHjlYURrm2
- H4kutobVEIxiyu6m05q3e9eZB/TaMMNVORx+1kM3j7f0rwtEYUFzY1ygQfpcMDPl7pRYoJjB
- dSsm0ZuzDaCwaxg2t8hqQJBzJCezTOIkjHUsWAK+tEbU4Z4SnNpCyM3fBqsgYdJxjyC/tWVT
- AQ18NRLtPw7tK1rdcwCl0GFQHwSwk5pDpz1NH40e6lU+NcXSeiqkDDRkHlftKPV/dV+lQXiu
- jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
- zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
- XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20251021183624.6fde0a15@kemnade.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20251001-pf1550-v12-0-a3302aa41687@savoirfairelinux.com>
 
-On 21/10/2025 18:36, Andreas Kemnade wrote:
-> On Tue, 21 Oct 2025 11:58:49 +0200
-> Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> 
->> On 21/10/2025 10:45, Andreas Kemnade wrote:
->>> On Tue, 21 Oct 2025 09:10:28 +0200
->>> Krzysztof Kozlowski <krzk@kernel.org> wrote:
->>>   
->>>> On 20/10/2025 14:31, akemnade@kernel.org wrote:  
->>>>> From: Andreas Kemnade <andreas@kemnade.info>
->>>>>
->>>>> TWL603x has also a power button, so add the corresponding subnode.    
->>>>
->>>> No, we don't add subnodes just because there is a power button. This
->>>> needs broader explanation, see also my further comment.
->>>>  
->>> Hmm, what is the general pattern to follow if a mfd device has some
->>> functionality which depends on some optional external components?  
->>
->> Please describe it better - how these nodes depend on external
->> component? The power button logic/IC is in this device always. It is not
->> optional.
->>
-> The power button logic is always there, yes, but it depends on an optional
-> actual mechanical button connected to a pad of this device, which is
-> not always there. The logic will not work if I just put my finger on the PMIC,
-> but it will work if there is a mechanical button which I can press connected to
-> the PMIC.
+Enjoy!
 
+The following changes since commit 3a8660878839faadb4f1a6dd72c3179c1df56787:
 
-Hm... how do you represent this logic now? By adding status=disabled to
-the pwrbutton node?
+  Linux 6.18-rc1 (2025-10-12 13:42:36 -0700)
 
+are available in the Git repository at:
 
-> 
->>> The might be a power button connected to it or not. I find it ugly
->>> to have non-existent stuff in the system.
->>> In general, yes I understand the argument against the subnode.
->>>   
->>>>>
->>>>> Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
->>>>> ---
->>>>>  Documentation/devicetree/bindings/mfd/ti,twl.yaml | 40 ++++++++++++++++++-----
->>>>>  1 file changed, 32 insertions(+), 8 deletions(-)
->>>>>
->>>>> diff --git a/Documentation/devicetree/bindings/mfd/ti,twl.yaml b/Documentation/devicetree/bindings/mfd/ti,twl.yaml
->>>>> index 776b04e182cb2..3527fee32cb07 100644
->>>>> --- a/Documentation/devicetree/bindings/mfd/ti,twl.yaml
->>>>> +++ b/Documentation/devicetree/bindings/mfd/ti,twl.yaml
->>>>> @@ -55,6 +55,15 @@ allOf:
->>>>>  
->>>>>          gpadc: false
->>>>>  
->>>>> +        pwrbutton:
->>>>> +          properties:
->>>>> +            compatible:
->>>>> +              const: ti,twl4030-pwrbutton
->>>>> +            interrupts:
->>>>> +              items:
->>>>> +                - items:
->>>>> +                    const: 8    
->>>>
->>>> What is the point of defining const interrupts? If they are const, then
->>>> it is implied by compatible and defined in the driver.
->>>>
->>>> Anyway, double items does not look right here. This is an odd syntax.
->>>>  
->>> Quoting Rob:
->>> As 'interrupts' is a matrix, this needs to be:
->>>
->>> interrupts:
->>>   items:
->>>     - items:
->>>         - const: 8
->>>
->>> https://lore.kernel.org/linux-omap/20240318150750.GA4000895-robh@kernel.org/  
->>
->>
->> OK, this answers second part but I don't understand why even having this
->> in DT. If this is fixed, should be implied by the compatible?
->>
-> correct, they do not need to come from DT. The same is true for all
-> subnodes of the twl[46]03X. I just followed the usual
-> pattern there, which is of course not recommended for new designs.
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-power-regulator-v6.19
 
+for you to fetch changes up to a7d6255a0bf302c028ac680564633a6aac5f611d:
 
-OK, please mention the reasons (so following established pattern for
-this legacy device) in commit msg.
+  MAINTAINERS: Add an entry for PF1550 MFD driver (2025-10-21 16:59:07 +0100)
 
-Best regards,
-Krzysztof
+----------------------------------------------------------------
+Immutable branch between MFD, Input, Power and Regulator due for the v6.19 merge window
+
+----------------------------------------------------------------
+Samuel Kayode (6):
+      dt-bindings: mfd: Add binding for the PF1550 PMIC
+      mfd: pf1550: Add core driver for the PF1550 PMIC
+      regulator: pf1550: Add support for regulator
+      Input: pf1550 - add onkey support
+      power: supply: pf1550: add battery charger support
+      MAINTAINERS: Add an entry for PF1550 MFD driver
+
+ .../devicetree/bindings/mfd/nxp,pf1550.yaml        | 161 ++++++
+ MAINTAINERS                                        |  11 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/pf1550-onkey.c                  | 197 +++++++
+ drivers/mfd/Kconfig                                |  16 +
+ drivers/mfd/Makefile                               |   2 +
+ drivers/mfd/pf1550.c                               | 367 ++++++++++++
+ drivers/power/supply/Kconfig                       |  11 +
+ drivers/power/supply/Makefile                      |   1 +
+ drivers/power/supply/pf1550-charger.c              | 641 +++++++++++++++++++++
+ drivers/regulator/Kconfig                          |   9 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/pf1550-regulator.c               | 429 ++++++++++++++
+ include/linux/mfd/pf1550.h                         | 273 +++++++++
+ 15 files changed, 2131 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/nxp,pf1550.yaml
+ create mode 100644 drivers/input/misc/pf1550-onkey.c
+ create mode 100644 drivers/mfd/pf1550.c
+ create mode 100644 drivers/power/supply/pf1550-charger.c
+ create mode 100644 drivers/regulator/pf1550-regulator.c
+ create mode 100644 include/linux/mfd/pf1550.h
+
+-- 
+Lee Jones [李琼斯]

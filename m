@@ -1,79 +1,110 @@
-Received: from a4i517.smtp2go.com (a4i517.smtp2go.com [158.120.82.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 860E334CFCC
-	for <linux-input@vger.kernel.org>; Wed, 22 Oct 2025 16:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.82.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC2822DAFDE
+	for <linux-input@vger.kernel.org>; Wed, 22 Oct 2025 17:54:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761151322; cv=none; b=TLF4JO9/rufbFZsipoyBX8CO9bE/2keV2egWd4sppF4L3SNIMeRNjTiP02NIAgM53V4mx0Oy4dUUyRg+ppF81CYDiX1Ui8A6Z/l0Gls2B8++/Y2vPRYDmyKe/1rdR0yBGRA8hPHd2UqTzPnUDlEToeDEd36wXofwhzNivJ9foDI=
+	t=1761155683; cv=none; b=BK6zpqN4lH43krMbHccTFoIns3OtOSLzZQj8AqXbJb4Kuy000TgR7HAQ8P8HH3bJLf1e9YzcCsl312fTxt0UXeTfHPNAqhJn0HXQL/iaZQo0ZBMHHY1KjTNfPJjykVUnNPTfcegnp+No1rske4D5thlTZz+ADCpkh8clLiAiYqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761151322; c=relaxed/simple;
-	bh=DPBA1cEnteThqlbYCaIQpR6lbEIC8T3GqqRLJOWPZb8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HywTHIabgp66X3vm8lTEhavEHOHDEDSa5Z+XFHyfwH+tSoxg9nGQdLZqfhYTxG5tTCFDkSPu5oDPDKjfJdengkVoXno3RcLi3UVHye5qFXSXOski90xo3q8syn7RbLAaHm07dsYTz87Ced5lxjdKN/pJC3FFdTBJvNGPcaSldE4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aprilg.moe; spf=pass smtp.mailfrom=em810805.aprilg.moe; dkim=pass (2048-bit key) header.d=aprilg.moe header.i=@aprilg.moe header.b=TEQEd2Rf; arc=none smtp.client-ip=158.120.82.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aprilg.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em810805.aprilg.moe
+	s=arc-20240116; t=1761155683; c=relaxed/simple;
+	bh=B1AUVikLodwQzq7iTiyB+43RNcbtAThA47OKW3pcpus=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PKsmerjlyfI3BBs6zvgxlGmS5yMi9x2Nzte1YQFiv9qH4ODn+mr+OxLnaqp5WQmVdlv6qmGzKg7SGPMclHgL0l9TynPcpP/0EiYOiJY0huLQnBoYYeo/kesh9iZSF/eFnuhcilNXQuR4fouSeeuOHz/nqNvV89LIAyojyeHo3Yc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6GFqhoo; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aprilg.moe header.i=@aprilg.moe header.b="TEQEd2Rf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aprilg.moe;
- i=@aprilg.moe; q=dns/txt; s=s810805; t=1761151136; h=from : subject :
- to : message-id : date;
- bh=/irYkdYYv9XO+lHWk+huvIBG8k7L/412MUvHRa00Fa0=;
- b=TEQEd2RfltZu3VAyu83Zwe5tH/t2n29jZt4SZ4SaN2Ea5i+N0HXKrSOimNa3p+8YXOyrM
- cygQQU/qnkFZwdah9Xo7D0PT8OrHaK4j/PZ/zhLJtg5CBgxq0O8k/ag7Yj0XlHLBmW+Q4Fh
- ZDeOa1HubDhwsyxefTQrGUeW9/rVXxQsItMJ8MX9AZZtmeFa4CtwAr8yOzbGVaSH3zQZtlC
- 5XR/9BTgxAvlk8c+zzI5xDSdU6os3oZ+rVdgBcmAYXZsSEk7BuH01vbm0JQQtViFSgzWAg4
- y5kcfoTUAjj2nEsfFXzpfDY5ZcEnp7CMmGknggurf0LWulBvz5iQtut5gJBw==
-Received: from [10.178.243.157] (helo=aprilg.moe)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.98.1-S2G)
-	(envelope-from <april@aprilg.moe>)
-	id 1vBbrR-FnQW0hPwFuZ-Jkxq;
-	Wed, 22 Oct 2025 16:38:53 +0000
-Received: from AprilGrimoire-Mechrevo (unknown [23.249.17.191])
-	by aprilg.moe (Postfix) with ESMTPSA id 66573662F0;
-	Wed, 22 Oct 2025 12:38:50 -0400 (EDT)
-From: April Grimoire <april@aprilg.moe>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	jikos@kernel.org,
-	April Grimoire <april@aprilg.moe>
-Subject: [PATCH] HID: apple: Add SONiX AK870 PRO to non_apple_keyboards quirk list
-Date: Thu, 23 Oct 2025 00:37:26 +0800
-Message-ID: <20251022163726.19667-1-april@aprilg.moe>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6GFqhoo"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-b6ce806af3eso676224a12.0
+        for <linux-input@vger.kernel.org>; Wed, 22 Oct 2025 10:54:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761155681; x=1761760481; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=x478lQk2DxPizTI77gXgyAfctUUWFoIyeH8cqYHygmA=;
+        b=e6GFqhooWSHA8JPt+KCn7IXb0ra9KZAqHkmGtruuXFUXBbZYC4Ko1SBH4X9ydLqnxa
+         3ptSr0OxNCN5cIOsa64E/thsMB3f3yMCzcLCzBdJY4XpPF+NfNVmcycmbO8C4hva/i25
+         3jRAF0XsfcdEoTurYpbWxOFOUTUnPquCmpoPfhXZo8XryRT6x0sQdrMncxbKff7bRQPx
+         Z4l8IByosoeEr5w95+uRoAysGlZVzq117ZjfNzRE0VyuiwdkXVw7IQVsOYClWq2bkMz6
+         v26PbTOY2z1xsZDbOnUssOxpJJq9mP1BxcGxvIy47cFEVEVh4SgQ5ERe26S7Jo6tzKnI
+         2W+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761155681; x=1761760481;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=x478lQk2DxPizTI77gXgyAfctUUWFoIyeH8cqYHygmA=;
+        b=aMUXMwcaL/pLoWKa6BeFuQQf34bU/qYhnN2B4GV2OTMR1pGgDU81BuaTRQkiMp+Rls
+         bPbZRKzXQtQwF+j/MNaP+TWou2CPJBHYz0QVhzxBMY8DsYJlCmEwzVuvAeq6gjTxX1ha
+         JPbrZHRDcfcG4Hn1x2lkPNo1NjSmUGeG+CxSoLIGT5mF4V0Wre29nN+YJbd8Qgam7SD/
+         X7WludmVbZ6cnXZd7Gz/8DDmZE9A4gWQ76ONbjyYI6z9RDyc7PiuX3FIZrClHsWsSyTx
+         Js5JvcR8zdQe7awkv/p+z/F8tmJNna6xMu8Bum44caZIVXfDCe3OJwyg6em1ybpjaJ1l
+         m0tg==
+X-Forwarded-Encrypted: i=1; AJvYcCWnrSCVLqxRC3DTn2B/ldOwGLDjGkMrhfOeUrpS6+aerWKHGQYdyRuDVKTr07t7lky4oc2AGRVTs4TvSg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwBP3K1y65ZmFLjLZxnuRdujmiorNk/T339SYYFjkOtFsm5A5gp
+	BpEtS5dZdaaSa3tZ5MXNMBXXxsexivDBWy/wcGnkygRskJ0oeiVr2AdA
+X-Gm-Gg: ASbGncvdCfLOP5TYFZy5TyT+h8tgs7vqdWYpaDu/Chvh/7wBkHLNPaiDcdXMyKENOO0
+	ZLNzCZ1flL2s+CBDrZ6m9vdNjag3a6zP0E+kzxCKYTsQ7uOrgAyczIe2cYbkCCAydGknXogATIE
+	Ymyoy/QoiiCiKJ3eeRtPtVMiZpeSZYEaZNP9G5SCg5tFWb47JMI0n9kP1c9WFk4Bo9HZNM/tkfA
+	jBuAJNbi9gJZtCZx+hIxvROr19pIBPajB6QHHFKfnsFkzTjglx36+CLTDTopkTmGBEdiBjRvxTI
+	M7KM1mTo9iSTR52d2IGzsKvlch6EuHiLwpP1nR7gRx2dHtfEr+Uwm6LNZLxNpeyPzoEQch9+Tnl
+	LQAXJcjIKGZOX8X8nbWsq45CLGWIb/iFKcHNYM6wgok5M/X8NcwrQP67EWJZ7nMjKkAWhISro02
+	pGDkR/9E5EzAr6OvU3z9Ctwg22WdbaEmL7NwwD4xClM592LyCGpw==
+X-Google-Smtp-Source: AGHT+IFzOHo/RMYqhcqswj+hl6niGwcGNYYYyzF2qwE5VOSZ6yskOvLvhqKzp4jJuFDjqUzcg0pA5g==
+X-Received: by 2002:a17:902:f64c:b0:28e:cb51:1232 with SMTP id d9443c01a7336-290c9cf8a6amr285299295ad.3.1761155680885;
+        Wed, 22 Oct 2025 10:54:40 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:53a9:459c:bdc:6273])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29246ec0847sm144704115ad.22.2025.10.22.10.54.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Oct 2025 10:54:40 -0700 (PDT)
+Date: Wed, 22 Oct 2025 10:54:37 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Hans de Goede <hansg@kernel.org>
+Cc: Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
+	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 0/2] Input: Add keycodes for electronic privacy screen
+ on/off an use these in dell-wmi
+Message-ID: <wcrbaqheqhzpjcg3au2c5xshwwed5bjyvl5u5pske6ru7lggjs@yjpnfdbkogba>
+References: <20251020152331.52870-1-hansg@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 810805m:810805a5lOAc2:810805scwCczSjBE
-X-smtpcorp-track: SidzeDkWsPM9.Z7ezLsOAyaaV.R97J4gd1rjF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251020152331.52870-1-hansg@kernel.org>
 
-SONiX AK870 PRO keyboard pretends to be an apple keyboard by VID:PID,
-rendering function keys not treated properly. Despite being a
-SONiX USB DEVICE, it uses a different name, so adding it to the list.
+Hi Hans,
 
-Signed-off-by: April Grimoire <april@aprilg.moe>
----
- drivers/hid/hid-apple.c | 1 +
- 1 file changed, 1 insertion(+)
+On Mon, Oct 20, 2025 at 05:23:29PM +0200, Hans de Goede wrote:
+> Hi All,
+> 
+> Here is a patch series for adding support for the electronic privacy screen
+> on/off events send on e.g. Dell Latitude 7300 models.
+> 
+> On these laptops the firmware does not allow querying the presence nor
+> the status of the eprivacy screen at boot. This makes it impossible to
+> implement the drm connector eprivacy properties API (1) since drm objects
+> do not allow adding new properties after creation and the presence of
+> the eprivacy cannot be detected at boot.
+> 
+> So instead this series adds 2 evdev keycodes for eprivacy screen on + off
+> and modifies the dell-wmi driver to use these, so that we can still
+> propagate these events to userspace for e.g. a DE to show an OSD.
+> 
+> Dmitry, can we get your ack for the addition of the 2 new keycodes?
+> I think it will be easiest if Ilpo merges the entire series through
+> the pdx86 tree with your ack for the keycodes.
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 61404d7a4..57da4f86a 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -355,6 +355,7 @@ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
- 
- static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
- 	{ "SONiX USB DEVICE" },
-+	{ "SONiX AK870 PRO" },
- 	{ "Keychron" },
- 	{ "AONE" },
- 	{ "GANSS" },
+Yes, that should be fine, although I wonder if this is best modeled as a
+pair of keys or a single switch? I know we have touchpad on/off but I
+wonder if it was the best option... Probably more convenient at some
+point if it was done through the atkbd.
+
+Thanks.
+
 -- 
-2.51.0
-
+Dmitry

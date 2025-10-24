@@ -1,24 +1,41 @@
-Received: from cosmicgizmosystems.com (cosmicgizmosystems.com [63.249.102.155])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F233513B5AE;
-	Fri, 24 Oct 2025 00:47:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.249.102.155
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F87D4F5E0;
+	Fri, 24 Oct 2025 03:32:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761266866; cv=none; b=tHSUwhdMzSzMkD9xVMNpkEujve+Ne+cpjl3t8ZqCOhIjiUZpyJ47FYYtcJ7cmpijRRBgRpHiFcC6G6GCDu8Z4vgMWKNklrsZRRp8NjlKgo++Z7m3dhNi6z/ZWurDvlyLa5XnoMwuI8wTCq4jLRnS7hlMDLk1Gi2E9oR1/LEdF7s=
+	t=1761276775; cv=none; b=me+3YbNrP90yMUgISb+jTTnMtALNPHwox9Bbf4pxTKtoorSyJZl8Szr9HwYh05+8lyZ9G2TQQvbbbTA29pXy/9+sSPAFcflEQD0Zu6dwC7mozBAwa/eeNUA1kgbSdmr+DYrBxdO38dvHGKeXJ34Mi3B6fuzDuclbfPcuzzqzkEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761266866; c=relaxed/simple;
-	bh=UhSFfVM04VyKHApZxKg4SCP0mIyKrE/nqWWyAg73/24=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Ry2dii5K1xmuhvGH8G0a+fgHZzcDWpgsiAcqr/BHqdOFW0cBDlDBLzbI+WDmSvkT7CXliIlthFhscfCcot1etUflzrDN3uTSRmo5EIiRQpTINI/Z26GfqFt4nSqQUwe6hMz0Zo+sEgusLyKiWLiL7byB7QBkUKM4v9GNYabVXpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com; spf=pass smtp.mailfrom=cosmicgizmosystems.com; arc=none smtp.client-ip=63.249.102.155
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cosmicgizmosystems.com
-Received: from [10.0.0.100] (c-71-193-224-155.hsd1.wa.comcast.net [71.193.224.155])
-	by host11.cruzio.com (Postfix) with ESMTPSA id 30AF21EACFBD;
-	Thu, 23 Oct 2025 17:39:49 -0700 (PDT)
-Message-ID: <365f9f8e-549e-42e1-ac8c-7ff1f42c6977@cosmicgizmosystems.com>
-Date: Thu, 23 Oct 2025 17:39:48 -0700
+	s=arc-20240116; t=1761276775; c=relaxed/simple;
+	bh=QD4Cgeapsnrnp2n93Z54w8V979xx1t4+BbK7P0Lqqak=;
+	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To; b=SfIHUcJdnLDV1npbN1xscgdUA3kzEIaPmp3UpOrLhmgMrgJPv8YUo+GBKHDvjTvV4dEickrK3jyIA4m8mG66Ys0OHbMc8goi2KKNNcNsaTzsjMQbrUza7/Uoqj+UYP45ajGg/GuLIIhaI/qeKoV6sX1VfDtgLu6L+IG8yCed/0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 16587800b08a11f0a38c85956e01ac42-20251024
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.6,REQID:cf144003-2c36-4a68-822c-cabf74fbedcd,IP:0,UR
+	L:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:5,BULK:0,RULE:Release_Ham,ACTION:r
+	elease,TS:5
+X-CID-META: VersionHash:a9d874c,CLOUDID:e306fcf1116a5780e8993190dbfcd787,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|83|102,TC:nil,Content:0|50,EDM:-3,
+	IP:nil,URL:0,File:2|127,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,A
+	V:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 16587800b08a11f0a38c85956e01ac42-20251024
+X-User: zhangheng@kylinos.cn
+Received: from [172.25.120.76] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <zhangheng@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
+	with ESMTP id 760713475; Fri, 24 Oct 2025 11:32:37 +0800
+Content-Type: multipart/mixed; boundary="------------xuCn7F4P8OnNd8rjwF0VvNRA"
+Message-ID: <8f0155d4-72a7-45ec-a272-7892e783bbed@kylinos.cn>
+Date: Fri, 24 Oct 2025 11:32:33 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -26,118 +43,94 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 Subject: Re: [PATCH v2] HID: quirks: Add device descriptor for 4c4a:4155
-To: zhangheng <zhangheng@kylinos.cn>, jikos@kernel.org, bentiss@kernel.org,
- staffan.melin@oscillator.se
+To: Terry Junge <linuxhid@cosmicgizmosystems.com>, jikos@kernel.org,
+ bentiss@kernel.org, staffan.melin@oscillator.se
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- 1114557@bugs.debian.org
+ 1114557@bugs.debian.org, stable@vger.kernel.org
 References: <20250923022445.3276026-1-zhangheng@kylinos.cn>
  <e0dde746-3761-414e-8df1-eb8557cadbf8@cosmicgizmosystems.com>
  <e605f642-c967-4d41-8145-a10e8f48fb1b@kylinos.cn>
-Content-Language: en-US
-In-Reply-To: <e605f642-c967-4d41-8145-a10e8f48fb1b@kylinos.cn>
-Content-Type: text/plain; charset=UTF-8
+ <365f9f8e-549e-42e1-ac8c-7ff1f42c6977@cosmicgizmosystems.com>
+From: zhangheng <zhangheng@kylinos.cn>
+In-Reply-To: <365f9f8e-549e-42e1-ac8c-7ff1f42c6977@cosmicgizmosystems.com>
+
+This is a multi-part message in MIME format.
+--------------xuCn7F4P8OnNd8rjwF0VvNRA
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi Zhang,
+Hi Terry Junge，
 
-Sorry my earlier emails had my name mangled by Thunderbird. I am not 
-Linux Hid. I am Terry Junge.
+I have made the changes as per your suggestion.
+mic.txt is the microphone report descriptor and is working properly.
 
-Anyway, are you planning on sending a V3 of this patch?
 
-Also, would it be possible for you to get the report descriptor from the 
-microphone.
 
-Thanks,
-Terry
 
-On 10/13/2025 1:32 AM, zhangheng wrote:
-> It happened to be the holiday, so communication was a bit troublesome.
-> 
-> However, after a brief discussion with the microphone manufacturer,
-> 
-> it was found that the serial number was still 20201111000001 on another
-> 
-> microphone device. So, should we add it?
-> 
-> 在 2025/9/29 8:42, Linux Hid 写道:
->> Hi Zhang,
->>
->> The subject doesn't reflect what the patch is doing. You are not adding
->> a device descriptor, you are fixing a regression.
->>
->> On 9/22/2025 7:24 PM, Zhang Heng wrote:
->>> Multiple USB devices have the same ID;
->>> add device descriptors to distinguish them.
->>>
->>> Fixes: 1a8953f4f774 ("HID: Add IGNORE quirk for SMARTLINKTECHNOLOGY")
->> Should have a Fixes: tag referencing the regression bug.
->> Also a CC: tag for 1114557@bugs.debian.org
->> Possibly a CC: tag for stable@vger.kernel.org as well?
->>
->>> Tested-by: staffan.melin@oscillator.se
->>> Signed-off-by: Zhang Heng <zhangheng@kylinos.cn>
->>> ---
->>>    drivers/hid/hid-quirks.c | 12 +++++++++++-
->>>    1 file changed, 11 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
->>> index ffd034566e2e..d28b180abd72 100644
->>> --- a/drivers/hid/hid-quirks.c
->>> +++ b/drivers/hid/hid-quirks.c
->>> @@ -913,7 +913,6 @@ static const struct hid_device_id 
->>> hid_ignore_list[] = {
->>>    #endif
->>>        { HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, 
->>> USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
->>>        { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, 
->>> USB_DEVICE_ID_QUANTA_HP_5MP_CAMERA_5473) },
->>> -    { HID_USB_DEVICE(USB_VENDOR_ID_SMARTLINKTECHNOLOGY, 
->>> USB_DEVICE_ID_SMARTLINKTECHNOLOGY_4155) },
->>>        { }
->>>    };
->> Smartlink Technology does not own the 0x4c4a VID or the 0x4155 PID. They
->> are an artifact of the Jieli SDK they used in development so the
->> #defines should not imply ownership by Smartlink. VID 0x4c4a is
->> currently unassigned by the USBIF and is therefore 'reserved'.
->>
->> Maybe change
->> USB_VENDOR_ID_SMARTLINKTECHNOLOGY to USB_VENDOR_ID_JIELI_SDK_DEFAULT
->> and
->> USB_DEVICE_ID_SMARTLINKTRCHNOLOGY_4155 to USB_DEVICE_ID_JIELI_SDK_4155?
->>
->>> @@ -1062,6 +1061,17 @@ bool hid_ignore(struct hid_device *hdev)
->>>                             strlen(elan_acpi_id[i].id)))
->>>                        return true;
->>>            break;
->>> +    case USB_VENDOR_ID_SMARTLINKTECHNOLOGY:
->>> +        /* Multiple USB devices with identical IDs (mic & touchscreen).
->>> +         * The touch screen requires hid core processing, but the
->>> +         * microphone does not. They can be distinguished by 
->>> manufacturer
->>> +         * and serial number.
->>> +         */
->>> +        if (hdev->product == USB_DEVICE_ID_SMARTLINKTECHNOLOGY_4155 &&
->>> +            strncmp(hdev->name, "SmartlinkTechnology", 19) == 0 &&
->>> +            strncmp(hdev->uniq, "20201111000001", 14) == 0)
->> Using the serial number as a device identifier is somewhat risky. The
->> serial number is optional for a USB device but if it is used then it's
->> supposed to be unique for each device. Given how horrible the
->> configuration and HID descriptors are for this device it's unlikely that
->> they went to the trouble to give each unit a unique serial number. But
->> you should check a few of the devices (if you have more than one) to
->> verify they all have the same 20201111000001 serial number.
->>
->> It's too bad the bcdHID version test for 0x0201 didn't work. The
->> hid->version field is filled by usbhid_probe with bcdDevice before both
->> hid_lookup_quirk and hid_ignore are called and then updated with bcdHID
->> by usbhid_parse after they have been called.
->>
->>> +            return true;
->>> +        break;
->>>        }
->>>        if (hdev->type == HID_TYPE_USBMOUSE &&
->> Thanks
->> Terry
+--------------xuCn7F4P8OnNd8rjwF0VvNRA
+Content-Type: text/plain; charset=UTF-8; name="mic.txt"
+Content-Disposition: attachment; filename="mic.txt"
+Content-Transfer-Encoding: base64
+
+a2xpbkB6aGFuZ2hlbmc6fi/moYzpnaIkIHN1ZG8gdXNiaGlkLWR1bXAgCjAwMTowMDg6MDAy
+OkRFU0NSSVBUT1IgICAgICAgICAxNzYxMjc1ODE3LjI1MzEyMQogMDUgMDEgMDkgMDYgQTEg
+MDEgMDUgMDcgMTkgRTAgMjkgRTcgMTUgMDAgMjUgMDEKIDc1IDAxIDk1IDA4IDgxIDAyIDk1
+IDAxIDc1IDA4IDgxIDAxIDk1IDAzIDc1IDAxCiAwNSAwOCAxOSAwMSAyOSAwMyA5MSAwMiA5
+NSAwMSA3NSAwNSA5MSAwMSA5NSAwNgogNzUgMDggMTUgMDAgMjYgRkYgMDAgMDUgMDcgMTkg
+MDAgMkEgRkYgMDAgODEgMDAKIEMwCgo=
+--------------xuCn7F4P8OnNd8rjwF0VvNRA
+Content-Type: text/plain; charset=UTF-8;
+ name="v3-0001-HID-quirks-Change-manufacturer-for-4c4a-4155.patch"
+Content-Disposition: attachment;
+ filename*0="v3-0001-HID-quirks-Change-manufacturer-for-4c4a-4155.patch"
+Content-Transfer-Encoding: base64
+
+RnJvbSA0ZDY3MGE3ODUyNzZhOGZkMTU2OGM5ZTdlNDAxNzk4MDliM2RkNWVjIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBaaGFuZyBIZW5nIDx6aGFuZ2hlbmdAa3lsaW5vcy5j
+bj4KRGF0ZTogRnJpLCAxMiBTZXAgMjAyNSAyMDozODoxOCArMDgwMApTdWJqZWN0OiBbUEFU
+Q0ggdjNdIEhJRDogcXVpcmtzOiBDaGFuZ2UgbWFudWZhY3R1cmVyIGZvciA0YzRhOjQxNTUK
+CkJhc2VkIG9uIGF2YWlsYWJsZSBldmlkZW5jZSwgdGhlIFVTQiBJRCA0YzRhOjQxNTUgdXNl
+ZCBieSBtdWx0aXBsZQpkZXZpY2VzIGhhcyBiZWVuIGF0dHJpYnV0ZWQgdG8gSmllbGkuIFRo
+ZSBjb21taXQgMWE4OTUzZjRmNzc0CigiSElEOiBBZGQgSUdOT1JFIHF1aXJrIGZvciBTTUFS
+VExJTktURUNITk9MT0dZIikgYWZmZWN0ZWQgdG91Y2hzY3JlZW4KZnVuY3Rpb25hbGl0eS4g
+QSBtYW51ZmFjdHVyZXIgY2hlY2sgd2FzIGFkZGVkIHRvIG1haW50YWluIG1pY3JvcGhvbmUK
+Y29tcGF0aWJpbGl0eSwgZW5hYmxpbmcgYm90aCBkZXZpY2VzIHRvIGZ1bmN0aW9uIHByb3Bl
+cmx5LgoKRml4ZXM6IDFhODk1M2Y0Zjc3NCAoIkhJRDogQWRkIElHTk9SRSBxdWlyayBmb3Ig
+U01BUlRMSU5LVEVDSE5PTE9HWSIpCkNjOiBzdGFibGVAa2VybmVsLm9yZwpUZXN0ZWQtYnk6
+IHN0YWZmYW4ubWVsaW5Ab3NjaWxsYXRvci5zZQpTaWduZWQtb2ZmLWJ5OiBaaGFuZyBIZW5n
+IDx6aGFuZ2hlbmdAa3lsaW5vcy5jbj4KLS0tCiBkcml2ZXJzL2hpZC9oaWQtaWRzLmggICAg
+fCAgNCArKy0tCiBkcml2ZXJzL2hpZC9oaWQtcXVpcmtzLmMgfCAxMSArKysrKysrKysrLQog
+MiBmaWxlcyBjaGFuZ2VkLCAxMiBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pZHMuaCBiL2RyaXZlcnMvaGlkL2hpZC1pZHMu
+aAppbmRleCA1NzIxYjg0MTRiYmQuLjBiMWZmMWVjMjc1ZSAxMDA2NDQKLS0tIGEvZHJpdmVy
+cy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaApAQCAtMTUzOSw3
+ICsxNTM5LDcgQEAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9TSUdOT1RFQwkJCTB4MjEzMwog
+I2RlZmluZSBVU0JfREVWSUNFX0lEX1NJR05PVEVDX1ZJRVdTT05JQ19QRDEwMTEJMHgwMDE4
+CiAKLSNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9TTUFSVExJTktURUNITk9MT0dZICAgICAgICAg
+ICAgICAweDRjNGEKLSNkZWZpbmUgVVNCX0RFVklDRV9JRF9TTUFSVExJTktURUNITk9MT0dZ
+XzQxNTUgICAgICAgICAweDQxNTUKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9KSUVMSV9TREtf
+REVGQVVMVAkJMHg0YzRhCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfSklFTElfU0RLXzQxNTUJ
+CTB4NDE1NQogCiAjZW5kaWYKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1xdWlya3Mu
+YyBiL2RyaXZlcnMvaGlkL2hpZC1xdWlya3MuYwppbmRleCBmZmQwMzQ1NjZlMmUuLjAwNThj
+MDFhYThiMyAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLXF1aXJrcy5jCisrKyBiL2Ry
+aXZlcnMvaGlkL2hpZC1xdWlya3MuYwpAQCAtOTEzLDcgKzkxMyw2IEBAIHN0YXRpYyBjb25z
+dCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBoaWRfaWdub3JlX2xpc3RbXSA9IHsKICNlbmRpZgog
+CXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9ZRUFMSU5LLCBVU0JfREVWSUNFX0lE
+X1lFQUxJTktfUDFLX1A0S19CMkspIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9S
+X0lEX1FVQU5UQSwgVVNCX0RFVklDRV9JRF9RVUFOVEFfSFBfNU1QX0NBTUVSQV81NDczKSB9
+LAotCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9TTUFSVExJTktURUNITk9MT0dZ
+LCBVU0JfREVWSUNFX0lEX1NNQVJUTElOS1RFQ0hOT0xPR1lfNDE1NSkgfSwKIAl7IH0KIH07
+CiAKQEAgLTEwNjIsNiArMTA2MSwxNiBAQCBib29sIGhpZF9pZ25vcmUoc3RydWN0IGhpZF9k
+ZXZpY2UgKmhkZXYpCiAJCQkJCSAgICAgc3RybGVuKGVsYW5fYWNwaV9pZFtpXS5pZCkpKQog
+CQkJCQlyZXR1cm4gdHJ1ZTsKIAkJYnJlYWs7CisJY2FzZSBVU0JfVkVORE9SX0lEX0pJRUxJ
+X1NES19ERUZBVUxUOgorCQkvKgorCQkgKiBNdWx0aXBsZSBVU0IgZGV2aWNlcyB3aXRoIGlk
+ZW50aWNhbCBJRHMgKG1pYyAmIHRvdWNoc2NyZWVuKS4KKwkJICogVGhlIHRvdWNoIHNjcmVl
+biByZXF1aXJlcyBoaWQgY29yZSBwcm9jZXNzaW5nLCBidXQgdGhlCisJCSAqIG1pY3JvcGhv
+bmUgZG9lcyBub3QuIFRoZXkgY2FuIGJlIGRpc3Rpbmd1aXNoZWQgYnkgbWFudWZhY3R1cmVy
+LgorCQkgKi8KKwkJaWYgKGhkZXYtPnByb2R1Y3QgPT0gVVNCX0RFVklDRV9JRF9KSUVMSV9T
+REtfNDE1NSAmJgorCQkgICAgc3RybmNtcChoZGV2LT5uYW1lLCAiU21hcnRsaW5rVGVjaG5v
+bG9neSIsIDE5KSA9PSAwKQorCQkJcmV0dXJuIHRydWU7CisJCWJyZWFrOwogCX0KIAogCWlm
+IChoZGV2LT50eXBlID09IEhJRF9UWVBFX1VTQk1PVVNFICYmCi0tIAoyLjQ3LjEKCg==
+
+--------------xuCn7F4P8OnNd8rjwF0VvNRA--

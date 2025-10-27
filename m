@@ -1,141 +1,125 @@
-Received: from honk.sigxcpu.org (honk.sigxcpu.org [24.134.29.49])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43E9E2FCBF3;
-	Mon, 27 Oct 2025 09:57:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=24.134.29.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29EBE2FFDCB
+	for <linux-input@vger.kernel.org>; Mon, 27 Oct 2025 11:58:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761559042; cv=none; b=DpI7ZVsMDpeOLDPld9i4CtEVuWQtQ5BvNTAbN7OcKr+d4ySG87pWl1G2dR/YGck8S7MX8HPR0YiIikRohPB6BoHfhUzV4wRV1Cp82b8zp9XW0WQZuPYcunpyvH1O+inPM1k5KDOktvxqlY+el14aYyaWFfz+q7fIcejohCtfKDI=
+	t=1761566310; cv=none; b=XJnc3mpsEShQOcacBvtCvUmC9adDxAQTg8G26c2DZ86Ib1d4O2n7bgHgrZ/ThhWt5DrUpz6JfSdPZHSMNinTH56SEEbcPOgzhya+GZxrqLwvAsjgBR4Lu03mWzuKNOkiVYEgJCzdqmxlzISX2qZf1tDFb4G/JdnXvARHb+JoTEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761559042; c=relaxed/simple;
-	bh=thirantOH4kH3f0r2QU+U/UTNUm7Zfvr0Y+urH7YorI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bf2qw02qAin8FpbS6hFFbqbPTrvva6ohaEl9PBB0QtQzGKSceZxwq13Lon9i27IN2VJgiaXb3CGelP7vE+vrk1+kVBAEpDskGAPyTnehVqKj0voCimOnyb10GqfT7uvwMgAqVQJN8M8aiR/T1SBMLUDOT3QxhU5kbn9WhQUJ6og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sigxcpu.org; spf=pass smtp.mailfrom=sigxcpu.org; dkim=pass (2048-bit key) header.d=sigxcpu.org header.i=@sigxcpu.org header.b=LSSge2FT; dkim=pass (2048-bit key) header.d=sigxcpu.org header.i=@sigxcpu.org header.b=RdN1USwS; arc=none smtp.client-ip=24.134.29.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sigxcpu.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sigxcpu.org
+	s=arc-20240116; t=1761566310; c=relaxed/simple;
+	bh=rTowg0RBT66AWVL03IKIFiPeAdtgolAe5b+yICoCCLA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=m/JJ6kJzWSCVmarTqAX4QnSKskktIul3suWvywS7mCZd0M4ReRZjg3yeKuVRwsQJmwC2oOlBzIJIa/t9VqLPfi4x0ZE9PuRJIxOfawMN9cQDfvsQ+s+Xmsqd6UZQVcxSFMVzczPeYCHIp3abcVVxhuzQ4cKKMNFd6QeQtLJ/agI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dwIrX9t9; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sigxcpu.org header.i=@sigxcpu.org header.b="LSSge2FT";
-	dkim=pass (2048-bit key) header.d=sigxcpu.org header.i=@sigxcpu.org header.b="RdN1USwS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=sigxcpu.org; s=2024;
-	t=1761559028; bh=thirantOH4kH3f0r2QU+U/UTNUm7Zfvr0Y+urH7YorI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LSSge2FTR6D3qKRjJ42E13VxBPQKSOpHvoA6MooKqxpc9rN2bpRis+EqbJsuKkkIv
-	 9zFH+yK4V3WFUphrnp/VTs9J9sdyGd3LKWAH6dhwVR3WB/yyG05vsCupYVUNK+ryrR
-	 vJsq25+RrpYP1YB2YjffZscbOox7bmmhkjHpa5/hfXYp4VkkQn1e1NnGaEnlGJoeDQ
-	 4CpCX4YhV0k4LnUWtGHZCOWXtiy9hVvhALxvlaLa9AhKSkhXJExQvXUjfGpAY7xMJk
-	 UGA67PKFTzk/LmRowxyivmVpO2xjcRFQWY+n/ngdOq5VjOZosnbqv+B1Gu8we4o8eo
-	 7wCz1Q9juQkDQ==
-Received: from localhost (localhost [127.0.0.1])
-	by honk.sigxcpu.org (Postfix) with ESMTP id 9D9D9FB03;
-	Mon, 27 Oct 2025 10:57:08 +0100 (CET)
-Received: from honk.sigxcpu.org ([127.0.0.1])
-	by localhost (honk.sigxcpu.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xOcFvBNfwfNH; Mon, 27 Oct 2025 10:57:07 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=sigxcpu.org; s=2024;
-	t=1761559027; bh=thirantOH4kH3f0r2QU+U/UTNUm7Zfvr0Y+urH7YorI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=RdN1USwSr30UpaEyXrknx1J/RlMsNcJW1D+1SgQDqvblndSztBpFLTKWwqGDVYfP+
-	 6gGRNsWD0+asBilsu/M4X7I4BAAcWHPDKebpmcn00ZniJ5AQQq5MfSeikbMe5wSfTP
-	 bxulgTShhIRWA/7A50RBUnXU68pmRzaJbwHsKhw6ZUfkburhzwd2M5zzOBPfYOdg0f
-	 e2fQMnpqgzaKyYO7VABXRkKEbGc3H8W0fs5rPdLeLsNH13oatacn6bh/UIfOrOJjHy
-	 DlAofM7w6pCwgcFaKCONz4UHRxVKqbiRRN+R1Xum1hR6MwNtY2YeipAMUQMPG2dwAk
-	 UY2IbbSFcXSkQ==
-Date: Mon, 27 Oct 2025 10:57:05 +0100
-From: Guido =?iso-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>
-To: david@ixit.cz
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dwIrX9t9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1761566308; x=1793102308;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=rTowg0RBT66AWVL03IKIFiPeAdtgolAe5b+yICoCCLA=;
+  b=dwIrX9t92FWPLkiNFq9QZAPRp8p+wLlA/THPJ0GpH5k89kg5PQmnd7nc
+   0pIb51va0NlRCGSgpppeTbLqZ+EF9MZtUrPri8cCw4hMbunWHyKsat1SM
+   jdM0AF0NTikwszZVKWYPz/yfc2epl8GqCEC1EaO2sQobGwsQcx4ZQUUVd
+   UFWjErNAAeEudZgKJZoxw/eKvNnkH9pj9JEhDEI5aC1r8i7c7Fsx7719d
+   2xwWN9FRV8IXN6G5Qqn63jJ3Wqng3jzFvg/4I2657Ks5Hm+Uf45o41dcz
+   ddpo3870pPm18Hln8wYk8WjtE7rO3uXmgU+IZ31CtSeHahBjbqrtZ0JTL
+   A==;
+X-CSE-ConnectionGUID: N1RtqVjQSHaT+F9pFoiSvw==
+X-CSE-MsgGUID: vLQGeaDdRcqKLHmcBaCCpQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="86270828"
+X-IronPort-AV: E=Sophos;i="6.19,258,1754982000"; 
+   d="scan'208";a="86270828"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2025 04:58:27 -0700
+X-CSE-ConnectionGUID: AbbfSUsiQqOdpoIkrexsMA==
+X-CSE-MsgGUID: RNg6awKETn+2MQHh3ztlVQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,258,1754982000"; 
+   d="scan'208";a="208640574"
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.244.31])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2025 04:58:25 -0700
+Received: from punajuuri.localdomain (unknown [192.168.240.130])
+	by kekkonen.fi.intel.com (Postfix) with ESMTP id 5A65F121EC5;
+	Mon, 27 Oct 2025 13:58:23 +0200 (EET)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.98.2)
+	(envelope-from <sakari.ailus@linux.intel.com>)
+	id 1vDLrj-00000001dk3-18p1;
+	Mon, 27 Oct 2025 13:58:23 +0200
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Casey Connolly <casey.connolly@linaro.org>,
-	linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	devicetree@vger.kernel.org, phone-devel@vger.kernel.org,
-	Gergo Koteles <soyer@irl.hu>, Casey Connolly <casey@connolly.tech>
-Subject: Re: [PATCH v7 0/3] Add support for sound profile switching and
- leverage for OnePlus slider
-Message-ID: <aP9B8fPs7y2-dGJi@quark2.heme.sigxcpu.org>
-References: <20251014-op6-tri-state-v7-0-938a6367197b@ixit.cz>
+	James Ogletree <jogletre@opensource.cirrus.com>,
+	Fred Treven <fred.treven@cirrus.com>,
+	Ben Bright <ben.bright@cirrus.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	patches@opensource.cirrus.com
+Subject: [PATCH 2/3] Input: cs40l50 - Remove redundant pm_runtime_mark_last_busy() calls
+Date: Mon, 27 Oct 2025 13:58:22 +0200
+Message-ID: <20251027115823.391080-2-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20251027115823.391080-1-sakari.ailus@linux.intel.com>
+References: <20251027115823.391080-1-sakari.ailus@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251014-op6-tri-state-v7-0-938a6367197b@ixit.cz>
 
-Hi,
-On Tue, Oct 14, 2025 at 11:20:32AM +0200, David Heidelberg via B4 Relay wrote:
-> This series add initial support for OnePlus 6 and 6T, but other OnePlus
-> phones contains same mechanism to switch sound profiles.
-> 
-> This code was tested for two years within the downstream Snapdragon 845 tree.
-> It is now perfectly integrated with feedbackd in the Phosh environment.
-> 
-> The series is also available (until merged) at
->   git@gitlab.com:dhxx/linux.git b4/op6-tri-state
-> 
-> Changes in v7:
-> - Separated GPIO number fix from the original commit
->   "arm64: dts: qcom: sdm845-oneplus: Add alert-slider"
-> - Rebased again next-20251008
-> - Link to v6: https://lore.kernel.org/r/20250731-op6-tri-state-v6-0-569c25cbc8c2@ixit.cz
-> 
-> Changes in v6:
-> - Rebased again next-20250731, otherwise just a resent.
-> - Link to v5: https://lore.kernel.org/r/20250419-op6-tri-state-v5-0-443127078517@ixit.cz
-> 
-> Changes in v5:
-> - Dropped merged
->   "Input: gpio-keys - add support for linux,input-value DTS property"
-> - Link to v4: https://lore.kernel.org/all/cover.1677022414.git.soyer@irl.hu/
-> 
-> Changes in v4:
-> - DTS: use default debounce-interval, order alphabetically
-> - Link to v3: https://lore.kernel.org/lkml/cover.1676850819.git.soyer@irl.hu/
-> 
-> Changes in v3:
-> - rename tri-state-key to alert-slider, fix DTS warnings,
-> 
-> Changes in v2:
-> - rebase to qcom/for-next
-> add SND_PROFILE_* identifiers to input-event-codes.h
-> 
-> ---
-> Gergo Koteles (3):
->       Input: add ABS_SND_PROFILE
->       arm64: dts: qcom: sdm845-oneplus: Correct gpio used for slider
->       arm64: dts: qcom: sdm845-oneplus: Add alert-slider
+pm_runtime_put_autosuspend(), pm_runtime_put_sync_autosuspend(),
+pm_runtime_autosuspend() and pm_request_autosuspend() now include a call
+to pm_runtime_mark_last_busy(). Remove the now-reduntant explicit call to
+pm_runtime_mark_last_busy().
 
-feedbackd has support for this since 0.5.0 so it would be nice to see
-that mainlined.
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/input/misc/cs40l50-vibra.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Tested-by: Guido Günther <agx@sigxcpu.org> # oneplus,fajita & oneplus,enchilada
-Reviewed-by: Guido Günther <agx@sigxcpu.org> 
+diff --git a/drivers/input/misc/cs40l50-vibra.c b/drivers/input/misc/cs40l50-vibra.c
+index 7aa7d577e01b..90410025bbae 100644
+--- a/drivers/input/misc/cs40l50-vibra.c
++++ b/drivers/input/misc/cs40l50-vibra.c
+@@ -308,7 +308,6 @@ static void cs40l50_add_worker(struct work_struct *work)
+ 			list_add(&effect->list, &vib->effect_head);
+ 	}
+ err_pm:
+-	pm_runtime_mark_last_busy(vib->dev);
+ 	pm_runtime_put_autosuspend(vib->dev);
+ err_exit:
+ 	work_data->error = error;
+@@ -368,7 +367,6 @@ static void cs40l50_start_worker(struct work_struct *work)
+ 		dev_err(vib->dev, "Effect to play not found\n");
+ 	}
+ 
+-	pm_runtime_mark_last_busy(vib->dev);
+ 	pm_runtime_put_autosuspend(vib->dev);
+ err_free:
+ 	kfree(work_data);
+@@ -384,7 +382,6 @@ static void cs40l50_stop_worker(struct work_struct *work)
+ 
+ 	vib->dsp.write(vib->dev, vib->regmap, vib->dsp.stop_cmd);
+ 
+-	pm_runtime_mark_last_busy(vib->dev);
+ 	pm_runtime_put_autosuspend(vib->dev);
+ 
+ 	kfree(work_data);
+@@ -456,7 +453,6 @@ static void cs40l50_erase_worker(struct work_struct *work)
+ 	list_del(&erase_effect->list);
+ 	kfree(erase_effect);
+ err_pm:
+-	pm_runtime_mark_last_busy(vib->dev);
+ 	pm_runtime_put_autosuspend(vib->dev);
+ err_exit:
+ 	work_data->error = error;
+-- 
+2.47.3
 
-Cheers,
- -- Guido
-
-> 
->  Documentation/input/event-codes.rst                |  6 ++++
->  .../arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 39 ++++++++++++++++++++--
->  drivers/hid/hid-debug.c                            |  1 +
->  include/uapi/linux/input-event-codes.h             |  9 +++++
->  4 files changed, 53 insertions(+), 2 deletions(-)
-> ---
-> base-commit: 52ba76324a9d7c39830c850999210a36ef023cde
-> change-id: 20250419-op6-tri-state-ed1a05a11125
-> 
-> Best regards,
-> -- 
-> David Heidelberg <david@ixit.cz>
-> 
-> 

@@ -1,91 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BAA337572A;
-	Thu, 30 Oct 2025 19:10:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 449D82192F5;
+	Thu, 30 Oct 2025 19:51:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761851454; cv=none; b=Ntkaky6nqZza0PecRP99q8Byvf5LcdQ7nVYWM4OmTKxvUgzK+RWyKyA5aju4TyOM+ZWu5GiABufillsuVsaH+G7rgWxsarq4aPFI1S8abrGOOwREPSxjPloAr3cjcSechslzvV5rKL8Sb5Tr7qFPp71f4+uSVSz6qwB2YM4EJdo=
+	t=1761853914; cv=none; b=P9Ya4hBUqWSQRF/2/qKBCIPRbyHfeUFrrUDXU85PxQFAXDMpg6dPDUWv24eSq/ATLqdLcH66CW63s/QFEwu/t48g0HH3AOp7HA9oX1p1d3plu8vyeBAsNHkJAUcL6mg2+FmOAsUghS5ntqtDkn4XqIo+CYzqwb2TsigYIM/L0Bc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761851454; c=relaxed/simple;
-	bh=adyXiT86E3/PnN/XVD2yWuOTXuTxM2aPkCYxiEEjduY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hF0L4FzUgelS+Hr+C8kDgQN5LaqbQbMlkQ/RKG5Dbyw3PosU2df/16JR6uAO+JuxPPrsYfuVB7gAr6u2FUlsmCLZDXqzpfurxCbqLw7VfEuAwKOTqldToCfGFiGRnT3dROK7JhHk8S5Gfn1vWKyyeuPOTSWrly1xsqxCkPB7cIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g5e2tGMs; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g5e2tGMs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FD2AC4CEFD;
-	Thu, 30 Oct 2025 19:10:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761851453;
-	bh=adyXiT86E3/PnN/XVD2yWuOTXuTxM2aPkCYxiEEjduY=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=g5e2tGMsymwn+FJBI5n1hSvtBJs0RhOvxQjknbrX07WyiUzOsLS0uIuE2C9Hmao4L
-	 Gm0B3HaAw+egPQJaJu9zGagx+wq+ARareGR0iXjMpULLlRsZCRDcRHxh0Sw5oKQUlv
-	 50tD4SlGVSqJZ11l3T6UMlB3n9/a7D+V9DD4GKb8vPOEvSpqL7pViiwopbcQkNedV2
-	 JrG2OBYSk9YZ6FsTdjouV48hYMh9Y+Zz5wkVnBwQMdSGpE7cBbDf6sW9O5R10xnz6M
-	 mJQLdAzM579Oj3g6HC170GETub0SU4WqyYhklgluYBYDf8GZSm8wXewpUQbenM6tSV
-	 gSWEST+q3TMBQ==
-From: akemnade@kernel.org
-Date: Thu, 30 Oct 2025 20:10:36 +0100
-Subject: [PATCH v2 3/3] ARM: dts: ti/omap: omap4-epson-embt2ws: add
- powerbutton
+	s=arc-20240116; t=1761853914; c=relaxed/simple;
+	bh=G0xQgQyrwSJHVmBE1CSnLN/FrJeKs1BASiMsyj5D/lo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=XsC0T1rSlZJcNq1dUN87/gb0NATeBnEpvOnTg8lAknINn9HKU0HylHzUxJg6dVVYG33E9Ailas3vnHcYflGHT4ZhPkL8I1AQvWRUfxOhoW7mSRgLjTV6hn9osIwOA9NfHNFOVDlY2d6JBWJnNRk+Kd9ZhXRtD3Do3IeNcG6pGt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
+Received: from blala.de (localhost [127.0.0.1])
+	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 59UJvBY4020199;
+	Thu, 30 Oct 2025 19:57:11 GMT
+Received: (from akurz@localhost)
+	by blala.de (8.15.2/8.15.2/Submit) id 59UJvBit020194;
+	Thu, 30 Oct 2025 19:57:11 GMT
+From: Alexander Kurz <akurz@blala.de>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee@kernel.org>, Dzmitry Sankouski <dsankouski@gmail.com>,
+        Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
+        Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        "Dr . David Alan Gilbert" <linux@treblig.org>,
+        Job Sava <jsava@criticallink.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+Cc: devicetree@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org, Alexander Kurz <akurz@blala.de>
+Subject: [PATCH v6 1/6] Input: mc13783-pwrbutton: use managed resources
+Date: Thu, 30 Oct 2025 19:56:49 +0000
+Message-Id: <20251030195654.20142-2-akurz@blala.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20251030195654.20142-1-akurz@blala.de>
+References: <20251030195654.20142-1-akurz@blala.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251030-twl6030-button-v2-3-09653d05a2b1@kernel.org>
-References: <20251030-twl6030-button-v2-0-09653d05a2b1@kernel.org>
-In-Reply-To: <20251030-twl6030-button-v2-0-09653d05a2b1@kernel.org>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andreas Kemnade <andreas@kemnade.info>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-omap@vger.kernel.org, 
- Andreas Kemnade <akemnade@kernel.org>
-X-Mailer: b4 0.15-dev-50721
-X-Developer-Signature: v=1; a=openpgp-sha256; l=828; i=akemnade@kernel.org;
- h=from:subject:message-id; bh=kCywPpfG6XQhiUheZwu6EG6J7hIkcu/XRNjW/00c6gg=;
- b=owGbwMvMwCUm/rzkS6lq2x3G02pJDJnMOwwn8gmrlubETTjWsksq4ZzuSSPphL8zjpfdjOrfo
- nsyuXRhRykLgxgXg6yYIssvawW3TyrPcoOnRtjDzGFlAhnCwMUpABOJVGFkuGq027yq88/klKDj
- rBFPv07YwvUxqy1livmfso0Zyjd9WRj+Z+188rBn2t1cn40+IXMFtm3aJGq7QVyrPP3Jx/T4twn
- X+QA=
-X-Developer-Key: i=akemnade@kernel.org; a=openpgp;
- fpr=EEC0DB858E66C0DA70620AC07DBD6AC74DE29324
+Content-Transfer-Encoding: 8bit
 
-From: Andreas Kemnade <andreas@kemnade.info>
+Use devres functionality to simplify resource freeing, dev.parent will
+be set by devm_input_allocate_device().
 
-There is a power button connected to the PMIC, so describe it to be able
-to power off the device in a convenient manner.
-
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Signed-off-by: Alexander Kurz <akurz@blala.de>
 ---
- arch/arm/boot/dts/ti/omap/omap4-epson-embt2ws.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/misc/mc13783-pwrbutton.c | 28 ++++++++------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ti/omap/omap4-epson-embt2ws.dts b/arch/arm/boot/dts/ti/omap/omap4-epson-embt2ws.dts
-index c90f43cc2fae..673df1b693f2 100644
---- a/arch/arm/boot/dts/ti/omap/omap4-epson-embt2ws.dts
-+++ b/arch/arm/boot/dts/ti/omap/omap4-epson-embt2ws.dts
-@@ -229,6 +229,11 @@ rtc {
- 			interrupts = <11>;
- 		};
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index b83d762ae2e9..82434ea9cca5 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -21,6 +21,7 @@
  
-+		pwrbutton {
-+			compatible = "ti,twl6030-pwrbutton";
-+			interrupts = <0>;
-+		};
-+
- 		ldo2: regulator-ldo2 {
- 			compatible = "ti,twl6032-ldo2";
- 			regulator-min-microvolt = <1000000>;
-
+ #include <linux/module.h>
+ #include <linux/kernel.h>
++#include <linux/device.h>
+ #include <linux/errno.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+@@ -102,18 +103,13 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	pwr = input_allocate_device();
+-	if (!pwr) {
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++	pwr = devm_input_allocate_device(&pdev->dev);
++	if (!pwr)
+ 		return -ENOMEM;
+-	}
+ 
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv) {
+-		err = -ENOMEM;
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+-		goto free_input_dev;
+-	}
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
+ 
+ 	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
+ 	reg |= (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
+@@ -139,7 +135,7 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 					  button_irq, "b1on", priv);
+ 		if (err) {
+ 			dev_dbg(&pdev->dev, "Can't request irq\n");
+-			goto free_priv;
++			goto free_mc13xxx_lock;
+ 		}
+ 	}
+ 
+@@ -187,7 +183,6 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 
+ 	pwr->name = "mc13783_pwrbutton";
+ 	pwr->phys = "mc13783_pwrbutton/input0";
+-	pwr->dev.parent = &pdev->dev;
+ 
+ 	pwr->keycode = priv->keymap;
+ 	pwr->keycodemax = ARRAY_SIZE(priv->keymap);
+@@ -218,12 +213,8 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
+ 
+-free_priv:
++free_mc13xxx_lock:
+ 	mc13xxx_unlock(mc13783);
+-	kfree(priv);
+-
+-free_input_dev:
+-	input_free_device(pwr);
+ 
+ 	return err;
+ }
+@@ -245,9 +236,6 @@ static void mc13783_pwrbutton_remove(struct platform_device *pdev)
+ 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
+ 
+ 	mc13xxx_unlock(priv->mc13783);
+-
+-	input_unregister_device(priv->pwr);
+-	kfree(priv);
+ }
+ 
+ static struct platform_driver mc13783_pwrbutton_driver = {
 -- 
-2.47.3
+2.39.5
 

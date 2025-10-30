@@ -1,395 +1,136 @@
-Received: from vs81.iboxed.net (vs10.datenmanufaktur-hosting.net [213.160.73.65])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47CD132D43F;
-	Thu, 30 Oct 2025 19:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71E13191B0;
+	Thu, 30 Oct 2025 20:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761853917; cv=none; b=gG/cZB8b8TtaqBHaPBsUpau6kOuWlP6dHalqP6+Tuh5ZImC0drqIiIXCBy9k5s9mHLghFInbCo6dAh90Q4599qR3PWwxrUY3eYOqPKj4hf2Y6k6qnOUP0w5cK70e8HLNEKLTAnHd/+NrjrqgFUQxi46IMRBGpd9rN3YO1ajH/kI=
+	t=1761854407; cv=none; b=B6T9oqtJtXXSJAO/QIzpNmJQxGapdt9MS9Lzz/cXgmJ+F1OQLkAkmng3N4ft9+/vGs7I/1jVCUKwgjwaxUXyBIhbP5gYwR7EvwokGkHISnjcXN7nbB28eUMIMmi0nItfIZYWYUo/XbH6ZXlCmPMFG9unotC2NK9GDG44+xNnaVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761853917; c=relaxed/simple;
-	bh=v2Rk65C84wGjPcKZGHwetGQ+S4/eTd+Il+tBR4ROURo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sz67BHPw995ZqKEY5cauo49JnjnW/XDVZPSO4o5wU7LMC5r9Sgvp1waKeyWfVGYIXGTrC9aAqFWl44oR+xYF7ON6dAwDoXR3Dv+vbvbEvYZ9ipTr+A7CNkrdliWoG0wrGTv3waNR1mYjQB5RXZwousgY23PqyN/X9rKAHWbRZ4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de; spf=pass smtp.mailfrom=blala.de; arc=none smtp.client-ip=213.160.73.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blala.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=blala.de
-Received: from blala.de (localhost [127.0.0.1])
-	by vs81.iboxed.net (8.15.2/8.15.2/Debian-14~deb10u1) with ESMTP id 59UJvBgc020223;
-	Thu, 30 Oct 2025 19:57:11 GMT
-Received: (from akurz@localhost)
-	by blala.de (8.15.2/8.15.2/Submit) id 59UJvBET020219;
-	Thu, 30 Oct 2025 19:57:11 GMT
-From: Alexander Kurz <akurz@blala.de>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee@kernel.org>, Dzmitry Sankouski <dsankouski@gmail.com>,
-        Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
-        Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        "Dr . David Alan Gilbert" <linux@treblig.org>,
-        Job Sava <jsava@criticallink.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: devicetree@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org, Alexander Kurz <akurz@blala.de>
-Subject: [PATCH v6 4/6] Input: mc13783-pwrbutton: enable other mc13xxx PMIC
-Date: Thu, 30 Oct 2025 19:56:52 +0000
-Message-Id: <20251030195654.20142-5-akurz@blala.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20251030195654.20142-1-akurz@blala.de>
-References: <20251030195654.20142-1-akurz@blala.de>
+	s=arc-20240116; t=1761854407; c=relaxed/simple;
+	bh=adl3rEiDgJT/7cpcKay8yGJNneTH4HZ4ERRdYFjnDOE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gqqT1ZOcYGBqQ1djfLIWz6armjSe0WFNhfpr34/7UIiBlObGeYOi6zKIQo8CN3tOL+U6MYYt+jb/MiSEdIa0lkeFHqVmQZEhLX+/Q88ypdAanNlpwOzyRiEwPt1a9g0SPwRPmmOZJh4NKLVWphkX/UgCjdEdNHD0SxWAu6e2X9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d+DLOqD1; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d+DLOqD1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC73C4AF0B;
+	Thu, 30 Oct 2025 20:00:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1761854405;
+	bh=adl3rEiDgJT/7cpcKay8yGJNneTH4HZ4ERRdYFjnDOE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=d+DLOqD1CWACwg4wIfPnpv8wzdyZrwA0aUjXNcieEbxD2JUNWEt0RnsCUT/SWKWLe
+	 m+OFqHGdHc7RNWi1igOQCTdXyY12I5XlBdEPazuTEiFZkv4U3nUpTNyAV8y5cnN7P3
+	 Rb0WSN8cJEK4nMG7cSFkCryyQoOq4o66WeNxRfey0ml/EbWF9EEMrXYRsUPoHOqf8G
+	 nmjnuOXWRbonwMkc6KaBIc5NhtobNiVr0eDWOVExaNx02RnS2Ng7Ni58E/xEtU2RFq
+	 L3rf8qndYjlIBeUnlb+QJ0j89apRUnTFIsljI+RUUNDR3U3SY39DDfS77OaexINLOD
+	 z6CSp2vPEM7Yw==
+Date: Thu, 30 Oct 2025 19:59:59 +0000
+From: Conor Dooley <conor@kernel.org>
+To: akemnade@kernel.org
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@kernel.org>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] dt-bindings: mfd: twl: enable power button also
+ for twl603x
+Message-ID: <20251030-scientist-splashed-e0505d44abc4@spud>
+References: <20251030-twl6030-button-v2-0-09653d05a2b1@kernel.org>
+ <20251030-twl6030-button-v2-1-09653d05a2b1@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="AwBfcfdV42k/Lguc"
+Content-Disposition: inline
+In-Reply-To: <20251030-twl6030-button-v2-1-09653d05a2b1@kernel.org>
 
-All three mc13xxx types feature two common power buttons referred in
-the datasheets as ONOFD[12] (mc13783) and PWRON[12] (mc13892/mc34708).
-A third button is available on the mc13783 and mc13892 models, which
-however uses distinct interrupt register bits.
 
-Add support for mc13892/mc34708 to support all available power buttons
-in the mc13xxx series.
+--AwBfcfdV42k/Lguc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Alexander Kurz <akurz@blala.de>
----
- drivers/input/misc/Kconfig             |   4 +-
- drivers/input/misc/mc13783-pwrbutton.c | 131 +++++++++++--------------
- drivers/mfd/mc13xxx-core.c             |  22 ++++-
- include/linux/mfd/mc13783.h            |   4 +-
- include/linux/mfd/mc13892.h            |   1 +
- include/linux/mfd/mc13xxx.h            |   2 +
- 6 files changed, 84 insertions(+), 80 deletions(-)
+On Thu, Oct 30, 2025 at 08:10:34PM +0100, akemnade@kernel.org wrote:
+> From: Andreas Kemnade <andreas@kemnade.info>
+>=20
+> TWL603x has also a power button function, so add the corresponding subnod=
+e.
+> As not in all cases there is a power button connected to the corresponding
+> pad of the TWL603x, the functionality can be disabled by
+> status =3D "disabled" or simply not adding the subnode.
+> To keep things simple, follow the established design pattern of using con=
+st
+> interrupts as used also by the other subdevices.
+>=20
+> Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index cc2558630797..c967daa0388a 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -297,8 +297,8 @@ config INPUT_MC13783_PWRBUTTON
- 	tristate "MC13783 ON buttons"
- 	depends on MFD_MC13XXX
- 	help
--	  Support the ON buttons of MC13783 PMIC as an input device
--	  reporting power button status.
-+	  Support the ON buttons of MC13783/MC13892/MC34708 PMIC as an input
-+	  device reporting power button status.
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called mc13783-pwrbutton.
-diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index 2ee115d77b1c..08618c59197f 100644
---- a/drivers/input/misc/mc13783-pwrbutton.c
-+++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -30,9 +30,16 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- 
-+struct mc13xxx_button_devtype {
-+	int button_id_max;
-+	const char *irq_name[3];
-+	int irq_sense_reg[3];
-+};
-+
- struct mc13783_pwrb {
- 	struct input_dev *pwr;
- 	struct mc13xxx *mc13783;
-+	const struct mc13xxx_button_devtype *devtype;
- 	int flags;
- 	unsigned short keymap[3];
- 	int irq[3];
-@@ -43,9 +50,6 @@ struct mc13783_pwrb {
- #define MC13783_PWRB_B3_POL_INVERT	(1 << 2)
- 
- #define MC13783_REG_INTERRUPT_SENSE_1		5
--#define MC13783_IRQSENSE1_ONOFD1S		(1 << 3)
--#define MC13783_IRQSENSE1_ONOFD2S		(1 << 4)
--#define MC13783_IRQSENSE1_ONOFD3S		(1 << 5)
- 
- #define MC13783_REG_POWER_CONTROL_2		15
- #define MC13783_POWER_CONTROL_2_ON1BDBNC	4
-@@ -63,17 +67,17 @@ static irqreturn_t button_irq(int irq, void *_priv)
- 	mc13xxx_reg_read(priv->mc13783, MC13783_REG_INTERRUPT_SENSE_1, &val);
- 
- 	if (irq == priv->irq[0]) {
--		val = val & MC13783_IRQSENSE1_ONOFD1S ? 1 : 0;
-+		val = val & (1 << priv->devtype->irq_sense_reg[0]) ? 1 : 0;
- 		if (priv->flags & MC13783_PWRB_B1_POL_INVERT)
- 			val ^= 1;
- 		input_report_key(priv->pwr, priv->keymap[0], val);
- 	} else if (irq == priv->irq[1]) {
--		val = val & MC13783_IRQSENSE1_ONOFD2S ? 1 : 0;
-+		val = val & (1 << priv->devtype->irq_sense_reg[1]) ? 1 : 0;
- 		if (priv->flags & MC13783_PWRB_B2_POL_INVERT)
- 			val ^= 1;
- 		input_report_key(priv->pwr, priv->keymap[1], val);
--	} else if (irq == priv->irq[2]) {
--		val = val & MC13783_IRQSENSE1_ONOFD3S ? 1 : 0;
-+	} else if (irq == priv->irq[2] && priv->devtype->button_id_max >= 2) {
-+		val = val & (1 << priv->devtype->irq_sense_reg[2]) ? 1 : 0;
- 		if (priv->flags & MC13783_PWRB_B3_POL_INVERT)
- 			val ^= 1;
- 		input_report_key(priv->pwr, priv->keymap[2], val);
-@@ -88,6 +92,8 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- {
- 	const struct mc13xxx_buttons_platform_data *pdata;
- 	struct mc13xxx *mc13783 = dev_get_drvdata(pdev->dev.parent);
-+	struct mc13xxx_button_devtype *devtype =
-+		(struct mc13xxx_button_devtype *)pdev->id_entry->driver_data;
- 	struct input_dev *pwr;
- 	struct mc13783_pwrb *priv;
- 	int err = 0;
-@@ -108,54 +114,36 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	if (devtype->button_id_max < 2 && pdata->b_on_flags[2] & 0x3) {
-+		dev_err(&pdev->dev, "button not supported\n");
-+		return -ENODEV;
-+	}
-+
- 	reg |= (pdata->b_on_flags[0] & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
- 	reg |= (pdata->b_on_flags[1] & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
- 	reg |= (pdata->b_on_flags[2] & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
- 
- 	priv->pwr = pwr;
- 	priv->mc13783 = mc13783;
-+	priv->devtype = devtype;
- 
- 	mc13xxx_lock(mc13783);
- 
--	if (pdata->b_on_flags[0] & MC13783_BUTTON_ENABLE) {
--		priv->keymap[0] = pdata->b_on_key[0];
--		if (pdata->b_on_key[0] != KEY_RESERVED)
--			__set_bit(pdata->b_on_key[0], pwr->keybit);
-+	for (int i = 0; i < devtype->button_id_max; i++) {
-+		if ((pdata->b_on_flags[i] & MC13783_BUTTON_ENABLE) == 0)
-+			continue;
- 
--		if (pdata->b_on_flags[0] & MC13783_BUTTON_POL_INVERT)
--			priv->flags |= MC13783_PWRB_B1_POL_INVERT;
-+		priv->keymap[i] = pdata->b_on_key[i];
-+		if (pdata->b_on_key[i] != KEY_RESERVED)
-+			__set_bit(pdata->b_on_key[i], pwr->keybit);
- 
--		if (pdata->b_on_flags[0] & MC13783_BUTTON_RESET_EN)
--			reg |= MC13783_POWER_CONTROL_2_ON1BRSTEN;
-+		if (pdata->b_on_flags[i] & MC13783_BUTTON_POL_INVERT)
-+			priv->flags |= (MC13783_PWRB_B1_POL_INVERT << i);
- 
--		irq = platform_get_irq_byname(pdev, "b1on");
-+		if (pdata->b_on_flags[i] & MC13783_BUTTON_RESET_EN)
-+			reg |= (MC13783_POWER_CONTROL_2_ON1BRSTEN << i);
- 
--		if (irq < 0) {
--			dev_dbg(&pdev->dev, "Can't request irq\n");
--			goto free_mc13xxx_lock;
--		}
--
--		err = devm_request_any_context_irq(&pdev->dev, irq, button_irq,
--						   IRQF_ONESHOT, "b1on",
--						   priv);
--		if (err < 0)
--			goto free_mc13xxx_lock;
--
--		priv->irq[0] = irq;
--	}
--
--	if (pdata->b_on_flags[1] & MC13783_BUTTON_ENABLE) {
--		priv->keymap[1] = pdata->b_on_key[1];
--		if (pdata->b_on_key[1] != KEY_RESERVED)
--			__set_bit(pdata->b_on_key[1], pwr->keybit);
--
--		if (pdata->b_on_flags[1] & MC13783_BUTTON_POL_INVERT)
--			priv->flags |= MC13783_PWRB_B2_POL_INVERT;
--
--		if (pdata->b_on_flags[1] & MC13783_BUTTON_RESET_EN)
--			reg |= MC13783_POWER_CONTROL_2_ON2BRSTEN;
--
--		irq = platform_get_irq_byname(pdev, "b2on");
-+		irq = platform_get_irq_byname(pdev, devtype->irq_name[i]);
- 
- 		if (irq < 0) {
- 			dev_dbg(&pdev->dev, "Can't request irq\n");
-@@ -163,39 +151,12 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 		}
- 
- 		err = devm_request_any_context_irq(&pdev->dev, irq, button_irq,
--						   IRQF_ONESHOT, "b2on",
--						   priv);
-+					   IRQF_ONESHOT, devtype->irq_name[i],
-+					   priv);
- 		if (err < 0)
- 			goto free_mc13xxx_lock;
- 
--		priv->irq[1] = irq;
--	}
--
--	if (pdata->b_on_flags[2] & MC13783_BUTTON_ENABLE) {
--		priv->keymap[2] = pdata->b_on_key[2];
--		if (pdata->b_on_key[2] != KEY_RESERVED)
--			__set_bit(pdata->b_on_key[2], pwr->keybit);
--
--		if (pdata->b_on_flags[2] & MC13783_BUTTON_POL_INVERT)
--			priv->flags |= MC13783_PWRB_B3_POL_INVERT;
--
--		if (pdata->b_on_flags[2] & MC13783_BUTTON_RESET_EN)
--			reg |= MC13783_POWER_CONTROL_2_ON3BRSTEN;
--
--		irq = platform_get_irq_byname(pdev, "b3on");
--
--		if (irq < 0) {
--			dev_dbg(&pdev->dev, "Can't request irq: %d\n", err);
--			goto free_mc13xxx_lock;
--		}
--
--		err = devm_request_any_context_irq(&pdev->dev, irq, button_irq,
--						   IRQF_ONESHOT, "b3on",
--						   priv);
--		if (err < 0)
--			goto free_mc13xxx_lock;
--
--		priv->irq[2] = irq;
-+		priv->irq[i] = irq;
- 	}
- 
- 	mc13xxx_reg_rmw(mc13783, MC13783_REG_POWER_CONTROL_2, 0x3FE, reg);
-@@ -226,7 +187,33 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 	return err;
- }
- 
-+static const struct mc13xxx_button_devtype mc13783_button_devtype = {
-+	.button_id_max	= 2,
-+	.irq_name = { "b1on", "b2on", "b3on" },
-+	.irq_sense_reg = { 3, 4, 5 },
-+};
-+
-+static const struct mc13xxx_button_devtype mc13892_button_devtype = {
-+	.button_id_max	= 2,
-+	.irq_name = { "b1on", "b2on", "b3on" },
-+	.irq_sense_reg = { 3, 4, 2 },
-+};
-+
-+static const struct mc13xxx_button_devtype mc34708_button_devtype = {
-+	.button_id_max	= 1,
-+	.irq_name = { "b1on", "b2on" },
-+	.irq_sense_reg = { 3, 4 },
-+};
-+
-+static const struct platform_device_id mc13xxx_pwrbutton_idtable[] = {
-+	{ "mc13783-pwrbutton", (kernel_ulong_t)&mc13783_button_devtype },
-+	{ "mc13892-pwrbutton", (kernel_ulong_t)&mc13892_button_devtype },
-+	{ "mc34708-pwrbutton", (kernel_ulong_t)&mc34708_button_devtype },
-+	{ /* sentinel */ }
-+};
-+
- static struct platform_driver mc13783_pwrbutton_driver = {
-+	.id_table	= mc13xxx_pwrbutton_idtable,
- 	.probe		= mc13783_pwrbutton_probe,
- 	.driver		= {
- 		.name	= "mc13783-pwrbutton",
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 1756c8d47d5e..c29974722704 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -14,6 +14,7 @@
- #include <linux/platform_device.h>
- #include <linux/mfd/core.h>
- #include <linux/mfd/mc13783.h>
-+#include <linux/mfd/mc13892.h>
- 
- #include "mc13xxx.h"
- 
-@@ -48,11 +49,22 @@
- #define MC13XXX_ADC2		45
- 
- static const struct resource mc13783_button_resources[] = {
--	DEFINE_RES_IRQ_NAMED(MC13783_IRQ_ONOFD1, "b1on"),
--	DEFINE_RES_IRQ_NAMED(MC13783_IRQ_ONOFD2, "b2on"),
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON1, "b1on"),
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON2, "b2on"),
- 	DEFINE_RES_IRQ_NAMED(MC13783_IRQ_ONOFD3, "b3on"),
- };
- 
-+static const struct resource mc13892_button_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON1, "b1on"),
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON2, "b2on"),
-+	DEFINE_RES_IRQ_NAMED(MC13892_IRQ_PWRON3, "b3on"),
-+};
-+
-+static const struct resource mc34708_button_resources[] = {
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON1, "b1on"),
-+	DEFINE_RES_IRQ_NAMED(MC13XXX_IRQ_PWRON2, "b2on"),
-+};
-+
- void mc13xxx_lock(struct mc13xxx *mc13xxx)
- {
- 	if (!mutex_trylock(&mc13xxx->lock)) {
-@@ -216,14 +228,16 @@ EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13783);
- 
- struct mc13xxx_variant mc13xxx_variant_mc13892 = {
- 	.name = "mc13892",
--	.button_resources_size = 0,
-+	.button_resources = mc13892_button_resources,
-+	.button_resources_size = ARRAY_SIZE(mc13892_button_resources),
- 	.print_revision = mc13xxx_print_revision,
- };
- EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13892);
- 
- struct mc13xxx_variant mc13xxx_variant_mc34708 = {
- 	.name = "mc34708",
--	.button_resources_size = 0,
-+	.button_resources = mc34708_button_resources,
-+	.button_resources_size = ARRAY_SIZE(mc34708_button_resources),
- 	.print_revision = mc34708_print_revision,
- };
- EXPORT_SYMBOL_GPL(mc13xxx_variant_mc34708);
-diff --git a/include/linux/mfd/mc13783.h b/include/linux/mfd/mc13783.h
-index c25b1676741b..ab6db774e1fa 100644
---- a/include/linux/mfd/mc13783.h
-+++ b/include/linux/mfd/mc13783.h
-@@ -65,8 +65,8 @@
- #define MC13783_IRQ_UDM		23
- #define MC13783_IRQ_1HZ		MC13XXX_IRQ_1HZ
- #define MC13783_IRQ_TODA	MC13XXX_IRQ_TODA
--#define MC13783_IRQ_ONOFD1	27
--#define MC13783_IRQ_ONOFD2	28
-+#define MC13783_IRQ_ONOFD1	MC13XXX_IRQ_PWRON1
-+#define MC13783_IRQ_ONOFD2	MC13XXX_IRQ_PWRON2
- #define MC13783_IRQ_ONOFD3	29
- #define MC13783_IRQ_SYSRST	MC13XXX_IRQ_SYSRST
- #define MC13783_IRQ_RTCRST	MC13XXX_IRQ_RTCRST
-diff --git a/include/linux/mfd/mc13892.h b/include/linux/mfd/mc13892.h
-index 880cd949d12a..567d527825df 100644
---- a/include/linux/mfd/mc13892.h
-+++ b/include/linux/mfd/mc13892.h
-@@ -33,4 +33,5 @@
- #define MC13892_PWGT2SPI	22
- #define MC13892_VCOINCELL	23
- 
-+#define MC13892_IRQ_PWRON3	26
- #endif
-diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
-index 4437ab80fcf8..71c7d3614d4c 100644
---- a/include/linux/mfd/mc13xxx.h
-+++ b/include/linux/mfd/mc13xxx.h
-@@ -61,6 +61,8 @@ int mc13xxx_irq_unmask(struct mc13xxx *mc13xxx, int irq);
- #define MC13XXX_IRQ_LOBATH	14
- #define MC13XXX_IRQ_1HZ		24
- #define MC13XXX_IRQ_TODA	25
-+#define MC13XXX_IRQ_PWRON1	27
-+#define MC13XXX_IRQ_PWRON2	28
- #define MC13XXX_IRQ_SYSRST	30
- #define MC13XXX_IRQ_RTCRST	31
- #define MC13XXX_IRQ_PC		32
--- 
-2.39.5
+> @@ -225,12 +248,8 @@ properties:
+>      additionalProperties: false
+> =20
+>      properties:
+> -      compatible:
+> -        const: ti,twl4030-pwrbutton
+> -      interrupts:
+> -        items:
+> -          - items:
+> -              const: 8
+> +      compatible: true
+> +      interrupts: true
 
+I think this should be
+    properties:
+      compatible:
+        enum:
+          - ti,twl4030-pwrbutton
+          - ti,twl6030-pwrbutton
+      interrupts:
+        maxItems: 1
+since we want to keep the widest constraints that apply at the outer
+level, rather than removing the constraints entirely.
+
+pw-bot: changes-requested
+
+Cheers,
+Conor.
+
+> =20
+>    watchdog:
+>      type: object
+> @@ -459,6 +478,11 @@ examples:
+>            #io-channel-cells =3D <1>;
+>          };
+> =20
+> +        pwrbutton {
+> +          compatible =3D "ti,twl6030-pwrbutton";
+> +          interrupts =3D <0>;
+> +        };
+> +
+>          rtc {
+>            compatible =3D "ti,twl4030-rtc";
+>            interrupts =3D <8>;
+>=20
+> --=20
+> 2.47.3
+>=20
+
+--AwBfcfdV42k/Lguc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaQPDvwAKCRB4tDGHoIJi
+0geGAQCUOfSydQ4hCeo0qguS5sInoT+gqjD5PYSMfQqcdg01ZQD+Nqjvu20sQwhz
+pZjtbtBlHG05Iohv3xX/fzZnXmFPzQo=
+=OvzN
+-----END PGP SIGNATURE-----
+
+--AwBfcfdV42k/Lguc--

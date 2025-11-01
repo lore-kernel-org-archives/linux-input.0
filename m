@@ -1,42 +1,42 @@
 Received: from relay10.grserver.gr (relay10.grserver.gr [37.27.248.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8336925A324;
-	Sat,  1 Nov 2025 10:47:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21D723E355;
+	Sat,  1 Nov 2025 10:47:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.27.248.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761994042; cv=none; b=rA+6QHasIgnSkTJYNqP2qOtKhU/T7GhoHzEa998SwB53o2xXla5AjqupOsSe1jWH1Q3xp7y+WpMh2Rmf22o/y6yuNnFoZx3U30H9Ti50rdtDN1hvcFd1LoabeUQr57zLRMQyw4ZuZCqZtfg58xZviJ+Apbb3QIuaqLhPOY9WZP8=
+	t=1761994042; cv=none; b=BjORtlYwDfWUL/IHSOzPDL7c+CiwKhXpY5luul8YxOQ/uwvryOiI6C8KAA2ttC9v+xjQqSNZuH+HFiQ40zQmVkiYJJKdWQhTIbhrWsswYl5xm1N0OQirPl09wUh7ycUBjdoe2qhhyoNDuOUbSNTFCSeYg6Uk1lEzLO2ViqmG86A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761994042; c=relaxed/simple;
-	bh=JSc2lszIEpD8a8iA0ZRn1mO2QvxcTabpcXabxiAfjVg=;
+	bh=qZNSB8N/A+v8k50MOtbjy9/8YdW8jGQAH6RO5wkg5Xs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KUr/NJbU/wZ+4ZAI6EIpSgXGP2P9sOoLLp+dzhtVUWyCwE7hU6tChdRcHGa8Oh0OWQAhOLluCLMCzGdJ/SV1DPdzM1hqGvObSapclV4fIDbG4Vbbq0N6JQqXu68x61boJHqCY35mBdp6DcZ9SheZMUNhqF7qcMRYiF+vuEw9Jys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=dX8A089H; arc=none smtp.client-ip=37.27.248.198
+	 MIME-Version; b=bA7wtGW5lxvhuWHXw4DhpkVfnXvc7rTZIEemsp1POv6vaTh//OZziLt2W46E5gk8KcV7s3hYJDp/QhyY4sJsraE7UAZpTII3mWNuzqwPQoiodK+X197rXyGJx+i0ZpLmaLSpLszHhAw9sqA5inzatRuW1OI1Z31Fa6ybGfTHy4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=B1JBuiv+; arc=none smtp.client-ip=37.27.248.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="dX8A089H"
+	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="B1JBuiv+"
 Received: from relay10 (localhost.localdomain [127.0.0.1])
-	by relay10.grserver.gr (Proxmox) with ESMTP id B62773F2B3;
+	by relay10.grserver.gr (Proxmox) with ESMTP id 06C9C3F23B;
 	Sat,  1 Nov 2025 12:47:18 +0200 (EET)
 Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by relay10.grserver.gr (Proxmox) with ESMTPS id 2DC993F243;
-	Sat,  1 Nov 2025 12:47:18 +0200 (EET)
-Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 227AB2007D3;
+	by relay10.grserver.gr (Proxmox) with ESMTPS id 446A13F2AF;
 	Sat,  1 Nov 2025 12:47:17 +0200 (EET)
+Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 3C5C31FDFA6;
+	Sat,  1 Nov 2025 12:47:15 +0200 (EET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1761994037;
-	bh=KQJAL9Vr0SDfU+v0XB50ssK/poRqYcE+jczWSdGO4Jk=; h=From:To:Subject;
-	b=dX8A089H/P+tK/cL5hJuB4q0ftLdZy6WwrCH+nqZJuge3kEmhTkDg/jf17BDA2Nij
-	 vSEBlwkQ2Sdgu8O0UtUljfRYk4utA1v/5Tcj5UQ9rq44TwVR7dv33U2OkTJm4zbm+n
-	 CtWCvwjFjo2p16oXtNs52bJsL9x8agnVV76rS83/gKhN7ywIfvT1xpix5eHjoKJoHw
-	 1mGU6BvsUoTjYFVYplvb6l/rHIu37aT0eQgydYOXtib+jJMr192N8jP/wrs8p2BHD1
-	 WFfW971YvF3XswQ3N+gdhYTRE1r1aHE7BFwrVfyZOx+y2+XetBtkm8kyr+OeRtYK4a
-	 /iltvNw+sSI/w==
+	s=default; t=1761994036;
+	bh=4XeEM2YT0PMFF4GTcrUqHusx4GHSY2qqSp0o9BBPPhI=; h=From:To:Subject;
+	b=B1JBuiv+1peJX50fiaCNdhJOx+7FtIgce+c/biFBqkgNgGdttJwuXL39TeNxnXQ2v
+	 bRK+oO1jgQRlqJHob/0WcFM1tf/XzehzGBwslJjTvw3FwClhpILmTPCwIOztJojgf3
+	 NkAFsIrzQpQL2TFD0TgDrGJV9q0HAxazSOiPGVgX0e9GmOoNYR6OazEAtrDXj1FUcO
+	 jGVbu0ibsnz1fuSCO2Rgp6AWmk1/j0cQLNGI0AuPolERQSONDNMa4A9LgSt9Hx9Hhr
+	 0BZc66+Om+OOU0NQoQFMSIFbS92qQU+uNBlq+lA/8kSEJBK9uqMk1naNxGgwKZU50t
+	 S7wmAInRDFang==
 Authentication-Results: linux3247.grserver.gr;
 	spf=pass (sender IP is 2a05:f6c2:511b:0:8d8a:5967:d692:ea4e) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
 Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
@@ -52,9 +52,9 @@ Cc: linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <benato.denis96@gmail.com>,
 	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v8 03/10] HID: asus: fortify keyboard handshake
-Date: Sat,  1 Nov 2025 11:47:05 +0100
-Message-ID: <20251101104712.8011-4-lkml@antheas.dev>
+Subject: [PATCH v8 02/10] HID: asus: use same report_id in response
+Date: Sat,  1 Nov 2025 11:47:04 +0100
+Message-ID: <20251101104712.8011-3-lkml@antheas.dev>
 X-Mailer: git-send-email 2.51.2
 In-Reply-To: <20251101104712.8011-1-lkml@antheas.dev>
 References: <20251101104712.8011-1-lkml@antheas.dev>
@@ -66,85 +66,35 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <176199403767.3745641.5832137544554412432@linux3247.grserver.gr>
+ <176199403677.3745607.11326383290476525437@linux3247.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
 X-Virus-Status: Clean
 
-Handshaking with an Asus device involves sending it a feature report
-with the string "ASUS Tech.Inc." and then reading it back to verify the
-handshake was successful, under the feature ID the interaction will
-take place.
-
-Currently, the driver only does the first part. Add the readback to
-verify the handshake was successful. As this could cause breakages,
-allow the verification to fail with a dmesg error until we verify
-all devices work with it (they seem to).
-
-Since the response is more than 16 bytes, increase the buffer size
-to 64 as well to avoid overflow errors.
+Currently, asus_kbd_get_functions prods the device using feature
+report report_id, but then is hardcoded to check the response through
+FEATURE_KBD_REPORT_ID. This only works if report_id is that value
+(currently true). So, use report_id in the response as well to
+maintain functionality if that value changes in the future.
 
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/hid/hid-asus.c | 32 +++++++++++++++++++++++++++++---
- 1 file changed, 29 insertions(+), 3 deletions(-)
+ drivers/hid/hid-asus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 4676b7f20caf..03f0d86936fc 100644
+index 7ea1037c3979..4676b7f20caf 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -48,7 +48,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define FEATURE_REPORT_ID 0x0d
- #define INPUT_REPORT_ID 0x5d
- #define FEATURE_KBD_REPORT_ID 0x5a
--#define FEATURE_KBD_REPORT_SIZE 16
-+#define FEATURE_KBD_REPORT_SIZE 64
- #define FEATURE_KBD_LED_REPORT_ID1 0x5d
- #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+@@ -422,7 +422,7 @@ static int asus_kbd_get_functions(struct hid_device *hdev,
+ 	if (!readbuf)
+ 		return -ENOMEM;
  
-@@ -393,14 +393,40 @@ static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t bu
- 
- static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- {
-+	/*
-+	 * The handshake is first sent as a set_report, then retrieved
-+	 * from a get_report. They should be equal.
-+	 */
- 	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
- 		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	u8 *readbuf;
- 	int ret;
- 
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
--	if (ret < 0)
--		hid_err(hdev, "Asus failed to send init command: %d\n", ret);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to send handshake: %d\n", ret);
-+		return ret;
-+	}
-+
-+	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	if (!readbuf)
-+		return -ENOMEM;
-+
+-	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
 +	ret = hid_hw_raw_request(hdev, report_id, readbuf,
-+				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
-+				 HID_REQ_GET_REPORT);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to receive handshake ack: %d\n", ret);
-+	} else if (memcmp(readbuf, buf, sizeof(buf)) != 0) {
-+		hid_warn(hdev, "Asus handshake returned invalid response: %*ph\n",
-+			FEATURE_KBD_REPORT_SIZE, readbuf);
-+		/*
-+		 * Do not return error if handshake is wrong until this is
-+		 * verified to work for all devices.
-+		 */
-+	}
- 
-+	kfree(readbuf);
- 	return ret;
- }
- 
+ 				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+ 				 HID_REQ_GET_REPORT);
+ 	if (ret < 0) {
 -- 
 2.51.2
 

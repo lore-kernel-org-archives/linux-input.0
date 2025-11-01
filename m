@@ -1,96 +1,171 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 055FF15687D
-	for <linux-input@vger.kernel.org>; Sat,  1 Nov 2025 05:58:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFF5202976;
+	Sat,  1 Nov 2025 10:47:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.46.171.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761976738; cv=none; b=uSE04EsKdkp7eypjwzbzxi+xRUvu5Dr41vX1HCyTSpYelBqwSSOCitwgtdUnjDwKqnlRN25MTKE7M9b9fr1F5eW5vgbjgBuMW8VogdoRynwODYtCOqZsAwLM74iidgIYlxYlFvsTAaxEWfJADHYV3k9XFa0jXu8HYUik7+54Ghk=
+	t=1761994040; cv=none; b=soLjB6HGttMY6FjARoFJtAAp0rf70wflTZsgF5A5WPrz3BgV9aIh6ivj1enwhA1si9y5zYLpbW9a5nZs9AU3UxaP5Gkxq/dCXi77/LHdRYAmOr/Ev4Ou23+hevcTQqhFc6GxnkrLAdQc6SEyjHckyrYB7TbPS+9eekarrW9xJvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761976738; c=relaxed/simple;
-	bh=hCyOfjed8ys3sBOIK1DAMnBwEqnA/5RbGrLTogfpar4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lbsmk04xwrLITiYn82yPUIT7hWysx7Ot8eQV+dyOSXE5bvIb8yAVlHqNxXgyE/984EsXhN4MlACu8PXhET9dFv3OvyQVPq8dHG6WTMIfwT4lTslecT5EMHK2046R4ua/bzbhBwLooUJzVYYmFt5+MvDo0mB60sMmMcihTRzat+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=YM77R2JI; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1761994040; c=relaxed/simple;
+	bh=UjOuX9/BbnJ9RsEIAnt1Ieid0/6suaQQrzhkfQxv8cE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Am6HnrOnAAtTLVCnTE8Ab/XVFan8CEefhrN0+1mlsZ7K2ZTxaZHVpVrGuOvrjUTafAsNBKoOWAopNONLut3y8qPwBhNu5rTLEgfOOYf2rMB/A3ZSJh9zdkIyqJVNdPLhEKmBL/H3xBZI7l4mTJjJpik5CwFql1E2Qd6OXCUnXOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=S7netvRH; arc=none smtp.client-ip=78.46.171.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="YM77R2JI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1761976339; bh=hCyOfjed8ys3sBOIK1DAMnBwEqnA/5RbGrLTogfpar4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YM77R2JIN8zruN4Cq/yv1hM4axPnBOoBi4t96S/eoK4j3X/CrwsGoBfGQ1q5SxlXw
-	 eg+EGk4Wfo2jKKrB0vLcXCoMKJIPzcJ5CqvIH3nR+OhQu24naC39dmdPAqc+h1RGju
-	 ojP9ZVKEUCmVcf6T4d+uqOHClqKXuIjFpf/MDulXrLJWiB8GWKjfwmLTzb5CIkhLOi
-	 ECU8qz/yAbzciUJDsBqplVyKr3wN/C3fuPFrR3QIRCPRExQk0SLcrPVdCH3ZcAMVxB
-	 LGnDDACbRLPqef0lZqTH5Y4496kkEaKb6sbtUCFRTPuYnbqZSk3VKb7c+aPJAUzrUh
-	 h4mmnUCjIa/xA==
-Received: from [192.168.0.22] (71-212-14-89.tukw.qwest.net [71.212.14.89])
-	by endrift.com (Postfix) with ESMTPSA id D0BDEA01E;
-	Fri, 31 Oct 2025 22:52:18 -0700 (PDT)
-Message-ID: <b8933438-fd43-4e58-a26d-0febb27911c4@endrift.com>
-Date: Fri, 31 Oct 2025 22:52:18 -0700
+	dkim=temperror (0-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="S7netvRH"
+Received: from relay11 (localhost.localdomain [127.0.0.1])
+	by relay11.grserver.gr (Proxmox) with ESMTP id 673FAC113D;
+	Sat,  1 Nov 2025 12:47:16 +0200 (EET)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay11.grserver.gr (Proxmox) with ESMTPS id EB6CFC10FB;
+	Sat,  1 Nov 2025 12:47:15 +0200 (EET)
+Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 16B3F2007D3;
+	Sat,  1 Nov 2025 12:47:15 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1761994035;
+	bh=f4GerbM+Sf2qFfTt4Gnn+zyb5DwLrfXW+1y82PL91aQ=; h=From:To:Subject;
+	b=S7netvRHMHutfVWQTB/XTr75wjfAaKIjcgJb552SUskji6ibes/azwBZ/+tJKG/xe
+	 xS2n1k9roPmzEWgTwY+MXKISnd+8X5ORe8v9Y8sgjC7YVMkGGl6exOi3BvLfUchadn
+	 2ksy/u75Vg2rz9zFj4XCIFPgYz7MOBltq/tzuwP8DFCjEv6CMP7HBBux4lz74BkZAC
+	 VZBkPNS7+0ezMflarUp7GLfapZAX1EvSZM7q0rzrmMHZv0rlAqwObrnm/AD5b+xFXj
+	 SM6YQoV4WQsZQNutBsqCSfTJ8sHW1LsoNruFLuDaXYgf/CeSB9TWRrqtyF6NmCqaqO
+	 1v40POmfYQsdw==
+Authentication-Results: linux3247.grserver.gr;
+	spf=pass (sender IP is 2a05:f6c2:511b:0:8d8a:5967:d692:ea4e) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+From: Antheas Kapenekakis <lkml@antheas.dev>
+To: platform-driver-x86@vger.kernel.org,
+	linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Corentin Chary <corentin.chary@gmail.com>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Denis Benato <benato.denis96@gmail.com>,
+	Antheas Kapenekakis <lkml@antheas.dev>
+Subject: [PATCH v8 01/10] HID: asus: simplify RGB init sequence
+Date: Sat,  1 Nov 2025 11:47:03 +0100
+Message-ID: <20251101104712.8011-2-lkml@antheas.dev>
+X-Mailer: git-send-email 2.51.2
+In-Reply-To: <20251101104712.8011-1-lkml@antheas.dev>
+References: <20251101104712.8011-1-lkml@antheas.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: xpad - Change buttons the D-Pad gets mapped as to
- BTN_DPAD_*
-To: Cameron Gutman <aicommander@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-References: <20250702034740.124817-1-vi@endrift.com>
- <bwun7yd3uwp3cqicg2euq5swxespqjiizxlioohgdk43emzwue@hzyz7gn4vfqb>
- <CAAfxzZ0p=2REL8fhnxe5HwpPK6U7Cat7euMcRnWvUnknrok3sA@mail.gmail.com>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-In-Reply-To: <CAAfxzZ0p=2REL8fhnxe5HwpPK6U7Cat7euMcRnWvUnknrok3sA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-PPP-Message-ID: 
+ <176199403562.3745545.346681419463454916@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
+Currently, RGB initialization forks depending on whether a device is
+NKEY. Then, NKEY devices are initialized using 0x5a, 0x5d, 0x5e
+endpoints, and non-NKEY devices with 0x5a and then a
+backlight check, which is omitted for NKEY devices.
 
+Remove the fork, using a common initialization sequence for both,
+where they are both only initialized with 0x5a, then checked for
+backlight support. This patch should not affect existing functionality.
 
-On 10/31/25 8:18 PM, Cameron Gutman wrote:
-> On Sun, Jul 27, 2025 at 3:23 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->>
->> On Tue, Jul 01, 2025 at 08:47:40PM -0700, Vicki Pfau wrote:
->>> Since dance pads can have both up/down or left/right pressed at the same time,
->>> by design, they are not suitable for mapping the buttons to axes. Historically,
->>> this driver mapped the D-pad to BTN_TRIGGER_HAPPY1-4 in these cases, and before
->>> that as mouse buttons. However, BTN_DPAD_* exists for this and makes far more
->>> sense than the arbitrary mapping it was before.
->>>
->>> Signed-off-by: Vicki Pfau <vi@endrift.com>
->>
->> This unfortunately changes existing mappings, but I guess new events are
->> better than old ones...
->>
->> Applied, thank you.
-> 
-> Unfortunately this mapping change caused major userspace breakages.
+0x5d and 0x5e endpoint initializations are performed by Windows
+userspace programs associated with different usages that reside under
+the vendor HID. Specifically, 0x5d is used by Armoury Crate, which
+controls RGB and 0x5e by an animation program for certain Asus laptops.
+Neither is used currently in the driver.
 
-This is unfortunate, however,> 
-> I think it needs to be reverted.
-> 
-> [0]: https://blog.dwickham.me.uk/why-your-xbox-360-wireless-controllers-d-pad-is-now-wrong-and-how-to-fix-it
-> [1]: https://github.com/libsdl-org/SDL/issues/14324
-> [2]: https://github.com/libsdl-org/SDL/pull/14339
+Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
+---
+ drivers/hid/hid-asus.c | 56 ++++++++++++++----------------------------
+ 1 file changed, 19 insertions(+), 37 deletions(-)
 
-None of these pages suggest reverting the changes. The blog post suggests that these mappings are correct, and that the libraries need to be fixed. Reverting it is mentioned as an absolute last case scenario. The SDL issues say they need more testing, not an outright reversion.
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index a444d41e53b6..7ea1037c3979 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -638,50 +638,32 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 	unsigned char kbd_func;
+ 	int ret;
+ 
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
+-		/* Initialize keyboard */
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+-		if (ret < 0)
+-			return ret;
+-
+-		/* The LED endpoint is initialised in two HID */
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
+-		if (ret < 0)
+-			return ret;
+-
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID2);
+-		if (ret < 0)
+-			return ret;
+-
+-		if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
+-			ret = asus_kbd_disable_oobe(hdev);
+-			if (ret < 0)
+-				return ret;
+-		}
+-
+-		if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
+-			intf = to_usb_interface(hdev->dev.parent);
+-			udev = interface_to_usbdev(intf);
+-			validate_mcu_fw_version(hdev,
+-				le16_to_cpu(udev->descriptor.idProduct));
+-		}
++	ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
++	if (ret < 0)
++		return ret;
+ 
+-	} else {
+-		/* Initialize keyboard */
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+-		if (ret < 0)
+-			return ret;
++	/* Get keyboard functions */
++	ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
++	if (ret < 0)
++		return ret;
+ 
+-		/* Get keyboard functions */
+-		ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
++	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
++		ret = asus_kbd_disable_oobe(hdev);
+ 		if (ret < 0)
+ 			return ret;
++	}
+ 
+-		/* Check for backlight support */
+-		if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
+-			return -ENODEV;
++	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
++		intf = to_usb_interface(hdev->dev.parent);
++		udev = interface_to_usbdev(intf);
++		validate_mcu_fw_version(
++			hdev, le16_to_cpu(udev->descriptor.idProduct));
+ 	}
+ 
++	/* Check for backlight support */
++	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
++		return -ENODEV;
++
+ 	drvdata->kbd_backlight = devm_kzalloc(&hdev->dev,
+ 					      sizeof(struct asus_kbd_leds),
+ 					      GFP_KERNEL);
+-- 
+2.51.2
 
-Reverting this is solely reverting to an old, uncomfortable status quo instead of actually fixing the things that broke. If this gets reverted, presumably more stuff will ship this broken code that will break if we ever fix this issue again, instead of things getting progressively fixed.
-
-The abandonware being broken is unfortunate, but things like Steam Input exist specifically to work around issues like that.
-
-> 
->>
->> --
->> Dmitry
->>
-
-Vicki
 

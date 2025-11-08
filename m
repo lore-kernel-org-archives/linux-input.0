@@ -1,123 +1,123 @@
-Received: from sgoci-sdnproxy-4.icoremail.net (sgoci-sdnproxy-4.icoremail.net [129.150.39.64])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 20F1023183A;
-	Sat,  8 Nov 2025 12:40:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.150.39.64
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A09E61C861A
+	for <linux-input@vger.kernel.org>; Sat,  8 Nov 2025 14:13:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762605653; cv=none; b=mL+e0vwKbLq66wBEH53ehsz1QOmaGE3fVWZKIjGTI75Nfo1N7sEmKDTqvA7lXIkrhkxwxjYeQv6pnQeTsUilEITRfO8r9VPDJV065YucJx1FCEinmTFS1zOa2uKL1F2CJVLAG0BBhB2N68DgmdB4fZ7XbE5W0+boOelouEpPeuM=
+	t=1762611194; cv=none; b=JAKZBqlFiF9EFXeiAlB6yOEYhSyP1Zvnyep5jEN66C7djA1o2me5skr2LSuIaeFAlc9mYIvRwbNxbDyDh5vUpkjoPKVdgwuK93mb3Awyft7/U0oDTGCTzJiOy4chBPkZSqboooNSI8xydRPPhaxf5eGvyMaLBhrZbHTYGd2LFtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762605653; c=relaxed/simple;
-	bh=2rw+rkdj3yN6rzvCs3IaZNjqc7yQs7hTgHGNs4Cd4Jg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=WsjaMvWH+q0RvvR0WOIgIUd7l2Gph4+/2IPYj4RVC4yGYW5wRp5NtGKbBMwoAFwLhw9An5fvZgIN9umAAEaho49WcUJmmIcteVWfn2QSDNVluQDL6hRttwiLgjL+JBptJoFtk7i22ujPBNRsu8Wb8a/FtNIf2Cd10L4NUMPUwxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn; spf=pass smtp.mailfrom=zju.edu.cn; arc=none smtp.client-ip=129.150.39.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from zju.edu.cn (unknown [218.12.19.144])
-	by mtasvr (Coremail) with SMTP id _____wBnt7A0Og9pzl92Aw--.10193S3;
-	Sat, 08 Nov 2025 20:40:20 +0800 (CST)
-Received: from ubuntu.localdomain (unknown [218.12.19.144])
-	by mail-app3 (Coremail) with SMTP id zS_KCgCXmm0oOg9pT2gFBA--.8637S3;
-	Sat, 08 Nov 2025 20:40:19 +0800 (CST)
-From: Duoming Zhou <duoming@zju.edu.cn>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	kuba@kernel.org,
-	alexander.deucher@amd.com,
-	pali@kernel.org,
-	hverkuil+cisco@kernel.org,
-	akpm@linux-foundation.org,
-	andriy.shevchenko@linux.intel.com,
-	tglx@linutronix.de,
-	mingo@kernel.org,
-	Jonathan.Cameron@huawei.com,
-	Duoming Zhou <duoming@zju.edu.cn>
-Subject: [PATCH 1/2] Input: alps - fix use-after-free bugs caused by dev3_register_work
-Date: Sat,  8 Nov 2025 20:40:04 +0800
-Message-Id: <09288a7a69cac4eff8165c59007c3d91ad08cb44.1762604516.git.duoming@zju.edu.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1762604516.git.duoming@zju.edu.cn>
-References: <cover.1762604516.git.duoming@zju.edu.cn>
+	s=arc-20240116; t=1762611194; c=relaxed/simple;
+	bh=wZNNbZV1e8ssMYWThHII56kh9E/cv0pc38q5OAO3aOw=;
+	h=Date:Message-Id:From:To:Cc:Subject:Content-Type:MIME-Version; b=MG4qlFY/bV114JtGL9chKbgYK9VsMS1aiepp1xMtuSrKJRYPeAV6RhcJMDK/az1eqUq2iSrpIHj7rs9MRaqGwcuGmhk9GSw0WecbiUsxP8TageLK0KNak+lvFmIKMEIBS1m44w20OS1ZE54GDDEEHdnaKt1c+y4e+xVcMj8eQso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nathanrossi.com; spf=pass smtp.mailfrom=nathanrossi.com; dkim=pass (2048-bit key) header.d=nathanrossi.com header.i=@nathanrossi.com header.b=S+WZFxIp; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nathanrossi.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nathanrossi.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=nathanrossi.com header.i=@nathanrossi.com header.b="S+WZFxIp"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2957850c63bso16513765ad.0
+        for <linux-input@vger.kernel.org>; Sat, 08 Nov 2025 06:13:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nathanrossi.com; s=google; t=1762611192; x=1763215992; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:subject:cc:to:from
+         :message-id:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=AiXbpzd3bIjWXSPGISfM4gyeG5qjOlx+rSwjrBCzc6o=;
+        b=S+WZFxIpxHZdk4Fzuycim0xx5YyTUVmgrANev2BFEsqUM8IbiNhzaPbsdAsO2n299s
+         kAfC9NnhwGY4rP27AUS/xpH3RYeFVcdvj0t/zz6h4mfjK44H9T3NtWnXurtjzabnCLPz
+         kMX514tP7MBWAHCHfvjOCesUcTS+Z6MEUL1iQRD1c4Eu1q6xHzaYjUMBJWqsFEAQ/Vsf
+         1u6o3RITYsYd9fy2/YzlhEFwntVTZZPuadW5pS//D2qbvQv1P8mjlz1GDgQJi0FpWzuy
+         AajhAgLSVgP9Am/eiATL8Cclpc5CpoVdj05P+82CIIYmgf+5+XMF2zlOzDktgucfyLUB
+         AiRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762611192; x=1763215992;
+        h=mime-version:content-transfer-encoding:subject:cc:to:from
+         :message-id:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AiXbpzd3bIjWXSPGISfM4gyeG5qjOlx+rSwjrBCzc6o=;
+        b=tkkSHKFriXkkRj33ekbdlrSOAg8fB8xpuDyKckFqaLQEopFJY5jKlWWnGwVQFJHvEc
+         1NVx0MJ0Og+7cMSIph2j5MbMjoGC8jqyicLzUGGd9zllVzNHyXDcS+SMBwI+4sDCIbSH
+         FdEw/xqNhlXG2ZkrVCi0nkKmDQn5GCUqpslOdNYXTdDhBKKJ8sPOHg/G8nJWjUKlsups
+         doxbTT4VYXvDf42i5Krz4zqyqNsBEGWatSBSrIHYaFcV/q9mXEJx/Nu09bbFL6/lcxBA
+         DPQgY6PNMetd+LCLFMGkAC4oaXcfmMGUuX+N8syOX4iKMC4u3e8Q4Ne1phg6QafTsb1u
+         EuNA==
+X-Forwarded-Encrypted: i=1; AJvYcCXqFOODjTXlXfhuFCCnq76G60NZsWoV4jAyAn9Z6QnTnuqMORPHtX5y9z/9FxDBOnu25fAKY7jCUlEEEQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyEpHsZbxbEcv1lEhMRPyIPlmlt9zqfCEEPvJ1VQZezdCr2xHg7
+	RZp6LKsWvo5tFsZM9E/BrSdiHhjnWD7GmBSZ3CY37RMjaK3v767xQ6KA+jU7UROdhQ==
+X-Gm-Gg: ASbGncu0V5d0bL/ye1jf/TbhffJitx2LxrZFJ7VqkruCyK6flKtY3DDNJjFqTpyrRdS
+	Ic+y9EWqjOpmQBZhMX8a/IgOWJa0ZV2FxONh7STAbkza+dR9e03rKXch9hkme+peo9LQxuhbhLA
+	VmenLh5O8yat1lLf6kA9Bl043vkBGf0YBhf1Ino6wsSz4dwLIb/vG3KtdW2S08LaeG/Ts06IG/R
+	xHOliNWDiju1q33PGDC4YwPg8u4/OLAeAYicHR/Zhp06XhlBU7YzJqu1TPRkT9x68enb0nPzVvq
+	Jm1nCr/k8oW927VixLG+qawef6xBs+22o6HrhtVXmTP+SYWHvZpxGFO+Ttz83ttU3Bcb5b3cnZE
+	ZWkJDuyqgNT16IXd+gvF4dauPZ+CCa+Lyr4A+7w8/FvaVT8SjAebAnGjxoVYa7p3TfWSqNT9GBg
+	r5Epb7R91zkVBnxmaW54/iqa3fsuHsvBiCsw8oOzZuBCx/vrIbQA==
+X-Google-Smtp-Source: AGHT+IFYoVKN7RXzMH2xZdzQ2rIpGtAnIJTVwkAnY47V2DgRk614nU5oM9Y7Z1tcV+omkfnlHtPGcg==
+X-Received: by 2002:a17:902:f707:b0:295:6850:a38d with SMTP id d9443c01a7336-297c95b383emr61436335ad.19.1762611191644;
+        Sat, 08 Nov 2025 06:13:11 -0800 (PST)
+Received: from [127.0.1.1] (117-20-68-151.751444.bne.nbn.aussiebb.net. [117.20.68.151])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-29651cc1907sm90616035ad.99.2025.11.08.06.13.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 08 Nov 2025 06:13:11 -0800 (PST)
+Date: Sat, 08 Nov 2025 14:13:00 +0000
+Message-Id: <20251108141300.3402380-1-nathan@nathanrossi.com>
+From: Nathan Rossi <nathan@nathanrossi.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Nathan Rossi <nathan@nathanrossi.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ Filipe =?utf-8?q?La=C3=ADns?= <lains@riseup.net>
+Subject:
+ [PATCH] HID: logitech-dj: Add support for G Pro X Superlight 2 receiver
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zS_KCgCXmm0oOg9pT2gFBA--.8637S3
-X-CM-SenderInfo: qssqjiasttq6lmxovvfxof0/1tbiAwEEAWkOS38IiQAesL
-X-CM-DELIVERINFO: =?B?vqiUcwXKKxbFmtjJiESix3B1w3uoVhYI+vyen2ZzBEkOnu5chDpkB+ZdGnv/zQ0PbP
-	CR19gUWg51OTK/19Jr+UF/FUwRSaRD0WGHGtwP4B0xtPK5MJGYnQQSPXJzzHb08SP3Ifsr
-	LzoIPSHD6BgCJK/90564eUQdYk7E7xu/5wSiWafEmaZ5GpA+trGDNppg471Gng==
-X-Coremail-Antispam: 1Uk129KBj93XoW7Ww13JryrCFy3Gr47WF4Dtrc_yoW8tFW7pF
-	W5WF98G3ykW34Fka1DXF4UZFWFkwnFv343Gr1kW39xtwn8JFyYqr48tF9Yga4rKrZ5Ar47
-	ArZrZ39xZFWvywcCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUU9Eb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AK
-	xVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
-	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAF
-	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0Y48IcxkI7V
-	AKI48G6xCjnVAKz4kxM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI7VAKI48JMxC2
-	0s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI
-	0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE
-	14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20x
-	vaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8
-	JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1yrW5UUUUU==
 
-The dev3_register_work delayed work item is initialized within
-alps_reconnect() and scheduled upon receipt of the first bare
-PS/2 packet from an external PS/2 device connected to the ALPS
-touchpad. During device detachment, the original implementation
-calls flush_workqueue() in psmouse_disconnect() to ensure
-completion of dev3_register_work. However, the flush_workqueue()
-in psmouse_disconnect() only blocks and waits for work items that
-were already queued to the workqueue prior to its invocation. Any
-work items submitted after flush_workqueue() is called are not
-included in the set of tasks that the flush operation awaits.
-This means that after flush_workqueue() has finished executing,
-the dev3_register_work could still be scheduled. Although the
-psmouse state is set to PSMOUSE_CMD_MODE in psmouse_disconnect(),
-the scheduling of dev3_register_work remains unaffected.
+The Logitech G Pro X Superlight 2 has a lightspeed receiver with a
+product id of 0xc54d, this receiver behaves like the receiver used in
+the original Logitech G Pro X Superlight (id 0xc547) including the 13
+byte mouse reports.
 
-The race condition can occur as follows:
+This change adds a definition for this receiver id, and a mapping for
+the recvr_type_gaming_hidpp_ls_1_3 type. With this change in place the
+receiver now reports the battery status of the connected mouse over
+wireless as well as exposing the HID interface needed for userspace to
+perform additional configuration with libratbag/Piper.
 
-CPU 0 (cleanup path)     | CPU 1 (delayed work)
-psmouse_disconnect()     |
-  psmouse_set_state()    |
-  flush_workqueue()      | alps_report_bare_ps2_packet()
-  alps_disconnect()      |   psmouse_queue_work()
-    kfree(priv); // FREE | alps_register_bare_ps2_mouse()
-                         |   priv = container_of(work...); // USE
-                         |   priv->dev3 // USE
-
-Add disable_delayed_work_sync() in alps_disconnect() to ensure
-that dev3_register_work is properly canceled and prevented from
-executing after the alps_data structure has been deallocated.
-
-This bug is identified by static analysis.
-
-Fixes: 04aae283ba6a ("Input: ALPS - do not mix trackstick and external PS/2 mouse data")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Nathan Rossi <nathan@nathanrossi.com>
 ---
- drivers/input/mouse/alps.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h         | 1 +
+ drivers/hid/hid-logitech-dj.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index d0cb9fb9482..df8953a5196 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -2975,6 +2975,7 @@ static void alps_disconnect(struct psmouse *psmouse)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index aa3ceef3016e..e06f5088202b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -917,6 +917,7 @@
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1	0xc53f
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2	0xc543
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_3	0xc547
++#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4	0xc54d
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY	0xc53a
+ #define USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER	0xc548
+ #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index d66f4807311a..d39a4c1073ad 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -2091,6 +2091,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_3),
+ 	 .driver_data = recvr_type_gaming_hidpp_ls_1_3},
++	{ /* Logitech lightspeed receiver (0xc54d) */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4),
++	 .driver_data = recvr_type_gaming_hidpp_ls_1_3},
  
- 	psmouse_reset(psmouse);
- 	timer_shutdown_sync(&priv->timer);
-+	disable_delayed_work_sync(&priv->dev3_register_work);
- 	if (priv->dev2)
- 		input_unregister_device(priv->dev2);
- 	if (!IS_ERR_OR_NULL(priv->dev3))
--- 
-2.34.1
-
+ 	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
+---
+2.51.0

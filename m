@@ -1,120 +1,181 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E0B27FD5A
-	for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 09:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9543D355053
+	for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 10:57:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762852575; cv=none; b=ElzIVSAotQlB4rVbWMP7zl85lVkUgPnX4N1sRwVJZMIN6eCbWzEWrlF2L8O0P/caOhqSEwgxTe8Q6VMq4+TNPVw4qCBM3I+ucnMZ1FbizFhcemJv6lP+i9rIiEzrhwJ40Tr2CeeefmstPbPZPizhWHj3aHm0aGwnik6BbB8pz9o=
+	t=1762858648; cv=none; b=DbLiRCPdoinjT+tSsorJEFqqvE3MSYlcRPILCW/U+2hDPKGMO6no8XIiqyoL2MlO2nuMX+ArVcv61ADPDgST+pjQfnourOag2+0thwa/l+eox/5Ax4HJRw7SfNh+SdYRTf3pQmUnHJXxZ3zgnvpkO2KaQeR8Ghk23o7E/sBDrhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762852575; c=relaxed/simple;
-	bh=hnP6MvOjehHku2Mba8SR807PCuY5/tHtJ5RDALFOZKo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=froI1KZCQ/AFOLa8pnr+kDbXikO7RaIV3ruImER4C4n5f2CiI6y48qZ/OZ0gvVHwzDBO7BwLh5AdoqGX/UOvAog8MU4LVrB6z2+5NRbZzMD2C+2jYDlTk0ySj9hNXqp5abTodR1St3RYnNp9MCx4FDvIiqaAGAiE+ta+n4OMeis=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=DBvI1/9C; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1762858648; c=relaxed/simple;
+	bh=NYhtfUxZT1YXAcAQF0qWwjxLnb4vU/OkwMpSzLBjlsI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HwyKycupuwj68NxW5jtGEPrcw5hXmaDKQixVvrJWDKqYJS1GWuyspQzNHicbArkZThw4QBPLGB2T/1JbpeVST5nMmH1ZW7eiaxzquJBNDXpf4UA5kBgAZPCx8zT0Y4ykbO0XM07ZfCbVvqC7ifffp2zVF+HpKTgBAFTdVRd5PQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ngxyr4HG; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=fHCsfdWQ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="DBvI1/9C"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-b729a941e35so509628666b.3
-        for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 01:16:13 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ngxyr4HG";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="fHCsfdWQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762858645;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=lLXbfdbNy9/hvVp5w0asRQYfVq1o80iFeNQJCAkbC5k=;
+	b=Ngxyr4HGahZzy288KG8M8EJ2+MHfaAF9foqVEfu/dt5diZDEeknZpgi9DC7ZnKD6/SMd1e
+	fgJrJtRppbR1Pgx42BRuSocbw61ZzHewO4Q9aKS5C6FeQm+V037Txd4IcdDnRgCujCuP3/
+	1wzjSFrbErJPSWtxtRiHeq3brei8e8I=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-359-0um8RuTOMVKZ08y1nnaXCw-1; Tue, 11 Nov 2025 05:57:24 -0500
+X-MC-Unique: 0um8RuTOMVKZ08y1nnaXCw-1
+X-Mimecast-MFC-AGG-ID: 0um8RuTOMVKZ08y1nnaXCw_1762858643
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-429c5f1e9faso3051316f8f.3
+        for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 02:57:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1762852572; x=1763457372; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QWPP6QWzDSQG2koCI4Uqgz32StVhYVJIJ4zaGLtn5t8=;
-        b=DBvI1/9Cy/Xuo1tGlbGlyjwRNz4devwwNzyXWJciRnnEbqbrLe5vcTd21Xy1XdI8Bu
-         RHDcT7W01ks4xNszoI0cv70IqdezTFruyOxzgoEIZyFF9GarzzSjoS6K9DUOYwwkfIbp
-         6k3ycOs+p2NH80Irorxuvk7WIGgz8TU+H/tL4ZKfG52GgEMb7aOQ/CKVT1bFPkxAmump
-         RPv1zqxxCBefUdx27KqeN7qCv8v23oncF6jqlJvb6fhRMdE0MqgCGDWL06RFn8+mRG3U
-         EkOIEAb8eE0SDX0B0SD4BzPZHFivRjaEjo84o3LZn1kXQFavcFwHpBOxFSbnWjRcasaE
-         nbgA==
+        d=redhat.com; s=google; t=1762858643; x=1763463443; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lLXbfdbNy9/hvVp5w0asRQYfVq1o80iFeNQJCAkbC5k=;
+        b=fHCsfdWQ3V4PBbz4jsTDxqBxNxltb39q51RMs6y2unPRDs/4gLxyU9wAZN9NbrVMa2
+         fw9tKqEA8J2NZbg/UIjs5dqof8uP2GgQewuru7uln9bOCfNmxSTcQhSm7nHV73w5Nj9R
+         jrvJhda3jm/RAkuqxD55Uns7NzSVvdwnAj0caoLgKvK/s5v+dzSggU7bJzaX4MIgKlcd
+         7faF6pwutADlu5/foyrb6Q0Iisv6pzGgpicddWZE5OwouaEjoOiMnJdzP4jPiJS3El2+
+         cVA7S66R6oQEBiikh+p57l3HJZGfzdYEobhoJJYYwpyENi7JgwdXn0/x6Y1r3jPHY59r
+         LG7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762852572; x=1763457372;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QWPP6QWzDSQG2koCI4Uqgz32StVhYVJIJ4zaGLtn5t8=;
-        b=c/lAOKxUCZhtPPyeqh0ipaCsFGQUhs9s9PsYlUcnyjJ09awR/Z9wQSMwd9n1+j9UIE
-         +XdF6jwQSt5NcRoCdWdtNdAOkKqdvZv1cnWhjsoaPZWWWMrbXpHOGLbRJDTHsNUyVp1r
-         +2zA+PudThHDtgWZeRYOYh2jCEWhwtp4nP1jPTNXdcah1+slfxa8jxzaS3LJs/wAynUn
-         x2rtqZwQkbRDyJVW8hvqcaM9w5at1/o6C/dFpUpL/4+C6bLz38QNyxb2ECE6KWCO0KXp
-         scPQPUnBBwjmecoSvJZ4csB7Xet1/9HPPXxYQp1GgWLGXTu1l8yf8jGeFBrJAsBMeqat
-         YvAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUbtkFyFfPOUrax8BjvV1gh0nDsblbfzrwHSPGzLCtJP6XeylsN68wIm4E3YyoWf8K7U62Fzi8Y1tSung==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYMaemej8fkNtlwxGlkYGd2x454U/XhcYdGCrzZpkN+z+XGFPT
-	UC+L3pmn0V9LIR3NdxxNTpsgDswtYf3bGv8hEgKArQceTOFNyUn7gjo5Eno9IOzvuNBYEAeFGSv
-	d0E01
-X-Gm-Gg: ASbGncsspUWGRLzqQaZGth5q4YjWJte6x1GcxsOWZCjEYYZ6fEMInf2FBbOoRgwX/84
-	Yhy5iuEqr0RrBI3ZqqT6cNrM48hdJEqzjHNgZDNKiR7N8NrTWghfHpnfxBTATmnEL/u01T8m2Dl
-	mlFTeqOOwUFbU9lVfYv5WtR81E22flNIO+ahGAWJWqSkInrmAmdmilYatDX+li48Ny7ah3JJu+x
-	0gif0Iz7+WdsY2QjgxEiWCuRmcZyeWqCglpa343nWZ9RKxJkH3bhli3zQ7dgwd4THNOh8Rd4C9W
-	so6giXFWGIQ7RTd5lURlnSFYeE/jftVnRfg7pdZYPLGPK6X6wlV3QAW03wdJjK7tGSNhHv/v704
-	x0MfocIP3mvw/iEnuev/pjtD5Z9e9qPynKXwtRa8iI1v+S2G8vtZM+FL/2zESp3htFUyWJUVCN0
-	l7a3+drZafPa9lmcqGGnUuiBvUo3WDF7XyQzNTCg==
-X-Google-Smtp-Source: AGHT+IH930mFApbAim+hsItNZIanFSAxgWzf+l4tHBB1/03gGvYojtijguoMFNaE7u/zdx8GkYVgoQ==
-X-Received: by 2002:a17:907:7ea4:b0:b6d:7859:61eb with SMTP id a640c23a62f3a-b72e0328ebemr1045116366b.29.1762852571028;
-        Tue, 11 Nov 2025 01:16:11 -0800 (PST)
-Received: from ?IPV6:2001:a61:1328:3001:f150:c1:f1a3:b448? ([2001:a61:1328:3001:f150:c1:f1a3:b448])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b72bf31286esm1299966766b.21.2025.11.11.01.16.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Nov 2025 01:16:10 -0800 (PST)
-Message-ID: <2a6b4d25-e963-4019-857e-28eaba53a69a@suse.com>
-Date: Tue, 11 Nov 2025 10:16:09 +0100
+        d=1e100.net; s=20230601; t=1762858643; x=1763463443;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lLXbfdbNy9/hvVp5w0asRQYfVq1o80iFeNQJCAkbC5k=;
+        b=h0m+VnFK56zgPBvJikRKjrtp7zKIgkH1G5WtSqL8B6Letvxd8M6ijlmGm9rLS9zxA3
+         fM2ZVVQ51cbjxfKHOSJFskEFn45H/yA7uER9s5CscPlH5XiZXTScD7rnTH2fhkgl+x9K
+         6o0PubK86bN1PcLsg59wK/heLFB627tEEjoTNlKEbZwq6zryBWGzMN54al8dVo/bdbL6
+         vDMcybTcLOSdknSwPWwid7z3Jr6EsyT8CJPd3tm9P383DE1V2jPcWEpxVlxIHLmtayWP
+         1iPVy3UqCD4RNRyNAsJson5xLRnoZWp4h6wriS+RLBV4KFwDAPlXqTCNAzBqBAYICkM/
+         YN7A==
+X-Gm-Message-State: AOJu0YxE5c94w2Ci1Nw8Q8ecICIiVLMjxajkmA0YuAlWi0DdiQL6eRRp
+	PYjPeToHc3vzpyIiMS4HoO0l1r5Cf9SD4uirELOhkrEfL5twIMfeJ8Wv3fVDtQEvs3cyq51lLAA
+	AM2m+Okl6kM6BcxBPC+oGBIh+4F+5uwEm9zYtz4aXPA0UWjoGKB7ysWubqPx7jWmcaJheoa47yS
+	K5KPde7sGPVd2CTE/gOau37Pu1C1ExKzV9GRDsC5SksPhp/dWd
+X-Gm-Gg: ASbGncuRa4OjREN23lWYRJw9Md6ggUjmLVPPDOhTpA+J5TpwCd6+mZJPMBAByLDK9OI
+	HzV/Qnz4TgwuJ0yryd3tvWzISj+iH0rk+ieVjE0WdDboH+981tNYitn/Hlr1QQ1TbnjHa1ZkluG
+	hQnKxP/QePaY9Nrs6/ZE6rCiP0amNTY49mJqD9CFDoLsQZOxrXOfzWU+m6bxp/5jbdsAFkURC1u
+	JKgnfLLXtqEBBspmYCcCiUMKYlOzNekD0rJnK49PcUtHSw+m36pl35w3JJUTnNlKt4pT3kFTU/U
+	u7cNynNYoltjyZhdiZR96FLKQVBLg1sSHXnTi7eRup8RTl2DjfRUNHyfRc3MpOBKHCTNjegLULm
+	Pm4qfyqPFUwNlfw==
+X-Received: by 2002:a5d:64e6:0:b0:42b:3680:3567 with SMTP id ffacd0b85a97d-42b36803910mr6819210f8f.18.1762858642876;
+        Tue, 11 Nov 2025 02:57:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IExHgXpLyzfVfcHOvkKwXBj1AViraKaxnypuiWpEttXt7rvZ6i7XtflKrBTuB0ga0hZUwj6/g==
+X-Received: by 2002:a5d:64e6:0:b0:42b:3680:3567 with SMTP id ffacd0b85a97d-42b36803910mr6819179f8f.18.1762858642355;
+        Tue, 11 Nov 2025 02:57:22 -0800 (PST)
+Received: from sissix.lzampier.com ([2a06:5900:814a:ab00:3725:2991:6cf3:b3aa])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42ac679607esm27069549f8f.43.2025.11.11.02.57.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Nov 2025 02:57:22 -0800 (PST)
+From: Lucas Zampieri <lzampier@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: Lucas Zampieri <lzampier@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	linux-pm@vger.kernel.org
+Subject: [RFC PATCH 0/1] HID: Add support for multiple batteries per device
+Date: Tue, 11 Nov 2025 10:56:30 +0000
+Message-ID: <20251111105634.1684751-1-lzampier@redhat.com>
+X-Mailer: git-send-email 2.51.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [BUG] Edifier QR30 (2d99:a101, Jieli Technology) reboots itself
- when RGB brightness button is used under Linux
-To: Terry Junge <linuxhid@cosmicgizmosystems.com>,
- The-Luga <lugathe2@gmail.com>, Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Michal Pecio <michal.pecio@gmail.com>,
- Terry Junge <linuxsound@cosmicgizmosystems.com>,
- linux-sound@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-References: <25f2419a-ee91-41eb-9446-87d238b4c7c4@rowland.harvard.edu>
- <CALvgqEBu_RzQYRSJnbu58XZt5wHX6PRD8i-J7Tovh7+KuhOyag@mail.gmail.com>
- <6999b5b2-a242-432e-8100-5d8ee58bcae8@rowland.harvard.edu>
- <CALvgqEBD05PwMpm00cAbFkpSWpCFP9jaBU0r-8+op+RGPtkktg@mail.gmail.com>
- <7adc816d-169d-4213-bb67-9d070af3c4a7@cosmicgizmosystems.com>
- <30528153-95f1-4ec7-a6bf-5da396441f86@rowland.harvard.edu>
- <xrfmda5rohporc3bjax35fc7xjziai6cmdt5svjak5rps6y6jz@k6h4zlt3jgg2>
- <CALvgqEDZ=g+uvdSYqbD22sL_VP+n6Pda2xXuFAJyKkh3bjm6HQ@mail.gmail.com>
- <CALvgqEC6UW96NEYOCM5v0m4x8Si0A7AwPuMpwXt3PMqkO3eqww@mail.gmail.com>
- <52fc4350-2930-44d3-b844-03f00806f142@cosmicgizmosystems.com>
- <1ac9d1dd-822a-487a-bd42-45c163dfbfe7@rowland.harvard.edu>
- <CALvgqED5NCNjrtv_YSfg9rzerK-xWAE5TaJjZtMBMcY=8MSk3g@mail.gmail.com>
- <c6d506f7-f13b-4d57-a522-a2ccd09e7a1f@cosmicgizmosystems.com>
-Content-Language: en-US
-From: Oliver Neukum <oneukum@suse.com>
-In-Reply-To: <c6d506f7-f13b-4d57-a522-a2ccd09e7a1f@cosmicgizmosystems.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 11.11.25 06:11, Terry Junge wrote:
+This RFC introduces support for multiple batteries per HID device, addressing
+a long-standing architectural limitation in the HID battery reporting subsystem.
 
-> Polling for input reports is handled by the hardware at the interval
-> requested by the device during enumeration. There is no intervention by
-> the kernel to poll for an input report. The only way the kernel can stop
-> polling a device for input reports is to suspend it.
-> 
-> So ALWAYS_POLL means never suspend.
+## Background
 
-Hi,
+The current HID implementation explicitly prevents multiple batteries per device
+through an early return in hidinput_setup_battery() that enforces a single-battery
+assumption. Linux treats peripheral batteries (scope=Device) differently from system
+batteries, with desktop environments often displaying them separately or ignoring
+them entirely. However, this design doesn't account for modern multi-battery hardware patterns.
 
-that is not exactly correct. ALWAYS_POLL, means that
+## Problem Statement
 
-a) the device is always polled _while_ it is active
-b) if the device is suspended remote wakeup is always requested
+Multiple battery scenarios that cannot be properly reported today:
 
-	Regards
-		Oliver
+1. Gaming headsets with charging docks (e.g., SteelSeries Arctis Nova Pro
+   Wireless) - headset battery reported, dock battery invisible
+2. Graphics tablets with stylus batteries (Wacom) - requires driver-specific
+   workarounds
+3. Wireless earbuds with per-earbud batteries plus charging case
+4. Multi-device receivers (Logitech Unifying) - requires proprietary HID++
+   protocol parsing
+
+This forces manufacturers to use proprietary protocols and vendor-specific
+software. Community projects parse USB packets directly because standard HID
+battery reporting cannot handle multi-battery scenarios.
+
+## Why This Matters
+
+The current limitation creates a cycle: OS lacks support, so manufacturers
+implement proprietary protocols, which makes vendor software necessary, which
+reduces pressure to fix the OS limitation. Improving HID core support for
+multiple batteries would enable standardized reporting, reduce the need for
+vendor software, improve OS integration, reduce driver duplication, and provide
+a foundation for future multi-battery devices.
+
+## Proposed Solution
+
+This patch introduces struct hid_battery to encapsulate individual battery
+state, adds a batteries list to struct hid_device for tracking multiple
+batteries, and uses report ID-based identification. The implementation maintains
+full backwards compatibility with existing single-battery code.
+
+## Testing
+
+Tested with split keyboard hardware. Each battery reports independently
+through the power supply interface.
+
+## Request for Comments
+
+Is list-based storage appropriate or would another structure work better?
+Should we support usage-based identification in addition to report ID for
+devices using the same report ID? Is sequential naming (battery-N) sufficient
+or should batteries have semantic role identifiers like "main", "stylus", "dock"?
+
+To HID maintainers (Jiri Kosina, Benjamin Tissoires): Does this belong in
+hid-input.c or should it be separate? Any concerns about the backwards
+compatibility approach? Meaning, should I have removed the whole
+dev->bat legacy mapping and use the new struct?
+
+To power supply maintainers (Sebastian Reichel): Any issues with multiple
+power_supply devices from a single HID device?
+
+Related commits:
+- c6838eeef2fb: HID: hid-input: occasionally report stylus battery
+- a608dc1c0639: HID: input: map battery system charging
+- fd2a9b29dc9c: HID: wacom: Remove AES power_supply after inactivity
+
+Community projects demonstrating the need:
+- HeadsetControl: https://github.com/Sapd/HeadsetControl
+- Solaar: https://github.com/pwr-Solaar/Solaar
+- OpenRazer: https://github.com/openrazer/openrazer
+
+Lucas Zampieri (1):
+  HID: input: Add support for multiple batteries per device
+
+ drivers/hid/hid-core.c  |   4 +
+ drivers/hid/hid-input.c | 193 +++++++++++++++++++++++++++-------------
+ include/linux/hid.h     |  42 ++++++++-
+ 3 files changed, 176 insertions(+), 63 deletions(-)
+
+--
+2.51.1
 

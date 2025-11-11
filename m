@@ -1,58 +1,74 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1E883546E5
-	for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 11:01:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB29734CFA6
+	for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 11:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762858909; cv=none; b=f7Z1lv58yfjwATFMypDN4W8FA+srp0AmB3NogTBUeFrBBNe2drwTnYrVZ8gZvUDgVraf/JyOqFpy6qfU4h9ydAduvENLPwmPEv9WbKe48RZtOncL0yJ3357E+hdk76l1I0mTebKG6qNtjAe5D7nyKgk7ci3fM7vvfR2RGebv5zk=
+	t=1762860219; cv=none; b=T2Rc8twI5waP0+EiB6Go6zVi4BTizX4P3jdA74WlXmX2ZFUNJ9fliei+4JW9/LYDxAr+khEy+F6HtsAf8GvYLY95CtX2vhelBudBAemi9sU/S80V8HNDnbvP5sD1DLGYZBbbWWXbxYegl8d9n8JFW6ASzZ+MZCqUPvMXHBujuYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762858909; c=relaxed/simple;
-	bh=uXKNyH5ermYmOE7AaALivQQxfbhotXP7qcgta6fTn8M=;
+	s=arc-20240116; t=1762860219; c=relaxed/simple;
+	bh=H0LINo+13Z/hJytF0VdChjfeCAxAHISX2HNxfIyenMU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jbn03mxV25F+/puRxa/qLygbw/syn7De0K+u3EA/IGA7RGoFM7iQGeaWS4nrjSyOLYZaudTlDSjxNDKYlBooZl0zN30Ds5Qhai4sN6Ur9XCVco/NzDp4S0f1t0YB0S3Qtg7cNfUBS7sj9O7Z0aRNtx0G5lL/U8v61HmWSsy1Mwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mfe@pengutronix.de>)
-	id 1vIm7c-0006Uh-Vj; Tue, 11 Nov 2025 12:01:12 +0100
-Received: from pty.whiteo.stw.pengutronix.de ([2a0a:edc0:2:b01:1d::c5])
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mfe@pengutronix.de>)
-	id 1vIm7b-008BcB-0G;
-	Tue, 11 Nov 2025 12:01:11 +0100
-Received: from mfe by pty.whiteo.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <mfe@pengutronix.de>)
-	id 1vIm7a-00ET0X-32;
-	Tue, 11 Nov 2025 12:01:10 +0100
-Date: Tue, 11 Nov 2025 12:01:10 +0100
-From: Marco Felsch <m.felsch@pengutronix.de>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Russ Weight <russ.weight@linux.dev>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Kamel Bouhara <kamel.bouhara@bootlin.com>,
-	Marco Felsch <kernel@pengutronix.de>,
-	Henrik Rydberg <rydberg@bitmath.org>,
-	Danilo Krummrich <dakr@kernel.org>, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] firmware_loader: expand firmware error codes with
- up-to-date error
-Message-ID: <20251111110110.io65cbslrv75lbby@pengutronix.de>
-References: <20250821-v6-10-topic-touchscreen-axiom-v3-0-940ccee6dba3@pengutronix.de>
- <20250821-v6-10-topic-touchscreen-axiom-v3-1-940ccee6dba3@pengutronix.de>
- <ifdhjgo6wchlsztqvgkaawpbnh3zahb76vmyzlomokfrqt6tjp@qjcdvcdqviag>
- <5tlhy2jl77etqxsna42ksdmvu3x3bsp5c44poshkt45agldfsj@bkzlvbfoshsl>
- <20251016145205.244gsevx5tdloiqy@pengutronix.de>
+	 Content-Type:Content-Disposition:In-Reply-To; b=C6YgctzysfOewJj3NsAbS1DwnRhvK/erg2t5Tl2qrMhIuBbP2u7SyIXZMxPQbdW/wUh/5za12Y0W5iKccUu9O6CguC1G2Hx0hHrwxteZbuYCkyGLfosupzFZhB0r5YS+Al78vLZyhpxdAlt0nbkZM3FHKt+29Cc3vturTKIsHU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cse.iitm.ac.in; spf=pass smtp.mailfrom=cse.iitm.ac.in; dkim=pass (2048-bit key) header.d=cse-iitm-ac-in.20230601.gappssmtp.com header.i=@cse-iitm-ac-in.20230601.gappssmtp.com header.b=k0pL1e/T; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cse.iitm.ac.in
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cse.iitm.ac.in
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=cse-iitm-ac-in.20230601.gappssmtp.com header.i=@cse-iitm-ac-in.20230601.gappssmtp.com header.b="k0pL1e/T"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-b9a5b5b47bfso2286481a12.1
+        for <linux-input@vger.kernel.org>; Tue, 11 Nov 2025 03:23:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cse-iitm-ac-in.20230601.gappssmtp.com; s=20230601; t=1762860216; x=1763465016; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WD33dFwh8vT0qTWS1ypf3i1K/+5CU5E89Hi1vtjhv9s=;
+        b=k0pL1e/TctlpQMM0EqQMKgj3Uq7XW6PD06Ts9TjxFLyBRnOkDliPKPHGHGKBFwiuvr
+         aOP8vy4btcG2ih7q9fH2XReo03+Vwm1tD1h51QPmoAbMnGpBKMHQC+nfQy2SU/ZIGI2M
+         BXl9QRTgMYEonJKSKbHwc5bMvImLNTNj4q/hd3oFhw3VntnQTGyQ2lAk0an8BM0Zvve7
+         f5PQ5NcjWhCcrV8YsiLLYSGPa6laJ8cJnrnYrL6Eqyzn0nQ7K4Q6XZbSBNamCO4KadTk
+         VjXNiOt9KZ3utaxpQMuf53+RMcKIAUXj9eBonzR3+E5sM+Gf7eowa2XT+I1l/IvpSktW
+         3Tqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762860216; x=1763465016;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WD33dFwh8vT0qTWS1ypf3i1K/+5CU5E89Hi1vtjhv9s=;
+        b=tmQ/5dPh3pf8nB62wVs9r75g8CEy5SjWmTtqM7D2GYtpCXCggvWN3ydFj1va3MjlnQ
+         4BT3lNsNXcwRnF/zsOysmLsYW/ksGTTRqEwhQa4AXeefCMK2ZZP8lxeyhsnIoX4SNYuT
+         eSHueJvxTYq7wuAZL1tc9+DWeWHINJbl+M19X+I5wnEn/8APbUQLjyHpp4q0ja4l4BrM
+         cMRRw7fHnmUiKmKE6FiCTMAcyzyJDq8Kkrv12upbfVM5/f2ykUPjfEtRZGT7/q3yqN0s
+         5Nul5ggVSJY2vfpwG+/pYSNhyUVgZ+3mWVwmqQVV1CAnkAqkvtk3DVL2RElH9yyjtZ0v
+         cBQQ==
+X-Gm-Message-State: AOJu0YwjDw5NqNM6ULBxyJj+yrAjOYn9y838UFmUanleycuGT7Ly5XQN
+	JT3wlx+Fms49DmNyNDgtjr8r5Vc5yEjswS3oFtj8xoGKBjtkSTETSZAKh55rObMUQZO7peh0R5Q
+	B6MJLmas=
+X-Gm-Gg: ASbGnctQ1ndbBFwaF+Y19ZTRkg5SGGkCami3IqGTh3s9NywBRP78r5xBxsz7X/5mxlp
+	XACVwNVlIP/If6xUqye9TBpsBDe83pqL+3IH8hmnK0tY9O6zLol4Ou5RYhP5XNmFjxhgG8WA7/k
+	htfF8D4Zltw+nglD96ZoDX//BDCoghzjy484hpGYh5Cw68AdEUZBfeHHEsNoSInfmiImzXEYljx
+	AOSTEePXt2t+Iz1AYloPvEyg3h4AZWmKHOnUVTgnWB6mknjsG+vW7lda8/OOapFlljxS3ppFO1N
+	q3kwo+7WSLyca+b/V6qAcO05sqyNIyRRdqj1sPo8dJqiggPUUJ2P+yZE4LwWVtTwK+TdJXaiGJV
+	7wUPk8uToPVAUMybJcOtA7Qn6BzfcCniEcgdQm10Ja62rFTtpb/59w0nnFQgA2+DB6kOgvShsyC
+	8OJw==
+X-Google-Smtp-Source: AGHT+IFboiQwYKl1ceB9F9QcGU+lPkaQ7+H951dK4YY2Nct4gKPSC1sT1xivKHdw2Ucy5iBM4bT6wQ==
+X-Received: by 2002:a17:902:e888:b0:294:621c:a84b with SMTP id d9443c01a7336-297e570af71mr137445685ad.56.1762860215901;
+        Tue, 11 Nov 2025 03:23:35 -0800 (PST)
+Received: from essd ([103.158.43.16])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-343c4c0d69esm1183598a91.3.2025.11.11.03.23.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Nov 2025 03:23:35 -0800 (PST)
+Date: Tue, 11 Nov 2025 16:53:28 +0530
+From: Abdun Nihaal <nihaal@cse.iitm.ac.in>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: linux-input@vger.kernel.org, 
+	Roderick Colenbrander <roderick.colenbrander@sony.com>, LKML <linux-kernel@vger.kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: playstation: Fix memory leak in
+ dualshock4_get_calibration_data()
+Message-ID: <gwriiuvepzg6zdmrpzuswvpcplxtdobhagmgs67325ioesqm3p@5ivtfz7ob2mq>
+References: <20251110171552.95466-1-nihaal@cse.iitm.ac.in>
+ <cc4923d4-a24c-47ff-876d-0fddc0b8ad1e@web.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -61,54 +77,17 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251016145205.244gsevx5tdloiqy@pengutronix.de>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mfe@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+In-Reply-To: <cc4923d4-a24c-47ff-876d-0fddc0b8ad1e@web.de>
 
-On 25-10-16, Marco Felsch wrote:
-> Hi all,
+On Mon, Nov 10, 2025 at 06:49:01PM +0100, Markus Elfring wrote:
+> > The memory allocated for buf is not freed in the error paths when
+> > ps_get_report() fails. Free buf before jumping to transfer_failed label
 > 
-> On 25-09-20, Dmitry Torokhov wrote:
-> > On Wed, Aug 27, 2025 at 03:29:33PM -0600, Russ Weight wrote:
-> > > 
-> > > On Thu, Aug 21, 2025 at 07:26:36PM +0200, Marco Felsch wrote:
-> > > > Add FW_UPLOAD_ERR_DUPLICATE to allow drivers to inform the firmware_loader
-> > > > framework that the update is not required. This can be the case if the
-> > > > user provided firmware matches the current running firmware.
-> > > > 
-> > > > Sync lib/test_firmware.c accordingly.
-> > > > 
-> > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> > > 
-> > > Reviewed-by: Russ Weight <russ.weight@linux.dev>
-> > 
-> > Does this mean I should merge this through input tree?
-> 
-> may I ask how this is planned to go further?
+> Would an additional label become helpful for this function implementation?
 
-Gentle ping.
+In the function, the code present at the transfer_failed label is shared 
+between normal and error paths, and is not the traditional error path label,
+that's why I put the kfree for the two cases immediately before the goto.
 
 Regards,
-  Marco
-
-
-> 
-> Regards,
->   Marco
-> 
-> > 
-> > Thanks.
-> > 
-> > -- 
-> > Dmitry
-
--- 
-#gernperDu 
-#CallMeByMyFirstName
-
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | https://www.pengutronix.de/ |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-9    |
+Nihaal

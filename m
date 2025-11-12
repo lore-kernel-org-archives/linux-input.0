@@ -1,58 +1,58 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8382734D38D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CE4E34D908;
 	Wed, 12 Nov 2025 19:14:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762974863; cv=none; b=V7fpTabUINY4MWv0nb15m457dW7PSpBShwLXdgm9wPfmKx096MJsXqgS3380yaP7cqUM1f3uHNCCQGno3CgKTHharioCim85mq3A/X+u9OgMdxF3pF+pbY21K85RHK6SiPYPoEvfb4N9FHIppkcuDuhjh1rCJTWDQnlgDDIyfZU=
+	t=1762974863; cv=none; b=lgvy3Lx+7c/SLu6zkmI91+MNxf9sUFlVK86ysWUrDOi7UMG7/Ij1xh+OsIu5CA3AD3j8NKElqwDmcJXaue89Bag1jCLF2cX867ruCzYg6BcsULF2zm6uEhqQxV84+1Sr/8H8K33GLfydH8kndL+Dv6c9x1E07e4XrPSAd1f05Kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762974863; c=relaxed/simple;
-	bh=100NIUpe/MmbcoRj+BLsbRqmsAMwdJQoi7KDFZ6HdWg=;
+	bh=JPnsL1Fqba1yPR8H9hojJp1nnZEdKoqx4paCLzojuPw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DbDTE6nqpqr95QLu5G0QUJNyoB1jDwrSoDYqMXdPJzm39I0jFbTfDbwqZv4JI6vrZnCnbf91xXL8ijn1yIVKH6YU1iB827Ds7e+ZD/HD1IN9sR/x7CAGA6K8d7vVx8mxSe3strt/wLRuL6QzoirMmuSpeTTWUy1x1X9uN3MowNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mLdNSUfN; arc=none smtp.client-ip=192.198.163.14
+	 MIME-Version; b=B9bGQnETzikEKSKmYkONP37XJv/9ByMFlKfPEPvBSqD/UDFU47OOrlcNZ77YiA3Pz4aZ0vUrz960LfgJvrqz/EpZ/TfG9YOjaN/dAlSSfYgUkYsRxFTSw+UIMTRaUwRJFojoZHtk1m+ZFyjxnvUPlfBpoqVU6TfvIN1udASUVks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZxqxILt8; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mLdNSUfN"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZxqxILt8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1762974860; x=1794510860;
+  t=1762974861; x=1794510861;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=100NIUpe/MmbcoRj+BLsbRqmsAMwdJQoi7KDFZ6HdWg=;
-  b=mLdNSUfNm74OMJYx6shE7sRjJD4YasSp1hjtrRbkfhoRFFq58Sjg/BkL
-   scVI/cQjbicKQRkUI7mGyv6sIJa5WDSoID/dtHwKz58g7qmXnll+KdhEq
-   J8phx5Q+qUxQEHSFTJTT52bQLDrVyiPIn7BNQKAAX1VPj1qrJc/vm5O3G
-   GiNcfTjVupOlbfG7opbkXd0CcCJtw1LjkZivdqjy4u89FpxA7tGqv5EZm
-   Ic6uQs298QxbIVNzIqxx/smcubA0kX5NMwCC79jnG5PVM1wCa/88lsVNz
-   cMSzUc8kXmep/mw2iTgP0LUExXsd1b1JbkqTWsXTi6lDnVcht44KVYyP8
-   A==;
-X-CSE-ConnectionGUID: 94+BZa18SduZubrr9CEnjQ==
-X-CSE-MsgGUID: qpfH54ArS+OiBXLzHL6thw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11611"; a="65086886"
+  bh=JPnsL1Fqba1yPR8H9hojJp1nnZEdKoqx4paCLzojuPw=;
+  b=ZxqxILt8vy0PcOsi5HJwIC7eEJTl4H8lXPDEed4U5ek7s0gPSnD3gqnd
+   erJGhXPkaqiSDkNg9C8CeznQJEnOKkUGwOuYp+PJhfCuMF3krbf9FPNXa
+   6QPciYT8L7KRwrZudbJyVQQBbIgHGyAxfuS1frpCAK5sLSghpDPwL1BaO
+   c8S+6ouvYgn/d0tOzRUKwtgW6bsUXAdbSyhvr8/+fLmJe/mMBNJi6rHFG
+   h1qQ2j8DKInmU3NoYzfHenK9EbpK2giau5T7QFzqvvyQRUGk80FxOKWX8
+   I4NMY/iwqLq986oOVU+WYiRBknpmvqW5x2GVMVndJgcGlZ8BPPoPooyYi
+   g==;
+X-CSE-ConnectionGUID: 1LgZvyrPQaqsyZVlS7yX+Q==
+X-CSE-MsgGUID: sfd6FRBjQASJOU2kkP0hLQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11611"; a="65086887"
 X-IronPort-AV: E=Sophos;i="6.19,300,1754982000"; 
-   d="scan'208";a="65086886"
+   d="scan'208";a="65086887"
 Received: from orviesa002.jf.intel.com ([10.64.159.142])
   by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2025 11:14:16 -0800
-X-CSE-ConnectionGUID: 9f0IlICMTiyHdYUXTrnwlw==
-X-CSE-MsgGUID: OFpj2LbuTPCO6IPV/aqOXg==
+X-CSE-ConnectionGUID: i8JkIVxFSm64RomS/mGzig==
+X-CSE-MsgGUID: /St21FVZRD+BKR7xYN/BHg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.19,300,1754982000"; 
-   d="scan'208";a="219951618"
+   d="scan'208";a="219951619"
 Received: from black.igk.intel.com ([10.91.253.5])
   by orviesa002.jf.intel.com with ESMTP; 12 Nov 2025 11:14:16 -0800
 Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id A0C3596; Wed, 12 Nov 2025 20:14:14 +0100 (CET)
+	id A996398; Wed, 12 Nov 2025 20:14:14 +0100 (CET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v1 1/5] Input: gpio_decoder - make use of device properties
-Date: Wed, 12 Nov 2025 20:13:17 +0100
-Message-ID: <20251112191412.2088105-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 3/5] Input: gpio_decoder - replace custom loop by gpiod_get_array_value_cansleep()
+Date: Wed, 12 Nov 2025 20:13:19 +0100
+Message-ID: <20251112191412.2088105-4-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20251112191412.2088105-1-andriy.shevchenko@linux.intel.com>
 References: <20251112191412.2088105-1-andriy.shevchenko@linux.intel.com>
@@ -64,52 +64,79 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the module to be property provider agnostic and allow
-it to be used on non-OF platforms.
+There is a custom loop that repeats parts of gpiod_get_array_value_cansleep().
+Use that in conjunction with bitmap API to make code shorter and easier to
+follow.
+
+With this done, add an upper check for amount of GPIOs given based on
+the driver's code.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/input/misc/gpio_decoder.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/input/misc/gpio_decoder.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
-index ee668eba302f..459abc749a49 100644
+index a2ae400790f9..8c07f7ff66e5 100644
 --- a/drivers/input/misc/gpio_decoder.c
 +++ b/drivers/input/misc/gpio_decoder.c
-@@ -10,9 +10,10 @@
+@@ -6,11 +6,13 @@
+  * encoded numeric value into an input event.
+  */
+ 
++#include <linux/bitmap.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
  #include <linux/gpio/consumer.h>
  #include <linux/input.h>
  #include <linux/kernel.h>
-+#include <linux/mod_devicetable.h>
++#include <linux/minmax.h>
+ #include <linux/mod_devicetable.h>
  #include <linux/module.h>
--#include <linux/of.h>
  #include <linux/platform_device.h>
-+#include <linux/property.h>
+@@ -26,23 +28,18 @@ struct gpio_decoder {
+ static int gpio_decoder_get_gpios_state(struct gpio_decoder *decoder)
+ {
+ 	struct gpio_descs *gpios = decoder->input_gpios;
+-	unsigned int ret = 0;
+-	int i, val;
++	DECLARE_BITMAP(values, 32);
++	unsigned int size;
++	int err;
  
- struct gpio_decoder {
- 	struct gpio_descs *input_gpios;
-@@ -110,19 +111,17 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- 	return 0;
+-	for (i = 0; i < gpios->ndescs; i++) {
+-		val = gpiod_get_value_cansleep(gpios->desc[i]);
+-		if (val < 0) {
+-			dev_err(decoder->dev,
+-				"Error reading gpio %d: %d\n",
+-				desc_to_gpio(gpios->desc[i]), val);
+-			return val;
+-		}
+-
+-		val = !!val;
+-		ret = (ret << 1) | val;
++	size = min(gpios->ndescs, 32U);
++	err = gpiod_get_array_value_cansleep(size, gpios->desc, gpios->info, values);
++	if (err) {
++		dev_err(decoder->dev, "Error reading GPIO: %d\n", val);
++		return err;
+ 	}
+ 
+-	return ret;
++	return bitmap_read(values, 0, size);
  }
  
--#ifdef CONFIG_OF
- static const struct of_device_id gpio_decoder_of_match[] = {
- 	{ .compatible = "gpio-decoder", },
--	{ },
-+	{ }
- };
- MODULE_DEVICE_TABLE(of, gpio_decoder_of_match);
--#endif
+ static void gpio_decoder_poll_gpios(struct input_dev *input)
+@@ -81,6 +78,9 @@ static int gpio_decoder_probe(struct platform_device *pdev)
+ 	if (decoder->input_gpios->ndescs < 2)
+ 		return dev_err_probe(dev, -EINVAL, "not enough gpios found\n");
  
- static struct platform_driver gpio_decoder_driver = {
- 	.probe		= gpio_decoder_probe,
- 	.driver		= {
- 		.name	= "gpio-decoder",
--		.of_match_table = of_match_ptr(gpio_decoder_of_match),
-+		.of_match_table = gpio_decoder_of_match,
- 	}
- };
- module_platform_driver(gpio_decoder_driver);
++	if (decoder->input_gpios->ndescs > 31)
++		return dev_err_probe(dev, -EINVAL, "too many gpios found\n");
++
+ 	if (device_property_read_u32(dev, "decoder-max-value", &max))
+ 		max = (1U << decoder->input_gpios->ndescs) - 1;
+ 
 -- 
 2.50.1
 

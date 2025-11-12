@@ -1,61 +1,58 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0EF034888E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB0C34C81F;
 	Wed, 12 Nov 2025 19:14:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762974861; cv=none; b=dStKAsMn+s8NOXmFVNDzr5WVj+h8ChIqZbVky9ZTrk6OSJjNPglYL0LEcyRslKD/59YP7OubPf7p7IC9AQMXXpzyPFpy/JbBoBiXgwZhRahV3Dr+56F5EmDvf9xVjNXpjpTOMd3oBr6Ua+SGgBum6XKuvGpiR/vmawnHpIrlXpQ=
+	t=1762974861; cv=none; b=KSecHYMP4zs20CTcuFJazmH5cGsyh1wHgFLcXPFJ47+pTYMMWUq3ViZXtF/cRiPCyPOnVm3GlUDR3FhSGwdSWYHP7HLrtVEBXLErdaEzq2XTXIJbtDQgwxvc5EukJTp69PW95E7cx3lbYsZecQskRjzHTIO7syDf9rstLJdnTw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1762974861; c=relaxed/simple;
-	bh=eza3j0+EuTOOHO74CxzObedr0qx+jM54OCacx5vMhDI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vc4XIexPI58FTAfz+56/6GHyOyD23IgQb4wL/9eiC5c2O1f/zmfhoHB7Pu7mQOdFdwDREP1IaDgCD7CCPQ9TffmGla+oVJiV6mwcA1lH1QLeIAHitxftaup4cNegp4yceWP5+4H/QjdS4ojarLX0HXforoi2+bLq2EKEyBFFF/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LZxf3VD8; arc=none smtp.client-ip=192.198.163.14
+	bh=P9OMcQN/khqAU9W4gnZ7o+uUi+NqJ0F/lRsTpAFrxVE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=THxWuBjI8rJy1ObjC41qHN1qofcwEi4vQWma2NJS9d3q/QRtvz1fH+/uX6Gy8lXOOYdJ3SqVAn+SoNBJWU0KZQ1EGCp7U6SVoL4nlQhlcetVGuPSmSwPIzhNM5/ObkmzAAyNIAM6+y9JAIY55hKWHUs3p6JKAXt67fBTJX5GXbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=giLLwiwQ; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LZxf3VD8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="giLLwiwQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1762974859; x=1794510859;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=eza3j0+EuTOOHO74CxzObedr0qx+jM54OCacx5vMhDI=;
-  b=LZxf3VD8Rn5AMKFHntLNsmutNW8tdXn7ybQ49bcuyThAa7kpMv9PLtU3
-   +Toq6rQilfjarR7495Czh22rwBhnMFhQOs7HetNCgFNwknCmgY0CDzHXr
-   KW5/et9WJrMftw8KlumA9A0vQrB1k7cTVctOogrIFXbx3NGH1yjs7kUs5
-   P50Ja+ikXeaKi8/pw92Fxaux8RZOLqYwIvTOjd5k53OG/oag7pkFs0nBG
-   LANc88dQ1h2/bul8S3sDhFxuGMvGA8bBsHDq7XpZCCb0r5FCyUJCw7tJW
-   qGLz06XqJi2Os4XBwz678gbVXFCyRQ+Zi2lz6PJaN3ZSgECQrBwsqMDvZ
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=P9OMcQN/khqAU9W4gnZ7o+uUi+NqJ0F/lRsTpAFrxVE=;
+  b=giLLwiwQs8Z/3qmXyTQz7rODUe2muXqaVOwqWzvOuVxh3YekK7ZkNk7T
+   yOvRZQkBPRAJOLcXkKyJ0/ww2gACCw/kqgj7Eu+LHoo4UHsV66vCnNFXh
+   OqcYClOSEmXzKmiE7x5zBiCnw7uvVRRHeLot6rI4J+MDsCfcJvCya0NyB
+   vI0o5OLMQk1LzxofJh5w55EGT58USvIW0VtwPyjaBjs2ldqUzhI6wVsMd
+   aF8HX6iTF3cY4tWawH6ozRUbxcGCBQTc1qOm4O4RNof9POe1Y8rjvZTdS
+   GJioLQX+3ekxwABWTpz5isOlclDHll3na0QY5WaL+GGVus22WW7cu7tNL
    Q==;
-X-CSE-ConnectionGUID: Ww0TDe2DTPCyg4Ar4KfVEg==
-X-CSE-MsgGUID: swMP5UaxQrKgEmeTyFk0TA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11611"; a="65086881"
+X-CSE-ConnectionGUID: OfCRr+FbRLqqSbeCDhdZNg==
+X-CSE-MsgGUID: S4ddny29TXaP3jCudu0y0A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11611"; a="65086884"
 X-IronPort-AV: E=Sophos;i="6.19,300,1754982000"; 
-   d="scan'208";a="65086881"
+   d="scan'208";a="65086884"
 Received: from orviesa002.jf.intel.com ([10.64.159.142])
   by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2025 11:14:16 -0800
-X-CSE-ConnectionGUID: g+mrirHxSyCc2TaAS7rIkg==
-X-CSE-MsgGUID: jB86uPVwTI6tf39+G5KHkA==
+X-CSE-ConnectionGUID: B9QqSSWlQaKZM3XWY3w+KQ==
+X-CSE-MsgGUID: M5yQZEOkRS6e68aNCPv7yg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.19,300,1754982000"; 
-   d="scan'208";a="219951617"
+   d="scan'208";a="219951620"
 Received: from black.igk.intel.com ([10.91.253.5])
   by orviesa002.jf.intel.com with ESMTP; 12 Nov 2025 11:14:16 -0800
 Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id ADD1399; Wed, 12 Nov 2025 20:14:14 +0100 (CET)
+	id 9D88295; Wed, 12 Nov 2025 20:14:14 +0100 (CET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v1 4/5] Input: gpio_decoder - make use of the macros from bits.h
-Date: Wed, 12 Nov 2025 20:13:20 +0100
-Message-ID: <20251112191412.2088105-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 0/5] Input: gpio_decoder - update driver to use modern APIs
+Date: Wed, 12 Nov 2025 20:13:16 +0100
+Message-ID: <20251112191412.2088105-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20251112191412.2088105-1-andriy.shevchenko@linux.intel.com>
-References: <20251112191412.2088105-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -64,35 +61,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make use of BIT() where it makes sense.
+Update gpio_decoder driver to use modern in-kernel APIs.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/input/misc/gpio_decoder.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Andy Shevchenko (5):
+  Input: gpio_decoder - make use of device properties
+  Input: gpio_decoder - unify messages with help of dev_err_probe()
+  Input: gpio_decoder - replace custom loop by
+    gpiod_get_array_value_cansleep()
+  Input: gpio_decoder - make use of the macros from bits.h
+  Input: gpio_decoder - don't use "proxy" headers
 
-diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
-index 8c07f7ff66e5..299f16d3bf4d 100644
---- a/drivers/input/misc/gpio_decoder.c
-+++ b/drivers/input/misc/gpio_decoder.c
-@@ -60,7 +60,7 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct gpio_decoder *decoder;
- 	struct input_dev *input;
--	u32  max;
-+	u32 max;
- 	int err;
- 
- 	decoder = devm_kzalloc(dev, sizeof(*decoder), GFP_KERNEL);
-@@ -82,7 +82,7 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- 		return dev_err_probe(dev, -EINVAL, "too many gpios found\n");
- 
- 	if (device_property_read_u32(dev, "decoder-max-value", &max))
--		max = (1U << decoder->input_gpios->ndescs) - 1;
-+		max = BIT(decoder->input_gpios->ndescs) - 1;
- 
- 	input = devm_input_allocate_device(dev);
- 	if (!input)
+ drivers/input/misc/gpio_decoder.c | 72 ++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 39 deletions(-)
+
 -- 
 2.50.1
 

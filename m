@@ -1,110 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6653031B13C;
-	Thu, 13 Nov 2025 19:59:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3F729CEB
+	for <linux-input@vger.kernel.org>; Thu, 13 Nov 2025 20:04:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763063986; cv=none; b=KQPNx7n53TO1wCk8wNzw1THHZW4JxBgmOkNK5PMQxm+zPVOxxNALWJn8U1wge/ADs74PvxLu5vm3U7H7VbPoGX3BoFUn0+BtACZ9kv2H5FJuxCGbWV/7ez5F4P2kS0xQcqFwQi+bbLXfI6gUWyiQJBCVJv8P3+5AV9rO4LhJie8=
+	t=1763064264; cv=none; b=ByRSVncuXvlWHOdcB1Kvu9AOEI1kqbHof+rS8AtyemQEj8vgAkx8sg92eCmme3CvEfwXjlKM0tt3VgyeQNIjShLicspbWE8kWK415Iy8FDt8EV7b+E3q/8K6hcrhSB7LyLXRAp/xTuvArWvIAbBKdfGgeTDvgEGfvmTsSEDRHV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763063986; c=relaxed/simple;
-	bh=albEH2IwQeApwJMRsxBQcInlleO96o5R96BSCYwWvmk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Dg1e06230Bhq6aAP9vBulx6cs8PAHvvahrQZS8Oj1o7ig+02bmJbDU5K3HWq9TmG97xH+djtU9XUmAH92kA/Enj1UPDTxQseoCT5AhyhvnA1xSFWXRNjTFBUreptdqB3EbhVSJByBf6euiDRwIXB3fI7oVqz+Oam/+pdvjWhkPA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B2zBNUi+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763064264; c=relaxed/simple;
+	bh=nS2EOOhXYKViSOIAeMm+5byQzloQ1UOjHaKAxYe1K08=;
+	h=Date:To:Cc:Subject:From:References:In-Reply-To:Message-Id:
+	 MIME-Version:Content-Type; b=RVhtykuVaALqKErmfMzeqG40Z+pPXu7BocTpHPYDa26P3GIRCsOiKb6SfZ72OdLHDSsZd7zqyH7H0Ev9VBvhN0lF424n4VuiQDWhzD/pCFRJXG+zG/VWQbWNXEPou8aDyhRH6gXx9tJfOTptTmGEMAJeC5qgY2YGLu5YX5WdDWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aWoyZyC2; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B2zBNUi+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0E7C113D0;
-	Thu, 13 Nov 2025 19:59:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763063986;
-	bh=albEH2IwQeApwJMRsxBQcInlleO96o5R96BSCYwWvmk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=B2zBNUi+8bbGLwAJ/33NOAz2+djFfC5eQbi/Cth7/8eALanAeHfR8UqigSOeS1eK6
-	 0J2KS1AqXEUZ3b3W5eX+BU/cZNax5FH2whih2ho//jwVgL+rG5Ae4w+aQNPoqaO8KB
-	 U1ZaqS9NW064N38cdtaqw75gk/+uAIQrCLnBFJncbiLJ7Sf5d12aH30GhO7SEhF9Aj
-	 FbDuHSeUbiAN6hudq2B3qtbZKH7BelJciRHB2cGpLmaxZHF/rSe8Geog0xcWL0Ho4C
-	 px/YF+CLRhJJsZY+qd2+KlfWCgdW3m4W61lk2kDZk61HrVM8vvvceuW63Xk0mTH+0R
-	 m4ea7uK/dEGYg==
-Received: by venus (Postfix, from userid 1000)
-	id DE84B180785; Thu, 13 Nov 2025 12:16:21 +0100 (CET)
-Date: Thu, 13 Nov 2025 12:16:21 +0100
-From: Sebastian Reichel <sre@kernel.org>
-To: Lucas Zampieri <lzampier@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Bastien Nocera <hadess@hadess.net>, linux-pm@vger.kernel.org
-Subject: Re: [RFC PATCH v2 0/3] HID: Add support for multiple batteries per
- device
-Message-ID: <z7rlg27pref5o3y5c3lrxab7pilzuxqgofuogh5547kw5jpj56@basmdf4uwh56>
-References: <20251113001508.713574-1-lzampier@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aWoyZyC2"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-42b32a5494dso685807f8f.2
+        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2025 12:04:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763064261; x=1763669061; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:user-agent:message-id
+         :in-reply-to:references:from:subject:cc:to:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=8MvqGEXn68Rb3JBy7AEmcOluZgy1M36Tqq79FsoEVis=;
+        b=aWoyZyC2RYGwg5L/sBcvmhlv8PwGrXy1BMkbLox5kxGnvdwphxwoEAU0b9aVy24I67
+         0Va2bUV9YKNXvRSwKTaLktLOhV2VTRixbZmsfFSTztTYPUjvYxQFBx9CuFNySzX32dhQ
+         0hDxfNXQble4yUu0gCHKPLccB36vN796utjtNIK6oH1h4+I6Ba23z3/C0/hNxQa2Gotm
+         kDs+lGpI+n0vyuOJjmEL2N0OYCbC9wppjPuUuyGB0rz8Uk4MQZJW935F+2P6i4rOvVsn
+         ZOMRF71VK4OX04wq+oIz3d7R5751Gb9sG62TOCizuCXjJi5zXUrEMJc0E6HRi/eFffwg
+         kN+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763064261; x=1763669061;
+        h=content-transfer-encoding:mime-version:user-agent:message-id
+         :in-reply-to:references:from:subject:cc:to:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8MvqGEXn68Rb3JBy7AEmcOluZgy1M36Tqq79FsoEVis=;
+        b=jmPc+43JCcQyZHcmZo66tOQlG25t6+1jcfQjVibKTHO5NVYsexQzumuug8OoxxVzXw
+         ML9pVMLjh4AqsYxSp1qmArcVsws30IxToPdnMnRQTlKCIX9u6elHOX75miP1QABGppzk
+         6fCBemnS/iCbeT7TCaAQ73J4EEgnSu1sTAZWBZDrMUSQHzzdCoQ8TJfegAMS4WQiWryW
+         bjiaRwfR0UNktE44VXVOMXiI7hUrzheNmDIlE4kzWDRkK6fbJtyLg7dFdiUIewbryR2v
+         SvS43HastnaTT0O5LOPzgAz7NR0ZxdY9xJTHZjpGBesHkcWHu5xwgGi16knemRfPIBko
+         Ellw==
+X-Forwarded-Encrypted: i=1; AJvYcCWTioeT7xuP7oT8sqJ11yZcWWmwWFQqZMbbSi1rmgYd2DYEShfvDjyzuljOiQPJtK2dVrgKYW+ctgGnnw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxvCvH8piSGGCVOvHWF73YJdC0uS9qmFTXe7+QTkpcjE+YviPUd
+	NWBcZrIYaPWK70cuV1lixAFzvVObmBDcQLnnI59+MR1w3C48lOu97YW1
+X-Gm-Gg: ASbGncsnthg/Ud5xRX4Tay0+Vn+ecQk3H4w+VSUZVPTBs2a7uMvXtDz/5kP3gpe+V5w
+	F4K4DOqdvaPVEyQ3IHNTPC12kLhAIvKq/eY+U5j+QIBs1Ww96S1yzvqnzkM3193awSVrHoGbBxd
+	GMNe0v4RlhGv90LGpH2EgoTnr8DvlG7EOiyDT/QnjwECPUTfv29am9819AaHIgsD6b+ZA6rUHfK
+	P1l9dfF3l8WEnX6F/dj3c42vyq2rIg3KX+zWX3fKjE7PtF/M4gLT48SpqHeLq3j5LhBiyh0J7rp
+	TlQxdjsVoGCppSfxB/+ruA+IfKR7TgBeNAUKVbF9iFzyDkSZVmw5D8Z8M9UNjBdKFxgRt5ndsY/
+	akFc/26SPFFlN8Fp4qYp3vkcoEuozByEXPCRDUdIwbpGKtz3K/XrfGQ5GS7BBgTCtnf/Gi8Zipv
+	UirumNYKg5AZScxQ==
+X-Google-Smtp-Source: AGHT+IHio0sEJlb+wMLrWB9QGlY6eXInKBpRi+AmlHPkKhcW0TL/sk1P8B1KFQkaR7ZKWijSaNjG5g==
+X-Received: by 2002:a05:6000:4006:b0:42b:549d:cdfc with SMTP id ffacd0b85a97d-42b5936c434mr496552f8f.35.1763064261300;
+        Thu, 13 Nov 2025 12:04:21 -0800 (PST)
+Received: from localhost ([2a02:169:1e9:0:8f4d:9ee2:cc35:c67b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e84a44sm5417457f8f.14.2025.11.13.12.04.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Nov 2025 12:04:20 -0800 (PST)
+Date: Thu, 13 Nov 2025 21:04:20 +0100
+To: Oliver Neukum <oneukum@suse.com>
+Cc: roderick.colenbrander@sony.com, jikos@kernel.org, bentiss@kernel.org,
+ linux-input@vger.kernel.org
+Subject: Re: [PATCH 1/1] hid: hid-playstation: fix memleak in probe
+From: "Silvan Jegen" <s.jegen@gmail.com>
+References: <20251113192713.537344-1-oneukum@suse.com>
+In-Reply-To: <20251113192713.537344-1-oneukum@suse.com>
+Message-Id: <2ZRRQWNSQYRXG.3QYZSHHA37AQ5@homearch.localdomain>
+User-Agent: mblaze/1.3-19-g420be43 (2025-11-02)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="u3i5adcbhywjdycu"
-Content-Disposition: inline
-In-Reply-To: <20251113001508.713574-1-lzampier@redhat.com>
-
-
---u3i5adcbhywjdycu
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [RFC PATCH v2 0/3] HID: Add support for multiple batteries per
- device
-MIME-Version: 1.0
 
-Hi,
-
-On Thu, Nov 13, 2025 at 12:15:02AM +0000, Lucas Zampieri wrote:
-> ## Request for Comments
+Oliver Neukum <oneukum@suse.com> wrote:
+> Free the buffer if we bail out in the error case of
+> dualshock4_get_calibration_data()
 >=20
-> Is list-based storage appropriate or would another structure work better?
-> Should we support usage-based identification in addition to report ID for
-> devices using the same report ID? Is sequential naming (battery-N) suffic=
-ient
-> or should batteries have semantic role identifiers like "main", "stylus",=
- "dock"?
+> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+> ---
+>  drivers/hid/hid-playstation.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-If unique semantic identifiers are available they are obviously a better
-choice.
+This LGTM!
 
-> To HID maintainers (Jiri Kosina, Benjamin Tissoires): Does this belong in
-> hid-input.c or should it be separate? Any concerns about the backwards
-> compatibility approach? Meaning, should I have removed the whole
-> dev->bat legacy mapping and use the new struct?
+Reviewed-by: Silvan Jegen <s.jegen@gmail.com>
+
+
 >=20
-> To power supply maintainers (Sebastian Reichel): Any issues with multiple
-> power_supply devices from a single HID device?
+> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.=
+c
+> index 63f6eb9030d1..128aa6abd10b 100644
+> --- a/drivers/hid/hid-playstation.c
+> +++ b/drivers/hid/hid-playstation.c
+> @@ -1942,6 +1942,7 @@ static int dualshock4_get_calibration_data(struct d=
+ualshock4 *ds4)
+>  					 "Failed to retrieve DualShock4 calibration info: %d\n",
+>  					 ret);
+>  				ret =3D -EILSEQ;
+> +				kfree(buf);
+>  				goto transfer_failed;
+>  			} else {
+>  				break;
+> @@ -1959,6 +1960,7 @@ static int dualshock4_get_calibration_data(struct d=
+ualshock4 *ds4)
+> =20
+>  		if (ret) {
+>  			hid_warn(hdev, "Failed to retrieve DualShock4 calibration info: %d\n"=
+, ret);
+> +			kfree(buf);
+>  			goto transfer_failed;
+>  		}
+>  	}
 
-I don't see any issues with that.
 
-Greetings,
-
--- Sebastian
-
---u3i5adcbhywjdycu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmkVvf4ACgkQ2O7X88g7
-+ppbvg//XLJry0vRnhIFIutwoLrryUxt16rSUfo0i/YAB03VQOQ/2o9XzmSUkFlO
-2WGvBbm1dRjkfw44CXCQLNvdz5nfKjSRvAnVRV2JW4kqjG67hdtN18iR0v0Hz13q
-VWWYtnDBcGS1+ICCZJfVRW1K03+3SaUSU5luyytIx22qAI5+LMfaW8FxqgbPNNcX
-uEQtMIIDaX4+cy/yGmdOXq2lPAj35tHcLR8hOmWo6bY84Byt+SuTItIQhCKzPGHO
-aGTN1oyXCwqVbsrWlSpjqgeLstWNBqjMzMHkmeU2rA4SJkgMnLDkGICLfhgbnnfz
-rwmVK/xHcJGvR8BB6YGRAs8yt8dUIbYSuBYjcuVHCN/ntgcQUbGybiSMmXArlFBV
-aYgLyzOduvdRfq+FYM8xQgX6P+q54mZ2cnQdIoiw0jx8WC3oFid/E+wn+IVjlK7w
-H3mbeOoJtIIjJLw7wkHRkjBISgxVxeJYavYTGD1dkZH3DjeQDlTzwZxprtUNcl3Q
-P8EzRKoQkYXZBOL8R/46CiOpFkBnYXDfavzrQZQ/3G+xjEi3uhr8Z+gVqqmF5VzC
-JtB8Aoh26KHrKC5MSh8Z0G2GWFJdsEAwav0DpgWvk7tP5jfyCWy06VU2gXiaME+r
-YO31U1dvvtM9jB7wCpQWyP1PoZXWQ9gPBvEkulzIYl6Dh02tDfs=
-=uYh1
------END PGP SIGNATURE-----
-
---u3i5adcbhywjdycu--

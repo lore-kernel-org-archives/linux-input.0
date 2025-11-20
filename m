@@ -1,42 +1,42 @@
-Received: from relay13.grserver.gr (relay13.grserver.gr [178.156.171.147])
+Received: from relay10.grserver.gr (relay10.grserver.gr [37.27.248.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96FE02ECE85;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07B830DD14;
 	Thu, 20 Nov 2025 09:46:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.156.171.147
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.27.248.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763631999; cv=none; b=ApW/S+jP7uNdBJo0qi54w2RNF3ifarAcfez6onvfksdhS3fbnslvG6TNQg+mbMvvxGe0pP/2bocD2H1ExHI4nzmAmSNbMwo3Na90dkEzyWeDt05wTgYhyEv9Ib4JBmwo42DTwYnB//lDaS11uZhJyb4PKEmKgi1+dTZS68tISPw=
+	t=1763631999; cv=none; b=bJLl4768y9+pYwPhymk6piiBGlt+Dy8seZALmCPGVwWuMY34wnhnq8AqccHaaFbi5AeTK1NIF5C4E3hTS6UOFFIHdAK2zP22dWgufqpmkIIKtjGsrW56OqXJ1GFiOaR8otWAZRc+9LeV81pBbupgxk4uDzVq8wjgjlxMO3CKc9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1763631999; c=relaxed/simple;
-	bh=jxlMT6BahZI4UcK0eh7O8oc/emwtGbYIdQCxJqfsOqw=;
+	bh=XczMuwY2PG08xrTAUAcEUtH2Au/kzFoR+YRNMCgIAK0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=STWsO6LWpaDW58LLTUdBRhBoH/I+zjfcmGjPFSxo5sQVtCWO/De4b8yV+fkgC5lRA6ahG1LUHb0tahbbVy7GQtG3Ep1gQ9yqtUbk1GWAJJfrPkTtEm9nUBXWDa7inxwG+hA0qHAHGVD3qHcgAOc20SuAuRWRD6hTzFU/IG5ghyw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=cc4NhvkN; arc=none smtp.client-ip=178.156.171.147
+	 MIME-Version; b=nHVkwLdh41SzEC6z13uICWCBwn3vZJY1LlBwXiD+MIXoXvDQvCkmSPPDNbJorWrRq9wZ/wc87LXEXYtpI+dosj8LKFWUlJwbfjjWT7iKrNT5wRA9scVvnfg2DfL5wToAKjt6FoOsozZG3LpEtqnd8G57BkiUnZUzpIl2j8ThATQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=TrC8ffgY; arc=none smtp.client-ip=37.27.248.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="cc4NhvkN"
-Received: from relay13 (localhost [127.0.0.1])
-	by relay13.grserver.gr (Proxmox) with ESMTP id C1D4A5E567;
-	Thu, 20 Nov 2025 11:46:36 +0200 (EET)
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="TrC8ffgY"
+Received: from relay10 (localhost.localdomain [127.0.0.1])
+	by relay10.grserver.gr (Proxmox) with ESMTP id 4E4473F3F6;
+	Thu, 20 Nov 2025 11:46:30 +0200 (EET)
 Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by relay13.grserver.gr (Proxmox) with ESMTPS id 1D9DF5E49A;
-	Thu, 20 Nov 2025 11:46:36 +0200 (EET)
+	by relay10.grserver.gr (Proxmox) with ESMTPS id BBC933F382;
+	Thu, 20 Nov 2025 11:46:29 +0200 (EET)
 Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 985201FE2E1;
-	Thu, 20 Nov 2025 11:46:34 +0200 (EET)
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id A94FB1FE2E1;
+	Thu, 20 Nov 2025 11:46:28 +0200 (EET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1763631995;
-	bh=6BOCiaWvgyMTImsRms0o+GGj4vbJ5ImmF1N0y4ZEv0U=; h=From:To:Subject;
-	b=cc4NhvkNsXxMU24MCteYUmbGSSOpf4wu9Pm0E6HWRgTrAvwSy8xzEHn4urYwv1fZ4
-	 +O64/KwOkT8/KXVtPb52grAVzPB3ZwuZBcO097qTIFUscSmwdsHJn7B/Ts7Hz7LJB/
-	 x5zwFCBbI7BR77SAnK3ZYAOs84YnsMzYpnV7hjPdFdCKDE1Ni7XGI38MG0Q2Sj4R1z
-	 mUeKmYzEmYtNgNvAQutvcm0baY6oyCgMOLLt4T3Y2v6jqEc3sS1R7Bu/DN/gX3tip7
-	 fG1/mDTyR4nKfCiU3zM+/Vldn7u73XTTk+p1maVY2Ms+U0mwm0E23At6r1b4rTX6V/
-	 moemsi1QmWu4Q==
+	s=default; t=1763631989;
+	bh=HuBQqL+gPfeZK1b8cClnia9IRPHgXIRQ8d5AjKJGJqs=; h=From:To:Subject;
+	b=TrC8ffgY5Cx0vxzCYTNUnK9BS0ZO2xQX/73k53OQUnkCOD1TGQsyJA/uxakD4WG60
+	 sbRurbiueUEqX82JTHRUW+Ks7mbw9StDYfeVQ3Mc25GfAbZpajz9Zy26QjAs16RPoX
+	 z8B7QS7YM4coBmpYDYuUcnkY4/ogfkRME7Jqe8ftW8o9XkTthxcSLMpk53D3hP47zs
+	 yTjy5rYHIA3qp4hHdHlA/TlbsMru1E1pUBD3cYnbSwFelZw+VtraLowflwMesYemqH
+	 f8ZEMVlJ4sg1bF5+c9hcCvfld2bnaMtYe996C/4EjbJbukF0qkf/Y7fi2sZbVfivR0
+	 km9t1gjhuG/eg==
 Authentication-Results: linux3247.grserver.gr;
 	spf=pass (sender IP is 2a05:f6c2:511b:0:8d8a:5967:d692:ea4e) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
 Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
@@ -52,10 +52,10 @@ Cc: linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <benato.denis96@gmail.com>,
 	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v9 08/11] HID: asus: listen to the asus-wmi brightness device
- instead of creating one
-Date: Thu, 20 Nov 2025 10:46:14 +0100
-Message-ID: <20251120094617.11672-9-lkml@antheas.dev>
+Subject: [PATCH v9 02/11] HID: asus: initialize additional endpoints only for
+ legacy devices
+Date: Thu, 20 Nov 2025 10:46:08 +0100
+Message-ID: <20251120094617.11672-3-lkml@antheas.dev>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251120094617.11672-1-lkml@antheas.dev>
 References: <20251120094617.11672-1-lkml@antheas.dev>
@@ -67,153 +67,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <176363199522.1475236.12339258885327459506@linux3247.grserver.gr>
+ <176363198926.1474935.11492040414026245180@linux3247.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
 X-Virus-Status: Clean
 
-Some ROG laptops expose multiple interfaces for controlling the
-keyboard/RGB brightness. This creates a name conflict under
-asus::kbd_brightness, where the second device ends up being
-named asus::kbd_brightness_1 and they are both broken.
+Currently, ID1/ID2 initializations are performed for all NKEY devices.
+However, ID1 initializations are only required for RGB control and are
+only supported for RGB capable devices. ID2 initializations are only
+required for initializing the Anime display endpoint which is only
+supported on devices with an Anime display. Both of these
+initializations are out of scope for this driver (this is a brightness
+control and keyboard shortcut driver) and they should not be performed
+for devices that do not support them in any case.
 
-Therefore, register a listener to the asus-wmi brightness device
-instead of creating a new one.
+At the same time, there are older NKEY devices that have only been
+tested with these initializations in the kernel and it is not possible
+to recheck them. There is a possibility that especially with the ID1
+initialization, certain laptop models might have their shortcuts stop
+working (currently unproven).
 
-Reviewed-by: Luke D. Jones <luke@ljones.dev>
+For an abundance of caution, only initialize ID1/ID2 for those older
+NKEY devices by introducing a quirk for them and replacing the NKEY
+quirk in the block that performs the inits with that.
+
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/hid/hid-asus.c | 64 +++++++-----------------------------------
- 1 file changed, 10 insertions(+), 54 deletions(-)
+ drivers/hid/hid-asus.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 6193c9483bec..6a355c174f29 100644
+index 415d067938e3..db2cc9922447 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -102,7 +102,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
+@@ -89,6 +89,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define QUIRK_ROG_NKEY_KEYBOARD		BIT(11)
+ #define QUIRK_ROG_CLAYMORE_II_KEYBOARD BIT(12)
+ #define QUIRK_ROG_ALLY_XPAD		BIT(13)
++#define QUIRK_ROG_NKEY_LEGACY		BIT(14)
  
- struct asus_kbd_leds {
--	struct led_classdev cdev;
-+	struct asus_hid_listener listener;
- 	struct hid_device *hdev;
- 	struct work_struct work;
- 	unsigned int brightness;
-@@ -494,11 +494,11 @@ static void asus_schedule_work(struct asus_kbd_leds *led)
- 	spin_unlock_irqrestore(&led->lock, flags);
- }
+ #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
+ 						 QUIRK_NO_INIT_REPORTS | \
+@@ -651,7 +652,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
+ 		return -ENODEV;
  
--static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
--				   enum led_brightness brightness)
-+static void asus_kbd_backlight_set(struct asus_hid_listener *listener,
-+				   int brightness)
- {
--	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
--						 cdev);
-+	struct asus_kbd_leds *led = container_of(listener, struct asus_kbd_leds,
-+						 listener);
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&led->lock, flags);
-@@ -508,20 +508,6 @@ static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
- 	asus_schedule_work(led);
- }
- 
--static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
--{
--	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
--						 cdev);
--	enum led_brightness brightness;
--	unsigned long flags;
--
--	spin_lock_irqsave(&led->lock, flags);
--	brightness = led->brightness;
--	spin_unlock_irqrestore(&led->lock, flags);
--
--	return brightness;
--}
--
- static void asus_kbd_backlight_work(struct work_struct *work)
- {
- 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
-@@ -538,34 +524,6 @@ static void asus_kbd_backlight_work(struct work_struct *work)
- 		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
- }
- 
--/* WMI-based keyboard backlight LED control (via asus-wmi driver) takes
-- * precedence. We only activate HID-based backlight control when the
-- * WMI control is not available.
-- */
--static bool asus_kbd_wmi_led_control_present(struct hid_device *hdev)
--{
--	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
--	u32 value;
--	int ret;
--
--	if (!IS_ENABLED(CONFIG_ASUS_WMI))
--		return false;
--
--	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD &&
--			dmi_check_system(asus_use_hid_led_dmi_ids)) {
--		hid_info(hdev, "using HID for asus::kbd_backlight\n");
--		return false;
--	}
--
--	ret = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DSTS,
--				       ASUS_WMI_DEVID_KBD_BACKLIGHT, 0, &value);
--	hid_dbg(hdev, "WMI backlight check: rc %d value %x", ret, value);
--	if (ret)
--		return false;
--
--	return !!(value & ASUS_WMI_DSTS_PRESENCE_BIT);
--}
--
- /*
-  * We don't care about any other part of the string except the version section.
-  * Example strings: FGA80100.RC72LA.312_T01, FGA80100.RC71LS.318_T01
-@@ -710,14 +668,11 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
- 	drvdata->kbd_backlight->removed = false;
- 	drvdata->kbd_backlight->brightness = 0;
- 	drvdata->kbd_backlight->hdev = hdev;
--	drvdata->kbd_backlight->cdev.name = "asus::kbd_backlight";
--	drvdata->kbd_backlight->cdev.max_brightness = 3;
--	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
--	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
-+	drvdata->kbd_backlight->listener.brightness_set = asus_kbd_backlight_set;
- 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
- 	spin_lock_init(&drvdata->kbd_backlight->lock);
- 
--	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
-+	ret = asus_hid_register_listener(&drvdata->kbd_backlight->listener);
- 	if (ret < 0) {
- 		/* No need to have this still around */
- 		devm_kfree(&hdev->dev, drvdata->kbd_backlight);
-@@ -1106,7 +1061,7 @@ static int __maybe_unused asus_resume(struct hid_device *hdev) {
- 
- 	if (drvdata->kbd_backlight) {
- 		const u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4,
--				drvdata->kbd_backlight->cdev.brightness };
-+				drvdata->kbd_backlight->brightness };
- 		ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
- 		if (ret < 0) {
- 			hid_err(hdev, "Asus failed to set keyboard backlight: %d\n", ret);
-@@ -1232,7 +1187,6 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	}
- 
- 	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
--	    !asus_kbd_wmi_led_control_present(hdev) &&
- 	    asus_kbd_register_leds(hdev))
- 		hid_warn(hdev, "Failed to initialize backlight.\n");
- 
-@@ -1279,6 +1233,8 @@ static void asus_remove(struct hid_device *hdev)
- 	unsigned long flags;
- 
- 	if (drvdata->kbd_backlight) {
-+		asus_hid_unregister_listener(&drvdata->kbd_backlight->listener);
-+
- 		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
- 		drvdata->kbd_backlight->removed = true;
- 		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
++	if (drvdata->quirks & QUIRK_ROG_NKEY_LEGACY) {
+ 		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
+ 		if (ret < 0)
+ 			return ret;
+@@ -1375,10 +1376,10 @@ static const struct hid_device_id asus_devices[] = {
+ 	  QUIRK_USE_KBD_BACKLIGHT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD),
+-	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
++	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_NKEY_LEGACY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2),
+-	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
++	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_NKEY_LEGACY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
+ 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
 -- 
 2.52.0
 

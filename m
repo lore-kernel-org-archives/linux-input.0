@@ -1,42 +1,42 @@
 Received: from relay13.grserver.gr (relay13.grserver.gr [178.156.171.147])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAC9827A93C;
-	Thu, 20 Nov 2025 09:46:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E70C2F0C7D;
+	Thu, 20 Nov 2025 09:46:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.156.171.147
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763631997; cv=none; b=lOl5GuVm0bM7o1L862Gl2LJcQu2cqw50N0vT+Vb3iU+lKCmICeE3E5AXIg4mo3Xd/iNm+yOsTphYm/Y5JscbyPnL0PzoVvS5QdF9hj6aKp2HIzdtF0Yb16gFJbs1TamGrKFt5BNWR1BmIxdoTKCJD/4rWAdMs+c3VmkOx/jeMWg=
+	t=1763631997; cv=none; b=FDeYHGqARWXLyZjA0t6cYYjbEUcGJmixx8CwUL48jVxQJST2iJ1Em1ZJ+0R+g8jE0wUyGjFDmuImXRE4TP2DKshOkc898kr31Xg3mv2ZvQvoHJ9AWqsR7xOIb/M83tL7bo0rUM6iqGmF79R6al7DtFYYz4gay8MM7s3O5U3+6YA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1763631997; c=relaxed/simple;
-	bh=CgGemqdrEFX0fCobHeAikO6gj72kpNIrSxh4ZmKnhls=;
+	bh=wWg8QNr0FyH7xFsLomv4FjvFmb3WDim7ZRLGcEqJhqE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mPNTF2rMgsPJ/+hCM8hQclNO/hb2jMgpXvTe95/hFsXNeUJ/rReyBKB55/9n4FpN+unTskVBcpmPoyJ0JtFkrbvqbZEZEcxMXLhIIyTYs+r+sUP18xqFBCqKnMSDG2oo2/mv91RQAymvo3vth7gPTXIk2pOxuzhhGwJnS3QNkI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=TafPh4Lt; arc=none smtp.client-ip=178.156.171.147
+	 MIME-Version; b=AyFuy5I1mLfGrVGfluHbhBfq5vrq/UY6mcVsIB+U4G/AaloqxjGfTDfJR13WQTd0zMQs8CsqMEVpD4Mt6IwAeYXno5TU8hIN7z1AVNEXSp8JSOF4d9OtY9a6XW/Fl0k5JK4Kf94jQx+YeRPLYgab/pX9GnN1DnmtiN+24gruqTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=TrmQBBit; arc=none smtp.client-ip=178.156.171.147
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="TafPh4Lt"
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="TrmQBBit"
 Received: from relay13 (localhost [127.0.0.1])
-	by relay13.grserver.gr (Proxmox) with ESMTP id D8A8E5E61E;
-	Thu, 20 Nov 2025 11:46:32 +0200 (EET)
+	by relay13.grserver.gr (Proxmox) with ESMTP id AC8DE5E5F2;
+	Thu, 20 Nov 2025 11:46:34 +0200 (EET)
 Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by relay13.grserver.gr (Proxmox) with ESMTPS id 4C39F5E5EC;
-	Thu, 20 Nov 2025 11:46:32 +0200 (EET)
+	by relay13.grserver.gr (Proxmox) with ESMTPS id 38AC05E567;
+	Thu, 20 Nov 2025 11:46:34 +0200 (EET)
 Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id B55D51FE2E1;
-	Thu, 20 Nov 2025 11:46:30 +0200 (EET)
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id BD6DA1FE2E1;
+	Thu, 20 Nov 2025 11:46:32 +0200 (EET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1763631991;
-	bh=+/eOd+/32V6nu9WynOaEVZ4m9WyGKr6zjXw8fRaHFZ0=; h=From:To:Subject;
-	b=TafPh4LtAPFzrndeLvtJ/tZjbI16JQdTqf+BtE2Vxb4Bpg6N7H22k7Lmt0TiYX+ql
-	 5iwC4zyxXsZbJUcwfPuzFcdA9EkHW5IQ+5ydMOYVFAZvBj4Blj++NnR5aG+QRqMoLT
-	 8fL5d2YBjVsPY83rK3twdKMMfRAGKA6Ag+B7bIxe6+wtX/uwYzEInUOCCSBiLj4etO
-	 +XM1BKpDCC+TkA0Bopav03GBfFe0y0WbKdT2VbJqJXEL3D+zC7mshbQSl2hRxynZBm
-	 6MlySkbdOShmWyVbDHFTG1Fij9BP6rF9N+3Dxr7Fvg7fdrFzSvf+lDww4McHmKKuJ0
-	 /Gl1/0RUwBVPw==
+	s=default; t=1763631993;
+	bh=PE0/ftMO6HMWnVP4uB//u99l0xua7PGR+qAAsD061oU=; h=From:To:Subject;
+	b=TrmQBBits5+RcyqMDrOMbSZWCNcKZ7NEvuBUxRSPxGe6/JMmoXWe6LDIPDXwQ7ATq
+	 cw1NnTRtJyMcsqFCa2maOsSAXnSjStbtLf4qutJyL7q6EBk7H6dpAt97e5GbqIHY3/
+	 0lxIWwo4Vw1YpZrh5EIJFBvW6dzlKpEuHCz/1hM8lSZKfzPv+R/p6wUHpcFqeBUDhO
+	 IAnOSCbfNCQyr8LZ2EaGzDwA5iAgIWaWO8BoCbTnIt7NnZqAkvMq5FGpXebs2VGBIy
+	 J78zraYXcJkMEtSp+qVqrOqDLhBA4ekU0EpYCzt2QwrNSGhxR0ciIVDYkSQHZvVKjv
+	 b+23UXzMAOEkQ==
 Authentication-Results: linux3247.grserver.gr;
 	spf=pass (sender IP is 2a05:f6c2:511b:0:8d8a:5967:d692:ea4e) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
 Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
@@ -52,9 +52,9 @@ Cc: linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <benato.denis96@gmail.com>,
 	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v9 04/11] HID: asus: fortify keyboard handshake
-Date: Thu, 20 Nov 2025 10:46:10 +0100
-Message-ID: <20251120094617.11672-5-lkml@antheas.dev>
+Subject: [PATCH v9 06/11] HID: asus: early return for ROG devices
+Date: Thu, 20 Nov 2025 10:46:12 +0100
+Message-ID: <20251120094617.11672-7-lkml@antheas.dev>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251120094617.11672-1-lkml@antheas.dev>
 References: <20251120094617.11672-1-lkml@antheas.dev>
@@ -66,85 +66,43 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <176363199140.1475065.12025952639067331988@linux3247.grserver.gr>
+ <176363199334.1475148.7340417949826744481@linux3247.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
 X-Virus-Status: Clean
 
-Handshaking with an Asus device involves sending it a feature report
-with the string "ASUS Tech.Inc." and then reading it back to verify the
-handshake was successful, under the feature ID the interaction will
-take place.
+Some ROG devices have a new dynamic backlight interface for control by
+Windows. This interface does not create an ->input device, causing the
+kernel to print an error message and to eject it. In addition, ROG
+devices have proper HID names in their descriptors so renaming them is
+not necessary.
 
-Currently, the driver only does the first part. Add the readback to
-verify the handshake was successful. As this could cause breakages,
-allow the verification to fail with a dmesg error until we verify
-all devices work with it (they seem to).
-
-Since the response is more than 16 bytes, increase the buffer size
-to 64 as well to avoid overflow errors.
+Therefore, if a device is identified as ROG, early return from probe to
+skip renaming and ->input checks.
 
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/hid/hid-asus.c | 32 +++++++++++++++++++++++++++++---
- 1 file changed, 29 insertions(+), 3 deletions(-)
+ drivers/hid/hid-asus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 6de402d215d0..5149dc7edfc5 100644
+index 3047bc54bf2e..6193c9483bec 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -48,7 +48,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define FEATURE_REPORT_ID 0x0d
- #define INPUT_REPORT_ID 0x5d
- #define FEATURE_KBD_REPORT_ID 0x5a
--#define FEATURE_KBD_REPORT_SIZE 16
-+#define FEATURE_KBD_REPORT_SIZE 64
- #define FEATURE_KBD_LED_REPORT_ID1 0x5d
- #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+@@ -1236,6 +1236,13 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	    asus_kbd_register_leds(hdev))
+ 		hid_warn(hdev, "Failed to initialize backlight.\n");
  
-@@ -394,14 +394,40 @@ static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t bu
- 
- static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
- {
 +	/*
-+	 * The handshake is first sent as a set_report, then retrieved
-+	 * from a get_report. They should be equal.
++	 * For ROG keyboards, skip rename for consistency and ->input check as
++	 * some devices do not have inputs.
 +	 */
- 	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
- 		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	u8 *readbuf;
- 	int ret;
- 
- 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
--	if (ret < 0)
--		hid_err(hdev, "Asus failed to send init command: %d\n", ret);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to send handshake: %d\n", ret);
-+		return ret;
-+	}
++	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD)
++		return 0;
 +
-+	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	if (!readbuf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, report_id, readbuf,
-+				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
-+				 HID_REQ_GET_REPORT);
-+	if (ret < 0) {
-+		hid_err(hdev, "Asus failed to receive handshake ack: %d\n", ret);
-+	} else if (memcmp(readbuf, buf, sizeof(buf)) != 0) {
-+		hid_warn(hdev, "Asus handshake returned invalid response: %*ph\n",
-+			FEATURE_KBD_REPORT_SIZE, readbuf);
-+		/*
-+		 * Do not return error if handshake is wrong until this is
-+		 * verified to work for all devices.
-+		 */
-+	}
- 
-+	kfree(readbuf);
- 	return ret;
- }
- 
+ 	/*
+ 	 * Check that input registration succeeded. Checking that
+ 	 * HID_CLAIMED_INPUT is set prevents a UAF when all input devices
 -- 
 2.52.0
 

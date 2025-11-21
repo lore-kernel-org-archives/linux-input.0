@@ -1,218 +1,210 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0FFD2E6100;
-	Fri, 21 Nov 2025 10:11:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA94845948
+	for <linux-input@vger.kernel.org>; Fri, 21 Nov 2025 13:16:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763719895; cv=none; b=sHqcnCRRXmXF2TkKf4NBNKiZpUSeqLKB5Qa2ICHBjHH/Y5azSOgDnCff+I8Gbmjfx3ifP+21yIUOg3dKXYIH0KbWaUsqa3bdndUhS+idWlivpvQmo43mzYEI2Lxl154zhVy2eHhiRRQBltabdZUi9QjEtdflXUxFQBjALJ0hzp0=
+	t=1763730967; cv=none; b=T7Jis9BKZa7+k1osD8X47kngU06SBnV4osHNodoZWG5IfxrIpplZYfoXbqY6NSIDuJMJq1L8Lkq0ayzYPkAU+0oOJntgdFLbY4rV1do8txHFyJhYQBZk+ly+aSUzOIySrcxHQsFDITUFncvSrDD21blRbLtJew3mZ5KjNlhhEb0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763719895; c=relaxed/simple;
-	bh=GCbpLVYsOA++8fboysqkze61LMR6cXlTj5aQ5i9vpYA=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=KSRCRICBD0Y8zrm2YuYGNtqg0h+oY/DVvwyyjy7Kg/8D4ZJCCxxfe6GFtwzyMreBQEvVd8+Rbto42PItrN+taEBEzHIX8vnrSMpgwZLA5Torb4yHMDclkecOFefwaom5uzsdLApDmb7HvZ2HrqmHlrXcjgg5rWrwL3CEDlxQohQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VKJCYp+0; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1763730967; c=relaxed/simple;
+	bh=ZhSpw/YpmSavBN1dUJFsnZKHTzQhr4GRcB2pvAgV2dQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hMGrSwhoinIxAYQI/p0zgFoS95VEShc0tH/getLZg2gIAn+woDHx4L7sSlzI20KeW0dMM9kP/gaWvBvG8oWHStTj1d1rXxZOhVIMy42p0xIiXaaILKwoTQL71CzWYiHlT3eaW/y45nnY5SH1L0CKB5U+3gy41/aNryon+CJHTBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K6lIQtYo; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=kynOp6dJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VKJCYp+0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763719893; x=1795255893;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=GCbpLVYsOA++8fboysqkze61LMR6cXlTj5aQ5i9vpYA=;
-  b=VKJCYp+0HOKvSCkZEyzP1UiJdpGC/H6uzUMfMPqyDYhoy1ymAtgL73un
-   EhNE3MeGYt5fRuFhgY9oKIvrynKbR6EypqdsDofqi8c1BFH2WzaSlx3dQ
-   uJT9Xo1acpRJvJuCT3Cc7PSxrSZNqXDSl1KXg2G3tCIPCI13K1/gY9I5z
-   SrZeB3tmjPTKPD8A47Z9AJAxFEt5gbzEYd7WVCvZKj2oQFxt3dadf0euJ
-   sbuZ4eFB+FR8xQaH+k79fnoazS+S9hWkOpGAXYuACOJDqSOc+r/KmWDhG
-   MKBc/lPnbWeWbB9/aQkZUNmgR2kx/m9+pj+cCLmMq/lni0Ay1RkfYdi2Y
-   w==;
-X-CSE-ConnectionGUID: zhAFr7DtRVupWyUwSeyupA==
-X-CSE-MsgGUID: x96qp8OpQ2Gm3/MNZBC1QQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11619"; a="65756484"
-X-IronPort-AV: E=Sophos;i="6.20,215,1758610800"; 
-   d="scan'208";a="65756484"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2025 02:11:32 -0800
-X-CSE-ConnectionGUID: ay0yYH9ESdenDKBPhDZ+7Q==
-X-CSE-MsgGUID: lDyhhG3sSImaijiXssn+ZQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.20,215,1758610800"; 
-   d="scan'208";a="195818633"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.50])
-  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2025 02:11:28 -0800
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Fri, 21 Nov 2025 12:11:24 +0200 (EET)
-To: Antheas Kapenekakis <lkml@antheas.dev>
-cc: Denis Benato <benato.denis96@gmail.com>, 
-    platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-    Benjamin Tissoires <bentiss@kernel.org>, 
-    Corentin Chary <corentin.chary@gmail.com>, 
-    "Luke D . Jones" <luke@ljones.dev>, Hans de Goede <hansg@kernel.org>
-Subject: Re: [PATCH v9 04/11] HID: asus: fortify keyboard handshake
-In-Reply-To: <CAGwozwHSFy6UhbEGBSvYewoFXozd8=MrbpKv5qexeo0yA+4NkQ@mail.gmail.com>
-Message-ID: <f399a2f3-b594-7633-250e-1077b4983801@linux.intel.com>
-References: <20251120094617.11672-1-lkml@antheas.dev> <20251120094617.11672-5-lkml@antheas.dev> <967761fb-3f55-4d51-be0b-23ad03258eff@gmail.com> <CAGwozwF6wegwHy=W1zaTEVksQYaw4L7V27w2aaZBMMoDjUjRYg@mail.gmail.com> <04075ef3-3fba-c308-871f-619972ffe5ff@linux.intel.com>
- <CAGwozwHSFy6UhbEGBSvYewoFXozd8=MrbpKv5qexeo0yA+4NkQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K6lIQtYo";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="kynOp6dJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763730963;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gxL4AjPR/Sfl2b2JcwNF4z36yeSq6EEcb52ZetruLZ8=;
+	b=K6lIQtYoL2XfCcCGaDvKfsGfJEWaTfrQJGvVVIfXrDVYRRiD2uiHztAvH50b4EP/YFkuR9
+	0JtqojOUl1RcjaqvlVUB0EO1w2ZX+iav8VvOI7JwzJO80SHXYHBomHq4ygRNkPFel1WVwu
+	jg9i4qt6jisdEb/EH9ldeVZu5BapZTg=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-567-XcZwTosEO1C_Zd83aKONnQ-1; Fri, 21 Nov 2025 08:16:02 -0500
+X-MC-Unique: XcZwTosEO1C_Zd83aKONnQ-1
+X-Mimecast-MFC-AGG-ID: XcZwTosEO1C_Zd83aKONnQ_1763730961
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47106720618so18882985e9.1
+        for <linux-input@vger.kernel.org>; Fri, 21 Nov 2025 05:16:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1763730961; x=1764335761; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gxL4AjPR/Sfl2b2JcwNF4z36yeSq6EEcb52ZetruLZ8=;
+        b=kynOp6dJe3DTzdC/RWK7DPEGuqQjLfn1k3Bt+CRFsegXM3nZNq+BnOFE+XIE1pUMI0
+         f5gELZ9YLrK9YNURRJ90qaQ1rrB3B4v21Dd4JtelwwRzH/qrF3e1WZ+PFHEfG516WoGN
+         q6KwRchRMXpa+ehFm3G22T2io+ApeuvSakTk5/ezTygbSzOlsfMsQjeHTNHMhFvuC4R2
+         wGcugc/E0wVD4dHKkB8u2OS7lV35bFpH4azc+rhMAOe9LTuG/kW5WbFlVhNMCUlz0Kcw
+         cui05v+S+Qwo44ohbzZjhfcwXkpGHpAGhT434vnRmCWVLo8/Z71ndVno0gHSm+6Fe7pc
+         9N4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763730961; x=1764335761;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=gxL4AjPR/Sfl2b2JcwNF4z36yeSq6EEcb52ZetruLZ8=;
+        b=VpnGRf2VfdZYj83eIwrsWpwKrNNaxy7JIYFxC0OkkrwMXdP/hJr5O7622CM/Jsqbyu
+         b1ZnQC7yQBWfrLktSp1pQewt8knE4vQEkt/Xbsf4ojaAQW0vcCgbTZEa6LBONpaLO6Zv
+         YxjVD4EKzegXWw+0DwPgldlzBbrME/UA0cAZ8Q3azeLUSoYID7uEudGPSmQvPFhTSun/
+         8lYP6fX+vnmyF8fInJykb+FsbgKcTwzCeYgrY0DEtI0AgCPCIYy7s0WDnaZF0Xp+WEkT
+         /OH1a/lO+OErmicbvtCk4XNYcBo3vy10hlCp1jB2DUVcfhVnSgGpISxC1Q0PIWji8eLK
+         xuSg==
+X-Gm-Message-State: AOJu0YyQrCcONA08CJ+p7N+Bs7agoCtfbh753q//H0BzIHwew0An+Wqk
+	K6cXXqp85Dvxk5DJSLq7KSwCTkmyidqUYrOE34/JPtGAlG4yfH19IuzKIdagJMHjjCiAfq1Fqx/
+	+7/4093G0oUTNIDGK39PX0ANC5BvRouKSfBIk+CzC/slcYLcdUavKVHylFOjsJYNbC3KqCB1D8h
+	7SBPCF6FfGxDaTG4UXREAHxD02mXwer/nk+BCQoA86AFokKdNR
+X-Gm-Gg: ASbGnct3L7ddAbi6NAbSGnqmflHtJCSIbR5UnaW5LYc8yexpMLNMNzKjSs1nM8C+oM/
+	lN1y3KzHf1mvqMvuqxEwoE5FzglfLTx/MlZw0IRs8lTmksx1hsl7VTBe1G7laCYXOIzASQIp7hJ
+	eNXHqzxW4otGszA8WHnTN4fwqPIFJIzwuIwjgVgqY1iD54pNnbm8wdvugWHudTWSM1zXNeImf+e
+	kNcZuPqED41wq3IIMCet3du6j9Alno9o+0UDJMjFSNNZ4BPKaZ0M+VpiPAtWhsd6z4OlsH3++QP
+	Mi9XBEPgCU9xg1P+I1wn04Z5SvkvqrC48pQaZ88jetW4UTPPANOH59Q1aq5ALYBw9Kf8/7sd86M
+	yedj94pDLhtCTnXxURf1XBmhSoPn2ylMSZWhNBPneFxt0uRLjGoBBuetATsJtXsvBpoirz7ZBQ7
+	S4ysXuGdU=
+X-Received: by 2002:a05:600c:1994:b0:46f:c55a:5a8d with SMTP id 5b1f17b1804b1-477c0176437mr25431335e9.4.1763730960936;
+        Fri, 21 Nov 2025 05:16:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IExW9MYcMyacXEWc0tXBj89IgXKkxdm4XxaWwo50oiwPSPIteQC2JzqExYS3RR2fuRMKI/zDQ==
+X-Received: by 2002:a05:600c:1994:b0:46f:c55a:5a8d with SMTP id 5b1f17b1804b1-477c0176437mr25430825e9.4.1763730960377;
+        Fri, 21 Nov 2025 05:16:00 -0800 (PST)
+Received: from sissix.redhat.com ([2a06:5900:814a:ab00:3725:2991:6cf3:b3aa])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477bf3ba1b4sm43077435e9.15.2025.11.21.05.15.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Nov 2025 05:16:00 -0800 (PST)
+From: Lucas Zampieri <lzampier@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: Lucas Zampieri <lzampier@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Bastien Nocera <hadess@hadess.net>,
+	linux-pm@vger.kernel.org
+Subject: [PATCH v5 1/2] HID: input: Convert battery code to devm_*
+Date: Fri, 21 Nov 2025 13:15:53 +0000
+Message-ID: <20251121131556.601130-2-lzampier@redhat.com>
+X-Mailer: git-send-email 2.51.1
+In-Reply-To: <20251121131556.601130-1-lzampier@redhat.com>
+References: <20251121131556.601130-1-lzampier@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323328-86961989-1763719884=:965"
+Content-Transfer-Encoding: 8bit
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Convert the HID battery code to use devm_* managed resource APIs.
 
---8323328-86961989-1763719884=:965
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+This changes the following allocations:
+- kzalloc() -> devm_kzalloc() for power_supply_desc
+- kasprintf() -> devm_kasprintf() for battery name
+- power_supply_register() -> devm_power_supply_register()
 
-On Thu, 20 Nov 2025, Antheas Kapenekakis wrote:
+No functional behavior changes.
 
-> On Thu, 20 Nov 2025 at 17:41, Ilpo J=C3=A4rvinen
-> <ilpo.jarvinen@linux.intel.com> wrote:
-> >
-> > On Thu, 20 Nov 2025, Antheas Kapenekakis wrote:
-> >
-> > > On Thu, 20 Nov 2025 at 15:15, Denis Benato <benato.denis96@gmail.com>=
- wrote:
-> > > >
-> > > >
-> > > > On 11/20/25 10:46, Antheas Kapenekakis wrote:
-> > > > > Handshaking with an Asus device involves sending it a feature rep=
-ort
-> > > > > with the string "ASUS Tech.Inc." and then reading it back to veri=
-fy the
-> > > > > handshake was successful, under the feature ID the interaction wi=
-ll
-> > > > > take place.
-> > > > >
-> > > > > Currently, the driver only does the first part. Add the readback =
-to
-> > > > > verify the handshake was successful. As this could cause breakage=
-s,
-> > > > > allow the verification to fail with a dmesg error until we verify
-> > > > > all devices work with it (they seem to).
-> > > > >
-> > > > > Since the response is more than 16 bytes, increase the buffer siz=
-e
-> > > > > to 64 as well to avoid overflow errors.
-> > > > >
-> > > > > Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
-> > > > > ---
-> > > > >  drivers/hid/hid-asus.c | 32 +++++++++++++++++++++++++++++---
-> > > > >  1 file changed, 29 insertions(+), 3 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> > > > > index 6de402d215d0..5149dc7edfc5 100644
-> > > > > --- a/drivers/hid/hid-asus.c
-> > > > > +++ b/drivers/hid/hid-asus.c
-> > > > > @@ -48,7 +48,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and Touch=
-Pad");
-> > > > >  #define FEATURE_REPORT_ID 0x0d
-> > > > >  #define INPUT_REPORT_ID 0x5d
-> > > > >  #define FEATURE_KBD_REPORT_ID 0x5a
-> > > > > -#define FEATURE_KBD_REPORT_SIZE 16
-> > > > > +#define FEATURE_KBD_REPORT_SIZE 64
-> > > > >  #define FEATURE_KBD_LED_REPORT_ID1 0x5d
-> > > > >  #define FEATURE_KBD_LED_REPORT_ID2 0x5e
-> > > > >
-> > > > > @@ -394,14 +394,40 @@ static int asus_kbd_set_report(struct hid_d=
-evice *hdev, const u8 *buf, size_t bu
-> > > > >
-> > > > >  static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
-> > > > >  {
-> > > > > +     /*
-> > > > > +      * The handshake is first sent as a set_report, then retrie=
-ved
-> > > > > +      * from a get_report. They should be equal.
-> > > > > +      */
-> > > > >       const u8 buf[] =3D { report_id, 0x41, 0x53, 0x55, 0x53, 0x2=
-0, 0x54,
-> > > > >                    0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e=
-, 0x00 };
-> > > > > +     u8 *readbuf;
-> > > > >       int ret;
-> > > > >
-> > > > >       ret =3D asus_kbd_set_report(hdev, buf, sizeof(buf));
-> > > > > -     if (ret < 0)
-> > > > > -             hid_err(hdev, "Asus failed to send init command: %d=
-\n", ret);
-> > > > > +     if (ret < 0) {
-> > > > > +             hid_err(hdev, "Asus failed to send handshake: %d\n"=
-, ret);
-> > > > > +             return ret;
-> > > > > +     }
-> > > > > +
-> > > > > +     readbuf =3D kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-> > > > I see my suggestion to use __free here didn't materialize in code u=
-sing
-> > > > it even after Ilpo kindly wrote how to correctly use it.
-> > > >
-> > > > I think you can move the readbuf assignment right below buf and
-> > > > take into account what Ilpo said.
-> > > >
-> > > > I don't expect new variables will be added here ever again,
-> >
-> > It's also about always doing the right thing so others will pick up the
-> > pattern (for the cases when it's needed).
-> >
-> > > > but I agree with Ilpo that it's a good idea here to write code
-> > > > accounting for that possibility.
-> > > >
-> > > > It is my understanding that who proposes patches is expected to
-> > > > resolve discussions when changes are proposed or to take into
-> > > > account requested changes and submit a modified version.
-> > >
-> > > It was ambiguous. I interpreted Ilpo's email as a dismissal
-> >
-> > I tried to explain how to use it, not to suggest cleanup.h shouldn't be
-> > used.
->=20
-> Ok, I'll wait a few days and do another revision, doing some rewording
-> as well. Hopefully that will cover everything. To that extent, try to
-> finish reviewing the latter part of the series before that revision.
->=20
-> I'm a bit concerned with introducing kfree here because I do not know
-> how to use it and it might regress, but it should be ok.
+Signed-off-by: Lucas Zampieri <lzampier@redhat.com>
+---
+ drivers/hid/hid-input.c | 49 +++++++++--------------------------------
+ 1 file changed, 10 insertions(+), 39 deletions(-)
 
-You probably meant to say __free(), there are other things that could be=20
-put inside __free() beyond kfree (no need to ack if that was the case).
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index e56e7de53279..5f313c3c35e2 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -530,17 +530,15 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	if (quirks & HID_BATTERY_QUIRK_IGNORE)
+ 		return 0;
+ 
+-	psy_desc = kzalloc(sizeof(*psy_desc), GFP_KERNEL);
++	psy_desc = devm_kzalloc(&dev->dev, sizeof(*psy_desc), GFP_KERNEL);
+ 	if (!psy_desc)
+ 		return -ENOMEM;
+ 
+-	psy_desc->name = kasprintf(GFP_KERNEL, "hid-%s-battery",
+-				   strlen(dev->uniq) ?
+-					dev->uniq : dev_name(&dev->dev));
+-	if (!psy_desc->name) {
+-		error = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	psy_desc->name = devm_kasprintf(&dev->dev, GFP_KERNEL, "hid-%s-battery",
++					strlen(dev->uniq) ?
++						dev->uniq : dev_name(&dev->dev));
++	if (!psy_desc->name)
++		return -ENOMEM;
+ 
+ 	psy_desc->type = POWER_SUPPLY_TYPE_BATTERY;
+ 	psy_desc->properties = hidinput_battery_props;
+@@ -576,36 +574,15 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	if (quirks & HID_BATTERY_QUIRK_AVOID_QUERY)
+ 		dev->battery_avoid_query = true;
+ 
+-	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
++	dev->battery = devm_power_supply_register(&dev->dev, psy_desc, &psy_cfg);
+ 	if (IS_ERR(dev->battery)) {
+-		error = PTR_ERR(dev->battery);
+-		hid_warn(dev, "can't register power supply: %d\n", error);
+-		goto err_free_name;
++		hid_warn(dev, "can't register power supply: %ld\n",
++			 PTR_ERR(dev->battery));
++		return PTR_ERR(dev->battery);
+ 	}
+ 
+ 	power_supply_powers(dev->battery, &dev->dev);
+ 	return 0;
+-
+-err_free_name:
+-	kfree(psy_desc->name);
+-err_free_mem:
+-	kfree(psy_desc);
+-	dev->battery = NULL;
+-	return error;
+-}
+-
+-static void hidinput_cleanup_battery(struct hid_device *dev)
+-{
+-	const struct power_supply_desc *psy_desc;
+-
+-	if (!dev->battery)
+-		return;
+-
+-	psy_desc = dev->battery->desc;
+-	power_supply_unregister(dev->battery);
+-	kfree(psy_desc->name);
+-	kfree(psy_desc);
+-	dev->battery = NULL;
+ }
+ 
+ static bool hidinput_update_battery_charge_status(struct hid_device *dev,
+@@ -660,10 +637,6 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	return 0;
+ }
+ 
+-static void hidinput_cleanup_battery(struct hid_device *dev)
+-{
+-}
+-
+ static void hidinput_update_battery(struct hid_device *dev, unsigned int usage,
+ 				    int value)
+ {
+@@ -2379,8 +2352,6 @@ void hidinput_disconnect(struct hid_device *hid)
+ {
+ 	struct hid_input *hidinput, *next;
+ 
+-	hidinput_cleanup_battery(hid);
+-
+ 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
+ 		list_del(&hidinput->list);
+ 		if (hidinput->registered)
+-- 
+2.51.1
 
-It's not rocket science, basically the compiler performs the freeing=20
-function when the scope the variable is in goes away. For error handling=20
-rollback, this avoids need to do the cleanup call manually and no path is=
-=20
-left accidently without cleanup.
-
-For cases, where you want to preserve a pointer to the allocated thing,
-there are additional wrappers that one uses when returning the pointer
-out of function (only gotcha here is that it will NULL the local=20
-variable in question, so the variable cannot be dereferenced after that=20
-point; been there, done that and had to debug a boot issue :-)).
-
-> I'd rather push the init down instead of pulling it up. Referencing
-> other code samples for kfree it is acceptable to push the variable
-> definition down, right?
-
-Yes.
-
-Mid-function definitions used to be forbidding on the compiler level=20
-but it was changed exactly because adding this auto cleanup framework. So=
-=20
-while top definition is still the general requirement, using __free() is an=
-=20
-exception to that rule and should be defined at the spot where we make=20
-the "alloc" to ensure the teardown order is exactly reverse of the alloc=20
-order (the order you introduce variables is the reverse of the order in=20
-which the compiler will perform each tear down).
-
---=20
- i.
-
---8323328-86961989-1763719884=:965--

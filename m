@@ -1,133 +1,169 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay13.grserver.gr (relay13.grserver.gr [178.156.171.147])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DE372AD00
-	for <linux-input@vger.kernel.org>; Sat, 22 Nov 2025 06:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C2C27FD5D;
+	Sat, 22 Nov 2025 11:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.156.171.147
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763794037; cv=none; b=s59KIZ2HgBUv45bz0ejS6sH6gXREhFHq+e3jw/x8NqMWCtfQpErZf3wc7vZv5rZLBNRaqHY0m7y8Wg8ZQeVtT6ec6O58g5ocjSIom/g4gsfSSWfIFBAtuddbwoH/kQON/P3wIlBhqPG0dR0wkuEVIdZDOYoBYansntmRYA2FHoM=
+	t=1763809276; cv=none; b=YjM/0GF4RpHGNo3MYLF0CzQoJQitpk36y/mKgx9x51LmnM5QqZcZ0nsWPeNxluId9DJXXK8PC5fzhvYvRXphsx3X88/9D3PNWiKg0wFOHP5lOdbXI+EUqt/yNEsEkwHQyRx5oGFh2p3GdsA4S0s5YjLvY98FqseQz/vVO9fqfLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763794037; c=relaxed/simple;
-	bh=Uy5EBL9ryOvcuUb1Ww0ajpOtzqeN5fwHgVcJN+Rc/u0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=mjVNNxEmuk2wNYlyHc8Ohrndd3PWkZvFFzC4HoobskGINs6xDxwXDRm5YCWeXkTpxZj+uA2MAxvIGZKhqGAWjyU4nXi8Bl6H9oUkiOVElG6RykPaJ4ohU8+dNDRDAwhYlkEJOGodZg+i1PUDpwE6kdi13hlxKV1Qo0SZIq6Y/AY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TQdXtnsK; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763809276; c=relaxed/simple;
+	bh=I9QsCa5KySBL07VO/mQ5lkx5BrmpHtkbbe2ZxjhAFDU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=guZ4CGaIvG1cBOhxYR42q3wqlgBQU7owz0JswD7EuxlAfTBQg0uKrdOZQH3uVnhVIhAKZuFNSaiRSocQWSccFkBpJgefc5lZbSv7G5LAbUzHijv4KPqD+LpBJ7+rrLH8efrg4nnhljSzX3VpyFGKMYHM79YBiKuuKcVK00cJP+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=CSmKfCgS; arc=none smtp.client-ip=178.156.171.147
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TQdXtnsK"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2a45877bd5eso3894522eec.0
-        for <linux-input@vger.kernel.org>; Fri, 21 Nov 2025 22:47:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763794035; x=1764398835; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ceroZ4u+zWprBwIaHbqT81vyTjPO028Wln0q3zx0hiI=;
-        b=TQdXtnsKYcIPLk6bPtmY2rztTWU81aIfPNz1TY/fSAMYl+wwixE/aT+P9dpZJdfhwZ
-         fLQBdou6rWA4ZtfmG9+DhnM+JURzLGkyOVPvcRAL6HBx3Wuu7JgjpCra7qEAUP8qKMg9
-         XJWqaKV0GArq8HO/0RfUB+FIaNU5X5+mlnnAEmAKlyv2bfneXxROV6Usxyb1NBbRymYb
-         q05QGVlhczLDCIFCM3lzckip8BKMxLzMLfv7sq+7CLMHld9m3z5xyOzVylCY3arGhJDI
-         f5Soa9f151/CfAyQLcYBeaA2ZSgWNYyBq3FPsEnKCIRigSU1dQjTxxl+/Ykfu3Xa18me
-         IgHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763794035; x=1764398835;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ceroZ4u+zWprBwIaHbqT81vyTjPO028Wln0q3zx0hiI=;
-        b=r4EhNk2h0PwjL0DQf+thCMTI+9M52p7kAWe7IArPq9bMB0PFGq59IMDnevu4hEHmQu
-         R9Tfc2/ZL5IHprZVC3c+R0Ef8dhiVZ6nH5N9BM8ZP/9URmgipYulnbuHOBxaYWq3c7Qo
-         XYOfmKaw46NuRBEqJ1ZmeKXy11aVL5y2orhcw4lDCyNwlc3w57pR6G0Xjl144kzwOkeN
-         g3knHqzd3HTBGeCZseARbMbpPWmXTIOcoyiGSa1bFBD6AwJPfFJqiOGibsafCfzR0xTV
-         HGlcRcYrtD4HRUNFuo3ganalqxMBrI16Hawfvyx8cWAOuRxOXq0wvGDeFLQ/m+g15+bd
-         jp2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUqM0CARUQiDspe911DtzBO87Y/nOwHz4f3fntfPxJhriM3zYa4O1haUGSKxOZ76xkANOnUIsdB1c2yIg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxMnNYCKEJ91mhy7lTbeQ+BdhJAQrrFRWXfzn7y31Om0OmtdnF
-	wj8lK1wv1H7yHdYl7YgF2eO1wbbg8RPEoRN+LWgfNYBXazZ9BJwXvtZX
-X-Gm-Gg: ASbGncu04sWMJIr+vf75nPNkDlWFE5VDHTulZ8upJxFSPI4PoYkw5sWJKpcDMqMW1GL
-	/AFHR9BiAx/TrT1hriXr+TZi5r3koT4ZRCeR+RVZOmZZ8mqcj4OPbcUjOUBMTn0N1jIL/Ow01oj
-	1fG9tsDNUsFSp4bR5mUyxStId54sVNNRU1O726rcbODXjglPDFM54D/y7/16qzkqr6EpRutMPNc
-	1zb+jOnIm4BXq3HKy0WsGU8KMK17dDO9tfKEMnWvPbzdhA58vPweR4cil2J+XPdm0xbHDFDhd26
-	LUIuFYmR8dZiGifBUbki0uMwM98OG3+DCES7QlMkQusTeXNgP/Z26/qGFcnNGbdbwuukHMxB5uP
-	YsfeHDvJ3o22J2qXpto3Yq+rIPN4lY77uw550NOJieuZxkT3p/q5cjFzprR0MH7z5ufLcPAPYqC
-	tBCUUqOO+9rCV51nqlNopxXcPbItbJE+oKDAFvBrbiR6BwTHcg6PLu
-X-Google-Smtp-Source: AGHT+IGi6+LksQrQNQRm2me/Zd7hbHIFHnFLNUzLcYfewyFXibECwPLjlPB2yafXlqfdu5OEad/y9g==
-X-Received: by 2002:a05:7301:1001:b0:2a4:7294:f7b7 with SMTP id 5a478bee46e88-2a7188dc3aamr2557727eec.16.1763794034941;
-        Fri, 21 Nov 2025 22:47:14 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:2009:6689:bde0:1b79])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2a6fc204881sm32553359eec.0.2025.11.21.22.47.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Nov 2025 22:47:14 -0800 (PST)
-Date: Fri, 21 Nov 2025 22:47:12 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [git pull] Input updates for v6.18-rc6
-Message-ID: <s7ye6uffvflxyk543emnmjsqyjc6d22scy6qcr52zegssmdtwj@wswhzowey34g>
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="CSmKfCgS"
+Received: from relay13 (localhost [127.0.0.1])
+	by relay13.grserver.gr (Proxmox) with ESMTP id 15DF85E4C1;
+	Sat, 22 Nov 2025 13:01:06 +0200 (EET)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay13.grserver.gr (Proxmox) with ESMTPS id C3D3A5E532;
+	Sat, 22 Nov 2025 13:01:01 +0200 (EET)
+Received: from antheas-z13 (unknown [IPv6:2a05:f6c2:511b:0:8d8a:5967:d692:ea4e])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 1076F200E56;
+	Sat, 22 Nov 2025 13:01:00 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1763809260;
+	bh=k0Dhe6lLC7TXavNUqsk4Q99lz6lSYfPM7KMlUfPE3dw=; h=From:To:Subject;
+	b=CSmKfCgSnyXOMlLrhIOSnQIHFhUdnPSESQV89bQnm7WDxYchTB5zGXi2/iBO4N6ww
+	 8iUwYALQwjg/JotMV0Z9GmgyRlW6pCOD6ubJgph0XsI8NyJQTibPCg3kWzA9ZCfpUQ
+	 s+oly/0NjXDG52cAS8Qy3yUvC6suWoVRkua3Qq/8HJTyvVahAEraVU4G/HzD84LhcV
+	 R3dDWcQdTtAualmrxr3aMb/IL4ql1mqd9YfFUd1wj/6liw4NjU2u5Jg9oPueiSJyQb
+	 E/MoYfRMRtNOWMw9G/ittkgxevmfUDOzkzhHgWGzkfamkge7bVxe6RYpU98D3UM30R
+	 QXX65ElQA9E/A==
+Authentication-Results: linux3247.grserver.gr;
+	spf=pass (sender IP is 2a05:f6c2:511b:0:8d8a:5967:d692:ea4e) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+From: Antheas Kapenekakis <lkml@antheas.dev>
+To: platform-driver-x86@vger.kernel.org,
+	linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Corentin Chary <corentin.chary@gmail.com>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	Hans de Goede <hansg@kernel.org>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Denis Benato <benato.denis96@gmail.com>,
+	Antheas Kapenekakis <lkml@antheas.dev>
+Subject: [PATCH v10 01/11] HID: asus: simplify RGB init sequence
+Date: Sat, 22 Nov 2025 12:00:22 +0100
+Message-ID: <20251122110032.4274-2-lkml@antheas.dev>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20251122110032.4274-1-lkml@antheas.dev>
+References: <20251122110032.4274-1-lkml@antheas.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-PPP-Message-ID: 
+ <176380926063.357899.14995360920095796107@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-Hi Linus,
+Currently, RGB initialization forks depending on whether a device is
+NKEY. However, in reality both initialization forks are the same, other
+than the NKEY initialization initializing the LED_REPORT_ID1,
+LED_REPORT_ID2 endpoints, and the non-NKEY initialization having a
+functionality check which is skipped for the NKEY path.
 
-Please pull from:
+Therefore, merge the if blocks, gate the ID1/ID2 initializations
+behind the NKEY quirk instead, and introduce the functionality check
+for NKEY devices (it is supported by them).
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v6.18-rc6
+There should be no functional change with this patch.
 
-to receive updates for the input subsystem. You will get:
+Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
+---
+ drivers/hid/hid-asus.c | 52 ++++++++++++++++++------------------------
+ 1 file changed, 22 insertions(+), 30 deletions(-)
 
-- INPUT_PROP_HAPTIC_TOUCHPAD definition added early in 6.18 cycle has
-  been renamed to INPUT_PROP_PRESSUREPAD to better reflect the kind of
-  devices it is supposed to be set for
-
-- a new ID for a touchscreen found in Ayaneo Flip DS in Goodix driver
-
-- Goodix driver no longer tries to set reset pin as "input" as it causes
-  issues when there is no pull up resistor installed on the board
-
-- fixes for cros_ec_keyb, imx_sc_key, and pegasus-notetaker drivers to
-  deal with potential out-of-bounds access and memory corruption issues
-
-Changelog:
----------
-
-Dan Carpenter (1):
-      Input: imx_sc_key - fix memory corruption on unload
-
-Hans de Goede (1):
-      Input: goodix - add support for ACPI ID GDIX1003
-
-Martyn Welch (1):
-      Input: goodix - remove setting of RST pin to input
-
-Peter Hutterer (1):
-      Input: rename INPUT_PROP_HAPTIC_TOUCHPAD to INPUT_PROP_PRESSUREPAD
-
-Seungjin Bae (1):
-      Input: pegasus-notetaker - fix potential out-of-bounds access
-
-Tzung-Bi Shih (1):
-      Input: cros_ec_keyb - fix an invalid memory access
-
-Diffstat:
---------
-
- Documentation/input/event-codes.rst      | 25 ++++++++++++++++++-------
- driveruntime/detectrs/hid/hid-haptic.c                 |  2 +-
- drivers/input/keyboard/cros_ec_keyb.c    |  6 ++++++
- drivers/input/keyboard/imx_sc_key.c      |  2 +-
- drivers/input/tablet/pegasus_notetaker.c |  9 +++++++++
- drivers/input/touchscreen/goodix.c       | 28 ++--------------------------
- drivers/input/touchscreen/goodix.h       |  1 -
- include/uapi/linux/input-event-codes.h   |  2 +-
- 8 files changed, 38 insertions(+), 37 deletions(-)
-
-Thanks.
-
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 472bca54642b..a82286a427b8 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -639,13 +639,20 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 	unsigned char kbd_func;
+ 	int ret;
+ 
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
+-		/* Initialize keyboard */
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+-		if (ret < 0)
+-			return ret;
++	ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
++	if (ret < 0)
++		return ret;
+ 
+-		/* The LED endpoint is initialised in two HID */
++	/* Get keyboard functions */
++	ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
++	if (ret < 0)
++		return ret;
++
++	/* Check for backlight support */
++	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
++		return -ENODEV;
++
++	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
+ 		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
+ 		if (ret < 0)
+ 			return ret;
+@@ -653,34 +660,19 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 		ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID2);
+ 		if (ret < 0)
+ 			return ret;
++	}
+ 
+-		if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
+-			ret = asus_kbd_disable_oobe(hdev);
+-			if (ret < 0)
+-				return ret;
+-		}
+-
+-		if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
+-			intf = to_usb_interface(hdev->dev.parent);
+-			udev = interface_to_usbdev(intf);
+-			validate_mcu_fw_version(hdev,
+-				le16_to_cpu(udev->descriptor.idProduct));
+-		}
+-
+-	} else {
+-		/* Initialize keyboard */
+-		ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+-		if (ret < 0)
+-			return ret;
+-
+-		/* Get keyboard functions */
+-		ret = asus_kbd_get_functions(hdev, &kbd_func, FEATURE_KBD_REPORT_ID);
++	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
++		ret = asus_kbd_disable_oobe(hdev);
+ 		if (ret < 0)
+ 			return ret;
++	}
+ 
+-		/* Check for backlight support */
+-		if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
+-			return -ENODEV;
++	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
++		intf = to_usb_interface(hdev->dev.parent);
++		udev = interface_to_usbdev(intf);
++		validate_mcu_fw_version(
++			hdev, le16_to_cpu(udev->descriptor.idProduct));
+ 	}
+ 
+ 	drvdata->kbd_backlight = devm_kzalloc(&hdev->dev,
 -- 
-Dmitry
+2.52.0
+
+

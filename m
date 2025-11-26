@@ -1,70 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0B333C538;
-	Wed, 26 Nov 2025 16:22:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E29F0219A81;
+	Wed, 26 Nov 2025 17:34:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764174165; cv=none; b=WdX+yIAby8I+6Rzt74w13GfYHUXgYE5h38KK7w5YP9qkq0ceWk/K3dIEpQblwUUGgOV/IpaiJuEmU+sJ1XIXlf7lBI99rxR78pO0ZwvDgcj5QvqjloAmYoqHj+EJQCNqZgO6aNJ4OlxlzkkGT88Ok5QWFmvjTHJ7OKhcRk4s1Z0=
+	t=1764178449; cv=none; b=gzq3Od5Pke4VXI+H1pIlvhRbAkh+e33SVlxW/2PL5CmIau/YMSd/bGB2Auz0XI3cDCZvdq71HcyCqEHe/XoxEnaCqxX6ige33n1guXsrTn+rNcDoJDE82YVoZCHe9PORPeW2o9L9cqNePwlrPBVCQqIYj6VWnSakh65iUzeGSrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764174165; c=relaxed/simple;
-	bh=Q01cBAzqf/8zu4lppt/Yx1S087Q9DhRcjf/dZMFlJ1Y=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=P9Krl12kCpeK4VeBgQOc6uvDXYUnH17Uc6X/g3iyAnCtjrOy5t4h0QInnNBlrzA5AI6hit9cXECJxXNVhAv4hL7tLTfW0VhBuh0VEXtN7ZR/AwawHvle4i8mKbcqheOVFoDl1Nox3K5NXE2RaNEmoO2j4obBmTfNM65yb/LEheQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KRvLNyUJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1764178449; c=relaxed/simple;
+	bh=dlVMMDnyIB7QnRLlQRgXzJiIyoXcNt1w0wU3moj+IEk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iMEfjftbH7ZgMYc/7lUdutsEEVFZXUsgWZzINArRtiOY+ol3CvP8ZpCTgW6hYeWtZiVa1CwdGNkURzC0bA49y0e5yCcL7ui/+mT5uRenGw0K1n27UUQXX+Kma0xRJXLGNd1qUqQ+7gMM9iBdLkJJdn1cOR+Ks9mvL/ot7ns9kws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b/JrmdNi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KRvLNyUJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3519EC4CEF7;
-	Wed, 26 Nov 2025 16:22:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b/JrmdNi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46229C4CEF7;
+	Wed, 26 Nov 2025 17:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764174164;
-	bh=Q01cBAzqf/8zu4lppt/Yx1S087Q9DhRcjf/dZMFlJ1Y=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=KRvLNyUJ1lxAYYzg0Z4yFPaj8VwiN4H08gWaxCuHBrH0x6Dnk+OKRuNCngcQxIaQz
-	 WGM5/nXOb3M06Mil9+yi3uK1185JBAM9JXVQAKjdXbXrbC7wz6z06vhnpyhnPF2HG5
-	 5sf97qm7Rvn11lQAzDST7yQ/cigMFcHsCPdgGCExOEXEiq4hgiUUkhdaJ3vOUMvIgx
-	 dmZbkbsnZDpMP0YdWsz8iPApzo41OhF6tEiCo4hR7uScEu12rW+UhJuWi4gG1MuR/Z
-	 p+n8v/MyT1CWs7Wd8MWm1Mg7vru/LVsPU6BMxArqPpFjMPVNtvygyX4oThiEKmqhRr
-	 +fyNQAaGe71bg==
-Date: Wed, 26 Nov 2025 17:22:42 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: Benedek Kupper <kupper.benedek@gmail.com>
-cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    bentiss@kernel.org
-Subject: Re: [PATCH] drivers: hid: renegotiate resolution multipliers with
- device after reset
-In-Reply-To: <20251007203544.9963-1-kupper.benedek@gmail.com>
-Message-ID: <076s5qon-0o97-r3o4-10n0-s415q569sp40@xreary.bet>
-References: <20251007203544.9963-1-kupper.benedek@gmail.com>
+	s=k20201202; t=1764178447;
+	bh=dlVMMDnyIB7QnRLlQRgXzJiIyoXcNt1w0wU3moj+IEk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=b/JrmdNiE4X1fMMuXwrA+Ry1jtCJYKcT/NYA8zGNT69Z3DhlCfUp9Z0fCP/JnuuBh
+	 LSsDqlqW8n9HuAX7IJdskgp9VWbYkSdFbiVezbXSi5ZVTQcXrJI5vIU2ueA9MkdUCm
+	 BgiCTmnSnLRnugLnggZrhGCPdhfAV30q6dsB7gfEZSQhGpaj2+tssJVthLc41i78Lj
+	 xDnGWIJKYKRlAyLpYCI2WtJ2DjHtowuPfX4GaaVTHocgr2nXPguP464tqCiyVtlrgP
+	 ESv7jZnFcSsXxJS0JOqfubgTmpsM1OXHggYEuukdIQrO/vHkdnvw9eHJ2B+au4TS+S
+	 2I31RaC5Mbn3A==
+Message-ID: <4bcc6708-77ff-403d-83cf-10a40934263a@kernel.org>
+Date: Wed, 26 Nov 2025 18:34:03 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v10 00/11] HID: asus: Fix ASUS ROG Laptop's Keyboard
+ backlight handling
+To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Antheas Kapenekakis <lkml@antheas.dev>
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org,
+ LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>,
+ Corentin Chary <corentin.chary@gmail.com>, "Luke D . Jones"
+ <luke@ljones.dev>, Denis Benato <benato.denis96@gmail.com>
+References: <20251122110032.4274-1-lkml@antheas.dev>
+ <CAGwozwGwkBH_03JvPQrevQiszwDZ5R4uDBnzWVeVXLo8xRmeug@mail.gmail.com>
+ <b91fa2c8-e342-9e46-f401-8c3d0590cd38@linux.intel.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <b91fa2c8-e342-9e46-f401-8c3d0590cd38@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, 7 Oct 2025, Benedek Kupper wrote:
+Hi,
 
-> The scroll resolution multipliers are set in the context of
-> hidinput_connect(), which is only called at probe time: when the host
-> changes the value on the device with a SET_REPORT(FEATURE), and the device
-> accepts it, these multipliers are stored on the host side, and used to
-> calculate the final scroll event values sent to userspace.
+On 26-Nov-25 4:23 PM, Ilpo Järvinen wrote:
+> On Wed, 26 Nov 2025, Antheas Kapenekakis wrote:
+
+...
+
+>> As for "HID: asus: early return for ROG devices" changing the name of
+>> the devices of this driver, I will veto backporting it if it happens,
+>> so inputplumber will have the two full months to remove the name
+>> match. This is not a breaking change in the sense that software cannot
+>> be made to work on both previous and latter versions and there is no
+>> other software to my knowledge relying on name matches for Asus
+>> keyboards.
 > 
-> After a USB suspend, the resume operation on many hubs and chipsets
-> involve a USB reset signal as well. A reset on the device side clears all
-> previous state information, including the value of the multiplier report.
-> This reset is not handled by the multiplier handling logic, so what ends up
-> happening is the host is still expecting high-resolution scroll events,
-> but the device is reset to default resolution, making the effective,
-> user-perceived scroll speed incredibly slow.
-> 
-> The solution is to renegotiate the multiplier selection after each reset.
+> Did Hans give some opinion about this rename earlier, at least I don't 
+> remember nor could find from lore archives?
 
-Applied, thanks.
+I don't remember commenting on this myself either.
 
--- 
-Jiri Kosina
-SUSE Labs
+So generally speaking there are plenty of cases where /dev/input/event#
+nodes for a specific device have their name changed by some kernel patches.
+
+Typically HID input devices are matched in userspace by their
+bus:vend-id:prod-id triplet not by the name. The name might even
+change by a fwupdate of the device itself.
+
+So I'm not overly worried about this and inputplumber seems nice
+enough and already is very much not a plug-and-play tool.
+
+One possible concern with laptop keyboard input-device name changes
+though is hwdb entries to fixup scancode -> ev-key-code mappings.
+
+See: /lib/udev/hwdb.d/60-keyboard.hwdb on any standard Linux systems
+an then the big comment at the top.
+
+An input-device name change might break this match pattern:
+
+#  - Input driver device name and DMI data match:
+#      evdev:name:<input device name>:dmi:bvn*:bvr*:bd*:svn<vendor>:pn*
+#    <input device name> is the name device specified by the
+#    driver, <vendor> is the firmware-provided string exported
+#    by the kernel DMI modalias, see /sys/class/dmi/id/modalias
+
+As well as the extended version of this and for laptops with USB
+keyboards this is the only match type which allows a DMI match
+which is what we want for laptop kbd mappings. Looking at the Asus
+section of the upstream 60-keyboard.hwdb I do not see any such
+matches though.
+
+There not being such matches kinda make sense since for USB-HID
+devices any special scancode -> ev-key-code mappings are typically
+handled in a vendor specific HID driver like hid-asus.
+
+TL;DR: I think that the input-device name should be fine.
+
+Regards,
+
+Hans
+
+
+
+
 

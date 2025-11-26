@@ -1,43 +1,44 @@
 Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5610433BBC4;
-	Wed, 26 Nov 2025 17:38:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6004F33EAE9;
+	Wed, 26 Nov 2025 17:38:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764178706; cv=none; b=qy19ZCzLQCJp8CVZ7c7NqpxM6KYn6O2COz6B7r5LFyTCfPJxafnBGSU442pr1JGMQHO3glbLzNL81SPaaXrBGejdaVVIEw2D4+G4cX53B0sUKNmgPzIipIMlAc0oALJtu5Ojc73/DyzQPToH7BuKUot+bx3pkvHTkNe1DL9RIFw=
+	t=1764178708; cv=none; b=XdqcWPCa0K+WEXNMaH77WjHaAx7ZgVloDLEax43mGhpAIw+fwDA2DvgH6/QhOLgfimKubxHNPiWEMKhKzf1eFCjRCCqubN4gw3m0yy+Ob9Yo46vZrvmz6mHM2ZN4OQaV2s5Lgr6vVxvfvJ5BM/jJXkdIL5rNHKKlDFogoV8dnWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764178706; c=relaxed/simple;
-	bh=hC4XQasOE7YoRhPK/FYwvCvLI4flmqo59fEi109hg7c=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Pe+2qOEhfPCyrbnjAElyZUYbLVF99fd+n6wvfQfv247338bKruvIpv2oBV51oH+VyLGFE0hHK6t6IKOpGXERA65DFYvxlr2u6md1wylw9hZ1H2FApBZYsq66TVwzIQAmfO3dFRbDbmHdWZILvg0g+2/X4+frz10MceNrAPTVf20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=F2w8F6PU; arc=none smtp.client-ip=67.231.149.93
+	s=arc-20240116; t=1764178708; c=relaxed/simple;
+	bh=0IRL/KZKIkCUzko0p+KHG0Dpw0ySQ73NnN9NN9WR1Qg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=fUbt6znghfiC9VQXdGNCGugcYUjgL7b56HUkR+v4cySboywWK+/nA6CtOhFNlorNaNpIP4CsDIr3wDy8Q1SmI3vB59A/JO9ewjMZc5XIdjOLOOVE01JJu1zlgyPmgNsleovtZKp0BtDDakayfqS2eUfDc7KvwhdJCHWKIp7Nmbc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=hIEYUvEt; arc=none smtp.client-ip=67.231.149.93
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="F2w8F6PU"
-Received: from pps.filterd (m0425989.ppops.net [127.0.0.1])
-	by mx0a-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5AQFdwPS1463603;
-	Wed, 26 Nov 2025 11:09:19 -0600
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="hIEYUvEt"
+Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
+	by mx0a-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5AQE1a85021314;
+	Wed, 26 Nov 2025 11:09:29 -0600
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pps1; bh=qOp1PXRqW8miaOjHt43zYAIZpCc
-	eiWdCXqTGx7xk8z8=; b=F2w8F6PUCI7wI/LmpRw19Vl5ebVg58K3j/qBbwJBY5i
-	6BnUOj22aI9uinEBxmGp4scqOwNhs2/b2PQDzxINQqGg4ldtxGkHPFMkmuXi5gkY
-	4NfKHfJTs8yCaURzrqZhldNqXIwuliRCtUQ9M1lAYft30wGIJ0ezKHWlyJcpCPAX
-	C0qm6R0y7+sqIYA4LKnKDYQYrlJjiwmb9GrZcM6PwM69+SGl+fEh+AOZ2R9JdDUC
-	tvSGAgtHWuKIA/rhOIJIsInhgRfPe8w0tIKzcpmRflf8zEYE2OwVyDanNl7gN4b9
-	waOcXBfz5u7Kldb4PLpaUb7yucPpNWi8RSDw4wRPxIg==
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pps1; bh=zjPHr
+	QUxOOypAqLuK9n8ZhvUnMRLW2qZBpJn384T9dU=; b=hIEYUvEtVM5Gar4AOlXt7
+	pAYvhOKzejWnPcP3r7PTEcQed9T/w+8GdGQu82ffBXDB+b4RKfdgLthFAI88NYCr
+	wm2VUdOAVYf2ocXmVdES+zJH1DTBetUtvSf2Wd8iRGitZrG89ok+rz88ffEbZxlm
+	KQ36+ruikS1vhLymLOxqRTlqCqtqCcdu2Mav/c5MSz6NMK4pL+CBOBnMUmLw3hRY
+	56Iz3DGCen8EAT/MRMCgYHq/yHQyYGBlt478oZ0wC4TFArZuCPDTxgnjD0u05G6G
+	On+706Rdd7jiWopSlN3O5ScCg0INYEpmrTXOQ0W4aIHTxNxnbb5mRZep8vFCrbzk
+	A==
 Received: from intranet-smtp.plexus.com ([64.215.193.254])
-	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 4ap4cp8592-1
+	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 4ap2xyg9tu-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 26 Nov 2025 11:09:18 -0600 (CST)
+	Wed, 26 Nov 2025 11:09:28 -0600 (CST)
 Received: from LNDCL34533.neenah.na.plexus.com (unknown [10.255.48.203])
-	by intranet-smtp.plexus.com (Postfix) with ESMTP id B9A213C84B;
+	by intranet-smtp.plexus.com (Postfix) with ESMTP id CBCB43C8BC;
 	Wed, 26 Nov 2025 11:09:17 -0600 (CST)
 From: Danny Kaehn <danny.kaehn@plexus.com>
-Subject: [PATCH v12 0/3] Firmware Support for USB-HID Devices and CP2112
-Date: Wed, 26 Nov 2025 11:05:23 -0600
-Message-Id: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
+Date: Wed, 26 Nov 2025 11:05:25 -0600
+Subject: [PATCH v12 2/3] HID: cp2112: Fwnode Support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,10 +47,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAFMzJ2kC/23OQQ6DIBAF0KsY1sUABZWueo/GBYGhkLZgwBqN8
- e5FN+2iyz/z8/JXlCF5yOhSrSjB5LOPoQTKThXSToU7YG/KATHCOGmIwHpglDJsRtxqo6XgvIN
- OodIfElg/H9itL9mm+MKjS6C+AiOCtkQyUsszlxIXSIWw1A8FLlyHJ8zvXOv42j3n8xjTcmybK
- N3ZfzPKCxNshLDESi5Uw36dftu2D9wKVlzmAAAA
+Message-Id: <20251126-cp2112-dt-v12-2-2cdba6481db3@plexus.com>
+References: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
+In-Reply-To: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
         Benjamin Tissoires <bentiss@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -64,129 +64,104 @@ Cc: Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org,
         Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
         Ting-Kai Chen <tingkaic@nvidia.com>
 X-Mailer: b4 0.14-dev-d4707
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1764176728; l=4172;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1764176728; l=2302;
  i=danny.kaehn@plexus.com; s=20251118; h=from:subject:message-id;
- bh=hC4XQasOE7YoRhPK/FYwvCvLI4flmqo59fEi109hg7c=;
- b=CJEer4Ba+zjMcxrtX8Tohr3zoc05QS9ynij0ZvbMhQ04pJ6KQYGD4FYjGpj+F+wRUfU43kaAz
- trV3waKxZapDsSa3AaXzWMWoD3QYh7j3LQ5fKz9Gh6S54rqsF3FSfdA
+ bh=0IRL/KZKIkCUzko0p+KHG0Dpw0ySQ73NnN9NN9WR1Qg=;
+ b=GsLW7NB+s5hC0D6uqsMxBidFqs35NMD9b7cN/ECWSE4/Q8nmM/9u8+yePB4SupReByKJBRjoX
+ 0k3kIhXJGTxAbvsYBJylRWRy2cxiQE50s+880U4eJxx3JZBi9Zjl5qL
 X-Developer-Key: i=danny.kaehn@plexus.com; a=ed25519;
  pk=br2sOmMe9QhpVp1uJw6IxgSNRKZO5khHotS2b+/bX14=
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: mZKWyLKvjzV30Cw60-QvsAYlXQTxurKn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI2MDE0MCBTYWx0ZWRfX6udsEhwl0JcA
- X9Wtkfbn6Gsyzi/YICiOdbpFZj81lquxPC4TpE+V+XTcRGCKmy7ZxpXPldJFpWoMmyBr+H7uSXg
- 8IXynMqCisladEunJSq4jHDxEmTK9xvd0bgBypycx3XLZW/EnotY1THE5pJaEv5fIc1DVfE8N75
- J/Z0dajIG+vyyXU9yXeeP/qtAoVu+GVOy21IABMBlvlHkee7Qp+usRl5N50O9y4u0DXoMR3qPlS
- 0Ki4ojh1zawBiFFNFZ9l2aXtsI2qyjGAD0rr28b7ATdIjsoIUD7/ghamCXvCZaN9KWjHjFAGECo
- Xb42trgWKRBevqOGuykaVigG8aJ0Lky+DXQHLNaPTcJQ8CMAYHHM5MGmfyAJXnc87Gw4OhB7hNV
- GnXaePYcDrzY7V28hKUmVyrJ6fWLyA==
-X-Authority-Analysis: v=2.4 cv=IbmKmGqa c=1 sm=1 tr=0 ts=6927343e cx=c_pps
+X-Proofpoint-ORIG-GUID: huGVKRwXk-MVYTYgZJEwmkSwi6MDYbD4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI2MDE0MCBTYWx0ZWRfX/ztTRW1ycnK7
+ S4AlpotJuqq4S9JHHetp6ies2EPlt5URl6zI+Ph1AebXriNm6h+hLmXuJVw1tuNc5hUlLfRxyGi
+ TKWSrmElmVOjFA/HGF5rqQox2tDGqILKM1ocSQRJVUKpcOxPQdDfeOQEeH4x0Jy/RkSru5Fyfp2
+ cRm1RsBwe9sF0g2xCiMSkzUnbJZOe9TmX995zJvT3NzANzl3jHZVBjN9r9HlPcnhlxMAEIx07h/
+ WZj+pFm1WhmS2EmO+a6BFjcraBNRKBtgZHKKwYt4l2cz8bhfQGWdgDMVPIFU7LphZHlOTRkF6mv
+ gynKHCRqaevpmBTkjE3BPFCITYHq6MU79ofIJkaQb5acJOzMqbWzDRqyhDIOQ4yQWt4314atImr
+ 5ETy274J+2Rk+f9qz2VVKUmnWGxMuA==
+X-Proofpoint-GUID: iA_526lU68Rvr7yAXR0fJvoS-a7ayUn4
+X-Authority-Analysis: v=2.4 cv=HZsZjyE8 c=1 sm=1 tr=0 ts=69273449 cx=c_pps
  a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
  a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Y_joWELsAAAA:8 a=hxW2N2rBQJarcxKsw-IA:9 a=QEXdDO2ut3YA:10
+ a=Y_joWELsAAAA:8 a=pVqXFfmJREZmDo3ecgYA:9 a=QEXdDO2ut3YA:10
  a=g_BQsM8wYJVSTWLOHH1t:22
-X-Proofpoint-GUID: b8X1TgFvt2YG3jk63wtBEntht4F54e20
 X-Proofpoint-Spam-Reason: orgsafe
 
-This patchset allows USB-HID devices to have Firmware bindings through sharing
-the USB fwnode with the HID driver, and adds such a binding and driver
-implementation for the CP2112 USB to SMBus Bridge (which necessitated the
-USB-HID change). This change allows a CP2112 permanently attached in hardware to
-be described in DT and ACPI and interoperate with other drivers.
+Support describing the CP2112's I2C and GPIO interfaces in firmware.
 
-Changes in v12:
-- dt-binding changes:
-  - Drop "on the host controller" from top-level description based on
-      comment from Rob H.
-  - Correct "Properties must precede subnodes" dt_binding_check error by
-      moving gpio_chip-related properties above the i2c subnode in the
-      binding and in the example.
-  - Include `interrupt-controller` property in the example
-- Modify hid-cp2112.c to support separate schemas for DT vs. ACPI - DT
-  combines gpio subnode with the CP2112's node, but will have an I2C
-  subnode; while ACPI will maintain separate child nodes for the GPIO
-  I2C devices
+Bindings between the firmware nodes and the functions of the device
+are distinct between ACPI and DeviceTree.
 
-Changes in v11:
-- Eliminate 'gpio' subnode for DT and ACPI for the CP2112 per comment
-    from Rob H.
-- Edit hid-cp2112.c to match for ACPI index and fall back to matching by
-    name (instead of the other way around)
-- Separate CP2112 I2C bus speed configuration into a separate patch
+For ACPI, the i2c_adapter will use the child with _ADR Zero and the
+gpio_chip will use the child with _ADR One. For DeviceTree, the
+i2c_adapter will use the child with name "i2c", but the gpio_chip
+will share a firmware node with the CP2112.
 
-Changes in v10:
-- Define an enumeration and mapping for CP2112 ACPI _ADRs and devicetree
-    child node names, and use these in the scanning of child nodes
-- Address other miscellaneous
-
-Changes in v9:
-- Add _ADR-based ACPI binding of child nodes (I2C is _ADR Zero, GPIO is _ADR One)
-- Use a loop-based approach for assigning child nodes within probe().
-    As a consequence, hid-cp2112.c no longer maintains references to the
-    child fwnodes during the lifetime of the device. (plese correct if this
-    is actually needed for this use-case)
-
-Changes in v8:
-- Apply Review tags retroactively to patches previously reviewed
-
-Changes in v7:
-- Use dev_fwnode when calling fwnod_handle_put in i2c_adapter in hid-cp2112.c
-- Capitalize I2C and GPIO in commit message for patch 0003
-
-Changes in v6:
-- Fix fwnode_handle reference leaks in hid-cp21112.c
-- Simplify hog node pattern in silabs,cp2112.yaml
-
-Changes in v5:
- - Use fwnode API instead of of_node api in hid-core.c and hid-cp2112.c
- - Include sda-gpios and scl-gpios in silabs,cp2112.yaml
- - Additional fixups to silabs,cp2112.yaml to address comments
-   - Remove ngpios property
-   - Constrain the hog pattern to a single naming scheme
-   - Remove unneeded properties from the gpio hog which are provided by
-       the parent schema
- - Submit threaded interrupt bugfix separately from this patchset, as requested
-
-Changes in v4:
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/i2c
-
-Changes in v3:
- - Additional fixups to silabs,cp2112.yaml to address comments
-
-Changes in v2:
- - Added more detail to silabs,cp2112.yaml dt-binding
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/input
- - Added support for setting smbus clock-frequency from DT in hid-cp2112.c
- - Added freeing of of_nodes on error paths of _probe in hid-cp2112.c
-
-Danny Kaehn (3):
-  dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-  HID: usbhid: Share USB device firmware node with child HID device
-  HID: cp2112: Fwnode Support
-
- .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
- drivers/hid/hid-cp2112.c                      |  50 ++++++++
- drivers/hid/usbhid/hid-core.c                 |   2 +
- 3 files changed, 165 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-
---
-2.25.1
-
+Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
 ---
-Danny Kaehn (3):
-      dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-      HID: cp2112: Fwnode Support
-      HID: cp2112: Configure I2C Bus Speed from Firmware
+ drivers/hid/hid-cp2112.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
- .../devicetree/bindings/i2c/silabs,cp2112.yaml     | 107 +++++++++++++++++++++
- drivers/hid/hid-cp2112.c                           |  36 +++++++
- 2 files changed, 143 insertions(+)
----
-base-commit: 1c772200c9dcb23a304f84a9334fe2e0d9529ab0
-change-id: 20240605-cp2112-dt-7cdc95448e8a
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 803b883ae875..fb301c27c712 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -29,6 +29,16 @@
+ #include <linux/usb/ch9.h>
+ #include "hid-ids.h"
+ 
++/**
++ * enum cp2112_child_acpi_cell_addrs - Child ACPI addresses for CP2112 sub-functions
++ * @CP2112_I2C_ADR: Address for I2C node
++ * @CP2112_GPIO_ADR: Address for GPIO node
++ */
++enum cp2112_child_acpi_cell_addrs {
++	CP2112_I2C_ADR = 0,
++	CP2112_GPIO_ADR = 1,
++};
++
+ #define CP2112_REPORT_MAX_LENGTH		64
+ #define CP2112_GPIO_CONFIG_LENGTH		5
+ #define CP2112_GPIO_GET_LENGTH			2
+@@ -1208,7 +1218,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct cp2112_device *dev;
+ 	u8 buf[3];
+ 	struct cp2112_smbus_config_report config;
++	struct fwnode_handle *child;
+ 	struct gpio_irq_chip *girq;
++	u32 addr;
+ 	int ret;
+ 
+ 	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
+@@ -1226,6 +1238,26 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
++	if (is_acpi_device_node(hdev->dev.fwnode)) {
++		device_for_each_child_node(&hdev->dev, child) {
++			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
++			if (ret)
++				continue;
++
++			switch (addr) {
++			case CP2112_I2C_ADR:
++				device_set_node(&dev->adap.dev, child);
++				break;
++			case CP2112_GPIO_ADR:
++				dev->gc.fwnode = child;
++				break;
++			}
++		}
++	} else {
++		device_set_node(&dev->adap.dev,
++			device_get_named_child_node(&hdev->dev, "i2c"));
++	}
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
 
-Best regards,
 -- 
-Danny Kaehn <danny.kaehn@plexus.com>
+2.25.1
 

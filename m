@@ -1,45 +1,45 @@
 Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFFED230BD5;
-	Mon, 15 Dec 2025 12:30:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB43623BD17;
+	Mon, 15 Dec 2025 12:30:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765801841; cv=pass; b=PiYNPx6jv+y5vRlZqWlHlzMVSkDsZU8lyqfgfig/MwRxt5+ok5s1LaW5ADScySAKrqfrXMEL3aScmYv5e+xV/17mM6FcxIYTtAhAo4fBDxdAE/7RU1BM1ODlr/LlkAxFxnWchwB2zLYUJesHuwmhLSPvL+PxTIJ75JdplXuEAsk=
+	t=1765801844; cv=pass; b=lQL6k0GvJO6pMcJ6KDujovvit8y9FHipQClF/YZnLxNdFPSqchI9EDQHjoYRjxLvFKbR5T1g3nZpPkjEpGrBWnAXxJutfIxQlElpGgNSBqKJUa9yUmtGCU9c+uzsUru2EjALDltA6l36Yv3v4TME6EBbblcJSwTNMgGC/u/5vSU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765801841; c=relaxed/simple;
-	bh=OLHayUs7V9b/o+/hh1s8WHuPya3qVcW0Bybto2UJzF0=;
+	s=arc-20240116; t=1765801844; c=relaxed/simple;
+	bh=z668XgwPST8e2Yu8ccoR34JkPQXmjHez0OHtJeY41pM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=SlFQtm88kNEnD1gRWnhfIHijOHgg73tAmJKjYjIy83Kn2zD26s03DOMgCKjol4S5l3nC+R2cftSAgHgkMvmZRqhNBkaDV2mYVAOxAOU4fa/U8CCRoCdPoEtzt4M/aoNgpbvm/BtRBrw9HNGcx1thnv+8wvkbxPc7T++Qy/5K4cc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=WlgM9zOd; arc=pass smtp.client-ip=136.143.188.112
+	 In-Reply-To:To:Cc; b=aJHy4iKwcFW0wrTmfbAd7vcaGOgHuL14NWuR6uosTXAQAfWUBKru/xsLRAFjIxZ6hxB3f089LkPcegVe3tkrmeDyAe/1oMrC/rCBjBb7cmuFQ1DibZxGcdGue6jkjG6P8M01X1Xxkiv5ueOSsHibjoLlcpYJhpRt3gFMxpXsmpc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=kuLtwajX; arc=pass smtp.client-ip=136.143.188.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="WlgM9zOd"
-ARC-Seal: i=1; a=rsa-sha256; t=1765801797; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="kuLtwajX"
+ARC-Seal: i=1; a=rsa-sha256; t=1765801805; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=NLE7W6B1mOuoDcXwW1XAoLLAmagS6oyKJKxl7CaU1nywuPYY3WFykZQnYFo07fQYOEEGdZvjsMnJTZwpjGw+sJ5HMZSJ/npyFcmP/rfXed9xAelll1JkW2b2RPGc+oBK9QNxwo+O5WVsNZ+B/ztKm4RAmxkLTY/ABFfNYGuwuuk=
+	b=MIqPvcu8f4lxYvcZwsgV8rAX3pVUZHTMnXNL64KenDPT/wCnpJiSxx2H+rHfOl57smOYIfv+m1tCkivMb2spJtwsO5dHcO/UmqaNWJDEZd+fA0L9S0POWxegCpCxbYzu3uIZ3Lslfl/6KE+BadWJuSrLBKAqy5dJH3zLpVg1kTk=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1765801797; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=YFvkp8sx9x7p+ety3YU1OWBYrz0nSL8Cjejt5tXhoXY=; 
-	b=GjE8xM3YZHW8+IBDQMM7+Lr9wDE8nQikU8UfVwX8Z47g7i8UTmS5hc854UZMJyjXf40Lw7c1mP3xqmrtaPmbeGU8fmzOMdzTgRdJtAHbsP37rEkYXBAPbC7PtZGl3OynEafhF+KZa6/o4QW9+v3fM8vLLosemFHWFgM/uk580Fg=
+	t=1765801805; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=TuKNRaz7MrQ0hh61vH11eGIxG3RyMa5h1730t+udGTs=; 
+	b=IsNDvLFrk6aLJMgauGdh1pBfg3y+hs3v7kD1+q8Vp9f5WqTAg24Qix8dHZGa/fePgtumdrL4JnIXwzVbCW4HktaQnyFcfyP/B5RjSfHYZazyZSRzAXN95lH4jf5a/SMWeIECAT2s94ShAX19SA6ex37rNhNhUSosCyjtFW12A/M=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=nicolas.frattaroli@collabora.com;
 	dmarc=pass header.from=<nicolas.frattaroli@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1765801797;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1765801805;
 	s=zohomail; d=collabora.com; i=nicolas.frattaroli@collabora.com;
 	h=From:From:Date:Date:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Message-Id:References:In-Reply-To:To:To:Cc:Cc:Reply-To;
-	bh=YFvkp8sx9x7p+ety3YU1OWBYrz0nSL8Cjejt5tXhoXY=;
-	b=WlgM9zOdeK7/1T9h5CDUKt9jGDi0MbmpLvxiZIH86qNNrjY/Spwu376r2z1gVMFe
-	BAqtFRIFBORKjIbyCWx/kd61UBCFCxfoEJwpq4ePIzOqWX3rx9dBYZjSPoqn4FzSSuc
-	22YsFV0ckstqo4BcsYs/f2ZinvAJJZ2QkFOjJBHU=
-Received: by mx.zohomail.com with SMTPS id 176580179655941.66611173233514;
-	Mon, 15 Dec 2025 04:29:56 -0800 (PST)
+	bh=TuKNRaz7MrQ0hh61vH11eGIxG3RyMa5h1730t+udGTs=;
+	b=kuLtwajXx7289h4z8M055JO6EtPECSzvaKBVOLAAVs8A8ETvwt9+WvCK3GanUZx7
+	7ScxqacgN/q+BCLrQCrI8LPdXoeQ6QLRhWlbGg3jXmwQzwCrhouDvJ5euxb4ht5YdwH
+	yLM4PgJjVd6wCEMTZsajPV1OVOzqKHu/BI6XkVG8=
+Received: by mx.zohomail.com with SMTPS id 176580180327052.47775160298363;
+	Mon, 15 Dec 2025 04:30:03 -0800 (PST)
 From: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
-Date: Mon, 15 Dec 2025 13:29:29 +0100
-Subject: [PATCH v2 1/4] dt-bindings: input: adc-keys: allow
- linux,input-type property
+Date: Mon, 15 Dec 2025 13:29:31 +0100
+Subject: [PATCH v2 3/4] Input: adc-keys - Use dev_err_probe in probe
+ function
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,7 +48,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251215-rock4d-audio-v2-1-82a61de39b4c@collabora.com>
+Message-Id: <20251215-rock4d-audio-v2-3-82a61de39b4c@collabora.com>
 References: <20251215-rock4d-audio-v2-0-82a61de39b4c@collabora.com>
 In-Reply-To: <20251215-rock4d-audio-v2-0-82a61de39b4c@collabora.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -62,32 +62,127 @@ Cc: kernel@collabora.com, linux-input@vger.kernel.org,
  Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
 X-Mailer: b4 0.14.3
 
-adc-keys, unlike gpio-keys, does not allow linux,input-type as a valid
-property. This makes it impossible to model devices that have ADC inputs
-that should generate switch events.
+Rework the probe function, and functions called by the probe function,
+to use dev_err_probe for error logging.
 
-Add the property to the binding with the same default as gpio-keys.
+While at it, also do some minor style cleanups, like not error logging
+on -ENOMEM and using ! instead of == 0.
 
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
 ---
- Documentation/devicetree/bindings/input/adc-keys.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/keyboard/adc-keys.c | 53 ++++++++++++++++-----------------------
+ 1 file changed, 21 insertions(+), 32 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/adc-keys.yaml b/Documentation/devicetree/bindings/input/adc-keys.yaml
-index 7aa078dead37..e372ebc23d16 100644
---- a/Documentation/devicetree/bindings/input/adc-keys.yaml
-+++ b/Documentation/devicetree/bindings/input/adc-keys.yaml
-@@ -42,6 +42,9 @@ patternProperties:
+diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
+index 62376f34f7d0..6f2ddcecea99 100644
+--- a/drivers/input/keyboard/adc-keys.c
++++ b/drivers/input/keyboard/adc-keys.c
+@@ -74,10 +74,8 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
+ 	int i;
  
-       linux,code: true
+ 	st->num_keys = device_get_child_node_count(dev);
+-	if (st->num_keys == 0) {
+-		dev_err(dev, "keymap is missing\n");
+-		return -EINVAL;
+-	}
++	if (!st->num_keys)
++		return dev_err_probe(dev, -EINVAL, "keymap is missing\n");
  
-+      linux,input-type:
-+        default: 1  # EV_KEY
+ 	map = devm_kmalloc_array(dev, st->num_keys, sizeof(*map), GFP_KERNEL);
+ 	if (!map)
+@@ -86,17 +84,16 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
+ 	i = 0;
+ 	device_for_each_child_node_scoped(dev, child) {
+ 		if (fwnode_property_read_u32(child, "press-threshold-microvolt",
+-					     &map[i].voltage)) {
+-			dev_err(dev, "Key with invalid or missing voltage\n");
+-			return -EINVAL;
+-		}
++					     &map[i].voltage))
++			return dev_err_probe(dev, -EINVAL,
++					     "Key with invalid or missing voltage\n");
 +
-       press-threshold-microvolt:
-         description:
-           Voltage above or equal to which this key is considered pressed. No
+ 		map[i].voltage /= 1000;
+ 
+ 		if (fwnode_property_read_u32(child, "linux,code",
+-					     &map[i].code)) {
+-			dev_err(dev, "Key with invalid or missing linux,code\n");
+-			return -EINVAL;
+-		}
++					     &map[i].code))
++			return dev_err_probe(dev, -EINVAL,
++					     "Key with invalid or missing linux,code\n");
+ 
+ 		if (fwnode_property_read_u32(child, "linux,input-type",
+ 					     &map[i].type))
+@@ -129,7 +126,8 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 
+ 	st->channel = devm_iio_channel_get(dev, "buttons");
+ 	if (IS_ERR(st->channel))
+-		return PTR_ERR(st->channel);
++		return dev_err_probe(dev, PTR_ERR(st->channel),
++				     "Could not get iio channel\n");
+ 
+ 	if (!st->channel->indio_dev)
+ 		return -ENXIO;
+@@ -138,16 +136,13 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 	if (error < 0)
+ 		return error;
+ 
+-	if (type != IIO_VOLTAGE) {
+-		dev_err(dev, "Incompatible channel type %d\n", type);
+-		return -EINVAL;
+-	}
++	if (type != IIO_VOLTAGE)
++		return dev_err_probe(dev, -EINVAL, "Incompatible channel type %d\n", type);
+ 
+ 	if (device_property_read_u32(dev, "keyup-threshold-microvolt",
+-				     &st->keyup_voltage)) {
+-		dev_err(dev, "Invalid or missing keyup voltage\n");
+-		return -EINVAL;
+-	}
++				     &st->keyup_voltage))
++		return dev_err_probe(dev, -EINVAL, "Invalid or missing keyup voltage\n");
++
+ 	st->keyup_voltage /= 1000;
+ 
+ 	error = adc_keys_load_keymap(dev, st);
+@@ -155,10 +150,8 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 		return error;
+ 
+ 	input = devm_input_allocate_device(dev);
+-	if (!input) {
+-		dev_err(dev, "failed to allocate input device\n");
++	if (!input)
+ 		return -ENOMEM;
+-	}
+ 
+ 	input_set_drvdata(input, st);
+ 
+@@ -178,19 +171,15 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 
+ 
+ 	error = input_setup_polling(input, adc_keys_poll);
+-	if (error) {
+-		dev_err(dev, "Unable to set up polling: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "Unable to set up polling\n");
+ 
+ 	if (!device_property_read_u32(dev, "poll-interval", &value))
+ 		input_set_poll_interval(input, value);
+ 
+ 	error = input_register_device(input);
+-	if (error) {
+-		dev_err(dev, "Unable to register input device: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "Unable to register input device\n");
+ 
+ 	return 0;
+ }
 
 -- 
 2.52.0

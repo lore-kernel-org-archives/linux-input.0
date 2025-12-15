@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 091EE347FF4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278CD347FFB;
 	Mon, 15 Dec 2025 14:30:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765809006; cv=none; b=B9+8USOTTYXKqx9Oyb6eD/kEk0077CNjMTMN/6VceNQlSUdeiGG2fGxXelHWCr9h2AVM0TWY0/IyvrRyjOEjUm5fmsbhaOsB2RZc1n9yqCfs+CicyFMJjgv1sI04eA3sETAYihKLJ9tRHbrMZK0wP1jhN3/9biVynbgITkweEwM=
+	t=1765809006; cv=none; b=KWkHasvtnKpjBHleBI1P2kbEKZskBnRCPBFV59+uthur5FCXU5b9y895N4Hzr94mbgI765E1YC+E8/uhYlU8081pPY6IPLanldJC3nncmorNH0FRivjWgplKX6cCuyz/Op5qzjth0M1j8UrBfOkws56Kv0da/O0bWSvKYE69kQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1765809006; c=relaxed/simple;
-	bh=AwEDboNk5GmPqrs+ygIr6oF3UxdqLcCX4eLfPid2KXw=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=BGeZtj0uXVPXxHzwaa8mb4PtoTzt92uMMt355JfLfuf9e2sQ1S0xKoe8PY7vCfyMiur/hyJCC3WIZcfxQ2SQkiQjtiLIxri+NzY5eNVfLbK1PvfVxm9YZzW3+nFhcO6A1qw2OSkWlv26EBZst/qDXKAZI/Y9SFs0CWOH3jLtP44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eFnn5rK5; arc=none smtp.client-ip=10.30.226.201
+	bh=wFu7HDRMAdpVlowB+kOuTDIm7pWaAUtn4h3uu6I0uGU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=MyocbPvt6RFESZnrdeNYshZGcbCv4r6nZewmTxSuubdPE3hON8QQl7C4B8gcOPCdzTBvSojHcq9n/6MXYrqOxvqVJnpuLMYa2YNeTukUnx1LWbXjQn+hp/tDWfUOljQVEAYzPbOJmwVphCDK6mHq9WJbAWuL/Flbfep4nMxBUME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mVlvm8DG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eFnn5rK5"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9A222C4CEFB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mVlvm8DG"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CA977C19422;
 	Mon, 15 Dec 2025 14:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1765809005;
-	bh=AwEDboNk5GmPqrs+ygIr6oF3UxdqLcCX4eLfPid2KXw=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=eFnn5rK5ZJjeC1GTOsEbqEYZXSPAtLC0k+0D/HS9BqcX1hlOTZbnx7sI4XYrgQSuE
-	 2Iehherh73rkKYUZt4iEMaQEJIdy3qtNBqZNfcUYov9EIFdIbl8roLERrJx9e1ao6d
-	 nu9Ktfu6077v8ejNFSHspvsctRrDO/lE/RXCNJMqf0aeU0GA27PjCrLasW63uAm7n7
-	 tKxL+4zMxEtSeY7Tcka3zwVnpCHY+CD6BRg2rwOfrkdyBI7DizBcWRMtu6G+MZAEW2
-	 t4fzp5qnp75/gclDvKK0fqhc4QZ/On67N2zCvAYSH754M2fISCnba/M7M3FyoEuq/m
-	 lTJw4kZ2pxR5g==
+	bh=wFu7HDRMAdpVlowB+kOuTDIm7pWaAUtn4h3uu6I0uGU=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=mVlvm8DG13DHRlf6pbQ0CwxjRX7e1QBXoyQ4zS6YYr4pwOUdlWxurFqgBKXGDtIsG
+	 Ez78EesXd/mLsNT5lLW3o2DgVPlG8fXDRuygtDjlC154UDHiNbkrgyxRkos3ifCrnm
+	 BYtZfmOevor613ejDsdJLsT503qrS/i3kIiDOeI0rCKtyuiSExeO4oJtDzwu/jXQoq
+	 QfKqhMSvajMBTbvKgpO1/iae3BGh4HstWrVKUe8Z+MhE/kjrUYyIs01+Tg4pvauLLH
+	 RQNyuEVC+c2Ed4ZKOOTFpQoOSzRoVo/n+/bg1jVEOYLMn/IYYduvNv4iePGnlhqdCk
+	 44CJUh4W1+RoQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A5FAD5B16F;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2CBDD5B16E;
 	Mon, 15 Dec 2025 14:30:05 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH 0/4] Input: small nitpick fixes
-Date: Mon, 15 Dec 2025 15:30:00 +0100
-Message-Id: <20251215-fts-fixes-v1-0-8c1e3a63ebf1@ixit.cz>
+Date: Mon, 15 Dec 2025 15:30:03 +0100
+Subject: [PATCH 3/4] Input: stmfts - use sysfs_emit() instead of sprintf()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,10 +40,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGgbQGkC/x2KOwqAMAxAr1IyG7ApDvUq4iA21SxVGhGheHeD4
- /s0UK7CCqNrUPkWlaMY+M7Bui9lY5RkDNTT4MkT5ksxy8OKwVTIiSOlCPaflf9g+zS/7wfDWL/
- wWwAAAA==
-X-Change-ID: 20251212-fts-fixes-30253fde92d9
+Message-Id: <20251215-fts-fixes-v1-3-8c1e3a63ebf1@ixit.cz>
+References: <20251215-fts-fixes-v1-0-8c1e3a63ebf1@ixit.cz>
+In-Reply-To: <20251215-fts-fixes-v1-0-8c1e3a63ebf1@ixit.cz>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
  Alexandre Torgue <alexandre.torgue@foss.st.com>, 
@@ -54,48 +53,108 @@ Cc: linux-input@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=687; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2787; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=AwEDboNk5GmPqrs+ygIr6oF3UxdqLcCX4eLfPid2KXw=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBpQBtraKyNehUYf6Zq6STWquVGzPauk3f3hyPmo
- SDg/syWgFuJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaUAbawAKCRBgAj/E00kg
- cnymD/4+NtvqTd1F7d46ZcugHEDVrc8ViX33x3uIbtImJbzqS1A+MAec4i6/CM31tn4plgGWqWy
- 6EypuPlpKe3sXz0yXKC6JeGjQA9mQiuKldrE1AyJSOI2wN+YlY+j1mjfwSETttukIHytCTV0nbf
- irO7tc+AFrOzqBS84eAj9ndDdQp7LCXjSBznGgnCLJKzREM00nrKhlZMxgI7sFbDD3yTjXNPce1
- M+XR7AYGoHD5B6hNRAUDEbXY/7+BFRCkvgEozGB+A4uc7yqaPDU1ILb56vfj1IavErElxFWq4pt
- j73h/x7YHjrM3RsZAjAMaEpAHp162W5xOCfYzVmcW0Ldch+Cd+3pxGYsFayjfqq7V1AukSQy94n
- 1wgsvafywp/tx8HPPNQf/GWLhhOhUFzJR9s3pA0HQrDcZte6mAI+m1mw3GMg4mAyR3Y0rkZHqv0
- prczUCdbQbTjBsGu+bhigFIMlCnwBm96sYKm8Dipxnfro++8FCv/RWfuj2CUOa0kJuwylkmT9RG
- HOlLXX8pcQdXOpZPwa8vGZoZvZcox/6BETTxeCARd9R1txymFGXBY0dPXvcZ8q6KF/0pwKwHKWE
- uy8fNM5yr9XrYOCMLDOznJL8huvL/ZiRudqnhXqaVPIdmDyIf5iCm14FRfejA/MSEwKg7FKEL2h
- sVYg2BC42MPHhNw==
+ bh=3xHAswUTtGvoQ6NmHBshFsBrqnYL61pqa0b3OMWeB7I=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBpQBtrnuNSlCDEp3U0AMCL9StDPaBZkQm8UpZo5
+ tdO7QEjWDuJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaUAbawAKCRBgAj/E00kg
+ ctYxEACflPTTG5VIeyFgwBgtxU3aAkYDozrwSyYm7rqhN45yyb+3Lj+UkzWI1NLtbuG1vk1o8Ql
+ wcRbmjLeFtLKzOWvGprKN57MWOeQRduWiYWua/ZES83aVbK9SekWaxB3r7CAdMrPwjegBrDu7Lc
+ cJDIz3yMv1AIEpwlN/eNxj85cpJP7F8+URLSuwE4NEGZcQ+AS/+nOmG0ri9WXvMz1WCs7GwZSL6
+ AbOfbbHS0NVVJnSI0BqY1IlSzqBeQl9JSvGVqxgPiWXatmDFaWw+R/MDOiD/Eebfg6/S6onh4+Y
+ K7ALIXs8jyrwovmA1FU0vVeHi/hRTvfQONG4G4r1vM4XceEVZyd8u4VHoN7O3M0RGIpxRa+X48/
+ JYrrw0Bfe7tNzsl/m6tin9niNbdOQ6IULtAfRbA/E2PVaZDvm5VYRA5bIbb9fmWTnARq0vjshS9
+ Cdk5P8sbVjT9Z5AACXDF/0cMszhIU1lnq6NA0rfIO2wfqgPqTPOI8sRdld2lnG0rz7F5NM/Pc6X
+ nioeug9YnEXFUKhdPAfEGq/xFPNyE6nukMO9zV10WU/Duc0uE1n5gapGiXvuiwVUlbn+wYGhqpx
+ D8vVJvrBlXjrtEtD15BONuFCNhJLSfMOrccvCSbTWRQyChqsrIOVVGkMHzQgZknDgF7OMM5pXMq
+ kci2Br62lLhawTw==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
 X-Original-From: David Heidelberg <david@ixit.cz>
 Reply-To: david@ixit.cz
 
-Feel free to ignore the last patch, if you want to wait for FTS5
-support.
+From: Petr Hodina <petr.hodina@protonmail.com>
 
+Follow the advice in Documentation/filesystems/sysfs.rst:
+show() should only use sysfs_emit() or sysfs_emit_at() when formatting
+the value to be returned to user space.
+
+Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
-David Heidelberg (1):
-      Input: stmfts - correct wording for the warning message
+ drivers/input/touchscreen/stmfts.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Petr Hodina (3):
-      Input: stmfts - Make comments correct
-      Input: stmfts - use sysfs_emit() instead of sprintf()
-      Input: stmfts - use client to make future code cleaner
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index ad363b3c344cd..4b166b0a9a5a6 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -410,7 +410,7 @@ static ssize_t stmfts_sysfs_chip_id(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%#x\n", sdata->chip_id);
++	return sysfs_emit(buf, "%#x\n", sdata->chip_id);
+ }
+ 
+ static ssize_t stmfts_sysfs_chip_version(struct device *dev,
+@@ -418,7 +418,7 @@ static ssize_t stmfts_sysfs_chip_version(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", sdata->chip_ver);
++	return sysfs_emit(buf, "%u\n", sdata->chip_ver);
+ }
+ 
+ static ssize_t stmfts_sysfs_fw_ver(struct device *dev,
+@@ -426,7 +426,7 @@ static ssize_t stmfts_sysfs_fw_ver(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", sdata->fw_ver);
++	return sysfs_emit(buf, "%u\n", sdata->fw_ver);
+ }
+ 
+ static ssize_t stmfts_sysfs_config_id(struct device *dev,
+@@ -434,7 +434,7 @@ static ssize_t stmfts_sysfs_config_id(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%#x\n", sdata->config_id);
++	return sysfs_emit(buf, "%#x\n", sdata->config_id);
+ }
+ 
+ static ssize_t stmfts_sysfs_config_version(struct device *dev,
+@@ -442,7 +442,7 @@ static ssize_t stmfts_sysfs_config_version(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", sdata->config_ver);
++	return sysfs_emit(buf, "%u\n", sdata->config_ver);
+ }
+ 
+ static ssize_t stmfts_sysfs_read_status(struct device *dev,
+@@ -457,7 +457,7 @@ static ssize_t stmfts_sysfs_read_status(struct device *dev,
+ 	if (err)
+ 		return err;
+ 
+-	return sprintf(buf, "%#02x\n", status[0]);
++	return sysfs_emit(buf, "%#02x\n", status[0]);
+ }
+ 
+ static ssize_t stmfts_sysfs_hover_enable_read(struct device *dev,
+@@ -465,7 +465,7 @@ static ssize_t stmfts_sysfs_hover_enable_read(struct device *dev,
+ {
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%u\n", sdata->hover_enabled);
++	return sysfs_emit(buf, "%u\n", sdata->hover_enabled);
+ }
+ 
+ static ssize_t stmfts_sysfs_hover_enable_write(struct device *dev,
 
- drivers/input/touchscreen/stmfts.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
----
-base-commit: 4a5663c04bb679631985a15efab774da58c37815
-change-id: 20251212-fts-fixes-30253fde92d9
-
-Best regards,
 -- 
-David Heidelberg <david@ixit.cz>
+2.51.0
 
 

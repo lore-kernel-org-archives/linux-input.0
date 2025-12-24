@@ -1,59 +1,61 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E907833FE01
-	for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 15:22:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C98834C140
+	for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 15:22:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766589766; cv=none; b=b7qMerZ2lScLOVk3q6P130p+EH9ZItjQYajwwkvZYzCA6/fLWBAhHAIZbxFq+8BzSB0WWpUk7dwG0p4T5eI77JtLSRNYjCDQ4FRfI8qMMfNFHauwhZGDzuxG7Oou4lg35GzT8R4uNTpzpUS3RrRXKo66hgT+1paZzBXsWrvh9Bo=
+	t=1766589770; cv=none; b=RfMQhRTiaevFEwxgxmmtfq4Y4cLoL6RekQpsqTVBDPuhavCcYz1ybIV/u4ai899F+/qrVklVM+2uoUpnGLkdUIJwGfJxlDr5XYYF4uK9EJ5ASGeAz7oYyEFxhCHVT0ai8OeEbnt/IKOlGwgUkIvzCAQqn7RX80J2m9eg+xTjFJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766589766; c=relaxed/simple;
-	bh=zALY9dlsMwzl/dAwtyaG4mXGxZf+fv84QQNolu1ZQYI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sxO/laqZLmSAkJN5y3t+Q/IZaY92Ob30+oWTvj1p5TCpd6ROeSjQmVr22xTRzM0Y4xlJQ/4coy4dEfGCpgoo0QHQTZBjZft9V6TglIpAaloS1fDbifqTApYyP9Kt+yB+wNWek/QAfZLzodH8ZAswCCpWPQWw83oOX14vwiKfiNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=fDin6/Aq; arc=none smtp.client-ip=209.85.221.46
+	s=arc-20240116; t=1766589770; c=relaxed/simple;
+	bh=E76HtQ/wOlk/iTdKNvwcIKzGwEJiphG6wBguNie0bF0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CJe0cktzGZSNaBltZSb1Wo+YkmRWmw2+mJPsq0E011cGinWuyqhb4ogOQF8Z57J8CIhvpeH2bmuoWqQBIaHgWj90xyUFXHrM/qnWjavX5GJ6n5fAgRhGEmC5id66BvUKP34x6ix0Dc615tX2a3E3RveN9HvD5BZ8fp+T7oCBSno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=kT0VxBN2; arc=none smtp.client-ip=209.85.221.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="fDin6/Aq"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-4327778df7fso119054f8f.3
-        for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 07:22:43 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kT0VxBN2"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-4327778df7fso119074f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 07:22:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1766589761; x=1767194561; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=PADMdGxAb/N51/r8LkdN24AdvAbRzLZVqXNmvAQV5oU=;
-        b=fDin6/Aql/LKoPKw3qbSEoYNq+sEn+df6TydOvyaKbf5PeO3NPJt12ZkDZa6y6Y1BX
-         eIhI5HjObJD46bYrao5B2UUhBXvZA70ni2xAQypjLoLhISQZ4ZUESDLlu06VtV8O1AcR
-         x/pik9HNDMe6fNOF/PAtQfdM+fK63BeJoixhQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766589761; x=1767194561;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1766589763; x=1767194563; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=PADMdGxAb/N51/r8LkdN24AdvAbRzLZVqXNmvAQV5oU=;
-        b=CxCXmWrXmiLGr6v9raEl1f7EbI5RIfucILWdlKmcKw6p6qaHKbF7PQDjRRngjmc4lL
-         3rsM0E/PJH3sREiOPBIPVSTUP0xbrueQmw6azMqJHHYUWkyLT57S4qMo+Opaj/tUvvgA
-         NytiTKBY/3hVhX19tWz1zwZVLLysGioSJaiQ7oSeaUgrbae16XhTWfKqZvt9W7iwxWvh
-         uu84afLo3uFOcvVJCXqWaCZmF0j3wDJaJ4jS5J4cIACatLP618LfNzR3dM6ZM+MMHOSK
-         w6TanrRnpT7Hrif1mF8ZgdFp+vTSaggcwLV1mPZESGDRw7AnneRmCSis52NINgQMONDK
-         RWKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV9cTCPoD8SJ/g7/qwGlAFM70/7cUTDrsXcT9gLVR0KZ9S5EiEP5TOy41iJaBumcOSSYUWW+lwqOWcdtg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHuxfi34lsT1TeTyU+BXDAgmZIaamsb96sbJdPp8NztDsp4JyP
-	Ssck4MU8//hT8/j3bd23Vb+xuGBHf9ou61708YQbqLFwUjjy9viVh2Gwff9GVny9NA==
-X-Gm-Gg: AY/fxX457AX7NxLz5D4ToYO1QySrNdUAvtcMBuJZyfIpA7+OgobS8vINK9SPdvkE4yC
-	8vcEZMEWmaoATm6Ot58TPUWcAGi1P2Kc2sGylJNyP8dOO9sT8xHjd9CNSzocoxx/xiOhoWo+iA9
-	5u70h7Aa64ZnirbS/jp9pc57DrnsqIRYVI1WhOTXgEfpX/i6Wn/TgDCAR22L2/pZt7XpJLwHyLN
-	yXpG4BCbHCXoIJ/F14u6a8tEVt0gPsewJEC9CNDpANRTLHdnbfYl95sTNCkCFgnR+KBXCiVbZZ9
-	GbW1kCN+zZAcz5YKByUFIcNSBe8Zkqme103yy9M3Ze0eVIVg5JjLwwCio4OHkpo8FwtyGd0p600
-	OUsAomEpB9ZSGaHQ5AA5x4feKZ+La5BJQlIyfer94S7/N5hKJMf1ixPHk4tYrDX5kSfBOOrXpgA
-	2ObYUoNlpSMZj5bwBGiZOSBgfMpw==
-X-Google-Smtp-Source: AGHT+IFYkk1rgHyu9nVNfjejw5HKRK1BJ+Hu+T0J0cFClraYCSLWRZJM/CdbzE8a+VtE+OxWg9t4JQ==
-X-Received: by 2002:a05:6000:1a89:b0:431:2ff:12ab with SMTP id ffacd0b85a97d-4324e704914mr19472833f8f.61.1766589761125;
-        Wed, 24 Dec 2025 07:22:41 -0800 (PST)
+        bh=broTySSYLTvfYQKOi4uFtvxxGHeRyXiGXlc1qJUuO3A=;
+        b=kT0VxBN26z8X7X52pg/GlagL459ncI1WlyfiSnSCrOFlFky2GxHeGYxHbb7C9NhoyK
+         1i5uPjfg5hFSUzClqefPPWXeUb7BAISPWIs6M8s/NEUu3bQv1Af9Gu/QI5uw/iTqB7TY
+         3gPhYp8njMjC/UQ+n52XvnLx6qPgi+OD3Kfws=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766589763; x=1767194563;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=broTySSYLTvfYQKOi4uFtvxxGHeRyXiGXlc1qJUuO3A=;
+        b=FXafv1mX1r+eIwytekyq34h5jFLP9PDagyY1e2bjQXGECSVlkbpsHR3JVldJjbyJxK
+         G7KTuuGbT3+e0nFfSwocTmipYztvnxNjEdJ5s4YE1uxqzD1sID0DzaSuULeSMs9hnaS/
+         e0l8fD0qwApW7+qHSGAjS1tuRimES1VxxN5HcZVjiiS4p9SO7GoTBQ/oONkNitMQnHNc
+         6x+uXbsy4qo1hKuOGXGu8IVaCRqI9UUCpje2+kV+DEplrdVGpcPUaszOEbP1sSiHwvRz
+         v6CYt/uNwo2dzvj8nF2Zt934pAAhb7MaqD0TQQ/d4nEI0Yh/BDBEWfm2uCicBC6DqkQ0
+         e6aQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWplTHn+wCIjYlkAXGlPR7eWyDZAwFA51ua1p6n2miQbjqqLXC9zLsQWTNmbcJnoUJDSFez9p/J6GaI6w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxY5MRV1BRUnDcNulcysNxwY0HXSXLaeJef8GXFXRg9XVqX5ci4
+	wV6G2BLRJJZAZysDz94Qo1bHn0TToOmN1xrDLFHoGUY0dsFSKDojqYPUNRW6KTMHow==
+X-Gm-Gg: AY/fxX7cBm5YvWfHbqBsgUWeSxi1PNawyUNbDYTxcll5Hd0BLF7KkiRqAGbrN63Qy2V
+	uLsNraWSmvH1BCcV0i8dclged+VGLn/5bjIHMQVzGiq80pqTVSA/VpUOSnqSAoetRs5Yq4kAaHq
+	DAjntW7jGB9oHpzxojXAYeXxfqTaegVOyDlF/uqrKp1dwD90udFuGVJSKCyCpcONU7ZN33Qhh36
+	vS9Gn04ocBKZC05uQWIA2mgBubBVpaIoAWR7VLghUR6Lg5pzn2A9IeIOZ8Vi2EydqYASdvavBvF
+	QZdkYEnWjJ6yG6j0ChM33lNe44+VCq8XZ3suogTaD/+GkBinHKO6X8j3TGAgZbNjEkjwMWO5WKK
+	YZQBXsojD9XvGn02HFaLk+HuRCWX6xG8wPFI1oLaSOp66/hQDt40BdjFdOrfDKQSp6u0up4FqwL
+	Bl3bCJkFHzje8GL8w=
+X-Google-Smtp-Source: AGHT+IHB446KR9bbT+6fe4P8dhCXUz9efTM0RI8RQnUg/3RKKGMv4Zs6DxHZ83wur1VVBkRdUAUQzA==
+X-Received: by 2002:a05:6000:2586:b0:431:84:357 with SMTP id ffacd0b85a97d-4324e4fb143mr21280148f8f.29.1766589763244;
+        Wed, 24 Dec 2025 07:22:43 -0800 (PST)
 Received: from balto-ws ([37.228.206.31])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324e9ba877sm34307363f8f.0.2025.12.24.07.22.39
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324e9ba877sm34307363f8f.0.2025.12.24.07.22.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Dec 2025 07:22:40 -0800 (PST)
+        Wed, 24 Dec 2025 07:22:42 -0800 (PST)
 From: Fabio Baltieri <fabiobaltieri@chromium.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -68,10 +70,12 @@ Cc: Fabio Baltieri <fabiobaltieri@chromium.org>,
 	devicetree@vger.kernel.org,
 	chrome-platform@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/2] Input: cros_ec_keyb: add function key support
-Date: Wed, 24 Dec 2025 15:22:36 +0000
-Message-ID: <20251224152238.485415-1-fabiobaltieri@chromium.org>
+Subject: [PATCH v2 2/2] dt-bindings: google,cros-ec-keyb: add use-fn-overlay prop
+Date: Wed, 24 Dec 2025 15:22:38 +0000
+Message-ID: <20251224152238.485415-3-fabiobaltieri@chromium.org>
 X-Mailer: git-send-email 2.52.0.351.gbe84eed79e-goog
+In-Reply-To: <20251224152238.485415-1-fabiobaltieri@chromium.org>
+References: <20251224152238.485415-1-fabiobaltieri@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,25 +84,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi, v2 of the cros-ec-keyb fn key support, reworked the whole
-configuration to use an overlay map doubling the row key size as
-suggested and handled other comments.
+Add binding documentation for the use-fn-overlay property.
 
-Changes from v1:
-  - change struct to short types
-  - refactored the fn key handling in its own function
-  - changed props to use the google, prefix
-  - reworked the properties to use an overlay map rather than a
-    dedicated one
+Signed-off-by: Fabio Baltieri <fabiobaltieri@chromium.org>
+---
+ .../bindings/input/google,cros-ec-keyb.yaml   | 25 +++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Fabio Baltieri (2):
-  Input: cros_ec_keyb - add function key support
-  dt-bindings: google,cros-ec-keyb: add use-fn-overlay prop
-
- .../bindings/input/google,cros-ec-keyb.yaml   |  25 ++++
- drivers/input/keyboard/cros_ec_keyb.c         | 120 +++++++++++++++---
- 2 files changed, 129 insertions(+), 16 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml b/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
+index fefaaf46a240..437575cdf352 100644
+--- a/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
++++ b/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
+@@ -44,6 +44,14 @@ properties:
+       where the lower 16 bits are reserved. This property is specified only
+       when the keyboard has a custom design for the top row keys.
+ 
++  google,use-fn-overlay:
++    description: |
++      Use a function key overlay. This allows defining an extra set of codes
++      that are sent if a key is pressed while the KEY_FN is held pressed as
++      well. The function codes have to be defined in the linux,keymap property
++      with an offset of keypad,num-rows from the normal ones.
++    type: boolean
++
+ dependencies:
+   function-row-physmap: [ 'linux,keymap' ]
+   google,needs-ghost-filter: [ 'linux,keymap' ]
+@@ -132,6 +140,23 @@ examples:
+             /* UP      LEFT    */
+             0x070b0067 0x070c0069>;
+     };
++  - |
++    /* With function keys */
++    #include <dt-bindings/input/input.h>
++    keyboard-controller {
++        compatible = "google,cros-ec-keyb";
++        keypad,num-rows = <8>;
++        keypad,num-columns = <18>;
++        google,use-fn-overlay;
++        linux,keymap = <
++            MATRIX_KEY(0x00, 0x00, KEY_FN)
++            MATRIX_KEY(0x01, 0x00, KEY_1)
++            MATRIX_KEY(0x02, 0x00, KEY_2)
++
++            MATRIX_KEY(8 + 0x01, 0x00, KEY_F1)
++            MATRIX_KEY(8 + 0x02, 0x00, KEY_F2)
++        >;
++    };
+   - |
+     /* No matrix keyboard, just buttons/switches */
+     keyboard-controller {
 -- 
 2.52.0.351.gbe84eed79e-goog
 

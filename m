@@ -1,81 +1,72 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2CC34CFC6
-	for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 15:22:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 124492264B8
+	for <linux-input@vger.kernel.org>; Thu, 25 Dec 2025 19:08:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766589770; cv=none; b=tOmwSAjJTdPZDqAuy98iot5oYWhCD5weQrzM7oBQTYymuNksy+A4tahY7ETu/govLy9v0zqde/8paJa8VCsusR48lkc8HrsvbIauyLqEnQH6x6Hs9CWG+tTPH4/A8f1MSj2weZLatDybgc+uK+BUUiYBfMyOqEhrM84LkAFdbqg=
+	t=1766689726; cv=none; b=S8kb2NUEWVo1svZwSxQPqSLILOQeln8Tw/mU2dJ4CiOiP7MAWydGgjMvfLdgfqk6vTNDBaB/1rUh//Rl3pqsZBLva5uAViO7lCl+QaAuIWTxSPmdrFjYyCFKJqmVdP3zRJvF+ogIGbNcAba5oURxk491tVMgDpX7VkJ2G4q3CWg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766589770; c=relaxed/simple;
-	bh=WTyMTbSMQzIIk8c/zE5eemB8w2d2eo13RjTPG4hAHpg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QogvBH6GxTQ7Oc3dM2Gsj6j1qfJsxG0XRx2MfNA1NJfGcSDo8ni31b/ev5mgN/QVHTNupfpYFMlYShv8TP7dooqErFwKCNW0DH1Oz+uwVdBK1MNuR+biz9OppYBrj31TzVAyR0dXtPeAXGRcQ/aYSkVrb9OeZVNQ8QpLGN6HZ7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=GEdZVv1f; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1766689726; c=relaxed/simple;
+	bh=O7OV29LqOFkYYxef7WbBIg0MkhpiAae+ITkzeUz+7OU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Us9LDCnjaIK2Y1w65G8oyLRm4vqv/GgFRWRJdkZdl71/xMKTd/RCnLlHLaN5iYHaLBpK+NCgcjJCuIv7gK8gA/YBPFSgoODisRIdZTrEkdFwTcWHKJBGrdYIjeQq5TLLaAqqPr0+1/auyveuwttqjpEEx+ph2Lc/gS+xxUY5joI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SaM+g8M9; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="GEdZVv1f"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-47a95efd2ceso53030795e9.2
-        for <linux-input@vger.kernel.org>; Wed, 24 Dec 2025 07:22:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SaM+g8M9"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-34e90f7b49cso5091761a91.3
+        for <linux-input@vger.kernel.org>; Thu, 25 Dec 2025 11:08:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1766589762; x=1767194562; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RyefeZtkA984opS3wh2QxIpFCcn7cjIx25blSwfv61M=;
-        b=GEdZVv1fdfi/2iNqG+uDZQPR9AZ4aK4I+k7vgenlWv9dS2ekqYPTjmaiTbLfqU/fTc
-         DM+CAw0y1o/OGBq+hoAxGsHo48IKINeRu2JiZ7F0ayFJ+ZIDvibPdfwX9nr3H+q6FoUa
-         Cs1jHO2AWvwTsUYfJsn6WgMBGi6iG49MCYJSE=
+        d=gmail.com; s=20230601; t=1766689723; x=1767294523; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=X3ORFj2N4UWrYCvvX94DX724F6eVqFBGFwWbgNVtV/g=;
+        b=SaM+g8M9Bx80scYGA9JE5avyFO4oxnKrjLK1eP20fZ25ysXv6ehh9D5x0gx4Lg7eea
+         0PmxPtzDZ5419wdU3TvTH8Nw5yruBICosBGohS0BcHMF1NIGCHS0Ay5rJqP+BINZY5GF
+         csqzgo2IQDPuNV+3uvRCcs/2n1tGxjFgUNXFadpzGt9IADvkWennTDKawrVeKm/v0GXO
+         TyihyWegI1MqTUV24Uf2MWkSvhJCUvWjja4kBTWqovG5+m2QUCRrx8G3tuvvYUlGDcYX
+         2upKKcnBMUM7E5u4fuOjfyvg226vG5vy5kzjoBedj3/pZnouexaXFrPt4/6lRSGCIxFA
+         9zbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766589762; x=1767194562;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=RyefeZtkA984opS3wh2QxIpFCcn7cjIx25blSwfv61M=;
-        b=fQkl8nTp82XLz0+KX7fdrVZoLGHzw3A9UI1L3PSjZWgCiLV306gHxG05NYKUh5zdAW
-         LeTlz5Gdok1RNM1cMyrRUaYYm4ZTz8nzOhG02DK0qO2kRGJuBTe0tKXwMxldGH2vs066
-         3r2D8cfsdnZsCPogaE3kQxuZGh1QdfFev/nMla4Lk+mbKxypoQb/x0gwRohaSU7aHnqq
-         eFFwK06dXAzDdnC0J1bPY0PyqKDNEvy9xAFWRij6a17HYLM0/URtfh5Dt1dRITO/minT
-         puHnIthbMYOI12mDwrf4RrI9Q1kLoDeBwmz9k22webpcnXxNvFL76CCJDpE7gmH4J9ZQ
-         wKvg==
-X-Forwarded-Encrypted: i=1; AJvYcCXDOPqA3wb0FVCTsOS9nHu2++grPhwTa/YJ7ebrNl9RhTd/TyaQJvggoB50AZdgZvaKST3/ClQqteTiXA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw1fZIwxev81pZhKeObYC7BWgjTwgSHW/fBcTdZsbqEQcNxRl62
-	fzMLK4LNCJscYeOjhix2c+NscyfdlzOwM9UjruJj9ZqY6clttKt+FrE/hdDDoiJ6Jg==
-X-Gm-Gg: AY/fxX5PNU1x6Y0NmF58UOKXBl1nfy1lRucEq6+rzhvQCEzviR4NlVcZg9xcBgYBl44
-	Ds+YaQ92mpDNx6+g86E05X8QDVeC4CQm7rUiUo/rzdM3TGBE4E++XUGCjRSv99vOoH1WIWodid3
-	LQQJ8/GHwdoUN1yDZ8IHcEjXlQSwqUbTUzbSs/D64GgUD4BDCmVYp2LcEMqpE3dBdlMx8jh9Cfe
-	De/eMYZcX+LYbaTcQm7n2J99iJA5D/AEX5J0MlmeA3ebqO3vtNiS/joy2iInvcxDDZEHTOD527e
-	DQN+/JLqWX2+AsPldIR8nkh21WOBFgKbYL+xaAXd6LgbPU2qvtU/ZaIstvwYCu6R7rHMxjzl/72
-	IaKqwK1/lo4hxsfGBkFKRNRfo7Ts3JeLj8U/vsVsi/PJxpm8V3snGuroA+bxyM/DGRsjzHH4tGH
-	ruyDevom/hpj9i7p0=
-X-Google-Smtp-Source: AGHT+IEzhtmx7B/YgjG7IPSjUb5Fjb72PWnzr64AjzD+3FsHwgw5UML4dhc5sj7PIJMUpUGd5SDRTw==
-X-Received: by 2002:a05:6000:2386:b0:431:1ae:a3ca with SMTP id ffacd0b85a97d-4324e4c1207mr21162355f8f.11.1766589762212;
-        Wed, 24 Dec 2025 07:22:42 -0800 (PST)
-Received: from balto-ws ([37.228.206.31])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324e9ba877sm34307363f8f.0.2025.12.24.07.22.41
+        d=1e100.net; s=20230601; t=1766689723; x=1767294523;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X3ORFj2N4UWrYCvvX94DX724F6eVqFBGFwWbgNVtV/g=;
+        b=jsdBlONxeH0krwIiivj/PT6t9nfun1eqo/SXhTCORHfcK+q5MBzMCUhHWY2+xsHUzb
+         nGr34pjTluMgcEOfjHFZ5wCBfrwq7it54RDjN3p3KUL3R5REiCVwNHW6pOlqc/xu/qV7
+         LLeNcDg5S7Ngw8pgQ+90QpkurGkOphGMySZvmRq0078NB58S1q613BLIldeb1xDUqPb7
+         6BXLPOeANBfrJLqk/F0JgtdZMnen0QdT+8wh/fQ1RjSM27tI2Cxnqpmlr7oL7vUERT25
+         UpCywDQZ+IolOBMW/DkbyNEw10qcnF3SWIJQxRodLoM8CRccMuRIs/ly99Yylndq7JyT
+         581Q==
+X-Gm-Message-State: AOJu0YyAVb1dktctUrLUnMtF95Y5T+yrpKhcy+mPLSmJD+TiBP5BYg2O
+	X3z/G1Qd1f+OeRmGehRlpmyuv300B1JyQNxzglhKl1cRVObY6sqz+K4h
+X-Gm-Gg: AY/fxX5s8oXMdijL/cwFKPCo2nRVpuHSHUSuPiOnpN8VB4yKFHWm5xuaP0IgSUpbFFY
+	co1dMEuACPAc4hfvvKiBs7+UypBeZo8f3MY3PLVrZGcumXRkwpFPHHxu1foPjbJhlQwxqBjeBOD
+	s4c0NK391g7M+wKC1yuWJCB+g9F4cPts0H9nTNqQIZ9dc9CtPQWxjK10Jcz9ckx0hx7fx3fU1if
+	9TUT+wAAsWmCD0jUoA/WHUGqD2TAw8/Xh7hg0Nfd/myMtaczuzSqm75qq1f1hMagPOsVRGvvf5A
+	DbTzdW3RzqLOrZs4ZvKh5AhHfjsxxUvDTMWLVhC3YCmEN0XakV7qgGuUzq/CRQvFXsOu+qPOba1
+	qbAaNlRS7D6BpRKQB4ulI4W/6jH819NyILPTzcLsC940a3GRX99P1twVmDHmoKK5olMU19tLdZN
+	H9w4LVV6MMHCnGL3PTHDsJmBUVErjuQlmO5DjkuLVIVH4DU8dUUMYMfWhV3blYw4LHQME6ZOvk2
+	Lwhy+tjB0OP85v+QSjDs20RmRQekfdyMcF8dU5Q6rSQu44XglfqRTpKCAYe
+X-Google-Smtp-Source: AGHT+IFxIHTSSEEeM3o1DmcOPfS9sy+kJJEduNpLEoFxfiFhjcZJLxcdrmKAIZh0Lkkr5YCaralzWA==
+X-Received: by 2002:a17:90b:2584:b0:32e:7c34:70cf with SMTP id 98e67ed59e1d1-34e9220204dmr16657680a91.36.1766689723176;
+        Thu, 25 Dec 2025 11:08:43 -0800 (PST)
+Received: from anonymous ([113.252.77.195])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34ed530475bsm4013132a91.8.2025.12.25.11.08.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Dec 2025 07:22:41 -0800 (PST)
-From: Fabio Baltieri <fabiobaltieri@chromium.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	Guenter Roeck <groeck@chromium.org>
-Cc: Fabio Baltieri <fabiobaltieri@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Simon Glass <sjg@chromium.org>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	chrome-platform@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] Input: cros_ec_keyb - add function key support
-Date: Wed, 24 Dec 2025 15:22:37 +0000
-Message-ID: <20251224152238.485415-2-fabiobaltieri@chromium.org>
-X-Mailer: git-send-email 2.52.0.351.gbe84eed79e-goog
-In-Reply-To: <20251224152238.485415-1-fabiobaltieri@chromium.org>
-References: <20251224152238.485415-1-fabiobaltieri@chromium.org>
+        Thu, 25 Dec 2025 11:08:42 -0800 (PST)
+From: Kwok Kin Ming <kenkinming2002@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kwok Kin Ming <kenkinming2002@gmail.com>
+Subject: [PATCH] HID: i2c-hid: override HID descriptors for some Haptick 5288 touchpads
+Date: Fri, 26 Dec 2025 03:08:22 +0800
+Message-ID: <20251225190822.150872-1-kenkinming2002@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -84,202 +75,331 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add support for handling an Fn button and sending separate keycodes for
-a subset of keys in the matrix defined in the upper half of the keymap.
+On some Samsung laptops (750XFG) with Haptick 5288 touchpads over
+designware i2c bus, the supplied HID descriptors and report descriptors
+can become partially corrupted under some circumstances.
 
-Signed-off-by: Fabio Baltieri <fabiobaltieri@chromium.org>
+In particular, this can happen if the touchpad attempts to generate
+input reports while we try to retrieve the HID descriptors or the Report
+descriptor. This can be reproduced by repeatedly reloading the relevant
+kernel modules (i2c_hid_acpi and i2c_hid) and attempting to use the
+touchpad at the same time. The usage of a script is suggested for the
+reproduction of the issue.
+
+Since it is a race condition, one of the symptom of the issue is that it
+will eventually resolve itself after repeated rebooting.
+
+There is currently no way of handling malformed HID descriptors and
+report descriptors and per the I2C HID spec, it is not necessary for the
+HOST to re-retrieve a report descriptor under such circumstances.
+Instead of having a system to deal with malformed HID descriptors and
+report descriptors, we simply hard-code them.
+
+A related issues on another samsung laptop (750XED) have been reported
+on the archlinux forum.
+
+Links: https://bbs.archlinux.org/viewtopic.php?id=289627
+Signed-off-by: Kwok Kin Ming <kenkinming2002@gmail.com>
 ---
- drivers/input/keyboard/cros_ec_keyb.c | 120 ++++++++++++++++++++++----
- 1 file changed, 104 insertions(+), 16 deletions(-)
+Other fixes were attempted at the issue but none of them work. In
+summary, they included:
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 1c6b0461dc35..8b95b4f8a37d 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -29,6 +29,11 @@
- 
- #include <linux/unaligned.h>
- 
-+/* Maximum size of the normal key matrix, this is limited by the host command
-+ * key_matrix field defined in ec_response_get_next_data_v3
-+ */
-+#define CROS_EC_KEYBOARD_COLS_MAX 18
-+
- /**
-  * struct cros_ec_keyb - Structure representing EC keyboard device
-  *
-@@ -44,6 +49,11 @@
-  * @bs_idev: The input device for non-matrix buttons and switches (or NULL).
-  * @notifier: interrupt event notifier for transport devices
-  * @vdata: vivaldi function row data
-+ * @use_fn_overlay: whether the driver use an fn function overlay
-+ * @normal_key_status: active normal keys map
-+ * @fn_key_status: active function keys map
-+ * @fn_key_pressed: tracks the function key status
-+ * @fn_key_triggered: tracks where any function key fired
-  */
- struct cros_ec_keyb {
- 	unsigned int rows;
-@@ -61,6 +71,12 @@ struct cros_ec_keyb {
- 	struct notifier_block notifier;
- 
- 	struct vivaldi_data vdata;
-+
-+	bool use_fn_overlay;
-+	u8 normal_key_status[CROS_EC_KEYBOARD_COLS_MAX];
-+	u8 fn_key_status[CROS_EC_KEYBOARD_COLS_MAX];
-+	bool fn_key_pressed;
-+	bool fn_key_triggered;
+1: Remove I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirk.
+2: Do not send power on command to the device before reset.
+3: Detect if any interrupts have fired when we are reading HID
+   descriptors and report descriptors in a racy manner.
+
+Other suggestions are welcomed.
+
+The patch triggers style check warnings due to long line but it should
+sitll be readable. The comments could be removed if necessary.
+
+Other samsung laptops affected by the issue could also be added if it
+can be confirmed.
+
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 262 +++++++++++++++++++++++
+ 1 file changed, 262 insertions(+)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 210f17c3a0be..befec7a0c2fd 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -290,6 +290,260 @@ static const struct i2c_hid_desc_override sipodev_desc = {
+ 	.i2c_name = "SYNA3602:00"
  };
- 
- /**
-@@ -166,16 +182,83 @@ static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, uint8_t *buf)
- 	return false;
- }
- 
-+static void cros_ec_keyb_process_fn_key(struct cros_ec_keyb *ckdev,
-+					int row, int col, bool state)
-+{
-+	struct input_dev *idev = ckdev->idev;
-+	int pos = MATRIX_SCAN_CODE(row, col, ckdev->row_shift);
-+
-+	ckdev->fn_key_pressed = state;
-+
-+	if (state) {
-+		ckdev->fn_key_triggered = false;
-+	} else if (!ckdev->fn_key_triggered) {
-+		/*
-+		 * Send the original code if nothing else has been pressed
-+		 * together with Fn.
-+		 */
-+		input_event(idev, EV_MSC, MSC_SCAN, pos);
-+		input_report_key(idev, KEY_FN, true);
-+		input_sync(idev);
-+
-+		input_event(idev, EV_MSC, MSC_SCAN, pos);
-+		input_report_key(idev, KEY_FN, false);
-+	}
-+}
-+
-+static void cros_ec_keyb_process_one(struct cros_ec_keyb *ckdev,
-+				     int row, int col, bool state)
-+{
-+	struct input_dev *idev = ckdev->idev;
-+	const unsigned short *keycodes = idev->keycode;
-+	int pos = MATRIX_SCAN_CODE(row, col, ckdev->row_shift);
-+	unsigned int code = keycodes[pos];
-+
-+	dev_dbg(ckdev->dev, "changed: [r%d c%d]: byte %02x\n", row, col, state);
-+
-+	if (ckdev->use_fn_overlay) {
-+		if (code == KEY_FN)
-+			return cros_ec_keyb_process_fn_key(ckdev, row, col, state);
-+
-+		if (!state) {
-+			if (ckdev->fn_key_status[col] & BIT(row)) {
-+				pos = MATRIX_SCAN_CODE(row + ckdev->rows, col, ckdev->row_shift);
-+				code = keycodes[pos];
-+
-+				ckdev->fn_key_status[col] &= ~BIT(row);
-+			} else if (ckdev->normal_key_status[col] & BIT(row)) {
-+				ckdev->normal_key_status[col] &= ~BIT(row);
-+			} else {
-+				/* Discard, key press code was not sent */
-+				return;
-+			}
-+		} else if (ckdev->fn_key_pressed) {
-+			pos = MATRIX_SCAN_CODE(row + ckdev->rows, col, ckdev->row_shift);
-+			code = keycodes[pos];
-+
-+			ckdev->fn_key_triggered = true;
-+
-+			if (!code)
-+				return;
-+
-+			ckdev->fn_key_status[col] |= BIT(row);
-+		} else {
-+			ckdev->normal_key_status[col] |= BIT(row);
-+		}
-+	}
-+
-+	input_event(idev, EV_MSC, MSC_SCAN, pos);
-+	input_report_key(idev, code, state);
-+}
- 
- /*
-  * Compares the new keyboard state to the old one and produces key
-- * press/release events accordingly.  The keyboard state is 13 bytes (one byte
-- * per column)
-+ * press/release events accordingly.  The keyboard state is one byte
-+ * per column.
-  */
- static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
- 			 uint8_t *kb_state, int len)
- {
--	struct input_dev *idev = ckdev->idev;
- 	int col, row;
- 	int new_state;
- 	int old_state;
-@@ -192,20 +275,13 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
- 
- 	for (col = 0; col < ckdev->cols; col++) {
- 		for (row = 0; row < ckdev->rows; row++) {
--			int pos = MATRIX_SCAN_CODE(row, col, ckdev->row_shift);
--			const unsigned short *keycodes = idev->keycode;
--
- 			new_state = kb_state[col] & (1 << row);
- 			old_state = ckdev->old_kb_state[col] & (1 << row);
--			if (new_state != old_state) {
--				dev_dbg(ckdev->dev,
--					"changed: [r%d c%d]: byte %02x\n",
--					row, col, new_state);
--
--				input_event(idev, EV_MSC, MSC_SCAN, pos);
--				input_report_key(idev, keycodes[pos],
--						 new_state);
--			}
-+
-+			if (new_state == old_state)
-+				continue;
-+
-+			cros_ec_keyb_process_one(ckdev, row, col, new_state);
- 		}
- 		ckdev->old_kb_state[col] = kb_state[col];
- 	}
-@@ -597,12 +673,19 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
- 	struct device *dev = ckdev->dev;
- 	struct input_dev *idev;
- 	const char *phys;
-+	unsigned int rows_keymap;
- 	int err;
- 
- 	err = matrix_keypad_parse_properties(dev, &ckdev->rows, &ckdev->cols);
- 	if (err)
- 		return err;
- 
-+	if (ckdev->cols > CROS_EC_KEYBOARD_COLS_MAX) {
-+		dev_err(dev, "keypad,num-columns too large: %d (max: %d)\n",
-+			ckdev->cols, CROS_EC_KEYBOARD_COLS_MAX);
-+		return -EINVAL;
-+	}
-+
- 	ckdev->valid_keys = devm_kzalloc(dev, ckdev->cols, GFP_KERNEL);
- 	if (!ckdev->valid_keys)
- 		return -ENOMEM;
-@@ -635,7 +718,12 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
- 	ckdev->ghost_filter = device_property_read_bool(dev,
- 					"google,needs-ghost-filter");
- 
--	err = matrix_keypad_build_keymap(NULL, NULL, ckdev->rows, ckdev->cols,
-+	ckdev->use_fn_overlay = device_property_read_bool(dev,
-+					"google,use-fn-overlay");
-+
-+	rows_keymap = ckdev->use_fn_overlay ? ckdev->rows * 2 : ckdev->rows;
-+
-+	err = matrix_keypad_build_keymap(NULL, NULL, rows_keymap, ckdev->cols,
- 					 NULL, idev);
- 	if (err) {
- 		dev_err(dev, "cannot build key matrix\n");
--- 
-2.52.0.351.gbe84eed79e-goog
+
++static const struct i2c_hid_desc_override hantick5288_desc = {
++	.i2c_hid_desc_buffer = (uint8_t [])
++	{0x1e, 0x00,             /* Length of descriptor          */
++	 0x00, 0x01,             /* Version of descriptor         */
++	 0xe2, 0x01,             /* Length of report descriptor   */
++	 0x21, 0x00,             /* Location of report descriptor */
++	 0x24, 0x00,             /* Location of input report      */
++	 0x1f, 0x00,             /* Max input report length       */
++	 0x25, 0x00,             /* Location of output report     */
++	 0x11, 0x00,             /* Max output report length      */
++	 0x22, 0x00,             /* Location of command register  */
++	 0x23, 0x00,             /* Location of data register     */
++	 0x11, 0x09,             /* Vendor ID                     */
++	 0x88, 0x52,             /* Product ID                    */
++	 0x06, 0x00,             /* Version ID                    */
++	 0x00, 0x00, 0x00, 0x00, /* Reserved                      */
++	},
++	.hid_report_desc = (uint8_t [])
++	{0x05, 0x01,                   /* Usage Page (Generic Desktop Ctrls)                                                       */
++	 0x09, 0x02,                   /* Usage (Mouse)                                                                            */
++	 0xA1, 0x01,                   /* Collection (Application)                                                                 */
++	 0x85, 0x01,                   /*   Report ID (1)                                                                          */
++	 0x09, 0x01,                   /*   Usage (Pointer)                                                                        */
++	 0xA1, 0x00,                   /*   Collection (Physical)                                                                  */
++	 0x05, 0x09,                   /*     Usage Page (Button)                                                                  */
++	 0x19, 0x01,                   /*     Usage Minimum (0x01)                                                                 */
++	 0x29, 0x02,                   /*     Usage Maximum (0x02)                                                                 */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x95, 0x02,                   /*     Report Count (2)                                                                     */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x95, 0x06,                   /*     Report Count (6)                                                                     */
++	 0x81, 0x01,                   /*     Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)              */
++	 0x05, 0x01,                   /*     Usage Page (Generic Desktop Ctrls)                                                   */
++	 0x09, 0x30,                   /*     Usage (X)                                                                            */
++	 0x09, 0x31,                   /*     Usage (Y)                                                                            */
++	 0x15, 0x81,                   /*     Logical Minimum (-127)                                                               */
++	 0x25, 0x7F,                   /*     Logical Maximum (127)                                                                */
++	 0x75, 0x08,                   /*     Report Size (8)                                                                      */
++	 0x95, 0x02,                   /*     Report Count (2)                                                                     */
++	 0x81, 0x06,                   /*     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0xC0,                         /* End Collection                                                                           */
++	 0x05, 0x0D,                   /* Usage Page (Digitizer)                                                                   */
++	 0x09, 0x05,                   /* Usage (Touch Pad)                                                                        */
++	 0xA1, 0x01,                   /* Collection (Application)                                                                 */
++	 0x95, 0x01,                   /*   Report Count (1)                                                                       */
++	 0x55, 0x0E,                   /*   Unit Exponent (-2)                                                                     */
++	 0x65, 0x11,                   /*   Unit (System: SI Linear, Length: Centimeter)                                           */
++	 0x15, 0x00,                   /*   Logical Minimum (0)                                                                    */
++	 0x85, 0x04,                   /*   Report ID (4)                                                                          */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x02,                   /*   Collection (Logical)                                                                   */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x09, 0x47,                   /*     Usage (0x47)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x09, 0x42,                   /*     Usage (Tip Switch)                                                                   */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x75, 0x06,                   /*     Report Size (6)                                                                      */
++	 0x25, 0x05,                   /*     Logical Maximum (5)                                                                  */
++	 0x09, 0x51,                   /*     Usage (0x51)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x05, 0x01,                   /*     Usage Page (Generic Desktop Ctrls)                                                   */
++	 0x75, 0x10,                   /*     Report Size (16)                                                                     */
++	 0x26, 0x44, 0x0A,             /*     Logical Maximum (2628)                                                               */
++	 0x46, 0xB0, 0x04,             /*     Physical Maximum (1200)                                                              */
++	 0x09, 0x30,                   /*     Usage (X)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x26, 0x34, 0x05,             /*     Logical Maximum (1332)                                                               */
++	 0x46, 0x38, 0x03,             /*     Physical Maximum (824)                                                               */
++	 0x09, 0x31,                   /*     Usage (Y)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x02,                   /*   Collection (Logical)                                                                   */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x09, 0x47,                   /*     Usage (0x47)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x09, 0x42,                   /*     Usage (Tip Switch)                                                                   */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x75, 0x06,                   /*     Report Size (6)                                                                      */
++	 0x25, 0x05,                   /*     Logical Maximum (5)                                                                  */
++	 0x09, 0x51,                   /*     Usage (0x51)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x05, 0x01,                   /*     Usage Page (Generic Desktop Ctrls)                                                   */
++	 0x75, 0x10,                   /*     Report Size (16)                                                                     */
++	 0x26, 0x44, 0x0A,             /*     Logical Maximum (2628)                                                               */
++	 0x46, 0xB0, 0x04,             /*     Physical Maximum (1200)                                                              */
++	 0x09, 0x30,                   /*     Usage (X)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x26, 0x34, 0x05,             /*     Logical Maximum (1332)                                                               */
++	 0x46, 0x38, 0x03,             /*     Physical Maximum (824)                                                               */
++	 0x09, 0x31,                   /*     Usage (Y)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x02,                   /*   Collection (Logical)                                                                   */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x09, 0x47,                   /*     Usage (0x47)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x09, 0x42,                   /*     Usage (Tip Switch)                                                                   */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x75, 0x06,                   /*     Report Size (6)                                                                      */
++	 0x25, 0x05,                   /*     Logical Maximum (5)                                                                  */
++	 0x09, 0x51,                   /*     Usage (0x51)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x05, 0x01,                   /*     Usage Page (Generic Desktop Ctrls)                                                   */
++	 0x75, 0x10,                   /*     Report Size (16)                                                                     */
++	 0x26, 0x44, 0x0A,             /*     Logical Maximum (2628)                                                               */
++	 0x46, 0xB0, 0x04,             /*     Physical Maximum (1200)                                                              */
++	 0x09, 0x30,                   /*     Usage (X)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x26, 0x34, 0x05,             /*     Logical Maximum (1332)                                                               */
++	 0x46, 0x38, 0x03,             /*     Physical Maximum (824)                                                               */
++	 0x09, 0x31,                   /*     Usage (Y)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x02,                   /*   Collection (Logical)                                                                   */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x09, 0x47,                   /*     Usage (0x47)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x09, 0x42,                   /*     Usage (Tip Switch)                                                                   */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x75, 0x06,                   /*     Report Size (6)                                                                      */
++	 0x25, 0x05,                   /*     Logical Maximum (5)                                                                  */
++	 0x09, 0x51,                   /*     Usage (0x51)                                                                         */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x05, 0x01,                   /*     Usage Page (Generic Desktop Ctrls)                                                   */
++	 0x75, 0x10,                   /*     Report Size (16)                                                                     */
++	 0x26, 0x44, 0x0A,             /*     Logical Maximum (2628)                                                               */
++	 0x46, 0xB0, 0x04,             /*     Physical Maximum (1200)                                                              */
++	 0x09, 0x30,                   /*     Usage (X)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0x26, 0x34, 0x05,             /*     Logical Maximum (1332)                                                               */
++	 0x46, 0x38, 0x03,             /*     Physical Maximum (824)                                                               */
++	 0x09, 0x31,                   /*     Usage (Y)                                                                            */
++	 0x81, 0x02,                   /*     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                 */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x55, 0x0C,                   /*   Unit Exponent (-4)                                                                     */
++	 0x66, 0x01, 0x10,             /*   Unit (System: SI Linear, Time: Seconds)                                                */
++	 0x47, 0xFF, 0xFF, 0x00, 0x00, /*   Physical Maximum (65534)                                                               */
++	 0x27, 0xFF, 0xFF, 0x00, 0x00, /*   Logical Maximum (65534)                                                                */
++	 0x09, 0x56,                   /*   Usage (0x56)                                                                           */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x25, 0x05,                   /*   Logical Maximum (5)                                                                    */
++	 0x09, 0x54,                   /*   Usage (0x54)                                                                           */
++	 0x75, 0x04,                   /*   Report Size (4)                                                                        */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x05, 0x09,                   /*   Usage Page (Button)                                                                    */
++	 0x09, 0x01,                   /*   Usage (0x01)                                                                           */
++	 0x25, 0x01,                   /*   Logical Maximum (1)                                                                    */
++	 0x25, 0x01,                   /*   Logical Maximum (1)                                                                    */
++	 0x75, 0x01,                   /*   Report Size (1)                                                                        */
++	 0x95, 0x01,                   /*   Report Count (1)                                                                       */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x06, 0x01, 0xFF,             /*   Usage Page (Vendor Defined 0xFF01)                                                     */
++	 0x95, 0x01,                   /*   Report Count (1)                                                                       */
++	 0x75, 0x03,                   /*   Report Size (3)                                                                        */
++	 0x09, 0x41,                   /*   Usage (0x41)                                                                           */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x09, 0x42,                   /*   Usage (0x42)                                                                           */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x75, 0x01,                   /*   Report Size (1)                                                                        */
++	 0x09, 0x40,                   /*   Usage (0x40)                                                                           */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x75, 0x24,                   /*   Report Size (36)                                                                       */
++	 0x81, 0x03,                   /*   Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                  */
++	 0x05, 0x0D,                   /*   Usage Page (Digitizer)                                                                 */
++	 0x85, 0x02,                   /*   Report ID (2)                                                                          */
++	 0x25, 0x0F,                   /*   Logical Maximum (15)                                                                   */
++	 0x75, 0x04,                   /*   Report Size (4)                                                                        */
++	 0x09, 0x55,                   /*   Usage (0x55)                                                                           */
++	 0xB1, 0x02,                   /*   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)    */
++	 0x09, 0x59,                   /*   Usage (0x59)                                                                           */
++	 0xB1, 0x02,                   /*   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)    */
++	 0x85, 0x06,                   /*   Report ID (6)                                                                          */
++	 0x06, 0x00, 0xFF,             /*   Usage Page (Vendor Defined 0xFF00)                                                     */
++	 0x09, 0xC5,                   /*   Usage (0xC5)                                                                           */
++	 0x26, 0xFF, 0x00,             /*   Logical Maximum (255)                                                                  */
++	 0x75, 0x08,                   /*   Report Size (8)                                                                        */
++	 0x96, 0x00, 0x01,             /*   Report Count (256)                                                                     */
++	 0xB1, 0x02,                   /*   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)    */
++	 0xC0,                         /* End Collection                                                                           */
++	 0x05, 0x0D,                   /* Usage Page (Digitizer)                                                                   */
++	 0x09, 0x0E,                   /* Usage (0x0E)                                                                             */
++	 0xA1, 0x01,                   /* Collection (Application)                                                                 */
++	 0x85, 0x03,                   /*   Report ID (3)                                                                          */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x02,                   /*   Collection (Logical)                                                                   */
++	 0x09, 0x52,                   /*     Usage (0x52)                                                                         */
++	 0x25, 0x0A,                   /*     Logical Maximum (10)                                                                 */
++	 0x95, 0x01,                   /*     Report Count (1)                                                                     */
++	 0xB1, 0x02,                   /*     Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)  */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0x09, 0x22,                   /*   Usage (Finger)                                                                         */
++	 0xA1, 0x00,                   /*   Collection (Physical)                                                                  */
++	 0x85, 0x05,                   /*     Report ID (5)                                                                        */
++	 0x25, 0x01,                   /*     Logical Maximum (1)                                                                  */
++	 0x75, 0x01,                   /*     Report Size (1)                                                                      */
++	 0x09, 0x57,                   /*     Usage (0x57)                                                                         */
++	 0xB1, 0x02,                   /*     Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)  */
++	 0x09, 0x58,                   /*     Usage (0x58)                                                                         */
++	 0xB1, 0x02,                   /*     Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)  */
++	 0x75, 0x06,                   /*     Report Size (6)                                                                      */
++	 0xB1, 0x03,                   /*     Feature (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile) */
++	 0xC0,                         /*   End Collection                                                                         */
++	 0xC0,                         /* End Collection                                                                           */
++	 0x06, 0x01, 0xFF,             /* Usage Page (Vendor Defined 0xFF01)                                                       */
++	 0x09, 0x02,                   /* Usage (0x02)                                                                             */
++	 0xA1, 0x01,                   /* Collection (Application)                                                                 */
++	 0x75, 0x08,                   /*   Report Size (8)                                                                        */
++	 0x85, 0x0D,                   /*   Report ID (13)                                                                         */
++	 0x09, 0xD5,                   /*   Usage (0xD5)                                                                           */
++	 0x95, 0x18,                   /*   Report Count (24)                                                                      */
++	 0xB1, 0x02,                   /*   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)    */
++	 0x85, 0x0C,                   /*   Report ID (12)                                                                         */
++	 0x09, 0xD6,                   /*   Usage (0xD6)                                                                           */
++	 0x96, 0x91, 0x00,             /*   Report Count (145)                                                                     */
++	 0xB1, 0x02,                   /*   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)    */
++	 0x09, 0x30,                   /*   Usage (0x30)                                                                           */
++	 0x85, 0x07,                   /*   Report ID (7)                                                                          */
++	 0x95, 0x07,                   /*   Report Count (7)                                                                       */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x09, 0x70,                   /*   Usage (0x70)                                                                           */
++	 0x85, 0x0E,                   /*   Report ID (14)                                                                         */
++	 0x95, 0xC9,                   /*   Report Count (-55)                                                                     */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x09, 0x71,                   /*   Usage (0x71)                                                                           */
++	 0x85, 0x08,                   /*   Report ID (8)                                                                          */
++	 0x95, 0x97,                   /*   Report Count (-105)                                                                    */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x09, 0x72,                   /*   Usage (0x72)                                                                           */
++	 0x85, 0x09,                   /*   Report ID (9)                                                                          */
++	 0x95, 0xFD,                   /*   Report Count (-3)                                                                      */
++	 0x81, 0x02,                   /*   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)                   */
++	 0x09, 0x73,                   /*   Usage (0x73)                                                                           */
++	 0x85, 0x0A,                   /*   Report ID (10)                                                                         */
++	 0x95, 0x20,                   /*   Report Count (32)                                                                      */
++	 0x91, 0x02,                   /*   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)     */
++	 0xC0,                         /* End Collection                                                                           */
++	},
++	.hid_report_desc_size = 482,
++	.i2c_name = "SPPT2600:00"
++};
+
+ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 	{
+@@ -415,6 +669,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Samsung 750XFG",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "750XFG"),
++		},
++		.driver_data = (void *)&hantick5288_desc
++	},
+ 	{ }	/* Terminate list */
+ };
+
+--
+2.52.0
 

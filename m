@@ -1,69 +1,69 @@
-Received: from mail-lf1-f97.google.com (mail-lf1-f97.google.com [209.85.167.97])
+Received: from mail-lj1-f228.google.com (mail-lj1-f228.google.com [209.85.208.228])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF70D2BE641
-	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2025 17:37:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B98162BEC2C
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2025 17:37:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.228
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767202650; cv=none; b=QKbTEfltgFB98ae38fhg7ZGwuBpu5vG6tL4bgxOaMGlwfklGu7f9m+v4xu8jFfhWq8kj5UCZBR+OG1z3TKVL8hADCPsTy555FA8DL0HC1mxeQ1GWP/YMSon6kjjoQLexvklweySbKPEVMydbGaXG3ZL7HLnfG7xpBd6dso0nYzo=
+	t=1767202651; cv=none; b=ckCv9yJolyVhSW5lB4X9UeezSs1YYU/tk1/gKwIhlaSHPlF2Y6Jw1ssiTwCc1Q7DNiRPFhRKxs2Kwd+N93d7icf2DRpB1CpEpeqCjmXIW9j9AQfh++69AKldyU68PPEo5wJJzYqv7+mOQWu+LiVwbRr4WA28QbP4whIFcRbS7RM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767202650; c=relaxed/simple;
-	bh=+qs2O0p6JSmasUPfUb0PrNjt2zEzZFmnX/PzeN+aGlM=;
+	s=arc-20240116; t=1767202651; c=relaxed/simple;
+	bh=b8KXgdkuB2rBCBMKoOj23zAGkLun2ndQut4LRQn9YLA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s4icu0p4Jar0xBZ8BcpgXHUN2qiq+1WQyZYpnglWTZWTaeBVun33D00ZnZOBX4lKzEjcX2yzEQG0OpHRaZdIxUYh1G+4EI6sI/m4c343uc7VC7dPyBS5taHHCgsnzz6mrc97qM6Jjuow0r5tqaNDDo82XVwRTWi8pvUTEmsqF+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=purestorage.com; spf=fail smtp.mailfrom=purestorage.com; dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b=SWgzDxwL; arc=none smtp.client-ip=209.85.167.97
+	 MIME-Version; b=sSZeC7h5qj0DHXqLx7mZW0S7Oy633lsr7cE8GPv2TffnUcPRbsvDmmoJ0UPMkPmA9Eb/0BFsxTK4TTSSxioa6rfsQ76JeWSKi/Q8LAoZz9GBAkWcKKy8N2dYrJsbVAkfiQOYZ/WzUVGM0SqwhnIbmgZv5O/bWVbvShH9E6NknTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=purestorage.com; spf=fail smtp.mailfrom=purestorage.com; dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b=B65Bki7b; arc=none smtp.client-ip=209.85.208.228
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=purestorage.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=purestorage.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b="SWgzDxwL"
-Received: by mail-lf1-f97.google.com with SMTP id 2adb3069b0e04-594285eed50so347140e87.0
-        for <linux-input@vger.kernel.org>; Wed, 31 Dec 2025 09:37:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=purestorage.com header.i=@purestorage.com header.b="B65Bki7b"
+Received: by mail-lj1-f228.google.com with SMTP id 38308e7fff4ca-37a990ec4e5so11438571fa.3
+        for <linux-input@vger.kernel.org>; Wed, 31 Dec 2025 09:37:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=purestorage.com; s=google2022; t=1767202645; x=1767807445; darn=vger.kernel.org;
+        d=purestorage.com; s=google2022; t=1767202646; x=1767807446; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=evGP5W8eaS0gGQmtryNYpPPxNCoy7QWmqYRyuLboZRo=;
-        b=SWgzDxwLxk4IHhdqL7am7ZWGGW/UgDtLxQpB+RB2EAoNRxqgf0pqEqmrgtUSkdLEOs
-         s3Kz+33lY+oL4kuEITZl7eHMAgn7Z0tA8qWlvOJW/g5YHix/fJvLf7GxnpeR/5Wx+loX
-         EqeygASMuZJ+/kDPe0vQKeT6WA2TTwLacxgqR7Z6n9C8JQIDlN9eWnMNIegX6MwfmQKC
-         /no0mibjlmypLz4CcnP/45nRK40FnjnrNvXp7r0oy0nHxRMYUbu6hAVFmlqkbnpFcnnp
-         SRgM6+mle0M2/xjOs2M+YzOw9VAQqBl48FtLV8KP9ptlwe46UYXjP5i/SSXaeqELQypW
-         UrQw==
+        bh=Z65KNwFWdBB4vKMl4Q2RH4hcwYRlqC7hzCG8+fs8pqw=;
+        b=B65Bki7bNr5asR8gLT4UQO5QpsWvo24HYhFuxdOGrbh73k/Zr92fazIv6voAUW/2PU
+         NRPRaa4XHs2xXve3L2aLfmP/X3GSNnom4rxPzZrxyrixO6Ux7nOIe8iYhtQ1ssVInkFM
+         iAp3yel9cShgORh0d//av01ytc7Rj2cNdxJvUhhQHfIos3TiTrVRDeOu1/02104vqjtG
+         RRS0sSH3EaSEgt6jotTfiemRL79/aQhhbmW0ch3pRyntq2bKZpwNL8WVuqLaJLpRtFGy
+         ldEpIkoNzRCn8ozbNaHEkZRfejpnWZArPOsmBAtc2jDNT1N+OMNTUhmTxc0XZcfCIgaE
+         gYww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767202645; x=1767807445;
+        d=1e100.net; s=20230601; t=1767202646; x=1767807446;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=evGP5W8eaS0gGQmtryNYpPPxNCoy7QWmqYRyuLboZRo=;
-        b=LzxNEClq41Uhtqlv4LZE7N98gnkD998ZicKVvs8cz9enF57kjsKXilmODb5zz99XXw
-         8FfuTt9lgZgXUt5QrbL6AhSJ4R9U13HP/qbM8pLCOYd4pUQqWF5Cd+kPV6O8vEOeCegm
-         CpVaqUZEQ2QQXcTFMwQzWqoBoiLgqYkfU8RSMct4KBo56wT753hxIz82Trw2DMKm2hMh
-         IFJUhbCkSoD49re/NcHsrycfIzLndkzUMpIJkv4FYkNe0mh5ywYnyvhEZQzTjmndCC8i
-         DW5aAa8paeyO6OsSnSZttsOCWUDgEx5y0nuNy+0rSoSgK9JBwvx13gdOjt0XwSYHRAK9
-         JTqw==
-X-Gm-Message-State: AOJu0YwGBK74E6wyK0oaXcPtRMAzcPPGCWuLLN2OF5/RH5YqRiSb9FDj
-	LiUMQK+ymm3fFOeElJ+25k1gOuQWNW6wHv5n1szon4VBKHVCHP5zGn3Ytisd9u/Zih4HA87hc+W
-	DpArPJzTDkbYrmVHt+ZpM6tZSMMWaJvVt560V
-X-Gm-Gg: AY/fxX5fGcudM2PmqhDwv+xND7RWJgFzBX6TJDaNUTwpzPxAnzKBd8a/5Qm11BtjsBW
-	9SQzYK2zqIXoUi4P0+vppZ4YRPDc15kAtN+CPP7fJtGWwhMtqbwQn6tfifrYyoWvjdwanWIW3iq
-	pLEfNWO16ZLRSUTDL4LlLNve1KQjvOq5nQexV00GDM+UP9c2Olq+I3zVBdUyGHxcSjLGgFiYMRn
-	U5Uc81QJ9PZ2swTbB6DNRyOaOgy2Q47fnAucGlMy2MxP/rnZ9FjN9zFCYg3j+KPKXlBUPK9OzKZ
-	6t6H/bxW3LAqRNsk08YtPwjmV8QhCcmsadgrmJeWQz/Yb6K9ogVlWQkawFuoqLtB+pxpBPqtPzU
-	O64P034WaocX1Ib4hRMszfKlsmx5wVPZIH4boSUCOiQ==
-X-Google-Smtp-Source: AGHT+IH27R9QYE1O2Ywp3/SP9pHkjO2yXz4EIipzqt9GsBoAsX+S1qf9N7p0ezxigbjNdJtb7dYT0W/PMzz9
-X-Received: by 2002:a05:6512:2388:b0:598:e3ed:b43e with SMTP id 2adb3069b0e04-59a17d75aacmr7318962e87.6.1767202644708;
-        Wed, 31 Dec 2025 09:37:24 -0800 (PST)
-Received: from c7-smtp-2023.dev.purestorage.com ([208.88.159.129])
-        by smtp-relay.gmail.com with ESMTPS id 2adb3069b0e04-59a18641fe3sm7185875e87.60.2025.12.31.09.37.24
+        bh=Z65KNwFWdBB4vKMl4Q2RH4hcwYRlqC7hzCG8+fs8pqw=;
+        b=kvLy6WgXIdZyZk1HqSU+Mpwggx4y8WCB1Jsq9tDFf2XMwBr7iSx64FZMYoszb77xBF
+         ws1ud9kslkfq9RkMfX8gwtWHTE2rdbwU4OesSNNuvSJf8EB+UVA0S3UimSKy9FbmxHxM
+         WCs/CDntQ33Bd3/3lLBEcgMSTE5jJ3UC+Kj7P978JImiDkP3QcxDiSKBg0/RRiuFI9xF
+         e/4KYXTOFI9hKwChHq90GaG0zFiqfnuSIVOqMUamzG+hpNgiKtPpwezyGOPmkgHG3EhR
+         4/usemfGzDX4SOsXcp7Jq7QtuN5k+INTSMbutdaNIA5tOxo24WfQ4QWcJfpppt25w8uD
+         Tw2A==
+X-Gm-Message-State: AOJu0YzzoXvElAuMNjJPQzQgTKZu29MZre+JZo2ePFZ9SkoRYIIouZXY
+	UdC+AnpN2t+BcooszBzjOfuKQYyZ1eiKivtojFjMGR4g/KfWSi5eFZ+hc7AHIGe8v/yRBUbCtx8
+	JZiWa2ITPlTNBIJ1TIp3G5yTSZ7OtNg5t+pq6
+X-Gm-Gg: AY/fxX7RO0Isesrov2+70GCd7rkUHXWCc3dMdyFqtPPVEBbk7UwjxOvs3wEh9kZ9TVD
+	8qWdg40VMIeVd8/1hQnnnIxi64lNjcUGeuDlaheZkTKe0uhufGCrtmHIfW+ra2pK2AhDGOZeDLc
+	J0B9JJ4i0nPyihBKLDLNVoGuPHv9Mvk/ayTKl501rtNr+M7X0PfAfB1yN18g+RcPYG0m023Xuk5
+	UVEXQ43qzVO0OOEeXE1Y35PHEmhbSQ9kO1cflTWmBMuLDfrCgclPaLdXVPpWr0MULD+gTIYya1P
+	V/cSSAv/7KljOAGxkIZdwhDG0sP8jUGy8QB09Fq7kt8Y3fXmn44kApsY0Jt/4HxKCSE/QBcORcd
+	bQrluIi06t88bwX/IMKOO1szioOviyPfKnGdNmu9F2w==
+X-Google-Smtp-Source: AGHT+IHDF3ca8umxceWHVP6etyuOqrKJuvP7YcuUqaxQdob64KBatF2Z5P+pEZdYR5Wycxsg5VpsXr4tuz+m
+X-Received: by 2002:a05:6512:3a84:b0:592:f383:3aad with SMTP id 2adb3069b0e04-59a17df4092mr7765992e87.8.1767202645513;
+        Wed, 31 Dec 2025 09:37:25 -0800 (PST)
+Received: from c7-smtp-2023.dev.purestorage.com ([208.88.159.128])
+        by smtp-relay.gmail.com with ESMTPS id 2adb3069b0e04-59a18637640sm7186949e87.29.2025.12.31.09.37.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Dec 2025 09:37:24 -0800 (PST)
+        Wed, 31 Dec 2025 09:37:25 -0800 (PST)
 X-Relaying-Domain: purestorage.com
 Received: from dev-csander.dev.purestorage.com (dev-csander.dev.purestorage.com [10.49.34.222])
-	by c7-smtp-2023.dev.purestorage.com (Postfix) with ESMTP id C9BEB342241;
+	by c7-smtp-2023.dev.purestorage.com (Postfix) with ESMTP id 293C9341FB6;
 	Wed, 31 Dec 2025 10:37:22 -0700 (MST)
 Received: by dev-csander.dev.purestorage.com (Postfix, from userid 1557716354)
-	id C3D39E4234A; Wed, 31 Dec 2025 10:37:22 -0700 (MST)
+	id 22C62E4234A; Wed, 31 Dec 2025 10:37:22 -0700 (MST)
 From: Caleb Sander Mateos <csander@purestorage.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -122,9 +122,9 @@ Cc: linux-input@vger.kernel.org,
 	linux-stm32@st-md-mailman.stormreply.com,
 	linux-arm-kernel@lists.infradead.org,
 	Caleb Sander Mateos <csander@purestorage.com>
-Subject: [PATCH 5/5] selftests/bpf: make cfi_stubs globals const
-Date: Wed, 31 Dec 2025 10:36:33 -0700
-Message-ID: <20251231173633.3981832-6-csander@purestorage.com>
+Subject: [PATCH 3/5] sched_ext: make __bpf_ops_sched_ext_ops const
+Date: Wed, 31 Dec 2025 10:36:31 -0700
+Message-ID: <20251231173633.3981832-4-csander@purestorage.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20251231173633.3981832-1-csander@purestorage.com>
 References: <20251231173633.3981832-1-csander@purestorage.com>
@@ -137,103 +137,31 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 Now that struct bpf_struct_ops's cfi_stubs field is a const pointer,
-declare the __test_no_cif_ops, __bpf_testmod_ops*, st_ops_cfi_stubs, and
-multi_st_ops_cfi_stubs global variables it points to as const. This
-tests that BPF struct_ops implementations are allowed to declare
-cfi_stubs global variables as const.
+declare the __bpf_ops_sched_ext_ops global variable it points to as
+const. This allows the global variable to be placed in readonly memory.
 
 Signed-off-by: Caleb Sander Mateos <csander@purestorage.com>
 ---
- .../testing/selftests/bpf/test_kmods/bpf_test_no_cfi.c |  2 +-
- tools/testing/selftests/bpf/test_kmods/bpf_testmod.c   | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ kernel/sched/ext.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_test_no_cfi.c b/tools/testing/selftests/bpf/test_kmods/bpf_test_no_cfi.c
-index 948eb3962732..1d76912f1a45 100644
---- a/tools/testing/selftests/bpf/test_kmods/bpf_test_no_cfi.c
-+++ b/tools/testing/selftests/bpf/test_kmods/bpf_test_no_cfi.c
-@@ -39,11 +39,11 @@ static void bpf_test_no_cfi_ops__fn_1(void)
+diff --git a/kernel/sched/ext.c b/kernel/sched/ext.c
+index 94164f2dec6d..af8250b64f47 100644
+--- a/kernel/sched/ext.c
++++ b/kernel/sched/ext.c
+@@ -5336,11 +5336,11 @@ static s32 sched_ext_ops__init(void) { return -EINVAL; }
+ static void sched_ext_ops__exit(struct scx_exit_info *info) {}
+ static void sched_ext_ops__dump(struct scx_dump_ctx *ctx) {}
+ static void sched_ext_ops__dump_cpu(struct scx_dump_ctx *ctx, s32 cpu, bool idle) {}
+ static void sched_ext_ops__dump_task(struct scx_dump_ctx *ctx, struct task_struct *p) {}
  
- static void bpf_test_no_cfi_ops__fn_2(void)
- {
- }
- 
--static struct bpf_test_no_cfi_ops __test_no_cif_ops = {
-+static const struct bpf_test_no_cfi_ops __test_no_cif_ops = {
- 	.fn_1 = bpf_test_no_cfi_ops__fn_1,
- 	.fn_2 = bpf_test_no_cfi_ops__fn_2,
- };
- 
- static struct bpf_struct_ops test_no_cif_ops = {
-diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-index 90c4b1a51de6..5e460b1dbdb6 100644
---- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-+++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-@@ -295,11 +295,11 @@ static int bpf_testmod_test_3(void)
- static int bpf_testmod_test_4(void)
- {
- 	return 0;
- }
- 
--static struct bpf_testmod_ops3 __bpf_testmod_ops3 = {
-+static const struct bpf_testmod_ops3 __bpf_testmod_ops3 = {
- 	.test_1 = bpf_testmod_test_3,
- 	.test_2 = bpf_testmod_test_4,
- };
- 
- static void bpf_testmod_test_struct_ops3(void)
-@@ -1273,11 +1273,11 @@ bpf_testmod_ops__test_return_ref_kptr(int dummy, struct task_struct *task__ref,
- 				      struct cgroup *cgrp)
- {
- 	return NULL;
- }
- 
--static struct bpf_testmod_ops __bpf_testmod_ops = {
-+static const struct bpf_testmod_ops __bpf_testmod_ops = {
- 	.test_1 = bpf_testmod_test_1,
- 	.test_2 = bpf_testmod_test_2,
- 	.test_maybe_null = bpf_testmod_ops__test_maybe_null,
- 	.test_refcounted = bpf_testmod_ops__test_refcounted,
- 	.test_return_ref_kptr = bpf_testmod_ops__test_return_ref_kptr,
-@@ -1300,11 +1300,11 @@ static int bpf_dummy_reg2(void *kdata, struct bpf_link *link)
- 
- 	ops->test_1();
- 	return 0;
- }
- 
--static struct bpf_testmod_ops2 __bpf_testmod_ops2 = {
-+static const struct bpf_testmod_ops2 __bpf_testmod_ops2 = {
- 	.test_1 = bpf_testmod_test_1,
- };
- 
- struct bpf_struct_ops bpf_testmod_ops2 = {
- 	.verifier_ops = &bpf_testmod_verifier_ops,
-@@ -1547,11 +1547,11 @@ static const struct bpf_verifier_ops st_ops_verifier_ops = {
- 	.gen_prologue = st_ops_gen_prologue,
- 	.gen_epilogue = st_ops_gen_epilogue,
- 	.get_func_proto = bpf_base_func_proto,
- };
- 
--static struct bpf_testmod_st_ops st_ops_cfi_stubs = {
-+static const struct bpf_testmod_st_ops st_ops_cfi_stubs = {
- 	.test_prologue = bpf_test_mod_st_ops__test_prologue,
- 	.test_epilogue = bpf_test_mod_st_ops__test_epilogue,
- 	.test_pro_epilogue = bpf_test_mod_st_ops__test_pro_epilogue,
- };
- 
-@@ -1715,11 +1715,11 @@ static void multi_st_ops_unreg(void *kdata, struct bpf_link *link)
- static int bpf_testmod_multi_st_ops__test_1(struct st_ops_args *args)
- {
- 	return 0;
- }
- 
--static struct bpf_testmod_multi_st_ops multi_st_ops_cfi_stubs = {
-+static const struct bpf_testmod_multi_st_ops multi_st_ops_cfi_stubs = {
- 	.test_1 = bpf_testmod_multi_st_ops__test_1,
- };
- 
- struct bpf_struct_ops testmod_multi_st_ops = {
- 	.verifier_ops = &bpf_testmod_verifier_ops,
+-static struct sched_ext_ops __bpf_ops_sched_ext_ops = {
++static const struct sched_ext_ops __bpf_ops_sched_ext_ops = {
+ 	.select_cpu		= sched_ext_ops__select_cpu,
+ 	.enqueue		= sched_ext_ops__enqueue,
+ 	.dequeue		= sched_ext_ops__dequeue,
+ 	.dispatch		= sched_ext_ops__dispatch,
+ 	.tick			= sched_ext_ops__tick,
 -- 
 2.45.2
 

@@ -1,74 +1,128 @@
-Received: from mail-10627.protonmail.ch (mail-10627.protonmail.ch [79.135.106.27])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f66.google.com (mail-ed1-f66.google.com [209.85.208.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B391280327;
-	Sun,  4 Jan 2026 13:01:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.27
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB6262E7621
+	for <linux-input@vger.kernel.org>; Sun,  4 Jan 2026 21:31:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767531668; cv=none; b=R3kQRN/UgWkzZaV3TgB1TqEF9sRNmTrv9+V5YaYxkZnMvxvjsmwgTeyxlOLQ8gQzqdvc4t6kO83bBmmLgElh/CxitDWAIEWYFwCIZ4MyU7CwgCQsIpjYKwlA/zOZ0CX9gIaDfe2krmpdzGhJ1Q03DF6vkP2/HmrPsO0Z3DMCeO0=
+	t=1767562298; cv=none; b=rVZ9w4hKdXEkc/WqtyGdbtzXhHugpoEAKspG6Rz+SFAbLLM2kin/JIlreD7zbXXltDDYXLf5jl0Zs8AMToOftksoyTUINLtCqathpixI/oP/Id831Pfjv1YROYAdd6hFY5ljNFtDhI18/rM5kXUKoesXaDn17kYxJRT5W4rRbaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767531668; c=relaxed/simple;
-	bh=xn2hte4RpJqlo+pzeH284vjjpiR9oGnaNyTa+tpZqa0=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=H2Yn7TMs4Bbz02zCpT/dWdui61pUYqBpkrNW+Vni89+ARByXth00neBeoD4TDxfJ5nRCJrt3l491xGu0F7l9LagbMJ5qxcPV/h6kc5X3t+k0HwkTXTElq8TIoAXqIubaGKQvMwJ4MU1FxaDRdupW7sWezwDEt/MHItB5mMH83Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=welho.tech; spf=pass smtp.mailfrom=welho.tech; dkim=pass (2048-bit key) header.d=welho.tech header.i=@welho.tech header.b=lvw5lMJw; arc=none smtp.client-ip=79.135.106.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=welho.tech
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=welho.tech
+	s=arc-20240116; t=1767562298; c=relaxed/simple;
+	bh=C3JR6g0Sas4kB+Y9QTc/bGVdciXlgmAK1IrGoVCuBt8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LxPtO3RqWQCpDGg70z5R5pBxNUy7urunGaICis96wTY1JrympjmX6jhkh1JSGa6e4cUc6SUc+BG48MGCyda9sRySy/27EWnibg5bAlDQ6M+Q43XS5vZs8urnpdkCNQJobT7TJ+eorvB/qVmYQECKaTvR8GRkyOQUZ1qwx7oL0Ns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dRcDpRW/; arc=none smtp.client-ip=209.85.208.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=welho.tech header.i=@welho.tech header.b="lvw5lMJw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=welho.tech;
-	s=protonmail; t=1767531656; x=1767790856;
-	bh=XUBvOuJu9BxRiCJegZZ5PvjTdB+y+Qg6XO3sC5Vse74=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=lvw5lMJwIHVXNijRTZtz6ObmEvOlANwLsuWlhpcvUhr3AxrrJzFXMY3KkzOhW/b+k
-	 qipIAkdWYYTlPyvYw5MJAdIlnbWapS0x6b1DhX6ufJqhIsnG/pKNk7aZ27MJRU7Rg+
-	 LyVbWgR4W9LVVTOK7xwpLO9HeGvMKucjcxnO1pEnFMY63zz15axSrB6Dvg76rvHlWj
-	 M29wEWwP6icFIO2DgVBhlRnplJMtf/YWyn/CMxYv7A9ru0ObXj4e4H8i87vgQNRxyi
-	 mL2n8+GR3P59Bdf/hNCMzOwD2wayPFfNUv8FCWnHroyMJ+kH1cmoREi0C0lWr6JYYr
-	 SBfsnTtkRFE9g==
-Date: Sun, 04 Jan 2026 13:00:51 +0000
-To: Filipe Lains <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-From: Dennis Marttinen <twelho@welho.tech>
-Cc: Dennis Marttinen <twelho@welho.tech>
-Subject: [PATCH] drivers/hid: add HID++ support for Logitech MX Anywhere 3S
-Message-ID: <20260104125846.61191-1-twelho@welho.tech>
-Feedback-ID: 63214926:user:proton
-X-Pm-Message-ID: 5db7484c79216d5f354bf3c769ea9bbef2ca5be2
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dRcDpRW/"
+Received: by mail-ed1-f66.google.com with SMTP id 4fb4d7f45d1cf-64b6f22bc77so3002135a12.1
+        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2026 13:31:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767562295; x=1768167095; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kNOBG85Xy8cdjBjzjHxVJyG6BfNKbQYZeOQLA90PZUs=;
+        b=dRcDpRW/BcZFkc3oHHO0U+nEQmu4slDBW/M7ASx8BUzdYu+jjHDCAjzbMxGm8aZ13Y
+         +RsJbxgc3EY6rGpwITPfjXnqajV+P/m9bMoHRqZ0VUjgvJhgX3HEaV0vgp5Rrk/WaFmB
+         6F3drwlB9/wl+UK9c8CUAPVjhJljkZYbhyjBaIeNSb+YyGTVt7G8wsO/UvhHrAKyBTMv
+         nOX+KcfkHfgfbUvpek9sCnqMgqPiJjfLqZRiKWCIKRtYScoAJ8mX8cyKXuQDbXV/I74F
+         +AegRp1v76a+xENR5TThaDPxwtIzJXm8qVkE+pvEc3Nhc5eSXFyLw+BpW3/ntcprOXFg
+         6YWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767562295; x=1768167095;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=kNOBG85Xy8cdjBjzjHxVJyG6BfNKbQYZeOQLA90PZUs=;
+        b=JK2Va1/9uaRwEfk1bDq3NsjKjl2PJu71GEOTrit2f6M1o4U5RGCGcoBfN2leQeMfIW
+         YczbtOhDZElIpTVBZ15KCFAyh0UUG8HtnqQUzJ+hET6tB5PGUYZWxnCIxRazyOZvX5zx
+         hMsX/gkDW79tIWY9vZDotcsyRUwSf05VlMzyCuggLZpY2xGzHdNQGPK0gk7koi8tEHZT
+         hbdCz+LbAd4r/lLvuVGOTKPTNwRap0ZHe4CBzVWm22P77wxAKG537g9EZGlfmmGd0hLA
+         7RZ5dmGcicX2a6jM7o4/PXnIBe1z/hWSXKfN4xF69yI7mYu5aXWQnH6udT63VoWaAy+c
+         2iOw==
+X-Gm-Message-State: AOJu0YwpKc1oHzv2Jv1e6q07UKRjN1gRl2U0BN/Vk7e+58UeIWbd04W6
+	4fVhRMsSjOU08RHYgCR+QeGhZ9jBcFYS3URYQwFUbXmHSIT1rOD35OrG
+X-Gm-Gg: AY/fxX7s6IJUHJyFCUKLvaQ4zxJ8wddDBejw3nqX0qB3JK6wpbF5DWG1LbwrfYoJnXF
+	d9Ao3CCGRjSVCHrJziaidU3Ta58p0ncUVHrB1oCGnRCa4qzIVa9BmgmbWQZwksJxfULB74fwRde
+	O2S6cyeaxClZIhpfePQa1VKjUS0lQc/vLB7lnhwwpYRnZweUQPxYsqxV7KOituzk//vCk7pZY83
+	W6MbmnYcjio4cmOR1rSduYLfBU5BzniI6gU50tnU5fBCOfLDpM867CYdvdc3kGEzT1lgBSJEl2T
+	ghPhnyaApZmNg8D8jkbfKu40sb84fDCEVMHZcGEO2/9nThyY+kzKs7hqwys6Qx73j8CiFNsdGHl
+	jdERCkW7WBIcdADdpMJynUivsF8YFrybiS37zBJLlr2vCl5slEhj27plBGzjzaM+j8r5LpNbLo/
+	2ZcKJL25sNLBR1rFwjNEWZSFsW3hSBYb2PuEDxYzzTzEvtyhUk73pcXoVgRNdkaJM2
+X-Google-Smtp-Source: AGHT+IFp1Q3/HUuxiOTFczGNZI4zqQO6mImnPSIg80YYgcO2gFHg65+7gjjTh3EfyWvi5spIDfDlww==
+X-Received: by 2002:a05:6402:3550:b0:649:9aff:9f42 with SMTP id 4fb4d7f45d1cf-64b8e3a43e5mr24517580a12.0.1767562294773;
+        Sun, 04 Jan 2026 13:31:34 -0800 (PST)
+Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-64b9105a9c4sm51947772a12.12.2026.01.04.13.31.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Jan 2026 13:31:34 -0800 (PST)
+From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: dmitry.torokhov@gmail.com,
+	corbet@lwn.net,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	vi@endrift.com,
+	linux-kernel@altimeter.info,
+	peter.hutterer@who-t.net
+Subject: [RFC PATCH 1/6] Input: Introduce EV_BTN event for generic buttons
+Date: Sun,  4 Jan 2026 22:31:27 +0100
+Message-ID: <20260104213132.163904-2-tomasz.pakula.oficjalny@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
+References: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-I've acquired a Logitech MX Anywhere 3S mouse, which supports HID++ over
-Bluetooth. Adding its PID 0xb037 to the allowlist enables the additional
-features, such as high-resolution scrolling. Tested working across multiple
-machines, with a mix of Intel and Mediatek Bluetooth chips.
+This will be used to fire generic button events that only transmit
+button number and it's value, not related to any defined usage.
 
-Signed-off-by: Dennis Marttinen <twelho@welho.tech>
+Made for HID joysticks but could be adopted by other devices.
+
+Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/input/event-codes.rst    | 5 +++++
+ include/uapi/linux/input-event-codes.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
-dpp.c
-index d5011a5d08902..e871f1729d4b3 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4662,6 +4662,8 @@ static const struct hid_device_id hidpp_devices[] =3D=
- {
- =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb025) },
- =09{ /* MX Master 3S mouse over Bluetooth */
- =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb034) },
-+=09{ /* MX Anywhere 3S mouse over Bluetooth */
-+=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb037) },
- =09{ /* MX Anywhere 3SB mouse over Bluetooth */
- =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb038) },
- =09{}
---=20
+diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+index 4424cbff251f..c387eaa63dfb 100644
+--- a/Documentation/input/event-codes.rst
++++ b/Documentation/input/event-codes.rst
+@@ -59,6 +59,11 @@ Codes section for details on valid codes for each type.
+ 
+   - Used to describe binary state input switches.
+ 
++* EV_BTN:
++
++  - Used to describe state changes generic, numbered buttons without defined
++    usages.
++
+ * EV_LED:
+ 
+   - Used to turn LEDs on devices on and off.
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 30f3c9eaafaa..1c853c37b58a 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -42,6 +42,7 @@
+ #define EV_ABS			0x03
+ #define EV_MSC			0x04
+ #define EV_SW			0x05
++#define EV_BTN			0x06
+ #define EV_LED			0x11
+ #define EV_SND			0x12
+ #define EV_REP			0x14
+-- 
 2.52.0
-
 

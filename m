@@ -1,41 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD2334AB1E;
-	Wed,  7 Jan 2026 14:26:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE3334B1A1
+	for <linux-input@vger.kernel.org>; Wed,  7 Jan 2026 14:26:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767795991; cv=none; b=qCBTqDPuqnNDyGXd7r3dEXtnX/WcYSgYC+VfE7ssPUS0a8zENqjLQC8qOTnugRim+u075aiyf/YpxiSmVk/yhcL4N4GgwLgzinYbgcIoAVJBqVeq0HQXsbyU41+xCjPZxzLyf6pQ9hfUea0mOkRWqyHPGZmikbhXfOnRBSddOQk=
+	t=1767795992; cv=none; b=V1GZ8yoiFndRjc6xKJa4Xv4zKNRTxedC4E8s2Nb+zynOdTdemd8PIvpkBUrc5oexe4ToYilYCHZm1WOh57DU7Ly4bIv/pFx/GHhYy4qY1Uppe/EykPqKsa0URTeh4/d0VxrkGSkrI1y33hKsKm0p/W7sqsS2iLG0bL30QZMeiRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767795991; c=relaxed/simple;
-	bh=DA4VF/B5wYbC79v+FE98eCVe0mLCt4s7e/29h1Us1UA=;
+	s=arc-20240116; t=1767795992; c=relaxed/simple;
+	bh=2JdyJOgKBNftFxwPA7E01V+jgXUZkdAyusVlcbt84zU=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=blCZ8Q2z6Vu6aJf8eUec5hGKmered1S0eQnBgL0EZ0CWSaUm/eTBx4l/z7b2GgTxIU2FmsHCrUULJHyyMpkemS+lZZ6LQ8M78nGCCgTwGDPzceVrh3Ty6ZoSX1AJHo2xkAY7ifyEDPr7oFZ0pJgYDAQK79ORkIL061gv1Vg4kJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e144dARk; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=b1Bichq/npn62mgffPePiV1dNoJ0n/cKEqKEUk74zlJQnADot2szCsOsN7ZTg06TOamBCxP4JTv8OboyVNiFAZD3Hhp0wEIAKamDqcdKbF2bjgyJfAFOa6GBaWd19M8Nw390/ZUqcnxewGito2RjmEGYPYrJk3kwAU0kOBsq/lA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d75ESGL6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e144dARk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26622C19421;
-	Wed,  7 Jan 2026 14:26:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d75ESGL6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E28C4CEF7;
+	Wed,  7 Jan 2026 14:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767795991;
-	bh=DA4VF/B5wYbC79v+FE98eCVe0mLCt4s7e/29h1Us1UA=;
+	s=k20201202; t=1767795992;
+	bh=2JdyJOgKBNftFxwPA7E01V+jgXUZkdAyusVlcbt84zU=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=e144dARkiaiElwA1geUf4Ekl6rvrQM/hrtuU257hmc5ip01pVkVHVC6s/kGfU0YqK
-	 oHDSvd6mVPfuJTVpTbLhNL1fXGQsXTL+F3QPLb9OJlEyF6F3g6mEjb1TVSy1kYYxZM
-	 weYH4hZxgBO8VUeHju9e3jxOTpc5vyRd4SQZYh2292V3yTEBK8ueI9wAj8s21gAqHg
-	 IjiyFRL4ICKFkX5bPWBqP5NGngVTHXB248Bd+8yg0iwWJvYMQtofxk52YwAdfl/B9O
-	 hQvtMX2xSpCbhqq9nrgecxFmKgWIflas+9kVF/Pe0ZNJTGexRiDsRqp/oIP6+cDE2u
-	 b6CjyqoQEOGdg==
+	b=d75ESGL6VXtfkKeu4GP9vgQiaZgLT0MSp1Ri/GLXLfkcoc46aBlBp8Mh9TYwCQQUU
+	 GbKiqHdq9f2TbydJ5IYfN+y653A3ohhhGC3ut8n32a3BZVi8CWUXo7k7FZ/UrrQtzp
+	 DBu48sSCm8OT1CTPhGrCizXZaDBEuvzCfibMaWiXjtsjhgpBD/+Tv4jzbYLoJD3icR
+	 DPZzvBeuUUKzJPka9379vg0Wq6Nzw+EY2XrOAB+exFJF8JmMYrUYi8YppwAAL5Pjmj
+	 jGX0amR6eFxFrWaE34lP38EsNA1pChpm0wFevzMjXuwS4pLoRkGiIgtjDKzjFlm3k7
+	 YCzXELc8Fyqcg==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: jikos@kernel.org, Even Xu <even.xu@intel.com>
-Cc: srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Rui Zhang <rui1.zhang@intel.com>
-In-Reply-To: <20251226033953.3651688-1-even.xu@intel.com>
-References: <20251226033953.3651688-1-even.xu@intel.com>
-Subject: Re: [PATCH] HID: Intel-thc-hid: Intel-thc: Add safety check for
- reading DMA buffer
-Message-Id: <176779598988.3426536.7111454384644387553.b4-ty@kernel.org>
-Date: Wed, 07 Jan 2026 15:26:29 +0100
+To: jikos@kernel.org, Chris Chiu <chris.chiu@canonical.com>
+Cc: linux-input@vger.kernel.org
+In-Reply-To: <20260102065643.1832426-1-chris.chiu@canonical.com>
+References: <20260102065643.1832426-1-chris.chiu@canonical.com>
+Subject: Re: [PATCH] HID: quirks: Add another Chicony HP 5MP Cameras to
+ hid_ignore_list
+Message-Id: <176779599152.3426536.7091080248632836268.b4-ty@kernel.org>
+Date: Wed, 07 Jan 2026 15:26:31 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,16 +45,20 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.15-dev
 
-On Fri, 26 Dec 2025 11:39:53 +0800, Even Xu wrote:
-> Add DMA buffer readiness check before reading DMA buffer to avoid
-> unexpected NULL pointer accessing.
+On Fri, 02 Jan 2026 06:56:43 +0000, Chris Chiu wrote:
+> Another Chicony Electronics HP 5MP Camera with USB ID 04F2:B882
+> reports a HID sensor interface that is not actually implemented.
 > 
+> Add the device to the HID ignore list so the bogus sensor is never
+> exposed to userspace. Then the system won't hang when runtime PM
+> tries to wake the unresponsive device.
 > 
+> [...]
 
 Applied to hid/hid.git (for-6.19/upstream-fixes), thanks!
 
-[1/1] HID: Intel-thc-hid: Intel-thc: Add safety check for reading DMA buffer
-      https://git.kernel.org/hid/hid/c/a9a917998d17
+[1/1] HID: quirks: Add another Chicony HP 5MP Cameras to hid_ignore_list
+      https://git.kernel.org/hid/hid/c/c06bc3557542
 
 Cheers,
 -- 

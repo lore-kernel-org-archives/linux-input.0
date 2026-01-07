@@ -1,163 +1,98 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73C4138B9B6
-	for <linux-input@vger.kernel.org>; Wed,  7 Jan 2026 15:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9082533B6FB
+	for <linux-input@vger.kernel.org>; Wed,  7 Jan 2026 16:08:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767800594; cv=none; b=KU91o9AVf4W0JYbz1ZLN4dMTxc1TzZV9ImqS7ee6kSH0XYhV2UMV6iKtB+qgaEPEiE4oratW+9XRZL+RPe6OBU5v5DBtvLTs8MPPsRQ67YyON/I1wvgkqR0TureSvNyL5WM4jjx/fezs6DRcdP9caI6Ad+G3RUvVlsqp1RMlrig=
+	t=1767802121; cv=none; b=ojk598gYE6eBaftk8HHCOyXk4L0GpC5pmpiwiteZCIqq+MuAo0C1lvJF8gvvTXohFV/hy8gkfLIVqiLfEunzXn3Te/vR/cXR/IW9xTn6NZ641cHy4JjOehhUvX0s7mWjfTEtE9JuoiyUWScBjBGI382wXwTP7lxpIL4IbcTvo3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767800594; c=relaxed/simple;
-	bh=Ufj9J+ZlCwFGFrNBtdLhRA4Pm49DeqcyMm4VMAOYlm4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=M2rZviU02Dtr7cKpWRytg7n2M2swoZAiWdptOmAINCSxfxjezqzSLtosrEbS7UL3okZ8VLRbEVysOTrALsGqaBIY5098nkei7H1jgMoQMtphhCx22NAVF7+obPHywJwAXslnzcBXQcvFHopRV/NRgFYHfBYm5G9Xono2e9qvXNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RnPclQV+; arc=none smtp.client-ip=209.85.221.42
+	s=arc-20240116; t=1767802121; c=relaxed/simple;
+	bh=QGyIp+lK9osQq3lbVQdGSeyOFzxru1f5zIbvvF1pqSg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qYXY1kDEtHAE6DYMayn7FF5bf6vgEhfOgSFHQU38kG7LwgDhKw5/fRYHdh6Y61jjxqzKgzHkK/MuBzoK2nrz8r8UU20b+/Ftfi4GYOb7pmJb8aUJ0f5+KjFXtKG3a2lDrrVz8pWUPCmNXlK+n506KTjlwKYYoY7YxY4Y45w7ffU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y1FnSxT3; arc=none smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RnPclQV+"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-432777da980so1207726f8f.0
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2026 07:43:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y1FnSxT3"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2a0bae9aca3so18138665ad.3
+        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2026 08:08:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767800589; x=1768405389; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LWcjT0u5z34/kb7Qe+H5E0kwqGCVYd2l01+VUnZbj/8=;
-        b=RnPclQV+q9GbTwR26TJyKkssnz52u5hEgZN7hqPkUYJKkJ3LKjZOVZcg0EV+FijjOY
-         CcAEHrthtU+GgWWs/pjH9zTWxMnljv3gI5L2NdrNBox93p0g3NYkNsThC5zaJuyyir5+
-         Pl6AnUdPPLgh48r6KBqlNry4Bd8Dj7REODbNn62SJcIGhPSpa14KCJYGMt80UsvGaRRy
-         ctN212puQxsnr+Xg/casU1OAHxXIH/vxr5PAuotFCI0jZa2BIoT/5cIbsuc0Gwxfj38Q
-         27OL6OAnweYekrioBOugJSC+HhuRYF7IrTQE1Mj5O+zzm5F72LfbcQsGQiPqMZ5BBmyW
-         p32g==
+        d=gmail.com; s=20230601; t=1767802106; x=1768406906; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QGyIp+lK9osQq3lbVQdGSeyOFzxru1f5zIbvvF1pqSg=;
+        b=Y1FnSxT3BNj/HCn0Qa+rCh5Zih2QODGqelbqxUbIVuoZgnWYHcRPWs66K7eQ9NKp41
+         iDjg/Wxkcj3fDfNVsGcQmlg4ljM7Xyy6Bz91DWm3laPEafRjz7LiUTdfyAs+KcB7dKR7
+         6rFo9+cqaQlHy/504fZJw57sbvQuTfAOgkHTiAUYKFFfBGk5pg74rOzVzXYt0F+Lovim
+         PXudSIHGC6Bbpor3okjn5ASYLBFLyRcGsLQC9I3PwYq9h+w/o5VSaXO+RemEqES74QYu
+         GLYlId1MOvRjfLBCK+0PvpN4rVdKoBz5w6ZbkxuUXUqwndzvOU5zNqbam6zbkKhZyu1m
+         XtzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767800589; x=1768405389;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LWcjT0u5z34/kb7Qe+H5E0kwqGCVYd2l01+VUnZbj/8=;
-        b=hiMfuR/otHTrC+Wvsjg3M/XiskSQ0T+tNmUwCLjNdE7qVEKeuMw5AGrNufYP/Oc0Yu
-         hiChmAqnCQgLKWOvfFV/yCFBh0EdIH4+VDcRdaYl3HwSaqER6F2otPVEzhWOo9uFbaXB
-         pPdmMfjAWOCHTJdWH8zw4X0sJ0Gl8L0SHxM1ECvyrG8wGhZAJpXFJ0aHXyHbqp5c5GwY
-         DdAPMluB5Z3Zk/d/ywkXJNI7YP+1Saofdh1C1Wz3gAZOlAxGa/nlfe656PLyWUhxrvRj
-         KDrgBw/i085BLVQRNaUe95BaakpU44x5HOWRYKaE6ah4AYWsnuM6AfzofekAGHwgA3OD
-         e4mg==
-X-Forwarded-Encrypted: i=1; AJvYcCW6K69cnSmywj6Ad7g+YGFZ0A8Lv4VBgnDcdQuyuuo9XgE15nJgF4hl+IztgwHhBSOqgh6J5Y2lWKNhyA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwP/EsxrwOoBX8OQAEXSlCtj81G4o4oPDEgkI7hAhB4NLakEBQy
-	wzSjpNJF6sHV6dc4DSG2dTJUs2BQJ1YDVRJAvKepRhy0BaDVe8mVzoCc
-X-Gm-Gg: AY/fxX4wipp6ALE9VO1SbbZxxsytfszeHI0K6UQth2t3We6svffA9TdisnrOnc79wge
-	32bBppOuve+9TxYS75Ho8QlRyUgg6RHEe9X3UlWnOPYLyJ5QXBxexfU/8upFVVXrFUuovUZjn3I
-	TJW3FTeq0m5Qb2PETwzjDfBDSmABCK7zURsnwwZ40AX5pGk65DECi2F75hYHdKnlAC0vItq1UWf
-	do2VTWt23kYjPo+OSziZRDgrYYvE8s3cnv5g/M7m0/GX9U8F/M2GEYBJTuZyDOEwFfZfeikgI6H
-	NzPUTC2pCVG4A5hpp/24yxnH93hAPVWUnvYeGmewzNXSBHb4UIvs6fdaQDCkfmEfbLJdZh3q4fS
-	Di5CqTjie0ZkuA+cWNG1gGRvsoiox/P8p/ZQjIJxCv9MAzMs7vFAPTJhH+N8JgUWSgb6q4dWLhl
-	rg88xRN6TR437DEdZGzoL2jdx7LBA46/pT+3CczxI=
-X-Google-Smtp-Source: AGHT+IFpf2LzcsxARVLcwohJ3nsYKzlej0OLE5M0q63SVWJgq05KEyIXF6Z5wAEIb8+uglN38BG8iA==
-X-Received: by 2002:a5d:5f54:0:b0:431:c60:c5ed with SMTP id ffacd0b85a97d-432c36282admr3814141f8f.13.1767800589326;
-        Wed, 07 Jan 2026 07:43:09 -0800 (PST)
-Received: from ionutnechita-arz2022.local ([2a02:2f0e:ca09:7000:33fc:5cce:3767:6b22])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5ee243sm10897704f8f.31.2026.01.07.07.43.07
+        d=1e100.net; s=20230601; t=1767802106; x=1768406906;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QGyIp+lK9osQq3lbVQdGSeyOFzxru1f5zIbvvF1pqSg=;
+        b=FHiKMEyyPQBR/w7DHG60ny3ncz5XDp6ZnwoxEUq2amgpPzLikbBguAkZksUYwz8cOa
+         Lv8iAsolo54DNjFUfBCMHHJRzH4he3OK9qmEb/u82gjz4vmbuFf184MD+3om0O/cG6jd
+         /3PLu69EVrkKeYYDaYmHqx2dVt203/N+Olh2ds/rVJ/wIG63KdUaUn5UsC0EtqqeRh/9
+         9U41jWrIZynHxD0y6CexHfk/VbU+TmFErz4FJOrOtg2X11bPQmhbjd1NMtF/9GZWCGOl
+         bNcMDIwtdGJGcgIP3Vt3A7j+GSx9NSaD8y4H5SN83Ofn+WTctZ+oZsZsC2VEx6wAMGoQ
+         b7nw==
+X-Forwarded-Encrypted: i=1; AJvYcCUSWikNTGaOmfnslZQqtCREVE1dZtlXtp7NDSxsh85/fQvlJT9ldXqIUhAeHEZTsE2bvTJjHWxPuNT37Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxbrJfhHWG6Hp7Ljx/qM/3zqxr/56cadpxa8RqoDFfZvOG3EpaJ
+	0FJeaf2grYurmScTsBW9F4gU78XtDcOFOU+6eeq0LqycyzB+fjjqRef7
+X-Gm-Gg: AY/fxX5O1Xry5xrOV29ryfvtC/PGTP3bThQ8rrnj1ifGHlHJ6bgxxhKB5EfuoxT66eg
+	cRVymDhobFgLlRTEblD178ObM8yQbmpApiErwFxOz+h5mWk2ZVSZbub38m409DhQXMDrgv029Mr
+	7OWgKIVul3/DNYF0+lDEqxr+GEjSvhop3MA1zUZeTqt4oVARpGtUyeq1xfajQL5MPU4PnZtLMxC
+	+x+Vi9WNJ++h7l/71duvcHUvDlU7KjTFrAyW0ZxgAF64ggaslY3GZ0mXo/s0WcTivPZfYFduChw
+	cTuBegBmXofuKsrDiYBd9NZHm0djXg+/vH6nPJF8o7xS/I+ASmDURJWAyRWqY8CYu3agY2/BvTQ
+	4odhTzA1w9fv5IIBqF4oxck8v+PezWW1Nzf2/d98fWdSNsZkK+h+86ElTtSY9r0mee5/88jih44
+	KDQkTaVsUWvpgL1dru4xN0I8GBD/Gc6VkoBKfCCfluEXBBnji025aw6YxL7izix98EKKl0VqEu/
+	vvZX42K2a8Ncohs+3Gj2lJKoDgOYWol1r09C2TPCep9/ZvGJA595JQ51S/P
+X-Google-Smtp-Source: AGHT+IGGgjws0QI2dh99HA7x2QQoBYxtkkxyx7w+vFCI7qZqMfcPcyhwCJVG4ZPAwQkMQYunU+rrxg==
+X-Received: by 2002:a17:902:d491:b0:295:20b8:e104 with SMTP id d9443c01a7336-2a3ee50676bmr20739135ad.58.1767802106009;
+        Wed, 07 Jan 2026 08:08:26 -0800 (PST)
+Received: from anonymous ([113.252.77.195])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a3e3c4796asm55507165ad.34.2026.01.07.08.08.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jan 2026 07:43:08 -0800 (PST)
-From: "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
-To: benato.denis96@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: ionut_n2001@yahoo.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	sunlightlinux@gmail.com,
-	superm1@kernel.org
-Subject: [PATCH v5 4/4] HID: asus: Implement Fn+F5 fan control key handler
-Date: Wed,  7 Jan 2026 17:42:24 +0200
-Message-ID: <20260107154219.164514-10-sunlightlinux@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260107154219.164514-2-sunlightlinux@gmail.com>
-References: <20260107154219.164514-2-sunlightlinux@gmail.com>
+        Wed, 07 Jan 2026 08:08:25 -0800 (PST)
+Date: Thu, 8 Jan 2026 00:08:22 +0800
+From: kenkinming2002@gmail.com
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid: fix potential buffer overflow in
+ i2c_hid_get_report()
+Message-ID: <aV5_76eRrcGJ1ehE@anonymous>
+References: <20251231181830.232239-1-kenkinming2002@gmail.com>
+ <or6uoheepcbcx4sm36g7z3ccevhjn6iv2ddztx6mpw4qgbdoyo@n3yfbkwlye5i>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <or6uoheepcbcx4sm36g7z3ccevhjn6iv2ddztx6mpw4qgbdoyo@n3yfbkwlye5i>
 
-From: Ionut Nechita <ionut_n2001@yahoo.com>
+On Wed, Jan 07, 2026 at 03:20:13PM +0100, Benjamin Tissoires wrote:
+> It makes sense to put this min call here, but it's already present at
+> line 304 a few lines after. Could you remove that second check (and
+> unnecessary one after your change).
 
-On Asus ROG laptops, the Fn+F5 key (HID code 0xae) is used to cycle
-through fan modes. This key press needs to be forwarded to the asus-wmi
-driver to actually change the fan mode.
+The min call at line 304 uses ret_count which comes from the first 2
+bytes in the device response and indicates the actual size of the
+returned report descriptor. Notice that importantly ret_count can be
+strictly smaller than ihid->bufsize because persumably not all reports
+have the same size. The behavior will change if the caller provides a
+larger buffer than is necessary. With the min call at line 304, we will
+return the actual size of the report descriptor (without the 2 bytes
+length header). Without the min call at 304, we will instead return the
+size of supplied buffer.
 
-Add ASUS_FAN_CTRL_KEY_CODE define and implement the handler in
-asus_raw_event() to send WMI events when this key is pressed.
-
-When asus-wmi successfully handles the event, it is blocked from reaching
-userspace. If asus-wmi is unavailable or fails, the event is passed to
-userspace via evdev, allowing userspace implementations of fan control.
-
-Tested on Asus ROG G14/G15 series laptops.
-
-Reviewed-by: Denis Benato <benato.denis96@gmail.com>
-Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
-Signed-off-by: Ionut Nechita <ionut_n2001@yahoo.com>
----
- drivers/hid/hid-asus.c | 35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 6fcd3213857cf..06f32a39c0cf7 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -65,6 +65,9 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define ASUS_SPURIOUS_CODE_0X8A 0x8a
- #define ASUS_SPURIOUS_CODE_0X9E 0x9e
- 
-+/* Special key codes */
-+#define ASUS_FAN_CTRL_KEY_CODE 0xae
-+
- #define SUPPORT_KBD_BACKLIGHT BIT(0)
- 
- #define MAX_TOUCH_MAJOR 8
-@@ -379,12 +382,34 @@ static int asus_raw_event(struct hid_device *hdev,
- 	if (report->id == FEATURE_KBD_LED_REPORT_ID1 || report->id == FEATURE_KBD_LED_REPORT_ID2)
- 		return -1;
- 	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
--		/*
--		 * ASUS ROG laptops send these codes during normal operation
--		 * with no discernable reason. Filter them out to avoid
--		 * unmapped warning messages.
--		 */
- 		if (report->id == FEATURE_KBD_REPORT_ID) {
-+			/*
-+			 * Fn+F5 fan control key - try to send WMI event to toggle fan mode.
-+			 * If successful, block the event from reaching userspace.
-+			 * If asus-wmi is unavailable or the call fails, let the event
-+			 * pass to userspace so it can implement its own fan control.
-+			 */
-+			if (data[1] == ASUS_FAN_CTRL_KEY_CODE) {
-+				int ret = asus_wmi_send_event(drvdata, ASUS_FAN_CTRL_KEY_CODE);
-+
-+				if (ret == 0) {
-+					/* Successfully handled by asus-wmi, block event */
-+					return -1;
-+				}
-+
-+				/*
-+				 * Warn if asus-wmi failed (but not if it's unavailable).
-+				 * Let the event reach userspace in all failure cases.
-+				 */
-+				if (ret != -ENODEV)
-+					hid_warn(hdev, "Failed to notify asus-wmi: %d\n", ret);
-+			}
-+
-+			/*
-+			 * ASUS ROG laptops send these codes during normal operation
-+			 * with no discernable reason. Filter them out to avoid
-+			 * unmapped warning messages.
-+			 */
- 			if (data[1] == ASUS_SPURIOUS_CODE_0XEA ||
- 			    data[1] == ASUS_SPURIOUS_CODE_0XEC ||
- 			    data[1] == ASUS_SPURIOUS_CODE_0X02 ||
--- 
-2.52.0
-
+Yours sincerely,
+Ken Kwok

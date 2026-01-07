@@ -1,138 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91C6376BC3;
-	Wed,  7 Jan 2026 15:26:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F040638B993
+	for <linux-input@vger.kernel.org>; Wed,  7 Jan 2026 15:42:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767799585; cv=none; b=i4BBw2MakvsOJW/y1RB4okOTik5NL/7D+KPeg+SdHAKzcC7360sPn3NhE0a/OKB7nZsxBWgQPNDaMb9gYR6WiUG5yRqpJ/xa+iJ2jdIj6JCCVMt5Z6YKOhClJrCI4wSvn6c0qel2EO/u3v3Ue9BjOucRpbJi3cAyO8FLD8BryoA=
+	t=1767800556; cv=none; b=WOA3FrRGviD+ynk6vtysV5r+hCfTWzrpH2lq1Ccjw7HEqE+rwIO1J7ZRupzNaWpKiEB2yJ+8iyHieOa5npFrrO5M0nuoPyYd1c0B+flrErD5NB8P8TfIfTMM9Ccw2SZtARkNtqnqekz/0o88VUcqwfxIRL9JE+c943W3lGULsoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767799585; c=relaxed/simple;
-	bh=L6owTKGz0u9dYcDT84vRewkdDiaEcRZCNDXmkRClD6k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qExstzwyeembq8RCmgOcbqDcTd3jgeIuPq40Gd48tghp4ukfMLfppysnsT5rbowVMpJbm+oYEYW09d0EeeFHWZsIDLIQXJx03MXSGGCCPUnzhl5w56pjsSd8i51vDwlTHllNy1/GUwF13VAC+zZaVx28QzWVTvrAW9P3HUAiyIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eS2R/Zny; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767800556; c=relaxed/simple;
+	bh=x9Hcb0Q3w9zJfuuLZgWxqP+CMVd6u+ZGPiyTAvfaIl8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r6tKo+okJC2w+v/NZYakTaI+n1NUboTtuqBP0RoN3yqf52uoGqvSPlHZIPXqqCl1z+k9c3/rr830M81URnoL8JhS12XmyLdtjG3rgoUiPjvThFRFzbb7B0THXLy5v2/3mfHbG5tX941c74SLCJ0K/lUBMsQhtda6zGD6xL1GBSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CTHYxA8M; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eS2R/Zny"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF23C4CEF1;
-	Wed,  7 Jan 2026 15:26:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767799584;
-	bh=L6owTKGz0u9dYcDT84vRewkdDiaEcRZCNDXmkRClD6k=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=eS2R/Zny7K4FMy5qaEvGLeAbrv2Ed547kPSjnJRw+ar3HDPvpw8yVpm8yDNb6yYvY
-	 u95+Pj98WQyJOIowQv3HNsP5syz8knkknsPrwm/ApTlp7CqTfwHJ6+rgWlJSTSec4x
-	 BGJi2t+rrnmkukXrbp7V/lBo7OnhL4mPVtL+zTl5QGhb8ra/xNN9cCorV0qDJgmCzu
-	 x3V+4YzV1Nld9lhRAr69uvLzO2N76t+bf3nFzYqkj55B0+94dWrpHDfA6pYdUfSB51
-	 Klb5hvSvR5tq6VygNTQrfe31K55i8VPqnhIrrYG5hrIfVtIHUa9UM7YTwaKun0f0LB
-	 WlALfD18wvPAw==
-Message-ID: <a53dc574-2071-4ab0-b55b-5bab3b342851@kernel.org>
-Date: Wed, 7 Jan 2026 09:26:23 -0600
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CTHYxA8M"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-430fbb6012bso1731111f8f.1
+        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2026 07:42:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767800553; x=1768405353; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=VU/Yg5TAYVvtXfFxHaN/ydqPCL5J5MgG0h7mnX2Sing=;
+        b=CTHYxA8M1XKD6CqCGRiZng4bwdzW6ZVWEPQqHeTgPwhnlYL0pGp6ING+J3K3XMSYHK
+         bdSKFlmbczvcmCXDDaVqzNzdwVmXc914IYGHAvTbhyY5a4Iky73vb/sOGz57/7mFJlu4
+         /OrOPPb6yQ3UJpcEU3GrrcwKUMR/vVdSP8rdB8G5z7rYWvDrCCoDBmmMqfM/FAxm09Fj
+         jN7zdgx3d5QnC9cOzJkJQ5RXc1MTa2oHDbzTSfQ3P/qBcoaIBz+qlCvbb5a+eqmwYD26
+         sSeuaA7m6sqpNTVgMtBrHRMPnEyxCcZTxQJjhHGLNWLe0seson+ZJZF2I/EPrvjNGqZO
+         8mSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767800553; x=1768405353;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VU/Yg5TAYVvtXfFxHaN/ydqPCL5J5MgG0h7mnX2Sing=;
+        b=Y0XYujfaGlb8LGDC1m/0sEISfXj9s1wSOtotvE1KyKNbK1BKWw1T3fpjBBNmcGEIh3
+         uytrMRT47o7TNZ7TnbHLSkLbeDsopKOB541mt2cXvKILpLE1g27uIz1u2bBk4EBddU2/
+         Zu1qbNzPjyKvCfRBQ6xwuCu+5y2Yo9kEREP3IF/czMm3a88QQa/TrHdBqX/4AK08gwEb
+         PcifEpnRKgcKxwTdsMwdTj3VwBvo9IlxX5bo6/jlfC0eBt0ejY3eAQwCCGjM10PhYBcj
+         bJfOPySEQk7rZXl8++uOlhc/CyHePSMO1EOIf3PZs9ZmmlMgXgT6lTAqxlyzKb3cvtW6
+         aJxA==
+X-Forwarded-Encrypted: i=1; AJvYcCUexiN2BSC9MK8QsaQAh4kM2dTAamdNwRubgtNRt9UeDHKAxxv+ocFKOMlUWQZuRti0xrg1lZ2i7bt00w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNqgNjQSPxkUj7jNilMf+VjifcV5OndhrAKToYGi3QGgDSbKtc
+	5D3dt7/MhKTmblnohjxE0jR27iKAbl91H5yGHMJMlnppbVIddD86CJAL
+X-Gm-Gg: AY/fxX6a25cKI7PQjXHGlCT58o2dzHJPUlHCT1QbOVSLezJDIRJCgv6GxFDbkB8MPV6
+	0QkhiflpDaJlPA/Y5UZDWPCLU4/hDe4fVHfxhZfg2DenUB63arahXqKJrOMMmpN+DlE8RUcOiB/
+	/bOGZ/bGnq87Gzs8s4PEnHKbTWZH2Xs0JzbUh2S52lED/tf2CLUyzo8s+SecsXm/EPkTSVrGE9T
+	Tu/zqzHVab8Gr+tBYEpd4wWTH1M6vz0fzKiM6eQAvkcriUn4VBaPbKOkjdFzM+W6JfMj9UV93vD
+	4TiahyZTSviB8ZLYDK54PWSUaG9J+kw8sLDXq3Eo1xddrNrPKsf8cCzqsk5I91lm60VtrXnR4+7
+	tX/L7okiBOg0zDw79omufeuGqbrlcdZf16WVU2EXzmHTsnYi0ES7U8enysdtGazwZ+EHCY5982R
+	IZl8JTdNUIMifrdsQi+fzeRPYO5g69/EumUWPp2O4=
+X-Google-Smtp-Source: AGHT+IGNw/PN8GgWUXM0bOrKRqopXBAaWOKCxwLh4cnYpAU9VEZZ5PH53ncCUkfhOrRCsKUd4TTmWg==
+X-Received: by 2002:a05:6000:2384:b0:42b:4185:e58a with SMTP id ffacd0b85a97d-432c37758c0mr3571565f8f.14.1767800553135;
+        Wed, 07 Jan 2026 07:42:33 -0800 (PST)
+Received: from ionutnechita-arz2022.local ([2a02:2f0e:ca09:7000:33fc:5cce:3767:6b22])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5ee243sm10897704f8f.31.2026.01.07.07.42.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Jan 2026 07:42:31 -0800 (PST)
+From: "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
+To: benato.denis96@gmail.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: ionut_n2001@yahoo.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	sunlightlinux@gmail.com,
+	superm1@kernel.org
+Subject: [PATCH v5 0/4] HID: asus: Add Fn+F5 fan control key support for ROG laptops
+Date: Wed,  7 Jan 2026 17:42:16 +0200
+Message-ID: <20260107154219.164514-2-sunlightlinux@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/4] HID: asus: Add WMI communication infrastructure
-To: "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>,
- benato.denis96@gmail.com, jikos@kernel.org, bentiss@kernel.org
-Cc: ionut_n2001@yahoo.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260107152213.143247-2-sunlightlinux@gmail.com>
- <20260107152213.143247-8-sunlightlinux@gmail.com>
-Content-Language: en-US
-From: Mario Limonciello <superm1@kernel.org>
-In-Reply-To: <20260107152213.143247-8-sunlightlinux@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 1/7/26 9:22 AM, Ionut Nechita (Sunlight Linux) wrote:
-> From: Ionut Nechita <ionut_n2001@yahoo.com>
-> 
-> Add infrastructure for the HID driver to communicate with the asus-wmi
-> driver for handling special keys that require WMI communication.
-> 
-> This includes:
-> - Define ASUS_WMI_METHODID_NOTIF method ID in asus-wmi.h
-> - Implement asus_wmi_send_event() function with proper conditional
->    compilation guards for when asus-wmi is not available
-> 
-> Reviewed-by: Denis Benato <benato.denis96@gmail.com>
-> Signed-off-by: Ionut Nechita <ionut_n2001@yahoo.com>
-> ---
->   drivers/hid/hid-asus.c                     | 31 ++++++++++++++++++++++
->   include/linux/platform_data/x86/asus-wmi.h |  1 +
->   2 files changed, 32 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 15c24d5812763..8828a3b3054fa 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -23,6 +23,7 @@
->   /*
->    */
->   
-> +#include <linux/acpi.h>
->   #include <linux/dmi.h>
->   #include <linux/hid.h>
->   #include <linux/module.h>
-> @@ -321,6 +322,36 @@ static int asus_e1239t_event(struct asus_drvdata *drvdat, u8 *data, int size)
->   	return 0;
->   }
->   
-> +/*
-> + * Send events to asus-wmi driver for handling special keys
-> + */
-> +#if IS_REACHABLE(CONFIG_ASUS_WMI)
-I think this specific IS_REACHABLE isn't needed.
+From: Ionut Nechita <ionut_n2001@yahoo.com>
 
-asus_wmi_evaluate_method() will return -ENODEV in that case already.
+This series adds support for the Fn+F5 fan control key on Asus ROG
+laptops and addresses spurious HID vendor codes that cause kernel log
+spam on these devices.
 
-I think the warning you have below is actually helpful too because it 
-will be obvious to a user they forgot to enable asus-wmi in their kernel 
-config.
+The series introduces:
+1. Code cleanup by replacing a magic number with an existing constant
+2. Filtering of spurious HID vendor usage codes on ROG laptops
+3. Infrastructure for HID-to-WMI communication
+4. Fn+F5 fan control key handler with userspace fallback support
 
-> +static int asus_wmi_send_event(struct asus_drvdata *drvdata, u8 code)
-> +{
-> +	int err;
-> +	u32 retval;
-> +
-> +	err = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DEVS,
-> +				       ASUS_WMI_METHODID_NOTIF, code, &retval);
-> +	if (err) {
-> +		pr_warn("Failed to notify asus-wmi: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	if (retval != 0) {
-> +		pr_warn("Failed to notify asus-wmi (retval): 0x%x\n", retval);
-> +		return -EIO;
-> +	}
-> +
-> +	return 0;
-> +}
-> +#else
-> +static inline int asus_wmi_send_event(struct asus_drvdata *drvdata, u8 code)
-> +{
-> +	return -ENODEV;
-> +}
-> +#endif
-> +
->   static int asus_event(struct hid_device *hdev, struct hid_field *field,
->   		      struct hid_usage *usage, __s32 value)
->   {
-> diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/linux/platform_data/x86/asus-wmi.h
-> index 419491d4abca1..516538b5a527e 100644
-> --- a/include/linux/platform_data/x86/asus-wmi.h
-> +++ b/include/linux/platform_data/x86/asus-wmi.h
-> @@ -29,6 +29,7 @@
->   #define ASUS_WMI_METHODID_KBFT		0x5446424B /* KeyBoard FilTer */
->   #define ASUS_WMI_METHODID_INIT		0x54494E49 /* INITialize */
->   #define ASUS_WMI_METHODID_HKEY		0x59454B48 /* Hot KEY ?? */
-> +#define ASUS_WMI_METHODID_NOTIF		0x00100021 /* Notify method */
->   
->   #define ASUS_WMI_UNSUPPORTED_METHOD	0xFFFFFFFE
->   
+The Fn+F5 key handler attempts to forward events to asus-wmi when
+available. If asus-wmi is unavailable or fails, the event is passed
+to userspace via evdev, allowing userspace fan control implementations.
+
+Tested on Asus ROG series laptops.
+
+Changes in v5:
+- Removed IS_REACHABLE(CONFIG_ASUS_WMI) guards from patch 3 as
+  asus_wmi_evaluate_method() already returns -ENODEV when asus-wmi
+  is not available, and the warning is helpful for users (Mario's feedback)
+- Updated commit message for patch 3 to reflect the removal of
+  conditional compilation guards
+
+Changes in v4:
+- Added Reviewed-by tag from Mario Limonciello (AMD) to all patches
+
+Changes in v3:
+- Added IS_REACHABLE(CONFIG_ASUS_WMI) conditional compilation guards
+  to prevent build failures when asus-wmi is not compiled (patch 3)
+- Modified Fn+F5 handler to pass events to userspace when asus-wmi is
+  unavailable or fails, enabling userspace fan control (patch 4)
+- Updated comments and commit message to reflect that spurious codes
+  affect all ROG laptops, not just G14/G15, and occur during normal
+  operation, not just on keypresses (patch 2)
+- Simplified commit message for WMI infrastructure patch (patch 3)
+- Added Reviewed-by tag from Denis Benato
+- Removed Change-Id tags
+
+Changes in v2:
+- Split the original patch into a logical series of 4 patches
+- Improved code organization and commit messages
+
+Ionut Nechita (4):
+  HID: asus: Replace magic number with HID_UP_ASUSVENDOR constant
+  HID: asus: Filter spurious HID vendor codes on ROG laptops
+  HID: asus: Add WMI communication infrastructure
+  HID: asus: Implement Fn+F5 fan control key handler
+
+ drivers/hid/hid-asus.c                     | 73 +++++++++++++++++++++-
+ include/linux/platform_data/x86/asus-wmi.h |  1 +
+ 2 files changed, 73 insertions(+), 1 deletion(-)
+
+--
+2.52.0
 

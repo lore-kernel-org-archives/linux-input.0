@@ -1,89 +1,75 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158093396E6;
-	Wed,  7 Jan 2026 15:13:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D3A34A76B;
+	Wed,  7 Jan 2026 15:13:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767798783; cv=none; b=DF/LlZtGrjhCIGH5WF+Lqc0PJsDQkLz9aP3OXLzIYRVbL1MOa7yi9l4BA52SQOZgnhkhSdOls59c/mbVS7BgQ1D1tlqo/fPlyhjfgwKnzimsIYbGCSy2ikj3Y/887TreQwumuW2COhfujrXLbFG5i/A0tXlMiXD6/xmSPR080q8=
+	t=1767798838; cv=none; b=MjD/nBoiJdAG3T5hXozSWxCSncSosNteBnA5P6KuG+Rp30nJvqrrWdJEoLYO3NMDE8HK/I67d+VQsvefao4PR8mVzgCPsOOaQumL1Hg383QJj3qf8qXs/8X6s4uMrihi7OMkI6Di/5iDsRG8tw9RKrQHQOm6gg7ubVghdhfdvp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767798783; c=relaxed/simple;
-	bh=DMl0RaybYMeNCnaWZHnwaVdaIEToRvR2p7ttK0cevR0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=j7t1Pjy6CTPn7KUsLyM1334qNbDdmB+GXs7Lz3iTe0ACxjqkueMSh5UeLNT1j37Ki5VM3+DuEOI94vHcjLcPz+4fbZn1dgMlMdxxXkNRQuSDnCPvhXWYGqcVZfIRn1TPTeQmBy8YIpWDNMr0rMfJh4MSjL1GldSV0GF22KBgcyw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ua8BjEEf; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767798838; c=relaxed/simple;
+	bh=v4b18UtipHE6LMTKtAqRsOch/ufQxjoOOq35WzPJAFo=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=J/Hl2oS2sszHXTPl+ip190kXS0oMuhyXnPMbWD2rVogPjVlU8LaQztwsreu618EM82DbqxS8XTSUZ6OfAODfneOA/kTqioxiQ40pPFdrXKXj+A59EtOtkHLx+FMrK2weawTUyt+7KXjfyPOHNOq/j4kpdV210twtmCOojBaAfLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XzVEwdzA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ua8BjEEf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B161C4CEF1;
-	Wed,  7 Jan 2026 15:13:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XzVEwdzA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA4FBC4CEF1;
+	Wed,  7 Jan 2026 15:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767798782;
-	bh=DMl0RaybYMeNCnaWZHnwaVdaIEToRvR2p7ttK0cevR0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Ua8BjEEfJ5LsvPOeBDfytDH5Tq+VzcSMIcoO5jPXopAFEeZLJmdxhMghn7bQS9gWf
-	 IyUjDqPQx76xsQBTRjDWJAbrs05PFqMFasykMsmBWOqU3YW3Wrc3u/Ira5n9nAnR2W
-	 KTw9Y0Y1I7rD3rXYnftE3u1qRApxTq2CS3/oO6Hz0/X4NtN8epuxMp2l5Vpl8BghL3
-	 NadqeZlFygxFH8PMB7XN1HBKJ6rx9pEY/u5mtETA7mvcGhFZyOxGBPHMIA2uzuLijK
-	 9fdHdEyaxTXr34BiUVeJBjT0hLd3DqfllrbxaPklSfMvV7fHshbLZsPlXhR2z7lM5Y
-	 bM0aS1d2QcNVA==
-Message-ID: <db79a083-6810-44f8-bf5a-70469138bf82@kernel.org>
-Date: Wed, 7 Jan 2026 09:13:01 -0600
+	s=k20201202; t=1767798838;
+	bh=v4b18UtipHE6LMTKtAqRsOch/ufQxjoOOq35WzPJAFo=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=XzVEwdzAd9ND0IAujCqm463x0U7wM5Sz/D8e0yZy46dgULImMkFgMiGxzh05ybAzv
+	 +VR9xVaule8Iy9/qutnP0N4EzF+lkhGZyz2p2aphymZuJ/NsYG6/MYR37Tk1qaSrXC
+	 65uBa0wvODQe/b992xyntkQqJJIGX5VsPXLVcQXnfzT7G84Kr5Hy1T2fnwXQTNAU/T
+	 W/+AHto7Dr/eiyd28Tg/jxIVlzrxgz4npoZtmMxx0DI3ierZj0Eo93UJPf0KUVq8AC
+	 rL2T+hkn1c63zFVTb7W5re0b1yw3wGqIt1Z0a0NXUJcZnmyoNVk3Kv2ieYhcRZ4UZm
+	 77IDFZOl4TXRQ==
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Vadim Klishko <vadim@cirque.com>
+In-Reply-To: <20251222-wip-hid-pressurepad-v2-0-054ac9689bb7@who-t.net>
+References: <20251222-wip-hid-pressurepad-v2-0-054ac9689bb7@who-t.net>
+Subject: Re: [PATCH v2 0/4] HID: multitouch: set INPUT_PROP_PRESSUREPAD on
+ compatible touchpads
+Message-Id: <176779883659.3436366.1608867230221882776.b4-ty@kernel.org>
+Date: Wed, 07 Jan 2026 16:13:56 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] HID: asus: Replace magic number with
- HID_UP_ASUSVENDOR constant
-To: Denis Benato <benato.denis96@gmail.com>,
- "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>,
- jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- ionut_n2001@yahoo.com
-References: <10abfaa7-9f5b-494c-8bb5-5da53c087fc4@kernel.org>
- <20260107111945.48018-2-sunlightlinux@gmail.com>
- <20260107111945.48018-4-sunlightlinux@gmail.com>
- <6550db38-e5a5-49f5-ac60-02d0374dd553@gmail.com>
-Content-Language: en-US
-From: Mario Limonciello <superm1@kernel.org>
-In-Reply-To: <6550db38-e5a5-49f5-ac60-02d0374dd553@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15-dev
 
-On 1/7/26 7:00 AM, Denis Benato wrote:
+On Mon, 22 Dec 2025 09:43:33 +1000, Peter Hutterer wrote:
+> Nicely enough MS defines a button type for a pressurepad touchpad [2]
+> and it looks like most touchpad vendors fill this in.
 > 
-> On 1/7/26 12:19, Ionut Nechita (Sunlight Linux) wrote:
->> From: Ionut Nechita <ionut_n2001@yahoo.com>
->>
->> Use the existing HID_UP_ASUSVENDOR constant instead of the magic number
->> 0xff310000 for better code clarity and maintainability.
->>
->> Change-Id: I65cf58cd0cd47acc39b755fa9a5fb7f2ad271046
+> The selftests require a bit of prep work (and a hack for the test
+> itself) - hidtools 0.12 requires python-libevdev 0.13 which in turn
+> provides constructors for unknown properties.
+> 
+> [...]
 
-Please strip change-id.
+Applied to hid/hid.git (for-6.19/upstream-fixes), thanks!
 
-Otherwise LGTM and add to next version:
-Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
+[1/4] HID: multitouch: set INPUT_PROP_PRESSUREPAD based on Digitizer/Button Type
+      https://git.kernel.org/hid/hid/c/2b29a90131bb
+[2/4] selftests/hid: require hidtools 0.12
+      https://git.kernel.org/hid/hid/c/1d6628f7f279
+[3/4] selftests/hid: use a enum class for the different button types
+      https://git.kernel.org/hid/hid/c/4f36fdab084f
+[4/4] selftests/hid: add a test for the Digitizer/Button Type pressurepad
+      https://git.kernel.org/hid/hid/c/f287ba5951a4
 
-> Reviewed-by: Denis Benato <benato.denis96@gmail.com>
->> Signed-off-by: Ionut Nechita <ionut_n2001@yahoo.com>
->> ---
->>   drivers/hid/hid-asus.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index 472bca54642b9..eb14b9d13823b 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
->> @@ -317,7 +317,7 @@ static int asus_e1239t_event(struct asus_drvdata *drvdat, u8 *data, int size)
->>   static int asus_event(struct hid_device *hdev, struct hid_field *field,
->>   		      struct hid_usage *usage, __s32 value)
->>   {
->> -	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000 &&
->> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
->>   	    (usage->hid & HID_USAGE) != 0x00 &&
->>   	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
->>   		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
+Cheers,
+-- 
+Benjamin Tissoires <bentiss@kernel.org>
 

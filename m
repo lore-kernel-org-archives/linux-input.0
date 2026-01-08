@@ -1,79 +1,97 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 114C135F8A1
-	for <linux-input@vger.kernel.org>; Thu,  8 Jan 2026 07:41:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E32396D2F
+	for <linux-input@vger.kernel.org>; Thu,  8 Jan 2026 08:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767858086; cv=none; b=R1ZyUonQmU2VIH0dycrvMP7xwLvCxsu76AhlfZWOkQtnB+8tr9bofqchno0dnv2I5w2cXSsriZ457WM8rPF4XQNwAls/W/1lal9aLL6QzyQyqrUAhozJ38rPi+woqQsN2u5skvJYsBce5UBCfyIZ+d/xrhbj5E+gUcjSLzKrtJw=
+	t=1767859779; cv=none; b=RB3rzj8TdkLqX0MTsK+Okek8pGSOs2dQjdwathcIBczLsaPbJ4yh1Glu3StZv8HPUYN6Xj4MAxReXjCX32hWutT4OEIMjUan3u+DArafkZ/LG9JaBHQJnbvAOVND9J64tmhGgo1XwxAFmM47/w/alZjkiqf+JfxDV0E8u4KNYoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767858086; c=relaxed/simple;
-	bh=602DVnXltjfj0RQiqmrSqXSWmhDvZ7fAH8Z9Ua5Es9I=;
+	s=arc-20240116; t=1767859779; c=relaxed/simple;
+	bh=BkuzIM+xJSw6D9gd0ClP6IeKUS3iAxeuX1yHGi4chXw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Otsvx37PWIrCzuei3BRM5W+3smsQehPMbIreQix8AF6WFEArXLPLchQWuZPfnl9ah2qkeyS3YJ4SrsKRGDv8BRhgAR96vHRprBVHTN/LGrpt8OQWDP8PXWenC/d3/Thh3kHIXPgFX53molcn6mwaKkcztWFbgBhXJnc1HcOxXrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tzrpe7o/; arc=none smtp.client-ip=209.85.128.51
+	 MIME-Version; b=pdFzHrU8Y9WceG5aVMgkHyICvbJtoBsbjlZISk+yqvJll3D1079mry9pwDIiQE69YRi0o68z1kSoYsk+hZ8UMlWPbsahJiAifjmkSDGDbwgjCs0j+uVLVODS5DKHkDSwKOssNN1BVfVHQHSJNKI7RdgTHWg+dvbjwX7iqLDv7UI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WbMtxix7; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tzrpe7o/"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-477632d9326so17646065e9.1
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2026 23:41:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WbMtxix7"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7fc0c1d45a4so1784897b3a.0
+        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2026 00:09:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767858081; x=1768462881; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1767859767; x=1768464567; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=602DVnXltjfj0RQiqmrSqXSWmhDvZ7fAH8Z9Ua5Es9I=;
-        b=Tzrpe7o/xgU410bbpgkzHXEjtRNct4eQr+UhnletcIsJbRD04qfPBqG86sDzqTPiKa
-         Yq4cxulQ2toxEQDQpud9+ssnYFwWkmr3jphA3e5ZOrcc0/9TkVSqnf7J7UEE0q+4y4Nc
-         y8KflnZWptyzwlMoYeeHGxwAIC0SThXLvL0NR9SeKGCvzkUWX7yq3sIhEjjaue453S65
-         1mTIOScm89hjTAPG9Ymgva2IF3V0Oix+P6pwjaptkqRkKeb/eBWCjmcsQCbmcKRdjR4j
-         zdP2tjLRHtZtyn84VfhCF+zqVDb99ozTVIpjsSTrcZA/1nClUmD0/sn32u4yZnmGuceC
-         D4aA==
+        bh=cM8S9Nf7P6gRpX7oKCBS4znehPOLHvbNE32ZCa5tCAA=;
+        b=WbMtxix77iyRiMu/v6TL6S3OE4lOZf0DwNv0JOtIuj0UWdibRbv7EvHx/rC4SrGzEI
+         j8FIUcuUbWNqf3OHvvwnjp16n/ZVsN3Zqqo2u/sPVCPcDY7KRQCIPkCfqBx+MSCgeNrj
+         FhglvRwKieoa43KClvFE1X8AXiHAqWN1u2qcBtrQyxADPdHHAp5J7G0PeJ+VGcmzc16H
+         Qr6mlPaoK+3KHnALV+6lbtMfVlf8sNcOAUz9K0VWPh1zGndJCuKoGfn46pYcTUej8gWW
+         wn3jYiiY6+sQPI/3ufuLrH77ZZvcplgWmNlX601WCLYmsP8NVyDteo8AjjAUd5uAhraR
+         OnKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767858081; x=1768462881;
+        d=1e100.net; s=20230601; t=1767859767; x=1768464567;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=602DVnXltjfj0RQiqmrSqXSWmhDvZ7fAH8Z9Ua5Es9I=;
-        b=Z2XenU1+3/v8xhJBhYuCPH+mRyWlgor4sU1Ms2BPqpZlvRjQnC3kXYpM4iv1ysxbuG
-         UiZFBpbgpCsN3Xq7PCMQMnBVsN941BPWVEiXRYPeyzsvDKO3qd6dwRh4YA5fQpju4dPH
-         CWr02FLp/j6CIvU3+GS3EgOdDvWtew2h3BT27l9ppzasYMZOiHo98ZQz4+K5LpeghX+q
-         JNq5KKYEjBNIGZxLJzgdlrmO5dqnhNAqIMCpboJbZ2jRFZjjDI1oXakyC814oTw/oudC
-         cJMWwC2Rj1y9+Hs9DIxPPim27UaQ+8+poaS0KbrtDT/ElUR8tLta0/EpqPyHHzoDLDvC
-         QY9A==
-X-Forwarded-Encrypted: i=1; AJvYcCWX7fCH7a8L92J54Pp8T8KETbVy4vuQAf3EGP2BQt1Q0755mKxtDam6kHCNxkT6X/FEqcjFibJSthGJEg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YymmQTrPyU7EgFpsc9CnwPB9letaOJZQo/HoXDVlqL2NeUUUzZb
-	no7+BB/VQVm3DzfJ6XyJwz+PuM8M2aOzdMF3JJwMPF7O/x646GsctmiR
-X-Gm-Gg: AY/fxX6vVU4zLcyL5zgjR9uRHdRixWsmmEXCaz6+u/OB5DKHFBuJexilSEdENqpPBZi
-	SmN1l39qskhR14gnTxwgiEpmD9C7eejB+8F8bdF6J5HuycvCKHtBjlO7AMioc0eb82nTAMRcY1z
-	QM9+vU2qf3ivK6K9sz+ZKUYKsMOvYnQvSaSbBa03ZQTh/TiyqipxlTb4ou3Mmmkln/DmE49RqFU
-	3wbWWQAFHzdzKg9M/8k1T2rf69AfbVmZ/RRUHSDg0exu37wCAMC0E57etuqi4LtYRUoB2ZO53kK
-	XvsbERXSz3HwfGF3OUcRAyWjlZgerhPy9ZrYzTcu9RfAPYMPdvNcVG7mS8hbCaa1Hr3Q6/sBlaM
-	CGzQvmqeIVtiG/taV5lwhqUL+K0W0DmzyWO18wjyQ3aksiYzqP3RewOcTpk8SBHIbQhKkLeW2vb
-	LUEODLN03y9M4tCsb9MflemBd3e3C7hFUoWglLJ70=
-X-Google-Smtp-Source: AGHT+IHOH5fvz0+E8Pfd7Mds6szW9WagTEqn6jKzvLpWeQidjE4PZmeME8JlbRA7Klbdz39QUy1Rqg==
-X-Received: by 2002:a05:600c:4f93:b0:477:b642:9dc6 with SMTP id 5b1f17b1804b1-47d84b403f7mr54668165e9.34.1767858081178;
-        Wed, 07 Jan 2026 23:41:21 -0800 (PST)
-Received: from ionutnechita-arz2022.local ([2a02:2f0e:c30a:7d00:181d:3ce7:dc15:2476])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d8718c610sm30572295e9.15.2026.01.07.23.41.19
+        bh=cM8S9Nf7P6gRpX7oKCBS4znehPOLHvbNE32ZCa5tCAA=;
+        b=g9hIzcm1YQC7k1uQCEOzoccGgoV+WoscgyrZGiChlZLrn5Ch3bfZX794+uioz1gvnU
+         mr7pSDyRUbHqAt3CQUVy1ytaR9sp6NxjgFncmUUuf4gaO6yuH3JtCKCCzjiULxBPlmAa
+         /w3a5Fpje2iBsJMprrTx6X8u31nTDBvh1fFo2e18Ne2VovDXeKZk4MmZ8zN4XssRxLUc
+         xghwSUpTMfcopWxDt3C21dSdiheu06YxRkHCSZiDyW+40JYtS6ewWNcg0Lgg6f97893i
+         lvvKrLYNpL5254+m37NA+EMA7zl+jAI+9FGdbKkYqN1MAMnQFW91muI3Zq1qTipwFkmM
+         6Cwg==
+X-Forwarded-Encrypted: i=1; AJvYcCVYIRYD7y3BPL6yNdFrwvoTg5Y4AzIzKPyXgcEMcIND1Fqsoqxb9dOp7QdKUcbFiY4WGXCGY7M/wH4sag==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyudtLqjmJ3H8/NAd+S814s2U3eG0pK4OtJ2vfNn2WAXBQSjqZz
+	tGtiKru3HY0Ww3lWkYlaJW9paX+WSuYB5Ic/VSmVSsEoGdsZYgZldeGl
+X-Gm-Gg: AY/fxX7VwaxHnqD/bVic1hSFHDfsMTZpFzlhCpTonr3m6zIPloTUAwGenEbyiy8OVsb
+	e/fbxVJ8ssseRQTnydMe9ak51kHGhWU2MDxLMgMtdy0OMlMXGNcK2cFefqyWz2FtXJ+uzNdlIKG
+	8Hdzq0pSMLMOv+xjn8aTPJjrY0PZaE3RTA1wvTluaEotszjbTcehc/K9xhVC9qbEC+jtIEvU+Bn
+	aK0kahrPvnzTUDaXAng8VpfGiARd1WmLZgBmV8z4+wVzneb01py0EPTaQ1vTfTgKG/2km9KrvXx
+	5E5edLN/CYgeFA0VWM5brZZnQY5lN2y6jYK6lmrhI1SNXqD2doVxpxvrfcTJrM2CoYWuYydECJ7
+	Nl3RiWe/0pjcApraeS7j4tJPZtm35/qjLtE8nHC4PeLS6+psnWfLL7EC2SbhN5t9MCkL+RFSfD8
+	dY+D40u+UqJ35Yxq3AEIcrFZ5AQTyz3Z4OrAZtk/wmDxMDhhuUyoEeXhigOeC7bfoQ1S7iNchlO
+	ajI5xo6vYuJfhmJfGCEQLdbhcguZA/F
+X-Google-Smtp-Source: AGHT+IHkLLcdy5t5w8lcYwpa7aN5PM2YSQikFaFZHwIq35VG+97ooL0I8Sxc+NQu2jzK08rf+aGvdA==
+X-Received: by 2002:a05:6a00:1f09:b0:781:16de:cc1a with SMTP id d2e1a72fcca58-81b806c7544mr4661904b3a.32.1767859766947;
+        Thu, 08 Jan 2026 00:09:26 -0800 (PST)
+Received: from visitorckw-work01.c.googlers.com.com (25.118.81.34.bc.googleusercontent.com. [34.81.118.25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-819bafe991dsm6900582b3a.16.2026.01.08.00.09.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jan 2026 23:41:20 -0800 (PST)
-From: "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: benato.denis96@gmail.com,
-	ionut_n2001@yahoo.com,
-	Ionut Nechita <sunlightlinux@gmail.com>,
-	linux-input@vger.kernel.org,
+        Thu, 08 Jan 2026 00:09:26 -0800 (PST)
+From: Kuan-Wei Chiu <visitorckw@gmail.com>
+To: airlied@gmail.com,
+	simona@ffwll.ch,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	dmitry.torokhov@gmail.com,
+	sre@kernel.org,
+	gregkh@linuxfoundation.org,
+	jirislaby@kernel.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org
+Cc: jserv@ccns.ncku.edu.tw,
+	eleanor15x@gmail.com,
+	dri-devel@lists.freedesktop.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	superm1@kernel.org
-Subject: Re: [PATCH v5 0/4] HID: asus: Add Fn+F5 fan control key support for ROG laptops
-Date: Thu,  8 Jan 2026 09:40:26 +0200
-Message-ID: <20260108074025.5799-2-sunlightlinux@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260107154219.164514-2-sunlightlinux@gmail.com>
-References: <20260107154219.164514-2-sunlightlinux@gmail.com>
+	linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	krzysztof.kozlowski@oss.qualcomm.com,
+	Kuan-Wei Chiu <visitorckw@gmail.com>
+Subject: [PATCH v2 4/6] dt-bindings: power: supply: google,goldfish-battery: Convert to DT schema
+Date: Thu,  8 Jan 2026 08:08:34 +0000
+Message-ID: <20260108080836.3777829-5-visitorckw@gmail.com>
+X-Mailer: git-send-email 2.52.0.457.g6b5491de43-goog
+In-Reply-To: <20260108080836.3777829-1-visitorckw@gmail.com>
+References: <20260108080836.3777829-1-visitorckw@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,25 +100,93 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hello,
+Convert the Android Goldfish Battery binding to DT schema format.
+Move the file to the power/supply directory to match the subsystem.
+Update the example node name to 'battery' to comply with generic node
+naming standards.
 
-I hope this email finds you well. I wanted to follow up on my v5 patch
-series for Fn+F5 fan control key support on Asus ROG laptops, which I
-submitted on January 7th.
+Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
+---
+Changes in v2:
+- Add reference to power-supply.yaml schema.
+- Change additionalProperties to unevaluatedProperties: false.
 
-The series has received Reviewed-by tags from both Mario Limonciello
-(AMD) and Denis Benato, and I've addressed all the feedback from
-previous versions, including the removal of IS_REACHABLE guards as
-suggested by Mario.
+ .../devicetree/bindings/goldfish/battery.txt  | 17 --------
+ .../power/supply/google,goldfish-battery.yaml | 41 +++++++++++++++++++
+ 2 files changed, 41 insertions(+), 17 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/goldfish/battery.txt
+ create mode 100644 Documentation/devicetree/bindings/power/supply/google,goldfish-battery.yaml
 
-I wanted to check if there are any additional changes or improvements
-you'd like me to make before this series can be considered for merging
-into mainline. I'm happy to address any further feedback.
+diff --git a/Documentation/devicetree/bindings/goldfish/battery.txt b/Documentation/devicetree/bindings/goldfish/battery.txt
+deleted file mode 100644
+index 4fb613933214..000000000000
+--- a/Documentation/devicetree/bindings/goldfish/battery.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-Android Goldfish Battery
+-
+-Android goldfish battery device generated by android emulator.
+-
+-Required properties:
+-
+-- compatible : should contain "google,goldfish-battery" to match emulator
+-- reg        : <registers mapping>
+-- interrupts : <interrupt mapping>
+-
+-Example:
+-
+-	goldfish_battery@9020000 {
+-		compatible = "google,goldfish-battery";
+-		reg = <0x9020000 0x1000>;
+-		interrupts = <0x3>;
+-	};
+diff --git a/Documentation/devicetree/bindings/power/supply/google,goldfish-battery.yaml b/Documentation/devicetree/bindings/power/supply/google,goldfish-battery.yaml
+new file mode 100644
+index 000000000000..909252d91c16
+--- /dev/null
++++ b/Documentation/devicetree/bindings/power/supply/google,goldfish-battery.yaml
+@@ -0,0 +1,41 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/power/supply/google,goldfish-battery.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Android Goldfish Battery
++
++maintainers:
++  - Kuan-Wei Chiu <visitorckw@gmail.com>
++
++allOf:
++  - $ref: power-supply.yaml#
++
++description:
++  Android goldfish battery device generated by Android emulator.
++
++properties:
++  compatible:
++    const: google,goldfish-battery
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    battery@9020000 {
++        compatible = "google,goldfish-battery";
++        reg = <0x9020000 0x1000>;
++        interrupts = <0x3>;
++    };
+-- 
+2.52.0.457.g6b5491de43-goog
 
-Also, if you could let me know what the next steps are in the process,
-I would appreciate it.
-
-Thank you for your time and guidance.
-
-Best regards,
-Ionut

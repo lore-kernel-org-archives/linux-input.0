@@ -1,188 +1,123 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C223AEF5A
-	for <linux-input@vger.kernel.org>; Thu,  8 Jan 2026 10:13:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5B8C286D7E;
+	Thu,  8 Jan 2026 10:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767867193; cv=none; b=rxaxotmLI6bn9gHllnWDyEdL+CWkcNRb9qNg2Rf5ip06IJR4qoTttJYwaOaaiZ4UMGpzAktIC8wjzFP2fI3CvPteTAKDDmKyQsi5oH8ljfdmaiCc6P7b19+KiYZW1teHNVNs2YRJvxpwXOxRKrZYDG2rKJNaB3ldUg82+Awn1KA=
+	t=1767869309; cv=none; b=TgphNUl4vFSKP7DxwRqYAKekU8OLAVAIVr/Fkb58MESfCyIXe0s9T53AYkEixN7ST00si6e6mHja4FfZ41ViBxdioOWqggOJ6rVE+ryiCzqrfvY9cOZfXPccfqOxA0GnUuMIlnzJ1kJQT3uYTDlSnPWvoduefTqqxFsZSi8yh/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767867193; c=relaxed/simple;
-	bh=Hgv7QBj2VJ/Dph4tylg9AUwEbK+W2yWO3bKu+SnomLg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e8E5e8t55a3T1XCOlmVQ4Mgh/UdZ5+iIzGFAbk2GPlDHEw1JTe7ckIyExyhvek5IEYDl1QWaJLilZmZGs0ReeqoMN8NY2YrnAh6EPyroDFBl39WmpH2WkcYV7MYpayJoJS9Ze4AvUrmAT5PJamfD615atCN2ZryVCH8tvrx+QPA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z8II8nga; arc=none smtp.client-ip=209.85.217.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767869309; c=relaxed/simple;
+	bh=mfTHFuBrtHvWBMtN29ExNoOubr3/AlrAj+kSoSl0MHg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rs01FxDu1N57KoyMRk6K+9+IYtmkgL8YDZRqI6r6IFOe8NYvcEPiIxgtvp4gXmjeqhTxn5F/Nak0HKbEZSMA5QVsSiNJ33SM9QqWJ20KiGnt7IN42U5p5IfEbnOxG42S1k/l+EGiJ8XB9n68RVYCK2lMiRvTEQus6YyDRMYQYuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jcAbjdCn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z8II8nga"
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-5deb0b2f685so1255702137.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2026 02:13:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767867188; x=1768471988; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=l0UMQNQize8y0H61kPqmNx/nuhGzGL/JdEumTcbx0Oc=;
-        b=Z8II8ngaINIhVEcVtUWNEgXfkg+wxLyYeGNxZOC7Dph325goasKVDGWE8TK0NjG26k
-         lb9z+iovFAqwIY7PPeDAD8GUAp+S5r5j5w4pc6WfoNp+XYYGtcKoMydVJmPA4AJxsf0x
-         kmpKWCN+rGN7PuU0SYlxwKprfQcAxcIHxB8En61TsfHXFI5f9ztJy6gTe/XCih3g1dYu
-         1BhqxQRac1va9eXx0YQz/2x+LUpTDc5KCBg3+Vf8l5KBRb2faIZ5qyVXKqfvx7hJqci7
-         m5TUv7XjjmeDbSG5CITUyBq1oA8RpjoTSJelBZqY3nDfKzhaHwnzteGNgcy/P61V4teS
-         Bs5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767867188; x=1768471988;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=l0UMQNQize8y0H61kPqmNx/nuhGzGL/JdEumTcbx0Oc=;
-        b=LtB5M5gshEWTZqKIB26o6v8K5VyTXaCE5l84IqLHuV0AiCt14KFojl9Gvjc4BI7HdA
-         CPX3Nmsvu1gFgjpO3lv5LowlpmZJdMZ329KS0Yg/SBm2Vt6aM+O/lgCKqTNkGpXFcK58
-         G+KPYe70sZ3Xv1/4mdwILEcnpna+e0jurlmtg5SD4uLNmjmA0HRrZRa3Gnm7eT7cgB96
-         UBC5YJBwLAzun79JbqhRAiKTQFAG/UKlS+209zoJVJ7k3XsJ6zEDsC5iYZMkC4aLzVzx
-         3y5yet13NDXy+isHFhMHs9IDVNFF7pLabYKN3ZzloAf9z1mpATxd+vvWKGDhNfARsGhX
-         rD0A==
-X-Forwarded-Encrypted: i=1; AJvYcCVeq7GkoKHuVh8rUIG8sYq53D4WTumXfz5c5uDFf6kbvrOma7T64yeigDQ3JHrGG0ZGF3o8k7Po6M6CXg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmSaRfM1p+CAcHzdDBeZtbMT/LN9zjF17d3wmbuR7+ODEyjSVk
-	wqbk936hjob5YewlvJVKpyU4RXg1g6TbOK0InCs300W/8+FqGfK+PhnZZRonzQ==
-X-Gm-Gg: AY/fxX6BD8c6iIbob5ViP3fcLgLNmgiAj33bfgO1bpQqg0AS22/BE1/tmEoirqv5qFu
-	u9dejP0RFlggIl7GQtBklh3SZCtai0sxks7vGVsiJOgA14reNr0289gpJ3Ph6uduUbvjGCiRtup
-	iI85joPwWb16zDQnH2eDUIqMJ4xIdTdLafusaUWiEIE2OwEukTaMS4KVEEotUSSe+jjIFCZunQE
-	ku+fwYSRPmTy8AT8sxv5rYxBU4L0cixpLTSxoSURj4qvm1GeYvF1kGIP3+ZKaPpyGCuqis6FwAo
-	V8w2g+0jLdCnPdzmL28Z2wOekQmWDU+r0LoVWwq0Zod/OMcERz3VBCqlgxZKIhN6xeAqNP8G1Z6
-	O/4nar3knkvaxUnU703GL+n1IoE5Z5sRchcTjESnmIvyNRFtbRKNDmX97v9s8pdkNIO/kZlOZ2Q
-	SgYZE4oMmZJThpoxnGZKfGmzToK4j4JsaeHVgBY+df2SkQX3Vrq/1MPl9Rgudtv800v/WJM9x9d
-	FFNRglwSk1SgRfi8gL19g==
-X-Google-Smtp-Source: AGHT+IHZ2UUjx42RRlWVNMw3b1W04C9piTrC4WnPU6SDQCVTlKuzNskyckz41dtty4xhtSX8347Scw==
-X-Received: by 2002:a17:90b:53d0:b0:34a:c671:50df with SMTP id 98e67ed59e1d1-34f5f95c745mr7519717a91.17.1767859772019;
-        Thu, 08 Jan 2026 00:09:32 -0800 (PST)
-Received: from visitorckw-work01.c.googlers.com.com (25.118.81.34.bc.googleusercontent.com. [34.81.118.25])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-819bafe991dsm6900582b3a.16.2026.01.08.00.09.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jan 2026 00:09:31 -0800 (PST)
-From: Kuan-Wei Chiu <visitorckw@gmail.com>
-To: airlied@gmail.com,
-	simona@ffwll.ch,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	dmitry.torokhov@gmail.com,
-	sre@kernel.org,
-	gregkh@linuxfoundation.org,
-	jirislaby@kernel.org,
-	lgirdwood@gmail.com,
-	broonie@kernel.org
-Cc: jserv@ccns.ncku.edu.tw,
-	eleanor15x@gmail.com,
-	dri-devel@lists.freedesktop.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	krzysztof.kozlowski@oss.qualcomm.com,
-	Kuan-Wei Chiu <visitorckw@gmail.com>
-Subject: [PATCH v2 5/6] dt-bindings: sound: google,goldfish-audio: Convert to DT schema
-Date: Thu,  8 Jan 2026 08:08:35 +0000
-Message-ID: <20260108080836.3777829-6-visitorckw@gmail.com>
-X-Mailer: git-send-email 2.52.0.457.g6b5491de43-goog
-In-Reply-To: <20260108080836.3777829-1-visitorckw@gmail.com>
-References: <20260108080836.3777829-1-visitorckw@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jcAbjdCn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02340C116C6;
+	Thu,  8 Jan 2026 10:48:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767869307;
+	bh=mfTHFuBrtHvWBMtN29ExNoOubr3/AlrAj+kSoSl0MHg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=jcAbjdCn+tBIea4rBDb9fXc2HymhaBd3qRbDHbDEMgA8+xy2luplPO2IzNox1RmaA
+	 eOVIVXLvIkr18nsipC0OiLqZ3gwiHfQUVT5RcZ+oXMrxr2dkrDGe2T7egFa9MuKPKF
+	 pWdH7m//0byfBhv9UEiqlQqg5WHq/tOureQ7FmnXgCW2pvEOQHMXdq42qSYUxgfQK8
+	 lyHj+I0VW6W6s/6EfxBV5eU5sHp4s2icNxllM9IKAUdNVNf7ThkrYIJm0gK5ijD2yP
+	 EU9TDo/O0RhrpMxS2g7o0e0shpEKp50NSTp1Mioq72IsURO/GX7BZs5R4B6WN70Dc2
+	 5ij3un2cwa7Kg==
+Date: Thu, 8 Jan 2026 11:48:18 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Tomasz =?utf-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+Cc: dmitry.torokhov@gmail.com, corbet@lwn.net, jikos@kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
+	vi@endrift.com, linux-kernel@altimeter.info, peter.hutterer@who-t.net
+Subject: Re: [RFC PATCH 3/6] Input: Fire EV_BTN if found in ev_bit
+Message-ID: <3hbaxvaacc4gopd3p4dbqvkemqsy7qrzo4el73ngg7szbu5zbk@xq5c7ah5ul7y>
+References: <20260104213132.163904-1-tomasz.pakula.oficjalny@gmail.com>
+ <20260104213132.163904-4-tomasz.pakula.oficjalny@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260104213132.163904-4-tomasz.pakula.oficjalny@gmail.com>
 
-Convert the Android Goldfish Audio binding to DT schema format.
-Move the file to the sound directory to match the subsystem.
-Update the example node name to 'sound' to comply with generic node
-naming standards.
+On Jan 04 2026, Tomasz Pakuła wrote:
+> Passes EV_BTN through to handlers and allows reacting to this event by
+> clients.
+> 
+> Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+> ---
+>  drivers/hid/hid-input.c | 20 +++++++++++++++-----
+>  1 file changed, 15 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 2bbb645c2ff4..900a6fc9813e 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1673,7 +1673,8 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+>  
+>  	switch (usage->type) {
+>  	case EV_KEY:
+> -		if (usage->code == 0) /* Key 0 is "unassigned", not KEY_UNKNOWN */
+> +		/* Key 0 is "unassigned", not KEY_UNKNOWN */
+> +		if (usage->code == 0 && !test_bit(EV_BTN, input->evbit))
+>  			return;
+>  		break;
+>  
+> @@ -1723,10 +1724,19 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+>  	    value == field->value[usage->usage_index])
+>  		return;
+>  
+> -	/* report the usage code as scancode if the key status has changed */
+> -	if (usage->type == EV_KEY &&
+> -	    (!test_bit(usage->code, input->key)) == value)
+> -		input_event(input, EV_MSC, MSC_SCAN, usage->hid);
+> +
+> +	if (usage->type == EV_KEY) {
+> +		/* Send out EV_BTN with button number (starts at 1) */
+> +		if (test_bit(EV_BTN, input->evbit))
+> +			input_event(input, EV_BTN, usage->hid & HID_USAGE, value);
 
-Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
----
-Changes in v2:
-- None.
+In addition to what Peter said, this seems to be a lot more convoluted
+than what it needs to be.
 
- .../devicetree/bindings/goldfish/audio.txt    | 17 ---------
- .../bindings/sound/google,goldfish-audio.yaml | 38 +++++++++++++++++++
- 2 files changed, 38 insertions(+), 17 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/goldfish/audio.txt
- create mode 100644 Documentation/devicetree/bindings/sound/google,goldfish-audio.yaml
+The one nice thing about the EV_BTN is that is transfers the intend of
+"this is a buttons with no particular meaning". And that's exactly what
+the HID usage page "button" is.
 
-diff --git a/Documentation/devicetree/bindings/goldfish/audio.txt b/Documentation/devicetree/bindings/goldfish/audio.txt
-deleted file mode 100644
-index d043fda433ba..000000000000
---- a/Documentation/devicetree/bindings/goldfish/audio.txt
-+++ /dev/null
-@@ -1,17 +0,0 @@
--Android Goldfish Audio
--
--Android goldfish audio device generated by android emulator.
--
--Required properties:
--
--- compatible : should contain "google,goldfish-audio" to match emulator
--- reg        : <registers mapping>
--- interrupts : <interrupt mapping>
--
--Example:
--
--	goldfish_audio@9030000 {
--		compatible = "google,goldfish-audio";
--		reg = <0x9030000 0x100>;
--		interrupts = <0x4>;
--	};
-diff --git a/Documentation/devicetree/bindings/sound/google,goldfish-audio.yaml b/Documentation/devicetree/bindings/sound/google,goldfish-audio.yaml
-new file mode 100644
-index 000000000000..e0b26c1f7b8e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/sound/google,goldfish-audio.yaml
-@@ -0,0 +1,38 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/sound/google,goldfish-audio.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Android Goldfish Audio
-+
-+maintainers:
-+  - Kuan-Wei Chiu <visitorckw@gmail.com>
-+
-+description:
-+  Android goldfish audio device generated by Android emulator.
-+
-+properties:
-+  compatible:
-+    const: google,goldfish-audio
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    sound@9030000 {
-+        compatible = "google,goldfish-audio";
-+        reg = <0x9030000 0x100>;
-+        interrupts = <0x4>;
-+    };
--- 
-2.52.0.457.g6b5491de43-goog
+So why not:
+- whenever there are buttons from the HID usage page button -> map them
+	to EV_BTN
+- only map EV_BTN to usage page Button (to prevent weird things
+	happening with keyboards)
+- keep doing the weird mapping in HID we do but do not upper bound the
+	EV_KEY like we do (first hunk in this patch), and store the mapping
+	EV_BTN/EV_KEY in the input/evdev subsystem, not in HID
+- on the HID side, we fire just the EV_BTN for button usage page, and
+	input does the backward compatibility.
+- the backward compatibility needs to be in the input side of things so
+	we can add the new ioctls Peter was mentioning.
 
+Cheers,
+Benjamin
+
+> +
+> +		if (usage->code == 0)
+> +			return;
+> +
+> +		/* report usage code as scancode if the status has changed */
+> +		if ((!test_bit(usage->code, input->key)) == value)
+> +			input_event(input, EV_MSC, MSC_SCAN, usage->hid);
+> +	}
+>  
+>  	input_event(input, usage->type, usage->code, value);
+>  
+> -- 
+> 2.52.0
+> 

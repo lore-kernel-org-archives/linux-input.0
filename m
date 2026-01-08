@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E13C39E6D7;
-	Thu,  8 Jan 2026 11:18:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C6414D1AED;
+	Thu,  8 Jan 2026 11:20:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767871081; cv=none; b=chuWM8k/yyTU4sNCgQg2wMK9ARdY3PANuOG1l2QlJPWGskRAqgacFdWKPqH7xzos0m4v+9w9G/nw2JfMw7hSbNPhsPhoqDfKXvNSi2PL92C4SNMIeQSHYsPUAC+pPhPjT7PoWMlp6ERmPTTtPDwnuI/a7m92/4kgUQR2sYERFAI=
+	t=1767871248; cv=none; b=p0Ddxm7p16GaptN49oQ+YWudhutMFy+cZ4vyHGFEHbSx+m9rJK7f46ywiW+X6u4hblcwEhLPT3U7/RqHJw/0LwzS00sPysoa4bKOCESros70Z5enh1CaGrLXw3q/fJkjkdo0tnUh7sTVrN+n3WVK8sd2o4bNDd/aN1nnxiylTxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767871081; c=relaxed/simple;
-	bh=ykmgZtZv9A4iuAYE4HLKSEBO3gFbNyNdgtKMFkUoGS8=;
+	s=arc-20240116; t=1767871248; c=relaxed/simple;
+	bh=TdLS/lQOQ47g31V1tPRAULrRx6B8YantWlsya6Bzgrk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=dPwNV1N1Q29UOHh0Dl68oXk2FDBJ9s4ExP71phs+iuQ1iOV+z+6Qkk+PBAofJquPNYvB1zgweI7Knhm7Wa1mUJ/RYCcA19OB8lPUN/KGv3+zOQNc3gRaFdzd0uKlKmSh+w29TKsb7PtPa7CvNz1VbeCjlmpR4bXyeii19fh0MIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=feKTMdR+; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=RRnYnVLuRXohLoJ3AbvkO1/dSzN95WeztFTBNJW+WAaR7YaVL4uDGDH8VnkWthUun26irq8Wu1SWDu7K5Qcux0PXxYoIPtEaxLp0nuAzLPKwoeET6Sk1QgwcG5crrOe2L1S6cO3LSzITARybXoQ7JBa39oogZjPvDV/3ow/VSAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QnT8Eyy8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="feKTMdR+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F806C116C6;
-	Thu,  8 Jan 2026 11:17:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QnT8Eyy8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F76C16AAE;
+	Thu,  8 Jan 2026 11:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767871080;
-	bh=ykmgZtZv9A4iuAYE4HLKSEBO3gFbNyNdgtKMFkUoGS8=;
+	s=k20201202; t=1767871247;
+	bh=TdLS/lQOQ47g31V1tPRAULrRx6B8YantWlsya6Bzgrk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=feKTMdR+MphvMSiBu6lg/8JNf6Fo6c/keJkGyMo3ikgphUlSaq6b6PqiwAEpC0GKn
-	 ZRKl+IausTOp/BHD1ugmB62euLVQG71STzCzOLMUdDtzeyQubv9aLNa9Q3sA+pTUs+
-	 FHrEcPfkSltpr+/OTxPtW4fVWrUPA7yOwlyE12AwlzeiluLhZcRMyAlWXGU7ERy4In
-	 hbozc99iD+2aOETGnXMVjd5hV6Fv/eukPdn2Rf3XFvO6VRe2SOmuyAd2ZH0W+Cd0lU
-	 CBml0Iqrp2+qKsQcUt/pbfOBpDqpsUmeXa5WVQGOnxnOHPeVqPaq4SZ2ZiKd4PCU55
-	 AZ86rkd3iQo2w==
-Date: Thu, 8 Jan 2026 12:17:57 +0100 (CET)
+	b=QnT8Eyy8qazWoxe42m5exzpbEbosLKJ6CiqtCNQOZEQvJtLXTVXehWVJRqh8tApU2
+	 pGXu5UAR9kZzCXRB9dGuYgyXxZxc8WZY0U57hAqc9Y5g8Wdfpwm6U+kP3/gWnMjWWt
+	 lWLOxnkwkSDWszVaxy8dyOzjT09SSJvw8+zUcCZBzAncRNlh9LK1V77oqiRf+KHmWS
+	 nTMJfR45jgAawHpdfohitsxJAyJaEyOYbtct5awiPpZcLN8khNez5gNY6j2haJeBMN
+	 0YQbsf2hsrayRwnACDOSf/VvjcCeU546K3Jf9wOMXUJLLWi1q3F6BLbGgAE3hgLe3I
+	 3sCLpVPUMmdOQ==
+Date: Thu, 8 Jan 2026 12:20:44 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: "Ionut Nechita (Sunlight Linux)" <sunlightlinux@gmail.com>
-cc: bentiss@kernel.org, benato.denis96@gmail.com, ionut_n2001@yahoo.com, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    superm1@kernel.org
-Subject: Re: [PATCH v5 0/4] HID: asus: Add Fn+F5 fan control key support for
- ROG laptops
-In-Reply-To: <20260108074025.5799-2-sunlightlinux@gmail.com>
-Message-ID: <8q669r9p-p289-qqq9-7qr8-p77q1ps1o4s1@xreary.bet>
-References: <20260107154219.164514-2-sunlightlinux@gmail.com> <20260108074025.5799-2-sunlightlinux@gmail.com>
+To: Bagas Sanjaya <bagasdotme@gmail.com>
+cc: Sriman Achanta <srimanachanta@gmail.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] Documentation: ABI: Document SteelSeries headset
+ sysfs attributes
+In-Reply-To: <aVJSNAB8AWpPAQFM@archie.me>
+Message-ID: <6rqnsssn-12qq-r547-89s3-04r1spp6pqp8@xreary.bet>
+References: <20251228122025.154682-1-srimanachanta@gmail.com> <20251228122025.154682-4-srimanachanta@gmail.com> <aVJSNAB8AWpPAQFM@archie.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,26 +45,35 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 8 Jan 2026, Ionut Nechita (Sunlight Linux) wrote:
+On Mon, 29 Dec 2025, Bagas Sanjaya wrote:
 
-> I hope this email finds you well. I wanted to follow up on my v5 patch
-> series for Fn+F5 fan control key support on Asus ROG laptops, which I
-> submitted on January 7th.
+> On Sun, Dec 28, 2025 at 07:20:24AM -0500, Sriman Achanta wrote:
+> > +What:		/sys/class/hid/drivers/steelseries/<dev>/chatmix_level
+> > +Date:		January 2025
+> > +KernelVersion:	6.19
+> > +Contact:	Sriman Achanta <srimanachanta@gmail.com>
+> > +Description:
+> > +		Reports the current balance between Game and Chat audio channels
+> > +		(ChatMix). This value changes when the physical ChatMix dial
+> > +		on the headset is adjusted.
+> > +
+> > +		Range: 0-128
+> > +		       0   = 100% Chat / 0% Game
+> > +		       64  = 50% Chat / 50% Game (Balanced)
+> > +		       128 = 0% Chat / 100% Game
+> > +		Access: Read
 > 
-> The series has received Reviewed-by tags from both Mario Limonciello
-> (AMD) and Denis Benato, and I've addressed all the feedback from
-> previous versions, including the removal of IS_REACHABLE guards as
-> suggested by Mario.
+> Sphinx reports htmldocs warnings:
 > 
-> I wanted to check if there are any additional changes or improvements
-> you'd like me to make before this series can be considered for merging
-> into mainline. I'm happy to address any further feedback.
+> Documentation/ABI/testing/sysfs-driver-hid-steelseries:47: WARNING: Definition list ends without a blank line; unexpected unindent. [docutils]
+> Documentation/ABI/testing/sysfs-driver-hid-steelseries:35: WARNING: Definition list ends without a blank line; unexpected unindent. [docutils]
+> Documentation/ABI/testing/sysfs-driver-hid-steelseries:62: WARNING: Definition list ends without a blank line; unexpected unindent. [docutils]
 > 
-> Also, if you could let me know what the next steps are in the process,
-> I would appreciate it.
+> I have to fix up the bullet lists:
 
-It took me some time to go through the iterations, feedback and review the 
-patch, now applied to hid.git#for-6.20/asus, thanks.
+Sriman, could you please resubmit the series with this fixed?
+
+Thanks,
 
 -- 
 Jiri Kosina

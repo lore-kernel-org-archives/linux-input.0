@@ -1,104 +1,265 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A2E335971E;
-	Fri,  9 Jan 2026 13:01:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566562DA75C
+	for <linux-input@vger.kernel.org>; Fri,  9 Jan 2026 18:49:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767963699; cv=none; b=IW/eDHzKRTfY/6ev4LwoLinTbZEyykcvLIifTWasecZAtU/ibbF7NRcXJYKlj9GmvelEAOCC3+wee+qpFY4x3ZEg5kbX9b+9vJcCAJ9ivL9bolOlz1EYy4RvNfTGfNfxhWrV4gIXoA8xF8InwqOcVP9azHtQK6vkRFWojj5AdMU=
+	t=1767984573; cv=none; b=QUB3SxnzX4JGqPxT38UKoUuivkJb1MhMGRc2RfVI0iqU+qj/xK/AVnrFV1nydxWXw8yP7DXwS25o3KJUyQTuK0I1M/C7XXl5XYRQaxWKGvQNXiEZCKZZOpknPysLe4MUZAdwZd+gu99oLtMAAV4B9JqLj7GlSlAgsXAJTTBTLEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767963699; c=relaxed/simple;
-	bh=k5A3WMP1tURQUV8YTaLgX8u93ATym8rJbdZ7P43xNSw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=k7mLhttfnEc0kqRSfyuUBqYF+iAvR6xEPNZzD3Rxem3U1Ylq3v2e/pduU3ofZOF5RWtSvWoMEqkIMpCgRTKTO+Kx2ppT/o0bkibpfOQHa9w4n/GL9ZW9hWakszCL3JNyyrMko5z9chbJpWR0kSIgbrOm6PWh73TXhonW8gSFP9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=i/ATWbT4; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767984573; c=relaxed/simple;
+	bh=oUMA9M1EmRoGAbMgK/ODZGifrlufqXBCmXAYpkTtQSQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=WVeloKdqD1C1NIV1o73KDpVdxe4KuXZai5VwmLWmHVhaCBPcMdLncU+lr+98mA9ji46s5OGja5pfgVSias1C88vBXrXay8ZfOgrVfh49U/P1mIWRGYQc7JuskwfvYFUj6Ge8avSrgAK15lZNqSdM9wbgcNOBbpN6UOSPRrQR4Qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=MX4EtCIg; arc=none smtp.client-ip=95.215.58.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="i/ATWbT4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04D74C4CEF1;
-	Fri,  9 Jan 2026 13:01:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1767963699;
-	bh=k5A3WMP1tURQUV8YTaLgX8u93ATym8rJbdZ7P43xNSw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=i/ATWbT4prdWjG98CYbmVw4tjZj8UEN6+C/3ltLVWXA65MLd6pxISSDlNezIHUwr2
-	 jQTXs0dwgYMk4IIekeuci2aI818BWvkL8ipzg1B4vrRPDXJk56gu8sQ+AV36JdIe98
-	 ukG4QEVdWJHW/g9u5+ndhqfp569jMmcj9GuNtWzM=
-Date: Fri, 9 Jan 2026 14:00:28 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>
-Cc: Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>, stable@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: logitech-hidpp: Check maxfield in
- hidpp_get_report_length()
-Message-ID: <2026010909-trapped-kindly-1cdf@gregkh>
-References: <20260109122557.3166556-3-gnoack@google.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="MX4EtCIg"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1767984569;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YGFyCMqGsOF1admANmXXi97pYurWbtcIByzIILtSSzw=;
+	b=MX4EtCIg9ILcES4jn6d+a+6ulLkhkR6rzoxj1QqDmd3ybKfhKkAXp9ZYm0Ml6GJQaXJJbl
+	z5mlUJzK+/EMXaD6hXd/cgIYg57qKDl2S6DC0rlQL//IzwZ8Yx5/bLL0lvGNN6yvmIByRC
+	GNfg+AOjZWRNIuDaA2SRka6jjlRi/N8=
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+To: Alexei Starovoitov <ast@kernel.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>,
+	Tejun Heo <tj@kernel.org>,
+	Alan Maguire <alan.maguire@oracle.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	sched-ext@lists.linux.dev
+Subject: [PATCH bpf-next v1 01/10] bpf: Refactor btf_kfunc_id_set_contains
+Date: Fri,  9 Jan 2026 10:48:43 -0800
+Message-ID: <20260109184852.1089786-2-ihor.solodrai@linux.dev>
+In-Reply-To: <20260109184852.1089786-1-ihor.solodrai@linux.dev>
+References: <20260109184852.1089786-1-ihor.solodrai@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260109122557.3166556-3-gnoack@google.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, Jan 09, 2026 at 01:25:58PM +0100, Günther Noack wrote:
-> Do not crash when a report has no fields.
-> 
-> Fake USB gadgets can send their own HID report descriptors and can define report
-> structures without valid fields.  This can be used to crash the kernel over USB.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Günther Noack <gnoack@google.com>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 9ced0e4d46ae..c5e132a6c085 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -4313,7 +4313,7 @@ static int hidpp_get_report_length(struct hid_device *hdev, int id)
->  
->  	re = &(hdev->report_enum[HID_OUTPUT_REPORT]);
->  	report = re->report_id_hash[id];
-> -	if (!report)
-> +	if (!report || !report->maxfield)
->  		return 0;
->  
->  	return report->field[0]->report_count + 1;
-> -- 
-> 2.52.0.457.g6b5491de43-goog
-> 
+btf_kfunc_id_set_contains() is called by fetch_kfunc_meta() in the BPF
+verifier to get the kfunc flags stored in the .BTF_ids ELF section.
+If it returns NULL instead of a valid pointer, it's interpreted as an
+illegal kfunc usage failing the verification.
 
+There are two potential reasons for btf_kfunc_id_set_contains() to
+return NULL:
 
-Hi,
+  1. Provided kfunc BTF id is not present in relevant kfunc id sets.
+  2. The kfunc is not allowed, as determined by the program type
+     specific filter [1].
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+The filter functions accept a pointer to `struct bpf_prog`, so they
+might implicitly depend on earlier stages of verification, when
+bpf_prog members are set.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+For example, bpf_qdisc_kfunc_filter() in linux/net/sched/bpf_qdisc.c
+inspects prog->aux->st_ops [2], which is initialized in:
 
-- This looks like a new version of a previously submitted patch, but you
-  did not list below the --- line any changes from the previous version.
-  Please read the section entitled "The canonical patch format" in the
-  kernel file, Documentation/process/submitting-patches.rst for what
-  needs to be done here to properly describe this.
+    check_attach_btf_id() -> check_struct_ops_btf_id()
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+So far this hasn't been an issue, because fetch_kfunc_meta() is the
+only caller of btf_kfunc_id_set_contains().
 
-thanks,
+However in subsequent patches of this series it is necessary to
+inspect kfunc flags earlier in BPF verifier, in the add_kfunc_call().
 
-greg k-h's patch email bot
+To resolve this, refactor btf_kfunc_id_set_contains() into two
+interface functions:
+  * btf_kfunc_flags() that simply returns pointer to kfunc_flags
+    without applying the filters
+  * btf_kfunc_is_allowed() that both checks for kfunc_flags existence
+    (which is a requirement for a kfunc to be allowed) and applies the
+    prog filters
+
+See [3] for the previous version of this patch.
+
+[1] https://lore.kernel.org/all/20230519225157.760788-7-aditi.ghag@isovalent.com/
+[2] https://lore.kernel.org/all/20250409214606.2000194-4-ameryhung@gmail.com/
+[3] https://lore.kernel.org/bpf/20251029190113.3323406-3-ihor.solodrai@linux.dev/
+
+Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
+---
+ include/linux/btf.h   |  4 +--
+ kernel/bpf/btf.c      | 70 ++++++++++++++++++++++++++++++++-----------
+ kernel/bpf/verifier.c |  6 ++--
+ 3 files changed, 58 insertions(+), 22 deletions(-)
+
+diff --git a/include/linux/btf.h b/include/linux/btf.h
+index 691f09784933..bd261015c4bc 100644
+--- a/include/linux/btf.h
++++ b/include/linux/btf.h
+@@ -574,8 +574,8 @@ const char *btf_name_by_offset(const struct btf *btf, u32 offset);
+ const char *btf_str_by_offset(const struct btf *btf, u32 offset);
+ struct btf *btf_parse_vmlinux(void);
+ struct btf *bpf_prog_get_target_btf(const struct bpf_prog *prog);
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf, u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog);
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
++bool btf_kfunc_is_allowed(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog);
+ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 539c9fdea41d..32974c11664d 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -8640,24 +8640,17 @@ static int btf_populate_kfunc_set(struct btf *btf, enum btf_kfunc_hook hook,
+ 	return ret;
+ }
+ 
+-static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+-					enum btf_kfunc_hook hook,
+-					u32 kfunc_btf_id,
+-					const struct bpf_prog *prog)
++static u32 *btf_kfunc_id_set_contains(const struct btf *btf,
++				      enum btf_kfunc_hook hook,
++				      u32 kfunc_btf_id)
+ {
+-	struct btf_kfunc_hook_filter *hook_filter;
+ 	struct btf_id_set8 *set;
+-	u32 *id, i;
++	u32 *id;
+ 
+ 	if (hook >= BTF_KFUNC_HOOK_MAX)
+ 		return NULL;
+ 	if (!btf->kfunc_set_tab)
+ 		return NULL;
+-	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
+-	for (i = 0; i < hook_filter->nr_filters; i++) {
+-		if (hook_filter->filters[i](prog, kfunc_btf_id))
+-			return NULL;
+-	}
+ 	set = btf->kfunc_set_tab->sets[hook];
+ 	if (!set)
+ 		return NULL;
+@@ -8668,6 +8661,28 @@ static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+ 	return id + 1;
+ }
+ 
++static bool __btf_kfunc_is_allowed(const struct btf *btf,
++				   enum btf_kfunc_hook hook,
++				   u32 kfunc_btf_id,
++				   const struct bpf_prog *prog)
++{
++	struct btf_kfunc_hook_filter *hook_filter;
++	int i;
++
++	if (hook >= BTF_KFUNC_HOOK_MAX)
++		return false;
++	if (!btf->kfunc_set_tab)
++		return false;
++
++	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
++	for (i = 0; i < hook_filter->nr_filters; i++) {
++		if (hook_filter->filters[i](prog, kfunc_btf_id))
++			return false;
++	}
++
++	return true;
++}
++
+ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+ {
+ 	switch (prog_type) {
+@@ -8715,6 +8730,26 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+ 	}
+ }
+ 
++bool btf_kfunc_is_allowed(const struct btf *btf,
++			  u32 kfunc_btf_id,
++			  const struct bpf_prog *prog)
++{
++	enum bpf_prog_type prog_type = resolve_prog_type(prog);
++	enum btf_kfunc_hook hook;
++	u32 *kfunc_flags;
++
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog))
++		return true;
++
++	hook = bpf_prog_type_to_kfunc_hook(prog_type);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, hook, kfunc_btf_id, prog))
++		return true;
++
++	return false;
++}
++
+ /* Caution:
+  * Reference to the module (obtained using btf_try_get_module) corresponding to
+  * the struct btf *MUST* be held when calling this function from verifier
+@@ -8722,26 +8757,27 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+  * keeping the reference for the duration of the call provides the necessary
+  * protection for looking up a well-formed btf->kfunc_set_tab.
+  */
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf,
+-			       u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog)
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog)
+ {
+ 	enum bpf_prog_type prog_type = resolve_prog_type(prog);
+ 	enum btf_kfunc_hook hook;
+ 	u32 *kfunc_flags;
+ 
+-	kfunc_flags = __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
+ 	if (kfunc_flags)
+ 		return kfunc_flags;
+ 
+ 	hook = bpf_prog_type_to_kfunc_hook(prog_type);
+-	return __btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id, prog);
++	return btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
+ }
+ 
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog)
+ {
+-	return __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog);
++	if (!__btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog))
++		return NULL;
++
++	return btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id);
+ }
+ 
+ static int __register_btf_kfunc_id_set(enum btf_kfunc_hook hook,
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 53635ea2e41b..bee49c9cde21 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -13722,10 +13722,10 @@ static int fetch_kfunc_meta(struct bpf_verifier_env *env,
+ 		*kfunc_name = func_name;
+ 	func_proto = btf_type_by_id(desc_btf, func->type);
+ 
+-	kfunc_flags = btf_kfunc_id_set_contains(desc_btf, func_id, env->prog);
+-	if (!kfunc_flags) {
++	if (!btf_kfunc_is_allowed(desc_btf, func_id, env->prog))
+ 		return -EACCES;
+-	}
++
++	kfunc_flags = btf_kfunc_flags(desc_btf, func_id, env->prog);
+ 
+ 	memset(meta, 0, sizeof(*meta));
+ 	meta->btf = desc_btf;
+-- 
+2.52.0
+

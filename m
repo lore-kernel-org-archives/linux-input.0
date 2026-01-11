@@ -1,27 +1,26 @@
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA1BB1F3BA4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA2A02D46D6
 	for <linux-input@vger.kernel.org>; Sun, 11 Jan 2026 15:05:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768143957; cv=none; b=hFUiID8JwbRuZa1rCl9jz6M+ZrCIePjZLDxuEOiVFjqGUPg97xR51C5ltOOt0wW0cWfZy5/lIFy47rEtwWZSWLbFTxmvm0KQ6UsGGAdvM4718MeRHc+ebui9tuUPW0YsTPF6wuy7kf68kk/X4x9cVCF2WbF+BLXxYP9lNpUON8U=
+	t=1768143958; cv=none; b=TxwKHkjwPqDOF5aSoMHuHGk3z8VhhLZio6WXZYu0oOnqWGmI6m9FurRndyXp6a/yGyuh+kvjPfskSVai0jKKyVfs3e1tPGEaUy+CiFGFbApq4JvK7ar2ge8AT63mQw72w9tbogmi8JZW9whScsPwAIxWeETbedGFOc7at5o0LuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768143957; c=relaxed/simple;
-	bh=5K0k5aqdkRLabwWM9PyDbKqtaIMA4UE2kiFSaDtcBUo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=I7jPzaCbnsHXgJXAFX1kUHoz6yQdWoVLGco22ksoNGdwPty6AXHfl22Mj+RHGGM/zi1qf4LoL6Z0cXDGzS2J7uc6jy1zNbcJESoSQznH00WW9mN8/Z2jrtZ1thHzEettuNM1dh0v1qmAPMz0v2w2Fgfa00zYVxUQEK2WL3bkLJc=
+	s=arc-20240116; t=1768143958; c=relaxed/simple;
+	bh=Z+UYuPcxwTAYn5fEGYu7PIC71ZOo+MFkrnH9AKsKs8E=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ARW2whwzitbD8DY4MSVIxx7NXUL4k0xKSwVPRH2gb4dA8jCaIIuMl8rS6i6qn4hIDEDWMHm71r2QtluTJmkLz/DOJPA08W9cAfSJZxfQb4qHD2Bmj8EOsv4Cy4PnCITvfbwDaJL7VWsE+STDyRD0rzg3bs0HzSaLPnRFDwecrPc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Received: from dude02.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::28])
 	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
 	(envelope-from <m.felsch@pengutronix.de>)
-	id 1vex0q-0004rl-Sc; Sun, 11 Jan 2026 16:05:52 +0100
+	id 1vex0q-0004rl-M7; Sun, 11 Jan 2026 16:05:52 +0100
 From: Marco Felsch <m.felsch@pengutronix.de>
-Date: Sun, 11 Jan 2026 16:05:46 +0100
-Subject: [PATCH v5 3/4] dt-bindings: input: Add TouchNetix axiom
- touchscreen
+Subject: [PATCH v5 0/4] Input: Add support for TouchNetix aXiom touchscreen
+Date: Sun, 11 Jan 2026 16:05:43 +0100
+Message-Id: <20260111-v6-10-topic-touchscreen-axiom-v5-0-f94e0ae266cb@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -30,9 +29,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260111-v6-10-topic-touchscreen-axiom-v5-3-f94e0ae266cb@pengutronix.de>
-References: <20260111-v6-10-topic-touchscreen-axiom-v5-0-f94e0ae266cb@pengutronix.de>
-In-Reply-To: <20260111-v6-10-topic-touchscreen-axiom-v5-0-f94e0ae266cb@pengutronix.de>
+X-B4-Tracking: v=1; b=H4sIAEe8Y2kC/4XPsWrEMAwG4Fc5PNdFcmwn7tT3KB0cR714qBPsn
+ Ek58u5VAkeHHmQR/BJ8ku6iUI5UxNvlLjLVWOKUOJiXiwijT1eSceAsFCgNLWhZrUSQyzTHwPU
+ WxhIyUZJ+jdM3j0xrkToERMHGnOkrrof/8cl5jGWZ8s+xruLePWREdCdyRQnSotJOmd612L3Pl
+ K63JU8prq8DiZ2v6kEaMOqUVEx6Q0PPZ3sL8JRs/shO4RnZMOk0hEBkh943T0n9IC0g2DNS7yS
+ 53rrQ8ff2H7lt2y8GocLryAEAAA==
+X-Change-ID: 20240704-v6-10-topic-touchscreen-axiom-105761e81011
 To: Luis Chamberlain <mcgrof@kernel.org>, 
  Russ Weight <russ.weight@linux.dev>, 
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
@@ -54,87 +56,73 @@ X-SA-Exim-Mail-From: m.felsch@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Hi,
 
-Add the TouchNetix axiom I2C touchscreen device tree bindings
-documentation.
+this adds the support for the TouchNetix aXiom touchcontroller family.
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+The following features are added:
+ - I2C communication
+ - Input event handling
+ - Touchcontroller firmware (AXFW or ALC) updates
+ - Touchcontroller config (TH2CFGBIN) updates
+
+Regards,
+  Marco
+
+Changes in v5:
+- Link to v4: https://lore.kernel.org/r/20260106-v6-10-topic-touchscreen-axiom-v4-0-9e9b69c84926@pengutronix.de
+- fix sysfs documentation description indentation and date
+
+Changes in v4:
+- Link to v3: https://lore.kernel.org/r/20250821-v6-10-topic-touchscreen-axiom-v3-0-940ccee6dba3@pengutronix.de
+- rebased on top of v6.19-rc1
+- collect r-b tags
+
+Changes in v3:
+- Link to v2: https://lore.kernel.org/r/20250529-v6-10-topic-touchscreen-axiom-v2-0-a5edb105a600@pengutronix.de
+- firmware: fix commit message (Russ)
+- dt-bindings: Add ack from Krzysztof
+- dt-bindings: make use of GPIO_ACTIVE_LOW (Krzysztof)
+- dt-bindings: drop 'panel: true' property (Krzysztof)
+- driver: make use of sysfs_emit (Greg)
+- driver: s/WARN()/dev_warn()/ to not take down the system (Greg)
+- driver: fix build dependency error by adding "depends on DRM || !DRM"
+- driver: harmonize usage printing to u%02X
+
+Changes in v2:
+- Link to v1: https://lore.kernel.org/r/20241119-v6-10-topic-touchscreen-axiom-v1-0-6124925b9718@pengutronix.de
+- Rework the firmware-duplicate handling -> expose the error to the
+  userspace
+- Drop Krzysztof Kozlowski ACK and RB
+- Add panel-follower support
+- Add sysfs-driver-input-touchnetix-axiom documentation
+- Add support for new firmware 4.8.9
+- Add support to handle 2D and 3D firmware
+
 ---
- .../input/touchscreen/touchnetix,ax54a.yaml        | 62 ++++++++++++++++++++++
- 1 file changed, 62 insertions(+)
+Kamel Bouhara (2):
+      dt-bindings: vendor-prefixes: Add TouchNetix AS
+      dt-bindings: input: Add TouchNetix axiom touchscreen
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
-new file mode 100644
-index 0000000000000000000000000000000000000000..d388c41a75dd4d6d6d0e6de0eaef4d493d439a90
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
-@@ -0,0 +1,62 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/touchnetix,ax54a.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: TouchNetix Axiom series touchscreen controller
-+
-+maintainers:
-+  - Marco Felsch <kernel@pengutronix.de>
-+
-+allOf:
-+  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
-+  - $ref: /schemas/input/input.yaml#
-+
-+properties:
-+  compatible:
-+    const: touchnetix,ax54a
-+
-+  reg:
-+    enum: [ 0x66, 0x67 ]
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  vdda-supply:
-+    description: Analog power supply regulator on VDDA pin
-+
-+  vddi-supply:
-+    description: I/O power supply regulator on VDDI pin
-+
-+required:
-+  - compatible
-+  - reg
-+  - vdda-supply
-+  - vddi-supply
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      touchscreen@66 {
-+        compatible = "touchnetix,ax54a";
-+        reg = <0x66>;
-+        interrupt-parent = <&gpio2>;
-+        interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
-+        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
-+        vdda-supply = <&vdda_reg>;
-+        vddi-supply = <&vddi_reg>;
-+        poll-interval = <20>;
-+      };
-+    };
-+...
+Marco Felsch (2):
+      firmware_loader: expand firmware error codes with up-to-date error
+      Input: Add TouchNetix aXiom I2C Touchscreen support
 
+ .../testing/sysfs-driver-input-touchnetix-axiom    |   81 +
+ .../input/touchscreen/touchnetix,ax54a.yaml        |   62 +
+ .../devicetree/bindings/vendor-prefixes.yaml       |    2 +
+ drivers/base/firmware_loader/sysfs_upload.c        |    1 +
+ drivers/input/touchscreen/Kconfig                  |   17 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/touchnetix_axiom.c       | 2974 ++++++++++++++++++++
+ include/linux/firmware.h                           |    2 +
+ lib/test_firmware.c                                |    1 +
+ 9 files changed, 3141 insertions(+)
+---
+base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+change-id: 20240704-v6-10-topic-touchscreen-axiom-105761e81011
+
+Best regards,
 -- 
-2.47.3
+Marco Felsch <m.felsch@pengutronix.de>
 

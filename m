@@ -1,121 +1,117 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailrelay-egress5.pub.mailoutpod3-cph3.one.com (mailrelay-egress5.pub.mailoutpod3-cph3.one.com [46.30.211.244])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9836B1F03D2
-	for <linux-input@vger.kernel.org>; Sun, 11 Jan 2026 18:21:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12DD92AE78
+	for <linux-input@vger.kernel.org>; Sun, 11 Jan 2026 20:00:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.30.211.244
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768155670; cv=none; b=VkZMsaduYakv0/UAIUkTIZaiosVsym+lwXU+heVxlY+AK+n+vpQWc/QpSJ48BqfpSiXLJGGta7gzYJmEgILn53wkG10esIKjw8UmNAmriklOAxTu2TC3wqGRxEfSMZFn0P9hmDUa9ZrvYM7iV/dLwDkSPc2Tl3UNupJ71HKfU7U=
+	t=1768161621; cv=none; b=NH+N/+W2UktvWbx5DjvT98MAM9K2TuFhBxvXpVTkHXI7m0E1brW1oRnPU48rEcmVb12H8nwl5dR2pQhtNKwpU9TyAghlEi7r0Hry2vyM4Zsrid48lhN8fc2lDBafjN/o0l72B0ZHvPetyINzgSWFGo/+WZS3ykTjxdhUSYwb6VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768155670; c=relaxed/simple;
-	bh=26XSF8abaacHWOSeK0Gpp40CHuhyJtv5EuYNp6TvHIw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=txcR96z7WYzcmpKK3NhmJCsjGGa0SLE2WrFCt5edVqQSa8Y++9noS4v7ohjtQckkUh7RQaFt+6aXC1DYYPW5EmA3Vyx6CxKZdph/zO7g6SOncDs7jGUEIIMv/w0gNTa6BBJP+inBh0BmYrG9TAc6MJCOAOeOvXb5DwaYsw3jPm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QwfFkAzx; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768161621; c=relaxed/simple;
+	bh=YkdBC+BJPgjg6jT6Iql6IRzNIOzQedEYQlPuYzW2Lj0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JyU78Mq2cGPvCBAMAkRxLuxpNxtzQFINUN0EkEPgrfJz7zzo6bhtxrPtiXhFLQsdoGMXDcrxiIANh9NnytmN4wdXqq/MDDPeZ+wAu9Drtf3xoUwrhsChmbsbMoxPvrhs8maG/dCqfeMFKewXhD/+BysB+ZXT9FgxzdsnFu1Gmlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se; spf=none smtp.mailfrom=bitmath.se; dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=m6g0zahK; dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=f6hq1ZXU; arc=none smtp.client-ip=46.30.211.244
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bitmath.se
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QwfFkAzx"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8b2d32b9777so858119685a.2
-        for <linux-input@vger.kernel.org>; Sun, 11 Jan 2026 10:21:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768155668; x=1768760468; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=LxHKoSi46iPA5F9rX5ZhPp9IruXA7MeRTiDagdmtDXE=;
-        b=QwfFkAzxZW9dzaFI8xq/KBMAu76sookzUEkVXk628ft7TY+MjtYgwDejlHevl8f/ao
-         Ic70YiCARrIvAtef1dBnkDRBrGylHX+8jTtVqaZlrfDbiOFR8GfqBoJB9UwHR3yN787s
-         Q7ZwEv4bP3LT6FYGOhrtvtpRbzmYoAz5ehRrYzykC3gvMgvB0pglKeA9uYNQyWNsqZO5
-         D/CZUkwmu7yKLrMcgJYQ+Nuxh9TAP1FyrNmIIC6ZJ+0eGliHJzi+ueUGVjD043mZKki+
-         8Kl/lSSbLpX3xzQobIPz979+1urBk8hAjYZKvJDenEo8V42imXRNPkIeOeMsL46sVuUV
-         4ypA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768155668; x=1768760468;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LxHKoSi46iPA5F9rX5ZhPp9IruXA7MeRTiDagdmtDXE=;
-        b=XIhDRCT5bZYJwwj+g03nYAiua6S9VE3TcRNHYCGa2tdAp0M7DxVOaL3zSQTF4S+jk2
-         q7s6zzLt35GkUCmidOh9MVRzHygARCmunl88CMPiN56bxK30eciR0e9IqmdGQZdo78kX
-         mj17ElYUDbaz/aIBoS2DyReP7cMa+mJvJhhIo0KFv09ZfPT+wWD1GYHuxjvfds1MnRrJ
-         EMchR1WH78NSeK4reLNW9v1Bzlj+qzQkuPe1nSthK45tnxWXBdGxWwpadA6kJTiyZceS
-         aPh+1tgO6HuDFaJ/jiYootG/G3Df2Ttea5uQvTZ6z1u6bcu2TDcD7WOQnTmQ9urITHiV
-         jEPg==
-X-Forwarded-Encrypted: i=1; AJvYcCVfjHvLuxzw879cB9N9H79nfCelL9eb6QxzkjW7xJnUbMzSjm8/T4TPH6aKNC3nir9fNqD+m+4GGkmyKg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy902jVuYQUuJdNY560Y0YImf/S+GpoWnkMgJBLrz8GQbYlk1LI
-	afIXuU2Xq6VXd5ptlvbCtmYcoB+5uhlPKyz1R9TtPe7cKy+dQe0gB/kMPujpIg==
-X-Gm-Gg: AY/fxX72TaE9xzojaXbKCwmn1lONuensYyPsPYOlL531bBVujzXA5efPj8yov2pNRVj
-	0LIru0odi0DPlP9kK9y/+due4SmDqXB63rJD9hxUonb8oGNOxQIlZsecPsZuoeZmv+GyM7Atra5
-	s0Df9q24t0QMlozxMmou5wVp21pMYyyyaTxzWRf+riGhgET3jqRbsYysLC/waBI9XIXHmUrmbJ4
-	JB4LJJsu4eAOMQYlATLKa/iuuS3FRiFbOmoZI0fPzm+mxJITUZTrTuknSQS7pwWZq1Keg5z3gTq
-	laWodWlwqJUOWbjZSovyzsv1CPdiEOcHAT1dAlmP5PAAUTZcsyarHl6xQDkdsqPIJEYW1jKqNd7
-	kFNSGOyl6nhSqojsPuVrJQabZfEMqw3RpwrTkDl5tn5EtwfhMmCCe2g00jSOXveDO6hcQsCFn0W
-	Bt/4wrqDocTcqCJ45Oh/iN+GjVwZxUpVd+UILJzEFL8FmkbcENm3rg+YWIjJO8710Wivhs
-X-Google-Smtp-Source: AGHT+IFr0AfQqdzuLfF2we3Zx/EJP2hZFx2oG+SaK1KaO8OqQ9sYp0F8cg/P9dtkorxfQtRFUlfUMw==
-X-Received: by 2002:a17:90b:28cc:b0:33b:8ac4:1ac4 with SMTP id 98e67ed59e1d1-34f68d3b273mr14688746a91.35.1768150214300;
-        Sun, 11 Jan 2026 08:50:14 -0800 (PST)
-Received: from google.com (61-230-24-179.dynamic-ip.hinet.net. [61.230.24.179])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34f5f7b19ebsm15175971a91.3.2026.01.11.08.50.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jan 2026 08:50:13 -0800 (PST)
-Date: Mon, 12 Jan 2026 00:50:08 +0800
-From: Kuan-Wei Chiu <visitorckw@gmail.com>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Cc: airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org, tzimmermann@suse.de, robh@kernel.org,
-	krzk+dt@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com,
-	sre@kernel.org, gregkh@linuxfoundation.org, jirislaby@kernel.org,
-	lgirdwood@gmail.com, broonie@kernel.org, jserv@ccns.ncku.edu.tw,
-	eleanor15x@gmail.com, dri-devel@lists.freedesktop.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-serial@vger.kernel.org, linux-sound@vger.kernel.org
-Subject: Re: [PATCH v2 3/6] dt-bindings: input:
- google,goldfish-events-keypad: Convert to DT schema
-Message-ID: <aWPUwCbFoIItG7n3@google.com>
-References: <20260108080836.3777829-1-visitorckw@gmail.com>
- <20260108080836.3777829-4-visitorckw@gmail.com>
- <20260109-remarkable-crane-of-exercise-6bc17f@quoll>
+	dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="m6g0zahK";
+	dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="f6hq1ZXU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1768161547; x=1768766347;
+	d=bitmath.se; s=rsa2;
+	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
+	 subject:mime-version:date:message-id:from;
+	bh=cIR1Ynbp6r/WBwD75IdpVBtN6nIGDTM0A0/QjVv0CiM=;
+	b=m6g0zahK51q44yLPsjMfks5/RMcK7rcndbC5G187D09s8IxdAXuhe3G+oEPsi7H1qugVia9jkE39H
+	 i1HgWJ1g5e8gfsSYWyyIbiCC+6FKG+X+kgCm7I4pa/fLN7B2oGA4eUI8pDdBi4piKcik9NOSiAPSqt
+	 5wc0e6Ujyzz34824JngPkkTae6wt/zh+0auRvz4CgqoAFMVQ6N0AAtT1H8kV6/H3cosxRlv0btWJMW
+	 85f4xLO2Yrugy1UFGnyVvlVY6rv+7FsyTXRXTzVYvtQIhSRhQqIrSqvxpV0uZZY7wi9OzpeHIyJVyD
+	 zGQhmLRem0RFv8X9P3caqWFEyuaLILA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1768161547; x=1768766347;
+	d=bitmath.se; s=ed2;
+	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
+	 subject:mime-version:date:message-id:from;
+	bh=cIR1Ynbp6r/WBwD75IdpVBtN6nIGDTM0A0/QjVv0CiM=;
+	b=f6hq1ZXUATYaUbF680mTutl3ve2AY5hjS5k8an8p+ljfb6rbDaa7rj+pGzGsO4+QO45iYgPpR5yc/
+	 4dWiqzXDA==
+X-HalOne-ID: fb9d67ea-ef27-11f0-a524-4f541c8bf1cc
+Received: from [192.168.19.13] (h-94-254-62-230.na.cust.bahnhof.se [94.254.62.230])
+	by mailrelay3.pub.mailoutpod2-cph3.one.com (Halon) with ESMTPSA
+	id fb9d67ea-ef27-11f0-a524-4f541c8bf1cc;
+	Sun, 11 Jan 2026 19:59:06 +0000 (UTC)
+Message-ID: <38ea07c1-50ce-4342-aba9-fe2f4bc6c503@bitmath.se>
+Date: Sun, 11 Jan 2026 20:59:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260109-remarkable-crane-of-exercise-6bc17f@quoll>
+User-Agent: Mozilla Thunderbird
+Subject: Re: bcm5974 trackpad broken after USB reset
+To: Liam Mitchell <mitchell.liam@gmail.com>,
+ Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org
+References: <CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com>
+Content-Language: en-US
+From: Henrik Rydberg <rydberg@bitmath.se>
+Autocrypt: addr=rydberg@bitmath.se; keydata=
+ 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 nQ==
+In-Reply-To: <CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Krzysztof,
+Hi Liam,
 
-On Fri, Jan 09, 2026 at 09:23:33AM +0100, Krzysztof Kozlowski wrote:
-> On Thu, Jan 08, 2026 at 08:08:33AM +0000, Kuan-Wei Chiu wrote:
-> > +
-> > +examples:
-> > +  - |
-> > +    keypad@9040000 {
-> > +        compatible = "google,goldfish-events-keypad";
-> > +        reg = <0x9040000 0x1000>;
-> > +        interrupts = <0x5>;
-> 
-> Same comment as before. It applies everywhere, btw.
+ > The trackpad on my 2013 MacBook Pro (10,2) stops working after the USB
+> device is reset, logging "bad trackpad package, length: 8" when
+> touching the trackpad.
 
-Oops, I actually had a local fixup for this but forgot to apply it
-before sending. Sorry about that.
+This sounds like the device has left wellspring mode, and is not 
+properly reinitialized after reset. It has been a decade since I worked 
+on this driver, but what I can see, there is no reset_resume handler in 
+bcm5974, but there is one in appletouch.
 
-On a side note, none of your replies regarding v2 appeared in my inbox
-or spam folder. I had to retrieve this message content from the lore
-web interface to reply. However, your replies to v1 arrived without any
-issues.
+I would look into the code around the wellspring mode switch function, 
+and see if it gets called after the usb reset. If not, adding the 
+reset_resume handler might resolve things.
 
-The only difference I noticed is the sender address:
-v1 came from <krzk@kernel.org>,
-while v2 came from <krzysztof.kozlowski@oss.qualcomm.com>.
-I suspect gmail might be silently dropping the latter due to some check?
+Hope this helps,
+Henrik
 
-I'm not familiar with the email protocols, but perhaps it really is time
-for me to start looking for a gmail alternative... even though I see many
-entries in MAINTAINERS still using gmail.com addresses.
-
-Regards,
-Kuan-Wei

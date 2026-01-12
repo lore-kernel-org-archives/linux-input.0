@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D71D2DB7B0;
-	Mon, 12 Jan 2026 14:58:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A6782E6CDE;
+	Mon, 12 Jan 2026 14:59:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768229932; cv=none; b=t1zWarNgqtIoYQZ9Gm4Nn7t0wTtRvyYiZBK8fPbG3RyrOQ22FxPeQ46kMIGj7sw8+PrmZ86mjcKqzFfUPVAnlo4ZNWWsy6YXSWzqO5Myxw28W3bym7SzSAEdsKmK96SJLmtl8GXsA4ixNfsoVA3awVrabJttc+10YNwI8hHaTG4=
+	t=1768229951; cv=none; b=lLcvpRcKP1fIeQen+b+INuW1L9RdNEYSaM30M3xNLaZs9uNcnofZ1IQjByTd6QsKBaJNfKTELhN27z2DRxbWCAYd5jXShYwTPlCH1HAlYpUpEcEnepsPePpzc0ZftSaeY9+77me3uk1tHaT4PyaGUWKQXTtD2LwJkB0U47vHx6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768229932; c=relaxed/simple;
-	bh=tmveYG3MYrcIOx8fgo5jQ0uyIL+4rJEKzFawxuWWjgY=;
+	s=arc-20240116; t=1768229951; c=relaxed/simple;
+	bh=5QtlWCR9AbeCte7rpd1mqjCMSw93C1M4t0Mz2hsyKfo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=iXaARuNwsRMGS00IUrVC615xtp9WrsRN0w/lGDZ7CmHIIs+y06jG+SKbGd2KltHBH4W7vy3T1EFVl1Fj495P4dOFb40YH9ZO/DJEmw4o0M5IYUH/ceiS6dshbdyFdvYMHXPEaRAZp4JFK6XiM1te4Qg024dxkZXaW6Gez+kwd6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lckl+44M; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=FOqkNxTumm3WsSm+tZ47aGeFahdq1X+IQozYsFR0cUHLWDVA2/+krv0BciPPY0PVL0UdEOQ008J1kkYsDr6sIQZE3DYbgRdP2Y1PklUWDP9jhECJ/BuGY7x1M1G6Jlwem/ZtS5Pjq2mu/+m8cU+ebxTR1owhHeo2zNILRDjgxkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y1P+nz6s; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lckl+44M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 231CFC19422;
-	Mon, 12 Jan 2026 14:58:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y1P+nz6s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 066C4C19422;
+	Mon, 12 Jan 2026 14:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768229931;
-	bh=tmveYG3MYrcIOx8fgo5jQ0uyIL+4rJEKzFawxuWWjgY=;
+	s=k20201202; t=1768229950;
+	bh=5QtlWCR9AbeCte7rpd1mqjCMSw93C1M4t0Mz2hsyKfo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=lckl+44Mbe8FW04Gi084rW/NR2OCxWbFu3Iw4YjwFx/0XA+Cnc+HMPDGrn2XZZ/jB
-	 b3jp6VFVcGGTtJ8590pm8xoAHf8fH/j+1RuXYrn8S4H21dBxFbW9qPYyE8UmvihOVT
-	 e5ER4SPUC42d4RBMyNht1B9CE+PLy1rIwEJtQUwupP7dQXe+z0/6WEoRkic6s0jYU6
-	 4/vKhXxWzrF+oXMqTQtktHGYJH/nVDrIyMws5d0UQ1e8RCLl383rS5YaGR/jzvgtju
-	 zG1z2ZpS/TXpzx0YjsAUFt47z0rYtfPUQkj+fzTjggYJWA3lkKcux/Tr5bsBwh581B
-	 xmOivLHrlF+eA==
+	b=Y1P+nz6sU7CnjzDJuL0NdWmMpC/MVzO0S/YLYl+zruF6j/esRCLCI3qYllzC9oWF/
+	 +V8oHSOixryefNmm7taycc6dml6vdPER8Cgfk9+jHbW1OIIsIwuGlrrWqqSA6Gtfbi
+	 S7OuWxW2GCiNUWPefT0mt8pt6dpNSE53MKWQRAGrI8NDIhOxNJtA+CtS0NtL0Klss5
+	 A8zrzf5S0Is43hcfLhBgRbgggYOnIf3zgfGcJLl2yocgdHOt6IehxxgXu9CR0GD55X
+	 4OyFxrsFwqXLxcFrInFNGNMi19QkjehsM49KNm5RM2bLj5cG6G8qLmUaNRG2kwc6R5
+	 ULPmZ09KyJDMQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: DaytonCL <artem749507@gmail.com>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc: Siarhei Vishniakou <svv@google.com>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
+	roderick.colenbrander@sony.com,
 	jikos@kernel.org,
 	linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] HID: multitouch: add MT_QUIRK_STICKY_FINGERS to MT_CLS_VTL
-Date: Mon, 12 Jan 2026 09:58:09 -0500
-Message-ID: <20260112145840.724774-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.15] HID: playstation: Center initial joystick axes to prevent spurious events
+Date: Mon, 12 Jan 2026 09:58:18 -0500
+Message-ID: <20260112145840.724774-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260112145840.724774-1-sashal@kernel.org>
 References: <20260112145840.724774-1-sashal@kernel.org>
@@ -53,158 +53,199 @@ X-stable-base: Linux 6.18.5
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: DaytonCL <artem749507@gmail.com>
+From: Siarhei Vishniakou <svv@google.com>
 
-[ Upstream commit ff3f234ff1dcd6d626a989151db067a1b7f0f215 ]
+[ Upstream commit e9143268d259d98e111a649affa061acb8e13c5b ]
 
-Some VTL-class touchpads (e.g. TOPS0102:00 35CC:0104) intermittently
-fail to release a finger contact. A previous slot remains logically
-active, accompanied by stale BTN_TOOL_DOUBLETAP state, causing
-gestures to stay latched and resulting in stuck two-finger
-scrolling and false right-clicks.
+When a new PlayStation gamepad (DualShock 4 or DualSense) is initialized,
+the input subsystem sets the default value for its absolute axes (e.g.,
+ABS_X, ABS_Y) to 0.
 
-Apply MT_QUIRK_STICKY_FINGERS to handle the unreleased contact correctly.
+However, the hardware's actual neutral/resting state for these joysticks
+is 128 (0x80). This creates a mismatch.
 
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/1225
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Tested-by: DaytonCL <artem749507@gmail.com>
-Signed-off-by: DaytonCL <artem749507@gmail.com>
+When the first HID report arrives from the device, the driver sees the
+resting value of 128. The kernel compares this to its initial state of 0
+and incorrectly interprets this as a delta (0 -> 128). Consequently, it
+generates EV_ABS events for this initial, non-existent movement.
+
+This behavior can fail userspace 'sanity check' tests (e.g., in
+Android CTS) that correctly assert no motion events should be generated
+from a device that is already at rest.
+
+This patch fixes the issue by explicitly setting the initial value of the
+main joystick axes (e.g., ABS_X, ABS_Y, ABS_RX, ABS_RY) to 128 (0x80)
+in the common ps_gamepad_create() function.
+
+This aligns the kernel's initial state with the hardware's expected
+neutral state, ensuring that the first report (at 128) produces no
+delta and thus, no spurious event.
+
+Signed-off-by: Siarhei Vishniakou <svv@google.com>
+Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Analysis of HID Multitouch Quirk Addition
+## Analysis of Commit: "HID: playstation: Center initial joystick axes
+to prevent spurious events"
 
 ### 1. COMMIT MESSAGE ANALYSIS
 
-The commit clearly describes a **real user-visible bug**:
-- VTL-class touchpads (specifically TOPS0102:00 35CC:0104)
-  intermittently fail to release finger contacts
-- This causes gestures to stay latched - stuck two-finger scrolling and
-  false right-clicks
-- Links to a libinput bug report:
-  https://gitlab.freedesktop.org/libinput/libinput/-/issues/1225
-- Has `Tested-by:` from the reporter and `Suggested-by:` from Benjamin
-  Tissoires (HID maintainer)
-- Signed off by the maintainer (Benjamin Tissoires)
+The commit describes a clear, specific bug:
+- PlayStation gamepads (DualShock 4, DualSense) have joysticks that rest
+  at value 128 (0x80)
+- The kernel initializes the axis value to 0 by default
+- When the first HID report arrives with the resting value of 128, the
+  kernel interprets this as actual movement
+- This generates spurious EV_ABS events for non-existent movement
+- The problem causes Android CTS test failures and potentially confuses
+  userspace applications
+
+The bug has user-visible impact ("Reported-by" pattern implied through
+CTS test context).
 
 ### 2. CODE CHANGE ANALYSIS
 
-The change is **extremely minimal** - adding one line:
+**The fix is minimal and surgical:**
 ```c
-MT_QUIRK_STICKY_FINGERS |
+gamepad->absinfo[ABS_X].value = 128;
+gamepad->absinfo[ABS_Y].value = 128;
+gamepad->absinfo[ABS_RX].value = 128;
+gamepad->absinfo[ABS_RY].value = 128;
 ```
 
-to the existing `MT_CLS_VTL` class definition. This enables an already-
-existing quirk flag (`MT_QUIRK_STICKY_FINGERS`) for VTL-class devices.
+- 5 lines added (1 comment + 4 value assignments)
+- Single file: `drivers/hid/hid-playstation.c`
+- Single function: `ps_gamepad_create()`
+- Only affects joystick axes (ABS_X, ABS_Y, ABS_RX, ABS_RY), correctly
+  leaves triggers (ABS_Z, ABS_RZ) at 0
 
-The quirk mechanism handles cases where a touchpad firmware fails to
-properly report when a finger has been lifted. Without it, the system
-thinks the finger is still touching, causing "sticky" gestures. The
-quirk infrastructure already exists and is well-tested - this commit
-just enables it for another device class.
+**Technical correctness:** The fix is obviously correct. After
+`input_set_abs_params()` sets up the axis with range 0-255, manually
+setting `.value = 128` aligns the kernel's initial state with the
+hardware's physical resting position at center (128).
 
 ### 3. CLASSIFICATION
 
-This falls squarely into the **QUIRKS and WORKAROUNDS exception
-category**:
-- Hardware-specific quirk for buggy/non-compliant devices
-- The quirk code already exists in mainline - only enabling it for VTL
-  class
-- Fixes real-world hardware behavior issues
-
-This is NOT:
-- A new feature or API
-- A new driver
-- Code refactoring
+- **Type:** Bug fix (not a feature)
+- **Category:** Input device initialization fix
+- **No new API or behavior change:** Just corrects initial state values
+- **No new features:** Purely corrects existing incorrect behavior
 
 ### 4. SCOPE AND RISK ASSESSMENT
 
 | Factor | Assessment |
 |--------|------------|
-| Lines changed | 1 |
-| Files touched | 1 |
-| Complexity | Trivially low |
-| Subsystem | HID multitouch (mature, stable) |
-| Risk | Very low |
+| Lines changed | 5 (very small) |
+| Files changed | 1 |
+| Complexity | Trivial |
+| Subsystem | HID - PlayStation driver (mature) |
+| Risk of regression | Very low |
 
-The worst case scenario: if the quirk somehow caused issues on a
-specific VTL device, it would only affect that device class. But the
-current behavior is already broken for affected users, so this is a
-clear improvement.
+The change is confined to initialization code and cannot affect any
+existing logic paths. Setting an initial value cannot break anything
+because:
+1. The value 128 is within the valid range (0-255)
+2. The hardware reports 128 at rest anyway
+3. This aligns kernel state with reality
 
 ### 5. USER IMPACT
 
-- **Affected users**: Anyone with VTL-class touchpads
-- **Symptoms**: Stuck two-finger scrolling, false right-clicks - these
-  are highly disruptive daily-use issues
-- **Severity**: Medium-high for affected users (makes touchpad
-  unreliable)
-- **Evidence of real impact**: Linked bug report from libinput tracker
+**Who is affected:**
+- All users of DualShock 4 and DualSense controllers
+- Android users (CTS compliance)
+- Applications that validate initial input state
+
+**Severity:** Medium - Not a crash or data corruption, but:
+- Causes spurious input events at device connect
+- Breaks CTS conformance tests
+- May confuse input-sensitive applications
 
 ### 6. STABILITY INDICATORS
 
-- `Tested-by:` tag from the reporter who experienced the issue
-- Suggested and signed off by HID subsystem maintainer
-- The `MT_QUIRK_STICKY_FINGERS` quirk has existed since ~Linux 3.15
-- The `MT_CLS_VTL` class has existed since ~Linux 4.13
-- Well-established quirk pattern used by many other device classes
-  (FLATFROG, LG, ASUS, etc.)
+- **Reviewed-by:** Benjamin Tissoires (HID maintainer) ✓
+- **Signed-off-by:** Maintainer sign-off ✓
+- The fix is simple enough to verify correctness by inspection
 
 ### 7. DEPENDENCY CHECK
 
-- **No dependencies** on other commits
-- Both the quirk flag and VTL class exist in all recent stable trees
-- Should apply cleanly without modification
+- No dependencies on other commits
+- `ps_gamepad_create()` has existed since the driver was introduced
+- Uses standard input subsystem patterns (`absinfo[].value`)
+- Should apply cleanly to any stable tree containing this driver
 
-### STABLE KERNEL RULES ASSESSMENT
+### STABLE KERNEL CRITERIA EVALUATION
 
-| Criterion | Met? |
-|-----------|------|
-| Obviously correct and tested | ✅ Yes - trivial change, has Tested-by |
-| Fixes a real bug | ✅ Yes - documented hardware issue with bug report |
-| Important issue | ✅ Yes - stuck gestures/false clicks affect daily use
-|
-| Small and contained | ✅ Yes - 1 line in 1 file |
-| No new features | ✅ Yes - uses existing quirk mechanism |
-| Applies cleanly | ✅ Yes - no dependencies |
+| Criterion | Status |
+|-----------|--------|
+| Obviously correct and tested | ✓ Reviewed by maintainer |
+| Fixes a real bug | ✓ Spurious input events |
+| Important issue | ✓ Breaks CTS, affects popular hardware |
+| Small and contained | ✓ 5 lines, 1 file |
+| No new features | ✓ Pure correctness fix |
+| No new APIs | ✓ |
+
+### RISK VS BENEFIT
+
+**Benefits:**
+- Fixes spurious input events on popular consumer hardware
+- Fixes Android CTS test failures
+- Aligns kernel state with hardware reality
+- Affects millions of PlayStation controller users
+
+**Risks:**
+- Essentially zero - the change is trivially correct
+- No logic changes, just initialization values
 
 ### CONCLUSION
 
-This is an **ideal stable backport candidate**:
+This commit is an excellent candidate for stable backporting:
 
-1. **Minimal risk**: Single-line addition of an existing, well-tested
-   quirk flag
-2. **Real user benefit**: Fixes stuck gestures and false clicks on VTL
-   touchpads
-3. **Proper testing**: Has Tested-by tag and maintainer approval
-4. **Falls under hardware quirk exception**: Hardware quirks/workarounds
-   are explicitly allowed in stable even though they add code
-5. **Self-contained**: No dependencies, applies cleanly to stable trees
+1. **Fixes a real bug** that causes spurious input events and test
+   failures
+2. **Small and surgical** - only 5 lines in one function
+3. **Obviously correct** - aligns initial value with hardware's physical
+   state
+4. **Low risk** - cannot introduce regressions
+5. **Well-reviewed** - HID maintainer reviewed and signed off
+6. **Widely applicable** - affects popular consumer hardware
+   (PlayStation controllers)
+7. **No dependencies** - self-contained fix
 
-The fix is small, surgical, obviously correct, and addresses a real
-user-visible hardware issue. This is exactly the type of hardware quirk
-addition that stable trees should accept.
+The fix meets all stable kernel criteria: it's obviously correct, fixes
+a real bug, is small in scope, and introduces no new features. The fact
+that it fixes CTS compliance issues makes it particularly valuable for
+Android device manufacturers using stable kernels.
 
 **YES**
 
- drivers/hid/hid-multitouch.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-playstation.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 179dc316b4b51..a0c1ad5acb670 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -393,6 +393,7 @@ static const struct mt_class mt_classes[] = {
- 	{ .name = MT_CLS_VTL,
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_STICKY_FINGERS |
- 			MT_QUIRK_FORCE_GET_FEATURE,
- 	},
- 	{ .name = MT_CLS_GOOGLE,
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 128aa6abd10be..e4dfcf26b04e7 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -753,11 +753,16 @@ ps_gamepad_create(struct hid_device *hdev,
+ 	if (IS_ERR(gamepad))
+ 		return ERR_CAST(gamepad);
+ 
++	/* Set initial resting state for joysticks to 128 (center) */
+ 	input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
++	gamepad->absinfo[ABS_X].value = 128;
+ 	input_set_abs_params(gamepad, ABS_Y, 0, 255, 0, 0);
++	gamepad->absinfo[ABS_Y].value = 128;
+ 	input_set_abs_params(gamepad, ABS_Z, 0, 255, 0, 0);
+ 	input_set_abs_params(gamepad, ABS_RX, 0, 255, 0, 0);
++	gamepad->absinfo[ABS_RX].value = 128;
+ 	input_set_abs_params(gamepad, ABS_RY, 0, 255, 0, 0);
++	gamepad->absinfo[ABS_RY].value = 128;
+ 	input_set_abs_params(gamepad, ABS_RZ, 0, 255, 0, 0);
+ 
+ 	input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
 -- 
 2.51.0
 

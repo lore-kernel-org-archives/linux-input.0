@@ -1,133 +1,190 @@
-Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f52.google.com (mail-oo1-f52.google.com [209.85.161.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD69E2EC0A2
-	for <linux-input@vger.kernel.org>; Mon, 12 Jan 2026 18:54:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9E3329385
+	for <linux-input@vger.kernel.org>; Mon, 12 Jan 2026 20:32:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768244053; cv=none; b=rUzY8C0Xdj/5jkrpv839jfX4+zbslXO6XY6I9YUH2A12kMy0e8QlIltj0AQfVPqYDM9S5Tw/uAwA+4v+Y3um8zQsPtmNpDa9r74RbrOHLZ7ERCaTfBCgGJM+Pep2m7OQVq8902pp509vatE1TZH1iBAXwvon1m+OwBYG87Q7RAE=
+	t=1768249957; cv=none; b=dFBloYuevPYvhLEuougYewe732RpwbeJ9iYIVn2AaMYM7ka9osS9B7kq8W7Ubug37fTsjGmRQabSOy+eh02V+nS+gZJmTngN984sUaegCHQZ3YYQwa5GFNIRunA+27yuU6TdVCGmJmuQezzg7u3s1sSy9DrknMCe96gNMy9YXYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768244053; c=relaxed/simple;
-	bh=QqykXITTByyTT+FGlcEOND0SlMloNxcQl9qxBKW1MJ0=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=KfSvt+VyryUCNwwtJkaxTGj93soTk6uIWdjBrOcodlAX/6/hdEGteo9UOVjTgc6pR6q/WHoG5THOcnOApiRFINmTVtDvvCBIKKj1zgkq4uwkZampccFzkrfUYWVvakRR5n2OhJC5SeiNHn7Sl66ja0n7P5VjqevNlTJzG4gQ8Ws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Bw3Ys4yY; arc=none smtp.client-ip=91.218.175.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1768249957; c=relaxed/simple;
+	bh=1cgc9CyPLdaamTqWSH/prcaGYr4QsO4nAqSVaUroafU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Tv/u9BeVO15S2Lpk9LPagAYXhnCJ5Oc0gsyDaPwrM0uF4LiGCP5jLa7yo/T6uYE4Z8g16uyLvfdMob4UGD//Svbe1EZYKerxT77LUyVhhZ/sSoxZIHvgly9IV1+ci/hsRwgJoHDlOSXWcwpJbvy8gHNumCf0XKH50uzcvxQbK6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EnPn9k6b; arc=none smtp.client-ip=209.85.161.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Bw3Ys4yY"
-Message-ID: <3a697699-ffcb-4e2f-a7a4-9e3f571aa402@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1768244039;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/9vtTJ8E+WsBFblmJc5UE1EN6AZB8Sa5imYu+eocYP4=;
-	b=Bw3Ys4yYFJsGcrFo94H7o4SnkRA4tr8AFowTqSo0kSbLHRH2fm7D/evq7AdA/S2U9Y/TG4
-	T62PnUk+mExAbwv2FPR7pjVaQJCHzjjl8B+lHaA2tGuvkeRlpe6l9qLum4aAB576+c6rnd
-	mWcYkqF0IzDnkAW7JNrPExrWO7RglpU=
-Date: Mon, 12 Jan 2026 10:53:53 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EnPn9k6b"
+Received: by mail-oo1-f52.google.com with SMTP id 006d021491bc7-65f66a770cbso2160852eaf.1
+        for <linux-input@vger.kernel.org>; Mon, 12 Jan 2026 12:32:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768249955; x=1768854755; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=A0PErH3A+TCXfgL5PR8asxXBIGBytLNSMzZeGmnD/jY=;
+        b=EnPn9k6bBgVqa69oGJzH66Hy5kU2VA6ZV87kjBEW0mTarZDDHIAl1bI0x5JzA+WYgw
+         5PmSSBZJfWRcDIv+nuK4N/WD8ug3vqtIYNhepUQlh0oXtELofSC7saugZZ/15JHR7Jrv
+         OQMeUaG+3sMnRU56XGTaGujJaVIfikmryXry8s/aRhFIuGL9KhMrB6RQsEeaOMBu1hoc
+         oEQruZjQ28YrvmyyHr+ndfroEVFch5ecotZ/CNdcXbWg69mZAjPYhwC+1AHM+v1af3gJ
+         bRD1aRx46bys8wHweLLFNS6niTouQMfiTw1nREV+ZucVnPklQQT/yfRMs0uTsKzmW4eM
+         tOeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768249955; x=1768854755;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=A0PErH3A+TCXfgL5PR8asxXBIGBytLNSMzZeGmnD/jY=;
+        b=EgpvIJEuKX8nfRuI5w9AXpNM7LdpVklID0B5oSJvHhCc5PA68BvUGxEKHgeYj1bI8R
+         KVZa91I8a0SpuG/lfj5lB21fEPCYDCzxwiNe66R4/j43j+4f8UZXy6fZGwsiRu/jJ9RT
+         Fa4lf4e+L5x3yGmcMKzgP4f2F5i3x/7+VIwFG/S1VMPMTZm3lmHanVZhMhxh3o54PVbj
+         UfqNZqbMupyPa0YZe2/dyd2D4FvLNruV+l3cBJhKj8NZ7Pw+R+qZXsuPHMOv/mVHsu/t
+         GXxGMx6995ekikLg5quQm2ewwHikktznLEgbHx6KPW7EAlod+GpSaAGlgUxgJEbeYSlx
+         pkFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU7OJErTiSn8qNuRLNgrIT9WtFpwbX20oSRlXb+pP/tPi1YjzeOdR0+qowCTyGM9xaRLU1luGUMiy/ztw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy9wvIgFFh0+w9sIFiDCA8w1Litjuh4moDPjujhLMU4cf9XU8nZ
+	FitNl4dSVexYBX7xQtaRr1zFAUOQpljtZivAPWajnARAx4Jy2B5TUD5+6IJDGA==
+X-Gm-Gg: AY/fxX4v3t160DeFygJWZiGTTVNq4Xm3oTJ2LSkAO1c33e64TR8V0vXDNtkvKk8c/Y5
+	l2/ieAWnHbdA3Rpu6A4lnzk/9dPLlE25J1t6TlpzwAlxXz7C9Pzer4IT4axcLacrX5wEVnQXwrI
+	zNyUuXM+pMOR3T42gpwRYdOHc+lDSyurvxghMenhBZBxRNQL8/qMFNofUCIoSG9dOBivbVeIOjm
+	r1oeOC6nTbIl3gHsVudi0CS4Ny+jMutJiYtt4IzrYOAdTMx8J3d6b9B0x02cI6/emNsyg4Loyy3
+	yqctTQc9NI8cSTokOkUdUKPYv5oLkRJF/xivz/ICSev3uDJ8Jbf7zialaelX2IENtkcWdESSen8
+	t+FG3i6obG2UtK9VmBqLAph+fVoN8gg3wowc/8iGHH60xApgmdJIBynRVz73EmjhdqA4qd9hww5
+	tfjDtupw3GOxu1UjWqaseTg3koVjRcWbNwQ5mC0vOecuct3LYPkyioI8SzKbcxUr4+UUEBYvx+p
+	i8E7tUINEU7RRKGWfrEcg==
+X-Google-Smtp-Source: AGHT+IGZVQoYbx2iilZrdLG2Ztf307Z50A6C9NTY1Qg4UTlyKWI05nICHsHwet4uo+a7zycAJ/JW+Q==
+X-Received: by 2002:a05:6a21:3291:b0:35f:5fc4:d896 with SMTP id adf61e73a8af0-3898f906a35mr17214236637.20.1768243921460;
+        Mon, 12 Jan 2026 10:52:01 -0800 (PST)
+Received: from visitorckw-work01.c.googlers.com.com (25.118.81.34.bc.googleusercontent.com. [34.81.118.25])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c4cca06b16fsm18874197a12.31.2026.01.12.10.51.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 10:52:01 -0800 (PST)
+From: Kuan-Wei Chiu <visitorckw@gmail.com>
+To: airlied@gmail.com,
+	simona@ffwll.ch,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	dmitry.torokhov@gmail.com,
+	sre@kernel.org,
+	gregkh@linuxfoundation.org,
+	jirislaby@kernel.org,
+	lgirdwood@gmail.com,
+	broonie@kernel.org
+Cc: jserv@ccns.ncku.edu.tw,
+	eleanor15x@gmail.com,
+	dri-devel@lists.freedesktop.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	Kuan-Wei Chiu <visitorckw@gmail.com>
+Subject: [PATCH v3 3/6] dt-bindings: input: google,goldfish-events-keypad: Convert to DT schema
+Date: Mon, 12 Jan 2026 18:50:41 +0000
+Message-ID: <20260112185044.1865605-4-visitorckw@gmail.com>
+X-Mailer: git-send-email 2.52.0.457.g6b5491de43-goog
+In-Reply-To: <20260112185044.1865605-1-visitorckw@gmail.com>
+References: <20260112185044.1865605-1-visitorckw@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v1 08/10] bpf: Add bpf_task_work_schedule_*
- kfuncs with KF_IMPLICIT_ARGS
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Ihor Solodrai <ihor.solodrai@linux.dev>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman
- <eddyz87@gmail.com>, Mykyta Yatsenko <yatsenko@meta.com>,
- Tejun Heo <tj@kernel.org>, Alan Maguire <alan.maguire@oracle.com>,
- Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
- bpf <bpf@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
- "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
- sched-ext@lists.linux.dev
-References: <20260109184852.1089786-1-ihor.solodrai@linux.dev>
- <20260109184852.1089786-9-ihor.solodrai@linux.dev>
- <CAADnVQJDv80_T+1jz=7_8y+8hRTjMqqkm38in2er8iRU-p9W+g@mail.gmail.com>
- <b099a95e-5e69-4eeb-a2c9-9a52b8042a85@linux.dev>
- <CAADnVQ+_AmiwuupkVJTGyKY3KOp68GLuivs2LMEr0M_yaHPUUg@mail.gmail.com>
- <0c4d84ab-1725-45bc-9c1c-8bdc1f5fc032@linux.dev>
- <CAADnVQ+k-nbq-2PGRSPJDRZ3G9sp9zu3Owqsj7zqO_G+3OQEww@mail.gmail.com>
- <f0e63b55-65c3-4367-b3da-275df18147a1@linux.dev>
-Content-Language: en-US
-In-Reply-To: <f0e63b55-65c3-4367-b3da-275df18147a1@linux.dev>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-On 1/9/26 1:56 PM, Ihor Solodrai wrote:
-> On 1/9/26 1:49 PM, Alexei Starovoitov wrote:
->> On Fri, Jan 9, 2026 at 1:39 PM Ihor Solodrai <ihor.solodrai@linux.dev> wrote:
->>>
->>> [...]
->>>
->>>> I feel bpf_task_work_schedule_resume() is ok to break, since it's so new.
->>>> We can remove bpf_task_work_schedule_[resume|singal]_impl()
->>>> to avoid carrying forward forever.
->>>>
->>>> bpf_stream_vprintk_impl() is not that clear. I would remove it too.
->>>
->>> That leaves only bpf_wq_set_callback_impl(). Can we break that too?
->>
->> Sounds like Benjamin is ok removing it.
->> So I think we can indeed remove them all.
->>
->>> Then there won't be legacy cases at all. It was introduced in v6.16
->>> along the with __prog suffix [1][2].
->>>
->>> If we go this route, we could clean up __prog support/docs too.
->>>
->>> I think it's worth it to make an "all or nothing" decision here:
->>> either break all 4 existing kfuncs, or backwards-support all of them.
->>
->> I don't see why "all or nothing" is a good thing.
->> It won't be "all" anyway.
->> We have bpf_rbtree_add_impl(), bpf_list_push_front_impl(), etc.
->> And those we cannot remove. sched-ext is using them.
->> Another few categories are bpf_obj_new_impl(), bpf_obj_drop_impl().
->> There are not __prog type, but conceptually the same thing and
->> KF_IMPLICIT_ARGS should support them too eventually.
-> 
-> I was thinking we could remove/simplify code relevant to backwards
-> compat of existing _impl kfuncs. But you're right, if we start using
-> implicit args for other types/kfuncs, the "legacy" case still has to
-> work.
-> 
-> Ok, in the next revision I'll remove all the __prog users, but leave
-> the "legacy" case support in place for future use.
+Convert the Android Goldfish Events Keypad binding to DT schema format.
+Move the file to the input directory to match the subsystem.
+Update the example node name to 'keypad' to comply with generic node
+naming standards.
 
-I just had an off-list chat with Andrii, and we agreed that leaving
-the existing _impl kfuncs supported may be a good idea.
+Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
+---
+Changes in v3:
+- Use decimal format for interrupts in the example.
 
-It doesn't cost us much: we keep the mechanism for legacy functions
-anyways, so supporting bpf_wq_set_callback_impl() and co only requires
-keeping definitions in the kernel.
+ .../devicetree/bindings/goldfish/events.txt   | 17 --------
+ .../input/google,goldfish-events-keypad.yaml  | 41 +++++++++++++++++++
+ 2 files changed, 41 insertions(+), 17 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/goldfish/events.txt
+ create mode 100644 Documentation/devicetree/bindings/input/google,goldfish-events-keypad.yaml
 
-The only benefit of *removing* these _impl functions is that we could
-clean up __prog support.
-
-But having backwards compat seems like a better deal.
-What do you think?
-
-
-> 
->>
->>
->>> git tag --contains bc049387b41f | grep -v rc
->>> v6.16
->>> v6.17
->>> v6.18
->>>
->>> [1] https://lore.kernel.org/all/20250513142812.1021591-1-memxor@gmail.com/
->>> [2] https://lore.kernel.org/all/20240420-bpf_wq-v2-13-6c986a5a741f@kernel.org/
->>>
->>>
-> 
+diff --git a/Documentation/devicetree/bindings/goldfish/events.txt b/Documentation/devicetree/bindings/goldfish/events.txt
+deleted file mode 100644
+index 5babf46317a4..000000000000
+--- a/Documentation/devicetree/bindings/goldfish/events.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-Android Goldfish Events Keypad
+-
+-Android goldfish events keypad device generated by android emulator.
+-
+-Required properties:
+-
+-- compatible : should contain "google,goldfish-events-keypad" to match emulator
+-- reg        : <registers mapping>
+-- interrupts : <interrupt mapping>
+-
+-Example:
+-
+-	goldfish-events@9040000 {
+-		compatible = "google,goldfish-events-keypad";
+-		reg = <0x9040000 0x1000>;
+-		interrupts = <0x5>;
+-	};
+diff --git a/Documentation/devicetree/bindings/input/google,goldfish-events-keypad.yaml b/Documentation/devicetree/bindings/input/google,goldfish-events-keypad.yaml
+new file mode 100644
+index 000000000000..4e3a010a70c5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/google,goldfish-events-keypad.yaml
+@@ -0,0 +1,41 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/google,goldfish-events-keypad.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Android Goldfish Events Keypad
++
++maintainers:
++  - Kuan-Wei Chiu <visitorckw@gmail.com>
++
++allOf:
++  - $ref: input.yaml#
++
++description:
++  Android goldfish events keypad device generated by android emulator.
++
++properties:
++  compatible:
++    const: google,goldfish-events-keypad
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    keypad@9040000 {
++        compatible = "google,goldfish-events-keypad";
++        reg = <0x9040000 0x1000>;
++        interrupts = <5>;
++    };
+-- 
+2.52.0.457.g6b5491de43-goog
 

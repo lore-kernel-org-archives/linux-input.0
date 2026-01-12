@@ -1,33 +1,33 @@
 Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3ED352955;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 836A8350A1E;
 	Mon, 12 Jan 2026 10:58:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768215487; cv=none; b=MPV135XfJCdHb1RDyulAMAqhCdVieGnsWYfuA9VxDKlM2dOUVaeweUFvKJS9jR1knuObM8l2cZgcoMPLU7SWZ2MEqQ7pF8DLJXiFeq+wdmYjOUTQofLAIs6IPMOl3WpVH6y6ZNuGG/4/88eNZ/K5Dps9hjSvGGWuDB68zhZKvbQ=
+	t=1768215487; cv=none; b=hDPpkDmvWuDcDnzpyPgHzkDKS6Ze71grVE2BTX6A4zYPvia74Cgc6VN5ClUfaT366n0CDpS744uOOp35fv6/j8r7A0muJnzETdypTKjMJA/NCnBKGO+NjBHWmjkbZnquovxZug+LV5uzT2zPGFTuSlXMF8oHtYguTwLuYYoZUMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1768215487; c=relaxed/simple;
-	bh=mvHdwsWvJsughFL3KWuNZaRBXRaJ1ZqGg0rk341fTbc=;
+	bh=ocETv9qDXBqnCa3O7eNQHgj43dxTEtKaXWYz/JczYC8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gDEh9NGczVbNQXlSd1PFtFSfk0nwhcY6QyOYreVr23Qb4riKu6i/Oj2CXIbQsx1mekZfAHqGj6aaIdshXy9WD2puxEalCSJ1mhIcp+HFHipxFuTFpuFKNX2LKZismmDyVZlsh5mQ9vLwHv1PYZiLuDTelg9i6Gxo+1ynWXcatRI=
+	 MIME-Version; b=LJAY2HVbwKE/lg8rCGtyMUIkcPfcdYn0f282AVemo4BRrOH7aT+THGrPHt6EsREjqYnjlghv8hHx1gyI6fP6t65Whpb4Xdx/ANi9PqBj/km5qYxt4vVfU1XDGPI9Maw2mvk0ZJT1QlOqk63Wx0aywRFf75u/CWiS8Nljlbja1DE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.178.249
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
-	by mslow3.mail.gandi.net (Postfix) with ESMTP id 87453580C93;
-	Mon, 12 Jan 2026 10:55:21 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 61E8243FC1;
-	Mon, 12 Jan 2026 10:55:13 +0000 (UTC)
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::224])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id 8E24F580C99;
+	Mon, 12 Jan 2026 10:55:22 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id B1E4443E8D;
+	Mon, 12 Jan 2026 10:55:14 +0000 (UTC)
 From: Bastien Nocera <hadess@hadess.net>
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
 	Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 07/12] HID: picolcd_core: Use pm_ptr instead of #ifdef CONFIG_PM
-Date: Mon, 12 Jan 2026 11:52:56 +0100
-Message-ID: <20260112105500.3664834-8-hadess@hadess.net>
+Subject: [PATCH 09/12] HID: sony: Use pm_ptr instead of #ifdef CONFIG_PM
+Date: Mon, 12 Jan 2026 11:52:58 +0100
+Message-ID: <20260112105500.3664834-10-hadess@hadess.net>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260112105500.3664834-1-hadess@hadess.net>
 References: <20260112105500.3664834-1-hadess@hadess.net>
@@ -41,35 +41,36 @@ Content-Transfer-Encoding: 8bit
 X-GND-Sasl: hadess@hadess.net
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduudejvdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeeurghsthhivghnucfpohgtvghrrgcuoehhrgguvghssheshhgruggvshhsrdhnvghtqeenucggtffrrghtthgvrhhnpeevtefhleevjeffteekleehheeujeelhfdvheethefggefhkefgvdefhfegkeeiteenucfkphepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehinhgvthepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefpdhhvghlohepohhlihhmphhitgdpmhgrihhlfhhrohhmpehhrgguvghssheshhgruggvshhsrdhnvghtpdhqihgupeeiudfgkedvgeefhfevuddpmhhouggvpehsmhhtphhouhhtpdhnsggprhgtphhtthhopeehpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvl
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduudejvdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeeurghsthhivghnucfpohgtvghrrgcuoehhrgguvghssheshhgruggvshhsrdhnvghtqeenucggtffrrghtthgvrhhnpeevtefhleevjeffteekleehheeujeelhfdvheethefggefhkefgvdefhfegkeeiteenucfkphepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehinhgvthepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefpdhhvghlohepohhlihhmphhitgdpmhgrihhlfhhrohhmpehhrgguvghssheshhgruggvshhsrdhnvghtpdhqihgupeeuudfggeeggeefgfekffdpmhhouggvpehsmhhtphhouhhtpdhnsggprhgtphhtthhopeehpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvl
  hdrohhrghdprhgtphhtthhopegsvghnjhgrmhhinhdrthhishhsohhirhgvshesrhgvughhrghtrdgtohhmpdhrtghpthhtohephhgruggvshhssehhrgguvghsshdrnhgvth
 
 This increases build coverage and allows to drop an #ifdef.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/hid/hid-picolcd_core.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/hid/hid-sony.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
-index 297103be3381..e579b3080ce5 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -648,11 +648,9 @@ static struct hid_driver picolcd_driver = {
- 	.probe =         picolcd_probe,
- 	.remove =        picolcd_remove,
- 	.raw_event =     picolcd_raw_event,
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b966e4044238..d94ece0448e9 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2284,12 +2284,9 @@ static struct hid_driver sony_driver = {
+ 	.remove           = sony_remove,
+ 	.report_fixup     = sony_report_fixup,
+ 	.raw_event        = sony_raw_event,
+-
 -#ifdef CONFIG_PM
--	.suspend =       picolcd_suspend,
--	.resume =        picolcd_resume,
--	.reset_resume =  picolcd_reset_resume,
+-	.suspend          = sony_suspend,
+-	.resume	          = sony_resume,
+-	.reset_resume     = sony_resume,
 -#endif
-+	.suspend =       pm_ptr(picolcd_suspend),
-+	.resume =        pm_ptr(picolcd_resume),
-+	.reset_resume =  pm_ptr(picolcd_reset_resume),
++	.suspend          = pm_ptr(sony_suspend),
++	.resume	          = pm_ptr(sony_resume),
++	.reset_resume     = pm_ptr(sony_resume),
  };
- module_hid_driver(picolcd_driver);
  
+ static int __init sony_init(void)
 -- 
 2.52.0
 

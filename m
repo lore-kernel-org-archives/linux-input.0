@@ -1,192 +1,122 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DEE5374166
-	for <linux-input@vger.kernel.org>; Mon, 12 Jan 2026 16:56:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6187F376BE5;
+	Mon, 12 Jan 2026 17:00:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768236970; cv=none; b=K+6+Jm7GpVNvRC6VjiTD0PwXdU/EQVCXu0cZfgCTvIQySelHMFVpUjiUf4oM2FCXyiLbZDHpKJNQv9RqJoUqsmjs703GOAY/VEf93yiVuc4LF5ZnGXjd09VkIZMn1c9Ufet+583hadR+tvwwj8JLx+Xxlr7VYFKVcDXOdpF65bM=
+	t=1768237237; cv=none; b=mJVhoMwu2d6zvHwOG03wZKqj3J9wtDE2eSnScaEKFaZtsA71KpKdmRJIEg/NItvXvF3rYBYUc4rN6dq61zCjIZ5398G5Aq33hgcEZpPXvvcrxVepX2Hve8vterTaB29GlCTx9RYdZgFlDTb+hn3XNVZiwOWKYnwIM75n90EGP2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768236970; c=relaxed/simple;
-	bh=wC5EYvrli+B4rkBJk8LAcz/nVx1foABD/QgvBsjbnmM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mAtyk1WFh/kl/AHLfVSiHBhXxwyjbvSaGe00SZeKcSJPP1JYj61IlW9OPuDRBUzfb4iUJTka5fLYxd/ZJefjYHP/P5EQLKvtR+7j7Qt2/9M9LgYlzAfe6HiwPa93WNHz7lgt/lKBybiTWEJCeOT6ttivm2kpjJ0gh9AAxh6aIxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UN7OMXNY; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768237237; c=relaxed/simple;
+	bh=DgNIs9cZQfZC0idWrXBpLojrupBFeDqy1lZ2VlMz0Pk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NcT49wLqjA5sIgrvkaF5dHkqxImwKp+bCxnLW2s2U8RV+lXUepSpYOowoHxm/thqyMYC4GAevOM1eY/la2/P5o34feXJP/qrLiU9krG4VcQy2HHIyPQN0X1EofjNaSz5fkBoqF/PurAj/NjCvbGBQPQnU1XRu6vcHU+VJ7KYIVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NRJGFiZz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UN7OMXNY"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c05d66dbab2so4192435a12.0
-        for <linux-input@vger.kernel.org>; Mon, 12 Jan 2026 08:56:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768236969; x=1768841769; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ze4qHmASAwrj5Onk0qJN7LV+EYaF4QvTW/sipsaAIXs=;
-        b=UN7OMXNYOUW/Ndssw1KamjFltN5wkSY/n4xtgw6zloVnT/miEz46OkXX8i/Xjw1wos
-         RZWgXEHiFljEoBn4xi7u6sujsu1Tn1z9dapxsC9qrky9XVEmnKMRIjSvvrSqAaM6kosg
-         BYvlH/X4MNa7o2LL3ZJdzlBeDuQdxN+TPE0iZWtql5ILfxf7BvpopoX4HcPG+MUrrlL/
-         tkm95J4EWwm6nlikFIgx3QmPU4rMXF4YHo2+hk/+Yc8xvHSpyoDRRv6c1sa9osAHzOjC
-         pMdKVvK1Zl2TZfgab1VZZErX2dPgQsddnNbXMJjvuLCTh9qGOiPF8S4Xj0qKpzyIvNIT
-         WreA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768236969; x=1768841769;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ze4qHmASAwrj5Onk0qJN7LV+EYaF4QvTW/sipsaAIXs=;
-        b=OUc1RUIOfo3QPI7dOAa04Gbsb8zbKu0l3iCGdniEWVnC8Q9WG42khDvzb5NwWaShGR
-         XsBBxNQWdwJdZN7GDFZxoH2z9dBy34jqefgvgEmdlzFJi19fiyTwsRntR0iy8t0wxpEY
-         5rZZdGNObXHXkFbeDpQwxiSec65+ohTfwIBzaqRftTiP/B3Col+cEVur8OkgzqkizrHJ
-         c08xiyMXwy7CGTbTmBHZhmHmW/24mhl3Z7g2ClxRG04IlOkstWGBG5mldDjKHn6RrIOW
-         qVwSPY1oMTMyBJjPVQkiebf66zbTYxe1DIA8CeUR1t7YCdbf55vYQy+VTbXIUbKcpliL
-         40Mw==
-X-Forwarded-Encrypted: i=1; AJvYcCXdpdxJnKi8DuERQYBRljtqqiGCjamCzBAI2O/oUmyOqkAgFl4RTSL4PEKrVUUWeo1O0p5wtmi7dRoY/A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxGlkrzZG8/0jgE3pZLh7Mh5MbBUyUN39bDX8e/1fnV3ISspkau
-	9sYwfZ1MqCzzuP/92ihPy1nsDD1IjKt3h146sP1nwdMHN3EbmQ/j7Zf9HpBz++CPMI2iaUo5oVZ
-	TbGQE/IyRHffctfYZFUIbORE6dlTxMqI=
-X-Gm-Gg: AY/fxX7sqm4tHYHqYOAFNksX1UbGXNF0+J44it3j5qVthIaXJ9HV3iNbCvRyZAFkCPF
-	1qSa1Cm7Tgny1cLia5QPdNCm+aai4+X2XuwJ9LGGbdiemHCXiR3zpxzKWZDxl4lW77sSp9+ix0D
-	OKG7/RgUqzK++F30jgiQErDY/mw/1HeyVrIBUX6/rjv7bpAU9CJRqEtERGvvzQuw4lzYf4/67fW
-	lUAhWdRs+jvySAa8mv9vfriXpcsEDBn7l215JY9M5WDwMuf+RQQPKO2A3YyfW0RXP1+OUnZ+aPk
-	4R9b/VVfOSE=
-X-Google-Smtp-Source: AGHT+IHrl/h2Ots2lgfpUAoGNkMmDwh476efMYwDJDQbJX4X9du6cARVeJ6bq2ED4dzJ/HJjrt1rMcohWTQdUM88iQ4=
-X-Received: by 2002:a17:90b:4c43:b0:34a:b8fc:f1d8 with SMTP id
- 98e67ed59e1d1-34f68ceadd1mr19111550a91.37.1768236968660; Mon, 12 Jan 2026
- 08:56:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NRJGFiZz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE2CAC16AAE;
+	Mon, 12 Jan 2026 17:00:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768237236;
+	bh=DgNIs9cZQfZC0idWrXBpLojrupBFeDqy1lZ2VlMz0Pk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=NRJGFiZzp9DXW94oNA0tpcy3ZXcaZbmURHM8lOjJo98h2Ef/C7Nv7Y3Tc1ysq5Wio
+	 NaX14Qpq+3hVP4FLaVgEHCe2oC/El7ECzq2fmFa8FtsHU0gd9ANJZ2GTy+cxySl7K2
+	 zAnG0ll9cWPGfpisKW6aIWKJNP4lCVkeydNIhRNKBOStOuNj1xAaSFzqzgzJFcHy9s
+	 ZZGpfw+cA3OgbNGV+Sn31JzBruknMxjWD+JMwnYUbJe33gi6NAfkRJq/KgGjpArX/R
+	 qqlFXP4M7bTWJFSoxQ/83v9WV9r2pMzKOjiRG39aENC/H745jc4vqinwILhJ9Wd7wE
+	 9dIXGNWGexOfg==
+Date: Mon, 12 Jan 2026 18:00:32 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 00/12] HID: Use pm_*ptr instead of #ifdef CONFIG_PM*
+Message-ID: <raxul2tp5zvlzktqnspl5pdu6u4433zlyzduonxy2plyoehzov@7qb7ldg3gy6m>
+References: <20260112105500.3664834-1-hadess@hadess.net>
+ <p75339q9-1r03-n389-92q7-7q9snq091p79@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260109184852.1089786-1-ihor.solodrai@linux.dev>
- <20260109184852.1089786-6-ihor.solodrai@linux.dev> <CAEf4BzZfuqpdwghCZ_TJJyt3Dm=xCBJLz3H0bbtabgToNV7V+A@mail.gmail.com>
- <32fe65fa-ecfb-4cba-bd0c-61155bca637b@linux.dev>
-In-Reply-To: <32fe65fa-ecfb-4cba-bd0c-61155bca637b@linux.dev>
-From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date: Mon, 12 Jan 2026 08:55:53 -0800
-X-Gm-Features: AZwV_QgmknNkqO_SHLPrJvKc19a4KKDGobAbn9jxV56AYe0HDgtT9buX1KR3TPE
-Message-ID: <CAEf4BzbbvZgam-3MBEh==T5Zb+TRKbqRwoFcObvD0B8vjXb2pA@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v1 05/10] selftests/bpf: Add tests for KF_IMPLICIT_ARGS
-To: Ihor Solodrai <ihor.solodrai@linux.dev>
-Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Eduard Zingerman <eddyz87@gmail.com>, Mykyta Yatsenko <yatsenko@meta.com>, Tejun Heo <tj@kernel.org>, 
-	Alan Maguire <alan.maguire@oracle.com>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Jiri Kosina <jikos@kernel.org>, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, sched-ext@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p75339q9-1r03-n389-92q7-7q9snq091p79@xreary.bet>
 
-On Fri, Jan 9, 2026 at 5:30=E2=80=AFPM Ihor Solodrai <ihor.solodrai@linux.d=
-ev> wrote:
->
-> On 1/9/26 3:25 PM, Andrii Nakryiko wrote:
-> > On Fri, Jan 9, 2026 at 10:49=E2=80=AFAM Ihor Solodrai <ihor.solodrai@li=
-nux.dev> wrote:
-> >
-> > [...]
-> >
-> >> diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c b/to=
-ols/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> >> index 1c41d03bd5a1..503451875d33 100644
-> >> --- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> >> +++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-> >> @@ -1136,6 +1136,10 @@ __bpf_kfunc int bpf_kfunc_st_ops_inc10(struct s=
-t_ops_args *args)
-> >>  __bpf_kfunc int bpf_kfunc_multi_st_ops_test_1(struct st_ops_args *arg=
-s, u32 id);
-> >>  __bpf_kfunc int bpf_kfunc_multi_st_ops_test_1_impl(struct st_ops_args=
- *args, void *aux_prog);
-> >>
-> >> +__bpf_kfunc int bpf_kfunc_implicit_arg(int a, struct bpf_prog_aux *au=
-x);
-> >> +__bpf_kfunc int bpf_kfunc_implicit_arg_legacy(int a, int b, struct bp=
-f_prog_aux *aux);
-> >> +__bpf_kfunc int bpf_kfunc_implicit_arg_legacy_impl(int a, int b, void=
- *aux__prog);
-> >> +
-> >>  BTF_KFUNCS_START(bpf_testmod_check_kfunc_ids)
-> >>  BTF_ID_FLAGS(func, bpf_testmod_test_mod_kfunc)
-> >>  BTF_ID_FLAGS(func, bpf_kfunc_call_test1)
-> >> @@ -1178,6 +1182,9 @@ BTF_ID_FLAGS(func, bpf_kfunc_st_ops_test_pro_epi=
-logue, KF_SLEEPABLE)
-> >>  BTF_ID_FLAGS(func, bpf_kfunc_st_ops_inc10)
-> >>  BTF_ID_FLAGS(func, bpf_kfunc_multi_st_ops_test_1)
-> >>  BTF_ID_FLAGS(func, bpf_kfunc_multi_st_ops_test_1_impl)
-> >> +BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg, KF_IMPLICIT_ARGS)
-> >> +BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg_legacy, KF_IMPLICIT_ARGS)
-> >> +BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg_legacy_impl)
-> >
-> > (irrelevant, now that I saw patch #8 discussion, but for the future
-> > the point will stand and we can decide how resolve_btfids handles this
-> > upfront)
-> >
-> > I'm wondering, should we add KF_IMPLICIT_ARGS to legacy xxx_impl
-> > kfuncs as well to explicitly mark them to resolve_btfids as legacy
-> > implementations? And if we somehow find xxx_impl without it, then
-> > resolve_btfids complains louds and fails, this should never happen?
->
-> Eh... I don't like the idea of flagging both foo and foo_impl.
->
-> If we use the same flag for legacy funcs, the flag becomes
-> insufficient to determine whether a function is legacy or not: we also
-> have to check the name (or something). This could be a different flag,
-> but I don't like that either.
->
-> For legacy kfuncs that we want to support, I don't think we have to
-> enforce anything. We allow to use old API, and the new one if it's
-> implemented.
->
-> Are you suggesting to ban _impl suffix in names of new kfuncs?
-> Fail build on accidental name collision?
+On Jan 12 2026, Jiri Kosina wrote:
+> On Mon, 12 Jan 2026, Bastien Nocera wrote:
+> 
+> > All those changes should be safe, as similar ones were done in other
+> > subsystems, but I'm uncertain about the surface changes.
+> > 
+> > Bastien Nocera (12):
+> >   HID: hid-alps: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: appletb-kbd: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: asus: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: lenovo: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: logitech-dj: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: nintendo: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: picolcd_core: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: hid-sensor-hub: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: sony: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: uclogic: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: wacom: Use pm_ptr instead of #ifdef CONFIG_PM
+> >   HID: surface: Use pm_ptr_sleep instead of #ifdef CONFIG_PM_SLEEP
+> > 
+> >  drivers/hid/hid-alps.c                     | 6 ++----
+> >  drivers/hid/hid-appletb-kbd.c              | 6 ++----
+> >  drivers/hid/hid-asus.c                     | 6 ++----
+> >  drivers/hid/hid-lenovo.c                   | 4 +---
+> >  drivers/hid/hid-logitech-dj.c              | 4 +---
+> >  drivers/hid/hid-nintendo.c                 | 7 ++-----
+> >  drivers/hid/hid-picolcd_core.c             | 8 +++-----
+> >  drivers/hid/hid-sensor-hub.c               | 8 +++-----
+> >  drivers/hid/hid-sony.c                     | 9 +++------
+> >  drivers/hid/hid-uclogic-core.c             | 6 ++----
+> >  drivers/hid/surface-hid/surface_hid.c      | 2 +-
+> >  drivers/hid/surface-hid/surface_hid_core.c | 5 -----
+> >  drivers/hid/surface-hid/surface_kbd.c      | 2 +-
+> >  drivers/hid/wacom_sys.c                    | 6 ++----
+> >  14 files changed, 25 insertions(+), 54 deletions(-)
+> 
+> Thanks Bastien, this is now in hid.git#for-6.20/pm_ptr.
+> 
 
-This is super low probability, but yes, I was trying to avoid
-accidental _impl-named functions to be reused. But as I said, I don't
-believe this will happen in practice, so might as well just ignore
-this, if you don't like KF_IMPLICIT_ARGS for legacy stuff.
+There is something wrong with the series:
+https://gitlab.freedesktop.org/bentiss/hid/-/jobs/90949365
 
->
-> We could implement sanity checks like these as separate passes in
-> resolve_btfids, for example.
->
-> >
-> >
-> >
-> >>  BTF_KFUNCS_END(bpf_testmod_check_kfunc_ids)
-> >>
-> >>  static int bpf_testmod_ops_init(struct btf *btf)
-> >> @@ -1669,6 +1676,25 @@ int bpf_kfunc_multi_st_ops_test_1_impl(struct s=
-t_ops_args *args, void *aux__prog
-> >>         return ret;
-> >>  }
-> >>
-> >> +int bpf_kfunc_implicit_arg(int a, struct bpf_prog_aux *aux)
-> >> +{
-> >> +       if (aux && a > 0)
-> >> +               return a;
-> >> +       return -EINVAL;
-> >> +}
-> >> +
-> >> +int bpf_kfunc_implicit_arg_legacy(int a, int b, struct bpf_prog_aux *=
-aux)
-> >> +{
-> >> +       if (aux)
-> >> +               return a + b;
-> >> +       return -EINVAL;
-> >> +}
-> >> +
-> >> +int bpf_kfunc_implicit_arg_legacy_impl(int a, int b, void *aux__prog)
-> >> +{
-> >> +       return bpf_kfunc_implicit_arg_legacy(a, b, aux__prog);
-> >> +}
-> >> +
-> >>  static int multi_st_ops_reg(void *kdata, struct bpf_link *link)
-> >>  {
-> >>         struct bpf_testmod_multi_st_ops *st_ops =3D
-> >> --
-> >> 2.52.0
-> >>
->
+```
+In file included from ./include/linux/kernel.h:36,
+                 from ./include/linux/random.h:7,
+                 from ./include/linux/nodemask.h:94,
+                 from ./include/linux/numa.h:6,
+                 from ./include/linux/cpumask.h:15,
+                 from ./arch/x86/include/asm/cpumask.h:7,
+                 from ./arch/x86/include/asm/msr.h:11,
+                 from ./arch/x86/include/asm/tsc.h:11,
+                 from ./arch/x86/include/asm/timex.h:6,
+                 from ./include/linux/timex.h:67,
+                 from ./include/linux/time32.h:13,
+                 from ./include/linux/time.h:60,
+                 from ./include/linux/stat.h:19,
+                 from ./include/linux/module.h:13,
+                 from drivers/hid/hid-lenovo.c:27:
+drivers/hid/hid-lenovo.c:1573:32: error: 'lenovo_reset_resume' undeclared here (not in a function); did you mean 'hidinput_reset_resume'?
+ 1573 |         .reset_resume = pm_ptr(lenovo_reset_resume),
+      |                                ^~~~~~~~~~~~~~~~~~~
+./include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+  136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+      |                                            ^~~
+drivers/hid/hid-lenovo.c:1573:25: note: in expansion of macro 'pm_ptr'
+ 1573 |         .reset_resume = pm_ptr(lenovo_reset_resume),
+      |                         ^~~~~~
+make[4]: *** [scripts/Makefile.build:287: drivers/hid/hid-lenovo.o] Error 1
+```
+
+
+Bastien, are you sure that's the only change required?
+
+Cheers,
+Benjamin

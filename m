@@ -1,30 +1,33 @@
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
+Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA18E36C0D3;
-	Tue, 13 Jan 2026 09:26:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE3E3876B6;
+	Tue, 13 Jan 2026 09:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768296374; cv=none; b=g1wgBWirzxCMITfqdmM6BuRUiNssxi3QnamV0g6kA4y2w8OISmQwqFrELKBoE5bQWOqWFqrVGp2ZGEwacid5vP/sexSbR4xXZuY7EkolcVyUy8QIo+yMwoysjLsLbp6AvfUeeyV3GAsRnWyGWqDSEwBEVcN53JlnFnnZ2Kw7pTk=
+	t=1768296377; cv=none; b=k8fVDacCkA+iP63CxKO4qttyqyYTm9LHLhbb1cscRsYpgdZ4ERX5PHxYwHgbOL2zQWBJ41cBj9q4SyjStL7BsysJ6U1Fe4lUqL44jFBh4Ksw+8+hXmDGUGFHUm46NpPAWL0zmfBTAA7CFMvLnhIWKZ6MqgJ1hhQ2ZaJkWOFYK4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768296374; c=relaxed/simple;
-	bh=AP3HTD5guyPD5/yYZSI2KJrHlN2laHw5Ah5N6pDQpKU=;
+	s=arc-20240116; t=1768296377; c=relaxed/simple;
+	bh=DmpAMJ+x+JimFZCuPTeyENeB0njvYGsJPPzOvVwn6wE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EYRYVfygXZb/Jv3jLhn3C+8LvqDnXqOGBXgh88rY6mYknNAwOJm1sJg9OLqoNAxI7VNsMKVSBKczko0eLiXFVPql0qVLKFM7+o9kazqY8J3VdGQmREDh/XQKtswA7iU0uoWKb8Rp64qR+Z4x6fBfluDPCEIh3TO8SbpR4AwaKz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.201
+	 MIME-Version; b=Wf/APl14q0cWyzYghpgzpF5O6Hexz9xuL2WnvZTQz72TFibUbF//ArQXC886kuzPu6a3QatiV92d6o0TueKJx6OkLWZAVQKjfOzN3LDKe2rumLhiarEuWBqHN/O+HjP8GRwM18O7XFFAE1fCLVUSx/jy9MryO6V37Z2o5cP9PVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.178.249
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 0C089433BF;
-	Tue, 13 Jan 2026 09:26:02 +0000 (UTC)
+Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::228])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id 81090580EF5;
+	Tue, 13 Jan 2026 09:26:05 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 81C4B43378;
+	Tue, 13 Jan 2026 09:25:57 +0000 (UTC)
 From: Bastien Nocera <hadess@hadess.net>
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
 	Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH v2 11/11] HID: sony: Use pm_ptr instead of #ifdef CONFIG_PM
-Date: Tue, 13 Jan 2026 10:24:59 +0100
-Message-ID: <20260113092546.265734-12-hadess@hadess.net>
+Subject: [PATCH v2 03/11] HID: asus: Use pm_ptr instead of #ifdef CONFIG_PM
+Date: Tue, 13 Jan 2026 10:24:51 +0100
+Message-ID: <20260113092546.265734-4-hadess@hadess.net>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260113092546.265734-1-hadess@hadess.net>
 References: <20260113092546.265734-1-hadess@hadess.net>
@@ -36,7 +39,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-GND-Sasl: hadess@hadess.net
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduudelleehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeeurghsthhivghnucfpohgtvghrrgcuoehhrgguvghssheshhgruggvshhsrdhnvghtqeenucggtffrrghtthgvrhhnpeevtefhleevjeffteekleehheeujeelhfdvheethefggefhkefgvdefhfegkeeiteenucfkphepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefnecuvehluhhsthgvrhfuihiivgepkeenucfrrghrrghmpehinhgvthepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefpdhhvghlohepohhlihhmphhitgdpmhgrihhlfhhrohhmpehhrgguvghssheshhgruggvshhsrdhnvghtpdhqihgupedtvedtkeelgeeffeeuhfdpmhhouggvpehsmhhtphhouhhtpdhnsggprhgtphhtthhopeehpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvl
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduudelleehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeeurghsthhivghnucfpohgtvghrrgcuoehhrgguvghssheshhgruggvshhsrdhnvghtqeenucggtffrrghtthgvrhhnpeevtefhleevjeffteekleehheeujeelhfdvheethefggefhkefgvdefhfegkeeiteenucfkphepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegvfeegmegvtgejfeemtghfvddtmegsrgegfeemrgeijeeimegtvdgufeemjegrheefpdhhvghlohepohhlihhmphhitgdpmhgrihhlfhhrohhmpehhrgguvghssheshhgruggvshhsrdhnvghtpdhqihgupeekudevgeeugeeffeejkedpmhhouggvpehsmhhtphhouhhtpdhnsggprhgtphhtthhopeehpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvl
  hdrohhrghdprhgtphhtthhopegsvghnjhgrmhhinhdrthhishhsohhirhgvshesrhgvughhrghtrdgtohhmpdhrtghpthhtohephhgruggvshhssehhrgguvghsshdrnhgvth
 X-GND-State: clean
 X-GND-Score: -100
@@ -45,46 +48,26 @@ This increases build coverage and allows to drop an #ifdef.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/hid/hid-sony.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/hid/hid-asus.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index b966e4044238..de8135c1e3df 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -2179,7 +2179,6 @@ static void sony_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- }
- 
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 472bca54642b..0a4acdcb6386 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1434,10 +1434,8 @@ static struct hid_driver asus_driver = {
+ 	.remove			= asus_remove,
+ 	.input_mapping          = asus_input_mapping,
+ 	.input_configured       = asus_input_configured,
 -#ifdef CONFIG_PM
- 
- static int sony_suspend(struct hid_device *hdev, pm_message_t message)
- {
-@@ -2214,8 +2213,6 @@ static int sony_resume(struct hid_device *hdev)
- 	return 0;
- }
- 
+-	.reset_resume           = asus_reset_resume,
+-	.resume					= asus_resume,
 -#endif
--
- static const struct hid_device_id sony_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
- 		.driver_data = SIXAXIS_CONTROLLER_USB },
-@@ -2284,12 +2281,9 @@ static struct hid_driver sony_driver = {
- 	.remove           = sony_remove,
- 	.report_fixup     = sony_report_fixup,
- 	.raw_event        = sony_raw_event,
--
--#ifdef CONFIG_PM
--	.suspend          = sony_suspend,
--	.resume	          = sony_resume,
--	.reset_resume     = sony_resume,
--#endif
-+	.suspend          = pm_ptr(sony_suspend),
-+	.resume	          = pm_ptr(sony_resume),
-+	.reset_resume     = pm_ptr(sony_resume),
++	.reset_resume           = pm_ptr(asus_reset_resume),
++	.resume			= pm_ptr(asus_resume),
+ 	.event			= asus_event,
+ 	.raw_event		= asus_raw_event
  };
- 
- static int __init sony_init(void)
 -- 
 2.52.0
 

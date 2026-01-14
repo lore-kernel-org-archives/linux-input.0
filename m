@@ -1,142 +1,172 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E33532D0DE
-	for <linux-input@vger.kernel.org>; Wed, 14 Jan 2026 17:54:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56410346AC6
+	for <linux-input@vger.kernel.org>; Wed, 14 Jan 2026 19:43:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768413276; cv=none; b=SzVMiVN7pam3HJs6lv4VKSOuRS6WoS1nSqTqs+Pshu3DRuI0/BHDPxOz0p/22OWyruS9ykGSarqPVVUk+VexKnS+gckoTqrYeq7MElUpHKNA+jx1ABz6XvNkuyZOfrtGRQtdXeBkfRAIr5FbkNXUhSTX/GFKA5iEDEvbw9OOZ+Y=
+	t=1768419830; cv=none; b=lXzXQib5yNcDZIYgL5nHz0PJQgC/vJv7VqYtXdWgawmY+1X9/ygmcd1E1DtqfT4Ao4yLlnOw9GkLv7gBuRRxaPOyqYFaDhiMhDcOgt0gxAEBmUj8jhRkq3XLuIWaiS6YQTFvV/UgF0lAFfORY/eXN2m6bQfDvTAp1v3LLbYqiSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768413276; c=relaxed/simple;
-	bh=Mr6ZawFdoY0cJZhJGTVos0y1SL4iN9Lhhnb7hU0Zd8k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=LrQeixayomk+c4xAH9effeKNs4gCg3LGFY+N8a8MAzn5VUl8qegr2AloTG2ytweRvKjP8LePhEdgH5ZByBFi8q+qfvMY/PEnhLh8C3tDnQj2Ssp3mHcixLz47KQiOwlOD6fgvGOL5NT8MM3kHxljk6XVeExotlqGygsnh3nCpmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lyya3wAC; arc=none smtp.client-ip=209.85.160.178
+	s=arc-20240116; t=1768419830; c=relaxed/simple;
+	bh=ECsyCZR1oem+N3GAJxPI3yL96zKRIx0/UUcTOdfTf9s=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=nwhmKuE+1aIoMGR0Ej1tH9/tcgXenz6zJ2tYr7DpKUd+YVQ/lxq8+C8haPfl+GKHuEfiY0sMbE4nvPQsVAoMOJ6CKevBA5We1zP4X8aV2t25gEGvjfDWn6m8YX5DWAHNtXinZ/BxM0pkVORlR0D5y7VwSyGoxMDsfWUaBL+Lp/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MJuX9a2y; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lyya3wAC"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-50143fe869fso559171cf.1
-        for <linux-input@vger.kernel.org>; Wed, 14 Jan 2026 09:54:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MJuX9a2y"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8c07bc2ad13so12406785a.2
+        for <linux-input@vger.kernel.org>; Wed, 14 Jan 2026 11:43:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768413274; x=1769018074; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=1TuyOYzoT85INzVMQ5KOj7mLYeVm9dS2xgxTRrKOEpI=;
-        b=lyya3wACXUBz5E82n+PHj4P3ARY7FvaaEcpGQlWolmv9AN2OaSKSqnGeVRUWZqhnyr
-         7Rk21EB0+y1Z980q+xeR4Q6WP8N0QVDttSTY84bm1KHjacEanBh0AXMhnkUhHYCxZJOo
-         1N9ly/oKNGuNxwigVX1b/NYLEVkUeZpKhaQvFXdnnFz/O4d2VIwhdu5S3LkHyC4NviyH
-         TdYa36cUMbLtoVrzDGf2AG6AU4GoXr7E0ZC3qiHyJ4UJv51QclmKv0l+FuxdsTvlF8Eq
-         WnK+WVulsafHM2CiRQIwvRhKvCiXZN1dHeLy7rjmjaAkD4V9qZEQG2VyvoJRdRjiaDo5
-         pBcA==
+        d=gmail.com; s=20230601; t=1768419828; x=1769024628; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Pc2s5FmDLZbixCr2af+4LcE/WrMe2mhGjN+MEfbV9yI=;
+        b=MJuX9a2yll5Pj7yC+cPxe4S8YptYMj38Hk+0TO/98cYqIceclXcx003RZpsBYwVFSH
+         RgdBlYgh979I2upPjx0TmytgT5EFLz7p/aVDcFcp1dAXj4PFLaImlbav63AKLsb/UutB
+         Y3qSVIj9SBxn3tUVWlYj7WwGCkDnxGsKVSteInpDrNuAUAbKsyMYJoSmBHtCs+r5FbX4
+         VKB9ca8WpPTrN7r6f8Rp9cV0TymMQE2FW3TA/0EZyomoTySO4IZ+wyDMO9GIFlB6AWLE
+         sZGXkPRTVuVHi2f8SBHYHfo0qoj9ui6udewJo8LMDgv6DCQD1YzzK/DxqTlc3UAfiFHs
+         8AIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768413274; x=1769018074;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1TuyOYzoT85INzVMQ5KOj7mLYeVm9dS2xgxTRrKOEpI=;
-        b=lVaCJOrZqvuAswK70AQlpmQz6diDgmQ9ausSZIV09GUlU0pgmgPsjD/huhvS7YnPEv
-         j7nz2MgQ6foeJv5P1csG0LYaHMXp/s7pu1A/mtkbNvMs+8PYD/oykdykbFeHsp9NnrEJ
-         IytAxwIKR7mSfyQwVHUNPQQJpeiPriflHXBdLpXC4dJqdh6ctn4qOxp4avN7GdZvD4+M
-         b/PQgSktSdyCJeHTLkEiCCM2d7Aurjw0bAumuzf/xikvN/reRZjZ8p09duvanIZeNPLl
-         kkUWeLvCo8tJD0kqdbnT+oNTZPhIJ8luIHB79qaUeLP+EAc/7L+VWTWktc+zYiq65sxA
-         vKaw==
-X-Forwarded-Encrypted: i=1; AJvYcCVnZseMzZteaiyL000apKNyRI2V0uXn1xnT7ZCB9gdR+Uo3s49V5sBr1GnXzLFZP/ZqnZBi6bLR1+/Dkg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3Fvi4wJOeJILPByxA3++DDijf5V5WOxpV9qJioR6iLx06v5Md
-	DnD6Gt3trl4xuCgnGMVmQwLe8Kp5gYCHVHdn3Ei0Mw+cCB1dOE9otMQUFKTzBeA83a0Y+cD9Xm2
-	BiaDHzeb77YLNz/ah4FxyQRqtRgyNQaYBOAzKuDFK6OYNluZm
-X-Gm-Gg: AY/fxX5LqB8wIqLhKdbxW5wSLzfkP+fyRFFefT/P2OtYQz7Zjr2l7S7G4rNHTmxA8I0
-	1deI+NfDVjK8kVOyPWTAYFLdOyzkbysxucX2Axv+Lmvkde0b9l79ATgo+E9Co5sKGSafJsJxHrb
-	U4RTEV/hqPESZBeS+NmQC2ZeNztGA/Fp5z479q3mtKcQQ/Qsbqtr5vKf39NVXGfQjHtvvdGrKEo
-	K0RMWTtOCuuFDeF/lAD8oLE6BnAQnM6i1jlBUJfyXFGpUML6L+V6ZuGEGZokwLpKOyjIg==
-X-Received: by 2002:a05:622a:15d1:b0:4ed:67bc:50de with SMTP id
- d75a77b69052e-50148211f20mr42972231cf.24.1768413273894; Wed, 14 Jan 2026
- 09:54:33 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768419828; x=1769024628;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Pc2s5FmDLZbixCr2af+4LcE/WrMe2mhGjN+MEfbV9yI=;
+        b=a9UgybS3wo9/fgz8Dv9TUq2S8BFX3i3U4V3osgp2+8OAJh0O9vJ6Drgh2cI0vMSxgS
+         1dFGjtwmpKhfKkAichGM+F3+vOlieBDf9vC5ojBd7/839vhlMp2IA7/eJzKJsMFKPKQy
+         RiZCU5AsSaZDef9fOM7is4T0eNF+3bXuBCU9xZleg1I+ZBOXx1NLtpEaf4hxyUn3zsNo
+         LKXtnvM036PaXMS7nTf5D03w9VCkZE690OWrqjg+9K7C8T/k07Hk/YVZq2E3mkIKrRVj
+         rSysPDAFzWnHn5c49upeymgxadilvcrTKlsoYUjrQHvPn5scf7V+qj5ECdESTk/naJOl
+         J8Gw==
+X-Forwarded-Encrypted: i=1; AJvYcCXIRoBCmJ0tpSBPliigFCSJILzhOHkoJGnFy8v3qWUDdmEZD2ETNbIQZGX/Fnzr7K1wq07fryUCCxJ73g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yymo6EaDLDkJTskCtCcHkimNa1E66jfsrS5HeLLiOWTksR5gK+m
+	7Vb8CYEbB97thHbXeS+qsUSDvjhxP6r4LF2DZODQT0GDveD0ps8cXTcwNAh86zlQax5v23BG3Wt
+	jIpRsl6oxFVUmVht7oYZH7bDqEl7HoA==
+X-Gm-Gg: AY/fxX4CU5jUWqj+dX7+LeMUFz4UmGYdI0p6W469Vkn03SJ1CyVgm7EjgNJR1ck3Jy0
+	3CXKYa/ucQnkODm2MhG4KLxNGvyQbP5uu/r/6LFawlVtiyJpIhBL0Yy4P31qATffaowdnxciYVT
+	WBY80rllRYFvysd67i+E3yLW/dHy5+uXFU9BZ7gyiRDzClC4/qWWQBmHVvKx5X5SgOapAoFzQHr
+	2L44ILTA6dM/JsUHqDPk/7zW5/4SEjliGfsgTMgLtiNBJuO1Nv22dodLv9QKBYDy2mgzA==
+X-Received: by 2002:a05:622a:38e:b0:501:f700:1792 with SMTP id
+ d75a77b69052e-501f7001a62mr4263141cf.79.1768419828089; Wed, 14 Jan 2026
+ 11:43:48 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CALEuBa=E1YSo1oVxd67rBf+6bC28zQZi5HBghMmcPFHKQn2+UA@mail.gmail.com>
-In-Reply-To: <CALEuBa=E1YSo1oVxd67rBf+6bC28zQZi5HBghMmcPFHKQn2+UA@mail.gmail.com>
 From: =?UTF-8?B?6b2Q5p+v5a6H?= <qikeyu2017@gmail.com>
-Date: Thu, 15 Jan 2026 01:54:23 +0800
-X-Gm-Features: AZwV_QieZ6A678e1fB5u8Ijn-XkpOeWWFnmyd1OWnaiDo49gufenY74rN5vDF3k
-Message-ID: <CALEuBan0ktNs0df8jJ=F8vtDTV7kdRiadxb75CEt8gPEt+s0AA@mail.gmail.com>
-Subject: [PATCH] HID: logitech-hidpp: fix NULL pointer dereference in hidpp_get_report_length()
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Date: Thu, 15 Jan 2026 03:43:37 +0800
+X-Gm-Features: AZwV_QilhZAfru7k85cYgLWDqfKfRXH9sFbHBIVEaZpVdS51qPNRri8u1O4RMHc
+Message-ID: <CALEuBan7Knm3G3eXPd8BZ37jVQFtRs7fAssts+picVKHBjGBqQ@mail.gmail.com>
+Subject: [PATCH] Input: atmel_mxt_ts - fix NULL pointer dereference in mxt_object_show
+To: nick@shmanahar.org, dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, jy0922.shim@samsung.com, bleung@chromium.org, 
+	ezequiel@vanguardiasur.com.ar, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, =?UTF-8?B?6b2Q5p+v5a6H?= <qikeyu2017@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Add validation for report->maxfield and report->field[0] before
-dereferencing to prevent NULL pointer dereference.
+This fix was discovered through static code analysis.
 
-The HID report descriptor is provided by the USB device firmware via
-USB control transfer (GET_DESCRIPTOR). A malicious device can craft
-a descriptor that defines an OUTPUT report without any usages
-(padding fields). When the HID subsystem parses such a descriptor:
+In mxt_object_show(), the code directly dereferences data->info and
+data->object_table without checking if they are NULL. This can lead to
+a NULL pointer dereference kernel crash when the sysfs file is accessed
+during firmware update or device removal.
 
-1. hid_add_field() calls hid_register_report() to create the report
-   object and stores it in report_id_hash[id]
-2. Since parser->local.usage_index is 0, hid_add_field() returns early
-   without calling hid_register_field() to add any fields
-3. Result: report exists with maxfield=0 and field[0]=NULL
+[Call Chain Analysis]
+The vulnerable sysfs handler is exposed through the following registration:
 
-When hidpp_probe() is called for a device matching this driver:
-  - hidpp_validate_device() calls hidpp_get_report_length()
-  - hidpp_get_report_length() retrieves the report from hash (not NULL)
-  - It then dereferences report->field[0]->report_count
-  - Since field[0] is NULL, this triggers a kernel NULL pointer
-    dereference
+  Driver registration:
+    mxt_driver.driver.dev_groups = mxt_groups
+      -> mxt_attrs[] contains:
+         - dev_attr_object.attr     -> mxt_object_show()     [VULNERABLE]
+         - dev_attr_update_fw.attr  -> mxt_update_fw_store()
+                                                           [TRIGGERS FREE]
 
-Data flow from attacker to crash:
-  Malicious USB Device
-       |
-       v (USB GET_DESCRIPTOR control transfer)
-  hid_get_class_descriptor() -- reads HID report descriptor from device
-       |
-       v
-  hid_parse_report() -- stores descriptor in hid->dev_rdesc
-       |
-       v
-  hid_open_report() -> hid_add_field()
-       |                    |
-       |                    v
-       |              hid_register_report() -- creates report, maxfield=0
-       |                    |
-       |                    v
-       |              returns early if usage_index==0, no field added
-       |
-       v
-  hidpp_validate_device() -> hidpp_get_report_length()
-       |
-       v
-  report->field[0]->report_count -- NULL pointer dereference!
+  Initialization path:
+    mxt_probe()
+      -> mxt_initialize()
+        -> mxt_read_info_block()
+          -> data->info = (struct mxt_info *)id_buf        [line 1918]
+          -> data->object_table = (struct mxt_object *)... [line 1934]
 
-This is triggerable by an attacker with physical access using a
-malicious USB device (e.g., BadUSB, programmable USB development
-boards).
+  Resource release path (called during firmware update or device removal):
+    mxt_update_fw_store() OR mxt_remove()
+      -> mxt_free_object_table()
+        -> data->object_table = NULL  [line 1713]
+        -> data->info = NULL          [line 1714]
 
-Fixes: d71b18f7c7999 ("HID: logitech-hidpp: do not hardcode very long
-report length")
+[Data Flow Analysis]
+The critical data flow is:
+
+  data->info:
+    - Allocated and set in mxt_read_info_block() from id_buf
+    - Released and set to NULL in mxt_free_object_table()
+    - Accessed in mxt_object_show() at line 2868: data->info->object_num
+
+  data->object_table:
+    - Set in mxt_read_info_block() as pointer into id_buf
+    - Set to NULL in mxt_free_object_table()
+    - Accessed in mxt_object_show() at line 2869: data->object_table + i
+
+[Race Condition Scenario]
+The vulnerability can be triggered by the following race condition:
+
+  Thread A (reading sysfs)           Thread B (firmware update)
+  --------------------------         --------------------------
+  T1: open /sys/.../object
+  T2: mxt_object_show()
+  T3: data = dev_get_drvdata(dev)
+  T4: obuf = kmalloc(...)
+                                     T5: echo fw > /sys/.../update_fw
+                                     T6: mxt_update_fw_store()
+                                     T7: mxt_free_object_table()
+                                     T8: data->info = NULL
+  T9: for (i < data->info->object_num)
+      -> NULL pointer dereference!
+
+[User-Triggerable Paths]
+Users can trigger this vulnerability through:
+
+  1. Firmware update race condition (requires root):
+     Terminal A: # cat /sys/bus/i2c/devices/<dev>/object
+     Terminal B: # echo firmware.bin > /sys/bus/i2c/devices/<dev>/update_fw
+
+  2. Device unbind race condition (requires root):
+     Terminal A: # cat /sys/bus/i2c/devices/<dev>/object
+     Terminal B: # echo "<dev>" > /sys/bus/i2c/drivers/atmel_mxt_ts/unbind
+
+  3. Physical device removal:
+     Reading sysfs while physically removing the touchscreen device
+
+How to fix:
+Add NULL checks for data->info and data->object_table at the beginning
+of mxt_object_show() to prevent NULL pointer dereference when these
+resources are freed during concurrent firmware update or device removal.
+
+Fixes: 4cf51c383d7a ("Input: Add ATMEL QT602240 touchscreen driver")
+Fixes: 068bdb67ef74 ("Input: atmel_mxt_ts - fix the firmware update")
 Signed-off-by: Kery Qi <qikeyu2017@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index d5011a5d0890..02ddbd658e89 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4314,7 +4314,7 @@ static int hidpp_get_report_length(struct
-hid_device *hdev, int id)
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
+b/drivers/input/touchscreen/atmel_mxt_ts.c
+index dd0544cc1bc1..401fcae2264d 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2859,6 +2859,10 @@ static ssize_t mxt_object_show(struct device *dev,
+  int error;
+  u8 *obuf;
 
-        re = &(hdev->report_enum[HID_OUTPUT_REPORT]);
-        report = re->report_id_hash[id];
--       if (!report)
-+       if (!report || report->maxfield < 1 || !report->field[0])
-                return 0;
-
-        return report->field[0]->report_count + 1;
---
++ /* Check for NULL to prevent race condition during firmware update */
++ if (!data->info || !data->object_table)
++   return -ENODEV;
++
+  /* Pre-allocate buffer large enough to hold max sized object. */
+  obuf = kmalloc(256, GFP_KERNEL);
+  if (!obuf)
+-- 
 2.34.1

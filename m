@@ -1,42 +1,42 @@
 Received: from relay14.grserver.gr (relay14.grserver.gr [157.180.73.62])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D121D20DD51;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1290277CA5;
 	Fri, 16 Jan 2026 13:37:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.180.73.62
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768570659; cv=none; b=ZagBsUIYtlxH0D92MUhBqKWwtDa2MpX/IN24+z+AV3jV9ylw2LuD8XLWQyDV8C+FDnI4i7HDf1beKBKiYwywb2oIzmaJZCSnJuOYtWLku9xHqpYi7XKXyrLZkSt6ZMZfCZfOrUuVIx3XQi0i396b8PCtyLaAcdhMtNt+xV3QL60=
+	t=1768570660; cv=none; b=oNGsRkxbQjGgaXUeUMLsPC6K+JHOugSGCIdZVFlBdMSly+Zgpl31U7Ow2VHfLqb5dnDRPhNkB9a9pN6zn35tpDbIil9C76JCaQF8uuRgWN7OosuU8s5EmI+kiwrXdcyOhojBPah4B5mIq1x1LpnKf9/Pok8eQe/BnzpaFmLu6SQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768570659; c=relaxed/simple;
-	bh=7B00bWTFczRZotRf5p6Jzti5MO+LG/J9cuFWikevjtg=;
+	s=arc-20240116; t=1768570660; c=relaxed/simple;
+	bh=qC/J0+4+tdmZ37XLBWyV/NfGCb0il0AY9ubrh5qmRhs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AkTKh+L+Dw1NbJguG29zQDFAfACforAIXGmMheosKMZKN9iKNlKJ46RGIvhSPCymt2u3v635jJvSPuyaAXAa341iwgHCOTTkuw0X1EtjNZhI9s0zX/5VJ7p2eUmPzA/hp+GxIggoz3R+lmSut7qx8p1k2caRySrZfcI2Do1vHq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=EG23HQ8D; arc=none smtp.client-ip=157.180.73.62
+	 MIME-Version; b=YcFVoN8/iLV/DWtuIx1jOe7a2TN/WWcXKxiPn4xVdEJY0Nhq0mCiBvlJ/uYenCIQEzxuI4xrqKwa9k8evEQlPSf0OH2iSfbPI8o4w9ws3CxUKA7idsuKNSYBoGwLHasMfrZh2ZzRjqLZIog+929VFmvLYd1Mh2gOKehJwQHyYCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=XYCZktrW; arc=none smtp.client-ip=157.180.73.62
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="EG23HQ8D"
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="XYCZktrW"
 Received: from relay14 (localhost [127.0.0.1])
-	by relay14.grserver.gr (Proxmox) with ESMTP id D76E34088E;
-	Fri, 16 Jan 2026 13:32:05 +0000 (UTC)
+	by relay14.grserver.gr (Proxmox) with ESMTP id 9938C408E8;
+	Fri, 16 Jan 2026 13:32:11 +0000 (UTC)
 Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by relay14.grserver.gr (Proxmox) with ESMTPS id 2E206408A7;
-	Fri, 16 Jan 2026 13:32:05 +0000 (UTC)
+	by relay14.grserver.gr (Proxmox) with ESMTPS id 186984088C;
+	Fri, 16 Jan 2026 13:32:11 +0000 (UTC)
 Received: from antheas-z13 (unknown [IPv6:2a05:f6c3:fefd:0:42c:a43d:2848:c282])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id CF00C20253A;
-	Fri, 16 Jan 2026 15:32:03 +0200 (EET)
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 41065202536;
+	Fri, 16 Jan 2026 15:32:09 +0200 (EET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1768570324;
-	bh=/GlAVvn2CO0NZJ1bdhUEo/jKU/saNux1zwkagaLT4+U=; h=From:To:Subject;
-	b=EG23HQ8DNK8GH5r/iY25SlwNHr44DWOamXpU1xagd9Ln+clUfcs6X/uJMzFX8pubJ
-	 QTMAwcdG6d0coJzXwxFaiRsGOW0ktnf2mnwoN4OJ71E+T7mpy3YE+W2QnYJjRsssYM
-	 ac2aIzcdvgNyBxF/PlqC+dOm7mJK4MtN9fNQ4F3wOO8olEQ61j1aKaKou/t6V5C4Q/
-	 /zjK5q5QlHMkYLxz3HN23ymHZzsywNl5pO9/YpNUoHmMxk9LAf9QUB5buxAo6pPXJt
-	 LPMEi4+JFxAoj02PxJM8ILUI38XUbAJqTPD/g7D4OndLqaxG7BAj2A3wA7/IwDdHHv
-	 IpAeVlVRcsTsQ==
+	s=default; t=1768570330;
+	bh=EZI62rLY8T5iCqJeT156w6aRaLQTMZvHv5YNdeVWJHQ=; h=From:To:Subject;
+	b=XYCZktrW3q3PhEUkbcdI3lLhZowCGhZh8Rw6RRtsTfDKwWRK9y3uda6PQY8vTV9pK
+	 D8IITk2VZ8ZtO78sgLQYc4FLECY4kd38l7UHPHFAV8ufCvJJsVic2Od9Du6chkNsI4
+	 s3ih7zeaKlXEPTtvMe6rVcxKa1TlIwmbE5jOMmK+qrjwxS4xCENyqHSSbrmzGjLWfY
+	 gVzrgXxQC/ixxtktl8e3MIVSuC5vaQ3X/VT8XxddWMgWauhqVtT/p/QimEA9sqNb1Z
+	 ok3sgzsgJr9mnaNnbzxn1bpxuPfEqWj69y4o7CzMu3mQQnOX9XMNPrgQt+rlDhTGqC
+	 qK1njUQMoDV4Q==
 Authentication-Results: linux3247.grserver.gr;
 	spf=pass (sender IP is 2a05:f6c3:fefd:0:42c:a43d:2848:c282) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
 Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
@@ -51,10 +51,12 @@ Cc: linux-kernel@vger.kernel.org,
 	Hans de Goede <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>,
-	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v11 06/11] HID: asus: early return for ROG devices
-Date: Fri, 16 Jan 2026 14:31:45 +0100
-Message-ID: <20260116133150.5606-7-lkml@antheas.dev>
+	Antheas Kapenekakis <lkml@antheas.dev>,
+	Denis Benato <benato.denis96@gmail.com>
+Subject: [PATCH v11 09/11] platform/x86: asus-wmi: remove unused keyboard
+ backlight quirk
+Date: Fri, 16 Jan 2026 14:31:48 +0100
+Message-ID: <20260116133150.5606-10-lkml@antheas.dev>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260116133150.5606-1-lkml@antheas.dev>
 References: <20260116133150.5606-1-lkml@antheas.dev>
@@ -66,44 +68,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <176857032467.3552611.9181164287335716018@linux3247.grserver.gr>
+ <176857033060.3552944.3515433525594511802@linux3247.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
 X-Virus-Status: Clean
 
-Some ROG devices have a new dynamic backlight interface for control by
-Windows. This interface does not create an ->input device, causing the
-kernel to print an error message and to eject it. In addition, ROG
-devices have proper HID names in their descriptors so renaming them is
-not necessary.
+The quirk for selecting whether keyboard backlight should be controlled
+by HID or WMI is not needed anymore, so remove the file containing it.
 
-Therefore, if a device is identified as ROG, early return from probe to
-skip renaming and ->input checks.
-
+Reviewed-by: Denis Benato <benato.denis96@gmail.com>
 Acked-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/hid/hid-asus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../platform_data/x86/asus-wmi-leds-ids.h     | 50 -------------------
+ 1 file changed, 50 deletions(-)
+ delete mode 100644 include/linux/platform_data/x86/asus-wmi-leds-ids.h
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 428481aa2083..90dc1fcd54ac 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1232,6 +1232,13 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	    asus_kbd_register_leds(hdev))
- 		hid_warn(hdev, "Failed to initialize backlight.\n");
- 
-+	/*
-+	 * For ROG keyboards, skip rename for consistency and ->input check as
-+	 * some devices do not have inputs.
-+	 */
-+	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD)
-+		return 0;
-+
- 	/*
- 	 * Check that input registration succeeded. Checking that
- 	 * HID_CLAIMED_INPUT is set prevents a UAF when all input devices
+diff --git a/include/linux/platform_data/x86/asus-wmi-leds-ids.h b/include/linux/platform_data/x86/asus-wmi-leds-ids.h
+deleted file mode 100644
+index 034a039c4e37..000000000000
+--- a/include/linux/platform_data/x86/asus-wmi-leds-ids.h
++++ /dev/null
+@@ -1,50 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __PLATFORM_DATA_X86_ASUS_WMI_LEDS_IDS_H
+-#define __PLATFORM_DATA_X86_ASUS_WMI_LEDS_IDS_H
+-
+-#include <linux/dmi.h>
+-#include <linux/types.h>
+-
+-/* To be used by both hid-asus and asus-wmi to determine which controls kbd_brightness */
+-#if IS_REACHABLE(CONFIG_ASUS_WMI) || IS_REACHABLE(CONFIG_HID_ASUS)
+-static const struct dmi_system_id asus_use_hid_led_dmi_ids[] = {
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ROG Zephyrus"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ROG Strix"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ROG Flow"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ProArt P16"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "GA403U"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "GU605M"),
+-		},
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "RC71L"),
+-		},
+-	},
+-	{ },
+-};
+-#endif
+-
+-#endif	/* __PLATFORM_DATA_X86_ASUS_WMI_LEDS_IDS_H */
 -- 
 2.52.0
 

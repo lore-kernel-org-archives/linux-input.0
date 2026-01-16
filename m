@@ -1,64 +1,53 @@
-Received: from relay14.grserver.gr (relay14.grserver.gr [157.180.73.62])
+Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F3A713C9C4;
-	Fri, 16 Jan 2026 13:42:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.180.73.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC02E39A7E0
+	for <linux-input@vger.kernel.org>; Fri, 16 Jan 2026 20:17:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768570959; cv=none; b=hvMJfKC25nfQwqlJ1gtr4SwYdFPKYQriRFmeKCy8LWyx+0wzQcv3Xl7Bbj3DtYWIHCPdySCcedQigEFTzmH7kwWRTh0AyzCGMDaXBf+B86x3TU4DYw/QSATGE2+txBYq+g/yjL+JNSnmXCH+YQI+jPGSEs2BiBPW8r4Mvp6qgKo=
+	t=1768594647; cv=none; b=Z8/76Et7sC+IsaQ3t5qlpjlalf93zPzagFMZuubeLDvEYKTmyHeLHm0oPrN9DNyIyvg2IeltBCGXx4QFvJwRg9qLl7nri1GagCJB7t068PosSGJUiwywYCqD/PXAn96Iyxcal3N0axvWtYSAb4tbl1Td5KB09I5i0BtpUNNxH9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768570959; c=relaxed/simple;
-	bh=hG1EkQ+OvNsfJoq0DWyfjxDRwFK1Zz2d3pmz1qT8MXA=;
+	s=arc-20240116; t=1768594647; c=relaxed/simple;
+	bh=EGDaZxphteys4MDa8MzuZ1bd1Xd4XXDAHrpujbR+TGM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eGrGiy+d9Ga7FTVfXxpzoDY55SW+oXd6+MlmNces0eIOA6EAOkMHo/6NaDMKvZFUGyJ4cPL6gzKqlzLEFvlagFWeJb4mZMP1Lb5KltNqfDSTfnstUR4zYUF1haLp4iK3NHOI67ekxUOJ/vQWMJ+KFAsw/5Q+ojfTinIbC2FaIRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=Y3ux5rJt; arc=none smtp.client-ip=157.180.73.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+	 MIME-Version; b=TVeNNIXPOOriJq2C/nw3zJSZ5NPs5caxxdxvXCsrYAP3BMH1j8JSJAN0zb31crin8SK/hEdEdKuwG6URk2SY0nSmp1LmJqyH0z6XKu6oQCqk2NfWPKDrc90hFZp36OMUUxA6dwKFpvjFWHDDjUQFHPngEPgg9SSxjqyugg1nLtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=PoYGGZqI; arc=none smtp.client-ip=95.215.58.186
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="Y3ux5rJt"
-Received: from relay14 (localhost [127.0.0.1])
-	by relay14.grserver.gr (Proxmox) with ESMTP id 99D1C4083C;
-	Fri, 16 Jan 2026 13:32:13 +0000 (UTC)
-Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by relay14.grserver.gr (Proxmox) with ESMTPS id E446940868;
-	Fri, 16 Jan 2026 13:32:12 +0000 (UTC)
-Received: from antheas-z13 (unknown [IPv6:2a05:f6c3:fefd:0:42c:a43d:2848:c282])
-	by linux3247.grserver.gr (Postfix) with ESMTPSA id 2CA101FD3F3;
-	Fri, 16 Jan 2026 15:32:11 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1768570332;
-	bh=8hSaoQfEIyYZ4F+L0MrHWED5H3ltWjnoArChTNuPCUc=; h=From:To:Subject;
-	b=Y3ux5rJtuGInU5KzTEAEe95Zej7hgpD7/PJ/DIaC5rcVywYgmtOIRXUt6bVZ/kfJB
-	 upKn+OwAmbjrmxB1Q4N3b2c8G17bvC3LaXyLghWaTqyjiDrKFXS0N8zn5EhFiQoiWX
-	 iHwFjzodsVjfLWxW7ACaBRBzjy61djK8/cFzWZO80kStF1yyryVubIoLficJs35TQl
-	 3u+kM0QScXrJ8/T0abaKHEHKOQzvmQSzU+x10e8PK8I6oG2WyUokkjEq/P8zwMPhUo
-	 dbocFsLGsf20y2fUMcbBwQYvjXtdFM3dsHnH3l9VP2M5jIcUjuwK50pcXZQCN9znLz
-	 Il24WY+4uHS/g==
-Authentication-Results: linux3247.grserver.gr;
-	spf=pass (sender IP is 2a05:f6c3:fefd:0:42c:a43d:2848:c282) smtp.mailfrom=lkml@antheas.dev smtp.helo=antheas-z13
-Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
-From: Antheas Kapenekakis <lkml@antheas.dev>
-To: platform-driver-x86@vger.kernel.org,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="PoYGGZqI"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1768594643;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z6eFTBE8G/ALAVO9QF3Nim9O//OBqjjYmjnaMs7N+SE=;
+	b=PoYGGZqIKUmpfhnbZeK4cRNhVsYv/wowjrgfD3xhIpSzJwWKDOtfxITm8Kb8Bk9vYMtT7D
+	wcokQspuZU1nMEpGwqvHzv6MLvDBISooEv54Mkk0xNnHUAeATm4cFKT6PShzZ7rWrL3mK2
+	QTrFE8Q7RcWdD/fe/RGz8HmURYfNyHE=
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+To: Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>,
+	Tejun Heo <tj@kernel.org>,
+	Alan Maguire <alan.maguire@oracle.com>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Corentin Chary <corentin.chary@gmail.com>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	Hans de Goede <hansg@kernel.org>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH v11 10/11] platform/x86: asus-wmi: add keyboard brightness
- event handler
-Date: Fri, 16 Jan 2026 14:31:49 +0100
-Message-ID: <20260116133150.5606-11-lkml@antheas.dev>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260116133150.5606-1-lkml@antheas.dev>
-References: <20260116133150.5606-1-lkml@antheas.dev>
+	Jiri Kosina <jikos@kernel.org>,
+	Amery Hung <ameryhung@gmail.com>,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	sched-ext@lists.linux.dev
+Subject: [PATCH bpf-next v2 01/13] bpf: Refactor btf_kfunc_id_set_contains
+Date: Fri, 16 Jan 2026 12:16:48 -0800
+Message-ID: <20260116201700.864797-2-ihor.solodrai@linux.dev>
+In-Reply-To: <20260116201700.864797-1-ihor.solodrai@linux.dev>
+References: <20260116201700.864797-1-ihor.solodrai@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -66,158 +55,213 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-PPP-Message-ID: 
- <176857033243.3553042.4180730708922187340@linux3247.grserver.gr>
-X-PPP-Vhost: antheas.dev
-X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
-X-Virus-Status: Clean
+X-Migadu-Flow: FLOW_OUT
 
-The keyboard brightness control of Asus WMI keyboards is handled in
-kernel, which leads to the shortcut going from brightness 0, to 1,
-to 2, and 3.
+btf_kfunc_id_set_contains() is called by fetch_kfunc_meta() in the BPF
+verifier to get the kfunc flags stored in the .BTF_ids ELF section.
+If it returns NULL instead of a valid pointer, it's interpreted as an
+illegal kfunc usage failing the verification.
 
-However, for HID keyboards it is exposed as a key and handled by the
-user's desktop environment. For the toggle button, this means that
-brightness control becomes on/off. In addition, in the absence of a
-DE, the keyboard brightness does not work.
+There are two potential reasons for btf_kfunc_id_set_contains() to
+return NULL:
 
-Therefore, expose an event handler for the keyboard brightness control
-which can then be used by hid-asus. Since this handler is called from
-an interrupt context, defer the actual work to a workqueue.
+  1. Provided kfunc BTF id is not present in relevant kfunc id sets.
+  2. The kfunc is not allowed, as determined by the program type
+     specific filter [1].
 
-In the process, introduce ASUS_EV_MAX_BRIGHTNESS to hold the constant
-for maximum brightness since it is shared between hid-asus/asus-wmi.
+The filter functions accept a pointer to `struct bpf_prog`, so they
+might implicitly depend on earlier stages of verification, when
+bpf_prog members are set.
 
-Reviewed-by: Luke D. Jones <luke@ljones.dev>
-Tested-by: Luke D. Jones <luke@ljones.dev>
-Acked-by: Benjamin Tissoires <bentiss@kernel.org>
-Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
+For example, bpf_qdisc_kfunc_filter() in linux/net/sched/bpf_qdisc.c
+inspects prog->aux->st_ops [2], which is initialized in:
+
+    check_attach_btf_id() -> check_struct_ops_btf_id()
+
+So far this hasn't been an issue, because fetch_kfunc_meta() is the
+only caller of btf_kfunc_id_set_contains().
+
+However in subsequent patches of this series it is necessary to
+inspect kfunc flags earlier in BPF verifier, in the add_kfunc_call().
+
+To resolve this, refactor btf_kfunc_id_set_contains() into two
+interface functions:
+  * btf_kfunc_flags() that simply returns pointer to kfunc_flags
+    without applying the filters
+  * btf_kfunc_is_allowed() that both checks for kfunc_flags existence
+    (which is a requirement for a kfunc to be allowed) and applies the
+    prog filters
+
+See [3] for the previous version of this patch.
+
+[1] https://lore.kernel.org/all/20230519225157.760788-7-aditi.ghag@isovalent.com/
+[2] https://lore.kernel.org/all/20250409214606.2000194-4-ameryhung@gmail.com/
+[3] https://lore.kernel.org/bpf/20251029190113.3323406-3-ihor.solodrai@linux.dev/
+
+Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
+Reviewed-by: Eduard Zingerman <eddyz87@gmail.com>
 ---
- drivers/platform/x86/asus-wmi.c            | 46 +++++++++++++++++++---
- include/linux/platform_data/x86/asus-wmi.h | 13 ++++++
- 2 files changed, 54 insertions(+), 5 deletions(-)
+ include/linux/btf.h   |  4 +--
+ kernel/bpf/btf.c      | 70 ++++++++++++++++++++++++++++++++-----------
+ kernel/bpf/verifier.c |  6 ++--
+ 3 files changed, 58 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index df2365efb2b8..e65d91a11000 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -1719,6 +1719,44 @@ static void kbd_led_update_all(struct work_struct *work)
- 	}
+diff --git a/include/linux/btf.h b/include/linux/btf.h
+index 78dc79810c7d..a2f4f383f5b6 100644
+--- a/include/linux/btf.h
++++ b/include/linux/btf.h
+@@ -575,8 +575,8 @@ const char *btf_name_by_offset(const struct btf *btf, u32 offset);
+ const char *btf_str_by_offset(const struct btf *btf, u32 offset);
+ struct btf *btf_parse_vmlinux(void);
+ struct btf *bpf_prog_get_target_btf(const struct bpf_prog *prog);
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf, u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog);
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
++bool btf_kfunc_is_allowed(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog);
+ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 364dd84bfc5a..d10b3404260f 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -8757,24 +8757,17 @@ static int btf_populate_kfunc_set(struct btf *btf, enum btf_kfunc_hook hook,
+ 	return ret;
  }
  
-+/*
-+ * This function is called from hid-asus to inform asus-wmi of brightness
-+ * changes initiated by the keyboard backlight keys.
-+ */
-+int asus_hid_event(enum asus_hid_event event)
+-static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+-					enum btf_kfunc_hook hook,
+-					u32 kfunc_btf_id,
+-					const struct bpf_prog *prog)
++static u32 *btf_kfunc_id_set_contains(const struct btf *btf,
++				      enum btf_kfunc_hook hook,
++				      u32 kfunc_btf_id)
+ {
+-	struct btf_kfunc_hook_filter *hook_filter;
+ 	struct btf_id_set8 *set;
+-	u32 *id, i;
++	u32 *id;
+ 
+ 	if (hook >= BTF_KFUNC_HOOK_MAX)
+ 		return NULL;
+ 	if (!btf->kfunc_set_tab)
+ 		return NULL;
+-	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
+-	for (i = 0; i < hook_filter->nr_filters; i++) {
+-		if (hook_filter->filters[i](prog, kfunc_btf_id))
+-			return NULL;
+-	}
+ 	set = btf->kfunc_set_tab->sets[hook];
+ 	if (!set)
+ 		return NULL;
+@@ -8785,6 +8778,28 @@ static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+ 	return id + 1;
+ }
+ 
++static bool __btf_kfunc_is_allowed(const struct btf *btf,
++				   enum btf_kfunc_hook hook,
++				   u32 kfunc_btf_id,
++				   const struct bpf_prog *prog)
 +{
-+	struct asus_wmi *asus;
-+	int brightness;
++	struct btf_kfunc_hook_filter *hook_filter;
++	int i;
 +
-+	guard(spinlock_irqsave)(&asus_ref.lock);
-+	asus = asus_ref.asus;
-+	if (!asus || !asus->kbd_led_registered)
-+		return -EBUSY;
++	if (hook >= BTF_KFUNC_HOOK_MAX)
++		return false;
++	if (!btf->kfunc_set_tab)
++		return false;
 +
-+	brightness = asus->kbd_led_wk;
-+
-+	switch (event) {
-+	case ASUS_EV_BRTUP:
-+		brightness += 1;
-+		break;
-+	case ASUS_EV_BRTDOWN:
-+		brightness -= 1;
-+		break;
-+	case ASUS_EV_BRTTOGGLE:
-+		if (brightness >= ASUS_EV_MAX_BRIGHTNESS)
-+			brightness = 0;
-+		else
-+			brightness += 1;
-+		break;
++	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
++	for (i = 0; i < hook_filter->nr_filters; i++) {
++		if (hook_filter->filters[i](prog, kfunc_btf_id))
++			return false;
 +	}
 +
-+	asus->kbd_led_wk = clamp_val(brightness, 0, ASUS_EV_MAX_BRIGHTNESS);
-+	asus->kbd_led_notify = true;
-+	queue_work(asus->led_workqueue, &asus->kbd_led_work);
-+	return 0;
++	return true;
 +}
-+EXPORT_SYMBOL_GPL(asus_hid_event);
 +
- /*
-  * These functions actually update the LED's, and are called from a
-  * workqueue. By doing this as separate work rather than when the LED
-@@ -1801,13 +1839,11 @@ static void do_kbd_led_set(struct led_classdev *led_cdev, int value)
+ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
  {
- 	struct asus_hid_listener *listener;
- 	struct asus_wmi *asus;
--	int max_level;
- 
- 	asus = container_of(led_cdev, struct asus_wmi, kbd_led);
--	max_level = asus->kbd_led.max_brightness;
- 
- 	scoped_guard(spinlock_irqsave, &asus_ref.lock)
--		asus->kbd_led_wk = clamp_val(value, 0, max_level);
-+		asus->kbd_led_wk = clamp_val(value, 0, ASUS_EV_MAX_BRIGHTNESS);
- 
- 	if (asus->kbd_led_avail)
- 		kbd_led_update(asus);
-@@ -2011,7 +2047,7 @@ static int asus_wmi_led_init(struct asus_wmi *asus)
- 	asus->kbd_led.flags = LED_BRIGHT_HW_CHANGED;
- 	asus->kbd_led.brightness_set_blocking = kbd_led_set;
- 	asus->kbd_led.brightness_get = kbd_led_get;
--	asus->kbd_led.max_brightness = 3;
-+	asus->kbd_led.max_brightness = ASUS_EV_MAX_BRIGHTNESS;
- 	asus->kbd_led_avail = !kbd_led_read(asus, &led_val, NULL);
- 	INIT_WORK(&asus->kbd_led_work, kbd_led_update_all);
- 
-@@ -4530,7 +4566,7 @@ static void asus_wmi_handle_event_code(int code, struct asus_wmi *asus)
- 		return;
+ 	switch (prog_type) {
+@@ -8832,6 +8847,26 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
  	}
- 	if (code == NOTIFY_KBD_BRTTOGGLE) {
--		if (led_value == asus->kbd_led.max_brightness)
-+		if (led_value == ASUS_EV_MAX_BRIGHTNESS)
- 			kbd_led_set_by_kbd(asus, 0);
- 		else
- 			kbd_led_set_by_kbd(asus, led_value + 1);
-diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/linux/platform_data/x86/asus-wmi.h
-index d347cffd05d5..7b872b5d0960 100644
---- a/include/linux/platform_data/x86/asus-wmi.h
-+++ b/include/linux/platform_data/x86/asus-wmi.h
-@@ -178,6 +178,14 @@ struct asus_hid_listener {
- 	void (*brightness_set)(struct asus_hid_listener *listener, int brightness);
- };
- 
-+enum asus_hid_event {
-+	ASUS_EV_BRTUP,
-+	ASUS_EV_BRTDOWN,
-+	ASUS_EV_BRTTOGGLE,
-+};
-+
-+#define ASUS_EV_MAX_BRIGHTNESS 3
-+
- #if IS_REACHABLE(CONFIG_ASUS_WMI)
- void set_ally_mcu_hack(enum asus_ally_mcu_hack status);
- void set_ally_mcu_powersave(bool enabled);
-@@ -186,6 +194,7 @@ int asus_wmi_set_devstate(u32 dev_id, u32 ctrl_param, u32 *retval);
- int asus_wmi_evaluate_method(u32 method_id, u32 arg0, u32 arg1, u32 *retval);
- int asus_hid_register_listener(struct asus_hid_listener *cdev);
- void asus_hid_unregister_listener(struct asus_hid_listener *cdev);
-+int asus_hid_event(enum asus_hid_event event);
- #else
- static inline void set_ally_mcu_hack(enum asus_ally_mcu_hack status)
- {
-@@ -213,6 +222,10 @@ static inline int asus_hid_register_listener(struct asus_hid_listener *bdev)
- static inline void asus_hid_unregister_listener(struct asus_hid_listener *bdev)
- {
  }
-+static inline int asus_hid_event(enum asus_hid_event event)
-+{
-+	return -ENODEV;
-+}
- #endif
  
- #endif	/* __PLATFORM_DATA_X86_ASUS_WMI_H */
++bool btf_kfunc_is_allowed(const struct btf *btf,
++			  u32 kfunc_btf_id,
++			  const struct bpf_prog *prog)
++{
++	enum bpf_prog_type prog_type = resolve_prog_type(prog);
++	enum btf_kfunc_hook hook;
++	u32 *kfunc_flags;
++
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog))
++		return true;
++
++	hook = bpf_prog_type_to_kfunc_hook(prog_type);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, hook, kfunc_btf_id, prog))
++		return true;
++
++	return false;
++}
++
+ /* Caution:
+  * Reference to the module (obtained using btf_try_get_module) corresponding to
+  * the struct btf *MUST* be held when calling this function from verifier
+@@ -8839,26 +8874,27 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+  * keeping the reference for the duration of the call provides the necessary
+  * protection for looking up a well-formed btf->kfunc_set_tab.
+  */
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf,
+-			       u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog)
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog)
+ {
+ 	enum bpf_prog_type prog_type = resolve_prog_type(prog);
+ 	enum btf_kfunc_hook hook;
+ 	u32 *kfunc_flags;
+ 
+-	kfunc_flags = __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
+ 	if (kfunc_flags)
+ 		return kfunc_flags;
+ 
+ 	hook = bpf_prog_type_to_kfunc_hook(prog_type);
+-	return __btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id, prog);
++	return btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
+ }
+ 
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog)
+ {
+-	return __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog);
++	if (!__btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog))
++		return NULL;
++
++	return btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id);
+ }
+ 
+ static int __register_btf_kfunc_id_set(enum btf_kfunc_hook hook,
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 9de0ec0c3ed9..bd9bd797f5a0 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -13723,10 +13723,10 @@ static int fetch_kfunc_meta(struct bpf_verifier_env *env,
+ 		*kfunc_name = func_name;
+ 	func_proto = btf_type_by_id(desc_btf, func->type);
+ 
+-	kfunc_flags = btf_kfunc_id_set_contains(desc_btf, func_id, env->prog);
+-	if (!kfunc_flags) {
++	if (!btf_kfunc_is_allowed(desc_btf, func_id, env->prog))
+ 		return -EACCES;
+-	}
++
++	kfunc_flags = btf_kfunc_flags(desc_btf, func_id, env->prog);
+ 
+ 	memset(meta, 0, sizeof(*meta));
+ 	meta->btf = desc_btf;
 -- 
 2.52.0
-
 

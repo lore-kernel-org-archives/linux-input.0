@@ -1,113 +1,177 @@
-Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE6B3A63F0
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 10:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5031D42DFE0
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 12:43:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768904598; cv=none; b=ej6/tSfpv/It0SMWuqLq9eM5S4Hq7p+bXwe/NIwI07+XoH/K6sefJlF5zP8uP6IyB3D/VhP89CbCWGs7h+NmV7ZEWQTX3Lca3XsEKvb554F2sKTINtuTwilcOlzR1PU67pyBv8PgZ1Mvyol9UYVVYbAxg4gUSp5TCUYBVp+AG9k=
+	t=1768913014; cv=none; b=H3Jv7LXMOa8duSZhaHIM5u1fEimSG48m7pbwCzqzn50qEIIG0IARtQG7+sfDIDFl9pp4aDYBAZz93R7zVLZ52Swm/KE7hiXoiBYxkiPrQCbUUSZIeOVheTg4ZcHt7PDCrTisTzsrkBBWbxbEY/CTgzXdxPxwMwEEkHuKkGlOGEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768904598; c=relaxed/simple;
-	bh=ly0/vW5IDlDw+5wI+QKQKa0L1EivDoecPfiopYcWyII=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LbJxe75sLAoNcC1RRP+SY1N5vjxOf/yoZlZnqdYLVKvyOzm+IfpnvP1ua4gl1Flag109KUeY0xmjzn1/zFzyGP4VUMcCiXp7G3YMoV7NpGztCZiGHQp7h95CWCffoSSGpjV9V2FDhVIdNgOp+hDm9OhmeVAIXnZ5y5kFLCLLWiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-5635e6b80easo1335327e0c.2
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 02:23:16 -0800 (PST)
+	s=arc-20240116; t=1768913014; c=relaxed/simple;
+	bh=Bqt66FG37gQPzxXo8GEua4Yy1cjRKNOcuhnhCZqtlb8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tWissUPxvgUA8ssRQnieVCAaiRfExnJs2JY5Ko8cicZ39gFr2QVbuqjJ3WQW/Pumc0FBYS+cazKhkmCsJLBDCmlcoBElWRRgl0Wh39jsKrefGXEDZH4E3fYqxDLqCSKLlMIncYqWCjuuPvKJ9nJEAYoMAmBwKlG9StWaTVHOvjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Z7D643z6; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=PwC0WxGl; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Z7D643z6";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="PwC0WxGl"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60K6ifa03154099
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 12:43:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	vaWIDj6o3+/nwUwiV/H8Dqvr4BjKk1GgvJw43iLVUDU=; b=Z7D643z6cqtblgZ/
+	xBLNFx79HvoR14QSrGHjemMePUy1Aec7iZJQmsyEjFOxZOtUUrVivAlWr6JpPSlO
+	6Tn4jx6VUNR2YDmWMUj5N6K9f8crxqpucoXa5gdzHJPugKJr/PSbslQWP2rfFjbP
+	h4MCi/sXv+D4nItzhsR6cYphjcC/ZRhOmC0ZYRcZZW+1Wb0QRQcyIRETdgIzlYqS
+	OrtLhfp8E2GQrDv0Jx4jwF6nSgE7oE2ciiCCuItv0BzjhMZFlutp7JRK1JdHnbwF
+	AfLUQvRBJhdNevCaw0PDBhhMGojTkEKEKZtDL2W8jRfJ/nNJbp7fhqgY42nYijUf
+	hiEmHA==
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com [209.85.160.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4bt4q512fx-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 12:43:31 +0000 (GMT)
+Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-501506ff58fso16945151cf.1
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 04:43:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1768913010; x=1769517810; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vaWIDj6o3+/nwUwiV/H8Dqvr4BjKk1GgvJw43iLVUDU=;
+        b=PwC0WxGlvFqlv+GJYnrxIzUNtuYodDpSmjdcd/E0I0eBn7gdNd7YwXnP3O2zi5i7u2
+         cGOLyItoBl9e0qEANkj1xg4EDyYvezzpX0JugMvkxMgoewnq4u333ur2cZqY05Cv0M2A
+         9q1KqqXUzi3hpMAPEj0an0sqAT3IrMzGg/ANyGBA/gIZzqlT93Mh5YBmBus2rdLtgaiU
+         Hk9+w8OnYRYIEoqMPqVP/zJ4YW5EpVe3mTwbDp/YcjjyWGLBzZj7nN0ejjTbBzujmfP9
+         /8sEe24o5ZytYlkqPEME8mZs57F6pk0BsVayGehHisj7bjvWDkGob3gSNq2IBaOyae6D
+         IQGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768904595; x=1769509395;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=N0ac9c/OTxQ/f6N2lklbqJQ1hEcN+Ckhb/mx79x7PYg=;
-        b=ZaBMUgcsxtsiJeTjd4BSVv0DjNfudl66vncrPV4YgNCevNsApfqTyByg2Yvl+XRFy2
-         exr4zGpWg9CwpzpmrFJAeL+CxZC/E+hCeCNqWtb6Oho805FDrSZwmJccKi6Q0MBREkUq
-         xpSERLzYDlQaP0Hh8KUQYedGLzbrUeY9sdEJ7riDeqkQHFfkMugF65C9iUGb+pdkLF3p
-         CRFQFnvFaeHcvzatu+WNA93DxwT/SaMsHk9IdCA+kV50A4qDJ3Pg9HNUCjXuct/rK+hJ
-         h+gkzFtKb7OAZokxqWpUlLTATlNBep8momlSV5nUwuhtMYjl3mMjroOZHf5d9yxuFIfH
-         sWhg==
-X-Forwarded-Encrypted: i=1; AJvYcCWqH0qeMUNbP15n25zsbrj9B/7IfvAjl801/gIxPKqkSj6bIjBRspvDuPe37YGXr2MUhev+XzN/rl6tlg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yykbcb1buXllW0oRBF2okFpOlwbxt1skiaJjkZDBR5kWQ9T7q5g
-	yi2tbhKklTE1mreKhj2l/45PG2pBmIvOXjnfpVeGop9SOQW+OtIrhQQdB1022Hnd
-X-Gm-Gg: AZuq6aLmS+zAoYN1tllNNiKhvHzoFY/mXx+Zv6w17A/sON3phwCEIhLexa+5/qegBEz
-	A1GjzEiz8yiwsZls9vTn88oWn4+s1lgxfta27dkO7e58uTylkMIKFbJS3HveG1xF2uLg0cXtIER
-	SIZrhdhIqV9b9TNaVNMsk5UTEU7e8mzR+ERdwrc5nOuTcME5ee7aGt3LYL5VOxNkpkQSG1S5I61
-	w3LMx3vYb7rFcLMgtToaDvdIZrAVRMeLyZQQn0u1D42+4+/I03jjFEIWi5ZwshOiOb8o0tw9fJw
-	2l+2GhfjEFEUd5qgLiMMn5haZ+4qW+W9X00iqYaJOxAYC4OgaRPk7KJ2HoVhYpptzenQ8FcZIHH
-	LOm1M3gKIjvNbwvbBLavUNYQWDuDAnt05lqCnxeqMTxz5EvshtL55fB/YL/6sTkZ4cdF1/zv8Rn
-	l2D3SuvGiYAcvsWUlUA0DkToFgtswU/jtj4ZZIeYRvjq0b9HwG
-X-Received: by 2002:a05:6122:318e:b0:563:4d66:359c with SMTP id 71dfb90a1353d-563b7195353mr3792785e0c.0.1768904595330;
-        Tue, 20 Jan 2026 02:23:15 -0800 (PST)
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com. [209.85.217.52])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-563b70e516fsm3374565e0c.13.2026.01.20.02.23.14
-        for <linux-input@vger.kernel.org>
+        d=1e100.net; s=20230601; t=1768913010; x=1769517810;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vaWIDj6o3+/nwUwiV/H8Dqvr4BjKk1GgvJw43iLVUDU=;
+        b=kOk1UGaBwQhcrp1UKKuAJRRex6ubBvHSuK/2FKf+n8Dr/WNZEZn3RCFeK+3f6+EUqT
+         +Obf209Eg7uZOTmOBnX4kPbhwyhoUWJAoicNvtK53jFm1g2tt48EFOI8/85Tq5Glgme2
+         V+2lMFdqhY23nSz2V/K2+8BWjaR7mbg7oSsiYQJN04IUgWV5M42ZDb0okjttdY454Aih
+         3RHYnPLnkzjAJbV3LorQyCoXf03DyB0ILmIBRk17W+vP2kd/vSEhfDYaJIy53/85wpGV
+         S/vUce3pdqlrydFPONeIu95pBzBOzPy6U1vLkkdXZQ89OkhLY24IKXjo9hocdfyCd/ct
+         GjIQ==
+X-Gm-Message-State: AOJu0YwsASpLYWjHoV4SyBo1e4/1LFNiFS15ZxXMzLCl87P3uYPbLNOK
+	OanRYZu+rYiEOpogFFcD9SXyi9WkvMIlyFoyfKN8egwvS3uAb9GpAF8VqNTrXw5vhVHh7OOQLjH
+	8+dAcevTpyzbFm5Gde9nqTM77qIy0GnJiZhAFKGdsXHNtUPdymv4JDsneidh123w1Wg==
+X-Gm-Gg: AY/fxX6LwQCoPSNgy01Wo+U6WSbFS4ffmUee4sHhWrUrN9fe5RngJ/36d7fgr2Ljb40
+	OOO0LPsgzT95MWoIp1tvSF7xNd3/zfWK9XvirVkbrRp3suN67zstjf6FLWYxx35oPe8BGhBWaEH
+	VSUQHl4krQZHgj/w0UbUsyU55JMWAcs3iktBvIZ+VrwG+QuelPWsHZjVG0zjyxqbidEPCAWmnPO
+	cw2rwnuOyyoj1LPOT7yfd2Ku4UiaXCx+CYuB4YQOgrl8mMRDGCWe/WDh+tpnxENChAfnQVpaUlq
+	GOxWpjEsm6jlXj82O39jb/MY+tHVoODBKGS71iQG0zqofwp9i3ILidHwzZ4r5ZgmN6TId2ESQOb
+	/1jd7jrlmNnSLqBjVXGkO8XB2qrk/Q+Tmr0b9lzGitrnzmuS6tZru9S9xd2wl40MU1Gg=
+X-Received: by 2002:ac8:7f56:0:b0:501:4767:a64 with SMTP id d75a77b69052e-502a16b7389mr165053801cf.5.1768913010481;
+        Tue, 20 Jan 2026 04:43:30 -0800 (PST)
+X-Received: by 2002:ac8:7f56:0:b0:501:4767:a64 with SMTP id d75a77b69052e-502a16b7389mr165053381cf.5.1768913009853;
+        Tue, 20 Jan 2026 04:43:29 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-654535c49dbsm13597080a12.32.2026.01.20.04.43.28
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Jan 2026 02:23:15 -0800 (PST)
-Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-5efa33b2639so1599438137.2
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 02:23:14 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUnhmPBEckrrS35LiPpYDlRJ94WpT/BQMQAq/dEW11fThGTyif9bjyWgDxSaLmdyXTbLh0h+X/C7LnpIg==@vger.kernel.org
-X-Received: by 2002:a05:6102:dcb:b0:5dd:84f1:b51a with SMTP id
- ada2fe7eead31-5f1a720e344mr3802674137.43.1768904593920; Tue, 20 Jan 2026
- 02:23:13 -0800 (PST)
+        Tue, 20 Jan 2026 04:43:29 -0800 (PST)
+Message-ID: <d2888a71-2b32-42a8-868b-090f1340740c@oss.qualcomm.com>
+Date: Tue, 20 Jan 2026 13:43:27 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260117001215.59272-1-marek.vasut+renesas@mailbox.org>
- <20260117-grinning-heavy-crab-11f245@quoll> <38a146cf-8eee-4fbb-8783-231108a01b54@mailbox.org>
- <578745f0-0865-4195-9237-6d41c7fd55f2@kernel.org>
-In-Reply-To: <578745f0-0865-4195-9237-6d41c7fd55f2@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 20 Jan 2026 11:23:03 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdUuYJ6pSFXy9KBsgkbJ003HEEKhMPgUHkQbdJPFchR39w@mail.gmail.com>
-X-Gm-Features: AZwV_Qg0GRK3xtZRzMXlXd6nCURzar6s0zix0S_d3ClYfwO2CsgqrBgFFjQMPVY
-Message-ID: <CAMuHMdUuYJ6pSFXy9KBsgkbJ003HEEKhMPgUHkQbdJPFchR39w@mail.gmail.com>
-Subject: Re: [PATCH v4 1/3] dt-bindings: touchscreen: trivial-touch: Drop
- 'interrupts' requirement for old Ilitek
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Marek Vasut <marek.vasut@mailbox.org>, linux-input@vger.kernel.org, 
-	Frank Li <Frank.Li@nxp.com>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Job Noorman <job@noorman.info>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 3/3] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
+ Focaltech FT3518 touchscreen
+To: yedaya.ka@gmail.com,
+        =?UTF-8?Q?Kamil_Go=C5=82da?=
+ <kamil.golda@protonmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+References: <20260118-touchscreen-patches-v3-0-1c6a729c5eb4@gmail.com>
+ <20260118-touchscreen-patches-v3-3-1c6a729c5eb4@gmail.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260118-touchscreen-patches-v3-3-1c6a729c5eb4@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIwMDEwNSBTYWx0ZWRfX3+hfS/GsPGci
+ sBvEZG8aX155wQt0NwlDC8ObxDP2ar1GRrdCuCXwIWfR773XCvtT+2dmcB9rXLbxmzOY9MYEasv
+ RIQkhdES+oZrrWeqrn89EK3xM8LGC7vqNheCCIdl6CuB+4VmoFYAP2sw46r39S06xlliHh3ofK4
+ 5qZF6sRkRuHiZm+PVDvd5UsoP+FgVEPAY9n+s55txS5vf9X6ajJu1u/VegtqqSgk4bVpBi/CATC
+ auGp2rZNdUyWmyIMsqSSlVt2UlBQk+UGRAgpNOGyN0KLT4z7iaQaR1M1h+cKmZQNPIx4zRFKyzp
+ 9SSZbHA/AqbZxWE7/Ql4MrCN6KAmTLFwI2clED7ilVHXRy6oyQOa4/DG/M8g9kMTzilJRMSB+XC
+ s1WQou+bHwb5U9iHwcAAJFSw1xTUqDkjDGY/lkbYmOCBPrLv3gd5x1FKCHBRlXocBlHkYCuv3J+
+ QbwwUDC20YvF4DZ18uw==
+X-Proofpoint-GUID: DRk15g7adu3wRLDsgX2G2LqerZYz7yA5
+X-Proofpoint-ORIG-GUID: DRk15g7adu3wRLDsgX2G2LqerZYz7yA5
+X-Authority-Analysis: v=2.4 cv=MNFtWcZl c=1 sm=1 tr=0 ts=696f7873 cx=c_pps
+ a=mPf7EqFMSY9/WdsSgAYMbA==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Uyhorv2uAAAA:20 a=pGLkceISAAAA:8 a=sfOm8-O8AAAA:8
+ a=8Y00a8MOIoAAH37gNwoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=dawVfQjAaf238kedN5IG:22 a=TvTJqdcANYtsRzA46cdi:22 a=bA3UWDv6hWIuX7UZL3qL:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-20_03,2026-01-20_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 spamscore=0
+ impostorscore=0 clxscore=1015 adultscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2601200105
 
-On Sat, 17 Jan 2026 at 19:34, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> On 17/01/2026 16:33, Marek Vasut wrote:
-> > On 1/17/26 12:22 PM, Krzysztof Kozlowski wrote:
-> >> On Sat, Jan 17, 2026 at 01:12:02AM +0100, Marek Vasut wrote:
-> >>> The old Ilitek touch controllers V3 and V6 can operate without
-> >>> interrupt line, in polling mode. Drop the 'interrupts' property
-> >>> requirement for those four controllers. To avoid overloading the
-> >>> trivial-touch, fork the old Ilitek V3/V6 touch controller binding
-> >>> into separate document.
-> >>
-> >> One if: block is fine, so IMO, this should stay in original binding
-> >> especially that more devices like some azoteq or semtech might have same
-> >> rule of not requiring interrupt line. Anyway, no big deal.
-> > I am not sure about the other non-ilitek devices, but the fruitboards do
-> > use at least goodix and etm/edt touch controllers without interrupt line
-> > too, those I have on my desk (those two have separate, more extensive,
-> > binding document). I also suspect we will see more of those touch
-> > controllers with optional interrupt line, so if we do, I think we can
-> > re-combine the binding documents again ?
->
-> Yes.
+On 1/18/26 9:29 PM, Yedaya Katsman via B4 Relay wrote:
+> From: Yedaya Katsman <yedaya.ka@gmail.com>
+> 
+> Add device tree node for the Focaltech FT3518 touchscreen on
+> Xiaomi Mi A3 (laurel-sprout).
+> 
+> Add pmx_ts_* gpio configurations and reference them in the touchscreen
+> node.
+> Note that gpio pin 83 for the regulator isn't documented downstream
+> except in the touchscreen node so it's not defined in the tlmm.
+> 
+> Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
+> 
+> Downstream references:
+> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
+> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
+> 
+> Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
+> ---
 
-IMHO more churn, and more git blame mismatches...
-Why not keep them in a single document in the first place, like in v1?
+[...]
 
-Gr{oetje,eeting}s,
+>  &tlmm {
+>  	gpio-reserved-ranges = <22 2>, <28 6>;
+> +
+> +	pmx_ts_reset_active {
 
-                        Geert
+Node names must end in -state and you should use dashes instead of
+underscores in node names ('make dtbs_check' would tell you at least
+one of these things)
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> +		ts_reset_active: ts_reset_active {
+> +			mux {
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Please drop the intermediate nodes and put the properties directly
+under the foo-state {} node. The indirection is useful when we're
+defining multiple pins with the exact same settings (e.g. 4 lanes
+of SDIO)
+
+Konrad

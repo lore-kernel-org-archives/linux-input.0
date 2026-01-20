@@ -1,189 +1,267 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B886544A717;
-	Tue, 20 Jan 2026 21:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 053D527AC45
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 22:27:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768945265; cv=none; b=BXYAfjLc29lYXNmO4fH7C9Ur/v4Yjr4FteSSDVMQPswViKbe20NhV+JoWExK67jiAp0JX2j4o3/GogBi7z8C8/vQru+xuVn3HeCrPHq6RlFlwPgykZQ0mrEcHh0m3UK5/ZSDU9Kr4KYqdnPz3jg+xYN5Zb3n6oZndYUXH/7Q0+0=
+	t=1768948035; cv=none; b=j1fTrcciQfbZcCl9WPgupk8yLuntSobTvVJEM+l+tSTFn33SEh3NuDVfCg7OnOtLP8HJ1d7lXLXUuM4q2N+bVplF7D2/kO58Q0iUZNu4iELBHL8ilKEDM2M9FG9qiCrv0Lz5NRQsAAP9GxUE+adIzHNFPU5T8DYuZEXVbUVd088=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768945265; c=relaxed/simple;
-	bh=l67nESRyJfuCWmAR9yt7cBpBMGDGFkmCexiZLpjYsKo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rATP64mBE/3vLEcQdhiwsUx1RNvH/8yGsqen6ItHDmed+OQr3MPK0TdiXxwOzCnkkFz0XOJwArPKuxp8ecquTYt2PKll0KBBkmUua8U7z2C1qvBY5mNkywtEqvcMzMcCaxN4uAKP6Xw1M8t9d1okR8ZC7VHXL6ISEUm4WgHC52c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JoLRF7xk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768948035; c=relaxed/simple;
+	bh=ClhH40r2qfYsIreHdARgsBSvy9Qb0e6K/7x9TqwoVHQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=sHm09Z6MDr/5Mf9w2Vu2G09P/RdemVdcRyHECZ0XcSStws0MQkqIfjKmpvR9C04BFpmuu7s1YdMM9m8O6xR0jHl+a4C0qhDdQwc0Ihx0yCy2SxmJjx7Y8Rud9EGXOBQ1I1/GOQ/UKZkKdtCT74aNn8lKqGh2D5NI2UOjs40D/uQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=j9Kz2Rbg; arc=none smtp.client-ip=95.215.58.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JoLRF7xk"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 250A6C19425;
-	Tue, 20 Jan 2026 21:41:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768945264;
-	bh=l67nESRyJfuCWmAR9yt7cBpBMGDGFkmCexiZLpjYsKo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=JoLRF7xkj/uq242BK0GAhN+g3cRIW8PYHOAVTKyodHTiv6KUlN10Vv7zNKYhIUwXH
-	 mSZXiw+6/XAQwpYiSxzHL9l5dM2ELe4P0feU0HTSpFzkOnV9USaTzgM8xuXKxf73fd
-	 ATVT3Dxv/0m6F/vbdpAZfKVXfsdTnFDpzhimOqc5W+618+/E7pk8UUrQ6JRdGaT5e0
-	 WG66+pHLbivkKfOsb5biKPLwbS+tyBtFk3T3Qk2wGesBQ2pBpainKPGKlx166kneQ/
-	 3Qpi11Q4CS3G+t+eioBtnY90GwTmAoVjA+UxzCvs95+7aOIcU2rRmYxM445Ny4bFQh
-	 wzOHNsqwbUOjA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AD37D262A7;
-	Tue, 20 Jan 2026 21:41:04 +0000 (UTC)
-From: Yedaya Katsman via B4 Relay <devnull+yedaya.ka.gmail.com@kernel.org>
-Date: Tue, 20 Jan 2026 23:40:56 +0200
-Subject: [PATCH v4 3/3] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
- Focaltech FT3518 touchscreen
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="j9Kz2Rbg"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1768948026;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DZ2yXRnXBmCz9EszVIjaiZik6bhhhIp7PotMx22ewjI=;
+	b=j9Kz2RbgR5R27pDDnhfInrqTkViCsBP8825kPM/LFkcZF/T65iZshoalbtiExHX6cqR2vC
+	/UXg9yHUwBkjRA9/+zXlztsvCIgqZBzH9A9lnYtPah3iO0h/qiQ/Ox/mS+GLjds0f/EDjE
+	1JT6dF0BurpKwjywjT6KjGc01fPj3ug=
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+To: Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>,
+	Tejun Heo <tj@kernel.org>,
+	Alan Maguire <alan.maguire@oracle.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>,
+	Amery Hung <ameryhung@gmail.com>,
+	bpf@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	sched-ext@lists.linux.dev
+Subject: [PATCH bpf-next v3 01/13] bpf: Refactor btf_kfunc_id_set_contains
+Date: Tue, 20 Jan 2026 14:26:26 -0800
+Message-ID: <20260120222638.3976562-2-ihor.solodrai@linux.dev>
+In-Reply-To: <20260120222638.3976562-1-ihor.solodrai@linux.dev>
+References: <20260120222638.3976562-1-ihor.solodrai@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260120-touchscreen-patches-v4-3-30145da9d6d3@gmail.com>
-References: <20260120-touchscreen-patches-v4-0-30145da9d6d3@gmail.com>
-In-Reply-To: <20260120-touchscreen-patches-v4-0-30145da9d6d3@gmail.com>
-To: =?utf-8?q?Kamil_Go=C5=82da?= <kamil.golda@protonmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- Yedaya Katsman <yedaya.ka@gmail.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1768945262; l=3196;
- i=yedaya.ka@gmail.com; s=20260113; h=from:subject:message-id;
- bh=0OJcZN5EkgFMxF6oJTCa+mjxwCLl+uegWcoEfOLwYYU=;
- b=hdxeCV8WmSK99x2zhrzB4aAtWrvG3y+/Smar6Z5HHOl+meNxRBjTRmGbHE2yr1oI0/iIc9PhF
- 8fTVBNiphLYB+euiIalcxllSwHKAF/Lbu5fcquWWbAEaKPBb0uQvSYb
-X-Developer-Key: i=yedaya.ka@gmail.com; a=ed25519;
- pk=CgNmxD3tYSws5dZfpmJfc6re/bV/f47veVijddHLytk=
-X-Endpoint-Received: by B4 Relay for yedaya.ka@gmail.com/20260113 with
- auth_id=601
-X-Original-From: Yedaya Katsman <yedaya.ka@gmail.com>
-Reply-To: yedaya.ka@gmail.com
+X-Migadu-Flow: FLOW_OUT
 
-From: Yedaya Katsman <yedaya.ka@gmail.com>
+btf_kfunc_id_set_contains() is called by fetch_kfunc_meta() in the BPF
+verifier to get the kfunc flags stored in the .BTF_ids ELF section.
+If it returns NULL instead of a valid pointer, it's interpreted as an
+illegal kfunc usage failing the verification.
 
-Add device tree node for the Focaltech FT3518 touchscreen on
-Xiaomi Mi A3 (laurel-sprout).
+There are two potential reasons for btf_kfunc_id_set_contains() to
+return NULL:
 
-Note that gpio pin 83 for the regulator isn't documented downstream
-except in the touchscreen node so it's not defined in the tlmm.
+  1. Provided kfunc BTF id is not present in relevant kfunc id sets.
+  2. The kfunc is not allowed, as determined by the program type
+     specific filter [1].
 
-Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
+The filter functions accept a pointer to `struct bpf_prog`, so they
+might implicitly depend on earlier stages of verification, when
+bpf_prog members are set.
 
-Downstream references:
-Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
-Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
+For example, bpf_qdisc_kfunc_filter() in linux/net/sched/bpf_qdisc.c
+inspects prog->aux->st_ops [2], which is initialized in:
 
-Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
-Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
-Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
+    check_attach_btf_id() -> check_struct_ops_btf_id()
+
+So far this hasn't been an issue, because fetch_kfunc_meta() is the
+only caller of btf_kfunc_id_set_contains().
+
+However in subsequent patches of this series it is necessary to
+inspect kfunc flags earlier in BPF verifier, in the add_kfunc_call().
+
+To resolve this, refactor btf_kfunc_id_set_contains() into two
+interface functions:
+  * btf_kfunc_flags() that simply returns pointer to kfunc_flags
+    without applying the filters
+  * btf_kfunc_is_allowed() that both checks for kfunc_flags existence
+    (which is a requirement for a kfunc to be allowed) and applies the
+    prog filters
+
+See [3] for the previous version of this patch.
+
+[1] https://lore.kernel.org/all/20230519225157.760788-7-aditi.ghag@isovalent.com/
+[2] https://lore.kernel.org/all/20250409214606.2000194-4-ameryhung@gmail.com/
+[3] https://lore.kernel.org/bpf/20251029190113.3323406-3-ihor.solodrai@linux.dev/
+
+Reviewed-by: Eduard Zingerman <eddyz87@gmail.com>
+Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
 ---
- .../boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts  | 65 ++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ include/linux/btf.h   |  4 +--
+ kernel/bpf/btf.c      | 70 ++++++++++++++++++++++++++++++++-----------
+ kernel/bpf/verifier.c |  6 ++--
+ 3 files changed, 58 insertions(+), 22 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-index 994fb0412fcbdf5466f87a325c48b697a37b514b..ea9dbc6927a14ca66da818b81aeb0c95ec3c2e7a 100644
---- a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-+++ b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-@@ -82,6 +82,18 @@ key-volume-up {
- 		};
- 	};
+diff --git a/include/linux/btf.h b/include/linux/btf.h
+index 78dc79810c7d..a2f4f383f5b6 100644
+--- a/include/linux/btf.h
++++ b/include/linux/btf.h
+@@ -575,8 +575,8 @@ const char *btf_name_by_offset(const struct btf *btf, u32 offset);
+ const char *btf_str_by_offset(const struct btf *btf, u32 offset);
+ struct btf *btf_parse_vmlinux(void);
+ struct btf *bpf_prog_get_target_btf(const struct bpf_prog *prog);
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf, u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog);
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
++bool btf_kfunc_is_allowed(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog);
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog);
+ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 364dd84bfc5a..d10b3404260f 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -8757,24 +8757,17 @@ static int btf_populate_kfunc_set(struct btf *btf, enum btf_kfunc_hook hook,
+ 	return ret;
+ }
  
-+	ts_vdd_supply: regulator-ts-vdd {
-+		compatible = "regulator-fixed";
-+		regulator-name = "ts_vdd_supply";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+
-+		gpio = <&tlmm 83 GPIO_ACTIVE_HIGH>;
-+		enable-active-high;
-+
-+		startup-delay-us = <70000>;
-+	};
-+
- 	thermal-zones {
- 		rf-pa0-thermal {
- 			thermal-sensors = <&pm6125_adc_tm 0>;
-@@ -128,6 +140,27 @@ &hsusb_phy1 {
- 	status = "okay";
- };
+-static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+-					enum btf_kfunc_hook hook,
+-					u32 kfunc_btf_id,
+-					const struct bpf_prog *prog)
++static u32 *btf_kfunc_id_set_contains(const struct btf *btf,
++				      enum btf_kfunc_hook hook,
++				      u32 kfunc_btf_id)
+ {
+-	struct btf_kfunc_hook_filter *hook_filter;
+ 	struct btf_id_set8 *set;
+-	u32 *id, i;
++	u32 *id;
  
-+&i2c2 {
-+	status = "okay";
-+
-+	touchscreen@38 {
-+		compatible = "focaltech,ft3518";
-+		reg = <0x38>;
-+		interrupts-extended = <&tlmm 88 IRQ_TYPE_EDGE_FALLING>;
-+
-+		vcc-supply = <&ts_vdd_supply>;
-+
-+		pinctrl-names = "default","sleep";
-+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
-+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
-+
-+		reset-gpios = <&tlmm 87 GPIO_ACTIVE_LOW>;
-+
-+		touchscreen-size-x = <720>;
-+		touchscreen-size-y = <1560>;
-+	};
-+};
-+
- &pm6125_adc {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&camera_flash_therm &emmc_ufs_therm>;
-@@ -220,6 +253,10 @@ &pon_resin {
- 	status = "okay";
- };
+ 	if (hook >= BTF_KFUNC_HOOK_MAX)
+ 		return NULL;
+ 	if (!btf->kfunc_set_tab)
+ 		return NULL;
+-	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
+-	for (i = 0; i < hook_filter->nr_filters; i++) {
+-		if (hook_filter->filters[i](prog, kfunc_btf_id))
+-			return NULL;
+-	}
+ 	set = btf->kfunc_set_tab->sets[hook];
+ 	if (!set)
+ 		return NULL;
+@@ -8785,6 +8778,28 @@ static u32 *__btf_kfunc_id_set_contains(const struct btf *btf,
+ 	return id + 1;
+ }
  
-+&qupv3_id_0 {
-+	status = "okay";
-+};
++static bool __btf_kfunc_is_allowed(const struct btf *btf,
++				   enum btf_kfunc_hook hook,
++				   u32 kfunc_btf_id,
++				   const struct bpf_prog *prog)
++{
++	struct btf_kfunc_hook_filter *hook_filter;
++	int i;
 +
- &rpm_requests {
- 	regulators-0 {
- 		compatible = "qcom,rpm-pm6125-regulators";
-@@ -387,6 +424,34 @@ &sdhc_2 {
++	if (hook >= BTF_KFUNC_HOOK_MAX)
++		return false;
++	if (!btf->kfunc_set_tab)
++		return false;
++
++	hook_filter = &btf->kfunc_set_tab->hook_filters[hook];
++	for (i = 0; i < hook_filter->nr_filters; i++) {
++		if (hook_filter->filters[i](prog, kfunc_btf_id))
++			return false;
++	}
++
++	return true;
++}
++
+ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+ {
+ 	switch (prog_type) {
+@@ -8832,6 +8847,26 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+ 	}
+ }
  
- &tlmm {
- 	gpio-reserved-ranges = <22 2>, <28 6>;
++bool btf_kfunc_is_allowed(const struct btf *btf,
++			  u32 kfunc_btf_id,
++			  const struct bpf_prog *prog)
++{
++	enum bpf_prog_type prog_type = resolve_prog_type(prog);
++	enum btf_kfunc_hook hook;
++	u32 *kfunc_flags;
 +
-+	ts_reset_active: pmx-ts-reset-active-state {
-+		pins = "gpio87";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-pull-up;
-+	};
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog))
++		return true;
 +
-+	ts_reset_suspend: pmx-ts-reset-suspend-state {
-+		pins = "gpio87";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
++	hook = bpf_prog_type_to_kfunc_hook(prog_type);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
++	if (kfunc_flags && __btf_kfunc_is_allowed(btf, hook, kfunc_btf_id, prog))
++		return true;
 +
-+	ts_int_active: pmx-ts-int-active-state {
-+		pins = "gpio88";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-pull-up;
-+	};
++	return false;
++}
 +
-+	ts_int_suspend: pmx-ts-int-suspend-state {
-+		pins = "gpio88";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
- };
+ /* Caution:
+  * Reference to the module (obtained using btf_try_get_module) corresponding to
+  * the struct btf *MUST* be held when calling this function from verifier
+@@ -8839,26 +8874,27 @@ static int bpf_prog_type_to_kfunc_hook(enum bpf_prog_type prog_type)
+  * keeping the reference for the duration of the call provides the necessary
+  * protection for looking up a well-formed btf->kfunc_set_tab.
+  */
+-u32 *btf_kfunc_id_set_contains(const struct btf *btf,
+-			       u32 kfunc_btf_id,
+-			       const struct bpf_prog *prog)
++u32 *btf_kfunc_flags(const struct btf *btf, u32 kfunc_btf_id, const struct bpf_prog *prog)
+ {
+ 	enum bpf_prog_type prog_type = resolve_prog_type(prog);
+ 	enum btf_kfunc_hook hook;
+ 	u32 *kfunc_flags;
  
- &ufs_mem_hc {
-
+-	kfunc_flags = __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id, prog);
++	kfunc_flags = btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_COMMON, kfunc_btf_id);
+ 	if (kfunc_flags)
+ 		return kfunc_flags;
+ 
+ 	hook = bpf_prog_type_to_kfunc_hook(prog_type);
+-	return __btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id, prog);
++	return btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
+ }
+ 
+ u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id,
+ 				const struct bpf_prog *prog)
+ {
+-	return __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog);
++	if (!__btf_kfunc_is_allowed(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id, prog))
++		return NULL;
++
++	return btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id);
+ }
+ 
+ static int __register_btf_kfunc_id_set(enum btf_kfunc_hook hook,
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index b67d8981b058..c344371feb33 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -13723,10 +13723,10 @@ static int fetch_kfunc_meta(struct bpf_verifier_env *env,
+ 		*kfunc_name = func_name;
+ 	func_proto = btf_type_by_id(desc_btf, func->type);
+ 
+-	kfunc_flags = btf_kfunc_id_set_contains(desc_btf, func_id, env->prog);
+-	if (!kfunc_flags) {
++	if (!btf_kfunc_is_allowed(desc_btf, func_id, env->prog))
+ 		return -EACCES;
+-	}
++
++	kfunc_flags = btf_kfunc_flags(desc_btf, func_id, env->prog);
+ 
+ 	memset(meta, 0, sizeof(*meta));
+ 	meta->btf = desc_btf;
 -- 
 2.52.0
-
 

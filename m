@@ -1,72 +1,72 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com [209.85.217.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21D323A4AA5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB573A4AA4
 	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 20:02:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768939331; cv=none; b=S+PP2a98WqSlXzQVfUS2jDaY6JUSyVmhWB4P6FREK4CfOOFh9+/vPrx2LEMnRPm6CcUdmwrZXoZhpIUf/k3d8RS1Cn29YCw911rjlg3S57oQ51medafRHlpoUEztM2nnLpgqHLmj/CzbhVZfHkiiPrUU6JctaCGUKffGWh6LeYU=
+	t=1768939331; cv=none; b=HlCjIam9xT3tPZX76i/FU3lh0upVnlR+DuHEfRLRxOi7sPIbeOrogHbo4HBMd5gPKVDBnQnib31PeFeMLbHnxIARpt2kuzWFPh38S3+w8JTr7TAZCltrt1Bcp8pGc8ERk7AvVNnpbvARAXvaOYPNv9IBngQiuXiSUd1/bk9Gtxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1768939331; c=relaxed/simple;
-	bh=s3MFiEXE/Shhm2XnisHmzrG0GP1tx5iDWolDoOrDhu0=;
+	bh=zLX0U5ed9Z5ZisaA7/CdhPs4p52bedAyyBDRAWxNW64=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fRA3H0TX8nTmyKolY5+VJASCXSxyFL9uWzJXM9Xyqx+TXEdrkGPrgQb67QxFMMl3xFCWo3H5lhHM17jiF1WonmJFubY+ZStNGjCPC0cjnMDK2I9RPQPbjLGtb1P+4VE7tPYKGyZ3nXw/Mk6WB9csWmLR79JLX6eMPn4GL1obKRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H4PIdRx1; arc=none smtp.client-ip=209.85.222.181
+	 MIME-Version; b=np6fkCF3wAgtV1uBjhmVgXOdA7a6OLmF6uNYSOGQPSDsbeysm+/gpLfmquBVDfzTVP8bTfDsOsfKbtF6ib9GaHJ3Qo/wEs3Hv6sKJeKOoWAYFhwYs+ImN8T/ZkkGd/gBpc+34PnZOWM1uDID4hZtS0XzPH5A2aB1sNhKeD3IGPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C2Mob5vR; arc=none smtp.client-ip=209.85.217.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H4PIdRx1"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-8c52c1d2a7bso21218785a.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C2Mob5vR"
+Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-5eae7bb8018so1903811137.2
         for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 12:02:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1768939328; x=1769544128; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eOI2obtzi7kytuUVUqjlq8TnMN+hzrsORj4dJl4sJSc=;
-        b=H4PIdRx1RgvxV9KPM3OFJWx+S+8mIkhp4Rj2L/pJvMdvpKi1Amn5NQotggTh649R15
-         noe5N/JRuqKAzhYmCfo4J32d+d+6W1Hb1N2ptUn5A53dHx5L/LwSrYIYprbLfLjQvDOw
-         ySfnGUVkmzd6S4OoNsEAwLCScNadT8cPz/PHAZrfWowwREjiTjbBwnOaPxj5ve8Wr7Qr
-         qCZnUz6dVni0aPyyqN2/S1Yhs2h1akSEmPThUVAlAGnxe2vUh3VCSMJN07Wzloc/21FV
-         EpJPzP4WBwLhhqUs9jwYV92ea5AnNAqBf/NjYDNtEF1yKCJegb4nyW6C2wUV/C8kOfBT
-         7xnA==
+        bh=af9lydIVBoA+R4nYo8yd4wwTFlh3+uzAUYIdFOSZ9pk=;
+        b=C2Mob5vRu10mv+9ue2muyP1cEqHZXv8YUNuYUYeSzxrttkRwewvnFbg9Lk3FhB1n7h
+         FxWUX69EtLNnsCUdGms1KAzebzRTCAFq3V9sXQ64LzESweLdU3z9vQ3BQFSEEnYWbmft
+         Ptgdp/pBtkk/PQuLwcyr7bcBHUlVnS642KNzwIXieGkp4l9HQPwrpiacEN7NX2G+HY+q
+         OcFdvE0uhIIuHPB+ZMHaDSGBurVVqrTLdlqOZYgk46C1yv1OEuOyReGgqxgxyy6fNusr
+         z3FjYJbFBbJubKDg8gDgRz00wG0DbHdWPMLPjl15vXxFVJ4ZCDr4TQpACKyhkywqG31D
+         PrKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1768939328; x=1769544128;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=eOI2obtzi7kytuUVUqjlq8TnMN+hzrsORj4dJl4sJSc=;
-        b=n0zpTx3ieKr2WInw1KCXSul4+1uLbCmHr2/uy9pfmK+tVh253u7zGP+Ppk70ljCDjx
-         Enba3ngkIN4logO4zQJe4scf/CnSjUlBlBG3FNeOZ3edaTiMTzA8wkXMWisn0PTHR7kD
-         KAQ1Q2t0en169FZDjXHjtEx0p+aY5UjZy3QbM3labJDwCxbUbFt3ddoe7u6EA8tFSMgb
-         7LFQrFDa/mVTRN+eQFUtPDU05RRHdo13R2VZ6AGv1mnslYxVKlakTjeQjzEVhqhICEuP
-         N52A4tcdtxGV0MesgqCDl84eUvXpZ4bKad6QV+hXlU501ZIF+63xBQwZ/c83xyH+txKh
-         z/+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU/4AHf9UGgpQkBoVAPU9XY2AeO45Kszi/i8WiO/fIxe8u50G451b938TQ+oBvEHllEZmt6uz8WylWLRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YySNQ5WytvKQ7qUrQAqMU3Dv9lhIboKq0UysJ2MGPIkWTZ4NXzj
-	0Sha5LI7T4Tm2RTpH4NRREIjX4WJYNP2CqUGpOPPlGqgwi+JW6RQHQFK
-X-Gm-Gg: AY/fxX7UiWGHAtSSNmNr+EO9aOidg0gf6eu8wabs2k4cIkJOIKavkSY2KvHRl06t768
-	9IlpHyi+M29ZSNXGCTYDtUOuXVQ/uQ1gXekgch3p3yKP02hOr2uDzC8lPGh6erhPFh51h2L5Qnt
-	WLJkRkIz2W2DzMQz6pKYjSTc5CHdLNQpf3PhViln+03wWiNpWIdDeCUb6DneyotPZG9Ek8yv+OO
-	5LqKIVe0c7b0yjp6U07QbW3wu8fs/zz2wlE5s+ZBna7YyovYBzdvEwN3t7hiEvCbduCYEUDKA2M
-	TJ/+gpGuYmGiOn7cTW9lqMQXmdHm7n7JqXEb1rUGXx/w5cwXpdvLovz6NjiPmf/CMGVAIH6o3ZC
-	WJKcKKWtKufbyRYPj15jS+FKdtEzu1nWEThJJSGKVJV/KoMlFM7MkGEYgNjazgL7D+g5Z8OhmN4
-	LFaSryJHAB99VYKLXPrSSDPSAF90rzGvSBbzTsd5/IPs/dHvNg7fkOZKQqwbutAFg/TLWEMQ==
-X-Received: by 2002:a05:620a:7103:b0:8c5:36be:7c20 with SMTP id af79cd13be357-8c589b84dadmr2456896585a.3.1768939327680;
-        Tue, 20 Jan 2026 12:02:07 -0800 (PST)
+        bh=af9lydIVBoA+R4nYo8yd4wwTFlh3+uzAUYIdFOSZ9pk=;
+        b=qqdYLl2nw7QRESjSJproI4OfbJspK+KZANCGBUKiJJYK1L84MgIwoydPbOgSEGMVBK
+         BXDpK6sN1S+fH7tjdF/PVa/ySdfZaPdC78VgyttTosyIlOq+P4htGPzGczGyQ8yiM6c/
+         8GAUDdx18CTZsTLAQnUZma0+buLnGVI90d1KLLfMV7Nmntpd0OufWvTe0ccNgRiDkiTW
+         8LopE6Dn520c478QaA010mPe4zerb2VGXKMuK5aWDRDfEhEk4xf8IhkKvnv4vrmzao9j
+         e2UTzC6trgBot9TYTpUiJ+atGShEzrBNRz9kB4GKu2Sbhi5CWJhyC4IQsqMgOzr8g0Ki
+         +HgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX9M2SFpO7gOlD2R2VPB3p18XvLbbter7aSbwIPJOEek3nUg19POV/S28BzsyU/CngGnY6aBKo4pfxu/w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyVyUPTKOBDtOnb1TuJWQf4b7c2bPV5oIDu0iAvQ7xO99kPhZ/h
+	enKyS2hwolzdWDaBIeGbiFIaLIuFfhACFxizGcRHOqRe+RPIlXrSYnD1
+X-Gm-Gg: AZuq6aI5zvgFP5RoAHi3c6O2VAg9DcMIZyzsN1ZI6QyrjMfM127RqSNToxzFc8XVN+o
+	A0aV23IgJeKSCpjvtbN9W2kwohcvmwgHeiK4rmQN2woPQjQLutlAdB8BqaGOSu935+8LhOZchUe
+	2uS1EzbWrBgGDreW/gIqOwZUPBlM93vU3wu0MkNyCwWKxQ75ZvmuSr8CtR/AGfgHobsyz2SsYjP
+	rt+DU1shNygo3QI93InyBKcgCAqxDhh2pHCeLHnKzLFDleE6OkYDNaW1CaLBUTSzrpPhxB5o+Tw
+	PHjtfwxRci1LuRV9+NNxIvMU5U2aEVK2Qv7Q2L2m6J3MXISyOuwdSbhktYUrgZY9bOdKr42/d6h
+	wEcGMotUjahqKuPLR2/5snJBmSQVWBgT/ePdce/LBxip+FKSewjfI/pZl+dOtR1ai+rLTdiQXxP
+	gtheqPKEiBGLy5JY7pHy7K1Z3m498lhn+QX9Ri/RXkc8GHHPNWWcAEY26BG42YhPpxIGL/qQ==
+X-Received: by 2002:a05:6102:3596:b0:5ec:f42c:79e4 with SMTP id ada2fe7eead31-5f1a6fdd154mr4434644137.12.1768939326488;
+        Tue, 20 Jan 2026 12:02:06 -0800 (PST)
 Received: from benjamin-desktop-fedora.mynetworksettings.com ([141.154.77.127])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a7298472sm1112863585a.53.2026.01.20.12.02.06
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a7298472sm1112863585a.53.2026.01.20.12.02.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 12:02:07 -0800 (PST)
+        Tue, 20 Jan 2026 12:02:06 -0800 (PST)
 From: Benjamin Wheeler <benjaminwheeler0510@gmail.com>
 To: srimanachanta@gmail.com
 Cc: bentiss@kernel.org,
 	jikos@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] HID: steelseries: Use device data for battery requests
-Date: Tue, 20 Jan 2026 15:02:02 -0500
-Message-ID: <20260120200202.1225216-4-benjaminwheeler0510@gmail.com>
+Subject: [PATCH 2/3] HID: steelseries: Add battery request info (byte flags) to device info.
+Date: Tue, 20 Jan 2026 15:02:01 -0500
+Message-ID: <20260120200202.1225216-3-benjaminwheeler0510@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260120200202.1225216-1-benjaminwheeler0510@gmail.com>
 References: <20260112041941.40531-1-srimanachanta@gmail.com>
@@ -79,142 +79,305 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This eliminates several functions that are no longer needed.
-When making a battery request, the required data to do so is simply
-pulled from the device struct.
+This way, the device info is decoupled from the functions that call it.
+This will allow for simplification of calling these functions.
 
 Signed-off-by: Benjamin Wheeler <benjaminwheeler0510@gmail.com>
 ---
- drivers/hid/hid-steelseries.c | 93 +++++------------------------------
- 1 file changed, 11 insertions(+), 82 deletions(-)
+ drivers/hid/hid-steelseries.c | 79 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
 
 diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index dabc4763f072..1200213bc8f3 100644
+index 63b086fa6df0..dabc4763f072 100644
 --- a/drivers/hid/hid-steelseries.c
 +++ b/drivers/hid/hid-steelseries.c
-@@ -809,44 +809,17 @@ static enum power_supply_property steelseries_battery_props[] = {
- 	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
+@@ -31,12 +31,22 @@
+ /* Legacy quirk flag for SRW-S1 */
+ #define STEELSERIES_SRWS1 BIT(0)
+ 
++/**
++ * Stores info about how to send a report to this device.
++ */
++struct steelseries_report_data {
++	const u8 data[2];
++	const u8 len; // Only ever 1 or 2, no need for size_t.
++	const enum hid_report_type type;
++};
++
+ struct steelseries_device_info {
+ 	u16 product_id;
+ 	const char *name;
+ 	u8 interface_binding_mode; /* 0 = first enumerated, 1 = specific interface(s) */
+ 	u16 valid_interfaces; /* Bitmask when mode = 1, ignored when mode = 0 */
+ 	unsigned long capabilities;
++	const struct steelseries_report_data *const report_data;
  };
  
--/* Forward declarations for battery request functions */
--static int steelseries_arctis_1_request_battery(struct hid_device *hdev);
--static int steelseries_arctis_7_plus_request_battery(struct hid_device *hdev);
--static int steelseries_arctis_9_request_battery(struct hid_device *hdev);
--static int steelseries_arctis_nova_request_battery(struct hid_device *hdev);
--static int steelseries_arctis_nova_3p_request_battery(struct hid_device *hdev);
--static int
--steelseries_arctis_pro_wireless_request_battery(struct hid_device *hdev);
-+static int __steelseries_send_report(struct hid_device *const hdev,
-+				     const u8 *const data, const size_t len,
-+				     const enum hid_report_type type);
- 
--static int steelseries_request_battery(struct hid_device *hdev)
-+static int
-+steelseries_request_battery(const struct steelseries_device *const sd)
- {
--	u16 product = hdev->product;
--
--	/* Route to device-specific battery request handler */
--	if (product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1 ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_P ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_X)
--		return steelseries_arctis_1_request_battery(hdev);
--
--	if (product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_P ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_X ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_DESTINY)
--		return steelseries_arctis_7_plus_request_battery(hdev);
--
--	if (product == USB_DEVICE_ID_STEELSERIES_ARCTIS_9)
--		return steelseries_arctis_9_request_battery(hdev);
--
--	if (product == USB_DEVICE_ID_STEELSERIES_ARCTIS_PRO)
--		return steelseries_arctis_pro_wireless_request_battery(hdev);
--
--	if (product == USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_3_P ||
--	    product == USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_3_X)
--		return steelseries_arctis_nova_3p_request_battery(hdev);
--
--	/* All other Nova series use the same battery request */
--	return steelseries_arctis_nova_request_battery(hdev);
-+	const struct steelseries_report_data *const report_data =
-+		sd->info->report_data; // Alias
-+	return __steelseries_send_report(sd->hdev, report_data->data,
-+					 report_data->len, report_data->type);
+ struct steelseries_device {
+@@ -382,12 +392,55 @@ static const __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev,
+ 	return rdesc;
  }
  
- static void steelseries_battery_timer_tick(struct work_struct *work)
-@@ -854,7 +827,7 @@ static void steelseries_battery_timer_tick(struct work_struct *work)
- 	struct steelseries_device *sd = container_of(
- 		work, struct steelseries_device, battery_work.work);
- 
--	steelseries_request_battery(sd->hdev);
-+	steelseries_request_battery(sd);
- }
- 
- static int steelseries_battery_register(struct steelseries_device *sd)
-@@ -895,7 +868,7 @@ static int steelseries_battery_register(struct steelseries_device *sd)
- 	power_supply_powers(sd->battery, &sd->hdev->dev);
- 
- 	INIT_DELAYED_WORK(&sd->battery_work, steelseries_battery_timer_tick);
--	steelseries_request_battery(sd->hdev);
-+	steelseries_request_battery(sd);
- 
- 	/* Arctis 9 may need a retry */
- 	if (sd->hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_9) {
-@@ -1685,50 +1658,6 @@ static const struct attribute_group steelseries_attr_group = {
- 	.is_visible = steelseries_attr_is_visible,
++// Report data for: arctis 1, 1x, 7p, 7x
++static const struct steelseries_report_data report_data__1_1x_7p_7x = {
++	.data = { 0x06, 0x12 },
++	.len = 2,
++	.type = HID_FEATURE_REPORT
++};
++
++// Report data for: arctis 7, 7 v2 (2019 ed.)
++static const struct steelseries_report_data report_data__7_7v2 = {
++	.data = { 0x06, 0x18 },
++	.len = 2,
++	.type = HID_OUTPUT_REPORT
++};
++
++// Report data for: 7 plus, 7 plus P, 7 plus X, 7 plus Destiny, all novas besides nova 3p, nova 3x
++static const struct steelseries_report_data report_data__7plus_nova = {
++	.data = { 0x00, 0xb0 },
++	.len = 2,
++	.type = HID_OUTPUT_REPORT
++};
++
++// Report data for: arctis 9
++static const struct steelseries_report_data report_data__9 = {
++	.data = { 0x00, 0x20 },
++	.len = 2,
++	.type = HID_FEATURE_REPORT
++};
++
++// Report data for: Pro
++static const struct steelseries_report_data report_data__pro = {
++	.data = { 0x40, 0xAA },
++	.len = 2,
++	.type = HID_OUTPUT_REPORT
++};
++
++// Report data for: Nova 3p, 3x
++static const struct steelseries_report_data report_data__nova_3p_3x = {
++	.data = { 0xb0 },
++	.len = 1,
++	.type = HID_OUTPUT_REPORT
++};
++
+ static const struct steelseries_device_info arctis_1_info = {
+ 	.product_id = USB_DEVICE_ID_STEELSERIES_ARCTIS_1,
+ 	.name = "Arctis 1 Wireless",
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__1_1x_7p_7x,
  };
  
--static int steelseries_arctis_1_request_battery(struct hid_device *hdev)
--{
--	const u8 data[] = { 0x06, 0x12 };
--
--	return steelseries_send_feature_report(hdev, data, sizeof(data));
--}
--
--static int steelseries_arctis_7_plus_request_battery(struct hid_device *hdev)
--{
--	const u8 data[] = { 0x00, 0xb0 };
--
--	return steelseries_send_output_report(hdev, data, sizeof(data));
--}
--
--static int steelseries_arctis_9_request_battery(struct hid_device *hdev)
--{
--	const u8 data[] = { 0x00, 0x20 };
--
--	return steelseries_send_feature_report(hdev, data, sizeof(data));
--}
--
--static int steelseries_arctis_nova_request_battery(struct hid_device *hdev)
--{
--	const u8 data[] = { 0x00, 0xb0 };
--
--	return steelseries_send_output_report(hdev, data, sizeof(data));
--}
--
--static int steelseries_arctis_nova_3p_request_battery(struct hid_device *hdev)
--{
--	const u8 data[] = { 0xb0 };
--
--	return steelseries_send_output_report(hdev, data, sizeof(data));
--}
--
--static int
--steelseries_arctis_pro_wireless_request_battery(struct hid_device *hdev)
--{
--	/* Request battery - response will arrive asynchronously via raw_event */
--	const u8 data[] = { 0x40, 0xAA };
--
--	return steelseries_send_output_report(hdev, data, sizeof(data));
--}
--
- static int steelseries_raw_event(struct hid_device *hdev,
- 				 struct hid_report *report, u8 *data, int size)
- {
+ static const struct steelseries_device_info arctis_1_x_info = {
+@@ -396,6 +449,7 @@ static const struct steelseries_device_info arctis_1_x_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__1_1x_7p_7x,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_info = {
+@@ -404,6 +458,7 @@ static const struct steelseries_device_info arctis_7_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(5),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__7_7v2,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_p_info = {
+@@ -412,6 +467,7 @@ static const struct steelseries_device_info arctis_7_p_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__1_1x_7p_7x,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_x_info = {
+@@ -420,6 +476,7 @@ static const struct steelseries_device_info arctis_7_x_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__1_1x_7p_7x,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_gen2_info = {
+@@ -428,6 +485,7 @@ static const struct steelseries_device_info arctis_7_gen2_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(5),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__7_7v2,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_plus_info = {
+@@ -437,6 +495,7 @@ static const struct steelseries_device_info arctis_7_plus_info = {
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_CHATMIX,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_plus_p_info = {
+@@ -446,6 +505,7 @@ static const struct steelseries_device_info arctis_7_plus_p_info = {
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_CHATMIX,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_plus_x_info = {
+@@ -455,6 +515,7 @@ static const struct steelseries_device_info arctis_7_plus_x_info = {
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_CHATMIX,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_7_plus_destiny_info = {
+@@ -464,6 +525,7 @@ static const struct steelseries_device_info arctis_7_plus_destiny_info = {
+ 	.valid_interfaces = BIT(3),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_CHATMIX,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_9_info = {
+@@ -473,6 +535,7 @@ static const struct steelseries_device_info arctis_9_info = {
+ 	.valid_interfaces = 0,
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_CHATMIX,
++	.report_data = &report_data__9,
+ };
+ 
+ static const struct steelseries_device_info arctis_pro_info = {
+@@ -481,6 +544,7 @@ static const struct steelseries_device_info arctis_pro_info = {
+ 	.interface_binding_mode = 0,
+ 	.valid_interfaces = 0,
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__pro,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_3_info = {
+@@ -490,6 +554,7 @@ static const struct steelseries_device_info arctis_nova_3_info = {
+ 	.valid_interfaces = BIT(4),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_3_p_info = {
+@@ -499,6 +564,7 @@ static const struct steelseries_device_info arctis_nova_3_p_info = {
+ 	.valid_interfaces = BIT(0),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_VOLUME,
++	.report_data = &report_data__nova_3p_3x,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_3_x_info = {
+@@ -508,6 +574,7 @@ static const struct steelseries_device_info arctis_nova_3_x_info = {
+ 	.valid_interfaces = BIT(0),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_VOLUME,
++	.report_data = &report_data__nova_3p_3x,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_5_info = {
+@@ -518,6 +585,7 @@ static const struct steelseries_device_info arctis_nova_5_info = {
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_CHATMIX |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_5_x_info = {
+@@ -528,6 +596,7 @@ static const struct steelseries_device_info arctis_nova_5_x_info = {
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_CHATMIX |
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_info = {
+@@ -539,6 +608,7 @@ static const struct steelseries_device_info arctis_nova_7_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_x_info = {
+@@ -550,6 +620,7 @@ static const struct steelseries_device_info arctis_nova_7_x_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_p_info = {
+@@ -561,6 +632,7 @@ static const struct steelseries_device_info arctis_nova_7_p_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_x_rev2_info = {
+@@ -572,6 +644,7 @@ static const struct steelseries_device_info arctis_nova_7_x_rev2_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_diablo_info = {
+@@ -583,6 +656,7 @@ static const struct steelseries_device_info arctis_nova_7_diablo_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_wow_info = {
+@@ -594,6 +668,7 @@ static const struct steelseries_device_info arctis_nova_7_wow_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_gen2_info = {
+@@ -605,6 +680,7 @@ static const struct steelseries_device_info arctis_nova_7_gen2_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_7_x_gen2_info = {
+@@ -616,6 +692,7 @@ static const struct steelseries_device_info arctis_nova_7_x_gen2_info = {
+ 			SS_CAP_INACTIVE_TIME | SS_CAP_MIC_MUTE_LED |
+ 			SS_CAP_MIC_VOLUME | SS_CAP_VOLUME_LIMITER |
+ 			SS_CAP_BT_POWER_ON | SS_CAP_BT_CALL_VOL,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_pro_info = {
+@@ -624,6 +701,7 @@ static const struct steelseries_device_info arctis_nova_pro_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(4),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ static const struct steelseries_device_info arctis_nova_pro_x_info = {
+@@ -632,6 +710,7 @@ static const struct steelseries_device_info arctis_nova_pro_x_info = {
+ 	.interface_binding_mode = 1,
+ 	.valid_interfaces = BIT(4),
+ 	.capabilities = SS_CAP_SIDETONE | SS_CAP_BATTERY | SS_CAP_INACTIVE_TIME,
++	.report_data = &report_data__7plus_nova,
+ };
+ 
+ #define STEELSERIES_HEADSET_BATTERY_TIMEOUT_MS 3000
 -- 
 2.52.0
 

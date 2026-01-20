@@ -1,32 +1,32 @@
-Received: from out-178.mta1.migadu.com (out-178.mta1.migadu.com [95.215.58.178])
+Received: from out-173.mta1.migadu.com (out-173.mta1.migadu.com [95.215.58.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF46047CC8C
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 22:27:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76FFB47B439
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 22:27:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768948079; cv=none; b=e3N9bRaFTDdhzRJmyGEsehe35fzsZeIyNjXHdPsTs8P2Xz2ejew5egHnh+axMH8je6E1kh2pWmVnWbWXzT5Sayb/m4Id8GI8DS0yVsEoiTR1v97NyZrobPaKSRgXn1pF+TkMBqOhgDAmZwkJIoU/qjGkvvr8l8TDnx/h7eEPMvY=
+	t=1768948079; cv=none; b=AQI8jhedyt+JmH43FwF5xH4xLzuVhKnnfCNZygSJLFVfZw4eFfmmvHn2Sf9aqts7SNfpKyFetXzx1jfCbnMegS4a6+Rrf6C+PMV8wQdKT+BPzKFrbeybMdVkKFm8nYSLXV8gFIyujCQAGGHpbfBiDwyheRBM9gk3cxGk4kaJM1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1768948079; c=relaxed/simple;
-	bh=vBHjyw/hYj3zLonFk9pCUtMlB1Ka+QnD60kV7c0604Q=;
+	bh=eUAfPdGXyQRz0rjVGmi96XftVSrHwzVs3caJiX5V8UY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UnAqPJXAjXuuo0vAqCr0ECAx8ZmHL6APgVfLSeVm0a8pORkjwelyIWXRKpT+0z/E6U+itoLCYIP6ex1S5I56nHhR5kPhhvjobXfL2DRufxerfzwfFviKlsKveyaFMUiKzuBp9uOh6v9p5b3AuJdV/C5YrgKnXUzUoQqav4IcrhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=qxCGaklw; arc=none smtp.client-ip=95.215.58.178
+	 MIME-Version; b=gf10XLDeMUSf4JTfQSgqiar0GKbRA634FLP+Sb6lCRMpPAS7hVkWYdW3dglwGPQhrivr6dTtKzZsReRQjhuWX5fqfkjARGI/a/NYvc5CR0bMaVD4KRnFYsKhDrx7LhIf5I0ZdTgt8Xtja6rP70QrFTwwaF+kqKcMTVx1yY5f8Zw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=W8Vk+SYW; arc=none smtp.client-ip=95.215.58.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="qxCGaklw"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="W8Vk+SYW"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1768948065;
+	t=1768948070;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Xd1q0+5EcF59BHhz0hdJGHGQYrQFn/Df+WIN5kKXCbQ=;
-	b=qxCGaklwgqhBh7FvOEQ5wUq3L2iuB2Z0wAC9N00AS62JTR1HOf5P3xiSiZCE7ue5S4mpMC
-	scfjc8dq/k/CuLqEjGeHMOUBgZ7nVfB/PN7ep+4qwG0eiWHGkoubmZ7/2eekRxpF3Uwjzi
-	DoI1tYPuwwLBOoahOsCFam9Am2WvxWM=
+	bh=wGoBQkuCKCEj5+fAzaxNTPG8h5blUlfGkfdUxh4ZxsQ=;
+	b=W8Vk+SYWYzOqW+DjUgah8PAGO9XIZ97fQSF33bF6AxpTUfrFRTvQrRwEBCLgeYXCR1e3nD
+	dcIyrywUSNKJZXj6gvb+3LSe51XoECNefwW7RjUcdishYYh+sjQKmBFJt4gaocDhf8C/4Y
+	bKP+M+RysOsCM0czUY9ZLoLyi+6mM2k=
 From: Ihor Solodrai <ihor.solodrai@linux.dev>
 To: Alexei Starovoitov <ast@kernel.org>,
 	Daniel Borkmann <daniel@iogearbox.net>,
@@ -43,9 +43,9 @@ Cc: Mykyta Yatsenko <yatsenko@meta.com>,
 	linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	sched-ext@lists.linux.dev
-Subject: [PATCH bpf-next v3 11/13] selftests/bpf: Migrate struct_ops_assoc test to KF_IMPLICIT_ARGS
-Date: Tue, 20 Jan 2026 14:26:36 -0800
-Message-ID: <20260120222638.3976562-12-ihor.solodrai@linux.dev>
+Subject: [PATCH bpf-next v3 12/13] bpf: Remove __prog kfunc arg annotation
+Date: Tue, 20 Jan 2026 14:26:37 -0800
+Message-ID: <20260120222638.3976562-13-ihor.solodrai@linux.dev>
 In-Reply-To: <20260120222638.3976562-1-ihor.solodrai@linux.dev>
 References: <20260120222638.3976562-1-ihor.solodrai@linux.dev>
 Precedence: bulk
@@ -57,166 +57,48 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-A test kfunc named bpf_kfunc_multi_st_ops_test_1_impl() is a user of
-__prog suffix. Subsequent patch removes __prog support in favor of
-KF_IMPLICIT_ARGS, so migrate this kfunc to use implicit argument.
+Now that all the __prog suffix users in the kernel tree migrated to
+KF_IMPLICIT_ARGS, remove it from the verifier.
 
+See prior discussion for context [1].
+
+[1] https://lore.kernel.org/bpf/CAEf4BzbgPfRm9BX=TsZm-TsHFAHcwhPY4vTt=9OT-uhWqf8tqw@mail.gmail.com/
+
+Acked-by: Eduard Zingerman <eddyz87@gmail.com>
 Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
 ---
- tools/testing/selftests/bpf/progs/struct_ops_assoc.c     | 8 ++++----
- .../selftests/bpf/progs/struct_ops_assoc_in_timer.c      | 4 ++--
- .../testing/selftests/bpf/progs/struct_ops_assoc_reuse.c | 6 +++---
- tools/testing/selftests/bpf/test_kmods/bpf_testmod.c     | 9 ++++-----
- .../testing/selftests/bpf/test_kmods/bpf_testmod_kfunc.h | 6 ++++--
- 5 files changed, 17 insertions(+), 16 deletions(-)
+ kernel/bpf/verifier.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/struct_ops_assoc.c b/tools/testing/selftests/bpf/progs/struct_ops_assoc.c
-index 8f1097903e22..68842e3f936b 100644
---- a/tools/testing/selftests/bpf/progs/struct_ops_assoc.c
-+++ b/tools/testing/selftests/bpf/progs/struct_ops_assoc.c
-@@ -32,7 +32,7 @@ int BPF_PROG(sys_enter_prog_a, struct pt_regs *regs, long id)
- 	if (!test_pid || task->pid != test_pid)
- 		return 0;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_A_MAGIC)
- 		test_err_a++;
- 
-@@ -45,7 +45,7 @@ int syscall_prog_a(void *ctx)
- 	struct st_ops_args args = {};
- 	int ret;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_A_MAGIC)
- 		test_err_a++;
- 
-@@ -79,7 +79,7 @@ int BPF_PROG(sys_enter_prog_b, struct pt_regs *regs, long id)
- 	if (!test_pid || task->pid != test_pid)
- 		return 0;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_B_MAGIC)
- 		test_err_b++;
- 
-@@ -92,7 +92,7 @@ int syscall_prog_b(void *ctx)
- 	struct st_ops_args args = {};
- 	int ret;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_B_MAGIC)
- 		test_err_b++;
- 
-diff --git a/tools/testing/selftests/bpf/progs/struct_ops_assoc_in_timer.c b/tools/testing/selftests/bpf/progs/struct_ops_assoc_in_timer.c
-index d5a2ea934284..0bed49e9f217 100644
---- a/tools/testing/selftests/bpf/progs/struct_ops_assoc_in_timer.c
-+++ b/tools/testing/selftests/bpf/progs/struct_ops_assoc_in_timer.c
-@@ -31,7 +31,7 @@ __noinline static int timer_cb(void *map, int *key, struct bpf_timer *timer)
- 	struct st_ops_args args = {};
- 
- 	recur++;
--	timer_test_1_ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	timer_test_1_ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	recur--;
- 
- 	timer_cb_run++;
-@@ -64,7 +64,7 @@ int syscall_prog(void *ctx)
- 	struct st_ops_args args = {};
- 	int ret;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_MAGIC)
- 		test_err++;
- 
-diff --git a/tools/testing/selftests/bpf/progs/struct_ops_assoc_reuse.c b/tools/testing/selftests/bpf/progs/struct_ops_assoc_reuse.c
-index 5bb6ebf5eed4..396b3e58c729 100644
---- a/tools/testing/selftests/bpf/progs/struct_ops_assoc_reuse.c
-+++ b/tools/testing/selftests/bpf/progs/struct_ops_assoc_reuse.c
-@@ -23,7 +23,7 @@ int BPF_PROG(test_1_a, struct st_ops_args *args)
- 
- 	if (!recur) {
- 		recur++;
--		ret = bpf_kfunc_multi_st_ops_test_1_impl(args, NULL);
-+		ret = bpf_kfunc_multi_st_ops_test_1_assoc(args);
- 		if (ret != -1)
- 			test_err_a++;
- 		recur--;
-@@ -40,7 +40,7 @@ int syscall_prog_a(void *ctx)
- 	struct st_ops_args args = {};
- 	int ret;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_A_MAGIC)
- 		test_err_a++;
- 
-@@ -62,7 +62,7 @@ int syscall_prog_b(void *ctx)
- 	struct st_ops_args args = {};
- 	int ret;
- 
--	ret = bpf_kfunc_multi_st_ops_test_1_impl(&args, NULL);
-+	ret = bpf_kfunc_multi_st_ops_test_1_assoc(&args);
- 	if (ret != MAP_A_MAGIC)
- 		test_err_b++;
- 
-diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-index a996b816ecc4..0d542ba64365 100644
---- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-+++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod.c
-@@ -1140,7 +1140,7 @@ __bpf_kfunc int bpf_kfunc_st_ops_inc10(struct st_ops_args *args)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 8e8570e9d167..919556614505 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -12211,13 +12211,6 @@ static bool is_kfunc_arg_irq_flag(const struct btf *btf, const struct btf_param
+ 	return btf_param_match_suffix(btf, arg, "__irq_flag");
  }
  
- __bpf_kfunc int bpf_kfunc_multi_st_ops_test_1(struct st_ops_args *args, u32 id);
--__bpf_kfunc int bpf_kfunc_multi_st_ops_test_1_impl(struct st_ops_args *args, void *aux_prog);
-+__bpf_kfunc int bpf_kfunc_multi_st_ops_test_1_assoc(struct st_ops_args *args, struct bpf_prog_aux *aux);
+-static bool is_kfunc_arg_prog_aux(const struct btf *btf, const struct btf_param *arg);
+-
+-static bool is_kfunc_arg_prog(const struct btf *btf, const struct btf_param *arg)
+-{
+-	return btf_param_match_suffix(btf, arg, "__prog") || is_kfunc_arg_prog_aux(btf, arg);
+-}
+-
+ static bool is_kfunc_arg_scalar_with_name(const struct btf *btf,
+ 					  const struct btf_param *arg,
+ 					  const char *name)
+@@ -13280,8 +13273,8 @@ static int check_kfunc_args(struct bpf_verifier_env *env, struct bpf_kfunc_call_
+ 		if (is_kfunc_arg_ignore(btf, &args[i]))
+ 			continue;
  
- __bpf_kfunc int bpf_kfunc_implicit_arg(int a, struct bpf_prog_aux *aux);
- __bpf_kfunc int bpf_kfunc_implicit_arg_legacy(int a, int b, struct bpf_prog_aux *aux);
-@@ -1187,7 +1187,7 @@ BTF_ID_FLAGS(func, bpf_kfunc_st_ops_test_epilogue, KF_SLEEPABLE)
- BTF_ID_FLAGS(func, bpf_kfunc_st_ops_test_pro_epilogue, KF_SLEEPABLE)
- BTF_ID_FLAGS(func, bpf_kfunc_st_ops_inc10)
- BTF_ID_FLAGS(func, bpf_kfunc_multi_st_ops_test_1)
--BTF_ID_FLAGS(func, bpf_kfunc_multi_st_ops_test_1_impl)
-+BTF_ID_FLAGS(func, bpf_kfunc_multi_st_ops_test_1_assoc, KF_IMPLICIT_ARGS)
- BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg, KF_IMPLICIT_ARGS)
- BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg_legacy, KF_IMPLICIT_ARGS)
- BTF_ID_FLAGS(func, bpf_kfunc_implicit_arg_legacy_impl)
-@@ -1669,13 +1669,12 @@ int bpf_kfunc_multi_st_ops_test_1(struct st_ops_args *args, u32 id)
- }
- 
- /* Call test_1() of the associated struct_ops map */
--int bpf_kfunc_multi_st_ops_test_1_impl(struct st_ops_args *args, void *aux__prog)
-+int bpf_kfunc_multi_st_ops_test_1_assoc(struct st_ops_args *args, struct bpf_prog_aux *aux)
- {
--	struct bpf_prog_aux *prog_aux = (struct bpf_prog_aux *)aux__prog;
- 	struct bpf_testmod_multi_st_ops *st_ops;
- 	int ret = -1;
- 
--	st_ops = (struct bpf_testmod_multi_st_ops *)bpf_prog_get_assoc_struct_ops(prog_aux);
-+	st_ops = (struct bpf_testmod_multi_st_ops *)bpf_prog_get_assoc_struct_ops(aux);
- 	if (st_ops)
- 		ret = st_ops->test_1(args);
- 
-diff --git a/tools/testing/selftests/bpf/test_kmods/bpf_testmod_kfunc.h b/tools/testing/selftests/bpf/test_kmods/bpf_testmod_kfunc.h
-index 2357a0340ffe..225ea30c4e3d 100644
---- a/tools/testing/selftests/bpf/test_kmods/bpf_testmod_kfunc.h
-+++ b/tools/testing/selftests/bpf/test_kmods/bpf_testmod_kfunc.h
-@@ -161,7 +161,9 @@ void bpf_kfunc_rcu_task_test(struct task_struct *ptr) __ksym;
- struct task_struct *bpf_kfunc_ret_rcu_test(void) __ksym;
- int *bpf_kfunc_ret_rcu_test_nostruct(int rdonly_buf_size) __ksym;
- 
--int bpf_kfunc_multi_st_ops_test_1(struct st_ops_args *args, u32 id) __ksym;
--int bpf_kfunc_multi_st_ops_test_1_impl(struct st_ops_args *args, void *aux__prog) __ksym;
-+#ifndef __KERNEL__
-+extern int bpf_kfunc_multi_st_ops_test_1(struct st_ops_args *args, u32 id) __weak __ksym;
-+extern int bpf_kfunc_multi_st_ops_test_1_assoc(struct st_ops_args *args) __weak __ksym;
-+#endif
- 
- #endif /* _BPF_TESTMOD_KFUNC_H */
+-		if (is_kfunc_arg_prog(btf, &args[i])) {
+-			/* Used to reject repeated use of __prog. */
++		if (is_kfunc_arg_prog_aux(btf, &args[i])) {
++			/* Reject repeated use bpf_prog_aux */
+ 			if (meta->arg_prog) {
+ 				verifier_bug(env, "Only 1 prog->aux argument supported per-kfunc");
+ 				return -EFAULT;
 -- 
 2.52.0
 

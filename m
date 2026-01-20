@@ -1,66 +1,77 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EDD644D028;
-	Tue, 20 Jan 2026 19:37:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86563A0EA8
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 19:53:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768937883; cv=none; b=AZ/GhZCBFq383ujrWtpWC0R/fhjPxdL5ZxYCOUQCL9tvQMjesNNstw5VtXRk8H9wz5zbBNVLnNQGklPhf0kxpGl4H61iN24AOky7z+iKYjUsZB6R47X+7Sl67LHaLhyTAQ8/skFMF1Mht+QJZwQ/mMWR1HoZm8e7RIUvT77/W8E=
+	t=1768938797; cv=none; b=g6MUh9uIfLR/ucnhSnrsdy/Ky8YRNWDy1Llik542W8KIXjlt4r4dXWKqEEavWJr57l+rFeaNyVhQ+Gh4ANcUgaf/Uj8rwygGxMSepxrCX95+Sq0qaU+RpV7yVzqQen+X6FnyjgEeynSQDNU0pWYdEDAIjO1zwXEjFznb4aNNcrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768937883; c=relaxed/simple;
-	bh=aLYewYaidV95JSBfkMgzIpwgMWf1mMuoxBwdhsvxb2g=;
+	s=arc-20240116; t=1768938797; c=relaxed/simple;
+	bh=hzlIGlYQi366/pUFdNolodFmxI59+xO3Up7iWwZOf0I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GtlzV14XraDQLZxuNsVlbaUySfrfFzM0MzzuleXVE883J9MpEnLqLmIaqmrdSTjJncMxVJHT+z8OKIcIkfTpN9p4Hghym5sK7CzxTSovi1EUNCHWFuUqxfRCrrvrJ6UI2pmScn/TQU8eOJEr/MjT0QUP2mqf+wVCateJRrugF+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FFH9wQHM; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=W0mgeE4VLWTGhbOTiBm7v/VLNUXPkoQmudCoEvgV1naRQOaMbWkPCjFdZR7alfjEaiBfGpn8agzLO5rV053CcVZ9dF+og6zSbCcDBsPgRCztwwtDL+RCHBNkbZyONRnQ/ikilyyHSRgb+T43r6YWP2CwwqCGTPtFAQ/CIrZ0+Gk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eV7uS9Z3; arc=none smtp.client-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FFH9wQHM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768937882; x=1800473882;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=aLYewYaidV95JSBfkMgzIpwgMWf1mMuoxBwdhsvxb2g=;
-  b=FFH9wQHM3drbqZgyx0/OzJ7NZe+BTYB84hJF0Z6afu7wxzhhKTMeUfZE
-   9aAzJS3GhPfj++fUuDL3CuIGLJYkoe2jETBaJQIbfkUgUQCzepSSpgjwo
-   wRvRQN2u0GKetrTqpl7A0n0rzV0+zDDq+M23W5j/r62fnRH4HRIKKHpL2
-   i6R5JIXzr4jRpk6QcpWW6oMYLUN0TQ5u7lTgM2EAySvKYAlcUo0631z+T
-   MAQ1M8x/mT0NARzCp23Y95/TxiImeECiClw3OQRnOVSlYF5Kf4mHzz0PO
-   QvjPQvciWVIpKZkhrFKo/3NaKAFVsk02dIIxtA3JSOhhGf2oIZr/yUNGi
-   Q==;
-X-CSE-ConnectionGUID: /ZFfWdayThekinlsqL7bug==
-X-CSE-MsgGUID: VUVwr74HSrG7ZTVOGLvIqg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11677"; a="70323654"
-X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
-   d="scan'208";a="70323654"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 11:38:00 -0800
-X-CSE-ConnectionGUID: cQamuSVDSKmyrHbjuRvDPg==
-X-CSE-MsgGUID: M3Zt97TzQMK9R7gTkA3DeA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,241,1763452800"; 
-   d="scan'208";a="210666001"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa005.fm.intel.com with ESMTP; 20 Jan 2026 11:37:57 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id DFA4595; Tue, 20 Jan 2026 20:37:55 +0100 (CET)
-Date: Tue, 20 Jan 2026 20:37:55 +0100
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: Vijay <vijayg0127@gmail.com>, regressions@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	jikos@kernel.org
-Subject: Re: Regression: SYNA3602 I2C touchpad broken in Linux 6.17.7 (works
- in 6.17.6 and previous versions)
-Message-ID: <aW_Zk7v63HPJl01C@black.igk.intel.com>
-References: <CAMBhvbYA=onQkkcgkODaTj=+tkybwo28Cdi6P3vodGpVZi8OVA@mail.gmail.com>
- <CAO-hwJJRisVpZWeSA+3_fLaa8_52f7ypUocDcD+PojuF3KjHYw@mail.gmail.com>
- <08000f1a-2c1e-4a0d-a5b5-fc7dcea3d8a8@leemhuis.info>
- <CAMBhvbZHcOwd-i04TGMXdbvi1vmpnyPD1p7SgkUtjfFsc+9nWQ@mail.gmail.com>
- <2c8d4baa-679f-4af7-a78d-41774410e9a6@leemhuis.info>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eV7uS9Z3"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2b0ea1edf11so10790256eec.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 11:53:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768938793; x=1769543593; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=FKSGoUPQXpk7imDzMvWC4kCJaezJl3fPb9J0kmFWLxE=;
+        b=eV7uS9Z3/ESxSPdR4BMwFVQglCKVJeDCfGbDBnkC2NVKd+CuTESYZ/S1AJrxvoWzDy
+         bg4MINHvtS7Y9uVRrH04jS9eLhHzYgUg+rbgpLU2/XHIdCLc7b6xjSwvM9K8peM2rRfa
+         KPoXFn1VB/Jw2u6P5xrfNGOuZPiltCPOW+Kum82Fde+KnNdEF+Gg6Seijmdevi3btilt
+         A60cDJXknpMnrIrg7PswXWQ9a5epiiURd6m8OsK2DK9Uo6pIT5QHUCP6b8TaXLHtm5c5
+         kglQrqIDNi/tEzJc0Qo8Mvn0NyTcLFktFVDS+FYwSN9FzYtcfUHOank9IxG2XOHuuAkD
+         Mm1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768938793; x=1769543593;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FKSGoUPQXpk7imDzMvWC4kCJaezJl3fPb9J0kmFWLxE=;
+        b=FU84qEjEf+vYSIqde9SMJOhBUkWWZ4qLU2trl3vQ5KyA7vjNz6mgFEKyaXlYpxbMb9
+         N0iKOV2XcQwB0fcS1BVLnufOo/+tL5j6g7NvjOGJjUI1fVsB9ZS0tosb5u9ciLZbsgNP
+         RsiHYumEORpwwuQj4FwqicW3xXr2ZcN4rgE3rzeAQrAEHmLHv2McrDOHs6d/ku7UxJRE
+         N6ps/JLZyYn2URp0Jl8HhIu362ZF23d5xybgO0/FPuCc09If0qPcFUxlFk5vdGfF2A20
+         DBGRSl+SWlNh0H2wFfbrCo3BEgZPq+zPHe264bN8M0haNMstCmOyXYIuXRI1eiyAIuQK
+         fQmg==
+X-Forwarded-Encrypted: i=1; AJvYcCWs8t1oVddyfLIwKQyuhEETv7XFARuEKIFVJL54E46fD+/7+gqoKBVrPQrTp4zNOwFOEySm/x0PlvgwaA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwtsQVApqmaQCewvETJaZwM9KgXC88zjSh2pfoX8iqUEt1BHs5X
+	yljkVpJkeIUTpISmR67rL1V2svA0/GCj4Ey4yFeYPHPwc2DE+vu54ETe
+X-Gm-Gg: AZuq6aIQErFQeuDtIQKinowPXT0tYFP12mI9ADhipAbmlyMtAfwyB4LzFikSJ+vHbjs
+	9/lmHHuIAChWJCkWma4qbzFE+IHEV+gNGDgr7tnj/H/opMdIHumq/VqeozY75ATsAAvyrtGKw8/
+	mkV6QSCqaUMK9xXpyLyNd+NhReWUjgcQaxgYnWO/Mx1J6xgG+Nk3vfj76Enfz9K5xcP8NWkjMRn
+	xM1rI0VxiSWCUMbIBK5ZyMsAYGE4BKyG9H9bAIn/RdMJfZSNTg4ZzXdanHSQ1UG3dxUNtatgOPT
+	mzq9u5PkAqchsPFVq4Xj/1iGeSxNCZmiaxid/hhZ2u7h/+dRNZOHYQhmK3UJC4yOyvW4Ox26CNb
+	UrM2F2sSYTCfd0PgGGDzkRcC+T1fvnhaid0ywkpeGGeVzgxkzKQMC3u7XbvoWVhtHjoFe8XRFXO
+	v91jhzwaarp/XlyH3BmmTSbhnOArQoYhIpI9/Y2CrfrmApvO5M6go6
+X-Received: by 2002:a05:7300:23c7:b0:2ae:56dc:eb18 with SMTP id 5a478bee46e88-2b6b5002350mr13024649eec.21.1768938793431;
+        Tue, 20 Jan 2026 11:53:13 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:d631:e554:f0bd:4106])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b364579csm18213930eec.23.2026.01.20.11.53.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jan 2026 11:53:12 -0800 (PST)
+Date: Tue, 20 Jan 2026 11:53:09 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: yedaya.ka@gmail.com
+Cc: Kamil =?utf-8?B?R2/FgmRh?= <kamil.golda@protonmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Subject: Re: [PATCH v3 1/3] dt-bindings: input: touchscreen: edt-ft5x06: Add
+ FocalTech FT3518
+Message-ID: <g7lgjwenwdclj6etwae3jjunfxsgglbemv7jhmcy7hmcyzxxkj@bqolb5yjxbq3>
+References: <20260118-touchscreen-patches-v3-0-1c6a729c5eb4@gmail.com>
+ <20260118-touchscreen-patches-v3-1-1c6a729c5eb4@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,137 +81,19 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2c8d4baa-679f-4af7-a78d-41774410e9a6@leemhuis.info>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20260118-touchscreen-patches-v3-1-1c6a729c5eb4@gmail.com>
 
-On Mon, Dec 08, 2025 at 02:54:20PM +0100, Thorsten Leemhuis wrote:
-> On 12/8/25 13:13, Vijay wrote:
-> > 
-> > Yes, the touchpad is not working in 6.18 also, getting the same errors
-> > as mentioned previously, 
+On Sun, Jan 18, 2026 at 10:29:40PM +0200, Yedaya Katsman via B4 Relay wrote:
+> From: Yedaya Katsman <yedaya.ka@gmail.com>
 > 
-> That's really good to know, thx!
+> Document FocalTech FT3518 support by adding the compatible.
 > 
-> Thing is: I fear that nobody will look into this, unless you or somebody
-> else affected checks which change broke things. Benjamin mentioned three
-> you could try reverting in 6.17.y; alternatively, perform a bisection in
-> 6.17.y. For details, see:
-> https://docs.kernel.org/admin-guide/verify-bugs-and-bisect-regressions.html
+> Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
 
-Might be related:
-https://bugzilla.kernel.org/show_bug.cgi?id=219799
-
-> > On Thu, 4 Dec 2025 at 20:40, Thorsten Leemhuis
-> > <regressions@leemhuis.info <mailto:regressions@leemhuis.info>> wrote:
-> > 
-> >     Lo!
-> > 
-> >     @AM Vijay: 6.17.y will be EOL in about ten days, so this is unlikely to
-> >     get fixed there. The big question is:
-> > 
-> >     Is 6.18 affected?
-> > 
-> >     If it is, we need your help identifying want went wrong; if not, then
-> >     it's likely not worth looking closer into this
-> > 
-> >     Ciao, Thorsten
-> > 
-> >     On 11/28/25 09:05, Benjamin Tissoires wrote:
-> >     > Hi,
-> >     >
-> >     > On Fri, Nov 28, 2025 at 7:40 AM Vijay <vijayg0127@gmail.com
-> >     <mailto:vijayg0127@gmail.com>> wrote:
-> >     >>
-> >     >> Hello,
-> >     >>
-> >     >> I would like to report a regression in the Linux kernel affecting
-> >     I2C-HID
-> >     >> touchpads that run through the Intel ISH + DesignWare I2C controller.
-> >     >>
-> >     >> Hardware:
-> >     >> - Laptop: Infinix Y4 Max
-> >     >> - CPU: Intel (13th gen core i5)
-> >     >> - Touchpad: SYNA3602:00 093A:35ED (I2C HID)
-> >     >> - Bus path: SYNA3602 → i2c_designware → Intel ISH → HID
-> >     >> - OS: Linux (Arch/CachyOS)
-> >     >> - Kernel config: Default distro config
-> >     >>
-> >     >> Regression summary:
-> >     >> - Touchpad works perfectly in Linux 6.17.6 and below versions
-> >     >> - Touchpad stops working in Linux 6.17.7 and all newer versions
-> >     (6.17.8, 6.17.9, etc.)
-> >     >> - Desktop environment does not matter (Hyprland/GNOME both fail)
-> >     >> - The failure happens before userspace loads
-> >     >> - Touchpad also works fine in Linux 6.12 LTS
-> >     >>
-> >     >> This is a kernel-level regression introduced between:
-> >     >>     Good: Linux 6.17.6
-> >     >>     Bad:  Linux 6.17.7
-> >     >>
-> >     >> **Dmesg logs from broken kernel (6.17.7 and newer):**
-> >     >>
-> >     >>     i2c-SYNA3602:00: can't add hid device: -110
-> >     >>     hid_sensor_hub: reading report descriptor failed
-> >     >>     intel-hid INTC1078:00: failed to enable HID power button
-> >     >
-> >     > Looks like i2c-hid can't even communicate with any I2C device, so this
-> >     > is slightly worrying.
-> >     >
-> >     >>
-> >     >> And the DesignWare I2C controller logs around the failure:
-> >     >>     i2c_designware 0000:00:15.0: controller timed out
-> >     >>     i2c_designware 0000:00:15.0: lost arbitration
-> >     >>     i2c_designware 0000:00:15.0: transfer aborted (status = -110)
-> >     >>
-> >     >> These errors appear only on 6.17.7+ and not on 6.17.6.
-> >     >>
-> >     >> On working versions (6.17.6 and 6.12 LTS), the touchpad
-> >     initializes normally:
-> >     >>
-> >     >>     input: SYNA3602:00 093A:35ED Touchpad as /devices/.../input/
-> >     inputX
-> >     >>     hid-multitouch: I2C HID v1.00 device initialized
-> >     >>     i2c_designware 0000:00:15.0: controller operating normally
-> >     >>
-> >     >> This narrow regression window should make it possible to identify
-> >     the offending
-> >     >> change in either:
-> >     >> - HID core
-> >     >> - I2C-HID
-> >     >> - Intel ISH HID
-> >     >> - DesignWare I2C controller
-> >     >> - ACPI timing changes
-> >     >>
-> >     >> I can provide:
-> >     >> - Full dmesg (working and broken)
-> >     >> - acpidump
-> >     >
-> >     > Are you running on a full vanilla kernel?
-> >     >
-> >     > The changelog between 6.17.6 and 6.17.7 is rather small, so it should
-> >     > be easy enough to bisect and get the offending commit.
-> >     >
-> >     > I have my suspicions on:
-> >     > f1971d5ba2ef ("genirq/manage: Add buslock back in to enable_irq()")
-> >     > b990b4c6ea6b ("genirq/manage: Add buslock back in to
-> >     __disable_irq_nosync()")
-> >     > 3c97437239df ("genirq/chip: Add buslock back in to irq_set_handler()")
-> >     >
-> >     > Because anything else is unrelated to any component involved in
-> >     i2c-hid.
-> >     > (But that's also assuming you are running vanilla kernels without any
-> >     > extra patches.)
-> >     >
-> >     > OTOH, I've booted a 6.17.8 and 6.17.7 shipped by Fedora and I don't
-> >     > see any issues related to i2c-hid, so those 3 commits might not be the
-> >     > culprits.
-
-> >     >> Please let me know what additional data is needed.
-> >     >
-> >     > Can you do a bisect between v6.17.7 and v6.17.6?
+Applied, thank you.
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+Dmitry

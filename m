@@ -1,96 +1,109 @@
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80FB93F075D
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 19:56:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 788AD33DEEB
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 20:02:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768938996; cv=none; b=BzojJBuYnVbSbZZY/pjP8giFtdkmy8vEJB9pNU5/J2khtOamUajqrfZNowxAyZHsClTkvFXMBsGON2HHPlYwL6a44Q3I0yNWVngELQ2NfsnE4mAJFOH77jEgYReN/TmcsyYYy33e8iL2zUY0SO6F8ueBFcTnA/qLhRxeq+3nIMA=
+	t=1768939329; cv=none; b=upFf+t/GM5zTGGwXFcxl7PIzxI7aoTzqFMis/xnMV0mpNaEA7Irm68fZncggbhgrAj/tbdv5NuVjXyp4u0EaSbfXTUArF4bzQWJHYClaNPdjcOu0ecOYixKwf3xQ2uPdI0MrCLs3hnmnWLzyD0jrbIOBJj+L/axH+NoA0MpDCuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768938996; c=relaxed/simple;
-	bh=dpRYr3skIgV0rzJn+6D/Wwyl8T3WJJeqflIDq7vz970=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cNQvLhNHQDw9tp4hWYBmrmytqJGECmqu5BLMSPnsx2ieKuPwVXszYvDY3msOLTxaMHl+Dgjxlqx/tRax1nSco/oqnguw8uPYCabZh0PKiKgqv+4aT3lXDDq0xmKggP6ljkaDGE38Gxrb9DKgCLMq1bPY2pkZI4p4raknlQL8yww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ilTP+W8u; arc=none smtp.client-ip=74.125.82.43
+	s=arc-20240116; t=1768939329; c=relaxed/simple;
+	bh=jFGam1d3NuUGFPSwDVAnbHFINxd2GIvojexd1puh7Po=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hv/7fVSwJce3Vb+vsOICLGP4ZcQ7mduhZ7S6WVQVMcMS9MUUFbNoNQ3qQQJ78y5bVLvV5jF3QJ0mb8cBPXbmAhC3nFFQCpPHUc1WDCnU7FrwXIItw5JGWwPrrWtyCioJxnl/i5O1bLogLVJNyEzeJABG07r3aL9fOG4RzVQq6yA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VouZY+WW; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ilTP+W8u"
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-12336c0a8b6so12128323c88.1
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 11:56:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VouZY+WW"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-88fca7bce90so67116086d6.3
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 12:02:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768938993; x=1769543793; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=lPDgUMFRl+w+AbB4KcmndfGR0As68bgylKNbbH3AGMk=;
-        b=ilTP+W8u0C7h7XBeoah7AsJ9JL095ZDFwxa6je9YceSe5kL434AEa3e23rZIbJCd2e
-         jnO4xLKmsw5RyE29tSBo1CYXW/XhUGjPEV8BMF3noJo9ZL8fHVkWA5vnGSaSQLiOet2G
-         u33Z96XEok44vp/L8jcalhxIbLF2VdgdGVnEmHJyBf+WvA6eY40iDArMrDCHTCvuYbGV
-         R2IRMW4ie8d0lDUcYo3zWHSLjXKq85+4R/INtdkQm9SrWFC2O2lwXCSL+pV6WY7K/Y4J
-         v/prpxeGXBy2mhWGLzQMm/WfVUt37+/etLvLAhGEDEyKKhHhl6i31LdTJJSmRTJrCn8K
-         b7Hw==
+        d=gmail.com; s=20230601; t=1768939324; x=1769544124; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fa8n62Wco18BCB2ZMcBSBKouqOyAyAChJNgCLJGeA2g=;
+        b=VouZY+WWxoQucVCxuvOHXsbiW7j+2SNXXzS/5ktjUubZmmm06zWUCzaCJiFsUx1w34
+         IuJeZP2zRzwnWiQLtoFSnbsWXNXdgKmO4nxgVhQ7oe3CCGtTI/wi7w9rp4FK3l/90FYh
+         Nz3nCtBVuWqiri5hb3BS7tlx75xyG/rDTUWUJBxrcBKAuVRrd99A1BHaCJ2a1XIlSTGO
+         VullF0Sanw/h3/jAjpM1rCrQulmuLbAJX5z3l7ipGlFtztuFocwmPQAan7TEhYmxksZ0
+         hfKlf6IY8oSb0tOvoxqQaKalbpKiZrWTc7lohBqn6Dn4QoKLNhLEJQu73tCqkalIt9Rl
+         S+WQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768938993; x=1769543793;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lPDgUMFRl+w+AbB4KcmndfGR0As68bgylKNbbH3AGMk=;
-        b=YE97lrgcIyYdNdjdXo4vKYnMFNkfpLH2nKxKwjAAHyYJZoTEo2XAR0x4peRsGolBPV
-         6g2AsExXeIWUWGG4sFr/TqYzUuASUAJJeGti2JKukdqUJhP+NyXHSjPmW1KnKM92PhlO
-         TLI1A8NJO4eYlQZ1fjIetoCRux94S12mgI1S3j1RHpLDx7VYd7OIxw3hbvWViYQuLVtY
-         OdmvAdBIDMf9JtJT3qzHfYDL6lTbKdb3F7BTBrTqCczPsmA8TVg/CPfNgoyVqRYpdhMr
-         JgYO3l+JjwbNpAFwkl13N5tSNgRtn9KbG+YNPucviVCAMstwP2XslCC3gBHMRiMwPeBG
-         Sbrg==
-X-Forwarded-Encrypted: i=1; AJvYcCUH0agZE4tJd+1dxyv/u+f2Wvm20DcpyNjvdge5MbPEhwyCL5Gw+PyGYtE2cqWyup6k0EbPHqo1xbP0dQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5G2B7qKv89etU4P56royLS7lv1CHhjecScfIKMJvnD4u2jgLD
-	ZmENtPU7mFk5c6Zgu5OPCkgr0RUiAy+KUknikwGsSbP1kyyyiYiG5wv2
-X-Gm-Gg: AY/fxX6Vp21R6kcwBKgyVaFi5l/8Rzr9I55hT5ZNu7aDO2AfMPjOzNvll6GX6B7C4S7
-	PqD9HyWkfVQaP3FfHPtEaWuePd7AcOqha/L52PoMWiw6c4arNQhYhLXwcoIKnko4Zq/7k/lp3le
-	Zx5NHgvcLOkx6SNE90gp7F/CciKb5cQV+IVI3TSRig7eXPpJDmq+3KBHejM1Hi0rJWX1GNK14i6
-	kItGIXmAdLBvttcweqk9lxwhA4CQxHbMybPSbLuIhP0brtdYcG9OJle4T2rHB3Lx/bTIQANqgqW
-	2BIqb83JPOOtcE3vYJEQL0J3MRG6mujzygKyoNIfCMxXZZzgr9q6dAqi9jlS09sBWVihRZ5qRtq
-	3+fLo0JgpOrvimjyzR5ZflML9ydMUONs/p31HqTpkSMtQkhNsx4yWpuPzUKOdbbZNvpH5Va6bIl
-	v+NQET6jnvksyLwZvDcXnfcpGWUNBAQUQFgr4p/QPTXOt3p1KuOH4r
-X-Received: by 2002:a05:7022:608b:b0:11e:3e9:3e8a with SMTP id a92af1059eb24-1244a7910d8mr14869120c88.49.1768938993269;
-        Tue, 20 Jan 2026 11:56:33 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:d631:e554:f0bd:4106])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244ad740c5sm23388705c88.8.2026.01.20.11.56.31
+        d=1e100.net; s=20230601; t=1768939324; x=1769544124;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=fa8n62Wco18BCB2ZMcBSBKouqOyAyAChJNgCLJGeA2g=;
+        b=W6A+TQ5+z1YJ5FGXli+wvT7VexZabFiqUWp07hiWML3onvtXRvi3jskmXG+xei60Jl
+         n4dXR/3Mh0NBJK9mq+ppNknapA0O1Tk32oAz1Atc4OL9XhgQ8iVp2hVZhQ14oF4GUxJ1
+         GL67QKghmsvaq4LMdDdM2HJezayOpkcabOgULKvnUfTAsIlnbnnlnQWYH1kDtYsc0BVj
+         4pS9hnAKk8deBs94151l9ay+yaO/xzKZUdelmfkfrr4bsw2cMZPIBzyfGrGwwvnpKB99
+         TnDrRieTnvNnYCsZvXSDFh/+rejHONuthzh+elWMXTMu3HWTzSyrhwFX+8vf1EHvOSoe
+         85cw==
+X-Forwarded-Encrypted: i=1; AJvYcCWx6N5/Q/AMNSKgOWa4MsubFNQlW9BUykhk3XgXcO/hx8LuCpWOc5qp/3mCu02/qR8TBCT1oeQCBgje5g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyqFTbC8B5APz9dbkilq1dLnlGfOpQtNo9gNJ4ayokoDLzMRi9O
+	tk9qAMpDrsMDpJUArww4xeMKQSCsk9pYt6Hkm8OoY7i3Fzb5SR14YFvfsihLLQ==
+X-Gm-Gg: AZuq6aIp1ZEZfAzSah98fAHywI/PL5tUHX4EVUFFniEY8YyhbSOGfpcPqLQdOo+R8GN
+	XntkzD+Onjx2Fqq8p6qQn7FatiPuPpE3WxuoN59ZeAQTglkT3AP+See/Sd3MyvmX9zQlNVKr3cB
+	C27Flc1RK1v73Fw9InmncbyWDjTN65HEBOLy81of9rA8fvzZTUeM/C+Pjn5gSH2mQDphXZ5SmrZ
+	xl1iefPkud4uTANv99cuRtrxgFqT/TEX6RiQQ1p2QmpYXiWkUefAgpduLRUOG30gveNjdNQUFDw
+	dwkcOLO6OIOc9cldkpTkavLun/R4S68MI1gFRIt64GkXjyHLLSrF7g0ZwRy3H+crXqaEzzNsDwX
+	xdfQFuIOD7c3XFDoguCY0G2pQ9pEJ72+hMA8jdHsUTGq+W6h2eguv+do4+osrfblIU7qKrfAXWh
+	SDVmWEix8rhBosiAFqUovCRn8mAS+woWgvtsNc9bqbIsKzE9BTkZiDnSZgfBczRGJXY7Mlc7Ejw
+	IUTTzmh
+X-Received: by 2002:ad4:5746:0:b0:88f:ca80:2b98 with SMTP id 6a1803df08f44-894638e2373mr41762706d6.27.1768939324049;
+        Tue, 20 Jan 2026 12:02:04 -0800 (PST)
+Received: from benjamin-desktop-fedora.mynetworksettings.com ([141.154.77.127])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a7298472sm1112863585a.53.2026.01.20.12.02.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 11:56:32 -0800 (PST)
-Date: Tue, 20 Jan 2026 11:56:29 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kuan-Wei Chiu <visitorckw@gmail.com>
-Cc: airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, tzimmermann@suse.de, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, sre@kernel.org, gregkh@linuxfoundation.org, jirislaby@kernel.org, 
-	lgirdwood@gmail.com, broonie@kernel.org, jserv@ccns.ncku.edu.tw, eleanor15x@gmail.com, 
-	dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-pm@vger.kernel.org, linux-serial@vger.kernel.org, 
-	linux-sound@vger.kernel.org
-Subject: Re: [PATCH v4 3/6] dt-bindings: input:
- google,goldfish-events-keypad: Convert to DT schema
-Message-ID: <nab4yksjgk7jbofm5fkrafuz5c3dmi2oocdzgoscfj6ua7zwfh@olnrxt7sa3qp>
-References: <20260113092602.3197681-1-visitorckw@gmail.com>
- <20260113092602.3197681-4-visitorckw@gmail.com>
+        Tue, 20 Jan 2026 12:02:03 -0800 (PST)
+From: Benjamin Wheeler <benjaminwheeler0510@gmail.com>
+To: srimanachanta@gmail.com
+Cc: bentiss@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] HID: steelseries: clean up functions, move battery request data to structs
+Date: Tue, 20 Jan 2026 15:01:59 -0500
+Message-ID: <20260120200202.1225216-1-benjaminwheeler0510@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260112041941.40531-1-srimanachanta@gmail.com>
+References: <20260112041941.40531-1-srimanachanta@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260113092602.3197681-4-visitorckw@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jan 13, 2026 at 09:25:59AM +0000, Kuan-Wei Chiu wrote:
-> Convert the Android Goldfish Events Keypad binding to DT schema format.
-> Move the file to the input directory to match the subsystem.
-> Update the example node name to 'keypad' to comply with generic node
-> naming standards.
-> 
-> Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
+Hi Sriman,
+As requested, here are my patches for your v2 of the new driver.
 
-Applied, thank you.
+They fix an issue where the Arctis 7 incorrectly shows 100% battery due
+to submitting an invalid report. They also include some cleanups of a
+couple functions.
+
+I've tested these by loading the module in a VM, and seeing that the
+Arctis 7 reads the correct battery % through the Ubuntu desktop.
+
+If these don't fit nicely into your v3, feel free to take what you need
+out of them, or, once you submit v3, I can re-do my patches and
+re-submit.
+
+Thanks!
+
+Benjamin Wheeler (3):
+  HID: steelseries: Clean up hid send_report functions
+  HID: steelseries: Add battery request info (byte flags) to device
+    info.
+  HID: steelseries: Use device data for battery requests
+
+ drivers/hid/hid-steelseries.c | 217 +++++++++++++++++-----------------
+ 1 file changed, 111 insertions(+), 106 deletions(-)
 
 -- 
-Dmitry
+2.52.0
+

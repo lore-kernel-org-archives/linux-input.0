@@ -1,165 +1,151 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E72743DA21
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 18:40:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71B95396B9D
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 19:01:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768934408; cv=none; b=NECb94aX/WdpBX0qGERL+i6GQ3ba/pB7AYKnX7Nn9Y39QC5jpjujiW3+hmjsiRq+BDK1AqPB1o5O2Hn/EUQgWTHlD77HEvSCOdsN8cVEjKxslrWigN2JQAKaBH5HHSSbSUf2f+74fRh+eILmvDf9m840zTEApUmjp1jhrcP1fjc=
+	t=1768935693; cv=none; b=N8Vk93ayMCiOYxYCrES5CkyMTKz2R3U88JqKuYPcICp/WOAwqg48hdOVajUOkcdkB/K4jJYYqFXiTBCwTz9347url+ejrNnCk90AXDgxkUF53zJNGiv3FLDdFUQANUJWT5pJ6kden3e5zivyWWySWXkzOXAZGBKzbWmDF5wOz1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768934408; c=relaxed/simple;
-	bh=BuQ1ShCKV2TIwR4iKcKAM95usz7/aYLJ9oCUKkNrd8I=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=VQ1X3KxRJzAktROHEBpinUKgfMDVjXFLSvsCxEX2KWyVp39w7K1u+iYvXPz0MBEKk/XKPQbitPETXwqrjRTn1nc7dfiYKVtwYeFUKU0giDv+wMGZrlKxxyAmq0Ddb0foQw/9tM4nDGWKXxFoVE2oOkrvtBmV2Y216JQY/Hz29B8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CUTs/nPr; arc=none smtp.client-ip=74.125.82.182
+	s=arc-20240116; t=1768935693; c=relaxed/simple;
+	bh=+mdxWA7ZTB71/MaGBGas7+QPK60V2E5tzRBizCTuNjw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=OXUxQMQwqMpk3Zl/yFfuWp7t2pOls18HiucZ/AgQqdQ8Z45qw1WdAadBSBQTyu3HVeov3lzMj++ib5HHa7QEnGhOsIJcchFM97lmVhv++wMw49hp1J2jf2lKubQ1HYCQRz0arHT+DaAAYkhS82v8RgVY8Y8r1Qjpz0h4WwFGK5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z2rc6P46; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CUTs/nPr"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2ad70765db9so6461755eec.1
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 10:40:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z2rc6P46"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8c6a5c57e01so481925785a.2
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 11:01:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768934406; x=1769539206; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=LeeG+LydMx9pdpEIlKwJIXhJ7Lz8QyFbhhTyyId5je0=;
-        b=CUTs/nPr3Zbf9YvGWz94tNQCdWKTx0iOYEhqJbDnJWcva067NHTDRqYDhfHZec2ZgJ
-         nc1aCETo5oNJY5oCT9GJs6FoSviJN7j5bs28Y5FOgtBYTOvbS/UtnH3c4uNp4HgowLUY
-         XxVmPbhn8EWqxdHCy3hMRXTMLn2XMD8bUWfYSJvdi7qj+mhesDrB7A4unIn0qxR01AMc
-         92Yop6qSWAMREAJ4QJ++1EWEm/Ue7HO4WmO+x5I6xxagTaUYkPPwpt6UKDKs8U//inum
-         xAi2bWgHPsQp2iy/JxVnl/Jd4hnRodJizkC7VesTY1GCT8pL62/trv4rXnWvjcbrJfhW
-         yCgg==
+        d=gmail.com; s=20230601; t=1768935690; x=1769540490; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=U8qh6vJanosuQZR9ha4djD8gyY7F2kO7sGM9tek3dC4=;
+        b=Z2rc6P46k64u55Dfn0n5ZhmYd0A5LizWBe2QN8sBxJdKDi37h1yhZ9vJpCesEe3sAV
+         TSdwZib9X32jiEIrhQwaYz4TSZoA6UTdzEUKxMW1cw5eErkvLUkVggSFCsSL658YhH35
+         64C1GBCf0VS/yUGMm/uMiORLfkYF1FTPpyYbV66qQoyzBKEK9UbgGJxL9kg+AqV8dZaT
+         1iE+ZpdXrqam5iMznJIBc5EQ5y0C+HZkvQ7weDp6UlmFDRVD1KwlkhQ07vMsx//2CM8S
+         bWl38SKzC6aOGStOkWPaab/eR7vIfTH+K1ERZfPyYLkuxrWdL2kd94ZKQ9g9o31Bq3wi
+         mhDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768934406; x=1769539206;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LeeG+LydMx9pdpEIlKwJIXhJ7Lz8QyFbhhTyyId5je0=;
-        b=udDlCJBS+AnK8Bn01Zw1g+dVNWSNBsVDgSIGkuyaSqwNZEAhrBy+LbGVe8RbPk2KcJ
-         Dcnxa2/bDGqadqVbdCcZMxZcCVyil6NBOhrgNgUmsRCSGzI3+d94SoBLxKQ10nTu8AQu
-         wM30z/DpF21UBx+gLf/8SxQDNJaFGxK0nufs7cb5WZ+S+XfL1Nzt1wCQpa43t4E7b5ow
-         5YiBEmq0DSKy3lEif9rlhKhPKnIn42cH9ni2TWYlYYvXnmcn42uDVnWfn3FVX2cmQ5uz
-         2WnFCyDw2kr7R22pU+EfYmytBsI3SNm7iu9g6u85l/8N4jdZTXnTYHkJClwhbHdm1MlB
-         nTzw==
-X-Forwarded-Encrypted: i=1; AJvYcCUdCAQA5tX25NCjF7L3rZTJNoQmlN0+xmNbr6HbkRJhvbcVAX7Y4e7VRfP819e/2KUmzl9WhD/f27pP5g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyoyFNFg3o132LDkEyoTSRcTI0iG7Fzt5VM9fQUgyFcSp1inhtw
-	Ot57WNXNJV34GdlzC7yzOH048xltIvrxuoVokZdjLGam1C4xPYsgJQIc
-X-Gm-Gg: AZuq6aKgeGB+wpI3OT+7zDgLUy2s79JD9otsPqPT3z8jefCfFzRtKtvEvERHGo9+gqG
-	GcFaKJIL1wJldvr34BrRipJLssRm32JZWCPlMJNpqqIBkZu/czkyOy+7x2SZ9vqdVWv6BsUI37h
-	RzkDUkkFDP0j93YvqBuHxqDYyn4xJxOmINLL+ng2OAt0wIXm7QwAhLxlWydQMKeRRW+dC/W8qHF
-	oIO6rarrNQbEFwcIzeHcWPYLRqzcGFk5V5mMC/7AhUfH4FN20QJ48UiNdnPfDiLO63yx5KvY/lL
-	lk8yo+jS4m8kdfYcF3LpkX3ZV2OvuTluONjKW+H5WqtudE4iQQ+r1TGBdRN6dbZekg1KiSzajz/
-	Cp+2EaTgVWI6z9JteY4dXkgrGPKumo0UBpigF2lXQ6TzML4islcATLuOTmeKVdYZ482Ky+sW46m
-	G+E0ANViDb3ao8epLlSOuzUpxorBUrX8Q0IcvtTjMyMCKspWoCRMQb1Xyg+SDasPeBsaz5cv93Q
-	Sx8vpg=
-X-Received: by 2002:a05:7300:8188:b0:2ab:c284:d5d2 with SMTP id 5a478bee46e88-2b6b4e2841emr10118777eec.4.1768934405935;
-        Tue, 20 Jan 2026 10:40:05 -0800 (PST)
-Received: from ?IPv6:2a03:83e0:115c:1:b08c:bb3d:92b9:704d? ([2620:10d:c090:500::3:93b1])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b3502d22sm18159145eec.10.2026.01.20.10.40.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 10:40:05 -0800 (PST)
-Message-ID: <45b3df2a1b83a90c134b265ecd713731173556f0.camel@gmail.com>
-Subject: Re: [PATCH bpf-next v2 04/13] resolve_btfids: Introduce
- finalize_btf() step
-From: Eduard Zingerman <eddyz87@gmail.com>
-To: Ihor Solodrai <ihor.solodrai@linux.dev>, Alexei Starovoitov
- <ast@kernel.org>,  Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
- <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Mykyta Yatsenko <yatsenko@meta.com>, Tejun Heo <tj@kernel.org>, Alan
- Maguire <alan.maguire@oracle.com>, Benjamin Tissoires <bentiss@kernel.org>,
- Jiri Kosina	 <jikos@kernel.org>, Amery Hung <ameryhung@gmail.com>,
- bpf@vger.kernel.org, 	linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, 	sched-ext@lists.linux.dev
-Date: Tue, 20 Jan 2026 10:40:03 -0800
-In-Reply-To: <74fbaa99-024b-4e42-bda0-99ae792d565b@linux.dev>
-References: <20260116201700.864797-1-ihor.solodrai@linux.dev>
-	 <20260116201700.864797-5-ihor.solodrai@linux.dev>
-	 <c404446ab6d344338592dfa44f5a7e1b95492564.camel@gmail.com>
-	 <fe471a8c-4238-432b-9507-e2039f7fa9d8@linux.dev>
-	 <b92382bdb9b9b274c0eda1d2bf8aba69c9768ecd.camel@gmail.com>
-	 <74fbaa99-024b-4e42-bda0-99ae792d565b@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
+        d=1e100.net; s=20230601; t=1768935690; x=1769540490;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=U8qh6vJanosuQZR9ha4djD8gyY7F2kO7sGM9tek3dC4=;
+        b=jqMC8Yw1Il/eT+eQTLcGDWKbUSueQz8rTCS+8dQq6EBKe+ymcXciS841BHAnxodu8w
+         jNaML51BISXoBqL9C1QaC7kxvPncTMKIkSTe4ZMbD31VDlakP2K4M2NKu4LuDbV5lyj3
+         st0gVPPscKdI59rykrKKTlsLALZGlLJmyCCL+S33SPkbzgbmmXrx3+QQDJAOKV16TaIy
+         fMxgRGI86GKjCqCCGRWq85MquCtl72SkhTz1enoVD1cTyHz814OEzrfbPtQ87Co/4h/N
+         CWVb5NaIgF+MgFuwUx6YMmUV9SYFP6IuRBdI1hfo3rTx3Chz8FCeW+CAEknL2GIaU9Am
+         DkBw==
+X-Forwarded-Encrypted: i=1; AJvYcCUAolrM6zAZz9il2lztbQaZXygHSl2QkCZDOvivp9eAP7yw0I2VtAtNvO7GwJojTHl+O7T6I97+ru8KUA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzshSsgpc6P7huiJWC1bam5XPEsAhdT7EAs0yAaDQny8VrlV9Rr
+	SBKNL6Lffar7elRq3L376wvGu6K5jw1MVje44Vr1t1FocRJ1jFAicQl9HAj7Rg==
+X-Gm-Gg: AY/fxX4ec8lDdJZtUS5ncdDn+5KEQF2zCY2Mnd0lwknwXBDS2sXnBROVhu3ikuk9iIl
+	Ht4HwbTpRcQihRjZw7lEK2Ef3ZczMWw/SW/mu/FuSVtxvFxqjJT/H+vz/tfM1CmUasZ608iy7HF
+	BTePGZpN15/US6f14VjuvlpRThAUU6Uvuq/zGp9J0EXA86e70shQJZL4yQHLEvDHjsR17N0TbvJ
+	3y3rQQnH3ATFNToMmgSN8EIEIo2zqBS41mv0CpbmDhyDfeVSl+CIIzjksZnwxNz1yyfZb/pBlzj
+	YEOWdYH+fzUs/MmFKX/miu0C6EFDk17ADlWnatPByQEl4qmeeM/wig6VHOSL2AkI7YN7VODANfn
+	tVUB1W7BZJwL6HkX1WNRlsy1UqCOP2lg4a4bH4s/XqnELuW+K93OCxLcbNAu1u6UDJJgSW7LCc0
+	weT+8j5ZkVx4+biZWnrlv/60JxrjFRfg==
+X-Received: by 2002:a05:620a:710c:b0:8b1:2fab:30a8 with SMTP id af79cd13be357-8c6a677c02amr1931785285a.74.1768935688432;
+        Tue, 20 Jan 2026 11:01:28 -0800 (PST)
+Received: from [192.168.1.151] ([141.154.77.127])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a72602fesm1086932085a.41.2026.01.20.11.01.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 20 Jan 2026 11:01:28 -0800 (PST)
+Message-ID: <564ac92e-2049-4c9c-a701-f0e1c6d33f24@gmail.com>
+Date: Tue, 20 Jan 2026 14:01:26 -0500
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Betterbird (Linux)
+Subject: Re: [PATCH v2 0/4] HID: steelseries: Add support for Arctis headset
+ lineup
+To: Sriman Achanta <srimanachanta@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260112041941.40531-1-srimanachanta@gmail.com>
+Content-Language: en-US
+From: Benjamin Wheeler <benjaminwheeler0510@gmail.com>
+In-Reply-To: <20260112041941.40531-1-srimanachanta@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2026-01-20 at 10:35 -0800, Ihor Solodrai wrote:
-> On 1/20/26 10:19 AM, Eduard Zingerman wrote:
-> > On Tue, 2026-01-20 at 10:11 -0800, Ihor Solodrai wrote:
-> >=20
-> > [...]
-> >=20
-> > > > > @@ -1099,12 +1116,22 @@ int main(int argc, const char **argv)
-> > > > >  	if (obj.efile.idlist_shndx =3D=3D -1 ||
-> > > > >  	    obj.efile.symbols_shndx =3D=3D -1) {
-> > > > >  		pr_debug("Cannot find .BTF_ids or symbols sections, skip symbo=
-ls resolution\n");
-> > > > > -		goto dump_btf;
-> > > > > +		resolve_btfids =3D false;
-> > > > >  	}
-> > > > > =20
-> > > > > -	if (symbols_collect(&obj))
-> > > > > +	if (resolve_btfids)
-> > > > > +		if (symbols_collect(&obj))
-> > > > > +			goto out;
-> > > >=20
-> > > > Nit: check obj.efile.idlist_shndx and obj.efile.symbols_shndx insid=
-e symbols_collect()?
-> > > >      To avoid resolve_btfids flag and the `goto dump_btf;` below.
-> > >=20
-> > > Hi Eduard, thank you for review.
-> > >=20
-> > > The issue is that in case of .BTF_ids section absent we have to skip
-> > > some of the steps, specifically:
-> > >   - symbols_collect()
-> > >   - sequence between symbols_resolve() and dump_raw_btf_ids()
-> >=20
-> > > It's not an exit condition, we still have to do load/dump of the BTF.
-> > >=20
-> > > I tried in symbols_collect():
-> > >=20
-> > > 	if (obj.efile.idlist_shndx =3D=3D -1 || obj.efile.symbols_shndx =3D=
-=3D -1)
-> > > 		return 0;
-> > >=20
-> > > But then, we either have to do the same check in symbols_resolve() an=
-d
-> > > co, or maybe store a flag in the struct object.  So I decided it's
-> > > better to have an explicit flag in the main control flow, instead of
-> > > hiding it.
-> >=20
-> > For symbols_resolve() is any special logic necessary?
-> > I think that `id =3D btf_id__find(root, str);` will just return NULL fo=
-r
-> > every type, thus the whole function would be a noop passing through
-> > BTF types once.
-> >=20
-> > symbols_patch() will be a noop, as it will attempt traversing empty roo=
-ts.
-> > dump_raw_btf_ids() already returns if there are no .BTF_ids.
->=20
-> Hm... Looks like you're right, those would be noops.
->=20
-> Still, I think it's clearer what steps are skipped with a toplevel
-> flag.  Otherwise to figure out that those are noops you need to check
-> every subroutine (as you just did), and a future change may
-> unintentionally break the expectation of noop creating an unnecessary
-> debugging session.
+Hello,
 
-I'd argue that resolve_btfids is written in a clear read data /
-process data manner, so it should behave correctly even if collected
-data is empty. Is there a difference between no .BTF_ids and empty
-.BTF_ids?
+I'm Benjamin, and I coincidentally have also been looking into this 
+driver. Sriman, if you would like, I'd be happy to work together on this 
+driver with you! In reviewing your patches, I have found and fixed a bug 
+in my local tree regarding battery requests.
 
-> And re symbols_resolve(), if we don't like allocating unnecessary
-> memory, why are we ok with traversing the BTF with noops? Seems
-> a bit inconsistent to me.
+The Steelseries Arctis 7 and Arctis 7 (2019 ed.) are not implemented in 
+the battery request logic, and simply report 100% (the default value 
+during battery registration). I discovered this bug while testing your 
+driver with my Arctis 7 :-)
 
-He-he, I never heard about consistency :)
-Just don't like flags, they make me think more.
+Would you like me to send a formal patch for this? I also have some 
+patches I can send that clean up the battery logic in general that make 
+the code less complex.
+
+I am also happy to look into creating ALSA mixers/switches as well. 
+Please let me know how I can help! Excellent work so far, and smart 
+choice in using HeadsetControl, they've done most of the heavy lifting 
+for us.
+
+
+Sincerely,
+
+Benjamin Wheeler
+
+
+On 1/11/26 11:19 PM, Sriman Achanta wrote:
+> This patch series adds comprehensive support for the SteelSeries Arctis
+> wireless gaming headset lineup to the hid-steelseries driver.
+>
+> The current driver provides only basic battery monitoring for Arctis 1
+> and Arctis 9. This series extends support to 25+ Arctis models with
+> full feature control including sidetone, auto-sleep, microphone
+> controls, volume limiting, and Bluetooth settings.
+>
+> The driver restructure uses a capability-based device info system to
+> cleanly handle the varying feature sets across different Arctis
+> generations while maintaining support for the legacy SRW-S1 racing
+> wheel.
+>
+> Patch 1: Add 27 new device IDs to hid-ids.h
+> Patch 2: Add HID quirks for proper device initialization
+> Patch 3: Update ABI documentation for new sysfs attributes
+> Patch 4: Complete driver implementation with all features
+>
+> Tested on Arctis Nova 7 (0x2202). All other implementation details are
+> based on the reverse engineering done in the HeadsetControl library
+> (abe3ac8).
+>
+> V2:
+> - Fix Documentation formatting issues
+>
+> Sriman Achanta (4):
+>    HID: hid-ids: Add SteelSeries Arctis headset device IDs
+>    HID: quirks: Add INPUT_CONFIGURED quirk for SteelSeries Arctis
+>      headsets
+>    Documentation: ABI: Document SteelSeries headset sysfs attributes
+>    HID: steelseries: Add support for Arctis headset lineup
+>
+>   .../ABI/testing/sysfs-driver-hid-srws1        |   21 -
+>   .../ABI/testing/sysfs-driver-hid-steelseries  |  131 ++
+>   drivers/hid/hid-ids.h                         |   33 +-
+>   drivers/hid/hid-quirks.c                      |   25 +
+>   drivers/hid/hid-steelseries.c                 | 2061 ++++++++++++++---
+>   5 files changed, 1925 insertions(+), 346 deletions(-)
+>   delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-srws1
+>   create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-steelseries
+>

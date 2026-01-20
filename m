@@ -1,143 +1,139 @@
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27A0144DB72
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 18:18:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFBB1438FFD
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 18:19:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768933109; cv=none; b=lCj10qkioSsX7Elk/nMQQH4YJmL7GaA/XhHHaV41Vw0Tp0k6i+FMv6uZe4VSqalpmYC/P/mUDDcm/ue/NYKs6GYgO35gOE/dF1dtnqYTM3uzuCMZi7LLtp/YB0zyf/fDCDjXGsnh2tBgKFkTNTisKnTulVMrRVyigrKT5aQGiwI=
+	t=1768933155; cv=none; b=l8ro4G9XMny2qg2aPVBlO/cR1Ap1j0OD7P19R/9xrRLtJE7GUITzI5tylo/n9/yuYbyh7ooe58z0pVjIZDvR+Zo32MW2QbZkMjUkFLErEe2mzdAhbv0bvtwKfctaxnVOorZV07Z/DHdjOjb/2R5cMuLEZxQoKifD4mTlahsJStk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768933109; c=relaxed/simple;
-	bh=JQ6I/dBlxIgIcUf8A4aJYdiBdj+YWBI7b9V02+wm2OA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TOYxk0nE4ftx/xDc12XW9c4x+ekjWJaFhC36TA+QIhcRWzi8Pe8tMIxrOXZNw/vxxk19jbbmSChDuqMpGKPe0RKDhHF4E7jZFZxo6LgUrdXpsvDBjRld5q9Wdtv4FeFqtUBczbnp1dvaCaOB6nkONwdEjBmOz6Molg0pRyTXKOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GTZhU6ZH; arc=none smtp.client-ip=74.125.82.45
+	s=arc-20240116; t=1768933155; c=relaxed/simple;
+	bh=Z6WkaZNjD+eEC5S2sCu+mWSNmR7uwq/DhhVRU9ARdG0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=fE6gLQP4p3vDBwCXhnNTeUoNlCBdJO1F/ajvuv0bkMmUzBLuy7gjHwRYvSAYx7SRTUAen6KL/XSRR7TzLvQp0A92FANl3/hcupV/QjR45oCMQ/0yEUR6ztKajGYjUPmc0fellFl4WuSiheSXmoB+1S9PbWjJo7wrJR9fs5EbA5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nSKLxziI; arc=none smtp.client-ip=74.125.82.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GTZhU6ZH"
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-1233bc1117fso76924c88.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 10:18:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nSKLxziI"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1233702afd3so7303892c88.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 10:19:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768933107; x=1769537907; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QQYJbZTQw+fm+D6c7DbpOogrd49nWeIx/pC/U0uBVeI=;
-        b=GTZhU6ZH9v8EqrJ1r3eD98hSm7vRyapMBXymXQL40TNaf20Hv3L2reKmEV36juICgK
-         7tsoFYViYkh3jYUkGIflljvp4Mm+FKgLDQ1cYTA8lJSOVc5b54CifW1+hMox7OMCv3sn
-         oqHki6s7+XryS4sy2x+X2jQTVcEQsT52YJTsiZcX5I+40pML3UcbZEeHYD4BZT5/zUcu
-         Vg/ahpWF9Dwr2QZ+nmrtJebiKqDHd4gNI5/x9R+UFmCRLiGebyL8EbMjprOVilb4pN6O
-         kXaTEuE9Ngm3NTmC8yVRnsS6mZ9yDPyH+f+TdCCTUJ1/5j5FOd3VRg/4nDPWhc8ahOBx
-         PkqQ==
+        d=gmail.com; s=20230601; t=1768933153; x=1769537953; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=SBww9KLEHQwBhj2b72CiEvbmeQf+WrCHcUWGacrEJTM=;
+        b=nSKLxziIag/pKIfQCKmFiGkaJ10nI3Vn1oWj9LoMCM4B/JQIUJjJtXIp80lS0/n4rs
+         u/6JuYY3/WpvkahE7NmVWNvO9e1jete2f9sK81KcilSOvIYsS7U+6RATjtIzd5g0Zq2+
+         GRHKFYGBI/mpgqpLo3eepLVmbbZO/muS28mGiU8EabYjxlSk+Uo3WmodNscZk5HF8bek
+         X/igo3BykZ6TozWfgSUvFimICZhxgKdKliCMF62DOim4yMFAZGv+vkuSusU2YAL/Tq2T
+         ZsGmEZC5bppH+HWhqImSfp9lXven/RxZk0J3DvdyTqwLuGlFB5iicdiEDXUaA9BOIE2B
+         tXQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768933107; x=1769537907;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QQYJbZTQw+fm+D6c7DbpOogrd49nWeIx/pC/U0uBVeI=;
-        b=VlNKbjsmsvzIFnBbkYzYfscTAH8ubF/UbyVkSvvPQ9VluQEPgfRy47mQ5sZSMZT4dQ
-         Oyd6U7LbiDvI1lkYfVA4THEHmz8Y8GdZWXGmgpfNVtQfvuAWtAFR3HpgR80w4Gl7h1PS
-         fZ2wFtYMAn/40HwnspCMbqPTfu8KKg1nVvrL/4E8wjkrzgNoQJexQl1CgACKLwvyZnkI
-         U3GvZLKjYvzsKeQ3QnSOszxrI4Zv1SB9iuuvTmoVew/85wJv0lsH7wRQL3Ok7fiWF8uT
-         0Ec+6Hva7NXnuiQ3CBqgE+FKBmJxqZxosi0C221LQ5IVyg3UEIdU5xlP3a+KTJkvzPkI
-         jlVg==
-X-Gm-Message-State: AOJu0YyJZyvpRKNkLxiJbEpUWalOWtOxsKiSAVTltfQ8KzM3KGBvCbU8
-	rJkehKbqSekBClwQtHMxiTiUkPlJZQT2TXvt/qK8qf0/Rp5ltWK5XC4I
-X-Gm-Gg: AY/fxX6YFEtxI2PyWhlBmSiIkvVg6pLBZ4wKt5oc/YphamoA/c+VgEHfoJ+JiGnuzme
-	G0IUg6GjACOBAqB46CcJ5YdIO+2XCRZpXdtpVUWVKS3mHHyf3hOm24y95uymUIo+ddf8+M3NrUD
-	IWdjVtGONWdMT8lJz6OMFvzj314XG5wL0wSrL/Pbd0+AC9BpAHpwRpsdClAaxuKZ7ogEyPMiZOD
-	uLjXbJOPGGtWMJ4WQ3Ur1diLmvEbgQrgBBokTymp6zguG4XX3yhsBgYglsNqcTQtHSJNLP9DdTe
-	YpiICydhQVA8MJ10SeeXyglOyD8QHd9/7+jjUrZzc+gmIpGY2jwuXH+F76bzoM3F4Tl9T6b2AXA
-	mArecEMsk8YOqOvWyYS+/O90Ho3u6BdnX4hGmeDXGnE3d4aoolokS5i2Uhy0rMsLjekexJXSiyv
-	/QuXaxl1piJ3oII18dN+dlFC6GlEYFzxTrlumIrj/hiE/cRRKuOX+MY1LakSYkUVk=
-X-Received: by 2002:a05:7022:258c:b0:123:3c65:d724 with SMTP id a92af1059eb24-1233d116ce1mr14616987c88.25.1768933107050;
-        Tue, 20 Jan 2026 10:18:27 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:d631:e554:f0bd:4106])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244aefaf0asm19040938c88.9.2026.01.20.10.18.26
+        d=1e100.net; s=20230601; t=1768933153; x=1769537953;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SBww9KLEHQwBhj2b72CiEvbmeQf+WrCHcUWGacrEJTM=;
+        b=J/nImZs9wBE4SbiDjmSTuqb3TpYofjUdirD1wxzZnU2ZgNn41+zksjFzRYahjSP/f6
+         Eni551zRFPy0la04fV3mi+ztoGTKmLLjcNs7geMd/QMxINeO5t10xqMMZ23QIUxHN5nH
+         WeEs1EnwLYWJbXsyH32oucCWXmeketHtsYoMtIZgHuNZEW0ULQ9KO0mRcEOCBxXK6YBh
+         1qUo4YQh02+mWQXbi+sI45gyaR06OgYHctuMXrtH6r/Q/MbpJiyWdPIKESicAIEVI8vt
+         8nRUzWNLi+hsoRBYLydLCgbRv93huJsXhToo9/bMw89vHkJ8zp0Vg4RUSaBVjhOAyyrO
+         TbQA==
+X-Forwarded-Encrypted: i=1; AJvYcCXx/PlU8s3TIbVyE7z4HAMi/vGK/KfA8kO/I5G8I9pyGfVBSXKtfDA1Xm+TD/EbnBABnCFYIlDy/fhMpw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx5Sk+lKJa9/2gbIdHl9bJJbHKYl7iVb8DrUeZ7HAWSigvhK22Y
+	40gwbCswkgJY6XEJq79kBc6s+Lqpi4lnD9HSebtgQDongd9MepMzRC88
+X-Gm-Gg: AY/fxX6DAwU85Ubo9artQ2u4+mekjMcb6R8cDfHyB5zJzK/kuitPGibsEd3qhHxWU3W
+	OrKtDKGyy1ebY43nsZspUh/HCEYrLdLzKMPjbjveApijj2EI+quxYZKT9BZnqiZPfQRvoQYoT7e
+	AVRES9S99LrjDOcpbfXFo3A5G0BFogESQMD190xc+G/7EYLDJCv3ka7h4tvmiEU+24oT+FZwhOu
+	ouCc0asANaB3iL0oOOitFd+0gCiUOxv8OmuOgA41kEUJe6xV/Rlx8Vp+8rx1mzU5gQbKFWCxxZC
+	rdBwlU3nPqMbzHsyHI5xTZQgkRMzZUefTYjs8xuT+aYP9fA2BSKCLZRDKkZJU3JIVmWeCOOOCB7
+	JDGn/OUoxIzAkJUmw9syKS2zYVLoSv7E2UWIDLopYzppLd5IBOH8fz3eNwmlxTzzqLBv3oX5JyD
+	XxlEJqg3mWmPRarn/lK2uNJZy5qpSe6c3TLSNs95kD14VUDzM9uK/HfMmMA/EB5j848s8l
+X-Received: by 2002:a05:7022:e1a:b0:119:e55a:9be7 with SMTP id a92af1059eb24-1246a955faamr2004520c88.3.1768933152685;
+        Tue, 20 Jan 2026 10:19:12 -0800 (PST)
+Received: from ?IPv6:2a03:83e0:115c:1:b08c:bb3d:92b9:704d? ([2620:10d:c090:500::3:93b1])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244aefa7c5sm22503340c88.10.2026.01.20.10.19.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 10:18:26 -0800 (PST)
-Date: Tue, 20 Jan 2026 10:18:24 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Haowen Tu <tuhaowen@uniontech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: appletouch - fix use-after-free in work handler
- during disconnect
-Message-ID: <qg6meqq256s277awsoo4xulkdthfimvhlowp7bmuk2annscm6q@hqtttyufeonm>
-References: <20260116031113.1003940-1-tuhaowen@uniontech.com>
+        Tue, 20 Jan 2026 10:19:12 -0800 (PST)
+Message-ID: <b92382bdb9b9b274c0eda1d2bf8aba69c9768ecd.camel@gmail.com>
+Subject: Re: [PATCH bpf-next v2 04/13] resolve_btfids: Introduce
+ finalize_btf() step
+From: Eduard Zingerman <eddyz87@gmail.com>
+To: Ihor Solodrai <ihor.solodrai@linux.dev>, Alexei Starovoitov
+ <ast@kernel.org>,  Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
+ <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>, Tejun Heo <tj@kernel.org>, Alan
+ Maguire <alan.maguire@oracle.com>, Benjamin Tissoires <bentiss@kernel.org>,
+ Jiri Kosina	 <jikos@kernel.org>, Amery Hung <ameryhung@gmail.com>,
+ bpf@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, 	sched-ext@lists.linux.dev
+Date: Tue, 20 Jan 2026 10:19:10 -0800
+In-Reply-To: <fe471a8c-4238-432b-9507-e2039f7fa9d8@linux.dev>
+References: <20260116201700.864797-1-ihor.solodrai@linux.dev>
+	 <20260116201700.864797-5-ihor.solodrai@linux.dev>
+	 <c404446ab6d344338592dfa44f5a7e1b95492564.camel@gmail.com>
+	 <fe471a8c-4238-432b-9507-e2039f7fa9d8@linux.dev>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260116031113.1003940-1-tuhaowen@uniontech.com>
 
-Hi Haowen,
+On Tue, 2026-01-20 at 10:11 -0800, Ihor Solodrai wrote:
 
-On Fri, Jan 16, 2026 at 11:11:13AM +0800, Haowen Tu wrote:
-> The atp_reinit work item is initialized in atp_probe() and scheduled
-> from atp_complete() URB callback when the device becomes idle. During
-> device disconnection, the current implementation calls usb_kill_urb()
-> in atp_disconnect() but fails to prevent the work from being executed
-> after the atp structure has been freed.
-> 
-> Although usb_kill_urb() terminates the URB and its callbacks, there is
-> a critical race window: if schedule_work() is called in atp_complete()
-> just before usb_kill_urb() takes effect, the work item can still be
-> queued. Since atp_disconnect() immediately proceeds to free the atp
-> structure without canceling pending work, this leads to a use-after-free
-> vulnerability when the work handler executes.
-> 
-> The race condition:
-> 
-> CPU 0 (disconnect path)      | CPU 1 (URB completion)
-> atp_disconnect()             |
->   usb_kill_urb(dev->urb)     | atp_complete()
->                              |   schedule_work(&dev->work)
->   input_unregister_device()  |
->   usb_free_coherent()        |
->   usb_free_urb()             |
->   kfree(dev);      // FREE   | atp_reinit()
->                              |   dev = container_of(...) // USE
->                              |   atp_geyser_init(dev) // USE
->                              |   dev->urb // USE
->                              |   dev->intf // USE
-> 
-> Fix this by adding disable_work_sync() in atp_disconnect() after
-> usb_kill_urb() to ensure the work is properly canceled and cannot
-> be rescheduled before the atp structure is freed.
+[...]
 
-I do not think there is actually a race. The urb is only
-submitted/started when the device is open, the work in properly
-cancelled in atp_close(), and the input core will ensure atp_close() is
-called for opened devices. In fact, that usb_kill_urb() call in
-atp_disconnect() is not needed at all.
+> > > @@ -1099,12 +1116,22 @@ int main(int argc, const char **argv)
+> > >  	if (obj.efile.idlist_shndx =3D=3D -1 ||
+> > >  	    obj.efile.symbols_shndx =3D=3D -1) {
+> > >  		pr_debug("Cannot find .BTF_ids or symbols sections, skip symbols r=
+esolution\n");
+> > > -		goto dump_btf;
+> > > +		resolve_btfids =3D false;
+> > >  	}
+> > > =20
+> > > -	if (symbols_collect(&obj))
+> > > +	if (resolve_btfids)
+> > > +		if (symbols_collect(&obj))
+> > > +			goto out;
+> >=20
+> > Nit: check obj.efile.idlist_shndx and obj.efile.symbols_shndx inside sy=
+mbols_collect()?
+> >      To avoid resolve_btfids flag and the `goto dump_btf;` below.
+>=20
+> Hi Eduard, thank you for review.
+>=20
+> The issue is that in case of .BTF_ids section absent we have to skip
+> some of the steps, specifically:
+>   - symbols_collect()
+>   - sequence between symbols_resolve() and dump_raw_btf_ids()
 
-I see there is a potential race handling dev->open in the driver, I just
-posted a patch addressing it.
+> It's not an exit condition, we still have to do load/dump of the BTF.
+>=20
+> I tried in symbols_collect():
+>=20
+> 	if (obj.efile.idlist_shndx =3D=3D -1 || obj.efile.symbols_shndx =3D=3D -=
+1)
+> 		return 0;
+>=20
+> But then, we either have to do the same check in symbols_resolve() and
+> co, or maybe store a flag in the struct object.  So I decided it's
+> better to have an explicit flag in the main control flow, instead of
+> hiding it.
 
-> 
-> Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
-> ---
->  drivers/input/mouse/appletouch.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-> index e669f86f1882..aa2870a87eee 100644
-> --- a/drivers/input/mouse/appletouch.c
-> +++ b/drivers/input/mouse/appletouch.c
-> @@ -946,6 +946,7 @@ static void atp_disconnect(struct usb_interface *iface)
->  	usb_set_intfdata(iface, NULL);
->  	if (dev) {
->  		usb_kill_urb(dev->urb);
-> +		disable_work_sync(&dev->work);
->  		input_unregister_device(dev->input);
->  		usb_free_coherent(dev->udev, dev->info->datalen,
->  				  dev->data, dev->urb->transfer_dma);
+For symbols_resolve() is any special logic necessary?
+I think that `id =3D btf_id__find(root, str);` will just return NULL for
+every type, thus the whole function would be a noop passing through
+BTF types once.
 
-Thanks.
+symbols_patch() will be a noop, as it will attempt traversing empty roots.
+dump_raw_btf_ids() already returns if there are no .BTF_ids.
 
--- 
-Dmitry
+[...]

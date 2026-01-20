@@ -1,118 +1,123 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AF93366DA4
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 18:31:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94614340A6F
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 18:35:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768933913; cv=none; b=pQMLtIwZGLRZ+mEHTR0ydh3AKxb4MBKaCChyQ3aYO4q2iSYo63UgfyqRuRs6ctz+rrzvsFOROFKN6f6zVFPTzAPArKJ1cxtHJPBKMNo5oKFzZ7T86G9l/4x8O7kiHLOG/dvpaw3pBdTK2Y4eaoljieLeSC3424rcFd643XJo57U=
+	t=1768934133; cv=none; b=QD3dIcXDrXgBX59jWtV2XuvnIpgODuRnEBEEYvIDbc/GaFpfyGQQEvB21GwT+TpwVOU9ezeCNA7pdevE+Wk4hE+rHdJswYRCBK2P90BjUPs9IhyzoJSrWV5lvmRcU6NRTWj2TNE811NmQszB86Q2/+O8PiLMJGWXGt6aAeJYZHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768933913; c=relaxed/simple;
-	bh=PxkI9ZEVl95ef0uAgeS0w20WL27T1aoU+i2r2y+erRA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qqxiba8DZKWHl60eF722nyqV17Us7SPx0/DKOkcZXHDkarKy22Czoh6NXF1Wwom3asYaEYnSEJVUUIkRYrHbQ/lsZFEl0pMfdcMLIi2RQzTRoZjm14JXHilNoF5Yr0bhLIbn0Bv4cCFI0G+SPaRW7x7g1S9eubv6i3XAwLJ1Ivg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JONTaoPI; arc=none smtp.client-ip=74.125.82.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768934133; c=relaxed/simple;
+	bh=3yGAGGw5eWKeXtAk627Ima8Gs9AAiwJMGypUvWnlvYE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HP6nzVga73PG9nWMn10ATHtm5DJ6zvK83aR1Njp2jmjXTdRQUbL5ULFi9//ZCUwzS3AcSVvpoXYianAYd3QAkJNC9xwcPZbQNeqAi2lAR+a19R+zWbASH2zkLqVIKBiPxN7z6J73HgQgeSdzXzx4g9XvLxur/46lORM3Ps+liF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uX7T5YOC; arc=none smtp.client-ip=91.218.175.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JONTaoPI"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-12460a7caa2so3316602c88.1
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 10:31:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768933910; x=1769538710; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=C+oiG92vmpU02Q01PF7tnGA5Qb+9FeY26FbggeLUk/w=;
-        b=JONTaoPIogLOwBf186uAsWG4ZD9/b1Dn9JUmiSkssn6E57GVKfAtLGy+Wg9faIYJZt
-         0BUr5XqAH7LuvCNlB1q5GYhG3w25b/zUDKzRFD1K/zKKIUWURZnHQ4QewDO0vdkTuHKS
-         gpymUDnu73nPN4vMa1EjWZnwotiyIXGrz+E278Vy8nr0oX3IDfNSaRFlbL2OYdMy2KLQ
-         NnGwzPpXY21UH/knFMrBgtDnK0txuvF0HlqSMCHCMPsZKkf8zfGYM9f5u4fh8ZLrFNBl
-         8DsqLnrtKafJX5kpyKOnAb7KqOcA1d9lW2k1oKMctM5P4ri09TuxPdjj3fHeya3dtS0n
-         A/aA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768933910; x=1769538710;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C+oiG92vmpU02Q01PF7tnGA5Qb+9FeY26FbggeLUk/w=;
-        b=IX9nGOrZOyj9aLNi/UgnmS4p9Q+gxKRdr03SlDVY82sunejoaognivV91CGpuLuQ24
-         BjG7B9MeHPGz4o7EyFzlbTjetnvnCn1yX2rpBm+rl+PUDRBlzWUTzsArHHqEa54bs0lg
-         g+qpuAmXOCiAxgdZm8Crhb8/ZJn1gYPmKMVm9+TV/XuqSzRmQlYeDvCWTtsLHZLizDyQ
-         7y6OQn2pZZGOIrOJ/w4SDCchvMJBPQ7gICBCGSCS4EjURFi3yF/24xRAGH+vcsgXFBpO
-         +yhK617hO4GtzdqYTtsH+6rVHZb/hV3yRfDJGk8RJ5kmErVIPssU3+0UJ0w4aJka1Nea
-         229Q==
-X-Gm-Message-State: AOJu0YzVMkQIIzj5Qawush8wJeB3hSqI4WGr9kWE/2tqkv+rUYRClysK
-	tgShJWHmZXQ8938dOsArJD0TrwOpI3tiggWcIDZkyetY5mC2gzZABSlA
-X-Gm-Gg: AY/fxX6ozz728qf+FZ1N6dsLgoOGnU45rONVyRLTfYUfBYZGLQFSMWzQjGODfNrlvMu
-	U1Pw5ZgeR4O80wFvMzBgzTTEo6pjezj61EeNkQcCjg/rXarFMRIthfU6tQXOUlg1+fo87E5xcqV
-	cyVZeSGqqbLyGjlFROmNIZUSowimLCdgwodud40cQSW3Q7Ua2SdqfqW0npWvgK3Obu3giJjYYAQ
-	kg0CCSr9NduyNtnKw68MNy3G8MUAju5BJ1iivwzP0p0K0dXiNl7yJMXmmb2rn5MmrQCHIi5VZwQ
-	rCNMaUPnB0aJ2T8pguGds2ZyEQymW9gA1qhBrQ0HGMnucO5Ep1ugCx3NsvWWGOLkZXyWfxh4xP3
-	AR5/cAGOAm2up1I3/GJp5WhepS3wl/dDBAV0SL29YwsMFerfxbe9bCUcqwH3k6CamTugihvKo2u
-	D4W/DOBblv5OtJfzaf1Cvff9RHKt6RnkONTAmAHdqS/r7m1KYjHnrMP0nE3NalTrQ=
-X-Received: by 2002:a05:7022:2204:b0:123:3364:2cad with SMTP id a92af1059eb24-1244b36d95cmr10423848c88.40.1768933910467;
-        Tue, 20 Jan 2026 10:31:50 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:d631:e554:f0bd:4106])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244af10736sm21990193c88.14.2026.01.20.10.31.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 10:31:50 -0800 (PST)
-Date: Tue, 20 Jan 2026 10:31:47 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Marek Vasut <marek.vasut+renesas@mailbox.org>
-Cc: linux-input@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Job Noorman <job@noorman.info>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] Input: ili210x - add support for polling mode
-Message-ID: <wv3vil4b4lgfrqt4qnzxiffnniw422xjfdiz4svkklnfrslz3g@yzqc265pj5t5>
-References: <20260117001215.59272-1-marek.vasut+renesas@mailbox.org>
- <20260117001215.59272-3-marek.vasut+renesas@mailbox.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uX7T5YOC"
+Message-ID: <74fbaa99-024b-4e42-bda0-99ae792d565b@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1768934119;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JLPdwWhpS0HfKC6t7quQPU7Dg+w9SU30pGQamQFfJ0E=;
+	b=uX7T5YOCVxExz4iuE0ffYSfWjc7vimAiDySGGUFu+5hk0i2U2XKKLkj0k93Jx9Oi+fdKB/
+	s+bCqaGRFqMNCkV/mlj4vX/zyxiENhXkOMerJEp7mXP92Aa469YgM3JsjzFpzZwD3ReqTt
+	1HmmukJIA9da3FjgPmndXOoDJqSAE9U=
+Date: Tue, 20 Jan 2026 10:35:13 -0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260117001215.59272-3-marek.vasut+renesas@mailbox.org>
+Subject: Re: [PATCH bpf-next v2 04/13] resolve_btfids: Introduce
+ finalize_btf() step
+To: Eduard Zingerman <eddyz87@gmail.com>, Alexei Starovoitov
+ <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>, Tejun Heo <tj@kernel.org>,
+ Alan Maguire <alan.maguire@oracle.com>,
+ Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Amery Hung <ameryhung@gmail.com>, bpf@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ sched-ext@lists.linux.dev
+References: <20260116201700.864797-1-ihor.solodrai@linux.dev>
+ <20260116201700.864797-5-ihor.solodrai@linux.dev>
+ <c404446ab6d344338592dfa44f5a7e1b95492564.camel@gmail.com>
+ <fe471a8c-4238-432b-9507-e2039f7fa9d8@linux.dev>
+ <b92382bdb9b9b274c0eda1d2bf8aba69c9768ecd.camel@gmail.com>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Ihor Solodrai <ihor.solodrai@linux.dev>
+In-Reply-To: <b92382bdb9b9b274c0eda1d2bf8aba69c9768ecd.camel@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-Hi Marek,
+On 1/20/26 10:19 AM, Eduard Zingerman wrote:
+> On Tue, 2026-01-20 at 10:11 -0800, Ihor Solodrai wrote:
+> 
+> [...]
+> 
+>>>> @@ -1099,12 +1116,22 @@ int main(int argc, const char **argv)
+>>>>  	if (obj.efile.idlist_shndx == -1 ||
+>>>>  	    obj.efile.symbols_shndx == -1) {
+>>>>  		pr_debug("Cannot find .BTF_ids or symbols sections, skip symbols resolution\n");
+>>>> -		goto dump_btf;
+>>>> +		resolve_btfids = false;
+>>>>  	}
+>>>>  
+>>>> -	if (symbols_collect(&obj))
+>>>> +	if (resolve_btfids)
+>>>> +		if (symbols_collect(&obj))
+>>>> +			goto out;
+>>>
+>>> Nit: check obj.efile.idlist_shndx and obj.efile.symbols_shndx inside symbols_collect()?
+>>>      To avoid resolve_btfids flag and the `goto dump_btf;` below.
+>>
+>> Hi Eduard, thank you for review.
+>>
+>> The issue is that in case of .BTF_ids section absent we have to skip
+>> some of the steps, specifically:
+>>   - symbols_collect()
+>>   - sequence between symbols_resolve() and dump_raw_btf_ids()
+> 
+>> It's not an exit condition, we still have to do load/dump of the BTF.
+>>
+>> I tried in symbols_collect():
+>>
+>> 	if (obj.efile.idlist_shndx == -1 || obj.efile.symbols_shndx == -1)
+>> 		return 0;
+>>
+>> But then, we either have to do the same check in symbols_resolve() and
+>> co, or maybe store a flag in the struct object.  So I decided it's
+>> better to have an explicit flag in the main control flow, instead of
+>> hiding it.
+> 
+> For symbols_resolve() is any special logic necessary?
+> I think that `id = btf_id__find(root, str);` will just return NULL for
+> every type, thus the whole function would be a noop passing through
+> BTF types once.
+> 
+> symbols_patch() will be a noop, as it will attempt traversing empty roots.
+> dump_raw_btf_ids() already returns if there are no .BTF_ids.
 
-On Sat, Jan 17, 2026 at 01:12:04AM +0100, Marek Vasut wrote:
-> @@ -860,16 +893,12 @@ static ssize_t ili210x_firmware_update_store(struct device *dev,
->  	 * the touch controller to disable the IRQs during update, so we have
->  	 * to do it this way here.
->  	 */
-> -	scoped_guard(disable_irq, &client->irq) {
-> -		dev_dbg(dev, "Firmware update started, firmware=%s\n", fwname);
-> -
-> -		ili210x_hardware_reset(priv->reset_gpio);
-> -
-> -		error = ili210x_do_firmware_update(priv, fwbuf, ac_end, df_end);
-> -
-> -		ili210x_hardware_reset(priv->reset_gpio);
-> -
-> -		dev_dbg(dev, "Firmware update ended, error=%i\n", error);
-> +	if (client->irq > 0) {
-> +		scoped_guard(disable_irq, &client->irq) {
-> +			error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
-> +		}
+Hm... Looks like you're right, those would be noops.
 
-You already have a scope here, no need to establish a new one:
+Still, I think it's clearer what steps are skipped with a toplevel
+flag.  Otherwise to figure out that those are noops you need to check
+every subroutine (as you just did), and a future change may
+unintentionally break the expectation of noop creating an unnecessary
+debugging session.
 
-		guard(disable_irq)(&client->irq);
-		error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
+And re symbols_resolve(), if we don't like allocating unnecessary
+memory, why are we ok with traversing the BTF with noops? Seems
+a bit inconsistent to me.
 
-BTW, not a fan of the "_noirq" suffix... Maybe drop it and add
-lockdep_is_held() there?
+> 
+> [...]
 
-> +	} else {
-> +		error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
->  	}
->  
-
-Thanks.
-
--- 
-Dmitry

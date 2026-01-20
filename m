@@ -1,212 +1,154 @@
-Received: from mail-oo1-f80.google.com (mail-oo1-f80.google.com [209.85.161.80])
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46FBE221F03
-	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 02:52:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077552D8370
+	for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 02:54:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768877551; cv=none; b=p2dU4ojQ885fmILYjr/wUxCtf/3RdJ4GRdnmUxqCbSAWNhftr+n/hI2N2/TfZGeKJVYHSXL4spy/iSE0OIWpFuz0ULl97SFECq2rLrNyI8EV1hpOxYgDNReC7A/ZdowRCDQycn6e5/MoYNkZNgEJR1byAS25A69clGQ8rhI8sTo=
+	t=1768877675; cv=none; b=g4I4klTJdPN+tTVamO3KD9cShKoc/+aftI9TM0oEKQUUsF3LKxKqEHIlOwrdLd2bQYO9OtKi3IJPz4kp15FmSQix1WmLdpnYksTS9L5tOT8TrT/CNca02Z7YCuNSfLt2orxobAsRx4P6jgZlJJ7GRFFFkyE6gunVxfiZe04u3y8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768877551; c=relaxed/simple;
-	bh=Oh73X5+NQ2jDCCin2sbq8dmzEg6Dok30Nv8VWC+3OWo=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=jg6Q2rx6bWwZzxcQFOpOcV2T0OkLV+K9XCAMeVOL4YxweiF6flJLp9eN0FhUl72bwL+6JnDeoNj0c/TlRrIWzY6iIsA+fQixpIRqin0vN0Z5PdVwEFqapgp4KB0T/mlQ+rK4wGuTfB37Qyx4rAZtK++wUDpR1rx87+RivFhbGj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f80.google.com with SMTP id 006d021491bc7-66102e59148so13250961eaf.2
-        for <linux-input@vger.kernel.org>; Mon, 19 Jan 2026 18:52:29 -0800 (PST)
+	s=arc-20240116; t=1768877675; c=relaxed/simple;
+	bh=If41zOkOP0scm5TZMIBjYL64Hb+I+qeK3M1HiwITHfA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=DqUj+esh3ax2unzumcTzZ/e7pBbh83FfQvf7IhBezskrJDVlTdT/FsL5z4i8H9cbpDtbI/1pAsjRasMYHgwMeAFPhZpajxyjvzsDc5iDBl+k3LjAqMqFaevaVYa/UbYjsJ9cVzwlUcmhmlqLTThvqelrcXerYs4WOPCWc9Fzmdk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YqtadPKJ; arc=none smtp.client-ip=74.125.82.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YqtadPKJ"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-11f1fb91996so11245681c88.1
+        for <linux-input@vger.kernel.org>; Mon, 19 Jan 2026 18:54:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768877673; x=1769482473; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=3odNBdrf6aEyMBCFvJIVDjybvUoKRUaMAkhxu2qWeKU=;
+        b=YqtadPKJwjqMfgMxevDf7dXUbHGWn6W7uAoox0cE/jT0UsDpFmnQnnOH0uXCYPyVHz
+         nPlodgvjkVSLwZeU/3CQjy9ulonkhEYvDvLOzeffG2i6h3L+JkY+KNBaXHGXv0cUolYE
+         iAnUiL96usXSNkQK28ogZQeS3+PnQIPUrl+1yaivSEw14nza2+n8w+TNdxwBovq/JTau
+         gmeClhzbB+A6dM6XyvbDx9KZ+S9D7IadRbOopkz3zgR9I3BdjXS8BA4m/oKcFwpOIGMy
+         jwes11S2m7l7WAkGxeLbeZxF4Ci+d/h6FZN0WRGKNx7kvxhN9Hx5uhO5W2HmxFQw84gX
+         XDiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768877548; x=1769482348;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=/G5DWevz9BYgcyAlcdYIBASIOjStNMz7iH3Bs0VvPXQ=;
-        b=peNAdUThgy7+GqqALPFxL8SMynp3IbDc75G95AIluLvPOp4ddoP0GIZ8rI50ejZ0Cm
-         YejzcLRhIWweIZ8Ytsa2AoYGTQBWrnv4iNiQXLYDM8yEBUPFwpX57foZ9x9afFPHgRoc
-         uA/NFtqA/6vP2Mv/61mcstQ1l8XXHgq4de+BRyBPbBqsvg/Gk+enWOvGuxdh+f1XgPaH
-         OlHu86iv6zlZuf+0OUHD7JK0nc2f8COPzLbe99gRDmwJS8Um6WuOg4YZqXxh/3/4j//q
-         AvvEz2RtOmvNKP5P4peEZN5+h4MIOljiqA7DrTn2GA/ehRP4j97hgs4rC8WcZi1hoL6s
-         NfoA==
-X-Forwarded-Encrypted: i=1; AJvYcCUU8yYZ0KMjkA6mmMlEV2OYgZ/mU3QMC9nODengd5ZxV4dbav95wj2NExG4kW9TYvpXamZaKj+Dg7NkCg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxaDCWltewGsg1iCpweAFpwbn0urF96JsfM7dfWT7Ya8HCkANWJ
-	If3ExaNC+5DodldI9q5QeObMjMfe5PLh0cxi6gvQ0/T2llptDxivnju5Qda7cM3O1I1a+PrBo8S
-	y7VRdFJFbLOAmPVfmjVHzniupjn7vHy0GymzkoQUVzzpmfb+qhYJJZs6HkZo=
+        d=1e100.net; s=20230601; t=1768877673; x=1769482473;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3odNBdrf6aEyMBCFvJIVDjybvUoKRUaMAkhxu2qWeKU=;
+        b=d1DLkcgAa2uSKK7sLt0ICYpqomg98sSE4qnorHAa2MGZnPc3NNzFIJdM+2kR9HLAk0
+         OBCydutQVFcSO1ZSHf0sJ+aWWkjZVkdASW6TwL5350Z5Q/0jqfoFt9YjxIN4x6/iGdce
+         rRsyHwTyZbJq3QiJiwS5XBwayAE8ucIuHMSPYMQB4VE+/CCvXc/RWp7MKOCfNAkxLWNl
+         qsB9CGRMCI17Mjxk+2RTBt48HuA+q9Rf8DOCQCc9PjNvY56F92nqJr5n5IIrIrF0jNsS
+         ypzcpViRyh1cOufLlt3UiSilXMH8vplzMKx4KibIBSVSmujyCxneH2hvwh0qkqVLFqg4
+         acPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWlKZUBIRtZQgsvhzkFnQhHbYqFMv7e6TDo0FH+d53LSd2Ct/22boUDHDn9N9ZhpXYlz/q0S/4SpT8KEQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy9TWBeEtSf1P6JPHdWU33GsoJu+QS2Ekp8QElYARW1SMLT+e83
+	KbOj4p19SP/Fp1t7YZH7EqEFd45UzYNe1HX6Apum9fZRf2DGv+NtWUT2
+X-Gm-Gg: AY/fxX56N+bj9CC1hlYHg+A+RvfrUssuqPz6txK4+UuiRUNH0O0QcyPNXVCA63LIwBR
+	QVJKPPhF7unIFyjQEJsUSBCCWA+45KPAM2sy1Nb5FNZdsg+iFLYcs+vDcFpPhwVvA6j4bqFDKXz
+	8YTQLapd+foqDPAQvF/ypfvBFApA+h6SKkNJApHutS9nBNMzWdaxyyFEg38S8JZ7r76O4g1yeDT
+	W4oMf3QvUHcLBdosM6ffntJr2UAK/7E3JhZwP3doqm8ToP6RJFYVmrQsP+8cpQ/lhX/cRkG9cwm
+	kIsLwN70rcoIivwcGcTyvHBL3l1VovnJZCNMio7Rhc3CUUH+34hvxuawDZFuuhvZSTBTOxfiusX
+	pFtbkAt7TFoWb9IX+IOS0j6A/kyVBW8wC2pzdMCYfE6tMcRc030hIDkkkP10w6GQ9NY1qV5a6CW
+	2bKVuUd++SFXt2we6fP03OBvrI3oS/awyP1Qbpw1hkuRnd3k/4veDFSeZ6baAxeXtm+Oi2j0iOn
+	b41
+X-Received: by 2002:a05:7022:6084:b0:11b:9386:a3bf with SMTP id a92af1059eb24-1244b394b96mr9022978c88.42.1768870562325;
+        Mon, 19 Jan 2026 16:56:02 -0800 (PST)
+Received: from ?IPv6:2a03:83e0:115c:1:4cd6:17bf:3333:255f? ([2620:10d:c090:500::aa81])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244ad740c5sm19462181c88.8.2026.01.19.16.56.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 16:56:01 -0800 (PST)
+Message-ID: <c370026bdcb3c2684a5c5c5a9e173f8c3e2189e5.camel@gmail.com>
+Subject: Re: [PATCH bpf-next v2 05/13] resolve_btfids: Support for
+ KF_IMPLICIT_ARGS
+From: Eduard Zingerman <eddyz87@gmail.com>
+To: Ihor Solodrai <ihor.solodrai@linux.dev>, Alexei Starovoitov
+ <ast@kernel.org>,  Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko
+ <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Mykyta Yatsenko <yatsenko@meta.com>, Tejun Heo <tj@kernel.org>, Alan
+ Maguire <alan.maguire@oracle.com>, Benjamin Tissoires <bentiss@kernel.org>,
+ Jiri Kosina	 <jikos@kernel.org>, Amery Hung <ameryhung@gmail.com>,
+ bpf@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, 	sched-ext@lists.linux.dev
+Date: Mon, 19 Jan 2026 16:55:59 -0800
+In-Reply-To: <20260116201700.864797-6-ihor.solodrai@linux.dev>
+References: <20260116201700.864797-1-ihor.solodrai@linux.dev>
+	 <20260116201700.864797-6-ihor.solodrai@linux.dev>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:6ae4:b0:659:9a49:8e8a with SMTP id
- 006d021491bc7-662affa1216mr230770eaf.14.1768877548186; Mon, 19 Jan 2026
- 18:52:28 -0800 (PST)
-Date: Mon, 19 Jan 2026 18:52:28 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <696eedec.a00a0220.203946.0001.GAE@google.com>
-Subject: [syzbot] [input?] KASAN: stack-out-of-bounds Read in ft260_smbus_write
-From: syzbot <syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com>
-To: bentiss@kernel.org, jikos@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	michael.zaidman@gmail.com, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
 
-Hello,
+On Fri, 2026-01-16 at 12:16 -0800, Ihor Solodrai wrote:
+> Implement BTF modifications in resolve_btfids to support BPF kernel
+> functions with implicit arguments.
+>=20
+> For a kfunc marked with KF_IMPLICIT_ARGS flag, a new function
+> prototype is added to BTF that does not have implicit arguments. The
+> kfunc's prototype is then updated to a new one in BTF. This prototype
+> is the intended interface for the BPF programs.
+>=20
+> A <func_name>_impl function is added to BTF to make the original kfunc
+> prototype searchable for the BPF verifier. If a <func_name>_impl
+> function already exists in BTF, its interpreted as a legacy case, and
+> this step is skipped.
+>=20
+> Whether an argument is implicit is determined by its type:
+> currently only `struct bpf_prog_aux *` is supported.
+>=20
+> As a result, the BTF associated with kfunc is changed from
+>=20
+>     __bpf_kfunc bpf_foo(int arg1, struct bpf_prog_aux *aux);
+>=20
+> into
+>=20
+>     bpf_foo_impl(int arg1, struct bpf_prog_aux *aux);
+>     __bpf_kfunc bpf_foo(int arg1);
+>=20
+> For more context see previous discussions and patches [1][2].
+>=20
+> [1] https://lore.kernel.org/dwarves/ba1650aa-fafd-49a8-bea4-bdddee7c38c9@=
+linux.dev/
+> [2] https://lore.kernel.org/bpf/20251029190113.3323406-1-ihor.solodrai@li=
+nux.dev/
+>=20
+> Signed-off-by: Ihor Solodrai <ihor.solodrai@linux.dev>
+> ---
 
-syzbot found the following issue on:
+Patch logic looks good to me, modulo LLM's memory management concern
+and nit from Andrii.
 
-HEAD commit:    603c05a1639f Merge tag 'nfs-for-6.19-2' of git://git.linux..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=120d339a580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=1859476832863c41
-dashboard link: https://syzkaller.appspot.com/bug?extid=64ca69977b37604cd6d9
-compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=161e0852580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13115522580000
+Acked-by: Eduard Zingerman <eddyz87@gmail.com>
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/b694f12a8d6f/disk-603c05a1.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/91efc898c41a/vmlinux-603c05a1.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/d0cbdf66f29d/bzImage-603c05a1.xz
+> @@ -837,6 +854,369 @@ static int dump_raw_btf(struct btf *btf, const char=
+ *out_path)
+>  	return 0;
+>  }
+> =20
+> +static const struct btf_type *btf_type_skip_qualifiers(const struct btf =
+*btf, s32 type_id)
+> +{
+> +	const struct btf_type *t =3D btf__type_by_id(btf, type_id);
+> +
+> +	while (btf_is_mod(t))
+> +		t =3D btf__type_by_id(btf, t->type);
+> +
+> +	return t;
+> +}
+> +
+> +static const struct btf_decl_tag *btf_type_decl_tag(const struct btf_typ=
+e *t)
+> +{
+> +	return (const struct btf_decl_tag *)(t + 1);
+> +}
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
+Nit: there is a utility function btf_decl_tag() in bpf/btf.h
+     which does exactly the same.
 
-==================================================================
-BUG: KASAN: stack-out-of-bounds in ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
-Read of size 42 at addr ffffc90003427d81 by task syz.2.65/6119
-
-CPU: 0 UID: 0 PID: 6119 Comm: syz.2.65 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
- print_address_description mm/kasan/report.c:378 [inline]
- print_report+0xcd/0x630 mm/kasan/report.c:482
- kasan_report+0xe0/0x110 mm/kasan/report.c:595
- check_region_inline mm/kasan/generic.c:194 [inline]
- kasan_check_range+0x100/0x1b0 mm/kasan/generic.c:200
- __asan_memcpy+0x23/0x60 mm/kasan/shadow.c:105
- ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
- ft260_smbus_xfer+0x22c/0x640 drivers/hid/hid-ft260.c:736
- __i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:591 [inline]
- __i2c_smbus_xfer+0x4f0/0xf60 drivers/i2c/i2c-core-smbus.c:554
- i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:546 [inline]
- i2c_smbus_xfer+0x200/0x3c0 drivers/i2c/i2c-core-smbus.c:536
- i2cdev_ioctl_smbus+0x237/0x990 drivers/i2c/i2c-dev.c:389
- i2cdev_ioctl+0x361/0x840 drivers/i2c/i2c-dev.c:478
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:597 [inline]
- __se_sys_ioctl fs/ioctl.c:583 [inline]
- __x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xcd/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f88dd98f749
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffeebbe43a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f88ddbe5fa0 RCX: 00007f88dd98f749
-RDX: 0000200000000200 RSI: 0000000000000720 RDI: 0000000000000004
-RBP: 00007f88dda13f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f88ddbe5fa0 R14: 00007f88ddbe5fa0 R15: 0000000000000003
- </TASK>
-
-The buggy address belongs to stack of task syz.2.65/6119
- and is located at offset 49 in frame:
- i2cdev_ioctl_smbus+0x0/0x990 drivers/i2c/i2c-dev.c:632
-
-This frame has 1 object:
- [48, 82) 'temp'
-
-The buggy address belongs to a 8-page vmalloc region starting at 0xffffc90003420000 allocated at kernel_clone+0xfc/0x910 kernel/fork.c:2651
-The buggy address belongs to the physical page:
-page: refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x22397
-memcg:ffff888074f11282
-flags: 0xfff00000000000(node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000000 0000000000000000 ffffea000088e5c8 0000000000000000
-raw: 0000000000000000 0000000000000000 00000001ffffffff ffff888074f11282
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x29c2(GFP_NOWAIT|__GFP_HIGHMEM|__GFP_IO|__GFP_FS|__GFP_ZERO), pid 5928, tgid 5928 (syz-executor), ts 80598654650, free_ts 80595057505
- set_page_owner include/linux/page_owner.h:32 [inline]
- post_alloc_hook+0x1af/0x220 mm/page_alloc.c:1884
- prep_new_page mm/page_alloc.c:1892 [inline]
- get_page_from_freelist+0xd0b/0x31a0 mm/page_alloc.c:3945
- __alloc_frozen_pages_noprof+0x25f/0x2430 mm/page_alloc.c:5240
- alloc_pages_mpol+0x1fb/0x550 mm/mempolicy.c:2486
- alloc_frozen_pages_noprof mm/mempolicy.c:2557 [inline]
- alloc_pages_noprof+0x131/0x390 mm/mempolicy.c:2577
- vm_area_alloc_pages mm/vmalloc.c:3649 [inline]
- __vmalloc_area_node mm/vmalloc.c:3863 [inline]
- __vmalloc_node_range_noprof+0xe6c/0x16b0 mm/vmalloc.c:4051
- __vmalloc_node_noprof+0xad/0xf0 mm/vmalloc.c:4111
- alloc_thread_stack_node kernel/fork.c:354 [inline]
- dup_task_struct kernel/fork.c:923 [inline]
- copy_process+0x619/0x7430 kernel/fork.c:2052
- kernel_clone+0xfc/0x910 kernel/fork.c:2651
- __do_sys_clone+0xce/0x120 kernel/fork.c:2792
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xcd/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-page last free pid 5928 tgid 5928 stack trace:
- reset_page_owner include/linux/page_owner.h:25 [inline]
- free_pages_prepare mm/page_alloc.c:1433 [inline]
- __free_frozen_pages+0x7df/0x1170 mm/page_alloc.c:2973
- discard_slab mm/slub.c:3346 [inline]
- __put_partials+0x130/0x170 mm/slub.c:3886
- qlink_free mm/kasan/quarantine.c:163 [inline]
- qlist_free_all+0x4c/0xf0 mm/kasan/quarantine.c:179
- kasan_quarantine_reduce+0x195/0x1e0 mm/kasan/quarantine.c:286
- __kasan_slab_alloc+0x69/0x90 mm/kasan/common.c:350
- kasan_slab_alloc include/linux/kasan.h:253 [inline]
- slab_post_alloc_hook mm/slub.c:4953 [inline]
- slab_alloc_node mm/slub.c:5263 [inline]
- __kmalloc_cache_node_noprof+0x299/0x830 mm/slub.c:5784
- kmalloc_node_noprof include/linux/slab.h:983 [inline]
- __get_vm_area_node+0x101/0x330 mm/vmalloc.c:3208
- __vmalloc_node_range_noprof+0x247/0x16b0 mm/vmalloc.c:4011
- __vmalloc_node_noprof+0xad/0xf0 mm/vmalloc.c:4111
- xt_counters_alloc+0x4c/0x70 net/netfilter/x_tables.c:1381
- __do_replace+0x97/0x9e0 net/ipv4/netfilter/ip_tables.c:1046
- do_replace net/ipv4/netfilter/ip_tables.c:1141 [inline]
- do_ipt_set_ctl+0x93b/0xc40 net/ipv4/netfilter/ip_tables.c:1635
- nf_setsockopt+0x8d/0xf0 net/netfilter/nf_sockopt.c:101
- ip_setsockopt+0xcb/0xf0 net/ipv4/ip_sockglue.c:1424
- tcp_setsockopt+0xa7/0x100 net/ipv4/tcp.c:4164
- do_sock_setsockopt+0xf3/0x1d0 net/socket.c:2322
-
-Memory state around the buggy address:
- ffffc90003427c80: f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffffc90003427d00: 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1 f1 f1
->ffffc90003427d80: 00 00 00 00 02 f3 f3 f3 f3 f3 00 00 00 00 00 00
-                               ^
- ffffc90003427e00: 00 00 00 00 00 00 f1 f1 f1 f1 f1 f1 04 f2 00 00
- ffffc90003427e80: f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+[...]

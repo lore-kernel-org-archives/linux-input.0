@@ -1,79 +1,61 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3706D389452
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 20:06:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424A1340279;
+	Wed, 21 Jan 2026 20:55:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769026003; cv=none; b=Z9R0D6mk/ZgrfeMW5u3BDfoAiQtcilW26j+9mc/aIaYpv7aY7WCjCKoMqT0lni+h9wUvesnyf8uakHKUjICmUTfckbU2tEBWuWEE0JivEbiSPffXz7RauDVJOfS9X61hrcpfKBOLQz0y8CwnBtuP/BOQ47zO/VRf2yXpnFyTDVA=
+	t=1769028947; cv=none; b=NF0l/RqFXC9imckug9ekt0kGzv2nCgC/Cp32f0/C30wrXAsy2sKXfClQXtUzIVCA7Xdy9HRw7JWEsoWIxPCIjlVKB2FMROfKHlFYT1qlOxvxB5ECPJGy1HqJ3hvptq3ilopW+OMThjFo7jvQN9gNCTra6LZUB8UmpukbEXAHfKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769026003; c=relaxed/simple;
-	bh=dAoMhTBJ7WQm0hDGz23fZyaeSXaElPVE4fcydWMuctE=;
+	s=arc-20240116; t=1769028947; c=relaxed/simple;
+	bh=shB/nOEZf0SYoyLaiDU22nArcNeEHHkYrPQXpXLOs1s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K6QalYf6XMNb5pzmz7WQihizZ3tlV6mTBbWK8S6w8hFB/5bvWWbLlQMknftnQijViUHicjXeXFylhbtKlgfl9w8cRuCJ1g734Rxdm9ygYZKqzJVQ4Uzv/yyA6UXTCQ3MPr2NIcwagiXmUYCIlmaABVhrrloyblLkTagzVupMGe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ep6sIcUx; arc=none smtp.client-ip=74.125.82.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Z4NQsPbldj8xtWre9sXxajh/2RJYEsN41Q680YS3r6DyVPfj3jmv5c1Rep5O4Rvxs+CVwhk++7vOPUM98vZFLzjQfA3Vf71qUCGCR03bmVBgQ+4QiqO9o4Iq4S3VPs53Ypo3ugUlWsWTZZswjC+U0zAXX7SfX5GSrcIP4EPenV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=FEBN5CCS; arc=none smtp.client-ip=67.231.157.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ep6sIcUx"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2b71320f501so364869eec.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 12:06:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769026000; x=1769630800; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YXiRa33oFhWGW25XGgj2/vno2dQCcapC4LgGpnlRseQ=;
-        b=ep6sIcUxyoJVVa5olxz121bIe1qCt15LSZizapdEZuMZK4t/em8mI7m6uAVRfQolNC
-         gTAiXnFm71zFgE8GlOgpSJk63W7egLmIBHWBj96gaNc+ncsL1xWLIc83JCmb/wAaAZLb
-         byQJiFgOP0vRk0bV/7oCVFBTAig/qWkkgr4mGu5g8YBJRSNZvLxnCOBAl8cbZX2Ybd3I
-         JNkmD+DK9u21AHWnIBHCivqt4HIDa47wBkwBd8wdtL7tts0ZRAYdUCB97vKEyCaNCgJc
-         v8WTWu5/fxF/XoFQ6uTKeQuKe5it5j92hN/YLyniH0XDILZjP0K22H7BwDu6cAPZUKbz
-         BXIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769026000; x=1769630800;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YXiRa33oFhWGW25XGgj2/vno2dQCcapC4LgGpnlRseQ=;
-        b=af+/8QWWRjuwwabOd74RCPw1epDrhzq6Mny58YjBEId+J/HQGCpX8Idr67ShwTsDvY
-         prGOmOVz4s0XkUxJHk32galEcSfXa/KOVIac3c4SqUtBZPu0zdRo/Z9MTENW5qEmBi8D
-         5y2ZLkhdP+V8TJ1wMoMcDE5DIGoPqxIY78fA1BXeZn0E1/IVcXFFqAJFkpTJmXYeqQXT
-         VPXm22BTVYDwW5NyAqPv/TGaQ6NBlr3rqtj98+jCeaHbb+3K4tgjGssz0dSO79uI9DML
-         aE2im8dThd5AHWGLgoVsPtVqVXU9+xYyhpHA9SUKeaa9iO3iuE9+N3ZmrKQS2irJINh1
-         NsWg==
-X-Forwarded-Encrypted: i=1; AJvYcCVlisILXkVHYyXCgmSaxQ0mwmjZ1PVUjMcHS14H9j7srtiIRCniKt3kHB28SBM+0eoJWuC2QRhSFfaZ0A==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyo5hT0RsZFwii2QehFCG+t98nyWBP9+jTWa5LeiLVZqZlax/av
-	tnoFfEn1S00jSHAxI5VLewj6jrvH8Cx4hPZ6b4XsnJGX/ApQYt46ofvp
-X-Gm-Gg: AZuq6aI8WyoVOLfh7ePJtEqGE22XZctl86BdjNsjYv8+R4s8wD4wACdvYL+0twccBEe
-	YUyu7QGp7hkYfreEkMzr8gtW6090HELlurTCoOQ/K8OIc9FFTsAprAkEact9VnZX+j3DkF609xu
-	ug4E/+ys6vErkK9j2H7iFrW0iJNdqvi3jOxIWfiEJPXF/KcjRnmk+3ISxwYx2akAMheoEeyFNgg
-	PiW3bCOmSJ682DjzkkVLBminOX1EPwCI3h74oC85lH+bsRKwr4XGH2INtwASH2kDoDWXLbYs/mH
-	RBhsvi+e6bdwEkK1mB/3aIxTbWFr4QLt9r/KsIaQm3uhARBBVtUSq6NUnguGcYoHisbYSQM0/ZA
-	9fJ8cMNYXeTxToDGecKcVEfArH/avPxUt+3S0/+ZZzq2Mt/WiScQto1gcjCYcNDYs/XMBhdu7p2
-	gCYMuaHOnXNXZrrzXI87zqiOtS4sAUUsxIt2T7M3crVGTo3kMHy3Ut
-X-Received: by 2002:a05:7300:188d:b0:2b7:1253:3d54 with SMTP id 5a478bee46e88-2b7125358d6mr1686918eec.33.1769025999975;
-        Wed, 21 Jan 2026 12:06:39 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b7093325fasm6060746eec.24.2026.01.21.12.06.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 12:06:39 -0800 (PST)
-Date: Wed, 21 Jan 2026 12:06:36 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Luca Weiss <luca.weiss@fairphone.com>
-Cc: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH] arm64: dts: qcom: milos-fairphone-fp6: Add Hall Effect
- sensor
-Message-ID: <t4yjnuty7tmvs4vqzm4vdid7oowicy7hcnmqmu6nqtit3yru55@zpo6kprnarth>
-References: <20260116-fp6-hall-sensor-v1-1-69275c6bd809@fairphone.com>
- <3a17f2e5-0724-4d70-bd22-1e612142b3e8@oss.qualcomm.com>
- <DFSOPXFSOUY2.2Z6XCLCD796Q@fairphone.com>
- <wpjvuclvpjft7y2rlrmfgszkzmc5vvmohif3etqrtvymxjjyjk@h2dujh5egdvd>
- <DFU439A9HP2H.1Y9OS2OPAXGOI@fairphone.com>
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="FEBN5CCS"
+Received: from pps.filterd (m0425992.ppops.net [127.0.0.1])
+	by mx0b-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60LINccc935887;
+	Wed, 21 Jan 2026 14:42:18 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pps1; bh=kMMai344yfdBNxNdwSNfQ16I3p0AQ
+	MOlkHJ1FGcTdfw=; b=FEBN5CCSNlfloCBAtkAcdUPSsPRT3QQX9Zjf6itCthuLP
+	EgTCSUxdrJilSo/0FSPSwTDstOi/Fmyyy3C0Ui8dAkCmfhkEwsbwGqainQFYRY9k
+	bgvSzx1zDHN+0Yb0GT/Fw9//ddKicNElaeoKNtM2BYrF8Yh96DbF+7bVjJqmd9n4
+	qh3/y2DRwX5M5gX1/mBSpYMaeK3ZGPpPJQN2YLvJvqTIL5XO1v/N+jrzkB9hZEWf
+	Kvwvb1FBFlRURNr41WhksLhugbH0CcHELuHsLUA7Jh9RaALnweTbGu7Eqi1of/c9
+	FyNnDvoNyJRpLe6NjvjMG1W5yu2jkH0Vc/ZTGIIPQ==
+Received: from intranet-smtp.plexus.com ([64.215.193.254])
+	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 4btae3jyru-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 21 Jan 2026 14:42:17 -0600 (CST)
+Received: from localhost (unknown [10.255.48.203])
+	by intranet-smtp.plexus.com (Postfix) with ESMTP id D7E133C87A;
+	Wed, 21 Jan 2026 14:42:16 -0600 (CST)
+Date: Wed, 21 Jan 2026 14:38:45 -0600
+From: Danny Kaehn <danny.kaehn@plexus.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Benjamin Tissoires <bentiss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+        Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+        Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v12 2/3] HID: cp2112: Fwnode Support
+Message-ID: <20260121203845.GA7162@LNDCL34533.neenah.na.plexus.com>
+References: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
+ <20251126-cp2112-dt-v12-2-2cdba6481db3@plexus.com>
+ <aSdGh3i_KYocE3L3@smile.fi.intel.com>
+ <20251126193251.GA269764@LNDCL34533.neenah.na.plexus.com>
+ <aSdvv3Qss5oz_o6P@smile.fi.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,47 +64,103 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DFU439A9HP2H.1Y9OS2OPAXGOI@fairphone.com>
+In-Reply-To: <aSdvv3Qss5oz_o6P@smile.fi.intel.com>
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIxMDE3MyBTYWx0ZWRfX4ptEQFKdvfEP
+ aHBLwBp6qRd6jztlDhS7R5JlBSofX/GNbDJqvWjJBuik5y3i+5nfuqX/Oq/pV0oMNR3Uqvpx26k
+ PNw/ChhLIZJn2SgcdMxHxUnLuMVZW9Ky2E7kHWhYFGCI4/2xnwzeiiv+QZ/aqRic2mR45waqnhQ
+ CtTslosnbrF2kjyHsvqWqpC0D9Pimv8Ms34pUjrDrh4IkpLK7nu+O3Osi3dBZeeMHFzGcwrXpf5
+ B/Lr4WM0Ldrh8VzU0T93zSvqIG8gY9EH028aZC4eEAoUkjRjKhpPEEytFxzrk9L8ZftnaFHOAef
+ jgVULHwlGwclYmQkoTPOeYf5n0l/DWT3RUBK5sIFMwoOJN05Ehx35pV/5gKVjoyak5r9D3/zx7l
+ FVrcNaJJb+C/ynBN0PQdwRhKkDAn/3VYmhgksr6gWqLCoG2o4OqWMCAm5Y/aD4od5Wc7kVeUqK2
+ Ay1iCe/z7Jn291dqfmQ==
+X-Authority-Analysis: v=2.4 cv=QcJrf8bv c=1 sm=1 tr=0 ts=69713a29 cx=c_pps
+ a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
+ a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=tAhwIOlm_SVqoVGHtKUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: Ol9HgFKk7FHVl5mCE0V7C4XPjzoIwDnK
+X-Proofpoint-ORIG-GUID: Q5Kkz-6HkIs5f-A0W5gg_agwLKFeBTgl
+X-Proofpoint-Spam-Reason: orgsafe
 
-On Wed, Jan 21, 2026 at 09:07:44AM +0100, Luca Weiss wrote:
-> On Wed Jan 21, 2026 at 12:05 AM CET, Dmitry Baryshkov wrote:
-> > On Mon, Jan 19, 2026 at 04:52:23PM +0100, Luca Weiss wrote:
-> >> On Mon Jan 19, 2026 at 3:41 PM CET, Konrad Dybcio wrote:
-> >> > On 1/16/26 3:22 PM, Luca Weiss wrote:
-> >> >> Add a node for the Hall Effect sensor, used to detect whether the Flip
-> >> >> Cover is closed or not.
-> >> >> 
-> >> >> The sensor is powered through vreg_l10b, so let's put a
-> >> >> regulator-always-on on that to make sure the sensor gets power.
-> >> >
-> >> > Is there anything else on L10B? Can we turn it off if the hall sensor
-> >> > is e.g. user-disabled?
-> >> 
-> >> It's the voltage source for pull-up of sensor I2C bus (so
-> >> ADSP-managed?), DVDD for amplifiers and VDD for a most sensors like
-> >> the gyro.
-> >> 
-> >> So realistically, it'll probably be (nearly) always on anyways. And I
-> >> don't want to shave another yak by adding vdd support to gpio-keys...
-> >
-> > Why? If it is exactly what happens on the board: the device producing
-> > GPIO events _is_ powered via a vdd. Added Input maintainer / list to cc.
+Hi Andy,
+
+Finally was able to perform the last tests needed before sending out
+v13, but wanted to close the loop on your final questions from v12:
+
+On Wed, Nov 26, 2025 at 11:23:11PM +0200, Andy Shevchenko wrote:
+> On Wed, Nov 26, 2025 at 01:32:51PM -0600, Danny Kaehn wrote:
+> > On Wed, Nov 26, 2025 at 08:27:19PM +0200, Andy Shevchenko wrote:
+> > > On Wed, Nov 26, 2025 at 11:05:25AM -0600, Danny Kaehn wrote:
+> > > > For ACPI, the i2c_adapter will use the child with _ADR Zero and the
+> > > > gpio_chip will use the child with _ADR One. For DeviceTree, the
+> > > > i2c_adapter will use the child with name "i2c", but the gpio_chip
+> > > > will share a firmware node with the CP2112.
+> > > 
+> > > Hmm... Is there any explanation why DT decided to go that way?
+> > 
+> > I don't have an explanation, but Rob H. had directed that I make this
+> > change in [1].
+> > 
+> > In v11, I then removed that child node for both ACPI and DT, hoping to
+> > maintain unity, but you had directed that wouldn't be intuitive for ACPI
+> > in [2].
+> > 
+> > Thus, in this v12, I have just entirely split the two, as it seemed
+> > unlikely that any compromise to unify the schema between the two
+> > firmware languages would be possible for a change/driver this
+> > inconsquential to the overall kernel.
 > 
-> Yes, the hall sensor which is connected to the GPIO on the SoC, has an
-> extra VDD input which needs to be on in order for the Hall-effect sensor
-> to be on.
+> Even though, would be nice to try to get a rationale from Rob on this.
+> Then we can put it in the commit message to explain. Otherwise it will
+> confuse history diggers in the future.
+>
+
+Will attempt to see if I can get them to weigh in.
+
+> ...
 > 
-> See page 133 "HALL" in the center of the page
-> https://www.fairphone.com/wp-content/uploads/2025/08/Fairphone-Gen.-6_-Information-on-how-to-repair-dispose-of-and-recycle-EN-NL-FR-DE.pdf
+> > > > +		device_set_node(&dev->adap.dev,
+> > > > +			device_get_named_child_node(&hdev->dev, "i2c"));
+> > > 
+> > > Here we bump the reference count, where is it going to be dropped?
+> > > 
+> > > Note, in the other branch (ACPI) the reference count is not bumped in
+> > > the current code.
+> > 
+> > Great point, forgot that I had dropped that handling in v9. The old
+> > behavior was that the CP2112 driver maintained a reference to each node
+> > during the lifetime of the device (and released during probe errors,
+> > etc..). I'm still a bit confused as to whether that is correct or not,
+> > or if the references should immediately be dropped once they're done
+> > being parsed during probe()... My understanding previously was that I
+> > should keep the reference count for the child fwnodes for the lifetime
+> > of the CP2112, since the pointers to those are stored in the child
+> > devices but would usually be managed by the parent bus-level code, does
+> > that seem correct?
 > 
-> The IC is OCH166AEV4AD where VDD is (as expected) "Power Supply Input":
-> https://www.orient-chip.com/Public/Uploads/uploadfile/files/20231014/1OCH166Adatasheet202203221.pdf
+> While there is a (theoretical) possibility to have lifetime of fwnode shorter
+> than a device's, I don't think we have or ever will have such a practical
+> example. So, assumption is that, the fwnode that struct device holds has
+> the same or longer lifetime.
+> 
+> Note, I haven't investigated overlays (DT and ACPI) behaviour. IIRC you
+> experimented with ACPI SSDT on this device, perhaps you can try to see
+> what happens if there is a confirmed that the above is not only a theoretical
+> problem.
+> 
+> TL;DR: I would drop reference count just after we got a respective fwnode.
+> 
 
-If we add regulator support to gpio-keys do we expect it to be
-per-gpio/per-key? Or we'd recommend splitting into several instances of
-gpio-keys so that there is on set of supplies per gpio-keys device?
+Finally got a chance to test this, attempting to apply SSDT overlays at
+runtime via configfs to instantiate an I2C device on the CP2112's I2C
+bus. I didn't dig terribly deep, but both with and without the fwnode
+reference count bumped, the I2C device instantiation happened as
+expected when loading the overlay. I'm sure there's more nuanced cases
+and things to dig in here, but seems like leving those references
+dropped is the right thing, as you say.
 
-Thanks.
 
--- 
-Dmitry
+
+Thanks,
+
+Danny Kaehn

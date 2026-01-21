@@ -1,123 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F803C1979;
-	Wed, 21 Jan 2026 12:04:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 178692F5A13
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:16:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768997063; cv=none; b=ONIltrPk13WVCehojVLFzEPF0wJ9zznqfCFL8l5dIgG9U+7e6rcm1TM1Mt2P0fMrtmyjtoH/qA9zXOH1rvJmE+JwMDlD2srufp9dr76FJurUVMkedzi8YBEaKqqCzKe3TUaEVPv5M3+zw0QbH6kWpEGJll9c2JrUU1ZhaA1fqY4=
+	t=1769001418; cv=none; b=hVR+rj8Xm+K8o/vPMwdfLhBaBkS2LhD8zUFcEPn4O35uEvVpZPq0/2Ai8lK6eRD9Z6ckHaArquj+xo37GPDHvtFpqQDUnuf+WAkOAB/PHj36bu1oWEmxk/vmEzS+2iMkOMFkplSTtDY6BSHS53a7eSS/q4iPbI+6i3ghOT0ehmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768997063; c=relaxed/simple;
-	bh=fscg7F9qmoA8q32bv/OWU/zWgcW3dnDHzT+e2EX+A2c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XoAfF2aXksZnwwUFnmfrl6Unj01YUeAHLZNRTAmZ6I+q/eUZUYKtw+uuEY/En6OWDlvzBntRq+6xojxBwMar3MuIh5rxW3lJYT8cM6Zlja5iwE/vRDIilwZ+FxXyVkIPDTYiynso91Oyu1x3PM8aHaCvXJ1UCMO80iF9EPxahQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LKFL/i84; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769001418; c=relaxed/simple;
+	bh=O1n0PREBPOQbxUvYlP+7R8SoBMrN6iyJKN8UrrPPohs=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=fyam/M1rRqnwTLrS63tag6BSC681yIoMHvi/CjSXjE0YNj+fVLxgGHRGtdptDMo8owt2RJmV+hjTQ6KTOzu8kQs+HVfa29V3vhx01MA7KioBS0ca0DsICXqW3GsfDR2m5kGrFSu/skyHV4NAwy/vCPE5WLHB0dpX/jI6jiKJhkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FsAcWNbU; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LKFL/i84"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 755A8C19424;
-	Wed, 21 Jan 2026 12:04:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768997061;
-	bh=fscg7F9qmoA8q32bv/OWU/zWgcW3dnDHzT+e2EX+A2c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=LKFL/i84tVSHT4XxbCsZ9CboHnBFg+o8ZNGU7qKqx/8w4N0tCWpz4w3Bfr8t8jXAr
-	 CDUrC90DUhMcruET8cHT84nxZ1CbKmWBjR1W7eosHbkpmvRbp8/TUav8lWp/Tmttms
-	 O7RQGLHZhfTa5nW78K8MkzS3A8h4ZQf3uT0o5KvKxBr5RjSbe6yWVPgwx0/7sP3yrX
-	 k/o3uftONGXz5qf7ClEceeMxNLID6Q6Nxbusg3/AwePiICV4rDpG5Kvdywa9Z5q6ZF
-	 r55Wdf/nBR/qtY1zlHEJY9iBmIslFxS6o1hYJ687qCNOd01B3tckIhfBJnR/BYwpTV
-	 mqGA2+7ApDf7w==
-Message-ID: <b4113f8c-0fbd-4a96-9cf6-9675f837ac91@kernel.org>
-Date: Wed, 21 Jan 2026 13:04:17 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FsAcWNbU"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2b71557299dso705803eec.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 05:16:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769001416; x=1769606216; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=O1n0PREBPOQbxUvYlP+7R8SoBMrN6iyJKN8UrrPPohs=;
+        b=FsAcWNbU6g7uYAf/96wmq1xYvzb/s8ZWFxHcE2tGglAsGyxL3yM3cTEhxol8YAGkXA
+         y1upEjngfL/eJe6F2YAhIRB9zv212yvSU9w6m0tR+kPoWtJ+VGa1TDuSqKnK3frHKKKE
+         7BOEbH1GYuusOkkf+SIme7My6oBSHHEyclcEI/zlftdJrcd7/J2cH0oDkeAksUo6dKAH
+         /cSxY2zzHfGLBQYFa4w9jLog+cAYpcE2lItt92m790Lxdhz8TXWd+3UCXVjcykitnhCg
+         Vwr7B2SCPgC6n7cX0UQWUjk2MIiY5LUP+gn4ndF5/uJYmY7DEetC7qCAJafDdMmMQY4y
+         g/MA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769001416; x=1769606216;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=O1n0PREBPOQbxUvYlP+7R8SoBMrN6iyJKN8UrrPPohs=;
+        b=rjzzUUPfWSc2WjvPAMgpPrJKerfYThzYPkqaWyw/CJbNnhThHNlzZtiQjxUPuaeKKq
+         ScoARWo6eEi1VGcaJiGJqXYUGITfbta9gCmfXnb5xhwkIibIwNHCTRZnACL3J2xUuCDb
+         30cXugFtFn58udpV/5TOIpIbYWxWDlo+pGvRhiAxfJqRj2qnuL/M6zuCS443+EHM4fwW
+         T4TNtJH7R17XlGdieS2ikH6i4FDGTX+fyS0F3dqFPxUsn6liprP2uv/iItoOv+lMyPvH
+         bYf8vpo61RIXa8xAUmlxE6xiAMHIDzOuvKDmArELBfFufyQ0tHrbcr3xtQ8Het1XNDi9
+         wY1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXYxcA1J/itIY01mHewu4u9CrAyqtEIYitAKg11zlSm/1oIRLlUsX8oITojYzsMAf5e+y+uH0Ysn97zlg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyY2OD6p1UbPiC0bP3THe5dcnBrQ7/J29zumzumuq4NC7LvFVBY
+	FukjGpN0z0Dw1kZgWHXa0I+rO2M7JgPpzZ9CHqRvkCPbZn9hQcdTDWke
+X-Gm-Gg: AZuq6aIPHihbFBdwpDKaUuw/wGVaWVJoEUDrB1N+FOlw5Q/1g1qyHEgYNvmINCH2mv8
+	G/tpSw0gXpv+ZVQ5ZVO/173GiDjGXp0Ki1xAwM3DDg69QObAu03NaG4CkvGPbw6yMqxzWHzYlET
+	LR00AsMTN3rEufoG0d3tq08CAeCmbAnXXQTeFOb273h8lXd7DfriglBV6A58JrInKGfdAs5BkXm
+	qwnWSYvE2PDg9IK/PsicGDiTLoECy+IhMrphpTmaMO9H3oZI6Cxxu6iW94TrKfIK4yPzHm/AvsB
+	d/fvo+Gu3WvXpfC7G3Calt8extuv8O3v8AodxGOhYzJYXBG0ZOaIJMaX//NgGg1NErAMZbbfY78
+	hC8CwGxhgY0UcGbo4y/IIoEL//OjlF67mcZcComZWPPtJZKnIyt73G354wfX/KGgHPc2dfhh07c
+	xEUg6GwJGVdcxkkMBIdPLgMBU+yaMm0SSgDtAyLH3M67MwBfLN9t80zJsfxAG6GO2jOKBEr2zsU
+	zg69Y+NhA==
+X-Received: by 2002:a05:7301:7c0b:b0:2ae:56d7:b02 with SMTP id 5a478bee46e88-2b6b46c6449mr12795377eec.9.1769001416023;
+        Wed, 21 Jan 2026 05:16:56 -0800 (PST)
+Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b361f5d4sm21106381eec.17.2026.01.21.05.16.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 Jan 2026 05:16:55 -0800 (PST)
+Date: Wed, 21 Jan 2026 05:16:55 -0800
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>, Mark Pearson <mpearson-lenovo@squebb.ca>
+CC: Benjamin Tissoires <bentiss@kernel.org>,
+ "Limonciello, Mario" <mario.limonciello@amd.com>,
+ Zhixin Zhang <zhangzx36@lenovo.com>, Mia Shao <shaohz1@lenovo.com>,
+ "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+ linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2_02/16=5D_HID=3A_hid-lenovo-go?=
+ =?US-ASCII?Q?=3A_Add_Lenovo_Legion_Go_Series_HID_Driver?=
+User-Agent: Thunderbird for Android
+In-Reply-To: <24on5sn2-2726-84q2-635q-9245n343qqrp@xreary.bet>
+References: <20251229031753.581664-1-derekjohn.clark@gmail.com> <20251229031753.581664-3-derekjohn.clark@gmail.com> <0on4p9s6-7512-9408-49no-3292o86113r3@xreary.bet> <6BB4F74A-F440-4F21-B094-62CFD18C599A@gmail.com> <2910bb2e-6b31-42f3-a3de-463327b16ff1@app.fastmail.com> <24on5sn2-2726-84q2-635q-9245n343qqrp@xreary.bet>
+Message-ID: <8693204A-60AF-48CF-B453-446ABADDA46C@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] input: touchscreen: novatek-nvt-ts: Add support for
- NT36672A e7t variant
-To: Gianluca Boiano <morf3089@gmail.com>
-Cc: dmitry.torokhov@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
- conor+dt@kernel.org, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260120193600.1089458-1-morf3089@gmail.com>
- <20260120193600.1089458-2-morf3089@gmail.com>
-From: Hans de Goede <hansg@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <20260120193600.1089458-2-morf3089@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Gianluca,
+On January 21, 2026 1:08:18 AM PST, Jiri Kosina <jikos@kernel=2Eorg> wrote:
+>On Mon, 12 Jan 2026, Mark Pearson wrote:
+>
+>> >>I am now almost finished with reviewing this pile and am planning to =
+queue=20
+>> >>it in hid=2Egit shortly, but I have a question regarding the MAINTAIN=
+ERS=20
+>> >>entry above=2E
+>> >>
+>> >>The title claims support for all of Lenovo HID, but there is much mor=
+e to=20
+>> >>it than drivers/hid/hid-lenovo-go=2Ec, specifically in hid-lenovo=2Ec=
+=2E
+>> >>
+>> >>So either please make the title more specific (or claim the ownership=
+ of=20
+>> >>the whole Lenovo HID landscape indeed, fine by me, but the please ref=
+lect=20
+>> >>that in F: :) )=2E
+>> >>
+>> >>Thanks,
+>> >>
+>> >
+>> > Hi Jiri
+>> >
+>> > Sure, I've debated using LENOVO LEGION GO HID drivers and LENOVO GO H=
+ID=20
+>> > drivers=2E Do you have a preference?=20
+>
+>Either works, as far as I am concerned=2E
+>
+>> > The other drivers are pretty old and I don't have any hardware that=
+=20
+>> > would use them so I'd prefer to keep them separate (though I'll=20
+>> > acknowledge that they don't seem to have a MAINTAINERS entry)
+>> >
+>> I should probably take a better look at the lenovo-hid driver=2E
+>>=20
+>> The platforms that it's supporting weren't in the Linux program, so it=
+=20
+>> never crossed my path before - but looking ahead I think we may need to=
+=20
+>> contribute some changes there (guessing a little, but I'll know in a fe=
+w=20
+>> months time)=2E
+>>=20
+>> Jiri - as that driver is targeted for Thinkpads, I'm OK to take some=20
+>> responsibility for it if that is useful/helpful=2E
+>
+>Perfect, could you please then either send that as a followup patch, or=
+=20
+>even have it included right as part of Derek's series?
+>
 
-On 20-Jan-26 20:36, Gianluca Boiano wrote:
-> Add support for the Novatek NT36672A touchscreen variant found on the
-> Xiaomi Redmi Note 6 Pro (tulip) which uses a different wake_type value
-> (0x02 instead of 0x01).
-> 
-> The touchscreen was failing to initialize with error -5 due to the
-> wake_type parameter mismatch during probe. This adds a new chip data
-> structure for the e7t variant with the correct wake_type value.
-> 
-> Closes: https://github.com/sdm660-mainline/linux/issues/155
-> Signed-off-by: Gianluca Boiano <morf3089@gmail.com>
+If Mark is okay with it I'll just add him and that driver to the same entr=
+y=2E
 
-Thank you for your patch.
+I'll wait a few days to send a v2 in case there's additional input=2E=20
 
-I don't think that adding a new compatible + a new nvt_ts_i2c_chip_data
-struct is the right approach here.
+Thanks,
+Derek
 
-I guess the wake-type byte simply encodes some IRQ config settings,
-which may indeed be different in different applications using
-the some touchscreen controller.
-
-Instead of adding a new compatible my suggestion to fix this would
-be to simply drop the wake_type check as well as drop the wake_type
-member from struct nvt_ts_i2c_chip_data.
-
-This way you can fix the driver not working on the Xiaomi Redmi
-Note 6 Pro by removing code instead of adding code :)
-
-And supporting other models also becomes easier.
-
-Regards,
-
-Hans
-
-
-
-
-> ---
->  drivers/input/touchscreen/novatek-nvt-ts.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/novatek-nvt-ts.c b/drivers/input/touchscreen/novatek-nvt-ts.c
-> index 44b58e0dc1ad..b1c379d87de0 100644
-> --- a/drivers/input/touchscreen/novatek-nvt-ts.c
-> +++ b/drivers/input/touchscreen/novatek-nvt-ts.c
-> @@ -323,9 +323,15 @@ static const struct nvt_ts_i2c_chip_data nvt_nt36672a_ts_data = {
->  	.chip_id = 0x08,
->  };
->  
-> +static const struct nvt_ts_i2c_chip_data nvt_nt36672a_e7t_ts_data = {
-> +	.wake_type = 0x02,
-> +	.chip_id = 0x08,
-> +};
-> +
->  static const struct of_device_id nvt_ts_of_match[] = {
->  	{ .compatible = "novatek,nt11205-ts", .data = &nvt_nt11205_ts_data },
->  	{ .compatible = "novatek,nt36672a-ts", .data = &nvt_nt36672a_ts_data },
-> +	{ .compatible = "novatek,nt36672a-e7t-ts", .data = &nvt_nt36672a_e7t_ts_data },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
-> @@ -333,6 +339,7 @@ MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
->  static const struct i2c_device_id nvt_ts_i2c_id[] = {
->  	{ "nt11205-ts", (unsigned long) &nvt_nt11205_ts_data },
->  	{ "nt36672a-ts", (unsigned long) &nvt_nt36672a_ts_data },
-> +	{ "nt36672a-e7t-ts", (unsigned long) &nvt_nt36672a_e7t_ts_data },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(i2c, nvt_ts_i2c_id);
+>Thanks,
+>
 

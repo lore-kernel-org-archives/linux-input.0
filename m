@@ -1,85 +1,100 @@
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C0F3B8D4D
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 21:05:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48D9536D4F1
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 21:42:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769029517; cv=none; b=G8iR5mLw5esR6mKK4IW+Q4HmrvdQyrn5wmK6aMESJxGtywxK2MaySg61sWOPA6DSyYbv9Yy2bPqqrYQsBzrNLJF2MNJTt3Ki6PKOLTfn1zlVpu6xNvDR/VtF0Jw+1Ex2QzvYDPiU1ym3VurPFRoKydYalPpfKS8BajGmaNBOXwM=
+	t=1769031728; cv=none; b=pUfEE4TWEPcGnjMEqxP7hWJ9YjUa8dnO2Sd7JImY2fXwYU2Ft+T+dOP/YMhriTlsWQGcRNhYnQduzzc0BjK6TOdEGdESADCQx7xko3BSpfE1cJXmF+j90cQEXXx+MR3aDOtWkv0IUPRYJsa6KgPzeqQjHi++NT6ULmBdNCgcX4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769029517; c=relaxed/simple;
-	bh=dUsfK+3qglFYu6KKKL8ciiDfazYqnRWmnY//ZVRKfFU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c0Rg7KFyT6poELsfdRguSO1NGupRZlezbQxRDeSE+lJFJqdZcdclvzASzPiGpDNJfR57MjLeaUs/NJle8ACFIYmCyICvIYsIwlBD0CCZqiKtC8SF54sDjBploCV3F/cd5mdIr7V5LGAjGUbiIL0OiOa6PIZvHQcRdgPOoeGt2vI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G+CtwHB7; arc=none smtp.client-ip=74.125.82.41
+	s=arc-20240116; t=1769031728; c=relaxed/simple;
+	bh=M8oQ0q+6xlkrire61zib4w+js5dW929OXGx9RGG+2sU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IksUVQkpDOZd7gKpbMpHzhu39C7FIHImZBY2Y+P2jhKfkXmrcCG4HQBSZlSXcqikAPMQ1i6rg7/OUZx68ep3kwx5VClg/fIuXiK49vY8e1y9HokS9Cm2NzJ7Oh0TY7gkw8Hpoi4qQ9g0kT+UFPkKTe8YTxpJl8yEl0iDQf8L52w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UYmo5QcF; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G+CtwHB7"
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-12332910300so768799c88.0
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:05:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYmo5QcF"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4801d24d91bso2938645e9.2
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:42:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769029513; x=1769634313; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gEdY5+llf1a4Uw9aw/Oasu6RVTBbudeOETC7Lzwk8J8=;
-        b=G+CtwHB7I+owk53UcviOWILSwgvEK/jX0t4Yvx4ROxnmeZsw2S9eQqUzn7CJk1tTQE
-         xMABQf1qdEst9hlhxuTdt5el5dGTjDxodkgvx9D7C1ylwgD4aZLrvjTAzE4XckplK3Wm
-         7F1yRA3Wvkp4A7I/o4dZSVDhUxC4gr0uz/pl5jjudXJ2Wt0ns4YBVwCZ84yRFU1lbqgb
-         oZOtwqzBTK5NGuhfepc2LX5t3LfQ/rz5uiAbN8TlpcjeSWgzLS2Qxw2WYJeU2wjCvne6
-         YzMkSUi1XxhtKkaU4CmieqkiGUh2udJyQ9EG8hEANfjbb9CvNPicWgsvZ6PahX6qn/zE
-         LpmA==
+        d=gmail.com; s=20230601; t=1769031721; x=1769636521; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=70Ms2GnAoWzuHwMSo94L5mFs+gfdu8prUboYjtNpRhM=;
+        b=UYmo5QcF5pFdAcwdyqDg6ZWAEJ4daoPtp+fD5feknUNJgYsV5TTaEzKte7nbYcXOwE
+         7KumauM4fB0qXX3IWj2adna7P0OXrdouKdyBcCpl/v9NR33CtzJ0yALMl7kf5IApXTlJ
+         iHXrAD8SL1ctRMive3NNel/F+DkswEerxm8q9F8c24RHPG7Jj7MYe8SF3BL0FEozlV19
+         2fzPpZoLW1do+oYjLp75Hv35ph5BMTc0u7/7aUpSQ01a+UsXVShvzDQ49Du1egBOBriA
+         Ga81lUoPTCwbTyTjaC7d/z2uvNRCU1jVtKk+a04zWkmOvGdnm+pInFoHtUljAXSnj3Eu
+         vuJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769029513; x=1769634313;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gEdY5+llf1a4Uw9aw/Oasu6RVTBbudeOETC7Lzwk8J8=;
-        b=RhL/8whlpYVDVR8LSNVhZIqg1NGt5voHILRP1Z3A5bSjk5a/TZw0X6roxoWrC3tglV
-         CPyUPIBF4Ft1XRFEVq6dYhLF2tDBlEOm+nt8es7iHjiDyrqAmVlq06A4Lmknzv+GMz2d
-         r3IZCxUr2MMlHW4sk8CGZ3/MJpYwMBkOuhq/CqfkJogGJZFWL9H3vNzGwFlrPQhXQLBn
-         nNh7V2DlWhwGCyXZzpWcHC9cnBV2YU2UrMPgi1FUc4wk2KtzvPNHSGVoEXVXtc2Q4wtM
-         B7GGmR8BAkx4jf6yrIqEK2PoL6XWZRVopWZtojTa1mnwrdXE2/zcVbSiQFkWnG/433Wc
-         Bikg==
-X-Gm-Message-State: AOJu0YyPmLfK6k4YTq9ZHWGe8eawkazj8QEBlG6ylpQwrwl1WTmjV5dK
-	30JuimQDkuhM09nNabpdbuxwIsv/keaurEBFdo6kGVR4ukrEc5W/uwdb
-X-Gm-Gg: AZuq6aLspm67D8roGUTwZ+qmUa+HAAGSTtNUvCatZ9d+bjYkdxCPfFDVSHjUxdBDbj7
-	jIXtzIavwK1wB16urtvdW52rS2nie3G5TTjS68YxM2yYnY2rh6ScVeWdYjpGUzOMLted9rPczDl
-	8PBUrMLpZUPsP21+ECS7Xfpa3lT1epTxYxB4RMrZJFsJ1dSMDQtfiUJgyLGnugV7JghKNpN/3LC
-	yz0/XGjHrE5K1SOdjfJ56G9cVQD1ml7lHMRMI4liiwR5XluroP3h32i1nx+ka0+FCGUyI9kgXpb
-	Z5OeCnzBy/gPznkFrZeu7eUG4mOTkVF3BK69j7gPUAx/3L9jiOGW8k0rkP50CpRSmwmAGxFqrkh
-	JcbqZHvr4LLca/JXEd5aLpAkz/3xBZ4Avhug5OeK9h3k430MNE5CEbKhb+2dzOTWmEpYxYh91zB
-	XKoLu8+gCaZmT+AvrQBns7X3UjKuvmOOG2R/TLUwsuEMHcV+abrAgp
-X-Received: by 2002:a05:7301:2289:b0:2ae:6f72:f3dd with SMTP id 5a478bee46e88-2b6b4116fa4mr9687082eec.30.1769029512856;
-        Wed, 21 Jan 2026 13:05:12 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b361f5d4sm22926190eec.17.2026.01.21.13.05.11
+        d=1e100.net; s=20230601; t=1769031721; x=1769636521;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=70Ms2GnAoWzuHwMSo94L5mFs+gfdu8prUboYjtNpRhM=;
+        b=DncV11CUA7S2Umn3DbxHujRKXx+wN99ZDlV2AlmgymaM1mHQ033jcsFZNgwR9YEOBh
+         CGGGzqgpWEI5ilqIYms3L2Fo1wR5Y/9bs/LJyEIBsUlCuMBupFmcxK209YE6Ei5OYDZN
+         XCY/OSCQRL4eh4ezosIFdlTHUyT4GvWWEYUAcj/LqkPkIEglxgbMqdnTbi3umZ9RbpMW
+         AsLhkV34WrvL88mi7GWo3ETI7BzSVfADzZ5IXGl8roXvtsTVYuBHBWBZZyxteju4yRSY
+         zJTN+3ZBAFNxMknyootwYK8PQJ6cueHnY3zHJpnglvIXyNbqlS8RrtMz7YobnzX4d+HD
+         +2BA==
+X-Gm-Message-State: AOJu0YxIrUla632UH/0T29XjPqxVHLHm38XbQnvgtMNEOm+6r69wXP4M
+	kW6E+nyii30zeMRdZBxdqiQ9q21cUB8b7PZQW9X/Zma3Y1rI0/WkMoa0jDVf0DdA
+X-Gm-Gg: AZuq6aL9PN76te9tq+p1pMLtrBftb6qMeNCcv96m04vekU1Tdtj3bngi4e/DCysPloH
+	I6e896G+hiOg2D4h2gLXAZNjAq0s/SPqAVfD/DjTCgUU3hiz7POXCzOrVEbA2Y1VKsrUgMl3YXq
+	ihff2ld4YckKKUyQ/guCo1ykL73lzrIDJfrt0s/S0LKeZbei3Hr69tbvrdQ36UGEXedtAnmFH/G
+	59AASByb9uothPl6afLP03+N6ZyOqkXp/VXHHEn2sWAVftJNu89LaUfXG9QPMOUbGRIuDZN/vlK
+	Xl7TpGIi4RXKwV0944JCnnJosGo/B4nidtMq41loz60eA6POUIzyx3Kr7FyvBan54vo2rTqUOQk
+	11XVqk8/JLddqny4Pb/0e51lexEAhFH8e9bZ/0NkwfWDvfEWtxGUEgMiNuRKxstMH8795GpGlQl
+	8RWBNf3QF47Hpr5eCcHuiTLUZS
+X-Received: by 2002:a05:600c:1990:b0:475:e09c:960e with SMTP id 5b1f17b1804b1-4803e7f3d7bmr101505225e9.32.1769031721019;
+        Wed, 21 Jan 2026 13:42:01 -0800 (PST)
+Received: from unknown.tail46804.ts.net ([78.209.83.30])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-43569926ffcsm38351929f8f.18.2026.01.21.13.42.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 13:05:12 -0800 (PST)
-Date: Wed, 21 Jan 2026 13:05:09 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] Input: gpio_decoder - update driver to use modern
- APIs
-Message-ID: <2ugvppgzt263pomqojjiee3ymw5ttjgixf5jnfn2t632dlpmgv@mj66vi4ujxrl>
-References: <20251113154616.3107676-1-andriy.shevchenko@linux.intel.com>
+        Wed, 21 Jan 2026 13:42:00 -0800 (PST)
+From: Gianluca Boiano <morf3089@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org,
+	krzk@kernel.org,
+	dmitry.torokhov@gmail.com,
+	Gianluca Boiano <morf3089@gmail.com>
+Subject: [PATCH v2 0/2] input: touchscreen: novatek-nvt-ts: Add NT36672A e7t variant
+Date: Wed, 21 Jan 2026 22:41:38 +0100
+Message-ID: <20260121214141.36858-1-morf3089@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260120193600.1089458-1-morf3089@gmail.com>
+References: <20260120193600.1089458-1-morf3089@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251113154616.3107676-1-andriy.shevchenko@linux.intel.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Nov 13, 2025 at 04:44:41PM +0100, Andy Shevchenko wrote:
-> Update gpio_decoder driver to use modern in-kernel APIs.
-> 
-> Changelog v2:
+This series adds support for the Novatek NT36672A touchscreen variant
+found on the Xiaomi Redmi Note 6 Pro (tulip).
 
-Applied the lot, thank you.
+The e7t variant uses a different wake_type value (0x02 instead of 0x01),
+which was causing probe failures with error -5.
 
--- 
-Dmitry
+Changes in v2:
+- Removed Closes: tag referencing downstream repository (Krzysztof)
+
+Gianluca Boiano (2):
+  dt-bindings: input: novatek,nvt-ts: Add nt36672a-e7t-ts compatible
+  input: touchscreen: novatek-nvt-ts: Add support for NT36672A e7t
+    variant
+
+ .../bindings/input/touchscreen/novatek,nvt-ts.yaml         | 1 +
+ drivers/input/touchscreen/novatek-nvt-ts.c                 | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+--
+2.52.0
+

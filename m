@@ -1,157 +1,127 @@
-Received: from fhigh-a6-smtp.messagingengine.com (fhigh-a6-smtp.messagingengine.com [103.168.172.157])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B67F387359;
-	Wed, 21 Jan 2026 16:44:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A53F42981A
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 17:28:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769013896; cv=none; b=gpL2my8TWKnO0Uj91hEmydCRqXUO5ao02b4+M4xeZD4yv19LtRQ3qY3mDzPRxwAizEIs/CJDTpvSqf0hAgEAJLGSXn2omTRt/kjd6deprogOaGcX0plPthw9xYYczXCBQalVVBz5dAQsp9wPA+E+fWfBlR1MOc7BHUIKwvbOdXA=
+	t=1769016484; cv=none; b=ey8kXkkn2Itapi64kQKGR9+M0dqqidYE38qZKP5rqklIU0dkHrj8Qw+pE5uolsxI+4d/fRLFxSa43z6fZMHHM/CFIlfKJXlc6PeieKxXQH9zDvwoTjbfXLYMdaxfKGNamBUWR4WGogYIOmtcDiWs0tI4SFGIM+ql1rNciXHZZPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769013896; c=relaxed/simple;
-	bh=gpy39E4hjExdiGI8hoV+/whzbphV0KEEy1L/pN0p4Ro=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=vAn2Db367nO/yS+bedRlFsbcSxi3umoimFByCwPEULi7SLDd0yqUAJArDKJGX7H0Xw+oVLOWd5ve0wAtqCHu5n7j7mNhjyn8fROgwPHTxo1thH++zcYeM1AZ8s+lfqs/r/KcpDqNkAlnZJPY7AUbk9ubuR4j4U1XpmiU24dhr6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=V+aWKzPD; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ScjgWL0x; arc=none smtp.client-ip=103.168.172.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
+	s=arc-20240116; t=1769016484; c=relaxed/simple;
+	bh=m5FI3xNAl3TkzNTKrHI4D59YqGJiqS+5075l9UsrcqY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ERvj0S3uX4ZJ6RRjHV+zrm2sOox8zl/DmhYRYapzWcppFnuWc3MKF8EZG1wv2ew1afWKNE7domOc/WfpnBzIIOsZejFSu1jI+QQ++2ouRyEzm/7mw0qa0BuxxamzgMmchr4C6cX++9TZbGugr+tonHM1uW1A/9RwynDG5GWTYf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AkJvs9cw; arc=none smtp.client-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="V+aWKzPD";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ScjgWL0x"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 9360814000FB;
-	Wed, 21 Jan 2026 11:44:53 -0500 (EST)
-Received: from phl-imap-08 ([10.202.2.84])
-  by phl-compute-02.internal (MEProxy); Wed, 21 Jan 2026 11:44:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1769013893;
-	 x=1769100293; bh=Nj5/2K0y8F3SObmsit1lEGB/hc4bvHGQoc7CPAnK3nk=; b=
-	V+aWKzPDKqSCZBkv9OdS3Ihg7wa8xEAk35TeWVixmWPUkIzyrj+p8/DCeipwoxiW
-	cbGK4nuT79ENME9djN61ybmHbsg6aavf7Y9/yqubPGeA7P6KBM6VgI8ELWIP2OCA
-	YGCPrJCcIwWc8R1AxOLjAKxNZwIZm/lZEQ17UE2vF57VMJuovhXn90I/ikqyQv9w
-	2EyaFZdXHyvmzBU7QtRTInQP4Vco597olMmcvrnSUnhEBcsMAZh8q1fLwpdEqfIp
-	3lJb9G1dIS/+yXdhEVIgPORWXmDgfoNd2xorkNGRIDpJ68A2UX5QiwsojQwgXdxh
-	C8d8hR3mLUhZ2+gxgCPyow==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1769013893; x=
-	1769100293; bh=Nj5/2K0y8F3SObmsit1lEGB/hc4bvHGQoc7CPAnK3nk=; b=S
-	cjgWL0xS3RS9o6mpmsy2fcJMlfZIZbrJ7+cTEbmw9qhTnIV/Iv3iZwD+hGzcOVYN
-	4+i/qoReyJO1FvPKitHLXU7VnJ4MwjC/SVYfRHmifZbVd4/HwmwurcedN7byqWFM
-	gnmgS+V7Io48F/bwrknyGMtLeUfJRegkZ+6K52PUX624d5Y9QWMNtnzgCRUP5bwq
-	AoFwMY86ieSChESeFUc9q99kK+fj8Sux7/D/7pQXwZn3aNsrL5VHoy0gw4uQsqB/
-	Ajlv2XYCX06UuMdT7xN+kB2fUwsenJ/bgdjxfkbWRLInr6xU1v1C4vbcniTt2lN3
-	lOlBxw2Cx5LkZVlb8K1yg==
-X-ME-Sender: <xms:hQJxafQL-hd_dAFYEuK0DE08D4mLTYoyhRO-vQfyO5Bkh6VYpw0wJQ>
-    <xme:hQJxabkis1RoEpC2y2vpqak4-E02HX9uK1jQmOHk65rcuUFG-XNmPGuDkIi3yeAml
-    zkDlapkaydIj-vGxgie6M34Watg9rTHXoqnaNiJiyXf32g0B9zttg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddugeefjeelucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedfofgrrhhk
-    ucfrvggrrhhsohhnfdcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtg
-    grqeenucggtffrrghtthgvrhhnpefhuedvheetgeehtdehtdevheduvdejjefggfeijedv
-    geekhfefleehkeehvdffheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrpdhn
-    sggprhgtphhtthhopedutddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhgrrh
-    hiohdrlhhimhhonhgtihgvlhhlohesrghmugdrtghomhdprhgtphhtthhopeguvghrvghk
-    jhhohhhnrdgtlhgrrhhksehgmhgrihhlrdgtohhmpdhrtghpthhtohepsggvnhhtihhssh
-    eskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhg
-    pdhrtghpthhtohepshhhrghohhiiudeslhgvnhhovhhordgtohhmpdhrtghpthhtohepii
-    hhrghnghiigiefieeslhgvnhhovhhordgtohhmpdhrtghpthhtohepphhgrhhifhhfrghi
-    shesvhgrlhhvvghsohhfthifrghrvgdrtghomhdprhgtphhtthhopehlihhnuhigqdguoh
-    gtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihhnphhu
-    thesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:hQJxaW1ru2p1fQ1t7q3wVJoLutvriqPy6NNjaZOZCy-unzvb7EOoog>
-    <xmx:hQJxaRS8PiXMTp5orrsOqZ2UIkdnWgVpaM_IKK-yYezFDZgi_k6rJA>
-    <xmx:hQJxaafOmnxKdbaeCt6F5O7OSJJFL_bOm_Amtz8fx7YYn9oD4ga_zw>
-    <xmx:hQJxaSeNANqF-Y2eeQOh3X3llDl3q0CqrqPhRD5OhColoZWXInONdQ>
-    <xmx:hQJxacpUZjiDIiQjpdAqJaKNHDYx-RlPIFZNJiT26C-Q6VJa9gXEIIls>
-Feedback-ID: ibe194615:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 1E9422CE0078; Wed, 21 Jan 2026 11:44:53 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AkJvs9cw"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2b6f85470b6so69961eec.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 09:28:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769016480; x=1769621280; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=ODmaEKD4YMc3t8iZSxwisxxhGoFljo8Y2PJTisCWGWc=;
+        b=AkJvs9cw/nGdJx6MZgd1w2JMH42K2y/5SikPPxq0BP0UhZeAAqXT+CAGcEpjX/1top
+         H4yKflgKcTo86GRxQslhDiu4xjQQY/zBMWLGMe4uv7R8aatcjDZW+smb4fS3sMMeWSOh
+         snID/Kemy81qRl0IO6kJUBcmTDV0snHv62LDZ7vTLZZmCUHp323hNMOK6TkhzvIIo9tM
+         K28bA0rDOW/CaJLagtqslK3MsgwWicK3od82ATnRn7ECfcGf6GHZmwmP5RLoy9Lxo340
+         jtgdWUKO35DsVQbmUTl0IcHEd2jbYBt/+NBXYH95dM7qny5KxOToTFoj2dlg2A70rP/r
+         eHZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769016480; x=1769621280;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ODmaEKD4YMc3t8iZSxwisxxhGoFljo8Y2PJTisCWGWc=;
+        b=UwzwMH7flfZ4juYpLxte3p/6hJmXgiyGDZVUheQsWEvuc65YNNhuy9BdVppvXznDQM
+         fvnwcU7Ye04R0TeW552Pt+a30zdzsWhEOv5rglcxFuEyx5M5viZCbzeeQmlyjULeHjpL
+         qjnFQSzQvOOG91iFu1lx6GHOOJ0ihheLdPgtKp9yepJY3tUse9xZfZhrZuifCP1pi0Vg
+         gh/CUz9gCAHg3AGAdQDGul6edYUp2orkpR0C9TRjaqbt/dHM2DOTwAQK/BFWPrF8bGih
+         dkqT9FFUlIqwFqdEfCb3Nr1RPe47hYZHs0VljbF6rOQ7piLpNaAqaaVi6JgVwE5nevo0
+         qxtA==
+X-Forwarded-Encrypted: i=1; AJvYcCWk2S3Sftz/9sxCHAuFDlgWfiy2eoLp4Y40bs9eTqHWt9h444xaYpDXMgGxSAhrFt9p4MyjLcJc49LlQQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzSEZvFP2xZ87ekMYH+OfBg3zmo6F63bn9EV8JA0nnFnjHqxh1a
+	m8qObhZOiIi0784TK22ywyNpiIOAJ7ufy8dSglVWv/+F2/7zcaPG0il1
+X-Gm-Gg: AZuq6aJwteWMfcbCaDnLWzjqLwwp3RLtErhiWebgxkS7a4rJMw9htWy0hSDxx7fN+Nc
+	zswRup87xxd3sqa2jgYpMUIv+dIcYpbrV4m2QM8PTrGvX3+B3QUDQcWmQlDLdrRI3ApcWDjyrgW
+	jPyykRyOWjv3dBFPiQwAVVE9EXRnc/97NdfAz/U4D2kdvbtG0lzuFAwboocdazczQ4iY/DBtRux
+	RrHgIrs60vTYMI9uI2QIsqpaDudvO5koT5ArcTs3/dP09+p+8u0jiPW06iZihhUxnmhD4AWqk4K
+	yRXaWjSUXlELG4LLe7qYn8WL6XOK+7zVp3ZoVk8nruNeeCtRCu+AZe3QnHAVqdzUiHCab02nEIo
+	g8Rgv+S/fjECOcrFvMEgm4LBJ+/ZVFYm/4Cn3OIjq7GKSSoIl5facs6Pi/ppZG47X2lN/VDpNOh
+	jR+1KYpK7MwtbcFpGQX5EBa6HOVCIcSna/J7UXpIWxjWiibDAtSC/55KAAdTUyhX8=
+X-Received: by 2002:a05:7300:1892:b0:2ae:5b54:523e with SMTP id 5a478bee46e88-2b6fddb1837mr3771158eec.40.1769016480404;
+        Wed, 21 Jan 2026 09:28:00 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b70a036d02sm5292666eec.14.2026.01.21.09.27.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jan 2026 09:27:59 -0800 (PST)
+Date: Wed, 21 Jan 2026 09:27:56 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Walleij <linusw@kernel.org>
+Cc: 756271518@qq.com, brgl@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: Re: [PATCH] Add common hall sensor drivers
+Message-ID: <wv75wb5bif67u3yzbgbmrfg75zseamfvehewwyl4xnm3ecmqrj@5yqkwsrdlfzg>
+References: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
+ <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AC9rIZzNZkww
-Date: Wed, 21 Jan 2026 11:44:27 -0500
-From: "Mark Pearson" <mpearson-lenovo@squebb.ca>
-To: "Derek J . Clark" <derekjohn.clark@gmail.com>,
- "Jiri Kosina" <jikos@kernel.org>
-Cc: "Benjamin Tissoires" <bentiss@kernel.org>,
- "Limonciello, Mario" <mario.limonciello@amd.com>,
- "Zhixin Zhang" <zhangzx36@lenovo.com>, "Mia Shao" <shaohz1@lenovo.com>,
- "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
- linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Message-Id: <5f285fb4-8946-45aa-8b08-9dc7f0ab1170@app.fastmail.com>
-In-Reply-To: <8693204A-60AF-48CF-B453-446ABADDA46C@gmail.com>
-References: <20251229031753.581664-1-derekjohn.clark@gmail.com>
- <20251229031753.581664-3-derekjohn.clark@gmail.com>
- <0on4p9s6-7512-9408-49no-3292o86113r3@xreary.bet>
- <6BB4F74A-F440-4F21-B094-62CFD18C599A@gmail.com>
- <2910bb2e-6b31-42f3-a3de-463327b16ff1@app.fastmail.com>
- <24on5sn2-2726-84q2-635q-9245n343qqrp@xreary.bet>
- <8693204A-60AF-48CF-B453-446ABADDA46C@gmail.com>
-Subject: Re: [PATCH v2 02/16] HID: hid-lenovo-go: Add Lenovo Legion Go Series HID
- Driver
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
 
-On Wed, Jan 21, 2026, at 8:16 AM, Derek J. Clark wrote:
-> On January 21, 2026 1:08:18 AM PST, Jiri Kosina <jikos@kernel.org> wrote:
->>On Mon, 12 Jan 2026, Mark Pearson wrote:
->>
->>> >>I am now almost finished with reviewing this pile and am planning to queue 
->>> >>it in hid.git shortly, but I have a question regarding the MAINTAINERS 
->>> >>entry above.
->>> >>
->>> >>The title claims support for all of Lenovo HID, but there is much more to 
->>> >>it than drivers/hid/hid-lenovo-go.c, specifically in hid-lenovo.c.
->>> >>
->>> >>So either please make the title more specific (or claim the ownership of 
->>> >>the whole Lenovo HID landscape indeed, fine by me, but the please reflect 
->>> >>that in F: :) ).
->>> >>
->>> >>Thanks,
->>> >>
->>> >
->>> > Hi Jiri
->>> >
->>> > Sure, I've debated using LENOVO LEGION GO HID drivers and LENOVO GO HID 
->>> > drivers. Do you have a preference? 
->>
->>Either works, as far as I am concerned.
->>
->>> > The other drivers are pretty old and I don't have any hardware that 
->>> > would use them so I'd prefer to keep them separate (though I'll 
->>> > acknowledge that they don't seem to have a MAINTAINERS entry)
->>> >
->>> I should probably take a better look at the lenovo-hid driver.
->>> 
->>> The platforms that it's supporting weren't in the Linux program, so it 
->>> never crossed my path before - but looking ahead I think we may need to 
->>> contribute some changes there (guessing a little, but I'll know in a few 
->>> months time).
->>> 
->>> Jiri - as that driver is targeted for Thinkpads, I'm OK to take some 
->>> responsibility for it if that is useful/helpful.
->>
->>Perfect, could you please then either send that as a followup patch, or 
->>even have it included right as part of Derek's series?
->>
->
-> If Mark is okay with it I'll just add him and that driver to the same entry.
->
-No problem for me. 
-I always feel my reviews are limited, but I do try and read everything and help wherever I can.
+On Wed, Jan 21, 2026 at 12:43:01PM +0100, Linus Walleij wrote:
+> Hi Xuchen,
+> 
+> thanks for your patch!
+> 
+> On Wed, Jan 21, 2026 at 9:59 AM <756271518@qq.com> wrote:
+> 
+> > From: xuchen <756271518@qq.com>
+> >
+> > This patch adds support for common hall sensor ICs used in Qualcomm
+> > reference designs. The driver handles both rising and falling edges
+> > to detect magnetic field changes.
+> >
+> > Signed-off-by: xuchen <756271518@qq.com>
+> 
+> Why are you going to such lengths to create this driver?
+> 
+> What people do is usually just create a GPIO "key" input
+> for the hall sensor, for example:
+> 
+>         gpio_keys {
+>                 compatible = "gpio-keys";
+>                 #address-cells = <1>;
+>                 #size-cells = <0>;
+>                 vdd-supply = <&ab8500_ldo_aux1_reg>;
+>                 pinctrl-names = "default";
+>                 pinctrl-0 = <&hall_tvk_mode>;
+> 
+>                 button@145 {
+>                         /* Hall sensor */
+>                         gpios = <&gpio4 17 GPIO_ACTIVE_HIGH>;
+>                         linux,code = <0>; /* SW_LID */
+>                         label = "HED54XXU11 Hall Effect Sensor";
+>                 };
+>         };
+> 
+> This turns the GPIO line into a "lid switch" which is what you want,
+> and already supports regulators and pin control out of the box if
+> you need them too. (The VDD and pin control properties are optional.)
 
-Mark
+Right, we do not need a custom driver for that (especially one using
+legacy APIs and custom event codes and defining special classes).
+
+Thanks.
+
+-- 
+Dmitry

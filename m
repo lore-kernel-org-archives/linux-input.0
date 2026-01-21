@@ -1,61 +1,69 @@
-Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424A1340279;
-	Wed, 21 Jan 2026 20:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C0F3B8D4D
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 21:05:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769028947; cv=none; b=NF0l/RqFXC9imckug9ekt0kGzv2nCgC/Cp32f0/C30wrXAsy2sKXfClQXtUzIVCA7Xdy9HRw7JWEsoWIxPCIjlVKB2FMROfKHlFYT1qlOxvxB5ECPJGy1HqJ3hvptq3ilopW+OMThjFo7jvQN9gNCTra6LZUB8UmpukbEXAHfKY=
+	t=1769029517; cv=none; b=G8iR5mLw5esR6mKK4IW+Q4HmrvdQyrn5wmK6aMESJxGtywxK2MaySg61sWOPA6DSyYbv9Yy2bPqqrYQsBzrNLJF2MNJTt3Ki6PKOLTfn1zlVpu6xNvDR/VtF0Jw+1Ex2QzvYDPiU1ym3VurPFRoKydYalPpfKS8BajGmaNBOXwM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769028947; c=relaxed/simple;
-	bh=shB/nOEZf0SYoyLaiDU22nArcNeEHHkYrPQXpXLOs1s=;
+	s=arc-20240116; t=1769029517; c=relaxed/simple;
+	bh=dUsfK+3qglFYu6KKKL8ciiDfazYqnRWmnY//ZVRKfFU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z4NQsPbldj8xtWre9sXxajh/2RJYEsN41Q680YS3r6DyVPfj3jmv5c1Rep5O4Rvxs+CVwhk++7vOPUM98vZFLzjQfA3Vf71qUCGCR03bmVBgQ+4QiqO9o4Iq4S3VPs53Ypo3ugUlWsWTZZswjC+U0zAXX7SfX5GSrcIP4EPenV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=FEBN5CCS; arc=none smtp.client-ip=67.231.157.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=c0Rg7KFyT6poELsfdRguSO1NGupRZlezbQxRDeSE+lJFJqdZcdclvzASzPiGpDNJfR57MjLeaUs/NJle8ACFIYmCyICvIYsIwlBD0CCZqiKtC8SF54sDjBploCV3F/cd5mdIr7V5LGAjGUbiIL0OiOa6PIZvHQcRdgPOoeGt2vI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G+CtwHB7; arc=none smtp.client-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="FEBN5CCS"
-Received: from pps.filterd (m0425992.ppops.net [127.0.0.1])
-	by mx0b-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60LINccc935887;
-	Wed, 21 Jan 2026 14:42:18 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps1; bh=kMMai344yfdBNxNdwSNfQ16I3p0AQ
-	MOlkHJ1FGcTdfw=; b=FEBN5CCSNlfloCBAtkAcdUPSsPRT3QQX9Zjf6itCthuLP
-	EgTCSUxdrJilSo/0FSPSwTDstOi/Fmyyy3C0Ui8dAkCmfhkEwsbwGqainQFYRY9k
-	bgvSzx1zDHN+0Yb0GT/Fw9//ddKicNElaeoKNtM2BYrF8Yh96DbF+7bVjJqmd9n4
-	qh3/y2DRwX5M5gX1/mBSpYMaeK3ZGPpPJQN2YLvJvqTIL5XO1v/N+jrzkB9hZEWf
-	Kvwvb1FBFlRURNr41WhksLhugbH0CcHELuHsLUA7Jh9RaALnweTbGu7Eqi1of/c9
-	FyNnDvoNyJRpLe6NjvjMG1W5yu2jkH0Vc/ZTGIIPQ==
-Received: from intranet-smtp.plexus.com ([64.215.193.254])
-	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 4btae3jyru-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 21 Jan 2026 14:42:17 -0600 (CST)
-Received: from localhost (unknown [10.255.48.203])
-	by intranet-smtp.plexus.com (Postfix) with ESMTP id D7E133C87A;
-	Wed, 21 Jan 2026 14:42:16 -0600 (CST)
-Date: Wed, 21 Jan 2026 14:38:45 -0600
-From: Danny Kaehn <danny.kaehn@plexus.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G+CtwHB7"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-12332910300so768799c88.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:05:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769029513; x=1769634313; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=gEdY5+llf1a4Uw9aw/Oasu6RVTBbudeOETC7Lzwk8J8=;
+        b=G+CtwHB7I+owk53UcviOWILSwgvEK/jX0t4Yvx4ROxnmeZsw2S9eQqUzn7CJk1tTQE
+         xMABQf1qdEst9hlhxuTdt5el5dGTjDxodkgvx9D7C1ylwgD4aZLrvjTAzE4XckplK3Wm
+         7F1yRA3Wvkp4A7I/o4dZSVDhUxC4gr0uz/pl5jjudXJ2Wt0ns4YBVwCZ84yRFU1lbqgb
+         oZOtwqzBTK5NGuhfepc2LX5t3LfQ/rz5uiAbN8TlpcjeSWgzLS2Qxw2WYJeU2wjCvne6
+         YzMkSUi1XxhtKkaU4CmieqkiGUh2udJyQ9EG8hEANfjbb9CvNPicWgsvZ6PahX6qn/zE
+         LpmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769029513; x=1769634313;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gEdY5+llf1a4Uw9aw/Oasu6RVTBbudeOETC7Lzwk8J8=;
+        b=RhL/8whlpYVDVR8LSNVhZIqg1NGt5voHILRP1Z3A5bSjk5a/TZw0X6roxoWrC3tglV
+         CPyUPIBF4Ft1XRFEVq6dYhLF2tDBlEOm+nt8es7iHjiDyrqAmVlq06A4Lmknzv+GMz2d
+         r3IZCxUr2MMlHW4sk8CGZ3/MJpYwMBkOuhq/CqfkJogGJZFWL9H3vNzGwFlrPQhXQLBn
+         nNh7V2DlWhwGCyXZzpWcHC9cnBV2YU2UrMPgi1FUc4wk2KtzvPNHSGVoEXVXtc2Q4wtM
+         B7GGmR8BAkx4jf6yrIqEK2PoL6XWZRVopWZtojTa1mnwrdXE2/zcVbSiQFkWnG/433Wc
+         Bikg==
+X-Gm-Message-State: AOJu0YyPmLfK6k4YTq9ZHWGe8eawkazj8QEBlG6ylpQwrwl1WTmjV5dK
+	30JuimQDkuhM09nNabpdbuxwIsv/keaurEBFdo6kGVR4ukrEc5W/uwdb
+X-Gm-Gg: AZuq6aLspm67D8roGUTwZ+qmUa+HAAGSTtNUvCatZ9d+bjYkdxCPfFDVSHjUxdBDbj7
+	jIXtzIavwK1wB16urtvdW52rS2nie3G5TTjS68YxM2yYnY2rh6ScVeWdYjpGUzOMLted9rPczDl
+	8PBUrMLpZUPsP21+ECS7Xfpa3lT1epTxYxB4RMrZJFsJ1dSMDQtfiUJgyLGnugV7JghKNpN/3LC
+	yz0/XGjHrE5K1SOdjfJ56G9cVQD1ml7lHMRMI4liiwR5XluroP3h32i1nx+ka0+FCGUyI9kgXpb
+	Z5OeCnzBy/gPznkFrZeu7eUG4mOTkVF3BK69j7gPUAx/3L9jiOGW8k0rkP50CpRSmwmAGxFqrkh
+	JcbqZHvr4LLca/JXEd5aLpAkz/3xBZ4Avhug5OeK9h3k430MNE5CEbKhb+2dzOTWmEpYxYh91zB
+	XKoLu8+gCaZmT+AvrQBns7X3UjKuvmOOG2R/TLUwsuEMHcV+abrAgp
+X-Received: by 2002:a05:7301:2289:b0:2ae:6f72:f3dd with SMTP id 5a478bee46e88-2b6b4116fa4mr9687082eec.30.1769029512856;
+        Wed, 21 Jan 2026 13:05:12 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b361f5d4sm22926190eec.17.2026.01.21.13.05.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jan 2026 13:05:12 -0800 (PST)
+Date: Wed, 21 Jan 2026 13:05:09 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Benjamin Tissoires <bentiss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-        Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-        Ting-Kai Chen <tingkaic@nvidia.com>
-Subject: Re: [PATCH v12 2/3] HID: cp2112: Fwnode Support
-Message-ID: <20260121203845.GA7162@LNDCL34533.neenah.na.plexus.com>
-References: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
- <20251126-cp2112-dt-v12-2-2cdba6481db3@plexus.com>
- <aSdGh3i_KYocE3L3@smile.fi.intel.com>
- <20251126193251.GA269764@LNDCL34533.neenah.na.plexus.com>
- <aSdvv3Qss5oz_o6P@smile.fi.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/5] Input: gpio_decoder - update driver to use modern
+ APIs
+Message-ID: <2ugvppgzt263pomqojjiee3ymw5ttjgixf5jnfn2t632dlpmgv@mj66vi4ujxrl>
+References: <20251113154616.3107676-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -64,103 +72,14 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aSdvv3Qss5oz_o6P@smile.fi.intel.com>
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIxMDE3MyBTYWx0ZWRfX4ptEQFKdvfEP
- aHBLwBp6qRd6jztlDhS7R5JlBSofX/GNbDJqvWjJBuik5y3i+5nfuqX/Oq/pV0oMNR3Uqvpx26k
- PNw/ChhLIZJn2SgcdMxHxUnLuMVZW9Ky2E7kHWhYFGCI4/2xnwzeiiv+QZ/aqRic2mR45waqnhQ
- CtTslosnbrF2kjyHsvqWqpC0D9Pimv8Ms34pUjrDrh4IkpLK7nu+O3Osi3dBZeeMHFzGcwrXpf5
- B/Lr4WM0Ldrh8VzU0T93zSvqIG8gY9EH028aZC4eEAoUkjRjKhpPEEytFxzrk9L8ZftnaFHOAef
- jgVULHwlGwclYmQkoTPOeYf5n0l/DWT3RUBK5sIFMwoOJN05Ehx35pV/5gKVjoyak5r9D3/zx7l
- FVrcNaJJb+C/ynBN0PQdwRhKkDAn/3VYmhgksr6gWqLCoG2o4OqWMCAm5Y/aD4od5Wc7kVeUqK2
- Ay1iCe/z7Jn291dqfmQ==
-X-Authority-Analysis: v=2.4 cv=QcJrf8bv c=1 sm=1 tr=0 ts=69713a29 cx=c_pps
- a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
- a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=tAhwIOlm_SVqoVGHtKUA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: Ol9HgFKk7FHVl5mCE0V7C4XPjzoIwDnK
-X-Proofpoint-ORIG-GUID: Q5Kkz-6HkIs5f-A0W5gg_agwLKFeBTgl
-X-Proofpoint-Spam-Reason: orgsafe
+In-Reply-To: <20251113154616.3107676-1-andriy.shevchenko@linux.intel.com>
 
-Hi Andy,
-
-Finally was able to perform the last tests needed before sending out
-v13, but wanted to close the loop on your final questions from v12:
-
-On Wed, Nov 26, 2025 at 11:23:11PM +0200, Andy Shevchenko wrote:
-> On Wed, Nov 26, 2025 at 01:32:51PM -0600, Danny Kaehn wrote:
-> > On Wed, Nov 26, 2025 at 08:27:19PM +0200, Andy Shevchenko wrote:
-> > > On Wed, Nov 26, 2025 at 11:05:25AM -0600, Danny Kaehn wrote:
-> > > > For ACPI, the i2c_adapter will use the child with _ADR Zero and the
-> > > > gpio_chip will use the child with _ADR One. For DeviceTree, the
-> > > > i2c_adapter will use the child with name "i2c", but the gpio_chip
-> > > > will share a firmware node with the CP2112.
-> > > 
-> > > Hmm... Is there any explanation why DT decided to go that way?
-> > 
-> > I don't have an explanation, but Rob H. had directed that I make this
-> > change in [1].
-> > 
-> > In v11, I then removed that child node for both ACPI and DT, hoping to
-> > maintain unity, but you had directed that wouldn't be intuitive for ACPI
-> > in [2].
-> > 
-> > Thus, in this v12, I have just entirely split the two, as it seemed
-> > unlikely that any compromise to unify the schema between the two
-> > firmware languages would be possible for a change/driver this
-> > inconsquential to the overall kernel.
+On Thu, Nov 13, 2025 at 04:44:41PM +0100, Andy Shevchenko wrote:
+> Update gpio_decoder driver to use modern in-kernel APIs.
 > 
-> Even though, would be nice to try to get a rationale from Rob on this.
-> Then we can put it in the commit message to explain. Otherwise it will
-> confuse history diggers in the future.
->
+> Changelog v2:
 
-Will attempt to see if I can get them to weigh in.
+Applied the lot, thank you.
 
-> ...
-> 
-> > > > +		device_set_node(&dev->adap.dev,
-> > > > +			device_get_named_child_node(&hdev->dev, "i2c"));
-> > > 
-> > > Here we bump the reference count, where is it going to be dropped?
-> > > 
-> > > Note, in the other branch (ACPI) the reference count is not bumped in
-> > > the current code.
-> > 
-> > Great point, forgot that I had dropped that handling in v9. The old
-> > behavior was that the CP2112 driver maintained a reference to each node
-> > during the lifetime of the device (and released during probe errors,
-> > etc..). I'm still a bit confused as to whether that is correct or not,
-> > or if the references should immediately be dropped once they're done
-> > being parsed during probe()... My understanding previously was that I
-> > should keep the reference count for the child fwnodes for the lifetime
-> > of the CP2112, since the pointers to those are stored in the child
-> > devices but would usually be managed by the parent bus-level code, does
-> > that seem correct?
-> 
-> While there is a (theoretical) possibility to have lifetime of fwnode shorter
-> than a device's, I don't think we have or ever will have such a practical
-> example. So, assumption is that, the fwnode that struct device holds has
-> the same or longer lifetime.
-> 
-> Note, I haven't investigated overlays (DT and ACPI) behaviour. IIRC you
-> experimented with ACPI SSDT on this device, perhaps you can try to see
-> what happens if there is a confirmed that the above is not only a theoretical
-> problem.
-> 
-> TL;DR: I would drop reference count just after we got a respective fwnode.
-> 
-
-Finally got a chance to test this, attempting to apply SSDT overlays at
-runtime via configfs to instantiate an I2C device on the CP2112's I2C
-bus. I didn't dig terribly deep, but both with and without the fwnode
-reference count bumped, the I2C device instantiation happened as
-expected when loading the overlay. I'm sure there's more nuanced cases
-and things to dig in here, but seems like leving those references
-dropped is the right thing, as you say.
-
-
-
-Thanks,
-
-Danny Kaehn
+-- 
+Dmitry

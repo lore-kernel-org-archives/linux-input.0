@@ -1,145 +1,405 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out203-205-221-149.mail.qq.com (out203-205-221-149.mail.qq.com [203.205.221.149])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB44378D95
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 08:55:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768985707; cv=pass; b=rHJn/Jw4BUZEukipguJ2p45P9vM30MJPWQbsdaqKp9qTtSS3yhJhO4N676qEZQ22OfIZ39l4eGaEbAm8eIn7S4WZvCkx+6Q93+QX/LnnkdbspDvuyERbWpUVYuzK/AEKqHFBBNGvVRNX5bs001II3ihkawSZOvswb/hNnwZbVLQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768985707; c=relaxed/simple;
-	bh=4l5/0S+WizAF2E0sNh0rDxUBI6+PqDQJbozPOpgfYUA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZSg++5ALILBwizgCxc9EUmkmfTPa1Zbl/wTjreCxqhepackK28qFcB33F5+0PK+mks/en1+Z1oEm/QEY4Bg4IU3kcxBRwOOJYfVChz6KvvZJMjd+JBdRazKy/yxSsgDEoHwN8buWXvFeP7QX5aqzX6VWijbSyQlxohmUCpyT0Hc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQbNPR7R; arc=pass smtp.client-ip=209.85.219.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FDD3A9626;
+	Wed, 21 Jan 2026 08:59:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.149
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768985973; cv=none; b=CcinTv/EDmefnRpA6w1RJ3oYxEh0m8/cB5DUh6H7U6fdh2ji2cxSN08GDKQKeOsU64zYl4SCvPVlBRSr4zetRXCZOkJvzNN2gEylwUUakNOCAlSq7BtlUtzGS88GGOlFAtqTTCtl6zwrbcoTva47gJETAuwsNa8cz+5uNGk6l4s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768985973; c=relaxed/simple;
+	bh=+9NGIpwerQUnng0enXi3A6KqnvdVKr5p9W5ZxFbRlUk=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=cgu5RD8mkhpWOqzeI63E/hf0EMUjFvMttiAwyryykyumnu7kR1HqlK3XSlqdm6eUbK1f5VvKlsrf+ZDv636LpRVH+SkhulUpDzJhrgWH3NZYCdJN9XWSbQ93652akwtD+RGk+KhBd/7VVOuhHtZ7lssHkuQu2IYA+O3FBpxD0k0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=FMZTW6cy; arc=none smtp.client-ip=203.205.221.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQbNPR7R"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-894724bc5cbso4541826d6.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 00:55:01 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1768985701; cv=none;
-        d=google.com; s=arc-20240605;
-        b=WBQvT7Py8Jq2P3yboiY89XjGfwdSb3DpudK+V1ea+U0bf0JNDiCJ2wYufIJjTkdqLt
-         HB8SCXruPY10uQ1UPNsftBen9qMTTFIrJqt5AcPxNNB81u62exE6+pWOo3q2g1h+2+Dd
-         ABGdBgE2rHwjf0GwhcZNCnjj7lrtlUmiQLTZyxDz/AXGWiTvEg5PjFNglSGm17drrffH
-         0vxlh09APnleEURV4vchsw5h7SjjuA0IVsvv1AbBCvSAne9EIczRLyL1k/TAREaW5t0f
-         FliT3qAcDgEWBFT2fW6+d+p+RCYmR87tzbRGBaRXEQMaAe1J5JLmSkQv1EJTQAXPyJSn
-         ZzYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NytW7INNZcRV36x1NW42Y3kPsrFHe3X6M+99O2e689M=;
-        fh=cSJ4vuZfMyZ1z6BUl50HpZcZet59Y4wl/3u35DChNKY=;
-        b=VWDseeGI0v5PjVnGcs7VOdasOBDjIIOtrzRygZ60lt054JLiGv9RSvdhPlpa+2an+Z
-         xq0rDw/fH0eOB/TNMOi1yJbgVl63OOopTC0o/Tu7WyL7ljh9BHcewi/GFgecf3tsOiU+
-         caKVBDMsKs3bwLNacG8geAkZViwS7241nG0rcrqxykdWV5NMbPflU9BSzx43fzO+6DhQ
-         dNQ1YKZfx5fh5nqDcpmKokqmk+KDXKilnc8dBAahJl9PExutdIJ8lghuRguWD2bOocIv
-         Xhey1rlo0tfUJPeM/LVwhwI5tBIgEru3DWqN5n4L/28liUTMNuISY3bZZcAtIEcQNSer
-         vMYw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768985701; x=1769590501; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NytW7INNZcRV36x1NW42Y3kPsrFHe3X6M+99O2e689M=;
-        b=LQbNPR7RNOtee87H/GHGfi6poJXDmuIlix/2wd+C9LO0ak1ur/jqQumKgYxGuSXiZK
-         wQFhc6+/pR4jMSo1DU61TzmiTO7iCQfswAJugKK2B6pHHyYLAD7MoZCWYAs32WM1TkaH
-         h2IhyfJBKClstniH8ATbPdJ523qhZwoYcy1KNtEyms1PVtbwUmXVp5AO23GJWVHHT+G3
-         K5nYomGUq3gv25YzhZCN5KuEL0P96esY9nRyLlvM7ox6ED0avI/v7gAXxk0aUZQBw1Iv
-         p8G0F686SF9wkVjwQsVTDKYa0GMs29IBYj9GlQAP2Oatx2NNuNxiGrobqe2Qy6xWWCRy
-         beJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768985701; x=1769590501;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NytW7INNZcRV36x1NW42Y3kPsrFHe3X6M+99O2e689M=;
-        b=nsT+QzRkK8k55eCe9mgC6cy6rFqZbpaNRl9UEsiD6TglyzS6AKCVZjnLd/ZDq/NoX+
-         nDwBNdV2UargMIDgjd72qaBmskeST0fzTu9RsbJ6/pYq4dkE9aq3EFesG+dwU6hKwBeL
-         gYIkedVg1wwoqBhNUW6cvjvRrYMVp0bo47ORTx22rAwPw1gUzSSo9A5tXqkiLsJnedda
-         8fWzsiUiHKjaY08SEaIzP8Jp+dEovJWEYszXNm4IC01da4YrF76jzdMJKs07fjLtEyW+
-         SzorBOM2uFnm9NkcTp4OfiBJRB6+DpTldOcKIM07nElja+99BTE9lO8PUCzWKjwl8yXf
-         U84A==
-X-Forwarded-Encrypted: i=1; AJvYcCXDdCmD+08/dP9JyaWmmojbga5uz6QDZBf55o+IE1tCYmnFqNgRmVlIfLqMDn68lJeTg1Cb/tBUcsTe2g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyrWja+D7XBBwuc6SqB7XDNB80m+cv7pnGCn0pdPDy54fg2h7ZG
-	5+W3HeWbe/WhBIqTauLUFf0oDy8QpkeTpr7AzXhwlkPeslkCujaReW7vipWgZAQdmihXp6TPL00
-	emdYu4Qdj7UWLf0edDQ05TPzh4IfLag==
-X-Gm-Gg: AZuq6aI3OVXg2vWRb0MqPiORZgCqhxzs8fckBf58sehFFF4kzAEXKcS/CO8o6U9q/hd
-	AFG0Qc2slI3GUTkM0RhSaBk866Dg/L3E/8WuZna/wepGL4THWGPGuqiCTtkkeMbYUSyl2130eiJ
-	4CydlrGSbXc0rmOp7z48USZuWqhRTJFVwWzjXy8FusBB0b5BiB69ZReVjvv72LPCNLMXE2SPUkh
-	sZNrm/6hwd+hgw/Ivp5ok3uTdJAJzIiaf4etjdyJ2lTEZRNGf6I5v2lGSRFz3NAgpObRg==
-X-Received: by 2002:ac8:5e49:0:b0:4ed:bc0a:88c3 with SMTP id
- d75a77b69052e-502a163c0demr247645331cf.33.1768985700982; Wed, 21 Jan 2026
- 00:55:00 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="FMZTW6cy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1768985961; bh=tF+mqiAd/5R+ZNnVRInT+balrl3kOBDbayMXkXFRZIo=;
+	h=From:To:Cc:Subject:Date;
+	b=FMZTW6cyFgQ2rqLe/4aztWHGady96MiYXSJRtlAac3BKyhk8jo4R4v+X2eVBTu4ad
+	 67I5uen5s7JS+Xrey95+h+skeG1zocWbQ8rOOAfzxONyzWw4xXSjCmgyqWI+lvmQnx
+	 VC5YGvNGXCuC16BEQCZMpvWMxNbSfUOzdeoEtQQ4=
+Received: from bright.ght.com ([58.34.102.26])
+	by newxmesmtplogicsvrszb43-0.qq.com (NewEsmtp) with SMTP
+	id ED30DA1D; Wed, 21 Jan 2026 16:59:19 +0800
+X-QQ-mid: xmsmtpt1768985959t5vx0s7sy
+Message-ID: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
+X-QQ-XMAILINFO: OPIY/Y5G02yj9xkAXWq6dOdNMKsQ5XIHPLsejmCenKudfQlS3Qsn+K5OzhonvN
+	 HyoK5vwesGAr6/EcA8KgGSZpBNGXj44b7GPWMDZDHhogGzOmCQN5tNdEovXJv95hJEzw/nOOr214
+	 ad5rTth2Cgk28LPgsQr1PhUiuPOCJya5TjO5vYDkLoP5n4EIx8JBa383y0aMChlWMa4opV6FWAPo
+	 5LC/GbZxPyFG7lvxa1rSzh8xGHiNLwf1n5PCcw28GewbgtRtU+zcJzein69yqa6hbqu7JErsfEvL
+	 zu2PhFhYKMxxqiTXLMB5AxdWvKB615nkko0cI0d02TfGmZwKIjeGqRZ0kFjxxEGQ5u3JCKaB908I
+	 97HFElg7GVWChzRroqI5t4Pv7+OE4MIsmOpuFzsTopojhZX4bzsdyNKxo03jD0qiEANNtxCVhv8B
+	 616AD5p8a4AUOcdK3TGvetL/QghukEcsfkX1s2PdZHQ/486Zt/vMb1BitiHZTADCXnFakekeiNWQ
+	 d/htgL4ZO+HNLmGaadw8rZR7T5nO+oeW+Rj5MQSlemigc2tUmD6Y30x2XJ3BNgJ8ijWv+Sq1ykSa
+	 Wya7D3VNyrxRR7wChp8uDtspweXGucWcynAm9qKUohnjCf76G35ivACLHeV3T//8ugf7NwIefw+t
+	 Zan80waWukNXRyiyHlXGKw4yC4xlOXdflAlrYg6KbANTu0PR4exCFRKBFRa1ffxZ4Dmi1HKxnc37
+	 QnFohapAZ4Z2VE1GttLGqSX/3/DR+C2vJdTm8Htp5HwVOz38LG1KUrlrjxgATzMDUNm0luDTdOis
+	 bs2LATHCdKlZzmvzyaYupMnBK474oMcKD20aiqZsSpuo3YSEefI1cbzG4q8sa/NUkOt+B3LUBnJE
+	 dQFuX+ZsPXGrTnEhAv6TLADjW8SlYAgXNcueQvEwpACUGa8pbedAvqa2HutOuEp3bJ8jielnTDVS
+	 FURt8lu3bPN8Z/YrMIwdN7izspSbPYJT4pRvl7HM1Bi0tMFrElHw==
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
+From: 756271518@qq.com
+To: dmitry.torokhov@gmail.com
+Cc: linusw@kernel.org,
+	brgl@kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	xuchen <756271518@qq.com>
+Subject: [PATCH] Add common hall sensor drivers
+Date: Wed, 21 Jan 2026 03:59:14 -0500
+X-OQ-MSGID: <20260121085914.226873-1-756271518@qq.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CALEuBan7Knm3G3eXPd8BZ37jVQFtRs7fAssts+picVKHBjGBqQ@mail.gmail.com>
- <4mtpditwnavptpvstqphwa2auhb6wcd63gi76w2dekw7ryn2bp@au7dyelbvzmi>
-In-Reply-To: <4mtpditwnavptpvstqphwa2auhb6wcd63gi76w2dekw7ryn2bp@au7dyelbvzmi>
-From: =?UTF-8?B?6b2Q5p+v5a6H?= <qikeyu2017@gmail.com>
-Date: Wed, 21 Jan 2026 16:54:50 +0800
-X-Gm-Features: AZwV_Qh5M_iJjgG-1pzyCq7DHl93ajPH2A8vYQ5DVKkfWOm1s3iCnkMg2MTVLqE
-Message-ID: <CALEuBakeMdTor9gbshrJmyJ4uuw5W9QC=XBCF26+UAe3FUdENg@mail.gmail.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - fix NULL pointer dereference in mxt_object_show
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: nick@shmanahar.org, rydberg@euromail.se, jy0922.shim@samsung.com, 
-	bleung@chromium.org, ezequiel@vanguardiasur.com.ar, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+From: xuchen <756271518@qq.com>
 
-Thank you for the review.
+This patch adds support for common hall sensor ICs used in Qualcomm
+reference designs. The driver handles both rising and falling edges
+to detect magnetic field changes.
 
-You're absolutely right. The NULL check only narrows the race window but
-does not eliminate the race condition - the pointers can still be
-invalidated between the check and the actual dereference.
+Signed-off-by: xuchen <756271518@qq.com>
+---
+ drivers/input/keyboard/pogo_switch.c | 323 +++++++++++++++++++++++++++
+ 1 file changed, 323 insertions(+)
+ create mode 100644 drivers/input/keyboard/pogo_switch.c
 
-I will rework the patch with proper synchronization to fully address this
-issue.
+diff --git a/drivers/input/keyboard/pogo_switch.c b/drivers/input/keyboard/pogo_switch.c
+new file mode 100644
+index 000000000000..ea91037caeb3
+--- /dev/null
++++ b/drivers/input/keyboard/pogo_switch.c
+@@ -0,0 +1,323 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Pogo switch/hall sensor driver
++ *
++ * Copyright (c) 2024 faiot.com
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/sched.h>
++#include <linux/pm.h>
++#include <linux/slab.h>
++#include <linux/sysctl.h>
++#include <linux/proc_fs.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/gpio_keys.h>
++#include <linux/workqueue.h>
++#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
++#include <linux/of.h>
++#include <linux/of_irq.h>
++#include <linux/spinlock.h>
++#include <dt-bindings/input/gpio-keys.h>
++#include <linux/err.h>
++#include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/of_gpio.h>
++
++#define LID_DEV_NAME	"hall_sensor"
++#define HALL_INPUT	"/dev/input/hall_dev"
++#define KEY_HALL	84
++
++struct hall_data {
++	int gpio;			/* device use gpio number */
++	int irq;			/* device request irq number */
++	int active_low;			/* gpio active high or low for valid value */
++	bool wakeup;			/* device can wakeup system or not */
++	struct input_dev *hall_dev;
++	struct device *dev;
++	int detect_irq;
++	struct workqueue_struct *hall_wq;
++	struct delayed_work hall_debounce_work_det;
++};
++
++static struct hall_data *p_hall_data;
++static struct class extbd_ctrl_class;
++static int g_extbd_status;
++
++static void hall_driver_remove(struct platform_device *dev);
++
++static int hall_parse_dt(struct device *dev, struct hall_data *data)
++{
++	struct device_node *np = dev->of_node;
++
++	data->gpio = of_get_named_gpio(np, "faiot,hall-int", 0);
++	if (!gpio_is_valid(data->gpio)) {
++		dev_err(dev, "hall gpio is not valid\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static irqreturn_t hall_interrupt_handler(int irq, void *dev)
++{
++	if (p_hall_data == NULL || p_hall_data->hall_wq == NULL) {
++		pr_err("zy : irq resource not rdy\n");
++		return IRQ_HANDLED;
++	}
++
++	queue_delayed_work(p_hall_data->hall_wq,
++			   &p_hall_data->hall_debounce_work_det,
++			   msecs_to_jiffies(50));
++	return IRQ_HANDLED;
++}
++
++static void hall_det_debounce_work_func(struct work_struct *work)
++{
++	int value;
++
++	value = (gpio_get_value_cansleep(p_hall_data->gpio) ? 1 : 0) ^
++		p_hall_data->active_low;
++	if (value) {
++		input_report_key(p_hall_data->hall_dev, KEY_HALL, 0);
++		input_sync(p_hall_data->hall_dev);
++		dev_info(&p_hall_data->hall_dev->dev,
++			 "hall_interrupt_handler near\n");
++	} else {
++		input_report_key(p_hall_data->hall_dev, KEY_HALL, 1);
++		input_sync(p_hall_data->hall_dev);
++		dev_info(&p_hall_data->hall_dev->dev,
++			 "hall_interrupt_handler far\n");
++	}
++}
++
++static int hall_input_init(struct platform_device *pdev,
++			   struct hall_data *data)
++{
++	int err;
++
++	data->hall_dev = devm_input_allocate_device(&pdev->dev);
++	if (!data->hall_dev) {
++		dev_err(&pdev->dev, "input device allocation failed\n");
++		return -EINVAL;
++	}
++
++	data->hall_dev->name = LID_DEV_NAME;
++	data->hall_dev->phys = HALL_INPUT;
++	set_bit(EV_KEY, data->hall_dev->evbit);
++	set_bit(KEY_HALL, data->hall_dev->keybit);
++
++	err = input_register_device(data->hall_dev);
++	if (err < 0) {
++		dev_err(&pdev->dev, "unable to register input device %s\n",
++			LID_DEV_NAME);
++		return err;
++	}
++
++	return 0;
++}
++
++static ssize_t extbd_status_store(const struct class *c,
++				  const struct class_attribute *attr,
++				  const char *buf, size_t count)
++{
++	if (kstrtoint(buf, 0, &g_extbd_status))
++		return -EINVAL;
++
++	return count;
++}
++
++static ssize_t extbd_status_show(const struct class *c,
++				 const struct class_attribute *attr,
++				 char *buf)
++{
++	g_extbd_status = (gpio_get_value_cansleep(p_hall_data->gpio) ? 1 : 0) ^
++			 p_hall_data->active_low;
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n", g_extbd_status);
++}
++
++static CLASS_ATTR_RW(extbd_status);
++
++static struct attribute *extbd_ctrl_class_attrs[] = {
++	&class_attr_extbd_status.attr,
++	NULL,
++};
++
++ATTRIBUTE_GROUPS(extbd_ctrl_class);
++
++static int hall_driver_probe(struct platform_device *dev)
++{
++	struct hall_data *data;
++	int err;
++	int irq_flags;
++
++	dev_info(&dev->dev, "hall_driver probe\n");
++
++	data = devm_kzalloc(&dev->dev, sizeof(struct hall_data), GFP_KERNEL);
++	if (data == NULL) {
++		err = -ENOMEM;
++		dev_err(&dev->dev, "failed to allocate memory %d\n", err);
++		goto exit;
++	}
++
++	data->dev = &dev->dev;
++	dev_set_drvdata(&dev->dev, data);
++
++	err = hall_parse_dt(&dev->dev, data);
++	if (err < 0) {
++		dev_err(&dev->dev, "Failed to parse device tree\n");
++		goto exit;
++	}
++
++	err = hall_input_init(dev, data);
++	if (err < 0) {
++		dev_err(&dev->dev, "input init failed\n");
++		goto exit;
++	}
++
++	if (!gpio_is_valid(data->gpio)) {
++		dev_err(&dev->dev, "gpio is not valid\n");
++		err = -EINVAL;
++		goto free_gpio;
++	}
++
++	irq_flags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_ONESHOT;
++	err = gpio_request_one(data->gpio, GPIOF_IN, "hall_sensor_irq");
++	if (err) {
++		dev_err(&dev->dev, "unable to request gpio %d\n", data->gpio);
++		goto exit;
++	}
++
++	data->irq = gpio_to_irq(data->gpio);
++	err = devm_request_threaded_irq(&dev->dev, data->irq, NULL,
++					hall_interrupt_handler,
++					irq_flags, "hall_sensor", data);
++	if (err < 0)
++		goto free_irq;
++
++	data->hall_wq = create_singlethread_workqueue("hall_wq");
++	if (!data->hall_wq)
++		return -EINVAL;
++
++	INIT_DELAYED_WORK(&data->hall_debounce_work_det,
++			  hall_det_debounce_work_func);
++
++	/*
++	 * err = sysfs_create_group(&data->dev->kobj, &hall_attr_group);
++	 * if (err) {
++	 *     printk(KERN_ERR "%s sysfs_create_group fail\n", __func__);
++	 *     return err;
++	 * }
++	 */
++
++	extbd_ctrl_class.name = "extbd_ctrl";
++	extbd_ctrl_class.class_groups = extbd_ctrl_class_groups;
++	err = class_register(&extbd_ctrl_class);
++	if (err < 0)
++		dev_err(&dev->dev, "Failed to create extbd_ctrl_class rc=%d\n",
++			err);
++
++	p_hall_data = data;
++	device_init_wakeup(&dev->dev, data->wakeup);
++	enable_irq_wake(data->irq);
++
++	dev_info(&dev->dev, "guh hall probe end");
++
++	return 0;
++
++free_irq:
++	disable_irq_wake(data->irq);
++	device_init_wakeup(&dev->dev, 0);
++free_gpio:
++	gpio_free(data->gpio);
++exit:
++	return err;
++}
++
++static void hall_driver_remove(struct platform_device *dev)
++{
++	struct hall_data *data = dev_get_drvdata(&dev->dev);
++
++	disable_irq_wake(data->irq);
++	device_init_wakeup(&dev->dev, 0);
++	if (data->gpio)
++		gpio_free(data->gpio);
++}
++
++static int hall_driver_suspend(struct platform_device *dev,
++			       pm_message_t state)
++{
++	/*
++	 * struct hall_data *data = dev_get_drvdata(&dev->dev);
++	 * gpio_direction_output(data->extbd_power, 0);
++	 */
++
++	return 0;
++}
++
++static int hall_driver_resume(struct platform_device *dev)
++{
++	/*
++	 * struct hall_data *data = dev_get_drvdata(&dev->dev);
++	 * gpio_direction_output(data->extbd_power, 1);
++	 */
++
++	return 0;
++}
++
++static struct platform_device_id hall_id[] = {
++	{ LID_DEV_NAME, 0 },
++	{ },
++};
++
++#ifdef CONFIG_OF
++static const struct of_device_id hall_match_table[] = {
++	{ .compatible = "hall-switch", },
++	{ },
++};
++#endif
++
++static struct platform_driver hall_driver = {
++	.driver = {
++		.name = LID_DEV_NAME,
++		.owner = THIS_MODULE,
++		.of_match_table = of_match_ptr(hall_match_table),
++	},
++	.probe = hall_driver_probe,
++	.remove = hall_driver_remove,
++	.suspend = hall_driver_suspend,
++	.resume = hall_driver_resume,
++	.id_table = hall_id,
++};
++
++static int __init hall_init(void)
++{
++	return platform_driver_register(&hall_driver);
++}
++
++static void __exit hall_exit(void)
++{
++	platform_driver_unregister(&hall_driver);
++}
++
++module_init(hall_init);
++module_exit(hall_exit);
++
++MODULE_DESCRIPTION("Hall sensor driver");
++MODULE_LICENSE("GPL");
 
-regards,
-
-Kery
-
-Dmitry Torokhov <dmitry.torokhov@gmail.com> =E4=BA=8E2026=E5=B9=B41=E6=9C=
-=8821=E6=97=A5=E5=91=A8=E4=B8=89 02:22=E5=86=99=E9=81=93=EF=BC=9A
-
->
-> Hi,
->
-> On Thu, Jan 15, 2026 at 03:43:37AM +0800, =E9=BD=90=E6=9F=AF=E5=AE=87 wro=
-te:
-> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > index dd0544cc1bc1..401fcae2264d 100644
-> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > @@ -2859,6 +2859,10 @@ static ssize_t mxt_object_show(struct device *de=
-v,
-> >   int error;
-> >   u8 *obuf;
-> >
-> > + /* Check for NULL to prevent race condition during firmware update */
-> > + if (!data->info || !data->object_table)
-> > +   return -ENODEV;
-> > +
->
-> What stops the pointers from being invalidated right here?
->
-> >   /* Pre-allocate buffer large enough to hold max sized object. */
-> >   obuf =3D kmalloc(256, GFP_KERNEL);
-> >   if (!obuf)
->
-> Thanks.
->
-> --
-> Dmitry

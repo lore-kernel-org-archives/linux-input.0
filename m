@@ -1,74 +1,71 @@
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8D0A41B378
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 05:34:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8583C427A03
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 05:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768973664; cv=none; b=ZPxIztdNFpkyMTpLl8QLLa/igmXYKBpUtCSocyN3KikcmhwjA6xZz+1Jhy0vd5/v4xNv7tmlNLmjD77RUZqe7iki6JdTQKN1ztICXzs5mkkBFRhTy1y5tncSFD+2B6MstjFL2Muf/rN1tFQVMRRSTSzxuqh6oZwRz4CY4JtmKJ4=
+	t=1768973994; cv=none; b=RG/9pN0zlNOepE+T15fenr9Qj5IE++t2mXtBM8WeNBRebt/58HtuXeu2DAi4u0HiU3EmoJxc/FaUA8cXTxaY9PRzrYfK9jxiwtNSWwRQGyz0a7SclF7LBNYOGaAU2ff/o71Z8F1D38h3MHyQs/EeVIVByTl9nU2q0f20LI+nF0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768973664; c=relaxed/simple;
-	bh=kGMn/SzteXybWLySz6wGLPTY2zt9TaoQFMuFNdgvwSY=;
+	s=arc-20240116; t=1768973994; c=relaxed/simple;
+	bh=0tBodSYCgkMr7ybzGmQDo7w4mEHIQJuBjmw5ze2hCsI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U8zX5cbadEleGttmkGEkEbqwVL7AwbuV9xVuf1+ZwREZ8v9puUnREiJDhY2FBH/J8sEnutFZ0pER/cH1s30ER+CCix42kMlhIdU2/6LNDPVHGgIuZdW4uo44GMAHvHJPyQdeWhnhIa9h/g7JfkugrzVgPBEYnDmQX1ScMAua7bM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h0RxuFE9; arc=none smtp.client-ip=74.125.82.53
+	 Content-Type:Content-Disposition:In-Reply-To; b=mhh/ONQktjSXg9QN8bh+SkDhsI6GVpdu1e4ra3uzAIyNgRgxNTQqLAM6QPrz31XWQRXbwaNGHYe0pF6arlbMMwHdOJ+L5mgtQItaYknIvskClQ+1S0pzVKiWinmifclcenDAkj2/EypL8yGx35g6yGsWEjSAo33hwFFgkfNq/ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PKBts/vd; arc=none smtp.client-ip=74.125.82.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h0RxuFE9"
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-12336f33098so5124661c88.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 21:34:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PKBts/vd"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1220154725fso583551c88.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 21:39:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768973661; x=1769578461; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768973985; x=1769578785; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=D0QFwipTPR5DqdzbEaQ8Ys+o+tWAmaO3Qrn/zG23vmY=;
-        b=h0RxuFE9pL96f6DRdLh5CwKYK1TxDP3fgG+lAm5Pt6LvMG80kl9Ui+g8HWpYgSkKWj
-         2qDHXWAYSiKJA9yZFimGMTbdceNHa1XYoq2yGre7R/a3iGJ0jtLdQf7ckMZ7iFL7dWGq
-         vVlrXzqeTFcFNl2lrqJhKXqZnblTq1+ESjUm8wmnGxbtVZqIu7+s84gjrPSJTEH78VwM
-         rBEkZQmqzzv0exjvZDrw7VjOzvYbukZJk9SYb+IDtQOKglRwllT+1aBtMzMs7ntCxhut
-         96sB+3kzjlo2WXPHc7L9rt/9US6D47qeyLDKhqiuydPnoqamGgpRTDo9jEKU1GMLb5LV
-         Lv7Q==
+        bh=N+7T8GNwM4dfichYyvJ3rVwGsSTHVKdbp0kCAGG1sRA=;
+        b=PKBts/vdkhLJq/uWzImPSyswrcUBqxYrdiVz8guVg+4IS56/LxtcG+GW0x9tkG4Na5
+         sBBDtSNGNH2fKM3Li0kybVDnsRYG+w52awXti2Qdf3uu5MEKul2COwpNaHS4AbmxWZ9D
+         0H1ZPzW78INhgJ+FtQ1YtBWXysZm2VySTJBf4DsEmVuVdTgCvZf6AMn0xqCT02iVFksc
+         +brZ6y8vlNP1cZXbRca42heEMyVqRKAGgDIq2FQ6vFxOVuenSg4DHX9sgqoqzRXjwDCA
+         oqo80rUlMp9D5pz+TC61AtJg+tAjJUYK8qB0s7/zdkqKFdFiRhNmPsb1dB5SKvfwqBbX
+         FIxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768973661; x=1769578461;
+        d=1e100.net; s=20230601; t=1768973985; x=1769578785;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=D0QFwipTPR5DqdzbEaQ8Ys+o+tWAmaO3Qrn/zG23vmY=;
-        b=BqJvnoj4mQCgZBaitWEM5b0LGnBhOBf3GVpjBnCzB8XXcrSh40yK8Wxgd8WZXbXmMw
-         u0RzA/OjL8aHIL9BIfXxp5tj0tX1YHRqourX6+VphT0tgG6H4d/DbUZFTk+A6OhOPz3s
-         nCCA9VI+02svE0Y+LAUN7Do+b665w3HMlb4/QogFyHYs9TWoEyhPzlMrulKRRJBfmsHp
-         X5pgLPQu15YuXNW2/yFcnUaFvACH3YbbWYCx0nV+xFIi/9Z7eXrjdcvhCCypWmXcrDL9
-         y+L6Kii26QSekB6mhC9BUtItabtJ33omKg+22Nyz4KZI0Pr9mR1GzfEfNqeoge9pA/8o
-         Kqow==
-X-Forwarded-Encrypted: i=1; AJvYcCXa+fjoNdNPk16r3ATy571MkLSGVbHsAs+s7QurpZyBkWwEq2i5EtMy2t27KlrYmClrRQ0wDVQ4X9XLHw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3U2ORqjLyTfuodf/AmoworaBU/HzqjQKvZZlTfND6/UrRHNkp
-	Yimj6BMBPHJzXcJ/CXZ19Xr6XbpM5dM/BlivnIUr8RqYDrx4Ni0oAypl
-X-Gm-Gg: AZuq6aJEA3yN9L2zwUn2tBGItJy9WZ/NqyE9742d9CUrgVZANkTQ2LBK9YDtxmyYRgf
-	RSfCWWhZwrUyN8f8WjaAeMIDickcrg3mTWQew2MKkqHMyoUAqr7PzqZv0Lj3IvonSOcLfpREDxK
-	End0d/Xd4jBZ7f9aAry790b2CrHhcyFjawrMwUUcLYyAXbgftUtxEfLgtIdEoj+C5ZpHwrJUJCW
-	v3QFlVxxRXVpaW23u1VbTyZaFwOewZgQoID453SyQ9bM4heTiOJANBmy7b53dpyilI7sEv0Jw9M
-	y55egGAeH7qK34kwmyUPaxrOUNpESAHDR1SRwJWl1iJTFbRj6QtQYjJNNGBSQBcxlOfRWUSrbgO
-	9nx+pkL6MwlsPFS77dZ+N5l5BTdJqDTOZDFpijGeUSocbDtf/gbdj5P+abOSXnWLyJyqlR8VLZW
-	hYFU8BG4HWR+vuMtabCbqPoNtCMeuAebXbOXkJZNx9RAC7JNq8JJYB
-X-Received: by 2002:a05:7022:f304:b0:11b:9386:8254 with SMTP id a92af1059eb24-1244b36f538mr12507910c88.41.1768973661409;
-        Tue, 20 Jan 2026 21:34:21 -0800 (PST)
+        bh=N+7T8GNwM4dfichYyvJ3rVwGsSTHVKdbp0kCAGG1sRA=;
+        b=Vaf/rn2zEndEPaVw4xMEkGOXsFkBwmiSTF/CidYKejf//se71N3qdgmRvXTgCS8QZq
+         jJ/mDMHGZnAq8VgyeDoPRnM+N92hJIYExTsaf4+dZpkIWaFyukUGhN6OJ0WL8PnklOmw
+         2+r1nQ5UQsu2lWcwxqnrnfN2yhu+Y84YlHh7s2OO5V/xr/6BBXsWKRvwXIIxy3BpeqqV
+         2oPWrEfZ+CiiVXxKpfebIZD9Z889T3e+a7KJQO8dDPXjUU2fYLWm5OCIjQOI0uOE5mOQ
+         s60c/O3Jw5hL54b0NiRhtjVIKDUcBlqbuG5ujX8lGUiCi4BamWSTwEvFBedxZds/TIta
+         LBqA==
+X-Gm-Message-State: AOJu0YzS/vPKH20tzJ1MLqMdVRC9w+2rzdnBjKzMi6VotCKVJaA/KhX2
+	R2chpABj/WXB9TsWpOJc+lfFDxXsG3l2EXhwlUSRa0sdK1QNbylbRa+K
+X-Gm-Gg: AZuq6aJAsFW4m3WzJKVkJiuYUefgu/RddxwtytWmLJyoR0mqEArsD/QQRxClrvD/vEj
+	Rk5GaWiV/Qj8EOk48fzIlEjQSTHxVUybgylAOGpuY/YKQuTf0DZnhWUcDPRFxk/x4N/ksO6dAJ/
+	Cts918o8u6LbhGWET74L2Xng1fbyeAOZetn+AJ3i8s7zIRxMH5/4+k4Socdeyd+SMOM5sRpAdOH
+	2jaJ9ZshnOJVdO+D/8tyWl48yhhl0XbryQ5jO8sx8qoPBd9zLq2ETQ/Wu3mYankQQlZkE6rHAU4
+	3gNR8/xxBNElonVGjO2Ntz1hFziMJXSxk+SaAd0CAz2ZorlG66btP9h/6rQmVxWr/joIa+toKvX
+	g/YVewtNfTqdaQDSQSsAFblQkNkAOsqJxOWoJaWtpxUZkBGZSq4lQa5NnlabUaICFHHQ5DVWAdc
+	Cvx23H9vkyvussUCvl9KwEDZdSxhekjQB+5hYQNPuYq93M4PBl/7JVcjbB5EeSbzg=
+X-Received: by 2002:a05:7022:e21:b0:119:e569:f875 with SMTP id a92af1059eb24-1244ae9c26cmr13266445c88.18.1768973984664;
+        Tue, 20 Jan 2026 21:39:44 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b361df88sm19588566eec.18.2026.01.20.21.34.20
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244ad7201fsm23791135c88.7.2026.01.20.21.39.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 21:34:20 -0800 (PST)
-Date: Tue, 20 Jan 2026 21:34:18 -0800
+        Tue, 20 Jan 2026 21:39:44 -0800 (PST)
+Date: Tue, 20 Jan 2026 21:39:41 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>, Marek Vasut <marek.vasut@mailbox.org>
-Cc: Minseong Kim <ii4gsp@gmail.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] input: synaptics_i2c - cancel delayed work before
- freeing device
-Message-ID: <ztalz7evj3yijuzx7m6yyealexdbfpky3ksughcv2n2ieamvwg@zbudj3q7oga5>
-References: <20251210032027.11700-1-ii4gsp@gmail.com>
- <xeski4dr32zbxvupofis5azlq2s6fwtnuya7f3kjfz5t7c2wnq@jbvlajechlrd>
- <aTlmwhOF3zB1UkrI@kernel.org>
- <py7u3qpp6s4nfdceefufkjpbyhkj7wp2kyetlw54vlhdp4gmwn@6vghr6bqkbxc>
+To: daniel_peng@pegatron.corp-partner.google.com, 
+	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
+	Douglas Anderson <dianders@chromium.org>, Pin-yen Lin <treapking@chromium.org>
+Subject: Re: [PATCH v6 2/2] HID: i2c-hid: Add FocalTech FT8112
+Message-ID: <eb47h436johngo3bz5b5cn6tyvwqoplg55uhk2siftxk6n547n@4rgwokhtrcec>
+References: <20251117094041.300083-1-Daniel_Peng@pegatron.corp-partner.google.com>
+ <20251117094041.300083-2-Daniel_Peng@pegatron.corp-partner.google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,69 +74,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <py7u3qpp6s4nfdceefufkjpbyhkj7wp2kyetlw54vlhdp4gmwn@6vghr6bqkbxc>
+In-Reply-To: <20251117094041.300083-2-Daniel_Peng@pegatron.corp-partner.google.com>
 
-On Fri, Dec 12, 2025 at 08:38:23PM -0800, Dmitry Torokhov wrote:
-> On Wed, Dec 10, 2025 at 09:25:38PM +0900, Mike Rapoport wrote:
-> > Hi,
-> > 
-> > On Tue, Dec 09, 2025 at 08:40:54PM -0800, Dmitry Torokhov wrote:
-> > > Hi Minseong,
-> > > 
-> > > On Wed, Dec 10, 2025 at 12:20:27PM +0900, Minseong Kim wrote:
-> > > > synaptics_i2c_irq() schedules touch->dwork via mod_delayed_work().
-> > > > The delayed work performs I2C transactions and may still be running
-> > > > (or get queued) when the device is removed.
-> > > > 
-> > > > synaptics_i2c_remove() currently frees 'touch' without canceling
-> > > > touch->dwork. If removal happens while the work is pending/running,
-> > > > the work handler may dereference freed memory, leading to a potential
-> > > > use-after-free.
-> > > > 
-> > > > Cancel the delayed work synchronously before unregistering/freeing
-> > > > the device.
-> > > > 
-> > > > Fixes: eef3e4cab72e Input: add driver for Synaptics I2C touchpad
-> > > > Reported-by: Minseong Kim <ii4gsp@gmail.com>
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Minseong Kim <ii4gsp@gmail.com>
-> > > > ---
-> > > >  drivers/input/mouse/synaptics_i2c.c | 2 ++
-> > > >  1 file changed, 2 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-> > > > index a0d707e47d93..fe30bf9aea3a 100644
-> > > > --- a/drivers/input/mouse/synaptics_i2c.c
-> > > > +++ b/drivers/input/mouse/synaptics_i2c.c
-> > > > @@ -593,6 +593,8 @@ static void synaptics_i2c_remove(struct i2c_client *client)
-> > > >  	if (!polling_req)
-> > > >  		free_irq(client->irq, touch);
-> > > >  
-> > > > +	cancel_delayed_work_sync(&touch->dwork);
-> > > > +
-> > > 
-> > > The call to cancel_delayed_work_sync() happens in the close() handler
-> > > for the device. I see that in resume we restart the polling without
-> > > checking if the device is opened, so if we want to fix it we should add
-> > > the checks there.
-> > > 
-> > > However support for the PXA board using in the device with this touch
-> > > controller (eXeda) was removed a while ago. Mike, you're one of the
-> > > authors, any objections to simply removing the driver? 
-> >  
-> > No objections from my side.
+On Mon, Nov 17, 2025 at 05:40:41PM +0800, daniel_peng@pegatron.corp-partner.google.com wrote:
+> From: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
 > 
-> Hmm, it looks like it is still referenced from
-> arch/arm/boot/dts/nxp/mxs/imx23-sansa.dts
+> Information for touchscreen model HKO/RB116AS01-2 as below:
+> - HID :FTSC1000
+> - slave address:0X38
+> - Interface:HID over I2C
+> - Touch control lC:FT8112
+> - I2C ID: PNP0C50
 > 
-> Marek, is this device still relevant?
+> Signed-off-by: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
 
-I see these devices (SanDisk Sansa Fuze+) for sale on e-bay, so I guess
-there is a chance it will be used...
+Jiri, Benjamin, do you want to take it (and the binding) through the HID
+tree or should I take it through input?
 
-Minseong, could you please prepare a v2 that would check if the device
-is opened in resume before restarting polling? It should take input
-device's mutex and then use input_device_enabled().
+> ---
+> 
+> Changes in v6:
+> - No changed with the v5 due to relation chain.
+> 
+>  drivers/hid/i2c-hid/i2c-hid-of-elan.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-of-elan.c b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+> index 0215f217f6d8..b81fcc6ff49e 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+> @@ -168,6 +168,13 @@ static const struct elan_i2c_hid_chip_data elan_ekth6a12nay_chip_data = {
+>  	.power_after_backlight = true,
+>  };
+>  
+> +static const struct elan_i2c_hid_chip_data focaltech_ft8112_chip_data = {
+> +	.post_power_delay_ms = 10,
+> +	.post_gpio_reset_on_delay_ms = 150,
+> +	.hid_descriptor_address = 0x0001,
+> +	.main_supply_name = "vcc33",
+> +};
+> +
+>  static const struct elan_i2c_hid_chip_data ilitek_ili9882t_chip_data = {
+>  	.post_power_delay_ms = 1,
+>  	.post_gpio_reset_on_delay_ms = 200,
+> @@ -191,6 +198,7 @@ static const struct elan_i2c_hid_chip_data ilitek_ili2901_chip_data = {
+>  static const struct of_device_id elan_i2c_hid_of_match[] = {
+>  	{ .compatible = "elan,ekth6915", .data = &elan_ekth6915_chip_data },
+>  	{ .compatible = "elan,ekth6a12nay", .data = &elan_ekth6a12nay_chip_data },
+> +	{ .compatible = "focaltech,ft8112", .data = &focaltech_ft8112_chip_data },
+>  	{ .compatible = "ilitek,ili9882t", .data = &ilitek_ili9882t_chip_data },
+>  	{ .compatible = "ilitek,ili2901", .data = &ilitek_ili2901_chip_data },
+>  	{ }
 
 Thanks.
 

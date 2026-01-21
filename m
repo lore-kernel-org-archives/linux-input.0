@@ -1,131 +1,98 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CAFB478857
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 09:19:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768987198; cv=pass; b=P52T2B+4IM96YS7dXk2r/VFi0cYdLlZiWl5JH5jfZVnQF6C0qPNUgSum1xSuW3Dhyj3ER7+8sfC0SJhZhLHYa0GTvZNP0R4l6A9cIbTyv1vycFyBGnrfqRmggSOnN8NsF//zS9X/ON3y/aQF5Bel9Iqb2FNsEBnwkj5T2KrxdQs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768987198; c=relaxed/simple;
-	bh=79b775lMvczPPQ1sCHPV9x0iaa287H0D0dSytd73Qv8=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA954364E88
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 11:43:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768995794; cv=none; b=TGHWSzIWfEog+CAoplpVrCSBgBH5S0cm0WNy7Jm1OSEp+IBhXWR58pmTNPQD7yiWavH1mh7OdgaYxOxIQfIxdCBANJQDCN4LMsmfIuzz1eN+w6uvIAsho5KV7XCUtXX0s12MAgKASrZoy/6BFfFwxnVJkUPQtaqFN8DLDl2yNPA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768995794; c=relaxed/simple;
+	bh=5NSjks3xPrAV7mpe/a4S/VkxB046tijf468Dm5RFsr8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sUEO9BovBlLhKKxUpn+G+OInJrAfZW2B9cZKTdVySvISxhdy2qufEz6xLxYYoXMIDafS54BlBL3dCWcvYRepkzGy6QfYOV0Bk+ZN//CojevhW43EQmTGh7YyOer0Q949wBtda55a3PyhwT+gHZ41R8YjjnmTEpIffTggUYwUj1k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jO7q7wal; arc=pass smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=ltZJNFvk6/86aA9ADsTSFFA9BT3F09b6qEU0v4kEH5l/aJ9ry5JSMzal5k6dIcpXdRk/o3y89yz6glauGTgh3ZSbu/YErWZKYB6CIG1wAOf09i3TtrIrI6huxGUTws/3ovzoat46viLJVOVkoYPpg15SyOpgE3T1FNqmXmb2shM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HZRGJApg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jO7q7wal"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-59dd490be5fso176373e87.2
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 01:19:56 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1768987195; cv=none;
-        d=google.com; s=arc-20240605;
-        b=TBGrZMHH3U3I6nYf0J/D+fm4i+LFhaaEn+Dm/WQ9hqmXdSaP6JTf5L2fKwTFgeSiy4
-         lvW2ywaAyQDkCiMNVE5h32Xb7GoMEbJ/RhnMtGC4Tk/dTK99yNXi+vnWQYLBr0aVQRmy
-         he0IpXz2GewbrQkwkbtAsybqjV6549jhf7VxioiDFM2wCRXWXTzIu6C+xvVA/cuCQcVz
-         g6/Flu/bd9NrJDRkaHvvLIgiBW4fIz6bu6CbeFWhFImCGyyiF7B1sxn8TDHLDggL+DmT
-         Xf0iHMXbfWoeJ7NFeALHygLHP9I0JmvEuzrGWBtT6XHQkXN39bXDgWgGK1LA9GLpx9rA
-         Xfbw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=cKTgJE3f1vXR3wpOnVsDNv0ntd16ZnwfsXCdqjWFLU8=;
-        fh=ikRZoCL/inUL0va7a/F5FzDbDDA3rlDt1s1QyH2PtKY=;
-        b=Nerqs8Yef86eduIiRewGQUsTXx4UDrUlhiES7iF240pSIm6eKOxBYTUzmWyv7w41Rq
-         j5kEbJ6ruHv8Y3ybQF4AONoskrL5JJRPm+sOVBBkQE29gHmu5yt7/i7zwdhB2iieKSwX
-         mlfujfmybjX1GC/cScVHdO1kzhXL0NSqG07WJ+V4qXFKkdDlZj9VZil47OBjXpcj+Twl
-         O/mXOJKw6aLn1SOyC6gIRLjVNjt0gbGahzeva0aTJqlgySRpdjcwd/WOaMibJJK8RVMY
-         GYv/EVSkWASxQ6cydhcsIHluSe8xHM5bPUOyYJO7Vhp4HgYQ41rJIKfx0o2FXCLsYY53
-         rpDw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768987195; x=1769591995; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cKTgJE3f1vXR3wpOnVsDNv0ntd16ZnwfsXCdqjWFLU8=;
-        b=jO7q7walxoTYrTV55gj7+zFq7/mMJige3Fi0WbTJ3uSmRNVKHXH/73RX99yEC1SoIT
-         p0ZTk5wUop33HwM5CF+4aFCVnx5PTBh+OX7JmnDBk8JFzA5wZjndbqZULYIgG14SFKmM
-         X8+c8y/dWwSeBcA/yabTEMSIs1IfTZguop6k8EAoXkNRq+swbnxzqSCeOjNRDknjTvw5
-         B5Dad1l62CHw8iVU2V+osk/J2aIGzvxGz//VaeP5TTsZ4uVBAheXgswQYeJFz5OhDmMS
-         tlqGzLaWBZRnRbNez19uotw0j4YO8wVG1pbcYuWwj1ucOMY2ncqGwwTVoZns+mhXsK6h
-         YZFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768987195; x=1769591995;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cKTgJE3f1vXR3wpOnVsDNv0ntd16ZnwfsXCdqjWFLU8=;
-        b=F/sCtXl3sdCpmQmjq30HdqiSKypeIBot5TMCVwudnq3okVlQtQd+SKCy+cAJeRK0Jj
-         0ic7Fep7b7oQlha/oH9XODGWBWTZlsAdXg93u6UjMlSsLgiAluLkZfTGr+lXm42DF18Y
-         4huSjLVPmnK8njv83kjLCnlgBr/vwCXNc6886MmfoMgVHPzZc9VojUyNhwIEwgvs9qgd
-         AG1etxcG1a/XPDGHf06FjyElKprqwKl+zKWniX0XyK5oQo1Rwmy48vtROS9yb2Aam/Fj
-         HbDpCpTbIQqPJDITQX8egey3iKGBqssW9j0Hwt6cYglMAjYUoiL1bn/Jh43R7Pd8v6/d
-         xz9w==
-X-Forwarded-Encrypted: i=1; AJvYcCUAKvNiVRn8jtuYFjtgeuE20pknTp3iXdISTKzmUCZN109YG3jtrSiCi+onAICJI9T3rQfnSjcES/NpGA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyyTSiYRd37wFJrogbqn1OBOwyALIzUoBRW8eaPg+HwzET4EU08
-	otO33KKLFr5WBOGnSb6aKInqD3zzeOhmLAoEEkgwTAlyZCuSbjtPUAOJSpR1ck4RDfbT4DqqzHV
-	N54PfYViOSIjySkX3svA4kmVqzFjKasY=
-X-Gm-Gg: AZuq6aJjrC3rTBJNs0ZyChnWfkj1H/kHLZBMoCo6MKKvUIyIZjNA3Ik1x0sE9UQPuiy
-	lg4ZF7Oxy41ijzMi1nx90nehj97f/h+lLb3CY5Y8peSuIp5sU8p/2p4RWaddIigURfCajtpJZeV
-	oBKM6kPGfx2YgfyvaREvhOV43ur8B7ndnMf3xzZ05q+8D/+BgmyqNMyLfsbXqPeGTs14Pn0snxT
-	Ym3HulZKbb1XFIQBBST6mG1RPaagIEzhjuSVIBzn4gU41COCWdwtu8+tTuJ/zpYqlc8ev474NOl
-	4iY+yg==
-X-Received: by 2002:a05:6512:3ba7:b0:59c:bf2e:fa15 with SMTP id
- 2adb3069b0e04-59cbf2efb55mr3787256e87.5.1768987194335; Wed, 21 Jan 2026
- 01:19:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HZRGJApg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6366C19422
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 11:43:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768995793;
+	bh=5NSjks3xPrAV7mpe/a4S/VkxB046tijf468Dm5RFsr8=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=HZRGJApg2bT5bVia1pJ4gvPFbBK0bytbU9bEhGwmBhCnaaRvpPkeJY/5kQqhNtHGc
+	 SZmdTbtJWOy1llkg8bq7FwuKm1atmHwo/n2gxyWZ0M9OUsq2oRyUyOqb71ahUXeRKJ
+	 d6Rmfn0jr+B+lLL6jcPAkfkX5WgV4Rc5rHS/60pB/HXmyRxX+QgutwPLfhLiucdj9C
+	 /iOW0FkVXgLolWyyV96Lg1daoFy+x1t7/MSzEcmweD/QE74TXyWfk+rFpG+wh3IxjZ
+	 I1F5AweGkDZlcIz9kU3UC1m9Gv8/wpWtCu+g0pIcQ6M64bBNi7qsX0hvdM7vfo1U43
+	 bVu7fI+IXeV4w==
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-64471fcdef0so5300926d50.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 03:43:13 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWVVRoTv2lOtkfX2GdUKicFMG7mpwOj9QkIoVuaqw1a7TRKTF1BUvJYP94ArcTGigap9fPzbjEOVLyDHg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxuaJtX9cb7z4zoLxo4metZGrcty1SuGdkearuWzj+IgIIw2QfB
+	PSJjInHXlpfhpncKBxU9heJeclPe1aoAgqfLT7fbWuTt28ki+ukid6QTfpOtK2z5r3cdELlGiOd
+	cQPhb82UiVOiUxPHE84oKs4IALydgg5o=
+X-Received: by 2002:a05:690c:b1d:b0:794:3be:f956 with SMTP id
+ 00721157ae682-7940a477f18mr83056437b3.69.1768995793002; Wed, 21 Jan 2026
+ 03:43:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251226235101.106451-1-vishnuocv@gmail.com> <20251226235101.106451-4-vishnuocv@gmail.com>
- <aW7Gh6WsTjVo5IO_@archie.me>
-In-Reply-To: <aW7Gh6WsTjVo5IO_@archie.me>
-From: Vishnu Sankar <vishnuocv@gmail.com>
-Date: Wed, 21 Jan 2026 18:19:17 +0900
-X-Gm-Features: AZwV_QjqEORNJ_8f-MFBPABn9dnWmNGoiIrX3uwxX_lcnvbIxZvfTJIMH0UgnWc
-Message-ID: <CABxCQKuF_1w4iGwH4DVwWZSo1bfbUui8U_RenGBj8JYeCzOG9A@mail.gmail.com>
-Subject: Re: [PATCH v5 3/3] Documentation: thinkpad-acpi - Document
- doubletap_enable attribute
-To: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: dmitry.torokhov@gmail.com, hmh@hmh.eng.br, hansg@kernel.org, 
-	ilpo.jarvinen@linux.intel.com, corbet@lwn.net, derekjohn.clark@gmail.com, 
-	mpearson-lenovo@squebb.ca, linux-doc@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, 
-	vsankar@lenovo.com
+References: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
+In-Reply-To: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Wed, 21 Jan 2026 12:43:01 +0100
+X-Gmail-Original-Message-ID: <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
+X-Gm-Features: AZwV_QjxLG1kubGGyIiVaulQUqEfx7eZ9h-hx-ux8QhEnKs1HAMIalcUgqR8Xyw
+Message-ID: <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
+Subject: Re: [PATCH] Add common hall sensor drivers
+To: 756271518@qq.com
+Cc: dmitry.torokhov@gmail.com, brgl@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Bagas,
+Hi Xuchen,
 
-Thank you so much for the comments.
+thanks for your patch!
 
-On Tue, Jan 20, 2026 at 9:04=E2=80=AFAM Bagas Sanjaya <bagasdotme@gmail.com=
-> wrote:
+On Wed, Jan 21, 2026 at 9:59=E2=80=AFAM <756271518@qq.com> wrote:
+
+> From: xuchen <756271518@qq.com>
 >
-> On Sat, Dec 27, 2025 at 08:51:01AM +0900, Vishnu Sankar wrote:
-> > +Values:
-> > +     * 1 - doubletap events are processed (default)
-> > +     * 0 - doubletap events are filtered out (ignored)
+> This patch adds support for common hall sensor ICs used in Qualcomm
+> reference designs. The driver handles both rising and falling edges
+> to detect magnetic field changes.
 >
-> Please separate the bullet list from "Values:" paragraph.
-Acked.
-I will update this in my V6.
->
-> Thanks.
->
-> --
-> An old man doll... just what I always wanted! - Clara
+> Signed-off-by: xuchen <756271518@qq.com>
 
+Why are you going to such lengths to create this driver?
 
+What people do is usually just create a GPIO "key" input
+for the hall sensor, for example:
 
---=20
+        gpio_keys {
+                compatible =3D "gpio-keys";
+                #address-cells =3D <1>;
+                #size-cells =3D <0>;
+                vdd-supply =3D <&ab8500_ldo_aux1_reg>;
+                pinctrl-names =3D "default";
+                pinctrl-0 =3D <&hall_tvk_mode>;
 
-Regards,
+                button@145 {
+                        /* Hall sensor */
+                        gpios =3D <&gpio4 17 GPIO_ACTIVE_HIGH>;
+                        linux,code =3D <0>; /* SW_LID */
+                        label =3D "HED54XXU11 Hall Effect Sensor";
+                };
+        };
 
-      Vishnu Sankar
-     +817015150407 (Japan)
+This turns the GPIO line into a "lid switch" which is what you want,
+and already supports regulators and pin control out of the box if
+you need them too. (The VDD and pin control properties are optional.)
+
+Yours,
+Linus Walleij

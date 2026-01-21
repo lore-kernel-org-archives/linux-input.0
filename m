@@ -1,71 +1,71 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E9E436367
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 21:42:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ED77436370
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 21:42:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769031729; cv=none; b=oJSG6YIC5ipnfUC67aCYzZJ8lxPQ1DSiPdiBpif1Ze5OintRz2xm2AswO/dTMwBi5Rqq0uUToA4Jkn64YP6JFyu0DVyBllxdQfk4kDYEetZhB3fc388jOWNxTEWtnCdiIIPEs7DPv4sJ8Z+PaXO0bMMm3po4Gfu4fHbTpdHdYMQ=
+	t=1769031732; cv=none; b=MNp4ydNMMsHcGnKwx5fD5D3r9xfLl5gObrvNTscI1j5FiaDYKAsfXFJAP9wvRPWj0crw+hghvCeG72GRZ1kmHHCdW07oNOCCfCBqDyNx5VE0QJptRO9aI2gHE43wXFmwG1mhS8ILaWdC9CiBGIly84/LUqVCLE5zeZ8VQsH9HZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769031729; c=relaxed/simple;
-	bh=GZnPKOTa1HqnzuYZeMPLeyCydNQCmNfziboE4iAektc=;
+	s=arc-20240116; t=1769031732; c=relaxed/simple;
+	bh=te36EN2hRUW93/ENPny/FcNtk4yqn76AHGFIBrtKCpM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=itHYe0B8mQxnZuHu4ersHiY4qj6fgjl62fTTIB7fh4hzVZM11uF6vuq3pgmA4yGMpeva3TPlXn9iYkULV2FJRGvtcfrDc9djGuyjNPIVff8tydEaY7f/s2NwJFsJ+lyJjSHyYR6pzPB4gHNerQZCRIiHz0MeUmVwQDW6RxvYtxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VuSAm1U6; arc=none smtp.client-ip=209.85.128.51
+	 MIME-Version; b=PCE0tTUi0+9vtFvCB2nz/o3fzNOryI17w4mSwXSkETrTWbSR2PAmlm18w1uqWJYZAfedb8uUAwaxzFxSlog09WdYMdOcKv96hdSsI7cyzJrn5Vk85ghLGfUhgHBZxPqeFRRk36WnayocY+bqfgaO0sk/11lPJisvGp5Z1lYYioY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kk158TJh; arc=none smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VuSAm1U6"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-47d6a1f08bbso1467245e9.2
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:42:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kk158TJh"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-430f2ee2f00so165783f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 13:42:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769031725; x=1769636525; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769031728; x=1769636528; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sOzxOEsKJTSa9ITustjB7WD7pn8Z4/rVt4c+7xkqZK8=;
-        b=VuSAm1U64NJQdNfMnHDMY18uTDhX/c5JryF0ORORbCXHjQUs5qkw6EZW4SWUSXeDcA
-         +08SY90/Q4MtxqZPL9eZTKCuzlAUZ7aZXBUG+4GfM9Tl3fBJ6R4YAkuQ4W0DNf3v9fvN
-         lKX5QUkDdXUvPIV4EGy26xu6CoB7jXUD1NYy2bwNeCB6X/OIpsJUNeL7AO59SCHUY0Jk
-         GAdPkMgJWoLbWzJxzmEb1Kihc/Um8A3W2n/gUmGiBfT0jGgrx9uiUqTAZLjz8R1lKW5o
-         bz1Sk24k6OOmp9dY/k8CbfUrmgJRHhXNyG93E2EETRKHtO4QPFWc+9MVjLhzbjACc8YN
-         Bflg==
+        bh=Infj0dCslIntYgR3E8l36IUqDoy5IPerf5hDlX8iy1w=;
+        b=Kk158TJhLwgJPWni4IC2ci1YYbMCtza0mVsc00jKdLRMRlHqbq8QJUzgt1i9gLWoh2
+         nv5Ri1jNIzXVks7zjDB7u4PeAcdnBlWA1N/nEUFzwlmbE43QVNBNnIb8ofT4GKvLfs8e
+         WOX+apm91VnqxWBI07szES81PYjoRSonWM/es2uTnM1b+ZRrgUv9qvH0L4zCdvLNw7KZ
+         Q1bBgwkyEsbaGsSYJrFZWeTxEXrliaSTK9Gfu+2/7OQoxDtz7LpvX1Mm/W3wD4rx96EC
+         HPo6qnawR/mSCLFclbcPyjCNvWjuDFCATnJV027yLggM5kdEG9jvonT+r2tUIC3aV3t9
+         Jl/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769031725; x=1769636525;
+        d=1e100.net; s=20230601; t=1769031728; x=1769636528;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=sOzxOEsKJTSa9ITustjB7WD7pn8Z4/rVt4c+7xkqZK8=;
-        b=B07tQwIJMZ9yVLjSXm+l6g+vSu6IFh09uC2pb3j5iPwof0q/azDuBx3lWPviZPGUpM
-         w+zfgwdebaK+9vJQQlzvSNcO1UxGNQ54kPNnqHuZutMFcjjxl03P6uzRSkCMNionSMKJ
-         wEVz/sjdrvw8S4VIQ1+wWcvKjCuah+GeO06WW9U33P8G1WSCUT3jjl0A09VvaSXjBD+e
-         LSXBZCDaxeNJeIhidJI0wT6Jq9VWnGLcrlz3Qmuag2AEMoTq4pBg3HfsJQZH5c9NeRsT
-         QmPg4omiuCdIQ30sxBQVabQlAAqAeP+cBS6r1dp9hNjXFEaQrhqdnatvkKjQVvJMGCa7
-         k0wA==
-X-Gm-Message-State: AOJu0Yw2JNX8h+O2ksjLlFJ+vEdN0D4wOU2lVANaCDB8EtzT5AAbDGey
-	DVHGZvHNwJ7exjsInQNAKciYhDvH2lhN6Yo7gmWrKLZgCdn0FUwNQPRNobfOyj4Q
-X-Gm-Gg: AZuq6aJAorXYtFbY1STCrqWa/uFT1N2JQl0JIXjuu/xBoBd71ezipzVPqE6xG5KRrtJ
-	/SB6B6Yvh82m0xDeFwfi5f5Rl/sF8EpA4gnm8fXbD8eHnagniUgVuAAynNfMJZKCfDsk5FReNxq
-	mMT6mL7ZzuzXEajZPbAALoHwyS4FtitWcw/xQLd+qdW37ecqXBe2Dw8LI5DmmiLaV7g6//7w7sr
-	Bd55LvXngTYtiF6krxxP7P0coC+NCsQ7dhPcVzKtCrnFps6oBZQf25qxgEnh06ut4VJmF51uyAb
-	i3UId5BGGAZ9TjekEBY5tTH6shh1UUJY9tKIG3DZVWsJqsBOCgtvqImQMsoaISQxo9tf30D0Akm
-	iwKyh28yffRv7iC5CYpBpEPUVwtCvnqzMI2d2+5zTSxO4jAKAo4rDjOUV7Sy2lgVuQV8gLujn+C
-	gm2gusJTsCYlJPOg2fBw7ultl7
-X-Received: by 2002:a05:600c:811a:b0:480:1dc6:2686 with SMTP id 5b1f17b1804b1-4801eac0cfcmr225401275e9.13.1769031725266;
-        Wed, 21 Jan 2026 13:42:05 -0800 (PST)
+        bh=Infj0dCslIntYgR3E8l36IUqDoy5IPerf5hDlX8iy1w=;
+        b=IQAkEK7ECNViEX9alJSLFcnconWxsl6g1/yPXMPq5qbx42v8hG3lPXjRnEDQe55HKY
+         wnkpN3pCRCGnqQy+m+YqCOmE9muqWicuV3xfr+76pmjHiUIbLleYdgKTXd6//qSgpXZZ
+         8u3/9HMhAABu4aWcH6wHkQMwpBI7WdxKS/hn+Va0DiX+ufSn7tRU7DpaAH+qjVnDB3Ji
+         aBORRbgDhR1h2wfI+Hf6SAOuF3O0HipqfsXYp3ePVwJMyZ2304FpKSgmnx/1kpf6twdy
+         wqbVoQFNukSY0t0mTSPqv4YB2p4UPZWlCwbBTLNSFuKyN9YwFr9kAsbuDK8a+MnEmgHR
+         PwoQ==
+X-Gm-Message-State: AOJu0YzRiQTHbz7lNUPlQvRhvOrTo+4aFiQ6N2KT+Y8eAM/4E9PHI+gz
+	DZo87M2BUkkyQc3EW9tMRiAEpx3Oe37d74bXJTXA4XYlb6PSURL1pHW6kR6zk7Tw
+X-Gm-Gg: AZuq6aJV5RmSrviZ6sKtzq3uq3YTIrLpI7/cDEFPeY/98aBsKAYllRLu/+IYqhbDM3+
+	swVQ673gDOIvvGp1OkqcQ34im69OO7O21Lhwbu8wsKTyYcDRa8aak9nPGkDfDvnVY9Q4l7VzcIR
+	pWKnJVBId6YyB0ZP/pJRWsi+/moqnYaYJcGwOkFCw2F+LNhEDDqpU536ZlnfUpJnDNCXknXCGHT
+	xYWhFwxEUAI9eLiukh71l0YubVtGry3t5PM6Nd8ekBHtzSvfC20m3yXvy3j6fo/eM0sq28qpwH7
+	szfdmi4LJFoDpiicbE1fkBqBEm09s1xRxjIDWfe55oYggRlU9HmLFUPRkCgh0WifnPQjersqSJ5
+	PEQ5un9DjJaAa/ExOj7vp0fH8yNjFEsqe22XEopGwENcgHizQCg3tcj3o/mlYr7hkCdYmWGdGnt
+	iD+BcDIgO4WMrIzdMLT2yx5wg0
+X-Received: by 2002:a05:6000:25c7:b0:431:16d:63d1 with SMTP id ffacd0b85a97d-43590174d1fmr11438375f8f.44.1769031727741;
+        Wed, 21 Jan 2026 13:42:07 -0800 (PST)
 Received: from unknown.tail46804.ts.net ([78.209.83.30])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-43569926ffcsm38351929f8f.18.2026.01.21.13.42.04
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-43569926ffcsm38351929f8f.18.2026.01.21.13.42.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 13:42:04 -0800 (PST)
+        Wed, 21 Jan 2026 13:42:07 -0800 (PST)
 From: Gianluca Boiano <morf3089@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: devicetree@vger.kernel.org,
 	krzk@kernel.org,
 	dmitry.torokhov@gmail.com,
 	Gianluca Boiano <morf3089@gmail.com>
-Subject: [PATCH v2 1/2] dt-bindings: input: novatek,nvt-ts: Add nt36672a-e7t-ts compatible
-Date: Wed, 21 Jan 2026 22:41:39 +0100
-Message-ID: <20260121214141.36858-2-morf3089@gmail.com>
+Subject: [PATCH v2 2/2] input: touchscreen: novatek-nvt-ts: Add support for NT36672A e7t variant
+Date: Wed, 21 Jan 2026 22:41:40 +0100
+Message-ID: <20260121214141.36858-3-morf3089@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260121214141.36858-1-morf3089@gmail.com>
 References: <20260120193600.1089458-1-morf3089@gmail.com>
@@ -78,29 +78,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add compatible string for the Novatek NT36672A e7t touchscreen variant
-found on the Xiaomi Redmi Note 6 Pro (tulip).
+Add support for the Novatek NT36672A touchscreen variant found on the
+Xiaomi Redmi Note 6 Pro (tulip) which uses a different wake_type value
+(0x02 instead of 0x01).
 
-This variant uses different chip parameters compared to the standard
-NT36672A, specifically a different wake_type value.
+The touchscreen was failing to initialize with error -5 due to the
+wake_type parameter mismatch during probe. This adds a new chip data
+structure for the e7t variant with the correct wake_type value.
 
 Signed-off-by: Gianluca Boiano <morf3089@gmail.com>
 ---
- .../devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml    | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/touchscreen/novatek-nvt-ts.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml b/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
-index bd6a60486d1f..aaa9976bd65e 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
-@@ -17,6 +17,7 @@ properties:
-     enum:
-       - novatek,nt11205-ts
-       - novatek,nt36672a-ts
-+      - novatek,nt36672a-e7t-ts
+diff --git a/drivers/input/touchscreen/novatek-nvt-ts.c b/drivers/input/touchscreen/novatek-nvt-ts.c
+index 44b58e0dc1ad..b1c379d87de0 100644
+--- a/drivers/input/touchscreen/novatek-nvt-ts.c
++++ b/drivers/input/touchscreen/novatek-nvt-ts.c
+@@ -323,9 +323,15 @@ static const struct nvt_ts_i2c_chip_data nvt_nt36672a_ts_data = {
+ 	.chip_id = 0x08,
+ };
  
-   reg:
-     maxItems: 1
++static const struct nvt_ts_i2c_chip_data nvt_nt36672a_e7t_ts_data = {
++	.wake_type = 0x02,
++	.chip_id = 0x08,
++};
++
+ static const struct of_device_id nvt_ts_of_match[] = {
+ 	{ .compatible = "novatek,nt11205-ts", .data = &nvt_nt11205_ts_data },
+ 	{ .compatible = "novatek,nt36672a-ts", .data = &nvt_nt36672a_ts_data },
++	{ .compatible = "novatek,nt36672a-e7t-ts", .data = &nvt_nt36672a_e7t_ts_data },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
+@@ -333,6 +339,7 @@ MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
+ static const struct i2c_device_id nvt_ts_i2c_id[] = {
+ 	{ "nt11205-ts", (unsigned long) &nvt_nt11205_ts_data },
+ 	{ "nt36672a-ts", (unsigned long) &nvt_nt36672a_ts_data },
++	{ "nt36672a-e7t-ts", (unsigned long) &nvt_nt36672a_e7t_ts_data },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, nvt_ts_i2c_id);
 -- 
 2.52.0
 

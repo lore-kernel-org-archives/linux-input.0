@@ -1,98 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA954364E88
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 11:43:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F803C1979;
+	Wed, 21 Jan 2026 12:04:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768995794; cv=none; b=TGHWSzIWfEog+CAoplpVrCSBgBH5S0cm0WNy7Jm1OSEp+IBhXWR58pmTNPQD7yiWavH1mh7OdgaYxOxIQfIxdCBANJQDCN4LMsmfIuzz1eN+w6uvIAsho5KV7XCUtXX0s12MAgKASrZoy/6BFfFwxnVJkUPQtaqFN8DLDl2yNPA=
+	t=1768997063; cv=none; b=ONIltrPk13WVCehojVLFzEPF0wJ9zznqfCFL8l5dIgG9U+7e6rcm1TM1Mt2P0fMrtmyjtoH/qA9zXOH1rvJmE+JwMDlD2srufp9dr76FJurUVMkedzi8YBEaKqqCzKe3TUaEVPv5M3+zw0QbH6kWpEGJll9c2JrUU1ZhaA1fqY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768995794; c=relaxed/simple;
-	bh=5NSjks3xPrAV7mpe/a4S/VkxB046tijf468Dm5RFsr8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ltZJNFvk6/86aA9ADsTSFFA9BT3F09b6qEU0v4kEH5l/aJ9ry5JSMzal5k6dIcpXdRk/o3y89yz6glauGTgh3ZSbu/YErWZKYB6CIG1wAOf09i3TtrIrI6huxGUTws/3ovzoat46viLJVOVkoYPpg15SyOpgE3T1FNqmXmb2shM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HZRGJApg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768997063; c=relaxed/simple;
+	bh=fscg7F9qmoA8q32bv/OWU/zWgcW3dnDHzT+e2EX+A2c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XoAfF2aXksZnwwUFnmfrl6Unj01YUeAHLZNRTAmZ6I+q/eUZUYKtw+uuEY/En6OWDlvzBntRq+6xojxBwMar3MuIh5rxW3lJYT8cM6Zlja5iwE/vRDIilwZ+FxXyVkIPDTYiynso91Oyu1x3PM8aHaCvXJ1UCMO80iF9EPxahQA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LKFL/i84; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HZRGJApg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6366C19422
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 11:43:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LKFL/i84"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 755A8C19424;
+	Wed, 21 Jan 2026 12:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768995793;
-	bh=5NSjks3xPrAV7mpe/a4S/VkxB046tijf468Dm5RFsr8=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=HZRGJApg2bT5bVia1pJ4gvPFbBK0bytbU9bEhGwmBhCnaaRvpPkeJY/5kQqhNtHGc
-	 SZmdTbtJWOy1llkg8bq7FwuKm1atmHwo/n2gxyWZ0M9OUsq2oRyUyOqb71ahUXeRKJ
-	 d6Rmfn0jr+B+lLL6jcPAkfkX5WgV4Rc5rHS/60pB/HXmyRxX+QgutwPLfhLiucdj9C
-	 /iOW0FkVXgLolWyyV96Lg1daoFy+x1t7/MSzEcmweD/QE74TXyWfk+rFpG+wh3IxjZ
-	 I1F5AweGkDZlcIz9kU3UC1m9Gv8/wpWtCu+g0pIcQ6M64bBNi7qsX0hvdM7vfo1U43
-	 bVu7fI+IXeV4w==
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-64471fcdef0so5300926d50.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 03:43:13 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWVVRoTv2lOtkfX2GdUKicFMG7mpwOj9QkIoVuaqw1a7TRKTF1BUvJYP94ArcTGigap9fPzbjEOVLyDHg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxuaJtX9cb7z4zoLxo4metZGrcty1SuGdkearuWzj+IgIIw2QfB
-	PSJjInHXlpfhpncKBxU9heJeclPe1aoAgqfLT7fbWuTt28ki+ukid6QTfpOtK2z5r3cdELlGiOd
-	cQPhb82UiVOiUxPHE84oKs4IALydgg5o=
-X-Received: by 2002:a05:690c:b1d:b0:794:3be:f956 with SMTP id
- 00721157ae682-7940a477f18mr83056437b3.69.1768995793002; Wed, 21 Jan 2026
- 03:43:13 -0800 (PST)
+	s=k20201202; t=1768997061;
+	bh=fscg7F9qmoA8q32bv/OWU/zWgcW3dnDHzT+e2EX+A2c=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=LKFL/i84tVSHT4XxbCsZ9CboHnBFg+o8ZNGU7qKqx/8w4N0tCWpz4w3Bfr8t8jXAr
+	 CDUrC90DUhMcruET8cHT84nxZ1CbKmWBjR1W7eosHbkpmvRbp8/TUav8lWp/Tmttms
+	 O7RQGLHZhfTa5nW78K8MkzS3A8h4ZQf3uT0o5KvKxBr5RjSbe6yWVPgwx0/7sP3yrX
+	 k/o3uftONGXz5qf7ClEceeMxNLID6Q6Nxbusg3/AwePiICV4rDpG5Kvdywa9Z5q6ZF
+	 r55Wdf/nBR/qtY1zlHEJY9iBmIslFxS6o1hYJ687qCNOd01B3tckIhfBJnR/BYwpTV
+	 mqGA2+7ApDf7w==
+Message-ID: <b4113f8c-0fbd-4a96-9cf6-9675f837ac91@kernel.org>
+Date: Wed, 21 Jan 2026 13:04:17 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
-In-Reply-To: <tencent_3AC818B2FE367BA7DD8940E08827CB146806@qq.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 21 Jan 2026 12:43:01 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
-X-Gm-Features: AZwV_QjxLG1kubGGyIiVaulQUqEfx7eZ9h-hx-ux8QhEnKs1HAMIalcUgqR8Xyw
-Message-ID: <CAD++jLnSXPhqnTie9U03B7mn2x9ogUpABBLFwbt9dgtzdb3yNQ@mail.gmail.com>
-Subject: Re: [PATCH] Add common hall sensor drivers
-To: 756271518@qq.com
-Cc: dmitry.torokhov@gmail.com, brgl@kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] input: touchscreen: novatek-nvt-ts: Add support for
+ NT36672A e7t variant
+To: Gianluca Boiano <morf3089@gmail.com>
+Cc: dmitry.torokhov@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260120193600.1089458-1-morf3089@gmail.com>
+ <20260120193600.1089458-2-morf3089@gmail.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <20260120193600.1089458-2-morf3089@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Xuchen,
+Hi Gianluca,
 
-thanks for your patch!
+On 20-Jan-26 20:36, Gianluca Boiano wrote:
+> Add support for the Novatek NT36672A touchscreen variant found on the
+> Xiaomi Redmi Note 6 Pro (tulip) which uses a different wake_type value
+> (0x02 instead of 0x01).
+> 
+> The touchscreen was failing to initialize with error -5 due to the
+> wake_type parameter mismatch during probe. This adds a new chip data
+> structure for the e7t variant with the correct wake_type value.
+> 
+> Closes: https://github.com/sdm660-mainline/linux/issues/155
+> Signed-off-by: Gianluca Boiano <morf3089@gmail.com>
 
-On Wed, Jan 21, 2026 at 9:59=E2=80=AFAM <756271518@qq.com> wrote:
+Thank you for your patch.
 
-> From: xuchen <756271518@qq.com>
->
-> This patch adds support for common hall sensor ICs used in Qualcomm
-> reference designs. The driver handles both rising and falling edges
-> to detect magnetic field changes.
->
-> Signed-off-by: xuchen <756271518@qq.com>
+I don't think that adding a new compatible + a new nvt_ts_i2c_chip_data
+struct is the right approach here.
 
-Why are you going to such lengths to create this driver?
+I guess the wake-type byte simply encodes some IRQ config settings,
+which may indeed be different in different applications using
+the some touchscreen controller.
 
-What people do is usually just create a GPIO "key" input
-for the hall sensor, for example:
+Instead of adding a new compatible my suggestion to fix this would
+be to simply drop the wake_type check as well as drop the wake_type
+member from struct nvt_ts_i2c_chip_data.
 
-        gpio_keys {
-                compatible =3D "gpio-keys";
-                #address-cells =3D <1>;
-                #size-cells =3D <0>;
-                vdd-supply =3D <&ab8500_ldo_aux1_reg>;
-                pinctrl-names =3D "default";
-                pinctrl-0 =3D <&hall_tvk_mode>;
+This way you can fix the driver not working on the Xiaomi Redmi
+Note 6 Pro by removing code instead of adding code :)
 
-                button@145 {
-                        /* Hall sensor */
-                        gpios =3D <&gpio4 17 GPIO_ACTIVE_HIGH>;
-                        linux,code =3D <0>; /* SW_LID */
-                        label =3D "HED54XXU11 Hall Effect Sensor";
-                };
-        };
+And supporting other models also becomes easier.
 
-This turns the GPIO line into a "lid switch" which is what you want,
-and already supports regulators and pin control out of the box if
-you need them too. (The VDD and pin control properties are optional.)
+Regards,
 
-Yours,
-Linus Walleij
+Hans
+
+
+
+
+> ---
+>  drivers/input/touchscreen/novatek-nvt-ts.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/novatek-nvt-ts.c b/drivers/input/touchscreen/novatek-nvt-ts.c
+> index 44b58e0dc1ad..b1c379d87de0 100644
+> --- a/drivers/input/touchscreen/novatek-nvt-ts.c
+> +++ b/drivers/input/touchscreen/novatek-nvt-ts.c
+> @@ -323,9 +323,15 @@ static const struct nvt_ts_i2c_chip_data nvt_nt36672a_ts_data = {
+>  	.chip_id = 0x08,
+>  };
+>  
+> +static const struct nvt_ts_i2c_chip_data nvt_nt36672a_e7t_ts_data = {
+> +	.wake_type = 0x02,
+> +	.chip_id = 0x08,
+> +};
+> +
+>  static const struct of_device_id nvt_ts_of_match[] = {
+>  	{ .compatible = "novatek,nt11205-ts", .data = &nvt_nt11205_ts_data },
+>  	{ .compatible = "novatek,nt36672a-ts", .data = &nvt_nt36672a_ts_data },
+> +	{ .compatible = "novatek,nt36672a-e7t-ts", .data = &nvt_nt36672a_e7t_ts_data },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
+> @@ -333,6 +339,7 @@ MODULE_DEVICE_TABLE(of, nvt_ts_of_match);
+>  static const struct i2c_device_id nvt_ts_i2c_id[] = {
+>  	{ "nt11205-ts", (unsigned long) &nvt_nt11205_ts_data },
+>  	{ "nt36672a-ts", (unsigned long) &nvt_nt36672a_ts_data },
+> +	{ "nt36672a-e7t-ts", (unsigned long) &nvt_nt36672a_e7t_ts_data },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, nvt_ts_i2c_id);
+

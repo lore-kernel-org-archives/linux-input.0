@@ -1,74 +1,74 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEEE93A8FEC
-	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 05:23:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8D0A41B378
+	for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 05:34:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768973018; cv=none; b=cNd5SdBpSEOQ6GXNe+4ry+gXOiDRup17AdB63jLC5hNi42Ae2VrrhUirj+u4cigbL+GRNm/S+XNjY6d2DDOX+VepvfF4I6Xc4OkHobxUtWjHJhhzKk+n0njo5aSJ7kyE8iYE+msAwYSBxntgKB+0cOPPakwNuCjLoEQsALndKNw=
+	t=1768973664; cv=none; b=ZPxIztdNFpkyMTpLl8QLLa/igmXYKBpUtCSocyN3KikcmhwjA6xZz+1Jhy0vd5/v4xNv7tmlNLmjD77RUZqe7iki6JdTQKN1ztICXzs5mkkBFRhTy1y5tncSFD+2B6MstjFL2Muf/rN1tFQVMRRSTSzxuqh6oZwRz4CY4JtmKJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768973018; c=relaxed/simple;
-	bh=Dw9HsdmJOjzl+Kv7hLQdOCfLXTyunVYFcP72pCiv2D4=;
+	s=arc-20240116; t=1768973664; c=relaxed/simple;
+	bh=kGMn/SzteXybWLySz6wGLPTY2zt9TaoQFMuFNdgvwSY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sljPrJr3N2RQk/4KozcZJ9WhIOQQxCHdRATT9NL4Zp/LZovYM9naT2lNhZXZAOMYoYP7aANsOtILJ+a1guiBY7aEuUvJNEF+UnK5blScz+j7VUf/6VQCOi91ki9wHoAIJivwiQrBPZocTk5QqMLSkSkaIUNanUL1Iu9Y+AdtsNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PEPjFqFR; arc=none smtp.client-ip=74.125.82.180
+	 Content-Type:Content-Disposition:In-Reply-To; b=U8zX5cbadEleGttmkGEkEbqwVL7AwbuV9xVuf1+ZwREZ8v9puUnREiJDhY2FBH/J8sEnutFZ0pER/cH1s30ER+CCix42kMlhIdU2/6LNDPVHGgIuZdW4uo44GMAHvHJPyQdeWhnhIa9h/g7JfkugrzVgPBEYnDmQX1ScMAua7bM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h0RxuFE9; arc=none smtp.client-ip=74.125.82.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PEPjFqFR"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2b0ea1edf11so11722901eec.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 21:23:36 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h0RxuFE9"
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-12336f33098so5124661c88.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Jan 2026 21:34:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768973016; x=1769577816; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1768973661; x=1769578461; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7xHJElSAdSqvbGqx9RRBRVuePrz2/MCvNfCaMRCbPdA=;
-        b=PEPjFqFRghO1tmToodI9M6hMlNh3UmQVP4M4XujxRrWcReM1xzsFqk+fhRNQeOXwyG
-         qZeb6l4g44wSdY828zaMOqqV2sCt0iNAXw0xS9lK2eOFEpISnzxYRExmPPkefliqKifY
-         HJoBbGELDC3fYpH26mAgSgXPjBh2mZh1KGXnjr5zmkWNHVdzQtKxUhT6BiualpPxCwWZ
-         OLb6tjCFDC/JCWE6hEhzKfCU5hU5Ld9cOncB07LDxR1UYvVLFpdng8OeQ+mlhDXTcmuo
-         xGB8/oq+Uz4q3uqVoKRQf0QiuPFlsM7h2Whc57r2UnuWIrPI0bOGuhB8FPtM57tUbo2A
-         0F4w==
+        bh=D0QFwipTPR5DqdzbEaQ8Ys+o+tWAmaO3Qrn/zG23vmY=;
+        b=h0RxuFE9pL96f6DRdLh5CwKYK1TxDP3fgG+lAm5Pt6LvMG80kl9Ui+g8HWpYgSkKWj
+         2qDHXWAYSiKJA9yZFimGMTbdceNHa1XYoq2yGre7R/a3iGJ0jtLdQf7ckMZ7iFL7dWGq
+         vVlrXzqeTFcFNl2lrqJhKXqZnblTq1+ESjUm8wmnGxbtVZqIu7+s84gjrPSJTEH78VwM
+         rBEkZQmqzzv0exjvZDrw7VjOzvYbukZJk9SYb+IDtQOKglRwllT+1aBtMzMs7ntCxhut
+         96sB+3kzjlo2WXPHc7L9rt/9US6D47qeyLDKhqiuydPnoqamGgpRTDo9jEKU1GMLb5LV
+         Lv7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768973016; x=1769577816;
+        d=1e100.net; s=20230601; t=1768973661; x=1769578461;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7xHJElSAdSqvbGqx9RRBRVuePrz2/MCvNfCaMRCbPdA=;
-        b=T4sDkLrEKUX9ROaCAhBOwxhD1s4syXcADdDh6dz7WZnnKBi7QQ+DMYWmtRsTK9juZA
-         msABImZh17VoCE7K1YhwFwH32Iz/4z/RFnELG6+dYncW2MEiMCsbSRL2ls8QlV5pGGNp
-         fx3OuxldtTFMADiGFhWNF1APPKhg3HhLojLRkn7dk8i15noubtSn9Q+qAXkYX1oKeBdL
-         GskVD4j41lKSRh/WuUxF+PB87yl2ns7mQRBqeavuy6HFoY87xntPmG5pD1XrlR4M2+0k
-         PO59qWTgiYHTNUxFqvC/MqTPF/2fre9C1lMe4pxdme9HUG+ekuKxFGvy2t3QEzEtY6N1
-         AfJA==
-X-Gm-Message-State: AOJu0YykfzNb4JmSPXOKT2C9PpgZvBImtFiHE6WZR85WVeadYFXP0cDa
-	9xyhZbx8PRsC3R1Tc5k9+uCHLYNnLwnFG8XV5S/tAV2uJz1te7xEs7YE
-X-Gm-Gg: AZuq6aJWArPOIHuc5qOINppwku+yA0J2rJvnvaCxTWC105t87ijuTedKBONJ7NI+t8N
-	WBmqXNEQ0SyLQUYLe8dFoXckuIUn30FnosLnDH1WKVap90TTfrn30XAChyf34nRTT6dI72GnAHM
-	oxxrHp55jatCvo5p3hAdKXySpHT0KdgiiXdmzcn8CZcEQYHeneQ7iqgOJyWBMWQsHfui2piQrpk
-	2JG8AN8m/rDTl7AZP/0m/EOxgrS+zUHLSH4cQzbITTXFCSErfYpJkKo+lQpPEfQfjpnTQsHrxzf
-	korbLr7yNBrEVB6zI7VwzdRrJEB4A1vBpNxlp6MwzSCj0RrGFsDb8w3+YCpahBCL5KvG+VUzHsG
-	efSR9D6lnAeWQM+k8JpAkvuzIsMsq1RQvd4OHK2W14MQ+XIPy97cS9hdhGh9phSSMw38bsleCSJ
-	ANyikq1fv+qlcKoMCbH0vQgilu8yh0djAHUv7aXVysg5cGNgQS91rrdMvtlcMlvL4=
-X-Received: by 2002:a05:7022:4399:b0:123:3bc6:1ff7 with SMTP id a92af1059eb24-1244b3700a5mr10142956c88.27.1768973015688;
-        Tue, 20 Jan 2026 21:23:35 -0800 (PST)
+        bh=D0QFwipTPR5DqdzbEaQ8Ys+o+tWAmaO3Qrn/zG23vmY=;
+        b=BqJvnoj4mQCgZBaitWEM5b0LGnBhOBf3GVpjBnCzB8XXcrSh40yK8Wxgd8WZXbXmMw
+         u0RzA/OjL8aHIL9BIfXxp5tj0tX1YHRqourX6+VphT0tgG6H4d/DbUZFTk+A6OhOPz3s
+         nCCA9VI+02svE0Y+LAUN7Do+b665w3HMlb4/QogFyHYs9TWoEyhPzlMrulKRRJBfmsHp
+         X5pgLPQu15YuXNW2/yFcnUaFvACH3YbbWYCx0nV+xFIi/9Z7eXrjdcvhCCypWmXcrDL9
+         y+L6Kii26QSekB6mhC9BUtItabtJ33omKg+22Nyz4KZI0Pr9mR1GzfEfNqeoge9pA/8o
+         Kqow==
+X-Forwarded-Encrypted: i=1; AJvYcCXa+fjoNdNPk16r3ATy571MkLSGVbHsAs+s7QurpZyBkWwEq2i5EtMy2t27KlrYmClrRQ0wDVQ4X9XLHw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3U2ORqjLyTfuodf/AmoworaBU/HzqjQKvZZlTfND6/UrRHNkp
+	Yimj6BMBPHJzXcJ/CXZ19Xr6XbpM5dM/BlivnIUr8RqYDrx4Ni0oAypl
+X-Gm-Gg: AZuq6aJEA3yN9L2zwUn2tBGItJy9WZ/NqyE9742d9CUrgVZANkTQ2LBK9YDtxmyYRgf
+	RSfCWWhZwrUyN8f8WjaAeMIDickcrg3mTWQew2MKkqHMyoUAqr7PzqZv0Lj3IvonSOcLfpREDxK
+	End0d/Xd4jBZ7f9aAry790b2CrHhcyFjawrMwUUcLYyAXbgftUtxEfLgtIdEoj+C5ZpHwrJUJCW
+	v3QFlVxxRXVpaW23u1VbTyZaFwOewZgQoID453SyQ9bM4heTiOJANBmy7b53dpyilI7sEv0Jw9M
+	y55egGAeH7qK34kwmyUPaxrOUNpESAHDR1SRwJWl1iJTFbRj6QtQYjJNNGBSQBcxlOfRWUSrbgO
+	9nx+pkL6MwlsPFS77dZ+N5l5BTdJqDTOZDFpijGeUSocbDtf/gbdj5P+abOSXnWLyJyqlR8VLZW
+	hYFU8BG4HWR+vuMtabCbqPoNtCMeuAebXbOXkJZNx9RAC7JNq8JJYB
+X-Received: by 2002:a05:7022:f304:b0:11b:9386:8254 with SMTP id a92af1059eb24-1244b36f538mr12507910c88.41.1768973661409;
+        Tue, 20 Jan 2026 21:34:21 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:abb8:3a31:328a:3594])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1244ac57fd0sm22877361c88.3.2026.01.20.21.23.34
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b6b361df88sm19588566eec.18.2026.01.20.21.34.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 21:23:35 -0800 (PST)
-Date: Tue, 20 Jan 2026 21:23:32 -0800
+        Tue, 20 Jan 2026 21:34:20 -0800 (PST)
+Date: Tue, 20 Jan 2026 21:34:18 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Marek Vasut <marek.vasut@mailbox.org>
-Cc: linux-input@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Job Noorman <job@noorman.info>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] Input: ili210x - add support for polling mode
-Message-ID: <nk5qn7ye44lbtppp2opa273ut7lxkcz7jsw6giagwngiwhg7rr@puexvdzd2ymq>
-References: <20260117001215.59272-1-marek.vasut+renesas@mailbox.org>
- <20260117001215.59272-3-marek.vasut+renesas@mailbox.org>
- <wv3vil4b4lgfrqt4qnzxiffnniw422xjfdiz4svkklnfrslz3g@yzqc265pj5t5>
- <bbb7fb54-5b04-4c38-840b-8cab58eeec7b@mailbox.org>
+To: Mike Rapoport <rppt@kernel.org>, Marek Vasut <marek.vasut@mailbox.org>
+Cc: Minseong Kim <ii4gsp@gmail.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] input: synaptics_i2c - cancel delayed work before
+ freeing device
+Message-ID: <ztalz7evj3yijuzx7m6yyealexdbfpky3ksughcv2n2ieamvwg@zbudj3q7oga5>
+References: <20251210032027.11700-1-ii4gsp@gmail.com>
+ <xeski4dr32zbxvupofis5azlq2s6fwtnuya7f3kjfz5t7c2wnq@jbvlajechlrd>
+ <aTlmwhOF3zB1UkrI@kernel.org>
+ <py7u3qpp6s4nfdceefufkjpbyhkj7wp2kyetlw54vlhdp4gmwn@6vghr6bqkbxc>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,81 +77,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bbb7fb54-5b04-4c38-840b-8cab58eeec7b@mailbox.org>
+In-Reply-To: <py7u3qpp6s4nfdceefufkjpbyhkj7wp2kyetlw54vlhdp4gmwn@6vghr6bqkbxc>
 
-On Tue, Jan 20, 2026 at 11:50:53PM +0100, Marek Vasut wrote:
-> On 1/20/26 7:31 PM, Dmitry Torokhov wrote:
-> > Hi Marek,
+On Fri, Dec 12, 2025 at 08:38:23PM -0800, Dmitry Torokhov wrote:
+> On Wed, Dec 10, 2025 at 09:25:38PM +0900, Mike Rapoport wrote:
+> > Hi,
 > > 
-> > On Sat, Jan 17, 2026 at 01:12:04AM +0100, Marek Vasut wrote:
-> > > @@ -860,16 +893,12 @@ static ssize_t ili210x_firmware_update_store(struct device *dev,
-> > >   	 * the touch controller to disable the IRQs during update, so we have
-> > >   	 * to do it this way here.
-> > >   	 */
-> > > -	scoped_guard(disable_irq, &client->irq) {
-> > > -		dev_dbg(dev, "Firmware update started, firmware=%s\n", fwname);
-> > > -
-> > > -		ili210x_hardware_reset(priv->reset_gpio);
-> > > -
-> > > -		error = ili210x_do_firmware_update(priv, fwbuf, ac_end, df_end);
-> > > -
-> > > -		ili210x_hardware_reset(priv->reset_gpio);
-> > > -
-> > > -		dev_dbg(dev, "Firmware update ended, error=%i\n", error);
-> > > +	if (client->irq > 0) {
-> > > +		scoped_guard(disable_irq, &client->irq) {
-> > > +			error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
-> > > +		}
-> > 
-> > You already have a scope here, no need to establish a new one:
-> > 
-> > 		guard(disable_irq)(&client->irq);
-> > 		error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
+> > On Tue, Dec 09, 2025 at 08:40:54PM -0800, Dmitry Torokhov wrote:
+> > > Hi Minseong,
+> > > 
+> > > On Wed, Dec 10, 2025 at 12:20:27PM +0900, Minseong Kim wrote:
+> > > > synaptics_i2c_irq() schedules touch->dwork via mod_delayed_work().
+> > > > The delayed work performs I2C transactions and may still be running
+> > > > (or get queued) when the device is removed.
+> > > > 
+> > > > synaptics_i2c_remove() currently frees 'touch' without canceling
+> > > > touch->dwork. If removal happens while the work is pending/running,
+> > > > the work handler may dereference freed memory, leading to a potential
+> > > > use-after-free.
+> > > > 
+> > > > Cancel the delayed work synchronously before unregistering/freeing
+> > > > the device.
+> > > > 
+> > > > Fixes: eef3e4cab72e Input: add driver for Synaptics I2C touchpad
+> > > > Reported-by: Minseong Kim <ii4gsp@gmail.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Minseong Kim <ii4gsp@gmail.com>
+> > > > ---
+> > > >  drivers/input/mouse/synaptics_i2c.c | 2 ++
+> > > >  1 file changed, 2 insertions(+)
+> > > > 
+> > > > diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> > > > index a0d707e47d93..fe30bf9aea3a 100644
+> > > > --- a/drivers/input/mouse/synaptics_i2c.c
+> > > > +++ b/drivers/input/mouse/synaptics_i2c.c
+> > > > @@ -593,6 +593,8 @@ static void synaptics_i2c_remove(struct i2c_client *client)
+> > > >  	if (!polling_req)
+> > > >  		free_irq(client->irq, touch);
+> > > >  
+> > > > +	cancel_delayed_work_sync(&touch->dwork);
+> > > > +
+> > > 
+> > > The call to cancel_delayed_work_sync() happens in the close() handler
+> > > for the device. I see that in resume we restart the polling without
+> > > checking if the device is opened, so if we want to fix it we should add
+> > > the checks there.
+> > > 
+> > > However support for the PXA board using in the device with this touch
+> > > controller (eXeda) was removed a while ago. Mike, you're one of the
+> > > authors, any objections to simply removing the driver? 
+> >  
+> > No objections from my side.
 > 
-> This part ^ I do not understand. If there is no IRQ defined in DT, I need to
-> call ili210x_firmware_update_noirq() without the guard because I cannot
-> disable_irq() with client->irq < 0, else I need to call
-> ili210x_firmware_update_noirq() within the scoped_guard() to disable IRQs to
-> avoid spurious IRQs that would interfere with the firmware update ?
-
-You do not need to use scoped_guard() because you already define a scope
-in your if statement:
-
-if (client->irq > 0) {
-	guard(disable_irq)(&client->irq);
-	error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
-} else {
-	error = ili210x_firmware_update_noirq(dev, fwbuf, ac_end, df_end);
-}
-
-This is sill a bit awkward. Maybe we could add to interrupt.h
-
-void __disable_valid_irq(unsigned int irq)
-{
-	if (irq > 0)
-		disable_irq(irq);
-}
-
-void __enable_valid_irq(unsigned int irq)
-{
-	if (irq > 0)
-		enable_irq(irq);
-}
-
-DEFINE_LOCK_GUARD_1(disable_valid_irq, int,
-		    disable_valid_irq(*_T->lock), enable_valid_irq(*_T->lock))
-
-and then we'd be able to keep the driver as is (just adjust the type of
-the original scoped_guard).
-
+> Hmm, it looks like it is still referenced from
+> arch/arm/boot/dts/nxp/mxs/imx23-sansa.dts
 > 
-> > BTW, not a fan of the "_noirq" suffix... Maybe drop it and add
-> > lockdep_is_held() there?
-> 
-> This part I understand even less, how does lockdep play into this ? The
-> scoped_guard() disables and enables IRQs if they are available.
+> Marek, is this device still relevant?
 
-Ah, sorry, brainfart on my part. I got confused by _noirq suffix.
+I see these devices (SanDisk Sansa Fuze+) for sale on e-bay, so I guess
+there is a chance it will be used...
+
+Minseong, could you please prepare a v2 that would check if the device
+is opened in resume before restarting polling? It should take input
+device's mutex and then use input_device_enabled().
 
 Thanks.
 

@@ -1,98 +1,94 @@
-Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [80.241.56.161])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f68.google.com (mail-wm1-f68.google.com [209.85.128.68])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D861D385ED4;
-	Thu, 22 Jan 2026 19:11:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.161
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99AC73994C9
+	for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 19:36:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.68
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769109088; cv=none; b=B8BWOQanKBy0tWVuP9u5BU5foO72mp6SC+8UEbHmOH8hFOJNvAIOr5CI5DVE9SJyGZQLWpAG7Ai/08pC1FMyGDC24ePD13cnqmy5kCjroIVhUL8wDMnEcEPAwJ9PehEUAarQyGlL3I9TeDnuxU8EktB1ogPSNTkuBUWuV/Nu+GY=
+	t=1769110580; cv=none; b=f8tVu911z/lirC+1NahgNReyWsyJXJqzu9N7auwdtCN+O4CyJ+a8DJNXkxoG+jmkqrie+yrQtDUkbPg4A5tuXIY061N7T3GxhB6yeIJ2lID4r+vCRzpKt1Me6GUiTyDK2jn0+KXzNB16p7cLURDzE9sfff2g8Z9M/c/VhVYnKO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769109088; c=relaxed/simple;
-	bh=V4MqKdcmNUDueQiIyKWd529B5AQkiUI8raNRH/4ysRo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IgnSVq3o14Je4q+OWgh0btYqPnR5gxP1YxBTjk7MNJPqRvaYb3u67Aqz48moRk+ZKtZoJL9ZAjzwdQufAM46jXBwtwh6nsforBPIX9UEVXMcq5gBpEKbcMQP7o+Mt+D8NMGg06edHr4CGh95gOnBpbbE92l+OJ8GH8Ar+ARKgE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=q8vFWeq7; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=hxsCnpwp; arc=none smtp.client-ip=80.241.56.161
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1769110580; c=relaxed/simple;
+	bh=6bcOzK12X2n239i0z2HYrans52sIg6wjGl8x+aSjd6c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ckoZjlqCs9MxzUcatoGha55PwR8QxCzLQXJsZE8qlAzosftf/hurxw2+DxBa6z1jN8cFp8lec6hU9T2Scsuu63AbwvUK4TkUGrzKkf0DApRoH7dcBa3H7jnhsonE/zowW+oWKvx2mDHOaC3/q1FCMaEcFaaFEpXBhD12gLNQfPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XfdMYZjG; arc=none smtp.client-ip=209.85.128.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="q8vFWeq7";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="hxsCnpwp"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4dxrJF2GKtz9tmc;
-	Thu, 22 Jan 2026 20:11:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1769109069;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=89hnRfGT6K5DVFBx65KY1V2Qu8HMKDj7OT53Y0FKeI8=;
-	b=q8vFWeq7mYuSSaLZlr4UO+0xrR9hfyUHisMRDRBoJTB67J+6eN6R7ZDVQ89/aVvGFSeYp3
-	ka9qlSvAFmEZ02kcOj6qhM5lzRfP9cBELgI9vsfBDJhiCXokvfphvSU2lI5aj53Jy/t4W/
-	coziVMi7lTSsf5zhnpnsgDFPzS29TJ1Vb4BjF8Y1ODlrY7ygsCiwpABsbPrbki2Xxcy4IZ
-	CeGBV/sWK5ZfQTi90hj1+1ubnpmEK/TTboA9lsBwraWpqgcRZP2ibV9n5OF+EWRKrLsiXF
-	NeSTX1OSR31KxKf/y2ce1EsWEh7rZ6L96Lja3uYbiMhM53QXhS6LRJsnW/VslQ==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=hxsCnpwp;
-	spf=pass (outgoing_mbo_mout: domain of marek.vasut@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=marek.vasut@mailbox.org
-Message-ID: <66ff3c90-8c14-462d-9a86-0a3ff1df2c25@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1769109067;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=89hnRfGT6K5DVFBx65KY1V2Qu8HMKDj7OT53Y0FKeI8=;
-	b=hxsCnpwpIdCQRmfbpaGVRALcd7g2yqfONlt1vbR4k4lV1+cLFMysOWZ0kVs3jNaXmDUNLP
-	wxqEAyINCdQgjA2SQ+JqdGJPbyYCLAk36RreEzNsZO8LZDTre2kRmt1GvJJV1TZMNzCVQp
-	CnX9wsrE/TTdU5GbsZXriDiq6c6tUw6whrGywIC2hsbi5OfO3UODeHkmRua4zLuHyC/Q0u
-	D8sFlgbABD6wJimcSmDqXOft0IIQoGSXvSiIpEdz/3/A47yFtsgmHHgzCzuZqhl62W/pRA
-	CKl7tUosutbiEw4/URqImQSuQwZxzBW4RP6zmbf/UUwv2pLRVtzf7MVvmR4mdA==
-Date: Thu, 22 Jan 2026 20:11:02 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XfdMYZjG"
+Received: by mail-wm1-f68.google.com with SMTP id 5b1f17b1804b1-47ee3a63300so15431285e9.2
+        for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 11:36:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769110560; x=1769715360; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Kwi4ZRaqC0fLP1GDcRU6oR980s6aWRwXFTKbG3IWwZ0=;
+        b=XfdMYZjG8R3OOWYd0TwAsNMqvuEnUG6PTMHnSDc9fWYqJWgmGuQ+8l8zcV9QXm6Ee7
+         rvvEaAa15aNufjEjStqtQ1a7wsPzwegI8rcpCBpYMwBe1uC0YW6P5wXJSUkEzd2WcyzE
+         XO7JwKfBxlKt3B21pRIG9g9o8VPuQqAGxLcZWNjS2/yjDOZlaXjcqzbHm/vB8TI2lEnI
+         bXgKMImoRSi+n2nJ+pB64w6InsrUEc+SK7mjA7T4njUhVuG56PyJduPi99t+VbYXXxD1
+         zbOxKgAi1Qx5ApjjhEl62RpXcoOpMStuhBGh6fTVTIOYoDzgaDecjwbF5MOF/nBOULgq
+         bafA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769110560; x=1769715360;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Kwi4ZRaqC0fLP1GDcRU6oR980s6aWRwXFTKbG3IWwZ0=;
+        b=ZiG3d/zzSFsHDltEth68iW9siCj1lj/9cBtg+8MsrfglZFMo1PzQ7UkfoohtSMnPjh
+         CxUzCHY6uj+6LHJmEp3ueRXBGHdOSu8U58zy7DDg5r3EXAX6UtdU9Y5/T/Qa/OMgiqmR
+         yWMqAEmgDIH0CGbk31AZ+yvHnw5S2ceAcn0psImuI0PbDqaa9HJMR9j9q7dG1dkB1TrI
+         9+KXK5wUTitExL8NmTFhC59WaL1SAfxfTD/s93Dkm1apvuKL1ZszUsWslnwOf4YnKYl2
+         N4Fb4kw65H93Z/La0GEDBEv5/uQHQAxGz9UIx/gxkTHrdz/IfazT+Ig58Z0QwtdXypEf
+         xcGw==
+X-Gm-Message-State: AOJu0YyDaKW0SWz3x7GMpZzyWBiSNUeA6jkEA+vHruVS0MFjwaYk5Mm4
+	V43bz9s4d09Tki9ZvjHuGCRBpZM3VwaMtdp5gl7MMVKN2fdnhG06K3nM
+X-Gm-Gg: AZuq6aILz/42baml41Rbn8oJgsy909QbIt/uLiOvHUO5uaEGXwfwkKx73q3Lw+5e51o
+	8POsvpq6nUSwleATgNUz1YyDAbx9WSwzQ4igH6cLK0uqeDjxtA1SnPKBzMULeGevaYwjL53WtiU
+	ZnP6QlSfTiEy9h9bPns3vqwuIDTVDkgLQppiBT8uhHS37+fwSYg1CBt44ae3pRyLrAYlgdoJhjC
+	Ep7WyYb/knBuDjV8616xc+R1V74fKgLR1I3WiFgsWbck+COax0qrqes0nayQUCOWNoGktdU06Ty
+	CM3tyPX4z7v3JxhA4KXYPp4jGYw9p8XdkTVur9wtRa6h+0XENuCqnwkjaHIc7Ehw/LTCsAqUocV
+	zHrMRUDJP+Ldvs3hMEXIL0RJnypeXOwhTnM1w7VlgkekdS4mDiqvt9uGSq/2gENDkHch/bAOtSh
+	t2
+X-Received: by 2002:a05:600c:3f0f:b0:477:7975:30ea with SMTP id 5b1f17b1804b1-4804c9c0ba8mr11723685e9.29.1769110560378;
+        Thu, 22 Jan 2026 11:36:00 -0800 (PST)
+Received: from xeon ([188.163.112.49])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1f745e6sm843027f8f.33.2026.01.22.11.35.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jan 2026 11:35:59 -0800 (PST)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Fabio Estevam <festevam@gmail.com>,
+	Andreas Kemnade <andreas@kemnade.info>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/1] dt-bindings: input: touchscreen: tsc2007: document '#io-channel-cells'
+Date: Thu, 22 Jan 2026 21:35:48 +0200
+Message-ID: <20260122193549.29858-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to disable
- and reenable IRQ with valid IRQ check
-To: Frank Li <Frank.li@nxp.com>, Marek Vasut <marek.vasut+renesas@mailbox.org>
-Cc: linux-input@vger.kernel.org, "Peter Zijlstra (Intel)"
- <peterz@infradead.org>, Cheng-Yang Chou <yphbchou0911@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Jinjie Ruan <ruanjinjie@huawei.com>,
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
- Marc Zyngier <maz@kernel.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Thomas Gleixner <tglx@kernel.org>, linux-kernel@vger.kernel.org,
- linux-renesas-soc@vger.kernel.org
-References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
- <aXJEaTPIhDGFb11C@lizhi-Precision-Tower-5810>
-Content-Language: en-US
-From: Marek Vasut <marek.vasut@mailbox.org>
-In-Reply-To: <aXJEaTPIhDGFb11C@lizhi-Precision-Tower-5810>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MBO-RS-META: rz4noihj8t11tb5kefn3bk6fdkiufpoc
-X-MBO-RS-ID: d278257d69abddd5482
-X-Rspamd-Queue-Id: 4dxrJF2GKtz9tmc
+Content-Transfer-Encoding: 8bit
 
-On 1/22/26 4:38 PM, Frank Li wrote:
-> On Thu, Jan 22, 2026 at 12:23:47AM +0100, Marek Vasut wrote:
->> Introduce disable_valid_irq scoped guard. This is an extension
->> of disable_irq scoped guard, which disables and enables IRQs
->> around a scope. The disable_valid_irq scoped guard does almost
->> the same, except it handles the case where IRQ is not valid,
->> in which case it does not do anything. This is meant to be used
->> by for example touch controller drivers, which can do both IRQ
->> driven and polling mode of operation, and this makes their code
->> slighly simpler.
-> 
-> I think it'd better to give simple example here.
-Patch 2/2 is that example , but I can also include it in the commit 
-message if this 1/2 is even acceptable.
+The tsc2007 can be used not only as resistive touchscreen controller but
+also as a ADC IIO sensor. The second use case requires '#io-channel-cells'
+property, hence add it.
+
+Svyatoslav Ryhel (1):
+  dt-bindings: input: touchscreen: tsc2007: document '#io-channel-cells'
+
+ .../devicetree/bindings/input/touchscreen/ti,tsc2007.yaml      | 3 +++
+ 1 file changed, 3 insertions(+)
+
+-- 
+2.51.0
+

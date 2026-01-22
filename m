@@ -1,72 +1,72 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B75323A99E;
-	Wed, 21 Jan 2026 23:25:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02481C860B
+	for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 00:10:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769037943; cv=none; b=YzJPRU01HDT7YaKILFapwZM+rEKO1wFLbFqF4MWuPQj94koH65z/3Sl8bvYPX2D5Jn9GrYpiiAJblr3n9DkMb93KrwGpNxjKXcJLRxkgCuF8Sm9TDJdIBHhiSoQ+7ecNrTy73SqX3pZtwQxqV4hnQwz4fVYRshmf/Hk50qLyk9g=
+	t=1769040610; cv=none; b=YsEzNcdlMzoD5lLOBG4+WmyfaA4a1Lhz0wGzBiEscZ7Wff1tJZF9mc3ER8SnkN66FBbywMrHu1iPktEMViAJ80f0ClrQLKOlg67fgUQhQKBAAelUPfoysWWBuRRy1NclJ3ZnasJmcHgTmm4CFwJHwTpYi1kRVmWbjnYjqr+V468=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769037943; c=relaxed/simple;
-	bh=S+LBdLA4hcIAqNz7uq4tBs/+Gvn10/AuAyNmacxaocU=;
+	s=arc-20240116; t=1769040610; c=relaxed/simple;
+	bh=y/PYEbYHM+BHKDZnhRrssZDje4LyLT9NI5UAsS8knDI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e+mV6K/Evc4rT3WLtBbxjKfYPoagb2N2MOadiyqSpTweA4iyH6wlVCHD3nj/h1Zl0NOH2sunp1isa+8kIDnPesCH3gFV2s/lPZ05oGerS6gLtXQPikoxogd8Y3pY0ruE3xwbbw1F9E1kK/ItwUy1aEBQk/fbd9cBHjM+PU7q4Do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=mukidE0L; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=PmX6g09U; arc=none smtp.client-ip=80.241.56.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	 MIME-Version; b=NmelipnERv0iI95qr9zxm5wcYktqD84ui/GKn9GMi6X9naRa6TUPAtNuYoHc8nZxDs5BCja5gsc8ULS+00DnCJBk69wFrAgdaJmcf1rS82eNp+JdW5lzgKcC8jDeHasxK5LSvo9tDcSXUEeVZ2fc2coPC9tI6tLoWTe3Cy3iNlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gpTiCUML; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="mukidE0L";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="PmX6g09U"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [10.196.197.102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4dxL0G3S26z9vDw;
-	Thu, 22 Jan 2026 00:25:34 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1769037934;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ycMx7yDEbrHDp2ulRu0w2N9uRRs85FHVMrAZD5KYRc0=;
-	b=mukidE0L0l1cRCgqdHwWaUBUfRNjkHlCsPinbs1P+b5TzFUXWJ5siEshUc52H7+oVJ0OPL
-	kOn6iYH+7sEbwiSpThQypN6q0/QB00EWruYp/WOvUgVWK12A7Ffs82f6AzIwJsJ0U8Zyiy
-	cFBLh7ZolLPbegw2hYbZhRvcW7Jyyq5sz6mLLZ07iQuKE2rotoQiMK69JqsPuNi4Rv9IQW
-	13Bmf7Jg2u3ShcZOtbRcUQPgKtPe7jUAmPTTeDZH15wnxkQZSgks7Ng9QrCVW3ZwG/VcIZ
-	J7jPSuM8eMDa9RT1WnninkWPouw3vNgar2RW/5l8b8wawkGtfsnNVLHMjPqftg==
-From: Marek Vasut <marek.vasut+renesas@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1769037932;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ycMx7yDEbrHDp2ulRu0w2N9uRRs85FHVMrAZD5KYRc0=;
-	b=PmX6g09UcELICgPLSpzJ19ciAEBE5o8l+k6J0/Zbgx4kFvDZV3g9aUUlErXgLlHpls6NhC
-	O1bTVyBw0bX2m6MtfLeegavG2dTdWm+GaU4WD70Al+BS6rIu0aHchmA6LJejFYkdgpRUiE
-	j55xTZMQVjc8kp673SFo2NXUHIGHWzL/Q3DuUecRLuNIx0gFcRfmK/M4a8qx7xPDXqoY+8
-	vzwzjSxclLbaKpRk4LAsJ9iAc5cE5LG5RRSjRZ2A0JQmi+OFaSplHjBuRds0WBz9L+wC9Q
-	Ejyt00C3TKc7K3ajNcf5NmwMg1HxzIOgLJAsE7z50oR3q+CCiRnP1letLO9Ihw==
-To: linux-input@vger.kernel.org
-Cc: Marek Vasut <marek.vasut+renesas@mailbox.org>,
-	"Peter Zijlstra (Intel)" <peterz@infradead.org>,
-	Cheng-Yang Chou <yphbchou0911@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Frank Li <Frank.Li@nxp.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
-	Marc Zyngier <maz@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Thomas Gleixner <tglx@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 2/2] Input: ili210x - convert to disable_valid_irq scoped guard
-Date: Thu, 22 Jan 2026 00:23:48 +0100
-Message-ID: <20260121232522.154771-2-marek.vasut+renesas@mailbox.org>
-In-Reply-To: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
-References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gpTiCUML"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4801d7c72a5so2919035e9.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2026 16:10:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769040604; x=1769645404; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=y/PYEbYHM+BHKDZnhRrssZDje4LyLT9NI5UAsS8knDI=;
+        b=gpTiCUMLEMJZzno1dSYDH6uBdiXER2gL941qHh4GiR22A8tmbAXG8itbNFDEaporkY
+         E2LsPf2x8w70tmAXRkhPNDP0hoytBodDn/aHsBy6QP1h32S4qHxyAIDeI3QNKvsPpgln
+         NCzwns73gCBNgBwfEnNdKYwDCmGrJDI0cWsWuMcE/kEZ1ys1lcDYw+TkqpYL/QJ6Zh93
+         qbSp6fPIwwAq+jfS2GspjsmMOenS6ds8KdFofX7f51ZO9rXig0oUcNHATKnAdCfqo2zo
+         ChRvbx9095YDjq16yeZY7WA26r2NU5fBYjkKoBj/0iARLiPKEZ9mTwtq7ZNG2UDWuezo
+         nUYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769040604; x=1769645404;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=y/PYEbYHM+BHKDZnhRrssZDje4LyLT9NI5UAsS8knDI=;
+        b=de06K0IIWld35vzgpWdrItG4wgUTWPtSLPVX/U5qyp2CfSUQ9yZYmSSW//veZ9Oxqr
+         /5mgHyCnUAKroloAMAVhWQACrKzJjk/xQLgmoQxX4yeJVlwqM6IKq/ciciKTUWp3qmCI
+         4239OCh/ZqmZXzQjeaSq3gamwHu23iu7JhdHwL3QmAcBeDZT25NDZDdUqXFaSzNudeCk
+         ciJtrQTrYL8tdQNm0Ob5KSh87IupC8mwL4dnEUnZdiRvtYZEs8LeA73NDC5Cm2Hj/LK2
+         UnfDE4z8ZIL4bBRbXFBBNsImF2Jaz7ZtyxEyjH4J0fD0wxyzb7Ji/IaRGRWqkzdpYEZ2
+         L4DA==
+X-Gm-Message-State: AOJu0YwVMp7m4+U6aYZ2kf6/8ZY/es8JqxI+EahRj2gF3XLb9Ay59cBf
+	HkojdbcQsKHBysN7fkTkVzPdv4PUBicDXjPzyay5i4TRmePlyx9tPZbY
+X-Gm-Gg: AZuq6aIU2aVzVlPMBTW1h2mAwK4xb2AVnApnuGRFerrLzo4QUkVUsBF/8yXlvz3Z5W6
+	xjCL/rrPmuUkDxawYWHX2ojUJP20qlc73HA6uKKbn20bZzcUInjdqXCQeLwwCZFYUsm2ETM1H8Y
+	esb7MiEzEMc2PYtlQGOZtAkVV3uGqc286TtD6NYQO0NU5aWB2oKG9tdTOvE+MFghx+Kw4ymIroi
+	wEOKVhjYsnwEPETjXdWJcODFbG+WUhR7LECbfHJLjWe6Epk1zUkCUmn736fNBAK9ZnX4D70+BO7
+	jRefIwgsxXR8Cerre6tvrShG47qgNjkUm4ue9BqHoL2xiJ5/A3WytPaCOU5na/fw3pYiIGF0ozl
+	7s26RFxBfx+JdPu9qYdBosgakefFwDppmvtGy4ESwsu0zEu6jzisKrfVzlHM0oOKpJ5Mus+GY6B
+	ufBv0famTcv8D8YjxRrL4V1Vq8
+X-Received: by 2002:a05:600c:c16b:b0:47e:e78a:c831 with SMTP id 5b1f17b1804b1-4801eb14ff0mr260400365e9.36.1769040604114;
+        Wed, 21 Jan 2026 16:10:04 -0800 (PST)
+Received: from unknown.tail46804.ts.net ([78.209.83.30])
+        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-480470401cbsm24831815e9.4.2026.01.21.16.10.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jan 2026 16:10:03 -0800 (PST)
+From: Gianluca Boiano <morf3089@gmail.com>
+To: hdegoede@redhat.com
+Cc: linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com
+Subject: Re: [PATCH 2/2] input: touchscreen: novatek-nvt-ts: Add support for NT36672A e7t variant
+Date: Thu, 22 Jan 2026 01:09:56 +0100
+Message-ID: <20260122000956.76443-1-morf3089@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <b4113f8c-0fbd-4a96-9cf6-9675f837ac91@kernel.org>
+References: <b4113f8c-0fbd-4a96-9cf6-9675f837ac91@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,48 +74,12 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: bhifuexfbdxuf9n5odyibfa7ry693z11
-X-MBO-RS-ID: 93af858cc11beaeedca
 
-Use disable_valid_irq scoped guard to simplify the code and
-deduplicate the polling and IRQ driver case. No functional
-change.
+Hi Hans,
 
-Signed-off-by: Marek Vasut <marek.vasut+renesas@mailbox.org>
----
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Cheng-Yang Chou <yphbchou0911@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Frank Li <Frank.Li@nxp.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Jinjie Ruan <ruanjinjie@huawei.com>
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Thomas Gleixner <tglx@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org
----
- drivers/input/touchscreen/ili210x.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+Thanks for the suggestion. You're right that removing code is better than
+adding more variants.
 
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index 3bf524a6ee204..70abbd675bb01 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -893,10 +893,7 @@ static ssize_t ili210x_firmware_update_store(struct device *dev,
- 	 * the touch controller to disable the IRQs during update, so we have
- 	 * to do it this way here.
- 	 */
--	if (client->irq > 0) {
--		guard(disable_irq)(&client->irq);
--		error = ili210x_firmware_update(dev, fwbuf, ac_end, df_end);
--	} else {
-+	scoped_guard(disable_valid_irq, &client->irq) {
- 		error = ili210x_firmware_update(dev, fwbuf, ac_end, df_end);
- 	}
- 
--- 
-2.51.0
+I've sent v3 which drops the wake_type check entirely, as you suggested.
 
+Gianluca

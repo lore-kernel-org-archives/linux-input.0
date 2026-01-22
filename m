@@ -1,111 +1,131 @@
-Received: from mail-wm1-f65.google.com (mail-wm1-f65.google.com [209.85.128.65])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99758392B88
-	for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 19:36:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906A63A5C21
+	for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 20:45:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769110595; cv=none; b=Msss89iwvM2R0jns/2qIVtWZbRU5bpalzdR2hRcz1Yb8YItjGGg4qwzHLZW3trrT8eLhFVRpohVc++bh7MQtKtTqNLWXwrTYIh76+aJPGusYP5IdQr8LidLVn8a0Ar82+EjBvYv+KOQQbDJ82D+n+NngLqAoUsOsEkdK1bWpxUk=
+	t=1769114715; cv=none; b=SWgq5O87DvFlKSfMV0Lf6TKx3vInL3iJ4NLO2z0QpycuhFho0OPuBjPSb9VqhCex0Kundiqq4kHcuyjlvT6gIPNxLGz9mwoH6SMmbsCLQu1d412SeoXabkM/EFB8t7PGmnha8wrH02DmTuFw6i1v5cTjbXIekf1FHgk8K8p7Qbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769110595; c=relaxed/simple;
-	bh=yDihcp/jd0OMfi2PU3Gn+hOP4VhSsBYD5UizE3u770I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MHPY+Z7JMHMHiAqWoio/EGlamNHcdGOw6f+eKPqGWjGkzT38FrCbbeR3xBNyodLcQyDSHawBkUb5vc3RI4ool4+3BZSLEsyg//OIVp6nRI9+bU3mScPrNCeFAM8BTcZoLpcf6tfrvWhHd95/DVZx06AlzTrKTLIERG+fIn33R0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VXr8kV0D; arc=none smtp.client-ip=209.85.128.65
+	s=arc-20240116; t=1769114715; c=relaxed/simple;
+	bh=NKKxp8XslWhqHgE40+VZpWgrnehA4xyD/dkaXnrk8dE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JtC+GZB4CW70ZMk6c/2Z637zmSwW9lFzMMX/FyfOKysLoSdTlsCa4JC3KiN2V57tMYg7R4UmSCaUpvh/WXSULQClozszlfuuvzMCYNevHYIK3102iRZIJ+p908O3LOqTj6J1kTVAZF1mPAnOY2zFzY9YOCiyvUDdYxJnSd2czD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JmtfkiHz; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VXr8kV0D"
-Received: by mail-wm1-f65.google.com with SMTP id 5b1f17b1804b1-47edffe5540so15577915e9.0
-        for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 11:36:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JmtfkiHz"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-894703956b8so18737106d6.1
+        for <linux-input@vger.kernel.org>; Thu, 22 Jan 2026 12:45:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769110561; x=1769715361; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7SBABkPDPX8GYWi5QA3maCVdgfUpUsCKkHw/BcpYjfg=;
-        b=VXr8kV0DDgXl2kcQ/ehPv3kVxAtrRaTafSLaIlzzt9V42/QwbYP2F6ukdCrD8OdVe/
-         Joj8AelJpKiQlYXMLW17Uolf6FkrmeNr/G2fZfNbnvlQOsMptt83+bZxnHNDtaEDfdAw
-         xzEieOGMG54xOHogtzVD9he1MUo3AkQ9D4h57SwGrOltLPtrSqNT+tKl8fFlLEXOb6WQ
-         5xOJ6VP5TWqYnf03YlIIJ3FELhiep7U2YohsY+Qi35qyqQf8CvWsFT+ad9NsSYFbaiC2
-         PhP/GDqUDouM9q60s8pdEZl9aw4nwUoAknSAlawpiEyAucvTsq5DnQceLQvFehlRPQLG
-         4Kww==
+        d=gmail.com; s=20230601; t=1769114702; x=1769719502; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=xTNx2TZxkL4VnUPzuBRv8diBN0csSmN/zfw5ymS8riM=;
+        b=JmtfkiHzaUyP+RwLciTo31s1foWW/g5wEdziASi5cz7YVN75Knmu6ZDwOCsuoJHdp6
+         lvNLBuCzB4qQaXcJheQ7dlqMXjL1FZ1q2kcuObdzSmCVZH4IW6j2XwAKGmQ48smIS7rd
+         CPRZLNTmRbZsnWYBQUzPZPnvsAuGQuYr40KVquaweHPehQXO4H6fbIfdLN67ZjX6rDrH
+         lYUnYfGqjmJCf4Xa90E1dkAEoEr+4N84fAEFlLPsAN+mnZmAgbQ9Jfu8DzWPGrp8gQJ7
+         g7X3v2mvVKWXZZxAWoct40gASwKS9QaFK2tjbUN7L8+i8KAG5pSvglrkSIJSsTwUMSb4
+         LU1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769110561; x=1769715361;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7SBABkPDPX8GYWi5QA3maCVdgfUpUsCKkHw/BcpYjfg=;
-        b=PWq+AngpfuIBHCi8BvHE3iD5IFrlE5kWK2lNQQy6GUM4IrqhByKfT3+KtDKol/KJ/H
-         UuGixFbKdZjdAII8R9P6U+Kb7ifREAQgLF9nLhfIYDdKRehYeE6mZvHHswmnfd795eSC
-         hcFlfy/VqpQqur0dgcf2F7E7L8xmFPouEywzJs35ho8XL8NBt7IB2wZ+Y+4FxJuXfotJ
-         zCGOcgsI9Y8p2FZi8f5UK5Zw8o5nbkqCiBzH6k88AtO7G33Xk9xWgDwA3qk4sTvJKOba
-         v/83bCGnlN2q1RoY7/8tpAgpe6RQAyom+SAZpxOhiUaI1dK8hvpxyhJoUpaDKOz9xkoY
-         7GlA==
-X-Gm-Message-State: AOJu0Yxo95NJWUa5oxcO4TwnlqrBWVsFVjV1IIxIW3qmri5rOIB+p7TU
-	Ogb8U5CS7Qq2upMbe6unOndU4q3XA/6Q9QJy1gKgyup0FBp8SQQjpHIf
-X-Gm-Gg: AZuq6aKqsvXEw5y1X4Mwn2WseOIpJ8MW/cfdQAFQcLXZgjqgGrvfPiZdOx+aEMymuhM
-	eMlpbxgb7fnlsKMxWqQFwzGan2hu1VG61grtgk6yYjBayBSj0uBrWCkkbnn1BJ4gTDSQLFx+mTU
-	m+RhaBZ8711D0kkbiau7dgIyx1xGePp0E1V/cZImJYrja8wgOkuyHt+Yq+b459DrGQkYE8nlSZL
-	fTBw3+Qjsi9qbw4JDjIfd1g20Rk4T1qhtKUkFID0l8squpq9YoiL19fgeu5MC0OkBy6UaYGaTm9
-	Z+CSGYYMAd2ICduAb9my+GkwN9dWJGOL84+qN/EaZAagC54IRGOF0WP2GCX+btqr55NT4YjtSW6
-	SMlJcas+Oe9+h7hhGLVVdDPbBQuS8FhLf3QLcIjpOCbs9/mAKTdZcw6kk+IdAkhfqUKwfqoeos4
-	oE
-X-Received: by 2002:a05:600c:4f4f:b0:480:1dc6:269c with SMTP id 5b1f17b1804b1-4804c9d00b4mr10024235e9.37.1769110561252;
-        Thu, 22 Jan 2026 11:36:01 -0800 (PST)
-Received: from xeon ([188.163.112.49])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1f745e6sm843027f8f.33.2026.01.22.11.36.00
+        d=1e100.net; s=20230601; t=1769114702; x=1769719502;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xTNx2TZxkL4VnUPzuBRv8diBN0csSmN/zfw5ymS8riM=;
+        b=BV2ikW3hD1MZtnjcXscJGcu7cC1ZoYE6CBMxXHXDDrXtKOg4Jsb7uLeUKsXlZ6ADDA
+         ef6uwIn/y2T8fYXpchTrQxua6OPmog8JeJiN7s7x6f9SeNR9O61uUD5eq4AUpFSE+31G
+         /OndRQWy0M4vaWYJgxp6gxMK360zGwKkv85N1isHB/yVqZkrZCJcgxTP7iHfASZ2/tJk
+         TTZBZ3SuvSJyB7TQHqTORlH4qZ2rAZq54yWHeBj3I5YvDZfK0hPoG1xNaKQdBrV7TwpH
+         /qn7sRHXq8ql7HzCN4ixarNk7mZl0usFoYMjKNW+FzOtkqAmpcM93qaV2Spc51lYf6TW
+         eG6w==
+X-Forwarded-Encrypted: i=1; AJvYcCXsj2Ac+2oYZzd1eyAIJ4JNYSLaOVr8SXkXEn++K5X+gMcQpqvTcrdu7I1sVECY7GjJg+rZYIWW1HI4Zw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YylrJEsc2mq/yKb59r//Gb4zTR2JERQz3/CNwPhyPo7QmzJHPxh
+	ZcTrrchpNSxQAXq6ZFtgrv9UU/sNXSDqr5TS1h5pxX+09V2PeuMXe8qpLzCJKA==
+X-Gm-Gg: AZuq6aJ0SemCaucKBYPD/kcTJlezuatlk+qDL867pXtdcjS/zhQMIBMCt7pysLFzpqy
+	RVbeFHpzXo7tkR8Qq3onuTzsu2vh1y3vh9X+8RLGUogYtWfSDuLYajUu9xX1rfofNMiCMgX0okB
+	Qy4VTTFZWeklVilinZOoGS1ZzzdAbjx7kSg4sDAIonL3hkAj1HY2x5+KZ1qTDFr6Fbkw+8/cSL8
+	ZsidnL2O+TMOj/BJeCGF6DLcI6xENmDi8QAS7r5p1CaJbFGzKNbKhZDoaTVTqP9dXpJ5ahfchcj
+	cBaDwwejddrd5+Sm8urvmfDwvlaVPodDzf2iBkrNw4PAM8z9J68tXCL97/+IfRKKzVoOb0a9NgV
+	ML7crDrnQXm0Taxb9+fCGT2A1fL5TWdztmFjYhUsyHqV8EW3BHPKj95059bMWB9mONGgLLHxFge
+	xxuzHTw+Hw6ug0MEYcf3opxJHtR7mKknV3Ulo3vbHK4v5QwobiI6I=
+X-Received: by 2002:a05:693c:3116:b0:2b7:134b:fd47 with SMTP id 5a478bee46e88-2b739994e28mr134644eec.16.1769107103324;
+        Thu, 22 Jan 2026 10:38:23 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:777f:716:9c18:5588])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b73aa2a3c0sm136300eec.31.2026.01.22.10.38.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 11:36:00 -0800 (PST)
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Svyatoslav Ryhel <clamor95@gmail.com>,
-	Frank Li <Frank.Li@nxp.com>,
-	Fabio Estevam <festevam@gmail.com>,
-	Andreas Kemnade <andreas@kemnade.info>
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 1/1] dt-bindings: input: touchscreen: tsc2007: document '#io-channel-cells'
-Date: Thu, 22 Jan 2026 21:35:49 +0200
-Message-ID: <20260122193549.29858-2-clamor95@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260122193549.29858-1-clamor95@gmail.com>
-References: <20260122193549.29858-1-clamor95@gmail.com>
+        Thu, 22 Jan 2026 10:38:22 -0800 (PST)
+Date: Thu, 22 Jan 2026 10:38:19 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+	Marek Vasut <marek.vasut+renesas@mailbox.org>, linux-input@vger.kernel.org, 
+	"Peter Zijlstra (Intel)" <peterz@infradead.org>, Cheng-Yang Chou <yphbchou0911@gmail.com>, 
+	Frank Li <Frank.Li@nxp.com>, Geert Uytterhoeven <geert+renesas@glider.be>, 
+	Jinjie Ruan <ruanjinjie@huawei.com>, Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+	Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@kernel.org>, linux-kernel@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to disable
+ and reenable IRQ with valid IRQ check
+Message-ID: <x5h55qxfl4yrkhgwmijf37zfwqt52pmsts6whewniukbhcatbn@6mo3dytswd5f>
+References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+ <20260122162206.9wrHkrTZ@linutronix.de>
+ <CAMuHMdVs_ODx3eByHkU03vopUuLuY7=uRnfTKuai65jNr+xMhA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdVs_ODx3eByHkU03vopUuLuY7=uRnfTKuai65jNr+xMhA@mail.gmail.com>
 
-The tsc2007 can be used not only as resistive touchscreen controller but
-also as a ADC IIO sensor. The second use case requires '#io-channel-cells'
-property, hence add it.
+On Thu, Jan 22, 2026 at 05:31:42PM +0100, Geert Uytterhoeven wrote:
+> Hi Sebastian,
+> 
+> On Thu, 22 Jan 2026 at 17:22, Sebastian Andrzej Siewior
+> <bigeasy@linutronix.de> wrote:
+> > On 2026-01-22 00:23:47 [+0100], Marek Vasut wrote:
+> > > @@ -242,6 +242,21 @@ extern void irq_wake_thread(unsigned int irq, void *dev_id);
+> > >  DEFINE_LOCK_GUARD_1(disable_irq, int,
+> > >                   disable_irq(*_T->lock), enable_irq(*_T->lock))
+> > >
+> > > +static inline void disable_valid_irq(unsigned int irq)
+> > > +{
+> > > +     if (irq > 0)
+> > > +             disable_irq(irq);
+> > > +}
+> >
+> > | $ grep " 0:" /proc/interrupts
+> > |    0:         43          0          IO-APIC  2-edge      timer
+> >
+> > in other words, interrupt 0 is valid.
+> 
+> AFAIK, the x86 legacy timer interrupt is the sole remaining valid user
+> of interrupt number zero.
+> Nowadays lots of code assumes valid interrupt numbers are non-zero
+> positive numbers.
 
-Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
----
- .../devicetree/bindings/input/touchscreen/ti,tsc2007.yaml      | 3 +++
- 1 file changed, 3 insertions(+)
+Quoting an oldie but goodie:
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2007.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2007.yaml
-index a595df3ea802..d9cb53e86512 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2007.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2007.yaml
-@@ -53,6 +53,9 @@ properties:
-       how much time to wait (in milliseconds) before reading again the
-       values from the tsc2007.
- 
-+  "#io-channel-cells":
-+    const: 1
-+
- required:
-   - compatible
-   - reg
+"This has come up before. For example: for an IRQ, 0 means "does not
+exist", it does _not_ mean "physical irq 0", and we test for whether a
+device has a valid irq by doing "if (dev->irq)" rather than having some
+insane architecture-specific "IRQ_NONE". And if you validly really have an
+irq at the hardware level that is zero, then that just means that the irq
+numbers you should tell the kernel should be translated some way.
+
+(On a PC, hardware irq 0 is a real irq too, but it's a _special_ irq, and
+it is set up by architecture-specific code. So as far as the generic
+kernel and all devices are concerned, "!dev->irq" means that the irq
+doesn't exist or hasn't been mapped for that device yet)."
+
+https://lore.kernel.org/all/Pine.LNX.4.64.0701250940220.25027@woody.linux-foundation.org/
+
+Thanks.
+
 -- 
-2.51.0
-
+Dmitry

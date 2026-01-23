@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1441423ED75;
-	Fri, 23 Jan 2026 07:27:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E19318787A;
+	Fri, 23 Jan 2026 07:27:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769153241; cv=none; b=LUlXDUvb1AcUPQL1cx4oIHlfdTQoVz3gRcDgoIr4BWA9toiqjeKKev+/FlaYFRACJDkBMO37HhIax2KzMamK4R5NgAKCbgb0D7RaoGlkmb4EF/nnmnDyKY3bDfRYfnq3QCo73UJTaUqjab3wSZopiClVg5kJx6BtIw0Osv0PvgE=
+	t=1769153278; cv=none; b=hpuGjNLVi4pI30MHoDXUl1iBmGZ1rid42hQDoxLQnbmmZjbAkg6HWVUcE2HkZphIqVyHuH60GrAfw0ctnQ3591cNEj02zx6FTcVwI8xkEBH809GeOiCNRp5OrjSoIbpgVnTko3BJ9hSWDZ62e5ekRMFIlkFwiLplaH0P2T8jIj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769153241; c=relaxed/simple;
-	bh=79p3z4VPv5mIFODDoINq5qm+b261Wuna9bqtKWhKrN4=;
+	s=arc-20240116; t=1769153278; c=relaxed/simple;
+	bh=OkhDLLFXaLdgI/kcWiOGM0ZD2Nux3jI58URp443Mq1k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ncTtcDjWzjxTSkhgrlz6ejZkCD58ch1MCFHlzTqnqDgnjMXLv8CL2Oc3T/Rtoue2OWUtQPZWl6F3u6NNx8DBlX4Ncbm5RfETshEEt6sxkqFAtJVpDY9dD0xYet0DLHHPFkwASLJo5ebuxFn3X57n0PUwDaaVqhHfxwL/AR8kpsM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kNtoxOix; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=l1CFakQVK10nMgM1nrImPW7ZSA+2Hw93nSv869Onf8gb0qvhRqUp+TLjepvk8hf9rL1Ob9Jujlq4qD4PK8kgKRTTvGb3CUKf1UyEBiz9vYZeci+mAJr6NKNOQ/ubF91E9xs2cVSoD5YX6pRTtD8zZEtW6sqYVcJkVLViq74eaic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r7f2rctm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kNtoxOix"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100F6C4CEF1;
-	Fri, 23 Jan 2026 07:27:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r7f2rctm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DCEDC116D0;
+	Fri, 23 Jan 2026 07:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769153240;
-	bh=79p3z4VPv5mIFODDoINq5qm+b261Wuna9bqtKWhKrN4=;
+	s=k20201202; t=1769153278;
+	bh=OkhDLLFXaLdgI/kcWiOGM0ZD2Nux3jI58URp443Mq1k=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=kNtoxOixlGonhX14LDPfAei/Rftnd+oLtSOsbJz6CXD1XC0pdp6FqEWBFYoy+5hRc
-	 0zP1sAOn0hy4xa1XVmLr3vPecPZNbhAViCe/KwCbSgrPNaGJEQL0GMtUGX+26WVs1o
-	 cSBMeK76QKw4DTSYWv7mTgoNBnOeETcDGiFGlT0xPuuukwArjGzol0gnGUpgYLHUJ0
-	 bYTQjkW1LFOZRSjYwqUnzMGEsEO47/5WSGJtqVQS8pNVU/38KO/H506s5jWRY3tgQg
-	 ymO61PVzjFNZoIgqBSo2QjRCDon/Ol6GxhmBakQt4Z98t/RFAvRWqkI4sjnxX8syip
-	 AMk5Yu4c0VTFA==
-Message-ID: <c6fabbcc-4a18-446c-b97e-944cfd23b87e@kernel.org>
-Date: Fri, 23 Jan 2026 08:27:17 +0100
+	b=r7f2rctm9qlILu8snMSqUXfXYofOEvd1+CnP/9XK+W7QoXq7knYB+YoR9+Jv/GO+0
+	 kUGZTvbb2oXHBxgBBdAM3+MkX/ABdZyFFVIuue99g1G+4FqegXbF+qT/a87m7L9K2M
+	 C5U2V0g5sH9INKyDG+d3TDGk1pqVYXgz1WLd/Di1O/Th6wn9dbqW526CdPGv9qAEjG
+	 tXKE9hgRxe52QZKVDs5L9L80gZFXerJiasvAlGYkrnwXR04368t2zBljMQFmKD26S/
+	 0nL5hZZeH2kljbwJKc1tdTIlnARcPrKPsHUBog35ohl/yypNYogLPWpKWJ8E8us3Fs
+	 JGzsg5NCaSljw==
+Message-ID: <0fde64b5-538e-4ba3-b371-fd8af499c0ed@kernel.org>
+Date: Fri, 23 Jan 2026 08:27:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -94,182 +94,18 @@ Content-Transfer-Encoding: 7bit
 
 On 22/01/2026 15:40, AThomas63 wrote:
 > Add extra changes referenced in the previous patch:
-
-Not relevant.
-
-
 >  - Add device tree documentation for axiom giving examples for SPI and I2C.
 >  - Add tnx vendor prefix.
 
-Please start using b4 or use known (described) workflows with git. Look
-at the subject - why is this just one patch not 1/2? Patchsets are made
-git format-patch -2 (-vX if needed).
+Incomplete DCO chain.
 
-And then:
-Please use scripts/get_maintainers.pl to get a list of necessary people
-and lists to CC. It might happen, that command when run on an older
-kernel, gives you outdated entries. Therefore please be sure you base
-your patches on recent Linux kernel.
+Please run scripts/checkpatch.pl on the patches and fix reported
+warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
+patches and (probably) fix more warnings. Some warnings can be ignored,
+especially from --strict run, but the code here looks like it needs a
+fix. Feel free to get in touch if the warning is not clear.
 
-Tools like b4 or scripts/get_maintainer.pl provide you proper list of
-people, so fix your workflow. Tools might also fail if you work on some
-ancient tree (don't, instead use mainline) or work on fork of kernel
-(don't, instead use mainline). Just use b4 and everything should be
-fine, although remember about `b4 prep --auto-to-cc` if you added new
-patches to the patchset.
-
-You missed at least devicetree list (maybe more), so this won't be
-tested by automated tooling. Performing review on untested code might be
-a waste of time.
-
-Please kindly resend and include all necessary To/Cc entries.
-
-
-> 
-> ---
->  .../bindings/input/touchscreen/tnx,axiom.yaml | 90 +++++++++++++++++++
->  .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
->  2 files changed, 92 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
-> new file mode 100644
-> index 000000000000..dc2ea62999b8
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
-> @@ -0,0 +1,90 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/touchscreen/tnx,axiom.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: TouchNetix aXiom Touchscreen Controller
-> +
-> +maintainers:
-> +  - Andrew Thomas <andrew.thomas@touchnetix.com>
-> +
-> +description: |
-
-
-> +  The TouchNetix aXiom series are high-performance touchscreen controllers
-> +  supporting various interface methods including I2C and SPI.
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - tnx,axiom-i2c
-> +      - tnx,axiom-spi
-
-No, these are the same. Use only one describing the device.
-
-No device model? Really?
-
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  axiom,poll-enable:
-
-There is no such company as axiom. You just said it is tnx.
-> +    type: boolean
-> +    description: Enable aXiom polling mode instead of interrupt-driven 
-> +      reporting.
-
-Anyway, drop entire property. Not a DT suitable, not hardware.
-
-> +
-> +  axiom,poll-period:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    default: 10
-> +    description: Set the polling period in milliseconds.
-
-Drop entire property.
-
-> +
-> +  # Required for SPI
-> +  spi-max-frequency: true
-
-Drop. Not needed.
-
-> +
-> +  # Common touchscreen properties
-> +  touchscreen-size-x: true
-> +  touchscreen-size-y: true
-> +  touchscreen-inverted-x: true
-> +  touchscreen-inverted-y: true
-> +  touchscreen-swapped-x-y: true
-
-Drop all.
-
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-
-Missing ref to spi-periph.
-
-Look at other bindings instead of inventing your own.
-
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +    i2c {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        touchscreen@66 {
-> +            compatible = "touchnetix,axiom-i2c";
-> +            reg = <0x66>;
-> +            interrupt-parent = <&gpio>;
-> +            interrupts = <24 IRQ_TYPE_LEVEL_LOW>;
-> +            axiom,poll-enable;
-> +            axiom,poll-period = <15>;
-> +        };
-> +    };
-> +
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +    spi {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        touchscreen@0 {
-> +            compatible = "touchnetix,axiom-spi";
-> +            reg = <0>;
-> +            spi-max-frequency = <4000000>;
-> +            interrupt-parent = <&gpio>;
-> +            interrupts = <24 IRQ_TYPE_LEVEL_LOW>;
-> +        };
-> +    };
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> index f1d1882009ba..dadfc7036ed7 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> @@ -1636,6 +1636,8 @@ patternProperties:
->      description: Trusted Logic Mobility
->    "^tmt,.*":
->      description: Tecon Microprocessor Technologies, LLC.
-> +  "^tnx,.*":
-
-Domain is touchnetix, so that's your prefix.
-
-> +    description: TouchNetix
->    "^topeet,.*":
->      description: Topeet
->    "^topic,.*":
+Also, no anonymous contributions. It's also explicitly documented.
 
 
 Best regards,

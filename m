@@ -1,234 +1,84 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 875F435CB6C;
-	Fri, 23 Jan 2026 09:29:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5407340290;
+	Fri, 23 Jan 2026 10:53:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769160568; cv=none; b=gHf22+x7dJjoGk43YzN5ukF7NmSW9qTGjOFpM0Q5r0ek7DQRm4SxFiowO4iqwfNZTFl05Cvee8Hgac/rYjlsfpUADumIwTyuUMivE0MkRZf9VJqxXtRMKBFTl9GnAhX7b2AZyD1Xt6Wis1OMZiwlajHZhV5TEC6U0XEn+uZz6B8=
+	t=1769165583; cv=none; b=c+9Lu26OdOul27rdMyqqyhmV2cCJ86w09H7HD3QbYFTsfW0MYGNefhTxM6qTIw27rxde7e4VhnAeBWB8TWxOFOo44+DwF1UJkw7UmYv8hQkRJMV08l7agqphnOzxyebNonQmCOBe5o/E7/uXHPI1a3jw+WgpAjZX4ct0VqUNVqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769160568; c=relaxed/simple;
-	bh=+W4Gd7hmvu2/5/nAO1KD379Amm0yDAkFNhibA73/L4A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KzlvcRTyEOI2DlbzNQx8y1A3kTC9/J81cyxu2IHd7HIPx+WSoS/um8a1uSVuHzHSM6x2xs0eJBSTlxPAUQEeLy+XBZD1IdmQArZhwdpHxCjvV8IKWo5KwZB0zC4i8r/d3uOqs2XovZtN0cL8vgColelJ/vdvv9g3JTR65n5xgOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C2trqvpL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769165583; c=relaxed/simple;
+	bh=uLv8LO/KUhOdMpUkUDKLbVQl1Uwqg6NqoOUU7GrtXFQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=UcGZ2vu/ZlRWwLeG7I3FxoLRTg8rPTH8hPkI4rCZarvQ0ybXVmKqJKQ8+bdsQ75q/X2yfHnlsv/Z5KBuwCwcyXriKbBwNg34PU/IwHKEZS+nHpQShqa9khScUJdXjMp5P1DaqYnuVgfs7pYRLKppFmTOuGHI6HhbU5vSs80FzGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cfTdr0HW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C2trqvpL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED57AC116D0;
-	Fri, 23 Jan 2026 09:29:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cfTdr0HW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE631C4CEF1;
+	Fri, 23 Jan 2026 10:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769160567;
-	bh=+W4Gd7hmvu2/5/nAO1KD379Amm0yDAkFNhibA73/L4A=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=C2trqvpLEox8booG9mVWQoqvZGPcDp50NuZu6V2IJhpcUXHaYrHZbYcOavcNUXvQb
-	 cvFuBLaSTOnZuH3XK6L1OUJqnOJNE16SxDtKVzc8wqb7ZsbaMNUDyWNBZqZjslNBex
-	 v4VINWWXkIKfPwmYVhouLdi1pV41+fbGPSWn/HWjdeTUdxPHKIAoVommVaR66C0K1m
-	 RhL0qYsKU4fZ58PeX2yUy194+xV0z0Ji5Hed65LYQA3En3l/K7+BJ710Eh6rLb3bAV
-	 7fKeJKWWqLNkhE7bZpmA5iQ34NuGJXCPiRNRlquzKdG2cmG8y10o6RvW3lqlF9nJWU
-	 oPqZCf94/On1A==
-Message-ID: <a0d900a4-7694-41b1-99bc-ebb69469c5b3@kernel.org>
-Date: Fri, 23 Jan 2026 10:29:24 +0100
+	s=k20201202; t=1769165582;
+	bh=uLv8LO/KUhOdMpUkUDKLbVQl1Uwqg6NqoOUU7GrtXFQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=cfTdr0HWdlkTiJbSZZJmhH6y/hsnvK7ezJdzF+gHYnAp+2EHp+n+L+EukndFYXHg0
+	 fJBYG3A15CRh97UVpfXoHByiZxoFrFNNW/ynrjCi3DrV4FDvkjOjg8Wbx7jBgB2rrD
+	 k5o4LxEKu2Rp+W8Giy8gct20T4y5Q3W8nBBKqOpWv6RLVRx8l9/mt0DpE/yAK9XZdO
+	 eBSHgXk8JW7mDeJ/cJqvY8xoRtgZEPshtedcUf0HPEWOhH5weDT/84DSlRGLdh46Tk
+	 ZiMDl+2PcL0m7gVE9ctZS85Vkk0CYvwMa+S9LwVxN7a+LjyoqerdNOtHTag5gU7K7Z
+	 1TdqP0lRLmJgg==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Marek Vasut
+ <marek.vasut+renesas@mailbox.org>
+Cc: linux-input@vger.kernel.org, "Peter Zijlstra (Intel)"
+ <peterz@infradead.org>, Cheng-Yang Chou <yphbchou0911@gmail.com>, Dmitry
+ Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@nxp.com>, Geert
+ Uytterhoeven <geert+renesas@glider.be>, Jinjie Ruan
+ <ruanjinjie@huawei.com>, Krzysztof Kozlowski
+ <krzysztof.kozlowski@oss.qualcomm.com>, Marc Zyngier <maz@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to
+ disable and reenable IRQ with valid IRQ check
+In-Reply-To: <20260122162206.9wrHkrTZ@linutronix.de>
+References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+ <20260122162206.9wrHkrTZ@linutronix.de>
+Date: Fri, 23 Jan 2026 11:52:58 +0100
+Message-ID: <87h5sca9dh.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] Adding support for aXiom touchscreen controller
-To: AThomas63 <andrew.thomas@touchnetix.com>, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- mark.satterthwaite@touchnetix.com, m.felsch@pengutronix.de,
- kamel.bouhara@bootlin.com
-References: <20260122124819.273188-1-andrew.thomas@touchnetix.com>
- <20260122124819.273188-2-andrew.thomas@touchnetix.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260122124819.273188-2-andrew.thomas@touchnetix.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-On 22/01/2026 13:48, AThomas63 wrote:
-> Signed-off-by: AThomas63 <andrew.thomas@touchnetix.com>
+On Thu, Jan 22 2026 at 17:22, Sebastian Andrzej Siewior wrote:
 
+> On 2026-01-22 00:23:47 [+0100], Marek Vasut wrote:
+>> @@ -242,6 +242,21 @@ extern void irq_wake_thread(unsigned int irq, void *dev_id);
+>>  DEFINE_LOCK_GUARD_1(disable_irq, int,
+>>  		    disable_irq(*_T->lock), enable_irq(*_T->lock))
+>>  
+>> +static inline void disable_valid_irq(unsigned int irq)
+>> +{
+>> +	if (irq > 0)
+>> +		disable_irq(irq);
+>> +}
+>
+> | $ grep " 0:" /proc/interrupts
+> |    0:         43          0          IO-APIC  2-edge      timer
+>
+> in other words, interrupt 0 is valid.
 
-Please run scripts/checkpatch.pl on the patches and fix reported
-warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
-patches and (probably) fix more warnings. Some warnings can be ignored,
-especially from --strict run, but the code here looks like it needs a
-fix. Feel free to get in touch if the warning is not clear.
+No. It's not really.
 
-Running checkpatch is really basic and EVERY kernel guide asks you to do
-that. Not doing it is not an excuse for your first patch, becasue when
-writing first patch you should follow the first-patch guidelines or
-kernel docs closely.
+Interrupt number zero is a historic leftover and a mistake which is only
+relevant to some oddball archaic architectures like x86 and others which
+tried to mimic that.
 
+The general agreement is that interrupt 0 is a legacy oddity and only
+supported in very special cases. Everything else treats 0 as invalid.
 
-> ---
->  drivers/input/touchscreen/Kconfig      |  30 ++
->  drivers/input/touchscreen/Makefile     |   3 +
->  drivers/input/touchscreen/axiom_core.c | 482 +++++++++++++++++++++++++
->  drivers/input/touchscreen/axiom_core.h | 128 +++++++
->  drivers/input/touchscreen/axiom_i2c.c  | 152 ++++++++
->  drivers/input/touchscreen/axiom_spi.c  | 159 ++++++++
->  6 files changed, 954 insertions(+)
->  create mode 100644 drivers/input/touchscreen/axiom_core.c
->  create mode 100644 drivers/input/touchscreen/axiom_core.h
->  create mode 100644 drivers/input/touchscreen/axiom_i2c.c
->  create mode 100644 drivers/input/touchscreen/axiom_spi.c
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 7d5b72ee07fa..f2b4fb317bdd 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -162,6 +162,36 @@ config TOUCHSCREEN_AUO_PIXCIR
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called auo-pixcir-ts.
->  
-> +config TOUCHSCREEN_AXIOM_CORE
-> +	tristate "TouchNetix Axiom touchscreen"
+Thanks,
 
-This should not be user-selectable. It's useless alone. Just "tristate"
-and change the depending drivers to select it.
+        tglx
 
-> +	help
-> +	  Say Y here if you have an Axiom touchscreen connected
-> +	  to your system. You will also need to select appropriate
-> +	  bus connection below.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called axiom_core.
-> +
-> +config TOUCHSCREEN_AXIOM_I2C
-> +	tristate "support I2C bus connection"
-> +	depends on TOUCHSCREEN_AXIOM_CORE && I2C
-> +	help
-> +	  Say Y here if the touchscreen is connected via I2C bus.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called axiom_spi.
-> +
-> +config TOUCHSCREEN_AXIOM_SPI
-> +	tristate "support SPI bus connection"
-> +	depends on TOUCHSCREEN_AXIOM_CORE && SPI
-> +	help
-> +	  Say Y here if the touchscreen is connected via SPI bus.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called axiom_spi.
-> +
-
-
-...
-
-> + *
-> + * Author(s): Mark Satterthwaite <mark.satterthwaite@touchnetix.com>
-> + *            Bart Prescott <bartp@baasheep.co.uk>
-> + *            Hannah Rossiter <hannah.rossiter@touchnetix.com>
-> + *            Andrew Thomas <andrew.thomas@touchnetix.com>
-> + *
-> + * This program is free software; you can redistribute  it and/or modify it
-> + * under  the terms of  the GNU General  Public License as published by the
-> + * Free Software Foundation;  either version 2 of the  License, or (at your
-> + * option) any later version.
-
-No code in the kernel has such license boilerplate. Please use recent
-Linux drivers as starting code. It's really pointless to send to
-upstream some old vendor code, because you will repeat all the
-mistakes/issues/old style which we fixed already over last 15 years.
-
-> + *
-
-
-...
-
-> +
-> +static const struct spi_device_id axiom_spi_id_table[] = {
-> +	{ "axiom-spi" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(spi, axiom_spi_id_table);
-> +
-> +static const struct of_device_id axiom_spi_dt_ids[] = {
-> +	{
-> +		.compatible = "tnx,axiom-spi",
-> +		.data = "axiom",
-> +	},
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(of, axiom_spi_dt_ids);
-> +
-> +static struct spi_driver axiom_spi_driver = {
-> +	.id_table = axiom_spi_id_table,
-> +	.driver = {
-> +		.name = "axiom_spi",
-> +		.of_match_table = of_match_ptr(axiom_spi_dt_ids),
-
-Drop of_match_ptr, leads to warnings here.
-
-> +	},
-> +	.probe = axiom_spi_probe,
-> +};
-> +
-> +module_spi_driver(axiom_spi_driver);
-> +
-> +MODULE_AUTHOR("TouchNetix <support@touchnetix.com>");
-> +MODULE_DESCRIPTION("aXiom touchscreen SPI bus driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("axiom");
-
-Drop alias. You should not need MODULE_ALIAS() in normal cases. If you
-need it, usually it means your device ID table is wrong (e.g. misses
-either entries or MODULE_DEVICE_TABLE()). MODULE_ALIAS() is not a
-substitute for incomplete ID table.
-
-> +MODULE_VERSION("1.0.0");
-
-
-Best regards,
-Krzysztof

@@ -1,84 +1,83 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5407340290;
-	Fri, 23 Jan 2026 10:53:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66EFF2D97BB;
+	Fri, 23 Jan 2026 12:53:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769165583; cv=none; b=c+9Lu26OdOul27rdMyqqyhmV2cCJ86w09H7HD3QbYFTsfW0MYGNefhTxM6qTIw27rxde7e4VhnAeBWB8TWxOFOo44+DwF1UJkw7UmYv8hQkRJMV08l7agqphnOzxyebNonQmCOBe5o/E7/uXHPI1a3jw+WgpAjZX4ct0VqUNVqQ=
+	t=1769172820; cv=none; b=iYUTBYr7gkMz28ynvAKFp8glDUbpIEGhcsCEMcZt9eneO0taVMZKCJwurA5S8uhY6a87OUmLIM3iD1m6fuwqUi+j5s1LfkQ8sCvD96c8ja0dCKD3shoPIY9tkayO/ND83nAkyCKKWO8O9Xl+PU8K14C9k3dOzaUPG1RZmX3uZCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769165583; c=relaxed/simple;
-	bh=uLv8LO/KUhOdMpUkUDKLbVQl1Uwqg6NqoOUU7GrtXFQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=UcGZ2vu/ZlRWwLeG7I3FxoLRTg8rPTH8hPkI4rCZarvQ0ybXVmKqJKQ8+bdsQ75q/X2yfHnlsv/Z5KBuwCwcyXriKbBwNg34PU/IwHKEZS+nHpQShqa9khScUJdXjMp5P1DaqYnuVgfs7pYRLKppFmTOuGHI6HhbU5vSs80FzGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cfTdr0HW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769172820; c=relaxed/simple;
+	bh=ZW4nmxn7/YavDf8ZVnbWBnDjtvGPt79p0bSQpTSUXS0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=QQu5hcC5smXEO2j2bTHpDfKzYKHvop9hQD4b3EsomJsA2I8jvjuVEmDaSIKddhhwxw6v3Z76uTw6n/n+Rn7eBsNJVaonCuDCYuLC+mNiUyEyZiMHbfIirzqSxeURKZoP8k8ouhukYwAFdJLgLX7Te3RmGPUwGp0EIp3Xf8aK3UQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZbzlDL6z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cfTdr0HW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE631C4CEF1;
-	Fri, 23 Jan 2026 10:53:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZbzlDL6z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1EE3C19421;
+	Fri, 23 Jan 2026 12:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769165582;
-	bh=uLv8LO/KUhOdMpUkUDKLbVQl1Uwqg6NqoOUU7GrtXFQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=cfTdr0HWdlkTiJbSZZJmhH6y/hsnvK7ezJdzF+gHYnAp+2EHp+n+L+EukndFYXHg0
-	 fJBYG3A15CRh97UVpfXoHByiZxoFrFNNW/ynrjCi3DrV4FDvkjOjg8Wbx7jBgB2rrD
-	 k5o4LxEKu2Rp+W8Giy8gct20T4y5Q3W8nBBKqOpWv6RLVRx8l9/mt0DpE/yAK9XZdO
-	 eBSHgXk8JW7mDeJ/cJqvY8xoRtgZEPshtedcUf0HPEWOhH5weDT/84DSlRGLdh46Tk
-	 ZiMDl+2PcL0m7gVE9ctZS85Vkk0CYvwMa+S9LwVxN7a+LjyoqerdNOtHTag5gU7K7Z
-	 1TdqP0lRLmJgg==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Marek Vasut
- <marek.vasut+renesas@mailbox.org>
-Cc: linux-input@vger.kernel.org, "Peter Zijlstra (Intel)"
- <peterz@infradead.org>, Cheng-Yang Chou <yphbchou0911@gmail.com>, Dmitry
- Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@nxp.com>, Geert
- Uytterhoeven <geert+renesas@glider.be>, Jinjie Ruan
- <ruanjinjie@huawei.com>, Krzysztof Kozlowski
- <krzysztof.kozlowski@oss.qualcomm.com>, Marc Zyngier <maz@kernel.org>,
- linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to
- disable and reenable IRQ with valid IRQ check
-In-Reply-To: <20260122162206.9wrHkrTZ@linutronix.de>
-References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
- <20260122162206.9wrHkrTZ@linutronix.de>
-Date: Fri, 23 Jan 2026 11:52:58 +0100
-Message-ID: <87h5sca9dh.ffs@tglx>
+	s=k20201202; t=1769172820;
+	bh=ZW4nmxn7/YavDf8ZVnbWBnDjtvGPt79p0bSQpTSUXS0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=ZbzlDL6zngjrus8XswzMyfcH/mIeiM3qtM6HpGqWPD6Ct+5/5ksVoTAMWVIw0dr0t
+	 I8w81J0Omj1YVyvt1yTb5Jn1Ym/KdPhLpUkLEvyiLGDK04oT9YC36r8oovNeLRSVeY
+	 GonZnD8isb50eRzA5JzAJg6tazvitxHtM9c3BMjBTrwUfAuUXfLlQTlkcDDj2aqOe9
+	 UDxgaANgybziRXxgFjVu+DnxLGt9tkChb3wHGj/VaJXi2sAzG6Ds1icZBO/Pk9d9k0
+	 x5vfeCz6R7FBFNVgbZfoj7k/SiTLGHBxk14KExDV1S5NbtCNB4mAHHMFlvdzTEhYpP
+	 sgWJJzG2w4dBA==
+Date: Fri, 23 Jan 2026 13:53:37 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: David Phillips <david@profile.sh>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: elecom: Add support for ELECOM HUGE Plus
+ M-HT1MRBK
+In-Reply-To: <20260123-hid-elecom-huge-plus-fix-v1-1-4bed5e52fb3d@profile.sh>
+Message-ID: <3603q858-6s6o-68r4-2722-pp1qp94389p1@xreary.bet>
+References: <20260123-hid-elecom-huge-plus-fix-v1-1-4bed5e52fb3d@profile.sh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 
-On Thu, Jan 22 2026 at 17:22, Sebastian Andrzej Siewior wrote:
+On Fri, 23 Jan 2026, David Phillips via B4 Relay wrote:
 
-> On 2026-01-22 00:23:47 [+0100], Marek Vasut wrote:
->> @@ -242,6 +242,21 @@ extern void irq_wake_thread(unsigned int irq, void *dev_id);
->>  DEFINE_LOCK_GUARD_1(disable_irq, int,
->>  		    disable_irq(*_T->lock), enable_irq(*_T->lock))
->>  
->> +static inline void disable_valid_irq(unsigned int irq)
->> +{
->> +	if (irq > 0)
->> +		disable_irq(irq);
->> +}
->
-> | $ grep " 0:" /proc/interrupts
-> |    0:         43          0          IO-APIC  2-edge      timer
->
-> in other words, interrupt 0 is valid.
+> From: David Phillips <david@profile.sh>
+> 
+> New model in the ELECOM HUGE trackball line that has 8 buttons but the
+> report descriptor specifies only 5. The HUGE Plus supports connecting via
+> Bluetooth, 2.4GHz wireless USB dongle, and directly via a USB-C cable.
+> Each connection type reports a different device id, 01AA for cable,
+> 01AB for USB dongle, and 01AC for Bluetooth.
+> 
+> This patch adds these device IDs and applies the fixups similar to the
+> other ELECOM devices to get all 8 buttons working for all 3 connection
+> types.
+> 
+> For reference, the usbhid-dump output:
+> 001:013:001:DESCRIPTOR         1769085639.598405
+>  05 01 09 02 A1 01 85 01 09 01 A1 00 05 09 19 01
+>  29 05 15 00 25 01 75 01 95 05 81 02 75 03 95 01
+>  81 01 05 01 09 30 09 31 16 01 80 26 FF 7F 75 10
+>  95 02 81 06 09 38 15 81 25 7F 75 08 95 01 81 06
+>  05 0C 0A 38 02 15 81 25 7F 75 08 95 01 81 06 C0
+>  C0 05 0C 09 01 A1 01 85 02 15 01 26 8C 02 19 01
+>  2A 8C 02 75 10 95 01 81 00 C0 05 01 09 80 A1 01
+>  85 03 09 82 09 81 09 83 15 00 25 01 19 01 29 03
+>  75 01 95 03 81 02 95 05 81 01 C0 06 01 FF 09 00
+>  A1 01 85 08 09 00 15 00 26 FF 00 75 08 95 07 81
+>  02 C0 06 02 FF 09 02 A1 01 85 06 09 02 15 00 26
+>  FF 00 75 08 95 07 B1 02 C0
+> 
+> Signed-off-by: David Phillips <david@profile.sh>
 
-No. It's not really.
+Applied, thanks.
 
-Interrupt number zero is a historic leftover and a mistake which is only
-relevant to some oddball archaic architectures like x86 and others which
-tried to mimic that.
-
-The general agreement is that interrupt 0 is a legacy oddity and only
-supported in very special cases. Everything else treats 0 as invalid.
-
-Thanks,
-
-        tglx
+-- 
+Jiri Kosina
+SUSE Labs
 

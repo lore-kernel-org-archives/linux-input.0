@@ -1,63 +1,63 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3790F224B04
-	for <linux-input@vger.kernel.org>; Sat, 24 Jan 2026 01:49:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD13E239E7F
+	for <linux-input@vger.kernel.org>; Sat, 24 Jan 2026 01:49:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769219364; cv=none; b=aq6WB5X9NBoGVdVFZNjgirgL0f7mOBl5ZA8Ex8pbCTm8XVWbRrV2XiAHPX0+vwkgrUd/WOWIz2JSTNbLLtF9wWZVy76haqtDe7WKRZ2G3YFPswa4q7Y9MYz0lF7dvWPOfhFeZ1ju642V+O9b5Qo438buPbE8lX3tlVVVUSQMkqE=
+	t=1769219365; cv=none; b=nrtfWqnY9y7DRoqw+iLJrjhqroWx/QV41XdtuLNeaUxeTwELwslNPmtJ0DXp5547+Px606Ot1l+i0NB9kP3cR0MvazIT77s0uM3/uyBn+lrsWRPbTMus+93UIm2MzCNj2AFoBqp0vipX/g+PYNOMI9yMB7fZrfBpLRG+mi8DPFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769219364; c=relaxed/simple;
-	bh=YZAV2fCv+zHtZckQV8so+7ZE7tatCYtf4LTOqJNJgHk=;
+	s=arc-20240116; t=1769219365; c=relaxed/simple;
+	bh=jQsLso/xojyFI3Qt+bgJOnTQ9btQK1wLsfz5szkgT3s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KZ+KRnOwGfoNTEXfGmm9hxSzwBkFJTBOvw3ltWzUryiYVMGi590dJeiduH5leYqWi5CINYhm8T01u21zht/e+8tYdh8n8L5MsHm0TClLX4FR/Bu/p7rshBdalerctmfug9sm9oIbSLSg1ug6+fk5+vEGXDgko3/YN+HztwDguIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DoysAizb; arc=none smtp.client-ip=74.125.82.171
+	 MIME-Version; b=Rdo/9wknX/LzNSspFKadTLODJ/IxN5IYt2wCCjuQxdvl8BP52fPAWkWFGgD+Al+nkZa7EhPu9Hz8n9gNv2j64qYWXhuewSp+x6L8/kDJABTDW54Pwofmyazsh+XW2isHDTpPorIIzQeKo5jYf88YMAmxCBksByxj+V03klC+pGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y/mNibAS; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DoysAizb"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2b4520f6b32so4540798eec.0
-        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2026 17:49:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y/mNibAS"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2b714f30461so2645046eec.0
+        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2026 17:49:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769219360; x=1769824160; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769219363; x=1769824163; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hklQKX6M0DwYqoKUXsL3kGgABpcCY86KWl+klqFSMUQ=;
-        b=DoysAizbk+4hjS0zH5KJbhwD7mjOPu+FZTNxzuNrBsXBUiLLIvTCwYqfIb1AL3Opu9
-         WE9IJxlQOJ3+ciwtC8tcFc+4HWwT2zR0os5YZ0hpxB+NraKi8WI7ItTkuNVNpcWBbjGM
-         aqeHkJ4nHfg7MdoXLniTAqOHeyLalc7asylsNmHVxmnGyf0z4JdpWHfbcIfKwGi8nnFV
-         tFL4GJ0szJxM8jZZ5mmZ+fpKeAT7xIRZmGBaCVeu3Mgdb2Unis1GqyfFC4kBjc0BMGN0
-         lTudGPSkZcAkcp/Acz9wdkW9wxACRNkP2ASsjqaPQQbCDWXrDlenZIpM0NFolAsYTnRR
-         31fg==
+        bh=pbc+jDHPV6g8FKHvn7of3JFw4LTLv5qp1ch2s8G5+AE=;
+        b=Y/mNibASmy+fjhQdcYif+wRIJB+Y2wF/lW79sk6ZOme1NkIQVLmkPOBnpQRS5aH90s
+         iFe6Mm4Xp7C0kpPJ1qAl+lxdqGOrCUrH6SnIqDHANykAqSaMMvgWWKl05IAi/mtIB+A4
+         Z/KBf5T+WKaiN1e91TKukTuSZ77L+oOH4Xrv1UUjLAJ5/IkXLaKF2unwOrFrJ8jkJc0A
+         DJq5vLLy53w5fEcbkkspJdeqbPOxjkVOMp9v6NTpho6WFE4f4ypNETNT0Odjp6tQPP1k
+         WiKAO6HCp0Oblreq9runUbXRmpXvExKVDNYy7W4loZGDsDDC15McdzDAqgM+7+ZFgboX
+         Jh0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769219360; x=1769824160;
+        d=1e100.net; s=20230601; t=1769219363; x=1769824163;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=hklQKX6M0DwYqoKUXsL3kGgABpcCY86KWl+klqFSMUQ=;
-        b=RjMIpLM4nxrarxG0J/+DQpMqsUOqeWmTtLQBrRTe2N7lSEuqlksrweapJmdos40USd
-         4xMTHISqCqfg/ob6vcaeJgl7UoiZe+1kjtlqom6wU425dcOIUL0Fb4URkiVVCx98ngZO
-         26LUY3QTjudl2fXPtdX6UyK9dlp57COqqWeBUqHWs/N+6MaFw9ln+0Em1EMs/64lS/zv
-         y09lJBcSa91tOZrNPa6VD1t7EeJyuO1+I4ZcuUdqOYGvQGRjAp58TkDMpUaBj47QnRS8
-         RUYk8a80qL1XsEZS9kKUAsoVvrT6mIubYduVmhN5hYi0krAJ2xSlpSxtpQLq5fHpVDsE
-         IoQw==
-X-Forwarded-Encrypted: i=1; AJvYcCW5z+WoN6tpCdt3tU3YIyCfZMkp9i5HUtG+6UX5E90ep2AOYg69YPOZJw141X6qDvdHT9Ty6rIbqMfsdA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzEwKtvBAyn2aM5ziotl05EKWBGHjvlW79t7TJPlWNdAWHq8/WI
-	WOXjckI84i+EMFQ9T99HID0CLoHoMcxN/sUceFAzswj5ByVxGekv4mOA
-X-Gm-Gg: AZuq6aL56ELIMGUttpNapEpOhUZpzCessC9ju/spZdtGn4eaxuNr1Oh1b0m7hsJey01
-	Yn15rIyNjB4JSgH2/Thp2/2cGZe4XP/CEvdbuGv6i16cH3Lf0LGv+v1+X4umUIoVWS++EXCnO2Z
-	ClgBbvSwNLVJk0homYcQqTcPJzrPDh58HOnp6gBiS96/G5/KxzqX7YHxjXtLZJ31UgFTuXXJh74
-	VvCS3RNTghV8FgtMulU8dd/B6RzZh4ctm/9UejKYRQEJMO86ezcxVFOw3Pg6fNCajMnVqNsMegd
-	sEmfM+0fln9QsDqTwWI4ETpfD8lbjA091L3SvN0YREhLUg0POTBM8UW4vrQMS24vhFEgY7o0+hA
-	rj9Cr1p5abBlMa0XOVbgQl/rWyWDRD2tfsiLch58Pyka1yv6RSd3fEOW4aQtAf4ueexoM9JN/8w
-	bFPyiAGC6FsMK7KdArred8jbPfmfQhLbORFcIQSUC/ezOPaewDLUc1fWnZoCxgz4A=
-X-Received: by 2002:a05:7300:2310:b0:2b7:1e86:35ee with SMTP id 5a478bee46e88-2b739b71179mr2222242eec.28.1769219360136;
-        Fri, 23 Jan 2026 17:49:20 -0800 (PST)
+        bh=pbc+jDHPV6g8FKHvn7of3JFw4LTLv5qp1ch2s8G5+AE=;
+        b=v3op2Pwtrj+3JGK+ZaH1chaiqMb3C9FjA0m5YEf1LaEo1i815aRFldw3BbmTOmL2vd
+         K85WDq3KZVORm7eb9lWd1gG8T40qvCay/G3o7Wo4wu2dHFaX5tHSe2Z/lW/qwCYEUErE
+         Fl6bAjq5yFY1foCcqGY9HDvJdCUQkeTmwn9Z1/0MpttceM27/WyWpsxyMYI0FlmJQklI
+         vHhOLGioNeoF2emNAjEaFmFBHzKUfAAEgACTJqQ/mGa/8IkrZCHF9cP4FM+ew91279Zz
+         zkbcRjoz4szn5KfJsEyXQKEsSIQEGJwvCL5/Sh7GOblx4iFY80eZHlFo2IFziFx2LWaZ
+         oe/A==
+X-Forwarded-Encrypted: i=1; AJvYcCUG7l3fnUt9dXt899mqGj9vLgtzWCET8ndO3+dG/106yJcuRfs0hdrj5/pj7Eh6WA2szZpp6ugJ+HdGMQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz79rT1/X+knkJNwuxTzzO8Q3aSC/lpfmNS+XrSCNmeG7n1+xiE
+	EZMB34nqrdzF7Ssb9G20HaWSG5zPUkK4cYqYFN8RU8kWUWnG/BpirGCV
+X-Gm-Gg: AZuq6aKid0XMrWDGZEDJ3I8G1gDSJpp1hh98XRnD4lSvb3sofx+9ShTIa3D408orZwL
+	pQgUmXuQ0Oah08pTjH0OGsoMy6o6MfQVmtndN5RS/xY3XuKcFaGqrAa0XoZP3/XUEYpHKejT7FX
+	Szj1H/6jGvnz8rjlJUB2F4j8x8AWPtQ897cSBhDLF78k58v1YjbPYR9Yd0hB8O5dlwPJMXD5jOx
+	lnzXIb+5wyRdkgepI97F4KuraO+a6ypJWlPis099EliTOOI8usPvhcIhiYR9D9zEM2/OHvCkHVY
+	gjviyzFwx4CxmWxW0Wom+BU/52NHoOSFrnZq3o1/p20RmZEQcIezYVGr6HC/jW7lRbZOcwFjit3
+	+Q7aNV4kCXDNZfrsofBY+28fzRRiJygh3Qqfj45P/n8qpQWu7Zuq0Z2KCD3EFZ15fa4yWym1uIh
+	fY/fZ7AV9BbGYtGKbRPLb/yuxh49ZxTHHO0336TyyT1jpnVHwd7Z66SXNZI3YcsTA=
+X-Received: by 2002:a05:7301:4e0b:b0:2b7:1253:3d4f with SMTP id 5a478bee46e88-2b739957211mr2193694eec.8.1769219362617;
+        Fri, 23 Jan 2026 17:49:22 -0800 (PST)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b73aa22707sm5160014eec.29.2026.01.23.17.49.19
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b73aa22707sm5160014eec.29.2026.01.23.17.49.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 17:49:19 -0800 (PST)
+        Fri, 23 Jan 2026 17:49:22 -0800 (PST)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -70,9 +70,9 @@ Cc: Mario Limonciello <mario.limonciello@amd.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 10/16] HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
-Date: Sat, 24 Jan 2026 01:49:01 +0000
-Message-ID: <20260124014907.991265-11-derekjohn.clark@gmail.com>
+Subject: [PATCH v3 13/16] HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
+Date: Sat, 24 Jan 2026 01:49:04 +0000
+Message-ID: <20260124014907.991265-14-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260124014907.991265-1-derekjohn.clark@gmail.com>
 References: <20260124014907.991265-1-derekjohn.clark@gmail.com>
@@ -84,390 +84,205 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds initial framework for a new HID driver, hid-lenovo-go-s, along with
-a uevent to report the firmware version for the MCU.
+Adds attributes for managing the touchpad operating modes.
 
-This driver primarily provides access to the configurable settings of the
-Lenovo Legion Go S controller. It will attach if the controller is in
-xinput or dinput mode. Non-configuration raw reports are forwarded to
-ensure the other endpoints continue to function as normal.
-
-Co-developed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
-V3:
-  - Include Mario's SOB tag
----
- MAINTAINERS                   |   1 +
- drivers/hid/Kconfig           |  12 ++
- drivers/hid/Makefile          |   1 +
- drivers/hid/hid-ids.h         |   4 +
- drivers/hid/hid-lenovo-go-s.c | 293 ++++++++++++++++++++++++++++++++++
- 5 files changed, 311 insertions(+)
- create mode 100644 drivers/hid/hid-lenovo-go-s.c
+ drivers/hid/hid-lenovo-go-s.c | 142 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c6396be68ff1..723598010189 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14140,6 +14140,7 @@ M:	Derek J. Clark <derekjohn.clark@gmail.com>
- M:	Mark Pearson <mpearson-lenovo@squebb.ca>
- L:	linux-input@vger.kernel.org
- S:	Maintained
-+F:	drivers/hid/hid-lenovo-go-s.c
- F:	drivers/hid/hid-lenovo-go.c
- F:	drivers/hid/hid-lenovo.c
- 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 74ac6793b29a..2b1a9fa93758 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -633,6 +633,18 @@ config HID_LENOVO_GO
- 	and Legion Go 2 Handheld Console Controllers. Say M here to compile this
- 	driver as a module. The module will be called hid-lenovo-go.
- 
-+config HID_LENOVO_GO_S
-+	tristate "HID Driver for Lenovo Legion Go S Controller"
-+	depends on USB_HID
-+	select LEDS_CLASS
-+	select LEDS_CLASS_MULTICOLOR
-+	help
-+	Support for Lenovo Legion Go S Handheld Console Controller.
-+
-+	Say Y here to include configuration interface support for the Lenovo Legion Go
-+	S. Say M here to compile this driver as a module. The module will be called
-+	hid-lenovo-go-s.
-+
- config HID_LETSKETCH
- 	tristate "Letsketch WP9620N tablets"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 11435bce4e47..ef9169974bf0 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -77,6 +77,7 @@ obj-$(CONFIG_HID_KYSONA)	+= hid-kysona.o
- obj-$(CONFIG_HID_LCPOWER)	+= hid-lcpower.o
- obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
- obj-$(CONFIG_HID_LENOVO_GO)	+= hid-lenovo-go.o
-+obj-$(CONFIG_HID_LENOVO_GO_S)	+= hid-lenovo-go-s.o
- obj-$(CONFIG_HID_LETSKETCH)	+= hid-letsketch.o
- obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
- obj-$(CONFIG_HID_LOGITECH)	+= hid-lg-g15.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 309e15580a38..eee1091125ca 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -723,6 +723,10 @@
- #define USB_DEVICE_ID_ITE8595		0x8595
- #define USB_DEVICE_ID_ITE_MEDION_E1239T	0xce50
- 
-+#define USB_VENDOR_ID_QHE		0x1a86
-+#define USB_DEVICE_ID_LENOVO_LEGION_GO_S_XINPUT 0xe310
-+#define USB_DEVICE_ID_LENOVO_LEGION_GO_S_DINPUT 0xe311
-+
- #define USB_VENDOR_ID_JABRA		0x0b0e
- #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
- #define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
 diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-new file mode 100644
-index 000000000000..3e9041e746df
---- /dev/null
+index 076afdaa9628..38425e3d6cb2 100644
+--- a/drivers/hid/hid-lenovo-go-s.c
 +++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -0,0 +1,293 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ *  HID driver for Lenovo Legion Go S devices.
-+ *
-+ *  Copyright (c) 2025 Derek J. Clark <derekjohn.clark@gmail.com>
-+ */
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/array_size.h>
-+#include <linux/cleanup.h>
-+#include <linux/completion.h>
-+#include <linux/delay.h>
-+#include <linux/dev_printk.h>
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/jiffies.h>
-+#include <linux/mutex.h>
-+#include <linux/printk.h>
-+#include <linux/string.h>
-+#include <linux/types.h>
-+#include <linux/unaligned.h>
-+#include <linux/usb.h>
-+#include <linux/workqueue.h>
-+#include <linux/workqueue_types.h>
-+
-+#include "hid-ids.h"
-+
-+#define GO_S_CFG_INTF_IN	0x84
-+#define GO_S_PACKET_SIZE	64
-+
-+struct hid_gos_cfg {
-+	unsigned char *buf;
-+	struct delayed_work gos_cfg_setup;
-+	struct completion send_cmd_complete;
-+	struct hid_device *hdev;
-+	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-+} drvdata;
-+
-+struct command_report {
-+	u8 cmd;
-+	u8 sub_cmd;
-+	u8 data[63];
-+} __packed;
-+
-+struct version_report {
-+	u8 cmd;
-+	u32 version;
-+	u8 reserved[59];
-+} __packed;
-+
-+enum mcu_command_index {
-+	GET_VERSION = 0x01,
-+	GET_MCU_ID,
-+	GET_GAMEPAD_CFG,
-+	SET_GAMEPAD_CFG,
-+	GET_TP_PARAM,
-+	SET_TP_PARAM,
-+	GET_RGB_CFG = 0x0f,
-+	SET_RGB_CFG,
-+	GET_PL_TEST = 0xdf,
+@@ -47,6 +47,8 @@ struct hid_gos_cfg {
+ 	u8 os_mode;
+ 	u8 rgb_en;
+ 	u8 tp_en;
++	u8 tp_linux_mode;
++	u8 tp_windows_mode;
+ } drvdata;
+ 
+ struct gos_cfg_attr {
+@@ -145,6 +147,22 @@ static const char *const dpad_mode_text[] = {
+ 	[DIR4] = "4-way",
+ };
+ 
++enum touchpad_mode_index {
++	TP_REL,
++	TP_ABS,
 +};
 +
-+#define FEATURE_NONE 0x00
++static const char *const touchpad_mode_text[] = {
++	[TP_REL] = "relative",
++	[TP_ABS] = "absolute",
++};
 +
-+static int hid_gos_version_event(u8 *data)
++enum touchpad_config_index {
++	CFG_WINDOWS_MODE = 0x03,
++	CFG_LINUX_MODE,
++
++};
++
+ static int hid_gos_version_event(u8 *data)
+ {
+ 	struct version_report *ver_rep = (struct version_report *)data;
+@@ -204,6 +222,25 @@ static int hid_gos_gamepad_cfg_event(struct command_report *cmd_rep)
+ 	return ret;
+ }
+ 
++static int hid_gos_touchpad_event(struct command_report *cmd_rep)
 +{
-+	struct version_report *ver_rep = (struct version_report *)data;
++	int ret = 0;
 +
-+	drvdata.hdev->firmware_version = get_unaligned_le32(&ver_rep->version);
-+	return 0;
-+}
-+
-+static u8 get_endpoint_address(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct usb_host_endpoint *ep;
-+
-+	if (intf) {
-+		ep = intf->cur_altsetting->endpoint;
-+		if (ep)
-+			return ep->desc.bEndpointAddress;
-+	}
-+
-+	return -ENODEV;
-+}
-+
-+static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
-+			     u8 *data, int size)
-+{
-+	struct command_report *cmd_rep;
-+	int ep, ret;
-+
-+	if (size != GO_S_PACKET_SIZE)
-+		goto passthrough;
-+
-+	ep = get_endpoint_address(hdev);
-+	if (ep != GO_S_CFG_INTF_IN)
-+		goto passthrough;
-+
-+	cmd_rep = (struct command_report *)data;
-+
-+	switch (cmd_rep->cmd) {
-+	case GET_VERSION:
-+		ret = hid_gos_version_event(data);
++	switch (cmd_rep->sub_cmd) {
++	case CFG_LINUX_MODE:
++		drvdata.tp_linux_mode = cmd_rep->data[0];
++		break;
++	case CFG_WINDOWS_MODE:
++		drvdata.tp_windows_mode = cmd_rep->data[0];
 +		break;
 +	default:
 +		ret = -EINVAL;
 +		break;
 +	}
-+	dev_dbg(&hdev->dev, "Rx data as raw input report: [%*ph]\n",
-+		GO_S_PACKET_SIZE, data);
 +
-+	complete(&drvdata.send_cmd_complete);
 +	return ret;
-+
-+passthrough:
-+	/* Forward other HID reports so they generate events */
-+	hid_input_report(hdev, HID_INPUT_REPORT, data, size, 1);
-+	return 0;
 +}
 +
-+static int mcu_property_out(struct hid_device *hdev, u8 command, u8 index,
-+			    u8 *data, size_t len)
+ static int hid_gos_set_event_return(struct command_report *cmd_rep)
+ {
+ 	if (cmd_rep->data[0] != 0)
+@@ -251,7 +288,11 @@ static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	case GET_GAMEPAD_CFG:
+ 		ret = hid_gos_gamepad_cfg_event(cmd_rep);
+ 		break;
++	case GET_TP_PARAM:
++		ret = hid_gos_touchpad_event(cmd_rep);
++		break;
+ 	case SET_GAMEPAD_CFG:
++	case SET_TP_PARAM:
+ 		ret = hid_gos_set_event_return(cmd_rep);
+ 		break;
+ 	default:
+@@ -537,6 +578,95 @@ static ssize_t gamepad_property_options(struct device *dev,
+ 	return count;
+ }
+ 
++static ssize_t touchpad_property_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count,
++				       enum touchpad_config_index index)
 +{
-+	u8 header[] = { command, index };
-+	size_t header_size = ARRAY_SIZE(header);
-+	size_t total_size = header_size + len;
-+	int timeout = 5;
++	size_t size = 1;
++	u8 val = 0;
 +	int ret;
 +
-+	/* PL_TEST commands can take longer because they go out to another device */
-+	if (command == GET_PL_TEST)
-+		timeout = 200;
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++		ret = sysfs_match_string(touchpad_mode_text, buf);
++		if (ret < 0)
++			return ret;
++		val = ret;
++		break;
++	case CFG_LINUX_MODE:
++		ret = sysfs_match_string(touchpad_mode_text, buf);
++		if (ret < 0)
++			return ret;
++		val = ret;
++		break;
++	default:
++		return -EINVAL;
++	}
++	if (!val)
++		size = 0;
 +
-+	guard(mutex)(&drvdata.cfg_mutex);
-+	memcpy(drvdata.buf, header, header_size);
-+	memcpy(drvdata.buf + header_size, data, len);
-+	memset(drvdata.buf + total_size, 0, GO_S_PACKET_SIZE - total_size);
-+
-+	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
-+		GO_S_PACKET_SIZE, drvdata.buf);
-+
-+	ret = hid_hw_output_report(hdev, drvdata.buf, GO_S_PACKET_SIZE);
++	ret = mcu_property_out(drvdata.hdev, SET_TP_PARAM, index, &val, size);
 +	if (ret < 0)
 +		return ret;
 +
-+	ret = ret == GO_S_PACKET_SIZE ? 0 : -EINVAL;
-+	if (ret)
++	return count;
++}
++
++static ssize_t touchpad_property_show(struct device *dev,
++				      struct device_attribute *attr, char *buf,
++				      enum touchpad_config_index index)
++{
++	int ret = 0;
++	u8 i;
++
++	ret = mcu_property_out(drvdata.hdev, GET_TP_PARAM, index, 0, 0);
++	if (ret < 0)
 +		return ret;
 +
-+	ret = wait_for_completion_interruptible_timeout(&drvdata.send_cmd_complete,
-+							msecs_to_jiffies(timeout));
-+
-+	if (ret == 0) /* timeout occurred */
-+		ret = -EBUSY;
-+	if (ret > 0) /* timeout/interrupt didn't occur */
-+		ret = 0;
-+
-+	reinit_completion(&drvdata.send_cmd_complete);
-+	return ret;
-+}
-+
-+static void cfg_setup(struct work_struct *work)
-+{
-+	int ret;
-+
-+	ret = mcu_property_out(drvdata.hdev, GET_VERSION, FEATURE_NONE, 0, 0);
-+	if (ret) {
-+		dev_err(&drvdata.hdev->dev,
-+			"Failed to retrieve MCU Version: %i\n", ret);
-+		return;
-+	}
-+}
-+
-+static int hid_gos_cfg_probe(struct hid_device *hdev,
-+			     const struct hid_device_id *_id)
-+{
-+	unsigned char *buf;
-+	int ret;
-+
-+	buf = devm_kzalloc(&hdev->dev, GO_S_PACKET_SIZE, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	hid_set_drvdata(hdev, &drvdata);
-+	drvdata.buf = buf;
-+	drvdata.hdev = hdev;
-+	mutex_init(&drvdata.cfg_mutex);
-+
-+	init_completion(&drvdata.send_cmd_complete);
-+
-+	/* Executing calls prior to returning from probe will lock the MCU. Schedule
-+	 * initial data call after probe has completed and MCU can accept calls.
-+	 */
-+	INIT_DELAYED_WORK(&drvdata.gos_cfg_setup, &cfg_setup);
-+	ret = schedule_delayed_work(&drvdata.gos_cfg_setup,
-+				    msecs_to_jiffies(2));
-+	if (!ret) {
-+		dev_err(&hdev->dev,
-+			"Failed to schedule startup delayed work\n");
-+		return -ENODEV;
-+	}
-+	return 0;
-+}
-+
-+static void hid_gos_cfg_remove(struct hid_device *hdev)
-+{
-+	guard(mutex)(&drvdata.cfg_mutex);
-+	cancel_delayed_work_sync(&drvdata.gos_cfg_setup);
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+	hid_set_drvdata(hdev, NULL);
-+}
-+
-+static int hid_gos_probe(struct hid_device *hdev,
-+			 const struct hid_device_id *id)
-+{
-+	int ret, ep;
-+
-+	hdev->quirks |= HID_QUIRK_INPUT_PER_APP | HID_QUIRK_MULTI_INPUT;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(hdev, "Failed to start HID device\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Failed to open HID device\n");
-+		hid_hw_stop(hdev);
-+		return ret;
-+	}
-+
-+	ep = get_endpoint_address(hdev);
-+	if (ep != GO_S_CFG_INTF_IN) {
-+		dev_dbg(&hdev->dev,
-+			"Started interface %x as generic HID device.\n", ep);
-+		return 0;
-+	}
-+
-+	ret = hid_gos_cfg_probe(hdev, id);
-+	if (ret)
-+		dev_err_probe(&hdev->dev, ret,
-+			      "Failed to start configuration interface");
-+
-+	dev_dbg(&hdev->dev, "Started Legion Go S HID Device: %x\n", ep);
-+	return ret;
-+}
-+
-+static void hid_gos_remove(struct hid_device *hdev)
-+{
-+	int ep = get_endpoint_address(hdev);
-+
-+	switch (ep) {
-+	case GO_S_CFG_INTF_IN:
-+		hid_gos_cfg_remove(hdev);
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++		i = drvdata.tp_windows_mode;
++		break;
++	case CFG_LINUX_MODE:
++		i = drvdata.tp_linux_mode;
 +		break;
 +	default:
-+		hid_hw_close(hdev);
-+		hid_hw_stop(hdev);
-+
-+		break;
++		return -EINVAL;
 +	}
++
++	if (i >= ARRAY_SIZE(touchpad_mode_text))
++		return -EINVAL;
++
++	return sysfs_emit(buf, "%s\n", touchpad_mode_text[i]);
 +}
 +
-+static const struct hid_device_id hid_gos_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_QHE,
-+			 USB_DEVICE_ID_LENOVO_LEGION_GO_S_XINPUT) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_QHE,
-+			 USB_DEVICE_ID_LENOVO_LEGION_GO_S_DINPUT) },
-+	{}
-+};
++static ssize_t touchpad_property_options(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf,
++					 enum touchpad_config_index index)
++{
++	size_t count = 0;
++	unsigned int i;
 +
-+MODULE_DEVICE_TABLE(hid, hid_gos_devices);
-+static struct hid_driver hid_lenovo_go_s = {
-+	.name = "hid-lenovo-go-s",
-+	.id_table = hid_gos_devices,
-+	.probe = hid_gos_probe,
-+	.remove = hid_gos_remove,
-+	.raw_event = hid_gos_raw_event,
-+};
-+module_hid_driver(hid_lenovo_go_s);
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++	case CFG_LINUX_MODE:
++		for (i = 0; i < ARRAY_SIZE(touchpad_mode_text); i++) {
++			count += sysfs_emit_at(buf, count, "%s ",
++					       touchpad_mode_text[i]);
++		}
++		break;
++	default:
++		return count;
++	}
 +
-+MODULE_AUTHOR("Derek J. Clark");
-+MODULE_DESCRIPTION("HID Driver for Lenovo Legion Go S Series gamepad.");
-+MODULE_LICENSE("GPL");
++	if (count)
++		buf[count - 1] = '\n';
++
++	return count;
++}
++
+ static ssize_t mcu_id_show(struct device *dev, struct device_attribute *attr,
+ 			   char *buf)
+ {
+@@ -666,9 +796,21 @@ struct gos_cfg_attr touchpad_enabled = { FEATURE_TOUCHPAD_ENABLE };
+ LEGOS_DEVICE_ATTR_RW(touchpad_enabled, "enabled", index, gamepad);
+ static DEVICE_ATTR_RO_NAMED(touchpad_enabled_index, "enabled_index");
+ 
++struct gos_cfg_attr touchpad_linux_mode = { CFG_LINUX_MODE };
++LEGOS_DEVICE_ATTR_RW(touchpad_linux_mode, "linux_mode", index, touchpad);
++static DEVICE_ATTR_RO_NAMED(touchpad_linux_mode_index, "linux_mode_index");
++
++struct gos_cfg_attr touchpad_windows_mode = { CFG_WINDOWS_MODE };
++LEGOS_DEVICE_ATTR_RW(touchpad_windows_mode, "windows_mode", index, touchpad);
++static DEVICE_ATTR_RO_NAMED(touchpad_windows_mode_index, "windows_mode_index");
++
+ static struct attribute *legos_touchpad_attrs[] = {
+ 	&dev_attr_touchpad_enabled.attr,
+ 	&dev_attr_touchpad_enabled_index.attr,
++	&dev_attr_touchpad_linux_mode.attr,
++	&dev_attr_touchpad_linux_mode_index.attr,
++	&dev_attr_touchpad_windows_mode.attr,
++	&dev_attr_touchpad_windows_mode_index.attr,
+ 	NULL,
+ };
+ 
 -- 
 2.52.0
 

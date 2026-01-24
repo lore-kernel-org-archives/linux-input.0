@@ -1,209 +1,183 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50EF82D0C9D
-	for <linux-input@vger.kernel.org>; Fri, 23 Jan 2026 22:54:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769208881; cv=pass; b=LQ1MQ/lNOJKDzScdDZK4YZp9076kHtvMXs3dvBrgx1DkMyOWWBDUNgtHU5VKKxQuyeF68C7Lj9+MUS8mSl4pPB6pkTqgg+TaCFrrxcvrEswlGPVh6IjPSS0OzINEmsWEyuChjxnKrrd/0oOMM6BD7R0N+6eE1hRsfoKlgQ8Ymqc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769208881; c=relaxed/simple;
-	bh=VldxMb4kLeZCJLUNoWpFhluPeX7IeEzpYKxYC2DNOyA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=V0ObArHTNmpylB61cU/1jBM8faPvWZeuwHd9+x/Buaq/q9wfH7RbQARe4VHzZ2majik9HMMTTAIMnlYvYcKhEDG65sAdZXmXYvXPRcx6Fe+eUf4jqhsehpfyzqauU8taj6502mTEsH+eDpZdZ0RC0NSH1rm520AEvIsIJg3X2hk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j9jDmZCc; arc=pass smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2809CEED8
+	for <linux-input@vger.kernel.org>; Sat, 24 Jan 2026 01:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769219354; cv=none; b=l0/CGs4jV2wqrB80D7eW9v2Sy/6jbDuf8jeWcpSTjfM53iTMbsR/LHn2f7krWzG96iGRs3m+c9+N1vTQWVzPNG8FB8tGZMwPGSktISd1zkFM89VEMEg1PWUzWcGihDEfpWN/sQpQ1xgGTCBLm+UtiXAyUVeJrANOKQGuS4NwrEo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769219354; c=relaxed/simple;
+	bh=Iz/O24RRXRopA/iYdltADd1JWiRCy/cbu+LwfrkUwAw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hAxsYKwjwTc34E6Qb5Sa6yczgDE1bTM+fdPCXhrxk1pSOqh76MF0MWza3uisFbSVEhvS6MatZD/0Z2Man0p4uWqgjU7rBQoRCdLr8gaq/1sBHXbm3+rV+tYU5ZbsoUYCzHbNWQpHUWSJtB4n2+PRKHoHwQgzWyLcX+aYHp9gntw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cGaagszN; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j9jDmZCc"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2b4520f6b32so4419791eec.0
-        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2026 14:54:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769208868; cv=none;
-        d=google.com; s=arc-20240605;
-        b=XssISdEdNN6rFoWjkwc27mHvsT4TWQlbbCJMvh1AUyZlpJwhTGAFrb+IxTLDZ31LbC
-         fFk9QGIXKs3gvUOm4hRTuv6Qr4PKk1O8IWQ7CRQaWpJ8xF9fjK/Fpstnr3nn12jKnkZV
-         YU8ClJPF6um7wYK17LHtme+eE3sqdaz7ciX47vdDi76r/Seaih5aKu03H802YYUn8KPn
-         G7IawoHzgaP2cWrxwGWPsKN3DeoEmezAvDMNWmfpROQaMnDJ6n3oJ4+I1o+svW1IAnaw
-         uLjPjHA8pvUynp/LgvwGc1tapFgF4DSLRev5/aF/zl/aTedeIYx+WcX5ATSzhKLcHTz8
-         u1JQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=yDcIyM6dRIZ8Bjv67FvDZaFkSGXxbbjQiJ33Culq89E=;
-        fh=XvK+Gzrs51AqQXPK5YJ0MYqJOd7ra4WxnCmShyxu1ZY=;
-        b=kH5M4VojSUpxGixNy59eBhREnPmfx3awRIt60aRjnq9iHZX0DRewREFMrVWZxsHaYO
-         DAQ0w5KUb/+pqlT3i+mH2lRwgIOZzQF7BhXDdJket2lCiz8/bs9ZMgs5yrdkYyqjhv8U
-         xcPM6TED92m+nwyVL+zwDLP1pE/rPUmuy5dZcQBd6hjK5kyMTeN4Kg325XMD5M4cWaLR
-         y1gIRDXOZQ9mqm9wgAjfnYi96vsj3JIKBJRSs14Bp/PBMUn2SadJ5o9DeGkIjDSyNCJI
-         XvJpnI0hs4hyEkvRK6OjSXKJcdakZeBxWKhak8XknH3uk2Xd6dU66mcemgOnawHx3pNM
-         tgrw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGaagszN"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2b4520f6b32so4540709eec.0
+        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2026 17:49:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769208868; x=1769813668; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yDcIyM6dRIZ8Bjv67FvDZaFkSGXxbbjQiJ33Culq89E=;
-        b=j9jDmZCc0NU348g+Kfs42PDPWjkashiFk7uFSmOV4Tk2plna0ZZ2M7PGaUFFGht5PW
-         tPx99pTQ+h00USme/+2f1A8ZNK9qCcGIOj1TLPGDwv1q0SR6L9Ryf6ikpbkKiy4znjX0
-         HSKXq8PcrKc2TTzEOjxnMhaqdGByq9i+rBfn7cVZxy5w6lZXsbnORS5JpZp+AKp1+PYu
-         xkSmN3LgWSp1QtIA5vF8cqDZQLXaD50PHcujDWQinQGAKhYYAqEWJ/smMkORs8eumv7W
-         CA4UUSok6IXHMxxf07H/rUYgyWETyAOm8igpepSl3vPixDrpIE6LMUsmUOgsPCFWpbLJ
-         cPSw==
+        d=gmail.com; s=20230601; t=1769219352; x=1769824152; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Uo6jHEB3ezzd+BlMZazV0yjnUEyUOn6k4aOM+PmOEkM=;
+        b=cGaagszNxVMFiSgF8MuB2EjFKKMtEHfjVJl99s2cLFrSGV66ItGwhAckoHwVN7phN4
+         8P/L8wQ/b0U9LyAuNsdxRCG+w74g4frGfaSmkxMAzhIZk5wtN8tGpas89w83mrYitUdZ
+         IomeE41Xs3KXNVq89guZFaRm7iWi3Cyzh6Pf+3rWG6/a4BvQ8chA17cIc8AH/zadEG+0
+         Ahy7o88W4Cmxbs+2lugORLbHr2N2euOWExT4mh4xNwKvGtobDbR8eFCUaZGBWfezo5Vr
+         MYO8f2ExIIcgbvyCwROHhk77GIKyQ3Xpzrn6bi5iyE7iCBLqHJ4AKV6QULkNtRX210q/
+         To4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769208868; x=1769813668;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=yDcIyM6dRIZ8Bjv67FvDZaFkSGXxbbjQiJ33Culq89E=;
-        b=TcFaR9X7XbowqR/+bXPH7gY/NRYPIY+0x0+dpA+yzxzGNIneLm02tdgs189tTx3yZ1
-         lJmDkJ8BRYtR1CdlokVZ7e6fkChdEHJQqkFA2kR7EPO8pnLQn7ZvwnOBfoc6oJ467+/y
-         iAPH2Xhd8nUVO69HzLTl+r0KDky7jLGL4tdjiXkwq3nYvNMd1gzJ1a8pyGwgTPYWFoDO
-         v9JQzqd0aaCSRGO/2qQk59rhW+mMRObopFphqOE733JvdMcyDT/YJcnPyxi6GuRyuw4h
-         YX6tX5qmMp2T6+24YiFlsh6hcYp+JnSkFv8QrMutMeeJiGG6LuZjywWTBNFeHgvA7apx
-         96vA==
-X-Forwarded-Encrypted: i=1; AJvYcCWGZ1kidZUv4kql8Gn4f2++Z1unSNYzLA8nOM8HZyVK7s3Iw+a3j80WGUyCnq5Orhh6tsHK0JsTDJXIZA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxzz8ckq8wRznO/eYtRAfDkPAfRqyTDwzW7hImhrkbrYWYJEpxC
-	HYhKzcDFaiqD48VV2ENoMx/ezIKiKKRYF9gf/l2Lu0hCNebMGamo0LPJ6U7UzU7zYpzzCyeIjdp
-	FTcLRFepU3xUUhv9Q4IcYYUPdOIA5y0I=
-X-Gm-Gg: AZuq6aJaMv1iL689z3Rrir0Wtt4pg9hB50BxGdFZIIBC85Rl+y5Nj9x1M09UQgiz2K/
-	sJ6NQPETqOIiSc0pkWgabGX20kttN+LrmYAQ0mSo1RztFZNEmi3w0YB8mX7oQh+jITIu4Sc9+rk
-	wTyP6lR+vpJC6hYVKXCu7ZrhPdMRwWAER8Ke3I817eXeJNbMj/8fwHVFbdTq9/7VrGSpb4JEfiY
-	57H1PylZyDggM8xv9gNWjLRwmUVW9HjgoZRQUgjwiuKSUBSKnEjiOIobApiRqUQhV0A2TuSpv71
-	9EdhZl19JXqkvbAcQotVmFdGs0nHSA==
-X-Received: by 2002:a05:7300:724d:b0:2b0:4902:c55c with SMTP id
- 5a478bee46e88-2b7399b4a2emr2603459eec.18.1769208867539; Fri, 23 Jan 2026
- 14:54:27 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769219352; x=1769824152;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Uo6jHEB3ezzd+BlMZazV0yjnUEyUOn6k4aOM+PmOEkM=;
+        b=nTLjdABpR1yeEhNz+faPV1BJt7AXzDkkJaIqoZol8fPf7FOUDjRRsG6p5hMquQyjk5
+         CV+cLK16D84DFIrtxBIx5WLUNRCJwtQp1r9lHIKMzNbXg4vIre2QSpZdhWwJ/tJFUI1u
+         L50og8tSlzb3+b3iEb8CUwKuPz8yGYli/b/NGB6rCtRiXoj1xaRSHwWpZ0n8tFb2ftj4
+         JcVtvfi7jgx+ydwKGvsA945Iqn7Cnp7Xl7RMCex/r/HDEWZbf9Sgi7HJq356DMbHXwdV
+         a2nsnXKpXto6HlQvrQjQLPQMAyhxKa9BfeLF7wbUSk1AcuLFoVmKM6EqMfAHowZB9QrA
+         Fh0A==
+X-Forwarded-Encrypted: i=1; AJvYcCUnwBHCaD9OSjK0YYXGLBEQVLizIhs8Lc3eP233F2v+Mcx9CvQmJWoSzigh9nYy6P0aP+yxS+MPTaA9+A==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwDaT61PNQGWUzIpYX3GcBZgTyKBCdqCoZagU6f7uDWzaYXAOwc
+	/dXLg+AYdpMNL9UgCM8zhd7PGxs2/iTu/V59AE9GOOLwR/MZIlEFlPPf
+X-Gm-Gg: AZuq6aJ/dDtj/Z0XrULz4r2SsxNa1BjijL5diWkj8KKwA1uWh97LYtxtUZD1Z1Dky8q
+	z757+484J4OiuqLYV7fnQTirmjkrG5nVXR4CfwhF/F458GVIP9sCCcpC/6m6CeyhzCs2PsFKHNu
+	FfTMHwT0sMM6d8Dhc3uVzhQrWjLQ6NrqRwJkUdQ2qbeEX89Rdbz5sOtR77JXUCsrs4KQu+s5z2i
+	JoNt38tspgJT59ca2jCQPmnyd6r6t55R2vMZYhCFU8nSFUuDO/zSXRpVek9pZI4gaeXZvADoaPF
+	n8Kr5iqbfKKQ0jHkohq2p1LeR2IS24sY+9fr9fXu/ubvq5Zl6cAD9TOG/TOXAqu9uk4EUGbBKts
+	vKwNCc0y+E/gwM1XhAxAOafrNsHhgoTVCcOOOj95x10/weapRHxO5iZ29YBf2wgm6nR+7dcVUdz
+	SOyITV8ZTWsJ95DXgpQjfVGTNxShrEEVgd04BtnlGEccCQBtyRcLfhGGuuO/lIxgE=
+X-Received: by 2002:a05:7300:8183:b0:2b6:b23b:d488 with SMTP id 5a478bee46e88-2b739b71186mr3129087eec.25.1769219352182;
+        Fri, 23 Jan 2026 17:49:12 -0800 (PST)
+Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b73aa22707sm5160014eec.29.2026.01.23.17.49.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Jan 2026 17:49:11 -0800 (PST)
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Mario Limonciello <mario.limonciello@amd.com>,
+	Zhixin Zhang <zhangzx36@lenovo.com>,
+	Mia Shao <shaohz1@lenovo.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 00/16] HID: Add Legion Go and Go S Drivers
+Date: Sat, 24 Jan 2026 01:48:51 +0000
+Message-ID: <20260124014907.991265-1-derekjohn.clark@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251220204811.3539836-1-alex.t.tran@gmail.com> <38r99s88-7pp2-6s6n-2148-34s5rrs4s225@xreary.bet>
-In-Reply-To: <38r99s88-7pp2-6s6n-2148-34s5rrs4s225@xreary.bet>
-From: Erin Skomra <skomra@gmail.com>
-Date: Fri, 23 Jan 2026 14:54:16 -0800
-X-Gm-Features: AZwV_QipwUq4Ba9n1mG_aQw33uy5jMZwoGwSVewSb4PfIh6xNn40fGEqPKfYZcM
-Message-ID: <CAEoswT3Ft=XSeogfob0aitGkUEQY2dqoYcjT1CbeGWwFAsA+KQ@mail.gmail.com>
-Subject: Re: [PATCH v2 RESEND] selftests: hid: tests: test_wacom_generic: add
- tests for display devices and opaque devices
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Alex Tran <alex.t.tran@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>, shuah@kernel.org, 
-	linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi all and thanks so much to Alex for the patch.
+This series adds configuration driver support for the Legion Go S,
+Legion Go, and Legion Go 2 built-in controller HID interfaces. This
+allows for configuring hardware specific attributes such as the auso
+sleep timeout, rumble intensity, etc. non-configuration reports are
+forwarded to the HID subsystem to ensure no loss of functionality in
+userspace. Basic gamepad functionality is provided through xpad, while
+advanced features are currently only implemented in userspace daemons
+such as InputPlumber[1]. I plan to move this functionality into the
+kernel in a later patch series.
 
-We tested and reviewed the patch and everything looks good with one suggest=
-ion.
+Three new device.h macros are added that solve a fairly specific
+problem. Many of the attributes need to have the same name as other
+attributes when they are in separate attribute subdirectories. The
+previous version of this series, along with the upcoming his-asus-ally
+driver[2] use this macro to simplify the sysfs by removing redundancy.
+An upcoming out of tree driver for the Zotac Zone [3] also found this
+macro to be useful. This greatly reduces the path length and term
+redundancy of file paths in the sysfs, while also allowing for cleaner
+subdirectories that are grouped by functionality. Rather than carry the
+same macro in four drivers, it seems beneficial to me that we include the
+macro with the other device macros.
 
-Since the properties are mutually exclusive we'd like you to add one
-line to each prop test asserting that the opposite property is NOT
-set.
+A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
+permit fwupd to read the firmware version of the Go S HID interface without
+detaching the kernel driver.
 
-Thanks again,
-Erin Skomra
-Software Engineer II at Wacom
+Finally, there are some checkpatch warnings that will need to be supressed:
+WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
++       case -ENOSYS: /* during rmmod -ENOSYS is expected */
+
+This error handling case was added as it is experienced in the real world
+when the driver is rmmod. The LED subsystem produces this error code in
+its legacy code and this is not a new novel use of -ENOSYS, we are simply
+catching the case to avoid spurious errors in dmesg when the drivers are
+removed.
+
+[1]: https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
+[2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
+[3]: https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
+
+Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+---
+Change Log
+V3:
+  - Fix Documentation formatting by removing extra + characters
+  - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
+    wrong _show function.
+  - Rename enume os_mode_index to os_mode_types_index to fix collision
+    with os_mode_index attribute.
+  - Remove accidental rename for enabled->enable attributes in patch 4
+  - Add SOB for Mario in patch 10 as Co-Developer
+V2: https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
+  - Break up adding the Go S driver into feature specific patches
+  - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s
+  - Drop the arbitrary uevent properties patch
+  - Add Go serires driver
+  - Move DEVICE_ATTR_NAMED macros to device.h
+V1: https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
 
 
-On Sat, Jan 10, 2026 at 1:20=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wrot=
-e:
->
-> On Sat, 20 Dec 2025, Alex Tran wrote:
->
-> > Verify Wacom devices set INPUT_PROP_DIRECT on display devices and
-> > INPUT_PROP_POINTER on opaque devices. Moved test_prop_pointer into
-> > TestOpaqueTablet. Created a DirectTabletTest mixin class for
-> > test_prop_direct that can be inherited by display tablet test classes.
-> > Used DirectTabletTest for TestDTH2452Tablet case.
-> >
-> > Signed-off-by: Alex Tran <alex.t.tran@gmail.com>
->
-> Let me CC Benjamin and Wacom folks to take a look here as well.
->
-> > ---
-> > Changes in v2:
-> > - Removed the tests from the BaseTest class
-> > - Removed disabling tests for certain subclasses
-> > - Moved test_prop_pointer under TestOpaqueTablet
-> > - Created DirectTabletTest mixin class
-> > - Moved test_prop_direct under TestDTH2452Tablet
-> >  .../selftests/hid/tests/test_wacom_generic.py | 30 +++++++++++--------
-> >  1 file changed, 17 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/tools/testing/selftests/hid/tests/test_wacom_generic.py b/=
-tools/testing/selftests/hid/tests/test_wacom_generic.py
-> > index 2d6d04f0f..9d0b0802d 100644
-> > --- a/tools/testing/selftests/hid/tests/test_wacom_generic.py
-> > +++ b/tools/testing/selftests/hid/tests/test_wacom_generic.py
-> > @@ -598,18 +598,6 @@ class BaseTest:
-> >                  if unit_set:
-> >                      assert required[usage].contains(field)
-> >
-> > -        def test_prop_direct(self):
-> > -            """
-> > -            Todo: Verify that INPUT_PROP_DIRECT is set on display devi=
-ces.
-> > -            """
-> > -            pass
-> > -
-> > -        def test_prop_pointer(self):
-> > -            """
-> > -            Todo: Verify that INPUT_PROP_POINTER is set on opaque devi=
-ces.
-> > -            """
-> > -            pass
-> > -
-> >
-> >  class PenTabletTest(BaseTest.TestTablet):
-> >      def assertName(self, uhdev):
-> > @@ -677,6 +665,13 @@ class TestOpaqueTablet(PenTabletTest):
-> >              uhdev.event(130, 240, pressure=3D0), [], auto_syn=3DFalse,=
- strict=3DTrue
-> >          )
-> >
-> > +    def test_prop_pointer(self):
-> > +        """
-> > +        Verify that INPUT_PROP_POINTER is set on opaque devices.
-> > +        """
-> > +        evdev =3D self.uhdev.get_evdev()
-> > +        assert libevdev.INPUT_PROP_POINTER in evdev.properties
-> > +
-> >
-> >  class TestOpaqueCTLTablet(TestOpaqueTablet):
-> >      def create_device(self):
-> > @@ -862,7 +857,16 @@ class TestPTHX60_Pen(TestOpaqueCTLTablet):
-> >          )
-> >
-> >
-> > -class TestDTH2452Tablet(test_multitouch.BaseTest.TestMultitouch, Touch=
-TabletTest):
-> > +class DirectTabletTest():
-> > +    def test_prop_direct(self):
-> > +        """
-> > +        Verify that INPUT_PROP_DIRECT is set on display devices.
-> > +        """
-> > +        evdev =3D self.uhdev.get_evdev()
-> > +        assert libevdev.INPUT_PROP_DIRECT in evdev.properties
-> > +
-> > +
-> > +class TestDTH2452Tablet(test_multitouch.BaseTest.TestMultitouch, Touch=
-TabletTest, DirectTabletTest):
-> >      ContactIds =3D namedtuple("ContactIds", "contact_id, tracking_id, =
-slot_num")
-> >
-> >      def create_device(self):
-> > --
-> > 2.51.0
-> >
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
->
+Derek J. Clark (15):
+  include: device.h: Add named device attributes
+  HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver
+  HID: hid-lenovo-go: Add Feature Status Attributes
+  HID: hid-lenovo-go: Add Rumble and Haptic Settings
+  HID: hid-lenovo-go: Add FPS Mode DPI settings
+  HID: hid-lenovo-go: Add RGB LED control interface
+  HID: hid-lenovo-go: Add Calibration Settings
+  HID: hid-lenovo-go: Add OS Mode Toggle
+  HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
+  HID: hid-lenovo-go-s: Add MCU ID Attribute
+  HID: hid-lenovo-go-s: Add Feature Status Attributes
+  HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
+  HID: hid-lenovo-go-s: Add RGB LED control interface
+  HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
+  HID: Add documentation for Lenovo Legion Go drivers
+
+Mario Limonciello (1):
+  HID: Include firmware version in the uevent
+
+ .../ABI/testing/sysfs-driver-hid-lenovo-go    |  724 +++++
+ .../ABI/testing/sysfs-driver-hid-lenovo-go-s  |  304 +++
+ MAINTAINERS                                   |   11 +
+ drivers/hid/Kconfig                           |   24 +
+ drivers/hid/Makefile                          |    2 +
+ drivers/hid/hid-core.c                        |    5 +
+ drivers/hid/hid-ids.h                         |    7 +
+ drivers/hid/hid-lenovo-go-s.c                 | 1577 +++++++++++
+ drivers/hid/hid-lenovo-go.c                   | 2399 +++++++++++++++++
+ include/linux/device.h                        |   46 +
+ include/linux/hid.h                           |    1 +
+ 11 files changed, 5100 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+ create mode 100644 drivers/hid/hid-lenovo-go-s.c
+ create mode 100644 drivers/hid/hid-lenovo-go.c
+
+-- 
+2.52.0
+

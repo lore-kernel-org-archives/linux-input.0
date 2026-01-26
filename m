@@ -1,211 +1,138 @@
-Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C48BF182D0;
-	Mon, 26 Jan 2026 00:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B441AC44D
+	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 02:05:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769388843; cv=none; b=fgv8G8aEsKCU8xB7lqCt9QCZ8fJMa/i/hgB9Q7HqACOU72TnYB4dpj8wMPvaYlcgERVwuBa6o7uxuvfpCJLHhOraCPVXprL3EUBW5FqV+LV5s2IvIIpMzz9BwgEeMYXAqGqISMoRTYq44M/nUkfFzl6kNYlw3G2PYRbsdMgitzY=
+	t=1769393120; cv=none; b=ajqNpbRB4gewV8T4G//8SsGF8Y7vJg8CuhRJ08PVRoJUNBNlPxXf1Ms/MMe0311a6FJDz+tMjcjfB3XTFzsMQWHfVbG6XyF7fRSl8JX1Y6C3IsmHxomBWChtwHtR3fz/lVt1+oWWoAjKop5Px0ZM9Jium3Uomx6sVDtqK91y49M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769388843; c=relaxed/simple;
-	bh=4yrNsxakZLTJmcroe94KZKgeBTSSJm4VLVKOqUj4Mnw=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=bKDXbam6KKHlQE4h62+AmnB9wS30UhcbNM/rB9KpDi5UltTfGwHoui/UpDrvySTDr8OMEVTs+d+PHuN13GqWnuerSzMuKhXwIsRLhqT2Z+/6YhvdWe9VkBJW2Tq/2hccaiIrkQuOgq3lZyBFbAoRxU2TR2qxsZ+Elh9szMYUQuM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=QWx7j2+P; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=QrwDb+AO; arc=none smtp.client-ip=103.168.172.159
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
+	s=arc-20240116; t=1769393120; c=relaxed/simple;
+	bh=GXtdJel1eUo3aIj4hiUu8GuQI8Z1AaGYsOJcqinsUVA=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=irhZeRRlEjZBIEpu/rOkLLfvdU28l7T5L1b6lsY/LERapOMG3vzBoNWSQctydbFbh60rEvc3x4ZTRh+VKKAkPAgzi3eGbmmzuug+E6wNaLQMuJ6q9afSL6Qwd8otM2qGgffGA7+St6Vo6lRr5Cwxvg+pyYiueDQy1pd7tHio0Yg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f8GMWdb/; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="QWx7j2+P";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="QrwDb+AO"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id D7E291400102;
-	Sun, 25 Jan 2026 19:53:59 -0500 (EST)
-Received: from phl-imap-08 ([10.202.2.84])
-  by phl-compute-02.internal (MEProxy); Sun, 25 Jan 2026 19:53:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1769388839;
-	 x=1769475239; bh=BFJ6Zn7DLwNKVMODnPj8XRWiPzMllQ7V6/0qZdgdcE8=; b=
-	QWx7j2+Pqtx/i+dIvKV/bSkC/nZLnLbr+rrMyUaSYpH8wdzp4nbtI8wnWdYhwGQX
-	LlaqZyqhiZUfxxhxmpy699WKXflpG21dZPgn2FM/WrONI8YTc6HLEKDbrH0eD5Cg
-	c1kK7IxBswsCfhvP+z3PWhW/yOEXWzG0ATXCyWT/BtcbSdUyC3JCO86IhKCTqwOt
-	83Xl2yjoaV/sTHatCEl/fwuVPeZIjF8n2dNTRy3i2wzK/kWDVbLPbE0ElADuThpt
-	VNATKwmFOVN8ua8rA6LetgAbFqwjCcQQTxD7Uu110OlaEBFSYb+g/4gdpKUYt5ia
-	v3ycBmtuE4NXHwllj+bwKw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1769388839; x=
-	1769475239; bh=BFJ6Zn7DLwNKVMODnPj8XRWiPzMllQ7V6/0qZdgdcE8=; b=Q
-	rwDb+AODyMjUT4c+5dMG/rZprVqtbcXMkwrvHwHZHVVCLUCJyjPKSvPHHvXOiIk6
-	Wwhw8u39YmfzaM0jRUjA7Qxr+QsfWn5w1rKlpGUnspO0thfBiJdWSkVUr388S0E8
-	/EugnuNHRReeEdlhz91xWgDHZHnyrvpp5fn1lLBkFGVgiWYinSKz0Y+4Qx3n4t8/
-	TXxk6lgyCr++Mi5RT8rpJqN0GElSE9mCUi/ACwVM1YG2wyMxC5ZnBZZAX06ezWFo
-	XzXDcOKX3jOihNKJWP9b7b8F8FiOAZW9dKAMkFPmEj0+nAm4PSgH/RdFEJhRvZNA
-	6255nqajCiBs6/U9G1Z8g==
-X-ME-Sender: <xms:J7t2afgf28U_YJ5KGAm8pJsI0yBVWu7a5v0neFdRd-zisFXvmPhhBg>
-    <xme:J7t2aW1ANIEPUOxgHBPCmqz03y2CQq0HWChhO8A8ABTWIxUFaMvlDg4PJXUoEUeW4
-    YnXmKeCZYChUH1rGrFo5JR7DIP2nUC6JsN25iycgAjefWhU86BYB2qf>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduheeivdekucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedfofgrrhhk
-    ucfrvggrrhhsohhnfdcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtg
-    grqeenucggtffrrghtthgvrhhnpeelvedviefhffegleeiueegtdeigfegleeltdehkedt
-    uddugeegfeehueeluddvheenucffohhmrghinhepghhithhhuhgsrdgtohhmpdhkvghrnh
-    gvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhr
-    ohhmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrpdhnsggprhgtph
-    htthhopedutddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhgrrhhiohdrlhhi
-    mhhonhgtihgvlhhlohesrghmugdrtghomhdprhgtphhtthhopeguvghrvghkjhhohhhnrd
-    gtlhgrrhhksehgmhgrihhlrdgtohhmpdhrtghpthhtohepsggvnhhtihhssheskhgvrhhn
-    vghlrdhorhhgpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhgpdhrtghpth
-    htohepshhhrghohhiiudeslhgvnhhovhhordgtohhmpdhrtghpthhtohepiihhrghnghii
-    giefieeslhgvnhhovhhordgtohhmpdhrtghpthhtohepphhgrhhifhhfrghishesvhgrlh
-    hvvghsohhfthifrghrvgdrtghomhdprhgtphhtthhopehlihhnuhigqdguohgtsehvghgv
-    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvg
-    hrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:J7t2abEfr_eK3xZ7sz85GL8FVIdExIIheXq_LizSEVt8X5t1x8zJ-A>
-    <xmx:J7t2aQiVp0OcePtkPr2EOrrEtPmbc29lbho8I6t0xCkf_vXDiYzjAw>
-    <xmx:J7t2aYtmGjsZ_b_MXBahmgIAgaap4IqyIHc7XnF4C-5FHrLmX-R9hQ>
-    <xmx:J7t2aTsR-1bjMgY2qYKU8gOqyS_JGEFx9LIobaPPMKWpHn_lF-VTpQ>
-    <xmx:J7t2aV6i4AIfVLazlNIDB3WZewIF-jsn5WygUeXHKr2oa0Xwf8BfGRLn>
-Feedback-ID: ibe194615:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 389472CE0072; Sun, 25 Jan 2026 19:53:59 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f8GMWdb/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769393118; x=1800929118;
+  h=date:from:to:cc:subject:message-id;
+  bh=GXtdJel1eUo3aIj4hiUu8GuQI8Z1AaGYsOJcqinsUVA=;
+  b=f8GMWdb/EQK89IiCx3XX/PAY5BlN1AHTm865IL2LfEM5pI9fwp0LLR76
+   54cafMA9xV50QV4EpfWXdxXlRg5yc65oWqBfbeSVWMYRqqQ3RkrFrBkXu
+   qWjG8T0EZj+Mx3ux1sMRaJeHtNaF5S5ZOsHMTh0YdxU2O5SRoP8PfXl5P
+   J64WHcP1UfyykLgSkR9iPc7SmY2GVGLJ5Zxhxw8s64lAWtdzJ64ZLi0Tf
+   kVCBAEjwK7pjP/IH4+cbYlxGHibfpaO1tU9OXwlrPNCfj4BAXTRHcFhbi
+   vlePGNqYDyXPmLqGFPC2FUGdIhANNBSmRn9+XNgfv4hnEydkkv8pkeUtd
+   Q==;
+X-CSE-ConnectionGUID: cHKKZ6TNS2Kus+pc1VShyg==
+X-CSE-MsgGUID: AekmixGITFGrnjRUufl2lg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11682"; a="96038860"
+X-IronPort-AV: E=Sophos;i="6.21,254,1763452800"; 
+   d="scan'208";a="96038860"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2026 18:05:17 -0800
+X-CSE-ConnectionGUID: aCrYD861Tv6pw8v/rNlpzw==
+X-CSE-MsgGUID: 9GkTIftXRv6tS38RxVhTmw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,254,1763452800"; 
+   d="scan'208";a="212545621"
+Received: from igk-lkp-server01.igk.intel.com (HELO afc5bfd7f602) ([10.211.93.152])
+  by orviesa005.jf.intel.com with ESMTP; 25 Jan 2026 18:05:16 -0800
+Received: from kbuild by afc5bfd7f602 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vkBya-000000001PB-3pA6;
+	Mon, 26 Jan 2026 02:05:12 +0000
+Date: Mon, 26 Jan 2026 03:04:21 +0100
+From: kernel test robot <lkp@intel.com>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>
+Subject: [hid:for-6.20/pm_ptr 7/12]
+ drivers/hid/hid-picolcd_core.c:651:33: error: 'picolcd_suspend' undeclared
+ here (not in a function); did you mean 'picolcd_reset'?
+Message-ID: <202601260353.Dk5ekiee-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-ThreadId: AieL9ZmtN4OB
-Date: Sun, 25 Jan 2026 19:53:38 -0500
-From: "Mark Pearson" <mpearson-lenovo@squebb.ca>
-To: "Derek J . Clark" <derekjohn.clark@gmail.com>,
- "Jiri Kosina" <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>
-Cc: "Limonciello, Mario" <mario.limonciello@amd.com>,
- "Zhixin Zhang" <zhangzx36@lenovo.com>, "Mia Shao" <shaohz1@lenovo.com>,
- "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
- linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Message-Id: <9c470f55-2f53-4669-b976-9a81d8bfe856@app.fastmail.com>
-In-Reply-To: <20260124014907.991265-1-derekjohn.clark@gmail.com>
-References: <20260124014907.991265-1-derekjohn.clark@gmail.com>
-Subject: Re: [PATCH v3 00/16] HID: Add Legion Go and Go S Drivers
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 23, 2026, at 8:48 PM, Derek J. Clark wrote:
-> This series adds configuration driver support for the Legion Go S,
-> Legion Go, and Legion Go 2 built-in controller HID interfaces. This
-> allows for configuring hardware specific attributes such as the auso
-> sleep timeout, rumble intensity, etc. non-configuration reports are
-> forwarded to the HID subsystem to ensure no loss of functionality in
-> userspace. Basic gamepad functionality is provided through xpad, while
-> advanced features are currently only implemented in userspace daemons
-> such as InputPlumber[1]. I plan to move this functionality into the
-> kernel in a later patch series.
->
-> Three new device.h macros are added that solve a fairly specific
-> problem. Many of the attributes need to have the same name as other
-> attributes when they are in separate attribute subdirectories. The
-> previous version of this series, along with the upcoming his-asus-ally
-> driver[2] use this macro to simplify the sysfs by removing redundancy.
-> An upcoming out of tree driver for the Zotac Zone [3] also found this
-> macro to be useful. This greatly reduces the path length and term
-> redundancy of file paths in the sysfs, while also allowing for cleaner
-> subdirectories that are grouped by functionality. Rather than carry the
-> same macro in four drivers, it seems beneficial to me that we include the
-> macro with the other device macros.
->
-> A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
-> permit fwupd to read the firmware version of the Go S HID interface without
-> detaching the kernel driver.
->
-> Finally, there are some checkpatch warnings that will need to be supressed:
-> WARNING: ENOSYS means 'invalid syscall nr' and nothing else
-> 1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
-> +       case -ENOSYS: /* during rmmod -ENOSYS is expected */
->
-> This error handling case was added as it is experienced in the real world
-> when the driver is rmmod. The LED subsystem produces this error code in
-> its legacy code and this is not a new novel use of -ENOSYS, we are simply
-> catching the case to avoid spurious errors in dmesg when the drivers are
-> removed.
->
-> [1]: 
-> https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
-> [2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
-> [3]: 
-> https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
->
-> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
-> ---
-> Change Log
-> V3:
->   - Fix Documentation formatting by removing extra + characters
->   - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
->     wrong _show function.
->   - Rename enume os_mode_index to os_mode_types_index to fix collision
->     with os_mode_index attribute.
->   - Remove accidental rename for enabled->enable attributes in patch 4
->   - Add SOB for Mario in patch 10 as Co-Developer
-> V2: 
-> https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
->   - Break up adding the Go S driver into feature specific patches
->   - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s
->   - Drop the arbitrary uevent properties patch
->   - Add Go serires driver
->   - Move DEVICE_ATTR_NAMED macros to device.h
-> V1: 
-> https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
->
->
-> Derek J. Clark (15):
->   include: device.h: Add named device attributes
->   HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver
->   HID: hid-lenovo-go: Add Feature Status Attributes
->   HID: hid-lenovo-go: Add Rumble and Haptic Settings
->   HID: hid-lenovo-go: Add FPS Mode DPI settings
->   HID: hid-lenovo-go: Add RGB LED control interface
->   HID: hid-lenovo-go: Add Calibration Settings
->   HID: hid-lenovo-go: Add OS Mode Toggle
->   HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
->   HID: hid-lenovo-go-s: Add MCU ID Attribute
->   HID: hid-lenovo-go-s: Add Feature Status Attributes
->   HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
->   HID: hid-lenovo-go-s: Add RGB LED control interface
->   HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
->   HID: Add documentation for Lenovo Legion Go drivers
->
-> Mario Limonciello (1):
->   HID: Include firmware version in the uevent
->
->  .../ABI/testing/sysfs-driver-hid-lenovo-go    |  724 +++++
->  .../ABI/testing/sysfs-driver-hid-lenovo-go-s  |  304 +++
->  MAINTAINERS                                   |   11 +
->  drivers/hid/Kconfig                           |   24 +
->  drivers/hid/Makefile                          |    2 +
->  drivers/hid/hid-core.c                        |    5 +
->  drivers/hid/hid-ids.h                         |    7 +
->  drivers/hid/hid-lenovo-go-s.c                 | 1577 +++++++++++
->  drivers/hid/hid-lenovo-go.c                   | 2399 +++++++++++++++++
->  include/linux/device.h                        |   46 +
->  include/linux/hid.h                           |    1 +
->  11 files changed, 5100 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
->  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
->  create mode 100644 drivers/hid/hid-lenovo-go-s.c
->  create mode 100644 drivers/hid/hid-lenovo-go.c
->
-> -- 
-> 2.52.0
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-6.20/pm_ptr
+head:   d68a5fd939f460a7db76d127005af51cb13c69fa
+commit: 318f7b0f1bea13d3aa0506fe6f40399f11c4ae52 [7/12] HID: picolcd_core: Use pm_ptr instead of #ifdef CONFIG_PM
+config: i386-randconfig-2006-20250804 (https://download.01.org/0day-ci/archive/20260126/202601260353.Dk5ekiee-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260126/202601260353.Dk5ekiee-lkp@intel.com/reproduce)
 
-For the series - all looks good to me.
-Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202601260353.Dk5ekiee-lkp@intel.com/
 
-Mark
+All errors (new ones prefixed by >>):
+
+   In file included from include/linux/kernel.h:36,
+                    from include/linux/random.h:7,
+                    from include/linux/nodemask.h:94,
+                    from include/linux/numa.h:6,
+                    from include/linux/cpumask.h:15,
+                    from include/linux/smp.h:13,
+                    from include/linux/lockdep.h:14,
+                    from include/linux/spinlock.h:63,
+                    from include/linux/mmzone.h:8,
+                    from include/linux/gfp.h:7,
+                    from include/linux/slab.h:16,
+                    from include/linux/hid.h:19,
+                    from drivers/hid/hid-picolcd_core.c:10:
+>> drivers/hid/hid-picolcd_core.c:651:33: error: 'picolcd_suspend' undeclared here (not in a function); did you mean 'picolcd_reset'?
+     651 |         .suspend =       pm_ptr(picolcd_suspend),
+         |                                 ^~~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   drivers/hid/hid-picolcd_core.c:651:26: note: in expansion of macro 'pm_ptr'
+     651 |         .suspend =       pm_ptr(picolcd_suspend),
+         |                          ^~~~~~
+>> drivers/hid/hid-picolcd_core.c:652:33: error: 'picolcd_resume' undeclared here (not in a function); did you mean 'picolcd_remove'?
+     652 |         .resume =        pm_ptr(picolcd_resume),
+         |                                 ^~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   drivers/hid/hid-picolcd_core.c:652:26: note: in expansion of macro 'pm_ptr'
+     652 |         .resume =        pm_ptr(picolcd_resume),
+         |                          ^~~~~~
+>> drivers/hid/hid-picolcd_core.c:653:33: error: 'picolcd_reset_resume' undeclared here (not in a function); did you mean 'picolcd_reset'?
+     653 |         .reset_resume =  pm_ptr(picolcd_reset_resume),
+         |                                 ^~~~~~~~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   drivers/hid/hid-picolcd_core.c:653:26: note: in expansion of macro 'pm_ptr'
+     653 |         .reset_resume =  pm_ptr(picolcd_reset_resume),
+         |                          ^~~~~~
+
+
+vim +651 drivers/hid/hid-picolcd_core.c
+
+   644	
+   645	static struct hid_driver picolcd_driver = {
+   646		.name =          "hid-picolcd",
+   647		.id_table =      picolcd_devices,
+   648		.probe =         picolcd_probe,
+   649		.remove =        picolcd_remove,
+   650		.raw_event =     picolcd_raw_event,
+ > 651		.suspend =       pm_ptr(picolcd_suspend),
+ > 652		.resume =        pm_ptr(picolcd_resume),
+ > 653		.reset_resume =  pm_ptr(picolcd_reset_resume),
+   654	};
+   655	module_hid_driver(picolcd_driver);
+   656	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

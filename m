@@ -1,177 +1,264 @@
-Received: from eu-smtp-delivery-101.mimecast.com (eu-smtp-delivery-101.mimecast.com [185.58.85.101])
+Received: from eu-smtp-delivery-101.mimecast.com (eu-smtp-delivery-101.mimecast.com [185.58.86.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0401330668
-	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 16:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.85.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320FF33B6FD
+	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 16:39:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.86.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769444952; cv=none; b=cOVapR8J5lqMhpohEnD8lGU+OAKdTn/LSK8la+ceeb3ZN3iMdYWyUXCWEZDgymgK+qpMTJmpdDr8iyzGhTbzihetOpNysgMcM1AoEmZJzvgR6uq3qjMZfn0R1HfENPMl3gb6F9u0qxdaiVFr80SJLOvIE8K/dE3IfIsRD2ZVVuw=
+	t=1769445548; cv=none; b=brIMAjYJmIOn/lqASe4XCIxA6FFE6cYKubCixTpQH0S9ucyfYZKfBVRp9HNHMfqZGNyIJGIaX15ZHWCaslQs4dO+DcZSDKokjBJM2021nQsBfKAxIjK01Q0AIfns6OHLm0sL71n33XBYbjkN7/ytzyZoDr2CbWpHDSqYudJfyY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769444952; c=relaxed/simple;
-	bh=GStZm7ECMYYl0GSDY/kTFfHt5kzc8hOcD/7M5vMlfgo=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=IB4N+ewap4D1+Sss9qv2o/OJQR99zj6Kov3gsQpWdPGyk9AyT9eqQaeCbxOaGT8Rw63WNGY4NSpyqif27pdfoBO+0hMcfiOvBfscN6rfbBG8kECcLG8h9MvY0gygCdvzaExPpFA3D+D02yEQ20kYv4plx/66faM0xzbbLMWrnlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=touchnetix.com; spf=pass smtp.mailfrom=touchnetix.com; arc=none smtp.client-ip=185.58.85.101
+	s=arc-20240116; t=1769445548; c=relaxed/simple;
+	bh=qU9hjkq02RMfBGJ2ZqhX7fSjNIf1NBEX8j93ChbZpvE=;
+	h=From:Date:Subject:Message-Id:References:In-Reply-To:To:Cc:
+	 MIME-Version:Content-Type; b=KOmkoAPFQN94QWv5eBFI/Q9gdDnmgPLKQURxKnL6+nj7dJCnKp93Jxt8C67uohwYGNSOG6hluBLgxO3gyTAXteg+1IcWb8wVuzAFtvei3RoV7OaP8Maxs6dsKF8jWz+EHj4w/DMpVj3B0OBspu3Gr7l1UzTAyGQMsI2L9cOhMzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=touchnetix.com; spf=pass smtp.mailfrom=touchnetix.com; arc=none smtp.client-ip=185.58.86.101
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=touchnetix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=touchnetix.com
-Received: from CWXP265CU009.outbound.protection.outlook.com
- (mail-ukwestazon11021107.outbound.protection.outlook.com [52.101.100.107])
+Received: from CWXP265CU010.outbound.protection.outlook.com
+ (mail-ukwestazon11022082.outbound.protection.outlook.com [52.101.101.82])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id uk-mta-260-AXKqBXGdOrOats1Z48cRnw-1; Mon,
- 26 Jan 2026 16:27:55 +0000
-X-MC-Unique: AXKqBXGdOrOats1Z48cRnw-1
-X-Mimecast-MFC-AGG-ID: AXKqBXGdOrOats1Z48cRnw_1769444875
+ cipher=TLS_AES_256_GCM_SHA384) id uk-mta-187-Xl0D4wSxOoSLBKuHw1ZDCw-2; Mon,
+ 26 Jan 2026 16:38:58 +0000
+X-MC-Unique: Xl0D4wSxOoSLBKuHw1ZDCw-2
+X-Mimecast-MFC-AGG-ID: Xl0D4wSxOoSLBKuHw1ZDCw_1769445537
 Received: from LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:e9::9) by
- LO0P123MB4185.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:155::6) with Microsoft
+ LO2P123MB3824.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:12d::5) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9542.15; Mon, 26 Jan 2026 16:27:53 +0000
+ 15.20.9542.12; Mon, 26 Jan 2026 16:38:54 +0000
 Received: from LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM
  ([fe80::4a94:a629:f86f:40d1]) by LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM
  ([fe80::4a94:a629:f86f:40d1%4]) with mapi id 15.20.9542.010; Mon, 26 Jan 2026
- 16:27:53 +0000
+ 16:38:54 +0000
 From: Andrew Thomas <andrew.thomas@touchnetix.com>
-To: Marco Felsch <m.felsch@pengutronix.de>
-CC: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark
- Satterthwaite <mark.satterthwaite@touchnetix.com>,
-	"kamel.bouhara@bootlin.com" <kamel.bouhara@bootlin.com>,
-	"kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: Re: [PATCH 1/1] Adding support for aXiom touchscreen controller
-Thread-Topic: [PATCH 1/1] Adding support for aXiom touchscreen controller
-Thread-Index: AQHci51spqwBeAXsuUWcLtgmGMZ5nLVewEYAgAXShgg=
-Date: Mon, 26 Jan 2026 16:27:53 +0000
-Message-ID: <LOYP123MB27019D7C9A3EEA198CAEB08C9793A@LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM>
-References: <20260122124819.273188-1-andrew.thomas@touchnetix.com>
- <20260122124819.273188-2-andrew.thomas@touchnetix.com>
- <20260122220918.uuy7rlvtcrsmfqmd@pengutronix.de>
-In-Reply-To: <20260122220918.uuy7rlvtcrsmfqmd@pengutronix.de>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: 
-undefined: 1711704
-drawingcanvaselements: []
-composetype: reply
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LOYP123MB2701:EE_|LO0P123MB4185:EE_
-x-ms-office365-filtering-correlation-id: ba3f9627-40ea-4b85-8cfc-08de5cf7db20
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700021
-x-microsoft-antispam-message-info: =?iso-8859-1?Q?pUnptsewfA8+1AlxGA/eyQHuhh9W+siJOQ6UsMeoG7IEAYZ/d4iu9vxdiE?=
- =?iso-8859-1?Q?fDF7HwS79MzFYrNZV8I7+UaLREL90amyfwnQR2FzvLdqUVSbsIp0H3WC5w?=
- =?iso-8859-1?Q?BkMRjOm+5bqq4DcFqoXYuwp9u4fum76Id0r6pjlOVpaQ9WHmGoJs853W1+?=
- =?iso-8859-1?Q?/gMcMXU+qeidlZF3eTbMEPsru1Kr+pCK0utL8TKpOtWfxVv0/SrJQQaX5U?=
- =?iso-8859-1?Q?vH5r3qhiQe+zb9pvGUw2BHX6p1ses7Zg/XnHU/GGzrB/eCfqeivZdEMWPv?=
- =?iso-8859-1?Q?Fb0QTKICJEo8uOu7hcsNjjGEjOzlOhmGEVylpUOcqpS5JU1nHaeSxptGbC?=
- =?iso-8859-1?Q?GEcuo5n+ZFF9uSGJSsAoVEap8sA8a6TJee4rZ1VJOwFk4hNVYpU3NUfvbd?=
- =?iso-8859-1?Q?pZIZykBIKhqWgHKlzJ2uP5E4J6lfFNxDvfGVFVB8nhAObDWJ0tk2nvrdR5?=
- =?iso-8859-1?Q?cx7x7F//PDRgy+2qK2IBAu6BxLKPpbI7HWY14FYMgOeyJQsKFVjShNI3/g?=
- =?iso-8859-1?Q?apWlEhu7QFD/UKwfWSysnd9x+5LxrN8FW1yObgiHLNLvyda4wh9KJrWW1E?=
- =?iso-8859-1?Q?/+avRjky4J19yAjH85fYeDQE+yIVXXx4ZzWDqWfSGXjAmjzR6iPORWh5uL?=
- =?iso-8859-1?Q?n06rE/0lNWXTprzL5cutXgZvzjou/wezrgMxnDjUN6+5Nh2fsJ50AqwRnA?=
- =?iso-8859-1?Q?FXEAfUSh7+KyyxsGon7Yjmx9QOVtsmFtPVM7z7Nu3/Qe34J+vhp4AdLbN3?=
- =?iso-8859-1?Q?9tnqe+Q8aoAwIK2YVtilY1N2KIZUtplrffbcvlTX7k+iLChQc3dCM7iYp8?=
- =?iso-8859-1?Q?OAp/gq3ZJNtH0vemCDWSZV3d6w78aAD0HBdyniDDTvJOXd7LHAVFZvMqtw?=
- =?iso-8859-1?Q?Ujfs+ecjhfeO4xSi0ooXhMGIn6ZWmUm0P3ph9+M8k2SLR2FEC/l+k2pT7T?=
- =?iso-8859-1?Q?MTNSY4dzrYRnz+D+4o9erg2R1XRqUVME5e1I11dPvDcX61/gha/2H1lgIp?=
- =?iso-8859-1?Q?AehZD5S+O0K2DegyVO0+MlGEpeLlPmSGiufQet8rfVojvZsO2+Iy8OgBEv?=
- =?iso-8859-1?Q?8PL/HsKMVSFZBwixuDFWqW3UIzAJOTNiFKq6i5Fv31X+OwVU+d219EVIMF?=
- =?iso-8859-1?Q?fOfkNwuliEMwFBDsAai1esfGB+dJGY7wqKViQA5C8oK6M3f+7sSWkoa3/h?=
- =?iso-8859-1?Q?TEYJcmVTOYvt7RFMeIoB+ShobT7702VFzh4LoNJ/culKI8HrxCPGcE/Ktr?=
- =?iso-8859-1?Q?6tBA4m2YOXmXIF/q9Rvu2bz66Fw+8v68spGVr6HKIq4g4Jt5DHeJzqbryN?=
- =?iso-8859-1?Q?4+RfWHY5VIZ04iR/gPaJpDxYX51DBygln4Z5lLZS8osvgpEW0ZTitzFMp8?=
- =?iso-8859-1?Q?KCydMC/UflVT8PVBoRcL0hsFv+OioaNK9mQSZJ/1Dlvt9zQfZhKEpQuw9I?=
- =?iso-8859-1?Q?9ZWD2Ceb9rVJ4pu39/00De4BzkS2sLgYaNV8Z62RRTadKBIirSzyXhq9yY?=
- =?iso-8859-1?Q?XskNAPR3ZYffwq3HGm+jEqEm088fn6t+N6IW1prmgfmLKC6P4RDbaX6vjo?=
- =?iso-8859-1?Q?5Ge7ToTpmZl13bbB1nj/MbrQhIMrU7JDATcJWSVC/2nJY0J/vqyBIE3jfm?=
- =?iso-8859-1?Q?yN3wDcj0Ej1N1RSNjiFUjMTV2jHzFEzLtxs97AV9JRIIRW+G11Xz3miUmQ?=
- =?iso-8859-1?Q?AyiV6W0tlYn+VPMkueM=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700021);DIR:OUT;SFP:1102
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?dqQ74SvVQbgYcaMv0XR78KfqjRgl0Bu+jFax0c0xRFZ6ARx9rqKS4V+XDH?=
- =?iso-8859-1?Q?jeEjqIfwHXzA7FGx0YTgwA1h1iFgn4qLe3qTzrH/p7znIrkNa5RIqaecnm?=
- =?iso-8859-1?Q?meC4vliIzy/ueAHblfTxheJ9EyFFjmfAh0vtJPr1H8bxyK++uf+FwoCRC1?=
- =?iso-8859-1?Q?9F6Gs3xWuqYuWlaEX+a2QHjt+01RE30NHXaTY07G0CUUAAvazTKNsg+kSN?=
- =?iso-8859-1?Q?3mQHhlTAZprP8vRGEi5s2oOey5z3HOdcT1kSxnTNeomYGeYnEqc96B/1ey?=
- =?iso-8859-1?Q?7GAchAX1YnI0Kx47aZEQenPaadcgVIQXr0bH0VSuuaoyUJlFzYUDgR/zoO?=
- =?iso-8859-1?Q?rB+bfrjm2gV6EEnNrXFb7FmamFisUzEGB7heTe2kEPEetTLhW2p5Y8ZaNZ?=
- =?iso-8859-1?Q?iFziJkPKroBTB7uQYOd0pOHM40wyuo3rM6D307d8H+GfAcXr3iWfsc6LlH?=
- =?iso-8859-1?Q?Qk7xrEBrJ7PnuvTIGwBsRINznzRW5Vd8vbsKVCe53A0mU1nKrJg920B+XN?=
- =?iso-8859-1?Q?HA87NpsAisL+jeQ9lVScV6l+SocX+0PzfjLOf1bZ1WEinOhLUmf2jKuYOj?=
- =?iso-8859-1?Q?mrz//yTchPdFLFbPRs9hQAXXWLPA7WOmn304/BLLTs+9O6qaLNJbLRlGnh?=
- =?iso-8859-1?Q?wyl3iCguU+O3H6vQUoPhyRpmJjIADgdXaTYclgI2slN+S8GfdwiiwpQKXe?=
- =?iso-8859-1?Q?AFBiqBahuqsG89oH+vR3Ta0QEwU7/eDnFfsiuZrlhuqSlcwD68XbV69mL2?=
- =?iso-8859-1?Q?uJYL3PypGwgYXTVvfpQwrDQiVvWjjWvRYlrB84Oj2Wjt6uutfN8TvO3K5K?=
- =?iso-8859-1?Q?bzdSC+0z/v3Ln5RJ1yefZhpxlzEvOPAPMOdtNj1WXZrilWLB36O1WuwrPQ?=
- =?iso-8859-1?Q?DqqoGo5eIgmniR/TyYdBTXMmm2xluP8u96jLI5dWpDzM9B/Q6dqBTxxzrX?=
- =?iso-8859-1?Q?D1KKdDP5X1xNfMho3cgnz28weuILGkqOcTNyqLg8tGXL+EYHcu6oI/g+OV?=
- =?iso-8859-1?Q?zp3PlUzd/MjCCY0/sx/AG3Wbthm8Q8qky5jyjBI9+NpVA6uySt3h7zM09d?=
- =?iso-8859-1?Q?lt6D6mD3ARJ5RXaMNIxh5X7Uoc5gDxH1vUgsyPveabThqXAug3nrzUK9gG?=
- =?iso-8859-1?Q?TOXWbQTin4qggw3VAOLezlBFuwgn84E1398fWtRZmEbJfz5Sp9W4QoG6Hc?=
- =?iso-8859-1?Q?h1qKL/mihepnQvyEkkSrmK2JjTGd34iSH//XZA1N8+sK5ntla24kcQIrst?=
- =?iso-8859-1?Q?67KeDa9SIoWc2gVVn/SeeSddvZbgD4UBKCYO4ksHvhfrWTeuDWTEkpWqqm?=
- =?iso-8859-1?Q?+AIf8LwMOYM1Ifno3PYswhleTESsb29tKllSbzLnJEDxJ9vziB7Vi50h43?=
- =?iso-8859-1?Q?3MJLQr8zYzGJmhUxbz/r1LAfxsptQc4UcgqHKHGBBovLZb8X6KXgJ1pffu?=
- =?iso-8859-1?Q?NnzORInA0RClTDYbTOUfUKQ1o/I6CAFPCAUNtMcetI8Fqmt0NPOQxcSjv+?=
- =?iso-8859-1?Q?SaDtqvS5s9geT8cPuM2hH111klyDrwrybscBmrnB5PXACXBzZWxWOq7KmC?=
- =?iso-8859-1?Q?j/L364iYZzIZRrbGZFEBQlC2L8vEkZzNBBvl2d/GSWpFAGw1UjZdvDdnnF?=
- =?iso-8859-1?Q?MLfH2e7JxgW4tziNpICfSEaw1Z6Sd+gfC9OE1i/y9TS58oMz9FuGRU5jNg?=
- =?iso-8859-1?Q?oHtlOxOy6Y6VLtDvGhkEAPm/cEENkKPkNtYEhzZR9WreDhs428OFfm86Tr?=
- =?iso-8859-1?Q?bWD97lVAd2Fr5pPK834NFKhXHO8N6CRHaN9D+b8JK4Yfyu0R5fDNMUN4+w?=
- =?iso-8859-1?Q?57FMylbXTw=3D=3D?=
+Date: Mon, 26 Jan 2026 16:38:23 +0000
+Subject: [PATCH 1/2] dt-bindings: input: touchscreen: add TouchNetix aXiom
+ device tree
+Message-Id: <20260126-axiom-driver-submission3-v1-1-d462c4a608e3@touchnetix.com>
+References: <20260126-axiom-driver-submission3-v1-0-d462c4a608e3@touchnetix.com>
+In-Reply-To: <20260126-axiom-driver-submission3-v1-0-d462c4a608e3@touchnetix.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Andrew Thomas <andrew.thomas@touchnetix.com>, 
+ Marco Felsch <m.felsch@pengutronix.de>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769445534; l=2763;
+ i=andrew.thomas@touchnetix.com; s=20260126; h=from:subject:message-id;
+ bh=UJ2CZxwm3skLzsg4d1bbLkCekiBEDSRN6CMUdDhOWyU=;
+ b=RRmsHjtWMk+oJrEAw0oljoBlOWzbkAQK2Pu66f4LjtVVReFJ1pFaQflg2T0K0MGsCCtlhseJL
+ bsMUnUA13Q1CLvPBvw7WS4IXoiB2YoM8MRGu08DkXlCFxQJ7IsUydgN
+X-Developer-Key: i=andrew.thomas@touchnetix.com; a=ed25519;
+ pk=GtS7O+T7kMl4PPu344KeKG2xlsaHEzDUFLtOqb5JPPg=
+X-ClientProxiedBy: LO6P123CA0059.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:310::17) To LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:e9::9)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LOYP123MB2701:EE_|LO2P123MB3824:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6841690b-d196-4e9a-48ca-08de5cf964b6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|52116014|366016|38350700014
+X-Microsoft-Antispam-Message-Info: =?utf-8?B?VVdJZDNqUEFjT3VTR3VTUS95dnN5RHFUY0gxeXdUYmtOZnB5Mko2em9uak0r?=
+ =?utf-8?B?YU5aaHVJVXlRZzhaYUlFcHhuUUlscHlKdmFQS2NmTEE1QjZpS3V1eFJVU0hu?=
+ =?utf-8?B?REd5a3BUMGNZaW1pemZKdG16L1BUbXZIb2ppNjgxYWtibk8xWGJmMy9ZVmNn?=
+ =?utf-8?B?RzUxOSttZTZVUDdKQnVMVFNzbUdzZzBjQkVRSUVIZHZ4MjE3YlV5SVlQQ0Vz?=
+ =?utf-8?B?TzR6WmZCc0E5SkMyOUZYbDBSY1owSW5jNTl1MEhkdUh4WGxGUjljNW1yQjRa?=
+ =?utf-8?B?TjdTN0t0RnpQdTZldXdGVTZEaVBDNHJWTGZDZ2twUHhCdlByTVUxaG5QTm9E?=
+ =?utf-8?B?MWlNRFhCa0V0MEp4a0F5b3BQaVc2dE52TU90NVF2TzNxNkdwd3FlVGswSXp4?=
+ =?utf-8?B?d3I1ekl2YTJNWnRZTkdCKzZFMTlybFRMVjFra0VKNHJEdWRVN1U5YXJpZTV4?=
+ =?utf-8?B?OUhjQnF2MzgvTysyV3d4cmhEQVNLcU0zb2hobHRrTEl1Y3Bzd3lmTjJISVNt?=
+ =?utf-8?B?RzJZeFhCMkxqWVdnNGJuSDJaRFViOWkrYzNMUnBPYWRaYWpCUndoVnIzZ3NT?=
+ =?utf-8?B?cjRxR0tMU3FhRE1va1ZCODlMcnR5Um9vb25nQVdQOXJKQkYwL3VLR29lN2JO?=
+ =?utf-8?B?SXZYMTFySS9meWQ0NWZ3Qk5KT2NRWFRic2NUcWxiRG9hemtyc0cxV2ExR2pl?=
+ =?utf-8?B?Q1lJRmhEV1V5a2Mra1Q1WG1mNW1BN01hbmNia1JzRUcyTThGWGtLZGFHbEVx?=
+ =?utf-8?B?YUxkSHExL2ZpYXZMN2pyUVp5aFc1UllzbzV2ZXpsejVBeEkxUmpvWE9ieEdj?=
+ =?utf-8?B?d0V5dXFaSC9mZTVkZUNxdEZSdVNIM2NBOHc3aDdQTXVrRERLemlEd1U2enVF?=
+ =?utf-8?B?V0tnMXdIR21sSngrdUYrUktnVHJHNWNxdVhWVlJ5dU00TkFPNnNUL0lyVmhh?=
+ =?utf-8?B?bk9nTitVMmUyVUc0ZUFGaTcvOWFEM0REdnFFamZ5Q0FESFhlV1J3L0I0V0VE?=
+ =?utf-8?B?MFQ2dVRpU3JaQ0tUeUh5MEdsUlJ1UUhETTFvYVl3bHNSeVM4by9Td2N3RE1o?=
+ =?utf-8?B?WEtuRFNUUm5DTldsR0Y3RXdldWV4Tm5yc1NjV2F4ZEY1Zk8xZDZMZDRNS01Q?=
+ =?utf-8?B?cHhaZXpHWHhmcSttbXJwNVppMlducVdtSmhUTVNjNVc4TDhzelNzelVhRU5B?=
+ =?utf-8?B?NjF3OUQ1ZnZlTFh3VThHOXBjNXE0QXh4TnVJS1d2UDNyNGNLWDJmWklnYmJn?=
+ =?utf-8?B?Z3hydkhmNTRyeU8rblo0bGd1TU1Zei91VEFudDd6Mk9oRHhBTU9DMFB2clcw?=
+ =?utf-8?B?U0NOWUhsNlpBaklpZkZVSy84STV6UlVxQXdNNEVaTUxONVIrUXZ3clZISDVn?=
+ =?utf-8?B?V3MyS2lCdzR2TlU5SkFSYTZ3NkcvSDlOd3lkWVNuMzY5alo2dEc3MUlNV012?=
+ =?utf-8?B?S0RiYmZ2MW5yMmZoc0FwMFBqVXlBM1h6Y1dwdndJZUEzVGJVN0VTTUVzNERS?=
+ =?utf-8?B?ZjdjaGJmMWdtb2haekJMRE5wVG9vWjZBVkUvb21VUDhSenVPUlNrbktaQTF3?=
+ =?utf-8?B?cm5zRFB5WHg4L0Z1N3p2NFhSY3RCc1ljTzQ0Yzh2eDRJSzE3cVg3MFY3RjNY?=
+ =?utf-8?B?YzAxWDBXV1o5WnhPVm1EOFRtYm9uSW9HN1hZRWppa0RFRjQvSzJBbWZsejh5?=
+ =?utf-8?B?cHQ2UjFUNHVEY2MyNjZVRXBIYXpFTG03QlYyYUxhaDV4OTFwNHJOZGZ1d3V0?=
+ =?utf-8?B?NDJaS0I1OFdMb2U4LzlNUFhQNjJjOXp0cGM3WDN3ODRIUW9zdVcwTVRoRzlG?=
+ =?utf-8?B?ZDlBNEs3RFg5cGVEUDRaRHl5NVdoZEJBRzhUcENZQzBzcEM5REk2UzFZamo2?=
+ =?utf-8?B?dU10VEFRNVFCVGtDTnBUSXh2V2dUeUZ1T2lVem0yU0RXeE1sL1JHSEJQdkpN?=
+ =?utf-8?B?WEpkNVJubTd1ZDdzTE9TbDI1cjdRQ0pwdDVIaThHMlhqMTNQK1QrejQwWUUz?=
+ =?utf-8?B?Wmp0UHpKZ2xuZTA5L1JIVFlLK01LaVJQTFVJaUZUbzRhK29NbEwwMmN3MUZU?=
+ =?utf-8?B?KzFuRVkrUEtlRzJBcVpQcU5jWnVCTmNCNUJINVpVUUVqbzFaRHY4VERLbUdh?=
+ =?utf-8?Q?rn8Pj5zNjvuiTR/JXHd6t0rqg?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(52116014)(366016)(38350700014);DIR:OUT;SFP:1102
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Tk9Cc2dHaURXclYvaDZiL3FkYWhEc0c5Zmg0NjI3UTAramRxbWM0eU5XaU1Z?=
+ =?utf-8?B?ZE5xNjR2bUNQM214eWp5SCtxYllZTWUzR3ZZSHZMSlZXSFh6Um9tQXhTUUxh?=
+ =?utf-8?B?M1EwRnJZaS8yMXd2ZVMvd09Hek05TC9rREg5c0pyRXQybzRTZEJqZ2k5K2Vh?=
+ =?utf-8?B?em5MOXR2cmVnRVArL2tuRUc2VFp2eFNzWnVka0VmdXNMZUhoV2ZNTTdZZEU4?=
+ =?utf-8?B?d3BVV3lMUlVXOW51OUZsNHdma0pHY0NMc05PQmNMT1oxdTR5NmFpZmlUZy90?=
+ =?utf-8?B?ODdScHNoK25MVml2a1ZkTlh3M2RsSVdKTTUxOGwwcjBGRzBIUUdLdWVQUlJC?=
+ =?utf-8?B?MC9MbVQ2S3FQZlVoQzhTbEljMHM5RUNpcU80b3pBbTdCNzN1SGU3RW9FbVAr?=
+ =?utf-8?B?aDRBVysyVUVmTTJ5OFM2M1M3MHlFL0c1cTU2dVd4SWZBSWdNd3FWVWpSRDh3?=
+ =?utf-8?B?UFlFUnFXanhiajJVSzNxenJDNkJCS0ZqTVlOMDdNM3JMMlNRZmZiSXU1cTRa?=
+ =?utf-8?B?YjhCUklmYjhhcHJtRW5uN3M0K2ZLU0xocGNkYmxuMHRQMWlpWTA2Uy9LM2E3?=
+ =?utf-8?B?TTJoMlZZdzZ6VmNpeERqOTVRS1RFKzg2YnRna3ptZkxSdjNJaFZjQlMwMkpx?=
+ =?utf-8?B?cHVkbGpaOEhjQ2h3UDdya2FkNnFTcVJ1MW5YNjlqMGFpOU1JWGpKNUQyK2g5?=
+ =?utf-8?B?YWFoR1FLYkVIdDhGdTh1Yi9ReHNtRk1XeUVXTjAwZytwcmoxMEpTamxsOXdV?=
+ =?utf-8?B?ejZaQ3piK1d2TVFCSXRWMWFlMHNwMitEcXZSbEpGNWpvMGNhY01TaUpjYXBs?=
+ =?utf-8?B?eG5lNjI4K2g0a1ZjZnM3QjM1RXpqQlRYcnE5cXFuL0xmbkdIcE9oUVJ5K3Vu?=
+ =?utf-8?B?dFZSZi9JbkdXcjZHOEE4Tlp4b1RneWZCMUc3U3ZtYXNPTVNqdXNWK29FZTRn?=
+ =?utf-8?B?VEVObUV6MDNraGFUblVMYy9yWlVsckIyeHhRZ0VZMlhpdTRpSC9vQnJhT09a?=
+ =?utf-8?B?M1NoOExQdmN3QW9qQjVyZjc4eGppVDB6dHB6QzI2WmM2Y2JKcE5CaG5Pd29u?=
+ =?utf-8?B?UW90RVJkNzNtbHdWbUE0NjNLM1hKdVE4VzBBZ01pSFVyQTVmK0M4Z2dTSHhS?=
+ =?utf-8?B?eUF3M1pQdVFTdHJFaEhONVZ5R0daZG03R3ZnQjl6SGorRFNhMUVkVVN5bnJx?=
+ =?utf-8?B?UG5rZDFYM2NPTWFZVktOVzh5NmRIN1VkVk5HdzQyUXhmMzkvYmpQOUF3dzIy?=
+ =?utf-8?B?RmpVTXN4V0dTcDRiYTdIQSs4cmVzNU9uSzl2ZDljL29tNWFDTElNb2FsVEcx?=
+ =?utf-8?B?NklwdEl5VUhzeHJmY3l1VmJSeW1TVmdQN1lqM2locGllQ2xSVk5DT1lVOEUy?=
+ =?utf-8?B?NGw5ZitTNHE2OGlxVStLL0F2ZFVsMlRJcGRRbTVpOS93N3hZOUVueTlYenFu?=
+ =?utf-8?B?TFVMSkg4NmY1SWVhTU9mVTMwd05tbnFIMDhheUxTTWlBcVBXSnBSMlhxck1v?=
+ =?utf-8?B?YkJWYVE1MUZvamNDN0k0Mms4Tkh6Mm9DTXBzSmtGYlNnK2NaWDNVZlpPdDVF?=
+ =?utf-8?B?R2JYbWl0L0VRdmxrWXdMRldaTnZJbjBCN2JDOXlaaTZLWjVtR2FpYXNkMjRW?=
+ =?utf-8?B?OS9nbmN1cEYyRjkrOFdQWHBWVkJUeUMyT3g0V0IxdzZzNzFyQXBpWHk5V0pm?=
+ =?utf-8?B?V05relArQUNYbnNHUmUxRGlvWGRzMHVwU1gzUURmR1pTZit2eHhUSlJSRFFx?=
+ =?utf-8?B?VW4vNFFZQkVJL3hBVDRVYXFKdTlic09ZdU5RMFE0Nzd1THF0S1dCdjZlUWps?=
+ =?utf-8?B?S1hLVkJ4d1Z4d2tnT2VtUllldFNrWjk2Tm1zVmdqbm96Y1RXWHJSeCthdi9X?=
+ =?utf-8?B?RWQ3K3ZpNEsraFpxWVAybVE1b2dJa1Z0YlRtQTBMbkJmVlUwRDlqL1cxejQr?=
+ =?utf-8?B?WDRuNWpIZHREckJkVGMxMWJSaDA3M3psSDBzd01CNWtDcVhWOUI5OFNSOVEy?=
+ =?utf-8?B?Qk9LOENoc3cySFVLcy9aVnFIcTRwV2d3MXdJTmlhTWFOMFlwc0VLL2VTY0Vq?=
+ =?utf-8?B?Vko5QmVKYW5DZ3BvTlpDRW1qbkI1WHEyajVtVFlFT2s4Y1BBc1FwTGlJS3BG?=
+ =?utf-8?B?aGZCengxejhaZDhvN05ORkhkMjFOS0tNcVV3UnEvS0d3dkl3UHNzN1VpV2RW?=
+ =?utf-8?B?bDVOZ1RBSU1RU1JzV0IzeGxjUElRVWpSM1RIOEY0WnRnZVdPeXVmWkVVaDhu?=
+ =?utf-8?B?MmxqMGV0SlZLUlQwWUZHaWg4NDRaZjVxdzNSdkU0bENzWmtyUGtvYW5FK3Ni?=
+ =?utf-8?B?d24rc24yMy9sTFEyeFAybVlOSDFYYUZrUzlqK1RUM0xXTjN2UkFBZ3ZtVVIv?=
+ =?utf-8?Q?53ZwWHnZ3/BMKJCo=3D?=
 X-OriginatorOrg: touchnetix.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6841690b-d196-4e9a-48ca-08de5cf964b6
 X-MS-Exchange-CrossTenant-AuthSource: LOYP123MB2701.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: ba3f9627-40ea-4b85-8cfc-08de5cf7db20
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jan 2026 16:27:53.5995
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2026 16:38:54.0231
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 120474da-7cc3-44b9-aff9-438a33341070
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nilQ8IponKLdWtHCIu89DHipZJV7/DmzSw0SwNGFF0xyxuOxZ0Lge+XPngWDo93LqutinYr6P04dNDTb8mZspQ0fSSXckFb4jtMGnKyAfv0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO0P123MB4185
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 120474da-7cc3-44b9-aff9-438a33341070
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: M/Dhxll5ZsLSPh5ENoaSuEhIhA6NHIqtxqpcryhAPVn3U1bwNE3Fu0IdDbJ04EfzV2JuIUsAnZ5Ep6OXD4J2+WWyYMDjsfQuFk0sGx1WRpc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO2P123MB3824
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uoH-oPtKV1l35GOKUnGXS1GKSwCCFxau1Brdu7s0apo_1769444875
+X-Mimecast-MFC-PROC-ID: 9azLi4ssrj6YXQMtbl1vropfJvgwfa7ot8D6NPWM2mw_1769445537
 X-Mimecast-Originator: touchnetix.com
-Content-Language: en-GB
-Content-Type: text/plain; charset=WINDOWS-1252
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi Marco,=0AThank you very much for your quick review.=0AI have addressed m=
-any of your comments below.=0A=0A> >=A0+config TOUCHSCREEN_AXIOM_CORE=0A> >=
- +=A0tristate "TouchNetix Axiom touchscreen"=0A>=0A>=A0Nack, the spi or i2c=
- should select the core.=0A>=0A=0AChanged.=0A=0A> >=A0+#define U41_COORD_SI=
-ZE (4)=0A> >=A0+#define U41_Z_OFFSET (42)=0A>=0A>=A0Align your defines.=0A>=
-=0A=0AChanged.=0A=0A> > +=A0input_set_abs_params(input_dev, ABS_MT_TOOL_TYP=
-E, 0, MT_TOOL_MAX, 0, 0);=0A> > +=A0input_set_abs_params(input_dev, ABS_MT_=
-DISTANCE, 0, 127, 0, 0);=0A> > +=A0input_set_abs_params(input_dev, ABS_MT_P=
-RESSURE, 0, 127, 0, 0);=0A>=0A>=A0Max values are coming from the firmware.=
-=0A>=0A=0AI am trying to keep the initial patch as simple as possible.=0ATh=
-is is a fixed value describedin the usage definition.=0A=0A> >=A0+=0A> > +=
-=A0input_mt_init_slots(input_dev, U41_MAX_TARGETS, INPUT_MT_DIRECT);=0A>=0A=
->=A0num-targets can be configured via firmware config IIRC, so nack.=0A>=0A=
-=0AThat is correct, all u41 can be configured separately.=0AAs above, I wis=
-h the keep this patch as simple as possible so we can=0Aadd support for thi=
-s in the future.=0A=0A> > +=A0err =3D ax->bus_ops->read(ax->dev, 0x0, SIZE_=
-U31_DEVICE_INFO,=0A> > +=A0ax->read_buf);=0A>=0A>=A0No need for custom acce=
-ssors, use regmap API.=0A>=0A=0AFrom my understanding the the interface is =
-the same.=0AManual I2C/SPI bus handling is still required.=0A=0A> > +=A0ax-=
->bus_ops =3D bus_ops;=0A> > +=A0ax->irq =3D irq;=0A>=0A>=A0You allocate abs=
-olute no ext. resources like regulators or reset-gpios.=0A>=0A=0AIf you thi=
-nk this would be needed in order for you to test this patch=0Awe can add it=
-.=0AAs above, I wish the patch to a minimal support of I2C and SPI and furt=
-hur=0Afeatures can be added ontop.=0A=0A>=0A> > +=A0switch (hdr.report_usag=
-e) {=0A> > +=A0case AX_2DCTS_REPORT_ID:=0A> > +=A0err =3D axiom_process_u41=
-_report(ax,=0A> > +=A0&report[AX_U34_PAYLOAD_BUFFER]);=0A>=0A>=A0May I ask =
-why you guys write in your programming manual, that the host=0A>=A0needs to=
- check the usage-revision and you completely ignore this?=0A=0AAs above.=0A=
-all usage revisions will handle this identically.=0A=0A=0ARegards,=0AAndrew
+---
+ .../bindings/input/touchscreen/tnx,axiom.yaml      | 70 ++++++++++++++++++=
+++++
+ .../devicetree/bindings/vendor-prefixes.yaml       |  2 +
+ 2 files changed, 72 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.=
+yaml b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
+new file mode 100644
+index 000000000000..7b532471c17f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
+@@ -0,0 +1,70 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/tnx,axiom.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TouchNetix aXiom Touchscreen Controller
++
++maintainers:
++  - Andrew Thomas <andrew.thomas@touchnetix.com>
++
++description: |
++  The TouchNetix aXiom series are high-performance touchscreen controllers
++  supporting various interface methods including I2C and SPI.
++
++properties:
++  compatible:
++    enum:
++      - tnx,axiom
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    description: Both IRQ_TYPE_LEVEL_LOW and IRQ_TYPE_EDGE_FALLING are sup=
+ported
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++allOf:
++  - $ref: touchscreen.yaml#
++  - $ref: /schemas/spi/spi-peripheral-props.yaml#
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells =3D <1>;
++        #size-cells =3D <0>;
++
++        touchscreen@66 {
++            compatible =3D "tnx,axiom-i2c";
++            reg =3D <0x66>;
++            interrupt-parent =3D <&gpio>;
++            interrupts =3D <24 IRQ_TYPE_LEVEL_LOW>;
++            axiom,poll-enable;
++            axiom,poll-period =3D <15>;
++        };
++    };
++
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    spi {
++        #address-cells =3D <1>;
++        #size-cells =3D <0>;
++
++        touchscreen@0 {
++            compatible =3D "tnx,axiom-spi";
++            reg =3D <0>;
++            interrupt-parent =3D <&gpio>;
++            interrupts =3D <24 IRQ_TYPE_EDGE_FALLING>;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docum=
+entation/devicetree/bindings/vendor-prefixes.yaml
+index f1d1882009ba..dadfc7036ed7 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1636,6 +1636,8 @@ patternProperties:
+     description: Trusted Logic Mobility
+   "^tmt,.*":
+     description: Tecon Microprocessor Technologies, LLC.
++  "^tnx,.*":
++    description: TouchNetix
+   "^topeet,.*":
+     description: Topeet
+   "^topic,.*":
+
+--=20
+2.43.0
 

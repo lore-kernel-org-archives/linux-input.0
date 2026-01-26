@@ -1,132 +1,101 @@
-Received: from uho.ysoft.cz (uho.ysoft.cz [81.19.3.130])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA1230DEB7;
-	Mon, 26 Jan 2026 10:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.3.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404123314C3;
+	Mon, 26 Jan 2026 11:50:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769422983; cv=none; b=QlkOysxT+qQPevC9W1Nt6qGSbZ1ySmRqmUVDXv3jtAUNfdQoAuTx60P1EXHCf8UTzve7asOCISAgOX3t6/ienygex95nwSqPje9pe61k7W5Udc2t5vSUsF2YHF+Pt87XK3Ff6lWc9RHnkSxC5XHdD55o+rU4Dub8tOB2dJLbwnM=
+	t=1769428251; cv=none; b=DJOvYrCgaKwMOJQzu+1gCrMAUQdDghj1ufO5lHRiq8p6cZ+goXU3Lh9E4ajD07MeiJeKuqxghMsGqiHXuc05sjwtnPIDbuxhDestCNHfSKwAuoIXQkFYtJEY9FyLZ+G6a5yqjKL2afYvekoyu0AVpkX4tqFUvcVZgvnWBULbMGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769422983; c=relaxed/simple;
-	bh=ygc1uKlv7zYU9xhmwD0ebXu1vNWoTlsNh0eS/OtRKHM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=NRwM2qC9OvYTd/6/PNoz0iJH3qUuWQEtdMR5/bZuwwnA++amIbOsaXn4SwMfRh3RPLxpN+xLH4DVotM8iXLDBffCYywIIDiqOxEJxN8S5vEAR7Kvh5Euf13Tfjrxv/59s9F60oR4exqDUQX/Rc6uVCzvmzjaW8jTYgtKr497M2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ysoft.com; spf=pass smtp.mailfrom=ysoft.com; dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b=JqpC2c5n; arc=none smtp.client-ip=81.19.3.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ysoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ysoft.com
+	s=arc-20240116; t=1769428251; c=relaxed/simple;
+	bh=jQrD/YnqEmhH+/JMx3dt7/PiA6+c+hcKXnVnjT1UfMA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZWXdVNA5C6C47SkEPqAHYSGggBLH9soXDo6Fxg7DGmOdB0pXzEKq3T6ouEt95jXNQxL7evur43pVDZ21Ph3B0fb83slC8Z7PK9MK1EP+1ItbfDbbMqvDGbzaBYG/w8YL4oOVBY5Mmp32ZjniEZQk4YgtY8clCg046PXaSv+yOrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HQCE72yr; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="JqpC2c5n"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-	s=20160406-ysoft-com; t=1769422658;
-	bh=y+mQBNXab2dHTLXM3X9Jfe1Jx0dpgMkQIwlVu5i+C8c=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=JqpC2c5nYpHw5JLsTYrsCcENcu1k3EBw8VAhBLyMh5pUJ3xP1svCMe/bf1wf864GI
-	 jJsmwSaUNk1smplJIJmnthrNLjdLbGCNIkKKHgst4wQsaTePlVQN/oVCuXodOMPECE
-	 ql6Ji0JTjGqQDDoP9VT8QRDRyY2oDGZZBt94eHt4=
-Received: from [10.1.8.111] (unknown [10.1.8.111])
-	by uho.ysoft.cz (Postfix) with ESMTP id 90EECA0518;
-	Mon, 26 Jan 2026 11:17:38 +0100 (CET)
-Message-ID: <07b84348-edb1-442f-822a-2e2c6275a8ad@ysoft.com>
-Date: Mon, 26 Jan 2026 11:17:38 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HQCE72yr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769428250; x=1800964250;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=jQrD/YnqEmhH+/JMx3dt7/PiA6+c+hcKXnVnjT1UfMA=;
+  b=HQCE72yrX1aBtZq4joxePaf0vt6ckGBabaYb3bn5F0BHTMXEpkGuJm2F
+   dWrGMRz6DpQXSWn4+EhVxfhqAFDCYltlssYMMQDFJrPDIXbopPv2syREI
+   6UK2xhp21zYE6FGT3+VSdURn2DwiZJRCyWA9ZJxWYoFKlCNwFdI5baJpC
+   AXXXkygd31rQKH+BhpBm+Svh7ef/c7EoV2HXW73BIlDyVmcBzR5lMy/gB
+   hgpZ8ydcujlCd/Dg0eQrgbJE+u6M5h5+9NxByGhdAENEBv3vgljt0wFHb
+   wGexiqonELMTjJ8NCT3MjG3gHsOTcQ1R+RistgCCzn9VCb7ptw/GfvxFm
+   A==;
+X-CSE-ConnectionGUID: RTBvYqBgQ9uveeHlQ7u0ZQ==
+X-CSE-MsgGUID: tm+oHFG3SROjNxq5ld/cuQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11682"; a="70646542"
+X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
+   d="scan'208";a="70646542"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 03:50:50 -0800
+X-CSE-ConnectionGUID: q1XQs/B5R0SyTvVYgtRR5g==
+X-CSE-MsgGUID: lI3OErbwTUCCByJAmwLyEQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
+   d="scan'208";a="238340181"
+Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.122])
+  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 03:50:44 -0800
+Date: Mon, 26 Jan 2026 13:50:42 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Dixit Parmar <dixitparmar19@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v1 02/10] regulator: cpcap-regulator: add support for Mot
+ regulators
+Message-ID: <aXdVEtHVmArFhqFB@smile.fi.intel.com>
+References: <20260125134302.45958-1-clamor95@gmail.com>
+ <20260125134302.45958-3-clamor95@gmail.com>
+ <aXc9n_gc7TEFvNA8@smile.fi.intel.com>
+ <CAPVz0n0MM6OcjOWnNBaGk=6eYcb09P0XBFDn+MYHtXXcgkcvQQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] Input: pixcir_i2c_ts - add support for one-time total
- calibration
-From: =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Fabio Estevam <festevam@gmail.com>
-References: <20251119175113.39216-1-michal.vokac@ysoft.com>
- <894b86b6-8b80-4ad1-942c-0e1120c0a4ae@ysoft.com>
-Content-Language: en-US
-In-Reply-To: <894b86b6-8b80-4ad1-942c-0e1120c0a4ae@ysoft.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPVz0n0MM6OcjOWnNBaGk=6eYcb09P0XBFDn+MYHtXXcgkcvQQ@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Dmitry,
+On Mon, Jan 26, 2026 at 12:13:39PM +0200, Svyatoslav Ryhel wrote:
+> пн, 26 січ. 2026 р. о 12:10 Andy Shevchenko <andriy.shevchenko@intel.com> пише:
+> > On Sun, Jan 25, 2026 at 03:42:54PM +0200, Svyatoslav Ryhel wrote:
 
-second polite ping. Is this falling through the cracks or did I miss to answer/resolve
-some of your comments to v1?
+...
 
-On 18. 12. 25 11:22, Michal Vokáč wrote:
-> Hi Dmitry,
+> > What a style! (Yeah, I see it's being used elsewhere here...)
 > 
-> gentle ping on this.
-> 
-> On 19. 11. 25 18:51, Michal Vokáč wrote:
->> The Pixcir Tango controller has support for a one-time total calibration
->> (manual calibration) procedure. Its purpose is to measure the capacitance
->> offsets of the electrode system and to store these values into EEPROM.
->>
->> During normal operation this calibration data is subtracted from the values
->> measured. This calibration should be necessary only once in the product
->> lifetime. It should be performed as part of the final adjustment after
->> the panel is mounted in the product.
->>
->> Add support for the calibration with sysfs interface.
->>
->> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
->> ---
->> changes in v2:
->>   - Removed redundant lock from calibrate_store().
->>
->>   drivers/input/touchscreen/pixcir_i2c_ts.c | 26 +++++++++++++++++++++++
->>   1 file changed, 26 insertions(+)
->>
->> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> index dad5786e82a4..e52ec8d8e392 100644
->> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
->> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> @@ -24,6 +24,7 @@
->>    */
->>   #define PIXCIR_REG_POWER_MODE    51
->>   #define PIXCIR_REG_INT_MODE    52
->> +#define PIXCIR_REG_SPECOP    58
->>   /*
->>    * Power modes:
->> @@ -462,6 +463,30 @@ static int pixcir_i2c_ts_resume(struct device *dev)
->>   static DEFINE_SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
->>                   pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
->> +static ssize_t calibrate_store(struct device *dev,
->> +                   struct device_attribute *attr,
->> +                   const char *buf, size_t count)
->> +{
->> +    struct i2c_client *client = to_i2c_client(dev);
->> +    struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
->> +    static const u8 cmd = 0x03;
->> +    int error;
->> +
->> +    error = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_SPECOP, cmd);
->> +    if (error)
->> +        dev_err(dev, "calibrate command failed: %d\n", error);
->> +
->> +    return error ?: count;
->> +}
->> +
->> +static DEVICE_ATTR_WO(calibrate);
->> +
->> +static struct attribute *pixcir_i2c_ts_attrs[] = {
->> +    &dev_attr_calibrate.attr,
->> +    NULL,
->> +};
->> +ATTRIBUTE_GROUPS(pixcir_i2c_ts);
->> +
->>   static int pixcir_i2c_ts_probe(struct i2c_client *client)
->>   {
->>       const struct i2c_device_id *id = i2c_client_get_device_id(client);
->> @@ -600,6 +625,7 @@ MODULE_DEVICE_TABLE(of, pixcir_of_match);
->>   static struct i2c_driver pixcir_i2c_ts_driver = {
->>       .driver = {
->>           .name    = "pixcir_ts",
->> +        .dev_groups = pixcir_i2c_ts_groups,
->>           .pm    = pm_sleep_ptr(&pixcir_dev_pm_ops),
->>           .of_match_table = of_match_ptr(pixcir_of_match),
->>       },
+> I have just made it in same way the other tables present in here.
 
-Best regards,
-Michal
+I understood that (see my note in the parentheses above).
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+

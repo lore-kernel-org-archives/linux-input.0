@@ -1,213 +1,162 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA691283FC4
-	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 19:21:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E36F52D879A
+	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 20:48:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769455267; cv=none; b=KWP6jjWlNuKUMXNfI/ZdQMxcQIPHB3fXm4WLWMLofXv9pbGW0vsXPZfAt21SLEd94Was1irvpaKpCE2t3yABLLvWkh1Odwnqlzig+jGIPymFsVcYAv4tT7rCDIvcOEViF5AYzP0x4EotzsIMBrqTDXDcvMjTt/0qqrwc1X2tZ7Q=
+	t=1769460483; cv=none; b=t6cspU7HjUNLFH5usMSBo+I1tAGX5DJq4sKQByu2CDOp3LFxPWe/xBf11vaP5giO3FslGW4k9NhlNGeyepd7AxCJQNY75MxgRJdm4PVOuHHImKnCEGShiJ14SXIhfzFLGuwPv0Sex1d1jVWZLkOLPH27MrQzJpre/aMhjf8W1co=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769455267; c=relaxed/simple;
-	bh=rJcfznlwUl0dvda3bi94q6+F4JYjZny7SKPX+GghNnw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jgLKM3nvDWPRtHE5z6ebCfhW2+u01Q2kulyEzv3VhFSkKqXOM3jpAzKrgJeE32Ft3fUMl5UKv0iHU9PReVSXj4R0OQGYuawBJpbf4yFVgp2u4UFxxFXu5Ln7Vq0oQV7M3tgSNBZrOWdgHS8cbNKCmVvpmiGH+M13iRLGj8j7O9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZCE+G66N; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	s=arc-20240116; t=1769460483; c=relaxed/simple;
+	bh=WqSXMgwN1bj6WlKNWD0giAIg11OWSEsUWJe5KbkBJ/w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=u6YDbq+TY9dcl2WqCDoJzIc5aeNwG00kYkcBJblNGnCrYC7UGidvLmkxEj4fMk5aQ4oeQr80lzmdwYnmBedlmEQC5a0J4YrivvA2G/x9Hlw0qkW4HykU3B9UISX+UX+iHlW/xbV/bBpMhdDQMPdVXg5oVCWL84ppxyGCLLpcAfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Omt9GC8K; arc=none smtp.client-ip=209.85.217.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZCE+G66N"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-894703956b8so75693466d6.1
-        for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 11:21:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Omt9GC8K"
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-5eea9f9c29bso3321649137.2
+        for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 12:48:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769455265; x=1770060065; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=OLbmqCfusVEOdH7Z7byMAhR5EgQmc/WQb/FESRAfspo=;
-        b=ZCE+G66N9hVimKdFTmu8w0eALEkaHl1cVLY7yugPta/C+qXibgAX4byumH9SIfUKwG
-         OJm8scJKK5nLgRbsNSH71GoHcl+9197vygfD2LNOpOYYM7eRE22eAPdi8aBMybJ1MWpb
-         9uXKsjOiOpxxCZ2vATr7HqFGhWvJxjFWayQTKWV/xwGz73VZcPpdrm+K7qOIsa/LGfZj
-         3UxJ+FgbBXm9YFD5gKCuQ/f0JT3/7uAqG3C2cNnynEUkOCrKHELqf4uk1WhvLbh5wwG7
-         UqsibVQH7KdVXvGv1+FtTPLtBaX0BQufWT9pCgC3WUdcA/1AwZ681hgp0GrxSXIbtglG
-         xr8Q==
+        d=gmail.com; s=20230601; t=1769460481; x=1770065281; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=iCW3LI0lwZJMRrEDS+3kqbUxY3kv4Hh4/Y+P85JSc/0=;
+        b=Omt9GC8K/qths/X9T8xt6w6jB6jmEiuKBoYdSeMBzyAoPMWyHK5ZX8XEn70L0fHWol
+         CBBV85De73I+xMFKqMGquDenBuSka+bJnTf7+PpB+lyKQz9GV6tPODBi8FemrO1QZfpP
+         /P/O0A1IycRUr9J0fxQUY8w2hRosBnTmhRkfsLB/vrklDSpmaniYK6U9ELPgEipE1beo
+         Pvg7m2Ai+7R92yHrbU+xBGDgbBFu9cLQ4/ROTaQmmlmdzwfow2leho5jP7l9OWaYXpAB
+         S6ZobFxLk5X91RNq9492fShKVECgkXpeI9w/6l8kACazT0hCO2ARS3f84neBMw4HP7o5
+         H5hA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769455265; x=1770060065;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1769460481; x=1770065281;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OLbmqCfusVEOdH7Z7byMAhR5EgQmc/WQb/FESRAfspo=;
-        b=M8oncCKy3NYX6kiGsGx6bejidQQBbFf8y4B2dXpXDRxO3liYsvZLp808JLXv4RAaHj
-         wZ67H7ImNqCGpEmAO5b44jTdZdsXYS9hwOgQRbUWOnyAK6mBrwxwjoM5IsiYRUbUQq1W
-         LGyfspWoLYQv5MVwPB054LjjwKgeI/cTwcEW7925vGbRsS4SPnp0L8GChfk+9aJ5MXxZ
-         QxotLoXYGnGzHxJtA/iqCjdIImXoIkH6W8u+d6kLwu26ZsEYrwSEk1VxfJnjnn/v4ILc
-         1F+CJiFozwDWgRixrwETk79nmWphmMFX48rOdNv+Hd6tXr6S3PvGACbcoojO6reZD653
-         4B1A==
-X-Forwarded-Encrypted: i=1; AJvYcCUevL88c1ZBV6RpUfbrkTwaivo9EdiFomCtjVh6hc3ve1oKlziLmZnWW/aOwjK9+4T6E9ET8K04QaXdrA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6R3Vn/RhNxRcGhlo2un0pLWAzYV0Z9Runoe6yks3EmQC4Hp82
-	fgqRXfrGR9Hh5hNdEhQApEtnV3QM7ZVxd826k4QbOTH+L8c468HuBREkaED8piME
-X-Gm-Gg: AZuq6aItMMBEbhqn6Sw5+iDC88pLJBpzQpWhgu5/jdSDPnGwi9o5c8ZaH8Vn33/I7WM
-	S6UxiDfKhTAIQAMmdP6jHKkM5x5LFPWSinDoTxmqVF1VWfWlJz9h61QG74Vy+bz82THrUWHTi+K
-	gTcYCzyLPXU7xvHdh52kfX7Oo5xVxtOlNWMw22cPsOqk7ZnI1BXj//Yhe4jQd/TVxzzSTNkW9ji
-	apLYdfYCcbyItBX4Qi4lPFzyCDvj7CN3/4sirs4hTGbnwX4DPp3iQvwOVKSZnawLC8aNHq+1qb0
-	2PD9HKSPkvPr6UB5imMzSfOxZ9hEWAyAmozEZtlx9rXuih9V6esqh97JSctOPXfsCtS7x1Vuu5M
-	mnrxi2RpjjJIs5ey276ZexxxOzyjl9CYX9qMEu/GW0GSbZzCCWJ3h24cYEdmwCtwA4cZsS0+mo8
-	wxTZo4Wy76xRUn5+41GdPDGjLVhuB7iTBrE920Ni/TLRBqLhNQ0S0oCigJ23Kc
-X-Received: by 2002:a17:902:e84f:b0:2a2:f0cb:df9e with SMTP id d9443c01a7336-2a84523fb39mr48636325ad.1.1769448078463;
-        Mon, 26 Jan 2026 09:21:18 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a802fd929asm94552325ad.90.2026.01.26.09.21.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Jan 2026 09:21:17 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <9a3d4ae8-b57e-450e-971b-d09fc923eee1@roeck-us.net>
-Date: Mon, 26 Jan 2026 09:21:15 -0800
+        bh=iCW3LI0lwZJMRrEDS+3kqbUxY3kv4Hh4/Y+P85JSc/0=;
+        b=U76BzurQ5aEevfWp3ceaC3UNPqVz4EXz50IGsfffsfeAyrdQQExGZHO1cGGBl3S7q6
+         5ra9g/3FxEjqi+XjOzWjnXnV19ylQgSC+j9zBXDucldfDMX0TkM5E47EtFeSWkBtYvG+
+         1RDxseNDlEpfeBv4K4eqaglqkqlHFxB/0SaPs03yHJ2U8PVNpC5ggdQaMFR/gNjX2Em7
+         LAxq/VZIv2srGb5+0kInxUWzdG/+Dhb/9R1yBGU9wIMk4QNXpe4Wm6VNeqMN1/E6rd0c
+         tQma6CiNGH7Kumb2brq7KEu6mV3XWUpysjx2uR/fdlXXsfyWtBtMLpngxSgNCIGUpoFa
+         TJlw==
+X-Forwarded-Encrypted: i=1; AJvYcCXm4CM1hhDze6Rwo3xnxx+OBT1/LfTd6jJLiE3PIRzAE6jgvpIyvymBN9dfmso92t/gSvNBT0c74iv5gw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxRPKpDvJzXUODObDAgsGqF2e57wKjq07ZOPZeZFsLiTv/jJhgT
+	lbmbyiYxwYrxf7NVF+dnQHG7lA7ZwjujnSF88EsJb5paosaJGuCkBTgkCijUEA==
+X-Gm-Gg: AZuq6aLpNQLGF6DVP8Agf6jeMTrkB2VnjcOCEOJfh6zKBKXIIoIkoo2vz0+v94zv5Kl
+	Lzodp3kjPAA9GPwkI/4c8WWdKByI35yXDAITw8Lu/rFlTJE+KtdcVpBM5a8EKJGje6ZV4sLkMMe
+	3sgYiBmj/CXd2drVo7OKpmU6hT56drBvxln4aK5UjwbRxmjPf3bZ2EmTqBnBmXzFGtoQmH2w3O4
+	Qt3vs72v9uQHQDNrLYXmCZqF3q7/HKrX38+/QWc26o84tqgE9MNIqCwGtW+qx3UH0iIzCJXcZ1E
+	L+sVKM5/vSeZglNojGJsemgji/3JpAsZjUdcFTaWETe6EgEB8VTVTaQ/1C7Y6gFvJTotxjAyVA8
+	YvBdyNRGkEbEqCpUaaQe/e2tzn04MwqqUP809G86HhOELBePtQ9f3DkJugO4IRFAXLT61M/F2tC
+	gbR4yIMRxqT7GJ+TPhfd7UyJ5pHmmkCz0YBV9IUyIolClSAoqhpskt
+X-Received: by 2002:a05:7301:1003:b0:2b0:5028:bafd with SMTP id 5a478bee46e88-2b7642198c5mr2076868eec.8.1769454774472;
+        Mon, 26 Jan 2026 11:12:54 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:cb35:17f5:7e82:90c4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b749e301f0sm13452476eec.35.2026.01.26.11.12.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Jan 2026 11:12:53 -0800 (PST)
+Date: Mon, 26 Jan 2026 11:12:49 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "Rob Herring (Arm)" <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, 
+	Lorenzo Pieralisi <lpieralisi@kernel.org>, Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
+	Christopher Ruehl <chris.ruehl@gtsys.com.hk>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, 
+	Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
+	Frank Li <Frank.Li@nxp.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Fix emails with spaces or missing brackets
+Message-ID: <m5ckxhpvhtjcc6fzlsz7y5sjxvzlbx6n7vel264hbw47joivi6@iwchebcbyjod>
+References: <20260126164724.2832009-1-robh@kernel.org>
+ <9a3d4ae8-b57e-450e-971b-d09fc923eee1@roeck-us.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: Fix emails with spaces or missing brackets
-To: "Rob Herring (Arm)" <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Alim Akhtar <alim.akhtar@samsung.com>,
- Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>,
- Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Bjorn Helgaas
- <bhelgaas@google.com>, Christopher Ruehl <chris.ruehl@gtsys.com.hk>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
- Vincent Huang <vincent.huang@tw.synaptics.com>,
- Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
- Frank Li <Frank.Li@nxp.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-hwmon@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-media@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- linux-pci@vger.kernel.org
-References: <20260126164724.2832009-1-robh@kernel.org>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260126164724.2832009-1-robh@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a3d4ae8-b57e-450e-971b-d09fc923eee1@roeck-us.net>
 
-On 1/26/26 08:47, Rob Herring (Arm) wrote:
-> Fix email addresses with spaces or missing brackets. A pending
-> dtschema meta-schema change will check for these.
+On Mon, Jan 26, 2026 at 09:21:15AM -0800, Guenter Roeck wrote:
+> On 1/26/26 08:47, Rob Herring (Arm) wrote:
+> > Fix email addresses with spaces or missing brackets. A pending
+> > dtschema meta-schema change will check for these.
+> > 
+> > Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
 > 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
-
-For hwmon:
-
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->   Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml    | 2 +-
->   Documentation/devicetree/bindings/input/syna,rmi4.yaml          | 2 +-
->   .../devicetree/bindings/media/samsung,exynos5250-gsc.yaml       | 2 +-
->   Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml     | 2 +-
->   4 files changed, 4 insertions(+), 4 deletions(-)
+> For hwmon:
 > 
-> diff --git a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> index 3d14d5fc96c5..7b38f2182ffa 100644
-> --- a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> +++ b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
->   title: Sensirion SHTC1 Humidity and Temperature Sensor IC
->   
->   maintainers:
-> -  - Christopher Ruehl chris.ruehl@gtsys.com.hk
-> +  - Christopher Ruehl <chris.ruehl@gtsys.com.hk>
->   
->   description: |
->     The SHTC1, SHTW1 and SHTC3 are digital humidity and temperature sensors
-> diff --git a/Documentation/devicetree/bindings/input/syna,rmi4.yaml b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> index f369385ffaf0..8685ef4481f4 100644
-> --- a/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> +++ b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> @@ -8,7 +8,7 @@ title: Synaptics RMI4 compliant devices
->   
->   maintainers:
->     - Jason A. Donenfeld <Jason@zx2c4.com>
-> -  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com
-> +  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
->     - Vincent Huang <vincent.huang@tw.synaptics.com>
->   
->   description: |
-> diff --git a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> index 878397830a4d..9196cf5dac0f 100644
-> --- a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> +++ b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> @@ -9,7 +9,7 @@ title: Samsung Exynos SoC G-Scaler
->   maintainers:
->     - Inki Dae <inki.dae@samsung.com>
->     - Krzysztof Kozlowski <krzk@kernel.org>
-> -  - Seung-Woo Kim <sw0312.kim@samsung.com
-> +  - Seung-Woo Kim <sw0312.kim@samsung.com>
->   
->   description:
->     G-Scaler is used for scaling and color space conversion on Samsung Exynos
-> diff --git a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> index d286b77921e0..8f5d33050348 100644
-> --- a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> +++ b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
->   title: Mobiveil AXI PCIe Host Bridge
->   
->   maintainers:
-> -  - Frank Li <Frank Li@nxp.com>
-> +  - Frank Li <Frank.Li@nxp.com>
->   
->   description:
->     Mobiveil's GPEX 4.0 is a PCIe Gen4 host bridge IP. This configurable IP
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
 
+For input:
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+> 
+> > ---
+> >   Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml    | 2 +-
+> >   Documentation/devicetree/bindings/input/syna,rmi4.yaml          | 2 +-
+> >   .../devicetree/bindings/media/samsung,exynos5250-gsc.yaml       | 2 +-
+> >   Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml     | 2 +-
+> >   4 files changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> > index 3d14d5fc96c5..7b38f2182ffa 100644
+> > --- a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> > +++ b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> > @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+> >   title: Sensirion SHTC1 Humidity and Temperature Sensor IC
+> >   maintainers:
+> > -  - Christopher Ruehl chris.ruehl@gtsys.com.hk
+> > +  - Christopher Ruehl <chris.ruehl@gtsys.com.hk>
+> >   description: |
+> >     The SHTC1, SHTW1 and SHTC3 are digital humidity and temperature sensors
+> > diff --git a/Documentation/devicetree/bindings/input/syna,rmi4.yaml b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> > index f369385ffaf0..8685ef4481f4 100644
+> > --- a/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> > +++ b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> > @@ -8,7 +8,7 @@ title: Synaptics RMI4 compliant devices
+> >   maintainers:
+> >     - Jason A. Donenfeld <Jason@zx2c4.com>
+> > -  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com
+> > +  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> >     - Vincent Huang <vincent.huang@tw.synaptics.com>
+> >   description: |
+> > diff --git a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> > index 878397830a4d..9196cf5dac0f 100644
+> > --- a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> > +++ b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> > @@ -9,7 +9,7 @@ title: Samsung Exynos SoC G-Scaler
+> >   maintainers:
+> >     - Inki Dae <inki.dae@samsung.com>
+> >     - Krzysztof Kozlowski <krzk@kernel.org>
+> > -  - Seung-Woo Kim <sw0312.kim@samsung.com
+> > +  - Seung-Woo Kim <sw0312.kim@samsung.com>
+> >   description:
+> >     G-Scaler is used for scaling and color space conversion on Samsung Exynos
+> > diff --git a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> > index d286b77921e0..8f5d33050348 100644
+> > --- a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> > +++ b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> > @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+> >   title: Mobiveil AXI PCIe Host Bridge
+> >   maintainers:
+> > -  - Frank Li <Frank Li@nxp.com>
+> > +  - Frank Li <Frank.Li@nxp.com>
+> >   description:
+> >     Mobiveil's GPEX 4.0 is a PCIe Gen4 host bridge IP. This configurable IP
+
+Thanks.
+
+-- 
+Dmitry

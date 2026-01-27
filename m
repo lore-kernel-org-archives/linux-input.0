@@ -1,135 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 246071F2B8D;
-	Tue, 27 Jan 2026 04:44:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447D424E4C6
+	for <linux-input@vger.kernel.org>; Tue, 27 Jan 2026 07:30:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769489084; cv=none; b=F6kZcoJCDnkt72FS+5svpbdLMSCCTLswYO2bF5ALbut6UkYBl7c8JIZutHKVse6e4Rxh6JBZk0FI+geD7bgu39lkr9/FUxFresD2DwblTL0GhdHMbV6JBbMlSdwU63g8X587n17Jhb5MNkFfh0RvtcdgKBRQZ3a2hPUX3ujFdcc=
+	t=1769499039; cv=none; b=j9drG7j89lDr9TosiBv+2qh8dZ1hJl9yktw4RFGT+pNsWOSs4Fif7JLmX3UknVaK1FxgbXuDWe1ish6EYOZ35KNQptCCmAdhYMLJk91pjmgIWR80wDtkaV/k+R+M1n0VxeztEofdLlcO584nyj3GSFTdR0jPA2ul98j/V//OWwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769489084; c=relaxed/simple;
-	bh=N4/dTgsSkKgyPM4oXZP0ylgXW3yR83HN4AMrwnF75aw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CbZ5EVseRActX1YCtzwsBEVAFpDuxvQsZYMz1F3BdI1J5Jdbba8O8njQi+kYVluZKq6csyqogbzQi5+tMq6GH88l3W+ueRRVo092B41NfHlu7vUMDYoI1rVFIo1D1e1vVcvGcgjW8i3j2dZfKBcHEuuk+eFuC4f/0SEr3KQ1aEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WF5Kbspl; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769499039; c=relaxed/simple;
+	bh=/tlF0qpjxkjcAo75X8yPk1jutjNRUNTQzbswh7afmqI=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ql8nz+XOi6FlpdAq8+K/eqZDZ8zYGOxLc0hLO6SbTIhAV9lvjuWxf1UeJ0Cd5MmzkmMf66aMYF7Dk1WUnJpLss4ImCRwdQysoYiCB3DGyARIhzIg6aBEyYX06fzU/o038nh0gZ/UV5LA41LrMtrLFshsS5m6KdbGVZLe05Q/f7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zSCBeS4D; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Vpd6tUbX; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zSCBeS4D; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Vpd6tUbX; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WF5Kbspl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF17FC116C6;
-	Tue, 27 Jan 2026 04:44:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769489083;
-	bh=N4/dTgsSkKgyPM4oXZP0ylgXW3yR83HN4AMrwnF75aw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WF5KbspleVHuga8JwYh3EeefwmK+a6HDYpdOtJsIEhYhKi7SjlC1BWgGttTO8iTES
-	 pnKiYzRN97JT9hPs+Xudm2RzaPx98OGJgd+B3CBaqga4r97b7UtC15r35QPKKKbGic
-	 g02pRSd4SNV7lnfw0eCqPWJw6Ah31X1pRK9m2IP1udWZfsqBjAeOeTtyE+qzVFfxk2
-	 6ACAOnIzIBkZ1r8gU/Fx2cWitvXT0Fr1JhoPMmBvXFRBnky5QC6k1Z0MSkoaI88pA1
-	 xd/3vU1teyEqQuJhZpxRloBEM7oHKMRQHGs7yXbdPxjH1TaTVN+qPqm1+G1+MYw7bc
-	 HP4pwwMayARyw==
-Date: Tue, 27 Jan 2026 10:14:25 +0530
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, 
-	Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
-	Christopher Ruehl <chris.ruehl@gtsys.com.hk>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
-	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, 
-	Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
-	Frank Li <Frank.Li@nxp.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-media@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Fix emails with spaces or missing brackets
-Message-ID: <2pmaiz2yvgtmfjg6wtduoksjr34znalkvapr3dn3v6fqlxcdde@xkmnuvww7v37>
-References: <20260126164724.2832009-1-robh@kernel.org>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zSCBeS4D";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Vpd6tUbX";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zSCBeS4D";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Vpd6tUbX"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 9400833769;
+	Tue, 27 Jan 2026 07:30:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1769499034; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
+	b=zSCBeS4DDmZfLPHK/5pqsgBKRVqx52nvcuA5F2SDLaE/HV4IOgDSeJ68QaBgDCXHLFzCT8
+	gB9+hzevRUSjijFnKQrwSaUgbCneWjsJxOrHxazWQtdQvFq4hdH1no+Me+r6COTLKd5ErL
+	br4ff/NUNrD3HZYYZHmmWkXrHjpHThQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1769499034;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
+	b=Vpd6tUbXV7tTOAP4lq4PXYq8lhNGp9Zjbv4jher7SaBuiddWO8kMIHIE+asgswcl9XsR+C
+	0jhxS6wdO0D6E6DQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1769499034; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
+	b=zSCBeS4DDmZfLPHK/5pqsgBKRVqx52nvcuA5F2SDLaE/HV4IOgDSeJ68QaBgDCXHLFzCT8
+	gB9+hzevRUSjijFnKQrwSaUgbCneWjsJxOrHxazWQtdQvFq4hdH1no+Me+r6COTLKd5ErL
+	br4ff/NUNrD3HZYYZHmmWkXrHjpHThQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1769499034;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
+	b=Vpd6tUbXV7tTOAP4lq4PXYq8lhNGp9Zjbv4jher7SaBuiddWO8kMIHIE+asgswcl9XsR+C
+	0jhxS6wdO0D6E6DQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3170913712;
+	Tue, 27 Jan 2026 07:30:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id WHO5CpppeGlmawAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Tue, 27 Jan 2026 07:30:34 +0000
+Date: Tue, 27 Jan 2026 08:30:33 +0100
+Message-ID: <87h5s7pl5y.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: gongqi <550230171hxy@gmail.com>
+Cc: rafael@kernel.org,
+	dmitry.torokhov@gmail.com,
+	Shyam-sundar.S-k@amd.com,
+	hansg@kernel.org,
+	ilpo.jarvinen@linux.intel.com,
+	perex@perex.cz,
+	tiwai@suse.com,
+	linux-acpi@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 4/4] ALSA: hda/conexant: Add headset mic fix for MECHREVO Wujie 15X Pro
+In-Reply-To: <20260122155501.376199-5-550230171hxy@gmail.com>
+References: <20260122155501.376199-1-550230171hxy@gmail.com>
+	<20260122155501.376199-5-550230171hxy@gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260126164724.2832009-1-robh@kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spamd-Result: default: False [-1.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[13];
+	TAGGED_RCPT(0.00)[];
+	FREEMAIL_TO(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.org,gmail.com,amd.com,linux.intel.com,perex.cz,suse.com,vger.kernel.org];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Score: -1.80
+X-Spam-Level: 
 
-On Mon, Jan 26, 2026 at 10:47:22AM -0600, Rob Herring (Arm) wrote:
-> Fix email addresses with spaces or missing brackets. A pending
-> dtschema meta-schema change will check for these.
+On Thu, 22 Jan 2026 16:55:01 +0100,
+gongqi wrote:
 > 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+> The headset microphone on the MECHREVO Wujie 15X Pro requires the
+> CXT_FIXUP_HEADSET_MIC quirk to function properly. Add the PCI SSID
+> (0x1d05:0x3012) to the quirk table.
+> 
+> Signed-off-by: gongqi <550230171hxy@gmail.com>
+
+Applied to for-next branch of sound.git tree.  Thanks.
+
+
+Takashi
+
+
 > ---
->  Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml    | 2 +-
->  Documentation/devicetree/bindings/input/syna,rmi4.yaml          | 2 +-
->  .../devicetree/bindings/media/samsung,exynos5250-gsc.yaml       | 2 +-
->  Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml     | 2 +-
-
-For PCI controllers,
-
-Acked-by: Manivannan Sadhasivam <mani@kernel.org>
-
-- Mani
-
->  4 files changed, 4 insertions(+), 4 deletions(-)
+>  sound/hda/codecs/conexant.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> index 3d14d5fc96c5..7b38f2182ffa 100644
-> --- a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> +++ b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
-> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
->  title: Sensirion SHTC1 Humidity and Temperature Sensor IC
->  
->  maintainers:
-> -  - Christopher Ruehl chris.ruehl@gtsys.com.hk
-> +  - Christopher Ruehl <chris.ruehl@gtsys.com.hk>
->  
->  description: |
->    The SHTC1, SHTW1 and SHTC3 are digital humidity and temperature sensors
-> diff --git a/Documentation/devicetree/bindings/input/syna,rmi4.yaml b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> index f369385ffaf0..8685ef4481f4 100644
-> --- a/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> +++ b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
-> @@ -8,7 +8,7 @@ title: Synaptics RMI4 compliant devices
->  
->  maintainers:
->    - Jason A. Donenfeld <Jason@zx2c4.com>
-> -  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com
-> +  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
->    - Vincent Huang <vincent.huang@tw.synaptics.com>
->  
->  description: |
-> diff --git a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> index 878397830a4d..9196cf5dac0f 100644
-> --- a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> +++ b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
-> @@ -9,7 +9,7 @@ title: Samsung Exynos SoC G-Scaler
->  maintainers:
->    - Inki Dae <inki.dae@samsung.com>
->    - Krzysztof Kozlowski <krzk@kernel.org>
-> -  - Seung-Woo Kim <sw0312.kim@samsung.com
-> +  - Seung-Woo Kim <sw0312.kim@samsung.com>
->  
->  description:
->    G-Scaler is used for scaling and color space conversion on Samsung Exynos
-> diff --git a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> index d286b77921e0..8f5d33050348 100644
-> --- a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> +++ b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
-> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
->  title: Mobiveil AXI PCIe Host Bridge
->  
->  maintainers:
-> -  - Frank Li <Frank Li@nxp.com>
-> +  - Frank Li <Frank.Li@nxp.com>
->  
->  description:
->    Mobiveil's GPEX 4.0 is a PCIe Gen4 host bridge IP. This configurable IP
+> diff --git a/sound/hda/codecs/conexant.c b/sound/hda/codecs/conexant.c
+> index 5fcbc1312c697..2384e64eada36 100644
+> --- a/sound/hda/codecs/conexant.c
+> +++ b/sound/hda/codecs/conexant.c
+> @@ -1123,6 +1123,7 @@ static const struct hda_quirk cxt5066_fixups[] = {
+>  	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad/Ideapad", CXT_FIXUP_LENOVO_XPAD_ACPI),
+>  	SND_PCI_QUIRK(0x1c06, 0x2011, "Lemote A1004", CXT_PINCFG_LEMOTE_A1004),
+>  	SND_PCI_QUIRK(0x1c06, 0x2012, "Lemote A1205", CXT_PINCFG_LEMOTE_A1205),
+> +	SND_PCI_QUIRK(0x1d05, 0x3012, "MECHREVO Wujie 15X Pro", CXT_FIXUP_HEADSET_MIC),
+>  	HDA_CODEC_QUIRK(0x2782, 0x12c3, "Sirius Gen1", CXT_PINCFG_TOP_SPEAKER),
+>  	HDA_CODEC_QUIRK(0x2782, 0x12c5, "Sirius Gen2", CXT_PINCFG_TOP_SPEAKER),
+>  	{}
 > -- 
-> 2.51.0
+> 2.43.0
 > 
-
--- 
-மணிவண்ணன் சதாசிவம்

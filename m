@@ -1,156 +1,135 @@
-Received: from mailrelay-egress5.pub.mailoutpod3-cph3.one.com (mailrelay-egress5.pub.mailoutpod3-cph3.one.com [46.30.211.244])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49EAB257821
-	for <linux-input@vger.kernel.org>; Mon, 26 Jan 2026 22:21:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.30.211.244
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 246071F2B8D;
+	Tue, 27 Jan 2026 04:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769466083; cv=none; b=ZIMeLFGUGQ/9s9eM2mvg8t4n9AsGlZf3QryuCcwd7d1gE4uGYlB1jSZOPrhBtPaQZbP4OV5u3a7lnjnyXnjA/xCmI2ThdaAAU9G6vDcNU/luBTX+pg2uc5V7EBGw9z0dE3axVikzsl75cbFVhZORHX62fGu9l2kMmf4wGXD37ek=
+	t=1769489084; cv=none; b=F6kZcoJCDnkt72FS+5svpbdLMSCCTLswYO2bF5ALbut6UkYBl7c8JIZutHKVse6e4Rxh6JBZk0FI+geD7bgu39lkr9/FUxFresD2DwblTL0GhdHMbV6JBbMlSdwU63g8X587n17Jhb5MNkFfh0RvtcdgKBRQZ3a2hPUX3ujFdcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769466083; c=relaxed/simple;
-	bh=GG2fWDPjh+3LpQrShyUteOYkEIvpcbrxj9ofSRO45CM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aJVILms/m52cM8JWXRt6hm0HxxbhBPVICZBiynMaBNi5Qyp0LDYxEaSH5TPQUKiNSDE8vDcZyQXYHFfyTWlwEzKjtGn1s1CHUwLQ+QtgL/UymM/P3Y8tS8J3WhbotA6TW/euw2WUfy+rtWSdSIAlSDum3pRRZuVGobwUtd6a+kw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se; spf=none smtp.mailfrom=bitmath.se; dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=WO/KATvc; dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=jSvrt6nc; arc=none smtp.client-ip=46.30.211.244
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bitmath.se
+	s=arc-20240116; t=1769489084; c=relaxed/simple;
+	bh=N4/dTgsSkKgyPM4oXZP0ylgXW3yR83HN4AMrwnF75aw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CbZ5EVseRActX1YCtzwsBEVAFpDuxvQsZYMz1F3BdI1J5Jdbba8O8njQi+kYVluZKq6csyqogbzQi5+tMq6GH88l3W+ueRRVo092B41NfHlu7vUMDYoI1rVFIo1D1e1vVcvGcgjW8i3j2dZfKBcHEuuk+eFuC4f/0SEr3KQ1aEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WF5Kbspl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="WO/KATvc";
-	dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="jSvrt6nc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1769466008; x=1770070808;
-	d=bitmath.se; s=rsa2;
-	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
-	 subject:mime-version:date:message-id:from;
-	bh=f3UcvhXJeEMFAR6N7okv9j6pQxF6yrI4G93XG6Ihl38=;
-	b=WO/KATvcKp29EaJs8tJHoeDz8tNPyRMKSjQvbb1MCL7ROcGmLEVHZlLtzFSbIBrmtcR/L2eQmVzEJ
-	 9tNgTgx61667wIiQbRMFMuuUX/Jo6em4pi59QqBUIH7boXNsz/1bVPrvE2HIpbsaCe1+Xp+ratjXFw
-	 NfhUaJpsEAhfUcpwDdA3qhNUI86ajL7GWX2b4qsV1Ta3emu+0dcDp8ohZWwoSJ/NKOnh8mdK2gdqnN
-	 4cMg5665piikJfyLq2NtQGZqBgv1NU26RqcAyNkNTEMB3a/WBoBQ522exuDqY+RvgNByORaEAfa8Ul
-	 a5ASFtuvfVgdSvFmeX3CZ+RDC3wvyrQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1769466008; x=1770070808;
-	d=bitmath.se; s=ed2;
-	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
-	 subject:mime-version:date:message-id:from;
-	bh=f3UcvhXJeEMFAR6N7okv9j6pQxF6yrI4G93XG6Ihl38=;
-	b=jSvrt6ncktYx9fFv7wa82dUzyAiD8bTCZkxo4dhhNihuhI30PLelifiPU3AsNTgIoDjWPxcdHlijU
-	 aFRyZtfCw==
-X-HalOne-ID: 2b6c3170-fb05-11f0-bacb-81a63d10fb2d
-Received: from [192.168.19.13] (h-94-254-62-230.na.cust.bahnhof.se [94.254.62.230])
-	by mailrelay5.pub.mailoutpod3-cph3.one.com (Halon) with ESMTPSA
-	id 2b6c3170-fb05-11f0-bacb-81a63d10fb2d;
-	Mon, 26 Jan 2026 22:20:07 +0000 (UTC)
-Message-ID: <d1a09240-9a0f-486a-872e-8b528ff7e272@bitmath.se>
-Date: Mon, 26 Jan 2026 23:20:57 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WF5Kbspl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF17FC116C6;
+	Tue, 27 Jan 2026 04:44:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769489083;
+	bh=N4/dTgsSkKgyPM4oXZP0ylgXW3yR83HN4AMrwnF75aw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=WF5KbspleVHuga8JwYh3EeefwmK+a6HDYpdOtJsIEhYhKi7SjlC1BWgGttTO8iTES
+	 pnKiYzRN97JT9hPs+Xudm2RzaPx98OGJgd+B3CBaqga4r97b7UtC15r35QPKKKbGic
+	 g02pRSd4SNV7lnfw0eCqPWJw6Ah31X1pRK9m2IP1udWZfsqBjAeOeTtyE+qzVFfxk2
+	 6ACAOnIzIBkZ1r8gU/Fx2cWitvXT0Fr1JhoPMmBvXFRBnky5QC6k1Z0MSkoaI88pA1
+	 xd/3vU1teyEqQuJhZpxRloBEM7oHKMRQHGs7yXbdPxjH1TaTVN+qPqm1+G1+MYw7bc
+	 HP4pwwMayARyw==
+Date: Tue, 27 Jan 2026 10:14:25 +0530
+From: Manivannan Sadhasivam <mani@kernel.org>
+To: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Alim Akhtar <alim.akhtar@samsung.com>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, 
+	Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
+	Christopher Ruehl <chris.ruehl@gtsys.com.hk>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, 
+	Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
+	Frank Li <Frank.Li@nxp.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Fix emails with spaces or missing brackets
+Message-ID: <2pmaiz2yvgtmfjg6wtduoksjr34znalkvapr3dn3v6fqlxcdde@xkmnuvww7v37>
+References: <20260126164724.2832009-1-robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: bcm5974 trackpad broken after USB reset
-To: Liam Mitchell <mitchell.liam@gmail.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
-References: <CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com>
- <38ea07c1-50ce-4342-aba9-fe2f4bc6c503@bitmath.se>
- <CAOQ1CL6G6eDcX+Qth3D531h72wW3RmvecCWjr5nAT-UdDWg40w@mail.gmail.com>
- <6880b5ba-ee76-4a9e-a116-16843a737b34@bitmath.se>
- <CAOQ1CL74A+WLY_f+QJHQqV=Wvq8yzJktLZ2ByZ4vjfUSsra9EQ@mail.gmail.com>
- <c2f1a90e-d6cb-480e-8f11-240b231adc84@bitmath.se>
- <CAOQ1CL7royHBeeY-Qr-xBhvXkWy1cJZ-tcT1kS1Dfu_z3emN6g@mail.gmail.com>
-Content-Language: en-US
-From: Henrik Rydberg <rydberg@bitmath.se>
-Autocrypt: addr=rydberg@bitmath.se; keydata=
- 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 nQ==
-In-Reply-To: <CAOQ1CL7royHBeeY-Qr-xBhvXkWy1cJZ-tcT1kS1Dfu_z3emN6g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260126164724.2832009-1-robh@kernel.org>
 
-Hi Liam,
-
- > I did a lot of experiments changing modes at different times and this
-> is what I understand:
+On Mon, Jan 26, 2026 at 10:47:22AM -0600, Rob Herring (Arm) wrote:
+> Fix email addresses with spaces or missing brackets. A pending
+> dtschema meta-schema change will check for these.
 > 
-> 0x8 ("normal") is pause/off. If this is set, no messages of any kind
-> will be received.
-> This is not the same as the default/init state (sending 8 byte
-> packets, HID?). Even though the first config read returns this (08 05
-> 00 00 00 00 00 00), if you write the same bytes back, it will stop
-> sending the default 8 byte packets. I haven't found a way to re-enable
-> this default mode other than USB reset.
+> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+> ---
+>  Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml    | 2 +-
+>  Documentation/devicetree/bindings/input/syna,rmi4.yaml          | 2 +-
+>  .../devicetree/bindings/media/samsung,exynos5250-gsc.yaml       | 2 +-
+>  Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml     | 2 +-
+
+For PCI controllers,
+
+Acked-by: Manivannan Sadhasivam <mani@kernel.org>
+
+- Mani
+
+>  4 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> 0x1 ("wellspring") enables multi-touch packets, how the driver has
-> been working for 18 years.
+> diff --git a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> index 3d14d5fc96c5..7b38f2182ffa 100644
+> --- a/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> +++ b/Documentation/devicetree/bindings/hwmon/sensirion,shtc1.yaml
+> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>  title: Sensirion SHTC1 Humidity and Temperature Sensor IC
+>  
+>  maintainers:
+> -  - Christopher Ruehl chris.ruehl@gtsys.com.hk
+> +  - Christopher Ruehl <chris.ruehl@gtsys.com.hk>
+>  
+>  description: |
+>    The SHTC1, SHTW1 and SHTC3 are digital humidity and temperature sensors
+> diff --git a/Documentation/devicetree/bindings/input/syna,rmi4.yaml b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> index f369385ffaf0..8685ef4481f4 100644
+> --- a/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> +++ b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> @@ -8,7 +8,7 @@ title: Synaptics RMI4 compliant devices
+>  
+>  maintainers:
+>    - Jason A. Donenfeld <Jason@zx2c4.com>
+> -  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com
+> +  - Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+>    - Vincent Huang <vincent.huang@tw.synaptics.com>
+>  
+>  description: |
+> diff --git a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> index 878397830a4d..9196cf5dac0f 100644
+> --- a/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> +++ b/Documentation/devicetree/bindings/media/samsung,exynos5250-gsc.yaml
+> @@ -9,7 +9,7 @@ title: Samsung Exynos SoC G-Scaler
+>  maintainers:
+>    - Inki Dae <inki.dae@samsung.com>
+>    - Krzysztof Kozlowski <krzk@kernel.org>
+> -  - Seung-Woo Kim <sw0312.kim@samsung.com
+> +  - Seung-Woo Kim <sw0312.kim@samsung.com>
+>  
+>  description:
+>    G-Scaler is used for scaling and color space conversion on Samsung Exynos
+> diff --git a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> index d286b77921e0..8f5d33050348 100644
+> --- a/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> +++ b/Documentation/devicetree/bindings/pci/mbvl,gpex40-pcie.yaml
+> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>  title: Mobiveil AXI PCIe Host Bridge
+>  
+>  maintainers:
+> -  - Frank Li <Frank Li@nxp.com>
+> +  - Frank Li <Frank.Li@nxp.com>
+>  
+>  description:
+>    Mobiveil's GPEX 4.0 is a PCIe Gen4 host bridge IP. This configurable IP
+> -- 
+> 2.51.0
 > 
-> 0x0 (suggested above) also enables "wellspring" multi-touch packets. I
-> noticed one major difference in my testing; that it seems to survive
-> suspend-resume without issues, whereas if the mode was 0x1 on suspend,
-> it will resume, report 0x0 in config and send default packets again.
-> 
-> Another interesting observation is that the first packet received (60
-> 02, "control response ignored") comes reliably 120-140ms after USB
-> reset. Importantly, if you send 0x1 or 0x0 before this is received, it
-> will be ignored. It will update the config but won't take effect. From
-> this state you have to send 0x8, wait 1ms then send 0x1 (or 0x0) again
-> to enable wellspring mode.
 
-Looks like you made real progress here, great stuff! With this 
-information, we should be able to provide a proper fix, agreed.
-
-> The above will be why my mouse doesn't work after reset and why adding
-> msleep() in probe() fixed it.
-> 
-> I think a more permanent fix could be to set mode on receiving that
-> first packet (control response) and/or on receiving default 8 byte
-> packets.
-
-I like that, expecially if 0x08 never needs to be set, as touching that 
-bit would require some sort of rougher handling. It was a bit uncelar if 
-your experiment with the 0x00 mode went between 0x08/0x00 or 0x00/0x01.
-
-> I looked at the history of the module and saw that the first packet
-> has been ignored from the first version so I assume it works the same
-> across all hardware versions.
-
-Yes, the setup timing was never considered, and your suggestion should 
-be a good fix for a lot of devices.
-
-Thanks!
-Henrik
-
+-- 
+மணிவண்ணன் சதாசிவம்

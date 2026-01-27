@@ -1,161 +1,104 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447D424E4C6
-	for <linux-input@vger.kernel.org>; Tue, 27 Jan 2026 07:30:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D0F5333730;
+	Tue, 27 Jan 2026 09:15:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769499039; cv=none; b=j9drG7j89lDr9TosiBv+2qh8dZ1hJl9yktw4RFGT+pNsWOSs4Fif7JLmX3UknVaK1FxgbXuDWe1ish6EYOZ35KNQptCCmAdhYMLJk91pjmgIWR80wDtkaV/k+R+M1n0VxeztEofdLlcO584nyj3GSFTdR0jPA2ul98j/V//OWwU=
+	t=1769505300; cv=none; b=MMmROz2QqoN6cC0GSUcCaK64Vw5ySFX6ffXMJqOXbm0aiaH2XOrxjjVx23+w2dzAcXBU/N41vUnw/x7lLGcVqeNRIGaQNOb5ZQ4SKi0tpHTz7dec+FDcry23W2q5PM8rXfMRXfzlA58XPC5+ZsGnJyc0a/kZD8b0dsFtXDoUqmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769499039; c=relaxed/simple;
-	bh=/tlF0qpjxkjcAo75X8yPk1jutjNRUNTQzbswh7afmqI=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ql8nz+XOi6FlpdAq8+K/eqZDZ8zYGOxLc0hLO6SbTIhAV9lvjuWxf1UeJ0Cd5MmzkmMf66aMYF7Dk1WUnJpLss4ImCRwdQysoYiCB3DGyARIhzIg6aBEyYX06fzU/o038nh0gZ/UV5LA41LrMtrLFshsS5m6KdbGVZLe05Q/f7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zSCBeS4D; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Vpd6tUbX; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=zSCBeS4D; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Vpd6tUbX; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1769505300; c=relaxed/simple;
+	bh=X/XJ4WH36Wvr4m263XilEXK9xEJd1Byhczn9mtxIbcY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Bo8bHAd/XkPvTI7EbhdDA2lhIeQRT+YiYo6Q4fORxh/p6eH8ZoxBfubtQ43HG5pzkXmuuDJELuOwkKv6xrHeJedTXnY6X829krcGsm9ZvaoeOra+SC2MTMwMTNg/C0eWwIn3y2/AzLE/67S7t2rwk2XqAZ6ulIk48DKLj7/RyZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Uzn1bCt4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zSCBeS4D";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Vpd6tUbX";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="zSCBeS4D";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Vpd6tUbX"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 9400833769;
-	Tue, 27 Jan 2026 07:30:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1769499034; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
-	b=zSCBeS4DDmZfLPHK/5pqsgBKRVqx52nvcuA5F2SDLaE/HV4IOgDSeJ68QaBgDCXHLFzCT8
-	gB9+hzevRUSjijFnKQrwSaUgbCneWjsJxOrHxazWQtdQvFq4hdH1no+Me+r6COTLKd5ErL
-	br4ff/NUNrD3HZYYZHmmWkXrHjpHThQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1769499034;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
-	b=Vpd6tUbXV7tTOAP4lq4PXYq8lhNGp9Zjbv4jher7SaBuiddWO8kMIHIE+asgswcl9XsR+C
-	0jhxS6wdO0D6E6DQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1769499034; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
-	b=zSCBeS4DDmZfLPHK/5pqsgBKRVqx52nvcuA5F2SDLaE/HV4IOgDSeJ68QaBgDCXHLFzCT8
-	gB9+hzevRUSjijFnKQrwSaUgbCneWjsJxOrHxazWQtdQvFq4hdH1no+Me+r6COTLKd5ErL
-	br4ff/NUNrD3HZYYZHmmWkXrHjpHThQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1769499034;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QPYKzOnVrupxhzXKWPZL7mjv2UMNPeqUIY4E5ULDHLI=;
-	b=Vpd6tUbXV7tTOAP4lq4PXYq8lhNGp9Zjbv4jher7SaBuiddWO8kMIHIE+asgswcl9XsR+C
-	0jhxS6wdO0D6E6DQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3170913712;
-	Tue, 27 Jan 2026 07:30:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id WHO5CpppeGlmawAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Tue, 27 Jan 2026 07:30:34 +0000
-Date: Tue, 27 Jan 2026 08:30:33 +0100
-Message-ID: <87h5s7pl5y.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: gongqi <550230171hxy@gmail.com>
-Cc: rafael@kernel.org,
-	dmitry.torokhov@gmail.com,
-	Shyam-sundar.S-k@amd.com,
-	hansg@kernel.org,
-	ilpo.jarvinen@linux.intel.com,
-	perex@perex.cz,
-	tiwai@suse.com,
-	linux-acpi@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 4/4] ALSA: hda/conexant: Add headset mic fix for MECHREVO Wujie 15X Pro
-In-Reply-To: <20260122155501.376199-5-550230171hxy@gmail.com>
-References: <20260122155501.376199-1-550230171hxy@gmail.com>
-	<20260122155501.376199-5-550230171hxy@gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Uzn1bCt4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC51C16AAE;
+	Tue, 27 Jan 2026 09:14:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769505300;
+	bh=X/XJ4WH36Wvr4m263XilEXK9xEJd1Byhczn9mtxIbcY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=Uzn1bCt4kmxL0BzRLvIZkD/PexmcyeD1Km/EiysHGZccGGrESZVGanhAOwoWwW4l9
+	 XRZrsuaFPHY49GH1x5dkQFX2j5Fhl8/Rir2KcBV99lABfCxvm6gOGIve/Oniym8ite
+	 DPW0GmWq6iT2f0plHZVdVXLKrDFmbLZ14Y8hmRJ0gW7kwoRaNav20t3q5MdqWbkJwX
+	 c+Hj26PxWag0HGXbOrwDBs67oA4d8kDt+NmGJzJTFXvrSDQ5uncbrlUFH6/xAAiW5G
+	 apNnf0IhqUUQYjmzNA4LdSB7WH7ADA1U7WK7FLJ3/uTjaxHBkUg+k/gnE/DnKGil4G
+	 dfL1SfM398Qkg==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Marek Vasut <marek.vasut+renesas@mailbox.org>, linux-input@vger.kernel.org
+Cc: Marek Vasut <marek.vasut+renesas@mailbox.org>, "Peter Zijlstra (Intel)"
+ <peterz@infradead.org>, Cheng-Yang Chou <yphbchou0911@gmail.com>, Dmitry
+ Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@nxp.com>, Geert
+ Uytterhoeven <geert+renesas@glider.be>, Jinjie Ruan
+ <ruanjinjie@huawei.com>, Krzysztof Kozlowski
+ <krzysztof.kozlowski@oss.qualcomm.com>, Marc Zyngier <maz@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to
+ disable and reenable IRQ with valid IRQ check
+In-Reply-To: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+Date: Tue, 27 Jan 2026 10:14:56 +0100
+Message-ID: <87sebrbenj.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spamd-Result: default: False [-1.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[13];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.org,gmail.com,amd.com,linux.intel.com,perex.cz,suse.com,vger.kernel.org];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Score: -1.80
-X-Spam-Level: 
+MIME-Version: 1.0
+Content-Type: text/plain
 
-On Thu, 22 Jan 2026 16:55:01 +0100,
-gongqi wrote:
-> 
-> The headset microphone on the MECHREVO Wujie 15X Pro requires the
-> CXT_FIXUP_HEADSET_MIC quirk to function properly. Add the PCI SSID
-> (0x1d05:0x3012) to the quirk table.
-> 
-> Signed-off-by: gongqi <550230171hxy@gmail.com>
+On Thu, Jan 22 2026 at 00:23, Marek Vasut wrote:
 
-Applied to for-next branch of sound.git tree.  Thanks.
+$Subject: linux/interrupt.h is not a proper prefix. Just use 'genirq:'
 
+Also what means 'allow ....'? Subject lines should provide a concise
+summary of the change, i.e. something like:
 
-Takashi
+        Provide conditional disable_irq guard variant
 
+> Introduce disable_valid_irq scoped guard. This is an extension
+> of disable_irq scoped guard, which disables and enables IRQs
+> around a scope. The disable_valid_irq scoped guard does almost
+> the same, except it handles the case where IRQ is not valid,
+> in which case it does not do anything. This is meant to be used
+> by for example touch controller drivers, which can do both IRQ
+> driven and polling mode of operation, and this makes their code
+> slighly simpler.
 
-> ---
->  sound/hda/codecs/conexant.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/sound/hda/codecs/conexant.c b/sound/hda/codecs/conexant.c
-> index 5fcbc1312c697..2384e64eada36 100644
-> --- a/sound/hda/codecs/conexant.c
-> +++ b/sound/hda/codecs/conexant.c
-> @@ -1123,6 +1123,7 @@ static const struct hda_quirk cxt5066_fixups[] = {
->  	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad/Ideapad", CXT_FIXUP_LENOVO_XPAD_ACPI),
->  	SND_PCI_QUIRK(0x1c06, 0x2011, "Lemote A1004", CXT_PINCFG_LEMOTE_A1004),
->  	SND_PCI_QUIRK(0x1c06, 0x2012, "Lemote A1205", CXT_PINCFG_LEMOTE_A1205),
-> +	SND_PCI_QUIRK(0x1d05, 0x3012, "MECHREVO Wujie 15X Pro", CXT_FIXUP_HEADSET_MIC),
->  	HDA_CODEC_QUIRK(0x2782, 0x12c3, "Sirius Gen1", CXT_PINCFG_TOP_SPEAKER),
->  	HDA_CODEC_QUIRK(0x2782, 0x12c5, "Sirius Gen2", CXT_PINCFG_TOP_SPEAKER),
->  	{}
-> -- 
-> 2.43.0
-> 
+How many of those have this pattern? From a cursory look I found not
+even one as your example is neither applicable to upstream nor to next.
+
+> +static inline void disable_valid_irq(unsigned int irq)
+> +{
+> +	if (irq > 0)
+> +		disable_irq(irq);
+> +}
+> +
+> +static inline void enable_valid_irq(unsigned int irq)
+> +{
+> +	if (irq > 0)
+> +		enable_irq(irq);
+> +}
+> +
+> +DEFINE_LOCK_GUARD_1(disable_valid_irq, int,
+
+'int' because it matches the function argument type of the inlines,
+right?
+
+> +		    disable_valid_irq(*_T->lock), enable_valid_irq(*_T->lock))
+
+disable_valid_irq is a pretty non-intuitive name if you look at it just
+by reading a usage site. It's not really improving the readability of
+the code, it's in fact obscuring it as the reader has to actually look
+up what the hell this means and then stumble upon a completely
+undocumented lock guard define.
+
+I'm all for using guards, but using guards just for the sake of using
+guards is not a really good approach.
+
+Thanks,
+
+        tglx

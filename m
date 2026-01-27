@@ -1,133 +1,157 @@
-Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com [209.85.210.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 464662E7165
-	for <linux-input@vger.kernel.org>; Tue, 27 Jan 2026 10:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B01DA1F5842;
+	Tue, 27 Jan 2026 14:16:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769510459; cv=none; b=Jn+uKHu+4nNHcYeSOgORtKMMUNSdh0p9rh8lEvhOeBy6PQn0Er6nSwS6NTc9oHaNetgrBt0jd30TR63cG+VmgqXZavcxLitZKCawqh0+UN/NSa3T/eXttNeJlwc+hGOML9Jqe7heaX9I/zQuKWyAAF9Si/1zfETxLqmm4b8ilcw=
+	t=1769523370; cv=none; b=sbnDw2Sej4NszpYp5pDQKq1gzmAA/jEQPuOEOU1utCxCAGgG5Kf1Akqcnb98KvP9sAsYr0umymxmQexrqCOcH/6In3czJxnDdJ/ec1+95nifhSyOQp+uhmAdARN9l3LT55eisOQBDCzlBn8XT/tkPTAUT14vq7UpMChlDaVpjqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769510459; c=relaxed/simple;
-	bh=xPVSlWvaet9868GsCY1jJthXsfYn5a7/fBimRT/J9Pg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kh8e7dVddlzdilmMfMZpr720lPnviCuhaMi9xre99hHZaGg8K/qepDY2d2fYg7jNfNhfrE0BuoYRV4kv4IWtt+HsfOMM59znwoAB/I2hdpU5FnEu+HEmZXUcG94sTU2btHSQMrxc0XsnOGtGbPOKHvNwc9b0lbTHVx7eQDB1o54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S8BUvbNC; arc=none smtp.client-ip=209.85.210.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769523370; c=relaxed/simple;
+	bh=n45w/e+eBxNQzW3Y3a27ZkR2bgkFWFyAg7LB/8ubdr4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ea1JXtqxuLWeIDkuZtmjaVsCUvUqg5UmhFiC9+EBytotJqP4XClsE8yaBD5snPv1HtPPtce5et8PVriL0hUYRckAUOLyafKsz8iUJy0QsKQo4cQYK82gLz3SY1VW/0YcB5vk4E7284uAHeaWV1+9NEPCjsg+7qw9CIMs6FA+308=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AyY4dNMr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S8BUvbNC"
-Received: by mail-pf1-f195.google.com with SMTP id d2e1a72fcca58-81ecbdfdcebso2889380b3a.1
-        for <linux-input@vger.kernel.org>; Tue, 27 Jan 2026 02:40:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769510457; x=1770115257; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mxx+6jRrhPvMg9VlbKNlTg2M9XXacffYRgMnxqmD5m4=;
-        b=S8BUvbNC6fJMujm94XxufNP6OjQFaaVvrmBArsfyIJFnRtOK0h1KnJbrnUWX8xbYgI
-         7fTCBlqjpw5rUHbJ74creJ85wKvrsJcRx3jsoQ/ehGU3WzCxbNuvaFvD9cmf40AKb2Ba
-         9r+3p5X1Q+WrCqwMiET7hwMzidemcUu79aSdKjcDvC6AMz7n4KeOavp+yU7zTv8rwJ8o
-         urCDI21HovFCJnwThY1QcfsJmF3yimUI9X4ZN5pA47Jjh1JnzQAa273gP7JmxGLBQdYV
-         2xIZIqfr+l24ADML+J7VLzSiC65GQhWIuChWimo9Fvhs++AFFPob3Y+zi74FOvv07EjE
-         eA5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769510457; x=1770115257;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mxx+6jRrhPvMg9VlbKNlTg2M9XXacffYRgMnxqmD5m4=;
-        b=PeNg0o0bjcby4/LT8N1dyRbU8P/FLibqPUQ7pZxQT5xB6DANkMg7NHCEXcWOJhF9yK
-         uSJtOgaAYJsxDH8qTQmtJBEfU+ty58tvw+THELSXfSOlZk8N1vg8oSUn/eZuVDcMDXPy
-         fbrQfcvwbOLbjhLOPdhpMh26SP9OVCKR1oYw7OR8/vxnGAoH5rq1mfGDaggnhp3N8mE6
-         /QdY8TWsqJQZ7GtLTstwoGT1CelhSiHrIW++rlRewiLWJquIiiUeZpNXBo0SiWWkjAWd
-         Ia9PzkOHcu2zK06RIJTToFelHGm9Fgm80N6gFxymeX1Sw7wuzigep8Cv5yT0f0Gx5EgP
-         m4eQ==
-X-Gm-Message-State: AOJu0Yz9IBuoIFalob8NjUdsG+oOAAVIROct40RdrDCr5x7hXlEo2G+5
-	BAWuHTwblF+VsfNWF3T0x+Un/Dp2HkmUJNr4mjwmYdh6V8g0ZrhAH9RN
-X-Gm-Gg: AZuq6aJzTJs2tpvrVFaVkHh9ozjHy5g02ZtrTKH91bA6SsG7tAcUG0wQ7si3no3erNI
-	yrzGDmkk/LWqhjQLC2HDhgn7dhAR5zDpZDwhUGGtek1r9+RSwKJnp9WKO1zkr89u4QLRYCdYkYS
-	Rjr6TOLu/Y1C0CGQD4IAPZNb4/Rxk3f/ldzyWMNjBIybWiC3IbpktMEd1L1hv3Ze8DrjTOIjOZN
-	8eApDgVSk3z3e9Kzp9t2DU6E7t2/tMlpbUXKegvr/fKfw4blBhZzBT6fiJsewO88stipRzZkSvV
-	aEWdhHXJVRQYNLkaL2VqWD5eGa5G+f/0x4g75rBBFf/W2mG7Av4DlIkb2010yH597vrnC6j+BZk
-	MJm0RXlEqI1+KuzDFUDnjX2qi0QjLtJi7zN34KdHcFkY9gwFw50ZpGRQMYyxRa/XcbdqKJbMVBc
-	2g4/4pm5MDS14osHxEjs9wziCLYSOUjF3lNsHsVg==
-X-Received: by 2002:a05:6a00:1495:b0:822:abcd:db0f with SMTP id d2e1a72fcca58-823692c3b99mr1577151b3a.52.1769510456609;
-        Tue, 27 Jan 2026 02:40:56 -0800 (PST)
-Received: from c12-ThinkPad-X1-Carbon-Gen-12 ([2400:2410:5f2b:700:38fe:3edc:7f99:7e99])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82339095c85sm7218907b3a.67.2026.01.27.02.40.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jan 2026 02:40:55 -0800 (PST)
-From: Vishnu Sankar <vishnuocv@gmail.com>
-To: mpearson-lenovo@squebb.ca,
-	dmitry.torokhov@gmail.com,
-	hmh@hmh.eng.br,
-	hansg@kernel.org,
-	corbet@lwn.net,
-	derekjohn.clark@gmail.com,
-	ilpo.jarvinen@linux.intel.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	ibm-acpi-devel@lists.sourceforge.net,
-	linux-doc@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	vsankar@lenovo.com,
-	Vishnu Sankar <vishnuocv@gmail.com>
-Subject: [PATCH v6 3/3] Documentation: thinkpad-acpi - Document doubletap_enable attribute
-Date: Tue, 27 Jan 2026 19:39:07 +0900
-Message-ID: <20260127103907.20269-4-vishnuocv@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260127103907.20269-1-vishnuocv@gmail.com>
-References: <20260127103907.20269-1-vishnuocv@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AyY4dNMr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D196C116C6;
+	Tue, 27 Jan 2026 14:16:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769523370;
+	bh=n45w/e+eBxNQzW3Y3a27ZkR2bgkFWFyAg7LB/8ubdr4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=AyY4dNMr5eqHXSWq7PuRhGoNRgh82QPvdnFJ0MiS/3gvl05gNyD+M7W8DebnsIeOc
+	 4RHGorjc1pYx9EWlBR4EIenTVKAg373EEUz/y4TRL3ROVF/sVwGMdDL12GRX9/zUJ/
+	 /jC6nb1vW58Hz2c51r8ila3EsuIBq08E8jGYKOZ3dkHPGbjnDPDj3w4pEbE4ALdd+y
+	 jqGX8dNecIQUv0Be0aRt0xcbk/WbEQfPFo72FVAWyEHC8qn65wgXrL0VJioJe/iw6G
+	 0sBDZ2gnlvSX0o1U0xD9N0Z+clKyMUaBJ5mAWU4RkpLGqn8rpiv1fk7ogWgFL2VcmD
+	 q+6A84AxFpvdQ==
+Date: Tue, 27 Jan 2026 08:16:09 -0600
+From: Rob Herring <robh@kernel.org>
+To: Andrew Thomas <andrew.thomas@touchnetix.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Marco Felsch <m.felsch@pengutronix.de>
+Subject: Re: [PATCH 1/2] dt-bindings: input: touchscreen: add TouchNetix
+ aXiom device tree
+Message-ID: <20260127141609.GA1565784-robh@kernel.org>
+References: <20260126-axiom-driver-submission3-v1-0-d462c4a608e3@touchnetix.com>
+ <20260126-axiom-driver-submission3-v1-1-d462c4a608e3@touchnetix.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260126-axiom-driver-submission3-v1-1-d462c4a608e3@touchnetix.com>
 
-Document the doubletap_enable sysfs attribute for ThinkPad ACPI driver.
+On Mon, Jan 26, 2026 at 04:38:23PM +0000, Andrew Thomas wrote:
+> ---
 
-Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
----
-Changes in v6:
-- Fix formatting of doubletap_enable sysfs documentation (separate Values list)
----
- .../admin-guide/laptops/thinkpad-acpi.rst     | 21 +++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Also needs a commit message and S-o-b.
 
-diff --git a/Documentation/admin-guide/laptops/thinkpad-acpi.rst b/Documentation/admin-guide/laptops/thinkpad-acpi.rst
-index 4ab0fef7d440..9a660724648b 100644
---- a/Documentation/admin-guide/laptops/thinkpad-acpi.rst
-+++ b/Documentation/admin-guide/laptops/thinkpad-acpi.rst
-@@ -1521,6 +1521,27 @@ Currently 2 antenna types are supported as mentioned below:
- The property is read-only. If the platform doesn't have support the sysfs
- class is not created.
- 
-+doubletap_enable
-+----------------
-+
-+sysfs: doubletap_enable
-+
-+Controls whether TrackPoint doubletap events are filtered out. Doubletap is a
-+feature where quickly tapping the TrackPoint twice triggers a special function key event.
-+
-+The available commands are::
-+
-+                cat /sys/devices/platform/thinkpad_acpi/doubletap_enable
-+                echo 1 | sudo tee /sys/devices/platform/thinkpad_acpi/doubletap_enable
-+                echo 0 | sudo tee /sys/devices/platform/thinkpad_acpi/doubletap_enable
-+
-+Values:
-+
-+        * 1 - doubletap events are processed (default)
-+	* 0 - doubletap events are filtered out (ignored)
-+
-+	This setting can also be toggled via the Fn+doubletap hotkey.
-+
- Auxmac
- ------
- 
--- 
-2.51.0
+>  .../bindings/input/touchscreen/tnx,axiom.yaml      | 70 ++++++++++++++++++++++
+>  .../devicetree/bindings/vendor-prefixes.yaml       |  2 +
+>  2 files changed, 72 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
+> new file mode 100644
+> index 000000000000..7b532471c17f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/tnx,axiom.yaml
+> @@ -0,0 +1,70 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/tnx,axiom.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: TouchNetix aXiom Touchscreen Controller
+> +
+> +maintainers:
+> +  - Andrew Thomas <andrew.thomas@touchnetix.com>
+> +
+> +description: |
 
+Don't need '|' if no formatting to preserve.
+
+> +  The TouchNetix aXiom series are high-performance touchscreen controllers
+> +  supporting various interface methods including I2C and SPI.
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - tnx,axiom
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    description: Both IRQ_TYPE_LEVEL_LOW and IRQ_TYPE_EDGE_FALLING are supported
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/interrupt-controller/irq.h>
+> +
+> +    i2c {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +
+> +        touchscreen@66 {
+> +            compatible = "tnx,axiom-i2c";
+> +            reg = <0x66>;
+> +            interrupt-parent = <&gpio>;
+> +            interrupts = <24 IRQ_TYPE_LEVEL_LOW>;
+> +            axiom,poll-enable;
+> +            axiom,poll-period = <15>;
+> +        };
+> +    };
+> +
+> +  - |
+> +    #include <dt-bindings/interrupt-controller/irq.h>
+> +
+> +    spi {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +
+> +        touchscreen@0 {
+> +            compatible = "tnx,axiom-spi";
+> +            reg = <0>;
+> +            interrupt-parent = <&gpio>;
+> +            interrupts = <24 IRQ_TYPE_EDGE_FALLING>;
+> +        };
+> +    };
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> index f1d1882009ba..dadfc7036ed7 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> @@ -1636,6 +1636,8 @@ patternProperties:
+>      description: Trusted Logic Mobility
+>    "^tmt,.*":
+>      description: Tecon Microprocessor Technologies, LLC.
+> +  "^tnx,.*":
+> +    description: TouchNetix
+>    "^topeet,.*":
+>      description: Topeet
+>    "^topic,.*":
+> 
+> -- 
+> 2.43.0
+> 

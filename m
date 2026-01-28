@@ -1,144 +1,162 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AF61E3DE5
-	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 16:06:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD941E511;
+	Wed, 28 Jan 2026 17:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769616409; cv=none; b=NaNci3SVwmN1SJtYc+oGR54bDyoQ9BDnSZBQPw+moBcxnK0xRgOAqlThrcHa1i+/+c2XmUAI5wwJtNGUxJcCmB7E8X7X9k+W8b2JRBlWbtDrSZqP9Z/aQgo2D+N2SRGjPB5qWEvKpEEVm2TXWkTpgz1L0E0rUHj08d3QnFvqhgE=
+	t=1769621070; cv=none; b=NYfsbSnzAfUVL2qRFkMu0VVZxREb6QVhdyJX9TEqUZ/H+S/gLcO+X2KRjk8MXbffJlVuXMrZE91BNwYdvqXvOmEL2nKim4cIKDBY78ikVxenZj9L9VyOzemQaa5U7jfaOGYbKadLfBVDcRJ3HcYvq46441dK0ZK1bJvuKo38EM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769616409; c=relaxed/simple;
-	bh=VW/qc4m7QYnWq8rGr+uR7X5ZxtSgkDmixXSRRjkvsXs=;
+	s=arc-20240116; t=1769621070; c=relaxed/simple;
+	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pnyzrR8rDTTKHDfu7pD8i8jqjGyodDIkOiGwcUCgtMhqtX+vO3GdPNCvGZZoOt3cmGnkYfcj8COppqFwQGCvipX9bHCHvUXtKP6jjR3Kv017+B1VTu3c+/Ze5zKOLONg1BS/M4BjabValcrPSX/45UsQMIMtlkvcwmzSwYT3QHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=nID9qwAg; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=G4gtpb0W; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=iDgvm3l1U7RQyH8yYLKZdahaX9+312KLvXRgoL9IAOBGp+8a4h9YkTAOb+XPoiJHi7fe+L3Gvjl2TgsJUucafUF4Xmqj0aJ7QSg/v6f3aypRv2KpUs6oWUC5TpPRGOhJiBIebKUy3mkj0GgfdVaeU0p8+OUuAeBhUf25kgmHr5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A5w2YDZE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="nID9qwAg";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="G4gtpb0W"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60SFc9eU3442358
-	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 16:06:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=XHLifZ9wwYI+BPtJUCR9DVIO
-	9WGqye4RlpIupw/JkLA=; b=nID9qwAglbIqC48REmyIsR5BGQea+I7x+m84TSH+
-	bH/L/m654Lj4V0/Xyp/5QMa/G8WfZUw0pTjOTK4E3rVFRTnDOXW6U1P8dl29W5rH
-	Yj7MHAnrV9MrcBDc6QUGZLtCLqUHDJFax8v0CmdPSjEYkCvQQG7e5G1CO02ktqV4
-	hbxK7Fp6MWJJL3F1CvoCosHwKXfZsCCgIG6XH3tzyD/JtuxiO9UQ5d2KSXPQzx6K
-	HfWMCEumtHBcKI/YQZFDLJODITOHF+acpXVhZrPPHPBCAB13LkYTNEsjQaKVgQ6q
-	uQbDhdy1ns5zwTvOCOfbhYkwyGxQVTMototqE7Cv6B3zHw==
-Received: from mail-vk1-f200.google.com (mail-vk1-f200.google.com [209.85.221.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4byanajey1-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 16:06:46 +0000 (GMT)
-Received: by mail-vk1-f200.google.com with SMTP id 71dfb90a1353d-56626b89e83so7236814e0c.3
-        for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 08:06:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1769616405; x=1770221205; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=XHLifZ9wwYI+BPtJUCR9DVIO9WGqye4RlpIupw/JkLA=;
-        b=G4gtpb0WpVoZy4gvVWWHo6Ex1JTbajju6N0WeCrhZL4mla9BcnAWsyiuvwaAJPptuU
-         UqWLmY6gdjjFro5T9PrWqgCzcL1VhxYuzZ4IKM8ypgbPUsV09bEx3eRyDz4OnhpUGwN0
-         clYcRh2WaDfzV9KAV8jPlv2pNlMalhsRbF5JjH1vbAJGF3Xe/5RX+Nb8Z8DnsEnIr3Mm
-         yZBWWHO3QiehU6qM/T5Q2e3s6VuME0ZjiplOU5j+gvt2eHtry71ZKtkatA/rw7U1CEHx
-         V914fWMI8LfmLi9Ef74yH9zQ51o/z0zqJb1ct6RTwJMeMei8NGQ+hPcmAYNi6RQi18hU
-         aidw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769616405; x=1770221205;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XHLifZ9wwYI+BPtJUCR9DVIO9WGqye4RlpIupw/JkLA=;
-        b=p7G2aLXwDD1NynkrEr4oatIgEfDlIJBhmrrEuwqt3sk73adOZXg+2BLbo+/2O7AFrb
-         iZ5UTNLwAS2AH5e6TnUpvZoL3FkbT17bghHlXADpvRM4JpOkx772JUsMzFWmTH1LrKbe
-         jnIxrosYxJ9RPoQrY0vB85kOYqEB2pv8qKYF/KWZFz2oK8VK6Vpmrdtth9wHi7Ei9hxM
-         mswTLwE42FJnUo0qONobq1b4oLnDxVA41mlRJmqJE3q6LdW8/1lLiPSS16FQG7Iuf5oP
-         fRxueQIvOG3SMzQaRA19n2E3+smZ4+HoBVV3TQvOiLG9mGC3DSiYCOktXqUv/0LQT+1X
-         jykQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUmKGz+u+W5I+Mdn8qIwS2XhKYiZHkzsE1d9bP1wqbpzcSGy1Tl6xzOkoh31PkTLH9lpQC1MD/qoIY8BA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwF4P9Rh0ziwDUnlP71hJNW+ODhxA83uu6vyFEotlCnelIkkVsp
-	BibnKOXuyo3C6x5g/EeF9ubgU/Q/Z4DbX9NiEEhfrEMxuh9JHxBS8UQ+l/QLnBwGDv1OEL6L9Q9
-	F/tBfahRNBDk3jzEJK2lQrZZgbmvlzSO/ecnNwbcsqLf4i+PPQ2mgGbSoL8LhbvTS3g==
-X-Gm-Gg: AZuq6aKkY2+Vic+ripGV7VDPkECUzsvNlVbGlr2YaFe4NfvQQPBIkO5HQ4gX3aFuafg
-	Vs1u8nClZXOH8AJskDaoUgyxJuTPjCLPGyjA/aTWdovQ00xXiOHTQaSBNcZI2U19YsTPUEtmO7/
-	RNKiVErLSF35rqgS+JAADVuNGMRCJZ5Yo7o5hkFC3E6PGJuaHgiM7ctG8hXCoWH3NHJduwkxq9k
-	dDXPE8q841X1OfO0QuksA9cYDpT10KU6yCu2v14zfKPFe7Sk8/n7tlqEaHWCCa08WuzgMP0jNh0
-	65FxnkkYbkJ8I36RdFjt6UTJkX2XZAE13VjG3Wsx5hxKs60V4Z8UwIF7mF52wM4SSfr/LDYX96V
-	32a1XsbF2JQsyrohLpMcNl3EjYq7JQxe4nUvi/KV+vQ4s1iI1/K5IOjS0Q6PpMj/SHlP153c+E4
-	iJybywMTIyFLFNTBpw56Sq7+Y=
-X-Received: by 2002:a05:6122:210f:b0:566:24c0:716b with SMTP id 71dfb90a1353d-566794a81b7mr1704499e0c.3.1769616403852;
-        Wed, 28 Jan 2026 08:06:43 -0800 (PST)
-X-Received: by 2002:a05:6122:210f:b0:566:24c0:716b with SMTP id 71dfb90a1353d-566794a81b7mr1704396e0c.3.1769616401913;
-        Wed, 28 Jan 2026 08:06:41 -0800 (PST)
-Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38625f6c670sm4378361fa.32.2026.01.28.08.06.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jan 2026 08:06:41 -0800 (PST)
-Date: Wed, 28 Jan 2026 18:06:39 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] arm64: dts: qcom: milos-fairphone-fp6: Add
- vibrator support
-Message-ID: <w3e3weyxdp3bi6mlxa3hvtmvbtuyddaj3hfn3urhixtliejhsx@h3wqvscon6n4>
-References: <20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com>
- <20260128-aw86938-driver-v2-3-b51ee086aaf5@fairphone.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A5w2YDZE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB42C4CEF7;
+	Wed, 28 Jan 2026 17:24:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769621070;
+	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=A5w2YDZEQLkjxTDGcF2tRpFscp9eOXLP4KHiGaUwoGkHTMNGgCt3HbkGY1Lbsy+Kh
+	 JVD8tQ3nsJMlRZfo/RU3V0Bau+qJG6Ut8EduizXdK8GehwJQmPpI/Syy4z42AwMRsw
+	 j5Bh8dBmSC9Ut0NKXls8jA8CfOJ6WuxLJnQzYywKzwmFZ+MKNqPsWfwQwruLVmPGXV
+	 D1QIZD+94oOdA2cSUztjhk3Ng8AT1mr7tXXVvnQ21IEGMW6CGFWAd5qMqKROzn+8tE
+	 IjI1VXZIMaM5vBVz7Hycjpdvycbx0paWcKzBpakrXc/RAPl0EPts9ZQLSXhH2aBfxz
+	 IZqfxydUEVFtw==
+Date: Wed, 28 Jan 2026 17:24:24 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+ Bridge
+Message-ID: <20260128-embezzle-deacon-74815f461fe9@spud>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
+ <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
+ <20260128-magnificent-faithful-otter-c4f900@quoll>
+ <aXoF4zi4SZrXaku5@smile.fi.intel.com>
+ <20260128-pelican-silenced-cd6a5bf69672@spud>
+ <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="3t42j44j7XCiyLoM"
 Content-Disposition: inline
-In-Reply-To: <20260128-aw86938-driver-v2-3-b51ee086aaf5@fairphone.com>
-X-Proofpoint-GUID: Wq6eRS-QUrf8FpEmBzEg_P80YPQ0mRnv
-X-Proofpoint-ORIG-GUID: Wq6eRS-QUrf8FpEmBzEg_P80YPQ0mRnv
-X-Authority-Analysis: v=2.4 cv=N58k1m9B c=1 sm=1 tr=0 ts=697a3416 cx=c_pps
- a=wuOIiItHwq1biOnFUQQHKA==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=6H0WHjuAAAAA:8 a=EUspDBNiAAAA:8 a=7WDzbpTNP48-5iC3XZUA:9 a=CjuIK1q_8ugA:10
- a=XD7yVLdPMpWraOa8Un9W:22 a=Soq9LBFxuPC4vsCAQt-j:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI4MDEzMiBTYWx0ZWRfXzJBFz7wEEVzL
- wKaMgH6CAeNV6MA0x2obYJA+EMmsoIFADORM0k2QJ8TN9pIWMloo6x0AZaIbScsM3KR3S4e85qC
- 1jWoLz+sv5Fa+IkK4CvVmcExu8WLP3GdL6+lvma5Am4LClg8XdHfsGwJpjPuWO1ypP80s/JZHoM
- zDWGso/GMDnZbZEHoCJPWHFQ1buPG4rkPYC3bXFJh66uOBZjsXbntyh+Tnp0K8TuokT7v2agUVz
- HTAohU5fn+o1WEU1ULagMbd/1VKoBIAmH6DGBe29T3lOEmZOryyXj9aoO5UFBzAUMcC0Ue+d5Ln
- bNK2JMexyLXABsnzwVSCfuG54PCajw6v6FZETh+BGOcbEmEypfvCBYxhjZHgW4ZDk9C0OxKAZ39
- YpP4dggp5K6IxqartabtIgx9+0e6cMhd7pKycbsPvVoPXBtf/I/rtLMestFQDyMZZjtDCyklJns
- wfO1/Do7z29e6KMkowQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-01-28_03,2026-01-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2601280132
-
-On Wed, Jan 28, 2026 at 04:51:15PM +0100, Griffin Kroah-Hartman wrote:
-> Add the required node for haptic playback (Awinic AW86938)
-> 
-> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-> ---
->  arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts | 19 ++++++++++++++++++-
->  1 file changed, 18 insertions(+), 1 deletion(-)
-> 
-
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+In-Reply-To: <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
 
 
--- 
-With best wishes
-Dmitry
+--3t42j44j7XCiyLoM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 28, 2026 at 04:52:01PM +0100, Krzysztof Kozlowski wrote:
+> On 28/01/2026 16:06, Conor Dooley wrote:
+> > On Wed, Jan 28, 2026 at 02:49:39PM +0200, Andy Shevchenko wrote:
+> >> On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
+> >>> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+> >>>> On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
+> >>>>> This is a USB HID device which includes an I2C controller and 8 GPI=
+O pins.
+> >>>>>
+> >>>>> The binding allows describing the chip's gpio and i2c controller in=
+ DT,
+> >>>>> with the i2c controller being bound to a subnode named "i2c". This =
+is
+> >>>>> intended to be used in configurations where the CP2112 is permanent=
+ly
+> >>>>> connected in hardware.
+> >>>>>
+> >>>>> Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+> >>>>> ---
+> >>>>
+> >>>> Hi Folks (Intended for Rob or Krzysztof),
+> >>>>
+> >>>> Wasn't sure the best way to go about this, but trying to see the best
+> >>>> way to get a message in front of you regarding an ask from Andy S.
+> >>>>
+> >>>> In [1], Rob H initially directed that the gpio chip share a node with
+> >>>> the CP2112 itself, rather than having a subnode named 'gpio'.
+> >>>>
+> >>>> Initially, I did the same thing for both DT and ACPI, but Andy S.
+> >>>> directed that ACPI should not have the node be shared in that way.
+> >>>>
+> >>>> With the last revision of this patch, Andy S. asked that I try to ge=
+t a
+> >>>> rationalle from Rob (or other DT expert presumably) on why the gpio =
+node
+> >>>> should be combined with the parent, rather than being a named subnode
+> >>>> [2].
+> >>>
+> >>> Because it is explicitly asked in writing bindings. Please read it.
+> >>>
+> >>> Because we do not want Linux driver model affecting design of bindings
+> >>> and DTS, by subnodes present only to instantiate Linux drivers. I do =
+not
+> >>> care about driver model in this review and I do not see any reason it
+> >>> should make DTS less obvious or readable.
+> >>>
+> >>> That's actually rule communicated many times, also documented in writ=
+ing
+> >>> bindings and in recent talks.
+> >>
+> >> Does DT represents HW in this case? Shouldn't I=B2C controller be the =
+same node?
+> >> Why not? This is inconsistent for the device that is multi-functional.=
+ And from
+> >> my understanding the firmware description (DT, ACPI, you-name-it) must=
+ follow
+> >> the HW. I don't see how it's done in this case.
+> >=20
+> > The i2c controller should probably be in the same node too, unless it
+> > would cause conflicts between function (e.g. inability to figure out if
+>=20
+> This one is the rationale.
+>=20
+> > a child is a hog or a i2c device). I would like a rationale provided for
+> > why the i2c controller is in a subnode.
+
+I guess it wasn't clear that I was trying to say that the rationale
+should be provided by the submitter in their patch, and the first
+portion of my comment was trying to mention what has to be considered.
+
+> I2C controller will have children, because it is a bus, so moving it up
+> one level would make the entire node I2C bus and that's not only problem
+> for the kernel but actually for reading DT - we expect consistent choice
+> for children, instead of mixing nodes with and without bus-addressing.
+> What's more, if you have two buses you also need separate nodes to group
+> them (obviously).
+
+
+
+--3t42j44j7XCiyLoM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXpGSAAKCRB4tDGHoIJi
+0soQAP94RgMAu6RjrAxCdXR4SFJqDk0BCec9Uzh3mtJH5I8sawD7BHDy8qaa2/HE
+AyaKj5MWRRxV3km+nB3lCp0i5LZlogc=
+=8zBE
+-----END PGP SIGNATURE-----
+
+--3t42j44j7XCiyLoM--

@@ -1,114 +1,123 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1B82EA172;
-	Wed, 28 Jan 2026 15:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCA8A30C619
+	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 15:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769615482; cv=none; b=ONACpSZqxyPr01dgGHxS9RcAPmZGqtECMuNS37nhphYFd7NWV5gcLVeOmNpGEP+dRysA/Jn8nv8dgNMH5xWNqVC+xef5wy3+vUodmGpCKHoA2pe6xkc4ca04HMnbhylvyda3ADL6iQECSc6ioHlZfMRXi392H7iub88/Jr3qwGY=
+	t=1769615485; cv=none; b=AHacIswomVsUy+hM0fbMAO4TXn8O7Cnidnabd25eBuarLM478RLG7ZHCfmbLfBqtJtRKRXnOL3F9OjlCdd8RB/xDTWbVDk9lpffOumjNzjdQtTAN89jrKZ7gvEf1HMSOds+FaUI58SM6Ii1nK9cBUEcSuioLkXuDnwY/UEiLLwk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769615482; c=relaxed/simple;
-	bh=YMl7we/JDefweYTSXQOFToR7vNsq86hSDk6V8uFAxJ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C9WJlPvzaXPp3wrPOE1zoyd+8oW16jFfx6KKdcSehyRdhnP6xa0wbzeq5cIdNLCnhYE6WcUl8ZL5bQCnL6VkGRCznBHAfPq80fNF9YJQEbMBK6s5EBQ5xA4MsyKNrEYryI7rQjMoeeh8u0k+Kg+SRuNdmsljapXIu0Toe0+qW94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Oqms586W; arc=none smtp.client-ip=198.175.65.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769615485; c=relaxed/simple;
+	bh=s2XftgRLoQjS+g/1qoc7zKuSMJw+yLwcSC76tOy1XDY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=LwR5n61iRTacTEIz6lmAg3ATyrxUZcL9/PGN52Dwjfj+RWp6KIxg5GkMsypv0nCKJOSeoG0C0yDi+iwzGOsfrGUyXeWJ6AOOl0waINPKGarsiIHBRTODjUc/+HdvllVURB1dcqiH++v/cM8hhl8RZ0TM/0Iu+Y0lrDhXMh+4hog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=aV6HDSK7; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Oqms586W"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769615482; x=1801151482;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=YMl7we/JDefweYTSXQOFToR7vNsq86hSDk6V8uFAxJ0=;
-  b=Oqms586Wrk6fgPVzcsziYCRwz6HenWY5H6zAl2Wh2K8Q4V07irCIWe3Z
-   3ux/7jOykL5cxSVSQL4l+HSUaqktXj1p460LMGn/RNCFVTfAeS6+dMcaO
-   LJy/qS1rC9RSyrgZSS14ojfXplO9Uu1jL+vDC8wgtJpoTbmPMHLM+F8hm
-   1T2+Ym0aAbMWFrw0+3kX+4VNyK7JCRMNeCWGkq+WPq2ASBDc5rQnR66vL
-   +9kuR7SYUeD4/c4W4muI9pvb+dai3jesWTyXlNEe31oWc2UYX30Jzq9SY
-   00x1DzK0LRBBn0UqWA6ztT7Y3UZFCZ+YOP5oMgW4+O4L8tAfHlhTQ9lwy
-   w==;
-X-CSE-ConnectionGUID: Qtv+4z7JQ/6U4GbDwqM4Fw==
-X-CSE-MsgGUID: 57Ycm5GQT1SpehbmT5kUsw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11685"; a="81943002"
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="81943002"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 07:51:21 -0800
-X-CSE-ConnectionGUID: YSjqylXoRHuhj1VvsnJgBw==
-X-CSE-MsgGUID: CuULZbbvQAyrw5QSFsjEig==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="208097217"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.57])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 07:51:16 -0800
-Date: Wed, 28 Jan 2026 17:51:13 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Conor Dooley <conor@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-	Ting-Kai Chen <tingkaic@nvidia.com>
-Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
- Bridge
-Message-ID: <aXowcdIpdZwrc5KW@smile.fi.intel.com>
-References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
- <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
- <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
- <20260128-magnificent-faithful-otter-c4f900@quoll>
- <aXoF4zi4SZrXaku5@smile.fi.intel.com>
- <20260128-pelican-silenced-cd6a5bf69672@spud>
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="aV6HDSK7"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-64b7318f1b0so11511a12.2
+        for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 07:51:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fairphone.com; s=fair; t=1769615482; x=1770220282; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=MqPhMZPef8IxeMTLsFDJp6gjrCUIfXLXeKcG0ugnntI=;
+        b=aV6HDSK7zTGc79REnCSxq8Mt6QGmrcHKv3MpXeChDruqleXzdXHiCYi2oyVd3eF7Wj
+         mbAQzATsG1InFchtHM/x0qvWIo2hM6g9q/9vW+DVYJhM0QzURPakut784EDCHpNKfdnO
+         ofax65U8DtXelMyYHJZq54oCll1UEQqiHIjtdE6T7dTtHtkS4sBruVH8vml83Jo3H9FG
+         V/eciT+y9VeVDhH0bux55UHP55/LmCBhv2W1BzIfca6ma79vGQ3ILL4a98lsCYM/NPku
+         +s+U5qRbaFmFd2DeAvCdso4CpOn/H+kvpNxVnIdq4qquBiNvjwFLaQ/0mqePIBxi+Aw1
+         QBoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769615482; x=1770220282;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MqPhMZPef8IxeMTLsFDJp6gjrCUIfXLXeKcG0ugnntI=;
+        b=Tdi2LwEciCvj3HUI+UKPSNbTfpar+OkonZbikSYwgpmySE9Km34RIxxgoFOFAV1fvU
+         3tvTWZp+LcXYYYMcn5gollBffgdyhMuUomEYZV87HFJQw+UC55N4xLB2Ayh1qzWERlI6
+         4vIgTnTxU9RFCnlblRRO2XdaXt3ntABtiy7AC1NHMb8cMiAcO03DTJyBTU3mtrjdKdNh
+         9DRiQmPUnA2K0W39tKIZk+uorsT1UBNVS18gMqqCAz2x3YSrikgcmjEVYKsVn5xtJiUQ
+         VF+u4SJsNjmRtlkq3lAEm9U3Rf8m2rsgr0YEPifH6qBV4uUdlLrjHrCj3UsWgS/TGlRd
+         n2eA==
+X-Gm-Message-State: AOJu0YxQcE7Z0NUcgOmKvVJViAosUATnrAQtncHmMsGnqnCNDLjJlxMF
+	BuXZKw+K6UFs5O/VpFmfwCt37dZzofh6dAyIfyhlhQHbZsxVfc9zv5to7bTw1gBp38s=
+X-Gm-Gg: AZuq6aKbBTSWANA1Bnhin1ZEcLdnLhFR+SZHT46NxGQRI7qyKlBG/NDWlVWhlRQLF1i
+	gJ8ojg+2kFDxb6DARFDSJ/L1yrzgh9X0DhjLY8SFaxTgzm5rnMc8vimXGRCsBiiRVOkFOJOQpHP
+	/eK3nyMzldS8RRjrXM6+0pBCHJOYZVjpZ5LM4yqO53pTJnIho0dpYAjhmKnZZw/fy0ekxGXaTnD
+	+QF9ak0eoTGq/tk+aQlM7Xp8OtDQsFO16tYlQ5MSK9x1tuXU3JYvBKeNAKAVr9VMT1nxbpSU7/I
+	LztCNckRf8460boG8tUjmDM51FsFBRmo5HhJWbptcpn//wQsIzESDRjNidsXusSsWFx3Qy1YXzy
+	R8jIkUK9/poPxUf7O9uaDcnigPdQoQ6NxLuXJpE7vOMVUkZdm0PKcDQNGbkLRw5eHAj+aZ3hAHV
+	BIJ5hDsPyepi8UHNOGcxenSkbJb2f31cSzmAoliJbfTaesRA4pQW2YHKRiKxl3+iZezieYcLX3j
+	Y9wHh8=
+X-Received: by 2002:a05:6402:3548:b0:649:cec1:6cf1 with SMTP id 4fb4d7f45d1cf-658a5f8edcbmr3566350a12.0.1769615482091;
+        Wed, 28 Jan 2026 07:51:22 -0800 (PST)
+Received: from [172.16.220.227] (144-178-202-139.static.ef-service.nl. [144.178.202.139])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-658b469eb9fsm1727223a12.28.2026.01.28.07.51.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jan 2026 07:51:21 -0800 (PST)
+From: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Subject: [PATCH v2 0/3] Add support for Awinic AW86938 haptic driver
+Date: Wed, 28 Jan 2026 16:51:12 +0100
+Message-Id: <20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260128-pelican-silenced-cd6a5bf69672@spud>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAHAwemkC/12OSxKCMBBEr0Jlbax8ECIr72GxCGQisyDBBCMWx
+ d2NsHP5eqpfz0oiBIRImmIlARJG9C6DOBWkH7R7AEWTmQgmLpxzSfVbVVepqAmYINCutJoZKYT
+ SguTSFMDisgvvbeYB4+zDZ/cn/ksPlWDlvypxyih0puaqUsZKfbMawzR4B+fej6TdDn+A5yv/O
+ R8jpNMRaL6PODeFg2WmeaBiXNS5sX0Bxjce/+EAAAA=
+X-Change-ID: 20251113-aw86938-driver-b4fa0d3228a2
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, 
+ Luca Weiss <luca.weiss@fairphone.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769615481; l=1152;
+ i=griffin.kroah@fairphone.com; s=20250804; h=from:subject:message-id;
+ bh=s2XftgRLoQjS+g/1qoc7zKuSMJw+yLwcSC76tOy1XDY=;
+ b=UpFCfkbXOgKJjpAw86bajCWZpxZ2xCtZDbZ3ywSoJtcvP95aZ1oKyJXqSvx3734Dc7DE5opPd
+ noxQ/gLYBMnCYkfNbKF8qg/gnEClSRd+PNBQ6hm9KSGeQJ1wVeY3eJe
+X-Developer-Key: i=griffin.kroah@fairphone.com; a=ed25519;
+ pk=drSBvqKFiR+xucmLWONHSq/wGrW+YvcVtBXFYnYzn8U=
 
-On Wed, Jan 28, 2026 at 03:06:58PM +0000, Conor Dooley wrote:
-> On Wed, Jan 28, 2026 at 02:49:39PM +0200, Andy Shevchenko wrote:
-> > On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
-> > > On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+Add devicetree bindings and a driver for the AW86938 haptic driver chip,
+and add it to the devicetree for the Fairphone 6 smartphone.
 
-...
+This driver is very similar to the AW86927, and shares many core
+features.
 
-> > > That's actually rule communicated many times, also documented in writing
-> > > bindings and in recent talks.
-> > 
-> > Does DT represents HW in this case? Shouldn't I²C controller be the same node?
-> > Why not? This is inconsistent for the device that is multi-functional. And from
-> > my understanding the firmware description (DT, ACPI, you-name-it) must follow
-> > the HW. I don't see how it's done in this case.
-> 
-> The i2c controller should probably be in the same node too, unless it
-> would cause conflicts between function (e.g. inability to figure out if
-> a child is a hog or a i2c device). I would like a rationale provided for
-> why the i2c controller is in a subnode.
+Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+---
+Changes in v2:
+- Added AW86938 specific registers
+- Added chip model enum to differentiate chips
+- Link to v1: https://lore.kernel.org/r/20251204-aw86938-driver-v1-0-ebd71868df3a@fairphone.com
 
-I can expect a disaster with such a scheme, splitting multi-functional device
-to the subdevices (children) sounds to me like the best approach. With this,
-one may have the same (globally named) property to be different on subdevices.
+---
+Griffin Kroah-Hartman (3):
+      dt-bindings: input: awinic,aw86927: Add Awinic AW86938
+      Input: aw86938 - add driver for Awinic AW86938
+      arm64: dts: qcom: milos-fairphone-fp6: Add vibrator support
 
-But I will hold my breath to see the outcome of this discussion.
+ .../devicetree/bindings/input/awinic,aw86927.yaml  |  4 +-
+ arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts   | 19 ++++++-
+ drivers/input/misc/aw86927.c                       | 65 ++++++++++++++++++----
+ 3 files changed, 74 insertions(+), 14 deletions(-)
+---
+base-commit: 0364de6be161e2360cbb1f26d5aff5b343ef7bb0
+change-id: 20251113-aw86938-driver-b4fa0d3228a2
 
+Best regards,
 -- 
-With Best Regards,
-Andy Shevchenko
-
+Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
 

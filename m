@@ -1,144 +1,70 @@
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C39273F9
-	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 17:43:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251B936EAAF;
+	Wed, 28 Jan 2026 17:46:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769622216; cv=none; b=vB5OGXAMHyfYF2fO37D1i4x5svIBkiKgVR+tcSUv/0fOWJvy2PvOCY4eQdOrXNJWxOiH3n/KbjfgzluPEpJPyMIeNSL31/UdEz2bQtBDnlvybUiKDxDxqyaPILC4zyaNOqu040bDExh94RuTc6IVunNdjQ2npUC4z9Jc/aCp3Dc=
+	t=1769622365; cv=none; b=EebkHvmnsscm0e5g/cEWPTy2OXPkwRBXTnUC/npB+pZZjA3ufDk2QJlCcu/qgQ9bGaRUWQVesbjZJ55eeh7hFgEPP0/jtjxc3zT4YZCCQku7KIqZIg8yMd77jtzhCtsQm+iAO3gl1ohGqElSZjjlLmz0Vj36/pqhHxdaFk/m72c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769622216; c=relaxed/simple;
-	bh=Y5SJTAaQ0GNJYosMPAPMIo2cElfSJAiFGXIfskE09V0=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=B6TeFb1SAkQnrwee3BR6AWzThMvSSMz7QxcAlUFZJ5vTBHJ5//iuMICKvse/Zl4tjMX7v7E/1j96lYpaIYm7usu4gj2vd7iqV1D5ltSCASpdDwprnzJcSUX048U8LQYMbLNrSerdrDm1Q0rFoUaDNaWEj2BBwq7aW11GoBtX/yE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 8677C44288;
-	Wed, 28 Jan 2026 17:43:31 +0000 (UTC)
-Message-ID: <4ecf6a790596c4814c6666805b53aa7b1dd5a793.camel@hadess.net>
-Subject: Re: [hid:for-6.20/pm_ptr 7/12]
- drivers/hid/hid-picolcd_core.c:651:33: error: 'picolcd_suspend' undeclared
- here (not in a function); did you mean 'picolcd_reset'?
-From: Bastien Nocera <hadess@hadess.net>
-To: kernel test robot <lkp@intel.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org, Jiri Kosina
-	 <jikos@kernel.org>
-Date: Wed, 28 Jan 2026 18:43:31 +0100
-In-Reply-To: <202601260353.Dk5ekiee-lkp@intel.com>
-References: <202601260353.Dk5ekiee-lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
+	s=arc-20240116; t=1769622365; c=relaxed/simple;
+	bh=y6zcCm0weiv02jif+kCDNZ3KdQfxUZJx2damFDR2gS0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=WIUozGZ5cvQ+WrRCOyvRghMRwDCWs/XkvRxJHKqj0YOApAE95C0ZuQpn1o0bcxlfP66TYZTnDwT8V1hIjkx+SuMYGpHaiQVnD8NnpTWwOdCLLws85pQNKwxKQDtxESPf5LckCNyth+duLdcSxfA4KkydAECiCECORptmbxa1Xp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mFRZnsHZ; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mFRZnsHZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58777C4CEF7;
+	Wed, 28 Jan 2026 17:46:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769622364;
+	bh=y6zcCm0weiv02jif+kCDNZ3KdQfxUZJx2damFDR2gS0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=mFRZnsHZs6lFM7PSZkVe1GlO9JJr8mNZ8o66MDwyp0PzVuyv2tKhelNsdU7NCKhJU
+	 x3YA/xeBhZBoBximl2MEAFXqd1I3xk/K3AifqtvXU17g8YWqhD/V0ObLvcWcCOSBxt
+	 RIayPhRre/wudWFnrY9O/DRFwKu9xHIquRhuLRy6YOcalcJyl4jn6PoX3bVYgep2vH
+	 Iakqmn48mO4SlytBiTQwynPB6PX3vRtzIWOrdhujpgscPJjlXfP1253/MSpW9Gv7fR
+	 ggoItzyvTpD4svIJ4tj9WCIWwyra/pxJs83kDXH1spe6r/nAMmxh5/jypo0jwvT/Is
+	 f1QIccu0nObrw==
+Date: Wed, 28 Jan 2026 18:46:01 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Bastien Nocera <hadess@hadess.net>
+cc: kernel test robot <lkp@intel.com>, oe-kbuild-all@lists.linux.dev, 
+    linux-input@vger.kernel.org
+Subject: Re: [hid:for-6.20/pm_ptr 7/12] drivers/hid/hid-picolcd_core.c:651:33:
+ error: 'picolcd_suspend' undeclared here (not in a function); did you mean
+ 'picolcd_reset'?
+In-Reply-To: <4ecf6a790596c4814c6666805b53aa7b1dd5a793.camel@hadess.net>
+Message-ID: <n7o7o70s-3pp0-r590-p65n-2175r761q79p@xreary.bet>
+References: <202601260353.Dk5ekiee-lkp@intel.com> <4ecf6a790596c4814c6666805b53aa7b1dd5a793.camel@hadess.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-GND-Sasl: hadess@hadess.net
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduieefleehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfevffgjfhgtgfgfggesthgsredttderjeenucfhrhhomhepuegrshhtihgvnhcupfhotggvrhgruceohhgruggvshhssehhrgguvghsshdrnhgvtheqnecuggftrfgrthhtvghrnheptedvvddttdetgfelteegkedutdffvdffuddtveejfeellefhfffhfeeuhfdtkeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdptddurdhorhhgnecukfhppedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfedphhgvlhhopeglkffrvheimedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfegnpdhmrghilhhfrhhomhephhgruggvshhssehhrgguvghsshdrnhgvthdpqhhiugepkeeijeejveeggedvkeekpdhmohguvgepshhmthhpohhuthdpnhgspghrtghpthhtohepgedprhgtphhtthhopehlkhhpsehinhhtvghlrdgtohhmpdhrtghpt
- hhtohepohgvqdhksghuihhlugdqrghllheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhg
-X-GND-State: clean
+Content-Type: text/plain; charset=US-ASCII
 
-VGhlIHdyb25nIHZlcnNpb24gb2YgdGhlIHBhdGNoIGdvdCBzY2hlZHVsZWQgaW4gdGhhdCBicmFu
-Y2guCgpUaGUgYnJhbmNoIGhhcyB2MSBvZiB0aGUgcGF0Y2g6Cmh0dHBzOi8vZ2l0Lmtlcm5lbC5v
-cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2hpZC9oaWQuZ2l0L2NvbW1pdC8/aD1mb3ItNi4y
-MC9wbV9wdHImaWQ9MzE4ZjdiMGYxYmVhMTNkM2FhMDUwNmZlNmY0MDM5OWYxMWM0YWU1MgoKVGhp
-cyBpcyB3aGF0IHYyIGxvb2tzIGxpa2U6Cmh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcHJv
-amVjdC9saW51eC1pbnB1dC9wYXRjaC8yMDI2MDExMzA5MjU0Ni4yNjU3MzQtOC1oYWRlc3NAaGFk
-ZXNzLm5ldC8Kd2hpY2ggc2hvdWxkIGZpeCB0aGUgcHJvYmxlbS4KCk5vdGUgdGhhdCBteSB2MiBw
-YXRjaHNldCBhbHNvIGRyb3BwZWQKIkhJRDogc3VyZmFjZTogVXNlIHBtX3B0cl9zbGVlcCBpbnN0
-ZWFkIG9mICNpZmRlZiBDT05GSUdfUE1fU0xFRVAiCndoaWNoIGlzIHN0aWxsIGluIHRoYXQgYnJh
-bmNoLgoKRG8geW91IG5lZWQgYW55dGhpbmcgZWxzZSBmcm9tIG1lPwoKT24gTW9uLCAyMDI2LTAx
-LTI2IGF0IDAzOjA0ICswMTAwLCBrZXJuZWwgdGVzdCByb2JvdCB3cm90ZToKPiB0cmVlOsKgwqAK
-PiBodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9oaWQvaGlk
-LmdpdMKgZm9yLQo+IDYuMjAvcG1fcHRyCj4gaGVhZDrCoMKgIGQ2OGE1ZmQ5MzlmNDYwYTdkYjc2
-ZDEyNzAwNWFmNTFjYjEzYzY5ZmEKPiBjb21taXQ6IDMxOGY3YjBmMWJlYTEzZDNhYTA1MDZmZTZm
-NDAzOTlmMTFjNGFlNTIgWzcvMTJdIEhJRDoKPiBwaWNvbGNkX2NvcmU6IFVzZSBwbV9wdHIgaW5z
-dGVhZCBvZiAjaWZkZWYgQ09ORklHX1BNCj4gY29uZmlnOiBpMzg2LXJhbmRjb25maWctMjAwNi0y
-MDI1MDgwNAo+IChodHRwczovL2Rvd25sb2FkLjAxLm9yZy8wZGF5LWNpL2FyY2hpdmUvMjAyNjAx
-MjYvMjAyNjAxMjYwMzUzLkRrNWVraQo+IGVlLWxrcEBpbnRlbC5jb20vY29uZmlnKQo+IGNvbXBp
-bGVyOiBnY2MtMTQgKERlYmlhbiAxNC4yLjAtMTkpIDE0LjIuMAo+IHJlcHJvZHVjZSAodGhpcyBp
-cyBhIFc9MSBidWlsZCk6Cj4gKGh0dHBzOi8vZG93bmxvYWQuMDEub3JnLzBkYXktY2kvYXJjaGl2
-ZS8yMDI2MDEyNi8yMDI2MDEyNjAzNTMuRGs1ZWtpCj4gZWUtbGtwQGludGVsLmNvbS9yZXByb2R1
-Y2UpCj4gCj4gSWYgeW91IGZpeCB0aGUgaXNzdWUgaW4gYSBzZXBhcmF0ZSBwYXRjaC9jb21taXQg
-KGkuZS4gbm90IGp1c3QgYSBuZXcKPiB2ZXJzaW9uIG9mCj4gdGhlIHNhbWUgcGF0Y2gvY29tbWl0
-KSwga2luZGx5IGFkZCBmb2xsb3dpbmcgdGFncwo+ID4gUmVwb3J0ZWQtYnk6IGtlcm5lbCB0ZXN0
-IHJvYm90IDxsa3BAaW50ZWwuY29tPgo+ID4gQ2xvc2VzOgo+ID4gaHR0cHM6Ly9sb3JlLmtlcm5l
-bC5vcmcvb2Uta2J1aWxkLWFsbC8yMDI2MDEyNjAzNTMuRGs1ZWtpZWUtbGtwQGludGVsLmNvbS8K
-PiAKPiBBbGwgZXJyb3JzIChuZXcgb25lcyBwcmVmaXhlZCBieSA+Pik6Cj4gCj4gwqDCoCBJbiBm
-aWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9rZXJuZWwuaDozNiwKPiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvcmFuZG9tLmg6
-NywKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUv
-bGludXgvbm9kZW1hc2suaDo5NCwKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCBmcm9tIGluY2x1ZGUvbGludXgvbnVtYS5oOjYsCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgZnJvbSBpbmNsdWRlL2xpbnV4L2NwdW1hc2suaDoxNSwKPiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvc21w
-Lmg6MTMsCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZnJvbSBpbmNs
-dWRlL2xpbnV4L2xvY2tkZXAuaDoxNCwKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvc3BpbmxvY2suaDo2MywKPiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvbW16b25lLmg6OCwK
-PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGlu
-dXgvZ2ZwLmg6NywKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9t
-IGluY2x1ZGUvbGludXgvc2xhYi5oOjE2LAo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIGZyb20gaW5jbHVkZS9saW51eC9oaWQuaDoxOSwKPiDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGRyaXZlcnMvaGlkL2hpZC1waWNvbGNkX2NvcmUu
-YzoxMDoKPiA+ID4gZHJpdmVycy9oaWQvaGlkLXBpY29sY2RfY29yZS5jOjY1MTozMzogZXJyb3I6
-ICdwaWNvbGNkX3N1c3BlbmQnCj4gPiA+IHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rp
-b24pOyBkaWQgeW91IG1lYW4KPiA+ID4gJ3BpY29sY2RfcmVzZXQnPwo+IMKgwqDCoMKgIDY1MSB8
-wqDCoMKgwqDCoMKgwqDCoCAuc3VzcGVuZCA9wqDCoMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1
-c3BlbmQpLAo+IMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXn5+fn5+fn5+fn5+fn5+Cj4gwqDC
-oCBpbmNsdWRlL2xpbnV4L3V0aWxfbWFjcm9zLmg6MTM2OjQ0OiBub3RlOiBpbiBkZWZpbml0aW9u
-IG9mIG1hY3JvCj4gJ1BUUl9JRicKPiDCoMKgwqDCoCAxMzYgfCAjZGVmaW5lIFBUUl9JRihjb25k
-LCBwdHIpwqDCoMKgwqDCoMKgICgoY29uZCkgPyAocHRyKSA6IE5VTEwpCj4gwqDCoMKgwqDCoMKg
-wqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXn5+Cj4gwqDCoCBkcml2ZXJzL2hp
-ZC9oaWQtcGljb2xjZF9jb3JlLmM6NjUxOjI2OiBub3RlOiBpbiBleHBhbnNpb24gb2YgbWFjcm8K
-PiAncG1fcHRyJwo+IMKgwqDCoMKgIDY1MSB8wqDCoMKgwqDCoMKgwqDCoCAuc3VzcGVuZCA9wqDC
-oMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1c3BlbmQpLAo+IMKgwqDCoMKgwqDCoMKgwqAgfMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fn5+fgo+
-ID4gPiBkcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9jb3JlLmM6NjUyOjMzOiBlcnJvcjogJ3BpY29s
-Y2RfcmVzdW1lJwo+ID4gPiB1bmRlY2xhcmVkIGhlcmUgKG5vdCBpbiBhIGZ1bmN0aW9uKTsgZGlk
-IHlvdSBtZWFuCj4gPiA+ICdwaWNvbGNkX3JlbW92ZSc/Cj4gwqDCoMKgwqAgNjUyIHzCoMKgwqDC
-oMKgwqDCoMKgIC5yZXN1bWUgPcKgwqDCoMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3Jlc3VtZSks
-Cj4gwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn5+fn5+fn5+fgo+IMKgwqAgaW5jbHVk
-ZS9saW51eC91dGlsX21hY3Jvcy5oOjEzNjo0NDogbm90ZTogaW4gZGVmaW5pdGlvbiBvZiBtYWNy
-bwo+ICdQVFJfSUYnCj4gwqDCoMKgwqAgMTM2IHwgI2RlZmluZSBQVFJfSUYoY29uZCwgcHRyKcKg
-wqDCoMKgwqDCoCAoKGNvbmQpID8gKHB0cikgOiBOVUxMKQo+IMKgwqDCoMKgwqDCoMKgwqAgfMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fgo+IMKgwqAgZHJpdmVycy9oaWQvaGlkLXBp
-Y29sY2RfY29yZS5jOjY1MjoyNjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvCj4gJ3BtX3B0
-cicKPiDCoMKgwqDCoCA2NTIgfMKgwqDCoMKgwqDCoMKgwqAgLnJlc3VtZSA9wqDCoMKgwqDCoMKg
-wqAgcG1fcHRyKHBpY29sY2RfcmVzdW1lKSwKPiDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn4KPiA+ID4gZHJp
-dmVycy9oaWQvaGlkLXBpY29sY2RfY29yZS5jOjY1MzozMzogZXJyb3I6Cj4gPiA+ICdwaWNvbGNk
-X3Jlc2V0X3Jlc3VtZScgdW5kZWNsYXJlZCBoZXJlIChub3QgaW4gYSBmdW5jdGlvbik7IGRpZAo+
-ID4gPiB5b3UgbWVhbiAncGljb2xjZF9yZXNldCc/Cj4gwqDCoMKgwqAgNjUzIHzCoMKgwqDCoMKg
-wqDCoMKgIC5yZXNldF9yZXN1bWUgPcKgIHBtX3B0cihwaWNvbGNkX3Jlc2V0X3Jlc3VtZSksCj4g
-wqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn5+fn5+fn5+fn5+fn5+fgo+IMKgwqAgaW5j
-bHVkZS9saW51eC91dGlsX21hY3Jvcy5oOjEzNjo0NDogbm90ZTogaW4gZGVmaW5pdGlvbiBvZiBt
-YWNybwo+ICdQVFJfSUYnCj4gwqDCoMKgwqAgMTM2IHwgI2RlZmluZSBQVFJfSUYoY29uZCwgcHRy
-KcKgwqDCoMKgwqDCoCAoKGNvbmQpID8gKHB0cikgOiBOVUxMKQo+IMKgwqDCoMKgwqDCoMKgwqAg
-fMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fgo+IMKgwqAgZHJpdmVycy9oaWQvaGlk
-LXBpY29sY2RfY29yZS5jOjY1MzoyNjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvCj4gJ3Bt
-X3B0cicKPiDCoMKgwqDCoCA2NTMgfMKgwqDCoMKgwqDCoMKgwqAgLnJlc2V0X3Jlc3VtZSA9wqAg
-cG1fcHRyKHBpY29sY2RfcmVzZXRfcmVzdW1lKSwKPiDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn4KPiAKPiAK
-PiB2aW0gKzY1MSBkcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9jb3JlLmMKPiAKPiDCoMKgIDY0NAkK
-PiDCoMKgIDY0NQlzdGF0aWMgc3RydWN0IGhpZF9kcml2ZXIgcGljb2xjZF9kcml2ZXIgPSB7Cj4g
-wqDCoCA2NDYJCS5uYW1lID3CoMKgwqDCoMKgwqDCoMKgwqAgImhpZC1waWNvbGNkIiwKPiDCoMKg
-IDY0NwkJLmlkX3RhYmxlID3CoMKgwqDCoMKgIHBpY29sY2RfZGV2aWNlcywKPiDCoMKgIDY0OAkJ
-LnByb2JlID3CoMKgwqDCoMKgwqDCoMKgIHBpY29sY2RfcHJvYmUsCj4gwqDCoCA2NDkJCS5yZW1v
-dmUgPcKgwqDCoMKgwqDCoMKgIHBpY29sY2RfcmVtb3ZlLAo+IMKgwqAgNjUwCQkucmF3X2V2ZW50
-ID3CoMKgwqDCoCBwaWNvbGNkX3Jhd19ldmVudCwKPiDCoD4gNjUxCQkuc3VzcGVuZCA9wqDCoMKg
-wqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1c3BlbmQpLAo+IMKgPiA2NTIJCS5yZXN1bWUgPcKgwqDC
-oMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3Jlc3VtZSksCj4gwqA+IDY1MwkJLnJlc2V0X3Jlc3Vt
-ZSA9wqAgcG1fcHRyKHBpY29sY2RfcmVzZXRfcmVzdW1lKSwKPiDCoMKgIDY1NAl9Owo+IMKgwqAg
-NjU1CW1vZHVsZV9oaWRfZHJpdmVyKHBpY29sY2RfZHJpdmVyKTsKPiDCoMKgIDY1NgkK
+On Wed, 28 Jan 2026, Bastien Nocera wrote:
+
+> The wrong version of the patch got scheduled in that branch.
+> 
+> The branch has v1 of the patch:
+> https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=for-6.20/pm_ptr&id=318f7b0f1bea13d3aa0506fe6f40399f11c4ae52
+> 
+> This is what v2 looks like:
+> https://patchwork.kernel.org/project/linux-input/patch/20260113092546.265734-8-hadess@hadess.net/
+> which should fix the problem.
+> 
+> Note that my v2 patchset also dropped
+> "HID: surface: Use pm_ptr_sleep instead of #ifdef CONFIG_PM_SLEEP"
+> which is still in that branch.
+
+Hm, something went wrong with my b4 workflow then, sorry for the noise.
+
+I'll take a look and ensure that the correct version gets queued.
+
+-- 
+Jiri Kosina
+SUSE Labs
 

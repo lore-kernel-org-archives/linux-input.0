@@ -1,129 +1,128 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78369191F98;
-	Wed, 28 Jan 2026 12:49:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DE5D353EE1;
+	Wed, 28 Jan 2026 13:28:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769604587; cv=none; b=Q4MIBHkopGRpZuc6uugpxii4sYe4jN0qWrtcRoRc8jYBfxl/XdpwiKRCvZHFAD+HGdcaGkdk8wCp73IhT3lbsdlseBwyorOSWwJhURHhsDJRfaMjfpP9Xh/3TMhrpImFlLQOEN7wpAbvBAG6IMOighW1v6eWmYw5b/C3cRs9Lpk=
+	t=1769606942; cv=none; b=OJd2kRehJ0W64/3vab1WuwDynl+mGp6J6UCwTNEmmwnfiljlph+jt2BqTF5v5HTpTtHcm3bknuw5meL4KznC3wnQ172x8utRnNUdqJNpqDmIcSUASbG43biWnTMIA54aKxFVnN7l5IWhSdJPXPY09JFQgDHhGhq33LA6cq8XUHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769604587; c=relaxed/simple;
-	bh=KmjdpuWSlmGRPloRpd2Hx6yaXSeiIiqP/jIxfSxWb6s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nSjnclmUuYKg5A69YZpT/YnA94Lp6sdw1G7f0HGsm4tBDGrJIQHBr3HXlEiTTZQ7ZwN8E55j2NJVt4SL5/fCp0jEqSqWN9Cmyqu0KyAm3iO0g8Zm1kG1P/gyDS3If6DzqT1mkEELFlTFQ7I9Adly5qHnjkYolE93nBPjCGOxDpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WEUnJSQw; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769606942; c=relaxed/simple;
+	bh=y5vYOLgx3cVJ4xsFoUREyI2wOh+cp6RjX/o+7apYM1c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rUqVeEZ9dJT55IXKVfOzQGatE5K6aD5bDVA+0t1b386iiXPYG3SGAzOG0rmZ/ZVkPp8G7UGz0H/6L16Ho/kpNncPDdN7Q3+vdk1wAlNrZ2S3JKbZhGJdTXmRzBNboxv7Ir2oKAlcFVwXSfZNEsO0Wvlphiuse8AgVtyz1Xlbuf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=xybBbXel; arc=none smtp.client-ip=80.241.56.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WEUnJSQw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769604587; x=1801140587;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=KmjdpuWSlmGRPloRpd2Hx6yaXSeiIiqP/jIxfSxWb6s=;
-  b=WEUnJSQwbkBBwq19uzdj7gGSkkTOtvKhgY51h0HZvDb9yVHCArTGHQ0u
-   NhZc4/WZzzZhG2l6jLLFo+fi+bNzZEpZKnW2XLjJkO3CuJVGDc+9MoYTO
-   w8HkFhZPWrbovV1JFSBpzt/2J0pBJPjgmwvtwLB6/5HHDYbJKtz3FhPfz
-   PMku6WErij+n/w7V+n0oOIoI4IROjjeu0dpa6wCi4NeU/cmg/Q+eQeFo2
-   5BFJm1b7mPOa4mWsjckqgPnyFsFS/RlSuuK1ZLkx80uuY26shGwi6L3F7
-   mqQCTClgazJ5wUtAHh3kKYM22AvZZNlukr0V+qvXiooKz7i3o6e79h6Nq
-   A==;
-X-CSE-ConnectionGUID: +pkohkgjQGe0EKhXMoh/iw==
-X-CSE-MsgGUID: go94jGEpT5Gg+C8AO+WcvA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="81537942"
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="81537942"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:49:46 -0800
-X-CSE-ConnectionGUID: a2PVRto2Qdyxt04flRADMw==
-X-CSE-MsgGUID: qk2UHxACR/a81rcNcGkVDg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="245865958"
-Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.196])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:49:41 -0800
-Date: Wed, 28 Jan 2026 14:49:39 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-	Ting-Kai Chen <tingkaic@nvidia.com>
-Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
- Bridge
-Message-ID: <aXoF4zi4SZrXaku5@smile.fi.intel.com>
-References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
- <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
- <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
- <20260128-magnificent-faithful-otter-c4f900@quoll>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="xybBbXel"
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4f1NQV15DGz9thG;
+	Wed, 28 Jan 2026 14:28:50 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1769606930;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KM8GzemEIH/Q71xxgkibRWwKmhIZTb6iheRXTA+oDaY=;
+	b=xybBbXelV8xkd9SD4DOiSdqkruqY7uC3a0y9oddbIMCY7KtrcGa6t49uubVg5k6LOHtjk/
+	DLGndw9T4BXsgBQCl4+MH/mZRDCQcVzQUZrkiWtGgc/NekIxufqhaJWD8faSTa+UPhYLHm
+	fCu+4U8rYeNFiWb6ZWX7xyAV+7CNyqiC6MoaAkReDuiNGV9ZQ9QIwZ2Tt8mE+928T/zjjk
+	SPn7yHrTxiibTpZDjF0sPLCmCwrpuKMYORzaf41aYPobjeYcbQYAbcRsgDRoA/4SlvRq7Q
+	UshN4ybDYCOAQEkrGblIvwSjBrSTaEBnPhNr/7DnqZBkkSJkzjJwBipY25keng==
+Message-ID: <701e739d-2e82-40e7-87b5-b4ec92903af6@mailbox.org>
+Date: Wed, 28 Jan 2026 13:23:42 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260128-magnificent-faithful-otter-c4f900@quoll>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Subject: Re: [PATCH 1/2] linux/interrupt.h: allow "guard" notation to disable
+ and reenable IRQ with valid IRQ check
+To: Thomas Gleixner <tglx@kernel.org>, linux-input@vger.kernel.org
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+ Cheng-Yang Chou <yphbchou0911@gmail.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@nxp.com>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Jinjie Ruan <ruanjinjie@huawei.com>,
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+ Marc Zyngier <maz@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+References: <20260121232522.154771-1-marek.vasut+renesas@mailbox.org>
+ <87sebrbenj.ffs@tglx>
+Content-Language: en-US
+From: Marek Vasut <marek.vasut@mailbox.org>
+In-Reply-To: <87sebrbenj.ffs@tglx>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MBO-RS-ID: ff3e1687a4111fcf642
+X-MBO-RS-META: y3u56ynwk98nrqzd85s75cucxghctzn9
 
-On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
-> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
-> > On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
-> > > This is a USB HID device which includes an I2C controller and 8 GPIO pins.
-> > > 
-> > > The binding allows describing the chip's gpio and i2c controller in DT,
-> > > with the i2c controller being bound to a subnode named "i2c". This is
-> > > intended to be used in configurations where the CP2112 is permanently
-> > > connected in hardware.
-> > > 
-> > > Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
-> > > ---
-> > 
-> > Hi Folks (Intended for Rob or Krzysztof),
-> > 
-> > Wasn't sure the best way to go about this, but trying to see the best
-> > way to get a message in front of you regarding an ask from Andy S.
-> > 
-> > In [1], Rob H initially directed that the gpio chip share a node with
-> > the CP2112 itself, rather than having a subnode named 'gpio'.
-> > 
-> > Initially, I did the same thing for both DT and ACPI, but Andy S.
-> > directed that ACPI should not have the node be shared in that way.
-> > 
-> > With the last revision of this patch, Andy S. asked that I try to get a
-> > rationalle from Rob (or other DT expert presumably) on why the gpio node
-> > should be combined with the parent, rather than being a named subnode
-> > [2].
+On 1/27/26 10:14 AM, Thomas Gleixner wrote:
+> On Thu, Jan 22 2026 at 00:23, Marek Vasut wrote:
 > 
-> Because it is explicitly asked in writing bindings. Please read it.
+> $Subject: linux/interrupt.h is not a proper prefix. Just use 'genirq:'
 > 
-> Because we do not want Linux driver model affecting design of bindings
-> and DTS, by subnodes present only to instantiate Linux drivers. I do not
-> care about driver model in this review and I do not see any reason it
-> should make DTS less obvious or readable.
+> Also what means 'allow ....'? Subject lines should provide a concise
+> summary of the change, i.e. something like:
 > 
-> That's actually rule communicated many times, also documented in writing
-> bindings and in recent talks.
+>          Provide conditional disable_irq guard variant
 
-Does DT represents HW in this case? Shouldn't I²C controller be the same node?
-Why not? This is inconsistent for the device that is multi-functional. And from
-my understanding the firmware description (DT, ACPI, you-name-it) must follow
-the HW. I don't see how it's done in this case.
+I did admittedly replicate the subject and tags from prior commit
 
--- 
-With Best Regards,
-Andy Shevchenko
+c76494768761 ("linux/interrupt.h: allow "guard" notation to disable and 
+reenable IRQ")
 
+Fixed, thanks.
 
+>> Introduce disable_valid_irq scoped guard. This is an extension
+>> of disable_irq scoped guard, which disables and enables IRQs
+>> around a scope. The disable_valid_irq scoped guard does almost
+>> the same, except it handles the case where IRQ is not valid,
+>> in which case it does not do anything. This is meant to be used
+>> by for example touch controller drivers, which can do both IRQ
+>> driven and polling mode of operation, and this makes their code
+>> slighly simpler.
+> 
+> How many of those have this pattern? From a cursory look I found not
+> even one as your example is neither applicable to upstream nor to next.
+
+One. I think I have two-ish more candidates for conversion.
+
+>> +static inline void disable_valid_irq(unsigned int irq)
+>> +{
+>> +	if (irq > 0)
+>> +		disable_irq(irq);
+>> +}
+>> +
+>> +static inline void enable_valid_irq(unsigned int irq)
+>> +{
+>> +	if (irq > 0)
+>> +		enable_irq(irq);
+>> +}
+>> +
+>> +DEFINE_LOCK_GUARD_1(disable_valid_irq, int,
+> 
+> 'int' because it matches the function argument type of the inlines,
+> right?
+> 
+>> +		    disable_valid_irq(*_T->lock), enable_valid_irq(*_T->lock))
+> 
+> disable_valid_irq is a pretty non-intuitive name if you look at it just
+> by reading a usage site. It's not really improving the readability of
+> the code, it's in fact obscuring it as the reader has to actually look
+> up what the hell this means and then stumble upon a completely
+> undocumented lock guard define.
+> 
+> I'm all for using guards, but using guards just for the sake of using
+> guards is not a really good approach.
+I wouldn't even be opposed to converting the ili2xxx driver (the piece 
+of code in patch 2/2 of this series) back to simple enable/disable_irq() 
+. I am not particularly on board even with the disable_irq lock guard, 
+or more specifically, lock guard used for non-lock things like this.

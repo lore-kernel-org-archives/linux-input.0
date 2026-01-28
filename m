@@ -1,162 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD941E511;
-	Wed, 28 Jan 2026 17:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C39273F9
+	for <linux-input@vger.kernel.org>; Wed, 28 Jan 2026 17:43:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769621070; cv=none; b=NYfsbSnzAfUVL2qRFkMu0VVZxREb6QVhdyJX9TEqUZ/H+S/gLcO+X2KRjk8MXbffJlVuXMrZE91BNwYdvqXvOmEL2nKim4cIKDBY78ikVxenZj9L9VyOzemQaa5U7jfaOGYbKadLfBVDcRJ3HcYvq46441dK0ZK1bJvuKo38EM0=
+	t=1769622216; cv=none; b=vB5OGXAMHyfYF2fO37D1i4x5svIBkiKgVR+tcSUv/0fOWJvy2PvOCY4eQdOrXNJWxOiH3n/KbjfgzluPEpJPyMIeNSL31/UdEz2bQtBDnlvybUiKDxDxqyaPILC4zyaNOqu040bDExh94RuTc6IVunNdjQ2npUC4z9Jc/aCp3Dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769621070; c=relaxed/simple;
-	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iDgvm3l1U7RQyH8yYLKZdahaX9+312KLvXRgoL9IAOBGp+8a4h9YkTAOb+XPoiJHi7fe+L3Gvjl2TgsJUucafUF4Xmqj0aJ7QSg/v6f3aypRv2KpUs6oWUC5TpPRGOhJiBIebKUy3mkj0GgfdVaeU0p8+OUuAeBhUf25kgmHr5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A5w2YDZE; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A5w2YDZE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB42C4CEF7;
-	Wed, 28 Jan 2026 17:24:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769621070;
-	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=A5w2YDZEQLkjxTDGcF2tRpFscp9eOXLP4KHiGaUwoGkHTMNGgCt3HbkGY1Lbsy+Kh
-	 JVD8tQ3nsJMlRZfo/RU3V0Bau+qJG6Ut8EduizXdK8GehwJQmPpI/Syy4z42AwMRsw
-	 j5Bh8dBmSC9Ut0NKXls8jA8CfOJ6WuxLJnQzYywKzwmFZ+MKNqPsWfwQwruLVmPGXV
-	 D1QIZD+94oOdA2cSUztjhk3Ng8AT1mr7tXXVvnQ21IEGMW6CGFWAd5qMqKROzn+8tE
-	 IjI1VXZIMaM5vBVz7Hycjpdvycbx0paWcKzBpakrXc/RAPl0EPts9ZQLSXhH2aBfxz
-	 IZqfxydUEVFtw==
-Date: Wed, 28 Jan 2026 17:24:24 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-	Ting-Kai Chen <tingkaic@nvidia.com>
-Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
- Bridge
-Message-ID: <20260128-embezzle-deacon-74815f461fe9@spud>
-References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
- <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
- <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
- <20260128-magnificent-faithful-otter-c4f900@quoll>
- <aXoF4zi4SZrXaku5@smile.fi.intel.com>
- <20260128-pelican-silenced-cd6a5bf69672@spud>
- <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
+	s=arc-20240116; t=1769622216; c=relaxed/simple;
+	bh=Y5SJTAaQ0GNJYosMPAPMIo2cElfSJAiFGXIfskE09V0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=B6TeFb1SAkQnrwee3BR6AWzThMvSSMz7QxcAlUFZJ5vTBHJ5//iuMICKvse/Zl4tjMX7v7E/1j96lYpaIYm7usu4gj2vd7iqV1D5ltSCASpdDwprnzJcSUX048U8LQYMbLNrSerdrDm1Q0rFoUaDNaWEj2BBwq7aW11GoBtX/yE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.183.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 8677C44288;
+	Wed, 28 Jan 2026 17:43:31 +0000 (UTC)
+Message-ID: <4ecf6a790596c4814c6666805b53aa7b1dd5a793.camel@hadess.net>
+Subject: Re: [hid:for-6.20/pm_ptr 7/12]
+ drivers/hid/hid-picolcd_core.c:651:33: error: 'picolcd_suspend' undeclared
+ here (not in a function); did you mean 'picolcd_reset'?
+From: Bastien Nocera <hadess@hadess.net>
+To: kernel test robot <lkp@intel.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org, Jiri Kosina
+	 <jikos@kernel.org>
+Date: Wed, 28 Jan 2026 18:43:31 +0100
+In-Reply-To: <202601260353.Dk5ekiee-lkp@intel.com>
+References: <202601260353.Dk5ekiee-lkp@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="3t42j44j7XCiyLoM"
-Content-Disposition: inline
-In-Reply-To: <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
+X-GND-Sasl: hadess@hadess.net
+X-GND-Score: -100
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduieefleehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfevffgjfhgtgfgfggesthgsredttderjeenucfhrhhomhepuegrshhtihgvnhcupfhotggvrhgruceohhgruggvshhssehhrgguvghsshdrnhgvtheqnecuggftrfgrthhtvghrnheptedvvddttdetgfelteegkedutdffvdffuddtveejfeellefhfffhfeeuhfdtkeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdptddurdhorhhgnecukfhppedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfedphhgvlhhopeglkffrvheimedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemlegsvdelmegtugefieemieekfhgumegttdelfegnpdhmrghilhhfrhhomhephhgruggvshhssehhrgguvghsshdrnhgvthdpqhhiugepkeeijeejveeggedvkeekpdhmohguvgepshhmthhpohhuthdpnhgspghrtghpthhtohepgedprhgtphhtthhopehlkhhpsehinhhtvghlrdgtohhmpdhrtghpt
+ hhtohepohgvqdhksghuihhlugdqrghllheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhg
+X-GND-State: clean
 
+VGhlIHdyb25nIHZlcnNpb24gb2YgdGhlIHBhdGNoIGdvdCBzY2hlZHVsZWQgaW4gdGhhdCBicmFu
+Y2guCgpUaGUgYnJhbmNoIGhhcyB2MSBvZiB0aGUgcGF0Y2g6Cmh0dHBzOi8vZ2l0Lmtlcm5lbC5v
+cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2hpZC9oaWQuZ2l0L2NvbW1pdC8/aD1mb3ItNi4y
+MC9wbV9wdHImaWQ9MzE4ZjdiMGYxYmVhMTNkM2FhMDUwNmZlNmY0MDM5OWYxMWM0YWU1MgoKVGhp
+cyBpcyB3aGF0IHYyIGxvb2tzIGxpa2U6Cmh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcHJv
+amVjdC9saW51eC1pbnB1dC9wYXRjaC8yMDI2MDExMzA5MjU0Ni4yNjU3MzQtOC1oYWRlc3NAaGFk
+ZXNzLm5ldC8Kd2hpY2ggc2hvdWxkIGZpeCB0aGUgcHJvYmxlbS4KCk5vdGUgdGhhdCBteSB2MiBw
+YXRjaHNldCBhbHNvIGRyb3BwZWQKIkhJRDogc3VyZmFjZTogVXNlIHBtX3B0cl9zbGVlcCBpbnN0
+ZWFkIG9mICNpZmRlZiBDT05GSUdfUE1fU0xFRVAiCndoaWNoIGlzIHN0aWxsIGluIHRoYXQgYnJh
+bmNoLgoKRG8geW91IG5lZWQgYW55dGhpbmcgZWxzZSBmcm9tIG1lPwoKT24gTW9uLCAyMDI2LTAx
+LTI2IGF0IDAzOjA0ICswMTAwLCBrZXJuZWwgdGVzdCByb2JvdCB3cm90ZToKPiB0cmVlOsKgwqAK
+PiBodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9oaWQvaGlk
+LmdpdMKgZm9yLQo+IDYuMjAvcG1fcHRyCj4gaGVhZDrCoMKgIGQ2OGE1ZmQ5MzlmNDYwYTdkYjc2
+ZDEyNzAwNWFmNTFjYjEzYzY5ZmEKPiBjb21taXQ6IDMxOGY3YjBmMWJlYTEzZDNhYTA1MDZmZTZm
+NDAzOTlmMTFjNGFlNTIgWzcvMTJdIEhJRDoKPiBwaWNvbGNkX2NvcmU6IFVzZSBwbV9wdHIgaW5z
+dGVhZCBvZiAjaWZkZWYgQ09ORklHX1BNCj4gY29uZmlnOiBpMzg2LXJhbmRjb25maWctMjAwNi0y
+MDI1MDgwNAo+IChodHRwczovL2Rvd25sb2FkLjAxLm9yZy8wZGF5LWNpL2FyY2hpdmUvMjAyNjAx
+MjYvMjAyNjAxMjYwMzUzLkRrNWVraQo+IGVlLWxrcEBpbnRlbC5jb20vY29uZmlnKQo+IGNvbXBp
+bGVyOiBnY2MtMTQgKERlYmlhbiAxNC4yLjAtMTkpIDE0LjIuMAo+IHJlcHJvZHVjZSAodGhpcyBp
+cyBhIFc9MSBidWlsZCk6Cj4gKGh0dHBzOi8vZG93bmxvYWQuMDEub3JnLzBkYXktY2kvYXJjaGl2
+ZS8yMDI2MDEyNi8yMDI2MDEyNjAzNTMuRGs1ZWtpCj4gZWUtbGtwQGludGVsLmNvbS9yZXByb2R1
+Y2UpCj4gCj4gSWYgeW91IGZpeCB0aGUgaXNzdWUgaW4gYSBzZXBhcmF0ZSBwYXRjaC9jb21taXQg
+KGkuZS4gbm90IGp1c3QgYSBuZXcKPiB2ZXJzaW9uIG9mCj4gdGhlIHNhbWUgcGF0Y2gvY29tbWl0
+KSwga2luZGx5IGFkZCBmb2xsb3dpbmcgdGFncwo+ID4gUmVwb3J0ZWQtYnk6IGtlcm5lbCB0ZXN0
+IHJvYm90IDxsa3BAaW50ZWwuY29tPgo+ID4gQ2xvc2VzOgo+ID4gaHR0cHM6Ly9sb3JlLmtlcm5l
+bC5vcmcvb2Uta2J1aWxkLWFsbC8yMDI2MDEyNjAzNTMuRGs1ZWtpZWUtbGtwQGludGVsLmNvbS8K
+PiAKPiBBbGwgZXJyb3JzIChuZXcgb25lcyBwcmVmaXhlZCBieSA+Pik6Cj4gCj4gwqDCoCBJbiBm
+aWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9rZXJuZWwuaDozNiwKPiDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvcmFuZG9tLmg6
+NywKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUv
+bGludXgvbm9kZW1hc2suaDo5NCwKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCBmcm9tIGluY2x1ZGUvbGludXgvbnVtYS5oOjYsCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgZnJvbSBpbmNsdWRlL2xpbnV4L2NwdW1hc2suaDoxNSwKPiDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvc21w
+Lmg6MTMsCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZnJvbSBpbmNs
+dWRlL2xpbnV4L2xvY2tkZXAuaDoxNCwKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvc3BpbmxvY2suaDo2MywKPiDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGludXgvbW16b25lLmg6OCwK
+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGluY2x1ZGUvbGlu
+dXgvZ2ZwLmg6NywKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9t
+IGluY2x1ZGUvbGludXgvc2xhYi5oOjE2LAo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIGZyb20gaW5jbHVkZS9saW51eC9oaWQuaDoxOSwKPiDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmcm9tIGRyaXZlcnMvaGlkL2hpZC1waWNvbGNkX2NvcmUu
+YzoxMDoKPiA+ID4gZHJpdmVycy9oaWQvaGlkLXBpY29sY2RfY29yZS5jOjY1MTozMzogZXJyb3I6
+ICdwaWNvbGNkX3N1c3BlbmQnCj4gPiA+IHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rp
+b24pOyBkaWQgeW91IG1lYW4KPiA+ID4gJ3BpY29sY2RfcmVzZXQnPwo+IMKgwqDCoMKgIDY1MSB8
+wqDCoMKgwqDCoMKgwqDCoCAuc3VzcGVuZCA9wqDCoMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1
+c3BlbmQpLAo+IMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXn5+fn5+fn5+fn5+fn5+Cj4gwqDC
+oCBpbmNsdWRlL2xpbnV4L3V0aWxfbWFjcm9zLmg6MTM2OjQ0OiBub3RlOiBpbiBkZWZpbml0aW9u
+IG9mIG1hY3JvCj4gJ1BUUl9JRicKPiDCoMKgwqDCoCAxMzYgfCAjZGVmaW5lIFBUUl9JRihjb25k
+LCBwdHIpwqDCoMKgwqDCoMKgICgoY29uZCkgPyAocHRyKSA6IE5VTEwpCj4gwqDCoMKgwqDCoMKg
+wqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXn5+Cj4gwqDCoCBkcml2ZXJzL2hp
+ZC9oaWQtcGljb2xjZF9jb3JlLmM6NjUxOjI2OiBub3RlOiBpbiBleHBhbnNpb24gb2YgbWFjcm8K
+PiAncG1fcHRyJwo+IMKgwqDCoMKgIDY1MSB8wqDCoMKgwqDCoMKgwqDCoCAuc3VzcGVuZCA9wqDC
+oMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1c3BlbmQpLAo+IMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fn5+fgo+
+ID4gPiBkcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9jb3JlLmM6NjUyOjMzOiBlcnJvcjogJ3BpY29s
+Y2RfcmVzdW1lJwo+ID4gPiB1bmRlY2xhcmVkIGhlcmUgKG5vdCBpbiBhIGZ1bmN0aW9uKTsgZGlk
+IHlvdSBtZWFuCj4gPiA+ICdwaWNvbGNkX3JlbW92ZSc/Cj4gwqDCoMKgwqAgNjUyIHzCoMKgwqDC
+oMKgwqDCoMKgIC5yZXN1bWUgPcKgwqDCoMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3Jlc3VtZSks
+Cj4gwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn5+fn5+fn5+fgo+IMKgwqAgaW5jbHVk
+ZS9saW51eC91dGlsX21hY3Jvcy5oOjEzNjo0NDogbm90ZTogaW4gZGVmaW5pdGlvbiBvZiBtYWNy
+bwo+ICdQVFJfSUYnCj4gwqDCoMKgwqAgMTM2IHwgI2RlZmluZSBQVFJfSUYoY29uZCwgcHRyKcKg
+wqDCoMKgwqDCoCAoKGNvbmQpID8gKHB0cikgOiBOVUxMKQo+IMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fgo+IMKgwqAgZHJpdmVycy9oaWQvaGlkLXBp
+Y29sY2RfY29yZS5jOjY1MjoyNjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvCj4gJ3BtX3B0
+cicKPiDCoMKgwqDCoCA2NTIgfMKgwqDCoMKgwqDCoMKgwqAgLnJlc3VtZSA9wqDCoMKgwqDCoMKg
+wqAgcG1fcHRyKHBpY29sY2RfcmVzdW1lKSwKPiDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn4KPiA+ID4gZHJp
+dmVycy9oaWQvaGlkLXBpY29sY2RfY29yZS5jOjY1MzozMzogZXJyb3I6Cj4gPiA+ICdwaWNvbGNk
+X3Jlc2V0X3Jlc3VtZScgdW5kZWNsYXJlZCBoZXJlIChub3QgaW4gYSBmdW5jdGlvbik7IGRpZAo+
+ID4gPiB5b3UgbWVhbiAncGljb2xjZF9yZXNldCc/Cj4gwqDCoMKgwqAgNjUzIHzCoMKgwqDCoMKg
+wqDCoMKgIC5yZXNldF9yZXN1bWUgPcKgIHBtX3B0cihwaWNvbGNkX3Jlc2V0X3Jlc3VtZSksCj4g
+wqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn5+fn5+fn5+fn5+fn5+fgo+IMKgwqAgaW5j
+bHVkZS9saW51eC91dGlsX21hY3Jvcy5oOjEzNjo0NDogbm90ZTogaW4gZGVmaW5pdGlvbiBvZiBt
+YWNybwo+ICdQVFJfSUYnCj4gwqDCoMKgwqAgMTM2IHwgI2RlZmluZSBQVFJfSUYoY29uZCwgcHRy
+KcKgwqDCoMKgwqDCoCAoKGNvbmQpID8gKHB0cikgOiBOVUxMKQo+IMKgwqDCoMKgwqDCoMKgwqAg
+fMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF5+fgo+IMKgwqAgZHJpdmVycy9oaWQvaGlk
+LXBpY29sY2RfY29yZS5jOjY1MzoyNjogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvCj4gJ3Bt
+X3B0cicKPiDCoMKgwqDCoCA2NTMgfMKgwqDCoMKgwqDCoMKgwqAgLnJlc2V0X3Jlc3VtZSA9wqAg
+cG1fcHRyKHBpY29sY2RfcmVzZXRfcmVzdW1lKSwKPiDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBefn5+fn4KPiAKPiAK
+PiB2aW0gKzY1MSBkcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9jb3JlLmMKPiAKPiDCoMKgIDY0NAkK
+PiDCoMKgIDY0NQlzdGF0aWMgc3RydWN0IGhpZF9kcml2ZXIgcGljb2xjZF9kcml2ZXIgPSB7Cj4g
+wqDCoCA2NDYJCS5uYW1lID3CoMKgwqDCoMKgwqDCoMKgwqAgImhpZC1waWNvbGNkIiwKPiDCoMKg
+IDY0NwkJLmlkX3RhYmxlID3CoMKgwqDCoMKgIHBpY29sY2RfZGV2aWNlcywKPiDCoMKgIDY0OAkJ
+LnByb2JlID3CoMKgwqDCoMKgwqDCoMKgIHBpY29sY2RfcHJvYmUsCj4gwqDCoCA2NDkJCS5yZW1v
+dmUgPcKgwqDCoMKgwqDCoMKgIHBpY29sY2RfcmVtb3ZlLAo+IMKgwqAgNjUwCQkucmF3X2V2ZW50
+ID3CoMKgwqDCoCBwaWNvbGNkX3Jhd19ldmVudCwKPiDCoD4gNjUxCQkuc3VzcGVuZCA9wqDCoMKg
+wqDCoMKgIHBtX3B0cihwaWNvbGNkX3N1c3BlbmQpLAo+IMKgPiA2NTIJCS5yZXN1bWUgPcKgwqDC
+oMKgwqDCoMKgIHBtX3B0cihwaWNvbGNkX3Jlc3VtZSksCj4gwqA+IDY1MwkJLnJlc2V0X3Jlc3Vt
+ZSA9wqAgcG1fcHRyKHBpY29sY2RfcmVzZXRfcmVzdW1lKSwKPiDCoMKgIDY1NAl9Owo+IMKgwqAg
+NjU1CW1vZHVsZV9oaWRfZHJpdmVyKHBpY29sY2RfZHJpdmVyKTsKPiDCoMKgIDY1NgkK
 
---3t42j44j7XCiyLoM
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Jan 28, 2026 at 04:52:01PM +0100, Krzysztof Kozlowski wrote:
-> On 28/01/2026 16:06, Conor Dooley wrote:
-> > On Wed, Jan 28, 2026 at 02:49:39PM +0200, Andy Shevchenko wrote:
-> >> On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
-> >>> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
-> >>>> On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
-> >>>>> This is a USB HID device which includes an I2C controller and 8 GPI=
-O pins.
-> >>>>>
-> >>>>> The binding allows describing the chip's gpio and i2c controller in=
- DT,
-> >>>>> with the i2c controller being bound to a subnode named "i2c". This =
-is
-> >>>>> intended to be used in configurations where the CP2112 is permanent=
-ly
-> >>>>> connected in hardware.
-> >>>>>
-> >>>>> Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
-> >>>>> ---
-> >>>>
-> >>>> Hi Folks (Intended for Rob or Krzysztof),
-> >>>>
-> >>>> Wasn't sure the best way to go about this, but trying to see the best
-> >>>> way to get a message in front of you regarding an ask from Andy S.
-> >>>>
-> >>>> In [1], Rob H initially directed that the gpio chip share a node with
-> >>>> the CP2112 itself, rather than having a subnode named 'gpio'.
-> >>>>
-> >>>> Initially, I did the same thing for both DT and ACPI, but Andy S.
-> >>>> directed that ACPI should not have the node be shared in that way.
-> >>>>
-> >>>> With the last revision of this patch, Andy S. asked that I try to ge=
-t a
-> >>>> rationalle from Rob (or other DT expert presumably) on why the gpio =
-node
-> >>>> should be combined with the parent, rather than being a named subnode
-> >>>> [2].
-> >>>
-> >>> Because it is explicitly asked in writing bindings. Please read it.
-> >>>
-> >>> Because we do not want Linux driver model affecting design of bindings
-> >>> and DTS, by subnodes present only to instantiate Linux drivers. I do =
-not
-> >>> care about driver model in this review and I do not see any reason it
-> >>> should make DTS less obvious or readable.
-> >>>
-> >>> That's actually rule communicated many times, also documented in writ=
-ing
-> >>> bindings and in recent talks.
-> >>
-> >> Does DT represents HW in this case? Shouldn't I=B2C controller be the =
-same node?
-> >> Why not? This is inconsistent for the device that is multi-functional.=
- And from
-> >> my understanding the firmware description (DT, ACPI, you-name-it) must=
- follow
-> >> the HW. I don't see how it's done in this case.
-> >=20
-> > The i2c controller should probably be in the same node too, unless it
-> > would cause conflicts between function (e.g. inability to figure out if
->=20
-> This one is the rationale.
->=20
-> > a child is a hog or a i2c device). I would like a rationale provided for
-> > why the i2c controller is in a subnode.
-
-I guess it wasn't clear that I was trying to say that the rationale
-should be provided by the submitter in their patch, and the first
-portion of my comment was trying to mention what has to be considered.
-
-> I2C controller will have children, because it is a bus, so moving it up
-> one level would make the entire node I2C bus and that's not only problem
-> for the kernel but actually for reading DT - we expect consistent choice
-> for children, instead of mixing nodes with and without bus-addressing.
-> What's more, if you have two buses you also need separate nodes to group
-> them (obviously).
-
-
-
---3t42j44j7XCiyLoM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXpGSAAKCRB4tDGHoIJi
-0soQAP94RgMAu6RjrAxCdXR4SFJqDk0BCec9Uzh3mtJH5I8sawD7BHDy8qaa2/HE
-AyaKj5MWRRxV3km+nB3lCp0i5LZlogc=
-=8zBE
------END PGP SIGNATURE-----
-
---3t42j44j7XCiyLoM--

@@ -1,108 +1,190 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E174C342CB1
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 16:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38C512F656E;
+	Thu, 29 Jan 2026 18:40:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769705483; cv=none; b=Recmxq3UM+W4HwBih55nawWGqtOBtlTf5sgTTzak3QKCKGRYYnmGGXSNQDOQu/Nxwydct47zKnG94IAh5PRIrmGs+sNNRnZYG7cYNikEFWYWaLBKZ2a2KMCq8o4ySGYK2sHvqUxzEzqKZQJXFbarix603lTcX3z0rNN3M08SaBA=
+	t=1769712042; cv=none; b=GTseaBxesApAEKjQDPgOctQrg73KmEybrpaS6J52eriWZHd/qpLd0YzDjIjk/cN24hIATzW4VIqOUsudQn4vbODQIwmjUfMKOiD0y67M1/F3amZzTjCO3w1kEAvBXapriBsIll5SMl45vledqW6iNJPnNyti8x4rYG/fFwYh7ZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769705483; c=relaxed/simple;
-	bh=yXNzbe5mk3xlwa4MkQahqod8cIV/AMEhF/kr05ffRPY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HHVhMkUmVu26mQvJtLoW3WbOc+1yoMc6+t8dk2cmklwo5Hk12B+EhEr9tLVcXjoIuAwNa8TyreaVS8ZxxdfLkGcdBoj7TbSWZ/gvmuR2g31QqcYlgMCj7Cup8PfLowYLjunM6R6LTlkh+0J97O2B3rmh7ywl4vJ7tfl3vWSz5cc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=CpfMCmDI; arc=none smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1769712042; c=relaxed/simple;
+	bh=bTvM2/HxO9mIy6o0cn+cX0T4A+OJCgLgLFcjHz1i35E=;
+	h=Content-Type:Message-ID:Date:MIME-Version:Subject:From:To:
+	 References:In-Reply-To; b=E/3uNozOP2aFuMYMHNa8Alm0/8xmav3T9AiBcv4+OzLn5396VoyT6CLjiF/sEvMW0nUHtfNCivyeUGXWhv0+x9NahzGMhbzcfoH9DCk8rLmsrjBT9jW01so1JN0zFPzKZNnH7IReicZ8URXUq8l68BR5kBP5p+0bC53SVMgZ/zU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cHQJ2T2G; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="CpfMCmDI"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-658b511573cso2147005a12.0
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 08:51:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1769705474; x=1770310274; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yXNzbe5mk3xlwa4MkQahqod8cIV/AMEhF/kr05ffRPY=;
-        b=CpfMCmDItnt68Y/QCrRAyiknZiHQKZIc6fJ0WZYj87wRp+l2KbvJtB7Od2Q2SW4Gw4
-         ITbQCxX+knGsPhQNd24fdR7WXu/0F6OctrPoaqwbTmn5bskUtllbUDrIf6zXrJSS0y90
-         OlY1QvzEQdTjH2FMGIhMn0vUCb57Lto/e+KAA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769705474; x=1770310274;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=yXNzbe5mk3xlwa4MkQahqod8cIV/AMEhF/kr05ffRPY=;
-        b=IkZK22Dke147rqQeOpdaOuMDDmS0H4R+5zOmOl7/rwaQyC4KIuKpEiXsjdPGicyawR
-         Psl5YwTAlQ6n710a8/6ApFb13+3y76aHYYJOpx03QkKkvJHf4CdWp3khmAlFQ6T8cjmW
-         qIN/pZU4bwd0UUIooXUPMcJLh9lJ+qbJOq3ZKbfkZiMoyP7xYW46jM7lmhorb4aFJY7r
-         3GW46S7ae7RDXlPATT9pNNchJInUcDP3Fgxxi8cIvsnnwcubtywnxQsC+H2wbQgFAeWP
-         OmtRmH4aMmzBrTsnCEg+ZAKIrR47h3W0JkGADOvNH25//InQbKI+1mrNu7wU4EqoDNsF
-         YUAw==
-X-Forwarded-Encrypted: i=1; AJvYcCXnE1xT/4f/eLZ3zB+XHu6X7mR+idgWJdeI1MmI+TA2sHcOh4ZfM+YxUD9gSBdrE1sEb134UA5XaCrfqQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoHt0sMXSE/QlxaEnqYfVhK7/H2evFo5st3s6CDMrB9E/FLIZz
-	j6KjNKhngSJ7jgUUqCcz7g4rDRRXYcKPEmp1h/27xSY1+FFCukjYNPzJWUnjugCo0lo2EtouPIn
-	N/3z0XQ==
-X-Gm-Gg: AZuq6aImpoYncNHq4waavZAeISE9S5DXvtUEeUE+Oi7T2xvWRmjadbIIGEKbGGCdxP9
-	GcILTbqVimoQYNWH0HOnT+Iwv1UiGBT3BfLsXql8ZLCKa1N4Zr6Dqgb/HTR6NREYrtmA8lK7DyT
-	O4wekoVs61QHrO3OuaaReXx4dMHqBEQmkLEYzMjT0rmy+bJVydd+mst1HuT9CaqnNoI0JV7911d
-	7gh3T6Xra+7cphs2HrHXbNaw8q13xvGTKnYQCPhaKmzTpRrDOcO2Wguf8wBhgRwC5K2pPNV+9JN
-	LiDggQupK6xl32BE3+dtZjTA1B6o2rl7acmBqPxNyM+d9miKVxAIV7E/7Kjv5sDHoQIPBx2DELP
-	ctctq+FKiumJjv8vQeyf96ssNyS/Yw34BszhgRPNnwXS6NpR3BJI9FicQ2gGxLQ2D8BlBWrtUlw
-	f4BIheOPbE1mV3erTc3/WZBlr4xqOa7q/PrAQbnURpt5IT+CQs8HthlERjn1I6
-X-Received: by 2002:a17:907:c22:b0:b87:6d6b:1366 with SMTP id a640c23a62f3a-b8dab33093dmr670757466b.41.1769705474350;
-        Thu, 29 Jan 2026 08:51:14 -0800 (PST)
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com. [209.85.221.45])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8dbf1c500bsm273799366b.54.2026.01.29.08.51.09
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Jan 2026 08:51:09 -0800 (PST)
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-42fb2314f52so760040f8f.0
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 08:51:09 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVriuFb102f5BQlbRDfjX9dDuwJdphQyH/VuburFJntStQDT7lDYo+rAr8M2K8VoJxxqQV8Tx/cnG6Ing==@vger.kernel.org
-X-Received: by 2002:a05:6000:2405:b0:435:9522:2bc9 with SMTP id
- ffacd0b85a97d-435f3a6ccb7mr399351f8f.5.1769705468701; Thu, 29 Jan 2026
- 08:51:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cHQJ2T2G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E313C4CEF7;
+	Thu, 29 Jan 2026 18:40:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769712041;
+	bh=bTvM2/HxO9mIy6o0cn+cX0T4A+OJCgLgLFcjHz1i35E=;
+	h=Date:Subject:From:To:References:In-Reply-To:From;
+	b=cHQJ2T2GKztJVOtZE9bXB0pDdpdinSybGz4Jtkxo0l5lKVxUncZ0b05u1IRxaN3PN
+	 22/LPF1vNwYDCmuosOTB1cmmDT3GENmiekCzWcxNDqvxmPJhHn6kZe8PJ81pQJvP8J
+	 ZQw4SgA3nNeyjpAuAV17uNuLwdhJ7+KKvuqWJMq+FbPdmPTBgcu1J2v430uPnwgSF/
+	 d7MxXshs0oUUIuzueHtSyU3tCWo/wOOsvcHROg6cIYXzEZIsWjppS30hTDHGRBYSx2
+	 eam1XHIvN1Q9Bmurtb0APyjfmIpP/HvO2tdzVwCpAayeSSlxWg9vGx9RbuEwNpbtW3
+	 6HRJkj51HsKUg==
+Content-Type: multipart/mixed; boundary="------------iRWXmoynDoIFPTairYNxY6yd"
+Message-ID: <0840e4ec-0b61-4e0d-9d67-d0eb2ab2d6a1@kernel.org>
+Date: Thu, 29 Jan 2026 19:40:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260108063524.742464-1-yelangyan@huaqin.corp-partner.google.com>
- <20260108063524.742464-3-yelangyan@huaqin.corp-partner.google.com> <ffqvva5kgyh25mpquackob7fnlaxseu5stgevneqynwa7m77b3@totpb762p6te>
-In-Reply-To: <ffqvva5kgyh25mpquackob7fnlaxseu5stgevneqynwa7m77b3@totpb762p6te>
-From: Doug Anderson <dianders@chromium.org>
-Date: Thu, 29 Jan 2026 08:50:57 -0800
-X-Gmail-Original-Message-ID: <CAD=FV=XKqFTNYopxV9H8rnjEYAgDebW42Ot92aZYiex5MP1wnQ@mail.gmail.com>
-X-Gm-Features: AZwV_Qi0Z8168L4gaPZktw99T6_nZRbAiWWywdG0fr-ESdZGsorlaIsuTWXlIik
-Message-ID: <CAD=FV=XKqFTNYopxV9H8rnjEYAgDebW42Ot92aZYiex5MP1wnQ@mail.gmail.com>
-Subject: Re: [PATCH V3 RESEND 2/2] HID: i2c-hid: elan: Add parade-tc3408 timing
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Langyan Ye <yelangyan@huaqin.corp-partner.google.com>, 
-	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, robh@kernel.org, 
-	krzk+dt@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: goodix - fix inverted Y coordinate on SUPI S10
+From: Hans de Goede <hansg@kernel.org>
+To: Yajat Kumar <yajatapps3@gmail.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ "open list:GOODIX TOUCHSCREEN" <linux-input@vger.kernel.org>,
+ open list <linux-kernel@vger.kernel.org>
+References: <20251230221639.582406-1-yajatapps3@gmail.com>
+ <fa17c5bb-9ab9-46f7-86fb-c06e09617279@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <fa17c5bb-9ab9-46f7-86fb-c06e09617279@kernel.org>
 
-Hi,
+This is a multi-part message in MIME format.
+--------------iRWXmoynDoIFPTairYNxY6yd
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 21, 2026 at 2:40=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Thu, Jan 08, 2026 at 02:35:24PM +0800, Langyan Ye wrote:
-> > Parade-tc3408 requires reset to pull down time greater than 10ms,
-> > so the configuration post_power_delay_ms is 10, and the chipset
-> > initial time is required to be greater than 300ms,
-> > so the post_gpio_reset_on_delay_ms is set to 300.
-> >
-> > Signed-off-by: Langyan Ye <yelangyan@huaqin.corp-partner.google.com>
-> > Reviewed-by: Douglas Anderson <dianders@chromium.org>
->
-> Jiri, Benjamin, another I2C hid with bindings...
+Hi Yajat,
 
-I guess maybe this could go through the input tree, but it needs
-either Jiri's or Benjamin's ack? Is that the plan?
+On 11-Jan-26 22:30, Hans de Goede wrote:
+> Hi Yajat,
+> 
+> On 30-Dec-25 23:16, Yajat Kumar wrote:
+>> The touchscreen on the SUPI S10 reports inverted Y coordinates, causing
+>> touch input to be mirrored vertically relative to the display.
+>>
+>> Add a DMI-based quirk to invert the Y coordinate on this device so that
+>> touch input matches the display orientation.
+>>
+>> Tested on SUPI S10 tablet with Goodix touchscreen controller.
+>>
+>> Signed-off-by: Yajat Kumar <yajatapps3@gmail.com>
+> 
+> Thank you for your patch. This kind of quirks really belong
+> in drivers/platform/x86/touchscreen_dmi.c instead of in individual
+> touchscreen drivers.
+> 
+> The inverted_x_screen[] DMI quirk is a left-over from before we
+> moved these quirks to touchscreen_dmi.c and unfortunately we cannot
+> move this because we've not been able to find someone to test this.
+> 
+> I've attached a patch which should fix the issue using
+> touchscreen_dmi.c . Note you may need to change the GDIX1001 in
+> the patch to GDIX1002, see "ls /sys/bus/i2c/devices" to see which
+> ACPI HID your touchscreen is using.
+> 
+> Can you please test the attached patch ?
 
--Doug
+Can you please confirm if the attached patch works, or at
+a minimum check if the touchscreen is listed as i2c-GDIX1001:*
+or i2c-GDIX1002:* under /sys/bus/i2c/devices ?
+
+Regards,
+
+Hans
+
+
+
+
+>> ---
+>>  drivers/input/touchscreen/goodix.c | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>>
+>> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+>> index f8798d11ec03..d675a85a9312 100644
+>> --- a/drivers/input/touchscreen/goodix.c
+>> +++ b/drivers/input/touchscreen/goodix.c
+>> @@ -160,6 +160,22 @@ static const struct dmi_system_id inverted_x_screen[] = {
+>>  	{}
+>>  };
+>>  
+>> +/*
+>> + * Those tablets have their y coordinate inverted
+>> + */
+>> +static const struct dmi_system_id inverted_y_screen[] = {
+>> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+>> +	{
+>> +		.ident = "SUPI S10",
+>> +		.matches = {
+>> +			DMI_MATCH(DMI_SYS_VENDOR, "SUPI"),
+>> +			DMI_MATCH(DMI_PRODUCT_NAME, "S10")
+>> +		},
+>> +	},
+>> +#endif
+>> +	{}
+>> +};
+>> +
+>>  /**
+>>   * goodix_i2c_read - read data from a register of the i2c slave device.
+>>   *
+>> @@ -1212,6 +1228,12 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+>>  			"Applying 'inverted x screen' quirk\n");
+>>  	}
+>>  
+>> +	if (dmi_check_system(inverted_y_screen)) {
+>> +		ts->prop.invert_y = true;
+>> +		dev_dbg(&ts->client->dev,
+>> +			"Applying 'inverted y screen' quirk\n");
+>> +	}
+>> +
+>>  	error = input_mt_init_slots(ts->input_dev, ts->max_touch_num,
+>>  				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+>>  	if (error) {
+
+--------------iRWXmoynDoIFPTairYNxY6yd
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-platform-x86-touchscreen_dmi-Add-quirk-for-y-inverte.patch"
+Content-Disposition: attachment;
+ filename*0="0001-platform-x86-touchscreen_dmi-Add-quirk-for-y-inverte.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
+
+RnJvbSA0M2FhZTBhNTQ1MTAzMTk0MzgzNjUxNmZmNTQxYzlhYjEyMzJlNmI5IE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBIYW5zIGRlIEdvZWRlIDxqb2hhbm5lcy5nb2VkZUBv
+c3MucXVhbGNvbW0uY29tPgpEYXRlOiBTdW4sIDExIEphbiAyMDI2IDIyOjI1OjU4ICswMTAw
+ClN1YmplY3Q6IFtQQVRDSF0gcGxhdGZvcm0veDg2OiB0b3VjaHNjcmVlbl9kbWk6IEFkZCBx
+dWlyayBmb3IgeS1pbnZlcnRlZAogR29vZGl4IHRvdWNoc2NyZWVuIG9uIFNVUEkgUzEwCgpU
+aGUgdG91Y2hzY3JlZW4gb24gdGhlIFNVUEkgUzEwIHRhYmxldCByZXBvcnRzIGludmVydGVk
+IFkgY29vcmRpbmF0ZXMsCmNhdXNpbmcgdG91Y2ggaW5wdXQgdG8gYmUgbWlycm9yZWQgdmVy
+dGljYWxseSByZWxhdGl2ZSB0byB0aGUgZGlzcGxheS4KCkFkZCBhIHF1aXJrIHRvIHNldCB0
+aGUgInRvdWNoc2NyZWVuLWludmVydGVkLXkiIGJvb2xlYW4gZGV2aWNlLXByb3BlcnR5Cm9u
+IHRoZSB0b3VjaHNjcmVlbiBkZXZpY2UsIHNvIHRoYXQgdGhlIGdvb2RpeF90cyBkcml2ZXIg
+d2lsbCBmaXh1cAp0aGUgY29vcmRpbmF0ZXMuCgpSZXBvcnRlZC1ieTogWWFqYXQgS3VtYXIg
+PHlhamF0YXBwczNAZ21haWwuY29tPgpDbG9zZXM6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3Jn
+L2xpbnV4LWlucHV0LzIwMjUxMjMwMjIxNjM5LjU4MjQwNi0xLXlhamF0YXBwczNAZ21haWwu
+Y29tLwpTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxqb2hhbm5lcy5nb2VkZUBvc3Mu
+cXVhbGNvbW0uY29tPgotLS0KIGRyaXZlcnMvcGxhdGZvcm0veDg2L3RvdWNoc2NyZWVuX2Rt
+aS5jIHwgMTggKysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0
+aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGxhdGZvcm0veDg2L3RvdWNoc2NyZWVu
+X2RtaS5jIGIvZHJpdmVycy9wbGF0Zm9ybS94ODYvdG91Y2hzY3JlZW5fZG1pLmMKaW5kZXgg
+YmRjMTljZDhkM2VkLi5kODNjMzg3ODIxZWEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvcGxhdGZv
+cm0veDg2L3RvdWNoc2NyZWVuX2RtaS5jCisrKyBiL2RyaXZlcnMvcGxhdGZvcm0veDg2L3Rv
+dWNoc2NyZWVuX2RtaS5jCkBAIC00MTAsNiArNDEwLDE2IEBAIHN0YXRpYyBjb25zdCBzdHJ1
+Y3QgdHNfZG1pX2RhdGEgZ2RpeDEwMDJfdXBzaWRlX2Rvd25fZGF0YSA9IHsKIAkucHJvcGVy
+dGllcwk9IGdkaXgxMDAxX3Vwc2lkZV9kb3duX3Byb3BzLAogfTsKIAorc3RhdGljIGNvbnN0
+IHN0cnVjdCBwcm9wZXJ0eV9lbnRyeSBnZGl4MTAwMV95X2ludmVydGVkX3Byb3BzW10gPSB7
+CisJUFJPUEVSVFlfRU5UUllfQk9PTCgidG91Y2hzY3JlZW4taW52ZXJ0ZWQteSIpLAorCXsg
+fQorfTsKKworc3RhdGljIGNvbnN0IHN0cnVjdCB0c19kbWlfZGF0YSBnZGl4MTAwMV95X2lu
+dmVydGVkX2RhdGEgPSB7CisJLmFjcGlfbmFtZQk9ICJHRElYMTAwMSIsCisJLnByb3BlcnRp
+ZXMJPSBnZGl4MTAwMV95X2ludmVydGVkX3Byb3BzLAorfTsKKwogc3RhdGljIGNvbnN0IHN0
+cnVjdCBwcm9wZXJ0eV9lbnRyeSBncF9lbGVjdHJvbmljX3Q3MDFfcHJvcHNbXSA9IHsKIAlQ
+Uk9QRVJUWV9FTlRSWV9VMzIoInRvdWNoc2NyZWVuLXNpemUteCIsIDk2MCksCiAJUFJPUEVS
+VFlfRU5UUllfVTMyKCJ0b3VjaHNjcmVlbi1zaXplLXkiLCA2NDApLApAQCAtMTY1OCw2ICsx
+NjY4LDE0IEBAIGNvbnN0IHN0cnVjdCBkbWlfc3lzdGVtX2lkIHRvdWNoc2NyZWVuX2RtaV90
+YWJsZVtdID0gewogCQkJRE1JX01BVENIKERNSV9QUk9EVUNUX1NLVSwgIlBOMjAxNzA0MTM0
+ODgiKSwKIAkJfSwKIAl9LAorCXsKKwkJLyogU1VQSSBTMTAgKi8KKwkJLmRyaXZlcl9kYXRh
+ID0gKHZvaWQgKikmZ2RpeDEwMDFfeV9pbnZlcnRlZF9kYXRhLAorCQkubWF0Y2hlcyA9IHsK
+KwkJCURNSV9NQVRDSChETUlfU1lTX1ZFTkRPUiwgIlNVUEkiKSwKKwkJCURNSV9NQVRDSChE
+TUlfUFJPRFVDVF9OQU1FLCAiUzEwIiksCisJCX0sCisJfSwKIAl7CiAJCS8qIFRlY2hiaXRl
+IEFyYyAxMS42ICovCiAJCS5kcml2ZXJfZGF0YSA9ICh2b2lkICopJnRlY2hiaXRlX2FyY18x
+MV82X2RhdGEsCi0tIAoyLjUyLjAKCg==
+
+--------------iRWXmoynDoIFPTairYNxY6yd--

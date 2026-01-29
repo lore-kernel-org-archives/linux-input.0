@@ -1,85 +1,39 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84DC322A7E4
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 10:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 813702BD0B
+	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 13:00:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769681893; cv=none; b=nFH5GQjMpN7KBVWlH4wLHOlG6zl4aQwFgUbcDgZxG8FGwNjo2G9xj06o9ZlgNUdhvYPCIVumxusWJHyREUlbR93MVHnJB5eiesog1m5G0dUta/klbwXbc1QBnrmuoSOh1tbwVctVIP0YOGrFZLxFT5XK8UjZPsIAtzsQBfsp0tQ=
+	t=1769691620; cv=none; b=WGNyI79mtKLHCvxVTD58I1uZushe9Oq6Pa77psBb+UMa4KIDY7XwuEK1yXg2fYyWTtDd8cAKyy8YR02DRlhY+1wmk0OugPRMgXrVllUEubcYUgBYpTCdC6Grivk7tT9xvo5hwG8LgIddfKs2uhyEnkbn+RJ/0VtsrwFik+s6V/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769681893; c=relaxed/simple;
-	bh=fmVB8nuKTZoNDXcyCXt/SFOizDb1FQ0xC37rvDu4MXQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rj7pm0jzEMX1p/Cli+iuIvD7JPaR/EO90NnSdDEIJbjEU6zOh8KT0Vmuysr3XBxwumxE9QJlBOzUseZHFfrwDD1IQ01c25FaIPjQZR4Y7aNnd9yoFPgBnY8RbJljSlYtlwRKD5c4W0s5kFiwU/vPxWdOf4uA0+iOCDTy+KjImOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=e5RX6ENu; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=HZ+SGb6C; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1769691620; c=relaxed/simple;
+	bh=kSgqF/sk9EdBdub3ainGSzy1cGpcwqgH0epPSuIbvfA=;
+	h=Message-ID:Date:MIME-Version:From:Subject:Cc:To:Content-Type; b=kNxEE/s4rS2QRAyPymTgM99K/+GOh8CjMzRGJlpKgUOQIDMoXLLjXR4g/wU4ifMJxxj6O87bA5HSoQBm07nWUL0H2VYoHBv0FZPaaD5eFn07CQ3C+GnkebFe2qMKDa22g56xFIHO29KoozSZc6n6fRSyMZiDokYiIt5u8w+6SLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.at; spf=pass smtp.mailfrom=gmx.at; dkim=pass (2048-bit key) header.d=gmx.at header.i=h.judt@gmx.at header.b=m1NshfEv; arc=none smtp.client-ip=212.227.17.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.at
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.at
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="e5RX6ENu";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="HZ+SGb6C"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60T3A1L91429840
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 10:18:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	HCEYa7cgOuBIBFytHhgw3xduRbCl0l0EjHqLpkKY/JI=; b=e5RX6ENux33VEhaS
-	UQ2VIpSmQrjokykE5eQNpFpmYjRlmbPezJS30LjtW2EUdlZNodiNYMjNjxCgeetO
-	0bCoEt8YJJ7H2O4/8aHhU38Orey99XFU8yiC8h3LJT3+Jgb0zpG2YInWpZdMkT6R
-	CPtG1wqL31pt4Mkr9GP5My5yPFwvT6cgIgNP7k5rOeoANr6nmJIsj5+GtB/1dEbt
-	+h2sHYDgdWzIwkQ4TGxco80ezNioFpq4GeQff/rLlRNgFo37Q6mWQfL2oe0KSt5W
-	9KSopcEB+cQfu/qZadPpPAMFSWPR89g61edhf3K4qp+YzCIkzXrLuYaLOaHhs4sT
-	vDVj1Q==
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com [209.85.219.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4byydh17xm-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 10:18:11 +0000 (GMT)
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-88fd7ddba3fso3076366d6.1
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 02:18:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1769681891; x=1770286691; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HCEYa7cgOuBIBFytHhgw3xduRbCl0l0EjHqLpkKY/JI=;
-        b=HZ+SGb6CLny2kMWx7rwvL6Sn94UMilueQ3yW4D6qFgJ7fAcPBVBmmyYdgXd15bjxuZ
-         vW1Nu2pDMqObseLRfkwE4te/ltkpRP/6Wvw37ykdJhDrGTjQFdXu7PZI1PydIO7taqys
-         bY5UY6AWaxGHSTPEOdomzkKixdh+TMeqY24ZItCb9iCOXDN3X795hItSikcuzLTZscFU
-         OvJOXFZw7+3qCS6WLPIvxDGTupHkJ9EXJzJef9WBBAvRryqiQsTLPP291RRKrpYfZ+9F
-         UsUI7XPaAaY/v6eYtS/oo/haalBQ8xaonWuVlcoIV1pKNie+B4JHtLSQRyX6gvnsjQpp
-         6sxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769681891; x=1770286691;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HCEYa7cgOuBIBFytHhgw3xduRbCl0l0EjHqLpkKY/JI=;
-        b=MMR8po3XbJ/F2OClVN+h+Ld+ugSC695bWKLm1YK4Pvu8kIv6VFIL0nu1WqjECglcC9
-         5GCNdDYposA4/rTZHKQb+HUQA/E4DyjfvIWniG1iP7LyDBVJ6HfMpgTjREqAf48300K6
-         yMweHyqk9Q3XePemutYmqDHMC9LPGApKX02jJO8n+XfFFDwjUAPNPoTvQMenHDir2MMB
-         /de+vy609oDpcv+hhulRzNSRQ1wcHp2ZsASI1k++CjO3t3m1KdqwdspdAILFQoZmS9Ye
-         /7ZxVBrwRf0Kz0n9/7dCK9O00om6/Db7tlXN49odTKLdpcHIkLumiC+MoIgupvhcxMOI
-         BE7Q==
-X-Gm-Message-State: AOJu0YyMoaSuSOpP4QqShoLnZ8MuxPM1wGV4fdYXqvFZqeWfQSeGMXtx
-	231RsnRq6sfBa7wNb93kHR8kcwcrZ5gG7bSGJ/Fq24IYXZYM8Vf0GgZ0EAS8+aUCqLsxKenUovJ
-	FQ44MQ6NmBV/QbkpzVU2qBh9tmjsE5OWuk8e4yD7GPcTE7pUafnzLGUibMzd3Ay7N2A==
-X-Gm-Gg: AZuq6aISpOATg3MHdgsbA8b4Gz0dGdQ3Eexky7ztWMQkx5LkFS1mZPGU2OQy6J87nyp
-	OW9JzpAVZ+tbbyYzuJaZRetszLjVsIQxmVJTBcTS/x5mLYCI5m/pouRVXSLFeARf4i2rW89FDpg
-	IOME5Rilkwt3mWWi5V2/9lV/3ACTSRGyCnfiumg5DADr/4R7NHBghfbaf6UztngankeYQaiHeY4
-	k5oLZt+Bq4M5KkI4Ible+bXNvnCusfebHKjS/EZfIyxHmYFqytjew0Lb50CNCH6duLmxgzSC24j
-	bSH59Z7iFxqwwD6hen0xeWmoeraKos7IMRTbskfwcD/n8UoDLfBc7VLqjDGusTzHW9qTT2GWQRf
-	tB/CkcCXEvf9hE43/zxkYKFHEO6WVfl3oO91MNBg5Os+QQg7w2Yd2320C9jEgn+FmtVQ=
-X-Received: by 2002:a05:6214:6015:b0:894:9ac1:8be0 with SMTP id 6a1803df08f44-894dccabccfmr38221096d6.3.1769681890870;
-        Thu, 29 Jan 2026 02:18:10 -0800 (PST)
-X-Received: by 2002:a05:6214:6015:b0:894:9ac1:8be0 with SMTP id 6a1803df08f44-894dccabccfmr38220876d6.3.1769681890476;
-        Thu, 29 Jan 2026 02:18:10 -0800 (PST)
-Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-658b4256a35sm2707274a12.1.2026.01.29.02.18.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Jan 2026 02:18:09 -0800 (PST)
-Message-ID: <7c3646e4-48d3-4b32-93e4-69e7ce439e94@oss.qualcomm.com>
-Date: Thu, 29 Jan 2026 11:18:07 +0100
+	dkim=pass (2048-bit key) header.d=gmx.at header.i=h.judt@gmx.at header.b="m1NshfEv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.at;
+	s=s31663417; t=1769691616; x=1770296416; i=h.judt@gmx.at;
+	bh=D8wje0vPOWWsq74usZPPnhWahBOMkEd1b5gdtMMsaFk=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:From:Subject:Cc:
+	 To:Content-Type:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=m1NshfEvfF1kG3/YFCvPIzVsgyuBvjwHntey6fANutRNaB4DJWhpMqn2MyWplfVE
+	 hDx1ddJZRAzxJf9PmFNQk/324xWVnB4+alqJfS4fZVlTaJQJyEH0xVYRcbWdp41+X
+	 WE1NwBjgj3PT9skVl8tSP1Vv5bQCanC+Vm9MfAdmfcJOM6M4nEWhaJjx0yG2TUI5z
+	 4H4CDxnt+cFTz8ExcUVzNH14414+2mVEzmlSTb3xiXALrKDbG8QFlqM83zs/B8xMV
+	 o3ZG8RB2Eye1c+D5JQn8QDceqHiPiALBkcwCCqhRsxDS2WM+7oxvVEnGyknV8C4YO
+	 hFeYGE6OYTHrNV6jIQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [131.130.2.239] ([131.130.2.239]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MLQxX-1vSx8t2E0R-00MptI; Thu, 29
+ Jan 2026 14:00:16 +0100
+Message-ID: <8c2d3d0d-ff68-4e39-97a0-c6a397142455@gmx.at>
+Date: Thu, 29 Jan 2026 14:00:16 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -87,81 +41,409 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] arm64: dts: qcom: milos-fairphone-fp6: Add
- vibrator support
-To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-References: <20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com>
- <20260128-aw86938-driver-v2-3-b51ee086aaf5@fairphone.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <20260128-aw86938-driver-v2-3-b51ee086aaf5@fairphone.com>
+From: Harald Judt <h.judt@gmx.at>
+Subject: [PATCH] HID: Add force feedback support for Speedlink Cougar
+ Vibration Flightstick
+Content-Language: de-AT
+Autocrypt: addr=h.judt@gmx.at; keydata=
+ xjMEWz9DYxYJKwYBBAHaRw8BAQdAKS36MI1JSuMxtk7tkZ2/NK1C9te1XJ8bBlB9qF4blEbN
+ G0hhcmFsZCBKdWR0IDxoLmp1ZHRAZ214LmF0PsKWBBMWCAA+AhsDBQsJCAcCBhUKCQgLAgQW
+ AgMBAh4BAheAFiEE4HNt2P9AnPIGZRHUT/+rIbhYCr0FAmStFG8FCRLT0owACgkQT/+rIbhY
+ Cr1dYwEAsT/9SLGebsLz4TIuYaDY7c4ou+i7Stae6FIb62NXw7UBAPopYK3pJuyjhvK8qb3N
+ FQeZyDrHeJLvOWEoj5OYsLIIzjgEWz9DYxIKKwYBBAGXVQEFAQEHQA7/uzYBE88LdCm19AaX
+ q46nMKkhxM5CZ2YAa1uC5l97AwEIB8J+BBgWCAAmAhsMFiEE4HNt2P9AnPIGZRHUT/+rIbhY
+ Cr0FAmStFMkFCRLT0uYACgkQT/+rIbhYCr12kAD9HnfrVNMxwa8LWtpKCiv4+zk1ujthlZZm
+ G75GoPWofXEBAMQ8kqpJDk2/DH4qT0ZneIT5SnQPt5ZtAFtpX6XOa0oB
+Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-GUID: shxZqY2YBwiUtIIXud5FHhDas5AebtJK
-X-Proofpoint-ORIG-GUID: shxZqY2YBwiUtIIXud5FHhDas5AebtJK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI5MDA2NyBTYWx0ZWRfX7WTA2DvtZha9
- 098/XDA5HK7Cj2/30ZMSGjm1zOsFPYsWGr1JN87XHUsrK8dQ/HVtaV9I8L26ZzfcAhhHuQYPevi
- PB0W053HrtpBvsgFLoVI3X1jxR+xT2kOtAdP/QEdCKiYtbhtAuhgc6afV28YpZfyO0OqYVkDglG
- 7jftksmIAv7Xsyhtn8+Eu+fTZ80IXp9EU08ZmV8dKEl7QK/8jFNOvZ9OQhlC/IrQnkmWevRTNWH
- Kzs3W9MJ4UOwef9pej92Jzw41Af/XrCQTbwizMBffpEZS5XXfQBAN8nn3pT8WJZla0SKY+0oPC0
- +YZRg4mXQQ7E0rNWaRnnZIsUcdLyrjTgiDHPHEmAnbtcx1mNftTuj7xlrs5jndHGwb6peY7Y8+D
- BffAw2HuUpRtKLvakKiO7gQblOznpfImJS2c9+rp5XKrlzBKZ5KVMfGdPY2g7fXd+aKU3j3J04x
- rKosnb4fxQVkvow3gVg==
-X-Authority-Analysis: v=2.4 cv=Cs6ys34D c=1 sm=1 tr=0 ts=697b33e3 cx=c_pps
- a=wEM5vcRIz55oU/E2lInRtA==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=6H0WHjuAAAAA:8 a=EUspDBNiAAAA:8
- a=kndQm4PL0qyBTY2Ci5cA:9 a=QEXdDO2ut3YA:10 a=OIgjcC2v60KrkQgK7BGD:22
- a=Soq9LBFxuPC4vsCAQt-j:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-01-29_02,2026-01-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 clxscore=1015 spamscore=0 phishscore=0 bulkscore=0
- malwarescore=0 priorityscore=1501 adultscore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2601290067
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:5gcteF9JM10kgYCTh6qcG/iybLQYwQJDGT3QmCWzkLPGyOSeDOu
+ sj0ireX3iuPqfQm5P7YiQ67SYhwetNRad6Ft4GoDvAICVMpX1+I55I08Kcgj9UU2Ts5CVsC
+ 8b5q79tnuklfvf4cKCeLi7J9qkXMuGJ57cRVLn4yN+80V/bUuM6BwmgHWmrA9d6vam2w9TS
+ fI4aIJmmu9Or6g9Ss72rQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:EPVb+GscdSU=;i9qTDZXPbT4j+ZrpwU9KFU71J+G
+ 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
 
-On 1/28/26 4:51 PM, Griffin Kroah-Hartman wrote:
-> Add the required node for haptic playback (Awinic AW86938)
-> 
-> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-> ---
->  arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts | 19 ++++++++++++++++++-
->  1 file changed, 18 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-> index 52895dd9e4fa117aef6822df230ebf644e5f02ba..881239d22fa97685206d1fa3a70723c5b77a339c 100644
-> --- a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-> +++ b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-> @@ -625,7 +625,17 @@ vreg_l7p: ldo7 {
->  	};
->  
->  	/* VL53L3 ToF @ 0x29 */
-> -	/* AW86938FCR vibrator @ 0x5a */
-> +
-> +	vibrator@5a {
-> +		compatible = "awinic,aw86938";
-> +		reg = <0x5a>;
-> +
-> +		interrupts-extended = <&tlmm 80 IRQ_TYPE_EDGE_FALLING>;
-> +		reset-gpios = <&tlmm 78 GPIO_ACTIVE_LOW>;
-> +
-> +		pinctrl-0 = <&aw86938_int_default>;
+Hi,
 
-Ideally there'd also be a config for the reset GPIO, but otherwise
+I have implemented force feedback/rumble support for the Speedlink
+Cougar Vibration Flightstick joystick. While I am not quite sure about
+the correctness of my approach regarding the strong and weak motors, it
+seems to work as expected; I ran the fftest samples and also tested it
+successfully with SuperTuxKart.
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Here is the code, hopefully I have set up thunderbird mail correctly to
+not mangle the patch...
 
-Konrad
 
+=46rom 48d8512fbe49ae7b940dc5869fe50aa905d3d5fb Mon Sep 17 00:00:00 2001
+From: Harald Judt <h.judt@gmx.at>
+Date: Sun, 18 Jan 2026 02:47:20 +0100
+Subject: [PATCH] HID: Add force feedback support for Gembird based joystic=
+k
+
+This commit adds force feedback support for a Gembird based joystick, name=
+ly
+the SpeedLink Cougar Vibration Flightstick (SL-6630), which sports vibrati=
+on
+motors for rumble effects. Though it is not easy to determine, it seems to=
+ have
+one motor in the base and the other in the stick, both are of equal
+strength. The implementation tries to take this into account for realising=
+ weak
+and strong rumble effects and has been tested using fftest and SuperTuxKar=
+t.
+
+Signed-off-by: Harald Judt <h.judt@gmx.at>
+=2D--
+ drivers/hid/Kconfig           |   8 ++
+ drivers/hid/Makefile          |   1 +
+ drivers/hid/hid-gembird-joy.c | 178 ++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h         |   3 +
+ drivers/hid/hid-quirks.c      |   3 +
+ 5 files changed, 193 insertions(+)
+ create mode 100644 drivers/hid/hid-gembird-joy.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 04420a713be0..b4e2c8f67728 100644
+=2D-- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -406,6 +406,14 @@ config HID_GEMBIRD
+ 	help
+ 	Support for Gembird JPD-DualForce 2.
+=20
++config HID_GEMBIRD_JOY_FF
++	tristate "Gembird Joysticks force feedback support"
++	depends on USB_HID
++	select INPUT_FF_MEMLESS
++	help
++	Force feedback support for Gembird (Vendor ID 0x12bd) based devices:
++	  - Speed Link Cougar Vibration Flightstick (SL-6630)
++
+ config HID_GFRM
+ 	tristate "Google Fiber TV Box remote control support"
+ 	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 361a7daedeb8..593a429661ed 100644
+=2D-- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -54,6 +54,7 @@ obj-$(CONFIG_HID_EVISION)	+=3D hid-evision.o
+ obj-$(CONFIG_HID_EZKEY)		+=3D hid-ezkey.o
+ obj-$(CONFIG_HID_FT260)		+=3D hid-ft260.o
+ obj-$(CONFIG_HID_GEMBIRD)	+=3D hid-gembird.o
++obj-$(CONFIG_HID_GEMBIRD_JOY_FF)	+=3D hid-gembird-joy.o
+ obj-$(CONFIG_HID_GFRM)		+=3D hid-gfrm.o
+ obj-$(CONFIG_HID_GLORIOUS)  +=3D hid-glorious.o
+ obj-$(CONFIG_HID_VIVALDI_COMMON) +=3D hid-vivaldi-common.o
+diff --git a/drivers/hid/hid-gembird-joy.c b/drivers/hid/hid-gembird-joy.c
+new file mode 100644
+index 000000000000..5a5afa02f840
+=2D-- /dev/null
++++ b/drivers/hid/hid-gembird-joy.c
+@@ -0,0 +1,178 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ *  HID driver for Gembird based Joysticks
++ *
++ *  Currently supported devices:
++ *    - 12bd:a02f Speed Link Cougar Vibration Flightstick (SL-6630)
++ *
++ *  Copyright (c) 2026 Harald Judt <h.judt@gmx.at>
++ */
++
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++
++struct gembird_joy_device {
++	struct hid_report *report;
++};
++
++static int hid_gembird_joy_play(struct input_dev *dev, void *data,
++				struct ff_effect *effect)
++{
++	struct hid_device *hid =3D input_get_drvdata(dev);
++	struct gembird_joy_device *joy =3D data;
++	int strong, weak;
++
++	strong =3D effect->u.rumble.strong_magnitude;
++	weak =3D effect->u.rumble.weak_magnitude;
++
++	hid_dbg(hid, "called with 0x%04x 0x%04x\n", strong, weak);
++
++	/* Likely there are two motors, one in the base and the other in an uppe=
+r
++	 * part of the stick, yet they are not different in strength, and honest=
+ly
++	 * it is hard to determine which motor is active or correlates to value =
+0
++	 * or 1 of the report field. However, the third value does not have any
++	 * function, thus it will always be set to 0.
++	 *
++	 * The windows drivers want to make believe the first value in the repor=
+t
++	 * field should be influenced by horizontal axis movement, and the secon=
+d
++	 * by vertical axis movement, but this might just be some arbitrary gimm=
+ick
++	 * of the configuration dialog, which describes the motors as left and
++	 * right.
++	 *
++	 * Ranges are the same for both motors, weak and strong (0 to 31), so sc=
+ale
++	 * down the magnitudes accordingly...
++	 */
++	strong =3D (strong / 0xff) * 0x1f / 0xff;
++	weak =3D (weak / 0xff) * 0x1f / 0xff;
++
++	/* ... and to support the notions of strong vs weak rumble effects,
++	 * increase the magnitude for the strong rumble effect if it is below th=
+e
++	 * half of the maximum value, as the strong motor has the same strength =
+as
++	 * the weak one. Likewise, decrease the magnitude for the weak effect.
++	 */
++	if (strong < 0x10 && !weak)         /* fftest effect 4 strong rumble */
++		strong *=3D 2;
++	else if (!strong && weak >=3D 0x10)   /* fftest effect 5 weak rumble */
++		weak /=3D 2;
++
++	/* Use unmodified values if both magnitudes have been set. */
++	joy->report->field[0]->value[0] =3D strong;
++	joy->report->field[0]->value[1] =3D weak;
++	joy->report->field[0]->value[2] =3D 0;
++
++	hid_dbg(hid, "running with 0x%02x, 0x%02x\n", strong, weak);
++	hid_hw_request(hid, joy->report, HID_REQ_SET_REPORT);
++
++	return 0;
++}
++
++static int gembird_joy_init(struct hid_device *hid)
++{
++	struct gembird_joy_device *joy;
++	struct hid_report *report;
++	struct hid_input *hidinput;
++	struct list_head *report_list =3D
++			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
++	struct list_head *report_ptr =3D report_list;
++	struct input_dev *dev;
++	int error;
++
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "no inputs found\n");
++		return -ENODEV;
++	}
++	hidinput =3D list_first_entry(&hid->inputs, struct hid_input, list);
++	dev =3D hidinput->input;
++
++	if (list_empty(report_list)) {
++		hid_err(hid, "no output reports found\n");
++		return -ENODEV;
++	}
++
++	list_for_each_entry(hidinput, &hid->inputs, list) {
++		report_ptr =3D report_ptr->next;
++
++		if (report_ptr =3D=3D report_list) {
++			hid_err(hid, "required output report is missing\n");
++			return -ENODEV;
++		}
++
++		report =3D list_entry(report_ptr, struct hid_report, list);
++		if (report->maxfield < 1) {
++			hid_err(hid, "no fields in the report\n");
++			return -ENODEV;
++		}
++
++		if (report->field[0]->report_count < 3) {
++			hid_err(hid, "not enough values in the field\n");
++			return -ENODEV;
++		}
++
++		joy =3D kzalloc(sizeof(struct gembird_joy_device), GFP_KERNEL);
++		if (!joy)
++			return -ENOMEM;
++
++		dev =3D hidinput->input;
++
++		set_bit(FF_RUMBLE, dev->ffbit);
++
++		error =3D input_ff_create_memless(dev, joy, hid_gembird_joy_play);
++		if (error) {
++			kfree(joy);
++			return error;
++		}
++
++		joy->report =3D report;
++		joy->report->field[0]->value[0] =3D 0x00;
++		joy->report->field[0]->value[1] =3D 0x00;
++		joy->report->field[0]->value[2] =3D 0x00;
++		hid_hw_request(hid, joy->report, HID_REQ_SET_REPORT);
++	}
++
++	hid_info(hid, "Force Feedback for Gembird Joystick devices by Harald Jud=
+t <h.judt@gmx.at>\n");
++
++	return 0;
++}
++
++static int gembird_joy_probe(struct hid_device *hdev, const struct hid_de=
+vice_id *id)
++{
++	int ret;
++
++	ret =3D hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	gembird_joy_init(hdev);
++
++	return 0;
++}
++
++static const struct hid_device_id gembird_joy_devices[] =3D {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD_JOY, USB_DEVICE_ID_GEMBIRD_JOY_SL=
+_6630) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, gembird_joy_devices);
++
++static struct hid_driver gembird_joy_driver =3D {
++	.name =3D "gembird_joy",
++	.id_table =3D gembird_joy_devices,
++	.probe =3D gembird_joy_probe,
++};
++module_hid_driver(gembird_joy_driver);
++
++MODULE_AUTHOR("Harald Judt <h.judt@gmx.at>");
++MODULE_DESCRIPTION("Force feedback support for HID Gembird joysticks");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c4589075a5ed..1bdd9b879152 100644
+=2D-- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -528,6 +528,9 @@
+ #define USB_VENDOR_ID_GEMBIRD			0x11ff
+ #define USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2	0x3331
+=20
++#define USB_VENDOR_ID_GEMBIRD_JOY		0x12bd
++#define USB_DEVICE_ID_GEMBIRD_JOY_SL_6630	0xa02f
++
+ #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 6a8a7ca3d804..835070491da7 100644
+=2D-- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -444,6 +444,9 @@ static const struct hid_device_id hid_have_special_dri=
+ver[] =3D {
+ #if IS_ENABLED(CONFIG_HID_GEMBIRD)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFO=
+RCE2) },
+ #endif
++#if IS_ENABLED(CONFIG_HID_GEMBIRD_JOY_FF)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD_JOY, USB_DEVICE_ID_GEMBIRD_JOY_SL=
+_6630) },
++#endif
+ #if IS_ENABLED(CONFIG_HID_GFRM)
+ 	{ HID_BLUETOOTH_DEVICE(0x58, 0x2000) },
+ 	{ HID_BLUETOOTH_DEVICE(0x471, 0x2210) },
+=2D-=20
+2.52.0
+
+
+
+=2D-=20
+`Experience is the best teacher.'
+
+PGP Key ID: 4FFFAB21B8580ABD
+Fingerprint: E073 6DD8 FF40 9CF2 0665 11D4 4FFF AB21 B858 0ABD

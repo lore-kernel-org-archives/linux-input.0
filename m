@@ -1,190 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f77.google.com (mail-oo1-f77.google.com [209.85.161.77])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38C512F656E;
-	Thu, 29 Jan 2026 18:40:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 131EC2FBDE6
+	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 18:44:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769712042; cv=none; b=GTseaBxesApAEKjQDPgOctQrg73KmEybrpaS6J52eriWZHd/qpLd0YzDjIjk/cN24hIATzW4VIqOUsudQn4vbODQIwmjUfMKOiD0y67M1/F3amZzTjCO3w1kEAvBXapriBsIll5SMl45vledqW6iNJPnNyti8x4rYG/fFwYh7ZI=
+	t=1769712273; cv=none; b=F47ccK0p22ZTTqMyMrx7rqVmjSmTbbvEJX1fBpDj9GIVv8N1JYUysaBHP3ek3INGZE4HxRzMOxocsmZk+IIciAguFbhVYYfnqAmORL769teliAwQPgTg37w8XLdy+3puzGfppZ9bhAuBQNgTAy+L+LSNw5Bdt/kKs9ZZjTAmjwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769712042; c=relaxed/simple;
-	bh=bTvM2/HxO9mIy6o0cn+cX0T4A+OJCgLgLFcjHz1i35E=;
-	h=Content-Type:Message-ID:Date:MIME-Version:Subject:From:To:
-	 References:In-Reply-To; b=E/3uNozOP2aFuMYMHNa8Alm0/8xmav3T9AiBcv4+OzLn5396VoyT6CLjiF/sEvMW0nUHtfNCivyeUGXWhv0+x9NahzGMhbzcfoH9DCk8rLmsrjBT9jW01so1JN0zFPzKZNnH7IReicZ8URXUq8l68BR5kBP5p+0bC53SVMgZ/zU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cHQJ2T2G; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cHQJ2T2G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E313C4CEF7;
-	Thu, 29 Jan 2026 18:40:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769712041;
-	bh=bTvM2/HxO9mIy6o0cn+cX0T4A+OJCgLgLFcjHz1i35E=;
-	h=Date:Subject:From:To:References:In-Reply-To:From;
-	b=cHQJ2T2GKztJVOtZE9bXB0pDdpdinSybGz4Jtkxo0l5lKVxUncZ0b05u1IRxaN3PN
-	 22/LPF1vNwYDCmuosOTB1cmmDT3GENmiekCzWcxNDqvxmPJhHn6kZe8PJ81pQJvP8J
-	 ZQw4SgA3nNeyjpAuAV17uNuLwdhJ7+KKvuqWJMq+FbPdmPTBgcu1J2v430uPnwgSF/
-	 d7MxXshs0oUUIuzueHtSyU3tCWo/wOOsvcHROg6cIYXzEZIsWjppS30hTDHGRBYSx2
-	 eam1XHIvN1Q9Bmurtb0APyjfmIpP/HvO2tdzVwCpAayeSSlxWg9vGx9RbuEwNpbtW3
-	 6HRJkj51HsKUg==
-Content-Type: multipart/mixed; boundary="------------iRWXmoynDoIFPTairYNxY6yd"
-Message-ID: <0840e4ec-0b61-4e0d-9d67-d0eb2ab2d6a1@kernel.org>
-Date: Thu, 29 Jan 2026 19:40:39 +0100
+	s=arc-20240116; t=1769712273; c=relaxed/simple;
+	bh=bWZcG3PhHWyEILrgRKgek4RXtox4Z9NBBlfHZDqy/YE=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=WoXaYAo79OGTvFEQwBYO4T7Vruv6izb4pAghB9iXvbvXQcUmcTSz5Hg2YJg5NdkOu4eaYr6mTFx26us3VlqLSTM0I8kGjWOroyTQ3XibZpVMyDDIZqwzw9lhJTOAHsYugRSCTatMlQG/DE1CmilT5SXaxZKe7deoWeD6SyWKB/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f77.google.com with SMTP id 006d021491bc7-662f738c3bfso5625168eaf.0
+        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 10:44:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769712271; x=1770317071;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FDgL1MYSweSbEh3ZjY29CfIHSUPIEI6ynbuw1xTqXA0=;
+        b=RFJM6rdglnV0eeMH3+09v27UUw6vJXdvKRl41uQZsdxed4oal+qq5uQzSCXUBzOJZe
+         6FT6x5zTFvIH/DAdZ5G/8L5S9GV1NlkxVyZPzke2srBreqEQCOo2dKNikDOqajmajj3m
+         y42vaYydoB/rjPhpoqsVgG9XvpTaN5siubhtlSHkh0auvFAKPsQ7AJqXQNfd8lc0PuUk
+         Ribq+k3ZHxUSJd8UstXp5ankrQBMADY2dLZPef+O1ho/RkJ9e/xnWbSHVrbWYzu7jg2g
+         IHySZ18ltJsELJj5/6Xpdo24xEes4RR8xV6QIXZVl4DFOnr9cmr13j70nDi8ZUk9xT58
+         MfEQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWq9+ECr/SwCQAoJ9JGJQAUCR8uMkeGcDAe/y2V2ixOJiQaJ1agJGdjDJb+Mapfg8SbbO048tU9zcFnKw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwLwczUObRobl+8C95AxCeR/idLWbTr3wo2SkvaaTEAYcBQwWQj
+	7aUppMwtwGdJgKIFtxF3AxpIMxaX5fmXsL2Pek/gYYq5CYkegC1/Ycd+QLQqVbFk7x18evtlDML
+	kqFeGW4ksgMtpCpTaTERzAXA6y/v7JwWNm3//RtuJzDyWDoOK98i4ysEWlfE=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: goodix - fix inverted Y coordinate on SUPI S10
-From: Hans de Goede <hansg@kernel.org>
-To: Yajat Kumar <yajatapps3@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- "open list:GOODIX TOUCHSCREEN" <linux-input@vger.kernel.org>,
- open list <linux-kernel@vger.kernel.org>
-References: <20251230221639.582406-1-yajatapps3@gmail.com>
- <fa17c5bb-9ab9-46f7-86fb-c06e09617279@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <fa17c5bb-9ab9-46f7-86fb-c06e09617279@kernel.org>
+X-Received: by 2002:a05:6820:22a9:b0:663:e8d:cf8 with SMTP id
+ 006d021491bc7-6630f04f928mr241287eaf.35.1769712271028; Thu, 29 Jan 2026
+ 10:44:31 -0800 (PST)
+Date: Thu, 29 Jan 2026 10:44:31 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <697baa8f.a70a0220.9914.001f.GAE@google.com>
+Subject: [syzbot] [input?] [usb?] WARNING in asus_remove
+From: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>
+To: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-This is a multi-part message in MIME format.
---------------iRWXmoynDoIFPTairYNxY6yd
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Hi Yajat,
+syzbot found the following issue on:
 
-On 11-Jan-26 22:30, Hans de Goede wrote:
-> Hi Yajat,
-> 
-> On 30-Dec-25 23:16, Yajat Kumar wrote:
->> The touchscreen on the SUPI S10 reports inverted Y coordinates, causing
->> touch input to be mirrored vertically relative to the display.
->>
->> Add a DMI-based quirk to invert the Y coordinate on this device so that
->> touch input matches the display orientation.
->>
->> Tested on SUPI S10 tablet with Goodix touchscreen controller.
->>
->> Signed-off-by: Yajat Kumar <yajatapps3@gmail.com>
-> 
-> Thank you for your patch. This kind of quirks really belong
-> in drivers/platform/x86/touchscreen_dmi.c instead of in individual
-> touchscreen drivers.
-> 
-> The inverted_x_screen[] DMI quirk is a left-over from before we
-> moved these quirks to touchscreen_dmi.c and unfortunately we cannot
-> move this because we've not been able to find someone to test this.
-> 
-> I've attached a patch which should fix the issue using
-> touchscreen_dmi.c . Note you may need to change the GDIX1001 in
-> the patch to GDIX1002, see "ls /sys/bus/i2c/devices" to see which
-> ACPI HID your touchscreen is using.
-> 
-> Can you please test the attached patch ?
+HEAD commit:    3f24e4edcd1b Add linux-next specific files for 20260128
+git tree:       linux-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=12f4b694580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=750532df2c47a03
+dashboard link: https://syzkaller.appspot.com/bug?extid=13f8286fa2de04a7cd48
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1188e9b2580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1526fd8a580000
 
-Can you please confirm if the attached patch works, or at
-a minimum check if the touchscreen is listed as i2c-GDIX1001:*
-or i2c-GDIX1002:* under /sys/bus/i2c/devices ?
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/ce84e32318c2/disk-3f24e4ed.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/7eafc98224fb/vmlinux-3f24e4ed.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/b186eb6f05d2/bzImage-3f24e4ed.xz
 
-Regards,
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
 
-Hans
+usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+usb 1-1: config 0 descriptor??
+asus 0003:0B05:19B6.0001: hidraw0: USB HID v0.00 Device [HID 0b05:19b6] on usb-dummy_hcd.0-1/input0
+usb 1-1: USB disconnect, device number 2
+------------[ cut here ]------------
+!work->func
+WARNING: kernel/workqueue.c:4292 at __flush_work+0xb43/0xc50 kernel/workqueue.c:4292, CPU#1: kworker/1:1/29
+Modules linked in:
+CPU: 1 UID: 0 PID: 29 Comm: kworker/1:1 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/24/2026
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:__flush_work+0xb43/0xc50 kernel/workqueue.c:4292
+Code: 75 54 48 8d 65 d8 5b 41 5c 41 5d 41 5e 41 5f 5d c3 cc cc cc cc cc e8 5c 87 37 00 90 0f 0b 90 e9 7c ff ff ff e8 4e 87 37 00 90 <0f> 0b 90 31 c0 48 bb f8 f8 f8 f8 f8 f8 f8 f8 e9 64 ff ff ff e8 34
+RSP: 0018:ffffc90000a47080 EFLAGS: 00010293
+RAX: ffffffff818da1c2 RBX: 1ffff1100b3dc19c RCX: ffff88801e2f8000
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888059ee0cc8
+RBP: ffffc90000a47238 R08: ffffffff90324cb7 R09: 1ffffffff2064996
+R10: dffffc0000000000 R11: fffffbfff2064997 R12: dffffc0000000000
+R13: ffff888059ee0ce0 R14: 1ffff92000148e18 R15: ffff888059ee0cc8
+FS:  0000000000000000(0000) GS:ffff88812515a000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffe2dd70d64 CR3: 0000000077d5a000 CR4: 00000000003526f0
+Call Trace:
+ <TASK>
+ __cancel_work_sync+0xbe/0x110 kernel/workqueue.c:4451
+ asus_remove+0x143/0x180 drivers/hid/hid-asus.c:1347
+ hid_device_remove+0x228/0x370 drivers/hid/hid-core.c:-1
+ device_remove drivers/base/dd.c:571 [inline]
+ __device_release_driver drivers/base/dd.c:1284 [inline]
+ device_release_driver_internal+0x46f/0x860 drivers/base/dd.c:1307
+ bus_remove_device+0x34d/0x440 drivers/base/bus.c:616
+ device_del+0x527/0x8f0 drivers/base/core.c:3878
+ hid_remove_device drivers/hid/hid-core.c:3008 [inline]
+ hid_destroy_device+0x6b/0x1b0 drivers/hid/hid-core.c:3030
+ usbhid_disconnect+0x9f/0xc0 drivers/hid/usbhid/hid-core.c:1477
+ usb_unbind_interface+0x26e/0x910 drivers/usb/core/driver.c:458
+ device_remove drivers/base/dd.c:573 [inline]
+ __device_release_driver drivers/base/dd.c:1284 [inline]
+ device_release_driver_internal+0x4d9/0x860 drivers/base/dd.c:1307
+ bus_remove_device+0x34d/0x440 drivers/base/bus.c:616
+ device_del+0x527/0x8f0 drivers/base/core.c:3878
+ usb_disable_device+0x3d4/0x8d0 drivers/usb/core/message.c:1418
+ usb_disconnect+0x32f/0x990 drivers/usb/core/hub.c:2345
+ hub_port_connect drivers/usb/core/hub.c:5407 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5707 [inline]
+ port_event drivers/usb/core/hub.c:5871 [inline]
+ hub_event+0x1cc9/0x4f30 drivers/usb/core/hub.c:5953
+ process_one_work+0x949/0x15a0 kernel/workqueue.c:3279
+ process_scheduled_works kernel/workqueue.c:3362 [inline]
+ worker_thread+0xb46/0x1140 kernel/workqueue.c:3443
+ kthread+0x388/0x470 kernel/kthread.c:467
+ ret_from_fork+0x51b/0xa40 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
 
 
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
->> ---
->>  drivers/input/touchscreen/goodix.c | 22 ++++++++++++++++++++++
->>  1 file changed, 22 insertions(+)
->>
->> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
->> index f8798d11ec03..d675a85a9312 100644
->> --- a/drivers/input/touchscreen/goodix.c
->> +++ b/drivers/input/touchscreen/goodix.c
->> @@ -160,6 +160,22 @@ static const struct dmi_system_id inverted_x_screen[] = {
->>  	{}
->>  };
->>  
->> +/*
->> + * Those tablets have their y coordinate inverted
->> + */
->> +static const struct dmi_system_id inverted_y_screen[] = {
->> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
->> +	{
->> +		.ident = "SUPI S10",
->> +		.matches = {
->> +			DMI_MATCH(DMI_SYS_VENDOR, "SUPI"),
->> +			DMI_MATCH(DMI_PRODUCT_NAME, "S10")
->> +		},
->> +	},
->> +#endif
->> +	{}
->> +};
->> +
->>  /**
->>   * goodix_i2c_read - read data from a register of the i2c slave device.
->>   *
->> @@ -1212,6 +1228,12 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
->>  			"Applying 'inverted x screen' quirk\n");
->>  	}
->>  
->> +	if (dmi_check_system(inverted_y_screen)) {
->> +		ts->prop.invert_y = true;
->> +		dev_dbg(&ts->client->dev,
->> +			"Applying 'inverted y screen' quirk\n");
->> +	}
->> +
->>  	error = input_mt_init_slots(ts->input_dev, ts->max_touch_num,
->>  				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
->>  	if (error) {
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
---------------iRWXmoynDoIFPTairYNxY6yd
-Content-Type: text/x-patch; charset=UTF-8;
- name="0001-platform-x86-touchscreen_dmi-Add-quirk-for-y-inverte.patch"
-Content-Disposition: attachment;
- filename*0="0001-platform-x86-touchscreen_dmi-Add-quirk-for-y-inverte.pa";
- filename*1="tch"
-Content-Transfer-Encoding: base64
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
 
-RnJvbSA0M2FhZTBhNTQ1MTAzMTk0MzgzNjUxNmZmNTQxYzlhYjEyMzJlNmI5IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBIYW5zIGRlIEdvZWRlIDxqb2hhbm5lcy5nb2VkZUBv
-c3MucXVhbGNvbW0uY29tPgpEYXRlOiBTdW4sIDExIEphbiAyMDI2IDIyOjI1OjU4ICswMTAw
-ClN1YmplY3Q6IFtQQVRDSF0gcGxhdGZvcm0veDg2OiB0b3VjaHNjcmVlbl9kbWk6IEFkZCBx
-dWlyayBmb3IgeS1pbnZlcnRlZAogR29vZGl4IHRvdWNoc2NyZWVuIG9uIFNVUEkgUzEwCgpU
-aGUgdG91Y2hzY3JlZW4gb24gdGhlIFNVUEkgUzEwIHRhYmxldCByZXBvcnRzIGludmVydGVk
-IFkgY29vcmRpbmF0ZXMsCmNhdXNpbmcgdG91Y2ggaW5wdXQgdG8gYmUgbWlycm9yZWQgdmVy
-dGljYWxseSByZWxhdGl2ZSB0byB0aGUgZGlzcGxheS4KCkFkZCBhIHF1aXJrIHRvIHNldCB0
-aGUgInRvdWNoc2NyZWVuLWludmVydGVkLXkiIGJvb2xlYW4gZGV2aWNlLXByb3BlcnR5Cm9u
-IHRoZSB0b3VjaHNjcmVlbiBkZXZpY2UsIHNvIHRoYXQgdGhlIGdvb2RpeF90cyBkcml2ZXIg
-d2lsbCBmaXh1cAp0aGUgY29vcmRpbmF0ZXMuCgpSZXBvcnRlZC1ieTogWWFqYXQgS3VtYXIg
-PHlhamF0YXBwczNAZ21haWwuY29tPgpDbG9zZXM6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3Jn
-L2xpbnV4LWlucHV0LzIwMjUxMjMwMjIxNjM5LjU4MjQwNi0xLXlhamF0YXBwczNAZ21haWwu
-Y29tLwpTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxqb2hhbm5lcy5nb2VkZUBvc3Mu
-cXVhbGNvbW0uY29tPgotLS0KIGRyaXZlcnMvcGxhdGZvcm0veDg2L3RvdWNoc2NyZWVuX2Rt
-aS5jIHwgMTggKysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0
-aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGxhdGZvcm0veDg2L3RvdWNoc2NyZWVu
-X2RtaS5jIGIvZHJpdmVycy9wbGF0Zm9ybS94ODYvdG91Y2hzY3JlZW5fZG1pLmMKaW5kZXgg
-YmRjMTljZDhkM2VkLi5kODNjMzg3ODIxZWEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvcGxhdGZv
-cm0veDg2L3RvdWNoc2NyZWVuX2RtaS5jCisrKyBiL2RyaXZlcnMvcGxhdGZvcm0veDg2L3Rv
-dWNoc2NyZWVuX2RtaS5jCkBAIC00MTAsNiArNDEwLDE2IEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgdHNfZG1pX2RhdGEgZ2RpeDEwMDJfdXBzaWRlX2Rvd25fZGF0YSA9IHsKIAkucHJvcGVy
-dGllcwk9IGdkaXgxMDAxX3Vwc2lkZV9kb3duX3Byb3BzLAogfTsKIAorc3RhdGljIGNvbnN0
-IHN0cnVjdCBwcm9wZXJ0eV9lbnRyeSBnZGl4MTAwMV95X2ludmVydGVkX3Byb3BzW10gPSB7
-CisJUFJPUEVSVFlfRU5UUllfQk9PTCgidG91Y2hzY3JlZW4taW52ZXJ0ZWQteSIpLAorCXsg
-fQorfTsKKworc3RhdGljIGNvbnN0IHN0cnVjdCB0c19kbWlfZGF0YSBnZGl4MTAwMV95X2lu
-dmVydGVkX2RhdGEgPSB7CisJLmFjcGlfbmFtZQk9ICJHRElYMTAwMSIsCisJLnByb3BlcnRp
-ZXMJPSBnZGl4MTAwMV95X2ludmVydGVkX3Byb3BzLAorfTsKKwogc3RhdGljIGNvbnN0IHN0
-cnVjdCBwcm9wZXJ0eV9lbnRyeSBncF9lbGVjdHJvbmljX3Q3MDFfcHJvcHNbXSA9IHsKIAlQ
-Uk9QRVJUWV9FTlRSWV9VMzIoInRvdWNoc2NyZWVuLXNpemUteCIsIDk2MCksCiAJUFJPUEVS
-VFlfRU5UUllfVTMyKCJ0b3VjaHNjcmVlbi1zaXplLXkiLCA2NDApLApAQCAtMTY1OCw2ICsx
-NjY4LDE0IEBAIGNvbnN0IHN0cnVjdCBkbWlfc3lzdGVtX2lkIHRvdWNoc2NyZWVuX2RtaV90
-YWJsZVtdID0gewogCQkJRE1JX01BVENIKERNSV9QUk9EVUNUX1NLVSwgIlBOMjAxNzA0MTM0
-ODgiKSwKIAkJfSwKIAl9LAorCXsKKwkJLyogU1VQSSBTMTAgKi8KKwkJLmRyaXZlcl9kYXRh
-ID0gKHZvaWQgKikmZ2RpeDEwMDFfeV9pbnZlcnRlZF9kYXRhLAorCQkubWF0Y2hlcyA9IHsK
-KwkJCURNSV9NQVRDSChETUlfU1lTX1ZFTkRPUiwgIlNVUEkiKSwKKwkJCURNSV9NQVRDSChE
-TUlfUFJPRFVDVF9OQU1FLCAiUzEwIiksCisJCX0sCisJfSwKIAl7CiAJCS8qIFRlY2hiaXRl
-IEFyYyAxMS42ICovCiAJCS5kcml2ZXJfZGF0YSA9ICh2b2lkICopJnRlY2hiaXRlX2FyY18x
-MV82X2RhdGEsCi0tIAoyLjUyLjAKCg==
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
---------------iRWXmoynDoIFPTairYNxY6yd--
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

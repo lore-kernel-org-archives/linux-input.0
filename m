@@ -1,137 +1,128 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001A23370EA;
-	Wed, 28 Jan 2026 20:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C6DE238166;
+	Thu, 29 Jan 2026 07:12:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769633006; cv=none; b=FAVYKcvtrAzVTrBpa/xb0y/eovDETLuJnhJ6o9AQbqYFtTNxkSdgQhrdekdCDV8WHQyQymvmguuAZXiXwMgOJ1n1rK4cErf3e7GOR3yoSblM8SVBE/2baCzlnWRPLntLeJUE+RO1UVO/SCuzCz+UkSY8ODMGQMbAZfrUa/18iNY=
+	t=1769670770; cv=none; b=p3sF8XTA/G7c+gb7X46K1Hw+id8iSbfSX5ouubYTzBQ9KRZzZx8s/x391vxheystumuC2dcb4yR+YiMhtuoMkq8zRrLCCrP9XNN3tiA6jTLTrGpIUJn70WCfg3XijeF+CEP6aWxtIkVU/5Vk1jaBJxQqglThcT6Gqi88lfUdo2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769633006; c=relaxed/simple;
-	bh=vGc8cR7Hsv0b9Y5Y7vkiU7vmGCNGRQSF1U7JEcTLui0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DnzmOKmWVbMEOj4IgOyrqHMx/so8FZ/LWgzut+P7VyugeVUHlUlBRs5oH1HifgX1JdNyZoVglcILXBfeFRgueqZVL2KJ+5MWuBPkB2Q1sid7ntuUDpfI1GyjbIS10IAlYwenbKMElA+7/78huTg/0g96b2SGiU27jQAglkMmkoc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=A36+BQnN; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769670770; c=relaxed/simple;
+	bh=+5nhlvLDqJjtm9IF7h/4PBBEYMhyqBjrWqPcXCTrBXg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eVpd2qjDRIP2zMz2YadP2yyVDyA/qOPq6UZnr6vNQ7musgOK2KtpPmDxdod1dl0BXoB2sXN46LctQvhy2Lilbxi7mOSzwhxDejkhSD79sqUi6MdZ7CNzCgGSefxfnnqHFsUgh3lh3HpgJ/cI/cnCkCv5gOlpZt/Fkt++CHC+Q0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=mJJHKzpT; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=Fbwx0/b/; arc=none smtp.client-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="A36+BQnN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769633005; x=1801169005;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=vGc8cR7Hsv0b9Y5Y7vkiU7vmGCNGRQSF1U7JEcTLui0=;
-  b=A36+BQnNCKqGfzZJRaZ2uaBLkaPLdXTgoqhog3BnLYFwY7Mrl8Nnct8r
-   +/1ibydDSQ9FiM30at8U9ktUJdCWQD0//ER9gUEe55fQr83ZOZ5g/Zh1+
-   g/SQxd2nBK99d+JexrN68DRfa5zByBxAjH1YgIGnBFYuoSozL2D6nr5Jd
-   MuurbAPlFYC+zUZu9gedrbhb6vuF4vTmzlN3EUwYd550NReTiRJWI5GK1
-   nEYvdsFzm0RbfwhBMNLmOayleQLaoNHtnCZmjllPZFMLQbP2spoiVZCu+
-   Esp092H16WQAzXKSHGYRC1KVdX9G2hONcu8RrXhEBwJ4Zk2VZo1kcY9JL
-   A==;
-X-CSE-ConnectionGUID: mrfBT7MSRJi0o83RNvqU3w==
-X-CSE-MsgGUID: Aib8HyELSWyrRA/qSjYEyA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11685"; a="82284779"
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="82284779"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 12:43:24 -0800
-X-CSE-ConnectionGUID: uqnc2ccEQlK8inqhJkHSiw==
-X-CSE-MsgGUID: lXH8l913SnKXl1t+QwdtsA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="208458023"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.57])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 12:43:20 -0800
-Date: Wed, 28 Jan 2026 22:43:16 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-	Ting-Kai Chen <tingkaic@nvidia.com>
-Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
- Bridge
-Message-ID: <aXp05Dk7gGc5DkPt@smile.fi.intel.com>
-References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
- <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
- <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
- <20260128-magnificent-faithful-otter-c4f900@quoll>
- <aXoF4zi4SZrXaku5@smile.fi.intel.com>
- <3db84b61-e463-4362-b142-59d3ca6eae90@kernel.org>
- <aXoz4Xs8csdxXeZU@smile.fi.intel.com>
- <bb448595-ae60-4497-98ad-040f148af2e5@kernel.org>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="mJJHKzpT";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="Fbwx0/b/"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4f1r2070SQz9t6b;
+	Thu, 29 Jan 2026 08:12:40 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1769670761;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Q89xRfljC98J/m4lxKrE93iVtWGJzlUjOxCst2I3CPs=;
+	b=mJJHKzpT1SD/HtnVhluNZS4V3QM30VjQB7TEoaKiapnNoc/C8g6RUR2Jjf4goPCyeIfHat
+	PMLUvPN4XscE8O+9nD2i7Oz48tfbVPNg/RgUisQMDAwecOSYTz983ViyuZ03hMOo/1Tbji
+	Njx/may7LfHPXeVKlPIABXUokGVqHT0r99Z3mbgHjhAlKjb/qcOX2YHf5JAJqH2zy9uRLB
+	04+kvkchSYcSnWHxxO6jx1Jr+hbloZo7Wa3RESJex10fxcgm2vPuvX1wc47wT8wiTCziSV
+	9WT5U9pHsTJlWhOFj1wlOQpRhCjv0waPEyFhkla5pzxIHJTu1zGDdSfwei/6fA==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b="Fbwx0/b/";
+	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1769670759;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Q89xRfljC98J/m4lxKrE93iVtWGJzlUjOxCst2I3CPs=;
+	b=Fbwx0/b/IF24qJoZpZvbi3RL71ifNRbIuShQuGnv7jOShetn8P8YBi/smHff0mX/R76w4r
+	7S935A/sioWFPa2SbjwjMcP5p9ONEBsoiWJMPBicsIpcLFqCOBZUvVZkFThblXVMUUwHUa
+	yDii8DVd6HmMIfdL+QZF6ghfiAeFl4eOocy6nx+81W3PW2kgS6OsdPw0tddqyTiNvsUFx+
+	5Jg51cqIW53rUKO45yPKmvxoZCXqwLDFQFucwiYyXqaIqbg1UAWoPqOWJxiv/QaZiP3tvb
+	AU4dPW4nQJ5phMahjKiOHAfRxt+o0TCQFKu7z28dB3TJef/708V7JJtUXy5N/A==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Rosalie Wanders <rosalie@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: sony: add second device IDs to CRKD Gibson SG
+Date: Thu, 29 Jan 2026 08:12:25 +0100
+Message-ID: <20260129071227.5533-1-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <bb448595-ae60-4497-98ad-040f148af2e5@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+X-MBO-RS-ID: 8c136cf2d5b272755c4
+X-MBO-RS-META: cburpbfwh69n7ktijfx9hrqjtquteykw
+X-Rspamd-Queue-Id: 4f1r2070SQz9t6b
 
-On Wed, Jan 28, 2026 at 08:52:50PM +0100, Krzysztof Kozlowski wrote:
-> On 28/01/2026 17:05, Andy Shevchenko wrote:
-> > On Wed, Jan 28, 2026 at 04:48:18PM +0100, Krzysztof Kozlowski wrote:
-> >> On 28/01/2026 13:49, Andy Shevchenko wrote:
-> >>> On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
-> >>>> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+CRKD changed the product IDs in a firmware revision, yet the dongle
+doesn't have these ID changes included yet but will have them included
+in a future firmware revision.
 
-...
+CRKD also doesn't allow the firmware to be updated on Linux so having
+both the old and new product IDs is necessary.
 
-> >>>> That's actually rule communicated many times, also documented in writing
-> >>>> bindings and in recent talks.
-> >>>
-> >>> Does DT represents HW in this case? Shouldn't I²C controller be the same node?
-> >>> Why not? This is inconsistent for the device that is multi-functional. And from
-> >>> my understanding the firmware description (DT, ACPI, you-name-it) must follow
-> >>> the HW. I don't see how it's done in this case.
-> >>
-> >> What is inconsistent exactly? What sort of rule tells that every little
-> >> function needs a device node? It's first time I hear about any of such
-> >> rule and for all this time we already NAKed it so many times (node per
-> >> GPIO, node per clock, node per every little pin).
-> > 
-> > That we should represent the HW as is. There is no "rule", there is a common
-> > sense. Of course, it's possible to have all-in-one node, but this may lead
-> > to a disaster when there are tons of devices in the Multi Functional HW
-> > and some of them use the same properties. How would you distinguish HW
-> > with two GPIO banks, two I²C controllers, et cetera? That's what my common
-> 
-> I do not see problems in these examples. GPIO banks have gpio-cells for
-> that. i2c controllers are busses, so as I explained in other email, must
-> have their own node whenever any other node is expected.
-> 
-> And for everything which is more complex, e.g. regulators, we do expect
-> child nodes.
-> 
-> Still the "MFD" is not a reason itself, we consistently give such review
-> and we also documented it.
-> 
-> > sense tells to me, putting all eggs into one bucket is just a mine field
-> > for the future.
-> 
-> Some years passed and I do not remember any mine happening here.
-> Actually mines appeared when people DID create fake nodes, because then
-> when the actual true bus node was needed it was violating the rule we
-> have - not mixing bus and non-bus nodes on the same level.
+Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+---
+ drivers/hid/hid-ids.h  | 6 ++++--
+ drivers/hid/hid-sony.c | 8 ++++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-Okay, thanks for elaboration. I definitely learnt something new about DT.
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 43f86061cab2..cdf69ce86d99 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -364,8 +364,10 @@
+ #define USB_DEVICE_ID_CREATIVE_SB0540	0x3100
+ 
+ #define USB_VENDOR_ID_CRKD	0x3651
+-#define USB_DEVICE_ID_CRKD_PS4_GIBSON_SG	0x1500
+-#define USB_DEVICE_ID_CRKD_PS5_GIBSON_SG	0x1600
++#define USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_1	0x5500
++#define USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_2	0x1500
++#define USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_1	0x5600
++#define USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_2	0x1600
+ 
+ #define USB_VENDOR_ID_CVTOUCH		0x1ff7
+ #define USB_DEVICE_ID_CVTOUCH_SCREEN	0x0013
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index d0270ffec4f4..ad73de5cb627 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2381,7 +2381,9 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Rock Band 4 PS4 guitars */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER),
+ 		.driver_data = RB4_GUITAR_PS4_USB },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG),
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_1),
++		.driver_data = RB4_GUITAR_PS4_USB },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_2),
+ 		.driver_data = RB4_GUITAR_PS4_USB },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_JAGUAR),
+ 		.driver_data = RB4_GUITAR_PS4_BT },
+@@ -2390,7 +2392,9 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Rock Band 4 PS5 guitars */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS5_RIFFMASTER),
+ 		.driver_data = RB4_GUITAR_PS5 },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG),
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_1),
++		.driver_data = RB4_GUITAR_PS5 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_2),
+ 		.driver_data = RB4_GUITAR_PS5 },
+ 	{ }
+ };
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.52.0
 

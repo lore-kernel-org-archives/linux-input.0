@@ -1,153 +1,207 @@
-Received: from mail-oo1-f77.google.com (mail-oo1-f77.google.com [209.85.161.77])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 131EC2FBDE6
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 18:44:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2133093AB;
+	Thu, 29 Jan 2026 19:09:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769712273; cv=none; b=F47ccK0p22ZTTqMyMrx7rqVmjSmTbbvEJX1fBpDj9GIVv8N1JYUysaBHP3ek3INGZE4HxRzMOxocsmZk+IIciAguFbhVYYfnqAmORL769teliAwQPgTg37w8XLdy+3puzGfppZ9bhAuBQNgTAy+L+LSNw5Bdt/kKs9ZZjTAmjwc=
+	t=1769713757; cv=none; b=WxH0jUurMP3zQjiE4cr0EqBplpPTWkgMNobK4OgxQDGook/epj7h87cYtbFEg5PYX3FFIpjDQEdtkRoLZqCf1mi+tuLeAExg4Jiv4AeAPQVDY4mSvtTRPBdv9Wq+7EVMWwibRAyP/cjgU7FsUXGwPQ5MS6H22fY8gYoVk+6U9lc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769712273; c=relaxed/simple;
-	bh=bWZcG3PhHWyEILrgRKgek4RXtox4Z9NBBlfHZDqy/YE=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=WoXaYAo79OGTvFEQwBYO4T7Vruv6izb4pAghB9iXvbvXQcUmcTSz5Hg2YJg5NdkOu4eaYr6mTFx26us3VlqLSTM0I8kGjWOroyTQ3XibZpVMyDDIZqwzw9lhJTOAHsYugRSCTatMlQG/DE1CmilT5SXaxZKe7deoWeD6SyWKB/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f77.google.com with SMTP id 006d021491bc7-662f738c3bfso5625168eaf.0
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 10:44:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769712271; x=1770317071;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FDgL1MYSweSbEh3ZjY29CfIHSUPIEI6ynbuw1xTqXA0=;
-        b=RFJM6rdglnV0eeMH3+09v27UUw6vJXdvKRl41uQZsdxed4oal+qq5uQzSCXUBzOJZe
-         6FT6x5zTFvIH/DAdZ5G/8L5S9GV1NlkxVyZPzke2srBreqEQCOo2dKNikDOqajmajj3m
-         y42vaYydoB/rjPhpoqsVgG9XvpTaN5siubhtlSHkh0auvFAKPsQ7AJqXQNfd8lc0PuUk
-         Ribq+k3ZHxUSJd8UstXp5ankrQBMADY2dLZPef+O1ho/RkJ9e/xnWbSHVrbWYzu7jg2g
-         IHySZ18ltJsELJj5/6Xpdo24xEes4RR8xV6QIXZVl4DFOnr9cmr13j70nDi8ZUk9xT58
-         MfEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWq9+ECr/SwCQAoJ9JGJQAUCR8uMkeGcDAe/y2V2ixOJiQaJ1agJGdjDJb+Mapfg8SbbO048tU9zcFnKw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwLwczUObRobl+8C95AxCeR/idLWbTr3wo2SkvaaTEAYcBQwWQj
-	7aUppMwtwGdJgKIFtxF3AxpIMxaX5fmXsL2Pek/gYYq5CYkegC1/Ycd+QLQqVbFk7x18evtlDML
-	kqFeGW4ksgMtpCpTaTERzAXA6y/v7JwWNm3//RtuJzDyWDoOK98i4ysEWlfE=
+	s=arc-20240116; t=1769713757; c=relaxed/simple;
+	bh=KeYYVI84auowcJei0ORIpUIn6i8G3rs8bWdf5GCc1IQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=etRgq9vjK2g6rtAVGzm187x8z7aFnXgJLJSOVBGyYObrv2TVKvlEjUSolQou3VWRJeGVULxsiT1OVFKwjYa0jobfxH7mqLIlrQ/doQ+wWB2PEMALE4Na97WX53/o3A+XT+II4uwOnQRux+TQBaipMHL6pnAigbF73zRtbR4mSUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=o7RyiDFa; arc=none smtp.client-ip=67.231.149.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="o7RyiDFa"
+Received: from pps.filterd (m0425990.ppops.net [127.0.0.1])
+	by mx0a-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60TEMLuV3642470;
+	Thu, 29 Jan 2026 12:40:48 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pps1; bh=8e7W+WouVmIJSwHAZcMNZMVOk2Deo
+	aRvTRmwd0eQlHY=; b=o7RyiDFakBExhgVjEC2H1mjW7kFmyIaIs/d2rQZRvDHPa
+	1ggQ2yKNDkz8wM2XfZ8V1IoMH07fiFe69Jdbi3p+fvqpLj/xliiJowgbXkUfg2I6
+	II3xlKQ8jvRtAC4mJ1t91kJiG6y6GzTf1s6LdZWhkz+MfkZrqdQZPYiRFlnGIRp+
+	a72+4dTmrJbJYqvm0icRk/WoxdEbEdZpCUoewPCCBpg/PyZuF5BttK5RcxtxCjdE
+	tYgwGkos1auAp1Y3/2ebTaAEZzfWcikUyx6tB5D/SQ3LdI3JWzU1MSyCOigRABdZ
+	dozpT8JPiH2GPhNbSSCTNY1XDJJ3Em80RMEvytvEA==
+Received: from intranet-smtp.plexus.com ([64.215.193.254])
+	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 4byy3nhnvd-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 29 Jan 2026 12:40:47 -0600 (CST)
+Received: from localhost (unknown [10.255.48.203])
+	by intranet-smtp.plexus.com (Postfix) with ESMTP id AC579580C3;
+	Thu, 29 Jan 2026 12:40:46 -0600 (CST)
+Date: Thu, 29 Jan 2026 12:36:50 -0600
+From: Danny Kaehn <danny.kaehn@plexus.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Benjamin Tissoires <bentiss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+        Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+        Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 2/3] HID: cp2112: Fwnode Support
+Message-ID: <20260129183650.GA1419235@LNDCL34533.neenah.na.plexus.com>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-2-6448ddd4bf22@plexus.com>
+ <aXkawwpmLW7m4Fu8@smile.fi.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:22a9:b0:663:e8d:cf8 with SMTP id
- 006d021491bc7-6630f04f928mr241287eaf.35.1769712271028; Thu, 29 Jan 2026
- 10:44:31 -0800 (PST)
-Date: Thu, 29 Jan 2026 10:44:31 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <697baa8f.a70a0220.9914.001f.GAE@google.com>
-Subject: [syzbot] [input?] [usb?] WARNING in asus_remove
-From: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>
-To: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aXkawwpmLW7m4Fu8@smile.fi.intel.com>
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI5MDEzMyBTYWx0ZWRfX6PW5eCMqP6et
+ ruDl/u2GCBl5CYBy5izFti8X69dHAxGt0srQgZd3FCQZb+S3Mi2NoGIAadEbBMO5rjxEP0TxAAi
+ TMh9Tck4pLpug4Dgtpn9Wkwz1QWOJECkjKxTRQDkyiU/7CXq5beXIfVdgfv9T7yGnRq0IilvaNG
+ VIYsoioxlp3fsOzjKgeepiRQfsXBLfw6djYUFQxNarSMYNMzamnlRapzPDwT/L9gYK0hjgp30ir
+ ZqsKIVEPy0jBhqg6Mx2FDaUMOwr2evpV+3y+MSDzTBkoKjRgod+jZyXRytx97W9jbDza9iKbLn8
+ /uWvOwlqHtuneR9rr240WYETmb+OVM3bAx1C5uuq4HBpte96XI2ObWyiAh62KIOQY4BTgJ1PmFB
+ fvcsz0m7uVcR7g9+91hvpXSE/8ngZ9fYWUqHjEbPHAV1b+RNm8OOHQmIsWobC8yAcI39eiuISXs
+ lMC+cR9CRk1WbV8xaJw==
+X-Proofpoint-GUID: EJ9cydMtKH1qcYAWVzXnwxlZhzNzn8AL
+X-Authority-Analysis: v=2.4 cv=ZewQ98VA c=1 sm=1 tr=0 ts=697ba9af cx=c_pps
+ a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
+ a=kj9zAlcOel0A:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=AXHH-QlhN15DAQ8XkFIA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: TFKHbqwEmM1otgO_Chofbbp0oEpBb8KX
+X-Proofpoint-Spam-Reason: orgsafe
 
-Hello,
+On Tue, Jan 27, 2026 at 10:06:27PM +0200, Andy Shevchenko wrote:
+> On Tue, Jan 27, 2026 at 08:47:49AM -0600, Danny Kaehn wrote:
+> > Support describing the CP2112's I2C and GPIO interfaces in firmware.
+> > 
+> > Bindings between the firmware nodes and the functions of the device
+> > are distinct between ACPI and DeviceTree.
+> > 
+> > For ACPI, the i2c_adapter will use the child with _ADR Zero and the
+> 
+> _ADR equals to Zero
+>
+Ack, will change.
 
-syzbot found the following issue on:
+> > gpio_chip will use the child with _ADR One. For DeviceTree, the
+> 
+> _ADR equals to One
+> 
 
-HEAD commit:    3f24e4edcd1b Add linux-next specific files for 20260128
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=12f4b694580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=750532df2c47a03
-dashboard link: https://syzkaller.appspot.com/bug?extid=13f8286fa2de04a7cd48
-compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1188e9b2580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1526fd8a580000
+Ack, will change.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/ce84e32318c2/disk-3f24e4ed.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/7eafc98224fb/vmlinux-3f24e4ed.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/b186eb6f05d2/bzImage-3f24e4ed.xz
+> > i2c_adapter will use the child with name "i2c", but the gpio_chip
+> > will share a firmware node with the CP2112.
+> 
+> ...
+> 
+> Also it's interesting choice of capital letters in the Subject.
+> 
+> I would expect "...: Add fwnode support"
+> 
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
+Ack, will change.
 
-usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-usb 1-1: config 0 descriptor??
-asus 0003:0B05:19B6.0001: hidraw0: USB HID v0.00 Device [HID 0b05:19b6] on usb-dummy_hcd.0-1/input0
-usb 1-1: USB disconnect, device number 2
-------------[ cut here ]------------
-!work->func
-WARNING: kernel/workqueue.c:4292 at __flush_work+0xb43/0xc50 kernel/workqueue.c:4292, CPU#1: kworker/1:1/29
-Modules linked in:
-CPU: 1 UID: 0 PID: 29 Comm: kworker/1:1 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/24/2026
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:__flush_work+0xb43/0xc50 kernel/workqueue.c:4292
-Code: 75 54 48 8d 65 d8 5b 41 5c 41 5d 41 5e 41 5f 5d c3 cc cc cc cc cc e8 5c 87 37 00 90 0f 0b 90 e9 7c ff ff ff e8 4e 87 37 00 90 <0f> 0b 90 31 c0 48 bb f8 f8 f8 f8 f8 f8 f8 f8 e9 64 ff ff ff e8 34
-RSP: 0018:ffffc90000a47080 EFLAGS: 00010293
-RAX: ffffffff818da1c2 RBX: 1ffff1100b3dc19c RCX: ffff88801e2f8000
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888059ee0cc8
-RBP: ffffc90000a47238 R08: ffffffff90324cb7 R09: 1ffffffff2064996
-R10: dffffc0000000000 R11: fffffbfff2064997 R12: dffffc0000000000
-R13: ffff888059ee0ce0 R14: 1ffff92000148e18 R15: ffff888059ee0cc8
-FS:  0000000000000000(0000) GS:ffff88812515a000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffe2dd70d64 CR3: 0000000077d5a000 CR4: 00000000003526f0
-Call Trace:
- <TASK>
- __cancel_work_sync+0xbe/0x110 kernel/workqueue.c:4451
- asus_remove+0x143/0x180 drivers/hid/hid-asus.c:1347
- hid_device_remove+0x228/0x370 drivers/hid/hid-core.c:-1
- device_remove drivers/base/dd.c:571 [inline]
- __device_release_driver drivers/base/dd.c:1284 [inline]
- device_release_driver_internal+0x46f/0x860 drivers/base/dd.c:1307
- bus_remove_device+0x34d/0x440 drivers/base/bus.c:616
- device_del+0x527/0x8f0 drivers/base/core.c:3878
- hid_remove_device drivers/hid/hid-core.c:3008 [inline]
- hid_destroy_device+0x6b/0x1b0 drivers/hid/hid-core.c:3030
- usbhid_disconnect+0x9f/0xc0 drivers/hid/usbhid/hid-core.c:1477
- usb_unbind_interface+0x26e/0x910 drivers/usb/core/driver.c:458
- device_remove drivers/base/dd.c:573 [inline]
- __device_release_driver drivers/base/dd.c:1284 [inline]
- device_release_driver_internal+0x4d9/0x860 drivers/base/dd.c:1307
- bus_remove_device+0x34d/0x440 drivers/base/bus.c:616
- device_del+0x527/0x8f0 drivers/base/core.c:3878
- usb_disable_device+0x3d4/0x8d0 drivers/usb/core/message.c:1418
- usb_disconnect+0x32f/0x990 drivers/usb/core/hub.c:2345
- hub_port_connect drivers/usb/core/hub.c:5407 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5707 [inline]
- port_event drivers/usb/core/hub.c:5871 [inline]
- hub_event+0x1cc9/0x4f30 drivers/usb/core/hub.c:5953
- process_one_work+0x949/0x15a0 kernel/workqueue.c:3279
- process_scheduled_works kernel/workqueue.c:3362 [inline]
- worker_thread+0xb46/0x1140 kernel/workqueue.c:3443
- kthread+0x388/0x470 kernel/kthread.c:467
- ret_from_fork+0x51b/0xa40 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
+> ...
+> 
+> > +/**
+> > + * enum cp2112_child_acpi_cell_addrs - Child ACPI addresses for CP2112 sub-functions
+> > + * @CP2112_I2C_ADR: Address for I2C node
+> > + * @CP2112_GPIO_ADR: Address for GPIO node
+> 
+> Probably you want to mention in the description of the enum (here) that
+> the assigned values are explicit since this is basically a protocol between
+> FW and OS. That's why we may not change this values without breaking
+> older firmware descriptions.
+> 
+> > + */
+> > +enum cp2112_child_acpi_cell_addrs {
+> > +	CP2112_I2C_ADR = 0,
+> > +	CP2112_GPIO_ADR = 1,
+> > +};
+> 
+> ...
+> 
+> > +	if (is_acpi_device_node(dev_fwnode(&hdev->dev))) {
+> 
+> I'm wondering if we can avoid this (additional) check and use the result of one
+> of the branches.
+>
+
+Meaning something like using the result of acpi_get_local_address() to
+determine whether the node is ACPI vs. not? That is what it used to do,
+before I needed to switch to different schemas for DT vs. ACPI. Now, it
+doesn't really make sense to use the child node types to determine
+whether the GPIO node is shared, but still possible if we store a bool
+result from the *_for_each_child_node() loop, but needs more complex
+logic to store that based on each child's type (and the loop is fully
+unnecessary for the non-ACPI case anyways).
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Following the discussion on the DT binding thread, do you still want
+ACPI to follow this different schema with the separate GPIO child node,
+or would you prefer to unify them?
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> > +		device_for_each_child_node(&hdev->dev, child) {
+> 
+> If we are still use the above check it will be dev_fwnode() duplication call,
+> so perhaps a temporary variable to collect the device's fwnode and use it
+> there, below (see below), and here as for
+> 
+> 		fwnode_for_each_child_node()
+>
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Makes sense, will update. I initially assumed we wanted to use the
+"device_*" API wherever possible.
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+> > +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
+> > +			if (ret)
+> > +				continue;
+> > +
+> > +			switch (addr) {
+> > +			case CP2112_I2C_ADR:
+> > +				device_set_node(&dev->adap.dev, child);
+> > +				break;
+> > +			case CP2112_GPIO_ADR:
+> > +				dev->gc.fwnode = child;
+> > +				break;
+> > +			}
+> > +		}
+> > +	} else {
+> 
+> I would still check if this is a proper (OF) node, in case we stick with the
+> ACPI check above. Because we might have swnode and if it triggers, it will be
+> really something unexpected.
+>
+> 	} else if (is_of_node(fwnode)) {
+>
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+Wouldn't it be valid to use software nodes to describe the
+CP2112's functions? Is there any reason to intentionally prevent that?
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+>
+> > +		child = device_get_named_child_node(&hdev->dev, "i2c");
+> > +		device_set_node(&dev->adap.dev, child);
+> > +		fwnode_handle_put(child);
+> > +	}
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+> 
+>
 
-If you want to undo deduplication, reply with:
-#syz undup
+Thanks,
+
+Danny Kaehn
+

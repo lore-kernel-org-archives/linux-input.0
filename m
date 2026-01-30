@@ -1,108 +1,99 @@
-Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB5AA2F6562
-	for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 20:40:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769719238; cv=pass; b=HS8MOA4EbclisAP4YzuqBTyd0ZFVqnfF8mcxTh82cOsBzWiHXAT9IinjyvUhsUZXrV6mI3BBoqfr84SPpY8FiHFz9yKPUczVecpGGbF2QboAPve500K0dfFUOJGAFUYdvWY9vfxp6CwZI7WV0NS5LzPqBV08JoWuOqINPfe4Afg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769719238; c=relaxed/simple;
-	bh=AFBAF5ZRO/Rz73vhBj5Gh1wf30cKosT8X+to77/aiis=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NMYrntzXU7Zg9H6Y2WPcKRZeyKOM4fvMOhgkqfQnrfftcz9AaCi8UrPlmqEEAj6IqBahb6/d1rFiLGoQZyQExNWMl8MtMSZCYXIbU2sXNMgqvpzmvatGMu4iYxjSteeu+1kavdre64i7w2WeP3lznZbd+IYrsVMQaGT/Ua5mNYY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CcnTwjLD; arc=pass smtp.client-ip=209.85.161.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6042A2620E5;
+	Fri, 30 Jan 2026 05:26:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769750763; cv=none; b=b+/mBmf9UpjfaAGTTnCwH9y2SxE7S+12VYsOJHzrskH9fpCz3//5fQG7e7SFJr5d2eqc9Ff5tpq6JDnr5RYapZc/z9zgeZw/TZmadVxOnfmu/TgK0EMHZxaqRyTopTKdGYijuSTXCaGTZVmS1i+fNV4pGZ/bxjwcJPdAp/vlLTo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769750763; c=relaxed/simple;
+	bh=yQtrIZYMGBOPGh7ijILbyFvEjfTD1GYQwagRe1+arKg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=JjEcGOsFnsmmwQddVAsVo8w0NOy+j8QiyNEonhLuob/BMQGJzPOHLJX+cGroPG7ltFEYzIgPc+DXfT5V+DZ31YKCTLq7MGt2xPta0mzizoHwOBsu+naemFdgRKOZTyuyGzPKv1e5zPm3ld/mwigEvxvzc6enzgaUp8thWjzSVyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=khzVCdJH; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CcnTwjLD"
-Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-6611cab8ca3so822998eaf.3
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 12:40:36 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769719236; cv=none;
-        d=google.com; s=arc-20240605;
-        b=CbFHpxqGfHlbeTmrAV95S5qqHcNlupMdIMt5cTAEDO6r4BmzecGo5AgwxqmbVUIIoT
-         2Kr1vwe2ZV2lckp1pn6FhgVZOGlvDyZdX6lKSqiZyN2y88TkbEgc9pivN5KAnpqohKUM
-         9EUFd1VPQ7fJK9GBodKUGFiLoePBy6whIrt3La2v6Tn3oRP1uRjM3gP0Npy2gzAqRPI7
-         V9+wGJ6IlToIdesYuf0K+iXIrV3Eyd1CPJTzveeOkRfgJw+sMwzW/nuvvfNJelTRqCr6
-         u8pNTq/Pv5UJjyn+LkU0H7VJqDtPcxdmlgsut97c7ThkptlwJwN1jWlmbXbpgfAGobbM
-         zyXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=AFBAF5ZRO/Rz73vhBj5Gh1wf30cKosT8X+to77/aiis=;
-        fh=t1iCRrcvDhSO9vg/iZZLQ7sVT4Ksm84RrOzCuleveuk=;
-        b=XcCtwY6UyTVbQNp4qOkW9gGsfwqoZgZlBNUXtSPe4SjpXJUNPCbGeafE6w1uJR0O+F
-         2H2872IXbtN/c3CmAMqFvTiQVGsvpBT14Ve/hlxu9r+i2UBlUUwZFtqDlZnLZ2yYYNx8
-         LcDT4gzBJqDzZDUS3SXBznHoL0GIG8iRs7wzMeK16rGw7jSsgbG+QC5Zt90jMQ9aa6Xh
-         PAbDRc1S00pw22vRXpdA32coLls/U0arqSn8j1Ix9Eg9oFOyfyxUdK4II5Zxie6k0Rjm
-         y1QdeSpxa7+bU9R1Fxme7pINROAlWuoYIIsZv6/s1LKjVxA9g6zqIAiayveDjzBakFlk
-         UKiA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769719236; x=1770324036; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AFBAF5ZRO/Rz73vhBj5Gh1wf30cKosT8X+to77/aiis=;
-        b=CcnTwjLDzhc97SJIrUPVL2X6uTltR6v5++D+4QA+z+AaMaFr73GftMTgmXRe0NXhe2
-         WrG/an8JSk/VsM/DO6zMBk1qWBUm+F2WD4rBz2ZmRpo3c/aHiX/6Po57d0GpQP10E+fM
-         HhOw1xT62Abot4WKKawEJq7Gj8Z8WHwQ9Tyl6vuPJbqHN+kWfPY0Zt+C0Jz7Cl9LHPaB
-         T2Rp+9Yy0kggZoxSajthugOO07yAe0qmoxKq/+lETGcbyM33f3DEP2NE8223Ng9yiHkP
-         XoMsrGjE7KnRp8LHXZasgQ6UlUdE4hiN9846G6KiCP8I0VgnN2DrZ8Dpilmipio0cPmJ
-         ZQ9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769719236; x=1770324036;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=AFBAF5ZRO/Rz73vhBj5Gh1wf30cKosT8X+to77/aiis=;
-        b=WOtzU0qc6qpmC/p5KRnb1Zf/d7m02PtfkCTwd2Eh6flL1p6RLOX5FSayim7Pb166Y8
-         OW0Sw4X1Ap38w9T7+KA4BHqXBDk50c/BJ+2qA67f4DAm9a8G4mKlB0LoRp6/E5d+lJCg
-         ACOfJc88nD66QBib0M4If6P23hljJayjrZeoUQZH6+aY4uPevFOzI26iSC67a5jVh/R+
-         DZliPatJ5MWPuyaMx5gL6w/cY7/4TRQTJtE2nVb5KPlisWiVBb/3RkbYkFgmY+UmVYsC
-         7uzhNIsPgnCt/eShhIfx3s/K4RcS05LVupdK9xWvr+JFVj14mMh126R8qI/XvxBj1CfY
-         nHqA==
-X-Gm-Message-State: AOJu0YznOCncPNoYUnXffsppsPPFiS5cpQYgldXfbtOpX9G/b0tfggxV
-	JYJKcFKK3DFAuY8xDAj0tuINU7Y+3HLnNFcSkL1tCOrAf5RN75G8Wbm5xbHEt99/WnhGZwRoZoL
-	g/elzzfwGGCHyPm9/GOMDdmCrhqofrQ==
-X-Gm-Gg: AZuq6aKmGaZmrkBUTGLULcaH12NGk7fztRvVG5VxiFqHrOPzcbcxw27wkSVWHHMBpzb
-	+EBHTEtTEuAhDYZMgd7o4VN/Ozo91ql42vbc2P/683mwm4q45FXg/nrZKLDNU8qYgSUmZLUbcF/
-	SDbRs73pDzsq/O5OdMuGRg4pXIl9xjAOvW/64qOz8MviJ7u1iFXU02Iy9ebrYqiQihItjcff/Ve
-	aold+IEfDf/Ys7lDHvQ0j2rVvH7cF/vgRcFNqWLnoZgLlZbxrJo1zV/y8l/K4oCHO9pVAmTmdlb
-	vWdEpIc=
-X-Received: by 2002:a05:6820:3088:b0:662:e066:7396 with SMTP id
- 006d021491bc7-6630f3cb958mr416693eaf.77.1769719235641; Thu, 29 Jan 2026
- 12:40:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="khzVCdJH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769750762; x=1801286762;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=yQtrIZYMGBOPGh7ijILbyFvEjfTD1GYQwagRe1+arKg=;
+  b=khzVCdJH32SWvGZBckmDx6YP4LIdqv3Lo1PhpYKcpKGNR2SdmCNdX9d5
+   hq7Yz3A7Y94qJBtpPr0DAtFDv7RaKZ46n2hEA5Yzqzl8z9vf+cG4Ju+Po
+   iWJ2szhMjJew5NmHzphnLEXzcelYrVcJCP7EHXeB5ClemOS++OYtKKJCW
+   tgnLWVwVW2jEIBIftsW8Mf8d7sPSM3tOYQuzwvRG+Dc+7jiPYcUjkUR1l
+   QPMfTGv/kZJ4ivRlG1YgEavhuCPNX7QGRHs4uVuR1HdE3zrawlpxjplHa
+   7c68mcU/GnDkNLGwdHv5lZEDguJzPg1D4Xj4XYejZS2rYyoAoecG47eKx
+   Q==;
+X-CSE-ConnectionGUID: InAJN7/fTXyrTZ1CvcVvjw==
+X-CSE-MsgGUID: CwZlQsJQQ92QhBL+EjQ2uw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11686"; a="70977454"
+X-IronPort-AV: E=Sophos;i="6.21,262,1763452800"; 
+   d="scan'208";a="70977454"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 21:26:01 -0800
+X-CSE-ConnectionGUID: LsRhM8w+QTWksDvbxbZ68g==
+X-CSE-MsgGUID: NKClVpYnRUSEA2pql2K0EQ==
+X-ExtLoop1: 1
+Received: from linryan-mobl2.gar.corp.intel.com (HELO linryan-mobl2.intel.com) ([10.246.105.132])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 21:25:57 -0800
+From: Ryan Lin <ryan.lin@intel.com>
+To: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-drivers-review@eclists.intel.com,
+	srinivas.pandruvada@linux.intel.com,
+	lixu.zhang@intel.com
+Cc: Ryan Lin <ryan.lin@intel.com>
+Subject: [PATCH] HID: intel-ish-hid: fix NULL-ptr-deref in ishtp_bus_remove_all_clients
+Date: Fri, 30 Jan 2026 13:25:44 +0800
+Message-Id: <20260130052544.4784-1-ryan.lin@intel.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251007203544.9963-1-kupper.benedek@gmail.com> <076s5qon-0o97-r3o4-10n0-s415q569sp40@xreary.bet>
-In-Reply-To: <076s5qon-0o97-r3o4-10n0-s415q569sp40@xreary.bet>
-From: Benedek Kupper <kupper.benedek@gmail.com>
-Date: Thu, 29 Jan 2026 21:40:22 +0100
-X-Gm-Features: AZwV_QjxEbOuE9lvVxyrnR5JxfE1Asl9eQTUEVi5Ib_3XwzoZd68fteLvpv_q2c
-Message-ID: <CA+T7n9n43sne5L6N--zm5yhMxsmdpYCZT4tVxgHEtGYxRpPTWA@mail.gmail.com>
-Subject: Re: [PATCH] drivers: hid: renegotiate resolution multipliers with
- device after reset
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	bentiss@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi,
+During a warm reset flow, the cl->device pointer may be NULL if the
+reset occurs while clients are still being enumerated. Accessing
+cl->device->reference_count without a NULL check leads to a kernel panic.
 
-I=E2=80=99m just checking in about this patch, if everything is on track fo=
-r it
-to be sent upstream. I see it is on "for-6.18/upstream-fixes" branch,
-but no further activity in the last 2 months. There is an Ubuntu bug report
-that can be updated once the patch reaches a released kernel:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2131607
-If there's anything need on my side or from our user base, let us know.
+This issue was identified during multi-unit warm reboot stress clycles.
+Add a defensive NULL check for cl->device to ensure stability under
+such intensive testing conditions.
 
-Thanks,
-Benedek
+KASAN: null-ptr-deref in range [0000000000000000-0000000000000007]
+Workqueue: ish_fw_update_wq fw_reset_work_fn
+
+Call Trace:
+ ishtp_bus_remove_all_clients+0xbe/0x130 [intel_ishtp]
+ ishtp_reset_handler+0x85/0x1a0 [intel_ishtp]
+ fw_reset_work_fn+0x8a/0xc0 [intel_ish_ipc]
+
+Fixes: 3703f53b99e4a ("HID: intel_ish-hid: ISH Transport layer")
+Signed-off-by: Ryan Lin <ryan.lin@intel.com>
+---
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index c3915f3a060e..b890fbf97a75 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -730,7 +730,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
+ 	spin_lock_irqsave(&ishtp_dev->cl_list_lock, flags);
+ 	list_for_each_entry(cl, &ishtp_dev->cl_list, link) {
+ 		cl->state = ISHTP_CL_DISCONNECTED;
+-		if (warm_reset && cl->device->reference_count)
++		if (warm_reset && cl->device && cl->device->reference_count)
+ 			continue;
+ 
+ 		/*
+-- 
+2.34.1
+

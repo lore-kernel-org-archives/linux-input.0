@@ -1,102 +1,357 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43B5C2EC557
-	for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 06:24:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46D111B4138;
+	Fri, 30 Jan 2026 06:29:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769754269; cv=none; b=EX6U27oCe5hgUqKCNm72cgWsvfwlMzxEJXk3Q2L1nqoanQVYnklsWhJzlop3IM/7XxMjMsS9788jnA5seoeZvXLhHfUamQhGWrHsIdfKEYHJtW+g76FLP7XsgmVmAXPnuthsB+MQdw0G5do4+4a8v7H7Q5+LGQteeS8FuChNhLo=
+	t=1769754599; cv=none; b=B9yMjqBcEjdEkW5k3s3RqXX0sgEIWdHUiSayPCIoUkyOIPSJH/YzC0blQlmdRjlLfzeReEVbSeOHxO9vaW8WK2hyKw3CcaqBTwlrTv5LILDiRKOrQcAeP0E8Tb1Sdrx4tUYDrgc+qV6+geDvKGNEs2tTrek/EO5GQVdqB33JJ84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769754269; c=relaxed/simple;
-	bh=JZq+RWSitCfzgZ2CiHKnrG856Oec619NyOwWzCipbs4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iOz/Ktwqjni+bE/gfl3eDQYev4naBMG1l+xEdQN5lA9OgQR8ABK6pfnYVM5aSBBgsHiHmzndmKtapwZyEFp5Mz/cx9fh7sDvkTe/piQDC6dzX5azBxEI0yXiDgCkJ78pcrWV37q3X5UlreeFrp7vlMYmGWF4xXHxKCUP9sGZkdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hjCNgcoi; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769754599; c=relaxed/simple;
+	bh=iplD68nO76W37y0UGxB7IbOVXQGfVOCgcft+XAfh4KY=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=ipf60qAY8rZCvaFi6IG/vlYVWMfe5Kpy3aTLFI3DfDRJoffP/8MzRMHVw+cswlO7f0D7rV8gzgvjpRonqN6WQ12DddJPGmKIqdOEvHGfmX3Loucyejqym/EZfkyo5Cz3x56cr51ApJpSK35UiEDD2at3qh9PbGfgZDtgvhgAFtE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=rJxQK3fN; arc=none smtp.client-ip=35.82.102.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hjCNgcoi"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a1022dda33so11001475ad.2
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 22:24:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769754267; x=1770359067; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZzOSDsADlZZalIjYI/NFZliyZ4zh625PTCb6VAu9b7I=;
-        b=hjCNgcoiJ4j3Rtq/51yJ+mq8nZPgklCdyX7zQWfvhpdJLdVMhhD2QwprjpcHI6xX1D
-         HoakEmjr0o7nLQhzJPo1kE6UGGyig/C/lKPYhexgzQokEa/CO+4aiTpE0Jh5tjgtz+nR
-         Ol6QGJn/9ttmx45iLUpd12Lsr0h7Vh9RC54ZFpQf739Dwtj+iHVKC82xsbgOhefkdSAw
-         WLicoDrSD8MB/8sn9XiujK3J77RrB0mwXkhrg6kRpiunevgDrhZyg3JkBj3KEw3pTJvX
-         HE384U5YCmD21zywTYBUdqvpImLQGcBKTZs7JbL72dVMCpQIza7rWuVchHC0mu+LW+6M
-         twFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769754267; x=1770359067;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZzOSDsADlZZalIjYI/NFZliyZ4zh625PTCb6VAu9b7I=;
-        b=qEy4ph/t6VuDVaLb8cRC0gY6GNe4k9L+/MkFrDrmNcrclpxAoQKkOi3fqJd711EXPf
-         O4TlVd8sIxj+wLVJhHOeOW8CVw3hRx2tQTnIHUMF0HeTEu+WIXYqpIy+2XMjmwurGn0w
-         neuJ/aGxgm1g2g8hWu5pha9y+xGu6mNuqxhPYa2ZYVF1V+OsRONGe2GpVvQgNWdIl/6Z
-         UvIl5IK0K1b+cEm3d69u3gYcGHO+D4CzuScSzyYbx4xf2V/l3Bz313mu4yJLCs4a5J4J
-         1Hx8nXrmdzwdAjlxLrZ1zvKKHm0z7BesgwHY0LLzrUa6oSSHqxyEN0tuOx92FuWizCCX
-         f2CA==
-X-Forwarded-Encrypted: i=1; AJvYcCWbXENC1VMkIK/8h34wuX+k9Yirlcm/PuEIft08Q8gIj0cwivspi7Pm4I/NFKKvyoIPcPjPZR5Bk9KqEg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBZHuSg98QtxVMaDm3JFE7jTUkAawmI+UL5Hubv00kVYF7PolQ
-	Kq3k5Qx4mqZYsk4u/svENHUH08qmXrPPWAXnreQ+fhWgDjO2xbCoKe0+
-X-Gm-Gg: AZuq6aJY36qdrOXzchJ84N8lBfsio7Ca9h1pGBb2GXQEtDjr72K7td0YeFPNOls8QGt
-	Ozm4tzA48BVzjMbDTzcntPHTQZeWCBhf+MEq/nMSw/+8xPjInTasSeBG0loSVYtvzH1UahQe3pA
-	BWw5Q4i2OeC6E2EpVC+2y1Ag6nJ7jGFJ/tGwb3IRhAncRTPmVA+N7IMKR+G66qGJ+DVWqIwjDSR
-	z3eTCxIbCn4KWrLR83+hjA/zmn3jaDJkgPRQEfUaXnprJ0wi0rdUWuQoPn4eaF/IDKQVr+e7XLY
-	D7+IVT8c0CEkPmUuqoZwtORN987+JfKeRYXO7DSu6iFcoM+GIvWSKhXQxH/GMMBl7czkEgZpMPj
-	u6BwGjmGKhYTdDh7Q5c9LukYAM9e3thgqD25ywvutKfGg+Tmgc/Ih2lMwZ9Gqphs3zQIvCfzY+g
-	+KEWuvMP0FihY8A81Fe8YbBydyv/I=
-X-Received: by 2002:a17:903:15c7:b0:2a0:b461:c883 with SMTP id d9443c01a7336-2a8d993031bmr18059985ad.45.1769754267392;
-        Thu, 29 Jan 2026 22:24:27 -0800 (PST)
-Received: from chandna.localdomain ([106.222.232.101])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b7f32bfsm69740915ad.96.2026.01.29.22.24.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jan 2026 22:24:26 -0800 (PST)
-Date: Fri, 30 Jan 2026 11:54:05 +0530
-From: Sahil Chandna <chandna.sahil@gmail.com>
-To: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>
-Cc: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot] [input?] [usb?] WARNING in asus_remove
-Message-ID: <aXxOhV79TnuYaw0-@chandna.localdomain>
-References: <697baa8f.a70a0220.9914.001f.GAE@google.com>
+	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="rJxQK3fN"
+Received: from altimeter-info (unknown [45.55.225.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: linux-kernel@altimeter.info)
+	by hognose1.porkbun.com (Postfix) with ESMTPSA id E74E64630C2;
+	Fri, 30 Jan 2026 06:20:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
+	s=default; t=1769754025;
+	bh=AanEfuE4yilKoq6qwsprEzZJdiZE9Yi0U4ySJUWUiHU=;
+	h=Date:From:To:Cc:Subject;
+	b=rJxQK3fNoMJwsJe1AEhQjp2dYUHHhZchmmU4foNXi04jo5sAdaD8BCdwrn1IsTpH0
+	 DUhMG2MAbkSMl3mqIlrcfiWcrU7StQ0KjyCmWpb2HeAf3TQB1iXcC0gxF1YVQJnxrM
+	 BSv5KujK6kr7/HAoWogkj7ByMnqhdDWtN8kgi5vo=
+Date: Fri, 30 Jan 2026 06:20:23 +0000
+From: Ivan Gorinov <linux-kernel@altimeter.info>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: winwing: Enable rumble effects
+Message-ID: <20260130062023.GA24089@altimeter-info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <697baa8f.a70a0220.9914.001f.GAE@google.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.24 (2015-08-30)
 
-#syz test
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -960,8 +960,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
-  	}
-  
-  	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
--		drvdata->fn_lock = true;
-  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
-+		drvdata->fn_lock = true;
-  		asus_kbd_set_fn_lock(hdev, true);
-  	}
-  
-@@ -1343,7 +1343,7 @@ static void asus_remove(struct hid_device *hdev)
-  		cancel_work_sync(&drvdata->kbd_backlight->work);
-  	}
-  
--	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-+	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
-  		cancel_work_sync(&drvdata->fn_lock_sync_work);
-  
-  	hid_hw_stop(hdev);
+Enable rumble motor control on TGRIP-15E and TGRIP-15EX throttle grips
+by sending haptic feedback commands (EV_FF events) to the input device.
+
+Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
+---
+ drivers/hid/hid-winwing.c | 193 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 179 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index ab65dc12d1e0..031590ffd383 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ #define MAX_REPORT 16
+ 
+@@ -35,10 +36,14 @@ static const struct winwing_led_info led_info[3] = {
+ 
+ struct winwing_drv_data {
+ 	struct hid_device *hdev;
+-	__u8 *report_buf;
+-	struct mutex lock;
+-	int map_more_buttons;
+-	unsigned int num_leds;
++	struct mutex lights_lock;
++	__u8 *report_lights;
++	__u8 *report_rumble;
++	struct work_struct rumble_work;
++	struct ff_rumble_effect rumble;
++	int rumble_left;
++	int rumble_right;
++	int has_grip15;
+ 	struct winwing_led leds[];
+ };
+ 
+@@ -47,10 +52,10 @@ static int winwing_led_write(struct led_classdev *cdev,
+ {
+ 	struct winwing_led *led = (struct winwing_led *) cdev;
+ 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
+-	__u8 *buf = data->report_buf;
++	__u8 *buf = data->report_lights;
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	mutex_lock(&data->lights_lock);
+ 
+ 	buf[0] = 0x02;
+ 	buf[1] = 0x60;
+@@ -69,7 +74,7 @@ static int winwing_led_write(struct led_classdev *cdev,
+ 
+ 	ret = hid_hw_output_report(led->hdev, buf, 14);
+ 
+-	mutex_unlock(&data->lock);
++	mutex_unlock(&data->lights_lock);
+ 
+ 	return ret;
+ }
+@@ -87,9 +92,9 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	if (!data)
+ 		return -EINVAL;
+ 
+-	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->report_lights = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
+ 
+-	if (!data->report_buf)
++	if (!data->report_lights)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < 3; i += 1) {
+@@ -117,7 +122,7 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	return ret;
+ }
+ 
+-static int winwing_map_button(int button, int map_more_buttons)
++static int winwing_map_button(int button, int has_grip15)
+ {
+ 	if (button < 1)
+ 		return KEY_RESERVED;
+@@ -141,7 +146,7 @@ static int winwing_map_button(int button, int map_more_buttons)
+ 		return (button - 65) + BTN_TRIGGER_HAPPY17;
+ 	}
+ 
+-	if (!map_more_buttons) {
++	if (!has_grip15) {
+ 		/*
+ 		 * Not mapping numbers [33 .. 64] which
+ 		 * are not assigned to any real buttons
+@@ -194,13 +199,150 @@ static int winwing_input_mapping(struct hid_device *hdev,
+ 	/* Button numbers start with 1 */
+ 	button = usage->hid & HID_USAGE;
+ 
+-	code = winwing_map_button(button, data->map_more_buttons);
++	code = winwing_map_button(button, data->has_grip15);
+ 
+ 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 
+ 	return 1;
+ }
+ 
++/*
++ * If x ≤ 0, return 0;
++ * if x is in [1 .. 65535], return a value in [1 .. 255]
++ */
++static inline int convert_magnitude(int x)
++{
++	if (x < 1)
++		return 0;
++
++	return ((x * 255) >> 16) + 1;
++}
++
++static int winwing_haptic_rumble(struct winwing_drv_data *data)
++{
++	__u8 *buf;
++	__u8 m;
++
++	if (!data)
++		return -EINVAL;
++
++	buf = data->report_rumble;
++
++	if (!buf)
++		return -EINVAL;
++
++	if (!data->hdev) {
++		hid_err(data->hdev, "data->hdev == NULL\n");
++		return -EINVAL;
++	}
++
++	if (!data->hdev->ll_driver) {
++		hid_err(data->hdev, "data->hdev->ll_driver == NULL\n");
++		return -EINVAL;
++	}
++
++	m = convert_magnitude(data->rumble.strong_magnitude);
++	if (m != data->rumble_left) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x01;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_left = m;
++	}
++
++	m = convert_magnitude(data->rumble.weak_magnitude);
++	if (m != data->rumble_right) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x03;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_right = m;
++	}
++
++	return 0;
++}
++
++
++static void winwing_haptic_rumble_cb(struct work_struct *work)
++{
++	struct winwing_drv_data *data;
++
++	data = container_of(work, struct winwing_drv_data, rumble_work);
++
++	if (data)
++		winwing_haptic_rumble(data);
++}
++
++static int winwing_play_effect(struct input_dev *dev, void *context,
++		struct ff_effect *effect)
++{
++	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	if (!data)
++		return -EINVAL;
++
++	data->rumble = effect->u.rumble;
++
++	return schedule_work(&data->rumble_work);
++}
++
++static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->rumble_left = -1;
++	data->rumble_right = -1;
++
++	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
++
++	if (!data)
++		return -EINVAL;
++
++	return input_ff_create_memless(hidinput->input, data,
++			winwing_play_effect);
++}
++
+ static int winwing_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -219,10 +361,12 @@ static int winwing_probe(struct hid_device *hdev,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->map_more_buttons = id->driver_data;
+-
++	data->hdev = hdev;
++	data->has_grip15 = id->driver_data;
+ 	hid_set_drvdata(hdev, data);
+ 
++	INIT_WORK(&data->rumble_work, winwing_haptic_rumble_cb);
++
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -232,19 +376,39 @@ static int winwing_probe(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static void winwing_remove(struct hid_device *hdev)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
++	if (data)
++		cancel_work_sync(&data->rumble_work);
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
+ static int winwing_input_configured(struct hid_device *hdev,
+ 		struct hid_input *hidinput)
+ {
++	struct winwing_drv_data *data;
+ 	int ret;
+ 
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
+ 	ret = winwing_init_led(hdev, hidinput->input);
+ 
+ 	if (ret)
+ 		hid_err(hdev, "led init failed\n");
+ 
++	if (data->has_grip15)
++		winwing_init_ff(hdev, hidinput);
++
+ 	return ret;
+ }
+ 
++/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
+ static const struct hid_device_id winwing_devices[] = {
+ 	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
+ 	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
+@@ -261,6 +425,7 @@ static struct hid_driver winwing_driver = {
+ 	.input_configured = winwing_input_configured,
+ 	.input_mapping = winwing_input_mapping,
+ 	.probe = winwing_probe,
++	.remove = winwing_remove,
+ };
+ module_hid_driver(winwing_driver);
+ 
 -- 
+2.43.0
 

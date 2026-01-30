@@ -1,119 +1,150 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402F833A9D3
-	for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 15:52:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ED50346AC8
+	for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 22:09:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769788337; cv=none; b=r9AtOE5JAATl5LHlwU0Zp1SabgVkZGkh55iWZ0R7eEbPUpmlUbSkTSj/uxYm3y1dovtJmYm4Hiwq8bGKOMMyyd16rdN8j+zzBejzcWhIJIpAos+/kgiDVgdZURqmQ4uyi8I1oiu/Nny0jwvO+UDD1Aj3Zp/qDJ0dXCRotLiUwWo=
+	t=1769810968; cv=none; b=lT2Zqo6tGFIWZNIunzp9l7h6eGP1uTyweZt//v6EnYA+YNFDKslupLUvO+5zRFImXXqbel4fTWdmp0V5AHx5Q1LtipOo1GE8J4mtEbm2gzPREaxFV8qFK1ihgL1bOh7pn/b5zB7GrSwoUR8+o0RFTe3Wxbi1L3F28ZJyuMRjvt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769788337; c=relaxed/simple;
-	bh=aOn0zKgktrR/dJ0qnkNJB5RH5iaBZO2j7mYYORTlGns=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nvs/xFpxRfKGG6XAUcpG34b+dPbv92jcJ1Ga1apuK9eBPOvFXP9RTi0fUfpUsTEnHVncjMG8O34pj1EH45BwjYoCv52uYVDRdb6GnSFIznTKkjrLRmtFal/dgF5ijehcQXwlvIUpL27aitQc7tAnoyjjNLApraVEF95UjuAYAwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fYa/H1cI; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769810968; c=relaxed/simple;
+	bh=8lpfQsDvF4mwzKhC0ITKFu8cLvYqD3dYOKf370vXa+w=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QB6H/W2L5+AdvYyUITeuJ4La2VqTSKieZRo5DB8ldxmz/eBJoKiOH8UM2iYACy8zmzWh+vbMx2/GjYexwBjuWsWCkpgH7tClblKKeEhgZOCufmgDlRlRUtK/4UxufWdwvHIrVHtLkhbdMQVNTXGZgHVrOgNKa0mSOHke2NNiDJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MEYWMU5k; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=hogBFFjo; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fYa/H1cI"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c551edc745eso1088171a12.2
-        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 07:52:16 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MEYWMU5k";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="hogBFFjo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769810965;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8lpfQsDvF4mwzKhC0ITKFu8cLvYqD3dYOKf370vXa+w=;
+	b=MEYWMU5k/+Tt376otjFLV/AXmCINBDEYmtqXYueJTEKNOaoSQuYw/NYzS5iuUzsNKBGLpB
+	R+wJcN5sIqKyBPw3OG3MuZtoHhJFoBj2ZYX5hvcdAdLXoHaIHkOWoBtbTHCqpokHxJ7lKI
+	pe5SliLgNCnTWIPsdR/SfHNjNbyasig=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-523-sg3SzNuVMgi5Z71QBIz5fw-1; Fri, 30 Jan 2026 17:09:24 -0500
+X-MC-Unique: sg3SzNuVMgi5Z71QBIz5fw-1
+X-Mimecast-MFC-AGG-ID: sg3SzNuVMgi5Z71QBIz5fw_1769810964
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-503810dba87so130214131cf.1
+        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 14:09:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769788336; x=1770393136; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=R0nr7kLygIkn4gygXUJpzcRLikAfYanLXoCp6q8pPKk=;
-        b=fYa/H1cIK9kKTa2rdwRO6HuDIx1ONPbqWjJKWhbyt/qaSttRCKjZ+XqXmmwU6OQMjd
-         vsxolgmP2mkzVX8t0OUD+Qtc81UAKVhwOEieK/JW+19LnD2lXMuvmaIX6p42EiCVG+ok
-         TDOCzR5NsH0Ww4Z98OVfDlQq4OqUXpEcXT8rmAevyBge/yPsNWkpX8VjjXJeqIFPSGiM
-         cEHMeNaWa5pnXuYDmiJLbLsVth7rsyEXOKXLCfshoX8sJdSku3FzPwIGJzrDZSFn2iDV
-         10G00vXeB1dXEDUfSXp3U4IbQ/kH4AXz3qnmIHIoK6H4XeTNI4HaANMkrQNw3s7TJC+7
-         HVHw==
+        d=redhat.com; s=google; t=1769810964; x=1770415764; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=8lpfQsDvF4mwzKhC0ITKFu8cLvYqD3dYOKf370vXa+w=;
+        b=hogBFFjonTOJIHX61sqYVy/qHeK2pK75n0dKjgq1hkYekrrLg/m4mm38ByzmXUqjb7
+         o6GtfHcjtxk29j74NGQx3XagZ8EnjxiClGle+zMiId7iJd+v+R2yM27cQIWPZr2KsVDz
+         AFB8e42czmB/mNtSSWXTFnjhJ7V8QW0PBP5tnjjz8YKSqBZEQHRcsW4XQmeS/2jOqplS
+         aJhqVOkqow0G9e1843SB24YieFr72aRrOiHFbO51NNqDl3VpFOKF+y4/TC8lRwFlIpep
+         jbXfZq4UCdqLeELT9XDB9kBQ1cmFo2Qg3m9LzYI01seT48cF/lXUNcuAsZW0SYTJXcd2
+         MDgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769788336; x=1770393136;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R0nr7kLygIkn4gygXUJpzcRLikAfYanLXoCp6q8pPKk=;
-        b=ObaJibp/CjoNsgiDuz9sHFHUSdq3RPKUYvYrl6PrPO8I8TjyNdgLao44YVg2C3H/Hv
-         hXj0F0aoItEA0tBbZ6T3YOaHzpVvH9W2jqEUlkyq1OcqiWIg/6rY3r9QuhjS+duUGVmm
-         LEFrTsCcZUTrRRGbfcyem4hWiaws4sB4eYEGIZv3w07Gjb9g/kwYyA5ETzkL0vQ+GbHX
-         eX1dHjsDjzbOZzya/LyOlGb/08EFviQkxroXgruzktU50hh/7C8mgHO3aMc3mrEvE8WT
-         UcPugnHZloWLK+NAD5BDTiynjAjT10IGCt5mrjHOM8ll2pklAC+5tdRm5RbCl87FhDWc
-         zBQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXnKBrNSZWjOGeUj1NTJpIuOy92+k5R19WoCpZ8+6muoqjQT0J85LoIu5UkB59auOrfXIhUNuVsp+h/dA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyKut8HQd7A7edTL1RKPEnOpIjOtgVOXSB54tHcowedrFM/r6/l
-	H4ZJU/oYStM9kNnE9rVNrl4NiD/02Fgr373vVeeG/A63uO0hP/vfzkJ0uWSN2Q==
-X-Gm-Gg: AZuq6aI3mHM6NXID/l0EdsLTDG1c5++FaNoUoYJqFzVwGiVLdO7fESaRGBot3y5wMGM
-	nzsHi3PKDK9RqeerI8ikCkQeAIxSULsXnBOuHmyeQzPIX9ybn0gWyKIax+WTBkKCy5r0Zi1TS6S
-	bd/6YxsFxnteJp9ipljNX0ohkG8wAgFUHpY1DZakGOLWYV+petd9XPIPpCKKrhtVQGxQeeT81GA
-	qVS2ReB6Y/HLoneOzX6AGenfIZioOSB+h3mcelUgzALmghVjraLrWU1tG23zxMrNacMR+JhCZGX
-	vd5rBuI0WRJlUxiPeCeGucqqPCOgSMT1FvA/fcXe3szyayirTxpnbiC1Bo7mnnSuZnu3HFkD61x
-	ajfIANoeWYWAV55I1rwhfX6IQA1uG+1diEEAC5bMfFLZbq4Wi4DNAUk19x3ekPjfcTNeFhlWT6S
-	WfG08Yc5r+zJyfjjeqlCX8N9lOD6I=
-X-Received: by 2002:a17:90b:5705:b0:343:7714:4cab with SMTP id 98e67ed59e1d1-3543b3b22e8mr3079599a91.22.1769788335410;
-        Fri, 30 Jan 2026 07:52:15 -0800 (PST)
-Received: from chandna.localdomain ([106.222.232.101])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82379b4ea8bsm10607509b3a.22.2026.01.30.07.52.12
+        d=1e100.net; s=20230601; t=1769810964; x=1770415764;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8lpfQsDvF4mwzKhC0ITKFu8cLvYqD3dYOKf370vXa+w=;
+        b=lgLRTFF52tL7Kd/p9PdrqwOCiOz4u2UNsyRXwD7tZsjidXQXegGkkDBMmPmFowCGd+
+         UPPefJyLZED/ivpmNguZFToisCgqOA4Gzuv89zDokykBfYg1H5VcAUiGyaw+38EtLaST
+         GUphC4JgdsCE/L/Dru3Cv3bB9Aer+SC1Dd7eRhtpnqT1H9L60gx1KoVqOvlevF6ukFqo
+         0jn8Ni+jEMKjxenpmfDURYUqfR7rDP8V7CVZQ+dtaInk8xLyDfvQpYNUfGw2u/4izGJn
+         7M1taDk7iKSgdubqjPePmpPSQPO8HWTjRQ5Ntae/JhnJ+SApEZKKVRRU2PFwh2GWELx2
+         DEEA==
+X-Forwarded-Encrypted: i=1; AJvYcCWUmww+xI2LSm7hNeOHAqGvQfzpcwKI5HSF6adFmiAYDXh3LR0QJjSNZ4N8IkP9/GZxdHA+z0llqxL1IA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyPJsy/pC+3ceOEeRTOiIW3VXmrIDge9yAuAcP2DR0pNutVkXSJ
+	aWIM1zBb54/cVlSizHjpw7YqFabxJJ8PU9JxGCjWOZ6/qttZhI2gVzQ+GgO95OlEvhRxX3M2/JS
+	PtvvQ34cO3bEu9Tl80SLhWWznmsWngLV3KOwo7qDFAznAKHwxC9c8R+u/XfqrG+7S
+X-Gm-Gg: AZuq6aLU+ZFF4fCLOt0bBzu9Mtk6jQ27b2w4K/p/38jYaBV6WRKQfqGgr7IN5lPQdoM
+	vxkkuaLrnfjDrgphutiIN+T+KW214S4nwQ7LM9KmtqSI9syFfs7OjdYiuk8oOTHsCthKQIPw9s9
+	BJoAqtx20W/eApE9FqorabhQqx286Vmc3tgbdETVKkArtDw0hgkUqqOqIU+LJkXhoc6YOJU5h0u
+	RnLCS8Xoaeqv9eXHpb4UlAaoD/5CNzsJd94n99zFEm5DVR0ZMrwl5JZwp8FFlog++Ku0/BhYB11
+	QVxWCSJeXKy6YRryI9f3ih6mdBUBPczw7l6zAMhE8v4GIhQsepSIQ/55O/QNKx+c1wGM+cn/pYk
+	j6Qbc1A==
+X-Received: by 2002:ac8:5d48:0:b0:502:a06a:fe5a with SMTP id d75a77b69052e-505d2289c3emr52699561cf.51.1769810963685;
+        Fri, 30 Jan 2026 14:09:23 -0800 (PST)
+X-Received: by 2002:ac8:5d48:0:b0:502:a06a:fe5a with SMTP id d75a77b69052e-505d2289c3emr52699251cf.51.1769810963206;
+        Fri, 30 Jan 2026 14:09:23 -0800 (PST)
+Received: from [192.168.8.4] ([100.0.180.93])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5033f0a8466sm52120721cf.18.2026.01.30.14.09.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jan 2026 07:52:14 -0800 (PST)
-From: Sahil Chandna <chandna.sahil@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	connorbelli2003@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Sahil Chandna <chandna.sahil@gmail.com>,
-	syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
-Subject: [PATCH] HID: asus: Add check for cancelling fn_lock_sync_work
-Date: Fri, 30 Jan 2026 21:22:04 +0530
-Message-ID: <20260130155204.96831-1-chandna.sahil@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        Fri, 30 Jan 2026 14:09:22 -0800 (PST)
+Message-ID: <e66735b6e1b0ac4db3dfd2aaddadcc9ff052beb0.camel@redhat.com>
+Subject: [Poke?] Re: [PATCH v2 0/1] HID: switch2: Add preliminary Switch 2
+ controller driver
+From: lyude@redhat.com
+To: Vicki Pfau <vi@endrift.com>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>,  Jiri Kosina <jikos@kernel.org>, Benjamin
+ Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Bastien Nocera
+	 <hadess@hadess.net>
+Date: Fri, 30 Jan 2026 17:09:21 -0500
+In-Reply-To: <20260109034034.565630-1-vi@endrift.com>
+References: <20260109034034.565630-1-vi@endrift.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-syzbot reported a workqueue warning where fn_lock_sync_work is cancelled
-during device removal before the work has been initialized. This can
-happen when the device is disconnected while initialization is still
-in progress.
-Fix this by initializing fn_lock_sync_work before marking fn_lock as
-enabled, and by using fn_lock as a flag in the remove path. This
-ensures cancel_work_sync() is only called for initialized work.
+Hey Dmitry! I'm sure you've got a lot on your plate, I just wanted to
+double check that you had this patch series on your radar since it's
+nearing 3 weeks (and V1 of this patch has been on the mailing list
+since early November with me being the only one responding to it).
 
-Fixes: f631011e36b8 ("HID: hid-asus: Implement fn lock for Asus ProArt P16")
-Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
-Signed-off-by: Sahil Chandna <chandna.sahil@gmail.com>
----
- drivers/hid/hid-asus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Is there anything you need from Vicki still, is there a chance you
+might know when you can take a look at this, etc.?
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 1b9793f7c07e..bb85a36de14f 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -960,8 +960,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	}
- 
- 	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
--		drvdata->fn_lock = true;
- 		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
-+		drvdata->fn_lock = true;
- 		asus_kbd_set_fn_lock(hdev, true);
- 	}
- 
-@@ -1343,7 +1343,7 @@ static void asus_remove(struct hid_device *hdev)
- 		cancel_work_sync(&drvdata->kbd_backlight->work);
- 	}
- 
--	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-+	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
- 		cancel_work_sync(&drvdata->fn_lock_sync_work);
- 
- 	hid_hw_stop(hdev);
--- 
-2.50.1
+Also, thank you for any help you can provide!
+
+On Thu, 2026-01-08 at 19:40 -0800, Vicki Pfau wrote:
+> This is effectively a resubmission of the previous patch with minor
+> fixes
+> for issues that came up during the first review. Bluetooth support is
+> still
+> not included, but this will hopefully provide a solid foundation for
+> bringing up Bluetooth support once BlueZ is capable of bringing up
+> the
+> controller. This will probably require a new plugin, but
+> investigation is
+> still ongoing.
+>=20
+> Vicki Pfau (1):
+> =C2=A0 HID: switch2: Add preliminary Switch 2 controller driver
+>=20
+> =C2=A0MAINTAINERS=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 7 +
+> =C2=A0drivers/hid/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 18 +
+> =C2=A0drivers/hid/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 1 +
+> =C2=A0drivers/hid/hid-ids.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 4 +
+> =C2=A0drivers/hid/hid-switch2.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 | 975
+> +++++++++++++++++++++++++++
+> =C2=A0drivers/hid/hid-switch2.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 | 242 +++++++
+> =C2=A0drivers/input/joystick/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+|=C2=A0=C2=A0 8 +
+> =C2=A0drivers/input/joystick/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=
+=A0=C2=A0 1 +
+> =C2=A0drivers/input/joystick/switch2-usb.c | 353 ++++++++++
+> =C2=A09 files changed, 1609 insertions(+)
+> =C2=A0create mode 100644 drivers/hid/hid-switch2.c
+> =C2=A0create mode 100644 drivers/hid/hid-switch2.h
+> =C2=A0create mode 100644 drivers/input/joystick/switch2-usb.c
 

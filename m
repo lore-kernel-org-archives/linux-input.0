@@ -1,100 +1,102 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49DF3368269;
-	Fri, 30 Jan 2026 05:35:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43B5C2EC557
+	for <linux-input@vger.kernel.org>; Fri, 30 Jan 2026 06:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769751314; cv=none; b=vCSbT+HjChrg/UQI3wOU9m4nQKEFw4CHq1UZD32GEAnQ9ZG1ukLHBpPYYmiOcY7/08jxBHVA8lir6mtbkII+o8PwnHtmN1T4Fn6VVud56YfQ+lMdX0xP0r9nXhwXe28B++dEeh4QBKffHBHUi92UJTsmTisSFmshRohIMCTTAEc=
+	t=1769754269; cv=none; b=EX6U27oCe5hgUqKCNm72cgWsvfwlMzxEJXk3Q2L1nqoanQVYnklsWhJzlop3IM/7XxMjMsS9788jnA5seoeZvXLhHfUamQhGWrHsIdfKEYHJtW+g76FLP7XsgmVmAXPnuthsB+MQdw0G5do4+4a8v7H7Q5+LGQteeS8FuChNhLo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769751314; c=relaxed/simple;
-	bh=yQtrIZYMGBOPGh7ijILbyFvEjfTD1GYQwagRe1+arKg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=USJbX2mlpVT+QClR3dPqrsuv3QMg1+TV2XXP+txFcfr+sCmoEk0PQnF/RvJFanOxgvItATpnO9+fX6wU8/OOk+qQJ7/jB+vZG8L7bhoGJJVX5gHJRYXldZdq3Nc3Rsxa+LpHZFntKvlrP8wM+piA4zT+09DVGhbKhLGRwEe768M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CQGz/6FI; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1769754269; c=relaxed/simple;
+	bh=JZq+RWSitCfzgZ2CiHKnrG856Oec619NyOwWzCipbs4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iOz/Ktwqjni+bE/gfl3eDQYev4naBMG1l+xEdQN5lA9OgQR8ABK6pfnYVM5aSBBgsHiHmzndmKtapwZyEFp5Mz/cx9fh7sDvkTe/piQDC6dzX5azBxEI0yXiDgCkJ78pcrWV37q3X5UlreeFrp7vlMYmGWF4xXHxKCUP9sGZkdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hjCNgcoi; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CQGz/6FI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769751312; x=1801287312;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=yQtrIZYMGBOPGh7ijILbyFvEjfTD1GYQwagRe1+arKg=;
-  b=CQGz/6FIaMopG0GS0PCA8FS4m41XhXLP9rY00WWTACPCeFwFR0gRZPlc
-   eJzMxrUr6aOLff7yYUNni7kCVkoWeFvjVgHzj5BPkj0Kjwq6Zym4GTTGi
-   zbKG7TDvhp/WMJZrZnrsyf8DI0Pv6vYk1UfxfHozP3PgjmBrP9Mj8ADNA
-   amWIawn8W5habCI+pc7mT6L1Ul6TeuYQbd0lC8Dpc4Wpil5u7omD3SSCn
-   8qLD04REBSZn1YQ+WUEGV5XudjGP1rrqQOzRsApMW2IoGmilrEixIMD+l
-   yDHg6gm1QzVYunm78mUqlil8HsoSEdjtIhkhbqjjodXF5P2nKCpAmucrq
-   Q==;
-X-CSE-ConnectionGUID: P49OQL1OS6GiNzkArHbAOw==
-X-CSE-MsgGUID: vhx4z03ESGOcjua2KtOvpA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11686"; a="71037075"
-X-IronPort-AV: E=Sophos;i="6.21,262,1763452800"; 
-   d="scan'208";a="71037075"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 21:35:11 -0800
-X-CSE-ConnectionGUID: USzaDlz4Sxa8Wyuy+pzygw==
-X-CSE-MsgGUID: CS5WtFbwQLCVBxZbbc5yVw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,262,1763452800"; 
-   d="scan'208";a="213298766"
-Received: from linryan-mobl2.gar.corp.intel.com (HELO linryan-mobl2.intel.com) ([10.246.105.132])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 21:35:09 -0800
-From: Ryan Lin <ryan.lin@intel.com>
-To: linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	srinivas.pandruvada@linux.intel.com,
-	lixu.zhang@intel.com
-Cc: Ryan Lin <ryan.lin@intel.com>
-Subject: [PATCH v2] HID: intel-ish-hid: fix NULL-ptr-deref in ishtp_bus_remove_all_clients
-Date: Fri, 30 Jan 2026 13:34:56 +0800
-Message-Id: <20260130053456.4971-1-ryan.lin@intel.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hjCNgcoi"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a1022dda33so11001475ad.2
+        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2026 22:24:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769754267; x=1770359067; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZzOSDsADlZZalIjYI/NFZliyZ4zh625PTCb6VAu9b7I=;
+        b=hjCNgcoiJ4j3Rtq/51yJ+mq8nZPgklCdyX7zQWfvhpdJLdVMhhD2QwprjpcHI6xX1D
+         HoakEmjr0o7nLQhzJPo1kE6UGGyig/C/lKPYhexgzQokEa/CO+4aiTpE0Jh5tjgtz+nR
+         Ol6QGJn/9ttmx45iLUpd12Lsr0h7Vh9RC54ZFpQf739Dwtj+iHVKC82xsbgOhefkdSAw
+         WLicoDrSD8MB/8sn9XiujK3J77RrB0mwXkhrg6kRpiunevgDrhZyg3JkBj3KEw3pTJvX
+         HE384U5YCmD21zywTYBUdqvpImLQGcBKTZs7JbL72dVMCpQIza7rWuVchHC0mu+LW+6M
+         twFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769754267; x=1770359067;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZzOSDsADlZZalIjYI/NFZliyZ4zh625PTCb6VAu9b7I=;
+        b=qEy4ph/t6VuDVaLb8cRC0gY6GNe4k9L+/MkFrDrmNcrclpxAoQKkOi3fqJd711EXPf
+         O4TlVd8sIxj+wLVJhHOeOW8CVw3hRx2tQTnIHUMF0HeTEu+WIXYqpIy+2XMjmwurGn0w
+         neuJ/aGxgm1g2g8hWu5pha9y+xGu6mNuqxhPYa2ZYVF1V+OsRONGe2GpVvQgNWdIl/6Z
+         UvIl5IK0K1b+cEm3d69u3gYcGHO+D4CzuScSzyYbx4xf2V/l3Bz313mu4yJLCs4a5J4J
+         1Hx8nXrmdzwdAjlxLrZ1zvKKHm0z7BesgwHY0LLzrUa6oSSHqxyEN0tuOx92FuWizCCX
+         f2CA==
+X-Forwarded-Encrypted: i=1; AJvYcCWbXENC1VMkIK/8h34wuX+k9Yirlcm/PuEIft08Q8gIj0cwivspi7Pm4I/NFKKvyoIPcPjPZR5Bk9KqEg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxBZHuSg98QtxVMaDm3JFE7jTUkAawmI+UL5Hubv00kVYF7PolQ
+	Kq3k5Qx4mqZYsk4u/svENHUH08qmXrPPWAXnreQ+fhWgDjO2xbCoKe0+
+X-Gm-Gg: AZuq6aJY36qdrOXzchJ84N8lBfsio7Ca9h1pGBb2GXQEtDjr72K7td0YeFPNOls8QGt
+	Ozm4tzA48BVzjMbDTzcntPHTQZeWCBhf+MEq/nMSw/+8xPjInTasSeBG0loSVYtvzH1UahQe3pA
+	BWw5Q4i2OeC6E2EpVC+2y1Ag6nJ7jGFJ/tGwb3IRhAncRTPmVA+N7IMKR+G66qGJ+DVWqIwjDSR
+	z3eTCxIbCn4KWrLR83+hjA/zmn3jaDJkgPRQEfUaXnprJ0wi0rdUWuQoPn4eaF/IDKQVr+e7XLY
+	D7+IVT8c0CEkPmUuqoZwtORN987+JfKeRYXO7DSu6iFcoM+GIvWSKhXQxH/GMMBl7czkEgZpMPj
+	u6BwGjmGKhYTdDh7Q5c9LukYAM9e3thgqD25ywvutKfGg+Tmgc/Ih2lMwZ9Gqphs3zQIvCfzY+g
+	+KEWuvMP0FihY8A81Fe8YbBydyv/I=
+X-Received: by 2002:a17:903:15c7:b0:2a0:b461:c883 with SMTP id d9443c01a7336-2a8d993031bmr18059985ad.45.1769754267392;
+        Thu, 29 Jan 2026 22:24:27 -0800 (PST)
+Received: from chandna.localdomain ([106.222.232.101])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b7f32bfsm69740915ad.96.2026.01.29.22.24.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Jan 2026 22:24:26 -0800 (PST)
+Date: Fri, 30 Jan 2026 11:54:05 +0530
+From: Sahil Chandna <chandna.sahil@gmail.com>
+To: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>
+Cc: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot] [input?] [usb?] WARNING in asus_remove
+Message-ID: <aXxOhV79TnuYaw0-@chandna.localdomain>
+References: <697baa8f.a70a0220.9914.001f.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <697baa8f.a70a0220.9914.001f.GAE@google.com>
 
-During a warm reset flow, the cl->device pointer may be NULL if the
-reset occurs while clients are still being enumerated. Accessing
-cl->device->reference_count without a NULL check leads to a kernel panic.
-
-This issue was identified during multi-unit warm reboot stress clycles.
-Add a defensive NULL check for cl->device to ensure stability under
-such intensive testing conditions.
-
-KASAN: null-ptr-deref in range [0000000000000000-0000000000000007]
-Workqueue: ish_fw_update_wq fw_reset_work_fn
-
-Call Trace:
- ishtp_bus_remove_all_clients+0xbe/0x130 [intel_ishtp]
- ishtp_reset_handler+0x85/0x1a0 [intel_ishtp]
- fw_reset_work_fn+0x8a/0xc0 [intel_ish_ipc]
-
-Fixes: 3703f53b99e4a ("HID: intel_ish-hid: ISH Transport layer")
-Signed-off-by: Ryan Lin <ryan.lin@intel.com>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index c3915f3a060e..b890fbf97a75 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -730,7 +730,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
- 	spin_lock_irqsave(&ishtp_dev->cl_list_lock, flags);
- 	list_for_each_entry(cl, &ishtp_dev->cl_list, link) {
- 		cl->state = ISHTP_CL_DISCONNECTED;
--		if (warm_reset && cl->device->reference_count)
-+		if (warm_reset && cl->device && cl->device->reference_count)
- 			continue;
- 
- 		/*
+#syz test
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -960,8 +960,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+  	}
+  
+  	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
+-		drvdata->fn_lock = true;
+  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
++		drvdata->fn_lock = true;
+  		asus_kbd_set_fn_lock(hdev, true);
+  	}
+  
+@@ -1343,7 +1343,7 @@ static void asus_remove(struct hid_device *hdev)
+  		cancel_work_sync(&drvdata->kbd_backlight->work);
+  	}
+  
+-	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
++	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
+  		cancel_work_sync(&drvdata->fn_lock_sync_work);
+  
+  	hid_hw_stop(hdev);
 -- 
-2.34.1
 

@@ -1,67 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5587837AA64;
-	Fri, 30 Jan 2026 22:24:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52EBB35B627;
+	Fri, 30 Jan 2026 22:59:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769811872; cv=none; b=K7e+nVIaCsZlPbNoXtBl4SHzIH2rvS6ZODHkrTXTgow9ADAqc8zbXeA3K9qLVjtUzrimIYn1SlLWeHI9q6i9l3JIUchN/ncrzionUKBrqL43LOfFgG6P/ebDHtglMdy0M5bR26xBlv8wfCNMfNx8wXUN0MW+b7je7IVcmIf4/Z0=
+	t=1769813977; cv=none; b=nJNE7GLv5f+4id8bx3W+7MPh2rf5KXgaJ3oHfN2C3vQTz851iqka4gKTU9UQju1AHhcwIAQ0aag/ZG2fvEiUVe3UPW7b8qwOGi1TxrIoVJ5r4pko2sLPo5Q7PGxmJleOHaaM/qd/86Sr4d3KczX4PbJwGwBpr2NY8lSXOx4yPog=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769811872; c=relaxed/simple;
-	bh=gcswa17x7vAac8H8ISWVP/qXvu8V+YccoFtXeiHYCMg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=cm4ni9w0WBycRAc9+Y3A3ty4bI6TCrWrgrUnNe39WAVGQnaMFqDJNqKKi+1GWrnOVoRNmNJdnT8mkpACxW1dpoNIdax/O8VRCncv+sZagLmMhE1kh90z9d7mehpeCLOUgnNF7syOKrwBrtOSarJDo8Ak1/Y92Mm63wW5BO0hgZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C294EC4CEF7;
-	Fri, 30 Jan 2026 22:24:31 +0000 (UTC)
-Received: by venus (Postfix, from userid 1000)
-	id CC3181805A0; Fri, 30 Jan 2026 23:24:27 +0100 (CET)
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
-To: airlied@gmail.com, simona@ffwll.ch, maarten.lankhorst@linux.intel.com, 
- mripard@kernel.org, tzimmermann@suse.de, robh@kernel.org, 
- krzk+dt@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, 
- sre@kernel.org, gregkh@linuxfoundation.org, jirislaby@kernel.org, 
- lgirdwood@gmail.com, broonie@kernel.org, 
- Kuan-Wei Chiu <visitorckw@gmail.com>
-Cc: jserv@ccns.ncku.edu.tw, dri-devel@lists.freedesktop.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-pm@vger.kernel.org, 
- linux-serial@vger.kernel.org, linux-sound@vger.kernel.org, 
- Yu-Chun Lin <eleanor.lin@realtek.com>
-In-Reply-To: <20260113092602.3197681-1-visitorckw@gmail.com>
-References: <20260113092602.3197681-1-visitorckw@gmail.com>
-Subject: Re: (subset) [PATCH v4 0/6] dt-bindings: goldfish: Convert to DT
- schema
-Message-Id: <176981186782.331784.16669920696929509019.b4-ty@collabora.com>
-Date: Fri, 30 Jan 2026 23:24:27 +0100
+	s=arc-20240116; t=1769813977; c=relaxed/simple;
+	bh=+EHRlhrVR76ytnY6PWLG2xjyqeAdxe3SlaPmnPD3eZk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZGCgCEUrSJTrIKi8QxwhCwGCm9BAYiq81qKfzSFAxPa7JBcS4jDsKuh42i7sXco5ENmWpcQULQmieT/EO2ibao9tW0YfPc3KjvFBprYul3NM8Jmxfzy0+zVBIu2LrXnuamn+tFDylLc4PIC/pGIEVLOXr9cZmD1zBFpOGgyffxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FsTQr4L2; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FsTQr4L2"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id BF5311A2B4A;
+	Fri, 30 Jan 2026 22:59:31 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 8925E6075A;
+	Fri, 30 Jan 2026 22:59:31 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 67B9D119A88EC;
+	Fri, 30 Jan 2026 23:59:26 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1769813970; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=V8/wK0gpIonOYlq25IjVFqB/T4q9qNCsR8JA2Xof+Mg=;
+	b=FsTQr4L2a3lze89V3zbOYach8O66v4irn3L0ekVYq3aeFQkszl7x5gEGL/orRfRhOybLN7
+	h7MriZgDHzpoIqxgq/EoH1MxSPcVYNKjMrQDuZsL5Gz2GbY42Xf0F+LCmvnQgAUcnhTgic
+	aMj37f/hh8/VJ7L9iclI16wNwDfHOyV2SzilMzyugxNWSixY/RdbcHGblmtF6KpdHGB7y+
+	xAc1WvhpsLyFPwExzw+li5J5tonIbLMX9lHWU7bks4Fr9wDPs9iEFwrigPIMZNZ5j9EiJG
+	Zh+4Mv44aYrjRUhMplzxJidxu3kD7Hr4Fpx//3NzQprByfQNyewNfiDVZNrw1A==
+Date: Fri, 30 Jan 2026 23:59:25 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Dixit Parmar <dixitparmar19@gmail.com>,
+	Tony Lindgren <tony@atomide.com>,
+	Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: (subset) [PATCH v1 06/10] dt-bindings: rtc: cpcap-rtc: convert
+ to schema
+Message-ID: <176981393517.2222240.5285023713229862241.b4-ty@bootlin.com>
+References: <20260125134302.45958-1-clamor95@gmail.com>
+ <20260125134302.45958-7-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260125134302.45958-7-clamor95@gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-
-On Tue, 13 Jan 2026 09:25:56 +0000, Kuan-Wei Chiu wrote:
-> Convert the Android Goldfish emulator platform bindings from text
-> format to DT schema.
+On Sun, 25 Jan 2026 15:42:58 +0200, Svyatoslav Ryhel wrote:
+> Convert RTC devicetree bindings for the Motorola CPCAP MFD from TXT to
+> YAML format. This patch does not change any functionality; the bindings
+> remain the same.
 > 
-> Most of these bindings are currently located in
-> Documentation/devicetree/bindings/goldfish/. Move them to the
-> appropriate subsystem directories (serial, input, power, sound, misc)
-> to align with the kernel directory structure.
 > 
-> [...]
 
 Applied, thanks!
 
-[4/6] dt-bindings: power: supply: google,goldfish-battery: Convert to DT schema
-      commit: 4c3f02f843999a590f4481791f59a2f9a7f34fe4
+[06/10] dt-bindings: rtc: cpcap-rtc: convert to schema
+        https://git.kernel.org/abelloni/c/96a77ec577d4
 
 Best regards,
--- 
-Sebastian Reichel <sebastian.reichel@collabora.com>
 
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com

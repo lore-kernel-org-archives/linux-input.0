@@ -1,133 +1,210 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B746A1F8AC5;
-	Sat, 31 Jan 2026 01:32:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A4234F48B;
+	Sat, 31 Jan 2026 03:44:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769823144; cv=none; b=c27YWpripBp3kPbxzbEHLYr9IJdR2AfEAr8rdcSO4Tmz50ZktX9NuRaZWvyX04zkwvp/IiTzN5HVCH0JH0d1tyGHFADk2LScSpYbSqtzEmCIuzPIJF8ck65NeE0fQQqeb6sP526XWTVOdjpUBOyqp2iP9PCzoiK2P9mz3RmbzAQ=
+	t=1769831090; cv=none; b=tMq/2XvDIB3znK3oeKPKVMpnhWz9mhUQnA+voxJ8Dsoetej6pjnQhbPIRxeV+0RxYS9r8EzP+w5OSG15reOWAtCWWMdviSCW5wn4ZuIBXPgzVhETl3H0zTjpwowo/rO5BFWWIRzBNhe2FPTj1LXWPCHeWG9oZA8rOPtmI6jeE/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769823144; c=relaxed/simple;
-	bh=bimcp6MApRiJBt1uTQePrYV3Gu4PGQjRWTMHsOHoKR8=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NxcUXkpyuN842Xyd04GqSGXZYjy0vXajpR4qLR8ps4QPanNbYaCHhb8Pcpj6pZgLTDsSptHd1kHTJaioUsT5U89DuRUk8mfngOdpn2tpdkGNCukrpbs9bSN1pECrLC2d1chN1HTNk7Nr86OOVohFWy+kahEtWbplXCIZFIidX4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ty4vyUOf; arc=none smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769831090; c=relaxed/simple;
+	bh=SNJ583uMJNx90Bhg99QOcCcVg2v0mCbIzORnBliCeMs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=upI+MJQw58rGO6CS0a7V08/OT0gvnqHjADKrmIPnmAWGbZPQiEKT8BwVUXTZO15iz3IEaCPm1phS4M0axFrTC/u3/q3r0bZShKzPxy/lC4AZglveWug6mCnkkyUN7JczIhMUzWwI0v3szghu+OsJ741uFSaktmjG7OIsAdVRnaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=d9j5tRXk; arc=none smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ty4vyUOf"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="d9j5tRXk"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769823143; x=1801359143;
-  h=message-id:subject:from:to:date:in-reply-to:references:
-   content-transfer-encoding:mime-version;
-  bh=bimcp6MApRiJBt1uTQePrYV3Gu4PGQjRWTMHsOHoKR8=;
-  b=Ty4vyUOfh2uL50lm4LFzthBFEXVDAwbeu5IU56occeVXOcCBGEFkYt9f
-   lz8/ZJKfLJ26oOAo8Tn+s8P5LOdjJR8x9qt1ifdpaGmuAHRu0iIHS+pT6
-   Sv7gOTMComNwcmgDhsfCtvOvlLvJNam5ETzegNu4SRs+wVVnidsqAUmrX
-   HjPfNMROCMrfkHp3a68U6mt2t2ykKu/yNhbta0LxwGA3os5aBHclUJ6Eo
-   ufAyFzq6NqbvtX4iBfEEEgtKOWCamFY9PaPQcnhZ0W7wBVu6yxAg/ND3A
-   q8+LU4BgIPwvsTogRkEWjeQhWRbZMcWIVdKip8mhYYX0gjGewGZctziCY
-   Q==;
-X-CSE-ConnectionGUID: 4lOoP1kqRMm27P4wqczULg==
-X-CSE-MsgGUID: zoMKkuv5QaueSRYEQaqdJg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11687"; a="88652168"
+  t=1769831089; x=1801367089;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=SNJ583uMJNx90Bhg99QOcCcVg2v0mCbIzORnBliCeMs=;
+  b=d9j5tRXk7ihV6k56y43NgYhcOT2vWUxDNevZSwvlAoAEoSuXF6zhzqWb
+   dOJ0RI83oP0L0bt+k0cfP7Nv/sQE5ct4ubJpu0mtzhYZfNjP4nWm8Mbs5
+   q47hu/2mle4QQvzc2mQbczTbXeZqZp7HnaoDuHhD5oXQ8QHO2N843G1bW
+   Wp9SoLhMkVei0qxncP5nl0uSL9mq1BoolpVYNuUZHQpNdvgaZovV9jGE/
+   YZwg1sUpftWX7d4JX7Rl/fAROX+Y/jI9lLaGdLkI9bwhDTenXfrysdqab
+   XfQ/7iDdig8RboI8lEmey7F+i532xQesESXN7+OaPixkVqRGx011fgr4E
+   w==;
+X-CSE-ConnectionGUID: nM+5ZtU2RA2jkUV7EZjPIA==
+X-CSE-MsgGUID: kESTGoW9Tcqu58cn8xWLig==
+X-IronPort-AV: E=McAfee;i="6800,10657,11687"; a="88656407"
 X-IronPort-AV: E=Sophos;i="6.21,264,1763452800"; 
-   d="scan'208";a="88652168"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2026 17:32:22 -0800
-X-CSE-ConnectionGUID: sraEmNO7SWK4SDbASLrnSA==
-X-CSE-MsgGUID: YRh9Ie2cSmaUnwW51Jn0mg==
+   d="scan'208";a="88656407"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2026 19:44:48 -0800
+X-CSE-ConnectionGUID: oHVPMhvnTgKnAFf6Zdft0g==
+X-CSE-MsgGUID: 3eO9R+ihTLGyNGUvdbWDew==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,264,1763452800"; 
-   d="scan'208";a="208908066"
-Received: from spandruv-desk1.amr.corp.intel.com ([10.247.118.122])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2026 17:32:17 -0800
-Message-ID: <381d44f303b9dd51e0d5063a805868eb601145f2.camel@linux.intel.com>
-Subject: Re: [linux-drivers-review] [PATCH] HID: intel-ish-hid: fix
- NULL-ptr-deref in ishtp_bus_remove_all_clients
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Ryan Lin <ryan.lin@intel.com>, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-drivers-review@eclists.intel.com, 
-	lixu.zhang@intel.com, Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina
-	 <jikos@kernel.org>
-Date: Fri, 30 Jan 2026 17:32:04 -0800
-In-Reply-To: <20260130052544.4784-1-ryan.lin@intel.com>
-References: <20260130052544.4784-1-ryan.lin@intel.com>
-Autocrypt: addr=srinivas.pandruvada@linux.intel.com; prefer-encrypt=mutual;
- keydata=mQGNBGYHNAsBDAC7tv5u9cIsSDvdgBBEDG0/a/nTaC1GXOx5MFNEDL0LWia2p8Asl7igx
- YrB68fyfPNLSIgtCmps0EbRUkPtoN5/HTbAEZeJUTL8Xdoe6sTywf8/6/DMheEUzprE4Qyjt0HheW
- y1JGvdOA0f1lkxCnPXeiiDY4FUqQHr3U6X4FPqfrfGlrMmGvntpKzOTutlQl8eSAprtgZ+zm0Jiwq
- NSiSBOt2SlbkGu9bBYx7mTsrGv+x7x4Ca6/BO9o5dIvwJOcfK/cXC/yxEkr1ajbIUYZFEzQyZQXrT
- GUGn8j3/cXQgVvMYxrh3pGCq9Q0Q6PAwQYhm97ipXa86GcTpP5B2ip9xclPtDW99sihiL8euTWRfS
- TUsEI+1YzCyz5DU32w3WiXr3ITicaMV090tMg9phIZsjfFbnR8hY03n0kRNWWFXi/ch2MsZCCqXIB
- oY/SruNH9Y6mnFKW8HSH762C7On8GXBYJzH6giLGeSsbvis2ZmV/r+LmswwZ6ACcOKLlvvIukAEQE
- AAbQ5U3Jpbml2YXMgUGFuZHJ1dmFkYSA8c3Jpbml2YXMucGFuZHJ1dmFkYUBsaW51eC5pbnRlbC5j
- b20+iQHRBBMBCAA7FiEEdki2SeUi0wlk2xcjOqtdDMJyisMFAmYHNAsCGwMFCwkIBwICIgIGFQoJC
- AsCBBYCAwECHgcCF4AACgkQOqtdDMJyisMobAv+LLYUSKNuWhRN3wS7WocRPCi3tWeBml+qivCwyv
- oZbmE2LcxYFnkcj6YNoS4N1CHJCr7vwefWTzoKTTDYqz3Ma0D0SbR1p/dH0nDgN34y41HpIHf0tx0
- UxGMgOWJAInq3A7/mNkoLQQ3D5siG39X3bh9Ecg0LhMpYwP/AYsd8X1ypCWgo8SE0J/6XX/HXop2a
- ivimve15VklMhyuu2dNWDIyF2cWz6urHV4jmxT/wUGBdq5j87vrJhLXeosueRjGJb8/xzl34iYv08
- wOB0fP+Ox5m0t9N5yZCbcaQug3hSlgp9hittYRgIK4GwZtNO11bOzeCEMk+xFYUoa5V8JWK9/vxrx
- NZEn58vMJ/nxoJzkb++iV7KBtsqErbs5iDwFln/TRJAQDYrtHJKLLFB9BGUDuaBOmFummR70Rbo55
- J9fvUHc2O70qteKOt5A0zv7G8uUdIaaUHrT+VOS7o+MrbPQcSk+bl81L2R7TfWViCmKQ60sD3M90Y
- oOfCQxricddC
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+   d="scan'208";a="209369766"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by fmviesa010.fm.intel.com with ESMTP; 30 Jan 2026 19:44:44 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vm1uc-00000000dcW-02b8;
+	Sat, 31 Jan 2026 03:44:42 +0000
+Date: Sat, 31 Jan 2026 11:44:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Luca Weiss <luca.weiss@fairphone.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Subject: Re: [PATCH v2 2/3] Input: aw86938 - add driver for Awinic AW86938
+Message-ID: <202601311117.t00gEixW-lkp@intel.com>
+References: <20260128-aw86938-driver-v2-2-b51ee086aaf5@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260128-aw86938-driver-v2-2-b51ee086aaf5@fairphone.com>
 
-On Fri, 2026-01-30 at 13:25 +0800, Ryan Lin wrote:
-> During a warm reset flow, the cl->device pointer may be NULL if the
-> reset occurs while clients are still being enumerated. Accessing
-> cl->device->reference_count without a NULL check leads to a kernel
-> panic.
->=20
-> This issue was identified during multi-unit warm reboot stress
-> clycles.
-> Add a defensive NULL check for cl->device to ensure stability under
-> such intensive testing conditions.
->=20
-> KASAN: null-ptr-deref in range [0000000000000000-0000000000000007]
-> Workqueue: ish_fw_update_wq fw_reset_work_fn
->=20
-> Call Trace:
-> =C2=A0ishtp_bus_remove_all_clients+0xbe/0x130 [intel_ishtp]
-> =C2=A0ishtp_reset_handler+0x85/0x1a0 [intel_ishtp]
-> =C2=A0fw_reset_work_fn+0x8a/0xc0 [intel_ish_ipc]
->=20
-> Fixes: 3703f53b99e4a ("HID: intel_ish-hid: ISH Transport layer")
-> Signed-off-by: Ryan Lin <ryan.lin@intel.com>
+Hi Griffin,
 
-You need to use get_maintainer.pl to get all TO and CC list.
+kernel test robot noticed the following build warnings:
 
-You missed=20
-Jiri Kosina <jikos@kernel.org>
-Benjamin Tissoires <bentiss@kernel.org>
+[auto build test WARNING on 0364de6be161e2360cbb1f26d5aff5b343ef7bb0]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Griffin-Kroah-Hartman/dt-bindings-input-awinic-aw86927-Add-Awinic-AW86938/20260129-000753
+base:   0364de6be161e2360cbb1f26d5aff5b343ef7bb0
+patch link:    https://lore.kernel.org/r/20260128-aw86938-driver-v2-2-b51ee086aaf5%40fairphone.com
+patch subject: [PATCH v2 2/3] Input: aw86938 - add driver for Awinic AW86938
+config: sparc64-allmodconfig (https://download.01.org/0day-ci/archive/20260131/202601311117.t00gEixW-lkp@intel.com/config)
+compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project 9b8addffa70cee5b2acc5454712d9cf78ce45710)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260131/202601311117.t00gEixW-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202601311117.t00gEixW-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/input/misc/aw86927.c:778:19: warning: cast to smaller integer type 'enum aw86927_model' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+     778 |         haptics->model = (enum aw86927_model)device_get_match_data(&client->dev);
+         |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   1 warning generated.
 
 
-> ---
-> =C2=A0drivers/hid/intel-ish-hid/ishtp/bus.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c
-> b/drivers/hid/intel-ish-hid/ishtp/bus.c
-> index c3915f3a060e..b890fbf97a75 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-> @@ -730,7 +730,7 @@ void ishtp_bus_remove_all_clients(struct
-> ishtp_device *ishtp_dev,
-> =C2=A0	spin_lock_irqsave(&ishtp_dev->cl_list_lock, flags);
-> =C2=A0	list_for_each_entry(cl, &ishtp_dev->cl_list, link) {
-> =C2=A0		cl->state =3D ISHTP_CL_DISCONNECTED;
-> -		if (warm_reset && cl->device->reference_count)
-> +		if (warm_reset && cl->device && cl->device-
-> >reference_count)
-> =C2=A0			continue;
-> =C2=A0
-> =C2=A0		/*
+vim +778 drivers/input/misc/aw86927.c
+
+   766	
+   767	static int aw86927_probe(struct i2c_client *client)
+   768	{
+   769		struct aw86927_data *haptics;
+   770		int err;
+   771	
+   772		haptics = devm_kzalloc(&client->dev, sizeof(struct aw86927_data), GFP_KERNEL);
+   773		if (!haptics)
+   774			return -ENOMEM;
+   775	
+   776		haptics->dev = &client->dev;
+   777		haptics->client = client;
+ > 778		haptics->model = (enum aw86927_model)device_get_match_data(&client->dev);
+   779	
+   780		i2c_set_clientdata(client, haptics);
+   781	
+   782		haptics->regmap = devm_regmap_init_i2c(client, &aw86927_regmap_config);
+   783		if (IS_ERR(haptics->regmap))
+   784			return dev_err_probe(haptics->dev, PTR_ERR(haptics->regmap),
+   785						"Failed to allocate register map\n");
+   786	
+   787		haptics->input_dev = devm_input_allocate_device(haptics->dev);
+   788		if (!haptics->input_dev)
+   789			return -ENOMEM;
+   790	
+   791		haptics->reset_gpio = devm_gpiod_get(haptics->dev, "reset", GPIOD_OUT_HIGH);
+   792		if (IS_ERR(haptics->reset_gpio))
+   793			return dev_err_probe(haptics->dev, PTR_ERR(haptics->reset_gpio),
+   794					     "Failed to get reset gpio\n");
+   795	
+   796		/* Hardware reset */
+   797		aw86927_hw_reset(haptics);
+   798	
+   799		/* Software reset */
+   800		err = regmap_write(haptics->regmap, AW86927_RSTCFG_REG, AW86927_RSTCFG_SOFTRST);
+   801		if (err)
+   802			return dev_err_probe(haptics->dev, err,	"Failed Software reset\n");
+   803	
+   804		/* Wait ~3ms until I2C is accessible */
+   805		usleep_range(3000, 3500);
+   806	
+   807		err = aw86927_detect(haptics);
+   808		if (err)
+   809			return dev_err_probe(haptics->dev, err, "Failed to find chip\n");
+   810	
+   811		/* IRQ config */
+   812		err = regmap_write(haptics->regmap, AW86927_SYSCTRL4_REG,
+   813				   FIELD_PREP(AW86927_SYSCTRL4_INT_MODE_MASK,
+   814					      AW86927_SYSCTRL4_INT_MODE_EDGE) |
+   815					FIELD_PREP(AW86927_SYSCTRL4_INT_EDGE_MODE_MASK,
+   816						   AW86927_SYSCTRL4_INT_EDGE_MODE_POS));
+   817		if (err)
+   818			return dev_err_probe(haptics->dev, err, "Failed to configure interrupt modes\n");
+   819	
+   820		err = regmap_write(haptics->regmap, AW86927_SYSINTM_REG,
+   821				   AW86927_SYSINTM_BST_OVPM |
+   822					AW86927_SYSINTM_FF_AEM |
+   823					AW86927_SYSINTM_FF_AFM |
+   824					AW86927_SYSINTM_DONEM);
+   825		if (err)
+   826			return dev_err_probe(haptics->dev, err, "Failed to configure interrupt masks\n");
+   827	
+   828		err = devm_request_threaded_irq(haptics->dev, client->irq, NULL,
+   829						aw86927_irq, IRQF_ONESHOT, NULL, haptics);
+   830		if (err)
+   831			return dev_err_probe(haptics->dev, err, "Failed to request threaded irq\n");
+   832	
+   833		INIT_WORK(&haptics->play_work, aw86927_haptics_play_work);
+   834	
+   835		haptics->input_dev->name = "aw86927-haptics";
+   836		haptics->input_dev->close = aw86927_close;
+   837	
+   838		input_set_drvdata(haptics->input_dev, haptics);
+   839		input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
+   840	
+   841		err = input_ff_create_memless(haptics->input_dev, NULL, aw86927_haptics_play);
+   842		if (err)
+   843			return dev_err_probe(haptics->dev, err, "Failed to create FF dev\n");
+   844	
+   845		/* Set up registers */
+   846		err = aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
+   847		if (err)
+   848			return dev_err_probe(haptics->dev, err,
+   849					     "Failed to enter standby for Haptic init\n");
+   850	
+   851		err = aw86927_haptic_init(haptics);
+   852		if (err)
+   853			return dev_err_probe(haptics->dev, err, "Haptic init failed\n");
+   854	
+   855		/* RAM init, upload the waveform for playback */
+   856		err = aw86927_ram_init(haptics);
+   857		if (err)
+   858			return dev_err_probe(haptics->dev, err, "Failed to init aw86927 sram\n");
+   859	
+   860		err = input_register_device(haptics->input_dev);
+   861		if (err)
+   862			return dev_err_probe(haptics->dev, err, "Failed to register input device\n");
+   863	
+   864		return 0;
+   865	}
+   866	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

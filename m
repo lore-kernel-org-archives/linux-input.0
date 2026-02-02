@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3983C2C11E1;
-	Mon,  2 Feb 2026 20:47:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48F32E645;
+	Mon,  2 Feb 2026 20:51:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770065273; cv=none; b=tJA1WY7kSrdQalmc+Mp78FQk9dIShbuMdwEclbBdkclsQrdQauIn9nG1qCsqSofkdf9Qq8gCFV3jBGwDqtncgUrSDMmwtZYbsfV7VfoZYGevU+QP6D9HCMn6y6zOt5B2sCkUhsGiooQM3vPK2c2ONQMFU408UM3VnhPGBFWAgA4=
+	t=1770065463; cv=none; b=mCmIpBdhgQiGII1XpbDpTNPdQbbfthBmlJ1dOcHABBRmK96bKFJ7vBhucch6NIrPPBfospsxffd56ITw/K+UqSM9g0EBQiVrgZKt0tGs6/fXhkcslLt9n3m/nFTIt2qCYlg17gnDLsTsZCtJBVRvT/gxwJMd1R7yGrHkBfVncEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770065273; c=relaxed/simple;
-	bh=7fhj6dhDnfO79d7PexLTnWBsJHy4cluYjgF47LWj/PU=;
+	s=arc-20240116; t=1770065463; c=relaxed/simple;
+	bh=8mr+h0FkFQsUZr1MgdRFNOHGr2hkKdoBYRIKziBbqvM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=Mlk8WvNKBJdgN9Ur5RlOvbbOPQoW8kWcDnBY1yUOrqUcRp7xgmlb+9ZrEexYA6Rk6+f9iZaRRuCUNFjrFgBGQM9quKqukbyl1NTiUimvPUd4dtiwyXTrVWf3JqQ8vTLQQNQ07ZIPKgXOSgNj0cmywsOb/pIeE9XYpnQPnH+vOEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gmaGvzlS; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=I+ONzkLHsSKuNSuSvktVx/hvamaAipvz73FaC+nXFu7kdxAT3dKxqLxQVR0KWcm96T5btZZtr9QdrQEeLmLHVhrDpcodTLjVzhk8yVRRqucwrkhUgdZqFdolK/gf4t/5w0wU2NAQLe0Fx9riWyxt2/FawztG2fpQsGnVgg1dRn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZWNNFhAR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gmaGvzlS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CDDBC116C6;
-	Mon,  2 Feb 2026 20:47:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZWNNFhAR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF7CC116C6;
+	Mon,  2 Feb 2026 20:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770065272;
-	bh=7fhj6dhDnfO79d7PexLTnWBsJHy4cluYjgF47LWj/PU=;
+	s=k20201202; t=1770065462;
+	bh=8mr+h0FkFQsUZr1MgdRFNOHGr2hkKdoBYRIKziBbqvM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=gmaGvzlShAlgDNtKV8JaGtgYHPUcZH12/MrXoOzuMeaWEgeqV9wSfjkA64u/MBESI
-	 rn1N3IFdWH9JN5Pq8PyRpuiJaWa9VNxtSEruEae7AZYnyvOkVusuYAGI5c0l8aJoJN
-	 pPhPy4BcQxgX5xVJ8RgUK2s7WHvR8LcMfFYJTWH8PGLEqr9GfU4hKsh2g/fB+v4r5R
-	 sd1G4gk9JReM9uDWLVQU1bMcP/fMJihZgm+KLXUulYwuOzFJ+/A07GmlaO3rVcBZHU
-	 rlzprVm5F+/mhRWvCBewPnlRcHmwa7xF2rxKcrk0wHqfBbjBdKlz3wAjDKlo9X/cj4
-	 wzLYP1sfHPYsA==
-Date: Mon, 2 Feb 2026 21:47:50 +0100 (CET)
+	b=ZWNNFhARpvPZYzQ+OaNaaM2B5pGAOB3k8yxbe3HumtU+JqFpQhd9JG9QtElIu5wjO
+	 quwa6gJOWAJBqGzxhkCknfMXSVEd4xJppuE7qe+2K1sYWl9MIBY+a6lKB7LPgNhuq+
+	 R/omZWjGX9J8GaxN95enVMagC3hOpqsJ35c/wRLR1iVZWWbLfbE85yE+wCBtOFLaak
+	 XyaX8zhyTvAeShW9rU/GCr2JRjvWCBxS1msq1uSl70t+5l6R6Rrg40QCCRtKbFQWgE
+	 xrdykCTWIt0buak2rHFgAx+nJBICMPMKFCuxNXCWwcOcpZRHHBZJ4N9DGBSxDsNgiJ
+	 wxiCIQekUOMkQ==
+Date: Mon, 2 Feb 2026 21:51:00 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
 To: Sahil Chandna <chandna.sahil@gmail.com>
-cc: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>, 
-    bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-    syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot] [input?] [usb?] WARNING in asus_remove
-In-Reply-To: <r7845ps7-3qqp-o377-73r9-410s541452qo@xreary.bet>
-Message-ID: <961601ss-s3s6-n5no-9sp2-q73121121893@xreary.bet>
-References: <697baa8f.a70a0220.9914.001f.GAE@google.com> <aXxOhV79TnuYaw0-@chandna.localdomain> <r7845ps7-3qqp-o377-73r9-410s541452qo@xreary.bet>
+cc: bentiss@kernel.org, connorbelli2003@gmail.com, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, 
+    syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
+Subject: Re: [PATCH] HID: asus: Add check for cancelling fn_lock_sync_work
+In-Reply-To: <20260130155204.96831-1-chandna.sahil@gmail.com>
+Message-ID: <0r86s1os-1ps3-5532-s454-25ros9q18nop@xreary.bet>
+References: <20260130155204.96831-1-chandna.sahil@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,34 +44,21 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 2 Feb 2026, Jiri Kosina wrote:
+On Fri, 30 Jan 2026, Sahil Chandna wrote:
 
-> > #syz test
-> > --- a/drivers/hid/hid-asus.c
-> > +++ b/drivers/hid/hid-asus.c
-> > @@ -960,8 +960,8 @@ static int asus_input_configured(struct hid_device *hdev,
-> > struct hid_input *hi)
-> >  	}
-> >  
-> >  	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
-> > -		drvdata->fn_lock = true;
-> >  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
-> > +		drvdata->fn_lock = true;
-> >  		asus_kbd_set_fn_lock(hdev, true);
-> >  	}
-> >  @@ -1343,7 +1343,7 @@ static void asus_remove(struct hid_device *hdev)
-> >  		cancel_work_sync(&drvdata->kbd_backlight->work);
-> >  	}
-> >  -	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-> > +	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
-> >  		cancel_work_sync(&drvdata->fn_lock_sync_work);
-> >  
-> >  	hid_hw_stop(hdev);
+> syzbot reported a workqueue warning where fn_lock_sync_work is cancelled
+> during device removal before the work has been initialized. This can
+> happen when the device is disconnected while initialization is still
+> in progress.
+> Fix this by initializing fn_lock_sync_work before marking fn_lock as
+> enabled, and by using fn_lock as a flag in the remove path. This
+> ensures cancel_work_sync() is only called for initialized work.
 > 
-> Thanks! Could you please submit this with proper changelog, signoff, etc?
+> Fixes: f631011e36b8 ("HID: hid-asus: Implement fn lock for Asus ProArt P16")
+> Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
+> Signed-off-by: Sahil Chandna <chandna.sahil@gmail.com>
 
-Nevermind, it's 20260130155204.96831-1-chandna.sahil@gmail.com, I'll 
-followup there.
+Applied to hid.git#for-6.20/asus, thanks.
 
 -- 
 Jiri Kosina

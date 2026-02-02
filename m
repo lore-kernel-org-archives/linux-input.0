@@ -1,153 +1,160 @@
-Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E5B83D76
-	for <linux-input@vger.kernel.org>; Mon,  2 Feb 2026 03:57:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.180
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770004656; cv=pass; b=VSoVFwXJjpIG2Xc5Hbs5M60z/QmciI4nFr3jOZKweIQSc+EZt8x5OWfsO5jBhJLjQ14yb3HjM0L/NQNP3KFSlpqKYPVSA9hjZ2zv3QgnpBZMdwrFJbGtbK6h2z6FtpLX/JQvivTDozrzqBoL/MO9LMNE+WLSr6EgNEBdYV8V0e4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770004656; c=relaxed/simple;
-	bh=NQqxDajhoKEjVOw3sQ9GExXSu0a7BSic0YieJ2RLuIk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=O+kyF36xRXavmuB6Jw2Md1ItCvIq/qfT6YbJ+9Zzid5xJydWu7BA3I3/3jvzJZiRH5vMJyIxU35dYL42/oHlIYYHhGXXycrvzAuoIPseqss4VDbfU+RMnYiE4/7gg1suTJ6L7/CzQ8D/9MCVJNzLPby9mTPE3xx24caQn2EuDdM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BEOxp1Ft; arc=pass smtp.client-ip=209.85.208.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D132DE711
+	for <linux-input@vger.kernel.org>; Mon,  2 Feb 2026 10:12:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770027152; cv=none; b=fcYkGY1llgzm32MDvVmVjHpw5T0Q1Vc3xr5Z/sdaXWW93GOQ0sJnHCLTzxw4b+/PNtx39TEH4MmXqQCd8Ln4x6SP14rcbF8+WIk7v4Rqn49owLwdcEMR9xn0V516rk6sn+N5hw3ttRe7HbJC1SJw5x2vqaaEZM0YMq/uJk/tM0w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770027152; c=relaxed/simple;
+	bh=iFMbqwctJwHkJZqPrzS51Pz2muts4JJsycPay0HzPyY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JHKDqZzvGohFRwzsvtTU1JUslfs6LLIfLF/QCWA8OsMisq0iwfmvd5xboNmhLMvObkvoqnrZ8Omjq9dfVmltRJ4rleT3evq21SdSOsDnMOpjyu9DnhGC5P+RSlXWm6KaxfXZHG0l/DJ2zj3l8mNT8YaYZMsvxLBa6H9leycBom8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Y1VZ/D5e; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=h4iiyc87; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BEOxp1Ft"
-Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-382fb275271so39165681fa.0
-        for <linux-input@vger.kernel.org>; Sun, 01 Feb 2026 19:57:35 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770004653; cv=none;
-        d=google.com; s=arc-20240605;
-        b=YebZoN6bqcCcFsapKOzJ76wFOUCqq1Jhds3GXsVJqCYm8Efx+ZVvYS5UKKzJ69XM54
-         VtZjlX/2nPjB6gDkohWvSAYVZ1vbwmBq2ZXQ+YwmxWyYQjxDAfkRu4uAiYHFEOo15hq1
-         7LxMFHW46bBEQhSOTFDZzLeXG4vHUVr7wNiItyx98A4sSUDd/x1jF5x27HHLj42MXDy5
-         gEOKfeOWnZXV2Q5xFZ9oJKvYGKPhisVdsz75ix1y/+CB29obiUCbdR1noi+Qp3gR2lRu
-         jTe1b36NkKvmtxumkggCLCe+I4qkJUEMpaHGF/6gKPlC9xQPPv68ZDIkjMWOPdYr+CQR
-         iONg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=4KkZHBfEV4LhZKQypQJPlt0kdlnTL5wPT8BeiQYjtYA=;
-        fh=4n6Fv4zvxXAeTBWTWyFJGXmu2ef5Fl9/iFZ2aVGGDcM=;
-        b=UpWH6zGBN3t34B3tBlgaxfL+Hoyq4SgxVQwDemfGkMCuwOuAbQzyMr8sAPThw9N9ab
-         /o9tSp5rzNYDfl5czNd4y0/zCVNi2k6J6A/HwMtU8cbxauL/HSDdcoQ8B/zU8GoMQ3Eq
-         1ULv0eaYhNLOlx7fTxMAsEgXgZdpWkJAybqptMNfEscYxASkpIzflZHJbGFXgB8TCu35
-         uElbeGlmJbME//Zx+TrOUmutRObAigcqRMU1B92CRoeaS40Dyk8Nhl0Dgw6m4veZhV3R
-         /070JUR9Zn0zt4doj4UnS5HliSi2M+M59IajyujciBqprCLlo2yaeJcxM5/xfV0b5hpE
-         v7hg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Y1VZ/D5e";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="h4iiyc87"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61284God290301
+	for <linux-input@vger.kernel.org>; Mon, 2 Feb 2026 10:12:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	tHS6Wu5wR7F9TxmgaA02/LdYSXLSsQ7GX/XD1ERtU48=; b=Y1VZ/D5e6wIoYfpM
+	UTB2YvYYdbFnZwPc9SBGl/VicNsY1Wkoiq7JVtc1WzShEc6FTVcs3B32tysDzyGq
+	Jo2yLNeVamNumrbzAbl8mWvWWG4RdI6k2S0nV7vFv0hKLhrPmHbhSJNVAd7j5Pgn
+	JJMWvUeuWr+j+Gn+Dk6TU8yHN8JKURUveU//CohN/s9vOkLKNeRE60gu8plXADZf
+	NlOcsupYC/VuZ7LFolJlKbJicgyqZdy2Z7+1iNl3lMtRbR7g7EioBUYAusIRuFJE
+	qvTPXzeWzsQHNI07Qvch5kB8TjgHYDlm2iGRz1Ya6H0Y4qzwcrAboKSb4+yKiVuX
+	nj96tA==
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c1arecy56-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Mon, 02 Feb 2026 10:12:30 +0000 (GMT)
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-8c70cb31bcdso91787085a.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Feb 2026 02:12:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770004653; x=1770609453; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4KkZHBfEV4LhZKQypQJPlt0kdlnTL5wPT8BeiQYjtYA=;
-        b=BEOxp1FthZYwzVsjC3ePN3qNwM9mOoVDh0+qt7oD5lnJy4pHpX9FrKZzcMnNJDF/FJ
-         zRzGosL21WU5OIZj2nN6YX0pWYCwp3Y3iSzzBjd65LVlu8TjRwbcmvPieSBKYrwEMI1b
-         Q0FrrK4BNque5MsBC3zv5B4un3zcSrXS4e0u5EAn5WSA/q932q6LDBVC0GLkYz36Mzx5
-         JROd+FSP61law8b7xIDsEXC6RC2VSucP6wBVssC7yeXxE7ln5lb6taKApV2MzXbwhjqM
-         Cloh5AbGPcsvBLUSEqifFwXdiu2nH3BRNjM8W+kUBQLk6QCtO1xzx6ZB1X52xe8wxiDb
-         ReUA==
+        d=oss.qualcomm.com; s=google; t=1770027150; x=1770631950; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tHS6Wu5wR7F9TxmgaA02/LdYSXLSsQ7GX/XD1ERtU48=;
+        b=h4iiyc87ne70ksM2PF+DM/2LHnkVqtzI36Y5q9RsawcHw+UmzMMGTaPcNRYZHOLaPK
+         uzuy4T0ehECIqRp13Z5Yo5GMPWXjAXtMClz9fkrebXC68W8dPmLjBm2It8ufl4EwMnuI
+         vvwUuv27ZbwOJYvZ9HRFy/o/lPB7o0V5/FUKXR6d88XWQ/jYQGdxlFXv3mgeUXCN+eAj
+         2aw1VEstWu8OBWXyKb+SgA0crKJO7J7JfJZeRCefE+c857fjZKmB45sYAo4wsOcSKdtl
+         dnCpNfTyXHMxsTS8yQxNOvre9OfpbkX4aW1MdGuhJJApC3Te4ooWYia0PLFJXHIjbFZX
+         hv8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770004653; x=1770609453;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=4KkZHBfEV4LhZKQypQJPlt0kdlnTL5wPT8BeiQYjtYA=;
-        b=ucqwQHK81odvh+fHwpSePB/oqSINqDmoK0kYBsUG8Udf9cAe0bQuLBRld/gsNwpQoU
-         OBgJzGgAPF6G8LpUVa+YVi7hB+kHqc1O+WGuZBEfhYl1xdm58tolYJdmMlXBTOIZeb/R
-         fo2WAk4A4uWoTgzZEnF+rgYtW9NSZx/zIJVpvu0kdCcakmXVvbSZi6gPyvlkKJUK7sn0
-         OHtK+kQ8ehZhd0Ea3tGiVtq+ezvCZms43PEfgyvjga+aP/KhneGj+dvu9oPUnpGtlnfA
-         +rRPt+QD2f+M/fXnSSLD4CfAqey5r05e26fyvVc2AGZ79htnjk38lZXekT8o5nff9nYC
-         rfdg==
-X-Forwarded-Encrypted: i=1; AJvYcCVIa7O35cUjtaMWZRkD/nicy+wtvqqUK5QvYLb0TUl4lEHQjMG8C85PqPUa1oPVpiFJ7sr8CGXg/5WJgw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmJA5OJdv0r3cBvgqDhoSFlOapYmj27Z0uBPQRIDuF4bB+a7VA
-	/3XuzPt1SU/5SFxSFv9HMZWcToPjTTa9a8A1hhGaFB7xHeFZ1p+EIcDpxRYZLdOilV+3I8GkJgY
-	F5ceqQGQBAHNMx9oKHNcDXBO22tjoCkM=
-X-Gm-Gg: AZuq6aIRJ2AGL1v7nNjufG/TaEfJyqTr8Xy57U7SfK7pXj1W4pGhyVLoYQL/GOH3GGz
-	4+EDQ6TzDtqx5dvRj3vSU/x75HuZVyNlmf7GZFlFCXdnvlAwgwhlNXk1vbp33pSsAX3ZX1489uz
-	PZ2UOfg8to1shadrFrdUcpdmUFakU8XG8DSlPmugKK50RlwxZ3tPm/rbY618jvHkUXG5IXpRYXs
-	dG7KYqACxufAj/No8Zkd1g56XKUdD4pTJ4zlQlGUAThXIgqEcJ1H9GLhyq+65+Xd5CVB8QM5haY
-	tik=
-X-Received: by 2002:a05:651c:1c8:b0:37f:d484:599c with SMTP id
- 38308e7fff4ca-386466b57femr37828881fa.28.1770004653148; Sun, 01 Feb 2026
- 19:57:33 -0800 (PST)
+        d=1e100.net; s=20230601; t=1770027150; x=1770631950;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tHS6Wu5wR7F9TxmgaA02/LdYSXLSsQ7GX/XD1ERtU48=;
+        b=P++s0dliFlNIPdAAPd7EMNwjS5rJOFYrvziIVW/Q6yLV9DinLwiIqVTvCecInel5a8
+         Khv6AVwcvUfq6mL99PQfCR9nTLFrRTHsVZysbOz2lAVsA3pWVze8W1cGTxbV3rmNkBFw
+         J3Ft5rDs6zDzQ2BmkbmyxfZgLvSipL7unuLXiDFAK1VelxtWu6dyQ15PI1jSe9KXqCYe
+         gr/kLI2x2RUtwszjnG3hOTWQnQsPwoeRxKWwPB/lqhWW3gwZbg3XvLjfcqNSLOrMP4sr
+         gUW47bEXRZJVbmF2iCL2Px9FfQAg5EByRH+nOqRw3qTarwWfmzt/bWr+Q7DJ8kskKA+4
+         k1gg==
+X-Forwarded-Encrypted: i=1; AJvYcCXoMtFr+wMrhJ8tit5Y3pihZdG2fUkIepIQFYs43G22CUPDapKPoaWkTr3waF9nw8G5NcRxIO0M/Ql4gw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0/7EGxR7x0WCUXMXORJk/srljysOy6CnWd6NCIYXFAXATevrW
+	L/fqZLdSd93rM3qyd8eROiU7hdd4KY1HAqhAZeADxBowgMfPnH+W9JWyAhFU6u50Tg1y8dx9lZ7
+	I1XuBqwDs9m/8wweZ3D+S7EV+EOsPzjE5pe3/FENAi+bp4WakygKFtfi/KSWx3g11/Q==
+X-Gm-Gg: AZuq6aIa+FgkX3PZLe0eTNHh4H5AItZU0HB0H0nB1HeGucPMAeWkQEFBKJHeKElP3KE
+	MKXTXGl+M7IkDvY2/e0PcjLgkIJaw4ODJAvDCK4dhql/KtGI2A8acEZED7iHp4jdycY4lPVJAgj
+	zHhTdJDPEHEqr9+lK29bdgZOqj8CjBBDYt8ScUu3trPDPMf7dNh/hA5yEFj21vHOoGuSteDBXDB
+	DyDYn5Hsjifo07JBlo0AcBdWnE4vSWWtjJx4iQHBs2sMcNIzyEMnmxhysmw67Zqf5rcAOXASv9u
+	ZLtejJgbSQdbQVSTXAgriWRK/ckcRajGN5Bg7ZQUhFh/ANoBtaJFGrH75KjInFiUIayxRktfhmF
+	COWGm/Q9lU1wnKwt9tyYHq5y6DHo3f78h4AD+2JQVyzmh0S5hKuSELY5GeE5oMhC59YQ=
+X-Received: by 2002:a05:620a:4086:b0:8c0:c999:df5a with SMTP id af79cd13be357-8c9eb2fa331mr1079660185a.6.1770027149614;
+        Mon, 02 Feb 2026 02:12:29 -0800 (PST)
+X-Received: by 2002:a05:620a:4086:b0:8c0:c999:df5a with SMTP id af79cd13be357-8c9eb2fa331mr1079657285a.6.1770027149193;
+        Mon, 02 Feb 2026 02:12:29 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8e0901c150sm528620466b.69.2026.02.02.02.12.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Feb 2026 02:12:28 -0800 (PST)
+Message-ID: <472d7db3-db34-4966-aa17-588e1153ba12@oss.qualcomm.com>
+Date: Mon, 2 Feb 2026 11:12:26 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260127103907.20269-1-vishnuocv@gmail.com> <20260127103907.20269-2-vishnuocv@gmail.com>
- <aX8JwB7F8_ypJRAz@google.com>
-In-Reply-To: <aX8JwB7F8_ypJRAz@google.com>
-From: Vishnu Sankar <vishnuocv@gmail.com>
-Date: Mon, 2 Feb 2026 12:56:56 +0900
-X-Gm-Features: AZwV_Qi7tToR25uY6WlcGtxk-3piw3C98qRUN3Lr-_pA-7htZB6yfNnoroFq8-s
-Message-ID: <CABxCQKtW5hnTdo7eojMCDyN_bFK3E9MSmacTA=sD+xLYVF279g@mail.gmail.com>
-Subject: Re: [PATCH v6 1/3] input: trackpoint - Enable doubletap by default on
- capable devices
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: mpearson-lenovo@squebb.ca, hmh@hmh.eng.br, hansg@kernel.org, 
-	corbet@lwn.net, derekjohn.clark@gmail.com, ilpo.jarvinen@linux.intel.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	ibm-acpi-devel@lists.sourceforge.net, linux-doc@vger.kernel.org, 
-	platform-driver-x86@vger.kernel.org, vsankar@lenovo.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/3] Input: aw86938 - add driver for Awinic AW86938
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Luca Weiss
+ <luca.weiss@fairphone.com>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+References: <20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com>
+ <20260128-aw86938-driver-v2-2-b51ee086aaf5@fairphone.com>
+ <aX6whqw7XyaKMd9m@google.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <aX6whqw7XyaKMd9m@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=NNfYOk6g c=1 sm=1 tr=0 ts=6980788e cx=c_pps
+ a=HLyN3IcIa5EE8TELMZ618Q==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Tsre1VS37Hk-rMnNNKQA:9 a=QEXdDO2ut3YA:10
+ a=bTQJ7kPSJx9SKPbeHEYW:22
+X-Proofpoint-GUID: b-BaFnYC4nlcl0SxbS7cBvrHFo1sfuNP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAyMDA4NSBTYWx0ZWRfX+aGvSA+4KLUy
+ cZLS/DCLpp61Mv+4Wi/qcdmLUpUfPwYXO143KpjRjrdGMhuks101BuxJ91CQxTAMnXzlCGIy5So
+ omuXiPUtE3vzX9yL0f4FHTtGoZdeRHU9FvyW0vOSnbT8mdhVrGrSu8TWxd6wR20cONivF5ao0cf
+ Td8O3QuUUvfQk+Djfc45p4owfOMuYnogrvIwODz0cEots+/LyPlQAdJYIYTS1NovMU/OGfxWERn
+ oA62HQz8JprD7Mmw/7iisO+sjeId5xomOYQ7jFau3gA7sVL53PqY+AVB6JElO+CGlSfCpTrrAgx
+ lpXSQKJFbgZef9omp7il2z4Ab2n8ozQVLa7yBXEQogaicEJgbEV9kDjHK+BYDmm2YRfd74i+gtb
+ RxK0j2lFuSBwTEInFCxmB29GG5c8GuGx0+tVHFWxLEQ1K4BFqa4h+LQyH7Xt8nObtkYpiAzqMXD
+ 5KXqnk1URA0HmOcn2XQ==
+X-Proofpoint-ORIG-GUID: b-BaFnYC4nlcl0SxbS7cBvrHFo1sfuNP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-02_03,2026-01-30_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 suspectscore=0 spamscore=0 phishscore=0 bulkscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602020085
 
-Hi Dmitry,
+On 2/1/26 2:49 AM, Dmitry Torokhov wrote:
+> Hi Griffin,
+> 
+> On Wed, Jan 28, 2026 at 04:51:14PM +0100, Griffin Kroah-Hartman wrote:
+>> @@ -717,9 +746,19 @@ static int aw86927_detect(struct aw86927_data *haptics)
+>>  
+>>  	chip_id = be16_to_cpu(read_buf);
+>>  
+>> -	if (chip_id != AW86927_CHIPID) {
+>> -		dev_err(haptics->dev, "Unexpected CHIPID value 0x%x\n", chip_id);
+>> -		return -ENODEV;
+>> +	switch (haptics->model) {
+>> +	case AW86927:
+>> +		if (chip_id != AW86927_CHIPID) {
+>> +			dev_err(haptics->dev, "Unexpected CHIPID value 0x%x\n", chip_id);
+>> +			return -ENODEV;
+>> +		}
+> 
+> If we are able to query chip ID why do we need to have separate
+> compatibles? I would define chip data structure with differences between
+> variants and assign and use it instead of having separate compatible.
 
-Thank you for the comments.
+dt-bindings guidelines explicitly call for this, a chipid comparison
+then works as a safety net
 
-On Sun, Feb 1, 2026 at 5:10=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Vishnu,
->
-> On Tue, Jan 27, 2026 at 07:39:05PM +0900, Vishnu Sankar wrote:
-> > @@ -470,6 +509,14 @@ int trackpoint_detect(struct psmouse *psmouse, boo=
-l set_properties)
-> >                    psmouse->vendor, firmware_id,
-> >                    (button_info & 0xf0) >> 4, button_info & 0x0f);
-> >
-> > +     /* Enable doubletap by default on capable devices */
->
-> This is obvious from the code, please drop the comment.
-Understood.
-Will remove this in v7.
->
->
-> > +     if (trackpoint_is_dt_capable(ps2dev->serio->firmware_id)) {
-> > +             if (trackpoint_write(ps2dev, TP_DOUBLETAP, TP_DOUBLETAP_E=
-NABLE))
-> > +                     psmouse_warn(psmouse, "Failed to enable doubletap=
-: %d\n", error);
-> > +             else
-> > +                     psmouse_info(psmouse, "Doubletap enabled by defau=
-lt!\n");
->
-> Drop psmouse_info(), no need to make the driver too noisy.
-Understood.
-I will be removing his log as well.
->
-> Otherwise:
->
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Thank you
->
-> --
-> Dmitry
-
-
-
---=20
-
-Regards,
-
-      Vishnu Sankar
-     +817015150407 (Japan)
+Konrad

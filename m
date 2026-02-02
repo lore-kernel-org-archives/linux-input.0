@@ -1,40 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EE4D35CB63;
-	Mon,  2 Feb 2026 13:35:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A53B36826F;
+	Mon,  2 Feb 2026 13:38:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770039343; cv=none; b=P4kCqH/SU6FudyfV7zTh0r7/nZrFbdXUFGd00EiuXMeL6Ogkw2kiarll//j2wgBN4J4qzIIzpLoPv3bI5Qetd//TFQnSVvbAiu4jZwfZ9dDkMuDkHqvc7t7cHs36k5n+3eCQOOQHXK9FBegNO3DJNA2In00CIHaG/FP8d8UkPVo=
+	t=1770039500; cv=none; b=KLL0JsuzIq5FIjn2ZgVv5r7y8/hlAsvTect/ly8/7JpG1V1IUV1Uxn/FHrJTcA3PrNqIB+SWeprNabcU3c4i0mLkIUeDJgfRLHfd127j7lGkwxvrKEgBG5eeYDI9QgQzFahoNd9BnjHrwlluVKBG8XFuLjSexICnX4Wma8pWSo0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770039343; c=relaxed/simple;
-	bh=sVUgg7BRCytG43+95HkOIckiNhN/382D9rwLHL1rJIo=;
+	s=arc-20240116; t=1770039500; c=relaxed/simple;
+	bh=JC/prxUuTnxBvG1opY62WX8fTjvrGZ3Q4ENZl4Ng6Gw=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=CzVZos+rMueb/a5aEPOGmMEY8xiU3Fjxp0gnTVvY4/F0C44T6HWavsKWds8k8R79lRM+QGPGH9eFOpiOw7tvO/m8qT/2bCgaEwRJXRXiVjC+pRCBPjAxVo+7F4OFS8ALnzJ0xu3hv31AIeLgxrpWFfkGU1NQGM0I9ifnP4JfWWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iEwrvric; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=sChgo8BYp4S3XjXNBQ5fdwIO8OCap86eyNdzYYb3oI2HynP9+tEVpSo8no9BVUIqNOj7y7WfJ6ilVOjhXNqXCF70lvCzFC7vAXIQ0G6Cc8fSUFl6HVkFCekPYNnpo5Mhz6weQ7uyN7du0nbm9mW5H+R5335lwAVDJgyYcS4tx+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N5DvUZug; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iEwrvric"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE176C19421;
-	Mon,  2 Feb 2026 13:35:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N5DvUZug"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D17C116C6;
+	Mon,  2 Feb 2026 13:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770039343;
-	bh=sVUgg7BRCytG43+95HkOIckiNhN/382D9rwLHL1rJIo=;
+	s=k20201202; t=1770039500;
+	bh=JC/prxUuTnxBvG1opY62WX8fTjvrGZ3Q4ENZl4Ng6Gw=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=iEwrvricF0DJM6JdT4Et1FFyGPJhwQwA1603MX/PGIj/qd++E/EcN+xXfOZ3Z81cz
-	 J28picsx7mwrfHLY0bILZ474ckCWDBrs+O/BQDLclpgbvFLq5VnTOWbI+Rva3LH2RA
-	 gRNhtoguctTUYHK0JAjEnJFykJ+pDXSGYZaZgvUys9MiOYMWKM3VM3LHn4NxWWwGq4
-	 3PcgO8zpqauC34LkxV/4uPdJrhxkgUyMdjoWfXJzKabpaz5AmciDCmZrXDw2KHFzUR
-	 zVzqJBwuo1/wY8VZWXamhdLAdKIJ3DmjcLhrGDYn93FxWT2RKsGDMp5TJ79GN9CsX1
-	 ma/osgpyO4TWQ==
-Date: Mon, 2 Feb 2026 14:35:40 +0100 (CET)
+	b=N5DvUZugvGg7YzCdhFbiBMlpLgyjW/f9vY297qImtQFe+l2On8AMn9JCf5N24g9eb
+	 AdFtjgBdwslns433qyCHjwV6vD8cY4wtSc33GFVFcGhlRPx16eyWBCo7Tdf8Z0ifbh
+	 byaLTVD1JVqLYWzmCwr9/ukFZxiEw4gWlHEN9vd/Py7Tbe4cOyN0CehHvjYQZiA9Ec
+	 9I/T8vHiQ5tX30rkkc+3iynfnA+6NV1hlUHjlTUfWEukepRabXmffNmRKZpmBFVJYq
+	 Rv4eoSViFtI4S1e3pmZ3a2I11cKEf853KCbmuzz+j9hGSI3uMrhqnb4YOo0Fh+SUoL
+	 U/l9aqwjOswwQ==
+Date: Mon, 2 Feb 2026 14:38:17 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Rosalie Wanders <rosalie@mailbox.org>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: sony: add second device IDs to CRKD Gibson SG
-In-Reply-To: <20260129071227.5533-1-rosalie@mailbox.org>
-Message-ID: <q35o73pq-r722-rp5r-o72p-q419no65840q@xreary.bet>
-References: <20260129071227.5533-1-rosalie@mailbox.org>
+To: "Lin, Ryan" <ryan.lin@intel.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+    "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
+    "srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>, 
+    "Zhang, Lixu" <lixu.zhang@intel.com>, 
+    "bentiss@kernel.org" <bentiss@kernel.org>
+Subject: RE: [PATCH v2] HID: intel-ish-hid: fix NULL-ptr-deref in
+ ishtp_bus_remove_all_clients
+In-Reply-To: <PH0PR11MB749313441EEE2608C86E43818E9CA@PH0PR11MB7493.namprd11.prod.outlook.com>
+Message-ID: <92705p12-rnp1-977q-7n53-531o753no26n@xreary.bet>
+References: <20260130053456.4971-1-ryan.lin@intel.com> <PH0PR11MB749313441EEE2608C86E43818E9CA@PH0PR11MB7493.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,22 +47,13 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 29 Jan 2026, Rosalie Wanders wrote:
+On Sat, 31 Jan 2026, Lin, Ryan wrote:
 
-> CRKD changed the product IDs in a firmware revision, yet the dongle
-> doesn't have these ID changes included yet but will have them included
-> in a future firmware revision.
+> Hi Jiri and Benjamin,
 > 
-> CRKD also doesn't allow the firmware to be updated on Linux so having
-> both the old and new product IDs is necessary.
-> 
-> Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+> Looping you in for this v2. Apologies for the oversight in the To list.
 
-I've added
-
-	Fixes: bbf992775faa66d6c9 ("HID: sony: add support for Rock Band 4 PS4 and PS5 guitars")
-
-and applied, thanks.
+Thanks for fixing that up. I've now queued the patch.
 
 -- 
 Jiri Kosina

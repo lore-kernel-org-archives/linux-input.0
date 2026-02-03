@@ -1,81 +1,69 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27C0037A4AF
-	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 09:49:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CDE9399031
+	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 09:52:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770112184; cv=none; b=ROAiSAmBubzMPhKPpFHBPvl8Ykd46K0Sov2rcjHzT6Owr8ze+WWcAchdtNvF2Wmh030WRFfFUAc6iPne9kTBhccUPkFeBMC/c158vD8XYuIaFzoPpu9P9gwQpnKNpxgJol8nc3UDxmlsAxIzsAYSni9p2Boltfedn/Gl+Bi5wtk=
+	t=1770112350; cv=none; b=rG4jzxdrkH3TNXgVMJ1FUGAJ7Abt4oZdWcHlWwK/PjLQ+4DuYHBCPAxGWkzzhVSdIk723bQbjul6iton8PiY6d97y8wUvct7ECHvPTlS9sjCFkW68FjsLakWYIStSiXuGtJ3Xq5cujda4V7ctCmDWp2f4/OMFNwJyWHEQ7G3Hxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770112184; c=relaxed/simple;
-	bh=8U2aCtDoyNBYX4tZKHQggHHtkY7qa/5Oyp4XlYpfO+M=;
+	s=arc-20240116; t=1770112350; c=relaxed/simple;
+	bh=HzsCTJ/5Wd6XFseGcL0tVxKNA/JvuB7yGVCMu9C+LzI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QlELufR2hl/E0Ann//UC4i+YRa1K7KLLpfScd4W5i5LiYNLABrrm05N1YNundF5J9PBGEq61glMwVDiCkDz3f0ZCgxp35qZAAxFOIhdmEEerjtwtL1RWdKyo2BqM0h+LWjXMG4e1uvcvoInM1CDbPTI+Is0omS7nBoVP9kL7cTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jill0SN1; arc=none smtp.client-ip=74.125.82.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=es8J1/vmTkZtOu8XaN+99LK+CfU/YykUdKtqgoEmtsqTZ8P133MN/N/rKrLT0TUJnoEmQ9cz61EaXI9Qf69VvJCVXtrJNBYNUXgOe7uaaJkQkdR+FNJPoIDdnjw/K3JpFUU6OppI4P1j3awNQ8bmR8168pGKwt3Z+3ldC+4t1nY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Lkyj49/S; arc=none smtp.client-ip=74.125.82.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jill0SN1"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2b74f839bdfso409515eec.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 01:49:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Lkyj49/S"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1248d27f2b9so6570138c88.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 01:52:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770112181; x=1770716981; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770112348; x=1770717148; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NFGheamZ8aEsx41A3zYIiu3pbbEmnChDtUyKtntCxg8=;
-        b=jill0SN1eeRBRqttmfdbyB8JyqUzyvw5o/zdJMdiVB1o0GmX5q8qVTKfQ5SdLiBRs+
-         80gD0NTOtc6AZcF6zhW776koo579ws5srE1ryLki4+YoecztYvHxhKKmxXUuzgdRvnRX
-         szxUJiVAu5Sn9Ux9du+stgQgtRU3+KkNWLDYVhVd2C6LcIaWuj8ghplG/i++fWZfuaj/
-         K4YchJrIdNVLh5/soeiA3pwgkTOpGXTjmLHIqRrsNQXban2yLMug1vWaBVbsyiUvTsD4
-         l4zFron18oMZbr5PEIDNmyETxdgvlsI33d1nr5N+JEMyuyv2iYOFRuozlpsKslcVwS16
-         VE4g==
+        bh=EiAadb0pFwx8A76fRfrBpUk1j2ZUlXkLIXp59kF67is=;
+        b=Lkyj49/ShpFV6P0NuhYqwgFoWtsAyBxRY+L9hI2glGivdwsVvHhX7UMmV/7ghErTyB
+         85q3l5nhj51ipkjid9LhKAuhCO3tkbCznDtp/mRAEq/5TT8VQVrQjfk+0565OOF3GQPI
+         RSXpF14qb033DNF8wYzHdqayRDMDx4ZmiI0KB/QYN+dKL9D9van0muYi/eZ4H44LD/Cd
+         +JAeFYdNY/yJRJqvy8sZoUt/xYztbm8G4NGD2jnImTgXUcGxtbICLeFZXMSefgPaU9Uc
+         CEkppZNEitHyO9iuJEdtMllUSG1+9LaSr0jZQFtVnsYQyz882A2K8LbWQqg56/YmoMob
+         CVgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770112181; x=1770716981;
+        d=1e100.net; s=20230601; t=1770112348; x=1770717148;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NFGheamZ8aEsx41A3zYIiu3pbbEmnChDtUyKtntCxg8=;
-        b=CSjl5cTrzfYZs+N7hOu8mye/1fWwPZKKbQ2uPq/B1gSbdZJYnk526auHamNlZh9Hu6
-         IFD5i/uFImAnFLCleg9q9+sAXJaJSR16ZgOlfigioZB741VWJqr/olTr1vG3oWEy3jw+
-         L0mF1uaSwfhIMqmdwkHqy2LAfFVwYpy6iz4by5chfpEJbi3sg+H2ac/d4iVkKwfHh/t0
-         WAzuUcY9q8NxXGCnXlR3xfVX+0KJRP8BQ8QqvqbSn8lglzJG9v6Y1lvv7yHF6bYN5VAr
-         O7M9P1Z0s/H+NE7Z1MF39JrLmOZsVH+vgkfTJyJY/lgylOLOJbGCHk384Y6S2LA5cL3i
-         HtGA==
-X-Forwarded-Encrypted: i=1; AJvYcCUdXKPwZWK2abpVjSUkFadejeGU0d5U20e5hQS9NwXpYjbJCS0egAwM9yowjI9t8jOGaIUNLP30/+54ZA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQK5m5sIaMPdBbhNgZT45WJvP4cX3s3OXc1kD1qDDijFFPu5wK
-	CERITrx/A0Jx1QQzt0uOSdjaW5tj/tszqw3vaU35QUG7N3UQTVdqc3HY
-X-Gm-Gg: AZuq6aL6DSmFBxtis0ZJugBozgaDJVYLwX6A+ycOs9IHoqgoXVPtxn6VKeUN71tB9xq
-	ec+feMNGsYEYiWUZk551NKyn16KL4UB7AoPbVL5ITsv5wGnX7TKxnazQBT7F104mnqp/X+Eco0q
-	opb6U30dt562I7mihNvFn3CyRADVEv839yPbsdkr+ZI6f7QWSwU8j6sqjvwuOSZ0yWuccs008mU
-	y/RzjofWwd8HFHVuLhFja6WHR5z4t5nqY0viox2Oa1Z7/Mowzhpe8QNfGlPchX7yViYIylU8rTJ
-	V2/h6fuhUEun1jKJ/iBR4PLSeUX83oUCSFiEhm/nsflUUQVxTJz6dg8yxrOJn5HeI7kr0+XvC58
-	wyM//waicLdIqMlBpaMrJWscZ3xAsa2h0SJlMi3clL7OgsvoHaofWc7ahiyyjjeop+S7rIP7ZW0
-	MOK8aXqWcpVUUSmL2fIm+NzNOpAj5BE34LUZR4Z0A4xLBYD4lW
-X-Received: by 2002:a05:7300:214e:b0:2b7:20fe:821d with SMTP id 5a478bee46e88-2b820eae81cmr742075eec.10.1770112181077;
-        Tue, 03 Feb 2026 01:49:41 -0800 (PST)
+        bh=EiAadb0pFwx8A76fRfrBpUk1j2ZUlXkLIXp59kF67is=;
+        b=LkzeQOflyQC7iHAB/jRf5JOpV1cDmqiPhSrvjXui+WPw65PVgFPgMrP39Oear8fzNx
+         5goG8HR6PQ87BrBKbwFHk2n/wMxtPpfyAArIpd48pjoAmbO6lcvrXsZ3Vo9MmyJbU/V7
+         D+AEF091Y9mEG9EwJ/cqk4QvV2fmHPbhqoZgKgqg2r8H4gjmKm2NUwnGhwch4R3aFEmo
+         dJ9SI9s8unvMp+QmaXElDmglJ6GDr9ZfbalrEt0sJX9g1G4c4LAaHotCUZnSlnr7OBIG
+         sze4XsFaHOK7+rehXBTAxQE/5Ti2Qrfz5Hfh2uQjt/HP+/j89zdv+P9BDEtdPTRoj/t0
+         ZrbQ==
+X-Gm-Message-State: AOJu0Ywes1lHhVHlCMRY1F5dJYKrJWuxU83Zbm+G+MDNTV8J7bS/szU+
+	ha1JYjWBUV32RQz9kllS8dzCq6ZtAGbQZ30VYrgfn7U/TjrdsFQB1zw6
+X-Gm-Gg: AZuq6aLlflwPhgHBoXha01Qd+59nCatwMU0KcGVNAEl1uFLDwKOy4SIgzEip2LP7l6D
+	+ZqsCqN2tbmwo4ldlRBR1TLFNZg94oAz25g/NNc74Oy2iq+qAVHPIIRtZ/fKklIWYh/f61QrO74
+	gJDB9UFNMnWnqFV8+SdK7FTucLBdEEaYg/Aecvp9UMmBgOMQQt3dTYVZAhvA6yhqWoISgW4ZYbL
+	CU/yS5PmMUQrC11UcU51Jfh1V+AOxb+IogY4RBWsX/j75ZSn9tEEtjCMZdM13B9KOoSAIiZqDDN
+	HW0XStdcrnXKPI1PBMMNhHOXjSqW8+u5eHju6+Ex6qQksj4LF8N2SkvQIxZiaADk3XSRWlNhT+z
+	NmNh+iJjWHYWqydRCWUZNz5LF9ZY0T3GizqJ6AxIl8ICTKl1wCga284DtAaz8LVmrif4qCwm0UR
+	KZTGR3z1YCOnquazXZeTU+KLR9lLWevq+nOVCatnjuhIutd26L
+X-Received: by 2002:a05:7022:6986:b0:11b:9386:a381 with SMTP id a92af1059eb24-125c10222f0mr6269308c88.48.1770112347603;
+        Tue, 03 Feb 2026 01:52:27 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:ea13:571:b19b:36])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b7a16d01c4sm21943170eec.2.2026.02.03.01.49.39
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-124a9e0304bsm19703882c88.14.2026.02.03.01.52.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 01:49:40 -0800 (PST)
-Date: Tue, 3 Feb 2026 01:49:37 -0800
+        Tue, 03 Feb 2026 01:52:26 -0800 (PST)
+Date: Tue, 3 Feb 2026 01:52:24 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Cc: Luca Weiss <luca.weiss@fairphone.com>, 
-	Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] Input: aw86938 - add driver for Awinic AW86938
-Message-ID: <aYHBgLyIttd4lkn6@google.com>
-References: <20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com>
- <20260128-aw86938-driver-v2-2-b51ee086aaf5@fairphone.com>
- <aX6whqw7XyaKMd9m@google.com>
- <472d7db3-db34-4966-aa17-588e1153ba12@oss.qualcomm.com>
- <DG4EAYDXMGQS.2MKAJKDFQCFEG@fairphone.com>
- <34fa533c-b9ab-4025-b9ad-4041837e790c@oss.qualcomm.com>
- <aYCCv6nI2QkvD8rb@google.com>
- <6fa17bda-4d4a-4b31-99a2-1d2b606b663b@oss.qualcomm.com>
+To: Ziyi Guo <n7l8m4@u.northwestern.edu>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: cyapa - fix missing input->mutex when calling
+ input_device_enabled()
+Message-ID: <aYHEzf5nYpA1H5Cj@google.com>
+References: <20260202220223.2471730-1-n7l8m4@u.northwestern.edu>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -84,111 +72,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6fa17bda-4d4a-4b31-99a2-1d2b606b663b@oss.qualcomm.com>
+In-Reply-To: <20260202220223.2471730-1-n7l8m4@u.northwestern.edu>
 
-On Mon, Feb 02, 2026 at 04:11:51PM +0100, Konrad Dybcio wrote:
-> On 2/2/26 12:04 PM, Dmitry Torokhov wrote:
-> > On Mon, Feb 02, 2026 at 11:19:36AM +0100, Konrad Dybcio wrote:
-> >> On 2/2/26 11:14 AM, Luca Weiss wrote:
-> >>> Hi Konrad,
-> >>>
-> >>> On Mon Feb 2, 2026 at 11:12 AM CET, Konrad Dybcio wrote:
-> >>>> On 2/1/26 2:49 AM, Dmitry Torokhov wrote:
-> >>>>> Hi Griffin,
-> >>>>>
-> >>>>> On Wed, Jan 28, 2026 at 04:51:14PM +0100, Griffin Kroah-Hartman wrote:
-> >>>>>> @@ -717,9 +746,19 @@ static int aw86927_detect(struct aw86927_data *haptics)
-> >>>>>>  
-> >>>>>>  	chip_id = be16_to_cpu(read_buf);
-> >>>>>>  
-> >>>>>> -	if (chip_id != AW86927_CHIPID) {
-> >>>>>> -		dev_err(haptics->dev, "Unexpected CHIPID value 0x%x\n", chip_id);
-> >>>>>> -		return -ENODEV;
-> >>>>>> +	switch (haptics->model) {
-> >>>>>> +	case AW86927:
-> >>>>>> +		if (chip_id != AW86927_CHIPID) {
-> >>>>>> +			dev_err(haptics->dev, "Unexpected CHIPID value 0x%x\n", chip_id);
-> >>>>>> +			return -ENODEV;
-> >>>>>> +		}
-> >>>>>
-> >>>>> If we are able to query chip ID why do we need to have separate
-> >>>>> compatibles? I would define chip data structure with differences between
-> >>>>> variants and assign and use it instead of having separate compatible.
-> >>>>
-> >>>> dt-bindings guidelines explicitly call for this, a chipid comparison
-> >>>> then works as a safety net
-> >>>
-> >>> Are you saying, that
-> >>>
-> >>> 1. we should enforce dt-bindings == CHIP_ID (what's currently done)
-> >>
-> >> This
-> > 
-> > No. If there is a compatible chip with different ID (for whatever reason
-> > - maybe there is additional functionality that either board does not
-> > need or the driver does not implement) we absolutely should not refuse
-> > to bind the driver.
-> > 
-> > Hint: this thing is called _compatible_ for a reason.
+Hi Ziyi,
+
+On Mon, Feb 02, 2026 at 10:02:23PM +0000, Ziyi Guo wrote:
+> cyapa_enable_irq_for_cmd()/cyapa_disable_irq_for_cmd() and
+> cyapa_reinitialize call input_device_enabled() without holding
+> input->mutex. However, input_device_enabled() has
+> lockdep_assert_held(&dev->mutex).
 > 
-> Right, the reason you have in mind is fulfilled by fallback compatibles
+> Add mutex_lock()/mutex_unlock() around the input_device_enabled()
+> call to properly protect access to the input device state.
 > 
-> (i.e. "vendor,actualchipname", "vendor,similarchipname" where the driver
-> only considers the latter becuase the software interface hasn't changed)
-
-And having chip_id checks will break this...
-
+> Signed-off-by: Ziyi Guo <n7l8m4@u.northwestern.edu>
+> ---
+>  drivers/input/mouse/cyapa.c | 27 ++++++++++++++++++++++++---
+>  1 file changed, 24 insertions(+), 3 deletions(-)
 > 
-> > 
-> >>
-> >>>
-> >>> or
-> >>>
-> >>> 2. we should have both compatibles with no handling based on compatible,
-> >>>    but only use CHIP_ID at runtime to change behavior
-> >>
-> >> This is spaghetti
-> > 
-> > I really do not understand the aversion of DT maintainers to generic
-> > compatibles. We see this in I2C HID where we keep adding compatibles
-> > for what could be described via device properties.
-> 
-> This is because it's the only way to allow for retroactive changes that
-> do not require changing firmware. That's why ACPI carries new identifiers
-> for even very slightly different devices too. Once the firmware containing
-> (ACPI tables / DTB) is put on a production device, it is generally not
-> going to ever change.
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index 00c87c0532a6..e5fe3b8b6548 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -525,8 +525,15 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+>  static void cyapa_enable_irq_for_cmd(struct cyapa *cyapa)
+>  {
+>  	struct input_dev *input = cyapa->input;
+> +	bool input_enabled = false;
+>  
+> -	if (!input || !input_device_enabled(input)) {
+> +	if (input) {
+> +		mutex_lock(&input->mutex);
+> +		input_enabled = input_device_enabled(input);
+> +		mutex_unlock(&input->mutex);
 
-They are actually solving slightly different problem. In ACPI world they
-allocate a new ID to represent a peripheral in a given design, down to
-it's firmware behavior. It encodes much more than chip ID that DT
-maintainers want to key off of.
+This solves absolutely nothing. The value of input_enabled becomes stale
+the very moment you release the mutex.
 
-> 
-> CHIP_ID registers are a good tool to validate that the author of the
-> firmware table is doing the right thing, but solely relying on them
-> encourages creating a "vendor,haptic" compatible, which I'm sure you'll
-> agree is totally meaningless.
-
-Is it? If a piece of hardware speaks i2c-hid protocol why do I need to
-know the exact chip that is being used? Depending on the chassis and the
-size of the sensing element and the version of the firmware that is
-loaded into it the behavior and timings of the same chip may be very
-different.
-
-> 
-> That's especially if the naming scheme makes no sense and you can't
-> even factor out a common wildcard-name (which also happens to be the case
-> quite often)
-> 
-> Plus a compatible is used to restrict/modify the set of allowed/required
-> properties, so having an "actual" compatible is required for schema
-> validation to work
-
-Yes, in cases where there is not a common set of properties having
-different compatibles makes sense. But in cases when the device is
-supposed to have vendor-agnostic behavior insisting on myriad
-compatibles makes little sense.
+The driver requires much more through conversion to handle potential
+races with opening and closing the input device.
 
 Thanks.
 

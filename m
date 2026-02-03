@@ -1,91 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 894D13E9F81;
-	Tue,  3 Feb 2026 18:17:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30AC626ED3D;
+	Tue,  3 Feb 2026 19:06:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770142670; cv=none; b=FjA8TqnVwkLVNHM/nhLUAVmnw4xx03AdUZz98RJVB++kaDa3h9YIrOLVbgYodFgR75Nx7KYz0jp5o6GTxGjriawNhmJHNqTPrLko3X9Mf4DDNTarI7M37GKhGF2rPtI3nDvLc9MwISPBFRyo3HRTJknQMTKJBXyaQipwzwsh0S0=
+	t=1770145606; cv=none; b=CfkiOk3TKGpwvlrp5XCjg2ffjlWBrFnKp1soiCiAug7NuRNsZgYCVuB3lPZccXOZKseEgMjaQ2b+Eh8LZSLAEk07HUzNH4tUqLj3HX5IV5WxbgeTpDFzg8ecQWWQ5v6Sbrtxmhd0T9xDH3YqnosMINgVEjWfKIWhXec8ZBVYfKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770142670; c=relaxed/simple;
-	bh=yPbmCtjy6RRylpFsKwUc0hReC0VToT5DsbjLiVbR0qg=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=beIxbp/UADgn/+aY16jk5P4cWOPls4IrQuOwcs/FuqgezZaWhpeVvhRoc6sPyrZr4x4+MIImtIS5YL+aYxV/5meAb7hwKwik/P3kRJPIFvFbtb42U6U3q6UFbpf0+bPplvd5fVoXP9mxDNsQM4OCVo+wi8A9/1h8PwTMgYsT4wY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BwsvFpLG; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770145606; c=relaxed/simple;
+	bh=TfKUms7FiS8wUoeSqDF3smXCfeZPbzr+CARofFXyjAs=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=QQEYhmMzkN+GCA5+2w+RArn9Fn0bfKt8jkUy5HHJX9w1/EMzSRIH2vtnDAuN5DcT/padLX6VIoreWe6qlroj2PfTMKdn6lSQGIrp+X6JbfFRvf5MV6vKgqTmPOcS/SVfcnrkDGaIO2dwTKPxxtmm48L1c+ZiiJ60VIs6M6pQeRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g5qu+Bb6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BwsvFpLG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F318FC116D0;
-	Tue,  3 Feb 2026 18:17:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g5qu+Bb6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AF20C116D0;
+	Tue,  3 Feb 2026 19:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770142670;
-	bh=yPbmCtjy6RRylpFsKwUc0hReC0VToT5DsbjLiVbR0qg=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=BwsvFpLGVD4frwinqDluGdWKa0Fqkl4GAxDq+tXKhGV2Pa+EtR6gKES8V5sRCx9Fd
-	 VxqeiCuwG1XlWqvD57XEn9fglsyci9zjWDRGI5PDX+CtZXDH+dAqYGrnvEv3KWsDSF
-	 GuYg+Z2eYB0jy+AuafP5iSDfsqvNMDuXocNO0Iwd1x/PUdsosVOhsn4slCirp1+ks1
-	 TEvGchrwU14EkEilUQh/U94NpuPTJzlt42S2ctqTNdYxlptt8QHhoMVXnPlW1Xnhd+
-	 bNWFcvq969S4Lt3Cl85IvH2DD0NIJlywu6pnpUlHe37YQ9gpLxNqZzJQKEzsEy7o98
-	 os6P7ABIBB9sQ==
-Date: Tue, 03 Feb 2026 12:17:49 -0600
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=k20201202; t=1770145605;
+	bh=TfKUms7FiS8wUoeSqDF3smXCfeZPbzr+CARofFXyjAs=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=g5qu+Bb6xsl4pbeeNG3lyeYT7FEW0/IKQTci4mPUSM3aDeSAebrMjDYM4Q9FSBiwj
+	 SUjuynZCWYxzrNzpZNr1eq0I4Pf8wtUA8e9PJSX/RmgdDebPN4rbGw+/A4vrde1xrw
+	 lyGjS+kZDUQYemK4ZyuVXypRdsQJ9aHMlnL0G1c+UvUutru35APJ6D7XfX84pcYnzA
+	 zFb3mKBO/r12pQ99tnPrKx2HQef57oKa9RpM39FwXa1KsBW0pUaGHbZNjANBEhxI1U
+	 bx1lr2sBc057Ck+8ZKkJBKGCan4Gej2WeQtDYv29fqk4igkockmoiZ2UgVKmroD2h+
+	 7s4XQbTVp/3Rw==
+Date: Tue, 3 Feb 2026 20:06:43 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Antheas Kapenekakis <lkml@antheas.dev>
+cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
+    Corentin Chary <corentin.chary@gmail.com>, 
+    "Luke D . Jones" <luke@ljones.dev>, Hans de Goede <hansg@kernel.org>, 
+    =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+    Denis Benato <denis.benato@linux.dev>
+Subject: Re: [PATCH v12 00/11] HID: asus: Fix ASUS ROG Laptop's Keyboard
+ backlight handling
+In-Reply-To: <20260122075044.5070-1-lkml@antheas.dev>
+Message-ID: <92095q4o-n2o1-p4or-n238-o1ro83616o37@xreary.bet>
+References: <20260122075044.5070-1-lkml@antheas.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, 
- conor+dt@kernel.org, devicetree@vger.kernel.org, hvilleneuve@dimonoff.com, 
- linux-input@vger.kernel.org, krzk+dt@kernel.org
-To: Hugo Villeneuve <hugo@hugovil.com>
-In-Reply-To: <20260203155023.536103-2-hugo@hugovil.com>
-References: <20260203155023.536103-1-hugo@hugovil.com>
- <20260203155023.536103-2-hugo@hugovil.com>
-Message-Id: <177014266917.3376127.756776677952580015.robh@kernel.org>
-Subject: Re: [PATCH 1/2] dt-bindings: input: add GPIO charlieplex keypad
+Content-Type: text/plain; charset=US-ASCII
 
+On Thu, 22 Jan 2026, Antheas Kapenekakis wrote:
 
-On Tue, 03 Feb 2026 10:49:47 -0500, Hugo Villeneuve wrote:
-> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> This is a two part series which does the following:
+>   - Clean-up init sequence
+>   - Unify backlight handling to happen under asus-wmi so that all Aura
+>     devices have synced brightness controls and the backlight button works
+>     properly when it is on a USB laptop keyboard instead of one w/ WMI.
 > 
-> Add DT bindings for GPIO charlieplex keypad.
-> 
-> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> ---
->  .../input/gpio-charlieplex-keypad.yaml        | 88 +++++++++++++++++++
->  1 file changed, 88 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.yaml
-> 
+> For more context, see cover letter of V1. Since V5, I removed some patches
+> to make this easier to merge.
 
-My bot found errors running 'make dt_binding_check' on your patch:
+So I see (because of the conflicts in linux-next :) ) that this is now 
+sitting in kernel/git/pdx86/platform-drivers-x86.git with Ack from 
+Benjamin.
 
-yamllint warnings/errors:
+Where did this Ack happen? I don't see it neither in my inbox, nor at 
+20260122075044.5070-1-lkml@antheas.dev
 
-dtschema/dtc warnings/errors:
-Lexical error: Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.example.dts:30.17-27 Unexpected 'MATRIX_KEY'
-Error: Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.example.dts:30.29-30 syntax error
-FATAL ERROR: Unable to parse input tree
-make[2]: *** [scripts/Makefile.dtbs:132: Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.example.dtb] Error 1
-make[2]: *** Waiting for unfinished jobs....
-make[1]: *** [/builds/robherring/dt-review-ci/linux/Makefile:1525: dt_binding_check] Error 2
-make: *** [Makefile:248: __sub-make] Error 2
+Thanks,
 
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260203155023.536103-2-hugo@hugovil.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
+-- 
+Jiri Kosina
+SUSE Labs
 

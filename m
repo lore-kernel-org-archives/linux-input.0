@@ -1,83 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6223D3D3497;
-	Tue,  3 Feb 2026 16:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE11330DEDC
+	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 17:42:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770137925; cv=none; b=NS/0QjHHXJzW+MNiGWD/S0KkO7XsVaogyliDodgI4AYaq4SBAcEujPShLNRxa/ryjXAYY4SFW2Y656NPTKUsSmxPa2Hz8+WNDUUPnaFVMiwE3+2y/k1kZ5vJfW2dX23AGttYjWlGIRiiqErNVrYmc/MXZkgqaNLxN90EuNZ71+I=
+	t=1770140569; cv=none; b=RH+XirklDhdPoL6pheLfzYNpWt+5PdjsYWrHkPS9azIEBkDFIL1OHwURfXUyIDyU4T8+MwfFpMJ3PePXEbJObe6CPn+/S0nsi83JSCnXUnNfY66+IM/KpdhJakmZVy+euIjw39/6W9cYwQKJ1G3I97I1lpTXbNkzgWBcphSezNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770137925; c=relaxed/simple;
-	bh=AUsFA+Sb2+W06GKLkOjSvEgqjMflS321Gm7pHcuGYUg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ETdCJ+LRhf002avHDC4cqboxpGmUSqrppRhp5kNe9WdypfSZv8adGe8hornJAEghAV7cPFgnBZXlW+cOSMnpeH3xPalD3WHQN4WwYoylKwxhSmu8O7R4KNdQIDW3CrGaUWx1OeCJJO2gTM95f10j9S+5evg5i2ktBl3/1WrbvnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=rYl1AoQa; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770140569; c=relaxed/simple;
+	bh=XsYfAuikLlaOfTmt/l8n20FoLsRWn3fKrE6HabUSTLg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=H9/TSEF/qkZVfqoIKugC1gp346IyST20hl9mcTR4XJZQR0Csf6PqLs3xjPHvhz5/YuY7fJai2ElqS9ZlNsDV4iJvAHPn0tLC7jQZ5+C4Ge/RwTTZvaBTGQNPegeb/cWRFkfu+BuWEOjP0Ngud6fC1WDxHq3Pr6wDEvXrLjGRXs8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jxd3bWfL; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="rYl1AoQa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C46DC116D0;
-	Tue,  3 Feb 2026 16:58:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1770137925;
-	bh=AUsFA+Sb2+W06GKLkOjSvEgqjMflS321Gm7pHcuGYUg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rYl1AoQaEsSRdwQQRbNPgP+W62Z0FpsKIjvhawQ1ABhBcV3vrcS9ZJrgrm6NSFNIO
-	 jdt8V8XWarMXDJtDefbDyWuIHSEkOYGnO0eiPQJHLxexv8vLshrvug7p6ewGWfLFqx
-	 kTsOGSp9I91+nQebK3gKPaRnjDM6yFull1cFpxck=
-Date: Tue, 3 Feb 2026 17:58:42 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Sebastian Reichel <sre@kernel.org>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	Ion Agorria <ion@agorria.com>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v1 2/9] misc: Support Asus Transformer's EC access device
-Message-ID: <2026020347-mushy-lunar-d12d@gregkh>
-References: <20260201104343.79231-1-clamor95@gmail.com>
- <20260201104343.79231-3-clamor95@gmail.com>
- <2026020350-unrevised-humming-7a42@gregkh>
- <CAPVz0n35NkEXjur-oJhW6Yxwme_KMLdYCnRAtjHEWSPEVrSUXQ@mail.gmail.com>
- <2026020346-ashamed-campfire-b483@gregkh>
- <CAPVz0n2HmLwdif5ry+y56LB8Gpwh2o9_gJ7K2jhcZVR=rPgfPA@mail.gmail.com>
- <2026020314-humbling-mobility-c24a@gregkh>
- <CAPVz0n0TMOCYnMiVUZ7xx-1SqrXuaVCOY-o4-x9L=f-xSMDj8g@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jxd3bWfL"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b876b5c69baso69376966b.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 09:42:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770140566; x=1770745366; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iJlB42/KFIlk7GeivHJ/GHOk3Bxvmmpk4HJ11cBcz4Q=;
+        b=Jxd3bWfL0aaMhuL9v5xFUYg0a/wwRdauhiRvU3o96AJQT691nxBstIjKHfxzOgwExV
+         cDH8WhKPg4RpABk3HnkwtOisD1bfOVDyYomqw8IKEIvC7QtuMSdaovMTmbcP8FQ7zSEq
+         bqeGH57kpAAZlmvuT2P++t2dV+81Q5Rr00vFzBVqFqEXM1OFInLMSCZnjdBqC48n+N7P
+         z0k987lQZK3JgdFP+KAKvTQJkCLrNfDfUwrJ0x7vXvhd1doP6wsdT9ePtIrxVYaZEWUU
+         ydtYzxFp2Ora3XewaF4c5JDDdQy5rXhMtmde6jKP29xFucQqM/4Pyz4GnzP9sGVI9JGW
+         un6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770140566; x=1770745366;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iJlB42/KFIlk7GeivHJ/GHOk3Bxvmmpk4HJ11cBcz4Q=;
+        b=IkrmKGVp/VWBqHTa2WtnvEKxkQLkQtQIPB0BIqt7Iz5at6J/POVfnPQFijUFbUcRfM
+         iJ5c9XUnA6MQ0Dh1Odo7S4kwASbQgTNgJ5sgmW453xGsl4eA/OQOBKhY9xtFhVklhFp7
+         GRp0mDeV+I/55liQATTPr/2bsK4kK5LVShTqd1fZIovwDhk9InBrUmJQXfPzbQe77YLC
+         zzjSj1l7IRLKaX1aorKEwq1Q7KSLHqdB3snu27RhPjaU38G7ctUUb5A1zF9JreFb+BWd
+         zgA+nwp1HFggEg0uRUgchlGvM3kQLs5fa+LwnuhX6XkJX9Wgzy96M0Dxd3xHxqbeDJoO
+         ga+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUI/g2Ny6izAbNiyoawMbk6zBPlgh4mHaCY9ZrR7lPvJjLXY7PvLDrEWb1lSvGARZYo/d8enw177D+LJg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwcKaW6ZnK9r8kfdK0a6eLKqMXjSpKx2DrBhopC/NJ7Vpc8kvUI
+	B3SDw+n2q6CkD9ayGPyi6gf81E2tuxoww+5Ivrkp48hRz7N/ND61V93g
+X-Gm-Gg: AZuq6aKp2kFueCT7auV4mejSaofnR2JWKRIZnrLHN5Hfz7fFE2aSuVCDQ3UewiAZ3YQ
+	7QmUjtvxSW450QEQDhOn007/ZTwWoJ3GaB5ZbKG/Mx4zzcKMMM3Mj71kIEPjasyzOwNEqBsSql/
+	pKQfhrwml/KUPvgG62L4XS+hpUlqqbZxW+7D4JxxQgHKJg2M+iSVzzDCZSbU8IEZ7+9v5E/+i3C
+	TTJCxiI3GKb8JP5EEmZZBdKuiuXsADrUGU9Lz7FOLkHDdHk8wolmSWOV0P3NKFf4q94x1yOg1Gb
+	VNNlPAT4bKIj7ZZpB5HI4oO0meee8+R/Pw+iyDzYhWnxli5TnxImzH5GE0B4VI1CZVSe7IMSooq
+	cPSeCfRia1PZs1a/LVihKsb1IBy+J24dydYiZ1vJJcUWWbbJqhBVH71wDSFe35+QQ5OzOOV48FM
+	8DCNGQGRe2GNiLiYGl/Pe9NuJ0X1oK/5Yknp2laCXrcBZgpNWQmp+s1K2I320n3Jqs
+X-Received: by 2002:a05:6402:13ce:b0:659:3f9d:757b with SMTP id 4fb4d7f45d1cf-659499b8e05mr174881a12.2.1770140565884;
+        Tue, 03 Feb 2026 09:42:45 -0800 (PST)
+Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6594a2168b3sm163968a12.20.2026.02.03.09.42.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Feb 2026 09:42:45 -0800 (PST)
+From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	sashal@kernel.org
+Cc: oleg@makarenk.ooo,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	tomasz.pakula.oficjalny@gmail.com
+Subject: [PATCH] HID: pidff: Fix condition effect bit clearing
+Date: Tue,  3 Feb 2026 18:42:41 +0100
+Message-ID: <20260203174241.2863219-1-tomasz.pakula.oficjalny@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPVz0n0TMOCYnMiVUZ7xx-1SqrXuaVCOY-o4-x9L=f-xSMDj8g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Feb 03, 2026 at 06:50:01PM +0200, Svyatoslav Ryhel wrote:
-> > debugfs allows you to do much much more than simple stuff like
-> > BIN_ATTR_RW().  Go wild there, but don't put debugging stuff in sysfs,
-> > that is NOT what it is there for at all, but rather, that is exactly
-> > what debugfs is for.
-> >
-> 
-> I am removing said stuff from sysfs, that is not what I am asking.
-> Debugs does not allow to upload register values in a form of binary
-> block. It allows only dumping via debugfs_create_blob or
-> debugfs_create_regset32 but not writing. If you know examples of
-> reading and writing register sets as binary data, please point me to
-> it.
+As reported by MPDarkGuy on discord, NULL pointer dereferences were
+happening because not all the conditional effects bits were cleared.
 
-You can easily write your own given that debugfs allows you to use what
-ever file operations you want to use for a file.  Why not just use that?
+Properly clear all conditional effect bits from ffbit
 
-> I am asking if it is possible only to preserve dockram_read/write
-> functions in the code, without exposing it to sysfs.
+Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+---
 
-Why would you want to do that?
+Urgent for 6.19 rc period and backports for 6.18
 
-confused,
+ drivers/hid/usbhid/hid-pidff.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-greg k-h
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index a4e700b40ba9..56d6af39ba81 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -1452,10 +1452,13 @@ static int pidff_init_fields(struct pidff_device *pidff, struct input_dev *dev)
+ 		hid_warn(pidff->hid, "unknown ramp effect layout\n");
+ 
+ 	if (PIDFF_FIND_FIELDS(set_condition, PID_SET_CONDITION, 1)) {
+-		if (test_and_clear_bit(FF_SPRING, dev->ffbit)   ||
+-		    test_and_clear_bit(FF_DAMPER, dev->ffbit)   ||
+-		    test_and_clear_bit(FF_FRICTION, dev->ffbit) ||
+-		    test_and_clear_bit(FF_INERTIA, dev->ffbit))
++		bool test = false;
++
++		test |= test_and_clear_bit(FF_SPRING, dev->ffbit);
++		test |= test_and_clear_bit(FF_DAMPER, dev->ffbit);
++		test |= test_and_clear_bit(FF_FRICTION, dev->ffbit);
++		test |= test_and_clear_bit(FF_INERTIA, dev->ffbit);
++		if (test)
+ 			hid_warn(pidff->hid, "unknown condition effect layout\n");
+ 	}
+ 
+-- 
+2.52.0
+

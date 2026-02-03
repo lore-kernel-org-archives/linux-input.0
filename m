@@ -1,63 +1,63 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC4134CFCF
-	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 17:45:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8D6C30CDB6
+	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 17:45:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770140741; cv=none; b=CVcNxSE1Qar54MD5FuoZt90U7EB2a3JVEoh9QX2JnWVwVLzuSti6r2EZAahclaM6V1m8NmsIFpAwMCcfHUq78pXu1n8ktSddEpGz81SS1HLMQmUaruEbMYPFosCrhBcMJ6YPz7G5WugEc4MCJWA3DK9IgVRkquyH1V/T8COyGko=
+	t=1770140742; cv=none; b=lYl3Y7vkmnKWwFCoFZaXofq0k1cO62IEqPKmzgOzJGJIUZMrE5pgzA2sfSp7wJxxygjFT0IY0yfahYLwNsbQP9eNvmW1ad81pWQ5RCxFp+Ro8gOV5iUU25seFPHjy6P55OIWaQdUV8rpZ3l+06Nv39+N08tnh/VVlPAe9FbuP+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770140741; c=relaxed/simple;
-	bh=UmM/EFR5p4e/Ka3/5sJVIS3R5eLWlyTt1qf6h8ubdhE=;
+	s=arc-20240116; t=1770140742; c=relaxed/simple;
+	bh=jysDirCxM9VRNdx+7Si4w9nZh+octhRlQsZ5XOvW/bQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VcahuYtx3vOnhuniO4AyYzEqEMOKUfIkUka0xCmmkC6W9RMJnD6Mp6rCwlGd+ktUKSXF7c5iVXADTVLiYFqsTE1pK6lvKi97/dUAgZfuo6etNxkfre0Pm7MMia2VcIIMcAyJGmKKl6xXEFHQC2DmDr42fQR5Q0f99mcGTc/UwgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dQtFNiDX; arc=none smtp.client-ip=209.85.218.50
+	 MIME-Version:Content-Type; b=SA7BMCUWX9BYtRi5edol87vWYykHL7EgXRZCUXWDPV62yxoic1Y/YxsLutC6+zOeEpiGiNfKF9k5gj/1JIA8UtCflPeA3b6Dqi7XZy+lW2L6aK2fiu0M9Eba0yNJwoJuJ6pd4MypmxoGKyGn9SDc2DTJNHXzIblfMrfC3TIjgUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V4A1EQjX; arc=none smtp.client-ip=209.85.218.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dQtFNiDX"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b8ea0a386cdso96366b.2
-        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 09:45:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V4A1EQjX"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b87266fdf56so77178966b.2
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 09:45:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770140738; x=1770745538; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770140739; x=1770745539; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BQaGsVyRIVNSv/UVCCLU9KGE4wXIMnAIjksSPCQ051Y=;
-        b=dQtFNiDXkPORaZc9pQyWffgpG14BhXRqw7oqcT+ptcLF+LayPkqzJBYUF424w1SZeD
-         lAOxJkpsCzFOv9OMaeL44OnKal1PZotokGuqjMGZFTxBtIQ5gqdw1aW7HT81n7Yc49XZ
-         o2EFuHdo52C0GOd53DEHfMlYpnYfSwnS1TkfD1I02iitJCPVHqBsXlcrUNHrG1ao/OFV
-         hdKYZhD83uxywteBfdIcyK7D5b+UzXcKANJ63HLLa0YfW7nMef6W3NU1QaLk4MDfgdYC
-         O1O+3Aql2amgJNj0m2osVMwdm1lk74Bf4h+eOOUPlrb9Y390NMOrIi4qHT6JJiK0GP3M
-         R8Sw==
+        bh=eDKWiaZ02MFYPKM7YM/ZCDrXn2+T9deiZZcFOvrBfsI=;
+        b=V4A1EQjXRaeYF1LzTFyrDUbTOZxqrfOj5fmUFwZQqBk7gTrf7RLIbWMPV8qozy63PY
+         rlEDGJ6zFEIvxuX6ONKN7eP0fgTvodu/dRnjO2VjMtyOP0nZpnxLEbP6PJzMpSJmK4Lo
+         gQ34ES9vwtMNEKnFg+frNwCvxcJNMqZaGgvJIgTZOf2J6zcw9hYkE5U/fnR3l9Sj5I3U
+         SYP7Fw2xgMsPyAS5QmP12qkw8+t5Rq1UmiH3nLXepcKwAnNGf/2y9HTLq5vN5s8exlrc
+         /rQebKBeCZx7TOLJ6BLE6rcewFfFt2fEeOfeH4Hzc6uBI2Skk9NZ6ndJBElsjFmIdaED
+         UsFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770140738; x=1770745538;
+        d=1e100.net; s=20230601; t=1770140739; x=1770745539;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=BQaGsVyRIVNSv/UVCCLU9KGE4wXIMnAIjksSPCQ051Y=;
-        b=dkCUWW5pC0a7S6bs004BSwDvrrtTB7nJ2x0mrPJrL9z4q1DbTE/IxPIwOZlenB8XOm
-         C0FHb5rlMhJz5t3oAbbbyWgEBskJ9GjFDmPEWy4AN2Djeu+/5vPAHR4opiL7M9iHT6LW
-         mOTij6eZEPiAGQBTsiGGf8jj1DByGFZLAnCQnaV29KD4Yl1jvMWGRVCgPLlzbhRuZuT5
-         8XawB/ACRGzgaLOOCGBCclivvssgS4q7MeKJj5bpHGZT7bUoZBzvRI1BA+//UMy+9S6A
-         8dxAj3mkkjdCQa4pW8GqpRVBCZtFN4W1WfiuHalCz0S41M8rTlR8A7do6nZ0wvUbMUtU
-         QtVw==
-X-Forwarded-Encrypted: i=1; AJvYcCVjY3+bTrmw1lo+S+o8JSlyAMl5EkXJ8XbizpQd2cmLO0QFS7SveWYgMP6xjDR8wJkhP60n4GFnd1V+LA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwammbwrGZ3wCoFIdKU2Np0nyb+qqrz50J1cbpSualAyW2qeWDF
-	7bq9cGYrBdy9e1DEbyc6wbViOv8UQ3laMBDzuKOjYiEzSpBabbLpWI0P
-X-Gm-Gg: AZuq6aJuG+7jrHf+wxxtCjpuVOUowqw+RB+SLJJc3GmPhyof2UCYx1NYGJE+Pcw8D8c
-	HjvT1mLOQSYKCJ3wbmdXmQFqu20sekT1jcx7jQT9reB6tpmJmF3GPLJWmop6uvk34vaWS/qHp4I
-	wdiGxkbetf/BLQb0apdjTyAk/+nWqCVW7VLp6dyUE3qepZ7+GwuuEQgElFKOiBhyqzgoBCVNZSM
-	cy84SlR+iK5j8+Ae5Vboh8x1/W35a55VuDqBhujLOIknXu/DkrRvEFAz6k7LVqR7D3tIrj3jCIf
-	GDBcXIyw7Z88ciCZxLqQ5Xl4w5scwEmxuWZBHR97BxIkyvvkxE84u1o67w9ckn3uSbH5gZpTjEk
-	NgfXLlEFzyTRb0ijH/4euHijy3o++Nh25ArFIFKAOOtTxzdJoUU3QIbMuhKErlvzGGBMFbfJhaq
-	Uv8Qzrwt3+lSD7VZlI32cNYFbPyRYVsfxxMYWewgZEf5AXRFy1tsGX1qfNIiXlQBcN
-X-Received: by 2002:a17:907:1b09:b0:b87:3c3a:cb7e with SMTP id a640c23a62f3a-b8e9f658f89mr9316066b.6.1770140737315;
-        Tue, 03 Feb 2026 09:45:37 -0800 (PST)
+        bh=eDKWiaZ02MFYPKM7YM/ZCDrXn2+T9deiZZcFOvrBfsI=;
+        b=AxI2mpOwqh7ga9HQf4B34VUsIPy6KQLSXP3OB7N481l1ogqC1IjrV9zZVZjdQEtpEa
+         EJWLCL8bcqXhfsPBKTHSRBtdWN2wbP2S8Xh28EtzA74mykctD72yRRcG46F8Ofo8qGVQ
+         ls0Ee644TJ6LuTgajV0mEtq35nCTyKo/oIG7Uwr/dWhw37eNvSED/cCTXItqixQeASGd
+         C3+xW8aie4YrQdQwBqB//tTVWxVNnezUVWffABAVzQBhOG1ybSvyAmsJjbPeB1lVDirO
+         wJTUcvstzFpuYTPpfDwyV7ovjvqnpD6C3I2aHTNRaYih344q2tBRNgeru+VLsBk82wD6
+         CNxg==
+X-Forwarded-Encrypted: i=1; AJvYcCXv85jFKsoK4Hqke8RHgqGrQShmgLgPRvgHhyO4prUhKpeEDUfGTG9hYo2fWSx1hzxiAa4d7Ftf6QYmoA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzJHYRhIb7ef8qcYFG+e4r/vyoSl8bIYKkRyw/DsAOoOnw9OgUi
+	AhVcBQwKrga4UkL1yvXy8mo5OEA0DLHcmqrLkNHNcn+ZqXdpbuuC9qxT
+X-Gm-Gg: AZuq6aLCUXgLgvZ8Di09GiAN6l3Wxg3Zea5tJVXc2PCzDTC/R52OpDjgeeW9vMp4WD4
+	842yZ/SB8KGoIzbevqSApIAMxR2E+Mflr3mvX2l+0ujG5XvWu+YULguxN/xpM6zEqg0/xXEPiSI
+	HaKeCPzINwmmOyM6R8ecMZYzg+zdaBSusCL+WdyFoJ7we/8OUYjv+ugfb75yGQ8j8F6hcmb+S7g
+	HaR/ZJVOM217aLb3IGCZlftloMXe+Uprhb7NI+qOgeiuWgudhEL8lh+ATSWi34vIdJXHrGZN0M9
+	1VbwWxPwHhvtPe0QhWXIPZ5I/ERczH65M/tQvsEiIFfD54pP7PqJU/16zFRcsX7KYH2wHv5l3xZ
+	MhxqSRQd90LvfxAd1iCN1ZUvRuNkQcG+aEJNE6niW/KT0tCDsIdCbON/oYE87FTaHwUWb697enS
+	d0oI69m7X1Y2RHS66C+MOSV1qLdyBFAdpgmZxHcqXjfZGi8eJieTSjF+7/NDSfoN+t
+X-Received: by 2002:a17:907:84a:b0:b8e:64e:1fd with SMTP id a640c23a62f3a-b8e9ef2082amr13890966b.1.1770140738986;
+        Tue, 03 Feb 2026 09:45:38 -0800 (PST)
 Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8e9fef001csm5078866b.44.2026.02.03.09.45.36
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8e9fef001csm5078866b.44.2026.02.03.09.45.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 09:45:36 -0800 (PST)
+        Tue, 03 Feb 2026 09:45:38 -0800 (PST)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
@@ -65,9 +65,9 @@ Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	tomasz.pakula.oficjalny@gmail.com
-Subject: [PATCH 1/5] HID: pidff: Refactor field quirks detection
-Date: Tue,  3 Feb 2026 18:45:27 +0100
-Message-ID: <20260203174531.2866644-2-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH 3/5] HID: pidff: Add MISSING_NEG_SATURATION quirk
+Date: Tue,  3 Feb 2026 18:45:29 +0100
+Message-ID: <20260203174531.2866644-4-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260203174531.2866644-1-tomasz.pakula.oficjalny@gmail.com>
 References: <20260203174531.2866644-1-tomasz.pakula.oficjalny@gmail.com>
@@ -80,73 +80,68 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-In preparation for additional quirks
+This is the same case as the previous MISSING_NEG_COEFFICIENT quirk
 
 Co-developed-by: Oleg Makarenko <oleg@makarenk.ooo>
 Signed-off-by: Oleg Makarenko <oleg@makarenk.ooo>
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/hid/usbhid/hid-pidff.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 14 ++++++++++----
+ drivers/hid/usbhid/hid-pidff.h |  3 +++
+ 2 files changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index a4e700b40ba9..68049d5d76b3 100644
+index aebf6c89643f..17bdc36d1908 100644
 --- a/drivers/hid/usbhid/hid-pidff.c
 +++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -13,6 +13,7 @@
- #include <linux/input.h>
- #include <linux/minmax.h>
- #include <linux/slab.h>
-+#include <linux/stringify.h>
- #include <linux/usb.h>
+@@ -619,16 +619,19 @@ static void pidff_set_condition_report(struct pidff_device *pidff,
+ 				 effect->u.condition[i].center);
+ 		pidff_set_signed(&pidff->set_condition[PID_POS_COEFFICIENT],
+ 				 effect->u.condition[i].right_coeff);
++		pidff_set(&pidff->set_condition[PID_POS_SATURATION],
++			  effect->u.condition[i].right_saturation);
  
- #define	PID_EFFECTS_MAX		64
-@@ -1053,6 +1054,11 @@ static int pidff_find_field_with_usage(int *usage_index,
- 	return -1;
- }
+ 		/* Omit Negative Coefficient if missing */
+ 		if (!(pidff->quirks & HID_PIDFF_QUIRK_MISSING_NEG_COEFFICIENT))
+ 			pidff_set_signed(&pidff->set_condition[PID_NEG_COEFFICIENT],
+ 					effect->u.condition[i].left_coeff);
  
-+#define PIDFF_MISSING_FIELD(name, quirks) \
-+	({ pr_debug("%s field not found, but that's OK\n", __stringify(name)); \
-+	   pr_debug("Setting MISSING_%s quirk\n", __stringify(name)); \
-+	   *quirks |= HID_PIDFF_QUIRK_MISSING_ ## name; })
+-		pidff_set(&pidff->set_condition[PID_POS_SATURATION],
+-			  effect->u.condition[i].right_saturation);
+-		pidff_set(&pidff->set_condition[PID_NEG_SATURATION],
+-			  effect->u.condition[i].left_saturation);
++		/* Omit Negative Saturation if missing */
++		if (!(pidff->quirks & HID_PIDFF_QUIRK_MISSING_NEG_SATURATION))
++			pidff_set_signed(&pidff->set_condition[PID_NEG_SATURATION],
++					effect->u.condition[i].left_saturation);
 +
- /*
-  * Find fields from a report and fill a pidff_usage
-  */
-@@ -1060,9 +1066,6 @@ static int pidff_find_fields(struct pidff_usage *usage, const u8 *table,
- 			     struct hid_report *report, int count, int strict,
- 			     u32 *quirks)
- {
--	const u8 block_offset = pidff_set_condition[PID_PARAM_BLOCK_OFFSET];
--	const u8 delay = pidff_set_effect[PID_START_DELAY];
--
- 	if (!report) {
- 		pr_debug("%s, null report\n", __func__);
- 		return -1;
-@@ -1080,17 +1083,14 @@ static int pidff_find_fields(struct pidff_usage *usage, const u8 *table,
- 			continue;
- 		}
+ 		pidff_set(&pidff->set_condition[PID_DEAD_BAND],
+ 			  effect->u.condition[i].deadband);
+ 		hid_hw_request(pidff->hid, pidff->reports[PID_SET_CONDITION],
+@@ -1097,6 +1100,9 @@ static int pidff_find_fields(struct pidff_usage *usage, const u8 *table,
+ 		else if (table[i] == pidff_set_condition[PID_NEG_COEFFICIENT])
+ 			PIDFF_MISSING_FIELD(NEG_COEFFICIENT, quirks);
  
--		if (table[i] == delay) {
--			pr_debug("Delay field not found, but that's OK\n");
--			pr_debug("Setting MISSING_DELAY quirk\n");
--			*quirks |= HID_PIDFF_QUIRK_MISSING_DELAY;
-+		/* Field quirks auto-detection */
-+		if (table[i] == pidff_set_effect[PID_START_DELAY])
-+			PIDFF_MISSING_FIELD(DELAY, quirks);
- 
--		} else if (table[i] == block_offset) {
--			pr_debug("PBO field not found, but that's OK\n");
--			pr_debug("Setting MISSING_PBO quirk\n");
--			*quirks |= HID_PIDFF_QUIRK_MISSING_PBO;
-+		else if (table[i] == pidff_set_condition[PID_PARAM_BLOCK_OFFSET])
-+			PIDFF_MISSING_FIELD(PBO, quirks);
- 
--		} else if (strict) {
-+		else if (strict) {
++		else if (table[i] == pidff_set_condition[PID_NEG_SATURATION])
++			PIDFF_MISSING_FIELD(NEG_SATURATION, quirks);
++
+ 		else if (strict) {
  			pr_debug("failed to locate %d\n", i);
  			return -1;
- 		}
+diff --git a/drivers/hid/usbhid/hid-pidff.h b/drivers/hid/usbhid/hid-pidff.h
+index 5bf54e981543..8d879067718f 100644
+--- a/drivers/hid/usbhid/hid-pidff.h
++++ b/drivers/hid/usbhid/hid-pidff.h
+@@ -24,6 +24,9 @@
+ /* Allow devices with missing negative coefficient in the set condition usage */
+ #define HID_PIDFF_QUIRK_MISSING_NEG_COEFFICIENT	BIT(5)
+ 
++/* Allow devices with missing negative saturation in the set condition usage */
++#define HID_PIDFF_QUIRK_MISSING_NEG_SATURATION	BIT(6)
++
+ #ifdef CONFIG_HID_PID
+ int hid_pidff_init(struct hid_device *hid);
+ int hid_pidff_init_with_quirks(struct hid_device *hid, u32 initial_quirks);
 -- 
 2.52.0
 

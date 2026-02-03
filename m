@@ -1,64 +1,63 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215E4364EAF
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA4E9366819
 	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 17:45:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770140744; cv=none; b=Z9V68rwocVQbf+tRTffOQTC4lZvP3+WR2Gz2uQDB+85M3QJBkpFyuLQo/VDgs/psHpqKtmaLHXNLxWxbmWIDstD9ddj6Rp8mHU4jh+y9R5pwMYYx7ToB8MVILS07/8j7MmTfn2Y6CKgrfZDswxENPCp4dJ1sgPHqw1s96t6h8cw=
+	t=1770140744; cv=none; b=gS6Zu3gdJOMI6kVS8HAZthZrRRNLh0AlWnOJifEWpwoeQvzKJFPYCdX3Iyc6wMyf75Nyj+QQaTcK1/S58rDPes5Tc0D1XIf15rZHLa1CElZ1wd0Z+8Cg0gKSF27PAQXISpYhDfamSVvuGIvDKVw6zTciJTBE0oAMWAgYl/Lx5l4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770140744; c=relaxed/simple;
-	bh=WC7vTdE0V5inRfysRtaKguIuqy5jxY6pjLSsGNC5nes=;
+	bh=yTfX5yigziZaDCkyz+2boyzu28VQAyZws//UMgESf+o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=L0DbFUtz8sTHAHFIPaX8SLTGMNyzncYIuhcX+LfgW6pypuVinxbUZlwRe1Gu2W6PzpcrfYIOh813yEzC7Z2f/uajxE7b+INbqjdKoWMi+XSh+YczvY9GKZiYTAu84FgiqyzaCtS8q5I9hUkRzDduAN65Z7/EjW6tG3HeY8UeXnU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ebmlWGmS; arc=none smtp.client-ip=209.85.218.41
+	 MIME-Version:Content-Type; b=PRKfcVbWd16Ufii/ePCc0IqzoA4oJOnH+wdU5gXjHMytn7JsVjIk9Ef24Mh0ItB2PFSsA8Uc+A5JhlM5G4JQWLf77lMailpWhrXOdmOnHyMEjai0ehzqfqK5JEC80suHpDdKYBbdW9lPgkNVZYNg+zjUY425lJzMT/49z/+F9MI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T5aq0FgS; arc=none smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ebmlWGmS"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-b8e0e812c27so58085566b.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 09:45:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T5aq0FgS"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b876b5c69baso69432666b.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 09:45:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770140740; x=1770745540; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770140741; x=1770745541; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bDmSOMi9rPLmJevA5a3Ub4TrO81JP/3m0ZQjcokpIEw=;
-        b=ebmlWGmSQ9GdfUvsxsfwiR5ju+EUWwaX/a9VqcbwNs0V5gkAjvx9v28nEWV6itOCAv
-         hLIcThXUXiqc1+K8Gxu9izfVhP7hRxbS9FENcY9Q3WJrvN1UlI3/fVCvPIMWdj/d9wqo
-         6XcbiPujFHNuSqo5TOltZa6WE4LscUn5hK+0xelZMP3SkE/KUHnz+sg4zDuqkKBEC7Di
-         //6zViPp4DtT+W7LjvZ3nW96aeF8fCT+W2AONw9G4dv6JjxjHnWBpdr+9oqkLAKBN75J
-         Yov+f3NPz5/uiP7n4SXSL9C64+SrfuGtGdoPfenxYDfQahJgJeWHsZ3qruUIM6jU2Qgm
-         Gmfw==
+        bh=P0LT1FRWHCjfMEosZU0PQqZC4X0XAX1+L2weZyVRa54=;
+        b=T5aq0FgSbUZENgxSyFUA6czIZIXAkzDZBGOTpfm5HN8Yxojccn4CjHKkGvkz+NJOdO
+         X1iQe7v7pqsTKOUCNOHMJ5r02vGSspeBkdLMysAS9xpiXgPPYSJqCbceCip5NGVeb20G
+         A/HmteTzapCJlYCKrh/A5Rt/HSM3Kdd53mJFGaBS4xPe/dIbd2D891tyxp2QPVzuN/x9
+         Bo9n1pTOo2RSamef5sEN3xnDMZ5IPIpfchgX8gJIbfTMYBzLC965C3aF+kqey3lX8Cej
+         Uh8q3UR3Bkl7TqDo7i74eBvssAXQ6ZoGoDIAcKlmL1d07wm+eABRYn2voGYCJhDHsfYt
+         /XWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770140740; x=1770745540;
+        d=1e100.net; s=20230601; t=1770140741; x=1770745541;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=bDmSOMi9rPLmJevA5a3Ub4TrO81JP/3m0ZQjcokpIEw=;
-        b=hYiOP+iCAj9d4mQmUVGdoNRqLSf6Us0PBAtBA6xIk/PuIj193fSzN38atgPNamPzrZ
-         DXE5snZSo71lO898mzB5t5GKVliypPaOCnXnkaHnb+2cnaB3s6evX1CjeawW4GyANNnW
-         V22Cd/lSX9khslmhiid9tPJgJgHHdXreaAJkcMyrsYbAydmIzM4ps9xq/EzAbq7ZSNhs
-         lQryhm/hG3LLSLbBZgIq9clQgMtjW7hZvb0ZQcGYlKH37G0+0V7/j9v6+TR8rwK5Wn28
-         DgVgOV4nEE6XHXMKt6IRb5xbpfV5Y+KKXUQFJ+PjYPz5gz2R0IcQCeClDnhpaVgflZ61
-         fo3A==
-X-Forwarded-Encrypted: i=1; AJvYcCVNZBK2riZViiYYGesi64xPyFrIt+wypTS4cP4ofwg6aVtDxrk26z9eSQcLZUU8VuQL2jWenh/YfXCytQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZV483g2az5HP6/WLwHO2r5Bf7mEk8jO/gUEA3xx48dwwY2wt/
-	B3hejRH7z/ZDCdouB9N5z2aesKW8a2wSYtJ161SqZ2IfBJo06c9/mM2s
-X-Gm-Gg: AZuq6aJivUsC454XBYI4PK2sWgLRdv/vx3GogN17pw7kGkbmojuXt5qhRUFO9Z822ln
-	7RgBIXmm2BSK1nT8EXlSN5e4xCu8hv/vHxi35J6m6y7XQVSa0DiuxFW4iqLbnvxYNquui+mMZwV
-	YQUBZsu0D3nVEHweTW3CVln+6P3343JQk8BKnrCGxG838PAQGKc6cDUlXeLp4RVREk8Ea4ccYGW
-	piYDn+WAQUbkQD/bwyDvj8L7BdpS8/na4D6TfQmoe4rxx4KamXNRFy4zZcUmVRH0UPcIWghq4LY
-	KbxfkBbAGIVX7hmF9C34y/YVK5CKP/XYxUbt4QpbjP8SzRjamvN62K0cxdkGyNorIreBWPoPwbV
-	JWyaOBtjQKWW6l85seJ6c0Hb35ed/IfTtUy7juThAVdhAhxR0S/jM0KoDIxq1oYe4UCnbCSQ94e
-	IX8UTUgvEXXioowysbelQj1vcRXyCnWGKujRF271tsyv68VRMIzgPi6rWeFj78JVoFju9vAm247
-	2M=
-X-Received: by 2002:a17:906:99c5:b0:b8e:92e:d2ef with SMTP id a640c23a62f3a-b8e9f3f70famr11017466b.5.1770140740017;
+        bh=P0LT1FRWHCjfMEosZU0PQqZC4X0XAX1+L2weZyVRa54=;
+        b=eBizA21uZcEPnll4HLRRrE8HhViE1WmB3zk/Udk/OwyhxPtJgOCggdI6T2JlCRMdao
+         BsW0PFcFgEWSTyY/xPQtVbe1w9k516uml/wjlL+KDr3y8L9SkF1x0ha+SVH8xOX4JMUc
+         dDrhL0GKGgf6aeCZAHocscmdFZCsY84wxQ/rWi21tgiE+C88J2qkb6SQEPj9J8mhqsJe
+         BSHgseHCCW2cldcnmTxsne1PQNhj7FMkTnVNVy/cmgxt1rPjwIjyXvvETtkN7bH0V4s5
+         QIqocY35hgCEJD5/t/5bhxBEhHDqDyqNj0z3X6sURyBAazEJg/Mh1RTQYJWDUHt0GnGL
+         4wKg==
+X-Forwarded-Encrypted: i=1; AJvYcCWQzJZzcnlda32bpXKj6pSh9NirmM1bB6jNnGFS+bP4F1g0prCPqX2m1cClJ0fIsnij1CPw6yfHRu7laQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyK65rXnPa/hjShunH11gBc7PFEFCUJvFca34BvxNc3fQ3EJVN2
+	aZM7Kt2dEAmf8eiOZ6OtIMlDvubTrBZ92eec0GU+LzmFMHEGf0MMKMQH
+X-Gm-Gg: AZuq6aJqaAE+caJiocOGpUkX8Uu3EFrwTjLp5H3Kc2kyS4ogku0jMEiX8c72A83zuFV
+	gceY2pfUpdf3+XD0iDzPOIwgFSA+vQJINhxxhZDCfykFzxjHFKq4tiS6PE+05OxTdtepnT63pHH
+	JLHbBrmBeWgOKmFHORzgdIG2A8TexIdt6XB8veK8LcG8SHFEN3/RLo62fLUAbEJkNwjT/oC0cOq
+	wusACCNTNGct9jMDcHd5/GXOjFBmHkjaV0U6LaYhlKoaY4lYVqAmHs1GVbU3gxe6GK4wSJyZ7Ze
+	gIVcph3tkt6ViJOPbbXaIgLJrJ9FeJ2KtgunJ0luCAFKYfqBgyob1eyF/Va/vTlnsI6NirAcTM0
+	Ewb7WOYVyvFUr1MK2v7GiHVAR7bNXtNFir5rTAmjvMrI4+F1wQsaQeCYSgPQCqU81pE3SpXxODv
+	co8QN7imxYIL+y/EkLzRIPBZ1AKmK8FOa7gJqsj/kp9SaU2y2MQdI7nja5MFPcq6PY
+X-Received: by 2002:a17:906:9f85:b0:b8a:f5a1:32f0 with SMTP id a640c23a62f3a-b8e9f40db1bmr11086166b.3.1770140740863;
         Tue, 03 Feb 2026 09:45:40 -0800 (PST)
 Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8e9fef001csm5078866b.44.2026.02.03.09.45.39
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8e9fef001csm5078866b.44.2026.02.03.09.45.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 09:45:39 -0800 (PST)
+        Tue, 03 Feb 2026 09:45:40 -0800 (PST)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
@@ -66,9 +65,9 @@ Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	tomasz.pakula.oficjalny@gmail.com
-Subject: [PATCH 4/5] HID: pidff: Add MISSING_DEADBAND quirk
-Date: Tue,  3 Feb 2026 18:45:30 +0100
-Message-ID: <20260203174531.2866644-5-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH 5/5] HID: Update MAINTAINERS for USB HID PID
+Date: Tue,  3 Feb 2026 18:45:31 +0100
+Message-ID: <20260203174531.2866644-6-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260203174531.2866644-1-tomasz.pakula.oficjalny@gmail.com>
 References: <20260203174531.2866644-1-tomasz.pakula.oficjalny@gmail.com>
@@ -81,73 +80,48 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Some devices (mainly Asetek) do not have deadband field in set
-conditional usage. Do not fail set conditional usage search if it's
-missing. Allows conditional effect playback on Asetek wheelbases.
+Take de-facto ownership of core hid-pidff driver
 
-Deadband is practically never used in simracing anyway.
-
-Align property name in the whole driver to use 'deadband' without space.
-
-Co-developed-by: Oleg Makarenko <oleg@makarenk.ooo>
-Signed-off-by: Oleg Makarenko <oleg@makarenk.ooo>
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/hid/usbhid/hid-pidff.c | 12 +++++++++---
- drivers/hid/usbhid/hid-pidff.h |  3 +++
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ MAINTAINERS | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 17bdc36d1908..8106b045a8f7 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -82,7 +82,7 @@ static const u8 pidff_set_envelope[] = { 0x22, 0x5b, 0x5c, 0x5d, 0x5e };
- #define PID_NEG_COEFFICIENT	4
- #define PID_POS_SATURATION	5
- #define PID_NEG_SATURATION	6
--#define PID_DEAD_BAND		7
-+#define PID_DEADBAND		7
- static const u8 pidff_set_condition[] = {
- 	0x22, 0x23, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65
- };
-@@ -632,8 +632,11 @@ static void pidff_set_condition_report(struct pidff_device *pidff,
- 			pidff_set_signed(&pidff->set_condition[PID_NEG_SATURATION],
- 					effect->u.condition[i].left_saturation);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a0dd762f5648..b6c16e134070 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11205,14 +11205,6 @@ F:	drivers/hid/hid-sensor-*
+ F:	drivers/iio/*/hid-*
+ F:	include/linux/hid-sensor-*
  
--		pidff_set(&pidff->set_condition[PID_DEAD_BAND],
--			  effect->u.condition[i].deadband);
-+		/* Omit Deadband field if missing */
-+		if (!(pidff->quirks & HID_PIDFF_QUIRK_MISSING_DEADBAND))
-+			pidff_set(&pidff->set_condition[PID_DEADBAND],
-+				effect->u.condition[i].deadband);
-+
- 		hid_hw_request(pidff->hid, pidff->reports[PID_SET_CONDITION],
- 			       HID_REQ_SET_REPORT);
- 	}
-@@ -1103,6 +1106,9 @@ static int pidff_find_fields(struct pidff_usage *usage, const u8 *table,
- 		else if (table[i] == pidff_set_condition[PID_NEG_SATURATION])
- 			PIDFF_MISSING_FIELD(NEG_SATURATION, quirks);
+-HID UNIVERSAL PIDFF DRIVER
+-M:	Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+-M:	Oleg Makarenko <oleg@makarenk.ooo>
+-L:	linux-input@vger.kernel.org
+-S:	Maintained
+-B:	https://github.com/JacKeTUs/universal-pidff/issues
+-F:	drivers/hid/hid-universal-pidff.c
+-
+ HID VRC-2 CAR CONTROLLER DRIVER
+ M:	Marcus Folkesson <marcus.folkesson@gmail.com>
+ L:	linux-input@vger.kernel.org
+@@ -26927,6 +26919,15 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
+ F:	Documentation/hid/hiddev.rst
+ F:	drivers/hid/usbhid/
  
-+		else if (table[i] == pidff_set_condition[PID_DEADBAND])
-+			PIDFF_MISSING_FIELD(DEADBAND, quirks);
++USB HID PID DRIVERS (USB WHEELBASES, JOYSTICKS, RUDDERS, ...)
++M:	Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
++M:	Oleg Makarenko <oleg@makarenk.ooo>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++B:	https://github.com/JacKeTUs/universal-pidff/issues
++F:	drivers/hid/usbhid/hid-pidff*
++F:	drivers/hid/hid-universal-pidff.c
 +
- 		else if (strict) {
- 			pr_debug("failed to locate %d\n", i);
- 			return -1;
-diff --git a/drivers/hid/usbhid/hid-pidff.h b/drivers/hid/usbhid/hid-pidff.h
-index 8d879067718f..c413aa732842 100644
---- a/drivers/hid/usbhid/hid-pidff.h
-+++ b/drivers/hid/usbhid/hid-pidff.h
-@@ -27,6 +27,9 @@
- /* Allow devices with missing negative saturation in the set condition usage */
- #define HID_PIDFF_QUIRK_MISSING_NEG_SATURATION	BIT(6)
- 
-+/* Allow devices with missing deadband in the set condition usage */
-+#define HID_PIDFF_QUIRK_MISSING_DEADBAND	BIT(7)
-+
- #ifdef CONFIG_HID_PID
- int hid_pidff_init(struct hid_device *hid);
- int hid_pidff_init_with_quirks(struct hid_device *hid, u32 initial_quirks);
+ USB INTEL XHCI ROLE MUX DRIVER
+ M:	Hans de Goede <hansg@kernel.org>
+ L:	linux-usb@vger.kernel.org
 -- 
 2.52.0
 

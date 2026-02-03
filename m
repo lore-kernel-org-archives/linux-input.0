@@ -1,122 +1,104 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4EAF34C815
-	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 10:09:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8257E32C302
+	for <linux-input@vger.kernel.org>; Tue,  3 Feb 2026 11:00:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770113386; cv=none; b=UlmH3G+K3oB34pSi6WwAsWYs8uAaAvS4WNWTMI7O9cXlczTEivC+AXGQfb9/SNgauAv+jN+vHeyAjCg9nXTbr7t5q9aU/PMnHefKygJx4WpDMjXylE1WnFv8QCn7DyFWg42bZyzvmcicpug0Ta8oW35+LT8JahAuuO5I+NByg9M=
+	t=1770116431; cv=none; b=Lj+xJD2DNsuI9NvW+ZhiRG0vqLsIgGJcgzbIAzaI7JNSrA8sWk+3/QwK/sW4K8mFtDtVP+TLG9xLIC4K2WUbAlUt0fSYSFxNs5pVgzZmuXX5J4CMkA44heKYfqKOOnbBB/PM5X0T5ywyParLc8acWA4xeG96qKCnMRofQW1OBNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770113386; c=relaxed/simple;
-	bh=Avkd5uawzD+P96BD8QVvLdDr1iaqtLTQy1JmyFPxlmI=;
+	s=arc-20240116; t=1770116431; c=relaxed/simple;
+	bh=hudPfaB5Y8u+39+QhqcnbqU4DSfvZiJpkZwi23yNzcM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oZh6EU38nsLCpHH3//oglvDDuETJx+Upog/qaFf6O/v/udCzfOlDMdg+B4ukVAaPM3p8gvt3QzhGATvea7muc4iaL5FO76fXd1EkhXGMC7cKCCuFdZGNEGASoNy8j7rPqZEV5uxLo6gxJ8wNcmwhy4oHveXnPxehyqVLlV426+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PdX1N6rO; arc=none smtp.client-ip=209.85.214.170
+	 Content-Type:Content-Disposition:In-Reply-To; b=tfHRW5JvFLMu1aWnv9DdExZZL+SlYY+1GfZyNU35MKfCq5x6rd7AsVqCdSVQ8l/KYUyXqix6WtAxujNPzCzSX71ZyhYaFuSTVDj+E+pA3kSW1zeUyvRxYvvSzuOFv/zWWCoqqdRYrtK0zt4wGYysRAwG0TWQZeThk1G1nLfTQ1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bBRpzMFW; arc=none smtp.client-ip=74.125.82.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PdX1N6rO"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2a09d981507so4938615ad.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 02:09:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bBRpzMFW"
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2b6b0500e06so8095289eec.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2026 03:00:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770113384; x=1770718184; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770116428; x=1770721228; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ttX84+X9hteT0QV4zhWLgsisrXh5PIQqyosrzt2r48I=;
-        b=PdX1N6rOo0B8hmsKeoA49+GrPkL/MZTUODgbTLK8imXPgROwMxu8sRpR58J/NcLjAB
-         MOZPYNUKsVDdkV5rReP9MqSQhVXqN1rpfNjzE/BiRAtqg/jCph3kacHba+NRC9toBxWL
-         x+eJxRwOBuJaT1YnlEW5p3+woLBlxvVlv7ZmW45jvD92RG32CpxDJf/r/H5vnPtxx+1Z
-         sFxhWPvkmeneIsJ9Ub92Nkpl2xQWfSOfjLaE2uS4aU6lTmCek2LIUas1lvEhQJht3YeU
-         LrsRzH73X5YkQPiqvSawMlXm5w1jq/bHXMEraJNl+2Xl4ZSSr/1QZNU5/SOLxhMzEZSM
-         kcRg==
+        bh=0JgnMsXOh9YRopf/e3+gz8PgFtk2UitVTNFeIUt3zTk=;
+        b=bBRpzMFWc8IrJor0xe+IV8RxvGmwWg2IpM+53bbVASZd4OkxSngWIl2MFsLiOonJoJ
+         xcJZQcwaXuyOVM4fqJxUwBvA18HTc/8qpo8MKA3ce1MrHwEBbmkQoyrVPTW16jNpRso6
+         ntlLX8WJ3qOMSVmTJKjPs91RM0TI6BRM7U/fR84Mj4wF7q6LHua4cLe3cNcBSOj692a8
+         oZjPP5rPdXcjhmS+qCQchB4Yp60mtm4DX6JoAeaiaMUGA4x3dxt3nxItVVc7orX6nLju
+         8FIWXxyczFTl+olaraL90nsYdL3tT4xxoCsNtlgv3m7FkABGH/qxnK9B86rwKq1lsEh5
+         07dQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770113384; x=1770718184;
+        d=1e100.net; s=20230601; t=1770116428; x=1770721228;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ttX84+X9hteT0QV4zhWLgsisrXh5PIQqyosrzt2r48I=;
-        b=Nwjce8i1IbrG+dX4ijL6unYHOhXYq1jAvjwoU8kIrhoMuOyoNskKKQic5DoTp0BTy0
-         UF31U6pi04NYSLG/cbmzppfjiahTFfgSyb/IzJMwzo0+PlSYPWAUWltNhjZak9WuLSLe
-         VurBp3aP/dqHnqLxTnU1uqWL+31vzSA0+TWFtx3gVhnmTOtl3q7RkjgJ0UXZZBdGGMef
-         iClaVyYLuHVp/AC3oucQIprRru5PWXcfRV/Lz+uK4XLm6c10xAF57mzvE+C027MUJfPf
-         /ydiVO0nBi/kDjQg4Zsf616owr9F9ZssrENv90C0OK4vzqyYhn+kPJ+l6kRQfvMs67sa
-         PTKw==
-X-Forwarded-Encrypted: i=1; AJvYcCVrtpmVSS1crV45aK3jG2k0lnI9aX6c+SFe1rEZ+E/5Cr9BGY9EtQTF94MaZtiuUe2sdY8Hla06OpHM6A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyvlvwHQwROEAhGfROxOt4oac+c29I/ZJ9Gq6AHCYK3N0AT4b8S
-	VN0vhE/87hU37r0c3UOxeZv8efWem43bu0yZPgaYKC1ydpp1rh1ixRgW
-X-Gm-Gg: AZuq6aKWl/jntqaHPJWuK5XvI/wSOpiVfl1AbFCvMyffxAA0DDCuv+5/DwsN78pRWci
-	e7RC732v+w88d6546QUGN6NBnDgvHgRLGPT7+mxZKax3SVK66DqRunZ+Kpq5IllQlDh7+n4ZKOh
-	fvnXfDPUmqFWQQBCKqaDhzSYGEpA2qZhwgFSFh4LnjmzlC+gvzHRLwVUFElA31N/oqa6/1dO0YE
-	ppfvi3k2GIdbgvbzji38sGxORONZxslP8DsO5gkF3lD4RUzAQXLiKoHCuMmBdSNG651yiH3VJkH
-	hskdHUp4FOG0dYjW6cfN2oZ1B+TcFbJgq+btS6wzH+EimNu+0fGJ9fWvBnyrXlr2p9DDD6mfNXw
-	xW7LLZZaCv8+YWnW/h2lAYfl5geCRWCaT3az4LZ0qvqOc+mHzOwRlhZpJrc5QH8hePRXl4SsuDe
-	xlAWIDw6kRWtMXpRolxX0/ieqCaw==
-X-Received: by 2002:a17:902:e851:b0:298:639b:a64f with SMTP id d9443c01a7336-2a924595003mr27390035ad.6.1770113384045;
-        Tue, 03 Feb 2026 02:09:44 -0800 (PST)
-Received: from chandna.localdomain ([106.222.233.39])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b4173a2sm176663725ad.30.2026.02.03.02.09.40
+        bh=0JgnMsXOh9YRopf/e3+gz8PgFtk2UitVTNFeIUt3zTk=;
+        b=DVlbwP514H5nzNmZbiJY7Z3DHUJrf+kTZBCcieiAtXYgxti4aMktYP1nnjI6Y9Ukrm
+         RyVUJlyKZorXFMicrxKhE3VPcBccnM3T1+w/SRF+HykpmFSQrGLY41YsQr214qxDEv21
+         90BI6JenUlnYBGnQ68dL1AV96ImAK29TG72JONWUOlmHsK5QlcJaN+wYGLRTZMzEDIWL
+         NicuO3HTIZwLkWFLaH7M15WMWQXxA0gtL4bP4NFApVWrIbD34zcd9MVgyWD6hrzIQEe9
+         FciYSOUIIvZEEc83OHxPV/WDGnZ4JwjTGzw08+vaqMHpY2RqDlPguwd1YVM5NjcUZuFk
+         jQcw==
+X-Forwarded-Encrypted: i=1; AJvYcCXjddSRI4281Jbwd+onFqwMcMGfuL3npkwhqvm4LmXkmOH9WXgnyi1HQwyntmI6wRvx6dnHsPIvWT6HzQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxDtFSXhFW/6ASAomu2fJnrcyARJLtVhUK3IX+Ylc7H575PkYIO
+	7aEZMs4LULPkr+LwqTCBREwOkRrq+HbjvJZKzTzcDHW7ltlNcn2f1YF9
+X-Gm-Gg: AZuq6aL41O2DaRl5eTCcIXpGbMTPOHmuLlCllJnln4PpNP4kZ4oHa+JaBOq9nhubpin
+	owvqwoel7JQQXAShiKQM7cPkwWX4yR5yQxe9a27SFQa4ZkisqmEEnfOeNy5BqRVUYMTAkOuE3fE
+	TYEDW0aE6uQlKOygRf96SUtRumkd5gQSHNcPhhCU+VV893wBTRD57MacX4OXVBab6iqGqkCz+Nq
+	d0HzV7XZmquy3mnYFTPrCxMTZ0rkqdYTJF75ZIEDPeR8RJC3xIDE25RBJiZyDNhRGmcrYGy2ASf
+	4KRrjOy7swjmChN4VCihhIwUANJ7AnzicZ0zxePR38iodE5z6m74ztuMU+nmIwMQWL1mUjfiRQA
+	YpKq8/HASfABG77IYnVDRc7vIsxiWXOXQwXpAoATD9o8XmDad5wGXwJIc4PY62xL3byqrw7KjDU
+	oINgkHoSefDg4MqTlGqI1BgEIaN2UHgsAVH80wXZ5RHHwkNO+L
+X-Received: by 2002:a05:7300:4306:b0:2a4:7f22:cc0d with SMTP id 5a478bee46e88-2b7c8909ad3mr6722053eec.32.1770116428294;
+        Tue, 03 Feb 2026 03:00:28 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:ea13:571:b19b:36])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b7a1add664sm22262633eec.26.2026.02.03.03.00.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 02:09:43 -0800 (PST)
-Date: Tue, 3 Feb 2026 15:39:20 +0530
-From: Sahil Chandna <chandna.sahil@gmail.com>
-To: syzbot <syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com>
-Cc: bentiss@kernel.org, jikos@kernel.org, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot] [input?] [usb?] WARNING in asus_remove
-Message-ID: <aYHJUJzHlkBD_Nza@chandna.localdomain>
-References: <697baa8f.a70a0220.9914.001f.GAE@google.com>
+        Tue, 03 Feb 2026 03:00:27 -0800 (PST)
+Date: Tue, 3 Feb 2026 03:00:24 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sebastian Reichel <sre@kernel.org>, 
+	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Ion Agorria <ion@agorria.com>, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-pm@vger.kernel.org
+Subject: Re: [PATCH v1 6/9] input: keyboard: Add driver for Asus Transformer
+ dock multimedia keys
+Message-ID: <aYHU5g5iOVjrHrE_@google.com>
+References: <20260201104343.79231-1-clamor95@gmail.com>
+ <20260201104343.79231-7-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <697baa8f.a70a0220.9914.001f.GAE@google.com>
+In-Reply-To: <20260201104343.79231-7-clamor95@gmail.com>
 
-#syz test
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -147,6 +147,7 @@ struct asus_drvdata {
-  	unsigned long battery_next_query;
-  	struct work_struct fn_lock_sync_work;
-  	bool fn_lock;
-+	struct mutex lock;
-  };
-  
-  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
-@@ -960,8 +961,10 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
-  	}
-  
-  	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
--		drvdata->fn_lock = true;
-+		mutex_lock(&drvdata->lock);
-  		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
-+		drvdata->fn_lock = true;
-+		mutex_unlock(&drvdata->lock);
-  		asus_kbd_set_fn_lock(hdev, true);
-  	}
-  
-@@ -1258,6 +1261,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
-  		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-  
-  	drvdata->hdev = hdev;
-+	mutex_init(&drvdata->lock);
-  
-  	if (drvdata->quirks & (QUIRK_T100CHI | QUIRK_T90CHI)) {
-  		ret = asus_battery_probe(hdev);
-@@ -1343,8 +1347,10 @@ static void asus_remove(struct hid_device *hdev)
-  		cancel_work_sync(&drvdata->kbd_backlight->work);
-  	}
-  
--	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-+	mutex_lock(&drvdata->lock);
-+	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
-  		cancel_work_sync(&drvdata->fn_lock_sync_work);
-+	mutex_unlock(&drvdata->lock);
-  
-  	hid_hw_stop(hdev);
-  }
+Hi Svyatoslav,
+
+On Sun, Feb 01, 2026 at 12:43:40PM +0200, Svyatoslav Ryhel wrote:
+> +static void asus_ec_input_event(struct input_handle *handle,
+> +				unsigned int event_type,
+> +				unsigned int event_code, int value)
+> +{
+> +	struct asus_ec_keys_data *priv = handle->handler->private;
+> +
+> +	/* Store special key state */
+> +	if (event_type == EV_KEY && event_code == KEY_RIGHTALT)
+> +		priv->special_key_pressed = !!value;
+
+Is this functionality supposed to be triggered by any keyboard or only
+the dock one?
+
+Thanks.
+
 -- 
+Dmitry

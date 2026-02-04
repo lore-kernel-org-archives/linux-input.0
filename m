@@ -1,136 +1,94 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8EB83002A0;
-	Tue,  3 Feb 2026 23:17:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7343431BCAE;
+	Wed,  4 Feb 2026 05:21:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770160682; cv=none; b=nHnPzZOb+DJ3xVTHGqkVT/qIagmZaC8jRen0PQ/TNaESx9ZPd0E22zO99Naq8kviPBUGZ2DHNhMpUCDHIZoJBblGRazMfrKHiCh5+wQBvcwq0aO5hPTyFgzY6CPiS24qp5iHh8pv525J/liiH342gTXFK5P5mFvmBznZmBfpc40=
+	t=1770182501; cv=none; b=HaWXQZrvse5Al0ecLdyyOK+raiFgDSbL+Hsnq61/UuWlcxiI45+m3z2H0JpK7L/rLlWa0T+Q2jxI1U9lvvfz4lmNFjohvbee95OJqdgmyBXBjc+KPrBp/eRKYML0hho83T/X/Hg3JZ5OzyFtCGO94XJG/isM4u1PoQPqlB3ww1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770160682; c=relaxed/simple;
-	bh=EZdlmMuWubpZ64KCJhFpuoZeVdTV3W5B6LfNQyiAMMw=;
+	s=arc-20240116; t=1770182501; c=relaxed/simple;
+	bh=6T+Q+snv83Lq/o2B97GAk1EUnXxhea2+cmBgwylekjM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mYzQTVAAQ9bH/CLcFGQpFLd7g2gcBwrvPV5rebJW0Wc/03fjDMHnT10GIy6WzFO/TJxroXpF5y2MFbPIWYnSacj0kbKaZ/ZAgL1jrLHw4nlmiVPs1eVkNAtu5XvsEke7cgF507Su9d7dKoWi9bW1J2vrPEQ6l0VDKCQAuxbgtGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mmKkVelQ; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=twOdYb+qeqStYs1lp1DP+5Uh9Fg5a3JpO4frHK5JyLayLrVN9YyCmqEHM+3HqnwFJxo1TaoPKVKTfwkzhRCN9jUaUPqJw8jNj+xzGwqGFe+d74zjCafFpLC7vHnJX8AfNaAlpeSQcRUsAe1N1+h/Z01rWBFTcDvJFLc64Mz+J50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=I28tFzjC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mmKkVelQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770160680; x=1801696680;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EZdlmMuWubpZ64KCJhFpuoZeVdTV3W5B6LfNQyiAMMw=;
-  b=mmKkVelQfJgca0bE3OkgJlhc01vN3nxsZJAYKT4lJGOalJYrcqB6Lnnu
-   7spUMagRNXBCdXpH/msvC/qzSEj+nO6eDFkUZAz3uicjRqh0MtYg2QSlY
-   xBpFBA2H+gB8vo/HOlER6Df2yGAs6JuFcYAsFL2mkCxetc0q5+MUdmNto
-   aOlJK0cbigYdVv3Ae9j+W2N8DaCJ1ergOfYT0URNWSzHnpletRC3YHjFr
-   0us2UoBet45r8S4SIbDItRNGHs1cJ2sjsQ3x//QO+L4mF0GG0iIcY5w5I
-   tWt1ZyRakWGVFf/Bihp41j/dLKyW/M8fZ+WOKH6bjpnnlAZjgs5an+pT9
-   g==;
-X-CSE-ConnectionGUID: 5NLOROeIQeeehEErRwrxrw==
-X-CSE-MsgGUID: K9B+hyvGSBCK4+wRwltT6w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11691"; a="74963116"
-X-IronPort-AV: E=Sophos;i="6.21,271,1763452800"; 
-   d="scan'208";a="74963116"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2026 15:17:59 -0800
-X-CSE-ConnectionGUID: 2IkFBlUsTcS6R4HXxNf7Cg==
-X-CSE-MsgGUID: 5EuLEejTTJyLpfjkyQPWVQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,271,1763452800"; 
-   d="scan'208";a="214716393"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by fmviesa004.fm.intel.com with ESMTP; 03 Feb 2026 15:17:57 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vnPec-00000000hHo-3x4c;
-	Tue, 03 Feb 2026 23:17:54 +0000
-Date: Wed, 4 Feb 2026 07:17:08 +0800
-From: kernel test robot <lkp@intel.com>
-To: Hugo Villeneuve <hugo@hugovil.com>, hvilleneuve@dimonoff.com,
-	dmitry.torokhov@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	hugo@hugovil.com
-Subject: Re: [PATCH 2/2] Input: charlieplex_keypad: add GPIO charlieplex
- keypad
-Message-ID: <202602040703.1Bu56Htu-lkp@intel.com>
-References: <20260203155023.536103-3-hugo@hugovil.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="I28tFzjC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F6F4C4CEF7;
+	Wed,  4 Feb 2026 05:21:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1770182501;
+	bh=6T+Q+snv83Lq/o2B97GAk1EUnXxhea2+cmBgwylekjM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=I28tFzjClOF5i7r1K38160PRvLL0HVeelkisbujYu7leyunDTVWjJOGbKKc8SzTnp
+	 Bw6dO+7dJ+X0MEHj1IgZxLDxyoflUgenpXRlsSd71FUCeVg6SxKxIc1WNnQb7Wqxoa
+	 upE0BGJmiBIBQVf4Ntp1i+3VJdKvZNAZhiD7xYB4=
+Date: Wed, 4 Feb 2026 06:21:37 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Tomasz =?utf-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, sashal@kernel.org,
+	oleg@makarenk.ooo, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: pidff: Fix condition effect bit clearing
+Message-ID: <2026020430-evergreen-unsubtle-7c48@gregkh>
+References: <20260203174241.2863219-1-tomasz.pakula.oficjalny@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260203155023.536103-3-hugo@hugovil.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260203174241.2863219-1-tomasz.pakula.oficjalny@gmail.com>
 
-Hi Hugo,
+On Tue, Feb 03, 2026 at 06:42:41PM +0100, Tomasz Pakuła wrote:
+> As reported by MPDarkGuy on discord, NULL pointer dereferences were
+> happening because not all the conditional effects bits were cleared.
+> 
+> Properly clear all conditional effect bits from ffbit
+> 
+> Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+> ---
+> 
+> Urgent for 6.19 rc period and backports for 6.18
+> 
+>  drivers/hid/usbhid/hid-pidff.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+> index a4e700b40ba9..56d6af39ba81 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -1452,10 +1452,13 @@ static int pidff_init_fields(struct pidff_device *pidff, struct input_dev *dev)
+>  		hid_warn(pidff->hid, "unknown ramp effect layout\n");
+>  
+>  	if (PIDFF_FIND_FIELDS(set_condition, PID_SET_CONDITION, 1)) {
+> -		if (test_and_clear_bit(FF_SPRING, dev->ffbit)   ||
+> -		    test_and_clear_bit(FF_DAMPER, dev->ffbit)   ||
+> -		    test_and_clear_bit(FF_FRICTION, dev->ffbit) ||
+> -		    test_and_clear_bit(FF_INERTIA, dev->ffbit))
+> +		bool test = false;
+> +
+> +		test |= test_and_clear_bit(FF_SPRING, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_DAMPER, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_FRICTION, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_INERTIA, dev->ffbit);
+> +		if (test)
+>  			hid_warn(pidff->hid, "unknown condition effect layout\n");
+>  	}
+>  
+> -- 
+> 2.52.0
+> 
+> 
 
-kernel test robot noticed the following build warnings:
+<formletter>
 
-[auto build test WARNING on ed8a4ef29da3821ee3155d3b1925fa67fc92aae2]
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Hugo-Villeneuve/dt-bindings-input-add-GPIO-charlieplex-keypad/20260204-001338
-base:   ed8a4ef29da3821ee3155d3b1925fa67fc92aae2
-patch link:    https://lore.kernel.org/r/20260203155023.536103-3-hugo%40hugovil.com
-patch subject: [PATCH 2/2] Input: charlieplex_keypad: add GPIO charlieplex keypad
-config: parisc-randconfig-r072-20260204 (https://download.01.org/0day-ci/archive/20260204/202602040703.1Bu56Htu-lkp@intel.com/config)
-compiler: hppa-linux-gcc (GCC) 8.5.0
-smatch version: v0.5.0-8994-gd50c5a4c
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260204/202602040703.1Bu56Htu-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602040703.1Bu56Htu-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   drivers/input/keyboard/charlieplex_keypad.c: In function 'charlieplex_keypad_init_gpio':
->> drivers/input/keyboard/charlieplex_keypad.c:120:6: warning: variable 'nkeys' set but not used [-Wunused-but-set-variable]
-     int nkeys;
-         ^~~~~
-
-
-vim +/nkeys +120 drivers/input/keyboard/charlieplex_keypad.c
-
-   115	
-   116	static int charlieplex_keypad_init_gpio(struct platform_device *pdev,
-   117						struct charlieplex_keypad *keypad)
-   118	{
-   119		bool active_low;
- > 120		int nkeys;
-   121		int i;
-   122	
-   123		keypad->line_gpios = devm_gpiod_get_array(&pdev->dev, "line", GPIOD_IN);
-   124		if (IS_ERR(keypad->line_gpios))
-   125			return PTR_ERR(keypad->line_gpios);
-   126	
-   127		keypad->nlines = keypad->line_gpios->ndescs;
-   128	
-   129		if (keypad->nlines > MATRIX_MAX_ROWS)
-   130			return -EINVAL;
-   131	
-   132		nkeys = (keypad->nlines * keypad->nlines) - keypad->nlines;
-   133	
-   134		active_low = device_property_read_bool(&pdev->dev, "gpio-activelow");
-   135	
-   136		for (i = 0; i < keypad->nlines; i++) {
-   137			gpiod_set_consumer_name(keypad->line_gpios->desc[i], "charlieplex_kbd_line");
-   138	
-   139			if (active_low ^ gpiod_is_active_low(keypad->line_gpios->desc[i]))
-   140				gpiod_toggle_active_low(keypad->line_gpios->desc[i]);
-   141		}
-   142	
-   143		return 0;
-   144	}
-   145	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+</formletter>

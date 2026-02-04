@@ -1,114 +1,149 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B0632236F7
-	for <linux-input@vger.kernel.org>; Wed,  4 Feb 2026 13:31:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23692D5432
+	for <linux-input@vger.kernel.org>; Wed,  4 Feb 2026 18:20:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770211903; cv=none; b=gXo/HR5RsSebhNVyAe4ToA5q/eTvMo9eYk8OEByjO5481jvvrPwzvVbfKvPnQOxL9/KruWV00A9yQlkOMROKNdMd6O+NuM2IW36nEV2A4iY25lM/XBQJkfIX5x966EBbMZJ0r7S4H0/Q3Id5ZKd3D7jtf8wBBH0Spwv4pscouHY=
+	t=1770229239; cv=none; b=oQKaSEx797s2cmHVkaiHkUjUoj8gVkRCun+G/WY6xzD5Qs8BzGrMpKcCN34pV4iKA/D3qjoj7emPnEX3PuW6Q9yVdZRY7oD8NqpyICWrnxtYnXOHBwNaCWVqgC4A+2Ex86OFtU4XL1rwgeJlhg5qpF/4+OIpfSp/swH+IlXlPnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770211903; c=relaxed/simple;
-	bh=ofTePwhQvxc1sldT2RNrKsJSDIWp+FzXTAMKALZ3ywo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gGNbLZaGCY5E3qgxG2/+bYffuev/piloAVPmFNrNsXKgnBBknS5MBBBuzMvPlQ23yXD713FixMn5O5qZ/in5winwAE4jqGNMIPYNbkNnZ8tSQTuUb9f/uWJSLcd2469fZ+Gh6QV/2gkSTl6D5m5qds4sg1UwvYtz9YbBzK3snjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K71PhePR; arc=none smtp.client-ip=209.85.221.42
+	s=arc-20240116; t=1770229239; c=relaxed/simple;
+	bh=1OJZ9w3pH+0A1cqNN4yRXjWvRKrooGbIMxdW91jxkb4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mW6g3jiVSqjdnxhD4kEFV9kVk7eLwTte59Tj1Tmjgd+JGWb6CfZyZIVTUmIcAEYd1R9DyLoqHNdqD1kWdH4eki2jFB+Io/7DjjBbXM0zcKTfnH+M3eVNTNQUpW77Dhql64ZKDqj4lSmLOQ4GvA3zplPeAOmHlzPHfj6F5XBYtvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d4VyrFv+; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K71PhePR"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-4358e24d3c2so475564f8f.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2026 05:31:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d4VyrFv+"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2a90055b9e9so685565ad.1
+        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2026 10:20:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770211901; x=1770816701; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770229239; x=1770834039; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=vZ2iqW0pbEB/NBB0tS21N/N2tYmqwzVrEmtDuIx4ZgI=;
-        b=K71PhePRZSVhIOMp1FKSifrfLRQyLo0d8Chr8cDiDaKozI1VE9jVdQ55SMVMdVwccv
-         Bhq8FGsgzGsskn5s0rQRaSIOEs9oKZPndqJaLTGrB8O8cX/NsmDFkb0iWDY8Q1pEQHuy
-         udzTLUjVitSxWUKQn4/c7DsGe4G0LvXsG1H5pYEANaz8Lkw9jFVpYT5DaZDZnKDV05hX
-         oL9ZZcMeV6PgGEY3O7ORN4/Ext6QAPUcfX8LqL4ZJDQuW3JFPD34ccyzDrmOVZVXeBCF
-         ess19P5MH6QmwrkrXt70ngV7wEABuXmEzMYqyP3Q9KeWTi7apgzWnWzb+f5DSavVGWyw
-         4SOQ==
+        bh=kUEqY7Elf3v+fO71b69COKkIcYYp9M1x48maF82X5UI=;
+        b=d4VyrFv+NkIxnobpzENEk9w65w68Mky8v9v/eYlAa7/nSwCzOJZSEnSt72/XNRmtur
+         HE4Y61aP6zQeHzR1wE+mwdd1HIbzK1nK8dBk5h7IjaJSB/D2Yc5ZvWDhbkAuJ2ec1itN
+         4ajTLjf9Sz5bnjk4ZdIJoHQcchyHu0CzRTN9+1cNQbcIT8mAnPT0AyZ5OAeAdlaEezwZ
+         b4082v1zEOf+JFAaJf+6wnWExLdQ3cFl/CTv/FIk0tJ2fn445OerqYTxLp7yAx/XG7wR
+         8p0BgaxEH010wvBardYuxLn89OOV2s6XEFa/aVgnx3dpFIL75ZWux/NrV3834leDnKIt
+         l/Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770211901; x=1770816701;
+        d=1e100.net; s=20230601; t=1770229239; x=1770834039;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vZ2iqW0pbEB/NBB0tS21N/N2tYmqwzVrEmtDuIx4ZgI=;
-        b=ruNzopeKePP9abfGmkB9XWGspcajzuJ4eAUojtWsqF3t/QgiyhZs4kJl9KLlFwNqNM
-         b3WpN1slxDFDsVC2Cqu5HwiGd0fffsEsuXe3Q9iRhvIrH3MSzF/GCLpxOJQXDuQH+Doe
-         4oep8YPvrwE+uFV2KiRPTZT/u0PvNf08Z50Dc9G9vc/Pt1GdeGDHP9QuzN1SzexSWJ/R
-         nRY7ev90dueGjsUENzukNm9iX+iohSt+nTDwUAL5sW5WGVqPXGKLdVvq1VrUnOmj3H1l
-         cnx9uvCyTRZSrNz0B2MLIbr09/a1b14BcwtOttXFmhDjZtJ2tCkJdp1ADyWfbBNNNOk9
-         pdvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWBZdJkRBUQXRRA1vWafWDalXE8Kz7kCInc92SvPG1IwJ6cNM62tUqxeE5fYtULCLl6Jwq8acdIyfConQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwsMve0soml6cdnMoCtTfTlwA48PzKHVetrvOdMq8ztsxMOUbgc
-	bVhYXjtAsBcJnAHDYCxU2U+d/3o4cyIJZZ6jiIKj+5J5saQwG4srMfJF
-X-Gm-Gg: AZuq6aKk7+3zdqwSBOOD6A4+8Qhm8ro5RbTQsm0uQfXEmw/yZ0v9l+8SZKjoULWVodp
-	rFs7F+9br+tCJ7kFU8Gv4nwGhUieM3yhiEHitiGfhgGr0qOrLc5lk3XTpX7M9Qcvd9Dtry50lmH
-	7V77oU0R2GFyBFPvxcZ8SgclgwCdU2zs8LC0Ru9wGhVDzYYNVUwBT91KLzfhdq45huJm8GDd5r0
-	58egI7ZKeS0xIRUt0oic319iycIQtD8+esq8hqFpmfp1DXtDr/kOKRRCT6IJVMURI0V8f5j1IMr
-	WeGunX4pXTjYElXjq+AD0vRFEEQ82BKswt1e0wxBP3mHlFPWjchovAIimQ7w6fw6igKOP5Brk4x
-	YfUXvtWtJQjDjnwdtgzLpKa/SzUiqmB8w+7LzWJT85M3+42EqC/LESKNVzP9l/NxYQU7AFa0Mob
-	acq1br6/ZpsKpubJXm1wqcxi7ezQ==
-X-Received: by 2002:a05:6000:240f:b0:435:d7b1:9cf1 with SMTP id ffacd0b85a97d-43618061b43mr2431992f8f.7.1770211901323;
-        Wed, 04 Feb 2026 05:31:41 -0800 (PST)
-Received: from laptok ([2a00:f41:4842:718a:3ac6:8cea:3b72:7d9d])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43617e3a546sm7614237f8f.17.2026.02.04.05.31.40
+        bh=kUEqY7Elf3v+fO71b69COKkIcYYp9M1x48maF82X5UI=;
+        b=ArBlRh+HaH33UQc6cVHUPYUxA6wMJilHhF0VomV8OutLDBYCtkru8vmrS9SLgAASqz
+         SlM9U2zNeDZUVRt3k6ajLe0i66i97muvObLGWb1pYYrHZccQ7KGfoc5t+9FIFpX72Wv+
+         muuSCP+SUPYu+dZRFJUPNFHB+8g/dDkCahgQdiY1iJtg8jdsk1JKcdlgYveWiAsy/6Oh
+         H+Tg2qMk1hmx9H/sjAtzhVQNov8Ii08aH8VMVdndTbqTkSG9kfXYLFf0wnq+0BjBG8NR
+         McGzOZ+7wWqhvnbm01f05jwTAe5jxa1jt05/JxIF8ofNJ1xq55W0oR3ktxDc5IwAXMU6
+         JQ/w==
+X-Forwarded-Encrypted: i=1; AJvYcCUbBYNC8GR+gFKZ92ceVIue0lityy/i2BmxEYhzi4yv/Eq6pHTFPTbuAnP0svg08tRi7MRyYNAO4l37Fw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyr3sQp849PlCuHK1hj2SJvSqJ7jVmc6O4f0xmusag4c3HcXLdJ
+	vnf5xFmo8BxdymdspTrmXN1h1jL7iEUpYtQTfIHHxwHrFy3b+Gdvu9YU
+X-Gm-Gg: AZuq6aJkfIV2mgAknD0+W8CSi/udSehaAQV54VjN1L6DGA5afYc9wOuNtEvK73zQUER
+	pzgYL8jM4bL8PprNAyIQM5dMKE3YwJzkQa7K0P4nSVFy2s5jN/mS2upISXjBjw+sk1x/48Zs5Z+
+	qhLbh/BTDUdXVZIUvzh0MZT4E+dz5aL5cxczvaBimMzHc07AfK7KNSaJWUQzyNEWmyFj15/ElaI
+	FilpHwvs6j/QXoE5zRpkW7PMyDDBE9C3Ln/scPSfmKOX8iWeFIixM9KspEXha47wQ/vNFr7/0be
+	OUvt/52n+UQlHWYgt5pSgqEHIHW5CtIJj3MpGYvIjpYcGAkH1GPIyI7pEVPKfvIxMhDCN34AR6o
+	P3LU9yjRxP1eyAngMwawRfolYsMtME6Wyx7D1Umkc/33PbKHgvOb4PKQ5/TfF6DNhMQM9fhf/da
+	6KM8ebWfCiBA7bbvyv2Unxn0p17A==
+X-Received: by 2002:a17:902:d488:b0:2a8:a133:dfed with SMTP id d9443c01a7336-2a933fdc6bfmr35752495ad.55.1770229238979;
+        Wed, 04 Feb 2026 10:20:38 -0800 (PST)
+Received: from chandna.localdomain ([106.222.233.39])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a93397ee2asm30417715ad.98.2026.02.04.10.20.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Feb 2026 05:31:40 -0800 (PST)
-From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+        Wed, 04 Feb 2026 10:20:38 -0800 (PST)
+From: Sahil Chandna <chandna.sahil@gmail.com>
 To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: oleg@makarenk.ooo,
+	bentiss@kernel.org,
+	connorbelli2003@gmail.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	tomasz.pakula.oficjalny@gmail.com
-Subject: [PATCH v2] HID: pidff: Fix condition effect bit clearing
-Date: Wed,  4 Feb 2026 14:31:38 +0100
-Message-ID: <20260204133138.475880-1-tomasz.pakula.oficjalny@gmail.com>
-X-Mailer: git-send-email 2.52.0
+	stern@rowland.harvard.edu
+Cc: Sahil Chandna <chandna.sahil@gmail.com>,
+	syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
+Subject: [PATCH v2] HID: asus: synchronize fn_lock_sync_work initialization and teardown
+Date: Wed,  4 Feb 2026 23:50:29 +0530
+Message-ID: <20260204182029.278659-1-chandna.sahil@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-As reported by MPDarkGuy on discord, NULL pointer dereferences were
-happening because not all the conditional effects bits were cleared.
+Syzbot reported a workqueue warning where cancel_work_sync() was
+called on an uninitialized work_struct. Fix this by adding a mutex lock and
+initializing fn_lock_sync_work before marking fn_lock as enabled.
+This ensures cancel_work_sync() is only called for an initialized work.
 
-Properly clear all conditional effect bits from ffbit
-
-Fixes: 7f3d7bc0df4b ("HID: pidff: Better quirk assigment when searching for fields")
-Cc: <stable@vger.kernel.org> # 6.18.x
-Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+Fixes: f631011e36b8 ("HID: hid-asus: Implement fn lock for Asus ProArt P16")
+Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=13f8286fa2de04a7cd48
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Sahil Chandna <chandna.sahil@gmail.com>
 ---
-Urgent for 6.19 rc period
-V1 -> V2: Simplify by using bitwise or operator
+link to v1: https://lore.kernel.org/all/20260130155204.96831-1-chandna.sahil@gmail.com/
+changes since v1:
+- Add mutex locking between init_work and cancel_work.
 
- drivers/hid/usbhid/hid-pidff.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Testing:
+- Reproduced bug on local setup and original syz reproducer.
+- Tested with fix and original C reproducer, issue is not reproduced
+locally.
+---
+ drivers/hid/hid-asus.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index a4e700b40ba9..792992c69837 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -1452,9 +1452,10 @@ static int pidff_init_fields(struct pidff_device *pidff, struct input_dev *dev)
- 		hid_warn(pidff->hid, "unknown ramp effect layout\n");
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 1b9793f7c07e..2d6b6e363bde 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -147,6 +147,7 @@ struct asus_drvdata {
+ 	unsigned long battery_next_query;
+ 	struct work_struct fn_lock_sync_work;
+ 	bool fn_lock;
++	struct mutex lock;
+ };
  
- 	if (PIDFF_FIND_FIELDS(set_condition, PID_SET_CONDITION, 1)) {
--		if (test_and_clear_bit(FF_SPRING, dev->ffbit)   ||
--		    test_and_clear_bit(FF_DAMPER, dev->ffbit)   ||
--		    test_and_clear_bit(FF_FRICTION, dev->ffbit) ||
-+		/* Bitwise to ensure all the bits will be cleared */
-+		if (test_and_clear_bit(FF_SPRING, dev->ffbit)   |
-+		    test_and_clear_bit(FF_DAMPER, dev->ffbit)   |
-+		    test_and_clear_bit(FF_FRICTION, dev->ffbit) |
- 		    test_and_clear_bit(FF_INERTIA, dev->ffbit))
- 			hid_warn(pidff->hid, "unknown condition effect layout\n");
+ static int asus_report_battery(struct asus_drvdata *, u8 *, int);
+@@ -960,8 +961,10 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
  	}
+ 
+ 	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
+-		drvdata->fn_lock = true;
++		mutex_lock(&drvdata->lock);
+ 		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
++		drvdata->fn_lock = true;
++		mutex_unlock(&drvdata->lock);
+ 		asus_kbd_set_fn_lock(hdev, true);
+ 	}
+ 
+@@ -1258,6 +1261,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+ 
+ 	drvdata->hdev = hdev;
++	mutex_init(&drvdata->lock);
+ 
+ 	if (drvdata->quirks & (QUIRK_T100CHI | QUIRK_T90CHI)) {
+ 		ret = asus_battery_probe(hdev);
+@@ -1343,8 +1347,10 @@ static void asus_remove(struct hid_device *hdev)
+ 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	}
+ 
+-	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
++	mutex_lock(&drvdata->lock);
++	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
+ 		cancel_work_sync(&drvdata->fn_lock_sync_work);
++	mutex_unlock(&drvdata->lock);
+ 
+ 	hid_hw_stop(hdev);
+ }
 -- 
-2.52.0
+2.50.1
 

@@ -1,89 +1,135 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1753ECBF9
-	for <linux-input@vger.kernel.org>; Wed,  4 Feb 2026 11:25:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 255733ECBEB;
+	Wed,  4 Feb 2026 11:58:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770204350; cv=none; b=EFAQS1BYje0zy9l3Q+bVwNeSqzydbwL4juMTHSXPQ7+SXDVaf3EpcuaqkGna9r9rHgKp4KmqZHWtedqgwb31jviK5e+HXxkTYyGiyWkZ8nN+4c0JNycbtk4i6Exo+wgZGLfb7VH+PDdlLrAtNN5uZG4ikJVouRCizmArfNQWa78=
+	t=1770206332; cv=none; b=Q05FXGK1/bZjF64ESAJm0y9DnXidqvLqV9mA8TjSjQ5BqC53cqJw/jBvCeNpWSyOlreTH+mcY9qHHACexOZ+Hq3Y2+u99y2ZXcx3rHP51ngUMbjb1hL5+bJXJ9yceQkAnQB2AQ6MTr2aLoku6nUchC5bdaXJh5S719I88151X7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770204350; c=relaxed/simple;
-	bh=cHrIGCrLD2E71lxcn6R9T8rwGbDwPkRE47D0XFgJzv0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XKnTK7Q00/nBgRibqxlnrGIsaVfZzl5O9RB8shfi4zpL90P932smH37nhi5+UnZwY8ds5TzWQphnqnKhe1FyHiKUjUFbkLnB+ACy89m8CCKcxaNFnCtWpjQH/YlPymyxvubzAUuJO+WZvyVzIQ1Unay4LhxzODsrPJXK4k0VD2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eNXIISo4; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770206332; c=relaxed/simple;
+	bh=pfm3s5JZVNhd2CIL8bSg9gvy9PfQUIFI7K2/pdAZbEc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lT/NWXKy9GStAg+KmbncGbR8XMgG/CBtTcQRxh/yH4ovST5b9NrpJTSPHGe4I/thId72CzfHCrsHKXlUee68Xzwoje77eCQqO7R64Ei0CTwlegVdnEjD9aIZdLSPOWWQr1k/BTeLPHcA91YWewNZQaAkp92NAOU/r4nmXazAczU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pz41snDs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eNXIISo4"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1248d27f293so2615901c88.0
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2026 03:25:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770204349; x=1770809149; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mYrSGr/bgBDeAZ5X1xIVgbMDj6wzpB8qLVpSIaqJT/s=;
-        b=eNXIISo4aQQIBQHdlO4XbwCqot0+VXtRPHNtKHFI+KFB2jiPqVYCUg71ZNyWmtzGgP
-         wC4maQro0HfaHDjxJiy4vKxGZffOBxtO7EythNtQfHnuz/bMT8Rojp1Jrebvx8BRudY7
-         B+mC6/km06Kx6RUxFlISKqYRNvXpMDgBqWZqqRBv2YOqva7GN53eVsS/KvQU+hfdHXSJ
-         rAer8iEs9vYZ2jNTS2TkooAIlfgCQDl8NFToJnG7AHnGBP48rF8mVuPKnkK+27qUSmQ6
-         uf1xL/D9/Yli3yanC1RS4+u+K5/5X0i/Fq6Vb5B08QglP9Vg3NkIlgufKhBD+PgzxxwA
-         cQfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770204349; x=1770809149;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mYrSGr/bgBDeAZ5X1xIVgbMDj6wzpB8qLVpSIaqJT/s=;
-        b=Zx7wARenLejattLgxEr6EdiAXIsRAJmwvZEJ7nnRpQIarBcCN3tjqOqLgqmnkKGEpb
-         Nv96VwnEQOAIqNprqIHUrxsmTrBTJXLT33qDQKJl/dECfqW7fkPTS5qgu/ytR0G9l5G6
-         VX4IBa8YtMKuThtuSBQOQoyGe7SbRzc6pqAqfw3ct3lmoCEpabRt8lfaPou9eOoq/8nI
-         zmXxl4iXYr1P06GxUimxVljFV3iShG/vTGiZF1j40v3C9w11NKZDuXN25X2+5Rq32161
-         Uxj69VhZVmvtPBvrSz0x0qu4Wm58FZfJpIzJf6XkQLJxq1PTjxgAA9VTtZ1nAq0DEPvW
-         CoDA==
-X-Forwarded-Encrypted: i=1; AJvYcCWtGaa+6ouFuQ3tL7XOYK3Bz3qs8wcOm56D+28JlRZtmqsBGQZIWVxyUuhCEhAOoGsCsyeTNNQLwwzzug==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVrN/EJ9jHuuAb7FG6bJY6JWi4sblUsd9F8AWJFVDWId8eAB6a
-	TiHF3ZVd6Z2LcXJAPHr8V0DZYHn2XIc9LNpYb65IQ+cj4E3Kj1wLejbn
-X-Gm-Gg: AZuq6aITVdYhLGyAX/e0JgRmfs0AlaE61y9XJrsUJmlkLrpVeIG32Rc21t8aC7BGiKg
-	A0PEyrz1B3Ih5PAATPJAos/5TRu8D27Ttv7cksmstp5GtPHaXwhIvHfxoNRYutDmcyuL+TGlvJH
-	hjMSTkRvaeqxWm44AFfZ749h0ydK9DJuL4x8yP7ghoce6wqDbVxHPX8u9Q+g2vfvyLJoHSCSYqX
-	xGIgE+zpTeXGCjgWN3xpvwmhf9HRFttip42QP1JCq/djOcrQXYfNerM3IjkIjFfipKFk1GzoWtu
-	P6aBFaO1P0oyudJmgjGmLoILj9Rb7HpWIA0g5SIg3wzbipy0m/c5GIC/lJw8j85t+AXZMnro/fU
-	a/YvM9PFnEPSd2thOpx/Wou5GPPKS+jFNLqKkLII4HV09sW5dhCZNSUX71GDFvKaeNnJWNwiGfn
-	KJcsSNSixU0hp8f22cMK5ONMhDJS7KtRFhjnrkodjnfsMzE/2SeIKi
-X-Received: by 2002:a05:7022:325:b0:11d:e25a:d9ca with SMTP id a92af1059eb24-126f47bd21cmr998880c88.26.1770204349187;
-        Wed, 04 Feb 2026 03:25:49 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:b789:f5e2:3597:9114])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-126f4e111efsm1602698c88.8.2026.02.04.03.25.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Feb 2026 03:25:48 -0800 (PST)
-Date: Wed, 4 Feb 2026 03:25:45 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Raymond Hackley <raymondhackley@protonmail.com>
-Cc: linux-kernel@vger.kernel.org, Markuss Broks <markuss.broks@gmail.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Subject: Re: [PATCH] dt-bindings: input: touchscreen: imagis: allow
- linux,keycodes for ist3038
-Message-ID: <aYMsshqLbX3DfIO2@google.com>
-References: <20251224100941.3356201-1-raymondhackley@protonmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pz41snDs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23DF4C4CEF7;
+	Wed,  4 Feb 2026 11:58:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770206331;
+	bh=pfm3s5JZVNhd2CIL8bSg9gvy9PfQUIFI7K2/pdAZbEc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=pz41snDsUTbVtAt/3AxQlIM7B/Ig6aG9Ee/atX7ojDXo3wiLDQrrivwhVa5LQ15LU
+	 j4waCthbaf8zrg6BlGcfoW2Mhk+0rdtBxQOrzNSsuunoOMfjVify9AO9izzNddIeYV
+	 ke5bhokDNPpNWt8DMexfjI0caxaULoqypjiov7jK6X+2o7490ZBSMJU+WSC59csnTQ
+	 Fupj/1UT8P3A/zmS4blHwGqek+GksE0gQeNB46Ge7MD+HQKog/kFGayKU7Ft+js+Db
+	 sjdwlXLm0qIasNWpPzGErm3wyeiVyWYcyPVUAAoOa0sgCi1lQv0s5aEwufaR3+emeZ
+	 1HwT75yz2IyMw==
+Message-ID: <618af8dc-7698-4335-9d0a-fc7ec36cce9f@kernel.org>
+Date: Wed, 4 Feb 2026 12:58:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251224100941.3356201-1-raymondhackley@protonmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] HID: pidff: Fix condition effect bit clearing
+To: =?UTF-8?Q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>,
+ jikos@kernel.org, bentiss@kernel.org, sashal@kernel.org
+Cc: oleg@makarenk.ooo, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20260203174241.2863219-1-tomasz.pakula.oficjalny@gmail.com>
+Content-Language: en-US
+From: Jiri Slaby <jirislaby@kernel.org>
+Autocrypt: addr=jirislaby@kernel.org; keydata=
+ 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
+In-Reply-To: <20260203174241.2863219-1-tomasz.pakula.oficjalny@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 24, 2025 at 10:10:48AM +0000, Raymond Hackley wrote:
-> Imagis IST3038 provides touch keys. Allow linux,keycodes for ist3038.
+On 03. 02. 26, 18:42, Tomasz Pakuła wrote:
+> As reported by MPDarkGuy on discord, NULL pointer dereferences were
+> happening because not all the conditional effects bits were cleared.
 > 
-> Signed-off-by: Raymond Hackley <raymondhackley@protonmail.com>
+> Properly clear all conditional effect bits from ffbit
+> 
+> Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+> ---
+> 
+> Urgent for 6.19 rc period and backports for 6.18
+> 
+>   drivers/hid/usbhid/hid-pidff.c | 11 +++++++----
+>   1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+> index a4e700b40ba9..56d6af39ba81 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -1452,10 +1452,13 @@ static int pidff_init_fields(struct pidff_device *pidff, struct input_dev *dev)
+>   		hid_warn(pidff->hid, "unknown ramp effect layout\n");
+>   
+>   	if (PIDFF_FIND_FIELDS(set_condition, PID_SET_CONDITION, 1)) {
+> -		if (test_and_clear_bit(FF_SPRING, dev->ffbit)   ||
+> -		    test_and_clear_bit(FF_DAMPER, dev->ffbit)   ||
+> -		    test_and_clear_bit(FF_FRICTION, dev->ffbit) ||
+> -		    test_and_clear_bit(FF_INERTIA, dev->ffbit))
+> +		bool test = false;
+> +
+> +		test |= test_and_clear_bit(FF_SPRING, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_DAMPER, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_FRICTION, dev->ffbit);
+> +		test |= test_and_clear_bit(FF_INERTIA, dev->ffbit);
 
-Applied, thank you.
+You could use | directly in the if, perhaps with a comment.
+
+> +		if (test)
+>   			hid_warn(pidff->hid, "unknown condition effect layout\n");
+>   	}
+>   
 
 -- 
-Dmitry
+js
+suse labs
+

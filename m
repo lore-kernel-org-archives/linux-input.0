@@ -1,72 +1,47 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18B693A7F54
-	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2026 09:24:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 209783A9D95;
+	Thu,  5 Feb 2026 11:44:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770283450; cv=none; b=WoqpFh3DUwZleVQjfNGar5VL9ZiIbR3d6Vc4owEpFKUjw7OxlhQZMZoMqDqXXTm8HnvY/vEp3DJqu1AaNe+k6R0m1MLbzLZyIW//H7fqSQ7WpLUnPq88U8zp7nEO8ATAKE9L4WOq+Erx5zE8gTYNerSgIkfv95uDf4D5RcEAeSA=
+	t=1770291879; cv=none; b=gnaImZ8XaIq33gA5YHPuvYf9rfmvTDaog3xlgo9vr4FimdY+n7ngCFNWPhiok4sAJFW1oEcWj/3cAgeLn4YClKaiA4wPo6lxm/ZGaJoru+x8KQPe0AqpEaNe+5MyvRpT0sULAYC1SehsFHOKoMUHrEZr7xKwcEddNYpvUk17QyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770283450; c=relaxed/simple;
-	bh=uhvtURHpuu/te5LxBUQMwf5iBL9DYrQRUsB//1jPby4=;
+	s=arc-20240116; t=1770291879; c=relaxed/simple;
+	bh=hAAHav3T98aKj321vhwrLR2ehXeVSbOmkejkdN37/rY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SEvLNqiKNK5DfeRNovPYtrTQcoLcnlXMrHg9wgOCia2ynAexsFoj6D+WViGJaWDHF0aVsWPORFLrL6Q7o1i1Lwe4aNLSSX5AKTK75UcjitLBH4v7fSATuAFmVkbsCVKxSF/vHYcJbBHz+3tgpAaUux5vaJexihYyodqZUsuo2BM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LtPlXx3W; arc=none smtp.client-ip=74.125.82.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=qRzjMfn3rDPh5N0qXAPrDcoaxCbLlIOAEI3TIbIDznk7syAvBdiDDHYZfby5XFgEFsLVtlGOjhIMgA18aiG4g1JhSJWCE+G1OzN3uuRV6ksDmtbjPIa8vJd3Y96eL5rX5XxJNkhEqSszOGdr6H2HmPIlUAWPo9u5nMC3hSAFTfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PXM3efcn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LtPlXx3W"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2b74f839bdfso1142655eec.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2026 01:24:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770283449; x=1770888249; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WyVJiV8wOgvQp43Xhj2a8xz1BJoTUmIJmHz4yLDxUWE=;
-        b=LtPlXx3W2rDQ086jPBYoX6DQbVKqSgbGvWtqQQTKIaphVJAHML5ivY8NYXQiA2KRJd
-         lOECYLUDglIMGJpiBZrTiYaU2dpGiSMmpnJyRO1x+n7s0d9PgViZu+VXOa6B5gTl5FzO
-         IgwpWC4wNw2/pvqT929O4elcopbP7+YmUlBVN9tUtygGun+Sw6LQbmYTgqOtiQYZ/9ub
-         fDufo9pkucaERS6EhkZXY72uvoSMAfEge+2v69m3duwUma67GEHwJjmLWpZeescfUAG7
-         5LuvtqfRp01S+Z49rVJmuEuHXqN0h5UhJRnjV166BamcgmwyMJqPRj/IpcimVjFzcLgR
-         vKOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770283449; x=1770888249;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WyVJiV8wOgvQp43Xhj2a8xz1BJoTUmIJmHz4yLDxUWE=;
-        b=BsH2AjuIOmM/YnUyrwc4X5einLZR98J1dHleauY7cDtSzGyoc1Ljap8St68DPZ52cj
-         1SKriH7F55D3nv+Bj/eu/Zin8mx0aYC3Ls4DomL+8fa5/J4+DqvDwSFtNRceRo9ZYiMb
-         fbfNVYXPMRllQ9aV4MC2rCivWcnPJTaKerXmlnBB53Hou+5J6uxgZnHafyd8envkaeiX
-         Z7IOgXs/lHAH2aXetmdyvqNKjqnEY+nyG18jjpnj2pdKe1DVTqIdhMSSVkeqNVkO6N9U
-         xbHsU3pd3xfyG9SQokKit/fx9Q7DOdy1hoX/02nsyLRtZCL1BH14Rtm+wt+Rhw4HbGWX
-         GURQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUdDPoeFBbs00fc8oCHSi8py1qdF/VL+FmG8ZLikhZjo45CU3UV2wd9j00Yw6RB4Y3sit7N9L/m+z5M1g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxD5dFy0Mbg55bHPIdQ0WmF+BrlNyvK85aVm80asBDVFENq0fo8
-	vR2WMhKIhEptBsDBkWrC5BO9zWqdY8wjseG8PRRqjs6eHQc4m9RB1Y0RCwH6pqw/
-X-Gm-Gg: AZuq6aLi21wMKBO+FhOw/NAx3fNHoZWGnFAS3KVK8BzOQT/6AxLxSoySn3Lk5T6u3Sx
-	nWVdvUHE5vYNsMyClnlfQGhNNI/fiD7L/SwWo0EH/0E5m8qCdaprKaKSYnO6UYZakwO1sEugif1
-	1gdbq8QdEsB2pyzY7GTziDsXEjJDubJSebdkp46RCva2QgfavGOLITpu8W2d1cxxqOhoEjPgXYf
-	/Le0ydP2eGJ+nhGovY1yLqFBL7XHNW6s5MsO5MdFP+7gUOJsIMzZBykB+hRlfU7VqkePCMo7BWc
-	JrlksvG1BySXhB6NhP0TwJSav35HFrRmuRcEdjD4gMf2yDwotjTBG+qwkdIbRck9G0AfQhSb3rX
-	u88KifDNYFpsDuK2ycnf1nHejsy7H1BfaiNEA0hB9gxHsOGSYoXMVQ/Zk9fNd9PHkZil2eGYyum
-	vgBa/dOBALx7/hY/nYiFEBJtsVo6KqkIivqbpx3lYHer8fr3H2tZak
-X-Received: by 2002:a05:7301:2901:b0:2b8:27ec:b2b9 with SMTP id 5a478bee46e88-2b8460fb170mr1056511eec.20.1770283449049;
-        Thu, 05 Feb 2026 01:24:09 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:9a9a:afcc:9a68:2606])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b832e1296dsm3012857eec.4.2026.02.05.01.24.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Feb 2026 01:24:08 -0800 (PST)
-Date: Thu, 5 Feb 2026 01:24:05 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Hugo Villeneuve <hugo@hugovil.com>
-Cc: hvilleneuve@dimonoff.com, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: input: add GPIO charlieplex keypad
-Message-ID: <aYRg2vP4Lfqm61qH@google.com>
-References: <20260203155023.536103-1-hugo@hugovil.com>
- <20260203155023.536103-2-hugo@hugovil.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PXM3efcn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F66C4CEF7;
+	Thu,  5 Feb 2026 11:44:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770291878;
+	bh=hAAHav3T98aKj321vhwrLR2ehXeVSbOmkejkdN37/rY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=PXM3efcnYFetp6Q+ZBeh1IqjJE3T67ivogdHO0eoMp5Pwgui8vEohgllHkt1f1iva
+	 /JcSeIoZ+Lqcwh57L5XR1sC6o9tE+foxESQTZMyfi/Wuqnm/40q6jawvf+c1SYUUCV
+	 MgbcdZ4GM4klYVaS7W0o6kIk9A/BFg5CHBiBkbTP04wz1wU6IgCxt7WabW8v82OTqP
+	 rTbsuDgJYGTF302TjDFkhVtXpWbq2ID/nK71mFmqbeSJsjIWKo4BzlMns9u3cIinVJ
+	 Qjb2jgCV4AqFMLYOkpL55ldYB549SG9SfOVNQA4Xkbfd5qG6+WzMDp36NgGMr3DrQ2
+	 RmBaZU40iazOQ==
+Date: Thu, 5 Feb 2026 12:44:33 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Danny Kaehn <danny.kaehn@plexus.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Conor Dooley <conor+dt@kernel.org>, 
+	Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bartosz Golaszewski <bartosz.golaszewski@linaro.org>, 
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Leo Huang <leohu@nvidia.com>, Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>, 
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v12 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+ Bridge
+Message-ID: <aYSCiHf5eFp7m5dQ@zenone.zhora.eu>
+References: <20251126-cp2112-dt-v12-0-2cdba6481db3@plexus.com>
+ <20251126-cp2112-dt-v12-1-2cdba6481db3@plexus.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,36 +50,21 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260203155023.536103-2-hugo@hugovil.com>
+In-Reply-To: <20251126-cp2112-dt-v12-1-2cdba6481db3@plexus.com>
 
-Hi Hugo,
+Hi Danny,
 
-On Tue, Feb 03, 2026 at 10:49:47AM -0500, Hugo Villeneuve wrote:
-> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+On Wed, Nov 26, 2025 at 11:05:24AM -0600, Danny Kaehn wrote:
+> This is a USB HID device which includes an I2C controller and 8 GPIO pins.
 > 
-> Add DT bindings for GPIO charlieplex keypad.
+> The binding allows describing the chip's gpio and i2c controller in DT,
+> with the i2c controller being bound to a subnode named "i2c". This is
+> intended to be used in configurations where the CP2112 is permanently
+> connected in hardware.
 > 
+> Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
 
-...
+just this patch, merged to i2c/i2c-host-2.
 
-> +  linux,no-autorepeat:
-> +    type: boolean
-> +    description: Do not enable autorepeat feature.
-
-Let's use standard "autorepeat" property to enable autorepeat when
-needed.
-
-> +
-> +  gpio-activelow:
-> +    type: boolean
-> +    description:
-> +      Force GPIO polarity to active low.
-> +      In the absence of this property GPIOs are treated as active high.
-
-No, the polarity should be encoded in individual GPIOs, not via a
-separate property.
-
-Thanks.
-
--- 
-Dmitry
+Thanks,
+Andi

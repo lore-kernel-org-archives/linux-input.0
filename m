@@ -1,120 +1,104 @@
-Received: from exactco.de (exactco.de [176.9.10.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F21B2F5308;
-	Thu,  5 Feb 2026 09:06:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=176.9.10.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677DB38BF8F
+	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2026 09:17:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770282394; cv=none; b=H+/58lXucGLhtoVYf9khVkuqBM2ZCwNJEXrwj5LgEmqox7LQKUnO57z5sRspM4fqMzCTErpZZBhHeZ6vbkBygXsjiH/PF/gy5EhL9+AcNf7iNJqLhbxG4TuIPWO3ZpFAltB3VUFJk5QxhZS+++ZSfCcp/UeoRtFlK6pfL/umCEE=
+	t=1770283042; cv=none; b=paGTEI86e7Hky50eUQ95xISXR29yB5NlZw9vDon5MhdXYYFy1Qcf2c+h0QWfiRwA2ImoaqvBIqpGeJGeZZ/E5KoiOw89YGXXVOtoMCKyq9tS6eZZnJ4+Gapep3U+K05xk+DyXaQ+q97kL7DUpj0raXIdcbosz8VcpO2UxfZiVPM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770282394; c=relaxed/simple;
-	bh=CkKS9y6aRJsbAusQwozTRtjjZB5QaXQjJNMmbDyBAao=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=i8GslCTx1eEE1y+hGBaeFbfYw2gyrLtTW+zRmILmyskvOIeXQYEUIXdlhw+PqeOcmAzYpLYze4TZtyJA6KxY/CvIpBe844SdywJpiewokHIJxANTME+1yyDe2ObUO3PtOyzJxZBDilMZvqPyGyuUoKUWcaMpaVbUHu7fHjrkq5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=exactco.de; spf=pass smtp.mailfrom=exactco.de; dkim=pass (2048-bit key) header.d=exactco.de header.i=@exactco.de header.b=eNTN+/Yl; arc=none smtp.client-ip=176.9.10.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=exactco.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=exactco.de
+	s=arc-20240116; t=1770283042; c=relaxed/simple;
+	bh=SvZjA0EsbKT1UJegblU4BzrGXyqpheN//TCkxSFMpN8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hIe9DFLXPrdgI/1YC/8NQzGBUiiCSQZomCNChVa6AlD/xqNWvyw2ldXl0fy16BZI8Bx6lEHP4lcMts4avfj2g08cEDWriJxwG2kWdQOkonH7A7mj0gPg6brLMvxeLRrmosGGHkZJavt6wQUp3nUtFRBvFKEgj9cOixmlCR47cTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TndmL8MT; arc=none smtp.client-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=exactco.de header.i=@exactco.de header.b="eNTN+/Yl"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=exactco.de;
-	s=x; h=To:References:Message-Id:Content-Transfer-Encoding:Cc:Date:In-Reply-To
-	:From:Subject:Mime-Version:Content-Type:Sender:Reply-To:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=4y75qcVYgR38d17wD3n16fGetFs1+5TBWiIF0fUIsrI=; b=eNTN+/YlLbcmTclGkg6Qylmpb3
-	Rw5pjalBIEall8brZldNEY5t3nXFu8WLCdXTVf1ptipiZWlS+Fz70vMdrcZLHhlxkmWdUocVKcs4j
-	GYFnk3TTlpN18QKFrYlqfH2IGFwvrsOg9FxJGvBblCGSBC4h5l+IFSam0K9y5MnUt0pcvcnYYJhW/
-	8kvk5JGz3x3aSI6GaM4a5B5q9xm/LzMbxTSNfDC9B4u1GSJYtzn2ax5CMd9AE1yPYT5lfcKcg9dbY
-	x3FHfcQmQJTbR2JzqwaOFZhvJQd8F1j6ReSsxWUQd0E9y8LovQfJbEa4/+7JVeA57knomMU0sZ07J
-	S8vir69Q==;
-Content-Type: text/plain;
-	charset=utf-8
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TndmL8MT"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-124566b6693so463c88.0
+        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2026 01:17:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770283041; x=1770887841; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WykwMmrlseSYAJtne8UaOqbeDmTnENQ+OJ7LWzY/Xbo=;
+        b=TndmL8MTxBAcxOreNu5M/xUQPfxFOnX2rHeBVGZJDyfSbL250n4UXiobZccCpLOl/J
+         anPCrqMP81tAqnCoclCxAFPqqANMIhxTl7HPILG8SHgSILhw8V7bvFLOX6OdffXatIjw
+         oLdbg3q8cqMuc5UeqfVPCapmFtrVRYV6D+QzVzxZvgxuBKWFRtpVg1HEEBsjQIZiGLNN
+         WS7Yb2PSKTLnUO2kbRPvNmZsWisF4s6QtPYpWv5UHK9M9fjDaVdbC9tMtRAIVQfTQTK1
+         T8KSMA8cPXrYQ164AyiKe033hl+TdBFvdzBTj418MzpIJ8dHU4d26KhCrVhGO4ruo5ZX
+         m3Vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770283041; x=1770887841;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WykwMmrlseSYAJtne8UaOqbeDmTnENQ+OJ7LWzY/Xbo=;
+        b=lkocBFu9zsxUSSfYRUlw+3xPkbjI8kwqJ5XNwBSKhtCbioGxqeQdFIAf2gY9g+YtyY
+         z94EIYt0MlW8DGsrA0GJCaLN7N4wTWhcvT7drqv3QhJPJ6Eipfhn4veAR3pmnREWPzAJ
+         /uc40E7FcudxA1C/Luaewa3M7dy1h10+G6W2/V7J+BFYmJakUlS5JmzUCQeZEoEfVSnZ
+         NfI2ks2q7Wa48uRIoZT1S2X/0sbvLcQlEptlU1TufW1DGuw71MtA4FVlVCpwzDl6MlGb
+         Ceke7G1GqH3WoU7/DbujPAGUecXc37UkXSZiRkBJ7iLQM3GvhLDgl/ba8t1GbaV9s5At
+         ygcg==
+X-Gm-Message-State: AOJu0YwwmXRx4Uy4La0oRrraYZX8Y8bJaAAW3Hd/TvbYJFLNt2Pr9Qca
+	H225fcb/pFWqeB25PpPmIz9fLezu/+9pgjLWy+gsKXmYRYGhFifatTJk
+X-Gm-Gg: AZuq6aJldTyJUopP+A1spgKdTAV+ldII+jm/m3E/yNouFdFnbMOdbi61kHeF6rXLIKy
+	ex2i/7BZAydNdOFkQ3BUE5Vd03MJmpkq2hyvn/8Mjv6DJ3Hu3zV62RCHoZD1a4sre1gHcjMnaOf
+	vHUERK4Kfbcv/DDw025YdyACsK0nWbcZSujk/V7o+148a+Tx9WS28/VRuByrk8FNSQTc0Mvd84G
+	Br/tIo6kYIq5jAMZyEHTnK7s64SI6HIKmykXyOMPoQTnE6Tgq5Bp+Kj2AXQFRKQN+AtfU7N+jpu
+	+SeijBbfbElH1r20dbCryncHB2FDBETB2nKAzgpEYu01iCnNhhmOnbuMQ8p8D+ATzUnXFdYnBAw
+	0ytK5W4l5IK0rf55eiIlWhWEAVZxc/5YHO3BbbQ0RTHHw2t7Io1o1Sx1n/stfjqLGrPpM0HQXZ/
+	n8s5UJX4SyR8MUad/Smrv+TN/Nu8aqUOLckEynqC+42HSkO82EZ4o6
+X-Received: by 2002:a05:7022:207:b0:11d:f440:b758 with SMTP id a92af1059eb24-126f47c4656mr2593061c88.25.1770283041293;
+        Thu, 05 Feb 2026 01:17:21 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:9a9a:afcc:9a68:2606])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-126f4e05ce7sm3852912c88.1.2026.02.05.01.17.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Feb 2026 01:17:20 -0800 (PST)
+Date: Thu, 5 Feb 2026 01:17:17 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Michael Tretter <m.tretter@pengutronix.de>
+Cc: linux-input@vger.kernel.org, kernel@pengutronix.de, 
+	Khalid Talash <ktalash@topcon.com>
+Subject: Re: [PATCH 1/2] Input: st1232 - read firmware version and revision
+Message-ID: <aYRftJPEKEWE7VhK@google.com>
+References: <20260123-input-st1232-firmware-version-v1-0-32df7eefdafe@pengutronix.de>
+ <20260123-input-st1232-firmware-version-v1-1-32df7eefdafe@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.400.131.1.6\))
-Subject: Re: [PATCH] HID: quirks: really enable the intended work around for
- appledisplay
-From: =?utf-8?Q?Ren=C3=A9_Rebe?= <rene@exactco.de>
-In-Reply-To: <20260205081131.426899-1-lukas.bulwahn@redhat.com>
-Date: Thu, 5 Feb 2026 10:06:24 +0100
-Cc: Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org,
- kernel-janitors@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- Lukas Bulwahn <lukas.bulwahn@redhat.com>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <944F8139-6528-442E-BFC2-9609A7DACA2D@exactco.de>
-References: <20260205081131.426899-1-lukas.bulwahn@redhat.com>
-To: Lukas Bulwahn <lbulwahn@redhat.com>
-X-Mailer: Apple Mail (2.3826.400.131.1.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260123-input-st1232-firmware-version-v1-1-32df7eefdafe@pengutronix.de>
 
-Hi,
+Hi Michael,
 
-> On 5. Feb 2026, at 09:11, Lukas Bulwahn <lbulwahn@redhat.com> wrote:
->=20
-> From: Lukas Bulwahn <lukas.bulwahn@redhat.com>
->=20
-> Commit c7fabe4ad921 ("HID: quirks: work around VID/PID conflict for
-> appledisplay") intends to add a quirk for kernels built with Apple =
-Cinema
-> Display support, but it refers to the non-existing config option
-> CONFIG_APPLEDISPLAY, whereas the config option for Apple Cinema =
-Display
-> support is named CONFIG_USB_APPLEDISPLAY.
->=20
-> Refer to the intended config option CONFIG_USB_APPLEDISPLAY in the =
-ifdef
-> directive.
->=20
-> Fixes: c7fabe4ad921 ("HID: quirks: work around VID/PID conflict for =
-appledisplay")
-> Signed-off-by: Lukas Bulwahn <lukas.bulwahn@redhat.com>
-> ---
->=20
-> Note this fix suggests that the patch of commit c7fabe4ad921 in this =
-form
-> was never effectively tested, checking the effect that the commit =
-message
-> claims it would have.
+On Fri, Jan 23, 2026 at 05:28:55PM +0100, Michael Tretter wrote:
+> +static int st1232_ts_read_fw_version(struct st1232_ts_data *ts,
+> +				     u8 *fw_version, u32 *fw_revision)
+> +{
+> +	int error;
+> +
+> +	/* select firmware version register */
+> +	error = st1232_ts_read_data(ts, REG_FIRMWARE_VERSION, 1);
+> +	if (error)
+> +		return error;
+> +	*fw_version = ts->read_buf[0];
+> +
+> +	/* select firmware revision register */
+> +	error = st1232_ts_read_data(ts, REG_FIRMWARE_REVISION_3, 4);
+> +	if (error)
+> +		return error;
+> +	*fw_revision = get_unaligned_le32(ts->read_buf);
 
-Thanks for spotting this. It was tested when I did this years ago. =
-Though, maybe I
-tested before adding the #if IS_ENABLED, anciently hit some key in Vim, =
-o
-something was renamed since then.
+Why unaligned? You are not reading at an offset and allocated memory is
+cache line aligned.
 
-Either way, I=E2=80=99ll get the display out of the basement and re-test =
-it the coming days.
+Thanks.
 
-	Ren=C3=A9
-
-> drivers/hid/hid-quirks.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 3217e436c052..b91e081ef69c 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -233,7 +233,7 @@ static const struct hid_device_id hid_quirks[] =3D =
-{
->  * used as a driver. See hid_scan_report().
->  */
-> static const struct hid_device_id hid_have_special_driver[] =3D {
-> -#if IS_ENABLED(CONFIG_APPLEDISPLAY)
-> +#if IS_ENABLED(CONFIG_USB_APPLEDISPLAY)
-> { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x9218) },
-> { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x9219) },
-> { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x921c) },
-> --=20
-> 2.52.0
->=20
-
---=20
-https://exactco.de =E2=80=A2 https://t2linux.com =E2=80=A2 =
-https://patreon.com/renerebe
-
+-- 
+Dmitry

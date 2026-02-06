@@ -1,69 +1,39 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.crpt.ru (mail.crpt.ru [91.236.205.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A3543D4F2
-	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2026 17:28:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D66316DC28;
+	Fri,  6 Feb 2026 04:36:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.236.205.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770312522; cv=none; b=QvAlRWiR44RAc2FeDkd+HNn6042OO0uWb874arrs/1UAmLONgXnCOw6FHMGMgur3vjC5JTHVOoMhOA3zQhYBwrEFRlsveOvZTDVE5N3yzGUEvIzB0z9YjnUMT0WmCW4ohoK5wr5gwwFNl8hlCSDMTPPs6Qaa05PGpM8KOXgIeak=
+	t=1770352589; cv=none; b=TpH6ePuym90Wd3e0TBD3TJs+FQ9Qe8YB4QefKJww/+YTV5FiXYV5RG6J2SfL4sQ/GyXBNGURYe/w7JleyRafdi4x7Rh1bkfLcu9F5GhxSsX/Q9kFHqThrFBMQp6w2x9EbtQj3zcTsAU7MaGdwNAHosnjJp+MVXRnkKshtDpr9xI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770312522; c=relaxed/simple;
-	bh=ISPg1m/xtoHmadv+9qD4PF4qeTVVdwlXnG/d134LzZg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pNdPXrdxF93c/nueJb8lUiu7vzu0LnjrAmz59Pad8AKYywHi8DDu0IfLYZ8MoYZt6LzNSffxPpVGiAc638RnrA295Ya7Wp/08+Uoqdl3+quXyQ/bRZplhiSU6z38GkhwCTTYQM1zgf2FFvhKD0fpf7+loAn6RGESxYD8NB/RzIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QGbRjM7j; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770352589; c=relaxed/simple;
+	bh=x2BN6nqlcGHK2E4pZxtQEowE6pkO/1TIIwXh0jf5QWM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=k0L7CRlzIXvUXtWlv/tj6BdSlP7lTwkdvwhk0y/tD/XXhxpxtZ6niMVtEUJri5P+fKW98ZoMskbqtas+MpweWOQLuBr83mT5RY9e8o5SbcCfcOW3qbpHb5n7oWkb9Edx+48JABZsifGBqeC/nR0s+Vj9so7996FJkQayB0VcXro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=crpt.ru; spf=pass smtp.mailfrom=crpt.ru; dkim=pass (2048-bit key) header.d=crpt.ru header.i=@crpt.ru header.b=a7GkbmC8; arc=none smtp.client-ip=91.236.205.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=crpt.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crpt.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QGbRjM7j"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-47edd6111b4so13537725e9.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2026 09:28:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770312521; x=1770917321; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tyvs4xFeOgUlL1nJWOsM4wXcI5MSjDts4OzcTAQg/Sk=;
-        b=QGbRjM7jf5jwvszCuzt60uATi21ZpJSACb/Qhjkqmu/sUjnNGmqk9Uu2LEYdnEjZzL
-         kf4jO5LgBTTZhyUPLiUqOx66IpkzRlkj1Sy4ZhMJsCwxkqCIFbkw7nyF5hnvJa+tbsrw
-         /fuqsMRSGnIT8NGwiAnvo/U2kJXe786jYaO79gEbyeLxzlbpOUN3VsxIDNFCb7sRLlR8
-         N8rSm3gt4yYbHQoLQBNqY/0Lfg2lQvQQmIzO0DbCmYH7o0atsprmBfhVZj4J3uO2/EFj
-         KkKmuISzipml30D18ARQRzOTTTxMYCqa6rq5JQ+ROaHh4OCM/i1hgkazRGYEeOQgO0Q3
-         rlAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770312521; x=1770917321;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Tyvs4xFeOgUlL1nJWOsM4wXcI5MSjDts4OzcTAQg/Sk=;
-        b=jbDtv4PescX+0iHwZi/SNOA2vnPpIm0RYYFD82WozlSst6IGbOAD8OmEG54OgUvvS0
-         Cac+W5uhPUCwz18bYGjIW2OJS8+XiuZG4KMvDiZzVG8ClUMfL5MFjzu+2+Y8rKFs//w6
-         m0dFp5puxvTFplG1VK00OBF8uqSnx/ch0YyCDptRwlciNdumIEm5esV9KnsWIvbk51NY
-         tfEUKyCelHSGCZVRFsT+reeamqjQY7+UAvmb5WaT6/nE/9mYKXNh6JFiuDG946nnzkIJ
-         Fv2nP8JyHTBGPYLNKKXI1mn4hq88JDGyJZfpMvO+rPfDqYd/Qud1qH18PJnLr283tBim
-         hQOw==
-X-Gm-Message-State: AOJu0Yy72QApGbnT50VDZQNXN3Bf42ahmlK55q8/PfomKb0yAihJFEUh
-	wbhkw5JkyASiRkikv2JJqbSngiT5ePKqggAWuV1MBXrlaIGb2jZdOLAe
-X-Gm-Gg: AZuq6aJgY30r3V+OcD95z5hm2zTyrKJEMnR9oEnod6LFf84+P8iziE7U65Q0zM9tKTd
-	1+fN2LfLGqt2viP1sTXxn9DGYw0W+0w5DPOKVGOJCFn3v4o50AIEi1xwkVJwrzqx2Zvl/befIh2
-	sCXqXL1PPjJk7kOXMASWVsIRm7hT4kZZVUTNuEZnegLkLFlNaqogFOljGiEiT1kMrnNplX9Y1Cb
-	0Q5QM+S6IdkhqTbdsEbWP/5STV6nAvS3bj2MSshp7FMFDnzGkvUJetGaD/zba4/9FwzKbz6YIpp
-	TNxslVUx2YHCuyTdrYbFBRgvIVSkk5AMB+iI+ZglE3w7XWzoJ2jX2Te7O/P+s+reo9Z7pzhhqyZ
-	CiUszX+ZtUzblRTj2dJo9XBZbpORCVa4RUfcNFSwmA60doi+zZ6MQzP4cg5zJk57o+2XjCB1qmf
-	+I/3hGjHsSwKaG
-X-Received: by 2002:a05:600c:19c7:b0:477:a54a:acba with SMTP id 5b1f17b1804b1-483202161edmr2260385e9.17.1770312520238;
-        Thu, 05 Feb 2026 09:28:40 -0800 (PST)
-Received: from Max.. ([46.210.204.80])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4830ffc39b8sm53628265e9.17.2026.02.05.09.28.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Feb 2026 09:28:39 -0800 (PST)
-From: Max Brener <linmaxi@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=crpt.ru header.i=@crpt.ru header.b="a7GkbmC8"
+Received: from ssp-soft.crpt.local ([10.200.60.21])
+	(user=ssp.nesin@crpt.ru mech=LOGIN bits=0)
+	by mail.crpt.ru  with ESMTPSA id 6164a169004286-6164a16C004286
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Fri, 6 Feb 2026 07:36:12 +0300
+From: Rostislav Nesin <ssp.nesin@crpt.ru>
+To: Michael Zaidman <michael.zaidman@gmail.com>
+Cc: Rostislav Nesin <ssp.nesin@crpt.ru>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Max Brener <linmaxi@gmail.com>
-Subject: [PATCH] Input: libps2 - embed WARN_ON(1) macros into their enclosing if statements
-Date: Thu,  5 Feb 2026 19:27:55 +0200
-Message-ID: <20260205172755.25117-1-linmaxi@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	lvc-project@linuxtesting.org,
+	syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
+Subject: [PATCH] HID: ft260: fix block size validation in SMBus transfers
+Date: Fri,  6 Feb 2026 11:36:00 +0700
+Message-Id: <20260206043600.780298-1-ssp.nesin@crpt.ru>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,49 +41,97 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-FEAS-Auth-User: ssp.nesin@crpt.ru
+X-FEAS-BEC-Info: WlpIGw0aAQkEARIJHAEHBlJSCRoLAAEeDUhZUEhYSFhIWUhZXkguLVxYWC48UVlRWFhYWVxaSFlfSBsbGEYGDRsBBigLGhgcRhodSFlIWV9IGxsYRgYNGwEGKAsaGBxGGh1IWUhZSFlaSFlYRlpYWEZeWEZaWUhQSFhIWEheSFhIWEhYSFlQSAoNBhwBGxsoAw0aBg0ERgcaD0hYSFpdSAQBBh0QRQFaCygeDw0aRgMNGgYNBEYHGg9IWEhaUEgEHgtFGBoHAg0LHCgEAQYdEBwNGxwBBg9GBxoPSFhIWl1IBQELAAkNBEYSCQEMBQkGKA8FCQEERgsHBUhYSFlfSBsbGEYGDRsBBigLGhgcRhodSFlIXVtIGxESCgccQ15cCwleUVFfXwpbX15YXAsMXgxRKBsREgMJBAQNGkYJGBgbGAccBQkBBEYLBwVIWA==
+X-FEAS-Client-IP: 10.200.60.21
+X-FE-Envelope-From: ssp.nesin@crpt.ru
+X-FE-Policy-ID: 0:9:0:SYSTEM
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; d=crpt.ru; s=crpt.ru; c=relaxed/relaxed;
+ h=from:to:cc:subject:date:message-id:mime-version;
+ bh=rzfGCQV1vd3fE2K/Z35H/Vih9KGN5iZHJ9A2WW6ram4=;
+ b=a7GkbmC8HJLqUQ0UqunzWt+hVfSB7WrwNpwobm+mvFeJd/j6hlH126RVoIzrmBYDnyzlQPj45kF7
+	8jAfe18EZxNa4qvvG9in0EflSXe/Doz05bG8NiDWdM2J3d49fsN+yEhu/JmDa1exHOIMwuSKdfMU
+	PiXuvmYMmL24LiBAHtBPEP0ZR5u8AqUSnKb5l2tNhoCuEjOYx/mcOgvd28TkyomqhqBCRgGCCitG
+	3OQ+6vpbKd9ukdh6+fXrkI8tjxWBbiXODmVJh60AuCQPJTi7PXJV4STAaCkiWFUMC3jo+rU1VBiU
+	XeqXsm4ZkdY3HoFejj4xzrE/7XNVwHn04fmv6Q==
 
-Make WARN_ON(1) statements embedded inside their respective 'if' expressions,
-to improve code clarity.
+In ft260_smbus_xfer(), data->block[0] specifies the data length for
+block transfers. Without proper validation, a caller can set block[0]
+to a value larger than I2C_SMBUS_BLOCK_MAX (32), causing out-of-bounds
+access in both ft260_smbus_write() and ft260_i2c_read(). This
+triggered the out-of-bounds access reported by syzbot.
 
-Signed-off-by: Max Brener <linmaxi@gmail.com>
+BUG: KASAN: stack-out-of-bounds in ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
+Read of size 42 at addr ffffc90003427d81 by task syz.2.65/6119
+
+CPU: 0 UID: 0 PID: 6119 Comm: syz.2.65 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xcd/0x630 mm/kasan/report.c:482
+ kasan_report+0xe0/0x110 mm/kasan/report.c:595
+ check_region_inline mm/kasan/generic.c:194 [inline]
+ kasan_check_range+0x100/0x1b0 mm/kasan/generic.c:200
+ __asan_memcpy+0x23/0x60 mm/kasan/shadow.c:105
+ ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
+ ft260_smbus_xfer+0x22c/0x640 drivers/hid/hid-ft260.c:736
+ __i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:591 [inline]
+ __i2c_smbus_xfer+0x4f0/0xf60 drivers/i2c/i2c-core-smbus.c:554
+ i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:546 [inline]
+ i2c_smbus_xfer+0x200/0x3c0 drivers/i2c/i2c-core-smbus.c:536
+ i2cdev_ioctl_smbus+0x237/0x990 drivers/i2c/i2c-dev.c:389
+ i2cdev_ioctl+0x361/0x840 drivers/i2c/i2c-dev.c:478
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:597 [inline]
+ __se_sys_ioctl fs/ioctl.c:583 [inline]
+ __x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xcd/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+ </TASK>
+
+Add validation for data->block[0] > I2C_SMBUS_BLOCK_MAX + 1 at the
+start of I2C_SMBUS_BLOCK_DATA and I2C_SMBUS_I2C_BLOCK_DATA cases to
+protect both read and write paths.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Reported-by: syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=64ca69977b37604cd6d9
+Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
+Signed-off-by: Rostislav Nesin <ssp.nesin@crpt.ru>
 ---
- drivers/input/serio/libps2.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/hid/hid-ft260.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index 269df83a167d..05b64277aecd 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -154,10 +154,8 @@ EXPORT_SYMBOL(ps2_end_command);
-  */
- void ps2_drain(struct ps2dev *ps2dev, size_t maxbytes, unsigned int timeout)
- {
--	if (maxbytes > sizeof(ps2dev->cmdbuf)) {
--		WARN_ON(1);
-+	if (WARN_ON(maxbytes > sizeof(ps2dev->cmdbuf)))
- 		maxbytes = sizeof(ps2dev->cmdbuf);
--	}
- 
- 	ps2_begin_command(ps2dev);
- 
-@@ -270,15 +268,11 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 	int i;
- 	u8 send_param[16];
- 
--	if (receive > sizeof(ps2dev->cmdbuf)) {
--		WARN_ON(1);
-+	if (WARN_ON(receive > sizeof(ps2dev->cmdbuf)))
- 		return -EINVAL;
--	}
- 
--	if (send && !param) {
--		WARN_ON(1);
-+	if (WARN_ON(send && !param))
- 		return -EINVAL;
--	}
- 
- 	memcpy(send_param, param, send);
- 
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 79505c64dbfe..7bd858e40826 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -659,6 +659,10 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
+ 		}
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
++		if (data->block[0] > I2C_SMBUS_BLOCK_MAX + 1) {
++			ret = -EINVAL;
++			goto smbus_exit;
++		}
+ 		if (read_write == I2C_SMBUS_READ) {
+ 			ret = ft260_smbus_write(dev, addr, cmd, NULL, 0,
+ 						FT260_FLAG_START);
+@@ -675,6 +679,10 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
+ 		}
+ 		break;
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
++		if (data->block[0] > I2C_SMBUS_BLOCK_MAX + 1) {
++			ret = -EINVAL;
++			goto smbus_exit;
++		}
+ 		if (read_write == I2C_SMBUS_READ) {
+ 			ret = ft260_smbus_write(dev, addr, cmd, NULL, 0,
+ 						FT260_FLAG_START);
 -- 
-2.43.0
-
+2.34.1

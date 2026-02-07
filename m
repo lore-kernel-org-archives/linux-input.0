@@ -1,240 +1,156 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay11.grserver.gr (relay11.grserver.gr [78.46.171.57])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A1430C62A
-	for <linux-input@vger.kernel.org>; Sat,  7 Feb 2026 09:20:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770456030; cv=pass; b=LW6Ce2ZXSxwW2+fB49az0Ws66TP5Lxua/keGT0jfVLuBYhnlkHSsuOsxPEhAyTmJXvCvRHoCgF2/dJkLxfXlnVeqrpi4H/wD9JFrDIJB1lbm88cLtCEgJIFKVd1bHMdFckg7h7hA6DZWn9lnrlYybdqdW1lxC6X4k3oXQFNogWM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770456030; c=relaxed/simple;
-	bh=cy4A7rvGum9/P7zJXPm/8IWM6o1KPiGpFPtqRktj2bo=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE5C1823DD
+	for <linux-input@vger.kernel.org>; Sat,  7 Feb 2026 12:00:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.46.171.57
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770465628; cv=none; b=uckW3lgMBwBP0soKScwg1dcN8bbGM/Uy6idgiBBzWc1ath9aJfFPXHj/M0u+d2Elx89QEgqvIjQyAjMyhWGkwt569BOjIeMhPdux9Hnv+gG2X9z8FFKdWxjOaglSnilAK3ggcgG22SfiOXmK2ip9GXkirZZtnUaApUNk76bNdNQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770465628; c=relaxed/simple;
+	bh=OVIVpNzUp2OBZ6+ABT8cT0Px5TSJdPYO0EiTIGUDwIg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GCsInZ7aDYThWCjHAEFxNE1yuLRgXv0g/ppb2t5c5AyLyqLBe8bn3BQbJwyR1OJGtDEFpUkooqrRFvAcMK1dMxJYBqbODUHppjWXwtsmEWHOEBuCuDCaiprkqQ0kULKhssEucZnIBhF0Q2u1+Z+QINRURuYJA7kpvBW3At+UNYk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M9mit3MZ; arc=pass smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=lenB4v305ksqpYfUuvq5lZhYNreSvMLHBpRTOMXvZ2PhnLCGd7ztcOxGncA+89bO1kW0yon5FiUdmq7FAwKG/stH5T4+qQqZa2LMcarwFAYlp4go9eT5vjhn6opN3LdQlZPoxrGPr3kdO/sfvU/jqoN1rNBw9Ewxka6+jojMJGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=eV/cVO5m; arc=none smtp.client-ip=78.46.171.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M9mit3MZ"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-435a11957f6so2286475f8f.0
-        for <linux-input@vger.kernel.org>; Sat, 07 Feb 2026 01:20:29 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770456028; cv=none;
-        d=google.com; s=arc-20240605;
-        b=i9tuLpbe4/lmO6HU4DSQghrPEbZA1EHZcSEacRpISvZbD8Y8tUG+/jP2haA/ar9Y48
-         BVIaKlJHcZ1/FRV89f4qym97PDpL3UdHDzlRnuGFGsHsBf6L/VYWhVqZOQ/Vb2vvUVKV
-         dg206unTBgom7GoSqWdKP1N/Pl1cIRxTSwjnmGpenu4RviW52wK3VLc437dVqysfZJZO
-         QAsCh0sODIBcUJbm4fSbOCL8/7wCnrgQVop2rYhLtYJZLyytmdCEgdbVuN/k1X0Oj7jf
-         kHo6aVMm9qwcjLl1fVO8TlqillQnYBsYWS0lyXliniSBw+Gbm5VJphawNiva4VEW4eZB
-         1vpw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5IniXECrOUfTc9Ybm/eSbm1Y2H5SJTil/wMGC8X/eL8=;
-        fh=NhWPiHOul+cMhac36YDzQ+DyZ8ARDP9wXqwKxgANTM0=;
-        b=I10HKIfcr5q/un7wT4OfVnopHM+YkWCUhfYaLByINAbVzPTewSkuo3CNF5Xms6jGR1
-         xyxBscFClgYOeXWjrvkvCBQ4dNS/9DaqUkR6sSmBbLTHQrFuM43pJgym0QpZ8YWiixXP
-         GzYzHhOJGlov4eySyDZW8jBjyuUCrhrYi+Ogi6im9s9JSecqq0N5jKrkY0t3lx3nR920
-         BaFqzPnM0rt2h4Y9r6ELIA2KVCs3BqRx+ZOR/s23Xx3gBP1bO5hfZQ+yYSXyMonjqg1j
-         dGPlG0I06GWQsa/ozFVSrxV0nhO3Rh5gxe4f3g7+RLupv3uJ1/zUcZobT07QvWxZZIem
-         TD0g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770456028; x=1771060828; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5IniXECrOUfTc9Ybm/eSbm1Y2H5SJTil/wMGC8X/eL8=;
-        b=M9mit3MZkAsemcuc0rx+tkFJRXH41lDCpolqqqmcfzoAziQ7iZjf2hNp14NjkNGi1e
-         znDdtO0EsfcFMPJAJIWhvEVpNaCnsyuiR57grujXQ5NF9fqX20NFe1Ch8YFN5B9/sBCw
-         gMrIDDWMJxD9JuwQwGVloWUymTCZ0LF2Mpvou8kyZM6G0u1KGsj2aXyZW9vqyoFj3v6s
-         Rch6GLnAEiCjUIryml15QasvQ9USVuZrScLw5bmRGBMGB0O3eX8UR0w3M/kBrQi2d8vl
-         zke/BRX+BwQuwOwBfdvH/auRKEAdwyn+LVR924ZdSMzCvWGTsRfBXcx72p0i1Co5zynU
-         Hz9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770456028; x=1771060828;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=5IniXECrOUfTc9Ybm/eSbm1Y2H5SJTil/wMGC8X/eL8=;
-        b=U4s3Kk7ui1s1/QQUCkZ1wU09uaYdlu80sK40kJ3P3FgTW3XS+xUX1C47chOs+Nuon+
-         UFjbvkqhG+t+PXClesej+KLdaDp2uLqgklhlr2bHMKBc3fErV/EB9E8M6ovdVNBcia2l
-         hEO24lTZB//BrOwMx8L6syTN1Gin0Y1SKmftvnjVaawDuHhug/qmfYDsniUzcIiEhP6y
-         BOJheBfmGQWYMI14PctKfu36OSJoHdtP0CLHv1d35ZlJmTHxbwjGTERmcy9p0RnIeP9m
-         VYJdJZii21LfanBQiZStKCoaemvM7gax1oa6r1C/0GidEce9PYn1/yGaxhK6B7YHuwRS
-         7kxw==
-X-Forwarded-Encrypted: i=1; AJvYcCV4JE+lPSNilqrrCMY/tOygOgBaxp6bKMTPCMWeaPRsygh3Ue5J8L0MZ5K0f2MUgbXr7C61+AKX/IHi6g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfCoWhSkJg6O9aAYusQL6vVdYhoh+w1ChCGX+R3aRBrL47xM9g
-	yeEff8inC64/dSLLky/VcQ9WAP6f0N+alJ2Ob8T5agg0vcwbeu4TmAC6rioSV35LNeFy+soUUD4
-	WDeQgb1ziR44jz32LJNBJNeMXyiAjUZY=
-X-Gm-Gg: AZuq6aLF4LZfZ5w6P9JEQf0hvAtVszXG8iu/3ssxd8rM/xX0TnDCTZ4JkqHK4AUB8Ya
-	uuq2JEOEZZNpD6hp4yJpPRdJtkzvPjo3W6nrWmiSFPDy/zp/hKllCE0xbSubyZ/TtzutJ0MMTbp
-	As0sOZOx6pO8Ox6YbOd6WNtI8HbBilKnVmLtkEdGlAtJn0roxENngIhxHrwikXmGmzCObQCYFEB
-	9acD6os2sQmQFI/QWmTSw6jj3vPvupDO9ogrCkblWh9lH2xdCpUZXalQS2QOKkr7LfgrvAg
-X-Received: by 2002:a05:6000:420e:b0:435:d84f:4853 with SMTP id
- ffacd0b85a97d-4362938b24dmr7580007f8f.35.1770456028155; Sat, 07 Feb 2026
- 01:20:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="eV/cVO5m"
+Received: from relay11 (localhost.localdomain [127.0.0.1])
+	by relay11.grserver.gr (Proxmox) with ESMTP id A4050BD19C
+	for <linux-input@vger.kernel.org>; Sat,  7 Feb 2026 14:00:18 +0200 (EET)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay11.grserver.gr (Proxmox) with ESMTPS id DC5B0BD40F
+	for <linux-input@vger.kernel.org>; Sat,  7 Feb 2026 14:00:17 +0200 (EET)
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id 636DF1FEC6C
+	for <linux-input@vger.kernel.org>; Sat,  7 Feb 2026 14:00:17 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1770465617;
+	bh=o98dUsx/gJO9sLWs/evZortySYc1uIL1B0bewJFZTEs=;
+	h=Received:From:Subject:To;
+	b=eV/cVO5mavLTNFJwp5VM8b854e8p5GgTHUsfKONztiDfzY0o6qnBaYDeGzLdQo2rx
+	 iehYGgIVBK9SAXjkZCJqEIYGLJ4++UKubFUpiuun15EthZkGO8Nf9u3PUx7cV0LvQF
+	 qzMUFIVsIWb39q6I9ZwTYdhr/Tv43Y8pg4y4HPIHMXMW53AlpPHuXvxE+Et6KMH3/c
+	 1ZZqCjMOMiwpUTyeBWd3O+rnqmgIbbp7nLD8+glbeEzMbiv+bcVDDaf2z/OkyZsPqY
+	 UAZ4GxV+H9WG8RkZpj3Eey6gjCuwrezD/vZepJK8tQVK91j/jCeaaCsS+QtZbHjYZn
+	 ratvx1QcehbKQ==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 209.85.208.169) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-lj1-f169.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-lj1-f169.google.com with SMTP id
+ 38308e7fff4ca-385d9fb297dso28344401fa.2
+        for <linux-input@vger.kernel.org>;
+ Sat, 07 Feb 2026 04:00:17 -0800 (PST)
+X-Forwarded-Encrypted: i=1;
+ AJvYcCW/gfrTqgHWAjz7lkYCw0yNFWmdWRCbRNgCkg0dmerZvGFWv1PR0tmdPKz33K2rOBTQlVI1yb+PNoIJfw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzhT2kBwvHTI7iQ9+ho13Jq3uZLajVNCUymLz3fKc8pONHcLYGg
+	M7dpHKTwweH2tTbhBrBXSQaZQP5kWNsBCJ79x/9E6qqc+C6DKGvU3Q8ko6w35jCwxULZ+YBqQpd
+	3vYbxBZVEmEJVwh0AMkCSuLf1bTx79qQ=
+X-Received: by 2002:a2e:bd85:0:b0:338:10c9:5871 with SMTP id
+ 38308e7fff4ca-386b513b192mr20799671fa.34.1770465616752; Sat, 07 Feb 2026
+ 04:00:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260206172845.145407-1-clamor95@gmail.com> <20260206172845.145407-2-clamor95@gmail.com>
- <20260206230922.GA254792-robh@kernel.org>
-In-Reply-To: <20260206230922.GA254792-robh@kernel.org>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Sat, 7 Feb 2026 11:20:15 +0200
-X-Gm-Features: AZwV_QgS3-zSft7PiK4Y7AUbYQceyqA5VWBqSZgT2tr_s54EIIDfm21b-58zfy0
-Message-ID: <CAPVz0n3EGCSLUX7jTLve0x0z4uW1yexViCwkSQLY2d_4r4qkjg@mail.gmail.com>
-Subject: Re: [PATCH v2 01/11] dt-bindings: regulator: cpcap-regulator: convert
- to DT schema
-To: Rob Herring <robh@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Dixit Parmar <dixitparmar19@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+References: 
+ <TY4PR01MB1443218CD6B7089D3DBF893989899A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+ <TY4PR01MB144320C2F5B24AEA833ECFB2E9867A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+In-Reply-To: 
+ <TY4PR01MB144320C2F5B24AEA833ECFB2E9867A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Sat, 7 Feb 2026 13:00:05 +0100
+X-Gmail-Original-Message-ID: 
+ <CAGwozwFXmye4kJzjFbZzUmgmhHn0YyX2eEwidkUJBs7ZhpXhNw@mail.gmail.com>
+X-Gm-Features: AZwV_QhQc5G930lJFDpF8RoH_PK43WR2QgvrymW4O9R0IzBW3L9s7e3sj5rzU94
+Message-ID: 
+ <CAGwozwFXmye4kJzjFbZzUmgmhHn0YyX2eEwidkUJBs7ZhpXhNw@mail.gmail.com>
+Subject: Re: [PATCH v1] input: xpad: Add support for BETOP BTP-KP50B/C
+ controller's wireless mode
+To: Shengyu Qu <wiagn233@outlook.com>
+Cc: dmitry.torokhov@gmail.com, vi@endrift.com, niltonperimneto@gmail.com,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-PPP-Message-ID: 
+ <177046561761.770052.4877182961493853330@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-=D1=81=D0=B1, 7 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 01:09 Rob H=
-erring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+On Sat, 7 Feb 2026 at 05:57, Shengyu Qu <wiagn233@outlook.com> wrote:
 >
-> On Fri, Feb 06, 2026 at 07:28:35PM +0200, Svyatoslav Ryhel wrote:
-> > Convert devicetree bindings for the Motorola CPCAP MFD regulator subnod=
-e
-> > from TXT to YAML format. Main functionality preserved.
+> Update on commit info: seems these controllers support Xbox mode when
+> using wired mode, however, their firmware has some weird enumeration
+> logic that won't work with current xpad driver(It would enum as xbox
+> first if no driver is loaded, then disconnect and re-enum as NS
+> controller, finally something else), and by default wired mode would end
+> with nintendo driver.
+
+Hi,
+if I recall, this logic abuses some HID descriptor logic to cycle the
+mode depending on the OS. The arch wiki has a potential fix for
+certain controllers.
+
+This makes you end up in Android mode since linux kernel. Nintendo
+uses a BSD-based kernel, and the Windows NT kernel is different. So by
+breaking the protocol in different ways they get it to cycle.
+
+Antheas
+
+> =E5=9C=A8 2026/2/5 22:15, Shengyu Qu =E5=86=99=E9=81=93:
+> > BETOP's BTP-KP50B and BTP-KP50C controller's wireless dongles are both
+> > working as standard Xbox 360 controllers. Add USB device IDs for them t=
+o
+> > xpad driver.
 > >
-> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > Both controllers can't work as Xbox controllers when using wired mode a=
+nd
+> > have different USB IDs.
+> >
+> > Signed-off-by: Shengyu Qu <wiagn233@outlook.com>
 > > ---
-> >  .../bindings/regulator/cpcap-regulator.txt    | 35 -------------
-> >  .../regulator/motorola,cpcap-regulator.yaml   | 50 +++++++++++++++++++
-> >  2 files changed, 50 insertions(+), 35 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/regulator/cpcap-r=
-egulator.txt
-> >  create mode 100644 Documentation/devicetree/bindings/regulator/motorol=
-a,cpcap-regulator.yaml
+> >   drivers/input/joystick/xpad.c | 3 +++
+> >   1 file changed, 3 insertions(+)
 > >
-> > diff --git a/Documentation/devicetree/bindings/regulator/cpcap-regulato=
-r.txt b/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-> > deleted file mode 100644
-> > index 36f5e2f5cc0f..000000000000
-> > --- a/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-> > +++ /dev/null
-> > @@ -1,35 +0,0 @@
-> > -Motorola CPCAP PMIC voltage regulators
-> > -------------------------------------
-> > -
-> > -Requires node properties:
-> > -- "compatible" value one of:
-> > -    "motorola,cpcap-regulator"
-> > -    "motorola,mapphone-cpcap-regulator"
-> > -    "motorola,xoom-cpcap-regulator"
-> > -
-> > -Required regulator properties:
-> > -- "regulator-name"
-> > -- "regulator-enable-ramp-delay"
-> > -- "regulator-min-microvolt"
-> > -- "regulator-max-microvolt"
-> > -
-> > -Optional regulator properties:
-> > -- "regulator-boot-on"
-> > -
-> > -See Documentation/devicetree/bindings/regulator/regulator.txt
-> > -for more details about the regulator properties.
-> > -
-> > -Example:
-> > -
-> > -cpcap_regulator: regulator {
-> > -     compatible =3D "motorola,cpcap-regulator";
-> > -
-> > -     cpcap_regulators: regulators {
-> > -             sw5: SW5 {
-> > -                     regulator-min-microvolt =3D <5050000>;
-> > -                     regulator-max-microvolt =3D <5050000>;
-> > -                     regulator-enable-ramp-delay =3D <50000>;
-> > -                     regulator-boot-on;
-> > -             };
-> > -     };
-> > -};
-> > diff --git a/Documentation/devicetree/bindings/regulator/motorola,cpcap=
--regulator.yaml b/Documentation/devicetree/bindings/regulator/motorola,cpca=
-p-regulator.yaml
-> > new file mode 100644
-> > index 000000000000..50bc57f06b51
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/regulator/motorola,cpcap-regula=
-tor.yaml
-> > @@ -0,0 +1,50 @@
-> > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/regulator/motorola,cpcap-regulator.=
-yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Motorola CPCAP PMIC regulators
-> > +
-> > +maintainers:
-> > +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> > +
-> > +description:
-> > +  This module is part of the Motorola CPCAP MFD device. For more detai=
-ls
-> > +  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. The
-> > +  regulator controller is represented as a sub-node of the PMIC node
-> > +  on the device tree.
-> > +
-> > +properties:
-> > +  compatible:
-> > +    enum:
-> > +      - motorola,cpcap-regulator
-> > +      - motorola,mapphone-cpcap-regulator
-> > +      - motorola,xoom-cpcap-regulator
-> > +
-> > +  regulators:
-> > +    type: object
-> > +
-> > +    patternProperties:
-> > +      "$[A-Z0-9]+^":
->
-> I thought it was said on the last version to list the names. Considering
-> you already have them below, better to put them in schema than prose.
-> And pretty much all regulator bindings define the names.
+> > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpa=
+d.c
+> > index 363d50949386..260dd41ea6e5 100644
+> > --- a/drivers/input/joystick/xpad.c
+> > +++ b/drivers/input/joystick/xpad.c
+> > @@ -360,6 +360,8 @@ static const struct xpad_device {
+> >       { 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+> >       { 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
+> >       { 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
+> > +     { 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX3=
+60 },
+> > +     { 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX3=
+60 },
+> >       { 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_=
+XBOXONE },
+> >       { 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Seri=
+es X|S", 0, XTYPE_XBOXONE },
+> >       { 0x20d6, 0x2064, "PowerA Wired Controller for Xbox", MAP_SHARE_B=
+UTTON, XTYPE_XBOXONE },
+> > @@ -562,6 +564,7 @@ static const struct usb_device_id xpad_table[] =3D =
+{
+> >       XPAD_XBOX360_VENDOR(0x1a86),            /* Nanjing Qinheng Microe=
+lectronics (WCH) */
+> >       XPAD_XBOX360_VENDOR(0x1bad),            /* Harmonix Rock Band gui=
+tar and drums */
+> >       XPAD_XBOX360_VENDOR(0x1ee9),            /* ZOTAC Technology Limit=
+ed */
+> > +     XPAD_XBOX360_VENDOR(0x20bc),            /* BETOP wireless dongles=
+ */
+> >       XPAD_XBOX360_VENDOR(0x20d6),            /* PowerA controllers */
+> >       XPAD_XBOXONE_VENDOR(0x20d6),            /* PowerA controllers */
+> >       XPAD_XBOX360_VENDOR(0x2345),            /* Machenike Controllers =
+*/
 >
 
-What exactly do you propose? All those names will not fit into a
-single unbreakable line (more than 125 columns in length btw). Patch
-checker will complain about this. Duplicate pattern properties for
-every few names? Please be a bit more specific. Thank you!
-
-> > +        $ref: /schemas/regulator/regulator.yaml#
-> > +        type: object
-> > +        description:
-> > +          Valid regulator names are SW1, SW2, SW3, SW4, SW5, VCAM, VCS=
-I,
-> > +          VDAC, VDIG, VFUSE, VHVIO, VSDIO, VPLL, VRF1, VRF2, VRFREF, V=
-WLAN1,
-> > +          VWLAN2, VSIM, VSIMCARD, VVIB, VUSB, VAUDIO
-> > +
-> > +        required:
-> > +          - regulator-name
-> > +          - regulator-enable-ramp-delay
-> > +          - regulator-min-microvolt
-> > +          - regulator-max-microvolt
-> > +
-> > +        unevaluatedProperties: false
-> > +
-> > +required:
-> > +  - compatible
-> > +
-> > +additionalProperties: false
-> > +
-> > +...
-> > --
-> > 2.51.0
-> >

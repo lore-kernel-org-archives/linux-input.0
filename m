@@ -1,177 +1,398 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazolkn19010023.outbound.protection.outlook.com [52.103.43.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 201922F5311;
-	Fri,  6 Feb 2026 23:09:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770419366; cv=none; b=IBpud+ZzOv8TIt8+jXSWf8LofngDJ/bc59rBg3kQEtU9x1u3L5v09vxMFLQxsq06zovzxXETvi1etT8/CrqYYRXKQLDfVDI2jrRIavjPvEVdF5GOq1eDj0i5kq3iH07qvNPC6egNGFhGHHb82HIMEndXcMNX1gpRfxMzyEPFWM0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770419366; c=relaxed/simple;
-	bh=+d9TjhHjJkRR286+pDIsIGDe+mPeLjJWc75sfv+eH0Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fwjNdJ7E0VLGfU0zGTstpV8yDvXLmGPVTIS5WejTjvt285Snlx9gxMdnzQv486yDEUqIXP7EpNDfrJ0wZK7KU2hRwodbtuuqwYxEwnVJmh/6tD4eEfHE5034d3U0NFZ1vpfZE9/9c6JrSCFBWwBlS5grKAdntbkQraewxPHqiVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iHE0a4pq; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE8C27F75C;
+	Sat,  7 Feb 2026 04:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.43.23
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770440238; cv=fail; b=oLKF9SLu+eKSJ3r333ezQh5wdg+sqMNqmH9pjClv3NDT7k6kOmqq9IeFSOgId1wLCvrzpzxwDDlRKExGVytYYO7XUPo9W0vEDgiNi//3IVbZA4yodN0B0Y7NTxAW+Uv2xYoFWIChsbyQZ1YwW+DiAUnBoP6iqkWeUWBVm4QW1Ks=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770440238; c=relaxed/simple;
+	bh=rE8jXAaTynsmkviWoszTTp0cvZ3VmiWHg1mLP5HcfCc=;
+	h=Message-ID:Date:Cc:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=DHPUcbnMKdyB8LnhNpbxklqDzqHs9MbOjnx2jA+UhhHsMRmkj2vJ3748+ep362ANLq+oF3lE09TU9tKDOTmcGroIb4xNFtXVU3PVE9FckPWJ0vpvTBgAdKCZKlnWwpM4Er02SiLrkA+fZr+wPTB4NDZIeBduzbxmPaiEb6U1ATk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=MWt9m1lY; arc=fail smtp.client-ip=52.103.43.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iHE0a4pq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC9C7C116C6;
-	Fri,  6 Feb 2026 23:09:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770419365;
-	bh=+d9TjhHjJkRR286+pDIsIGDe+mPeLjJWc75sfv+eH0Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iHE0a4pqdLZup/ozaHrLYIZvRTa2HylICjf/vD7LzQgK6r3BSIarhAONGEWlbOjyt
-	 /McRfyxfDeamHHad12P5QE9QvpsZpIDFPXg5D7hbVyAGZjagWFhdGX9burz3HnOBGN
-	 rv2jGyZsUHjZ/mUjuWDAqZU2nDPkjTiuWraBME+WF0VMUAg16+L8P6WFvRwvwDpZSo
-	 4vooWF5anQ8IF6zpIW8jkypEKnJAQ0t4FApvw6D6Z57Rd4H/EWCWoJFDHRrzo3lOdW
-	 1VvB/EKSqqCI8cnrqZnA6JgowaCS6oEDbCYsFHqpyYNDPu0LfSp2mt/0oP5Mxu9YSa
-	 UMxrKyCoWFx7Q==
-Date: Fri, 6 Feb 2026 17:09:22 -0600
-From: Rob Herring <robh@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Dixit Parmar <dixitparmar19@gmail.com>,
-	Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
-Subject: Re: [PATCH v2 01/11] dt-bindings: regulator: cpcap-regulator:
- convert to DT schema
-Message-ID: <20260206230922.GA254792-robh@kernel.org>
-References: <20260206172845.145407-1-clamor95@gmail.com>
- <20260206172845.145407-2-clamor95@gmail.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="MWt9m1lY"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Pcge6K6GYr4gfMxFrOvAb3DO1oS2f6mBlwkL6U92FtoK5foLInUlIhprnXIDk+U1EKCOb8+hbcHGujyjgdbPrn5pQkFA5rGvmJny141ac8AvdYD40LWsyIydfKcQPil5y7Baie4H/8OjJE5MMzzOqna2L/WDEwUZ273qsEb97cpyr9oUSWRz4QOY5oBp93Edop7bXMaZvJ+MIHIFuG+yqd41PlB5jq2yshsD5vcnePwMuP9MRFy/8DSlLwlEXzUdX0jrh8h6EoY42cR6DX+N0vemtc/OyoEVZsY7AiTHIVEFBUDbKeHfwUFYy3FFB7RZW4nldHdpMuVXITh5x5yBDQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=rE8jXAaTynsmkviWoszTTp0cvZ3VmiWHg1mLP5HcfCc=;
+ b=jyaaCgSWxry8t2lEvE19gRCps3tceEFgAgWJFOwuomtaoVppo0JfBEKB6RYegqWP33jJ3AIQvvrwUNfkkmWUsjcNwYkvlRcqUsJb223BpJgmV4quJcrxQujg3TUvWgx9y7WFKppXApm0tgr6HFVxRoKYjqKt3TnfsEg36pSLylJD76wpXCh73H8SdIQcOoefjHtXRh1zGdjkwYAg03yeDtUYKl7zHQC1k9u66+yKky5Y8Pt5G0iWU0DRq21HA1iN0gMVSQ9y6rONI2ubE6WUapLOO/HbbQaCAMGatt4qgm1GMHMaT/vMttBSOCYCUDsgSUCrgPfixjkredQeEBw8LA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rE8jXAaTynsmkviWoszTTp0cvZ3VmiWHg1mLP5HcfCc=;
+ b=MWt9m1lYkvly4+KWygUyMEvRkpYbqXSwbAom1PXo473KnGA0JErjp/6ZrfrTgR+ydi1ZUfOrIv4yR8wi7MA01pPEnwGugbhZz7p2noLG4NP6pbeRL82ZNxrsX+vvFuQNjmJKjw7NUyktL2R/Hb5BXRCD5a518ns/Xx9cNv/tUdKNEEiRWFmdggVy9CrABNSpP0wcckxldiEqeBExpjFB7CATgbq812kcJdHsv5tM7mhRUEg9NzMAxRZicBMGgJ/21Vszpy3dEyPf43dpzJa5ftWW5ssFabN42c8bbXo6JTjad36DHhaDvj+MHmBdoMES/Sk/5TlpjjJULcC5mpOh5g==
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ (2603:1096:405:235::10) by OS3PR01MB6673.jpnprd01.prod.outlook.com
+ (2603:1096:604:10b::9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.17; Sat, 7 Feb
+ 2026 04:57:15 +0000
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2]) by TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2%6]) with mapi id 15.20.9587.013; Sat, 7 Feb 2026
+ 04:57:14 +0000
+Message-ID:
+ <TY4PR01MB144320C2F5B24AEA833ECFB2E9867A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+Date: Sat, 7 Feb 2026 12:57:02 +0800
+User-Agent: Mozilla Thunderbird
+Cc: wiagn233@outlook.com
+Subject: Re: [PATCH v1] input: xpad: Add support for BETOP BTP-KP50B/C
+ controller's wireless mode
+To: dmitry.torokhov@gmail.com, vi@endrift.com, lkml@antheas.dev,
+ niltonperimneto@gmail.com, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <TY4PR01MB1443218CD6B7089D3DBF893989899A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+From: Shengyu Qu <wiagn233@outlook.com>
+Content-Language: en-US
+Autocrypt: addr=wiagn233@outlook.com; keydata=
+ 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
+In-Reply-To: <TY4PR01MB1443218CD6B7089D3DBF893989899A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------pEozCdRRobhEt89jo6wLtZBl"
+X-ClientProxiedBy: SEWP216CA0069.KORP216.PROD.OUTLOOK.COM
+ (2603:1096:101:2ba::15) To TY4PR01MB14432.jpnprd01.prod.outlook.com
+ (2603:1096:405:235::10)
+X-Microsoft-Original-Message-ID:
+ <caf458f8-8487-4dbe-8520-50a146f14e47@outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260206172845.145407-2-clamor95@gmail.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TY4PR01MB14432:EE_|OS3PR01MB6673:EE_
+X-MS-Office365-Filtering-Correlation-Id: cce7a673-a5cc-41a6-f1a6-08de66055ac2
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|6092099016|23021999003|15080799012|12121999013|19110799012|8060799015|461199028|8022599003|5072599009|3412199025|440099028|26104999006|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?S2JnWjFGME0vdFh3cXFSRXo1L1lVaXpJcjNraE93Y2U2cXlTNjdvU3d4VkJF?=
+ =?utf-8?B?Ty8wUjlzYUhUdmc5K2drSHZldktHdFNJWmU0MDA2bDAxNndqc0t2NnJzelBs?=
+ =?utf-8?B?SXRqaUV5eTRBdUQrME9NaUxNVWRSMUVXUGRmR0ZBUzUwMHh4VGRnd1hISlZK?=
+ =?utf-8?B?VVRLNUQyZEpYYjRrMUtoYlFGbWxjUHd1UUV0R3BaK2tpSlB2VmN0TnZuUE5Q?=
+ =?utf-8?B?Y1lwajlUdjFiQm1HYStXUjByYU8zM3BCcVdVMkRZN0JmeE9icW5RemdZQmlG?=
+ =?utf-8?B?c0h4L3h4Qjl5U2VrWGt5elR6eXJWalFZRHdIanBpODJTMlhGUlNFVkNmZGpa?=
+ =?utf-8?B?QkdpVG9CV2lMRWhGVjhGc0RqaittYm5yNm5WQVE1dk5oTnpMTmRUQ25PSU5l?=
+ =?utf-8?B?TUVnQ3N0V0JhK2Q4OU5GZ0lvWEk3TlBvMFVaajIyQ3VJbmNFNm10OXNNVmhk?=
+ =?utf-8?B?NmwzTDBVRU5Sd21aVVZrRE9MU1ZXNVIxbVRRbk13dFRHeWtsS1FvVUZ3NHlD?=
+ =?utf-8?B?SUt1djFHUlZzQkdOaFhkczhwRFZETmJkMW9DclNSVlJzM2VQaDF2ZEhxZTMy?=
+ =?utf-8?B?RjNSeWtSZjM4eGV5TzMvKzdOMzZsMEl1N2NJQjVNR2dsVkxHWEdsdktBNTh2?=
+ =?utf-8?B?T2RJOSt5MGdqZTI4aEJadDFWYWRDSEpOQ2J2cVo2ZFlNUHFvaXpEejdJVE85?=
+ =?utf-8?B?NGpOdHBVK0loUlJ2aGVXbUF0Q2JZdnpDb2tTa0F4K1BTMS9ZQkMwbkxVSDlS?=
+ =?utf-8?B?UCtZTU4rNmJPY05NOHVLY0FyR0pwckR1Rm1oWmxkVEZwM2RvUGpqYzZPd0RX?=
+ =?utf-8?B?bEt6VWcrWXBwbzVMYzdaRmtJTmorYWY1NElkaEFUUnFTWWtXSGluSXhzdmJq?=
+ =?utf-8?B?ZkJqcFJaWjV2ZkZ6aS9KZ05xSlJMMWZCbVc0NzRzYmRLZlVVL3VXNUk2NWdG?=
+ =?utf-8?B?cnpzZkZzZmExYnVXYjBYUGlVc011ZEZrQ05JYzB6QldiTnB1MmJWQW1jaXly?=
+ =?utf-8?B?NCtVNDJvOFdEd2dRa2VhYXVlUkxNeXZUdlFxTllsTnl5dXlialF6U1o5eUF3?=
+ =?utf-8?B?NHlHZEJkUG5tZHZNUG9OZy9zcU9qQ3lrVFBYbzdwSWhWUDM0eWFyblFWcFVr?=
+ =?utf-8?B?VzVDdVJtTEk0QmZRd1V5eStlYmJtSDBsYlZqTS9VZE1GVUFIL1oxbWZXTWlS?=
+ =?utf-8?B?eFM4d2VNNVA3MHBlUzhjMDlPcHhieUxTSnlzaHVvcnFaSGppNFR1eFltRU1L?=
+ =?utf-8?B?MTg2OWZDT0ZaZ0tCTkFqRTBoTElJakxVVXZmTWFWMkZWbDFERXBZLzNHRUZa?=
+ =?utf-8?B?ekJyS1VvYU5iNTZWWHpUaDNlLzk4Vk95NGQzcUQzQ2FZcHdFaXlSRzVGMnFO?=
+ =?utf-8?B?OE92KzQ5ekdYdWU0cUNLVDU3bDZEaG91SWdnbUVRT1FWZmNQSFFaL3p4Y2pB?=
+ =?utf-8?B?d1hGQWVMcDlxRVhoN3FVbkVoWS93Y1k4VmlVZGZ4TjhhUnAxL1lGNzhOdGZZ?=
+ =?utf-8?B?SVRrVjRYcGVyLzcwVHBNWGhTVzk3NHVMNnF2QkFlMVQrQjY5M3JoRUFUdjh2?=
+ =?utf-8?B?RGJwU0ZzTGtPNW85TS9JMXlHdTBqWTQ0QVBoS0dkUEx0M3FCSU9BbHI5SWY1?=
+ =?utf-8?B?TElHSERaWEZFMkZYcTAyWEovd2J1dEpsLytTbnlncnFvWUp3aFpLZDJ6OUJK?=
+ =?utf-8?B?WEFCZnhzaXE2WWpvT1NTTi9CQ0REZVNUMWlEZDgreVhYelk4U2szalJnPT0=?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?bFpqTTEyakQxME4yaksrZit2MzAzLzZ0VTdLY0NnQjlKS0VJRFZvdEYyZ1ZM?=
+ =?utf-8?B?NHZEWFNWZ1ErT3RuR2tYbGV0UTZ5elM3NkZJNG1XekVQVVNXdGJ3RFJqdUlD?=
+ =?utf-8?B?RDViTTRRQVdVcEIrTVAzTmlDWHFyOVc4K3B2OEJEbFVpRXBWV2FlSEh4dHo0?=
+ =?utf-8?B?R0hMeEJxVUxkQ3pFTnh4WXZaTWpOVmNUNm1xaGJvRUM1a0R3ajY0d1o4YUU0?=
+ =?utf-8?B?cmVSa2RXNm9nc1BRUHVVU0ozU2kvVEhBdU9vazZKQ1hlRU5VNTlZZ1Y1RVdE?=
+ =?utf-8?B?SlVBSUpNWjZhWkhJS0U0VktkN1Q4bHNFc01uUHJIZjc1Skh1NjlXWWlpY00y?=
+ =?utf-8?B?STNZdkZmT21UTmR6alQzclpJM0MxdjNMSWxrMlplcWpYODFvYzNxYURONEYz?=
+ =?utf-8?B?Q1pvbVVTYlBkMXdVS2w0NmNUeUpqZ2hoMEdpY0V4N0QyS1ZHN0RzcXBka0Fp?=
+ =?utf-8?B?WDBaMWN0TS9yR0lESG5iTzhZZ0N1VVo4cEU0b1k3cTBKeDdzb2U4a0RGTXpu?=
+ =?utf-8?B?UEpYV0JtRHo5Y2F2ZHRGMG53NVFLUVNyeUZBdXZrNWlPSjY5cjhuSzI2amxa?=
+ =?utf-8?B?SkNLdzczV1dQOWkxMzZwNURlMlc0cE9KMUxVR0h5SDNjLytMVGFCeDVqUkpP?=
+ =?utf-8?B?eWtuVCt3RDdwemtNaFBaczF2clNta1dFVE1naW5wSUJaWnpqL0lMaU04KzE1?=
+ =?utf-8?B?NzdCWm0yOTB1S1YrMEwzUDJXMG16c1c1cytCa3piNmJVSnR2a01qa0RtSDZL?=
+ =?utf-8?B?V1JyUTRNYng4cmhob09SZVFaRTdaVWRpUHkvcnZhVlV3Zk95WkNjUGpHRnR5?=
+ =?utf-8?B?R2VjNGZoL1FRUlJhR1BsbFFiK1BpQm50emh4VHFlNXd4YWNORDZ4R1ZObWNx?=
+ =?utf-8?B?a0RQUUVIR2E4SnpLNUNCSk9Ba1NxWVprUTh2YkNianV6cXcxYzNpaXZGcXls?=
+ =?utf-8?B?eGp6eE5BbW9DT1VGeTBJdG1CK1l3Rmpvb1hVeGVnZjFtcTU5M3F5anBxSUU4?=
+ =?utf-8?B?TVBSbFkxZ3BmNGJ6RFk2VFVIOTlwV2hRaXN2aDNLVVljcW5XTkQzcnh0NEFu?=
+ =?utf-8?B?YWZ3a0o1aEc1S21Nck91TFhNdUQ3WmpWRHVsbEpvZExRZVpxd3c2cFpCOHV1?=
+ =?utf-8?B?NmpQTm1ZTitrVHVKcy9JZXpuSDE5bnpuWEZhRU9KSDFRY2xTQW1ROUlYWnV3?=
+ =?utf-8?B?SGlkbDdmN09Ld1RraWpEUGo0ZDJpM2NxRUl3RENJZmdNazA2NjBlL24vNXAy?=
+ =?utf-8?B?RkJLTTcrRkpFVHFCVnJoTFcza2sxQmRNSW9Sc0ZSQzNIaGtZZC96SkV5L2Jr?=
+ =?utf-8?B?L2xudjl5NnUwZWVlNmdvVnRnc0Y0V0ZZNlZKWEJpNm1qQis5MmZidk9sYWYz?=
+ =?utf-8?B?QWpRY1d6T3ZIa1VMWXhnWXFraW4zQTdqQTNLaEZ2TXNJdjJnbjR4SnRKaDZY?=
+ =?utf-8?B?SG90Uk05ZDlaU1NqTkVUR2F5dFl2SlNHR1Y2UlhGeUxGZllZK3plMkJIQndn?=
+ =?utf-8?B?ZFQwb3UxdENKeXkyK2tuUS9IeERRSUhCR3NNTTdqdzVmN3QyRjVKamVyRXNr?=
+ =?utf-8?B?aUpxWGZtUjRCUkhQV0FET1JuOHBIc3pTdmVMeUtlTVBoNW9GN3dEREhUWnFK?=
+ =?utf-8?B?TWdBa3BRNUFGMFM0d2JIM0Q2UUpWdzV4ZjZFdmI3T0hNSjAwSlhzcEdnRWxq?=
+ =?utf-8?B?cmsxbkZRUGdSS3ZXMVc1d1l2TGhZSWwyWXp3b0lWME9MMnVuNUYzUFlOeWdY?=
+ =?utf-8?B?MC9NTjdHZ1pnRVpFby9GR0ZTb3BXdFVLZ0ltZE5sQm54VUpOTGVkQ2lUWlcz?=
+ =?utf-8?B?blF4dXdWTHdGR283UEJrOG1mUitYNllvZTh0UDBCVHptK1ltMTRtRTV2YnRB?=
+ =?utf-8?B?RnlucEF2NGVUZUlKb0ppZy9QdnprMXJKTDFQWHltUEd6OFVBRkNSaXR3aFFv?=
+ =?utf-8?Q?QqZCvHJahk9Z8gLHbdnXOoi2c+nuqUs0?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cce7a673-a5cc-41a6-f1a6-08de66055ac2
+X-MS-Exchange-CrossTenant-AuthSource: TY4PR01MB14432.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2026 04:57:14.7391
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB6673
 
-On Fri, Feb 06, 2026 at 07:28:35PM +0200, Svyatoslav Ryhel wrote:
-> Convert devicetree bindings for the Motorola CPCAP MFD regulator subnode
-> from TXT to YAML format. Main functionality preserved.
-> 
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> ---
->  .../bindings/regulator/cpcap-regulator.txt    | 35 -------------
->  .../regulator/motorola,cpcap-regulator.yaml   | 50 +++++++++++++++++++
->  2 files changed, 50 insertions(+), 35 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
->  create mode 100644 Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt b/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-> deleted file mode 100644
-> index 36f5e2f5cc0f..000000000000
-> --- a/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-> +++ /dev/null
-> @@ -1,35 +0,0 @@
-> -Motorola CPCAP PMIC voltage regulators
-> -------------------------------------
-> -
-> -Requires node properties:
-> -- "compatible" value one of:
-> -    "motorola,cpcap-regulator"
-> -    "motorola,mapphone-cpcap-regulator"
-> -    "motorola,xoom-cpcap-regulator"
-> -
-> -Required regulator properties:
-> -- "regulator-name"
-> -- "regulator-enable-ramp-delay"
-> -- "regulator-min-microvolt"
-> -- "regulator-max-microvolt"
-> -
-> -Optional regulator properties:
-> -- "regulator-boot-on"
-> -
-> -See Documentation/devicetree/bindings/regulator/regulator.txt
-> -for more details about the regulator properties.
-> -
-> -Example:
-> -
-> -cpcap_regulator: regulator {
-> -	compatible = "motorola,cpcap-regulator";
-> -
-> -	cpcap_regulators: regulators {
-> -		sw5: SW5 {
-> -			regulator-min-microvolt = <5050000>;
-> -			regulator-max-microvolt = <5050000>;
-> -			regulator-enable-ramp-delay = <50000>;
-> -			regulator-boot-on;
-> -		};
-> -	};
-> -};
-> diff --git a/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml b/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
-> new file mode 100644
-> index 000000000000..50bc57f06b51
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
-> @@ -0,0 +1,50 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/regulator/motorola,cpcap-regulator.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Motorola CPCAP PMIC regulators
-> +
-> +maintainers:
-> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> +
-> +description:
-> +  This module is part of the Motorola CPCAP MFD device. For more details
-> +  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. The
-> +  regulator controller is represented as a sub-node of the PMIC node
-> +  on the device tree.
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - motorola,cpcap-regulator
-> +      - motorola,mapphone-cpcap-regulator
-> +      - motorola,xoom-cpcap-regulator
-> +
-> +  regulators:
-> +    type: object
-> +
-> +    patternProperties:
-> +      "$[A-Z0-9]+^":
+--------------pEozCdRRobhEt89jo6wLtZBl
+Content-Type: multipart/mixed; boundary="------------gLBWcvVK310Ge807Hw3xcpj6";
+ protected-headers="v1"
+From: Shengyu Qu <wiagn233@outlook.com>
+To: dmitry.torokhov@gmail.com, vi@endrift.com, lkml@antheas.dev,
+ niltonperimneto@gmail.com, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: wiagn233@outlook.com
+Message-ID: <caf458f8-8487-4dbe-8520-50a146f14e47@outlook.com>
+Subject: Re: [PATCH v1] input: xpad: Add support for BETOP BTP-KP50B/C
+ controller's wireless mode
+References: <TY4PR01MB1443218CD6B7089D3DBF893989899A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+In-Reply-To: <TY4PR01MB1443218CD6B7089D3DBF893989899A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
 
-I thought it was said on the last version to list the names. Considering 
-you already have them below, better to put them in schema than prose. 
-And pretty much all regulator bindings define the names.
+--------------gLBWcvVK310Ge807Hw3xcpj6
+Content-Type: multipart/mixed; boundary="------------06HryVnWEwS77x3s0ANpzqtW"
 
-> +        $ref: /schemas/regulator/regulator.yaml#
-> +        type: object
-> +        description:
-> +          Valid regulator names are SW1, SW2, SW3, SW4, SW5, VCAM, VCSI,
-> +          VDAC, VDIG, VFUSE, VHVIO, VSDIO, VPLL, VRF1, VRF2, VRFREF, VWLAN1,
-> +          VWLAN2, VSIM, VSIMCARD, VVIB, VUSB, VAUDIO
-> +
-> +        required:
-> +          - regulator-name
-> +          - regulator-enable-ramp-delay
-> +          - regulator-min-microvolt
-> +          - regulator-max-microvolt
-> +
-> +        unevaluatedProperties: false
-> +
-> +required:
-> +  - compatible
-> +
-> +additionalProperties: false
-> +
-> +...
-> -- 
-> 2.51.0
-> 
+--------------06HryVnWEwS77x3s0ANpzqtW
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+VXBkYXRlIG9uIGNvbW1pdCBpbmZvOiBzZWVtcyB0aGVzZSBjb250cm9sbGVycyBzdXBwb3J0
+IFhib3ggbW9kZSB3aGVuIA0KdXNpbmcgd2lyZWQgbW9kZSwgaG93ZXZlciwgdGhlaXIgZmly
+bXdhcmUgaGFzIHNvbWUgd2VpcmQgZW51bWVyYXRpb24gDQpsb2dpYyB0aGF0IHdvbid0IHdv
+cmsgd2l0aCBjdXJyZW50IHhwYWQgZHJpdmVyKEl0IHdvdWxkIGVudW0gYXMgeGJveCANCmZp
+cnN0IGlmIG5vIGRyaXZlciBpcyBsb2FkZWQsIHRoZW4gZGlzY29ubmVjdCBhbmQgcmUtZW51
+bSBhcyBOUyANCmNvbnRyb2xsZXIsIGZpbmFsbHkgc29tZXRoaW5nIGVsc2UpLCBhbmQgYnkg
+ZGVmYXVsdCB3aXJlZCBtb2RlIHdvdWxkIGVuZCANCndpdGggbmludGVuZG8gZHJpdmVyLg0K
+DQrlnKggMjAyNi8yLzUgMjI6MTUsIFNoZW5neXUgUXUg5YaZ6YGTOg0KPiBCRVRPUCdzIEJU
+UC1LUDUwQiBhbmQgQlRQLUtQNTBDIGNvbnRyb2xsZXIncyB3aXJlbGVzcyBkb25nbGVzIGFy
+ZSBib3RoDQo+IHdvcmtpbmcgYXMgc3RhbmRhcmQgWGJveCAzNjAgY29udHJvbGxlcnMuIEFk
+ZCBVU0IgZGV2aWNlIElEcyBmb3IgdGhlbSB0bw0KPiB4cGFkIGRyaXZlci4NCj4gDQo+IEJv
+dGggY29udHJvbGxlcnMgY2FuJ3Qgd29yayBhcyBYYm94IGNvbnRyb2xsZXJzIHdoZW4gdXNp
+bmcgd2lyZWQgbW9kZSBhbmQNCj4gaGF2ZSBkaWZmZXJlbnQgVVNCIElEcy4NCj4gDQo+IFNp
+Z25lZC1vZmYtYnk6IFNoZW5neXUgUXUgPHdpYWduMjMzQG91dGxvb2suY29tPg0KPiAtLS0N
+Cj4gICBkcml2ZXJzL2lucHV0L2pveXN0aWNrL3hwYWQuYyB8IDMgKysrDQo+ICAgMSBmaWxl
+IGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+aW5wdXQvam95c3RpY2sveHBhZC5jIGIvZHJpdmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMN
+Cj4gaW5kZXggMzYzZDUwOTQ5Mzg2Li4yNjBkZDQxZWE2ZTUgMTAwNjQ0DQo+IC0tLSBhL2Ry
+aXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvam95
+c3RpY2sveHBhZC5jDQo+IEBAIC0zNjAsNiArMzYwLDggQEAgc3RhdGljIGNvbnN0IHN0cnVj
+dCB4cGFkX2RldmljZSB7DQo+ICAgCXsgMHgxYmFkLCAweGZkMDAsICJSYXplciBPbnphIFRF
+IiwgMCwgWFRZUEVfWEJPWDM2MCB9LA0KPiAgIAl7IDB4MWJhZCwgMHhmZDAxLCAiUmF6ZXIg
+T256YSIsIDAsIFhUWVBFX1hCT1gzNjAgfSwNCj4gICAJeyAweDFlZTksIDB4MTU5MCwgIlpP
+VEFDIEdhbWluZyBab25lIiwgMCwgWFRZUEVfWEJPWDM2MCB9LA0KPiArCXsgMHgyMGJjLCAw
+eDUxMzQsICJCRVRPUCBCVFAtS1A1MEIgWGlucHV0IERvbmdsZSIsIDAsIFhUWVBFX1hCT1gz
+NjAgfSwNCj4gKwl7IDB4MjBiYywgMHg1MTRhLCAiQkVUT1AgQlRQLUtQNTBDIFhpbnB1dCBE
+b25nbGUiLCAwLCBYVFlQRV9YQk9YMzYwIH0sDQo+ICAgCXsgMHgyMGQ2LCAweDIwMDEsICJC
+REEgWGJveCBTZXJpZXMgWCBXaXJlZCBDb250cm9sbGVyIiwgMCwgWFRZUEVfWEJPWE9ORSB9
+LA0KPiAgIAl7IDB4MjBkNiwgMHgyMDA5LCAiUG93ZXJBIEVuaGFuY2VkIFdpcmVkIENvbnRy
+b2xsZXIgZm9yIFhib3ggU2VyaWVzIFh8UyIsIDAsIFhUWVBFX1hCT1hPTkUgfSwNCj4gICAJ
+eyAweDIwZDYsIDB4MjA2NCwgIlBvd2VyQSBXaXJlZCBDb250cm9sbGVyIGZvciBYYm94Iiwg
+TUFQX1NIQVJFX0JVVFRPTiwgWFRZUEVfWEJPWE9ORSB9LA0KPiBAQCAtNTYyLDYgKzU2NCw3
+IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdXNiX2RldmljZV9pZCB4cGFkX3RhYmxlW10gPSB7
+DQo+ICAgCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgxYTg2KSwJCS8qIE5hbmppbmcgUWluaGVu
+ZyBNaWNyb2VsZWN0cm9uaWNzIChXQ0gpICovDQo+ICAgCVhQQURfWEJPWDM2MF9WRU5ET1Io
+MHgxYmFkKSwJCS8qIEhhcm1vbml4IFJvY2sgQmFuZCBndWl0YXIgYW5kIGRydW1zICovDQo+
+ICAgCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgxZWU5KSwJCS8qIFpPVEFDIFRlY2hub2xvZ3kg
+TGltaXRlZCAqLw0KPiArCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgyMGJjKSwJCS8qIEJFVE9Q
+IHdpcmVsZXNzIGRvbmdsZXMgKi8NCj4gICAJWFBBRF9YQk9YMzYwX1ZFTkRPUigweDIwZDYp
+LAkJLyogUG93ZXJBIGNvbnRyb2xsZXJzICovDQo+ICAgCVhQQURfWEJPWE9ORV9WRU5ET1Io
+MHgyMGQ2KSwJCS8qIFBvd2VyQSBjb250cm9sbGVycyAqLw0KPiAgIAlYUEFEX1hCT1gzNjBf
+VkVORE9SKDB4MjM0NSksCQkvKiBNYWNoZW5pa2UgQ29udHJvbGxlcnMgKi8NCg0K
+--------------06HryVnWEwS77x3s0ANpzqtW
+Content-Type: application/pgp-keys; name="OpenPGP_0xE3520CC91929C8E7.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xE3520CC91929C8E7.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+scUnWnv8sErY943hM8MUsMQ5D0P2
+=3DUrys
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------06HryVnWEwS77x3s0ANpzqtW--
+
+--------------gLBWcvVK310Ge807Hw3xcpj6--
+
+--------------pEozCdRRobhEt89jo6wLtZBl
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEET/yoGP3p5Zl+RKVuX75KBAfJsRkFAmmGxh8FAwAAAAAACgkQX75KBAfJsRlZ
+ThAAmMLYxbs9VeoY9VdKf06ne9t4MFgS51s9AFrXHj819BqCC2foXAvZ1ydoRxFE22fFYNyNLRyE
+uNkg1thBmeW0jjgJZ06GLaz71KTW18cr/eor7ydpXT6rOqBEwj1A6FDkNejkd8kOyCe0FbQob4If
+p+JWnZKi5Q5QtqpEV67+70TpPHf80hDP5pXQ5ZVTz7/a3kz/LUvlyrDVPxi0o9aoitA4zLpYc1EK
+FTjl4utklleI4DY9nuJp7kOGXml0oQEEZKWYLq7d50l3uN+5KnG/cI7eKEozG+MKUmoUKBG4haxL
+ISMbHLWTEB4OULPD6oBrG+PmOdQs/tFGgMzhfe051PUK/38pqWh5vbHFSXXV52sk4G8tsOT1qphW
+d8koUFkj+XVKeaF0vUve6vwadAhhySJSBiyhowL7hO+dEsg/kMSWGk/zw0jFef78kiV5eW9dbiny
+3L9oOQRD9hxt3tspTaI7EuZxKOz6tuYbnN9puNOo0eM3zdUcqlsUc6G/f5WKkw4lvXs9/YSBEQUf
+WkIqZbwavckfobj+6BijVb0eswAla5nRVeGu0MCf0K21VyRjTREL8ZF3+P6PmBTc3w/KqT6Lktlb
+xEH3ZBHEQCtfAwUfrUulWC8AwUHVFgdu1QGH+1sgNn9mu868nghEydMF2pN5Ck5nfAInBfuX7Vvt
+Ung=
+=m2Vn
+-----END PGP SIGNATURE-----
+
+--------------pEozCdRRobhEt89jo6wLtZBl--

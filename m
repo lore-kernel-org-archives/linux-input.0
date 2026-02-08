@@ -1,193 +1,230 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3338A1F239B
-	for <linux-input@vger.kernel.org>; Sun,  8 Feb 2026 19:45:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B9AD248F5A;
+	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770579924; cv=none; b=pVOxpxE4HXPiFfo4RNDzlUUoijiwjokotTGgNR7svRvPj5dH2Y67Y24QRAcHxaSCvrqnBHAMweYNBuuulhkkCApChnf94kuzc9ck0nX+Nz94pc257jU8RrxThvhBvl6u58J9LzvV5ggfG642MiNlc6qa3ufCEETYt0U6w4akGmY=
+	t=1770585868; cv=none; b=J0E/rtpdF8QTPdZVQX+bmGC7VO/mmDW5Nu4GbceRe68jpYZeT/KKkgjFuRciCfVTNb1AXtKC2ARqLkH7EpUyi3pkLnFmCDA1Bog81z7RYv882tWLAtA+nK+K4GIwgc1UuerqNd5eVrm/foQkeTuBH80H/cu2eZW2XIFeZMdCL6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770579924; c=relaxed/simple;
-	bh=i31OkZlpgnIJcWukDCt8W/+B9RFRlgF6XnWc2qK8l8g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CmKZ/JolKogwja3H2baFxxTSqga/55N3sLSlPZZpdqECJhzYw9xIWgTX5MCnKBwwMwbW8RU5NTac07WE+xfJXbCxX4xyiq4zbuCteDqsaghNk+HkgwtN+54KNNFPar1Rw3G6Dzvoq05t0BfekGtxdgWeFzFzLL6/9vHiUIfZfOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IQery9JJ; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770585868; c=relaxed/simple;
+	bh=3IJy81RzZhoLUFLAjVQt3bGniMa7XC8oSFJTkR7zy9k=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=tIEujKfIC791OgoF/sEr2IvOtCjVMgtJbixNfANp45gXjBTA3FYSA+aVivNQkvnK4Zbz7QOoYs7BHkRDCDZRBKDHvyyeUAPL2CZ7irkwqChr9e8BCU2sXHFYNypupSKUcJWhZ8CtumGTEPAa4wM1WN+QvxU6MIm1EQDU88BnDSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G7T3Pvnq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IQery9JJ"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4806d23e9f1so44465875e9.2
-        for <linux-input@vger.kernel.org>; Sun, 08 Feb 2026 11:45:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770579922; x=1771184722; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4savXoBoHaXpOQrpiUmrwRajjDB478cEODdHQS8ceO8=;
-        b=IQery9JJadSIcMEUjj3fg2vMVWxrsLl/8fV4wQM3uvGm1gaxhaTJOKE4RIy68br9Sx
-         TWUFN3yBUf+5QT3wIMbW5i7sYlSCB3k3Ca7OAw7sEpLlHgFAshzJnda2tUGuzvULbUfQ
-         2KPXd6icV9MSlc2B6qzwtMSEQdGPXsMS8c/uGzS0Kb3/ncTGGP8IPjcepMljcNRY99tf
-         9GjiMiLpjFhx6U5IxqVTT9VM5naS7gYDHB2XJ3fcHxLZgf7fx8cibmSaVX3J0CgPTObE
-         im7dOhzOJHR4wmu79GB8OJlyxY2zU0nB8hJedRGFCklN9tAWW0J89me/dBKNwpN0vTZt
-         z1qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770579922; x=1771184722;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4savXoBoHaXpOQrpiUmrwRajjDB478cEODdHQS8ceO8=;
-        b=LqokjYVc+LnlrmIaa94fxJnCTc18o0ho0qHm2OUtb6RWKIT/hJJCZqLkyZ7XX9vk4i
-         MorA4yWuVQP9dy/Fula4KGSJYEWkypsgijU+4yIITkuYTeVT/DqFqqGPrdk/a98YaE7a
-         AHLttIDQUmvHWOL65+wK8fafmPCTooT+5VHIm6Kak1tkRWa12dcgZjoZRPWZXumkuSc+
-         8Zm4cLnv2qwq/35vUAaBz40P4pvriktQwEi2jwoJlFbNFIYddGTzgrecSToa8FqHVPsj
-         hU1KAV7yKU/iaRqKRwhsCWKGhIfUd/95YsNTte3lMa1jVqAlL9bsccn/k0oqZT1L0BkZ
-         VY8g==
-X-Forwarded-Encrypted: i=1; AJvYcCXPmme+Qbzk3cP4XJ0dcsl6oPorPrTNaAF0IFlio3aDxQOpE2K6svXW6xB7poYa/wXEAtbZ6AeVmCFR3Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxT+ioetzBzWhqlOmtwT4NYLDB1O7KY0UmNqQ2u2TQL7Vp1U0+E
-	5Aa7FauG5xHUckG4zI8X6hm8mcKO+owC+fHKeXef/5+dUWPnxePBgISy
-X-Gm-Gg: AZuq6aJr6kONQTuwK6GQNpcILgtQy2lK0atcdrh6PgdDt1EAH/+LHix2n0Ei11gjkdA
-	XfrQ5ZpEi9rSavhcL4Bon48lcAVfpO5mSOwig5VuqiTTfU9SmOzjedEPaqz5uNuurhvSR+naxV/
-	PY1WHM0GksLEnSeoKFGXqZ9joLoV5roI3vwPGF67jC3Umfc/yJjw29rTcUk/mYGMyzZO/jHmro6
-	PIcFcJ7pi3s4nKAd6utRxSmfTDc8hu7yDOzufIiKAyIY4Nvt3/s895x6SXsOuYUCx9lYRaCNSNN
-	yTxuUWqLCLFPnORQamu+E3kjDU4Q3TFBK3i+CXwuuwYhZ+uJjq+f/KKRXEgHfuhE1A2yV7qXOa1
-	8Zk+JzNkJ9Ud12eT9sxLe4fxzluEd21hkN6W8KSRj/exRnfdeNn3Ap1uVgObWYnI0z9ofXNinC6
-	XSMsHZmrqZnMXWmHQSoUNFwgOMieJCpmHUSne4OLUb4ENeww==
-X-Received: by 2002:a05:600c:8116:b0:480:3b26:82c3 with SMTP id 5b1f17b1804b1-4832021b549mr111365415e9.20.1770579922050;
-        Sun, 08 Feb 2026 11:45:22 -0800 (PST)
-Received: from osama.. ([197.46.145.207])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4832040e91fsm74211585e9.6.2026.02.08.11.45.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Feb 2026 11:45:21 -0800 (PST)
-From: Osama Abdelkader <osama.abdelkader@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Osama Abdelkader <osama.abdelkader@gmail.com>,
-	syzbot+1b327485934adf39955b@syzkaller.appspotmail.com
-Subject: [PATCH] Input: evdev: fix data race in evdev_read() and evdev_poll()
-Date: Sun,  8 Feb 2026 20:45:15 +0100
-Message-ID: <20260208194516.172227-1-osama.abdelkader@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G7T3Pvnq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CF5E8C4CEF7;
+	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770585867;
+	bh=3IJy81RzZhoLUFLAjVQt3bGniMa7XC8oSFJTkR7zy9k=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=G7T3Pvnqo+/MsaLK6vQjIcGNSaBoyARESbefHe/6IBeqcy+sEf1k2J2PhOuROdvqk
+	 WG0PGvGhDYWr+dVHRNAJTy7mXrwT6hiASds8VF7+breixLt+Sl7ghqe7IXR+8rVQLX
+	 nGEa+RU8vgQwhjexboPGQGkOGYHRetaQ7XrDBprl57qRkfVfx7VETqvFAxxa60+e4Q
+	 Cd/7M74whpcq52mxCZMvvpQOIK0E+BQLDzT2y0NLJqA3v5887vft/aw5tG1YIMQDdQ
+	 emAiVDmQnOLYQ1Ap32LM4w9bG9/+WPKGKiHNDuabtLwr74molveOaik6XmcfZgxJJ/
+	 L+uRw9BnGHNaQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E8CEF06E2;
+	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
+From: Yedaya Katsman via B4 Relay <devnull+yedaya.ka.gmail.com@kernel.org>
+Date: Sun, 08 Feb 2026 23:24:23 +0200
+Subject: [PATCH v5] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
+ Focaltech FT3518 touchscreen
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Message-Id: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/33NywqDMBCF4VeRrJuSTBKrXfU9She5jDVQLyRWW
+ sR3b3QlIl3+B+abiUQMHiO5ZhMJOProuzaFOmXE1rp9IvUuNQEGOeNc0KF72zragNjSXg+2xkg
+ NGlCQG6cqQ9JlH7Dyn1W9P1LXPg5d+K5PRr6s/72RU0Y1Z6W6VAKcK27PRvvX2XYNWbwRtoY8N
+ iAZEriqSmkLbfTeEFujODZEMrjN9QVKq9DIvSE3BrBjQyZDMC6V06XLndga8zz/ADzwCLGCAQA
+ A
+X-Change-ID: 20260113-touchscreen-patches-beb2526bd5fb
+To: =?utf-8?q?Kamil_Go=C5=82da?= <kamil.golda@protonmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ Yedaya Katsman <yedaya.ka@gmail.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770585866; l=4549;
+ i=yedaya.ka@gmail.com; s=20260113; h=from:subject:message-id;
+ bh=uLRuSW3FC71D/g2v0anek3bfb3SM5Go5/FJtCdtd5IE=;
+ b=mQa7ISvungOxBQDzqmmXfERfev6zdun29Y6R+kimhVMkciPeBpHc9CH1u1ruIThgIPQBcaIzN
+ nY4HS5FZByIAvMKCNVACNwhVG2xLO/Vh/7pP3JHW6VYZsNdbo2DQjgA
+X-Developer-Key: i=yedaya.ka@gmail.com; a=ed25519;
+ pk=CgNmxD3tYSws5dZfpmJfc6re/bV/f47veVijddHLytk=
+X-Endpoint-Received: by B4 Relay for yedaya.ka@gmail.com/20260113 with
+ auth_id=601
+X-Original-From: Yedaya Katsman <yedaya.ka@gmail.com>
+Reply-To: yedaya.ka@gmail.com
 
-Protect all reads of client->packet_head with buffer_lock to fix a
-KCSAN-reported data race. The race occurs between:
+From: Yedaya Katsman <yedaya.ka@gmail.com>
 
-- evdev_pass_values() writing to packet_head (protected by buffer_lock)
-- evdev_read() reading packet_head without lock protection
-- evdev_poll() reading packet_head without lock protection
+Add device tree node for the Focaltech FT3518 touchscreen on
+Xiaomi Mi A3 (laurel-sprout).
 
-The fix ensures all accesses to packet_head are protected by buffer_lock,
-matching the existing write-side protection pattern used in
-evdev_pass_values() and evdev_fetch_next_event().
+Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
 
-Changes:
-- evdev_read(): Protect packet_head read in O_NONBLOCK check
-- evdev_read(): Protect packet_head read in wait loop condition
-- evdev_poll(): Protect packet_head read in poll check
+Downstream references:
+Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
+Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
 
-KCSAN report:
-BUG: KCSAN: data-race in evdev_pass_values / evdev_read
-
-write to 0xffff888104842008 of 4 bytes by task 8439 on cpu 1:
- __pass_event drivers/input/evdev.c:239 [inline]
- evdev_pass_values+0x387/0x4e0 drivers/input/evdev.c:278
- evdev_events+0x8e/0xd0 drivers/input/evdev.c:306
- input_pass_values+0x123/0x390 drivers/input/input.c:128
- input_event_dispose+0x248/0x320 drivers/input/input.c:342
- input_handle_event+0x9e8/0xa20 drivers/input/input.c:370
- input_inject_event+0xbc/0x120 drivers/input/input.c:424
- evdev_write+0x224/0x2b0 drivers/input/evdev.c:528
- vfs_write+0x269/0x9f0 fs/read_write.c:684
- ksys_write+0xdc/0x1a0 fs/read_write.c:738
- __do_sys_write fs/read_write.c:749 [inline]
- __se_sys_write fs/read_write.c:746 [inline]
- __x64_sys_write+0x40/0x50 fs/read_write.c:746
- x64_sys_call+0x2847/0x3000 arch/x86/include/generated/asm/syscalls_64.h:2
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xc0/0x2a0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-read to 0xffff888104842008 of 4 bytes by task 2991 on cpu 0:
- evdev_read+0x157/0x5e0 drivers/input/evdev.c:572
- vfs_read+0x1ab/0x7f0 fs/read_write.c:570
- ksys_read+0xdc/0x1a0 fs/read_write.c:715
- __do_sys_read fs/read_write.c:724 [inline]
- __se_sys_read fs/read_write.c:722 [inline]
- __x64_sys_read+0x40/0x50 fs/read_write.c:722
- x64_sys_call+0x2889/0x3000 arch/x86/include/generated/asm/syscalls_64.h:1
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xc0/0x2a0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-value changed: 0x00000002 -> 0x00000004
-
-Reported-by: syzbot+1b327485934adf39955b@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1b327485934adf39955b
-Signed-off-by: Osama Abdelkader <osama.abdelkader@gmail.com>
+Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
+Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
+Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
 ---
- drivers/input/evdev.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+Adds support for the touchscreen in the Xiaomi Mi A3 (xiaomi-laurel)
+ smartphone, FocalTech FT3518
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 90ff6be85cf4..eebd59d190f5 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -569,9 +569,13 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 		if (!evdev->exist || client->revoked)
- 			return -ENODEV;
+Original tree was here:
+ Link: https://gitlab.postmarketos.org/SzczurekYT/linux/-/commits/laurel
+---
+Changes in v5:
+- Add pin config for ts vdd
+- Reorder some properties
+- Drop applied patches
+- Link to v4: https://lore.kernel.org/r/20260120-touchscreen-patches-v4-0-30145da9d6d3@gmail.com
+
+Changes in v4:
+- Follow dts coding style for pinctrl nodes
+- Don't refrence touchscreen "release" gpio config
+- Link to v3: https://lore.kernel.org/r/20260118-touchscreen-patches-v3-0-1c6a729c5eb4@gmail.com
+
+Changes in v3:
+- Rename regulator node and reorder nodes
+- Add gpio pin configuration for pmx_ts_* in sm6125, and reference in the
+  touchscreen configuration as pinctrl-*. Doesn't have configuration for
+  the gpio 83 pin since it isn't documented downstream.
+- Link to v2: https://lore.kernel.org/r/20260114-touchscreen-patches-v2-0-4215f94c8aba@gmail.com
+
+Changes in v2:
+- Fixed name and email in signoffs
+- Link to v1: https://lore.kernel.org/r/20260113-touchscreen-patches-v1-0-a10957f32dd8@gmail.com
+---
+ .../boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts  | 73 ++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
+index 994fb0412fcbdf5466f87a325c48b697a37b514b..97f64cb5d570e018ef666612f3839c4e6759ac7b 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
++++ b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
+@@ -82,6 +82,19 @@ key-volume-up {
+ 		};
+ 	};
  
-+		spin_lock_irq(&client->buffer_lock);
- 		if (client->packet_head == client->tail &&
--		    (file->f_flags & O_NONBLOCK))
-+		    (file->f_flags & O_NONBLOCK)) {
-+			spin_unlock_irq(&client->buffer_lock);
- 			return -EAGAIN;
-+		}
-+		spin_unlock_irq(&client->buffer_lock);
- 
- 		/*
- 		 * count == 0 is special - no IO is done but we check
-@@ -593,9 +597,12 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 			break;
- 
- 		if (!(file->f_flags & O_NONBLOCK)) {
--			error = wait_event_interruptible(client->wait,
-+			spin_lock_irq(&client->buffer_lock);
-+			error = wait_event_interruptible_lock_irq(client->wait,
- 					client->packet_head != client->tail ||
--					!evdev->exist || client->revoked);
-+					!evdev->exist || client->revoked,
-+					client->buffer_lock);
-+			spin_unlock_irq(&client->buffer_lock);
- 			if (error)
- 				return error;
- 		}
-@@ -610,6 +617,7 @@ static __poll_t evdev_poll(struct file *file, poll_table *wait)
- 	struct evdev_client *client = file->private_data;
- 	struct evdev *evdev = client->evdev;
- 	__poll_t mask;
-+	bool have_data;
- 
- 	poll_wait(file, &client->wait, wait);
- 
-@@ -618,7 +626,11 @@ static __poll_t evdev_poll(struct file *file, poll_table *wait)
- 	else
- 		mask = EPOLLHUP | EPOLLERR;
- 
--	if (client->packet_head != client->tail)
-+	spin_lock_irq(&client->buffer_lock);
-+	have_data = client->packet_head != client->tail;
-+	spin_unlock_irq(&client->buffer_lock);
++	ts_vdd_supply: regulator-ts-vdd {
++		compatible = "regulator-fixed";
++		regulator-name = "ts_vdd_supply";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		startup-delay-us = <70000>;
 +
-+	if (have_data)
- 		mask |= EPOLLIN | EPOLLRDNORM;
++		enable-active-high;
++		gpio = <&tlmm 83 GPIO_ACTIVE_HIGH>;
++		pinctrl-0 = <&ts_vdd_en>;
++		pinctrl-names = "default";
++	};
++
+ 	thermal-zones {
+ 		rf-pa0-thermal {
+ 			thermal-sensors = <&pm6125_adc_tm 0>;
+@@ -128,6 +141,27 @@ &hsusb_phy1 {
+ 	status = "okay";
+ };
  
- 	return mask;
++&i2c2 {
++	status = "okay";
++
++	touchscreen@38 {
++		compatible = "focaltech,ft3518";
++		reg = <0x38>;
++		interrupts-extended = <&tlmm 88 IRQ_TYPE_EDGE_FALLING>;
++
++		vcc-supply = <&ts_vdd_supply>;
++
++		pinctrl-0 = <&ts_int_active &ts_reset_active>;
++		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
++		pinctrl-names = "default","sleep";
++
++		reset-gpios = <&tlmm 87 GPIO_ACTIVE_LOW>;
++
++		touchscreen-size-x = <720>;
++		touchscreen-size-y = <1560>;
++	};
++};
++
+ &pm6125_adc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&camera_flash_therm &emmc_ufs_therm>;
+@@ -220,6 +254,10 @@ &pon_resin {
+ 	status = "okay";
+ };
+ 
++&qupv3_id_0 {
++	status = "okay";
++};
++
+ &rpm_requests {
+ 	regulators-0 {
+ 		compatible = "qcom,rpm-pm6125-regulators";
+@@ -387,6 +425,41 @@ &sdhc_2 {
+ 
+ &tlmm {
+ 	gpio-reserved-ranges = <22 2>, <28 6>;
++
++	ts_vdd_en: ts-vdd-default-state {
++		pins = "gpio83";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	ts_reset_active: pmx-ts-reset-active-state {
++		pins = "gpio87";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
++
++	ts_reset_suspend: pmx-ts-reset-suspend-state {
++		pins = "gpio87";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
++	};
++
++	ts_int_active: pmx-ts-int-active-state {
++		pins = "gpio88";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-up;
++	};
++
++	ts_int_suspend: pmx-ts-int-suspend-state {
++		pins = "gpio88";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
++	};
+ };
+ 
+ &ufs_mem_hc {
+
+---
+base-commit: 9845cf73f7db6094c0d8419d6adb848028f4a921
+change-id: 20260113-touchscreen-patches-beb2526bd5fb
+
+Best regards,
 -- 
-2.43.0
+Yedaya Katsman <yedaya.ka@gmail.com>
+
 

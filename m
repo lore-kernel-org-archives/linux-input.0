@@ -1,230 +1,183 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B9AD248F5A;
-	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6586337B409
+	for <linux-input@vger.kernel.org>; Sun,  8 Feb 2026 22:37:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770585868; cv=none; b=J0E/rtpdF8QTPdZVQX+bmGC7VO/mmDW5Nu4GbceRe68jpYZeT/KKkgjFuRciCfVTNb1AXtKC2ARqLkH7EpUyi3pkLnFmCDA1Bog81z7RYv882tWLAtA+nK+K4GIwgc1UuerqNd5eVrm/foQkeTuBH80H/cu2eZW2XIFeZMdCL6M=
+	t=1770590274; cv=none; b=KLboQbQ8mOoFPOCnmA56Tb58vlVzOeVfIKSpML3NEkC+/8DSWzcbjXo7Zd56D96yVY3cG9YR6lXy1Pdo0mFuJn4cwh8kkfl+bYuig+0yvhWZQX6rzJ9AKwprTT7PJAjzoh7MjBE1YHTWqfNeckKCifTT6I4Va8bkybDtWqZa2O0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770585868; c=relaxed/simple;
-	bh=3IJy81RzZhoLUFLAjVQt3bGniMa7XC8oSFJTkR7zy9k=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=tIEujKfIC791OgoF/sEr2IvOtCjVMgtJbixNfANp45gXjBTA3FYSA+aVivNQkvnK4Zbz7QOoYs7BHkRDCDZRBKDHvyyeUAPL2CZ7irkwqChr9e8BCU2sXHFYNypupSKUcJWhZ8CtumGTEPAa4wM1WN+QvxU6MIm1EQDU88BnDSs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G7T3Pvnq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770590274; c=relaxed/simple;
+	bh=9zzQCS0ZD52rCJwUkgpOBtKinN566jajYieUXkw0Tlo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qkY0YzGv7gn7f0pyzusjEAYXfoaod1MatIMGMgJ8NGjj5GnyqcVe1oiCOkwSSi8V1EaKAmE9/hDGkgf6xAm4wPs7nvqwJq9b+s3PC9XhpQflmRdeIKNByEtAzbrGO/KShkGUzHjQxwm8scmKdijxfowDkK6D56VnT4kJZpeanZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bdZFWtvS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G7T3Pvnq"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CF5E8C4CEF7;
-	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bdZFWtvS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE21C2BCB7
+	for <linux-input@vger.kernel.org>; Sun,  8 Feb 2026 22:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770585867;
-	bh=3IJy81RzZhoLUFLAjVQt3bGniMa7XC8oSFJTkR7zy9k=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=G7T3Pvnqo+/MsaLK6vQjIcGNSaBoyARESbefHe/6IBeqcy+sEf1k2J2PhOuROdvqk
-	 WG0PGvGhDYWr+dVHRNAJTy7mXrwT6hiASds8VF7+breixLt+Sl7ghqe7IXR+8rVQLX
-	 nGEa+RU8vgQwhjexboPGQGkOGYHRetaQ7XrDBprl57qRkfVfx7VETqvFAxxa60+e4Q
-	 Cd/7M74whpcq52mxCZMvvpQOIK0E+BQLDzT2y0NLJqA3v5887vft/aw5tG1YIMQDdQ
-	 emAiVDmQnOLYQ1Ap32LM4w9bG9/+WPKGKiHNDuabtLwr74molveOaik6XmcfZgxJJ/
-	 L+uRw9BnGHNaQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E8CEF06E2;
-	Sun,  8 Feb 2026 21:24:27 +0000 (UTC)
-From: Yedaya Katsman via B4 Relay <devnull+yedaya.ka.gmail.com@kernel.org>
-Date: Sun, 08 Feb 2026 23:24:23 +0200
-Subject: [PATCH v5] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
- Focaltech FT3518 touchscreen
+	s=k20201202; t=1770590274;
+	bh=9zzQCS0ZD52rCJwUkgpOBtKinN566jajYieUXkw0Tlo=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=bdZFWtvSBGcOKmB+GRti5ic9lxm+I/CAY64eIdpyy//cr2tHE6pTcd5XwIXKPKwzg
+	 5TZwprXaQqtXFSTWWy9KQgtn9nJBf0aDHKLKzpRQBNpnsFeZWLyRUyoiDUEbVZuYq3
+	 j+qOqLQJCUJhTskWdTAnRgLQphy2OjUyu1uuEY4MoGUWURAj8h3jyxFexi9h3WKxfU
+	 R3eG/QP6QbtNf28Ere07+bTG8wT59PtlSICg29/TfIfz1hl/2XB5Mw4jWi19OdrFdh
+	 GVL9zNU+++tAsNN3Q/mRYT5TBXyWLQxZSr3MHYbbI3SgWK861hK+nIqLLGe7KFOKI5
+	 BWbCv2bm9VdTg==
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b88593aa4dcso512334566b.3
+        for <linux-input@vger.kernel.org>; Sun, 08 Feb 2026 14:37:54 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVyjzPRXI8uyYCoFUgYl/0o5jgl+9ZphJDbOBQ2qzbM/8V3WPBDt4WLfPf6VlnSys1WgdYqU7YxRx40MA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx2lzv6161YxdMdv/kQJOIG2vC9OJKIfyCJVuanzlpkpy0pknGh
+	E7wEIfMESE5WeW3JI1XV5rhqzk0y8Aoh+SfJr1SHyl7iKkjKYaZsc3wg8D5lGSG93UaLclymX8I
+	dWewwz0cpZqp6SAV0LTDz3C4fTTG0JQ==
+X-Received: by 2002:a17:906:6a18:b0:b8d:f859:d228 with SMTP id
+ a640c23a62f3a-b8edf1a942amr477887566b.17.1770590272539; Sun, 08 Feb 2026
+ 14:37:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/33NywqDMBCF4VeRrJuSTBKrXfU9She5jDVQLyRWW
- sR3b3QlIl3+B+abiUQMHiO5ZhMJOProuzaFOmXE1rp9IvUuNQEGOeNc0KF72zragNjSXg+2xkg
- NGlCQG6cqQ9JlH7Dyn1W9P1LXPg5d+K5PRr6s/72RU0Y1Z6W6VAKcK27PRvvX2XYNWbwRtoY8N
- iAZEriqSmkLbfTeEFujODZEMrjN9QVKq9DIvSE3BrBjQyZDMC6V06XLndga8zz/ADzwCLGCAQA
- A
-X-Change-ID: 20260113-touchscreen-patches-beb2526bd5fb
-To: =?utf-8?q?Kamil_Go=C5=82da?= <kamil.golda@protonmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- Yedaya Katsman <yedaya.ka@gmail.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770585866; l=4549;
- i=yedaya.ka@gmail.com; s=20260113; h=from:subject:message-id;
- bh=uLRuSW3FC71D/g2v0anek3bfb3SM5Go5/FJtCdtd5IE=;
- b=mQa7ISvungOxBQDzqmmXfERfev6zdun29Y6R+kimhVMkciPeBpHc9CH1u1ruIThgIPQBcaIzN
- nY4HS5FZByIAvMKCNVACNwhVG2xLO/Vh/7pP3JHW6VYZsNdbo2DQjgA
-X-Developer-Key: i=yedaya.ka@gmail.com; a=ed25519;
- pk=CgNmxD3tYSws5dZfpmJfc6re/bV/f47veVijddHLytk=
-X-Endpoint-Received: by B4 Relay for yedaya.ka@gmail.com/20260113 with
- auth_id=601
-X-Original-From: Yedaya Katsman <yedaya.ka@gmail.com>
-Reply-To: yedaya.ka@gmail.com
+References: <20260206172845.145407-1-clamor95@gmail.com> <20260206172845.145407-2-clamor95@gmail.com>
+ <20260206230922.GA254792-robh@kernel.org> <CAPVz0n3EGCSLUX7jTLve0x0z4uW1yexViCwkSQLY2d_4r4qkjg@mail.gmail.com>
+ <db9115ca-2c8f-4b5e-89ce-f3b934071a59@baylibre.com> <CAPVz0n2KwqPw88JVcPzhTQ2n+GKzahkrEThjjrqm0CSdjKTEOw@mail.gmail.com>
+ <51eddfc0-9f23-4a7f-8729-19775d834c0b@baylibre.com>
+In-Reply-To: <51eddfc0-9f23-4a7f-8729-19775d834c0b@baylibre.com>
+From: Rob Herring <robh@kernel.org>
+Date: Sun, 8 Feb 2026 16:37:41 -0600
+X-Gmail-Original-Message-ID: <CAL_Jsq+JzAnvW3zSC7Y=dpWTKMUwFfTOuAnMS21d+F_W=5ONeg@mail.gmail.com>
+X-Gm-Features: AZwV_QiXE7FF0AsUcBwXkZ1sUoiJVr-4CydnqWTJFagZ120T9XrMYxQRlj7pE10
+Message-ID: <CAL_Jsq+JzAnvW3zSC7Y=dpWTKMUwFfTOuAnMS21d+F_W=5ONeg@mail.gmail.com>
+Subject: Re: [PATCH v2 01/11] dt-bindings: regulator: cpcap-regulator: convert
+ to DT schema
+To: David Lechner <dlechner@baylibre.com>
+Cc: Svyatoslav Ryhel <clamor95@gmail.com>, Jonathan Cameron <jic23@kernel.org>, 
+	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	Dixit Parmar <dixitparmar19@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Yedaya Katsman <yedaya.ka@gmail.com>
+On Sat, Feb 7, 2026 at 11:32=E2=80=AFAM David Lechner <dlechner@baylibre.co=
+m> wrote:
+>
+> On 2/7/26 11:25 AM, Svyatoslav Ryhel wrote:
+> > =D1=81=D0=B1, 7 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 19:19 D=
+avid Lechner <dlechner@baylibre.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> >>
+> >> On 2/7/26 3:20 AM, Svyatoslav Ryhel wrote:
+> >>> =D1=81=D0=B1, 7 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 01:09=
+ Rob Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+> >>>>
+> >>>> On Fri, Feb 06, 2026 at 07:28:35PM +0200, Svyatoslav Ryhel wrote:
+> >>>>> Convert devicetree bindings for the Motorola CPCAP MFD regulator su=
+bnode
+> >>>>> from TXT to YAML format. Main functionality preserved.
+> >>>>>
+> >>
+> >> ...
+> >>
+> >>>>> +properties:
+> >>>>> +  compatible:
+> >>>>> +    enum:
+> >>>>> +      - motorola,cpcap-regulator
+> >>>>> +      - motorola,mapphone-cpcap-regulator
+> >>>>> +      - motorola,xoom-cpcap-regulator
+> >>>>> +
+> >>>>> +  regulators:
+> >>>>> +    type: object
+> >>>>> +
+> >>>>> +    patternProperties:
+> >>>>> +      "$[A-Z0-9]+^":
+> >>>>
+> >>>> I thought it was said on the last version to list the names. Conside=
+ring
+> >>>> you already have them below, better to put them in schema than prose=
+.
+> >>>> And pretty much all regulator bindings define the names.
+> >>>>
+> >>>
+> >>> What exactly do you propose? All those names will not fit into a
+> >>> single unbreakable line (more than 125 columns in length btw). Patch
+> >>> checker will complain about this. Duplicate pattern properties for
+> >>> every few names? Please be a bit more specific. Thank you!
+> >>
+> >> Making checkpatch happy is not a hard requirement. If you have to
+> >> go over 125 characters for technical reasons, no one is going to
+> >> complain.
+> >>
+> >> I already gave an example on the last version. It is just a regex
+> >> expression. (And note that you didn't fix the $ and ^ either. ^
+> >> means beginning of the line and $ means the end of the line. So
+> >> the pattern currently won't match anything.)
+> >>
+> >> patternProperties:
+> >>   "^(SW1|SW2|SW3|SW4|SW5|...)$":
+> >>
+> >>
+> >> And I hope it is obvious that you are meant to replace ... with the
+> >> rest of the names separated by |.
+> >>
+> >
+> > David, thank you for your suggestions and I did not want to offend you
+> > nor Rob, or ignore. Using this large string IMHO feels a bit wrong. No
+> > offence, I will use it if required. At the same time I was
+> > experimenting with possible representation and come up with smth like
+> > this:
+> >
+> >     patternProperties:
+> >       "^SW[1-6]$":
+> >         type: object
+> >         $ref: /schemas/regulator/regulator.yaml#
+> >         unevaluatedProperties: false
+> >
+> >         required:
+> >           - regulator-name
+> >           - regulator-enable-ramp-delay
+> >           - regulator-min-microvolt
+> >           - regulator-max-microvolt
+> >
+> >       "^V(CAM|CSI|DAC|DIG|FUSE|HVIO|SDIO|PLL|RF1|RF2|RFREF)$":
+> >         type: object
+> >         $ref: /schemas/regulator/regulator.yaml#
+> >         unevaluatedProperties: false
+> >
+> >         required:
+> >           - regulator-name
+> >           - regulator-enable-ramp-delay
+> >           - regulator-min-microvolt
+> >           - regulator-max-microvolt
+> >
+> >       "^V(WLAN1|WLAN2|SIM|SIMCARD|VIB|USB|AUDIO)$":
+> >         type: object
+> >         $ref: /schemas/regulator/regulator.yaml#
+> >         unevaluatedProperties: false
+> >
+> >         required:
+> >           - regulator-name
+> >           - regulator-enable-ramp-delay
+> >           - regulator-min-microvolt
+> >           - regulator-max-microvolt
+> >
+> > Will this be acceptable? It passes checks
+>
+> I think we would rather have the long match string instead of
+> repeating the rest of it multiple times.
 
-Add device tree node for the Focaltech FT3518 touchscreen on
-Xiaomi Mi A3 (laurel-sprout).
+Yes.
 
-Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
+105 chars:
 
-Downstream references:
-Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
-Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
+    "^(SW[1-6]|V(CAM|CSI|DAC|DIG|FUSE|HVIO|SDIO|PLL|RF[12]|RFREF|WLAN[12]|S=
+IM|SIMCARD|VIB|USB|AUDIO))$":
 
-Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
-Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
-Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
----
-Adds support for the touchscreen in the Xiaomi Mi A3 (xiaomi-laurel)
- smartphone, FocalTech FT3518
+There is the yamllint of 110 which does have to be followed.
 
-Original tree was here:
- Link: https://gitlab.postmarketos.org/SzczurekYT/linux/-/commits/laurel
----
-Changes in v5:
-- Add pin config for ts vdd
-- Reorder some properties
-- Drop applied patches
-- Link to v4: https://lore.kernel.org/r/20260120-touchscreen-patches-v4-0-30145da9d6d3@gmail.com
-
-Changes in v4:
-- Follow dts coding style for pinctrl nodes
-- Don't refrence touchscreen "release" gpio config
-- Link to v3: https://lore.kernel.org/r/20260118-touchscreen-patches-v3-0-1c6a729c5eb4@gmail.com
-
-Changes in v3:
-- Rename regulator node and reorder nodes
-- Add gpio pin configuration for pmx_ts_* in sm6125, and reference in the
-  touchscreen configuration as pinctrl-*. Doesn't have configuration for
-  the gpio 83 pin since it isn't documented downstream.
-- Link to v2: https://lore.kernel.org/r/20260114-touchscreen-patches-v2-0-4215f94c8aba@gmail.com
-
-Changes in v2:
-- Fixed name and email in signoffs
-- Link to v1: https://lore.kernel.org/r/20260113-touchscreen-patches-v1-0-a10957f32dd8@gmail.com
----
- .../boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts  | 73 ++++++++++++++++++++++
- 1 file changed, 73 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-index 994fb0412fcbdf5466f87a325c48b697a37b514b..97f64cb5d570e018ef666612f3839c4e6759ac7b 100644
---- a/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-+++ b/arch/arm64/boot/dts/qcom/sm6125-xiaomi-laurel-sprout.dts
-@@ -82,6 +82,19 @@ key-volume-up {
- 		};
- 	};
- 
-+	ts_vdd_supply: regulator-ts-vdd {
-+		compatible = "regulator-fixed";
-+		regulator-name = "ts_vdd_supply";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		startup-delay-us = <70000>;
-+
-+		enable-active-high;
-+		gpio = <&tlmm 83 GPIO_ACTIVE_HIGH>;
-+		pinctrl-0 = <&ts_vdd_en>;
-+		pinctrl-names = "default";
-+	};
-+
- 	thermal-zones {
- 		rf-pa0-thermal {
- 			thermal-sensors = <&pm6125_adc_tm 0>;
-@@ -128,6 +141,27 @@ &hsusb_phy1 {
- 	status = "okay";
- };
- 
-+&i2c2 {
-+	status = "okay";
-+
-+	touchscreen@38 {
-+		compatible = "focaltech,ft3518";
-+		reg = <0x38>;
-+		interrupts-extended = <&tlmm 88 IRQ_TYPE_EDGE_FALLING>;
-+
-+		vcc-supply = <&ts_vdd_supply>;
-+
-+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
-+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
-+		pinctrl-names = "default","sleep";
-+
-+		reset-gpios = <&tlmm 87 GPIO_ACTIVE_LOW>;
-+
-+		touchscreen-size-x = <720>;
-+		touchscreen-size-y = <1560>;
-+	};
-+};
-+
- &pm6125_adc {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&camera_flash_therm &emmc_ufs_therm>;
-@@ -220,6 +254,10 @@ &pon_resin {
- 	status = "okay";
- };
- 
-+&qupv3_id_0 {
-+	status = "okay";
-+};
-+
- &rpm_requests {
- 	regulators-0 {
- 		compatible = "qcom,rpm-pm6125-regulators";
-@@ -387,6 +425,41 @@ &sdhc_2 {
- 
- &tlmm {
- 	gpio-reserved-ranges = <22 2>, <28 6>;
-+
-+	ts_vdd_en: ts-vdd-default-state {
-+		pins = "gpio83";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-disable;
-+	};
-+
-+	ts_reset_active: pmx-ts-reset-active-state {
-+		pins = "gpio87";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-pull-up;
-+	};
-+
-+	ts_reset_suspend: pmx-ts-reset-suspend-state {
-+		pins = "gpio87";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
-+
-+	ts_int_active: pmx-ts-int-active-state {
-+		pins = "gpio88";
-+		function = "gpio";
-+		drive-strength = <8>;
-+		bias-pull-up;
-+	};
-+
-+	ts_int_suspend: pmx-ts-int-suspend-state {
-+		pins = "gpio88";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-pull-down;
-+	};
- };
- 
- &ufs_mem_hc {
-
----
-base-commit: 9845cf73f7db6094c0d8419d6adb848028f4a921
-change-id: 20260113-touchscreen-patches-beb2526bd5fb
-
-Best regards,
--- 
-Yedaya Katsman <yedaya.ka@gmail.com>
-
-
+Rob

@@ -1,62 +1,62 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF932DC76F
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 06:34:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD38A2D3ED1
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 06:34:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770618885; cv=none; b=EpW46jDMnmWRpzlkuMMkg1LLuQeb9OmZmuPO7F748R/ZXxcwFrlTnzJ5qOj+9sqULvgOXGGKC1ij2bXoPIgCuO5mLVXtdafJ5/IL1X5kN2VTmER/Wf/pkGkuikF+CwUFMljIK6gia0f4vSERBQq4PH9bF7DqEZfM6GQ+vnf7X84=
+	t=1770618889; cv=none; b=YmjVuq3EJ8M9vJOcSETZaX1fDfFxiKtQt7Tw24T34QsrLSLYO8Opo2+AZw+juBvt2bUK+SnjQXxLAc55cOB7UP01SaWs/OMMN3K2yodXTcDYZ9iySsIXDIAkVWvTPStLy2fBx+VkQhdweHcjCx4Zstha4yNBoCo291j6690lMho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770618885; c=relaxed/simple;
-	bh=6cWXYQnSOpTkqGyqYB4HcUXTzLmY/x0Rpt1y2l2tVp8=;
+	s=arc-20240116; t=1770618889; c=relaxed/simple;
+	bh=EHO8zs+g1Ko8UHjpjUG4wCs7CJMj3UxzMt+d6rQqm7c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jUDG3AhcmeqL32rFs4XydaqRjVQLBU5h3IQCG7hcBUEBlugHzXzmGD8rsRD1BxIhfrVmc64/waWa53WMprNS6BhFhx8kyh0gDBTeQ+G82/zLOG8NZnvy1r74s9ccIMG0ISK5KauqfY/7Wtynkv/8pem/CzPxKlsshzQsZImYN5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mPQu0iI2; arc=none smtp.client-ip=209.85.215.172
+	 MIME-Version; b=d5GyVvOKi58kzi5ZKzIHPz/7hHbx4Bk+t9xNqkCd9NsIlsYS19enY4yJG9qfYj2tRw5HfQFb5inWcV5avtCFtDqZkkMrYnyMZ6KiYGCvPzjMIWn5ShR5S90lONpUU2HevV9jlHQGwrrl02jrgIpYrjx714qgkuPg5VHJt0cp0AM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aC0dG2GG; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mPQu0iI2"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c5513f598c0so1468995a12.0
-        for <linux-input@vger.kernel.org>; Sun, 08 Feb 2026 22:34:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aC0dG2GG"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a8fba3f769so17996455ad.2
+        for <linux-input@vger.kernel.org>; Sun, 08 Feb 2026 22:34:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770618884; x=1771223684; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770618889; x=1771223689; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=q2HCkzlSd9VJd8jvOdY2m/zS2AjvWLxS2zuWfs+MEEQ=;
-        b=mPQu0iI2fjQbnBKLT6+57wpAVWSTIuecZ0r5I67ui6owswjPAFq05te5g5W7av07UD
-         vP6YCcQ+GesUSFOa42Sx+3EFJTtNrPb+lN0xjM5Fj17IZ05CbX7Ex72leStzjDxSYizU
-         mFACt588bisAO4v9svjUcw6tAn88BxFospIEGh5V/z953tfH0O2uUeVVeVTjBD1+O3BR
-         gvvgpNHDIOgmW/A/wKAPkbrbMoRLmkPrVai7Sxyq7OyQ2oZyLs//76QzYeVKlznoVCNg
-         bTPzeuft8rQikMP1r/3AMDzsjTTFbMsbxDhahniqPRBzGUedUbfsoCRmy0LdPoySVFNt
-         EvcA==
+        bh=w5DU1y+/2ttdbcr+v/9sCW2fX8t95H3Z19WR35X2oK4=;
+        b=aC0dG2GGIN/Hl/iAH/bRCMPLqywkMnujvR2LwH1vpeQEe8cw2ShUTP0yb0HkjRJnjV
+         diIGLi4IFQsi7C2KQF4f2y/Gd0ZY9iOgpo0evcPgpqVapRFs97+IW7Xaxwe/yZleksZw
+         ILKk8X8v03n/R4UYLIDXDc/lu2SYuWuy3TEYT7B+Ikab860f02+KZONKqE/J1qOKhmh6
+         xUV+Bm5NTzN4Llw9UFe9mk25AuBTdJgfucU0TxPhY6bHFszTez7fMCRTjy5TfCAsaXmU
+         Qq+6MhzazTqK5VOJ//Orj/r+Dws7TOsVUl9YX3J8sbxs46D4QRidmDbxhFtAoyBx6Fvg
+         5QkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770618884; x=1771223684;
+        d=1e100.net; s=20230601; t=1770618889; x=1771223689;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=q2HCkzlSd9VJd8jvOdY2m/zS2AjvWLxS2zuWfs+MEEQ=;
-        b=hDUhEsSAxVXH2tmtRN0dRtuAv6f9ijFEZIJWUJe/+OzSceMa/PWQO9ZCIrlBzJCvOj
-         PjCm7leHLXRbCEgiHOPpqxWmBiTEduDFW3+VoZcwyqB7TINfH+UZrAv8R6JtSbsFzE/q
-         46lF1998w/Qcp/+1qpPEP4BOpYWplVSZwuBxd/oRHgDo6+mrAav9mJ/21fAENR+cVTWS
-         BdxDbaZasovwFVRRW4C/7e25LXfg8QI7QI1KJSaHc6TkaIrtUmf/BcHJ3+VIjoHQS0n+
-         5+EyKdegec8rMsPRGleGKrJ+LT6blzI9YB0pGrVjzKmtrqBfYpKUTfOVCfB/L3UTnwVK
-         HwFg==
-X-Gm-Message-State: AOJu0YwjD8Mc5QC0qxLNSQo+thLmyoBPh1Aekfn+OiH0VPBN+RCdDzVI
-	IUYSku8sBN8BjbUs/vveeLSM5X2U1zjjdCmz+FmZaH2RHxKdVfvjfQ9+
-X-Gm-Gg: AZuq6aJ1IuZGsfVL6k1SKH8AfC92d/R4QoEBi/egEBCiocKZk9szFOsMGGEJEQaiUmg
-	2z6jBlg0UGbjSEltFuE6OkoPkyn+f5LVfVgi+ieTNibNVDuWejs4efp0eiR5sJrpBrTLTPc33ws
-	DCi0pRgz7nHMWlJoO48xDA/y8WRjspG2vHjvE0u5Ny/0jTxiHLjwoGq5D8AKpc5+IO6F1WyGPjO
-	kmCygw9TUYDZrU/KJmNprXkHw/WgxdL/dL8gYSK8TVei4T5FEH95SObqgKID84MgKrbUBhNp76Z
-	1wXpcybf7H4lMJ7MjslXvXe/c9L54LUeyxay6hPgLaSWf68V6O4PrjS56rIOSBdr1wfZGUYcEAB
-	gvo/0fv9BX7h5NdPQsq6P/2PIgsnJZFx9AZ5oCsE14Pt7Y5T39WdbfPwRXgl/+XvYksS1JoVw0a
-	l+XOxeO4oZh6WffkprjdRaWjYh59rbdsT3aNsNBrDOw7JNayXt
-X-Received: by 2002:a17:903:198b:b0:2a0:ba6d:d101 with SMTP id d9443c01a7336-2a95204fe49mr87231105ad.21.1770618884126;
-        Sun, 08 Feb 2026 22:34:44 -0800 (PST)
+        bh=w5DU1y+/2ttdbcr+v/9sCW2fX8t95H3Z19WR35X2oK4=;
+        b=OQofs2MkE/ObU7BvLVcp6PvNJTz76BTv21WUYanpmZyeibzS0D+7abl7ONinL8i7X3
+         zako2ftbijT6tYwI5W2OQK5TWcuHvjpklz/JdjSkRgcx1pS7pZGvRcYxpXTtixwbeBh3
+         STaqlky5gKNmsIudorPOm8J8wF7xUgm1wo69O/s7FgC0XcrZoedvU8RSdCppMj24qtyl
+         AjtQkHaxGna7ILe8iIEJsBg+/YS4R9djvi/G524+7ygZ82/UdZ2O5vNNHAcCbSzdhZ6B
+         nZWqf2EOcv69frm0J/3XoGiGdBoYK3gaNgXc1euOqvOEKLN01rNd0YkiO7zMK0xlrGAV
+         hLhg==
+X-Gm-Message-State: AOJu0Yy3eIGrcRl5DdYRUjwuRyRR7qFCq7PNnJnL1SG+BcMa/b09ueUD
+	PIGQthaLbHvms78CWOkY1zPluCkx4prDSdX59jyd4ZGG/tppGHrX2z5P
+X-Gm-Gg: AZuq6aKKpPrLswpSDqlMMvkhHy8A3eXnuUxrm5/ZYiWcbDFDS2hPyxdRSuqP+3QjdZn
+	EQD9858WlIt7HJKscT0jf5OpPkJVdvI6gNP/tNu+u6KzWLrwY/RuXQk9Oi1c0HYMOE7WtLcOSo1
+	lJyHxDy9kSVI+zGZbs0AaU764RSF2piHj3FYGUQTRvYYIvbF/VeUaXbvNVKHFDmwVshtlRM329a
+	vQGj2Fj87aDSEMjrFF09NTb42lFPIPFY0GjEnINocNmM9JHYbpxyY8ajMUSuqE12F7ZF5kJ766z
+	yQlXH32F+fjcUXvSDiBFOoWxxulD76sKfLOsDJXo5VtR8eef8N/Yw2/k4gZduKSSPNHhRgyQCA3
+	VY3o1iQV15VQtZIj5zwpow63B88z9zmZBew5ni9liIQ9QMD6Mx8rOXdKDUJAcJNfK3jufhK2cKq
+	ruJykJRChAnPL2duuoJ4v3m8WU6CxihbplvQkP8NcB+EzfDvCj
+X-Received: by 2002:a17:903:298b:b0:2aa:e0d3:cae2 with SMTP id d9443c01a7336-2aae0d40c49mr32306765ad.14.1770618888863;
+        Sun, 08 Feb 2026 22:34:48 -0800 (PST)
 Received: from c12-ThinkPad-X1-Carbon-Gen-12 ([2400:2410:5f2b:700:e705:6ccd:6241:6a0a])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aa3ec42e2asm83440455ad.53.2026.02.08.22.34.41
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aa3ec42e2asm83440455ad.53.2026.02.08.22.34.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Feb 2026 22:34:43 -0800 (PST)
+        Sun, 08 Feb 2026 22:34:48 -0800 (PST)
 From: Vishnu Sankar <vishnuocv@gmail.com>
 To: mpearson-lenovo@squebb.ca,
 	dmitry.torokhov@gmail.com,
@@ -72,9 +72,9 @@ Cc: linux-input@vger.kernel.org,
 	platform-driver-x86@vger.kernel.org,
 	vsankar@lenovo.com,
 	Vishnu Sankar <vishnuocv@gmail.com>
-Subject: [PATCH v7 1/3] input: trackpoint - Enable doubletap by default on capable devices
-Date: Mon,  9 Feb 2026 15:33:53 +0900
-Message-ID: <20260209063355.491189-2-vishnuocv@gmail.com>
+Subject: [PATCH v7 2/3] platform/x86: thinkpad_acpi: Add sysfs control for TrackPoint double-tap
+Date: Mon,  9 Feb 2026 15:33:54 +0900
+Message-ID: <20260209063355.491189-3-vishnuocv@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260209063355.491189-1-vishnuocv@gmail.com>
 References: <20260209063355.491189-1-vishnuocv@gmail.com>
@@ -86,145 +86,141 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Enable doubletap functionality by default on TrackPoint devices that
-support it. The feature is detected using firmware ID pattern matching
-(PNP: LEN03xxx) with a deny list of incompatible devices.
+Add a sysfs attribute to enable or disable TrackPoint double-tap hotkey
+events at the kernel level.
 
-This provides immediate doubletap functionality without requiring
-userspace configuration. The hardware is enabled during device
-detection, while event filtering continues to be handled by the
-thinkpad_acpi driver as before.
+The TrackPoint firmware enables double-tap support automatically. This
+interface allows userspace to control whether double-tap events are
+forwarded to userspace.
+
+The attribute is available at:
+
+  /sys/devices/platform/thinkpad_acpi/doubletap_enable
+
+  0 - Disable double-tap hotkey events
+  1 - Enable double-tap hotkey events (default)
+
+Filtering is implemented by suppressing ACPI hotkey delivery without
+injecting synthetic input events.
 
 Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
 Suggested-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-Changes in v7:
-- Removed unwanted comments
-- Removed psmouse_info ()
-
-Changes in v6:
-- No Changes
-
-Changes in v5:
-- Renamed function to trackpoint_is_dt_capable()
-- Simplified string comparison without sscanf()
-- Removed wrapper function as suggested
-- Fixed missing period in comment
-
-Changes in v4:
-- Simplified approach: removed all sysfs attributes and user interface
-- Enable doubletap by default during device detection
-- Removed global variables and complex attribute infrastructure
-- Uses minimal firmware ID detection with deny list
-- Follows KISS principle as suggested by reviewers
+Changes in v2:
+- Updated commit message to clarify dependency on trackpoint driver
+- Now handling sysfs read/write of trackpoint driver using file read/write
+- Removed sysfs attribute creation of trackpoint double tap here
+- Reversed the logic and return false right away
+- Dropped unnecessary debug messages
+- Using dev_dbg() instead of pr_xxxx()
 
 Changes in v3:
 - No changes
 
-Changes in v2:
-- Improve commit messages
-- Sysfs attributes moved to trackpoint.c
-- Removed unnecessary comments
-- Removed unnecessary debug messages
-- Using strstarts() instead of strcmp()
-- is_trackpoint_dt_capable() modified
-- Removed _BIT suffix and used BIT() define
-- Reverse the trackpoint_doubletap_status() logic to return error first
-- Removed export functions as a result of the design change
-- Changed trackpoint_dev->psmouse to parent_psmouse
-- The path of trackpoint.h is not changed
----
- drivers/input/mouse/trackpoint.c | 45 ++++++++++++++++++++++++++++++++
- drivers/input/mouse/trackpoint.h |  5 ++++
- 2 files changed, 50 insertions(+)
+Changes in v4:
+- Simplified approach: single sysfs attribute for user control
+- Clear naming: doubletap_filter instead of doubletap_enabled
+- Intuitive behavior: 0=process events, 1=filter events
+- No cross-driver dependencies or complex interactions
+- Minimal code changes using existing thinkpad_acpi infrastructure
 
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index 5f6643b69a2c..e12d76350252 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -393,6 +393,45 @@ static int trackpoint_reconnect(struct psmouse *psmouse)
- 	return 0;
- }
+Changes in v5:
+- Rename doubletap_filter to doubletap_enable to match actual behavior
+- Fix inverted logic so events are emitted only when doubletap is enabled
+- Register sysfs attribute via hotkey_attributes[] (no device_create_file)
+---
+---
+ drivers/platform/x86/lenovo/thinkpad_acpi.c | 42 +++++++++++++++++----
+ 1 file changed, 35 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/platform/x86/lenovo/thinkpad_acpi.c b/drivers/platform/x86/lenovo/thinkpad_acpi.c
+index cc19fe520ea9..ca01323c990a 100644
+--- a/drivers/platform/x86/lenovo/thinkpad_acpi.c
++++ b/drivers/platform/x86/lenovo/thinkpad_acpi.c
+@@ -373,7 +373,7 @@ static struct {
+ 	u32 hotkey_poll_active:1;
+ 	u32 has_adaptive_kbd:1;
+ 	u32 kbd_lang:1;
+-	u32 trackpoint_doubletap:1;
++	u32 trackpoint_doubletap_enable:1;
+ 	struct quirk_entry *quirks;
+ } tp_features;
  
-+/* List of known incapable device PNP IDs */
-+static const char * const dt_incompatible_devices[] = {
-+	"LEN0304",
-+	"LEN0306",
-+	"LEN0317",
-+	"LEN031A",
-+	"LEN031B",
-+	"LEN031C",
-+	"LEN031D",
-+};
-+
-+/*
-+ * Checks if it's a doubletap capable device.
-+ * The PNP ID format is "PNP: LEN030d PNP0f13".
-+ */
-+static bool trackpoint_is_dt_capable(const char *pnp_id)
+@@ -3018,6 +3018,31 @@ static const struct attribute_group adaptive_kbd_attr_group = {
+ 	.attrs = adaptive_kbd_attributes,
+ };
+ 
++/* sysfs doubletap enable --------------------------------------------- */
++static ssize_t doubletap_enable_show(struct device *dev,
++				     struct device_attribute *attr,
++				     char *buf)
 +{
-+	size_t i;
-+
-+	if (!pnp_id)
-+		return false;
-+
-+	/* Must start with "PNP: LEN03" */
-+	if (!strstarts(pnp_id, "PNP: LEN03"))
-+		return false;
-+
-+	/* Ensure enough length before comparing */
-+	if (strlen(pnp_id) < 12)
-+		return false;
-+
-+	/* Check deny-list */
-+	for (i = 0; i < ARRAY_SIZE(dt_incompatible_devices); i++) {
-+		if (!strncmp(pnp_id + 5,
-+			     dt_incompatible_devices[i], 7))
-+			return false;
-+	}
-+	return true;
++	return sysfs_emit(buf, "%d\n", tp_features.trackpoint_doubletap_enable);
 +}
 +
- int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
-@@ -470,6 +509,12 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 		     psmouse->vendor, firmware_id,
- 		     (button_info & 0xf0) >> 4, button_info & 0x0f);
- 
-+	if (trackpoint_is_dt_capable(ps2dev->serio->firmware_id)) {
-+		error = trackpoint_write(ps2dev, TP_DOUBLETAP, TP_DOUBLETAP_ENABLE);
-+		if (error)
-+			psmouse_warn(psmouse, "Failed to enable doubletap: %d\n", error);
-+	}
++static ssize_t doubletap_enable_store(struct device *dev,
++				      struct device_attribute *attr,
++				      const char *buf, size_t count)
++{
++	bool enable;
++	int err;
 +
++	err = kstrtobool(buf, &enable);
++	if (err)
++		return err;
++
++	tp_features.trackpoint_doubletap_enable = enable;
++	return count;
++}
++
++static DEVICE_ATTR_RW(doubletap_enable);
++
+ /* --------------------------------------------------------------------- */
+ 
+ static struct attribute *hotkey_attributes[] = {
+@@ -3032,6 +3057,7 @@ static struct attribute *hotkey_attributes[] = {
+ 	&dev_attr_hotkey_recommended_mask.attr,
+ 	&dev_attr_hotkey_tablet_mode.attr,
+ 	&dev_attr_hotkey_radio_sw.attr,
++	&dev_attr_doubletap_enable.attr,
+ #ifdef CONFIG_THINKPAD_ACPI_HOTKEY_POLL
+ 	&dev_attr_hotkey_source_mask.attr,
+ 	&dev_attr_hotkey_poll_freq.attr,
+@@ -3557,8 +3583,8 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 
+ 	hotkey_poll_setup_safe(true);
+ 
+-	/* Enable doubletap by default */
+-	tp_features.trackpoint_doubletap = 1;
++	/* Enable TrackPoint doubletap event reporting by default. */
++	tp_features.trackpoint_doubletap_enable = 1;
+ 
  	return 0;
  }
- 
-diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
-index eb5412904fe0..3e03cdb39449 100644
---- a/drivers/input/mouse/trackpoint.h
-+++ b/drivers/input/mouse/trackpoint.h
-@@ -69,6 +69,8 @@
- 					/* (how hard it is to drag */
- 					/* with Z-axis pressed) */
- 
-+#define TP_DOUBLETAP		0x58	/* TrackPoint doubletap register */
-+
- #define TP_MINDRAG		0x59	/* Minimum amount of force needed */
- 					/* to trigger dragging */
- 
-@@ -110,6 +112,9 @@
- 					   external device will be forced to 1 */
- #define TP_MASK_EXT_TAG			0x04
- 
-+/* Doubletap register values */
-+#define TP_DOUBLETAP_ENABLE	0xFF	/* Enable value */
-+#define TP_DOUBLETAP_DISABLE	0xFE	/* Disable value */
- 
- /* Power on Self Test Results */
- #define TP_POR_SUCCESS		0x3B
+@@ -3863,9 +3889,9 @@ static bool hotkey_notify_8xxx(const u32 hkey, bool *send_acpi_ev)
+ {
+ 	switch (hkey) {
+ 	case TP_HKEY_EV_TRACK_DOUBLETAP:
+-		if (tp_features.trackpoint_doubletap)
+-			tpacpi_input_send_key(hkey, send_acpi_ev);
+-
++		/* Only send event if doubletap is enabled */
++		if (!tp_features.trackpoint_doubletap_enable)
++			*send_acpi_ev = false;
+ 		return true;
+ 	default:
+ 		return false;
+@@ -11285,7 +11311,9 @@ static bool tpacpi_driver_event(const unsigned int hkey_event)
+ 		mutex_unlock(&tpacpi_inputdev_send_mutex);
+ 		return true;
+ 	case TP_HKEY_EV_DOUBLETAP_TOGGLE:
+-		tp_features.trackpoint_doubletap = !tp_features.trackpoint_doubletap;
++		/* Toggle kernel-level doubletap event filtering */
++		tp_features.trackpoint_doubletap_enable =
++			!tp_features.trackpoint_doubletap_enable;
+ 		return true;
+ 	case TP_HKEY_EV_PROFILE_TOGGLE:
+ 	case TP_HKEY_EV_PROFILE_TOGGLE2:
 -- 
 2.51.0
 

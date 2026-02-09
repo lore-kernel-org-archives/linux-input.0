@@ -1,64 +1,66 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 275B837106C
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 13:00:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75BD1372B38
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 13:00:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770642001; cv=none; b=q6CYT7s3edjLJn+Q1sCUBOk9wroXEgcSz2O7chf3wqkcvFT+hlT0LHtIyl+/bkPLlVCOZj6gReanBG8Rdb/dnuzWk/NthsxUIN/H0MWlAI79MF0v1XJnGRrJscKDSoOVdo5nHOgVcbXYMSPlPDLzom5seI+zkh1PeIvaIUlzIiQ=
+	t=1770642001; cv=none; b=Vo2p9lvmQ+Tj6z4xThpN6oW3DuGl/pTkMcENPJhESYJfssC8RMk37WwKQ9lyY0Rn2vc43oFNZSQOtRdXxi6ew72TJSQ5OkNSo+xS2Pd1n6t43JPaxbrL3yc2PmqWiXr1j5L7bTfpzzt/6xmsPT3GSulQRoV/jR2EbR61ASQXBTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770642001; c=relaxed/simple;
-	bh=ccDGQKcZ6ePGyeyFfLhe3FHr6NiUQV+ntQLRKhAADt4=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=I3nrYO72sDM+vDfnyXHgZsEpu/tcxXcoW7kffw7UsJPuTBu6r2broCc67tqQ49U/VV6++AMwXHJQDepnMYLJuylNmegyJacb+VXMBWCnF2z78C6AmvbyPPVAy8qzAYuFnlmhnnH+SeBLbeMyxloWDkanwEqEFSqaAUIMe0pFa60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=zLAbkGpC; arc=none smtp.client-ip=209.85.218.54
+	bh=878uUL8qoZSSKPLmPkqGsNRZPfYYSiCLIPK1SBRiT9g=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=VTE7wPzD4rVGyNL9jzFeBdcCFgCGbbTHdZx6rZXXHwhnXaxiSCsEwQPoFwVhFR+lxNMm1iJx1nO65srytPwTdJDMz5hD3SuC0JkG01NvRZEImLbN+KNT/5LZgCC5C/uiSWNGAn+5sT7uoADG1X3400pZfIs2100qNMaTKQrMA7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=RLJboq0y; arc=none smtp.client-ip=209.85.208.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="zLAbkGpC"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b872f1c31f1so523721666b.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 05:00:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="RLJboq0y"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6505cac9879so5828909a12.1
+        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 05:00:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1770641999; x=1771246799; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jSuIAS3dA0vwtYsZinS/Tz8DT6xIcPyMvSlHpVYFP/Q=;
-        b=zLAbkGpCLQP8zHspVH3vAojQy1izapXG3tbhZnepxwhxy6oFXDT9F2pYl9Nyywaeos
-         Jntze/2f9+yamj/BX+tZ+v59Po+bogDWPrq+AS/Chc82j7rHAD+YmPLIFXw+D93gmJ6u
-         o2dyP8C1NLD56Wd5pe99wuyXPSCFRIQZ/aN6slTqk31myT9sGqz4Xfk5NtSyXhLsy6RP
-         5glWv8jolq0GCoHhPXOeIniJhXawAV7Gudrv66wvIuVi4KmN2j6T1mbmZSLvfCxM1eLd
-         eV+wRdt2NgjuBOu6bpsfjHzYzdgfaSsdZAdqD9HZSBOfOgh4XC9XpzTpv8WFQVm6BgBl
-         3bJQ==
+        d=fairphone.com; s=fair; t=1770642000; x=1771246800; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=c5neBturV3EQdGbZuvQGl2q6cuvsiRZLWzYgmw9mfdM=;
+        b=RLJboq0y41+2NSTxiy+QmmYHLGs6TgwthMnjSGBvhE/vWpuICLBtF5VpFyBpEf4+4q
+         18zMTbXolo9yAfYlzQgwXh2auO3ab3TCcxqsjnyCBoMrayJjJLECwXTU/k0LFCwxYQgm
+         gr0vKEYVm8pC5q23Mj7oDI4WN/7v2Ei9GBm/UmoDErVgvtYdIX54VHlHwF9o90f/0Upk
+         cBpWXAEvf5dHmGN8PprUtwCqdsZIBM0MAqQMesaCgOxLc1BT8HkmFRj96dc5uLpiacOO
+         7sQl/IjULIhDMLZDD80yjoo9qP/wm4AZjPh1bO11VqICVhPwd9gz2e9mYlktz3iKpvMA
+         bghg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770641999; x=1771246799;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jSuIAS3dA0vwtYsZinS/Tz8DT6xIcPyMvSlHpVYFP/Q=;
-        b=cdc6E3gzvs7XqeEUQf5aP0jxrZyktzYBW9RkWFQeh9kfIIk2VLbHfYB76QFQJieQ5e
-         PsIQIl5fiuTJfOSk5k/a9ZBbjGq0EfH75e8jBDHvNqni4r7TvzfoNExjNFCujnUrlnpI
-         9VdaxOsTfedQLOlUnfCsjR5lQRNSjeq0osL1466tC2km/KdwFeH/i/BNZrWX2gQ5PeCY
-         TZS2CD1BWJc1GbhESRhvXC/QmPA+SSkGH3fG6UWKZcB+cSRv1Tya0lj6UZiK8lri1WPW
-         Vmn7HAT10AXc7fa3E1WaUllqF86yztZC6tSyKwLh+tQI0j0S//hA3fzUdUM/8WS/Dp4s
-         IkTg==
-X-Gm-Message-State: AOJu0Yz3drV5afuvQIIcPOoeqo2jee4YoFQXqMptp4DEdkb0YfG73UsL
-	REMzipW0jBvjb4oDfmnPEiSkHuchmO12rLXpMsLjp89k71rInQ9s7uuBuv4G1nuY1QA=
-X-Gm-Gg: AZuq6aILibBzDE/ZXD+E/c1uXTKeniYSVmVL+mJTA5RI/tc2ssZqO+6tF0j2yyh5kij
-	1XitFWxtYazlMqSG3cQTmVTfCinbqanjWhsRV7ZHQVQnyDZ4XQmhq6juisWG97DmnBeZxOjRwkb
-	pOTen9bd51uXUpfOq7Wi6orpZKRO5vtOhEaeX0mQFHkjdIyLWvXxQt6FdO2r9YSECu8iMGFRL6n
-	Z3lZqUU4HPQAGg8r6ESB5YUeimVj3d+XQS1Fr4m0PCtOxjxZmvd/fOTfQwas41nj5B0dA653I6P
-	oczRYVnDccvjfQrdWGiMelXDnilozH7R6VA4l24ihO6JfNo47VI5/NF2BjOFqdDgP1Q9unLojBh
-	SNgbEFgtGYBMVvoUmUwoCBKjK6Z4OCjp9fQyN3MhtfMKfD4H+//RyH8JHMueFrXuuMdJDk19wen
-	kRpfbaoyBtLAR7euA+Z2mH3GvrmHrn7J26BF5C1Dm5jhQe0F5/avv88jk5vq38NmI5foPlSQ==
-X-Received: by 2002:a17:907:3cc7:b0:b87:1839:2600 with SMTP id a640c23a62f3a-b8edf344224mr630775866b.33.1770641999349;
+        d=1e100.net; s=20230601; t=1770642000; x=1771246800;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=c5neBturV3EQdGbZuvQGl2q6cuvsiRZLWzYgmw9mfdM=;
+        b=Rmj1Xo6hRsHT58OxupRcmzvrf9F3GGwZ0kknktL/CXPZahxOu/lZHOq3sLTJHPuPfb
+         vJlcE4Rtg6y33NKXVPkZKP/d+9LPO/jqJC5hFFXUSybwgT/iRE9Bzt2TPaDeqRMpTxzW
+         dZxbAwsmnwiQFAYf9/painR8d6TDFI1J5gZiwwFWpi30PK6ZLSLuf7PleQ8fsm7PbXUy
+         lFTUdTE6s+P9dwwP9yca0p8I0iV0woPZLV3szbNLOgI/hjeDgLMM6kapfjgyUgzLzW1T
+         vLFEJCKIvpSDXq7GZVqbTUJoiQIA8UFGE5vksmxNBKt5gAoK4mUNtGKkuTbEA/fxRdIl
+         BPJg==
+X-Gm-Message-State: AOJu0Yy6IiGc6sZOTzdZNkIB53/ToHKxwK9it+1lyeZpc1L7CIvrt/N0
+	+w9sjrWv7QboyNAgBpZKk5eVzEAYeZM9HB7JMouoH0dIKez6QmNG7i7mKKcivz9uJB8=
+X-Gm-Gg: AZuq6aJ+wOP5C1s7/unhgJ0Llffsv3/hjI4rLFS5IfGDc5/91TNfCvCHbd6pBZsiIHx
+	udTms+cXYvgo2Gnu1ml1FE/rBVguUFwbtE/Gw7x5UpWVeqxEPCsoHZsLhG6tE09VyrumzTbdVvx
+	FMp2nxSuc1clRuBBeldYcqPLMoXiQJqJ0GTaQdFRf4FgibTfYQOQssWyrIlv+z75HG47LT30Ymr
+	eAYZMDCy0V1RRmQutLCVkUINyucxNzu2w8MCOitsoiujyyNjDyop8wbHKNMAfOmMbQbQQLKwc6N
+	P/7vJmk7Fd+lmZmKAx9/xhrSvZuO9V4mG/Bh0XUhjxdYcfyDEm5rgaVq9CvgDQ40AGmb8wbkvUo
+	q9mTXGzI7lMiY7kh2EDNCTG/R5SL7tEqXeBrQTCJNAVLC1bYrdDr9H4td6oQYykKmbQTqECoYHt
+	ZtemsMIvJOq3CSOb0TA5/o8oFKY5PHSbAtfvz+r8zdGT43Oi+JYPmyRBZ0aOWyOEX6A2wQIg==
+X-Received: by 2002:a05:6402:2688:b0:659:387b:cc32 with SMTP id 4fb4d7f45d1cf-659840ba158mr6302350a12.0.1770641999875;
         Mon, 09 Feb 2026 04:59:59 -0800 (PST)
 Received: from [172.16.220.227] (144-178-202-139.static.ef-service.nl. [144.178.202.139])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65983ec70fdsm2803040a12.15.2026.02.09.04.59.58
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65983ec70fdsm2803040a12.15.2026.02.09.04.59.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 09 Feb 2026 04:59:59 -0800 (PST)
 From: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Subject: [PATCH v3 0/3] Add support for Awinic AW86938 haptic driver
-Date: Mon, 09 Feb 2026 13:59:44 +0100
-Message-Id: <20260209-aw86938-driver-v3-0-5c79cff30492@fairphone.com>
+Date: Mon, 09 Feb 2026 13:59:45 +0100
+Subject: [PATCH v3 1/3] dt-bindings: input: awinic,aw86927: Add Awinic
+ AW86938
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -67,11 +69,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAEDaiWkC/2XPsRLCIAwG4FfpMYsHoa3o5Ht4DqkEm8G2QkW9n
- u8uWl10/JPLl2QSkQJTFJtiEoESR+67HMyiEIcWuyNJdjkLUFBprY3Eq63XxkoXOFGQTelROQN
- gEUQeGgJ5vr3B3T7nluPYh/vbT/pVnSlQ5S+VtFSSGrfStrbOG9x65DC0fUfLQ38SLy7Bl6iVB
- vtHQCaaShMpWyP66pd4zCcGOl/yq+N8p2gwksz9E4+boqPbKD8LVnni8QSKBCYYJAEAAA==
-X-Change-ID: 20251113-aw86938-driver-b4fa0d3228a2
+Message-Id: <20260209-aw86938-driver-v3-1-5c79cff30492@fairphone.com>
+References: <20260209-aw86938-driver-v3-0-5c79cff30492@fairphone.com>
+In-Reply-To: <20260209-aw86938-driver-v3-0-5c79cff30492@fairphone.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
@@ -79,51 +79,45 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
  Luca Weiss <luca.weiss@fairphone.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, 
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+ Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770641998; l=1380;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770641998; l=1105;
  i=griffin.kroah@fairphone.com; s=20250804; h=from:subject:message-id;
- bh=ccDGQKcZ6ePGyeyFfLhe3FHr6NiUQV+ntQLRKhAADt4=;
- b=w6jQK/AuWxQgRLy4mYkgWfxsIgi1k0f5NWQjQyV6pxjgcc0WJkYvCpxy3w+s7ok46PY/HInXO
- n1nGk4LnnvRBNE5UYaYsE9KYXL5sXZprpfvkgq0FpZ6CQCVx1nVFSEf
+ bh=878uUL8qoZSSKPLmPkqGsNRZPfYYSiCLIPK1SBRiT9g=;
+ b=sBbu18kdDcIqMf3K4PzPfTpAGwv5KBM7oxxjJvJeiCRFPcMSsMq9Y+G1WHeYw7/eW3C/OzIev
+ FeueiQtJR8dC2lrXDF0kvVjOT/YBuPCWPuoHoztCtPsz2IGPzEv62Ah
 X-Developer-Key: i=griffin.kroah@fairphone.com; a=ed25519;
  pk=drSBvqKFiR+xucmLWONHSq/wGrW+YvcVtBXFYnYzn8U=
 
-Add devicetree bindings and a driver for the AW86938 haptic driver chip,
-and add it to the devicetree for the Fairphone 6 smartphone.
-
-This driver is very similar to the AW86927, and shares many core
-features.
+Add bindings for the Awinic AW86938 haptic chip which can be found in
+smartphones. These two chips require a similar devicetree configuration,
+but have a register layout that's not 100% compatible.
+Still, we can document them in the same file.
 
 Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
 ---
-Changes in v3:
-- Changed how compatibility was handled according to feedback
-- Added reset gpio config for vibrator node
-- Link to v2: https://lore.kernel.org/r/20260128-aw86938-driver-v2-0-b51ee086aaf5@fairphone.com
+ Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Changes in v2:
-- Added AW86938 specific registers
-- Added chip model enum to differentiate chips
-- Link to v1: https://lore.kernel.org/r/20251204-aw86938-driver-v1-0-ebd71868df3a@fairphone.com
+diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+index b7252916bd727486c1a98913d4ec3ef12422e4bd..bd74b81488f61d72b675b5701b321b30b3430be0 100644
+--- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
++++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+@@ -11,7 +11,12 @@ maintainers:
+ 
+ properties:
+   compatible:
+-    const: awinic,aw86927
++    oneOf:
++      - const: awinic,aw86927
++      - items:
++          - enum:
++              - awinic,aw86938
++          - const: awinic,aw86927
+ 
+   reg:
+     maxItems: 1
 
----
-Griffin Kroah-Hartman (3):
-      dt-bindings: input: awinic,aw86927: Add Awinic AW86938
-      Input: aw86938 - add driver for Awinic AW86938
-      arm64: dts: qcom: milos-fairphone-fp6: Add vibrator support
-
- .../devicetree/bindings/input/awinic,aw86927.yaml  |  7 ++-
- arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts   | 26 ++++++++++-
- drivers/input/misc/aw86927.c                       | 54 ++++++++++++++++++----
- 3 files changed, 76 insertions(+), 11 deletions(-)
----
-base-commit: 0364de6be161e2360cbb1f26d5aff5b343ef7bb0
-change-id: 20251113-aw86938-driver-b4fa0d3228a2
-
-Best regards,
 -- 
-Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+2.43.0
 

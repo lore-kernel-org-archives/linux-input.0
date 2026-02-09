@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DE4336F425;
-	Mon,  9 Feb 2026 13:41:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD4793093CF;
+	Mon,  9 Feb 2026 13:49:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770644510; cv=none; b=RGgd5yO7L+50XUCkR/8hO65hYQGdmD1v0wefMr3EgFmC7wqaaakKjp5lRIURTasEZwlLA9YrYw3mvCg3CBolCArYFSPZOc4maR1nX6rChWWa8yuGq2cFaXLsUf1o9K3qrhRciSViZgVq63awxbGRZ7TQVAXR4lGWSPOaBDU/l0c=
+	t=1770644970; cv=none; b=NZKUoiNWz9LwjDeexaseeUrehpN4G+lu35gOJBG6KlqyIlI7Yk9guqCbq3ePrzBwdVx5AqWzlj0prbY5MaR+dhro48XqHnP0uliL33t8etbm3rbyNpE5v9MllFeF49sPTf5J/uMCxHzJX0kt0u4Huu87sU97ztIK4LE1Ce4UdGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770644510; c=relaxed/simple;
-	bh=ESZ29IaSilgA96/Z78kM/OTXBHVW2SNLx5OwQwKBgY8=;
+	s=arc-20240116; t=1770644970; c=relaxed/simple;
+	bh=L2SsQW3SK6XYTVpQ3GRq/mYJrtLlmgSsdUZDJ7uVAG4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=premg3gHdJB82Jf8OqyaV26mxQ3Kmvc0ki8TgFhGnhNwzoGPIakhjqv2bUKOifeGw4/GBq9pT8PJmzlAyhlabQuMzLhECMkpKCHCnI1Gk2A3eHchSf9IDZ8WyYiZgO4t+GdjMxBp9IyU+aNJM49EaWjc4+ZCukAE6M/wI1iqijs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lY/xkVA6; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=skIJdhZaZDqgJpuFrPD5NJMLQdoEPZfZOhybqFvGl2YkaWaUD/OV+jlqa47518fbKpWz1OGaKEmJF0VP0IVklf5q9gRU6SnEZAgSHwlDEaVvuHz3vVECnlRipSbZUFTaHaN1Z29mzIu9JCb+S1Tj3iB/AXVUoO8coQaLa3coPHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vz9WLFgm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lY/xkVA6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ADB3C116C6;
-	Mon,  9 Feb 2026 13:41:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vz9WLFgm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20D0C116C6;
+	Mon,  9 Feb 2026 13:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770644510;
-	bh=ESZ29IaSilgA96/Z78kM/OTXBHVW2SNLx5OwQwKBgY8=;
+	s=k20201202; t=1770644970;
+	bh=L2SsQW3SK6XYTVpQ3GRq/mYJrtLlmgSsdUZDJ7uVAG4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=lY/xkVA6bAYlPaullUPEklfFhJm7DO5oYN22FDusQEf2Zf62waMs1wLw6C/gzf4AM
-	 WPMIaSEEjf6H1oSxdIMW7ZzbMb8jnoyffGi2MG2kYr8L3RapQ3TGJU3fFHMVwZnD9s
-	 nL5AXHhzYeAZOOPoCWB63lFB34MSdlPCHwsYk8rINa27irV1LeNhGRYiIgei0yf658
-	 kP59X/RVFuCa1RLZ1WFDR0hkh2cctO8eCnk+t0Vdn2ZDC6GxabVrPatQBhzoz4Ifkz
-	 Ebauv4myNgNiuzbSPTxYXHdLdR7JOuD5+6OT/OBXCFHnXXhjvu+2SarvCOsxbHjbIU
-	 xOrTqdoyRFLpw==
-Message-ID: <ed92d50b-782f-4042-9f71-3decb98cee70@kernel.org>
-Date: Mon, 9 Feb 2026 14:41:45 +0100
+	b=Vz9WLFgmIDqr0ETagKgD5XaInUeaGF7os+x0HvXzBTf1hF8DCu5lr5TuWc3ziv2SE
+	 MOj+4091XkWBMHDbHGvEbdYbGlBo+SUkWL7j8Sz/LoZ/UbxJ3EkkqR7T5VF708/pTH
+	 iGTMBLBJZXpFbTWegeJuk4K/K/ABe1nvmDnQQh4Lktlz3HLsdy5BCNNJrEM6p2sh4f
+	 FiYPLVo9Z7V0s64HiQiEP9vJ+zV66RBmMtViB2CoBBaue94j2WlbwoDz/bNgBJxRMA
+	 3oNhnfuFhW0Oj7auyoiWjSns9cQsjjameO0kk94LI8VuH+BUUR2R/8hmb5VNf7VCjQ
+	 72m43cRmzU4Ow==
+Message-ID: <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
+Date: Mon, 9 Feb 2026 14:49:24 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -35,17 +35,21 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/3] dt-bindings: input: awinic,aw86927: Add Awinic
- AW86938
-To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+Subject: Re: [PATCH v2 1/3] dt-bindings: power: reset: qcom-pon: Add new
+ compatible PMM8654AU
+To: Rakesh Kota <rakesh.kota@oss.qualcomm.com>,
+ Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Luca Weiss <luca.weiss@fairphone.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-References: <20260209-aw86938-driver-v3-0-5c79cff30492@fairphone.com>
- <20260209-aw86938-driver-v3-1-5c79cff30492@fairphone.com>
+ <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Courtney Cavin <courtney.cavin@sonymobile.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-input@vger.kernel.org
+References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
+ <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -91,20 +95,69 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260209-aw86938-driver-v3-1-5c79cff30492@fairphone.com>
+In-Reply-To: <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 09/02/2026 13:59, Griffin Kroah-Hartman wrote:
-> Add bindings for the Awinic AW86938 haptic chip which can be found in
-> smartphones. These two chips require a similar devicetree configuration,
-> but have a register layout that's not 100% compatible.
+On 09/02/2026 14:23, Rakesh Kota wrote:
+> Add the compatible string "qcom,pmm8654au-pon" for the PMM8654AU PMIC.
+> The PON peripheral on PMM8654AU is compatible with PMK8350, so it is
+> documented as a fallback to "qcom,pmk8350-pon".
 
-... however chip model is fully detectable via ID register.
-(or something similar to justify usage of fallback compatible)
+Drop everything after ,. Do not explain WHAT you did. We see it.
 
-Anyway:
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> 
+> While PMM8654AU supports additional registers compared to the baseline,
+
+full stop.
+
+> there is currently no active use case for these features. This specific
+> compatible string reserves the identifier for future hardware-specific
+> handling if required.
+
+All the rest is irrelevant or even wrong. We do not reserve identifiers.
+If you want to reserve something, then I need to reject the patch.
+
+> 
+> Signed-off-by: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+> ---
+
+Where is the changelog? Nothing in cover letter explained what was
+happening with this patch, nothing is here.
+
+>  .../devicetree/bindings/power/reset/qcom,pon.yaml        | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> index 979a377cb4ffd577bfa51b9a3cd089acc202de0c..14b85b0d97da12c756cfe2ce33853501ba4ca46c 100644
+> --- a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> +++ b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> @@ -17,12 +17,16 @@ description: |
+>  
+>  properties:
+>    compatible:
+> -    enum:
+> -      - qcom,pm8916-pon
+> -      - qcom,pm8941-pon
+> -      - qcom,pms405-pon
+> -      - qcom,pm8998-pon
+> -      - qcom,pmk8350-pon
+> +    oneOf:
+> +      - enum:
+> +          - qcom,pm8916-pon
+> +          - qcom,pm8941-pon
+> +          - qcom,pms405-pon
+> +          - qcom,pm8998-pon
+
+Move this one up to to fix sorting while at it.
+
+> +          - qcom,pmk8350-pon
+
+And this above pms.
+
+> +      - items:
+> +          - const: qcom,pmm8654au-pon
+> +          - const: qcom,pmk8350-pon
 
 Best regards,
 Krzysztof

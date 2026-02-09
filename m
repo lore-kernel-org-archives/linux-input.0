@@ -1,116 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BC1F274B48;
-	Mon,  9 Feb 2026 13:50:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C08B37B409
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 14:47:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770645026; cv=none; b=K3PBBabBBDT2Vr3odXzXVqGDd/ajhLxjf5pVTnvykrR1znmAuoMTt6Mqjc48IXhEurYgklWBhnC2cYZrLqLsX8HmU3hcnamPq5jg172aOo2D2CsEN8Kj8VxsUe+bEsAFlwcw6qGsPyaLVmnoDwbGbFrk9EmQ2ClhT2shRvBHdis=
+	t=1770648453; cv=none; b=aDGhFHWVPx9Va4Wa6mGWO1eO97iPJXmLuB5DaYCGRY7Jh5RXBWGSYjkrvXhmEuwfmhr46LByElyLdZ4+vUAfcOdmz4XJ2pD8ngrKBUxiy9xr9G6EOP/cG0irRdJi2AszAGujUDkoqQJ99cDxulINkjJl8gHqNrY5Je1BMMDJuEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770645026; c=relaxed/simple;
-	bh=Q8SL4stTKfFGPQ0/FgyYUe+Ex6Ny4Vj+ii6h2XCtfwI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mtT+7CIH2U/f6N/rgF9Z63ttFK+HuNopZl3mjpz0DKw3FXayn7wScTtcR8rR0Qr5jWxguwSpSXEw3O34YSDyKF915b9DV3M3wSGxmpcbPonWkSAkqO8dH5AkMkIff0Wa/zzvpOyRcSU6Q1oZIAQDHRy2cTe+hmGbbdtBbiy25Hw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XaJSx6Uv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770648453; c=relaxed/simple;
+	bh=p38Pt61WWnI/446NW3EDs/FqTgapnD4fxQmalZjM5hc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PhT5SCaJ8mEPNE+7gkY23vALVTlQKw1BPnsfVlYtr2q4aXqq+rJ3F5jRKQd9/CJke0RJhL4FSp2FyECZs4jrB8e9SW7NMKYk8H55H7XHtlf4k/LjmSEc8vDMn4sMM4wjPcmFeapDU0+T1i1TBnIK7WtPCTyDfSgvc5nsyYnF+wU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu; spf=fail smtp.mailfrom=g.harvard.edu; dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b=HcWQTxr4; arc=none smtp.client-ip=209.85.219.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=g.harvard.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XaJSx6Uv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 037F0C16AAE;
-	Mon,  9 Feb 2026 13:50:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770645026;
-	bh=Q8SL4stTKfFGPQ0/FgyYUe+Ex6Ny4Vj+ii6h2XCtfwI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XaJSx6UvKlmvZl50KbnP7QFJeR71XrArOkEUredvOcEvvz1tfeYetQfnqZyPyC6rt
-	 HriLt5sRxKLDsl3CrlNgY76oCGClvZvGP8R8VTn5OJmBNoj083e1lZO56TShnMTUap
-	 8h0Wnp083O70q7g487v1iF5yvUmLl+UF6C284dXgJ6VNnftGQZCq/dWQYEq4aHWZ8b
-	 JPRFJOytUa2PwpLqG4GMiEbj8fTzrkPsnC350l3yfQZ4SZFx3qZ6aEQQYk1W4KVLXP
-	 obqJa23HsNy6g8VDRSOmbG1WngrZGkW42fXbb6A43C/xkseuAOlpqpkL/RKVrqgmhd
-	 qkkaK89r8vi3w==
-Message-ID: <b82c2e49-077a-414d-9d19-8115ac80ee54@kernel.org>
-Date: Mon, 9 Feb 2026 14:50:21 +0100
+	dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b="HcWQTxr4"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-896f6d4b6c1so19119066d6.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 06:47:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rowland.harvard.edu; s=google; t=1770648452; x=1771253252; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ho//V7xLOKZYyWUOboKGJN9nZXZMUfKAgO5c4WVrjL8=;
+        b=HcWQTxr4Fkat5ASfsOohELjnjBlqeasHLEgH0Syc7/l4VZFpO7aRpHL9sw8JxunpsF
+         MCwguM4LAnRlZ+VzX3HRcpjVc5o1+8YJ5Us67T6vRvq0cNlANtr3SKD/k3kn8dNSOric
+         hEFWyeY9DK1auSt3V0hPCY77kY4shHED9Io+No53mVxHE48t+SoRi/HhBnChao2Tw/GG
+         diPUWbftbqdQtkqztQJTo29Mtw1Hv3Vi5i/6+P7611ngI7U1mWMOP0TrITrlBaANzZtN
+         lf/ZvHel65UL670TDF2+vuNyKiERcIwHKdoNmmt4Sz9FIUedWT6lAEPdu5lpAMtBS4E1
+         ULCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770648452; x=1771253252;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ho//V7xLOKZYyWUOboKGJN9nZXZMUfKAgO5c4WVrjL8=;
+        b=lPguo5S5O7nYAUg6z0izXsrkq6iNo+Ew38JEvt0wmS9AxSUyZ4LQcW6ft1xlRjjLMz
+         9cUywaQfxXdQuDfnZF6jp7N+Uo/MGhyI1z1XUVLkpU4ekMp10G/EsrAQpKKPE4xKNPIB
+         uSI88P+FaFrWnwALBxQOjKswj5dHpjNA0lXSFiYqGiZrPMDGTo7YfaKhBnubfI+W9OiB
+         TJSbswLDMfcST1HgU0vysYOBQS0hIcg8+tCv2kjAzt9maTfpahGc7Um7sDNqAiow8ZuL
+         SVgGEoK/zLTL2iIyH3pDDeIyjd8Geb7VrYmwejoR6DXnOysEsAteh4FQLUeQeh/g25ey
+         B2gw==
+X-Forwarded-Encrypted: i=1; AJvYcCUBFuCyy1K+1+ygT4Y1HTIIUEpYVwTJrZ5RaMTUGweN0Nqknk+oe2NXlcA4+lrwqo2l94lzFRdoR2mf1w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyDWdFP6mU+Fh1h2JKC4SF5DlwWQnGxU3W/dHMqplGN0+w/7ier
+	LXTrOLL9Goo8LYBSaJJ4iUavnxHcG/LZ8qqoqYKRB6FFGJjG5Vix75kuc8sD262pbA==
+X-Gm-Gg: AZuq6aLLYeeedjnsjYRrwlP9EeDVg2KrnVG9IBK+LyxR4Y1NNatYOIi3ino+toVG/2D
+	0QhhFE+vFkn6RYba7I+gYJTVIRfEJuxzbMw6qvnF4hyrMhqffZlbElFG0ma2s4kP2onoSI6KTJp
+	NjrplXSsU6WvnuoGj3H3PKrXLatwT52FbKlxGbe90ikikJM0FztoaiMuNDjcoPDlaQk2uebvGUQ
+	hYo/LEaOk0OkeJS8oQHI5G0XdCLRfT7xLkDk5ZT3t7gVPT03V4WCCUYkFH6RI1bwRzqkofG6Bjx
+	NmuZaVZ4r94XuJFz9qgv8uXwMGMIVF5NxGrrUDy6oV/0VRJIL6VINXtLQlhN17Y00JeBfMBx//K
+	pW/7fdp4SGDBBF251i0vpybT0Sy57qKC7j0jQ2h0Oogt6QVgna0GVYFqiz0fn4zOGt8W4TZt3mx
+	uw5b/tHL48mig4+mqpL30D88O34FA3aQ==
+X-Received: by 2002:a05:6214:1bce:b0:894:835d:b112 with SMTP id 6a1803df08f44-8953c86c112mr172690676d6.40.1770648452057;
+        Mon, 09 Feb 2026 06:47:32 -0800 (PST)
+Received: from rowland.harvard.edu ([140.247.181.15])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8caf7be4366sm821652985a.16.2026.02.09.06.47.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Feb 2026 06:47:31 -0800 (PST)
+Date: Mon, 9 Feb 2026 09:47:29 -0500
+From: Alan Stern <stern@rowland.harvard.edu>
+To: Oliver Neukum <oneukum@suse.com>
+Cc: Liam Mitchell <mitchell.liam@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>, linux-usb@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usbhid: tolerate intermittent errors
+Message-ID: <d1cbfe87-5097-4630-b848-4575ebcf3b09@rowland.harvard.edu>
+References: <20260208-usbhid-eproto-v1-1-5872c10d90bb@gmail.com>
+ <a31763aa-77af-4e13-8708-b007ed53277c@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/3] dt-bindings: input: qcom,pm8941-pwrkey: Document
- PMM8654AU
-To: Rakesh Kota <rakesh.kota@oss.qualcomm.com>,
- Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Courtney Cavin <courtney.cavin@sonymobile.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-input@vger.kernel.org
-References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
- <20260209-add_pwrkey_and_resin-v2-2-f944d87b9a93@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260209-add_pwrkey_and_resin-v2-2-f944d87b9a93@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a31763aa-77af-4e13-8708-b007ed53277c@suse.com>
 
-On 09/02/2026 14:23, Rakesh Kota wrote:
-> Add compatible strings for PMM8654AU power key and resin support.
-> These blocks are compatible with PMK8350, so use that as the
-> fallback.
+On Mon, Feb 09, 2026 at 11:06:03AM +0100, Oliver Neukum wrote:
+> On 08.02.26 18:10, Liam Mitchell wrote:
+> > Modifies the usbhid error handling logic to better handle intermittent
+> > errors like EPROTO, which should only need resubmission of URBs and not
+> > full device reset.
+> > 
+> > Reduces initial retry delay from 13ms to 1ms. The faster the URB is
+> > resubmitted, the lower the chance that user events will be missed.
 > 
-> Signed-off-by: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+> Hi,
+> 
+> in this case I have to ask the obvious question: Why wait at all?
 
-No changelog? Nothing in the cover letter explained what happened here.
+Because of the possibility that the error was caused by transient 
+interference that might not go away immediately.
 
-Anyway, don't want to block on such trivialities:
+> It would seem to me that if you have spurious or intermittent errors
+> the right time to retry is immediately.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+It depends on the cause of the errors.  In any case, a short delay, such 
+as 1 ms, should not make much difference.
 
-Best regards,
-Krzysztof
+Alan Stern

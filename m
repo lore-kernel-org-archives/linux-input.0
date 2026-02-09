@@ -1,63 +1,63 @@
-Received: from mail-lf1-f68.google.com (mail-lf1-f68.google.com [209.85.167.68])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A6B369964
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 10:44:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FD8369210
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 10:44:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770633872; cv=none; b=uKBil/Gr2l/V4AGaI19ugV1EgtPDvf6UZH5udEnM2Sq9B/pn3Cv32wzwOVWV3ig4qvpQaUjSPVHisaSqRfIqwQyMjf841bzRJUyRzO3keYRwj0LjGQqLHegJpspqNcY9IvvEurFEluUX0iPa0xKC4jxRNZNikVOG5/PjPbV00UY=
+	t=1770633875; cv=none; b=njDIkYrZHxWR9xGyjRu3FceBINEEnkvQpdsNdpyrAgSrDTcONB71G2o58Dr4qNQ+l+jfo7vIXyZk4FapXerawAbsZxMpXG4iSk9ofI9K0Lz9Rl/wP3cKsIKvPvO1vvv0FWLXeYrn4ZV5wC2uZPMGekFLlD0jXJTh1bxYKJNb3GI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770633872; c=relaxed/simple;
-	bh=LrlW5n+TfvOTYQQ1oHM2HINQqXlrDDVoUzaHz6OuCwQ=;
+	s=arc-20240116; t=1770633875; c=relaxed/simple;
+	bh=L5L8z3dEdEv23jGtH4a9T59EHgzniV+IyLmlJZ/Ob6U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C0wuTY0dw/CMe3i9z8FHbLbh820OOJX77WtGjaSkSou7eNT1nV0nc4hcOt4SOl1CVlqtyfsJkfSeZb11MXYmDhMf6xe6Nl5yVApUEqLdciLm250/GNgrzCkAaQBHtL0Q70fF+aHg8wYdBPYRhjo/aLCFbvHQLiBrd2f9EXoxsJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ndko//IB; arc=none smtp.client-ip=209.85.167.68
+	 MIME-Version:Content-Type; b=HETHtdQ0Ik3X8A2Kwp6kjbLKjhBxOau2S+EJTwvb24DHCsKyaI0xGClZzJ4UPdR895GU8P7gFtDKz81s1kS+QWh1K659uVIHE5VK+qHsOdgfa1ZkpRevhY90C6UnDojrGoSQtSslPMCY+0V/ZAxP6CoGQPeQB2Zn2FsoCS8M2JU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d5crbl4D; arc=none smtp.client-ip=209.85.167.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ndko//IB"
-Received: by mail-lf1-f68.google.com with SMTP id 2adb3069b0e04-59deec3d8dcso3938101e87.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 02:44:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d5crbl4D"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-59de2d1fc2cso6370096e87.2
+        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 02:44:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770633871; x=1771238671; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1770633873; x=1771238673; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RRcfAUL2ICmQKvT/5ZV8//xYR9dZpc5jMuyeuAnPWmA=;
-        b=Ndko//IB84vUxt8p5uDSr+MrGTrXRXofr0gO4O3a03KH6hQGLMIZKqV2HzU0Pj7P4O
-         cKCaSDF4wXfDU4GB1lI7pwWxG4UxPf6ZrzP7oy1MlmjyGdS2ukbzhXNdrZHlwjt3iFqe
-         mo1T0i//yefXghYxDk8x0OUGs0AcjCbHLJO3IVT9Bu1PIsDYgNwvNXDxzNYNqFyqFj3s
-         aeiga+4Ss4EWtElO1ZGP7Yp6B8U081CKSa7158T2ZdpLqDV1Itbe54C4OxLrAISC9A7X
-         9x56CUU4rJWaH55YdWE6tqHZGMh853AB7+cohF6A8hRmqGIJqBPBVCeTiy0VyaohTBrc
-         aByQ==
+        bh=6mbuhFCPPv7pIkklBXErJ3O0VBejat88okAITG/2NqA=;
+        b=d5crbl4DGV3PofoOXt/1Rf1PbAQudr9O02gge2MhQ+l6d++jwE3pGokY19nAVVGSmG
+         8Z06QNiqOiLSe8Xd0Twob/VnRe1VBbDn50/XCpr6uykLxrNnOYAlfXug33OVJV8aA5hO
+         a+uLwiLZf+5rJ3UA7wHQAzcpJeNJC6ANjdb5H3Nb6MvihV2p0Ey3fHXoj6OY5BrNhrfR
+         EpXlprkKF9b2E9Xjo/ssAhjmj41XLfWA6hhaAuT15LaM85R6dnkcP0iOvYBAEdxWpt0Q
+         r7bC+b8w4BymEwQAcjo5sQnAMTZoUct+5twIcEruyIJr1CTyn264psizcJC2GjnBjcGJ
+         lUzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770633871; x=1771238671;
+        d=1e100.net; s=20230601; t=1770633873; x=1771238673;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=RRcfAUL2ICmQKvT/5ZV8//xYR9dZpc5jMuyeuAnPWmA=;
-        b=OV8oDORZvqw7QtPpN1fYLSf+3a6fXsmG8MxqIUuKu7zA9swZv4LdyQI5l0UXXiC+BM
-         uePz/7bZZ9/NzsVHL3D2XocW03XsBwSOuiWMOIEeFHDZx6r4TtNiUXoz8vkv+sb09kSD
-         87GZIrrw3XLhdJly0rqbTzvWq27IJOWlhAQebXuTIqxyPSOTZVj3lEHbUbCb5YSEstN9
-         lEjbkw5bAPgx94NjR+QbG0/Z/EJWvb8K6N+j+RDizjRiBXew7KhQ14xwgmwKEGXd/Kdi
-         jIVtZdV+w5beB36431YkvDWVahU7oRBtJbk78Pio5xFp46E2YwJBxuPD6VYzlKHlcNlC
-         vghg==
-X-Forwarded-Encrypted: i=1; AJvYcCVewBxcGqGpk7S80wM5szW9mDPJpTw/1fEvTb15RDpn5BeGdGF5W2rx/4cuEkKKnjIQEnniRu0DWrmuVw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyxx+S+pCPEUh2NMY02sMO5QIV3aakrmyY7yRaCh5RAheGQEjB1
-	J9rYRQs23AfxzFfguA6DI7DFb8nddSsBQELvm7U+ixWlXgXEzAM6EAO4
-X-Gm-Gg: AZuq6aJZseMBN2+lgpAhPULMyOruT6Y9MnjXl2+bHD2P/qygwVQCC/2pVtUXVJ9QEEB
-	oeK1hrRM0bvKrWIEt3jlxfjsP2cixCuL/FRXtRYUZ+MZFfG9sGqgZZjHAjO+nicj/e/aqEwPs+g
-	96X6vyX0UfPZv5HQ3ErvPOHIj/NH2W/TmGEQB2jmcTbEZA5GiZf4/WaAHhxLGho3JODAZXx2SDY
-	69toxSZeHCKpTbWFlc5Kj/9rc/gcvNY7UW49Ag3IfzeX/PXKk6QyyafB3ZXL1afE5REMUH4UQa+
-	fZcnBekbi7ouTBrIwRdM+pEDaU6Vsrk8LxWFfQzHwrCfZzDHN+3RLlBTzi53AV2bhd46eXkdoSY
-	HYZF5/vc3plJ+mzjFPy6uLieUVpV0Y8kP1sPvgPmwsKFgAoc1ECckxUlsIjZeeIRjiQCOkHz0Nl
-	0Y
-X-Received: by 2002:a05:6512:3088:b0:59e:4a0:ac5e with SMTP id 2adb3069b0e04-59e451733demr3569115e87.35.1770633870507;
-        Mon, 09 Feb 2026 02:44:30 -0800 (PST)
+        bh=6mbuhFCPPv7pIkklBXErJ3O0VBejat88okAITG/2NqA=;
+        b=UWVMPJUMp9HtJm3g7GpUAfcehBfLKtJRDjPWC1D0kTSte1mMGDNNeQkCfGyCHWCcFA
+         wNYc0SM60VQWG0iiI/hR1yjX7SiS2HZvd9IkJEej6jHWdJ8C9UQis0n3qWRm7Bq0MvRV
+         4hMU83ZR3v3dyDIg/YmM6QJBb1Di0vcSEPKbtM86i/Fpe5UOSev4QEspXewkWCbgJMta
+         ebO0CL/wMJjQ1wurq3r/4d5HuFrGwJ+/OzsSHxdFbpy+wp1Rs4DnI2vFH45Zh/147T3K
+         KcvAZUgmhAJEm0fgrNLeasgUuAxhG389kJhtYXB+Lc4RVZq52TZbw/9THS90Dad9+bQ2
+         M0zw==
+X-Forwarded-Encrypted: i=1; AJvYcCUnlT9m7mzz2xwwicupN5oBwRRvvbNOlR+nd9NLReXKdXH0MP5t7LS6qnKPzDi+dhDHQSuOKVBvi6k+Dg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywue+f/cBHdrVsM99huYeh9jmgTVAnvxfsyH0eMbC9vtEZZ2m4C
+	Ypi1nL3zCJ3lXdHP80vMpYR/LIulQes0sBlAzuUVGM1JK4Z1FXk7cbF3
+X-Gm-Gg: AZuq6aItiMg7P/G0tdaMZLrt0kV5y92u7p7G+YCllyWUXfcIdNrhbPjP2eGYe46aQDU
+	nyDO5Phj+dFH/8oT/pVJ8xAeeaOXfvK8/lESw6N+I2Vrbhk3n46f02jDWJ9Bv06mdsMwgwsvPXD
+	bI4z7jvOYqLWVvkaosarki2l8xdGYNh4Hi+CZwXHJwxrbBOtKNdgAO85oal9hbS2NcMKxcXnUkH
+	OiYv81VX5oQAtNGjX6cx8E2IaEGb7ExDzBIMsu85WBNDIjBkQqL1TttbVoRVCdVj51JIh5L9xHe
+	ckn8M7CSYH7K3SU14cvwWsSHlifezmJ/kiI1zYwEsPGzbdZdG5GwBThugs2dWl86nBpvjNLpy4s
+	S1A7eCED72d4i+nOOH9Q9k8saKP6YIewFFFso+D4NjPBMsRWxipEvTx9gQco8us1O2Jid6Exo10
+	g+
+X-Received: by 2002:a05:6512:3f07:b0:59d:f28a:be11 with SMTP id 2adb3069b0e04-59e45044658mr3280391e87.3.1770633872876;
+        Mon, 09 Feb 2026 02:44:32 -0800 (PST)
 Received: from xeon ([188.163.112.51])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e44cf6f88sm2501469e87.21.2026.02.09.02.44.29
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e44cf6f88sm2501469e87.21.2026.02.09.02.44.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Feb 2026 02:44:30 -0800 (PST)
+        Mon, 09 Feb 2026 02:44:32 -0800 (PST)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Lee Jones <lee@kernel.org>,
 	Rob Herring <robh@kernel.org>,
@@ -76,9 +76,9 @@ Cc: devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-leds@vger.kernel.org,
 	linux-pm@vger.kernel.org
-Subject: [PATCH v2 3/9] dt-bindings: mfd: document ASUS Transformer EC
-Date: Mon,  9 Feb 2026 12:44:01 +0200
-Message-ID: <20260209104407.116426-4-clamor95@gmail.com>
+Subject: [PATCH v2 5/9] input: serio: Add driver for Asus Transformer dock keyboard and touchpad
+Date: Mon,  9 Feb 2026 12:44:03 +0200
+Message-ID: <20260209104407.116426-6-clamor95@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260209104407.116426-1-clamor95@gmail.com>
 References: <20260209104407.116426-1-clamor95@gmail.com>
@@ -88,174 +88,232 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Document embedded controller used in ASUS Transformer device series.
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
+Add input driver for Asus Transformer dock keyboard and touchpad.
+
+Some keys in Asus Dock report keycodes that don't make sense according to
+their position, this patch modifies the incoming data that is sent to
+serio to send proper scancodes.
+
+Co-developed-by: Ion Agorria <ion@agorria.com>
+Signed-off-by: Ion Agorria <ion@agorria.com>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
 ---
- .../devicetree/bindings/mfd/asus,ec.yaml      | 152 ++++++++++++++++++
- 1 file changed, 152 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/asus,ec.yaml
+ drivers/input/serio/Kconfig       |  15 +++
+ drivers/input/serio/Makefile      |   1 +
+ drivers/input/serio/asus-ec-kbc.c | 160 ++++++++++++++++++++++++++++++
+ 3 files changed, 176 insertions(+)
+ create mode 100644 drivers/input/serio/asus-ec-kbc.c
 
-diff --git a/Documentation/devicetree/bindings/mfd/asus,ec.yaml b/Documentation/devicetree/bindings/mfd/asus,ec.yaml
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index c7ef347a4dff..46c4286cd5f6 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -97,6 +97,21 @@ config SERIO_RPCKBD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rpckbd.
+ 
++config SERIO_ASUSEC
++	tristate "Asus Transformer's Dock keyboard and touchpad controller"
++	depends on MFD_ASUSEC
++	help
++	  Say Y here if you want to use the keyboard and/or touchpad on
++	  Asus Transformed's Mobile Dock.
++
++	  For keyboard support you also need atkbd driver.
++
++	  For touchpad support you also need psmouse driver with Elantech
++	  touchpad option enabled.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called asus-ec-kbc.
++
+ config SERIO_AMBAKMI
+ 	tristate "AMBA KMI keyboard controller"
+ 	depends on ARM_AMBA
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index 6d97bad7b844..444e3ea70e37 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -13,6 +13,7 @@ obj-$(CONFIG_SERIO_CT82C710)	+= ct82c710.o
+ obj-$(CONFIG_SERIO_RPCKBD)	+= rpckbd.o
+ obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
+ obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
++obj-$(CONFIG_SERIO_ASUSEC)	+= asus-ec-kbc.o
+ obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
+ obj-$(CONFIG_SERIO_GSCPS2)	+= gscps2.o
+ obj-$(CONFIG_HP_SDC)		+= hp_sdc.o
+diff --git a/drivers/input/serio/asus-ec-kbc.c b/drivers/input/serio/asus-ec-kbc.c
 new file mode 100644
-index 000000000000..1d1a62761b71
+index 000000000000..c03f4721fc33
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/asus,ec.yaml
-@@ -0,0 +1,152 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/asus,ec.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/input/serio/asus-ec-kbc.c
+@@ -0,0 +1,160 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * ASUS EC - keyboard and touchpad
++ */
 +
-+title: ASUS Transformer's Embedded Controller
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/i8042.h>
++#include <linux/mfd/asus-ec.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/serio.h>
 +
-+description:
-+  Several Nuvoton based Embedded Controller attached to an I2C bus,
-+  running a custom ASUS firmware, specific to the Asus Transformer
-+  device series.
++struct asus_ec_kbc_data {
++	struct notifier_block nb;
++	struct asusec_info *ec;
++	struct serio *sdev[2];
++};
 +
-+maintainers:
-+  - Svyatoslav Ryhel <clamor95@gmail.com>
++static int asus_ec_kbc_notify(struct notifier_block *nb,
++			      unsigned long action, void *data_)
++{
++	struct asus_ec_kbc_data *priv = container_of(nb, struct asus_ec_kbc_data, nb);
++	unsigned int port_idx, n;
++	u8 *data = data_;
 +
-+properties:
-+  compatible:
-+    oneOf:
-+      - enum:
-+          - asus,ec-pad  # Pad part of Asus Transformer
-+          - asus,ec-dock # Dock part of Asus Transformer
-+  reg:
-+    maxItems: 1
++	if (action & (ASUSEC_SMI_MASK | ASUSEC_SCI_MASK))
++		return NOTIFY_DONE;
++	else if (action & ASUSEC_AUX_MASK)
++		port_idx = 1;
++	else if (action & (ASUSEC_KBC_MASK | ASUSEC_KEY_MASK))
++		port_idx = 0;
++	else
++		return NOTIFY_DONE;
 +
-+  interrupts:
-+    maxItems: 1
++	n = data[0] - 1;
++	data += 2;
 +
-+  request-gpio:
-+    maxItems: 1
++	/*
++	 * We need to replace these incoming data for keys:
++	 * RIGHT_META Press   0xE0 0x27      -> LEFT_ALT   Press   0x11
++	 * RIGHT_META Release 0xE0 0xF0 0x27 -> LEFT_ALT   Release 0xF0 0x11
++	 * COMPOSE    Press   0xE0 0x2F      -> RIGHT_META Press   0xE0 0x27
++	 * COMPOSE    Release 0xE0 0xF0 0x2F -> RIGHT_META Release 0xE0 0xF0 0x27
++	 */
 +
-+  asus,dockram:
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+    description: I2C device used to access power related functions.
++	if (port_idx == 0 && n >= 2 && data[0] == 0xE0) {
++		if (n == 3 && data[1] == 0xF0) {
++			switch (data[2]) {
++			case 0x27:
++				data[0] = 0xF0;
++				data[1] = 0x11;
++				n = 2;
++				break;
++			case 0x2F:
++				data[2] = 0x27;
++				break;
++			}
++		} else if (n == 2) {
++			switch (data[1]) {
++			case 0x27:
++				data[0] = 0x11;
++				n = 1;
++				break;
++			case 0x2F:
++				data[1] = 0x27;
++				break;
++			}
++		}
++	}
 +
-+  asus,clear-factory-mode:
-+    type: boolean
-+    description: clear Factory Mode bit in EC control register
++	while (n--)
++		serio_interrupt(priv->sdev[port_idx], *data++, 0);
 +
-+  battery:
-+    type: object
-+    $ref: /schemas/power/supply/power-supply.yaml
-+    unevaluatedProperties: false
++	return NOTIFY_OK;
++}
 +
-+    properties:
-+      compatible:
-+        const: asus,ec-battery
++static int asus_ec_serio_write(struct serio *port, unsigned char data)
++{
++	const struct asusec_info *ec = port->port_data;
 +
-+    required:
-+      - compatible
++	return asus_ec_i2c_command(ec, (data << 8) | port->id.extra);
++}
 +
-+  charger:
-+    type: object
-+    $ref: /schemas/power/supply/power-supply.yaml
-+    additionalProperties: false
++static void asus_ec_serio_remove(void *data)
++{
++	serio_unregister_port(data);
++}
 +
-+    properties:
-+      compatible:
-+        const: asus,ec-charger
++static int asus_ec_register_serio(struct platform_device *pdev, int idx,
++				  const char *name, int cmd)
++{
++	struct asus_ec_kbc_data *priv = platform_get_drvdata(pdev);
++	struct i2c_client *parent = to_i2c_client(pdev->dev.parent);
++	struct serio *port = kzalloc(sizeof(*port), GFP_KERNEL);
 +
-+      monitored-battery: true
++	if (!port)
++		return -ENOMEM;
 +
-+    required:
-+      - compatible
++	priv->sdev[idx] = port;
++	port->dev.parent = &pdev->dev;
++	port->id.type = SERIO_8042;
++	port->id.extra = cmd & 0xFF;
++	port->write = asus_ec_serio_write;
++	port->port_data = (void *)priv->ec;
++	snprintf(port->name, sizeof(port->name), "%s %s",
++		 priv->ec->model, name);
++	snprintf(port->phys, sizeof(port->phys), "i2c-%u-%04x/serio%d",
++		 i2c_adapter_id(parent->adapter), parent->addr, idx);
 +
-+  keyboard-ext:
-+    type: object
-+    description: top row of multimedia keys
-+    additionalProperties: false
++	serio_register_port(port);
 +
-+    properties:
-+      compatible:
-+        const: asus,ec-keys
++	return devm_add_action_or_reset(&pdev->dev, asus_ec_serio_remove, port);
++}
 +
-+    required:
-+      - compatible
++static int asus_ec_kbc_probe(struct platform_device *pdev)
++{
++	struct asusec_info *ec = cell_to_ec(pdev);
++	struct asus_ec_kbc_data *priv;
++	int ret;
 +
-+  led:
-+    type: object
-+    additionalProperties: false
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
 +
-+    properties:
-+      compatible:
-+        const: asus,ec-led
++	platform_set_drvdata(pdev, priv);
++	priv->ec = ec;
 +
-+    required:
-+      - compatible
++	ret = asus_ec_register_serio(pdev, 0, "Keyboard", 0);
++	if (ret < 0)
++		return ret;
 +
-+  serio:
-+    type: object
-+    description: keyboard and touchpad
-+    additionalProperties: false
++	ret = asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEND);
++	if (ret < 0)
++		return ret;
 +
-+    properties:
-+      compatible:
-+        const: asus,ec-kbc
++	priv->nb.notifier_call = asus_ec_kbc_notify;
 +
-+    required:
-+      - compatible
++	return devm_asus_ec_register_notifier(pdev, &priv->nb);
++}
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - request-gpio
-+  - asus,dockram
++static const struct of_device_id asus_ec_kbc_match[] = {
++	{ .compatible = "asus,ec-kbc" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, asus_ec_kbc_match);
 +
-+additionalProperties: false
++static struct platform_driver asus_ec_kbc_driver = {
++	.driver = {
++		.name = "asus-ec-kbc",
++		.of_match_table = asus_ec_kbc_match,
++	},
++	.probe = asus_ec_kbc_probe,
++};
++module_platform_driver(asus_ec_kbc_driver);
 +
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      embedded-controller@19 {
-+        compatible = "asus,ec-dock";
-+        reg = <0x19>;
-+
-+        interrupt-parent = <&gpio>;
-+        interrupts = <151 IRQ_TYPE_LEVEL_LOW>;
-+
-+        request-gpio = <&gpio 134 GPIO_ACTIVE_LOW>;
-+        asus,dockram = <&dockram_ec>;
-+
-+        battery {
-+          compatible = "asus,ec-battery";
-+          monitored-battery = <&dock_battery>;
-+        };
-+
-+        charger {
-+          compatible = "asus,ec-charger";
-+          monitored-battery = <&dock_battery>;
-+        };
-+
-+        keyboard-ext {
-+          compatible = "asus,ec-keys";
-+        };
-+
-+        led {
-+          compatible = "asus,ec-led";
-+        };
-+
-+        serio {
-+          compatible = "asus,ec-kbc";
-+        };
-+      };
-+    };
-+...
++MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
++MODULE_DESCRIPTION("ASUS Transformer's Dock keyboard and touchpad controller driver");
++MODULE_LICENSE("GPL");
 -- 
 2.51.0
 

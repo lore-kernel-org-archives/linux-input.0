@@ -1,75 +1,74 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24CEC2DEA90
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 18:20:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A61738F223
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 19:33:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770661257; cv=none; b=al2AWY36yP9iNKNawr56/LdiNIA28l+0eZjXJZlQ5CLVZTZzFXBCIEzQcB4E4FeMlrUyei6ITyGP461NDQOWMf8fCdqXY7psc2k9pXD9qaUTUlDaJy7ZIFkTWKW5INtYqjU4Q1bwBP1kUXFB8rUGHE4db8OPBZZ/zclDs2XAlVk=
+	t=1770665589; cv=none; b=YW2bvkqRvAq+cy/IW3CgibhK2ls2lNvlQGIDnzz/40x+ebh2h0vlZnuddQW7n8YWahai61OEW2mrF9+LpMwdv5UySlvtOJLPYN8uPliq40X9zwGCnftp1931rs0FVn+nX5fS7egUopQLpRqKAjBXorPKRVhd8AtamGso1xwcrB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770661257; c=relaxed/simple;
-	bh=7dN/acDxRQuhaH/mCUZ0BOpdERh0fJXK8ZDUnBKwDD8=;
+	s=arc-20240116; t=1770665589; c=relaxed/simple;
+	bh=y4/WL8DraOGgFsWhKFSg+J7rQqnclmJ+j8KLygZoKww=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cyi+6XigYCQrpenkuvm8W6ktU2dk528lqh8X9A6A98mCt6PlYH9AYXJiuoU/wZ2877P+VuGCp11rs5N7lBRTlpJLKneTQnj0Vh6JjCzB0XIrmMtPc9ufr1vdsMIbhqRFwiTeBGvEuetc9uVYWefbozWgP3b07Y/b8OoqZI7GsZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=igYgjF/V; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=axE09XhxqeA3fiv4q/EWzh9C4yIt01VgU68uBf4MT0Af2cEUBasUdV5ar+Zku+5c1lX6xdHP6+f7zcYg4YqgvoSC3dAFYs6wfDl8Aq4WZ3GGYZpzf7YHecrQsJRxCsDwI/nR/0CSU0ueSpH5HSbF0v68wZJFTqH3aY5ALGJVYEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Ob8b76U+; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="igYgjF/V"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2ba73c4fa5eso20581eec.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 10:20:57 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Ob8b76U+"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4806ce0f97bso852305e9.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 11:33:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770661256; x=1771266056; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1770665588; x=1771270388; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zSV3vsUg8E13DVBRTy1EKOAg5TL6exZt8xqnFEN40xk=;
-        b=igYgjF/VgJy9yAqsvDSX5ywe6w2XT2oJ9hrZMGhkkfDa6FnqXlQoIkX8uDqgv7k8Xj
-         O147tEC4utu6eHENKXDi8jYI//EINQ+13iA9vUPXZ28ZgUX3Tf/BEaVE0VsZ15aXwL5/
-         yfnOAtc7jUVp6gxqRRjfsQFfMXB4o5tYE340Zl9XUKrJk4O0qvSK98bwCrEqqt4QkSkr
-         Jo2cVHygQEsdy37CK6j50A6i5FJ4yABmQ1Q7+sRFrUWbo/JKOxNZqOcJLPBCaqD1n1wF
-         Yrf5C55tJS6PyHPypA/8lySBNS2xbvGDWimqZ6HI7TfkOLhGkEhdc9FTnqTsIFYYd5az
-         mKtA==
+        bh=bQq96nnOOaZZumZQZN40bit2z1YPrLWrmhauKMPeMdY=;
+        b=Ob8b76U+poby8/iYxLJrSdwBjM1q4u9PLBHnDRDcbvyDFDO3G9p1heRBWp8gEgB64N
+         SOpPfF3Yxjdd1auVXLe9pqxIF3WIMZg+HXVzXa3pul96H71OH6VaR8dRXk6RwdLjaNVo
+         Sfwxt2tBCvBAIgoILmiFjb7O+IuGUC/wYiCik=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770661256; x=1771266056;
+        d=1e100.net; s=20230601; t=1770665588; x=1771270388;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zSV3vsUg8E13DVBRTy1EKOAg5TL6exZt8xqnFEN40xk=;
-        b=VE49szfojS0ixAn+4Sue/G6VKhU43ZO5nxyzhaBp0MFFZd9MNP3fxEF35njurKVxco
-         aeOooMxC+lDZHB8+mum1ESPLWasPTrqPV7q5W5vLcOgj/32lhXp0LmfbSEXMpfpD90Dt
-         qanyzKC5/W3OMbfvEcn7H4JawRet6BwHdwmLWB02eSvS/vsadLaaf294LGjQ0aeXZXJH
-         3hMOYwzl8XKwDD+YEJ7r3ieTJnbTjKR2wO+cInSz80JlDmjbjcDET2eWaipsrTF3tRvb
-         9CoQw8IWjCwpssps/HgDiOD2da30yF/m2rgyCUF/Mfe3XXOB/A95ugTPR+Xs7gj9Vlwj
-         r8tA==
-X-Forwarded-Encrypted: i=1; AJvYcCVpS6okXuP8ye1Kf7nEGf64Z880lAX6UVC7rvPuSv1BA98qAgKL6V7ybvmZ/M/70xJ+AEc0rt6jDwxZ8w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGPBjqxEPhLIBC4gq5v3JYqdYzWToy0rseUXrwWra4AvCjeF8J
-	gfDaHxY6KAjZbm54kPzeKkBD5uBpYoRPiIA79WlkEZEIkNYT4DmA5rIa
-X-Gm-Gg: AZuq6aLrrIHVLupy+UBCueRoBNQEkQ/NQBuGsXln2TYYkZA47Zq4/RhT9CrxZ6FCdnM
-	uOo2FPAH3u63EstadtRbkyuY8D6j2J2mNBX9yav2mePygTSKPgVY+k/B+V3shjoZhhV6o+zYSqS
-	2ftUm30O7V6dhVIyQeqiIu1uKP7T2ZAcgnOzAtK3x1TAbE9wl9ccGLNEsJ5OkifF2csrao1gJoT
-	hcuEuE2jCwERLK5ce52EmckPtYlRTlh9aebM2d67XgzNykprMzZfd7TMPLwvHN610klCH+TMAec
-	8w76nEMD1M0m0YZQFUucNVthW2kTLSMbgkCZsaXzmpdlBJsAuqrwkoun9HHU9f73fSS2aFJeKbE
-	tOstnOEfItIXV6AjVwlwJ/MJ0iw0GEc/IV74HdqdBNanbvlSNgQTTLljIlLUz/rA4KeCFVF7lTX
-	J/4qc4DBiH0Hnw6ufgT2AtcfBvuBOyHU0IjMGjo6Xgj7Fbbz9wZQs3
-X-Received: by 2002:a05:7300:e207:b0:2ba:7ed9:1566 with SMTP id 5a478bee46e88-2ba7ed91857mr794184eec.25.1770661256115;
-        Mon, 09 Feb 2026 10:20:56 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:616e:78a2:cc03:4be3])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b95505b8d2sm4714919eec.6.2026.02.09.10.20.55
+        bh=bQq96nnOOaZZumZQZN40bit2z1YPrLWrmhauKMPeMdY=;
+        b=CoIeSrJPweyrYoC0cHKnqHL6Z2OtbYF9TsY2IE19miGB2z1st44OCazcmZ/+g9modb
+         KerPsRAxzAf6Ukpwcp1dPYE1OoOx/hja9imbjWnqCOaLBiQg0TbuiLETLXGxXu13DScG
+         OUPht48bQp4Oqa/voPOGozYU6jANps7BbHr3C29fhdTDkcYO6MFAhta16TY5PLApJYnd
+         X8mBZuCrn1XtaPWArNGOJghTe9UCJ3g42kDK6yRS6h0zp+8R+kuZOGqiYEUy7LpNwK8O
+         xZvT6v5tbbFFpErbUo+FZ1cNZLnsDkKd2AtVJ+usor2s/sg5xcUCgOUMIQRRdOEqIW/u
+         Opfg==
+X-Forwarded-Encrypted: i=1; AJvYcCVTQToetf6hbK9bnsuTy3MjurjWhoVJl+enTkTn/ewXl42spVOKv212+RLhfFNDQJgQYt7qrggChjtenQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfiAUU7ALKW0L0AUAY9AqFnQJ8m0ug4WXIbfAGkxBanKororog
+	gSikjnRth+4fACvlUciXBNHqf9LRtBnTUTnXO1WPZyfsjO6eFKZymSj0tWQtTMXBCcqV61iXoME
+	XoSA=
+X-Gm-Gg: AZuq6aJovuUpvB6ii5gqF0nSMxK1qrPTLxeCRrXPqqM37eH+RTZSlKucv8ulMl3rar8
+	cTdOcyy0OiMcYVPiwedztWWbvZ2YhvfGzNgQ7PUmvg0AUjcJ2XrAhmWE0KXn+9TgZfArQeUBQXI
+	eajK4SKYjpDGIliQ4XjyrDnnTjAJ4GxGrZIcoQnpxawFb5RrecTJXqt0vnkDjoeVuEe/MeLnbQc
+	Mn4a9OngLr5uYt2soJvYWTj80T+nR7ST4aQW8dtJOdz+VvdUBcUcYjzB6i6Q6RjoTSFCZaMXqYF
+	TUn9hvIyRu+7nCZ0ieehTMovfzXpaATp0IKFpXSJhN4WYR9uJhFjm++G/4ZlAQImP8Yimj562fE
+	r4A4x33XWmN5Ja3WW7t0jJx6LRjX1fvhXy4N5AF86Is2b4rBFsTAGc/cmAglpl++hRVaBz7PzzW
+	U+q14fK7TlB3NdpHRCtw==
+X-Received: by 2002:a05:600c:3b23:b0:47f:8c05:786b with SMTP id 5b1f17b1804b1-4832021eae9mr177212155e9.28.1770665587652;
+        Mon, 09 Feb 2026 11:33:07 -0800 (PST)
+Received: from google.com ([37.228.206.31])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4834d5d77f9sm9355785e9.3.2026.02.09.11.33.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Feb 2026 10:20:55 -0800 (PST)
-Date: Mon, 9 Feb 2026 10:20:52 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Fabio Baltieri <fabiobaltieri@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>, 
-	Guenter Roeck <groeck@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
-	Simon Glass <sjg@chromium.org>, linux-input@vger.kernel.org, chrome-platform@lists.linux.dev, 
+        Mon, 09 Feb 2026 11:33:07 -0800 (PST)
+Date: Mon, 9 Feb 2026 19:33:05 +0000
+From: Fabio Baltieri <fabiobaltieri@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>, Simon Glass <sjg@chromium.org>,
+	linux-input@vger.kernel.org, chrome-platform@lists.linux.dev,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v5 1/1] Input: cros_ec_keyb - add function key support
-Message-ID: <aYoZEztHrIx5CzwQ@google.com>
+Message-ID: <aYo2cYhd-XCcLa43@google.com>
 References: <20260112093309.240905-1-fabiobaltieri@chromium.org>
  <20260112093309.240905-2-fabiobaltieri@chromium.org>
  <aYYTgxi0mcPVgpTr@google.com>
  <aYoBTEgrirtcW96F@google.com>
+ <aYoZEztHrIx5CzwQ@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,29 +77,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aYoBTEgrirtcW96F@google.com>
+In-Reply-To: <aYoZEztHrIx5CzwQ@google.com>
 
-On Mon, Feb 09, 2026 at 03:46:20PM +0000, Fabio Baltieri wrote:
-> On Fri, Feb 06, 2026 at 08:25:14AM -0800, Dmitry Torokhov wrote:
+On Mon, Feb 09, 2026 at 10:20:52AM -0800, Dmitry Torokhov wrote:
+> On Mon, Feb 09, 2026 at 03:46:20PM +0000, Fabio Baltieri wrote:
+> > On Fri, Feb 06, 2026 at 08:25:14AM -0800, Dmitry Torokhov wrote:
+> > > 
+> > > I do not believe this flag is needed. Always do FN processing. If there
+> > > is no FN in the keymap it should work just fine.
 > > 
-> > I do not believe this flag is needed. Always do FN processing. If there
-> > is no FN in the keymap it should work just fine.
+> > The problem is that if there is an Fn key and a keymap, hence we process
+> > the Fn keys in the kernel, then we don't send the Fn events, but we
+> > currently have devices deployed with an Fn key where the key is handled
+> > by the userspace and they expect KEY_FN events to be emitted, so if I
+> > let the "fn keymap" logic kick in it unconditionally it would cause a
+> > regression for existing devices.
 > 
-> The problem is that if there is an Fn key and a keymap, hence we process
-> the Fn keys in the kernel, then we don't send the Fn events, but we
-> currently have devices deployed with an Fn key where the key is handled
-> by the userspace and they expect KEY_FN events to be emitted, so if I
-> let the "fn keymap" logic kick in it unconditionally it would cause a
-> regression for existing devices.
+> Hmm, I see. Then I think we really need to have it as a device property,
+> because keymap can be manipulated at runtime, so depending on it to
+> switch processing seems weird.
+> 
+> It is like autorepeat, either device configuration asks for it, or it
+> does not...
 
-Hmm, I see. Then I think we really need to have it as a device property,
-because keymap can be manipulated at runtime, so depending on it to
-switch processing seems weird.
+Ok, the DT folks were fairly explicit about not wanting anything that
+even remotely looks like configuration into dt. Right now the behavior
+changes based on what's in the keymap, which I think is fine.
 
-It is like autorepeat, either device configuration asks for it, or it
-does not...
+I see the keymap can be manipulated in runtime but then I guess I could
+just install a custom hook to idev->setkeycode, recompute
+cros_ec_keyb_has_fn_map() and then call input_default_getkeycode()?
+I'd have to make that function public but then it'd automatically change
+the behavior in runtime as keycodes are defined/undefined.
 
-Thanks.
-
--- 
-Dmitry
+Would that be acceptable?

@@ -1,119 +1,131 @@
-Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8077366560
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 10:14:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770632073; cv=pass; b=WC/CrC/q0S7mzZSFbBk5S8MiTGlCGpfyXsgbZnyf/3SZUh3lXwG0INE4rlmzUQsoJGwqE6ZwOiZ1Bh/v5jJ1K3vTjrDhbGTPAZZ6HQnmNDcXGgNrq/+D6crSQBZAyMiFUrDSvwD9OdH7aUlmkc8NnIa8QxKITfsHv9Npo5dFKaM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770632073; c=relaxed/simple;
-	bh=kClSk77qiTsJp9L+J6Iog6IbuS5PvFeW0j5zjPpnia0=;
-	h=From:MIME-Version:Date:Message-ID:Subject:To:Content-Type; b=Pifeb6QGA0Ahuf4qxsE6PmQF9DyGR60cnZAlih5/5DEgmk5kcrUAIPfiHo3ZStJy7PAiahukmRq5p/NWO2B122h7NcsMAkI6iykPLhlW8b2PGwHJ6PSV9UCTxlzcfdtQD5QozIR/JawhkefRwVm+xRrrrZUWetNBe2Hy9Em88H0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zenjobsupport.com; spf=pass smtp.mailfrom=zenjobsupport.com; dkim=pass (2048-bit key) header.d=zenjobsupport.com header.i=@zenjobsupport.com header.b=jZhuhLvJ; arc=pass smtp.client-ip=74.125.224.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zenjobsupport.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zenjobsupport.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C688B30F547;
+	Mon,  9 Feb 2026 10:27:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770632842; cv=none; b=vB1DM6Y4hEMlFf0PshWbU+dfWUHwPzqzcWu2u5T5gKGTuEyiEraFl6NsBgKdkDkY6iAKxiq+XmrhCdzoUmFYhtIZKsLptpN90SobAG9r+Ys5awK7aXtjablnh6jJrDTn7mpHnazdDGdBUkcijVlETgrda86P4pRFcdz7bfDBxdM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770632842; c=relaxed/simple;
+	bh=axW5o0CFgkUka//n5ayjtkSdMCBB2Hxzwp4k8PHtCJY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fx4uUVaV4qFmf4vWHA/98MULWsgrUVMtghJXv7SNj6CHtxVFVTQjL7BmqBTQRFjeeO7lhrVieS7244vzPwuENp0OsK5+ao5p+lZjxAfU8OneF/Bo6toZ3cV3BPegs0+b6sTDmZPKvE+LrJwjVw8hR6LTxpVGJFcvJ/QXgn3pbf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=APhh0VzB; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zenjobsupport.com header.i=@zenjobsupport.com header.b="jZhuhLvJ"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-649ddc91c05so490409d50.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 02:14:32 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770632071; cv=none;
-        d=google.com; s=arc-20240605;
-        b=FP+OuJ+XKnskLdgQxbisduca2wAVFYPyXr28LGnbMxWascJidQof3hMjFaedwXBrJT
-         L7aw7JiM1uKhCjynLrnT0jAVzZq+F/rGlMpm8UHhkMbgrUqDQmjIIt4XKnUqIIB4EeYT
-         7jaywSnKaKyDpSH5ZoHaNCLuTbGIIcNFRdvs95hgeJNdduwwUTefTy0PSpfGjEXogbAj
-         TPYQfjLKQkIQ9qU+TqWrJA9qyps3QPsqtF+++trG0W3KlCm/oSsxaYn250nCVvEx5xfb
-         kok/l63vUf7dk35CZJ5lMqviD2WPOrKYGwPPq43SB8Jgs7p+KZOhmusoY17Ta1dHXDWW
-         QOXQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:to:subject:message-id:date:mime-version
-         :from:dkim-signature;
-        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
-        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
-        b=KRH2GrXaE/8u+O4B0cdP7I4NGNSbYoFoFus3L9c7NDKlX4LXEDpjLEZ7kuj3wXGx4b
-         rh7fVGNPYi98Sd9Xm4nie6V4iep1BuNVHACM8n1vNxVD/IvCzC034bnk8t/jx+DyTFTl
-         0qoHsH3f4xCAxwFAP1ZMCzndCK6OAd5HLTMNOEcSZlwT7qabAw1HwB2CZq0G+8hPk2Fq
-         s+z0xvnEvEWfE523lnSXL1g0FqXqhk2F+BUNKPxU7pmAncIm+NKDd0pqux1Tm3LBsnH5
-         K9ajaOHjLVAt6NhuK1kWxU7rOQ5MjWXItTF5XeARf9II9EdfSDxDro0vgHmAbzWd+cc9
-         I6sg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=zenjobsupport.com; s=google; t=1770632071; x=1771236871; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:mime-version
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
-        b=jZhuhLvJDoIkkybyKicCpI/tvOnsW6q7G1DoCAJGHpfE5aFe2G4Q/WA/KY/6W4pDI1
-         X615xdpqJYyNOPozFDgnhSNNTpLuQ58Xukn9D/3JgTsDU/GNZe9USmeP3VtSwzm577em
-         18ee/JxU5sRg9/b4Sr25y+Yw3VhMQnVqoQgxf67aH2j6pPp5ZzMC78ApHvfxweJ26GBH
-         w+E3erw9X/SO9FcBFLA4xx9bbApbF0FgSnKhwbaQ4lH01y/5Mekr4hVtNX3JTsP3jlGH
-         rh4INvpZEtckl5UYUb327Tm6iCKT+ui07JaKB/gLOsB6venEF7o/9Lj5jeGC8vN45iQR
-         SKDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770632071; x=1771236871;
-        h=content-transfer-encoding:to:subject:message-id:date:mime-version
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
-        b=Fwppr1qEMoTHWll3ZGMK5gD307sKrhmG0yFZWkgy6WAbDFb9n9qnDzR4gHdDtz3HQC
-         k1/5eoauMufLZCzFxtDJqYyfCdBaP9JRi3TRUkAGa+aucaSjstkgJMSoEXRzb4uimM5c
-         /BhlqW8fqurFao26baTzDEjAhxWiyt4GcqSPyzzFZWJq3YeY7VXVSdYuS4Er8kVw/3nK
-         l7Fd2lTYns2oQ1s+5OZZqMlzcggSF5UXKRH2fdzy6TYx3bY/5Tpj/pRNt2OxCAaTuXol
-         61x6rXvQzLvX6uqZOyCN3BGGHuJJihh0bZvt9fS1/gB9YoHSnO4/QZeBdaBvYgyChWYr
-         75CQ==
-X-Gm-Message-State: AOJu0YxLznhbTVBUENTT+A+ssbvs7erACvqUFnHziayDkkPGOXL1euUs
-	mX6a0JC+dQjXQeu/+BcOoe+MRaXASGPTjacPG3M74w1CIOvpXgCrU/JmEHpAxzgnYgpHxN5vXIS
-	2JBTr3+zrPyOfdEtMdThxzLQ63Ykp8LjerQwuqL9zaAc5eQQAkIWzqA==
-X-Gm-Gg: AZuq6aKDhy0ErWpqDeZBeVQ7ymVDX9tY7MDmJaQunUy4cX7cYwLiMKuKMYZSb75CCdI
-	YMiZQMRwjX/5w6HZptV7FsZ5Cwf8a4Dm0o6cbq7umpj0fpC5rv8duegbSakTLp5v5TLEfeLoodi
-	WuGqavb6XsuZxnj/imL2/iP5ZLEnCxI3SjfNvJl/ys20YolFZb0naK8iEh81De+4zQ+34QXaJPZ
-	qdFpVcd6S65TAXr/0P5Ky6kin72az0aJxTPao4TBVeMr1luoGJ3lIudSOmOZquGh/9MmUDxxNOd
-	wzPzmtnh
-X-Received: by 2002:a05:690e:d84:b0:649:d59f:dcca with SMTP id
- 956f58d0204a3-649f219d385mr8494228d50.5.1770632071612; Mon, 09 Feb 2026
- 02:14:31 -0800 (PST)
-Received: from 457773911160 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 9 Feb 2026 02:14:31 -0800
-Received: from 457773911160 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 9 Feb 2026 02:14:31 -0800
-From: Philip Schiele <philip.schiele@zenjobsupport.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="APhh0VzB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770632842; x=1802168842;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=axW5o0CFgkUka//n5ayjtkSdMCBB2Hxzwp4k8PHtCJY=;
+  b=APhh0VzBlQvjyXOGaDRlrmbPLACJbiOSkPbfWLJog6HmtTUBIgSO4hOg
+   6l7kNf5ujhxuU3TiL4TXc+xelqr6UF2S+Wm/a4DRFMwTnK8saYr4/Q8/u
+   wKvw7pzmmVvKgT8PMCycTRzczxiFqhT+kQOawvLBMlanTr4ok8WX+zxpb
+   OcbVRg9TDzDFuQbXygNjh5gL+fpMUFVFmNQQihwwy8QCeMqVnYd48699f
+   7lnCh094770YSR8YHEqi/npReJpxDqoNaO4wS3fdfnbEn25UeLiSFnQrM
+   iXICQOqHQkB7cn4Y9cKA7Lf5T2u9o247VWRFavskaC5fbHRqcNv9RL+4L
+   Q==;
+X-CSE-ConnectionGUID: ZAo4UzAVQzmOgM1n8DZIig==
+X-CSE-MsgGUID: KjUMv5tUQummR1Zgquf74Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11695"; a="82066737"
+X-IronPort-AV: E=Sophos;i="6.21,282,1763452800"; 
+   d="scan'208";a="82066737"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Feb 2026 02:27:22 -0800
+X-CSE-ConnectionGUID: sl/BX6jrTreG1ZNelHJi+A==
+X-CSE-MsgGUID: 9Cg4MpnSQS+VIg1qDpsuRA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,282,1763452800"; 
+   d="scan'208";a="210732598"
+Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.128])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Feb 2026 02:27:16 -0800
+Date: Mon, 9 Feb 2026 12:27:14 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Dixit Parmar <dixitparmar19@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Subject: Re: [PATCH v2 10/11] mfd: motorola-cpcap: diverge configuration
+ per-board
+Message-ID: <aYm2gm6PlKO2ODll@smile.fi.intel.com>
+References: <20260206172845.145407-1-clamor95@gmail.com>
+ <20260206172845.145407-11-clamor95@gmail.com>
+ <aYiHnUW93AB0ARJH@smile.fi.intel.com>
+ <D8B3E97F-3405-4EBD-882D-677F530E4EDB@gmail.com>
+ <aYmYcd0431P5sUtq@smile.fi.intel.com>
+ <5AA39777-F5C8-4AD5-A5C2-47265C8213F5@gmail.com>
+ <aYmg_7uq2rAWJgGK@smile.fi.intel.com>
+ <CAPVz0n0+UxdocZdLtqPz=5m5RMV_K2Ldqsf53-13hUiLpV6c6A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 9 Feb 2026 02:14:31 -0800
-X-Gm-Features: AZwV_Qh7xLLk6grrdbv5w95zmmP0NAgfXySal-Hi2oYHJqdblCotSJhjqIRZbHA
-Message-ID: <CAEtsEQ4McTyQ7fzCW_yxmg19C5Tgg01ukQV4itr0imKppgkGQQ@mail.gmail.com>
-Subject: =?UTF-8?Q?AW=3A_Data_Modul_Personalengp=C3=A4sse_l=C3=B6sen?=
-To: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPVz0n0+UxdocZdLtqPz=5m5RMV_K2Ldqsf53-13hUiLpV6c6A@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Betreff: AW: Data Modul Personalengp=C3=A4sse l=C3=B6sen
+On Mon, Feb 09, 2026 at 11:06:54AM +0200, Svyatoslav Ryhel wrote:
+> пн, 9 лют. 2026 р. о 10:55 Andy Shevchenko <andriy.shevchenko@intel.com> пише:
+> > On Mon, Feb 09, 2026 at 10:42:02AM +0200, Svyatoslav Ryhel wrote:
+> > > 9 лютого 2026 р. 10:18:57 GMT+02:00, Andy Shevchenko <andriy.shevchenko@intel.com> пише:
+> > > >On Sun, Feb 08, 2026 at 05:19:49PM +0200, Svyatoslav Ryhel wrote:
+> > > >> 8 лютого 2026 р. 14:54:53 GMT+02:00, Andy Shevchenko <andriy.shevchenko@intel.com> пише:
+> > > >> >On Fri, Feb 06, 2026 at 07:28:44PM +0200, Svyatoslav Ryhel wrote:
 
-Sehr geehrtes Data Modul Team,
+...
 
-ich hatte Ihnen k=C3=BCrzlich bez=C3=BCglich flexibler Logistik-Aushilfen
-geschrieben und vermute, dass meine Nachricht m=C3=B6glicherweise
-untergegangen ist.
+> > > >> And please, may you contain all your reviewing in one iteration. Then both of
+> > > >> us will spend less time working on the patch. Thank you!
+> > > >
+> > > >It's an impossible request, you should understand that. If you want, use AI
+> > > >or your robot colleagues for that, I'm just a human being, I can't see
+> > > >everything at once.
+> > >
+> > > Ability to see only nits and don't see the possible issues seems to be a talent.
+> >
+> > Paying respect to the reviewers requires some talent, indeed.
 
-Wir bei Zenjob erm=C3=B6glichen es Unternehmen, Personalengp=C3=A4sse in de=
-r
-Logistik deutschlandweit innerhalb von 24 Stunden ohne Fixkosten zu
-=C3=BCberbr=C3=BCcken.
+...
 
-Ich bin =C3=BCberzeugt, dass diese Flexibilit=C3=A4t f=C3=BCr Ihr Unternehm=
-en
-wertvoll sein k=C3=B6nnte.
+> > Also, train your logic a bit, why do humans have so many professions? According
+> > to your "logic" one should be a doctor and a cook and a programmer. Why not?
+> >
+> > Or even closer to this case, a doctor must be a surgeon, a dentist, a therapist,
+> > and you name it. Why not?
+> 
+> If seems that my expectations were too high. Apologies, my mistake. I
+> will keep in mind to spare you from wasting your time on reviewing my
+> patches in the future.
 
-Lassen Sie uns Ihre Personaldecke stabilisieren, starten Sie jetzt
-ohne Fixkosten.
+Yeah, I agree, I think the AI approach to your excellent and mistake-less code
+can be applied with a better outcome.
 
-Beste Gr=C3=BC=C3=9Fe,
-Philip
+...
 
-Philip  Schiele =E2=80=94 Sales Development Representative
-ZENJOB
-www.zenjob.com | +49302089860400
+Currently your code needs some work, sorry.
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+

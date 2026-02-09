@@ -1,99 +1,119 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 856153644BE
-	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 10:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770631566; cv=none; b=G4d0s1Rb2ITXPMpMYnREuVy8yC9KxYMwfgIxC35khA0zNOLl6Vx4TMxZbGbVbagNk64r2mcOBj8HnRovUNHf91+CKiJZU967YGHVEez5WEhrmQvMMi5NWqOv0SP7afCuqYVoEl77cBCHHGwQdDZWjO4a45Lmt+J1OGvRvDl08BY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770631566; c=relaxed/simple;
-	bh=ktBNYdWzXN/A1xozDS+kqmFY3+NPo2micQEXYdF9S7Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NEoV8Vt0D45iBsdHtnwlmACpBx7W6i2Iv0bfEygvueiNU0iSRBFSz5IUaIo5mJVo7aZe1IN0woeujZ0whED07Azw5fA5GbP8tnc1t917K1rzSSPO/llbhu0PWk3tVG16ttnoU01k3Hjj9c5Acgu6lTwoxQce8T+dSW5+fTqrZ88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=IcuAGmbD; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8077366560
+	for <linux-input@vger.kernel.org>; Mon,  9 Feb 2026 10:14:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770632073; cv=pass; b=WC/CrC/q0S7mzZSFbBk5S8MiTGlCGpfyXsgbZnyf/3SZUh3lXwG0INE4rlmzUQsoJGwqE6ZwOiZ1Bh/v5jJ1K3vTjrDhbGTPAZZ6HQnmNDcXGgNrq/+D6crSQBZAyMiFUrDSvwD9OdH7aUlmkc8NnIa8QxKITfsHv9Npo5dFKaM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770632073; c=relaxed/simple;
+	bh=kClSk77qiTsJp9L+J6Iog6IbuS5PvFeW0j5zjPpnia0=;
+	h=From:MIME-Version:Date:Message-ID:Subject:To:Content-Type; b=Pifeb6QGA0Ahuf4qxsE6PmQF9DyGR60cnZAlih5/5DEgmk5kcrUAIPfiHo3ZStJy7PAiahukmRq5p/NWO2B122h7NcsMAkI6iykPLhlW8b2PGwHJ6PSV9UCTxlzcfdtQD5QozIR/JawhkefRwVm+xRrrrZUWetNBe2Hy9Em88H0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zenjobsupport.com; spf=pass smtp.mailfrom=zenjobsupport.com; dkim=pass (2048-bit key) header.d=zenjobsupport.com header.i=@zenjobsupport.com header.b=jZhuhLvJ; arc=pass smtp.client-ip=74.125.224.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=zenjobsupport.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zenjobsupport.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="IcuAGmbD"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4806bf39419so32420655e9.1
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 02:06:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=zenjobsupport.com header.i=@zenjobsupport.com header.b="jZhuhLvJ"
+Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-649ddc91c05so490409d50.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 02:14:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770632071; cv=none;
+        d=google.com; s=arc-20240605;
+        b=FP+OuJ+XKnskLdgQxbisduca2wAVFYPyXr28LGnbMxWascJidQof3hMjFaedwXBrJT
+         L7aw7JiM1uKhCjynLrnT0jAVzZq+F/rGlMpm8UHhkMbgrUqDQmjIIt4XKnUqIIB4EeYT
+         7jaywSnKaKyDpSH5ZoHaNCLuTbGIIcNFRdvs95hgeJNdduwwUTefTy0PSpfGjEXogbAj
+         TPYQfjLKQkIQ9qU+TqWrJA9qyps3QPsqtF+++trG0W3KlCm/oSsxaYn250nCVvEx5xfb
+         kok/l63vUf7dk35CZJ5lMqviD2WPOrKYGwPPq43SB8Jgs7p+KZOhmusoY17Ta1dHXDWW
+         QOXQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:to:subject:message-id:date:mime-version
+         :from:dkim-signature;
+        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
+        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
+        b=KRH2GrXaE/8u+O4B0cdP7I4NGNSbYoFoFus3L9c7NDKlX4LXEDpjLEZ7kuj3wXGx4b
+         rh7fVGNPYi98Sd9Xm4nie6V4iep1BuNVHACM8n1vNxVD/IvCzC034bnk8t/jx+DyTFTl
+         0qoHsH3f4xCAxwFAP1ZMCzndCK6OAd5HLTMNOEcSZlwT7qabAw1HwB2CZq0G+8hPk2Fq
+         s+z0xvnEvEWfE523lnSXL1g0FqXqhk2F+BUNKPxU7pmAncIm+NKDd0pqux1Tm3LBsnH5
+         K9ajaOHjLVAt6NhuK1kWxU7rOQ5MjWXItTF5XeARf9II9EdfSDxDro0vgHmAbzWd+cc9
+         I6sg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1770631565; x=1771236365; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=B0dLY4trYV5gv/wnMZ8s2klnMyNr2VH+hAlexQTTgvs=;
-        b=IcuAGmbDN/gBC52KKRldzTIESjgxjAP7na8w2ce9YVT84Ofj/GVC0y9z3BDD/RoMmA
-         HypthDf0qmnlhSY9KeekcgSvjSwYxYGA/Z1qbCjfWtPw8vcrdsZy0v00et7VnjE7QkTC
-         EbKz/S76n/j2QuvNKG/oIqt+iQb/9KaL0pHmpKTG5bG0ChMdN6Sn4Fq22YErCAA+iNh1
-         Key9yhG/uWiVNIZvdQarggp7u+wTfK+Uc12jx93IzN+QUUom4UWGuTqRqVBZekpB4Oox
-         mJoLsvhXq9ZNQLjYWSq0h8rTgulZxuH2GLgZGEKgpImlBpS0jMUdGp+feckZlI/279y8
-         0SYg==
+        d=zenjobsupport.com; s=google; t=1770632071; x=1771236871; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:mime-version
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
+        b=jZhuhLvJDoIkkybyKicCpI/tvOnsW6q7G1DoCAJGHpfE5aFe2G4Q/WA/KY/6W4pDI1
+         X615xdpqJYyNOPozFDgnhSNNTpLuQ58Xukn9D/3JgTsDU/GNZe9USmeP3VtSwzm577em
+         18ee/JxU5sRg9/b4Sr25y+Yw3VhMQnVqoQgxf67aH2j6pPp5ZzMC78ApHvfxweJ26GBH
+         w+E3erw9X/SO9FcBFLA4xx9bbApbF0FgSnKhwbaQ4lH01y/5Mekr4hVtNX3JTsP3jlGH
+         rh4INvpZEtckl5UYUb327Tm6iCKT+ui07JaKB/gLOsB6venEF7o/9Lj5jeGC8vN45iQR
+         SKDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770631565; x=1771236365;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1770632071; x=1771236871;
+        h=content-transfer-encoding:to:subject:message-id:date:mime-version
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=B0dLY4trYV5gv/wnMZ8s2klnMyNr2VH+hAlexQTTgvs=;
-        b=DrEN4x+xF5Ci1zFR6bSPQt/dYezcwppkmiZQgPxFKP8J9ss62JXSUAGFn1z3H7AOgx
-         MMmP4aXSSJfqhAuCGvfdMgkzYxZo6XNP0L8cJuR/gQ9rrIp//W4kLazrlJZxyjd+9q01
-         +40lReNEKybBJ39/EBU9aPYzTKN/Isa0V6RVJoSNMnho7VEQtOXtwCJYBxKzaqIFIuLc
-         e/2CYfaE338T5UP78JUWqdnIlo1wjqXPsUw1SKcUTqO56I96iJ2GcSwzO2wfsXYJylYP
-         aOaOfkxTxSC+elxR1jgFgcKpzRjgop6UG2K02xsVZU/nr2z7Wx0ub8oTAcCpPhdZ8rgO
-         iPbg==
-X-Forwarded-Encrypted: i=1; AJvYcCUzYXVv0IAOSddHOeUga/M4f4DAqU/QG6J9qkk3xTn7MChAS04jZE+btagEe4Nsyko+kbQrLT1BwNHFRA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywj83bcMm/K7i6tvFBvZ7SdELUFA/SDKL5F51BwPBrnypCAsvZp
-	XAPTbdEApzZxk57miaSGmXaNtxVxcAX4BMtcXionUcfo41qMNHxVaCO/VbiNJtsTgfw=
-X-Gm-Gg: AZuq6aKk+e0ONTsg8zSBbc0ge+1haf9VZxv1jYx8M6IoCcqpEEw8XDPZISisWpg7MUR
-	Apg5Y6GkX907Yq2VGUL93azu7VZfWTb8+DcmRrGE7LUp7Rm4LUMfeMdhanFlPsCXTa+O39t07gA
-	uNZl7yQyZPVrC/Bdug87UoMmW3dQRaM6TLMTrVvqHxRPlDqfWs3UrdcmVVoGSrUFPvywjXsjqn/
-	02ShuxSH1iJ/7keix33HSwQmMrUa9Kbwp5fdPi00wsmqogil0FGtlPg3zJ24brqXRHK3VtrRSKA
-	1ySVoXpvvVuhdaQ/qsc3dFXce/5EtF+IM++YOM5c/lWhzfudGWeePRI01n3uiMyZXvyftFQi4qF
-	8vWyr0jshkqXy/YyNPUUEll+zYw33D7cxDurgRBDsKsivH0vicxVnuLdKZvIPoadcDeVYao+fwv
-	JLwjAX6Ls1KuzjvhVKhm1DiTtvYoR8AbaKUrVs+3tSBMn9bNG/ZWRL
-X-Received: by 2002:a05:600c:5884:b0:47e:e97e:11aa with SMTP id 5b1f17b1804b1-483178e11bcmr154203285e9.4.1770631564829;
-        Mon, 09 Feb 2026 02:06:04 -0800 (PST)
-Received: from ?IPV6:2001:a61:1376:df01:e943:d12:a8fb:e1d7? ([2001:a61:1376:df01:e943:d12:a8fb:e1d7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4832096f127sm118531335e9.6.2026.02.09.02.06.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Feb 2026 02:06:04 -0800 (PST)
-Message-ID: <a31763aa-77af-4e13-8708-b007ed53277c@suse.com>
-Date: Mon, 9 Feb 2026 11:06:03 +0100
+        bh=YYv8eX38Hsj7FjS2XJwJVURAUdsLVeyRejiGjA4c6Z8=;
+        b=Fwppr1qEMoTHWll3ZGMK5gD307sKrhmG0yFZWkgy6WAbDFb9n9qnDzR4gHdDtz3HQC
+         k1/5eoauMufLZCzFxtDJqYyfCdBaP9JRi3TRUkAGa+aucaSjstkgJMSoEXRzb4uimM5c
+         /BhlqW8fqurFao26baTzDEjAhxWiyt4GcqSPyzzFZWJq3YeY7VXVSdYuS4Er8kVw/3nK
+         l7Fd2lTYns2oQ1s+5OZZqMlzcggSF5UXKRH2fdzy6TYx3bY/5Tpj/pRNt2OxCAaTuXol
+         61x6rXvQzLvX6uqZOyCN3BGGHuJJihh0bZvt9fS1/gB9YoHSnO4/QZeBdaBvYgyChWYr
+         75CQ==
+X-Gm-Message-State: AOJu0YxLznhbTVBUENTT+A+ssbvs7erACvqUFnHziayDkkPGOXL1euUs
+	mX6a0JC+dQjXQeu/+BcOoe+MRaXASGPTjacPG3M74w1CIOvpXgCrU/JmEHpAxzgnYgpHxN5vXIS
+	2JBTr3+zrPyOfdEtMdThxzLQ63Ykp8LjerQwuqL9zaAc5eQQAkIWzqA==
+X-Gm-Gg: AZuq6aKDhy0ErWpqDeZBeVQ7ymVDX9tY7MDmJaQunUy4cX7cYwLiMKuKMYZSb75CCdI
+	YMiZQMRwjX/5w6HZptV7FsZ5Cwf8a4Dm0o6cbq7umpj0fpC5rv8duegbSakTLp5v5TLEfeLoodi
+	WuGqavb6XsuZxnj/imL2/iP5ZLEnCxI3SjfNvJl/ys20YolFZb0naK8iEh81De+4zQ+34QXaJPZ
+	qdFpVcd6S65TAXr/0P5Ky6kin72az0aJxTPao4TBVeMr1luoGJ3lIudSOmOZquGh/9MmUDxxNOd
+	wzPzmtnh
+X-Received: by 2002:a05:690e:d84:b0:649:d59f:dcca with SMTP id
+ 956f58d0204a3-649f219d385mr8494228d50.5.1770632071612; Mon, 09 Feb 2026
+ 02:14:31 -0800 (PST)
+Received: from 457773911160 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 9 Feb 2026 02:14:31 -0800
+Received: from 457773911160 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 9 Feb 2026 02:14:31 -0800
+From: Philip Schiele <philip.schiele@zenjobsupport.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] usbhid: tolerate intermittent errors
-To: Liam Mitchell <mitchell.liam@gmail.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-usb@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260208-usbhid-eproto-v1-1-5872c10d90bb@gmail.com>
-Content-Language: en-US
-From: Oliver Neukum <oneukum@suse.com>
-In-Reply-To: <20260208-usbhid-eproto-v1-1-5872c10d90bb@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Mon, 9 Feb 2026 02:14:31 -0800
+X-Gm-Features: AZwV_Qh7xLLk6grrdbv5w95zmmP0NAgfXySal-Hi2oYHJqdblCotSJhjqIRZbHA
+Message-ID: <CAEtsEQ4McTyQ7fzCW_yxmg19C5Tgg01ukQV4itr0imKppgkGQQ@mail.gmail.com>
+Subject: =?UTF-8?Q?AW=3A_Data_Modul_Personalengp=C3=A4sse_l=C3=B6sen?=
+To: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 08.02.26 18:10, Liam Mitchell wrote:
-> Modifies the usbhid error handling logic to better handle intermittent
-> errors like EPROTO, which should only need resubmission of URBs and not
-> full device reset.
-> 
-> Reduces initial retry delay from 13ms to 1ms. The faster the URB is
-> resubmitted, the lower the chance that user events will be missed.
+Betreff: AW: Data Modul Personalengp=C3=A4sse l=C3=B6sen
 
-Hi,
+Sehr geehrtes Data Modul Team,
 
-in this case I have to ask the obvious question: Why wait at all?
-It would seem to me that if you have spurious or intermittent errors
-the right time to retry is immediately.
+ich hatte Ihnen k=C3=BCrzlich bez=C3=BCglich flexibler Logistik-Aushilfen
+geschrieben und vermute, dass meine Nachricht m=C3=B6glicherweise
+untergegangen ist.
 
-	Regards
-		Oliver
+Wir bei Zenjob erm=C3=B6glichen es Unternehmen, Personalengp=C3=A4sse in de=
+r
+Logistik deutschlandweit innerhalb von 24 Stunden ohne Fixkosten zu
+=C3=BCberbr=C3=BCcken.
 
+Ich bin =C3=BCberzeugt, dass diese Flexibilit=C3=A4t f=C3=BCr Ihr Unternehm=
+en
+wertvoll sein k=C3=B6nnte.
+
+Lassen Sie uns Ihre Personaldecke stabilisieren, starten Sie jetzt
+ohne Fixkosten.
+
+Beste Gr=C3=BC=C3=9Fe,
+Philip
+
+Philip  Schiele =E2=80=94 Sales Development Representative
+ZENJOB
+www.zenjob.com | +49302089860400

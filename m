@@ -1,76 +1,72 @@
-Received: from mail-dl1-f67.google.com (mail-dl1-f67.google.com [74.125.82.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B592DA75A
-	for <linux-input@vger.kernel.org>; Tue, 10 Feb 2026 06:20:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C83B17ADE0;
+	Tue, 10 Feb 2026 08:30:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770704444; cv=none; b=I2IoBoHkTFFtJDtBjgA4EuBqNIAta7543kgRRllBA1hYMoCMREmi4t5I1uz7CIh9zKccVn3nH0dO6M14nVDlUsQpp9z/lqho2D8idgGuEGjAHmlWx0KU1LqpMiAIAiT9Xg6oIFM6azGdpnPNrsgH0B3fZ+pBsSlKul5IQI91/pw=
+	t=1770712225; cv=none; b=XEbiYMIY9wVTz3ghh4PdunaE5YrU7gYSEvlmAMzLNcknRT4xTqOipiojfoxH+XKdEk1NnH1Jj9D1aTq1yI6gs1psS2bRSBIaqNgHtheZ2jz+Pb0qJ6W2zBF4aL8ALYZrpyyE3f20nrjLMqe7F/H0rClv9JgwyeBhbudenl+1d3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770704444; c=relaxed/simple;
-	bh=SEYG66B8ZtLuXgv2nsuhGS6fllKN1d8ENv7O1dAcJEI=;
+	s=arc-20240116; t=1770712225; c=relaxed/simple;
+	bh=Zhxsh4jqD2iGfUFwe1bJ5ig/+uSTSy+nc1A7oH1FtTc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EzL4qGUjqrbb+pXr5ZCG+Sx/L4NHVd7+W0nX6t3pwAlbMnOShsrad7ejs1FE/k1CUtLS86lEHBAOzq3Vm6fJawbDBMfghw853PIdizcHukMaoYGJZH72Azu0Xzi385ETh8X/QkqVJGDmxbtqno++mKDSzERh3n/ScHU/8KfL4wM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VG40HT/Y; arc=none smtp.client-ip=74.125.82.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=EfQrrX2tDCX52ilJf2S2lLQ5GoXKqnN8B51J1b+F+9pFYZmISW+7+TTHExb+9iJdPgZseu4zfGEfdnaF/O03vOUpZMNiOlr1NtN9lBbdVYpaxDxT3AyKin2LgbW/vo0TejaUfJVmhT0yK4leh5NX+OL7WnrovCc6TtF5MwnzrRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ZRmlPDWI; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VG40HT/Y"
-Received: by mail-dl1-f67.google.com with SMTP id a92af1059eb24-1270adc5121so554180c88.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Feb 2026 22:20:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770704442; x=1771309242; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AgWuwLpuwK0cTRarzf0Yohoxjvezc1aQian77BUVRlU=;
-        b=VG40HT/Yo1xVlgykPCpuUNQAlmLtgOtlXBKB7lm53NlxtZ5B1aHn2wkMlZeg8+j+Od
-         KcSNK+XfPXbv3wiCtz4cLFaCWstozCP9mesd413mVV5icmozgLBHbS29oFNQA5uTnkbw
-         Mlw5I8r4cKDxfqrTGAMYM4/cWMwhA7yudYNtd8y7KZm73QaJ5M/i/pEElMTAMo7Bqwwj
-         sAmJCg78yA28Y620ukaiODgphsMPaWy1bIc1VE3RT/ekw7qxjIRQ9c1igEukUZFDZm9w
-         2DDTrtH3nK4SJHUUpZpzpnpckBAR5GUq16ElEffRIB/WsSaA+TqYzy5Y5wOcNyXTKlnE
-         yDEA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770704442; x=1771309242;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AgWuwLpuwK0cTRarzf0Yohoxjvezc1aQian77BUVRlU=;
-        b=YYsbCjIcelRwUPkRvfxQZIMqZB0u1jYsePSOI3QXZAetHVZ518DCoReywTptUAtivD
-         lHfNOfN2Rp520TdyM43JczXYJMNXKmPtFISK9NemdbKK5e5rBexiHodNzOx4B+rcwp7s
-         l7SZgTdgsjzbV4sYuIcEUrPXt6aXYUYnpssLMbp82HIoWwD1n/j/SsuXpLyjUc8aZjOy
-         DJdLrDO84lQyO2CFYXeZMz5AbAymMx++sJFcUNmAyLJ+JBXH2Hlobn8IH6up6FLp/V2E
-         pBEdVw/02XilPT/5dZjQWcXpUQzTcKpq/Sc4h8B/wgYBrgOIr+Ns3KtnF8ok4f6Mn5et
-         gBOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUdd60pnfTiYPr13eH+gwO7K6AiGv7L46JJCs0po6joCkL2nXZ/E2meu2v31EfEDw0PUSdcDMJqMW1Fag==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxy/7dvfMjen6G5dTJbMfAM92gNaCTekiRtOU7ArGbUEGWG5pxy
-	uqOCR7rnM4+UCncux9lQi7xbCGt7LG5jlOwv8kb5oQHYr3q0jLSGNawq
-X-Gm-Gg: AZuq6aJzlJXocDwbt52AAi8vBCm2Q7RTC+AodphmluKt8vkHk3/Uy9tbmH9hL9PSgkG
-	N+fmQzqCTaCS8mJCDgJcmDyUVNX2K3TtNvTfXSKEMUrXRQLRy5s+3UAreRKENZSj4sYs8OnNevq
-	PzT5NcPJ991dy2S08XJS4gDaephLekL2SmpViH57is+SVvNwssi0bx1S/pxKdjC7H7YzHkjcr+o
-	OHSamODLq7P3oXGEdePjsyLLKD3/n60NSSBbib67PrDNXL3VuRzeMs1vxE4K3GcUKVzXzpWeO8u
-	OOpH1w+1AQhfSFf4InJHufy+BSWdOO2cLW/E1E0lG3geNl8wEJI68Y2vH42sJYRCvWSezTxvyPk
-	u/tJ0lyXC5mMRiBK4FwqDrRp/KLY/xQ22SGo9vghwhIL1j7zynTq1q+rwEn6lhb7VqaVJVRBBWE
-	qpWIUk0tYNkqT33mVSQuy4M3sKpkqxh1zMjDoWdWkEU15u6eMAkUZe5dSr4pOfYkCt
-X-Received: by 2002:a05:7022:2523:b0:119:e56b:98c1 with SMTP id a92af1059eb24-1270405d980mr5709422c88.40.1770704442142;
-        Mon, 09 Feb 2026 22:20:42 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:616e:78a2:cc03:4be3])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ba89ae14c9sm887685eec.29.2026.02.09.22.20.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Feb 2026 22:20:41 -0800 (PST)
-Date: Mon, 9 Feb 2026 22:20:37 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Vinod Koul <vkoul@kernel.org>, Courtney Cavin <courtney.cavin@sonymobile.com>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, linux-pm@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] dt-bindings: input: qcom,pm8941-pwrkey: Document
- PMM8654AU
-Message-ID: <aYrOMvIJdiaGHw9k@google.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ZRmlPDWI"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61A7CVXh4003674;
+	Tue, 10 Feb 2026 08:26:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=sbVzjCDXvqsUZW3pWzqOIude
+	rbfFbpM8HI+FiE/v5OI=; b=ZRmlPDWIgb9WwL1U7zz8yT71v5YnToDzvLM1YDTK
+	+is2iqtkEq7TQWziLs5M4oqeb87yGz4HZBdZ2NdDwvQu81TVKB4rfCRmfCSwmfqr
+	cGV4FAmbWGAwtnLj+wDykj3CfF1IaYocZqZI0rntOjT+lbebPrVMhgm70VmhkwCg
+	m3WUxtmCvZAXs7e64N4KFAuQh4pSeEAHRFXdys0SVeaSd8zcBXLTMjGVFeIKUbPc
+	RiSeAN+v8Fv9OXLe8nT1z1k0+FJcTR0T7/dgwdyAAxk1DsJBv2MPFZneypWRQdfb
+	3AJtsh4o20p59xiWsl2X1ihjNnNUyspc9LhDciFyT3aIsg==
+Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c7r23hrqe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Feb 2026 08:26:17 +0000 (GMT)
+Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTP id 61A8QEDF015850;
+	Tue, 10 Feb 2026 08:26:14 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4c5xfmdyt3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Feb 2026 08:26:14 +0000
+Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 61A8QDtg015823;
+	Tue, 10 Feb 2026 08:26:13 GMT
+Received: from hu-devc-hyd-u22-c.qualcomm.com (hu-kotarake-hyd.qualcomm.com [10.213.97.140])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 61A8QDt9015820
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Feb 2026 08:26:13 +0000
+Received: by hu-devc-hyd-u22-c.qualcomm.com (Postfix, from userid 2389607)
+	id C172BB0A; Tue, 10 Feb 2026 13:56:12 +0530 (+0530)
+Date: Tue, 10 Feb 2026 13:56:12 +0530
+From: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, linux-pm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
+        Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+Subject: Re: [PATCH v2 1/3] dt-bindings: power: reset: qcom-pon: Add new
+ compatible PMM8654AU
+Message-ID: <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
 References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
- <20260209-add_pwrkey_and_resin-v2-2-f944d87b9a93@oss.qualcomm.com>
+ <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
+ <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,16 +75,106 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260209-add_pwrkey_and_resin-v2-2-f944d87b9a93@oss.qualcomm.com>
+In-Reply-To: <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDA3MCBTYWx0ZWRfX19VYkphytV5q
+ aKwC9ytOeR3qKQFmwO7isr/rqm1AgJbh00/0ijrk8dXutNFc9Trxmod0feuSmHDZzJbt2NSCITg
+ 5WqTGtc+CecBZByz1y09EaM8PghXxOwVQi/M7BRTwMeCa5hdkrRnt0f8xn0/+JKzxUHReIPNpL/
+ +tm1SMdVoWfR8j4HpbFP0RQodCaMs0R3+ADdJ8vXWjmiXeuJX2B6jWU1CKksycNh5jyCa85DxCg
+ NDWGXEG7JbTVuWEFFR5vjLPL11UYu0ETVl7aoAJvYq2iP+QX8AgsRj9rpgS8/sCK/AtGgwUs1kC
+ Su/DF1uCocRF0bDpRMaXN6M1WrKqQ8uG2mswnB2SMQRWLztKR2+75bz8Xi979lqfF+Z3trwZvKy
+ uOggreTvVJwEmuUH/0CyKquIQj+8S658O7Hh4C+bCfdUKhsiD/Ic4+TKA0U2PP8Ky8mPq9mlABM
+ u+7n5oPnYHau1Gs6YEA==
+X-Authority-Analysis: v=2.4 cv=MLRtWcZl c=1 sm=1 tr=0 ts=698aeba9 cx=c_pps
+ a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
+ a=EUspDBNiAAAA:8 a=0PwHx77SaBkyMEZrJqwA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: MbZH2J2iedD9mveowZ7vAwF6Rr0S0rcz
+X-Proofpoint-GUID: MbZH2J2iedD9mveowZ7vAwF6Rr0S0rcz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-09_01,2026-02-09_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602100070
 
-On Mon, Feb 09, 2026 at 06:53:37PM +0530, Rakesh Kota wrote:
-> Add compatible strings for PMM8654AU power key and resin support.
-> These blocks are compatible with PMK8350, so use that as the
-> fallback.
+On Mon, Feb 09, 2026 at 02:49:24PM +0100, Krzysztof Kozlowski wrote:
+> On 09/02/2026 14:23, Rakesh Kota wrote:
+> > Add the compatible string "qcom,pmm8654au-pon" for the PMM8654AU PMIC.
+> > The PON peripheral on PMM8654AU is compatible with PMK8350, so it is
+> > documented as a fallback to "qcom,pmk8350-pon".
 > 
-> Signed-off-by: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+> Drop everything after ,. Do not explain WHAT you did. We see it.
+> 
+> > 
+> > While PMM8654AU supports additional registers compared to the baseline,
+> 
+> full stop.
+> 
+> > there is currently no active use case for these features. This specific
+> > compatible string reserves the identifier for future hardware-specific
+> > handling if required.
+>
+> All the rest is irrelevant or even wrong. We do not reserve identifiers.
+> If you want to reserve something, then I need to reject the patch.
+>
+Hi Konrad Dybcio,
 
-Applied, thank you.
+It appears that Krzysztof Kozlowski has concerns regarding the
+compatible string reservation for future use cases, noting that
+identifiers should not be reserved in this manner.
 
--- 
-Dmitry
+So, could you please help ACK my first patch-set instead?
+https://lore.kernel.org/all/20260122-add_pwrkey_and_resin-v1-1-a9fe87537816@oss.qualcomm.com/
+
+Best regards
+Rakesh Kota
+> > 
+> > Signed-off-by: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+> > ---
+> 
+> Where is the changelog? Nothing in cover letter explained what was
+> happening with this patch, nothing is here.
+> 
+> >  .../devicetree/bindings/power/reset/qcom,pon.yaml        | 16 ++++++++++------
+> >  1 file changed, 10 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> > index 979a377cb4ffd577bfa51b9a3cd089acc202de0c..14b85b0d97da12c756cfe2ce33853501ba4ca46c 100644
+> > --- a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> > +++ b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+> > @@ -17,12 +17,16 @@ description: |
+> >  
+> >  properties:
+> >    compatible:
+> > -    enum:
+> > -      - qcom,pm8916-pon
+> > -      - qcom,pm8941-pon
+> > -      - qcom,pms405-pon
+> > -      - qcom,pm8998-pon
+> > -      - qcom,pmk8350-pon
+> > +    oneOf:
+> > +      - enum:
+> > +          - qcom,pm8916-pon
+> > +          - qcom,pm8941-pon
+> > +          - qcom,pms405-pon
+> > +          - qcom,pm8998-pon
+> 
+> Move this one up to to fix sorting while at it.
+> 
+> > +          - qcom,pmk8350-pon
+> 
+> And this above pms.
+> 
+> > +      - items:
+> > +          - const: qcom,pmm8654au-pon
+> > +          - const: qcom,pmk8350-pon
+> 
+> Best regards,
+> Krzysztof

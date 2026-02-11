@@ -1,53 +1,53 @@
 Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013017.outbound.protection.outlook.com [40.107.159.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D08367F51;
-	Wed, 11 Feb 2026 21:41:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F62E2E06EA;
+	Wed, 11 Feb 2026 21:41:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.17
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770846089; cv=fail; b=F1ZVQAUc6K0M2HyV+36cZ/eHmkTHfeeOxFNmKtyyu01bnzAYeWLRqRYAoGWAaqsC6XqhZ/f58RPb0XlpZOvBgzKSzudfvRM+c5NFNCY62A7err7MR9CX2bPldEKdeVaYNGoXMLH6leSL5E0H+a+pOutMxdkrLlO3HHBY0o2qCO0=
+	t=1770846091; cv=fail; b=OmuCh7nSlQGIf4PBkRE7zcO6mOYMl/4B1nhxX9kLDWGr9iK2aQeFUWYpki1Q8PWiCokICh/s91EdDQlxKSS3G3UEYBv+2G96exG7UaZVf/dR3+C2oJEgIyYklqexdC44HMFAQKWK98AgmjQ1E7sVPV/4oHqe2j+fAI54xKsOqe0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770846089; c=relaxed/simple;
-	bh=4RsM9VoCYLGtZgKEqSw3aaNTbaSBhSjbP8yUQCCAotY=;
+	s=arc-20240116; t=1770846091; c=relaxed/simple;
+	bh=/aSYhmGzqfaA9O2+ttJJkcSIq2Nsl+94YG2N36K/hG8=;
 	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
-	 To:Cc:MIME-Version; b=jecrnr5GteIC/X4r7hW3Fe6+5BpCV0j/l+nA1KR+JnEul+k4aqD6/xRI32FApMgQ8s0ET1LxJaAmepz560MWsJ8u/M9Ftr3CtmzRfLOKixv9q5eBCNeE8H+bcLYZiiRRXw/uHffdlZNUrhwFL4cvH/5xAWVcT88hNxn+ptbc1is=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=oDhPyxFL; arc=fail smtp.client-ip=40.107.159.17
+	 To:Cc:MIME-Version; b=uUUCE0y29/BhsTzTxexviQmSKRfWtbiRYyYAotucTNJA4E1XCjdKKr7fRPDrnztUJCYClKhB7iGpwWqkfWRHQkVzkxGOvv1WRibRbiajSMCffDHUNoISdqFl2p1pDuT/bvj80DzZ5w9G5ZcNEjJJwenQP42WqzsPmm7GaWtqWvI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=NC/qaKtH; arc=fail smtp.client-ip=40.107.159.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="oDhPyxFL"
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="NC/qaKtH"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=qEXgbqLvnlhY4bbRik18BT4K8J3ZAlzh+CcZYDgjTuvd5JXoA8ZaUmuCbdu4HAlGuYYn4Phro5woCupjBMGt05Byq3g65D1BLcxraKaItQ4uVjsdiQKLKlcxSe0zk9aocDGwMTUcleHzzA5rxl+Xq8nYKTjT4eGXo2td1o8BG8AQRaxmv6yTWW31BJmy3RWE8rwn+3PXjZYbtRf42I5iJPpyUogb8ODSDrcSAyqAzy/bbRLzu94UQWBCHQIqAVn8fwVwvOshN1jeUtRd/VzG7VxvkVXAaglPZeDWWlYXsqqvjW5c9wMM3OqAKEgdfSOs/S0+x8dOGUWY4YF/wNESkg==
+ b=J3xhC46eT4kGU2GBuauYXskTwdRYhiFr3pCFWXXOjsqhuUf7gmfRJ7Laf7uahq6WpVTMOj8wDLBa+eAhACoDWsogqiPThUe1fZhLrxZgPAC1thKWFJvBMKKd+eg7UrWZnmu4OxvMxycVJWrUgk54nxIKgVDcPCXiBveLtC2duezcSFf4OShe0BXwzKSdrMdzccdmf7Y0zvecAw4/MBglZV6A2In30gUQ5YFiqAvZtwNP3jg6ip68sSRDe9UaBLU7GPVCbTidFSwR6IY8kyGlUxFctPtYvg0GNzE2x3wG+U87nf+exzBFSbknfPCakZg2GQyq/LUHXbowZTM64A9v4Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RR2eJgX75SwdAqsyJ5Z/IR+XNLsdMxAKhiX39ctUEwM=;
- b=ZpYkbzsIzA9RP7lP4JFAj7sIXTHuMjg4FE7WpLGabdUxHtR6XNgPHiqnHehbkg6ViVjKoF3m4w0P9LY1/kburadMB3LyPx3bL/nnF51qJKo1A8lDIOnYU+phzntOVHqDb307iOhul3VfQim/22bqIthQsxaPqCINlsnXBpsN4ZtEVBgF2QaAzw0Tn8cPAb2GaW5hQi3MP8Lkj1/StknSwZtI0hDXItEnzUvfs5as+VizRLx3ceVKq4dQ+jMmtI5xcrE8OrgVXODmcAbQsLzlQFa7I49penj0+q+ecdwdJpWIq8NsIbGvWilFSiO7w9u+lQVsRRbTwzWm7jpnei/PaQ==
+ bh=v741jSZ1Kcz5cz7NeSocCMmofISj2Ea7ZojEGMM5KlI=;
+ b=eKvKv7O/5G8/BVGor2jyuUCB46coOk0GBIQdejnsFZUDcF/2ee5d0GePh2xI4UcMD+9Aq6prbhYplaFim5RmmA6uEU718WiuMZXtq2y3Y5Jjihgh4RJmsYamFpb89KDDKyLAi3H7w+wTEBbOCfFU/DUv0HYJS1adD88BILjkW0N3ibTX/ixEzD0mfAIFjM3wLSALq7IStcS6wShjQES0VUvuOzxGZRQnyTkh1wYqVusoPa0kRfiwjGLwbHyQnRyRS25zAhF1RpX+RcqEk2Yun3JHjRvK2r+dzvL+CHAKnirROgv4runwF03Xwtniw1eYlLV59QrXUI7JSvBBs2CnpQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
  header.d=nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RR2eJgX75SwdAqsyJ5Z/IR+XNLsdMxAKhiX39ctUEwM=;
- b=oDhPyxFLnzzx37NBT2qaxI/ExG8DYIILi8KvcKfHG+EUnn1hRPRcjtCBBRSpUwCYkb6S1BX34Wot6LgJ5e13gUFMWSpEukl1xDftRGeJUSHM1K8K0XM2q4HMB3Y6F1sKSOiDp8Da5Zc6aGs2VZ1qEzqmiQb9EYKsionjNC7/VS/uRYzcBCAZnV+dvE3lSrRfqGV4Cb8lvNtxwWTiyjc30CsyFGImmrNIDRkNQ5InzZGYK3ClOM4OIMfCRXW86wy0ZQQZBO5iKi4yAP/npDkYt/GtjAWMTFbFvqYAGbNVC7/x8CdIqVpSbdR0G7nkjbWmiCoivrzd/7a4oFJCwnBGlg==
+ bh=v741jSZ1Kcz5cz7NeSocCMmofISj2Ea7ZojEGMM5KlI=;
+ b=NC/qaKtHHLNYq1DR2vLC0wTYVHi21Q0lSnUQL6tR/GCTNSlnNFieWhKhjYZToyzSnBSFrk9rBdlmMgUizwZyd2anNHZWUzeMSZiQtrks5bUc06MNyCBMaDUo4u8kBHZ489vzQO/4vzjvvrV647W/aD8EATSa3vDOpKkF6b0C49iNlWa/GqsgxLCl4UhkVCReumGCnfGdC2aPVLVS+CPuI7kLyBXCBlQd+SI7XJDnCQuujf5PD5HbnWkH9yLTwTvr2wnmAX6vakrMvtl+4jtEzSq1jR0+04a+wC6XWp/Xs9t46MQQFSdq50cvyrqDvVSVyVEz9kMrab9qjO9y/TQvmw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nxp.com;
 Received: from PA4PR04MB9366.eurprd04.prod.outlook.com (2603:10a6:102:2a9::8)
  by DU4PR04MB10717.eurprd04.prod.outlook.com (2603:10a6:10:584::12) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9611.10; Wed, 11 Feb
- 2026 21:41:25 +0000
+ 2026 21:41:28 +0000
 Received: from PA4PR04MB9366.eurprd04.prod.outlook.com
  ([fe80::75e4:8143:ddbc:6588]) by PA4PR04MB9366.eurprd04.prod.outlook.com
  ([fe80::75e4:8143:ddbc:6588%6]) with mapi id 15.20.9587.010; Wed, 11 Feb 2026
- 21:41:25 +0000
+ 21:41:28 +0000
 From: Frank Li <Frank.Li@nxp.com>
-Date: Wed, 11 Feb 2026 16:41:04 -0500
-Subject: [PATCH 1/3] dt-bindings: input: touchscreen: convert
- fsl-mx25-tcq.txt to yaml
+Date: Wed, 11 Feb 2026 16:41:05 -0500
+Subject: [PATCH 2/3] dt-bindings: mfd: convert fsl-imx25-tsadc.txt to yaml
+ format
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260211-yaml_mfd-v1-1-05cb48bc6f09@nxp.com>
+Message-Id: <20260211-yaml_mfd-v1-2-05cb48bc6f09@nxp.com>
 References: <20260211-yaml_mfd-v1-0-05cb48bc6f09@nxp.com>
 In-Reply-To: <20260211-yaml_mfd-v1-0-05cb48bc6f09@nxp.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -59,11 +59,11 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
  linux-kernel@vger.kernel.org, Frank Li <Frank.Li@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770846079; l=4302;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770846079; l=4591;
  i=Frank.Li@nxp.com; s=20240130; h=from:subject:message-id;
- bh=4RsM9VoCYLGtZgKEqSw3aaNTbaSBhSjbP8yUQCCAotY=;
- b=dvUk8nG5y69F0Wzhruz6dlHhzSJxUkhVPao/HeiXRSWjwg+UUAwCKMGPVNKi0zjOVD5ffmaOT
- kIldsKfqiEJCrp2aoUaDMW2RqQ5NU3o/Wo6VQp9T3xpPfBOKwpmzf7v
+ bh=/aSYhmGzqfaA9O2+ttJJkcSIq2Nsl+94YG2N36K/hG8=;
+ b=FSKNPQmQfz0cnFJcqxjw7V89M4AoHiv927FvpXJiujnpVdQ3+HRNRE6Y1L7cvZO2WzAPfqlAC
+ I/ZxX/aIN9+Dbb/vm9kWoIHbm1T3Uj2iYSxLBY7ulPaWGwUMVw3jF8Q
 X-Developer-Key: i=Frank.Li@nxp.com; a=ed25519;
  pk=I0L1sDUfPxpAkRvPKy7MdauTuSENRq+DnA+G4qcS94Q=
 X-ClientProxiedBy: PH8P221CA0064.NAMP221.PROD.OUTLOOK.COM
@@ -77,135 +77,138 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: PA4PR04MB9366:EE_|DU4PR04MB10717:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7651c3dc-1223-4115-34c0-08de69b64e6f
+X-MS-Office365-Filtering-Correlation-Id: 1ea6f89f-4d13-4671-84c2-08de69b65060
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
 	BCL:0;ARA:13230040|19092799006|366016|52116014|7416014|1800799024|376014|38350700014;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NENtWlR0dlBRVC9oUzU5MWVMRGZxSk5FdUlnZW9DRm92SEZSNENuUjVZc2lP?=
- =?utf-8?B?N3dpR1N3c1N0VUo1a0FMeE1XOGRzVVdDRURCc05RaHJaM2xnZVpTTEFKL0tn?=
- =?utf-8?B?RUhxeEhVZy9VUmVRSW0rV25PRkwveW9zcEJEdU9McHlBQ0hjcWJyMG9FSUw1?=
- =?utf-8?B?K3g2WEhxRjgxbWQ3R08wNys2QW92MEQ1dlBnandZUzMyUXlkK0lZMDRKeWd3?=
- =?utf-8?B?M2NRcmdpR1VTTnhHaWw5TG0yREVjbHpYeEoxZGFxVUcyM0FTZGNCWmhsQkhy?=
- =?utf-8?B?Tm1zWnlSMGxXTUJtRUpaTDV4bnhFTUZTWDFmaG1XazRSWUFHMG0xYnlnVC9a?=
- =?utf-8?B?Yml4ZTVXRlBGN0hqQmZ3dHJ2eDBPQ1ZVT1laTDN4a3BtWlViQ2kwQmtxcGtj?=
- =?utf-8?B?ellNR1RZTEpob0kyMk5MdFJjODFyOVp0ZkVnaDkwSUEwYS9IMWxxOUJPY3E3?=
- =?utf-8?B?Z0F6bG96eTdWOU1yR3Z3OGFGbVpkRHlOaDdtSXM5ckdIZFl4aGsyMHV5SmZ0?=
- =?utf-8?B?aGlPSnVjVHI3SXRmY3pMVjBOVTdjMjE5cnhYMDJBT3c0by80UWc5QitST2k1?=
- =?utf-8?B?c1hxRHplVVNxV08zeGIrazd0cTdTNStPdkdXK3RKQjdkQlhHUm1FSjZtQWFK?=
- =?utf-8?B?N1l3YmdmV1Y2b0RaeC9Od3R0enV6QXJ2eXdlSEVDU2RyZ256Z3VJS1lTOG5u?=
- =?utf-8?B?UFhrcFlqVzU2cjgvTmNCSjFCT2xmaXJJZi9KbU0vaG9UNW9pVzdaM0RMbHdG?=
- =?utf-8?B?V1l3UU9MaHNFWktvSEd4QWU3MmMwRGhXMWNobFYwcVk2ZUE3M0FLK1FZOVJG?=
- =?utf-8?B?NHJtVzU0VktyRExaTElCRXRqSG9YanRqdG9oWUExYnhCaWdzLy9YeW1QbXM4?=
- =?utf-8?B?N3NuOVJhNCt4VjllWkJudGNQaFVSdXRSSEpTUW03QUJ5VmM1OFRQWVdzS2hy?=
- =?utf-8?B?bnppWFR3OSs1bWUzdEwvMUErdHRpeE9vWWdaYS90YmtsUk9iMnJzaVoxMFUr?=
- =?utf-8?B?Sjlic09yTEd2UDFDZGt5VFlTbldsVFdCQXdGa3dTQnpadDBNdGVpWDRVOXdu?=
- =?utf-8?B?WEcrdmtjOVhPUHhDbGhmQ3E0MWlqU3lxQkFVdzVlS21pNU5KazJHSUk3eVJw?=
- =?utf-8?B?TER4cWtiQ1hoMVBPRi9BVUVncjNuVnJsd3ozNUhIdk4zSHdKM3VIeFU2YXQ4?=
- =?utf-8?B?ZVBpVjREd2VRRWhvb1JYQWJGZ0R5ZHpaTmVRZVI1L3I3UVdvU2FobkRmS1FZ?=
- =?utf-8?B?VkUvN0RNUU5ocHlvaXRVTUhxUUVJMTBFdUdvRmU4QWhJWWVsbzVBSzZzQnds?=
- =?utf-8?B?RmhzYmZ4WkxjU3pBNVpCRzlGdEcxemJXb0RUUVRUcTBTaTU0a2VMWC9iQUQ1?=
- =?utf-8?B?WFN1eDVRaFJHaGxtNDBMakl2aWFWalUzTjNJZW5uU3FFb0k5MnZWT3hYRnFO?=
- =?utf-8?B?Sk95YUVnbmZlWGFTOGtOaWFaQXEyZ2daYStJZldSTjhEMDFYNlgxakFHUmUv?=
- =?utf-8?B?aXVJZGFXK0pWN3JmNkpmK2ZoUnNYR1dGd3JmLzU1NTZid0IrV1pqYU1WdU5G?=
- =?utf-8?B?cjV3UjdNZXZDUUh3bjU5T1ZORTVYb1FJREx5eEl1dFFGNVk4UHdyRWlSYWU4?=
- =?utf-8?B?WlUwZkQ2N2gwRFZmYk1kK0cxTG9HN3ZxbGZEeTlRZUhuZldmZmFEdm9BK0JV?=
- =?utf-8?B?c3RsaElpenViNkZnWVNlYnFIMjM3b2x0RHM2UlN0M1MyUlZPVDJUclFyN1BT?=
- =?utf-8?B?WENPR3pNTUlzTGhFcHFqSEdCdGVzUGNxTU1QZ1F6N2RtOWFhckFCcHNPZlhr?=
- =?utf-8?B?Z0ZGdlJJcnlpOE9GTzQ1M0JnVDFaeHhTdFd1YlJJaUVHblowQjRwWFNBaVZE?=
- =?utf-8?B?eXlTNkdZZFdzY2pXeWlpUGllcVd4LzZ2N0Z4OXp5SGNwNjduUXpJQmw2MThP?=
- =?utf-8?B?bXlUcEJrNVljdncrK09wQk5GcmN0MUI0Yk1naDdpZHJyTVpLdFN3S0V2Y1Zs?=
- =?utf-8?B?ZzNmekxWcDZoZjh2UTh3S3dyTXIzQUpNdFNmSXFubzFEVDlIQjdBMHRYa1lh?=
- =?utf-8?B?Qmd1a0p0QXhLQjBzZ01oWVJ4SHhQeHEyZ05zSXdpR3QyR1RRZ0dkZTJSK2xx?=
- =?utf-8?Q?Ikg8sx/wE4Ze9BG6QKhPYUGC1?=
+	=?utf-8?B?Q0Mrc1IzTVJianFzM0t4K281eU91U1FyUDNKczUyVG8ydnowcGtsVmozYzFj?=
+ =?utf-8?B?V2tCNGVjcngwci96SmVFM3pJY3FsT1hLS3pYcEU0L04xMnd6THdZdVJLWDhw?=
+ =?utf-8?B?YjNFWlVsaHd1QUI3Z3JXQ1V6L0RXSkZRU2JFOGxkcm50ZjZLRGpYQU1UaHIv?=
+ =?utf-8?B?RkhWUUg1OWVmblpNeVhoS01ZVjFlMCtFQUZJdXJHbk9jZ0pQZDdjQW95c2VJ?=
+ =?utf-8?B?dW5za3NPVEJVdDM1bXJ0NWpCa1B4UnozdjRXUmdMeHJBNjRicUR2K2tWUDVq?=
+ =?utf-8?B?dHFwcjZxUFl1SGNMMlJmbllJa0pubUxPbHI5VCtrWHBzUkVtcWx3R3kybmR4?=
+ =?utf-8?B?UkdHU21mMDBTaEcxWjNDWUFGcFpNTXV4TzAxUVBrWk9WVEdPMGZLOHZMYXg3?=
+ =?utf-8?B?Rk10b3RVRFYwOXBJZ3R1Z3FsckswRkxqZktBUVU1Lzc0UGsyaXF1OGo1NjBZ?=
+ =?utf-8?B?emtSUnh4YlArcGljeEs3d0t0bE8yOHdYelp3M3I3SjNEVGFkdHdreFVzZTBu?=
+ =?utf-8?B?RjZCZ1hFYW56a1NzUHFzYlY5YlhzYi9nZVR1b21nRG1neUxsNkVvc3dObVFE?=
+ =?utf-8?B?RGc2SWZIeUYrSGZJTmxhQjNnN0hjZkFuOVdJV01QWXNCV3Q2cmFFOTgvTFR4?=
+ =?utf-8?B?K1pHdzFKL1o3UlBZeVIzQjZjNGh4SXJySzlRYnl5Y1VZYzA1Mk5XbS9MYUdl?=
+ =?utf-8?B?QTYwYURlZHp3VWZXRTRnOXh4eUdJeUkxYTdoSmk0NEJVY203ZU5jU2xmLzlZ?=
+ =?utf-8?B?M0w5aGNwV2hFQ1hPZzNyM0VqeUxJeG1EUUJwZDlyKzJsUFgzMXE0TW5UMlFw?=
+ =?utf-8?B?d2d0NUFNb1VWcHltcEdsVlJPYVpvZkswY3doTVl3cnM1c2FTM1cwa0dIS1Jx?=
+ =?utf-8?B?VGJWeUxQbkxuRG5XaHRXcG1SUXdHQ0pGbFAvYVVINkx6Ri9pamF1Vkt6YzR6?=
+ =?utf-8?B?YUI5TjBMRFpxeDZuVm5YZGtvRzBUUjlKV09VVmorVGh5REVvcDBIQlplNGRn?=
+ =?utf-8?B?ZllKMjJySGl5RXNwaVJaRE1VazRvbU5JZkR0bktpdTQ0MmFPZE9uRFR0MXRV?=
+ =?utf-8?B?TmhyRUw1SUtvQ3dOaWV0VW9xYUdmTi9CMFZ1cmljTnk1eTFMeldPZ05yYnEr?=
+ =?utf-8?B?ajVKZzZEcENPV1ZHaXhua1hTMzIyYWw0UTd4UTk2OVNJN3dsUVM1a3hHY2py?=
+ =?utf-8?B?SUhLVUZhVFNPeERQSTVmZGVBRXpuTU1CWVR2U0xhNGZlT1l2MkdabnNIdFRN?=
+ =?utf-8?B?QUdvY25GWENvMlpyRzR1N3EyaW5wYWRldVE0TkZITElHTXp1enc1dEZJT3Rk?=
+ =?utf-8?B?cmRIMUt1T2YzN3hUTXpxMWF3eC9NcTJjb2YrMytiUFI4eDhQemdmTkU5M1lQ?=
+ =?utf-8?B?Qlhlekx0cHF2a2ZtMXRpVGNRRi9mV1MzR3A4ejRmaGROcjl2WnBtWVpmT1Rh?=
+ =?utf-8?B?eUhCUURqczcvTWFBMWU4NUxDaW9UVVB1ajJGa25ScTltb0F6Zm1SVlRXdEFF?=
+ =?utf-8?B?MnR5S2pqVGZIdUI2S1ZOY3lCK1Rnd2t2TElabW9VMGxBVFIrRE9XN3hTOVBS?=
+ =?utf-8?B?U3p1a1FuRjFEVERST2NGQTFEVWl4VVdqM2xjdjQzZUk0VmxiWVBhR0lIMi9R?=
+ =?utf-8?B?ZGhlNHByU3crbjB0TldmUWNZKzJNQ1BvMHViOGkwbGFWbzE2QUI2RFBHREcx?=
+ =?utf-8?B?VkQ2K05waU1acUlyNDh5VUVKdFlWOE9KQ0VJRi9mYUtFaW4yQ1NxcHFVeTRQ?=
+ =?utf-8?B?eUd6bERoNHBmbGVuMk12K05nV3Z6cnVpS0l1OEMwZEFzaEFya3J3NTBYUkpT?=
+ =?utf-8?B?TUVBc0RpdlQwd3A5SCthMjM3SWFEa0ZXRWc1d2xQTDNYYUF2QkR3aU12TWM3?=
+ =?utf-8?B?V08wUTh0enJOYW4xUnNwK3lXemVZQW9ON2o4TE9MRy9sZXpwMHplTlRoZFhE?=
+ =?utf-8?B?TytrNUE1aFVrNW93aG90OGxuS3VTekNuYnN2U0tqVC9PK3RQdlpVZDNPUE14?=
+ =?utf-8?B?dFloMTdWdjRUZjlRLzdBV1ZrVHNIN0Eyb0FGbmRZODJUc0tiSU93Nm81b0ky?=
+ =?utf-8?B?V0xoOUorRVR5eWNISVFwU092YVJXSW5qeGhlbzVPTFVVQkllV1JOeWhobUdk?=
+ =?utf-8?Q?5pwGdXTI2J56t/tLoExYevc+3?=
 X-Forefront-Antispam-Report:
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PA4PR04MB9366.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(366016)(52116014)(7416014)(1800799024)(376014)(38350700014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?bXVoSW9sTm1YNTdIbWNaMGZWNEF4WFZVWThYckNUQkRaSGhnRzZ4S01lMVho?=
- =?utf-8?B?ZXdJZEs0SnlMODZzUUFZcW9IRUJTWHZBVTZVRXhmZzZIUjhtV0YvTWZrazd3?=
- =?utf-8?B?YUo5YlVBdkg2Uk0vUGEzWWRSTlUwN0Z3SEp3ODN0ZXRicDZrV095cmpoNk5S?=
- =?utf-8?B?QmFkVzhUMDZRVHB6NFBUZTVwSUl4NFBmSWR5U1BMNTVvZWVnV2dpRm9DbVh1?=
- =?utf-8?B?S3RXUUtQK1RNbi9UNXhjSVZJUVAwbXdDMExRZk5ubVI2bkJycTFHSG50Rm4v?=
- =?utf-8?B?UngzODV4OXppTlJIWXJ5aWRwR2F1bGdHeUkxdWh3dWdRa0RLUGMrbmdTTy9u?=
- =?utf-8?B?ZHJCdzhLY3ZvNXFyV0RxQWNrdm1PYkhITnpHMExNM2FQSnVLUXRRMnkvUktY?=
- =?utf-8?B?cUliOTZSeGQrRWxMcmFyYkZjL0JFSHFCRENVQnBlUXpPUmozVWoyU0l0OHRY?=
- =?utf-8?B?eVZWeXYvdDYvU2EvTXg2S1BsWnQ4aVpFbWVJWGEzUUZCQXVndkpnTitvMHow?=
- =?utf-8?B?d0xxOUpVS0N3THdYUFJ6N1dtQnFtU1BZd05DaFhzbEJKZzl2V2c1RjJBczFE?=
- =?utf-8?B?SGNQbzZkbGhia0VSL2NSN3NUOUlhL2tOcGxpUkF1cWJWdGE3Y2tXQVIzdHFE?=
- =?utf-8?B?aC8zSmtLZm1CYWZrL1YyY3o1c3NKaDU0a2ZkQUVrTW1td0g0cjF3ZEtaRmh6?=
- =?utf-8?B?a292dzVEYzdjRytkQWtvSDVmTFNLSlVFYW1IYmlMZkFQZ1p0anRvQXFFNWdY?=
- =?utf-8?B?Y2ZhSWM4RDFzd242SXFNbUFMeEFyOU1JUGhCSEI4RVRqT2VpYXNjcFBnLzd5?=
- =?utf-8?B?ZW1UUGJrcFBNOVZIbUlmSHFyQXN3bEE3bmluTis5bDdMVS93L0RMaVdYWjU4?=
- =?utf-8?B?bHI1TmJ0NXRGY3JNNVdVeFpjdjV6aEZMdEx1L2hlU0xVL3psaW9QV1R3Z1gx?=
- =?utf-8?B?M292WFNaTFlLVEh6aWdSd3lHUGlSWEErdmphNW9Eb2YzUFhvOE9tU0M4bXMz?=
- =?utf-8?B?b055ZFdEaEhKRG80R3N1eGJDRWt6a1lDR0s3UldGOUNUQURTS1VTblA1eldx?=
- =?utf-8?B?TlYxODIyZTEzc2tWdUwyQVU4ZHk5UlpHazZST3labGZENjBNU29TWXBoMWVJ?=
- =?utf-8?B?L3lrY0g4WHo1MzhlTWJzWWNvbWJmWE5EK1pKc0htemZ5Z29YZjkzWThteFov?=
- =?utf-8?B?VlNzVUZWUysxYkhsdDFuS1ozVDVIc0ZOYTJuM3VvV3RDd3Q0b2UrVHRRRnJY?=
- =?utf-8?B?Vm83YzQ1OE5QZVdoWktDd012MlJOeitsZStiRjRYMUJOUVpCSDVPTVNLaFVV?=
- =?utf-8?B?aDNDU0VWNzBZd0VGL0tRRktVdUxsd2hrZ2RXNVBXMlJjc0RVTDEvbjhrRWgz?=
- =?utf-8?B?SkJKOVNJc2lJM0R3N29JMFRNOXNPTTI3M2lGMUdJSmxWYnkxNFdBZG90cWJs?=
- =?utf-8?B?ZUE5eDZUZkJPLytmWXVrdGhoZmhqRW44QktmRnlhakF0RE5UdVRLTnJTMmQ4?=
- =?utf-8?B?UjBrdHFtQnVDYWhnaFcyUjl4Nzdia0s1TXdBR3NqdUZnRENnRlRYSTJLVFIx?=
- =?utf-8?B?aFBzN2JLV1JpTWV3RjBPaXRZdWJJdzJSa25PZk5hY2tnVytKRUlyc21yaDFh?=
- =?utf-8?B?VFMvZmFtbFVHSGpKTzk4RFMrV0xPakxSQXF5encxVk80a1B1RHBWU01DNHZn?=
- =?utf-8?B?aUVBMGg2ZTZTNitJRVRjelJkTXZSNzI0eC9uK054TWNWUDNEVXU0eldRdi9q?=
- =?utf-8?B?T2s2b0pvRVRWQWVVbHhLN1grUzBnem9zNktzRlN4dU80c1doWUZ1b09hRmlL?=
- =?utf-8?B?T01uaVJ3K21qckVnRDVxdlE0SVBVM3lWclV3MVhURVcxeGZOS3dNd0hqU1Z3?=
- =?utf-8?B?aTRWUG1zc0tVdTNWR2JyNWN3NFpoZjk0bm1zS3oxb2tpMGszWFJ6MG40Yjlr?=
- =?utf-8?B?RWt3RVY4ZlJGMExMbndZeEpjMWxsU1JGbldRS3cyMlIzWHNKcjF2emJrNHQx?=
- =?utf-8?B?ckdqdGNPUHNHQUh3eERadS9hcVdFTnZhQkFBendUSzRKM3ZpRk9ZcnNtSEF2?=
- =?utf-8?B?ZzNLK2pqbWc1T1BxSEw2K0lJVkZ1QzB4RmcrbVJwbU1HNUFSbWlRdU5TaCt0?=
- =?utf-8?B?QkhpOXlvOVpjSlZwNUJtVlJBOG13TGUrM01NYnBwRmhUTWJ2SXY3bjFsYkE2?=
- =?utf-8?B?Q2R1K29KVno5MTZvM1BLNkppd25qbk0xaXRGcEF0WE04SWVuTEkycDFJVnpi?=
- =?utf-8?B?WS9wc3Vub1o3akZWUHdseUttcGZZYXdUUWo4WFhRaU54NnhGRHFmWkt1a0Mz?=
- =?utf-8?B?M01VM3Q2aEJCRUZ4VnV1MXpTdDlnOXoyeWxYU0hmZkFMYk9nNW1MUT09?=
+	=?utf-8?B?RGhuY3Q4VkttTUVzZFVJTjBWblZkSWhjRm9zakJuaXMvZVJsQlpTUkgxOVJV?=
+ =?utf-8?B?c1lrd2pjSWFNRTJRY012RkhIQ3hCa0F1SURuUzdhKzBvTTFtMWpDR1V3blk5?=
+ =?utf-8?B?RDRkV1VCdURwWTdlUU1WNE9aYk1LMloyNFdoVjJTVmQ4N1ZWeENkMGNOdkc4?=
+ =?utf-8?B?ang4Y2kvUHBlMW54dk52U2FsM29wczFXQmpZNHR0ZFlXc2VvcUFybkhjODlX?=
+ =?utf-8?B?aTZwS2NkU2o4YjRGQVl5endKSW1Uemh4Qit5YytWY1pQNjZBMWh1V3QwT1ND?=
+ =?utf-8?B?Mi9JT1pMNHdwcEVlU0RKVDJROGd5dFMvbk9sL2dGa2Q4T1hkTklXeXZOUjV0?=
+ =?utf-8?B?aTF2SUp2MldGVjRkVitLemtUS1A5eXcyQnhNTmhRbnU1eEhJNWNUNTdVSFlw?=
+ =?utf-8?B?anA0S1M5T0hNUWNHZ3NIaVU3MHJYNFh5alJtSUkzOTVjdFM0WkFCd3F4YjVR?=
+ =?utf-8?B?YkdSeXJmYUFlaHFYYm5hRTZ6U3Z5N1JKVmpWOENWaThreGsyZklOaTQ1S29N?=
+ =?utf-8?B?K2dGZlJheXBCTnNnQisrS0FJalhFVm54dXZzUFRJZ2lIY3Z3dnZXOTZJN3h0?=
+ =?utf-8?B?eVBmYjE1MVBiMUlUWnZ4MFg1dCtBZUlmK2Rpa1ZvNGl4OVlHR292QnFtdWtr?=
+ =?utf-8?B?V2VXWXlVdWVHcjk3OVlBYlhkZEJpU1VycWN5bXBjUUlqY21DT29udmF0OXZm?=
+ =?utf-8?B?dVB0MFl2eDZzWkdSN21kUkJQSENFZ0NqbUFzY0VxaW9kN254UWVPbU9ZNDNv?=
+ =?utf-8?B?VnhML1kyUW1WVXQrSS91YVFNOVpoaXQxd1JldWZScFYzVThOdGNOVS80d09n?=
+ =?utf-8?B?NkdPa0srcWVjTFo3KzA0ZXd2eFNoSktBRC9jK2hOOG5KV0FzbWJzK0VlaXo2?=
+ =?utf-8?B?eG5EeDNxRU8vTGE3MGNTUnl4RFU4VWlUUUt3WW5Za0hqL2ZtNmdYcURCUWcz?=
+ =?utf-8?B?ak9YSXBqM2RpU1hZUENxRnVrQnYyYndzV3owWkRvTkU5OTlXNGxqY2VWdlYw?=
+ =?utf-8?B?TWNTMVlYcmVMQk1JTFBheXkvUFlxWC91Y1RIeDFRd0RKeEVPSFdKbzI5UEVv?=
+ =?utf-8?B?bXZtYjZObEVUb0J3SDBPc01WQnVLNk0wcUdVdm5RanYwM3R6OVBmRXFENi9U?=
+ =?utf-8?B?TVNjUUF6S3FXSXJIR2dTVXRCU1JTTmo0eGo2eDJhOTBzTWlENG1ibWY4ditF?=
+ =?utf-8?B?UmNmU0I2NHlxeG9JakJtVGZtK29oV05hQWVtQjZTNDJ1bXFHQ1V6LytxNzN3?=
+ =?utf-8?B?cXMxMjAzMms4N0YzMFpmakhlUE9TVjNNZ0F1MmZQQys0TlNhMEZ0ZDF4cllJ?=
+ =?utf-8?B?b1kwM0hsWXIvckZBUnJ1VmNIYk4zeVJDeDNNZXdrVWo1ZUJJb1pBcVBJdTNE?=
+ =?utf-8?B?MzMremo1SjFhajhpaHZlUitJaFJBSkRJekEvZmZPNHVuV1JITjAyditsV1Jx?=
+ =?utf-8?B?c1BjL1VJajRhR0VBSXZTNnRRbEluQUJLQmhWblBTWkttM0kybHpnSURCdXVp?=
+ =?utf-8?B?RXFOOEtYZ0pkZElmWWN5M2E5SGdROVdHbjEwSGhZRGRLSkdiRmpBQXJhdmph?=
+ =?utf-8?B?elZLMy96aVVnbzJMYVFPQTZSRVJWV0dRWDZMVHZGbVAyNXpNcktNRC9zZmxE?=
+ =?utf-8?B?cVJsSnphNXk2SHNKelBaWGVPL1pvaHovUUlIVnM5MVY5azJ4T1VoeXhwZm1h?=
+ =?utf-8?B?dUVoeVlKM1V6WFJYUStFYzM1WnZaL1M2Y1Uya1QxZzlUd0lTLzJBaXpSN0Vs?=
+ =?utf-8?B?Q2NYVVJIUTk2Mm1BYW5Lei94eDZmeE9Db3p1bEF5MUpraXdra2lWV0VWb3hS?=
+ =?utf-8?B?Q3d1ZjZNQjcxTWlIU1BnSFR3bWFsQ0EyL01MWjdWLzhURklDRkNDNjFSb3hv?=
+ =?utf-8?B?WkxJbzdQbGVSMFBLbDdPUGJYVlJjT0k1SDdhRCtDVHlNN0ROTHhIeExJK0dl?=
+ =?utf-8?B?bWFBTTZmMW9XZlZwbXlCVVQ5Nm1QYS9FV05NQ1ZoUXN0NjFUemZCcys4clFE?=
+ =?utf-8?B?N3NUQ1FSS3YvZ0tBU3dBSS9sdWxnYnFnYXRsaVE3VG9pOTNyc3RpRlVJenY4?=
+ =?utf-8?B?TThhM21JMzhoYjlTUlAwZXJJNWNrazZoc1orR1BvK0lPaURJTnV1RFBEeTdZ?=
+ =?utf-8?B?MDRkenZJRGRFTGpjN0tpZU1QUHhTdERZd3ZvdWlmVDVsVHltMmMvK1g4L1la?=
+ =?utf-8?B?L3pVYUpGSUdxWlIwOHF1YXUzNWdzY2dOY1R6eDY3N2tXSHBka1lTanVOdzRt?=
+ =?utf-8?B?dldZQkIzSjNLRkxwZzdLK3dqZzllQy80ZHc3dUZJRFVpeUg5cXFyMHFKS0JV?=
+ =?utf-8?B?Y1dtZjVJb2dxR0g4cXRqYVRTeU1qWENEK3pFOG0xUExnTFRBRjZqUT09?=
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7651c3dc-1223-4115-34c0-08de69b64e6f
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1ea6f89f-4d13-4671-84c2-08de69b65060
 X-MS-Exchange-CrossTenant-AuthSource: PA4PR04MB9366.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2026 21:41:25.5807
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2026 21:41:28.8036
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: TJ7N47V3PEAkQSytDrGP0ugNM5PWxRh6F+8JA15qjcTi+BNkG2yzSpzeMbwsETvvAD3Qbxxjfla7/QDblGiT9A==
+X-MS-Exchange-CrossTenant-UserPrincipalName: RPvRUigIvKQBSOIOyLUG7ht7O2ut8jmOCu81gangeriyaCMHV/rnzRueQEmy2u1wSJJ2QCGCT0QzuLWN/xlGoA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU4PR04MB10717
 
-Convert fsl-mx25-tcq.txt to yaml.
+Convert fsl-imx25-tsadc.txt to yaml format.
+
+Addtional changes:
+- Add ranges.
 
 Signed-off-by: Frank Li <Frank.Li@nxp.com>
 ---
- .../bindings/input/touchscreen/fsl,imx25-tcq.yaml  | 69 ++++++++++++++++++++++
- .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 34 -----------
- 2 files changed, 69 insertions(+), 34 deletions(-)
+ .../devicetree/bindings/mfd/fsl,imx25-tsadc.yaml   | 97 ++++++++++++++++++++++
+ .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    | 47 -----------
+ 2 files changed, 97 insertions(+), 47 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl,imx25-tcq.yaml b/Documentation/devicetree/bindings/input/touchscreen/fsl,imx25-tcq.yaml
+diff --git a/Documentation/devicetree/bindings/mfd/fsl,imx25-tsadc.yaml b/Documentation/devicetree/bindings/mfd/fsl,imx25-tsadc.yaml
 new file mode 100644
-index 0000000000000000000000000000000000000000..94452ac423d04c24817440ce4a1671edeeb1ac28
+index 0000000000000000000000000000000000000000..b5c6a2d4750115a2d2332d766722b99e517721ae
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/fsl,imx25-tcq.yaml
-@@ -0,0 +1,69 @@
++++ b/Documentation/devicetree/bindings/mfd/fsl,imx25-tsadc.yaml
+@@ -0,0 +1,97 @@
 +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/input/touchscreen/fsl,imx25-tcq.yaml#
++$id: http://devicetree.org/schemas/mfd/fsl,imx25-tsadc.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Freescale mx25 TS conversion queue module
++title: Freescale MX25 ADC/TSC MultiFunction Device (MFD)
 +
 +maintainers:
 +  - Frank Li <Frank.Li@nxp.com>
 +
 +description:
-+  mx25 touchscreen conversion queue module which controls the ADC unit of the
-+  mx25 for attached touchscreens.
++  This device combines two general purpose conversion queues one used for general
++  ADC and the other used for touchscreens.
 +
 +properties:
 +  compatible:
-+    const: fsl,imx25-tcq
++    const: fsl,imx25-tsadc
 +
 +  reg:
 +    maxItems: 1
@@ -213,89 +216,130 @@ index 0000000000000000000000000000000000000000..94452ac423d04c24817440ce4a1671ed
 +  interrupts:
 +    maxItems: 1
 +
-+  fsl,wires:
-+    description: touch wires number.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [4, 5]
++  clocks:
++    maxItems: 1
 +
-+  fsl,pen-debounce-ns:
-+    description:
-+      Pen debounce time in nanoseconds.
++  clock-names:
++    items:
++      - const: ipg
 +
-+  fsl,pen-threshold:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description:
-+      Pen-down threshold for the touchscreen. This is a value
-+      between 1 and 4096. It is the ratio between the internal reference voltage
-+      and the measured voltage after the plate was precharged. Resistance between
-+      plates and therefore the voltage decreases with pressure so that a smaller
-+      value is equivalent to a higher pressure.
++  interrupt-controller: true
 +
-+  fsl,settling-time-ns:
-+    description:
-+      Settling time in nanoseconds. The settling time is before
-+      the actual touch detection to wait for an even charge distribution in the
-+      plate.
++  '#interrupt-cells':
++    const: 1
 +
-+allOf:
-+  - $ref: touchscreen.yaml
++  '#address-cells':
++    const: 1
++
++  '#size-cells':
++    const: 1
++
++  ranges: true
++
++patternProperties:
++  '^touchscreen@[0-9a-f]+$':
++    type: object
++    $ref: /schemas/input/touchscreen/fsl,imx25-tcq.yaml
++    unevaluatedProperties: false
++
++  '^adc@[0-9a-f]+$':
++    type: object
++    $ref: /schemas/iio/adc/fsl,imx25-gcq.yaml
++    unevaluatedProperties: false
 +
 +required:
 +  - compatible
 +  - reg
 +  - interrupts
-+  - fsl,wires
++  - clocks
++  - clock-names
++  - '#interrupt-cells'
++  - '#address-cells'
++  - '#size-cells'
 +
-+unevaluatedProperties: false
++additionalProperties: false
 +
 +examples:
 +  - |
-+    touchscreen@50030400 {
-+        compatible = "fsl,imx25-tcq";
-+        reg = <0x50030400 0x60>;
-+        interrupt-parent = <&tscadc>;
-+        interrupts = <0>;
-+        fsl,wires = <4>;
++    tscadc@50030000 {
++        compatible = "fsl,imx25-tsadc";
++        reg = <0x50030000 0xc>;
++        interrupts = <46>;
++        clocks = <&clks 119>;
++        clock-names = "ipg";
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        #address-cells = <1>;
++        #size-cells = <1>;
++        ranges;
++
++        touchscreen@50030400 {
++            compatible = "fsl,imx25-tcq";
++            reg = <0x50030400 0x60>;
++            interrupts = <0>;
++            fsl,wires = <4>;
++        };
++
++        adc@50030800 {
++            compatible = "fsl,imx25-gcq";
++            reg = <0x50030800 0x60>;
++            interrupts = <1>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++        };
 +    };
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
 deleted file mode 100644
-index 99d6f9d2533579672eb4e277bcb40d274696831b..0000000000000000000000000000000000000000
---- a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+index b0350528699764c49e388362aaceb2311e9ec57e..0000000000000000000000000000000000000000
+--- a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
 +++ /dev/null
-@@ -1,34 +0,0 @@
--Freescale mx25 TS conversion queue module
+@@ -1,47 +0,0 @@
+-Freescale MX25 ADC/TSC MultiFunction Device (MFD)
 -
--mx25 touchscreen conversion queue module which controls the ADC unit of the
--mx25 for attached touchscreens.
+-This device combines two general purpose conversion queues one used for general
+-ADC and the other used for touchscreens.
 -
 -Required properties:
-- - compatible: Should be "fsl,imx25-tcq".
-- - reg: Memory range of the device.
-- - interrupts: Should be the interrupt number associated with this module within
--   the tscadc unit (<0>).
-- - fsl,wires: Should be '<4>' or '<5>'
--
--Optional properties:
-- - fsl,pen-debounce-ns: Pen debounce time in nanoseconds.
-- - fsl,pen-threshold: Pen-down threshold for the touchscreen. This is a value
--   between 1 and 4096. It is the ratio between the internal reference voltage
--   and the measured voltage after the plate was precharged. Resistance between
--   plates and therefore the voltage decreases with pressure so that a smaller
--   value is equivalent to a higher pressure.
-- - fsl,settling-time-ns: Settling time in nanoseconds. The settling time is before
--   the actual touch detection to wait for an even charge distribution in the
--   plate.
+- - compatible:			Should be "fsl,imx25-tsadc".
+- - reg:				Start address and size of the memory area of
+- 					the device
+- - interrupts:			Interrupt for this device
+-					(See: ../interrupt-controller/interrupts.txt)
+- - clocks:			An 'ipg' clock (See: ../clock/clock-bindings.txt)
+- - interrupt-controller:	This device is an interrupt controller. It
+-   					controls the interrupts of both
+-					conversion queues.
+- - #interrupt-cells:		Should be '<1>'.
+- - #address-cells:		Should be '<1>'.
+- - #size-cells:			Should be '<1>'.
 -
 -This device includes two conversion queues which can be added as subnodes.
 -The first queue is for the touchscreen, the second for general purpose ADC.
 -
 -Example:
--	tsc: tcq@50030400 {
--		compatible = "fsl,imx25-tcq";
--		reg = <0x50030400 0x60>;
--		interrupt-parent = <&tscadc>;
--		interrupts = <0>;
--		fsl,wires = <4>;
+-	tscadc: tscadc@50030000 {
+-		compatible = "fsl,imx25-tsadc";
+-		reg = <0x50030000 0xc>;
+-		interrupts = <46>;
+-		clocks = <&clks 119>;
+-		clock-names = "ipg";
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges;
+-
+-		tsc: tcq@50030400 {
+-			compatible = "fsl,imx25-tcq";
+-			reg = <0x50030400 0x60>;
+-			...
+-		};
+-
+-		adc: gcq@50030800 {
+-			compatible = "fsl,imx25-gcq";
+-			reg = <0x50030800 0x60>;
+-			...
+-		};
 -	};
 
 -- 

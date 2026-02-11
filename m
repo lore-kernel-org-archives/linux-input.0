@@ -1,30 +1,30 @@
 Received: from mail.cock.li (unknown [37.120.193.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A92B0338F4A;
-	Wed, 11 Feb 2026 10:51:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E064E29E115;
+	Wed, 11 Feb 2026 14:33:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=37.120.193.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770807092; cv=none; b=o5WJCm5kibazednfCGm7j4ZUP/XNqiEKxmHxR/3U6v52DHJi+oEvFdcq38CLbEDnV9EFghw1Ji9AQFdYFQBkYQ8iEM7Tb6qnnVtVTA51Vqir8tke9wWDkamFQPCQyREM6NnRwOdpubkLTY3U0wmpxxCWSfQjrw1MjYoUdMAEmig=
+	t=1770820422; cv=none; b=Ft0+aXJHNB/UKb76ED8JETOOTpx5Scefp8wuC8h+iGIzSv21A4+M3IuS90K1iLcz01TP7yzR3AznmrmYAPdInlSukewC0CGwsUX+hz0KPlgWrN3fA3785xrFVzdt7lpj/puxL4oZ5TJQfw5WPOgDvoYGeNarW8eLh4KE7R4oAk4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770807092; c=relaxed/simple;
-	bh=aH+oM3kQl4R9J6qc74bliGxfT/qYPbqrFR/OH+LR3jo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Kq+8ez4KvMGw0NuLNZgdVmp1kKUJ/e5oXcciqtsBc1wIlf9x6pXV00spYQlUsiYnsKFBQZxYXaU8inc9MCaa/SH6qdFMKupPIsvFbcRECV86ZNBAxCMVvCVtgVM/CgDtfTmehLPG/hv68SzRp7noMsNfhr9U60A1fKTDDcCi7no=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=airmail.cc; spf=pass smtp.mailfrom=airmail.cc; dkim=pass (2048-bit key) header.d=airmail.cc header.i=@airmail.cc header.b=ZBjT/ySj; arc=none smtp.client-ip=37.120.193.123
+	s=arc-20240116; t=1770820422; c=relaxed/simple;
+	bh=ip0Umi0Tk+RZZ6fpMwSZekX5kkW1Qe3jS0EijFoK18g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DpXbGv7DHaDUAWTHTEJdIVY/AJ2oJbgAsvqQA8j+0cZx7fam0WfL47JdL7XQvqIzd0Tblwqx/jBaDvyH4jWU82r/+KpdQTYlbCQvnNSiBObB2HXTvrQ2iOaoCvAmvjnGug8pjAR3pMqsP6FVgvXd2/ATcSEqNTmz54ATIkK1G9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=airmail.cc; spf=pass smtp.mailfrom=airmail.cc; dkim=pass (2048-bit key) header.d=airmail.cc header.i=@airmail.cc header.b=lSaZOm3f; arc=none smtp.client-ip=37.120.193.123
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=airmail.cc
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=airmail.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=airmail.cc header.i=@airmail.cc header.b="ZBjT/ySj"
+	dkim=pass (2048-bit key) header.d=airmail.cc header.i=@airmail.cc header.b="lSaZOm3f"
 From: Hans Anda <hansa@airmail.cc>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=airmail.cc; s=mail;
-	t=1770807084; bh=aH+oM3kQl4R9J6qc74bliGxfT/qYPbqrFR/OH+LR3jo=;
+	t=1770820408; bh=ip0Umi0Tk+RZZ6fpMwSZekX5kkW1Qe3jS0EijFoK18g=;
 	h=From:To:Cc:Subject:Date:From;
-	b=ZBjT/ySj5/y/xhGuN/iJ8TFRd4jhVzLnpYoO3ma0vezUwATsYmPIqMRac/mE61BIn
-	 yI0SdqbEFj+vA5EZVI94VtMlMLh3Jbb2WbFwcrM9sqJNPvyxRilGkLM5xpFIIjzZq5
-	 Q28d4drSLLM0nVZ1iMttyfoqx15/2SZTheMMOcrZfVBbHaaYFXrIf7GQQjVgeRM7cM
-	 yjKq/EdovITBX6dtlHYT74XcIUnero254/yLkfmRJdpjDPdGV9SWDyjX110F4OrGxr
-	 xQY5wPKLEm2wgb0s4BtLgdVSV7REQOABmYtFclcI8zB1UGCYdb7N6dZpHeCtP0skvw
-	 0/giwraTYLhCA==
+	b=lSaZOm3fRbAeA8IfdF1WgdkGYV4PFIVVprQZBQg1FY3zbx7WqQql18OmECNN2vvLW
+	 zqf9pucbIA8LE91rua6D5X6c2o9qDanK9h+FxFfryslmG9+bT9kyX1IrETIoim208a
+	 H+kxJcr5C5T75NDj96GuBMOLI5E7vtQNbr+sd9VIZhtCeyfr2guUBrXsfQVHsl3UD9
+	 hPKdmXZ/+uCABPcdFUjbWJKcehoj0XHR3t4sC8p0B0wYMmAm80mmZK0VvHPJsI6Nnr
+	 zWn2dwpTJFdDbWesuUgPr5roWqs/ZYWosArqF6KXkJ/y7MfCWHzeZHvos6cAyHXY1r
+	 ByXEgiaDcTPTw==
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
@@ -32,8 +32,8 @@ Cc: linux-input@vger.kernel.org,
 	Johannes <johannes@gnu-linux.rocks>,
 	Hans Anda <hansa@airmail.cc>
 Subject: [PATCH] HID: hid-mcp-2200.c: fix typos in comments
-Date: Wed, 11 Feb 2026 11:49:07 +0100
-Message-ID: <20260211104906.21855-2-hansa@airmail.cc>
+Date: Wed, 11 Feb 2026 15:32:54 +0100
+Message-ID: <20260211143253.22829-2-hansa@airmail.cc>
 X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -42,6 +42,9 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+
+Fix typos in comments
+drivers/hid/hid-mcp2200.c: "Commands" -> "Command", "Altternative" -> "Alternative"
 
 Signed-off-by: Hans Anda <hansa@airmail.cc>
 ---

@@ -1,175 +1,357 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA2C1514F8
-	for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 01:18:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44F471531C8;
+	Wed, 11 Feb 2026 05:31:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770772690; cv=none; b=KOtBRwexWCwAiGyUOY3F/N0h0twDmjz3xV785a11XxGiWGF00spPBWs8oBogs8syf1grH/eDV0SZvywxE8ztitJcnJwOcy3VlbSqGKqUcmMj8irLA3cU8SjSuC7iUEN9lbnL7akXeqzBd/lfLQ6b2SiYFHFf5FjZbBe5P1i6A/0=
+	t=1770787885; cv=none; b=he/3qoKfy/UmoCpJqhMSOVtTMxxdZsggaIcuqoMukwWN/jC8gZYY54gv6CNB86O++2H1OS1BKBrw8kJVGqBxNz38CqetaS9i83+QQ0XmqwCYYFueG4Ldi5lXiEjBoJyTJq1u2564Go5YQdzbFByGAUKkE9SP7KY5s5bEXF1iMiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770772690; c=relaxed/simple;
-	bh=cYW+V1WYfERZd/tlS++ow/loNT0FhjWddzYhitVizp8=;
-	h=Date:Message-Id:To:Cc:Subject:From:Mime-Version:Content-Type; b=JuSHNhTV+x1umLINtm3JWmnHvNdJgTV1zFq4nvw9YYi5KE1bTpjlTB74TwMk5rK8aHjzl/uLGlxG3G1VuFw1NVAkAg5k8MUeUuXMKLBRBQl++kfStVNvAq4+dK4WkUpil2TrZamUSegkhzO97zJ3Dz+29l/E8wmiRcuoQ9eUBMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=q.tanaka@gmx.com header.b=EoTQ8swQ; arc=none smtp.client-ip=212.227.17.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	s=arc-20240116; t=1770787885; c=relaxed/simple;
+	bh=iplD68nO76W37y0UGxB7IbOVXQGfVOCgcft+XAfh4KY=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=t0w3o9bghI1134x56mIJ5/boigspeK9vCNpABS5WFWGGj0V+q15GIJ1n0ZfYjpDmSWwyQiJmM9qfaFboL7Ks/532q3Ja2AidkPTEM25rfXlYfZNnIIoIeqUR6mzIfsBVJHlr50T991t/fDt3Tb+SFbceDC5d5PiTID3vPl9AbZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=yhDnEwf1; arc=none smtp.client-ip=35.82.102.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=q.tanaka@gmx.com header.b="EoTQ8swQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1770772686; x=1771377486; i=q.tanaka@gmx.com;
-	bh=qe1BI27CwIC7kzMml1n4+lgnZnrkzbNKp8qOs8u79WI=;
-	h=X-UI-Sender-Class:Date:Message-Id:To:Cc:Subject:From:
-	 Mime-Version:Content-Type:Content-Transfer-Encoding:cc:
-	 content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=EoTQ8swQNHzkg8gx4i8G9a0hWKwapkGELvN358adM+K4tIoZZhZgA4f4dSwLIEtq
-	 Zod7v8m33GeIlYUk5/7oSQTsFHg2RzhUTl6Ckg1USql0fCQj44Hphde/fwAfiISMb
-	 rqH9pnU/NiqCL6DC/Op+/B04sc5HrFggv5qzhaGEtZAFFdjHTxIL1l8LxZOsj69Or
-	 uEoFAkPswGFu20IxxCewgdNmh0hjTSkGCphDPOKpIFQxjj2zyv2O6PhPh03njiueF
-	 r3GAn2Kk7ChA8sHY6KIjLFsiyNCFgwyu+Q1O8dg4NZK4DL+RTIOvj8RR1SPSM/0pr
-	 REpZ6YqgwaLT1R95lQ==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from localhost ([180.31.131.251]) by mail.gmx.net (mrgmx105
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MBm1U-1vxi6a3qhA-008JZa; Wed, 11
- Feb 2026 02:18:05 +0100
-Date: Wed, 11 Feb 2026 10:17:07 +0900 (JST)
-Message-Id: <20260211.101707.2126959894059795107.q.tanaka@gmx.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, q.tanaka@gmx.com
-Subject: [PATCH] Input: xpad: Add support for "Nova 2 Lite" from GameSir
-From: Qbeliw Tanaka <q.tanaka@gmx.com>
+	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="yhDnEwf1"
+Received: from altimeter-info (unknown [45.55.225.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: linux-kernel@altimeter.info)
+	by hognose1.porkbun.com (Postfix) with ESMTPSA id 24984461FB9;
+	Wed, 11 Feb 2026 05:31:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
+	s=default; t=1770787878;
+	bh=AanEfuE4yilKoq6qwsprEzZJdiZE9Yi0U4ySJUWUiHU=;
+	h=Date:From:To:Cc:Subject;
+	b=yhDnEwf1L7iFjh5+GS4i8hibezhdYpQWRh0AemhM8em6j0bI7xrlPyzWt7veQnXm9
+	 rnYllB51cbhNYGOHnWruOBwc5xK53v6xQ1yVqZlFR483Jj9eUE3JH9okuTr6Lvme7Q
+	 12ZWgZC/EqKgcmt4PDTf9v/tZ708w2pAojZ8NEVY=
+Date: Wed, 11 Feb 2026 05:31:16 +0000
+From: Ivan Gorinov <linux-kernel@altimeter.info>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND] HID: winwing: Enable rumble effects
+Message-ID: <20260211053116.GA20357@altimeter-info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
- boundary="--Next_Part(Wed_Feb_11_10_17_07_2026_761)--"
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:L5Jz3DKSOcT6jqy6LeNEQ0uPMqJAWkKYJv6NskdAh09tYEcxBUQ
- wADAU+R6s91Zie1fclCcx2lnKv3Mvvrw5AsYu8ws1I2sKlO3Xo7tVeHxxHEAdW+NRss1E/k
- KGO0f1Zc5J0dAKvD/snwdpPiN0ANGb6ce/CaMsw/vlY4xvcG4VARljVM+R/tJ3oGzB4MuOc
- ujA8FA3I/STsGKTULHzpw==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:evC9/SaP6lM=;N7mXGQmLC9Teqlwzt2D82EE1h/f
- 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
- 2ZtrWn7tZR+fbXhemabPTpv0h9AXh
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.24 (2015-08-30)
 
-----Next_Part(Wed_Feb_11_10_17_07_2026_761)--
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Enable rumble motor control on TGRIP-15E and TGRIP-15EX throttle grips
+by sending haptic feedback commands (EV_FF events) to the input device.
 
-Hi.
-
-This patch adds support for the gamepad "Nova 2 Lite" from GameSir. It is compatible with the Xbox 360 gamepad.
-
-Thanks bedforehand.
-
-
-----Next_Part(Wed_Feb_11_10_17_07_2026_761)--
-Content-Type: Text/X-Patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="0001-patch-v1-joydev-xpad-Add-support-for-Nova-2-Lite-fro.patch"
-
-From 124e8e9057fcfb2439c195fe17f498da22802a18 Mon Sep 17 00:00:00 2001
-From: Qbeliw Tanaka <q.tanaka@gmx.com>
-Date: Tue, 10 Feb 2026 21:51:12 +0900
-Subject: [PATCH] Input: xpad: Add support for "Nova 2 Lite" from
- GameSir
-
-This patch adds support for the gamepad "Nova 2 Lite" from GameSir. It is compatible with the Xbox 360 gamepad.
-
-Signed-off-by: Qbeliw Tanaka <q.tanaka@gmx.com>
+Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
 ---
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-winwing.c | 193 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 179 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 363d50949..8d96349c3 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -421,6 +421,7 @@ static const struct xpad_device {
- 	{ 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
- 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
- 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
-+	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
- 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
- 	{ 0x3651, 0x1000, "CRKD SG", 0, XTYPE_XBOX360 },
- 	{ 0x366c, 0x0005, "ByoWave Proteus Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE, FLAG_DELAY_INIT },
---
-2.52.0
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index ab65dc12d1e0..031590ffd383 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ #define MAX_REPORT 16
+ 
+@@ -35,10 +36,14 @@ static const struct winwing_led_info led_info[3] = {
+ 
+ struct winwing_drv_data {
+ 	struct hid_device *hdev;
+-	__u8 *report_buf;
+-	struct mutex lock;
+-	int map_more_buttons;
+-	unsigned int num_leds;
++	struct mutex lights_lock;
++	__u8 *report_lights;
++	__u8 *report_rumble;
++	struct work_struct rumble_work;
++	struct ff_rumble_effect rumble;
++	int rumble_left;
++	int rumble_right;
++	int has_grip15;
+ 	struct winwing_led leds[];
+ };
+ 
+@@ -47,10 +52,10 @@ static int winwing_led_write(struct led_classdev *cdev,
+ {
+ 	struct winwing_led *led = (struct winwing_led *) cdev;
+ 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
+-	__u8 *buf = data->report_buf;
++	__u8 *buf = data->report_lights;
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	mutex_lock(&data->lights_lock);
+ 
+ 	buf[0] = 0x02;
+ 	buf[1] = 0x60;
+@@ -69,7 +74,7 @@ static int winwing_led_write(struct led_classdev *cdev,
+ 
+ 	ret = hid_hw_output_report(led->hdev, buf, 14);
+ 
+-	mutex_unlock(&data->lock);
++	mutex_unlock(&data->lights_lock);
+ 
+ 	return ret;
+ }
+@@ -87,9 +92,9 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	if (!data)
+ 		return -EINVAL;
+ 
+-	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->report_lights = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
+ 
+-	if (!data->report_buf)
++	if (!data->report_lights)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < 3; i += 1) {
+@@ -117,7 +122,7 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	return ret;
+ }
+ 
+-static int winwing_map_button(int button, int map_more_buttons)
++static int winwing_map_button(int button, int has_grip15)
+ {
+ 	if (button < 1)
+ 		return KEY_RESERVED;
+@@ -141,7 +146,7 @@ static int winwing_map_button(int button, int map_more_buttons)
+ 		return (button - 65) + BTN_TRIGGER_HAPPY17;
+ 	}
+ 
+-	if (!map_more_buttons) {
++	if (!has_grip15) {
+ 		/*
+ 		 * Not mapping numbers [33 .. 64] which
+ 		 * are not assigned to any real buttons
+@@ -194,13 +199,150 @@ static int winwing_input_mapping(struct hid_device *hdev,
+ 	/* Button numbers start with 1 */
+ 	button = usage->hid & HID_USAGE;
+ 
+-	code = winwing_map_button(button, data->map_more_buttons);
++	code = winwing_map_button(button, data->has_grip15);
+ 
+ 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 
+ 	return 1;
+ }
+ 
++/*
++ * If x ≤ 0, return 0;
++ * if x is in [1 .. 65535], return a value in [1 .. 255]
++ */
++static inline int convert_magnitude(int x)
++{
++	if (x < 1)
++		return 0;
++
++	return ((x * 255) >> 16) + 1;
++}
++
++static int winwing_haptic_rumble(struct winwing_drv_data *data)
++{
++	__u8 *buf;
++	__u8 m;
++
++	if (!data)
++		return -EINVAL;
++
++	buf = data->report_rumble;
++
++	if (!buf)
++		return -EINVAL;
++
++	if (!data->hdev) {
++		hid_err(data->hdev, "data->hdev == NULL\n");
++		return -EINVAL;
++	}
++
++	if (!data->hdev->ll_driver) {
++		hid_err(data->hdev, "data->hdev->ll_driver == NULL\n");
++		return -EINVAL;
++	}
++
++	m = convert_magnitude(data->rumble.strong_magnitude);
++	if (m != data->rumble_left) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x01;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_left = m;
++	}
++
++	m = convert_magnitude(data->rumble.weak_magnitude);
++	if (m != data->rumble_right) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x03;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_right = m;
++	}
++
++	return 0;
++}
++
++
++static void winwing_haptic_rumble_cb(struct work_struct *work)
++{
++	struct winwing_drv_data *data;
++
++	data = container_of(work, struct winwing_drv_data, rumble_work);
++
++	if (data)
++		winwing_haptic_rumble(data);
++}
++
++static int winwing_play_effect(struct input_dev *dev, void *context,
++		struct ff_effect *effect)
++{
++	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	if (!data)
++		return -EINVAL;
++
++	data->rumble = effect->u.rumble;
++
++	return schedule_work(&data->rumble_work);
++}
++
++static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->rumble_left = -1;
++	data->rumble_right = -1;
++
++	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
++
++	if (!data)
++		return -EINVAL;
++
++	return input_ff_create_memless(hidinput->input, data,
++			winwing_play_effect);
++}
++
+ static int winwing_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -219,10 +361,12 @@ static int winwing_probe(struct hid_device *hdev,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->map_more_buttons = id->driver_data;
+-
++	data->hdev = hdev;
++	data->has_grip15 = id->driver_data;
+ 	hid_set_drvdata(hdev, data);
+ 
++	INIT_WORK(&data->rumble_work, winwing_haptic_rumble_cb);
++
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -232,19 +376,39 @@ static int winwing_probe(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static void winwing_remove(struct hid_device *hdev)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
++	if (data)
++		cancel_work_sync(&data->rumble_work);
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
+ static int winwing_input_configured(struct hid_device *hdev,
+ 		struct hid_input *hidinput)
+ {
++	struct winwing_drv_data *data;
+ 	int ret;
+ 
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
+ 	ret = winwing_init_led(hdev, hidinput->input);
+ 
+ 	if (ret)
+ 		hid_err(hdev, "led init failed\n");
+ 
++	if (data->has_grip15)
++		winwing_init_ff(hdev, hidinput);
++
+ 	return ret;
+ }
+ 
++/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
+ static const struct hid_device_id winwing_devices[] = {
+ 	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
+ 	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
+@@ -261,6 +425,7 @@ static struct hid_driver winwing_driver = {
+ 	.input_configured = winwing_input_configured,
+ 	.input_mapping = winwing_input_mapping,
+ 	.probe = winwing_probe,
++	.remove = winwing_remove,
+ };
+ module_hid_driver(winwing_driver);
+ 
+-- 
+2.43.0
 
-----Next_Part(Wed_Feb_11_10_17_07_2026_761)----

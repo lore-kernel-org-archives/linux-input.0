@@ -1,152 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7211628727E;
-	Tue, 10 Feb 2026 12:48:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA2C1514F8
+	for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 01:18:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770727731; cv=none; b=WxJWWqL52GUxwl85wAbqILv3xqfW80qkZmbGVuDzeNX93ONxNRFQbWY3lIDImrlLIdoeu7V2/kJ84iyectnCPRenhCMYIm3VMABVPvFJZBMlRzX1ThWl4UO6HKTpE+hfhsQYqFJGr+oooE9MLi0W+AAxBfjrPGsyIeEAO7GgvYQ=
+	t=1770772690; cv=none; b=KOtBRwexWCwAiGyUOY3F/N0h0twDmjz3xV785a11XxGiWGF00spPBWs8oBogs8syf1grH/eDV0SZvywxE8ztitJcnJwOcy3VlbSqGKqUcmMj8irLA3cU8SjSuC7iUEN9lbnL7akXeqzBd/lfLQ6b2SiYFHFf5FjZbBe5P1i6A/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770727731; c=relaxed/simple;
-	bh=vvnvUwyQSeRgCBnsUrcVrKGgV+yxucGObqDmZnndIzI=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=OuPTYAAixUPE+wN0G07kVQqJ/SjQYK6A0K0arnH82Ng0P+3xPM12ra8WlZni7o5KWaUKegiYZVY2XMl7nqws4LXGOwQszpp8VP60tbf0StyxmIJQRO1SbXlVnoCXQhF1tlfckJo1t9+qZOzdKIolYTEqWpbMQexPfXDefmxXSdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=riTIzdQs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770772690; c=relaxed/simple;
+	bh=cYW+V1WYfERZd/tlS++ow/loNT0FhjWddzYhitVizp8=;
+	h=Date:Message-Id:To:Cc:Subject:From:Mime-Version:Content-Type; b=JuSHNhTV+x1umLINtm3JWmnHvNdJgTV1zFq4nvw9YYi5KE1bTpjlTB74TwMk5rK8aHjzl/uLGlxG3G1VuFw1NVAkAg5k8MUeUuXMKLBRBQl++kfStVNvAq4+dK4WkUpil2TrZamUSegkhzO97zJ3Dz+29l/E8wmiRcuoQ9eUBMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=q.tanaka@gmx.com header.b=EoTQ8swQ; arc=none smtp.client-ip=212.227.17.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="riTIzdQs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0729C116C6;
-	Tue, 10 Feb 2026 12:48:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770727731;
-	bh=vvnvUwyQSeRgCBnsUrcVrKGgV+yxucGObqDmZnndIzI=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=riTIzdQssYR8g2NzGUGuJiD/6H2GGiVWLCyloWQblfYjGzJqo4lPuEYXCsLhz81Yh
-	 8lxBRMhZM8bZ7PDfwYQQRRtd3cwJ/ccbu795+X3kwEf68kVwnpA2ecX/fDCvUArgzb
-	 wSLYYvrA5qp9D4C+/QX6pW8DvIIpLhP4XGvdJuKpn++709gQaylMhwDemCjf3INE0J
-	 jm1WsHAb4QLFhHHYdems2/OIOrnu2oXYRhHGLhwfSyMXzG9UAQiGc/D5Nacv0AfZza
-	 9+IKpBQqnni90saBsi5Of+XqLMJxKDH57SM+uVNl8ZUD30YFK9DDIoGojs3fx9zp9X
-	 t8ZWNtwSF9RjA==
-Message-ID: <9dcc308d-f87d-4706-90ae-df3669aea224@kernel.org>
-Date: Tue, 10 Feb 2026 13:48:45 +0100
+	dkim=pass (2048-bit key) header.d=gmx.com header.i=q.tanaka@gmx.com header.b="EoTQ8swQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
+	s=s31663417; t=1770772686; x=1771377486; i=q.tanaka@gmx.com;
+	bh=qe1BI27CwIC7kzMml1n4+lgnZnrkzbNKp8qOs8u79WI=;
+	h=X-UI-Sender-Class:Date:Message-Id:To:Cc:Subject:From:
+	 Mime-Version:Content-Type:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=EoTQ8swQNHzkg8gx4i8G9a0hWKwapkGELvN358adM+K4tIoZZhZgA4f4dSwLIEtq
+	 Zod7v8m33GeIlYUk5/7oSQTsFHg2RzhUTl6Ckg1USql0fCQj44Hphde/fwAfiISMb
+	 rqH9pnU/NiqCL6DC/Op+/B04sc5HrFggv5qzhaGEtZAFFdjHTxIL1l8LxZOsj69Or
+	 uEoFAkPswGFu20IxxCewgdNmh0hjTSkGCphDPOKpIFQxjj2zyv2O6PhPh03njiueF
+	 r3GAn2Kk7ChA8sHY6KIjLFsiyNCFgwyu+Q1O8dg4NZK4DL+RTIOvj8RR1SPSM/0pr
+	 REpZ6YqgwaLT1R95lQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from localhost ([180.31.131.251]) by mail.gmx.net (mrgmx105
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MBm1U-1vxi6a3qhA-008JZa; Wed, 11
+ Feb 2026 02:18:05 +0100
+Date: Wed, 11 Feb 2026 10:17:07 +0900 (JST)
+Message-Id: <20260211.101707.2126959894059795107.q.tanaka@gmx.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, q.tanaka@gmx.com
+Subject: [PATCH] Input: xpad: Add support for "Nova 2 Lite" from GameSir
+From: Qbeliw Tanaka <q.tanaka@gmx.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: document ASUS Transformer EC
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Pavel Machek <pavel@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Sebastian Reichel <sre@kernel.org>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?=
- <mirq-linux@rere.qmqm.pl>, Ion Agorria <ion@agorria.com>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-pm@vger.kernel.org
-References: <20260209104407.116426-1-clamor95@gmail.com>
- <20260209104407.116426-4-clamor95@gmail.com>
- <20260210-sexy-grumpy-sambar-44edd2@quoll>
- <CAPVz0n3fizf=r58Fr4YQ6pnjHq5p-7yFz95obss6w6x0bfgnDg@mail.gmail.com>
- <d1973810-d3f5-4ed7-ba0f-6bf93c1c7f3d@kernel.org>
- <CAPVz0n1foyy9g7MAurSAyLCUHTzrPPu0ceqy9YpcDA9uzgjGng@mail.gmail.com>
- <cb91898e-10f1-4d64-bace-41bbed08179b@kernel.org>
- <CAPVz0n0O_uSAPYFtg8s+Ni0buyGJys6d0jEMob6SNWx-aeKUEw@mail.gmail.com>
- <dc7acd1e-91e8-492c-8665-cb680c6164fd@kernel.org>
- <CAPVz0n0u_0ZukcKXt0QpiyCMhWsg2VE-dE19wDCbRQvBvVOf+A@mail.gmail.com>
- <ec3b39d6-51ec-429d-b083-e5af2b4a9c65@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <ec3b39d6-51ec-429d-b083-e5af2b4a9c65@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Wed_Feb_11_10_17_07_2026_761)--"
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:L5Jz3DKSOcT6jqy6LeNEQ0uPMqJAWkKYJv6NskdAh09tYEcxBUQ
+ wADAU+R6s91Zie1fclCcx2lnKv3Mvvrw5AsYu8ws1I2sKlO3Xo7tVeHxxHEAdW+NRss1E/k
+ KGO0f1Zc5J0dAKvD/snwdpPiN0ANGb6ce/CaMsw/vlY4xvcG4VARljVM+R/tJ3oGzB4MuOc
+ ujA8FA3I/STsGKTULHzpw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:evC9/SaP6lM=;N7mXGQmLC9Teqlwzt2D82EE1h/f
+ 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
+ 2ZtrWn7tZR+fbXhemabPTpv0h9AXh
+
+----Next_Part(Wed_Feb_11_10_17_07_2026_761)--
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-On 10/02/2026 12:54, Krzysztof Kozlowski wrote:
-> On 10/02/2026 12:40, Svyatoslav Ryhel wrote:
->>>>
->>>> So you propose introduce a compatible for every single ec used in
->>>> transformers instead of simply disable unpopulated functions? And how
->>>> then battery and charger can reach monitored cell if they have no
->>>> dedicated node?
->>>
->>> Just like for other bindings for nodes without resources, fold into
->>> parent. This is already explained in writing bindings, so you could have
->>> just read that. I will pass with answering more questions till you read
->>> that doc.
->>>
->>
->> Unfolding asus,ec-pad and asus,ec-dock will result in this list:
->>
->> asus,tf101-dock-ec
->> asus,tf101g-dock-ec
->> asus,sl101-pad-ec
->> asus,tf201-pad-ec
->> asus,tf201-dock-ec
->> asus,tf300t-pad-ec
->> asus,tf300t-dock-ec
->> asus,tf300tg-pad-ec
->> asus,tf300tg-dock-ec
->> asus,tf300tl-pad-ec
->> asus,tf300tl-dock-ec
->> asus,tf600t-pad-ec
->> asus,tf700t-pad-ec
->> asus,tf700t-dock-ec
->> asus,tf701t-pad-ec
->> asus,p1801-t-pad-ec
->>
->> with minor variations in populated cells. Is this acceptible?
-> 
-> 
-> Yes, this looks correct.
+Hi.
 
-Update: with fallback-expressed compatibility when same interface and/or
-superset of features.
+This patch adds support for the gamepad "Nova 2 Lite" from GameSir. It is compatible with the Xbox 360 gamepad.
 
-Best regards,
-Krzysztof
+Thanks bedforehand.
+
+
+----Next_Part(Wed_Feb_11_10_17_07_2026_761)--
+Content-Type: Text/X-Patch; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="0001-patch-v1-joydev-xpad-Add-support-for-Nova-2-Lite-fro.patch"
+
+From 124e8e9057fcfb2439c195fe17f498da22802a18 Mon Sep 17 00:00:00 2001
+From: Qbeliw Tanaka <q.tanaka@gmx.com>
+Date: Tue, 10 Feb 2026 21:51:12 +0900
+Subject: [PATCH] Input: xpad: Add support for "Nova 2 Lite" from
+ GameSir
+
+This patch adds support for the gamepad "Nova 2 Lite" from GameSir. It is compatible with the Xbox 360 gamepad.
+
+Signed-off-by: Qbeliw Tanaka <q.tanaka@gmx.com>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 363d50949..8d96349c3 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -421,6 +421,7 @@ static const struct xpad_device {
+ 	{ 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
+ 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
++	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
+ 	{ 0x3651, 0x1000, "CRKD SG", 0, XTYPE_XBOX360 },
+ 	{ 0x366c, 0x0005, "ByoWave Proteus Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE, FLAG_DELAY_INIT },
+--
+2.52.0
+
+----Next_Part(Wed_Feb_11_10_17_07_2026_761)----

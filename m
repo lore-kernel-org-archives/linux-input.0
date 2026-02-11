@@ -1,155 +1,176 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5F9836A017;
-	Wed, 11 Feb 2026 10:46:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770806764; cv=none; b=maDu6wGPGPEJbZ4A/IA2v1kuNIus3sufzVkpfeRDAFdgL8bAbZVTvTKA4ZQuLTB8u0dlqG0E1gYZo0KkegMc3oZ5oobpR7uDP7pTO3vnmmvlw8MFsVRUgYbGReCxxxB++tanU4LBan8cHtLBIjrfJuLpmPtEJNieADM8wwPf6qk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770806764; c=relaxed/simple;
-	bh=6kLNCUzPnnrmSxD+Tfi8kpoj2JkDjprt+LGUGRETJH8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WUYLKusAlXFiCrGVuXb0Cu5YOO25O2tzsULpYS+/mszwT3WLyK1MjhM34tWPi9G2pyy8k6WYs5QWtVqlCfCtz505IkjSG93LaNzfMHybCWQcyHzEO1FgQZnvgzlX/yGAhS/6u2hf5Qzmw2t/eGttPoLh4YYVRD4irisZMM+Y0e8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=P3EwdaaX; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F408336A013
+	for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 10:48:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770806912; cv=pass; b=sDAwalaVrhuEVK3ITywhu0f/Ef5U37GhjkhWnIErQOLfpO+z8JKWgKXj5HpyMBuoeEMIvkVhC2feVMPnuZmVxuDT5DkZQ7/YoM94bqmYQwa7bDIraW/q9qVVw52U4BgZGAj1ZhWPwAVozK4IMa4egQNP96oC9bi+OxqG7VJqyZs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770806912; c=relaxed/simple;
+	bh=goC3mIbNohckiF5ZYjrfvjxXcyQ5EbfvCJ7/+85hUuY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NV7n2Pxk8vVTtpqBhq0S8VGXNVUPlpiqMTi4ap8QROWfwZSVWV2oF/SfADWgltpGQVU8liCqqy00MrGk+1p3GQG59gbFf2P34CBv1oxbw7f/Zfc7zmUiyHgP7kGtX1+8IsqqUfsn1O1M40NDPCGzZUERu0/RDVffmAugGmjiJ2E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KRL4uY83; arc=pass smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="P3EwdaaX"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BAHutH2298192;
-	Wed, 11 Feb 2026 10:41:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=UjAZ/MQ+umwMOQCo5OjPHtG+
-	eMszJF/jPuw+mTP+2T4=; b=P3EwdaaXryLQNikmUvodIRPgc991uOaSvYj5koL9
-	14hjQYyNphF1S3B+Vale1stD5lcG2lyrBcJpZApSKtdGzot0Y/i6GzjLge/wrHct
-	jut/Bmp9sc1p4DdEfnbahpO74ekh+c+617Swp8yUVFQz5PI3u5gvFVztCaWhGTwX
-	W9S4O8gKyJUvWrsUWe2NSVLy3/zWfnKoHMm2hcnRRrVDQ5NhfoNOSeeIGCBIhM9y
-	z9JoSfx1nRqnmmA4UpHNzM0nsDh0HRTQFKinO1+qu66p5u186S83g/bEK1zDk9hy
-	DHHrFpfLqq7uABgc7wmB6WspKLvl6Iza9Vpd6HnGvIZ/hw==
-Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c8qvq82dh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 10:41:58 +0000 (GMT)
-Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTP id 61BAfsp3002582;
-	Wed, 11 Feb 2026 10:41:54 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4c5xfmr9ke-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 10:41:54 +0000
-Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 61BAfsq8002577;
-	Wed, 11 Feb 2026 10:41:54 GMT
-Received: from hu-devc-hyd-u22-c.qualcomm.com (hu-kotarake-hyd.qualcomm.com [10.213.97.140])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 61BAfs8i002573
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 10:41:54 +0000
-Received: by hu-devc-hyd-u22-c.qualcomm.com (Postfix, from userid 2389607)
-	id 661A7AF5; Wed, 11 Feb 2026 16:11:53 +0530 (+0530)
-Date: Wed, 11 Feb 2026 16:11:53 +0530
-From: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, linux-pm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
-        Rakesh Kota <rakesh.kota@oss.qualcomm.com>
-Subject: Re: [PATCH v2 1/3] dt-bindings: power: reset: qcom-pon: Add new
- compatible PMM8654AU
-Message-ID: <20260211104153.r6xz7ya5emxa36cp@hu-kotarake-hyd.qualcomm.com>
-References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
- <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
- <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
- <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
- <b9c7aa89-b260-42aa-a85d-9e596e78e419@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KRL4uY83"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-4362197d174so1235387f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 02:48:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770806909; cv=none;
+        d=google.com; s=arc-20240605;
+        b=IBUF7gPFtkaNI2scTieaRLy2OACG31wkT9RrScraq8oyfcZ1kDBi3WgEixK6D5Uh15
+         a31KgWmpqqBToIcEIjoYNZqRKV6Q//RhLw1oCiPR1adEWrp1av0L4KEuRGMgzidxfKLL
+         nfVOfR1zIGs0btoo9atAe6gRGNg73SbmZGx11GdP7V+YQs2o1Ulq2Yge4oIk0WazwESy
+         F98ZBj7lUCd7cRFvXAIZ/MxgsBW5z2lpkt9TBPtOpqsVCUeHYffNsg8qNzJSbtVXMI2y
+         XXtM2o9Qi54uFM0Payen36gKTUk+qCd0x3EmrdoQW5qK8fSmZPaoIukRbiIzPJb/F+zz
+         CYBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=J2gBRwJor0x8FmOh8GyzyKNT5TNM+dtqzKR3kPMSD/A=;
+        fh=Q5PI2/rNLhs2pdYUht8VqzNe6LuPhBMqrzTngTI3zfc=;
+        b=KPIa+7Z89DaNJt/oQPz4OOcIcDXtLvklVsAEEP62muMs4l4o0H5IJYf8DS2dJaODze
+         H7HOtM2Z0/uYa4WMm2iWSeYAZuFxM/WUpAjiXA8ZwLB7OQINTpIifozWzpaEhTOuqo98
+         xJTbTPTfJGMjdMIRGodFYyFA3wd9a2gRZ7BjPXL/wPJfsTXbQY4VBnNdvsZDXicDZP+q
+         mCJwA4oDcVQ9TtsFjHRfYfAx5AV1yQbmz4Qva1Lhyo5IaWpl1wp5a2SGR32iQmGLwMRO
+         3Lk+7byrhcyEm96hchihuBkyDqbP/w4mDMeqyYeJd6poXDh8thCkB2MelJUii7/gLWjX
+         9IoQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770806909; x=1771411709; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=J2gBRwJor0x8FmOh8GyzyKNT5TNM+dtqzKR3kPMSD/A=;
+        b=KRL4uY83VFKh79eYwywSsflLk7UhcCxSBevCn+ooQ3zf/ZOiVyAwA7LsGqN75vtnD9
+         Gp/OaQuqqH2HwbQi28TheijoUEfT5V0YzhJJL8d/yffptZ0AxU2///H7bSEX+fW5EIy+
+         7nspB6NMe1SU/uBs4oBctjJqQMHnoOEOEue1qVy5Ow2IhS9mz1FKMlKz4ZOCi+hajr4t
+         B9t1FLLZNpM7rsGXKfOb292YixpPnQSEzjmc/zviMEO43BR/qr9iUzn9P687zMn04ik0
+         UO+6EYGsTfkfC2TjDCaLk8qVPKIGM+6GayJarcsKBzjrBP7tvAgQsKK6so+/Op5f/WKC
+         9WCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770806909; x=1771411709;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=J2gBRwJor0x8FmOh8GyzyKNT5TNM+dtqzKR3kPMSD/A=;
+        b=eXtEW3UvDgZ0kHO7YV1YR9cBse1PJR3uznzKHus3SxOiQTZONcQ8Dc4O10E9ZH4GhC
+         xq/3A0VVpl2ozEloEmbMIJF1qndRTQ2+tNLehpYJMl94HZRW+q2Ze+vDLaqOHcVyp7Ql
+         neHu59L3/0QDsIgY6+j/skc2ugUjt2X3Gk58JVYLfUXNPIdXmDdeJSwDdZRVDJVtiUk7
+         oyrCUkpTRITssseF9IAZCE3gKct4dFhtq1NHQKyG+W8ZQdc0dga8IwrdyYqoem704FK2
+         LJVtuSVrHIfJzW2E3ELxUfpEXXeKq/wLgPsw9BfHpxLJEmMw7mYKMYEyKW+qAPK6EZ/O
+         Ebkg==
+X-Forwarded-Encrypted: i=1; AJvYcCU5lKu2kWPaETOarLAxhI7SnMlNrQXHxqeMMNOP9hthmcieQc6pnEtWHlbNaMlmRD63ykICPS5hlJPlrA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxaYQV3jDlzNAz1t0weO/p3eAe1N7WuLq4D1dLwqnT7LwMGvx4W
+	K9O059H/+XbwDDF+zKAzg8QnHtQ9OhAxVvGHEpfNNBfLvPIWHsID3Lo4xUxWSBChVdmOjnAbovz
+	jMfWgzgmx0FhtLzdkLnjKMbUXPz8MbVg=
+X-Gm-Gg: AZuq6aLnBwSfb/3+WYKPG4AOMFty2JEiX2Q+YZYLElOEOJzy8vG3jBfx4siUyeuCraA
+	dXLO5mIsvA/LYDT6aDdqN93C2M4+97YySJp+LBw/TmwOOy5Y5e/vZnSEogsBATa0vRUIum2Y7ud
+	AvSjDECaCKHeAiEWX3S0pOCbUGzDSME2QyYEBSGlKjdB0iaXr1k5j1qx2EhnVRCWbRztYPpeZrb
+	PTx6TuTds/m9emSB1M0K9y6w8vI0IyeAQ219sV7qAVyi7Fs+OLhUgMAlx3s5x+WA0apVsKpZ4r3
+	aTrdVehc
+X-Received: by 2002:a05:6000:3107:b0:435:9770:9eb8 with SMTP id
+ ffacd0b85a97d-4362923fc0emr28798812f8f.25.1770806909126; Wed, 11 Feb 2026
+ 02:48:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b9c7aa89-b260-42aa-a85d-9e596e78e419@kernel.org>
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: VluMIBZfOqN1PCm-WjblBR1Fgp1m7zn1
-X-Authority-Analysis: v=2.4 cv=Q77fIo2a c=1 sm=1 tr=0 ts=698c5cf6 cx=c_pps
- a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
- a=kj9zAlcOel0A:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=8E9PgiLlRWQXEfnqiEYA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: VluMIBZfOqN1PCm-WjblBR1Fgp1m7zn1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDA4NyBTYWx0ZWRfXy+Q2vJe22SLd
- NIcev3bbTD7QPzRi+gGS3bd/qeZMSUaS93dE7oN1kTTe38804VG0rYQ/pyMovGtb7RragHmbUn2
- YOAS09wL8Gb28ConTA79PPKhq/qmAmnU8CU54yWUUWCoixwru5vuFrTHBfmifpJfGsPPCy6wPMb
- AIFjWnTWE2IPgUFfVl6bKC/Bo3CEBXZ93yMY3/EU4RvBCkazuOFj8BKHexpdohBJaRbG3hyw2Wd
- la5ZduJ7kizrxfn5+0VDUNF0VO9A3IM0Pw65+u3Ngi3RKWWmf0xG5RULwMTwkOWCXRrs6iSej1c
- zsvEpNaK2APM2YpMx5cRghaLW9dAVJPtEx3YF+0iN96E46AV1PiZHKx/AOymdvo42zoPtfuIoZu
- ywDbmW43WgTfi63i6gZ5nPr4yNhYPlRnqK6JOa78Q0LQHNFpSFlpqHp76LY4Ux2/1cdFuHah9kT
- mam2bZqUPLtZfhzG+3A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-10_03,2026-02-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 adultscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602110087
+References: <20260209104407.116426-1-clamor95@gmail.com> <20260209104407.116426-4-clamor95@gmail.com>
+ <20260210-sexy-grumpy-sambar-44edd2@quoll> <CAPVz0n3fizf=r58Fr4YQ6pnjHq5p-7yFz95obss6w6x0bfgnDg@mail.gmail.com>
+ <d1973810-d3f5-4ed7-ba0f-6bf93c1c7f3d@kernel.org> <CAPVz0n1foyy9g7MAurSAyLCUHTzrPPu0ceqy9YpcDA9uzgjGng@mail.gmail.com>
+ <cb91898e-10f1-4d64-bace-41bbed08179b@kernel.org> <CAPVz0n0O_uSAPYFtg8s+Ni0buyGJys6d0jEMob6SNWx-aeKUEw@mail.gmail.com>
+ <dc7acd1e-91e8-492c-8665-cb680c6164fd@kernel.org> <CAPVz0n0u_0ZukcKXt0QpiyCMhWsg2VE-dE19wDCbRQvBvVOf+A@mail.gmail.com>
+ <ec3b39d6-51ec-429d-b083-e5af2b4a9c65@kernel.org> <9dcc308d-f87d-4706-90ae-df3669aea224@kernel.org>
+In-Reply-To: <9dcc308d-f87d-4706-90ae-df3669aea224@kernel.org>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Wed, 11 Feb 2026 12:48:16 +0200
+X-Gm-Features: AZwV_QiRfznTx26RtaNIi_FievzuOy5_SC6hUakUwNSsN_ybyyiwQRTPmonDjZ8
+Message-ID: <CAPVz0n0ULXAWnK0cJcuK-k9jO9JdqHutZ84bsgSDwGJUshgS+Q@mail.gmail.com>
+Subject: Re: [PATCH v2 3/9] dt-bindings: mfd: document ASUS Transformer EC
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Sebastian Reichel <sre@kernel.org>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
+	Ion Agorria <ion@agorria.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 10, 2026 at 09:32:18AM +0100, Krzysztof Kozlowski wrote:
-> On 10/02/2026 09:26, Rakesh Kota wrote:
-> > On Mon, Feb 09, 2026 at 02:49:24PM +0100, Krzysztof Kozlowski wrote:
-> >> On 09/02/2026 14:23, Rakesh Kota wrote:
-> >>> Add the compatible string "qcom,pmm8654au-pon" for the PMM8654AU PMIC.
-> >>> The PON peripheral on PMM8654AU is compatible with PMK8350, so it is
-> >>> documented as a fallback to "qcom,pmk8350-pon".
-> >>
-> >> Drop everything after ,. Do not explain WHAT you did. We see it.
-> >>
-> >>>
-> >>> While PMM8654AU supports additional registers compared to the baseline,
-> >>
-> >> full stop.
-> >>
-> >>> there is currently no active use case for these features. This specific
-> >>> compatible string reserves the identifier for future hardware-specific
-> >>> handling if required.
-> >>
-> >> All the rest is irrelevant or even wrong. We do not reserve identifiers.
-> >> If you want to reserve something, then I need to reject the patch.
-> >>
-> > Hi Konrad Dybcio,
-> > 
-> > It appears that Krzysztof Kozlowski has concerns regarding the
-> > compatible string reservation for future use cases, noting that
-> > identifiers should not be reserved in this manner.
-> 
-> So do not reserve identifiers but submit bindings reflecting REAL
-> hardware being used.
+=D0=B2=D1=82, 10 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 14:48 Krzy=
+sztof Kozlowski <krzk@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
 >
-Yes, there is a real hardware difference between the PMK8350 and
-PMM865AU PON peripherals. The PMM865AU PON is leveraged from the PMK8350
-PON and includes extra features, but those features do not have any
-active use cases for now.
+> On 10/02/2026 12:54, Krzysztof Kozlowski wrote:
+> > On 10/02/2026 12:40, Svyatoslav Ryhel wrote:
+> >>>>
+> >>>> So you propose introduce a compatible for every single ec used in
+> >>>> transformers instead of simply disable unpopulated functions? And ho=
+w
+> >>>> then battery and charger can reach monitored cell if they have no
+> >>>> dedicated node?
+> >>>
+> >>> Just like for other bindings for nodes without resources, fold into
+> >>> parent. This is already explained in writing bindings, so you could h=
+ave
+> >>> just read that. I will pass with answering more questions till you re=
+ad
+> >>> that doc.
+> >>>
+> >>
+> >> Unfolding asus,ec-pad and asus,ec-dock will result in this list:
+> >>
+> >> asus,tf101-dock-ec
+> >> asus,tf101g-dock-ec
+> >> asus,sl101-pad-ec
+> >> asus,tf201-pad-ec
+> >> asus,tf201-dock-ec
+> >> asus,tf300t-pad-ec
+> >> asus,tf300t-dock-ec
+> >> asus,tf300tg-pad-ec
+> >> asus,tf300tg-dock-ec
+> >> asus,tf300tl-pad-ec
+> >> asus,tf300tl-dock-ec
+> >> asus,tf600t-pad-ec
+> >> asus,tf700t-pad-ec
+> >> asus,tf700t-dock-ec
+> >> asus,tf701t-pad-ec
+> >> asus,p1801-t-pad-ec
+> >>
+> >> with minor variations in populated cells. Is this acceptible?
+> >
+> >
+> > Yes, this looks correct.
+>
+> Update: with fallback-expressed compatibility when same interface and/or
+> superset of features.
+>
 
-If you are okay with the new compatible string, I will send V3 and fix
-the commit message suggestions.
+I am removing separate DockRAM and merging it into this schema hence,
+it should look like this
 
-> > > So, could you please help ACK my first patch-set instead?
-> > https://lore.kernel.org/all/20260122-add_pwrkey_and_resin-v1-1-a9fe87537816@oss.qualcomm.com/
-> > 
-> 
-> First patchset is wrong. You already received comments on that.
-> 
+  reg:
+    description:
+      The ASUS Transformer EC has a main I2C address and an associated
+      DockRAM device, which provides power-related functions for the
+      embedded controller. Both addresses are required for operation.
+    minItems: 2
+
+  reg-names:
+    items:
+      - const: ec
+      - const: dockram
+
+How should I organize amount of regs? Would this example be acceptable
+with minItems: 2 since EC requires both to work or should I set is as
+items list or minItems: 2 maxItems: 2? Thank you.
+
 > Best regards,
 > Krzysztof

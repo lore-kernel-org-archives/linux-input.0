@@ -1,156 +1,217 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3A235BDC7
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1625A1643B
+	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 17:00:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770903672; cv=none; b=iMm5ZS1X1SmOZZbihMGs2EaIUxu1pOlT00z2Or/A5FJsp9eLUWLXs0+/ugmykMMp1haySahuPlachUGr30pjQVYKmeG/gC3jNmLZjWHEWBk2ifjHVj83gGfNeY05bBPBVbbZnyOV9jvoW88Xf2W40DAK9iUQ2cPlltzGbD3J21I=
+	t=1770915646; cv=none; b=s+gYhKZfkDXyCFTKZrlBzx3+KhjalREBJDKTZup5f+P32EEVRhB3xtXviZ1bDJPjGU+2gnfdo7XC5HdazkuO+cs3FS32kAentkXCEO2PpLSmET3IHPYysuCS9JjeCYRjsdSWnRLxrwnBuq3lhEcL3bv9Ot9/7QX6LwpcnZcIShY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770903672; c=relaxed/simple;
-	bh=nAcWn1YhQ3PHXqMYJwlRwitF9aeMboZWC1V3ud+4mtY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iTx2EV8W3LaoDty7Z3lvhdrQV+l1IJipx5uNHS727zYXDxIhd5ILxfVC0qH0Dm7pOBbBU0XjAvu8NGf3RvFHVZCF1Gq8hfHClqXE3/fiseX7haj6Wkro4DAedXP3Jgoel1tABWHsMIn8o+LEKdFjwIIUKY+HR8KU2m2vjkny868=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=pIuORg1i; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=amqJ4c8j; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1770915646; c=relaxed/simple;
+	bh=tkagtN+Ha0hPGnRQeJmX+TMEY67RVlUFRzkD9okT48s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MAtTOjGVIzFO92LN67J2Xwq9bdHcIoJq95l+0BY0OsHfUVm6T4UCrW/xRMWXwxVkNR4w1HLcdlVPU4DNudbXNxmfUTLewPcrRb/YBcfODhjnuD04xq7S/FU7QoW1pKisnSQIlPmc2Nc6tPKbVJ4O/Qaznw5D/G1AI2CYNxXz0a8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pm6EvDcD; arc=none smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="pIuORg1i";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="amqJ4c8j"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61CDS9m31075184
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=; b=pIuORg1ipOMazCjN
-	Nj9FuVe3Babh7ivPL0Qf0n585mBcBTzm7Kkc4Vx8tdFzLI9QdBMZQT2QOQzdITF9
-	7nHvnHnIGZuzaCeQzs3UjQBOkoS3kZ6rB4FajSK8uuYpuGiW+HvlLTqKLEejaf/6
-	jMGwIJE5i+dsSol1WjUvUzgBsDcMWe/wuPsHLTilomRpfGSGJ33kyI5DVCl96J2o
-	rgA6dm8KI0HADyl8TpWiy69rB8US7D3OIjq5zAB7oFGG0QOXZPWRT41k1Hffr7NR
-	9qTtomsRNx8x7fFbS802wtAs1KQ66gVoYEuGMfvNNJ0w4dwv3Ia3x0PLM6T51wLl
-	C9wTQA==
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c8y8nu5nh-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:08 +0000 (GMT)
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-8cb38346fdbso17929885a.0
-        for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 05:41:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pm6EvDcD"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2b740872a01so31754eec.1
+        for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 09:00:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770903668; x=1771508468; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=;
-        b=amqJ4c8j+D6bEC9yiB5i0Uq4wiC/gONN+Sod5JuTL4DDeiHcZ6wvP5Go18rFR6lCkF
-         0LcXZA9b7mEIi0sNh+5W4SZNPg5oHdTqDTTvpqkaQD+jVRysYFFoWL44kngRPVo4JR95
-         68S0tMhGy4qQCgctBRf4/VKMSS2NXj+Zi3lioWRASRnbdbKS+f8EStsx95pQsNEmZF/H
-         NUA1ZIHyPKPB8geS6vMWXffUlCSGDQCag4eEhMUo1PSNIE7qTMBp1MxlvE0kIu26HfOM
-         E8tx2Be97w/VsERkgHxAqOKpWXmUlyTL1rmhrt/eSMCGY46E3rNHsMin0HrsYR/rMQF5
-         M7CA==
+        d=gmail.com; s=20230601; t=1770915644; x=1771520444; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=sZeOfMJihFk2Pkr4N9v4cABUQOn7003bjsW+FPVxdko=;
+        b=Pm6EvDcDHYJgnFRTpCyv0d/sso5oWT8TgLRGQT18xfOZ0gUHxDUnNqqOzpb+THb+q2
+         OmHwjkjnnt1Jy/u9M9wlWM2AkMiS0ecQEKPAHfV/iD4bcm91+E7ZE6ogD1n7KcF6wp3R
+         8ITf7kJ+I42L2ozFcnBweqAOCtvTxGtimHii3YwHtfJKjU5yr1xW+pD1nrPVo59fnSzj
+         0w29JxbFCWXY6jYfc7hD9VWE6ILQa4lQbs/mHfKQkwivwo6ndVjktt70pdmqT1dWPeyT
+         Xxm4Bol5vWqTr/Gj+lfiGm8n6/phHKcqJ7FN8gVqhKjq6s1TkMECAQD2FQcsh0TSqXZv
+         0g6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770903668; x=1771508468;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=;
-        b=HOKV0EZkJMKBn3y6O9K1pXMdqrKQmhvYQPsL/uczqMcqt1u47cUK0uBbncd72aE6Qq
-         keDGB7oKWfPt4W01B0p/Le4JG8+NPmQk2rOxLUGm7pYKD0CIzMQhXRPFbMQsY7BCKDVm
-         2BFGmwisF1KeqFmSh4M39V99lAnPufdCU2xLc8OjAiUz9ydX3su+7Je13dkDnKssPjnD
-         wb1ob0KDFfMi5cqM7bg4pQ0jK53ShaWAOXD6Wf+B/+Y3URLFSpfT6tIaMtpzLJssDaEi
-         fhBws7fFTRgCUXpWP60VRKjAoi9IsaaGvjU41bQoe07IQGDznUMWgTiQLrKwCVAJ1pxx
-         YjaA==
-X-Gm-Message-State: AOJu0YzCHAn3Y75IiNK/10lvyCkn5Z+HGCqpHcTVyDgQKe8Jxt1pplvd
-	ilzLf0XfVsmkErHkYd66R6OHKCjVTZpuMBDyByrjlY3Jwyu3MtgoS0YFkzRcN/1qtW2Zt4hyQ1D
-	GnD6d86CZVddDZcFqth7T0yMZq74ZUgZMViGeiQ3XpBMi+TPVfBjmNfkkrUBqAz+FdQ==
-X-Gm-Gg: AZuq6aIQrd1VWnl79/kqsnYE8ClvlXfpg2at8Ce0JaKbZqPvCWRXfwf00TbnD6T4LtH
-	22elPJAYTi6cHJEllEm57C2SmVraMkapdRUpsFRTHNZcNr8xnf4OBwA/LunA/PrbH/xgork5CJY
-	nRlM7UsqSnzakhsVKg/weh+2gWjb21D0olrw4dGiBCLT/L8odQNmKJWrDXoy+gIM/ow6CidK2fH
-	CqhMyHLLOQha9g51U0YTTgwnTyxXF4gMGwVoHtMHheRZYFIGhsRNK2BHH3D59yFky/mteuuhCC2
-	jb02MojdIrHDFIl64jBByxXGW5K8tADK+9crQDb94kzPupORXxh5fzwY6YM9RwXRX0+A8jwVc6k
-	/SEViWB+JdgsEK7vxwROmZOzFgsrcnMhhsZWWbAp3FEzpBy342AGp17S9gq12AHnw0U31oGtNnA
-	jRt+A=
-X-Received: by 2002:a05:620a:4407:b0:8c0:c999:df5a with SMTP id af79cd13be357-8cb3311bb60mr255615585a.6.1770903668217;
-        Thu, 12 Feb 2026 05:41:08 -0800 (PST)
-X-Received: by 2002:a05:620a:4407:b0:8c0:c999:df5a with SMTP id af79cd13be357-8cb3311bb60mr255611385a.6.1770903667788;
-        Thu, 12 Feb 2026 05:41:07 -0800 (PST)
-Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8f9bd846c0sm36946766b.3.2026.02.12.05.41.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Feb 2026 05:41:07 -0800 (PST)
-Message-ID: <0dffe84a-d41b-42f0-80ac-fbb8e81970da@oss.qualcomm.com>
-Date: Thu, 12 Feb 2026 14:41:05 +0100
+        d=1e100.net; s=20230601; t=1770915644; x=1771520444;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sZeOfMJihFk2Pkr4N9v4cABUQOn7003bjsW+FPVxdko=;
+        b=H7F5fQGstwSOnKV+w7QRhH/NeloOXPdaJg6PNd/r1tu66UVFbA+XfC0sG0DHU2+JX5
+         lQQCgaktq51bsNBA3HDuGyYhPLygiJYq6qYwPCrloItOLdvbRT5XE4Trz0VAmiaSYDXv
+         LxlfQVg4vmo01Q65VOdYuvJXRUESkUKqscGUYOBDxu7kWZ+8WFCEQqSlaEeTD6zG5ZbU
+         W5QPJ/LEfbEWDOaeF/9Jh+l44UaO2/ay+VAWXL1XEE0PPwxgH6R70ePyViMegNyktqNH
+         eHblEJnjl64pX+WxRthRIJub5Ndc3pgCJwz0Ywz1sy3iSkUs8aMXIIMc7mWwgFO7Wh4E
+         zMUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXcKnR4eH5EfDnncDzl+Yf6HxT79F+Keoz4qh1PJanP/ND7S7+YHUA6PGwSoBiZ4xJ9doN0nKlnlJSauA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzg+yoW0/xVbPS8gn6xr14ZsFFxGav1EC0NTWIkvVeVqGgJZWlM
+	cgIcqefFAfP0yyICdOCAPFREZyMvad1CkEPoNdDanfZ3tbL8eEqJ/+kQ
+X-Gm-Gg: AZuq6aJGfhgAo+Lqndysm4sHid36cnIVqVu1kcDh8MtEY3Ld+IbUCUt3jAU2T1Ntkir
+	PuJDlCmeUy9ChhL8VhgF4u23eW8tgTFTu074sT+SQdfIpRC+fNdRWLSbk9l7wbUo8Mh5jeZXCIy
+	o4I8fLm1eygN904XnSxP4sOSo2D2Lu1B/g2EKfxCSnV+5VTbfnTo0JgB1Y6pr/5lZCAjGeZTdVp
+	DYLl36YWb7jOdSvnQAfR9k9b/RP/tocfhyUAgRfR4y3uH0ZRVzodizbV+5L7FZ4x5pauJ9stHBE
+	E8OQ1qo+RXkiFcXs/WHd7M3kNgVeKKLs/JLFvpkcOVuJzZeLTWtPBL7/jnorRqnT5buyn31fC2G
+	9HDPKdHFkEP12HfOnF0AABLuyOEKCJC7ayKCPFRCA/sSgEvzJyB/u66CDmU32NxFsQbJpiU+0ng
+	7sPO1nmjtDoweF3Ru5ur5wySvh09ce0o9SDyz6yJLbpLFNAXfzOEHjciicTF+hTh4=
+X-Received: by 2002:a05:7300:3211:b0:2b7:ee0e:e9ba with SMTP id 5a478bee46e88-2baac5939c1mr924343eec.10.1770915642368;
+        Thu, 12 Feb 2026 09:00:42 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:f5e:c935:ddee:63d0])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ba9dcd01d1sm4616421eec.17.2026.02.12.09.00.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Feb 2026 09:00:41 -0800 (PST)
+Date: Thu, 12 Feb 2026 09:00:39 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Liam Mitchell <mitchell.liam@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bcm5974: recover from failed mode switch
+Message-ID: <aY4FgAsSYx4niIG3@google.com>
+References: <20260207-bcm5974-reset-v1-1-af7163903fa6@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
- Focaltech FT3518 touchscreen
-To: yedaya.ka@gmail.com,
-        =?UTF-8?Q?Kamil_Go=C5=82da?=
- <kamil.golda@protonmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-References: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEyMDEwMyBTYWx0ZWRfX2D9DLWL4Chan
- vqkt1BEh1/JHkBqhgHQe4VS6wZLsptUnzerrJvUGocquY60owL0t6rxtf94EAszV0luICOWdNGa
- IKUE8i1rwEGMGu+sADyZLRm5JR5HcR0iXiEdsoU49r3c7o2SgrnUzvJBHWR7doFyyigNjKcnLde
- eszHDTRL+QDhpOiKqTi4J6M4sv6C+EDhaQ+u4XkyG3gSU1M2b9UmBF2X1nrxVLPwkr/QWFjgPvE
- Z2QHXxVEa6jIGw5gHpaf3LiH6ZLfnRAysZ90OX0NTrOd+XRh2XiCLKeWAE87pM6HNOtN8yzwWZH
- VUzYxNWotE1BccrFtqmKYvxKe/fy3uz+lA6QMUIRu+5awjyH2CPr7RKFO0qMk9CyByeed4B+CLp
- jh9c2PMqdm1i1Xw8jMXjog1DiJLEs53lacu5sZi2/HBukzhdn5F4TPsRahHdkujr3Hs0SRUN63Q
- hwsMvOZ0ooPqqB9pdLQ==
-X-Authority-Analysis: v=2.4 cv=VNvQXtPX c=1 sm=1 tr=0 ts=698dd874 cx=c_pps
- a=50t2pK5VMbmlHzFWWp8p/g==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22
- a=Uyhorv2uAAAA:20 a=pGLkceISAAAA:8 a=sfOm8-O8AAAA:8 a=EUspDBNiAAAA:8
- a=SvwoN8VrOMzw8yseGhAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=IoWCM6iH3mJn3m4BftBB:22 a=TvTJqdcANYtsRzA46cdi:22 a=bA3UWDv6hWIuX7UZL3qL:22
-X-Proofpoint-GUID: IhGkoV5-YvJJyU5BddRJ1OXsS1GUqxN2
-X-Proofpoint-ORIG-GUID: IhGkoV5-YvJJyU5BddRJ1OXsS1GUqxN2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-12_04,2026-02-12_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 phishscore=0 spamscore=0 suspectscore=0 adultscore=0
- malwarescore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602120103
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260207-bcm5974-reset-v1-1-af7163903fa6@gmail.com>
 
-On 2/8/26 10:24 PM, Yedaya Katsman via B4 Relay wrote:
-> From: Yedaya Katsman <yedaya.ka@gmail.com>
+Hi Liam,
+
+On Sat, Feb 07, 2026 at 06:16:26PM +0100, Liam Mitchell wrote:
+> Mode switches sent before control response are ignored.
+> On receiving unknown 8-byte packets, assume that mode switch was ignored
+> and reset by switching to normal mode, waiting then switching back to
+> wellspring mode.
 > 
-> Add device tree node for the Focaltech FT3518 touchscreen on
-> Xiaomi Mi A3 (laurel-sprout).
-> 
-> Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
-> 
-> Downstream references:
-> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
-> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
-> 
-> Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
-> Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
-> Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
 > ---
+> This patch addresses an issue where the bcm5974 driver switches modes
+> before the device is ready, resulting in an unresponsive trackpad and
+> "bcm5974: bad trackpad package, length: 8" repeated in logs.
+> 
+> Discussion of issue in the thread:
+> https://lore.kernel.org/linux-input/CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com/
+> 
+> This fix is conservative, avoiding changing existing mode-switch
+> behavior because I cannot test all variations of hardware.
+> 
+> On receiving an unknown 8-byte packet, we assume the device is not in
+> wellspring mode and schedule an asynchronous mode reset.
+> 
+> Signed-off-by: Liam Mitchell <mitchell.liam@gmail.com>
+> ---
+>  drivers/input/mouse/bcm5974.c | 43 ++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 42 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+> index dfdfb59cc8b5..85ddd65f2603 100644
+> --- a/drivers/input/mouse/bcm5974.c
+> +++ b/drivers/input/mouse/bcm5974.c
+> @@ -286,6 +286,8 @@ struct bcm5974 {
+>  	const struct tp_finger *index[MAX_FINGERS];	/* finger index data */
+>  	struct input_mt_pos pos[MAX_FINGERS];		/* position array */
+>  	int slots[MAX_FINGERS];				/* slot assignments */
+> +	struct work_struct mode_reset_work;
+> +	unsigned long last_mode_reset;
+>  };
+>  
+>  /* trackpad finger block data, le16-aligned */
+> @@ -696,6 +698,34 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
+>  	return retval;
+>  }
+>  
+> +/*
+> + * Mode switches sent before the control response are ignored.
+> + * Fixing this state requires switching to normal mode and waiting
+> + * 1ms before switching back to wellspring mode.
+> + */
+> +static void bcm5974_mode_reset_work(struct work_struct *work)
+> +{
+> +	int error;
+> +	struct bcm5974 *dev = container_of(work, struct bcm5974, mode_reset_work);
+> +
+> +	mutex_lock(&dev->pm_mutex);
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+	guard(mutex)(&dev->pm_mutex);
 
-Konrad
+> +	dev->last_mode_reset = jiffies;
+> +
+> +	error = bcm5974_wellspring_mode(dev, false);
+> +	if (error) {
+> +		dprintk(1, "bcm5974: reset to normal mode failed\n");
+
+		dev_err(...);
+
+> +		goto out;
+
+		return;
+> +	}
+> +
+> +	msleep(1);
+
+This duration is too short for msleep(). Use usleep_range() of fsleep().
+
+> +
+> +	error = bcm5974_wellspring_mode(dev, true);
+> +	if (error)
+> +		dprintk(1, "bcm5974: mode switch after reset failed\n");
+
+		dev_err(...);
+> + out:
+> +	mutex_unlock(&dev->pm_mutex);
+
+Explicit unlock is not needed with guard().
+
+> +}
+> +
+>  static void bcm5974_irq_button(struct urb *urb)
+>  {
+>  	struct bcm5974 *dev = urb->context;
+> @@ -752,10 +782,18 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+>  	if (dev->tp_urb->actual_length == 2)
+>  		goto exit;
+>  
+> -	if (report_tp_state(dev, dev->tp_urb->actual_length))
+> +	if (report_tp_state(dev, dev->tp_urb->actual_length)) {
+>  		dprintk(1, "bcm5974: bad trackpad package, length: %d\n",
+>  			dev->tp_urb->actual_length);
+>  
+> +		/* HID packet means we aren't in wellspring mode */
+> +		/* If we haven't tried a reset in the last second, try now */
+> +		if (dev->tp_urb->actual_length == 8 &&
+> +		    time_after(jiffies, dev->last_mode_reset + msecs_to_jiffies(1000))) {
+> +			schedule_work(&dev->mode_reset_work);
+> +		}
+> +	}
+> +
+>  exit:
+>  	error = usb_submit_urb(dev->tp_urb, GFP_ATOMIC);
+>  	if (error)
+> @@ -906,6 +944,8 @@ static int bcm5974_probe(struct usb_interface *iface,
+>  	dev->intf = iface;
+>  	dev->input = input_dev;
+>  	dev->cfg = *cfg;
+> +	dev->last_mode_reset = 0;
+
+No need to initialize with 0, kzalloc() takes care of this.
+
+> +	INIT_WORK(&dev->mode_reset_work, bcm5974_mode_reset_work);
+>  	mutex_init(&dev->pm_mutex);
+>  
+>  	/* setup urbs */
+> @@ -998,6 +1038,7 @@ static void bcm5974_disconnect(struct usb_interface *iface)
+>  {
+>  	struct bcm5974 *dev = usb_get_intfdata(iface);
+>  
+> +	cancel_work_sync(&dev->mode_reset_work);
+
+Use disable_delayed_work_sync() instead to ensure it will not get
+re-triggered.
+
+>  	usb_set_intfdata(iface, NULL);
+>  
+>  	input_unregister_device(dev->input);
+
+Thanks.
+
+-- 
+Dmitry

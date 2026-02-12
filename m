@@ -1,145 +1,247 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C423D156677
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 05:30:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940BE285058
+	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 05:31:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770874251; cv=none; b=i0VnYbqD5UfNgE0KKAl10ekjNdok7ioMHwp0F6LpKEUNjiq/I1IL3UGiOR4MMcpJn1gmjyZhSx7RwntGqkzoY7Uqs9ianoJ4l5QOuNub6FFvWxCWMU4Mfs6vlxjE74xHIDPx6ikZX9wAAG1mRYxxQYQ4aCL/0mMZ9yQV0ejXL84=
+	t=1770874279; cv=none; b=VTpWGkoled90AUdm1pIu4qoMJD6goTpL+R9G2pSfJaOlMQKjLmG4ME/4e3fs3/NwXrJ3Dh+AbEKEcTOeK1b/xr2Snc8xwAtOxrUM9bFyH9iTah07I1oMAUV1HtOLQqhAEigIIanCfTi1Apw91RW6U5fZ2VS2o/0twgzggrqi3rI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770874251; c=relaxed/simple;
-	bh=M9u3F8vMbb8KnjCzF8afvRTHFhneUQC2iutBlxhIGw8=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=ayHKSOEbEMClnUuS0vZ652gx8KK+3ZTUXL9mSG3IE3ENfcjkiwizQCRN63GQ9z2KN4TWcavR7CY6hCkd7RnUTLUzzPKk4khdW65ChalfmVr24kKjHRNXAEJBziDMrXOcQIsavRjQrzhLgyClKfdrudlHFI4pkQfh9aYWtRgdwug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fw1r337u; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770874279; c=relaxed/simple;
+	bh=IPj99+CAjQCFOyC62JeYeciGSmJzGTFGySVzAYJSdms=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=dutFAQes1XN+6oKT4nf/yYYiR5JJlk1AlWQLQUW3c1rAuhndgVYz+nSFJu5Fg0ymmQVYtRwbxghLzKetmgEuRk02TA71U0RC079LddDL896pDMkYfgE9Kr4mOClf987uCJd5Y4FYvAIb5K5D+N2c6kDvCXTYPX6to/6rOntY9E4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=C/XpT4P5; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fw1r337u"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-b8870ac4c4eso947460466b.2
-        for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 21:30:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="C/XpT4P5"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-47ee0291921so58034975e9.3
+        for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 21:31:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770874248; x=1771479048; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=aiP8Erv5C7Xj3JXt8nFdVUGp5E+liP8wGy23CnOFomo=;
-        b=Fw1r337udEW91F8u+YRGcxg44DHKZEh9G7IyyPaa/BqFhGrU13/FCcjbqwBatHYUfl
-         OiDRT6iSKincNmWBYwN0orurS49sPxcfRSF7iKQs0R91B23OoSOCdul49BSIBvhs2NJk
-         YA+aHD+IHQRe+q7jUscSiquMH9dVFp8ZIRB45+aRtUiEJtaGIhhDskd8NOqCZDdO/VPB
-         51q/uu1VgDzIZH89M0OjoCxN8ZPyAUCdGhHv3IfPB8gklPH5R2c4u/V4Vo3qWydcoQ9d
-         BueNeIFYeF/rcu7usGZok0u1SbCz89+bxPWY6WBNSLGDKsOCxg7XjDXciEGFWHCYwtgR
-         3jzQ==
+        d=linaro.org; s=google; t=1770874275; x=1771479075; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WF/dx0Rr8xIVi+ZgBnigIYzsCPl9NNLZZ4DZuS/3Rw0=;
+        b=C/XpT4P5pFVsw+hqQMAvc0kzPMZFOwTWsY+XyCjw8u/QLvHQO+NxwE8YrdvofY2PkR
+         XYNG0/CC/mJRCoQ0kuvhyCmAHMUyMxXgi6PE1C2hKHfZizOVEdOgmHZnOa+O8SouaDMt
+         UaFYvWTZYkcP+ips7Saho90SMswRx6RDPhRCzxtaQzre6oeG7K3PQGxu9tuZM9a4R1En
+         Bsik0fLpp291pOfRiAg5gtYGlqeQyoLOl489TpC/rvuLoAB8gB0qgF3xlcgDecO4OWKW
+         Cbh2mG5oaXEWF0rUWnKrFg7XKlyzYrz7IBdsSkLNXfZQY3NNAMfJ4E3t5D45I5cbcwRu
+         W9ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770874248; x=1771479048;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aiP8Erv5C7Xj3JXt8nFdVUGp5E+liP8wGy23CnOFomo=;
-        b=qtGEU3YPo87iekkbFVuQVHWTupuuSvaMdYhW01UR+nivKhoktZ9eIofsV8CXe1NFws
-         ht+xk15Z2b93F8E876QZIBq2spsO7TkBbWrIbul21Miupj/51c7lIQ6eB91G+TKm7yTB
-         P9RXt1ODmeUy3T1PxOXsFEPVjSKfnFHmVyl8xiFI4MOna3HeMXAjf+0tIM8KplzZk1VC
-         O7d91JTrvj5XzdtSHhF5qMWiVi5otfpbC16pMPaPnR7jwbI+My6w46r2Ad0LvkCIBXZA
-         oTyQiBpCbZnm6ljFMXNxGa+SkHknazmL9EX63rX2ulkMQCfDcHTs7F2HmUbmhNasXiFR
-         SKEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWXPGKHqX5MxpR9csyrMx2GcJ1LrmYmAyeZ/gtZSdn6S8A7iVYl7RDl7m2mdGgeIWXRzbRNp/q+uec9Ow==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzdweac/oiH6zauCnDbs0D97SedHHGKif4HriyJm2TwwN8v1V3W
-	YxLyX7iZ3k27/a8njsq2S04Pea2P0Wm1tHX5NCZTS3mQjFwaCAmEHEHr
-X-Gm-Gg: AZuq6aKhzzjH85oLNK6FBPlzW7dogN6Zia7Yeh0plEt15HgYaq3YREWoUkPFdEGevO4
-	2yBtDm+Z3pOB4MFogZj9Few+Mi7bUxqfNvWWMY0E5BixAqnppjIScj926unKKgzSaY79cXAPcZp
-	w/AAg+91ChAnkpcsWMhfpdkXM+M7ZyC0DEK/vYbe0JPTkSk15cyjzLVLg4x81PPWlkzH4FlSXIw
-	zKNpNGbdrLXj+k5M4HghS9vWcshO81n1VQyTY5w9caOHYQNbCP5qpXhKtNrBpkVVERFNiKA+XoV
-	LWC8ACSgBGQugxnJXieG0jTzGl8ox78p1VuRP9lgriznxGmbojxEVMXOIVZIlG5t47Ntw9LqdDJ
-	GzDkWNWYUocDSaFJwAwTFpMxUEm9CxfT+bh3DjusuQ7rgupiFOGLzdJl+opj/Lu2Wu2j7l4Gukc
-	ZF6LIZyPeQuGGJzrLQVShk1bb9MAnVvJKT
-X-Received: by 2002:a17:906:eec6:b0:b8e:3d49:25db with SMTP id a640c23a62f3a-b8f8f842106mr82989966b.54.1770874247809;
-        Wed, 11 Feb 2026 21:30:47 -0800 (PST)
-Received: from ehlo.thunderbird.net ([178.137.248.178])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8f6e9d0212sm129363366b.26.2026.02.11.21.30.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Feb 2026 21:30:47 -0800 (PST)
-Date: Thu, 12 Feb 2026 07:30:45 +0200
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-To: Rob Herring <robh@kernel.org>
-CC: Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>,
- =?ISO-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>,
- Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Dixit Parmar <dixitparmar19@gmail.com>,
- Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2_08/11=5D_dt-bindings=3A_mfd?=
- =?US-ASCII?Q?=3A_motorola-cpcap=3A_convert_to_DT_schema?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20260211212016.GA3910589-robh@kernel.org>
-References: <20260206172845.145407-1-clamor95@gmail.com> <20260206172845.145407-9-clamor95@gmail.com> <20260211212016.GA3910589-robh@kernel.org>
-Message-ID: <E5BC797C-4362-4C75-BCAC-7C32A51C4725@gmail.com>
+        d=1e100.net; s=20230601; t=1770874275; x=1771479075;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WF/dx0Rr8xIVi+ZgBnigIYzsCPl9NNLZZ4DZuS/3Rw0=;
+        b=G5F2ESS7YewHfGUIj3GqGci14xrf3VsrLC6DCvS8vLE7xw9GXROiRKmeBgWLLxQ2uw
+         AS//dJ5OF/MjAsyXtTLoadv/2zdvBxWa97DaAeclqR4Tn3Gailo/0fA5y0sFYi9LDet0
+         qQDUCsbecoDnlDchudUb53mco0VVumxR9uMg+n0taprI7e1dEvp37b7wbuqgZwxhR50I
+         VR/kwAKlLUR04pDHdLvDKiCSLDOsGy7RcJAXl4sCBVyIPDyN1fRlxtrlgzEnYjpvwAli
+         I4gJvZnYseKlCptbpIMSv6StAEnQNxKvQfacblKxenEnETnXOuiy26rFVE/sNRxnxcz2
+         Go7A==
+X-Forwarded-Encrypted: i=1; AJvYcCUopaGvvgwwFeZsl2iGc1a4wGZOfZisFQQLRP450b2S5n0dzDE2XESiRBvWf8tvEh5sYBh3L1MF3IPGwg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyJsIW7KKDiL9GM/xMFD3Z0Q/3nbjwYkKB+Ma+B1lGp09gN6D+b
+	lO4brlVfVM6E8SCp648K2PDP91HF8LRU6DzCHEP8Y2K17iZ+eppWmOpl04pv05yiVo7TkYzZ0lm
+	BEqfB
+X-Gm-Gg: AZuq6aLJ1vDCYcI6HgxQIA9pvaTSk34H14uCVm/4ahdqgJsqz20lFWB4vJ7QbGgFj3E
+	zsIUWiTBKO6VmnHUpAYu8mCGK0dendrxoq03G2XWSYGFH+9oLFDgIln9z1BjFTYc/dJUxCkywzk
+	JMY/na34CGuAyonbWI4iquAu2U0c/Gar61ax8e0b7WeloyvIZMpkGUjS0sTvMhEl3+i9XYk4WFC
+	EtIOx+XU7XB4tjs5FkJcBbRNZUSUycPSNcP7Ag9l4WL28Kn8gHjX56wP6RFOPUxl5V4gtkDyb+c
+	6az83WQGilKuTeLrLiO7px2oUViS3MJJhYvAfkkCFintbcUnvwjnFkec5WWQ3I6w2NoDSSAesUR
+	flEkDmzEEl6yXQQ+W9Tj3TCP0Vomjcioe0QSLDPNvlA3G79NCzeOCddLOFocY00VQcmA7Lq4q1l
+	tacDetCER5sp1/zqA1RPQD8dfO8fIP
+X-Received: by 2002:a05:600c:5287:b0:476:d494:41d2 with SMTP id 5b1f17b1804b1-48365716538mr18082855e9.29.1770874274694;
+        Wed, 11 Feb 2026 21:31:14 -0800 (PST)
+Received: from localhost ([196.207.164.177])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4834d5ebd1bsm187141565e9.6.2026.02.11.21.31.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Feb 2026 21:31:14 -0800 (PST)
+Date: Thu, 12 Feb 2026 08:31:11 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: oe-kbuild@lists.linux.dev, Ivan Gorinov <linux-kernel@altimeter.info>,
+	Jiri Kosina <jikos@kernel.org>
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND] HID: winwing: Enable rumble effects
+Message-ID: <202602120209.xYKh9QQp-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260211053116.GA20357@altimeter-info>
 
+Hi Ivan,
 
+kernel test robot noticed the following build warnings:
 
-11 =D0=BB=D1=8E=D1=82=D0=BE=D0=B3=D0=BE 2026=E2=80=AF=D1=80=2E 23:20:16 GM=
-T+02:00, Rob Herring <robh@kernel=2Eorg> =D0=BF=D0=B8=D1=88=D0=B5:
->On Fri, Feb 06, 2026 at 07:28:42PM +0200, Svyatoslav Ryhel wrote:
->> Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAML=
-=2E
->>=20
->> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail=2Ecom>
->> ---
->>  =2E=2E=2E/bindings/mfd/motorola,cpcap=2Eyaml          | 411 ++++++++++=
-++++++++
->>  =2E=2E=2E/bindings/mfd/motorola-cpcap=2Etxt           |  78 ----
->>  2 files changed, 411 insertions(+), 78 deletions(-)
->>  create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cpca=
-p=2Eyaml
->>  delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cpca=
-p=2Etxt
->>=20
->> diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap=2Eyam=
-l b/Documentation/devicetree/bindings/mfd/motorola,cpcap=2Eyaml
->> new file mode 100644
->> index 000000000000=2E=2E7e350721d9f6
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap=2Eyaml
->> @@ -0,0 +1,411 @@
->> +# SPDX-License-Identifier: (GPL-2=2E0 OR BSD-2-Clause)
->> +%YAML 1=2E2
->> +---
->> +$id: http://devicetree=2Eorg/schemas/mfd/motorola,cpcap=2Eyaml#
->> +$schema: http://devicetree=2Eorg/meta-schemas/core=2Eyaml#
->> +
->> +title: Motorola CPCAP PMIC MFD
->> +
->> +maintainers:
->> +  - Svyatoslav Ryhel <clamor95@gmail=2Ecom>
->> +
->> +allOf:
->> +  - $ref: /schemas/spi/spi-peripheral-props=2Eyaml#
->> +
->> +properties:
->> +  compatible:
->> +    enum:
->> +      - motorola,cpcap
->> +      - st,6556002
->
->This does not match the only user in the kernel =2Edts files as=20
->"st,6556002" should be a fallback=2E
->
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Honestly, I would remove st,6556002 since it is not the only cpcap model w=
-hich can be used, hence it cannot serve as a universal fallback=2E Some dev=
-ices use ST produced cpcap chips, others use TI and range of models varies =
-too=2E I guess I have to multiply commits=20
+url:    https://github.com/intel-lab-lkp/linux/commits/Ivan-Gorinov/HID-winwing-Enable-rumble-effects/20260211-133322
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260211053116.GA20357%40altimeter-info
+patch subject: [PATCH RESEND] HID: winwing: Enable rumble effects
+config: parisc-randconfig-r071-20260211 (https://download.01.org/0day-ci/archive/20260212/202602120209.xYKh9QQp-lkp@intel.com/config)
+compiler: hppa-linux-gcc (GCC) 8.5.0
+smatch version: v0.5.0-8994-gd50c5a4c
 
->Rob
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+| Closes: https://lore.kernel.org/r/202602120209.xYKh9QQp-lkp@intel.com/
+
+smatch warnings:
+drivers/hid/hid-winwing.c:235 winwing_haptic_rumble() warn: address of NULL pointer 'data->hdev'
+drivers/hid/hid-winwing.c:308 winwing_haptic_rumble_cb() warn: can 'data' even be NULL?
+drivers/hid/hid-winwing.c:339 winwing_init_ff() warn: variable dereferenced before check 'data' (see line 333)
+
+vim +235 drivers/hid/hid-winwing.c
+
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  221  static int winwing_haptic_rumble(struct winwing_drv_data *data)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  222  {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  223  	__u8 *buf;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  224  	__u8 m;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  225  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  226  	if (!data)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  227  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  228  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  229  	buf = data->report_rumble;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  230  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  231  	if (!buf)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  232  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  233  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  234  	if (!data->hdev) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @235  		hid_err(data->hdev, "data->hdev == NULL\n");
+                                                                ^^^^^^^^^^
+This doesn't end up getting dereferenced because of dev_err() magic
+but passing a NULL here is pointless.
+
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  236  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  237  	}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  238  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  239  	if (!data->hdev->ll_driver) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  240  		hid_err(data->hdev, "data->hdev->ll_driver == NULL\n");
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  241  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  242  	}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  243  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  244  	m = convert_magnitude(data->rumble.strong_magnitude);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  245  	if (m != data->rumble_left) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  246  		int ret;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  247  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  248  		buf[0] = 0x02;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  249  		buf[1] = 0x01;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  250  		buf[2] = 0xbf;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  251  		buf[3] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  252  		buf[4] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  253  		buf[5] = 0x03;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  254  		buf[6] = 0x49;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  255  		buf[7] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  256  		buf[8] = m;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  257  		buf[9] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  258  		buf[10] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  259  		buf[11] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  260  		buf[12] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  261  		buf[13] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  262  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  263  		ret = hid_hw_output_report(data->hdev, buf, 14);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  264  		if (ret < 0) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  265  			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  266  			return ret;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  267  		}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  268  		data->rumble_left = m;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  269  	}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  270  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  271  	m = convert_magnitude(data->rumble.weak_magnitude);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  272  	if (m != data->rumble_right) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  273  		int ret;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  274  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  275  		buf[0] = 0x02;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  276  		buf[1] = 0x03;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  277  		buf[2] = 0xbf;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  278  		buf[3] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  279  		buf[4] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  280  		buf[5] = 0x03;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  281  		buf[6] = 0x49;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  282  		buf[7] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  283  		buf[8] = m;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  284  		buf[9] = 0x00;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  285  		buf[10] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  286  		buf[11] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  287  		buf[12] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  288  		buf[13] = 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  289  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  290  		ret = hid_hw_output_report(data->hdev, buf, 14);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  291  		if (ret < 0) {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  292  			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  293  			return ret;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  294  		}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  295  		data->rumble_right = m;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  296  	}
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  297  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  298  	return 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  299  }
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  300  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  301  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  302  static void winwing_haptic_rumble_cb(struct work_struct *work)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  303  {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  304  	struct winwing_drv_data *data;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  305  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  306  	data = container_of(work, struct winwing_drv_data, rumble_work);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  307  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @308  	if (data)
+
+"data" can't be NULL.  It's work minus an offset.
+
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  309  		winwing_haptic_rumble(data);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  310  }
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  311  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  312  static int winwing_play_effect(struct input_dev *dev, void *context,
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  313  		struct ff_effect *effect)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  314  {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  315  	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  316  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  317  	if (effect->type != FF_RUMBLE)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  318  		return 0;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  319  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  320  	if (!data)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  321  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  322  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  323  	data->rumble = effect->u.rumble;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  324  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  325  	return schedule_work(&data->rumble_work);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  326  }
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  327  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  328  static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  329  {
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  330  	struct winwing_drv_data *data;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  331  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  332  	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @333  	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  334  	data->rumble_left = -1;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  335  	data->rumble_right = -1;
+                                                ^^^^^^^^^^^^^^^^^^
+Dereferences here.
+
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  336  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  337  	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  338  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @339  	if (!data)
+                                                    ^^^^^^
+Checked too late.
+
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  340  		return -EINVAL;
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  341  
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  342  	return input_ff_create_memless(hidinput->input, data,
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  343  			winwing_play_effect);
+c4c97b07cd09c03 Ivan Gorinov 2026-02-11  344  }
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
+

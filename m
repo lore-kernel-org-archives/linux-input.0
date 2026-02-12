@@ -1,247 +1,156 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940BE285058
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 05:31:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3A235BDC7
+	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770874279; cv=none; b=VTpWGkoled90AUdm1pIu4qoMJD6goTpL+R9G2pSfJaOlMQKjLmG4ME/4e3fs3/NwXrJ3Dh+AbEKEcTOeK1b/xr2Snc8xwAtOxrUM9bFyH9iTah07I1oMAUV1HtOLQqhAEigIIanCfTi1Apw91RW6U5fZ2VS2o/0twgzggrqi3rI=
+	t=1770903672; cv=none; b=iMm5ZS1X1SmOZZbihMGs2EaIUxu1pOlT00z2Or/A5FJsp9eLUWLXs0+/ugmykMMp1haySahuPlachUGr30pjQVYKmeG/gC3jNmLZjWHEWBk2ifjHVj83gGfNeY05bBPBVbbZnyOV9jvoW88Xf2W40DAK9iUQ2cPlltzGbD3J21I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770874279; c=relaxed/simple;
-	bh=IPj99+CAjQCFOyC62JeYeciGSmJzGTFGySVzAYJSdms=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=dutFAQes1XN+6oKT4nf/yYYiR5JJlk1AlWQLQUW3c1rAuhndgVYz+nSFJu5Fg0ymmQVYtRwbxghLzKetmgEuRk02TA71U0RC079LddDL896pDMkYfgE9Kr4mOClf987uCJd5Y4FYvAIb5K5D+N2c6kDvCXTYPX6to/6rOntY9E4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=C/XpT4P5; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1770903672; c=relaxed/simple;
+	bh=nAcWn1YhQ3PHXqMYJwlRwitF9aeMboZWC1V3ud+4mtY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iTx2EV8W3LaoDty7Z3lvhdrQV+l1IJipx5uNHS727zYXDxIhd5ILxfVC0qH0Dm7pOBbBU0XjAvu8NGf3RvFHVZCF1Gq8hfHClqXE3/fiseX7haj6Wkro4DAedXP3Jgoel1tABWHsMIn8o+LEKdFjwIIUKY+HR8KU2m2vjkny868=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=pIuORg1i; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=amqJ4c8j; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="C/XpT4P5"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-47ee0291921so58034975e9.3
-        for <linux-input@vger.kernel.org>; Wed, 11 Feb 2026 21:31:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="pIuORg1i";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="amqJ4c8j"
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61CDS9m31075184
+	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=; b=pIuORg1ipOMazCjN
+	Nj9FuVe3Babh7ivPL0Qf0n585mBcBTzm7Kkc4Vx8tdFzLI9QdBMZQT2QOQzdITF9
+	7nHvnHnIGZuzaCeQzs3UjQBOkoS3kZ6rB4FajSK8uuYpuGiW+HvlLTqKLEejaf/6
+	jMGwIJE5i+dsSol1WjUvUzgBsDcMWe/wuPsHLTilomRpfGSGJ33kyI5DVCl96J2o
+	rgA6dm8KI0HADyl8TpWiy69rB8US7D3OIjq5zAB7oFGG0QOXZPWRT41k1Hffr7NR
+	9qTtomsRNx8x7fFbS802wtAs1KQ66gVoYEuGMfvNNJ0w4dwv3Ia3x0PLM6T51wLl
+	C9wTQA==
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c8y8nu5nh-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 13:41:08 +0000 (GMT)
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-8cb38346fdbso17929885a.0
+        for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 05:41:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1770874275; x=1771479075; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WF/dx0Rr8xIVi+ZgBnigIYzsCPl9NNLZZ4DZuS/3Rw0=;
-        b=C/XpT4P5pFVsw+hqQMAvc0kzPMZFOwTWsY+XyCjw8u/QLvHQO+NxwE8YrdvofY2PkR
-         XYNG0/CC/mJRCoQ0kuvhyCmAHMUyMxXgi6PE1C2hKHfZizOVEdOgmHZnOa+O8SouaDMt
-         UaFYvWTZYkcP+ips7Saho90SMswRx6RDPhRCzxtaQzre6oeG7K3PQGxu9tuZM9a4R1En
-         Bsik0fLpp291pOfRiAg5gtYGlqeQyoLOl489TpC/rvuLoAB8gB0qgF3xlcgDecO4OWKW
-         Cbh2mG5oaXEWF0rUWnKrFg7XKlyzYrz7IBdsSkLNXfZQY3NNAMfJ4E3t5D45I5cbcwRu
-         W9ww==
+        d=oss.qualcomm.com; s=google; t=1770903668; x=1771508468; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=;
+        b=amqJ4c8j+D6bEC9yiB5i0Uq4wiC/gONN+Sod5JuTL4DDeiHcZ6wvP5Go18rFR6lCkF
+         0LcXZA9b7mEIi0sNh+5W4SZNPg5oHdTqDTTvpqkaQD+jVRysYFFoWL44kngRPVo4JR95
+         68S0tMhGy4qQCgctBRf4/VKMSS2NXj+Zi3lioWRASRnbdbKS+f8EStsx95pQsNEmZF/H
+         NUA1ZIHyPKPB8geS6vMWXffUlCSGDQCag4eEhMUo1PSNIE7qTMBp1MxlvE0kIu26HfOM
+         E8tx2Be97w/VsERkgHxAqOKpWXmUlyTL1rmhrt/eSMCGY46E3rNHsMin0HrsYR/rMQF5
+         M7CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770874275; x=1771479075;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WF/dx0Rr8xIVi+ZgBnigIYzsCPl9NNLZZ4DZuS/3Rw0=;
-        b=G5F2ESS7YewHfGUIj3GqGci14xrf3VsrLC6DCvS8vLE7xw9GXROiRKmeBgWLLxQ2uw
-         AS//dJ5OF/MjAsyXtTLoadv/2zdvBxWa97DaAeclqR4Tn3Gailo/0fA5y0sFYi9LDet0
-         qQDUCsbecoDnlDchudUb53mco0VVumxR9uMg+n0taprI7e1dEvp37b7wbuqgZwxhR50I
-         VR/kwAKlLUR04pDHdLvDKiCSLDOsGy7RcJAXl4sCBVyIPDyN1fRlxtrlgzEnYjpvwAli
-         I4gJvZnYseKlCptbpIMSv6StAEnQNxKvQfacblKxenEnETnXOuiy26rFVE/sNRxnxcz2
-         Go7A==
-X-Forwarded-Encrypted: i=1; AJvYcCUopaGvvgwwFeZsl2iGc1a4wGZOfZisFQQLRP450b2S5n0dzDE2XESiRBvWf8tvEh5sYBh3L1MF3IPGwg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyJsIW7KKDiL9GM/xMFD3Z0Q/3nbjwYkKB+Ma+B1lGp09gN6D+b
-	lO4brlVfVM6E8SCp648K2PDP91HF8LRU6DzCHEP8Y2K17iZ+eppWmOpl04pv05yiVo7TkYzZ0lm
-	BEqfB
-X-Gm-Gg: AZuq6aLJ1vDCYcI6HgxQIA9pvaTSk34H14uCVm/4ahdqgJsqz20lFWB4vJ7QbGgFj3E
-	zsIUWiTBKO6VmnHUpAYu8mCGK0dendrxoq03G2XWSYGFH+9oLFDgIln9z1BjFTYc/dJUxCkywzk
-	JMY/na34CGuAyonbWI4iquAu2U0c/Gar61ax8e0b7WeloyvIZMpkGUjS0sTvMhEl3+i9XYk4WFC
-	EtIOx+XU7XB4tjs5FkJcBbRNZUSUycPSNcP7Ag9l4WL28Kn8gHjX56wP6RFOPUxl5V4gtkDyb+c
-	6az83WQGilKuTeLrLiO7px2oUViS3MJJhYvAfkkCFintbcUnvwjnFkec5WWQ3I6w2NoDSSAesUR
-	flEkDmzEEl6yXQQ+W9Tj3TCP0Vomjcioe0QSLDPNvlA3G79NCzeOCddLOFocY00VQcmA7Lq4q1l
-	tacDetCER5sp1/zqA1RPQD8dfO8fIP
-X-Received: by 2002:a05:600c:5287:b0:476:d494:41d2 with SMTP id 5b1f17b1804b1-48365716538mr18082855e9.29.1770874274694;
-        Wed, 11 Feb 2026 21:31:14 -0800 (PST)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4834d5ebd1bsm187141565e9.6.2026.02.11.21.31.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Feb 2026 21:31:14 -0800 (PST)
-Date: Thu, 12 Feb 2026 08:31:11 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: oe-kbuild@lists.linux.dev, Ivan Gorinov <linux-kernel@altimeter.info>,
-	Jiri Kosina <jikos@kernel.org>
-Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RESEND] HID: winwing: Enable rumble effects
-Message-ID: <202602120209.xYKh9QQp-lkp@intel.com>
+        d=1e100.net; s=20230601; t=1770903668; x=1771508468;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zCRCDzmfXns7/oXNTWW53o+t1npEgX31smcF3lGgN8E=;
+        b=HOKV0EZkJMKBn3y6O9K1pXMdqrKQmhvYQPsL/uczqMcqt1u47cUK0uBbncd72aE6Qq
+         keDGB7oKWfPt4W01B0p/Le4JG8+NPmQk2rOxLUGm7pYKD0CIzMQhXRPFbMQsY7BCKDVm
+         2BFGmwisF1KeqFmSh4M39V99lAnPufdCU2xLc8OjAiUz9ydX3su+7Je13dkDnKssPjnD
+         wb1ob0KDFfMi5cqM7bg4pQ0jK53ShaWAOXD6Wf+B/+Y3URLFSpfT6tIaMtpzLJssDaEi
+         fhBws7fFTRgCUXpWP60VRKjAoi9IsaaGvjU41bQoe07IQGDznUMWgTiQLrKwCVAJ1pxx
+         YjaA==
+X-Gm-Message-State: AOJu0YzCHAn3Y75IiNK/10lvyCkn5Z+HGCqpHcTVyDgQKe8Jxt1pplvd
+	ilzLf0XfVsmkErHkYd66R6OHKCjVTZpuMBDyByrjlY3Jwyu3MtgoS0YFkzRcN/1qtW2Zt4hyQ1D
+	GnD6d86CZVddDZcFqth7T0yMZq74ZUgZMViGeiQ3XpBMi+TPVfBjmNfkkrUBqAz+FdQ==
+X-Gm-Gg: AZuq6aIQrd1VWnl79/kqsnYE8ClvlXfpg2at8Ce0JaKbZqPvCWRXfwf00TbnD6T4LtH
+	22elPJAYTi6cHJEllEm57C2SmVraMkapdRUpsFRTHNZcNr8xnf4OBwA/LunA/PrbH/xgork5CJY
+	nRlM7UsqSnzakhsVKg/weh+2gWjb21D0olrw4dGiBCLT/L8odQNmKJWrDXoy+gIM/ow6CidK2fH
+	CqhMyHLLOQha9g51U0YTTgwnTyxXF4gMGwVoHtMHheRZYFIGhsRNK2BHH3D59yFky/mteuuhCC2
+	jb02MojdIrHDFIl64jBByxXGW5K8tADK+9crQDb94kzPupORXxh5fzwY6YM9RwXRX0+A8jwVc6k
+	/SEViWB+JdgsEK7vxwROmZOzFgsrcnMhhsZWWbAp3FEzpBy342AGp17S9gq12AHnw0U31oGtNnA
+	jRt+A=
+X-Received: by 2002:a05:620a:4407:b0:8c0:c999:df5a with SMTP id af79cd13be357-8cb3311bb60mr255615585a.6.1770903668217;
+        Thu, 12 Feb 2026 05:41:08 -0800 (PST)
+X-Received: by 2002:a05:620a:4407:b0:8c0:c999:df5a with SMTP id af79cd13be357-8cb3311bb60mr255611385a.6.1770903667788;
+        Thu, 12 Feb 2026 05:41:07 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8f9bd846c0sm36946766b.3.2026.02.12.05.41.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Feb 2026 05:41:07 -0800 (PST)
+Message-ID: <0dffe84a-d41b-42f0-80ac-fbb8e81970da@oss.qualcomm.com>
+Date: Thu, 12 Feb 2026 14:41:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260211053116.GA20357@altimeter-info>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] arm64: dts: qcom: sm6125-xiaomi-laurel-sprout: Add
+ Focaltech FT3518 touchscreen
+To: yedaya.ka@gmail.com,
+        =?UTF-8?Q?Kamil_Go=C5=82da?=
+ <kamil.golda@protonmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+References: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260208-touchscreen-patches-v5-1-5821dff9c9a2@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEyMDEwMyBTYWx0ZWRfX2D9DLWL4Chan
+ vqkt1BEh1/JHkBqhgHQe4VS6wZLsptUnzerrJvUGocquY60owL0t6rxtf94EAszV0luICOWdNGa
+ IKUE8i1rwEGMGu+sADyZLRm5JR5HcR0iXiEdsoU49r3c7o2SgrnUzvJBHWR7doFyyigNjKcnLde
+ eszHDTRL+QDhpOiKqTi4J6M4sv6C+EDhaQ+u4XkyG3gSU1M2b9UmBF2X1nrxVLPwkr/QWFjgPvE
+ Z2QHXxVEa6jIGw5gHpaf3LiH6ZLfnRAysZ90OX0NTrOd+XRh2XiCLKeWAE87pM6HNOtN8yzwWZH
+ VUzYxNWotE1BccrFtqmKYvxKe/fy3uz+lA6QMUIRu+5awjyH2CPr7RKFO0qMk9CyByeed4B+CLp
+ jh9c2PMqdm1i1Xw8jMXjog1DiJLEs53lacu5sZi2/HBukzhdn5F4TPsRahHdkujr3Hs0SRUN63Q
+ hwsMvOZ0ooPqqB9pdLQ==
+X-Authority-Analysis: v=2.4 cv=VNvQXtPX c=1 sm=1 tr=0 ts=698dd874 cx=c_pps
+ a=50t2pK5VMbmlHzFWWp8p/g==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22
+ a=Uyhorv2uAAAA:20 a=pGLkceISAAAA:8 a=sfOm8-O8AAAA:8 a=EUspDBNiAAAA:8
+ a=SvwoN8VrOMzw8yseGhAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=IoWCM6iH3mJn3m4BftBB:22 a=TvTJqdcANYtsRzA46cdi:22 a=bA3UWDv6hWIuX7UZL3qL:22
+X-Proofpoint-GUID: IhGkoV5-YvJJyU5BddRJ1OXsS1GUqxN2
+X-Proofpoint-ORIG-GUID: IhGkoV5-YvJJyU5BddRJ1OXsS1GUqxN2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-12_04,2026-02-12_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 spamscore=0 suspectscore=0 adultscore=0
+ malwarescore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602120103
 
-Hi Ivan,
+On 2/8/26 10:24 PM, Yedaya Katsman via B4 Relay wrote:
+> From: Yedaya Katsman <yedaya.ka@gmail.com>
+> 
+> Add device tree node for the Focaltech FT3518 touchscreen on
+> Xiaomi Mi A3 (laurel-sprout).
+> 
+> Enable qupv3_id_0 and i2c2 bus that the touchscreen is on.
+> 
+> Downstream references:
+> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/trinket-pinctrl.dtsi
+> Link: https://github.com/MiCode/Xiaomi_Kernel_OpenSource/blob/laurel-r-oss/arch/arm64/boot/dts/qcom/laurel_sprout-qrd.dtsi
+> 
+> Co-developed-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Signed-off-by: Kamil Gołda <kamil.golda@protonmail.com>
+> Signed-off-by: Yedaya Katsman <yedaya.ka@gmail.com>
+> ---
 
-kernel test robot noticed the following build warnings:
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Ivan-Gorinov/HID-winwing-Enable-rumble-effects/20260211-133322
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20260211053116.GA20357%40altimeter-info
-patch subject: [PATCH RESEND] HID: winwing: Enable rumble effects
-config: parisc-randconfig-r071-20260211 (https://download.01.org/0day-ci/archive/20260212/202602120209.xYKh9QQp-lkp@intel.com/config)
-compiler: hppa-linux-gcc (GCC) 8.5.0
-smatch version: v0.5.0-8994-gd50c5a4c
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-| Closes: https://lore.kernel.org/r/202602120209.xYKh9QQp-lkp@intel.com/
-
-smatch warnings:
-drivers/hid/hid-winwing.c:235 winwing_haptic_rumble() warn: address of NULL pointer 'data->hdev'
-drivers/hid/hid-winwing.c:308 winwing_haptic_rumble_cb() warn: can 'data' even be NULL?
-drivers/hid/hid-winwing.c:339 winwing_init_ff() warn: variable dereferenced before check 'data' (see line 333)
-
-vim +235 drivers/hid/hid-winwing.c
-
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  221  static int winwing_haptic_rumble(struct winwing_drv_data *data)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  222  {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  223  	__u8 *buf;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  224  	__u8 m;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  225  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  226  	if (!data)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  227  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  228  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  229  	buf = data->report_rumble;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  230  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  231  	if (!buf)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  232  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  233  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  234  	if (!data->hdev) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @235  		hid_err(data->hdev, "data->hdev == NULL\n");
-                                                                ^^^^^^^^^^
-This doesn't end up getting dereferenced because of dev_err() magic
-but passing a NULL here is pointless.
-
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  236  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  237  	}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  238  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  239  	if (!data->hdev->ll_driver) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  240  		hid_err(data->hdev, "data->hdev->ll_driver == NULL\n");
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  241  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  242  	}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  243  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  244  	m = convert_magnitude(data->rumble.strong_magnitude);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  245  	if (m != data->rumble_left) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  246  		int ret;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  247  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  248  		buf[0] = 0x02;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  249  		buf[1] = 0x01;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  250  		buf[2] = 0xbf;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  251  		buf[3] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  252  		buf[4] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  253  		buf[5] = 0x03;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  254  		buf[6] = 0x49;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  255  		buf[7] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  256  		buf[8] = m;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  257  		buf[9] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  258  		buf[10] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  259  		buf[11] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  260  		buf[12] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  261  		buf[13] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  262  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  263  		ret = hid_hw_output_report(data->hdev, buf, 14);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  264  		if (ret < 0) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  265  			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  266  			return ret;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  267  		}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  268  		data->rumble_left = m;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  269  	}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  270  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  271  	m = convert_magnitude(data->rumble.weak_magnitude);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  272  	if (m != data->rumble_right) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  273  		int ret;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  274  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  275  		buf[0] = 0x02;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  276  		buf[1] = 0x03;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  277  		buf[2] = 0xbf;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  278  		buf[3] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  279  		buf[4] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  280  		buf[5] = 0x03;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  281  		buf[6] = 0x49;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  282  		buf[7] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  283  		buf[8] = m;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  284  		buf[9] = 0x00;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  285  		buf[10] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  286  		buf[11] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  287  		buf[12] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  288  		buf[13] = 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  289  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  290  		ret = hid_hw_output_report(data->hdev, buf, 14);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  291  		if (ret < 0) {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  292  			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  293  			return ret;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  294  		}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  295  		data->rumble_right = m;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  296  	}
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  297  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  298  	return 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  299  }
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  300  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  301  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  302  static void winwing_haptic_rumble_cb(struct work_struct *work)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  303  {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  304  	struct winwing_drv_data *data;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  305  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  306  	data = container_of(work, struct winwing_drv_data, rumble_work);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  307  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @308  	if (data)
-
-"data" can't be NULL.  It's work minus an offset.
-
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  309  		winwing_haptic_rumble(data);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  310  }
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  311  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  312  static int winwing_play_effect(struct input_dev *dev, void *context,
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  313  		struct ff_effect *effect)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  314  {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  315  	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  316  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  317  	if (effect->type != FF_RUMBLE)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  318  		return 0;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  319  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  320  	if (!data)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  321  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  322  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  323  	data->rumble = effect->u.rumble;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  324  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  325  	return schedule_work(&data->rumble_work);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  326  }
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  327  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  328  static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  329  {
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  330  	struct winwing_drv_data *data;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  331  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  332  	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @333  	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  334  	data->rumble_left = -1;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  335  	data->rumble_right = -1;
-                                                ^^^^^^^^^^^^^^^^^^
-Dereferences here.
-
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  336  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  337  	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  338  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11 @339  	if (!data)
-                                                    ^^^^^^
-Checked too late.
-
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  340  		return -EINVAL;
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  341  
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  342  	return input_ff_create_memless(hidinput->input, data,
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  343  			winwing_play_effect);
-c4c97b07cd09c03 Ivan Gorinov 2026-02-11  344  }
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
-
+Konrad

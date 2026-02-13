@@ -1,353 +1,161 @@
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60ECD36606F;
-	Fri, 13 Feb 2026 17:14:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3FCF274B39
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771002881; cv=none; b=I6XaZSU9FYbdvt/RQKXWPddjae/ZvmkvaXQQ3tBf4HTuFPvfHM80jAVjilP3etGvMpk9e2b77KDg2s/rKsgObsAn6Qvpo7zFp3+xMK7zJLzfr6gfbZ1kVQOX2FMKPrRbeUY7amGa0lh3xCAuoySFC1LKmd02dYGzZB7N/BV6gLI=
+	t=1771006682; cv=none; b=nY2TP52arJPiuKXBybm1bQU7LUNIOYs2VksyQp8z9ZRrl8asjuN3kAY10blIj0+wPZ4lg3stGMo+eq/ychgWcDQeEXjbKNrTqe29MjTV1UGXkPVjFmazPHy2GK0WzEUjPKYH7XBCnrzZHSEWnfoOW8GlITwDVFcWIWtNxdnGTFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771002881; c=relaxed/simple;
-	bh=PGAH9rCxX7q2eQB3IVbofw/qNUc6fHrr2ONLETY6iEU=;
-	h=From:To:Cc:Date:Message-ID:In-Reply-To:References:MIME-Version:
-	 Subject; b=k81F0X7rferqhoWSkFPDnuBdDGpDhHLPup0jh+0QcMUitKSlW6mJx6a48vgY/6ZSeh7+Vil46EPeLFyr0HmHfOy4tXcoMFn5InLrKxz6mKKG8psgcNjAyn5TAVlShT4iDQ7DDKrydtRXiaRz7jFiBFs+o/MUkJ81sz3Taah7U9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=kov4yeMd; arc=none smtp.client-ip=162.243.120.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
+	s=arc-20240116; t=1771006682; c=relaxed/simple;
+	bh=Do4BGO1LGcHGvCJPpurgH3E9R2Ist8VqiaUHKtL5y8I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AnELmjcR9FtW9isMsm37lBH+XkkoFbCAVV2FaEVgoBHndiyqxjsvD/nWEHiFAPQjYj1K0O79xIjl5TaNlT/1Kbf66uMBkjdVDoj39TAdzl0OTbtGM5b3WJnazrR8OIphE8Lz9UkXX/aPGi026baQtCQTcyyzi+hBXNWeS/bF2RQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mSPhqAaV; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Pxy0petO; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="kov4yeMd"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-	; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Cc:To
-	:From:subject:date:message-id:reply-to;
-	bh=2weegKCMFOEi+LSDYi9P5QCz9jexBGAsJwZMFbqjKas=; b=kov4yeMd1RkKNsThT02tvgp43k
-	mFZpYkGK2QerI90/M+OniDAgPlk7VtusFQYSLRt2k3Bp6DQlqPl1YMZENDWBLx3f7Nx2al5ZWlP4p
-	0ZEXwku+htAFJ0TDpOaPNNfWTk1+69KDKaHaSFh0UEOa6X/e4F5BizN6wwwDtnQA8uZE=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:49782 helo=pettiford.lan)
-	by mail.hugovil.com with esmtpa (Exim 4.92)
-	(envelope-from <hugo@hugovil.com>)
-	id 1vqwkX-0007VX-Ae; Fri, 13 Feb 2026 12:14:38 -0500
-From: Hugo Villeneuve <hugo@hugovil.com>
-To: hvilleneuve@dimonoff.com,
-	dmitry.torokhov@gmail.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	hugo@hugovil.com
-Date: Fri, 13 Feb 2026 12:14:26 -0500
-Message-ID: <20260213171431.2228814-3-hugo@hugovil.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260213171431.2228814-1-hugo@hugovil.com>
-References: <20260213171431.2228814-1-hugo@hugovil.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mSPhqAaV";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Pxy0petO"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61DCA8BG1827984
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=3SdWpZs6y9lD7M+9Gt2ougNs
+	RDsaLktIwBXMbAcdzug=; b=mSPhqAaVolMHDdpabzyqkpZ99wtSLj4yZW8Weiy9
+	p+jpaQKF1nFlmL0TSFIQ07UP0kA8Z6gFm4p02edS29gUfyxYHqYBEhD9MMzQon7f
+	RpbECtNFDStBlNwgLWLKN2DZ8vMoF8zqvmqWfeAjSGFumvoa+5OFVOr7/iPQ12IO
+	MuqtgYey/sV4Fas2bovWr3nvNJKGk/OwC+FOfnFKDuT7OD0Wwvzp4/GwO+/EBnpY
+	r2YWaJfLZ9ko9XrJj/GP/vFGxU8KKAPMOP7XvqocBvwccmsBvemUAa9IaYPlNloK
+	UhnYfVMgWouL0+OvNLhXDI5v4LfU8NPrsQQ7MwXQXs/3mA==
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c9wg02uhv-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 +0000 (GMT)
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8c52d3be24cso223403485a.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 10:18:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1771006680; x=1771611480; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3SdWpZs6y9lD7M+9Gt2ougNsRDsaLktIwBXMbAcdzug=;
+        b=Pxy0petObSpM6rLiHmx4UMW2ZOnLKPxrfYLkbcV7vK38YJFR5FjkLRFCSbbdqKsJ3K
+         Wx9mSk3S4kSSyVB2j85NqbYEpwpkFnbv7TrN7+zf4B7RCZEf+0+wam+A/igbEeVT2JzI
+         iaRGQWX6x87zOGiQ/jVOoc5oBClnjJnkS9OSVcVi6GoW+8sUo+2lciTAUm98IVxQ6EG7
+         3oaTcU/NfrufTxqDg3rGfZ2fxb5R+EwEc5TvGiqNeUvgfopgV6jySw35ktiGoZcijRJ2
+         cIKGc07jbWo6XeBq4NNl5rQ4GCrm3fgn2ygiQ5kDeM67SWHUU9plyWGQwsMd7r91vxZR
+         fYxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771006680; x=1771611480;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3SdWpZs6y9lD7M+9Gt2ougNsRDsaLktIwBXMbAcdzug=;
+        b=hODI2DIyjZ+L7/VlxhCb8hGiHTJKT3GRvtSLHlv4pcPlPk8uBfdA4GvbpFIEny34V/
+         ZNkdqM0iQ5iUsSTsq3CZ5upnr7PhrYvE60UAwTM9Q8w2dmBB1lEUAVyBuITxvdj4Rcsj
+         Y1q4WL70ogFgaF0D/3gDdsOoc6SwBJzqdqF5stnR0HpvIn0xTbIy6AnIySrqrqHaVMXJ
+         sw9SrK32fq3ci80LiKMo4y3hUibKw2g7kNEqq6vk+2leuD6Br6YlMkGWofJ5n5nnrGyF
+         DBjezNb1TJM2kGazodACU0aF+OHTgun4TaKRf0vaBNzFlViC18reevf45+QCuFnX4+MZ
+         XClw==
+X-Forwarded-Encrypted: i=1; AJvYcCXNwkN5s4W8pX8q3/eOGBgsnUAKYEU34CMV8ocKiCenVKV+D2GXMls3C5daPJrCko2XrODh6B7DeXtfPg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwT8+4358uKWrHLkfrL4ye3pNIabLHjGgeitE5UGysYV2+oxTtY
+	npxLTa8TAvGSB7wLOMwnquyUMSZ+W5fLxyCKFd+N7PUX4IE7US7oTrBNeQpZLWsQWFpeXsxb6AP
+	bvvmdbCZgBrXIx04QpzKWn+fxQaHA6c7UCPVaLw9OSZRGtvSsYPYZ/mpurj7+YEtIbA==
+X-Gm-Gg: AZuq6aIkfLRP6hy9ZEnHLrQqZ4JBcfVX1a0qIAXL4xbJorFt9jqB1yw8qrTDV4hz0p+
+	WnLwOHfCRaSaRVLiJnpQYfSEBpaUrK2BRG5LZFODlwB/ZsAsq8zi49H4mg/eYYLh28jD0iSC9Xw
+	JEVthERwmK6TwW2GiaJHSReF2paenAvoyFI5Q9ou0JJnjHjN0H+ok1J4M9+4NjKy1Kml3N/F2tS
+	3Uy4DYrcbpwKoIQNl67ThZGgKU12WG3uxDgWKsyRv5A5lbXJmGOOVpYWrO0kWTwFdlm1UC2Gy0K
+	ZVf090PXGDLpuR4aiIDcSXcNuMpuo9i0Xuv1c8QcI533UtxW++g2Cn6p6uZZpk8jQrwf6s3GUa3
+	JsRAeil/CfN6JbjFMGmrNvQ3Bw6FoBNXRuQFXV1BeYGLepxeB4C17q5TyseQBCVMgyiF8RkjJxP
+	9WobLTMC9qB8LOfb9LUctRCdLraWmqJcQlRug=
+X-Received: by 2002:a05:620a:4406:b0:8c5:30d3:d6d0 with SMTP id af79cd13be357-8cb424601d5mr320831385a.48.1771006679882;
+        Fri, 13 Feb 2026 10:17:59 -0800 (PST)
+X-Received: by 2002:a05:620a:4406:b0:8c5:30d3:d6d0 with SMTP id af79cd13be357-8cb424601d5mr320826885a.48.1771006679384;
+        Fri, 13 Feb 2026 10:17:59 -0800 (PST)
+Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e5f5a4f5fsm1710581e87.56.2026.02.13.10.17.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Feb 2026 10:17:57 -0800 (PST)
+Date: Fri, 13 Feb 2026 20:17:54 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+To: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, linux-pm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] dt-bindings: power: reset: qcom-pon: Add new
+ compatible PMM8654AU
+Message-ID: <k2eu6lvokuh6pilmipztfqufffkmxa3zylsxz4lad45ow255no@fvocedpr3qwp>
+References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
+ <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
+ <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
+ <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 70.80.174.168
-X-SA-Exim-Mail-From: hugo@hugovil.com
-X-Spam-Level: 
-X-Spam-Report: 
-	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-Subject: [PATCH v2 2/2] Input: charlieplex_keypad: add GPIO charlieplex keypad
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEzMDE0MSBTYWx0ZWRfX0+shOrZt/+TC
+ gp0FI6pZqfbyGNV7wSmuESHxOIuGpV30NFKxBOOInpMJdCmF16mCEtmbYGrgzwv8+iO+CoZJHjB
+ vbR3+Rf/kdmfFUWbNSYQ5WT4aUVgWKeWfCcq1L4QrRBN6soQQdOyc/v2AxeSdPP+QDg92aGks5w
+ JNyWwVMvA1r0wpyGZGL6UKfN1w1VBJhbJgVPKyvsVqK+ogWaptPT++DCKRczNOoL9wx58RG3klU
+ 73Z4jIDursMeYxNASg3SjEGD75IpJCdFaRXn9rlD4varLhThisRX8WLIlBZK8VrrwUjDzF/Y5CQ
+ xPiLTM0ALhbSIldyrhflks4FCnCjup6s7n29hufL8iAe1w4d1PHIPRQhNdTYjdhxbj8V02whK8u
+ iGkt1J0h2JRQkH513828g4EIc5bRFM3EStWKYGty1wFDR06dUb86mJyW2fxQ4gwdxV6/yBIgYse
+ wxga7FVCp04jy8OdOdQ==
+X-Proofpoint-ORIG-GUID: ewnK3A4U7GStw2jaCaQuJo6tIklIneCH
+X-Proofpoint-GUID: ewnK3A4U7GStw2jaCaQuJo6tIklIneCH
+X-Authority-Analysis: v=2.4 cv=bo5BxUai c=1 sm=1 tr=0 ts=698f6ad9 cx=c_pps
+ a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=EUspDBNiAAAA:8
+ a=Z7Cru6KvyN3eZcMTe0gA:9 a=CjuIK1q_8ugA:10 a=PEH46H7Ffwr30OY-TuGO:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-13_03,2026-02-13_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 phishscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602130141
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+On Tue, Feb 10, 2026 at 01:56:12PM +0530, Rakesh Kota wrote:
+> On Mon, Feb 09, 2026 at 02:49:24PM +0100, Krzysztof Kozlowski wrote:
+> > On 09/02/2026 14:23, Rakesh Kota wrote:
+> > > Add the compatible string "qcom,pmm8654au-pon" for the PMM8654AU PMIC.
+> > > The PON peripheral on PMM8654AU is compatible with PMK8350, so it is
+> > > documented as a fallback to "qcom,pmk8350-pon".
+> > 
+> > Drop everything after ,. Do not explain WHAT you did. We see it.
+> > 
+> > > 
+> > > While PMM8654AU supports additional registers compared to the baseline,
 
-Add support for GPIO-based charlieplex keypad, allowing to control
-N^2-N keys using N GPIO lines.
+I can't find PMM8654AU either on Qualcomm.com or in the catalog. Is it
+an actual name for the chip?
 
-Reuse matrix keypad keymap to simplify, even if there is no concept
-of rows and columns in this type of keyboard.
+> > 
+> > full stop.
+> > 
+> > > there is currently no active use case for these features. This specific
+> > > compatible string reserves the identifier for future hardware-specific
+> > > handling if required.
+> >
+> > All the rest is irrelevant or even wrong. We do not reserve identifiers.
+> > If you want to reserve something, then I need to reject the patch.
+> >
 
-Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
----
- MAINTAINERS                                 |   7 +
- drivers/input/keyboard/Kconfig              |  14 ++
- drivers/input/keyboard/Makefile             |   1 +
- drivers/input/keyboard/charlieplex_keypad.c | 213 ++++++++++++++++++++
- 4 files changed, 235 insertions(+)
- create mode 100644 drivers/input/keyboard/charlieplex_keypad.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9ed6d11a77466..0b2d71f32b400 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5765,6 +5765,13 @@ S:	Maintained
- F:	Documentation/hwmon/powerz.rst
- F:	drivers/hwmon/powerz.c
- 
-+CHARLIEPLEX KEYPAD DRIVER
-+M:	Hugo Villeneuve <hvilleneuve@dimonoff.com>
-+S:	Supported
-+W:	http://www.mosaic-industries.com/embedded-systems/microcontroller-projects/electronic-circuits/matrix-keypad-scan-decode
-+F:	Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.yaml
-+F:	drivers/input/keyboard/charlieplex_keypad.c
-+
- CHECKPATCH
- M:	Andy Whitcroft <apw@canonical.com>
- M:	Joe Perches <joe@perches.com>
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 2ff4fef322c24..ae54b4b7e2d8a 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -289,6 +289,20 @@ config KEYBOARD_MATRIX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called matrix_keypad.
- 
-+config KEYBOARD_CHARLIEPLEX
-+	tristate "GPIO driven chearlieplex keypad support"
-+	depends on GPIOLIB || COMPILE_TEST
-+	select INPUT_MATRIXKMAP
-+	help
-+	  Enable support for GPIO driven charlieplex keypad. A charlieplex
-+	  keypad allows to use fewer GPIO lines to interface to key switches.
-+	  For example, an N lines charlieplex keypad can be used to interface
-+	  to N^2-N different key switches. However, this type of keypad
-+	  cannot detect more than one key press at a time.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called charlieplex_keypad.
-+
- config KEYBOARD_HIL_OLD
- 	tristate "HP HIL keyboard support (simple driver)"
- 	depends on GSC || HP300
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 2d906e14f3e27..40b5cf5d374d2 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
- obj-$(CONFIG_KEYBOARD_LPC32XX)		+= lpc32xx-keys.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-+obj-$(CONFIG_KEYBOARD_CHARLIEPLEX)	+= charlieplex_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7360)		+= max7360-keypad.o
- obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
-diff --git a/drivers/input/keyboard/charlieplex_keypad.c b/drivers/input/keyboard/charlieplex_keypad.c
-new file mode 100644
-index 0000000000000..81e8b6b96dab1
---- /dev/null
-+++ b/drivers/input/keyboard/charlieplex_keypad.c
-@@ -0,0 +1,213 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ *  GPIO driven charlieplex keypad driver
-+ *
-+ *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
-+ *
-+ *  Based on matrix_keyboard.c
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/input.h>
-+#include <linux/input/matrix_keypad.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/types.h>
-+
-+struct charlieplex_keypad {
-+	struct input_dev *input_dev;
-+	struct gpio_descs *line_gpios;
-+	unsigned int nlines;
-+	unsigned int line_scan_delay_us;
-+	unsigned int debounce_threshold;
-+	unsigned int debounce_count;
-+	int debounce_code;
-+	int current_code;
-+};
-+
-+static void charlieplex_keypad_report_key(struct input_dev *input)
-+{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+	const unsigned short *keycodes = input->keycode;
-+
-+	if (keypad->current_code > 0) {
-+		input_event(input, EV_MSC, MSC_SCAN, keypad->current_code);
-+		input_report_key(input, keycodes[keypad->current_code], 0);
-+	}
-+
-+	if (keypad->debounce_code) {
-+		input_event(input, EV_MSC, MSC_SCAN, keypad->debounce_code);
-+		input_report_key(input, keycodes[keypad->debounce_code], 1);
-+	}
-+
-+	input_sync(input);
-+	keypad->current_code = keypad->debounce_code;
-+}
-+
-+static void charlieplex_keypad_check_switch_change(struct input_dev *input,
-+						   int code)
-+{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+
-+	if (code != keypad->debounce_code) {
-+		keypad->debounce_count = 0;
-+		keypad->debounce_code = code;
-+	} else if (keypad->debounce_count < keypad->debounce_threshold) {
-+		keypad->debounce_count++;
-+
-+		if (keypad->debounce_count >= keypad->debounce_threshold &&
-+		    keypad->debounce_code != keypad->current_code)
-+			charlieplex_keypad_report_key(input);
-+	}
-+}
-+
-+static void charlieplex_keypad_poll(struct input_dev *input)
-+{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+	int oline;
-+	int code;
-+
-+	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
-+		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
-+		int iline;
-+		int rc;
-+
-+		/* Activate only one line as output at a time. */
-+		gpiod_direction_output(keypad->line_gpios->desc[oline], 1);
-+
-+		if (keypad->line_scan_delay_us)
-+			fsleep(keypad->line_scan_delay_us);
-+
-+		/* Read input on all other lines. */
-+		rc = gpiod_get_array_value_cansleep(keypad->line_gpios->ndescs,
-+						    keypad->line_gpios->desc,
-+						    keypad->line_gpios->info, values);
-+		if (rc)
-+			return;
-+
-+		for (iline = 0; iline < keypad->nlines; iline++) {
-+			if (iline == oline)
-+				continue; /* Do not read active output line. */
-+
-+			/* Check if GPIO is asserted. */
-+			if (test_bit(iline, values)) {
-+				code = MATRIX_SCAN_CODE(oline, iline,
-+							get_count_order(keypad->nlines));
-+				/*
-+				 * Exit loop immediately since we cannot detect
-+				 * more than one key press at a time.
-+				 */
-+				break;
-+			}
-+		}
-+
-+		gpiod_direction_input(keypad->line_gpios->desc[oline]);
-+
-+		if (code)
-+			break;
-+	}
-+
-+	charlieplex_keypad_check_switch_change(input, code);
-+}
-+
-+static int charlieplex_keypad_init_gpio(struct platform_device *pdev,
-+					struct charlieplex_keypad *keypad)
-+{
-+	int i;
-+
-+	keypad->line_gpios = devm_gpiod_get_array(&pdev->dev, "line", GPIOD_IN);
-+	if (IS_ERR(keypad->line_gpios))
-+		return PTR_ERR(keypad->line_gpios);
-+
-+	keypad->nlines = keypad->line_gpios->ndescs;
-+
-+	if (keypad->nlines > MATRIX_MAX_ROWS)
-+		return -EINVAL;
-+
-+	for (i = 0; i < keypad->nlines; i++)
-+		gpiod_set_consumer_name(keypad->line_gpios->desc[i], "charlieplex_kbd_line");
-+
-+	return 0;
-+}
-+
-+static int charlieplex_keypad_probe(struct platform_device *pdev)
-+{
-+	struct charlieplex_keypad *keypad;
-+	unsigned int debounce_interval_ms;
-+	unsigned int poll_interval_ms;
-+	struct input_dev *input_dev;
-+	int err;
-+
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
-+	if (!keypad)
-+		return -ENOMEM;
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	keypad->input_dev = input_dev;
-+
-+	device_property_read_u32(&pdev->dev, "poll-interval", &poll_interval_ms);
-+	device_property_read_u32(&pdev->dev, "debounce-delay-ms", &debounce_interval_ms);
-+	device_property_read_u32(&pdev->dev, "line-scan-delay-us", &keypad->line_scan_delay_us);
-+
-+	keypad->current_code = -1;
-+	keypad->debounce_code = -1;
-+	keypad->debounce_threshold = DIV_ROUND_UP(debounce_interval_ms, poll_interval_ms);
-+
-+	err = charlieplex_keypad_init_gpio(pdev, keypad);
-+	if (err)
-+		return err;
-+
-+	input_dev->name		= pdev->name;
-+	input_dev->id.bustype	= BUS_HOST;
-+
-+	err = matrix_keypad_build_keymap(NULL, NULL, keypad->nlines,
-+					 keypad->nlines, NULL, input_dev);
-+	if (err)
-+		dev_err_probe(&pdev->dev, -ENOMEM, "failed to build keymap\n");
-+
-+	if (device_property_read_bool(&pdev->dev, "autorepeat"))
-+		__set_bit(EV_REP, input_dev->evbit);
-+
-+	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-+
-+	err = input_setup_polling(input_dev, charlieplex_keypad_poll);
-+	if (err)
-+		dev_err_probe(&pdev->dev, err, "unable to set up polling\n");
-+
-+	input_set_poll_interval(input_dev, poll_interval_ms);
-+
-+	input_set_drvdata(input_dev, keypad);
-+
-+	err = input_register_device(keypad->input_dev);
-+	if (err)
-+		return err;
-+
-+	platform_set_drvdata(pdev, keypad);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id charlieplex_keypad_dt_match[] = {
-+	{ .compatible = "gpio-charlieplex-keypad" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, charlieplex_keypad_dt_match);
-+
-+static struct platform_driver charlieplex_keypad_driver = {
-+	.probe		= charlieplex_keypad_probe,
-+	.driver		= {
-+		.name	= "charlieplex-keypad",
-+		.of_match_table = of_match_ptr(charlieplex_keypad_dt_match),
-+	},
-+};
-+module_platform_driver(charlieplex_keypad_driver);
-+
-+MODULE_AUTHOR("Hugo Villeneuve <hvilleneuve@dimonoff.com>");
-+MODULE_DESCRIPTION("GPIO driven charlieplex keypad driver");
-+MODULE_LICENSE("GPL");
 -- 
-2.47.3
-
+With best wishes
+Dmitry

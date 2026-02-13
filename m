@@ -1,131 +1,352 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47305326945
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 20:19:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9993124677B;
+	Fri, 13 Feb 2026 05:30:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770927556; cv=none; b=M4GWJeKA0lOlsYUhgZI1yGKTb+rxyf+ZzYIg7KUl3Y9xk6f/1rWnVA9XPYwTPFBlygTmEu6k6OO/Jq57fkF2quZoe2thh3ABfR7qgEMua34bGmlpc6ffUES0n9xxd0JNPy47wMQ9cF4n4EikW6KuY7uvlgCbDHCzv8OYv5rvs9w=
+	t=1770960618; cv=none; b=liU/FnSSoBZAjSeP/Hs86bRnSuxVgJagFtbry2RoY9zGwJ3Hp6S8xm1cZVphFFYC9qgj+VZShAl8D3wDCIw50J3XislUprK4w9ZlRBpLhmH2uSuHCl2O3pEdrl7geswPB9DsP39c/Ba4AGwSNh7G5BbbnNLG8kKZXImqSkAZ48k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770927556; c=relaxed/simple;
-	bh=xXnvM+8OykueY1NEjASwP8gahcI3U8JAAZxU1FiS6MI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KnN3UYkQivgu3vDfSYbk7vZUJD8gmlUdjWWeGNjKFZOyMv+RJTgUjS4P3109ge2n8W9N+OixRJ3GcT8UTdc8m8w20pqzthKf2YWD5Hhop70jm+5aoCeva+YGy1i97B1zq5/4eORhfzRkZi0sfFeuXNvtEvJT/IalHoTTeb1HHzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ERa1XG+b; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770960618; c=relaxed/simple;
+	bh=vkVea0A+reQtZt0F2GUv7s+kYQU6JHgVBHkSAnCn5D8=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Lz6v+IY2sTYqFlc7CiQcaOnjmP4Y48kdvQfZ+t9AeZtBfZKxSOEA6dzF9TXfRRfAVEAeoGLodA302oiWLwL2261WkoqD1hLgh6F/s9BLJOe5uJrId5DSaFtgRUAWm0jNEa9bYeIagRol3VdEfDOkzN5qy0A+2dNlh1GMcvjnv+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=kWjK48Cs; arc=none smtp.client-ip=35.82.102.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ERa1XG+b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22CA4C2BCB3
-	for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 20:19:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770927556;
-	bh=xXnvM+8OykueY1NEjASwP8gahcI3U8JAAZxU1FiS6MI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=ERa1XG+bkpCYc/IL4JjNXZGA41hU0ObNigwvWtmMx/9+8nNJ8r4StdyBYoeg61yFb
-	 LSCWgJhOPHipdZLIsIhlQS3bYVYCd3mDjWn9ISUeP+E6Xd1XSg7S1xyJsxiNtMpvwh
-	 SEloF0PxT3rQCMg4kyYbWJ3Zrni1NuFa48DCikj0v7p+W+BWzkg9bnCfqoBLr1ePWI
-	 C41H032flfdzZoyfRshZuvc85/iqkYC1xcGURxNaMDAU6sg5Wy2ImBG7lwe1b838nc
-	 3WFmCou3OJrdt5wXBv1wQrlkg4rBVAvfDZ4JwfN88E05mL9eysPVt9CelUEBvVv4Uq
-	 zoEuZ5o5WXvCw==
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b8f97c626aaso20217066b.2
-        for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 12:19:16 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWADgTZIQj92FKFptN4c4FtcTUd+dbSxjMLsltk+f9J08fm0yTC8/tkS01imrd6ODUKa9BF6G+/MRy7jg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywh1ScjDCwyxut3cQ0e72gmCZN86X+GTiw6dsRlJCrm/VMGAdVQ
-	bwd/NymkHQzr7jC+eEC1urY1BioS0TeEu/Y2YAhampk6M9iQpx2SA+9FFhYY0QPe+yS8zRhFbBq
-	sprqstKMQdgsiq0uKuafTiAfNUergIA==
-X-Received: by 2002:a17:907:1c1c:b0:b88:dc6:3967 with SMTP id
- a640c23a62f3a-b8facde807dmr15570966b.40.1770927554399; Thu, 12 Feb 2026
- 12:19:14 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="kWjK48Cs"
+Received: from altimeter-info (unknown [45.55.225.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: linux-kernel@altimeter.info)
+	by hognose1.porkbun.com (Postfix) with ESMTPSA id 6E5C247F5BC;
+	Fri, 13 Feb 2026 05:30:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
+	s=default; t=1770960611;
+	bh=tmaMDM7UtwXlgGlgTVJgh2ZyHV/iUjornKEex/4ajjI=;
+	h=Date:From:To:Cc:Subject;
+	b=kWjK48CsQoPsxx9Bk45y0xaSytpfODMD9B2qs0Xh+ZcBMypbxFlDw+RJUo3d5OHfA
+	 /GsP2EgfXdhD28o8sEkYU+OO6ujPKiHciYTEYmzIhGXRUy7Lmo+QbS1wrbNjEg/PUx
+	 xSgKOY+s/++hZ8dVKqLeDMXcPRC09iQFmsY64oho=
+Date: Fri, 13 Feb 2026 05:30:08 +0000
+From: Ivan Gorinov <linux-kernel@altimeter.info>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] HID: winwing: Enable rumble effects
+Message-ID: <20260213053008.GA2406@altimeter-info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260206172845.145407-1-clamor95@gmail.com> <20260206172845.145407-9-clamor95@gmail.com>
- <20260211212016.GA3910589-robh@kernel.org> <E5BC797C-4362-4C75-BCAC-7C32A51C4725@gmail.com>
-In-Reply-To: <E5BC797C-4362-4C75-BCAC-7C32A51C4725@gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Thu, 12 Feb 2026 14:19:03 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqLcFAP7oP0KzLp7DfcCpz0DjsjoAW3PcfnWu2nc-dG1CQ@mail.gmail.com>
-X-Gm-Features: AZwV_QjR27lKcOZlGGh6bUTZWpEGD1ZyAvH4mw_Gs0vf4efEq1evZi3cDB-63Us
-Message-ID: <CAL_JsqLcFAP7oP0KzLp7DfcCpz0DjsjoAW3PcfnWu2nc-dG1CQ@mail.gmail.com>
-Subject: Re: [PATCH v2 08/11] dt-bindings: mfd: motorola-cpcap: convert to DT schema
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Dixit Parmar <dixitparmar19@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.24 (2015-08-30)
 
-On Wed, Feb 11, 2026 at 11:30=E2=80=AFPM Svyatoslav Ryhel <clamor95@gmail.c=
-om> wrote:
->
->
->
-> 11 =D0=BB=D1=8E=D1=82=D0=BE=D0=B3=D0=BE 2026=E2=80=AF=D1=80. 23:20:16 GMT=
-+02:00, Rob Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> >On Fri, Feb 06, 2026 at 07:28:42PM +0200, Svyatoslav Ryhel wrote:
-> >> Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAM=
-L.
-> >>
-> >> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> >> ---
-> >>  .../bindings/mfd/motorola,cpcap.yaml          | 411 +++++++++++++++++=
+Enable rumble motor control on TGRIP-15E and TGRIP-15EX throttle grips
+by sending haptic feedback commands (EV_FF events) to the input device.
+
+Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
+---
+
+    Changes since v1:
+       - Fix possible NULL pointer dereference
+
+ drivers/hid/hid-winwing.c | 184 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 170 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index ab65dc12d1e0..b5d0978d81e5 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ #define MAX_REPORT 16
+ 
+@@ -35,10 +36,14 @@ static const struct winwing_led_info led_info[3] = {
+ 
+ struct winwing_drv_data {
+ 	struct hid_device *hdev;
+-	__u8 *report_buf;
+-	struct mutex lock;
+-	int map_more_buttons;
+-	unsigned int num_leds;
++	struct mutex lights_lock;
++	__u8 *report_lights;
++	__u8 *report_rumble;
++	struct work_struct rumble_work;
++	struct ff_rumble_effect rumble;
++	int rumble_left;
++	int rumble_right;
++	int has_grip15;
+ 	struct winwing_led leds[];
+ };
+ 
+@@ -47,10 +52,10 @@ static int winwing_led_write(struct led_classdev *cdev,
+ {
+ 	struct winwing_led *led = (struct winwing_led *) cdev;
+ 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
+-	__u8 *buf = data->report_buf;
++	__u8 *buf = data->report_lights;
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	mutex_lock(&data->lights_lock);
+ 
+ 	buf[0] = 0x02;
+ 	buf[1] = 0x60;
+@@ -69,7 +74,7 @@ static int winwing_led_write(struct led_classdev *cdev,
+ 
+ 	ret = hid_hw_output_report(led->hdev, buf, 14);
+ 
+-	mutex_unlock(&data->lock);
++	mutex_unlock(&data->lights_lock);
+ 
+ 	return ret;
+ }
+@@ -87,9 +92,9 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	if (!data)
+ 		return -EINVAL;
+ 
+-	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->report_lights = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
+ 
+-	if (!data->report_buf)
++	if (!data->report_lights)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < 3; i += 1) {
+@@ -117,7 +122,7 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	return ret;
+ }
+ 
+-static int winwing_map_button(int button, int map_more_buttons)
++static int winwing_map_button(int button, int has_grip15)
+ {
+ 	if (button < 1)
+ 		return KEY_RESERVED;
+@@ -141,7 +146,7 @@ static int winwing_map_button(int button, int map_more_buttons)
+ 		return (button - 65) + BTN_TRIGGER_HAPPY17;
+ 	}
+ 
+-	if (!map_more_buttons) {
++	if (!has_grip15) {
+ 		/*
+ 		 * Not mapping numbers [33 .. 64] which
+ 		 * are not assigned to any real buttons
+@@ -194,13 +199,141 @@ static int winwing_input_mapping(struct hid_device *hdev,
+ 	/* Button numbers start with 1 */
+ 	button = usage->hid & HID_USAGE;
+ 
+-	code = winwing_map_button(button, data->map_more_buttons);
++	code = winwing_map_button(button, data->has_grip15);
+ 
+ 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 
+ 	return 1;
+ }
+ 
++/*
++ * If x ≤ 0, return 0;
++ * if x is in [1 .. 65535], return a value in [1 .. 255]
++ */
++static inline int convert_magnitude(int x)
++{
++	if (x < 1)
++		return 0;
 +
-> >>  .../bindings/mfd/motorola-cpcap.txt           |  78 ----
-> >>  2 files changed, 411 insertions(+), 78 deletions(-)
-> >>  create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cpc=
-ap.yaml
-> >>  delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cpc=
-ap.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml=
- b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> >> new file mode 100644
-> >> index 000000000000..7e350721d9f6
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> >> @@ -0,0 +1,411 @@
-> >> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> >> +%YAML 1.2
-> >> +---
-> >> +$id: http://devicetree.org/schemas/mfd/motorola,cpcap.yaml#
-> >> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> >> +
-> >> +title: Motorola CPCAP PMIC MFD
-> >> +
-> >> +maintainers:
-> >> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> >> +
-> >> +allOf:
-> >> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> >> +
-> >> +properties:
-> >> +  compatible:
-> >> +    enum:
-> >> +      - motorola,cpcap
-> >> +      - st,6556002
-> >
-> >This does not match the only user in the kernel .dts files as
-> >"st,6556002" should be a fallback.
-> >
->
-> Honestly, I would remove st,6556002 since it is not the only cpcap model =
-which can be used, hence it cannot serve as a universal fallback. Some devi=
-ces use ST produced cpcap chips, others use TI and range of models varies t=
-oo. I guess I have to multiply commits.
++	return ((x * 255) >> 16) + 1;
++}
++
++static int winwing_haptic_rumble(struct winwing_drv_data *data)
++{
++	__u8 *buf;
++	__u8 m;
++
++	if (!data)
++		return -EINVAL;
++
++	if (!data->hdev)
++		return -EINVAL;
++
++	buf = data->report_rumble;
++
++	if (!buf)
++		return -EINVAL;
++
++	m = convert_magnitude(data->rumble.strong_magnitude);
++	if (m != data->rumble_left) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x01;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_left = m;
++	}
++
++	m = convert_magnitude(data->rumble.weak_magnitude);
++	if (m != data->rumble_right) {
++		int ret;
++
++		buf[0] = 0x02;
++		buf[1] = 0x03;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_right = m;
++	}
++
++	return 0;
++}
++
++
++static void winwing_haptic_rumble_cb(struct work_struct *work)
++{
++	struct winwing_drv_data *data;
++
++	data = container_of(work, struct winwing_drv_data, rumble_work);
++	winwing_haptic_rumble(data);
++}
++
++static int winwing_play_effect(struct input_dev *dev, void *context,
++		struct ff_effect *effect)
++{
++	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	if (!data)
++		return -EINVAL;
++
++	data->rumble = effect->u.rumble;
++
++	return schedule_work(&data->rumble_work);
++}
++
++static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++	if (!data)
++		return -EINVAL;
++
++	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->rumble_left = -1;
++	data->rumble_right = -1;
++
++	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
++
++	return input_ff_create_memless(hidinput->input, data,
++			winwing_play_effect);
++}
++
+ static int winwing_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -219,10 +352,12 @@ static int winwing_probe(struct hid_device *hdev,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->map_more_buttons = id->driver_data;
+-
++	data->hdev = hdev;
++	data->has_grip15 = id->driver_data;
+ 	hid_set_drvdata(hdev, data);
+ 
++	INIT_WORK(&data->rumble_work, winwing_haptic_rumble_cb);
++
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -232,19 +367,39 @@ static int winwing_probe(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static void winwing_remove(struct hid_device *hdev)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
++	if (data)
++		cancel_work_sync(&data->rumble_work);
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
+ static int winwing_input_configured(struct hid_device *hdev,
+ 		struct hid_input *hidinput)
+ {
++	struct winwing_drv_data *data;
+ 	int ret;
+ 
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
+ 	ret = winwing_init_led(hdev, hidinput->input);
+ 
+ 	if (ret)
+ 		hid_err(hdev, "led init failed\n");
+ 
++	if (data->has_grip15)
++		winwing_init_ff(hdev, hidinput);
++
+ 	return ret;
+ }
+ 
++/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
+ static const struct hid_device_id winwing_devices[] = {
+ 	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
+ 	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
+@@ -261,6 +416,7 @@ static struct hid_driver winwing_driver = {
+ 	.input_configured = winwing_input_configured,
+ 	.input_mapping = winwing_input_mapping,
+ 	.probe = winwing_probe,
++	.remove = winwing_remove,
+ };
+ module_hid_driver(winwing_driver);
+ 
+-- 
+2.43.0
 
-The "cap" name goes way back to at least 2G Motorola phones. There
-were whitecap and redcap chips for different 2G technologies which got
-replaced by patriot (red+white+blue I guess) for 2.5G.
-
-Dropping is fine with me, but then you have to update the .dtsi. If it
-was me, I'd just make the binding match because that's 1 patch instead
-of 2. You can still drop it on the new compatibles you are adding.
-
-Rob

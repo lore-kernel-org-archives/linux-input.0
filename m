@@ -1,72 +1,71 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD47E20DD51
-	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 21:00:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 302722F7445
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 21:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771016424; cv=none; b=DsNRD6Vo3EXLh2gvRPIfuJIzTiSTstwEY+/NqwCR/JaTSohjYHkiaGIZgdS1DdoaFpeWRZEHw/s8e210UxpRT/i/y9J+v5o6kfZ1WOyC3eYOZRumm2mlbIQdmyOaAsC8Sozi5UD2Ap2WRMjKadIf2EC3CGvv4gqoFREbkSczvKA=
+	t=1771019769; cv=none; b=nxnQkos4PDU6YCMKgDeCaAkE4hLJ+6k5J99AQCJUIpODu65SSE0wxQDEaH7ejw8eqEyMIti+WOLB3EHC7wEB/NK7Eurbi8XIZqkQV0bRD3MUi4BmmdMJustCF2epiGaNHKii0l1XtEmjL6ELgvbPgIgiqJ6ifltK8xCXjthkRMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771016424; c=relaxed/simple;
-	bh=XqY77utnTjeKjGAGOCShWw4gK9y7YIyb6K5GIa/I3cU=;
+	s=arc-20240116; t=1771019769; c=relaxed/simple;
+	bh=DJUmRY6UaUAKMRryACmrME8HT7tDV2ve9KqOSNybNQw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EKStkp1G2d6huL3qrryivasXx7A9az5r1kqYyJKnOTLcqQ3IzF1Jv/i+ZHrgVQYfMTuPQpGDFEvhW+Gz7rsj7IDcIx0XVRIMDaPwUWQv8P6lMjtzzMfFaXiyE+x6bBgur8qhhXtENYJIBp4eb9fjWCvhrSAao/pZjPMdrjeM2hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R85ycps7; arc=none smtp.client-ip=209.85.218.45
+	 Content-Type:Content-Disposition:In-Reply-To; b=Cknyw9Re20Z9oZz9zdki3np7tJSCbo/bPF1fhNMDMLZYD6iw9TZVdR5L89Mo0+Wcvvn867NRDsXqqgcrj7ZGA3W/ckpjE7xnx3SQzVP44fNLa9tY8rg0/Qmjig/aK9pAwWTSWEzK3qZvuA/o/6h+WEjAGtmAaIGtA90qASMyJTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KzAvH1Iz; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R85ycps7"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b8f8f2106f1so182031266b.2
-        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 13:00:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KzAvH1Iz"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b8f992167dcso174054166b.1
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 13:56:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771016421; x=1771621221; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771019767; x=1771624567; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=K5LwFazFqO7Yhvy+r7pTbMMeAbTSBIla9YuObeGFCN4=;
-        b=R85ycps79f4nvF0LX9iG8D5IpBJ4cddnzz3Badraas5uRTDU0Y8yyfBprdQ1qmzA8P
-         0I+B4qZvDtS7Fi0y9fbrQJg2hb/aCX3Bj5fm8IHEM2Pah9alUlziaIKIfqDOUSz8ZwbO
-         EG8r5qTs9iqXNSL6mRP5SPyqGn7nMWs0K99iP2JFWBuiLHJqhLxVdYbB3SmJdPjKPzqz
-         v2epvp82/JHbGhWl23d2brfrwNf6aLZOzKLIy/rePph1afikMqshhi19kvT5Z78+DY8+
-         NPqTQvbpZgmkkqypvVA80ZZS1c0rVpDCvZay0iHop0BYGKMrtFYotISiV0GQ4QQtacdC
-         4bfQ==
+        bh=0m1F4N0XyKhDSLVlEGb4S3SVhil4Yg6EcQ4g+T10tUA=;
+        b=KzAvH1Iz1VAViINIOgxzT3NIIwOuoWzs2ubkNcVlBerHbTNls0eGp6F/twp1pgC/69
+         y4GjSyxKeqC9p8Wbv22g7gMLEmn/8CFv3ZVYN1dQ3rGja3TDjeRv9t69r5P1NtfzyPyz
+         ETTIk2cQdlvycn//uzSk1QYPFlpcap1t5WCsAjeu5XCHLFTDNZngqFnCBPqvP2SjmA82
+         o9wmRQgVnxdGzYHuZxoBEq1uj1agRyxHshaPmH69QPqV/s0lAoL147QMjNLPrhVhxDUc
+         dZWXwg2JS2yiCzDENIrNH8A7nV+8pQKh4BFKx2YDH9j742/AVwgOl0gbQWo3NNfmPURe
+         SrLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771016421; x=1771621221;
+        d=1e100.net; s=20230601; t=1771019767; x=1771624567;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=K5LwFazFqO7Yhvy+r7pTbMMeAbTSBIla9YuObeGFCN4=;
-        b=eAwEdsTdIgihQMzg+94iaSTw3HABSQtzrF8KHZy1jFmGy0ehkoCVORDZsalnkviXWs
-         hWfvQylj3RIjkVr+ETjJtMaH6Z6VrbkZQku63VEVVhulEakezxhtFnHIfNLsX3epSkmX
-         usJfRBNZROEDQmnCe9HYKzUhvTnbNDwxA5PwwUXVWVYGRuBLk3D1IoaSAgB6wzKMA5uB
-         VUIuAc2exr4a1LyWxRKF8oGEda3F284CrvJCyuwn36XwIxGdmmfkcO2sgjG2of2hihHM
-         NYHqJY72BefuJSGoPFt/X8vyYRYoQXgHIMj40o1qb85gqeL4baH1Rl8cXGym4uUgQajS
-         8lbg==
-X-Gm-Message-State: AOJu0YyHMG6hzXJKgBVh/0/jG3mss2uspYU+q+zmPEa0L09rpmeth45E
-	x9mT1TgSyO3d0LNwi6aVd6yDe8YNe8lvtD4lQJ8L+0vAF992x+ktd3qj
-X-Gm-Gg: AZuq6aJNMtd1BwaHOiQshVOxJRlA9LRzt/u0cSctMfZcqK1LZdseqRymnZ2F7KUp3vK
-	xjN3PHs+nMNk5U77/xJY/PXfXC40PcVetwXZpGnR4DeM5gtQ2Da1fwgQUPS535q1Ayp0EkNNFIK
-	tzNYzB3T/tRe60rFQpZXnT57uelgX/GhH0W+dMHV9Am1ZhcJQ2kQbwmXr+4cQrXwfURUEpa3WxR
-	8H5EWInNRBcMIdogWFFr8qlxRfJ/iv66I/O2bEAW44o89NodyLE55QaqIvGtZLSSTGSHuOv/owG
-	/G7i5XQIfm8BOHpDg75YchKTzR3IjjyLJqfp1jZWXicVOFqL0mM6UEJYYV1Hyjp6hZEjGZq2O1g
-	tqlKQ3WzeIB7tcnso4go5LXKz8P4trD0PAyJNzAke7cIwmyE18XZ+a4+DVNoLmSzNMN5J8M0wxH
-	gYBxjPv+g6h8D0qg==
-X-Received: by 2002:a17:907:268b:b0:b88:775c:bd68 with SMTP id a640c23a62f3a-b8fc3b6e571mr39956966b.28.1771016421192;
-        Fri, 13 Feb 2026 13:00:21 -0800 (PST)
+        bh=0m1F4N0XyKhDSLVlEGb4S3SVhil4Yg6EcQ4g+T10tUA=;
+        b=FbMiBxyuc7dURTB2gRJxu0tRaFrJYNci0RasZ1QfxAa/BUIWIrmtEDGja93atYXT7f
+         /gu5pg3aZ5H7lrIiN0Jn98In7UflVhEn8UduMoq8MYmj1Xf2WeS0V+zOkskhlFVgLArj
+         sS8ivJEXDognJafgBbqwNmBo24f12XeIJiPdAXYlFstDbKz9+MHTe/nQtiagtLGYiow3
+         +WPIw3HO8NxFZtU+hFP66jQYoIPPSrB2+EzwnLMJ91bowjojA0DdQ0WWqLOCsq692cz2
+         gfLE+qbrEH+UlNAO/ebYHbjFeWIRUtMKYjAUqcdpIQttMgGpc54A6QVt1UL5/DG2GWjG
+         +T4Q==
+X-Gm-Message-State: AOJu0YxqENR8W23rb790eGfHh30seoUruWvGQdi4A54sIalSJrogT5zS
+	fXedd6bDmTQY04TYwUZj396Qk10zlH3zK4rAgRh1MA7DUkkIA62tgnXkwnmFpw==
+X-Gm-Gg: AZuq6aLSB7PV3IRupXrfm/AAkE26ajdijZyKxX7obTAUibfmk4xYILgC6v+MdVwuQau
+	EkJHDS5LWBlkL0K1CFb/gboTs24Q7QesS/7S+ZF9Tl4LDOCupxudK0GunEW8wlkESPvRJlr/VTy
+	3rmIkef2smgw54UqcM5aNTYVvaaZ30ddQBrZp3rALFvME1uGHf38fMQfRDyohVFBkbjoNtOIHGx
+	ruuhuB1xbpUSOiQiwGib5/Pvg1lv8oiT+ZnW+1Wgkr22iSmAyAEkBE9VvAng3gkEJVv9GIKAMoX
+	ypU9Ze/OHqiK8xEHa5IMXtMlpdXwfoIQEF/EGs3lLw2S9ma4PzxHmpGjPBmj8wQgOisWbXCKxQu
+	y2ad82rPzNsOOm+0TlU1ZMqyyHGdgLp+XVXU0XQEbl/2+/twMCWCXqoisoSbV6qN+eAWsx/wLJ+
+	l1hX+OHvC6gCdN+w==
+X-Received: by 2002:a17:906:c104:b0:b8f:7014:48fb with SMTP id a640c23a62f3a-b8fb41ddfdamr182338766b.16.1771019766325;
+        Fri, 13 Feb 2026 13:56:06 -0800 (PST)
 Received: from jekhomev ([46.251.53.180])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8fc7385e60sm1689666b.19.2026.02.13.13.00.19
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65bad3e3538sm1128221a12.20.2026.02.13.13.56.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Feb 2026 13:00:19 -0800 (PST)
-Date: Fri, 13 Feb 2026 23:00:18 +0200
+        Fri, 13 Feb 2026 13:56:05 -0800 (PST)
+Date: Fri, 13 Feb 2026 23:56:05 +0200
 From: Yauhen Kharuzhy <jekhor@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	Hans de Goede <hansg@kernel.org>
-Subject: Re: [PATCH 4/5] input: drv260x: Stop waiting for GO bit clearing
- after timeout
-Message-ID: <aY-P_VyXDfqbm83m@jekhomev>
+Subject: Re: [PATCH 5/5] input: drv260x: Don't try to disable dummy regulator
+Message-ID: <aY-SwIyOo3pJVmUP@jekhomev>
 References: <20260211235902.4156624-1-jekhor@gmail.com>
- <20260211235902.4156624-5-jekhor@gmail.com>
- <aY4OAw_IMeta1z9e@google.com>
+ <20260211235902.4156624-6-jekhor@gmail.com>
+ <aY4QBqz4tadR2-Yt@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,76 +74,25 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aY4OAw_IMeta1z9e@google.com>
+In-Reply-To: <aY4QBqz4tadR2-Yt@google.com>
 
-On Thu, Feb 12, 2026 at 09:34:51AM -0800, Dmitry Torokhov wrote:
-> On Thu, Feb 12, 2026 at 01:46:54AM +0200, Yauhen Kharuzhy wrote:
-> > If something goes wrong during effect playing or calibration, the GO bit
-> > may not be cleared after some time, and the driver will get stuck.
-> > To prevent this, add a timeout to the waiting loop.
-> > 
-> > Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
-> > ---
-> >  drivers/input/misc/drv260x.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> > 
-> > diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-> > index f08a3d6c3ed8..f7bfac6d3973 100644
-> > --- a/drivers/input/misc/drv260x.c
-> > +++ b/drivers/input/misc/drv260x.c
-> > @@ -173,6 +173,12 @@
-> >  #define DRV260X_AUTOCAL_TIME_500MS		(2 << 4)
-> >  #define DRV260X_AUTOCAL_TIME_1000MS		(3 << 4)
-> >  
-> > +/*
-> > + * Timeout for waiting for the GO status bit, in seconds. Should be reasonably
-> > + * large to allow long-duration effects and a calibration cycle
-> > + */
-> > +#define DRV260X_GO_TIMEOUT_S 5
-> > +
-> >  /**
-> >   * struct drv260x_data -
-> >   * @input_dev: Pointer to the input device
-> > @@ -339,6 +345,7 @@ static int drv260x_init(struct drv260x_data *haptics)
-> >  {
-> >  	int error;
-> >  	unsigned int cal_buf;
-> > +	unsigned long timeout;
-> >  	u8 id;
-> >  
-> >  	error = regmap_read(haptics->regmap, DRV260X_STATUS, &cal_buf);
-> > @@ -442,6 +449,7 @@ static int drv260x_init(struct drv260x_data *haptics)
-> >  		return error;
-> >  	}
-> >  
-> > +	timeout = jiffies + DRV260X_GO_TIMEOUT_S * HZ;
-> >  	do {
-> >  		usleep_range(15000, 15500);
-> >  		error = regmap_read(haptics->regmap, DRV260X_GO, &cal_buf);
-> > @@ -451,6 +459,10 @@ static int drv260x_init(struct drv260x_data *haptics)
-> >  				error);
-> >  			return error;
-> >  		}
-> > +		if (jiffies - timeout <= 0) {
+On Thu, Feb 12, 2026 at 09:41:04AM -0800, Dmitry Torokhov wrote:
+> On Thu, Feb 12, 2026 at 01:46:55AM +0200, Yauhen Kharuzhy wrote:
+> > Don't use a dummy regulator for 'vbat' because it cannot be disabled
+> > during suspending.
 > 
-> time_after()
-> 
-> > +			dev_err(&haptics->client->dev, "GO timeout\n");
-> 
-> This should be a warning, not error, since we are continuing.
-> 
-> But actually, shouldn't we signal an error? This is probe path and if
-> the controller does not ever signal readiness I do not think we should
-> pretend that it will work.
+> Why? Dummy regulator is supposed to be a placeholder that allows all the
+> regular operations (enable/disable/etc) without having actually supply
+> attached. Optional regulators are supposed to only be users when there
+> are parts of a chip that are powered separately and may be not in use in
+> a given design.
 
-Sounds reasonable. I got such a hang when selecting invalid mode/library
-properties, and yes, it doesn't look like we can expect correct
-functioning afterward. Will change to error.
+Hmm, I definitely had an issue with this. Will re-check.
+
+Thanks for the review.
 
 > 
-> > +			break;
-> > +		}
-> >  	} while (cal_buf == DRV260X_GO_BIT);
+> This change is counter to the regulator framework.
 > 
 > Thanks.
 > 

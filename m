@@ -1,179 +1,211 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1550C2D8DCF
-	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 07:23:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770967415; cv=pass; b=YgU8ttkfUSV/peTplKBqQhvg5FSklhG+i04uPqNXP4EC96ei950K751KkCzsxA32j1MICSSTeQlfHI8L74WX5cHz8nBENpBHi9/Pl1s7QRWYfe7kERe+jddWz8iI5wh1b322FdkayGc9UI/YMwXT6xP3a/ZjRUTMUJy5+lW0M9k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770967415; c=relaxed/simple;
-	bh=MmyEyVaUK0nInRHofYHUBo4aN8wM9mt3v+WrEEIMH9E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D6RBpzYcj6y08e0Ta1qY2Sy+ta+4O3Cp+kUleS9UMkEd++RtkcNecAfMLPnnrXqXsWAHps1DfbBMpBaCSE8Kas2H097Jaa8q5tISSLRN/JPkuWQ0zrjKtwMis0ylBNMXUZP59tHgTMqgTTdc8V9f2wcoRC67huBP4cY1QVNlTpA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=myyQa0+0; arc=pass smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90CE34D4CB
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 09:25:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770974759; cv=none; b=rsQeXXRau/0GSvlYswEUIPWynA80+BCUxc1ecJtKOeC1wpLhI0LxHiCVkM7OtlyAelf9VIistBhzisl2Ylrv4OkwStP6IPIPpKnfeMeeaxqZIsFd9FbgJqZGMYh104p4RUdOLhrmgQoYSpUWLpOOUqZRAOVy/p4+c8t3yk+wG/A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770974759; c=relaxed/simple;
+	bh=4Ij2NBoCIlNWCY0qDQILXOuDEmN9GJTc5JcYF6tAQvU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=nSzWj4mFdYrm/N1YFc+hL0wnhfAon4kbu7/9P2wc3OQ5IRre/dzD8VyQpK1SIopxYU3cjTSBfddFSmbIcvQjKuqOQNWQfU2gmAF9IDiSfiRkdASxfa5jsArtmxmfe2zUqLCQDx2zZGqoUoeCpg8Z6UUnyxvtH3eBsW4atDJOM78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FJDH8adf; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="myyQa0+0"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-483770e0b25so24025e9.0
-        for <linux-input@vger.kernel.org>; Thu, 12 Feb 2026 23:23:31 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770967410; cv=none;
-        d=google.com; s=arc-20240605;
-        b=jSl9AoKtAj+rIIu0MH7H97Wo6Rp4dsjamQgB/3WWLP5vHB8pob9zeg8GOF2ZO7iQTb
-         s5dMNnEe4VZ4VCqCJfmZUPi8F2U3Ugd3bgWKNUoLQ8JdXS6x6nABwB7wMQno2NEzkJgx
-         aSihC7RK78hXO2u7H5CC8sro3zmk59UL185atN24GzeK6elf46wiDo8k1qwdVwQZBZBN
-         7BmK8BicfK0Yv4wZKXo+wgkeuOmH7zTP2CIeLHVjeASsx0V+Ym8QhtO6d398BQTNkXuu
-         StqKFKxOBkeja1+a6fWbOR0dcckpr+peVA3jejnIrlogmzgnQ8HqqmpnmCZ/h2JyESlV
-         5Xfg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=VBWGvgMwD89B2tOYl/7fTry4UgR0kuVd41YN846Sbf0=;
-        fh=fK82PJJwxeJMtk58vvpQUMxLCUkvoGOOI0hbZUeG+Sg=;
-        b=HIEaixSSQDNGGfqxhIvnBK0G2hpnYln4mVl7NFP3kxGE1uqgLR9uUlt2wDmxo1tOLO
-         ATjcSIOPbNXIp2OyO0Re/2w/WaRKRgaG/zjZmm+ktol2V4e5V/JFaXu7rlIurdfZDKIJ
-         i/cU0OVLXXBfbhHd+NoaYjPnyQUJcwPiYqmVACHuIeiZt9Xiq4qgJ6a4p60ytLkXkIc0
-         8Pe937mTwZCMs3rWNUzOV7R1v6NIM5Dmp3IwpSpjeh8J5j943oo3O8DVR8t4CjMT3WHR
-         9Q8dqToUOZJGFmReaX97vGW7OGgkTDfys/Bwy+wWKE97QUPS4rCR3zrGxu55XCuY2eIL
-         wV8w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FJDH8adf"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-48374014a77so3128215e9.3
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 01:25:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770967410; x=1771572210; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VBWGvgMwD89B2tOYl/7fTry4UgR0kuVd41YN846Sbf0=;
-        b=myyQa0+0cdZ+6BCDWQ9XRyfq36ArqkIuxg3T0B0e0k3KTN7Fxgoza3JurNqt2hIZ73
-         Z8KwemYutt8a8dmsYEa2cW5TON/PySdU4wGeWtt1jiX+oI8PKGY0C21vpyywSg04XAnM
-         cAZkTinhBo7tp7ijknJZGHWS7qK4EW+9jQ0UykLEXXpPrW5XASJwMPNVDtBJm5zFeuCw
-         kg83RWB/vx57hGCKzvOnJgXA/b2Xa2tWpYcQqB5NPd5nYEUK9CZ5Ff4uyOJdO5K2Oth6
-         pVkInJIEja5yeUvaUK+jxWU4C5HbQdUhXNdKsMBGitLgviYxiCARAeZew8gezjZNy5vC
-         iYCQ==
+        d=gmail.com; s=20230601; t=1770974756; x=1771579556; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=U422Lt4MbhlsafmUTkDHvhgOOQ/KQODiSAzag8Wg63s=;
+        b=FJDH8adfhN9Vjk+JRzj1w5w15n0ErrQ1MXCQ1S1aGSxgvpjK+mGRm7tU9rDYPpPpZt
+         rapnWTC5V6D47wDhh7ciaJkfZCGErVwwPJBZJQ65PD6ZmcQulg4VOYVbWuKJKAX3pBpU
+         zpZDkH77Xl+DpdaAdloZyaUz7nPhU+dHTHqw+I5cbKOgVn+wTkmcxwOtQGHlQIo8Xu65
+         8hryABHBn6yDXFZ37bijXYajApguXUBqt6oESCnI2T8uAGtYMTmoW4TpJM49l1U2a6I0
+         qVD4yH2ZB0dYC5hpmckYfbapGAsJ5XxhOWYmgY1c5LzmXP2oGzwkwL96T65XlJ+wxsnI
+         vz7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770967410; x=1771572210;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=VBWGvgMwD89B2tOYl/7fTry4UgR0kuVd41YN846Sbf0=;
-        b=KWliMYEqiwSsDfU+iDFVvKPsXapTVp6xIul5fqWHlB2g8Pe8wC2hk1g73zZnKs8IKP
-         5h6yeTYkMvnznUhJ4lnP/4sU17PZ2OTtbisgF5yp4vv+7/lZdgUCZvATrpp9DoEJKL2v
-         MW65YN4c5RLY1+2Wda8dAArX3KM1GfgxDAfsXZ7gxk/ljdsGvHo73OEayTvzGfRtFl8p
-         IhqH45swCdgTKlfPRKiGmB8KImWTKqb7N/u2RzXUtT8VJB5VXNLGJh6XRftDZfW7Ksb+
-         FU0ok3/IWIEK+2g51c/+tQHPD+qGbT9Wx78O2ci4nSNdiNAbu7KW0l+Jj7/1OGGgsb5H
-         0nLw==
-X-Forwarded-Encrypted: i=1; AJvYcCV/J+csm3/I6UUy/59DDGXKlUgeunGnZWpnLol7pJmDpmeUa2ihndKubG+kKlDskBmXVNxCaY+SwWEJ3Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy92LbnnmDyHoBs5g2R5iNLdwN8dKH5LtV1ZsBF6Sg94ayQVt37
-	M9NLCDA2SXnRibGMC1b2EyYJTbH+2+SEXKSD1Ee2YLPBqjQO7s3CGT2OZty36xveNaI2i7LijD4
-	9xW3S1HkZyDxPOAwE/H7ahRWzPE+/0WA=
-X-Gm-Gg: AZuq6aJAHStP8dJkZU5NncXSswqUS2zHgglR+ynamOoJ3i8ePsta+RqJLnbJ3cvQX/c
-	mukJGdUfqx2ejdoH7+fZtTh35hSz+f4rIthBJrhLnprgKBuLaWL7OcmGWn/NzAREbB9Zep3bpQJ
-	2l8HcIvmxA20tBhPp4bCu0RzWjgLYxL+oFaalcffK4ejv0nPxqZzvIhVNh5u3neEx85c+HbugSF
-	/jFRD+72JIQSvKn5IUY0/AXiFZrY4X/vfZt6GQwOFUpa0uPHvI7uEoA5p5ByNGzQjTuz6wJxeov
-	AePzkznx
-X-Received: by 2002:a05:600c:314b:b0:482:eec4:772 with SMTP id
- 5b1f17b1804b1-483710962c5mr18176375e9.32.1770967409817; Thu, 12 Feb 2026
- 23:23:29 -0800 (PST)
+        d=1e100.net; s=20230601; t=1770974756; x=1771579556;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=U422Lt4MbhlsafmUTkDHvhgOOQ/KQODiSAzag8Wg63s=;
+        b=YsFEjJVQSCnn1EnDkqJ2aF6DW0CMdyz7y9xT+9pg7uVdypYTb01nhMoy5GqFsvlh41
+         tUag1qfMmiAdZH28Fo/nBsKblk5AQxbC4hSD0LHhNpHz6KXo7FgUl7QV8OKuV+JK0CI5
+         V+Fdb0H2TPkerQg0Er8KXwziEbqSg9msp/G9p21HWwtw6/0CHPiaKCsM7Qp+Oxs38imc
+         PVz05KZUbW8eagtUPCb8nLSaISciL+4SIFbHy17J6XZlemmP0oKbBs+Oo1XfWUNfak13
+         ufn+ytV2tB/0/z4kLMzF5dAs2BDPvOOsLPNRdUsF3eBZTI06biMEW2Ib4VO1uGI3osJ5
+         ehMA==
+X-Gm-Message-State: AOJu0YxPZf7XptNe/BTMNHblOH452HXfnnlXePusoqPx9HMDhgMq1ZW7
+	CAWyyCepzIuK80dMOpDz+ofAMJ0lkA1idyE5NLIzhV3iAUAEBGlbF6de
+X-Gm-Gg: AZuq6aKOx3kMXIBpsW0meIzf4bGnOhN9EW++DirRr7GOndHAz20UdBNozl0CYu22saR
+	dDxQxrLrYpHism+Y8d0pKpVL4yDa8xKTKLuBasaMsvCiS2KZsFzUyBh5Ihowlm2HqCLKNMHJQoT
+	EoCvK1ZU+7GOvV4mKPyxMGoPsxFfgyoaK3wzqeO6/aaTcM+muJWegDYPk8EhsnaTeqVXW9/aCp0
+	XPcuJQaoyi/o4/VE6NFNeFSmZOG38vRt3DMrl/oOb3cBfImMg2UwzXT05aX6ga3FEy4lyO5VT7Z
+	QYwdh0ALNsi9U8fDBIbuVvKyRssbJYdG5L+WusiAi/YcB1D6ZPDX4CoqtxZs7ekw7qzl2zTjXwL
+	LbCvE76q+mOsUurX8FusX2ItzPbZxccT656B3yuc+Tj4HjXrDHBzrd0hzGELQxQZ4rtxTa03r43
+	It9nDDgb6VfjXbzQWYMEhZjaQDLtQrs4YNWS9GRg==
+X-Received: by 2002:a05:600c:4e4d:b0:477:c478:46d7 with SMTP id 5b1f17b1804b1-48373a3e749mr17358265e9.22.1770974755835;
+        Fri, 13 Feb 2026 01:25:55 -0800 (PST)
+Received: from [192.168.178.21] ([2001:9e8:fba1:9200:22c9:d0ff:fe7b:79cb])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48370a41be2sm24302765e9.1.2026.02.13.01.25.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Feb 2026 01:25:55 -0800 (PST)
+From: Liam Mitchell <mitchell.liam@gmail.com>
+Date: Fri, 13 Feb 2026 10:25:40 +0100
+Subject: [PATCH v2] bcm5974: recover from failed mode switch
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260206172845.145407-1-clamor95@gmail.com> <20260206172845.145407-9-clamor95@gmail.com>
- <20260211212016.GA3910589-robh@kernel.org> <E5BC797C-4362-4C75-BCAC-7C32A51C4725@gmail.com>
- <CAL_JsqLcFAP7oP0KzLp7DfcCpz0DjsjoAW3PcfnWu2nc-dG1CQ@mail.gmail.com>
-In-Reply-To: <CAL_JsqLcFAP7oP0KzLp7DfcCpz0DjsjoAW3PcfnWu2nc-dG1CQ@mail.gmail.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Fri, 13 Feb 2026 09:23:17 +0200
-X-Gm-Features: AZwV_QgDJIV6_g_jAAOQ5PvTpgIhruzFFHa64dzcRToVwkVZEzE9kWpIOm1s5Xg
-Message-ID: <CAPVz0n3oSpaW4w74Wxv9G_RUhCYX-WsnVexoAbp1tU6rkJ4nNw@mail.gmail.com>
-Subject: Re: [PATCH v2 08/11] dt-bindings: mfd: motorola-cpcap: convert to DT schema
-To: Rob Herring <robh@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Dixit Parmar <dixitparmar19@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260213-bcm5974-reset-v2-1-1837851336b0@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XMQQ7CIBCF4as0sxYDtAXrynuYLpAO7SRSDDRE0
+ 3B3sXuX/0vet0PCSJjg2uwQMVOisNaQpwbsYtYZGU21QXKpuOSaPazvB92xiAk3dumtnZw1g+o
+ E1M8roqP34d3H2gulLcTPwWfxW/9JWTDBjNNCtQNvnVG32Rt6nm3wMJZSvnMijjyqAAAA
+X-Change-ID: 20260207-bcm5974-reset-85ccdfca9641
+To: Henrik Rydberg <rydberg@bitmath.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Liam Mitchell <mitchell.liam@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770974754; l=4355;
+ i=mitchell.liam@gmail.com; s=20260207; h=from:subject:message-id;
+ bh=4Ij2NBoCIlNWCY0qDQILXOuDEmN9GJTc5JcYF6tAQvU=;
+ b=5IeXF00uQBUO/z2qvJjGtiewVRhLOQcBzlCo/8zJFtPN6yIeeXjKEKqGpMl72WbDVURD3jslk
+ r+4eNYOzKYyDkxPkBADotIJksVOcYTLxP39gCdNeDU2rMoHfwkWOJuE
+X-Developer-Key: i=mitchell.liam@gmail.com; a=ed25519;
+ pk=Y9mPqBk1OuHZ0OaUZ5a8Nc5X7YHs7+SKiNwUfcLfPmg=
 
-=D1=87=D1=82, 12 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 22:19 Rob =
-Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Wed, Feb 11, 2026 at 11:30=E2=80=AFPM Svyatoslav Ryhel <clamor95@gmail=
-.com> wrote:
-> >
-> >
-> >
-> > 11 =D0=BB=D1=8E=D1=82=D0=BE=D0=B3=D0=BE 2026=E2=80=AF=D1=80. 23:20:16 G=
-MT+02:00, Rob Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> > >On Fri, Feb 06, 2026 at 07:28:42PM +0200, Svyatoslav Ryhel wrote:
-> > >> Convert devicetree bindings for the Motorola CPCAP MFD from TXT to Y=
-AML.
-> > >>
-> > >> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > >> ---
-> > >>  .../bindings/mfd/motorola,cpcap.yaml          | 411 +++++++++++++++=
-+++
-> > >>  .../bindings/mfd/motorola-cpcap.txt           |  78 ----
-> > >>  2 files changed, 411 insertions(+), 78 deletions(-)
-> > >>  create mode 100644 Documentation/devicetree/bindings/mfd/motorola,c=
-pcap.yaml
-> > >>  delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-c=
-pcap.txt
-> > >>
-> > >> diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.ya=
-ml b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> > >> new file mode 100644
-> > >> index 000000000000..7e350721d9f6
-> > >> --- /dev/null
-> > >> +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> > >> @@ -0,0 +1,411 @@
-> > >> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > >> +%YAML 1.2
-> > >> +---
-> > >> +$id: http://devicetree.org/schemas/mfd/motorola,cpcap.yaml#
-> > >> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > >> +
-> > >> +title: Motorola CPCAP PMIC MFD
-> > >> +
-> > >> +maintainers:
-> > >> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> > >> +
-> > >> +allOf:
-> > >> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> > >> +
-> > >> +properties:
-> > >> +  compatible:
-> > >> +    enum:
-> > >> +      - motorola,cpcap
-> > >> +      - st,6556002
-> > >
-> > >This does not match the only user in the kernel .dts files as
-> > >"st,6556002" should be a fallback.
-> > >
-> >
-> > Honestly, I would remove st,6556002 since it is not the only cpcap mode=
-l which can be used, hence it cannot serve as a universal fallback. Some de=
-vices use ST produced cpcap chips, others use TI and range of models varies=
- too. I guess I have to multiply commits.
->
-> The "cap" name goes way back to at least 2G Motorola phones. There
-> were whitecap and redcap chips for different 2G technologies which got
-> replaced by patriot (red+white+blue I guess) for 2.5G.
->
-> Dropping is fine with me, but then you have to update the .dtsi. If it
-> was me, I'd just make the binding match because that's 1 patch instead
-> of 2. You can still drop it on the new compatibles you are adding.
->
+Mode switches sent before control response are ignored.
+On receiving unknown 8-byte packets, assume that mode switch was ignored
+and reset by switching to normal mode, waiting then switching back to
+wellspring mode.
 
-Yeah, you are right. I will preserve st,6556002 fallback for
-motorola,cpcap while Mapphone and Mot would not require this fallback.
-Thank you for suggestion and for the cpcap's origin.
+---
+This patch addresses an issue where the bcm5974 driver switches modes
+before the device is ready, resulting in an unresponsive trackpad and
+"bcm5974: bad trackpad package, length: 8" repeated in logs.
 
-> Rob
+Discussion of issue in the thread:
+https://lore.kernel.org/linux-input/CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com/
+
+This fix is conservative, avoiding changing existing mode-switch
+behavior because I cannot test all variations of hardware.
+
+On receiving an unknown 8-byte packet, we assume the device is not in
+wellspring mode and schedule an asynchronous mode reset.
+
+Signed-off-by: Liam Mitchell <mitchell.liam@gmail.com>
+Link: https://lore.kernel.org/linux-input/CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com/
+---
+Changes in v2:
+- mutex_lock -> guard(mutex)
+- dprintk -> dev_err
+- msleep -> fsleep
+- removed 0 init
+- cancel_work_sync -> disable_delayed_work_sync
+- work_struct -> delayed_work
+- Link to v1: https://lore.kernel.org/r/20260207-bcm5974-reset-v1-1-af7163903fa6@gmail.com
+---
+ drivers/input/mouse/bcm5974.c | 40 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index dfdfb59cc8b5..6ee766ed8402 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -286,6 +286,8 @@ struct bcm5974 {
+ 	const struct tp_finger *index[MAX_FINGERS];	/* finger index data */
+ 	struct input_mt_pos pos[MAX_FINGERS];		/* position array */
+ 	int slots[MAX_FINGERS];				/* slot assignments */
++	struct delayed_work mode_reset_work;
++	unsigned long last_mode_reset;
+ };
+ 
+ /* trackpad finger block data, le16-aligned */
+@@ -696,6 +698,32 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
+ 	return retval;
+ }
+ 
++/*
++ * Mode switches sent before the control response are ignored.
++ * Fixing this state requires switching to normal mode and waiting
++ * about 1ms before switching back to wellspring mode.
++ */
++static void bcm5974_mode_reset_work(struct work_struct *work)
++{
++	int error;
++	struct bcm5974 *dev = container_of(work, struct bcm5974, mode_reset_work.work);
++
++	guard(mutex)(&dev->pm_mutex);
++	dev->last_mode_reset = jiffies;
++
++	error = bcm5974_wellspring_mode(dev, false);
++	if (error) {
++		dev_err(&dev->intf->dev, "reset to normal mode failed\n");
++		return;
++	}
++
++	fsleep(1000);
++
++	error = bcm5974_wellspring_mode(dev, true);
++	if (error)
++		dev_err(&dev->intf->dev, "mode switch after reset failed\n");
++}
++
+ static void bcm5974_irq_button(struct urb *urb)
+ {
+ 	struct bcm5974 *dev = urb->context;
+@@ -752,10 +780,18 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+ 	if (dev->tp_urb->actual_length == 2)
+ 		goto exit;
+ 
+-	if (report_tp_state(dev, dev->tp_urb->actual_length))
++	if (report_tp_state(dev, dev->tp_urb->actual_length)) {
+ 		dprintk(1, "bcm5974: bad trackpad package, length: %d\n",
+ 			dev->tp_urb->actual_length);
+ 
++		/* HID packet means we aren't in wellspring mode */
++		/* If we haven't tried a reset in the last second, try now */
++		if (dev->tp_urb->actual_length == 8 &&
++		    time_after(jiffies, dev->last_mode_reset + msecs_to_jiffies(1000))) {
++			schedule_delayed_work(&dev->mode_reset_work, 0);
++		}
++	}
++
+ exit:
+ 	error = usb_submit_urb(dev->tp_urb, GFP_ATOMIC);
+ 	if (error)
+@@ -906,6 +942,7 @@ static int bcm5974_probe(struct usb_interface *iface,
+ 	dev->intf = iface;
+ 	dev->input = input_dev;
+ 	dev->cfg = *cfg;
++	INIT_DELAYED_WORK(&dev->mode_reset_work, bcm5974_mode_reset_work);
+ 	mutex_init(&dev->pm_mutex);
+ 
+ 	/* setup urbs */
+@@ -998,6 +1035,7 @@ static void bcm5974_disconnect(struct usb_interface *iface)
+ {
+ 	struct bcm5974 *dev = usb_get_intfdata(iface);
+ 
++	disable_delayed_work_sync(&dev->mode_reset_work);
+ 	usb_set_intfdata(iface, NULL);
+ 
+ 	input_unregister_device(dev->input);
+
+---
+base-commit: 7d0a66e4bb9081d75c82ec4957c50034cb0ea449
+change-id: 20260207-bcm5974-reset-85ccdfca9641
+
+Best regards,
+-- 
+Liam Mitchell <mitchell.liam@gmail.com>
+

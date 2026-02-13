@@ -1,102 +1,72 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3FCF274B39
-	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1796928D8D0
+	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 20:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771006682; cv=none; b=nY2TP52arJPiuKXBybm1bQU7LUNIOYs2VksyQp8z9ZRrl8asjuN3kAY10blIj0+wPZ4lg3stGMo+eq/ychgWcDQeEXjbKNrTqe29MjTV1UGXkPVjFmazPHy2GK0WzEUjPKYH7XBCnrzZHSEWnfoOW8GlITwDVFcWIWtNxdnGTFk=
+	t=1771015721; cv=none; b=aB97CG3KKixIVlyXgVPBIXoZPfgUbRFrKcbxlYX7QG3sdPJCjtRPLMGKsCqabud+DEFfOQ9IHX1/bnwcHycxDEjr473qyXNZoPGXobIO1HAstZ/V07k1/Q+nHPgO0icdkDmLsMqJmcG31IQLav5hHCyjG9hCZJsPg4Pv8ABeM60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771006682; c=relaxed/simple;
-	bh=Do4BGO1LGcHGvCJPpurgH3E9R2Ist8VqiaUHKtL5y8I=;
+	s=arc-20240116; t=1771015721; c=relaxed/simple;
+	bh=W/pVJt/wvydYWWC0lqeyhGED8yc2b22X0xX48t6bb+k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AnELmjcR9FtW9isMsm37lBH+XkkoFbCAVV2FaEVgoBHndiyqxjsvD/nWEHiFAPQjYj1K0O79xIjl5TaNlT/1Kbf66uMBkjdVDoj39TAdzl0OTbtGM5b3WJnazrR8OIphE8Lz9UkXX/aPGi026baQtCQTcyyzi+hBXNWeS/bF2RQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mSPhqAaV; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Pxy0petO; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=LHt5xttMTT4PzVgszMtz0YJV5GPRc+uTQQCyPvMNfQqcP5+N/qMLkxM+fjYxgz+QsGsqjs3hXTHhLJrUxkawUyRir824K8QycmzWyOqYKfTE8GbFS2zv3SvkW6zbZhCX2REs6xD8Nhc6dxQ5MWZ/b6R5MM6M7xY8ccgCcQWYr2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bs6TGQ7w; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mSPhqAaV";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Pxy0petO"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61DCA8BG1827984
-	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=3SdWpZs6y9lD7M+9Gt2ougNs
-	RDsaLktIwBXMbAcdzug=; b=mSPhqAaVolMHDdpabzyqkpZ99wtSLj4yZW8Weiy9
-	p+jpaQKF1nFlmL0TSFIQ07UP0kA8Z6gFm4p02edS29gUfyxYHqYBEhD9MMzQon7f
-	RpbECtNFDStBlNwgLWLKN2DZ8vMoF8zqvmqWfeAjSGFumvoa+5OFVOr7/iPQ12IO
-	MuqtgYey/sV4Fas2bovWr3nvNJKGk/OwC+FOfnFKDuT7OD0Wwvzp4/GwO+/EBnpY
-	r2YWaJfLZ9ko9XrJj/GP/vFGxU8KKAPMOP7XvqocBvwccmsBvemUAa9IaYPlNloK
-	UhnYfVMgWouL0+OvNLhXDI5v4LfU8NPrsQQ7MwXQXs/3mA==
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c9wg02uhv-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:18:01 +0000 (GMT)
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8c52d3be24cso223403485a.0
-        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 10:18:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bs6TGQ7w"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-b8850aa5b56so189238566b.2
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 12:48:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1771006680; x=1771611480; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771015717; x=1771620517; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3SdWpZs6y9lD7M+9Gt2ougNsRDsaLktIwBXMbAcdzug=;
-        b=Pxy0petObSpM6rLiHmx4UMW2ZOnLKPxrfYLkbcV7vK38YJFR5FjkLRFCSbbdqKsJ3K
-         Wx9mSk3S4kSSyVB2j85NqbYEpwpkFnbv7TrN7+zf4B7RCZEf+0+wam+A/igbEeVT2JzI
-         iaRGQWX6x87zOGiQ/jVOoc5oBClnjJnkS9OSVcVi6GoW+8sUo+2lciTAUm98IVxQ6EG7
-         3oaTcU/NfrufTxqDg3rGfZ2fxb5R+EwEc5TvGiqNeUvgfopgV6jySw35ktiGoZcijRJ2
-         cIKGc07jbWo6XeBq4NNl5rQ4GCrm3fgn2ygiQ5kDeM67SWHUU9plyWGQwsMd7r91vxZR
-         fYxg==
+        bh=/XdoMoffXlEUCxzIMNRrk5M4zeOLPJRBb48+Cvgmzlg=;
+        b=bs6TGQ7wFugheoZ1dqFDoje9ij5UghWUG3iJPbIoWdGR8ijQO+Lss/6zVNbCXMA8+S
+         QGPKf/U9kT3QSIeWwyT3ICYMxUn0U6+LPinkv/LS6OqDBlzD+KsTBbCXndXHBEBZqFMN
+         k7gaJ2Ts7yIq+nKAQZRmaEn4Xo0w4BotOeDUNxoYh/EOFoGPHb6UG5M/qN/9zwe9aj8P
+         T+Gon9f2rY1OWirMAaaSgvKRlH5XWjYaoMiQqnaht0VE/sLC/xKPWg7nOF4q5hEXvAvn
+         LxUae8mNen8WsihdzLkqrCVmhj/xtRYsux3HpuZ/Xo2oFe+GG6TQTRF1SR0Xxp+F0CPF
+         HuRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771006680; x=1771611480;
+        d=1e100.net; s=20230601; t=1771015717; x=1771620517;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=3SdWpZs6y9lD7M+9Gt2ougNsRDsaLktIwBXMbAcdzug=;
-        b=hODI2DIyjZ+L7/VlxhCb8hGiHTJKT3GRvtSLHlv4pcPlPk8uBfdA4GvbpFIEny34V/
-         ZNkdqM0iQ5iUsSTsq3CZ5upnr7PhrYvE60UAwTM9Q8w2dmBB1lEUAVyBuITxvdj4Rcsj
-         Y1q4WL70ogFgaF0D/3gDdsOoc6SwBJzqdqF5stnR0HpvIn0xTbIy6AnIySrqrqHaVMXJ
-         sw9SrK32fq3ci80LiKMo4y3hUibKw2g7kNEqq6vk+2leuD6Br6YlMkGWofJ5n5nnrGyF
-         DBjezNb1TJM2kGazodACU0aF+OHTgun4TaKRf0vaBNzFlViC18reevf45+QCuFnX4+MZ
-         XClw==
-X-Forwarded-Encrypted: i=1; AJvYcCXNwkN5s4W8pX8q3/eOGBgsnUAKYEU34CMV8ocKiCenVKV+D2GXMls3C5daPJrCko2XrODh6B7DeXtfPg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwT8+4358uKWrHLkfrL4ye3pNIabLHjGgeitE5UGysYV2+oxTtY
-	npxLTa8TAvGSB7wLOMwnquyUMSZ+W5fLxyCKFd+N7PUX4IE7US7oTrBNeQpZLWsQWFpeXsxb6AP
-	bvvmdbCZgBrXIx04QpzKWn+fxQaHA6c7UCPVaLw9OSZRGtvSsYPYZ/mpurj7+YEtIbA==
-X-Gm-Gg: AZuq6aIkfLRP6hy9ZEnHLrQqZ4JBcfVX1a0qIAXL4xbJorFt9jqB1yw8qrTDV4hz0p+
-	WnLwOHfCRaSaRVLiJnpQYfSEBpaUrK2BRG5LZFODlwB/ZsAsq8zi49H4mg/eYYLh28jD0iSC9Xw
-	JEVthERwmK6TwW2GiaJHSReF2paenAvoyFI5Q9ou0JJnjHjN0H+ok1J4M9+4NjKy1Kml3N/F2tS
-	3Uy4DYrcbpwKoIQNl67ThZGgKU12WG3uxDgWKsyRv5A5lbXJmGOOVpYWrO0kWTwFdlm1UC2Gy0K
-	ZVf090PXGDLpuR4aiIDcSXcNuMpuo9i0Xuv1c8QcI533UtxW++g2Cn6p6uZZpk8jQrwf6s3GUa3
-	JsRAeil/CfN6JbjFMGmrNvQ3Bw6FoBNXRuQFXV1BeYGLepxeB4C17q5TyseQBCVMgyiF8RkjJxP
-	9WobLTMC9qB8LOfb9LUctRCdLraWmqJcQlRug=
-X-Received: by 2002:a05:620a:4406:b0:8c5:30d3:d6d0 with SMTP id af79cd13be357-8cb424601d5mr320831385a.48.1771006679882;
-        Fri, 13 Feb 2026 10:17:59 -0800 (PST)
-X-Received: by 2002:a05:620a:4406:b0:8c5:30d3:d6d0 with SMTP id af79cd13be357-8cb424601d5mr320826885a.48.1771006679384;
-        Fri, 13 Feb 2026 10:17:59 -0800 (PST)
-Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e5f5a4f5fsm1710581e87.56.2026.02.13.10.17.55
+        bh=/XdoMoffXlEUCxzIMNRrk5M4zeOLPJRBb48+Cvgmzlg=;
+        b=p14UZ2x1Sv4MdBDbvHW6iIFNFB0YLnIZuCg1vessDx/wGD5TSLXFfXaTudTsfULeCh
+         LowNF/rT7B1p5w/ig5VMGyHwfwErwGX80pQF4CY/bYX1Y1ZI308zzNYYyRRFPnt9/uNH
+         eoMv3UJQkcaRwUvwYylvMEJw10J1js3ivReJryaYG01ts04ydHo1yp6qqxpsTMBp5/0i
+         Z9U2Row/Ub0FmDgSzGE8po4e1lGcRuT+HUIYSe//3rvEZCPRSB1bG3cVy6AEM/xwdWaW
+         tyP4tWuToFHbdDohYRUJLojdJ/D7pETwsqySjrqzsUa7vDQEhDb6ap+IMkuJj50VBzmo
+         BdVA==
+X-Gm-Message-State: AOJu0YzEVXXtIA9IQjiSJgugt3y7SeDqyM5B4dU0Uj1RjyHOVQIXnFN2
+	d9iPChBIIlj4QCNuoxseZi33SnynwfNClq4yvSJ3GiWdm8fJMuPb5Z6UVu4IFw==
+X-Gm-Gg: AZuq6aLl9+6PnETLO8jQeoEDHf5hPZ+khjYKADfzbDiNmsGnKOEIPcQSPA+8TkFB1LV
+	ZWy1RCrJJax64Hdyr47hXQlk10GF8QmpwkpDFeGNcn+6+L/dEoVa6UiYB+xo2WbYkzkHK4Vygyw
+	geqBavyiWmkyHnN4FvEVE0f5nDu9RGgnxNi9qFvcKB/Q+o8JnSoX72jbTk6ahBdEvmq2TTbUX2I
+	6gcSQJzYQKI749zW/MSwppuUyeVnetboSw6n5nGFkIVhhKC/lWZ2pfLJ4SdhNOGMXQnLzICPNkc
+	K6RSee79mzfJZXCFahxxvDI9HAJopBngNuPWs2yIvho5QktDkKfSaVRQe8Akqf05LjWbiBQBCqu
+	nMfgkcTghwIBBg039iV+a7+v6+3KktCdtV979SLAUGIZc49WzMmvFPOzAL+7yxfY/2cZmClCUFs
+	H0Ba8CiRd3wzHJtA==
+X-Received: by 2002:a17:907:7fa5:b0:b87:1d71:f44d with SMTP id a640c23a62f3a-b8facca14bemr223447866b.11.1771015717211;
+        Fri, 13 Feb 2026 12:48:37 -0800 (PST)
+Received: from jekhomev ([46.251.53.180])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8fc7385f5dsm878966b.20.2026.02.13.12.48.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Feb 2026 10:17:57 -0800 (PST)
-Date: Fri, 13 Feb 2026 20:17:54 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-To: Rakesh Kota <rakesh.kota@oss.qualcomm.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, linux-pm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] dt-bindings: power: reset: qcom-pon: Add new
- compatible PMM8654AU
-Message-ID: <k2eu6lvokuh6pilmipztfqufffkmxa3zylsxz4lad45ow255no@fvocedpr3qwp>
-References: <20260209-add_pwrkey_and_resin-v2-0-f944d87b9a93@oss.qualcomm.com>
- <20260209-add_pwrkey_and_resin-v2-1-f944d87b9a93@oss.qualcomm.com>
- <b0ade3b3-f2b3-4dbe-9e21-920bbda1d077@kernel.org>
- <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
+        Fri, 13 Feb 2026 12:48:36 -0800 (PST)
+Date: Fri, 13 Feb 2026 22:48:36 +0200
+From: Yauhen Kharuzhy <jekhor@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH 2/5] input: drv260x: Add support for ACPI-enumerated
+ devices
+Message-ID: <aY-HibKtT-thpaoS@jekhomev>
+References: <20260211235902.4156624-1-jekhor@gmail.com>
+ <20260211235902.4156624-3-jekhor@gmail.com>
+ <aY4MqXG2zr01Pk4Q@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -105,57 +75,95 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260210082612.3xakor2yo4h3dbra@hu-kotarake-hyd.qualcomm.com>
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEzMDE0MSBTYWx0ZWRfX0+shOrZt/+TC
- gp0FI6pZqfbyGNV7wSmuESHxOIuGpV30NFKxBOOInpMJdCmF16mCEtmbYGrgzwv8+iO+CoZJHjB
- vbR3+Rf/kdmfFUWbNSYQ5WT4aUVgWKeWfCcq1L4QrRBN6soQQdOyc/v2AxeSdPP+QDg92aGks5w
- JNyWwVMvA1r0wpyGZGL6UKfN1w1VBJhbJgVPKyvsVqK+ogWaptPT++DCKRczNOoL9wx58RG3klU
- 73Z4jIDursMeYxNASg3SjEGD75IpJCdFaRXn9rlD4varLhThisRX8WLIlBZK8VrrwUjDzF/Y5CQ
- xPiLTM0ALhbSIldyrhflks4FCnCjup6s7n29hufL8iAe1w4d1PHIPRQhNdTYjdhxbj8V02whK8u
- iGkt1J0h2JRQkH513828g4EIc5bRFM3EStWKYGty1wFDR06dUb86mJyW2fxQ4gwdxV6/yBIgYse
- wxga7FVCp04jy8OdOdQ==
-X-Proofpoint-ORIG-GUID: ewnK3A4U7GStw2jaCaQuJo6tIklIneCH
-X-Proofpoint-GUID: ewnK3A4U7GStw2jaCaQuJo6tIklIneCH
-X-Authority-Analysis: v=2.4 cv=bo5BxUai c=1 sm=1 tr=0 ts=698f6ad9 cx=c_pps
- a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=EUspDBNiAAAA:8
- a=Z7Cru6KvyN3eZcMTe0gA:9 a=CjuIK1q_8ugA:10 a=PEH46H7Ffwr30OY-TuGO:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-13_03,2026-02-13_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0 priorityscore=1501
- suspectscore=0 phishscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602130141
+In-Reply-To: <aY4MqXG2zr01Pk4Q@google.com>
 
-On Tue, Feb 10, 2026 at 01:56:12PM +0530, Rakesh Kota wrote:
-> On Mon, Feb 09, 2026 at 02:49:24PM +0100, Krzysztof Kozlowski wrote:
-> > On 09/02/2026 14:23, Rakesh Kota wrote:
-> > > Add the compatible string "qcom,pmm8654au-pon" for the PMM8654AU PMIC.
-> > > The PON peripheral on PMM8654AU is compatible with PMK8350, so it is
-> > > documented as a fallback to "qcom,pmk8350-pon".
+On Thu, Feb 12, 2026 at 09:26:24AM -0800, Dmitry Torokhov wrote:
+> Hi Yauhen,
+> 
+> On Thu, Feb 12, 2026 at 01:46:52AM +0200, Yauhen Kharuzhy wrote:
+> > Add ACPI ids and GPIO lookup mapping for drv2604 haptics device.
+> > Found in Lenovo Yoga Book YB1-X91L tablet.
 > > 
-> > Drop everything after ,. Do not explain WHAT you did. We see it.
+> > Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
+> > ---
+> >  drivers/input/misc/drv260x.c | 30 ++++++++++++++++++++++++++++--
+> >  1 file changed, 28 insertions(+), 2 deletions(-)
 > > 
-> > > 
-> > > While PMM8654AU supports additional registers compared to the baseline,
+> > diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+> > index 18360bdfe877..f613c81fa2ba 100644
+> > --- a/drivers/input/misc/drv260x.c
+> > +++ b/drivers/input/misc/drv260x.c
+> > @@ -15,6 +15,7 @@
+> >  #include <linux/delay.h>
+> >  #include <linux/gpio/consumer.h>
+> >  #include <linux/regulator/consumer.h>
+> > +#include <linux/acpi.h>
+> 
+> Sort alphabetically please.
 
-I can't find PMM8654AU either on Qualcomm.com or in the catalog. Is it
-an actual name for the chip?
+Sure.
 
-> > 
-> > full stop.
-> > 
-> > > there is currently no active use case for these features. This specific
-> > > compatible string reserves the identifier for future hardware-specific
-> > > handling if required.
-> >
-> > All the rest is irrelevant or even wrong. We do not reserve identifiers.
-> > If you want to reserve something, then I need to reject the patch.
-> >
+> 
+> >  
+> >  #include <dt-bindings/input/ti-drv260x.h>
+> >  
+> > @@ -419,6 +420,12 @@ static const struct regmap_config drv260x_regmap_config = {
+> >  	.cache_type = REGCACHE_NONE,
+> >  };
+> >  
+> > +static const struct acpi_gpio_params enable_gpio = { 0, 0, false };
+> > +static const struct acpi_gpio_mapping acpi_drv260x_default_gpios[] = {
+> > +	{ "enable-gpio", &enable_gpio, 1 },
+> > +	{ }
+> > +};
+> 
+> I'd rather move this ACPI/device-specifin handling into drivers/platform/x86/x86-android-tablets/lenovo.c
+
+I am not sure if this is device-specific, but since there are no other
+devices with a DRV260x ACPI entry, I may agree. Will move it.
+
+> 
+> > +
+> >  static int drv260x_probe(struct i2c_client *client)
+> >  {
+> >  	struct device *dev = &client->dev;
+> > @@ -426,6 +433,14 @@ static int drv260x_probe(struct i2c_client *client)
+> >  	u32 voltage;
+> >  	int error;
+> >  
+> > +	if (has_acpi_companion(dev)) {
+> > +		error = devm_acpi_dev_add_driver_gpios(dev, acpi_drv260x_default_gpios);
+> > +		if (error) {
+> > +			dev_err(dev, "can't add GPIO ACPI mapping\n");
+> > +			return error;
+> > +		}
+> > +	}
+> > +
+> >  	haptics = devm_kzalloc(dev, sizeof(*haptics), GFP_KERNEL);
+> >  	if (!haptics)
+> >  		return -ENOMEM;
+> > @@ -484,8 +499,10 @@ static int drv260x_probe(struct i2c_client *client)
+> >  		return error;
+> >  	}
+> >  
+> > -	haptics->enable_gpio = devm_gpiod_get_optional(dev, "enable",
+> > -						       GPIOD_OUT_HIGH);
+> > +	haptics->enable_gpio = devm_gpiod_get_optional(dev,
+> > +			"enable", GPIOD_OUT_HIGH);
+> 
+> Why this change?
+
+A good question. Looks like artifact from previous development
+iterations, will remove it.
+
+> 
+> > +
+> > +	dev_dbg(dev, "Enable gpio = 0x%p\n", haptics->enable_gpio);
+> 
+> ?
+
+Hmm, looks like a forgotten debug stuff, removing it.
+
 
 -- 
-With best wishes
-Dmitry
+Yauhen Kharuzhy

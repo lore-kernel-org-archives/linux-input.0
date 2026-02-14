@@ -1,104 +1,205 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+Received: from mail-ed1-f67.google.com (mail-ed1-f67.google.com [209.85.208.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8C11624C0
-	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 02:56:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07E9A3033CD
+	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 18:10:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.67
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771037791; cv=none; b=JoNWkScFmUsheHsZjUV+b9TySiBNbWaYOArkkUmo6NW66ELoPEG6RcmsqTe3l60dSea48t8poR2mav1b9D5LOo2tQAeVsF2iOcUOZPXpPd9P1Iy66T6BHaY4wuAoHOgSr3l8PRPDhQTdKrpSU4Nw7bxayUaQhUUJcXLO1o56n1s=
+	t=1771092621; cv=none; b=FraxFXQQQUczC0uOYCcuyg/FlwQnskw/aY/fq+c8RhiWyJB/90RPHynNEZk0v7wNQ6oEpMlW772wOJgrF7+lw30aocgB5cunfdxkx45IVsxNdB8zsPeaKi5MA3+SJKkef9h5vOIWhgqjOWIYGBBNKbTB1n9LgZYPXUqhoegrKlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771037791; c=relaxed/simple;
-	bh=KTDGJVYmDZSXfP/2WzJDnslgbBTZyGYAswRuq1RR0S4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UHmiRdknu/5Ju/5zRjPJJukSwucQ3qr6AdgTG9JcVhwKMiN0RGw6K+HdbQ6ai5kmJW7t7u/4pvvd2McfCj1DCPxzILkbv6CqZjeFW/mKzZb38S+E3mMuTjuAyuhvyr5fPgQFiQZsEfSXvq3QPkrb93UdhFhUipkxnV6pm5wIRJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fOEYenhf; arc=none smtp.client-ip=74.125.82.170
+	s=arc-20240116; t=1771092621; c=relaxed/simple;
+	bh=QZTJEwKYzV2sVRqc06XpTa0kqL6atv45Fiv22ciLWLc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=EqrsXcs64QEKz+vUuwnyg0xD/L0kWxVQSf0zoeMU+wO4o71haJMdt/JdZo3T1UHNGbuWzJLywk7lzeBSS404Uo+RVMrEn1CObF9kyAhDsBbTLhlsyRY5rT35DMLXCuZEJOtynBv9NKwcmgKLfTgGDRWu8gsNfeylQfDgky7s224=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ODBjkYYD; arc=none smtp.client-ip=209.85.208.67
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fOEYenhf"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2b86ce04c5cso3064577eec.1
-        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:56:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ODBjkYYD"
+Received: by mail-ed1-f67.google.com with SMTP id 4fb4d7f45d1cf-65808bb859cso2488210a12.2
+        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 10:10:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771037789; x=1771642589; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4OOYCvwfV/ZZkqRNanf+Wv41fObk0+e62UXZX+6ZZvs=;
-        b=fOEYenhfzYm+IyYCSEcYT+JgPVzCoN4RBtlrnCgMg+hCOahj0/6XuIrWw341FqXqVL
-         DtlUtF+jQs05j4oIVoOZJSxR0BWt8Gw5HVRCGSEIUak6KZNV8jPRyt9LXiM3fFllIC7f
-         vSUR7jb8Z/qrD0PNK//skJDSzXQQwGb/oJc1v7N3dQj8JJqpgvhowJRF5HbpYEKaoFe2
-         5F5wPla8RdVM6L65buLYPGdxxFZMyaoeeOvpWDXGFcTrACiXy0Gy7RlQFCUulsg4TAlu
-         rQ0EWRX5cFGwEcBsTc7h2d3rQkzjPV97fCR0BEl3TDP8nxPE0bdTPxADS8tEmU2vKuYR
-         wNAw==
+        d=gmail.com; s=20230601; t=1771092618; x=1771697418; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lWhSjDBNQ6gvdK4qfNH6bG1uloMhrN0yff4wPN7T5UQ=;
+        b=ODBjkYYDEsgb4K3M/ZMvkTV37qtS4lO/SwQOY1Yqp3P2KEo4JxBtRoL3vlVx7ihLmZ
+         ejQWJM3xnSeCNxtNTFj4BsxXbMw11quDSoAqKlmXYmoisOaCRoNdHMUvLTvJhVMClfnY
+         Zy/o8BNzetho3EQlhNW3iqwIADDNX93B1nwMyFklZfLdzcDEQRzw0dXLfUzNFlK6cKKp
+         TsjSxpCsIPl4IdMydx3J+bIVTEIl4YZfUygUVqMUihVfDvIzyXuEuD1phL/p51DTZKwk
+         stFDeo5qMSFfrmt7lXlWpOigotIYRbsYmAuP2AyXvOIKqqOZ7lCG25BiHoQCSow1Pxqk
+         +3Ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771037789; x=1771642589;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4OOYCvwfV/ZZkqRNanf+Wv41fObk0+e62UXZX+6ZZvs=;
-        b=BWpvz0jNo2c/cJEtifF+VmrFQbf+FHNHhcEySNBKmnx2UNkpugaPoYR6JSQT4kb1jp
-         icDp8oAK5cgZmR0NW+AboDVJxm4g/esYky5c1z2UZbltVys37xCQOObVt7KJcmSz7Xpx
-         ACzePoZhRHHvyg0Gp6f6mg7DlP4ndq7Ilg1ZMpy1THj6rD0pwiQibwltqp0k57bQGY8V
-         VJZmXDb7lv9bZY2tEk+YTwGkbBvCQwzz5RC45IMPWLYAGH6GnEECLJ5Ib4VhSYm6YbGI
-         y2IQSx0CbqLZSUarc4cmadnCy8CQqy4mpyXV64ooO3TC7O5Qr18bQgeDSrLjyxtWSyVY
-         oRRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUiojafIXdyymeUvBSeau5rd+sOroxYqtCMfDhmgG82aY8oUSIBvBO4W+wHH7rK+czTGio/ixOwOaN9dg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXRxjx/nlLABl/EQoWrdwNHugYsQQPBiRd6zlWLqL7Vq9BMfjp
-	3jyNgmrlTQjzwQqNrjo1Rd9AtDbpS7ctOmnFSHks9TKOW2y0cSEZmnun
-X-Gm-Gg: AZuq6aJpCO/0Ix9ymsKNQEzphoTucfdy2agKgUFe5tPFFnlJJgNAxW1ObUHeWQZ8zAv
-	wzRSLGu2qZtqxLzwcTUe5Kqs4tJzGVmiuDwfBdhIJSoAiZKoGIizSXpOIoLg5EJqJQShR5bmNsK
-	zRhhWhKRQE4WshNBJU3JdEkXzC9Tw6IC+/uEFTTjKdMlPhOaTfXMDZwzwJTkQMCmWy1J9gycx79
-	3k/06z7UzWAuE2EGqeB1tzsOSw5LrWcnMJEpp7WiI0EO8ikGKtkq4+Q+mFWiyDvz79cb5/shNwq
-	B3Mtg0fQpBs7EWnm7h2wEJYhh3AArsoxK7ZtuPV8OBJzkPfJeGntkEKhK6mzRjjrImTO4TkxPpT
-	WrxM4YSYzBbnwHwH38/NgCh63MsMHPw879fL9eDUmTq0BUDNwJ1kXHVy4AkPC5c8m470yKLqE8t
-	l2l1hWt32liDQQK1qZmKtYxsCCCEImZotaFC0Ia8OoYRRDzOtuS9csKS4O4xN0DHDSdWgct5Fnd
-	88=
-X-Received: by 2002:a05:7300:dc91:b0:2b7:f522:992f with SMTP id 5a478bee46e88-2babc3ba41fmr1324474eec.10.1771037789323;
-        Fri, 13 Feb 2026 18:56:29 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:b713:5e7b:5963:d2ad])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb669f7dsm590737eec.23.2026.02.13.18.56.28
+        d=1e100.net; s=20230601; t=1771092618; x=1771697418;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=lWhSjDBNQ6gvdK4qfNH6bG1uloMhrN0yff4wPN7T5UQ=;
+        b=TvaF7sXlkH3FcdM6UHaJSrtEd37RBg0pYFJdCxjqdnpqlgMzvB9p8jzV9SbpZL4+3F
+         HFeEai24UT7BwRdOAj6IV8CFXoprGijOBjVgHdvW71jwoQKkjEHWjTdY3jFFTacuXcn1
+         MQs8SnXvlxMm0Kh7tHVpF8qZvDsP5J6IblNeoOghieaEriEY/b9646trCWBn9EMiZll5
+         lCfWn+hlHuNDoHJFBudbZ3YMA1FfbWysKzb6zgVdL4ZEgZsn/mDAqFYxXcX/O7B0MtYP
+         jUtZCwvJWSPkw7kFqARVrmgMV+zDpqWTTfS5yFVs+XQHrma3y3FsJturZrxcWsG1t/wx
+         ORfA==
+X-Forwarded-Encrypted: i=1; AJvYcCXh6LPur5gQ9uvx90IKcs+TlgTOvHyCBOYhV3a88obSiSniHqz6VTaib2cewJtU6SRmqUKsazmL+Omr0w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzx6wfXbXBlqO+ECgP6muJ6CyLEE2s7XljzJo2wSXd5tCvOw3FC
+	7zh2648F4r4pDhuxrPQCOy2JpeZfGdGjqr2v13bPisWbTEY9MNpUB4Lp
+X-Gm-Gg: AZuq6aLY6ZIph/HQs+6Ki43dSU6M3wc/eHqO/WeEvsP8IgvUIwpcoiQ638aPDART4J9
+	kINaBgNyG3EbfS5mKvi0UyTs42daf2kR1C54B2N0dal64PiiqZXhlpD1f985qmQd7wNXqkS7fRk
+	+KvFXE9MoJOQ8G1k7jy+XnL5fRzN5nf0IsdUUhTghFEzQJnrOMCCHtoNEMGLZgOKC8Pl14shQdR
+	irzB7VRTiwTFyEdQz7oCCPetngi3T7dtUPyahcp4/XkD1m2cpQviNtWOI5X1Kql27OBX6OO6Gyc
+	A/jfaZ3T3XiVJC74dvzWSNkwXgqPY8Pr51K1414LmXIu8mv/wzFA27FM7F9O1gdhwNLs2lde1Sx
+	9n/lXeSUFg3M2TmXpR2Ybh/oomn/ITQ+4rYLIHljgAwYSt/1o77Z3Yza/XqP88tfklWs+DS1JXp
+	Fw4LT0uGxD89B2CJkQ70zyOyE=
+X-Received: by 2002:a17:907:3e8d:b0:b8f:b32e:e1b4 with SMTP id a640c23a62f3a-b8fb44a8219mr338323866b.42.1771092618132;
+        Sat, 14 Feb 2026 10:10:18 -0800 (PST)
+Received: from xeon ([188.163.112.48])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8fc735e506sm88122066b.11.2026.02.14.10.10.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Feb 2026 18:56:28 -0800 (PST)
-Date: Fri, 13 Feb 2026 18:56:26 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: sean@geanix.com, Frank.Li@nxp.com, linux-input@vger.kernel.org, 
-	samuel.kayode@savoirfairelinux.com
-Subject: Re: [patch 1/1] drivers/input/misc/pf1550-onkey.c: fix build with
- CONFIG_PM_SLEEP=n
-Message-ID: <aY_kM08DusJ7Y_Zf@google.com>
-References: <20260214003828.BD1A5C116C6@smtp.kernel.org>
+        Sat, 14 Feb 2026 10:10:17 -0800 (PST)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Ion Agorria <ion@agorria.com>,
+	=?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Cc: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: [PATCH v3 1/7] dt-bindings: embedded-controller: document ASUS Transformer EC
+Date: Sat, 14 Feb 2026 20:09:53 +0200
+Message-ID: <20260214180959.30714-2-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260214180959.30714-1-clamor95@gmail.com>
+References: <20260214180959.30714-1-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260214003828.BD1A5C116C6@smtp.kernel.org>
+Content-Transfer-Encoding: 8bit
 
-Hi Andrew,
+Document embedded controller used in ASUS Transformer device series.
 
-On Fri, Feb 13, 2026 at 04:38:28PM -0800, Andrew Morton wrote:
-> From: Andrew Morton <akpm@linux-foundation.org>
-> Subject: drivers/input/misc/pf1550-onkey.c: fix build with CONFIG_PM_SLEEP=n
-> Date: Fri Feb 13 02:39:04 PM PST 2026
-> 
-> riscv randconfig:
-> 
-> drivers/input/misc/pf1550-onkey.c:154:12: error: 'pf1550_onkey_resume' defined but not used [-Werror=unused-function]
->   154 | static int pf1550_onkey_resume(struct device *dev)
->       |            ^~~~~~~~~~~~~~~~~~~
-> drivers/input/misc/pf1550-onkey.c:133:12: error: 'pf1550_onkey_suspend' defined but not used [-Werror=unused-function]
->   133 | static int pf1550_onkey_suspend(struct device *dev)
->       |            ^~~~~~~~~~~~~~~~~~~~
-> cc1: all warnings being treated as errors
+Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+---
+ .../asus,transformer-ec.yaml                  | 98 +++++++++++++++++++
+ 1 file changed, 98 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/embedded-controller/asus,transformer-ec.yaml
 
-Picked the following fix for this:
-
-https://patch.msgid.link/20251210211149.543928-1-vaibhavgupta40@gmail.com
-
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/embedded-controller/asus,transformer-ec.yaml b/Documentation/devicetree/bindings/embedded-controller/asus,transformer-ec.yaml
+new file mode 100644
+index 000000000000..670c4c2d339d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/embedded-controller/asus,transformer-ec.yaml
+@@ -0,0 +1,98 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/embedded-controller/asus,transformer-ec.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: ASUS Transformer's Embedded Controller
++
++description:
++  Several Nuvoton based Embedded Controllers attached to an I2C bus,
++  running a custom ASUS firmware, specific to the ASUS Transformer
++  device series.
++
++maintainers:
++  - Svyatoslav Ryhel <clamor95@gmail.com>
++
++allOf:
++  - $ref: /schemas/power/supply/power-supply.yaml
++
++properties:
++  compatible:
++    oneOf:
++      - enum:
++          - asus,p1801-t-ec-pad
++          - asus,sl101-ec-dock
++          - asus,tf600t-ec-pad
++          - asus,tf701t-ec-pad
++
++      - items:
++          - enum:
++              - asus,tf101-ec-dock
++              - asus,tf101g-ec-dock
++              - asus,tf201-ec-dock
++              - asus,tf300t-ec-dock
++              - asus,tf300tg-ec-dock
++              - asus,tf300tl-ec-dock
++              - asus,tf700t-ec-dock
++          - const: asus,transformer-ec-dock
++
++      - items:
++          - enum:
++              - asus,tf201-ec-pad
++              - asus,tf300t-ec-pad
++              - asus,tf300tg-ec-pad
++              - asus,tf300tl-ec-pad
++              - asus,tf700t-ec-pad
++          - const: asus,transformer-ec-pad
++
++  reg:
++    description:
++      The ASUS Transformer EC has a main I2C address and an associated
++      DockRAM device, which provides power-related functions for the
++      embedded controller. Both addresses are required for operation.
++    minItems: 2
++
++  reg-names:
++    items:
++      - const: ec
++      - const: dockram
++
++  interrupts:
++    maxItems: 1
++
++  request-gpios:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - reg-names
++  - interrupts
++  - request-gpios
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      embedded-controller@19 {
++        compatible = "asus,tf201-ec-dock", "asus,transformer-ec-dock";
++        reg = <0x19>, <0x1b>;
++        reg-names = "ec", "dockram";
++
++        interrupt-parent = <&gpio>;
++        interrupts = <151 IRQ_TYPE_LEVEL_LOW>;
++
++        request-gpios = <&gpio 134 GPIO_ACTIVE_LOW>;
++
++        monitored-battery = <&dock_battery>;
++      };
++    };
++...
 -- 
-Dmitry
+2.51.0
+

@@ -1,45 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057BB194098;
-	Sat, 14 Feb 2026 01:05:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A0921CC51;
+	Sat, 14 Feb 2026 01:06:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771031120; cv=none; b=ALiINabBdcv86EevAD7cbZoEpXOH4mDi0RjY8oTPHR10sJEmJYi/IFRwQd/qUXzPTjYtu+wCnNu6MdVFLxfBNMOV9Nqxikf2oF71qcINkR40za81hFB+yhbdnuj7aeJLtSbd13I2c2kKK0Lgb8gxCb+lQ5DgO7lBkXk2XhTHQdg=
+	t=1771031178; cv=none; b=IbdJcF1iYoBKynpX3darf1wpVbOAN0ab4y90TsXuFnm6C827S4Q3NyphOOeMajZISCT70/iPl0ZB2SGmFBDmv8zN8mEIDt9PZ6y2gJcqCJ+cNYwm3M1vmoMV7zRAi0D26VWYioM29htDGLPk/5070Gc5B8l4SWFcMfgtNA7B/xQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771031120; c=relaxed/simple;
-	bh=WtDfGtmmYtFguOzEXYrv/v+sKkiG5xUD0xOLBtOCIhM=;
+	s=arc-20240116; t=1771031178; c=relaxed/simple;
+	bh=GHcyStTuYgk9248+ZgiWTEGoNOtoLR827ZiQo/x1ng4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uCYFe+dsDfedYZ+g84y/SReHse6eW6V71FRpvKJMgucF9PaPahuxs+epjb61nwXKf8ecob1y23DjyjW3k4TowTqyiPxinR7WpUWefNKjknN008OaUlPx7/BEbh2/fg8mkhAC1hLd3+bADkQ9qUWll2F+tbpg4T4RnP4MWPsF5wU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g2JDXdnK; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=YZE2p9BZx68tc75z0hQH/6DbJ7nMo7yHsMruRcuAWH/XlgoUl8fUk/HrjEgg/ELha0KnAbj6rHSeTQs5IObEo2ehU4M1DRfEg5/W81sFMN+KkGDmieJVn9ibgzG6altEpV+8XrO60MR2NpRLb+/whQ3OsTXdXzAuRW046G2YsEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PU97r3er; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g2JDXdnK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB881C16AAE;
-	Sat, 14 Feb 2026 01:05:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PU97r3er"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D6B8C116C6;
+	Sat, 14 Feb 2026 01:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771031119;
-	bh=WtDfGtmmYtFguOzEXYrv/v+sKkiG5xUD0xOLBtOCIhM=;
+	s=k20201202; t=1771031178;
+	bh=GHcyStTuYgk9248+ZgiWTEGoNOtoLR827ZiQo/x1ng4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=g2JDXdnKrBNMIxBve1Q9fp1kMPVoImlqYnIS7ksPpvbXbr1HQfooqg8CFn2M8ppz0
-	 eJ7Ki4BWu/uUE7SjAqSq2ZRPL/cBI26oaDx/lgxcdRDogBNHyBGwQEwVUpdD5z08KF
-	 jEzRMZYaLI/MGrsslousL9WkvATboTyQPjeJ/MQwZ4bQC3NYd6/KP2YxbcUyDFjZEJ
-	 rSi0We5MT/ihaHC3PNzY7FwogdLu+BfuLO1AqldekgPRYOokBgxX1DKNIm9Noyb1+1
-	 4hTq1ku6uJ39I16zNO4eG81xpdhcuiCRimwaYs+b/GOVVvHuRtRh0U3Mosak0q+pz5
-	 mcyUyUXwNGRVw==
+	b=PU97r3erxaSJZZ1QLGnJD6vMeJ0ohVPgF15DyhA/X4i9fMLhF6by7vZce4w27EWND
+	 rtqdn3pRv/DxqEi/zRaG3RYuWRWuL3wyrO1sykFQImzcCLSt2i2CTf4qW/NROPvFEh
+	 KJS/zSJdteOP5HbKqVlsis6stHdiLh49WNcDONCa1jbPRLJe/zFMTuKl54KRuD49dq
+	 g1esx7+LEbdfuum1IP5Fcm9pDkymD9nxNEClZ7IbiTHe8zGsYlPuOTIjfaybVk9Y51
+	 Rclj/4/xkdfeOeexTCY5rmjO9e/aJp0fjJtS9PFIgox3fiGdDb4y19iXbMhe0wbYT6
+	 w//0M8O5iOt4A==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Brian Howard <blhoward2@gmail.com>,
-	Kris Fredrick <linux.baguette800@slmail.me>,
-	Andrei Shumailov <gentoo1993@gmail.com>,
+Cc: Joey Bednar <linux@joeybednar.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.18] HID: multitouch: add quirks for Lenovo Yoga Book 9i
-Date: Fri, 13 Feb 2026 19:59:10 -0500
-Message-ID: <20260214010245.3671907-70-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-6.1] HID: apple: Add "SONiX KN85 Keyboard" to the list of non-apple keyboards
+Date: Fri, 13 Feb 2026 19:59:31 -0500
+Message-ID: <20260214010245.3671907-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260214010245.3671907-1-sashal@kernel.org>
 References: <20260214010245.3671907-1-sashal@kernel.org>
@@ -55,311 +53,159 @@ X-stable-base: Linux 6.19
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Brian Howard <blhoward2@gmail.com>
+From: Joey Bednar <linux@joeybednar.com>
 
-[ Upstream commit 822bc5b3744b0b2c2c9678aa1d80b2cf04fdfabf ]
+[ Upstream commit 7273acfd0aef106093a8ffa3b4973eb70e5a3799 ]
 
-The Lenovo Yoga Book 9i is a dual-screen laptop, with a single composite
-USB device providing both touch and tablet interfaces for both screens.
-All inputs report through a single device, differentiated solely by report
-numbers. As there is no way for udev to differentiate the inputs based on
-USB vendor/product ID or interface numbers, custom naming is required to
-match against for downstream configuration. A firmware bug also results
-in an erroneous InRange message report being received after the stylus
-leaves proximity, blocking later touch events. Add required quirks for
-Gen 8 to Gen 10 models, including a new quirk providing for custom input
-device naming and dropping erroneous InRange reports.
+The SoNiX KN85 keyboard identifies as the "Apple, Inc. Aluminium
+Keyboard" and is not recognized as a non-apple keyboard. Adding "SoNiX
+KN85 Keyboard" to the list of non-apple keyboards fixes the function
+keys.
 
-Signed-off-by: Brian Howard <blhoward2@gmail.com>
-Tested-by: Brian Howard <blhoward2@gmail.com>
-Tested-by: Kris Fredrick <linux.baguette800@slmail.me>
-Reported-by: Andrei Shumailov <gentoo1993@gmail.com>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=220386
+Signed-off-by: Joey Bednar <linux@joeybednar.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-Here is my complete analysis:
+This confirms the exact same pattern. The "SONiX KN85 Keyboard"
+identifies itself as an Apple keyboard (via vendor/product IDs matching
+Apple's Aluminium Keyboard) but has a different HID name string than
+"SONiX USB DEVICE", so the existing entry doesn't match it. The
+`strncmp` prefix match means "SONiX USB DEVICE" would only match devices
+whose name starts with exactly that string — "SONiX KN85 Keyboard"
+starts with "SONiX KN" which doesn't match "SONiX USB".
 
 ---
 
-## Commit Analysis: HID: multitouch: add quirks for Lenovo Yoga Book 9i
+## Complete Analysis
 
 ### 1. COMMIT MESSAGE ANALYSIS
 
-The commit message is clear and well-structured. Key signals:
-- **"firmware bug"** explicitly mentioned — erroneous InRange reports
-  block touch events
-- **Closes: bugzilla.kernel.org/show_bug.cgi?id=220386** — tracked
-  kernel bug
-- **Reported-by: Andrei Shumailov** — user-reported real-world issue
-- **Tested-by** from both the author (Brian Howard) and another user
-  (Kris Fredrick) — multiple testers
-- **Signed-off-by: Jiri Kosina** — accepted by HID subsystem maintainer
-
-The Lenovo Yoga Book 9i is a dual-screen laptop shipping to consumers.
-All touch/stylus inputs are multiplexed through a single USB composite
-device.
+The commit message is clear and concise:
+- **Problem**: The SoNiX KN85 keyboard identifies itself (via USB
+  VID:PID) as the "Apple, Inc. Aluminium Keyboard" but is not an Apple
+  keyboard.
+- **Consequence**: Without the fix, the HID apple driver applies Apple-
+  specific function key mapping (`fnmode=1`, fkeyslast), making the
+  function keys behave as media keys by default. This is wrong for a
+  non-Apple keyboard.
+- **Fix**: Adding the keyboard's name string to the
+  `non_apple_keyboards[]` list so it gets properly detected and uses
+  `fnmode=2` (fkeysfirst) by default.
+- The commit was signed off by the HID subsystem maintainer Jiri Kosina,
+  confirming it was accepted through the proper review process.
 
 ### 2. CODE CHANGE ANALYSIS
 
-The commit makes changes in **two files** with **73 lines added**:
+The change is a **single line addition** to a static constant array:
 
-**a) `drivers/hid/hid-ids.h` — 1 line:**
-Adds `USB_DEVICE_ID_LENOVO_YOGABOOK9I 0x6161`. Standard device ID
-addition.
+```356:367:drivers/hid/hid-apple.c
+static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
+        { "SONiX USB DEVICE" },
+        { "SONiX AK870 PRO" },
+        // ... rest of array
+};
+```
 
-**b) `drivers/hid/hid-multitouch.c` — 72 lines across 5 insertion
-points:**
-
-1. **New quirk flag** (`MT_QUIRK_YOGABOOK9I BIT(24)`) — follows the
-   existing pattern (BIT(23) is `MT_QUIRK_APPLE_TOUCHBAR`).
-
-2. **New device class** (`MT_CLS_YOGABOOK9I 0x0115`) — standard pattern,
-   same as `MT_CLS_APPLE_TOUCHBAR 0x0114`, `MT_CLS_SIS 0x0457`, etc.
-
-3. **Class definition in `mt_classes[]`** (~8 lines) — combines existing
-   quirk flags (`MT_QUIRK_ALWAYS_VALID`, `MT_QUIRK_FORCE_MULTI_INPUT`,
-   `MT_QUIRK_SEPARATE_APP_REPORT`, `MT_QUIRK_HOVERING`) plus the device-
-   specific `MT_QUIRK_YOGABOOK9I`. Sets `export_all_inputs = true`. This
-   is the exact same pattern used by many existing classes (e.g.,
-   `MT_CLS_WIN_8_FORCE_MULTI_INPUT`).
-
-4. **Firmware bug workaround in `mt_report()`** (~30 lines) — **THE
-   CRITICAL FIX**: After the stylus leaves proximity, the device
-   firmware erroneously sends an all-zero report with InRange set. This
-   report is consumed by the multitouch stack and blocks subsequent
-   touch events. The fix detects these bogus reports (all relevant
-   digitizer fields — InRange, TipSwitch, BarrelSwitch, BarrelSwitch2,
-   ContactID, TiltX, TiltY — are zero) and drops them by returning
-   early. Without this fix, **touch input becomes non-functional** after
-   stylus use.
-
-5. **Custom naming in `mt_input_configured()`** (~20 lines) — Maps
-   report IDs to human-readable names (e.g., report 48→"Touchscreen
-   Top", 56→"Touchscreen Bottom", 20→"Stylus Top", 40→"Stylus Bottom",
-   80→"Emulated Touchpad"). Since all inputs come through a single USB
-   device with no interface differentiation, udev has **no other way**
-   to distinguish which input corresponds to which physical screen.
-   Without this, the dual-screen touchscreen/stylus configuration is
-   effectively impossible.
-
-6. **Device ID table entry** (~6 lines) — Standard `HID_DEVICE()` entry
-   mapping `USB_VENDOR_ID_LENOVO` + `USB_DEVICE_ID_LENOVO_YOGABOOK9I` to
-   `MT_CLS_YOGABOOK9I`.
+The new entry `{ "SONiX KN85 Keyboard" }` is added at the top. The
+matching mechanism (`apple_is_non_apple_keyboard()` at line 369) does a
+`strncmp` prefix comparison, so the full name "SONiX KN85 Keyboard"
+would need to start with "SONiX KN85 Keyboard" to match (which it does
+exactly). The existing "SONiX USB DEVICE" entry does NOT match because
+the KN85 keyboard reports its name starting with "SONiX KN85", not
+"SONiX USB".
 
 ### 3. CLASSIFICATION
 
-This is a **hardware quirk/workaround**, which falls squarely under the
-"QUIRKS and WORKAROUNDS" stable exception:
-- Fixes firmware-induced bug that blocks touch events (bug fix)
-- Adds device-specific naming for a multiplexed USB device (hardware
-  workaround for udev differentiation)
-- Uses the well-established `hid-multitouch` quirk framework
-- Pattern is identical to Apple Touch Bar, ASUS, SIS, Razer Blade
-  Stealth, Smart Tech, and many other device-specific quirk additions
+This is a **hardware quirk/workaround**. The SoNiX KN85 keyboard is a
+non-Apple keyboard that falsely presents Apple USB vendor/product IDs (a
+common practice for cheap third-party keyboards), causing it to be
+handled by the `hid-apple` driver. The driver then applies Apple-
+specific key translation logic to a keyboard that doesn't need or want
+it, breaking the function keys for the user.
+
+This falls squarely into the "QUIRKS and WORKAROUNDS" exception category
+for stable backporting:
+- It's a hardware-specific fix for a real device with broken behavior
+- It uses an existing mechanism (the `non_apple_keyboards` array)
+- It fixes a real user-facing issue (broken function keys)
 
 ### 4. SCOPE AND RISK ASSESSMENT
 
-**Scope**: 73 lines added across 2 files. All changes are behind a
-**device-specific quirk flag** (`MT_QUIRK_YOGABOOK9I`) that is **only
-activated** for USB VID:PID `0x17ef:0x6161` (Lenovo Yoga Book 9i).
-
-**Risk**: **EXTREMELY LOW**. The changes:
-- Are only triggered for one specific USB device ID
-- Do not modify any common code paths
-- Do not change behavior for any other hardware
-- Use only existing framework constructs (`mt_classes[]` entries, quirk
-  flags, `mt_report()` filtering, `mt_input_configured()` naming)
-- Are well-tested by multiple users
-
-**Dependencies**: The commit is self-contained. It uses standard HID
-definitions (`HID_DG_INRANGE`, `HID_DG_TIPSWITCH`, etc.) and `hid-
-multitouch` structures that exist in all current stable trees (v6.1,
-v6.6, v6.12). The `for (int ...)` C11 syntax is valid in all stable
-trees (kernel uses `-std=gnu11` since v5.18+). The only backport
-adjustment needed is the context around BIT(23)/BIT(24) numbering — in
-stable trees without `MT_QUIRK_APPLE_TOUCHBAR` (v6.12 and earlier), the
-BIT number would need adjustment from 24 to 23. This is a trivial
-context fixup.
+- **Size**: 1 line added to a data array. Cannot be smaller.
+- **Files touched**: 1 (`drivers/hid/hid-apple.c`)
+- **Complexity**: Zero — it's a string literal added to an array
+- **Risk of regression**: Effectively zero. The string match only
+  triggers for devices reporting "SONiX KN85 Keyboard" as their name. No
+  other devices are affected. The matching is by HID device name, not
+  vendor/product ID, so it's extremely targeted.
+- **Dependencies**: None. The `non_apple_keyboards[]` mechanism exists
+  in all relevant stable trees (introduced in v6.0-rc1).
 
 ### 5. USER IMPACT
 
-**HIGH for affected users**: The Lenovo Yoga Book 9i (Gen 8-10) is a
-commercially available dual-screen laptop. Without this fix:
-- Touch input **stops working** after stylus use (firmware InRange bug)
-- Both screens cannot be independently configured (no input
-  differentiation)
-
-The bugzilla (#220386) and multiple Reported-by/Tested-by tags confirm
-this affects real users.
+- **Who is affected**: Users of the SoNiX KN85 keyboard running Linux.
+  These are real-world hardware owners.
+- **Severity**: Without this fix, the function keys (F1-F12) on the KN85
+  keyboard are mapped to media keys by default (brightness, volume,
+  etc.), which is wrong for this keyboard. This makes the keyboard
+  effectively unusable for standard function key operations unless the
+  user manually overrides `fnmode` via a module parameter.
+- **Workaround exists**: Users can set `fnmode=2` manually, but this is
+  not discoverable and should not be needed.
 
 ### 6. STABILITY INDICATORS
 
-- Tested-by from author (Brian Howard) and second tester (Kris Fredrick)
-- Signed-off by HID subsystem maintainer (Jiri Kosina)
-- Kernel bugzilla with tracking
-- Follows well-established pattern in hid-multitouch with many precedent
-  quirk additions
+- The commit follows the exact same pattern as **5+ previous similar
+  commits** (SONiX AK870 PRO, hfd.cn/WKB603, Jamesdonkey/A3R, Hailuck,
+  the original non-apple keyboards mechanism).
+- Signed off by the HID subsystem maintainer (Jiri Kosina).
+- The pattern has been in the kernel since v6.0 and is well understood.
 
 ### 7. DEPENDENCY CHECK
 
-No dependencies on other patches. The commit is completely self-
-contained. All referenced symbols (`HID_DG_INRANGE`, `HID_DG_TIPSWITCH`,
-`mt_find_report_data`, `rdata->application->quirks`, `hi->report->id`,
-etc.) exist in all current stable kernel trees. Minor context adjustment
-may be needed for older stable trees lacking the Apple Touch Bar quirk.
+- **No dependencies**. The `non_apple_keyboards[]` array and
+  `apple_is_non_apple_keyboard()` function exist in all relevant stable
+  trees.
+- The patch applies cleanly to any tree that already has the "SONiX
+  AK870 PRO" entry (or can trivially be adjusted if that entry isn't
+  present — it's just adding a line to an array).
 
-### Verdict
+### 8. PRECEDENT
 
-This commit fixes a real firmware bug that **blocks touch events** on
-the Lenovo Yoga Book 9i, making the device partially non-functional. It
-also provides necessary input naming for the dual-screen device to be
-properly configurable. All changes are device-specific hardware quirks
-behind a USB VID:PID-gated quirk flag with zero risk to other devices.
-The commit follows the well-established hid-multitouch quirk pattern, is
-tested by multiple users, and is accepted by the subsystem maintainer.
-This is textbook "hardware quirk for a broken device" — exactly the type
-of change stable trees are designed to accept.
+This is identical in nature to the "SONiX AK870 PRO" (743c81cdc98fd),
+"hfd.cn/WKB603" (df83a0df820b9), "Hailuck" (c4444d8749f69), and
+"Jamesdonkey/A3R" (113f736655e4f) commits. All follow the same one-line-
+addition pattern to the same array.
+
+### Summary
+
+This is a textbook hardware quirk addition — a single line of data added
+to an existing mechanism that fixes broken function keys for a specific
+keyboard model. It has zero risk of regression, zero dependencies beyond
+existing infrastructure, fixes a real user-facing problem, and follows a
+well-established pattern with multiple precedents. This is exactly the
+kind of commit that stable trees exist to carry.
 
 **YES**
 
- drivers/hid/hid-ids.h        |  1 +
- drivers/hid/hid-multitouch.c | 72 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 73 insertions(+)
+ drivers/hid/hid-apple.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9c2bf584d9f6f..5a18cb41e6d79 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -841,6 +841,7 @@
- #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
- #define USB_DEVICE_ID_LENOVO_X12_TAB	0x60fe
- #define USB_DEVICE_ID_LENOVO_X12_TAB2	0x61ae
-+#define USB_DEVICE_ID_LENOVO_YOGABOOK9I	0x6161
- #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index b1c3ef1290587..f21850f7d89e4 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -76,6 +76,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
- #define MT_QUIRK_ORIENTATION_INVERT	BIT(22)
- #define MT_QUIRK_APPLE_TOUCHBAR		BIT(23)
-+#define MT_QUIRK_YOGABOOK9I		BIT(24)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -231,6 +232,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
- #define MT_CLS_RAZER_BLADE_STEALTH		0x0112
- #define MT_CLS_SMART_TECH			0x0113
- #define MT_CLS_APPLE_TOUCHBAR			0x0114
-+#define MT_CLS_YOGABOOK9I			0x0115
- #define MT_CLS_SIS				0x0457
- 
- #define MT_DEFAULT_MAXCONTACT	10
-@@ -427,6 +429,14 @@ static const struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
- 			MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE,
-+	},
-+		{ .name = MT_CLS_YOGABOOK9I,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_FORCE_MULTI_INPUT |
-+			MT_QUIRK_SEPARATE_APP_REPORT |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_YOGABOOK9I,
-+		.export_all_inputs = true
- 	},
- 	{ }
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 57da4f86a9fa7..233e367cce1d1 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -354,6 +354,7 @@ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
  };
-@@ -1576,6 +1586,38 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
- 	if (rdata && rdata->is_mt_collection)
- 		return mt_touch_report(hid, rdata);
  
-+	/* Lenovo Yoga Book 9i requires consuming and dropping certain bogus reports */
-+	if (rdata && rdata->application &&
-+		(rdata->application->quirks & MT_QUIRK_YOGABOOK9I)) {
-+
-+		bool all_zero_report = true;
-+
-+		for (int f = 0; f < report->maxfield && all_zero_report; f++) {
-+			struct hid_field *fld = report->field[f];
-+
-+			for (int i = 0; i < fld->report_count; i++) {
-+				unsigned int usage = fld->usage[i].hid;
-+
-+				if (usage == HID_DG_INRANGE ||
-+					usage == HID_DG_TIPSWITCH ||
-+					usage == HID_DG_BARRELSWITCH ||
-+					usage == HID_DG_BARRELSWITCH2 ||
-+					usage == HID_DG_CONTACTID ||
-+					usage == HID_DG_TILT_X ||
-+					usage == HID_DG_TILT_Y) {
-+
-+					if (fld->value[i] != 0) {
-+						all_zero_report = false;
-+						break;
-+					}
-+				}
-+			}
-+		}
-+
-+		if (all_zero_report)
-+			return;
-+	}
-+
- 	if (field && field->hidinput && field->hidinput->input)
- 		input_sync(field->hidinput->input);
- }
-@@ -1772,6 +1814,30 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		break;
- 	}
- 
-+	/* Lenovo Yoga Book 9i requires custom naming to allow differentiation in udev */
-+	if (hi->report && td->mtclass.quirks & MT_QUIRK_YOGABOOK9I) {
-+		switch (hi->report->id) {
-+		case 48:
-+			suffix = "Touchscreen Top";
-+			break;
-+		case 56:
-+			suffix = "Touchscreen Bottom";
-+			break;
-+		case 20:
-+			suffix = "Stylus Top";
-+			break;
-+		case 40:
-+			suffix = "Stylus Bottom";
-+			break;
-+		case 80:
-+			suffix = "Emulated Touchpad";
-+			break;
-+		default:
-+			suffix = "";
-+			break;
-+		}
-+	}
-+
- 	if (suffix) {
- 		hi->input->name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
- 						 "%s %s", hdev->name, suffix);
-@@ -2277,6 +2343,12 @@ static const struct hid_device_id mt_devices[] = {
- 			   USB_VENDOR_ID_LENOVO,
- 			   USB_DEVICE_ID_LENOVO_X12_TAB2) },
- 
-+	/* Lenovo Yoga Book 9i */
-+	{ .driver_data = MT_CLS_YOGABOOK9I,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			   USB_VENDOR_ID_LENOVO,
-+			   USB_DEVICE_ID_LENOVO_YOGABOOK9I) },
-+
- 	/* Logitech devices */
- 	{ .driver_data = MT_CLS_NSMU,
- 		HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH_WIN_8,
+ static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
++	{ "SONiX KN85 Keyboard" },
+ 	{ "SONiX USB DEVICE" },
+ 	{ "SONiX AK870 PRO" },
+ 	{ "Keychron" },
 -- 
 2.51.0
 

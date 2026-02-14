@@ -1,126 +1,230 @@
-Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailrelay-egress5.pub.mailoutpod3-cph3.one.com (mailrelay-egress5.pub.mailoutpod3-cph3.one.com [46.30.211.244])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17382BEC30
-	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 21:00:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9E58946C
+	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 21:10:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.30.211.244
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771102853; cv=none; b=f9lBczju407pI4aRroiFRf3N9YgMo0+TgBqW+NRyDvRLZ6LQa18o+N7vnN5lYCAb3GeJRUNoHZUWQ8TgxUb+lpTfQkcLL9+Sa8lOCdl0tJScQ19NJ2m4jX2bk+2NgJ6KSwmPv/oAXz2mDbYXeon0UfAyA32Cy8hBRGmaJSv99/U=
+	t=1771103463; cv=none; b=PQbtAA8ISgmjCH3C8bnRdtEsazaq4Rp9qmj7ubDthS/vSW4KsALO2JOnYkO1BTYjGXx7y1nu9bS4SlSu8EpjpVhQcOMh6nAa3yLOw8Bu/1uTaDMYjvpK9+nvw+9A+Q22URoJe3bv86YllkrugUPU2xdUr4dueAyabjKIbFsWJ28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771102853; c=relaxed/simple;
-	bh=jNjN7gD3JF9jQQ5s2IgcCsLWPxaJVNTVrn2kWorSt6Q=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=H8OXZ3tsEGfltryFp4qabw88y5LJ143lwwxo5R09h1z98/yPzYgHkdm/xJUJcZU2smzY4Va/qvqN6F9B9Jl6KQnwsNo47V0DpEw2q6syYjLm/ke7DXtdsOJj3ZkRD5kKqCc0P+d7hfa2T2ODiW7HGfKgGq0eEML221PssVtecVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=vzK8yPtf; arc=none smtp.client-ip=209.85.210.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1771103463; c=relaxed/simple;
+	bh=iVOvp7zPMGLtF83hNMak+HGoBYBSyK/akqGPDEs5zGY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=k/EvpoJKJ/NBW93Sc/H8x/u6Pqioa5ZL1BcIIoe8BCspNnVQUnpZpckKSJiVN1C8F40eDLwRwH76IrvWOHjCpBj//+KzH6ZtWH4wzpIfiiutVxG1N31JnoZpxbYR04bvQjEeKp/6czkElSisLoe/MZRum9Rs5qG7FDCBA8H0ph0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se; spf=none smtp.mailfrom=bitmath.se; dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=QppZR8fi; dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b=qwEWiGQf; arc=none smtp.client-ip=46.30.211.244
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitmath.se
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bitmath.se
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="vzK8yPtf"
-Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7d4cb7e10efso1433792a34.0
-        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 13:00:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1771102851; x=1771707651; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3KssbkPb1gHaJEaz+zWwlaEszLsE5KF10Og3GBOyj4o=;
-        b=vzK8yPtfEKbUSKNY/rOj8/Weem9BsWSqg/he3CsZjWPttBFKwqRbrT4KK969QSh9FE
-         ZXlg/Fs5DlKgPHcJRqA47ThYl1WzjJyk39Oa10IjWZTDAla7V/LPo118YxJCdcH47PsE
-         2GfVWPhzXOee5YrVq6qdAJgcel4hFwcCQtxbA4x2JWbOPeh2XksgJu0lhHjNQUY/IxK/
-         pEbZ78PVyjGKuQnZmaB9Hpcbj35cgE2nSHwOMZemAaLDJUQq5ucwOg/wHioNQj80iJCx
-         1edKBQDH2Wr4poze6GXJgIb9j9aiff/4ngwxoGh3oiVl62z0LbE3BNLlKw0b+CZ7kdra
-         4naQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771102851; x=1771707651;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=3KssbkPb1gHaJEaz+zWwlaEszLsE5KF10Og3GBOyj4o=;
-        b=G1C1dd8lx32RJfeFqVKT+bFK/sz0KayY5+eHoxH/QGs5FmNoYgDUHsL86K6XDpjArW
-         v+y7fMB7hCqiJkz55VocfrQYRKSEVq9VilT0vr99hwb/nO8LiAoWTL1OImGcm5t1nALS
-         0u4lm4gDtPrYQc4+qXgYTCTQwvMyRrzzg166hhq/kOeJKKmi1zhX1CR2UCkjT4mFgxJZ
-         mr++x8GNqpUSg26I3RhGKazUNM5HN0MSay5GRdhlD/RmROMcHbR6oChioJneGzKFELDn
-         15QmjMJB6u5j/a/7F68LOFtLshwdvzdwepMG84fYaSZP5l3LZ0WGDg+VaLZ89DlOAKbg
-         SkRw==
-X-Forwarded-Encrypted: i=1; AJvYcCUV3yhr7ysjTeLF9C9b2oAuCZrVXm0cOXad1jxyCWn3RKR/wqQm9zMX7Y1+9bPgr+RLRLa4xAeN5dEr/Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwXJQe6qRP8oxScwoMplCWLSuqHAfHTT9jnc4iCH8iXjDlAhw5b
-	RMBP0ruoFnjIo1vdPl9bqUfyoOc43LUATJumRtnFhA05MujJTxmyqjTmdAHUnfJb6xs=
-X-Gm-Gg: AZuq6aLR5kfFPmJFeSdHiz0EekLz9uoGYxatvHhY1xMP6UG8RFypwuti6Xiy2XI73vo
-	z45wi285gmgbyTCtPPhGydirwiMl4rSgTmE6W1Lt+dQHQbQQbyR44xL++A1buVgf/pnfICN6a91
-	f/BhV3RAKVqy+MdClx6fjcow0KRoNxi6GGcwC/anLHx9/sc+r3iskQbShhTLF4ajQBacmdylQVG
-	rn025xyYEb4z021YWPYsg2/ooiLy7fCMthcNtjOMvoa3HzFCIbIxQZSJSPkuybTmgS5Rx2hPgxE
-	uFvBub1riWwWAO0ypRfBerqzqF4W5/3MGypI5BQrH5zPytPhbC0VQ6gv1PohavAMelGckNx6kNf
-	EDnJtXpRT3MdMJp8xs60m5xYI2iVOB9Mf7hD9EOYeeyTOx9+poEZ2M4Mm5cvYcrk6KHSIbfbCH8
-	5lBg1+ml/TeOuq3prIgLZM7FU77g==
-X-Received: by 2002:a05:6830:2e07:b0:7d4:bcd0:db07 with SMTP id 46e09a7af769-7d4d0c7aba5mr2222848a34.37.1771102851474;
-        Sat, 14 Feb 2026 13:00:51 -0800 (PST)
-Received: from [127.0.1.1] ([2600:8803:e7e4:500:109:393c:254e:962e])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d4da074c15sm1181680a34.15.2026.02.14.13.00.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Feb 2026 13:00:51 -0800 (PST)
-From: David Lechner <dlechner@baylibre.com>
-Date: Sat, 14 Feb 2026 15:00:21 -0600
-Subject: [PATCH 2/2] iio: orientation: hid-sensor-rotation: fix quaternion
- alignment
+	dkim=pass (2048-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="QppZR8fi";
+	dkim=permerror (0-bit key) header.d=bitmath.se header.i=@bitmath.se header.b="qwEWiGQf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1771103388; x=1771708188;
+	d=bitmath.se; s=rsa2;
+	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
+	 subject:mime-version:date:message-id:from;
+	bh=RV7HkpizJ01mDfcCFpXzP8BGhiavR1zVcB82by01kjs=;
+	b=QppZR8fiTct4yUkL42iMhHOB65zKoqctim5zaIqntI1PrmCmDrSPot8frECq/P3jpkgbXxfueW3qn
+	 Bv7UEzGVxjGzEJDbzzKN55e1B9tpZa+8RLu36l8uBedJkT914fkgf4257YcJen9ZfvjGtLP5gw1jP7
+	 VQE84X3wuNyEkQZBD5NChSovULBc0tMO2syx9pQa/mW/M1v3v2fUd1bdDxV6DAtMSRMd6MRFJG2rfb
+	 MmvNAO1oQ8W0lOTJYRZXVECpuwOsJz1Pd/VGeWpxDMh++GhK4EaME1Gzb+AK3ao8xZycrLl5Oq5dSu
+	 r4wzb6c3XHOwrps+ZlF/LSu0BQouh+A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1771103388; x=1771708188;
+	d=bitmath.se; s=ed2;
+	h=content-transfer-encoding:content-type:in-reply-to:from:references:cc:to:
+	 subject:mime-version:date:message-id:from;
+	bh=RV7HkpizJ01mDfcCFpXzP8BGhiavR1zVcB82by01kjs=;
+	b=qwEWiGQfWgvcM3sSYP5E6l+Kg+Zcuq4Rtv3ID9I2SmdUkfu+dvYnIJ5OuyXGbpYudm/WbgRrHVNCL
+	 B41Te3iCw==
+X-HalOne-ID: 7e9021ee-09e9-11f1-93f5-85eb291bc831
+Received: from [192.168.19.13] (h-155-4-132-124.na.cust.bahnhof.se [155.4.132.124])
+	by mailrelay5.pub.mailoutpod2-cph3.one.com (Halon) with ESMTPSA
+	id 7e9021ee-09e9-11f1-93f5-85eb291bc831;
+	Sat, 14 Feb 2026 21:09:48 +0000 (UTC)
+Message-ID: <32bcd3e4-6397-43e2-9483-dd2af14e8cd5@bitmath.se>
+Date: Sat, 14 Feb 2026 22:09:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] bcm5974: recover from failed mode switch
+To: Liam Mitchell <mitchell.liam@gmail.com>,
+ Henrik Rydberg <rydberg@bitmath.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260213-bcm5974-reset-v2-1-1837851336b0@gmail.com>
+Content-Language: en-US
+From: Henrik Rydberg <rydberg@bitmath.se>
+Autocrypt: addr=rydberg@bitmath.se; keydata=
+ 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 nQ==
+In-Reply-To: <20260213-bcm5974-reset-v2-1-1837851336b0@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260214-iio-fix-repeat-alignment-v1-2-47f01288c803@baylibre.com>
-References: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
-In-Reply-To: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
-To: Jonathan Cameron <jic23@kernel.org>, 
- =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
- Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org, 
- David Lechner <dlechner@baylibre.com>, Lixu Zhang <lixu.zhang@intel.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1239; i=dlechner@baylibre.com;
- h=from:subject:message-id; bh=jNjN7gD3JF9jQQ5s2IgcCsLWPxaJVNTVrn2kWorSt6Q=;
- b=owEBbQGS/pANAwAKAcLMIAH/AY/AAcsmYgBpkOJ6F/c+o0+u4560tz2ShMNf0GrCyrMUkjWcg
- EqwUCxz7j6JATMEAAEKAB0WIQTsGNmeYg6D1pzYaJjCzCAB/wGPwAUCaZDiegAKCRDCzCAB/wGP
- wO0aCACNVpVpzq5Z0KzGvMClnuShr68EGfgfW8/MaM0b0blIw6AOuLMd2H8WsUzQ6t8E6jg1Ibd
- PUYL7b5N98E7WTU7ObNs3Ulj/ewdYqxgHl63xDVPFY8NbjxjOwGZo7L9o7wYHpkoQVJ+82C7/Wn
- /Wx+IhxkUhqnFF1+1qu70AeTX5PU5CyvNB+BOLxV0abWA6xEMOjiL+OGJjm95Cs/o/y8hZYj5++
- zOyQAdcRaHo3BWdoHNCRGitXWADDNbrAJ60QknZgBnO6IlaRhTtymRYWOtuaecXvC3aLTfSgis5
- k00n/YwwDJYRYYSxwe3i65WlLEtXzjVOXTNueLaUSKRWkPDN
-X-Developer-Key: i=dlechner@baylibre.com; a=openpgp;
- fpr=8A73D82A6A1F509907F373881F8AF88C82F77C03
 
-Restore the alignment of sampled_vals to 16 bytes by using
-IIO_DECLARE_REPEATED_ELEMENT(). This field contains a quaternion value
-which scan_type.repeat = 4 and storagebits = 32. So the alignment must
-be 16 bytes to match the assumptions of iio_storage_bytes_for_si() and
-also to not break userspace.
+Hi Liam,
 
-Reported-by: Lixu Zhang <lixu.zhang@intel.com>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221077
-Fixes: b31a74075cb4 ("iio: orientation: hid-sensor-rotation: remove unnecessary alignment")
-Signed-off-by: David Lechner <dlechner@baylibre.com>
----
- drivers/iio/orientation/hid-sensor-rotation.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+thanks for seeing this through! Looks good to me.
 
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index e759f91a710a..9df955ecfbac 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -19,7 +19,7 @@ struct dev_rot_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info quaternion;
- 	struct {
--		s32 sampled_vals[4];
-+		IIO_DECLARE_REPEATED_ELEMENT(s32, sampled_vals, 4);
- 		aligned_s64 timestamp;
- 	} scan;
- 	int scale_pre_decml;
+Acked-by: Henrik Rydberg <rydberg@bitmath.org>
 
--- 
-2.43.0
+On 2/13/26 10:25 AM, Liam Mitchell wrote:
+> Mode switches sent before control response are ignored.
+> On receiving unknown 8-byte packets, assume that mode switch was ignored
+> and reset by switching to normal mode, waiting then switching back to
+> wellspring mode.
+> 
+> ---
+> This patch addresses an issue where the bcm5974 driver switches modes
+> before the device is ready, resulting in an unresponsive trackpad and
+> "bcm5974: bad trackpad package, length: 8" repeated in logs.
+> 
+> Discussion of issue in the thread:
+> https://lore.kernel.org/linux-input/CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com/
+> 
+> This fix is conservative, avoiding changing existing mode-switch
+> behavior because I cannot test all variations of hardware.
+> 
+> On receiving an unknown 8-byte packet, we assume the device is not in
+> wellspring mode and schedule an asynchronous mode reset.
+> 
+> Signed-off-by: Liam Mitchell <mitchell.liam@gmail.com>
+> Link: https://lore.kernel.org/linux-input/CAOQ1CL4+DP1TuLAGNsz5GdFBTHvnTg=5q=Dr2Z1OQc6RXydSYA@mail.gmail.com/
+> ---
+> Changes in v2:
+> - mutex_lock -> guard(mutex)
+> - dprintk -> dev_err
+> - msleep -> fsleep
+> - removed 0 init
+> - cancel_work_sync -> disable_delayed_work_sync
+> - work_struct -> delayed_work
+> - Link to v1: https://lore.kernel.org/r/20260207-bcm5974-reset-v1-1-af7163903fa6@gmail.com
+> ---
+>   drivers/input/mouse/bcm5974.c | 40 +++++++++++++++++++++++++++++++++++++++-
+>   1 file changed, 39 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+> index dfdfb59cc8b5..6ee766ed8402 100644
+> --- a/drivers/input/mouse/bcm5974.c
+> +++ b/drivers/input/mouse/bcm5974.c
+> @@ -286,6 +286,8 @@ struct bcm5974 {
+>   	const struct tp_finger *index[MAX_FINGERS];	/* finger index data */
+>   	struct input_mt_pos pos[MAX_FINGERS];		/* position array */
+>   	int slots[MAX_FINGERS];				/* slot assignments */
+> +	struct delayed_work mode_reset_work;
+> +	unsigned long last_mode_reset;
+>   };
+>   
+>   /* trackpad finger block data, le16-aligned */
+> @@ -696,6 +698,32 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
+>   	return retval;
+>   }
+>   
+> +/*
+> + * Mode switches sent before the control response are ignored.
+> + * Fixing this state requires switching to normal mode and waiting
+> + * about 1ms before switching back to wellspring mode.
+> + */
+> +static void bcm5974_mode_reset_work(struct work_struct *work)
+> +{
+> +	int error;
+> +	struct bcm5974 *dev = container_of(work, struct bcm5974, mode_reset_work.work);
+> +
+> +	guard(mutex)(&dev->pm_mutex);
+> +	dev->last_mode_reset = jiffies;
+> +
+> +	error = bcm5974_wellspring_mode(dev, false);
+> +	if (error) {
+> +		dev_err(&dev->intf->dev, "reset to normal mode failed\n");
+> +		return;
+> +	}
+> +
+> +	fsleep(1000);
+> +
+> +	error = bcm5974_wellspring_mode(dev, true);
+> +	if (error)
+> +		dev_err(&dev->intf->dev, "mode switch after reset failed\n");
+> +}
+> +
+>   static void bcm5974_irq_button(struct urb *urb)
+>   {
+>   	struct bcm5974 *dev = urb->context;
+> @@ -752,10 +780,18 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+>   	if (dev->tp_urb->actual_length == 2)
+>   		goto exit;
+>   
+> -	if (report_tp_state(dev, dev->tp_urb->actual_length))
+> +	if (report_tp_state(dev, dev->tp_urb->actual_length)) {
+>   		dprintk(1, "bcm5974: bad trackpad package, length: %d\n",
+>   			dev->tp_urb->actual_length);
+>   
+> +		/* HID packet means we aren't in wellspring mode */
+> +		/* If we haven't tried a reset in the last second, try now */
+> +		if (dev->tp_urb->actual_length == 8 &&
+> +		    time_after(jiffies, dev->last_mode_reset + msecs_to_jiffies(1000))) {
+> +			schedule_delayed_work(&dev->mode_reset_work, 0);
+> +		}
+> +	}
+> +
+>   exit:
+>   	error = usb_submit_urb(dev->tp_urb, GFP_ATOMIC);
+>   	if (error)
+> @@ -906,6 +942,7 @@ static int bcm5974_probe(struct usb_interface *iface,
+>   	dev->intf = iface;
+>   	dev->input = input_dev;
+>   	dev->cfg = *cfg;
+> +	INIT_DELAYED_WORK(&dev->mode_reset_work, bcm5974_mode_reset_work);
+>   	mutex_init(&dev->pm_mutex);
+>   
+>   	/* setup urbs */
+> @@ -998,6 +1035,7 @@ static void bcm5974_disconnect(struct usb_interface *iface)
+>   {
+>   	struct bcm5974 *dev = usb_get_intfdata(iface);
+>   
+> +	disable_delayed_work_sync(&dev->mode_reset_work);
+>   	usb_set_intfdata(iface, NULL);
+>   
+>   	input_unregister_device(dev->input);
+> 
+> ---
+> base-commit: 7d0a66e4bb9081d75c82ec4957c50034cb0ea449
+> change-id: 20260207-bcm5974-reset-85ccdfca9641
+> 
+> Best regards,
 

@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53A713EBF2C;
-	Sat, 14 Feb 2026 01:02:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA14E3EBF2C;
+	Sat, 14 Feb 2026 01:02:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771030973; cv=none; b=dINttqQICtbt9HMrc2EF/WDQUh3AxsVVMJFVzxUTC6IF7nDxW9eVfvG5GJfiKGCkjAKaecoitJqsGtoDPCpCxBLFonl+NrrIvq947FSptzoKBYgaqQ0wlql+1NpffmDF39VjI+ItOx624aXJNmq1ed5z/Ut7crj0DTSg9uH/zYo=
+	t=1771030978; cv=none; b=jQScHTZwYJd+2HfRhL0P/6iocftaRaJI5D1US+S/eRTB1FZmRKVNjl/KfzosOCV6dumM7SjGdVYgskjtAeoiHP4+QVfX8bc0bblHMIL8BibKTHsdzwh4z5wdy2SFZa83moKPL0rdwtO7ViCt/YvoUOHJded9vdvroOi52pKtiF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771030973; c=relaxed/simple;
-	bh=gij6qTX6Cycb2hJBF678hTPThaCkudlyWwxv0qo7PiU=;
+	s=arc-20240116; t=1771030978; c=relaxed/simple;
+	bh=kgi9BhdcthCxSA6dJ0nmZZtNScX+mzCCARdeMeRePEc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OtTnJh3PpX22qGbiN7UJp8LbXEfDbn84K3QoEFSp51s5a5T9Bw/HbVA0ffcMAZ29kQ+Ywb+FGV01tNAILOSL7HMKCQOP2MkSE+5nTZ0TnYeAAoy1fIhEYjYSZxLJObdsa9egR9gfF4ZtQTZT7BAuYACHqpi2rd481JujS+ftgnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kAchVaWP; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=S+y4aPKOeRdzfRrWiXPl03yTH0C+VPm/wT1AslPWxPXYlNhtcHDO4FYRlJmjgRWImQ8HWICx4Ldw8OJLGvrQPJvlS3KppoU0cSankhzfvvgceNYhoOhj/nZ84Jgmm8+JJSPtOJMXq5KqyYS++4UgyGRAkkFXlUhed8/aqviv+a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cG67LwAT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kAchVaWP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7AEC116C6;
-	Sat, 14 Feb 2026 01:02:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cG67LwAT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8027DC116C6;
+	Sat, 14 Feb 2026 01:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771030972;
-	bh=gij6qTX6Cycb2hJBF678hTPThaCkudlyWwxv0qo7PiU=;
+	s=k20201202; t=1771030978;
+	bh=kgi9BhdcthCxSA6dJ0nmZZtNScX+mzCCARdeMeRePEc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=kAchVaWPzxIz0jHNYTOW3iMezFIkbL58rrV8o/Ew/hKEEPlHZPBD3YaPwI2N4t5xW
-	 TZD7Ovp4saOngHMokMNEMLB0JMECKN3n2NcDdX/RhUZoEyTCftfBSLFlRdZwCgBMft
-	 6k/uSbUU7rJmnnQF80IBg5+mjV1zRf4U8vi28kbO5nrBiIGj4rHHSUGAQe60BM1VhI
-	 YDiAb/uE6iHV59BaeVzeCVXBOm8nGYVcQrXn1Wgd3v6G8zCg5LA0NnpyVseLB0mv5W
-	 wwrxu+SOM/IlA2ucci/LLwrBWgvFO5mlR2TT8B4f/9rsKS2B2kHU04PaPpoRRmQvU2
-	 2346UYGXR55AA==
+	b=cG67LwAT9CCzYTOtmJc4ianN/J6sEP6Eix9nSgsauwRCXB1qqpY7trqyUR78aMNBn
+	 1D4Le9XXrtn0IOEUe8etj/6CBVkrQ6A4cdRmPLzZ1CLzda/YedtTu1+6FIhguez7Df
+	 cbiP25YmouBFMMkpiGmZ8Dpv+a3Mj3A0Ezjk0hmBgU2PC/yrUdXIDU9UVv382Zr8NC
+	 PIwjepUhNXTFoma3Zo1mBq+hSe0Xt3jtMf6j+mpRZO0h883V8tJtEcCRRfm5pCUknX
+	 EMnUnb9PWMqMwW6mpQUMhIP1LmL1ib12gfoiLPARhA0Z8nMZZ5mStellW5ShkKYGYX
+	 OtigkaBx1MyYg==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: David Phillips <david@profile.sh>,
+Cc: Thorsten Schmelzer <tschmelzer@topcon.com>,
+	Michael Tretter <m.tretter@pengutronix.de>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-5.15] HID: elecom: Add support for ELECOM HUGE Plus M-HT1MRBK
-Date: Fri, 13 Feb 2026 19:58:03 -0500
-Message-ID: <20260214010245.3671907-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-5.10] HID: multitouch: add eGalaxTouch EXC3188 support
+Date: Fri, 13 Feb 2026 19:58:07 -0500
+Message-ID: <20260214010245.3671907-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260214010245.3671907-1-sashal@kernel.org>
 References: <20260214010245.3671907-1-sashal@kernel.org>
@@ -53,36 +54,14 @@ X-stable-base: Linux 6.19
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: David Phillips <david@profile.sh>
+From: Thorsten Schmelzer <tschmelzer@topcon.com>
 
-[ Upstream commit b8e5fdf0bd022cd5493a5987ef66f5a24f8352d8 ]
+[ Upstream commit 8e4ac86b2ddd36fe501e20ecfcc080e536df1f48 ]
 
-New model in the ELECOM HUGE trackball line that has 8 buttons but the
-report descriptor specifies only 5. The HUGE Plus supports connecting via
-Bluetooth, 2.4GHz wireless USB dongle, and directly via a USB-C cable.
-Each connection type reports a different device id, 01AA for cable,
-01AB for USB dongle, and 01AC for Bluetooth.
+Add support for the for the EXC3188 touchscreen from eGalaxy.
 
-This patch adds these device IDs and applies the fixups similar to the
-other ELECOM devices to get all 8 buttons working for all 3 connection
-types.
-
-For reference, the usbhid-dump output:
-001:013:001:DESCRIPTOR         1769085639.598405
- 05 01 09 02 A1 01 85 01 09 01 A1 00 05 09 19 01
- 29 05 15 00 25 01 75 01 95 05 81 02 75 03 95 01
- 81 01 05 01 09 30 09 31 16 01 80 26 FF 7F 75 10
- 95 02 81 06 09 38 15 81 25 7F 75 08 95 01 81 06
- 05 0C 0A 38 02 15 81 25 7F 75 08 95 01 81 06 C0
- C0 05 0C 09 01 A1 01 85 02 15 01 26 8C 02 19 01
- 2A 8C 02 75 10 95 01 81 00 C0 05 01 09 80 A1 01
- 85 03 09 82 09 81 09 83 15 00 25 01 19 01 29 03
- 75 01 95 03 81 02 95 05 81 01 C0 06 01 FF 09 00
- A1 01 85 08 09 00 15 00 26 FF 00 75 08 95 07 81
- 02 C0 06 02 FF 09 02 A1 01 85 06 09 02 15 00 26
- FF 00 75 08 95 07 B1 02 C0
-
-Signed-off-by: David Phillips <david@profile.sh>
+Signed-off-by: Thorsten Schmelzer <tschmelzer@topcon.com>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -93,188 +72,109 @@ LLM Generated explanations, may be completely bogus:
 
 ### Commit Message Analysis
 
-This commit adds support for the ELECOM HUGE Plus trackball (M-HT1MRBK)
-across three connection types (USB-C cable, 2.4GHz USB dongle,
-Bluetooth). The device has 8 buttons but the HID report descriptor only
-reports 5, so the driver applies a report descriptor fixup to expose all
-8 buttons — the same pattern used for other ELECOM devices already
-supported by this driver.
+The commit adds support for the eGalaxTouch EXC3188 touchscreen device
+by adding a new USB device ID (0xC000) to the existing HID multitouch
+driver. The commit message is straightforward: "Add support for the
+EXC3188 touchscreen from eGalaxy."
 
 ### Code Change Analysis
 
-The changes span 4 files:
+The changes are minimal and confined to two files:
 
-1. **`drivers/hid/hid-ids.h`**: Adds 3 new device ID defines (0x01aa,
-   0x01ab, 0x01ac) for the three connection types.
+1. **`drivers/hid/hid-ids.h`**: Adds a single `#define` for the new
+   device ID:
+  ```c
+  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C000  0xc000
+  ```
 
-2. **`drivers/hid/hid-elecom.c`**:
-   - Adds a new case block in `elecom_report_fixup()` for the three new
-     device IDs, calling `mouse_button_fixup()` with appropriate offsets
-     (24, 28, 22, 16, 8). Note the offsets differ slightly from the
-     existing HUGE (M-HT1DRBK) which uses (22, 30, 24, 16, 8) — this is
-     because the HUGE Plus has a different report descriptor format as
-     shown in the commit message.
-   - Adds the three device IDs to `elecom_devices[]` table (USB for 01AA
-     and 01AB, Bluetooth for 01AC).
+2. **`drivers/hid/hid-multitouch.c`**: Adds a 3-line entry to the
+   `mt_devices[]` device ID table:
+  ```c
+  { .driver_data = MT_CLS_EGALAX_SERIAL,
+  MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+  USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C000) },
+  ```
 
-3. **`drivers/hid/hid-quirks.c`**: Adds the three device IDs to
-   `hid_have_special_driver[]` so the HID core knows to route these
-   devices to the elecom driver.
+The new device uses `MT_CLS_EGALAX_SERIAL`, which is an existing device
+class already used by several other eGalax devices (A001, 73F7, 7349).
+No new code paths, no new driver logic, no behavioral changes.
 
-4. **`drivers/hid/Kconfig`**: Updates help text to mention the new
-   device.
+### Classification: New Device ID Addition
 
-### Classification
+This falls squarely into the **"New Device IDs"** exception category for
+stable backports:
+- The driver (`hid-multitouch`) already exists in stable trees
+- Only the device ID is new
+- It uses an existing device class (`MT_CLS_EGALAX_SERIAL`)
+- The pattern is identical to many other eGalax entries already in the
+  table
 
-This is a **new device ID addition with report descriptor fixup** — one
-of the explicitly allowed exception categories for stable backports. The
-ELECOM HID driver already exists in stable trees, and this commit adds
-IDs for a new variant of an existing product line (HUGE Plus vs HUGE),
-applying the same `mouse_button_fixup()` mechanism already used by other
-ELECOM devices.
+### Risk Assessment
 
-### Scope and Risk Assessment
-
-- **Lines changed**: Small — ~30 lines of meaningful additions across 4
-  files.
-- **Risk**: Very low. The changes are purely additive (new device IDs +
-  new case in switch statement). They cannot affect any existing device
-  since they only trigger for the new device IDs. The
-  `mouse_button_fixup()` function is already well-tested with other
-  ELECOM devices.
-- **Pattern**: Follows the exact same pattern as previous ELECOM device
-  additions (e.g., the HUGE M-HT1DRBK, DEFT M-DT2DRBK, etc.).
+- **Risk: Extremely low** — This is a pure device ID addition to an
+  existing table. It cannot affect any existing device. The new entry
+  only matches the specific USB vendor/product ID pair (0x0aec/0xc000).
+- **Scope: Minimal** — 4 lines added across 2 files (1 define + 3 lines
+  in device table)
+- **Dependencies: None** — Completely self-contained, no other commits
+  needed
 
 ### User Impact
 
-Without this patch, users of the ELECOM HUGE Plus trackball can only use
-5 of 8 buttons. This is a real hardware functionality issue — the
-device's report descriptor is broken (reports 5 buttons when 8 exist),
-and the driver fixup is needed to make all buttons work. This affects
-real users who purchased this trackball.
+Without this patch, users with the eGalaxTouch EXC3188 touchscreen have
+a non-functional device. With this patch, the touchscreen works using
+the existing, well-tested eGalax serial multitouch driver class. This is
+exactly the kind of hardware enablement that stable users need — their
+hardware simply doesn't work without it.
 
-### Stability and Dependencies
+### Stability Indicators
 
-- No dependencies on other commits.
-- The `mouse_button_fixup()` function and the entire ELECOM driver
-  infrastructure exist in stable trees already.
-- The patch is self-contained and applies cleanly.
-- The different report descriptor offsets (24, 28, 22, 16 vs 22, 30, 24,
-  16 for older HUGE) are correctly derived from the actual descriptor
-  dump provided in the commit message.
+- Uses existing driver infrastructure (no new code paths)
+- Follows the exact same pattern as ~20 other eGalax device entries
+- Signed off by the HID subsystem maintainer (Jiri Kosina)
+- Has been reviewed and accepted through the normal HID subsystem
+  process
 
 ### Conclusion
 
-This is a textbook device ID addition to an existing driver with a
-hardware quirk/fixup. It follows the same pattern as all other ELECOM
-devices in the driver, is small and self-contained, fixes a real
-hardware issue (only 5 of 8 buttons work), and carries essentially zero
-risk of regression to existing devices. This falls squarely into the
-"new device IDs / hardware quirks" exception category that is explicitly
-allowed in stable.
+This is a textbook example of a device ID addition that should be
+backported to stable. It enables real hardware for real users, has zero
+risk of regression, requires no dependencies, and follows established
+patterns in the driver. These types of commits are explicitly called out
+in stable kernel rules as appropriate for backporting.
 
 **YES**
 
- drivers/hid/Kconfig      |  1 +
- drivers/hid/hid-elecom.c | 16 ++++++++++++++++
- drivers/hid/hid-ids.h    |  3 +++
- drivers/hid/hid-quirks.c |  3 +++
- 4 files changed, 23 insertions(+)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 920a64b66b25b..6ff4a3ad34cbf 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -369,6 +369,7 @@ config HID_ELECOM
- 	  - EX-G Trackballs (M-XT3DRBK, M-XT3URBK)
- 	  - DEFT Trackballs (M-DT1DRBK, M-DT1URBK, M-DT2DRBK, M-DT2URBK)
- 	  - HUGE Trackballs (M-HT1DRBK, M-HT1URBK)
-+	  - HUGE Plus Trackball (M-HT1MRBK)
- 
- config HID_ELO
- 	tristate "ELO USB 4000/4500 touchscreen"
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-index 2003d2dcda7cc..37d88ce57f671 100644
---- a/drivers/hid/hid-elecom.c
-+++ b/drivers/hid/hid-elecom.c
-@@ -5,6 +5,7 @@
-  *  - EX-G Trackballs (M-XT3DRBK, M-XT3URBK, M-XT4DRBK)
-  *  - DEFT Trackballs (M-DT1DRBK, M-DT1URBK, M-DT2DRBK, M-DT2URBK)
-  *  - HUGE Trackballs (M-HT1DRBK, M-HT1URBK)
-+ *  - HUGE Plus Trackball (M-HT1MRBK)
-  *
-  *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-  *  Copyright (c) 2016 Yuxuan Shui <yshuiv7@gmail.com>
-@@ -123,12 +124,25 @@ static const __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		 */
- 		mouse_button_fixup(hdev, rdesc, *rsize, 22, 30, 24, 16, 8);
- 		break;
-+	case USB_DEVICE_ID_ELECOM_M_HT1MRBK:
-+	case USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AB:
-+	case USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AC:
-+		/*
-+		 * Report descriptor format:
-+		 * 24: button bit count
-+		 * 28: padding bit count
-+		 * 22: button report size
-+		 * 16: button usage maximum
-+		 */
-+		mouse_button_fixup(hdev, rdesc, *rsize, 24, 28, 22, 16, 8);
-+		break;
- 	}
- 	return rdesc;
- }
- 
- static const struct hid_device_id elecom_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AC) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XGL20DLBK) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_00FB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_018F) },
-@@ -142,6 +156,8 @@ static const struct hid_device_id elecom_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK_019B) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AB) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, elecom_devices);
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6d8b64872cefe..85ab1ac511096 100644
+index 5a18cb41e6d79..6d8b64872cefe 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -466,6 +466,9 @@
- #define USB_DEVICE_ID_ELECOM_M_HT1URBK_019B	0x019b
- #define USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D	0x010d
- #define USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C	0x011c
-+#define USB_DEVICE_ID_ELECOM_M_HT1MRBK	0x01aa
-+#define USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AB	0x01ab
-+#define USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AC	0x01ac
+@@ -437,6 +437,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C000	0xc000
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
- #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
- #define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 11438039cdb7f..3217e436c052c 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -420,6 +420,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #if IS_ENABLED(CONFIG_HID_ELECOM)
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XGL20DLBK) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AC) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_00FB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_018F) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3DRBK_00FC) },
-@@ -432,6 +433,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK_019B) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1MRBK_01AB) },
- #endif
- #if IS_ENABLED(CONFIG_HID_ELO)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
+ #define USB_VENDOR_ID_EDIFIER		0x2d99
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f21850f7d89e4..7daa8f6d81870 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2212,6 +2212,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX_SERIAL,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C000) },
+ 	{ .driver_data = MT_CLS_EGALAX,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
 -- 
 2.51.0
 

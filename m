@@ -1,211 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A0921CC51;
-	Sat, 14 Feb 2026 01:06:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B8C11624C0
+	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 02:56:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771031178; cv=none; b=IbdJcF1iYoBKynpX3darf1wpVbOAN0ab4y90TsXuFnm6C827S4Q3NyphOOeMajZISCT70/iPl0ZB2SGmFBDmv8zN8mEIDt9PZ6y2gJcqCJ+cNYwm3M1vmoMV7zRAi0D26VWYioM29htDGLPk/5070Gc5B8l4SWFcMfgtNA7B/xQ=
+	t=1771037791; cv=none; b=JoNWkScFmUsheHsZjUV+b9TySiBNbWaYOArkkUmo6NW66ELoPEG6RcmsqTe3l60dSea48t8poR2mav1b9D5LOo2tQAeVsF2iOcUOZPXpPd9P1Iy66T6BHaY4wuAoHOgSr3l8PRPDhQTdKrpSU4Nw7bxayUaQhUUJcXLO1o56n1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771031178; c=relaxed/simple;
-	bh=GHcyStTuYgk9248+ZgiWTEGoNOtoLR827ZiQo/x1ng4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YZE2p9BZx68tc75z0hQH/6DbJ7nMo7yHsMruRcuAWH/XlgoUl8fUk/HrjEgg/ELha0KnAbj6rHSeTQs5IObEo2ehU4M1DRfEg5/W81sFMN+KkGDmieJVn9ibgzG6altEpV+8XrO60MR2NpRLb+/whQ3OsTXdXzAuRW046G2YsEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PU97r3er; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771037791; c=relaxed/simple;
+	bh=KTDGJVYmDZSXfP/2WzJDnslgbBTZyGYAswRuq1RR0S4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UHmiRdknu/5Ju/5zRjPJJukSwucQ3qr6AdgTG9JcVhwKMiN0RGw6K+HdbQ6ai5kmJW7t7u/4pvvd2McfCj1DCPxzILkbv6CqZjeFW/mKzZb38S+E3mMuTjuAyuhvyr5fPgQFiQZsEfSXvq3QPkrb93UdhFhUipkxnV6pm5wIRJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fOEYenhf; arc=none smtp.client-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PU97r3er"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D6B8C116C6;
-	Sat, 14 Feb 2026 01:06:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771031178;
-	bh=GHcyStTuYgk9248+ZgiWTEGoNOtoLR827ZiQo/x1ng4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=PU97r3erxaSJZZ1QLGnJD6vMeJ0ohVPgF15DyhA/X4i9fMLhF6by7vZce4w27EWND
-	 rtqdn3pRv/DxqEi/zRaG3RYuWRWuL3wyrO1sykFQImzcCLSt2i2CTf4qW/NROPvFEh
-	 KJS/zSJdteOP5HbKqVlsis6stHdiLh49WNcDONCa1jbPRLJe/zFMTuKl54KRuD49dq
-	 g1esx7+LEbdfuum1IP5Fcm9pDkymD9nxNEClZ7IbiTHe8zGsYlPuOTIjfaybVk9Y51
-	 Rclj/4/xkdfeOeexTCY5rmjO9e/aJp0fjJtS9PFIgox3fiGdDb4y19iXbMhe0wbYT6
-	 w//0M8O5iOt4A==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Joey Bednar <linux@joeybednar.com>,
-	Jiri Kosina <jkosina@suse.com>,
-	Sasha Levin <sashal@kernel.org>,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.1] HID: apple: Add "SONiX KN85 Keyboard" to the list of non-apple keyboards
-Date: Fri, 13 Feb 2026 19:59:31 -0500
-Message-ID: <20260214010245.3671907-91-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260214010245.3671907-1-sashal@kernel.org>
-References: <20260214010245.3671907-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fOEYenhf"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2b86ce04c5cso3064577eec.1
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2026 18:56:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771037789; x=1771642589; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4OOYCvwfV/ZZkqRNanf+Wv41fObk0+e62UXZX+6ZZvs=;
+        b=fOEYenhfzYm+IyYCSEcYT+JgPVzCoN4RBtlrnCgMg+hCOahj0/6XuIrWw341FqXqVL
+         DtlUtF+jQs05j4oIVoOZJSxR0BWt8Gw5HVRCGSEIUak6KZNV8jPRyt9LXiM3fFllIC7f
+         vSUR7jb8Z/qrD0PNK//skJDSzXQQwGb/oJc1v7N3dQj8JJqpgvhowJRF5HbpYEKaoFe2
+         5F5wPla8RdVM6L65buLYPGdxxFZMyaoeeOvpWDXGFcTrACiXy0Gy7RlQFCUulsg4TAlu
+         rQ0EWRX5cFGwEcBsTc7h2d3rQkzjPV97fCR0BEl3TDP8nxPE0bdTPxADS8tEmU2vKuYR
+         wNAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771037789; x=1771642589;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4OOYCvwfV/ZZkqRNanf+Wv41fObk0+e62UXZX+6ZZvs=;
+        b=BWpvz0jNo2c/cJEtifF+VmrFQbf+FHNHhcEySNBKmnx2UNkpugaPoYR6JSQT4kb1jp
+         icDp8oAK5cgZmR0NW+AboDVJxm4g/esYky5c1z2UZbltVys37xCQOObVt7KJcmSz7Xpx
+         ACzePoZhRHHvyg0Gp6f6mg7DlP4ndq7Ilg1ZMpy1THj6rD0pwiQibwltqp0k57bQGY8V
+         VJZmXDb7lv9bZY2tEk+YTwGkbBvCQwzz5RC45IMPWLYAGH6GnEECLJ5Ib4VhSYm6YbGI
+         y2IQSx0CbqLZSUarc4cmadnCy8CQqy4mpyXV64ooO3TC7O5Qr18bQgeDSrLjyxtWSyVY
+         oRRQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUiojafIXdyymeUvBSeau5rd+sOroxYqtCMfDhmgG82aY8oUSIBvBO4W+wHH7rK+czTGio/ixOwOaN9dg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXRxjx/nlLABl/EQoWrdwNHugYsQQPBiRd6zlWLqL7Vq9BMfjp
+	3jyNgmrlTQjzwQqNrjo1Rd9AtDbpS7ctOmnFSHks9TKOW2y0cSEZmnun
+X-Gm-Gg: AZuq6aJpCO/0Ix9ymsKNQEzphoTucfdy2agKgUFe5tPFFnlJJgNAxW1ObUHeWQZ8zAv
+	wzRSLGu2qZtqxLzwcTUe5Kqs4tJzGVmiuDwfBdhIJSoAiZKoGIizSXpOIoLg5EJqJQShR5bmNsK
+	zRhhWhKRQE4WshNBJU3JdEkXzC9Tw6IC+/uEFTTjKdMlPhOaTfXMDZwzwJTkQMCmWy1J9gycx79
+	3k/06z7UzWAuE2EGqeB1tzsOSw5LrWcnMJEpp7WiI0EO8ikGKtkq4+Q+mFWiyDvz79cb5/shNwq
+	B3Mtg0fQpBs7EWnm7h2wEJYhh3AArsoxK7ZtuPV8OBJzkPfJeGntkEKhK6mzRjjrImTO4TkxPpT
+	WrxM4YSYzBbnwHwH38/NgCh63MsMHPw879fL9eDUmTq0BUDNwJ1kXHVy4AkPC5c8m470yKLqE8t
+	l2l1hWt32liDQQK1qZmKtYxsCCCEImZotaFC0Ia8OoYRRDzOtuS9csKS4O4xN0DHDSdWgct5Fnd
+	88=
+X-Received: by 2002:a05:7300:dc91:b0:2b7:f522:992f with SMTP id 5a478bee46e88-2babc3ba41fmr1324474eec.10.1771037789323;
+        Fri, 13 Feb 2026 18:56:29 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:b713:5e7b:5963:d2ad])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb669f7dsm590737eec.23.2026.02.13.18.56.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Feb 2026 18:56:28 -0800 (PST)
+Date: Fri, 13 Feb 2026 18:56:26 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: sean@geanix.com, Frank.Li@nxp.com, linux-input@vger.kernel.org, 
+	samuel.kayode@savoirfairelinux.com
+Subject: Re: [patch 1/1] drivers/input/misc/pf1550-onkey.c: fix build with
+ CONFIG_PM_SLEEP=n
+Message-ID: <aY_kM08DusJ7Y_Zf@google.com>
+References: <20260214003828.BD1A5C116C6@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.19
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260214003828.BD1A5C116C6@smtp.kernel.org>
 
-From: Joey Bednar <linux@joeybednar.com>
+Hi Andrew,
 
-[ Upstream commit 7273acfd0aef106093a8ffa3b4973eb70e5a3799 ]
+On Fri, Feb 13, 2026 at 04:38:28PM -0800, Andrew Morton wrote:
+> From: Andrew Morton <akpm@linux-foundation.org>
+> Subject: drivers/input/misc/pf1550-onkey.c: fix build with CONFIG_PM_SLEEP=n
+> Date: Fri Feb 13 02:39:04 PM PST 2026
+> 
+> riscv randconfig:
+> 
+> drivers/input/misc/pf1550-onkey.c:154:12: error: 'pf1550_onkey_resume' defined but not used [-Werror=unused-function]
+>   154 | static int pf1550_onkey_resume(struct device *dev)
+>       |            ^~~~~~~~~~~~~~~~~~~
+> drivers/input/misc/pf1550-onkey.c:133:12: error: 'pf1550_onkey_suspend' defined but not used [-Werror=unused-function]
+>   133 | static int pf1550_onkey_suspend(struct device *dev)
+>       |            ^~~~~~~~~~~~~~~~~~~~
+> cc1: all warnings being treated as errors
 
-The SoNiX KN85 keyboard identifies as the "Apple, Inc. Aluminium
-Keyboard" and is not recognized as a non-apple keyboard. Adding "SoNiX
-KN85 Keyboard" to the list of non-apple keyboards fixes the function
-keys.
+Picked the following fix for this:
 
-Signed-off-by: Joey Bednar <linux@joeybednar.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+https://patch.msgid.link/20251210211149.543928-1-vaibhavgupta40@gmail.com
 
-LLM Generated explanations, may be completely bogus:
+Thanks.
 
-This confirms the exact same pattern. The "SONiX KN85 Keyboard"
-identifies itself as an Apple keyboard (via vendor/product IDs matching
-Apple's Aluminium Keyboard) but has a different HID name string than
-"SONiX USB DEVICE", so the existing entry doesn't match it. The
-`strncmp` prefix match means "SONiX USB DEVICE" would only match devices
-whose name starts with exactly that string — "SONiX KN85 Keyboard"
-starts with "SONiX KN" which doesn't match "SONiX USB".
-
----
-
-## Complete Analysis
-
-### 1. COMMIT MESSAGE ANALYSIS
-
-The commit message is clear and concise:
-- **Problem**: The SoNiX KN85 keyboard identifies itself (via USB
-  VID:PID) as the "Apple, Inc. Aluminium Keyboard" but is not an Apple
-  keyboard.
-- **Consequence**: Without the fix, the HID apple driver applies Apple-
-  specific function key mapping (`fnmode=1`, fkeyslast), making the
-  function keys behave as media keys by default. This is wrong for a
-  non-Apple keyboard.
-- **Fix**: Adding the keyboard's name string to the
-  `non_apple_keyboards[]` list so it gets properly detected and uses
-  `fnmode=2` (fkeysfirst) by default.
-- The commit was signed off by the HID subsystem maintainer Jiri Kosina,
-  confirming it was accepted through the proper review process.
-
-### 2. CODE CHANGE ANALYSIS
-
-The change is a **single line addition** to a static constant array:
-
-```356:367:drivers/hid/hid-apple.c
-static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
-        { "SONiX USB DEVICE" },
-        { "SONiX AK870 PRO" },
-        // ... rest of array
-};
-```
-
-The new entry `{ "SONiX KN85 Keyboard" }` is added at the top. The
-matching mechanism (`apple_is_non_apple_keyboard()` at line 369) does a
-`strncmp` prefix comparison, so the full name "SONiX KN85 Keyboard"
-would need to start with "SONiX KN85 Keyboard" to match (which it does
-exactly). The existing "SONiX USB DEVICE" entry does NOT match because
-the KN85 keyboard reports its name starting with "SONiX KN85", not
-"SONiX USB".
-
-### 3. CLASSIFICATION
-
-This is a **hardware quirk/workaround**. The SoNiX KN85 keyboard is a
-non-Apple keyboard that falsely presents Apple USB vendor/product IDs (a
-common practice for cheap third-party keyboards), causing it to be
-handled by the `hid-apple` driver. The driver then applies Apple-
-specific key translation logic to a keyboard that doesn't need or want
-it, breaking the function keys for the user.
-
-This falls squarely into the "QUIRKS and WORKAROUNDS" exception category
-for stable backporting:
-- It's a hardware-specific fix for a real device with broken behavior
-- It uses an existing mechanism (the `non_apple_keyboards` array)
-- It fixes a real user-facing issue (broken function keys)
-
-### 4. SCOPE AND RISK ASSESSMENT
-
-- **Size**: 1 line added to a data array. Cannot be smaller.
-- **Files touched**: 1 (`drivers/hid/hid-apple.c`)
-- **Complexity**: Zero — it's a string literal added to an array
-- **Risk of regression**: Effectively zero. The string match only
-  triggers for devices reporting "SONiX KN85 Keyboard" as their name. No
-  other devices are affected. The matching is by HID device name, not
-  vendor/product ID, so it's extremely targeted.
-- **Dependencies**: None. The `non_apple_keyboards[]` mechanism exists
-  in all relevant stable trees (introduced in v6.0-rc1).
-
-### 5. USER IMPACT
-
-- **Who is affected**: Users of the SoNiX KN85 keyboard running Linux.
-  These are real-world hardware owners.
-- **Severity**: Without this fix, the function keys (F1-F12) on the KN85
-  keyboard are mapped to media keys by default (brightness, volume,
-  etc.), which is wrong for this keyboard. This makes the keyboard
-  effectively unusable for standard function key operations unless the
-  user manually overrides `fnmode` via a module parameter.
-- **Workaround exists**: Users can set `fnmode=2` manually, but this is
-  not discoverable and should not be needed.
-
-### 6. STABILITY INDICATORS
-
-- The commit follows the exact same pattern as **5+ previous similar
-  commits** (SONiX AK870 PRO, hfd.cn/WKB603, Jamesdonkey/A3R, Hailuck,
-  the original non-apple keyboards mechanism).
-- Signed off by the HID subsystem maintainer (Jiri Kosina).
-- The pattern has been in the kernel since v6.0 and is well understood.
-
-### 7. DEPENDENCY CHECK
-
-- **No dependencies**. The `non_apple_keyboards[]` array and
-  `apple_is_non_apple_keyboard()` function exist in all relevant stable
-  trees.
-- The patch applies cleanly to any tree that already has the "SONiX
-  AK870 PRO" entry (or can trivially be adjusted if that entry isn't
-  present — it's just adding a line to an array).
-
-### 8. PRECEDENT
-
-This is identical in nature to the "SONiX AK870 PRO" (743c81cdc98fd),
-"hfd.cn/WKB603" (df83a0df820b9), "Hailuck" (c4444d8749f69), and
-"Jamesdonkey/A3R" (113f736655e4f) commits. All follow the same one-line-
-addition pattern to the same array.
-
-### Summary
-
-This is a textbook hardware quirk addition — a single line of data added
-to an existing mechanism that fixes broken function keys for a specific
-keyboard model. It has zero risk of regression, zero dependencies beyond
-existing infrastructure, fixes a real user-facing problem, and follows a
-well-established pattern with multiple precedents. This is exactly the
-kind of commit that stable trees exist to carry.
-
-**YES**
-
- drivers/hid/hid-apple.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 57da4f86a9fa7..233e367cce1d1 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -354,6 +354,7 @@ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
- };
- 
- static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
-+	{ "SONiX KN85 Keyboard" },
- 	{ "SONiX USB DEVICE" },
- 	{ "SONiX AK870 PRO" },
- 	{ "Keychron" },
 -- 
-2.51.0
-
+Dmitry

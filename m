@@ -1,119 +1,124 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F71714F70
-	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 20:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BAE1D5CFB
+	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 21:00:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771101507; cv=none; b=A2ayC36n5E8bijVvo8ihzqkMwiCSdwgvmvViOzaKgkU9q4ClQsRWKvuBWmXqxmYDfanRhk2JMM1laVy56fdznsbq6Ux+2NBtDuUJxpe2IHCp4Sq9CicH1qrZZPXe/hgB/YfQssPTVlu/5o+n1RPe9LB51zWZT7pRlVhT/C9ZFiM=
+	t=1771102852; cv=none; b=I0az/eV2zZpm9vHdrk9m8NTClwyqbE+YTFsPImEgHY8p0ewwOnirnKoY04wZdz7c9nmlQxG5RNzlSOl+Hg8DLnC3vP8GdJfqO9rvwCIivUDxFq844o78tUC4eNvmET9XF2C+kmRjCMubeUHB7oH5Z6of4ltVR5Jlh0ricGdYmG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771101507; c=relaxed/simple;
-	bh=ISPg1m/xtoHmadv+9qD4PF4qeTVVdwlXnG/d134LzZg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DPy7auFNEpr5tQv1VJ8Yhf5DpVlx2g5jFYJK6re5ckArawZtvdw9fqQoi0A0YD8vmzV2vWJCKzZMXppSpdoAevAevWDmK0HYjl6sYHINECQnR8WQFARSAZ6eC3TrhtOBeyaw9EEgb/bFTwB2QxCIlc6mdmXXpd4MhxO9kJrkfOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ACLn45RS; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771102852; c=relaxed/simple;
+	bh=u+2d2xYoQpzSjCzCDGd+eN4qGcY38sGOKNLBYRKL+0k=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=k8SmGZMxWFE79v5prbXZrRkOBvKcNSmmJZ26IjrIUvJIAzz/jz0BcU8yXMUciyKBwPNk2YD50SQA36X5byoNVw1/wkCcX9RaloMP0lu1TxoB5VAWltXPsPXaM4et3GsbnLKOAewy/h+jziADS2JCoo+lN1QmEmU19y1qiLDTiPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=RhhSCyse; arc=none smtp.client-ip=209.85.210.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACLn45RS"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-48371119eacso18538255e9.2
-        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 12:38:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="RhhSCyse"
+Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-7d4c9537f90so921648a34.0
+        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 13:00:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771101505; x=1771706305; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tyvs4xFeOgUlL1nJWOsM4wXcI5MSjDts4OzcTAQg/Sk=;
-        b=ACLn45RStFfq0f8xCGaIAblhJAIF6KAdrIhPrOE5h1D+Il2j3ZOve3icxYUEb9qw37
-         6WqzJkkL4JxOyu1numuLK5UEC69q8ZHaVXuGTg7YZ7Tsv0Y+sD0a/kvpiy6V+W/lHEsT
-         580VSixZjnb45PvaPLJepV7DWDyQeDGH7q3Geqdj3V8XqZqtbQ4gbb38FfeX/fi3LO62
-         4glTYGoOCODF/l5DWvTiocBeYQcBCyOEzW9fp98nSyrflBUoxPL70SbmrBpnydx1c2tw
-         aaCZ6mjlvXDzWYh4cJk3YdRTtChzuJTmOQ926zihD+g7CqzmoO8kWxe4oX3HnyURIvPh
-         4l1g==
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1771102850; x=1771707650; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1AJN2DmyZzxrMDaAeIHz5lzUwylyT2LQfO5U2NARR4A=;
+        b=RhhSCysexifnPlVI59KRQm2JKZy+2c1LOFm87hINeuQuKpnhTlqI3w+gOgxAKA6Lw4
+         UnWHX2FPuTmQ77BM3M2+1eI96MsSFhTjcUexfCYtQGDs2XjFxqIvk07z8Ne7OIelcyb/
+         SNz0+ipEtEw4EZmbvEIK15SIswqosKfeIgmPpHSa/VfdnMsUxRBxSj3eX9+CJ7Jsl6jT
+         sQKgc2IGdDUKJi5mVbEYu24EdHnCNF3EDAwiK0q4X7nns4djA5H+ceVq7HMmA7OEmrbR
+         J4kqSsnbPNs0NYhchN//f0knQSWpSi6LlT6iC3qaz1WN/ZsgbMxc4m2W3ZdU+WbILWew
+         8LKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771101505; x=1771706305;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1771102850; x=1771707650;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Tyvs4xFeOgUlL1nJWOsM4wXcI5MSjDts4OzcTAQg/Sk=;
-        b=pmN3kgW3XXiyJd3PiMabOntKX5NtRfsqfMfCvNOkeM7eYMu6QlFXJGLTafAh5qnjK0
-         0ZJtwMZPS8kqI4iuZ63o9xqsbtrNvWOQKF/6+pgeL6oIaJqaH7H+93ua9iNTGsknq45d
-         OA7BX9pi2jSvB4hm9et7dn1XVKaoGHb6F5ZvWXcsnOZv8rWpZfUrx2nY3o7GaWA97h0j
-         exzZ+EdQsJPo8pI79Uany9VEXW6Uo8WJ9KP2UiuRz9hb5nNg33c8o6pgkueIFIeqbUnW
-         GTHNQpNUHTS0utfjM/0JtZF1FBisLJVNL+k6+FMdmT8kE4757oQdPmFDwvq6+AfqtND/
-         SFwg==
-X-Gm-Message-State: AOJu0YysEY/kU0m0MH1BBVJoofDtFTxy/dPwIy+BWF98HBPqJ2imbXhz
-	txNiZKEnVO6V4Jkn29+bDmETNsSXV3cz3pddH5IhkDMnSFfFknI7/uNh
-X-Gm-Gg: AZuq6aIay1bPZFj5omi/pMi8JaSfXzhHT8j45wcR0SZO9oLQh3QcDBnEDinydk55NfK
-	ZH6sVq7sCjH7q6thhYsNRGvq6CJM09cmP9IQBaAIsLGIv0nKouJ0hLPWae8yRHEXaFFBvLq+vGX
-	BQmrU8Omtbl6fAEZtf0XOCMMEx0cdCM/NWagQl2mrqPA9Ry0+3xCvGYIxyvoDcPRT91MOh1RoEy
-	yEgNUEcT/AhCxavIEzhoa9KGTpTnqNyIQCOOhJGY4Tq8RM051LVDGN1yxVWBqYkuLuuztzcBuBI
-	t20Wi1R+JoLcAm3rsC5cSlOLmlb/13Vgv2cuPZtnmJADcwjsat9GTDufL7jcedYYAHlgsdU+jqh
-	kwOpOxTQ1GbJeLwXpT9WUMIE02kC9bQ7Qe8lhWjksuyQGVsDoMNPdpmbC+PAphNNZ5BQp37x6zi
-	oEJrhBzaqhSqR2ZQ9IAMlTJLCUAA==
-X-Received: by 2002:a05:6000:2c0c:b0:437:6b73:ffa9 with SMTP id ffacd0b85a97d-437978c7625mr11670815f8f.5.1771101504666;
-        Sat, 14 Feb 2026 12:38:24 -0800 (PST)
-Received: from Max.. ([46.210.227.177])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-437969fd36dsm15771151f8f.0.2026.02.14.12.38.21
+        bh=1AJN2DmyZzxrMDaAeIHz5lzUwylyT2LQfO5U2NARR4A=;
+        b=QfiBc34n07QyFYCMgTx0o2El55ugZwWeE6YQxYdnPGsrmq9ZLDzTj8ldfDxbGy4ueM
+         GzazKbEjur59e/dtVdjQWWNL4vT4eo8Ntn+s7WEPFVU3I+zJnKJdzWj9M6Nah0hk0eVB
+         nFrLuQxLKG7/xvFIef3BeH5WSMaIAFQ+dt0n5P1msU7VsLnQBoq4Gfxc11f0gkTyM97u
+         uVTtCnkTfOlyuADva9Jps+sKwRhx30XYimmuyF3M+bI09q9XX7P/Wk8NgECLN9cd5c8h
+         NDu8hHAdE+7zGQbr8mWz6HSu2LYDhVr7GL7KqDHSSYG0RniidELWYQGpEPvhgN5wOMcp
+         atuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX1DX7iBQmQes1KQS4WEYib4HC9ppccVk7x/w5UYLs68Vf4GRoEwPYViAV/EC24JCFu/hSVE38lgY70VA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx5gPQ2V7uJ0hYqh2NPdMrSz6a/c061IVOzsALz3NOPZfnZUyZK
+	ir3RCNNSoLDW3xcQarnOBVWTvnH5AmnW9jl4yUhuXy+ItklpVKkUdlj+5gfkii6LqMA=
+X-Gm-Gg: AZuq6aLGPqC70Rl7L8Esh6AAAEmNZDZxDHCa3RG6z+P0WEYqcAnQxWyfKnjpl/s9iiB
+	QiZdlj3iHA72puuZC3jIELSS18rC+PGBePXR7AlJLu29YsL2DsV315RT63QuGuXYhE6teXTxjNa
+	528bbQ7U0G2yo5kOXDnPD8oouVqX4AAZZRxvRurXu6Ztl4Vu1xckDVoNvGWwwI1NBLgp6hUg6rm
+	B9ka6OZWXiijB/grpI891/0CUnPSm2hBNcUJq4BecT4V/V47Rwk/NUCm7wlveHHiE1giN1PQQyF
+	UmZdNyjXj6ah1sSCMkxdf6DbdN8Yclp5eRe6D5y1FEKP4aW2osEMDaOk+eQTFjNU648/TQWP0/S
+	OdtPb24jhnailuFaU+B0OMedpRrvkACudYJ+H5LAaaDsRDQsVvPf9TXjLQGMb27cJHP5m3gzCvM
+	1FE2mKVaiVhkRi+uwNj8Jnqu9j4w==
+X-Received: by 2002:a05:6830:648a:b0:7d1:9832:4796 with SMTP id 46e09a7af769-7d4c4a785d9mr3643804a34.16.1771102849891;
+        Sat, 14 Feb 2026 13:00:49 -0800 (PST)
+Received: from [127.0.1.1] ([2600:8803:e7e4:500:109:393c:254e:962e])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d4da074c15sm1181680a34.15.2026.02.14.13.00.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Feb 2026 12:38:23 -0800 (PST)
-From: Max Brener <linmaxi@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Max Brener <linmaxi@gmail.com>
-Subject: [PATCH] Input: libps2 - embed WARN_ON(1) macros into their enclosing if statements
-Date: Sat, 14 Feb 2026 22:37:24 +0200
-Message-ID: <20260214203725.6463-1-linmaxi@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Sat, 14 Feb 2026 13:00:49 -0800 (PST)
+From: David Lechner <dlechner@baylibre.com>
+Subject: [PATCH 0/2] iio: orientation: hid-sensor-rotation: fix quaternion
+ alignment
+Date: Sat, 14 Feb 2026 15:00:19 -0600
+Message-Id: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqEMBAEvyJzdiAOG0W/Ih6i2+qARkmCCOLfN
+ +yxoKoeigiKSF3xUMClUQ+foSoLmlbnF7B+M5MYqY1UH1Y9eNabA064xG7Txe/wiW1jR5mMaSG
+ Wcn4GZO+/7of3/QHQ6CXXagAAAA==
+X-Change-ID: 20260214-iio-fix-repeat-alignment-575b2c009e25
+To: Jonathan Cameron <jic23@kernel.org>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org, 
+ David Lechner <dlechner@baylibre.com>, Lixu Zhang <lixu.zhang@intel.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1233; i=dlechner@baylibre.com;
+ h=from:subject:message-id; bh=u+2d2xYoQpzSjCzCDGd+eN4qGcY38sGOKNLBYRKL+0k=;
+ b=owEBbQGS/pANAwAKAcLMIAH/AY/AAcsmYgBpkOJrV6kHmSUUdM8ecaLTEyrn2jpyKfO4+Agy6
+ wD5YxkOm9SJATMEAAEKAB0WIQTsGNmeYg6D1pzYaJjCzCAB/wGPwAUCaZDiawAKCRDCzCAB/wGP
+ wA3JB/0S8uXpjOHSBnUB2ezOVtqy46chqbQ4icjSU5nekObaWVgJ+ja8klq9UzsQt8iWY9Pd3y4
+ u/J7qwABJnGOiA7T5tL1U2Tb+M7iok6PAUXK8BX/75TSNgOy06/NEsUPehRWeHYOdGyrSJKOXsP
+ wg5We8G4gsEGFal1zFG6jjoxFjTOlQZY5ZB69/wv0fOXEGYa5B6gFYovlhaXI5qmiPFlqHPOc3x
+ GpPpiqxqGKnbxj/XixWnEgN+v/nG7XCbcC4MPDjvoAXezL1IT3hZUYErBNOyZOt94Twzl+3hAkw
+ doHh0gKCqMY/PIbZQsPl3KdevUU5e3Ph0LKLz77F5+o8VuZJ
+X-Developer-Key: i=dlechner@baylibre.com; a=openpgp;
+ fpr=8A73D82A6A1F509907F373881F8AF88C82F77C03
 
-Make WARN_ON(1) statements embedded inside their respective 'if' expressions,
-to improve code clarity.
+The main point of this series is to fix a regression reported in
+hid-sensor-rotation where the alignment of the quaternion field in the
+data was inadvertently changed from 16 bytes to 8 bytes. This is an
+unusually case (one of only 2 in the kernel) where the .repeat field of
+struct iio_scan_type is used and we have such a requirement. (The other
+case uses u16 instead of u32, so it wasn't affected.)
 
-Signed-off-by: Max Brener <linmaxi@gmail.com>
+To make the reason for the alignment more explicit to future readers,
+we introduce a new macro, IIO_DECLARE_REPEATED_ELEMENT, to declare the
+array with proper allignment. This is meant to follow the pattern of
+the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
+
+Signed-off-by: David Lechner <dlechner@baylibre.com>
 ---
- drivers/input/serio/libps2.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+David Lechner (2):
+      iio: add IIO_DECLARE_REPEATED_ELEMENT() macro
+      iio: orientation: hid-sensor-rotation: fix quaternion alignment
 
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index 269df83a167d..05b64277aecd 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -154,10 +154,8 @@ EXPORT_SYMBOL(ps2_end_command);
-  */
- void ps2_drain(struct ps2dev *ps2dev, size_t maxbytes, unsigned int timeout)
- {
--	if (maxbytes > sizeof(ps2dev->cmdbuf)) {
--		WARN_ON(1);
-+	if (WARN_ON(maxbytes > sizeof(ps2dev->cmdbuf)))
- 		maxbytes = sizeof(ps2dev->cmdbuf);
--	}
- 
- 	ps2_begin_command(ps2dev);
- 
-@@ -270,15 +268,11 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 	int i;
- 	u8 send_param[16];
- 
--	if (receive > sizeof(ps2dev->cmdbuf)) {
--		WARN_ON(1);
-+	if (WARN_ON(receive > sizeof(ps2dev->cmdbuf)))
- 		return -EINVAL;
--	}
- 
--	if (send && !param) {
--		WARN_ON(1);
-+	if (WARN_ON(send && !param))
- 		return -EINVAL;
--	}
- 
- 	memcpy(send_param, param, send);
- 
+ drivers/iio/orientation/hid-sensor-rotation.c |  2 +-
+ include/linux/iio/iio.h                       | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+---
+base-commit: 0f11bb7985ceef2aeeb5c45c3c7bfff3f5a16e03
+change-id: 20260214-iio-fix-repeat-alignment-575b2c009e25
+
+Best regards,
 -- 
-2.43.0
+David Lechner <dlechner@baylibre.com>
 

@@ -1,72 +1,114 @@
-Received: from smtp.forwardemail.net (smtp.forwardemail.net [121.127.44.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp6.goneo.de (smtp6.goneo.de [85.220.129.31])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02B962F745E
-	for <linux-input@vger.kernel.org>; Sat, 14 Feb 2026 19:34:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=121.127.44.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E8D91E1C11;
+	Sat, 14 Feb 2026 19:43:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.220.129.31
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771097691; cv=none; b=WqGJ5uHl7jKv+5Yke6ol6MZd63yVtwAPT/vEjaxXQzt9RavSeQSnDR7482iM/0bh9ezhzjTP9OHPykEsOrXQIrHl/H8VKF0e1OrJSyqNIWnnDm8TVKRxu5dZvC39ThxQ1XOKWEcBvQFyyblzbgSdB+RtLN8YCGRXdSFxMAtch3U=
+	t=1771098221; cv=none; b=S1qkVYIFPRRn3pnxtifbKTvIc79oChWIFYC6sbU2ZE0HFb/V48RjBXuCkO4iZtjggMcdiI2KKZksWJpaMgk7M6tyKB493cL1qCK/Ad6ThRf6+bOObBVSRkVOURd+t0E7z/SZSC2eTVdFIVZFgnWEx2HbZ1PZhxlCAbSnFQEuCT0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771097691; c=relaxed/simple;
-	bh=k3QtBmvkH85Y7SD8ewOfbHOVkOhRXD8qXzUct60VeEA=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=EQgftiWd+zvRFrp5lpMA9pfuG5goJMIsidK8r/h6pjhgSehcKiIQIKU0PRzc5CTXhvMQXIhCKrwUIBZQdGS64U5F7ECFcXgRxdK9ek2+dQGx6emE2lvFNhniSpbcqcvmQDN2PsXdBGfo+vQkhhzyhyux0hw5TcWR0MAt5and6Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com; dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b=u7tVBSDe; arc=none smtp.client-ip=121.127.44.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com
+	s=arc-20240116; t=1771098221; c=relaxed/simple;
+	bh=5XZJJ24TTHJ/yY6GgcWKEyTEg3W943mFaQGxpwK8t+4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=IwbeupOJwRXGEuoswsdsKnB/O0U4d7Vq0IgjGtxeypJ9zi8rY8VtLmYiv3Acf3dPWNfC3IPypBL0d+2Tt8055GSlr0Qx0lBAF90b1pWgM2PaBmiUUL2WwNCi8uBI6KO9fhaQRqYyIvWzpchfGbyd4DYRyfZJyRIcLdgXGEE4VLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=devpi.de; spf=pass smtp.mailfrom=devpi.de; dkim=pass (2048-bit key) header.d=devpi.de header.i=@devpi.de header.b=Nkg9cd+s; arc=none smtp.client-ip=85.220.129.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=devpi.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=devpi.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b="u7tVBSDe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ubuntu.com;
- h=In-Reply-To: References: To: From: Subject: Cc: Message-Id: Date:
- Content-Type: Content-Transfer-Encoding: Mime-Version; q=dns/txt;
- s=fe-953a8a3ca9; t=1771097682;
- bh=WcVudwyap5VOAmo/TAFpzXDMG3OHXX7mA209/eVovE4=;
- b=u7tVBSDeplL0r4ZFMQupurfXf3xiwFebrlbOkPedRQTKyMdUNT40INQbk4oMGqwLG02W0Qu80
- 1oKXEKxWJaUO4glt4EajgQNc4kOpDNq/ScV9DPBln4fUTBPl+D8nToxQZm3qJNe36Y4ngYEdyZQ
- CUwPQgnFd+IzCxBILVyXID5CRijObAAIeILbEJjerDkhqG8bwRFp54F6ch6JOVNuq6WRuzdHMkx
- lHpKjhpo7lKvmx62wtfD58Yyd6y0efSjFeopePFgV78B0YReXUzcsv7OIjC8mdwIzwwxJzXaSTh
- ULoEL809HjrsJwPPUXj0x2e2F9Mc8kuYqxh0IdiV4kyA==
-X-Forward-Email-ID: 6990ce4f62810ca23a433c4a
-X-Forward-Email-Sender: rfc822; jpeisach@ubuntu.com, smtp.forwardemail.net,
- 121.127.44.73
-X-Forward-Email-Version: 2.6.4
-X-Forward-Email-Website: https://forwardemail.net
-X-Complaints-To: abuse@forwardemail.net
-X-Report-Abuse: abuse@forwardemail.net
-X-Report-Abuse-To: abuse@forwardemail.net
+	dkim=pass (2048-bit key) header.d=devpi.de header.i=@devpi.de header.b="Nkg9cd+s"
+Received: from hub1.goneo.de (hub1.goneo.de [IPv6:2001:1640:5::8:52])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	(No client certificate requested)
+	by smtp6.goneo.de (Postfix) with ESMTPS id B50982406E9;
+	Sat, 14 Feb 2026 20:37:25 +0100 (CET)
+Received: from hub1.goneo.de (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	(No client certificate requested)
+	by hub1.goneo.de (Postfix) with ESMTPS id 7B5492402A5;
+	Sat, 14 Feb 2026 20:37:25 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=devpi.de; s=DKIM001;
+	t=1771097845;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oadswahTH2GiLinE612d32ldQGE9gXB2tnBIzr4w2q8=;
+	b=Nkg9cd+sU14NH4xaNamV5zXEU2PEuZ/vf9mHcuZHgotnELhiaz1rkoh3MZtGhO7Camlebo
+	4bSTCl2+8DRgWVUppNO9zl2NOclomUNsBZ1eDALLrQD1oNu4J77HAkeoIi40i1TyZWFWhj
+	nwadR7OjBjtIN3Sj/TtuJq+se+jADxfasO/xXvsBRUOwCHJj/a7swAatFE6L+wQYq4K5eR
+	xQ5OKNVSVL3Iqk0Bn6W6zcOTdYFjkChwCO0kvthWGopgmD6NWGXYoqiyHmS8yhackKQxIa
+	AUauB+TjXU7AbeIuQJnJX7oXXzE88Jh/dTimEs05yg9knv4dLXUKJi4e8OK+Dw==
+Received: from [192.168.1.213] (unknown [IPv6:2001:9e8:7357:6d10:5bd7:eb91:589c:c228])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by hub1.goneo.de (Postfix) with ESMTPSA id 45F3524029D;
+	Sat, 14 Feb 2026 20:37:25 +0100 (CET)
+From: Julius Lehmann <lehmanju@devpi.de>
+Date: Sat, 14 Feb 2026 20:34:21 +0100
+Subject: [PATCH] HID: magicmouse: fix battery reporting for Apple Magic
+ Trackpad 2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8; format=Flowed
-Date: Sat, 14 Feb 2026 14:34:37 -0500
-Message-Id: <DGEXQ8IOZXIQ.2C12HXE7F8NIH@ubuntu.com>
-Cc: "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>, "Bastien Nocera"
- <hadess@hadess.net>
-Subject: Re: [PATCH v2 1/1] HID: switch2: Add preliminary Switch 2
- controller driver
-From: "Joshua Peisach" <jpeisach@ubuntu.com>
-To: "Vicki Pfau" <vi@endrift.com>, "Dmitry Torokhov"
- <dmitry.torokhov@gmail.com>, "Jiri Kosina" <jikos@kernel.org>, "Benjamin
- Tissoires" <bentiss@kernel.org>, <linux-input@vger.kernel.org>
-X-Mailer: aerc 0.20.0
-References: <20260109034034.565630-1-vi@endrift.com>
- <20260109034034.565630-2-vi@endrift.com>
-In-Reply-To: <20260109034034.565630-2-vi@endrift.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260214-magic-trackpad-usb-battery-v1-1-353bc63b56c0@devpi.de>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MSwqDMBAA0KvIrB0wqZXiVcTFJBntUPwwiaUle
+ HeDy7d5GSKrcIS+yqD8lSjbWmDqCvyb1plRQjHYxnaNNS0uNIvHpOQ/OwU8okNHKbH+8UkP416
+ +s6GdoAS78iS/Ox/G87wAI2iNw2wAAAA=
+X-Change-ID: 20260214-magic-trackpad-usb-battery-5a31b8c62d4f
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Julius Lehmann <lehmanju@devpi.de>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1771097845; l=1447;
+ i=lehmanju@devpi.de; s=20260214; h=from:subject:message-id;
+ bh=5XZJJ24TTHJ/yY6GgcWKEyTEg3W943mFaQGxpwK8t+4=;
+ b=p6CMysmfa7+bdJc54d1PBuw0+8BkhrzPKo/9hkSWHJZFLdGztYeP8qvl9mmDU27qO1Z6Sru3r
+ 0EO4lKfC92fAnQGJ/oK0/y4R+KRU/thJTTd8raB9UH0uo3pGe/Uf8Mg
+X-Developer-Key: i=lehmanju@devpi.de; a=ed25519;
+ pk=4CVTeomaDx/FDbI6e0vzvDz7AanVrlpEqEXEpDB3cXo=
+X-Rspamd-UID: e32603
+X-Rspamd-UID: 1e80bb
 
-On Thu Jan 8, 2026 at 10:40 PM EST, Vicki Pfau wrote:
-> +static const struct switch2_ctlr_button_mapping right_joycon_button_mapp=
-ings[] =3D {
-> +	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
-> +	{ BTN_EAST,	0, NS2_BTNR_B,		},
-> +	{ BTN_NORTH,	0, NS2_BTNR_X,		},
-> +	{ BTN_WEST,	0, NS2_BTNR_Y,		},
+Battery reporting does not work for the Apple Magic Trackpad 2 if it is
+connected via USB. The current hid descriptor fixup code checks for a
+hid descriptor length of exactly 83 bytes. If the hid descriptor is
+larger, which is the case for newer apple mice, the fixup is not
+applied.
 
-Wouldn't it make more sense for South to be B, and East to be A (and
-so on?)
+This fix checks for hid descriptor sizes greater/equal 83 bytes which
+applies the fixup for newer devices as well.
 
---
-Joshua Peisach
+---
+Signed-off-by: Julius Lehmann <lehmanju@devpi.de>
+---
+ drivers/hid/hid-magicmouse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 7d4a25c6de0eb7d36ad26a867004d58a1b6eae71..3fe191615a6d39fbe823e9e1a80fc65a7a12b9c4 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -985,7 +985,7 @@ static const __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	 */
+ 	if ((is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+ 	     is_usb_magictrackpad2(hdev->vendor, hdev->product)) &&
+-	    *rsize == 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
++	    *rsize >= 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
+ 		hid_info(hdev,
+ 			 "fixing up magicmouse battery report descriptor\n");
+ 		*rsize = *rsize - 1;
+
+---
+base-commit: d3eeb99bbc99cc5eb94a4a75ed4415a0272254ef
+change-id: 20260214-magic-trackpad-usb-battery-5a31b8c62d4f
+
+Best regards,
+-- 
+Julius Lehmann <lehmanju@devpi.de>
+

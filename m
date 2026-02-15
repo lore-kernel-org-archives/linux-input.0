@@ -1,74 +1,70 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E1A529B76F
-	for <linux-input@vger.kernel.org>; Sun, 15 Feb 2026 14:14:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E796786331
+	for <linux-input@vger.kernel.org>; Sun, 15 Feb 2026 14:14:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771164881; cv=none; b=KB4wKwRnBW1zUIORGt0v626EyHGK4eBybv5Lk8jvS9N7AHwnGqK2Zx3k2QNy+lDd4XcAnbwdXqZ6p21NhkcTGkovVQ+RAzSkLqI/w9cYFswTbAfglIzYZgev7YzN/NcQ6elwv8GyqUXpUWZU4yOLbhbgdt9R/jVELPLTeqGczq8=
+	t=1771164881; cv=none; b=gYXf9DC6YHlw3BotjdlErr69r30t8W4iRc7NPtCMxjtR2gsU3JZ5b1vv9ph/4ABzQauJGhrlw7dsP+2nNzQXe0OyZASD71THizbsRgjKqkZsAetUMEbo8KUo24LyZpJcJSbCtqStD6iTndnnyFhEI3otxTc8PTCMcxgxHl2886c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1771164881; c=relaxed/simple;
-	bh=3XeYvg0yD9eAI9rnarFcQbWdNAPXqphE0tHqiyPUNIw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YMYkB7WWQMsVVEq3PoxMH9cSdFsCDEC37x51JbpN2KXfI3ae1GPb6TzLUYt1DgZ2vt2xTjtlfcCLJRiXUjBxhfn5Duk/AhHd8MWv9bCnEtfsg9lFeLflewolBdVGA6O/NLMTsKaH/YG0ieUKmgVN/D0WG4p1OEPonWQPFOVFpY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AuFML5uY; arc=none smtp.client-ip=209.85.208.50
+	bh=6A2r0b8fW5xHTnnM0C6ApRyYCtMM9I2FxzQRNN2fBTY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rBLRN0f6ZDnj2BJ6MbaJrT3LX9uM2z/2iyOTd0xv+28Maes7sw0z1ZiJJWBalhB+OLdYKcxu9RPK8YqyDnry8Sx3WHXSO2lWUuwhiTwAmJwdfSBbGawc+CTvCm6iZ6fF1zXgTZ47kd4m03goLDSrJe3cNik7ASN5Qidw6xtnlG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cFGndHhp; arc=none smtp.client-ip=209.85.208.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AuFML5uY"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-65815ec51d3so3795330a12.2
-        for <linux-input@vger.kernel.org>; Sun, 15 Feb 2026 06:14:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cFGndHhp"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-65a36583ef9so4154292a12.0
+        for <linux-input@vger.kernel.org>; Sun, 15 Feb 2026 06:14:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771164878; x=1771769678; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cjPrzEGlEG8pNjTnVxylr4XLvPoRq/OKYW6EWcfUcmU=;
-        b=AuFML5uYJvuUT5Gmc/lOjcnByQsPtlCpCVHGQJBoICZIKh5uEEG/hNFkbYxI5ls7RG
-         x9HDONufB2kyQ/NFEHkItNzxaij+35KHXgtN+ZrNzVSc+aySgJ//6+8RSYMK6RJIqVFU
-         lji+nf9fSMOFMIq+XItq3Hhwal40n3Ww3ftvNnyszGKMqH5dy9sR6FM66Kb96M7RyiuW
-         8eYkg8tFZggVAOtJBIrCucUh/NscdV6IIUofKeb6LsEZINhF76OZKxnbKHmOuelekRuP
-         A4ISiDa06Be1kwtSQzMUQ76e+wP5MpdDUa7HaRKJqyf32t26rwMMZpiiuW7os3TWbaRi
-         5pJg==
+        d=gmail.com; s=20230601; t=1771164877; x=1771769677; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wWoDfTNPPzv0jncjGgAIqMNjO08bMdQvfqMXxIjt7AI=;
+        b=cFGndHhpbKr6zFtOH7ebO5arkOJQ4cNuEckGfcfFL4itgLh8kyixws0zvhiSzqj/f5
+         RcJ6OFovJpeSbthT1FbimLv8iAIf9g+N6453P+E2+IsnYEX8orHynEIxN0bwRR7l+2i5
+         5UsFB0hfw703y1t/ReEcARwdQxkMkC2rjkYl+9q+yIEpHUqJAm2ssTUuh2jizc1lXlvk
+         iuXvzJNdTt1b8ahD7NVkHZIK9+EWCcvUQ0f8lVlf7JddRXUcYrYX4nlSYqdklzrSeRy5
+         1wgxqcwroAyfFJ0/zqghKkPOoVXujBYoB7zwXL4QtHRJqFiiRVrkM6v0RB3G2j16cVj+
+         oLoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771164878; x=1771769678;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cjPrzEGlEG8pNjTnVxylr4XLvPoRq/OKYW6EWcfUcmU=;
-        b=AS3mT8S8qGvXBP4ReUv6y81J1w28+aPd1YqGq2CmxdlcCnOlJ+pUbInR2az7bqng/0
-         BYTB8vMfWIDrJZSc/oN8HHpyCb0YmEqmZLbL5BRAbZ55ea1Zxy+6UwfshnMzHmqO+P8W
-         iXxLtS0FSMGDz9ZdSwdcKUo+WA1TM0vERe9y0yokqA/eZS0fP04IyPWYksuQYubpNMxB
-         1ithXxmrVvZDn8hEdOnQnePfcIpG/0pscLK3knu+ZyqzBZCccr0KijKK5fzQY4azAqgz
-         ny8hYxJfK+BOmk65lqqHkqnaEHRhaYpJuNNXqbol0uFrbR2R1LYDZyQ/Vn4ma5M9g15N
-         NLuQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWaOQt6PpGt9tW19hdZ1y+7l+bcLR8uHTeN0T2kdBZdY1dr2lpcHKoAr5AOcta4Ui3xyTkWmnHfG04bmw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz9oUM2pODH6vhwk9U4mDz7bQOl8NZ1CSdGEWXSrY3NxKK0zJeP
-	mFLRN54/9Pt801SnddWuuTT73CrkQRj93Ue6mdCMZ7aIF6eeE2QLpMO1b6N4xg==
-X-Gm-Gg: AZuq6aI4rXf0sQHMeLuKEUwXZ392tUT8t1xgqfMWGXss7HlRqdmHkq42AkWVZ3Mwt90
-	NOCK4N+kKQ6pp18dgXUG8lkAvwijzYdq4L22+AL7GviDvYGDHCgFg2V1miNPyDaRizaYyy3ov7z
-	xjTUtbvKvZFB2KbeBwpGj+juF11q0WhZ7kgzXxnOhVmZy5EdKn4TDf5fa0PwvTh8xvdk8Qh1RrU
-	p/LKhHxdux++PprQccnTTyFPMrtnvt8Owgp2B2GnnLBPjBU2rjHs64eFi1AZaRjGIYnu0o4X3m6
-	r6xtwoYYU8OPO3+Lp39M6Wruy/6k2I0CIVWUL1ul59nLAPQ3PDQd/L5nThDe73QobuIOJJMBWYr
-	QhINFVWsk6yNPbJB1NtNkL2DSzx/9ZgVbeR0MfzTH8/8WQWXtXYyMCBFC5YrWhdUrpWPJln7LYC
-	gn/BgZJKwJdjJOtQ==
-X-Received: by 2002:a17:906:478c:b0:b8d:f6f1:e27a with SMTP id a640c23a62f3a-b8fc3d32247mr249194266b.65.1771164878132;
-        Sun, 15 Feb 2026 06:14:38 -0800 (PST)
-Received: from jekhomev ([46.251.53.180])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65bad29df12sm1518889a12.14.2026.02.15.06.14.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        d=1e100.net; s=20230601; t=1771164877; x=1771769677;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wWoDfTNPPzv0jncjGgAIqMNjO08bMdQvfqMXxIjt7AI=;
+        b=FEguoAe9JYto53VhLPwYiXFHOwF2moo4n2qmzBfOSWgpA6Kxyfw56vqBixKNNHLV1f
+         pn6JKXsAjefFwZusawxB4sKiz1ZuNiBMKWA7PtffbSegDe1OHhiZgWSTsv/zvRgO90Hb
+         IDOH8ALzrwYTFiycBvjwjMkYU779MYyev2YFu1AWS3m/3fO3gtR0n59zmsvG9H4woaGD
+         WhNbjfJShvpqEWygFgVcuOhHF5PTRsJWTo91agM1npnlD060vD7280hNYsbZIsCKqrS1
+         VWa/5w/26dwtIqPfN0gDmXAWL/JTXRKpR5VCUYJjRbrMzSElPuI2RM8Q8pGYmnStvKhA
+         MJDg==
+X-Forwarded-Encrypted: i=1; AJvYcCWnN4dVCM0TEBxf8M3Q8od7fIL6Yrcgn6zAa0ApOTFyEtikxX91daQ3Bwe03031BwDwQADOOZ93rrRVSg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwQF7sKSOa0ztUqKAfOtZdoId5qmG+h2eF0rnoqbYQUrjv/dWnL
+	7ftlfEYPmc5KFLeFCQOYq355uXaTrmaIEBt3hO0X7GfaFJwcfhLIGzq+
+X-Gm-Gg: AZuq6aI7FTMVCxMmwXjhpg4a9uWhHa4JdFOwr7/kjkxG/6supICfXh6MqcNwBcM/uvE
+	F7X9upIDaMtrW82cs0A0kaIgr7X4YImrd5p+rza55KjO4+gBtgzqOCIsPnJDgkeQU35zDgl9dog
+	Id0YVoI3j7YtAeKktxuN+Wy6jAIU+sOx28DvbIrG2ZQVuJJMrYaYBnx71yuz55u7oezHO5gCDAD
+	KxgRum5XZKvFrdk535y3a8RGYIsX1Oi3qAD0x2yMUxPCOhcsB4ii1CYpVdOg3GcA7lUr21ixR/q
+	w9JAGN5FquKie/1lhEKtBBHhy3qXmYUUu+0icNX8StksJamrPEKlCyQF/R0spkv3qCZsw3RR5ra
+	vUPfqJmYf/w8IaAqJlgEp0AGbjX62ZfFt6jIKcQyKD83Wmm0bb/U67aZJXFftCavi35TML1qAva
+	jSSEQcR0L5l3Sbw7NnBgVw16hO
+X-Received: by 2002:aa7:c40c:0:b0:65a:4207:fbf0 with SMTP id 4fb4d7f45d1cf-65bc4298147mr2068381a12.15.1771164877003;
         Sun, 15 Feb 2026 06:14:37 -0800 (PST)
+Received: from jekhomev ([46.251.53.180])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65bad29df12sm1518889a12.14.2026.02.15.06.14.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Feb 2026 06:14:36 -0800 (PST)
 From: Yauhen Kharuzhy <jekhor@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	Hans de Goede <hansg@kernel.org>
-Subject: [PATCH v2 1/5] input: drv260x: Add I2C IDs for all device variants
-Date: Sun, 15 Feb 2026 16:14:31 +0200
-Message-ID: <20260215141435.727872-2-jekhor@gmail.com>
+Subject: [PATCH v2 0/5] DRV260x: Support ACPI-enumerated devices
+Date: Sun, 15 Feb 2026 16:14:30 +0200
+Message-ID: <20260215141435.727872-1-jekhor@gmail.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260215141435.727872-1-jekhor@gmail.com>
-References: <20260215141435.727872-1-jekhor@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,28 +73,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add drv2604(L) and drv2605 to the list of supported I2C device IDs
-for clarity.
+Lenovo Yoga Book YB1-X90 and YB1-X91 tablets use haptics controllers
+DRV2604L. The X91 (Windows tablet) uses ACPI to define its configuration,
+such as I2C address and GPIO connections. The X90 (Android tablet)
+doesn't have it in the ACPI, but the device may be defined as an
+i2c_board in the x86-android-tablets driver.
 
-Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
----
- drivers/input/misc/drv260x.c | 3 +++
- 1 file changed, 3 insertions(+)
+To support these variants, add an ACPI matching table and add additional
+I2C IDs to the I2C matching table (the driver supports DRV2604(L),
+DRV2605(L) devices).
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 96cd6a078c8a..18360bdfe877 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -598,6 +598,9 @@ static int drv260x_resume(struct device *dev)
- static DEFINE_SIMPLE_DEV_PM_OPS(drv260x_pm_ops, drv260x_suspend, drv260x_resume);
- 
- static const struct i2c_device_id drv260x_id[] = {
-+	{ "drv2604" },
-+	{ "drv2604l" },
-+	{ "drv2605" },
- 	{ "drv2605l" },
- 	{ }
- };
+Also, implement a timeout for waiting for calibration,
+and fix the non-working suspend due to unbalanced regulator_disable() call.
+
+Changes in v2:
+- Header includes have been sorted alphabetically;
+- ACPI GPIO mapping has been removed (supposed to be in the
+  device-specific driver like x86-android-tablets);
+- Old debug session artifacts removed;
+- Checking of device ID has been removed; the driver uses the same logic
+  for all drv260x(L) variants;
+- Timeout during calibration reports an error; we don't expect that
+  the chip will work properly in such a case;
+- Patch regarding the regulator has been reworked; now it just adds
+  regulator_enable()/regulator_disable() during device probing and removal.
+
+Discussion of v1 is here:
+Link: https://lore.kernel.org/all/20260211235902.4156624-1-jekhor@gmail.com/
+
+Yauhen Kharuzhy (5):
+  input: drv260x: Add I2C IDs for all device variants
+  input: drv260x: Sort all #include alphabetically
+  input: drv260x: Add support for ACPI-enumerated devices
+  input: drv260x: Fix unbalanced regulator_disable() call
+  input: drv260x: Handle calibration timeout
+
+ drivers/input/misc/drv260x.c | 55 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 50 insertions(+), 5 deletions(-)
+
+
+base-commit: 9845cf73f7db6094c0d8419d6adb848028f4a921
+
 -- 
 2.51.0
 

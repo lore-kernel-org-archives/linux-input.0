@@ -1,282 +1,166 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PNZPR01CU001.outbound.protection.outlook.com (mail-centralindiaazolkn19011035.outbound.protection.outlook.com [52.103.68.35])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE64246BF
-	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 19:14:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7E8B5B21A;
+	Mon, 16 Feb 2026 21:25:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.68.35
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771269295; cv=pass; b=Zre9SaU+cAnorgZdJiNAROeITzkhKJQYkCd2IIqcqJaOs6YmDAnsuUELQUeyDmyBGxnr+CJ0sN5C4ez89ym7qATRvZYriaAhQZPnXAcyIU1gSvT9CU2VaYZJvIngkhuqxxNgpvZJWh6JBGx9B9iVr+fABPowBNZgGoHUwE8b3L8=
+	t=1771277112; cv=fail; b=Q4qKnBkFrNvMwoBJV/vO5h5gPa9VCWPpUz1aQsIItFAlfjXroc58mVJ3aMDFjI3CddzG+0IArpHMPWJNYifNxt7BziyGX4AqCxTgW3E5nXpwa5jLx73Rj8I4ADJu98/Ux3mvgPvKsSLL7pHCuKZ8AsYcqO5yeccBpVus0EW4tcg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771269295; c=relaxed/simple;
-	bh=6roQzUPN6oF3NP6XZiyAscAXoZCFMtBPdLph18EvMsQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YIqOdxogD3iEgKaHxsZw3z3DLWVIGg7npbxzlG3f8u6Pfop53Lzey9GKhWm9cUJkLRTwm9MpW9vxyo+Y19eG2Iaevllg5mdbPR8cdxFPg028zvZAA9gs3aeMW3UMtXMWH77B0ZDYP4IJ1cbMdColiemKfeaXwSuSMoVXtGYdKQQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gBraj7yv; arc=pass smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771277112; c=relaxed/simple;
+	bh=7cfVAfXxozA6hrN3WSA8qXyQv91mKc5ETezZsym3cfM=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=lrTA1DsrU76qGJCe7GOLfHVXWq3T+f+KUTH1eu+1D9VBoZ25qIy8LXkvc6RzBJTw0eZbipqUryx1+hNnGLsNkdB2HQ6PojdpaTSibD1lkj3WXz2xPwP1kjgCkWlebNJ434WNd4yS0DzjZQ7tIPviLdfJGXS73E45Vcaylsn0ofQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com; spf=pass smtp.mailfrom=live.com; dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b=uWFRB5QA; arc=fail smtp.client-ip=52.103.68.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=live.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gBraj7yv"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-483487335c2so33159415e9.2
-        for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 11:14:53 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771269292; cv=none;
-        d=google.com; s=arc-20240605;
-        b=BHcJRM794Lvs4lO6kTX47nQBPc+daABgxRffwnSZfxXPGSCDzSKc+d4wo1zKXRnJTa
-         TqRsdlEXVSIsOGeuBtA0/yByYyCgnF7sJcZduoX4OPwRgMJTFf0YVXWbOZdaBJaXJbkI
-         RzQ/pD1ZFGYsD8ZB81VRiiOltqQC+9KGumvaFFX3XYPRNYZVH8dBg4OuREZ7i6/DvKI9
-         gWEaYfqV3VpGSNQdd/IdPXH8HNie7ap+PtFx76LT8c8Fijpyi3QpG59StPR39PHK9wSg
-         otNe4QVRgeuMqxybvth2wjZ27oGaJg31g31lasocoRzO9etdzd3gVXmuAfJbVw9lBCbJ
-         wXow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=8HzOcCRMFSbyhDqPBsCkdLqSYse4L0GDbUboaIwjmC0=;
-        fh=MM+9B3IewOfvoZpnq33OX5ltCGiF2yAaMsPdUz9Achs=;
-        b=CV3eGa2SZzEbb0akR82oMPXKoErTH4f5ZhlSs/DIhI65QRrnLHSCWonLgkYcqhO5NI
-         HEU2rvuCpo/TyW8rmt7GcK59bypLBFYCrA/fT5vLvIm4391pifatWVqZar+g2tiBIgnZ
-         /zaT9jTnVNUeVap4DVIzKIH+4IpNA2nbv14mvqL7cXrZ11xpS5NzTbh9FRE6iM2ORbRB
-         A889JEiQNHW+VckW8nAQVsP16Z2ULCzrIRU00AARFDE1/aEeTnNeRGPLmxMuUo+XPiGk
-         fp9z164XCx/ooj4PfsvEkJGyTI5VOC17t7YcBD0wkTEZL3d9HAzl7OhV51sVvzli2mw7
-         IWFA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771269292; x=1771874092; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8HzOcCRMFSbyhDqPBsCkdLqSYse4L0GDbUboaIwjmC0=;
-        b=gBraj7yvq+F0JdwUJQGHi4JwvgYHX8PH+X4t8HtCuAQ0MX6rh0TxmgG7XZcamn5M/7
-         pNyAMs4ysjDh3rD1Zbnw2niCR29cCHjIwUgnh0pG+0yub7kWA44vmiGZcmRqwvBRQTnE
-         kyL6bUN2OUdP0VeNwbzytm8+luO1vUgRk0sq4GPcz6ikxpB7jGHYdusz58VOTbZFJfx6
-         SM153meyBkL+zq08mPcj+KpaRd32z7XbntEgJ3NJzb/aU9u4KEIAjg+Ns4KHdeU/zUT+
-         W6PfHFSD7BiB/kbNHoHX42pXTHcUp0oau9UnwKBzjZ/LOWgXXI6b1sw09yHmm/nhSm4J
-         ikZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771269292; x=1771874092;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=8HzOcCRMFSbyhDqPBsCkdLqSYse4L0GDbUboaIwjmC0=;
-        b=JnThS1dFM18O7vvfsk6M0EclZM+dX7LvLqc4EcigLuONrQ0BHr3RRuHYnfI2aNuTB4
-         CTBqv2zG146F0CfmtSHPCL/dMBNdr6PFIzqP/2CF5p267PMN6wGD8InuYrLmDtx0f8ys
-         18A60ydDxUozfSowouomXWddSOV2+vFH+iXBxXFhDi1PMgk4o7dVYZrJGau9YLptwzXS
-         BNzw+Fh3cLVssfEpggD0+8YDx+moWBRyAWR6Oe8klp+Lz958e7aPFaMdBuQuPifStHGl
-         b8swVC8+rmIqTwQOZwORmeeIMvnd3ZKZckYi+WSQox32q3aCV4mdv3r7uGLbBrpeSEQL
-         cvIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVIGiuEw0qYokWOSl+mVED75SVzYrzVTelabV4TVa9Ti3rqhbd8YHn2X/IXKhlnlmXHj8UNWS9iw/yvXg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzQk4FQtJslhc6V/FS8btY5h5Jnhj3xr6KgHfaxhEXThN9j6+2R
-	zcxar4nJ97xDMx1aVYWTMUShxQQavY/fdezTLMzFmHImrsmGDvcwYbfJwwnXwDvS2BGEYg6dDAB
-	3yFVQLds/pdcuuzSytdJnhcfsZ5feskE=
-X-Gm-Gg: AZuq6aI9O6DiivCFgOu5ejbcNUXJ56UlHDM1IcWvF0RD+rOgL/jYjiaiT1c0yKQsakl
-	iBYSJUlPqqYqVF26AxEra3LixLZMuW+B/dlgwEB/ryOLknK8oSog352V7Fn99yn1lLNP7/0H/oB
-	c0ZGPOfxApDh7B6WS4XUzKwXECikU5/wK+0frmn4Mwa/3ogft0uE2RVNGb5HAAYT7/CqXtM5254
-	NKe4Zf8QtogS0ZMCN8TcBsaai42xnFbObSX5zEKRMj00e5HcJzSnrZUYYD02Lf0sT4BdQo3Om7W
-	1NJnGkAw
-X-Received: by 2002:a05:600d:6413:20b0:483:79ad:f3b9 with SMTP id
- 5b1f17b1804b1-48379adf60amr118355585e9.28.1771269292113; Mon, 16 Feb 2026
- 11:14:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b="uWFRB5QA"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Uut2QgVokyUR3K8sZUcbaUJoIwSnviXwnOwphMbOGCSFh3+YKsaTHs9E2pPXNGAqrq9Vp8BV2kwxGUhhJMPg/suMWDr/+DYmG6gxvA/nRugcjYjDLLeyi9g6CxF9LqpP+TqMBCorWJu9r94NLaJbtdPijLGQrJuZ6f8r4VuMmkZsIvGrNADPJUiA7FoG622OJqZY1aGi25Tuv/UqxByoWUqLOHBKXqmosWQw3sBx8PF4k34sOJtoYGX1b9ajxurq7DldfbGs8niZcQFL9MMJ3V0Pmcw80xtWLjSg0CNBD+BR1+97aQmokIZVbb9cvJ2UqMZjUKOQr+LAlB7oUSHoAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YbfOETJEEDCdddZ6X8Q9tfWNNEtUHC4HnDwim6vXwwo=;
+ b=Acn8hNUwYLkSjaihvuW1Hwta0mcOPyb1rLVfwBTWjL4rsTuhkMuCrbsHynCEYqDpdHtP2w6fpr6CR5sRNFCl4f/4YbqdoVS3QXgY8lKsu2QvLgbJF0IqU/lqflSb/RgdXFi38//y2XbIcU0SU0WgodIx5ApSKZGLOK83XJhjjyKdq20OzKZ69VyR4LbIeGRxnJ02Loq6JP/Zcua7ec2C+uRtlf77vEVtHJGdrY4dHtKckJrvY5K7T0XuJ9CbT5xcd/krLGLC2suCu7thhh3plbIG3mtsM/YUxJCVbyVrrVpew2bx3imondBl/NTvZlHwCBr0Uo1IGWliNMUFVLDgyg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YbfOETJEEDCdddZ6X8Q9tfWNNEtUHC4HnDwim6vXwwo=;
+ b=uWFRB5QA06Ypt5fPQWu7oaLqXxuHfSHxMsdKdO5A7qBwuQjDkOYQ657nWAwvGpq8w6PqpUItegoncsR+3VgHWVtuazZLTM1qHK+4tj6uMVhnttqLI4V2R745g4FJc0DYZik++0Tp9MS/ERqunhaLATTmiMTxhHFei525LmyXiB2EQtr1OSoH7WxSd+U3xbADs9XC8HWfc0gaPZOqLIKjtMbrY5NmJvoCDWqrp2Hh1Dlg/iLslsSJhghPawSbWYNpiGsTJd0okTUmcXBR4OR4WmtCNd0g0Ytcm6uNHJJY+SwkKnspsNgwmtbuG3HPKSmOhdmNMTeJJ8x+/MxLvPjO6g==
+Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:19c::18) by MA1PPF8F457A31C.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a04::9f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9611.14; Mon, 16 Feb
+ 2026 21:25:06 +0000
+Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::1fed:9b0b:69b:9295]) by MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::1fed:9b0b:69b:9295%6]) with mapi id 15.20.9611.013; Mon, 16 Feb 2026
+ 21:25:06 +0000
+From: Aditya Garg <gargaditya08@live.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: appletb-kbd: add .resume method in PM
+Date: Tue, 17 Feb 2026 02:54:46 +0530
+Message-ID:
+ <MAUPR01MB115468D46765D7DF8C2882B4CB86CA@MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.50.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BM1PR01CA0162.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:b00:68::32) To MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:19c::18)
+X-Microsoft-Original-Message-ID: <20260216212446.1520-1-gargaditya08@live.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260214180959.30714-1-clamor95@gmail.com> <20260214180959.30714-2-clamor95@gmail.com>
- <20260216-sprung-scallop-de7b64bf528c@spud> <CAPVz0n06+uLCSfY_bYS9v7KJ-hXotye7ej-rze6-Q8_JAF7XVA@mail.gmail.com>
- <20260216-plunder-defense-de11cf56dd3d@spud>
-In-Reply-To: <20260216-plunder-defense-de11cf56dd3d@spud>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Mon, 16 Feb 2026 21:14:40 +0200
-X-Gm-Features: AaiRm53pjJr4DTXWQu3qeK8s5InrNWpSnyhcexyGL2cJPzW4JG4-eMOhlmVuupI
-Message-ID: <CAPVz0n0-LbTUZBCaO=oN3PpPLpwAqzNo29r687pKY8NbEE9giA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/7] dt-bindings: embedded-controller: document ASUS
- Transformer EC
-To: Conor Dooley <conor@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
-	Ion Agorria <ion@agorria.com>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MAUPR01MB11546:EE_|MA1PPF8F457A31C:EE_
+X-MS-Office365-Filtering-Correlation-Id: 926ebc5a-30f3-4efa-3fd0-08de6da1daa5
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|15080799012|41001999006|19110799012|8060799015|5072599009|5062599005|461199028|23021999003|440099028|3412199025|40105399003|52005399003;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?9Qykz0At91H7NrXPbT3tvg3s3au3InrrEnedRZGU9oorPJ8ik+Wa7JAquRsS?=
+ =?us-ascii?Q?vQFc+WMPQWbkwowVoeK3F/rWR+g39lAM8ct+5XJZ2RNcsHgRaWRK4btur535?=
+ =?us-ascii?Q?h8WaXPULkFNnhFc+ZIKtCi9BdTJ/5yRekp6d0mZgsB0btt6o4mJxLVouP9r1?=
+ =?us-ascii?Q?LT+VpRShYWb8N8ire+XLVr6+TijvdChQ2hiNYgBrL9PaYthNtbO1oLYEf8wY?=
+ =?us-ascii?Q?VJ8TZ6IHyWSXxFd/U8veQlbe4AqcnhUxdMQkOepdxqUZWRhtwnKXrkLEAZcF?=
+ =?us-ascii?Q?kY6p74GOWq2ARiIprOdz0kuEHzsqeczPWtJTvsnSu7Sasr1MVjsnRWvd+tdE?=
+ =?us-ascii?Q?u40BcJ7wyAgVABb+uGHwuttBaXqDFTYaPxqGZ3BhrCrEAAE4m8LO7r79P9mg?=
+ =?us-ascii?Q?Zvb84pKaJ2ZUXmcIUY05JqewcndodkTvdJB98nQ2SlqD1QQaOjb1h6mz8LRZ?=
+ =?us-ascii?Q?J9RWkFOHTYouCRnzltalkG6WSlSCehMCrqrBCfXZ/xVJIFiaf3s6kKJlDAVO?=
+ =?us-ascii?Q?wbyUWQtSDOOGX0qLGa+rWfoePPG5l1gf4WJT7mEZXzVpAKNaaL5hihvclYxH?=
+ =?us-ascii?Q?iNG+un6P0D2PNQDutxXqiYAYbES+HoZb/gNY/YJx7b3KAV58SxwIIJ10KoSl?=
+ =?us-ascii?Q?ECDkAzQ17izttNVi+yiSM8HhJL0XeBJcgQmjhREL62r0QmHck/4Xjat4Prbz?=
+ =?us-ascii?Q?lJve1/XtjwlNVzivXJ/1CDHue3CqmOrJp/mVLpcGTERgJWp6LdiUoMD6zH0F?=
+ =?us-ascii?Q?0IBU/icJW8Kfh2cinsShGl8ZWmctK7xNVXa8IpBqSF0UHQGFfEH2Fu0TpHLW?=
+ =?us-ascii?Q?omASyKxSvjLgUn87NwOwfL5wTIG3pNpXaQu2PTH+4sR/oNyOasTxlvf8Gn8V?=
+ =?us-ascii?Q?yG7j66v96bXuPQ6Tq46n4Is7DAGA6EyVhsvV7LDlAZhzhuUBKP1KJHHoBMwv?=
+ =?us-ascii?Q?1jyU/MN7vJgmXFFV6cT469O5okFOX8KIzePJjRcdlvyA8UFiNUCB+DvkVTFs?=
+ =?us-ascii?Q?OmLoAkLms1p2erdLwEV+o/+NwIn6KJD3Reyj6jYjkSLNPQo8biNwup0qKjyP?=
+ =?us-ascii?Q?LB6riQQjNN9UcXPSSJuz7/KoAyOlTt8dywu7vagkwi+nD+mOVgXl1nwE3QnC?=
+ =?us-ascii?Q?sFyWnho6D/wQPWZYmcC4e0gHvr3rleYnGOrIYccHJfEBSzbm4oK7urdt1qfh?=
+ =?us-ascii?Q?gELjd6EYttxzWED9zO6llYED84L70WelJwfus9dH7GpW2GxliSLQ9rbLsB4?=
+ =?us-ascii?Q?=3D?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?KwhvZa5OiPPxZnjB3lKvuQ4g515pnibPqLIbtsE4fYQuw09NPp5swxnQSFte?=
+ =?us-ascii?Q?QuEkfk5u5HcghwMqP+6pzakkAS5CPvtG2wzexLLbQXISW0eFVpAOKbJcYrtm?=
+ =?us-ascii?Q?foUpT4rzSI8srWt7yqXKN8zD7KrXWpdYN8TC/HIfzmJvjGdxbFxgDjYm/6Xh?=
+ =?us-ascii?Q?EW2lwMJvDjDFJhfV4UuKXz/byk+Zuy1GL+Zo83Tl2yKwuS2FJF1RQRqVAL74?=
+ =?us-ascii?Q?keFfPYWsdJp47IlaaGx/LeZk8G9aD8lhFapjtT8HEnO9+R6Ss/dsSogAB3Qk?=
+ =?us-ascii?Q?QdEskhoGTPUtI+xOyS/hOSJnLedCAHYbpLfAD/3d0hXfIaV77oqLi/HAHRZu?=
+ =?us-ascii?Q?VqBE8SGFbi9FAEtRXYeYt7V/TQSpCl3XAIHz8pmJHKRNbVXmR5YJ/Xdl8T++?=
+ =?us-ascii?Q?Rv7GuUHs7XZpweDVgaMR3iAFYzRSa1weBU9u57/jZULNVroWWAEqj1//M/hX?=
+ =?us-ascii?Q?9WZHKQWYHnGoEyt8hSJaZMdVohnb/VWQBEfdK72L4kMqjs9HdLWqHWqtBXvz?=
+ =?us-ascii?Q?UDtqjsiOJ5ARTAYumFaM7rdW7tTvKMOVeQ3SiLCTUIZzY7WCZS+LRXrnCov2?=
+ =?us-ascii?Q?F1n06WS9v4tZUIJCyYHZbqF60hq11XIe5Em5ztvRQJKikVAW/aqHn9feEtmn?=
+ =?us-ascii?Q?FN138Phrl1r5i65xeLLxJB2qu8h1fwAsfqLTnuwgi2u7flOgVUbvjzl4O4cv?=
+ =?us-ascii?Q?76OOoIevKxh0heKgyrv4QuHpNsScyKR7n6IekOnwwG6TjdmLPplmhoUWZ0D1?=
+ =?us-ascii?Q?n5z3JQAEqvqlRjy2uAhUQTwBW6tMLsxaA5s7CZR/FdJIz2G7REVThnrBS8jP?=
+ =?us-ascii?Q?EQlf0dkvsXxXCmh+MpAlIBRT7lKtVTqlk+BLt9BXFszX44GROjMeWm67z9j2?=
+ =?us-ascii?Q?f4KmSmfLJPIGNyacHD0odml4CrPqV1q4CGHO0AAxmajF1aNufsMklIhKacF3?=
+ =?us-ascii?Q?oW7/4YM4li7RanNrni4dXXQ32VRP1usTDGIo+TD3BXmCGZNI61rlN2QdCEFG?=
+ =?us-ascii?Q?MAbA5ElOGej4Tp4Fhp3x36e7+CEGXKprouaWV9tOlhpr409hGn1A6NiGrBUo?=
+ =?us-ascii?Q?Ld6yAn1Oi9vSc+B1VuiBzBEkwI2Rl5G9PVCZn7qOGAqb7X+Cx9ATu3IInrAA?=
+ =?us-ascii?Q?pECyCXmc/Oc1R+egHSGGVumAvQ3kjbey5HT/zqPpQILHOccokyWCI4ySZy6K?=
+ =?us-ascii?Q?UtV4ntNj6LvwWPOs9ylyN0ZxZSg+Ttzjwl3jLI3MmfM56aZKLG9Kl2iHwSpA?=
+ =?us-ascii?Q?8qHciEUaDg8EtVGLhd/omLOOXVaZSUDREHweo0ass8/zEsjX4fopCjmKV8wr?=
+ =?us-ascii?Q?DMdfugNY2LzXBWduUc3Kyg6MR55Lyvnyse//MI1GdMAYdXi6IFJM30/PClgW?=
+ =?us-ascii?Q?jWNBp1q/B80W2jf/RJAliEAzp9Jahan+u3HH9Sm8iQjgR5ctj/x7O2R5y5N9?=
+ =?us-ascii?Q?pe44MSvxTj+7KBTSMjw1LH+T3bgGz/9y?=
+X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-fecfb.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 926ebc5a-30f3-4efa-3fd0-08de6da1daa5
+X-MS-Exchange-CrossTenant-AuthSource: MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2026 21:25:06.1880
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA1PPF8F457A31C
 
-=D0=BF=D0=BD, 16 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 20:50 Cono=
-r Dooley <conor@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Mon, Feb 16, 2026 at 08:22:38PM +0200, Svyatoslav Ryhel wrote:
-> > =D0=BF=D0=BD, 16 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 20:04 =
-Conor Dooley <conor@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> > >
-> > > On Sat, Feb 14, 2026 at 08:09:53PM +0200, Svyatoslav Ryhel wrote:
-> > > > Document embedded controller used in ASUS Transformer device series=
-.
-> > > >
-> > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > ---
-> > > >  .../asus,transformer-ec.yaml                  | 98 +++++++++++++++=
-++++
-> > > >  1 file changed, 98 insertions(+)
-> > > >  create mode 100644 Documentation/devicetree/bindings/embedded-cont=
-roller/asus,transformer-ec.yaml
-> > > >
-> > > > diff --git a/Documentation/devicetree/bindings/embedded-controller/=
-asus,transformer-ec.yaml b/Documentation/devicetree/bindings/embedded-contr=
-oller/asus,transformer-ec.yaml
-> > > > new file mode 100644
-> > > > index 000000000000..670c4c2d339d
-> > > > --- /dev/null
-> > > > +++ b/Documentation/devicetree/bindings/embedded-controller/asus,tr=
-ansformer-ec.yaml
-> > > > @@ -0,0 +1,98 @@
-> > > > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > > > +%YAML 1.2
-> > > > +---
-> > > > +$id: http://devicetree.org/schemas/embedded-controller/asus,transf=
-ormer-ec.yaml#
-> > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > > +
-> > > > +title: ASUS Transformer's Embedded Controller
-> > > > +
-> > > > +description:
-> > > > +  Several Nuvoton based Embedded Controllers attached to an I2C bu=
-s,
-> > > > +  running a custom ASUS firmware, specific to the ASUS Transformer
-> > > > +  device series.
-> > > > +
-> > > > +maintainers:
-> > > > +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > +
-> > > > +allOf:
-> > > > +  - $ref: /schemas/power/supply/power-supply.yaml
-> > > > +
-> > > > +properties:
-> > > > +  compatible:
-> > > > +    oneOf:
-> > > > +      - enum:
-> > > > +          - asus,p1801-t-ec-pad
-> > > > +          - asus,sl101-ec-dock
-> > > > +          - asus,tf600t-ec-pad
-> > > > +          - asus,tf701t-ec-pad
-> > > > +
-> > > > +      - items:
-> > > > +          - enum:
-> > > > +              - asus,tf101-ec-dock
-> > > > +              - asus,tf101g-ec-dock
-> > > > +              - asus,tf201-ec-dock
-> > > > +              - asus,tf300t-ec-dock
-> > > > +              - asus,tf300tg-ec-dock
-> > > > +              - asus,tf300tl-ec-dock
-> > > > +              - asus,tf700t-ec-dock
-> > > > +          - const: asus,transformer-ec-dock
-> > > > +
-> > > > +      - items:
-> > > > +          - enum:
-> > > > +              - asus,tf201-ec-pad
-> > > > +              - asus,tf300t-ec-pad
-> > > > +              - asus,tf300tg-ec-pad
-> > > > +              - asus,tf300tl-ec-pad
-> > > > +              - asus,tf700t-ec-pad
-> > > > +          - const: asus,transformer-ec-pad
-> > >
-> > > Can you explain somewhere here what the "dock" and "pad" devices are =
-and
-> > > how they differ? For example, I am currently wondering why tf700t has=
- both
-> > > "dock" and "pad".
-> >
-> > "pad" is used for the controller in the tablet itself in the pad
-> > "dock" is used for the controller in the mobile dock keyboard.
-> > Seems quite obvious.
->
-> To someone intimately familiar with the devices maybe. Not to the people
-> you have to justify your patches to. Your response implies that this is
-> some sort of thing that's like a surface, but please put an explicit
-> explanation into the binding somewhere as to what each compatible is
-> for.
+Upon resuming from suspend, the Touch Bar driver was missing a resume
+method in order to restore the original mode the Touch Bar was on before
+suspending. It is the same as the reset_resume method.
 
-Ok, fair.
+Cc: stable@vger.kernel.org
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
+---
+ drivers/hid/hid-appletb-kbd.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
->
-> > > Also, why are some of the compatibles permitted standalone? That shou=
-ld
-> > > be mentioned in your commit message too. Also, other than the sl101, =
-the
-> > > standalone ones seem to have the same match data in the mfd driver. W=
-hy
-> > > are fallbacks not made use of there?
-> > >
-> >
-> > Because standalone compatibles describe a unique hw configuration
-> > which cannot be grouped into something meaningful. asus,p1801-t-ec-pad
-> > is for EC of Tegra30/Intel based p1801-t AIO, asus,sl101-ec-dock is
-> > for EC of Tegra20 slider tablet, asus,tf600t-ec-pad is for altered EC
-> > in Win8 Tegra30 tablet, asus,tf701t-ec-pad is for Tegra114 tablet.
-> > Different generations, different form-factors.
->
-> I don't see any reasons here that eliminate fallback compatibles.
-> +       { .compatible =3D "asus,p1801-t-ec-pad", .data =3D &asus_ec_pad_c=
-harger_data },
-> +       { .compatible =3D "asus,tf600t-ec-pad", .data =3D &asus_ec_pad_ch=
-arger_data },
-> +       { .compatible =3D "asus,tf701t-ec-pad", .data =3D &asus_ec_pad_ch=
-arger_data },
-> +       { }
-> Three of them use the same match data, so you need to explain why you've
-> made these three standalone when all the others that share a programming
-> model got a generic fallback. Fallback usage is based on programming
-> model, not based on whether the devices are a physically different, so
-> your explanation must reflect this.
->
-> > > Since this transformer series seems to have multiple programming mode=
-ls
-> > > for "ec-pad" devices, it calls into question your use of the generic
-> > > fallback compatibles is appropriate and makes it seem like you should=
- be
-> > > using device compatibles as a fallback.
-> >
-> > That is redundant.
->
-> I don't understand how that is a response to what I said.
->
+diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+index b00687e67..0b10cff46 100644
+--- a/drivers/hid/hid-appletb-kbd.c
++++ b/drivers/hid/hid-appletb-kbd.c
+@@ -477,7 +477,7 @@ static int appletb_kbd_suspend(struct hid_device *hdev, pm_message_t msg)
+ 	return 0;
+ }
+ 
+-static int appletb_kbd_reset_resume(struct hid_device *hdev)
++static int appletb_kbd_resume(struct hid_device *hdev)
+ {
+ 	struct appletb_kbd *kbd = hid_get_drvdata(hdev);
+ 
+@@ -503,7 +503,8 @@ static struct hid_driver appletb_kbd_hid_driver = {
+ 	.input_configured = appletb_kbd_input_configured,
+ #ifdef CONFIG_PM
+ 	.suspend = appletb_kbd_suspend,
+-	.reset_resume = appletb_kbd_reset_resume,
++	.resume = appletb_kbd_resume,
++	.reset_resume = appletb_kbd_resume,
+ #endif
+ 	.driver.dev_groups = appletb_kbd_groups,
+ };
+-- 
+2.52.0
 
-in other words you propose this:
-
-properties:
-  compatible:
-    oneOf:
-      - items:
-          - enum:
-              - asus,sl101-ec-dock
-              - asus,tf101-ec-dock
-              - asus,tf101g-ec-dock
-              - asus,tf201-ec-dock
-              - asus,tf300t-ec-dock
-              - asus,tf300tg-ec-dock
-              - asus,tf300tl-ec-dock
-              - asus,tf700t-ec-dock
-          - const: asus,transformer-ec-dock
-
-      - items:
-          - enum:
-              - asus,p1801-t-ec-pad
-              - asus,tf201-ec-pad
-              - asus,tf300t-ec-pad
-              - asus,tf300tg-ec-pad
-              - asus,tf300tl-ec-pad
-              - asus,tf700t-ec-pad
-              - asus,tf600t-ec-pad
-              - asus,tf701t-ec-pad
-          - const: asus,transformer-ec-pad
-
-And in the driver add match to every single entry of enums?
-
-> > > The rest looks okay other than the filename, which doesn't match any =
-of
-> > > the compatibles that you've got here.
-> > >
-> >
-> > How should I call it then?
->
-> Make it match a compatible, just like any other binding.

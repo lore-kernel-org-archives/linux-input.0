@@ -1,113 +1,87 @@
-Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F6C328241
-	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 15:26:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C79EA2D73AE
+	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 17:55:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771255562; cv=none; b=N0z8iSua8dVb18btUi2Q9EGsR0tSEMPnRXEnuCyBPVhKsSCy2m4rpfcGP8latMCPj1WxYJgB3Xq1+eXTQAUeyrfBPdBAz/18k/3FySTKbe4scH6yEalArfLtJEhBsVmCggEI9u61O5J6/qtXgqJRY2C4BhwGle1Q6JrNkWO4Ly0=
+	t=1771264549; cv=none; b=iotaS0dRvzYdBP3X3nWkXMU+A0LwxQjVOUhKFtkNb0Iy9eDKx5Xw76Gzq9XhP+7uezETgC3BC+4qd9F28iwhYmi02IK062c3MkDZQdHNjausaH+1MlZJQLCvtFJXx2/V6UAwgDvFB0rl3JnG+zHxColSDolhaPuC1NAaJP3V2N0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771255562; c=relaxed/simple;
-	bh=s/u9a7RFxBkreXqZx0ZwHqcPArovGyAc5UL+kxKtdg0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P0YAarXEgh4JSbkzLxHzv3LFBp0OFDB3eFLXimJvSp/T0+cMZGaLoZmQ+pIPZzPJZAOGG0dBiX8cnPV0w29XDjViZcuitngW1FIFAmvwpxWGzAWAbasFfVmGaRMeuOf7pVL50H4MWCHDJ5ot6EhtAxSYWENpznrgKiI+EsN6IHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=PpW5tVCi; arc=none smtp.client-ip=209.85.167.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1771264549; c=relaxed/simple;
+	bh=RAdDhGRzykezhXREadPUKYtvrR74UC9Wu82XDID7kwo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dgqa8CIpvgNnfVtWsLHJwU4uCXMNqnmdCYz9CTV4soQ0UQosp8Uxu8v0e5GDaWx8zfYB9wtCiVJtOrH2cYsB2jILJ6yjnA24G3bBu9IqmdFN7eSeVWdI2LeOYmOZoL8DCPP1Cljf9vMPki1Yv2ceKvcWBSNYXQFgpbG4dWqTReo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Iy3QpOv2; arc=none smtp.client-ip=95.215.58.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="PpW5tVCi"
-Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-46398742245so737127b6e.1
-        for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 07:26:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1771255560; x=1771860360; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WDY1pgwN95gNKwiq9tVCFy3TSoHft79BSNGMSnMpMmY=;
-        b=PpW5tVCicIKPqMAOlJwMhEr1fYa2vvWqmJy57HILg5XA9v6Wk+lEjJ91+YfohWAxN2
-         X7da4y74D2oov7MaxOm32ntYHnvMZp0MMszj5MmTrmQ5Cv5k/HdQBjuJ13rdr59GRkAX
-         DtoUCqzikSMmSdOuok2h8tFgtFS7qsrt/ETz3ehY3lrf1HXUag9EqM4QNrMQaTwSpoSo
-         Fs5tRGapW5Jgl+YdGNihNhlfJZ304fgV9XsrzBkz/8nYVBx2GI78c3VfCoPrVqkf8CBG
-         TiOlmze9rUSgCa5MwzuDFTJHE77dgXUoJa1BnDKXnD2snWTPNynE9CpcaLIr1N6TIDlA
-         3xVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771255560; x=1771860360;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WDY1pgwN95gNKwiq9tVCFy3TSoHft79BSNGMSnMpMmY=;
-        b=Oe947y93pDR8jF1f6IjXPkYXla2gqaz2VFKkXUYt5JMBvsMrxbC5ukoMROkY6Ofzmi
-         3EmEF6OJtZchKkcBrj92xstmqYL4mIjKsahjIRq6lKVpO3JAH2EJj+AwhC5xsyHRhCPP
-         DgEJZWKRof78L9Hgf5P7te94lKZC2UsXlSJTHLQ2+0FmUuSaIhaP94svHLaq6GZhFkkY
-         s08RU76jfM7IxNuyIScUZcFA9DbrJmonNhQKThbCUyLTfvru9zI5OXMW3G84+IOtFqQ9
-         LfDw7/8pD0KDja5Jv2xytvDkZLangFFAJrIAV/tAeB6l42nkhOrnvDJkjlJSPk6BEKSn
-         oX7A==
-X-Forwarded-Encrypted: i=1; AJvYcCX2S/ic1645kQssX/2bq6J+qmH9xEKil39WiTLpAP0XL2UCwX1jsL+gvgvGjMj2zbJ5SMJRMIKWyDXwHA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2rFVA6l09EKiXjHRpqITPQAZtRkAlRM1AcGvpy116xRSZMrhD
-	Ky2+a2ZCHBgLtXlSUG7bR3ATKsIZG15Kv0I+HaBGm4VEJfCQ2IxSB0hX+oQwlKfRjHo=
-X-Gm-Gg: AZuq6aLlPnPrHuD60dv+Uq7cOPUD4BXJaHP35IvwnKU7yeNNhC5qQ09r9LLO3lUCjQ3
-	PQ1epzLgZNZEwD+RBxWNcSrgTL8jJrC5rcWSOzwq85/Ox6DKHfxJmZ15Iwv5Vic7pd0llkCwSij
-	3hnT9X7ncCYx5mAlsSZxSAvxValeBlaXHzheEr4WLQVSGghjZZnzW03wPlEBqbXClScprjiTUCy
-	NNThox+Kj7ZtBNCL/1gwUxF3TBgMSZ59Vrv8WrkdhBj1ZnjBJkUqslzC1g8ehWyMfGfXPawkjp+
-	B+dseeITJ8TSTwBUQpoNfED7LtBOUFdmk3vBz7ipJxuV4AbmnVHyB4Ooc6qeiT8ZTCW0jOkyhUH
-	pNWIOwm8ZNOPjbHJDVqpi3QJTQakOeKh9SpR4phrYa1rHIgCzvQRYSbxuuqJhM5cGOu6Yw42VD1
-	tKXkTl2bOHp/DdAnOAX++4Nkuj7piI1DqdFMQ3krbcIpuuIjRN/8SzycbaxrTl9Rg8ZPWOGM7e
-X-Received: by 2002:a05:6808:c29b:b0:45e:e07c:3fd8 with SMTP id 5614622812f47-4639f1bd0cdmr4633325b6e.43.1771255559738;
-        Mon, 16 Feb 2026 07:25:59 -0800 (PST)
-Received: from ?IPV6:2600:8803:e7e4:500:2d75:8cf2:6289:6a96? ([2600:8803:e7e4:500:2d75:8cf2:6289:6a96])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-463a4ede045sm6507701b6e.9.2026.02.16.07.25.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 16 Feb 2026 07:25:59 -0800 (PST)
-Message-ID: <bcfc711c-a02a-4470-a2a6-de43c71e7c2e@baylibre.com>
-Date: Mon, 16 Feb 2026 09:25:58 -0600
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Iy3QpOv2"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1771264545;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=bIO6O2MnLzFjWYWkRj51ABG0Hh3mIeRs7kOZxpCp+As=;
+	b=Iy3QpOv2czsWjjbZdxGp0ApSOj1sUDlm2cIIwEG/tpFJRXpTZZfA+MfZSt3AEdvZb0yABU
+	zSGP8UWdOUgve11S++F6VyCiNPsDC4weaAO17eGlpuyssp5jjRxAiDnU5JZR2+LG07rpYe
+	xdRhAbQl121GUZNXZP/dJpUzt6IU/ic=
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schyboll" <dragonn@op.pl>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Denis Benato <denis.benato@linux.dev>
+Subject: [PATCH 1/2] hid: asus: add xg mobile 2023 external hardware support
+Date: Mon, 16 Feb 2026 18:55:38 +0100
+Message-ID: <20260216175539.12415-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] iio: orientation: hid-sensor-rotation: fix quaternion
- alignment
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, =?UTF-8?Q?Nuno_S=C3=A1?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
- Jiri Kosina <jikos@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
- Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org,
- Lixu Zhang <lixu.zhang@intel.com>
-References: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
- <aZLKy4l6OlPgIkZx@smile.fi.intel.com>
-Content-Language: en-US
-From: David Lechner <dlechner@baylibre.com>
-In-Reply-To: <aZLKy4l6OlPgIkZx@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 2/16/26 1:44 AM, Andy Shevchenko wrote:
-> On Sat, Feb 14, 2026 at 03:00:19PM -0600, David Lechner wrote:
->> The main point of this series is to fix a regression reported in
->> hid-sensor-rotation where the alignment of the quaternion field in the
->> data was inadvertently changed from 16 bytes to 8 bytes. This is an
->> unusually case (one of only 2 in the kernel) where the .repeat field of
->> struct iio_scan_type is used and we have such a requirement. (The other
->> case uses u16 instead of u32, so it wasn't affected.)
->>
->> To make the reason for the alignment more explicit to future readers,
->> we introduce a new macro, IIO_DECLARE_REPEATED_ELEMENT, to declare the
->> array with proper allignment. This is meant to follow the pattern of
->> the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
-> 
-> In both cases it's quaternion, maybe be more explicit and define
-> IIO_DECLARE_QUATERNION() ?
-> 
+XG mobile stations have the 0x5a endpoint and has to be initialized:
+add them to hid-asus.
 
-It is really the fact that the scan_type has .repeat > 1 that requires
-this, so I was trying to make a name that shows that link.
+Signed-off-by: Denis Benato <denis.benato@linux.dev>
+---
+ drivers/hid/hid-asus.c | 3 +++
+ drivers/hid/hid-ids.h  | 1 +
+ 2 files changed, 4 insertions(+)
 
-But right now, quaternion is the only thing that has .repeat > 1, so
-I guess it would be OK either way. We'll see if Jonathan has an
-opinion on the naming.
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 1b9793f7c07e..52efbf75a994 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1483,6 +1483,9 @@ static const struct hid_device_id asus_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X),
+ 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
++	    USB_DEVICE_ID_ASUSTEK_XGM_2023),
++	},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 	    USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD),
+ 	  QUIRK_ROG_CLAYMORE_II_KEYBOARD },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3e299a30dcde..4ab7640b119a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -229,6 +229,7 @@
+ #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X		0x1b4c
+ #define USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD	0x196b
+ #define USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD	0x1869
++#define USB_DEVICE_ID_ASUSTEK_XGM_2023	0x1a9a
+ 
+ #define USB_VENDOR_ID_ATEN		0x0557
+ #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
+-- 
+2.53.0
 

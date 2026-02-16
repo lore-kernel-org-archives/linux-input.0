@@ -1,69 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED84329D27D;
-	Mon, 16 Feb 2026 04:57:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FC122A7E6;
+	Mon, 16 Feb 2026 07:44:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771217847; cv=none; b=MzdOz+lh2hSLfXoAN+aPvtGpKzjw/85V01UWyrWO8vmO8bJ3KvFU6Ax3SaWDLtpy0yr+hsDk7SEV80Vt4lJU9osm00i+QXvtF4B5z7n1nUzE2zOKaPkI06IjQ6IO8RpsfI07dsY6/GX07feiQhpmh1RJaufANGaEMLg9nvFSXZU=
+	t=1771227858; cv=none; b=qrh1jZa/piQriM0dskdkuLA+vzM3omqNKGFqE/BI+UH28EcC96WrMt2LDC46MOPTchnJPrqZWANVE2wC1/kqfnff+ExPcg5jvFDCDgmwTcRb8uxHp5VZ5b/75qtvtKMFHcDFl/pmoL4SWgh544PSqmFnjkPcaVgPe+9qv37WStY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771217847; c=relaxed/simple;
-	bh=wxPEhoCNfX5ApkUi+QjSsB5zRQFwVKuYuWOp/TBfPDc=;
+	s=arc-20240116; t=1771227858; c=relaxed/simple;
+	bh=0t9gvbIpRZ92LD7qBBl+WRzwbncyyV+lAa8pHWlF0JM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AFqP7c6EAJ9MX1EelU55pXpmiJKFfmPNihI5ksOc6Q5gZfmsD0HEgxW8o+7PDmD2WKBn6zTo1DtKNCRuBw7RFzvYJXwtRynTcvNjn07W9FCSoIL9IN1zJoaj5XF6ZbqCvu751PnkA/UHfsBEck1oHbn3bswQjWX2P9mxktRDM6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WKaTGrPy; arc=none smtp.client-ip=192.198.163.13
+	 Content-Type:Content-Disposition:In-Reply-To; b=IxBz5JE9zGiReffEuDUFzS2DG/i3lQXtCRX4J2r/EKstisrB5SPHwVszuuJSdJdR0IGp4+gtctPW9hOb04RCyF0BccogAiV2RDsCVi3YPjr1PXO4iDY4PnUXXF1f3RoTkp6dJpzZf12SnxYIExDGLrzV4z60XXgZQFHrLmIA9V0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MyqxWhFl; arc=none smtp.client-ip=198.175.65.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WKaTGrPy"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MyqxWhFl"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771217846; x=1802753846;
+  t=1771227857; x=1802763857;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=wxPEhoCNfX5ApkUi+QjSsB5zRQFwVKuYuWOp/TBfPDc=;
-  b=WKaTGrPymjpedMk0a2LB9IbCtejrJdQz5QzKU4gr3a5EzGf8D0Ruf778
-   ebOuN6qAlFD1P2Z1TzTdJOSgxZvr+gBtfOFHiehIoHcuUfr1a7irg5dvm
-   j8Bl3eWtMZkzOoJsY0TdPdmrhTQIbdeXGQ1ZisaVbGjeTUQZNhIbpUKfy
-   ZxtHuPHDpPLZitX1U8nC/04iTdx3WjUqJySx/JharbovT+9CDlV6AvzzP
-   G9/YoD6t5zQptUvj1IjqoomfRIvR0QN0Aw8y8g3CdlbisCJaNg3RjWBze
-   i03sLgoHE4Yzl5DyPPczo/omGf5V/nnU5oviAbWjWPV/FslahAZ3T0EDE
-   w==;
-X-CSE-ConnectionGUID: fOFGNmZyR8WLSff8BlXEgw==
-X-CSE-MsgGUID: lgH2pbR3TJWvDd6n6ssn5Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11702"; a="74897022"
+  bh=0t9gvbIpRZ92LD7qBBl+WRzwbncyyV+lAa8pHWlF0JM=;
+  b=MyqxWhFl7tInYg0/l6P4QqbTcIADWV+LFWUudMw85jTZ0A1qk+9LJt1g
+   xOD2ZALlRa9GU2Au/0AnlfVqUUTr//+UKltJuocF8lpkLUy1am0OdTl1y
+   6LNLXLI5RL/LNYCnGSBVjyjR7+zhflnb6DFMqtvaIODJ0oRuAKI7C8Dpa
+   ILhK6ie0vqn5+lsgPGGTL7kSNoAJrRO/y5fgihekbYySvzzjmoSJPABPh
+   +SNcOTteRaPewRQ4zGK6CtoU1MOWYmQo+ObfTE5/RBpnxy5/QBaSusvQ3
+   0Q/c2DaZ8YlTvLdu0Z1mAKTdFSyxcvHqBIZN6gfvGj8wc34jO/ONGtIRl
+   A==;
+X-CSE-ConnectionGUID: YPWynBn6R7eLrjVPF9xaMw==
+X-CSE-MsgGUID: xeMDHwF0TUaBv2NxsAq2JQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11702"; a="76149052"
 X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="74897022"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2026 20:57:25 -0800
-X-CSE-ConnectionGUID: yfZNHOOiQ9+WtjJzPVzoDA==
-X-CSE-MsgGUID: JDNYBeQ6RPOY8EIElNfzEQ==
+   d="scan'208";a="76149052"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2026 23:44:17 -0800
+X-CSE-ConnectionGUID: 8PHq4HufQXmVYzpJK+fjfQ==
+X-CSE-MsgGUID: D5jaA3i6SM6cg+I33zDWSQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="218050915"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa004.jf.intel.com with ESMTP; 15 Feb 2026 20:57:22 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vrqff-00000000zPU-1G59;
-	Mon, 16 Feb 2026 04:57:19 +0000
-Date: Mon, 16 Feb 2026 12:57:12 +0800
-From: kernel test robot <lkp@intel.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v3 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-Message-ID: <202602161252.Kq5BRohK-lkp@intel.com>
-References: <20260214180959.30714-3-clamor95@gmail.com>
+   d="scan'208";a="218061740"
+Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.188])
+  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2026 23:44:14 -0800
+Date: Mon, 16 Feb 2026 09:44:11 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: David Lechner <dlechner@baylibre.com>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	linux-input@vger.kernel.org, Lixu Zhang <lixu.zhang@intel.com>
+Subject: Re: [PATCH 0/2] iio: orientation: hid-sensor-rotation: fix
+ quaternion alignment
+Message-ID: <aZLKy4l6OlPgIkZx@smile.fi.intel.com>
+References: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,77 +65,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260214180959.30714-3-clamor95@gmail.com>
+In-Reply-To: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Svyatoslav,
+On Sat, Feb 14, 2026 at 03:00:19PM -0600, David Lechner wrote:
+> The main point of this series is to fix a regression reported in
+> hid-sensor-rotation where the alignment of the quaternion field in the
+> data was inadvertently changed from 16 bytes to 8 bytes. This is an
+> unusually case (one of only 2 in the kernel) where the .repeat field of
+> struct iio_scan_type is used and we have such a requirement. (The other
+> case uses u16 instead of u32, so it wasn't affected.)
+> 
+> To make the reason for the alignment more explicit to future readers,
+> we introduce a new macro, IIO_DECLARE_REPEATED_ELEMENT, to declare the
+> array with proper allignment. This is meant to follow the pattern of
+> the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
 
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on next-20260213]
-[also build test WARNING on linus/master v6.19]
-[cannot apply to dtor-input/next dtor-input/for-linus sre-power-supply/for-next robh/for-next v6.19 v6.19-rc8 v6.19-rc7]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Svyatoslav-Ryhel/dt-bindings-embedded-controller-document-ASUS-Transformer-EC/20260215-021406
-base:   next-20260213
-patch link:    https://lore.kernel.org/r/20260214180959.30714-3-clamor95%40gmail.com
-patch subject: [PATCH v3 2/7] mfd: Add driver for ASUS Transformer embedded controller
-config: sparc64-allmodconfig (https://download.01.org/0day-ci/archive/20260216/202602161252.Kq5BRohK-lkp@intel.com/config)
-compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project 9b8addffa70cee5b2acc5454712d9cf78ce45710)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260216/202602161252.Kq5BRohK-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602161252.Kq5BRohK-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/mfd/asus-transformer-ec.c:234:40: warning: field width should have type 'int', but argument has type '__size_t' (aka 'unsigned long') [-Wformat]
-     234 |         dev_dbg(&priv->self->dev, "EC read: %*ph, ret = %d%s\n",
-         |                                             ~~^
-     235 |                 sizeof(priv->ec_data), priv->ec_data,
-         |                 ~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:165:31: note: expanded from macro 'dev_dbg'
-     165 |         dynamic_dev_dbg(dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                      ^~~     ~~~~~~~~~~~
-   include/linux/dev_printk.h:19:22: note: expanded from macro 'dev_fmt'
-      19 | #define dev_fmt(fmt) fmt
-         |                      ^~~
-   include/linux/dynamic_debug.h:285:12: note: expanded from macro 'dynamic_dev_dbg'
-     285 |                            dev, fmt, ##__VA_ARGS__)
-         |                                 ^~~    ~~~~~~~~~~~
-   include/linux/dynamic_debug.h:261:59: note: expanded from macro '_dynamic_func_call'
-     261 |         _dynamic_func_call_cls(_DPRINTK_CLASS_DFLT, fmt, func, ##__VA_ARGS__)
-         |                                                                  ^~~~~~~~~~~
-   include/linux/dynamic_debug.h:259:65: note: expanded from macro '_dynamic_func_call_cls'
-     259 |         __dynamic_func_call_cls(__UNIQUE_ID(ddebug), cls, fmt, func, ##__VA_ARGS__)
-         |                                                                        ^~~~~~~~~~~
-   include/linux/dynamic_debug.h:231:15: note: expanded from macro '__dynamic_func_call_cls'
-     231 |                 func(&id, ##__VA_ARGS__);                       \
-         |                             ^~~~~~~~~~~
-   1 warning generated.
-
-
-vim +234 drivers/mfd/asus-transformer-ec.c
-
-   227	
-   228	static int asus_ec_read(struct asus_ec_data *priv, bool in_irq)
-   229	{
-   230		int ret = i2c_smbus_read_i2c_block_data(priv->self, ASUSEC_READ_BUF,
-   231							sizeof(priv->ec_data),
-   232							priv->ec_data);
-   233	
- > 234		dev_dbg(&priv->self->dev, "EC read: %*ph, ret = %d%s\n",
-   235			sizeof(priv->ec_data), priv->ec_data,
-   236			ret, in_irq ? "; in irq" : "");
-   237	
-   238		return ret;
-   239	}
-   240	
+In both cases it's quaternion, maybe be more explicit and define
+IIO_DECLARE_QUATERNION() ?
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+With Best Regards,
+Andy Shevchenko
+
+

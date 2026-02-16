@@ -1,154 +1,105 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487372749C1
-	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 12:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 495212FFDD5
+	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 13:50:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771243826; cv=none; b=PspfEaBIDNWm+kQZiz1NkmIeng7+bKSnDbHVOIhEKZQ0eEfZ/bzzUEj7UqELgE6FzQuGqXLGwdJQA/tVaUdEWH5ScOEZi3QucEKP45ewsjTUJOpL2Nsxmm1tTQcgy4eTSNgGvtm7PJbVJjhGWbDjQPOeHBy4dwigkfFA2/D1fm8=
+	t=1771249812; cv=none; b=dHLTc93DtXWaZnf7wbTAqpY7zRjf9iWUtnUtiJ3D1TqyDR8nWdAd+MP0A8JvOzjDS5KADdodg4rG2BJresJKC/vtt1vQ7NqZ1ROI39yzNa84T5AuQW9EaC94cqdFJHXtgWRZgVgE6p0uOumESmmxIfAVAEgsYk4MwwfEENjNnCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771243826; c=relaxed/simple;
-	bh=6SSKXQexS1yqS8sN26FO83aeNAo9obWv36BeneynOeM=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MqYbmBcP4xG9rmIYf62l0/VOlvD29PrPLXK/nQ7QoTkhZdkBF2Ys9Vvn43H0x0ScDiRvpRMq79NQtaHBssVE1SGNhWVmCqkrmW8fDGelcVPH8IWDtyapp437no9KKWm3EjUeDDqeo7XuQ4Vxm8Ct+R9R0UoeK6igQ/uINkbxwbw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=devZmknZ; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771249812; c=relaxed/simple;
+	bh=sUheDx+jFpdcOOXNRUwWwpTjxD6KJLuI7Tf5F0Uu2ck=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=sI5ZqaPF2WTfnr52QAYp2iH2Wxzztr3L8/atLmnlwuIRbEP8n4mFY2jlRTPwZ6mC1Qk9EG70f/aswPpvR5ZdS2sQXKeeE5OxtlbgoCxu6cZWuvPStxkRk8kco2lmRGWKSPKFtqTk7lT6huXjhuwoG/fzRN9qD85KpmICJTGbqn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=S7uc1TRl; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=S7uc1TRl; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="devZmknZ"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3585ec417f6so445300a91.1
-        for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 04:10:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771243823; x=1771848623; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=1GvC/7lwViA/LhXh3QnEjql7Fe/Y/aDrac39++6dSLQ=;
-        b=devZmknZ1jORQPbCqqhXRpCsH7wN2l3Ce2NSjVfiGqAUCuNbZ4ZlNM01aUtBuA3oX3
-         qJLTBuCkBu1OJlj6TF3VmKeRhYQJ/Guf/HcLKTqGBCtnX35ur6GWLIM67RO3V2XyhkQd
-         M3t+oDNIJN5dbtD+MEuoOOq0DnpNSnyULBlsssXdlSlu9lf+2GpTAIRWmk8AQms3A4zD
-         C5Ru2BTVmkHr06+8S8NPjOWdAfU3jMNkZFGRp+ggosjJbXjdK1StxPDMBjp+YgetN2zl
-         s1oENgOohct0tYLQIwPi9iVZsA9bhnkG7N5BvPjKyC0PySpT3an+al0pjdT/E1st0lwb
-         WJIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771243823; x=1771848623;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=1GvC/7lwViA/LhXh3QnEjql7Fe/Y/aDrac39++6dSLQ=;
-        b=g0c2D9vBpVN3b+o9n1qkviHYOG0AkS2it7kezvDWi+h5W1uhqM06d7+zY8UupWQB+o
-         Ooc7oogK3HVZbbXP75hWUKhyrfgcLV27DjL9AbI2pehvWHOTcGvWVLeLoJkPcHuRA35u
-         uZBVns6ame8hIeLPYXi6CQfxbpVY4jPIACltZJNocFH2LlBNPF3cf82l4DRbF9P0Nhlj
-         6HMilx2+EdkAlrNSkgTSqvY9+ZtwpbwXxiX8ASbb5ZW0q+ETmaBB/NE5pTDd9AQHSJO8
-         sFXdyf/NuRJS36VizkuuanRCRAjAj8ktRkXVUPfhbxtLXQigEYPVNlh3OajVWaNBeMkm
-         NbQA==
-X-Forwarded-Encrypted: i=1; AJvYcCXc8IW2kAGz8RKLefHEhfzfnU5+aI8PuKPpksstCBE14igiHGE88pPXm/NoAQftIL0r/dwrPw6AeCmRcA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzJ2UTKigKX4MGPm3boD99rVlGENFB/0gb+JNDo5ZVX8Lg3Czth
-	zBkCgotopx2fiSYAk66+Goz5EB3ek7+DtMbVxxIWBf7/X0zk7ADY5iVN
-X-Gm-Gg: AZuq6aLFJK8RxUohcW74ypxYEyxWmUoEmIgw/W2UAJpI0k9rX7PCbKkRfDKJhyNnZVw
-	7CISVfidd91f/ughkivkmG+zi+nOPbdr9WtB5kKf+4Lym7b58djKFpojXApKPxg/G8Qm/Ae/sQy
-	j1T/Z5saOg6wY7qrY3jWSese7XZafYtBrJo607UiGDWew6yoypfhTTY89VsJBm58u9IibloKDA1
-	CSc483VY55+esdnxjdcOdxzPLfQtYt6fZ6m37XMhbgCcWF5TRU3Npjpua3rxqCgN2Dxzc5WVeKc
-	5h2qQNq4iwp+wMhI8PUnk9WntXh0EMjYoULf5eadmqf1W0zB9I80K4+s+OVmIMGS86k597hc08C
-	aFtJeAFYi0lb0eMQawTAFuTYYDEP8fJXITJ4mUVm7o5tTNGrJUmpgWjxW2iacJ4psj0nJIGzGCX
-	yiicBtu3CajTo9pwOVT9blycVosX0fxjoKSU7fwBc=
-X-Received: by 2002:a17:90b:53cf:b0:354:7e46:4a8e with SMTP id 98e67ed59e1d1-357b50e2d6dmr7124766a91.7.1771243823383;
-        Mon, 16 Feb 2026 04:10:23 -0800 (PST)
-Received: from chandna.localdomain ([106.222.234.211])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-356a69ac09asm5573331a91.0.2026.02.16.04.10.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Feb 2026 04:10:22 -0800 (PST)
-Date: Mon, 16 Feb 2026 17:40:17 +0530
-From: Sahil Chandna <chandna.sahil@gmail.com>
-To: jikos@kernel.org, bentiss@kernel.org, connorbelli2003@gmail.com,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stern@rowland.harvard.edu
-Subject: Re: [PATCH v2] HID: asus: synchronize fn_lock_sync_work
- initialization and teardown
-Message-ID: <aZMJKTHErGipzL0d@chandna.localdomain>
-References: <20260204182029.278659-1-chandna.sahil@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="S7uc1TRl";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="S7uc1TRl"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7D1F43E828;
+	Mon, 16 Feb 2026 13:50:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1771249807; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=sUheDx+jFpdcOOXNRUwWwpTjxD6KJLuI7Tf5F0Uu2ck=;
+	b=S7uc1TRlnpAFZKzK5ItZl3o/fmjZTLjBhde5mi3OXtVofTYfqBT2nPSM5hpI6aPEwM1EGw
+	JFfEmQ14jxIoBFDMoFce99JTvWxc4vv3zcDLGqtz+NsaEQCM0vO0VM5W76WIyOXBkSP15C
+	fXYdF1pOJB5JpkQ36TmdRlt1CGFNXZg=
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=S7uc1TRl
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1771249807; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=sUheDx+jFpdcOOXNRUwWwpTjxD6KJLuI7Tf5F0Uu2ck=;
+	b=S7uc1TRlnpAFZKzK5ItZl3o/fmjZTLjBhde5mi3OXtVofTYfqBT2nPSM5hpI6aPEwM1EGw
+	JFfEmQ14jxIoBFDMoFce99JTvWxc4vv3zcDLGqtz+NsaEQCM0vO0VM5W76WIyOXBkSP15C
+	fXYdF1pOJB5JpkQ36TmdRlt1CGFNXZg=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4C6BE3EA62;
+	Mon, 16 Feb 2026 13:50:07 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id EpH3Bo8gk2k3BAAAD6G6ig
+	(envelope-from <oneukum@suse.com>); Mon, 16 Feb 2026 13:50:07 +0000
+From: Oliver Neukum <oneukum@suse.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCHv2 0/2] hid: hid-pl.c update
+Date: Mon, 16 Feb 2026 14:43:59 +0100
+Message-ID: <20260216134958.260648-1-oneukum@suse.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20260204182029.278659-1-chandna.sahil@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-3.00 / 50.00];
+	BAYES_HAM(-2.99)[99.96%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:dkim,suse.com:mid];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	TO_DN_NONE(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	RCPT_COUNT_THREE(0.00)[3];
+	DKIM_TRACE(0.00)[suse.com:+]
+X-Spam-Flag: NO
+X-Spam-Score: -3.00
+X-Rspamd-Queue-Id: 7D1F43E828
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Level: 
 
-On Wed, Feb 04, 2026 at 11:50:29PM +0530, Sahil Chandna wrote:
->Syzbot reported a workqueue warning where cancel_work_sync() was
->called on an uninitialized work_struct. Fix this by adding a mutex lock and
->initializing fn_lock_sync_work before marking fn_lock as enabled.
->This ensures cancel_work_sync() is only called for an initialized work.
->
->Fixes: f631011e36b8 ("HID: hid-asus: Implement fn lock for Asus ProArt P16")
->Reported-by: syzbot+13f8286fa2de04a7cd48@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=13f8286fa2de04a7cd48
->Suggested-by: Alan Stern <stern@rowland.harvard.edu>
->Signed-off-by: Sahil Chandna <chandna.sahil@gmail.com>
->---
->link to v1: https://lore.kernel.org/all/20260130155204.96831-1-chandna.sahil@gmail.com/
->changes since v1:
->- Add mutex locking between init_work and cancel_work.
->
->Testing:
->- Reproduced bug on local setup and original syz reproducer.
->- Tested with fix and original C reproducer, issue is not reproduced
->locally.
->---
-> drivers/hid/hid-asus.c | 10 ++++++++--
-> 1 file changed, 8 insertions(+), 2 deletions(-)
->
->diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->index 1b9793f7c07e..2d6b6e363bde 100644
->--- a/drivers/hid/hid-asus.c
->+++ b/drivers/hid/hid-asus.c
->@@ -147,6 +147,7 @@ struct asus_drvdata {
-> 	unsigned long battery_next_query;
-> 	struct work_struct fn_lock_sync_work;
-> 	bool fn_lock;
->+	struct mutex lock;
-> };
->
-> static int asus_report_battery(struct asus_drvdata *, u8 *, int);
->@@ -960,8 +961,10 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
-> 	}
->
-> 	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
->-		drvdata->fn_lock = true;
->+		mutex_lock(&drvdata->lock);
-> 		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
->+		drvdata->fn_lock = true;
->+		mutex_unlock(&drvdata->lock);
-> 		asus_kbd_set_fn_lock(hdev, true);
-> 	}
->
->@@ -1258,6 +1261,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> 		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
->
-> 	drvdata->hdev = hdev;
->+	mutex_init(&drvdata->lock);
->
-> 	if (drvdata->quirks & (QUIRK_T100CHI | QUIRK_T90CHI)) {
-> 		ret = asus_battery_probe(hdev);
->@@ -1343,8 +1347,10 @@ static void asus_remove(struct hid_device *hdev)
-> 		cancel_work_sync(&drvdata->kbd_backlight->work);
-> 	}
->
->-	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
->+	mutex_lock(&drvdata->lock);
->+	if ((drvdata->quirks & QUIRK_HID_FN_LOCK) && drvdata->fn_lock)
-> 		cancel_work_sync(&drvdata->fn_lock_sync_work);
->+	mutex_unlock(&drvdata->lock);
->
-> 	hid_hw_stop(hdev);
-> }
->-- 
->2.50.1
->
-Hi, 
-just checking if there is any feedback regarding this patch.
+This seems to have fallen through the cracks. The first
+patch eliminates a failure to properly handle errors
+in probe. We have to give up in the error case or
+a pointer will remain uninitialized and wil eventually be followed.
+Secondly we fix a debug macro by going to dynamic debugging.
 
-regards,
-Sahil
+V2: resend the full series

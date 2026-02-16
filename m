@@ -1,146 +1,117 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228842F9D83;
-	Sun, 15 Feb 2026 20:29:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27BDE7261C
+	for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 03:20:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771187346; cv=none; b=kWNCHAgyuzXjRQfImFvlX9w3D2pXZhdDqxBpJdKGF6KeDeSbMSLajFzEJToLj0x/QfuAnK/PcvC8FYiSZpegiS5ZQ5itbQBQDVBl/QZgNYiZkUlm5QCAEDCr5EgB/VwVppmwFX8R8aMQhXed159+22arpwJbSHozT3xbOF/GhyQ=
+	t=1771212024; cv=none; b=JBNbPJl7iWJXx1ipC2jx1nyW6KUZh3qp09f07qfewxvsM6nlmwEwxhSlpvP29I0WKWulhY4fF40xFO9diy2fl7nn3/gPLqYkW1aGE66DfIQI9EHix2aHjKE3o5Kyx4lCkoChjnAGnC5kpyelvsqJmU2ADcxE75IdM8l9S7rkE1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771187346; c=relaxed/simple;
-	bh=hVLVSplviPu8tm98WtJ2k363b25r3G+Ovp7/xnmIpJs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BSlh2pBSeLdZ5YdtV6c54wKc9TplTcGCF9qqaUWviz38gnNXxA9luJWQEdbCYVmOcANTsees0gcKFBFQLkiB2zg2SnWU98sIC762YoqQ4AvmPciIgMiRT16fv95F3arNJoA6fGsVrSnxFnrmFjRWLMk9jcZWrImzFcuKADho7ME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ED3tmrop; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1771212024; c=relaxed/simple;
+	bh=942O+hf+F5rfx/qQl9prdoFML+eV1a+38fZ2S9Dhrpg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lAtw5UtO049VcqA3hWaTaom/wwuNvf79L59cbuevezWKBY1Kl/3tjXwCE7KgosHVNFnl1qYjDQopr+FPz5rWFrLy+ohGVU8Mim6YuUtiWKVO2H5R9nBlb2co5iZfqExEX5OPeDpkfLBFXEylc1enkD1Cb+2vzracfuodjdQWfps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A8P7G6GX; arc=none smtp.client-ip=74.125.224.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ED3tmrop"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771187345; x=1802723345;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hVLVSplviPu8tm98WtJ2k363b25r3G+Ovp7/xnmIpJs=;
-  b=ED3tmropF3TbJQh8kMDoNBoz45Uv0nHxCj3m7VLOhNugjYnotxKgSzCi
-   Yf86n1aSZ3Bwdi4YAv9bWgW7bQhqFp3Tvs2+dJ38Au2w3b6CIHreFkRir
-   jfGjADfrrgID1yopiN2l57+o4IKVgrOg1tl5N2tw1OH3xHc9PHzsdaIzC
-   Kck/SdDBwJn2IpXq78whMfFDEN+XqSb5MDkmg2UaPf/cEp9b4mwxLe1h2
-   T3TO545rS7Q8yyU0gDq/iSMPEnI9nn6VXfjtyS/+3+kQ7PQE+2pJ0eL9P
-   9YBhn8uUP/MuA+PrOYKpbaNcBHJpOMp4KNf1L65KMSNDArJ3fTPd/IbYo
-   A==;
-X-CSE-ConnectionGUID: gLWbu2mrSU+EJ6JwW9Lt4A==
-X-CSE-MsgGUID: pxhA4nlJRsmMYzVzuPTh4Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11702"; a="72329949"
-X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="72329949"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2026 12:29:04 -0800
-X-CSE-ConnectionGUID: XETOTSvKSHO+C3XiRh4rVg==
-X-CSE-MsgGUID: p/iu48HgScuRC6tyTII80w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="213518818"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa007.jf.intel.com with ESMTP; 15 Feb 2026 12:29:01 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vriji-00000000z8e-1N4C;
-	Sun, 15 Feb 2026 20:28:58 +0000
-Date: Mon, 16 Feb 2026 04:28:11 +0800
-From: kernel test robot <lkp@intel.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v3 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-Message-ID: <202602160408.CZnIzWhv-lkp@intel.com>
-References: <20260214180959.30714-3-clamor95@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A8P7G6GX"
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-64ad019bb5eso2397746d50.1
+        for <linux-input@vger.kernel.org>; Sun, 15 Feb 2026 19:20:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771212021; x=1771816821; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6LGvUKq0n4wsuyCdZHTh6SpLNtepx8NmVuHEeyoSw+8=;
+        b=A8P7G6GXrvglCoYI8FJGKQMtJdXIDwH8OmbXPUqpJupm/JzVjhV9PuaZ94by6obUT7
+         0z1fTtYSd7HOESygpLnUagbgO5FbdSMLuKoPgQuzDCdbWsHHxtKYu+T1YxBu/IVTL8cq
+         hImz93cx4f/fvAqF4iKrajfkgksPa4FkQ4bjfodEhSPGetfMvQKvbIQZu8We+lqjPwGv
+         xXW2BhhAJ5lthRemC6S253jqH5iFe/OpwonY7S8yzca/rsF3Wjl5UE3VI++00uqPcJu2
+         65NBET1qVBxOzBW/EQRoNvQdlGRAkGjQUZxfxlmQkMpQweXN5nYyDIAi0EgznbjvXioG
+         O22g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771212021; x=1771816821;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6LGvUKq0n4wsuyCdZHTh6SpLNtepx8NmVuHEeyoSw+8=;
+        b=gK3lVcgmzwONwTWl8mqFOCISZA7fm6/Qclre3X8sV0EsNrXgaHOzwFEewTKRPSWNEF
+         L63NVFthziVf3qk4e+sdy/HCjzpO+hugc6j5fpz+ZMOR2TBbJlUBF4mqOAp4TAgtZZ8Q
+         LrwfP9ml8JWC/v+DQp27gvV7Xvs6SrZLSzfhrQs0eIX/qn09rk4Yzdp32Ve9yoAoF7Br
+         qboRUdxRyTPpQ5esGwp4CrDNDxN8LxH2fINDpNk1X6Kv1Dbs1TQjNNkQa6qn3ByzmAkg
+         Y0+FwX2jSa+/5dGFXhe6DtZzhd7tVlhNbUoexU/d1AqCMI8z9C1K88mlVYkQd+QRcN4F
+         Ce8g==
+X-Forwarded-Encrypted: i=1; AJvYcCWnGdXDky+o36fyaG4QUXYX86F6ucTRmfRg4qmAeiz1/5P2M+7yojMDWgy5poFClrXiCE2EWaiBYRGYYA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/JRPEUSuIqMMkL5pz2ut0v8djW0GkkI7ErzRmvTz+WPkvTFkG
+	f9mzmU88Y+sLRF4FMNHBxpgUiob5iE+/59fpUHnkYhVuDAUg/IN28Bhj
+X-Gm-Gg: AZuq6aI5KXOuOmWYuLJFpU7oiqCx3c35ncOILhEB3AeHZvix0XhbUGczPa0g+AkP5X7
+	qDPi2nrUcnBPcmxN8oqUlyJPt1qzha6aEN20hRyBwNWUeCY62JuP8pJ4rSTfL7N6PxZM+2ineCk
+	r9ZuivgUP5Si0sL0c8wjlfOHYZo7zVWsIOirL8SkuBMlq3/BbYv3jWH9hvJeowRmFG0Ijxik47D
+	emJGbgCZmaDToAMPh3Xm4DRgNwjlJOjIhzyo9rt+VUyFMQiSFiL+zNWNNTBcdKnZzWdAiG6JHTe
+	EBxUs3e3IW/IPglIWSiYNoUeZ7lbD+oAulqpAMjzwDiRE5SLiq+yLwJdxZALGXzqrwqos0ZLqM7
+	xbAGM0N52KWr8y77nViYxyt0+F6IR8dtHLgVop0XTBCCfGrJ57XGYUEmMsaUOpTq2dwEfDhHvww
+	qtjgAceVVn9Qjf5Our7IDhMkk8tIjf317CiOKeqEUxN3v4MD5CYZTq3fgAmKQGtcFitPrH3Pkc7
+	QwbfPgCf84+kd3B47/DXb5si0nTtewafJuVHun2oZGyhSx93dmQPA==
+X-Received: by 2002:a53:aa4c:0:b0:64a:db8b:e429 with SMTP id 956f58d0204a3-64c19b677fdmr4110257d50.90.1771212021022;
+        Sun, 15 Feb 2026 19:20:21 -0800 (PST)
+Received: from tux ([2601:7c0:c37c:4c00:e3a8:26f7:7e08:88e1])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64c22e6f7e1sm2917849d50.2.2026.02.15.19.20.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Feb 2026 19:20:20 -0800 (PST)
+From: Ethan Tidmore <ethantidmore06@gmail.com>
+To: david@readahead.eu
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ethan Tidmore <ethantidmore06@gmail.com>
+Subject: [PATCH] HID: wiimote: change wiimote_cmd_map_mp() to return void
+Date: Sun, 15 Feb 2026 21:20:03 -0600
+Message-ID: <20260216032003.37959-1-ethantidmore06@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260214180959.30714-3-clamor95@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Svyatoslav,
+The function wiimote_cmd_map_mp() returns bool but no variable is ever
+assigned to its return value. Also, by it returning bool it causes a
+signedness warning from Smatch because wiimote_cmd_write() can return
+-EIO.
 
-kernel test robot noticed the following build warnings:
+Detected by Smatch:
+drivers/hid/hid-wiimote-core.c:510 wiimote_cmd_map_mp() warn: 
+signedness bug returning '(-512)'
 
-[auto build test WARNING on next-20260213]
-[also build test WARNING on linus/master v6.19]
-[cannot apply to dtor-input/next dtor-input/for-linus sre-power-supply/for-next robh/for-next v6.19 v6.19-rc8 v6.19-rc7]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Ethan Tidmore <ethantidmore06@gmail.com>
+---
+ drivers/hid/hid-wiimote-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Svyatoslav-Ryhel/dt-bindings-embedded-controller-document-ASUS-Transformer-EC/20260215-021406
-base:   next-20260213
-patch link:    https://lore.kernel.org/r/20260214180959.30714-3-clamor95%40gmail.com
-patch subject: [PATCH v3 2/7] mfd: Add driver for ASUS Transformer embedded controller
-config: riscv-allyesconfig (https://download.01.org/0day-ci/archive/20260216/202602160408.CZnIzWhv-lkp@intel.com/config)
-compiler: clang version 16.0.6 (https://github.com/llvm/llvm-project 7cbf1a2591520c2491aa35339f227775f4d3adf6)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260216/202602160408.CZnIzWhv-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602160408.CZnIzWhv-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/mfd/asus-transformer-ec.c:234:40: warning: field width should have type 'int', but argument has type 'unsigned long' [-Wformat]
-           dev_dbg(&priv->self->dev, "EC read: %*ph, ret = %d%s\n",
-                                               ~~^
-   include/linux/dev_printk.h:165:31: note: expanded from macro 'dev_dbg'
-           dynamic_dev_dbg(dev, dev_fmt(fmt), ##__VA_ARGS__)
-                                        ^~~     ~~~~~~~~~~~
-   include/linux/dev_printk.h:19:22: note: expanded from macro 'dev_fmt'
-   #define dev_fmt(fmt) fmt
-                        ^~~
-   include/linux/dynamic_debug.h:285:12: note: expanded from macro 'dynamic_dev_dbg'
-                              dev, fmt, ##__VA_ARGS__)
-                                   ^~~    ~~~~~~~~~~~
-   include/linux/dynamic_debug.h:261:59: note: expanded from macro '_dynamic_func_call'
-           _dynamic_func_call_cls(_DPRINTK_CLASS_DFLT, fmt, func, ##__VA_ARGS__)
-                                                                    ^~~~~~~~~~~
-   include/linux/dynamic_debug.h:259:65: note: expanded from macro '_dynamic_func_call_cls'
-           __dynamic_func_call_cls(__UNIQUE_ID(ddebug), cls, fmt, func, ##__VA_ARGS__)
-                                                                          ^~~~~~~~~~~
-   include/linux/dynamic_debug.h:231:15: note: expanded from macro '__dynamic_func_call_cls'
-                   func(&id, ##__VA_ARGS__);                       \
-                               ^~~~~~~~~~~
-   1 warning generated.
-
-
-vim +234 drivers/mfd/asus-transformer-ec.c
-
-   227	
-   228	static int asus_ec_read(struct asus_ec_data *priv, bool in_irq)
-   229	{
-   230		int ret = i2c_smbus_read_i2c_block_data(priv->self, ASUSEC_READ_BUF,
-   231							sizeof(priv->ec_data),
-   232							priv->ec_data);
-   233	
- > 234		dev_dbg(&priv->self->dev, "EC read: %*ph, ret = %d%s\n",
-   235			sizeof(priv->ec_data), priv->ec_data,
-   236			ret, in_irq ? "; in irq" : "");
-   237	
-   238		return ret;
-   239	}
-   240	
-
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 5b5fc460a4c5..c4d11ff3c898 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -487,7 +487,7 @@ static int wiimote_cmd_init_mp(struct wiimote_data *wdata)
+ }
+ 
+ /* requires the cmd-mutex to be held */
+-static bool wiimote_cmd_map_mp(struct wiimote_data *wdata, __u8 exttype)
++static void wiimote_cmd_map_mp(struct wiimote_data *wdata, __u8 exttype)
+ {
+ 	__u8 wmem;
+ 
+@@ -507,7 +507,7 @@ static bool wiimote_cmd_map_mp(struct wiimote_data *wdata, __u8 exttype)
+ 		break;
+ 	}
+ 
+-	return wiimote_cmd_write(wdata, 0xa600fe, &wmem, sizeof(wmem));
++	wiimote_cmd_write(wdata, 0xa600fe, &wmem, sizeof(wmem));
+ }
+ 
+ /* requires the cmd-mutex to be held */
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.53.0
+

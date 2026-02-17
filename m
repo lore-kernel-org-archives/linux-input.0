@@ -1,146 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f74.google.com (mail-wr1-f74.google.com [209.85.221.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D69D736C581;
-	Tue, 17 Feb 2026 15:51:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49E3036B079
+	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 16:01:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771343460; cv=none; b=AprBNymwSdDQ9qTeldNRF4bKuV931ZROgI5hZ2+ddC/2F5mYdcgsQCryw7RrW/3D74gnrZMpIjCVkX1kJ6DBOrKn2en6Fm/GCLE6qAyfVkPqnKwTEhH6P9iwt+IOSI8MSRndgEog+C9cfwobJkpx/wzzlUQOFWBtdjDEo3ONJRU=
+	t=1771344105; cv=none; b=YAWkorthrdcvm68MEsYCjLi7bPvtB9qbjo+QU0CK6Zo8HswrMTumUcrdbzMgPJk0p8fZDWTMk9AshHsrB59aqXEe2Fv8U1BBVRFBGpqqSXat+PbQwrkmV6UrXBzZ1+39NDhKlyHyXCh8NZ5WD1Ds1xt8EluA+axqcBFVBfeJnCA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771343460; c=relaxed/simple;
-	bh=F3tr3dTMqJx3SD92fKDrGHKnROwGZ6bJ78jeAepD7a4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ejh9EoALS2prHLwkHifzDq0Q5GNqY5OXTAYrhQbZgQB6zrR42gmwii/IP0AVNj3eKIhbdmz2e0klMFNaq683dmutODDv93BX9urwjimZb0PMiWsFCphtfRXK4TmTDsLumgNgnNLkAO4f4pbW/W1wbpH0LPiGESPZGbdyVuz3OOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MNw6hdMT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771344105; c=relaxed/simple;
+	bh=iHmZ4x5Vn0J649Q2pkliTeC1eYINFiSsHq8vKWdGDDE=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=exZbMiMmUNaptQB/bimN9UmkFmJC0vgRrzNwfonZ/Jycuo+NA5abt3rGz18rXjnmEn5UHUVddhgWDIQIBxvndCqfafpcHfjFVzzonaufXI3mjIYz8BY5c46ykNkeXiy9m8Qib1TDr/23P68bpXCm0gh3PqwaegdZhx/ZHBLm2O8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--gnoack.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PDUaOtSe; arc=none smtp.client-ip=209.85.221.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--gnoack.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MNw6hdMT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84071C4CEF7;
-	Tue, 17 Feb 2026 15:50:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771343460;
-	bh=F3tr3dTMqJx3SD92fKDrGHKnROwGZ6bJ78jeAepD7a4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=MNw6hdMTPCx7nqnz+wvSOwxVvNZ0I/reKjeODpt36xYllBHz1Rh+MlQhUAz0HzUtA
-	 m5rSpqP1FNE1yBLk3SRm1RhvmDF3wHln9KJO3y4YxVgajtf72Ogl+dHANCqKy0VU3R
-	 O2h42mALLS/iDwxKS6KYIIt+OncvDeRY0IyK2Lz7ODueiYx6NvsSEoi49UkYo5xggX
-	 94Sm+1a79cVVqV+5bRpVdgbfQU6bO0n0b7Jd7YV9vRPLcQTvbKQ0R7xozwS1UsLO4l
-	 h0PTRTUhuos5CSJqQVm7MW+lJqvedInn/xifPZAo1qyOjlDpHPZ/sMQ6sbkGxHefpp
-	 bmq+P0cIoNCxQ==
-Date: Tue, 17 Feb 2026 15:50:55 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v3 1/7] dt-bindings: embedded-controller: document ASUS
- Transformer EC
-Message-ID: <20260217-tableful-arbitrate-169030e4fb11@spud>
-References: <20260216-sprung-scallop-de7b64bf528c@spud>
- <CAPVz0n06+uLCSfY_bYS9v7KJ-hXotye7ej-rze6-Q8_JAF7XVA@mail.gmail.com>
- <20260216-plunder-defense-de11cf56dd3d@spud>
- <CAPVz0n0-LbTUZBCaO=oN3PpPLpwAqzNo29r687pKY8NbEE9giA@mail.gmail.com>
- <20260217-vowed-botany-b1c47c7e40b8@spud>
- <55C30023-4175-48F2-BCB0-12EC23C48F01@gmail.com>
- <1519143e-4fc3-490d-ab8d-e65edd2c4eec@kernel.org>
- <81844CC9-5355-4B1D-AEBD-6DD67FB8C81B@gmail.com>
- <20260217-dig-husked-8a59b6a19aee@spud>
- <CAPVz0n0u7uhL8_FQFiuB7DrnL++ecbaEKEoV7N2PgTVRBVECkw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PDUaOtSe"
+Received: by mail-wr1-f74.google.com with SMTP id ffacd0b85a97d-43591aacca2so4183612f8f.1
+        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 08:01:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1771344103; x=1771948903; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=qnRh0lA3B1U30SyK+gpMCmGhg6iwBc2oClXC6RFEEY0=;
+        b=PDUaOtSeZhkokyiiAJmO2wj/w5y3TpzvNfAAreHpmgAFerUnH0LhEncvQmH5z6oV5D
+         E2ET9o33zDlIWoNnHPhDeGENbWf+b+GCwPpEIkbE2zmlX4D+MW7/c8TDGlnO0uGyc52s
+         XATVsdj4fEopwiZV2JRuJ9z6Xb0mx+Z3Ftz/O7GStO1JwLIqdNlsUXApwKoV7L0Mo9n4
+         Ykg8byfLQrsDfP3X5QvazFgne+eGV6XNTkbNx81L+xff6o1KDIW3cF2/POojhBAwx8hh
+         xTeJLNR+zSKefw4JTFbtJ5fvWqD0Yd2+WaRvMp2tL0Nh5cisgpKWklR7Ae9fkr3ixK91
+         W1xA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771344103; x=1771948903;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qnRh0lA3B1U30SyK+gpMCmGhg6iwBc2oClXC6RFEEY0=;
+        b=EvoBna1zEuVNsDPi+0+mNp74C2piM3uHOzD/eJDc2dP0aY4VSR1w7Hsdsyb1fmw0DP
+         5bSHJiZYwxTlCrrv7LA98jsqn/jLIuk7eJ2L/4TRvjTbFP/ik8d2Rue7opFfVCt8oo6U
+         U6f4cv20VVnMKE5534+twzULPCEyrytl3EKypzlkZ2TDxLTZ6s+M6N1pqgNCn6XIR023
+         Bn9wU6pxk+tpfM1hxmZrl1MtWhh3blFLJbptOf6UeK7Ciw4TRFEZ0Ndi7SlsBIDR8nhw
+         7V7sHXFWekpu0m/dDxgutFrrKGxxZy0AAJ5/ewp9CH6rzDI6hQXXNzUnODSJhrr4pjP5
+         Clmg==
+X-Forwarded-Encrypted: i=1; AJvYcCXz5qjm9/pEMYJrg5kC3jGsgBJ15+j/lCUhu39bcyw3PL7jUXPN+txbgaU96e1UCk6PivmyrGuues9Sdg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVOMZ6DPwGGNdEFYeVVo4PCy1WfVG8H8hBsGCq8QWvpTPi07SG
+	czW+Jm0JOKv+YmNbBitSB+4dtZOE/+z3D+FirtU5j0ROdb1uyDI2Fl+5fpvii48H0sYZT4iivUc
+	O2ifUxA==
+X-Received: from wrtp15.prod.google.com ([2002:a5d:4e0f:0:b0:436:198:b7af])
+ (user=gnoack job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6000:2403:b0:437:75c1:578d
+ with SMTP id ffacd0b85a97d-437978c792bmr27445209f8f.11.1771344102413; Tue, 17
+ Feb 2026 08:01:42 -0800 (PST)
+Date: Tue, 17 Feb 2026 17:01:22 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="CFX4Gs6NaZQ9iQTz"
-Content-Disposition: inline
-In-Reply-To: <CAPVz0n0u7uhL8_FQFiuB7DrnL++ecbaEKEoV7N2PgTVRBVECkw@mail.gmail.com>
-
-
---CFX4Gs6NaZQ9iQTz
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.335.g19a08e0c02-goog
+Message-ID: <20260217160125.1097578-1-gnoack@google.com>
+Subject: [PATCH 0/3] HID: Fix some memory leaks in drivers/hid
+From: "=?UTF-8?q?G=C3=BCnther=20Noack?=" <gnoack@google.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	"=?UTF-8?q?G=C3=BCnther=20Noack?=" <gnoack@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 17, 2026 at 04:29:59PM +0200, Svyatoslav Ryhel wrote:
-> =D0=B2=D1=82, 17 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 16:03 Co=
-nor Dooley <conor@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> > On Tue, Feb 17, 2026 at 01:34:01PM +0200, Svyatoslav Ryhel wrote:
-> > > 17 =D0=BB=D1=8E=D1=82=D0=BE=D0=B3=D0=BE 2026=E2=80=AF=D1=80. 13:32:26=
- GMT+02:00, Krzysztof Kozlowski <krzk@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+Hello!
 
-> > > >> properties:
-> > > >>   compatible:
-> > > >>       - items:
-> > > >>           - enum:
-> > > >>               - asus,p1801-t-ec-pad
-> > > >>               - asus,sl101-ec-dock
-> > > >>               - asus,tf101-ec-dock
-> > > >>               - asus,tf101g-ec-dock
-> > > >>               - asus,tf201-ec-dock
-> > > >>               - asus,tf201-ec-pad
-> > > >>               - asus,tf300t-ec-dock
-> > > >>               - asus,tf300t-ec-pad
-> > > >>               - asus,tf300tg-ec-dock
-> > > >>               - asus,tf300tg-ec-pad
-> > > >>               - asus,tf300tl-ec-dock
-> > > >>               - asus,tf300tl-ec-pad
-> > > >>               - asus,tf700t-ec-dock
-> > > >>               - asus,tf700t-ec-pad
-> > > >>               - asus,tf600t-ec-pad
-> > > >>               - asus,tf701t-ec-pad
-> > > >>           - const: asus,transformer-ec
-> > > >>
-> > > >> And them schema name will match the genetic compatible.
-> > > >
-> > > >Then what does the generic compatible express?
-> > > >
-> > >
-> > > Then enum it is
-> >
-> >
-> > Why would you do that, instead of what I posted earlier in the thread?
-> > If you send a flat enum with all devices listed, I'm gonna just be there
-> > telling you to consolidate into one device-specific fallback compatible
-> > per programming model.
->=20
-> There is no one device-specific fallback compatible! Schema describes
-> HARDWARE not drivers no? I will not use random device compatible from
-> the list as a fallback compatible for a different random unrelated
-> device, that is plain wrong.
+These patches fix a few memory leaks in HID report descriptor fixups.
 
-Which is why I am not mentioning drivers at all, and instead talking about
-programming models. Fallback compatibles represent similarities in
-programming model, even if the laptop that these devices are contained
-in are different, so whatever device compatible you pick might be random
-(but going chronologically is usually my recommendation) but it won't be
-unrelated.
+FWIW, a good ad-hoc way to look for usages of allocation functions in
+these is:
 
-> Discuss this with Krzysztof and come up with something meaningful please.
+  awk '/static.*report_fixup.*/,/^}/ { print FILENAME, $0 }' drivers/hid/hi=
+d-*.c \
+    | grep -E '(malloc|kzalloc|kcalloc|kmemdup)'
 
-If you don't consider my reviews to be meaningful, you're welcome to
-carry a Nacked-by: Conor Dooley <conor.dooley@microchip.com> with a link
-to this discussion instead.
+The devm_* variants are safe in this context, because they tie the
+allocated memory to the lifetime of the driver.
 
-Thanks,
-Conor.
+For transparency, I generated these commits with Gemini-CLI,
+starting with this prompt:
 
---CFX4Gs6NaZQ9iQTz
-Content-Type: application/pgp-signature; name="signature.asc"
+    We are working in the Linux kernel. In the HID drivers in
+    `drivers/hid/hid-*.c`, the `report_fixup` driver hook is a function
+    that gets a byte buffer (with size) as input and that may modify that
+    byte buffer, and optionally return a pointer to a new byte buffer and
+    update the size.  The returned value is *not* memory-managed by the
+    caller though and will not be freed subsequently.  When the
+    `report_fixup` implementation allocates a new buffer and returns that,
+    that will not get freed by the caller.  Validate this assessment and
+    fix up all HID drivers where that mistake is made.
 
------BEGIN PGP SIGNATURE-----
+(and then a little bit of additional nudging for the details).
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaZSOXwAKCRB4tDGHoIJi
-0lKEAQCMn1RQWiz2XuWSwPyIQrFeNcdgS1xJdgNETKYUnIvdvAD/a48ii+2SjLok
-p8k8vgDRIULg8VXMLV8Zc8SI2pGg9QA=
-=w/4u
------END PGP SIGNATURE-----
+=E2=80=94G=C3=BCnther
 
---CFX4Gs6NaZQ9iQTz--
+
+G=C3=BCnther Noack (3):
+  HID: apple: avoid memory leak in apple_report_fixup()
+  HID: magicmouse: avoid memory leak in magicmouse_report_fixup()
+  HID: asus: avoid memory leak in asus_report_fixup()
+
+ drivers/hid/hid-apple.c      |  4 +---
+ drivers/hid/hid-asus.c       | 15 +++++++++++----
+ drivers/hid/hid-magicmouse.c |  4 +---
+ 3 files changed, 13 insertions(+), 10 deletions(-)
+
+--=20
+2.53.0.335.g19a08e0c02-goog
+

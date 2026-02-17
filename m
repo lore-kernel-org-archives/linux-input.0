@@ -1,205 +1,172 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C8936C0D8
-	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 14:30:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771338613; cv=pass; b=CSNidRdBEAKYc3bfINwEDB9MbnaIZE4CZhKZs/fbHzcGeA2nSrqsPdspG7Ve8k3QC+6zoYVrGvrt7QO2dR0ZZV6Br5dpHQYKRF05LjRUrn6Ji2QCh69OY0SmQ7qTY92l3Owd+OcHXHBZ2V9N13fhjUSveFlcFcG/T98zYHMlt0w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771338613; c=relaxed/simple;
-	bh=xgEp0OxlcQGQ7e2PjqAvPQDJsGSUceDoN/FTA2D933g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kfwHnJIuv02cd2rXo3oVXl6UTdN7J3j9Pa+YJ227HP9w8hgUZOV6MjLEjW3muX+nKiZTq+7FlAiUG4ZwqntPp1aI6CfcKtFxjWwEUdJtLI60dNbkLQ3npw56gVFkdB6I7J0eJXbbswlsB6BYRXf1+Ch3iV1bN4ibUXtjM3i9s8E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=biGqLMoU; arc=pass smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AD3D36C585;
+	Tue, 17 Feb 2026 14:44:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771339456; cv=none; b=Qw8UWrWIAIe4HFrENPTvn/s8UfvuqDtnmJDOlUt2PcnrJVW3UBu0RPc+vMTXgeyZ1N2AzoyAnIEfgdcp2Yl53yitEoHdWfg/33Yj4a69l2jsCMZkS1+QIXUVXN38Vpn7iZhdLIpSst/13G0J6WbUNjS5VaI4YBfxIQxDHKUCZ00=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771339456; c=relaxed/simple;
+	bh=7x8PAumHWpR5a9VWothbMAohjfnlp4xMz2P7FHu80Tg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FvkVmYR/GoqcylLn+Re2OOKd6JVbMkTvHH7BnqfVxhE2MQd8kxFiI6TU5j0uEAVjwRM0XqbujszcyoETSQm3x2HdnHC34BTDoh5rALifvWtUHm2GNFP6pcc8EU3SRJz3kkZQlk4JoHDsun/pfgaGb5AjZtsEpBx3F4y5VvpoT1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kto6LC5Y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="biGqLMoU"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-4362d4050c1so4917711f8f.2
-        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 06:30:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771338610; cv=none;
-        d=google.com; s=arc-20240605;
-        b=J+Lghdscdd51O6i4bA33TRLTnMVPvRl7JNgV66UViAYIkArrPd3vELJDtYBHKaYUV4
-         yfZlpDv3qCLWq772qvQdridTMS/3l5oT2CrFfUOO13RPcFwPWS5ZzTqnTJ1L90V45N0u
-         iAImKH5q1gwYJ3KFlImhlaeoH6COVxGA/0koEzH/THNR0/++gT3YCCYXINOzo1m4sx5K
-         VX1aRp1VSbN7VOKdQJJ+TVJQ0w3BRPrktWdib3ASBpejTpSPTQ4l6EOEwrLDYAYvu9B5
-         L2U5rvJykTI5uM9iXqwfvGGOU4moO5yODUyOBSsTxflDqLVOLAndizUJxZHqbMX7J+6L
-         +r1g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=VEXatnwqoQncMhu3mEDseyvqdEZczrLmCyrd4Zj7SDE=;
-        fh=9iiAXFne+kOOavEKP8lhMVfheXADStaT0Nxokbw9bMs=;
-        b=bg/2itEPDv9f9RoccUeUURfMTnb33rk6bCWdndbeq/v2YsyslvXtGaR/spwyg1ms4H
-         WGUaV/4PDKwTburwsEMIy4Mo4mtOf5coABgN4C8wWk4F0h9GbMPYwYtPM8lLrAjq8iOo
-         DW0RzFYEks6PbCgCylNtyiWQwzm0rPUE2lWuPuxsPF8BRaauH/d2vvdD1DjeZ49nsRZ2
-         I7LGrkWmwjzm164lxDn7bS80qcgATSHt3dSeugmtBLobvw0+IVJoarkZnqWBGDcMoYza
-         71jal8TCFK2pqCiYy1wCEAN2LaBUU+wz0TLLj7I+5sgReg5ftGc92XXP11xW9aRSWJ+1
-         z9Yw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771338610; x=1771943410; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VEXatnwqoQncMhu3mEDseyvqdEZczrLmCyrd4Zj7SDE=;
-        b=biGqLMoUinuXrScyEXxEfk4PfQt7PiiEuJlHjTXqzmcLuZrAhUOC7F+aTKrIu3Ro8L
-         EIu/ck8AX8uYJ2jc9IuNMAacAXmwnuAcmd4O3s/0t6Pa211MTaIOutHt19aWHcq7n+GY
-         TOVmNM1N8SnioBf3bIZC92PsGuLiRMyzRwk2Cv/yzA25EQN4HH2LuwEN9vESne9R4epT
-         d2QXYa+AtGhwHopXPCM5YnD24xLB3fYZ/sWRb65b/6Nan4e4Wooumq+GVMSmKR3IcNC9
-         B2GU2zbDox2aSRIP/cMTIaVXesmvE4k+qWrxOtu6nxuBUvisuXPplrSkbwlM13YVs6KQ
-         YtEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771338610; x=1771943410;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=VEXatnwqoQncMhu3mEDseyvqdEZczrLmCyrd4Zj7SDE=;
-        b=HAnojEEPkFD03hOTtEImOB5lJ53bY12kvl0A6Vb4+xY4OzKRw9bqXDq6A1TGfU+0Lw
-         fioCGPhr+h0uZ0hukupOSl0oLVgCaLNaAo4PGWEsIFef8TW1gheH30l3dPVDXsrGJewJ
-         54jvPzeZeahiSIchx/t8R/K2uIXQU67rsmRMPuRD21ixMVsV4SwwQzRrxZNzkrKWE+JO
-         D5kRIuv41fSaISbVebQumx6GC8hQJqNhkulv5qRXLGYjEE4ZWyG078qQtcIv98WImfzG
-         k5H9Q1pmv6nr+Z1p5qM8gLZVSReaxY0He4QcdT/D4IeEObTukT2jErYODh0JUUPwBDkt
-         +70A==
-X-Forwarded-Encrypted: i=1; AJvYcCUj85H4SU8MC0tqNs02MhXFCPPhtmman0XkzgBEGeUaBmJn8yQVjlfeFmDIjyz8bfLzWASfXjSHHHSb8g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzxe/GRIEL3i7bh4TpUO6tE7W1ViqkDk1IxbvpPcW3QwTqXu3Ni
-	taKcix4XS0AOtg8+1+0l0iADtJxdBraPu0g+9izyKjYKtxrNp4sOKDaDAegb+dgtpDAc/S+9Cwl
-	WyKrFgjd5efaCnuDXXyfSjt6RYg4lW24=
-X-Gm-Gg: AZuq6aLiC9x+EqG7QIWWvrEm05Vxn52qSb/fn3eCM5HeRpBo0HPEQrfrbnISyqIun/g
-	99RajM+XWEy00Z8RDGMh6si1Br3syul+LzkYyh3a8ulLHOhby+Has58nZqIbDdb0jaeg07dhZbz
-	mVzrk/OLFdHM4Wej2y4GFDFGD6LEqmDN+rwVJebpPHtvlsDrqHWsVLRkMqEmh1GNXrtI2MeN9sr
-	eToSu0ZpJt+3pyBXH51z5IUHCsA+gX7+KoRuMGteZyn6YFbtlEW+QH5hWDYZbKc/md9OND8GOXL
-	juoSxCly
-X-Received: by 2002:a05:6000:2502:b0:436:684:b94a with SMTP id
- ffacd0b85a97d-437978c9ecamr23859985f8f.4.1771338610325; Tue, 17 Feb 2026
- 06:30:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kto6LC5Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61150C19423;
+	Tue, 17 Feb 2026 14:44:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771339455;
+	bh=7x8PAumHWpR5a9VWothbMAohjfnlp4xMz2P7FHu80Tg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Kto6LC5Y1LCw52lMd+BvMIVmHPCGTTLTfUFidvefRdi2E451jW6HQXoX8e1XKLxVA
+	 P9yFrZ4GvkM9dufNcyeLgy3Ym2zuRfDWt00BvXuXsiLQXcdgyLX1gyZET+b8et/QUa
+	 FOa0N9VRreQjmbgGo5t0luzOAqU+rb/1AL3FCZLG4DAJqvYPg7ozE74w6xA/OC342G
+	 atJXzuuxhp9dX4D3ZY86/KxUwfC56/AjEID8Fq+ecvpKlkNhQ2ce6c4C6WhscKaBgU
+	 XHwnfILWboSl6P+5x1uOYiAQJZM9NbUg+RCS2jtteEtJz6JR1b1kqY/eOuFyJ2sSv6
+	 UZPldwBNX3cOw==
+Message-ID: <0cb77c7e-8759-447d-8689-984b7590b43d@kernel.org>
+Date: Tue, 17 Feb 2026 15:44:10 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260214180959.30714-1-clamor95@gmail.com> <20260214180959.30714-2-clamor95@gmail.com>
- <20260216-sprung-scallop-de7b64bf528c@spud> <CAPVz0n06+uLCSfY_bYS9v7KJ-hXotye7ej-rze6-Q8_JAF7XVA@mail.gmail.com>
- <20260216-plunder-defense-de11cf56dd3d@spud> <CAPVz0n0-LbTUZBCaO=oN3PpPLpwAqzNo29r687pKY8NbEE9giA@mail.gmail.com>
- <20260217-vowed-botany-b1c47c7e40b8@spud> <55C30023-4175-48F2-BCB0-12EC23C48F01@gmail.com>
- <1519143e-4fc3-490d-ab8d-e65edd2c4eec@kernel.org> <81844CC9-5355-4B1D-AEBD-6DD67FB8C81B@gmail.com>
- <20260217-dig-husked-8a59b6a19aee@spud>
-In-Reply-To: <20260217-dig-husked-8a59b6a19aee@spud>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Tue, 17 Feb 2026 16:29:59 +0200
-X-Gm-Features: AaiRm527JrR1d9ft4Dd7Ae54Z5WSVlmOfX8realrnvc6GC-L9yzztDY8UwpAN6o
-Message-ID: <CAPVz0n0u7uhL8_FQFiuB7DrnL++ecbaEKEoV7N2PgTVRBVECkw@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 1/7] dt-bindings: embedded-controller: document ASUS
  Transformer EC
-To: Conor Dooley <conor@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>, 
-	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Svyatoslav Ryhel <clamor95@gmail.com>, Conor Dooley <conor@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>,
+ Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+ Ion Agorria <ion@agorria.com>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?=
+ <mirq-linux@rere.qmqm.pl>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+References: <20260214180959.30714-1-clamor95@gmail.com>
+ <20260214180959.30714-2-clamor95@gmail.com>
+ <20260216-sprung-scallop-de7b64bf528c@spud>
+ <CAPVz0n06+uLCSfY_bYS9v7KJ-hXotye7ej-rze6-Q8_JAF7XVA@mail.gmail.com>
+ <20260216-plunder-defense-de11cf56dd3d@spud>
+ <CAPVz0n0-LbTUZBCaO=oN3PpPLpwAqzNo29r687pKY8NbEE9giA@mail.gmail.com>
+ <20260217-vowed-botany-b1c47c7e40b8@spud>
+ <55C30023-4175-48F2-BCB0-12EC23C48F01@gmail.com>
+ <1519143e-4fc3-490d-ab8d-e65edd2c4eec@kernel.org>
+ <81844CC9-5355-4B1D-AEBD-6DD67FB8C81B@gmail.com>
+ <20260217-dig-husked-8a59b6a19aee@spud>
+ <CAPVz0n0u7uhL8_FQFiuB7DrnL++ecbaEKEoV7N2PgTVRBVECkw@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <CAPVz0n0u7uhL8_FQFiuB7DrnL++ecbaEKEoV7N2PgTVRBVECkw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-=D0=B2=D1=82, 17 =D0=BB=D1=8E=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 16:03 Cono=
-r Dooley <conor@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Tue, Feb 17, 2026 at 01:34:01PM +0200, Svyatoslav Ryhel wrote:
-> >
-> >
-> > 17 =D0=BB=D1=8E=D1=82=D0=BE=D0=B3=D0=BE 2026=E2=80=AF=D1=80. 13:32:26 G=
-MT+02:00, Krzysztof Kozlowski <krzk@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> > >On 17/02/2026 12:23, Svyatoslav Ryhel wrote:
-> > >>>> in other words you propose this:
-> > >>>>
-> > >>>> properties:
-> > >>>>   compatible:
-> > >>>>     oneOf:
-> > >>>>       - items:
-> > >>>>           - enum:
-> > >>>>               - asus,sl101-ec-dock
-> > >>>>               - asus,tf101-ec-dock
-> > >>>>               - asus,tf101g-ec-dock
-> > >>>>               - asus,tf201-ec-dock
-> > >>>>               - asus,tf300t-ec-dock
-> > >>>>               - asus,tf300tg-ec-dock
-> > >>>>               - asus,tf300tl-ec-dock
-> > >>>>               - asus,tf700t-ec-dock
-> > >>>>           - const: asus,transformer-ec-dock
-> > >>>>
-> > >>>>       - items:
-> > >>>>           - enum:
-> > >>>>               - asus,p1801-t-ec-pad
-> > >>>>               - asus,tf201-ec-pad
-> > >>>>               - asus,tf300t-ec-pad
-> > >>>>               - asus,tf300tg-ec-pad
-> > >>>>               - asus,tf300tl-ec-pad
-> > >>>>               - asus,tf700t-ec-pad
-> > >>>>               - asus,tf600t-ec-pad
-> > >>>>               - asus,tf701t-ec-pad
-> > >>>>           - const: asus,transformer-ec-pad
-> > >>>>
-> > >>>> And in the driver add match to every single entry of enums?
-> > >>>
-> > >>> No, I was talking about removing the generic compatibles entirely, =
-since
-> > >>> they are not suitably generic to cover all devices at the point of
-> > >>> addition. So like:
-> > >>>
-> > >>
-> > >> Actually, they all can be grouped under asus,transformer-ec fallback=
- if that is needed, both pad and dock EC have the same core functions just =
-different set of cells. And then in the driver each compatible will get a d=
-edicated matching data. Will this work?
-> > >
-> > >Then what does the generic compatible express if it is not used by the=
- SW.
-> > >
-> > >Wrap your emails to mailing list style.
-> > >
-> > >>
-> > >> properties:
-> > >>   compatible:
-> > >>       - items:
-> > >>           - enum:
-> > >>               - asus,p1801-t-ec-pad
-> > >>               - asus,sl101-ec-dock
-> > >>               - asus,tf101-ec-dock
-> > >>               - asus,tf101g-ec-dock
-> > >>               - asus,tf201-ec-dock
-> > >>               - asus,tf201-ec-pad
-> > >>               - asus,tf300t-ec-dock
-> > >>               - asus,tf300t-ec-pad
-> > >>               - asus,tf300tg-ec-dock
-> > >>               - asus,tf300tg-ec-pad
-> > >>               - asus,tf300tl-ec-dock
-> > >>               - asus,tf300tl-ec-pad
-> > >>               - asus,tf700t-ec-dock
-> > >>               - asus,tf700t-ec-pad
-> > >>               - asus,tf600t-ec-pad
-> > >>               - asus,tf701t-ec-pad
-> > >>           - const: asus,transformer-ec
-> > >>
-> > >> And them schema name will match the genetic compatible.
-> > >
-> > >Then what does the generic compatible express?
-> > >
-> >
-> > Then enum it is
->
->
-> Why would you do that, instead of what I posted earlier in the thread?
-> If you send a flat enum with all devices listed, I'm gonna just be there
-> telling you to consolidate into one device-specific fallback compatible
-> per programming model.
+On 17/02/2026 15:29, Svyatoslav Ryhel wrote:
+>>>>> properties:
+>>>>>   compatible:
+>>>>>       - items:
+>>>>>           - enum:
+>>>>>               - asus,p1801-t-ec-pad
+>>>>>               - asus,sl101-ec-dock
+>>>>>               - asus,tf101-ec-dock
+>>>>>               - asus,tf101g-ec-dock
+>>>>>               - asus,tf201-ec-dock
+>>>>>               - asus,tf201-ec-pad
+>>>>>               - asus,tf300t-ec-dock
+>>>>>               - asus,tf300t-ec-pad
+>>>>>               - asus,tf300tg-ec-dock
+>>>>>               - asus,tf300tg-ec-pad
+>>>>>               - asus,tf300tl-ec-dock
+>>>>>               - asus,tf300tl-ec-pad
+>>>>>               - asus,tf700t-ec-dock
+>>>>>               - asus,tf700t-ec-pad
+>>>>>               - asus,tf600t-ec-pad
+>>>>>               - asus,tf701t-ec-pad
+>>>>>           - const: asus,transformer-ec
+>>>>>
+>>>>> And them schema name will match the genetic compatible.
+>>>>
+>>>> Then what does the generic compatible express?
+>>>>
+>>>
+>>> Then enum it is
+>>
+>>
+>> Why would you do that, instead of what I posted earlier in the thread?
+>> If you send a flat enum with all devices listed, I'm gonna just be there
+>> telling you to consolidate into one device-specific fallback compatible
+>> per programming model.
+> 
+> There is no one device-specific fallback compatible! Schema describes
+> HARDWARE not drivers no? I will not use random device compatible from
 
-There is no one device-specific fallback compatible! Schema describes
-HARDWARE not drivers no? I will not use random device compatible from
-the list as a fallback compatible for a different random unrelated
-device, that is plain wrong. Discuss this with Krzysztof and come up
-with something meaningful please.
+You came with "asus,transformer-ec" as fallback which is same random
+choice, so how one random device is okay, but other not? We asked to use
+some meaningful device as fallback, to the best of current knowledge.
+
+> the list as a fallback compatible for a different random unrelated
+> device, that is plain wrong. Discuss this with Krzysztof and come up
+> with something meaningful please.
+
+It is not pleasant to review your patches. This happened in the past [1]
+and recently is not getting better. In multiple threads. Receiving
+half-baked responses to actual review questions means you do not value
+our time. I think you somehow annoyed, offended or wasted time of all
+three DT maintainers.
+
+Well, sure, happens.
+
+Just understand there might be a reason when your patches do not receive
+attention or reviews.
+
+[1]
+https://lore.kernel.org/r/CAPVz0n09ZP1i2tasdTvnt8RvjhALvUYjv9u_EGRtnXPOYQtuqQ@mail.gmail.com/
+
+Best regards,
+Krzysztof

@@ -1,74 +1,73 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19CC736F437
-	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 19:51:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB2729AB02
+	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 20:09:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771357873; cv=none; b=YBbeA+4GCXYq272tNsc6h7hXKJfXhYn031OjIZqZ6jynMC2tfm2AVMbjIe1004BJK3JZalCqWi3sMVSd3BVujdRxWIFiwxB7G/nAUjIjuQhsJkLF9Ke20wix/+dN9U5TvR0LTFp2VI9tWQYHun5IyDaPSza776zV8uGEHZSNq/8=
+	t=1771358946; cv=none; b=bO2kLdoQnyWGv+XNBZy7BrA9zjgaJLoLy/nRtbl+x97wGN5jRldEJErrXDfs3HUj88n3JWkPUALpqA0oJjnTgUzDAga05T0ga9vUokGgDVNPNjVjbNj89/MhK4vF4gHSQdOUBNlWRXSXdhJXKcwnro4u/p68aEpS3dJgHEMBUPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771357873; c=relaxed/simple;
-	bh=0ylqJ8dbg3vKa9h1x1fhdHgq5lHNwWxKQIXM7jtdBYc=;
+	s=arc-20240116; t=1771358946; c=relaxed/simple;
+	bh=o0vbhrwEPUW5Jv+ySCaUz0Lh9SolmQw6jDSes2hfZz8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bYjq2g1HeeXPdMpxKf4NnZrsdi/DJ2qj3OMgchFXOJrcJuJ3hUhkt/4yzUfqXMcGULr5zeRTZ/jtnkLDZ1Qy8xlbEdhWd1swVGAydpFjM3/uG+3/qkTjVKLvbQO9vfze7zOxIwDZnSib/pfpwSbr72qhlkRX7wcl0bBBet3YrD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=0a9tXVdA; arc=none smtp.client-ip=209.85.208.51
+	 Content-Type:Content-Disposition:In-Reply-To; b=K1k8i9X50LoE4gFxibKxZF8Ny+PcqTaAWv7LP6bgadfmdS9q1rk5yQ0KgOMJgiMT2yJqSfZ8gTy50+ycQ3zOxaokq5uzpAX8xBNgW2fzf5y/OF1LtfdY10Z3kkD6WIKDoc6ChOmqk6a71h+00+3XAp6MSwt3b9YIVqHmM+G5tJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JjMJE5kG; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="0a9tXVdA"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-65c5a778923so1306800a12.2
-        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 11:51:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JjMJE5kG"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4836e3288cdso1157125e9.0
+        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 12:09:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1771357870; x=1771962670; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1771358944; x=1771963744; darn=vger.kernel.org;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=8NMx17lfk0z1vTpalGUqUAQiCsJfCCjhwGFwiUMogkg=;
-        b=0a9tXVdAkxZ1E2TWZAZik0/15y69vUezzJ71GN0+DJQGKyfBYFdfVWiq/uZ4K+XqOP
-         ejV26aj645l53i6XknF4fr47i6QtggLkoGdY7wgGiSfb/IPkEdIStH59fDfOTnfaHxOT
-         G/cqXaz4airkcD5d3vAOtTN2Y9ds4AUKisQav3w0YtIjTV4PdpaZ+npDKO4en9HuNOF4
-         ByKhuzvioh7HLfpiuHZi2T68iM7NPu5cTMEcOiA+oUqVcRTgMfQYb7uw78zA2PkgOuKZ
-         FUe1FCvl+qfnQSrK/gjMPtjEuPQGfmNWKLpXwWJ8X+eXVJ6OwWwWQvYAZSLZu9pQ4edv
-         CHeQ==
+        bh=pbY7O8xAwkUDKQr6iB+JZ3Qx3bRNJ6Xv4CAEj2PrjMA=;
+        b=JjMJE5kG3UKDLfyDb9aJyO+OBY1yx9ROCj4j4IRJm9ghvu+K09q3LSE+U2RjwRaQM3
+         0Cq3G8Dri9dxsILtbAYXT0SntZNHizvE+uBlAbZQJuP8NNDBrxSOpQ+NbV4uXTsqxVxO
+         lEdd5pFRJ00mnnesNVzQiCpQ+MD3+DOHH8NBAMSrZITaYoTQwbYFJF922lIhMNVlnBqq
+         w1CVIq95cJkWr+9iQGxGxUuHpW3MR8UxI7a1owq/5H4CqaTq+ffczd70W9HWRXu3Mdw6
+         N3fhkQDyF4CTkj8KRAioYowQ1/kEiznDtysefQBYseGNN2KCvHd2HTin3Xh9PGkZZqP0
+         48MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771357870; x=1771962670;
+        d=1e100.net; s=20230601; t=1771358944; x=1771963744;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8NMx17lfk0z1vTpalGUqUAQiCsJfCCjhwGFwiUMogkg=;
-        b=jGI/hiH7xRG0ggNC4RtMuHkrObQwJNUO1aO+NS+zGQtMrdwALJqNaEtWFlzcDbV0bA
-         TT07pOCHtSMJJ/6YekkyGEFRcyXYtnhejIn+z0OWbsF3FnOqk8w0ryih4lmqYMdc+9nL
-         QBawRSht1qbnAxp8yM1JGCd9dbSmln/kjIMHOTmQfU2Kf/sjpl9ldk28ucLZr84RC2nI
-         Y4p4GkyixgsOyrtO5MG0Q2cYLygD9+ngQC9g4YOYumo7Ya4BIlao/Im4uXGelFEkG9//
-         PpBuKXQjFq66qpyeinQKHjHQkDSOSQkbO33x7xXMLra1ciKNg0Mnm0iWQ3xo1rP2vkYd
-         fDAw==
-X-Forwarded-Encrypted: i=1; AJvYcCVSmsElPRimX0PCYHuQ5n+kmiQh/AFO5mxnRPD15ZJM9w2VOBrPK51k5tHlLseeEEYhqSoRBJaoPPtzpg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNjSabmMAH+pWsEbbpoMfwjbf9IwdyeI2stNyDw/V2TYgMQg8o
-	KmdNk3JNEahluHfuKewI4Glsncbd9/slgCIoiCoaGNTojpC/+hKhX11SasVRsjkGwbt7aM3F+jB
-	JsFAPUg==
-X-Gm-Gg: AZuq6aKWrJ6Ru/KtlXai7bbjWPb3NIfOGx5doqyF4MbumtKHjD6c6sIGM8oe6l5V1Yo
-	5807SaIAnfDRXv1rgwOJjFhV77hhlV9/cFbwruyMt2rzyEQVfxv/jT1YcVvM+SWkrPsLxDRnpOv
-	gRcmUX0DxkQTCxc/BUbfLFGDwFlicZVY7J+4uYVnmYq8moG9BuHsu/JiyL5+B9Rh7nMlrnuLTyg
-	OtBJhB5sYHBVDpH/+yKsYK9JNuwyJUP68hTQynG3vgwwkGcM9D3r2gDS9G/tdVD0kb7J0+YUBSU
-	D8C5MAnlCq1E585G0deLUieVHwQIDqHmSNyoj7301+CrhPg6h6OhIMT7GNYA07U9N6vBwTuayvR
-	fPgZiOmXW0dFaBlWmbcTV7s7j2QvtwlysmaKIiQ2rq4HWO+/nLX1Y/iWIqPMfbKEsBwtnaVn1V+
-	VbxUyZl6FeEWlDU6FnZPNdgQHrOnpnLh/K/CYzHnHOgWlVuMXlp45AHQ==
-X-Received: by 2002:a05:6402:5213:b0:64b:58c0:a393 with SMTP id 4fb4d7f45d1cf-65bc7a7f68dmr6607873a12.30.1771357870145;
-        Tue, 17 Feb 2026 11:51:10 -0800 (PST)
+        bh=pbY7O8xAwkUDKQr6iB+JZ3Qx3bRNJ6Xv4CAEj2PrjMA=;
+        b=hzpXIIDo0AXxQA56Qxwis8TL49QqHpG1Af10PD8jqwF6z539Hwcg4ERMZ28uusH4IU
+         43n/qbRryOf1nSldgyGQ1CNPaBFR1yy9GXgqcoupOFNDbXUm4/h0X+JVK8N/tcDB0Wrb
+         Qyw+gLHiKc3mBGJUO7/aDhmtxEOrRrUKu+0cq7fTosqh9fzaFPWkNquMXG6pCq5GgCRF
+         MPxyk9PSSt5MP4d4veTV3Fg9AJfIyXOXQcmjDwFix/9NJ8m4BNhzW/xvO2bKgH6JzPSD
+         nWc+g5GzqTc2Co/QxVn5e1orpmhfHZHlZam/anSTgu5BZxt4Hqnw2nxH7Rpz4KxtYrHC
+         zi5g==
+X-Forwarded-Encrypted: i=1; AJvYcCUVgt+QjQ9CIXe3VsWGVPbHm+TaywWsORZnvvxHzr9ZkmRgKg2sJKnrXNvHIXnsdE7IEVte1aui6NUq+g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzrjEsMaq50TXwaZ/jLArsqC2I0OwmXVgWsSRGOT81tTXH4zQEP
+	X0nh9qFC7vLWl1MtAoQju2falDFUKFoy4DsAN1zWHkxPfEuTvYbwqS5gGKO+pQEA0wkVvVFw5KS
+	IVWsPag==
+X-Gm-Gg: AZuq6aLu0q1D5hsO9zi1N5goSW3S45Kb8myocmiFrLAHJOYEfK6aXkSz05Qc7BOMaaX
+	8imRSBJPJGo8dI20UmxGYwSC6q5wR+ySGbmgP+EXav60ax+ud/BTGwoo1S5Pjj2n4cfy+6eBFeH
+	c0UhKrQU34QlTWfRQuRUC+zJM+vsnCqTAJzS9jLr+S2scz66VS2OJ8gMQesAAT6TPNjGBSPioHR
+	ejGedCymIdd/oLTLqWsO0H0kVeGGAJF9BHFnVa2tTqaGb94FzPF61Kj5GtGrohndWU6MlUJm9Ji
+	OknHm1B+vg5+nZzekpSE+cHL5X1kLNJ5xpVnM0ofJh979S0d1XqsQY24MqxdDCMMmlzEmM/X9h6
+	hMwlL48PFdX+PQGQc9hQrZXQs7VTCOlWj39FBpca4lRWsGXwgERVLP1TikMNYK1Me4bFEN3BaNa
+	t0lwh6EXmeGN6furFHE3U9iACify8L306r7YNFQGgBogRUa7uz5x7ltg==
+X-Received: by 2002:a05:600c:3e05:b0:480:4a90:1afd with SMTP id 5b1f17b1804b1-4838dbae89emr77350015e9.0.1771358943406;
+        Tue, 17 Feb 2026 12:09:03 -0800 (PST)
 Received: from google.com ([2a00:79e0:288a:8:8d29:f905:4a47:1dbf])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65bad29d471sm2705392a12.9.2026.02.17.11.51.09
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4836aa0847asm587397615e9.3.2026.02.17.12.09.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Feb 2026 11:51:09 -0800 (PST)
-Date: Tue, 17 Feb 2026 20:51:04 +0100
+        Tue, 17 Feb 2026 12:09:02 -0800 (PST)
+Date: Tue, 17 Feb 2026 21:08:57 +0100
 From: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
 To: Benjamin Tissoires <bentiss@kernel.org>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] HID: asus: avoid memory leak in asus_report_fixup()
-Message-ID: <aZTGqC1xHLBwpjUS@google.com>
+Subject: Re: [PATCH 0/3] HID: Fix some memory leaks in drivers/hid
+Message-ID: <aZTK2ZLjmoUMy9of@google.com>
 References: <20260217160125.1097578-1-gnoack@google.com>
- <20260217160125.1097578-4-gnoack@google.com>
- <aZSzASB_TC2RyQsR@plouf>
+ <aZS0OAaSPhX2pJ6l@plouf>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,36 +77,78 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <aZSzASB_TC2RyQsR@plouf>
+In-Reply-To: <aZS0OAaSPhX2pJ6l@plouf>
 
 Hello!
 
-On Tue, Feb 17, 2026 at 07:31:23PM +0100, Benjamin Tissoires wrote:
+On Tue, Feb 17, 2026 at 07:36:46PM +0100, Benjamin Tissoires wrote:
 > On Feb 17 2026, Günther Noack wrote:
-> > The asus_report_fixup() function was allocating a new buffer with kmemdup()
-> > when growing the report descriptor but never freeing it.  Switch to
-> > devm_kzalloc() to ensure the memory is managed and freed automatically when
-> > the device is removed.
+> > These patches fix a few memory leaks in HID report descriptor fixups.
+> > 
+> > FWIW, a good ad-hoc way to look for usages of allocation functions in
+> > these is:
+> > 
+> >   awk '/static.*report_fixup.*/,/^}/ { print FILENAME, $0 }' drivers/hid/hid-*.c \
+> >     | grep -E '(malloc|kzalloc|kcalloc|kmemdup)'
+> > 
+> > The devm_* variants are safe in this context, because they tie the
+> > allocated memory to the lifetime of the driver.
 > 
-> Actually this one is even worse: you can't use devm_kzalloc because
-> hid-core.c will later call kfree(dev->rdesc) if dev->rdesc is different
-> from the one provided by the low level driver. So we are going to have
-> a double free.
+> No. Look at hid_close_report() in drivers/hid/hid-core.c.
+> 
+> HID still hasn't fully migrated to devm, so as a rule of thumb, if you
+> change a kzalloc into a devm_kzalloc, you are getting into troubles
+> unless you fix the all the kfree path.
 
-The buffer returned by report_fixup() is duplicated first before
-hid-core stores it in dev->rdesc.  The pointer that report_fixup()
-returns is not managed by the caller.
+OK, I have not verified where the devm-allocated objects get freed up.
+If devm_*() is not possible here, then the drivers hid-asus.c and
+hid-gembird.c have two additional memory leaks, because they do that.
 
-I elaborated in the response to the other patch in [1].  You can see
-it in the source code in the position marked with (4).
+$ awk '/static.*report_fixup.*/,/^}/ { print FILENAME, $0 }' drivers/hid/hid-*.c | grep -E 'alloc'
+drivers/hid/hid-asus.c          new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
+drivers/hid/hid-gembird.c               new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
 
-[1] https://lore.kernel.org/all/aZTEnPEHcWEkoTJR@google.com/
+(That is without my threee patches)
 
 
-> I really wonder if this was ever tested.
+> > For transparency, I generated these commits with Gemini-CLI,
+> > starting with this prompt:
+> > 
+> >     We are working in the Linux kernel. In the HID drivers in
+> >     `drivers/hid/hid-*.c`, the `report_fixup` driver hook is a function
+> >     that gets a byte buffer (with size) as input and that may modify that
+> >     byte buffer, and optionally return a pointer to a new byte buffer and
+> >     update the size.  The returned value is *not* memory-managed by the
+> >     caller though and will not be freed subsequently.  When the
+> 
+> If the memory is *not* managed, why would gemini converts kzalloc into
+> devm variants without changing the kfree paths????
 
-I only convinced myself by staring at the code, because I do not
-happen to have the matching USB devices here.  What it your usual
-approach to verifying such changes?  raw-gadget?
+I'm not sure I understand the question, it's not clear to me what you
+mean by the "kfree paths".
+
+I have seen usages of devm in other HID drivers and I was under the
+impression that devm_* allocations would work in the HID subsystem to
+allocate objects which are then freed automatically at a later point
+when the device gets removed.  Is that inaccurate?
+
+
+> >     `report_fixup` implementation allocates a new buffer and returns that,
+> >     that will not get freed by the caller.  
+> 
+> This is wrong. See hid_close_report(): if the new rdesc (after fixup)
+> differs from the one initially set, there is an explicit call to
+> kfree().
+> 
+> -> there is no memleak AFAICT, and your prompt is wrong.
+
+See my discussion in [1].  The pointer returned by report_fixup() is
+immediately discarded in the position marked with (4).  This is still
+in the hid_open_report() function where the leak happens.
+
+Let me know whether this makes sense.  I'm happy to be corrected, but
+so far, I still have the feeling that my reasoning is sound.
 
 —Günther
+
+[1] https://lore.kernel.org/all/aZTEnPEHcWEkoTJR@google.com/

@@ -1,166 +1,151 @@
-Received: from PNZPR01CU001.outbound.protection.outlook.com (mail-centralindiaazolkn19011035.outbound.protection.outlook.com [52.103.68.35])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7E8B5B21A;
-	Mon, 16 Feb 2026 21:25:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.68.35
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771277112; cv=fail; b=Q4qKnBkFrNvMwoBJV/vO5h5gPa9VCWPpUz1aQsIItFAlfjXroc58mVJ3aMDFjI3CddzG+0IArpHMPWJNYifNxt7BziyGX4AqCxTgW3E5nXpwa5jLx73Rj8I4ADJu98/Ux3mvgPvKsSLL7pHCuKZ8AsYcqO5yeccBpVus0EW4tcg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771277112; c=relaxed/simple;
-	bh=7cfVAfXxozA6hrN3WSA8qXyQv91mKc5ETezZsym3cfM=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=lrTA1DsrU76qGJCe7GOLfHVXWq3T+f+KUTH1eu+1D9VBoZ25qIy8LXkvc6RzBJTw0eZbipqUryx1+hNnGLsNkdB2HQ6PojdpaTSibD1lkj3WXz2xPwP1kjgCkWlebNJ434WNd4yS0DzjZQ7tIPviLdfJGXS73E45Vcaylsn0ofQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com; spf=pass smtp.mailfrom=live.com; dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b=uWFRB5QA; arc=fail smtp.client-ip=52.103.68.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=live.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE6C82594B9;
+	Tue, 17 Feb 2026 01:01:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771290086; cv=none; b=KD7jCz3A/KApONNei9DO8e9+3ROPTSUi7q9+Gqnfy9zYE+JR76FrSzk+K2n/6m5g+BJYWSDdfP60Lh3XqV6TyJoWjRqXJHsUgG4+1tzXg+eE2sxMm4aMeAx57ZIZj3+6Jq+1YK0/grUrONTTzIPUrQICq19DW2xWYP0bmZcxJYk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771290086; c=relaxed/simple;
+	bh=22h4jkN+njBHp+FSq94tcW7wTethWMHm328U9gEdOQY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=d3E+SW04VMDU3nK4IB867IIbbNF6X9c8yodDVezQY88j5FgnnHMG0Mp6ecWO8hc5jpFSohSKGOHOMAbUaF/xc1+3cS5hKyKINXonq5zeUTkDmBslUnPCkE3LPjNwcFtx22HEk41ivaMdPA5Oq8Z4u9YydDmSXyD5AeRrrvqt6YY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=INbyTBSk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b="uWFRB5QA"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Uut2QgVokyUR3K8sZUcbaUJoIwSnviXwnOwphMbOGCSFh3+YKsaTHs9E2pPXNGAqrq9Vp8BV2kwxGUhhJMPg/suMWDr/+DYmG6gxvA/nRugcjYjDLLeyi9g6CxF9LqpP+TqMBCorWJu9r94NLaJbtdPijLGQrJuZ6f8r4VuMmkZsIvGrNADPJUiA7FoG622OJqZY1aGi25Tuv/UqxByoWUqLOHBKXqmosWQw3sBx8PF4k34sOJtoYGX1b9ajxurq7DldfbGs8niZcQFL9MMJ3V0Pmcw80xtWLjSg0CNBD+BR1+97aQmokIZVbb9cvJ2UqMZjUKOQr+LAlB7oUSHoAQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YbfOETJEEDCdddZ6X8Q9tfWNNEtUHC4HnDwim6vXwwo=;
- b=Acn8hNUwYLkSjaihvuW1Hwta0mcOPyb1rLVfwBTWjL4rsTuhkMuCrbsHynCEYqDpdHtP2w6fpr6CR5sRNFCl4f/4YbqdoVS3QXgY8lKsu2QvLgbJF0IqU/lqflSb/RgdXFi38//y2XbIcU0SU0WgodIx5ApSKZGLOK83XJhjjyKdq20OzKZ69VyR4LbIeGRxnJ02Loq6JP/Zcua7ec2C+uRtlf77vEVtHJGdrY4dHtKckJrvY5K7T0XuJ9CbT5xcd/krLGLC2suCu7thhh3plbIG3mtsM/YUxJCVbyVrrVpew2bx3imondBl/NTvZlHwCBr0Uo1IGWliNMUFVLDgyg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YbfOETJEEDCdddZ6X8Q9tfWNNEtUHC4HnDwim6vXwwo=;
- b=uWFRB5QA06Ypt5fPQWu7oaLqXxuHfSHxMsdKdO5A7qBwuQjDkOYQ657nWAwvGpq8w6PqpUItegoncsR+3VgHWVtuazZLTM1qHK+4tj6uMVhnttqLI4V2R745g4FJc0DYZik++0Tp9MS/ERqunhaLATTmiMTxhHFei525LmyXiB2EQtr1OSoH7WxSd+U3xbADs9XC8HWfc0gaPZOqLIKjtMbrY5NmJvoCDWqrp2Hh1Dlg/iLslsSJhghPawSbWYNpiGsTJd0okTUmcXBR4OR4WmtCNd0g0Ytcm6uNHJJY+SwkKnspsNgwmtbuG3HPKSmOhdmNMTeJJ8x+/MxLvPjO6g==
-Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:19c::18) by MA1PPF8F457A31C.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a04::9f) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9611.14; Mon, 16 Feb
- 2026 21:25:06 +0000
-Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::1fed:9b0b:69b:9295]) by MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::1fed:9b0b:69b:9295%6]) with mapi id 15.20.9611.013; Mon, 16 Feb 2026
- 21:25:06 +0000
-From: Aditya Garg <gargaditya08@live.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="INbyTBSk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76236C2BC86;
+	Tue, 17 Feb 2026 01:01:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771290086;
+	bh=22h4jkN+njBHp+FSq94tcW7wTethWMHm328U9gEdOQY=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=INbyTBSkOck19USn1fi0UVA05sE20z1/UnAa/HGUgT/M+n9pJcTfF0kANi7JxqT2l
+	 QBD6u1YI8+KoyLmXuNA0zeWQ2wQOLLQKN8AgU5c9ZFgjR60kRTnp6aJ2hs/B019DO6
+	 r+0ZlwJLlGXjJkuhghQ8RrsSZ7SHmQCHJ/F66OhSOq6FbFxN9hk0m1DBDzKbl1lcfp
+	 a+TBkd2gSZ1S99xfp3V2gzxAKKxOSjkWoysRNXJ4K4mGtzGhxjJpVGMTFaJ+JyV4+0
+	 LjBy4+QYDZS1F1aeH6lyJkxAsZ9RqFg1AmqAvms6cSJkZbodp66mdtyNgKY0RCpHCS
+	 YYM9xpcpAr1Yw==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Subject: [PATCH] HID: appletb-kbd: add .resume method in PM
-Date: Tue, 17 Feb 2026 02:54:46 +0530
-Message-ID:
- <MAUPR01MB115468D46765D7DF8C2882B4CB86CA@MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.50.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BM1PR01CA0162.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:b00:68::32) To MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:19c::18)
-X-Microsoft-Original-Message-ID: <20260216212446.1520-1-gargaditya08@live.com>
+Cc: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>,
+	Jiri Kosina <jkosina@suse.com>,
+	Douglas Anderson <dianders@chromium.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Sasha Levin <sashal@kernel.org>,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.19-6.12] HID: i2c-hid: Add FocalTech FT8112
+Date: Mon, 16 Feb 2026 20:01:16 -0500
+Message-ID: <20260217010118.3503621-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260217010118.3503621-1-sashal@kernel.org>
+References: <20260217010118.3503621-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MAUPR01MB11546:EE_|MA1PPF8F457A31C:EE_
-X-MS-Office365-Filtering-Correlation-Id: 926ebc5a-30f3-4efa-3fd0-08de6da1daa5
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|15080799012|41001999006|19110799012|8060799015|5072599009|5062599005|461199028|23021999003|440099028|3412199025|40105399003|52005399003;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?9Qykz0At91H7NrXPbT3tvg3s3au3InrrEnedRZGU9oorPJ8ik+Wa7JAquRsS?=
- =?us-ascii?Q?vQFc+WMPQWbkwowVoeK3F/rWR+g39lAM8ct+5XJZ2RNcsHgRaWRK4btur535?=
- =?us-ascii?Q?h8WaXPULkFNnhFc+ZIKtCi9BdTJ/5yRekp6d0mZgsB0btt6o4mJxLVouP9r1?=
- =?us-ascii?Q?LT+VpRShYWb8N8ire+XLVr6+TijvdChQ2hiNYgBrL9PaYthNtbO1oLYEf8wY?=
- =?us-ascii?Q?VJ8TZ6IHyWSXxFd/U8veQlbe4AqcnhUxdMQkOepdxqUZWRhtwnKXrkLEAZcF?=
- =?us-ascii?Q?kY6p74GOWq2ARiIprOdz0kuEHzsqeczPWtJTvsnSu7Sasr1MVjsnRWvd+tdE?=
- =?us-ascii?Q?u40BcJ7wyAgVABb+uGHwuttBaXqDFTYaPxqGZ3BhrCrEAAE4m8LO7r79P9mg?=
- =?us-ascii?Q?Zvb84pKaJ2ZUXmcIUY05JqewcndodkTvdJB98nQ2SlqD1QQaOjb1h6mz8LRZ?=
- =?us-ascii?Q?J9RWkFOHTYouCRnzltalkG6WSlSCehMCrqrBCfXZ/xVJIFiaf3s6kKJlDAVO?=
- =?us-ascii?Q?wbyUWQtSDOOGX0qLGa+rWfoePPG5l1gf4WJT7mEZXzVpAKNaaL5hihvclYxH?=
- =?us-ascii?Q?iNG+un6P0D2PNQDutxXqiYAYbES+HoZb/gNY/YJx7b3KAV58SxwIIJ10KoSl?=
- =?us-ascii?Q?ECDkAzQ17izttNVi+yiSM8HhJL0XeBJcgQmjhREL62r0QmHck/4Xjat4Prbz?=
- =?us-ascii?Q?lJve1/XtjwlNVzivXJ/1CDHue3CqmOrJp/mVLpcGTERgJWp6LdiUoMD6zH0F?=
- =?us-ascii?Q?0IBU/icJW8Kfh2cinsShGl8ZWmctK7xNVXa8IpBqSF0UHQGFfEH2Fu0TpHLW?=
- =?us-ascii?Q?omASyKxSvjLgUn87NwOwfL5wTIG3pNpXaQu2PTH+4sR/oNyOasTxlvf8Gn8V?=
- =?us-ascii?Q?yG7j66v96bXuPQ6Tq46n4Is7DAGA6EyVhsvV7LDlAZhzhuUBKP1KJHHoBMwv?=
- =?us-ascii?Q?1jyU/MN7vJgmXFFV6cT469O5okFOX8KIzePJjRcdlvyA8UFiNUCB+DvkVTFs?=
- =?us-ascii?Q?OmLoAkLms1p2erdLwEV+o/+NwIn6KJD3Reyj6jYjkSLNPQo8biNwup0qKjyP?=
- =?us-ascii?Q?LB6riQQjNN9UcXPSSJuz7/KoAyOlTt8dywu7vagkwi+nD+mOVgXl1nwE3QnC?=
- =?us-ascii?Q?sFyWnho6D/wQPWZYmcC4e0gHvr3rleYnGOrIYccHJfEBSzbm4oK7urdt1qfh?=
- =?us-ascii?Q?gELjd6EYttxzWED9zO6llYED84L70WelJwfus9dH7GpW2GxliSLQ9rbLsB4?=
- =?us-ascii?Q?=3D?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?KwhvZa5OiPPxZnjB3lKvuQ4g515pnibPqLIbtsE4fYQuw09NPp5swxnQSFte?=
- =?us-ascii?Q?QuEkfk5u5HcghwMqP+6pzakkAS5CPvtG2wzexLLbQXISW0eFVpAOKbJcYrtm?=
- =?us-ascii?Q?foUpT4rzSI8srWt7yqXKN8zD7KrXWpdYN8TC/HIfzmJvjGdxbFxgDjYm/6Xh?=
- =?us-ascii?Q?EW2lwMJvDjDFJhfV4UuKXz/byk+Zuy1GL+Zo83Tl2yKwuS2FJF1RQRqVAL74?=
- =?us-ascii?Q?keFfPYWsdJp47IlaaGx/LeZk8G9aD8lhFapjtT8HEnO9+R6Ss/dsSogAB3Qk?=
- =?us-ascii?Q?QdEskhoGTPUtI+xOyS/hOSJnLedCAHYbpLfAD/3d0hXfIaV77oqLi/HAHRZu?=
- =?us-ascii?Q?VqBE8SGFbi9FAEtRXYeYt7V/TQSpCl3XAIHz8pmJHKRNbVXmR5YJ/Xdl8T++?=
- =?us-ascii?Q?Rv7GuUHs7XZpweDVgaMR3iAFYzRSa1weBU9u57/jZULNVroWWAEqj1//M/hX?=
- =?us-ascii?Q?9WZHKQWYHnGoEyt8hSJaZMdVohnb/VWQBEfdK72L4kMqjs9HdLWqHWqtBXvz?=
- =?us-ascii?Q?UDtqjsiOJ5ARTAYumFaM7rdW7tTvKMOVeQ3SiLCTUIZzY7WCZS+LRXrnCov2?=
- =?us-ascii?Q?F1n06WS9v4tZUIJCyYHZbqF60hq11XIe5Em5ztvRQJKikVAW/aqHn9feEtmn?=
- =?us-ascii?Q?FN138Phrl1r5i65xeLLxJB2qu8h1fwAsfqLTnuwgi2u7flOgVUbvjzl4O4cv?=
- =?us-ascii?Q?76OOoIevKxh0heKgyrv4QuHpNsScyKR7n6IekOnwwG6TjdmLPplmhoUWZ0D1?=
- =?us-ascii?Q?n5z3JQAEqvqlRjy2uAhUQTwBW6tMLsxaA5s7CZR/FdJIz2G7REVThnrBS8jP?=
- =?us-ascii?Q?EQlf0dkvsXxXCmh+MpAlIBRT7lKtVTqlk+BLt9BXFszX44GROjMeWm67z9j2?=
- =?us-ascii?Q?f4KmSmfLJPIGNyacHD0odml4CrPqV1q4CGHO0AAxmajF1aNufsMklIhKacF3?=
- =?us-ascii?Q?oW7/4YM4li7RanNrni4dXXQ32VRP1usTDGIo+TD3BXmCGZNI61rlN2QdCEFG?=
- =?us-ascii?Q?MAbA5ElOGej4Tp4Fhp3x36e7+CEGXKprouaWV9tOlhpr409hGn1A6NiGrBUo?=
- =?us-ascii?Q?Ld6yAn1Oi9vSc+B1VuiBzBEkwI2Rl5G9PVCZn7qOGAqb7X+Cx9ATu3IInrAA?=
- =?us-ascii?Q?pECyCXmc/Oc1R+egHSGGVumAvQ3kjbey5HT/zqPpQILHOccokyWCI4ySZy6K?=
- =?us-ascii?Q?UtV4ntNj6LvwWPOs9ylyN0ZxZSg+Ttzjwl3jLI3MmfM56aZKLG9Kl2iHwSpA?=
- =?us-ascii?Q?8qHciEUaDg8EtVGLhd/omLOOXVaZSUDREHweo0ass8/zEsjX4fopCjmKV8wr?=
- =?us-ascii?Q?DMdfugNY2LzXBWduUc3Kyg6MR55Lyvnyse//MI1GdMAYdXi6IFJM30/PClgW?=
- =?us-ascii?Q?jWNBp1q/B80W2jf/RJAliEAzp9Jahan+u3HH9Sm8iQjgR5ctj/x7O2R5y5N9?=
- =?us-ascii?Q?pe44MSvxTj+7KBTSMjw1LH+T3bgGz/9y?=
-X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-fecfb.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 926ebc5a-30f3-4efa-3fd0-08de6da1daa5
-X-MS-Exchange-CrossTenant-AuthSource: MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2026 21:25:06.1880
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA1PPF8F457A31C
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.19.2
+Content-Transfer-Encoding: 8bit
 
-Upon resuming from suspend, the Touch Bar driver was missing a resume
-method in order to restore the original mode the Touch Bar was on before
-suspending. It is the same as the reset_resume method.
+From: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
+[ Upstream commit 3d9586f1f90c9101b1abf5b0e9d70ca45f5f16db ]
+
+Information for touchscreen model HKO/RB116AS01-2 as below:
+- HID :FTSC1000
+- slave address:0X38
+- Interface:HID over I2C
+- Touch control lC:FT8112
+- I2C ID: PNP0C50
+
+Signed-off-by: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
+Acked-by: Jiri Kosina <jkosina@suse.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patch.msgid.link/20251117094041.300083-2-Daniel_Peng@pegatron.corp-partner.google.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-appletb-kbd.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
-index b00687e67..0b10cff46 100644
---- a/drivers/hid/hid-appletb-kbd.c
-+++ b/drivers/hid/hid-appletb-kbd.c
-@@ -477,7 +477,7 @@ static int appletb_kbd_suspend(struct hid_device *hdev, pm_message_t msg)
- 	return 0;
- }
- 
--static int appletb_kbd_reset_resume(struct hid_device *hdev)
-+static int appletb_kbd_resume(struct hid_device *hdev)
- {
- 	struct appletb_kbd *kbd = hid_get_drvdata(hdev);
- 
-@@ -503,7 +503,8 @@ static struct hid_driver appletb_kbd_hid_driver = {
- 	.input_configured = appletb_kbd_input_configured,
- #ifdef CONFIG_PM
- 	.suspend = appletb_kbd_suspend,
--	.reset_resume = appletb_kbd_reset_resume,
-+	.resume = appletb_kbd_resume,
-+	.reset_resume = appletb_kbd_resume,
- #endif
- 	.driver.dev_groups = appletb_kbd_groups,
+LLM Generated explanations, may be completely bogus:
+
+The ili2901 entry was added in December 2023. For older stable trees
+that don't have that entry, the patch would need minor context
+adjustment but the change itself is straightforward. Even without the
+ili2901 entry as context, the addition inserts cleanly in the match
+table.
+
+## Verification
+
+- **git log** confirmed `i2c-hid-of-elan.c` was first added in commit
+  `bd3cba00dcc63` (May 2022), present in 6.1.y+ stable trees
+- **git log** confirmed the file has had similar device additions
+  (ili9882t, ili2901, ekth6a12nay) following the same pattern
+- The code diff shows the new entry follows the exact struct pattern of
+  existing entries
+- The commit has `Reviewed-by: Douglas Anderson` and `Acked-by: Jiri
+  Kosina` (verified in commit message)
+- The compatible string `"focaltech,ft8112"` is a new vendor, but the
+  driver architecture supports multiple vendors (it already has elan and
+  ilitek)
+- The `elan_i2c_hid_chip_data` struct is used identically for all
+  devices in this driver
+- The `ili2901` context entry was added in Dec 2023 (commit
+  `03ddb7de012c6`), so the patch may need minor context adjustment for
+  6.1.y but the logical change is trivial
+
+## Conclusion
+
+This is a textbook device ID / compatible string addition to an existing
+driver. It enables a FocalTech FT8112 touchscreen that would otherwise
+be completely non-functional. The change is:
+- Small (~10 lines), isolated, and low-risk
+- Following an established pattern in the driver
+- Reviewed and acked by maintainers
+- Critical for users with this hardware (no touchscreen = unusable
+  device)
+
+This is exactly the type of commit that the stable kernel exception for
+device IDs was designed for.
+
+**YES**
+
+ drivers/hid/i2c-hid/i2c-hid-of-elan.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-of-elan.c b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+index 0215f217f6d86..b81fcc6ff49ee 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-of-elan.c
++++ b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+@@ -168,6 +168,13 @@ static const struct elan_i2c_hid_chip_data elan_ekth6a12nay_chip_data = {
+ 	.power_after_backlight = true,
  };
+ 
++static const struct elan_i2c_hid_chip_data focaltech_ft8112_chip_data = {
++	.post_power_delay_ms = 10,
++	.post_gpio_reset_on_delay_ms = 150,
++	.hid_descriptor_address = 0x0001,
++	.main_supply_name = "vcc33",
++};
++
+ static const struct elan_i2c_hid_chip_data ilitek_ili9882t_chip_data = {
+ 	.post_power_delay_ms = 1,
+ 	.post_gpio_reset_on_delay_ms = 200,
+@@ -191,6 +198,7 @@ static const struct elan_i2c_hid_chip_data ilitek_ili2901_chip_data = {
+ static const struct of_device_id elan_i2c_hid_of_match[] = {
+ 	{ .compatible = "elan,ekth6915", .data = &elan_ekth6915_chip_data },
+ 	{ .compatible = "elan,ekth6a12nay", .data = &elan_ekth6a12nay_chip_data },
++	{ .compatible = "focaltech,ft8112", .data = &focaltech_ft8112_chip_data },
+ 	{ .compatible = "ilitek,ili9882t", .data = &ilitek_ili9882t_chip_data },
+ 	{ .compatible = "ilitek,ili2901", .data = &ilitek_ili2901_chip_data },
+ 	{ }
 -- 
-2.52.0
+2.51.0
 

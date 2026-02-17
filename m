@@ -1,107 +1,114 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91AE371062;
-	Tue, 17 Feb 2026 18:31:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED2FC2D8393;
+	Tue, 17 Feb 2026 18:36:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771353087; cv=none; b=hNOMeIN5xyopaFcnkfL/GcAspMEiXF/5e/oAETIClTP/VZ1RBxZX3kpWz1Si9Xtx0XgE2xTiltCyMiGgMzYj769HD7YKnq5V31IqAHzoVWJSSAesh6yl3cpaqOg3Whhno2setWXWj+Y80ISEKTtxVZ2u7Bt2WJN32/ktqaOQfYg=
+	t=1771353411; cv=none; b=TEX6SoRBA/daE52FDQCEWNrpqcDPrMxR0C35CjDn4RVuTNwc7vvMVRMNJVR8bSywenqFjQ9sLNBFhlPz7O4T2XtIGwL8CDPxtZen7xsgl3s2G1uqE5xthYCBVE3pgl7bjEncSZLxf5zbNqsciwNpUfo2cQ+cbBXvDB5DFs7tg+M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771353087; c=relaxed/simple;
-	bh=757UPfy/GV2CsJ5WBqsY8+F2rL56Jw950DDtXOYnpQk=;
+	s=arc-20240116; t=1771353411; c=relaxed/simple;
+	bh=sDqOJwmbKwu3rv1JLp98v1lToV6xEbXw+k5wH0Xcw1g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HXQMVZbX5h1qUYI+DEAWFAg3wkGo5VBlsHwAVyYud25R6bEsHUhpLsuA1EoewJkGa2IxQaHVQQvoZ0/ppUFtLZAWl2o2YLi6tG9RMAgVic8PTV2vlyu6vdUaZxrI+d/3DGWIoxyPPC1NvvkMAzp6Kr9Vezz3G4Mu7pIxxY6l5bQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fPbKKdTS; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=m+L5zCTQX4hEYmpQn9qhobGkhG7yBQSnVGYJgOWQez2rsHT0Ry+KWxDtWE42RCyhYbMSMyV1s1Ou6ijDTR8wcWrSiE9kKC8BBz9gZMr6Fa9RiO+bRS7o6FcAEZ9xFYK1IiEkDZ3HXdrovty/IZjSqVYqPvu/YoqfTinwsuAx7AM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gJ2zYsen; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fPbKKdTS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5506C4CEF7;
-	Tue, 17 Feb 2026 18:31:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gJ2zYsen"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87470C19421;
+	Tue, 17 Feb 2026 18:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771353086;
-	bh=757UPfy/GV2CsJ5WBqsY8+F2rL56Jw950DDtXOYnpQk=;
+	s=k20201202; t=1771353410;
+	bh=sDqOJwmbKwu3rv1JLp98v1lToV6xEbXw+k5wH0Xcw1g=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=fPbKKdTSfvh1gVejkDU4FXReElH2/gEJFez827pKWLu46/eOIzkA/NhV7PfdY9pb5
-	 ax0GnyFUxVN6oQqABh9hADZy5+bItw6PYZ4Y6Yjp5az1TgRn4/to2bjSrFYnU8p0ut
-	 PyXSp0U2PKspZ4kYIg7LB7v1ZUD72QGgLn2k7Fc37Wo/k3Q4oFVWbHfqQcG1utwCEA
-	 gz2RNzZvhn5SBgRYLdg3VGBxLwnHdnogbc4tFZk9ZENHm+AAawNrYCDgCezH5CPywq
-	 Dq/BkZsvoErypl7Z0pcPJTgHEJih/epCvwKwoluHLCSk2Ap+P8cxgNrjgq4/cG+cL+
-	 bnh2rPB+dprzw==
-Date: Tue, 17 Feb 2026 19:31:23 +0100
+	b=gJ2zYsenm+dWMHu9kH7k+SSf0t5fS51p6hQrYDTKtGsfNjjApmtkN7ZFbiQ5sWqu9
+	 qasUxnuJ3of/v2EDo7DhvngiPMxeaAjmqJa1ORrW+4kiZLC2FWhuWg1IWoA5j5EG19
+	 5TZqYwjIGTKNvboGgYJsGFXA8pMUwj56v2aaPJidsiRoYVPOvPLhiZm+eGEkFN6Ssz
+	 hWvMNsmUmHq/MBjYHXExL0azB1ausCmZOzdP0Z+BLKnzu2aqKqVKnSrDHchTqpmX+d
+	 07HSWWFLft0Vde4OmeeZLCQ24fKoXHNMFWNoMyTzMKPIu1svTFScmv6WMxt1xzA6dY
+	 4U6vQUuQ+Gxuw==
+Date: Tue, 17 Feb 2026 19:36:46 +0100
 From: Benjamin Tissoires <bentiss@kernel.org>
 To: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] HID: asus: avoid memory leak in asus_report_fixup()
-Message-ID: <aZSzASB_TC2RyQsR@plouf>
+Subject: Re: [PATCH 0/3] HID: Fix some memory leaks in drivers/hid
+Message-ID: <aZS0OAaSPhX2pJ6l@plouf>
 References: <20260217160125.1097578-1-gnoack@google.com>
- <20260217160125.1097578-4-gnoack@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260217160125.1097578-4-gnoack@google.com>
+In-Reply-To: <20260217160125.1097578-1-gnoack@google.com>
 
-On Feb 17 2026, G�nther Noack wrote:
-> The asus_report_fixup() function was allocating a new buffer with kmemdup()
-> when growing the report descriptor but never freeing it.  Switch to
-> devm_kzalloc() to ensure the memory is managed and freed automatically when
-> the device is removed.
+On Feb 17 2026, Günther Noack wrote:
+> Hello!
+> 
+> These patches fix a few memory leaks in HID report descriptor fixups.
+> 
+> FWIW, a good ad-hoc way to look for usages of allocation functions in
+> these is:
+> 
+>   awk '/static.*report_fixup.*/,/^}/ { print FILENAME, $0 }' drivers/hid/hid-*.c \
+>     | grep -E '(malloc|kzalloc|kcalloc|kmemdup)'
+> 
+> The devm_* variants are safe in this context, because they tie the
+> allocated memory to the lifetime of the driver.
 
-Actually this one is even worse: you can't use devm_kzalloc because
-hid-core.c will later call kfree(dev->rdesc) if dev->rdesc is different
-from the one provided by the low level driver. So we are going to have
-a double free.
+No. Look at hid_close_report() in drivers/hid/hid-core.c.
 
-I really wonder if this was ever tested.
+HID still hasn't fully migrated to devm, so as a rule of thumb, if you
+change a kzalloc into a devm_kzalloc, you are getting into troubles
+unless you fix the all the kfree path.
+
+> 
+> For transparency, I generated these commits with Gemini-CLI,
+> starting with this prompt:
+> 
+>     We are working in the Linux kernel. In the HID drivers in
+>     `drivers/hid/hid-*.c`, the `report_fixup` driver hook is a function
+>     that gets a byte buffer (with size) as input and that may modify that
+>     byte buffer, and optionally return a pointer to a new byte buffer and
+>     update the size.  The returned value is *not* memory-managed by the
+>     caller though and will not be freed subsequently.  When the
+
+If the memory is *not* managed, why would gemini converts kzalloc into
+devm variants without changing the kfree paths????
+
+>     `report_fixup` implementation allocates a new buffer and returns that,
+>     that will not get freed by the caller.  
+
+This is wrong. See hid_close_report(): if the new rdesc (after fixup)
+differs from the one initially set, there is an explicit call to
+kfree().
+
+-> there is no memleak AFAICT, and your prompt is wrong.
 
 Cheers,
 Benjamin
 
+> Validate this assessment and
+>     fix up all HID drivers where that mistake is made.
 > 
-> Also fix a harmless out-of-bounds read by copying only the original
-> descriptor size.
+> (and then a little bit of additional nudging for the details).
 > 
-> Assisted-by: Gemini-CLI:Google Gemini 3
-> Signed-off-by: G�nther Noack <gnoack@google.com>
-> ---
->  drivers/hid/hid-asus.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
+> —Günther
 > 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 8ffcd12038e8..7a08e964b9cc 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -1399,14 +1399,21 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  		 */
->  		if (*rsize == rsize_orig &&
->  			rdesc[offs] == 0x09 && rdesc[offs + 1] == 0x76) {
-> -			*rsize = rsize_orig + 1;
-> -			rdesc = kmemdup(rdesc, *rsize, GFP_KERNEL);
-> -			if (!rdesc)
-> -				return NULL;
-> +			__u8 *new_rdesc;
-> +
-> +			new_rdesc = devm_kzalloc(&hdev->dev, rsize_orig + 1,
-> +						 GFP_KERNEL);
-> +			if (!new_rdesc)
-> +				return rdesc;
->  
->  			hid_info(hdev, "Fixing up %s keyb report descriptor\n",
->  				drvdata->quirks & QUIRK_T100CHI ?
->  				"T100CHI" : "T90CHI");
-> +
-> +			memcpy(new_rdesc, rdesc, rsize_orig);
-> +			*rsize = rsize_orig + 1;
-> +			rdesc = new_rdesc;
-> +
->  			memmove(rdesc + offs + 4, rdesc + offs + 2, 12);
->  			rdesc[offs] = 0x19;
->  			rdesc[offs + 1] = 0x00;
+> 
+> Günther Noack (3):
+>   HID: apple: avoid memory leak in apple_report_fixup()
+>   HID: magicmouse: avoid memory leak in magicmouse_report_fixup()
+>   HID: asus: avoid memory leak in asus_report_fixup()
+> 
+>  drivers/hid/hid-apple.c      |  4 +---
+>  drivers/hid/hid-asus.c       | 15 +++++++++++----
+>  drivers/hid/hid-magicmouse.c |  4 +---
+>  3 files changed, 13 insertions(+), 10 deletions(-)
+> 
 > -- 
 > 2.53.0.335.g19a08e0c02-goog
 > 

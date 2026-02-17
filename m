@@ -1,151 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE6C82594B9;
-	Tue, 17 Feb 2026 01:01:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E21E782899
+	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 05:08:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771290086; cv=none; b=KD7jCz3A/KApONNei9DO8e9+3ROPTSUi7q9+Gqnfy9zYE+JR76FrSzk+K2n/6m5g+BJYWSDdfP60Lh3XqV6TyJoWjRqXJHsUgG4+1tzXg+eE2sxMm4aMeAx57ZIZj3+6Jq+1YK0/grUrONTTzIPUrQICq19DW2xWYP0bmZcxJYk=
+	t=1771304911; cv=none; b=eVKDBGK+v1cHOEP8T14+Nr9URShFQ1a7ObRLQZ7QP6j2JJQiwVs9IBS/GrwnGQ0R3GM0KeC9LnIKXOKtyI3YW6BEuDWa2GUAFRpKFdAVZToh3RWSIOXAcRR6kIJWZ7zz5a250TYzfezEKI4CYEbdJd9v6fKK7vLUmNGZVKkvzNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771290086; c=relaxed/simple;
-	bh=22h4jkN+njBHp+FSq94tcW7wTethWMHm328U9gEdOQY=;
+	s=arc-20240116; t=1771304911; c=relaxed/simple;
+	bh=3JD+c++hJT4qoKXobq1oq12iHVWseMDIgptOPVK5d20=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=d3E+SW04VMDU3nK4IB867IIbbNF6X9c8yodDVezQY88j5FgnnHMG0Mp6ecWO8hc5jpFSohSKGOHOMAbUaF/xc1+3cS5hKyKINXonq5zeUTkDmBslUnPCkE3LPjNwcFtx22HEk41ivaMdPA5Oq8Z4u9YydDmSXyD5AeRrrvqt6YY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=INbyTBSk; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=u7hJgCEqiLh256mrsF3PypIGuVhL6OWPEqbpkPcc5Qb6btmL2AivAuLLM5G+NPGvFqMppSZkeDoaSykYznSSnnQisSmC5KfZBzpqGUNoWmsJlDXaFNNaagKmQrOJc0U38/oHrFrS+03feBRO55zwJao7MTt46ZUAtlVVNrq7ib0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e59h7SDj; arc=none smtp.client-ip=209.85.222.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="INbyTBSk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76236C2BC86;
-	Tue, 17 Feb 2026 01:01:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771290086;
-	bh=22h4jkN+njBHp+FSq94tcW7wTethWMHm328U9gEdOQY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=INbyTBSkOck19USn1fi0UVA05sE20z1/UnAa/HGUgT/M+n9pJcTfF0kANi7JxqT2l
-	 QBD6u1YI8+KoyLmXuNA0zeWQ2wQOLLQKN8AgU5c9ZFgjR60kRTnp6aJ2hs/B019DO6
-	 r+0ZlwJLlGXjJkuhghQ8RrsSZ7SHmQCHJ/F66OhSOq6FbFxN9hk0m1DBDzKbl1lcfp
-	 a+TBkd2gSZ1S99xfp3V2gzxAKKxOSjkWoysRNXJ4K4mGtzGhxjJpVGMTFaJ+JyV4+0
-	 LjBy4+QYDZS1F1aeH6lyJkxAsZ9RqFg1AmqAvms6cSJkZbodp66mdtyNgKY0RCpHCS
-	 YYM9xpcpAr1Yw==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>,
-	Jiri Kosina <jkosina@suse.com>,
-	Douglas Anderson <dianders@chromium.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Sasha Levin <sashal@kernel.org>,
-	jikos@kernel.org,
-	bentiss@kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e59h7SDj"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8cb3fb47559so376049185a.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Feb 2026 21:08:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771304908; x=1771909708; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3JD+c++hJT4qoKXobq1oq12iHVWseMDIgptOPVK5d20=;
+        b=e59h7SDjohWx+3pwYLCQo8GMYWqXMKZzegN347aHJblfgAnioG824aK2uhqXPJI+3y
+         S3azd/PyVMS0IEv6ydqlbfO4R9Rvd89j8cUBJ/okSzSHmmm7JB3WDzhqhAZuEq/u7HDi
+         K7qcUS8ehU2nS6YTQdLlzKJJLl9AhgnHEm1ReHAsjxsgn1tneKvVn/6IsLquiz47MwYR
+         M6oJohsxukPwst6KrQgXoWQt5u1+hGR2VMCh3M9CtmNli6PM5zdgtavZFK3/LmVKueZ/
+         kuXjrjXmZIiCsqKJb7rhR+FG5uJVuCsPgELAZClLEiXjuTPhjTXs5YzHmwXpXwwnYdzh
+         xHLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771304908; x=1771909708;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=3JD+c++hJT4qoKXobq1oq12iHVWseMDIgptOPVK5d20=;
+        b=SLqViP4dMZi5bHafEl8dKFZnCrbQlsoUMnTxDJHok5WYKYTZYyf8HKIMetKcaB8Avc
+         VlxoB7kEUJ75yfxVCThASRoCCh8U1RI0AruPpdiSQ108OEtVGIk2S08UZ9hbQVIaHeqi
+         uKEJtYuP+RNO8te7gIp1cR90Sk9RdbS7Y4BbEChSX+XpTjM6uYy781SJAX7XSAxOB9vv
+         pcZXA+xx34e6g9WM3NmnFWHJC9IsaSvgAONnWmd0AjMft2vYMSJZqPvK8UtvbUwCbPAJ
+         L3CmkPEza8DAi6WbxLKLiK6q263+2Wz9UnILObFz04YCcrXOc3Z81en0glC4IyHJNSvH
+         XRpA==
+X-Forwarded-Encrypted: i=1; AJvYcCV61O72EBhKc2ewDA4R6c/Y6z1PEaWPiNFqwOEiuIf8QIsAMX9vgyok376/cSZONLwvQeqJHd8YV3mVRQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyfy+7Qav0zu9HiZidGtTlRkfM6JC/33L4NVATth4If/mnP626E
+	Q8JfBburDu//LWAPsH8WFWM3TLIBvt3skkCDB10yTwSeG+oqYOhRFHyj
+X-Gm-Gg: AZuq6aJ5EZY143p4HApZHlt5UWF9X7I17cwbP5mgWKcaEIp9rXJeACSiMITIpjaVre8
+	Aq/pDRRSO/3dGWCefo7QLUWy8so+cx65YMxaH1u0kdqGbtmkURhopWS2Er/AG6IxP1l1VYzVYve
+	FMTStgOAfIsXTk9vnyRJQOUmySnyQtGguVhzQwZWBV4izTuKOUNTLEsKm3SYjA8U6/pSkWekWgZ
+	VRv4osQM/VkjFMbyhEl+nmURE2e7p+tHgCdlnKp5SDLHxg2x9+Aqq6hkLxjhnQbWrO+ByHx5sNx
+	6j3Hf/J364uN7D+YLRgqLsbHoVIdUcuUuL/+ZYFAvC7g/5gnf++QHMpCzwYbr5wtL0/qrCjmMY2
+	UP619Ra7YKX+FOOtDQS2BK6KjHYBEdC4SCsrvjFajIdRtBi/I/tCUMt4AwH1T2nkC9ueaLBhHei
+	fAkeE+HtH/wSzr3cki2+4nO5gf6wpjmhI2/vQTu8UxaBrggY0xyhKKv/DQA0w5cw486rjQva4IQ
+	r3Z7YYtGA==
+X-Received: by 2002:a05:620a:254b:b0:897:56e7:6aa3 with SMTP id af79cd13be357-8cb4245c867mr1589901085a.56.1771304907830;
+        Mon, 16 Feb 2026 21:08:27 -0800 (PST)
+Received: from YAJAT (lnsm3-toronto63-142-117-56-201.internet.virginmobile.ca. [142.117.56.201])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8971cda8b1fsm156461506d6.37.2026.02.16.21.08.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Feb 2026 21:08:27 -0800 (PST)
+From: Yajat Kumar <yajatapps3@gmail.com>
+To: hansg@kernel.org,
+	dmitry.torokhov@gmail.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.12] HID: i2c-hid: Add FocalTech FT8112
-Date: Mon, 16 Feb 2026 20:01:16 -0500
-Message-ID: <20260217010118.3503621-5-sashal@kernel.org>
+Cc: Yajat Kumar <yajatapps3@gmail.com>
+Subject: Re: [PATCH] touchscreen-dmi quirk for SUPI S10
+Date: Tue, 17 Feb 2026 00:07:48 -0500
+Message-ID: <20260217050755.16078-1-yajatapps3@gmail.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260217010118.3503621-1-sashal@kernel.org>
-References: <20260217010118.3503621-1-sashal@kernel.org>
+In-Reply-To: <0840e4ec-0b61-4e0d-9d67-d0eb2ab2d6a1@kernel.org>
+References: <0840e4ec-0b61-4e0d-9d67-d0eb2ab2d6a1@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.19.2
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
+Hi Hans,
 
-[ Upstream commit 3d9586f1f90c9101b1abf5b0e9d70ca45f5f16db ]
+Sorry for the threading issue — Gmail broke my previous reply. Reposting confirmation below.
 
-Information for touchscreen model HKO/RB116AS01-2 as below:
-- HID :FTSC1000
-- slave address:0X38
-- Interface:HID over I2C
-- Touch control lC:FT8112
-- I2C ID: PNP0C50
+I’ve tested the attached patch on the SUPI S10.
 
-Signed-off-by: Daniel Peng <Daniel_Peng@pegatron.corp-partner.google.com>
-Acked-by: Jiri Kosina <jkosina@suse.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patch.msgid.link/20251117094041.300083-2-Daniel_Peng@pegatron.corp-partner.google.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+The touchscreen uses ACPI HID GDIX1001, so no change is needed there.
+With the patch applied, the Y axis is no longer inverted and touch
+input now matches the display orientation correctly.
+You can add:
 
-LLM Generated explanations, may be completely bogus:
+Tested-by: Yajat Kumar <yajatapps3@gmail.com>
 
-The ili2901 entry was added in December 2023. For older stable trees
-that don't have that entry, the patch would need minor context
-adjustment but the change itself is straightforward. Even without the
-ili2901 entry as context, the addition inserts cleanly in the match
-table.
+Thanks for the quick fix and explanation.
 
-## Verification
-
-- **git log** confirmed `i2c-hid-of-elan.c` was first added in commit
-  `bd3cba00dcc63` (May 2022), present in 6.1.y+ stable trees
-- **git log** confirmed the file has had similar device additions
-  (ili9882t, ili2901, ekth6a12nay) following the same pattern
-- The code diff shows the new entry follows the exact struct pattern of
-  existing entries
-- The commit has `Reviewed-by: Douglas Anderson` and `Acked-by: Jiri
-  Kosina` (verified in commit message)
-- The compatible string `"focaltech,ft8112"` is a new vendor, but the
-  driver architecture supports multiple vendors (it already has elan and
-  ilitek)
-- The `elan_i2c_hid_chip_data` struct is used identically for all
-  devices in this driver
-- The `ili2901` context entry was added in Dec 2023 (commit
-  `03ddb7de012c6`), so the patch may need minor context adjustment for
-  6.1.y but the logical change is trivial
-
-## Conclusion
-
-This is a textbook device ID / compatible string addition to an existing
-driver. It enables a FocalTech FT8112 touchscreen that would otherwise
-be completely non-functional. The change is:
-- Small (~10 lines), isolated, and low-risk
-- Following an established pattern in the driver
-- Reviewed and acked by maintainers
-- Critical for users with this hardware (no touchscreen = unusable
-  device)
-
-This is exactly the type of commit that the stable kernel exception for
-device IDs was designed for.
-
-**YES**
-
- drivers/hid/i2c-hid/i2c-hid-of-elan.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-of-elan.c b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
-index 0215f217f6d86..b81fcc6ff49ee 100644
---- a/drivers/hid/i2c-hid/i2c-hid-of-elan.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
-@@ -168,6 +168,13 @@ static const struct elan_i2c_hid_chip_data elan_ekth6a12nay_chip_data = {
- 	.power_after_backlight = true,
- };
- 
-+static const struct elan_i2c_hid_chip_data focaltech_ft8112_chip_data = {
-+	.post_power_delay_ms = 10,
-+	.post_gpio_reset_on_delay_ms = 150,
-+	.hid_descriptor_address = 0x0001,
-+	.main_supply_name = "vcc33",
-+};
-+
- static const struct elan_i2c_hid_chip_data ilitek_ili9882t_chip_data = {
- 	.post_power_delay_ms = 1,
- 	.post_gpio_reset_on_delay_ms = 200,
-@@ -191,6 +198,7 @@ static const struct elan_i2c_hid_chip_data ilitek_ili2901_chip_data = {
- static const struct of_device_id elan_i2c_hid_of_match[] = {
- 	{ .compatible = "elan,ekth6915", .data = &elan_ekth6915_chip_data },
- 	{ .compatible = "elan,ekth6a12nay", .data = &elan_ekth6a12nay_chip_data },
-+	{ .compatible = "focaltech,ft8112", .data = &focaltech_ft8112_chip_data },
- 	{ .compatible = "ilitek,ili9882t", .data = &ilitek_ili9882t_chip_data },
- 	{ .compatible = "ilitek,ili2901", .data = &ilitek_ili2901_chip_data },
- 	{ }
--- 
-2.51.0
-
+Regards,
+Yajat Kumar

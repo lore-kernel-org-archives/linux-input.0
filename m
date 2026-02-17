@@ -1,89 +1,85 @@
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com [209.85.210.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A30583128B2
-	for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 22:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3054837AA7D;
+	Tue, 17 Feb 2026 23:51:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771365871; cv=none; b=tek2NbFq+T3bZj/QLIZ2rzn20uV/8XZxPOBd+QKOZjOY7jh0zpVJCzdzK0Ph2M26sUrw8UEyDiKyxwtd8kM5Hy0nzQNsgyWwuTzVflNrREuInECUIssWkvSoag6UGgm4MA4/lqA+/ED2aghfe6kIYmIi6En4aDILmOHEF/ciTyY=
+	t=1771372276; cv=none; b=LrcXFZsHUbLZ37GMNctXfiwAhHgbdls5eWXMouw8hi6AxzdAS/W6p7rvsCjL4RO8NtEiYl1dew1W8htfk9ravrg9UfK1KvVguMUgkTpZlQ2qfJtbyIAr+hsY++RwJa7Mu6rLQo1vYGEQ/8wFVWR8r4U5scUXGrtCMrMCrZLCpN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771365871; c=relaxed/simple;
-	bh=tK9+22X+kZvoPbyvakcvmPv4dMsq7lMyyl308vvamRg=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=HVYJD2qdDc9xBcv3AEB79tW1dsEg34P28wR9LZ4PA9P+HeFj7wtTWvbDm9iiaTtAS71pM8qbGtRd5p9/ulEn23Kn5Gz7PDvvqSONsPqwHb9YA55uH+GqyL1RXprQkopE+0oslbp6pXPrNNOk8uVscVjx9XsmURAxMBgmtObw6U0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7d496d080d8so23419790a34.0
-        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 14:04:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771365869; x=1771970669;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=S6vViEfjsS4GHWyyZ8wAH61yXsKqQSrLOML8QBb+3Z8=;
-        b=VMnLo9cJNCEmT4Mhy28+iI7f0qgNxQzwV69d+ir9bqlqDhtJ97e6SGE3WICY/YyPpL
-         qUgZpDC9EMGCTS8ke5mPI6Q5dISqx5xCOhNIunCpyJ+lYCrk+iIRGWb8Q4hjJI1Yvs9l
-         yaVoJumQcUmAXEKY1EHsctuTEYpT+hHu1UHE6mo0MgPaAXTjnp0m7dr4rrBI01hju8pv
-         fDC2fGmFFxFrGN8XK5hbmLVdLYYLAUcAB/I30wk9EfXhK6sqTz2xT7/Un02YMm3VcjhP
-         HvuHDQSCJENI6HuJKvk6HbpqAzRXC8gQFlQp18P9VKrot9IvikXLaxmNtdc37IZW1+tn
-         jvIg==
-X-Gm-Message-State: AOJu0YxJIuqgzujxRA3UxOa4WKiiGBowmeUxKS/P+4AU3u7iNkZQj2OP
-	5K+cNWuCxpdRaA+cNRBBdCIUDnLcI94p+8ltgfXKTkJBIKyr1wr7FXRepasNwUiHA8ypXwhOEmu
-	/HfhSHnNqT56cFF6drv0Rseh4rfbSWUOBrSjZBUGo1LqSnnslu/1yhTOJZOE=
+	s=arc-20240116; t=1771372276; c=relaxed/simple;
+	bh=m8ul2C55+KKmA9o6HcxSqObQQMLz3kIWacHNqG2d3bI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=CcEIgN52qvngUJdlNLmAolNCzvl2MSqbSiaJBWDSGel2cgqK3ueSrQDbp8AUxyof6rbc+x1MvV659S+pYn14S5O0Z5Jas87BmFUzpCIyCfLmAlLXvLsI+agDYzyOVq8YUK50ePKV0pXz3J6rHT6ktTH4H584XTC693H3QsjX9RI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=FDKLvtE1; dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=crvSIIrf; arc=none smtp.client-ip=5.75.144.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mainlining.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="FDKLvtE1";
+	dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="crvSIIrf"
+DKIM-Signature: v=1; a=rsa-sha256; s=202507r; d=mainlining.org; c=relaxed/relaxed;
+	h=To:Message-Id:Subject:Date:From; t=1771372265; bh=p+gPL1PjMDtfMBBPlQKq2Xl
+	IPWpgpumvv3vlS1lYThM=; b=FDKLvtE1oHfxHJC5eangRvzV1dVUeSro/E3S53GB+i2jN8PGUP
+	f1CyWFYm58LehmAHslzAbq3fcDfRLr95wA3s+F2Mm8sALWgmYQBEj1mP5bec+BpfFuO8EJRhfBs
+	GlI6m9i+KTtodwuZgnm5ZBEdIDhK/L0+SB0NGnUj+F4DnlAuiq4uZyDmtWw5W2+DPdgzcZf65mj
+	LPLhE3fRJgGa3rbJ5hN3FqWuVRI1VgCmJ2slITlwsl7isjismihVWre4x2NKN2yTRwCCApJLJ99
+	vQw3A7xtgIMGWxs0iUdG365cn7k0zMiVRoZJBItNegXULj/0yrCQLoPladY5Or+ETGQ==;
+DKIM-Signature: v=1; a=ed25519-sha256; s=202507e; d=mainlining.org; c=relaxed/relaxed;
+	h=To:Message-Id:Subject:Date:From; t=1771372265; bh=p+gPL1PjMDtfMBBPlQKq2Xl
+	IPWpgpumvv3vlS1lYThM=; b=crvSIIrfX+b7+UuhyRa4FSbkR536U3/xoW4uwH7uWfN10y0+kx
+	Dno/mx3g2TqFZcYKXIGsebMQ6PsSRL0IROAg==;
+From: Aelin Reidel <aelin@mainlining.org>
+Date: Wed, 18 Feb 2026 00:50:49 +0100
+Subject: [PATCH 3/3] MAINTAINERS: add an entry for Goodix GTX8 Touchscreen
+ driver
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a4a:d666:0:b0:677:e96f:8f49 with SMTP id
- 006d021491bc7-677e96f8ffdmr5582121eaf.4.1771365868849; Tue, 17 Feb 2026
- 14:04:28 -0800 (PST)
-Date: Tue, 17 Feb 2026 14:04:28 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6994e5ec.050a0220.2eeac1.0148.GAE@google.com>
-Subject: [syzbot] Monthly input report (Feb 2026)
-From: syzbot <syzbot+list1c1a4013e10ef6bd129e@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260218-gtx8-v1-3-0d575b3dedc5@mainlining.org>
+References: <20260218-gtx8-v1-0-0d575b3dedc5@mainlining.org>
+In-Reply-To: <20260218-gtx8-v1-0-0d575b3dedc5@mainlining.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Hans de Goede <hansg@kernel.org>, 
+ Neil Armstrong <neil.armstrong@linaro.org>, 
+ Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux@mainlining.org, 
+ phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht, 
+ Aelin Reidel <aelin@mainlining.org>
+X-Mailer: b4 0.14.2
 
-Hello input maintainers/developers,
+Add MAINTAINERS entry for the Goodix GTX8 Touchscreen IC driver.
 
-This is a 31-day syzbot report for the input subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/input
-
-During the period, 0 new issues were detected and 0 were fixed.
-In total, 22 issues are still open and 63 have already been fixed.
-
-Some of the still happening issues:
-
-Ref Crashes Repro Title
-<1> 3448    Yes   WARNING in cm109_urb_irq_callback/usb_submit_urb
-                  https://syzkaller.appspot.com/bug?extid=2d6d691af5ab4b7e66df
-<2> 1677    No    possible deadlock in evdev_pass_values (2)
-                  https://syzkaller.appspot.com/bug?extid=13d3cb2a3dc61e6092f5
-<3> 430     Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
-                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
-<4> 116     Yes   WARNING in cm109_input_open/usb_submit_urb (3)
-                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
-<5> 91      Yes   possible deadlock in uinput_request_submit
-                  https://syzkaller.appspot.com/bug?extid=159077b1355b8cd72757
-<6> 59      No    KASAN: slab-use-after-free Read in report_descriptor_read
-                  https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
-<7> 20      Yes   INFO: task hung in __input_unregister_device (5)
-                  https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
-
+Signed-off-by: Aelin Reidel <aelin@mainlining.org>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
+diff --git a/MAINTAINERS b/MAINTAINERS
+index afbba2fdc0f49abb6d0d1877a5e161266715f275..cb0f19d622e25cd9a5ceb8fc1e781a1f2232c64a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10831,6 +10831,13 @@ M:	Maud Spierings <maudspierings@gocontroll.com>
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/connector/gocontroll,moduline-module-slot.yaml
+ 
++GOODIX GTX8 TOUCHSCREEN
++M:	Aelin Reidel <aelin@mainlining.org>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/input/touchscreen/goodix,gt9886.yaml
++F:	drivers/input/touchscreen/goodix_gtx8*
++
+ GOODIX TOUCHSCREEN
+ M:	Hans de Goede <hansg@kernel.org>
+ L:	linux-input@vger.kernel.org
 
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
+-- 
+2.53.0
 
-You may send multiple commands in a single email message.

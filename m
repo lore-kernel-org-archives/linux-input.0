@@ -1,53 +1,53 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3962FF662;
-	Wed, 18 Feb 2026 10:40:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E15772FD7BE;
+	Wed, 18 Feb 2026 13:29:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771411255; cv=none; b=BqwBHX8qyCqY7RQG1S2lTyMHUZXEPNBYUDj8zIxFstXrL6eSKXg9lO4GFrZi/I1iomYivr1c2YbyVHPa1e9biqVt6IUmxK37NqwcPMVxH6V0e8dVUsNBBfUu/yTx8Q7Nye1+ct+kCzqyxXru/PgW0E8HTL8blRKOZXygg/bnB44=
+	t=1771421399; cv=none; b=NnbIRzODWF8+46lkXqIr6/IymJAr7DpSSbQeM2hb0ETwt2VgpMsEEmyzDGi1iAmQbcpdbml8ujhnnPv+OoR+KPzGbJf39FDGdqZ0u3d/DQxwGJKvJzAZi9vmY4AFsTr1xvSzAK71anT+cgm/UR4HS02xPHWGjy8MtQo5r9gO6ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771411255; c=relaxed/simple;
-	bh=RJ3db4P7f6iZL9PjraP8K+gI4ily9Dn6WB2Z9jdSzdI=;
+	s=arc-20240116; t=1771421399; c=relaxed/simple;
+	bh=+eEDQP7ZC+Sn7kLzL0NEWHh05rcZXqlQQIEzWs0DxtA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S/QZ5fcpKAAnhE3+9/bJhNU1OM3WOBH8Rv88jA+9OVUBs3ftjhFd+3zz85sWUzeSGui3w6gx0+WUbiub6o0QJq8/soAeLFH0fMM5j79ceIsa9ti1Nf7BNKv6TcqsS8sob6jbn/NjVOs/h75EvvJqmSJ4ELu0RaBrw2L+Ud6VFDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gao72Tz8; arc=none smtp.client-ip=192.198.163.12
+	 Content-Type:Content-Disposition:In-Reply-To; b=hBBjJ946VoAEobVW0mosKYNRLNCcR2lNVPQKk/Qd8hQ/Vipt6FUcLAvW9aJrpWbnw1l/YFOgQargvvMIWyCDm/3SrvPcifl7zg+M8RPQFcywagqiG/lfR1r1+oscpoQas3EeImMeJwfVdL11hN5FvvOmZ/d8hpCZ12rnbs9R/fg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iTXg9L3Q; arc=none smtp.client-ip=192.198.163.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gao72Tz8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iTXg9L3Q"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771411254; x=1802947254;
+  t=1771421398; x=1802957398;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=RJ3db4P7f6iZL9PjraP8K+gI4ily9Dn6WB2Z9jdSzdI=;
-  b=gao72Tz8Mf5xEHkMriiy65ftvlgmKSKlobPVoRLgZtXH9yA0DwQ9/Xc6
-   juuJiGdIeNEBkTo/sc66JaFj0jifUV1bvDXYOt2hHOY7mzWups+AbnZjz
-   GyC7opoSRRzWmYlB+Ix0Fx9OJGO/xWmjRdX+i2EJcSGlxF51ZKa5dwfIj
-   PEg2PnaxqPuvWu8bjFBZZK4jbegf4/UiH3SoWcSnQ0qfNQb8IcbeZo+ih
-   eGwgnYHtf2McjJlvPL0Ic98p9ULc3cFHk2GbrZEyiDxiChxTrBABobJZ9
-   bmaIaf7icDdCMmvB59blasGsQqn6GZNmXNnpPiWHq5MdRnB8Or9AcqJTd
-   Q==;
-X-CSE-ConnectionGUID: pSL6OD+nSLC8nrS+X2ckgQ==
-X-CSE-MsgGUID: 981wdYDBTw6V0y3yZSb+oA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11704"; a="76344964"
+  bh=+eEDQP7ZC+Sn7kLzL0NEWHh05rcZXqlQQIEzWs0DxtA=;
+  b=iTXg9L3QjcJGmZGwJfzHj5LvLIq7/6MHSZXXufH675aOhyUPwGgNZ1lo
+   fths+1YDowTq3325CawCXjxOG7Qj7JtnBuaIvXY2NJubWjK40WKUFeer8
+   pMEo5Xw98cL/TZ3E+Mf84gioERUGuHSWoGnFuf95r/uTjacmNKurCtKbb
+   l361tM/PyJqTjis2OUEYNkP0cCc+BMEcqkuUGuezibXXpHpSk8/FVtQo7
+   k9DGpQa1mUVNOKw5x+qzU+xlICAVOaPhiaqsHMeH375m/4+wOk09UHfvr
+   EDG4GmMbmOmf3RU2zMvhY4yr2KerK5QGqets6lRAUnl7hjrnfTXwg1ZoL
+   g==;
+X-CSE-ConnectionGUID: bs9PubYfTPuoNxddtyPrkg==
+X-CSE-MsgGUID: dsN50TnrS52eR//c+pmEqw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11704"; a="97956449"
 X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
-   d="scan'208";a="76344964"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2026 02:40:51 -0800
-X-CSE-ConnectionGUID: sLYSybasRgiOXb5BDWpu0g==
-X-CSE-MsgGUID: ETul5zvpTyWNRTSJaFeDtQ==
+   d="scan'208";a="97956449"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2026 05:29:57 -0800
+X-CSE-ConnectionGUID: Izloa6RIRcudyY2e/WdIxA==
+X-CSE-MsgGUID: dQzn2tmzSRSZRYfKJ5n1tA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
-   d="scan'208";a="214148729"
+   d="scan'208";a="212553047"
 Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 18 Feb 2026 02:40:46 -0800
+  by fmviesa006.fm.intel.com with ESMTP; 18 Feb 2026 05:29:52 -0800
 Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1vsez6-000000012HE-1d79;
-	Wed, 18 Feb 2026 10:40:44 +0000
-Date: Wed, 18 Feb 2026 18:40:09 +0800
+	id 1vshck-000000012Nc-1WO1;
+	Wed, 18 Feb 2026 13:29:50 +0000
+Date: Wed, 18 Feb 2026 21:28:56 +0800
 From: kernel test robot <lkp@intel.com>
 To: Aelin Reidel <aelin@mainlining.org>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -57,14 +57,14 @@ To: Aelin Reidel <aelin@mainlining.org>,
 	Hans de Goede <hansg@kernel.org>,
 	Neil Armstrong <neil.armstrong@linaro.org>,
 	Henrik Rydberg <rydberg@bitmath.org>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux@mainlining.org, phone-devel@vger.kernel.org,
-	~postmarketos/upstreaming@lists.sr.ht,
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux@mainlining.org,
+	phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
 	Aelin Reidel <aelin@mainlining.org>,
 	Piyush Raj Chouhan <pc1598@mainlining.org>
 Subject: Re: [PATCH 2/3] Input: add support for Goodix GTX8 Touchscreen ICs
-Message-ID: <202602181848.DK5Wc0iI-lkp@intel.com>
+Message-ID: <202602182104.ONBwXzkn-lkp@intel.com>
 References: <20260218-gtx8-v1-2-0d575b3dedc5@mainlining.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -86,46 +86,24 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Aelin-Reidel/dt-bindings-
 base:   fe9e3edb6a215515d1148d32a5c445c5bdd7916f
 patch link:    https://lore.kernel.org/r/20260218-gtx8-v1-2-0d575b3dedc5%40mainlining.org
 patch subject: [PATCH 2/3] Input: add support for Goodix GTX8 Touchscreen ICs
-config: m68k-allmodconfig (https://download.01.org/0day-ci/archive/20260218/202602181848.DK5Wc0iI-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 15.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260218/202602181848.DK5Wc0iI-lkp@intel.com/reproduce)
+config: sparc64-allmodconfig (https://download.01.org/0day-ci/archive/20260218/202602182104.ONBwXzkn-lkp@intel.com/config)
+compiler: clang version 23.0.0git (https://github.com/llvm/llvm-project e86750b29fa0ff207cd43213d66dabe565417638)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260218/202602182104.ONBwXzkn-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602181848.DK5Wc0iI-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602182104.ONBwXzkn-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
-   drivers/input/touchscreen/goodix_gtx8.c: In function 'goodix_gtx8_report_state':
->> drivers/input/touchscreen/goodix_gtx8.c:110:37: error: implicit declaration of function 'FIELD_GET' [-Wimplicit-function-declaration]
+>> drivers/input/touchscreen/goodix_gtx8.c:110:16: error: call to undeclared function 'FIELD_GET'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
      110 |                         finger_id = FIELD_GET(
-         |                                     ^~~~~~~~~
-   In file included from include/linux/kernel.h:35,
-                    from include/linux/random.h:7,
-                    from include/linux/nodemask.h:94,
-                    from include/linux/numa.h:6,
-                    from include/linux/cpumask.h:15,
-                    from include/linux/smp.h:13,
-                    from include/linux/lockdep.h:14,
-                    from include/linux/spinlock.h:63,
-                    from include/linux/mmzone.h:8,
-                    from include/linux/gfp.h:7,
-                    from include/linux/slab.h:17,
-                    from include/linux/resource_ext.h:11,
-                    from include/linux/acpi.h:14,
-                    from include/linux/i2c.h:13,
-                    from drivers/input/touchscreen/goodix_gtx8.c:16:
-   drivers/input/touchscreen/goodix_gtx8.c: At top level:
->> drivers/input/touchscreen/goodix_gtx8.c:555:37: error: 'goodix_gtx8_pm_ops' undeclared here (not in a function); did you mean 'goodix_gtx8_probe'?
-     555 |                 .pm = pm_sleep_ptr(&goodix_gtx8_pm_ops),
-         |                                     ^~~~~~~~~~~~~~~~~~
-   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
-     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
-         |                                            ^~~
-   drivers/input/touchscreen/goodix_gtx8.c:555:23: note: in expansion of macro 'pm_sleep_ptr'
-     555 |                 .pm = pm_sleep_ptr(&goodix_gtx8_pm_ops),
-         |                       ^~~~~~~~~~~~
+         |                                     ^
+   drivers/input/touchscreen/goodix_gtx8.c:135:14: error: call to undeclared function 'FIELD_GET'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+     135 |         touch_num = FIELD_GET(GOODIX_GTX8_TOUCH_COUNT_MASK, touch_num);
+         |                     ^
+   2 errors generated.
 
 
 vim +/FIELD_GET +110 drivers/input/touchscreen/goodix_gtx8.c

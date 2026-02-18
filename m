@@ -1,69 +1,71 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CDB1A9FA0
-	for <linux-input@vger.kernel.org>; Wed, 18 Feb 2026 06:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3962FF662;
+	Wed, 18 Feb 2026 10:40:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771395965; cv=none; b=k2zGA+y6ucYuytkXelGf0gekVxRmSxnPzXRBzmnJle8g7tzHAqUDVDu0YmkfyVsJuBjg8TR/qups2cZkvJH1hGrP84fNbDb79VL+SVGTjGpSmAyPQRI0GhJKnSJm3hW4iworZ4Hy5hR2XkuURysGyT6jUVhvC5Z1qtQVCI1b+tY=
+	t=1771411255; cv=none; b=BqwBHX8qyCqY7RQG1S2lTyMHUZXEPNBYUDj8zIxFstXrL6eSKXg9lO4GFrZi/I1iomYivr1c2YbyVHPa1e9biqVt6IUmxK37NqwcPMVxH6V0e8dVUsNBBfUu/yTx8Q7Nye1+ct+kCzqyxXru/PgW0E8HTL8blRKOZXygg/bnB44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771395965; c=relaxed/simple;
-	bh=2KD23qcD46LwDrPbqHlKefFt5WCn2x6a66SjGWE4T4Q=;
+	s=arc-20240116; t=1771411255; c=relaxed/simple;
+	bh=RJ3db4P7f6iZL9PjraP8K+gI4ily9Dn6WB2Z9jdSzdI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L3PGGafNbIqUcd39v+ip38Z2Jf4t9ZwmxEnPUvtgyxaaD/JtywxO2nQaYTAX4wOq1gWVMArquLe5J8/ZCjYW0d8Irn5A1VV8sUrKR+2bNU4zYaLp6vTTncfPhex/lT7/BNFLrFoV0yqVWGQVHvbBVJp+Y8NLMYqOI84sW+R5aRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jp5oNi7n; arc=none smtp.client-ip=74.125.82.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=S/QZ5fcpKAAnhE3+9/bJhNU1OM3WOBH8Rv88jA+9OVUBs3ftjhFd+3zz85sWUzeSGui3w6gx0+WUbiub6o0QJq8/soAeLFH0fMM5j79ceIsa9ti1Nf7BNKv6TcqsS8sob6jbn/NjVOs/h75EvvJqmSJ4ELu0RaBrw2L+Ud6VFDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gao72Tz8; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jp5oNi7n"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2baa098ffc6so4225709eec.0
-        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2026 22:26:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771395963; x=1772000763; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QGmH+jRsiMrD2d15l0zE2uXpvYOyAws46Y9MXQME608=;
-        b=Jp5oNi7nSite0JqSVnjCz092K5Rmh/iOtpfQ0UY36ytR4jVgaKsorNTzEN7MoS7ZsW
-         dNnraLK+6bxuZjyKQSifqKB5xTH2YwaKErc+vgtpScojX1XbmKwhgRJPP7sWePJ3Rbqo
-         fjD/Vtt4kx8K7GEv8LAilCt3BnLf7YXESY7XDrNbppJvZW/gN5klI0lLU9ZF6wAdiUeO
-         tf+juY+mzAIDHH3MWn8o9M6+6WK7SL+rYs1NqssJwQ8RNvpsmqcDS1scoHvLFcWjtOMV
-         bzEzTP6wC2g7b0GOy3gMDZynN+Q0NS1IXqEJvL76GvQq1w3Nk5wYSRQY6jnXGwlGKpqf
-         s2Ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771395963; x=1772000763;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QGmH+jRsiMrD2d15l0zE2uXpvYOyAws46Y9MXQME608=;
-        b=dGyh7ta+rdiNe+5RScMKbo3Iz7HtHJTSdbJUCfdgTXUqzkYw4EN1OlnQb+H5Pao9De
-         21uYobEJ7OO++2Q634vEJiKsgHfxNTtTcneXmZ0c/6sG/zxsZPZfFUeU5RcfY9h8fodH
-         Er6HbimRIVoYhqQPIqIB7FT5+1Ko/nEbDD5kzVJgHUfV5xn0AaJNTgXtWYLawcrV1H9w
-         yjvIWnKuV1gUkylx/8WkYb1yD0BlXNUh0q7lrNgOXc/O/Fzb4Q+tly6XFi5TfPPCqj5Y
-         Xf/Ppf0HuRYvvBtd7cQs57toxjkMqu+mtu6EaUkU1oTYlLGdRU/3qWNLiTuD8QHFjrAq
-         /E1w==
-X-Gm-Message-State: AOJu0YxAkYr2onfqyjQb/1BIcyztTiTpmswnftwztPO2TXDTn9gohMZL
-	Uz8qLcrVJrh9iI4Kaub3RhyEpZQi+R6SO2uVy0NeKHgDl+zZugnZF77unfDk0g==
-X-Gm-Gg: AZuq6aLHgJD2KD67Zgr8RD7szHVipde7ScC60I0/rnhHJ2yE+SKU3dB4nRMzPd7/tYz
-	jtE6H6FCAOxhSGxHuRR5HGkt6a19rDbycxYhkYroF4VUlvt7el3Eu1L+f4Cv0DlnWYuKbhrp/JJ
-	gd7W0RtTXnM0/wfgPO9uFjqyp7PQyoCVhqSEz5EdIhxVGCRizqAO/o86/po6VHS122Qxvw2MYDZ
-	f9oqEGCNMyRUieIgXiPs+Q5DoShPzsCbtE8HRiFBD69njY4sO/QKlFlG4DDT8Ug0/X71aK1WLaJ
-	z/e2nFxLmB1v9LEju5RuN4tYx9dodbOUoacSh0rKLW7FhPv4EvYvTYiVQ58Rjc8fZ9A0CQy+sfp
-	G1nDoZIGdaS7zzqbdITx5i/Ol1wFYDiqspkRTZGTCyPTnaBQECUOt8nXS4pSR4wzUFXCRZdcsOx
-	rhCp3mk9IclxdIqkNeavr7OwJa3Ar0wgfpe6cwsctwIG56tkBOsgnY1LgGQJTHPFm3
-X-Received: by 2002:a05:693c:2c06:b0:2ba:ae6f:8153 with SMTP id 5a478bee46e88-2baba0528f5mr6478556eec.15.1771395963221;
-        Tue, 17 Feb 2026 22:26:03 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:968c:f102:3683:408a])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb5653aesm16289728eec.11.2026.02.17.22.26.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Feb 2026 22:26:02 -0800 (PST)
-Date: Tue, 17 Feb 2026 22:26:00 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Mikhail Novosyolov <m.novosyolov@rosa.ru>
-Cc: linux-input@vger.kernel.org, mpearson-lenovo@squebb.ca
-Subject: Re: [PATCH] Input: atkbd: add keymap fixup for notebooks using 0x6e
- as Fn modifier
-Message-ID: <aZVZokRqcqWMfLbM@google.com>
-References: <20260218041352.797625-1-m.novosyolov@rosa.ru>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gao72Tz8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1771411254; x=1802947254;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=RJ3db4P7f6iZL9PjraP8K+gI4ily9Dn6WB2Z9jdSzdI=;
+  b=gao72Tz8Mf5xEHkMriiy65ftvlgmKSKlobPVoRLgZtXH9yA0DwQ9/Xc6
+   juuJiGdIeNEBkTo/sc66JaFj0jifUV1bvDXYOt2hHOY7mzWups+AbnZjz
+   GyC7opoSRRzWmYlB+Ix0Fx9OJGO/xWmjRdX+i2EJcSGlxF51ZKa5dwfIj
+   PEg2PnaxqPuvWu8bjFBZZK4jbegf4/UiH3SoWcSnQ0qfNQb8IcbeZo+ih
+   eGwgnYHtf2McjJlvPL0Ic98p9ULc3cFHk2GbrZEyiDxiChxTrBABobJZ9
+   bmaIaf7icDdCMmvB59blasGsQqn6GZNmXNnpPiWHq5MdRnB8Or9AcqJTd
+   Q==;
+X-CSE-ConnectionGUID: pSL6OD+nSLC8nrS+X2ckgQ==
+X-CSE-MsgGUID: 981wdYDBTw6V0y3yZSb+oA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11704"; a="76344964"
+X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
+   d="scan'208";a="76344964"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2026 02:40:51 -0800
+X-CSE-ConnectionGUID: sLYSybasRgiOXb5BDWpu0g==
+X-CSE-MsgGUID: ETul5zvpTyWNRTSJaFeDtQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
+   d="scan'208";a="214148729"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 18 Feb 2026 02:40:46 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vsez6-000000012HE-1d79;
+	Wed, 18 Feb 2026 10:40:44 +0000
+Date: Wed, 18 Feb 2026 18:40:09 +0800
+From: kernel test robot <lkp@intel.com>
+To: Aelin Reidel <aelin@mainlining.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Hans de Goede <hansg@kernel.org>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Henrik Rydberg <rydberg@bitmath.org>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux@mainlining.org, phone-devel@vger.kernel.org,
+	~postmarketos/upstreaming@lists.sr.ht,
+	Aelin Reidel <aelin@mainlining.org>,
+	Piyush Raj Chouhan <pc1598@mainlining.org>
+Subject: Re: [PATCH 2/3] Input: add support for Goodix GTX8 Touchscreen ICs
+Message-ID: <202602181848.DK5Wc0iI-lkp@intel.com>
+References: <20260218-gtx8-v1-2-0d575b3dedc5@mainlining.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,33 +74,106 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260218041352.797625-1-m.novosyolov@rosa.ru>
+In-Reply-To: <20260218-gtx8-v1-2-0d575b3dedc5@mainlining.org>
 
-On Wed, Feb 18, 2026 at 07:13:52AM +0300, Mikhail Novosyolov wrote:
-> Commit dc8c9c171ef3 ("Input: atkbd - map F23 key to support default
-> copilot shortcut") mapped scancode 0x6e to KEY_F23 to support the
-> Microsoft Copilot key on Lenovo, HP, and Dell notebooks.
-> 
-> However, some notebook platforms (including Positron Proxima 15 and
-> possibly others based on the same OEM design) use scancode 0x6e for the
-> Fn modifier key instead of a dedicated Copilot key. When 0x6e generates
-> KEY_F23 events, the Fn key breaks Fn combinations such as Fn+F5
-> (touchpad toggle).
-> 
-> On these platforms, the hardware relies on 0x6e being unmapped to
-> properly handle Fn combinations at the firmware level. When the kernel
-> maps it to KEY_F23, desktop environments intercept this as a global
-> hotkey and toggle the touchpad, but cannot re-enable it because the
-> firmware no longer recognizes Fn as a valid modifier.
-> 
-> Userspace solutions (systemd hwdb) cannot fix this because the keycode
-> mapping happens in the atkbd driver before events reach userspace.
-> A kernel-level quirk is required.
+Hi Aelin,
 
-? That is exactly what udev hwdb is for. Use it. Check 60-keyboard.hwdb
-for examples.
+kernel test robot noticed the following build errors:
 
-Thanks.
+[auto build test ERROR on fe9e3edb6a215515d1148d32a5c445c5bdd7916f]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Aelin-Reidel/dt-bindings-input-document-Goodix-GTX8-Touchscreen-ICs/20260218-075424
+base:   fe9e3edb6a215515d1148d32a5c445c5bdd7916f
+patch link:    https://lore.kernel.org/r/20260218-gtx8-v1-2-0d575b3dedc5%40mainlining.org
+patch subject: [PATCH 2/3] Input: add support for Goodix GTX8 Touchscreen ICs
+config: m68k-allmodconfig (https://download.01.org/0day-ci/archive/20260218/202602181848.DK5Wc0iI-lkp@intel.com/config)
+compiler: m68k-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260218/202602181848.DK5Wc0iI-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602181848.DK5Wc0iI-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/input/touchscreen/goodix_gtx8.c: In function 'goodix_gtx8_report_state':
+>> drivers/input/touchscreen/goodix_gtx8.c:110:37: error: implicit declaration of function 'FIELD_GET' [-Wimplicit-function-declaration]
+     110 |                         finger_id = FIELD_GET(
+         |                                     ^~~~~~~~~
+   In file included from include/linux/kernel.h:35,
+                    from include/linux/random.h:7,
+                    from include/linux/nodemask.h:94,
+                    from include/linux/numa.h:6,
+                    from include/linux/cpumask.h:15,
+                    from include/linux/smp.h:13,
+                    from include/linux/lockdep.h:14,
+                    from include/linux/spinlock.h:63,
+                    from include/linux/mmzone.h:8,
+                    from include/linux/gfp.h:7,
+                    from include/linux/slab.h:17,
+                    from include/linux/resource_ext.h:11,
+                    from include/linux/acpi.h:14,
+                    from include/linux/i2c.h:13,
+                    from drivers/input/touchscreen/goodix_gtx8.c:16:
+   drivers/input/touchscreen/goodix_gtx8.c: At top level:
+>> drivers/input/touchscreen/goodix_gtx8.c:555:37: error: 'goodix_gtx8_pm_ops' undeclared here (not in a function); did you mean 'goodix_gtx8_probe'?
+     555 |                 .pm = pm_sleep_ptr(&goodix_gtx8_pm_ops),
+         |                                     ^~~~~~~~~~~~~~~~~~
+   include/linux/util_macros.h:136:44: note: in definition of macro 'PTR_IF'
+     136 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+         |                                            ^~~
+   drivers/input/touchscreen/goodix_gtx8.c:555:23: note: in expansion of macro 'pm_sleep_ptr'
+     555 |                 .pm = pm_sleep_ptr(&goodix_gtx8_pm_ops),
+         |                       ^~~~~~~~~~~~
+
+
+vim +/FIELD_GET +110 drivers/input/touchscreen/goodix_gtx8.c
+
+    87	
+    88	static void goodix_gtx8_report_state(struct goodix_gtx8_core *cd, u8 touch_num,
+    89					     union goodix_gtx8_touch *touch_data)
+    90	{
+    91		union goodix_gtx8_touch *t;
+    92		int i;
+    93		u8 finger_id;
+    94	
+    95		for (i = 0; i < touch_num; i++) {
+    96			t = &touch_data[i];
+    97	
+    98			if (cd->ic_data->ic_type == IC_TYPE_NORMANDY) {
+    99				input_mt_slot(cd->input_dev, t->normandy.finger_id);
+   100				input_mt_report_slot_state(cd->input_dev,
+   101							   MT_TOOL_FINGER, true);
+   102	
+   103				touchscreen_report_pos(cd->input_dev, &cd->props,
+   104						       __le16_to_cpu(t->normandy.x),
+   105						       __le16_to_cpu(t->normandy.y),
+   106						       true);
+   107				input_report_abs(cd->input_dev, ABS_MT_TOUCH_MAJOR,
+   108						 t->normandy.w);
+   109			} else {
+ > 110				finger_id = FIELD_GET(
+   111					GOODIX_GTX8_FINGER_ID_MASK_YELLOWSTONE,
+   112					t->yellowstone.finger_id);
+   113				input_mt_slot(cd->input_dev, finger_id);
+   114				input_mt_report_slot_state(cd->input_dev,
+   115							   MT_TOOL_FINGER, true);
+   116	
+   117				touchscreen_report_pos(cd->input_dev, &cd->props,
+   118						       __be16_to_cpu(t->yellowstone.x),
+   119						       __be16_to_cpu(t->yellowstone.y),
+   120						       true);
+   121				input_report_abs(cd->input_dev, ABS_MT_TOUCH_MAJOR,
+   122						 t->yellowstone.w);
+   123			}
+   124		}
+   125	
+   126		input_mt_sync_frame(cd->input_dev);
+   127		input_sync(cd->input_dev);
+   128	}
+   129	
 
 -- 
-Dmitry
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

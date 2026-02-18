@@ -1,204 +1,346 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF012FE56A;
-	Wed, 18 Feb 2026 19:04:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8C7D34405F
+	for <linux-input@vger.kernel.org>; Wed, 18 Feb 2026 19:39:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771441497; cv=none; b=GU2TmpS51twupGtQWYlgoKiAIPbKSUJMqivBu06D0gsMKMbFB/dXaIQH7xwVyf5dkvJHr6+EO4rJa6fSDS9dA5BH/BR/E7+wNB08givcxQb4ZggD+vmGrAn8lF9u09ba5wv/pq+eRDeL3FtYjt5odhU4kCaB5g2K0yRGxopixIk=
+	t=1771443549; cv=none; b=DlZN/B7ySO5XDMpSDNq7EgyihBTNmpgiksOT3SWXvLLUbNj2JYSCLyrfJ7opq+flvv8AcBhymMCgGNZH2HTqFNlERYRJ31hHbDIIvFchhnGXUnOOrjFqq3Ys0Q78GSvg/EDnqP92HET+xSNVLvonFCqVdSqlEzkSdP5UZpVwK6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771441497; c=relaxed/simple;
-	bh=3+BxxppG+7eCIu0fcfAL4ecK0E855Brzx1YH3Z9EPSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rZ+nv+GvfolqZWB03+CPeVSnsssN6Qs+VLMFyvn4whTLtt4oYQZAWbrxt9y/IewWp3P+9FENig6fTakUJ+am9uAlMKT7XbVW9T6KW/y2EdaM41ScCTakiNmggHgjlWLL5TDrrNubvOu4uxAzp68onnuPeUgWHhAvykO9tEh6jjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZVw7NM3W; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771443549; c=relaxed/simple;
+	bh=1+tASPaDjFuB67WpphO3d/4Ys9IcsVRjIlw7HOy6+MU=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=tNFgHak5Wkf6XuTxiZQx0b+1ycjh4q+Ds+55RwgRMgX16QNnBILgeEyJxAg8hRcGj06DB03KXsZcJt8aEmWg7AexvtnBaiHWhIP6bohLbxjVHjL82o12ALtsDOmv1jNZF1tO+J8jOE8rgVDMl57G1k4ntNsQWfIkLRbKDsnJpPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MEcfU6lv; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZVw7NM3W"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BE8C116D0;
-	Wed, 18 Feb 2026 19:04:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771441496;
-	bh=3+BxxppG+7eCIu0fcfAL4ecK0E855Brzx1YH3Z9EPSo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZVw7NM3Wtv9QaEeGyHJ1D5MX4kYVeEo44cSDd7PwuWOL3bxeM9e7Es+PouCrV32nn
-	 IoijrgbJ+LRkN/nZPRnzrjl/DC4FDIJPhDHHrdXwV3FF64eW7bCnjC3gDNICQbnDcn
-	 eZz5LmWujMF6O/BW/TQH41ipr6VbbMZqf8E4AjsPKzhnr0bNdHnf0FKU5G8S1ld5BG
-	 kmXwLN4yXG/9SQ+aBUXXakBnp2C0DbKWrkuQ785nFPTbseWlW6KHxXATZVe0gOvCoX
-	 sjfJT35Sq9kxZpjV0dzpOkKEtAQbLYItGewZSUiZ3mh+KGhDCouBQUt63dVPnhu4q0
-	 QWSkJAu5sgXow==
-Date: Wed, 18 Feb 2026 20:04:52 +0100
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] HID: apple: avoid memory leak in apple_report_fixup()
-Message-ID: <aZYMcsHlWL5pDHdR@plouf>
-References: <20260217160125.1097578-1-gnoack@google.com>
- <20260217160125.1097578-2-gnoack@google.com>
- <aZSxeusondD26uN3@plouf>
- <aZTEnPEHcWEkoTJR@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MEcfU6lv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1771443548; x=1802979548;
+  h=date:from:to:cc:subject:message-id;
+  bh=1+tASPaDjFuB67WpphO3d/4Ys9IcsVRjIlw7HOy6+MU=;
+  b=MEcfU6lvqP+DY3PE7bzY7KKhAXAGddzOKen5VI81oFu1z5M6fOYCIa+O
+   rPLr44bLEBzPjNLSYCb9Z4uaAMsW5gTVHtNr0C88+oMhfYX0Gy6lfDSp0
+   vobKEzT90Jp+15UXVZ8qUxlNzl/FjzbKkULKsJp/Qed4f4vm/Nzz+hiiI
+   SNr98YIFtbuvT+PGtAc9UPX90FZhjThnZDbgKCw7I18BuLpUiAHLe9uF6
+   e5wLAiuum3pX/LrvvwuTiVJlcOSWvpPJjjTXEcxy6FpmZEPFlLXpq8v80
+   BCMTy8/F/yKpRFiho5DnKOQzOYV+8RfhfzmRvOK784kUEhU/8O2f4NE1J
+   Q==;
+X-CSE-ConnectionGUID: y+QznnejTEu2jDa2kuYOgw==
+X-CSE-MsgGUID: 7kJsXA+eQnaKKpQ28lYUaQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11705"; a="76363055"
+X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
+   d="scan'208";a="76363055"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2026 11:39:08 -0800
+X-CSE-ConnectionGUID: eHnBdqvXSCyPepdlYnL1ww==
+X-CSE-MsgGUID: rcCF4ue+QnS/rDhHvVkrwQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,298,1763452800"; 
+   d="scan'208";a="214396236"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa007.jf.intel.com with ESMTP; 18 Feb 2026 11:39:07 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vsnO4-000000012g8-00KZ;
+	Wed, 18 Feb 2026 19:39:04 +0000
+Date: Thu, 19 Feb 2026 03:38:28 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ e7b53288d9ea899abc6d47a7f20065ab511a810c
+Message-ID: <202602190320.jTjAUDZm-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aZTEnPEHcWEkoTJR@google.com>
 
-On Feb 17 2026, Günther Noack wrote:
-> Hello Benjamin!
-> 
-> On Tue, Feb 17, 2026 at 07:22:20PM +0100, Benjamin Tissoires wrote:
-> > On Feb 17 2026, Günther Noack wrote:
-> > > The apple_report_fixup() function was allocating a new buffer with
-> > > kmemdup() but never freeing it. Since the caller of report_fixup() already
-> > > provides a writable buffer and allows returning a pointer within that
-> > > buffer, we can just modify the descriptor in-place and return the adjusted
-> > > pointer.
-> > > 
-> > > Assisted-by: Gemini-CLI:Google Gemini 3
-> > > Signed-off-by: Günther Noack <gnoack@google.com>
-> > > ---
-> > >  drivers/hid/hid-apple.c | 4 +---
-> > >  1 file changed, 1 insertion(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-> > > index 233e367cce1d..894adc23367b 100644
-> > > --- a/drivers/hid/hid-apple.c
-> > > +++ b/drivers/hid/hid-apple.c
-> > > @@ -686,9 +686,7 @@ static const __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> > >  		hid_info(hdev,
-> > >  			 "fixing up Magic Keyboard battery report descriptor\n");
-> > >  		*rsize = *rsize - 1;
-> > > -		rdesc = kmemdup(rdesc + 1, *rsize, GFP_KERNEL);
-> > > -		if (!rdesc)
-> > > -			return NULL;
-> > > +		rdesc = rdesc + 1;
-> > 
-> > I might be wrong, but later we call free(dev->rdesc) on device removal.
-> > AFAICT, incrementing the pointer is undefined behavior.
-> > 
-> > What we should do instead is probably a krealloc instead of a kmemdup.
-> > 
-> > Same for all 3 patches.
-> 
-> Thanks for the review.
-> 
-> Let me try to address your three responses in one reply.
-> 
-> I am happy to accept it if I am wrong about this, but I don't
-> understand your reasoning.  (This should go without saying, but maybe
-> is worth reiterating, I would not have sent this if I had not
-> convinced myself independently of LLM-assisted reasoning.)
-> 
-> Let me explain my reasoning based on the place where .report_fixup()
-> is called from, which is hid_open_report() in hid-core.c:
-> 
-> 
-> 	start = device->bpf_rdesc;                         /* (1) */
-> 	if (WARN_ON(!start))
-> 		return -ENODEV;
-> 	size = device->bpf_rsize;
-> 
-> 	if (device->driver->report_fixup) {
-> 		/*
-> 		 * device->driver->report_fixup() needs to work
-> 		 * on a copy of our report descriptor so it can
-> 		 * change it.
-> 		 */
-> 		__u8 *buf = kmemdup(start, size, GFP_KERNEL);   /* (2) */
-> 
-> 		if (buf == NULL)
-> 			return -ENOMEM;
-> 
-> 		start = device->driver->report_fixup(device, buf, &size);  /* (3) */
-> 
-> 		/*
-> 		 * The second kmemdup is required in case report_fixup() returns
-> 		 * a static read-only memory, but we have no idea if that memory
-> 		 * needs to be cleaned up or not at the end.
-> 		 */
-> 		start = kmemdup(start, size, GFP_KERNEL);  /* (4) */
-> 		kfree(buf);                                /* (5) */
-> 		if (start == NULL)
-> 			return -ENOMEM;
-> 	}
-> 
-> 	device->rdesc = start;
-> 	device->rsize = size;
-> 
-> 
-> This function uses a slightly elaborate scheme to call .report_fixup:
-> 
-> (1) start is assigned to the original device->bpf_rdesc
-> (2) buf is assigned to a copy of the 'start' buffer (deallocated in (5)).
->  .  It is done because buf is meant to be mutated by .report_fixup()
->  .  (3) start = ...->report_fixup(..., buf, ...)
->  .  (4) start = kmemdup(start, ...)
-> (5) deallocate buf
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: e7b53288d9ea899abc6d47a7f20065ab511a810c  Input: drv260x - fix unbalanced regulator_disable() call
 
-Ouch. Yeah, sorry. I wrote that code and it seemed I completely paged
-it out. Your code is actually correct (all three) but it would be nice
-to have a longer commit message explaining this above.
+elapsed time: 720m
 
-The main point of this alloc before calling fixup is because some
-drivers are using a static array as the new report descriptor. So we can
-not free it later on. Working on a known copy allows to handle the kfree
-correctly.
+configs tested: 269
+configs skipped: 3
 
-So yes, sorry, returning rdesc+1 in 1/3 and 2/3 is correct, and using a
-devm_kzalloc is too in 3/3.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Cheers,
-Benjamin
+tested configs:
+alpha                             allnoconfig    gcc-15.2.0
+alpha                            allyesconfig    gcc-15.2.0
+alpha                               defconfig    gcc-15.2.0
+arc                              allmodconfig    clang-16
+arc                               allnoconfig    gcc-15.2.0
+arc                              allyesconfig    clang-23
+arc                          axs103_defconfig    gcc-15.2.0
+arc                      axs103_smp_defconfig    gcc-15.2.0
+arc                                 defconfig    gcc-15.2.0
+arc                     haps_hs_smp_defconfig    clang-23
+arc                     haps_hs_smp_defconfig    gcc-15.2.0
+arc                        nsim_700_defconfig    clang-23
+arc                   randconfig-001-20260218    clang-23
+arc                   randconfig-001-20260219    clang-23
+arc                   randconfig-002-20260218    clang-23
+arc                   randconfig-002-20260219    clang-23
+arm                               allnoconfig    clang-23
+arm                               allnoconfig    gcc-15.2.0
+arm                              allyesconfig    clang-16
+arm                                 defconfig    gcc-15.2.0
+arm                            dove_defconfig    gcc-15.2.0
+arm                          exynos_defconfig    clang-23
+arm                            hisi_defconfig    gcc-15.2.0
+arm                      jornada720_defconfig    clang-23
+arm                            mps2_defconfig    clang-23
+arm                        multi_v5_defconfig    gcc-15.2.0
+arm                        mvebu_v5_defconfig    clang-23
+arm                        neponset_defconfig    gcc-15.2.0
+arm                       netwinder_defconfig    clang-23
+arm                         orion5x_defconfig    clang-23
+arm                             pxa_defconfig    gcc-15.2.0
+arm                   randconfig-001-20260218    clang-23
+arm                   randconfig-001-20260219    clang-23
+arm                   randconfig-002-20260218    clang-23
+arm                   randconfig-002-20260219    clang-23
+arm                   randconfig-003-20260218    clang-23
+arm                   randconfig-003-20260219    clang-23
+arm                   randconfig-004-20260218    clang-23
+arm                   randconfig-004-20260219    clang-23
+arm                         socfpga_defconfig    clang-23
+arm                           spitz_defconfig    gcc-15.2.0
+arm                           stm32_defconfig    gcc-15.2.0
+arm                       versatile_defconfig    gcc-15.2.0
+arm                    vt8500_v6_v7_defconfig    gcc-15.2.0
+arm64                            allmodconfig    clang-23
+arm64                             allnoconfig    gcc-15.2.0
+arm64                               defconfig    gcc-15.2.0
+arm64                 randconfig-001-20260218    clang-23
+arm64                 randconfig-002-20260218    clang-23
+arm64                 randconfig-003-20260218    clang-23
+arm64                 randconfig-004-20260218    clang-23
+csky                             allmodconfig    gcc-15.2.0
+csky                              allnoconfig    gcc-15.2.0
+csky                                defconfig    gcc-15.2.0
+csky                  randconfig-001-20260218    clang-23
+csky                  randconfig-002-20260218    clang-23
+hexagon                          allmodconfig    gcc-15.2.0
+hexagon                           allnoconfig    clang-23
+hexagon                           allnoconfig    gcc-15.2.0
+hexagon                             defconfig    gcc-15.2.0
+hexagon               randconfig-001-20260218    clang-16
+hexagon               randconfig-001-20260219    clang-17
+hexagon               randconfig-002-20260218    clang-16
+hexagon               randconfig-002-20260219    clang-17
+i386                             allmodconfig    clang-20
+i386                              allnoconfig    gcc-14
+i386                              allnoconfig    gcc-15.2.0
+i386                             allyesconfig    clang-20
+i386        buildonly-randconfig-001-20260218    clang-20
+i386        buildonly-randconfig-002-20260218    clang-20
+i386        buildonly-randconfig-003-20260218    clang-20
+i386        buildonly-randconfig-004-20260218    clang-20
+i386        buildonly-randconfig-005-20260218    clang-20
+i386        buildonly-randconfig-006-20260218    clang-20
+i386                                defconfig    gcc-15.2.0
+i386                  randconfig-001-20260218    clang-20
+i386                  randconfig-002-20260218    clang-20
+i386                  randconfig-003-20260218    clang-20
+i386                  randconfig-004-20260218    clang-20
+i386                  randconfig-005-20260218    clang-20
+i386                  randconfig-006-20260218    clang-20
+i386                  randconfig-007-20260218    clang-20
+i386                  randconfig-011-20260218    gcc-14
+i386                  randconfig-012-20260218    gcc-14
+i386                  randconfig-013-20260218    gcc-14
+i386                  randconfig-014-20260218    gcc-14
+i386                  randconfig-015-20260218    gcc-14
+i386                  randconfig-016-20260218    gcc-14
+i386                  randconfig-017-20260218    gcc-14
+loongarch                        allmodconfig    clang-23
+loongarch                         allnoconfig    clang-23
+loongarch                         allnoconfig    gcc-15.2.0
+loongarch                           defconfig    clang-19
+loongarch             randconfig-001-20260218    clang-16
+loongarch             randconfig-001-20260219    clang-17
+loongarch             randconfig-002-20260218    clang-16
+loongarch             randconfig-002-20260219    clang-17
+m68k                             allmodconfig    gcc-15.2.0
+m68k                              allnoconfig    gcc-15.2.0
+m68k                             allyesconfig    clang-16
+m68k                                defconfig    clang-19
+m68k                       m5249evb_defconfig    gcc-15.2.0
+m68k                        mvme16x_defconfig    gcc-15.2.0
+microblaze                        allnoconfig    gcc-15.2.0
+microblaze                       allyesconfig    gcc-15.2.0
+microblaze                          defconfig    clang-19
+mips                             allmodconfig    gcc-15.2.0
+mips                              allnoconfig    gcc-15.2.0
+mips                             allyesconfig    gcc-15.2.0
+mips                          ath25_defconfig    clang-23
+mips                         bigsur_defconfig    clang-23
+mips                         cobalt_defconfig    clang-23
+mips                 decstation_r4k_defconfig    clang-23
+mips                           ip28_defconfig    gcc-15.2.0
+mips                malta_qemu_32r6_defconfig    clang-23
+mips                      pic32mzda_defconfig    clang-23
+mips                          rm200_defconfig    clang-23
+mips                   sb1250_swarm_defconfig    gcc-15.2.0
+mips                           xway_defconfig    clang-23
+nios2                            allmodconfig    clang-23
+nios2                            allmodconfig    gcc-11.5.0
+nios2                             allnoconfig    clang-23
+nios2                             allnoconfig    gcc-11.5.0
+nios2                               defconfig    clang-19
+nios2                 randconfig-001-20260218    clang-16
+nios2                 randconfig-001-20260219    clang-17
+nios2                 randconfig-002-20260218    clang-16
+nios2                 randconfig-002-20260219    clang-17
+openrisc                         allmodconfig    clang-23
+openrisc                         allmodconfig    gcc-15.2.0
+openrisc                          allnoconfig    clang-23
+openrisc                          allnoconfig    gcc-15.2.0
+openrisc         de0_nano_multicore_defconfig    gcc-15.2.0
+openrisc                            defconfig    gcc-15.2.0
+parisc                           allmodconfig    gcc-15.2.0
+parisc                            allnoconfig    clang-23
+parisc                            allnoconfig    gcc-15.2.0
+parisc                           allyesconfig    clang-19
+parisc                              defconfig    gcc-15.2.0
+parisc                generic-32bit_defconfig    gcc-15.2.0
+parisc                randconfig-001-20260218    gcc-8.5.0
+parisc                randconfig-002-20260218    gcc-8.5.0
+parisc64                            defconfig    clang-19
+powerpc                    adder875_defconfig    gcc-15.2.0
+powerpc                     akebono_defconfig    gcc-15.2.0
+powerpc                          allmodconfig    gcc-15.2.0
+powerpc                           allnoconfig    clang-23
+powerpc                           allnoconfig    gcc-15.2.0
+powerpc                    amigaone_defconfig    clang-23
+powerpc                      chrp32_defconfig    clang-23
+powerpc                      cm5200_defconfig    clang-23
+powerpc                   currituck_defconfig    gcc-15.2.0
+powerpc                      ep88xc_defconfig    clang-23
+powerpc                        fsp2_defconfig    gcc-15.2.0
+powerpc                        icon_defconfig    gcc-15.2.0
+powerpc                      katmai_defconfig    gcc-15.2.0
+powerpc                     kmeter1_defconfig    clang-23
+powerpc                  mpc885_ads_defconfig    gcc-15.2.0
+powerpc                      pcm030_defconfig    clang-23
+powerpc                     ppa8548_defconfig    gcc-15.2.0
+powerpc               randconfig-001-20260218    gcc-8.5.0
+powerpc               randconfig-002-20260218    gcc-8.5.0
+powerpc                     redwood_defconfig    gcc-15.2.0
+powerpc                  storcenter_defconfig    clang-23
+powerpc                     tqm8540_defconfig    clang-23
+powerpc                     tqm8555_defconfig    clang-23
+powerpc                        warp_defconfig    clang-23
+powerpc                 xes_mpc85xx_defconfig    clang-23
+powerpc64             randconfig-001-20260218    gcc-8.5.0
+powerpc64             randconfig-002-20260218    gcc-8.5.0
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    clang-23
+riscv                             allnoconfig    gcc-15.2.0
+riscv                            allyesconfig    clang-16
+riscv                               defconfig    gcc-15.2.0
+riscv                 randconfig-001-20260218    clang-23
+riscv                 randconfig-002-20260218    clang-23
+s390                             allmodconfig    clang-19
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-15.2.0
+s390                                defconfig    gcc-15.2.0
+s390                  randconfig-001-20260218    clang-23
+s390                  randconfig-002-20260218    clang-23
+s390                       zfcpdump_defconfig    gcc-15.2.0
+sh                               alldefconfig    clang-23
+sh                               allmodconfig    gcc-15.2.0
+sh                                allnoconfig    clang-23
+sh                                allnoconfig    gcc-15.2.0
+sh                               allyesconfig    clang-19
+sh                                  defconfig    gcc-14
+sh                          kfr2r09_defconfig    gcc-15.2.0
+sh                          landisk_defconfig    gcc-15.2.0
+sh                          polaris_defconfig    gcc-15.2.0
+sh                          r7785rp_defconfig    gcc-15.2.0
+sh                    randconfig-001-20260218    clang-23
+sh                    randconfig-002-20260218    clang-23
+sh                          rsk7269_defconfig    gcc-15.2.0
+sh                   sh7770_generic_defconfig    clang-23
+sparc                             allnoconfig    clang-23
+sparc                             allnoconfig    gcc-15.2.0
+sparc                               defconfig    gcc-15.2.0
+sparc                 randconfig-001-20260218    gcc-10.5.0
+sparc                 randconfig-002-20260218    gcc-10.5.0
+sparc64                          allmodconfig    clang-23
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20260218    gcc-10.5.0
+sparc64               randconfig-002-20260218    gcc-10.5.0
+um                               alldefconfig    clang-23
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-15.2.0
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260218    gcc-10.5.0
+um                    randconfig-002-20260218    gcc-10.5.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-20
+x86_64                            allnoconfig    clang-20
+x86_64                            allnoconfig    clang-23
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20260218    gcc-14
+x86_64      buildonly-randconfig-001-20260219    gcc-14
+x86_64      buildonly-randconfig-002-20260218    gcc-14
+x86_64      buildonly-randconfig-002-20260219    gcc-14
+x86_64      buildonly-randconfig-003-20260218    gcc-14
+x86_64      buildonly-randconfig-003-20260219    gcc-14
+x86_64      buildonly-randconfig-004-20260218    gcc-14
+x86_64      buildonly-randconfig-004-20260219    gcc-14
+x86_64      buildonly-randconfig-005-20260218    gcc-14
+x86_64      buildonly-randconfig-005-20260219    gcc-14
+x86_64      buildonly-randconfig-006-20260218    gcc-14
+x86_64      buildonly-randconfig-006-20260219    gcc-14
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-20
+x86_64                randconfig-001-20260218    gcc-14
+x86_64                randconfig-002-20260218    gcc-14
+x86_64                randconfig-003-20260218    gcc-14
+x86_64                randconfig-004-20260218    gcc-14
+x86_64                randconfig-005-20260218    gcc-14
+x86_64                randconfig-006-20260218    gcc-14
+x86_64                randconfig-011-20260218    gcc-13
+x86_64                randconfig-012-20260218    gcc-13
+x86_64                randconfig-013-20260218    gcc-13
+x86_64                randconfig-014-20260218    gcc-13
+x86_64                randconfig-015-20260218    gcc-13
+x86_64                randconfig-016-20260218    gcc-13
+x86_64                randconfig-071-20260218    clang-20
+x86_64                randconfig-072-20260218    clang-20
+x86_64                randconfig-073-20260218    clang-20
+x86_64                randconfig-074-20260218    clang-20
+x86_64                randconfig-075-20260218    clang-20
+x86_64                randconfig-076-20260218    clang-20
+x86_64                randconfig-076-20260218    gcc-14
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    clang-23
+xtensa                            allnoconfig    gcc-15.2.0
+xtensa                           allyesconfig    clang-23
+xtensa                           allyesconfig    gcc-15.2.0
+xtensa                       common_defconfig    gcc-15.2.0
+xtensa                generic_kc705_defconfig    clang-23
+xtensa                randconfig-001-20260218    gcc-10.5.0
+xtensa                randconfig-002-20260218    gcc-10.5.0
+xtensa                    smp_lx200_defconfig    gcc-15.2.0
 
-> 
-> Importantly:
-> 
-> (a) The buffer buf passed to report_fixup() is a copy of the report
->     descriptor whose lifetime spans only from (2) to (5).
-> (b) The result of .report_fixup(), start, is immediately discarded in
->     (4) and reassigned to the start variable again.
-> 
-> From (b), we can see that the result of .report_fixup() does *not* get
-> deallocated by the caller, and thus, when the driver wants to return a
-> newly allocated array, is must also hold a reference to it so that it
-> can deallocate it later.
-> 
-> From (a), we can see that the report_fixup hook is free to manipulate
-> the contents of the buffer that it receives, but if we were to
-> *reallocate* it within report_fixup, as you are suggesting above, it
-> could become a double free:
-> 
-> * During realloc, the allocator would potentially have to move the
->   buffer to a place where there is enough space, freeing up the old
->   place and allocating a new place. [1]
-> * In (5), we would then pass the original (now deallocated) buf
->   pointer to kfree, leading to a double free.
-> 
-> If I were to describe the current interface of the hook
-> .report_fixup(dev, rdesc, rsize), it would be:
-> 
-> * report_fixup may modify rdesc[0] to rdesc[rsize-1]
-> * report_fixup may *not* deallocate rdesc
->   (ownership of rdesc stays with the caller)
->   * specifically, it may also not reallocate rdesc
->     (because that may imply a deallocation)
-> * report_fixup returns a pointer to a buffer for which it can
->   guarantee that it lives long enough for the kmemdup in (4), but
->   which will *not* be deallocated by the caller (see (b) above).  The
->   three techniques I have found for that are:
->   * returning a subsection of the rdesc that it received
->   * returning a pointer into a statically allocated array
->     (e.g. motion_fixup() and ps3remote_fixup() in hid-sony.c)
->   * allocating it with a devm_*() function.  My understanding was
->     that this ties it to the lifetime of the device.  (e.g. the
->     QUIRK_G752_KEYBOARD case in hid-asus.c)
-> 
-> Honestly, I still think that this reasoning holds, but I am happy to
-> be convinced otherwise.  Please let me know what you think.
-> 
-> —Günther
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

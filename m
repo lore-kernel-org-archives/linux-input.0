@@ -1,109 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3565129E114;
-	Wed, 18 Feb 2026 19:53:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13D0E72621
+	for <linux-input@vger.kernel.org>; Thu, 19 Feb 2026 02:43:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771444384; cv=none; b=EwoIHR5LFO6QGLrG7tMH0rHMMQgokuDOc+95Rgbd3p8v+maoN07ZchscdPZvJ6ADKfDRY+yUyNRuXjsStSXzVVcZYoK/UI5DpkHc6S5G+9RViPoW1NRJwfdf5hKGL7UNKrSQaiqhlDmkrxjVHHivmb7RGEY33yPJc/JXgf9RaCE=
+	t=1771469015; cv=none; b=aeht4BGh3+jUAn/ImjHu5N1/ICpN5yIj0NpHA1au9xhEZDmhtTnF5JOrt+CHmi36PavPhJMsBJlFxkufsKo+lAjdU2FnPeFxXegKf5lg9N2+UTEaeSwAoLfdguZMs2LKYb84ZtHBW0cDUnJ/oP9hqclF2uB7XBsSwH0IBYGQLhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771444384; c=relaxed/simple;
-	bh=VjQOCxm6RRNecju6wHp8/OQCoOUvyK9kcXgtsmWR2V8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Sj2cljHHfr7vLBehy/86wa0tOR+bgssRy84wtBjNlKc/dWlXKEFL13afLLoJQ9gzk92OEHazNbWWvs4TMKvwdqNQXRpv7Bvqlx2r66+AD6GLP1AwtD6aDEUl/IvAWEeegx+HU/LtG07//e/fMoS4TptRruPJKboqsz1wFtBwUvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hMZGDIsl; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771469015; c=relaxed/simple;
+	bh=KqGg5WSPpAb6AJ2Q67bzsJbSdSO5yc4vMcgZLK0hulg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sgYCQcMPKRQ+nubefPWZX9FiqQ+WfMK5MoypSATxKI/Bo3e5xtd1UL06XRvVp+ruqIyvSQx6s2gpY0Yflc1Ei/KjJ3OsJ+uaLTCJJkuXmDlQDITKSytOAPmFW39Rzsn5cAfhqrXOnZ0G5PaGSsTmMIl2CFRP+PiBLvFAWRxK8wE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hRt7OXsk; arc=none smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hMZGDIsl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72480C2BCB3;
-	Wed, 18 Feb 2026 19:52:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771444383;
-	bh=VjQOCxm6RRNecju6wHp8/OQCoOUvyK9kcXgtsmWR2V8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=hMZGDIslnsaxz12RjfURiuqS+5Nrfx/5O0XiKI9nHdvUC5D1W9WOc1nQJsXOAZkiJ
-	 vpyOgv2OfJRwLkMRJK/Tu+CRkUl69fyhkRplZTERnA3UMsvTa2jsVVCSWT3Lser74B
-	 OjuR8MZTTf2/gAvBArgNyBhpXgY4mF2FGR81UT1stP2tc3RwVHsRJsHctPKy0dZgyD
-	 6s/cY0zdJq4LzeyJ6U0kiQY0is54Czhfdl9tMnPXve6n7XEr3KzAnewrC0jEUOThvt
-	 kHOizWCyOfoJYjaC9xMjIkm+3DRbwJkk+zZTMWx1SFXIdJnXJHQeT+J3WsAXU1vpig
-	 2XPyqmLUVDXrg==
-Date: Wed, 18 Feb 2026 19:52:54 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: David Lechner <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Jiri Kosina
- <jikos@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jonathan Cameron
- <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org, Lixu Zhang
- <lixu.zhang@intel.com>
-Subject: Re: [PATCH 0/2] iio: orientation: hid-sensor-rotation: fix
- quaternion alignment
-Message-ID: <20260218195254.1ec9d3de@jic23-huawei>
-In-Reply-To: <aZQijRLVjzuWcU2W@smile.fi.intel.com>
-References: <20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com>
-	<aZLKy4l6OlPgIkZx@smile.fi.intel.com>
-	<bcfc711c-a02a-4470-a2a6-de43c71e7c2e@baylibre.com>
-	<aZQijRLVjzuWcU2W@smile.fi.intel.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hRt7OXsk"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2ba94dbf739so495036eec.1
+        for <linux-input@vger.kernel.org>; Wed, 18 Feb 2026 18:43:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771469013; x=1772073813; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=gTKrUTqUdwYFHuwWVgZXgaQ8n3QIp5eyNYtOEVUSSHU=;
+        b=hRt7OXskXZbGmTnNI+o3gVtG9MEG7NTSUzObi+apxAyVPIc2plNQ5Zh0yOXzgc2R6F
+         FSIV+nT/jmNBbQl+kuqmSLVD0Da8CB3c/mmIiJM4NEr1I2YGh745zgaD9Xt5osDRU1CM
+         FN6dq12jnqw1aFvGI+Xu3opJYZMVcE0B5A1vqgSN4FRoAcS86hWgqFc36RRf9apltGd9
+         E4tx+Gq7LsEEdXO1LrJqSasElsglk2X14BYj/SHNbBE7Umkl8RTHMWmAGVFOEmxjxtO4
+         Hyq16L3vMME5L4KYlHhpg9OmHTJ7G9Y5RgR/2YXsivmC3OVzI7tlKUvOUgzbDouxHwKq
+         JGUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771469013; x=1772073813;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gTKrUTqUdwYFHuwWVgZXgaQ8n3QIp5eyNYtOEVUSSHU=;
+        b=d+mQR/pDiJVR/JFd9OArB5HeGOu3GyWsWpn/91W5CUqSZCTPyu9E9gR279KgROWTW7
+         oRRBE16U6I9+n5weCYndAg+ozb8KKodUBcn5qcQH5jdi2HD9buB8dSvwqmTzWgN7bneP
+         oCnCjmx9cKFFqGKKgkiqGs9rmQ4hz69XLW7nNiuZdoubZl/6JEc/VlFm/wB1xJJAjczi
+         2d/frnal5waf2oySjpjZKflvk689qQusexwFMuM4NLgm0Ow83Phfr3mEwOhVmaP38aEQ
+         HBY5v904QtCQVxxKMVK+zS64PzAEOXUiwDGEScYZkwELMVDg47ejKBbEBULwHfC+Tc/W
+         q6Rw==
+X-Gm-Message-State: AOJu0YzYWA0XDWqus8jc4E5fKqg724tv39xESq6LJ9G16i/s2gaI62T5
+	QteOS7seARE/IRolP2/qDvweh38vPA5VJF0+BiuEJx1NsCvJHrA7YZ4r
+X-Gm-Gg: AZuq6aLW9JLmZTqB2mliUQ/IztfOqmzLGR/RWYT9xZxxssofyBZED5DhbzGmf4pLKes
+	Rej0727sSORDSgcqdCgeagprAwJOv2oXpa95fiQGC7FLswLJNpJkavmvnztfdRS0PZYxtQXsftp
+	rNa0nzjh+eTa4dim4IcsW2d/C6shxz8ENL3Zzufg82wIx9FOovWZx/yo0ayO+s93eaPUl5GTGqu
+	tNf59d43hhWS4hAJ05CiypZcilag7VfThS67Gpnb8L/epc8dhbF+mNqTEwHFJn2pesPCS7SS0d8
+	8Csoo41IALYqv8Q3H1an/iagCmGsnHSieOI/wqg4aGQqCiTWRodcMH21xVY6kDHP1GZLQMvZ9Xw
+	SaW+iYDQ3OoFtinlTdHLmeu41fCYH71TaIBr47kRoxjnJzSsi+JxKPfgjiqdJjWn4rVW4SlmBjc
+	F4YW3GWc4AocPP/LzLwfpilw+NH+JksMY3EhhpJ5xVfUrgdUXv6H48X9bOttkRoP08
+X-Received: by 2002:a05:7301:6091:b0:2b6:fa0c:6c44 with SMTP id 5a478bee46e88-2bd50009ef8mr1690376eec.12.1771469013002;
+        Wed, 18 Feb 2026 18:43:33 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:265b:f5ad:9e03:677e])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb543e8dsm20020155eec.5.2026.02.18.18.43.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Feb 2026 18:43:32 -0800 (PST)
+Date: Wed, 18 Feb 2026 18:43:30 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Yauhen Kharuzhy <jekhor@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH v2 4/5] input: drv260x: Fix unbalanced
+ regulator_disable() call
+Message-ID: <aZZ4jqZQZ4vA1SFO@google.com>
+References: <20260215141435.727872-1-jekhor@gmail.com>
+ <20260215141435.727872-5-jekhor@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260215141435.727872-5-jekhor@gmail.com>
 
-On Tue, 17 Feb 2026 10:10:53 +0200
-Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
+Hi Yauhen,
 
-> On Mon, Feb 16, 2026 at 09:25:58AM -0600, David Lechner wrote:
-> > On 2/16/26 1:44 AM, Andy Shevchenko wrote:  
-> > > On Sat, Feb 14, 2026 at 03:00:19PM -0600, David Lechner wrote:  
-> > >> The main point of this series is to fix a regression reported in
-> > >> hid-sensor-rotation where the alignment of the quaternion field in the
-> > >> data was inadvertently changed from 16 bytes to 8 bytes. This is an
-> > >> unusually case (one of only 2 in the kernel) where the .repeat field of
-> > >> struct iio_scan_type is used and we have such a requirement. (The other
-> > >> case uses u16 instead of u32, so it wasn't affected.)
-> > >>
-> > >> To make the reason for the alignment more explicit to future readers,
-> > >> we introduce a new macro, IIO_DECLARE_REPEATED_ELEMENT, to declare the
-> > >> array with proper allignment. This is meant to follow the pattern of
-> > >> the similar IIO_DECLARE_BUFFER_WITH_TS() macro.  
-> > > 
-> > > In both cases it's quaternion, maybe be more explicit and define
-> > > IIO_DECLARE_QUATERNION() ?  
+On Sun, Feb 15, 2026 at 04:14:34PM +0200, Yauhen Kharuzhy wrote:
+> +static void drv260x_remove(struct i2c_client *client)
+> +{
+> +	struct drv260x_data *haptics = i2c_get_clientdata(client);
+> +
+> +	regulator_disable(haptics->regulator);
+>  }
 
-I like this.  It's special and this shouts that nicely.
+This will result in power being shut off the first thing during
+unbinding, which is too early.
 
-> > 
-> > It is really the fact that the scan_type has .repeat > 1 that requires
-> > this, so I was trying to make a name that shows that link.
-> > 
-> > But right now, quaternion is the only thing that has .repeat > 1, so
-> > I guess it would be OK either way. We'll see if Jonathan has an
-> > opinion on the naming.  
-> 
-> I think we should solve the problems when they appear. Naming explicitly
-> for quaternion makes it easier to get from the core reading without having
-> a variable name to repeat that. Magic 4  might not always be a quaternion.
-> 
-> Do we have "repeat" to be used in other cases, btw?
-> 
-Don't think so.
+I switched this to devm_add_action_or_reset() and applied.
 
-Note there is a second older bug here.
-The timestamp is landing at the wrong location :(  See discussion of
-original bug.  I suspect that applies to the bno055 as well (that avoids
-the bug we are fixing in this patch because helpfully the quaternion is
-a total of 8 bytes. 
+Thanks.
 
-Short story - it is just another channel, so should be naturally aligned
-at first valid location after the previous channel. That's bytes 32-39 not
-55-63 which is where iio_push_to_buffers_with_timestamp() puts it.
-
-
-Jonathan
-
-
+-- 
+Dmitry

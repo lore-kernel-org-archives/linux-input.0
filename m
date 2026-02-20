@@ -1,62 +1,64 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA9E126E165
-	for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 07:05:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370D02D7817
+	for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 07:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771571158; cv=none; b=LKbEVeFesEHOqXO2S/76YB86s952LCN0paPwn76mulWSrhKfIVSjBNwk0FygOdEDPgB4WJ0lJLYTIvL0FU+je+/L82Sre3hJFRgvdmPv5xwKNr2SzoDIFJCBdOTIbOBuXQxabkADnorZLiTe+Dm8zAOGl2eQL4mxWslJ0eAOs/M=
+	t=1771571160; cv=none; b=M3pZs9xF5p8Pt8pKIAzHzdA9tWSYe3THalsz/Du6hXbJvWUPkRHQNJ+AdVKIzYDZpJIa2oKkkrCv4QTN9D1Yuis0Yx77jOEdNvgvdZWZWZRNedZmhSv4hTdklHRqDfj3U5fsukJXg5eq1jVJrIZVDE31T4qYMC0QLnXYNwHRg58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771571158; c=relaxed/simple;
-	bh=m4HDAOcKPODaBXvsaq62AV5hGzCNMN403tNNb4nzSBI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hlaUX+fTjOdO/ssZJVGvj1HzxzO7XOGeEDiy0JqzJUIJGTZOhPGQ5ABOeVep/IWg9ltmZbmIYpxDHQYCJzthUzz5C3khDiL1MD4fhIuxfz8h0ZKJ+GCLrDPZ1yRPcofuxbdtAVn305SmfkvnNx0cR081kws99l/uAbMnfgV/y90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GK6Z6+7G; arc=none smtp.client-ip=74.125.82.173
+	s=arc-20240116; t=1771571160; c=relaxed/simple;
+	bh=+4nfO/MXU83pOeG2DXV/A8HvHCPLmR6w67tZZuPB84I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dRQQP9O9BjZBTBzfrW9Moloj6ZqRPjjyvsQoK4MbV8p0KDkD0p4nWCmRtGX3U1h2PBDzo1hdqs9SAG6KGI9AVxvDUe+oueGznz9njBmgwskFBMZEgCF18ej3kCCf2iHsjpSHwe1tiHkEFNk/fLx0q4u5eLZQfroEGWkCLM9OKik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y9HuPT7I; arc=none smtp.client-ip=74.125.82.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GK6Z6+7G"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2bd3b0bc201so4106212eec.1
-        for <linux-input@vger.kernel.org>; Thu, 19 Feb 2026 23:05:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y9HuPT7I"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2b82c605dbdso174728eec.0
+        for <linux-input@vger.kernel.org>; Thu, 19 Feb 2026 23:05:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771571156; x=1772175956; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=LlJFw9o/nUtRdl6k0ZyQShyhGYr3G6NcBejagNa77zc=;
-        b=GK6Z6+7GA4pgLKQqZMuN5lcc0v1ZCwqVRauglq7uQ1ygxJ3X1O2KweCGROhRMlwxKJ
-         j0Ze0UCfpjXghNYdIRB3DLJzcrwN3k1Rl0j2hBVHVYwKNS2n02iwl9B4vdQcopnHEPCW
-         /JFSztyd43/5WlJORmrvRhepTuloUBXMqFhPS/s+FJ3FJiatqiSTxz/z+iFUQW13KTaM
-         iFaRXxz7gOk+DULkOk68BvFG3ELnly1BsJzNngTg4aYbbphXzP0oKsE92k/zU2zeJPz2
-         Dok/aw4GBDqnKMnziRHvWW19rmY13LVmB0NkrMgDlDorVhmlenAFEHYnMdYaD7bdbORZ
-         LAaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771571156; x=1772175956;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1771571157; x=1772175957; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LlJFw9o/nUtRdl6k0ZyQShyhGYr3G6NcBejagNa77zc=;
-        b=BfyQMV7JXA8acEmGZE+Cm6ASG0EG4nuQGCITbxHA5c+Q+y6ZdppGzlX+smIJGWPdi1
-         a5O5SBn2T4JvVPHN0/iDmzT7fEs3kEfNk/GvRyPjOn9bDHIcCAQZBxByvmuLox370xpq
-         0T5ewxcehYs9iHVm4upFKqyJj4eNdghCQ9tj0sI+AhT/gMVqfQTednnE4cRCJaSU8+GJ
-         gk4+DLHGNMl6mkxr21OOY7lnuwbfOa3qNvjTnr+cUGLeYYhrGlUekF3jyHMf7WAEyhHE
-         ya2n6gzceCErarOwsTIfBICXTIl1U4YjlQfyWM/9cp1Eu6rNN5j8TBCMA9zgbAOrjl5X
-         WuxA==
-X-Forwarded-Encrypted: i=1; AJvYcCVbDRzPhjYEqODY1co+33iRLWg1lOFCM1gKIMC1X/lFOl6nH5Ckw61W6rxu0qOAXWyo8hry9UJs3NSrvw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzUePV/t8qDgNmiAlLjc4EK8kNU69WcNufyEumH4CIYAS5WelMz
-	HhaNonqcSXu1TokkJSeWOP5XfZMhc2jItUWG9oO/pov7aF2lD/qMCN0t
-X-Gm-Gg: AZuq6aLRtFyXTEcUeyqVg6f6bgO4r8CQJA9ZWV6sE8NhZ1V9w41Je2+eioNJ/AQbc1q
-	SQ0BZVRWHs6Q3ellfEu96vgRDAhEY8CxPK8PT3OxnJ+HWI5xLSqH/uKp5QZU+sQR723Qaem0aJg
-	1hG5w+KrGaq4qsdZrtqOT75RxzrP3is5Uo8YdkbFe7j3KCYDaLO89kWCN/JBBmfpaoALUtDJ42Z
-	19wd7om6AmFZJ7ZFmIMgIQ2zxq9vizuStNdHRtjlKzQUEUu4Ds/UQ2hKvofR/Jafkooa4C+fGL6
-	sAaQZvT4AfJcsMPQg42bqdsrBlSNS6GVJ4MLCgb6WFeSPpxtMLZuFtU7xwBWwC6kDakiXE2xpEa
-	bMRYgAPBzG0kdUkSvlCaJQrxdB+bq+HeYgQMGlD2aqyK9kySEk/1aQwiROWbuQu3kyq9IWPHeYc
-	FWvdelzZghsPhek96yzSTyrLn0P0VB8F5cZORm1qnc2rgFpv6epcjlaanuhkMjYZ2yzkUoBWFoO
-	yI=
-X-Received: by 2002:a05:7301:7bc4:b0:2b8:2910:dcae with SMTP id 5a478bee46e88-2bd5b2b1460mr3330150eec.13.1771571155744;
-        Thu, 19 Feb 2026 23:05:55 -0800 (PST)
+        bh=sCIGvEeI9Tq/VaiBgRhw0In7nNopiUbXBw8UFPFZx+I=;
+        b=Y9HuPT7I1O/YS9sBVuowtWIpzq+IK3hu1XcX6Qtk/Sv0/trHeuvDk6a+wwzze2oiQz
+         +bGN3XceFn0VP891/I54QZArzIK3fWQRWmNPXtZDt9hVHQxpswuf+EiFznYvGpYxsvU1
+         RdrNf6WsvfGzoQMsPoDWRC77uRaQ8fKcRwqPbG/j/OtJXVeFjHTFWPDzbPKCotYbnY3Y
+         IjJzdW8IfBOD5+HMT537p7k2mEdh8g6GAR5Z2g4gNvvrVWH4C+SDN+ZtqMxolpgTd2mF
+         i73Gtn72noPqm2szZqyI/rTqGqif9LmMmVLIKHPVc1hWBSfI1zv75GBfkqsMDKA0f49T
+         5XVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771571157; x=1772175957;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=sCIGvEeI9Tq/VaiBgRhw0In7nNopiUbXBw8UFPFZx+I=;
+        b=o+5LxkXbz6ZNZaUCfqLM4HrGqehFnx70eah3v6SSOK5tpKbaUqN8/5RbUfcEt0Ag/r
+         070hllt0fahMfw5MENasB362d6h87W19th+HLIu5BQ5RNoBB9g0GGO+ar+UlpWIEq+Dg
+         oC5N7ub8o/372T1G3sJS32A1YYRRPTbgNeGzA40/Rp7/Opn2fIGh1FrDKcKmOXprAqtJ
+         5jPKcPkL8IBon8+QgePXjDkkBZbHsHL6zRUkmf/Twzi8+nhJ+l1gI4xlEI5YPwLgq9Gm
+         y3MfXgBaggDfCmpVSzBzL+SdGDlBfdBfKZdmNvBk8YldvhseWLUB0+lF2EvKmo4krUyi
+         9YEA==
+X-Forwarded-Encrypted: i=1; AJvYcCV+otf9ozMafzgJiovCChficm24Pv3Sn7dRcYL5KP2eV4tE682rs+TKn/eE2snsrh8vwgtbZrt74m3EYg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzqjNwRN/0vh1Ex+eN9kY35eJUYKwAZ98r+Y7dXKpov0vqqTEy
+	8pLioVCRD5Gd5qqvqkUVH4dBf8ax/0fhfjVME7ZXkJwsrk2C0SAtlNVF
+X-Gm-Gg: AZuq6aKEqUQJl+J912sucqkGiHTZPgABV3dcUCtOQxbkc1+/TCB/oY/EoMXSsbIx3SF
+	s+KWpr07yl7h8sYbzO4/UMbgPvpbsqaJaC/E+PE2pz385K2maZa/rZcRMS74nV2cKT7FE7tGft8
+	eHatgsXXVewscisoPlOOSi/0RvOnCm7Hs6sDbnhLmKXkOUm+53jHIHfz2Xj1Gi2jn9WXM72phFS
+	G4nIDvTou9CEcRUDRTGxu8w6aZjbBGuHn8JjqYPu6EMhjVPrCy1gr2AGwLqXL14YiGFAlLgfldM
+	L8DYHtnjCgv8HduFzk8OyU2vbquvImhly69lNYjz2OI1yJgCeDEtxXYbR1R0qjlfYx2GhPJgule
+	2dX9pz/q6jFYbsLbLqiMjQZcvV7h9vYcNMY+89FfxxNkWUJTC2HhkI0ovyl6FrEJZUA+lBVgPr9
+	XV/+6FA1R9T/tPOSWU1pTP3jj/cPL82et8bokgOBab8cwJeydWAmgqeUW8mZiyLhP8Ji0hl763j
+	9Y=
+X-Received: by 2002:a05:7300:508:b0:2ba:72b1:40c7 with SMTP id 5a478bee46e88-2bd4ffe8e34mr5486846eec.4.1771571157271;
+        Thu, 19 Feb 2026 23:05:57 -0800 (PST)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb669f7dsm22163335eec.23.2026.02.19.23.05.54
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb669f7dsm22163335eec.23.2026.02.19.23.05.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Feb 2026 23:05:55 -0800 (PST)
+        Thu, 19 Feb 2026 23:05:56 -0800 (PST)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -70,10 +72,12 @@ Cc: Richard Hughes <hughsient@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 00/16] HID: Add Legion Go and Go S Drivers
-Date: Fri, 20 Feb 2026 07:05:13 +0000
-Message-ID: <20260220070533.4083667-1-derekjohn.clark@gmail.com>
+Subject: [PATCH v4 01/16] include: device.h: Add named device attributes
+Date: Fri, 20 Feb 2026 07:05:14 +0000
+Message-ID: <20260220070533.4083667-2-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260220070533.4083667-1-derekjohn.clark@gmail.com>
+References: <20260220070533.4083667-1-derekjohn.clark@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,118 +86,120 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series adds configuration driver support for the Legion Go S,
-Legion Go, and Legion Go 2 built-in controller HID interfaces. This
-allows for configuring hardware specific attributes such as the auso
-sleep timeout, rumble intensity, etc. non-configuration reports are
-forwarded to the HID subsystem to ensure no loss of functionality in
-userspace. Basic gamepad functionality is provided through xpad, while
-advanced features are currently only implemented in userspace daemons
-such as InputPlumber[1]. I plan to move this functionality into the
-kernel in a later patch series.
+Adds DEVICE_ATTR_[RW|RO|WO]_NAMED macros for adding attributes that
+reuse the same sysfs name in a driver under separate subdirectories.
 
-Three new device.h macros are added that solve a fairly specific
-problem. Many of the attributes need to have the same name as other
-attributes when they are in separate attribute subdirectories. The
-previous version of this series, along with the upcoming his-asus-ally
-driver[2] use this macro to simplify the sysfs by removing redundancy.
-An upcoming out of tree driver for the Zotac Zone [3] also found this
-macro to be useful. This greatly reduces the path length and term
-redundancy of file paths in the sysfs, while also allowing for cleaner
-subdirectories that are grouped by functionality. Rather than carry the
-same macro in four drivers, it seems beneficial to me that we include the
-macro with the other device macros.
+When dealing with some devices it can be useful to be able to reuse
+the same name for similar attributes under a different subdirectory.
+For example, a single logical HID endpoint may provide a configuration
+interface for multiple physical devices. In such a case it is useful to
+provide symmetrical attribute names under different subdirectories on
+the configuration device. The Lenovo Legion Go is one such device,
+providing configuration to a detachable left controller, detachable
+right controller, the wireless transmission dongle, and the MCU. It is
+therefore beneficial to treat each of these as individual devices in
+the driver by providing a subdirectory for each physical device in the
+sysfs. As some attributes are reused by each physical device, it
+provides a much cleaner interface if the same driver can reuse the same
+attribute name in sysfs while uniquely distinguishing the store/show
+functions in the driver, rather than repeat string portions.
 
-A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
-permit fwupd to read the firmware version of the Go S HID interface without
-detaching the kernel driver.
+Example new WO attrs:
+ATTRS{left_handle/reset}=="(not readable)"
+ATTRS{right_handle/reset}=="(not readable)"
+ATTRS{tx_dongle/reset}=="(not readable)"
 
-Finally, there are some checkpatch warnings that will need to be supressed:
-WARNING: ENOSYS means 'invalid syscall nr' and nothing else
-1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
-+       case -ENOSYS: /* during rmmod -ENOSYS is expected */
+vs old WO attrs in a subdir:
+ATTRS{left_handle/left_handle_reset}=="(not readable)"
+ATTRS{right_handle/right_handle_reset}=="(not readable)"
+ATTRS{tx_dongle/tx_dongle_reset}=="(not readable)"
 
-This error handling case was added as it is experienced in the real world
-when the driver is rmmod. The LED subsystem produces this error code in
-its legacy code and this is not a new novel use of -ENOSYS, we are simply
-catching the case to avoid spurious errors in dmesg when the drivers are
-removed.
+or old WO attrs with no subdir:
+ATTRS{left_handle_reset}=="(not readable)"
+ATTRS{right_handle_reset}=="(not readable)"
+ATTRS{tx_dongle_reset}=="(not readable)"
 
-[1]: https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
-[2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
-[3]: https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
+While the third option is usable, it doesn't logically break up the
+physical devices and creates a device directory with over 80 attributes
+once all attrs are defined.
 
 Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
-Change Log
-v4:
-  - Use dmabuf allocated per request for both drivers instead of a devm
-    preallocated buffer that is reused. This solves a bug where some
-    attributes couldn't be restored without manual writing after resume.
-  - Reduce the number of quirks and flags in the Go S init to only those
-    necessary. Previously they were duplicated from the Go driver but
-    everything except HID_CONNECT_HIDRAW was found to be unnessary
-    during operational testing.
-  - Clean up formatting for debug prints in Go S driver.
-  - Fix bugs in RGB driver for Go that caused the effect to switch to
-    solid when the speed or brightness was changed.
-  - Remove extraneous setting of os_mode member of drvdata when setting
-    os_mode. It will be read from the hardware in _show.
-v3: https://lore.kernel.org/linux-input/20260124014907.991265-1-derekjohn.clark@gmail.com/
-  - Fix Documentation formatting by removing extra + characters.
-  - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
-    wrong _show function.
-  - Rename enume os_mode_index to os_mode_types_index to fix collision
-    with os_mode_index attribute.
-  - Remove accidental rename for enabled->enable attributes in patch 4
-  - Add SOB for Mario in patch 10 as Co-Developer.
-v2: https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
-  - Break up adding the Go S driver into feature specific patches.
-  - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s and move
-    it out of a subdirectory.
-  - Drop the arbitrary uevent properties patch.
-  - Add Go series driver.
-  - Move DEVICE_ATTR_NAMED macros to device.h.
-v1: https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
+ include/linux/device.h | 46 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-Derek J. Clark (15):
-  include: device.h: Add named device attributes
-  HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver
-  HID: hid-lenovo-go: Add Feature Status Attributes
-  HID: hid-lenovo-go: Add Rumble and Haptic Settings
-  HID: hid-lenovo-go: Add FPS Mode DPI settings
-  HID: hid-lenovo-go: Add RGB LED control interface
-  HID: hid-lenovo-go: Add Calibration Settings
-  HID: hid-lenovo-go: Add OS Mode Toggle
-  HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
-  HID: hid-lenovo-go-s: Add MCU ID Attribute
-  HID: hid-lenovo-go-s: Add Feature Status Attributes
-  HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
-  HID: hid-lenovo-go-s: Add RGB LED control interface
-  HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
-  HID: Add documentation for Lenovo Legion Go drivers
-
-Mario Limonciello (1):
-  HID: Include firmware version in the uevent
-
- .../ABI/testing/sysfs-driver-hid-lenovo-go    |  724 +++++
- .../ABI/testing/sysfs-driver-hid-lenovo-go-s  |  304 +++
- MAINTAINERS                                   |   11 +
- drivers/hid/Kconfig                           |   24 +
- drivers/hid/Makefile                          |    2 +
- drivers/hid/hid-core.c                        |    5 +
- drivers/hid/hid-ids.h                         |    7 +
- drivers/hid/hid-lenovo-go-s.c                 | 1586 +++++++++++
- drivers/hid/hid-lenovo-go.c                   | 2403 +++++++++++++++++
- include/linux/device.h                        |   46 +
- include/linux/hid.h                           |    1 +
- 11 files changed, 5113 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
- create mode 100644 drivers/hid/hid-lenovo-go-s.c
- create mode 100644 drivers/hid/hid-lenovo-go.c
-
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 0be95294b6e61..381463baed6d3 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -189,6 +189,22 @@ ssize_t device_show_string(struct device *dev, struct device_attribute *attr,
+ #define DEVICE_ATTR_ADMIN_RW(_name) \
+ 	struct device_attribute dev_attr_##_name = __ATTR_RW_MODE(_name, 0600)
+ 
++/**
++ * DEVICE_ATTR_RW_NAMED - Define a read-write device attribute with a sysfs name
++ * that differs from the function name.
++ * @_name: Attribute function preface
++ * @_attrname: Attribute name as it wil be exposed in the sysfs.
++ *
++ * Like DEVICE_ATTR_RW(), but allows for reusing names under separate paths in
++ * the same driver.
++ */
++#define DEVICE_ATTR_RW_NAMED(_name, _attrname)                            \
++	struct device_attribute dev_attr_##_name = {                      \
++		.attr = { .name = _attrname, .mode = 0644 }, \
++		.show = _name##_show,                                     \
++		.store = _name##_store,                                   \
++	}
++
+ /**
+  * DEVICE_ATTR_RO - Define a readable device attribute.
+  * @_name: Attribute name.
+@@ -207,6 +223,21 @@ ssize_t device_show_string(struct device *dev, struct device_attribute *attr,
+ #define DEVICE_ATTR_ADMIN_RO(_name) \
+ 	struct device_attribute dev_attr_##_name = __ATTR_RO_MODE(_name, 0400)
+ 
++/**
++ * DEVICE_ATTR_RO_NAMED - Define a read-only device attribute with a sysfs name
++ * that differs from the function name.
++ * @_name: Attribute function preface
++ * @_attrname: Attribute name as it wil be exposed in the sysfs.
++ *
++ * Like DEVICE_ATTR_RO(), but allows for reusing names under separate paths in
++ * the same driver.
++ */
++#define DEVICE_ATTR_RO_NAMED(_name, _attrname)                            \
++	struct device_attribute dev_attr_##_name = {                      \
++		.attr = { .name = _attrname, .mode = 0444 }, \
++		.show = _name##_show,                                     \
++	}
++
+ /**
+  * DEVICE_ATTR_WO - Define an admin-only writable device attribute.
+  * @_name: Attribute name.
+@@ -216,6 +247,21 @@ ssize_t device_show_string(struct device *dev, struct device_attribute *attr,
+ #define DEVICE_ATTR_WO(_name) \
+ 	struct device_attribute dev_attr_##_name = __ATTR_WO(_name)
+ 
++/**
++ * DEVICE_ATTR_WO_NAMED - Define a read-only device attribute with a sysfs name
++ * that differs from the function name.
++ * @_name: Attribute function preface
++ * @_attrname: Attribute name as it wil be exposed in the sysfs.
++ *
++ * Like DEVICE_ATTR_WO(), but allows for reusing names under separate paths in
++ * the same driver.
++ */
++#define DEVICE_ATTR_WO_NAMED(_name, _attrname)                            \
++	struct device_attribute dev_attr_##_name = {                      \
++		.attr = { .name = _attrname, .mode = 0200 }, \
++		.store = _name##_store,                                   \
++	}
++
+ /**
+  * DEVICE_ULONG_ATTR - Define a device attribute backed by an unsigned long.
+  * @_name: Attribute name.
 -- 
 2.52.0
 

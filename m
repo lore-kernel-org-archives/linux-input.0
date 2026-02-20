@@ -1,146 +1,199 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6009D32B99E
-	for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 04:33:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA9E126E165
+	for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 07:05:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771562027; cv=none; b=lsXDANK0KLekn/PQvb+C4KwiIZu3JH4JFKA2T8T/pKvB163GLZNTu5uiTQNlLv2lPaTeVnNyavGSakCrVgA3Hnnim7BrvhSEersiUfqf5tz5iAufbNVErCHawwg3eLeDUwEGaAgL5LF44TVP3dvszxAw6oU+5iqPIYnZpTeo5cY=
+	t=1771571158; cv=none; b=LKbEVeFesEHOqXO2S/76YB86s952LCN0paPwn76mulWSrhKfIVSjBNwk0FygOdEDPgB4WJ0lJLYTIvL0FU+je+/L82Sre3hJFRgvdmPv5xwKNr2SzoDIFJCBdOTIbOBuXQxabkADnorZLiTe+Dm8zAOGl2eQL4mxWslJ0eAOs/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771562027; c=relaxed/simple;
-	bh=cqQX4otJwlu/EBzCiT+EMmNhTOOeWS2QSPRS41i3ge4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VFUHtTh3REYCnAjiaT8/+RvRXfnYU+pH+ea77EvRT6xxcs/iKxZqHjZl9vuagx0ZifiClLc+8tz9XlnUHjBWQSW7/gyyQg++iFo5EC9kmN6VTg9Vdc6yZrI10APjGFhYNlBcgBI9fou2U+j14TRV4CzLpcQRsr1yeHEkKhLVzwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JiSu46Pk; arc=none smtp.client-ip=74.125.82.52
+	s=arc-20240116; t=1771571158; c=relaxed/simple;
+	bh=m4HDAOcKPODaBXvsaq62AV5hGzCNMN403tNNb4nzSBI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hlaUX+fTjOdO/ssZJVGvj1HzxzO7XOGeEDiy0JqzJUIJGTZOhPGQ5ABOeVep/IWg9ltmZbmIYpxDHQYCJzthUzz5C3khDiL1MD4fhIuxfz8h0ZKJ+GCLrDPZ1yRPcofuxbdtAVn305SmfkvnNx0cR081kws99l/uAbMnfgV/y90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GK6Z6+7G; arc=none smtp.client-ip=74.125.82.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JiSu46Pk"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1233bc1117fso1481441c88.0
-        for <linux-input@vger.kernel.org>; Thu, 19 Feb 2026 20:33:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GK6Z6+7G"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2bd3b0bc201so4106212eec.1
+        for <linux-input@vger.kernel.org>; Thu, 19 Feb 2026 23:05:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771562025; x=1772166825; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=vNvTcmQCYkNV3OvuP9WNSN7cpBfsnIcgezoEmqNLxoI=;
-        b=JiSu46Pkj6G4vnhbM69k/5pC7eHg/djAItnoqwQuQ6AKlvPB1cNg39kANI4csVLpTS
-         LLGZE1tRFWaj4AVh2FPq89e++l1eJ/D4ll9gah/Ky7BklBhcLVnvgBgZ9Xg8QIHm+6ur
-         RbdvjsBQCIkorc3zUcvye6Vo5gKYGYEh17ryV3kBvJpy8SDvTIYlKdTrBxcSvGVeqRZi
-         we/j2mnwaR4z0zB9elTunG2Uxytcy4oMOTF2aktynK7ez/o2dax7wowThRfpRuWdw+Cb
-         sMWmQy3Dkf/ry2pP0yKTpNaUwVIxTSW3L4Ult4r9vGOoKJINjTd+F0m/cffjP8l2+ByI
-         qVjA==
+        d=gmail.com; s=20230601; t=1771571156; x=1772175956; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LlJFw9o/nUtRdl6k0ZyQShyhGYr3G6NcBejagNa77zc=;
+        b=GK6Z6+7GA4pgLKQqZMuN5lcc0v1ZCwqVRauglq7uQ1ygxJ3X1O2KweCGROhRMlwxKJ
+         j0Ze0UCfpjXghNYdIRB3DLJzcrwN3k1Rl0j2hBVHVYwKNS2n02iwl9B4vdQcopnHEPCW
+         /JFSztyd43/5WlJORmrvRhepTuloUBXMqFhPS/s+FJ3FJiatqiSTxz/z+iFUQW13KTaM
+         iFaRXxz7gOk+DULkOk68BvFG3ELnly1BsJzNngTg4aYbbphXzP0oKsE92k/zU2zeJPz2
+         Dok/aw4GBDqnKMnziRHvWW19rmY13LVmB0NkrMgDlDorVhmlenAFEHYnMdYaD7bdbORZ
+         LAaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771562025; x=1772166825;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vNvTcmQCYkNV3OvuP9WNSN7cpBfsnIcgezoEmqNLxoI=;
-        b=FjTugkJPERslUCkaTUhGioMtoEY/X80vczV23rCHSsSu1QI/hk8Na8bWwcv9UW5Vbz
-         HZZ8BNV1arco9rpvCXm9SX1lsP8NIp2rChBtDy1jVQJfjCtJjHSEtmjtUrQ5PrWqqLDL
-         Z0tYwytowfo1p3p0wwcPqHIgBtSVnLc131SAOQydWaXvhY6tus36J99eU1SNAGfWLwoK
-         YzGMk6zroxTqAtkazf/4jvcAutxFyzIjgMKJw4UcT2byQaAFWn1iKA/4ALz5q0fHddYL
-         rwfuHHAqUzJ0NHM0IzqWMt64xNRQsbrVKK0yo5ZIq1TFwTrE1qeOiZYladdxFACCUAy2
-         cmTA==
-X-Forwarded-Encrypted: i=1; AJvYcCW/znmZuO+7OQdw88CoeAyvuOMdyiJ3VMZ7gMuYi2mE5Lt9M4xnSQy56m73ZZPzNj4l2+aiyk9ah2xKww==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw//qm5AL3YoE/CUrSri6YQYaMLW7Uc/BLH63UGCysg0ms1xg+m
-	4TBgKvPK4aaN0+HrxxYaf9fwHAQHDjCexa6tcqV05bX8U7IczrLV9me1
-X-Gm-Gg: AZuq6aKZ2JOH7PSDt/+FM0LVSqMt+TkeoZ9MBmvJyMtzWXGHljIY+ZOlDWboiba38cw
-	dbZBmpLORqElIK1IZDlesew/CGO3K+mIuShP0H1MgywpQZ0zWnuCFUGCQgKsNdu3hLmzeMGwQnn
-	QtIi+v9vtZobnQnhDtkWnopwTFCJwhlHHfMm722GAV7cXXVCGrERH2zsk5gtS2ciEGDy30Dh947
-	OiIrRa/66LHn9eABHNO5KPRJVuolfQyw4InziSDMnz3Yxvk9S9vTsNxktciknLPkNIOaBauGHFD
-	ajQt+JbTYHfRPnTrME6v2ADTSSFdWdP1te5yDrGasXE4tLCJd0EwmNTB1PKPBAohmkO3rQXweH7
-	JIWDUEdBHMvCq60pCwH3VKjxwZFKls8N1xY+9bq3fWkkJkwiNDHjvBysAUNq2BuCey8sb9LGwai
-	n7tUPHQy+0l09FvzaOLS1bwQQ06aQNwuDsb1lawbbHWEj4CjD6HapjfU2zP3fyzAcDLpK0lnB15
-	77F0A==
-X-Received: by 2002:a05:7022:1602:b0:11f:1e5b:2dd6 with SMTP id a92af1059eb24-1275faa7f90mr1954175c88.17.1771562025308;
-        Thu, 19 Feb 2026 20:33:45 -0800 (PST)
-Received: from [192.168.68.65] (104-12-136-65.lightspeed.irvnca.sbcglobal.net. [104.12.136.65])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12742cc83e6sm24382881c88.15.2026.02.19.20.33.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 Feb 2026 20:33:44 -0800 (PST)
-Message-ID: <1ebc2e1b-f1aa-4559-90a0-feb628d5bfe1@gmail.com>
-Date: Thu, 19 Feb 2026 20:33:43 -0800
+        d=1e100.net; s=20230601; t=1771571156; x=1772175956;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LlJFw9o/nUtRdl6k0ZyQShyhGYr3G6NcBejagNa77zc=;
+        b=BfyQMV7JXA8acEmGZE+Cm6ASG0EG4nuQGCITbxHA5c+Q+y6ZdppGzlX+smIJGWPdi1
+         a5O5SBn2T4JvVPHN0/iDmzT7fEs3kEfNk/GvRyPjOn9bDHIcCAQZBxByvmuLox370xpq
+         0T5ewxcehYs9iHVm4upFKqyJj4eNdghCQ9tj0sI+AhT/gMVqfQTednnE4cRCJaSU8+GJ
+         gk4+DLHGNMl6mkxr21OOY7lnuwbfOa3qNvjTnr+cUGLeYYhrGlUekF3jyHMf7WAEyhHE
+         ya2n6gzceCErarOwsTIfBICXTIl1U4YjlQfyWM/9cp1Eu6rNN5j8TBCMA9zgbAOrjl5X
+         WuxA==
+X-Forwarded-Encrypted: i=1; AJvYcCVbDRzPhjYEqODY1co+33iRLWg1lOFCM1gKIMC1X/lFOl6nH5Ckw61W6rxu0qOAXWyo8hry9UJs3NSrvw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzUePV/t8qDgNmiAlLjc4EK8kNU69WcNufyEumH4CIYAS5WelMz
+	HhaNonqcSXu1TokkJSeWOP5XfZMhc2jItUWG9oO/pov7aF2lD/qMCN0t
+X-Gm-Gg: AZuq6aLRtFyXTEcUeyqVg6f6bgO4r8CQJA9ZWV6sE8NhZ1V9w41Je2+eioNJ/AQbc1q
+	SQ0BZVRWHs6Q3ellfEu96vgRDAhEY8CxPK8PT3OxnJ+HWI5xLSqH/uKp5QZU+sQR723Qaem0aJg
+	1hG5w+KrGaq4qsdZrtqOT75RxzrP3is5Uo8YdkbFe7j3KCYDaLO89kWCN/JBBmfpaoALUtDJ42Z
+	19wd7om6AmFZJ7ZFmIMgIQ2zxq9vizuStNdHRtjlKzQUEUu4Ds/UQ2hKvofR/Jafkooa4C+fGL6
+	sAaQZvT4AfJcsMPQg42bqdsrBlSNS6GVJ4MLCgb6WFeSPpxtMLZuFtU7xwBWwC6kDakiXE2xpEa
+	bMRYgAPBzG0kdUkSvlCaJQrxdB+bq+HeYgQMGlD2aqyK9kySEk/1aQwiROWbuQu3kyq9IWPHeYc
+	FWvdelzZghsPhek96yzSTyrLn0P0VB8F5cZORm1qnc2rgFpv6epcjlaanuhkMjYZ2yzkUoBWFoO
+	yI=
+X-Received: by 2002:a05:7301:7bc4:b0:2b8:2910:dcae with SMTP id 5a478bee46e88-2bd5b2b1460mr3330150eec.13.1771571155744;
+        Thu, 19 Feb 2026 23:05:55 -0800 (PST)
+Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb669f7dsm22163335eec.23.2026.02.19.23.05.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Feb 2026 23:05:55 -0800 (PST)
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Richard Hughes <hughsient@gmail.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Zhixin Zhang <zhangzx36@lenovo.com>,
+	Mia Shao <shaohz1@lenovo.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4 00/16] HID: Add Legion Go and Go S Drivers
+Date: Fri, 20 Feb 2026 07:05:13 +0000
+Message-ID: <20260220070533.4083667-1-derekjohn.clark@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] ARM: dts: qcom: msm8960: expressatt: Add
- coreriver,tc360-touchkey
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, beomho.seo@samsung.com,
- jcsing.lee@samsung.com, dmitry.torokhov@gmail.com,
- linux-input@vger.kernel.org, nick.reitemeyer@web.de
-References: <20251205-expressatt-touchkey-v1-1-1444b927c9f3@gmail.com>
- <532531d2-8f26-4ffa-9355-7821a4d64200@oss.qualcomm.com>
- <1e74b956-a45a-4d3e-b7fa-e4d5dc0390db@gmail.com>
- <97d9d942-236c-4f8a-902e-0ad2ab684a76@oss.qualcomm.com>
-Content-Language: en-US
-From: Rudraksha Gupta <guptarud@gmail.com>
-In-Reply-To: <97d9d942-236c-4f8a-902e-0ad2ab684a76@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hello all,
+This series adds configuration driver support for the Legion Go S,
+Legion Go, and Legion Go 2 built-in controller HID interfaces. This
+allows for configuring hardware specific attributes such as the auso
+sleep timeout, rumble intensity, etc. non-configuration reports are
+forwarded to the HID subsystem to ensure no loss of functionality in
+userspace. Basic gamepad functionality is provided through xpad, while
+advanced features are currently only implemented in userspace daemons
+such as InputPlumber[1]. I plan to move this functionality into the
+kernel in a later patch series.
 
+Three new device.h macros are added that solve a fairly specific
+problem. Many of the attributes need to have the same name as other
+attributes when they are in separate attribute subdirectories. The
+previous version of this series, along with the upcoming his-asus-ally
+driver[2] use this macro to simplify the sysfs by removing redundancy.
+An upcoming out of tree driver for the Zotac Zone [3] also found this
+macro to be useful. This greatly reduces the path length and term
+redundancy of file paths in the sysfs, while also allowing for cleaner
+subdirectories that are grouped by functionality. Rather than carry the
+same macro in four drivers, it seems beneficial to me that we include the
+macro with the other device macros.
 
-Top posting for once (context below).
+A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
+permit fwupd to read the firmware version of the Go S HID interface without
+detaching the kernel driver.
 
-Not too sure what the next steps are to get the tm2 touchkey in. Should 
-I resend the patch, contact someone else that can help provide guidance, 
-or something else?
+Finally, there are some checkpatch warnings that will need to be supressed:
+WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
++       case -ENOSYS: /* during rmmod -ENOSYS is expected */
 
+This error handling case was added as it is experienced in the real world
+when the driver is rmmod. The LED subsystem produces this error code in
+its legacy code and this is not a new novel use of -ENOSYS, we are simply
+catching the case to avoid spurious errors in dmesg when the drivers are
+removed.
 
-Adding Dmitry Torokhov (official maintainer) and Nick Reitemeyer (person 
-who introduced this variant).
+[1]: https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
+[2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
+[3]: https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
 
+Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+---
+Change Log
+v4:
+  - Use dmabuf allocated per request for both drivers instead of a devm
+    preallocated buffer that is reused. This solves a bug where some
+    attributes couldn't be restored without manual writing after resume.
+  - Reduce the number of quirks and flags in the Go S init to only those
+    necessary. Previously they were duplicated from the Go driver but
+    everything except HID_CONNECT_HIDRAW was found to be unnessary
+    during operational testing.
+  - Clean up formatting for debug prints in Go S driver.
+  - Fix bugs in RGB driver for Go that caused the effect to switch to
+    solid when the speed or brightness was changed.
+  - Remove extraneous setting of os_mode member of drvdata when setting
+    os_mode. It will be read from the hardware in _show.
+v3: https://lore.kernel.org/linux-input/20260124014907.991265-1-derekjohn.clark@gmail.com/
+  - Fix Documentation formatting by removing extra + characters.
+  - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
+    wrong _show function.
+  - Rename enume os_mode_index to os_mode_types_index to fix collision
+    with os_mode_index attribute.
+  - Remove accidental rename for enabled->enable attributes in patch 4
+  - Add SOB for Mario in patch 10 as Co-Developer.
+v2: https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
+  - Break up adding the Go S driver into feature specific patches.
+  - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s and move
+    it out of a subdirectory.
+  - Drop the arbitrary uevent properties patch.
+  - Add Go series driver.
+  - Move DEVICE_ATTR_NAMED macros to device.h.
+v1: https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
 
-Thanks,
+Derek J. Clark (15):
+  include: device.h: Add named device attributes
+  HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver
+  HID: hid-lenovo-go: Add Feature Status Attributes
+  HID: hid-lenovo-go: Add Rumble and Haptic Settings
+  HID: hid-lenovo-go: Add FPS Mode DPI settings
+  HID: hid-lenovo-go: Add RGB LED control interface
+  HID: hid-lenovo-go: Add Calibration Settings
+  HID: hid-lenovo-go: Add OS Mode Toggle
+  HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
+  HID: hid-lenovo-go-s: Add MCU ID Attribute
+  HID: hid-lenovo-go-s: Add Feature Status Attributes
+  HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
+  HID: hid-lenovo-go-s: Add RGB LED control interface
+  HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
+  HID: Add documentation for Lenovo Legion Go drivers
 
-Rudraksha
+Mario Limonciello (1):
+  HID: Include firmware version in the uevent
 
+ .../ABI/testing/sysfs-driver-hid-lenovo-go    |  724 +++++
+ .../ABI/testing/sysfs-driver-hid-lenovo-go-s  |  304 +++
+ MAINTAINERS                                   |   11 +
+ drivers/hid/Kconfig                           |   24 +
+ drivers/hid/Makefile                          |    2 +
+ drivers/hid/hid-core.c                        |    5 +
+ drivers/hid/hid-ids.h                         |    7 +
+ drivers/hid/hid-lenovo-go-s.c                 | 1586 +++++++++++
+ drivers/hid/hid-lenovo-go.c                   | 2403 +++++++++++++++++
+ include/linux/device.h                        |   46 +
+ include/linux/hid.h                           |    1 +
+ 11 files changed, 5113 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+ create mode 100644 drivers/hid/hid-lenovo-go-s.c
+ create mode 100644 drivers/hid/hid-lenovo-go.c
 
-On 12/16/25 04:59, Konrad Dybcio wrote:
-> On 12/9/25 8:10 AM, Rudraksha Gupta wrote:
->>>> Add the tc360 touchkey. It's unknown if this is the actual model of the
->>>> touchkey, as downstream doesn't mention a variant, but this works.
->>>>
->>>> Link:
->>>> https://github.com/LineageOS/android_kernel_samsung_d2/blob/stable/cm-12.0-YNG4N/drivers/input/keyboard/cypress_touchkey_236/Makefile#L5
->>> This driver mentions a register called CYPRESS_MODULE_VER - maybe
->>> it could help confirm the model?
->>>
->>> Konrad
-> [...]
->
->> When run on mainline, this is what was outputted:
->>
->> samsung-expressatt:~$ cat /sys/bus/i2c/devices/0-0020/module_version
->> 0x06
->> samsung-expressatt:~$ cat /sys/bus/i2c/devices/0-0020/fw_version
->> 0x09
->>
->>
->> fw_version matches downstream ClockworkMod Recovery dmesg:
->>
->> ~ # dmesg | grep "FW Ver"
->> <3>[    2.201312] cypress_touchkey 16-0020: Touchkey FW Version: 0x09
->> <3>[    2.206317] cypress_touchkey 16-0020: Touchkey FW Version: 0x09, system_rev: 8
->>
->>
->> Unfortunately, I'm not to sure what the other variant versions are, so I will CC the driver's maintainers:
->>
->> MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
->> MODULE_AUTHOR("Jaechul Lee <jcsing.lee@samsung.com>");
-> Sounds like the best idea, I have no clue either
->
-> Konrad
->
+-- 
+2.52.0
+

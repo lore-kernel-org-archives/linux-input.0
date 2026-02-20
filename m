@@ -1,127 +1,190 @@
-Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D30353164D9
-	for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 08:44:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.170
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771577085; cv=pass; b=iB5N+N49FglezNa4FIZ1HZd4/0IN7uEDN58BMmamxGkcExDmChJ1BXV8TBTdi5qTNJbns1PnMB68FarfNtism23cYJG86TOad/Mpx7eDkXk9/qugaCAq3ztf9S1r1wdiuvTOzLEQKg8lwjqZuTBTXjOemO+339vGL1zylIH1Aqw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771577085; c=relaxed/simple;
-	bh=D1d3nMZ8GciEhhzINPmS47VAgCmnA2SuG+3VbAKzaDE=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=LJ+MnTNrbX6DVwRCww2uEys6jvLjCk6lXAxu4S1ZfIeR3bwgRC4A/9vafDiMYUA/i/vPtBFVHXsRZQtgiJOkthGItHRgtLYtGrIz4141qMUMZ8GufZa5Aiiyjn273lgTWrj3hwbOtfauFB+Ua5bY82E8u4YNDwgt+hbb2BZThDc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fiwRkYjz; arc=pass smtp.client-ip=209.85.208.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B333242AA;
+	Fri, 20 Feb 2026 10:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771581840; cv=none; b=WhOCM0QeY2x/31zqJ5ZgAWijpY7F4BIUuEv4F+E0xV4xqXLMmwq/+WqQdIIBZ/t6k34H0pt2RTvpf9qYBN1FEPJyGe/nR/5yLn6QXnKpRo0tefE7wLufGvC6hWSugUAqztMFnEhAOdy/7U9A7o2eO9OaqbO0UDPhCDxiu7AIgX8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771581840; c=relaxed/simple;
+	bh=EpsesNMCa9nFH8JHaVA5GClws47ka4WXLb/3sZjIvIQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oilkZMyMjwYhgNM7KVosQIy8WXMkYNXaT/QlEgNeek8CAGmYtfmcltuqpRN4KXL6kT1vJq0iqb52toHqVAb7PAmzDx6UfsRWWSXy46nMaDnUNlIQQIQk95mf4TixsLIhnXslkwfK3preYawogCC8nXI7cr6mwJMQ4R0k7xv5XSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=SvlAQuMj; arc=none smtp.client-ip=157.90.84.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fiwRkYjz"
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-386714da2a2so15529131fa.1
-        for <linux-input@vger.kernel.org>; Fri, 20 Feb 2026 00:44:43 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771577082; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Plrh+3f6BNupwLNJ9xo0nbOytr7hClaMM9UvghP/2CO4R3EoTwQ0MwvTt7wMMQdtxD
-         aJKY/dOB+vUMMm7bL2lira+4QuAvRiFU6QnVwtNrgwzfM1jL2s+kuZ1uVTY9EoDHZ3Fd
-         8NAp6s/qP+6LWYNhfemvnyQdTiSv5i4B27WEc1gkM+NSayy6hI+EM8KRVnmd/QZlMe38
-         V1ertVRcMEgx66hcDWbbBhQjfYT/4uLUS5RjGTpwA8XRapC4u1uC7eLY72LwAVSTW4+3
-         uNaCFFoxXk6latGqzTp2fOCAdbiyRdb8grBUiXCF+5ktg7Rjc9+LxRcicLiBzC2uwQqt
-         sMXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=8qKoRJoGoOXyGG+ED8eoFULD1E8tDVSYzdIvFnMgNlI=;
-        fh=aU9qPfDfLJEZlDqh1q6n6WY/02+PfIDt4/JLaGomBu8=;
-        b=hbekzWr0GAHgreDIUanVU41PwGVIgwV74LtzEKQvBNGWkB9qz7vFwZ9MSiHuPBzYN5
-         9L6P7joLc++vGPdBdl0YFbZ1McWL7PxBWS8q0G3a7EGblwUqwhrq3MK0rb4vUxyblBxv
-         7SfBPzr0bhVr1FLWPxI4BigJfZZUP9Ia0LR8xxH8r+YS26hFf8BL9tsA2lsy/2yoC1bX
-         ZBi1rM1/XKn4IAM9Azc6tjbBTN69n4QXol1Sc81RcZ4k87vP7keysb+CXPpW41B7S3Rv
-         sF/FIVgAOiCTmWk/Qp4VgtHqnyujGvQUxPm/WS1plFaaJE+H8kWVSzWjWT87NJwzLqEN
-         0g4A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771577082; x=1772181882; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8qKoRJoGoOXyGG+ED8eoFULD1E8tDVSYzdIvFnMgNlI=;
-        b=fiwRkYjz4FvCoTHtM0lk15LPfBCK18RQXqxAm9ajbAPhBNi7FJkphzkMKt6GSEZ8ZI
-         lLn0BY3XbJhTeaubsWSD/NXiCbvD+QkAB2ISyOGUAL9MDLdEwDuaTE0wtfiEgXIsY+Al
-         qi3egbu2aPnZWVRNSz8ZUfheI1teSRJ2CF+5Qk+/AqT3r1vfn+kaRlGmLofMgybKlBvX
-         QhFQA/lwxEZglsiriPjWs45SdUqEfr9XMl0aEx2IqVJQaQ1EI3go3JyQpHhcLHkjdRkX
-         VBoLcO8bBGb/PX7+27jHyA9v8rvtkbs+8Df28NMFziN2GendAS5BH2ubgMlAwTjNoSsk
-         bP1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771577082; x=1772181882;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8qKoRJoGoOXyGG+ED8eoFULD1E8tDVSYzdIvFnMgNlI=;
-        b=jHRLXbnYFI37xviY/ta1Wk0XaWRbLa4fxE9ONMya7Zqxc0vq0+fPjdqrq3XcU7aNC3
-         OXVQgohXpR86yZ7RqcgIBUpq3MeMpYKy2FDjRsD5h56Ex6niU3Fagg0hcI9HJlJipACj
-         dTzzubqGDnJ4hlZYHvHGp7Xm0Lgj+ACUJh94UCszRzjuw21j9/ebA+LQgZEwIKbnO2my
-         AE3JfQZSC/dAdUi+QZTKFpdcNXMsO00BEPD0Gs5HTwbibuoY7MjCTYGkVOAieNb7eJTG
-         xLIKsJf4hAaRMFX4l570Puu0O6hFevf/56xnvNGIdhwhmgovvTlaDjnkWwbEZW70x5V3
-         2qig==
-X-Gm-Message-State: AOJu0YwBC4rk9Koe2OHOsmJ+H9vFGlB3fFk/QEVMbRX8tI5UnDoQZmyb
-	byXgZaW7EkA3Qvi2LGuxmVNAcHpfT16lZHm7zfStjeR244khOLlx4nu8teM0u3lMjc8o+5Sps7t
-	HmwZr9SbhStoiuHqBsDAYEznqqhjx1EgEPT80KOA=
-X-Gm-Gg: AZuq6aLHMSbGfNldgKxuOIIaZqtEzAKcjEyMf8E3GpFbJPp+9ORCs2H60YIy0fDzzoJ
-	Nuf4nZ7k/83eKFtXwPkmAY7LBCNwt7nMsMPJk2oY7HS/4yh5+a1v3x6aK7RdmCOKSSgM3twZGYk
-	2dca0wu5Uap9reXyqkHpZ5TPId2laPMhmMtZuxccgAJFJ6lOnNH2dhyhKSGSMlSc5WYoDRxJC9b
-	q8HiMo/ZFcUz4gRWaJAHhoECYemZIzquoG4qdm28X/e3AL92TIM/MvDw5A9hqC79z/bFDHqsQ6v
-	us6S9gbu
-X-Received: by 2002:a2e:bc81:0:b0:386:eb27:8ca0 with SMTP id
- 38308e7fff4ca-3881b8b436cmr62469191fa.1.1771577081418; Fri, 20 Feb 2026
- 00:44:41 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="SvlAQuMj"
+Received: from tguttzeit-tuxedo.fritz.box (ip5f5bfe92.dynamic.kabel-deutschland.de [95.91.254.146])
+	(Authenticated sender: t.guttzeit@tuxedocomputers.com)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPA id 103092FC004A;
+	Fri, 20 Feb 2026 11:03:49 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
+	s=default; t=1771581829;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=KWRWtkwNUcyCkwW3JMhoWxTHzO01lUYD2PP7BUWwCGg=;
+	b=SvlAQuMjEG5+++UqL6dZGSAdez8OsZo4qgLFnYVArSAmLGKcySY8NT+cvIwJ7oBI2OTMMT
+	drDj1eRfUU+IWiXQYlMSa1Q3/76bM9VEO2AkHySHjnipQlghejLFyfgc9kqxBWhdOJnMOD
+	KmIthD+LVv4bMobQugHjpDCSYFLy0hs=
+Authentication-Results: mail.tuxedocomputers.com;
+	auth=pass smtp.auth=t.guttzeit@tuxedocomputers.com smtp.mailfrom=tgu@tuxedocomputers.com
+From: Tim Guttzeit <tgu@tuxedocomputers.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: wse@tuxedocomputers.com,
+	Tim Guttzeit <tgu@tuxedocomputers.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] HID: generic: fix build when LEDS_CLASS_MULTICOLOR is disabled
+Date: Fri, 20 Feb 2026 11:03:17 +0100
+Message-ID: <20260220100325.133327-1-tgu@tuxedocomputers.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Ariel Silver <arielsilver77@gmail.com>
-Date: Fri, 20 Feb 2026 10:44:28 +0200
-X-Gm-Features: AaiRm507GrU7GU8euPW7vyh0hEPKVj58rhtMZtN4UCnPQ7GXH9v7SAX8gMuaR3Q
-Message-ID: <CACKMdfnPQoBnEhP0oCe1gXCYzJYyWBJsgHCHiMOn37XYYLAkVg@mail.gmail.com>
-Subject: Subject: [PATCH] Input: atkbd - validate scancode in firmware keymap entries
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-The SCANCODE() macro extracts a 16-bit value (0..65535) from firmware
-device property data, but atkbd_get_keymap_from_fwnode() uses it
-directly to index atkbd->keycode[], which only has ATKBD_KEYMAP_SIZE
-(512) elements. A firmware-supplied scancode >= 512 causes a heap
-out-of-bounds write that can corrupt adjacent struct atkbd fields and
-neighboring slab objects.
+Building HID generic with LampArray support enabled caused link
+failures when LEDS_CLASS_MULTICOLOR was disabled, due to unresolved
+led_classdev_multicolor_* and led_mc_* symbols.
 
-Add a bounds check that rejects the entire firmware keymap if any entry
-contains an out-of-range scancode, consistent with the validation
-performed by matrix_keypad_parse_keymap() in drivers/input/matrix-keymap.c
-for the same "linux,keymap" property format. When rejected, the driver
-falls back to the default keycode table.
+hid-lamparray.o was built whenever HID_GENERIC was enabled,
+regardless of LED multicolor support.
 
-Fixes: 9d17ad2369dc ("Input: atkbd - receive and use physcode->keycode
-mapping from FW")
-Reported-by: Ariel Silver <arielsilver77@gmail.com>
-Signed-off-by: Ariel Silver <arielsilver77@gmail.com>
-Cc: stable@vger.kernel.org
+Introduce CONFIG_HID_LAMPARRAY with dependencies on HID_GENERIC &&
+LEDS_CLASS && LEDS_CLASS_MULTICOLOR and build hid-lamparray.o only
+when enabled. Provide stub helpers so hid-generic.c builds cleanly
+when the option is disabled.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/oe-kbuild-all/202602200233.9Bwav9tZ-lkp@intel.com/
+Link: https://lore.kernel.org/oe-kbuild-all/202602200241.6ypuWvE5-lkp@intel.com/
+Link: https://lore.kernel.org/oe-kbuild-all/202602192025.xrvVo680-lkp@intel.com/
+Link: https://lore.kernel.org/oe-kbuild-all/202602192131.Q9y8Kqvt-lkp@intel.com/
+
+Changes in v2:
+  - Add CONFIG_HID_LAMPARRAY with proper dependencies
+  - Build hid-lamparray.o only when enabled
+  - Add stub helpers when disabled
+  - Fix build failures reported by kernel test robot
+
+Signed-off-by: Tim Guttzeit <tgu@tuxedocomputers.com>
 ---
- drivers/input/keyboard/atkbd.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/Kconfig         | 10 ++++++++++
+ drivers/hid/Makefile        |  3 ++-
+ drivers/hid/hid-generic.c   |  4 ++--
+ drivers/hid/hid-lamparray.h | 25 ++++++++++++++++++++++++-
+ 4 files changed, 38 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index XXXXXXX..XXXXXXX 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1111,6 +1111,13 @@ static int atkbd_get_keymap_from_fwnode(struct
-atkbd *atkbd)
-    for (i = 0; i < n; i++) {
-        scancode = SCANCODE(ptr[i]);
-        keycode = KEYCODE(ptr[i]);
-+       if (scancode >= ATKBD_KEYMAP_SIZE) {
-+           dev_warn(dev,
-+                "invalid scancode 0x%x in FW keymap entry %d\n",
-+                scancode, i);
-+           kfree(ptr);
-+           return -EINVAL;
-+       }
-        atkbd->keycode[scancode] = keycode;
-    }
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 920a64b66b25..91547dfa5661 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -92,6 +92,16 @@ config HID_GENERIC
+ 
+ 	If unsure, say Y.
+ 
++config HID_LAMPARRAY
++	bool "HID LampArray helper"
++	depends on HID_GENERIC && LEDS_CLASS && LEDS_CLASS_MULTICOLOR
++	default y
++	help
++	Helper for HID devices exposing a Lighting/LampArray collection.
++	Treats LampArray devices as a single-zone device and exposes a sysfs
++	interface for changing color and intensity values. Also exposes a
++	sysfs flag to be disabled e.g. by a userspace driver.
++
+ config HID_HAPTIC
+ 	bool "Haptic touchpad support"
+ 	default n
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index e6903be9c4df..5a14b4b0970d 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -12,7 +12,8 @@ obj-$(CONFIG_HID)		+= hid.o
+ obj-$(CONFIG_UHID)		+= uhid.o
+ 
+ obj-$(CONFIG_HID_GENERIC)	+= hid-generic.o
+-obj-$(CONFIG_HID_GENERIC)	+= hid-lamparray.o
++
++obj-$(CONFIG_HID_LAMPARRAY) += hid-lamparray.o
+ 
+ hid-$(CONFIG_HIDRAW)		+= hidraw.o
+ 
+diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
+index 650c2121b403..57b81c86982c 100644
+--- a/drivers/hid/hid-generic.c
++++ b/drivers/hid/hid-generic.c
+@@ -77,7 +77,7 @@ static int hid_generic_probe(struct hid_device *hdev,
+ 	 * Optional: attach LampArray support if present.
+ 	 * Never fail probe on LampArray errors; keep device functional.
+ 	 */
+-	if (lamparray_is_supported_device(hdev)) {
++	if (IS_ENABLED(CONFIG_HID_LAMPARRAY) && lamparray_is_supported_device(hdev)) {
+ 		const struct lamparray_init_state init = {
+ 			.r = 0xff,
+ 			.g = 0xff,
+@@ -108,7 +108,7 @@ static void hid_generic_remove(struct hid_device *hdev)
+ {
+ 	struct lamparray *la = hid_get_drvdata(hdev);
+ 
+-	if (la)
++	if (IS_ENABLED(CONFIG_HID_LAMPARRAY) && la)
+ 		lamparray_unregister(la);
+ 
+ 	hid_hw_stop(hdev);
+diff --git a/drivers/hid/hid-lamparray.h b/drivers/hid/hid-lamparray.h
+index b786ca00c404..ac3edd366a5b 100644
+--- a/drivers/hid/hid-lamparray.h
++++ b/drivers/hid/hid-lamparray.h
+@@ -6,6 +6,7 @@
+ #include <linux/types.h>
+ #include <linux/leds.h>
+ #include <linux/err.h>
++#include <linux/errno.h>
+ 
+ struct hid_device;
+ struct lamparray;
+@@ -21,6 +22,8 @@ struct lamparray_init_state {
+ 	enum led_brightness brightness;
+ };
+ 
++#if IS_ENABLED(CONFIG_HID_LAMPARRAY)
++
+ /**
+  * lamparray_is_supported_device() - check whether a HID device supports LampArray
+  * @hdev: HID device to inspect
+@@ -65,4 +68,24 @@ struct lamparray *lamparray_register(struct hid_device *hdev,
+  */
+ void lamparray_unregister(struct lamparray *la);
+ 
+-#endif
++#else /* !CONFIG_HID_LAMPARRAY */
++
++static inline bool lamparray_is_supported_device(struct hid_device *hdev)
++{
++	return false;
++}
++
++static inline struct lamparray *
++lamparray_register(struct hid_device *hdev,
++		   const struct lamparray_init_state *led_init_state)
++{
++	return ERR_PTR(-EOPNOTSUPP);
++}
++
++static inline void lamparray_unregister(struct lamparray *la)
++{
++}
++
++#endif /* CONFIG_HID_LAMPARRAY */
++
++#endif /* _HID_LAMPARRAY_H */
+-- 
+2.43.0
+

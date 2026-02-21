@@ -1,238 +1,115 @@
-Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8F81F5EA;
-	Sat, 21 Feb 2026 02:42:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59596A930;
+	Sat, 21 Feb 2026 04:22:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771641763; cv=none; b=WeDkbyN7mNLj+56DqxU4c1Q6F2IkDP/Lkf7KNZLZ1eKC+X/GiGveTrU7VMDUlptQ/U8MWfWfVpXr6c/u0Z2/bGXztd0+MEHu/UKj3vGl7MczfAqh01qwvOjDwvGMzYGdC4QkchmgfzDMYETDLjXn81a8YrPmm+DP46t1/jAqfA0=
+	t=1771647779; cv=none; b=Hxxs1SS/GFeRoVAL8RyBD+QyIlz9k+YAMk6LsC/uh6k2dk2CtG3uGOzMXl/Y1F+bc43Hh5aE6RVwipyEsijtjgJv0/GgP1W9fVCx65iqj7TbNENm2HVASKIg0OWwven2jHLJbrvjPcLBorQkT445ObxNsOMoA/A3zAxSJrAv52w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771641763; c=relaxed/simple;
-	bh=9xzjJksUdob00RqTMrN+1nKTN8dnWrtnkKGJMmaND0g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ALvI2fAss5Sf0MNcOetPXNiViP8ZTVRSjUBb4Uo8CcQp6pCFZQBpyOeBRTZabG0g23tRZDEDcuj8UXxsSHnV4jxDqQhlaL5wHYd5O7AxsKaodhOTkWPRuW/8t7y/Ufu4yM28j4bOtbEJrDz2KDwNcjXSMBmI5l9PLCqQ0VQWFE4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=gI72VM2s; arc=none smtp.client-ip=80.241.56.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1771647779; c=relaxed/simple;
+	bh=Oh40+MpvSadUfa4uYHyD/GZDcTxBPPS/jRqp+7sWxZw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vdgs7RQlxql+WpFISC0KyI97IpbqdnRiOB4+FZnXShrdE3EfvVWDB4P9v5Y2+6zIRqEfLLQ7YFFdhEPOOjb4RJ4bHuBKtogqD7NG3YBGFsqbwo1oiSE/jtdCrVMXYZfCw7td7tpLeRU7gvzVPO3VACdkw52UsFibR1rebtKpGwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=St+N6L5B; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="gI72VM2s"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4fHrxf720Pz9tjn;
-	Sat, 21 Feb 2026 03:42:30 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1771641751;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xVBsFUAqDv9GV79aGhrCnZ4kcr3ekjS0IcWz5nFQzn4=;
-	b=gI72VM2sr9cQYQJoc5jmWjeW578WUt6q+PBpi9ag1iivhWGzqB/t3dEwvwUQve+nJo3tRE
-	JIVkktqGJURnTeeZZF4QIxlCqXf/etVyUaBA47goCsnhHUgCfxwg1+oYawBlHJyA6vE+W/
-	KHvDtPwfyi9kCDUQ9oNkhAIzPmDL6Y5Mk04XQ+6zslO8zW0uL1fZT1u7k+nVWyQ2zV8qO0
-	iEkkPZFxPOdqWSASY7nCheO3YKtCCSh2HaIT/qBDrARsFRUQ+m91Kgx/eQya9qAX4f+hVi
-	HVtIjgzeNizH238HsspRQ0yzcFofuhSZgqQkIPlowBoX8vIOV4MbIuruNgjmtw==
-Message-ID: <f0d2a36a-5320-43c9-909b-3c41257c5e48@mailbox.org>
-Date: Sat, 21 Feb 2026 03:42:27 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="St+N6L5B"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1771647776; x=1803183776;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Oh40+MpvSadUfa4uYHyD/GZDcTxBPPS/jRqp+7sWxZw=;
+  b=St+N6L5B24Vn3sVl2vbugpj4zh9SS2mHzv6stW2xmeE+KV6STLtFTWl3
+   l1JRfM+L3rOQSPNlB5of113YfGnSX15ih5+WEtFL0jDLsuY0Ns9OSv04l
+   hyA4WE+SyxiBb55DWAjNCk8/Z0OD0/s/tMESVPTH2WgZSHNcMUax1bwQE
+   5L5KTquRKxLzcba0g+PGS6jniK7rbEFSgZyNndZqH75NUTUVQdAlfrok8
+   WrSNhj6KglHr9Yv+9rr+TVidADms0OzS7mWYtXcuGEAeAQ7Bbwudn+eXT
+   pUCcI0XBwVfHXsvLaLMUZaxrXl5ls/wntGjjwJqBFzxfnkzmv3ILoIbt5
+   A==;
+X-CSE-ConnectionGUID: cPWxamhgQDm46uLVIwFP7A==
+X-CSE-MsgGUID: /6i5efOeQrKJYUNseFgRhg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11707"; a="76348634"
+X-IronPort-AV: E=Sophos;i="6.21,302,1763452800"; 
+   d="scan'208";a="76348634"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2026 20:22:56 -0800
+X-CSE-ConnectionGUID: JFe+x54rSdecnu4f/U0HyA==
+X-CSE-MsgGUID: la31UCpSRDqm6dDY2fOM3w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,302,1763452800"; 
+   d="scan'208";a="214135245"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa006.jf.intel.com with ESMTP; 20 Feb 2026 20:22:54 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vteW3-000000014ho-3Nl0;
+	Sat, 21 Feb 2026 04:22:51 +0000
+Date: Sat, 21 Feb 2026 12:22:26 +0800
+From: kernel test robot <lkp@intel.com>
+To: Tim Guttzeit <tgu@tuxedocomputers.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, wse@tuxedocomputers.com,
+	Tim Guttzeit <tgu@tuxedocomputers.com>,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v3] HID: generic: add LampArray support via hid-lamparray
+ helper
+Message-ID: <202602211232.5VR8uvU5-lkp@intel.com>
+References: <20260220135309.151487-1-tgu@tuxedocomputers.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH] HID: sony: add support for Rock Band 2 instruments
-To: appsforartists@google.com, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Sanjay Govind <sanjay.govind9@gmail.com>,
- Antheas Kapenekakis <lkml@antheas.dev>, Vicki Pfau <vi@endrift.com>,
- =?UTF-8?Q?N=C3=ADcolas_F_=2E_R_=2E_A_=2E_Prado?= <nfraprado@collabora.com>
-References: <20260220165047.2844568-1-appsforartists@google.com>
-Content-Language: en-US
-From: Rosalie <rosalie@mailbox.org>
-In-Reply-To: <20260220165047.2844568-1-appsforartists@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MBO-RS-ID: 37e53d9960f0414efda
-X-MBO-RS-META: oguaoyq1oxgr6whso881b1jh6jt68c51
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260220135309.151487-1-tgu@tuxedocomputers.com>
 
-On 20/02/2026 17:50, appsforartists@google.com wrote:
-> From: Brenton Simpson <appsforartists@google.com>
-> 
-> Rock Band 2 for the Nintendo Wii and for the Sony PlayStation 3 use the
-> same mapping as later games:
-> 
->      Green:              SOUTH   (A)
->      Red:                EAST    (B)
->      Yellow:             NORTH   (Y)
->      Blue:               WEST    (X)
->      Orange/pedal:       TL      (L1)
->      Solo flag:          TL2     (L2)
->      Tilt:               TR      (R1)
->      Pad flag:           THUMBL  (L3)
->      Instrument button:  MODE    (Steam/Xbox)
->      Whammy bar:         ABS_Z   (Axis 4)
->      Effects switch:     Z       (Axis 5)
-> 
-> As documented at https://github.com/TheNathannator/PlasticBand/blob/main/Docs/.
-> 
-> The guitar and drums both use the same mapping.  Tested using the Wii
-> versions of the instruments.
-> 
-> Signed-off-by: Brenton Simpson <appsforartists@google.com>
-> ---
->   drivers/hid/hid-ids.h  |  8 +++++++-
->   drivers/hid/hid-sony.c | 45 +++++++++++++++++++++++++++++-------------
->   2 files changed, 38 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 3e299a30dcde..644d3c4df144 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -664,6 +664,10 @@
->   #define USB_DEVICE_ID_UGCI_FLYING	0x0020
->   #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
->   
-> +#define USB_VENDOR_ID_HARMONIX		0x1bad
-> +#define USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR_DONGLE	0x3010
-> +#define USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS_DONGLE	0x3110
-> +
->   #define USB_VENDOR_ID_HP		0x03f0
->   #define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A		0x464a
->   #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
-> @@ -1299,7 +1303,9 @@
->   
->   #define USB_VENDOR_ID_SONY_RHYTHM	0x12ba
->   #define USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE	0x074b
-> -#define USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE	0x0100
-> +#define USB_DEVICE_ID_SONY_PS3_GH_GUITAR_DONGLE		0x0100
-> +#define USB_DEVICE_ID_SONY_PS3_RB2_GUITAR_DONGLE	0x0200
-> +#define USB_DEVICE_ID_SONY_PS3_RB2_DRUMS_DONGLE		0x0210
->   
->   #define USB_VENDOR_ID_SINO_LITE			0x1345
->   #define USB_DEVICE_ID_SINO_LITE_CONTROLLER	0x3008
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index a89af14e4acc..f6975f6ae882 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -62,9 +62,10 @@
->   #define GH_GUITAR_CONTROLLER      BIT(14)
->   #define GHL_GUITAR_PS3WIIU        BIT(15)
->   #define GHL_GUITAR_PS4            BIT(16)
-> -#define RB4_GUITAR_PS4_USB        BIT(17)
-> -#define RB4_GUITAR_PS4_BT         BIT(18)
-> -#define RB4_GUITAR_PS5            BIT(19)
-> +#define RB2_INSTRUMENT            BIT(17)
-> +#define RB4_GUITAR_PS4_USB        BIT(18)
-> +#define RB4_GUITAR_PS4_BT         BIT(19)
-> +#define RB4_GUITAR_PS5            BIT(20)
->   
->   #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
->   #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
-> @@ -422,12 +423,12 @@ static const unsigned int sixaxis_keymap[] = {
->   	[0x11] = BTN_MODE, /* PS */
->   };
->   
-> -static const unsigned int rb4_absmap[] = {
-> +static const unsigned int rb_absmap[] = {
->   	[0x30] = ABS_X,
->   	[0x31] = ABS_Y,
->   };
+Hi Tim,
 
+kernel test robot noticed the following build errors:
 
-Is the Whammy bar mapped correctly to ABS_Z with this patch, or do the 
-instruments not use the rb_absmap array, because the array does not 
-contain ABS_Z?
+[auto build test ERROR on hid/for-next]
+[also build test ERROR on linus/master v6.19 next-20260220]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-If it doesn't need the rb_absmap array, maybe it'd be better to make a 
-separate rb2_instrument_mapping function instead of re-using the 
-rb4_guitar_mapping function.
+url:    https://github.com/intel-lab-lkp/linux/commits/Tim-Guttzeit/HID-generic-add-LampArray-support-via-hid-lamparray-helper/20260220-215620
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260220135309.151487-1-tgu%40tuxedocomputers.com
+patch subject: [PATCH v3] HID: generic: add LampArray support via hid-lamparray helper
+config: arm64-randconfig-003-20260221 (https://download.01.org/0day-ci/archive/20260221/202602211232.5VR8uvU5-lkp@intel.com/config)
+compiler: aarch64-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260221/202602211232.5VR8uvU5-lkp@intel.com/reproduce)
 
->   
-> -static const unsigned int rb4_keymap[] = {
-> +static const unsigned int rb_keymap[] = {
->   	[0x1] = BTN_WEST, /* Square */
->   	[0x2] = BTN_SOUTH, /* Cross */
->   	[0x3] = BTN_EAST, /* Circle */
-> @@ -625,17 +626,17 @@ static int gh_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
->   	return 0;
->   }
->   
-> -static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-> +static int rb_instrument_mapping(struct hid_device *hdev, struct hid_input *hi,
->   			  struct hid_field *field, struct hid_usage *usage,
->   			  unsigned long **bit, int *max)
->   {
->   	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
->   		unsigned int key = usage->hid & HID_USAGE;
->   
-> -		if (key >= ARRAY_SIZE(rb4_keymap))
-> +		if (key >= ARRAY_SIZE(rb_keymap))
->   			return 0;
->   
-> -		key = rb4_keymap[key];
-> +		key = rb_keymap[key];
->   		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, key);
->   		return 1;
->   	} else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
-> @@ -645,10 +646,10 @@ static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
->   		if (usage->hid == HID_GD_HATSWITCH)
->   			return 0;
->   
-> -		if (abs >= ARRAY_SIZE(rb4_absmap))
-> +		if (abs >= ARRAY_SIZE(rb_absmap))
->   			return 0;
->   
-> -		abs = rb4_absmap[abs];
-> +		abs = rb_absmap[abs];
->   		hid_map_usage_clear(hi, usage, bit, max, EV_ABS, abs);
->   		return 1;
->   	}
-> @@ -1101,11 +1102,14 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
->   	if (sc->quirks & GH_GUITAR_CONTROLLER)
->   		return gh_guitar_mapping(hdev, hi, field, usage, bit, max);
->   
-> +	if (sc->quirks & RB2_INSTRUMENT)
-> +		return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
-> +
->   	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
-> -		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
-> +		return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
->   
->   	if (sc->quirks & RB4_GUITAR_PS5)
-> -		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
-> +		return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
->   
->   	/* Let hid-core decide for the others */
->   	return 0;
-> @@ -2369,12 +2373,25 @@ static const struct hid_device_id sony_devices[] = {
->   	/* Guitar Hero PC Guitar Dongle */
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE),
->   		.driver_data = GH_GUITAR_CONTROLLER },
-> -	/* Guitar Hero PS3 World Tour Guitar Dongle */
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE),
-> +	/* Guitar Hero World Tour PS3 Guitar Dongle */
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR_DONGLE),
->   		.driver_data = GH_GUITAR_CONTROLLER },
->   	/* Guitar Hero Live PS4 guitar dongles */
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE),
->   		.driver_data = GHL_GUITAR_PS4 | GH_GUITAR_CONTROLLER },
-> +	/* Rock Band 2 instruments
-> +	 * Nintendo Wii instruments are included in `hid-sony` because `hid-nintendo`
-> +	 * is for the newer Nintendo Switch, and the Wii instruments use the same
-> +	 * protocol as their Sony PlayStation 3 cousins.
-> +	 */
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR_DONGLE),
-> +		.driver_data = RB2_INSTRUMENT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS_DONGLE),
-> +		.driver_data = RB2_INSTRUMENT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB2_GUITAR_DONGLE),
-> +		.driver_data = RB2_INSTRUMENT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB2_DRUMS_DONGLE),
-> +		.driver_data = RB2_INSTRUMENT },
->   	/* Rock Band 4 PS4 guitars */
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER),
->   		.driver_data = RB4_GUITAR_PS4_USB },
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602211232.5VR8uvU5-lkp@intel.com/
 
+All errors (new ones prefixed by >>):
+
+   aarch64-linux-ld: Unexpected GOT/PLT entries detected!
+   aarch64-linux-ld: Unexpected run-time procedure linkages detected!
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_led_brightness_get':
+>> hid-lamparray.c:(.text+0x1fc): undefined reference to `hid_hw_request'
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_hw_set_state':
+   hid-lamparray.c:(.text+0x3e0): undefined reference to `hid_hw_request'
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_led_brightness_set':
+   hid-lamparray.c:(.text+0x5f0): undefined reference to `led_mc_calc_color_components'
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_register_led':
+   hid-lamparray.c:(.text+0x804): undefined reference to `led_mc_calc_color_components'
+>> aarch64-linux-ld: hid-lamparray.c:(.text+0x824): undefined reference to `led_classdev_multicolor_register_ext'
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_unregister_led':
+   hid-lamparray.c:(.text+0x948): undefined reference to `led_classdev_multicolor_unregister'
+   aarch64-linux-ld: drivers/hid/hid-lamparray.o: in function `lamparray_register':
+   hid-lamparray.c:(.text+0xec4): undefined reference to `hid_hw_request'
+>> aarch64-linux-ld: hid-lamparray.c:(.text+0x100c): undefined reference to `hid_hw_request'
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

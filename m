@@ -1,64 +1,64 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F67B13D8B1
-	for <linux-input@vger.kernel.org>; Sun, 22 Feb 2026 00:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16EB6156F45
+	for <linux-input@vger.kernel.org>; Sun, 22 Feb 2026 00:37:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771720650; cv=none; b=QXNrSkCbJa2CG7NCew1mNwKzEip1/gx2/zTHWFEincAgr7Fo5yKSgwyue8BwLZo5tYMxthk/ui0EZKi+0WYV+3rrlgSF9l7ZJVpiramOeLN2cLt46+L4CLpLqw2dHGcx901wBiN8XEY3ZRR/x+MiWqvBYGj8/Q+lu+uKQVR2fAU=
+	t=1771720652; cv=none; b=ZEqC+03z5fM2X08daFyYWmwhTrj51suv0XQxoPgt3rx93veCdrpz+7V4NC5/PWZ8sDvwi5rxAdmaYaBrw0dRhqtiwLdLEVtzXXfYLALOHPbJjPAT2ylaN8bATTQ0ZUdlL2kGD5EbXTLej+SkUKvcW/Svmdbt1sMDZwMDnvwWXaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771720650; c=relaxed/simple;
-	bh=crb4b82rLxqKn4BkBwvmo2g9i5aBgpOAcm55i7WUJpM=;
+	s=arc-20240116; t=1771720652; c=relaxed/simple;
+	bh=/oWe9TBcbfGVgvA3YAwcI++qilYUs5G6I0MwqlEyTXQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VUA+o3x7lHpLNCkzxdakZc5OeM/J0WTofPd7QwUHJsPoMbWy7OfKzJp2aXwjM0Cvr1jfu5n/DRoE0UMEIoNhrWMQQBN8g13rIsZfWE7BtK8aJUIODd2Bm9rSlarboW8oPm6Y2q9JKkYlZbP5j1yTQjYChdvuabklv7GRGc8Tx5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fx33APAc; arc=none smtp.client-ip=74.125.82.180
+	 MIME-Version; b=RU6sJoPFLWUCo5iCJwGRdV9D6anws3tNPcGlxfNyTr2JXaY7noaJjDIWUO5ch24xYzf9RP0cSQMntr7/ZtAYVGgIwusRQIyr1pBQvNGvw5+Yaj0uocUS0a2LzqMvjrLUzHC8/enirhkdkhWHgvSgLgqxFwLmDGFByYceqbpXKe8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RSlxUR6t; arc=none smtp.client-ip=74.125.82.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fx33APAc"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2ba9d13f10eso5174761eec.0
-        for <linux-input@vger.kernel.org>; Sat, 21 Feb 2026 16:37:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RSlxUR6t"
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-124a635476fso3082070c88.0
+        for <linux-input@vger.kernel.org>; Sat, 21 Feb 2026 16:37:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771720648; x=1772325448; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771720650; x=1772325450; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=d9P6JIy/yCYueLx7kLL46JzwVZIY5NSAX+sYIu+42/o=;
-        b=fx33APAcEYDNsJ2h1ZsDUnUsuQUHSNQ92sd0U7jSnox6+N/+QI4TkObHG7z1ySAmon
-         Br3wDXWzk8yEoaIAYjWkDQlLowwoudi8OmNyptYkqFvFZwydUInl73Durnff01m24yKx
-         5nFkIQRFs+XJBW7VYAjMCeiChegTNU022BzFJvog83Od+anJf5xiJVIxty09/NV7yoeP
-         He1ypH7nkhyOEEBN8yz67+DI5IZGswUgLVR5bLZdCIUkhqNN+om9L1rBkkNzwPKxucgO
-         kZtIWS9gVkLuGbz9S9PQPnLcrg0VJUIph5u8sJlcfe/r1xCSMQFPFtoI9FhAVvESQ/AI
-         WDLw==
+        bh=NCOB+xu4HpFhupd2ul95dO/R/350Wo1NOuKyLRfUoGY=;
+        b=RSlxUR6t63YWJUImIV2pOsjQcfgwU5MROiABCoo+qd7JMdhBPfn3ZtbjJtP8CY5NPt
+         VJNtibz9iy16s64kw1bR6FV82zsU5/whVKSsU5k/yV/0yxrFYs1ajS/nsuVTiuf54vSm
+         h3hIQa3HnatX2ARrDbpJ8XGnAkk3q5CtD7DAUbi3QgpOiKPx5Ffa9voYCNCMPKTz0kMn
+         Nve1xm2oQAu6PxXuddgOnjV2iVbwgZYxe0+tHN5CzNhvHQtpkrj5nvSXkekG6BIzQs7Q
+         QWC6TTkYOlIj8A53X01F42EYpVnWcz6Y1qMNg8QSYsTtnKdlmqXJi6ZYUXEJaNN0SrOk
+         9bBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771720648; x=1772325448;
+        d=1e100.net; s=20230601; t=1771720650; x=1772325450;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=d9P6JIy/yCYueLx7kLL46JzwVZIY5NSAX+sYIu+42/o=;
-        b=FK1dHs0Fa3S0uzBEhlJXCFK6EgLoNexk70OAN3adqx1dESEUr5t2Ci+9S4R+wS2mwc
-         54r4rijAxUPpKWKiufvwWEJwcNYvPJWINtxLA2SaKKeyqgERpsaSC9Kp8xcLD6/P6spw
-         5F/FnslEzKnKW+otKjLaTx58dCvugIut3oqkMZ6Fig3hFNZocdfsvguSMuqvYEZ3sAHW
-         7pzPnzqkKylv1s8t6Bxy/QaQ4M2JX7ra2kArjxKF8BEvFoBm03cvMZSE47pEKR2YWF16
-         J3YZMtSTdcSqEdOM/qdMD4igjfm0CdhaQdviTO3r1/i4ui+jxvXWuEIuONH74+XZK8PW
-         SxNA==
-X-Forwarded-Encrypted: i=1; AJvYcCU2L5ZCV+gh/U4ZdVbQH9l9rZIyQP5dRm8pQjxpNGXZEJ3GoS/2ticZsTUQfSBGSLYRuBONE4LwbRtJUw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoHrkXv/Uh/xh1okcnSznct14WOmXtwHUpq1SOTAP73UqK3XM1
-	OjWXeWn4GuS2wnOHny91IVROvqr8IrNyatvXRq9M3AVAjWfu8I57JrRN
-X-Gm-Gg: AZuq6aK6hh50rPjuodezK0RPI9QGY0/74Ge6/7jA/6NKC2liu7m8Blma1FpE9hDRKi0
-	Cn98uh1sl9Hf0sqXDqpZZhHh/jw/Um17GmHw53cwXhID8drPh80Pl1O5HS+qCCJxtsLv5o8ROx4
-	+MEJR0MnmYceHLjApoWJR6ymeONJno03xMuIqMabwHTj9tQIBErO/wjBENuaCyWxcfQJkxekLWM
-	vgF94Ti9mqbGtJIELCv9RTHcZZAlTDOGlp37YEAElBy3oLd5Qd5gTvgWJVUcjyJz0NM3O6duSvu
-	ID4adWhMemp4vYmVeb9tdd+eX/D3RW205e69bNT9jgMx+sPSCmtk/ATCk2cQrqi5pqBoBjSyTUA
-	+G80bNgj0ey0tOvUK4z0rp10HintTmUFv47inORbGstrhn25MEsQ7nYjDwBlXiPjrH9Eff4hhl0
-	Dq3PMxjhTV/RrgrtDkmox2LFdb6u5griG44qDAk/F5MFBTITnXD4ks8Mp7J+RuZmTcm5wExPFOk
-	/v2oyu/mGjoew==
-X-Received: by 2002:a05:7300:a949:b0:2ba:73db:3e81 with SMTP id 5a478bee46e88-2bd7bd6a424mr1781407eec.33.1771720648229;
-        Sat, 21 Feb 2026 16:37:28 -0800 (PST)
+        bh=NCOB+xu4HpFhupd2ul95dO/R/350Wo1NOuKyLRfUoGY=;
+        b=jJUmbU5iLEx7tLDYwsC7lI9SFR7OQXZha09JK79QDevf8jDKSTwsNVuaUr4owNUuVF
+         y544kG6/6gxHpnZhdXIGlmgRYr0lUHiSsfyFO0UJ7/dJKit8GciKwcOTDw2c6JF3KOwh
+         JxTCrf+ChMgd6sDyNaRi0r63Fy2Ozqfpm1lqZ0f2BCh6rg5E/QuOjNSDzoaS0BwJQc6N
+         2Qy3KHYLZnEyyE+zxd82D/gnQUpyLuUmLySSDFINAR62uzHYBzOQ6rj2y1+v6L+C/CaU
+         p8jWYIkrla0G4hU4MJRCTEY6hH5CieahMbXL7k1QTs4QK8lIhBGVrAiGZmlREt7pvkI7
+         kYFw==
+X-Forwarded-Encrypted: i=1; AJvYcCVu6Xb71LTBseVHRQRgSojcRMXD8c1g0/yPXjE7jlxutG4Pm2XjzTBhmpcLEmL07fx6qUUmKpBp6z1OCA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz0o4fV44HJlvrwwJy8Y0cz7scKlKLpyralMiEUfJ2v2QE/y8t4
+	nmz0CBrpZu5qaEktDhsMjNcyD588FkXav2pDDE73UE/RsMxDb8QNqsKD
+X-Gm-Gg: AZuq6aK1QwOKa0ECivq+kKZBXPEzpxqBKhrKd/atycIvzOhZVMN3iNzeQyOwNWDj7FA
+	EDAwn6fjYkdKYxzjJqLZlOUHF6cMA2y1x01L4iuydwL3YOa/KdCIydZFUGCUvxNgoXROlDQj1Hd
+	SunA8Fnk3svHQE3zkQLc9y/Xa/6efNqu4HejGQKSUkYa3iLHWLb3e//y2szuYOIs2cyzq70EGNC
+	URJ2TRU1Sc73FJpu8Zc5cA4tC3UsDFAZatjs0dCXdfj/syZfxhtOx5qq4anHC3xFPcVsBG4ErJp
+	6mmgr6+YCVMV+X6m6mwWM8/18viE0cWTyzI2exEdnocuXWS2Wevqty733MPcqHDRBzgQMyspgj6
+	iIkJueb0r2wEdhkACEWrlhqD3p6gzV16mx8+W0VAMkzpqLp0uCJcWck8N0qwjUEjRn/zZWf0jH9
+	u/6Qjnjw5vAiz+kp49lZPsp7VDHttYhu46JdunfJTLB17eHFsYH74ro98C2wRAPEs0MElbBDFKf
+	DdHo9LVrAh5NeuP0yiddbtv
+X-Received: by 2002:a05:7022:2482:b0:127:35af:143c with SMTP id a92af1059eb24-1276ad39a83mr1667574c88.37.1771720650227;
+        Sat, 21 Feb 2026 16:37:30 -0800 (PST)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:73d:b075:516c:4a69])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7dc167d3sm2383191eec.24.2026.02.21.16.37.27
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7dc167d3sm2383191eec.24.2026.02.21.16.37.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Feb 2026 16:37:27 -0800 (PST)
+        Sat, 21 Feb 2026 16:37:29 -0800 (PST)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Fabio Baltieri <fabiobaltieri@chromium.org>,
 	Benson Leung <bleung@chromium.org>
@@ -68,9 +68,9 @@ Cc: Guenter Roeck <groeck@chromium.org>,
 	linux-input@vger.kernel.org,
 	chrome-platform@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 5/7] Input: cros_ec_keyb - simplify cros_ec_keyb_work()
-Date: Sat, 21 Feb 2026 16:37:13 -0800
-Message-ID: <20260222003717.471977-5-dmitry.torokhov@gmail.com>
+Subject: [PATCH 7/7] Input: cros_ec_keyb - factor out column processing
+Date: Sat, 21 Feb 2026 16:37:15 -0800
+Message-ID: <20260222003717.471977-7-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.53.0.345.g96ddfc5eaa-goog
 In-Reply-To: <20260222003717.471977-1-dmitry.torokhov@gmail.com>
 References: <20260222003717.471977-1-dmitry.torokhov@gmail.com>
@@ -82,98 +82,88 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce temporaries for event_data pointer and event_size to simplify
-the code a bit.
-
-In cros_ec_keyb_compute_valid_keys() explicitly compare with
-KEY_RESERVED to make the intent of the comparison more clear.
+Factor out column processing and eagerly skip processing columns that do
+not have any changes in them.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/cros_ec_keyb.c | 28 +++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 47 +++++++++++++++------------
+ 1 file changed, 27 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index fabbdbc22785..1b4ee30e1998 100644
+index 02176aee0530..8cf9129f6198 100644
 --- a/drivers/input/keyboard/cros_ec_keyb.c
 +++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -330,8 +330,10 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- {
- 	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
- 						  notifier);
--	u32 val;
-+	struct ec_response_get_next_event_v3 *event_data;
-+	unsigned int event_size;
- 	unsigned int ev_type;
-+	u32 val;
+@@ -254,6 +254,26 @@ static void cros_ec_keyb_process_key_fn_map(struct cros_ec_keyb *ckdev,
+ 	input_report_key(idev, code, state);
+ }
  
- 	/*
- 	 * If not wake enabled, discard key state changes during
-@@ -341,32 +343,32 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
- 		return NOTIFY_OK;
- 
--	switch (ckdev->ec->event_data.event_type) {
-+	event_data = &ckdev->ec->event_data;
-+	event_size = ckdev->ec->event_size;
++static void cros_ec_keyy_process_col(struct cros_ec_keyb *ckdev, int col,
++				     u8 col_state, u8 changed)
++{
++	for (int row = 0; row < ckdev->rows; row++) {
++		if (changed & BIT(row)) {
++			u8 key_state = col_state & BIT(row);
 +
-+	switch (event_data->event_type) {
- 	case EC_MKBP_EVENT_KEY_MATRIX:
- 		pm_wakeup_event(ckdev->dev, 0);
++			dev_dbg(ckdev->dev, "changed: [r%d c%d]: byte %02x\n",
++				row, col, key_state);
++
++			if (ckdev->has_fn_map)
++				cros_ec_keyb_process_key_fn_map(ckdev, row, col,
++								key_state);
++			else
++				cros_ec_keyb_process_key_plain(ckdev, row, col,
++							       key_state);
++		}
++	}
++}
++
+ /*
+  * Compares the new keyboard state to the old one and produces key
+  * press/release events accordingly.  The keyboard state is one byte
+@@ -261,10 +281,6 @@ static void cros_ec_keyb_process_key_fn_map(struct cros_ec_keyb *ckdev,
+  */
+ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev, u8 *kb_state, int len)
+ {
+-	int col, row;
+-	int new_state;
+-	int old_state;
+-
+ 	if (ckdev->ghost_filter && cros_ec_keyb_has_ghosting(ckdev, kb_state)) {
+ 		/*
+ 		 * Simple-minded solution: ignore this state. The obvious
+@@ -275,24 +291,15 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev, u8 *kb_state, int l
+ 		return;
+ 	}
  
- 		if (!ckdev->idev) {
--			dev_warn_once(ckdev->dev,
--				      "Unexpected key matrix event\n");
-+			dev_warn_once(ckdev->dev, "Unexpected key matrix event\n");
- 			return NOTIFY_OK;
- 		}
+-	for (col = 0; col < ckdev->cols; col++) {
+-		for (row = 0; row < ckdev->rows; row++) {
+-			new_state = kb_state[col] & BIT(row);
+-			old_state = ckdev->old_kb_state[col] & BIT(row);
+-
+-			if (new_state == old_state)
+-				continue;
+-
+-			dev_dbg(ckdev->dev, "changed: [r%d c%d]: byte %02x\n",
+-				row, col, new_state);
++	for (int col = 0; col < ckdev->cols; col++) {
++		u8 changed = kb_state[col] ^ ckdev->old_kb_state[col];
  
--		if (ckdev->ec->event_size != ckdev->cols) {
-+		if (event_size != ckdev->cols) {
- 			dev_err(ckdev->dev,
- 				"Discarded key matrix event, unexpected length: %d != %d\n",
- 				ckdev->ec->event_size, ckdev->cols);
- 			return NOTIFY_OK;
- 		}
+-			if (ckdev->has_fn_map)
+-				cros_ec_keyb_process_key_fn_map(ckdev, row, col, new_state);
+-			else
+-				cros_ec_keyb_process_key_plain(ckdev, row, col, new_state);
+-		}
+-		ckdev->old_kb_state[col] = kb_state[col];
++		if (changed)
++			cros_ec_keyy_process_col(ckdev, col, kb_state[col],
++						 changed);
+ 	}
++
++	memcpy(ckdev->old_kb_state, kb_state, sizeof(ckdev->old_kb_state));
+ 	input_sync(ckdev->idev);
+ }
  
--		cros_ec_keyb_process(ckdev,
--				     ckdev->ec->event_data.data.key_matrix,
--				     ckdev->ec->event_size);
-+		cros_ec_keyb_process(ckdev, event_data->data.key_matrix, event_size);
- 		break;
- 
- 	case EC_MKBP_EVENT_SYSRQ:
- 		pm_wakeup_event(ckdev->dev, 0);
- 
--		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
-+		val = get_unaligned_le32(&event_data->data.sysrq);
- 		dev_dbg(ckdev->dev, "sysrq code from EC: %#x\n", val);
- 		handle_sysrq(val);
- 		break;
-@@ -376,12 +378,10 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 		pm_wakeup_event(ckdev->dev, 0);
- 
- 		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
--			val = get_unaligned_le32(
--					&ckdev->ec->event_data.data.buttons);
-+			val = get_unaligned_le32(&event_data->data.buttons);
- 			ev_type = EV_KEY;
- 		} else {
--			val = get_unaligned_le32(
--					&ckdev->ec->event_data.data.switches);
-+			val = get_unaligned_le32(&event_data->data.switches);
- 			ev_type = EV_SW;
- 		}
- 		cros_ec_keyb_report_bs(ckdev, ev_type, val);
-@@ -410,7 +410,7 @@ static void cros_ec_keyb_compute_valid_keys(struct cros_ec_keyb *ckdev)
- 	for (col = 0; col < ckdev->cols; col++) {
- 		for (row = 0; row < ckdev->rows; row++) {
- 			code = keymap[MATRIX_SCAN_CODE(row, col, row_shift)];
--			if (code && (code != KEY_BATTERY))
-+			if (code != KEY_RESERVED && code != KEY_BATTERY)
- 				ckdev->valid_keys[col] |= BIT(row);
- 		}
- 		dev_dbg(ckdev->dev, "valid_keys[%02d] = 0x%02x\n",
 -- 
 2.53.0.345.g96ddfc5eaa-goog
 

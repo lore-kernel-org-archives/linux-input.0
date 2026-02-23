@@ -1,256 +1,214 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65A74331219
-	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 17:18:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F4553328ED;
+	Mon, 23 Feb 2026 17:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771867124; cv=none; b=SS347wv9WXtBwjjLMuhzMSx8ZZd2qRoQvVpblk/3H27PXTQAOQKLJztzr6xZQs3p07QVeqzb/v2ebFD8JTVC8U0q0qZuLBP+MTuq4xAaEfkuDW7nldnI6ZIYchE1t03Xce/bS8mnxt1neZiGa8uQWfiBJlLQe3dmt7GajWgC2dE=
+	t=1771868336; cv=none; b=S0TDDsvzZx6kNRvbVQgbRkKM8whhRbD1pOF1b8Qh5ncKju18ZJ1Hbz9RP1NOs8xq/4FSDTMxBza9tuPy2PsrFsjUP0OGDCBVC8QmRHJamUDbiq4ImrTmyQTQgGChdBN6PvUreolfdM3m83/vBxR7LVSjmBMoheYxCv95brtT2aM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771867124; c=relaxed/simple;
-	bh=4Z113nyzcPGx00yPVO/LcR2WeiIRYEYs+Bbmmt42G0A=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=V0I8JekrrxxZdDO1IkbtZBN9z/WJVIEgSwhH5W9zZrNCHOta8wYeLJwVMyhBg1mvgmjSCLDX0Cq71XQGCXirwDFHp5GbIq/DoDX3DouVtm2As79x5iiNlIx0YX/p4kMUwJBgS8CZ/MTDOhhzTSdNeCUwSBb99Q0Vy8fkSBWMG4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nh68nnIi; arc=none smtp.client-ip=209.85.221.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771868336; c=relaxed/simple;
+	bh=OFs+F2i4fpeRmsTH7tUJ5hO0npgCDxBo25FPhTX/hFs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FE0pNcsIdieHenKdz4s0nolqaxsrB3RIVp71Iabx+AgxS75Z5+p/sIj9saDfKA97vI9w7LRFRfYShrGoDlpMBS2btFk5miAzjNNuM0oxvFeZjOXtPCxARM2sACeTlCqWH0jJIlKbNeP5II3760TLhyAk6qLk8VEY7qaBCBoSV4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NvMPcrsr; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nh68nnIi"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-436356740e6so4830657f8f.2
-        for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 09:18:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771867121; x=1772471921; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Cjndx/viWwHPLwXhm0pJTNs0ZpyDgThJGXcIfdXyo2Y=;
-        b=nh68nnIilX/3GRqH8tZ3K16siX4oQJQb2rerE2FqT1QN1FI60MooDSDAKZDC3mDI9e
-         g1PpoQryJ5mWzw6w+dDf4Wf7YFtX0vpu2JwpHqQxCurvmVj5s9S8XqcUC1tZAIHNL/Wa
-         2BbaMcSW+riZLsuQ/ry10KjfDclOj/q4/nccf+HgwT9vVb7voZ1fut+dOnrUpJf2gNlO
-         cQcE6KXVCLIHqTG9y2rh2NIwaHf0tES9lJ89/gQ9AYgYRZy9zgcGua02yS+4v81uQ7nS
-         FTHXSQvkBaX1cCp1YTR0P1w+IQzU5iHD2P5mNG3U6vISeYJc0clU+RTBi5HIGJYHKtRf
-         Kb/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771867121; x=1772471921;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Cjndx/viWwHPLwXhm0pJTNs0ZpyDgThJGXcIfdXyo2Y=;
-        b=NLFtjJlMrdRqLmAn9wAfIDszhmPYfzXl40SmNK6+B8P39HlV2z0ul3wfG2VnucjlnJ
-         wpIoRK0CFv04mDMNZ24Y/tgANbcGLbQzVMgIuIqAkEkImDHk9Th1Xr8miOvGUt5Yv6JQ
-         Woxko+7kTB3Gdz5GEirlnVvPiag0S0mF6DWnmWpp898qMOFkgtejSeHqU+eAGXPWLkL2
-         6BS6D8rgCUr0bUsfoOuhFpPIfSDT3yokKf1KLT6vz69fTsMhkk2gf8xaTQ/YzqrO7D/D
-         XDBms/aXmVIxYvjAJP4CwF7jIkerDUXJl1M2oiviNEVWaTur/lblfoGptAGUOyBYPAW3
-         liQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVeSNcXvXHYCYAfLBi21Vm2OUqrLuTOF/fBXCia30dV0lU6133dEH9KySEKbiYr2VkYYZ+mvbbHlEFNiA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyOxCrCVXRtaKZxUl6QuVJHCH4w1cBii/gK5kt/PvwOb1jK9y7F
-	TYPlPS8fhpU2+/dRkRV8GW8cSb2yf4OX3+5lSY8u42sp7jqZF1OWAHGJ
-X-Gm-Gg: ATEYQzxaV8FzF58Pq2CB8UVBPFBYOeuCw/C/88dSWsnMu7qbQgPeCtsesuG8r9PR93w
-	VlkJ7V6D1fvxb1S7F9Ezw+q8nlP9+A4yRUrm7Ls7WEzbiMXXEZGMFgb2OrUqUcDyFCMiUgVZLW+
-	QDhv7XzTeajcrwKtDyHUMelzdvjafcDUh6tQsE2bl4cOK3Df8WU8Vvt0WHo6jxZa6PrR4qya983
-	1WUvJJ3/iMQjhx+4n4XWGNjOkmH8fvOf8PcvmvbIQu8dTwC/uFZN7/U32kpdvZ075c84f9kvYBb
-	P9Z+JBVajDfqaayY8ovZk0BKwpXxtHvPMM/y5ydqfQqeXGa3CXbNhCwah0JHM0zPsIfG8477/EU
-	W85jfr6ocoQmicjgLxcFPIBy04JV2Fg+MbHqIRiFnxi3mg5RRrcthmMUNKwVUarXEpBzhv5jg+j
-	ghTBSkr6iojEljCfeR8RQ=
-X-Received: by 2002:a05:6000:2dca:b0:431:369:e7b with SMTP id ffacd0b85a97d-4396f157e6bmr19371413f8f.18.1771867120734;
-        Mon, 23 Feb 2026 09:18:40 -0800 (PST)
-Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43970d4c982sm20871454f8f.31.2026.02.23.09.18.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 09:18:40 -0800 (PST)
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-To: linux-mediatek@lists.infradead.org
-Cc: Val Packett <val@packett.cool>,
-	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Eddie Huang <eddie.huang@mediatek.com>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NvMPcrsr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1771868335; x=1803404335;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=OFs+F2i4fpeRmsTH7tUJ5hO0npgCDxBo25FPhTX/hFs=;
+  b=NvMPcrsrscxq4yCJYNHBwma5dXpYiaLlpl5YaiHU4AbKmW1dss4zVpgH
+   eKc6wHV4HSpKqyOZ8UlLVlghXkur2gCHm4j/0tVPiKMiMs8WIyTYBU/2a
+   6yowW4cOU55qzj4P1UFjG06x85lKFyOgcBuajicG0+hQ7xUZWW5IVie0T
+   CzejcQppfEPzmSpHn0vPl0BWBUbMvv0s0ke5e+Qjssqu807Hmk7eyaE7j
+   rAcT4p6XKH7FNn0xujYAvGZ00DAcOtrZCn+DLE46UjHdqz7MQNGpBv4ef
+   eZ4zNkJ8cO1QoE+PCo+ORxkR4NcdogZJ2/EBVMiLNS/FtyyTrgvpBtjZv
+   g==;
+X-CSE-ConnectionGUID: jsfaBeNbRdOcjkAScBt/AA==
+X-CSE-MsgGUID: qC3ahawxSriUb3w5OK63yQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11710"; a="73050398"
+X-IronPort-AV: E=Sophos;i="6.21,307,1763452800"; 
+   d="scan'208";a="73050398"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 09:38:54 -0800
+X-CSE-ConnectionGUID: i7eZdD4uRr+gNr/ct2htpA==
+X-CSE-MsgGUID: B0cv0ytAS2ClRPRHaDlf4w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,307,1763452800"; 
+   d="scan'208";a="214708424"
+Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.222])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 09:38:36 -0800
+Date: Mon, 23 Feb 2026 19:38:33 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Shawn Lin <shawn.lin@rock-chips.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Vaibhaav Ram T . L" <vaibhaavram.tl@microchip.com>,
+	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
+	Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Julien Massot <julien.massot@collabora.com>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Gary Bisson <bisson.gary@gmail.com>,
-	Fabien Parent <parent.f@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH 9/9] arm64: dts: mt6392: add mt6392 PMIC dtsi
-Date: Mon, 23 Feb 2026 17:12:48 +0000
-Message-ID: <0eaee8c3be8dc848314b2e9aaac9303659fc2a49.1771865015.git.l.scorcia@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1771865014.git.l.scorcia@gmail.com>
-References: <cover.1771865014.git.l.scorcia@gmail.com>
+	Zhou Wang <wangzhou1@hisilicon.com>,
+	Longfang Liu <liulongfang@huawei.com>,
+	Vinod Koul <vkoul@kernel.org>, Lee Jones <lee@kernel.org>,
+	Jijie Shao <shaojijie@huawei.com>,
+	Jian Shen <shenjian15@huawei.com>,
+	Sunil Goutham <sgoutham@marvell.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Jeff Hugo <jeff.hugo@oss.qualcomm.com>,
+	Oded Gabbay <ogabbay@kernel.org>,
+	Maciej Falkowski <maciej.falkowski@linux.intel.com>,
+	Karol Wachowski <karol.wachowski@linux.intel.com>,
+	Min Ma <mamin506@gmail.com>, Lizhi Hou <lizhi.hou@amd.com>,
+	Andreas Noever <andreas.noever@gmail.com>,
+	Mika Westerberg <westeri@kernel.org>,
+	Tomasz Jeznach <tjeznach@rivosinc.com>,
+	Will Deacon <will@kernel.org>,
+	Xinliang Liu <xinliang.liu@linaro.org>,
+	Tian Tao <tiantao6@hisilicon.com>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Srujana Challa <schalla@marvell.com>,
+	Bharat Bhushan <bbhushan2@marvell.com>,
+	Antoine Tenart <atenart@kernel.org>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Raag Jadav <raag.jadav@intel.com>, Hans de Goede <hansg@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Andy Shevchenko <andy@kernel.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Robert Richter <rric@kernel.org>, Mark Brown <broonie@kernel.org>,
+	Nirmal Patel <nirmal.patel@linux.intel.com>,
+	Kurt Schwemmer <kurt.schwemmer@microsemi.com>,
+	Logan Gunthorpe <logang@deltatee.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bingbu Cao <bingbu.cao@intel.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org, linux-i3c@lists.infradead.org,
+	dmaengine@vger.kernel.org, Philipp Stanner <phasta@kernel.org>,
+	netdev@vger.kernel.org, nic_swsd@realtek.com,
+	linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-usb@vger.kernel.org, iommu@lists.linux.dev,
+	linux-riscv@lists.infradead.org, David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>, linux-cxl@vger.kernel.org,
+	linux-crypto@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+	linux-serial@vger.kernel.org, mhi@lists.linux.dev,
+	Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org,
+	Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	linux-spi@vger.kernel.org,
+	Jonathan Derrick <jonathan.derrick@linux.dev>,
+	linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org
+Subject: Re: [PATCH 0/37] PCI/MSI: Enforce explicit IRQ vector management by
+ removing devres auto-free
+Message-ID: <aZyQmc7nOt87jitX@smile.fi.intel.com>
+References: <1771860581-82092-1-git-send-email-shawn.lin@rock-chips.com>
+ <CAHp75VeWD5A0r7-Uayyte1ZXXxdhLixd+z_y0xNeki0N+Ro=jQ@mail.gmail.com>
+ <cb878741-7b61-b72c-5a72-6ed6d5091b1f@rock-chips.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <cb878741-7b61-b72c-5a72-6ed6d5091b1f@rock-chips.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-From: Val Packett <val@packett.cool>
+On Tue, Feb 24, 2026 at 12:09:37AM +0800, Shawn Lin wrote:
+> 在 2026/02/23 星期一 23:50, Andy Shevchenko 写道:
+> > On Mon, Feb 23, 2026 at 5:32 PM Shawn Lin <shawn.lin@rock-chips.com> wrote:
+> > > 
+> > > This patch series addresses a long-standing design issue in the PCI/MSI
+> > > subsystem where the implicit, automatic management of IRQ vectors by
+> > > the devres framework conflicts with explicit driver cleanup, creating
+> > > ambiguity and potential resource management bugs.
+> > > 
+> > > ==== The Problem: Implicit vs. Explicit Management ====
+> > > Historically, `pcim_enable_device()` not only manages standard PCI resources
+> > > (BARs) via devres but also implicitly triggers automatic IRQ vector management
+> > > by setting a flag that registers `pcim_msi_release()` as a cleanup action.
+> > > 
+> > > This creates an ambiguous ownership model. Many drivers follow a pattern of:
+> > > 1. Calling `pci_alloc_irq_vectors()` to allocate interrupts.
+> > > 2. Also calling `pci_free_irq_vectors()` in their error paths or remove routines.
+> > > 
+> > > When such a driver also uses `pcim_enable_device()`, the devres framework may
+> > > attempt to free the IRQ vectors a second time upon device release, leading to
+> > > a double-free. Analysis of the tree shows this hazardous pattern exists widely,
+> > > while 35 other drivers correctly rely solely on the implicit cleanup.
+> > 
+> > Is this confirmed? What I read from the cover letter, this series was
+> > only compile-tested, so how can you prove the problem exists in the
+> > first place?
+> 
+> Yes, it's confirmed. My debug of a double free issue of a out-of-tree
+> PCIe wifi driver which uses
+> pcim_enable_device + pci_alloc_irq_vectors + pci_free_irq_vectors expose
+> it. And we did have a TODO to cleanup this hybrid usage, targeted in
+> this cycle[1] suggested by Philipp:
 
-Add the dts to be included by all boards using the MT6392 PMIC.
+Okay, fair enough. I think this bit was missing in the cover letter.
 
-Signed-off-by: Val Packett <val@packett.cool>
-Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
----
- arch/arm64/boot/dts/mediatek/mt6392.dtsi | 133 +++++++++++++++++++++++
- 1 file changed, 133 insertions(+)
- create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git/log/?h=msi
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6392.dtsi b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-new file mode 100644
-index 000000000000..d0d86ae0f073
---- /dev/null
-+++ b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-@@ -0,0 +1,133 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2019 MediaTek Inc.
-+ * Copyright (c) 2024 Val Packett <val@packett.cool>
-+ */
-+
-+#include <dt-bindings/input/input.h>
-+
-+&pwrap {
-+	pmic: pmic {
-+		compatible = "mediatek,mt6392";
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+
-+		regulators {
-+			compatible = "mediatek,mt6392-regulator";
-+
-+			mt6392_vproc_reg: buck_vproc {
-+				regulator-name = "vproc";
-+			};
-+
-+			mt6392_vsys_reg: buck_vsys {
-+				regulator-name = "vsys";
-+			};
-+
-+			mt6392_vcore_reg: buck_vcore {
-+				regulator-name = "vcore";
-+			};
-+
-+			mt6392_vxo22_reg: ldo_vxo22 {
-+				regulator-name = "vxo22";
-+			};
-+
-+			mt6392_vaud22_reg: ldo_vaud22 {
-+				regulator-name = "vaud22";
-+			};
-+
-+			mt6392_vcama_reg: ldo_vcama {
-+				regulator-name = "vcama";
-+			};
-+
-+			mt6392_vaud28_reg: ldo_vaud28 {
-+				regulator-name = "vaud28";
-+			};
-+
-+			mt6392_vadc18_reg: ldo_vadc18 {
-+				regulator-name = "vadc18";
-+			};
-+
-+			mt6392_vcn35_reg: ldo_vcn35 {
-+				regulator-name = "vcn35";
-+			};
-+
-+			mt6392_vio28_reg: ldo_vio28 {
-+				regulator-name = "vio28";
-+			};
-+
-+			mt6392_vusb_reg: ldo_vusb {
-+				regulator-name = "vusb";
-+			};
-+
-+			mt6392_vmc_reg: ldo_vmc {
-+				regulator-name = "vmc";
-+			};
-+
-+			mt6392_vmch_reg: ldo_vmch {
-+				regulator-name = "vmch";
-+			};
-+
-+			mt6392_vemc3v3_reg: ldo_vemc3v3 {
-+				regulator-name = "vemc3v3";
-+			};
-+
-+			mt6392_vgp1_reg: ldo_vgp1 {
-+				regulator-name = "vgp1";
-+			};
-+
-+			mt6392_vgp2_reg: ldo_vgp2 {
-+				regulator-name = "vgp2";
-+			};
-+
-+			mt6392_vcn18_reg: ldo_vcn18 {
-+				regulator-name = "vcn18";
-+			};
-+
-+			mt6392_vcamaf_reg: ldo_vcamaf {
-+				regulator-name = "vcamaf";
-+			};
-+
-+			mt6392_vm_reg: ldo_vm {
-+				regulator-name = "vm";
-+			};
-+
-+			mt6392_vio18_reg: ldo_vio18 {
-+				regulator-name = "vio18";
-+			};
-+
-+			mt6392_vcamd_reg: ldo_vcamd {
-+				regulator-name = "vcamd";
-+			};
-+
-+			mt6392_vcamio_reg: ldo_vcamio {
-+				regulator-name = "vcamio";
-+			};
-+
-+			mt6392_vm25_reg: ldo_vm25 {
-+				regulator-name = "vm25";
-+			};
-+
-+			mt6392_vefuse_reg: ldo_vefuse {
-+				regulator-name = "vefuse";
-+			};
-+		};
-+
-+		rtc {
-+			compatible = "mediatek,mt6392-rtc";
-+		};
-+
-+		keys {
-+			compatible = "mediatek,mt6392-keys";
-+
-+			key-power {
-+				linux,keycodes = <KEY_POWER>;
-+				wakeup-source;
-+			};
-+
-+			key-home {
-+				linux,keycodes = <KEY_HOME>;
-+				wakeup-source;
-+			};
-+		};
-+	};
-+};
+> > > ==== The Solution: Making Management Explicit ====
+> > > This series enforces a clear, predictable model:
+> > > 1.  New Managed API (Patch 1/37): Introduces pcim_alloc_irq_vectors() and
+> > >      pcim_alloc_irq_vectors_affinity(). Drivers that desire devres-managed IRQ
+> > >      vectors should use these functions, which set the is_msi_managed flag and
+> > >      ensure automatic cleanup.
+> > > 2.  Patches 2 through 36 convert each driver that uses pcim_enable_device() alongside
+> > >      pci_alloc_irq_vectors() and relies on devres for IRQ vector cleanup to instead
+> > >      make an explicit call to pcim_alloc_irq_vectors().
+> > > 3.  Core Change (Patch 37/37): With the former cleanup, now modifies pcim_setup_msi_release()
+> > >      to check only the is_msi_managed flag. This decouples automatic IRQ cleanup from
+> > >      pcim_enable_device(). IRQ vectors allocated via pci_alloc_irq_vectors*()
+> > >      are now solely the driver's responsibility to free with pci_free_irq_vectors().
+> > > 
+> > > With these changes, we clear ownership model: Explicit resource management eliminates
+> > > ambiguity and follows the "principle of least surprise." New drivers choose one model and
+> > > be consistent.
+> > > - Use `pci_alloc_irq_vectors()` + `pci_free_irq_vectors()` for explicit control.
+> > > - Use `pcim_alloc_irq_vectors()` for devres-managed, automatic cleanup.
+> > 
+> > Have you checked previous attempts? Why is your series better than those?
+> 
+> There seems not previous attempts.
+
+Maybe we are looking to the different projects...
+
+https://lore.kernel.org/all/?q=pcim_alloc_irq_vectors
+
+> > > ==== Testing And Review ====
+> > > 1. This series is only compiled test with allmodconfig.
+> > > 2. Given the substantial size of this patch series, I have structured the mailing
+> > >     to facilitate efficient review. The cover letter, the first patch and the last one will be sent
+> > >     to all relevant mailing lists and key maintainers to ensure broad visibility and
+> > >     initial feedback on the overall approach. The remaining subsystem-specific patches
+> > >     will be sent only to the respective subsystem maintainers and their associated
+> > >     mailing lists, reducing noise.
+
 -- 
-2.43.0
+With Best Regards,
+Andy Shevchenko
+
 

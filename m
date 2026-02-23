@@ -1,83 +1,71 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFBAA155757;
-	Mon, 23 Feb 2026 14:21:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60F333033CB;
+	Mon, 23 Feb 2026 15:50:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771856463; cv=none; b=R7DedguuNWuWcVhoVsYsz8onpm/9LIMPrUM6P1qG1+k5NMw0yZWa3M1/I/mCc+3rmQqxk3ULrHQ3Fwrx8jXn6DPe2PrFDBQnXPN5yZrKnLWrM1e+X19nU6cBUOG5VMz1bfg6JRuRXTsym4SIh9Un42IvNKJoU6HiglD+/4S7fCU=
+	t=1771861851; cv=none; b=MY/1BDbq6+vkt2Gb2WbLW6z1yNhR3ZA1/hgdL553tAVcTzz/oibZ3aXLbdcxAktswHBfJI5PR1uu7pe7JJmU5grVSw8WUSk8mi3cOEbny7LobTC/BKqTvKU6FRYf6fAW0r2objz6kuydjt4AhCwJglr9Zt7tWD2VEJBLmw24dzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771856463; c=relaxed/simple;
-	bh=a1J3dAgB/osYosFA1gAiUpU2DmBpDKVgxdTQPRC1bGk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a0VE4FHjWHSApJvyjOQhxPp6grBjFqVjGFawGzq37omMn7qUQnKSmfpEz6hqVbxkUwgMkirl67upKuUm5RMrUzgiMl+4JZZ9AwJ9DMrJxn9/VDQx/QxR/89V/Kl9dkgt9QvjB4vUhnCQiAvqgSled0VaOgft63ZdF+oFWYSvtlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=Nf3+99fu; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1771861851; c=relaxed/simple;
+	bh=aJ5EyMPZ514vEtlPFGBe+wFHZLdDb9C9CteZzNd2WY8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eE8zzFPM1qIX725Bng6FZM+UUHvsWbQ/i5xmWAR2sUCT8kkXqmS2+kqyfGAMow1Vtt7pSaHri/dBU5+Et/w/v7C+NYnKZStZcColGMPS/osYAgDMvWyFhtafBGZxSs83c1SEc8dJEnfD4Ptin+AcOdiqoBjRsbVurfQU4xGnINY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TKtVgkJN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="Nf3+99fu"
-Received: from wse-pc.fritz.box (i5C75F712.versanet.de [92.117.247.18])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPA id E32882FC004A;
-	Mon, 23 Feb 2026 15:20:57 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1771856458;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=himZw0N200PnKOjSzXl5mVKz7h31xghtGslmaqFsoEE=;
-	b=Nf3+99fu1Veiq3DlC1Y6cUlVJQ/dblTjigVPRpCWTwd0LaSFGzLu8pRocNAXB6zlwqNQ4P
-	juBohhL3OD+SBw980/xR3u24ysjSbBKfozB53vA8zQQhiVMJW4ZMRDVuqz4Jn5eJqRXtGj
-	ELXmgbNMHy06ZGhX00zDOtOzJW78PoI=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-From: Werner Sembach <wse@tuxedocomputers.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Christoffer Sandberg <cs@tuxedo.de>,
-	Werner Sembach <wse@tuxedocomputers.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: i8042 - add TUXEDO InfinityBook Max 16 Gen10 AMD to i8042 quirk table
-Date: Mon, 23 Feb 2026 15:20:45 +0100
-Message-ID: <20260223142054.50310-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TKtVgkJN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E59C116C6;
+	Mon, 23 Feb 2026 15:50:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771861851;
+	bh=aJ5EyMPZ514vEtlPFGBe+wFHZLdDb9C9CteZzNd2WY8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=TKtVgkJNeZfETQcWTS97nYYDsyWka+quQZk+Yoh7QE2e4O7L0jD/5J/L6i9ksj1iG
+	 KrWghqBJ7PayeNJpHkZUMJ0qrNWo+MG2c+G/G/AeOylrFkL0YVxAKmQlmT5DmVWBfv
+	 XmFiPftbaMoPxQu9nrLVV5fWC3krpSwC2cU6XA/uhF7sud3EBsU8kfozEBIOnRf1Bu
+	 uKPtfRK9qizbbyXF8B3ntotV6JfD3BFLeA8vWo/hxPuKd1lr3PvAKyoXDR2BJO78f0
+	 aU9u9KgHp1Xjwa54ZPLPeI8WUUhBry2elECp1eVg2ybjDIidbB9b9zN8n1uIYk+h+y
+	 9t7KFfNa0hIRQ==
+Date: Mon, 23 Feb 2026 09:50:50 -0600
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: David Lechner <dlechner@baylibre.com>, linux-kernel@vger.kernel.org,
+	Pavel Machek <pavel@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Tony Lindgren <tony@atomide.com>, Lee Jones <lee@kernel.org>,
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-leds@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Conor Dooley <conor+dt@kernel.org>
+Subject: Re: [PATCH v3 1/9] dt-bindings: regulator: cpcap-regulator: convert
+ to DT schema
+Message-ID: <177186184949.3801292.5943140830566827615.robh@kernel.org>
+References: <20260223063858.12208-1-clamor95@gmail.com>
+ <20260223063858.12208-2-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260223063858.12208-2-clamor95@gmail.com>
 
-From: Christoffer Sandberg <cs@tuxedo.de>
 
-The device occasionally wakes up from suspend with missing input on the
-internal keyboard and the following suspend attempt results in an instant
-wake-up. The quirks fix both issues for this device.
+On Mon, 23 Feb 2026 08:38:50 +0200, Svyatoslav Ryhel wrote:
+> Convert devicetree bindings for the Motorola CPCAP MFD regulator subnode
+> from TXT to YAML format. Main functionality preserved.
+> 
+> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> ---
+>  .../bindings/regulator/cpcap-regulator.txt    | 35 --------------
+>  .../regulator/motorola,cpcap-regulator.yaml   | 46 +++++++++++++++++++
+>  2 files changed, 46 insertions(+), 35 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
+>  create mode 100644 Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
+> 
 
-Signed-off-by: Christoffer Sandberg <cs@tuxedo.de>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
----
- drivers/input/serio/i8042-acpipnpio.h | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
-index d2cf940b105a6..8ebdf4fb90308 100644
---- a/drivers/input/serio/i8042-acpipnpio.h
-+++ b/drivers/input/serio/i8042-acpipnpio.h
-@@ -1187,6 +1187,13 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
- 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X6KK45xU_X6SP45xU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "WUJIE Series-X5SP4NAG"),
--- 
-2.43.0
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 

@@ -1,124 +1,100 @@
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D5537AA97
-	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 22:01:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4711A37BE67;
+	Mon, 23 Feb 2026 22:02:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771884103; cv=none; b=oXR9YTsa/bLfTkokqfiOUMYZpmFETxyeUAyuXUzYckgmSTlJiumHTfKGnUV/krB4g69A8YkYAAB6xn+9JVGymyTuC3gaqa3Iky/uOIj0ObY/sNtAMBbwN0zSZWrE+7elO4f7d13dUU/HHAztTGAcCLJHdsMHrJgb00HEk7grTX8=
+	t=1771884134; cv=none; b=q8HwVCVey/za1yi5BDOsRYKHXHc05KIN+djcjdU1vXWuwpZpVSzdervnAK3yy3Nzz4AVnNp6tz8SiOZtqfy858l8cfIecCCGlR0+QiQK4sC3RZetNMYtl5cosxlIi6JKtPAea4u9wQpZD72d8kgtfn2yjN7vty6HhF4bX5i2akU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771884103; c=relaxed/simple;
-	bh=KUvMCXecxl1oTGRP8RuaVCGSIIYXm2h5FZ/R4PUy4Tg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JCHxLFTH7Tw+dajtP3g+FOqWJTORmh8zgFVpkpfD9VEP+SwUZ9rMRLe5EGGHnPHix0aEc79a37eGmsOwkK1SjcfRCwpJFUOrEQ5wMSwJL3I7/YO81FTpd7SXhruKvboMkIg51gSD3DgN/xb6/f3gQzfll3j6e4r1H0xS+FcByFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QvHbEZ/z; arc=none smtp.client-ip=74.125.82.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771884134; c=relaxed/simple;
+	bh=pw3vyz+acPDy/m2PO3V4cGL2PnXrziFDsmoMLZw8roc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XH8Vddu4dNnlOzwmGEgwCESf8BlJBbOmBY4IuCV/Uz6KPN3GT2E8YY4y9ShTx3bgf2erD+rQ96DFYf/II3HF+beUsUEfQfXpxuAnBvmOpllVmXcpgqUgwwa+a78G9ptcDIIYobPk2MMYEdyMm01HxsU2olOrErgapVLQ5HVhH7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=t8kqdRIK; arc=none smtp.client-ip=91.218.175.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QvHbEZ/z"
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-12732e6a123so841283c88.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 14:01:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771884102; x=1772488902; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=vwmeVddzSBrk6onBg3XthXPBezPsVZCBdsI2Jvj2LQw=;
-        b=QvHbEZ/zBwB13I1oFN0JKZF4+aL98Vk/gQFKF2IlM4SA3XRYV0AFs1Kjojh0PeVMu4
-         cz3CIcmfZOVs+gbbDlmSlM7WZRTj4E5hSSZidqpghyMyxel5WXw53ZzEFMv+56k2lz5J
-         rrUM1BkggQOdS+UyyHscjQbejOR1PwXA/fDUO4BS+W6cpUT+JIWTiRi+IOx/a24mJJUs
-         bMWG64y8UL6YeleC+WO3CwWUH1JhQlPVe6d/MknRQAzelYq3ltUPGHp8bgo+dYKO31Jq
-         lWtJv+bUdT7g/CMcCmRoFolI705er4sebiEpIoMFHcNnBeq6Qjqjv0lDlNw/E3KywWSZ
-         COuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771884102; x=1772488902;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vwmeVddzSBrk6onBg3XthXPBezPsVZCBdsI2Jvj2LQw=;
-        b=igmMXfq4/nJPFT+MCj/KhCwFgNYgwium7D5u/WJPNfwCyGIyYngvsm8AbIs4WjnkMT
-         VVkrtvcW16ZbXgOZ0dF/Fyc56DaZZpBvBu9vY+OBG5uwdZKlQltgKpfzYgvr5T2FNWma
-         e03ZWHCt0WFFrMXaiCxLzgumiypCO0bU38yBdUumds/wcuewaTiwf7/g545bmM9d5ZLO
-         0xpnWzqLiRHErjfipvxzD+wb+fNf52hZQ8i/3v26H3FAqrH8gnLSFNOwlR/nKKozHq+N
-         JSRyyBSKAxtdE7KuSGdUzHDUfjjAn0OCBrY9HGxz1UUYOrLTmBfmljtlzAJqOSpKMIgo
-         xFag==
-X-Forwarded-Encrypted: i=1; AJvYcCW946NwYJBxl9UZpWG5rmILwWDfNzkxdyJdPHEAikgeB17POMecVzjSkqib5EFpOsjlx7HM5bL/q30qyw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjmhAUQu/3OfFTa1FCG9OD8jjDeyatNMRSNUl8TPvuJMnPntqa
-	51Ok86XUHidmZHRm9zRZddkhF+UXNdsPZXz8cZ9r9yFk3AU1M5LrCClC
-X-Gm-Gg: AZuq6aJZngZVcPcdsXz9hbKpf1vnyTVl3ICjzyn0OEpQwBJpbdM8V/PDwoKWA0MnaL+
-	OTSPcqUP3NUtkh6Pf/AS+x8XsyEozO131RLPeiVQ0IGsgBSrOB6IO562xQjxhpfJlYYSdTVzu3R
-	IzaEG3vTXAxW+0gaAQxGDtI2YDtiwd2asO0rf1TQqv6HlwUsX14ISmMj30P3adbILTXdArOf8VE
-	EqBKljtLk1itdLj18zm/hAgoyBhN7Pn3ztisZvDqAJdjfHKVs2VNbUqztQmYIZ2+s1ZyPuisrWw
-	USBENzyiuFKGvl5Y8nS5Yk0K1w/GSt1zTYZVD8q8FYTD8npDsD7hJyXJKQUvPiqHEM+avbzug9W
-	Ie/q7pqbru0WpwEU8uPKPziDOYbDFUIwGtFg6FrKmvQCBUxahpDXNO8q5qyEyoWAs1Lg64rqVlg
-	TH2IdXN7mS97chip63FmA51wezeQU6wa6pxdbUiejz7cME9TCW1Cq9LCNMm+o2bGnW
-X-Received: by 2002:a05:7022:2521:b0:11b:9386:a3c8 with SMTP id a92af1059eb24-1276ad8bb87mr4839876c88.41.1771884101638;
-        Mon, 23 Feb 2026 14:01:41 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:1b48:5d6e:ab6e:5287])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1276af2edd7sm9460001c88.8.2026.02.23.14.01.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 14:01:41 -0800 (PST)
-Date: Mon, 23 Feb 2026 14:01:37 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>, 
-	Val Packett <val@packett.cool>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, Eddie Huang <eddie.huang@mediatek.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Julien Massot <julien.massot@collabora.com>, 
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Gary Bisson <bisson.gary@gmail.com>, 
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 3/9] dt-bindings: input: mtk-pmic-keys: add MT6392
- binding definition
-Message-ID: <aZzOHVh10zr9hiWs@google.com>
-References: <cover.1771865014.git.l.scorcia@gmail.com>
- <056cbc09fcbb4a2845cece69209a2a564d993ac5.1771865015.git.l.scorcia@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="t8kqdRIK"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1771884131;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BmtOctsCvHwnciSaneDI0yWRVyNerg692l2YgGbkbfs=;
+	b=t8kqdRIK1PDdLPrhA7CZluePlZqqX4ZJyW7h9rMSUrDQ6dMuIzTSYlBLGguxL2+51Rt8j7
+	wUMzAkSLEUaOBECRs60MVXsKD9no9aH86aqxAzswUs/d2Vt9dNabWmcMESbgOkY3OM8gPq
+	uNQEGHiMs83zyJj2OzKEYL32XdlIToI=
+From: Bart Van Assche <bart.vanassche@linux.dev>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Marco Elver <elver@google.com>,
+	Christoph Hellwig <hch@lst.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Jann Horn <jannh@google.com>,
+	Bart Van Assche <bvanassche@acm.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Nick Dyer <nick@shmanahar.org>,
+	linux-input@vger.kernel.org
+Subject: [PATCH 15/62] Input: synaptics-rmi4 - fix a locking bug in an error path
+Date: Mon, 23 Feb 2026 14:00:15 -0800
+Message-ID: <20260223220102.2158611-16-bart.vanassche@linux.dev>
+In-Reply-To: <20260223220102.2158611-1-bart.vanassche@linux.dev>
+References: <20260223220102.2158611-1-bart.vanassche@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <056cbc09fcbb4a2845cece69209a2a564d993ac5.1771865015.git.l.scorcia@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Mon, Feb 23, 2026 at 05:12:42PM +0000, Luca Leonardo Scorcia wrote:
-> From: Fabien Parent <parent.f@gmail.com>
-> 
-> Add the binding documentation of the mtk-pmic-keys for the MT6392 PMICs.
-> 
-> Signed-off-by: Fabien Parent <parent.f@gmail.com>
-> Signed-off-by: Val Packett <val@packett.cool>
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Lock f54->data_mutex before the first 'goto error' statement since
+jumping to the 'error' label causes that mutex to be unlocked.
 
-Please merge with the rest of the series.
+This bug has been detected by the Clang thread-safety checker.
 
-> ---
->  Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-> index b95435bd6a9b..2d3c4161a7f8 100644
-> --- a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-> +++ b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
-> @@ -30,6 +30,7 @@ properties:
->        - mediatek,mt6357-keys
->        - mediatek,mt6358-keys
->        - mediatek,mt6359-keys
-> +      - mediatek,mt6392-keys
->        - mediatek,mt6397-keys
->  
->    power-off-time-sec: true
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick@shmanahar.org>
+Cc: linux-input@vger.kernel.org
+Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ drivers/input/rmi4/rmi_f54.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Thanks.
-
--- 
-Dmitry
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index ac4041a69fcd..fd57ebb1cb50 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -539,6 +539,9 @@ static void rmi_f54_work(struct work_struct *work)
+ 	int i;
+ 
+ 	report_size = rmi_f54_get_report_size(f54);
++
++	mutex_lock(&f54->data_mutex);
++
+ 	if (report_size == 0) {
+ 		dev_err(&fn->dev, "Bad report size, report type=%d\n",
+ 				f54->report_type);
+@@ -546,8 +549,6 @@ static void rmi_f54_work(struct work_struct *work)
+ 		goto error;     /* retry won't help */
+ 	}
+ 
+-	mutex_lock(&f54->data_mutex);
+-
+ 	/*
+ 	 * Need to check if command has completed.
+ 	 * If not try again later.

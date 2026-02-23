@@ -1,111 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5493730FC1A;
-	Mon, 23 Feb 2026 17:01:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692BF330B00
+	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 17:17:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771866111; cv=none; b=CaMzScVlhzLhKk8r8ZHco1MrgAM7XQ9RnazEZ51J/P/G5t1X7gtvox/Nw1J8cakdS+mBqred73HcXvHx/To2RsxIuti94IGH3zsSDuWkQ+ZkDoEoZ9AeFGwQeJrs8z7WFI4R+WthLRhf2EUAF6Q19JBL7/u7YHHPUeX9mkxxnlw=
+	t=1771867031; cv=none; b=U1TmDNSY5nHLI0fQQpfTlG/IkJT7o4Wvcitnp2psQMa0kW53fOUMVuzaohN3xD8Ur9xaxyMwwW9rjVXFd+g4KikG8yKxNtbJ6+Wy7ektKIvjAtPfOxaYkutKMZa5WlYTFaIfFAM9eoFFe0y2nSOz7wab5ljQL0Zqrndx98lzhYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771866111; c=relaxed/simple;
-	bh=MG15Rdz+9Q+AT7azmZKpr9wjMV/OYFyhfli05JrUaRM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=n1T1JaoNE5KccwKBOt37HcsD0/GDUKigtgMA1hktLs6TqF/mFUw59YRwLUPnDvXS3vT8JoBBv2Im159iG3ZIiUkZXJrYi55bHAngGOTs71kbHsFWIP3p2nRrE6rIvja0kzp0PZQGPkbOGY9GlFHIBs14a3MrHJgJESBJyCOXZpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Es+twJR8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771867031; c=relaxed/simple;
+	bh=WVs/g4cQmQqVe2J2+nIoMwPE/ef3LT19rVqgZxkT9UE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fkaDYJ8BwYVNLF3e+Q1AluRqobE+O7jWzBC7qcZczVlCR4hZ35UlanKMjRJ4TpQfirb4iHVMOFQUZKeS2n/xq4S251bePXqhls5VpYQ4FyyRhAWkOt35ooXsCEPgI0RKAV5a1y4UdOqN793ccrMR3lHKtDxZLERn9v8TwBuBipc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V9IPm/hf; arc=none smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Es+twJR8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB720C116D0;
-	Mon, 23 Feb 2026 17:01:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771866110;
-	bh=MG15Rdz+9Q+AT7azmZKpr9wjMV/OYFyhfli05JrUaRM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Es+twJR8Ws+VUJRf63/qdVu/h+Qkmwf+B/oJ5qHRAOXQWK7CE96bIYkRmdTqd6zB5
-	 nQb0geIic+Si/XPVzhKcS5I23JHEPsaFaDFNmJWiAlW6XN8v0ATuYwHRX+a3oFnSCM
-	 x88ikXKFzSjepYE/sTtoV7lWIHhNlBuQfIF5NS7jblu6v0w8J3DsBlTVrHskwGt4Px
-	 zCzeY5Juaw7PI2M/1fZy/Fxr6s1UJDTQrdNdJsmCkfxAGdKqBIR4Msp0Yl/9jy13KF
-	 vDJzYj/BIuDuw6j89zUD8F9gSst0oPgRdB2NfAEOGGr2hBOjWzauq74NYzgyvrOw/P
-	 V6QJVxEaFhjpg==
-Message-ID: <c2985ac9-1917-4044-a896-8e701a3046af@kernel.org>
-Date: Mon, 23 Feb 2026 18:01:46 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V9IPm/hf"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-436309f1ad7so3454761f8f.3
+        for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 09:17:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771867029; x=1772471829; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=hyGEcrLpV4bwwocVSCsdzUyZjiaZncJT9oIq/dUyqxc=;
+        b=V9IPm/hfjv8OQgb6O/hWFilVSPV6B+cULb9Tcqm7zCE4kaTuD0eH4Rmk/iO6R2Kz43
+         qkS/HitSuu7H09EBA/wA4xYFKAO/kcOapN63tSN6QTGT8kPketMJEGOUOCE8/nd5jfMp
+         gBztAqzIcksfDSpur1ZaaVoWE6p/g5fp7uRK8bVBpAgWAeQhUt+S+QoYi4qf/mW9r+BD
+         MyvRSBZVgxG+I/UvWvg/+Gfh/Ksw8IKbcKiAOCeokmyQessNhLoDISCTIJJLX6Z4OF8u
+         OTdeIpJ6VOvCEGz4O4wNIgOqKFn6KopgDnWtB6M/vv+3XdIV0dHPMhYqmud0rV9U0a70
+         iDmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771867029; x=1772471829;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hyGEcrLpV4bwwocVSCsdzUyZjiaZncJT9oIq/dUyqxc=;
+        b=uR1aXGGWPxiaeEnCrjR6cODERqX59gKNhUuHO/u+43SvB1qGNnGvhx3bLxnE+3du3P
+         hR7GOmoPfSP2mAjGtL8zPqtRnwvjtTf3P9EabA0f0FQ9Zr4xELcjWDAoM/psy04yEclZ
+         imfsbM38JaQ+6dawupfKfew8U0ALd47WYcumd3AS5i3vVVpWDbEpazDaChzVW3zF1A1J
+         CwshbDCak3tLGVUFwj41LpvkDWElbG+pR3h4jZDMGEUgn0GYqfUB5YRQmO9JGeYNHzIB
+         DWT+cqT/9pzAkFMWM9vzYUOlLR49QY8haGz7pzpnqHrEs6ptKln8SnrV/b3qnmsHTmo2
+         JBSA==
+X-Forwarded-Encrypted: i=1; AJvYcCVx7ZjR42+NCnHM35/0mBHWcrkjxuB6Pzz/SrXUCqhUAreDQpwSl0+Oj+tRWJ6gAgY4qie505vwS3f2LA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSA/PNNQmT6ATF7S6ZR9WrG95gwouDfIFbcDdJLmpLJIUZ119a
+	o7q7fVO9PYyePzoDRvWPMUTA4PhDFM5Xb7Rb/0JrYvJ0jdzkxrU8Pky6
+X-Gm-Gg: ATEYQzxGYX4lZjGm0rRfHKTaAub01PkXIx/sQz/kwn8J8hU666DjXLQd65kL8NUyyGz
+	GcpFGL1Z1iB0/4Uh824D/Da03oXMM6/AAx+ZYM1MxB5TK3B+VHERoPPpPi9/simOmlu886Yvqhn
+	jl7JWUR4WLiOCILtHxuZXI4Z0qyMREleL2oThMwx87luwbs62LAhZaeA0bjE1InxRBU+HWgiCxx
+	cRXfuwnF9YqgcqcTEftXMDjYd8egEvSMdVPmdx0aHp1YcrV9OqJWsYILMLj/Hv8Hi48J1OQNcjg
+	PnLt9IEuXC8NaP/USXfUJaIl5qc+EPNCF7ulTds77Jn7Wqa9WWVs35wNB4Fb294j+xJ9qJU/2ov
+	rHeLM6I25xrISr22v9P8WpX1sf9mNeGelAtrhd9w549iB+rKfBIMWX7GJwfUo77I8lBJSi3RCnh
+	u/NOjX9qrrSiGDOzUi0AI=
+X-Received: by 2002:a05:6000:2910:b0:437:8111:e2d0 with SMTP id ffacd0b85a97d-4396f1562efmr16272260f8f.8.1771867028658;
+        Mon, 23 Feb 2026 09:17:08 -0800 (PST)
+Received: from luca-vm.lan ([154.61.61.58])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43970d4c982sm20871454f8f.31.2026.02.23.09.17.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Feb 2026 09:17:08 -0800 (PST)
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+To: linux-mediatek@lists.infradead.org
+Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Lee Jones <lee@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Eddie Huang <eddie.huang@mediatek.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Julien Massot <julien.massot@collabora.com>,
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+	Gary Bisson <bisson.gary@gmail.com>,
+	Val Packett <val@packett.cool>,
+	Fabien Parent <parent.f@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rtc@vger.kernel.org
+Subject: [PATCH 0/9] Add support for mt6392 PMIC
+Date: Mon, 23 Feb 2026 17:12:39 +0000
+Message-ID: <cover.1771865014.git.l.scorcia@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] dt-bindings: input: add adi,max16150.yaml
-To: marcpaolo.sosa@analog.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260223-max16150-v1-0-38e2a4f0d0f1@analog.com>
- <20260223-max16150-v1-1-38e2a4f0d0f1@analog.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260223-max16150-v1-1-38e2a4f0d0f1@analog.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 23/02/2026 12:03, Marc Paolo Sosa via B4 Relay wrote:
-> +
-> +properties:
-> +  compatible:
-> +    description:
-> +      Specifies the supported device variants. The MAX16150 and MAX16169 are supported.
-> +    enum:
-> +      - adi,max16150a
-> +      - adi,max16150b
-> +      - adi,max16169a
-> +      - adi,max16169b
+The MediaTek mt6392 PMIC is usually found on devices powered by
+the mt8516/mt8167 SoC, and is yet another mt6397 variant.
 
-Your driver code says 16150 and 16169 are compatible, to express it with
-fallback (oneOf). See example-schema.
+This series is mostly based around patches submitted a couple
+years ago by Fabien Parent and not merged and from Val Packett's
+submission from Jan 2025 that included extra cleanups, fixes, and a
+new dtsi file similar to ones that exist for other PMICs. Some
+comments weren't addressed and the series was ultimately not merged.
 
-Best regards,
-Krzysztof
+This series only enables three functions: regulators, keys, and RTC.
+
+I have added a handful of device tree improvements to fix some
+dtbs_check errors and addressed the comments from last year's
+reviews. The series has been tested on Xiaomi Mi Smart Clock x04g.
+
+Fabien Parent (5):
+  dt-bindings: mfd: mt6397: Add bindings for MT6392 PMIC
+  dt-bindings: regulator: add support for MT6392
+  dt-bindings: input: mtk-pmic-keys: add MT6392 binding definition
+  mfd: mt6397: Add support for MT6392 pmic
+  regulator: mt6392: Add support for MT6392 regulator
+
+Val Packett (4):
+  soc: mediatek: mtk-pmic-wrap: add compatible for MT6392 PMIC
+  input: keyboard: mtk-pmic-keys: add MT6392 support
+  rtc: mt6397: add compatible for MT6392 PMIC
+  arm64: dts: mt6392: add mt6392 PMIC dtsi
+
+ .../bindings/input/mediatek,pmic-keys.yaml    |   1 +
+ .../bindings/mfd/mediatek,mt6397.yaml         |   3 +
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      | 133 +++++
+ drivers/input/keyboard/mtk-pmic-keys.c        |  15 +
+ drivers/mfd/mt6397-core.c                     |  43 ++
+ drivers/mfd/mt6397-irq.c                      |   8 +
+ drivers/regulator/Kconfig                     |   9 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/mt6392-regulator.c          | 491 ++++++++++++++++++
+ drivers/rtc/rtc-mt6397.c                      |   1 +
+ drivers/soc/mediatek/mtk-pmic-wrap.c          |   1 +
+ include/linux/mfd/mt6392/core.h               |  42 ++
+ include/linux/mfd/mt6392/registers.h          | 487 +++++++++++++++++
+ include/linux/mfd/mt6397/core.h               |   1 +
+ include/linux/regulator/mt6392-regulator.h    |  40 ++
+ 15 files changed, 1276 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 drivers/regulator/mt6392-regulator.c
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+ create mode 100644 include/linux/regulator/mt6392-regulator.h
+
+-- 
+2.43.0
+

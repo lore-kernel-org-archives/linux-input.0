@@ -1,96 +1,157 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52383563F3;
-	Mon, 23 Feb 2026 09:54:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE46235CBD4
+	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 10:39:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771840463; cv=none; b=GilBj/FISM3ENbjA5RzMejucU5X69UvkE/yN0pYkuWb3RpEG0iTvw+/uZKHmyoxt3rmb+Qh8IUjceo1PlUvW21XxjVDIyZInVvDOgEfgoNyXne9vM0mcN66YOLuLDRan2PyZxLS7m0bowZUiknu1Hcj8vrm3ciFMCBASR6ANLYE=
+	t=1771843182; cv=none; b=hrD8qWDlXAFYJlUj7+TA854CsnqOPNl1h66Ez45r9mzMxS6ed38q1cUrm4+7u+ttfHHbFxuJC22kxUfcLzfRn8yHtZ2gpB6NmPzFhTGVmkHl60i5zOL0AEzh7KJk5yiFC6nC25+ujAJqukVeVoZBx2Jh7ElvMN3cZlATroxf388=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771840463; c=relaxed/simple;
-	bh=JWfMwhsykouUvZpccY1Dd6wRJOOSr3zLEkZxB9e9+/U=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=ttkoLKCIhimjSsAU/qPiKS6S6g0Tu2HzlJQsTnYgRs2kDU+md/NfUoRxo8Z0EaPFp142crxn9cStGaDv6KytmSk2Q+C0V6gppkfe7Ytqs1FNCV4q6EOI/FLWc8P+vTGQIBDbTTPZzSokYH4FRu2nUD36eo3mkGtQJzI/azrBGXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U714091e; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U714091e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7654FC116C6;
-	Mon, 23 Feb 2026 09:54:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771840463;
-	bh=JWfMwhsykouUvZpccY1Dd6wRJOOSr3zLEkZxB9e9+/U=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=U714091ebCpuO30iX6C3R0ih0NzaIWP9jugCwtPLB+2cdgrXM/fia/RCUnBoD1qUf
-	 wrpzYxKM32DHGrdEmkuI0LXxFz+f+hu1RowEo4pCAhppnQrVFTFGfMYxwLBDbL6E7d
-	 TJYrohM/7jo0ukkHWx22wi43r4OeVxdZ59sVo5xQ+EkcsM/ssixfXJ7VwAtG6TYBaP
-	 H4WtJLLNMRvxt4mjroj2ql3obkIOOE7YLpxRUJTt4ogeh1JUxgKkfqcxFfCt6IV/Sb
-	 7+0OHnyT4ikC9Wyp8vido21C6Zx0avodDJDQYtQxUGdXKffoUtLJRiaFilao3x3cSe
-	 ZvT5cgQ4MZuTA==
-Date: Mon, 23 Feb 2026 03:54:22 -0600
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=arc-20240116; t=1771843182; c=relaxed/simple;
+	bh=r766QhVEUaUrPKJzZmanvHxGLzG89oB2IL3ytx+Rz20=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Eu0P7cRBIeioc4Qfe5fI5rPc2x8E6f6J78JJcl9xuDmRpgx2DkqsvFBgw7Zejdnx6lt1a0/esJmBJcYvGCpJnMt00TJHbKXd1rd4JqE5uaC3ZP4crouFvzqJjMW70tqFU/mZ+9Q9XxxJIk/Yq+8L+h1/umiGY5WInMRbFNuhNcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <mfe@pengutronix.de>)
+	id 1vuTLE-0001Da-7w; Mon, 23 Feb 2026 11:39:04 +0100
+Received: from pty.whiteo.stw.pengutronix.de ([2a0a:edc0:2:b01:1d::c5])
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <mfe@pengutronix.de>)
+	id 1vuTLB-002DIW-2E;
+	Mon, 23 Feb 2026 11:39:03 +0100
+Received: from mfe by pty.whiteo.stw.pengutronix.de with local (Exim 4.98.2)
+	(envelope-from <mfe@pengutronix.de>)
+	id 1vuTLC-000000016SO-3sOD;
+	Mon, 23 Feb 2026 11:39:02 +0100
+Date: Mon, 23 Feb 2026 11:39:02 +0100
+From: Marco Felsch <m.felsch@pengutronix.de>
+To: Russ Weight <russ.weight@linux.dev>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kamel Bouhara <kamel.bouhara@bootlin.com>, 
+	Marco Felsch <kernel@pengutronix.de>, Henrik Rydberg <rydberg@bitmath.org>, 
+	Danilo Krummrich <dakr@kernel.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH v5 1/4] firmware_loader: expand firmware error codes with
+ up-to-date error
+Message-ID: <3ohould4vufzfqau4e7vg2ztks3gflmfosyaizggwzufbwvx2f@yqsgim7ash3x>
+References: <20260111-v6-10-topic-touchscreen-axiom-v5-0-f94e0ae266cb@pengutronix.de>
+ <20260111-v6-10-topic-touchscreen-axiom-v5-1-f94e0ae266cb@pengutronix.de>
+ <s24u6ojnflb4nvpssgshjmgir77wpoos6qinypqac564fzcjyy@yilnrsy266er>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, David Lechner <dlechner@baylibre.com>, 
- Conor Dooley <conor+dt@kernel.org>, Pavel Machek <pavel@kernel.org>, 
- Mark Brown <broonie@kernel.org>, linux-leds@vger.kernel.org, 
- Liam Girdwood <lgirdwood@gmail.com>, Lee Jones <lee@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-input@vger.kernel.org
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-In-Reply-To: <20260223063858.12208-6-clamor95@gmail.com>
-References: <20260223063858.12208-1-clamor95@gmail.com>
- <20260223063858.12208-6-clamor95@gmail.com>
-Message-Id: <177184046063.2675311.12742690593841960784.robh@kernel.org>
-Subject: Re: [PATCH v3 5/9] dt-bindings: input: cpcap-pwrbutton: convert to
- DT schema
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s24u6ojnflb4nvpssgshjmgir77wpoos6qinypqac564fzcjyy@yilnrsy266er>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
+Hi Russ,
 
-On Mon, 23 Feb 2026 08:38:54 +0200, Svyatoslav Ryhel wrote:
-> Convert power button devicetree bindings for the Motorola CPCAP MFD from
-> TXT to YAML format. This patch does not change any functionality; the
-> bindings remain the same.
+On 26-02-19, Russ Weight wrote:
+> On Sun, Jan 11, 2026 at 04:05:44PM +0100, Marco Felsch wrote:
+> > Add FW_UPLOAD_ERR_DUPLICATE to allow drivers to inform the firmware_loader
+> > framework that the update is not required. This can be the case if the
+> > user provided firmware matches the current running firmware.
+> > 
+> > Sync lib/test_firmware.c accordingly.
+> > 
+> > Reviewed-by: Russ Weight <russ.weight@linux.dev>
+> > Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > ---
+> >  drivers/base/firmware_loader/sysfs_upload.c | 1 +
+> >  include/linux/firmware.h                    | 2 ++
+> >  lib/test_firmware.c                         | 1 +
+> >  3 files changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/base/firmware_loader/sysfs_upload.c b/drivers/base/firmware_loader/sysfs_upload.c
+> > index c3797b93c5f5a2ecf2ae34707893c89eb7773154..9e93070b2c24179986b868a24b09cf051776c644 100644
+> > --- a/drivers/base/firmware_loader/sysfs_upload.c
+> > +++ b/drivers/base/firmware_loader/sysfs_upload.c
+> > @@ -28,6 +28,7 @@ static const char * const fw_upload_err_str[] = {
+> >  	[FW_UPLOAD_ERR_RW_ERROR]     = "read-write-error",
+> >  	[FW_UPLOAD_ERR_WEAROUT]	     = "flash-wearout",
+> >  	[FW_UPLOAD_ERR_FW_INVALID]   = "firmware-invalid",
+> > +	[FW_UPLOAD_ERR_DUPLICATE]    = "firmware-duplicate",
+> >  };
 > 
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> ---
->  .../bindings/input/cpcap-pwrbutton.txt        | 20 ------------
->  .../input/motorola,cpcap-pwrbutton.yaml       | 32 +++++++++++++++++++
->  2 files changed, 32 insertions(+), 20 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
+> Hi Marco,
+> 
+> There is a corresponding change that should be made to
+> lib/test_firmware.c. You can look at the recent change for
+> FW_UPLOAD_ERR_FW_INVALID as an example.
+
+Can you elaborate a bit more please? I've added the
+FW_UPLOAD_ERR_DUPLICATE to lib/test_firmware.c with this patchset and I
+don't know what you want me todo.
+
+Regards,
+  Marco
+
+
+> 
+> - Russ
+> 
+> >  
+> >  static const char *fw_upload_progress(struct device *dev,
+> > diff --git a/include/linux/firmware.h b/include/linux/firmware.h
+> > index aae1b85ffc10e20e9c3c9b6009d26b83efd8cb24..fe7797be4c08cd62cdad9617b8f70095d5e0af2f 100644
+> > --- a/include/linux/firmware.h
+> > +++ b/include/linux/firmware.h
+> > @@ -29,6 +29,7 @@ struct firmware {
+> >   * @FW_UPLOAD_ERR_RW_ERROR: read or write to HW failed, see kernel log
+> >   * @FW_UPLOAD_ERR_WEAROUT: FLASH device is approaching wear-out, wait & retry
+> >   * @FW_UPLOAD_ERR_FW_INVALID: invalid firmware file
+> > + * @FW_UPLOAD_ERR_DUPLICATE: firmware is already up to date (duplicate)
+> >   * @FW_UPLOAD_ERR_MAX: Maximum error code marker
+> >   */
+> >  enum fw_upload_err {
+> > @@ -41,6 +42,7 @@ enum fw_upload_err {
+> >  	FW_UPLOAD_ERR_RW_ERROR,
+> >  	FW_UPLOAD_ERR_WEAROUT,
+> >  	FW_UPLOAD_ERR_FW_INVALID,
+> > +	FW_UPLOAD_ERR_DUPLICATE,
+> >  	FW_UPLOAD_ERR_MAX
+> >  };
+> >  
+> > diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+> > index be4f93124901e5faac41f48a66dabe6da56be0ca..952ec1cb03102911dbea9abd648ab9d9e0112a46 100644
+> > --- a/lib/test_firmware.c
+> > +++ b/lib/test_firmware.c
+> > @@ -1134,6 +1134,7 @@ static const char * const fw_upload_err_str[] = {
+> >  	[FW_UPLOAD_ERR_RW_ERROR]     = "read-write-error",
+> >  	[FW_UPLOAD_ERR_WEAROUT]	     = "flash-wearout",
+> >  	[FW_UPLOAD_ERR_FW_INVALID]   = "firmware-invalid",
+> > +	[FW_UPLOAD_ERR_DUPLICATE]    = "firmware-duplicate",
+> >  };
+> >  
+> >  static void upload_err_inject_error(struct test_firmware_upload *tst,
+> > 
+> > -- 
+> > 2.47.3
+> > 
 > 
 
-My bot found errors running 'make dt_binding_check' on your patch:
+-- 
+#gernperDu 
+#CallMeByMyFirstName
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-
-
-doc reference errors (make refcheckdocs):
-Warning: Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260223063858.12208-6-clamor95@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | https://www.pengutronix.de/ |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-9    |

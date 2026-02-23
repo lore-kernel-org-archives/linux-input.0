@@ -1,113 +1,93 @@
-Received: from 013.lax.mailroute.net (013.lax.mailroute.net [199.89.1.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCF5371056;
-	Mon, 23 Feb 2026 21:52:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54AE93783C5
+	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 21:54:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771883570; cv=none; b=oR0hEsoZxy/T4BMPd4GOi3i3tzjgtVCK+7qYBQy2l7ZmQnXrYVc4IlYJ6N4sX/M5nOdKhEnmlXiG/mWobovY8tolM2JyeljDMXqFxAG5TnM56/InzLp8m/Jr9jbp1us7Kha3uA8FnE890J737BemikJOKCW3txPAGQB0osquiHA=
+	t=1771883653; cv=none; b=VghQkqGEIXCJ0RK+kxnfKnvDzJjYidbvNWbed63u4uVcOSYDHX/xwOuIgM4LTpXqMlToT4LWC6PJI/sf9wxNRGVHvf3LfTNLgavtgbr8JouGSG1fXyFZxVqHzZpXW/TjZJx9IyEbRc1AmsO+1rg58Tx3oFX/83DKkYuW54YOrAg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771883570; c=relaxed/simple;
-	bh=5Pqf61yeeHkieyN/SC6tXgMl060963XQtuofQGXp+Ls=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tsoYh1JSvk9BKDBc5sXJn/HSL3yj+JSyhAmTrv8kee6evSqGanPl94+MrgelQT8BZn4MfHiSDSrOTFTff7CSdqwSCIMtzQfX+CEbsc4eVvAybA1lA5tUQK1/lp5GDlj7vEQ3hwVh94TRClvd80Ix8IH6xV5XwZ8GHBNeql2F/Hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=aO1YnJzZ; arc=none smtp.client-ip=199.89.1.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+	s=arc-20240116; t=1771883653; c=relaxed/simple;
+	bh=Gr0MwIjtUSp0Q2vce1vxvw4jTl+iMwkp3p03PNYPJUo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=emzvDy8gpqNwRqK7FwyudgGgMBLcImUfKBTzEvmBzyf3rum6Wpi9fQ7WSc7HhbdhEkYjS4I8I0uQP2UTO1OlPasKURunoFW++lUCEiOijGH7l9dackeb1Ea+2m5HZMin/7uW8xFOw0/hAxAQKdwHr+FD1WkoU3K3BYje1dBPK3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jfJmaM/u; arc=none smtp.client-ip=74.125.82.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="aO1YnJzZ"
-Received: from localhost (localhost [127.0.0.1])
-	by 013.lax.mailroute.net (Postfix) with ESMTP id 4fKZN066zXzlh2fN;
-	Mon, 23 Feb 2026 21:52:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:mime-version:references:in-reply-to
-	:x-mailer:message-id:date:date:subject:subject:from:from
-	:received:received; s=mr01; t=1771883566; x=1774475567; bh=9nw1Y
-	hBDny49VjVzPhX78+AD35KoxHopUr7OaiUTYNk=; b=aO1YnJzZggkSb590gLgKN
-	MXdrwcY4lncxbvkGFgroxeHpoZjCTVU3nO9GfqYEVi69cdj7Hb0WVS26ttAAkTWi
-	UiRcMuhYyV6YK+ozitXwbJrzcp3ublfrHo/w1abkMlVOUkxi2MygHQ/bURUYkS75
-	NcntEBtb+eFlPd4rD39DLHA50zVZQGlMA4YhhjWw+2GrjMZyXTnbyZz5pVvTiqyv
-	epTlViPSLfJWxi2PFr8AJL1Q3BsoNBCU4/hLohy8dn5c0JArp6pVxE7WDygffmv0
-	EkkxGPj0OKN1N6FcxUTh08TJiPbE5to4oBB4L7mbubgw558LZPpAujOEPvxhMoBM
-	A==
-X-Virus-Scanned: by MailRoute
-Received: from 013.lax.mailroute.net ([127.0.0.1])
- by localhost (013.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id 30s_d2wxSNTK; Mon, 23 Feb 2026 21:52:46 +0000 (UTC)
-Received: from bvanassche.mtv.corp.google.com (unknown [104.135.180.219])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 013.lax.mailroute.net (Postfix) with ESMTPSA id 4fKZMs272nzlh1Wk;
-	Mon, 23 Feb 2026 21:52:40 +0000 (UTC)
-From: Bart Van Assche <bvanassche@acm.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	Marco Elver <elver@google.com>,
-	Christoph Hellwig <hch@lst.de>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Kees Cook <kees@kernel.org>,
-	Jann Horn <jannh@google.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Nick Dyer <nick@shmanahar.org>,
-	linux-input@vger.kernel.org
-Subject: [PATCH 15/62] Input: synaptics-rmi4 - fix a locking bug in an error path
-Date: Mon, 23 Feb 2026 13:50:30 -0800
-Message-ID: <20260223215118.2154194-16-bvanassche@acm.org>
-X-Mailer: git-send-email 2.53.0.371.g1d285c8824-goog
-In-Reply-To: <20260223215118.2154194-1-bvanassche@acm.org>
-References: <20260223215118.2154194-1-bvanassche@acm.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfJmaM/u"
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1273349c56bso5792147c88.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 13:54:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771883650; x=1772488450; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zgq9ndBKIUBrn8/kJ7sZcZ3gg6ocwHBLnuwg779rJ00=;
+        b=jfJmaM/uv5Nf9NBRCA8QU3IWG2AVHyfDv2/TfuXqU5ZhM7RQEinjNZ3mbVlVohvHag
+         mR5apm1chdyZ4pk0UMlg3D9P6iy37ERnnbe/DOFrqRkmwVt68FWzUDmkVzTgqAAh/yzR
+         Ch+gBoNp5SIOTJdQqUt0dtG26A+z1tm1eGqvpxIuDE6dDcwpGqYDDKsCUCMDbfEdhshE
+         3hkEmVgxiGI3LrZ7vPZLpx764ZoqzhtlBzvftI4sCPNvWJw2mvcqgIFcge0Bg1YUVN3P
+         N1mqYPkT+YMwkBmD/1RXm9H+gETGV5YHN+B4wH4HxNpV4a2vwKY5oIoqu5c5k4rEpMDh
+         XQhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771883650; x=1772488450;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zgq9ndBKIUBrn8/kJ7sZcZ3gg6ocwHBLnuwg779rJ00=;
+        b=SaxU1RxOLwTI6USPK0L2Fojr8bkh7SMpihsm2gu95GP8EYgVfZc8/iLVjEoEsOX2W+
+         DF9TAk5BUQ6bEAb1qVm8O0XoCX7FtOIx2bRLHiecQGjU094foxgimykvjaUFP2dciz4I
+         Lwt5Z4owfT348vFYz2xs9qORlYEVGEB/XC03nyx4/I/zDpKTmbEWlUnZDQ6kpaq21NcL
+         yJcSje39JBxJSpfmFwdoFYX4v6RKG8GpmO8sZSjsKNZlnz+ed3BjaABRvOZD5PkcWLQf
+         Ur7EzUapjvOGFP0B4XMpaLOfmAK1HqWwb9hjYf+rZkS6f3LS617K2xcII9YOnsiIrt+H
+         kZZg==
+X-Forwarded-Encrypted: i=1; AJvYcCVnyPU6lMxBzMjHhP9DBQWG10veWwfCvPPxXtyc2nYposo/vFn/tnmXK8kMLS7WOCgX4uZ+cz55ZwFmww==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzDBiJ4qFldBOulGCN+7AQtA7gbLU3ChKQ0/fqj0UtJVwmbxOTK
+	zL6RbySpv3IKTa7xFpPEfoRofoIAU9s7XVdTxvRXPGEGObNK/ZO3nv0z
+X-Gm-Gg: ATEYQzwb85Bg+5FEe3N4WyrrhERUFHSschTrRfhpVvsv+M80LrIbH110ECMPQ/hVxfY
+	vTx5rJPW3BRxgZme0AGgXj5B7a5sq7mLe2cSef2FNOh20H5Ld9dgw0rIlHuIV0HdTBueoj/oK7i
+	cqRKB8TuZ6r5hO8yWSHGeOfoHo4JTOZxymPC//+wzinbu9BcW9dxgAhmoRrZn5Ro4x7pqv7hFCe
+	Z71KXw4ZKtIDbVhDEhNhEajRsPMtvTIayw5vtxAMrqBoJei3tnn/zaV7bOVzVXigQ5a0BrPHn7Q
+	9oLHhs4qxYcM/4AAMcqYP3wM178zxo8uPJ47mf/QzZYvUQw9AiM1/ucsNxXlpA/PkvkgIDlDNI/
+	H5M9MLrCT5JKYu+i8EP2bK4zvn19jX1pAA2lBNbjjNtGUBUM8S0pwqMjf6xcLORBNk6sE8+2uBV
+	wK5JNxv8PGd3fF0yOtTqKSDtU/0Oji2msjVfyXjYbEFceSJFPzSyYcvTe4X4LEtvd1FPbtInIin
+	sU=
+X-Received: by 2002:a05:7300:d505:b0:2b7:3281:6c64 with SMTP id 5a478bee46e88-2bd7bae9ee2mr3833277eec.14.1771883650323;
+        Mon, 23 Feb 2026 13:54:10 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:1b48:5d6e:ab6e:5287])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7daa9295sm5525596eec.14.2026.02.23.13.54.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Feb 2026 13:54:09 -0800 (PST)
+Date: Mon, 23 Feb 2026 13:54:06 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Werner Sembach <wse@tuxedocomputers.com>
+Cc: Christoffer Sandberg <cs@tuxedo.de>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: i8042 - add TUXEDO InfinityBook Max 16 Gen10 AMD
+ to i8042 quirk table
+Message-ID: <aZzMe2-4IqzIg3HS@google.com>
+References: <20260223142054.50310-1-wse@tuxedocomputers.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260223142054.50310-1-wse@tuxedocomputers.com>
 
-Lock f54->data_mutex before the first 'goto error' statement since
-jumping to the 'error' label causes that mutex to be unlocked.
+On Mon, Feb 23, 2026 at 03:20:45PM +0100, Werner Sembach wrote:
+> From: Christoffer Sandberg <cs@tuxedo.de>
+> 
+> The device occasionally wakes up from suspend with missing input on the
+> internal keyboard and the following suspend attempt results in an instant
+> wake-up. The quirks fix both issues for this device.
+> 
+> Signed-off-by: Christoffer Sandberg <cs@tuxedo.de>
+> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
 
-This bug has been detected by the Clang thread-safety checker.
+Applied, thank you.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick@shmanahar.org>
-Cc: linux-input@vger.kernel.org
-Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54=
- diagnostics")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- drivers/input/rmi4/rmi_f54.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index ac4041a69fcd..fd57ebb1cb50 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -539,6 +539,9 @@ static void rmi_f54_work(struct work_struct *work)
- 	int i;
-=20
- 	report_size =3D rmi_f54_get_report_size(f54);
-+
-+	mutex_lock(&f54->data_mutex);
-+
- 	if (report_size =3D=3D 0) {
- 		dev_err(&fn->dev, "Bad report size, report type=3D%d\n",
- 				f54->report_type);
-@@ -546,8 +549,6 @@ static void rmi_f54_work(struct work_struct *work)
- 		goto error;     /* retry won't help */
- 	}
-=20
--	mutex_lock(&f54->data_mutex);
--
- 	/*
- 	 * Need to check if command has completed.
- 	 * If not try again later.
+-- 
+Dmitry

@@ -1,62 +1,62 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21FE0345754
-	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 06:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13A7834887B
+	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2026 06:39:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771828754; cv=none; b=BjgNnLmMZuYIsluO1DVDHfJ9lGACA11dcSuHAjtXS2mTnKqG3R/U/TEYR2xtf46Cu0VS7gJY+jGf51H5UDSjiq6M6ETFIMcKJP3Umkk16ruer5wVF5kZ5aw70lAlvkDp+cg119q2O3xFUeTj2rLdGr4niG9x0JKHzC0CJAdlkMs=
+	t=1771828756; cv=none; b=t3LeAwI9Cw/aOIAdWcipzFx13JQ1fp5yJwtzTZ//f92wz3TyMkICr+YNiVc1ggW1LD3RMWFhnRRW98M83AvXeRqnXH+uho4XIAlqfu3cs8DrnpiAbZ7HfNmLhDyBts3JOYDGuEQ1bK7zCI2avr4AzJVNMBn36/BuyHd1yerOr7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771828754; c=relaxed/simple;
-	bh=q8Lq6+Cvt3B/SkkRYA6XHIWjWyV8PlukszbooxWFxR8=;
+	s=arc-20240116; t=1771828756; c=relaxed/simple;
+	bh=zo3qgbBbFWF30eK7I25eO1l+g4Zmu3OeutXGZXBp6hE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a5+c/n+f5FE7E872zEIDYdS1u+O4gw+8yAEBJYn2YLHyt3gVFMJQuEDskOMMCTWrMiIJxzxMYKveb5eXzctzHr4yAtOwtGHojFcQaJvY26p2gQqiYxfDZo+2P/j1XDJilQHtBoFo3IaEUKv6JR6QMuHdV4kLanQHUlfBpeLjiJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iUQAthXI; arc=none smtp.client-ip=209.85.167.52
+	 MIME-Version; b=JTHAXZCeQrVubXeyPov/PVM0aP1/pFJKx0J8sxtvB1GT/JCS2QvyvOIsuf7iz0sIbCfpteQAK80XavpTKgVDzXQVQsDNMaSYglI6PgsFjfeCmPMvnANZ2KyxroNFi+X+4gQGyCqcGGh1ZecYgn04FyLdJVs+BHYh2tTqSpM1/18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GBJOJ18f; arc=none smtp.client-ip=209.85.167.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iUQAthXI"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-59e4989dacdso4135966e87.1
-        for <linux-input@vger.kernel.org>; Sun, 22 Feb 2026 22:39:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GBJOJ18f"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-59e6b7b11ebso4600059e87.3
+        for <linux-input@vger.kernel.org>; Sun, 22 Feb 2026 22:39:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771828750; x=1772433550; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771828752; x=1772433552; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=QBhVm8HFMDMXwYhsB0aG8oH//jaDuQqOFuWYFh+Nf9c=;
-        b=iUQAthXI7eW3yNfemv5ufny2ApHP+iy+QlPJVPg1eUqsI2LPfFKjUDaK4582E+mr2t
-         BhfuS7lBObeOd9GdLj3WJQ2ZiMPiu35nLckH6OiXM4W5bDNxpe1DpaZ/qxN2enWQAvUP
-         uxn5z+ouJAyWi2b8Oty/2Mlt74sB19IygSfSzST3jOYoWKEP7+jLceKSpEKeFKQGgQqw
-         3BvvsuFiWhAMqiQb5qeXug9ST/BClrW44NTh6DA59WzwRGyPTmAWJJx6Mb5rVZAM5VI5
-         RiKKZv0zJ58e2uTpi11OyMPOf7VZat3orHqMwCDhNoUsuK+EV0CHvwPxpAu1ljsWbQDJ
-         NBhw==
+        bh=0Jf5C8PE1lxuMTJXxYUiUAeT9CSKhU2v7EHDew7zpbQ=;
+        b=GBJOJ18fKKAkPv7cNn8ZnxPOKzRj08N4uKxLvBypH4HNlZuL2ViiPSgHeDexJ+s7Lv
+         hx48/d/dRVecvesisduNpmZidU022G0H60c294U+CQrpQkpsa5+F3F4micwZRTYQm8Gg
+         3kvYRCPSGNMuLz3MHWy6XFzC8yxHZTbgtjvD7mhE7BaqWf3QkUyYniPtbepL2do6dyYO
+         GKI0Pmoo2dEEx3u9krc70QItEf5Kbot0mphle8NV175PG7erTuiCkGl5wDN0Mep1Va2c
+         8wVA9IwmoORYebigIHUmI513AAGZfbSjobheOlHyO3b2REwvLKYTiNHNzAtDDYXFRT0G
+         lJLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771828750; x=1772433550;
+        d=1e100.net; s=20230601; t=1771828752; x=1772433552;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=QBhVm8HFMDMXwYhsB0aG8oH//jaDuQqOFuWYFh+Nf9c=;
-        b=DGDZiBpRNXIaAQEG/aSaJ5cqSQimo3fRpeIjXytcs8w5WRK6ah9G88xWDG5mosWsax
-         iPTJn4I0y9TBYo5TE34tHusFyLy+DjJ3ceTVpv1yb/BLvDewDKgKOGC+Xz7Qhf388kIr
-         8h8VMmiwbgihUeb4u8T36WnNTMztSq4kM2+0R/JOGXF9j8G+vf0Nw8ljtpPCKJzaG1XP
-         Ho8BsWouFcIYVmwV2GAGTz88H2RpgOzVVmrl+PPVU66xvk3nh4SH9maMesdToQe4FNMx
-         pDQYkVn683i8kFzXj63qYYG+2IJT9c41ecqpGcpFPYcqjl3zZt6r04wuVaory/r4Psh5
-         7SGw==
-X-Gm-Message-State: AOJu0YzILFf6tGYLQnRz5VoK///Pao/QQITqyxJ9GqLTHSwoqOCuLKBZ
-	Sdqk8+KwWH01WGUfmONmRu1Vf3HnAw7T6CNfFIMVIasjapFWApW+pA6G
-X-Gm-Gg: AZuq6aIaDWGNTQaJZ5z7VFF/uoLsoKvBr00sP9XHoELN6Zij18alEdrZOeY2FPmWsDR
-	oGi0F1WbwGWDo5eS+4QkCQuEruSgChZzzggovzLpT0MWrU9Y8v095FQBZRVKzbBrxuPlBNEpNrm
-	cZ3p3iJ4YQ6qL6KRtIJ//mSnlgKe4acOkejvY2c+Ek7PNWYDP148sjFHbrv0B/6SW5982UC0vKn
-	ww1jN9zqShVKzfKIWnjfL4qKtlsrJi5AL0sIdBwcu1GCliDTh3Q11GtNNecBIDQMYvS7sBqGZ32
-	pcqxo+ua1IlhS94rvIsfJbMxMgQwEKg0+rNM/kBdOPbUa6a9bugNna83GhPykCYAWr/SgpzbWiz
-	JC26e2qPUxr/Wlm7uiZKInC9VQukdqCYyPHTi85rxbUW+EPERPPRFISk/+T0hDQDtX1QLYEhzUN
-	91o5sUSy6MiesU
-X-Received: by 2002:a05:6512:22c3:b0:5a0:f49a:353a with SMTP id 2adb3069b0e04-5a0f49a359amr282610e87.39.1771828750144;
-        Sun, 22 Feb 2026 22:39:10 -0800 (PST)
+        bh=0Jf5C8PE1lxuMTJXxYUiUAeT9CSKhU2v7EHDew7zpbQ=;
+        b=CLFLQZnMBf8W+dX95CfV7v5q35JBI8SHUeMy1ezyA+Gq+6AwbPPSp8ymn5SyAcaOw8
+         oKS9IOJJXF172l5VLzYP2YepZFnTQpap8k3QasqWCL5Ex+rUOMpXaO+vVCcYi12SbOZf
+         DAMAsCFs+YYCAqTRDsEfqXib44Vv8Vakzega5ecQD3BVZHv5hDCGrYqtMmJKrjtlX5uW
+         Ag/+m5AFyVD8jXnPVW+tTcczfv9gFLir8fO0V6htfblyQwanmkBNdPttLy682GKmKi8K
+         1AMmeylv2F7fWDFPFMAsKh5eB7luynZactgYyyniz/gNdvAMKO1j3R5oL0ltGr9LX+jd
+         zK7Q==
+X-Gm-Message-State: AOJu0Yw2goeoI9idIJ0P77PwB6EN4qO7RE87YC3rFneftTZW9WngbV5R
+	labpe2yKNdvduIdUUBAA0pV1F7+sE8WhLkoHqIVXU7QE3t/w9EaZWIPO
+X-Gm-Gg: AZuq6aJBsfRMa0Su2WGYzW7ns9uHlnomd4dhJODSgSfI3Ozp19v3/x5NMeVk1PI0RVz
+	tUB/2ZVlbj9edAm83CLvd2vakkiDE5fjMHAtGmf7PXEE89zrWOHuEH4uDte0sZFRrl7hfHQhJC9
+	Y5R/JA9dJud0+iHTkfyPst2FOWh667yKUbXLSTp8AW6N6EN4Gy3e4/xYSe0uEdO5zzJbZNT0wxf
+	BySmYQjHevcapSorIOa1O1tfBCfaoVKE2aZ5PsS/5fxX0DlvhQnmLDeKchoR4PevxUQogdHGUNH
+	sEvSvkG6gQYg8jOoEI35XPf/27QfKVSmj4DMUWi+NfYIUXYeYjL45XwtQ2oq5ZrBOXH+LRYp6Ku
+	v2ztrqGk4nUYN4fJYSTO6IBI70muePCq6PGfrAm3K5ulCpRXx8DPrfbr7cQRkDQFzzQmngBQwpL
+	QLjrq1I7Na+kKy813uMTgNSkk=
+X-Received: by 2002:a05:6512:b8e:b0:59e:4eb2:2b81 with SMTP id 2adb3069b0e04-5a0ed883b90mr2170214e87.11.1771828752213;
+        Sun, 22 Feb 2026 22:39:12 -0800 (PST)
 Received: from xeon ([188.163.112.76])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a0eeb13abbsm1369626e87.23.2026.02.22.22.39.09
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a0eeb13abbsm1369626e87.23.2026.02.22.22.39.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Feb 2026 22:39:09 -0800 (PST)
+        Sun, 22 Feb 2026 22:39:11 -0800 (PST)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -73,9 +73,9 @@ Cc: linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-leds@vger.kernel.org
-Subject: [PATCH v3 1/9] dt-bindings: regulator: cpcap-regulator: convert to DT schema
-Date: Mon, 23 Feb 2026 08:38:50 +0200
-Message-ID: <20260223063858.12208-2-clamor95@gmail.com>
+Subject: [PATCH v3 3/9] regulator: cpcap-regulator: add support for Mot regulators
+Date: Mon, 23 Feb 2026 08:38:52 +0200
+Message-ID: <20260223063858.12208-4-clamor95@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260223063858.12208-1-clamor95@gmail.com>
 References: <20260223063858.12208-1-clamor95@gmail.com>
@@ -87,110 +87,151 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert devicetree bindings for the Motorola CPCAP MFD regulator subnode
-from TXT to YAML format. Main functionality preserved.
+Add support for regulator set used in Motorola Mot board, used as a base
+for Atrix 4G and Droid X2 smartphones.
 
 Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
 ---
- .../bindings/regulator/cpcap-regulator.txt    | 35 --------------
- .../regulator/motorola,cpcap-regulator.yaml   | 46 +++++++++++++++++++
- 2 files changed, 46 insertions(+), 35 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
+ drivers/regulator/cpcap-regulator.c | 105 ++++++++++++++++++++++++++++
+ 1 file changed, 105 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt b/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-deleted file mode 100644
-index 36f5e2f5cc0f..000000000000
---- a/Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
-+++ /dev/null
-@@ -1,35 +0,0 @@
--Motorola CPCAP PMIC voltage regulators
--------------------------------------
--
--Requires node properties:
--- "compatible" value one of:
--    "motorola,cpcap-regulator"
--    "motorola,mapphone-cpcap-regulator"
--    "motorola,xoom-cpcap-regulator"
--
--Required regulator properties:
--- "regulator-name"
--- "regulator-enable-ramp-delay"
--- "regulator-min-microvolt"
--- "regulator-max-microvolt"
--
--Optional regulator properties:
--- "regulator-boot-on"
--
--See Documentation/devicetree/bindings/regulator/regulator.txt
--for more details about the regulator properties.
--
--Example:
--
--cpcap_regulator: regulator {
--	compatible = "motorola,cpcap-regulator";
--
--	cpcap_regulators: regulators {
--		sw5: SW5 {
--			regulator-min-microvolt = <5050000>;
--			regulator-max-microvolt = <5050000>;
--			regulator-enable-ramp-delay = <50000>;
--			regulator-boot-on;
--		};
--	};
--};
-diff --git a/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml b/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
-new file mode 100644
-index 000000000000..ed28d2653a55
---- /dev/null
-+++ b/Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml
-@@ -0,0 +1,46 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/regulator/motorola,cpcap-regulator.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/regulator/cpcap-regulator.c b/drivers/regulator/cpcap-regulator.c
+index 6958d154442b..63f5c90ddf50 100644
+--- a/drivers/regulator/cpcap-regulator.c
++++ b/drivers/regulator/cpcap-regulator.c
+@@ -261,6 +261,30 @@ static const struct regulator_ops cpcap_regulator_ops = {
+ };
+ 
+ static const unsigned int unknown_val_tbl[] = { 0, };
++static const unsigned int sw_mot_val_tbl[] =  { 600000, 612500, 625000,
++						637500, 650000, 662500,
++						675000, 687500, 700000,
++						712500, 725000, 737500,
++						750000, 762500, 775000,
++						787500, 800000, 812500,
++						825000, 837500, 850000,
++						862500, 875000, 887500,
++						900000, 912500, 925000,
++						937500, 950000, 962500,
++						975000, 987500, 1000000,
++						1012500, 1025000, 1037500,
++						1050000, 1062500, 1075000,
++						1087500, 1100000, 1112500,
++						1125000, 1137500, 1150000,
++						1162500, 1175000, 1187500,
++						1200000, 1212500, 1225000,
++						1237500, 1250000, 1262500,
++						1275000, 1287500, 1300000,
++						1312500, 1325000, 1337500,
++						1350000, 1362500, 1375000,
++						1387500, 1400000, 1412500,
++						1425000, 1437500, 1450000,
++						1462500, 1475000, };
+ static const unsigned int sw2_sw4_val_tbl[] = { 612500, 625000, 637500,
+ 						650000, 662500, 675000,
+ 						687500, 700000, 712500,
+@@ -284,6 +308,7 @@ static const unsigned int sw2_sw4_val_tbl[] = { 612500, 625000, 637500,
+ 						1362500, 1375000, 1387500,
+ 						1400000, 1412500, 1425000,
+ 						1437500, 1450000, 1462500, };
++static const unsigned int sw3_val_tbl[] = { 1350000, 1800000, 1850000, 1875000, };
+ static const unsigned int sw5_val_tbl[] = { 0, 5050000, };
+ static const unsigned int vcam_val_tbl[] = { 2600000, 2700000, 2800000,
+ 					     2900000, };
+@@ -402,6 +427,82 @@ static const struct cpcap_regulator omap4_regulators[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++static const struct cpcap_regulator mot_regulators[] = {
++	CPCAP_REG(SW1, CPCAP_REG_S1C1, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW1_SEL, sw_mot_val_tbl,
++		  0x6f00, 0x7f, 0x6800, 0, 0),
++	CPCAP_REG(SW2, CPCAP_REG_S2C1, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW2_SEL, sw_mot_val_tbl,
++		  0x6f00, 0x7f, 0x4804, 0, 0),
++	CPCAP_REG(SW3, CPCAP_REG_S3C, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW3_SEL, sw3_val_tbl,
++		  0x578, 0x3, 0x043c, 0, 0),
++	CPCAP_REG(SW4, CPCAP_REG_S4C1, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW4_SEL, sw_mot_val_tbl,
++		  0x6f00, 0x7f, 0x4909, 0, 0),
++	CPCAP_REG(SW5, CPCAP_REG_S5C, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW5_SEL, sw5_val_tbl,
++		  0x28, 0, 0x20, 0, 0),
++	CPCAP_REG(SW6, CPCAP_REG_S6C, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_SW6_SEL, unknown_val_tbl,
++		  0, 0, 0, 0, 0),
++	CPCAP_REG(VCAM, CPCAP_REG_VCAMC, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_VCAM_SEL, vcam_val_tbl,
++		  0x87, 0x30, 0x7, 0, 420),
++	CPCAP_REG(VCSI, CPCAP_REG_VCSIC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VCSI_SEL, vcsi_val_tbl,
++		  0x47, 0x10, 0x7, 0, 350),
++	CPCAP_REG(VDAC, CPCAP_REG_VDACC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VDAC_SEL, vdac_val_tbl,
++		  0x87, 0x30, 0x0, 0, 420),
++	CPCAP_REG(VDIG, CPCAP_REG_VDIGC, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_VDIG_SEL, vdig_val_tbl,
++		  0x87, 0x30, 0x0, 0, 420),
++	CPCAP_REG(VFUSE, CPCAP_REG_VFUSEC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VFUSE_SEL, vfuse_val_tbl,
++		  0xa0, 0xf, 0x0, 0, 420),
++	CPCAP_REG(VHVIO, CPCAP_REG_VHVIOC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VHVIO_SEL, vhvio_val_tbl,
++		  0x17, 0, 0x2, 0, 0),
++	CPCAP_REG(VSDIO, CPCAP_REG_VSDIOC, CPCAP_REG_ASSIGN2,
++		  CPCAP_BIT_VSDIO_SEL, vsdio_val_tbl,
++		  0x87, 0x38, 0x2, 0, 420),
++	CPCAP_REG(VPLL, CPCAP_REG_VPLLC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VPLL_SEL, vpll_val_tbl,
++		  0x47, 0x18, 0x1, 0, 420),
++	CPCAP_REG(VRF1, CPCAP_REG_VRF1C, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VRF1_SEL, vrf1_val_tbl,
++		  0xac, 0x2, 0, 0, 10),
++	CPCAP_REG(VRF2, CPCAP_REG_VRF2C, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VRF2_SEL, vrf2_val_tbl,
++		  0x23, 0x8, 0, 0, 10),
++	CPCAP_REG(VRFREF, CPCAP_REG_VRFREFC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VRFREF_SEL, vrfref_val_tbl,
++		  0x23, 0x8, 0, 0, 420),
++	CPCAP_REG(VWLAN1, CPCAP_REG_VWLAN1C, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VWLAN1_SEL, vwlan1_val_tbl,
++		  0x47, 0x10, 0x5, 0, 420),
++	CPCAP_REG(VWLAN2, CPCAP_REG_VWLAN2C, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VWLAN2_SEL, vwlan2_val_tbl,
++		  0x20c, 0xc0, 0xd, 0, 420),
++	CPCAP_REG(VSIM, CPCAP_REG_VSIMC, CPCAP_REG_ASSIGN3,
++		  0xffff, vsim_val_tbl,
++		  0x23, 0x8, 0, 0, 420),
++	CPCAP_REG(VSIMCARD, CPCAP_REG_VSIMC, CPCAP_REG_ASSIGN3,
++		  0xffff, vsimcard_val_tbl,
++		  0x1e80, 0x8, 0x1e00, 0, 420),
++	CPCAP_REG(VVIB, CPCAP_REG_VVIBC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VVIB_SEL, vvib_val_tbl,
++		  0x1, 0xc, 0x1, 0, 500),
++	CPCAP_REG(VUSB, CPCAP_REG_VUSBC, CPCAP_REG_ASSIGN3,
++		  CPCAP_BIT_VUSB_SEL, vusb_val_tbl,
++		  0x11c, 0x40, 0xc, 0, 0),
++	CPCAP_REG(VAUDIO, CPCAP_REG_VAUDIOC, CPCAP_REG_ASSIGN4,
++		  CPCAP_BIT_VAUDIO_SEL, vaudio_val_tbl,
++		  0x16, 0x1, 0x5, 0, 0),
++	{ /* sentinel */ }
++};
 +
-+title: Motorola CPCAP PMIC regulators
-+
-+maintainers:
-+  - Svyatoslav Ryhel <clamor95@gmail.com>
-+
-+description:
-+  This module is part of the Motorola CPCAP MFD device. For more details
-+  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. The
-+  regulator controller is represented as a sub-node of the PMIC node
-+  on the device tree.
-+
-+properties:
-+  compatible:
-+    enum:
-+      - motorola,cpcap-regulator
-+      - motorola,mapphone-cpcap-regulator
-+      - motorola,xoom-cpcap-regulator
-+
-+  regulators:
-+    type: object
-+
-+    patternProperties:
-+      "^(SW[1-6]|V(CAM|CSI|DAC|DIG|FUSE|HVIO|SDIO|PLL|RF[12]|RFREF|WLAN[12]|SIM|SIMCARD|VIB|USB|AUDIO))$":
-+        $ref: /schemas/regulator/regulator.yaml#
-+        type: object
-+
-+        required:
-+          - regulator-name
-+          - regulator-enable-ramp-delay
-+          - regulator-min-microvolt
-+          - regulator-max-microvolt
-+
-+        unevaluatedProperties: false
-+
-+required:
-+  - compatible
-+
-+additionalProperties: false
-+
-+...
+ static const struct cpcap_regulator xoom_regulators[] = {
+ 	CPCAP_REG(SW1, CPCAP_REG_S1C1, CPCAP_REG_ASSIGN2,
+ 		  CPCAP_BIT_SW1_SEL, unknown_val_tbl,
+@@ -486,6 +587,10 @@ static const struct of_device_id cpcap_regulator_id_table[] = {
+ 		.compatible = "motorola,mapphone-cpcap-regulator",
+ 		.data = omap4_regulators,
+ 	},
++	{
++		.compatible = "motorola,mot-cpcap-regulator",
++		.data = mot_regulators,
++	},
+ 	{
+ 		.compatible = "motorola,xoom-cpcap-regulator",
+ 		.data = xoom_regulators,
 -- 
 2.51.0
 

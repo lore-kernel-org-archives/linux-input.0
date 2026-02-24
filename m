@@ -1,65 +1,43 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D42839E6F9;
-	Tue, 24 Feb 2026 14:51:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1571B3A640C;
+	Tue, 24 Feb 2026 15:57:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771944674; cv=none; b=evuh42E0Pr08DhigG+uzRih5tr0xOckgQ6qnLHjokr7SbPo7vH0xSmGJPeura/xJ3jmQh3iDZc7xEBCYsh3jMOcjbPOymdIc9kKieuKnMpkIMCirXHZxOckAoLm33HQXTOJHgMSJPoNeGeAKXxsN3gJ0Z7bz1Qdl0+ypALofa+4=
+	t=1771948642; cv=none; b=sYzqvR2xN6BlMIaTFsUxI0GmFDxdTAC8lHqsNMS0GmCw6Ch7oIqF2BhixqQqRBbVHAYKkn0rrmqGQXER/5PBXsF0FP0eMmUPb3qN4FGaH/NzaSalpPsnLxQTWmTqBXQyPa6v5mVMMJXxYgmXzSV3aP9X1fp7t+ARmsRurZmaIrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771944674; c=relaxed/simple;
-	bh=WE8HtYcRtSahVo/SKZ+DqmPNKUcoMSnUp2yT1VcZd/o=;
+	s=arc-20240116; t=1771948642; c=relaxed/simple;
+	bh=9jsAK4p7Db0iITnevDW9lC9VIs/vOIDx/B0jZPgFxFY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hAz6CF0gNTwF1euqm73Zp/ICIUmy0DLKM3LoBl2l0ujb1gFHbybDBEL3zVZw+e14aLJtGKIwX7NSeCuG0J3FajWH9638PDZzw2zZ/TC31SpMGQ1GXl4VFhUiB0f5v0JRsfljlxLhnH4PMi8erAljldcixRgGBhr+/j02gVvdI+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=cD2sSTvK; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=eafijRNF7VKb9uPK08U8grozclPY/o3rkfckz5bOKfEg9fTvd9rmzP/oracqH+5dEpMExDSNsWeYV+4krty8u//MsQujnRRMxCB3U0J5HD+xn+X0+/nENVQYKD3/03l1Wy0ttMTZKCENvo397KSQRmOmiQh+Af9Gk8vfTIglRIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VtyB6uoZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="cD2sSTvK"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 667B04E41098;
-	Tue, 24 Feb 2026 14:51:06 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 24C245FD9D;
-	Tue, 24 Feb 2026 14:51:06 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1CD291036918D;
-	Tue, 24 Feb 2026 15:50:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1771944664; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=vv63Bmk8v8hQ7TUParpNLdhU99o6I3+yG2U0bzr7vMM=;
-	b=cD2sSTvK9wDOM/N20TtC46mcK2bV3UBwXSPqsbQTDEs6c5NyXjf/DCEa3yMNuckoA+P5KB
-	DieONpwghmo3ZeTv3jcgCKxiIeaw717hsi/FDLOyIzct2cPf1A4J7wF8F7j2V2OIaFdyHX
-	gzmEKYrZ03o6cdoLelmJpOoZfSSB/1GPE7iy1YPF3O01o5GHs2rgoRqwOpOxIbPtL0wTxx
-	0k2ljd6eulJfXgGIiCspal3DXsuVS1hfScxP24FUdWLoZRqbtEv7YVOlYLzuEPwbpGXvqt
-	vdnG/K/WWHxudvj0zQHDR/mnbJr56zdLLFQOZshOw4/Agz42COIEf9F6FVm9Dg==
-Date: Tue, 24 Feb 2026 15:50:56 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>,
-	Val Packett <val@packett.cool>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	Gary Bisson <bisson.gary@gmail.com>,
-	Julien Massot <julien.massot@collabora.com>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/9] dt-bindings: mfd: mt6397: Add bindings for MT6392
- PMIC
-Message-ID: <202602241450566c680722@mail.local>
-References: <cover.1771865014.git.l.scorcia@gmail.com>
- <c5ce038359583c5318c2d5ee341287c213aef880.1771865015.git.l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VtyB6uoZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0F7C116D0;
+	Tue, 24 Feb 2026 15:57:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771948641;
+	bh=9jsAK4p7Db0iITnevDW9lC9VIs/vOIDx/B0jZPgFxFY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VtyB6uoZ0WZVMxqIYY4brkjq9P3/s1434J8fDoahfagYKPmFnfjyTNK8V7JIkCvm7
+	 GrqFZaNhybysEOHrC8BZlwJpnpHMaN81v5xVEmCtnJMQaHEK/H6YwjGweZy/TeOkdP
+	 bR1RwOMSBQZtjULkehbAi3pSjmHNIxa7ql93ndaaFrhi2KTqyoBQlQwg5sXH0dtSoP
+	 cOrrM9IlrzvRdK9PW04KWjdA5ws+RDimBvrvayH60uxppnz5xOxf+O+yYwuTR8Lj+6
+	 7FiGjvyS0J/nEcvn3XNO0r2G36Ieb4stNq7k1fKEQITBwUGgNUHjjk1w7TGHnP82OY
+	 WLp1pwSqWozBw==
+Date: Tue, 24 Feb 2026 16:57:17 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, David Rheinsberg <david@readahead.eu>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: uhid: Fix out-of-bounds write caused by raw
+ events mismanagement
+Message-ID: <aZ3IKiL91Ya7_iIM@plouf>
+References: <20260211164025.171242-1-lee@kernel.org>
+ <aZmsTQeeGf26FqvY@plouf>
+ <172q4775-616s-p7s4-7n80-p8579n0r3516@xreary.bet>
+ <47ro00po-r74n-870q-q178-67s8rpsss12q@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -68,50 +46,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c5ce038359583c5318c2d5ee341287c213aef880.1771865015.git.l.scorcia@gmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <47ro00po-r74n-870q-q178-67s8rpsss12q@xreary.bet>
 
-On 23/02/2026 17:12:40+0000, Luca Leonardo Scorcia wrote:
-> From: Fabien Parent <parent.f@gmail.com>
+On Feb 24 2026, Jiri Kosina wrote:
+> On Sat, 21 Feb 2026, Jiri Kosina wrote:
 > 
-> Add the currently supported bindings for the MT6392 PMIC.
+> > > > Since the report ID is located within the data buffer, overwriting it
+> > > > would mean that any subsequent matching could cause a disparity in
+> > > > assumed allocated buffer size.  This in turn could trivially result in
+> > > > an out-of-bounds condition.  To mitigate this issue, let's refuse to
+> > > > overwrite a given report's data area if the ID in get_report_reply
+> > > > doesn't match.
+> > > 
+> > > That's a strong assumption and a breakage of the userspace FWIW. The CI
+> > > is now full of errors:
+> > > https://gitlab.freedesktop.org/bentiss/hid/-/commits/for-7.0/upstream-fixes
+> > > 
+> > > It is pretty common to allocate the buffer and not initialize it in
+> > > get_report operations.
+> > > 
+> > > It was a bad API choice to have rnum and data[0] for all HID requests
+> > > (internally, externally), but we should stick to it. The CI breakage in
+> > > itself is not a big issue TBH, but if it breaks here, it will probably
+> > > break existing users.
+> > 
+> > Lee,
+> > 
+> > was this found via code inspection, fuzzing, or is there some real-world 
+> > report behind it?
 > 
-> Signed-off-by: Fabien Parent <parent.f@gmail.com>
-> Signed-off-by: Val Packett <val@packett.cool>
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> ---
->  Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml | 2 ++
->  1 file changed, 2 insertions(+)
+> For now I've dropped this from for-7.0/upstream-fixes until it's all 
+> clarified.
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> index 6a89b479d10f..5f422d311d4d 100644
-> --- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> +++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-> @@ -39,6 +39,7 @@ properties:
->            - mediatek,mt6328
->            - mediatek,mt6358
->            - mediatek,mt6359
-> +          - mediatek,mt6392
->            - mediatek,mt6397
->        - items:
->            - enum:
-> @@ -67,6 +68,7 @@ properties:
->                - mediatek,mt6323-rtc
->                - mediatek,mt6331-rtc
->                - mediatek,mt6358-rtc
-> +              - mediatek,mt6392-rtc
-
-Shouldn't you rather use "mediatek,mt6392-rtc", "mediatek,mt6397-rtc" as
-the compatible so you don't have to change anything in the driver?
-
->                - mediatek,mt6397-rtc
->            - items:
->                - enum:
-> -- 
-> 2.43.0
+> Thanks,
 > 
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+So I've debugged today the error I was seeing. First, my statement is
+slightly exagerated, because we are talking here about a get_report
+function, and Lee's patch checks for the return buffer, not the incoming
+buffer.
+
+So I had a small time where I was wondering if I was not wrong and
+something was off in the test suite.
+
+However, it seems the bug is caused by the PS3 emulation:
+https://gitlab.freedesktop.org/libevdev/hid-tools/-/blob/master/hidtools/device/sony_gamepad.py?ref_type=heads#L256-257
+
+During the initialization of the PS3 controller, hid-sony.c calls
+several GET_REPORT on 0xF2 and 0xF5. Both of these feature reports are
+hidden in the report descriptor (a few lines above in the
+sony_gamepad.py file). However, the emulation returns `[0x01, 0x00,
+0x18, 0x5E, 0x0F, 0x71, 0xA4, 0xBB]` when we request a 0xf5 report,
+which seems to be bogus.
+
+So I digged out the PS3 controller from a drawer, and looked at the
+incoming data from it.
+
+And it turns out that the controller reply that exact sequence when
+requested about the 0xf5 feature.
+
+So that means that the emulation is correct, and we can have devices
+which report a different report number. Arguably this is wrong, but we
+are in the peripheral world where every vendor does what it wants :(
+
+Long story short: that patch is too intrusive as it makes assumption on
+the behavior of the device. We need to understand where/if the bug was
+spotted and fix the caller of hid_hw_raw_request, not the uhid
+implementation.
+
+Cheers,
+Benjamin

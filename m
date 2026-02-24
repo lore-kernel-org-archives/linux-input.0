@@ -1,330 +1,189 @@
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04EAC34A3BC
-	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 22:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771972936; cv=none; b=QeUKHHsqguygRIWnbM+F1J3eb6RQzQdDmp8aMm4pWAJ0tLS5vedvXcSf7fBUArDoRzaSmjjTldtcMuT3F5ISWvwy1/bEZb3C5/OUQDRmt5wB+BqBhbrgY5WeYGjNfjmzoq4LJQZ62rTclchiEbGaT5sQOBHBfZYX+g7HESOvojc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771972936; c=relaxed/simple;
-	bh=FC5gjeSfV6B51mX7QB5l8gNECupkSpJM7ZuhLKvpmHM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ljqG59Abqm1uhErORbMN7bPZzMSBWd4g81wQHyRHIVcq2jotyjQZV3k4uDwpPMrJzC/OrI+6vzsLBktsNTIDDYWC/3O8KneAxykyLnP0WCReeHKo7t+nNCorF6tSFyWi2lX5muxjY7fiuOiubM8YEoj9/vSO/QEsUm9VNFo/gk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R6Zrs70Q; arc=none smtp.client-ip=74.125.82.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6169347BC9
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 22:44:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771973086; cv=pass; b=WJcym2cHXAqkgx7QJi1o+NL3MTuivDHq5I1cAHH7p3oN3oMP08TwXJfE1cbdFVP0j4seSMD3cGGaSIV5dN4S8WqFGfs6zsImq3aFDxAJ2VeFWWy9EIS+QOc6z78uTx2rblYIPl18vo+VdTScEX+0heczWDBLf7qSbNaiy+iam54=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771973086; c=relaxed/simple;
+	bh=BK1KasERRSCZAuPPvh8Axu+JC9VYA9Qk8vQNoZETO00=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZwCBG4/UHzoxXxeunhbMPvZMoOJ3lvXG6hROuJxWiTZKzKG2WBQzZ3c3JCYSJ/MR89Pb/Y/oh74NvIhEnZKxh4Q4QWOAPTx6nuK0g0q7oo3HmgiCuT4zJ6vsaJy9kdp3vXLXBTU/c3da5TbCdmQlMKdIbI0QCC2ImCGQ0SpZpBw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HfSIpC8C; arc=pass smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R6Zrs70Q"
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-12758ce1e8dso1769521c88.0
-        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 14:42:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HfSIpC8C"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-59e6b7b11ebso6880913e87.3
+        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 14:44:44 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1771973083; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PVgqjUtOn9u+k1BlULkR5798/ImsieN2bCkc2PVLjCFRNazxmxQ0SEW3IVgUnCCc4R
+         I2TsSzngvG5ZRKg19P5kFULBZKpU4aYXwtGgBy0hEiSYLAax+O/F0fJUQyxW5dikgS4S
+         ZLAJk0KpFy7tIncAeqOYVoRGycq/TtxbMOLvAW3hMiMI5xLsGxzsMJs7TLFAHyUS6r0n
+         k6GVWxOjQg3kGlFRYd1XLsRqaSi5hOiQ2+VmtMh5KEiZBkwPTZseBIBuBa0u/+HUyDRD
+         agEZ+3YOkInaGxUo3VOWFswjoebnOkxmlbJfmOo+ZWTaH96RAT/6NDEbdjgRmT1pkYeY
+         WsJA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
+        fh=8GmVmXnaDPK9dTMBAxpw3Jmfkyd+KXfb+lzuwU9IRW4=;
+        b=jzOetmaewVEWoR2pV6nsKx9xWzHgrvinjF9HwB7+KGdTZDsaDp0xxKUzvXiZ4tTsr4
+         jugxauNA4uzuaIHwN4oFEL4kGcZXTOF4R0wX3SdkshMbAawtOXJ7PB/zfqFByP51jNnf
+         Eksi/dLFHmeLvWwDyxEyV1j9wI9YeHHheCyfCpN1AWNnFA4vggYu7ICHWs8uTYt9s5v7
+         JeazNir5UzWGFqigCCWeNHR5EFdimSEqf0vG3CchBktiBd2atY6Ec/gu4uiqE9QntkBw
+         RikxHHCDLDVS+pU9t1frvt6tUVX4jJTobUOUu97tAUOHqBl7KgB5eC5BJXaLL+Q5ZAAv
+         hd1g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771972934; x=1772577734; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zVVsLnBcvyWXnBNjAvKz4iaySgoUxpk/aOB6vGuPVF0=;
-        b=R6Zrs70Q3pV+Oel8AhnSZldgXapHS7ZquHSfq73V4i7AogWFysvWeKE3O3+uGVD41U
-         2NwjOwONB2PxSPMOgrvxKFcGBvQzuJl//zNy9AsQf9Lm9rZ4y006Hf8mXe0YK6KUfUJx
-         SqS95eXLLz52V6HjiH+QAl3xnLcEEPGVVBwyJ89mVbKkniEIRjDFGasqaAFtL3P9OYNA
-         afOWnlIQBxUdIQELjg4p1ouEYMZUWYKaNXLYfcwhE691lLy+brzIuNDMD+W7M3HPrmmg
-         A3vqJ803YuNLU3tRzn+nrdXhj5+uEKIR/d8eyi0I4H1qZNHBedDNn9G1Ecr2dmwP+jNd
-         sYwA==
+        d=google.com; s=20230601; t=1771973083; x=1772577883; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
+        b=HfSIpC8Cv/eDPqrHuHWyQmLnH90VJAXgLS/7iEbX3eGbIg4oUnaeW93X7GAWqRS27X
+         bNpz82K1evQi4FqUVZoRttr4rp5V1CrTBY+/z2lYXEQ6k3WeK/xKJNgpsdHtNUNhAADG
+         w0OYl2gNHEjWG5EIF2tlKATbeOIk8O4HEg/O8kwrVfl5Gp22KiTuxDIQBQz6EzvscEte
+         Z+lNJnZeMtcYQbOhA7dNu+7wGkWSIxCNmEA5u4tuMWg8n7Y+UGK2dbhusCtD4UVckOao
+         i4zdwMlCwf8mUGvrd9LCxWoiEnva/viICCLG/C+tRKJEVHfnLCAh7c7kxQbxL4w2nvKZ
+         WbYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771972934; x=1772577734;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zVVsLnBcvyWXnBNjAvKz4iaySgoUxpk/aOB6vGuPVF0=;
-        b=Of23emgpt7LGQNIYl5B+PnPh+bgSCPLH1na8kOKbKLfxAuV3KkQ518NIXNxjY88MUM
-         xA3RLWw0EMa03NVuSqo64Gjm+3LmUO/vQ4Q4YmUg0qjEz5PF90GXc6bg7/NP8n87Ijd5
-         oU6d/mg2n60r8fEKpmmvgEKZ/5EsThN7uOsl840rvMEE0cqLgxZU+reBZ37Qm/Nsl54+
-         rNvKyCfp4NCBc2CQfYQjV1TX28aPGMr66YuRK/mdb9RnIGLMD6bdYRXGTjfp0AeDPSdK
-         KlrkXfduoZDS2Kg6DoMSfmnOk/r7UGTn5wUYNP2Gar9qfdGjF9IjehKj9v2lzHU+3Of5
-         Drog==
-X-Forwarded-Encrypted: i=1; AJvYcCUEhgZ9uVYZGePGhMpJl8Nigbd4X/5coZDiaDgjVDS2NwRhtAUMb4Z8vGEHONFoDRsukzJvaDbrYFYiPw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMG7JL2MDgybRXvG82VPK8locckCNy0WDY0t1s+TPO0Kvvpy5g
-	J2+GrgHspur/qU2JvaC367KyWfmUlKsEZN9cqOp52Ls1AlIJkrYi1aJC
-X-Gm-Gg: ATEYQzyhXEr66iYwuc6jx18xqJcSXNQ8HwtA+Lf5KUsPgPTuhr0vYCspf6VFvQD3uyv
-	KxxMXrAFTY64cyj6Rm4kQFIeT0pM7valnRhH0Vd6bVaJJnj9I0m6fGIDI3ngb12X+hNrb59gYYh
-	mF2SpnOOUABFM2GiyEI/fkid0Cvi/WGPrJGAZT8kZkui+eDFH4h0SmwkQt/z4iJICUd42JOcZOO
-	/Mcgj6gLv/l8oN+zpqwu7xQW0spF1GEtwZbuyu0UDCfuYV8B2DJzUBXdlulYfxHjc6ljCbuAZ7l
-	aUI9Z/qhco/GZf/a71HovECQYJdigsf0noPOOOWqUCwCyfwbRhZdrMvGOon+5TaQ37ygkOUvbGt
-	cnCukaKZTglX1S1gK3tP93G7D9FEmKbM4VP0BEDoTWxIfyo9lj0YfK9tQYokR44NRS51md3n108
-	hYSSctCtxn+YSFZDoa32wkwAl4mrRFgOisB7WqsnDVC5pUSmGgR7CkjH2Sh268Iqu7
-X-Received: by 2002:a05:7022:4a3:b0:11b:ca88:c503 with SMTP id a92af1059eb24-1276acda3e1mr6567263c88.3.1771972933984;
-        Tue, 24 Feb 2026 14:42:13 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:e1d3:e70f:c61b:7501])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1276af7b4c7sm11692428c88.9.2026.02.24.14.42.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Feb 2026 14:42:13 -0800 (PST)
-Date: Tue, 24 Feb 2026 14:42:10 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: marcpaolo.sosa@analog.com
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] input: misc: add driver for max16150
-Message-ID: <aZ4nA33Lc73L1D2y@google.com>
-References: <20260223-max16150-v1-0-38e2a4f0d0f1@analog.com>
- <20260223-max16150-v1-2-38e2a4f0d0f1@analog.com>
+        d=1e100.net; s=20230601; t=1771973083; x=1772577883;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
+        b=Ocq9YRonIvo5WnySD67M6voL5rcjOO0oR9A5VMgHpSdffSiGnOs5PQkxHq9em85X1Q
+         MDSFUMfwTIesyW0b74E3rubJbnmbA+KicvEiXatpxEnuy366QMZtK8NiHxU5WvzdVMDj
+         Z72GMCo23cv76e8dyVAbzpWJ+XKpSRPSxLFiF6tbM/30DS789S83Du5JMCrKCZQn3inR
+         Na0NMAnp16w5XCEZmSZzCAU0br37KN4h4XRXETZipNHtYHNngLjl3xSIl1D4b4xyQ13z
+         +nQzaivLTnsL3fFS6i0EDn+6o6oGGMXRlNfJ8RgwHkGCp4FKnng93jHM6h66Nj6S6BnI
+         1z4A==
+X-Forwarded-Encrypted: i=1; AJvYcCUbVHOPTMLGarniC55voWtiFc6e6H60m2PgQTqpn13jGBXBfD0ToKXV5xmU8xJLV30R9f/g7UIXB+LBpw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyE53BCJgDTS9K8aZY2hPMAXUQZ++3Pd65Arv/gqoJt8IBIWqK5
+	xuH+FdcM7JY5v0vxlC5wlZM2hHVuo3AsM0KL5Edec+hIo895yEPGZWbfA3j3u8/Oh+uIoRpnU/s
+	wRoGDl31lshS/L5aIENX01tNlpR3CLH0iYQUw7DDa
+X-Gm-Gg: ATEYQzxpruSSN+PyhICmDB8fccZcek30e2SksRZvVnlPK8Hic3R9kYOMuDiy2+n45AC
+	YGroH1366D99Hx0SnEHw8XC6ZOacz9mO43d/d4tMSQcb9CPM/26VDyv4cyDBd78KRHiXQKlg7Tz
+	YVkuR23d2LWs0dMSXgYPDLg1QJKfApIntzA5/969ofJzGkku5HgUYV7wgafl0iPnEUN4hHl06xP
+	ZlmkYMovCGRhIr+Mb8BVx9BAEQMN+OTg3IKxzOf1ZX+vqeVBao57P5PSuOhiA/7B0m7s1fPbYkP
+	rkMClOzFIUmUtAAbHAsBxBNpOduTqMV2QvPxZZ/fDZTEV2sq
+X-Received: by 2002:a05:6512:6488:b0:59e:171d:a68d with SMTP id
+ 2adb3069b0e04-5a1026e0333mr53923e87.27.1771973082759; Tue, 24 Feb 2026
+ 14:44:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260223-max16150-v1-2-38e2a4f0d0f1@analog.com>
+References: <20251111234519.369652-1-svv@google.com> <fcaa494a-43ba-410e-ac2b-162f5b4814bc@roeck-us.net>
+In-Reply-To: <fcaa494a-43ba-410e-ac2b-162f5b4814bc@roeck-us.net>
+From: Siarhei Vishniakou <svv@google.com>
+Date: Tue, 24 Feb 2026 14:44:25 -0800
+X-Gm-Features: AaiRm50fex57f8iRdePaoKsP5QitLbLcxbXcEGrmSGQo9Feh7yZfo4VRkn9judU
+Message-ID: <CAKF84v0eVCSM7L-EvtmoquN87sSS0GA1yX-ewGyzr-hqO7tAGA@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: playstation: Center initial joystick axes to
+ prevent spurious events
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Roderick Colenbrander <roderick.colenbrander@sony.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Marc,
+=D0=B2=D1=82, 24 =D1=84=D0=B5=D0=B2=D1=80. 2026=E2=80=AF=D0=B3. =D0=B2 13:1=
+0, Guenter Roeck <linux@roeck-us.net>:
+>
+> On Tue, Nov 11, 2025 at 03:45:19PM -0800, Siarhei Vishniakou wrote:
+> > When a new PlayStation gamepad (DualShock 4 or DualSense) is initialize=
+d,
+> > the input subsystem sets the default value for its absolute axes (e.g.,
+> > ABS_X, ABS_Y) to 0.
+> >
+> > However, the hardware's actual neutral/resting state for these joystick=
+s
+> > is 128 (0x80). This creates a mismatch.
+> >
+> > When the first HID report arrives from the device, the driver sees the
+> > resting value of 128. The kernel compares this to its initial state of =
+0
+> > and incorrectly interprets this as a delta (0 -> 128). Consequently, it
+> > generates EV_ABS events for this initial, non-existent movement.
+> >
+> > This behavior can fail userspace 'sanity check' tests (e.g., in
+> > Android CTS) that correctly assert no motion events should be generated
+> > from a device that is already at rest.
+> >
+> > This patch fixes the issue by explicitly setting the initial value of t=
+he
+> > main joystick axes (e.g., ABS_X, ABS_Y, ABS_RX, ABS_RY) to 128 (0x80)
+> > in the common ps_gamepad_create() function.
+> >
+> > This aligns the kernel's initial state with the hardware's expected
+> > neutral state, ensuring that the first report (at 128) produces no
+> > delta and thus, no spurious event.
+> >
+> > Signed-off-by: Siarhei Vishniakou <svv@google.com>
+> > Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
+> > ---
+> >  drivers/hid/hid-playstation.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstatio=
+n.c
+> > index 1468fb11e39d..a145b5ea4405 100644
+> > --- a/drivers/hid/hid-playstation.c
+> > +++ b/drivers/hid/hid-playstation.c
+> > @@ -718,11 +718,16 @@ static struct input_dev *ps_gamepad_create(struct=
+ hid_device *hdev,
+> >       if (IS_ERR(gamepad))
+> >               return ERR_CAST(gamepad);
+> >
+> > +     /* Set initial resting state for joysticks to 128 (center) */
+> >       input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
+> > +     gamepad->absinfo[ABS_X].value =3D 128;
+>
+> input_set_abs_params() can fail to allocate absinfo. If that happens,
+> this will crash. AI suggests setting the value with input_abs_set_val()
+> to ensure that the value is checked before dereferencing.
+>
+> Guenter
+>
+> >       input_set_abs_params(gamepad, ABS_Y, 0, 255, 0, 0);
+> > +     gamepad->absinfo[ABS_Y].value =3D 128;
+> >       input_set_abs_params(gamepad, ABS_Z, 0, 255, 0, 0);
+> >       input_set_abs_params(gamepad, ABS_RX, 0, 255, 0, 0);
+> > +     gamepad->absinfo[ABS_RX].value =3D 128;
+> >       input_set_abs_params(gamepad, ABS_RY, 0, 255, 0, 0);
+> > +     gamepad->absinfo[ABS_RY].value =3D 128;
+> >       input_set_abs_params(gamepad, ABS_RZ, 0, 255, 0, 0);
+> >
+> >       input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
+> > --
+> > 2.51.2.1041.gc1ab5b90ca-goo
 
-On Mon, Feb 23, 2026 at 07:03:40PM +0800, Marc Paolo Sosa via B4 Relay wrote:
-> From: Marc Paolo Sosa <marcpaolo.sosa@analog.com>
-> 
-> MAX16150/MAX16169 nanoPower Pushbutton On/Off Controller
-> 
-> Signed-off-by: Marc Paolo Sosa <marcpaolo.sosa@analog.com>
-> ---
->  drivers/input/misc/Kconfig    |   9 +++
->  drivers/input/misc/Makefile   |   1 +
->  drivers/input/misc/max16150.c | 161 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 171 insertions(+)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 94a753fcb64f..a31d3d2a7fd6 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -178,6 +178,15 @@ config INPUT_E3X0_BUTTON
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called e3x0_button.
->  
-> +config INPUT_MAX16150_PWRBUTTON
-> +	tristate "MAX16150/MAX16169 Pushbutton driver"
-> +	help
-> +	  Say Y here if you want to enable power key reporting via
-> +	  MAX16150/MAX16169 nanoPower Pushbutton On/Off Controller.
-> +
-> +	  To compile this driver as a module, choose M here. The module will
-> +	  be called max16150.
-> +
->  config INPUT_PCSPKR
->  	tristate "PC Speaker support"
->  	depends on PCSPKR_PLATFORM
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 415fc4e2918b..c2c1c45f2df6 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -52,6 +52,7 @@ obj-$(CONFIG_INPUT_IQS7222)		+= iqs7222.o
->  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
->  obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
->  obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
-> +obj-$(CONFIG_INPUT_MAX16150_PWRBUTTON)	+= max16150.o
->  obj-$(CONFIG_INPUT_MAX7360_ROTARY)	+= max7360-rotary.o
->  obj-$(CONFIG_INPUT_MAX77650_ONKEY)	+= max77650-onkey.o
->  obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
-> diff --git a/drivers/input/misc/max16150.c b/drivers/input/misc/max16150.c
-> new file mode 100644
-> index 000000000000..ae353b926afc
-> --- /dev/null
-> +++ b/drivers/input/misc/max16150.c
-> @@ -0,0 +1,161 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Analog Devices MAX16150/MAX16169 Pushbutton Driver
-> + *
-> + * Copyright 2025 Analog Devices Inc.
-> + */
-> +
-> +#include <linux/delay.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mod_devicetable.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/property.h>
-> +
-> +#define MAX16150_LONG_INTERRUPT 120000000
-> +
-> +struct max16150_chip_info {
-> +	bool has_clr_gpio;
-> +};
-> +
-> +struct max16150_device {
-> +	struct input_dev *input;
-> +	struct gpio_desc *gpiod;
-> +	struct gpio_desc *clr_gpiod;
-> +	const struct max16150_chip_info *chip_info;
-> +	u64 low, high, duration;
+The function `input_set_abs_params` is ill-formed. If this call can
+fail, then it should return some kind of error result instead of void.
+In addition, the function name doesn't suggest that it's going to be
+doing any allocations.
+So the (short-term) fix should be something like this:
 
-I do not think you need to store "high" and "duration", just "press"
-time. I also do not think you need nanosecond resilution, jiffies will
-do.
+/* Set initial resting state for joysticks to 128 (center) */
+input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
++   if (gamepad->absinfo =3D=3D NULL) {
++       // input_set_abs_params allocates "absinfo" struct, which could fai=
+l.
++       return ERR_CAST(gamepad);
++   }
 
-> +	unsigned int keycode;
-> +};
-> +
-> +static irqreturn_t max16150_irq_handler(int irq, void *_max16150)
-> +{
-> +	struct max16150_device *max16150 = _max16150;
-> +	int value;
-> +
-> +	value = gpiod_get_value(max16150->gpiod);
-> +
-> +	if (!value) {
-> +		max16150->low = ktime_get_ns();
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	max16150->high = ktime_get_ns();
-> +	if (max16150->low) {
-> +		max16150->duration = max16150->high - max16150->low;
-> +
-> +		if (max16150->duration > MAX16150_LONG_INTERRUPT) {
+A better long-term option would be to change the signature of
+input_set_abs_params to return a bool, or to add an explicit
+allocation step (looking at code search, there aren't too many places
+using this API today, but this might break 3-rd party stuff).
 
-time_after() is probably what you need here.
-
-> +			gpiod_set_value(max16150->clr_gpiod, 1);
-> +			input_report_key(max16150->input, max16150->keycode, 1);
-> +			input_sync(max16150->input);
-
-Why is press not reported right away?
-
-> +			input_report_key(max16150->input, max16150->keycode, 0);
-> +			input_sync(max16150->input);
-> +		}
-> +
-> +		max16150->low = 0;
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static const struct max16150_chip_info max16150_variant_a = {
-> +	.has_clr_gpio = true,
-> +};
-> +
-> +static const struct max16150_chip_info max16150_variant_b = {
-> +	.has_clr_gpio = false,
-> +};
-> +
-> +static int max16150_probe(struct platform_device *pdev)
-> +{
-> +	const struct max16150_chip_info *chip_info;
-> +	struct max16150_device *max16150;
-> +	struct device *dev = &pdev->dev;
-> +	int err, irq, ret;
-
-Why do you need both err and ret?
-
-> +	u32 keycode;
-> +
-> +	chip_info = device_get_match_data(dev);
-> +	if (!chip_info)
-> +		return -EINVAL;
-> +
-> +	max16150 = devm_kzalloc(dev, sizeof(*max16150), GFP_KERNEL);
-> +	if (!max16150)
-> +		return -ENOMEM;
-> +
-> +	max16150->chip_info = chip_info;
-> +
-> +	max16150->input = devm_input_allocate_device(dev);
-> +	if (!max16150->input)
-> +		return -ENOMEM;
-> +
-> +	max16150->input->name = "MAX16150 Pushbutton";
-> +	max16150->input->phys = "max16150/input0";
-> +	max16150->input->id.bustype = BUS_HOST;
-> +
-> +	keycode = KEY_POWER;
-> +	ret = device_property_read_u32(dev, "linux,code", &keycode);
-
-	err = ...
-
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "Failed to get keycode\n");
-> +
-> +	max16150->keycode = keycode;
-> +
-> +	input_set_capability(max16150->input, EV_KEY, max16150->keycode);
-> +
-> +	max16150->gpiod = devm_gpiod_get(dev, "interrupt", GPIOD_IN);
-> +	if (IS_ERR(max16150->gpiod))
-> +		return dev_err_probe(dev, PTR_ERR(max16150->gpiod),
-> +				     "Failed to get interrupt GPIO\n");
-> +
-> +	if (chip_info->has_clr_gpio) {
-> +		max16150->clr_gpiod = devm_gpiod_get(dev, "clr", GPIOD_OUT_HIGH);
-> +		if (IS_ERR(max16150->clr_gpiod))
-> +			return dev_err_probe(dev, PTR_ERR(max16150->clr_gpiod),
-> +					     "Failed to get clr GPIO\n");
-> +
-> +		if (!max16150->clr_gpiod)
-
-
-How would we end up here? You are using devm_gpiod_get() which will
-never return NULL GPIO descriptor.
-
-> +			return dev_err_probe(dev, -ENODEV,
-> +						 "clr GPIO is mandatory\n");
-> +
-> +		if (max16150->clr_gpiod) {
-> +			fsleep(1000);
-> +			gpiod_set_value(max16150->clr_gpiod, 0);
-> +		}
-> +	}
-> +
-> +	irq = gpiod_to_irq(max16150->gpiod);
-> +	if (irq < 0)
-> +		return dev_err_probe(dev, irq,
-> +				     "MAX16150: Failed to map GPIO to IRQ");
-
-As Rob said in DT binding review use interrupts property and separate
-IRQ and GPIO handling.
-
-> +
-> +	err = devm_request_irq(dev, irq, max16150_irq_handler,
-> +			       IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-> +			       "max16150_irq", max16150);
-> +	if (err)
-> +		return err;
-> +
-> +	return input_register_device(max16150->input);
-
-	err = input_register_device(...);
-	if (err)
-		return err;
-	
-	return 0;
-
-> +}
-> +
-> +static const struct of_device_id max16150_of_match[] = {
-> +	{ .compatible = "adi,max16150a", .data = &max16150_variant_a },
-> +	{ .compatible = "adi,max16150b", .data = &max16150_variant_b },
-> +	{ .compatible = "adi,max16169a", .data = &max16150_variant_a },
-> +	{ .compatible = "adi,max16169b", .data = &max16150_variant_b },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, max16150_of_match);
-> +
-> +static struct platform_driver max16150_driver = {
-> +	.probe  = max16150_probe,
-> +	.driver = {
-> +		.name = "max16150",
-> +		.of_match_table = max16150_of_match,
-> +	},
-> +};
-> +module_platform_driver(max16150_driver);
-> +
-> +MODULE_AUTHOR("Marc Paolo Sosa <marcpaolo.sosa@analog.com>");
-> +MODULE_DESCRIPTION("MAX16150/MAX16169 Pushbutton Driver");
-> +MODULE_LICENSE("GPL");
-
-Thanks.
-
--- 
-Dmitry
+Curious to hear maintainers' opinions on this.

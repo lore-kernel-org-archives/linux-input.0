@@ -1,189 +1,107 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6169347BC9
-	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 22:44:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771973086; cv=pass; b=WJcym2cHXAqkgx7QJi1o+NL3MTuivDHq5I1cAHH7p3oN3oMP08TwXJfE1cbdFVP0j4seSMD3cGGaSIV5dN4S8WqFGfs6zsImq3aFDxAJ2VeFWWy9EIS+QOc6z78uTx2rblYIPl18vo+VdTScEX+0heczWDBLf7qSbNaiy+iam54=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771973086; c=relaxed/simple;
-	bh=BK1KasERRSCZAuPPvh8Axu+JC9VYA9Qk8vQNoZETO00=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZwCBG4/UHzoxXxeunhbMPvZMoOJ3lvXG6hROuJxWiTZKzKG2WBQzZ3c3JCYSJ/MR89Pb/Y/oh74NvIhEnZKxh4Q4QWOAPTx6nuK0g0q7oo3HmgiCuT4zJ6vsaJy9kdp3vXLXBTU/c3da5TbCdmQlMKdIbI0QCC2ImCGQ0SpZpBw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HfSIpC8C; arc=pass smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49BB034C145
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 22:45:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771973156; cv=none; b=usqfL68zY/7do4X4H6WBPbvujVpFfb2yccZ6/I6Q/sLea3mLSVnA602seem3e79WHB/SMjcsDksJZ9M5z2wJABkbSOOdeh6skoqEeU+clelPPu+mtapxAPDuPV5QVmWOCY9X/fbPIPv9YrZ2cSRFOHWaRhJDwmraDpnUY1Q+v5s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771973156; c=relaxed/simple;
+	bh=TYBiyejN0jz0+b/rgo7kDkzVulDkERlKSoX28q5x02c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LkQa5mM3XM7xviL98B+ctjYbhl8Swiq2bn0+UIAILGmbM/1NG+B6vqqEjYgFLPv/XvnIbwy4zP60simrBNclhrf9JehOkJjScCaac/E0iJE1qNrLkIhETQq5ztqBkCcFLZx6tqsGn2RV9rlYOG276UeN6M931lcZqSb0fmwJJmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k//6xXNL; arc=none smtp.client-ip=74.125.82.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HfSIpC8C"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-59e6b7b11ebso6880913e87.3
-        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 14:44:44 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1771973083; cv=none;
-        d=google.com; s=arc-20240605;
-        b=PVgqjUtOn9u+k1BlULkR5798/ImsieN2bCkc2PVLjCFRNazxmxQ0SEW3IVgUnCCc4R
-         I2TsSzngvG5ZRKg19P5kFULBZKpU4aYXwtGgBy0hEiSYLAax+O/F0fJUQyxW5dikgS4S
-         ZLAJk0KpFy7tIncAeqOYVoRGycq/TtxbMOLvAW3hMiMI5xLsGxzsMJs7TLFAHyUS6r0n
-         k6GVWxOjQg3kGlFRYd1XLsRqaSi5hOiQ2+VmtMh5KEiZBkwPTZseBIBuBa0u/+HUyDRD
-         agEZ+3YOkInaGxUo3VOWFswjoebnOkxmlbJfmOo+ZWTaH96RAT/6NDEbdjgRmT1pkYeY
-         WsJA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
-        fh=8GmVmXnaDPK9dTMBAxpw3Jmfkyd+KXfb+lzuwU9IRW4=;
-        b=jzOetmaewVEWoR2pV6nsKx9xWzHgrvinjF9HwB7+KGdTZDsaDp0xxKUzvXiZ4tTsr4
-         jugxauNA4uzuaIHwN4oFEL4kGcZXTOF4R0wX3SdkshMbAawtOXJ7PB/zfqFByP51jNnf
-         Eksi/dLFHmeLvWwDyxEyV1j9wI9YeHHheCyfCpN1AWNnFA4vggYu7ICHWs8uTYt9s5v7
-         JeazNir5UzWGFqigCCWeNHR5EFdimSEqf0vG3CchBktiBd2atY6Ec/gu4uiqE9QntkBw
-         RikxHHCDLDVS+pU9t1frvt6tUVX4jJTobUOUu97tAUOHqBl7KgB5eC5BJXaLL+Q5ZAAv
-         hd1g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k//6xXNL"
+Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-12776bebe9fso1371672c88.1
+        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 14:45:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1771973083; x=1772577883; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
-        b=HfSIpC8Cv/eDPqrHuHWyQmLnH90VJAXgLS/7iEbX3eGbIg4oUnaeW93X7GAWqRS27X
-         bNpz82K1evQi4FqUVZoRttr4rp5V1CrTBY+/z2lYXEQ6k3WeK/xKJNgpsdHtNUNhAADG
-         w0OYl2gNHEjWG5EIF2tlKATbeOIk8O4HEg/O8kwrVfl5Gp22KiTuxDIQBQz6EzvscEte
-         Z+lNJnZeMtcYQbOhA7dNu+7wGkWSIxCNmEA5u4tuMWg8n7Y+UGK2dbhusCtD4UVckOao
-         i4zdwMlCwf8mUGvrd9LCxWoiEnva/viICCLG/C+tRKJEVHfnLCAh7c7kxQbxL4w2nvKZ
-         WbYw==
+        d=gmail.com; s=20230601; t=1771973154; x=1772577954; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=e2wPLOGaHE2wd2tfpX30LfpnZoC91AB69pgJ3FbTup0=;
+        b=k//6xXNLzoZbvfkKhJ3SBo0klkStq3XzRs7mBGOf3Pl7Z8oIhW7jCwFW9kDQB4tEYc
+         oJyM9rZMM+wzKDVlfwykaeG+YJSAlSLRZZBOz6CzMKkmkWoswGC1RZlqtJaXYmVjjLdw
+         zeqD7vobYEx9UsT7ZJSIr051VEHusd7tk63NqAmTgGhbHPDpcuyp8EY7VdRAwJ+JOv4V
+         zPa00if1XX9MNIP6GgoOHE1mzdvNkiGAKkGs0bhv5HBxmgpLzOj0UWibHLcxQpF2pCuP
+         QQl0Ylz+Q9gWbWlz0uXqsm2E8u78cQ4WOfKaXHT6MVrFPYZQQKqirdsHNoMCOyK5tenb
+         suBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771973083; x=1772577883;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MvH1KXw6rXhNi0FruKZIabYXh1cfxCuvbUHaZHtnwKw=;
-        b=Ocq9YRonIvo5WnySD67M6voL5rcjOO0oR9A5VMgHpSdffSiGnOs5PQkxHq9em85X1Q
-         MDSFUMfwTIesyW0b74E3rubJbnmbA+KicvEiXatpxEnuy366QMZtK8NiHxU5WvzdVMDj
-         Z72GMCo23cv76e8dyVAbzpWJ+XKpSRPSxLFiF6tbM/30DS789S83Du5JMCrKCZQn3inR
-         Na0NMAnp16w5XCEZmSZzCAU0br37KN4h4XRXETZipNHtYHNngLjl3xSIl1D4b4xyQ13z
-         +nQzaivLTnsL3fFS6i0EDn+6o6oGGMXRlNfJ8RgwHkGCp4FKnng93jHM6h66Nj6S6BnI
-         1z4A==
-X-Forwarded-Encrypted: i=1; AJvYcCUbVHOPTMLGarniC55voWtiFc6e6H60m2PgQTqpn13jGBXBfD0ToKXV5xmU8xJLV30R9f/g7UIXB+LBpw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyE53BCJgDTS9K8aZY2hPMAXUQZ++3Pd65Arv/gqoJt8IBIWqK5
-	xuH+FdcM7JY5v0vxlC5wlZM2hHVuo3AsM0KL5Edec+hIo895yEPGZWbfA3j3u8/Oh+uIoRpnU/s
-	wRoGDl31lshS/L5aIENX01tNlpR3CLH0iYQUw7DDa
-X-Gm-Gg: ATEYQzxpruSSN+PyhICmDB8fccZcek30e2SksRZvVnlPK8Hic3R9kYOMuDiy2+n45AC
-	YGroH1366D99Hx0SnEHw8XC6ZOacz9mO43d/d4tMSQcb9CPM/26VDyv4cyDBd78KRHiXQKlg7Tz
-	YVkuR23d2LWs0dMSXgYPDLg1QJKfApIntzA5/969ofJzGkku5HgUYV7wgafl0iPnEUN4hHl06xP
-	ZlmkYMovCGRhIr+Mb8BVx9BAEQMN+OTg3IKxzOf1ZX+vqeVBao57P5PSuOhiA/7B0m7s1fPbYkP
-	rkMClOzFIUmUtAAbHAsBxBNpOduTqMV2QvPxZZ/fDZTEV2sq
-X-Received: by 2002:a05:6512:6488:b0:59e:171d:a68d with SMTP id
- 2adb3069b0e04-5a1026e0333mr53923e87.27.1771973082759; Tue, 24 Feb 2026
- 14:44:42 -0800 (PST)
+        d=1e100.net; s=20230601; t=1771973154; x=1772577954;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=e2wPLOGaHE2wd2tfpX30LfpnZoC91AB69pgJ3FbTup0=;
+        b=maSeg9u3/IdGHSOHrwgT2FpFoGKhkvhfADBHspCkZBmGoYJKT0tPFU5PQkBvoOyc7w
+         03ZTszfRLJ5msZso+mKS23Nov6GF36a9H6oerbn3L9utEXqnKAyZvIAan3dHV4otE2Nu
+         hEfn2veKF54Fpfuk/GXsMaXV/7BrNBTUplIczYS8nF4Vr29eH1NhLPPpZ2MlW/lKVoSz
+         187ZN5f0L/eI74ESn6AvgrIf/ZnrMdSm1X6sx1M1I+GLGuhWEDfFKb7eeObXtXw3M1M5
+         ONYmmtdShbOxS1Fj+tU9Q3/cEZ5Tb+LEwHOz9k7bp4QGKOjl19K/bN7mzGI1a2RTQ3/F
+         4ZOA==
+X-Gm-Message-State: AOJu0Yza2AHPX46YwQ0wLvIeLHjiIqH/ywOexE3KjDZ6dHPZnUf+gKIV
+	oeaX8SCGgCkwL7/F+i/mmTQB0p+kW8quQOujCxIi1pkvXRsplOxeejGm
+X-Gm-Gg: ATEYQzyXpnNX4OheyvEDdiiNqs6jJShNLaH38Y1nq9QpxTGWl1lKBvIoyAOJ4VwPrKt
+	6dXNBpNIZKV+2sxVrokwxlGLV+5gLqer1y3jxUlnfXx5aMXM1U+/FY6ti0E8O0jAngDCLTtXHT0
+	baDXgpWCQf/E3vO62aqsm+9/FxLhwpm9s5oWfDTJXkahjOTYpSR9giIq/Xph1Y1tGloyu6jTs5S
+	VbWgdeaW4TQOp6AR/tELSVRvy8EnzIVhGyzb3oVh/4arRBBOzVWN2xDgz37KUu/a5Yb0gYczZX8
+	Vm2xV+dMuROlHf8NXVqe+E0soJk25IKcXj5Xy4eVo3OHWZvBC2YWzcM+8hmVgK/cKUMyRGAhS2o
+	bPlg/GoR24mjkMcyUT3Fv0J/F1BqtgeG5b5IqppCCCprwukD0VhHplynZ7juDvZUBAlAUga2lFS
+	lB8KtBd7eUe+k5CgiTJAuqSrqkrerkANh68w6LsNaKPC5iOVsDu1QfrKbdyA4b6xUl
+X-Received: by 2002:a05:7300:1904:b0:2ba:8018:cc53 with SMTP id 5a478bee46e88-2bdc34136d2mr51884eec.35.1771973154321;
+        Tue, 24 Feb 2026 14:45:54 -0800 (PST)
+Received: from google.com ([2a00:79e0:2ebe:8:e1d3:e70f:c61b:7501])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bdbc90844csm1165762eec.26.2026.02.24.14.45.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Feb 2026 14:45:53 -0800 (PST)
+Date: Tue, 24 Feb 2026 14:45:51 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Yauhen Kharuzhy <jekhor@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH v2 4/5] input: drv260x: Fix unbalanced
+ regulator_disable() call
+Message-ID: <aZ4qB-bw4olcPKSD@google.com>
+References: <20260215141435.727872-1-jekhor@gmail.com>
+ <20260215141435.727872-5-jekhor@gmail.com>
+ <aZZ4jqZQZ4vA1SFO@google.com>
+ <aZbg2w2lIahy_sM9@jekhomev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251111234519.369652-1-svv@google.com> <fcaa494a-43ba-410e-ac2b-162f5b4814bc@roeck-us.net>
-In-Reply-To: <fcaa494a-43ba-410e-ac2b-162f5b4814bc@roeck-us.net>
-From: Siarhei Vishniakou <svv@google.com>
-Date: Tue, 24 Feb 2026 14:44:25 -0800
-X-Gm-Features: AaiRm50fex57f8iRdePaoKsP5QitLbLcxbXcEGrmSGQo9Feh7yZfo4VRkn9judU
-Message-ID: <CAKF84v0eVCSM7L-EvtmoquN87sSS0GA1yX-ewGyzr-hqO7tAGA@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: playstation: Center initial joystick axes to
- prevent spurious events
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Roderick Colenbrander <roderick.colenbrander@sony.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aZbg2w2lIahy_sM9@jekhomev>
 
-=D0=B2=D1=82, 24 =D1=84=D0=B5=D0=B2=D1=80. 2026=E2=80=AF=D0=B3. =D0=B2 13:1=
-0, Guenter Roeck <linux@roeck-us.net>:
->
-> On Tue, Nov 11, 2025 at 03:45:19PM -0800, Siarhei Vishniakou wrote:
-> > When a new PlayStation gamepad (DualShock 4 or DualSense) is initialize=
-d,
-> > the input subsystem sets the default value for its absolute axes (e.g.,
-> > ABS_X, ABS_Y) to 0.
-> >
-> > However, the hardware's actual neutral/resting state for these joystick=
-s
-> > is 128 (0x80). This creates a mismatch.
-> >
-> > When the first HID report arrives from the device, the driver sees the
-> > resting value of 128. The kernel compares this to its initial state of =
-0
-> > and incorrectly interprets this as a delta (0 -> 128). Consequently, it
-> > generates EV_ABS events for this initial, non-existent movement.
-> >
-> > This behavior can fail userspace 'sanity check' tests (e.g., in
-> > Android CTS) that correctly assert no motion events should be generated
-> > from a device that is already at rest.
-> >
-> > This patch fixes the issue by explicitly setting the initial value of t=
-he
-> > main joystick axes (e.g., ABS_X, ABS_Y, ABS_RX, ABS_RY) to 128 (0x80)
-> > in the common ps_gamepad_create() function.
-> >
-> > This aligns the kernel's initial state with the hardware's expected
-> > neutral state, ensuring that the first report (at 128) produces no
-> > delta and thus, no spurious event.
-> >
-> > Signed-off-by: Siarhei Vishniakou <svv@google.com>
-> > Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
-> > ---
-> >  drivers/hid/hid-playstation.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstatio=
-n.c
-> > index 1468fb11e39d..a145b5ea4405 100644
-> > --- a/drivers/hid/hid-playstation.c
-> > +++ b/drivers/hid/hid-playstation.c
-> > @@ -718,11 +718,16 @@ static struct input_dev *ps_gamepad_create(struct=
- hid_device *hdev,
-> >       if (IS_ERR(gamepad))
-> >               return ERR_CAST(gamepad);
-> >
-> > +     /* Set initial resting state for joysticks to 128 (center) */
-> >       input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
-> > +     gamepad->absinfo[ABS_X].value =3D 128;
->
-> input_set_abs_params() can fail to allocate absinfo. If that happens,
-> this will crash. AI suggests setting the value with input_abs_set_val()
-> to ensure that the value is checked before dereferencing.
->
-> Guenter
->
-> >       input_set_abs_params(gamepad, ABS_Y, 0, 255, 0, 0);
-> > +     gamepad->absinfo[ABS_Y].value =3D 128;
-> >       input_set_abs_params(gamepad, ABS_Z, 0, 255, 0, 0);
-> >       input_set_abs_params(gamepad, ABS_RX, 0, 255, 0, 0);
-> > +     gamepad->absinfo[ABS_RX].value =3D 128;
-> >       input_set_abs_params(gamepad, ABS_RY, 0, 255, 0, 0);
-> > +     gamepad->absinfo[ABS_RY].value =3D 128;
-> >       input_set_abs_params(gamepad, ABS_RZ, 0, 255, 0, 0);
-> >
-> >       input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
-> > --
-> > 2.51.2.1041.gc1ab5b90ca-goo
+On Thu, Feb 19, 2026 at 12:11:47PM +0200, Yauhen Kharuzhy wrote:
+> On Wed, Feb 18, 2026 at 06:43:30PM -0800, Dmitry Torokhov wrote:
+> > Hi Yauhen,
+> > 
+> > On Sun, Feb 15, 2026 at 04:14:34PM +0200, Yauhen Kharuzhy wrote:
+> > > +static void drv260x_remove(struct i2c_client *client)
+> > > +{
+> > > +	struct drv260x_data *haptics = i2c_get_clientdata(client);
+> > > +
+> > > +	regulator_disable(haptics->regulator);
+> > >  }
+> > 
+> > This will result in power being shut off the first thing during
+> > unbinding, which is too early.
+> > 
+> > I switched this to devm_add_action_or_reset() and applied.
+> 
+> Do you mean that, in this case, regulator_disable() may be called before any
+> devm_* registered actions? Good point, thanks.
+> 
 
-The function `input_set_abs_params` is ill-formed. If this call can
-fail, then it should return some kind of error result instead of void.
-In addition, the function name doesn't suggest that it's going to be
-doing any allocations.
-So the (short-term) fix should be something like this:
+Yes, all devm* actions are run after remove() completes.
 
-/* Set initial resting state for joysticks to 128 (center) */
-input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
-+   if (gamepad->absinfo =3D=3D NULL) {
-+       // input_set_abs_params allocates "absinfo" struct, which could fai=
-l.
-+       return ERR_CAST(gamepad);
-+   }
+Thanks.
 
-A better long-term option would be to change the signature of
-input_set_abs_params to return a bool, or to add an explicit
-allocation step (looking at code search, there aren't too many places
-using this API today, but this might break 3-rd party stuff).
-
-Curious to hear maintainers' opinions on this.
+-- 
+Dmitry

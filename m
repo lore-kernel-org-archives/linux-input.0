@@ -1,166 +1,174 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C3C36B042;
-	Tue, 24 Feb 2026 10:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB7337C113
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 11:28:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771929602; cv=none; b=lCGV+B7GrV2vkwhIcFEa3djAP3J1KXbLTHGVF+vJ2DkbF3UKSh1oemtRWoVk2oKxtblnr7eTwBrzHV0R5Su4uYmF7z9iMw/dNO3sDybZVMLeYQtiubyYeexmbwUyNbpeq6kvXsBwev16sxbJURU2Br3aUqEKOelJ0bmzvCZBMDU=
+	t=1771932487; cv=none; b=sRawUJaNFJTmawcwoPDQmWEiuuawzk6LjZK5KXLUUXFUwSj+2cVE6t0t5KwNEnrZZ6upWF6ahXd4xo7fApCHlyOWPJVC+1fkcPHYQoXbCcC8LuQFuWa1NREdkknWksbo/lf3+6JODzQhkjtSajw00SJORrorvqp2vwcgak5gI58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771929602; c=relaxed/simple;
-	bh=NKaZi+5e3r7u58UMALFBdqyb3F151mM8t+8ODkTnkmk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QuVBIeOeUqGXMbbJHrkZcYWxFhvxHGZcPdxuev153x914ZOjrvDielbNx8FBfnZ8RLzQtl6ieF8M7xLFPUbe2cMXUmarizYJ4EtyXQaWNOZR+O0HF/WK21g9jeZ4wxiJKXRghRNZhGPlE2MbMcuQggl2avj4uvy4dHy2IUbXVqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XopqSYRt; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1771932487; c=relaxed/simple;
+	bh=Kke3tNYzY/p8Z8MnBRLYILdDIXMtufHi00/zJVWlmIA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CdH2GkJ5W+H9y1+a83yod3AK8g/ziRmPnU1HACAjhavu5Ynwaqlzbf1F/2fdfOaSjOyxoDyVnQM7PKr2Osfnxmr2oZoVBlqNYSwdR2qVi7u/I6aEsfVivTXkbWzOp+BiOp3uT2CiddWgoI4N7wMc1J3Pr1T3mMLe8qBoxnP4xts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=DF03rBkY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=VSyK084a; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XopqSYRt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771929602; x=1803465602;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=NKaZi+5e3r7u58UMALFBdqyb3F151mM8t+8ODkTnkmk=;
-  b=XopqSYRtkRY1kCpFjPfo9JlkKyvfOTeNjUvTQzcCvZ0Wco/duPPH9yTs
-   2BYYe1ehVILAzceGH3kR9Ibdhf9OdaX0nn1X+vLN3lM1WFq9/902MOfSq
-   KT0akGC9Z4l09cVdSTLbXXcMpaWiKqBLrrciFeZCshMMukhcqiV22WdDG
-   /b5p/RX0xr+bMaYohToKBvv7n25aF+7rfchza6LMWuxfkVjUPNhRyRaZg
-   6+zN1SqET5WB4RSFWsS4RccWLmqdGwrGo3zuyT4VJ9ien/7/RJBTVlnn9
-   zk21cIhc+ThlCIJv5ipNdkJCwoh73AczH8JmwDZjLoXyC+iRkkxjPc7ot
-   A==;
-X-CSE-ConnectionGUID: 8SFCJy6SQ3uU5+xUyiH0AA==
-X-CSE-MsgGUID: Aog20IZDRxCZFn5F5ixt8Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11710"; a="95556109"
-X-IronPort-AV: E=Sophos;i="6.21,308,1763452800"; 
-   d="scan'208";a="95556109"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Feb 2026 02:40:01 -0800
-X-CSE-ConnectionGUID: 2vh5u/4QSUOjYuKUxqshOA==
-X-CSE-MsgGUID: IM2dRI81S8i45s0yX8WRUw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,308,1763452800"; 
-   d="scan'208";a="214955497"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.244.146])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Feb 2026 02:39:43 -0800
-Date: Tue, 24 Feb 2026 12:39:40 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: phasta@kernel.org
-Cc: Simon Richter <Simon.Richter@hogyros.de>,
-	Shawn Lin <shawn.lin@rock-chips.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	"Vaibhaav Ram T . L" <vaibhaavram.tl@microchip.com>,
-	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
-	Even Xu <even.xu@intel.com>, Xinpeng Sun <xinpeng.sun@intel.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Zhou Wang <wangzhou1@hisilicon.com>,
-	Longfang Liu <liulongfang@huawei.com>,
-	Vinod Koul <vkoul@kernel.org>, Lee Jones <lee@kernel.org>,
-	Jijie Shao <shaojijie@huawei.com>,
-	Jian Shen <shenjian15@huawei.com>,
-	Sunil Goutham <sgoutham@marvell.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Jeff Hugo <jeff.hugo@oss.qualcomm.com>,
-	Oded Gabbay <ogabbay@kernel.org>,
-	Maciej Falkowski <maciej.falkowski@linux.intel.com>,
-	Karol Wachowski <karol.wachowski@linux.intel.com>,
-	Min Ma <mamin506@gmail.com>, Lizhi Hou <lizhi.hou@amd.com>,
-	Andreas Noever <andreas.noever@gmail.com>,
-	Mika Westerberg <westeri@kernel.org>,
-	Tomasz Jeznach <tjeznach@rivosinc.com>,
-	Will Deacon <will@kernel.org>,
-	Xinliang Liu <xinliang.liu@linaro.org>,
-	Tian Tao <tiantao6@hisilicon.com>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	Jonathan Cameron <jonathan.cameron@huawei.com>,
-	Srujana Challa <schalla@marvell.com>,
-	Bharat Bhushan <bbhushan2@marvell.com>,
-	Antoine Tenart <atenart@kernel.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Raag Jadav <raag.jadav@intel.com>, Hans de Goede <hansg@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Andy Shevchenko <andy@kernel.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Robert Richter <rric@kernel.org>, Mark Brown <broonie@kernel.org>,
-	Nirmal Patel <nirmal.patel@linux.intel.com>,
-	Kurt Schwemmer <kurt.schwemmer@microsemi.com>,
-	Logan Gunthorpe <logang@deltatee.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bingbu Cao <bingbu.cao@intel.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org, linux-i3c@lists.infradead.org,
-	dmaengine@vger.kernel.org, netdev@vger.kernel.org,
-	nic_swsd@realtek.com, linux-arm-msm@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org,
-	iommu@lists.linux.dev, linux-riscv@lists.infradead.org,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	linux-cxl@vger.kernel.org, linux-crypto@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, linux-serial@vger.kernel.org,
-	mhi@lists.linux.dev, Jan Dabros <jsd@semihalf.com>,
-	linux-i2c@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	linux-spi@vger.kernel.org,
-	Jonathan Derrick <jonathan.derrick@linux.dev>,
-	linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org
-Subject: Re: [PATCH 0/37] PCI/MSI: Enforce explicit IRQ vector management by
- removing devres auto-free
-Message-ID: <aZ1_7IwDYfiLbfQE@smile.fi.intel.com>
-References: <1771860581-82092-1-git-send-email-shawn.lin@rock-chips.com>
- <6223f3cb-693f-42e7-9147-30f659f08563@hogyros.de>
- <7ca512d133f7a3bcfe00e9b0b2af5fe5f147ad77.camel@mailbox.org>
- <aZ1rb8zoqmQmakDP@smile.fi.intel.com>
- <48297cc524736e7452def05448ece84260a4fd83.camel@mailbox.org>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="DF03rBkY";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="VSyK084a"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61OAFUQ73884521
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 11:28:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	Tldt2vxdb/j7diXSGcWaW4T39hoY50fjs8hYeXvGavc=; b=DF03rBkYdlpHf8lD
+	VLHi65qBGC6PvAaXaYPRQxBiL/TAMHLZTXyzN+ofkPqYgAOznfnNQTwQEfWYbESx
+	I7AemICEmJb6HxbqZgYqOfs3gJlhAsts3bdkZH4rjj8cvKGLXumb/Pe/ubdHgFcf
+	WhTey0D5nywlYpeqbIXyLYL37QhGVPEsMOgO1CFWtKCFihlG+ZghPhDJapEmB5h1
+	PL1uqFQeMrEh3a3NoLC/mmxhUhblMbzpV5oWGkvKZjytoAyRbOGMqO8LtKQlXbXc
+	b9WJ/7nQz5l0H2qTpvhJt5QHhsLC7o1V4ORI+ZkHjiDF0b6vreqx7SqnswuabPDR
+	eKiLUg==
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cgte8txwr-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 11:28:04 +0000 (GMT)
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-8cb39de5c54so532770085a.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 03:28:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1771932484; x=1772537284; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Tldt2vxdb/j7diXSGcWaW4T39hoY50fjs8hYeXvGavc=;
+        b=VSyK084azX5dhGbq/vufvIzTMl+j5/US97lADStI40KsdUmC9mBBjF4LaFZlDPbd9T
+         3PvUb99f92qbynnMSPCNDVYzn71YG1FDFKgUz6KneYfAh7h2YYeO/EQRUjrCZTf2pG7w
+         AG8MpvT2uCA9NHfYwQQS7k3i4Ot1s3pHtcJgXbx0FQfLf+P6Csht5hI/pnrErhzISrvd
+         7nOmxClGylNT0QH6pNv/Z+KPXQFAbDkyyUDY9XCDxEZ2hZKNdS3zUJpuJ5swojO/YSej
+         OxqdqTfgtKulX+dku2FvR9HW7Tn2ZMzsmFiupgbkcUy9Z8sV2hjBDICVjhnQEy4EGMGN
+         u40A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771932484; x=1772537284;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Tldt2vxdb/j7diXSGcWaW4T39hoY50fjs8hYeXvGavc=;
+        b=A6lRflyIDmwlbEPyqYkpe9J1r/r1aQON/aMLAy97if9dfDAlylI3xPsvUqkbf4arMM
+         fWJzZx5MsXHKH8+nXiLnki4dhyfC5Xk/xuXdUg5UDXYl0E9IDse0B5RhDqZwfqayrQ5l
+         tBpd8KxAqxehc26baWPCtSWXez4ZDrGG1gMG/LJlNpp+r6XfehmtItQnJkS6JiUxcYEw
+         k96K9GNfp8spdeDC/O46LQ9FtaRijO/7XjczV54TaTXXe+mkZ66ILbdIjCT6dkE/eWpL
+         UH1AO3cLtxD4TFwbPgHQXYenK5abAKUarr+H30lJfuc2yllh8s7cAi00QtNbSXNTf5Ju
+         4Q5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXG8DKVIyq7X3UKzk0DUcUg0RQToOwLM13yghE3vTbXxScL9jXDox8vfyYN2629C0M/xC+M+4u4jBE4Xw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YymKohxGbkq/g6N7DXpmNxXX6LyGraYlZx4Eo3cUG896KxgTORG
+	Aj/KwypDMGMby1tZNDxXY4MT1V4xMv1/LyakmN3TjSfZDSTiyU8Bx/dwNWnZUDQTgCOCuMAEQUA
+	MsTdVTwWPdjweq5SzgMqiichqfcDb0DkdtIJ5OYMt3CH9ChnIKggwj7IFnxLiBpBPOg==
+X-Gm-Gg: AZuq6aLmuNkTjXVobXc6nzWYBr4fXeNJMk6phKwr03tdbeHy6P5kuXytVZ++Fbs5jST
+	unCZNj1EFPLLdlT3P0ia/XQ39Nn5tdhv+u6ZWp5A7+PlE1S9zoJREuh7fTeL3JzO1iFKYIs+oN8
+	5YjvEjqwfkBEtrCUHDPtfmZQgRpQZHLxwM/bqA1UAriCvhBn7BEfzkb3rBfM4b0ByAC+eWTYNLw
+	e/F7VCrC/JaaH08494Sa43drJ5M6Glz4J2fBjqhm0lb1FkvsAZAdVbhyif6j91TTKFz2C6I8EGB
+	uXzCMJ1vuZZD1hJ5+0tUO2tiLnh0qrPj+sg/kXsBZaoTIljynlOdtufWIFn7jsr3DxdnZTpFh1C
+	wB1UViVH914PGrj3mdeHfslIg/VVfL/8Qr4+1yhbj2tzLo6bBdVyPRKscySqF5xUuGB9GxEO4CI
+	Hqjo8=
+X-Received: by 2002:a05:620a:298a:b0:8c7:110c:762f with SMTP id af79cd13be357-8cb8ca1e9b0mr1136539285a.4.1771932483953;
+        Tue, 24 Feb 2026 03:28:03 -0800 (PST)
+X-Received: by 2002:a05:620a:298a:b0:8c7:110c:762f with SMTP id af79cd13be357-8cb8ca1e9b0mr1136537985a.4.1771932483484;
+        Tue, 24 Feb 2026 03:28:03 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65eaba2d966sm3497148a12.23.2026.02.24.03.28.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Feb 2026 03:28:03 -0800 (PST)
+Message-ID: <5a86ca7b-9356-4241-a09d-47d37fbc3a18@oss.qualcomm.com>
+Date: Tue, 24 Feb 2026 12:28:00 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <48297cc524736e7452def05448ece84260a4fd83.camel@mailbox.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] ARM: dts: qcom: msm8960: expressatt: Add
+ coreriver,tc360-touchkey
+To: Rudraksha Gupta <guptarud@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        beomho.seo@samsung.com, jcsing.lee@samsung.com,
+        linux-input@vger.kernel.org, nick.reitemeyer@web.de
+References: <20251205-expressatt-touchkey-v1-1-1444b927c9f3@gmail.com>
+ <532531d2-8f26-4ffa-9355-7821a4d64200@oss.qualcomm.com>
+ <1e74b956-a45a-4d3e-b7fa-e4d5dc0390db@gmail.com>
+ <97d9d942-236c-4f8a-902e-0ad2ab684a76@oss.qualcomm.com>
+ <1ebc2e1b-f1aa-4559-90a0-feb628d5bfe1@gmail.com>
+ <aZvPUn2RxUHDahfO@google.com>
+ <41b4f4c1-f0c3-4ce7-8267-039bb77ea953@gmail.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <41b4f4c1-f0c3-4ce7-8267-039bb77ea953@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: SrhZdJcSoK-NAyje7QugdXnpaozvHUxU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDA5MSBTYWx0ZWRfX6gVcZtElHcoz
+ 37lw8n9cPr5RVWLQ0pZgPGVmyOBTrdo+e3NdmUMtNhRzbSMy9lpccmdinNoKpBYPrtRgoegb5Wc
+ mQx0+ZGwq3a0N4HlsErm1/4z4rA12PX1oy14ccaMYRUa+rpGNrGoj9h7oQ5uT6qqDQyQ60ViUFx
+ br/Lbv5iu2uOoeIjTgqMJ3kREfpbab3S4z+ueB8kRMPMOYdu/BRusjYg79F2xia/lwcaQ09+k5x
+ wQgUce8DF7qqVXjiwTErQwQIOk04TA1FgL0q/tJiMA2jNxjXenmr9d6SgEH56z10Dh78COPRu+C
+ NOhsqD8NB03DCoLE8F+kgIsaJWdtbXQCSyMf3jQgN25ULV+Sl07eZ0tB0IHWyajA5TAhmzGw+Wt
+ 5mPyGnz5+kBWDkLgpFlIhNhdtZL51phZdP710Jkq1uTe5b59//+mndSHxyd2kSrHlgd+oxhURaB
+ mizPqzFUMgDHzxy1fsw==
+X-Proofpoint-GUID: SrhZdJcSoK-NAyje7QugdXnpaozvHUxU
+X-Authority-Analysis: v=2.4 cv=WqQm8Nfv c=1 sm=1 tr=0 ts=699d8b44 cx=c_pps
+ a=HLyN3IcIa5EE8TELMZ618Q==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=9-nzwwa_gMk14nhaKgAA:9 a=QEXdDO2ut3YA:10 a=bTQJ7kPSJx9SKPbeHEYW:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-24_01,2026-02-23_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 clxscore=1015 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2602240091
 
-On Tue, Feb 24, 2026 at 11:30:28AM +0100, Philipp Stanner wrote:
-> On Tue, 2026-02-24 at 11:12 +0200, Andy Shevchenko wrote:
-> > On Tue, Feb 24, 2026 at 08:39:43AM +0100, Philipp Stanner wrote:
-> > > On Tue, 2026-02-24 at 13:14 +0900, Simon Richter wrote:
-
-...
-
-> > > If I could design it from scratch I would probably try to tell users to
-> > > use the unmanaged versions instead of revoking the devres consequence.
-> > 
-> > +many.
-
-> hm?
-
-I'm supporting you with many hands up (more than I possess)!
-
-> > > Devres is actually about your consequence always happening whenever the
-> > > driver unloads, for whatever reason.
-> > 
-> > I believe you meant "unbinds". The device<-->driver link can be broken
-> > without unloading the driver.
+On 2/24/26 2:00 AM, Rudraksha Gupta wrote:
 > 
-> Yes, thx for pointing that out. Greg KH AFAIK always calls it "driver
-> detach".
+> On 2/22/26 19:54, Dmitry Torokhov wrote:
+>> Hi Rudraksha,
+>>
+>> On Thu, Feb 19, 2026 at 08:33:43PM -0800, Rudraksha Gupta wrote:
+>>> Hello all,
+>>>
+>>>
+>>> Top posting for once (context below).
+>>>
+>>> Not too sure what the next steps are to get the tm2 touchkey in. Should I
+>>> resend the patch, contact someone else that can help provide guidance, or
+>>> something else?
+>>>
+>>>
+>>> Adding Dmitry Torokhov (official maintainer) and Nick Reitemeyer (person who
+>>> introduced this variant).
+>> Sorry, I am not sure what the question is... It seems that you made the
+>> driver work without any additional changes?
+> 
+> I believe this patch is blocked on Konrad's comment:
+> 
+>> This driver mentions a register called CYPRESS_MODULE_VER - maybe
+> it could help confirm the model?
+> 
+> 
+> This was in response to me saying that the "coreriver,tc360-touchkey" tm2 variant works as is on my device, but I can't tell for sure if this is actually the variant that is on my device. There isn't really any documentation for how this peripheral works and I was primarily relying on others in this thread to provide details to confirm that this is the actual variant being used.
+> 
+> If I'm mistaken that this is a blocker, please let me know.
 
--- 
-With Best Regards,
-Andy Shevchenko
+That was a suggestion - if we're not able to find out, then we're not
+able to find out!
 
-
+Konrad

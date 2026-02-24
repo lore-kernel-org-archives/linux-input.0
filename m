@@ -1,192 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66966318B9D
-	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 21:06:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03C381EB5E1
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 21:10:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771967214; cv=none; b=ZabVCVT+hNyNtGhyAVyVkTMJZYIleCTakJPsvANAI6pblNUPaQ4SeDYmJEnxxVz3r8omV4XPuTRo3pDLaqZtw0ksAfVCX81NfGBaQQCClqX10OsiBjbOPPH0b+S+7IIm/3mEfRiyVmNRibfupRraWCRBKUb0jYSeMvD4qv6dJCs=
+	t=1771967458; cv=none; b=kU9ng05iKq0rH5pA3ipfAcatTSkbbFRC960g8/uGzRLZD5909db8zFyksU27E7NYTgs6om1O2COOovZoJSg3NUzl0leMcXtaoZ2Pw6NTIgQdyHQ+iPEvwGDWAMcmSJR32zpk9U41+zjedOvGzXKj26Oe92qEOHLkhalBVpxxPWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771967214; c=relaxed/simple;
-	bh=5ZxyFX4fJjxsiFTNWut8UPOcbg/MXWt0dmag+uX+KVM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QE39bXAcQ++hawSGSQC+poMGf5Q3BSSgMFJCd/YjvJaap0ioxhr4KIGyR0oBtJyDi2cUZ0XoA5Ul1z3v3mSkRLByT7yweV5HopQCjYVK1BBLQEgJvsLBy9YDGWw9y84bcuargyaKIo8Mae/MTXU/Z1TQfdpSKwrxdrHYDkOl4u4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BkD+4w2f; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771967458; c=relaxed/simple;
+	bh=C+YKbMIg+dCWCiO5+yHLe3GBpe8roAq2g62ABCRHIKg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ot8M77hO3ne7z2vXa1bXkP2U7Y/huCtMcN6ho2ICAGLs3Gb5T17GcWPMzUL3OcL/SasuuHCnpIDNuNmJrMruUy2UnAfXserNnVGa5oDXSs4M/Z206uJkUFRaLoAnLvztOEFYUWvph1hGlr9cCMy3c+VdqJu/CLTjE0DP1JMBkmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6sHPJj4; arc=none smtp.client-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BkD+4w2f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18393C4AF09
-	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 21:06:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771967214;
-	bh=5ZxyFX4fJjxsiFTNWut8UPOcbg/MXWt0dmag+uX+KVM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=BkD+4w2fUyFUne3zKmZGKN63GKbWJRhEZjmXAvlshNzoiZNHa96wucgFaaEqs3oQh
-	 RfRoFrtmn76KpEFKRsA0WBAL48JP/DUrxUvLiuM0l6e2bnnJKeHZmv77Dk6RElCLvM
-	 hXLbMZph1CgMYsCDBAnqYZ6gIMLbBOuhnbopc1EXVitnfDMzd2t+5ulNtfbNFHunKW
-	 DcpbkKEaN6X4YnSSnw2wlpYJXcjlc1JC9SXF2cMHp0YR+OL2ZXNQEqYm0cBffstg+z
-	 mlm8ZcqSdf7CdOGvxbIiKsnnVFmBQgOwjRKiv0ACRABICBcvJu0gFq6Iz84vKXzyih
-	 UNx6Lu+SkPVkw==
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6580dbdb41eso7924725a12.0
-        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 13:06:54 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUcjb1kALpVdvj5YJifDHXzMhJMGn9QQYzbZFHSovuVgKaKMVv6aqNULY0KfoN8uu1pzoesbBuPQHVT7A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzpaopHy+vt+VjWP/tMj7Esfr2kRzultPcum8obz/YdxveW43Fb
-	+R7JF+m7GFk3lvilfQJmAQaqmjCCJ/IIMdktTpJTCi50KC1tPR5pf0C+sR+XSeIfsbOaV5+hNzx
-	0pQzuUdTsWDivQsOuNyS7soFiRcrssw==
-X-Received: by 2002:a05:6402:210e:b0:65c:6d0:d9fb with SMTP id
- 4fb4d7f45d1cf-65ea57cf1d2mr8220326a12.29.1771967212581; Tue, 24 Feb 2026
- 13:06:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6sHPJj4"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2bdbd13ca01so773308eec.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 13:10:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771967456; x=1772572256; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=sMXb01L8QgoCBtEDBRsVtf1TuUoR4a0hS1+b6eQlnTk=;
+        b=e6sHPJj413kRgR5U5yiu97GOpjJp5vyTYF+6VTXYpa/TOwj9mJ5Gk97Fm5uLr5cXbd
+         niS1JsHPXzScZLl7sygLiu0NRjiC1Go+RDnpqFtO+M1qsdVzwCKGD4fSbfFs9IHsOAAR
+         ut2fFZPk4IK27PDrkORgVai9HxoEIj7RbMB7lUv2j/Y2/3ruu2L/GguZ++JQP8iIEQrk
+         jRrjhtWzxepzq+n5kPLPEj8PBKQjmVHtqaIHRp9EEyqva20SBqmjQerh6NIgJO69rNpr
+         2fs5vVrq8hcbWP1LKD2d6/UDT4WwFnPRuZ3uYveM3RHztj/9ZAZ3lWiRuLYwANniXCCJ
+         K2cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771967456; x=1772572256;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=sMXb01L8QgoCBtEDBRsVtf1TuUoR4a0hS1+b6eQlnTk=;
+        b=gMU/o+oz+9VdEVoax4waQKYUp/eVifnqnUVj4jcL1QkmFzNBnm3s4ot50Ngkm5MBmI
+         9SmEgkfg+bZTXNLWc32PJHFXWGPuzIn2t0TTu2aB3jr46l4WmaNBPjsr1N0scbkZ/RZw
+         ENoTt0KNaQH8s+/KOpqgdjs5jTrLwCXJxZNlXne5SJwuSW8nlHFB3jFCo0X+ppakXVCx
+         wGKXmv7yOErVRT56D+sA0VUFxo6ISSflX2pMIFg/rAtQ/IB0/RamRAB7MU5bGuq0olaF
+         bmcMakFlcSmhvGzj56ScYu8R99mgJ7hFnR3CfqJ3SWBbqq79cXDsPG4OVDMLhvnfniWY
+         /oNg==
+X-Forwarded-Encrypted: i=1; AJvYcCVa63gNJCjIvIm1yeKo0KbJb2i1qLNtT531iWknRs/tdF5bJkxLoT3NLEE0zpEep08qj+2OjoI24o59dQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwfBpp2t3cV0EM2t9nIhPUV9+ca/SUA7c8+MYXmZInt7VKJkR/r
+	iSquyuMKkCjrq+V0s+aoePKvOIYEY5/7koi85vU5Ze6OmYCWsH2dIIstwsQEB2MR
+X-Gm-Gg: ATEYQzxQfj0YWHrDPPmLrPW0PcpaV7fbtKHDfbY2fnRUtTHHb2IbEGnO3FZuSeQh97X
+	9rZcXIcP26zmxH3DRDnEUHBIIeHWgVDQnHadtB7kYhUgh3qS1v5wFgRRidN4tK3BaYnB2Psy+6H
+	P66JfnQPOcxr8+MK9d1IXe8HV/UQuu+FSncUi6Cn2wKYiSs+Y/dSzrOU0Hx2W4jyrffS3wWd38h
+	yGgmn/jae+yYTYB58AZrtgtnTuKh4d2VVmk0a6zmAyypN07t5M846sQOyRXK676xUcNCcQTt00X
+	2LMwg3JDc8nmqgGcsrBdNzZUgkJImZbMRiTMVeBq565ejULKV5H0rPZaghREXOi/UzLyhCdkZzn
+	pczI5maQjB4JHxqx5hVoYG/70QBwIUhus88o3USdcdfcjLs5lHnc8VXUKivJ5vWX0VNHSLdcoCf
+	Exds38e1S5ZkL2FS121NTk6coTNtnU4D1GBSI1ayv559AHMvw=
+X-Received: by 2002:a05:7300:cd43:b0:2b7:f28d:c8c1 with SMTP id 5a478bee46e88-2bd7b906d62mr5595398eec.0.1771967455969;
+        Tue, 24 Feb 2026 13:10:55 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7dbe8304sm7540824eec.17.2026.02.24.13.10.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Feb 2026 13:10:55 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 24 Feb 2026 13:10:53 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Siarhei Vishniakou <svv@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	Roderick Colenbrander <roderick.colenbrander@sony.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] HID: playstation: Center initial joystick axes to
+ prevent spurious events
+Message-ID: <fcaa494a-43ba-410e-ac2b-162f5b4814bc@roeck-us.net>
+References: <20251111234519.369652-1-svv@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260213171431.2228814-1-hugo@hugovil.com> <20260213171431.2228814-2-hugo@hugovil.com>
- <20260223175706.GA4168417-robh@kernel.org> <20260223134738.00988a3d87165cb130292c89@hugovil.com>
- <CAL_JsqJNASirEqqcT-Sv8h9JC74e+XJSRsAki1ZWeKY8j2zbfw@mail.gmail.com> <20260224154027.0f81b1aa13fe779776e6d58f@hugovil.com>
-In-Reply-To: <20260224154027.0f81b1aa13fe779776e6d58f@hugovil.com>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 24 Feb 2026 15:06:40 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJtwM33G4qdzpnp6nNtc+tNr6VOKvTB8y6Xv04GTKxymA@mail.gmail.com>
-X-Gm-Features: AaiRm52LmPO-MXpNgXdXVgc_DaDgUM46UDbVP5s_hdKHWmV3eddJh2tV_YqD4vs
-Message-ID: <CAL_JsqJtwM33G4qdzpnp6nNtc+tNr6VOKvTB8y6Xv04GTKxymA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] dt-bindings: input: add GPIO charlieplex keypad
-To: Hugo Villeneuve <hugo@hugovil.com>
-Cc: hvilleneuve@dimonoff.com, dmitry.torokhov@gmail.com, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251111234519.369652-1-svv@google.com>
 
-On Tue, Feb 24, 2026 at 2:40=E2=80=AFPM Hugo Villeneuve <hugo@hugovil.com> =
-wrote:
->
-> Hi Rob,
->
-> On Mon, 23 Feb 2026 17:23:33 -0600
-> Rob Herring <robh@kernel.org> wrote:
->
-> > On Mon, Feb 23, 2026 at 12:47=E2=80=AFPM Hugo Villeneuve <hugo@hugovil.=
-com> wrote:
-> > >
-> > > Hi Rob,
-> > >
-> > > On Mon, 23 Feb 2026 11:57:06 -0600
-> > > Rob Herring <robh@kernel.org> wrote:
-> > >
-> > > > On Fri, Feb 13, 2026 at 12:14:25PM -0500, Hugo Villeneuve wrote:
-> > > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > >
-> > > > > Add DT bindings for GPIO charlieplex keypad.
-> > > > >
-> > > > > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > > ---
-> > > > >  .../input/gpio-charlieplex-keypad.yaml        | 82 +++++++++++++=
-++++++
-> > > > >  1 file changed, 82 insertions(+)
-> > > > >  create mode 100644 Documentation/devicetree/bindings/input/gpio-=
-charlieplex-keypad.yaml
-> > > > >
-> > > > > diff --git a/Documentation/devicetree/bindings/input/gpio-charlie=
-plex-keypad.yaml b/Documentation/devicetree/bindings/input/gpio-charlieplex=
--keypad.yaml
-> > > > > new file mode 100644
-> > > > > index 0000000000000..1672491a75a85
-> > > > > --- /dev/null
-> > > > > +++ b/Documentation/devicetree/bindings/input/gpio-charlieplex-ke=
-ypad.yaml
-> > > > > @@ -0,0 +1,82 @@
-> > > > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > > > > +%YAML 1.2
-> > > > > +---
-> > > > > +
-> > > > > +$id: http://devicetree.org/schemas/input/gpio-charlieplex-keypad=
-.yaml#
-> > > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > > > +
-> > > > > +title: GPIO charlieplex keypad
-> > > > > +
-> > > > > +maintainers:
-> > > > > +  - Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > > +
-> > > > > +description:
-> > > > > +  The charlieplex keypad supports N^2)-N different key combinati=
-ons (where N is
-> > > > > +  the number of lines). Key presses and releases are detected by=
- configuring
-> > > > > +  only one line as output at a time, and reading other line stat=
-es. This process
-> > > > > +  is repeated for each line.
-> > > > > +  This mechanism doesn't allow to detect simultaneous key presse=
-s.
-> > > > > +
-> > > > > +allOf:
-> > > > > +  - $ref: input.yaml#
-> > > > > +  - $ref: /schemas/input/matrix-keymap.yaml#
-> > > > > +
-> > > > > +properties:
-> > > > > +  compatible:
-> > > > > +    const: gpio-charlieplex-keypad
-> > > > > +
-> > > > > +  autorepeat: true
-> > > > > +
-> > > > > +  line-scan-delay-us:
-> > > > > +    description:
-> > > > > +      Delay, measured in microseconds, that is needed
-> > > > > +      before we can scan keypad after activating one line.
-> > > > > +    default: 0
-> > > >
-> > > > Isn't this the same as "col-scan-delay-us" in gpio-matrix-keypad.ya=
-ml?
-> > > > If so, move it to matrix-keymap.yaml to re-use it here.
-> > >
-> > > It is used in a similar fashion, but for charlieplex keyboard, there =
-is
-> > > no concept of "rows" and "columns". There are only
-> > > lines, which are all equivalent in functionality.
-> > >
-> > > > If not, there's a bunch of other scan delay properties just from
-> > > > grepping "delay" in the input bindings. Surely we can define someth=
-ing
-> > > > common.
-> > >
-> > > Most of those delays refer to something quite different than what
-> > > "col-scan-delay-us" or "line-scan-delay-us" are used for (it is a del=
-ay
-> > > that we wait when activating a GPIO before we can safely/reliably rea=
-d
-> > > other GPIOs connected thru its circuitry).
-> > >
-> > > Maybe "col-scan-delay-us" and "line-scan-delay-us" could be
-> > > combined into a common "line-scan-delay-us" ("line" is more generic
-> > > than column), and defined in matrix-keymap.yaml.
-> >
-> > What about "scan-delay-us"? I would assume all the scan delay
-> > properties are just the delay after changing the outputs to reading
-> > the inputs.
->
-> They are for gpio-matrix-keypad.yaml and this binding, but not for
-> others. Most scan delay properties refer to the period or
-> interval between successive scans.
->
-> So for my binding, "settling-time-us" would be more accurate and a
-> better property name (it is also used in adc.yaml).
+On Tue, Nov 11, 2025 at 03:45:19PM -0800, Siarhei Vishniakou wrote:
+> When a new PlayStation gamepad (DualShock 4 or DualSense) is initialized,
+> the input subsystem sets the default value for its absolute axes (e.g.,
+> ABS_X, ABS_Y) to 0.
+> 
+> However, the hardware's actual neutral/resting state for these joysticks
+> is 128 (0x80). This creates a mismatch.
+> 
+> When the first HID report arrives from the device, the driver sees the
+> resting value of 128. The kernel compares this to its initial state of 0
+> and incorrectly interprets this as a delta (0 -> 128). Consequently, it
+> generates EV_ABS events for this initial, non-existent movement.
+> 
+> This behavior can fail userspace 'sanity check' tests (e.g., in
+> Android CTS) that correctly assert no motion events should be generated
+> from a device that is already at rest.
+> 
+> This patch fixes the issue by explicitly setting the initial value of the
+> main joystick axes (e.g., ABS_X, ABS_Y, ABS_RX, ABS_RY) to 128 (0x80)
+> in the common ps_gamepad_create() function.
+> 
+> This aligns the kernel's initial state with the hardware's expected
+> neutral state, ensuring that the first report (at 128) produces no
+> delta and thus, no spurious event.
+> 
+> Signed-off-by: Siarhei Vishniakou <svv@google.com>
+> Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
+> ---
+>  drivers/hid/hid-playstation.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+> index 1468fb11e39d..a145b5ea4405 100644
+> --- a/drivers/hid/hid-playstation.c
+> +++ b/drivers/hid/hid-playstation.c
+> @@ -718,11 +718,16 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev,
+>  	if (IS_ERR(gamepad))
+>  		return ERR_CAST(gamepad);
+>  
+> +	/* Set initial resting state for joysticks to 128 (center) */
+>  	input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
+> +	gamepad->absinfo[ABS_X].value = 128;
 
-Let's go with that.
+input_set_abs_params() can fail to allocate absinfo. If that happens,
+this will crash. AI suggests setting the value with input_abs_set_val()
+to ensure that the value is checked before dereferencing.
 
->
-> Looking into a common place to define this new property, I stumbled
-> upon gpio-delay.yaml, so maybe I do not need this new property at all
-> and simply define a gpio-delay node if needed (and add it to this
-> binding example)?
->
-> I tested this and it works, although it requires a patch to the
-> gpio-aggregator driver, because for now it respect the delay only
-> when changing the output value, not when switching between input and
-> output like I do in my driver.
->
-> With my patch, it works ok.
+Guenter
 
-I would not use gpio-delay here.
-
-Rob
+>  	input_set_abs_params(gamepad, ABS_Y, 0, 255, 0, 0);
+> +	gamepad->absinfo[ABS_Y].value = 128;
+>  	input_set_abs_params(gamepad, ABS_Z, 0, 255, 0, 0);
+>  	input_set_abs_params(gamepad, ABS_RX, 0, 255, 0, 0);
+> +	gamepad->absinfo[ABS_RX].value = 128;
+>  	input_set_abs_params(gamepad, ABS_RY, 0, 255, 0, 0);
+> +	gamepad->absinfo[ABS_RY].value = 128;
+>  	input_set_abs_params(gamepad, ABS_RZ, 0, 255, 0, 0);
+>  
+>  	input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
+> -- 
+> 2.51.2.1041.gc1ab5b90ca-goo

@@ -1,105 +1,305 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from relay12.grserver.gr (relay12.grserver.gr [88.99.38.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289643806B8;
-	Tue, 24 Feb 2026 16:20:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AA5C3B52E2
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 18:01:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=88.99.38.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771950009; cv=none; b=a/3p31JN+Ln/iVhYClMUdHR3BEsDFxCHW96XzI3tyXtY5LCkp2vrLjg86/BEWyjuipZvFv2s1Y0cqe8joQM+E2YLtk7p5dsjrQ890aFqnxiJG1LiGX7PXqsqORj6ZDEm+02lyVU/bnFW4xDNumuejjzP9warqWLYpTsupDig0IA=
+	t=1771956091; cv=none; b=h+gh14Oojp5KCXcLdAKOY8mTVKtqQbYOn5JKdPpz5hCrcm3nW823vqSmVik9OaxpF3TxyPh0OFbEZ9Ii28dWfwZrH7dgbbfjKuD10OHk0oAny/80ar+9iojdFPr5Xabc6+XnUJw/tYW+az+3gUJUv6IHQCgl+Wf6Kz/hxEXAw+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771950009; c=relaxed/simple;
-	bh=6G91BbTqFSYq68w6yhfkl+JDGrXisXHtlEgCseE/wwo=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=USqOVO1G8thfgen45iXNVM6Ww1j0fmbiTNzRg5c7dxMz8bF4y4wQ0aLX+j9GyfK2JA3wIrVqkYLQdlrzBkNRCizxSSmBL4mlSz2rAAu5ju1vSO5mAI3PlnyzZd0LFo3AZFrEeaA2khoswtV2yxqdIflZTG4g0REjoy8UHhwRGjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.224.107])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fL2xC01QGzJ46C2;
-	Wed, 25 Feb 2026 00:19:43 +0800 (CST)
-Received: from dubpeml500005.china.huawei.com (unknown [7.214.145.207])
-	by mail.maildlp.com (Postfix) with ESMTPS id C0C2D40570;
-	Wed, 25 Feb 2026 00:20:04 +0800 (CST)
-Received: from localhost (10.203.177.15) by dubpeml500005.china.huawei.com
- (7.214.145.207) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 24 Feb
- 2026 16:20:01 +0000
-Date: Tue, 24 Feb 2026 16:20:00 +0000
-From: Jonathan Cameron <jonathan.cameron@huawei.com>
-To: Shawn Lin <shawn.lin@rock-chips.com>
-CC: Bjorn Helgaas <bhelgaas@google.com>, "Vaibhaav Ram T . L"
-	<vaibhaavram.tl@microchip.com>, Kumaravel Thiagarajan
-	<kumaravel.thiagarajan@microchip.com>, Even Xu <even.xu@intel.com>, Xinpeng
- Sun <xinpeng.sun@intel.com>, Srinivas Pandruvada
-	<srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Zhou Wang
-	<wangzhou1@hisilicon.com>, Longfang Liu <liulongfang@huawei.com>, "Vinod
- Koul" <vkoul@kernel.org>, Lee Jones <lee@kernel.org>, Jijie Shao
-	<shaojijie@huawei.com>, Jian Shen <shenjian15@huawei.com>, Sunil Goutham
-	<sgoutham@marvell.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "Heiner
- Kallweit" <hkallweit1@gmail.com>, "David S . Miller" <davem@davemloft.net>,
-	Jeff Hugo <jeff.hugo@oss.qualcomm.com>, Oded Gabbay <ogabbay@kernel.org>,
-	Maciej Falkowski <maciej.falkowski@linux.intel.com>, Karol Wachowski
-	<karol.wachowski@linux.intel.com>, Min Ma <mamin506@gmail.com>, Lizhi Hou
-	<lizhi.hou@amd.com>, Andreas Noever <andreas.noever@gmail.com>, "Mika
- Westerberg" <westeri@kernel.org>, Tomasz Jeznach <tjeznach@rivosinc.com>,
-	Will Deacon <will@kernel.org>, Xinliang Liu <xinliang.liu@linaro.org>, Tian
- Tao <tiantao6@hisilicon.com>, Davidlohr Bueso <dave@stgolabs.net>, Srujana
- Challa <schalla@marvell.com>, Bharat Bhushan <bbhushan2@marvell.com>, Antoine
- Tenart <atenart@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Raag
- Jadav <raag.jadav@intel.com>, "Hans de Goede" <hansg@kernel.org>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
-	<jirislaby@kernel.org>, Andy Shevchenko <andy@kernel.org>, Manivannan
- Sadhasivam <mani@kernel.org>, Mika Westerberg
-	<mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>, Robert
- Richter <rric@kernel.org>, Mark Brown <broonie@kernel.org>, "Nirmal Patel"
-	<nirmal.patel@linux.intel.com>, Kurt Schwemmer
-	<kurt.schwemmer@microsemi.com>, Logan Gunthorpe <logang@deltatee.com>, Linus
- Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Sakari
- Ailus <sakari.ailus@linux.intel.com>, Bingbu Cao <bingbu.cao@intel.com>, Ulf
- Hansson <ulf.hansson@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin
- Tissoires <bentiss@kernel.org>, <linux-input@vger.kernel.org>,
-	<linux-i3c@lists.infradead.org>, <dmaengine@vger.kernel.org>, Philipp Stanner
-	<phasta@kernel.org>, <netdev@vger.kernel.org>, <nic_swsd@realtek.com>,
-	<linux-arm-msm@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-	<linux-usb@vger.kernel.org>, <iommu@lists.linux.dev>,
-	<linux-riscv@lists.infradead.org>, David Airlie <airlied@gmail.com>, Simona
- Vetter <simona@ffwll.ch>, <linux-cxl@vger.kernel.org>,
-	<linux-crypto@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
-	<linux-serial@vger.kernel.org>, <mhi@lists.linux.dev>, Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>,
-	<linux-i2c@vger.kernel.org>, Daniel Mack <daniel@zonque.org>, "Haojian
- Zhuang" <haojian.zhuang@gmail.com>, <linux-spi@vger.kernel.org>, "Jonathan
- Derrick" <jonathan.derrick@linux.dev>, <linux-pci@vger.kernel.org>,
-	<linux-gpio@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>,
-	<linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>
-Subject: Re: [PATCH 01/37] PCI/MSI: Add Devres managed IRQ vectors
- allocation
-Message-ID: <20260224162000.000001a5@huawei.com>
-In-Reply-To: <1771860581-82092-2-git-send-email-shawn.lin@rock-chips.com>
-References: <1771860581-82092-1-git-send-email-shawn.lin@rock-chips.com>
-	<1771860581-82092-2-git-send-email-shawn.lin@rock-chips.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-w64-mingw32)
+	s=arc-20240116; t=1771956091; c=relaxed/simple;
+	bh=qhBEuRV6fs3rnNGrwM/wQryTh4ZQlq2azvONG6EdSXc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EXmLFTHd1uHUZ4a6XBcylgEz0p0Yx6Z48jhlxW+33bhpbCioIf8XtDUSL4K72w18ZCnZyDZA3T7k8HpKoeow5M/W+nt6mZVJVduXWhej/9H92RWxyCo28tuBXcD0R9v4YxK6AFYeIGNPuPtx9rbxtVAAiHDoTvw/GPyhVBpB9jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=k77UkIdy; arc=none smtp.client-ip=88.99.38.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="k77UkIdy"
+Received: from relay12 (localhost [127.0.0.1])
+	by relay12.grserver.gr (Proxmox) with ESMTP id 4527ABC3ED
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 20:01:26 +0200 (EET)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay12.grserver.gr (Proxmox) with ESMTPS id 3D31ABDC23
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 20:01:25 +0200 (EET)
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id A486A200CA6
+	for <linux-input@vger.kernel.org>; Tue, 24 Feb 2026 20:01:24 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1771956084;
+	bh=nx8q+04J+6U8lQkyJp1U8/w7u+mvZriqm/9MMwTSkGQ=;
+	h=Received:From:Subject:To;
+	b=k77UkIdykSv8stNWlogTfvI4M9oEcqE4jKurmJXCo2NWzH+H+rDOyB5YcnQ29ywOc
+	 y59KwKj8Dt4Wibrro78E1Y1Qw18oqXmVCtqbDE2gEh+ExMgmh2RoNSntfAJ1S31OZW
+	 JlHpYU5DFRFi1LERYjuTZUOhNdZ27MxbV8+E1ii/AtbESGkCKMOiIIVMablv+nsapN
+	 CTZPbvxqe7u7lz0yJyUOVNnhE1OQwmTZW36abJENY74m4tE2pksSKcdZpSdFGoaq/o
+	 Vk7V+/MKrmdejgQ9xOedrA4gLWBS3o90xVPiT9fJCVyWQ96EADmhBKbIzsukwKZxCP
+	 ghcsnziIbJ/zg==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 209.85.216.46) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pj1-f46.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-pj1-f46.google.com with SMTP id
+ 98e67ed59e1d1-35691a231a7so3545651a91.3
+        for <linux-input@vger.kernel.org>;
+ Tue, 24 Feb 2026 10:01:24 -0800 (PST)
+X-Forwarded-Encrypted: i=1;
+ AJvYcCVr3KobIKLHkSCSCR0GjGZUPoQZH+lzzrWR8Swg9miUNYUVCCmJMEPHqmMVoshMu4ZRiNrfR/WdDtmXJw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxQYtZ26XYoLgDPsFXAdS3d6ewksCMcn1bOw+CkHD0kYilIxjAa
+	pFiLCVN5uumalUd/4xaycqbdDGJbLHWCgL5rioKACqiq+Q6jYDgvYko9t+sDVe34c7aGGut7aBO
+	uaPC6PIIAFvsqvgWyUwESgKaRPdZTNe4=
+X-Received: by 2002:a17:90a:e706:b0:356:83b2:539b with SMTP id
+ 98e67ed59e1d1-358ae8e5e45mr11678419a91.32.1771956083033; Tue, 24 Feb 2026
+ 10:01:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: lhrpeml500009.china.huawei.com (7.191.174.84) To
- dubpeml500005.china.huawei.com (7.214.145.207)
+References: <20260220165047.2844568-1-appsforartists@google.com>
+In-Reply-To: <20260220165047.2844568-1-appsforartists@google.com>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Tue, 24 Feb 2026 19:01:10 +0100
+X-Gmail-Original-Message-ID: 
+ <CAGwozwHDGc=2hyUSQA7Awoa-3Gj=2BQ8JPqz0vEUPOpNiqY+RQ@mail.gmail.com>
+X-Gm-Features: AaiRm51uBRKgFQElwl4zKFC9XbkVxOqfDeKNss1t_ZNx8VbUQ85fL1EicyL4k_k
+Message-ID: 
+ <CAGwozwHDGc=2hyUSQA7Awoa-3Gj=2BQ8JPqz0vEUPOpNiqY+RQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: sony: add support for Rock Band 2 instruments
+To: appsforartists@google.com
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Sanjay Govind <sanjay.govind9@gmail.com>,
+	Rosalie Wanders <rosalie@mailbox.org>, Vicki Pfau <vi@endrift.com>,
+	=?UTF-8?B?TsOtY29sYXMgRiAuIFIgLiBBIC4gUHJhZG8=?= <nfraprado@collabora.com>
+Content-Type: text/plain; charset="UTF-8"
+X-PPP-Message-ID: 
+ <177195608487.2291383.1067401391159292542@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.3 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-On Mon, 23 Feb 2026 23:29:40 +0800
-Shawn Lin <shawn.lin@rock-chips.com> wrote:
+Hi Brenton,
 
-> pcim_alloc_irq_vectors() and pcim_alloc_irq_vectors_affinity() are created for
-> pci device drivers which rely on the devres machinery to help cleanup the IRQ
-> vectors.
+Let me give you a quirk review. Nice to hear from you again.
 
-It might be worth adding some details on why we need the is_msi_managed
-flag in the first place vs just doing conventional devm_add_action_or_reset()
-with pci_free_irq_vectors().
+On Fri, 20 Feb 2026 at 17:50, <appsforartists@google.com> wrote:
+>
+> From: Brenton Simpson <appsforartists@google.com>
+>
+> Rock Band 2 for the Nintendo Wii and for the Sony PlayStation 3 use the
+> same mapping as later games:
+>
+>     Green:              SOUTH   (A)
+>     Red:                EAST    (B)
+>     Yellow:             NORTH   (Y)
+>     Blue:               WEST    (X)
+>     Orange/pedal:       TL      (L1)
+>     Solo flag:          TL2     (L2)
+>     Tilt:               TR      (R1)
+>     Pad flag:           THUMBL  (L3)
+>     Instrument button:  MODE    (Steam/Xbox)
+>     Whammy bar:         ABS_Z   (Axis 4)
+>     Effects switch:     Z       (Axis 5)
+>
+> As documented at https://github.com/TheNathannator/PlasticBand/blob/main/Docs/.
 
+The checkpatch hits this line. Remove this line and replace with see below.
+
+>
+> The guitar and drums both use the same mapping.  Tested using the Wii
+> versions of the instruments.
+>
+
+A link tag.
+
+Link: https://github.com/TheNathannator/PlasticBand/blob/main/Docs/
+> Signed-off-by: Brenton Simpson <appsforartists@google.com>
+> ---
+>  drivers/hid/hid-ids.h  |  8 +++++++-
+>  drivers/hid/hid-sony.c | 45 +++++++++++++++++++++++++++++-------------
+>  2 files changed, 38 insertions(+), 15 deletions(-)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 3e299a30dcde..644d3c4df144 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -664,6 +664,10 @@
+>  #define USB_DEVICE_ID_UGCI_FLYING      0x0020
+>  #define USB_DEVICE_ID_UGCI_FIGHTING    0x0030
+>
+> +#define USB_VENDOR_ID_HARMONIX         0x1bad
+> +#define USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR_DONGLE   0x3010
+> +#define USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS_DONGLE    0x3110
+> +
+>  #define USB_VENDOR_ID_HP               0x03f0
+>  #define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A           0x464a
+>  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A  0x0a4a
+> @@ -1299,7 +1303,9 @@
+>
+>  #define USB_VENDOR_ID_SONY_RHYTHM      0x12ba
+>  #define USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE       0x074b
+> -#define USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE   0x0100
+> +#define USB_DEVICE_ID_SONY_PS3_GH_GUITAR_DONGLE                0x0100
+> +#define USB_DEVICE_ID_SONY_PS3_RB2_GUITAR_DONGLE       0x0200
+> +#define USB_DEVICE_ID_SONY_PS3_RB2_DRUMS_DONGLE                0x0210
+
+Indentation on first glance seems incorrect. But this file seems to
+follow the rule of vendor gets one tab, and others are aligned. And
+your additions match that.
+
+But other than that, it is true that it is a mess and everyone does
+what they do.
+
+>  #define USB_VENDOR_ID_SINO_LITE                        0x1345
+>  #define USB_DEVICE_ID_SINO_LITE_CONTROLLER     0x3008
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index a89af14e4acc..f6975f6ae882 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -62,9 +62,10 @@
+>  #define GH_GUITAR_CONTROLLER      BIT(14)
+>  #define GHL_GUITAR_PS3WIIU        BIT(15)
+>  #define GHL_GUITAR_PS4            BIT(16)
+> -#define RB4_GUITAR_PS4_USB        BIT(17)
+> -#define RB4_GUITAR_PS4_BT         BIT(18)
+> -#define RB4_GUITAR_PS5            BIT(19)
+> +#define RB2_INSTRUMENT            BIT(17)
+> +#define RB4_GUITAR_PS4_USB        BIT(18)
+> +#define RB4_GUITAR_PS4_BT         BIT(19)
+> +#define RB4_GUITAR_PS5            BIT(20)
+
+I thought these were not formatted correctly. But they are. You added
+RB2_INSTRUMENT above. I would suggest pulling it down and making it
+BIT(20) instead. It minimizes the diff.
+
+>
+>  #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+>  #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+> @@ -422,12 +423,12 @@ static const unsigned int sixaxis_keymap[] = {
+>         [0x11] = BTN_MODE, /* PS */
+>  };
+>
+> -static const unsigned int rb4_absmap[] = {
+> +static const unsigned int rb_absmap[] = {
+>         [0x30] = ABS_X,
+>         [0x31] = ABS_Y,
+>  };
+>
+> -static const unsigned int rb4_keymap[] = {
+> +static const unsigned int rb_keymap[] = {
+>         [0x1] = BTN_WEST, /* Square */
+>         [0x2] = BTN_SOUTH, /* Cross */
+>         [0x3] = BTN_EAST, /* Circle */
+> @@ -625,17 +626,17 @@ static int gh_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+>         return 0;
+>  }
+>
+> -static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+> +static int rb_instrument_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                           struct hid_field *field, struct hid_usage *usage,
+>                           unsigned long **bit, int *max)
+>  {
+>         if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
+>                 unsigned int key = usage->hid & HID_USAGE;
+>
+> -               if (key >= ARRAY_SIZE(rb4_keymap))
+> +               if (key >= ARRAY_SIZE(rb_keymap))
+>                         return 0;
+>
+> -               key = rb4_keymap[key];
+> +               key = rb_keymap[key];
+>                 hid_map_usage_clear(hi, usage, bit, max, EV_KEY, key);
+>                 return 1;
+>         } else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
+> @@ -645,10 +646,10 @@ static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                 if (usage->hid == HID_GD_HATSWITCH)
+>                         return 0;
+>
+> -               if (abs >= ARRAY_SIZE(rb4_absmap))
+> +               if (abs >= ARRAY_SIZE(rb_absmap))
+>                         return 0;
+>
+> -               abs = rb4_absmap[abs];
+> +               abs = rb_absmap[abs];
+>                 hid_map_usage_clear(hi, usage, bit, max, EV_ABS, abs);
+>                 return 1;
+>         }
+> @@ -1101,11 +1102,14 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+>         if (sc->quirks & GH_GUITAR_CONTROLLER)
+>                 return gh_guitar_mapping(hdev, hi, field, usage, bit, max);
+>
+> +       if (sc->quirks & RB2_INSTRUMENT)
+> +               return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
+> +
+>         if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
+> -               return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
+> +               return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
+>
+>         if (sc->quirks & RB4_GUITAR_PS5)
+> -               return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
+> +               return rb_instrument_mapping(hdev, hi, field, usage, bit, max);
+>
+>         /* Let hid-core decide for the others */
+>         return 0;
+> @@ -2369,12 +2373,25 @@ static const struct hid_device_id sony_devices[] = {
+>         /* Guitar Hero PC Guitar Dongle */
+>         { HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE),
+>                 .driver_data = GH_GUITAR_CONTROLLER },
+> -       /* Guitar Hero PS3 World Tour Guitar Dongle */
+> -       { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE),
+> +       /* Guitar Hero World Tour PS3 Guitar Dongle */
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR_DONGLE),
+>                 .driver_data = GH_GUITAR_CONTROLLER },
+>         /* Guitar Hero Live PS4 guitar dongles */
+>         { HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE),
+>                 .driver_data = GHL_GUITAR_PS4 | GH_GUITAR_CONTROLLER },
+> +       /* Rock Band 2 instruments
+> +        * Nintendo Wii instruments are included in `hid-sony` because `hid-nintendo`
+> +        * is for the newer Nintendo Switch, and the Wii instruments use the same
+> +        * protocol as their Sony PlayStation 3 cousins.
+> +        */
+
+I would simplify it to "Rock Band 2 Instruments for Wii U. They use
+the hid-sony protocol.". Readers do not need more context.
+
+Other than that, I would drop all the renames from your patch. They
+triple the diff and just make it harder to merge. Without those, the
+patch is essentially the hunk below, the new PIDs, and the quirk. The
+justification of the quirk is that you do not want your code to hit
+rb4_ps4_guitar_parse_report(sc, rd, size); (?)
+
+This patch is very reasonable to merge as it makes no code changes
+after you clean it up a bit.
+
+As for why the buttons are jumbled, this is standard HID gamepad
+handling. You are not supposed to read them directly, but instead use
+something like [1] or PR to [2]. If the gamepad does not have
+vibration, there is no functionality loss either. But... this patch is
+also very welcome.
+
+Best,
+Antheas
+
+[1] https://github.com/mdqinc/SDL_GameControllerDB
+[2] https://github.com/libsdl-org/SDL
+
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR_DONGLE),
+> +               .driver_data = RB2_INSTRUMENT },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS_DONGLE),
+> +               .driver_data = RB2_INSTRUMENT },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB2_GUITAR_DONGLE),
+> +               .driver_data = RB2_INSTRUMENT },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB2_DRUMS_DONGLE),
+> +               .driver_data = RB2_INSTRUMENT },
+>         /* Rock Band 4 PS4 guitars */
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER),
+>                 .driver_data = RB4_GUITAR_PS4_USB },
+> --
+> 2.53.0.414.gf7e9f6c205-goog
+>
+>
 

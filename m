@@ -1,225 +1,267 @@
-Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com [209.85.210.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C5833ADA1
-	for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 15:58:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 815983C199F;
+	Wed, 25 Feb 2026 16:12:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772035082; cv=none; b=b8arE7RGjiVOKuQS11YxbQwXwY/1kWs9rVCxaKFRy0EMRbyTkM5YOEtjQJytntdq6+XO7Zf22muRfonABvJqy8b33UNrrai0UjJ9gW1hF51Cf4E99HlxAVxZPfAThZusnO6/D/QlanEE5Qwctg2rAs1knVbZAhgMXcAQKWai0dg=
+	t=1772035941; cv=none; b=joKFDC0W7rUFAorlVNf1Qpw9XHJY6NfuT8Ag16x9aGTlQublwMwMqiUxfahHsjQeIOX/psZOAjEMViM/h7sdVe2N6poJ7qJmnNkVKrVHIl9897MWkXSIo6RY/DU2GQJ5b4CtLFZE/aUUa9/8/h5Mnd1PuWEAG4OeQQLjjEU0iNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772035082; c=relaxed/simple;
-	bh=rTF7CrWaDCkFx1R2VIKVMLx3DayfDzRHegT7M+Cyz08=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NMvpmWnjidNeO2oRFYvlzkfK7+4jOeXxww6ZmQN4GAe5NKJXWfYTN1f425wYfEZrLxReU16fQ/0RN+D/5Zi2gThiA3jtZPoTLUPwaarZmZc5dTvzacXEtSyEIkajRIT70n7yhqfQsSU+5H/jZ2Sxf0rrEChRP23UYu8Ze/ayu8s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQ83Zvc3; arc=none smtp.client-ip=209.85.210.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772035941; c=relaxed/simple;
+	bh=wedeh2zn78qjUF85GM07fBAVemxKGYvznw6h2yhq8x0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E+ESAWfPl3kvNsi9DfDyFXFUuasGOc1F/pT8OXDWphVuE35+bQCMvKAUPuKYc+RyU9lYczdl2lO4scX59gwYSo8GIr/ber7JNz+VCRTfQpUTh58XB/iu4UgccUkjqyKu+lLb39X2rtaxRG0/81Ok6UZ1A795EWpJyaJvklPyzZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T6W2RAnz; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQ83Zvc3"
-Received: by mail-pf1-f195.google.com with SMTP id d2e1a72fcca58-823c56765fdso3198792b3a.1
-        for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 07:58:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772035081; x=1772639881; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wsZYB29iP53RlNA6or+fhJlMEAO1yptSiNSXw/b8CnI=;
-        b=LQ83Zvc3xjetRBOsjQH4AAYUoVyyo6Ze2ABL8OHH495ZBTeCgUvk7I31rrUs7vYGEg
-         SP/UE9CYmex82SYfuh5mz+rXstDj148hap+8yT1aWd6g9M9lnFi9ropv4CpGiyhaAXiu
-         T4iN0Pb6eMenf8wc7dlEkGLwBO8AYrO/qsz0Y03xccfF9iqHNI4rlnynMn+qbBYjkbj7
-         02aHfB6XG7lmu0Io1Z4xCXHXDXQaGJXyuKn/Kngf2IPklYtUBIJmplk71ugWB5bdbC84
-         g6xo+IPvCbkcYtKA58vZ1STTgHMVvN2ZVHH2OySg+kKe9KZzxMdG7DDQAtUT2u/H5VR3
-         3TOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772035081; x=1772639881;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wsZYB29iP53RlNA6or+fhJlMEAO1yptSiNSXw/b8CnI=;
-        b=kPCyXAy29JX1Qbw8UqEiVElL+d6XrKJTUw3gAcJhFjCd4l0R3Hsuc78k2FTB0s3OBM
-         FDf3y1LZJKJwfdwXubGT98DK9Q0ZuOeDHAlmQXXQrAo2HGscLA+0MFwf1EAe88zBZ706
-         ZPvrGsVXbEl9zIeifksNyhIBA+790wMYY/AWHm4cbDXEPunKWbfTsNMEOHbt4Ua4AgoL
-         lgm+H1lUzKUL9mvznAXu5AUzujFbrXKznIC+WeNW3XNPJknBcfC2xNh4T0BNuXH9z4vt
-         6gpWAID6RpmispSp7orWO1UV+2F00cQupb94dOaC//kRGS6PGAZSCJibMSLa5ZOlbSAZ
-         U5bQ==
-X-Gm-Message-State: AOJu0YzCXA0GjTOfBRXEmGvSYgeY8vNO22kb6jKOFCnxwIRPjgi9I4uB
-	S3Lwmmla1LEquCeaPg2fTK0rL0aw3DRhXIyb2sddJZg2zNOziBZBNwDIPkupkPzexf8=
-X-Gm-Gg: ATEYQzx+8Lr9xrvjhU5yB388nHAD5Lngr5hkClFvr6kodIzaMLNJSDJWapi+0VTHOPT
-	Tnj6wh96eNnytCf+PnmD9YYYjhsnVE3QoG9DFklrMobYvGIZPIBBXp89/G4sxtw+AbObk9D0E5o
-	zOGeNUKKmGAiS+sW7qInLkwfn1lGHO6zfuxT0D6Arfm5xc4ov1LJJ+PdhfFyZw8iNiJrqZY2mEL
-	uxEF3bnWqgUcnvhf7TOhHux1q1OcZG+VPdWc+gb4xv8Tz6rFrzYJW/txAm8p7L5C/zKc9Q+5TuF
-	5+al1ZvmojtNaVqzsE5ll8PxhzxM5GOK+9mj4Mp6QBM1W7sKCLnNXmd2LNyV4kVzOYGFzYph/ns
-	gG1GSNaQ3ivJD4AaMP/lcc+9unn/475FDObup0SJ2GWKcpAEUgfCM1kLg1CpDp0+UbVj3wBmg9u
-	v9m7BNyggEoveY3KlG/xOzTgUGzGDZK5NxJA9VnMRTwgplESJpELNVU9ZX2woCtxggAFnE9N5dc
-	DNp86MM5HdZBl4iZd/1eFtRXotB61Rve7iPADdOUaU=
-X-Received: by 2002:a05:6a20:9f96:b0:35e:8b76:c960 with SMTP id adf61e73a8af0-39545fbe266mr14306776637.48.1772035080892;
-        Wed, 25 Feb 2026 07:58:00 -0800 (PST)
-Received: from Slifer ([112.208.65.28])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c70b72603dfsm13966622a12.28.2026.02.25.07.57.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Feb 2026 07:58:00 -0800 (PST)
-From: Karl Cayme <kcayme@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Karl Cayme <kcayme@gmail.com>
-Subject: [PATCH v1] HID: rakk: add support for Rakk Dasig X side buttons
-Date: Wed, 25 Feb 2026 23:56:45 +0800
-Message-ID: <20260225155645.83981-1-kcayme@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T6W2RAnz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772035941; x=1803571941;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wedeh2zn78qjUF85GM07fBAVemxKGYvznw6h2yhq8x0=;
+  b=T6W2RAnzcpDqF17E+8y/locY6qU/v1IyGgvmmJOUX42WkJZ3lWoQzU5Z
+   D5e5D/ZpJJrvLqV5lopLKZj+N9fOtlFuujyRqo8RjA/5SMpMdoFSBWazD
+   HV8wf5+wAqhYdIOiINhYjA68/n0PcI4xmG/W3rDeOVE4jXEh+COlwfyQo
+   mLgbc4V24FGTTF7q6SGkUa/nxUHFT7m0jPbWMt3Rq4PHR/3Pfo7RZvODE
+   lMNaPRfeXVJV+gKowx4zC0ceJDqBedRTnBME3Qh/8so5Hf0oBozo476TY
+   qNieXdIISm0mmc9fLNHOm6uGuYyFa6fyHERwwd8GmpCGB9EvtvPGGA7PD
+   A==;
+X-CSE-ConnectionGUID: QZQWtJkZQIiLu8iUJjbxzw==
+X-CSE-MsgGUID: H1APZt8oRAWiQ/hh7iu2xA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11712"; a="73056380"
+X-IronPort-AV: E=Sophos;i="6.21,310,1763452800"; 
+   d="scan'208";a="73056380"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Feb 2026 08:12:20 -0800
+X-CSE-ConnectionGUID: N1H3W0yqQaC9NQakEgQDOg==
+X-CSE-MsgGUID: UG9Q9LZsSoqRjV1nJdIvdg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,310,1763452800"; 
+   d="scan'208";a="213380447"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.71])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Feb 2026 08:12:15 -0800
+Date: Wed, 25 Feb 2026 18:12:13 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Hugo Villeneuve <hugo@hugovil.com>
+Cc: robin@protonic.nl, andy@kernel.org, geert@linux-m68k.org,
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+	dmitry.torokhov@gmail.com, hvilleneuve@dimonoff.com,
+	mkorpershoek@kernel.org, matthias.bgg@gmail.com,
+	angelogioacchino.delregno@collabora.com, lee@kernel.org,
+	alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v3 4/4] Input: charlieplex_keypad: add GPIO charlieplex
+ keypad
+Message-ID: <aZ8fXXGMx3fk7gKs@smile.fi.intel.com>
+References: <20260225155409.612478-1-hugo@hugovil.com>
+ <20260225155409.612478-5-hugo@hugovil.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260225155409.612478-5-hugo@hugovil.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
-declares USAGE_MAXIMUM=3 (buttons 1-3) while actually sending 5 button
-bits (REPORT_COUNT=5). This causes the kernel to ignore side buttons
-(buttons 4 and 5).
+On Wed, Feb 25, 2026 at 10:54:01AM -0500, Hugo Villeneuve wrote:
 
-Fix by patching the descriptor to set USAGE_MAXIMUM=5 in the
-report_fixup callback.
+> Add support for GPIO-based charlieplex keypad, allowing to control
+> N^2-N keys using N GPIO lines.
+> 
+> Reuse matrix keypad keymap to simplify, even if there is no concept
+> of rows and columns in this type of keyboard.
 
-The mouse uses Telink vendor ID 0x248a with three product IDs for USB
-direct (0xfb01), wireless dongle (0xfa02), and Bluetooth (0x8266)
-connection modes. All three variants have the same bug at byte offset 17.
+...
 
-Signed-off-by: Karl Cayme <kcayme@gmail.com>
----
- drivers/hid/Kconfig    |  8 +++++
- drivers/hid/Makefile   |  1 +
- drivers/hid/hid-ids.h  |  5 +++
- drivers/hid/hid-rakk.c | 72 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 86 insertions(+)
- create mode 100644 drivers/hid/hid-rakk.c
+> +/*
+> + *  GPIO driven charlieplex keypad driver
+> + *
+> + *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> + *
+> + *  Based on matrix_keyboard.c
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index c1d9f7c6a5f2..930ea0773169 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -755,6 +755,14 @@ config HID_MEGAWORLD_FF
- 	Say Y here if you have a Mega World based game controller and want
- 	to have force feedback support for it.
- 
-+config HID_RAKK
-+	tristate "Rakk support"
-+	help
-+	  Support for Rakk gaming peripherals.
-+
-+	  Fixes the HID report descriptor of the Rakk Dasig X mouse,
-+	  which declares only 3 buttons instead of 5.
-+
- config HID_REDRAGON
- 	tristate "Redragon keyboards"
- 	default !EXPERT
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index e01838239ae6..7800613f5b2b 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -113,6 +113,7 @@ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
- obj-$(CONFIG_HID_PLAYSTATION)	+= hid-playstation.o
- obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
- obj-$(CONFIG_HID_PXRC)		+= hid-pxrc.o
-+obj-$(CONFIG_HID_RAKK)		+= hid-rakk.o
- obj-$(CONFIG_HID_RAPOO) += hid-rapoo.o
- obj-$(CONFIG_HID_RAZER)	+= hid-razer.o
- obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3e299a30dcde..68fab837e8b3 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1369,6 +1369,11 @@
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017	0x73f6
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
- 
-+#define USB_VENDOR_ID_TELINK				0x248a
-+#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X		0xfb01
-+#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X_DONGLE	0xfa02
-+#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X_BT		0x8266
-+
- #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
- #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
- 
-diff --git a/drivers/hid/hid-rakk.c b/drivers/hid/hid-rakk.c
-new file mode 100644
-index 000000000000..c2b969ce7259
---- /dev/null
-+++ b/drivers/hid/hid-rakk.c
-@@ -0,0 +1,72 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  HID driver for Rakk devices
-+ *
-+ *  Copyright (c) 2025 Karl Cayme
-+ *
-+ *  The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
-+ *  declares USAGE_MAXIMUM = 3 (buttons 1-3) while actually sending 5 button
-+ *  bits (REPORT_COUNT = 5). This causes the kernel to ignore side buttons
-+ *  (buttons 4 and 5). This driver fixes the descriptor so all 5 buttons
-+ *  are properly recognized across 3 modes (wired, dongle, and Bluetooth).
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+/*
-+ * The faulty byte is at offset 17 in the report descriptor for all three
-+ * connection modes (USB direct, wireless dongle, and Bluetooth).
-+ *
-+ * Bytes 16-17 are: 0x29 0x03 (USAGE_MAXIMUM = 3)
-+ * The fix changes byte 17 to 0x05 (USAGE_MAXIMUM = 5).
-+ *
-+ * Original descriptor bytes 0-17:
-+ *   05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 03
-+ *                                                       ^^
-+ *   Should be 0x05 to declare 5 buttons instead of 3.
-+ */
-+#define RAKK_RDESC_USAGE_MAX_OFFSET	17
-+#define RAKK_RDESC_USAGE_MAX_ORIG	0x03
-+#define RAKK_RDESC_USAGE_MAX_FIXED	0x05
-+#define RAKK_RDESC_USB_SIZE		193
-+#define RAKK_RDESC_DONGLE_SIZE		150
-+#define RAKK_RDESC_BT_SIZE		89
-+
-+static const __u8 *rakk_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+				      unsigned int *rsize)
-+{
-+	if ((*rsize == RAKK_RDESC_USB_SIZE ||
-+	     *rsize == RAKK_RDESC_DONGLE_SIZE ||
-+	     *rsize == RAKK_RDESC_BT_SIZE) &&
-+	    rdesc[RAKK_RDESC_USAGE_MAX_OFFSET] == RAKK_RDESC_USAGE_MAX_ORIG) {
-+		hid_info(hdev, "fixing Rakk Dasig X button count (3 -> 5)\n");
-+		rdesc[RAKK_RDESC_USAGE_MAX_OFFSET] = RAKK_RDESC_USAGE_MAX_FIXED;
-+	}
-+
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id rakk_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TELINK,
-+			 USB_DEVICE_ID_TELINK_RAKK_DASIG_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TELINK,
-+			 USB_DEVICE_ID_TELINK_RAKK_DASIG_X_DONGLE) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_TELINK,
-+			       USB_DEVICE_ID_TELINK_RAKK_DASIG_X_BT) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, rakk_devices);
-+
-+static struct hid_driver rakk_driver = {
-+	.name = "rakk",
-+	.id_table = rakk_devices,
-+	.report_fixup = rakk_report_fixup,
-+};
-+module_hid_driver(rakk_driver);
-+
-+MODULE_DESCRIPTION("HID driver for Rakk Dasig X mouse - fix side button support");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Karl Cayme");
+A single space after asterisk is enough.
+
+> + */
+
+...
+
++ bitops.h
+
+> +#include <linux/delay.h>
+
++ dev_printk.h
++ device/devres.h
++ err.h
+
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/input.h>
+> +#include <linux/input/matrix_keypad.h>
+
++ math.h
+
+> +#include <linux/module.h>
+
+> +#include <linux/of.h>
+
+Is this in use? Or you wanted mod_devicetable.h for OF ID table?
+
+> +#include <linux/platform_device.h>
+> +#include <linux/property.h>
+> +#include <linux/types.h>
+
+...
+
+> +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
+> +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
+> +		int iline;
+
+> +		int rc;
+
+I think Dmitry prefers 'error' name for this kind of variables.
+
+> +		/* Activate only one line as output at a time. */
+> +		gpiod_direction_output(keypad->line_gpios->desc[oline], 1);
+> +
+> +		if (keypad->settling_time_us)
+> +			fsleep(keypad->settling_time_us);
+> +
+> +		/* Read input on all other lines. */
+> +		rc = gpiod_get_array_value_cansleep(keypad->line_gpios->ndescs,
+> +						    keypad->line_gpios->desc,
+> +						    keypad->line_gpios->info, values);
+> +		if (rc)
+> +			return;
+> +
+> +		for (iline = 0; iline < keypad->nlines; iline++) {
+> +			if (iline == oline)
+> +				continue; /* Do not read active output line. */
+> +
+> +			/* Check if GPIO is asserted. */
+> +			if (test_bit(iline, values)) {
+> +				code = MATRIX_SCAN_CODE(oline, iline,
+> +							get_count_order(keypad->nlines));
+> +				/*
+> +				 * Exit loop immediately since we cannot detect
+> +				 * more than one key press at a time.
+> +				 */
+> +				break;
+> +			}
+> +		}
+> +
+> +		gpiod_direction_input(keypad->line_gpios->desc[oline]);
+> +
+> +		if (code)
+> +			break;
+> +	}
+
+...
+
+> +static int charlieplex_keypad_init_gpio(struct platform_device *pdev,
+> +					struct charlieplex_keypad *keypad)
+> +{
+> +	int i;
+
+Why signed? But see below as well.
+
+> +	keypad->line_gpios = devm_gpiod_get_array(&pdev->dev, "line", GPIOD_IN);
+> +	if (IS_ERR(keypad->line_gpios))
+> +		return PTR_ERR(keypad->line_gpios);
+> +
+> +	keypad->nlines = keypad->line_gpios->ndescs;
+> +
+> +	if (keypad->nlines > MATRIX_MAX_ROWS)
+> +		return -EINVAL;
+
+> +	for (i = 0; i < keypad->nlines; i++)
+
+iterator is local to the loop, hence
+
+	for (unsigned int i = 0; i < keypad->nlines; i++)
+
+> +		gpiod_set_consumer_name(keypad->line_gpios->desc[i], "charlieplex_kbd_line");
+> +
+> +	return 0;
+> +}
+
+...
+
+> +static int charlieplex_keypad_probe(struct platform_device *pdev)
+> +{
+> +	struct charlieplex_keypad *keypad;
+> +	unsigned int debounce_interval_ms;
+> +	unsigned int poll_interval_ms;
+> +	struct input_dev *input_dev;
+
+> +	int err;
+
+The naming is even inconsistent between the functions...
+
+> +	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+> +	if (!keypad)
+> +		return -ENOMEM;
+> +
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
+> +	if (!input_dev)
+> +		return -ENOMEM;
+> +
+> +	keypad->input_dev = input_dev;
+> +
+> +	device_property_read_u32(&pdev->dev, "poll-interval", &poll_interval_ms);
+> +	device_property_read_u32(&pdev->dev, "debounce-delay-ms", &debounce_interval_ms);
+> +	device_property_read_u32(&pdev->dev, "settling-time-us", &keypad->settling_time_us);
+> +
+> +	keypad->current_code = -1;
+> +	keypad->debounce_code = -1;
+> +	keypad->debounce_threshold = DIV_ROUND_UP(debounce_interval_ms, poll_interval_ms);
+> +
+> +	err = charlieplex_keypad_init_gpio(pdev, keypad);
+> +	if (err)
+> +		return err;
+> +
+> +	input_dev->name		= pdev->name;
+> +	input_dev->id.bustype	= BUS_HOST;
+> +
+> +	err = matrix_keypad_build_keymap(NULL, NULL, keypad->nlines,
+> +					 keypad->nlines, NULL, input_dev);
+> +	if (err)
+> +		dev_err_probe(&pdev->dev, -ENOMEM, "failed to build keymap\n");
+> +
+> +	if (device_property_read_bool(&pdev->dev, "autorepeat"))
+> +		__set_bit(EV_REP, input_dev->evbit);
+> +
+> +	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> +
+> +	err = input_setup_polling(input_dev, charlieplex_keypad_poll);
+> +	if (err)
+> +		dev_err_probe(&pdev->dev, err, "unable to set up polling\n");
+> +
+> +	input_set_poll_interval(input_dev, poll_interval_ms);
+> +
+> +	input_set_drvdata(input_dev, keypad);
+> +
+> +	err = input_register_device(keypad->input_dev);
+> +	if (err)
+> +		return err;
+
+> +	platform_set_drvdata(pdev, keypad);
+
+Is this needed?
+
+> +	return 0;
+> +}
+
 -- 
-2.53.0
+With Best Regards,
+Andy Shevchenko
+
 

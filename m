@@ -1,111 +1,200 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBEE53DA7D9;
-	Wed, 25 Feb 2026 17:22:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9AEF3E9F73;
+	Wed, 25 Feb 2026 17:28:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772040123; cv=none; b=o0alXda5+LpqrQp6PsqyXlodwbLEqvOWzyPBgfka5E7Krt8sn+T2c0olNa+aZP8bxNRLI4QjuMf68gIH6QSx80c1PrBdcSM4fY6HeQowWr+98Km3tOwgRXcW36Cyuly7ujqIoO5+O0ywNEDEHRRbHMA9rah5SJ8XMwf/GrailuM=
+	t=1772040489; cv=none; b=T9X2giFYkHJCWUl/4E8Mn6Of4K6HU70Ubsh+OILptuBn4Omjo7nk/QlcUPrb+IVpPUkgItIFpU7S9bwSNGggEyPI4+y3yugEW/ebeb6kFPibRRPmBexCGdxiTVGe29Vt1fad7FgQf2sXkO6y8sq5CopoXciL5J3Ny65YotP4w3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772040123; c=relaxed/simple;
-	bh=e8zWuX4eYM6nTZJhf2F/Lk+jDBCWaLgI0oA8b1vz2wg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lSQ4ftLZ3O9sMpcX1l/7sxE4Wdztjvhe194qSVXBJGx+X6+saSdbgtxrxKcXCjUrYTlADDAUs5L0HT3uGljlkuGTcYlZG8WqibOLJb/4mi+wxG7cuSNsGIYc+eeO0D56UgWIXgn/bYXPL7q6CHgJQO0zVTPht0TlgXgW4DelQpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KsMvktmU; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1772040489; c=relaxed/simple;
+	bh=lt9isqYMDMlCfIlYYr1+xKwWWsbS5N+vrC/CVr/MmxE=;
+	h=Date:From:To:Cc:Message-Id:In-Reply-To:References:Mime-Version:
+	 Content-Type:Subject; b=Eluya4sJfnnwn7cFJFp8/SGhptpw9ZwNf2D61IIS/gPzMcTTqxAh8r2/YWxvB2eH7697lb5TM4O1wvR/ifrcT0TOGAbH3YfV/ha2jDeiQ+s0ugXUclxZkkTgg5Holed6Ih2RY3QyNoisePugWsh9YMxM9bB1lk6gI+2+W3Dae+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=t0tK90/l; arc=none smtp.client-ip=162.243.120.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KsMvktmU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1772040122; x=1803576122;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=e8zWuX4eYM6nTZJhf2F/Lk+jDBCWaLgI0oA8b1vz2wg=;
-  b=KsMvktmUSwXy0tMxQGiZBjm/o1j50NiVGQxsjq7DVdNt2/R53/pftYB5
-   Pwgi74+xlWfnXJFxAI6QDciKPUg1hQzTBm8y+M5au6gV/mQctND4Ov+8o
-   HMe9AnygmPlR6Pyti6fxS3GTmucDz/W6KO5NsRz3jIl1mnMS8XUriHjHv
-   EiYNmriDVeoSJaN0J36A/gHqkj3UJwjOHn+oh+GzvlaubmzpupocWfoa2
-   k1Xlbf8ZchKDulvBFhcCUdaDImHunXsNjDpV2eucp6zifiILBVjxUvdws
-   IMfjcLsoRO0JDpuWVyc/0uMGsavbfufRlR8Gu1qvomFNiUKEgodrx0Rif
-   w==;
-X-CSE-ConnectionGUID: jliSi8sEQLmR1t8HD82aOg==
-X-CSE-MsgGUID: hQuMFHWeQB+RjNsB9TOS7A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11712"; a="72994569"
-X-IronPort-AV: E=Sophos;i="6.21,310,1763452800"; 
-   d="scan'208";a="72994569"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Feb 2026 09:21:47 -0800
-X-CSE-ConnectionGUID: FqbgM12LSsWtlmgmCPpHig==
-X-CSE-MsgGUID: 4VG8RksBS42YGJmfs5zoqw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,310,1763452800"; 
-   d="scan'208";a="213953604"
-Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.71])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Feb 2026 09:21:38 -0800
-Date: Wed, 25 Feb 2026 19:21:36 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
+	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="t0tK90/l"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=x; h=Subject:Content-Transfer-Encoding:Mime-Version:Message-Id:Cc:To:From
+	:Date:subject:date:message-id:reply-to;
+	bh=IQKoXwA9RhHZUpi+4eo53Id8BXP1PRpZdb8KsvS3Tqk=; b=t0tK90/l3fitjNJ1x0woq9Rvkj
+	sX88TmvXF2JbnRyiV6YnZtl7rT3hMzeZFM0tntGuczAvgPBLS/qv3aYcgTGwygENuLG+i988zvCUm
+	rdQg7vf8q7kThSuYPpzC/8QFFGnaZKxQqoRb9o3z7gRjci3by/nYaONjMsMYiqZ3heQo=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:51004 helo=pettiford.lan)
+	by mail.hugovil.com with esmtpa (Exim 4.92)
+	(envelope-from <hugo@hugovil.com>)
+	id 1vvIfz-0005Dc-Rj; Wed, 25 Feb 2026 12:27:56 -0500
+Date: Wed, 25 Feb 2026 12:27:55 -0500
+From: Hugo Villeneuve <hugo@hugovil.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hugo Villeneuve <hugo@hugovil.com>, robin@protonic.nl, andy@kernel.org,
-	geert@linux-m68k.org, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, hvilleneuve@dimonoff.com,
-	mkorpershoek@kernel.org, matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com, lee@kernel.org,
-	alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v3 4/4] Input: charlieplex_keypad: add GPIO charlieplex
- keypad
-Message-ID: <aZ8voAddPvMLCvc4@smile.fi.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, robin@protonic.nl,
+ andy@kernel.org, geert@linux-m68k.org, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org, hvilleneuve@dimonoff.com, mkorpershoek@kernel.org,
+ matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
+ lee@kernel.org, alexander.sverdlin@gmail.com, marek.vasut@gmail.com,
+ akurz@blala.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+Message-Id: <20260225122755.3b2043c7cdd42bbaa7671fe7@hugovil.com>
+In-Reply-To: <aZ8sjwaKk5MCSDlg@google.com>
 References: <20260225155409.612478-1-hugo@hugovil.com>
- <20260225155409.612478-5-hugo@hugovil.com>
- <aZ8fXXGMx3fk7gKs@smile.fi.intel.com>
- <20260225114155.3ee2efb002aa0f52a905f535@hugovil.com>
- <20260225115652.8beb1979df3824f7a95d22bc@hugovil.com>
- <aZ8tocPCKqTXqbC0@google.com>
+	<20260225155409.612478-5-hugo@hugovil.com>
+	<aZ8fXXGMx3fk7gKs@smile.fi.intel.com>
+	<20260225114155.3ee2efb002aa0f52a905f535@hugovil.com>
+	<aZ8sjwaKk5MCSDlg@google.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aZ8tocPCKqTXqbC0@google.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 70.80.174.168
+X-SA-Exim-Mail-From: hugo@hugovil.com
+X-Spam-Level: 
+X-Spam-Report: 
+	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+	* -1.9 BAYES_00 BODY: Bayes spam probability is 0 to 1%
+	*      [score: 0.0000]
+	* -1.3 NICE_REPLY_A Looks like a legit reply (A)
+Subject: Re: [PATCH v3 4/4] Input: charlieplex_keypad: add GPIO charlieplex
+ keypad
+X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
+X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 
-On Wed, Feb 25, 2026 at 09:14:16AM -0800, Dmitry Torokhov wrote:
-> On Wed, Feb 25, 2026 at 11:56:52AM -0500, Hugo Villeneuve wrote:
-> > On Wed, 25 Feb 2026 11:41:55 -0500
-> > Hugo Villeneuve <hugo@hugovil.com> wrote:
-> > > On Wed, 25 Feb 2026 18:12:13 +0200
-> > > Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
-> > > > On Wed, Feb 25, 2026 at 10:54:01AM -0500, Hugo Villeneuve wrote:
+Hi Dmitry,
 
-...
+On Wed, 25 Feb 2026 09:12:57 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> > > > > +#include <linux/of.h>
-> > > > 
-> > > > Is this in use? Or you wanted mod_devicetable.h for OF ID table?
-> > > 
-> > > I need only OF ID table, so will replace with mod_devicetable.h.
-> > 
-> > Hi Andy,
-> > finally I need <linux/of.h> for of_match_ptr()...
-> > 
-> > But I will keep <mod_devicetable.h> ...
+> Hi Hugo,
 > 
-> Do we need the dependency on OF? We may include of match pointer
-> unconditionally and the driver could be used on ACPI systems with
-> PRP0001 HID.
+> On Wed, Feb 25, 2026 at 11:41:55AM -0500, Hugo Villeneuve wrote:
+> > Hi Andy,
+> > thank you for the review.
+> > 
+> > On Wed, 25 Feb 2026 18:12:13 +0200
+> > Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
+> > 
+> > > On Wed, Feb 25, 2026 at 10:54:01AM -0500, Hugo Villeneuve wrote:
+> > > 
+> > > > Add support for GPIO-based charlieplex keypad, allowing to control
+> > > > N^2-N keys using N GPIO lines.
+> > > > 
+> > > > Reuse matrix keypad keymap to simplify, even if there is no concept
+> > > > of rows and columns in this type of keyboard.
+> > > 
+> > > ...
+> > > 
+> > > > +/*
+> > > > + *  GPIO driven charlieplex keypad driver
+> > > > + *
+> > > > + *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > + *
+> > > > + *  Based on matrix_keyboard.c
+> > > 
+> > > A single space after asterisk is enough.
+> > 
+> > Ok, leftover from copy/paste from matrix_keyboard.c :)
+> > 
+> > > 
+> > > > + */
+> > > 
+> > > ...
+> > > 
+> > > + bitops.h
+> > > 
+> > > > +#include <linux/delay.h>
+> > > 
+> > > + dev_printk.h
+> > > + device/devres.h
+> > > + err.h
+> > > 
+> > > > +#include <linux/gpio/consumer.h>
+> > > > +#include <linux/input.h>
+> > > > +#include <linux/input/matrix_keypad.h>
+> > > 
+> > > + math.h
+> > 
+> > Ok.
+> > 
+> > 
+> > > 
+> > > > +#include <linux/module.h>
+> > > 
+> > > > +#include <linux/of.h>
+> > > 
+> > > Is this in use? Or you wanted mod_devicetable.h for OF ID table?
+> > 
+> > I need only OF ID table, so will replace with mod_devicetable.h.
+> > 
+> > 
+> > > 
+> > > > +#include <linux/platform_device.h>
+> > > > +#include <linux/property.h>
+> > > > +#include <linux/types.h>
+> > > 
+> > > ...
+> > > 
+> > > > +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
+> > > > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
+> > > > +		int iline;
+> > > 
+> > > > +		int rc;
+> > > 
+> > > I think Dmitry prefers 'error' name for this kind of variables.
+> > 
+> > I hate using "error", can be so misleading :)
+> > 
+> > I would prefer to use "rc" everywhere, but if Dmitry chimes in and
+> > specifies "error" or "err", then so it will be.
+> 
+> Yes, I prefer err or error for variables that carry error code or 0.
+> This allows to write
+> 
+> 	error = action(...);
+> 	if (error) {
+> 		// handle it
+> 	}
+> 
+> which is very clear IMO.
 
-Not only that. of_match_ptr() or ACPI_PTR() shouldn't be used in a new code
-(there are, of course, _rare_ corner cases, which this one is not one of).
+Ok, will fix it globally to "err" everywhere in V4.
 
--- 
-With Best Regards,
-Andy Shevchenko
 
+> 
+> 
+> > > > +
+> > > > +	err = input_register_device(keypad->input_dev);
+> > > > +	if (err)
+> > > > +		return err;
+> > > 
+> > > > +	platform_set_drvdata(pdev, keypad);
+> > > 
+> > > Is this needed?
+> > 
+> > No, will remove it, and replace last lines with:
+> > 
+> >    return input_register_device(keypad->input_dev);
+> 
+> Please use
+> 
+> 	err = input_register_device(...);
+> 	if (err)
+> 		return err;
+> 
+> 	return 0;
+> 
+> It clearly differentiates error an normal paths, shows that function
+> returns 0 and not anything else on success, and allows to reorder
+> or add additional actions easily.
+
+Ok.
+
+Thank you,
+Hugo
 

@@ -1,63 +1,63 @@
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA503D7D8D
-	for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 17:13:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC7C3D6684
+	for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 17:14:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772039583; cv=none; b=MrRVM69dBSyQ0/QaEZEKibyASzX++pHVIKnjkxVbKt2XG1GZK+cr1vzQn2nOTTVcLMqY21AglHvQs01CwxiLethkHDOHu/nALoB7lv3X9fxaPM2RISQpG5XpkiHV/cymWZypy5YAcmprY9tXBDEhP70XQSHpWBVtnNiOI43u6C4=
+	t=1772039662; cv=none; b=Msm6KKwIh3iiGpoKoAgheuMRX97ozky93ZJ2WY4qsktDxLzsDOaxFFR3C5Ie0mryEMJBkM9qzKgv/rNKb5Cl4ChIO//Zkc3tEc9ljqlwXgDxarNjw1/PMAEl9iB1+yAzotTTDu3g7tIDBb5xN1HUoPJ3c1CoU7umtS1V1tIvuXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772039583; c=relaxed/simple;
-	bh=ELCyhyC2gTSZpNqVhJedUxH106OdRf+PWAfdGW01zCA=;
+	s=arc-20240116; t=1772039662; c=relaxed/simple;
+	bh=6+SccbS+g4a6oOmUo4VbEGkpk8iwX9aoh4LICkhKYF0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PKgkWZBuQV1uYqyyAYWtTIoy2G736+eesjlu0WXcPEC3uIz9NCsICPBVDg0AHYKxmzJVpocLA+ZWFtYnA6XNeeAgLDxcKDvDQKb9bUXOiHfqWjYtJkK9PYFZKdvBqY9lGAzYiF4ou+OcyQvZmF6l1wWiRu5Ru6EYPH5KjzJTyjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VvqhjSy4; arc=none smtp.client-ip=74.125.82.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=UrmShTHPWYhsvu8znetaUtANjQSR7Q41sudNm6tvq8v3ZAMLCr7o5V1xMhFZPnqD2VOcB8GyWrIsRlXb2fUjJ0PzwXxMiEO81HKL7l/Aa2wXs63Hcv6BOaQ7mL/TAhCno4+0PeWpxul3lum7q7Szv+YnbeiQ5S4xBN3vqCvwuNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L4Xzuk3R; arc=none smtp.client-ip=74.125.82.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VvqhjSy4"
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12732e6a123so1158417c88.1
-        for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 09:13:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L4Xzuk3R"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2bdc47747e2so757005eec.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 09:14:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772039581; x=1772644381; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772039661; x=1772644461; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jpUJEtvyUfbAfsM/AsYdfsmRudWk2usCr4zOgiJsVxI=;
-        b=VvqhjSy4JzXl00stjTKaYYYCFpluU/D7KgaPPOeJ1rRzti3yFViYo48/XUfNFCXrpf
-         x2/7pjUxV/uHOSOgGM2tWmIOKfwX3qm86YUraF3RoBv6k42ZR7b1UbjqfGuDKSOM1MdQ
-         VCxiiacABSgUhur84hrcWjjvMkalviZe/01E8QWHFZjqluN3beki2mhVCaHd0JjxE/lc
-         8VVTOJ4hfq27IdRUSaUCfcmMo1XLTQWG9VY7evhKWcdcYe+/d99Sv5v5wmWSJiveQ2vp
-         h4GxH5NaPWuVAytYhoNRKuGdatxoV2EcgX2na0sumVU/ureuAt7cFxFsbD3i/7BqhFEM
-         fLYA==
+        bh=M6Fai54Ul21d21qsppL/OgbjNjE4u/Ww2JyK/Frhu5U=;
+        b=L4Xzuk3R0W8s+Pr8g70rI3llz5/7izSqkAZQc4uldD1EraLNWcwrdwISNpmkpmvw4h
+         WtaGX51Lap5U1vaVxY+XLLWbtABv8ptP3vjSsSCcce8hwIb3bBnoYfoJeI0cGjfFg2g+
+         PYo5aynYEvIbMA639kcjMU6+adgc3xWMfjIBCSpc/CX28ItY8wiUmrnjVmlh7p9MQMrZ
+         JreQ4dYn6a5eSvvY68bCQnb4XOliGSiV/D1wPUjE369FbJqz/6WnOlRQz3fYqpbBlBzT
+         0SPHehj7uaCIiTV12lJMz1k7r5ATq/rqpLkF7N5GIWim24Mi0t9D58C5Wsnth8ClCcCi
+         CzAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772039581; x=1772644381;
+        d=1e100.net; s=20230601; t=1772039661; x=1772644461;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jpUJEtvyUfbAfsM/AsYdfsmRudWk2usCr4zOgiJsVxI=;
-        b=pSjaEUNotROeZD36ObXiFBhZnG0+xaWo8q+CJidzdYrVG6nQqQefB4C8ffw0XEL9cW
-         6PQ91Jm4grLB4mlOOrKMZ7QFfFRgfxZMRDH7huQKULaIbuR4KfiDcFfE1JbXTCiZucLo
-         t5WgkLy5SGwwGhpKGOoXp1c5yhTs7FIZIqVlqgmDiz0b4nhNEXjHOpN8x39K6lCA9nt2
-         wfZ5nKCqMyfAswymNSLToWMhDO/9De7wrXxc2YFdZfLEZEr7tSzty6ayoOuO+mpcxKKY
-         BYBhg7oa174BmfqT/ICf0YinF4GoWB+pGvKXVMWGYjU9x+BxCYJHqb9MjYwy6YBGhB1a
-         Qpuw==
-X-Forwarded-Encrypted: i=1; AJvYcCWSCnKeNumgfavK565hscy9ZrA7CYq9u/PRwu9DngWrOSPrZjRQEUlgD7MdjnswdbSkk/RrE0s/Y0eK6g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YygccMhoCQro5wdu3USleVbYz4g4Pgbu7SdX+omR0n9/KbWnjkP
-	uDMEqF/YRUFt7v7qkd2f4Ecijwl9lIpt0ZrH+81eAK4hsubGCc4XOsZf
-X-Gm-Gg: ATEYQzw14hrVLkKxsG1gyuOCblJrF/TA5FTTqV3p3u6UICZV0krsQjzP/InrfilK71X
-	25tBI+UAGW42ZYIsMLaXEWJUPpg8/sts5BEQw/Y5LzCDZUruejRQZj/KhmZOqHfywjKbDKyyQZy
-	mp9QGdWFICdvXd4Y6LoFYdedZfTouCtV2lZ87+DsZCCLK0OeNHvImZyVjUYXspod8bDWeAffNQ2
-	h2H61B8YlR2bO3ZvHQ3zBoTdCnGfMog90Mi7WvIrnrBRCgTBeYt8KYOcCSN2jfXMFfpUSegctqp
-	D0aBQU/2WHqqtsNSRwNNsToKkWL0jPaLTNVHlc1tbxoaYDEyYqj2ZwplQJO48mkmnFyAY7YMgfA
-	XNjDsl/nnBJRrx5oOlKR83Ym9+GMIFSd0da2x/u78+TP+Jc3poiRJeol1DSEDxAIXkFxVwfcvAa
-	1yr+nJeRaJ2+Crvy0QkyWXeeZm64mp0Qu8U82EacTeTWACHFDbZtQehisBhnXHHV0o
-X-Received: by 2002:a05:701a:ca03:b0:127:3440:e5d5 with SMTP id a92af1059eb24-1276ad627ecmr6367928c88.21.1772039581204;
-        Wed, 25 Feb 2026 09:13:01 -0800 (PST)
+        bh=M6Fai54Ul21d21qsppL/OgbjNjE4u/Ww2JyK/Frhu5U=;
+        b=wURFILeIBje6+9oNO4bep6+8houyrzE/hBvLZ0apbkyjfJb5W/2ibZRfvAHRDJmi35
+         8CC6WKuxZ9vxmUXIDtBrMlfHzkH/8HjKhoOXTwQsnp+XvRG7uDFU1wMnjlkybckO976r
+         j6n+8JfnlsIiu+lZ9a3RhJE7rTt1zUsCIT6wdle3cCXryyFyx//qoXqzUnS/YoIzz+fT
+         8TrIi6vmbvznYcxUiicAF9CEgy0XrQ+f5Sbd4ZEGcYdVuxkRHMBufHu/PZjZFKeIOj4n
+         Uzb8w+HhGl96ByRc2xaprNnIYdAzc6RTglw5eIOb9/50R/rurQKOpAJOdCh1PnrRgXuL
+         LDGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXFC4Y6VhlQAb1HN2gd0pdqmf8Yn5A17q/7Ol6JFKKQdH/z9Mp3plTE3ytzI3f1f/HsUEHhXrUccgxqbQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJjltg96CF56z3XzuNvCXFXPp3BLyfAL4Ve1/+1ZeTxGH3z61u
+	pjcA90xbJ2zk33/vilkeJcnwfYU8jPvthKxD+KKmyQ+1eRI8cGyWEJbi
+X-Gm-Gg: ATEYQzwbXWu/gDRyuUFxDswMhB8RVZtSZIpH5yzvfTUNvVWsyyity/gWhgoz2AlkPe3
+	HK5UIoaEHg0Corkx46EHDF1DBb2Dro0W3XeXnVsHdzT+BGbSUyoR+KCgNFgfCb9Ju2HKEa6m5t7
+	TboVvGtH0ldaAJtzr0eXf3rMc8nGV9fCresLF4IXdNYlF9z2+OJcfEPx6KsOfCZY1/EU1sDNxib
+	Nz5OJEn61aDwjDmGTem96gWAS1u0TZ2fOpssmONlSBkNDTgGF5a5fEgdylUolmp8HRDDGpeHtH6
+	kpo0fOoUC3NA4mA/Km8+db4S6SqP3AgXro7yhd02ouiWAnevxhAzdSQjSDzUHPWu7otOJSNlXRI
+	q0DDtOGqgjbHrf2fix/3p3lMTSUCKdU20G1tdiGhyW/hJiwN/kdbUb3E8Z9y4OJrCxxPP+yvE9W
+	NhcljDu13WokAytAQMnFkSk3RiEyLNeJeShU2QzfszC9P6vBJhnMItkUTp2oBmR0mW
+X-Received: by 2002:a05:7301:d1a:b0:2bd:b2c9:851c with SMTP id 5a478bee46e88-2bdcc070e66mr620754eec.30.1772039660613;
+        Wed, 25 Feb 2026 09:14:20 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:64dd:9670:711a:678e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1276af10481sm14411000c88.3.2026.02.25.09.12.59
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7da4775dsm9332416eec.2.2026.02.25.09.14.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Feb 2026 09:13:00 -0800 (PST)
-Date: Wed, 25 Feb 2026 09:12:57 -0800
+        Wed, 25 Feb 2026 09:14:20 -0800 (PST)
+Date: Wed, 25 Feb 2026 09:14:16 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Hugo Villeneuve <hugo@hugovil.com>
 Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, robin@protonic.nl, 
@@ -69,11 +69,12 @@ Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, robin@protonic.nl,
 	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 Subject: Re: [PATCH v3 4/4] Input: charlieplex_keypad: add GPIO charlieplex
  keypad
-Message-ID: <aZ8sjwaKk5MCSDlg@google.com>
+Message-ID: <aZ8tocPCKqTXqbC0@google.com>
 References: <20260225155409.612478-1-hugo@hugovil.com>
  <20260225155409.612478-5-hugo@hugovil.com>
  <aZ8fXXGMx3fk7gKs@smile.fi.intel.com>
  <20260225114155.3ee2efb002aa0f52a905f535@hugovil.com>
+ <20260225115652.8beb1979df3824f7a95d22bc@hugovil.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,125 +83,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260225114155.3ee2efb002aa0f52a905f535@hugovil.com>
+In-Reply-To: <20260225115652.8beb1979df3824f7a95d22bc@hugovil.com>
 
-Hi Hugo,
-
-On Wed, Feb 25, 2026 at 11:41:55AM -0500, Hugo Villeneuve wrote:
-> Hi Andy,
-> thank you for the review.
+On Wed, Feb 25, 2026 at 11:56:52AM -0500, Hugo Villeneuve wrote:
+> On Wed, 25 Feb 2026 11:41:55 -0500
+> Hugo Villeneuve <hugo@hugovil.com> wrote:
 > 
-> On Wed, 25 Feb 2026 18:12:13 +0200
-> Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
-> 
-> > On Wed, Feb 25, 2026 at 10:54:01AM -0500, Hugo Villeneuve wrote:
+> > Hi Andy,
+> > thank you for the review.
 > > 
-> > > Add support for GPIO-based charlieplex keypad, allowing to control
-> > > N^2-N keys using N GPIO lines.
+> > On Wed, 25 Feb 2026 18:12:13 +0200
+> > Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
+> > 
+> > > On Wed, Feb 25, 2026 at 10:54:01AM -0500, Hugo Villeneuve wrote:
 > > > 
-> > > Reuse matrix keypad keymap to simplify, even if there is no concept
-> > > of rows and columns in this type of keyboard.
+> > > > Add support for GPIO-based charlieplex keypad, allowing to control
+> > > > N^2-N keys using N GPIO lines.
+> > > > 
+> > > > Reuse matrix keypad keymap to simplify, even if there is no concept
+> > > > of rows and columns in this type of keyboard.
+> > > 
+> > > ...
+> > > 
+> > > > +/*
+> > > > + *  GPIO driven charlieplex keypad driver
+> > > > + *
+> > > > + *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > + *
+> > > > + *  Based on matrix_keyboard.c
+> > > 
+> > > A single space after asterisk is enough.
 > > 
-> > ...
+> > Ok, leftover from copy/paste from matrix_keyboard.c :)
 > > 
-> > > +/*
-> > > + *  GPIO driven charlieplex keypad driver
-> > > + *
-> > > + *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > + *
-> > > + *  Based on matrix_keyboard.c
+> > > 
+> > > > + */
+> > > 
+> > > ...
+> > > 
+> > > + bitops.h
+> > > 
+> > > > +#include <linux/delay.h>
+> > > 
+> > > + dev_printk.h
+> > > + device/devres.h
+> > > + err.h
+> > > 
+> > > > +#include <linux/gpio/consumer.h>
+> > > > +#include <linux/input.h>
+> > > > +#include <linux/input/matrix_keypad.h>
+> > > 
+> > > + math.h
 > > 
-> > A single space after asterisk is enough.
+> > Ok.
+> > 
+> > 
+> > > 
+> > > > +#include <linux/module.h>
+> > > 
+> > > > +#include <linux/of.h>
+> > > 
+> > > Is this in use? Or you wanted mod_devicetable.h for OF ID table?
+> > 
+> > I need only OF ID table, so will replace with mod_devicetable.h.
 > 
-> Ok, leftover from copy/paste from matrix_keyboard.c :)
+> Hi Andy,
+> finally I need <linux/of.h> for of_match_ptr()...
 > 
-> > 
-> > > + */
-> > 
-> > ...
-> > 
-> > + bitops.h
-> > 
-> > > +#include <linux/delay.h>
-> > 
-> > + dev_printk.h
-> > + device/devres.h
-> > + err.h
-> > 
-> > > +#include <linux/gpio/consumer.h>
-> > > +#include <linux/input.h>
-> > > +#include <linux/input/matrix_keypad.h>
-> > 
-> > + math.h
-> 
-> Ok.
-> 
-> 
-> > 
-> > > +#include <linux/module.h>
-> > 
-> > > +#include <linux/of.h>
-> > 
-> > Is this in use? Or you wanted mod_devicetable.h for OF ID table?
-> 
-> I need only OF ID table, so will replace with mod_devicetable.h.
-> 
-> 
-> > 
-> > > +#include <linux/platform_device.h>
-> > > +#include <linux/property.h>
-> > > +#include <linux/types.h>
-> > 
-> > ...
-> > 
-> > > +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
-> > > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
-> > > +		int iline;
-> > 
-> > > +		int rc;
-> > 
-> > I think Dmitry prefers 'error' name for this kind of variables.
-> 
-> I hate using "error", can be so misleading :)
-> 
-> I would prefer to use "rc" everywhere, but if Dmitry chimes in and
-> specifies "error" or "err", then so it will be.
+> But I will keep <mod_devicetable.h> ...
 
-Yes, I prefer err or error for variables that carry error code or 0.
-This allows to write
-
-	error = action(...);
-	if (error) {
-		// handle it
-	}
-
-which is very clear IMO.
-
-
-> > > +
-> > > +	err = input_register_device(keypad->input_dev);
-> > > +	if (err)
-> > > +		return err;
-> > 
-> > > +	platform_set_drvdata(pdev, keypad);
-> > 
-> > Is this needed?
-> 
-> No, will remove it, and replace last lines with:
-> 
->    return input_register_device(keypad->input_dev);
-
-Please use
-
-	err = input_register_device(...);
-	if (err)
-		return err;
-
-	return 0;
-
-It clearly differentiates error an normal paths, shows that function
-returns 0 and not anything else on success, and allows to reorder
-or add additional actions easily.
+Do we need the dependency on OF? We may include of match pointer
+unconditionally and the driver could be used on ACPI systems with
+PRP0001 HID.
 
 Thanks.
 

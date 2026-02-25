@@ -1,58 +1,71 @@
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com [209.85.210.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB8B3D6698;
-	Wed, 25 Feb 2026 15:54:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C5833ADA1
+	for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 15:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772034867; cv=none; b=O979Tgx2DKuwNxwvufxT3IcUwVAO4jVGr2mdAhVa7AsnMVn+3KWJ0e5NnxkvHPvAZVmP8nGCk5MaP/Q/6/tlzlbjr36Iaf+Rq/0Qd85iJDDSAgH6yQFn8WpCOPyj47gpEddR5NzxHRRvcTlPX542mw0LCnjgN35TowVTQHxknaY=
+	t=1772035082; cv=none; b=b8arE7RGjiVOKuQS11YxbQwXwY/1kWs9rVCxaKFRy0EMRbyTkM5YOEtjQJytntdq6+XO7Zf22muRfonABvJqy8b33UNrrai0UjJ9gW1hF51Cf4E99HlxAVxZPfAThZusnO6/D/QlanEE5Qwctg2rAs1knVbZAhgMXcAQKWai0dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772034867; c=relaxed/simple;
-	bh=UlxhWottnAskULrwuLN5gikMitjQzAFvK3xbKAutqIw=;
-	h=From:To:Cc:Date:Message-ID:In-Reply-To:References:MIME-Version:
-	 Subject; b=Xz2SvOnZaVaax9I0+lvE9a34w4wbsEH16Qr3RIesI6+MprwfobntoQOAihT3gBtpk+WDiilFHBGxW6u15tGCO/BAtIREwLrvQd13iBT3dz/GmTOJPf4T6TIYEsMBsQBhWAAa2YBrH2cIfS1Q0QVu/+Oreia2DkeCLzr7mfc3S6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=cmX8fe2+; arc=none smtp.client-ip=162.243.120.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
+	s=arc-20240116; t=1772035082; c=relaxed/simple;
+	bh=rTF7CrWaDCkFx1R2VIKVMLx3DayfDzRHegT7M+Cyz08=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NMvpmWnjidNeO2oRFYvlzkfK7+4jOeXxww6ZmQN4GAe5NKJXWfYTN1f425wYfEZrLxReU16fQ/0RN+D/5Zi2gThiA3jtZPoTLUPwaarZmZc5dTvzacXEtSyEIkajRIT70n7yhqfQsSU+5H/jZ2Sxf0rrEChRP23UYu8Ze/ayu8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQ83Zvc3; arc=none smtp.client-ip=209.85.210.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="cmX8fe2+"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-	; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Cc:To
-	:From:subject:date:message-id:reply-to;
-	bh=qGaoYtle+bX/4SmeNH8BhwDQZAURuEQKPgOmITzcCQo=; b=cmX8fe2+ZHEqUnIxat86+aAQpH
-	O/hCpSbjj5A2rIg+5Xq2u5VG/aM/cHuS2WQrRewefcsrFq6sUKAOvs40Gi2OqY0TzJUyt6eXwDqCi
-	r+NIg0cjYu5ya00l5u4kg+lOVf7SThfLYQ2u6spo3TOTX1JQJ/1foPAELYyVYnFokDsM=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:47746 helo=pettiford.lan)
-	by mail.hugovil.com with esmtpa (Exim 4.92)
-	(envelope-from <hugo@hugovil.com>)
-	id 1vvHDO-0005uT-TS; Wed, 25 Feb 2026 10:54:20 -0500
-From: Hugo Villeneuve <hugo@hugovil.com>
-To: robin@protonic.nl,
-	andy@kernel.org,
-	geert@linux-m68k.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	dmitry.torokhov@gmail.com,
-	hvilleneuve@dimonoff.com,
-	mkorpershoek@kernel.org,
-	matthias.bgg@gmail.com,
-	angelogioacchino.delregno@collabora.com,
-	lee@kernel.org,
-	alexander.sverdlin@gmail.com,
-	marek.vasut@gmail.com,
-	akurz@blala.de
-Cc: devicetree@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQ83Zvc3"
+Received: by mail-pf1-f195.google.com with SMTP id d2e1a72fcca58-823c56765fdso3198792b3a.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Feb 2026 07:58:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772035081; x=1772639881; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wsZYB29iP53RlNA6or+fhJlMEAO1yptSiNSXw/b8CnI=;
+        b=LQ83Zvc3xjetRBOsjQH4AAYUoVyyo6Ze2ABL8OHH495ZBTeCgUvk7I31rrUs7vYGEg
+         SP/UE9CYmex82SYfuh5mz+rXstDj148hap+8yT1aWd6g9M9lnFi9ropv4CpGiyhaAXiu
+         T4iN0Pb6eMenf8wc7dlEkGLwBO8AYrO/qsz0Y03xccfF9iqHNI4rlnynMn+qbBYjkbj7
+         02aHfB6XG7lmu0Io1Z4xCXHXDXQaGJXyuKn/Kngf2IPklYtUBIJmplk71ugWB5bdbC84
+         g6xo+IPvCbkcYtKA58vZ1STTgHMVvN2ZVHH2OySg+kKe9KZzxMdG7DDQAtUT2u/H5VR3
+         3TOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772035081; x=1772639881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wsZYB29iP53RlNA6or+fhJlMEAO1yptSiNSXw/b8CnI=;
+        b=kPCyXAy29JX1Qbw8UqEiVElL+d6XrKJTUw3gAcJhFjCd4l0R3Hsuc78k2FTB0s3OBM
+         FDf3y1LZJKJwfdwXubGT98DK9Q0ZuOeDHAlmQXXQrAo2HGscLA+0MFwf1EAe88zBZ706
+         ZPvrGsVXbEl9zIeifksNyhIBA+790wMYY/AWHm4cbDXEPunKWbfTsNMEOHbt4Ua4AgoL
+         lgm+H1lUzKUL9mvznAXu5AUzujFbrXKznIC+WeNW3XNPJknBcfC2xNh4T0BNuXH9z4vt
+         6gpWAID6RpmispSp7orWO1UV+2F00cQupb94dOaC//kRGS6PGAZSCJibMSLa5ZOlbSAZ
+         U5bQ==
+X-Gm-Message-State: AOJu0YzCXA0GjTOfBRXEmGvSYgeY8vNO22kb6jKOFCnxwIRPjgi9I4uB
+	S3Lwmmla1LEquCeaPg2fTK0rL0aw3DRhXIyb2sddJZg2zNOziBZBNwDIPkupkPzexf8=
+X-Gm-Gg: ATEYQzx+8Lr9xrvjhU5yB388nHAD5Lngr5hkClFvr6kodIzaMLNJSDJWapi+0VTHOPT
+	Tnj6wh96eNnytCf+PnmD9YYYjhsnVE3QoG9DFklrMobYvGIZPIBBXp89/G4sxtw+AbObk9D0E5o
+	zOGeNUKKmGAiS+sW7qInLkwfn1lGHO6zfuxT0D6Arfm5xc4ov1LJJ+PdhfFyZw8iNiJrqZY2mEL
+	uxEF3bnWqgUcnvhf7TOhHux1q1OcZG+VPdWc+gb4xv8Tz6rFrzYJW/txAm8p7L5C/zKc9Q+5TuF
+	5+al1ZvmojtNaVqzsE5ll8PxhzxM5GOK+9mj4Mp6QBM1W7sKCLnNXmd2LNyV4kVzOYGFzYph/ns
+	gG1GSNaQ3ivJD4AaMP/lcc+9unn/475FDObup0SJ2GWKcpAEUgfCM1kLg1CpDp0+UbVj3wBmg9u
+	v9m7BNyggEoveY3KlG/xOzTgUGzGDZK5NxJA9VnMRTwgplESJpELNVU9ZX2woCtxggAFnE9N5dc
+	DNp86MM5HdZBl4iZd/1eFtRXotB61Rve7iPADdOUaU=
+X-Received: by 2002:a05:6a20:9f96:b0:35e:8b76:c960 with SMTP id adf61e73a8af0-39545fbe266mr14306776637.48.1772035080892;
+        Wed, 25 Feb 2026 07:58:00 -0800 (PST)
+Received: from Slifer ([112.208.65.28])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c70b72603dfsm13966622a12.28.2026.02.25.07.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Feb 2026 07:58:00 -0800 (PST)
+From: Karl Cayme <kcayme@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	hugo@hugovil.com
-Date: Wed, 25 Feb 2026 10:54:01 -0500
-Message-ID: <20260225155409.612478-5-hugo@hugovil.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260225155409.612478-1-hugo@hugovil.com>
-References: <20260225155409.612478-1-hugo@hugovil.com>
+	Karl Cayme <kcayme@gmail.com>
+Subject: [PATCH v1] HID: rakk: add support for Rakk Dasig X side buttons
+Date: Wed, 25 Feb 2026 23:56:45 +0800
+Message-ID: <20260225155645.83981-1-kcayme@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -60,310 +73,153 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 70.80.174.168
-X-SA-Exim-Mail-From: hugo@hugovil.com
-X-Spam-Level: 
-X-Spam-Report: 
-	*  1.7 URIBL_BLACK Contains an URL listed in the URIBL blacklist
-	*      [URIs: perches.com]
-	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-	* -1.9 BAYES_00 BODY: Bayes spam probability is 0 to 1%
-	*      [score: 0.0000]
-Subject: [PATCH v3 4/4] Input: charlieplex_keypad: add GPIO charlieplex keypad
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
+declares USAGE_MAXIMUM=3 (buttons 1-3) while actually sending 5 button
+bits (REPORT_COUNT=5). This causes the kernel to ignore side buttons
+(buttons 4 and 5).
 
-Add support for GPIO-based charlieplex keypad, allowing to control
-N^2-N keys using N GPIO lines.
+Fix by patching the descriptor to set USAGE_MAXIMUM=5 in the
+report_fixup callback.
 
-Reuse matrix keypad keymap to simplify, even if there is no concept
-of rows and columns in this type of keyboard.
+The mouse uses Telink vendor ID 0x248a with three product IDs for USB
+direct (0xfb01), wireless dongle (0xfa02), and Bluetooth (0x8266)
+connection modes. All three variants have the same bug at byte offset 17.
 
-Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+Signed-off-by: Karl Cayme <kcayme@gmail.com>
 ---
- MAINTAINERS                                 |   7 +
- drivers/input/keyboard/Kconfig              |  14 ++
- drivers/input/keyboard/Makefile             |   1 +
- drivers/input/keyboard/charlieplex_keypad.c | 213 ++++++++++++++++++++
- 4 files changed, 235 insertions(+)
- create mode 100644 drivers/input/keyboard/charlieplex_keypad.c
+ drivers/hid/Kconfig    |  8 +++++
+ drivers/hid/Makefile   |  1 +
+ drivers/hid/hid-ids.h  |  5 +++
+ drivers/hid/hid-rakk.c | 72 ++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 86 insertions(+)
+ create mode 100644 drivers/hid/hid-rakk.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9ed6d11a7746..0b2d71f32b40 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5765,6 +5765,13 @@ S:	Maintained
- F:	Documentation/hwmon/powerz.rst
- F:	drivers/hwmon/powerz.c
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c1d9f7c6a5f2..930ea0773169 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -755,6 +755,14 @@ config HID_MEGAWORLD_FF
+ 	Say Y here if you have a Mega World based game controller and want
+ 	to have force feedback support for it.
  
-+CHARLIEPLEX KEYPAD DRIVER
-+M:	Hugo Villeneuve <hvilleneuve@dimonoff.com>
-+S:	Supported
-+W:	http://www.mosaic-industries.com/embedded-systems/microcontroller-projects/electronic-circuits/matrix-keypad-scan-decode
-+F:	Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.yaml
-+F:	drivers/input/keyboard/charlieplex_keypad.c
-+
- CHECKPATCH
- M:	Andy Whitcroft <apw@canonical.com>
- M:	Joe Perches <joe@perches.com>
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 2ff4fef322c2..ae54b4b7e2d8 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -289,6 +289,20 @@ config KEYBOARD_MATRIX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called matrix_keypad.
- 
-+config KEYBOARD_CHARLIEPLEX
-+	tristate "GPIO driven chearlieplex keypad support"
-+	depends on GPIOLIB || COMPILE_TEST
-+	select INPUT_MATRIXKMAP
++config HID_RAKK
++	tristate "Rakk support"
 +	help
-+	  Enable support for GPIO driven charlieplex keypad. A charlieplex
-+	  keypad allows to use fewer GPIO lines to interface to key switches.
-+	  For example, an N lines charlieplex keypad can be used to interface
-+	  to N^2-N different key switches. However, this type of keypad
-+	  cannot detect more than one key press at a time.
++	  Support for Rakk gaming peripherals.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called charlieplex_keypad.
++	  Fixes the HID report descriptor of the Rakk Dasig X mouse,
++	  which declares only 3 buttons instead of 5.
 +
- config KEYBOARD_HIL_OLD
- 	tristate "HP HIL keyboard support (simple driver)"
- 	depends on GSC || HP300
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 2d906e14f3e2..40b5cf5d374d 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -40,6 +40,7 @@ obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
- obj-$(CONFIG_KEYBOARD_LPC32XX)		+= lpc32xx-keys.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-+obj-$(CONFIG_KEYBOARD_CHARLIEPLEX)	+= charlieplex_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7360)		+= max7360-keypad.o
- obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
-diff --git a/drivers/input/keyboard/charlieplex_keypad.c b/drivers/input/keyboard/charlieplex_keypad.c
+ config HID_REDRAGON
+ 	tristate "Redragon keyboards"
+ 	default !EXPERT
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index e01838239ae6..7800613f5b2b 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -113,6 +113,7 @@ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PLAYSTATION)	+= hid-playstation.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
+ obj-$(CONFIG_HID_PXRC)		+= hid-pxrc.o
++obj-$(CONFIG_HID_RAKK)		+= hid-rakk.o
+ obj-$(CONFIG_HID_RAPOO) += hid-rapoo.o
+ obj-$(CONFIG_HID_RAZER)	+= hid-razer.o
+ obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3e299a30dcde..68fab837e8b3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1369,6 +1369,11 @@
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017	0x73f6
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
+ 
++#define USB_VENDOR_ID_TELINK				0x248a
++#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X		0xfb01
++#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X_DONGLE	0xfa02
++#define USB_DEVICE_ID_TELINK_RAKK_DASIG_X_BT		0x8266
++
+ #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
+ #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
+ 
+diff --git a/drivers/hid/hid-rakk.c b/drivers/hid/hid-rakk.c
 new file mode 100644
-index 000000000000..fae0aeb1d167
+index 000000000000..c2b969ce7259
 --- /dev/null
-+++ b/drivers/input/keyboard/charlieplex_keypad.c
-@@ -0,0 +1,213 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/drivers/hid/hid-rakk.c
+@@ -0,0 +1,72 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
-+ *  GPIO driven charlieplex keypad driver
++ *  HID driver for Rakk devices
 + *
-+ *  Copyright (c) 2025 Hugo Villeneuve <hvilleneuve@dimonoff.com>
++ *  Copyright (c) 2025 Karl Cayme
 + *
-+ *  Based on matrix_keyboard.c
++ *  The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
++ *  declares USAGE_MAXIMUM = 3 (buttons 1-3) while actually sending 5 button
++ *  bits (REPORT_COUNT = 5). This causes the kernel to ignore side buttons
++ *  (buttons 4 and 5). This driver fixes the descriptor so all 5 buttons
++ *  are properly recognized across 3 modes (wired, dongle, and Bluetooth).
 + */
 +
-+#include <linux/delay.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/input.h>
-+#include <linux/input/matrix_keypad.h>
++#include <linux/device.h>
++#include <linux/hid.h>
 +#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/types.h>
++#include "hid-ids.h"
 +
-+struct charlieplex_keypad {
-+	struct input_dev *input_dev;
-+	struct gpio_descs *line_gpios;
-+	unsigned int nlines;
-+	unsigned int settling_time_us;
-+	unsigned int debounce_threshold;
-+	unsigned int debounce_count;
-+	int debounce_code;
-+	int current_code;
-+};
++/*
++ * The faulty byte is at offset 17 in the report descriptor for all three
++ * connection modes (USB direct, wireless dongle, and Bluetooth).
++ *
++ * Bytes 16-17 are: 0x29 0x03 (USAGE_MAXIMUM = 3)
++ * The fix changes byte 17 to 0x05 (USAGE_MAXIMUM = 5).
++ *
++ * Original descriptor bytes 0-17:
++ *   05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 03
++ *                                                       ^^
++ *   Should be 0x05 to declare 5 buttons instead of 3.
++ */
++#define RAKK_RDESC_USAGE_MAX_OFFSET	17
++#define RAKK_RDESC_USAGE_MAX_ORIG	0x03
++#define RAKK_RDESC_USAGE_MAX_FIXED	0x05
++#define RAKK_RDESC_USB_SIZE		193
++#define RAKK_RDESC_DONGLE_SIZE		150
++#define RAKK_RDESC_BT_SIZE		89
 +
-+static void charlieplex_keypad_report_key(struct input_dev *input)
++static const __u8 *rakk_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				      unsigned int *rsize)
 +{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+	const unsigned short *keycodes = input->keycode;
-+
-+	if (keypad->current_code > 0) {
-+		input_event(input, EV_MSC, MSC_SCAN, keypad->current_code);
-+		input_report_key(input, keycodes[keypad->current_code], 0);
++	if ((*rsize == RAKK_RDESC_USB_SIZE ||
++	     *rsize == RAKK_RDESC_DONGLE_SIZE ||
++	     *rsize == RAKK_RDESC_BT_SIZE) &&
++	    rdesc[RAKK_RDESC_USAGE_MAX_OFFSET] == RAKK_RDESC_USAGE_MAX_ORIG) {
++		hid_info(hdev, "fixing Rakk Dasig X button count (3 -> 5)\n");
++		rdesc[RAKK_RDESC_USAGE_MAX_OFFSET] = RAKK_RDESC_USAGE_MAX_FIXED;
 +	}
 +
-+	if (keypad->debounce_code) {
-+		input_event(input, EV_MSC, MSC_SCAN, keypad->debounce_code);
-+		input_report_key(input, keycodes[keypad->debounce_code], 1);
-+	}
-+
-+	input_sync(input);
-+	keypad->current_code = keypad->debounce_code;
++	return rdesc;
 +}
 +
-+static void charlieplex_keypad_check_switch_change(struct input_dev *input,
-+						   int code)
-+{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+
-+	if (code != keypad->debounce_code) {
-+		keypad->debounce_count = 0;
-+		keypad->debounce_code = code;
-+	} else if (keypad->debounce_count < keypad->debounce_threshold) {
-+		keypad->debounce_count++;
-+
-+		if (keypad->debounce_count >= keypad->debounce_threshold &&
-+		    keypad->debounce_code != keypad->current_code)
-+			charlieplex_keypad_report_key(input);
-+	}
-+}
-+
-+static void charlieplex_keypad_poll(struct input_dev *input)
-+{
-+	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-+	int oline;
-+	int code;
-+
-+	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
-+		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
-+		int iline;
-+		int rc;
-+
-+		/* Activate only one line as output at a time. */
-+		gpiod_direction_output(keypad->line_gpios->desc[oline], 1);
-+
-+		if (keypad->settling_time_us)
-+			fsleep(keypad->settling_time_us);
-+
-+		/* Read input on all other lines. */
-+		rc = gpiod_get_array_value_cansleep(keypad->line_gpios->ndescs,
-+						    keypad->line_gpios->desc,
-+						    keypad->line_gpios->info, values);
-+		if (rc)
-+			return;
-+
-+		for (iline = 0; iline < keypad->nlines; iline++) {
-+			if (iline == oline)
-+				continue; /* Do not read active output line. */
-+
-+			/* Check if GPIO is asserted. */
-+			if (test_bit(iline, values)) {
-+				code = MATRIX_SCAN_CODE(oline, iline,
-+							get_count_order(keypad->nlines));
-+				/*
-+				 * Exit loop immediately since we cannot detect
-+				 * more than one key press at a time.
-+				 */
-+				break;
-+			}
-+		}
-+
-+		gpiod_direction_input(keypad->line_gpios->desc[oline]);
-+
-+		if (code)
-+			break;
-+	}
-+
-+	charlieplex_keypad_check_switch_change(input, code);
-+}
-+
-+static int charlieplex_keypad_init_gpio(struct platform_device *pdev,
-+					struct charlieplex_keypad *keypad)
-+{
-+	int i;
-+
-+	keypad->line_gpios = devm_gpiod_get_array(&pdev->dev, "line", GPIOD_IN);
-+	if (IS_ERR(keypad->line_gpios))
-+		return PTR_ERR(keypad->line_gpios);
-+
-+	keypad->nlines = keypad->line_gpios->ndescs;
-+
-+	if (keypad->nlines > MATRIX_MAX_ROWS)
-+		return -EINVAL;
-+
-+	for (i = 0; i < keypad->nlines; i++)
-+		gpiod_set_consumer_name(keypad->line_gpios->desc[i], "charlieplex_kbd_line");
-+
-+	return 0;
-+}
-+
-+static int charlieplex_keypad_probe(struct platform_device *pdev)
-+{
-+	struct charlieplex_keypad *keypad;
-+	unsigned int debounce_interval_ms;
-+	unsigned int poll_interval_ms;
-+	struct input_dev *input_dev;
-+	int err;
-+
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
-+	if (!keypad)
-+		return -ENOMEM;
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	keypad->input_dev = input_dev;
-+
-+	device_property_read_u32(&pdev->dev, "poll-interval", &poll_interval_ms);
-+	device_property_read_u32(&pdev->dev, "debounce-delay-ms", &debounce_interval_ms);
-+	device_property_read_u32(&pdev->dev, "settling-time-us", &keypad->settling_time_us);
-+
-+	keypad->current_code = -1;
-+	keypad->debounce_code = -1;
-+	keypad->debounce_threshold = DIV_ROUND_UP(debounce_interval_ms, poll_interval_ms);
-+
-+	err = charlieplex_keypad_init_gpio(pdev, keypad);
-+	if (err)
-+		return err;
-+
-+	input_dev->name		= pdev->name;
-+	input_dev->id.bustype	= BUS_HOST;
-+
-+	err = matrix_keypad_build_keymap(NULL, NULL, keypad->nlines,
-+					 keypad->nlines, NULL, input_dev);
-+	if (err)
-+		dev_err_probe(&pdev->dev, -ENOMEM, "failed to build keymap\n");
-+
-+	if (device_property_read_bool(&pdev->dev, "autorepeat"))
-+		__set_bit(EV_REP, input_dev->evbit);
-+
-+	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-+
-+	err = input_setup_polling(input_dev, charlieplex_keypad_poll);
-+	if (err)
-+		dev_err_probe(&pdev->dev, err, "unable to set up polling\n");
-+
-+	input_set_poll_interval(input_dev, poll_interval_ms);
-+
-+	input_set_drvdata(input_dev, keypad);
-+
-+	err = input_register_device(keypad->input_dev);
-+	if (err)
-+		return err;
-+
-+	platform_set_drvdata(pdev, keypad);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id charlieplex_keypad_dt_match[] = {
-+	{ .compatible = "gpio-charlieplex-keypad" },
++static const struct hid_device_id rakk_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TELINK,
++			 USB_DEVICE_ID_TELINK_RAKK_DASIG_X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TELINK,
++			 USB_DEVICE_ID_TELINK_RAKK_DASIG_X_DONGLE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_TELINK,
++			       USB_DEVICE_ID_TELINK_RAKK_DASIG_X_BT) },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(of, charlieplex_keypad_dt_match);
++MODULE_DEVICE_TABLE(hid, rakk_devices);
 +
-+static struct platform_driver charlieplex_keypad_driver = {
-+	.probe		= charlieplex_keypad_probe,
-+	.driver		= {
-+		.name	= "charlieplex-keypad",
-+		.of_match_table = of_match_ptr(charlieplex_keypad_dt_match),
-+	},
++static struct hid_driver rakk_driver = {
++	.name = "rakk",
++	.id_table = rakk_devices,
++	.report_fixup = rakk_report_fixup,
 +};
-+module_platform_driver(charlieplex_keypad_driver);
++module_hid_driver(rakk_driver);
 +
-+MODULE_AUTHOR("Hugo Villeneuve <hvilleneuve@dimonoff.com>");
-+MODULE_DESCRIPTION("GPIO driven charlieplex keypad driver");
++MODULE_DESCRIPTION("HID driver for Rakk Dasig X mouse - fix side button support");
 +MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Karl Cayme");
 -- 
-2.47.3
+2.53.0
 

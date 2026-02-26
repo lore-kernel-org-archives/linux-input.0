@@ -1,41 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16538313293;
-	Thu, 26 Feb 2026 15:01:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06D63E95AA;
+	Thu, 26 Feb 2026 15:06:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772118084; cv=none; b=o4IA39m+QXKJmfBWv+vjJ1/0B74N8ZmVNa42gOzXvzPZeeU3Dd5xlNBKZQjLDnLkAmc7KCl8bQDUinou3mA+EJizVZMXXedrOJzladOZzbQuvY5asvkXaFcrteyheaCrIh29JMFkZFZPTHOxvS2PJzrqjm6cMc/OUCdOWGVgS08=
+	t=1772118377; cv=none; b=j742ljHrzIq36I89WQi+Ts2usFX+u7D6/uqMFaxz/ELS9mJ0vgbPO2LbC5MxyRA2nSnGknWxcfTJ+uFkQnVEAsknrvdsJk/TPPyC2XZnE8H3QZDIpxpI7d0qaDgn/FyAPN1X7AAo4ujm5lMxrfqsmfbxs2YIvvuZdHlNzKrJv0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772118084; c=relaxed/simple;
-	bh=LifbC9eXqjyvgz/qyI3yipShRxzms/ASN2m/aMsXJ1g=;
+	s=arc-20240116; t=1772118377; c=relaxed/simple;
+	bh=WaAW6mjvV+7xxX1h1FY6Yya5MkFXPEc/Jp083Y94v7E=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=jRWqVA4XARXq5INAtbn01Awc670ORtCSq9207tNxCG+C4EyicjyhbsYM+i5HOTrm9uHtobuWmnqXY7lSFJqWNTVo62wHK07T1wsUmjYcB59Pkx/PkGItcn2Mian4Lu24z1R/Oohwq5BE2VLdEE3qDIJUJnwZ5t+wtqGij1L2wIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XUvG6u2e; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=aCWMCctPruN/I/B1M9/uAnWhA/qAS6AJ3EE9MB3Vw7db5ZU73Yxpsrq4ayN495j/q9tED8YqyPrBMuwklDp9AuRIDkJt9Fffi/Zc20eSSFyLrokFBkJ1zf3dnfVL3/qfmOrSamdbJ8+5fXPyjd2JtDDlFX/WqzxcjR3zNbOBPOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ugcu1wgr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XUvG6u2e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42AA2C116C6;
-	Thu, 26 Feb 2026 15:01:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ugcu1wgr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB591C19423;
+	Thu, 26 Feb 2026 15:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772118083;
-	bh=LifbC9eXqjyvgz/qyI3yipShRxzms/ASN2m/aMsXJ1g=;
+	s=k20201202; t=1772118377;
+	bh=WaAW6mjvV+7xxX1h1FY6Yya5MkFXPEc/Jp083Y94v7E=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=XUvG6u2eaLMv5tMJ/KJrGepMFbpVAF+RRIp1zh8iZs2kSUMUZ1zHINswN5rn28Nyz
-	 7jomOGov79oiulOsv7bxhm50IYhA8e441zGaUiNN/o/k73v0M5/Rebgxcn92/YrRSy
-	 rGZ8niIgKXcX7p7YcS568H5sGY4WvyKS2aKQwCnjfClwKfo2PEHuiLbOjJwIzj5JpF
-	 hvhDjfCdk7GXcwjtzfU5VwY/9rl8XQ6awuYLnCIyX4NACRlc4lRksIRsVPeObJ5cXl
-	 ZfqTjzYANgvF9c4W3uMcNjXPhSWo3/B5RBkmORnBGx0PyGibQL+KNEsxLlPOwb/QO/
-	 iLYzvBrobHASQ==
-Date: Thu, 26 Feb 2026 16:01:21 +0100 (CET)
+	b=Ugcu1wgr5j4IRolOnXKu6ypgOaHBVaTWpC9gGyZEzXvtWkiSrGSp03xczJyc9pMUt
+	 lhRN5+jdVzU1RkZUYd6aIz3tbkvRPtumYTvp6Bot9dGTONZcmFz8vUnL5E5CP/l0+w
+	 wDp3rAsOIMcIc9i5aJPE2js4foMhizfq+yecKj8i/stc4jcYCqPlz0SqBVPozofE3K
+	 GRAZSUSjfK7XYaEO32ixIsCETDch0sLv5UTfRoa3suCSbNuN8R+KGCNq5owLLGBLHl
+	 3P/uXi9ozGyXNiN1wGIpsG36uowlfpZ3qF9KwURb8uVrrvVc2p6xgOQ+TWxwAiyLQT
+	 oSaaE8KP9mS5Q==
+Date: Thu, 26 Feb 2026 16:06:14 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Takashi Iwai <tiwai@suse.de>
-cc: linux-input@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: apple: Add EPOMAKER TH87 to the non-apple keyboards
- list
-In-Reply-To: <20260224090004.73980-1-tiwai@suse.de>
-Message-ID: <1q0494rq-48s5-737r-4o45-407q8036or29@xreary.bet>
-References: <20260224090004.73980-1-tiwai@suse.de>
+To: Oliver Neukum <oneukum@suse.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCHv2 1/2] hid: hid-pl: handle probe errors
+In-Reply-To: <20260216134958.260648-2-oneukum@suse.com>
+Message-ID: <68513r8q-449s-ps59-3821-9nrs786r9417@xreary.bet>
+References: <20260216134958.260648-1-oneukum@suse.com> <20260216134958.260648-2-oneukum@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,16 +42,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 24 Feb 2026, Takashi Iwai wrote:
+On Mon, 16 Feb 2026, Oliver Neukum wrote:
 
-> EPOMAKER TH87 has the very same ID as Apple Aluminum keyboard
-> (05ac:024f) although it doesn't work as expected in compatible way.
+> Errors in init must be reported back or we'll
+> follow a NULL pointer the first time FF is used,
+> because plff_init() initializes the private member.
 > 
-> Put three entries to the non-apple keyboards list to exclude this
-> device: one for BT ("TH87"), one for USB ("HFD Epomaker TH87") and one
-> for dongle ("2.4G Wireless Receiver").
+> V2: resend full series
 
-Applied to hid.git#for-7.0/upstream-fixes, thanks Takashi.
+This one is in Linus' tree as 3756a272d2cf3 already.
 
 -- 
 Jiri Kosina

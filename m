@@ -1,113 +1,87 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60079364043
-	for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 11:18:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D855C261B70;
+	Thu, 26 Feb 2026 12:22:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772104726; cv=none; b=er3KG7lHL/RdgGPKF+UAnYeB8WLEtkE4woTpBm7Kjq6jQJV9057EV9HDAuR94tjyw+jFFRHeTU1uAO2hVUPszHYXPP4wj3Un4uu0+SWbJrDJeM3jsd3ARVe8DGeknPJ/f4dqAkXsmLhvoGNO/iLFQ8OVFGmGIxQm6OeuYiQUC7U=
+	t=1772108561; cv=none; b=iKyf1RdvQ39ntjPSfWUs4Z95B8w+4xk8RtUQwmFqsAPrP5a/aguKgyhiroFqYfjoX0bNR5I0aq9/KLnDfAgf3gs1d4OeJrTVeBAL5crgX837le8mnYLvu0bT2ID52nCKqKOJrIEa322af8UECidqF2nSIOiRIVvdM/oQkC1d6VA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772104726; c=relaxed/simple;
-	bh=ICU3EA6UgrG8p+rSNbvyBuEVUfibTv5KSnmzR93d+G8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bFx9GPjbPgUs6D9AZpQN81IeSMmvJWNqDyN9Sse8JuacH8lDBArM8a4N+K2wVmJcBBzekyqDs7ywGYo5AUbqc8VBYZWlW8H0aXBx1ePujxCFzB4Wu0PF7BTagWnV6QEI3onS9gXZwV5/T3/H3JxsEfkKo8aKHKOgEPaA8Ni7ik8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-8cb39647a70so64487385a.0
-        for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 03:18:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772104723; x=1772709523;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Bnw64VDmOIsDBjD+cxaJBPxWhHWJgKFnBBtMRI3MdyY=;
-        b=QFUbg6ji6OQ20FLdTkkQgT751zPuV2yVHd6BX3nD+CTOfAT1B2Hzf7ymX5VKMy+ZL0
-         jJykBFM73+h/7C0wyhjr0akW8nWOxwCNfWoj8FyV5jdZ1Zq9Y/4Qm679l6Rk0Qams93t
-         KtqOJzQ95W9DDGAvfORpSeJ7lMfvvBZ9QcNK7dHMKCpjSYDtoNHJKfFTMirg2J5/FfJY
-         tr2FKK4V9XrrJ2N41+Ti3AHuUnxoZ55qh/jlXsMAc/CghOpdQIYFxChwXIQlPSnKSGUX
-         9aN1LDU/sJNBax88fRNQHBFVYEh+w4QoiA44OJwMWfxQlUPuMqJz7vyikcAJTrKxQ+3s
-         j9QQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWG62UcjIvEinmdo+DG766+YFccK1qkkq5AEGRSJmHhw0OmxKVJGSrNFtv8jVm6NdM4tdUCaSHrUAfX9g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YydlASODrhC99YvB5PbVBNRHTWZt0p/l8ckJCAcj4fY6TzZFAs7
-	CUfjAnC55lhTCie0UXuvt+wUE2zfFiO8zNTbkvEKVEyB21noi+qBmk9E25E1DRhq
-X-Gm-Gg: ATEYQzykXGmfRI1C2uCu6afV7qwDgNzyQKjwFn1TYzW1JnNpTIjLokEBoMRBolTNYx+
-	MSmsS3Ys7oco0Ybd+AG8/wmpdbtimPJzNZRAYWjGJ6+YDsykyJ+vdhOfKmnxuDIBIO5pEuvmRa8
-	LVJEU9cgE+A7MOmSqFoA5F5L426hA19OTgH9A7hRg/nBea8Wm/TD4Tgbqv0VEPy4SWLL8iEdK0p
-	Ye0WwgJPAJECWv7rrGKI2Gd6nGkM4UEevZFQJnXppIo9lBcnaDC/cBVx0tKRuxeF6orSjSgAr/P
-	9jS1KAZak633UM38nMtuX8OolqGi7C9wadsAumLk+jPfuFaq55al5pRThBeLpT9z5IJsoigB18O
-	E4mZXngtZIO6yr9OaquEu8FTZaScictHSlrkc0y9J2gFvXmtSAxkrFwLU4mMTdeW1kP81Omxz8w
-	bkNalCExsbaRh9IQH9bO965asYfaoJTXDuwr1mW5LWjB57tmOvxDr/UdqFxAs/Uori
-X-Received: by 2002:a05:6102:6cd:b0:5f5:7718:72e9 with SMTP id ada2fe7eead31-5ff13e48346mr1525453137.2.1772097645850;
-        Thu, 26 Feb 2026 01:20:45 -0800 (PST)
-Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com. [209.85.221.176])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-94df6417a98sm1141104241.4.2026.02.26.01.20.44
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Feb 2026 01:20:45 -0800 (PST)
-Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-56a91535e5bso214322e0c.1
-        for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 01:20:44 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVLdi6VDJsX6hrv6Wc5xLliZXlHUFYlPvkj/Ufyg4iKrv970Km2ZlO3nzL5ThhjWKB7WkfMT4x45Dye7g==@vger.kernel.org
-X-Received: by 2002:a05:6102:1606:b0:5fe:12c9:6e55 with SMTP id
- ada2fe7eead31-5ff141ca4fdmr1209533137.39.1772097644539; Thu, 26 Feb 2026
- 01:20:44 -0800 (PST)
+	s=arc-20240116; t=1772108561; c=relaxed/simple;
+	bh=pDUQ3U6u0AZuQaoY38Nd1cd4YlhwPhZcnTqYdko34JY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jNB66dIPsakHH3BpF2yo/GoS8ijsfj8b1wdKZ+7Qj2fYRM2ubp7stgvqEAz7PLhoSG4izWsqgdCTLnqKKzucVlE38WSqDZsPdv5c3e7xRDaoQojwzfWXKv/5opr7cc9LxrrgGRDLmKfaK8lwXCCAdD3i3KiAtDgdhzwU655EZ3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DS/rZe74; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DS/rZe74"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14CFBC19423;
+	Thu, 26 Feb 2026 12:22:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772108561;
+	bh=pDUQ3U6u0AZuQaoY38Nd1cd4YlhwPhZcnTqYdko34JY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DS/rZe74nTK2sp+eRtG3gH6PgJCBD+6pREJb6cUfNrmEGz6NVlzNMzz/KkDUqqBsQ
+	 m8MhOxTAGR9AfLcopMURyf3MHNggcmBVaEXLPVk/C79LJ/+RYlQfOTDHc6OtE01HOq
+	 JU0rC/VzNlZ01sTPZokTPc/r3FeaWZ3SkobJBp4IjY6AidGn10ZmX/BIh6ag3dX555
+	 SesML7a/5YdRUbWTFdC+UwFFJiNhHwbxJW2OwyENc2ARuEloGW8qgnFeNJLoOElSQl
+	 +RQPd/DJJT5Ur6/gcdFisX1MJFeJXEju+JcN+8ct3oCA+55+bT5VWnuMxkTzL5YhGL
+	 aqXrky7xd+kKA==
+Date: Thu, 26 Feb 2026 13:22:37 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Lee Jones <lee@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, David Rheinsberg <david@readahead.eu>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: uhid: Fix out-of-bounds write caused by raw
+ events mismanagement
+Message-ID: <aaA6fioiB9_aiBrA@plouf>
+References: <20260211164025.171242-1-lee@kernel.org>
+ <aZmsTQeeGf26FqvY@plouf>
+ <172q4775-616s-p7s4-7n80-p8579n0r3516@xreary.bet>
+ <47ro00po-r74n-870q-q178-67s8rpsss12q@xreary.bet>
+ <aZ3IKiL91Ya7_iIM@plouf>
+ <r6574n79-563r-9rrp-0n92-784532r67o63@xreary.bet>
+ <20260226111816.GA8023@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260225155409.612478-1-hugo@hugovil.com>
-In-Reply-To: <20260225155409.612478-1-hugo@hugovil.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 26 Feb 2026 10:20:33 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVd0Ds5vHQa+MG2E+E36qAu5HQE3b+Vzpbv84MM=2DFWw@mail.gmail.com>
-X-Gm-Features: AaiRm50xBGkpSKzhEw3ibXVEzal-pPxdV_uLqXQh8Zi8JcZzUL3k8C9xrOoM_9A
-Message-ID: <CAMuHMdVd0Ds5vHQa+MG2E+E36qAu5HQE3b+Vzpbv84MM=2DFWw@mail.gmail.com>
-Subject: Re: [PATCH v3 0/4] input: add GPIO-based charlieplex keypad
-To: Hugo Villeneuve <hugo@hugovil.com>
-Cc: robin@protonic.nl, andy@kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, dmitry.torokhov@gmail.com, hvilleneuve@dimonoff.com, 
-	mkorpershoek@kernel.org, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, lee@kernel.org, 
-	alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260226111816.GA8023@google.com>
 
-Hi Hugo,
+On Feb 26 2026, Lee Jones wrote:
+> On Tue, 24 Feb 2026, Jiri Kosina wrote:
+> 
+> > On Tue, 24 Feb 2026, Benjamin Tissoires wrote:
+> > 
+> > > Long story short: that patch is too intrusive as it makes assumption on
+> > > the behavior of the device. We need to understand where/if the bug was
+> > > spotted and fix the caller of hid_hw_raw_request, not the uhid
+> > > implementation.
+> > 
+> > Thanks a lot for the analysis, Benjamin!
+> > 
+> > I asked about that here:
+> > 
+> > 	https://lore.kernel.org/all/172q4775-616s-p7s4-7n80-p8579n0r3516@xreary.bet/
+> > 
+> > So let's wait for Lee to clarify. Until that, the patch stays out of the 
+> > branch.
+> 
+> Thanks to both of you for looking into this.  I appreciate your efforts.
+> 
+> This is very much real world.
+> 
+> Is there a way to add an errata for the PS3 controller?
+> 
 
-Thanks for your series!
+Unfortunatelly no. uhid merely emulates what a device can do, and HID is
+a convention. So if we were to have a special case to PS3 controllers,
+we would then start having to maintain an endless list of quirks when
+the issue is *not* in uhid, but in the processing of the device after
+(maybe in hid-core?).
 
-On Wed, 25 Feb 2026 at 16:54, Hugo Villeneuve <hugo@hugovil.com> wrote:
-> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
->
-> Hello,
-> this patch series add a new GPIO charlieplex keypad driver.
->
-> The first two patches simply commonize two properties that are present in
-> a few bindings, so that the actual patches for the charlieplex keypad driver
-> can reuse them instead of also redefining them.
->
-> I have tested the driver on a custom board with a Solidrun RZ/G2LC SOM
-> with three charlieplex keyboards, all connected thru a single PCA9416 I2C GPIO
-
-PCA9416? The closest I could find is TCA9416, which is something
-different.
-
-> expander.
->
-> Link: [v1] https://lore.kernel.org/all/20260203155023.536103-1-hugo@hugovil.com/
-> Link: [v2] https://lore.kernel.org/all/20260213171431.2228814-1-hugo@hugovil.com/
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Cheers,
+Benjamin

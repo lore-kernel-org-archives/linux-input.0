@@ -1,114 +1,131 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7494C955F
-	for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 16:06:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAB0F425CC6;
+	Thu, 26 Feb 2026 16:23:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772121997; cv=none; b=SlV0SQBI/+pbNXhhOx7ZNXvybsdecjqvZ+5hluQKEefCGVYWYeKwjvUktKlhJvwyL+DftT+qRRhulqQMBZO2X/gDGQKQhlmE2Wwfwu7rbaw4AVPu7JMt1An4GjPX7Y0aKHw8BfPd5nHmN9ClVib5sYfp8rxxzsKS7XlUTIgbczw=
+	t=1772122999; cv=none; b=GHn33jD+n+GhBsXTJgM0ZeaoGoga+/Qi+NyKQvpuxnwOH/GSx3r5ALZSGXX2FznKiHARAWOzEFc+IjfQGU1YVN12h3JZz+0f0qfeD0w6jRbPur/DyVEjA2SZlEvAojsmCD/pG1L3ZZHVWoxz+s36JbZI8AfabKDdc7qihT7O5Vg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772121997; c=relaxed/simple;
-	bh=LlP3/1O8CB//0s/+CCxqGyTYuWA9OoLCrL9yKkS8zFI=;
+	s=arc-20240116; t=1772122999; c=relaxed/simple;
+	bh=7l/TUra6RLBpcJuFmYL9hEJKY3thFPIJmRDBDf3lq7c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZYRjSHfwEP24BQH/kknbhq2i5ESXCarjD0Hw1w93OnRzFqnjOeroRK9PtWaj2JS063smlnFEoTAYrxhJut02hz33zPBzPKJc5AkATxrz9ckUy/I83zg2z4rvjV3ms7zDv8nvaQJgH78RvTjbBqLvCCex6N6VyIMK1NehmHsOG64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZWLEngQj; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZwNpFkMJitwHL2sBkndle2Dp6GKtoh3aJHVeT/uEQ6pbjZWT5oF7xMcBk0j5JxoyiYC6EBOjiUTPotAOhY4BND+KsDrDVgwYNcl1ddjFQSuqR6vtYUO3tsEe51Hw3KFcL4f7HAkaIFCgzpI1vMcF4azHSz18ucJf0Fy8+x2QyeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S6isej26; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZWLEngQj"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2ba895adfeaso1003405eec.0
-        for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 08:06:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772121989; x=1772726789; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2UC1Q8+vyEP17hQt6/3sZmtkvys+UUPMl4+3szj6VoQ=;
-        b=ZWLEngQjy1e6iZRf2/GhQpH2Fx38vTYrFqBsozQKEzDOE99TD8e+9k/khztz2sIiyL
-         pO8pQCliay1zyoD1KEuQlherhNv2LkNnsVDqunR0HEbrHEVwEkZeI7zXqVTqmNOXfAyC
-         9Auyd0l02cc+33LHbPQJN+tQ8lyxMHiPmv/MbDtFC+N7NH73QzQ1y6GrK19Sn7mmev+F
-         CqnAiFoaoXSAmIN+aAQiSFaA9vg1oahZ5uYJddDWgBnt3SF7uYu/2O9aQYkCSkDlIkXc
-         hG4UWoBXzi6FnZ/nj1P4TvhFmNywGLYe8omXckQQtgIQYM1rj1tgLV3lOjNuJ4H3G2ec
-         MJ/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772121989; x=1772726789;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2UC1Q8+vyEP17hQt6/3sZmtkvys+UUPMl4+3szj6VoQ=;
-        b=X9GpSjBY2Cl/BueNlCLNCcHcw1hCY+fgSSJV7L8u36VFTkhm/fzebBsa7kPIUIw45K
-         FSMMg3k89BT53iCeP3UQ7mG6ac5MxzICGE0k9CBVIWpi3+5w0gJtCZFkVXpQB0NysKqg
-         u2/nGJSNBeM3Nqci2IrLfM2afnOlgH2okCsHCZbVbVfctZwCgnU0WiV5a9uSGWgVcjPX
-         HwBwXYQhy62T31fLhFH5cyvfMB9Or3LIMqPQ4Bnn1I69SBfZgfAym2SbBD0fLhaWQ0y3
-         DYvxQFTebsmv5LMfysN47g5PRqgHvp0VXaxUHA+PIazUVYKUjmjTXOK50KjiMcP8rc2s
-         vpug==
-X-Forwarded-Encrypted: i=1; AJvYcCU3jy1KNnUlpHwbZpo2C0K0uBgsWsSgYM1EdApT/XE/UkVkeROd7bX1dAbERvXqWWwMcfLOXFlA5PFFUQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxpmcwObmqw5El3rtY4748LqwRbHiUl7OklJgQvcmwP7xrg/8NN
-	FytfA+KJdQXYy0g8aM1TJqUYHFbw2dry87Xn5ABIZzaWWkH05zyqYW48
-X-Gm-Gg: ATEYQzzJjya1LtBh8vg2Jbm2mdnqOl3ZTnSq+5BPme8P8NLq92Wo1wSbZj5d+pWWiAx
-	LV70ke/p8cWccYYxBUv1XB5o3O06is8ci1ycofD0CvS9VB32wkGzcGnsolLGqO6EOaBNbnXOfTB
-	AcBryAHoY645S8OB4hPJKtbTmeIajhDMGF9vkaxeFD6G5Q1eWD7DRkxA5NRJCrfG38SLQ5aPJab
-	/upmNDFbWkwRugzuM9heLnF33YTCwVls3uaXzMLtA5kyb17VRY+spN1eDkYS0jz9O4bwB5styLp
-	iCKfxvCIPhdG686WyEaGWSawWxXXjkUk+db8bxzp+jHtJDER4+sH9ll7k4dUGhZZXCq6vXksSlE
-	6mgq11QXKLwC5RbCVqi732dnwi/r8rDR+fEP/SC3huCevw5tYzlQi02Bf5VVgNnVinIZ1UsQHgP
-	7tplAuWhhl1hWujPg6KaGqkmdCqABUImaj50nrUN6MGhmLdGY45ER1QwciJwqSCB2a
-X-Received: by 2002:a05:7301:1295:b0:2bd:cbc7:16ec with SMTP id 5a478bee46e88-2bdd3017066mr1122632eec.24.1772121988602;
-        Thu, 26 Feb 2026 08:06:28 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:a6ca:da9c:9e47:3e6b])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bdd1f7e955sm2194157eec.32.2026.02.26.08.06.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Feb 2026 08:06:28 -0800 (PST)
-Date: Thu, 26 Feb 2026 08:06:25 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Langyan Ye <yelangyan@huaqin.corp-partner.google.com>
-Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
-	jikos@kernel.org, bentiss@kernel.org, dianders@chromium.org, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V3 RESEND 0/2] Add tc3408 bindings and timing
-Message-ID: <aaBvauUqgMgGYwhA@google.com>
-References: <20260108063524.742464-1-yelangyan@huaqin.corp-partner.google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S6isej26"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5977C116C6;
+	Thu, 26 Feb 2026 16:23:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772122999;
+	bh=7l/TUra6RLBpcJuFmYL9hEJKY3thFPIJmRDBDf3lq7c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=S6isej26IGz4ABsBn8TY2OVf18rlcMw3l1C4mQlOv57UrMgS8jPhhzr/5iZDboWZW
+	 xmAXE5fMfCy0sw9zLY6YaobZKF+5RmsiftJaunA/u4Y+qWYbOrRnkvUM4eKiLisKcF
+	 iF5lOoa0A+hWBcT+KfMT8yN804S93p/K8DPhf7ULOvdZdd/9rt16WBB6fX6+okITwm
+	 kFYbhnHaZmmIJTUGY1DokTAkj2lBKIfzvHALZ7zAZYdQPZlIQgthr3YWbw/uZ0kTX8
+	 UTFrqGMg+5asPfjoXS7KUNeITLvrrSD9fk1Me9i+3M/Ewn0Iwy88lu6QsUBEJ6zh/X
+	 T/PCRAJVvi3Bg==
+Date: Thu, 26 Feb 2026 16:23:15 +0000
+From: Lee Jones <lee@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, David Rheinsberg <david@readahead.eu>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: uhid: Fix out-of-bounds write caused by raw
+ events mismanagement
+Message-ID: <20260226162315.GF8023@google.com>
+References: <20260211164025.171242-1-lee@kernel.org>
+ <aZmsTQeeGf26FqvY@plouf>
+ <172q4775-616s-p7s4-7n80-p8579n0r3516@xreary.bet>
+ <47ro00po-r74n-870q-q178-67s8rpsss12q@xreary.bet>
+ <aZ3IKiL91Ya7_iIM@plouf>
+ <r6574n79-563r-9rrp-0n92-784532r67o63@xreary.bet>
+ <20260226111816.GA8023@google.com>
+ <aaA6fioiB9_aiBrA@plouf>
+ <20260226140810.GD8023@google.com>
+ <aaBqruhB0a7m0SBG@plouf>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260108063524.742464-1-yelangyan@huaqin.corp-partner.google.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aaBqruhB0a7m0SBG@plouf>
 
-On Thu, Jan 08, 2026 at 02:35:22PM +0800, Langyan Ye wrote:
-> The tc3408 touch screen chip same as Elan eKTH6915 controller
-> has a reset gpio. The difference is that they have different
-> post_power_delay_ms.
-> 
-> According to the Parade TC3408 datasheet, the reset pin requires a
-> pull-down duration longer than 10 ms, therefore post_power_delay_ms
-> is set to 10. In addition, the chipset requires an initialization
-> time greater than 300 ms after reset, so post_gpio_reset_on_delay_ms
-> is configured as 300.
-> 
-> Changes in v3:
-> - PATCH 2/2: Corrected post_gpio_reset_on_delay_ms: 100 -> 300
-> - Link to v2: https://lore.kernel.org/all/20250820122520.3356738-1-yelangyan@huaqin.corp-partner.google.com/
-> 
-> Changes in v2:
-> - PATCH 1/2: Drop redundant "bindings for" from subject
-> - PATCH 1/2: Improve description (describe hardware instead of bindings)
-> - PATCH 1/2: Drop "panel: true" property
-> - PATCH 1/2: Drop redundant description for reset-gpios
-> - PATCH 1/2: Use unevaluatedProperties: false instead of additionalProperties
-> - Link to v1: https://lore.kernel.org/all/20250819034852.1230264-1-yelangyan@huaqin.corp-partner.google.com/
-> 
-> Langyan Ye (2):
->   dt-bindings: input: Add Parade TC3408 touchscreen controller
->   HID: i2c-hid: elan: Add parade-tc3408 timing
-> 
->  .../bindings/input/parade,tc3408.yaml         | 68 +++++++++++++++++++
->  drivers/hid/i2c-hid/i2c-hid-of-elan.c         |  8 +++
->  2 files changed, 76 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/parade,tc3408.yaml
+On Thu, 26 Feb 2026, Benjamin Tissoires wrote:
 
-Applied the lot, thank you.
+> On Feb 26 2026, Lee Jones wrote:
+> > On Thu, 26 Feb 2026, Benjamin Tissoires wrote:
+> > 
+> > > On Feb 26 2026, Lee Jones wrote:
+> > > > On Tue, 24 Feb 2026, Jiri Kosina wrote:
+> > > > 
+> > > > > On Tue, 24 Feb 2026, Benjamin Tissoires wrote:
+> > > > > 
+> > > > > > Long story short: that patch is too intrusive as it makes assumption on
+> > > > > > the behavior of the device. We need to understand where/if the bug was
+> > > > > > spotted and fix the caller of hid_hw_raw_request, not the uhid
+> > > > > > implementation.
+> > > > > 
+> > > > > Thanks a lot for the analysis, Benjamin!
+> > > > > 
+> > > > > I asked about that here:
+> > > > > 
+> > > > > 	https://lore.kernel.org/all/172q4775-616s-p7s4-7n80-p8579n0r3516@xreary.bet/
+> > > > > 
+> > > > > So let's wait for Lee to clarify. Until that, the patch stays out of the 
+> > > > > branch.
+> > > > 
+> > > > Thanks to both of you for looking into this.  I appreciate your efforts.
+> > > > 
+> > > > This is very much real world.
+> > > > 
+> > > > Is there a way to add an errata for the PS3 controller?
+> > > > 
+> > > 
+> > > Unfortunatelly no. uhid merely emulates what a device can do, and HID is
+> > > a convention. So if we were to have a special case to PS3 controllers,
+> > > we would then start having to maintain an endless list of quirks when
+> > > the issue is *not* in uhid, but in the processing of the device after
+> > > (maybe in hid-core?).
+> > 
+> > Actually I think the issue is in UHID.  At least the way I read it.
+> 
+> And I disagree :)
+> 
+> > 
+> > Are there legitimate use-cases for devices overwriting the Report ID
+> > contained in the first index of the data buffer?  From my very limited
+> > knowledge of the subsystem, this sounds like an oversight.
+> > 
+> 
+> Legitimate, probably no, but we are talking about physical devices
+> here. uhid is a mere replacement of a transport layer, and there is
+> nothing that prevents a device to reply with a buffer starting with 1
+> when requested about feature 2 (because it's firmware and they just
+> don't care).
+> 
+> This happens a lot with proprietary features on devices, when there is
+> no spec, so ODM provide their own driver and they can do whatever they
+> want.
+> 
+> If uhid or any transport layer solely takes the decision that a reply to
+> a request is wrong, we have no chance of fixing it after the fact. This
+> is what happens with the PS3 controller: an undocumented feature is
+> used, but that's what the Playstation does, so we need to tag along.
+> 
+> I hope it makes more sense now.
+> 
+> FTR, Lee shared the logs of the issue privately, and I already told him
+> where we should fix the issue.
+
+Thanks for all the help and the insight.
+
+I will follow-up with the suggested fixes soon.
 
 -- 
-Dmitry
+Lee Jones [李琼斯]

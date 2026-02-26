@@ -1,352 +1,223 @@
-Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D03F2AE68;
-	Thu, 26 Feb 2026 05:55:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DE0389452
+	for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 09:38:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772085307; cv=none; b=c5YnV6I2XIXmBnsqm0iSdXPue1bB3hqzK0YJkNqx301PZ9AQFc+f+LFz+VRIV/E8k5ySXJZd0bdIBRsKtMs+uP02hKKgU4OFETWRB1vsh4yJR8oQrkO8jT0sTWMglsNYr6HUCMyhSibCqvVFQDD3VYKx3whhPk1EBMfKM8fjNVs=
+	t=1772098705; cv=none; b=dTTvKIos87m2bqONMQhgfwz+5byWRMbIS2Mkn0Jcz0kPw3DBcvASiEMD4E4guwUxS3rZSu9jK+XjM9JeefcmzKxnyrPtLHgVyWtel9mUlcAFwJYoi5mHUK13+m+RFU5EKYS/QD4zc00QJiG1gpKbUkK2ewihYE+OvB7tbQTxGC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772085307; c=relaxed/simple;
-	bh=vkVea0A+reQtZt0F2GUv7s+kYQU6JHgVBHkSAnCn5D8=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=EK60rlz5BlwQwP8Tam9aqO/y5+hH5WTYqg/08G905l1WD0OE3Zj+2S6f8qmg9WfxkVyHwSYg2T96OOCR1HZmAwMkx9lf1YHpb5HAopDHLbBbEay27Ee0Y3OBHAPPjpwC8ILIwha/FiDsk0p1mR+IuvDPqAARpxdMxyvamS0gEx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=c7xxbqdI; arc=none smtp.client-ip=35.82.102.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="c7xxbqdI"
-Received: from altimeter-info (unknown [45.55.225.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(Client did not present a certificate)
-	(Authenticated sender: linux-kernel@altimeter.info)
-	by hognose1.porkbun.com (Postfix) with ESMTPSA id 8828F47CE1E;
-	Thu, 26 Feb 2026 05:49:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
-	s=default; t=1772084956;
-	bh=tmaMDM7UtwXlgGlgTVJgh2ZyHV/iUjornKEex/4ajjI=;
-	h=Date:From:To:Cc:Subject;
-	b=c7xxbqdIyF8ef96eix1dSC/MkOufPzMjlQiiUgdSFO9utSinsJHXNAfFaoMsR6MNW
-	 Xb2/hxYEs/xtDLEt5OJB1YjIrx3ou6LTvQFW8Vm4hKxJR8456RdCZC+NvLo+QfepLA
-	 rUOPlYz3rj+S5gddoJgAuo8IXyrdaZbMN41uzYjk=
-Date: Thu, 26 Feb 2026 05:49:13 +0000
-From: Ivan Gorinov <linux-kernel@altimeter.info>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND v2] HID: winwing: Enable rumble effects
-Message-ID: <20260226054913.GA8668@altimeter-info>
+	s=arc-20240116; t=1772098705; c=relaxed/simple;
+	bh=bQVHLE0EDP1RIDb8KEc0btrhfnKqIdLuFVdqmb+6IpU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=moOcwKC74B1+lnWhEgwzr8dbmJvemEmz7Xy/N0NrXjDsYBIi/0YAm+ZZsM+GVXTuocipcM6oL5D9pAeV7khTfNWgUFV3IUS3DvOGoYkKVEzcVt52YhHgmQ4Lqh2qea/HglJae7ZaXPk335cEsQFGcGsr6Uychsg9sIYxLzo5MTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.161.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-679efb9eb0dso538349eaf.2
+        for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 01:38:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772098703; x=1772703503;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xPVOVRPl3lC1zd+IB3b7f4lFe2w4mB21X3pW18EQvEQ=;
+        b=gPy8YjqajvXO9ApiG0i0wyN2BrB/SdmI7hQj78p2exIzr5jAd+DAV5upO4a6XiZ7JP
+         hdkfk4mSHJwOvHnY6j+FJ9lr7IISnyl6GlbXEWlcgy+p3UvJ7lS0Ee4y8AXTM3tECI9z
+         a8NsuRkc9tmL+pkVazSlNLqqAK69kYBYSOuKU5hCnIud7/Z1HeMUaiQgpgievz49WSDv
+         cZBewB0fIAzjpsnAdIBzgw0YU7DaUu5NCx329+j8BTSl3+gEuLFZ8/zhnRIP+r0b1WM0
+         wiXmsH3E7orWiUE0AMuU5UJyP2Yj1a5HDK8K01sC7jaR5Ci4kps9TG9CQNwqU03d4uq/
+         Z3JA==
+X-Forwarded-Encrypted: i=1; AJvYcCVvZOFaLgmyEJNdFCwvBMB4n9GMca3NaDCwS7I5819E7x0df6ihwmtT9tevGXdXq1WBW678oxixzrLyAQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzlPjL3RdwO4wNhjoNo5Q/Dq4CJUqXEPjwWmxgqN1BBFZ8OxsTd
+	qeEpJ6um7NiYSf7OImqLBqe/oW5IrxZYRtssHZQ9Oa7HYEOqZ2Hfu5QUuucHWrXQ
+X-Gm-Gg: ATEYQzzV4XUMJ9B5VtmyizDj6Ze0z/KA6qArRBywXeT6eTblfBj2yXiA5T4WD4sPNwm
+	hfzO/3kCd3563g9GK3lJS7uvC1ePcbbzRdH4WvcrNswdRbhxmWv352mOSiWZ4vDhML4uZ8J2x6D
+	PzanyBkYesryEg+4t3FC9rVg8FaU980HgUmKIWzC47UuOku8s10W6XaBvoq3MQ8lTS6u5hYU7oh
+	18bMaFoaW4rUdSKK1B4Npe67ijpGLfH1wbYebomiht57ouw4AE0qwG3490er2SJR4X+ECgtjt0e
+	YN4EslhOBrskP7CiBN/WGt5l9t8bvw847fuEGQrE3cMFSSkM3Ag4jHkRRlIxQxm/0eoauigc3M7
+	+cZgINur00kRo2OX9PzEKYG2C890F13Cob4LR+IOVNGOuadggFrZsqJfPLQLuQGNv9PkT3XeRPS
+	uTrXcAQpvufcxdlHO80Ngz+Uqtw9mJ/cDmc86RAYi5WSvvaOKqOpswc2t3fp6Z
+X-Received: by 2002:a05:6820:4dc3:b0:663:f65:1c8a with SMTP id 006d021491bc7-679c44e34f1mr10212298eaf.44.1772098703566;
+        Thu, 26 Feb 2026 01:38:23 -0800 (PST)
+Received: from mail-oo1-f52.google.com (mail-oo1-f52.google.com. [209.85.161.52])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4160cf9b24dsm1487713fac.7.2026.02.26.01.38.22
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Feb 2026 01:38:22 -0800 (PST)
+Received: by mail-oo1-f52.google.com with SMTP id 006d021491bc7-662f5c5507cso608571eaf.3
+        for <linux-input@vger.kernel.org>; Thu, 26 Feb 2026 01:38:22 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUYa8HisCv/vH4vCsCy+ThqdH6Fu2MsELd51ftrKqBaFXbwPifF1tNf/fQDZCO3p4CkqOAhyiCbREYNOA==@vger.kernel.org
+X-Received: by 2002:a05:6102:38ce:b0:5ef:a346:a020 with SMTP id
+ ada2fe7eead31-5feb2f081dbmr6698399137.17.1772098361695; Thu, 26 Feb 2026
+ 01:32:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20260225155409.612478-1-hugo@hugovil.com> <20260225155409.612478-4-hugo@hugovil.com>
+In-Reply-To: <20260225155409.612478-4-hugo@hugovil.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 26 Feb 2026 10:32:30 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVdYX9p9DfDoyMv8qEm52kY51QULkEnuxRBH2OyWyYf6g@mail.gmail.com>
+X-Gm-Features: AaiRm50hY6HKs5Dg1D5Z1eUzl_ss50J6M1_HbmNyMG8PvkvLkYn610mEhS3zufM
+Message-ID: <CAMuHMdVdYX9p9DfDoyMv8qEm52kY51QULkEnuxRBH2OyWyYf6g@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] dt-bindings: input: add GPIO charlieplex keypad
+To: Hugo Villeneuve <hugo@hugovil.com>
+Cc: robin@protonic.nl, andy@kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
+	conor+dt@kernel.org, dmitry.torokhov@gmail.com, hvilleneuve@dimonoff.com, 
+	mkorpershoek@kernel.org, matthias.bgg@gmail.com, 
+	angelogioacchino.delregno@collabora.com, lee@kernel.org, 
+	alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mediatek@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 
-Enable rumble motor control on TGRIP-15E and TGRIP-15EX throttle grips
-by sending haptic feedback commands (EV_FF events) to the input device.
+Hi Hugo,
 
-Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
----
+On Wed, 25 Feb 2026 at 16:54, Hugo Villeneuve <hugo@hugovil.com> wrote:
+> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+>
+> Add DT bindings for GPIO charlieplex keypad.
+>
+> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-    Changes since v1:
-       - Fix possible NULL pointer dereference
+Thanks for your patch!
 
- drivers/hid/hid-winwing.c | 184 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 170 insertions(+), 14 deletions(-)
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.yaml
+> @@ -0,0 +1,106 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +
+> +$id: http://devicetree.org/schemas/input/gpio-charlieplex-keypad.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: GPIO charlieplex keypad
+> +
+> +maintainers:
+> +  - Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> +
+> +description: |
+> +  The charlieplex keypad supports N^2)-N different key combinations (where N is
+> +  the number of lines). Key presses and releases are detected by configuring
+> +  only one line as output at a time, and reading other line states. This process
+> +  is repeated for each line. Diodes are required to ensure current flows in only
+> +  one direction between any pair of pins.
+> +  This mechanism doesn't allow to detect simultaneous key presses.
 
-diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-index ab65dc12d1e0..b5d0978d81e5 100644
---- a/drivers/hid/hid-winwing.c
-+++ b/drivers/hid/hid-winwing.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/workqueue.h>
- 
- #define MAX_REPORT 16
- 
-@@ -35,10 +36,14 @@ static const struct winwing_led_info led_info[3] = {
- 
- struct winwing_drv_data {
- 	struct hid_device *hdev;
--	__u8 *report_buf;
--	struct mutex lock;
--	int map_more_buttons;
--	unsigned int num_leds;
-+	struct mutex lights_lock;
-+	__u8 *report_lights;
-+	__u8 *report_rumble;
-+	struct work_struct rumble_work;
-+	struct ff_rumble_effect rumble;
-+	int rumble_left;
-+	int rumble_right;
-+	int has_grip15;
- 	struct winwing_led leds[];
- };
- 
-@@ -47,10 +52,10 @@ static int winwing_led_write(struct led_classdev *cdev,
- {
- 	struct winwing_led *led = (struct winwing_led *) cdev;
- 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
--	__u8 *buf = data->report_buf;
-+	__u8 *buf = data->report_lights;
- 	int ret;
- 
--	mutex_lock(&data->lock);
-+	mutex_lock(&data->lights_lock);
- 
- 	buf[0] = 0x02;
- 	buf[1] = 0x60;
-@@ -69,7 +74,7 @@ static int winwing_led_write(struct led_classdev *cdev,
- 
- 	ret = hid_hw_output_report(led->hdev, buf, 14);
- 
--	mutex_unlock(&data->lock);
-+	mutex_unlock(&data->lights_lock);
- 
- 	return ret;
- }
-@@ -87,9 +92,9 @@ static int winwing_init_led(struct hid_device *hdev,
- 	if (!data)
- 		return -EINVAL;
- 
--	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
-+	data->report_lights = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
- 
--	if (!data->report_buf)
-+	if (!data->report_lights)
- 		return -ENOMEM;
- 
- 	for (i = 0; i < 3; i += 1) {
-@@ -117,7 +122,7 @@ static int winwing_init_led(struct hid_device *hdev,
- 	return ret;
- }
- 
--static int winwing_map_button(int button, int map_more_buttons)
-+static int winwing_map_button(int button, int has_grip15)
- {
- 	if (button < 1)
- 		return KEY_RESERVED;
-@@ -141,7 +146,7 @@ static int winwing_map_button(int button, int map_more_buttons)
- 		return (button - 65) + BTN_TRIGGER_HAPPY17;
- 	}
- 
--	if (!map_more_buttons) {
-+	if (!has_grip15) {
- 		/*
- 		 * Not mapping numbers [33 .. 64] which
- 		 * are not assigned to any real buttons
-@@ -194,13 +199,141 @@ static int winwing_input_mapping(struct hid_device *hdev,
- 	/* Button numbers start with 1 */
- 	button = usage->hid & HID_USAGE;
- 
--	code = winwing_map_button(button, data->map_more_buttons);
-+	code = winwing_map_button(button, data->has_grip15);
- 
- 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
- 
- 	return 1;
- }
- 
-+/*
-+ * If x ≤ 0, return 0;
-+ * if x is in [1 .. 65535], return a value in [1 .. 255]
-+ */
-+static inline int convert_magnitude(int x)
-+{
-+	if (x < 1)
-+		return 0;
-+
-+	return ((x * 255) >> 16) + 1;
-+}
-+
-+static int winwing_haptic_rumble(struct winwing_drv_data *data)
-+{
-+	__u8 *buf;
-+	__u8 m;
-+
-+	if (!data)
-+		return -EINVAL;
-+
-+	if (!data->hdev)
-+		return -EINVAL;
-+
-+	buf = data->report_rumble;
-+
-+	if (!buf)
-+		return -EINVAL;
-+
-+	m = convert_magnitude(data->rumble.strong_magnitude);
-+	if (m != data->rumble_left) {
-+		int ret;
-+
-+		buf[0] = 0x02;
-+		buf[1] = 0x01;
-+		buf[2] = 0xbf;
-+		buf[3] = 0x00;
-+		buf[4] = 0x00;
-+		buf[5] = 0x03;
-+		buf[6] = 0x49;
-+		buf[7] = 0x00;
-+		buf[8] = m;
-+		buf[9] = 0x00;
-+		buf[10] = 0;
-+		buf[11] = 0;
-+		buf[12] = 0;
-+		buf[13] = 0;
-+
-+		ret = hid_hw_output_report(data->hdev, buf, 14);
-+		if (ret < 0) {
-+			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-+			return ret;
-+		}
-+		data->rumble_left = m;
-+	}
-+
-+	m = convert_magnitude(data->rumble.weak_magnitude);
-+	if (m != data->rumble_right) {
-+		int ret;
-+
-+		buf[0] = 0x02;
-+		buf[1] = 0x03;
-+		buf[2] = 0xbf;
-+		buf[3] = 0x00;
-+		buf[4] = 0x00;
-+		buf[5] = 0x03;
-+		buf[6] = 0x49;
-+		buf[7] = 0x00;
-+		buf[8] = m;
-+		buf[9] = 0x00;
-+		buf[10] = 0;
-+		buf[11] = 0;
-+		buf[12] = 0;
-+		buf[13] = 0;
-+
-+		ret = hid_hw_output_report(data->hdev, buf, 14);
-+		if (ret < 0) {
-+			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-+			return ret;
-+		}
-+		data->rumble_right = m;
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static void winwing_haptic_rumble_cb(struct work_struct *work)
-+{
-+	struct winwing_drv_data *data;
-+
-+	data = container_of(work, struct winwing_drv_data, rumble_work);
-+	winwing_haptic_rumble(data);
-+}
-+
-+static int winwing_play_effect(struct input_dev *dev, void *context,
-+		struct ff_effect *effect)
-+{
-+	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
-+
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
-+
-+	if (!data)
-+		return -EINVAL;
-+
-+	data->rumble = effect->u.rumble;
-+
-+	return schedule_work(&data->rumble_work);
-+}
-+
-+static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
-+{
-+	struct winwing_drv_data *data;
-+
-+	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
-+	if (!data)
-+		return -EINVAL;
-+
-+	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
-+	data->rumble_left = -1;
-+	data->rumble_right = -1;
-+
-+	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
-+
-+	return input_ff_create_memless(hidinput->input, data,
-+			winwing_play_effect);
-+}
-+
- static int winwing_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
-@@ -219,10 +352,12 @@ static int winwing_probe(struct hid_device *hdev,
- 	if (!data)
- 		return -ENOMEM;
- 
--	data->map_more_buttons = id->driver_data;
--
-+	data->hdev = hdev;
-+	data->has_grip15 = id->driver_data;
- 	hid_set_drvdata(hdev, data);
- 
-+	INIT_WORK(&data->rumble_work, winwing_haptic_rumble_cb);
-+
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
-@@ -232,19 +367,39 @@ static int winwing_probe(struct hid_device *hdev,
- 	return 0;
- }
- 
-+static void winwing_remove(struct hid_device *hdev)
-+{
-+	struct winwing_drv_data *data;
-+
-+	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
-+
-+	if (data)
-+		cancel_work_sync(&data->rumble_work);
-+
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
- static int winwing_input_configured(struct hid_device *hdev,
- 		struct hid_input *hidinput)
- {
-+	struct winwing_drv_data *data;
- 	int ret;
- 
-+	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
-+
- 	ret = winwing_init_led(hdev, hidinput->input);
- 
- 	if (ret)
- 		hid_err(hdev, "led init failed\n");
- 
-+	if (data->has_grip15)
-+		winwing_init_ff(hdev, hidinput);
-+
- 	return ret;
- }
- 
-+/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
- static const struct hid_device_id winwing_devices[] = {
- 	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
- 	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
-@@ -261,6 +416,7 @@ static struct hid_driver winwing_driver = {
- 	.input_configured = winwing_input_configured,
- 	.input_mapping = winwing_input_mapping,
- 	.probe = winwing_probe,
-+	.remove = winwing_remove,
- };
- module_hid_driver(winwing_driver);
- 
--- 
-2.43.0
+Indeed, e.g. pressing S1 and S2 simultaneously will show a ghost
+S5 keypress.
 
+> +
+> +  Wiring example for 3 lines keyboard with 6 switches and 3 diodes:
+> +
+> +  L0  --+---------------------+----------------------+
+> +        |                     |                      |
+> +  L1  -------+-----------+---------------------+     |
+> +        |    |           |    |                |     |
+> +  L2  -------------+----------------+-----+    |     |
+> +        |    |     |     |    |     |     |    |     |
+> +        |    |     |     |    |     |     |    |     |
+> +        |  S1 \  S2 \    |  S3 \  S4 \    |  S5 \  S6 \
+> +        |    |     |     |    |     |     |    |     |
+> +        |    +--+--+     |    +--+--+     |    +--+--+
+> +        |       |        |       |        |       |
+> +        |    D1 v        |    D2 v        |    D3 v
+> +        |       - (k)    |       - (k)    |       - (k)
+> +        |       |        |       |        |       |
+> +        +-------+        +-------+        +-------+
+
+Don't you need pull-down resistors on L[0-2], and/or a way to specify
+in DT to enable internal poll-down on GPIO controllers that support it?
+Some controllers may support internal pull-up only, but I guess that
+can be handled using GPIO_ACTIVE_LOW?
+
+> +
+> +  L: GPIO line
+> +  S: switch
+> +  D: diode (k indicates cathode)
+> +
+> +allOf:
+> +  - $ref: input.yaml#
+> +  - $ref: /schemas/input/matrix-keymap.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: gpio-charlieplex-keypad
+> +
+> +  autorepeat: true
+> +
+> +  debounce-delay-ms:
+> +    default: 5
+> +
+> +  line-gpios:
+> +    description:
+> +      List of GPIOs used as lines. The gpio specifier for this property
+> +      depends on the gpio controller to which these lines are connected.
+> +
+> +  linux,keymap: true
+> +
+> +  poll-interval: true
+> +
+> +  settling-time-us: true
+> +
+> +  wakeup-source: true
+> +
+> +required:
+> +  - compatible
+> +  - line-gpios
+> +  - linux,keymap
+> +  - poll-interval
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/gpio/gpio.h>
+> +    #include <dt-bindings/input/input.h>
+> +
+> +    charlieplex-keypad {
+
+"keyboard", as per Devicetree Specification Generic Names
+Recommendation.
+
+> +        compatible = "gpio-charlieplex-keypad";
+> +        debounce-delay-ms = <20>;
+> +        poll-interval = <5>;
+> +        settling-time-us = <2>;
+> +
+> +        line-gpios = <&gpio2 25 GPIO_ACTIVE_HIGH
+> +                      &gpio2 26 GPIO_ACTIVE_HIGH
+> +                      &gpio2 27 GPIO_ACTIVE_HIGH>;
+> +
+> +        /* MATRIX_KEY(output, input, key-code) */
+> +        linux,keymap = <
+> +            /*
+> +             * According to wiring diagram above, if L1 is configured as
+> +             * output and HIGH, and we detect a HIGH level on input L0,
+> +             * then it means S1 is pressed: MATRIX_KEY(L1, L0, KEY...)
+> +             */
+> +            MATRIX_KEY(1, 0, KEY_F1) /* S1 */
+> +            MATRIX_KEY(2, 0, KEY_F2) /* S2 */
+> +            MATRIX_KEY(0, 1, KEY_F3) /* S3 */
+> +            MATRIX_KEY(2, 1, KEY_F4) /* S4 */
+> +            MATRIX_KEY(1, 2, KEY_F5) /* S5 */
+> +            MATRIX_KEY(0, 2, KEY_F6) /* S6 */
+> +        >;
+> +    };
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

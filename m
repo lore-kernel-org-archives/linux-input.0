@@ -1,98 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118AC2EBBA9;
-	Thu, 26 Feb 2026 22:13:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2483396B6A;
+	Thu, 26 Feb 2026 22:38:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772143989; cv=none; b=S0ko0EbDj5K/7JC0m57rBhYrmMbYfvO9D8Sno3lOTJvsV2QvoeO/8Fl6hOLE+al08mHosz+4WlHkQ+OsBhRdUnYsuDsuFOeF9HM2E2xs6sNoKlGSu6mDMYmoO6oYzemExDF4hMW0IBAu6Vn8IHDzQlnEGUUSJDZIzFUyxmYXUC0=
+	t=1772145495; cv=none; b=WL3nR0f0UvOywBV2YsRDVlrwFsEVIGudbGdeR2k0DXoLpD4gTt8mjIZsn6uODuPGi6yGGCTGbpV+XmrWRtmyKldu14VZXfFk1WYAMtMktKsdceODZJJFMcrgWlsxdvbMTvlMNWG+vrCPzXO00DpygNhsIuWkJ/EydylhkMdRNLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772143989; c=relaxed/simple;
-	bh=1f6IGq5PUW3/Jwv0okoqUYv52Yoyk6MWUMZAq+QzaKI=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=oqLdQJ/73Ex+3g9U/FLX1QCow7ztIM2hZaaIWDFu/G3NLM4+WZhwPKTwahnt6omBXvhwOBMzYFk7zwavVYqkL0zfdrv+/6t3hno/cIhMEBF1Adeu2khHged+QcOStMxeYyLkR1gd261Uk8fHXjlNeaSTvt7QXDh6yiMEN5IXeD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q6KOL+ni; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772145495; c=relaxed/simple;
+	bh=wE/EkdqepmjjJPvdfz9cW0vSfmLcUOCbDNQAeSvrYfo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tjEIfDzYj082QPCUhGiWX19qGj/Q5qVH6sDznfImtJKwT7zVB7n7b6hKmx/9biila1qY3Wd/9b/nF4HTdT1CnElYpmAmzs2hLDgX1cF5ATqiKnOhUUSMRHehN8SguU4i9EjTO6OUo1Kg287xrP7Ejwzky4fXt7hIWpNu2XOsJw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=qNGoOj6e; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q6KOL+ni"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F45C116C6;
-	Thu, 26 Feb 2026 22:13:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772143988;
-	bh=1f6IGq5PUW3/Jwv0okoqUYv52Yoyk6MWUMZAq+QzaKI=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=Q6KOL+nigjYMd4sV4j5+n2zpUB/B2dl6TJmpwkiJCwAkmrt91Yg1fDZ1RZcDxY3f1
-	 FlK38PVjwXU1jlpiQlF77f7xUp3W80oXK4AJAWXYX7tTi1lI6AQCoVhoVFHPRhH27e
-	 4zv4sR9NNi36eBA3m+7ym58bcHKCLqDRBGqOmE4RG6uJ04Q8ZQx2mlQXnEs6qAGIey
-	 ycDJSzfJ7uutSdwJZAlHGrdoHKjACWgo0hWTSTmp2wYkuKoxCCrHC80gzjqj3hkoj/
-	 DCAfsUcvUJqaiA4G9MLoWe9kFowMlAKss/XEqFJNSn+lJqdM+Hvjvr/kl30qG8bjfR
-	 8x5uwLnZag1ag==
-From: Mark Brown <broonie@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
- Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
- David Lechner <dlechner@baylibre.com>, Tony Lindgren <tony@atomide.com>, 
- Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
-In-Reply-To: <20260223063858.12208-1-clamor95@gmail.com>
-References: <20260223063858.12208-1-clamor95@gmail.com>
-Subject: Re: (subset) [PATCH v3 0/9] mfd: cpcap: convert documentation to
- schema and add Mot board support
-Message-Id: <177214398588.275063.6738297743653752817.b4-ty@kernel.org>
-Date: Thu, 26 Feb 2026 22:13:05 +0000
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="qNGoOj6e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A589BC116C6;
+	Thu, 26 Feb 2026 22:38:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1772145494;
+	bh=wE/EkdqepmjjJPvdfz9cW0vSfmLcUOCbDNQAeSvrYfo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=qNGoOj6eQG3Npt9kzNjgBJw2oW3RxRRh8pZbHlfQnsQ+AL8TyGRuzG+5fGIbRth0w
+	 maSuMOnDNMW6cT5LTnE3LDg6OyeeIWD3YoE9yUhwVmaMJwdCm1OkUHA9jXeeWwf2Mb
+	 FVO9VyPRKwv4DiBOrnqTSqoJgC61HmyqqmMwTuVc=
+Date: Thu, 26 Feb 2026 14:38:06 -0800
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: "Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Richard Hughes <hughsient@gmail.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Zhixin Zhang <zhangzx36@lenovo.com>, Mia Shao <shaohz1@lenovo.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v5 01/16] include: device.h: Add named device attributes
+Message-ID: <2026022631-breeches-quaking-e5fb@gregkh>
+References: <20260224013217.1363996-1-derekjohn.clark@gmail.com>
+ <20260224013217.1363996-2-derekjohn.clark@gmail.com>
+ <478589q4-1rp6-87q8-02o8-n50071039639@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15-dev-47773
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <478589q4-1rp6-87q8-02o8-n50071039639@xreary.bet>
 
-On Mon, 23 Feb 2026 08:38:49 +0200, Svyatoslav Ryhel wrote:
-> The initial goal was only to add support for the CPCAP used in the Mot
-> Tegra20 board; however, since the documentation was already partially
-> converted, I decided to complete the conversion to schema too.
-> 
-> The CPCAP regulator, leds, rtc, pwrbutton and core files were converted
-> from TXT to YAML while preserving the original structure. Mot board
-> compatibility was added to the regulator and core schema. Since these
-> were one-line patches, they were not separated into dedicated commits;
-> however, the commit message notes this for both cases.
-> 
-> [...]
+On Thu, Feb 26, 2026 at 06:05:10PM +0100, Jiri Kosina wrote:
+> You would need and Ack from driver core maintainers (CCing Greg and Rafael 
+> here) on this one so that I can take it together with the rest of the 
+> series.
 
-Applied to
+The comments are a bit odd in the descriptions of these new macros, but
+hey, it's good enough to understand, so no objection from me.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
-
-Thanks!
-
-[1/9] dt-bindings: regulator: cpcap-regulator: convert to DT schema
-      commit: 5a8ffc5dca9c096fe9c8879fa3a2faff723fbb8a
-[2/9] dt-bindings: regulator: cpcap-regulator: document Mot regulator
-      commit: 0e5646030212856a7f022387a647694ba65e75a7
-[3/9] regulator: cpcap-regulator: add support for Mot regulators
-      commit: d90c0f78379454d51a428e312ac6db573060185c
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>

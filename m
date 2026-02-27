@@ -1,62 +1,62 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70AB5346E66
-	for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 23:50:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94271355F2A
+	for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 23:50:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772236251; cv=none; b=JpAip1JuVBa/dB+Yef9EkVxXG/QcnTJoeqZN0r1B5eKO7t29I4m/JJq8a+QQo2N4Tb+zt/5GX7w4Ufch7t5brLcNSYiwDcdVBmDS+s5ioAYFEZvdTzJgo7rERuw/faY68dcbQjaIScP7xXvJPFSVoJPinEetgTcqYt1ee2TdNmY=
+	t=1772236253; cv=none; b=EodlftR2F9VIjnG3bMmo4O+0A1J8QvevSccxp0gahQik5w9v7HeBOFz9LX1eiz90FdEkx0uyA+A4zouyHtapBZHoA387YkR73lx5g6qS+/AHcSN7NwrnbBNGTj2mp/I6cdOnJEz9nOHiH0aE39Y8kTl6Ovfaz84bMFR5BKdTgVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772236251; c=relaxed/simple;
-	bh=NbbI/3xTJIVp9rP8bTvgfcJaLoAVOjM37WP3ObO/V4k=;
+	s=arc-20240116; t=1772236253; c=relaxed/simple;
+	bh=izLNzxbsr1aPEJ1kfO4J3cElOdE5JNlIeAUDXYIIamI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZvYz5z1nJW4kQLn1P2osaBWGqgbAhVUMlCZzORyk7Lzqj9i1DAcfJVFeHfrzbASxrvJCYZ8tYnyLY9q58v9hcdg71MYkeTe6Pq5qK2/gOTt7oiwJdj6YlZHQEgflWNyIiHjJhWD2AeRkHoLk45LdgVgf8KP9fdGIuEK0eWXo6Pk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GrGXq32E; arc=none smtp.client-ip=209.85.219.44
+	 MIME-Version; b=dlvCQEe8bvlfs6+st40Aqlv/fn7twIM9JbQcHKnmShwShVlw6lymBGVwt0zkK/g1DYCNvCNE00i+FmuHogi+/5iqPLSNF1rnDkRHhP+O/+F81iFqHfVfMTENB7pB6a1O9LYJwajQIbyVcsUTJCCnNkT3Lj0WVNR6WSvleth0QZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GJXi7T4C; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GrGXq32E"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-899c97c5afeso18220626d6.1
-        for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 15:50:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GJXi7T4C"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8954a050c19so31118736d6.3
+        for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 15:50:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772236248; x=1772841048; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772236250; x=1772841050; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bl9i/tPAcm9jn+eDgOCz9wrF4aIKmWaaUz0y8PMJrEc=;
-        b=GrGXq32ENdoNBNOnoZ/dEbPGrfYSMvktXHCJsdVYeDG1pTf4GtglIiwVfoCc69Nr50
-         RU+4odVWSh3W4r8ATwdA6nBGRvpZNQIZQY457jcyfCH0MR3Azq0booCgWEjRpoF0Y9QM
-         ZBl7+r+qcmxVj1leyz3nDayOMKB3IDaLSpvAf0qq/Zy/wRG+D2AMD4d/hdd6Z1LQaOCw
-         BLtpWdX1+wLJIaU6xL3IZVfnw1KGAsf6+Q8jXxAES0IO9icOVKqKieV+HHjd/YxzGWUm
-         VXK5YsNNng34gBCBwXnY3XLBD0mCPtMx3VchEvs9nf1YCz/DCtG/g8sTI9JfEnQrV8vb
-         JASg==
+        bh=525zY6xasiLGk1IKp9hGTD1dTZkiwSaXW6y/mnA7iXs=;
+        b=GJXi7T4CotIiox2lNGXsh4ezWBuOtUrp6Hlgetk6THyzBH3/X27yOgtIHP2vMUDe3l
+         ynaVhPO5U1HwXEtOdLRTeeDLrsNzUjn9fSmMnfqssr6U5372rld+pR/6JQubeUOll8Pn
+         5NYdIvdHpCn0qd1rvur1uOseaX+acyaIZdVgQ+uj75NDMxmDl7AZVZT3J2MW/zlCh++E
+         fwXWHbVsEs35TnI4b/J/PcfeBBxVUTo9lAOkHs3f3GuVo2FprTn10vo/NcwY1y2bnzoF
+         MzVwXuuFZWFdl4tAZbD1x5XSfhPyQP6LelwVVI+1qQ+9A477tP9Ll2r7GQscrhAMRCgO
+         kuaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772236248; x=1772841048;
+        d=1e100.net; s=20230601; t=1772236250; x=1772841050;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=bl9i/tPAcm9jn+eDgOCz9wrF4aIKmWaaUz0y8PMJrEc=;
-        b=bUS6iueYKnJWi8Vk2MQWuSP2w+UdVWvHl8QF0eBMTiIlwDJhhA8N65RCFiE6ZGpmQy
-         ymWyYl89WMwWNvrx+j3AvyHAZtfodtkx3TMVXS8XKnk7HcQopfMfE/ykwkNGrbnTX/B+
-         gwenYDZUjRxut+cGMW/uFSue/l8YKqCWpguaXeSeioKsq8cwSOW59OH3EKAiqZi6/GDn
-         zvbQqXnv2aZK0qnj9vYpzj3kIpxjCnto2fCr5iIAlm8CUvQUGYifXe8S6LZq1DC3dRlq
-         yjHMICyfLnybPyKyR/n/LdHjIiDTgpT9lsoTWBirvfCYvmWwomqhj5IP9Zoj9xK19gHs
-         as4g==
-X-Gm-Message-State: AOJu0YyvvZiH/0bMzvwl9S5O0dDzJhKyW0/NaljM4f3AQ3Yu+rmOs3vy
-	SDuJpKoiO7ZEIcO1eWjGy5pzckMfYGUOgax/nztC5Rt8rDS8VOVh11PY
-X-Gm-Gg: ATEYQzwrDfpJYRg7EqHEJIm337bzyyV+wHFiKTz7rcTedLRfAZ266TN5pY+pQAFbbrH
-	Tj+7ipTbqOr6D+FbCC4ca8KzKm0EfI4aX/1NDJOu0UQZAXfHOtWScvd7kCpwasfxBbYoyw+/JWo
-	oiSqA3C8FgDqndM6ydo54rVptEmtsUPrAbjfbmJrqK0CIyF0f05fJRL6NiNumdSg/oWWGKRtX32
-	Js987MUan/bLnG5ZxL92udB8os+9emkLGp3PE0MeJ7/5Yz4hg1zl8UTa+lSYPmmXDk9kxO4AdZW
-	C9BYSJgzUlqMl5xLQWUrjuAfx4yWf+HagLCWtL0vBGwjNemmji/PYktXi1s8lsX3Sjjls5nWQAR
-	PWqzU0tnPuQZiFo6Ker3u/qUMelnhxUkzTjR3q5WVHCAAOozEZE1LQw2e8rhMY1hY9zs+mkSPQv
-	4NlqxIWSM4MLttmiaF9gPtY4PwLb1JhtnmYhgfYTHAK1ruQAi72g==
-X-Received: by 2002:a05:6214:410c:b0:896:f6d5:c73c with SMTP id 6a1803df08f44-899d1e3433bmr73135466d6.41.1772236248367;
-        Fri, 27 Feb 2026 15:50:48 -0800 (PST)
+        bh=525zY6xasiLGk1IKp9hGTD1dTZkiwSaXW6y/mnA7iXs=;
+        b=qdJ1L+UO7vid4qyVa/ndGFho1U9lQrIewRpM7Ds2cpot3GlZQpt9vNuY+fg3qY+6YS
+         7BEp0JNVqN/cXkEy5mgtDNgnd7uW4psXxl2syssxxxxwLvc0mO2hny/Hw/s3I2ynJ5ns
+         N6eO0B8yPSog+qntRpgXu5aT1Wd85yf7Y8ib1NJlTPyqnmo89eEQqm2j0xUBJz8F2xZT
+         tw5CYY2ofciQmZermAgmqBrw/oJycuiKCEwBklsYP/83xSz09gNjR5WAuhvsKerAKNMn
+         H5ElncsQjCXmZKCTFEDeuusENKCaG7jeSc43CG1OQ5WWugF0G433gpScxZM2zrdYYete
+         kYsA==
+X-Gm-Message-State: AOJu0Yzc+yce6WjwwO6R4pegvPL4rL0a/dmJlayKhD/H2NhVrN508mc6
+	y4MG4CRqd57Yf+02pPl+DgGvnyyev9mKdvG4dIpkSMVaQenudukFquW3
+X-Gm-Gg: ATEYQzwo9ARi9FGh8Aqd6WK/BkPNxLZB9UHeeg7nwDAv0VV/bfGQC38UOrkXXD/FYbk
+	dFnIdAqo2F/RlLtXdGKAAgoA/jxQK/+Wt4Li7WhUd4rC2HJccwHQo+XcSFem+Rg7pxmgv38Kd6a
+	EDTRmN82tRXhmPgfnQHHjgEYdHYu41fMUVvDfyJN6xHvSsBkdd38GXVus5mZFa+fo9x769rMoof
+	7Mai7EMaGU9S1GuNTpAiksrmrjf9dSIh8eQtqbzuE6EQdcvcG55oETe6m87MrIngYuasfhjnhHx
+	X8JyCrrNjmgRhK+LTRn9b+qRpnLdcfFaz9EoRlSLL7CwWrGqeOb9JEygaKzPB2K56an5C+XviLK
+	kIvrAj8AT8UJuA+IXmVeprVdqRMIxKpTXNRACe7TFrHDU0HXp8MxfToTzdcCzr5NzFIz/jxPidP
+	KWTKKIztE5ezQd221XFk7vM5VdeanH1yMzoaN26oi8VdOzFr3jrQ==
+X-Received: by 2002:a05:6214:21e1:b0:894:2c12:aed9 with SMTP id 6a1803df08f44-899d1d83d6emr71564676d6.5.1772236250506;
+        Fri, 27 Feb 2026 15:50:50 -0800 (PST)
 Received: from achantapc.tail227c81.ts.net ([128.172.224.28])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-899c715a87esm52397446d6.4.2026.02.27.15.50.47
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-899c715a87esm52397446d6.4.2026.02.27.15.50.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Feb 2026 15:50:47 -0800 (PST)
+        Fri, 27 Feb 2026 15:50:50 -0800 (PST)
 From: Sriman Achanta <srimanachanta@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	Simon Wood <simon@mungewell.org>,
 	Christian Mayer <git@mayer-bgk.de>,
 	Sriman Achanta <srimanachanta@gmail.com>
-Subject: [PATCH v3 03/18] HID: quirks: Add additional Arctis headset device IDs
-Date: Fri, 27 Feb 2026 18:50:27 -0500
-Message-ID: <20260227235042.410062-4-srimanachanta@gmail.com>
+Subject: [PATCH v3 05/18] HID: steelseries: Update Kconfig help text for expanded headset support
+Date: Fri, 27 Feb 2026 18:50:29 -0500
+Message-ID: <20260227235042.410062-6-srimanachanta@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260227235042.410062-1-srimanachanta@gmail.com>
 References: <20260227235042.410062-1-srimanachanta@gmail.com>
@@ -80,60 +80,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add support for additional SteelSeries Arctis headset models to the HID
-quirks table. This enables proper device recognition and handling for:
-- Arctis 7 series (7, 7P, 7X, 7 Gen2)
-- Arctis 7 Plus series (7 Plus, 7 Plus P, 7 Plus X, 7 Plus Destiny)
-- Arctis Pro
-- Arctis Nova 3 series (3, 3P, 3X)
-- Arctis Nova 5 series (5, 5X)
-- Arctis Nova 7 series (7, 7X, 7P, 7X Rev2, 7 Diablo, 7 WoW, 7 Gen2, 7X
-  Gen2)
-- Arctis Nova Pro series (Pro, Pro X)
+The previous help text only mentioned the SRW-S1 steering wheel and Arctis 1 Wireless for Xbox. Update it to reflect the full Arctis headset family now supported.
 
 Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
 ---
- drivers/hid/hid-quirks.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/hid/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 17349eac5c3e..65a6f6ab30b9 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -714,7 +714,33 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_1_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_P) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_GEN2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_P) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_7_PLUS_DESTINY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_3_P) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_3_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_5) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_5_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_P) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_DIABLO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_DIABLO_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_WOW) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_GEN2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_PRO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_PRO_X) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SUNPLUS)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c1d9f7c6a5f2..29f05d4b7e30 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1142,7 +1142,8 @@ config HID_STEELSERIES
+ 	depends on USB_HID
+ 	help
+ 	Support for Steelseries SRW-S1 steering wheel, and the Steelseries
+-	Arctis 1 Wireless for XBox headset.
++	Arctis headset family (Arctis 1, Arctis 7, Arctis 7+, Arctis 9,
++	Arctis Nova 3, Arctis Nova 5, Arctis Nova 7, and Arctis Nova Pro).
+ 
+ config HID_SUNPLUS
+ 	tristate "Sunplus wireless desktop"
 -- 
 2.53.0
 

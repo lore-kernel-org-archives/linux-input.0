@@ -1,102 +1,137 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7ED36C0CD
-	for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 23:17:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2F262309B2
+	for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 23:50:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772234248; cv=none; b=fy/l8zkFL4tr7W0XfFr1wonF5sEHRKYhbKUlS/l30F3u8LQ7tHExCPyTQYbL0xFQ+J80sd9Q9W5eaht/DJfWqloDME7X2d27FDB1n/nxNsW3rXD/7eKBGzhMOlFl/B1NEPpq3kBSzoq1KHMmfAjrqCPp9CNUB1yEqblobWb1Veo=
+	t=1772236248; cv=none; b=TCwDAh/SdoVF2I8FEffdEcllZ1beWkKMkcitoyaEVEqjXyTwiwnOYCoY4l+ph5waAI4IukIrYMp+NJXOpucRMdjFvJyNStTSY+m1GfqHlPcZWjt244ahpNdC2vTvXyGrdC+Moc1XLF7K2F2NhzJoE7r+LVkkBgHBX9OviAkq47A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772234248; c=relaxed/simple;
-	bh=GVLJMA3GGrhSf/iJqPVBOLm5U7ULMbsoNhWfdAiG+Ys=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YT3k3IZSy7HT3sWOgoet0eKZWcRIMxQ9qu3ibutWRu2RwFu6KzMoXAXGTDhSVkKQn+hKcfOLgxyD1UNUBo/XDwD9YL05sKnmnUnCVtVgtTo6Lv6eDhEYhyL9C9C7ggyJ/K8vAlUDBBedHwbJOzW4TW4ntKpb0ScR4BUNPx5Vh0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KiDjsdS4; arc=none smtp.client-ip=209.85.128.53
+	s=arc-20240116; t=1772236248; c=relaxed/simple;
+	bh=tvsaE8oDJMP3Us3bUGSY+dDHixtNwgMGFahQ1PQs/xk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uVOSWRHfPY9PjTfAO2nlwP8xCNU8ybKzoMLXNhlAvf7fxRLSML/Rf7UXZ7yD0nB0xGYpLUTz5+LJSMEQa6nnKeIB8TjB5eKo76+3AtLr9mTP2qg6S+k/RsbIWWzxsUk3nOnGlbUuuW/b7Sl4sNcN797sNezCxjPfAWVYRZkA+gE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kn2snoaq; arc=none smtp.client-ip=209.85.219.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KiDjsdS4"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4836d4c26d3so17200355e9.2
-        for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 15:17:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kn2snoaq"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-899b95707afso35271386d6.3
+        for <linux-input@vger.kernel.org>; Fri, 27 Feb 2026 15:50:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772234245; x=1772839045; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772236246; x=1772841046; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=tf5BsDzyZHlIIGQLAFzNJuW7CZ862XMnhMQbP/B+AUU=;
-        b=KiDjsdS4jlztwhy903GQ+eYosYmUfW3cxSI4+fmet7kT6l0y/GN8dIi9yw1lFDfcte
-         8qdv+zE9AhJ7HFDUGIZLFCwWA9Q+Z7LZ/BdMmBw53DF539ehUX4bTZhRWqchdwG1E2BV
-         SXk4CHZLaTuu7ZFsrDsFQOdhUPUXk7ozGIWZY2cjVxD/T8as/WNacMjU3fsE+gjUIX6T
-         R4hsfO91jnJwGaEXiGgxSHVC0EBtw7lQPL3qLJ8/EuiyEA7pamgn3BjHATXAxY0Ko/NW
-         o4fPQMRI0QOIWTnptkVET5qrpw1b75UI6YjIEPZpFPoKLYwafiDK3bPLxSf6QSl7wfS5
-         +ozA==
+        bh=qnyMqmi7XMPdB/O3WgWO/nTTp6gIAsqN0U2NoURxkQM=;
+        b=kn2snoaqSsyREE4F7/90yl80z9m6vdfSCPSnsoefHL1866uB5ld5QKXFx+Wq40pZcI
+         O5btlxY6nlwYvJqePnnZqToFUxB6y57+pwidqk0d8P0hZFnymm3HHdwmERlwFrK8s/Il
+         2wQk4u3ptJ1KDKzpAXd6tBfsAjJ3M7T3qjhY91RaqAjpKb4HYlhkjxIwS9xylvTGbdYI
+         eP5jz+VW4A8USybRRf+tHM92Sxo9dTbFyj1ec+ej/ZasJA0rR0JXaUedQAaoyRIhdDa1
+         UkhxHFJiCNiXmt5NipVlr9/2mdko73RzX9Dz+tQGyzQACCGjUTrkw0k77kGgR8wiHEG3
+         5x1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772234245; x=1772839045;
+        d=1e100.net; s=20230601; t=1772236246; x=1772841046;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tf5BsDzyZHlIIGQLAFzNJuW7CZ862XMnhMQbP/B+AUU=;
-        b=XOr2ASWiI5pBvMH2yRiwGJxaD0GVX6y+9kqnxNu80F66cgSfCOoA9TuqAjomzjCK7+
-         OnK4YMRl+x1mz9OlOk2SxmDbH+T21QBlWwxMO0igcLuxmGRMd/LqE2r7WtxlHV1Jsl/w
-         178JeR9JfJN8npgekuSgqsT5eRBXW4J4j6RVrnEcn4QgvIAWIV4u7Qxz/6qqz5x6KrgI
-         MNAEk7HMlkidUYZDgnWi0coHZjE8ZlgG/4YMsrSqkSlw9c0fWy/CpJdbazGCB3/zmbcR
-         +Zdfvt0bx8WllnyDyryZ1RKNN95rt20mBbfEpy+OML8pCcEAbl35GB0UiltNSw42GmlQ
-         cTrw==
-X-Forwarded-Encrypted: i=1; AJvYcCVfEmGhr/53w47TFToq36kZJ+mEFaNpBYOI9ijSM+9DmtAKfmslspoRoUy7nxaHERoN6cVr+N6YqwZCjw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVzBu0LsI3Jqo93b09Ibbu92KCD9eKrsNAvax8y4RktjJCtZgC
-	RRZR6xfEizCREPRjl8BTZrvt1ByOENO3s2CHNeiyASiemesWPFmpgyOE
-X-Gm-Gg: ATEYQzyqzNw9avdKsvAPm4kW5h8QjUf4ff/AqoGbyNyMTEnR51ruYux6Ama3H0/CJa4
-	FxyQiV+q8idsesU9d2KPHC7H7m4M95S9fccmYsU1A7ONkA+ggpGbrso3pZIwRq/SeoiZjfPANal
-	nnRFez1DAE0qvZX8NY4xmKnZ+XrnT9BsvoaQCEWXHsZGZioFrHgjArmjWdABQQaEmEezMIO2+XY
-	AIWUNF2sLb1+SOmjpKFBzSAobrpSWHorQfOf3g7dNgv8O84wenU8wHUJ5BQcpHJlOqa0lIjcOl8
-	mWkahEHw8CdkNg609keU8sL4i1rhx7BptXlYiwBD8bU5ecM7tEqWR1XCDQmPlmypL4DzM9oq20x
-	ybdkyY+xQqkNsXDGCmsizg6nlXWcQR++Ub/HcOT7d+5wFuiJwosexE/LijF16PdHyAQA9lxxZUP
-	K1LIjecaHQ+1WDrmlhw2aB0nckliK2XCxw
-X-Received: by 2002:a05:600c:8106:b0:46f:c55a:5a8d with SMTP id 5b1f17b1804b1-483c9bb6559mr71896955e9.4.1772234245150;
-        Fri, 27 Feb 2026 15:17:25 -0800 (PST)
-Received: from localhost ([87.254.0.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483c3b3474dsm126995695e9.1.2026.02.27.15.17.24
+        bh=qnyMqmi7XMPdB/O3WgWO/nTTp6gIAsqN0U2NoURxkQM=;
+        b=RSHOpwYmRR3mRV086sk1/CMDAleWoOptfs+Q66gqnO94qcozKttNQKcS7Cssp1H8BD
+         pHrxRcdbU8NoK8H8meK6diPcd2o15Yxxl0CcIz8Bvah9I2sxldizdb2mnmpT2HTNL5fj
+         CE7k2JsHJESHZMNwE2roGmerk+a9Ku5/Z8LYThIKwukPtksyrocJYpFzwbGIPuDlR3f7
+         xnMXH7SFMeMLqDzoh0Xp7jKV6xo2gguUhMhkzC825lYLgfCZd7AV609tdR8+Vy/QQcTd
+         29r0o7RhMRhnOJinv6VxKbn0X6g1Zxh+fEb3wVZ6iR6kYvTJbyUKJuFz5Q1D2823+dRB
+         dhiQ==
+X-Gm-Message-State: AOJu0YwHhFX3gNcsNMaVw8lhgFl+RAEsGaV8o0AkMkQKW6zkx9m2aq7g
+	MZR7pipD1gjiV54FWTl/ki7JWbyaqaXeFTPa9oLaQ3IM9VuwX8mdmOnH
+X-Gm-Gg: ATEYQzwzj4jLgrFVsFl1R2z5A79zhep3UqZBJlyhj1FMvrK5Rr2q1k/Ex2OTthWCE41
+	BiZOpOtmtcVvAJt29tNPhtntsKHoacbbNgVyhsVZ0dA3mDbEA28n0Dej4eaE2ZKMD+Iv1DNq0hP
+	cWS/V2GNQw5fbb9w2hNeoOMwtD8qyGUqzoUYNGyM+ksAkNEicwGUtQmbjEOHEbPnFKbs+h99bYL
+	PkdBaukOp0BT/N/1SwPiAIQxErWamRp8Kx0WKZQ/1iKc+QQygf1lcwgh8l8xud4k9RasnobmJ0i
+	eWI0BtRwQFOB1kuF6YroEWNLe3dAsuWVp8pDYv53+EL5mvFg/mIVeMXJut4+s9mwz1l3lbKGh7N
+	8dyH5dmuVpk+QZpc5lYZGCo4sKkkP87uWBCCKddS4faQqA4qNzWzzrYfgKegjGQUjTnrb5qEJMz
+	ric8ejq/7tVgiklnSX/EcA/BdKVXXD2BGVbBNKvGzIfzrN78v2sA==
+X-Received: by 2002:a05:6214:4117:b0:899:af01:c2f7 with SMTP id 6a1803df08f44-899d1de4313mr69646396d6.9.1772236245872;
+        Fri, 27 Feb 2026 15:50:45 -0800 (PST)
+Received: from achantapc.tail227c81.ts.net ([128.172.224.28])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-899c715a87esm52397446d6.4.2026.02.27.15.50.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Feb 2026 15:17:24 -0800 (PST)
-From: Colin Ian King <colin.i.king@gmail.com>
-To: "Derek J . Clark" <derekjohn.clark@gmail.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH][next] HID: hid-lenovo-go-s: Fix spelling mistake "configuratiion" -> "configuration"
-Date: Fri, 27 Feb 2026 23:16:05 +0000
-Message-ID: <20260227231606.421263-1-colin.i.king@gmail.com>
-X-Mailer: git-send-email 2.51.0
+        Fri, 27 Feb 2026 15:50:45 -0800 (PST)
+From: Sriman Achanta <srimanachanta@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Bastien Nocera <hadess@hadess.net>,
+	Simon Wood <simon@mungewell.org>,
+	Christian Mayer <git@mayer-bgk.de>,
+	Sriman Achanta <srimanachanta@gmail.com>
+Subject: [PATCH v3 00/18] HID: steelseries: Add support for Arctis headset lineup
+Date: Fri, 27 Feb 2026 18:50:24 -0500
+Message-ID: <20260227235042.410062-1-srimanachanta@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-There is a spelling mistake in a dev_err_probe message. Fix it.
+This patch series adds comprehensive support for the SteelSeries Arctis
+wireless gaming headset lineup to the hid-steelseries driver.
 
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
----
- drivers/hid/hid-lenovo-go-s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The current driver provides only basic battery monitoring for Arctis 1
+and Arctis 9. This series extends support to 25+ Arctis models with
+full feature control including sidetone, auto-sleep, microphone
+controls, volume limiting, and Bluetooth settings.
 
-diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index cacc5bd5ed2b..dbb88492fbba 100644
---- a/drivers/hid/hid-lenovo-go-s.c
-+++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -1401,7 +1401,7 @@ static int hid_gos_cfg_probe(struct hid_device *hdev,
- 	ret = devm_device_add_group(gos_cdev_rgb.led_cdev.dev, &rgb_attr_group);
- 	if (ret) {
- 		dev_err_probe(&hdev->dev, ret,
--			      "Failed to create RGB configuratiion attributes\n");
-+			      "Failed to create RGB configuration attributes\n");
- 		return ret;
- 	}
- 
+The driver restructure uses a capability-based device info system to
+cleanly handle the varying feature sets across different Arctis
+generations while maintaining support for the legacy SRW-S1 racing
+wheel.
+
+The driver also sets up future support for async device control which
+is currently implemented for the Arctis Nova 7 Gen 2 and Post-January update
+Gen 1 devices as implemented.
+
+Tested on Arctis Nova 7 (0x2202) and Arctis Nova 7 (0x22a1). All other
+implementation details are based on the reverse engineering done in the
+HeadsetControl library (902e9bc).
+
+Changes since v2:
+* Expose audio related controls via ALSA mixers
+* Implement async inputs from supported devices with known protocols
+* Overall code cleanup and improvements to initalization logic
+* Fixed several logical and protocol issues for Arctis 7 and 9
+
+Sriman Achanta (18):
+  HID: steelseries: Fix ARCTIS_1_X device mislabeling
+  HID: hid-ids: Add SteelSeries Arctis headset device IDs
+  HID: quirks: Add additional Arctis headset device IDs
+  HID: steelseries: Add async support and unify device definitions
+  HID: steelseries: Update Kconfig help text for expanded headset
+    support
+  HID: steelseries: Add ALSA sound card infrastructure
+  HID: steelseries: Add ChatMix ALSA mixer controls
+  HID: steelseries: Add mic mute ALSA mixer control
+  HID: steelseries: Add Bluetooth state sysfs attributes
+  HID: steelseries: Add settings poll infrastructure
+  HID: steelseries: Add sidetone ALSA mixer control
+  HID: steelseries: Add mic volume ALSA mixer control
+  HID: steelseries: Add volume limiter ALSA mixer control
+  HID: steelseries: Add Bluetooth call audio ducking control
+  HID: steelseries: Add inactive time sysfs attribute
+  HID: steelseries: Add Bluetooth auto-enable sysfs attribute
+  HID: steelseries: Add mic mute LED brightness control
+  HID: steelseries: Document sysfs ABI
+
+ .../ABI/testing/sysfs-driver-hid-steelseries  |   87 +
+ drivers/hid/Kconfig                           |    5 +-
+ drivers/hid/hid-ids.h                         |   35 +-
+ drivers/hid/hid-quirks.c                      |   27 +
+ drivers/hid/hid-steelseries.c                 | 2329 ++++++++++++++---
+ 5 files changed, 2184 insertions(+), 299 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-steelseries
+
 -- 
-2.51.0
+2.53.0
 

@@ -1,145 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3CF4319605;
-	Thu, 26 Feb 2026 22:53:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6F5C28504D;
+	Fri, 27 Feb 2026 10:09:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772146385; cv=none; b=mWCt6ZEvVgGgLM6j7mGDN9edv6Vm7+MDtaX1C1XxlhmaxlTd7Z3QjyDx5ypTwvtkXms1/zwIFKOG/ubZhf+y38a+nvnY+fAkQjYQ5Cwu59+G+Hf3FP8TQBuHoQxMIS9Oic8BH53m2hm0n+JJD6OKxXY0zFDew7VjHyGf65NMqOk=
+	t=1772186991; cv=none; b=P2QalZglzy5GI9NQKWWiSJwQOm5S/un+COOb6aZrF/fivmQuhVOgG0YYxOFy7LbOaXil1xhMJ0qjNFu3HobA15tdiqF5/JbPp/p928xFbvaS8EX3KOCFWUGm2l4FzzHb8/D5Q8rlB1gWf8DdEaRVSh0+vCDmVmO+zPnTGOq3KpY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772146385; c=relaxed/simple;
-	bh=ypZSQ6W0HwbVo8oJo+Ok9nykDWW9BfgyHR9nwioCPPo=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=l9vBESz5vkspEhK5EQ1c/s8E0zMr3snakmCis+GETs/F75zk46hVAY84K6VI2jf2LmMHEXNhuqtDBmEOwTofY47yg08eMGJENraZ+MSduLZS7U3H36u202RgWDsTWzr16gull4eQfG/aaEC0SFD6FHd36kk1rSXQOprP/ykQ8UU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AKEj4BX5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772186991; c=relaxed/simple;
+	bh=xWY/I6PTnrt0NOM0bobMI54rBxerOxOO95XDCeHrkEg=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=aBwU3R7gvLpYPnQAe/0Yt5m9gqidNIrhfTUJQY2XkROmKGqiu0gOFyrRHV0xYBNYWL20FRZdNls81PXRrK9dKe/y8pdW2pTJsgsSSJrYGCBYCDYDbAy0FzZ7dkBj/36EK7evRfxaOr76kPt0yEGTNyy+LxftPidmCJM3Pr3us+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iPhthyXf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AKEj4BX5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37496C116C6;
-	Thu, 26 Feb 2026 22:53:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iPhthyXf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1C4DC116C6;
+	Fri, 27 Feb 2026 10:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772146384;
-	bh=ypZSQ6W0HwbVo8oJo+Ok9nykDWW9BfgyHR9nwioCPPo=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=AKEj4BX5ZTVp6/tFni3Sl6z0g3dNt5hmA0ghe0yrYh2fP0rz4zBWvyYUIeHub3iro
-	 +zYyBXBwXA4y1iPGPdsMBSGiPnX+qvOqm1HRDgPjNXTxmvX5tk/q6bKgzVDR3TJ+qj
-	 g/cvQV0i+pg+LkCi3TWmPBiTm2tsK6wibyRQxttrzDa4OW2JKlRw76U8RB6bHDJYZV
-	 PpnnMvB5sfQGVIBqmSjC0svctS+0OhxJrds++XabmRb0dLTUHcqoLMsntT26RtNWFW
-	 NcAoBuLwnPUKQTOLxjBbUpMDjez743FsypgYQiLRnRm2GXzyHNBG7NUPqvffCP2QdJ
-	 FeflF8eerAHTA==
-Date: Thu, 26 Feb 2026 23:53:01 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Richard Hughes <hughsient@gmail.com>, 
-    Mario Limonciello <mario.limonciello@amd.com>, 
-    Zhixin Zhang <zhangzx36@lenovo.com>, Mia Shao <shaohz1@lenovo.com>, 
-    Mark Pearson <mpearson-lenovo@squebb.ca>, 
-    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
-    linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 00/16] HID: Add Legion Go and Go S Drivers
-In-Reply-To: <20260224013217.1363996-1-derekjohn.clark@gmail.com>
-Message-ID: <743pr247-95p3-1q37-s084-ors2p7q5689r@xreary.bet>
-References: <20260224013217.1363996-1-derekjohn.clark@gmail.com>
+	s=k20201202; t=1772186991;
+	bh=xWY/I6PTnrt0NOM0bobMI54rBxerOxOO95XDCeHrkEg=;
+	h=From:To:Subject:Date:From;
+	b=iPhthyXf09scn1AXzLVemxYbqs8HiXw2DDTgmwzXa3zvv6ApGPYyQm90yE25QyJs8
+	 qfgbTrYNKT3bKPP5xXliSQJ6yE11IQaMmuQIUEq3NkMjrbF0uwZYC1s79lLqGdRh3q
+	 39m5Y7pJADgHOixB6n5usesuUZV+aG6PsaVOZCvcitmUyOeAtOjP/YZkqXZgrXr3/n
+	 SFyvEKMYVT4f93n61ItEdbwM9qFbvtsj0w+sPv+MKAIkc/jQnOABGKYx7tSMk3I13h
+	 jzSQyOqUuEU4LwlN8sh/23jz6Nhzag8wmOpwxX7fNd9s9527wDwUUTXowe3tLt2bLL
+	 bK8QjSCcEDBQg==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	Bastien Nocera <hadess@hadess.net>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1] HID: logitech-hidpp: Prevent use-after-free on force feedback initialisation failure
+Date: Fri, 27 Feb 2026 10:09:38 +0000
+Message-ID: <20260227100939.961011-1-lee@kernel.org>
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 
-On Tue, 24 Feb 2026, Derek J. Clark wrote:
+Presently, if the force feedback initialisation fails when probing the
+Logitech G920 Driving Force Racing Wheel for Xbox One, an error number
+will be returned and propagated before the userspace infrastructure
+(sysfs and /dev/input) has been torn down.  If userspace ignores the
+errors and continues to use its references to these dangling entities, a
+UAF will promptly follow.
 
-> This series adds configuration driver support for the Legion Go S,
-> Legion Go, and Legion Go 2 built-in controller HID interfaces. This
-> allows for configuring hardware specific attributes such as the auso
-> sleep timeout, rumble intensity, etc. non-configuration reports are
-> forwarded to the HID subsystem to ensure no loss of functionality in
-> userspace. Basic gamepad functionality is provided through xpad, while
-> advanced features are currently only implemented in userspace daemons
-> such as InputPlumber[1]. I plan to move this functionality into the
-> kernel in a later patch series.
-> 
-> Three new device.h macros are added that solve a fairly specific
-> problem. Many of the attributes need to have the same name as other
-> attributes when they are in separate attribute subdirectories. The
-> previous version of this series, along with the upcoming his-asus-ally
-> driver[2] use this macro to simplify the sysfs by removing redundancy.
-> An upcoming out of tree driver for the Zotac Zone [3] also found this
-> macro to be useful. This greatly reduces the path length and term
-> redundancy of file paths in the sysfs, while also allowing for cleaner
-> subdirectories that are grouped by functionality. Rather than carry the
-> same macro in four drivers, it seems beneficial to me that we include the
-> macro with the other device macros.
-> 
-> A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
-> permit fwupd to read the firmware version of the Go S HID interface without
-> detaching the kernel driver.
-> 
-> Finally, there are some checkpatch warnings that will need to be supressed:
-> WARNING: ENOSYS means 'invalid syscall nr' and nothing else
-> 1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
-> +       case -ENOSYS: /* during rmmod -ENOSYS is expected */
-> 
-> This error handling case was added as it is experienced in the real world
-> when the driver is rmmod. The LED subsystem produces this error code in
-> its legacy code and this is not a new novel use of -ENOSYS, we are simply
-> catching the case to avoid spurious errors in dmesg when the drivers are
-> removed.
-> 
-> [1]: https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
-> [2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
-> [3]: https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
-> 
-> Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
-> ---
-> Change Log
-> v5:
->   - Make all RO attributes cache the data during probe using delayed
->     work for both drivers. All RW attributes are read in realtime to
->     ensure they match the device current state in the event of firmware
->     reset or a userspace application.
->   - Fix endianness of version strings and print as hex for Go driver.
->   - Remove reset__esume function. It was not being hit as the MCU of
->     both devices disconnects of suspend, forcing a reinit of the driver.
->     Udev or userpsace will need to set the OS Mode upon resume.
-> v4: https://lore.kernel.org/linux-input/20260220070533.4083667-1-derekjohn.clark@gmail.com/
->   - Use dmabuf allocated per request for both drivers instead of a devm
->     preallocated buffer that is reused. This solves a bug where some
->     attributes couldn't be restored without manual writing after resume.
->   - Reduce the number of quirks and flags in the Go S init to only those
->     necessary. Previously they were duplicated from the Go driver but
->     everything except HID_CONNECT_HIDRAW was found to be unnessary
->     during operational testing.
->   - Clean up formatting for debug prints in Go S driver.
->   - Fix bugs in RGB driver for Go that caused the effect to switch to
->     solid when the speed or brightness was changed.
->   - Remove extraneous setting of os_mode member of drvdata when setting
->     os_mode. It will be read from the hardware in _show.
-> v3: https://lore.kernel.org/linux-input/20260124014907.991265-1-derekjohn.clark@gmail.com/
->   - Fix Documentation formatting by removing extra + characters.
->   - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
->     wrong _show function.
->   - Rename enume os_mode_index to os_mode_types_index to fix collision
->     with os_mode_index attribute.
->   - Remove accidental rename for enabled->enable attributes in patch 4
->   - Add SOB for Mario in patch 10 as Co-Developer.
-> v2: https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
->   - Break up adding the Go S driver into feature specific patches.
->   - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s and move
->     it out of a subdirectory.
->   - Drop the arbitrary uevent properties patch.
->   - Add Go series driver.
->   - Move DEVICE_ATTR_NAMED macros to device.h.
-> v1: https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
+We have 2 options; continue to return the error, but ensure that all of
+the infrastructure is torn down accordingly or continue to treat this
+condition as a warning by emitting the message but returning success.
+It is thought that the original author's intention was to emit the
+warning but keep the device functional, less the force feedback feature,
+so let's go with that.
 
-This is now queued in hid.git#for-7.1/lenovo.
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
+ drivers/hid/hid-logitech-hidpp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thanks,
-
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index e871f1729d4b..eee9ab6a2fc4 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4487,10 +4487,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (!ret)
+ 			ret = hidpp_ff_init(hidpp, &data);
+ 
+-		if (ret)
++		if (ret) {
+ 			hid_warn(hidpp->hid_dev,
+ 		     "Unable to initialize force feedback support, errno %d\n",
+ 				 ret);
++			ret = 0;
++		}
+ 	}
+ 
+ 	/*
 -- 
-Jiri Kosina
-SUSE Labs
+2.53.0.473.g4a7958ca14-goog
 

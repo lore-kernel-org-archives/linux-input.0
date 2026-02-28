@@ -1,21 +1,21 @@
-Received: from out-177.mta0.migadu.com (out-177.mta0.migadu.com [91.218.175.177])
+Received: from out-172.mta0.migadu.com (out-172.mta0.migadu.com [91.218.175.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5329943D510
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 14:46:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 812F043D4F1
+	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 14:46:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772290000; cv=none; b=CqXy0QafvbhaiKewZocuupLSmPjuMME/EpSnm2JhEoioN2tM2IHBP/BZ6fC3WSQ5IzChpaV+fp6zZVAlVwkVgJHARXFYOusuQ2q4K6QfnQb7f7e7hMKYfDWs1uUFxw2joEJVErnzxE7EBvOgAWlRM7WYz+38E6jP//7ozQaTsgA=
+	t=1772290003; cv=none; b=jjYP0UmyJ4RPk/HU05Y3BXIGEygCM+eGN8VSgy0280k/OUvYeb47SrmPNw/a7YZs5HlHsADFesFSkjSWrYpNt8OxlMG46H31MHj5fgZdaUkzm9igbAbTP61KeVRTEwOnC8Aeq7O1DZMlRWH5Z2Erl87VtaV254vCQ0orno9CX6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772290000; c=relaxed/simple;
-	bh=LqPaTLW5AI75ZNkQD/QdAcSIUZ/1Ek73aCVguRLEBCE=;
+	s=arc-20240116; t=1772290003; c=relaxed/simple;
+	bh=zSxrtZZVnECdu9m8Fhscwp54sVyOqciVxbgbZAjevWg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=G6tuy0O5Y7O+8hqhtQlpmelsmCSvYm0XOk4KoAW1o5qv79H7Dz2JlkI4s9/NSYuZzKSida9sXTJIwL1w3oeFaQoZm17NNr6++cXnH9XWTFdPjL8Itzf4JZVTCO6EGxm9uPAgMdroKdeSvLwnDtB5ZDbfcjQGzmAcW2dKP2RboHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=BMvz77VT; arc=none smtp.client-ip=91.218.175.177
+	 MIME-Version; b=rtej+4k3Rfbg+lsXUBlrfK/N6qIYFTzR+VLizgqssuwNk6gN/oFjm2hHLm8FM3GBQK2qFdVDj3Jd6lHjcIneyeA7L2JEKIFHwWgmDxdtGNrlyF/l0PITEszn6ZVF++KhgUEE2ndyVULD8se/4x7BYq4Z81dzgZoWNfP8Qv9+edk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=To/15Jnq; arc=none smtp.client-ip=91.218.175.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="BMvz77VT"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="To/15Jnq"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
 	t=1772289997;
@@ -23,10 +23,10 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=itnmQQEA5TtzfBKuC42LtASy2zNtasPxJdWo4/puqdg=;
-	b=BMvz77VTZ6tGQca8Xc2Zk7LDoiPFcp/jeyaLZqUSGvB77pko4fiRFKjIOIN1KT/zAsSP3f
-	xcl/KkIFd/fubZG8u9EkivPoz/G0J73jYBUpcA/6oM2ltz0nhKld94jP2kyljxk3Do80iK
-	k/HCiYILDxLtliyAl2hGq9Tz8ohSkLY=
+	bh=LOz2UtYPv9SlPIqkVTbqHfsvk2QfC9T+n6BQrawVBRo=;
+	b=To/15JnqgjK41LY9VAvL9XXMEBIHtwKX6YGQIUXmGJjASjwGnclXPXRJPJTGkCoJPsjxq4
+	U+euHfuvt1MO9vsvcMATNBlkrgGIWwNqtPGS5mGir+CF4U3q2XT2/W7CnVRGpPWruAyk5Q
+	nRXll6cagUaAfRNOpl9pnrOzNS5a2+A=
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc: linux-input@vger.kernel.org,
 	"Mateusz Schyboll" <dragonn@op.pl>,
 	"Denis Benato" <benato.denis96@gmail.com>,
 	"Denis Benato" <denis.benato@linux.dev>
-Subject: [PATCH 7/7] HID: asus: do not try to initialize the backlight if the enpoint doesn't support it
-Date: Sat, 28 Feb 2026 15:46:26 +0100
-Message-ID: <20260228144626.1661530-8-denis.benato@linux.dev>
+Subject: [PATCH 6/7] HID: asus: do not abort probe when not necessary
+Date: Sat, 28 Feb 2026 15:46:25 +0100
+Message-ID: <20260228144626.1661530-7-denis.benato@linux.dev>
 In-Reply-To: <20260228144626.1661530-1-denis.benato@linux.dev>
 References: <20260228144626.1661530-1-denis.benato@linux.dev>
 Precedence: bulk
@@ -50,28 +50,57 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Avoid possibly printing a warning about the inability to initialize the
-backlight if the hid endpoint doesn't support it.
+In order to avoid dereferencing a NULL pointer asus_probe is aborted early
+and control of some asus devices is transferred over hid-generic after
+erroring out even when such NULL dereference cannot happen: only early
+abort when the NULL dereference can happen.
 
+Also make the code shorter and more adherent to coding standards
+removing square brackets enclosing single-line if-else statements.
+
+Fixes: d3af6ca9a8c3 ("HID: asus: fix UAF via HID_CLAIMED_INPUT validation")
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 25 ++++++++++---------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index bcf3b0c7c758..6e9a3a3d5616 100644
+index 61705fd10d90..bcf3b0c7c758 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1309,7 +1309,8 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -1325,22 +1325,17 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 * were freed during registration due to no usages being mapped,
+ 	 * leaving drvdata->input pointing to freed memory.
+ 	 */
+-	if (!drvdata->input || !(hdev->claimed & HID_CLAIMED_INPUT)) {
+-		hid_err(hdev, "Asus input not registered\n");
+-		ret = -ENOMEM;
+-		goto err_stop_hw;
+-	}
+-
+-	if (drvdata->tp) {
+-		drvdata->input->name = "Asus TouchPad";
+-	} else {
+-		drvdata->input->name = "Asus Keyboard";
+-	}
++	if (drvdata->input && (hdev->claimed & HID_CLAIMED_INPUT)) {
++		if (drvdata->tp)
++			drvdata->input->name = "Asus TouchPad";
++		else
++			drvdata->input->name = "Asus Keyboard";
+ 
+-	if (drvdata->tp) {
+-		ret = asus_start_multitouch(hdev);
+-		if (ret)
+-			goto err_stop_hw;
++		if (drvdata->tp) {
++			ret = asus_start_multitouch(hdev);
++			if (ret)
++				goto err_stop_hw;
++		}
  	}
  
- 	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
--	    asus_kbd_register_leds(hdev))
-+	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
-+		(asus_kbd_register_leds(hdev)))
- 		hid_warn(hdev, "Failed to initialize backlight.\n");
- 
- 	/*
+ 	return 0;
 -- 
 2.53.0
 

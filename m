@@ -1,108 +1,131 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA9A30F7EF
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:53:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1B58430B90
+	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 20:04:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772308382; cv=none; b=KbXQQcQqFbWwPYPy4mzouGMGEMUECvJMleJyD+as7oZhYb6oTNU3iN5SVachCEeGtkaqXOkpgqRgUF+vmxZyWZpwhbD+srLawCvcuOdVy/j4Ar7N4AGwsvHGt82X2y3KaSB9SD3izNXi5Zxr9iD5aV1CEZebOZ+PydyRgkMnPrQ=
+	t=1772309043; cv=none; b=BT9VO+2zWcrfMzJh7s1qZNIYlW4gcx2fxTaG9ki6o6jipeWPOiO4Vuk4Ye/k6Vn2AdPdlMyv405sudUXYL6QYT4TbjOaP+TaUuCEyl8qKD86FcThV7dJIRh+5TfeW+gv2GQpRKnzDwh6Fj0Z8s6vmsZHbTaWmgJrgG5RCEWyr28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772308382; c=relaxed/simple;
-	bh=Pb0hDyfrjf4JP7irBYUuhEIF0rGIDgqf/LK04l9CpKA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cMb7JaNvEieBchukMKxoa5RLJJ6pp63h2r0M/0dotQsckiqPterMwY6ICVyh8Dll4+txdytWJuII+UZHxMbl7eNvUYpytUHNSQ0nXeaFUVVzucTUxUfHxXLnnwPng6eMy3hMV+xX9X57XqJ5SKgup4o9htS5lPe/I85ynuk4gVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=glrQh4hZ; arc=none smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772309043; c=relaxed/simple;
+	bh=Tml8NSuUzi1rxzSKD4vwjG6v9vlm4oP2bm1Xe5cL5IA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=dCoWjP7tlRjgxAuUiVc2ePIZWTW9t78mpcZyx6+1pAGGux7Sg4paaASvOdKI175g4zzP9YVZOj+NfEGzKRbCJSnfpy6VM/CTKmpWl6dD+o3nt0YQ16KKGTl0oflhoiCFCdpPgvxsELYt4a1P55RGxG0jCFHYQy8/T7v7sgBATMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=gwHIghQV; arc=none smtp.client-ip=209.85.167.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="glrQh4hZ"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-5069b3e0c66so59376301cf.1
-        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 11:53:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="gwHIghQV"
+Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-464ba2bb3aeso2262522b6e.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 12:04:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772308381; x=1772913181; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q4HX7+0nOFjK+1quHdf7pjpY5BAQVLn52GZLqmncp/M=;
-        b=glrQh4hZP62H3sB4Kf2gntyMJ8cR1GHQGtt4g1/WpGZScPWGvddi8hW2R1VJqByuhY
-         ZpJkHuKmF9EJ8VApqeNE8zks/udALIwmDJBSCNkZBkQ0ALVHHG7bNwwL6Gf7ii+/i9+T
-         Bas1kIf/hldlDiwODxrwtpcneVOJIx6sx5Kxixkl2w7ZjVOC6zU23tXl/whShrHPuDxI
-         w/PWKyDaIu2PiZyMnngInOvMElXC/pM72fI923fv9NR/8xiekIHWa1hNo/PphXIItse8
-         nzPpk6MdUdLkMs5umdE9ZVxua2JphXiRN5yQf2OJfgKVzKFrsEKrhzxKmE5ZwS+V5Ni9
-         82YQ==
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1772309041; x=1772913841; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=j/zft2uTLV6nJnLwPmbv0LSJma9hhFD05ECXQxkCKDw=;
+        b=gwHIghQVws6mRYZyVw4VWdrX4D4jr0dKTFXDfOVA53X/p45U1nNEBCVgNS29W5wej7
+         HVPrAPR9PQsnc9oymHubkB+5mnV+3HAd7m771Dg/ljpyJ726UCA4LS+hfMH8yVqnmBtB
+         R1awszPuW2qkXDL/DDnu9wnY+u+ZG4MwPdZ9vRBtPfjjKPprdlM53meA4QFOCAytSpMY
+         IBlJcwcY5CCxgySKvr3TW5H8utNEe/MouVlCcoGdNs00MFeF3LcWDwUuwiz+11kmlVOn
+         l7Gp0C1s1klO/2H/eArbc1laTAn1ybhJXntw6O6MqdLWKerz1P/6bISTclmHWZSrwmPE
+         tMOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772308381; x=1772913181;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1772309041; x=1772913841;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Q4HX7+0nOFjK+1quHdf7pjpY5BAQVLn52GZLqmncp/M=;
-        b=FKzZc9B1RPW2DX9c2hcqlye+uLzFg4hCDW3PNmzj5RjrP8vt7HRss6DwV/P0oep/gC
-         gFPpjjx92mi1cBDbka2qWYfCl4TkzJWh3z8asJ8u/JSZ7v547E/JEAJHrBD0R8Pc0ZmF
-         41wgSanMNVQOb8ZR0SQ1uNKRiUR6g27xVJZHmF6n/6NNbCa0JNjDXqq1W118fUs/6fxR
-         rwskKKBUK4MgdTYWgx0OLmXEy0XY+vOJDQz6Dtrk0dOrt+w4F+zfXBcTRYMCYz/MM6m8
-         h1vwT1fbkOP9wnelsipKpJRHynnmjLF6V76Vzd11XJehca7P4A2CTMYaA+9ST4+Kj0nm
-         MZ2g==
-X-Gm-Message-State: AOJu0YzmaoIow7W3NbPhwidkjXKeeIgb2/YuCyvUCkZPEvYgohp1Cfwo
-	8nwH7Wg7jxDon7Ou4DAIndGcQ+gDAtNLxgD35cKthTLlsLg40IShN1OK
-X-Gm-Gg: ATEYQzz2QI75P45mRgwHAdUOHyBiturAY9x+2mAQvjKa3D0e2rP1Swd5+1mlvVpJRbk
-	/WScJizUwWlWD5MuqH4CsMochZ8NDsQ0PUrzYzdKNuElz1nEazjr76Jwd732D3fW5EmDYqpHgFu
-	6cbuM/QQSWIx1pkk8KtFl1t+ZBeyguHOhFOag4z4mkceE3YZglrdAW1OvSFj1cg2CD+a7vQnVFN
-	erxmlXoqzL5qQjQ3tmpA/Wle9GBMG249inv0LVEw/FisJMRaNL1C34r9+HW0vyjraM05f79OF5n
-	m/e37M3aD1fwn0MbYzsAIu3f4YnPg780Ovp3q80ZpGxKbmf3ddYdFKz8ilQFdGXSWX7Hm6IAZ5W
-	A7kICC93Ly1imWyFeb0M9YkIKNCtXgtNc/IGa2EmSi01Wh5vtapj5yqwlKOgpOsEz1yLZVM+RkO
-	zb0vvOlPCxm0/4KBabIYnaUfZ71vsrLi+TU8U0QdAmkkWpyCc7MnQ7RseLXWOMKJu6An2owb8Wx
-	a7v
-X-Received: by 2002:a05:622a:15c6:b0:506:a574:a98 with SMTP id d75a77b69052e-5075240cb43mr98809321cf.25.1772308380692;
-        Sat, 28 Feb 2026 11:53:00 -0800 (PST)
-Received: from instance-20260207-1316.vcn12250046.oraclevcn.com ([150.136.248.187])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-507458f8b2asm91382471cf.4.2026.02.28.11.52.59
+        bh=j/zft2uTLV6nJnLwPmbv0LSJma9hhFD05ECXQxkCKDw=;
+        b=Fu9jgWC9n7FewmQ9bs6XHL3fPFl/JvLpgLrSBQwrx9T5bcSiPZjem3r8rUHIa2eDlc
+         s+41YlHZB0H2bfk+ec8Jzq6r1TE6pEEuaMWbOnJWnxy+scHsEhgOexrbcNN7VpV4N67Y
+         AcdetbH6pzIN7JaAHC1lyvVqRnLKcb9dwtuI1a+JznFpAuzSFCvLvSdTu21dVnXzmnDx
+         GPhH5YJ5eQblUEFFabIt+KaEas229YTo0zCDl1GG2oaoUwEzyD4wPxE02ZBOxEUKDmgf
+         ROFIwNjzVwSNYcsum/bZnW8PhrjozC+7OTBjxoBS6G6cph6qk0YrX6Faj9/U9gmi0+K2
+         rIjw==
+X-Forwarded-Encrypted: i=1; AJvYcCXUuC57IfjUqXtXSCiNand7+KewVZAoYEdpLyX52q2NdndGJNeAB6Qvj+ATqUdwSydCcu7eG6d4UVIKdg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzMeF56hGCr4VgFZ5h6y7YyFCaaspHlk0vD3IvgejVAQXKh4mKt
+	q/sj8Qp/OYS20jDhl3gwYguB8yhfRV5RLzqoQHBT0yF8dRQpVzDTFodMpofNWN7tbHmWE2p2L8o
+	8dxVa
+X-Gm-Gg: ATEYQzzMvGT5msdQvcJ/lRaBoV8cVhPiQ+IUA+PCa0UswiizZyeH468qciM64faLA6S
+	8ohURnr+Lsylty2xzsGmgkkD+kBcaRO0n4FUzApOPXDThyx9NrPvygjpJQLbAEjQswV+fnzQmgw
+	aCfFBX3ryEeU7efE/gYlxAebQL++8x0L6smZH9Jg1reRot0mhb9TvWflyGeBe1UBdLDxuTfZQt/
+	dgvFXibn2+lupflCiX7mD9GR9BgeYQ/uRNNYjvx34rCqFdEsum8sHobZvf68rkSIWtcmRYdRmXH
+	kzUgzx8KiDuir5m+RD1+rLPlhm3wKfqOW5O8VLwoaeL/curUiObzVdKkOT8DN/11Z075KS6tIZL
+	KxNwO15sTIGQxFTkXPPRYC/nMKoNiXK7ZMi8B2zWw1GnYuaZIhciY/mvtPX1bIWXfGX4orGIG8i
+	pfrOGCEbpsZeNzdz+EGMBv9l4fBaP+
+X-Received: by 2002:a05:6808:170f:b0:45c:7aef:621d with SMTP id 5614622812f47-464a5eab3demr5376938b6e.23.1772309040821;
+        Sat, 28 Feb 2026 12:04:00 -0800 (PST)
+Received: from [127.0.1.1] ([2600:8803:e7e4:500:1031:c44e:9f1f:17c1])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4160d2cf00fsm7579785fac.20.2026.02.28.12.04.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Feb 2026 11:53:00 -0800 (PST)
-From: Josh Law <hlcj1234567@gmail.com>
-X-Google-Original-From: Josh Law <objecting@objecting.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Josh Law <objecting@objecting.org>
-Subject: [PATCH v2 1/4] Input: elo - fix style issues
-Date: Sat, 28 Feb 2026 19:52:58 +0000
-Message-ID: <20260228195258.2468296-1-objecting@objecting.org>
-X-Mailer: git-send-email 2.43.0
+        Sat, 28 Feb 2026 12:04:00 -0800 (PST)
+From: David Lechner <dlechner@baylibre.com>
+Subject: [PATCH v2 0/2] iio: orientation: hid-sensor-rotation: fix
+ quaternion alignment
+Date: Sat, 28 Feb 2026 14:02:21 -0600
+Message-Id: <20260228-iio-fix-repeat-alignment-v2-0-d58bfaa2920d@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42NQQ6CMBBFr0Jm7ZhpBUFW3sOwKHWASaAlLSESw
+ t2tnMDl+/n//R0iB+EIdbZD4FWieJdAXzKwg3E9o7wTgyZ9J61yFPHYyQcDz2wWNKP0bmK3YFE
+ WrbZED9YFpPkcOPVO9atJPEhcfNjOp1X90j+kq0LCvOxI6aqyFd2erdlGaQNfrZ+gOY7jCwlc7
+ XTDAAAA
+X-Change-ID: 20260214-iio-fix-repeat-alignment-575b2c009e25
+To: Jonathan Cameron <jic23@kernel.org>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org, 
+ David Lechner <dlechner@baylibre.com>, Lixu Zhang <lixu.zhang@intel.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1420; i=dlechner@baylibre.com;
+ h=from:subject:message-id; bh=Tml8NSuUzi1rxzSKD4vwjG6v9vlm4oP2bm1Xe5cL5IA=;
+ b=owEBbQGS/pANAwAKAcLMIAH/AY/AAcsmYgBpo0oaPCYrXh9Je6cQGJH9OHltDO9OjDkom0XVf
+ qEw9jbcb2WJATMEAAEKAB0WIQTsGNmeYg6D1pzYaJjCzCAB/wGPwAUCaaNKGgAKCRDCzCAB/wGP
+ wGkJB/41MEvdIRHOjO68oSGJZOLI8NLvmV63HIzlXl/dZqK2JefZ25odqLJHxctd2GyYBFwRFjS
+ YfGZgcyFBOScz2ErEv5YZ+EgR6sBUhj36a1bepS5bH8nrolvEsEkfnXc8wJaexMeDLEYLRnZmk+
+ 7IJ685jfHLhsqn7OtJM6NgmQ2g0caAwRJOYCjW62x610G9ub0lIcokbkcpAeeEzwzd1AJTp3b2A
+ Ahgsd5t9p4iK3303V5xh9TmbnlxA6RjtehEpWEPMuyDIKWOBpyuEBTWTIpc2u52y9yVh83oukon
+ brLUWeWg92I0aYxNlEIzcTIn4CFzeH8POZ5xIyNlqQ7yGi8L
+X-Developer-Key: i=dlechner@baylibre.com; a=openpgp;
+ fpr=8A73D82A6A1F509907F373881F8AF88C82F77C03
 
-Fix array constness and spacing issues reported by checkpatch.
+The main point of this series is to fix a regression reported in
+hid-sensor-rotation where the alignment of the quaternion field in the
+data was inadvertently changed from 16 bytes to 8 bytes. This is an
+unusually case (one of only 2 in the kernel) where the .repeat field of
+struct iio_scan_type is used and we have such a requirement. (The other
+case uses u16 instead of u32, so it wasn't affected.)
 
-Signed-off-by: Josh Law <objecting@objecting.org>
+To make the reason for the alignment more explicit to future readers,
+we introduce a new macro, IIO_DECLARE_QUATERNION(), to declare the
+array with proper alignment. This is meant to follow the pattern of
+the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
+
+Signed-off-by: David Lechner <dlechner@baylibre.com>
 ---
- drivers/input/touchscreen/elo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in v2:
+- Rename IIO_DECLARE_REPEATED_ELEMENT() to IIO_DECLARE_QUATERNION().
+- Link to v1: https://lore.kernel.org/r/20260214-iio-fix-repeat-alignment-v1-0-47f01288c803@baylibre.com
 
-diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-index 434b9b47e964..40ae132cde21 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -257,7 +257,7 @@ static int elo_command_10(struct elo *elo, unsigned char *packet)
- 
- static int elo_setup_10(struct elo *elo)
- {
--	static const char *elo_types[] = { "Accu", "Dura", "Intelli", "Carroll" };
-+	static const char * const elo_types[] = { "Accu", "Dura", "Intelli", "Carroll" };
- 	struct input_dev *dev = elo->dev;
- 	unsigned char packet[ELO10_PACKET_LEN] = { ELO10_ID_CMD };
- 
-@@ -273,7 +273,7 @@ static int elo_setup_10(struct elo *elo)
- 
- 	dev_info(&elo->serio->dev,
- 		 "%sTouch touchscreen, fw: %02x.%02x, features: 0x%02x, controller: 0x%02x\n",
--		 elo_types[(packet[1] -'0') & 0x03],
-+		 elo_types[(packet[1] - '0') & 0x03],
- 		 packet[5], packet[4], packet[3], packet[7]);
- 
- 	return 0;
+---
+David Lechner (2):
+      iio: add IIO_DECLARE_QUATERNION() macro
+      iio: orientation: hid-sensor-rotation: fix quaternion alignment
+
+ drivers/iio/orientation/hid-sensor-rotation.c |  2 +-
+ include/linux/iio/iio.h                       | 12 ++++++++++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+---
+base-commit: 3fa5e5702a82d259897bd7e209469bc06368bf31
+change-id: 20260214-iio-fix-repeat-alignment-575b2c009e25
+
+Best regards,
 -- 
-2.43.0
+David Lechner <dlechner@baylibre.com>
 

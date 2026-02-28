@@ -1,61 +1,63 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A93543FB059
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FAB43FFAAE
+	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772306068; cv=none; b=UbRTjclHGnL5B2nodLtMqP9TLFrrXZqBTzYs5IZ6WUmEt2ChwPt92H8FYgBpWkzu4yRQuIanZhZdTgONNlzokMechR1HF55v6yOVfkA/AFG1DjGtXcAH7cCTxNCQAxgqZ/iXhY7Ij/Ip36NaePWWXnwJFDUo6AWgsAGrmKPwGYo=
+	t=1772306129; cv=none; b=WKABs/IixZMVN8HKh6cFQwNXX0B+te17owJA7shveRWjQigvHjnp9r1RaYqO38OONmg5Oc3xBIMsa64oMGPDqr9t6WebYcCsvYz84ROKhlKXIOPb5X6CXQOY7QUOCUgP4pdSeEk49N1vRlsXVvrJQ/d7MvdlsZamkwsRePK8cT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772306068; c=relaxed/simple;
-	bh=O7BO7sofFShJ3rZNNsX0QOJOK89m0pgDWdmerQ+0GlY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MPL6dbMZUe2aoj1qF0QoiUPsBzfw1V5xdp1Qaen/5n2FThbBt9Bia/8l6vZlNigmqk6ubMQD9om7Gkc0TEcEGHhE9zzjq6t+QLmsbhEiv2gjmb39EozR9aA0MRZIWaGGqk8C7aDWr4oNk8gP3GjXpLhAuOGv9zLtPUvCRMEaVhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lNJIN2eP; arc=none smtp.client-ip=209.85.210.176
+	s=arc-20240116; t=1772306129; c=relaxed/simple;
+	bh=l59zQD9YqPAndUJbVtbTFeoUp1y5ZaOdah34Q1NYPxw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HU9qrWoIp8jMEGEtOlAZsJxcPMHF+/Eirjr+1ZtsyQk5Mcs8uMFVzuV6mwEWEtsrTLml6+ji7dNL8N8gfREdtA2/eCIzZNKgwlLDNnmI0NlXbV7W/HclZEvvIs3xQNHaWhtIyzl4vSR4MjDmcW0McW2oc9DKsYZro9iLsozOQdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z3RQEHp7; arc=none smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lNJIN2eP"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-82746ed8cdcso1680696b3a.3
-        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 11:14:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z3RQEHp7"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-827270d50d4so3298873b3a.3
+        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 11:15:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772306067; x=1772910867; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=aTEnHmdgjafFhA5Ze37HfWiPS6hJ9PTsE7JUpCM9LQc=;
-        b=lNJIN2ePqg1c7A8FwzdtTldYxkOMmETzBRnx9KnYksQVJSlBArKpF6hKLlvqYQAM3S
-         e9QwyOeYNjt701AbbysnIKdO6Fx+RTQhVuI0w/bNgW0aHof2tmBKR411a5MAHk7VLk88
-         fSYz+qnZEwBVqg0CYoUTVn5jiKwohGHG8Pi9Q2d9KmaE2EdCGNLN1ktQpGCN6VZWHMxi
-         /8CJe68wulUQELGvk+7I2B6OScSCIf896fX9w4zN8o3KV7pFCXCFv4WbiGFtkaUlYVbr
-         9HbZq4GhQlbB/zT8FFeHBav24h/rOxZZyiQ2TWOZAOlX3n9sGAFasVYEUubcPdWYKK05
-         OGrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772306067; x=1772910867;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1772306126; x=1772910926; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aTEnHmdgjafFhA5Ze37HfWiPS6hJ9PTsE7JUpCM9LQc=;
-        b=TC0sbbbs+1ezUQYZdzjWxMK3d1hok0Vqgfp8PRbx4j4Re4zz3ZW32xUoY5bQ+A4D91
-         iUowmBtTYPBdDEEi1tLcUigIckyEh34Tropdq+S1BVjkK7tT+Qavn7zVSAYizg9c1Xwl
-         QEB6VmXNqTvANQWeje54P+ejRSBLuyla0ejlwyKhbERfprWVjCPwdiCmONR2toKFkvzN
-         dl0Rykpa331sB2vPUfsPZuK3Yex+RJ0MlCVuXkcK9m/2VyHdtuy4GS+ylc7xqaCfw91g
-         QnWNgqNhUPcrI1uV71TY9E1jVqxAKN4tqqssOstSiGbgsjyQ0qVWTcqsTVdgwpyHSK5l
-         EXZg==
-X-Forwarded-Encrypted: i=1; AJvYcCUjKij+Z7UrL8152pfLgeO9DFpUz0m0Ua2brTcp0RNIDPqXMQ6Ia913tfLk/L5+9cwfkDkxPQYC5Xlygg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyaoSJeh+b7FhaTmAhyN0MBDC31aY2c3gLyJLKHn0hbnha0wHdm
-	sdsoonG7ydRYtOT2eV3VqjYVdXGYtU9DDtd2FBOXNNs6/69FtL9It9sN
-X-Gm-Gg: ATEYQzy3AXP9DGUcPZ2gdJHXQ5RGzX4bhRDFnCYh/BkHzvdq0nYEqmLVAxGyTmKlyvu
-	Y6WBu4I1mm0e2+bq3sQoSUefNUcUGysY8sp+nlPgLt2/WFF6vG3rbScCWZj1JKD3mxjTJuRNhW3
-	V3//YoHOFN/oWlDayR0shTI4Y2rh7A0uGejCnVuh8XpLCbmOaM9qxUppmqXYo76vGD/knmtvxPQ
-	iHZIvf2Rt+0Wb1c8OQuv6Gl7uR7fVfZJ5iJSWQ67Y8v2nfC96a8/udi6nFJDGnkERGgMLdA+Si7
-	lnUEHPxAtHzKmTWqWwfg0g1JIpRktFPG34Tqu1a4trBbFBcN0p3J6ndVK/x1t0yY9a7mc3gbEWX
-	SoCjvcPFY7DAGl3s0vHcwCxAujvnd1DRd38cLcFrO7PvFaE676z4fI5jJ4TjCPXkok/7J/PcRxz
-	Wfda0ntmBWsoxMbLyrZEyLwdrHZTlfRjEeIvk=
-X-Received: by 2002:a05:6a00:2e04:b0:81c:717b:9d39 with SMTP id d2e1a72fcca58-8274da568e3mr7084345b3a.56.1772306067008;
-        Sat, 28 Feb 2026 11:14:27 -0800 (PST)
+        bh=VFJRHzNwns07yr8sD7csxbfUGSI0WFETyr/H6xdIo98=;
+        b=Z3RQEHp7ZfVTRl//AXHq/VYr5jTxAMelVeUxMGYx9LBUEmTtHrismg3JfqMq5znwce
+         j0agAiFbUSN0pPh3/QAMMQbCW8tPq6oILilEHyAB4CtIEOmL79n9IGNB9eeJieUcfX2L
+         ZZQGayD8pOlNSQ34FNsoaGhdRW4VY5ACDFAnAtdk/WD3bEjtKhi395IRRNiQy8+Lo8KT
+         X5lywX6uv9zbvWve1k4dvQ1VkmLcKhhrK9ALHqkDbthKCNigpRioZ2wcSZ9l+zl+ZlB2
+         wcsEg3n+cm9P/cWFcCZRcJXR8VZ8ZdNuxQh6iVFh5XHHBVrdJHNPuP8r+a5wsWf17I3z
+         EcFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772306126; x=1772910926;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VFJRHzNwns07yr8sD7csxbfUGSI0WFETyr/H6xdIo98=;
+        b=tmtzk2WnqeNUKpgjDpu0POvYRb49VmFMOTW9jCVJ7xR67Pt+wXqONaSZlE8nTZQAXL
+         bPYSCEJwJy3NAs5K5Ci8d/gZV/BeHe73RR2Ok+R+ROlqDPhq+a5mrUSZxogHS5/JMp9S
+         AA7SW50Oh6SU49HVlkyhzlSl+EW0RIk2E1jw5BeSkfei7zMEtcRBM8RejMMvMQKkiGPN
+         6XiGtOOqaiU/wWxjvEMii6MJ5icZlBe2MAvsWH93nrmaihA2zsLLZ9SA+fplhRrd7vnD
+         o4KOVW45txYh0/nmcq8WbTqU8fyO8z/AOzevqz19D3FOeKSD9UCUB6a2u6ktjFLD/ntl
+         87PQ==
+X-Forwarded-Encrypted: i=1; AJvYcCViJJszjnxiuNjZUnHDSbU1dA1+hX+afyNKNZjT0kmabp0wb5GEXa6poevQm+d7vmBRvX4ynq5PVIjbLQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxgH4RCuZHXqDxFGHijgTC5DhIqoH84M67T/pCGtamom8GGXmjM
+	4TP356IYv0ofNSKqL6Gxz6LA2xaDQ3afZO9KiDAXGLdMNKBKdLz5nKOI
+X-Gm-Gg: ATEYQzzqEENzgd2LexA2e40ltljnSLNtMQYnjf7WbEJR96abjZQcBVxTI5H4PRcJ3PR
+	Fev6rpGGjsjZmaP64TRAmCUdT+4FXW3NeHXptiDfB22RCxNr9lVfrIny9HD/rbt9G76zs5fN5UM
+	Rgq/jyRqmWOu7rOJAjFWR+lWY89KF0WvQIvJF63NK4W7djUbANNsBJCYuBUhDt4hi1i9Q/5HQsw
+	+3Tu/YueQHmVdCnOW+JBpn3QoxGdsOhQ2d6Q6m2k/pMZVfsG28gvVaqdPHNZUsaJw6QIvQXnJd9
+	84rityO8EchJKaHuMMOUHwaPbn6frkzJFWjK3NF1evy0Hsj1SPYiV0/QX1YE2aRotY9sJsuW68p
+	hIgKiCh05kE+MHMiycJoqMetnEGTLCRfJS50Nar39v0BFcfaxsU+nANEOOAnYN9/Szhc4YboS/I
+	SFkmNDC39Ybcz9+EDI9FvduYrw
+X-Received: by 2002:a05:6a00:32c7:b0:824:936a:46bb with SMTP id d2e1a72fcca58-8274d972d17mr6912554b3a.20.1772306126567;
+        Sat, 28 Feb 2026 11:15:26 -0800 (PST)
 Received: from arch ([2409:40c2:5057:a20e:20e0:a4e3:da85:ffd2])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82739d4c910sm8327918b3a.8.2026.02.28.11.14.21
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82739d4c910sm8327918b3a.8.2026.02.28.11.15.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Feb 2026 11:14:26 -0800 (PST)
+        Sat, 28 Feb 2026 11:15:26 -0800 (PST)
 From: Bhargav Joshi <rougueprince47@gmail.com>
 To: jikos@kernel.org,
 	srinivas.pandruvada@linux.intel.com,
@@ -67,10 +69,12 @@ Cc: dlechner@baylibre.com,
 	linux-kernel@vger.kernel.org,
 	rougueprince47@gmail.com,
 	linux-input@vger.kernel.org
-Subject: [PATCH 0/2] iio: hid-sensor-gyro-3d: fix typo and probe race condition
-Date: Sun,  1 Mar 2026 00:43:58 +0530
-Message-ID: <20260228191400.19244-1-rougueprince47@gmail.com>
+Subject: [PATCH 1/2] iio: hid-sensor-gyro-3d: move iio_device_register() to end of probe()
+Date: Sun,  1 Mar 2026 00:43:59 +0530
+Message-ID: <20260228191400.19244-2-rougueprince47@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260228191400.19244-1-rougueprince47@gmail.com>
+References: <20260228191400.19244-1-rougueprince47@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,23 +83,72 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series introduces two changes to the hid-sensor-gyro-3d
-driver:
+Currently, calling iio_device_register() before
+sensor_hub_register_callback() may create a race condition where the
+device is exposed to userspace before callbacks are wired.
 
-- Patch 1: Move iio_device_register() to the end of the probe()
-  function and updates the error handling and remove() sequences to
-  strictly follow the LIFO teardown order.
+Move iio_device_register() to the end of the probe() function to prevent
+race condition.
 
-- Patch 2: Fixes a trivial spelling mistake in a array name ('gryo' to
-  'gyro').
+Consequently, update the error handling path in probe() and in remove()
+ensuring that iio_device_unregister() is called first to cut off
+userspace access before the hardware callbacks are removed.
 
-Bhargav Joshi (2):
-  iio: hid-sensor-gyro-3d: move iio_device_register() to end of probe()
-  iio: hid-sensor-gyro-3d: fix typo in array name
+Signed-off-by: Bhargav Joshi <rougueprince47@gmail.com>
+---
+ drivers/iio/gyro/hid-sensor-gyro-3d.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
-
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index c43990c518f7..8e3628cd8529 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -333,12 +333,6 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = iio_device_register(indio_dev);
+-	if (ret) {
+-		dev_err(&pdev->dev, "device register failed\n");
+-		goto error_remove_trigger;
+-	}
+-
+ 	gyro_state->callbacks.send_event = gyro_3d_proc_event;
+ 	gyro_state->callbacks.capture_sample = gyro_3d_capture_sample;
+ 	gyro_state->callbacks.pdev = pdev;
+@@ -346,13 +340,19 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+ 					&gyro_state->callbacks);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "callback reg failed\n");
+-		goto error_iio_unreg;
++		goto error_remove_trigger;
++	}
++
++	ret = iio_device_register(indio_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "device register failed\n");
++		goto error_remove_callback;
+ 	}
+ 
+ 	return ret;
+ 
+-error_iio_unreg:
+-	iio_device_unregister(indio_dev);
++error_remove_callback:
++	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+ error_remove_trigger:
+ 	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
+ 	return ret;
+@@ -365,8 +365,8 @@ static void hid_gyro_3d_remove(struct platform_device *pdev)
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct gyro_3d_state *gyro_state = iio_priv(indio_dev);
+ 
+-	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+ 	iio_device_unregister(indio_dev);
++	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+ 	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
+ }
+ 
 -- 
 2.53.0
 

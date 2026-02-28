@@ -1,21 +1,21 @@
-Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
+Received: from out-172.mta0.migadu.com (out-172.mta0.migadu.com [91.218.175.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A22943F9342
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:10:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67B823F9354
+	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:10:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772305828; cv=none; b=hIJWt4PiMQ02tnYv3qTZb+WC6gXFBk7GjGGSl8+fvaR1ovDIT2aaUuaX1/qP/vc2aSyQ/PP/fNsYf/Sf6tTj3sEGzHLGfVT+1mnnG7Uefj7I70E5D6KV/XiXZ0kpVQUmNl5sf6zeaQvVooWi5Ls0qwXHHf2K578W6cRY9uirI+4=
+	t=1772305828; cv=none; b=ZdvW3JJhNlecUgNOXv3MeRqicW/wtO5BhCBZoSbWDOCUFyFR0Ylmnvu33KhNS7dO5SVqTJeNoWC/a9JRvCh4hVCM4F9RxPvsIwgGQOoWzOg5UNvBXNJmKiyPhc4BpFeBW3LvWHElpMovLqjRQcBK4RI+UPMLtxMQ4ZpztFPC91U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772305828; c=relaxed/simple;
-	bh=RLfUS5tra/gyyd3lDFT3Jo+sr3I3Gar7nGUgIP4tNNs=;
+	bh=U+az3bT1AYgBcTljnpuWypo+kAStQk3yFB3Djebb93o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dP3SAh3J5SmGnBjs63iOFI6eYH1mL/jdQABacuzv3DqFBDGrsy6ehQB7dCbE7rBTeYSLFHf4/h/FqRdHYGob8Z3wjSGklXlHznEB63BQZ7+xgY5FXgz69iQyjA9ZPK8bMQn/MIB69PKufsN6UIi+P+tDo9UfjSlW2FhIS7QT9yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fss56nmY; arc=none smtp.client-ip=91.218.175.185
+	 MIME-Version; b=sFmvcQbHpLGnn1SrR0aofcNrV83cfMQocIIhhww9zfz4SHZ0RSTGeA7UC/PxY1/jVv4uz7ziWaFyCZ/2BCjB/1tvw2Mq1agcz82kNmKZz6tmthmlL4tnX+OLp5gsKX3MAH5l4EBU171AZzk6UfG2pkzdNfSypwSIsYmhHPYzsS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=SVusoXwa; arc=none smtp.client-ip=91.218.175.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fss56nmY"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="SVusoXwa"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
 	t=1772305825;
@@ -23,10 +23,10 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0/JjveZr9Jn4MeDPTXiAb+xofPvVBJSGHbnUYefB24Q=;
-	b=fss56nmY0Eu1+BT5YM+hB3ZsFEpfRXr47o9fxNzx+QTYpAMEyup/o6jthnoviVIBJDWqO0
-	jK1IKfaVdETm0Osq/yK+Cf6X9EKC8gyAYytTPoT4U7vKwV1BzadS+BdRDTgWMn7O2f46RN
-	0ZVzYtp8z9o5DazNVbstvK+YQwRaXjE=
+	bh=fvEOHLWvDNrnFXRyl44q9Fr3axr6UKIlXV2yTXMFFwo=;
+	b=SVusoXwa/Vc+4kgl5UFccHQT6/9TLgxEfWG7hQ/KR7+3SvUj1hZE8Cc8Zy538Sk3M6Q9Dy
+	baAcPKJrYlHIsjhqqfTJzMlimqrMqPABIlf6xyZj7JY0FrudjPqaRKfwGoerO2dM/ytu19
+	1KJGFglW0IIkiCdZfhbUOpQsKz3Bbgs=
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc: linux-input@vger.kernel.org,
 	"Mateusz Schyboll" <dragonn@op.pl>,
 	"Denis Benato" <benato.denis96@gmail.com>,
 	"Denis Benato" <denis.benato@linux.dev>
-Subject: [PATCH v2 4/7] HID: asus: make asus_resume adhere to linux kernel coding standards
-Date: Sat, 28 Feb 2026 20:10:07 +0100
-Message-ID: <20260228191010.3830758-5-denis.benato@linux.dev>
+Subject: [PATCH v2 5/7] HID: asus: simplify and improve asus_kbd_set_report()
+Date: Sat, 28 Feb 2026 20:10:08 +0100
+Message-ID: <20260228191010.3830758-6-denis.benato@linux.dev>
 In-Reply-To: <20260228191010.3830758-1-denis.benato@linux.dev>
 References: <20260228191010.3830758-1-denis.benato@linux.dev>
 Precedence: bulk
@@ -50,29 +50,57 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-Linux kernel coding standars requires functions opening brackets to be in
-a newline: move the opening bracket of asus_resume in its own line.
+Make the function shorter and easier to read using __free, and also fix a
+misaligned comment closing tag.
 
-Fixes: 546edbd26cff ("HID: hid-asus: reset the backlight brightness level on resume")
+The __free macro from cleanup.h is already used in the driver, but its
+include is missing: add it.
+
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 2b4411399571..48731b48523d 100644
+index 48731b48523d..4fa8e72c6855 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1171,7 +1171,8 @@ static int asus_start_multitouch(struct hid_device *hdev)
- 	return 0;
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include <linux/acpi.h>
++#include <linux/cleanup.h>
+ #include <linux/dmi.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+@@ -464,23 +465,16 @@ static int asus_raw_event(struct hid_device *hdev,
+ 
+ static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t buf_size)
+ {
+-	unsigned char *dmabuf;
+-	int ret;
+-
+-	dmabuf = kmemdup(buf, buf_size, GFP_KERNEL);
++	u8 *dmabuf __free(kfree) = kmemdup(buf, buf_size, GFP_KERNEL);
+ 	if (!dmabuf)
+ 		return -ENOMEM;
+ 
+ 	/*
+ 	 * The report ID should be set from the incoming buffer due to LED and key
+ 	 * interfaces having different pages
+-	*/
+-	ret = hid_hw_raw_request(hdev, buf[0], dmabuf,
+-				 buf_size, HID_FEATURE_REPORT,
+-				 HID_REQ_SET_REPORT);
+-	kfree(dmabuf);
+-
+-	return ret;
++	 */
++	return hid_hw_raw_request(hdev, buf[0], dmabuf, buf_size, HID_FEATURE_REPORT,
++				  HID_REQ_SET_REPORT);
  }
  
--static int __maybe_unused asus_resume(struct hid_device *hdev) {
-+static int __maybe_unused asus_resume(struct hid_device *hdev)
-+{
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
- 	int ret = 0;
- 
+ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
 -- 
 2.53.0
 

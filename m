@@ -1,32 +1,32 @@
-Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
+Received: from out-170.mta0.migadu.com (out-170.mta0.migadu.com [91.218.175.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD2073F9337
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:10:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B2134D4CC
+	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 19:10:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772305827; cv=none; b=iG2z6f6hDPJZryqiwrB1dMv8Ssgi/6uzzpAuW065MUzkcE/O8JrZ9wv3FSeM9iaIO7Ogny7E4ZUB5xIyd2LBYDeImRYby/nqqmhP/fzpSN3X28H51ofEdOZ+jC/3WB2TFa0APPSe1NChBZg8nRc4YoQMltcDMP3HzDMNoEngVSg=
+	t=1772305827; cv=none; b=YaGWQIRFsqr73+9ZMOJyFz2XBtDp278K+nBUyztip+iv7ciczBxXcbR8Fgr+OmAL3GdUqhj/Us3FXp1qs8bHnqCDQwm08i3hpshRmz3c34bSyoaUik/GlKy6JWrP07ZYDYTRWm71IeVHSM6YuhoecLmMH6uj/hQT9mOrtcYkQHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772305827; c=relaxed/simple;
-	bh=UkDBhIPsFIFYiXHUVq8yfYf8INQMI/qy7cSepFB2xJs=;
+	bh=zgNG83WO+5qFxYkeXCc8cWN8flAQFaJPnmP22z8TkWw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZX1osf9oc2l1uworiHuESjYQjHnaheFQUaGVKTcGeLhSL9Av+wm9zpL2MDXVLtrU5r+haV133mpXeaVQbnz5E9Gqx0b4yYk0glDVBFropnWbrmUBBBj+W95Xu2Ug0Q4pRsmSSYjfPAU0J1ucVhHZRn3Odobw+dnNxZA9dwfLb98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ZPGPlQ+/; arc=none smtp.client-ip=91.218.175.174
+	 MIME-Version; b=e6/8xilIK++kBHGbf281vGN23OGkVQCpNX2Q/pJNa6FP++Uec1MMZ/rawKO4QFTpR08ejAvQQJ6BP3Iogh8+BWyFnnBXFN7VZKiz8TvP4bn+DtJ6UP1EXAdRtDNdFzfxTlPSb+BfmDxN/onEdiJPJsG77SXASp5LpMKf11aa9tg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=vgv2bG5M; arc=none smtp.client-ip=91.218.175.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ZPGPlQ+/"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="vgv2bG5M"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772305823;
+	t=1772305822;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=k/6nhFAzqdch83HyRN7Z7ZoNORIKsdmbyNN7EKa4jaY=;
-	b=ZPGPlQ+/MboKfK/1mb4L11Vps+tMlc3EUQ9Z+PI6kqJs7x0O7p6zjZNob+NhNCQjBrJMV2
-	rP11bTYZac51tEMTU3H0QF05O5YN+VZvFvfD+fre5vXSAuVJUabcdU6yG5N7ZmDSNOlFaQ
-	1F6gUIPWFdrYjoKP+xlC8vr5YBTui9I=
+	bh=d8ZWoUXilN7rq9eoSEwgxiKdI4SoSqyZwtNrXIWLO24=;
+	b=vgv2bG5MpfQfQGbbkU4fWvs/UsA9NIJPDMwlubJt7H3rWs/ACZpLtwmlmDq8aeQFJESEQz
+	Otf/BvIBE+TACiL+8rRodG40TwQjhagUJy+MCY836VZUevzpCJhPK7MsNZfJ6vJLisEptS
+	+8ewRRZit/No08BwnSN68G2MIHhKyZc=
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc: linux-input@vger.kernel.org,
 	"Mateusz Schyboll" <dragonn@op.pl>,
 	"Denis Benato" <benato.denis96@gmail.com>,
 	"Denis Benato" <denis.benato@linux.dev>
-Subject: [PATCH v2 2/7] HID: asus: add xg mobile 2022 external hardware support
-Date: Sat, 28 Feb 2026 20:10:05 +0100
-Message-ID: <20260228191010.3830758-3-denis.benato@linux.dev>
+Subject: [PATCH v2 1/7] HID: asus: fix code style of comments and brackets
+Date: Sat, 28 Feb 2026 20:10:04 +0100
+Message-ID: <20260228191010.3830758-2-denis.benato@linux.dev>
 In-Reply-To: <20260228191010.3830758-1-denis.benato@linux.dev>
 References: <20260228191010.3830758-1-denis.benato@linux.dev>
 Precedence: bulk
@@ -50,41 +50,68 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
-XG mobile station 2022 has a different PID than the 2023 model: add it
-that model to hid-asus.
+In asus_raw_event there is code that would violate checkpatch script
+such as unaligned closing comments and superfluous graph parenthesis:
+fix these stylistic issues.
+
+Also remove an empty comment spanning two lines.
+
+This commit does not change runtime behavior.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 3 +++
- drivers/hid/hid-ids.h  | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-asus.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 5fcb06b16167..fbcf38b15290 100644
+index ffbfaff9f117..5fcb06b16167 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1515,6 +1515,9 @@ static const struct hid_device_id asus_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X),
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_XGM_2022),
-+	},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_XGM_2023),
- 	},
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4ab7640b119a..5e85921049e0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -229,6 +229,7 @@
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X		0x1b4c
- #define USB_DEVICE_ID_ASUSTEK_ROG_CLAYMORE_II_KEYBOARD	0x196b
- #define USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD	0x1869
-+#define USB_DEVICE_ID_ASUSTEK_XGM_2022	0x1970
- #define USB_DEVICE_ID_ASUSTEK_XGM_2023	0x1a9a
+@@ -20,9 +20,6 @@
+  *  Copyright (c) 2016 Frederik Wenigwieser <frederik.wenigwieser@gmail.com>
+  */
  
- #define USB_VENDOR_ID_ATEN		0x0557
+-/*
+- */
+-
+ #include <linux/acpi.h>
+ #include <linux/dmi.h>
+ #include <linux/hid.h>
+@@ -359,7 +356,7 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
+ 		      struct hid_usage *usage, __s32 value)
+ {
+ 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+-	
++
+ 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
+ 	    (usage->hid & HID_USAGE) != 0x00 &&
+ 	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
+@@ -448,21 +445,18 @@ static int asus_raw_event(struct hid_device *hdev,
+ 		/*
+ 		 * G713 and G733 send these codes on some keypresses, depending on
+ 		 * the key pressed it can trigger a shutdown event if not caught.
+-		*/
+-		if (data[0] == 0x02 && data[1] == 0x30) {
++		 */
++		if (data[0] == 0x02 && data[1] == 0x30)
+ 			return -1;
+-		}
+ 	}
+ 
+ 	if (drvdata->quirks & QUIRK_ROG_CLAYMORE_II_KEYBOARD) {
+ 		/*
+ 		 * CLAYMORE II keyboard sends this packet when it goes to sleep
+ 		 * this causes the whole system to go into suspend.
+-		*/
+-
+-		if(size == 2 && data[0] == 0x02 && data[1] == 0x00) {
++		 */
++		if (size == 2 && data[0] == 0x02 && data[1] == 0x00)
+ 			return -1;
+-		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.53.0
 

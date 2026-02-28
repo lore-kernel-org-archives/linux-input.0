@@ -1,37 +1,37 @@
 Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB66317A2E8;
-	Sat, 28 Feb 2026 01:57:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7F802FDC37;
+	Sat, 28 Feb 2026 01:57:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772243861; cv=none; b=CsfsA5N5Ay2vNETaP79Zt/1e2Of9SloYG89LTL8OePQGe2T9rK6n48qtM4PExCjSM3NVQuSemTkEbKyKdZBkoYu8T9/nIF2ixOVNiMqgPvAmBKzDazoJk6R47vJZeqj5og6YDbavalZsCF9RhBKPKUIalR8wH+r40DMAbazyMfU=
+	t=1772243869; cv=none; b=IJshqEA+yfINsYhwQqVUi9/r3ipPY/ULEx2GXx6cclMYzAvEBKe3jHxL9X/S/+EEuOm5zMXvZhRPnmU4rG3eOi5emULBxXDNp2LUNX4LJy5Smot9mgNtCG9egH4Dz2HetYtYZFnbcZlH0gZ8NZdY8GYmiC/tfyvxH8pexKGMAP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772243861; c=relaxed/simple;
-	bh=mqgh3KinL8lR1abG10D3/1AkSqQqDN7cUVnCfUjIrMU=;
+	s=arc-20240116; t=1772243869; c=relaxed/simple;
+	bh=hLEJw7NfpeakgWD5ooAEJP4vVxpcsaKGoIj7IO2V05M=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Ys8bljMDSCdzmspvuhoAAMP8WjAliUGC/5h+59DXQRoKgQFmy3TlMHdwpxy6P4RVLMvPKx/1Kn4LBr9f3HzKSrOF+y+OFmuO39FeLgtavBbSA/SVkrUlN4bsWfAfwWyUXL4HnKNToO0CvxPgQCm2CrYJlGT484aZRdUZjoj3UrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=H7t7r3lP; dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=RzD43SKF; arc=none smtp.client-ip=5.75.144.95
+	 In-Reply-To:To:Cc; b=HPEWTVUMTj2EzcJo8xeEFAq7sPz1y1JyVHHQ7udtZzhMkMTaD77RO6ANJA0sJTiGhIat82HnJoY67rywkkpEC/H+Kz6NIXQadwLxb33s2GzIkz83MZiNMeRwvDjCrHSn+CPh81/u/Th7JLm/Cg5u8+mLCbDiQ7QowY8FdlpTb/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=SD1wmzrE; dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=xGG6EyKO; arc=none smtp.client-ip=5.75.144.95
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mainlining.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="H7t7r3lP";
-	dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="RzD43SKF"
+	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="SD1wmzrE";
+	dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="xGG6EyKO"
 DKIM-Signature: v=1; a=rsa-sha256; s=202507r; d=mainlining.org; c=relaxed/relaxed;
-	h=To:Message-Id:Subject:Date:From; t=1772243806; bh=AUlBsE2lv1qFAMOJ2b89Ub+
-	ErBhxWmCUaBMB+doDrJo=; b=H7t7r3lPPRBDb6qSRAX1bxmoYFzI4/ZWtASkui5DWEt8Vsf9jn
-	EPpLTmD7ykAV5lyvELt5Z9o4q2iaTNK6b4pcwpaCc0KRSfbyFvh8zw+of8+4ZGXoxYzJBfCZexM
-	v9DjQNpsCg79ddfELi3+t6sgWygVC1e1aKEr9zb3N7f/r+ZqTV3KCwrW4quTPntz8jv/AnpBvQ6
-	ueJJmw5g6hnGMzTMi2lveVEgESnDrBkXskjICdq9z+19xZR8ycVzqKKqVqIL5xM7Jye1Ms9/LXv
-	MFeIDtybT1/GGLff6An7SrKqZI2qE/+6Dmv3TwQ6MTSZ1ZJiH9s/Lc+lFxc0Oom1IIQ==;
+	h=To:Message-Id:Subject:Date:From; t=1772243805; bh=d7WI4CCze1zokydljk3Xtok
+	4i1TlNCgc0AyutExxLSc=; b=SD1wmzrEZdu7TtG1zGrpXFZFio8MT5TVivjARxgNUidfbAjhl/
+	jvIRPlliBvg9W1J5wjwhgyqHSaZY0sZESgzKCPtOSWEn99gFi8hh+t1ymqjSqu//DoRifbN3bkB
+	8XBlpr/lEf+f21/EaS5/k0GyVbbV39YHvpclsanUrE9JDLNYID9klScFbQZ3G3PXszObW9A5C0a
+	u0bqMVbpCMe2cD9DK2a2+W243HhITrvYdo7Ynkk38INSfOvNzq3eF0G7QP4rERxCas2Www7G4gh
+	50E+IbT3O+wT2B4Bn4d3aKhWZEdi0GaM2z9GMeKLltLA6Ah58qwfuSrof+vBVWgp4rQ==;
 DKIM-Signature: v=1; a=ed25519-sha256; s=202507e; d=mainlining.org; c=relaxed/relaxed;
-	h=To:Message-Id:Subject:Date:From; t=1772243806; bh=AUlBsE2lv1qFAMOJ2b89Ub+
-	ErBhxWmCUaBMB+doDrJo=; b=RzD43SKFn7EO0XqcIKpQfsWJhKMs2OGOkwbs/p0MFgaFM+wG0l
-	6ryVaWk4sY1hBvYmFWjTMo0Gj05cFLXrGSDA==;
+	h=To:Message-Id:Subject:Date:From; t=1772243805; bh=d7WI4CCze1zokydljk3Xtok
+	4i1TlNCgc0AyutExxLSc=; b=xGG6EyKO0YJR+0/e0LFzVEBPDhitJCsjVDVV8LTzw5Oq9eMrHk
+	EI0eq/u1TRPtAeeEUrm89ppbfstYMnUxDsDQ==;
 From: Aelin Reidel <aelin@mainlining.org>
-Date: Sat, 28 Feb 2026 02:56:12 +0100
-Subject: [PATCH v2 3/3] MAINTAINERS: add an entry for Goodix GTX8
- Touchscreen driver
+Date: Sat, 28 Feb 2026 02:56:10 +0100
+Subject: [PATCH v2 1/3] dt-bindings: input: document Goodix GTX8
+ Touchscreen ICs
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260228-gtx8-v2-3-3a408c365f6c@mainlining.org>
+Message-Id: <20260228-gtx8-v2-1-3a408c365f6c@mainlining.org>
 References: <20260228-gtx8-v2-0-3a408c365f6c@mainlining.org>
 In-Reply-To: <20260228-gtx8-v2-0-3a408c365f6c@mainlining.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -54,31 +54,92 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  Aelin Reidel <aelin@mainlining.org>
 X-Mailer: b4 0.14.2
 
-Add MAINTAINERS entry for the Goodix GTX8 Touchscreen IC driver.
+Document the Goodix GT9886 and GT9896 which are part of the GTX8 series
+of Touchscreen controller ICs from Goodix.
 
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 Signed-off-by: Aelin Reidel <aelin@mainlining.org>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../bindings/input/touchscreen/goodix,gt9886.yaml  | 71 ++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 14899f1de77ed2e8a583cf7b0fea25725c8534cb..c76f9fbe51f929f7eded37760cb5c83dfa337d0b 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -10849,6 +10849,13 @@ M:	Maud Spierings <maudspierings@gocontroll.com>
- S:	Maintained
- F:	Documentation/devicetree/bindings/connector/gocontroll,moduline-module-slot.yaml
- 
-+GOODIX GTX8 TOUCHSCREEN
-+M:	Aelin Reidel <aelin@mainlining.org>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/touchscreen/goodix,gt9886.yaml
-+F:	drivers/input/touchscreen/goodix_gtx8*
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9886.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9886.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..6307495c2746313cfc32cdbb701455d1596be435
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9886.yaml
+@@ -0,0 +1,71 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/goodix,gt9886.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- GOODIX TOUCHSCREEN
- M:	Hans de Goede <hansg@kernel.org>
- L:	linux-input@vger.kernel.org
++title: Goodix GTX8 series touchscreen controller
++
++maintainers:
++  - Aelin Reidel <aelin@mainlining.org>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - goodix,gt9886
++      - goodix,gt9896
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  avdd-supply:
++    description: Analog power supply regulator on AVDD pin
++
++  vddio-supply:
++    description: power supply regulator on VDDIO pin
++
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - avdd-supply
++  - touchscreen-size-x
++  - touchscreen-size-y
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      touchscreen@5d {
++        compatible = "goodix,gt9886";
++        reg = <0x5d>;
++        interrupt-parent = <&gpio>;
++        interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
++        avdd-supply = <&ts_avdd>;
++        touchscreen-size-x = <1080>;
++        touchscreen-size-y = <2340>;
++      };
++    };
++
++...
 
 -- 
 2.53.0

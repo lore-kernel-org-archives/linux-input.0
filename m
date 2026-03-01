@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E7FA2F39B8;
-	Sun,  1 Mar 2026 01:41:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682B9145A1F;
+	Sun,  1 Mar 2026 01:43:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772329262; cv=none; b=i1HtEuBxeRZSxVeTnY8EI0oQF/GeNhdAyoB5u45yXUl+7x3jsadfzsbjIhuVH6CAOcYEhtdy7h9u4s05qmrDZ2svKkB4j1ddl5JGs/pH6A8KL4Nu6vabAmfr+3c3siVGq1ky/XddmnmK0bDFd5XY8J/5s+HjFpXFbLargUtGl2Q=
+	t=1772329391; cv=none; b=E+no8tttZtJd7btbZfSTFokTkF3mpvsVaYvOd3Jh5311ZWwUxRh6gu7gRzUl5dkR5yPPzrpwubAeN/vnAH67po+CXCiN/PVkQ+3Q3y78N8luZb4vPf1ViAkxcWpD2XSodDiBbr68tZy0m7Wayzy3ACcCokXAtaxO8b+gUs//xFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772329262; c=relaxed/simple;
-	bh=Jp3xrx6O6Tc5hBGyNEwDmw6vSIID8FxLKlp2Kn7Sr5E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ohmccRWNd2jU2tJyg+7x+1eIhu4PqQZ6bxTPSw0cneGE/1PuoM6LT8Nxia3Oc2hTmt0fARFmrg3F4Krb7Dz5au+kV9JwRGltTUdzk0YX0Y+OXR+GkP5JbS7eq0UNOPD1SIERqZ3qe3+F3D2j/cl5L+UdxYg/w1BPN/BkeLr3Eh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IJmbWrhj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772329391; c=relaxed/simple;
+	bh=1+XTJke1DbiPrAZMQqdYbiZD6BSt71twytbbYtuUiqM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qEdrtDvky4M41WV06/p6b6VqJprhP5/vrvgzp5nG0cDtTpwSlV4wHhBnEriyGjGG3IXzU31dg0Uw9nUxG4JE1wu9btE6zPMURDWr6oDTD2609IQOobA++XNe2oFxXXBYvmAwsFrimcYUBDfBag7VQI3B6sxLV6hkO6hShfKhPvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ST5zjSXw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IJmbWrhj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 041C1C19421;
-	Sun,  1 Mar 2026 01:41:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ST5zjSXw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77A3C19421;
+	Sun,  1 Mar 2026 01:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772329262;
-	bh=Jp3xrx6O6Tc5hBGyNEwDmw6vSIID8FxLKlp2Kn7Sr5E=;
+	s=k20201202; t=1772329391;
+	bh=1+XTJke1DbiPrAZMQqdYbiZD6BSt71twytbbYtuUiqM=;
 	h=From:To:Cc:Subject:Date:From;
-	b=IJmbWrhjtbyyjU75MAXIjoO5195fi6I9i4/S4cwW0vilEUZhppkN1wt3KZFl1sL5D
-	 XQUOHQrgD+Vbp9uxuEZZqRYlUhp6YBwq/tMcj2TEC6gQg8sScz1J7+BdQ4AunniJu4
-	 3xJKVI2zAfkFIdkUyz4k3A3eM7zzyNco0ajRpXX9gvXwvuOZfvS2Ob+5FPQOlHUT+E
-	 0IbgJlUqEW8t/QFDu481CmWgoXJkcMME89mBACF5LutXthqIjFxA/6TM++TOC3/qKQ
-	 0COU2OBr1sPKSkuCB3bSXDJDNMl8dnXeTeA0Y4/iMtvQkdNsCDkCD7k9gB7s/eQ0/R
-	 vCeF2WlBNQE2w==
+	b=ST5zjSXwXYf7P88Umv7mTSwaq+h6RI0MucQnMw0kFOjifVmbb98772iEjkaQ3v+JB
+	 WS8WltnjAez8qlQgufqo3oQCjWIYXD4C3n3A/tLsv+ZMWBZrmc6wuWwP9pP2/edXXj
+	 2L+488yd7BGdul9fGDAHpGii+qQMQHhMWStSnox4u1pvclE+Qstbkop1+Na+8s3NXa
+	 NjiWC1ILhBNQSrQKciQh9e5yuugmBGSHR+tcTG54SNT8Sajsmt044hAsN2F6fQaQEh
+	 3YL9dlLHXvtlbsCfEXq2NCIUjUOuKl2P4MQD7pcyJwyyswdbVlWzwQFXoh6kBUkCNr
+	 ke1FM8Jip3abQ==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	oneukum@suse.com
-Cc: Jiri Kosina <jkosina@suse.com>,
+	ii4gsp@gmail.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
-Subject: FAILED: Patch "HID: hid-pl: handle probe errors" failed to apply to 6.1-stable tree
-Date: Sat, 28 Feb 2026 20:41:00 -0500
-Message-ID: <20260301014100.1702470-1-sashal@kernel.org>
+Subject: FAILED: Patch "Input: synaptics_i2c - guard polling restart in resume" failed to apply to 6.1-stable tree
+Date: Sat, 28 Feb 2026 20:43:09 -0500
+Message-ID: <20260301014309.1705189-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -54,41 +54,47 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3756a272d2cf356d2203da8474d173257f5f8521 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 19 Nov 2025 10:09:57 +0100
-Subject: [PATCH] HID: hid-pl: handle probe errors
+From 870c2e7cd881d7a10abb91f2b38135622d9f9f65 Mon Sep 17 00:00:00 2001
+From: Minseong Kim <ii4gsp@gmail.com>
+Date: Wed, 21 Jan 2026 10:02:02 -0800
+Subject: [PATCH] Input: synaptics_i2c - guard polling restart in resume
 
-Errors in init must be reported back or we'll
-follow a NULL pointer the first time FF is used.
+synaptics_i2c_resume() restarts delayed work unconditionally, even when
+the input device is not opened. Guard the polling restart by taking the
+input device mutex and checking input_device_enabled() before re-queuing
+the delayed work.
 
-Fixes: 20eb127906709 ("hid: force feedback driver for PantherLord USB/PS2 2in1 Adapter")
+Fixes: eef3e4cab72ea ("Input: add driver for Synaptics I2C touchpad")
+Signed-off-by: Minseong Kim <ii4gsp@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+Link: https://patch.msgid.link/20260121063738.799967-1-ii4gsp@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-pl.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/mouse/synaptics_i2c.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
-index 3c8827081deae..dc11d5322fc0f 100644
---- a/drivers/hid/hid-pl.c
-+++ b/drivers/hid/hid-pl.c
-@@ -194,9 +194,14 @@ static int pl_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err;
- 	}
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index c8ddfff2605ff..29da66af36d74 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -615,13 +615,16 @@ static int synaptics_i2c_resume(struct device *dev)
+ 	int ret;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct synaptics_i2c *touch = i2c_get_clientdata(client);
++	struct input_dev *input = touch->input;
  
--	plff_init(hdev);
-+	ret = plff_init(hdev);
-+	if (ret)
-+		goto stop;
+ 	ret = synaptics_i2c_reset_config(client);
+ 	if (ret)
+ 		return ret;
+ 
+-	mod_delayed_work(system_dfl_wq, &touch->dwork,
+-				msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
++	guard(mutex)(&input->mutex);
++	if (input_device_enabled(input))
++		mod_delayed_work(system_dfl_wq, &touch->dwork,
++				 msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
  
  	return 0;
-+
-+stop:
-+	hid_hw_stop(hdev);
- err:
- 	return ret;
  }
 -- 
 2.51.0

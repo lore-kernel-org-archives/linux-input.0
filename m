@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78351846F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA4E1C7012;
 	Sun,  1 Mar 2026 17:51:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772387479; cv=none; b=k2/EaYVaDq8XgFsfdtFb1iCeQQ2e5yh4eu1DKDvZOj27xcoREMBqcVrSQfMSHZ5xNHkaHJ+nuhNRj+MEqmFyk/fi8o1x1vtJdOmaJw+bbBbHydd1RUuk0wiQ3hNW7Rnq9dtDiVbF28CEvlAOKP2nSr5DzTLEZQukz9Sa96ssZ8s=
+	t=1772387479; cv=none; b=PewTD44FOqK/6sxOqw4vsg8xvAjgL0EQIfP8kl6wEhQ8QVhJ91KaFPNJoYaN7blcJstaq1aYoTuacGYavzpF0eL56uj9Tnt7MCDSueS5CnE/ERBOlvNnGHU0sBGYTFIism8C8YYquk3r9NlzGxB9zs7fvcAamEJcX5lFkpw3uuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772387479; c=relaxed/simple;
-	bh=MjnsDPgFAH43KtWaVxLKPW5yKsdDxokV0+MlP67ycVI=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=CK0FmK4no+AGirUmUJVfELonWd30zhEk1Wa+RfuGV4z4sMAimgC0jqYWCIUVBxZvphDwRi4ZRMw5eZlK5KCAnPPiyARweEjBOBa4xyoSaICf5Wdk7OTNA1QgJEKE9A8QN6xOi7QlMD31x6Jq+OUZZw92wQJKKoMJ61ns6WRHHgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WiU6GOj9; arc=none smtp.client-ip=10.30.226.201
+	bh=n23ZcFkmyPNEvO2IkqQ957PDqVWeO4dI1IFebDR/vt0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=p8ey2xFUB0MOPmMaDM9TWN8BSsW7UXhCxaSq0sJm+qr4ieceHkXpXBxfRaelX1lMP+RR8/JLTUeiKbuEgKc3ONk8UdUtw6AczopM8F5ElA4oEWqbFUOaIjShWVvPHtp4nWN/iMLBnxVZbkJJtd1wyKuri/zmxOLP6Jrv8shGQLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sp4Mjfgg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WiU6GOj9"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 250CEC116C6;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sp4Mjfgg"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5B6F9C2BC87;
 	Sun,  1 Mar 2026 17:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1772387479;
-	bh=MjnsDPgFAH43KtWaVxLKPW5yKsdDxokV0+MlP67ycVI=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=WiU6GOj9rgexHKcbUHxhE8vGSGcuc3LMoT+0qfWE3k1XeDPfoe2yNosTKzUIWE8qS
-	 OJVMhlkkcYzGpu4fFUI912wLylzP9x9bO/453Mkf6FqpjcvU0Qjim7Q0DiJ1476viN
-	 n3tK/DGQO2Ju0bcnDQd8eTZsmaofde4gro7FE4AccOHlwhURPe2tFKt1AbA+Cq6EZs
-	 Q6FNqY7ecD/r3I4CUOtkZvI/ki0zVqyEtjcVcmFU5/XY9JDTUxusILlxt89uzUHea+
-	 1apFeptc+0dB8kVxVq+GflLJHHh3EbcdieDsLFMstRmT5E/sXRMDpi29Ec44RSPqDJ
-	 1UCNBSrLHOg7A==
+	bh=n23ZcFkmyPNEvO2IkqQ957PDqVWeO4dI1IFebDR/vt0=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=sp4MjfggG+nw8htHlPxq+Xi5qN3fZ+0/9AGUstqO/BykF9za20Ok3VwQU+80HvGyr
+	 tn+HJQ02bAuQrO3m1A8B9n8MC4WvQUdf/LuWuj765/Vwwf63q5hmXii6hnSP/Lb1TB
+	 xmqQOGpj2lKXLPrzysiPpidJN26qP46I7KNuLzpOZN+gLDZ/3s6Cu+qyq4ngMlEmGT
+	 vsNUYKaoptZWZ/V6v6QmazpXf/32okUsDnLd6jWAbKNRJ+uvRh42fMDKPvB1L6NVlo
+	 5G9F1GvXnpeYjBFKXe0VXuLOru6ZmCVG2yX9CNX3GcoEcjC8Ow+T3eQDB73da7pgeJ
+	 aDatin4/FK4MA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18B00FD0070;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 516DEFD0071;
 	Sun,  1 Mar 2026 17:51:19 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH 00/10] Input: support for STM FTS5
-Date: Sun, 01 Mar 2026 18:51:14 +0100
-Message-Id: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
+Date: Sun, 01 Mar 2026 18:51:16 +0100
+Subject: [PATCH 02/10] Input: stmfts - Switch to
+ devm_regulator_bulk_get_const
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,10 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJJ8pGkC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDI0MT3eKS3LSSYlPdJBNzY0PDtKQUc2MjJaDqgqLUtMwKsEnRsbW1ACF
- 15gRZAAAA
-X-Change-ID: 20260214-stmfts5-b47311fbd732
+Message-Id: <20260301-stmfts5-v1-2-22c458b9ac68@ixit.cz>
+References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
+In-Reply-To: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
  Alexandre Torgue <alexandre.torgue@foss.st.com>, 
@@ -58,64 +58,103 @@ Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1463; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2336; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=MjnsDPgFAH43KtWaVxLKPW5yKsdDxokV0+MlP67ycVI=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBppHyU634xeBikriSOlFJINC2u0T7+JKAJtJW5f
- ar1XfFgWcuJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaaR8lAAKCRBgAj/E00kg
- cpAUEACYalYL4mkkSfpqeXUaJbkCmdmssv5VfFW+rERyHBJSp7TnWVxDS1+NVPPKuVWQ3V5jWO1
- 95Fpt0i3orAUfQE0HYiJX5IzIKmBACWJKjT79FbHYLhjmNlHj83/xsBU9cWa5ecO15Nq9Xh3PY1
- Tu1TP0ifOnNRy+h7dKppCOvi/1Zun++l/zBq1AaFk1I0R/N6z5Ufhn/trmg0pUuOapn7uEPsmoB
- iJl3d7Rf3ONswHNMKPyGqaUH9liS8+roURXtSpkK5pj+Gtu2L2yfkcw0AZPOeubBwIiFJ/zPCX3
- K8Btrp7+3HVRe7T3lVlj6FvOPEUJzIWpjfJaE+K3WGH9H+/qUTunlhO+a/XtDgSsWmqGP5tgmst
- SfHqdqZPWROchdZzrp6oypxOPnet1oTi6i658H71ftRIgI37D+xR26G1M/hFH7/JMFHLlvEi+31
- 7XOCtZTpy0351ebfBvJw+PvjhqmjUszGD7XXyRFKGt2yD2CSZi1om9gkB1AKfcha0lHeTtRiYHP
- 44L3zPrYBAuHPFYbtyRSbmGSyZPANqp40p7h4Ndmk3dPrzYO3N41K22EGB95t5R4Lszq7AvhB0w
- 2ZeGvRrvkF57XAInWTw2YPRp5yQUqBfhbB9gmdWIBOOBIRvlGuuEwqqPu+t2wkJC+0Uw4otw9+A
- T27k3Kd3cB6D90A==
+ bh=gp0Adpeb0dgRnIzbTX0yz5VA3gvM4FK6mupYKoiFMj0=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBppHyURAP+6GmRBdj1YMjGOxEXecCpiSaiwdK38
+ nv4OmVUw1SJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaaR8lAAKCRBgAj/E00kg
+ cuMlD/96F1ggG3DCx9p28DKIQjERz38LjXqEcedMM/S+1ZJUHTM4uyM9XUaHyO6V9e1/UUxuD1A
+ YeTodQ7ny4ouLM14vM3Vo24MD6EaOJxpVWPLm4IxLESagvS4gNalrkbrf/Y4v14mXDw1kXWpQmw
+ M08g7WifVWBuHyOLnZ5EHQ4ueDqhDnGzoXvR1AxUCxZoUa7dZ8Pr49Uy6M7ZQKPY1SHVspziZ0p
+ A01pQkrJoCZbXvvOY6oDBV99mnx94lydjM3NBbyQAi0fzooZEbUtvjYEEgRtdNlqZIMqhO6QnlH
+ oEciiUverffQU3Nfx09m4BuyZNjFpkWFunIGuj7C4Q2bJufTQTtYv72FkIIGzvLju8yodpEqpBG
+ GRkkLCRg9NQh1uRL3DxNkIrFFfqohEgb+BGzaR6OwXYeRhu8+AN8uiPoVevSlW+rvz6XRUBFlWV
+ fGbsCL4Q0YpRe9BcnRw++lj5nB3Y0+Kdp3pNlh0VRYCFWexu9P8CtrQ1u1QHNPdLbULVDqANTaC
+ M6yxpV0co47vYcmJroF9Pe5A9H49Ybv5B3Ne1zIGtyNGYc9d8yFX97MlY1y2x7SVaW4y3Ceu/Iz
+ YMENmGjWFOVfy6PHDlXcknxLtc3HYQOqt4TiDXL3dSPdqM+faTPtxiJbGye7WEmtgSxz+zEFVi0
+ xga+b9htJMYCDaw==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
 X-Original-From: David Heidelberg <david@ixit.cz>
 Reply-To: david@ixit.cz
 
-Used on various phones. Minimal basic support.
+From: David Heidelberg <david@ixit.cz>
 
-Includes device-tree with possibility to enable touchscreen on Pixel 3.
-
-Sending as RFC, as this is first, seemingly clean version which works.
-
-What is missing:
- - firmware loading
- - switching between AP and SLPI mode (to wake up phone by touch)
- - anything above basic touch
+Switch to devm_regulator_bulk_get_const() to stop setting the supplies
+list in probe(), and move the regulator_bulk_data struct in static const.
 
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
-David Heidelberg (6):
-      Input: stmfts - Use dev struct directly
-      Input: stmfts - Switch to devm_regulator_bulk_get_const
-      Input: stmfts - abstract reading information from the firmware
-      Input: stmfts - disable regulators when power on fails
-      dt-bindings: input: touchscreen: st,stmfts: Introduce reset GPIO
-      dt-bindings: input: touchscreen: st,stmfts: Introduce STM FTS5
+ drivers/input/touchscreen/stmfts.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-Petr Hodina (4):
-      Input: stmfts - use client to make future code cleaner
-      Input: stmfts - add optional reset GPIO support
-      Input: stmfts - support FTS5
-      arm64: dts: qcom: sdm845-google: Add STM FTS touchscreen support
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index 27adb139fa0ce..7c0f94ba49464 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -69,9 +69,9 @@
+ #define STMFTS_MAX_FINGERS	10
+ #define STMFTS_DEV_NAME		"stmfts"
+ 
+-enum stmfts_regulators {
+-	STMFTS_REGULATOR_VDD,
+-	STMFTS_REGULATOR_AVDD,
++static const struct regulator_bulk_data stmfts_supplies[] = {
++	{ .supply = "vdd" },
++	{ .supply = "avdd" },
+ };
+ 
+ struct stmfts_data {
+@@ -82,7 +82,7 @@ struct stmfts_data {
+ 
+ 	struct touchscreen_properties prop;
+ 
+-	struct regulator_bulk_data regulators[2];
++	struct regulator_bulk_data *supplies;
+ 
+ 	/*
+ 	 * Presence of ledvdd will be used also to check
+@@ -524,8 +524,8 @@ static int stmfts_power_on(struct stmfts_data *sdata)
+ 	int err;
+ 	u8 reg[8];
+ 
+-	err = regulator_bulk_enable(ARRAY_SIZE(sdata->regulators),
+-				    sdata->regulators);
++	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
++				    sdata->supplies);
+ 	if (err)
+ 		return err;
+ 
+@@ -590,8 +590,8 @@ static void stmfts_power_off(void *data)
+ 	struct stmfts_data *sdata = data;
+ 
+ 	disable_irq(sdata->client->irq);
+-	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
+-						sdata->regulators);
++	regulator_bulk_disable(ARRAY_SIZE(stmfts_supplies),
++			       sdata->supplies);
+ }
+ 
+ static int stmfts_enable_led(struct stmfts_data *sdata)
+@@ -639,11 +639,10 @@ static int stmfts_probe(struct i2c_client *client)
+ 	mutex_init(&sdata->mutex);
+ 	init_completion(&sdata->cmd_done);
+ 
+-	sdata->regulators[STMFTS_REGULATOR_VDD].supply = "vdd";
+-	sdata->regulators[STMFTS_REGULATOR_AVDD].supply = "avdd";
+-	err = devm_regulator_bulk_get(dev,
+-				      ARRAY_SIZE(sdata->regulators),
+-				      sdata->regulators);
++	err = devm_regulator_bulk_get_const(dev,
++					    ARRAY_SIZE(stmfts_supplies),
++					    stmfts_supplies,
++					    &sdata->supplies);
+ 	if (err)
+ 		return err;
+ 
 
- .../bindings/input/touchscreen/st,stmfts.yaml      |  21 +-
- .../arm64/boot/dts/qcom/sdm845-google-blueline.dts |  21 +-
- drivers/input/touchscreen/stmfts.c                 | 595 +++++++++++++++++++--
- 3 files changed, 577 insertions(+), 60 deletions(-)
----
-base-commit: c6870e543e8d55d725cccfe972fbfb5798daa1af
-change-id: 20260214-stmfts5-b47311fbd732
-
-Best regards,
 -- 
-David Heidelberg <david@ixit.cz>
+2.51.0
 
 

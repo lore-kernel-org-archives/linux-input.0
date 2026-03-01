@@ -1,101 +1,194 @@
-Received: from mail-oi1-f172.google.com (mail-oi1-f172.google.com [209.85.167.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F04A2F28FF
-	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 22:12:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7294A375AD0
+	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 22:40:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772403182; cv=none; b=i0aF69E/nsO1axAG2252yhtxl+w2wWiXQRrkKGurAkRhNbuHJBTcUUl7Om6gqvkg7Q6ueTFfxcTT4k9jVkryPf08GC+1q2ZeJvoBNj316UO2uszY8gT0+A5IoMLw/uM6xKees7Lq6zTwJPJ4O+zX2JMF8/1WzASWZeosxKZ+/KY=
+	t=1772404831; cv=none; b=c7ANtyzGGziS23oZNg1KUDrOyMEs//H5PLL/tvDnxYV8BVS0flFiFfXJnQqQjbCJhUBbSO8JPvj8JjMH/fKYk1EpAlhc1w9GELLLRhySWy6uE36c+uI4QMQt2xoOKAYL7a4mwyPFbpNYkwiKzqBsGnvs0DfmqedM0dLropofjao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772403182; c=relaxed/simple;
-	bh=xF5U2dWpirnXZi5IzRk2tCjBpbbkXFLPIm9/tdPDn/A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qn9Tx77f9pmLXNIdhFjANnS5bNECa0Tg0qj6qU32Yeqdv/hKEgnjyyhQ7blHDTcSbLgGbIUNI2XvCg1S6wbHn9JVBhBcZSe0HTzIAkdeAWQnBqEtd0/spzvuk3U0LObypx4yitmwFeatqOLj1DuCghmQN9sB1ZvGGkcOL/0D/ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=WW4Zb3o5; arc=none smtp.client-ip=209.85.167.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1772404831; c=relaxed/simple;
+	bh=RoF4CYBqOCcTIp8+OeNsYC8UEsKn2n9wht7SnNtDGfk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=flpktIsC6QfNKcFIVdSZX3KKC+pdzxvJJLA0FVGWk2TBtdOwSVptHSJuGL5BNcQkc/lTfDsJX4HpUmm/JqCI7xParFMmSHwa8EWnHEUB6c3vj2NFIkaMxCMETyOZJ2lVheMsRvLnI5CyZ1moG523rjcgJFTHsYRILzMbVdbIAKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FmVl9CSH; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=CcfRFH21; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="WW4Zb3o5"
-Received: by mail-oi1-f172.google.com with SMTP id 5614622812f47-4648447e29bso1550101b6e.0
-        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 14:12:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FmVl9CSH";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="CcfRFH21"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 621LDKcc055870
+	for <linux-input@vger.kernel.org>; Sun, 1 Mar 2026 22:40:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=liHMhkUZwLObZQKcaR0dCOsp
+	FbGoGsXIqL6LcZpPJfA=; b=FmVl9CSH3WuzakbWRWrtDYLnsJ1shhPHQUPlDcIe
+	+9lv7bblF8fP0J2Pw0MmfcBT7vGoLQmrPCXiIyWaJu0Jpx38Gh8RfROnel/TuF4+
+	FK8jVR4/TdHq9zqhye2kFv4nJoZqwxlJcfl5J8qRo40FtvI5l9KnemiwpioGxqWy
+	2BKC+M5JSMqOQ8tsfh8ybY2Ho+JnCHu63zxiQh4uw/2OG1SYzfPgHMYDB2q3qeWx
+	gGAk5611x3LjEVhtnZ1p8DG90CP30UrenFVjdemKCH2eU1rbTYOYVyRxM42JCdM5
+	pOKXaUr+dFIY4po0vGSiOZXqlE3IeQ0GEjUxAoNgI3xOhw==
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com [209.85.219.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cmw6482gu-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 22:40:24 +0000 (GMT)
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-899edf01747so123025206d6.2
+        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 14:40:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1772403178; x=1773007978; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=teqasxvRauJYkxOr6gI0GhxAVEgI4Si0h9bfm5grL0E=;
-        b=WW4Zb3o5wMsHdGCX6W+oy37RspLOYzdRswXbGCQ6BW1UdzkoidN5jok5wJtvZi7a20
-         OFwyONqebfynNQP+Id/humhrd4ALLKXt8wBTD3IWh4m0q0fa3mCVruqCssE+YtS1pAZ0
-         /oLYChl8N0/QtuAN1gOUlmS/K2F1qTWIBS3EhZPfLbGXZWU5WTn53Hcd+i62XjjS2EPP
-         5CsGYJhU0Ekh17+WA2Kh1DfpDIQgfCWqWBsy1pgyGYloBdDcZjFFDo5If7uPdu2smuAj
-         tGHhZRSFvJxFJqoH7viJkN59dJvjPqVFycasSOXBVLIVa9KG9ysi1XZkadCpeMZmC/Lw
-         0Zjg==
+        d=oss.qualcomm.com; s=google; t=1772404823; x=1773009623; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=liHMhkUZwLObZQKcaR0dCOspFbGoGsXIqL6LcZpPJfA=;
+        b=CcfRFH21mWxzdpaRfR3TO++Ob/4XgvqrAImJXhAnH3OLnF+QsearLgsFj0fN8kNXie
+         YHyZa4s726kRibxG/C0XPG+K3h1NmegA5pXO/03G6iigQB2dDGVRk6qJn5gdElYmnByH
+         7ALcm8YlQ66vF7P0tzCJLLngGfCnNhQstvCFsBzuoisUK6IUfSWSpp0iY8Xrw1avInOF
+         RIUAOwibinClXgJdIrlc+aHGNk7J6yYq/o0uHdNfOK4cQjwES/sihif9bYnD+bbspAHu
+         OINq3TmDqpJDXZYkA1hjEdxt3HfmZt9xhQx8wDMCHTLMdOjLCqf9RfkYbuYo7LoqH1SE
+         B87Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772403178; x=1773007978;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=teqasxvRauJYkxOr6gI0GhxAVEgI4Si0h9bfm5grL0E=;
-        b=bcpAVmZTDADZp4WEokmtF9Npe0Xj0mo8vYLLEhnxFNu8D9YpPc8FqkZ020sXWdPhcM
-         +EPSML6M0sVrqfB8TiGk35LJP/ZIF1DxtlNyl5vygv6ZGqySVoMQplQo5cJU3kPJjaS+
-         XM3a308bERzWawieIgSL5yGD4/lCmJmLsh4+sDQeF66s2N76teTlwXa5zPk1Zh3Jlg/f
-         jly3jgVjeEzJpC6NY9qAkIbvyHPpV+5Yeav/mCD79c423IdrNfWcqwCDdVB/u1InXLED
-         D8aUW5uC4Awno2hl/pB6r+C0w56XmrlRXlayNjQAWjsxfRVHYo3rTFByxLZW7/weI11a
-         IuNA==
-X-Gm-Message-State: AOJu0YyVrLAuR06QDsCsynGfP2Bu+40oSyeUBwRxuBDlxbaJTBu8CAeL
-	zNOlKCOgx+HnYoHrq3LSP13WRzmBP99BwRXD+a4NLh6MBmlHOtLMurFB3WxWGM1AJyI=
-X-Gm-Gg: ATEYQzziwllX2VaabDuCkSgzocAZVAw1JQ0yTj0WGEEidNxT/jY7TVw8FIZb1V2EOZG
-	qBSPRINNm6gyZeuRfbK/Pz6eq+duWIpbHJE7mR185BZEAcm9tvTTr/y7zcvBRv4Ru1qX1JSqd3b
-	keJdiQdr3dA19DCZ0Gxp9Ooj9l7nIzBDwAp9wphdOQhNyFMmMqEWbfPiQHDPK+V/yz7yJYgh9Tl
-	M56Tdc1MVPT5Pnrr1ykCT124DdjlZXus+BiBUon+TCvTmpZQlGmpYGc36adMora4U9Ql6Su4lRY
-	QwLOq1k9ncv81OOhH/FlZx7CyHUpbudLlRp62UAFOeJZmQdBwNIFbayux+MiZyhXhU1KcRGh3WC
-	ZwbcyFJFNuDrcn0usFXnTEudLZZC/0EiaZHnE7m2u9hlqzQJf3OP/370FQLGzUM0RfP1k2H8r92
-	d/xwaBv3kVyHGQJsOzUyjjFe7jPDqv4JwoNwZsCOA0VsQX5oomOJ0QXSEhsOdBg7/IskyfzYsKA
-	A==
-X-Received: by 2002:a05:6808:144a:b0:45c:881c:e0a8 with SMTP id 5614622812f47-464befbc11emr5242555b6e.61.1772403178525;
-        Sun, 01 Mar 2026 14:12:58 -0800 (PST)
-Received: from ?IPV6:2600:8803:e7e4:500:8b9c:d657:204d:5a5f? ([2600:8803:e7e4:500:8b9c:d657:204d:5a5f])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4160cf259a7sm10330710fac.3.2026.03.01.14.12.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Mar 2026 14:12:57 -0800 (PST)
-Message-ID: <f99052a9-0b56-4257-94f0-f1eface9e838@baylibre.com>
-Date: Sun, 1 Mar 2026 16:12:56 -0600
+        d=1e100.net; s=20230601; t=1772404823; x=1773009623;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=liHMhkUZwLObZQKcaR0dCOspFbGoGsXIqL6LcZpPJfA=;
+        b=vdMbv7ZphCf10GqT71QA7GE6tX3j0ZDdDQ0CeG3iyxJhaE3hWcmOpS7giCdMkgOzqG
+         EgBurrfozUkV1QLdxcHviUr63VSnqF4wSmyJjSqhCRhXFSvVgNOzWWwtMYn70BoHmA+Z
+         Wd5X9Y4MsZrbsEsSIcZkY4zY1VLbo21iroaHaYGv73brA/tTqmNWw8v/a5M1Xy31K2WK
+         cXT3Nah8wu1AFSb3K1CqdCZwuRkQyEKe7JbBF7F4CDrAHq6x6RWziXsQMY4ONslzo25r
+         FQMMZiDo2qkPHbtrchp2OVxzM+we2czS2Kuavv2ZPNOrh6zwitlKkxfV3an3APovVfy9
+         WvBw==
+X-Forwarded-Encrypted: i=1; AJvYcCUlusbPvoRa1ju5Rs1TuWPMsSM89vFRWq8dAZ3i+NbYhrB+sgnHtuqXMmCVthnfsYdgIwZ3CnHzY7DVpQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTW6lbDs2N9pXeP7jtSRGwyA172Cxl08j/z2bwh5WlKtJdLopw
+	Vg6/6QWtfUVegbBIT22GFDFhUy2zUZIre1Z+r94qi/6sNrbyb2jcxpRW3h+5M0va9FekmeAbwTJ
+	rIOP6Vg2QmqD678DkDRe5TzInssUvcN0KLC3lb5j9JcadMo3/ZVpLfEbxPvDcm5KTtw==
+X-Gm-Gg: ATEYQzyPGpREaFE/+/gUpLeDJSNoijwBK5Jv6NW0qmwR/BYolktavD90tdMPrK2xcht
+	uQx5NLE+hfQOJi5rcUPE6tJ7DMNO1y7p8hnEHKl5U6kg7gPm1SJ6tULt5aMuCBcLfdzE8xexWN2
+	XRdT68M0bITXlk+MHHQ6zXOnANfhEbJAM1ieHN9VBVmaMvmUdwUmRnIrKHGUdsdXQveD4GFmYXy
+	LPmQAZNYs9L7KqWIyoMVY3Z5LXLNu0OTeG8ZlPZW+xQOq9cR+ja9r3tpZSCWRRcvahzp5mJif1w
+	3KC+KsYviwYTA/l8bkho0m3MpmkOWc2wSmBIwqaB4HLEgb0YAgzACfOmJEbN2gCDhS0QHJUWgv5
+	SY5XfckXx2OYQMCrElM7BxzXe4LVkL1DEGRZOd6PABScDHTl3p7WwslcjWtjLANJxY9Y8ir1uiT
+	WvS+vMpZL/6juLoGVbdKhZ7rgDprOgZ8vpLEg=
+X-Received: by 2002:a05:620a:4413:b0:8cb:4a64:f482 with SMTP id af79cd13be357-8cbc8d83cc4mr1468463285a.18.1772404823118;
+        Sun, 01 Mar 2026 14:40:23 -0800 (PST)
+X-Received: by 2002:a05:620a:4413:b0:8cb:4a64:f482 with SMTP id af79cd13be357-8cbc8d83cc4mr1468460285a.18.1772404822548;
+        Sun, 01 Mar 2026 14:40:22 -0800 (PST)
+Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-389f3016bf6sm24553701fa.32.2026.03.01.14.40.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 Mar 2026 14:40:21 -0800 (PST)
+Date: Mon, 2 Mar 2026 00:40:18 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+To: david@ixit.cz
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
+Subject: Re: [PATCH 08/10] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce STM FTS5
+Message-ID: <qibmsgfttxo6kiaqyjljj6otamqp7okfr4abwpmuo7daanl6qu@ka33zvoz7lte>
+References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
+ <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] iio: orientation: hid-sensor-rotation: use ext_scan_type
-To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260214-iio-hid-sensor-rotation-cleanup-v1-1-3aec9a533c0f@baylibre.com>
-Content-Language: en-US
-From: David Lechner <dlechner@baylibre.com>
-In-Reply-To: <20260214-iio-hid-sensor-rotation-cleanup-v1-1-3aec9a533c0f@baylibre.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
+X-Proofpoint-GUID: lwvoWyqzdF_Q8RgjFY8vroJASu2_ns9J
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAxMDIwOCBTYWx0ZWRfX92AFgc9+4Xyi
+ NoympM4ZLTV8rmev0fdCtSK/oj1s9i6V71jJDPj5ow4kIly4Zllq7aRYZE3tDoRIMAOuYyBAt5b
+ Pb/Cu5knutgt4tDsI6TM+BjVUUPcRxth31GEf31ieg8XVi/EejNNwjTimwnQYB4BYMjjEM9LAX6
+ OB2yEzUpusV+9hyjCXc+Q+/lF88akaqvdxVj8qXjInXNj7DLvvE+7TwV5iZ7ZOIyfzZpHDXAsEg
+ yiYuKO/ukdvXWHTtoxuVkZGKldX1kAycex904PrEnyRvJigAdSDLoYENx+3RMYHxltsk5VlWJcX
+ a+nT41U4hmr/B7LjSoR4ul3Hj6nf6kP4h2qdnIAbO5/mkfNrIoIuOyX0HcLGqFHwNj1iJWFTUIZ
+ oidaZskkxdUsLeiGiPnj9Ttz5QkkoBggG+txT8aY6xIb5k/1+BDgUkoXZnNLirzMw0XgMssZSaM
+ JG81QLkWcKiUxo0e6FQ==
+X-Proofpoint-ORIG-GUID: lwvoWyqzdF_Q8RgjFY8vroJASu2_ns9J
+X-Authority-Analysis: v=2.4 cv=I5Vohdgg c=1 sm=1 tr=0 ts=69a4c058 cx=c_pps
+ a=oc9J++0uMp73DTRD5QyR2A==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22 a=tZRLSl_A3aL-_mRAmj8A:9
+ a=CjuIK1q_8ugA:10 a=iYH6xdkBrDN1Jqds4HTS:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-01_05,2026-02-27_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 phishscore=0 impostorscore=0 bulkscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
+ definitions=main-2603010208
 
-On 2/14/26 3:25 PM, David Lechner wrote:
-> Make use of ext_scan_type to handle the dynamic realbits size of the
-> quaternion data. This lets us implement it using static data rather than
-> having to duplicate the channel info for each driver instance.
+On Sun, Mar 01, 2026 at 06:51:22PM +0100, David Heidelberg via B4 Relay wrote:
+> From: David Heidelberg <david@ixit.cz>
 > 
-> Signed-off-by: David Lechner <dlechner@baylibre.com>
+> Introduce more recent STM FTS5 touchscreen support.
+> 
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 > ---
-> This is something I noticed we could do while looking at an unrelated
-> bug. I'm not sure I have hardware I could test this on, so it is only
-> compile-tested. It would be good to get a Tested-by: from someone before
-> applying this. Also, I'm not sure if 8, 16 and 32-bit data are all
-> possible, so if someone knows, please chime in.
-While looking at some bugs in this driver, I found in the code where
-we can be certain that only 16 and 32-bit are used. And I figured out
-a way to test with /dev/uhid. So I will drop the 8-bit case, test it
-and send a v2.
+>  .../bindings/input/touchscreen/st,stmfts.yaml           | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
+> index 64c4f24ea3dd0..329d89977bdbc 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
+> @@ -19,7 +19,9 @@ allOf:
+>  
+>  properties:
+>    compatible:
+> -    const: st,stmfts
+> +    enum:
+> +      - st,stmfts
+> +      - st,stmfts5
+>  
+>    reg:
+>      maxItems: 1
+> @@ -53,6 +55,19 @@ required:
+>  
+>  unevaluatedProperties: false
+>  
+> +allOf:
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          const: st,stmfts5
+> +    then:
+> +      properties:
+> +        switch-gpio:
+> +          description: Switch between SLPI and AP mode.
 
+This doesn't sounds like the GPIO on the touchscreen, more like the
+external schematic component. If it need sto be turned to one position,
+it might be better to use GPIO hog for that.
+
+> +
+> +      required:
+> +        - switch-gpio
+> +
+>  examples:
+>    - |
+>      #include <dt-bindings/interrupt-controller/irq.h>
+> 
+> -- 
+> 2.51.0
+> 
+> 
+
+-- 
+With best wishes
+Dmitry

@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BBDB2C11DE;
-	Sun,  1 Mar 2026 01:31:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B809D29B793;
+	Sun,  1 Mar 2026 01:31:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772328679; cv=none; b=jAgvPqvFGgMHaQQ6ZNQDTOXW2WmDlvlXphJ4mE3x/kEUSHn6Dy6iMHhrlDcdNQMyeUdepE6uzlwTlqWFFhJHogFKVnhOM0HN3QZ/RlIDN5ddTQWH0i4dFnQLhqGBuWwBhqJR03NiMYCnhe8xNB/EReIXAxxZC20fjNvDVHnNGI0=
+	t=1772328693; cv=none; b=ffpkrY6nNN/VJBrQIO+yHI65+tSOjACJNBGYkBO4x9yDsdDoIVz258BTRzRXe5LHnQBfTvdLi+31SPf8zKg2sTKf7XdwSWwUc6xxqlx9oauKkxSu5JWOh5OJ+Gl6WaB8ONCn9TfF2VkK29c4/1zjlFKwZGYI3LOLmdk61nNV0Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772328679; c=relaxed/simple;
-	bh=bQrNLFrPjj/VCEwEAP7SvQM38/Sn3WNNKapt5K2JJKY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=T9he8HpvTpU6xPYRVVm+q/dQRLihgfL1d+KegSImG46G7mG0fivEDgkJqrDnzoiQ6aljaSC7IlRAalFCunvj9TbMEmoHdyv3+WF3S7mp7xQgSnNya2H/uuYdf6/jXufzawv91u0wdWNuheG8kUDFUkiJWuiaBBM/yftlcg9yQGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R5tSMuef; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772328693; c=relaxed/simple;
+	bh=eO7NyUPjZFuTsLzac0Y0wH1saGYMyQk+JYXxnGJCae0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pLmKClvwTPMiXTnK74t4DN0ON4so5b0+M0tc1Nc8d0pmmddfxI9JTCwJ2KSs00dhzfbh1Jy7PJNErrKIF8nM6u4vlEU6w33Dl7D6zmfxIDNL1iLGgZfQ0qzvpBe4v0cLVXKJTizxP6KnuBPNyo9rOv8kVG/erNB5s6XTqRfIO4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AGbnaq3/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R5tSMuef"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEEF6C19421;
-	Sun,  1 Mar 2026 01:31:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AGbnaq3/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AEFC19421;
+	Sun,  1 Mar 2026 01:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772328679;
-	bh=bQrNLFrPjj/VCEwEAP7SvQM38/Sn3WNNKapt5K2JJKY=;
+	s=k20201202; t=1772328693;
+	bh=eO7NyUPjZFuTsLzac0Y0wH1saGYMyQk+JYXxnGJCae0=;
 	h=From:To:Cc:Subject:Date:From;
-	b=R5tSMuefKJobhw+x9LAx5BKVV7GXRmdVNOZileeG8CNH/KUx6rS98wKWSo4Byz0Ka
-	 IjVLL/xUsBtVy1o58jtcOGniBNw7T9xySFLWjtphPCWIaM8kpwxAhpZlmmTG31oeVJ
-	 62gjpgXJEKEwvhZ5PCjBj6qUhrrmL9cDEKiK6tm81nAlRYbwOTcpuQAvKPddcvBUJV
-	 UkyeQcVpCbZilgSKOApuhEc5NgX0oTUA+n4DBq3+450aqYasLldcw6ZLLcLIH2KduQ
-	 /2dmOCtutvDM6EY2iLu5ftS7nrAEyTAtM8fe5DwsaULGEsS+lGFupHaNUfAgGB/Nfz
-	 6oCE4f/eYLeaw==
+	b=AGbnaq3/Xt1Hr+PWMOg6rgD/gEwLvGeUnX0rjPwEPklM7EbPAc5SC0NmfE5GkWAHI
+	 kfy5RjQZ1G71jN135QGeQh5wbtSgwsiVf/VCQLLkK1YqdkNni8H1l1/VLapNUBXUpT
+	 E5CK8NtISGcHgKPvmB3zwyUNvEYUZWa0oo2ZxqSiNpk1+m0wajNmAmKTNoPvUZcwxO
+	 x7Ktri9ibjND45tklB71f92MUh9ggnJoQy9sSone4LvRsEOd/k8jucdljD4l1SbtKY
+	 gtyn3JOGO3Q5T86sJ/1o2xTYShjY8sHf3jgMRIaNB6jTad/7HTgLursyZc+uvyDtlW
+	 6H+2lke5Fc7Pg==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	gnoack@google.com
+	oneukum@suse.com
 Cc: Jiri Kosina <jkosina@suse.com>,
 	linux-input@vger.kernel.org
-Subject: FAILED: Patch "HID: magicmouse: Do not crash on missing msc->input" failed to apply to 6.6-stable tree
-Date: Sat, 28 Feb 2026 20:31:17 -0500
-Message-ID: <20260301013117.1689760-1-sashal@kernel.org>
+Subject: FAILED: Patch "HID: hid-pl: handle probe errors" failed to apply to 6.6-stable tree
+Date: Sat, 28 Feb 2026 20:31:31 -0500
+Message-ID: <20260301013131.1690059-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -42,7 +42,6 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 The patch below does not apply to the 6.6-stable tree.
@@ -55,46 +54,42 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 17abd396548035fbd6179ee1a431bd75d49676a7 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>
-Date: Fri, 9 Jan 2026 11:57:14 +0100
-Subject: [PATCH] HID: magicmouse: Do not crash on missing msc->input
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3756a272d2cf356d2203da8474d173257f5f8521 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Wed, 19 Nov 2025 10:09:57 +0100
+Subject: [PATCH] HID: hid-pl: handle probe errors
 
-Fake USB devices can send their own report descriptors for which the
-input_mapping() hook does not get called.  In this case, msc->input stays NULL,
-leading to a crash at a later time.
+Errors in init must be reported back or we'll
+follow a NULL pointer the first time FF is used.
 
-Detect this condition in the input_configured() hook and reject the device.
-
-This is not supposed to happen with actual magic mouse devices, but can be
-provoked by imposing as a magic mouse USB device.
-
+Fixes: 20eb127906709 ("hid: force feedback driver for PantherLord USB/PS2 2in1 Adapter")
 Cc: stable@vger.kernel.org
-Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 ---
- drivers/hid/hid-magicmouse.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-pl.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 7d4a25c6de0eb..91f621ceb924b 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -725,6 +725,11 @@ static int magicmouse_input_configured(struct hid_device *hdev,
- 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
- 	int ret;
+diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+index 3c8827081deae..dc11d5322fc0f 100644
+--- a/drivers/hid/hid-pl.c
++++ b/drivers/hid/hid-pl.c
+@@ -194,9 +194,14 @@ static int pl_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err;
+ 	}
  
-+	if (!msc->input) {
-+		hid_err(hdev, "magicmouse setup input failed (no input)");
-+		return -EINVAL;
-+	}
+-	plff_init(hdev);
++	ret = plff_init(hdev);
++	if (ret)
++		goto stop;
+ 
+ 	return 0;
 +
- 	ret = magicmouse_setup_input(msc->input, hdev);
- 	if (ret) {
- 		hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
++stop:
++	hid_hw_stop(hdev);
+ err:
+ 	return ret;
+ }
 -- 
 2.51.0
 

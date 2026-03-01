@@ -1,194 +1,255 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7294A375AD0
-	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 22:40:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8027C19ABD8
+	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 23:47:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772404831; cv=none; b=c7ANtyzGGziS23oZNg1KUDrOyMEs//H5PLL/tvDnxYV8BVS0flFiFfXJnQqQjbCJhUBbSO8JPvj8JjMH/fKYk1EpAlhc1w9GELLLRhySWy6uE36c+uI4QMQt2xoOKAYL7a4mwyPFbpNYkwiKzqBsGnvs0DfmqedM0dLropofjao=
+	t=1772408829; cv=none; b=tad7jVg+uK9BAanhybdJzMz4+4TSk5+18LR2nABV8HYJuAiHy0bwY14FlRBKfW0RGpQAWiuqif/Vnl9dLk4QKRoDxCu2zHuEEDMYmG8LvH5cBNXNPPIEvdyW0ZNZIDiC77PHZ2zYV99hDkUAAgaIM6eVKuGtMfIBD6cl16pMj7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772404831; c=relaxed/simple;
-	bh=RoF4CYBqOCcTIp8+OeNsYC8UEsKn2n9wht7SnNtDGfk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=flpktIsC6QfNKcFIVdSZX3KKC+pdzxvJJLA0FVGWk2TBtdOwSVptHSJuGL5BNcQkc/lTfDsJX4HpUmm/JqCI7xParFMmSHwa8EWnHEUB6c3vj2NFIkaMxCMETyOZJ2lVheMsRvLnI5CyZ1moG523rjcgJFTHsYRILzMbVdbIAKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FmVl9CSH; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=CcfRFH21; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1772408829; c=relaxed/simple;
+	bh=d2WnHgqmi2t0hFyj3qyly3wbZePdj7qu8dGp5arudvw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lFamVM+rIRbiOjTmdRSut0YZNvnpcDl0O73dUSE7jcPvnZ5p/UjcBJMnApO6+nAAK/kFGOsWTOcKDDqXVvyYBgu4yn/ZSwOMFBxG/Qmwowqg8HamW1FEYfG/2CZ9VBoxKHemb7cGdugzrAVIfhrrhhINraSkrwfLLB1tYdqTow4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=WiCU2SL3; arc=none smtp.client-ip=209.85.167.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FmVl9CSH";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="CcfRFH21"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 621LDKcc055870
-	for <linux-input@vger.kernel.org>; Sun, 1 Mar 2026 22:40:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=liHMhkUZwLObZQKcaR0dCOsp
-	FbGoGsXIqL6LcZpPJfA=; b=FmVl9CSH3WuzakbWRWrtDYLnsJ1shhPHQUPlDcIe
-	+9lv7bblF8fP0J2Pw0MmfcBT7vGoLQmrPCXiIyWaJu0Jpx38Gh8RfROnel/TuF4+
-	FK8jVR4/TdHq9zqhye2kFv4nJoZqwxlJcfl5J8qRo40FtvI5l9KnemiwpioGxqWy
-	2BKC+M5JSMqOQ8tsfh8ybY2Ho+JnCHu63zxiQh4uw/2OG1SYzfPgHMYDB2q3qeWx
-	gGAk5611x3LjEVhtnZ1p8DG90CP30UrenFVjdemKCH2eU1rbTYOYVyRxM42JCdM5
-	pOKXaUr+dFIY4po0vGSiOZXqlE3IeQ0GEjUxAoNgI3xOhw==
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com [209.85.219.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cmw6482gu-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 22:40:24 +0000 (GMT)
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-899edf01747so123025206d6.2
-        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 14:40:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="WiCU2SL3"
+Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-45f09874c4cso2888072b6e.3
+        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 15:47:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1772404823; x=1773009623; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=liHMhkUZwLObZQKcaR0dCOspFbGoGsXIqL6LcZpPJfA=;
-        b=CcfRFH21mWxzdpaRfR3TO++Ob/4XgvqrAImJXhAnH3OLnF+QsearLgsFj0fN8kNXie
-         YHyZa4s726kRibxG/C0XPG+K3h1NmegA5pXO/03G6iigQB2dDGVRk6qJn5gdElYmnByH
-         7ALcm8YlQ66vF7P0tzCJLLngGfCnNhQstvCFsBzuoisUK6IUfSWSpp0iY8Xrw1avInOF
-         RIUAOwibinClXgJdIrlc+aHGNk7J6yYq/o0uHdNfOK4cQjwES/sihif9bYnD+bbspAHu
-         OINq3TmDqpJDXZYkA1hjEdxt3HfmZt9xhQx8wDMCHTLMdOjLCqf9RfkYbuYo7LoqH1SE
-         B87Q==
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1772408825; x=1773013625; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5dwT1q+TqqHDCYMVcm5xwnQXT5XtGs/pb1m0k2p2HzY=;
+        b=WiCU2SL3Bw8olojpjv9WWa2j7NbEtLY1OocRswNGH+ArPk/G+tlYY7oMKJQbxWjMFT
+         YAK5KzuuJhhNGeBij8FTG0AeQSYZ1mLUoQrj+SL2v8XAi14POgTExnrolmSgIkQQ5JZ1
+         mP35Vm0egF3QjomlbwEQXhv4CwI0pSIvDzR464faNUUXemw7y+BhJorojxkRstegYanJ
+         5F+9Hyj41oDKnEORJbqIWxwG0plMiZI607dF+r92t+YqP17VxcYeV2eTGCsMfgDogZDl
+         eX6nQMPMOEgWOGQXUXiHgb2DWChDRFQ1qExlNjutotzIbmiz+1VvS4WzJGpUbD3Q3W3V
+         XbPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772404823; x=1773009623;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=liHMhkUZwLObZQKcaR0dCOspFbGoGsXIqL6LcZpPJfA=;
-        b=vdMbv7ZphCf10GqT71QA7GE6tX3j0ZDdDQ0CeG3iyxJhaE3hWcmOpS7giCdMkgOzqG
-         EgBurrfozUkV1QLdxcHviUr63VSnqF4wSmyJjSqhCRhXFSvVgNOzWWwtMYn70BoHmA+Z
-         Wd5X9Y4MsZrbsEsSIcZkY4zY1VLbo21iroaHaYGv73brA/tTqmNWw8v/a5M1Xy31K2WK
-         cXT3Nah8wu1AFSb3K1CqdCZwuRkQyEKe7JbBF7F4CDrAHq6x6RWziXsQMY4ONslzo25r
-         FQMMZiDo2qkPHbtrchp2OVxzM+we2czS2Kuavv2ZPNOrh6zwitlKkxfV3an3APovVfy9
-         WvBw==
-X-Forwarded-Encrypted: i=1; AJvYcCUlusbPvoRa1ju5Rs1TuWPMsSM89vFRWq8dAZ3i+NbYhrB+sgnHtuqXMmCVthnfsYdgIwZ3CnHzY7DVpQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyTW6lbDs2N9pXeP7jtSRGwyA172Cxl08j/z2bwh5WlKtJdLopw
-	Vg6/6QWtfUVegbBIT22GFDFhUy2zUZIre1Z+r94qi/6sNrbyb2jcxpRW3h+5M0va9FekmeAbwTJ
-	rIOP6Vg2QmqD678DkDRe5TzInssUvcN0KLC3lb5j9JcadMo3/ZVpLfEbxPvDcm5KTtw==
-X-Gm-Gg: ATEYQzyPGpREaFE/+/gUpLeDJSNoijwBK5Jv6NW0qmwR/BYolktavD90tdMPrK2xcht
-	uQx5NLE+hfQOJi5rcUPE6tJ7DMNO1y7p8hnEHKl5U6kg7gPm1SJ6tULt5aMuCBcLfdzE8xexWN2
-	XRdT68M0bITXlk+MHHQ6zXOnANfhEbJAM1ieHN9VBVmaMvmUdwUmRnIrKHGUdsdXQveD4GFmYXy
-	LPmQAZNYs9L7KqWIyoMVY3Z5LXLNu0OTeG8ZlPZW+xQOq9cR+ja9r3tpZSCWRRcvahzp5mJif1w
-	3KC+KsYviwYTA/l8bkho0m3MpmkOWc2wSmBIwqaB4HLEgb0YAgzACfOmJEbN2gCDhS0QHJUWgv5
-	SY5XfckXx2OYQMCrElM7BxzXe4LVkL1DEGRZOd6PABScDHTl3p7WwslcjWtjLANJxY9Y8ir1uiT
-	WvS+vMpZL/6juLoGVbdKhZ7rgDprOgZ8vpLEg=
-X-Received: by 2002:a05:620a:4413:b0:8cb:4a64:f482 with SMTP id af79cd13be357-8cbc8d83cc4mr1468463285a.18.1772404823118;
-        Sun, 01 Mar 2026 14:40:23 -0800 (PST)
-X-Received: by 2002:a05:620a:4413:b0:8cb:4a64:f482 with SMTP id af79cd13be357-8cbc8d83cc4mr1468460285a.18.1772404822548;
-        Sun, 01 Mar 2026 14:40:22 -0800 (PST)
-Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-389f3016bf6sm24553701fa.32.2026.03.01.14.40.20
+        d=1e100.net; s=20230601; t=1772408825; x=1773013625;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5dwT1q+TqqHDCYMVcm5xwnQXT5XtGs/pb1m0k2p2HzY=;
+        b=m+u2zTyxRx54LjsUNZVPeFwSIZctQ/QxSQNJEpO5yvUyp7t6h80wnRorCUkA5VKgy7
+         NphU73UVHgxSYv5N/+/Qse7DiGS90vtvZmB3M9Xlfrexr4CyhVPNgfH/N9qtPMoLpWwB
+         jAQpqJui+aWqSCRygCIuf8DUMeCsNu/tj67OpQl+iEwWg3wnNDqTLzbhZy6OF1NoF8QL
+         KzaB/FVoAW2fa5JBWzU84ddMvSMIZKEk16jvJp0V+paX+C4LKIlHs2Wlsb3iMdhiOf1l
+         ughMsx64qbdiOKBrqw9EnylkOcZG0Qghy0XLd/4iVi0bw4vF8MCBzjPbg9SX/LVSrNlE
+         /7eA==
+X-Gm-Message-State: AOJu0YwWc5FSKlAPUXI5ujy3Z0KWlt3rZAiROC+VARQkHfOvrMYulU2f
+	FIRV8riA/aj33MRqGuKAxz5yBd2QQ40yypKXiPIVml4DU7trFmdeZbT0GeX7KeMXhGo=
+X-Gm-Gg: ATEYQzy88y2sMtKkGP/vQNDbk11KlaA9cGjiBvZPxoAqkVtzOz0euMmxiB/R6gcEYeS
+	LrO+Oi//QDkB9fYwKTDzvPGkCZF7VbkT+bvyhZtGR8ibo5+CZBuwgIwa02WcF8ZIs52JWQ7b9tU
+	+oUPMmrPp2aUtNsPTcoOvJiEPpWKJ6RN1NPtemuu3Wi0FEYNZuorcToYeaZo+2LG6zHj9gMWUMn
+	djHnosFksGIV5CtMFW5NSjNL3jY8tclnQMHQurbUNl+vAfWyz6O9NShYUfTGV14JJ5ntSGGP2qQ
+	/xogjqHKOSlpsfXJqBQ2Dh+Zuv0mf04aoLSoUBWqp6qhDgkigVPmT+UNvqyXvKfM+dwx0ojoFzf
+	kxiLXXIOqb2+wvLrY9wFRoRs6RwbE+5yzI/zThxuukrWvdoqNCWXnlDn+tANDfow6zn5MkCmPrz
+	WUxZZNAgv1p06SC2pGxpKBS5gcWq4z
+X-Received: by 2002:a05:6820:4b18:b0:66f:2d14:32b7 with SMTP id 006d021491bc7-679fadb8aebmr5703003eaf.9.1772408825368;
+        Sun, 01 Mar 2026 15:47:05 -0800 (PST)
+Received: from [127.0.1.1] ([2600:8803:e7e4:500:8b9c:d657:204d:5a5f])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-679f2da4390sm8152129eaf.14.2026.03.01.15.47.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Mar 2026 14:40:21 -0800 (PST)
-Date: Mon, 2 Mar 2026 00:40:18 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-To: david@ixit.cz
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
-Subject: Re: [PATCH 08/10] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
-Message-ID: <qibmsgfttxo6kiaqyjljj6otamqp7okfr4abwpmuo7daanl6qu@ka33zvoz7lte>
-References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
- <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
+        Sun, 01 Mar 2026 15:47:03 -0800 (PST)
+From: David Lechner <dlechner@baylibre.com>
+Date: Sun, 01 Mar 2026 17:46:48 -0600
+Subject: [PATCH v2] iio: orientation: hid-sensor-rotation: use
+ ext_scan_type
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
-X-Proofpoint-GUID: lwvoWyqzdF_Q8RgjFY8vroJASu2_ns9J
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAxMDIwOCBTYWx0ZWRfX92AFgc9+4Xyi
- NoympM4ZLTV8rmev0fdCtSK/oj1s9i6V71jJDPj5ow4kIly4Zllq7aRYZE3tDoRIMAOuYyBAt5b
- Pb/Cu5knutgt4tDsI6TM+BjVUUPcRxth31GEf31ieg8XVi/EejNNwjTimwnQYB4BYMjjEM9LAX6
- OB2yEzUpusV+9hyjCXc+Q+/lF88akaqvdxVj8qXjInXNj7DLvvE+7TwV5iZ7ZOIyfzZpHDXAsEg
- yiYuKO/ukdvXWHTtoxuVkZGKldX1kAycex904PrEnyRvJigAdSDLoYENx+3RMYHxltsk5VlWJcX
- a+nT41U4hmr/B7LjSoR4ul3Hj6nf6kP4h2qdnIAbO5/mkfNrIoIuOyX0HcLGqFHwNj1iJWFTUIZ
- oidaZskkxdUsLeiGiPnj9Ttz5QkkoBggG+txT8aY6xIb5k/1+BDgUkoXZnNLirzMw0XgMssZSaM
- JG81QLkWcKiUxo0e6FQ==
-X-Proofpoint-ORIG-GUID: lwvoWyqzdF_Q8RgjFY8vroJASu2_ns9J
-X-Authority-Analysis: v=2.4 cv=I5Vohdgg c=1 sm=1 tr=0 ts=69a4c058 cx=c_pps
- a=oc9J++0uMp73DTRD5QyR2A==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22 a=tZRLSl_A3aL-_mRAmj8A:9
- a=CjuIK1q_8ugA:10 a=iYH6xdkBrDN1Jqds4HTS:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-01_05,2026-02-27_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1015 phishscore=0 impostorscore=0 bulkscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
- definitions=main-2603010208
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260301-iio-hid-sensor-rotation-cleanup-v2-1-245c6ad59afc@baylibre.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42OwQ6CMBBEf8X07Jq2IAFP/ofhUMoim2CL20Ikh
+ H+34sGrxzfJzJtVBGTCIC6HVTDOFMi7BPp4ELY37o5AbWKhpS6kVjkQeeiphYAueAb20cTUATu
+ gcdMIZY5lrmSlC+xEWhkZO3rthlv9ZcbnlETxF/YUoudlfzGrT/q/cFagIDNoK3POMiu7a2OWg
+ RrGk/UPUW/b9ga3eEgI5gAAAA==
+X-Change-ID: 20260214-iio-hid-sensor-rotation-cleanup-84e8410926ef
+To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, David Lechner <dlechner@baylibre.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5237; i=dlechner@baylibre.com;
+ h=from:subject:message-id; bh=d2WnHgqmi2t0hFyj3qyly3wbZePdj7qu8dGp5arudvw=;
+ b=owEBbQGS/pANAwAKAcLMIAH/AY/AAcsmYgBppM/vBv88UMkBlPn8dCHUBhk8jgkIzWqMtohA8
+ IT61NTktZ6JATMEAAEKAB0WIQTsGNmeYg6D1pzYaJjCzCAB/wGPwAUCaaTP7wAKCRDCzCAB/wGP
+ wBObB/9PCXzB6uVauf004a+Ojx96a7UBtPuXvJza727xxOJHSIrawHfQy86MBJ+CTssCw1y3ioz
+ oM6qc9ml4JONrOamrF13ppfjgxULDiqj7gVPLq1ClDBMT5xcVyVpeOFUnvqnTojGzeTEThPDnM9
+ XmDqXE9okxfvcnlJD4neasvsXqp2g6V8yoBqpxjwaWQbd5eY4tXOAyi+7nkNfFLky3fnDN3WiH3
+ CHqQ8+8+A9lBoYrOo4xv32fOYmLqNhLcWGUh1QPXxXmcS4BnGfkkzGmIG0co1jcOPVVvHUl9Pa9
+ N6LhgxDZpb+zFM7m/gdCJz+LD40zv+oNgxyw7PgjbQrKB247
+X-Developer-Key: i=dlechner@baylibre.com; a=openpgp;
+ fpr=8A73D82A6A1F509907F373881F8AF88C82F77C03
 
-On Sun, Mar 01, 2026 at 06:51:22PM +0100, David Heidelberg via B4 Relay wrote:
-> From: David Heidelberg <david@ixit.cz>
-> 
-> Introduce more recent STM FTS5 touchscreen support.
-> 
-> Signed-off-by: David Heidelberg <david@ixit.cz>
-> ---
->  .../bindings/input/touchscreen/st,stmfts.yaml           | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> index 64c4f24ea3dd0..329d89977bdbc 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> @@ -19,7 +19,9 @@ allOf:
->  
->  properties:
->    compatible:
-> -    const: st,stmfts
-> +    enum:
-> +      - st,stmfts
-> +      - st,stmfts5
->  
->    reg:
->      maxItems: 1
-> @@ -53,6 +55,19 @@ required:
->  
->  unevaluatedProperties: false
->  
-> +allOf:
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          const: st,stmfts5
-> +    then:
-> +      properties:
-> +        switch-gpio:
-> +          description: Switch between SLPI and AP mode.
+Make use of ext_scan_type to handle the dynamic realbits size of the
+quaternion data. This lets us implement it using static data rather than
+having to duplicate the channel info for each driver instance.
 
-This doesn't sounds like the GPIO on the touchscreen, more like the
-external schematic component. If it need sto be turned to one position,
-it might be better to use GPIO hog for that.
+Signed-off-by: David Lechner <dlechner@baylibre.com>
+---
+This is something I noticed we could do while looking at an unrelated
+bug. I've tested this using the same script from [1] and confirmed that
+that the scan type didn't change. Before and after are both:
 
-> +
-> +      required:
-> +        - switch-gpio
-> +
->  examples:
->    - |
->      #include <dt-bindings/interrupt-controller/irq.h>
-> 
-> -- 
-> 2.51.0
-> 
-> 
+$ cat in_rot_quaternion_type
+le:s16/32X4>>0
 
+[1]: https://lore.kernel.org/linux-iio/20260301-iio-fix-timestamp-alignment-v1-1-1a54980bfb90@baylibre.com/
+---
+Changes in v2:
+- Dropped DEV_ROT_SCAN_TYPE_8BIT.
+- Tested using /dev/uhid.
+- Link to v1: https://lore.kernel.org/r/20260214-iio-hid-sensor-rotation-cleanup-v1-1-3aec9a533c0f@baylibre.com
+---
+ drivers/iio/orientation/hid-sensor-rotation.c | 71 ++++++++++++++++-----------
+ 1 file changed, 43 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index e759f91a710a..3cfd0b323514 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -34,6 +34,27 @@ static const u32 rotation_sensitivity_addresses[] = {
+ 	HID_USAGE_SENSOR_ORIENT_QUATERNION,
+ };
+ 
++enum {
++	DEV_ROT_SCAN_TYPE_16BIT,
++	DEV_ROT_SCAN_TYPE_32BIT,
++};
++
++static const struct iio_scan_type dev_rot_scan_types[] = {
++	[DEV_ROT_SCAN_TYPE_16BIT] = {
++		.sign = 's',
++		.realbits = 16,
++		/* Storage bits has to stay 32 to not break userspace. */
++		.storagebits = 32,
++		.repeat = 4,
++	},
++	[DEV_ROT_SCAN_TYPE_32BIT] = {
++		.sign = 's',
++		.realbits = 32,
++		.storagebits = 32,
++		.repeat = 4,
++	},
++};
++
+ /* Channel definitions */
+ static const struct iio_chan_spec dev_rot_channels[] = {
+ 	{
+@@ -45,23 +66,14 @@ static const struct iio_chan_spec dev_rot_channels[] = {
+ 					BIT(IIO_CHAN_INFO_OFFSET) |
+ 					BIT(IIO_CHAN_INFO_SCALE) |
+ 					BIT(IIO_CHAN_INFO_HYSTERESIS),
+-		.scan_index = 0
++		.scan_index = 0,
++		.has_ext_scan_type = 1,
++		.ext_scan_type = dev_rot_scan_types,
++		.num_ext_scan_type = ARRAY_SIZE(dev_rot_scan_types),
+ 	},
+ 	IIO_CHAN_SOFT_TIMESTAMP(1)
+ };
+ 
+-/* Adjust channel real bits based on report descriptor */
+-static void dev_rot_adjust_channel_bit_mask(struct iio_chan_spec *chan,
+-						int size)
+-{
+-	chan->scan_type.sign = 's';
+-	/* Real storage bits will change based on the report desc. */
+-	chan->scan_type.realbits = size * 8;
+-	/* Maximum size of a sample to capture is u32 */
+-	chan->scan_type.storagebits = sizeof(u32) * 8;
+-	chan->scan_type.repeat = 4;
+-}
+-
+ /* Channel read_raw handler */
+ static int dev_rot_read_raw(struct iio_dev *indio_dev,
+ 				struct iio_chan_spec const *chan,
+@@ -136,9 +148,25 @@ static int dev_rot_write_raw(struct iio_dev *indio_dev,
+ 	return ret;
+ }
+ 
++static int dev_rot_get_current_scan_type(const struct iio_dev *indio_dev,
++					 const struct iio_chan_spec *chan)
++{
++	struct dev_rot_state *rot_state = iio_priv(indio_dev);
++
++	switch (rot_state->quaternion.size / 4) {
++	case sizeof(s16):
++		return DEV_ROT_SCAN_TYPE_16BIT;
++	case sizeof(s32):
++		return DEV_ROT_SCAN_TYPE_32BIT;
++	default:
++		return -EINVAL;
++	}
++}
++
+ static const struct iio_info dev_rot_info = {
+ 	.read_raw_multi = &dev_rot_read_raw,
+ 	.write_raw = &dev_rot_write_raw,
++	.get_current_scan_type = &dev_rot_get_current_scan_type,
+ };
+ 
+ /* Callback handler to send event after all samples are received and captured */
+@@ -196,7 +224,6 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
+ /* Parse report which is specific to an usage id*/
+ static int dev_rot_parse_report(struct platform_device *pdev,
+ 				struct hid_sensor_hub_device *hsdev,
+-				struct iio_chan_spec *channels,
+ 				unsigned usage_id,
+ 				struct dev_rot_state *st)
+ {
+@@ -210,9 +237,6 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+ 	if (ret)
+ 		return ret;
+ 
+-	dev_rot_adjust_channel_bit_mask(&channels[0],
+-		st->quaternion.size / 4);
+-
+ 	dev_dbg(&pdev->dev, "dev_rot %x:%x\n", st->quaternion.index,
+ 		st->quaternion.report_id);
+ 
+@@ -271,22 +295,13 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	indio_dev->channels = devm_kmemdup(&pdev->dev, dev_rot_channels,
+-					   sizeof(dev_rot_channels),
+-					   GFP_KERNEL);
+-	if (!indio_dev->channels) {
+-		dev_err(&pdev->dev, "failed to duplicate channels\n");
+-		return -ENOMEM;
+-	}
+-
+-	ret = dev_rot_parse_report(pdev, hsdev,
+-				   (struct iio_chan_spec *)indio_dev->channels,
+-					hsdev->usage, rot_state);
++	ret = dev_rot_parse_report(pdev, hsdev, hsdev->usage, rot_state);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to setup attributes\n");
+ 		return ret;
+ 	}
+ 
++	indio_dev->channels = dev_rot_channels;
+ 	indio_dev->num_channels = ARRAY_SIZE(dev_rot_channels);
+ 	indio_dev->info = &dev_rot_info;
+ 	indio_dev->name = name;
+
+---
+base-commit: 3fa5e5702a82d259897bd7e209469bc06368bf31
+change-id: 20260214-iio-hid-sensor-rotation-cleanup-84e8410926ef
+
+Best regards,
 -- 
-With best wishes
-Dmitry
+David Lechner <dlechner@baylibre.com>
+

@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB522264C7;
-	Sun,  1 Mar 2026 01:19:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D60B2264C7;
+	Sun,  1 Mar 2026 01:19:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772327973; cv=none; b=K0bX4f+XRACDDMqQ5dw5JiXZQb8jaHz0W4RXn1jQgchENoS+aZJ1qUfmI+lwrrVY3kQ5gc3hv6KYn9aS4KxCDENCGmB/6L4fy7WzzqeRk8BMM/E9IbHkuHIqR0xID36tn5Ulsq03V86FKUiGyZGcjCiDzMqV/azbGNrHkixKVFM=
+	t=1772327995; cv=none; b=nIXT6QMdHrhtJbJl8dZ/9pAqH+TTorYOv/DE/LxIXmU73q19PEJnNRAgYE56ZZYRgWPOxHWRPyms6hx0dNTT4rnGosgZRoBWvUgnKQhvHpR0aTepd5dgkqKLCMw5NP80MAkjmhMQqmYrQfN4qfjcmSBvcTb2hcaXVbXoHwyX3kA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772327973; c=relaxed/simple;
-	bh=7hAM4cWsdPbJiVVKB68GSk8EaT3P7S6dUTSO9J20Tns=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MQnZMBoYm3l8QDFYbPuc2XfwkRF0ZPKzOkWVHmx55BA0WHUDXqadTFMI6F8Kt+wDkqY3Uxlq5ZYPZmCwjbKJ3gU4z0D22joC/XGspEZQi7Xb6Ba3Sq+Ruvh/OYfT4mcUOmzOs298Eoouiuzo+vRC6aknGYCeZFOvw1aX432NKRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nNcrN7My; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772327995; c=relaxed/simple;
+	bh=jadiB0yW3uO8J+QL+4iMJ6wlcWoajahTOaVMpdWeG9U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hpukTGjerPhd1V+erETqYv4Bj/iUtv/CcX9o9/Len6WInjhRiJdp8JDIfUli6RvF4o79rfBNEegSXYsTDpbSeIxOJaPh+5aetiL6m+ud4yQxWlKjh4JRj4GxmdGiJqYN8W8/PLdx7Z5mbIDQNR3Dzo/vG79ak/cAw9D+v7jdBR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G11a5KEa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nNcrN7My"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F99CC19421;
-	Sun,  1 Mar 2026 01:19:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G11a5KEa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0621C19421;
+	Sun,  1 Mar 2026 01:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772327973;
-	bh=7hAM4cWsdPbJiVVKB68GSk8EaT3P7S6dUTSO9J20Tns=;
+	s=k20201202; t=1772327995;
+	bh=jadiB0yW3uO8J+QL+4iMJ6wlcWoajahTOaVMpdWeG9U=;
 	h=From:To:Cc:Subject:Date:From;
-	b=nNcrN7MyHY0IQwCwzMIU+oEd0FscDTabYcvXicmzKNZN8vbrjZCqPeR0P33tUTOjh
-	 hyJ1sFIhQMwtljJvfk4sQVn+is8SkO8OolmmTOIYPrGnSr7VfLVXh65Jvc0ZF50I8o
-	 0xRKh6ogvo7neYUX6gGcBbIq3Xj8a3g+c5Dw+G89bv4TVM+VoUpnMSaeoI+mghzAs1
-	 VNpR0/LFOj4V/bsWjHhMe0FjRdSNxSoxISKCyIFZgjffWmdMNrrOxESXUOuXHkshAO
-	 NkylkCtjhiPBD+2JgdjkN4Kc5GLFN4ipreMCloRe4DN6obW3KInhU1RbzGaw/+nKgz
-	 U/q6+beSC18RQ==
+	b=G11a5KEagZBNjnzeQYJ2l9CSMzhmFpd1krl29oUZf19gs2bciaBOoq0VTTOZ+GTaT
+	 3r+7j/lTiL3z1fjR48DeDGPqtvWz1mRAsBha3A8T0O9e0hoHfbBQmBipfId2UjA9l2
+	 qmSDKddtZBcW9HsqaEBI6L0RgdmZhpjwsC8VnQqtFfJF4eIgG3Kg3LJ2C7dzTuoKhR
+	 K8odFeUya2LWnKixuqL+zUTMrnem+Dq6Lhtc3Y05+aZ9U917wNx8sVBzHigT08PSt/
+	 haJmJUbXXl89BEcOWLfN4N3VksIzk7EJ/BSXXZPo2PuUI24RcNZlqviasEjWMY0uTQ
+	 1Z6xkl4cWEgww==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	gnoack@google.com
+	oneukum@suse.com
 Cc: Jiri Kosina <jkosina@suse.com>,
 	linux-input@vger.kernel.org
-Subject: FAILED: Patch "HID: prodikeys: Check presence of pm->input_ep82" failed to apply to 6.12-stable tree
-Date: Sat, 28 Feb 2026 20:19:31 -0500
-Message-ID: <20260301011932.1674619-1-sashal@kernel.org>
+Subject: FAILED: Patch "HID: hid-pl: handle probe errors" failed to apply to 6.12-stable tree
+Date: Sat, 28 Feb 2026 20:19:53 -0500
+Message-ID: <20260301011953.1675193-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -42,7 +42,6 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 The patch below does not apply to the 6.12-stable tree.
@@ -55,43 +54,42 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From cee8337e1bad168136aecfe6416ecd7d3aa7529a Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>
-Date: Fri, 9 Jan 2026 11:58:08 +0100
-Subject: [PATCH] HID: prodikeys: Check presence of pm->input_ep82
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3756a272d2cf356d2203da8474d173257f5f8521 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Wed, 19 Nov 2025 10:09:57 +0100
+Subject: [PATCH] HID: hid-pl: handle probe errors
 
-Fake USB devices can send their own report descriptors for which the
-input_mapping() hook does not get called.  In this case, pm->input_ep82 stays
-NULL, which leads to a crash later.
+Errors in init must be reported back or we'll
+follow a NULL pointer the first time FF is used.
 
-This does not happen with the real device, but can be provoked by imposing as
-one.
-
+Fixes: 20eb127906709 ("hid: force feedback driver for PantherLord USB/PS2 2in1 Adapter")
 Cc: stable@vger.kernel.org
-Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 ---
- drivers/hid/hid-prodikeys.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-pl.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index 74bddb2c3e82e..6e413df38358a 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -378,6 +378,10 @@ static int pcmidi_handle_report4(struct pcmidi_snd *pm, u8 *data)
- 	bit_mask = (bit_mask << 8) | data[2];
- 	bit_mask = (bit_mask << 8) | data[3];
+diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+index 3c8827081deae..dc11d5322fc0f 100644
+--- a/drivers/hid/hid-pl.c
++++ b/drivers/hid/hid-pl.c
+@@ -194,9 +194,14 @@ static int pl_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err;
+ 	}
  
-+	/* robustness in case input_mapping hook does not get called */
-+	if (!pm->input_ep82)
-+		return 0;
+-	plff_init(hdev);
++	ret = plff_init(hdev);
++	if (ret)
++		goto stop;
+ 
+ 	return 0;
 +
- 	/* break keys */
- 	for (bit_index = 0; bit_index < 24; bit_index++) {
- 		if (!((0x01 << bit_index) & bit_mask)) {
++stop:
++	hid_hw_stop(hdev);
+ err:
+ 	return ret;
+ }
 -- 
 2.51.0
 

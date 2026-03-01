@@ -1,129 +1,217 @@
-Received: from ixit.cz (ixit.cz [185.100.197.86])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f44.google.com (mail-ot1-f44.google.com [209.85.210.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8442430BBA;
-	Sun,  1 Mar 2026 18:10:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772388624; cv=none; b=ljhDHRqbRqt6Z8QLOOgZVWGAeTdXSq2iOBUa2hiZJxuOLmnKKcFnOyrPyZ1w4x9RnX8A6WKA4GtZcCytkRG0kBUQWqdola9aLmTZeid6dE9C5HoiF+dVl1vaB3FoNGfmDosXWo5jeXj0s46yraHq8vqJ9ocNS3AHpYFmv2r2UEE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772388624; c=relaxed/simple;
-	bh=VDGg5KIUcPOvj8p4uz9ql0m69D/RM+02FTRYMeg0STw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DXvrrK9dapi9Z+0scNVbO7HKKLA6DGddUbSiGwX+iFU4JV/Z77hgdNboGGPO7rpuCc3i1wp8pAXgRA6mg1wlVRlJU1rxKcsGncMlgl5MuhdGbi6eOdlici+jq4d5NkPUDa3M2+zmc3X0Dx0OoIN3DgcBF673qIFbgYGD78ViZTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=yZm4JGAx; arc=none smtp.client-ip=185.100.197.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E07F7430B99
+	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 19:30:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772393421; cv=pass; b=ebdmXlCyBsEaTURI15Y/+LdGb96MXPMVAejssvOh/elWGHuXzjlJcuch1HnupIAytDvvz4yZFn1OHLV4YOGjsjcdrYul7Sn5JrpPF9vZO2VLApSsLCGbqHNtAiNczj4JxPFuPmvPmYiN4H2zobTKBUub/DxQc291zGnQpCHkekw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772393421; c=relaxed/simple;
+	bh=OjaoeEXyT4g07zYPZ6AJ82LbciewIaIJsjQGkQRMyWc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DOTjRY0rnKeZGdNEqrd1BmXYdIvvruFUFWER4G+PV3PWwf/5bKxFUWQ3atKpfM1IreOG3eS2Mtr1y6+vXrdGNanuaNQgpENwGDQL/X+rAYqKtR1bDBx86Zdr+F74uUy9e+T8YY/RNX+qnSgR2BdSuFrHgFbI1i8TtFUpQRIoWrg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nEEUulqr; arc=pass smtp.client-ip=209.85.210.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="yZm4JGAx"
-Received: from [IPV6:2a02:f000:10bd:e301::1d7] (unknown [IPv6:2a02:f000:10bd:e301::1d7])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 1B5045340941;
-	Sun, 01 Mar 2026 19:10:14 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1772388614;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=8SYg1iKkO2flLsw1BArunFvmkI1jDns0goFy4yQIn8E=;
-	b=yZm4JGAxzSLiOSI/y/m0Uu5QmMQEWlJ9aQc/I6YrTAhXSi5Um5/E8rXLOB0DwHn3zP1cpe
-	aSVyOjJTlRXCRpds/D5zLgnrm+hgVonhkaiIYf2KiSIXDP/0c60sx9YtarbklBBgI+31rz
-	RlEgfkwGvhoI1gKCfVm398x2HGCHiLM=
-Message-ID: <69cf95e2-75db-405a-a813-b1a63a4d876e@ixit.cz>
-Date: Sun, 1 Mar 2026 19:10:13 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nEEUulqr"
+Received: by mail-ot1-f44.google.com with SMTP id 46e09a7af769-7d598f4c618so1579040a34.0
+        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 11:30:18 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772393418; cv=none;
+        d=google.com; s=arc-20240605;
+        b=egX5QLOEKOqJ031RRs708/gsROjL9APWNOlUrFKfUkeg4AljNT8MRLT2Gjetic6chk
+         czkpLHoc7DkGNp95UI38w25LUynhgWhKMhzcRUKDlsnbgGoOEGG2ktfaqD7vxqgu0WzW
+         bU3dQxZ3/78pZEMEnPIy0SiW/dOVqQX3LlZ5G3UMqCZo0Y1kDK19R+9oxugRTmPTyxxY
+         7IHPuZJXTbuC583um80dJbPQtgM8WL7UhaeRg8kZ0ROThXr/JXtgJTG6L4bFQP9s9iya
+         s/Yg9+DgKZFJ9zZLDxsJ+x2KSzyf8fk+5SsC9Tzo+hY+cPO0ej89+eRKVnKhcj6R0yNW
+         0aIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=AITXmhhS5ybi+RKE9olk35ACfOtV6KA5LR523g3rBrI=;
+        fh=QCF3xesXpFzTn5rSU04ZueReTIuSxF2AMnM2E+QCc68=;
+        b=BwD4P43v20Pxb1zMuVRG/6D3zcbkT1h/P4rmRQ4d6rQ/EM+G5o48qF6e/YzAU94nHN
+         rYu/cYdvXVCzBHpBpWLjxFkjoco13UhVUJLxgAO6eoexGUZlQguIfNR7KHc7+lwgnc5V
+         8WbukUYbWta9+nP8ZQCVfjqUb2IxOq3cVtuQWkvHMF1txzWCfFov76MirN46fcJ5DWmF
+         7s6Qv1nKzoQJV7azYswSPTPHpz+I2MdFBPaL/Diw05fJm0iIsvxmItUY6ZQocsfUFgJR
+         NWi7v/r2bJZ8sI1vRqQSMr5t005WqQtI69TKSOwFMGYreNIrWqt7tLo1WgOuy3nTaOC4
+         Sjcg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772393418; x=1772998218; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AITXmhhS5ybi+RKE9olk35ACfOtV6KA5LR523g3rBrI=;
+        b=nEEUulqrsU4Nw7w8x8ugXwskTsqsywRtP84EueS1FfN7N4tnUoRZ8FcPQbK8RQwRtK
+         IKe+N7HN7Y2MvSXlbbovCWY//2DbimIHKjE6+MVThHNAeytsicrwp+rWXuw7dW/F4R84
+         lofDkajcTtIEx9LsST90/sPlaiXpZXdS7KO1fkgndEvSrnP16V9kIxEWiIwZhvdRELXk
+         7LaBrieowxp3f+Wmb5lz0l1/eCKAyVSzY+mwurQV2hKQqbpVQTRnKd8lPW4fD8M82nG1
+         qVtMyj8uHTpus6S4Wu+HxlFzdGh+5Pn6s5de0UlrzUdPaLU5ihH+B59m6zFkZfth0YoH
+         Qptg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772393418; x=1772998218;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=AITXmhhS5ybi+RKE9olk35ACfOtV6KA5LR523g3rBrI=;
+        b=CzckASgKKuvvWRW2guhdvfHsKuFIZ4yNNKkzBSwnwOZOYTcr45Ey7QdKRic5pXbVEh
+         ysRjT72hMOa3NyiAjFAUBxssIAOtKxfq6M38LPVcXVnAWfXecMb+Bdjrcyy60L6VXZK1
+         zxSUqNAfFivkLLTga5GQ/FA0xkCOYyTnJzl7yYtkaW3vUxsQ4IdpNaTIu4/qIC3WIwr4
+         r8+y8edQbM3ktSOsJiDRpeMvCQOUK/RlhCyWZkI3cY32bP57lEBk9YrRDXBLx6KL6CrM
+         dKOg4cQqpdVvJ2wkzzJlMElho3xvj4O9EqPBupIdK5ctFAjkYjv6T0wF2VuRO+Gd+uXu
+         v4Ow==
+X-Forwarded-Encrypted: i=1; AJvYcCV1AWTPMo4np6718B4l7Vg86epm6Xk5T+5MOFci+2HRnhjRtw7MqNsS2ROZKDayzLd9Esxrck7ad3E1ag==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYkXuOqByBdcq9DKzTVRkslrEWbx3q7r3lrurU5Wd0434tVMRj
+	vYCIUdLoH30IdHIF8iCfOeoUCwA5wfTwUZBlsav7odTbqCwKFuL+aGQmz1Efn97Gos7qoXwZSr0
+	VHxrv+dcVLROaFuzXVRjZtt/CR98s6iI=
+X-Gm-Gg: ATEYQzwU7qJ3qi63XmdJh43rYGJcNxGGyKdV4/q7mcE1IM2JS5nQI1V5migZ1dRLyCF
+	zuoOeVlVF7gYWHzR3PjbwcT7O8PCcp6KGA7PnQf01Ky3v22SXjZCT1QPlQMNAtPvbsXeZjJ9/E2
+	vLuQgbjGcMeJn46QIp55JlW6xAZ0F9qbbx+7YNWO/05RPqAtjt00l+GlWnQKhimUNvFsfStOR7L
+	1q8e6A0LH/zKFFYagukhXBsUXjXmEGK6zbTZUS2/Fi8sYeGIRGyKPC4oAZuHE+H8vSx2z0eJ1cj
+	TBzIvh555VjE3B2OSvnn01gPGHKi3CGgiBaYod0=
+X-Received: by 2002:a05:6830:718b:b0:7d1:9da9:c6c with SMTP id
+ 46e09a7af769-7d591bcdad7mr6622117a34.17.1772393417813; Sun, 01 Mar 2026
+ 11:30:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/10] Input: support for STM FTS5
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
-References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
-Content-Language: en-US
-From: David Heidelberg <david@ixit.cz>
-Autocrypt: addr=david@ixit.cz; keydata=
- xsFNBF5v1x4BEADS3EddwsNsvVAI1XF8uQKbdYPY/GhjaSLziwVnbwv5BGwqB1tfXoHnccoA
- 9kTgKAbiXG/CiZFhD6l4WCIskQDKzyQN3JhCUIxh16Xyw0lECI7iqoW9LmMoN1dNKcUmCO9g
- lZxQaOl+1bY/7ttd7DapLh9rmBXJ2lKiMEaIpUwb/Nw0d7Enp4Jy2TpkhPywIpUn8CoJCv3/
- 61qbvI9y5utB/UhfMAUXsaAgwEJyGPAqHlC0YZjaTwOu+YQUE3AFzhCbksq95CwDz4U4gdls
- dmv9tkATfu2OmzERZQ6vJTehK0Pu4l5KmCAzYg42I9Dy4E6b17x6NncKbcByQFOXMtG0qVUk
- F1yeeOQUHwu+8t3ZDMBUhCkRL/juuoqLmyDWKMc0hKNNeZ9BNXgB8fXkRLWEUfgDXsFyEkKp
- NxUy5bDRlivf6XfExnikk5kj9l2gGlNQwqROti/46bfbmlmc/a2GM4k8ZyalHNEAdwtXYSpP
- 8JJmlbQ7hNTLkc3HQLRsIocN5th/ur7pPMz1Beyp0gbE9GcOceqmdZQB80vJ01XDyCAihf6l
- AMnzwpXZsjqIqH9r7T7tM6tVEVbPSwPt4eZYXSoJijEBC/43TBbmxDX+5+3txRaSCRQrG9dY
- k3mMGM3xJLCps2KnaqMcgUnvb1KdTgEFUZQaItw7HyRd6RppewARAQABzSBEYXZpZCBIZWlk
- ZWxiZXJnIDxkYXZpZEBpeGl0LmN6PsLBlAQTAQgAPgIbAwULCQgHAgYVCgkICwIEFgIDAQIe
- AQIXgBYhBNd6Cc/u3Cu9U6cEdGACP8TTSSByBQJl+KksBQkPDaAOAAoJEGACP8TTSSBy6IAQ
- AMqFqVi9LLxCEcUWBn82ssQGiVSDniKpFE/tp7lMXflwhjD5xoftoWOmMYkiWE86t5x5Fsp7
- afALx7SEDz599F1K1bLnaga+budu55JEAYGudD2WwpLJ0kPzRhqBwGFIx8k6F+goZJzxPDsf
- loAtXQE62UvEKa4KRRcZmF0GGoRsgA7vE7OnV8LMeocdD3eb2CuXLzauHAfdvqF50IfPH/sE
- jbzROiAZU+WgrwU946aOzrN8jVU+Cy8XAccGAZxsmPBfhTY5f2VN1IqvfaRdkKKlmWVJWGw+
- ycFpAEJKFRdfcc5PSjUJcALn5C+hxzL2hBpIZJdfdfStn+DWHXNgBeRDiZj1x6vvyaC43RAb
- VXvRzOQfG4EaMVMIOvBjBA/FtIpb1gtXA42ewhvPnd5RVCqD9YYUxsVpJ9d+XsAy7uib3BsV
- W2idAEsPtoqhVhq8bCUs/G4sC2DdyGZK8MRFDJqciJSUbqA+5z1ZCuE8UOPDpZKiW6H/OuOM
- zDcjh0lOzr4p+/1TSg1PbUh7fQ+nbMuiT044sC1lLtJK0+Zyn0GwhR82oNM4fldNsaHRW42w
- QGD35+eNo5Pvb3We5XRMlBdhFnj7Siggp4J8/PJ6MJvRyC+RIJPGtbdMB2/RxWunFLn87e5w
- UgwR9jPMHAstuTR1yR23c4SIYoQ2fzkrRzuazsFNBF5v1x4BEADnlrbta2WL87BlEOotZUh0
- zXANMrNV15WxexsirLetfqbs0AGCaTRNj+uWlTUDJRXOVIwzmF76Us3I2796+Od2ocNpLheZ
- 7EIkq8budtLVd1c06qJ+GMraz51zfgSIazVInNMPk9T6fz0lembji5yEcNPNNBA4sHiFmXfo
- IhepHFOBApjS0CiOPqowYxSTPe/DLcJ/LDwWpTi37doKPhBwlHev1BwVCbrLEIFjY0MLM0aT
- jiBBlyLJaTqvE48gblonu2SGaNmGtkC3VoQUQFcVYDXtlL9CVbNo7BAt5gwPcNqEqkUL60Jh
- FtvVSKyQh6gn7HHsyMtgltjZ3NKjv8S3yQd7zxvCn79tCKwoeNevsvoMq/bzlKxc9QiKaRPO
- aDj3FtW7R/3XoKJBY8Hckyug6uc2qYWRpnuXc0as6S0wfek6gauExUttBKrtSbPPHiuTeNHt
- NsT4+dyvaJtQKPBTbPHkXpTO8e1+YAg7kPj3aKFToE/dakIh8iqUHLNxywDAamRVn8Ha67WO
- AEAA3iklJ49QQk2ZyS1RJ2Ul28ePFDZ3QSr9LoJiOBZv9XkbhXS164iRB7rBZk6ZRVgCz3V6
- hhhjkipYvpJ/fpjXNsVL8jvel1mYNf0a46T4QQDQx4KQj0zXJbC2fFikAtu1AULktF4iEXEI
- rSjFoqhd4euZ+QARAQABwsF8BBgBCAAmAhsMFiEE13oJz+7cK71TpwR0YAI/xNNJIHIFAmX4
- qVAFCQ8NoDIACgkQYAI/xNNJIHKN4A/+Ine2Ii7JiuGITjJkcV6pgKlfwYdEs4eFD1pTRb/K
- 5dprUz3QSLP41u9OJQ23HnESMvn31UENk9ffebNoW7WxZ/8cTQY0JY/cgTTrlNXtyAlGbR3/
- 3Q/VBJptf04Er7I6TaKAmqWzdVeKTw33LljpkHp02vrbOdylb4JQG/SginLV9purGAFptYRO
- 8JNa2J4FAQtQTrfOUjulOWMxy7XRkqK3QqLcPW79/CFn7q1yxamPkpoXUJq9/fVjlhk7P+da
- NYQpe4WQQnktBY29SkFnvfIAwqIVU8ix5Oz8rghuCcAdR7lEJ7hCX9bR0EE05FOXdZy5FWL9
- GHvFa/Opkq3DPmFl/0nt4HJqq1Nwrr+WR6d0414oo1n2hPEllge/6iD3ZYwptTvOFKEw/v0A
- yqOoYSiKX9F7Ko7QO+VnYeVDsDDevKic2T/4GDpcSVd9ipiKxCQvUAzKUH7RUpqDTa+rYurm
- zRKcgRumz2Tc1ouHj6qINlzEe3a5ldctIn/dvR1l2Ko7GBTG+VGp9U5NOAEkGpxHG9yg6eeY
- fFYnMme51H/HKiyUlFiE3yd5LSmv8Dhbf+vsI4x6BOOOq4Iyop/Exavj1owGxW0hpdUGcCl1
- ovlwVPO/6l/XLAmSGwdnGqok5eGZQzSst0tj9RC9O0dXO1TZocOsf0tJ8dR2egX4kxM=
-In-Reply-To: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260228191400.19244-1-rougueprince47@gmail.com>
+ <20260228191400.19244-2-rougueprince47@gmail.com> <20260301114450.17f79213@jic23-huawei>
+In-Reply-To: <20260301114450.17f79213@jic23-huawei>
+From: Bhargav Joshi <rougueprince47@gmail.com>
+Date: Mon, 2 Mar 2026 01:00:06 +0530
+X-Gm-Features: AaiRm52kw1wnE8IDel-K5c3NBDoj7DLWgIYMU_GQ7TIXPDj-_JL_JT4-UcGgRP8
+Message-ID: <CAPC4XCRom4ri1QKw_mTnZGc9np5XFD1LskQnd=ssDAKBdOkGmQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] iio: hid-sensor-gyro-3d: move iio_device_register()
+ to end of probe()
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: jikos@kernel.org, srinivas.pandruvada@linux.intel.com, 
+	dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 01/03/2026 18:51, David Heidelberg via B4 Relay wrote:
-> Used on various phones. Minimal basic support.
-> 
-> Includes device-tree with possibility to enable touchscreen on Pixel 3.
-> 
-> Sending as RFC, as this is first, seemingly clean version which works.
-> 
-> What is missing:
->   - firmware loading
->   - switching between AP and SLPI mode (to wake up phone by touch)
->   - anything above basic touch
-> 
-> Signed-off-by: David Heidelberg <david@ixit.cz>
-> ---
+On Sun, Mar 1, 2026 at 5:15=E2=80=AFPM Jonathan Cameron <jic23@kernel.org> =
+wrote:
+>
+> On Sun,  1 Mar 2026 00:43:59 +0530
+> Bhargav Joshi <rougueprince47@gmail.com> wrote:
+>
+> > Currently, calling iio_device_register() before
+> > sensor_hub_register_callback() may create a race condition where the
+> > device is exposed to userspace before callbacks are wired.
+>
+> We needs some more here on 'why' this is a problem.
+> Whilst this is an unusual arrangement, I couldn't immediately find
+> anything that was actually broken.  It's possible data will turn up
+> after we tear down the callbacks and before the userspace interfaces
+> are removed, but I think that just results in dropping data. Given it's
+> in a race anyway I don't think we care about that. The callbacks
+> don't seem to be involved in device configuration which can go on whether
+> or not the callbacks are registered.  Maybe there is something that
+> won't get acknowledged if they aren't in place in time?
+>
+> For a fix like this we'd normally want to see a clear flow that
+> leads to a bug.
+>
+> Also a fixes tag so we know how far to backport.
+>
 
-First, I said it's RFC, but I didn't marked the series such as, sorry bout that.
+Hi Jonathan,
 
-Second, already found typo in binding: s/switch-gpio/switch-gpios/ .
+I originally submitted the patch for the driver because calling
+iio_device_register() before the callbacks are wired up violates
+standard IIO LIFO ordering. I assumed this created a dangerous race
+condition with userspace. However, as you correctly pointed out, the
+HID sensor hub safely drops those early events without crashing, even
+if it is unusual behaviour still won't have a hard crash.
 
-At last, the series, until merged can be found at:
-   https://codeberg.org/sdm845/linux/commits/branch/b4/stmfts5
+My underlying goal was simply a structural cleanup to align the
+probe() and remove() sequences with standard IIO architecture.
 
+Would you like me to send a v2 of this patch with a revised commit
+message classifying it purely as a structural cleanup (and without a
+Fixes tag), or is the current driver behavior acceptable enough that I
+should just drop this patch entirely?
 
+Thanks,
+Bhargav
+
+> >
+> > Move iio_device_register() to the end of the probe() function to preven=
+t
+> > race condition.
+> >
+> > Consequently, update the error handling path in probe() and in remove()
+> > ensuring that iio_device_unregister() is called first to cut off
+> > userspace access before the hardware callbacks are removed.
+> >
+> > Signed-off-by: Bhargav Joshi <rougueprince47@gmail.com>
+> > ---
+> >  drivers/iio/gyro/hid-sensor-gyro-3d.c | 20 ++++++++++----------
+> >  1 file changed, 10 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/h=
+id-sensor-gyro-3d.c
+> > index c43990c518f7..8e3628cd8529 100644
+> > --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> > +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> > @@ -333,12 +333,6 @@ static int hid_gyro_3d_probe(struct platform_devic=
+e *pdev)
+> >               return ret;
+> >       }
+> >
+> > -     ret =3D iio_device_register(indio_dev);
+> > -     if (ret) {
+> > -             dev_err(&pdev->dev, "device register failed\n");
+> > -             goto error_remove_trigger;
+> > -     }
+> > -
+> >       gyro_state->callbacks.send_event =3D gyro_3d_proc_event;
+> >       gyro_state->callbacks.capture_sample =3D gyro_3d_capture_sample;
+> >       gyro_state->callbacks.pdev =3D pdev;
+> > @@ -346,13 +340,19 @@ static int hid_gyro_3d_probe(struct platform_devi=
+ce *pdev)
+> >                                       &gyro_state->callbacks);
+> >       if (ret < 0) {
+> >               dev_err(&pdev->dev, "callback reg failed\n");
+> > -             goto error_iio_unreg;
+> > +             goto error_remove_trigger;
+> > +     }
+> > +
+> > +     ret =3D iio_device_register(indio_dev);
+> > +     if (ret) {
+> > +             dev_err(&pdev->dev, "device register failed\n");
+> > +             goto error_remove_callback;
+> >       }
+> >
+> >       return ret;
+> >
+> > -error_iio_unreg:
+> > -     iio_device_unregister(indio_dev);
+> > +error_remove_callback:
+> > +     sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+> >  error_remove_trigger:
+> >       hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attribut=
+es);
+> >       return ret;
+> > @@ -365,8 +365,8 @@ static void hid_gyro_3d_remove(struct platform_devi=
+ce *pdev)
+> >       struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+> >       struct gyro_3d_state *gyro_state =3D iio_priv(indio_dev);
+> >
+> > -     sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+> >       iio_device_unregister(indio_dev);
+> > +     sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+> >       hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attribut=
+es);
+> >  }
+> >
+>

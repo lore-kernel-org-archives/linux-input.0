@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 328D8262FEC;
-	Sun,  1 Mar 2026 01:59:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625ED2727FC;
+	Sun,  1 Mar 2026 01:59:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772330389; cv=none; b=MR8Iw7KsghsikWFmGuKA6EN+J1p+SZ5J1x8Nz/YarF3wMc4TqhFiwpqHcxo+T4mjFyB+jynxA8XZVyQXun9FIEYGUPbTXFtBtjhJBMvlmOqvoGCp2sccVAZbyqZX3Q8HzrofEkA5vm2gYplFSMl4lIxWxKeM9thkqGZSZLcg2QU=
+	t=1772330391; cv=none; b=mYZRZsQowp8fxUoilSZ2d9FI7sm4U8YHh4coAae2p6+7Id6iMF3xWPG9lCQWt+FbzO5oDlmagTHq4Rw6I4LFG2x3/FBgfhKkxWSlh3+owlNus7rMNXroYcDJ8jHBcnd3zn7GJXVfgMojljQoRgzzdjmCwu8zrJIBSoTynUAC++Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772330389; c=relaxed/simple;
-	bh=4//siI1gkvZKxirz1w809X4fINe88q2vYRDNWZOzVq0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JYDT4y3BFrItdfkQKfOhZlqJELXUVnyxpfTjX3V/MrD42HH8b3soQujNFj8723E1jBkm/wZljXNbi+886NwIgfIXo+FjKBh4VucEl4zGP+B0S0XkXt7s9oiylTez18H8JkfqqOF0Qpe4Qqxkc2MLP1OYvyWdgVRKprMl15E6no8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V0oGMMaB; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772330391; c=relaxed/simple;
+	bh=YjDGEw5vwwsV14ENCA8lbhSwQ/D3oZEiXwrwsQsnOMo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=caIfSEYzjapnv6pBSkrsDcv3K1HFJm88q0qNYXgFsv/5KQqrfRi+GMzyh6ACA28DYsa2/qAYBqwt2um4b85FIdBCJDVSILpVNGVLxup5Z4vDhztfPiFvQ8fd1e37a9KQP/xq3sHxR983N54+AkcLxplvy1YPPEPMB/LKpk/+vgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tiRKQ8MC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V0oGMMaB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9019EC19421;
-	Sun,  1 Mar 2026 01:59:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tiRKQ8MC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C417DC19421;
+	Sun,  1 Mar 2026 01:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772330389;
-	bh=4//siI1gkvZKxirz1w809X4fINe88q2vYRDNWZOzVq0=;
+	s=k20201202; t=1772330391;
+	bh=YjDGEw5vwwsV14ENCA8lbhSwQ/D3oZEiXwrwsQsnOMo=;
 	h=From:To:Cc:Subject:Date:From;
-	b=V0oGMMaBjfjVr6BCcGaw43eyV7EE1UsgH/2IUhSqfMaUvVLdvE6h3flfd9/dsl8Th
-	 jByCTpZSn2zsYAEdvIXr4f8FkSUMJsoQS/SpyXdwznnXpuDY19wPhK/T8K3eQidAyy
-	 r11++1f4ngDvgJ09o0Hb4hkxfcHoHZAemZaJmbGBb7XMR2R1tiybVF+05aoOUF7rDT
-	 9DgKcTyUsqZKDf0yh6xR73GJy7fx7eJocGaGs6IgsUlUTwqraiEAUHqQWLB+jDAquM
-	 Lt2tnjnQpu3XdEl0Z2WielztewpUTlazVxm9vmstQdAXgwgi0FS09K0FJLajDdmsnB
-	 0JrJb5gvuue/g==
+	b=tiRKQ8MCaqiAfuQnQMnJCs/bZRcce32Kq/Wn/1nwgXM/5lo60YUptEt5EaxH+Z4pO
+	 nSY8c0NFK8uVg3rsEkzgJ6k/mCN7I4605dXq16OcgsFmbLrY3jhIYaGnP3peAKPRxw
+	 hXZkZbFgI1lrJRo537Nz5EIq1uXqbywP72JD8skYlNLzai537D4EHGxD3lxtWHdlgM
+	 wfUuWhanrjwvc7Mr9w5IESSENWFNbf6GZ/GWsW9yQ+GHscSgdlLOAb4pMT8tOlIFDq
+	 TlTUrLeufFj8F5ezAvQ/gE0AIhgsxOuy90POEofI4B2CBF3hrgPPNcZwMxRc6KpxE+
+	 V3Xpn7P8+7y0w==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	gnoack@google.com
+	oneukum@suse.com
 Cc: Jiri Kosina <jkosina@suse.com>,
 	linux-input@vger.kernel.org
-Subject: FAILED: Patch "HID: logitech-hidpp: Check maxfield in hidpp_get_report_length()" failed to apply to 5.10-stable tree
-Date: Sat, 28 Feb 2026 20:59:47 -0500
-Message-ID: <20260301015947.1725656-1-sashal@kernel.org>
+Subject: FAILED: Patch "HID: hid-pl: handle probe errors" failed to apply to 5.10-stable tree
+Date: Sat, 28 Feb 2026 20:59:49 -0500
+Message-ID: <20260301015949.1725703-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -42,7 +42,6 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 The patch below does not apply to the 5.10-stable tree.
@@ -55,40 +54,42 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1547d41f9f19d691c2c9ce4c29f746297baef9e9 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>
-Date: Fri, 9 Jan 2026 13:25:58 +0100
-Subject: [PATCH] HID: logitech-hidpp: Check maxfield in
- hidpp_get_report_length()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3756a272d2cf356d2203da8474d173257f5f8521 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Wed, 19 Nov 2025 10:09:57 +0100
+Subject: [PATCH] HID: hid-pl: handle probe errors
 
-Do not crash when a report has no fields.
+Errors in init must be reported back or we'll
+follow a NULL pointer the first time FF is used.
 
-Fake USB gadgets can send their own HID report descriptors and can define report
-structures without valid fields.  This can be used to crash the kernel over USB.
-
+Fixes: 20eb127906709 ("hid: force feedback driver for PantherLord USB/PS2 2in1 Adapter")
 Cc: stable@vger.kernel.org
-Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-pl.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index e871f1729d4b3..d0a38eff9cfa8 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4314,7 +4314,7 @@ static int hidpp_get_report_length(struct hid_device *hdev, int id)
+diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+index 3c8827081deae..dc11d5322fc0f 100644
+--- a/drivers/hid/hid-pl.c
++++ b/drivers/hid/hid-pl.c
+@@ -194,9 +194,14 @@ static int pl_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err;
+ 	}
  
- 	re = &(hdev->report_enum[HID_OUTPUT_REPORT]);
- 	report = re->report_id_hash[id];
--	if (!report)
-+	if (!report || !report->maxfield)
- 		return 0;
+-	plff_init(hdev);
++	ret = plff_init(hdev);
++	if (ret)
++		goto stop;
  
- 	return report->field[0]->report_count + 1;
+ 	return 0;
++
++stop:
++	hid_hw_stop(hdev);
+ err:
+ 	return ret;
+ }
 -- 
 2.51.0
 

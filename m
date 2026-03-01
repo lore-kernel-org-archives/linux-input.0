@@ -1,206 +1,104 @@
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F2392FA0DF
-	for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 22:36:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B7BA937;
+	Sun,  1 Mar 2026 01:15:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772318204; cv=none; b=YD8W2qwMiIFmsVZ93UUcN9E+ytz1Tv7OWwjtHQOxP8i/wW62tBfaxVDUBUldMSKSvhfpQSOkuS1QLtdKPgWA/Lqwu2KdwT4tZIssccEIyAOc1NWDN6cIBMQ0GOkDrfg4CQvXIkrxj08X8yPd//H4szfVTzSNr+XD5VOyYJeQYE0=
+	t=1772327705; cv=none; b=NCxyF7uxix3Trp4YoEKbVvrgcihFmAotJRWStRlHDulP/DKRwzaItQ3iW2hpRQ9/q3JujaVBdG4upUiPJ04mWz+aFIu7G6iqwR8KkBDm6QfekbRyIjarqtxmi3gAp8UaCgmawYzxSDImSBu984oRjtkBCj7vRRXYAv/JKYhTuJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772318204; c=relaxed/simple;
-	bh=1L+kj9UJcELj2WH7mBt0bzlwtqGMf+P3GMx4NyrAiKk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ohi5YxtfNZ0laKfp9Jklq20nHp2SA8vsWlnyHtqXZgIn1kC1v53Z0p4TKd1zq23Cnk9bfR4iyTjYr0dAzf8ZOwDEQ46zN0CZgVSnB+y5fF0/Wtnj+IdgV09QdJ+BFVSgU3yoJ1PsXFqS4gHVYrCs4l7FGbdryJfGBBJEY8ehP2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RVwLwtYw; arc=none smtp.client-ip=209.85.208.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772327705; c=relaxed/simple;
+	bh=VR6xx8z9TigbI5HGomhtZNzLNTM0ttmGjuVzmqbbE/o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EjiQIwE+xpLZjQGNmhDqoLScjBrTSJeJei6iO2Is21mHIj6LsCq38YoYAyL82WBqDHhh5cz8Bov4kbtRwu5qpr9xJOnChMlwI2kRqEVaCKcJP2H0G2oGN8k+vzc6aKw9VodZxMPKh7tmlUM5a1RXcF2hhkEs8YHdTb1S4iqAMoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TM6SoXqz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RVwLwtYw"
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-389e71756d8so52593801fa.2
-        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 14:36:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772318201; x=1772923001; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rYNJvGhKy9IG7jqDBgfRP5oiX2ACXOEUkxj/oyltGZk=;
-        b=RVwLwtYwluvKw+shu3zDLqRvawEumy8wH9uwpnwg32wWVAK2bSL2ImR9bnlUSYgRua
-         qsWyZrTy+xeMqchWNRFCRL3IxfFoBb0JvXZHVhxw4SjwOdrKDqgo+Nul4nfcq7l5cavi
-         /6U/ovz6oO9rX7mv+idqv5TErOJgy7esswRXS6EHfLrAjQ9h0Muz31cRO+be4iKxWi4x
-         YP2bZzCxNoi6C4+8r7eWR42UFLtnBe6Kfm3B2QmDI0jRtZodaCUA2X27dhqpN1TJl98E
-         XhYMa7qPf5pJvFvq8sVnNBGTDqqxKFxPuFDV1dt5jfe0P/uKOqv+YWMVTVoU/3x0Q1He
-         aX5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772318201; x=1772923001;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rYNJvGhKy9IG7jqDBgfRP5oiX2ACXOEUkxj/oyltGZk=;
-        b=lG7iV0ebwWdBjItygAw5tWZ3cJE0wHwAagIQQnaeSnOCiicOeHYpt1fuS8N+SSfsb0
-         n3hPZc11Cgixf9H5aUBKFFD7JWzGXWFEO0tI+dvXcz0k5cFIZboO5WiJaLiox3re8SAg
-         kkCaesHaEwuSdD57/w38v6AkpR/5mHbtCgqkFyG4T99UbxGzDrif0nDxuzBrSAu0eZXb
-         /KVB38B6l5KESGoRHgAp6gogq9fyzR0hNOp3NeLY+J9tXwdkPSu5fKgBKuu416XSkwpv
-         st6R8A82/+R6GUo4K4DZ/oZOwuD7r6ES54k3AXezfs5Cn1qY8WsceIdlXZpngi+rzSQS
-         +r0A==
-X-Gm-Message-State: AOJu0YwTseAj+kal4wyjFPPoOWh+oYEs++3FILU2x5a/lCGYD07NYa6E
-	oIaIQvvRbayRSdTfyyDQtw2PnjId0EZVi44NhghunEuubdJEh+7YkkabnBMWyAsthNBpcw==
-X-Gm-Gg: ATEYQzyRhX3CDEL9qFL+0pj+brMpnJLa4grUGFMZm9rWrHAFIWI1386dO6fi5ZWz3pN
-	noeMwKl1et+OlI70Myt/F518apo2vGq8ZBOTxkVUDDndleH+cmAuBRUZAWa6AvpWe7/smja4Hey
-	SaABnWWWinwRstHcQb+cuTB8xw4o1w93M5/7nLQWtlV+QqYoipk3kVid/jPFM3FALDlaAGPNgwr
-	wEsKFsivSKWI3VnoRZ+OAKygSNFYyrDfHp4UPKRYuaCILKhhb7bZdP+JkcRdGHwk4YpaWX1mmX1
-	kvBcW9vtsL9FqZ1H3V+Iwp3aJkwoF7CV3KEnmUTC4qeXV/2Ni4U1D8+D/abvNa5A+EoUHy0ImLQ
-	OyU2ydZc+mC6TAu3Lv1gviK4qyo4uP0Y6wJUQfsxF8pJs373HQhxdk8ohG2zkUu+uVDc4e5kJfc
-	7RMERV/wX5qc06fXYfqrXClCYmEoCl92iU9w==
-X-Received: by 2002:a2e:9b19:0:b0:385:9b50:91a8 with SMTP id 38308e7fff4ca-389ff13b8a2mr32846831fa.15.1772318200745;
-        Sat, 28 Feb 2026 14:36:40 -0800 (PST)
-Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-389f2ffdfdasm20580881fa.29.2026.02.28.14.36.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Feb 2026 14:36:39 -0800 (PST)
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Subject: [PATCH] Input: uinput - fix circular locking dependency with ff-core
-Date: Sun,  1 Mar 2026 03:36:28 +0500
-Message-ID: <20260228223628.472208-1-mikhail.v.gavrilov@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TM6SoXqz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3BE6C19424;
+	Sun,  1 Mar 2026 01:15:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772327705;
+	bh=VR6xx8z9TigbI5HGomhtZNzLNTM0ttmGjuVzmqbbE/o=;
+	h=From:To:Cc:Subject:Date:From;
+	b=TM6SoXqzDueqTJmokaMhJQAoAPZMjPKuFWS+mgarDQAonkY7x8ueSu1B50L3ZTNVd
+	 Nl0C4KezaILBlo1Cu3RA7wRioLpdhcy1qt+fsG3NlGdDyzPs4TiDSNZrtxssQ29twc
+	 awE8YpAhTWGuVYe7OxNTKsQIOyR7oVWYqGjapbjdhqEnfAUMSeuikx5ZbPzuGfF59q
+	 +0LZWhnF5yU9tsX22/WopsPjBYHFtVc1hyDwjVOr7a7bspVQ2UDU1WSfsu2QIucqJ9
+	 Nzjr+dn9qZ/Z7RwJYxO2acUfP1LMzo5/Do31ImAnCHqvC3UH+gKPMKXjg0OcDbfm2t
+	 soeHu4ouWus3g==
+From: Sasha Levin <sashal@kernel.org>
+To: stable@vger.kernel.org,
+	ii4gsp@gmail.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Subject: FAILED: Patch "Input: synaptics_i2c - guard polling restart in resume" failed to apply to 6.19-stable tree
+Date: Sat, 28 Feb 2026 20:15:03 -0500
+Message-ID: <20260301011503.1667898-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Patchwork-Hint: ignore
+X-stable: review
 Content-Transfer-Encoding: 8bit
 
-A lockdep circular locking dependency warning can be triggered
-reproducibly when using a force-feedback gamepad with uinput (for
-example, playing ELDEN RING under Wine with a Flydigi Vader 5
-controller):
+The patch below does not apply to the 6.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-  ff->mutex -> udev->mutex -> input_mutex -> dev->mutex -> ff->mutex
+Thanks,
+Sasha
 
-The cycle is caused by four lock acquisition paths:
+------------------ original commit in Linus's tree ------------------
 
-1. ff upload: input_ff_upload() holds ff->mutex and calls
-   uinput_dev_upload_effect() -> uinput_request_submit() ->
-   uinput_request_send(), which acquires udev->mutex.
+From 870c2e7cd881d7a10abb91f2b38135622d9f9f65 Mon Sep 17 00:00:00 2001
+From: Minseong Kim <ii4gsp@gmail.com>
+Date: Wed, 21 Jan 2026 10:02:02 -0800
+Subject: [PATCH] Input: synaptics_i2c - guard polling restart in resume
 
-2. device create: uinput_ioctl_handler() holds udev->mutex and calls
-   uinput_create_device() -> input_register_device(), which acquires
-   input_mutex.
+synaptics_i2c_resume() restarts delayed work unconditionally, even when
+the input device is not opened. Guard the polling restart by taking the
+input device mutex and checking input_device_enabled() before re-queuing
+the delayed work.
 
-3. device register: input_register_device() holds input_mutex and
-   calls kbd_connect() -> input_register_handle(), which acquires
-   dev->mutex.
-
-4. evdev release: evdev_release() calls input_flush_device() under
-   dev->mutex, which calls input_ff_flush() acquiring ff->mutex.
-
-Fix this by replacing udev->mutex with the existing
-udev->requests_lock spinlock in uinput_request_send().  The function
-only needs to atomically check device state and queue an input event
-into the ring buffer via uinput_dev_event() -- both operations are safe
-under a spinlock (ktime_get_ts64() and wake_up_interruptible() do not
-sleep).  This breaks the ff->mutex -> udev->mutex link since a spinlock
-is a leaf in the lock ordering and cannot form cycles with mutexes.
-
-To keep state transitions visible to uinput_request_send(), protect
-writes to udev->state in uinput_create_device() and
-uinput_destroy_device() with the same spinlock.
-
-Additionally, move init_completion(&request->done) from
-uinput_request_send() to uinput_request_submit() before
-uinput_request_reserve_slot().  Once the slot is allocated,
-uinput_flush_requests() may call complete() on it at any time from
-the destroy path, so the completion must be initialised before the
-request becomes visible.
-
-Lock ordering after the fix:
-
-  ff->mutex -> requests_lock (spinlock, leaf)
-  udev->mutex -> requests_lock (spinlock, leaf)
-  udev->mutex -> input_mutex -> dev->mutex -> ff->mutex (no back-edge)
-
-Link: https://lore.kernel.org/all/CABXGCsMoxag+kEwHhb7KqhuyxfmGGd0P=tHZyb1uKE0pLr8Hkg@mail.gmail.com/
-Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Fixes: eef3e4cab72ea ("Input: add driver for Synaptics I2C touchpad")
+Signed-off-by: Minseong Kim <ii4gsp@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://patch.msgid.link/20260121063738.799967-1-ii4gsp@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/uinput.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/input/mouse/synaptics_i2c.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index e589060db280..dcb855234049 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -146,19 +146,15 @@ static void uinput_request_release_slot(struct uinput_device *udev,
- static int uinput_request_send(struct uinput_device *udev,
- 			       struct uinput_request *request)
- {
--	int retval;
-+	int retval = 0;
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index c8ddfff2605ff..29da66af36d74 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -615,13 +615,16 @@ static int synaptics_i2c_resume(struct device *dev)
+ 	int ret;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct synaptics_i2c *touch = i2c_get_clientdata(client);
++	struct input_dev *input = touch->input;
  
--	retval = mutex_lock_interruptible(&udev->mutex);
--	if (retval)
--		return retval;
-+	spin_lock(&udev->requests_lock);
+ 	ret = synaptics_i2c_reset_config(client);
+ 	if (ret)
+ 		return ret;
  
- 	if (udev->state != UIST_CREATED) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
- 
--	init_completion(&request->done);
--
- 	/*
- 	 * Tell our userspace application about this new request
- 	 * by queueing an input event.
-@@ -166,7 +162,7 @@ static int uinput_request_send(struct uinput_device *udev,
- 	uinput_dev_event(udev->dev, EV_UINPUT, request->code, request->id);
- 
-  out:
--	mutex_unlock(&udev->mutex);
-+	spin_unlock(&udev->requests_lock);
- 	return retval;
- }
- 
-@@ -175,6 +171,13 @@ static int uinput_request_submit(struct uinput_device *udev,
- {
- 	int retval;
- 
-+	/*
-+	 * Initialize completion before allocating the request slot.
-+	 * Once the slot is allocated, uinput_flush_requests() may
-+	 * complete it at any time, so it must be initialized first.
-+	 */
-+	init_completion(&request->done);
-+
- 	retval = uinput_request_reserve_slot(udev, request);
- 	if (retval)
- 		return retval;
-@@ -289,7 +292,14 @@ static void uinput_destroy_device(struct uinput_device *udev)
- 	struct input_dev *dev = udev->dev;
- 	enum uinput_state old_state = udev->state;
- 
-+	/*
-+	 * Update state under requests_lock so that concurrent
-+	 * uinput_request_send() sees the state change before we
-+	 * flush pending requests and tear down the device.
-+	 */
-+	spin_lock(&udev->requests_lock);
- 	udev->state = UIST_NEW_DEVICE;
-+	spin_unlock(&udev->requests_lock);
- 
- 	if (dev) {
- 		name = dev->name;
-@@ -366,7 +376,9 @@ static int uinput_create_device(struct uinput_device *udev)
- 	if (error)
- 		goto fail2;
- 
-+	spin_lock(&udev->requests_lock);
- 	udev->state = UIST_CREATED;
-+	spin_unlock(&udev->requests_lock);
+-	mod_delayed_work(system_dfl_wq, &touch->dwork,
+-				msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
++	guard(mutex)(&input->mutex);
++	if (input_device_enabled(input))
++		mod_delayed_work(system_dfl_wq, &touch->dwork,
++				 msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
  
  	return 0;
- 
+ }
 -- 
-2.53.0
+2.51.0
+
+
+
 

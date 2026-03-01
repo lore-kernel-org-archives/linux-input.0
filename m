@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682B9145A1F;
-	Sun,  1 Mar 2026 01:43:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE902F5328;
+	Sun,  1 Mar 2026 01:49:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772329391; cv=none; b=E+no8tttZtJd7btbZfSTFokTkF3mpvsVaYvOd3Jh5311ZWwUxRh6gu7gRzUl5dkR5yPPzrpwubAeN/vnAH67po+CXCiN/PVkQ+3Q3y78N8luZb4vPf1ViAkxcWpD2XSodDiBbr68tZy0m7Wayzy3ACcCokXAtaxO8b+gUs//xFU=
+	t=1772329760; cv=none; b=pO0bYIjYmWVMX3x1oA6kwH7eJbIMZkkU+b5IaUhl2xN/MqYsDv8DGu9B4nC/5glXdC9fy1Jw4addGQp8USmfRXXTuabMOL4jlN9/KjUeLbGUyS0KIH4vRTNQWJn24FAJQFDlMkL72YGeQCs+SVPhYjjgXVNBkrLYtd2cCK18tQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772329391; c=relaxed/simple;
-	bh=1+XTJke1DbiPrAZMQqdYbiZD6BSt71twytbbYtuUiqM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qEdrtDvky4M41WV06/p6b6VqJprhP5/vrvgzp5nG0cDtTpwSlV4wHhBnEriyGjGG3IXzU31dg0Uw9nUxG4JE1wu9btE6zPMURDWr6oDTD2609IQOobA++XNe2oFxXXBYvmAwsFrimcYUBDfBag7VQI3B6sxLV6hkO6hShfKhPvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ST5zjSXw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772329760; c=relaxed/simple;
+	bh=pIDYsAU0QFaDBCZp0mEOqVf03EEnJQaA4N+58a45G2I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GMKjeEzYWaKHyU9F4cFwGISnSFh2ekYXWjum7bdY7AqylXotc4eLiyGa2AVyRs+qfEJ/u+hPbadAuAtfKEcBxqbxzHlJMKXqwE2eM95SfuGM3bwRhe2BwrB5hwx84rranqSIK5nxf08xysXLKvHKPNEhWn2HZYrUBShixCx3n3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVrZZ7E4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ST5zjSXw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77A3C19421;
-	Sun,  1 Mar 2026 01:43:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVrZZ7E4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A161EC19424;
+	Sun,  1 Mar 2026 01:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772329391;
-	bh=1+XTJke1DbiPrAZMQqdYbiZD6BSt71twytbbYtuUiqM=;
+	s=k20201202; t=1772329760;
+	bh=pIDYsAU0QFaDBCZp0mEOqVf03EEnJQaA4N+58a45G2I=;
 	h=From:To:Cc:Subject:Date:From;
-	b=ST5zjSXwXYf7P88Umv7mTSwaq+h6RI0MucQnMw0kFOjifVmbb98772iEjkaQ3v+JB
-	 WS8WltnjAez8qlQgufqo3oQCjWIYXD4C3n3A/tLsv+ZMWBZrmc6wuWwP9pP2/edXXj
-	 2L+488yd7BGdul9fGDAHpGii+qQMQHhMWStSnox4u1pvclE+Qstbkop1+Na+8s3NXa
-	 NjiWC1ILhBNQSrQKciQh9e5yuugmBGSHR+tcTG54SNT8Sajsmt044hAsN2F6fQaQEh
-	 3YL9dlLHXvtlbsCfEXq2NCIUjUOuKl2P4MQD7pcyJwyyswdbVlWzwQFXoh6kBUkCNr
-	 ke1FM8Jip3abQ==
+	b=BVrZZ7E421r75ZvCzRJlmdSZcxZy60NMYa6aa5iRGjwclaWp7kvGHaq0pZmRpzvtu
+	 1TmtQWhZvLpof6mZU649EjDTVFa/xfm+s6GEeeLZrY4g6PrsxF7RvfTvQcRuHN44rY
+	 TpodiB6hwJPf3hIxS5bF/9j+jo7QbcUPyZ6VS6KvJWFAw3LZgWOemvx9h5RpBxd4ua
+	 k8+OoINbnfUhOEhavVe4nWW9wq0ATLNhJH5sgtVI0kj06lRjmjiY87Li+5MSfY5sXT
+	 VYYLjZLSYOeK7QzVvSFFkzfagIPXSwHQKEyscnvpQ6PvWaCIvXTxQzitlt1rPdejEA
+	 fexqNmhqGE8vA==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	ii4gsp@gmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	gnoack@google.com
+Cc: Jiri Kosina <jkosina@suse.com>,
 	linux-input@vger.kernel.org
-Subject: FAILED: Patch "Input: synaptics_i2c - guard polling restart in resume" failed to apply to 6.1-stable tree
-Date: Sat, 28 Feb 2026 20:43:09 -0500
-Message-ID: <20260301014309.1705189-1-sashal@kernel.org>
+Subject: FAILED: Patch "HID: magicmouse: Do not crash on missing msc->input" failed to apply to 5.15-stable tree
+Date: Sat, 28 Feb 2026 20:49:18 -0500
+Message-ID: <20260301014918.1713730-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -42,9 +42,10 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,48 +55,46 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 870c2e7cd881d7a10abb91f2b38135622d9f9f65 Mon Sep 17 00:00:00 2001
-From: Minseong Kim <ii4gsp@gmail.com>
-Date: Wed, 21 Jan 2026 10:02:02 -0800
-Subject: [PATCH] Input: synaptics_i2c - guard polling restart in resume
+From 17abd396548035fbd6179ee1a431bd75d49676a7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>
+Date: Fri, 9 Jan 2026 11:57:14 +0100
+Subject: [PATCH] HID: magicmouse: Do not crash on missing msc->input
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-synaptics_i2c_resume() restarts delayed work unconditionally, even when
-the input device is not opened. Guard the polling restart by taking the
-input device mutex and checking input_device_enabled() before re-queuing
-the delayed work.
+Fake USB devices can send their own report descriptors for which the
+input_mapping() hook does not get called.  In this case, msc->input stays NULL,
+leading to a crash at a later time.
 
-Fixes: eef3e4cab72ea ("Input: add driver for Synaptics I2C touchpad")
-Signed-off-by: Minseong Kim <ii4gsp@gmail.com>
+Detect this condition in the input_configured() hook and reject the device.
+
+This is not supposed to happen with actual magic mouse devices, but can be
+provoked by imposing as a magic mouse USB device.
+
 Cc: stable@vger.kernel.org
-Link: https://patch.msgid.link/20260121063738.799967-1-ii4gsp@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
 ---
- drivers/input/mouse/synaptics_i2c.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/hid/hid-magicmouse.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-index c8ddfff2605ff..29da66af36d74 100644
---- a/drivers/input/mouse/synaptics_i2c.c
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -615,13 +615,16 @@ static int synaptics_i2c_resume(struct device *dev)
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 7d4a25c6de0eb..91f621ceb924b 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -725,6 +725,11 @@ static int magicmouse_input_configured(struct hid_device *hdev,
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
  	int ret;
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+	struct input_dev *input = touch->input;
  
- 	ret = synaptics_i2c_reset_config(client);
- 	if (ret)
- 		return ret;
- 
--	mod_delayed_work(system_dfl_wq, &touch->dwork,
--				msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
-+	guard(mutex)(&input->mutex);
-+	if (input_device_enabled(input))
-+		mod_delayed_work(system_dfl_wq, &touch->dwork,
-+				 msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
- 
- 	return 0;
- }
++	if (!msc->input) {
++		hid_err(hdev, "magicmouse setup input failed (no input)");
++		return -EINVAL;
++	}
++
+ 	ret = magicmouse_setup_input(msc->input, hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
 -- 
 2.51.0
 

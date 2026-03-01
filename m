@@ -1,70 +1,68 @@
 Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5E5C26ED59
-	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 02:26:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71914430B85
+	for <linux-input@vger.kernel.org>; Sun,  1 Mar 2026 05:05:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772332010; cv=none; b=d37P3AgcNb1TsL1mTlTdH9xLhOWGjtLNbsKU7Yo+71aV23q/touCIu/ob1Gkr81hrNpoukITH7kfq4hug6//AniL3uimxiBtEC85GAuk3Jf3yTEXdHfLOLMgF7E25NVXksh+WxOEAKuvNHaZs6/CLA9Hoh63czUxAOqnXq4Uznk=
+	t=1772341516; cv=none; b=R5DtuXR2Cg92UMZJq5DldH+oY+zfBVLRj1purl1lZw6YUaNQxRWi/0QBzaqCrrReclG4mum2YB/3XXEHpi7kFhO5bW+OyhV+1t/RdMFV4eeAsCDbylOGOenpbluRJMXo8orwzwuIh3fGd1yf8XTCDsAJP7fwy8zT7O6pqHvNUWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772332010; c=relaxed/simple;
-	bh=nqwUqgxwJJ/yN+GalM6cyfx43HJVOxHb5q+Fv5inTEg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CiSZG5RVYg4TqYo8/BAtsqvysS3COW3g2gLFzNeVEJciuC/0NTUAwx3wcISYO8nnVD/+C50k3SNOLiOayfxLN9y+W0tJOhbcL97eT9I0pTgkMsmPUnbl4FkqGXlFQQPwq98oD/3zIw3A+XWgryFC5GmF5HjoeIFgDknFPqE6LrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hCBk4D3S; arc=none smtp.client-ip=74.125.82.178
+	s=arc-20240116; t=1772341516; c=relaxed/simple;
+	bh=yHi0dcVwFnZ3408WTHv6DayGAPwkBF8w98C0UNjcaRo=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Y5U4DlzkqoME5pEX9yCSkUMG008hKrnxjojRPZZINWvlaOjjhL3ycLXk0oHjylvLFt8kILAKh92ZgC/jceBBLi0psVXEQ7Ms5TtflQCCi5tPZyUzFXdTWN9fEaDwAqeUWca9w92GOwWqtnoYMK4m/nDGXu9QTti1vhXU6B/FxWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j97ur1FW; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hCBk4D3S"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2bdecd00ebdso4224554eec.0
-        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 18:26:48 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j97ur1FW"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2be06c02f66so550454eec.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2026 21:05:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772332008; x=1772936808; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JS8GHSNEpRdWIh926KehVaPDhrhy21AYTD/lvFwjhHA=;
-        b=hCBk4D3SyUVXrlsgSHyrxdZj0jl2y1D0WKPWjt+qm0N7VBXy5ktufjfeCseLmbK5Gc
-         64aw2/rDqbqDONaKmY/U2JP3dt4DYtIfzDWUct+jUj4uc143qBfk7aZRxVcdB2CHMkJI
-         Hz5l1QfD4cvXUSZmo+NPSRHEqwZtVlMeIslMznLoPWlVyCsjFbYto+sIKJweB+sHEqJq
-         9R9wvM1EGUh43+OCIAOm1mrqYLy2e+MegY+lTpRA2YBOXBBDsEx7sLZ8IrPxTizwS8oi
-         kVbyMY1SCATCyauZJkfogXRLVvs/BXPmIwPv4vwp3XvIlQRGrB7CbqzWJWh0RaL/aHJ5
-         ZmsA==
+        d=gmail.com; s=20230601; t=1772341515; x=1772946315; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FCOgTXBl3ExkHQ5G38a7ch0w/W/MqPAXecK622QLvnw=;
+        b=j97ur1FWqya6Vt02AS1Kv6BtXvgMAVl03qVr/NtsK09fEyTFs64NCkw+UJXEG9P1aT
+         Ca1394JTRsb8+lGAepNABSTjYd8FZWvH+W8pFUfHvXtTDS90AMRLarnNSjoUJNDWS6dm
+         6eUkAue8O+XilenZnqcMlVRsz9jiCNXZFpgz/PVDQsam4pSPSDO3T8JPheW9W481cZra
+         Ga4NPSis8Y5cyS2ZAXXUeTuoQqORNrHkTGJoxq1jTRFYE6wAe0zqg8qEx92U/tYKAWNU
+         HUz+50dtecp1OKBj63zgn6aowZgnpPz3VNerN+2Y0a/oMA3hACCmVihiCh4qE467FujW
+         +OvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772332008; x=1772936808;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JS8GHSNEpRdWIh926KehVaPDhrhy21AYTD/lvFwjhHA=;
-        b=QyVJUag21+UyacjUOoSE2kr/LhhlQvRa2HpQ/cOlltwdhukjpoW4qwVuUQcMovxr2r
-         7GBOdMIv/S5XqhBIlr4UR43BfC52yNGm13l+BmDJFOjImbKlxXmtcFIpiwQ5cSkEeU/f
-         ipII1lwya36hRJyJZ7PArRqKH1ilj2kDCWZIB75bJWZCsxqRdSqkDxjb4mfsL6/7I0T7
-         HCg/uynK3mUluCiA925KhSGB+zMX4yp9zdATOHtdO7wXPzuugQDCOm46kJO5uzRWziTe
-         iiDQQvZnM+CnH2J+iultzHUz3sbzj3h3lqwfGd9F99x7tKkSx1JVjYz+FtZauDxionVW
-         ylHQ==
-X-Gm-Message-State: AOJu0YxdzloCj7dcBEfa6b2vO2BWwsJl+d4H7J3iihASz0LosM8NyZda
-	2mVm81dUwCcBZmmmUxgpdiEdplSnKBAtdFuXZePXjDGOvwxTxfvJgomN
-X-Gm-Gg: ATEYQzzQM3u2L4LektZ2DIiqlFJcDYsJ1zaetLfQX901P3SrAj78qJvSZFDT0BsVs2F
-	22gSHDpwPThnAFDTs0ri/zamFenM8oskrppG9WMx84xQcHyeCAJrCKSxHL8D5gvsEIR9q6Jr8mM
-	LqwkwG4mCJ3rjz7YRNqh/GvQVAGuCYIvrNXpP5OYDDYeZRSHsDCSFE05BF3kvhvjYum7hykBoHa
-	AM+Px0SPiC9AL0WVoyOVFXE65iGjdByzwczj9iY8yXMCvfY4No5SEDq+hj0X4RF5KOsldL/TBQL
-	3U+pv5mm06gqoC0tXpFlP6c29uSQC7XVhBk+UESbUlOqmv2bbGrHX4undAMQkOLaGsNdiLlYImi
-	n8pemiNvD6suWM1E91Sr8GERkbN9Jw6O2GGTtRBpdfAj2nSjE7bLPbWShLsySjm5EenatccP+k4
-	ILldeBF03UNNpnXyrXlF6LGq/ceffTgGH1X7wvwpLpyaDjnBS+nGqw4nJXWaFvOzcW
-X-Received: by 2002:a05:7300:2325:b0:2b8:66f3:2502 with SMTP id 5a478bee46e88-2bde1c0e786mr3671982eec.1.1772332007745;
-        Sat, 28 Feb 2026 18:26:47 -0800 (PST)
+        d=1e100.net; s=20230601; t=1772341515; x=1772946315;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FCOgTXBl3ExkHQ5G38a7ch0w/W/MqPAXecK622QLvnw=;
+        b=JWbjScr6gLNx/qAXHVR+I+xWwbjXU3PaLL8oYCvCrKFIWf1VARUh61Enwkfp0xGi1g
+         1tn99la7AP2TcLGc/Qnfj8aStUnuiKo5V0ho2q1ngFObkKDcPFV/SIinqt33ofoPLmUl
+         Mz15z2kOOnjppByQF0p/EuDbbVX5Nvxb0L9+gYFYTIpo4u+GsiH1HytYWAH1FIeWx5A/
+         wwTJ/qcjzrEJOqM9EtZtAL5Yy94roKwi8+2qK8EMciosju1xNx8L1Lri4/rp4IJpzPNZ
+         jJu9SyULr3qnactuWY7yBiw+XX0F+3Wmd1A15+MpjflfEUkeBURflzc2lQ9W91pg4X4p
+         +5kw==
+X-Gm-Message-State: AOJu0YyZZDlLkztvh38ZpDZ7W0zDdrD/U+8ayv0GQhyWHzaRIDWm4bAd
+	pyXPxUnAXDXFWdS55KEFhw81LYkb88eZnwZSdI23Lf5rXhsPQ7tTG7ergajf9w==
+X-Gm-Gg: ATEYQzxn1RFojuyRxTKHC+LrGM6qyAxf/fGD89lKryf+ODug9VMjYfKtH3Xia61c6qX
+	Vgh8jMMkKJy9RSkNHjbcvJiftVmGlgiGnbsjUz5ajD1uKLQE9BLmUcSYP7xyFGxvfKP/qAz32ZW
+	OxpVndDUNcVqiuBvUmsolCaCX9Slf4hdZPtLWLoZM5jSgwUqXVL6a2bTPapH9hZ8ml1XEs3uUs3
+	INSeUAMPXCmD9b79vPzzUWYVDMlgcjcM4XOp2WfAWjPpNvt7Sb0HtQj2WglIImsEpfs2QqUNk7q
+	9Sgs3cQNJw5oNBNDTjk8j/vLb7ReOAol209fS98YvHImW2rm1Bb+XJdqqLmcYmUyZfaQC+NWIhv
+	LCPO3oWpdoDGw0IWulTNYwZTUq8bpZ45FSCO6JRSxC7tC+HZSxbFWEdFCdYWWfcTeDeCb6vgsjl
+	k7h0K/JcIOiTaXH8ocakM4hJLOvkLHUcHeJBzgGiGdlq1kzsAu1tm7hX38ske9ttm+
+X-Received: by 2002:a05:7300:bc09:b0:2bd:de8e:d734 with SMTP id 5a478bee46e88-2bde1fdd6a9mr3219382eec.37.1772341514565;
+        Sat, 28 Feb 2026 21:05:14 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:cf71:43a0:f3f6:e5be])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bdd1f48c77sm7521132eec.26.2026.02.28.18.26.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bdfb3f898asm1813197eec.29.2026.02.28.21.05.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Feb 2026 18:26:47 -0800 (PST)
-Date: Sat, 28 Feb 2026 18:26:31 -0800
+        Sat, 28 Feb 2026 21:05:13 -0800 (PST)
+Date: Sat, 28 Feb 2026 21:05:11 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ariel Silver <arielsilver77@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Subject: [PATCH] Input: atkbd - validate scancode in firmware
- keymap entries
-Message-ID: <aaOjvcvit1uo4HtU@google.com>
-References: <CACKMdfnPQoBnEhP0oCe1gXCYzJYyWBJsgHCHiMOn37XYYLAkVg@mail.gmail.com>
- <aZkYbKNxGohck2sq@google.com>
+Subject: [PATCH] HID: input: use __free(kfree) to clean up temporary buffers
+Message-ID: <aaPIp-z92hMsI7J5@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -73,35 +71,75 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aZkYbKNxGohck2sq@google.com>
 
-On Fri, Feb 20, 2026 at 06:33:55PM -0800, Dmitry Torokhov wrote:
-> Hi Ariel,
-> 
-> On Fri, Feb 20, 2026 at 10:44:28AM +0200, Ariel Silver wrote:
-> > The SCANCODE() macro extracts a 16-bit value (0..65535) from firmware
-> > device property data, but atkbd_get_keymap_from_fwnode() uses it
-> > directly to index atkbd->keycode[], which only has ATKBD_KEYMAP_SIZE
-> > (512) elements. A firmware-supplied scancode >= 512 causes a heap
-> > out-of-bounds write that can corrupt adjacent struct atkbd fields and
-> > neighboring slab objects.
-> > 
-> > Add a bounds check that rejects the entire firmware keymap if any entry
-> > contains an out-of-range scancode, consistent with the validation
-> > performed by matrix_keypad_parse_keymap() in drivers/input/matrix-keymap.c
-> > for the same "linux,keymap" property format. When rejected, the driver
-> > falls back to the default keycode table.
-> > 
-> > Fixes: 9d17ad2369dc ("Input: atkbd - receive and use physcode->keycode
-> > mapping from FW")
-> > Reported-by: Ariel Silver <arielsilver77@gmail.com>
-> > Signed-off-by: Ariel Silver <arielsilver77@gmail.com>
-> > Cc: stable@vger.kernel.org
-> 
-> Was it observed on real hardware or this is theoretical? I do not think
-> this needs to go to stable, but otherwise I will apply it.
+The __free() cleanup automatically releases given resource when leaving
+the scope, so use it to make the code less cluttered with error
+handling.
 
-Queued for the next release, thank you.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/hid/hid-input.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 2633fcd8f910..9b2d7795c621 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -432,23 +432,18 @@ static int hidinput_scale_battery_capacity(struct hid_device *dev,
+ 
+ static int hidinput_query_battery_capacity(struct hid_device *dev)
+ {
+-	u8 *buf;
+ 	int ret;
+ 
+-	buf = kmalloc(4, GFP_KERNEL);
++	u8 *buf __free(kfree) = kmalloc(4, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+ 	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 4,
+ 				 dev->battery_report_type, HID_REQ_GET_REPORT);
+-	if (ret < 2) {
+-		kfree(buf);
++	if (ret < 2)
+ 		return -ENODATA;
+-	}
+ 
+-	ret = hidinput_scale_battery_capacity(dev, buf[1]);
+-	kfree(buf);
+-	return ret;
++	return hidinput_scale_battery_capacity(dev, buf[1]);
+ }
+ 
+ static int hidinput_get_battery_property(struct power_supply *psy,
+@@ -1832,7 +1827,6 @@ static void hidinput_led_worker(struct work_struct *work)
+ 	struct hid_report *report;
+ 	int ret;
+ 	u32 len;
+-	__u8 *buf;
+ 
+ 	field = hidinput_get_led_field(hid);
+ 	if (!field)
+@@ -1859,7 +1853,7 @@ static void hidinput_led_worker(struct work_struct *work)
+ 
+ 	/* fall back to generic raw-output-report */
+ 	len = hid_report_len(report);
+-	buf = hid_alloc_report_buf(report, GFP_KERNEL);
++	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
+ 	if (!buf)
+ 		return;
+ 
+@@ -1869,7 +1863,6 @@ static void hidinput_led_worker(struct work_struct *work)
+ 	if (ret == -ENOSYS)
+ 		hid_hw_raw_request(hid, report->id, buf, len, HID_OUTPUT_REPORT,
+ 				HID_REQ_SET_REPORT);
+-	kfree(buf);
+ }
+ 
+ static int hidinput_input_event(struct input_dev *dev, unsigned int type,
+-- 
+2.53.0.473.g4a7958ca14-goog
+
 
 -- 
 Dmitry

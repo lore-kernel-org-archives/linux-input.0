@@ -1,147 +1,126 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazhn15012042.outbound.protection.outlook.com [52.102.146.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6342242314F;
-	Mon,  2 Mar 2026 17:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.102.146.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06825367F3A
+	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 20:32:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.177
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772470823; cv=fail; b=JbOvwGBq+FY45srs+VULCeM9RbThLME+J+cPFtBmIird00+6B81UN4tiPdu67k00g5bmyJxnKimj3Hxo46H5NgwbvOSpP6aI1CZewQjZqTx+jcoXKJWk5v0szWmM6p2Q1Yk6SHhG9v6GzyifxjKFUY9GeHXZN47IGWSjIy1g7Wc=
+	t=1772483576; cv=pass; b=VmwDIYUk9+avnqtE5al7YRdBMkoivqnPuRyBaSR3kUPB26GuruQb5roO2BGpmRMpDDnlR95EQblxirdpaJiqgL1DyFE4B8Y5DkP5RgasVwPhGkOnfNz9N/G0KuTWOWi/bfcXp+E2X8l+fCaxIlQ4OVHcZnMI/3QhYRZf8AWg0Uk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772470823; c=relaxed/simple;
-	bh=awdDmwCKBST5wPzzsj9T50xtGPXTJ1qm42Jfy61npdI=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pFykkibOWOD1eBrExp84bVytV7CPCTohMf3AZg6YOZF7cgujxxWB0l9jaOxq1vOKUf5h77YGEV1Uv2GUq6nvonkl1pyw+M0e7SUZFWii9X3CKllW61IXB95HaJ7Hh412G1N2U5MiSeuWa8xQwpyBRnZ41La1LcnpTqNicIQkwfs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=lm5s2eMN; arc=fail smtp.client-ip=52.102.146.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	s=arc-20240116; t=1772483576; c=relaxed/simple;
+	bh=flcTd+wNy1G9C+3yGzQ3mHVcbX3iyvCsBn5OyIFxpi8=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=VKDru+IH7ozfkckjfcPcVp3FeMAeru6SuW0a0FxxEsPMp4iHJj4mApynfGlBf6LnxZeM2BgqKwmtfvRq/HC1xyzWZTdyM6M1mOEDEOUD96MfkBiIIn6lJCHDUNgkyR5CKrEGtAeG5n7yuO4MxBqm+fcHYHEWSZrqnyh5YBGskvc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WyTAPz43; arc=pass smtp.client-ip=209.85.128.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="lm5s2eMN"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RoGf8LlPGruLlao8fz1Ls9ZU6aN4tGX9RcfJZGa0zoLG+MkbOcK0m3d+FTRfT3vzYjLNE4vytREQEf3hNroNzbS2AmlF7/6FWKv2VNQXt/XaNTsSulrdflAfgkwV7IHowMIbsWUCR2CAL2blgYegY7mLOYmcYoCv08nIcse/yroJByMzakX17aGg0pMHM30L/Udbp2usmgU5RrJz3UtpcalliAo0FACnMLuPTVbnfMp7lXMPKlGWL8pJOcObf3RnL+mqRibV7c0Jf+7gHg2y2aWcz940wh3VV9uf/l2KtIuKLb+Hb7eMrHnLilo/mttS/TbwA49G7xh9/DLQ7PKi0A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GeP+2f0xjFeEY+u/jkaf47LUbYRgICncUWl//DIl6yE=;
- b=AF1dQHrOrcT0sclaeboEjSJqHEPHUeat9XE3/XIOBvdQkwiRBiEsbJb2u4XQn/HD9I4pDm7S1z/6iyYUbETGn6DdX2juU2hY3xkGBfD6Zc0uOX7SceE5Z55Xl7uJmWalZsAvlpZJS/7jv1uJELG0MkSU4/P4ZvpQL4Za+K0P0mNqkJf7/3C3cam6LUr7QiWru8UhBHGh0BHZhT1nfRzuL5ZTixZiInPLdMdE5CZ6JCtbub0tMtvtXNuprnX0joOBH3+CxncaPlTZHdc19LKmN7qiD6lMYzDNF6aFLbf8Vpe6yx5PCFFtv45pm7TT2cXg+1Gj6eKNfZ9h/AQ+6Kdvnw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 198.47.23.195) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GeP+2f0xjFeEY+u/jkaf47LUbYRgICncUWl//DIl6yE=;
- b=lm5s2eMNrQIajgtJCkfJ2xsKG0Xwiw1fqctD4Bg6BL9j8lzgoLsTssp4LiaU+v7KEc3fUhtTlpthAgUUjcE9UILLbRQrqe5FwUQ6I17gZ+dmeWoHehE7SotxC4dBqLAG9/NKXB9zXzYc0ooQ70zYNan1fp1rs9q5R22jyOwGbpM=
-Received: from CH0P221CA0022.NAMP221.PROD.OUTLOOK.COM (2603:10b6:610:11c::22)
- by MW4PR10MB5725.namprd10.prod.outlook.com (2603:10b6:303:18b::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.16; Mon, 2 Mar
- 2026 17:00:18 +0000
-Received: from CH2PEPF0000009B.namprd02.prod.outlook.com
- (2603:10b6:610:11c:cafe::f1) by CH0P221CA0022.outlook.office365.com
- (2603:10b6:610:11c::22) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9654.21 via Frontend Transport; Mon,
- 2 Mar 2026 17:00:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.23.195)
- smtp.mailfrom=ti.com; dkim=none (message not signed) header.d=none;dmarc=pass
- action=none header.from=ti.com;
-Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
- 198.47.23.195 as permitted sender) receiver=protection.outlook.com;
- client-ip=198.47.23.195; helo=lewvzet201.ext.ti.com; pr=C
-Received: from lewvzet201.ext.ti.com (198.47.23.195) by
- CH2PEPF0000009B.mail.protection.outlook.com (10.167.244.23) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9654.16 via Frontend Transport; Mon, 2 Mar 2026 17:00:17 +0000
-Received: from DLEE214.ent.ti.com (157.170.170.117) by lewvzet201.ext.ti.com
- (10.4.14.104) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 2 Mar
- 2026 11:00:06 -0600
-Received: from DLEE207.ent.ti.com (157.170.170.95) by DLEE214.ent.ti.com
- (157.170.170.117) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 2 Mar
- 2026 10:59:53 -0600
-Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DLEE207.ent.ti.com
- (157.170.170.95) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
- Transport; Mon, 2 Mar 2026 10:59:53 -0600
-Received: from fllvem-mr08.itg.ti.com ([10.249.42.149])
-	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 622Gxr5h635336;
-	Mon, 2 Mar 2026 10:59:53 -0600
-From: Andrew Davis <afd@ti.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Gleixner
-	<tglx@kernel.org>
-CC: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Andrew
- Davis" <afd@ti.com>
-Subject: [PATCH] Input: gpio-keys - do not print gpio number if using gpiod
-Date: Mon, 2 Mar 2026 10:59:50 -0600
-Message-ID: <20260302165950.2159401-1-afd@ti.com>
-X-Mailer: git-send-email 2.39.2
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WyTAPz43"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-7982c3b7dfcso47265447b3.0
+        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2026 12:32:54 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772483574; cv=none;
+        d=google.com; s=arc-20240605;
+        b=aINm6l7h8ApcXfyhdxhlipiGjDia2t7dOoEGcoLcTSq80OeIW4h8iOsb7qZ5B0V+Ts
+         5ZS04tX4vO9TGrJZWmeP8Yf0RIzZzo9BkyxtyCM+h0X7/9uPl1CMTp7Anb6tT7b/MpIt
+         OK8eJSMPDU0cFHg34i+gsBKhcPK/rcu0kKu2/jinhWSUqNYZeuJnN4gjW95yfcvTfg2H
+         TzhHNSY8W+748Sq8fN5M9Anphwogbg/OO3HkhtJRUUTXfU+b2dSbrLUqVjC+9JJhNY+/
+         8CxXsqoQ7nqbS/FwyiikEO0XojoLOV92pC9ol94YcpmE+jZ8CsHnBRq/NZYkmlSEozlE
+         uJUA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
+        fh=enjSiehNwoV+PkcvWBttonxpTM2Yn2N6bUSaMdmePSs=;
+        b=FdYgZgLlbYsLhFb5ZTTA8CVV3bcKY8j1pEKMbhRFqzhGKQmB/fKcgm4RYjF/k3Y26c
+         ClZcQIn9uRj8ynewmPYDdFnR1ncIOEuatJg1VfPvVI9k5z2gpEEHU4t5+i7lw05FFv4X
+         YP41azovM2sa2dremN3ikffxlz0Kz056xYCdHrDosJTRBvSHyxrbS+cZwmmtb2fz6r8N
+         8Bc31HYBArlEaUfrZcLr+vdaRFr9vCEl1NT9a7FkK+HqE9QmrQxLtGkLzkgfc/Yczwqz
+         W1d0A47S/9TSfjgAL8JdYniZAIrtWap0JR9KiAT1wn+vw/D2k62WyosEWwrcjxSBA1+h
+         ycVw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772483574; x=1773088374; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
+        b=WyTAPz43E3DuH9BZRyEzQHm2SCchopGyCNMYhz3YfJSWv+CVEgIMoUbV6TAjBWfB2A
+         XG/51KZaz0aG8WVbLobAQg40c0sWkfrSSyJ12Y5F2W00XG6/gusZ//VEHymTgyYw0kQh
+         I1esPwu3RvPNxzZTKq7Y3prqwJTf3vy5SUsG5EO2/dEjpYpn5BXXjgzid8ByZWnKCSDc
+         H+BuCBMbZ7c6aq1L5i/OiL8WfgMHVJeOIqY6TRMHeNB1I8FGQ01RLe++JBxHyHlPEcgZ
+         IlN52Jx/V7iZJHlCRvsv1S2yut1FbGXssq+gSMvHEOEeT5UkU9Mn/4eamdLdvpPu377G
+         lIaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772483574; x=1773088374;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
+        b=CB1KDRaSsnb00b/Px3qqHn+mjuHOT0KpctukbfQG9eH1e64btwiyuFZBm1wNTflRUa
+         xLcTGGlm5BRe41xLDINLn5yPic3ZgfD+xG6Rv+38GzD2RIUqwbbW04thWdE7fT0ago/j
+         saO9L5lPN8NavwCxir6yt2FaK2YMy+V10sWo+FeZXl2o42PF7PBIYbqNBo5zycXw8dG2
+         Aj64hvMfoPy0wXE9E2ro5S5tcSQfwdH6FVyuNazyWDAjOjyYt7i+6uiR/N1lbjFG6SbM
+         galCpBgpt67Jbji+tXL7h1blP1aBmmf6+i0FAdKrlSdaFtcTbR5ID85AUt0RvRvmH0DI
+         ktGA==
+X-Forwarded-Encrypted: i=1; AJvYcCWa43TZ172sS9PJa5EvryRxkDPrsEplD/xjATa/UeXUFxE5RP1u2KW7hueKYB2xB0gIv3G41NKhUW+uNg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwXN1+oRBsbzhhfZsBHihvKY2FMbjcIiConCMpU3sCTbAV487C3
+	MIjZTBHwzoYrMB6xN3hdvc/mD06cYsdj4MXSL7RFVJDxjhDkKDOaGMaKk/8Kb+K4ec+f/rj+lur
+	Zpi2yCELIBIM+Xz/c2At87fqW1peqNaB1vcOjuaQ=
+X-Gm-Gg: ATEYQzxS3FVr9asEdct+eg5YDe2/NfxqjfonCJvl8FOyYF73/4cVyGjCD4igpT+Iej2
+	t8RbkrN1xc0OvDMkomMO023bxEjzbKGi5kgjv+y1uYXgGRtvAqOL4LezOsrMc8GCD85OYyWFG6b
+	q+Ll14aYN8QGnSWTSkwSL0EbFOfQ1lnL3s8O+A1XdHTwO4cfX76wqCkFmCIszFN3P9pamdoihE5
+	UEE1BwIkTzzSc/sCuynhl+WDQK8COU4jxQ+jOgF/jS8oFce6KZLpc/pfe72NXXL5S9AHMHyQFdZ
+	71UXd3XbSBlLvnRPhdwR8bVxNGTYoAxL9T2wR0fy
+X-Received: by 2002:a05:690c:3587:b0:796:4004:d1d5 with SMTP id
+ 00721157ae682-79885609102mr119790877b3.59.1772483573894; Mon, 02 Mar 2026
+ 12:32:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF0000009B:EE_|MW4PR10MB5725:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3a09acf1-0189-4fd6-d1c0-08de787d2e87
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|34020700016|376014|12100799066;
-X-Microsoft-Antispam-Message-Info:
-	1cIgCVlq1vMy+0eN6f34TwDGo10g1lmy5518ohjoO0gBktxwmlGDRMz5h0p3DGSRjakgGVg6a65jsNF9Nr8aBJRr4QQ5AVgdpXOxQ5GE49MshZjY5OsupZ0t/dDvof1L5uiLxM8f0nNac9351OtOfDRwTnnoacxNsqKzgk2V4vW/khssjMPZzwVMeQOBev/mUDCBKNIQy6Z5kWRDkOWyRnQhl/k66y+3whJoFfTIYOFRdcu2W62r9yWHKqK+5wjQKsH8Aro0BvPkl48aKrQ1VKlVp/HbzCPOe18yoFyS67uh4dYM5CMC1wdu0XkwXyu+2TJ/VBqSqELcAL+Zqo0w0Zjnu4gQtzfjRztafxFlfqufm5fd0t16wOpWA03oJE9jFb1Dy83510HxXXCscoQaSBo3d2caX9XF86EpvT/jduZOLMgrGT87kpHbLtBqlDG+nCzcGSpoWXSF0Ggq6v24jwZtTMQddwOgvhkK6MroWC7T/3bCo9DVctfu5V8kzWr/aCM3Ch+lc8LCXlACrGR1nIa8UcpCYsQ6j5AnpP63Slfgfm5162TJhIwEFl6tCXb8Qc8ooYNvehLc+XHXOjpTF6FcyvGpYkibbVDN+wKB+uh7IwyLQeuSfmtMhdjwbhEXm2AO/evjEo/IugPAiUlLivmiS2b1NfUsa2ZyCsMedUzPQgjetzWp2nkpdzO71/fBW5zrxMkjOhfvEwCJUdJVhjw6nCprYFwhTnDhLYh2X3kVjQl4fI821S4I56CMN/GvggYGz57mY+3GqwA7HGP/dP/gCvA4CPBh0BvsktkziTPB/H8Z7RXM1glptpZ/vLBqepnp0Rz+/IqRSAqJ260qRw==
-X-Forefront-Antispam-Report:
-	CIP:198.47.23.195;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:lewvzet201.ext.ti.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(34020700016)(376014)(12100799066);DIR:OUT;SFP:1501;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	W4x42IXhjqFZOVWvL6GTnlOXJ8OnDcek31M8HMptZYM0LNeyVCwIHLYbFKRaS/Rz6WfImj/FI0gmYj9NaOZoJVXhI9dwq7JCXWbmAywwpxFr0Ya230QNSGs/Dmvo+NMdo7ADf2hoir9jCN+Jrls71FUteTMeHXO4Vw6eB5NvRaIOBSYbtA2qHvPp6562NgS3sMwLxA0GNbk+PQwUnHUh4aVU5IIrUbonYwGAOtbnQNSKoskpqxeB4VLXou9fQNM1yIxN/RWO/q0DANUOfMR+/vU9twAqWQ42rI9IBJsvuyIMA3Qux7UmqFMy3/egOSMgsFOCprMfC9+vZ+HJaRAJItpJGgprYNFC5JHmL1U9yhDFIEHF/zfee5hPo3vUw075RNITsUYmmaHB/aRTqee+LWg9uyY2C/tu3bOJJGKABORViixA7GwEU2W/QJsiL8/0
-X-OriginatorOrg: ti.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Mar 2026 17:00:17.9086
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3a09acf1-0189-4fd6-d1c0-08de787d2e87
-X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.23.195];Helo=[lewvzet201.ext.ti.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF0000009B.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR10MB5725
+From: Ngon <ngon36201@gmail.com>
+Date: Tue, 3 Mar 2026 03:32:42 +0700
+X-Gm-Features: AaiRm52frTHqnYyhNAaTErHIwCx1Akl9QCzkNVb20yqccqSwHanN95Zegm7avCo
+Message-ID: <CAF2ktaUNWWED4g+wqa0OuFbXSaVV7Lt-9Kw3co9KE+PYswNW=A@mail.gmail.com>
+Subject: [BUG] HP Pavilion x360: Built-in Keyboard and Touchpad disabled
+ permanently after screen removal (Stuck in Tablet Mode)
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The value in button->gpio is not valid when in this branch which is for
-the case of gpiod. Do not print this out as it will always be 0 here.
+Hi Dmitry and Linux-Input developers,
 
-While here, there is no reason to assign irq to error, use irq directly.
-Lastly, dev_err_probe() returns the given error value, so we can return
-directly the result of dev_err_probe() making this a single line.
+  I am reporting a hardware state issue on the HP Pavilion x360
+Convertible 14-cd0xxx that causes the built-in keyboard and
+  touchpad to become completely non-functional under Linux.
 
-Signed-off-by: Andrew Davis <afd@ti.com>
----
- drivers/input/keyboard/gpio_keys.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index e196174856796..a6ac693d8fce5 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -580,13 +580,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 			bdata->irq = button->irq;
- 		} else {
- 			irq = gpiod_to_irq(bdata->gpiod);
--			if (irq < 0) {
--				error = irq;
--				dev_err_probe(dev, error,
--					      "Unable to get irq number for GPIO %d\n",
--					      button->gpio);
--				return error;
--			}
-+			if (irq < 0)
-+				return dev_err_probe(dev, irq, "Unable to get irq from GPIO\n");
- 			bdata->irq = irq;
- 		}
- 
--- 
-2.39.2
+  The Situation:
+  I have physically removed the original laptop screen (using the
+device as a headless mini-PC). Because the lid/hall sensors and
+  rotation sensors are located in the screen assembly, the Embedded
+Controller (EC) or BIOS seems to default to a permanent
+  "Tablet Mode" or "Lid Closed" state.
 
+
+  Observations:
+   1. Running libinput debug-events clearly shows:
+     event20 SWITCH_TOGGLE switch tablet-mode state 1
+   2. The keyboard (AT Raw Set 2) and touchpad (SynPS/2 Synaptics) are
+detected by the kernel but do not emit any events
+      (verified via libinput debug-events).
+   3. On Windows, the keyboard still works despite driver warnings,
+likely due to a proprietary HP override.
+   4. On Linux, common kernel parameters like i8042.nopnp,
+i8042.dumbkbd, or button.lid_init_state=open do not restore
+      functionality. Blacklisting intel_vbtn and hp_wmi also does not
+force the system back to "Laptop Mode."
+
+
+  Question:
+  Is there a way to implement a kernel quirk to force-ignore the
+Tablet Mode switch for this specific model, or a way to bypass
+  the EC's hard-lock on the i8042 bus when sensors are missing?
+
+  I am available to test any patches or provide further DSDT/log details.
+
+  Best regards,
+  kemzsitink

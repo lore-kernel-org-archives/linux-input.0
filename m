@@ -1,66 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80CA52F12A5;
-	Mon,  2 Mar 2026 08:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C09B385531;
+	Mon,  2 Mar 2026 08:58:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772441418; cv=none; b=oiMsUMzxqeg6Ch1v2r4RJtZv1c2QTw7ZyqXx6kqWdynLTQ+MuMdJNq5pD+7LnjyadCcwVvhSl80KEOIsQ1XyMd6c/bgmaH7q1zWlJvtNit9uwWPPBMvQpxdIJlwbQGjYktX2hmHsUTrdmJsNYVkVIS1fKMPT6J5qOqfj23M20Qs=
+	t=1772441895; cv=none; b=IJCuOe5i8ruvZU1P9RbzvCs1rbivh1sB5qLSJCBy6Zdjtmfv8XXp54BZ1ab/wuX4ehKYuA5SW6Hc72uRNnFYW05x/8p6PYxKmOhQImK9cwX0uq54I10ZZwqRK2HIiqGww2HHrbNL/w3Wi2uhcSuFcKKl+aDunm6k2Z6Q78GdfNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772441418; c=relaxed/simple;
-	bh=7vHGFD85v8qWRUsZb1wOJxlwGmT3jk/wEl5UfEp0x0I=;
+	s=arc-20240116; t=1772441895; c=relaxed/simple;
+	bh=ztVWdx7tymJoc2QG+MimBdurPRTD1aFQGz3ipOCUR0w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oVGsDIBriB5UM0PVmqUMs1TTz3K6H0AFlnEDrRI4kARGzCi9Nt4Bbn/cmmydRfLUv8I/gcEEHsqyfN+bPYcV/nWqcsR9FOGD9Ml6TO20gZMJYebHK7FHDsljqFDiCFwj8h6jl+2FHbdUbUkgXTZEPvQsbR9fXnPMlog7J5sqB80=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lx1EzEw7; arc=none smtp.client-ip=198.175.65.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=c1mJ8JwMlkd6NRmXyPVOtOW+oCD59CLtt6IOARH2CAND9vtxhKUe4Dpox/V4aLlWv7hU9cedvtJzmljaOKfBjYqANgkdgF4fTBPlToF1MG9CWZy1aWAALHdtp2fgoQlc2SUQ7blcDxzyNkJIxERPcW35n96FWnXocLNj9ZbXNQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iC6sZMf+; arc=none smtp.client-ip=192.198.163.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lx1EzEw7"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iC6sZMf+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1772441416; x=1803977416;
+  t=1772441894; x=1803977894;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=7vHGFD85v8qWRUsZb1wOJxlwGmT3jk/wEl5UfEp0x0I=;
-  b=lx1EzEw7GaHnwxbk7MmCyRVuj9R1Uz/BoVcvDpRFz5hhWF01FZvuNA37
-   5an2TOuFksYuFWjXIRzdHhFodBtHjkJkJvjjguV7ghP2MDBy+US2j0a9C
-   qBwwCLl3F7ZHg/BK7Cf8Qyqx1rC0reVtvgTzrsWCnnTD040qFEhrQM21z
-   kvPJBWn7Qzk/6pn3FNZyKtEj5xJ+FNdyhYuKQJAK1y+qMtR/vXUtq1LpB
-   sW6OJZxsiUek1Tf5HvTp9x+UR2p7Bqu8kPDzbsbqERbIfuB4aNBG1bWM4
-   Ijicpdl5aD/tUg2qY6+cKAQKTx3HVSeydvSszhtONDezqmfHNTM1YLvwL
+  bh=ztVWdx7tymJoc2QG+MimBdurPRTD1aFQGz3ipOCUR0w=;
+  b=iC6sZMf+rWWu+RzeVuPgFEip4MOZUmS3uLpX8Qwrz3TD9MuV6jJirLET
+   c6J85ufxiUYQzQ9Qihr6aTyzg0JraxzebrxZUJ5SFm7jk3B9mRBUEzU9k
+   YhfhzU/7KKhqY3cPnjtvXgnvT8NMEpYZfFp18UQhUZucra5D7rmstZDnn
+   R4W+m/xwINvcPdzL2qxfZ0K6famqZjAO5xoR5vHFX00D9yCTBf4EseG1n
+   LAnfywyBmi9JLrnDVpl8hbEw9xPzJBJDXYJOITm6cTGY7C2Tdrhf5QOkc
+   Lp85W7ued8wRPrBo+e5kZ7Y+0x3VOFRSObCm9dTExM1fiuH2MIjiL+PaF
    Q==;
-X-CSE-ConnectionGUID: 4zjlHtoNScW43YzaLKPGyg==
-X-CSE-MsgGUID: nAcf2xdDSLaIWQuzB0Gd8g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11716"; a="73482803"
+X-CSE-ConnectionGUID: HiTqGQ2uQDOSVTvUID2rzA==
+X-CSE-MsgGUID: ySUknEO+TVy6DLzSHwvfOw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11716"; a="84147158"
 X-IronPort-AV: E=Sophos;i="6.21,319,1763452800"; 
-   d="scan'208";a="73482803"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 00:50:16 -0800
-X-CSE-ConnectionGUID: 8e66e6x8QC2GlTz6WA7Z0g==
-X-CSE-MsgGUID: iTNzM50nRE+/VAd98VsdmA==
+   d="scan'208";a="84147158"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 00:58:14 -0800
+X-CSE-ConnectionGUID: gCanRWyuRymOxwOjp9+x3Q==
+X-CSE-MsgGUID: XzTY1uFLS5umA9ESNdMETw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,319,1763452800"; 
-   d="scan'208";a="248090459"
+   d="scan'208";a="217492105"
 Received: from dalessan-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.52])
-  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 00:50:12 -0800
-Date: Mon, 2 Mar 2026 10:50:10 +0200
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 00:58:11 -0800
+Date: Mon, 2 Mar 2026 10:58:08 +0200
 From: Andy Shevchenko <andriy.shevchenko@intel.com>
 To: David Lechner <dlechner@baylibre.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+Cc: Jonathan Cameron <jic23@kernel.org>,
 	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Lars =?iso-8859-1?Q?M=F6llendorf?= <lars.moellendorf@plating.de>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Andy Shevchenko <andy@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Lixu Zhang <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] iio: orientation: hid-sensor-rotation: add timestamp
- hack to not break userspace
-Message-ID: <aaVPQsvz02S8GtsX@ashevche-desk.local>
-References: <20260301-iio-fix-timestamp-alignment-v1-0-1a54980bfb90@baylibre.com>
- <20260301-iio-fix-timestamp-alignment-v1-1-1a54980bfb90@baylibre.com>
+	linux-input@vger.kernel.org, Lixu Zhang <lixu.zhang@intel.com>
+Subject: Re: [PATCH v2 0/2] iio: orientation: hid-sensor-rotation: fix
+ quaternion alignment
+Message-ID: <aaVRIOejIgnOdAfY@ashevche-desk.local>
+References: <20260228-iio-fix-repeat-alignment-v2-0-d58bfaa2920d@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,57 +65,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260301-iio-fix-timestamp-alignment-v1-1-1a54980bfb90@baylibre.com>
+In-Reply-To: <20260228-iio-fix-repeat-alignment-v2-0-d58bfaa2920d@baylibre.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Sun, Mar 01, 2026 at 02:24:50PM -0600, David Lechner wrote:
-> Add a hack to push two timestamps in the hid-sensor-rotation scan data
-> to avoid breaking userspace applications that depend on the timestamp
-> being at the incorrect location in the scan data due to unintentional
-> misalignment in older kernels.
+On Sat, Feb 28, 2026 at 02:02:21PM -0600, David Lechner wrote:
+> The main point of this series is to fix a regression reported in
+> hid-sensor-rotation where the alignment of the quaternion field in the
+> data was inadvertently changed from 16 bytes to 8 bytes. This is an
+> unusually case (one of only 2 in the kernel) where the .repeat field of
+> struct iio_scan_type is used and we have such a requirement. (The other
+> case uses u16 instead of u32, so it wasn't affected.)
 > 
-> When this driver was written, the timestamp was in the correct location
-> because of the way iio_compute_scan_bytes() was implemented at the time.
-> (Samples were 24 bytes each.) Then commit 883f61653069 ("iio: buffer:
-> align the size of scan bytes to size of the largest element") changed
-> the computed scan_bytes to be a different size (32 bytes), which caused
-> iio_push_to_buffers_with_timestamp() to place the timestamp at an
-> incorrect offset.
-> 
-> There have been long periods of time (6 years each) where the timestamp
-> was in either location, so to not break either case, we open-code the
-> timestamps to be pushed to both locations in the scan data.
+> To make the reason for the alignment more explicit to future readers,
+> we introduce a new macro, IIO_DECLARE_QUATERNION(), to declare the
+> array with proper alignment. This is meant to follow the pattern of
+> the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
 
-...
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 
-> +		/*
-> +		 * HACK: There are two copies of the same timestamp in case of
-
-Usually we use FIXME in such cases. HACK is something which goes with
-"do not apply".
-
-Does it mean it will stay forever?
-
-> +		 * userspace depending on broken alignment from older kernels.
-> +		 */
-> +		aligned_s64 timestamp[2];
-
-...
-
-> +		/*
-> +		 * HACK: IIO previously had an incorrect implementation of
-
-Ditto.
-
-> +		 * iio_push_to_buffers_with_timestamp() that put the timestamp
-> +		 * in the last 8 bytes of the buffer, which was incorrect
-> +		 * according to the IIO ABI. To avoid breaking userspace that
-> +		 * depended on this broken behavior, we put the timestamp in
-> +		 * both the correct place and the old incorrect place.
-> +		 */
-> +		rot_state->scan.timestamp[0] = rot_state->timestamp;
-> +		rot_state->scan.timestamp[1] = rot_state->timestamp;
+But this is in conflict with the other hack-patch in another series.
+I'm a bit lost what patch 2 fixes here and that hack-patch fixes
+in the same driver. Shouldn't survive only one?
 
 -- 
 With Best Regards,

@@ -1,69 +1,74 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C0E1AF0BB
-	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 00:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79A43800
+	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 00:44:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772411119; cv=none; b=rpBEKxqJ7RtuRKX4P+QOAQDZhkV0GbQieIj7xncwMb62NgzSuBAOlfODle+72oBUGqrLc3DqZwZn6jtxndt5SNBcHeNGaP0rXSMv1pwv6mdY8sT9fQR4MyXVFfrJHoXz59gZxakT2k1WiyxQtlkNX2ffEt+pa99lIT8qsfDCvSw=
+	t=1772412289; cv=none; b=I+8az1Dht6ce2VUHPTOTUZy+tXWKw3QwSrjBC8JUl+cK+hFJBUfvZGrI8xRelhC0jDoR5aqIVEckJkp7CfDhMSrB+TtW0x8UGEk3D6pjVGZzBIqO3bDUfjm3zjr9vRwffAzFFKe8z6VtIyN8RQIjdaLgxlLJnfD/GP5NpMHAPyo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772411119; c=relaxed/simple;
-	bh=S4rTdR6Sn3CyItxBXI7nuVvd+WyWl9xvd1Fxs5IpwL8=;
+	s=arc-20240116; t=1772412289; c=relaxed/simple;
+	bh=e7MT3eZOB4RWi4Ip9ErYj33sUKowL739m01VsA54wV4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qzD7kG7YRuKIP7NgBdGJE3APQy3gkgwTGjB4FjqduWOJ82yMhNU8Cj/yZoxeShyHwLkKezcLOGiGoBwVzVD7eE1jQOkVLb/t0bugrYEg08NugmS3i0H68jFligvvUTSgh9IWTR/7l2X3iI7PZGxlcjPAksR7GLzhv0CsDGaIEFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cLMNGgkj; arc=none smtp.client-ip=74.125.82.51
+	 Content-Type:Content-Disposition:In-Reply-To; b=RRT/l6RKVX7G4hJNga4gJRj2oLbvYgROUSr/jsBqkFrEZ2cndoaZVLIJ1dgL+IPm4cpDMi5/TZ4ldcdifou2MEYwHOCUBtj/mKC/bSie9iaP6XBKcXkUF453AKr/YdHDZ1bxEZCyyMcQwbp12j0Sj2LWDC5ck8bXxyPGMTQ/9bo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UVlxyjJP; arc=none smtp.client-ip=74.125.82.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cLMNGgkj"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1270ac5d3efso3574240c88.1
-        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 16:25:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UVlxyjJP"
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2be0711f493so121500eec.0
+        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2026 16:44:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772411116; x=1773015916; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772412287; x=1773017087; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DLTyL9xtg5mASnZ4TamkxWcWgMRXeEhDGS/pwG+nNf4=;
-        b=cLMNGgkjiHB0EY4bE5GhUFDB4g1FpSGCvH5QJAmFUOCeEMkPlB0v2zwUUpWTLrJLkJ
-         WTv+TBRjWFWXyJhw4HOxtYEDqs8RsQ8Y+kQy+8NYj0U7yy4qMAMJADPv1hxZypUpiBV4
-         Af9yEkCjpb4yurEXF/8aJZn4ivHfE9oFSoBFCb2WAsamtDbQLl+GPlI8MAlVY7yXfB9z
-         IkpYfPOoBcLeLP2XUG9IPB1IojmxvqTL+0knYSV6Wk10mTvo+9VOiw1nYkuZ3U21BDgU
-         MOGu1QqmXPjUwd/Tj5sFbhCiJZ4bPdX7mnZUYX8v7Fb6qd6u9S0P0A9Q9hJbF2mFlWmD
-         djEg==
+        bh=VtsMvB6OPf6TfYp2Htw6c9h5hyInU/3hP+InG0kKDEQ=;
+        b=UVlxyjJPt5B9YaTrtuTKk87YVIuKKkng+otHV+vSVYh/oMoqvYqwZVKyoUtNYfRBok
+         /sREEbAeC0tjGz5u6+Vl5FBRuXOCVPfdZRW0QEXlny11jh4vDqnLC2y727BE5A9fcITk
+         biQxvKCA6Rd0FTi+UACvjWWAVXMlUIYPtKRww8/bMmvQVGqAIpjAGcLdhzJ5mcB6QPTG
+         +cEObIPZlqORLNKah09tE0xqx5is8lVdqAJXmj49nWWl6roLUE7uyOQQIBjqZwOSbtua
+         RbFmKDIUCmzI+OAGU3qYsMKT7n/ZcEE9MwCVSN57hhP+sG4q0W2p2yzl4loCtJ/Indgc
+         nxeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772411116; x=1773015916;
+        d=1e100.net; s=20230601; t=1772412287; x=1773017087;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DLTyL9xtg5mASnZ4TamkxWcWgMRXeEhDGS/pwG+nNf4=;
-        b=nv8eyae1+SGBkp9sOw4I4rxfcGU3LFcax8Sys1y+FtZt9CFrAMVcxE+lQqKL+4gBSg
-         AsIUIDlQzwoZPoRiZaauUVi1o7YiGMyeOLzJfJyxJy8jU9oY/8CPHeZX1yVVvuNGcSme
-         uohtwyr212p4i3Pzp7Tst11YBRHckGsntzM6UiLaRQitu/YqYRPPAR92t5coGaHVSGhd
-         6vQaxCbhJ1z6yZA2r+4X+RBu8SiTKXW851MquySsVJ4emMropmU5DcT6JNkyvX82K52A
-         thbJ5jASkIN9b0LbiMm8y7MEBxYUPvpt3Rg2WN900Wl3oz+73FZSop3Vm432Cj6OALMF
-         jbWw==
-X-Gm-Message-State: AOJu0Ywnv0YFvgqQRLnjEUTEHmOeU7gl2fiVtqLraR+yvmMN6cw/uSi/
-	HR7RJ3re+dwdB1WRK2te4WpfFWo0PGhoNoRHVJ7n5BdJ/UtJa7Vhab3R
-X-Gm-Gg: ATEYQzz6I2HREHrc0JBVNjnhWMog8Dyq2pf6NExnXM9IyuI8MeQfLqX8O3AMI1Q25A2
-	fUIfHB5f/SAqQKxch3VC9FY60RJxVjQ3m6tu+aWN/04XU1u4jzZat2RWQW2v31gT3a1Dzfz0xYs
-	3oWH9mE6Cw/GDWwS2L4vsl/IFjulYCq1dy4bZ3ePk45UufUt1Q0Ii/ybUfD3yAkpcBQPttO2IKw
-	wEKK6GHW02Jf/6XDHZNBEZ+5NWp+LxHvBCqV471d53jtTVkXgGzR9ZR5jzxfVnr0vk668AOQa8G
-	OHnFR7jXOFOnKzsPyTC3so7BlQz5QUkoIGkqS4zD62xFgnigrA2kEJOWMFeAHHNaCIX9CL1y7CQ
-	j6bti18IRbICaOyILXCqOlr7l9ljU5NRsPGfWWUDzCW32zcVPtlKjIAMSePQHJabDRQNXHq75el
-	dKetNncizl9aprPxpQz721Aetq8QmjU/+CIkDCxCw+FvBUNWf/7T9erhuCfC++oZrC
-X-Received: by 2002:a05:7022:1e05:b0:11a:e610:ee32 with SMTP id a92af1059eb24-1278fbff7dbmr3779423c88.25.1772411115868;
-        Sun, 01 Mar 2026 16:25:15 -0800 (PST)
+        bh=VtsMvB6OPf6TfYp2Htw6c9h5hyInU/3hP+InG0kKDEQ=;
+        b=kfloa20rpyMkjBR8MfIraZgrMq7fmL/wuu+gTOt/WGDSae5r2u4nmgtSaQMY5TXuHQ
+         MqQRJ1m9pdNjY7MAdQ8Y05aC4ByF5XM9oywH5DKxZaENinBldzzEGWelIUVAqKUuLW8D
+         DwdmrRrnvz75ozn0Am4OFDbMFrP/vecmRgB2Nv/+ZJqSYEINwS4lO07rY6XkfyGGTvvn
+         DV+UoxPqfE3JmStUGdM2eWXcINDdqeBClFg9vp8k60IEByWE7NwkR+BtOnA4sgWWgWlU
+         BNccU7+9HtgC+U7rmFZD4noMfDhf660sLHaWKmyCOJdte51nEhL/mRq5CHf+Df7pM2oE
+         Taqg==
+X-Forwarded-Encrypted: i=1; AJvYcCUNRf2MRDIwUxDGNwJVqLg7XL208od0VKAw8yKfSYFGv8kWL2dx9g26SW2cSA088k7hXKUbUuLscEBsHw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzysQ1I07dn6Ez0zFUPObe0lEKDkhyb3M88eUyoorRHZ67NjeE4
+	tFUDkv6BuN35NP1hCY+skPqAHvAvHwIrNSiq9VNZT4M2NkA4koQtmcTX7SCSWA==
+X-Gm-Gg: ATEYQzx2Dsxy8ImphgSt37Rqk7N1mMAahgFEwpHzrvdBkIu6bJj+pjGr9ZqA+0KzO5Q
+	N/w4HJ+kPIMb6TtYFro5xfUS7luKXEuFPHzVl2JRKl5ObWu1TnSCGNyEFZheXSrVC9tCxNgfJUV
+	AjxicBbM9vXDhskVZVhmXkUfhNhNG9j2dntFG20XBi7KIEQBXJ72vgZudlidvpss6me9pQ2tNyX
+	9gzMMjqruI3ni5ax/A9UmzOeZY8+OSATHfNBZ/mWhsqAFXbYEOFRlV311ivN5cSV6hX2dSreBWB
+	CJCnoG7EAwUThQzstGQGCnEA5slN0aN+ZzNIFMqRf5i720ju7WMerokmhHVMknUW8MlmFdby/mv
+	0zhJdqjiifvt1MP2n8f3B1Q35tLcP9/6rlvFtZkRRN5HDOk+Sn1pj3ksAzMw2aENsnxIOGa04kX
+	M2+jKSk0iX5Ww/+AP0goUMyHuvSlTEAPppIEhWcciBTYEs9osIIvHOXTn/VHEnIYln+8HisCLo2
+	aM=
+X-Received: by 2002:a05:7300:f187:b0:2be:969:75f6 with SMTP id 5a478bee46e88-2be09697acbmr1055348eec.9.1772412286891;
+        Sun, 01 Mar 2026 16:44:46 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:864f:8513:57d0:4064])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-127899d49ccsm13884010c88.3.2026.03.01.16.25.15
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be03fc6fcesm3195687eec.1.2026.03.01.16.44.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Mar 2026 16:25:15 -0800 (PST)
-Date: Sun, 1 Mar 2026 16:25:12 -0800
+        Sun, 01 Mar 2026 16:44:46 -0800 (PST)
+Date: Sun, 1 Mar 2026 16:44:43 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Josh Law <hlcj1234567@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Josh Law <objecting@objecting.org>
-Subject: Re: [PATCH v2 1/4] Input: elo - fix style issues
-Message-ID: <aaTYvqdymKquoVWJ@google.com>
-References: <20260228195258.2468296-1-objecting@objecting.org>
+To: Hans de Goede <johannes.goede@oss.qualcomm.com>, 
+	Sebastian Reichel <sre@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, ggrundik@gmail.com
+Subject: Re: [PATCH 2/2] HID: input: Add HID_BATTERY_QUIRK_DYNAMIC for Elan
+ touchscreens
+Message-ID: <aaTZIcPuY3qz5MJm@google.com>
+References: <20260228145258.76937-1-johannes.goede@oss.qualcomm.com>
+ <20260228145258.76937-2-johannes.goede@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,43 +77,128 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260228195258.2468296-1-objecting@objecting.org>
+In-Reply-To: <20260228145258.76937-2-johannes.goede@oss.qualcomm.com>
 
-Hi Josh,
+Hi Hans,
 
-On Sat, Feb 28, 2026 at 07:52:58PM +0000, Josh Law wrote:
-> Fix array constness and spacing issues reported by checkpatch.
+On Sat, Feb 28, 2026 at 03:52:58PM +0100, Hans de Goede wrote:
+> Elan touchscreens have a HID-battery device for the stylus which is always
+> there even if there is no stylus.
 > 
-> Signed-off-by: Josh Law <objecting@objecting.org>
+> This is causing upower to report an empty battery for the stylus and some
+> desktop-environments will show a notification about this, which is quite
+> annoying.
+> 
+> Because of this the HID-battery is being ignored on all Elan I2c and USB
+> touchscreens, but this causes there to be no battery reporting for
+> the stylus at all.
+> 
+> This adds a new HID_BATTERY_QUIRK_DYNAMIC and uses these for the Elan
+> touchscreens.
+> 
+> This new quirks causes the present value of the battery to start at 0,
+> which will make userspace ignore it and only sets present to 1 after
+> receiving a battery input report which only happens when the stylus
+> gets in range.
 
-Why the difference between From: and Signed-off-by?
+My understanding was that "present" attribute is to be used for
+removable batteries (i.e. when a battery can be extracted from either
+from the system or from a peripheral) and we want to notify userspace of
+that fact). For example, if a laptop can have an additional battery UI
+can show if it is installed or not, and it should not simply ignore such
+power supplies.
 
+On the other hand the "Unknown" operating status signals that we
+actually do not know the state of the battery, and fits better in our
+situation.
+
+Anyway, I think we need Sebastian's input here.
+
+> 
+> Reported-by: ggrundik@gmail.com
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221118
+> Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
 > ---
->  drivers/input/touchscreen/elo.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-input.c | 14 +++++++++++---
+>  include/linux/hid.h     |  1 +
+>  2 files changed, 12 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-> index 434b9b47e964..40ae132cde21 100644
-> --- a/drivers/input/touchscreen/elo.c
-> +++ b/drivers/input/touchscreen/elo.c
-> @@ -257,7 +257,7 @@ static int elo_command_10(struct elo *elo, unsigned char *packet)
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 67ca1e88ce13..8fc20df99b97 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -354,6 +354,7 @@ static enum power_supply_property hidinput_battery_props[] = {
+>  #define HID_BATTERY_QUIRK_FEATURE	(1 << 1) /* ask for feature report */
+>  #define HID_BATTERY_QUIRK_IGNORE	(1 << 2) /* completely ignore the battery */
+>  #define HID_BATTERY_QUIRK_AVOID_QUERY	(1 << 3) /* do not query the battery */
+> +#define HID_BATTERY_QUIRK_DYNAMIC	(1 << 4) /* report present only after life signs */
 >  
->  static int elo_setup_10(struct elo *elo)
->  {
-> -	static const char *elo_types[] = { "Accu", "Dura", "Intelli", "Carroll" };
-> +	static const char * const elo_types[] = { "Accu", "Dura", "Intelli", "Carroll" };
->  	struct input_dev *dev = elo->dev;
->  	unsigned char packet[ELO10_PACKET_LEN] = { ELO10_ID_CMD };
+>  static const struct hid_device_id hid_battery_quirks[] = {
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+> @@ -398,8 +399,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+>  	 * Elan HID touchscreens seem to all report a non present battery,
+>  	 * set HID_BATTERY_QUIRK_IGNORE for all Elan I2C and USB HID devices.
+>  	 */
+> -	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_IGNORE },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_IGNORE },
+> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, HID_ANY_ID), HID_BATTERY_QUIRK_DYNAMIC },
+>  	{}
+>  };
 >  
-> @@ -273,7 +273,7 @@ static int elo_setup_10(struct elo *elo)
+> @@ -456,11 +457,14 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+>  	int ret = 0;
 >  
->  	dev_info(&elo->serio->dev,
->  		 "%sTouch touchscreen, fw: %02x.%02x, features: 0x%02x, controller: 0x%02x\n",
-> -		 elo_types[(packet[1] -'0') & 0x03],
-> +		 elo_types[(packet[1] - '0') & 0x03],
->  		 packet[5], packet[4], packet[3], packet[7]);
+>  	switch (prop) {
+> -	case POWER_SUPPLY_PROP_PRESENT:
+>  	case POWER_SUPPLY_PROP_ONLINE:
+>  		val->intval = 1;
+>  		break;
 >  
->  	return 0;
+> +	case POWER_SUPPLY_PROP_PRESENT:
+> +		val->intval = dev->battery_present;
+> +		break;
+> +
+>  	case POWER_SUPPLY_PROP_CAPACITY:
+>  		if (dev->battery_status != HID_BATTERY_REPORTED &&
+>  		    !dev->battery_avoid_query) {
+> @@ -573,6 +577,8 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+>  	if (quirks & HID_BATTERY_QUIRK_AVOID_QUERY)
+>  		dev->battery_avoid_query = true;
+>  
+> +	dev->battery_present = (quirks & HID_BATTERY_QUIRK_DYNAMIC) ? false : true;
+> +
+>  	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
+>  	if (IS_ERR(dev->battery)) {
+>  		error = PTR_ERR(dev->battery);
+> @@ -628,6 +634,7 @@ static void hidinput_update_battery(struct hid_device *dev, unsigned int usage,
+>  		return;
+>  
+>  	if (hidinput_update_battery_charge_status(dev, usage, value)) {
+> +		dev->battery_present = true;
+>  		power_supply_changed(dev->battery);
+>  		return;
+>  	}
+> @@ -643,6 +650,7 @@ static void hidinput_update_battery(struct hid_device *dev, unsigned int usage,
+>  	if (dev->battery_status != HID_BATTERY_REPORTED ||
+>  	    capacity != dev->battery_capacity ||
+>  	    ktime_after(ktime_get_coarse(), dev->battery_ratelimit_time)) {
+> +		dev->battery_present = true;
+>  		dev->battery_capacity = capacity;
+>  		dev->battery_status = HID_BATTERY_REPORTED;
+>  		dev->battery_ratelimit_time =
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index dce862cafbbd..d9b54f0e8671 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -682,6 +682,7 @@ struct hid_device {
+>  	__s32 battery_charge_status;
+>  	enum hid_battery_status battery_status;
+>  	bool battery_avoid_query;
+> +	bool battery_present;
+>  	ktime_t battery_ratelimit_time;
+>  #endif
+>  
 
 Thanks.
 

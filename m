@@ -1,67 +1,67 @@
-Received: from mail-oo1-f42.google.com (mail-oo1-f42.google.com [209.85.161.42])
+Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75F5E12B94
-	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 15:42:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E10A141B361
+	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 15:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772466128; cv=none; b=FS841jOxQu4UYGmbqJ6Crq+g+wzqSjA5pC7eySnTP+ACkm9YZ69mbEblrxa4+hOfCFg9hy1Ed+8hvSkd6rEBWYTn4CxGODprBCLCBtQ8lj5s3ZtyZl1qaHbzd2jRwDoUQjNvXxRb7P5XUjkM9xxqEtWCxioc5JtEm7OpCHKRduM=
+	t=1772466783; cv=none; b=ROUFgdZaddSLvdXmdd3Xwy3a9dHboA9NxblfXUEoW1Qy7HScuKMqNMWOGAplATVsB07SVp7roB09wuD2XRBydEW63nFhqdi6Me/Hrc4FwOAyUgdODoWUmZ9dLzhbLOcub9BZJgwVz2kMzIAaK16F/wtCyjiOukkU8XZ/Q0SVlqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772466128; c=relaxed/simple;
-	bh=Jn9c+KGqkB5IEEgQ8xFuEVkc0BUaJBYfMDD5OERKj0k=;
+	s=arc-20240116; t=1772466783; c=relaxed/simple;
+	bh=cSI4UvLmu3nc2agJSrZQMx03WUPtezKCSNssLL/i+VI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ipXpdwZWgQcWNTZV4hSUGD5EJt0bwovSizgR/6lYIlIj9d+X36qorxyO4RESN78jL+S5AwjBrL5dyKVvIfA/iEQv2rBwCJWXzu+pUcVsWSK9xGiGkMNjRV38gOeYpMmD+ZF6CJGHoGlr+VL6o04EP16M7n3GTnQH4gMAEBh/PwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=0w06So9t; arc=none smtp.client-ip=209.85.161.42
+	 In-Reply-To:Content-Type; b=rZiuVWuepEwUEUreOI2/GT4MfUbOwVAnN45gtAofAy4ynz4pTOC3Hz5ORIdD6uAXkiGwwu1XztRO7AhtCjZkVam5cELzau9vEq+H27RHcInXoR3qDk8lOXRY7NgsRLEsr/86Gg4eaYfXpCCYPLiJSvsM6CP57ZSlyg/YOtPGdN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=C59py6Fj; arc=none smtp.client-ip=209.85.167.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="0w06So9t"
-Received: by mail-oo1-f42.google.com with SMTP id 006d021491bc7-66ee7b9af94so2041575eaf.0
-        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2026 07:42:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="C59py6Fj"
+Received: by mail-oi1-f181.google.com with SMTP id 5614622812f47-464ba2bb3aeso3604905b6e.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2026 07:53:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1772466124; x=1773070924; darn=vger.kernel.org;
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1772466780; x=1773071580; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=VQaLSLcNcp6ruIogCBUfZyPg9rcxUfqwC/rj6FLhb/8=;
-        b=0w06So9tGopQQYjC1XiBoLqlkMGyWOqlZrXraRJKInPCess/Q9McjDbvVp4LoqGlja
-         DxiCj7PGe/Pys4Z7BnF0mg3vfyEpeNKH22my7Ek+z1UEaHofwU/Up6vqslnBbnEuNgPu
-         SU1+k4vLalictbnn3tSAVPYYhAh0rvSd5hocrxKrup/YKCGsMADcAYeDyuws77T46tB+
-         0c4qLU0kNShPbzdbnN78OM4Ba1+fpDcxdoERsVCbUZXVFqbBzUxnGwEh946eVlM/t4Um
-         FLfmb7IB6J3uJrNNBcF2Nc2S17VNScPdB/FhEXQq3/ZLCDpjaEJ5KMEDLhpzMTwqc+Ha
-         LV5Q==
+        bh=3WtWjK/XrBFXhlPr3QyvBUKjwrSPr3UtmIW2Gtd1DQ8=;
+        b=C59py6FjC1Egf/a0Qk1Xks12CiPRfil5/zZJKiVHcuYcBfXHEwyJxgHP9xhVactflJ
+         T8szDakNG5m3ijSYKQ20t6eiHWpVtywlMktd6kXEafBXQc0qbRBafuCp7YuNGo3cm8+v
+         Jz8DDDK3AxDuG4tGZL5ehIXAj9jcCmfMGHPdb0h8JywgvLJPOKqCAhHSRZSrCg54NM+j
+         bvkW08d+yJepYeibN8m7e8x85CiLgjuRlrBdSaIaj2CSEV3GbQ2kG8OSQyg8J3mchMus
+         F76AvltS0x0n1cpIbZUAxKHfOI22JyVM4W3AuTFl5DEu7DXifws+xGDM/8/AVMNw6kP9
+         9fyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772466124; x=1773070924;
+        d=1e100.net; s=20230601; t=1772466780; x=1773071580;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=VQaLSLcNcp6ruIogCBUfZyPg9rcxUfqwC/rj6FLhb/8=;
-        b=pxP7FP4vkP1e2PetIVsgnR1+uiqzIMIlMBrIhCEKdZjtN7cdgtHx15lL0ieWn+Fcmw
-         Dl6Er3sj/q01O4LAbwuef3gE+DeT3Xvyb09MPVRxymlNmAeNX1vTvFR9TMnW4r5agVzs
-         bIhtJkdJfBo9tPdXeAbHg2DmOuF6wE3PzDSCVoRMZs+k4WqJSPlfCU6eSOYy3CY0ITRo
-         u+0IKGjHjyvUDxCU5OsKSJ2t8Qq0zkbtwgZ0IKYYtFm8AZO8pbJ1Eq99PE4Iz/hfAmMr
-         cmF4H6mtuFXeiV+QxnaIdauSxEKHONaIISsS7vlDspvtMmdvmq5h2L9A7/d0hPR7jQxf
-         TiCw==
-X-Forwarded-Encrypted: i=1; AJvYcCVe0xqy4nFRVTj+UD1DJMGB28KyuJ5jOKzS+A7xZRt3RkG5oVRq5D5R+uiYi0luv12Gz4gmJPvQudXSaA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz728szYMaoKgKF0SQUlLZw7DYdZ2I41/mrHPlzXIBcC9H3ayvm
-	jReOVxqsXBk8vJqNgnsHfxXONh3LA/ULeNp9qu6/sm6++QD1YGlodsIvxLgSdqdI1bA=
-X-Gm-Gg: ATEYQzxYCBJnyDdWO+6M9MhZc5XWzu930UxWKwvril86G+wEzLJvtBAWB5jIThZYY0s
-	ZlVT+W6ByEtOTmzcybFONnUtyQy9PNvHa8uxu22uvLsD6bGywkf3Bti7UEiIGkEs1QFpU9pvJAN
-	T/FZUPn3Xb+YgXmtmcv4nsAeuSzPJJw2J3GBTCEHfdVLcqlHN1EDW2uvR6WLGkrHPgKwIF3dpNT
-	jRCbjkz4gBggyPLkrOCbV+qTDyQdrV3IQ+kDGSn4nML1ROzj1IksKLyRqJxaJwvVHf6+czmyi2Q
-	YlUSo72uF9r0vETyOK/zS9ljyhyZIukXUKUiUz9vGwE5EXbowS1PZ8Nl75PblPTm5wkUQAsO30E
-	J5r397QZmXmZi5cAP556rHRNaW3Fz0xaT7S4h1DDnD82UKdZ+ctZbRYRveeyWmjNO6jSHK6tonP
-	Wv4gwCHmEUGGV4mPlfQipw14FS0BuxxmJLguLMQ5h/VacAif+psBEzk8weDiJY9IfV7D6EAgu01
-	O+ix877CWg/
-X-Received: by 2002:a05:6820:f024:b0:663:b63:5aad with SMTP id 006d021491bc7-679faf54744mr6710378eaf.53.1772466124365;
-        Mon, 02 Mar 2026 07:42:04 -0800 (PST)
+        bh=3WtWjK/XrBFXhlPr3QyvBUKjwrSPr3UtmIW2Gtd1DQ8=;
+        b=vinFcoiQEPBuWWc5RgUTr75by/ZVS2g89kRX7pX11L5pweLA5QCG+G71ES2m5EOV78
+         Ku50rHJ+nbEEVOXdEzVt6ktEdb7MQ6yDFbaHj1ARgV6iWH9nW2L/lMOOVWIf+adoT5J9
+         VFrt9EYhLnDBtB2AwwWOCBZ5hb6mBRz4XA/7D8R5xBsNhct5OpL0EMp54z/6Gx9rU6H8
+         RfVdj3KrLW0m87y75ZdCkD26FPDmpM32HEpeMw6VRQARMVPHDSseGho2sKuRwdktUH6b
+         FDevhI8oY7xhYjQ2glIgu3tmqg7yhbF3jDa9rx5mICOWq5rZVHBWv2+2oNNpQXPa4gM5
+         vdjw==
+X-Forwarded-Encrypted: i=1; AJvYcCVSZuvQpE/M8701LcmcgQrCR5RU7yu1OSm01GkZUp3PCfgXOTKZ7InMwvOjqGKzUuGsXPs7uCKz9Qf0Rg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUhX8wZ5G3XT1s2S8DerB0mCsjPPq7vMBzAgGpV9WjVeQVQDll
+	HbyYmQtbEWZwAfHzgQ8Bm2atXUJHvlMV72HQyuGTWKMHxUiJUxAMUojmTLrpNOdF3S8=
+X-Gm-Gg: ATEYQzyVJ5GodE9pxdvKauU3MFxS3c9eMbBkX+2Ay/YRC9D2OBRc2xBdVpOmscJOOyO
+	saT4q/RAIXuTgTDUTkximl5UgvxBRIiZnwc8e/zErukiqGXbBBYR6CQpSXZjs4KwK0lBNT84zxs
+	vHUJ0ZBlAuKSGuOowtwtncx8gtVvlhtWbxDyc6pfXlAflmgXbyqcFmFW4xkBb3haTO7KbTH+Izf
+	cC3lB8r9KiJ4G9y7CfOTcE0OxsdQvYIroQScuHZyMyWcvZkY8UWIZ3zfT3rWCp1n4AGhYiUrnlo
+	NkRmNMwij7Dh96aYO0i14DOEpYH7YyJ/Z1dLvkPZXxoz07ZIFAGvDm+/QN0FfLLFfyUdQRmMFFj
+	rZr46lg+E3R6ee/D2GROilUxT48IeoyfSMgO4VoGeVOBAIvWwKcBX9OpIESeJjEAKU+ay9gI4cy
+	PPLZIsPryoks8sXrCrKvawvFhZQDb2RK0LtUMP6OC+3w4CClBELspE6WbdoIZnjKYMX1vaByRM2
+	VPmXF4B3zn7
+X-Received: by 2002:a05:6808:1188:b0:45e:fcf2:b693 with SMTP id 5614622812f47-464bf0363f1mr6898511b6e.29.1772466779623;
+        Mon, 02 Mar 2026 07:52:59 -0800 (PST)
 Received: from ?IPV6:2600:8803:e7e4:500:4c09:7c6b:bc48:f2f7? ([2600:8803:e7e4:500:4c09:7c6b:bc48:f2f7])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-679f2be9ab7sm9163410eaf.4.2026.03.02.07.42.03
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-464bb5d0a8csm7577165b6e.14.2026.03.02.07.52.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 Mar 2026 07:42:03 -0800 (PST)
-Message-ID: <a7078fba-af96-4d77-8b10-35a31cb364ac@baylibre.com>
-Date: Mon, 2 Mar 2026 09:42:03 -0600
+        Mon, 02 Mar 2026 07:52:59 -0800 (PST)
+Message-ID: <d22e03b2-2093-4d33-8ec5-484f64f2e8cd@baylibre.com>
+Date: Mon, 2 Mar 2026 09:52:58 -0600
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,94 +69,67 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/4] iio: buffer: fix timestamp alignment when quaternion
- in scan
+Subject: Re: [PATCH v2 0/2] iio: orientation: hid-sensor-rotation: fix
+ quaternion alignment
 To: =?UTF-8?Q?Nuno_S=C3=A1?= <noname.nuno@gmail.com>,
- Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, =?UTF-8?Q?Nuno_S=C3=A1?=
+ <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>,
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
- =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>,
- =?UTF-8?Q?Lars_M=C3=B6llendorf?= <lars.moellendorf@plating.de>,
- Lars-Peter Clausen <lars@metafoo.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
- Lixu Zhang <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260301-iio-fix-timestamp-alignment-v1-0-1a54980bfb90@baylibre.com>
- <20260301-iio-fix-timestamp-alignment-v1-4-1a54980bfb90@baylibre.com>
- <f481f4ae4d9545bbb186e51a1204ca2d65b74a26.camel@gmail.com>
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org,
+ Lixu Zhang <lixu.zhang@intel.com>
+References: <20260228-iio-fix-repeat-alignment-v2-0-d58bfaa2920d@baylibre.com>
+ <aaVRIOejIgnOdAfY@ashevche-desk.local>
+ <6158f495b13f2a8cdc09f37e296166ccf0393c78.camel@gmail.com>
 Content-Language: en-US
 From: David Lechner <dlechner@baylibre.com>
-In-Reply-To: <f481f4ae4d9545bbb186e51a1204ca2d65b74a26.camel@gmail.com>
+In-Reply-To: <6158f495b13f2a8cdc09f37e296166ccf0393c78.camel@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 3/2/26 6:04 AM, Nuno Sá wrote:
-> On Sun, 2026-03-01 at 14:24 -0600, David Lechner wrote:
->> Fix timestamp alignment when a scan buffer contains an element larger
->> than sizeof(int64_t). Currently s32 quaternions are the only such
->> element, and the one driver that has this (hid-sensor-rotation) has a
->> workaround in place already so this change does not affect it.
+On 3/2/26 6:32 AM, Nuno Sá wrote:
+> On Mon, 2026-03-02 at 10:58 +0200, Andy Shevchenko wrote:
+>> On Sat, Feb 28, 2026 at 02:02:21PM -0600, David Lechner wrote:
+>>> The main point of this series is to fix a regression reported in
+>>> hid-sensor-rotation where the alignment of the quaternion field in the
+>>> data was inadvertently changed from 16 bytes to 8 bytes. This is an
+>>> unusually case (one of only 2 in the kernel) where the .repeat field of
+>>> struct iio_scan_type is used and we have such a requirement. (The other
+>>> case uses u16 instead of u32, so it wasn't affected.)
+>>>
+>>> To make the reason for the alignment more explicit to future readers,
+>>> we introduce a new macro, IIO_DECLARE_QUATERNION(), to declare the
+>>> array with proper alignment. This is meant to follow the pattern of
+>>> the similar IIO_DECLARE_BUFFER_WITH_TS() macro.
 >>
->> Previously, we assumed that the timestamp would always be 8-byte aligned
->> relative to the end of the scan buffer, but in the case of a scan buffer
->> a 16-byte quaternion vector, scan_bytes == 32, but the timestamp needs
->> to be placed at offset 16, not 24.
+>> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 >>
->> Signed-off-by: David Lechner <dlechner@baylibre.com>
->> ---
->>
->> To test this, I used hid-sensor-rotation minus the first patch in the
->> series so that we can see that the timestamp actually moved to the
->> correct location.
->>
->> Before this patch, the timestamp (8 bytes ending with "98 18") is in the
->> wrong location.
->>
->> 00000000  6a 18 00 00 ac f3 ff ff  83 2d 00 00 02 d3 ff ff  |j........-......|
->> 00000010  00 00 00 00 00 00 00 00  5a 17 a0 2a 73 cb 98 18  |........Z..*s...|
->>
->> 00000020  ad 17 00 00 6a f4 ff ff  35 2b 00 00 ca d0 ff ff  |....j...5+......|
->> 00000030  00 00 00 00 00 00 00 00  2a a6 bb 30 73 cb 98 18  |........*..0s...|
->>
->> 00000040  92 1e 00 00 50 ec ff ff  ea c1 ff ff 78 f0 ff ff  |....P.......x...|
->> 00000050  00 00 00 00 00 00 00 00  8f 3b a7 39 77 cb 98 18  |.........;.9w...|
->>
->> After this patch, timestamp is now in the correct location.
->>
->> 00000000  55 0f 00 00 dd 1f 00 00  af 0b 00 00 ec 3e 00 00  |U............>..|
->> 00000010  c7 17 68 42 6d d0 98 18  00 00 00 00 00 00 00 00  |..hBm...........|
->>
->> 00000020  57 0e 00 00 c8 1f 00 00  d1 0e 00 00 42 3e 00 00  |W...........B>..|
->> 00000030  56 a2 87 48 6d d0 98 18  00 00 00 00 00 00 00 00  |V..Hm...........|
->>
->> 00000040  a3 e2 ff ff d3 1b 00 00  0b c9 ff ff cc 20 00 00  |............. ..|
->> 00000050  27 59 4d b3 72 d0 98 18  00 00 00 00 00 00 00 00  |'YM.r...........|
->>
->> I also tested this with a different driver not affected by this bug to
->> make sure that the timestamp is still in the correct location for all
->> other drivers.
->> ---
->>  include/linux/iio/buffer.h | 12 ++++++++++--
->>  1 file changed, 10 insertions(+), 2 deletions(-)
->>
->> diff --git a/include/linux/iio/buffer.h b/include/linux/iio/buffer.h
->> index d37f82678f71..ac19b39bdbe4 100644
->> --- a/include/linux/iio/buffer.h
->> +++ b/include/linux/iio/buffer.h
->> @@ -34,8 +34,16 @@ static inline int iio_push_to_buffers_with_timestamp(struct iio_dev *indio_dev,
->>  	void *data, int64_t timestamp)
->>  {
->>  	if (ACCESS_PRIVATE(indio_dev, scan_timestamp)) {
->> -		size_t ts_offset = indio_dev->scan_bytes / sizeof(int64_t) - 1;
->> -		((int64_t *)data)[ts_offset] = timestamp;
->> +		size_t ts_offset = indio_dev->scan_bytes -
->> +			ACCESS_PRIVATE(indio_dev, largest_scan_element_size);
+>> But this is in conflict with the other hack-patch in another series.
+>> I'm a bit lost what patch 2 fixes here and that hack-patch fixes
+>> in the same driver. Shouldn't survive only one?
 > 
-> Given that we're adding a new private member, maybe we could just directly cache the ts_offset
-> in iio_compute_scan_bytes()? Would make the code a bit easier to follow IMHO
+> +1.
+> 
+> I see this is older so should we only look at the other series?
 > 
 > - Nuno Sá
->>
 
-Clever. :-)
+They are fixing two separate bugs.
+
+This bug (which is a recent regression) is that the size of the struct is
+wrong. It is supposed to be 32 bytes, but a recent change make it only 24.
+This causes iio_push_to_buffers_with_ts() to write over data past the end
+of the struct.
+
+The other bug (which has been a bug for 6 years) is that the the timestamp
+is in the wrong place. That patch also has an effect of making the struct
+the right size, but that is only a side-effect.
+
+So yes, I should have mentioned that in the cover letter that this series
+should probably be applied first since it is the worse bug. And it looks
+like I'll be doing a v2 of the other series anyway, so I can properly rebase
+it and declare the dependency.
+
+

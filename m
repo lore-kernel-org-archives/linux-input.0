@@ -1,126 +1,111 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06825367F3A
-	for <linux-input@vger.kernel.org>; Mon,  2 Mar 2026 20:32:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772483576; cv=pass; b=VmwDIYUk9+avnqtE5al7YRdBMkoivqnPuRyBaSR3kUPB26GuruQb5roO2BGpmRMpDDnlR95EQblxirdpaJiqgL1DyFE4B8Y5DkP5RgasVwPhGkOnfNz9N/G0KuTWOWi/bfcXp+E2X8l+fCaxIlQ4OVHcZnMI/3QhYRZf8AWg0Uk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772483576; c=relaxed/simple;
-	bh=flcTd+wNy1G9C+3yGzQ3mHVcbX3iyvCsBn5OyIFxpi8=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=VKDru+IH7ozfkckjfcPcVp3FeMAeru6SuW0a0FxxEsPMp4iHJj4mApynfGlBf6LnxZeM2BgqKwmtfvRq/HC1xyzWZTdyM6M1mOEDEOUD96MfkBiIIn6lJCHDUNgkyR5CKrEGtAeG5n7yuO4MxBqm+fcHYHEWSZrqnyh5YBGskvc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WyTAPz43; arc=pass smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF243A331F;
+	Mon,  2 Mar 2026 20:39:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772483953; cv=none; b=M2K57B2vpHVa+qL+ELt+bUXwB6rtR7rlOP9i74v4U/h5gqcQOZAFRw7009qYj/Bwrgy2DR1yUCOTlc++8U/WS/Nx5IqKQP3WEZp3eetJiEj2/2Zge62c1sFZihiDQsNN1mSY3KkKTm0Ve9L4EEzO5ViBii9S70T4RqcK5WM/gbs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772483953; c=relaxed/simple;
+	bh=pFfPSNxtGFkRYqV6Ta0uf8gVvc79p+51pA2KUDhmdyw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cOy4O8RbX1LInxwQGpijLW66sYdwr0UKjNjoFlxVv61u/O5/nu+w/1l0QqmINCMEr1e7/d/xEnGExiea9CuWpq/OIx1rg2S4A3S+dPwbCc+Ye8c8pGhou03N/k47WBWgHe4N9KEiOkbUxZKDnWyawPqtUZRlYVJ14+0AaMwvZME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aMKsyGd2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WyTAPz43"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-7982c3b7dfcso47265447b3.0
-        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2026 12:32:54 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772483574; cv=none;
-        d=google.com; s=arc-20240605;
-        b=aINm6l7h8ApcXfyhdxhlipiGjDia2t7dOoEGcoLcTSq80OeIW4h8iOsb7qZ5B0V+Ts
-         5ZS04tX4vO9TGrJZWmeP8Yf0RIzZzo9BkyxtyCM+h0X7/9uPl1CMTp7Anb6tT7b/MpIt
-         OK8eJSMPDU0cFHg34i+gsBKhcPK/rcu0kKu2/jinhWSUqNYZeuJnN4gjW95yfcvTfg2H
-         TzhHNSY8W+748Sq8fN5M9Anphwogbg/OO3HkhtJRUUTXfU+b2dSbrLUqVjC+9JJhNY+/
-         8CxXsqoQ7nqbS/FwyiikEO0XojoLOV92pC9ol94YcpmE+jZ8CsHnBRq/NZYkmlSEozlE
-         uJUA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
-        fh=enjSiehNwoV+PkcvWBttonxpTM2Yn2N6bUSaMdmePSs=;
-        b=FdYgZgLlbYsLhFb5ZTTA8CVV3bcKY8j1pEKMbhRFqzhGKQmB/fKcgm4RYjF/k3Y26c
-         ClZcQIn9uRj8ynewmPYDdFnR1ncIOEuatJg1VfPvVI9k5z2gpEEHU4t5+i7lw05FFv4X
-         YP41azovM2sa2dremN3ikffxlz0Kz056xYCdHrDosJTRBvSHyxrbS+cZwmmtb2fz6r8N
-         8Bc31HYBArlEaUfrZcLr+vdaRFr9vCEl1NT9a7FkK+HqE9QmrQxLtGkLzkgfc/Yczwqz
-         W1d0A47S/9TSfjgAL8JdYniZAIrtWap0JR9KiAT1wn+vw/D2k62WyosEWwrcjxSBA1+h
-         ycVw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772483574; x=1773088374; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
-        b=WyTAPz43E3DuH9BZRyEzQHm2SCchopGyCNMYhz3YfJSWv+CVEgIMoUbV6TAjBWfB2A
-         XG/51KZaz0aG8WVbLobAQg40c0sWkfrSSyJ12Y5F2W00XG6/gusZ//VEHymTgyYw0kQh
-         I1esPwu3RvPNxzZTKq7Y3prqwJTf3vy5SUsG5EO2/dEjpYpn5BXXjgzid8ByZWnKCSDc
-         H+BuCBMbZ7c6aq1L5i/OiL8WfgMHVJeOIqY6TRMHeNB1I8FGQ01RLe++JBxHyHlPEcgZ
-         IlN52Jx/V7iZJHlCRvsv1S2yut1FbGXssq+gSMvHEOEeT5UkU9Mn/4eamdLdvpPu377G
-         lIaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772483574; x=1773088374;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=em57ZkRxC5BlLOvFWyG+lwKc/F9rE7HyN9LCvsMCgus=;
-        b=CB1KDRaSsnb00b/Px3qqHn+mjuHOT0KpctukbfQG9eH1e64btwiyuFZBm1wNTflRUa
-         xLcTGGlm5BRe41xLDINLn5yPic3ZgfD+xG6Rv+38GzD2RIUqwbbW04thWdE7fT0ago/j
-         saO9L5lPN8NavwCxir6yt2FaK2YMy+V10sWo+FeZXl2o42PF7PBIYbqNBo5zycXw8dG2
-         Aj64hvMfoPy0wXE9E2ro5S5tcSQfwdH6FVyuNazyWDAjOjyYt7i+6uiR/N1lbjFG6SbM
-         galCpBgpt67Jbji+tXL7h1blP1aBmmf6+i0FAdKrlSdaFtcTbR5ID85AUt0RvRvmH0DI
-         ktGA==
-X-Forwarded-Encrypted: i=1; AJvYcCWa43TZ172sS9PJa5EvryRxkDPrsEplD/xjATa/UeXUFxE5RP1u2KW7hueKYB2xB0gIv3G41NKhUW+uNg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwXN1+oRBsbzhhfZsBHihvKY2FMbjcIiConCMpU3sCTbAV487C3
-	MIjZTBHwzoYrMB6xN3hdvc/mD06cYsdj4MXSL7RFVJDxjhDkKDOaGMaKk/8Kb+K4ec+f/rj+lur
-	Zpi2yCELIBIM+Xz/c2At87fqW1peqNaB1vcOjuaQ=
-X-Gm-Gg: ATEYQzxS3FVr9asEdct+eg5YDe2/NfxqjfonCJvl8FOyYF73/4cVyGjCD4igpT+Iej2
-	t8RbkrN1xc0OvDMkomMO023bxEjzbKGi5kgjv+y1uYXgGRtvAqOL4LezOsrMc8GCD85OYyWFG6b
-	q+Ll14aYN8QGnSWTSkwSL0EbFOfQ1lnL3s8O+A1XdHTwO4cfX76wqCkFmCIszFN3P9pamdoihE5
-	UEE1BwIkTzzSc/sCuynhl+WDQK8COU4jxQ+jOgF/jS8oFce6KZLpc/pfe72NXXL5S9AHMHyQFdZ
-	71UXd3XbSBlLvnRPhdwR8bVxNGTYoAxL9T2wR0fy
-X-Received: by 2002:a05:690c:3587:b0:796:4004:d1d5 with SMTP id
- 00721157ae682-79885609102mr119790877b3.59.1772483573894; Mon, 02 Mar 2026
- 12:32:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aMKsyGd2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2AA2C19425;
+	Mon,  2 Mar 2026 20:39:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772483952;
+	bh=pFfPSNxtGFkRYqV6Ta0uf8gVvc79p+51pA2KUDhmdyw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=aMKsyGd22XW4bHoS3jmcSksOMNASw8c7d2+3yboytIhhPe6ZzKjOtKKDS9fcJyl+Z
+	 Ivn6aa34mY+Bu+4dFH/gRJH8bydOx0Cs9eGTGQIkB5EokhBzx73jLTDALnFp8uTjpU
+	 Bs0WxnM7jJXOtKqVy4oWSYkKVPbaF+2IPL5vNQZZl6EHT78QdCS+kWN7aUYcxjhhQ4
+	 Tr/VyG/EYCRiUJSZLqTN78x9RkJo2BAr7Tnz1NOceHQF+fJO3ToB6Jsn7TjTnVsdrD
+	 e4+A4JIxWtU9vQyjb05w/G0wxiKBgqXSHFyx9+zmiux17g3yn0/H/p+usW1F07kv4l
+	 zk7NoNwGLFGDA==
+Date: Mon, 2 Mar 2026 20:39:02 +0000
+From: Jonathan Cameron <jic23@kernel.org>
+To: David Lechner <dlechner@baylibre.com>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, Jiri Kosina
+ <jikos@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, Nuno =?UTF-8?B?U8Oh?=
+ <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Lars
+ =?UTF-8?B?TcO2bGxlbmRvcmY=?= <lars.moellendorf@plating.de>, Lars-Peter
+ Clausen <lars@metafoo.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>, Lixu Zhang
+ <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] iio: orientation: hid-sensor-rotation: add
+ timestamp hack to not break userspace
+Message-ID: <20260302203902.4f918811@jic23-huawei>
+In-Reply-To: <8f9dc90d-9dba-4ed4-8cca-41012027aa10@baylibre.com>
+References: <20260301-iio-fix-timestamp-alignment-v1-0-1a54980bfb90@baylibre.com>
+	<20260301-iio-fix-timestamp-alignment-v1-1-1a54980bfb90@baylibre.com>
+	<aaVPQsvz02S8GtsX@ashevche-desk.local>
+	<8f9dc90d-9dba-4ed4-8cca-41012027aa10@baylibre.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Ngon <ngon36201@gmail.com>
-Date: Tue, 3 Mar 2026 03:32:42 +0700
-X-Gm-Features: AaiRm52frTHqnYyhNAaTErHIwCx1Akl9QCzkNVb20yqccqSwHanN95Zegm7avCo
-Message-ID: <CAF2ktaUNWWED4g+wqa0OuFbXSaVV7Lt-9Kw3co9KE+PYswNW=A@mail.gmail.com>
-Subject: [BUG] HP Pavilion x360: Built-in Keyboard and Touchpad disabled
- permanently after screen removal (Stuck in Tablet Mode)
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Dmitry and Linux-Input developers,
+On Mon, 2 Mar 2026 09:18:56 -0600
+David Lechner <dlechner@baylibre.com> wrote:
 
-  I am reporting a hardware state issue on the HP Pavilion x360
-Convertible 14-cd0xxx that causes the built-in keyboard and
-  touchpad to become completely non-functional under Linux.
+> On 3/2/26 2:50 AM, Andy Shevchenko wrote:
+> > On Sun, Mar 01, 2026 at 02:24:50PM -0600, David Lechner wrote:  
+> >> Add a hack to push two timestamps in the hid-sensor-rotation scan data
+> >> to avoid breaking userspace applications that depend on the timestamp
+> >> being at the incorrect location in the scan data due to unintentional
+> >> misalignment in older kernels.
+> >>
+> >> When this driver was written, the timestamp was in the correct location
+> >> because of the way iio_compute_scan_bytes() was implemented at the time.
+> >> (Samples were 24 bytes each.) Then commit 883f61653069 ("iio: buffer:
+> >> align the size of scan bytes to size of the largest element") changed
+> >> the computed scan_bytes to be a different size (32 bytes), which caused
+> >> iio_push_to_buffers_with_timestamp() to place the timestamp at an
+> >> incorrect offset.
+> >>
+> >> There have been long periods of time (6 years each) where the timestamp
+> >> was in either location, so to not break either case, we open-code the
+> >> timestamps to be pushed to both locations in the scan data.  
+> > 
+> > ...
+> >   
+> >> +		/*
+> >> +		 * HACK: There are two copies of the same timestamp in case of  
+> > 
+> > Usually we use FIXME in such cases. HACK is something which goes with
+> > "do not apply".
+> > 
+> > Does it mean it will stay forever?  
+> 
+> Yes, it will have to stay forever because we can't break userspace.
+> 
+> My intention here was for HACK to mean "do not copy to another driver".
+> 
+> 
+> If we think that no one is depending on timestamps being in the wrong
+> offset, we could omit this change and apply only the rest of the series.
+> And then only apply this patch if anyone complains. I am just trying to
+> play it safe here and not risk breaking things.
+
+I think it makes sense, but maybe label it something like
+
+ABI regression avoidance: 
+
+Good idea to just keep the wrongly aligned one as it removes the
+risk and should do no harm as correct userspace should ignore the
+second copy as it's in the padding.
+
+Jonathan
 
 
-  The Situation:
-  I have physically removed the original laptop screen (using the
-device as a headless mini-PC). Because the lid/hall sensors and
-  rotation sensors are located in the screen assembly, the Embedded
-Controller (EC) or BIOS seems to default to a permanent
-  "Tablet Mode" or "Lid Closed" state.
-
-
-  Observations:
-   1. Running libinput debug-events clearly shows:
-     event20 SWITCH_TOGGLE switch tablet-mode state 1
-   2. The keyboard (AT Raw Set 2) and touchpad (SynPS/2 Synaptics) are
-detected by the kernel but do not emit any events
-      (verified via libinput debug-events).
-   3. On Windows, the keyboard still works despite driver warnings,
-likely due to a proprietary HP override.
-   4. On Linux, common kernel parameters like i8042.nopnp,
-i8042.dumbkbd, or button.lid_init_state=open do not restore
-      functionality. Blacklisting intel_vbtn and hp_wmi also does not
-force the system back to "Laptop Mode."
-
-
-  Question:
-  Is there a way to implement a kernel quirk to force-ignore the
-Tablet Mode switch for this specific model, or a way to bypass
-  the EC's hard-lock on the i8042 bus when sensors are missing?
-
-  I am available to test any patches or provide further DSDT/log details.
-
-  Best regards,
-  kemzsitink

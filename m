@@ -1,299 +1,94 @@
-Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
+Received: from forward501b.mail.yandex.net (forward501b.mail.yandex.net [178.154.239.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A34223E7168;
-	Tue,  3 Mar 2026 11:01:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC6C835E959
+	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 12:49:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772535673; cv=none; b=qf2cbF05H7TyI+CPjMHMmSm54/1geAQj1hDfRtXToVP85D7zmIzVjsvcfsgfyXarwEnK+ADm1yPp6PBQBADbR8Z0AprS7ZAnkfJKOdVc6eerklC9K/sSgXQGseoxD1rWXAT3nafY6SeOndYpdjKEHxBAftWhgqGkjlHqzvZMVRk=
+	t=1772542183; cv=none; b=TBxLuy9qw3bjkV8NpbGZ7FADXfVKPtBdNNFl3quK26AkNB+kup85nszHYgRD6T4OlBaO3qed+6ufkWwuy5sDvp7Tb7dzQ8sg7cT4MT+CJXRV0+mkG5vc+aWPARjRM34oGiZNpUSJSHIXd67NvhNBNF2vx2T/opI5HRFGAo2/JEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772535673; c=relaxed/simple;
-	bh=rZvuwduFXZlVbfNDavSlfAJ3vUhPa9Zo7+AubmUgQlQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=n3BJYmNVEvhBqBdNj0dA+sOaP1m5fo5l3gC+Q2kOjgIH3gzQO3Tl85A6+aO6YOH5Ds1i8BTiNheo3x2EUrVcRz3xPTbUHieMzXajSxHT2+u4I05zBdKpEayg7SqM+rnpFoYrvAdTAGh7Ep4NutY5bpPcHF/zGg7PoFbV3vQRpm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.178.249
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::228])
-	by mslow3.mail.gandi.net (Postfix) with ESMTP id A55C3581208;
-	Tue,  3 Mar 2026 10:58:50 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id DF3D941DD1;
-	Tue,  3 Mar 2026 10:58:41 +0000 (UTC)
-Message-ID: <545b7301f828ec022937c2bc53df0ae7eab285b1.camel@hadess.net>
-Subject: Re: [PATCH v3 09/18] HID: steelseries: Add Bluetooth state sysfs
- attributes
-From: Bastien Nocera <hadess@hadess.net>
-To: Sriman Achanta <srimanachanta@gmail.com>, Jiri Kosina
- <jikos@kernel.org>,  Benjamin Tissoires	 <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Wood
-	 <simon@mungewell.org>, Christian Mayer <git@mayer-bgk.de>
-Date: Tue, 03 Mar 2026 11:58:41 +0100
-In-Reply-To: <20260227235042.410062-10-srimanachanta@gmail.com>
-References: <20260227235042.410062-1-srimanachanta@gmail.com>
-	 <20260227235042.410062-10-srimanachanta@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
+	s=arc-20240116; t=1772542183; c=relaxed/simple;
+	bh=qnr8nN8bPN6mTJdahLe5J5PZ11l4allTcA9H/p/8fa8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZgJnXRJSEX6X7q/5ctmTY3TyxlnFp6ZBOHTPVd6QH4GkpoI2xsloVhI676TVwMVKBsd79eHIIMe5GwuWO4S/BPpqJ/7Y+dR7FTyYrwGkob9hpmAKLf5gRBTDnXP0bSW7DnfqX7LWkJPlmFC0F9kdt/7x5j7jnuTcuHddCLQMEXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru; spf=pass smtp.mailfrom=rosa.ru; dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b=E97EPv1c; arc=none smtp.client-ip=178.154.239.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rosa.ru
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b="E97EPv1c"
+Received: from mail-nwsmtp-smtp-production-main-74.sas.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-74.sas.yp-c.yandex.net [IPv6:2a02:6b8:c24:1698:0:640:befc:0])
+	by forward501b.mail.yandex.net (Yandex) with ESMTPS id 1E36F81B59;
+	Tue, 03 Mar 2026 15:42:55 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-74.sas.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id rgmsBS2GImI0-TsoTzKKW;
+	Tue, 03 Mar 2026 15:42:54 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosa.ru; s=mail;
+	t=1772541774; bh=vdGF3un+L+r/0x9JCD1ro4HSlUqkOMQjFEVLYt5PUmw=;
+	h=From:In-Reply-To:Cc:Date:References:To:Subject:Message-ID;
+	b=E97EPv1cGOF4GJ4ESqZcA1KPxg4e8NQVX+h9+KTP/MSE9aKFQEcesZ6gALtWsqJ6d
+	 oJH8yPopc/I6PxJZTRgj2pyzHUQxa/rsY88FuaTQKZzlx4L1nrFeEuINprOC84zUBm
+	 eT3ua8zjIIdZyEumw0QyXUiogZxTcxkN5kKPXfzw=
+Authentication-Results: mail-nwsmtp-smtp-production-main-74.sas.yp-c.yandex.net; dkim=pass header.i=@rosa.ru
+Message-ID: <24d0e259-3da5-48a4-aaa3-1d407e72d64d@rosa.ru>
+Date: Tue, 3 Mar 2026 15:42:53 +0300
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-GND-Sasl: hadess@hadess.net
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddviedtgedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfevffgjfhgtgfgfggesthhqredttderjeenucfhrhhomhepuegrshhtihgvnhcupfhotggvrhgruceohhgruggvshhssehhrgguvghsshdrnhgvtheqnecuggftrfgrthhtvghrnhepieffgfehtedtgefgjeeggfffgeeuvdegveekveejfeekkedujeehteffueefffeunecukfhppedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemsggrgeefmegrieejieemtgdvugefmeejrgehfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemsggrgeefmegrieejieemtgdvugefmeejrgehfedphhgvlhhopeglkffrvheimedvrgdtudemvgefgeemvggtjeefmegtfhdvtdemsggrgeefmegrieejieemtgdvugefmeejrgehfegnpdhmrghilhhfrhhomhephhgruggvshhssehhrgguvghsshdrnhgvthdpqhhiugepfffhfeffleegudffffdupdhmohguvgepshhmthhpohhuthdpnhgspghrtghpthhtohepjedprhgtphhtthhopehsrhhimhgrnhgrtghhrghnthgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlr
- dhorhhgpdhrtghpthhtohepsggvnhhtihhssheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsihhmohhnsehmuhhnghgvfigvlhhlrdhorhhg
-X-GND-State: clean
-X-GND-Score: -100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: atkbd: add keymap fixup for notebooks using 0x6e
+ as Fn modifier
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, mpearson-lenovo@squebb.ca
+References: <20260218041352.797625-1-m.novosyolov@rosa.ru>
+ <aZVZokRqcqWMfLbM@google.com>
+Content-Language: en-US
+From: Mikhail Novosyolov <m.novosyolov@rosa.ru>
+In-Reply-To: <aZVZokRqcqWMfLbM@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, 2026-02-27 at 18:50 -0500, Sriman Achanta wrote:
-> Add read-only sysfs attributes bt_enabled and bt_device_connected
-> that
-> reflect the current Bluetooth radio state for headsets that support
-> it.
-> Attributes are registered via an attribute group with an is_visible
-> callback so they only appear on capable devices.
+Hello,
 
-This needs a longer explanation as to what that "Bluetooth state" is,
-so folks that aren't familiar with the Steelseries products'
-capabilities.
+18.02.2026 09:26, Dmitry Torokhov пишет:
+> On Wed, Feb 18, 2026 at 07:13:52AM +0300, Mikhail Novosyolov wrote:
+>> Commit dc8c9c171ef3 ("Input: atkbd - map F23 key to support default
+>> copilot shortcut") mapped scancode 0x6e to KEY_F23 to support the
+>> Microsoft Copilot key on Lenovo, HP, and Dell notebooks.
+>>
+>> However, some notebook platforms (including Positron Proxima 15 and
+>> possibly others based on the same OEM design) use scancode 0x6e for the
+>> Fn modifier key instead of a dedicated Copilot key. When 0x6e generates
+>> KEY_F23 events, the Fn key breaks Fn combinations such as Fn+F5
+>> (touchpad toggle).
+>>
+>> On these platforms, the hardware relies on 0x6e being unmapped to
+>> properly handle Fn combinations at the firmware level. When the kernel
+>> maps it to KEY_F23, desktop environments intercept this as a global
+>> hotkey and toggle the touchpad, but cannot re-enable it because the
+>> firmware no longer recognizes Fn as a valid modifier.
+>>
+>> Userspace solutions (systemd hwdb) cannot fix this because the keycode
+>> mapping happens in the atkbd driver before events reach userspace.
+>> A kernel-level quirk is required.
+> ? That is exactly what udev hwdb is for. Use it. Check 60-keyboard.hwdb
+> for examples.
+>
+> Thanks.
 
-> Bluetooth state is decoded from the following HID reports:
-> - Arctis Nova 7 Gen2: 0xb0 initial status packet and 0xb5 async
-> events
-> - Arctis Nova Pro: initial 0x06/0x14 status packet
->=20
-> Returns -ENODEV if the headset is not currently connected.
+Thanks. Probably I tried hwdb incorrectly.
 
-Do you have any ideas on how it might be used? Maybe a link to a
-product page that shows the Windows or macOS software using the
-feature, or another manufacturer using something similar?
+Now I've tried like 
+https://github.com/systemd/systemd/commit/d2502f55a2d9dc13f82cc1551a0639843fefb69e
 
-Adding sysfs files like this is pretty frowned upon, so you probably
-want to make sure that this is the last or close to last patch in your
-patchset so maintainers can easily defer it without blocking the rest.
+user@rosa-jr4mnj ~ $ cat /etc/udev/hwdb.d/61-positron-fn-fix.hwdb
+evdev:atkbd:dmi:bvn*:bvr*:bd*:svn*Positron*:pnG1569*:*
+  KEYBOARD_KEY_6e=fn
+user@rosa-jr4mnj ~ $ sudo systemd-hwdb update
+and reboot.
 
+It seems to work correctly.
 
-
->=20
-> Signed-off-by: Sriman Achanta <srimanachanta@gmail.com>
-> ---
-> =C2=A0drivers/hid/hid-steelseries.c | 111
-> +++++++++++++++++++++++++++++++++-
-> =C2=A01 file changed, 109 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-
-> steelseries.c
-> index 3de8e1555263..8c6116d02f19 100644
-> --- a/drivers/hid/hid-steelseries.c
-> +++ b/drivers/hid/hid-steelseries.c
-> @@ -24,6 +24,8 @@
-> =C2=A0#define SS_CAP_BATTERY			BIT(0)
-> =C2=A0#define SS_CAP_CHATMIX			BIT(1)
-> =C2=A0#define SS_CAP_MIC_MUTE			BIT(2)
-> +#define SS_CAP_BT_ENABLED		BIT(3)
-> +#define SS_CAP_BT_DEVICE_CONNECTED	BIT(4)
-> =C2=A0
-> =C2=A0#define SS_QUIRK_STATUS_SYNC_POLL	BIT(0)
-> =C2=A0
-> @@ -62,6 +64,9 @@ struct steelseries_device {
-> =C2=A0	u8 chatmix_game;
-> =C2=A0	bool mic_muted;
-> =C2=A0
-> +	bool bt_enabled;
-> +	bool bt_device_connected;
-> +
-> =C2=A0	spinlock_t lock;
-> =C2=A0	bool removed;
-> =C2=A0};
-> @@ -641,6 +646,20 @@ static void
-> steelseries_arctis_nova_7_gen2_parse_status(struct steelseries_devic
-> =C2=A0		sd->battery_charging =3D (data[3] =3D=3D 0x01);
-> =C2=A0		sd->chatmix_game =3D data[4];
-> =C2=A0		sd->chatmix_chat =3D data[5];
-> +		switch (data[6]) {
-> +		case 0x00:
-> +			sd->bt_enabled =3D false;
-> +			sd->bt_device_connected =3D false;
-> +			break;
-> +		case 0x03:
-> +			sd->bt_enabled =3D true;
-> +			sd->bt_device_connected =3D false;
-> +			break;
-> +		case 0x02:
-> +			sd->bt_enabled =3D true;
-> +			sd->bt_device_connected =3D true;
-> +			break;
-> +		}
-> =C2=A0		sd->mic_muted =3D (data[9] =3D=3D 0x01);
-> =C2=A0		break;
-> =C2=A0	case 0xb7:
-> @@ -659,6 +678,15 @@ static void
-> steelseries_arctis_nova_7_gen2_parse_status(struct steelseries_devic
-> =C2=A0	case 0x52:
-> =C2=A0		sd->mic_muted =3D (data[2] =3D=3D 0x01);
-> =C2=A0		break;
-> +	case 0xb5:
-> +		if (data[1] =3D=3D 0x01) {
-> +			sd->bt_enabled =3D false;
-> +			sd->bt_device_connected =3D false;
-> +		} else if (data[1] =3D=3D 0x04) {
-> +			sd->bt_enabled =3D true;
-> +			sd->bt_device_connected =3D (data[2] =3D=3D 0x01);
-> +		}
-> +		break;
-> =C2=A0	}
-> =C2=A0}
-> =C2=A0
-> @@ -673,6 +701,8 @@ static void
-> steelseries_arctis_nova_pro_parse_status(struct steelseries_device *
-> =C2=A0		sd->battery_capacity =3D
-> steelseries_map_capacity(data[6], 0x00, 0x08);
-> =C2=A0		sd->battery_charging =3D (data[15] =3D=3D 0x02);
-> =C2=A0		sd->mic_muted =3D (data[9] =3D=3D 0x01);
-> +		sd->bt_enabled =3D (data[4] =3D=3D 0x00);
-> +		sd->bt_device_connected =3D (data[5] =3D=3D 0x01);
-> =C2=A0	} else if (data[0] =3D=3D 0x07 && data[1] =3D=3D 0x45) {
-> =C2=A0		sd->chatmix_game =3D data[2];
-> =C2=A0		sd->chatmix_chat =3D data[3];
-> @@ -760,14 +790,16 @@ static const struct steelseries_device_info
-> arctis_nova_7p_info =3D {
-> =C2=A0static const struct steelseries_device_info arctis_nova_7_gen2_info
-> =3D {
-> =C2=A0	.sync_interface =3D 3,
-> =C2=A0	.async_interface =3D 5,
-> -	.capabilities =3D SS_CAP_BATTERY | SS_CAP_CHATMIX |
-> SS_CAP_MIC_MUTE,
-> +	.capabilities =3D SS_CAP_BATTERY | SS_CAP_CHATMIX |
-> SS_CAP_MIC_MUTE |
-> +			SS_CAP_BT_ENABLED |
-> SS_CAP_BT_DEVICE_CONNECTED,
-> =C2=A0	.request_status =3D steelseries_arctis_nova_request_status,
-> =C2=A0	.parse_status =3D steelseries_arctis_nova_7_gen2_parse_status,
-> =C2=A0};
-> =C2=A0
-> =C2=A0static const struct steelseries_device_info arctis_nova_pro_info =
-=3D {
-> =C2=A0	.sync_interface =3D 4,
-> -	.capabilities =3D SS_CAP_BATTERY | SS_CAP_CHATMIX |
-> SS_CAP_MIC_MUTE,
-> +	.capabilities =3D SS_CAP_BATTERY | SS_CAP_CHATMIX |
-> SS_CAP_MIC_MUTE |
-> +			SS_CAP_BT_ENABLED |
-> SS_CAP_BT_DEVICE_CONNECTED,
-> =C2=A0	.quirks =3D SS_QUIRK_STATUS_SYNC_POLL,
-> =C2=A0	.request_status =3D
-> steelseries_arctis_nova_pro_request_status,
-> =C2=A0	.parse_status =3D steelseries_arctis_nova_pro_parse_status,
-> @@ -908,6 +940,70 @@ static int steelseries_battery_register(struct
-> steelseries_device *sd)
-> =C2=A0	return 0;
-> =C2=A0}
-> =C2=A0
-> +/*
-> + * Sysfs attributes for device state
-> + */
-> +
-> +static ssize_t bt_enabled_show(struct device *dev,
-> +			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct device_attribute *attr, c=
-har
-> *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct steelseries_device *sd =3D hid_get_drvdata(hdev);
-> +
-> +	if (!sd->headset_connected)
-> +		return -ENODEV;
-> +
-> +	return sysfs_emit(buf, "%d\n", sd->bt_enabled);
-> +}
-> +
-> +static ssize_t bt_device_connected_show(struct device *dev,
-> +					struct device_attribute
-> *attr, char *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct steelseries_device *sd =3D hid_get_drvdata(hdev);
-> +
-> +	if (!sd->headset_connected)
-> +		return -ENODEV;
-> +
-> +	return sysfs_emit(buf, "%d\n", sd->bt_device_connected);
-> +}
-> +
-> +static DEVICE_ATTR_RO(bt_enabled);
-> +static DEVICE_ATTR_RO(bt_device_connected);
-> +
-> +static struct attribute *steelseries_headset_attrs[] =3D {
-> +	&dev_attr_bt_enabled.attr,
-> +	&dev_attr_bt_device_connected.attr,
-> +	NULL,
-> +};
-> +
-> +static umode_t steelseries_headset_attr_is_visible(struct kobject
-> *kobj,
-> +						=C2=A0=C2=A0 struct attribute
-> *attr,
-> +						=C2=A0=C2=A0 int index)
-> +{
-> +	struct device *dev =3D kobj_to_dev(kobj);
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct steelseries_device *sd =3D hid_get_drvdata(hdev);
-> +	unsigned long caps;
-> +
-> +	if (!sd)
-> +		return 0;
-> +
-> +	caps =3D sd->info->capabilities;
-> +
-> +	if (attr =3D=3D &dev_attr_bt_enabled.attr)
-> +		return (caps & SS_CAP_BT_ENABLED) ? attr->mode : 0;
-> +	if (attr =3D=3D &dev_attr_bt_device_connected.attr)
-> +		return (caps & SS_CAP_BT_DEVICE_CONNECTED) ? attr-
-> >mode : 0;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct attribute_group steelseries_headset_attr_group =3D
-> {
-> +	.attrs =3D steelseries_headset_attrs,
-> +	.is_visible =3D steelseries_headset_attr_is_visible,
-> +};
-> +
-> =C2=A0#if IS_BUILTIN(CONFIG_SND) || \
-> =C2=A0	(IS_MODULE(CONFIG_SND) && IS_MODULE(CONFIG_HID_STEELSERIES))
-> =C2=A0
-> @@ -1218,6 +1314,13 @@ static int steelseries_probe(struct hid_device
-> *hdev,
-> =C2=A0				hid_warn(hdev, "Failed to register
-> battery: %d\n", ret);
-> =C2=A0		}
-> =C2=A0
-> +		if (info->capabilities & (SS_CAP_BT_ENABLED |
-> SS_CAP_BT_DEVICE_CONNECTED)) {
-> +			ret =3D sysfs_create_group(&hdev->dev.kobj,
-> +					=09
-> &steelseries_headset_attr_group);
-> +			if (ret)
-> +				hid_warn(hdev, "Failed to create
-> sysfs group: %d\n", ret);
-> +		}
-> +
-> =C2=A0#if IS_BUILTIN(CONFIG_SND) || \
-> =C2=A0	(IS_MODULE(CONFIG_SND) && IS_MODULE(CONFIG_HID_STEELSERIES))
-> =C2=A0		ret =3D steelseries_snd_register(sd);
-> @@ -1289,6 +1392,10 @@ static void steelseries_remove(struct
-> hid_device *hdev)
-> =C2=A0	}
-> =C2=A0
-> =C2=A0	if (interface_num =3D=3D sd->info->sync_interface) {
-> +		if (sd->info->capabilities & (SS_CAP_BT_ENABLED |
-> SS_CAP_BT_DEVICE_CONNECTED))
-> +			sysfs_remove_group(&hdev->dev.kobj,
-> +					=C2=A0=C2=A0
-> &steelseries_headset_attr_group);
-> +
-> =C2=A0		if (sd->info->async_interface) {
-> =C2=A0			struct hid_device *sibling;
-> =C2=A0
+>

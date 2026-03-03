@@ -1,281 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f74.google.com (mail-ed1-f74.google.com [209.85.208.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C684364946
-	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 13:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8BEE35F601
+	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 13:58:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772546000; cv=none; b=Ktk07o5QeQh+2DWSg+DxSM/Lt1gowu/7fJSTf17vxdxT2Qm5LLG6U+rOqlcAhrhkjNaeB95goDiZOj/HV0IjncTaWyfsIZHhfTnToLtLoDiRXn1qgE4Ko7fycbns8kvFmfxsMRgGdLeC/TVg/8L22RinI3/RjwxurmfYmgHgu0o=
+	t=1772546320; cv=none; b=GIBM9XYvHOwii0k8V5792lTfC25jb/uDM2cMCOsIV2BFm0ztmqLNu6Otm+ymIK6Nq/B6B0CbGvzj9ZdWsQZLm2dCcsw1CfWbmKg+/ZhDL6Sthh08v19HDEX+GAMP34x4NdIoKjBJcD+ra4JRbIB8qq2NZPpkDJMhkUlmiNtZRwA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772546000; c=relaxed/simple;
-	bh=o1uQy6drhsv5pZD0LZDFkCYjjp8aERY7B+ED/OHab84=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kDFr6TfNH3qbnTxzzIdt6cPjkJtoMhjVC8WhsSf7DlJ79J59IBY4zmSbUOI3YNJcKHTiblmwU/MpW3NlFRvFbWaXfIfP1xr28p5gT0m+YixcOT/sSs3KnQzYJMmvIV7AHDdGF0YtE+Gs9EOxVum7YUEpfXP9aQG3E8LCCSBmKrY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oEXma8uV; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772546320; c=relaxed/simple;
+	bh=JgPY28IqOyO4a/z4K1x3H8dmp9PcfrJXoPXNd05wdyk=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=GuiXURpLNIpIrIW/JCrR3+w2NxGQmfjQ1Gn62FlwOLEHiJvoutuOPLbkutZLoQ5wqMcO0+Z/lVuQ8dyyCeIiDtKgIlNrjih3yYt1nPejnOGj/6gzsWMsQDE+flqoc0t3vMKabrMyco1eO0YYq07Xu20hMlLH/Ab61fsMN4D6X2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NCyatcZs; arc=none smtp.client-ip=209.85.208.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oEXma8uV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51FD5C2BCAF
-	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 13:53:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772546000;
-	bh=o1uQy6drhsv5pZD0LZDFkCYjjp8aERY7B+ED/OHab84=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=oEXma8uVZmBZdCV84TKivC0vLoyWFYSojkK0qJP/Ey4vlkNLGD4FL6UTtI/K/y+W6
-	 zCrhRzg9Qn+A0t8K9Q8nMmXa0RWZbtEfSVBw+VvW5aS0oDRGHnibhInat6eRVWo+cD
-	 3WJad2wTiNTcRrILyUTrNWoJaPBxMSknA+2ibnyy4OcDfaJ0Nk770aihtIjW/0g41X
-	 hsSfQTajCkqPlaL7iCC9S8HYz5Kheguv32/eisgnUBmeFT1icetiRHhrmwyMC0hzIY
-	 O3u2j4aYoQTZfCkFibHdzAfB3UxVgIWt0ekkofAnAZZ9zIvF9c/ZlSrTwSWgqLMWCk
-	 Bqn3JBVv7cKrQ==
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-65faaa8b807so1059806a12.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 05:53:20 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXAjy6rQ4k3/2j2ZZ+LFk1qG9CpcAQgFsaxOgeZXTkSzQN6e22sztZ/F7y4YFkiLT535cF/7/T+RPT3JA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxCBelnQ4/Yr3SPZXi/r1sHsko5AcfmmzcS+VTGe4cD51/5XZqw
-	+1Vbwpmwe+9zv+qkfUFA17G5z4BZ+ArO/F5rgiHaGhji0tG284uCP1zohPaCnWHN6u+J9Q/mZUh
-	adr0cmmqmmPtExvp4RUxr4I2hfJLJQg==
-X-Received: by 2002:a05:6402:51d3:b0:660:b913:faa with SMTP id
- 4fb4d7f45d1cf-660b91311ffmr782984a12.7.1772545998078; Tue, 03 Mar 2026
- 05:53:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NCyatcZs"
+Received: by mail-ed1-f74.google.com with SMTP id 4fb4d7f45d1cf-65fa9f433bdso7177281a12.3
+        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 05:58:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772546317; x=1773151117; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=sBQkY0P462iGzNoybAIeEY89Pa87GfWOJS/rxXvzzC8=;
+        b=NCyatcZsNIAOlu6rZDLqW3Rp8FafdX6hGM7VzIoUQCa4AfjBKIAeiMxwCFqxNA8Nh1
+         11gJtEBcmOxUUdS8aMCvuVDZfnEFU/XmXXCdkI8/P/Gmc4kNko36MkS89KKottWj706L
+         ASGo3qRN+Ogb5tdkhoTiUusaYWx12h7gkdj38+3CJQFUPSu+JoPCsdGbni+aNTJqbf3L
+         JcLdPEsYGyB9ekQGHHrPIgW6VnPYmItYfjq9n/I6ehOcgrcjpzDD7XlbhJPqRGP4pp4B
+         eN/FsRsmJU3d0vxa1/hVk1RLqohfQU5uvBfkLzTKiFHVzQ1h9cstI7ympn7IyKPeLSUa
+         VfhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772546317; x=1773151117;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sBQkY0P462iGzNoybAIeEY89Pa87GfWOJS/rxXvzzC8=;
+        b=XqKO9PFkdTJR5IT3ndQqyTJLngqLspmV1jBVbNkFL48aLXQrEmTTf6Ue9Iob6b+LAN
+         rcO5gkZilzHBMVsWJ8IPqxorNm7Dd5dViNjVGanjLI7edWF26I7b1jJOnx8idL6bugeq
+         SRRQlrLz+fElu5tbSzYz3jWcomVxBDiiJiJamgZu9huef+dNS6s0Bprz7HpmknIc0yz+
+         4cRZBHqRLztVdCJF3kPROITe3z3TszD9UM6TPCPYivgFGTgDq3CY0dDqhkXvDE5xGMMw
+         KHv4vhAQVfrLzQqA/SiM6uWnPlc/bD23RZyropd1Rgy/ayp8Sz+3ww5R0UQtP7lfOngS
+         CMpw==
+X-Gm-Message-State: AOJu0Yz8LVotd939p/dEuRlf6CrqER37HnzTm3LClHjwdedYh8BdrxjO
+	FE5c5uOTUxc6ckakgGtebiQclrTm5CglHpnIyIO5ZzgtvuZFu7y3Y3uKHmk0o3Uv69hJyPfWQAd
+	Eq0vMNpBcIg==
+X-Received: from edev17-n1.prod.google.com ([2002:a05:6402:a2d1:10b0:658:6265:19e4])
+ (user=bsevens job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6402:518b:b0:65c:5a7b:bd99
+ with SMTP id 4fb4d7f45d1cf-65fde4cd4aamr9382146a12.31.1772546317172; Tue, 03
+ Mar 2026 05:58:37 -0800 (PST)
+Date: Tue,  3 Mar 2026 13:58:28 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260303-send-upstream-v1-0-1515ba218f3d@chromium.org> <20260303-send-upstream-v1-9-1515ba218f3d@chromium.org>
-In-Reply-To: <20260303-send-upstream-v1-9-1515ba218f3d@chromium.org>
-From: Rob Herring <robh@kernel.org>
-Date: Tue, 3 Mar 2026 07:53:06 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqKN45FswZjo+27OzoHMeM7ec3hS7piF7SKNykmXNSmA0g@mail.gmail.com>
-X-Gm-Features: AaiRm53ac9QEFDq8SvGBhIqKLe9Px3qYmH3XP37nJ_98UhLN34dE0tk0zj5PhvU
-Message-ID: <CAL_JsqKN45FswZjo+27OzoHMeM7ec3hS7piF7SKNykmXNSmA0g@mail.gmail.com>
-Subject: Re: [PATCH 09/12] dt-bindings: input: Document hid-over-spi DT schema
-To: Jingyuan Liang <jingyliang@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-spi@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, hbarnor@chromium.org, 
-	Dmitry Antipov <dmanti@microsoft.com>, Jarrett Schultz <jaschultz@microsoft.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
+Message-ID: <20260303135828.2374069-1-bsevens@google.com>
+Subject: [PATCH] HID: wacom: fix out-of-bounds read in wacom_intuos_bt_irq
+From: "=?UTF-8?q?Beno=C3=AEt=20Sevens?=" <bsevens@google.com>
+To: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"=?UTF-8?q?Beno=C3=AEt=20Sevens?=" <bsevens@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 3, 2026 at 12:14=E2=80=AFAM Jingyuan Liang <jingyliang@chromium=
-.org> wrote:
->
-> Documentation describes the required and optional properties for
-> implementing Device Tree for a Microsoft G6 Touch Digitizer that
-> supports HID over SPI Protocol 1.0 specification.
->
-> The properties are common to HID over SPI.
->
-> Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
-> Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
-> Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
-> ---
->  .../devicetree/bindings/input/hid-over-spi.yaml    | 153 +++++++++++++++=
-++++++
->  1 file changed, 153 insertions(+)
->
-> diff --git a/Documentation/devicetree/bindings/input/hid-over-spi.yaml b/=
-Documentation/devicetree/bindings/input/hid-over-spi.yaml
-> new file mode 100644
-> index 000000000000..b623629ed9d3
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/hid-over-spi.yaml
-> @@ -0,0 +1,153 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/hid-over-spi.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: HID over SPI Devices
-> +
-> +maintainers:
-> +  - Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> +  - Jiri Kosina <jkosina@suse.cz>
-> +
-> +description: |+
-> +  HID over SPI provides support for various Human Interface Devices over=
- the
-> +  SPI bus. These devices can be for example touchpads, keyboards, touch =
-screens
-> +  or sensors.
-> +
-> +  The specification has been written by Microsoft and is currently avail=
-able here:
-> +  https://www.microsoft.com/en-us/download/details.aspx?id=3D103325
-> +
-> +  If this binding is used, the kernel module spi-hid will handle the com=
-munication
-> +  with the device and the generic hid core layer will handle the protoco=
-l.
-> +
-> +allOf:
-> +  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    oneOf:
-> +      - items:
-> +          - enum:
-> +              - microsoft,g6-touch-digitizer
-> +          - const: hid-over-spi
-> +      - description: Just "hid-over-spi" alone is allowed, but not recom=
-mended.
-> +        const: hid-over-spi
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +    description:
-> +      GPIO specifier for the digitizer's reset pin (active low). The lin=
-e must
-> +      be flagged with GPIO_ACTIVE_LOW.
-> +
-> +  vdd-supply:
-> +    description:
-> +      Regulator for the VDD supply voltage.
+The wacom_intuos_bt_irq() function processes Bluetooth HID reports
+without sufficient bounds checking. A maliciously crafted short report
+can trigger an out-of-bounds read when copying data into the wacom
+structure.
 
-Is this part of the spec? This won't scale for multiple devices with
-different power rails.
+Specifically, report 0x03 requires at least 22 bytes to safely read
+the processed data and battery status, while report 0x04 (which
+falls through to 0x03) requires 32 bytes.
 
-> +
-> +  input-report-header-address:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    minimum: 0
-> +    maximum: 0xffffff
-> +    description:
-> +      A value to be included in the Read Approval packet, listing an add=
-ress of
-> +      the input report header to be put on the SPI bus. This address has=
- 24
-> +      bits.
-> +
-> +  input-report-body-address:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    minimum: 0
-> +    maximum: 0xffffff
-> +    description:
-> +     A value to be included in the Read Approval packet, listing an addr=
-ess of
-> +      the input report body to be put on the SPI bus. This address has 2=
-4 bits.
-> +
-> +  output-report-address:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    minimum: 0
-> +    maximum: 0xffffff
-> +    description:
-> +      A value to be included in the Output Report sent by the host, list=
-ing an
-> +      address where the output report on the SPI bus is to be written to=
-. This
-> +      address has 24 bits.
-> +
-> +  post-power-on-delay-ms:
-> +    description:
-> +      Optional time in ms required by the device after enabling its regu=
-lators
-> +      or powering it on, before it is ready for communication.
+Add explicit length checks for these report IDs and log a warning if
+a short report is received.
 
-Drop. This should be implied by the compatible.
+Signed-off-by: Beno=C3=AEt Sevens <bsevens@google.com>
+---
+ drivers/hid/wacom_wac.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-> +
-> +  minimal-reset-delay-ms:
-> +    description:
-> +      Optional minimum amount of time in ms that device needs to be in r=
-eset
-> +      state for the reset to take effect.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 9b2c710f8da1..da1f0ea85625 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1208,10 +1208,20 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wa=
+com, size_t len)
+=20
+ 	switch (data[0]) {
+ 	case 0x04:
++		if (len < 32) {
++			dev_warn(wacom->pen_input->dev.parent,
++				 "Report 0x04 too short: %zu bytes\n", len);
++			break;
++		}
+ 		wacom_intuos_bt_process_data(wacom, data + i);
+ 		i +=3D 10;
+ 		fallthrough;
+ 	case 0x03:
++		if (i =3D=3D 1 && len < 22) {
++			dev_warn(wacom->pen_input->dev.parent,
++				 "Report 0x03 too short: %zu bytes\n", len);
++			break;
++		}
+ 		wacom_intuos_bt_process_data(wacom, data + i);
+ 		i +=3D 10;
+ 		wacom_intuos_bt_process_data(wacom, data + i);
+--=20
+2.53.0.473.g4a7958ca14-goog
 
-Drop. This should be implied by the compatible.
-
-> +
-> +  read-opcode:
-> +  $ref: /schemas/types.yaml#/definitions/uint8
-> +    description:
-> +      Value to be used in Read Approval packets. 1 byte.
-> +
-> +  write-opcode:
-> +  $ref: /schemas/types.yaml#/definitions/uint8
-> +    description:
-> +      Value to be used in Write Approval packets. 1 byte.
-
-Why are these and the address properties above not defined by the
-spec? Do they vary for a specific device? If not, then they should be
-implied by the compatible.
-
-> +
-> +  hid-over-spi-flags:
-> +  $ref: /schemas/types.yaml#/definitions/uint16
-> +    description:
-> +      16 bits.
-> +      Bits 0-12 - Reserved (must be 0)
-> +      Bit 13 - SPI Write Mode. Possible values -
-> +        * 0b0- Writes are carried out in Single-SPI mode
-> +        * 0b1- Writes are carried out in the Multi-SPI mode specified by=
- bits
-> +               14-15
-> +      Bits 14-15 - Multi-SPI Mode. Possible values -
-> +        * 0b00- Single SPI
-> +        * 0b01- Dual SPI
-> +        * 0b10- Quad SPI
-
-We already have SPI properties to define the bus width for read and write.
-
-> +
-> +required:
-> +  - compatible
-> +  - interrupts
-> +  - reset-gpios
-> +  - vdd-supply
-> +  - input-report-header-address
-> +  - input-report-body-address
-> +  - output-report-address
-> +  - read-opcode
-> +  - write-opcode
-> +  - hid-over-spi-flags
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +    #include <dt-bindings/gpio/gpio.h>
-> +
-> +    spi {
-> +      #address-cells =3D <1>;
-> +      #size-cells =3D <0>;
-> +
-> +      hid@0 {
-> +        compatible =3D "hid-over-spi";
-> +        reg =3D <0x0>;
-> +        interrupts-extended =3D <&gpio 42 IRQ_TYPE_EDGE_FALLING>;
-> +        reset-gpios =3D <&gpio 27 GPIO_ACTIVE_LOW>;
-> +        vdd-supply =3D <&pm8350c_l3>;
-> +        pinctrl-names =3D "default";
-> +        pinctrl-0 =3D <&ts_d6_reset_assert &ts_d6_int_bias>;
-> +        input-report-header-address =3D <0x1000>;
-> +        input-report-body-address =3D <0x1004>;
-> +        output-report-address =3D <0x2000>;
-> +        read-opcode =3D <0x0b>;
-> +        write-opcode =3D <0x02>;
-> +        hid-over-spi-flags =3D <0x0000>;
-> +        post-power-on-delay-ms =3D <5>;
-> +        minimal-reset-delay-ms =3D <5>;
-> +      };
-> +    };
-> \ No newline at end of file
-
-Fix this.
-
-Rob

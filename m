@@ -1,26 +1,27 @@
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8565D36C9D1
-	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 22:41:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD45A370D7D
+	for <linux-input@vger.kernel.org>; Tue,  3 Mar 2026 22:41:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772577689; cv=none; b=lkhSdKvHaaesABQSzTdAcil21jGGXnCluDCNiGRHeKJU/DAh0W9oBV2OC/94qaY5T5u9d3+B2IdJ9xZy1fHgRCVbtUdy/OhVASAczZJ6vaJ6cV1Nk7Xk/H9YIjRLG82tjGYvSNhQMXPcxWarDBdmQTfb4whfRvRe7cfIM1R8co8=
+	t=1772577690; cv=none; b=lDJWzENNgTFV67aKRh/HCD//tDW0EQUj7ojjVpZPt0/5JCUG+NkWTDAhdgfug4PkODW+huzlYiBl7iwNIDta+S7/MS3GbaT5G8yo8k2r4I7imiFO6PEyrYH5g+igRGXQ9Nj1jJJYpiaZngrZwhrOFeIsyo/wA0Xl3/g8ESU2LqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772577689; c=relaxed/simple;
-	bh=cC8/Ug56MKBjscb9X8+OmgjzIMHwihR1R5LWti97a5g=;
+	s=arc-20240116; t=1772577690; c=relaxed/simple;
+	bh=5K0k5aqdkRLabwWM9PyDbKqtaIMA4UE2kiFSaDtcBUo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FeOYx5rlg3bGbfMiltOKZ8B8atfzwZl9gdx6ph0eiw+rMhLRQWcsRW30VKudj3kqYkU9ApzB5hmNhWa/USgQe8mOyt4HD1zIVYv4uKUt8XH/9WEk+rQRxLCy1YU+AN8SmRbe9CIcu/nxkjeqQjwzG45mBPO9kP8uDl5FacTWfT8=
+	 In-Reply-To:To:Cc; b=ZTHQMCdqXqxy5YZrIHigBNFANVAHakMsr5GHjOJZK57/gWCMr7zKtdsAmo6mDw+FHuBq00RPwmQtiJVt2zzPOvXu2JFO2mVYuGbqt6+ua34nEjs3oiDIvBHrew9eWuuYt56NJFYoNDGAEgW+7egYZL55+QKleLGxnq/30F05H08=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Received: from dude02.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::28])
 	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
 	(envelope-from <m.felsch@pengutronix.de>)
-	id 1vxYQe-0000sx-Bm; Tue, 03 Mar 2026 23:41:24 +0100
+	id 1vxYQe-0000sx-E4; Tue, 03 Mar 2026 23:41:24 +0100
 From: Marco Felsch <m.felsch@pengutronix.de>
-Date: Tue, 03 Mar 2026 23:41:20 +0100
-Subject: [PATCH v6 2/4] dt-bindings: vendor-prefixes: Add TouchNetix AS
+Date: Tue, 03 Mar 2026 23:41:21 +0100
+Subject: [PATCH v6 3/4] dt-bindings: input: Add TouchNetix axiom
+ touchscreen
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -29,7 +30,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260303-v6-10-topic-touchscreen-axiom-v6-2-8ac755add12b@pengutronix.de>
+Message-Id: <20260303-v6-10-topic-touchscreen-axiom-v6-3-8ac755add12b@pengutronix.de>
 References: <20260303-v6-10-topic-touchscreen-axiom-v6-0-8ac755add12b@pengutronix.de>
 In-Reply-To: <20260303-v6-10-topic-touchscreen-axiom-v6-0-8ac755add12b@pengutronix.de>
 To: Luis Chamberlain <mcgrof@kernel.org>, 
@@ -56,28 +57,84 @@ X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
 From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-Add vendor prefix for TouchNetix AS (https://www.touchnetix.com/products/).
+Add the TouchNetix axiom I2C touchscreen device tree bindings
+documentation.
 
 Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../input/touchscreen/touchnetix,ax54a.yaml        | 62 ++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index 5d2a7a8d3ac6c666c8b557c2ef385918e5e97bf9..a45b3091f50041cb79a99631c52a1b0c5d6b5f2b 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -1567,6 +1567,8 @@ patternProperties:
-     description: Toradex AG
-   "^toshiba,.*":
-     description: Toshiba Corporation
-+  "^touchnetix,.*":
-+    description: TouchNetix AS
-   "^toumaz,.*":
-     description: Toumaz
-   "^tpk,.*":
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d388c41a75dd4d6d6d0e6de0eaef4d493d439a90
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/touchnetix,ax54a.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TouchNetix Axiom series touchscreen controller
++
++maintainers:
++  - Marco Felsch <kernel@pengutronix.de>
++
++allOf:
++  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
++  - $ref: /schemas/input/input.yaml#
++
++properties:
++  compatible:
++    const: touchnetix,ax54a
++
++  reg:
++    enum: [ 0x66, 0x67 ]
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vdda-supply:
++    description: Analog power supply regulator on VDDA pin
++
++  vddi-supply:
++    description: I/O power supply regulator on VDDI pin
++
++required:
++  - compatible
++  - reg
++  - vdda-supply
++  - vddi-supply
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      touchscreen@66 {
++        compatible = "touchnetix,ax54a";
++        reg = <0x66>;
++        interrupt-parent = <&gpio2>;
++        interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
++        vdda-supply = <&vdda_reg>;
++        vddi-supply = <&vddi_reg>;
++        poll-interval = <20>;
++      };
++    };
++...
 
 -- 
 2.47.3

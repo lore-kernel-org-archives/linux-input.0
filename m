@@ -1,95 +1,87 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DA3237F8B1
-	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 04:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CF1937F8A7
+	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 04:59:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772600201; cv=none; b=d0XrU94oC5COlJU08pdWgER37wipbCNYCVFND+CohZch9Z6Wq4F7IThQEd8JsHjPfpbO6XrkeeLNDNhMNCdhr8IRw4VXfo0Ug8tYrZs18XzQp4dcXSx/2N4Qzdtv13Fkwy0yWeenTAnYsXfXl8V2OKmOuOpfRQEUhmWp8pZuhE4=
+	t=1772600360; cv=none; b=I/upAzaBx6XpO54eteeHeyOlHjDdwAxZsX8xxQ+iuDRZozOvPLcQyiyI5MIcK8Urb4QgrmfaMiYwBlovj/irwXrI9oAKT8ojioJNdooFjsdxSzJGmTNnqB4DUe4uz0ugQZw4vQl6tv4hLENuoVA8eDO/I7eDg5lUwNjC/USMl2U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772600201; c=relaxed/simple;
-	bh=iH6bY3bQDWYTZcVp7FU43vS6MgcMofNwA9FfZQqvXfg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FalPdLlVUpd2y5Fk6CyyGskgy25olnAJYkMvGxarQUDVYDflTX1LVH2uG3qySht7txJc1bLoi299/oGjHkPFSfnAp0Hs675oSEF4gyXK+MZQHN+zpE/PwqKzoSx56G1D7q+iotVzZXUbK+bfJ0G9dHS9QkFfavKgCzluaaK0JQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=URYdIAzG; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772600360; c=relaxed/simple;
+	bh=c9k7scsOyjwJL115qPITjXPKn1naMllV55DtGe609T0=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=UFbv/8+JZ/bouRPhZIjOchc5mlVJSQ0t8wvpTteF/jM70cAY/6Y9jP3s79jVD3EK7UAyqzuckzmxR/EfdRoCCgAuOr5cTpTOO4CqneD2jQa/7gc6sYsa8djM7QLexjQ0Iq2EbayqEm/BarKGDa3yGvXZ1k1SF5NSSiikRDpnpRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IKNno7Dz; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="URYdIAzG"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2bd9a485bd6so2958623eec.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 20:56:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772600199; x=1773204999; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7nvtEyu92HttU76y4JGJxjLhcfE8nKk1Gptt9zFfUY4=;
-        b=URYdIAzGdRzysA12xWf9IoAk2bU59mCoOD5X1ehLyi02pLlMefrJ49zJeK6ns6j154
-         8YYjR4bISCIJT4wSg3/v6/+qtw/zfBDHHGmlbXt1OXmLZTbbWL1rAiGzZJc0L9PTQzZ7
-         /T4hSUU+VbsvjR2n1wDKEeRZqiMXrYU51yyacnHAAsKNUx/okudp3ft1xp0y6xRIFwnZ
-         Oh3/39n0t9YKv6zqzec+hEYkhJPYoqBJgvdn4N7VWux46rO/KqeGPo8gPY19Z1c41OFr
-         DiU5w7gUWZSf/nOykOF60h+DgazySVkCaCVxUavFjP0L4Mv+HHrqw0SjrIjTV36GfxRZ
-         jrdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772600199; x=1773204999;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7nvtEyu92HttU76y4JGJxjLhcfE8nKk1Gptt9zFfUY4=;
-        b=A2UzurxbwYJyUD2rO3PVKSr0+UbKRelrQEFAyPO4mgDZYLHXuw8uA32ihnM6cEm2eP
-         1Y9B2xygCHJ9J+zLtiGHiOoTpR2Hu5bHPIA1pGW0Af9QiqjMiZG1xqRIz+T8xWEoTUWN
-         YaF5YpDGqY2R27th0nnznI/xkm4ZrtWcQCcgIzJnjJAsAVAOiqBpB9mHNaIzNYDXEyW8
-         m3dYjdR1fMjRXhBpf6t/d2vMRWhIIcZTLgfQfkmO0GYTuR/XIYz2k2EmfhBQLlI5NjC4
-         ygGTfKr/BJJmhKX/wKQ/8rUXzdQ3nz5DfxNOQ3COp9/PAWez6CS49zMPFLjMeKXJ1CmR
-         ksDg==
-X-Forwarded-Encrypted: i=1; AJvYcCV35zFTDQZgRg1ixnHRufhRoLX1F7sp6jMCZC32i8q0tueSGPZK8W9tCzHXdQZUUUv28JZ81goZnW4U3A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxkP25zbivbSLS1Bry9eAwRSREZu82bLFVBikVsxI9r2C9kZMNR
-	C6MM2CXJUIgPgLRzbuB7RNeCuu4aHkSj/7nHzZj3STYB/o6qDrCuFn11
-X-Gm-Gg: ATEYQzwwQ5I6iRuvCVMkjAK16v412IfoxK7aFWrDGK+biYBuorve/Ky2QwmQHIHm6xr
-	TTGVz8mSBM+jJTqlkJMPf3NcGPT9Gj3yrWtqNYencQUD00pKS8xSN+tB9f+yFP3/3UAl0uZ5Xnu
-	shSdlSE+XZb5uMoyH6YoH0B5mgwOHZcQdX4ShuShOYrtI9Odi6WFHoKdUpdan3xcvFZKxDrwjy7
-	nai5JWz3skoBv/ZrpAr8SFtisjxJzcsIkbMH+3+aBPR6XzibGLpH1Lsb+uuY17pT0DkE1Pg63TB
-	t0YedGLjR75wpBTMnScr49Boq7+N1TKVcT+P62suhT/8lUQ/Yx90iSOJHytgspzVPkxoyfsRN3O
-	Z1OQtEAdjHPjoNlLoq//meHIIsajk7O/0iPt+giivbT5bXkjeu38LTsEQUjveXlPiNrvdSBE9Mf
-	o4XSiH3xAvPRDBbeXxySdD6KHizfGw/5MQSKO4aflFJvIEk1sOMi4U2nUBM3SbPyJ5
-X-Received: by 2002:a05:7300:b90a:b0:2be:2f58:2eef with SMTP id 5a478bee46e88-2be30fc22b0mr343124eec.2.1772600199248;
-        Tue, 03 Mar 2026 20:56:39 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:a048:d9ec:d217:7d59])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be2800c89asm1899030eec.31.2026.03.03.20.56.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2026 20:56:38 -0800 (PST)
-Date: Tue, 3 Mar 2026 20:56:36 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
-	Luca Weiss <luca.weiss@fairphone.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v4 3/4] Input: aw86938 - add driver for Awinic AW86938
-Message-ID: <aae7fRYaoDHMptyu@google.com>
-References: <20260302-aw86938-driver-v4-0-92c865df9cca@fairphone.com>
- <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IKNno7Dz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772600358; x=1804136358;
+  h=date:from:to:cc:subject:message-id;
+  bh=c9k7scsOyjwJL115qPITjXPKn1naMllV55DtGe609T0=;
+  b=IKNno7Dz/PNPyVL5iR0s+BzN+opv82qGi0yQAAyOD6aV9484uThidIoc
+   cduNnzeW1Ay+TMerbT9zxJRzoMcUW67ico/7v1E/NdEu3dB9Oa0kgT45v
+   JTxSe6b7Zv0SDwNbGnvEY28r4Vb9aD4IAdqqmIH3US6cqW34eRuiQhOzF
+   JnF7a7x8wBvpGJvyslh1B4/1PtX2Ds2ZX3PX9E5SL3TVQMxwLFRzGEryM
+   f3EmnciU6v71A1O0esjvMhQ1juBJOXAn43vQGJ+Dvp2w44Ip+coOVJCDU
+   BUku608ZQITEiZS2Pj9gJMeed6XLxjmchOldNSmrhKo4SG2ea9oVi7jr6
+   w==;
+X-CSE-ConnectionGUID: DqQvsggRSE6/XFrAYVd1sQ==
+X-CSE-MsgGUID: GYcUJ9eLQ/ij0jz4ql8Ttw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11718"; a="73569234"
+X-IronPort-AV: E=Sophos;i="6.21,323,1763452800"; 
+   d="scan'208";a="73569234"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2026 20:59:17 -0800
+X-CSE-ConnectionGUID: D3phG/lWQMCkRWy7LoJSIg==
+X-CSE-MsgGUID: rvpF7B9rSOye2HF6vw5ZjQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,323,1763452800"; 
+   d="scan'208";a="248705363"
+Received: from lkp-server01.sh.intel.com (HELO f27a57aa7a36) ([10.239.97.150])
+  by orviesa002.jf.intel.com with ESMTP; 03 Mar 2026 20:59:15 -0800
+Received: from kbuild by f27a57aa7a36 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vxeKG-000000003Gn-18Is;
+	Wed, 04 Mar 2026 04:59:12 +0000
+Date: Wed, 04 Mar 2026 12:58:46 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>,
+ Mark Pearson <mpearson-lenovo@squebb.ca>
+Subject: [hid:for-7.1/lenovo 14/16] mips-linux-ld:
+ drivers/hid/hid-lenovo-go-s.o:(.data.rgb_enabled+0x0): multiple definition of
+ `rgb_enabled'; drivers/hid/hid-lenovo-go.o:(.data.rgb_enabled+0x0): first
+ defined here
+Message-ID: <202603041208.Jh3JVNU2-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
 
-On Mon, Mar 02, 2026 at 11:50:27AM +0100, Griffin Kroah-Hartman wrote:
-> Add support for the I2C-connected Awinic AW86938 LRA haptic driver.
-> 
-> The AW86938 has a similar but slightly different register layout. In
-> particular, the boost mode register values.
-> The AW86938 also has some extra features that aren't implemented
-> in this driver yet.
-> 
-> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-7.1/lenovo
+head:   d2c424e80caf8237bda4c94bc2e25398967243f9
+commit: 550752e2c153663c3a374b048535654073007c90 [14/16] HID: hid-lenovo-go-s: Add RGB LED control interface
+config: mips-allyesconfig (https://download.01.org/0day-ci/archive/20260304/202603041208.Jh3JVNU2-lkp@intel.com/config)
+compiler: mips-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260304/202603041208.Jh3JVNU2-lkp@intel.com/reproduce)
 
-Applied, thank you.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603041208.Jh3JVNU2-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   mips-linux-ld: drivers/hid/hid-lenovo-go-s.o:(.bss.drvdata+0x0): multiple definition of `drvdata'; drivers/hid/hid-lenovo-go.o:(.bss.drvdata+0x0): first defined here
+>> mips-linux-ld: drivers/hid/hid-lenovo-go-s.o:(.data.rgb_enabled+0x0): multiple definition of `rgb_enabled'; drivers/hid/hid-lenovo-go.o:(.data.rgb_enabled+0x0): first defined here
+   mips-linux-ld: drivers/hid/hid-lenovo-go-s.o:(.data.gamepad_mode+0x0): multiple definition of `gamepad_mode'; drivers/hid/hid-lenovo-go.o:(.data.gamepad_mode+0x0): first defined here
+   mips-linux-ld: drivers/hid/hid-lenovo-go-s.o:(.data.touchpad_enabled+0x0): multiple definition of `touchpad_enabled'; drivers/hid/hid-lenovo-go.o:(.data.touchpad_enabled+0x0): first defined here
 
 -- 
-Dmitry
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

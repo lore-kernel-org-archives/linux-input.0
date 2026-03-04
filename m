@@ -1,71 +1,74 @@
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F067E2EFDAF
-	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 01:22:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 920D823E32B
+	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 01:34:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772587349; cv=none; b=Sl1CSsobY22KICCJL33rzKFlD6R9IJeRD3qLG6SVzMMUdPrg3TwklmGPrpln2CbA+nFiAf7hesw7PF2wlHG02U7gYBHEjrHKHiZxuyq/Ew1aZr5/JKD2Os+1aTQLen7rBSe4XXNRD+cMQ6HCVY7o5u5sSZTTxzzPvnxVvf9V4II=
+	t=1772588057; cv=none; b=ChbUCckHSxjYi5+8XTrAj/B85akAJv0EvvjY6g2x164ejVrEQSx3xj3ZNGPd3ixo6S7KpZ3rk4b3CsVXpDmJBuZhkNoghbQItro3vTpsScDlUgxe7uhYgOj5Guxek5q0ckFEEgKmVixmLD9O5FWKPVhbS8KMWJpkCD5ofud+D0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772587349; c=relaxed/simple;
-	bh=PeeBMfNOxGoRHrch1G6JN/zolUJ0LzZ1qX9BTjAD0eY=;
+	s=arc-20240116; t=1772588057; c=relaxed/simple;
+	bh=JhpmgQxGqFpXyJFSqedylYLfmAiWGgCRpP+pM7jPeV8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ODN+DtOKQRt0QUjWpY9iJwR2u3xWUkya8gnB9K1Tzcv2Vk7IXriiQUFfclrjUjo+A9+GM3gW+BUU/OnugabAQRYFiBnT3GAwBjBn7PVIOY6ldYbkQQtYVV7tiYFyJgUm+sy7RA0NEsi6P0rNybMPF7fhwqQYWdl2Fy7lxs/Yl+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LEm8In2R; arc=none smtp.client-ip=74.125.82.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lyihko1tE/Bvn4lQA96fmECvncECoh7aa8L2FSkaRk8OemOYRXWTudttH6Notp9X5lVk5rzTSL/F7Afab9Lp5L1T9O/Yc5t6zNz1/tIZaEcIVSiR1/B6frpjiy5p2JgwuLDRNO9Pxusf7xfoLNjJ60y8S6Eqnu7snKOCqnGjrC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqRu9O7q; arc=none smtp.client-ip=74.125.82.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LEm8In2R"
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1270ac5d3efso6192552c88.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 17:22:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqRu9O7q"
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1271257ae53so7662550c88.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 17:34:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772587347; x=1773192147; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772588056; x=1773192856; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Md/eHSW9RE9udsg1Dw2wEOYKRwqUSos1ZFTU/4oeWLk=;
-        b=LEm8In2RAuwoaxxF0aXpbc4ckUDdep4ZHIArD1TLDru4kpTVa8XVP0V5V8s1aMQRov
-         +x1OsVTBF4qf9NSJqXQ/7hKztbB4tZC9iH3W/pJ9ihbrZ5J0PKEt9c2KwZF3LlZwf5Us
-         q8hBtmAFWK6HmGxvh4ZcBUzZAfuUgz1Jv8NbugUHVsY2tSDcoKJjQ5hss5Y6zLdHXRsc
-         cwbd/nwV38vruJ8LEYMtRsHfCkV9NEJm+XcLB5GU7ixi+8+wcv+50bRtDamzKdAxYHr3
-         587h/KG24XTaEQYJoDBGIy0ot1OT0nwSmg3BTSfgnoDgcOnxiBV0rtoiT8/iAq8E1pI6
-         fhIg==
+        bh=7hx9LcQYiXKsj58NECRJHVbTkd1by0K5IAyMx09PxHU=;
+        b=cqRu9O7qOtYsO0hlwepUCpLISRN6Xbkdbst2cSCr71aDALO9AWDbEdZ5UfCQl+iV54
+         S9I2gZ5k4FYSDlQHY+5/RIfx9UPXVtA5lRJQmx0r5kyvbJe4T+Fx2GorrEdRtk3vBYXY
+         DAjrmE0e+xydX3E4Q4f+f7E4dabYtI1udMOevWyzAtsNI0YZgn8o8Vd5nkvZL3oXaEqW
+         ZtkUwZI5pCgMmzcrzS+RLb+BUNdZtL0U//qiZo83Q0EtINywAYze7kqZOcAob6y7ISQo
+         45/XPJgqlDPuR+Ny4q2L3N8jPkeDJPgswud97Z5ez5qcyvF7LEufkOYYJyRjFGIH0S8G
+         crWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772587347; x=1773192147;
+        d=1e100.net; s=20230601; t=1772588056; x=1773192856;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Md/eHSW9RE9udsg1Dw2wEOYKRwqUSos1ZFTU/4oeWLk=;
-        b=QXRGgjcfGzx9am35Dudsa0m3+NjFgGqMiRCxrJ/etNITuqdZyucoSlofre1KBevWng
-         Nic6bIAsxG7FB+sn7tB5FCJvU9YdNMTGgFcagpOpXk/PjXHNmXPzpjJvBl96ICxV0GNW
-         28ICvInOIERDeX6sVAkSKNmpbvnD5H3UJFmJnQI1axsn7/I+lG5vVFLrYrfI6dU2W/9p
-         dJt2CrvY+ZxnGnUrFcYtAY7h4kRVhrhLvy1y+SyzBK7LVE2VVaZyFKYVvPlhcTVKBVuc
-         UGMZ9jvuKwGyPgdTcmNTF91+rJet416QX1ZLUB8W9TzMmcnQZLgNim0CubBt4cvWtNFS
-         mxIw==
-X-Forwarded-Encrypted: i=1; AJvYcCX1eJQVfnd4G8/Ot7WqlSyFyCBmrwI8MYCf9o5oQ4tznrMUNRK9xzMgXN4E4Pnm6TSU60aJzQe8rtnwVA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxfGRvWkS6MukpJ3zO+KqrQ1+fzGOKS2LbfKtaVUHucXWWfh06
-	L8TOp+wqEU44J8S3akzAgCQfpRPskbc9XxdX+nmfl3Blamma+WSK55+vtzedTw==
-X-Gm-Gg: ATEYQzwgcHzTrYXAo6V5PRumn+NTFZ7N3Zn3LXoSFfRW5QduCSIox4amt9pQqtGB26V
-	nmnCwAfAsWFfRuLUgdouSsY22cVy1t2Us+sxDB++U6VjSjmrfBjJlICzJS5HnTrC/G6pcjJ4QxZ
-	4Z0AB9Z2QJbc2TdNPVFJdpvaNuv7q64WqFVX8POYJuU2R4rnywBjoWV6G8w3Iu7veKlm8Tk98di
-	eV79x1K64dNRY3X4O6zvdWjg2UDBLphn6nIMA+LX+2/oJYtXZbKYULCnMHhPO5sAWajTUWm8cgt
-	1mQKqCYvWXg9iYOngnpo1joARSMrRNBBT7vC3LH2ImfpsJp1ttlNyKckXddzZfCOFQ8K9NsOAC0
-	22KhigOpBsR/7yY/v0IBtwieecpy7vTcMWPFriaQyUaa31qDcAgKJWaszCcKDY/gQ5EQMAQk76j
-	0WAw1FfADsD9ze+UbQCfL4fY/Gjmuqfolaql9l8+HkHBA53789PZ/8Zz81d23hAJb+
-X-Received: by 2002:a05:7022:689d:b0:127:337e:3304 with SMTP id a92af1059eb24-128b7077657mr98185c88.8.1772587346945;
-        Tue, 03 Mar 2026 17:22:26 -0800 (PST)
+        bh=7hx9LcQYiXKsj58NECRJHVbTkd1by0K5IAyMx09PxHU=;
+        b=RgxQIr7s1zdUE1JBoLLPpWB1qvdyl/InWqrtpgaYslrGg5yz+cMrSWlptcJlxw5O/r
+         Nz/nifdjiC/9J7uNISN0/cu6PILSjqJrQjcYyjlG0To2Tgo7jB2R1Ie+aW84B4t0SB2H
+         3M9qHM3ratO4FdcF48KBDP3K4NFjxl+3Fr4fua4TLbD+W142Cj6c67TdVG3zu+H0feyE
+         0qsJxDdAcNfQ/BXJhGABejetk26ll8RdVsR+5HVByuGJNo/0GFGLrg1tSlL+BUxjQz0a
+         v34sZIxuYcSoPEIHsItVKImr5aE6NSNOUlQeMRABz78DmOWFoBHFxz7FvZr9/aI6RoHy
+         9QDg==
+X-Forwarded-Encrypted: i=1; AJvYcCVOHh7AykpXu/Qv6RevZJ85eBYfJ3kIIdarQNEyT2pAdBSDKsg2HIG5ih+xjZhTQSf/218w+fGdZ8MXaw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxAr6CwJzPDy/rzjheSIlDawn3h3CHnOUmS7/sFfv1MVIS0+kZH
+	xZ51Qm4c9Xj30t3s7EAlf074AmmMeSOcLEZjnOQiqQydGZAOKy6cxoYUvjLSKw==
+X-Gm-Gg: ATEYQzym2RT9Wy+s/0I9rhty0PKhwX+GG3mGYpWt+636fHisJKjh/03SMzL2NIJmarT
+	a5ylMXGwjtDJcBRyouDnysFb2E81x83y2iMHith4KZMi+AUp8BHCp7AdhBRjHYorELmSu3sIpzr
+	2ybNbKOZv2g6RCUpdJJckBVGU+CskTPfiMF6+sAXq1uORyF8XqOOtUtUHRf5q8buHfDAjTLDc0+
+	sES0AN9E0LtCcLHQe6cq0XHW8xlOei3o6d4pvNIr/WTBoF5RdEJIDcKQkjSilt2qXUjhdvkERaC
+	lPk8gGjx12CvufqQEhnP0FL9HyJsaWxKNilKUal9Nc17c0/+b5JvC3zJ1eC69kODk5ca2Os9WRF
+	lUk42tFyBqESOj5ukszOuGeQ9wZ/Mi3LzReNcCNIPJzBncah90YayMlr7p1fpsLvqZZL0t2t76W
+	mh/kbMtCPN3WBReUtr5VGq5T4Vr6Kq1o9PQAcQ/xBiMFzJ4dZnWQguGDDivSVVUnPErpRJTKrmP
+	oA=
+X-Received: by 2002:a05:7022:6899:b0:11b:9386:a386 with SMTP id a92af1059eb24-128b70eb489mr100159c88.41.1772588055657;
+        Tue, 03 Mar 2026 17:34:15 -0800 (PST)
 Received: from google.com ([2a00:79e0:2ebe:8:a048:d9ec:d217:7d59])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-127899d49ccsm20971663c88.3.2026.03.03.17.22.25
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be12805b93sm7241075eec.15.2026.03.03.17.34.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2026 17:22:26 -0800 (PST)
-Date: Tue, 3 Mar 2026 17:22:23 -0800
+        Tue, 03 Mar 2026 17:34:15 -0800 (PST)
+Date: Tue, 3 Mar 2026 17:34:12 -0800
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Sanjay Govind <sanjay.govind9@gmail.com>
 Cc: Vicki Pfau <vi@endrift.com>, 
 	Mario Limonciello <mario.limonciello@amd.com>, Nilton Perim Neto <niltonperimneto@gmail.com>, 
 	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] xpad: expose xinput capabilities via sysattr
-Message-ID: <aaeI1p_Zd0v31-p1@google.com>
+Message-ID: <aaeLgPyFDeA6dxq1@google.com>
 References: <20260304010345.1355896-2-sanjay.govind9@gmail.com>
+ <aaeI1p_Zd0v31-p1@google.com>
+ <CALQgdA0PL82yLxWbjcqchWzsf+bA7_Egq9hZFzz7toL4kByAvw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,28 +77,17 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260304010345.1355896-2-sanjay.govind9@gmail.com>
+In-Reply-To: <CALQgdA0PL82yLxWbjcqchWzsf+bA7_Egq9hZFzz7toL4kByAvw@mail.gmail.com>
 
-Hi Sanjay,
+On Wed, Mar 04, 2026 at 02:27:42PM +1300, Sanjay Govind wrote:
+> I don't really mind how we communicate this data, if there's a better route
+> for exposing these capabilities I'd be happy to use that.
 
-On Wed, Mar 04, 2026 at 02:03:43PM +1300, Sanjay Govind wrote:
-> Fetch xinput capabilities for x360 wired and wireless
-> and then expose them via the following attributes:
-> 
-> ATTRS{xpad/flags}=="3"
-> ATTRS{xpad/gamepad_buttons}=="ffff"
-> ATTRS{xpad/gamepad_lsx}=="0"
-> ATTRS{xpad/gamepad_lsy}=="0"
-> ATTRS{xpad/gamepad_lt}=="3f"
-> ATTRS{xpad/gamepad_rsx}=="ffc0"
-> ATTRS{xpad/gamepad_rsy}=="ffc0"
-> ATTRS{xpad/gamepad_rt}=="ff"
-> ATTRS{xpad/rumble_l}=="0"
-> ATTRS{xpad/rumble_r}=="0"
-> ATTRS{xpad/subtype}=="7"
-> ATTRS{xpad/type}=="1"
+Please do not top post.
 
-My inclination is "No" as we have other ways to communicate this
+You need to start with enumerating what data is currently not available
+through other means and why it is needed. Is this something that other
+gamepad-like devices also lack?
 
 Thanks.
 

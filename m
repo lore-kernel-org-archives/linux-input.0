@@ -1,95 +1,154 @@
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 920D823E32B
-	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 01:34:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D05C366576
+	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 03:33:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772588057; cv=none; b=ChbUCckHSxjYi5+8XTrAj/B85akAJv0EvvjY6g2x164ejVrEQSx3xj3ZNGPd3ixo6S7KpZ3rk4b3CsVXpDmJBuZhkNoghbQItro3vTpsScDlUgxe7uhYgOj5Guxek5q0ckFEEgKmVixmLD9O5FWKPVhbS8KMWJpkCD5ofud+D0Y=
+	t=1772595207; cv=none; b=bdH9IQ8jXrY/HhbsdZ9SCi1fDB5paosLSlNyF8FUON4Ztvw31B+OGVKuoauLe7+P63WmbW/Axl6aV/BZn8+ztdSD6L1If+WffoYxZfHkMsJEeu7MTc7wdpU4rQKWHAe667BpIGoDOpC1phVARALPm8eeLsXiMvjBLsriZ9M42PQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772588057; c=relaxed/simple;
-	bh=JhpmgQxGqFpXyJFSqedylYLfmAiWGgCRpP+pM7jPeV8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Lyihko1tE/Bvn4lQA96fmECvncECoh7aa8L2FSkaRk8OemOYRXWTudttH6Notp9X5lVk5rzTSL/F7Afab9Lp5L1T9O/Yc5t6zNz1/tIZaEcIVSiR1/B6frpjiy5p2JgwuLDRNO9Pxusf7xfoLNjJ60y8S6Eqnu7snKOCqnGjrC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqRu9O7q; arc=none smtp.client-ip=74.125.82.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772595207; c=relaxed/simple;
+	bh=USlOh/kID5IW9rS+Av5xW9X6muP5kzYO3dLWbFbs5o0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DUF/6yIdtx05GObRTHBIy0ASW7+yPkl1LNe24lnc7ONMERWLt0AE8cb8odWbdyPwPowFnEZQmUcbNkkYc46eXkJxn0qPt/DEeamW1L28U00rcSid3Ljla6Gul3BxtzOn+rqSpSMYzR8cVmk/BEhtY62YtAQumqxZrGtDgTkL/f8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=60228.dev; spf=pass smtp.mailfrom=60228.dev; dkim=pass (2048-bit key) header.d=60228.dev header.i=@60228.dev header.b=BeXGXzNs; arc=none smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=60228.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=60228.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqRu9O7q"
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1271257ae53so7662550c88.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 17:34:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=60228.dev header.i=@60228.dev header.b="BeXGXzNs"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-64ca2b32f46so4787606d50.3
+        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2026 19:33:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772588056; x=1773192856; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7hx9LcQYiXKsj58NECRJHVbTkd1by0K5IAyMx09PxHU=;
-        b=cqRu9O7qOtYsO0hlwepUCpLISRN6Xbkdbst2cSCr71aDALO9AWDbEdZ5UfCQl+iV54
-         S9I2gZ5k4FYSDlQHY+5/RIfx9UPXVtA5lRJQmx0r5kyvbJe4T+Fx2GorrEdRtk3vBYXY
-         DAjrmE0e+xydX3E4Q4f+f7E4dabYtI1udMOevWyzAtsNI0YZgn8o8Vd5nkvZL3oXaEqW
-         ZtkUwZI5pCgMmzcrzS+RLb+BUNdZtL0U//qiZo83Q0EtINywAYze7kqZOcAob6y7ISQo
-         45/XPJgqlDPuR+Ny4q2L3N8jPkeDJPgswud97Z5ez5qcyvF7LEufkOYYJyRjFGIH0S8G
-         crWA==
+        d=60228.dev; s=google; t=1772595205; x=1773200005; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mfCf1mm36XK9Ege88JokoogsfKzYFc+JW2IeO4o7W8U=;
+        b=BeXGXzNs23x28Kbfz9XInQH/jvEJ3Zo3aTHi4wvMcn1kRJLwoLKbV8+nUIQk6FYJhj
+         fb1TbrQagZedRPygRDr7+vDZMTH+4AXSaxpxv79SnYY63rvs+Uv4WM/zkMnS+xBSDVIZ
+         SHxfUXegvWQPYrF+RgJ3nMBkezJSLvJSch+LcSoBrwh0xQ8ChRmAX71Di5ckDHVaiM5U
+         g/7fdOZNhc5F1do2Ep10FJbrVuCqwUosP1RdZIOkiteanchBtMsQUHAhcC0zbAJ0Qebq
+         Z3qa6y5oUvny5N3PHWVpUp0PvI880aquC2BtFcK+uzOX9IYoQdRg0+3WBzxsTT2eK5FS
+         SCNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772588056; x=1773192856;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7hx9LcQYiXKsj58NECRJHVbTkd1by0K5IAyMx09PxHU=;
-        b=RgxQIr7s1zdUE1JBoLLPpWB1qvdyl/InWqrtpgaYslrGg5yz+cMrSWlptcJlxw5O/r
-         Nz/nifdjiC/9J7uNISN0/cu6PILSjqJrQjcYyjlG0To2Tgo7jB2R1Ie+aW84B4t0SB2H
-         3M9qHM3ratO4FdcF48KBDP3K4NFjxl+3Fr4fua4TLbD+W142Cj6c67TdVG3zu+H0feyE
-         0qsJxDdAcNfQ/BXJhGABejetk26ll8RdVsR+5HVByuGJNo/0GFGLrg1tSlL+BUxjQz0a
-         v34sZIxuYcSoPEIHsItVKImr5aE6NSNOUlQeMRABz78DmOWFoBHFxz7FvZr9/aI6RoHy
-         9QDg==
-X-Forwarded-Encrypted: i=1; AJvYcCVOHh7AykpXu/Qv6RevZJ85eBYfJ3kIIdarQNEyT2pAdBSDKsg2HIG5ih+xjZhTQSf/218w+fGdZ8MXaw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxAr6CwJzPDy/rzjheSIlDawn3h3CHnOUmS7/sFfv1MVIS0+kZH
-	xZ51Qm4c9Xj30t3s7EAlf074AmmMeSOcLEZjnOQiqQydGZAOKy6cxoYUvjLSKw==
-X-Gm-Gg: ATEYQzym2RT9Wy+s/0I9rhty0PKhwX+GG3mGYpWt+636fHisJKjh/03SMzL2NIJmarT
-	a5ylMXGwjtDJcBRyouDnysFb2E81x83y2iMHith4KZMi+AUp8BHCp7AdhBRjHYorELmSu3sIpzr
-	2ybNbKOZv2g6RCUpdJJckBVGU+CskTPfiMF6+sAXq1uORyF8XqOOtUtUHRf5q8buHfDAjTLDc0+
-	sES0AN9E0LtCcLHQe6cq0XHW8xlOei3o6d4pvNIr/WTBoF5RdEJIDcKQkjSilt2qXUjhdvkERaC
-	lPk8gGjx12CvufqQEhnP0FL9HyJsaWxKNilKUal9Nc17c0/+b5JvC3zJ1eC69kODk5ca2Os9WRF
-	lUk42tFyBqESOj5ukszOuGeQ9wZ/Mi3LzReNcCNIPJzBncah90YayMlr7p1fpsLvqZZL0t2t76W
-	mh/kbMtCPN3WBReUtr5VGq5T4Vr6Kq1o9PQAcQ/xBiMFzJ4dZnWQguGDDivSVVUnPErpRJTKrmP
-	oA=
-X-Received: by 2002:a05:7022:6899:b0:11b:9386:a386 with SMTP id a92af1059eb24-128b70eb489mr100159c88.41.1772588055657;
-        Tue, 03 Mar 2026 17:34:15 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:a048:d9ec:d217:7d59])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be12805b93sm7241075eec.15.2026.03.03.17.34.14
+        d=1e100.net; s=20230601; t=1772595205; x=1773200005;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mfCf1mm36XK9Ege88JokoogsfKzYFc+JW2IeO4o7W8U=;
+        b=YSMZRckkaJbC+l+t9QVsb8dY/Y2Iz47RYymyRGhCF+P9APPhie1GrTRk17il+8GQ3g
+         y8IQoMVGPmEwuKlzTWXi94azO4g3D1r1Mn28vX+piLakH1M6KqNwjevlZMLiswcGEfmP
+         Ll1BbLs1cAecn/H/H1P3KXHpPDWXShmqhxRhGvqop17dVvASvefgtWt7H3IRx9HI2/Ow
+         1pj+lTrG4/GfHpP3SLFuR2SMTlx6fJeGgmX7Dq9pjoMQiMP0UywR+JLipeyjXiTipHGL
+         3eDvZNUPk6xWS1xoL262ip8IAqroOKDT+ZvS1EZWyUmeRVmK6fslBvgC/QQY9Y1jXiic
+         oChw==
+X-Gm-Message-State: AOJu0Yyid8STm/nXencGSmLuUUx8pdL9WwhzS4W5jf60zMZj+7aBDtoH
+	26/JqxeCMLQN2of2YsKNmq+ceN6faI5h4eZTHZ0Pl0+89SPbRwgWHacSK4gIVssnUtpxL1BBtLg
+	02Mm1w0qkCEka
+X-Gm-Gg: ATEYQzzsmwsbWFU40ILTVuyY7o3V5RTV+teZPUHYhrp+rpBe08CLsuGESb0fOHBEWuo
+	SEuiR5pWUB2HJxyBeh01jE3cQqO0fNjg6S1w3QlQ4EWFnEruwn8BwwcmgMMnP/KqK5Jz4QoK3et
+	aJcXYeLtiX1Kej29oZ5jrpB6KE7CopMugo0bpN0I+UEAKG7zSVHYa3eNWumYvMYet49vw5Keunr
+	I0M0nReGxzW4wFO6K1oaFkN+d35+QD8Jl3ruzu15NJx3CsArL8mp2GJJxoy9Es5RY7IbnSk+w8i
+	A3vcqM4iRsku6/KP9/iiugGtNEgAziVUCuduOcsMUFh1sSlrKvzNV+1hKBayE81V4seWgtq/peE
+	H2cUyZvAPda8xwcQOE8LZ5X6xU73E73Td0mSKeHDjjwv/m8cYlxQ3pSSN3RYP/WfHd5hq+xZMwh
+	l9GKERdZklAX2dAypV
+X-Received: by 2002:a05:690e:bc6:b0:649:ba41:dd6a with SMTP id 956f58d0204a3-64cfa00f3f2mr616324d50.73.1772595204891;
+        Tue, 03 Mar 2026 19:33:24 -0800 (PST)
+Received: from localhost ([2600:1700:2760:3c1f:566d:338c:4cb1:510e])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64cb74b985asm7440855d50.0.2026.03.03.19.33.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2026 17:34:15 -0800 (PST)
-Date: Tue, 3 Mar 2026 17:34:12 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Sanjay Govind <sanjay.govind9@gmail.com>
-Cc: Vicki Pfau <vi@endrift.com>, 
-	Mario Limonciello <mario.limonciello@amd.com>, Nilton Perim Neto <niltonperimneto@gmail.com>, 
-	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xpad: expose xinput capabilities via sysattr
-Message-ID: <aaeLgPyFDeA6dxq1@google.com>
-References: <20260304010345.1355896-2-sanjay.govind9@gmail.com>
- <aaeI1p_Zd0v31-p1@google.com>
- <CALQgdA0PL82yLxWbjcqchWzsf+bA7_Egq9hZFzz7toL4kByAvw@mail.gmail.com>
+        Tue, 03 Mar 2026 19:33:23 -0800 (PST)
+From: leo vriska <leo@60228.dev>
+To: linux-input@vger.kernel.org
+Cc: leo vriska <leo@60228.dev>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] HID: quirks: add quirk to always keep device open
+Date: Tue,  3 Mar 2026 22:32:38 -0500
+Message-ID: <20260304033245.445671-1-leo@60228.dev>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALQgdA0PL82yLxWbjcqchWzsf+bA7_Egq9hZFzz7toL4kByAvw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 04, 2026 at 02:27:42PM +1300, Sanjay Govind wrote:
-> I don't really mind how we communicate this data, if there's a better route
-> for exposing these capabilities I'd be happy to use that.
+Some devices expect the host to open the device shortly after it is
+connected. If this does not occur, they may freeze or disconnect. A
+quirk allows these devices to function properly without userspace hacks.
 
-Please do not top post.
+The existing hid-axff driver solves this problem for some generic
+controllers. This implementation is modelled after that driver, which
+still needs to exist for force feedback on the controllers that use it.
 
-You need to start with enumerating what data is currently not available
-through other means and why it is needed. Is this something that other
-gamepad-like devices also lack?
+Signed-off-by: leo vriska <leo@60228.dev>
+---
+ drivers/hid/hid-generic.c | 23 ++++++++++++++++++++++-
+ include/linux/hid.h       |  2 ++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
-Thanks.
-
+diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
+index c2de916747de..0595e653b7e7 100644
+--- a/drivers/hid/hid-generic.c
++++ b/drivers/hid/hid-generic.c
+@@ -67,7 +67,27 @@ static int hid_generic_probe(struct hid_device *hdev,
+ 	if (ret)
+ 		return ret;
+ 
+-	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		return ret;
++
++	if (hdev->quirks & HID_QUIRK_KEEP_OPEN) {
++		ret = hid_hw_open(hdev);
++		if (ret) {
++			hid_hw_stop(hdev);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++static void hid_generic_remove(struct hid_device *hdev)
++{
++	if (hdev->quirks & HID_QUIRK_KEEP_OPEN)
++		hid_hw_close(hdev);
++
++	hid_hw_stop(hdev);
+ }
+ 
+ static int hid_generic_reset_resume(struct hid_device *hdev)
+@@ -89,6 +109,7 @@ static struct hid_driver hid_generic = {
+ 	.id_table = hid_table,
+ 	.match = hid_generic_match,
+ 	.probe = hid_generic_probe,
++	.remove = hid_generic_remove,
+ 	.reset_resume = hid_generic_reset_resume,
+ };
+ module_hid_driver(hid_generic);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 2990b9f94cb5..9d0ab7c217f3 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -388,6 +388,7 @@ struct hid_item {
+  * | @HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE:
+  * | @HID_QUIRK_IGNORE_SPECIAL_DRIVER
+  * | @HID_QUIRK_POWER_ON_AFTER_BACKLIGHT
++ * | @HID_QUIRK_KEEP_OPEN:
+  * | @HID_QUIRK_FULLSPEED_INTERVAL:
+  * | @HID_QUIRK_NO_INIT_REPORTS:
+  * | @HID_QUIRK_NO_IGNORE:
+@@ -416,6 +417,7 @@ struct hid_item {
+ #define HID_QUIRK_NOINVERT			BIT(21)
+ #define HID_QUIRK_IGNORE_SPECIAL_DRIVER		BIT(22)
+ #define HID_QUIRK_POWER_ON_AFTER_BACKLIGHT	BIT(23)
++#define HID_QUIRK_KEEP_OPEN			BIT(24)
+ #define HID_QUIRK_FULLSPEED_INTERVAL		BIT(28)
+ #define HID_QUIRK_NO_INIT_REPORTS		BIT(29)
+ #define HID_QUIRK_NO_IGNORE			BIT(30)
 -- 
-Dmitry
+2.53.0
+

@@ -1,108 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 657C937F72C;
-	Wed,  4 Mar 2026 08:25:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772612723; cv=none; b=CgzT82O2kKIrYTCEiGFpMn18ID2+RV2Yo5QwDk3DhjFpJBleMow2Nm7FX5KUqAbr2rcmA/GHcx3zqxMF4FIdxBO8oN8CF/7zxL6tOtaSwi2KdkQuDAIHPoanzzXOR26IB+g0xLE74OpVjJ0y0oenDsDmrRAhUL7ZYIFBlq77Mzk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772612723; c=relaxed/simple;
-	bh=tRfAQymiBDbnrpKvWlOvqY1R2w8GkqKFHUhIf8yzyyM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=sLv8F3Mx2TnWrJbnqE2g5FJfKIBLCjk1jO0l0Q6nRhB9n177wRtbypSB99mvNoM9TtsdsmrWPlHOWA0no4jayRLt+fiz1T8KON7s7r4W6+VOdQNIp3iZ9889f0wiBHzD0uy543OYKz1L173B1LZ5pufc143VoooRg8LAN6TIyOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m8gRnPYq; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C73583382DA
+	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 15:02:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772636536; cv=pass; b=JkUUo9vYBeAmpLkjY4jJsj/Q7Pjwo13BZNa5/J5rXZPXalDEeuKjoLIaUV9m8uXK9Qoa5/2YEN3BV+P29hr0fkAQLL+zj8Re+tR8YfmD5nU6XDId3o6rjYv8v1AAh8GS1ktvk4vBWr4hhFC/PBhuxjWuYUgb1H27H1lEShD9B5g=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772636536; c=relaxed/simple;
+	bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=pLTAwq1VZdSct6AcOQE45V3Z1W8DuGkmPbqjx3ikL7H8IL5iSll0jJbKqv5C0C39Qo7qDgsvtyhfNrzFfncXfhnqW9BNQ2g37ITxAPb0fAw3qiCgSbxqcnlrykWko30w24rwvTCel8buZCdJWIDJvlSeykqH3OOfujKDu3FXfGI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GagjfwBz; arc=pass smtp.client-ip=209.85.161.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m8gRnPYq"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E6894C19423;
-	Wed,  4 Mar 2026 08:25:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772612723;
-	bh=tRfAQymiBDbnrpKvWlOvqY1R2w8GkqKFHUhIf8yzyyM=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=m8gRnPYqUdqjE1k+16q2ANpJtf7+6N+DC9pekID/wk6w1dMUWtQPEIPuw7kU4D2WD
-	 VFWbCzyVHeGcE9p2Uw1GnJISA2bdjZjMQPfcFBQVkhoyytdzhdGy/S+MemlN7duZ5c
-	 HiRCaIJq4wVhQCki6+e1WLC4+hnFK8gf9wWCic4y510iCx4EO/4Jl2X/GhT5JRaTLa
-	 c8itogODNEBRUsHf4HZe1Ja6gVWOam5Yw9lUtJ7AN8zvpzaSlVJEAeEy7uQ1PDBz6z
-	 71HKvy0UY6VMawrdv3qCpYo05QDYYs6H2Zytzi96OegYHq8mXOBL9oFc+/nTGIue59
-	 Lb8UcpAj9VPww==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB0BEEB7EA3;
-	Wed,  4 Mar 2026 08:25:22 +0000 (UTC)
-From: Maximilian Pezzullo via B4 Relay <devnull+maximilianpezzullo.gmail.com@kernel.org>
-Date: Wed, 04 Mar 2026 09:25:22 +0100
-Subject: [PATCH] HID: amd_sfh: don't log error when device discovery fails
- with -EOPNOTSUPP
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GagjfwBz"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-679f6ee3fb0so3138660eaf.2
+        for <linux-input@vger.kernel.org>; Wed, 04 Mar 2026 07:02:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1772636533; cv=none;
+        d=google.com; s=arc-20240605;
+        b=PlH/EHeo/jG3RMHuOuOAFlIFfjEVa9dDRti+ultwwtKpb+Z/CEMF+/i8poqojYlnla
+         DAtulGUYUb1n9W96fM+avc7wNIjQdMaNaOP1VDXtfRhzuDztG56H6wToH5lbKHuF71i6
+         eN4oHb5I83y185rPMiOueE2b8U4dWbD/AMH4+6ZjN0PW1ZJM8jvS1vsJZlB+MEwkAErE
+         J579g+xASiC4H2bHcUkdZTG8kktO5oj2TJk/WRXn+QMcwmOun4j4yuXsLZ+hjgC1kuI7
+         n6C44Y8gU6nXGzeV+w6ZNDlax8n1f24qNJ9CnnvyntuIc9WCTHDid0VOVSmhE22JOGGA
+         nkYQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
+        fh=y7YEEQHl9xisAUve2IvZpJmNnpsB/uhZc3YMDBJMEPM=;
+        b=ClU5G9oH6bOq+4VsA4L3DlYb18+8VHSxcvgI3DfHpfymgFJCkJx/dcord2CD0UW9g1
+         60nixIoS1clgbxUFXWZ2zGNKhbD11nSWkHClhw7GipaEmoG5GtMCNeXx4d3EyszxLkCR
+         CzHnmzB4azMBtxsB6cdGrvS8aw5zNp9pDO1pYEDX5X7uwLxzweqDtHeeDTHR8z10//3Y
+         KNTqShAF1Qm7EN+9AGsXUJXcdP3TfpOeKMq9SyuZEvWp1yzpNkGZfHdK78QUdoz9uB+1
+         keT3EiHFMI30UV4EJBiN3dxrInRnUfsvX/Oh5i/FgIhKfwv15qzS9kdKOWMfDVyjFY0n
+         WlMg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772636533; x=1773241333; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
+        b=GagjfwBzvPUrJUVgvH3hBHsrRDtB+nkej0xKO9BZNWIgNV3TGjDENKDbOwJvedun8k
+         O6MOQ9eJyt2ZhCq+BfCmpm177ZPZpviiv194H1DLGkElyXxoS9Vyaoe/bVLK/qEOgubg
+         qv4smHILv/4SX/aGhkyrLxD/pY3gd+ZZEnXTVgIOxGgX0qJHQY4ffz93t+8JY4DN+92E
+         V4MzDP7oTKzVNezBPeVZAF/upsRYicX9vMemJPszTvLpbWd9MTItjFKwi8eQPPoLA7PG
+         0h00/S1qUPVEygLIWN68l1d1r9ucThZC4TGNL4P0WAkT9nytf9l1AIehgtcZHzYEx31/
+         BDSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772636533; x=1773241333;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
+        b=rWUCsK5JVy7r48EaLrT/LOK8O74rZw1TXjoezlO+kkiYupl+7rSWII0h+8PTMYi3NO
+         Br5zKRzq3V3B6u5K4KlTjyQyDXOdtK2dOtkVn618K0Cq5vptT08PBNU1hjJvSMgj23cj
+         LTCnB+ffnSYWtcx8vYEKf1Nq/HJds3uyWkSZLluXNjyE8y7TANmDoClUARbj2yHTzsPZ
+         AFxuYNPcCmyiFHK/Zh8UZy/9uvwSmWfHHgrsmsBSZfmWY/rHaoOl7jC61DxtcqqncZ+7
+         RxBaJOnGnqB2eFtme2f15Cu4/Tm/xfB1HE95Eka437uM3U7P2r5EZWSAiPgQ1tyYTIQ9
+         03ew==
+X-Gm-Message-State: AOJu0Yz92lXqIj05lqeK87tw1MtObj3u0AE/qnvFieQTeQDtO7Bf/S/X
+	Ve5Z/R4x/uz54mR07GmqjUP9AqIqqXSnOCzqw2sHYXNvZIa7fAs6r4KqkLWmAlp7Q3ez0B9ml/r
+	F1Bq0/CuQbFox/5z2vyBQKn2xN5EFZQ8pfZL7
+X-Gm-Gg: ATEYQzzjlS1Kkiw8LQ+c6hrXGkIAEVFcB02nclGdT7c4JXgbUsFupIX9lplrdWCYvix
+	fZ4CNG9ci7VF7oddQalwszCpyLXNI7OR7b8ymxC9M9ISWAzy3SnqyRUnfM/rjtQaSmuiwyDEP+a
+	HrweKE2GOhjieVbEzp7eUlYTRjoV80cOkdxIHBq1EKWOdxyoEDjJ9D3WQpRdCEcYx4hIqAEaCqN
+	pjWGw7cQ7/1k6vUPpFEfRFQbWuKDawvjDykYIJA7RwDROqKiSE5Ps8JMjhElGHkkBDVG5pL8aO/
+	C6R3kxjRSHhgwMINwnYy
+X-Received: by 2002:a05:6820:4410:b0:65f:7470:38bd with SMTP id
+ 006d021491bc7-67b1e909f56mr888184eaf.58.1772636533212; Wed, 04 Mar 2026
+ 07:02:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260304-amd-sfh-suppress-eopnotsupp-err-v1-1-20214ca6a2f7@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3NwQ6CMBCE4Vche2aTWgWBVyEeUKayB9tmF40J4
- d0tHr/kz8xGBhUYDdVGio+YpFhwqit6LFN8gmUuJu98687uwtNrZgsL2ztnhRkj5ZjWgwxVdnc
- 0fXft4AOorJQoyPf/MN72/QeiMwdTcQAAAA==
-X-Change-ID: 20260304-amd-sfh-suppress-eopnotsupp-err-0be59878e2fe
-To: Basavaraj Natikar <basavaraj.natikar@amd.com>, 
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>, 
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Casey Croy <ccroy@bugzilla.kernel.org>, 
- Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772612722; l=1508;
- i=maximilianpezzullo@gmail.com; s=20260303; h=from:subject:message-id;
- bh=4RsL24BR3KXhRnuTa8542w9vrQQZj4qOROEMdTRsAhw=;
- b=KNkHhoRSJq6pNaZcnJnLrPyWCUyMPxgAv2XwlUKg0l9E9fRGsZBqLNE5zCgXTR23gvaVoMIR/
- nejdBdVT0y9DC06omOIDUIr3LqSF6+zyo/6KswvdIHuHEKyICYXQpdS
-X-Developer-Key: i=maximilianpezzullo@gmail.com; a=ed25519;
- pk=TRTR4c2Vb1IfluQvv5OUDPg7EE+pIzdPBND85UU559w=
-X-Endpoint-Received: by B4 Relay for maximilianpezzullo@gmail.com/20260303
- with auth_id=658
-X-Original-From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-Reply-To: maximilianpezzullo@gmail.com
+References: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
+In-Reply-To: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
+From: =?UTF-8?B?UsOhY3ogTcOhdMOp?= <raczm0812@gmail.com>
+Date: Wed, 4 Mar 2026 16:02:01 +0100
+X-Gm-Features: AaiRm53WpMLirIo8D6jGIgns39aLQmDjbG0I0U5xvR78o8KaLNSvGnl4_G2CFPg
+Message-ID: <CANkKV91Zfp_Bn_koM=Tb5vHQbog2Ja72C819aL-49kQ6PWA_Ow@mail.gmail.com>
+Subject: Re: [6.18.] ThinkPad T14 Gen 2 AMD (LEN2073) - Synaptics touchpad
+ remains PS/2, intertouch=1 ineffective, lost sync events
+To: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+This might be related to the earlier report from 2021:
 
-When sensor discovery fails on systems without AMD SFH sensors, the
-code already emits a warning via dev_warn() in amd_sfh_hid_client_init().
-The subsequent dev_err() in sfh_init_work() for the same -EOPNOTSUPP
-return value is redundant and causes unnecessary alarm.
+https://lore.kernel.org/linux-input/3d6f7f74-3214-4c03-b352-a2a0d27ea42b@amd.com/
 
-Suppress the dev_err() for -EOPNOTSUPP to avoid confusing users who
-have no AMD SFH sensors.
+and a similar report from 2025:
 
-Fixes: 2105e8e00da4 ("HID: amd_sfh: Improve boot time when SFH is available")
-Reported-by: Casey Croy <ccroy@bugzilla.kernel.org>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221099
-Signed-off-by: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
----
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+https://lore.kernel.org/linux-input/b2d0af40-876e-4a2d-99a2-236b583e9497@gmail.com/
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index 1d9f955573aa..4b81cebdc335 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -413,7 +413,8 @@ static void sfh_init_work(struct work_struct *work)
- 	rc = amd_sfh_hid_client_init(mp2);
- 	if (rc) {
- 		amd_sfh_clear_intr(mp2);
--		dev_err(&pdev->dev, "amd_sfh_hid_client_init failed err %d\n", rc);
-+		if (rc != -EOPNOTSUPP)
-+			dev_err(&pdev->dev, "amd_sfh_hid_client_init failed err %d\n", rc);
- 		return;
- 	}
- 
+The 2021 report describes incorrect SMBus address detection with
+i2c_piix4 on ThinkPad P14s Gen 2 (AMD), resulting in RMI4/SMBus not
+functioning correctly and the device remaining in PS/2 mode.
 
----
-base-commit: af4e9ef3d78420feb8fe58cd9a1ab80c501b3c08
-change-id: 20260304-amd-sfh-suppress-eopnotsupp-err-0be59878e2fe
+On my system (LEN2073), the behaviour appears very similar:
+- intertouch has no effect
+- "SMBus companion is not ready yet" in dmesg
+- device stays in PS/2 mode
 
-Best regards,
--- 
-Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-
-
+It seems possible that the same underlying piix4 SMBus detection
+issue is still present.

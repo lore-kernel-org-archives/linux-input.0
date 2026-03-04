@@ -1,117 +1,159 @@
-Received: from mail-yx1-f65.google.com (mail-yx1-f65.google.com [74.125.224.65])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC24D378815
-	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 18:39:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552033D412B
+	for <linux-input@vger.kernel.org>; Wed,  4 Mar 2026 18:58:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772649575; cv=none; b=dRM5UJH6a/yQjZ8jg3WXm1tKVQSOYVei12x6aBqw4jOTvQNoUBPS+2PoV+gRjgzAOtZuIsWWn23BP37kDbMCpF9NNvHbp2isrvYrDcyE/UdyA4GqRqiR7Kan95PSqfqGL57C2OUMdEblags1X/qm0TbSoNLs608U4fqn0j+jevE=
+	t=1772650685; cv=none; b=ZSCEIPwdBMouycs5Oze3qywibcOuIWDv99I0DEx7QhJO+nN0YWZOigkCXpRcG/iekPYq+Or9Eb8KLnG8W9EZainnebwpHPBF1BvzHqqkFE4olfaOco/3tgSwi4fN1bLroybmGQhG0+YPnIsFc8R9Rrc4AG0KbD8pAu9BZ2zKxoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772649575; c=relaxed/simple;
-	bh=SlXJgVlLcXW2/VvlnJbIUNe2MwLiJ2ymC2ZvM1vVQiY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AEFi8U12QGqAHKNGLDJRJ3v0J8ijYn/khIVFkB7aupVH5sUvymG8o+qjF8BLOEY6qVdbwmfBLAfrCEl7FQsMLCOyqiG7fzGw9+F+JIW1ZGEkXnWAjWmyVrBjy3tpiUnvkkAYAX04KaQalt6jwbXzr0lVf3K3EPuiLTu2ApaEdxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=60228.dev; spf=pass smtp.mailfrom=60228.dev; dkim=pass (2048-bit key) header.d=60228.dev header.i=@60228.dev header.b=fhpJX0CY; arc=none smtp.client-ip=74.125.224.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=60228.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=60228.dev
+	s=arc-20240116; t=1772650685; c=relaxed/simple;
+	bh=R2AUYnU8Wz8oU/h5rvR1qBJ/kWXkextxlhRXzMBmDPY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ryJo4BgJ/+HNmwFJhjqgWtDZn+RwOH1kcQRpOVrTemDv0E7Bv6N3lm71edKQhklrdWUYcztrw8gYKDYAbSgBTpVKY5rrybxIAOhRSPnBIWWXKFkCyJhYKGR0LUOaO1m/VCBYQzd0UlqQzSN8LFD8ftT5MnGJVMTKU3RFKURNkRU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=es3DPGsL; arc=none smtp.client-ip=209.85.208.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=60228.dev header.i=@60228.dev header.b="fhpJX0CY"
-Received: by mail-yx1-f65.google.com with SMTP id 956f58d0204a3-64ad8435f46so6828634d50.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Mar 2026 10:39:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="es3DPGsL"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-38a2f196cbaso14549931fa.1
+        for <linux-input@vger.kernel.org>; Wed, 04 Mar 2026 10:58:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=60228.dev; s=google; t=1772649573; x=1773254373; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772650683; x=1773255483; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=LdH+/2vA+MZr4xbWd5GfCnhwRGt6Mm7ZUEksueZFcsw=;
-        b=fhpJX0CY8BCbe1OdqQvqnJWAB2nure7VAyjQN771/3xpkWMHqpNxtnStouCLSoK3UO
-         DikSwMPXkHGEyyoqBk/QFac3Q3TdyuWuD2n27IKSRN7UewsMdd4Z93dBvkTzJIUEL+6j
-         OPibpUfcJTyv/XLHFcZQCogCan7DwH/iSxnstsFh0kxGVfoW8GmdrzdKyRGCHuatDldv
-         i9ypBx0502/Tf5VnUlXHzWFtFiGI4JDFouiexLmg1krILSMQ1kTm6AgbBEWW73qWpDFV
-         6kFqMxGfW0MCm5wtb4gQcW5xRRSUDPVUkq9/L2gftamFSg+p+2yV+OGDZsVy3LcQerx0
-         s24g==
+        bh=3/VwVHY85Z4sAx1gqqncPobsH7DOkhMw1reihUc4ZtI=;
+        b=es3DPGsLJn26+Co2HAWCOqc4Gh2z5omQEHbjEFXZ0LWlgaoyj7VsrmenNpRO2hVVaJ
+         gl4U3I10/1Ol7mUuJaJi0v52Z72Cy2jno8kmqyRx+7hpBGYkQSCruI7q3mhjBxsPFu4Q
+         rHrBnBKmUw7Ctnvej6jWevizr3tfKFV2In6x5T/Kmex9f724I/bl4SK0MJY90eFv8GAQ
+         Sdm0iCmjhC014efPxAQ8hkDr4RTrvjg3ud0BbuTpZUWO4uhz0Muq96QnOyoxzQzB+2vW
+         fZ40xDQGoYD/OKDXCmxb8899Ywm/lXTAG7pxT4KIekaM4kYNFrns6RXfpUwd8ILkursD
+         ZlEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772649573; x=1773254373;
+        d=1e100.net; s=20230601; t=1772650683; x=1773255483;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LdH+/2vA+MZr4xbWd5GfCnhwRGt6Mm7ZUEksueZFcsw=;
-        b=iKKZq4Uo6nXsuqjhGmFVDKQ2IITQxOAKwK/NLuJRQkKgx0elCqQv3VcmBfIkDl5ksp
-         npi90fm5iTy6knGa6o/RcdY/RHuuZPdLX/HnymgSFZh+nlz8LMKQ7SsqNqOFDw0p4MJI
-         /laA0ftRqQqBOV6LgXVQ2EFrQ4PF3obVUuoWdc4TizgdXZcezoKtAQ5QhtCTBJLa8o4i
-         cqRQGj8ybSGAv63Xsf6qk79Z+IPdA6LKhaRXgzdMPWNBNGx6RRdFHqAuf6woBCSDUoPG
-         52MQFR2dkSn086reMrO7dnIGlxYJfoMbFdVdBSaxXVXRLF9S+ieDnmyEl/Lyog81JndY
-         81kg==
-X-Gm-Message-State: AOJu0YwKgy0tb0qozOn70dfYJLSxFoi0qicGeucRW5CQP4qlYFjrLYpY
-	WKJxyQSg0SG4NoEPP5ysz8Sm5duU1FOSU2eETBxfWgBCoubviqWmDW+iAyazMS53Kr9216qdXI6
-	Wdox/6v0j4x0yDyI=
-X-Gm-Gg: ATEYQzykgv1BetwlPdoHbjQbUd1VhiQZDmmWj2uS2SpyAwgbCTO3yRDcUdL6jbhs4AZ
-	zsN56LffdYwi2s44SSQSx4rkaKqVZCTHG+ubPsewWQ9aPot6sSdfc7rDBlIBuEnrsLWANvvl3nD
-	XksyDr+P254Y5qMXKsIt8QguE2nIJAuXpKoD9Id8nFO2eGSzKUIW++1HKQ9PuPbKmSEqOVgAWXv
-	/dBrftQD4V2CdQbnKzkSmD6SmUlixMWKueAdi+kcQDQWY/oUAEZfDEzzXpFneNpkTQm/wY5qCR7
-	iwOXwFaIMq2ZLYydB6i7aGdFvMgZCFlaKKPDlpOA0D4thxW1u7eQ8nZPZGSY1EL/Iny0URBKL56
-	3oEzTPJ2hbTb3Q6G2qDx9fG1mzJIBdnrEXgE/yIi0qJXUyveMe1w0bcyZ8YjR3Uw5vMz2kyOn96
-	DN2PSEWuZohVn7p9wy
-X-Received: by 2002:a05:690e:2042:b0:649:b2cd:eb7d with SMTP id 956f58d0204a3-64cf9bd8ee1mr2058833d50.68.1772649572546;
-        Wed, 04 Mar 2026 10:39:32 -0800 (PST)
-Received: from localhost ([2600:1700:2760:3c1f:8653:d57b:8d78:ca9d])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64cb763d7fbsm8018513d50.16.2026.03.04.10.39.31
+        bh=3/VwVHY85Z4sAx1gqqncPobsH7DOkhMw1reihUc4ZtI=;
+        b=Aoacov3SDKtRUBcT7ZDn1emQOBUMb3aavtIo0zo2wK3CobrOP+MB/ezERgNiYuXC1i
+         W0ARNL8G3jY9g7UAtsHoqRv1OP4ydUa4izFqeywexlFtzCvzE1Mvfyn+i0ZkRRyAT54X
+         5BhA2n3ljNWemhLQTSh3GYt20VxomajF7ZCSK7ahOG60O+nI1WnqVv0pIcILcR2X2E+S
+         kiShEyEYIYOj64/1Xg3jYUEHxUfR5UJfH9AW5BPwK2MrIvsvRv2VPT5JWZZOarteGnSX
+         XuRV2VwlqOhVq4X4nWQGq4kM63Veq0kGJjx/DSB1SIrxOG5vm6k123Sp1meuXV/1kP3j
+         fM+w==
+X-Forwarded-Encrypted: i=1; AJvYcCXY3YpRLw3Oqm6kU7kOr9YcMn3nkgaBcevdRWBvXzFSBz7OOHySDIMOE9UsVB2MZcMFmF7+VBQ5wlUA7w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxmpCEYaxTf6wDpFmZh/hn0OY86YN54P7BIPv0VULza9A5+5rk6
+	h3nrJowRPMyy9jGG1kSOHxY6SGfK8mUoCP8WgAnE39VD+7Z66tof91irxKi/wQ==
+X-Gm-Gg: ATEYQzwsZOs/c/8b/ahVDoQlYBqRqmhCUCMBOZ580da6W0UmHvpIMoRvINkh7eymOHy
+	7eEAxcpANQDoeMoPoa9tquigt8obf7QyVNblpcoPKx/1gxWy1oFjNAeBMHwHNqwUF21r19F9BrS
+	woHsF7dHnfxoS/N9dwXErPldPbqCTomj8QAhNUGZycpMNMBafQI9Z1RffdJ73Sap6P5Iu57uePO
+	PTYtwla91eQ5MNbK259wfulsQUKeAtgKPy/Lu2qVeRuXmgnYqbfUtySZJywnyRniMCZLy92Wz88
+	WoWrNQx4hu7rMLTTrq/U/TMPDwqt1kMAiGyxrf/oAm4bYbecObPFk5hxUihGGNhOpiY3xeodFRn
+	8wgUj4KfBbW2vik627ii3BymMhHA8K4ymmBWRnfkXwNnfMna15vrV9jY4jHYEKwqEC+CmpXuzP2
+	WYHH+d0j4I4c2LSSnD0oHIrDk=
+X-Received: by 2002:a05:651c:1581:b0:385:dde5:1bf3 with SMTP id 38308e7fff4ca-38a2c564e64mr24339791fa.6.1772650682396;
+        Wed, 04 Mar 2026 10:58:02 -0800 (PST)
+Received: from xeon ([188.163.112.72])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a12a6ddd3bsm704985e87.0.2026.03.04.10.58.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Mar 2026 10:39:31 -0800 (PST)
-From: leo vriska <leo@60228.dev>
-To: linux-input@vger.kernel.org
-Cc: leo vriska <leo@60228.dev>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: quirks: add HID_QUIRK_ALWAYS_POLL for 8BitDo Pro 3
-Date: Wed,  4 Mar 2026 13:36:59 -0500
-Message-ID: <20260304183727.538405-1-leo@60228.dev>
-X-Mailer: git-send-email 2.53.0
+        Wed, 04 Mar 2026 10:58:01 -0800 (PST)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Ion Agorria <ion@agorria.com>,
+	=?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Cc: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: [PATCH v5 0/7] mfd: Add support for Asus Transformer embedded controller
+Date: Wed,  4 Mar 2026 20:57:44 +0200
+Message-ID: <20260304185751.83494-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-According to a mailing list report [1], this controller's predecessor
-has the same issue. However, it uses the xpad driver instead of HID, so
-this quirk wouldn't apply.
+Add support for embedded controller used in Asus Transformers for
+managing power and input functions.
 
-[1]: https://lore.kernel.org/linux-input/unufo3$det$1@ciao.gmane.io/
-
-Signed-off-by: leo vriska <leo@60228.dev>
 ---
- drivers/hid/hid-ids.h    | 3 +++
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
+Changes in v2:
+- converted sysfs debug exports into debugfs
+- added kernel-doc comments for exposed functions
+- fixed minor typos and inconsistencies
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4ab7640b119a..8c1f41a9e5f6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -22,6 +22,9 @@
- #define USB_DEVICE_ID_3M2256		0x0502
- #define USB_DEVICE_ID_3M3266		0x0506
- 
-+#define USB_VENDOR_ID_8BITDO		0x2dc8
-+#define USB_DEVICE_ID_8BITDO_PRO_3	0x6009
-+
- #define USB_VENDOR_ID_A4TECH		0x09da
- #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
- #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 3217e436c052..f6be3ffee023 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -25,6 +25,7 @@
-  */
- 
- static const struct hid_device_id hid_quirks[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_8BITDO, USB_DEVICE_ID_8BITDO_PRO_3), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_GAMEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ADATA_XPG, USB_VENDOR_ID_ADATA_XPG_WL_GAMING_MOUSE), HID_QUIRK_ALWAYS_POLL },
+Changes in v3:
+- dropped DockRAM commits (both schema and driver)
+- integrated DockRAM functionality directly into the controller driver
+- EC schema moved to embedded controllers folder
+- removed all cell descriptions from the schema
+- removed all compatibles from the cell drivers
+- adjusted naming conventions to better align with the ASUS Transformers
+- defined EC variant sets to provide coverage for all known devices
+
+Changes in v4:
+- grouped known programming models of EC chronologically (both schema
+  and driver)
+- call debugfs init only if CONFIG_DEBUG_FS is enabled
+
+Changes in v5:
+- added asus,tf600t-ec-dock compatible to schema
+- rebased on top of v7.0
+- kzalloc > kzalloc_obj in keys and kbc
+---
+
+Michał Mirosław (6):
+  mfd: Add driver for ASUS Transformer embedded controller
+  input: serio: Add driver for ASUS Transformer dock keyboard and
+    touchpad
+  input: keyboard: Add driver for ASUS Transformer dock multimedia keys
+  leds: Add driver for ASUS Transformer LEDs
+  power: supply: Add driver for ASUS Transformer battery
+  power: supply: Add charger driver for Asus Transformers
+
+Svyatoslav Ryhel (1):
+  dt-bindings: embedded-controller: document ASUS Transformer EC
+
+ .../asus,tf201-ec-pad.yaml                    | 119 +++
+ drivers/input/keyboard/Kconfig                |  10 +
+ drivers/input/keyboard/Makefile               |   1 +
+ .../input/keyboard/asus-transformer-ec-keys.c | 272 +++++++
+ drivers/input/serio/Kconfig                   |  15 +
+ drivers/input/serio/Makefile                  |   1 +
+ drivers/input/serio/asus-transformer-ec-kbc.c | 147 ++++
+ drivers/leds/Kconfig                          |  11 +
+ drivers/leds/Makefile                         |   1 +
+ drivers/leds/leds-asus-transformer-ec.c       |  79 ++
+ drivers/mfd/Kconfig                           |  14 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/asus-transformer-ec.c             | 762 ++++++++++++++++++
+ drivers/power/supply/Kconfig                  |  22 +
+ drivers/power/supply/Makefile                 |   2 +
+ .../supply/asus-transformer-ec-battery.c      | 272 +++++++
+ .../supply/asus-transformer-ec-charger.c      | 193 +++++
+ include/linux/mfd/asus-transformer-ec.h       | 162 ++++
+ 18 files changed, 2084 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/embedded-controller/asus,tf201-ec-pad.yaml
+ create mode 100644 drivers/input/keyboard/asus-transformer-ec-keys.c
+ create mode 100644 drivers/input/serio/asus-transformer-ec-kbc.c
+ create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+ create mode 100644 drivers/mfd/asus-transformer-ec.c
+ create mode 100644 drivers/power/supply/asus-transformer-ec-battery.c
+ create mode 100644 drivers/power/supply/asus-transformer-ec-charger.c
+ create mode 100644 include/linux/mfd/asus-transformer-ec.h
+
 -- 
-2.53.0
+2.51.0
 

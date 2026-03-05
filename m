@@ -1,48 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D22B31C8604;
-	Thu,  5 Mar 2026 23:57:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C38735AC23;
+	Thu,  5 Mar 2026 23:58:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772755065; cv=none; b=NMaw9ufwljkib86v6nnrPj62+3Mn/4YaF6BnVSTjnWC9sVUwj+OKaIhG+o39JdK+wMxin5QS64I+z0CfI/YWMeghhDm4UOk924veraMAQdcDBs1retMv+GXhMkSp+7OKBWmvlvKSNy3Hh62yD905KQhv81G3TvsUedpwRyhiniU=
+	t=1772755109; cv=none; b=Zfq1c7JdY3jpGQZfQ+MUhFIvGcubjhInfwEupikafxaBPkcAZ8P5J+SWhLsLZRZirhZBUPOood5bsUpCoZjb4RJXDkA86uIBP7/t8A2ca7mMl/svORKkjfMORKG6gCTnopCMweKBr8MjP6LuArTKFhDvJOz5b5XdkhBpzXe0OYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772755065; c=relaxed/simple;
-	bh=tBfpp14m/8Gs3o4AG5PVJFEEzHdY0P9obORwDPPfI80=;
+	s=arc-20240116; t=1772755109; c=relaxed/simple;
+	bh=2gKfpnwQhZ8jFdRqSTyQbBJboNgsgqSqfE/Ii4xXCMU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GrM5ZPSyMjNw4VRodAbF2aWCVhxqJ5rKojvkQNlNI8Qyg2LRBs2S51Nb6uGNVFg1A3E0hrxvUsRLPU+0+v1IkGghmnaDnejrJVpHXXg9vb18EpOiG/9tXSj1wNe3A97BL7nnE9YoMEI83nNdbCWfmFwUiu+z8eeSzqGi7TqtyvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rbKmm8QF; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=BTakHbMyNWVBNXLGKtPc9JztpH5DomYZ1ar1upGHZdK8ilbtQT+kai+jmAHgo+PJa/FZJvdEi0i+a6G+dOXsRalKrTQDpgZQHrYFq3StRdhyc8L/FhtYiP2tVJFpqDd0ccjAo8KAzbTOSnmSyfEqdI/M0azlcSWc1g1dV+AXsN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TeffDpge; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rbKmm8QF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3B3C116C6;
-	Thu,  5 Mar 2026 23:57:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TeffDpge"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53077C116C6;
+	Thu,  5 Mar 2026 23:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772755065;
-	bh=tBfpp14m/8Gs3o4AG5PVJFEEzHdY0P9obORwDPPfI80=;
+	s=k20201202; t=1772755109;
+	bh=2gKfpnwQhZ8jFdRqSTyQbBJboNgsgqSqfE/Ii4xXCMU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rbKmm8QFAqCQ7gV2dg+OA5vvi7c1O4NILDmUXJxMT8AB7R8H8hdWv/HrE1jCZ5n/1
-	 Bcz7fVAg5t0Rzd3jbRW46VWcLK0ImJMkFUKe8004Gv+ErykX2wgnfLVw23bP1cqWDx
-	 Gp3ZnXutHBZSXpT+8nnC6Db17qRRfDoMvJXeC5O6DyHHyQ6/28tJpruTaJX0OTQXS7
-	 liSxosrIkdc5T/5F1DQRZgS/lvGInkWCV5u+S+6E3hqBzKwuF+UMeCoBaVIVHwv6lJ
-	 K89nrMDPGaXtbbs/kPdSML5HnLFamPWifmiSeFCEcWSNsiaMssBQkO+j8SnWKmH3QX
-	 2UlRrHUiwrOXA==
-Date: Thu, 5 Mar 2026 17:57:44 -0600
+	b=TeffDpgelyV7euk2SKfGM3zsvJgYW7llGVpY6zpoiRMHDlzHMMg7+6LvMk6jQblC+
+	 QKBm6Nz5/9UbCo3WoFTDc4sVf5Fs2hnZqYcGKrsmmfWTxrxnX34wmlIS2VhtAlkQqK
+	 I6bDiHfrsN8jZEfzSQjEJ5Ba3caWA3ENMKB/+XoG1bUnsPQG21H2Jv0+KwLv+UF/r/
+	 5BTGdWMZGB3UoD1MQlnj5n/ozcM4LpFJAKCwGTYIZpHH7K9D6IXHNKMwz8seWp77Tu
+	 T4rkN1QwRLHrYelbpqUKg0dziay6D50vQrBMb8eY7rqJSg1klHFI159LGzaLLzfqpK
+	 d7N/GP6kFYFPA==
+Date: Thu, 5 Mar 2026 17:58:28 -0600
 From: "Rob Herring (Arm)" <robh@kernel.org>
 To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: David Lechner <dlechner@baylibre.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
+Cc: Liam Girdwood <lgirdwood@gmail.com>, Conor Dooley <conor+dt@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	David Lechner <dlechner@baylibre.com>, linux-leds@vger.kernel.org,
+	Tony Lindgren <tony@atomide.com>, linux-input@vger.kernel.org,
+	Mark Brown <broonie@kernel.org>, Lee Jones <lee@kernel.org>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	devicetree@vger.kernel.org, Pavel Machek <pavel@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Mark Brown <broonie@kernel.org>, linux-leds@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v3 6/9] dt-bindings: mfd: motorola-cpcap: convert to DT
- schema
-Message-ID: <177275506395.811570.1098915265984970605.robh@kernel.org>
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v3 7/9] dt-bindings: mfd: motorola-cpcap: document
+ Mapphone and Mot CPCAP
+Message-ID: <177275510796.812517.12730527380740769335.robh@kernel.org>
 References: <20260223063858.12208-1-clamor95@gmail.com>
- <20260223063858.12208-7-clamor95@gmail.com>
+ <20260223063858.12208-8-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -51,19 +51,18 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260223063858.12208-7-clamor95@gmail.com>
+In-Reply-To: <20260223063858.12208-8-clamor95@gmail.com>
 
 
-On Mon, 23 Feb 2026 08:38:55 +0200, Svyatoslav Ryhel wrote:
-> Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAML.
+On Mon, 23 Feb 2026 08:38:56 +0200, Svyatoslav Ryhel wrote:
+> Add compatibles for Mapphone and Mot CPCAP subdevice compositions. Both
+> variations cannot use st,6556002 fallback since they may be based on
+> different controllers.
 > 
 > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
 > ---
->  .../bindings/mfd/motorola,cpcap.yaml          | 411 ++++++++++++++++++
->  .../bindings/mfd/motorola-cpcap.txt           |  78 ----
->  2 files changed, 411 insertions(+), 78 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
->  delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
+>  .../devicetree/bindings/mfd/motorola,cpcap.yaml       | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 > 
 
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>

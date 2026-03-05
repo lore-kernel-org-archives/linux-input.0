@@ -1,61 +1,63 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2496F36B07F
-	for <linux-input@vger.kernel.org>; Thu,  5 Mar 2026 11:36:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F32722EC0B4
+	for <linux-input@vger.kernel.org>; Thu,  5 Mar 2026 11:36:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772710567; cv=none; b=IXOMAjuhL/vA2KuIFmceuqkkJHsE6g8JhOnu0edfXEUuXC1AoFPcyAIj+EjbnfSPGHWJxC9Sp+R7yA8FRFMh2xjycbHQJAuFGjkGDAgYBYWinTCiJHEgRpAI2kv292tt13RsAwPTBffSkQMbUHuQtsc4Ihd7GqWeIBK8j0WWFTY=
+	t=1772710575; cv=none; b=PabyARhAnw8aB3LxxmNhBpG/XV6nBwB6JXld23DSfoKrLbJbIb9EzIZ/bqsdUlPVWNxfoStrgQjhWCE44mG/7angRng/JRen5Sf3Xo/YBHFnJR9MXRSb6hAG1GLKY+Cic3pZqHMPMt0i8WY/07zodLyhBVtTOf9MjnsVWdZ/Wis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772710567; c=relaxed/simple;
-	bh=bslnI6zzDAblJ6or/5cmZXVJm5WyOHjDwWTu/m0o1fA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hOETGjZheaVHsvYdzDy9+40YAVtAp9Lgcm0GDVuGUz3/gLc9M6OCho1Ao6Ddmb2P6TcdiPMBl90dzTF9xS7wdJElb1CatTUJ18JeLV2vVHEus827gCtE7HE95wZUXVs25s9ijvM5BkNw/OVJtPZJJLvoXYwRYZma1ZSAkWaFmNo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KnwyEQ43; arc=none smtp.client-ip=209.85.215.173
+	s=arc-20240116; t=1772710575; c=relaxed/simple;
+	bh=XK0nFFbH4MiZSG9fcS0a36y+AVa1RacKkH9tV8iO6pk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HamZEpIAubDy3Su0PLkrno3QRyYaBF3rkUgFcTcFf6tbpcLVr+4bGca1myCEVQX8LFFUDpwKumbVqy1LdlZ89QflT8VWXWtV1I7RxawqIp6BQ3RDLjrbpLCxwxXAA24L7bYvVb9lo1P6QeKBP2Jj7Kw2/7UnzDs05XCwERqL6jU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V6wH4MLk; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KnwyEQ43"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c7377119453so805521a12.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Mar 2026 03:36:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V6wH4MLk"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ae4d48dc2fso19797705ad.3
+        for <linux-input@vger.kernel.org>; Thu, 05 Mar 2026 03:36:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772710565; x=1773315365; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=gyy5fA9H56ek5WkTEHHXIwE3xgEKy4C1ClouQ5oXj9w=;
-        b=KnwyEQ439aP4ZAEPEPBFlb6u1DrsxGcA7uvqBiRL5YZ7M4QlPaRmRomENd2iuE6sMq
-         GxkV83emPGAUCfob6rrX6NmCyToxzeyVy91FdFIYYdTwgkTfZBPKn2S7vGa9BDoJPRAN
-         CLU/zAFLiVOhygDNdbaKnIeG7sRrjDPaysOKtSTGnmlHX/w9zW+M6VcTRmvDHUcE/Tef
-         OwtWY7lOCVzuE9QQweTGNCrPSOuliOjrztKVi7+d10cEVsmh1ugH8U7ecKtgZsd6oeMO
-         827lwZJqwrvh4DMtyti7+ukgi/IIQvE6xN/EikAGtjkN4NM04WfQSi2GULxMlBiV0RY9
-         zCgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772710565; x=1773315365;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1772710573; x=1773315373; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gyy5fA9H56ek5WkTEHHXIwE3xgEKy4C1ClouQ5oXj9w=;
-        b=qRfHqaWJDJeJ94ztiDSCbUQZv5dMufVyWIcvhTxRWnEUKThD64KZj1wEmOb6oH88hn
-         jhIrUkTGPXhfgzF1f90rujfnEGmVNoo7VJYFol7/O1eYs6D3ZMCsFRY3owOcnXb62dm/
-         yZlY6eiLFfsceTHARZxh21/bqNOmXW+kRhcR5quguE7CCWOpLGBftxYkfXHxb1wgDxrw
-         qWnX41nqBoME2PuQL+aOHoebxof8n6YvDN5QsfcsKJ61MVnfL7V4eY/2/k3Z7BIUC/Pk
-         b9IqvyzVmJUKmJJaavDOoeRRRoGYfeBUUzGgIT0NWtAPoJ/1pA3Hc9XDzYTo/MrdjPSk
-         Ry+g==
-X-Forwarded-Encrypted: i=1; AJvYcCWMR3ll9kp0bZJMTU4nt/L+fkOup+VAt+pf8xik9INr+INbxgx6eWh2q9mP+28ZiG0HlHAqCo2XNQAtug==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJwgRr7FW6Zi+hYfTdG46i5uCzQFLzUNWrfQH/8NOUb/nj70AU
-	+ua+W/xtkBZcVBnP85LmSsTzVSpZ1B3sGXAiNXHdBomEiHxfjRXzOAsj
-X-Gm-Gg: ATEYQzyoNPy2Ez9DDxjQMqaJ5ym2V7YYl3SfLvAMfaaUDinih01LSb5FrDEMUZ16hgw
-	D/8gqtBEImpZRPrd1OUNm8ZwDmNRjs5ez9Yr3BaxlAiVqTD08npJ+pasKOo+d9hCfcmh/nX6iQv
-	Sp/Ij/bantLTlTfbADCTA6ILGBzJ0e7QT0uduaad2AsGnO0b8AWq1wO3ejAwZBjFmIjyCfw/dM5
-	7YZjuq2/6eIMLMlU10Fe77OQe/k2A/ZBBurAape01RtqngfhKTOFyFTGKWN3s9i6eL3gm9v8V2p
-	SqNN2qCLuQ42JgLRvpa0B69aHCbXOwhsBjWMJRRdn6lsPH1UiueK1BIEGEWxOjRY9bf153PgL5K
-	ym2YSlTeSM3mXyZJLRXerf9dFCC2owwR67A/HL2xarLT/jZ54qNYw6DFGoLSWwjUUuQJRSa46aa
-	SZzSMkgaDAqPdHxdk/9Yox0Xd5BNLdMozvbQ510M8wNrk3NcD84M/OCMzEPlqNdAArYX1+
-X-Received: by 2002:a17:902:cec6:b0:2ae:491b:6f8d with SMTP id d9443c01a7336-2ae6ab1e1fcmr57386325ad.39.1772710565364;
-        Thu, 05 Mar 2026 03:36:05 -0800 (PST)
+        bh=DPpOKLGSNmmq39HFqiUGhDOWmdkSAdiRJ6UaDmbkiH0=;
+        b=V6wH4MLkt4xWUBGWqX/1ieEIBgl0z8wwJLoP426+M4D/avg7VDd7u+C8mPzg9+2H09
+         u0jo+GbDfSHSsXYRT7kL4nTrfUcNxXJavdBjR7d6fRLnyzkojlpzQBtzlNoGPGtzCkX9
+         4HEaAJGLgtQJOZi3OYgn7MfLH33YTtqXFMic+vAKV7qvj7OQQXCpEvU0hjanRLArOFxd
+         xpe9/QiT53ZaVJyxCjDxpQdJVB6i7a/zSgc69ben0qpWHhXUFVceWdmosUb4L0fnzOPB
+         zlkBgnZ19iM8R/nLU5iX5LwTmtJKccnIYGfFvtyqa91x0kNn7g+aNYgTgYlOgMODAVZp
+         IcnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772710573; x=1773315373;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=DPpOKLGSNmmq39HFqiUGhDOWmdkSAdiRJ6UaDmbkiH0=;
+        b=BwZG8F2E4UMhvFEVYlN09X9m3S3v2N6I2fhQo6SSz4Vyn1R+S4wT6fKEUWHrWTPdx+
+         QDq8Og/ly8gTUY9cKayQa4ONECmbh0OCo1tVCAzJswby5TD56i7FlXqXBQtwP2RXm0kE
+         qUOo2JHQHQF1A2LfCb+crY9E0rR/NKHLVsk8kvQiRjuxVK4SCeYHsYiYQiuMQgBWme/T
+         /4/G+vgVUsxN+sTRE8sC7ep+sEI1PkpMJ4Kt/dDLJkv3GnOL62s1nZxRWCah2g1uKXhF
+         GkGSiGgshzFApF9uWt+Cz3xSOYnnEPMDX7VN4osnpscFXP8Wb4IjTCTzDySTN43GWdJb
+         MvQw==
+X-Forwarded-Encrypted: i=1; AJvYcCXzWD5AHzE/xI87vg+OqBzTgPOHgcGRVBrlb8urNNlEfTwgiETm5X8hS4O+2zZA8FaHa7vKElGS6GV3cw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwhAyXFUCZXAkuSwDtrXDgCvGt0IC+ceLosZdkSX57nDpe52Z8c
+	JLlWH6KhYZsarEKrneps0OCrIsbKubzfXyP6WX2+jNTRceDJahW1agE3
+X-Gm-Gg: ATEYQzzIgAP3GR+LKSsCYSueLeOVQXj4zeZzJsMJteQQtKgN8mRIwyjzS/pGdOrVEKt
+	z8grQ5As7tkQrdPNgscF9tmfwdPl2ncnrZEtycUofwFuQgpLsTvn5MOIPq2Wsmwq7vgDM+Ags4V
+	fM4bioMnigctIrcfORneGaF27dWLF716a6Ou5sYX8sk8HXBjBq6KBIGvIPmVpd3UC323NsbPV1C
+	mch+ASerILN95DVntMxNHblKMjekbX+eqURHkJNzswI5if0QlJep7CIH/69A7q7ULN4v+u6t225
+	n1wkU6XmJG5fPyjxBiHQ1s0Wh1fKarfzuHuxJX2iFP1t9SKRYHQC6tm8m4c0ngZ0EiMAA6r5lp5
+	k338y0+OrL4hh2I4mREfYGAjnrNlYTdM4DwL2qD7q6aoq3YdCx9XHr428J8u3I+LzGMUveJEjJT
+	VwYnWy2vQ4ASQ8jPsHSF77y3nV80R/JflwjGLQAs9Kbb8yUoUdABkCe72frgxg4kTdFSFT
+X-Received: by 2002:a17:902:d583:b0:2a7:62d6:d049 with SMTP id d9443c01a7336-2ae6aa04ce1mr59119905ad.8.1772710573331;
+        Thu, 05 Mar 2026 03:36:13 -0800 (PST)
 Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae5e1699c9sm78796995ad.10.2026.03.05.03.36.01
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae5e1699c9sm78796995ad.10.2026.03.05.03.36.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2026 03:36:04 -0800 (PST)
+        Thu, 05 Mar 2026 03:36:12 -0800 (PST)
 From: phucduc.bui@gmail.com
 To: dmitry.torokhov@gmail.com,
 	robh@kernel.org,
@@ -71,10 +73,12 @@ Cc: javier.carrasco@wolfvision.net,
 	linux-renesas-soc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	phucduc.bui@gmail.com
-Subject: [PATCH 0/2] st1232: Add wakeup-source support
-Date: Thu,  5 Mar 2026 18:35:10 +0700
-Message-ID: <20260305113512.227269-1-phucduc.bui@gmail.com>
+Subject: [PATCH 1/2] dt-bindings: input: touchscreen: sitronix,st1232: Add wakeup-source
+Date: Thu,  5 Mar 2026 18:35:11 +0700
+Message-ID: <20260305113512.227269-2-phucduc.bui@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260305113512.227269-1-phucduc.bui@gmail.com>
+References: <20260305113512.227269-1-phucduc.bui@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -85,31 +89,37 @@ Content-Transfer-Encoding: 8bit
 
 From: bui duc phuc <phucduc.bui@gmail.com>
 
-This patch series adds support for using the Sitronix ST1232
-touchscreen as a wakeup source on the Armadillo800EVA board.
+Document the 'wakeup-source' property for Sitronix ST1232 touchscreen
+controllers to allow the device to wake the system from suspend.
 
-Patch 1 documents the generic wakeup-source property in the
-Devicetree binding for the ST1232 touchscreen controller.
-
-Patch 2 enables the wakeup-source property in the ST1232
-touchscreen node for the Armadillo800EVA board, allowing touch
-events to wake the system from suspend.
-
-This series depends on the following patch which has been
-submitted but not yet merged:
-
-drm: shmobile: Fix blank screen after resume when LCDC is stopped
-Link: https://lore.kernel.org/all/20260226054035.30330-1-phucduc.bui@gmail.com/
-
-bui duc phuc (2):
-  dt-bindings: input: touchscreen: sitronix,st1232: Add wakeup-source
-  arm: dts: renesas: r8a7740-armadillo800eva: Add wakeup-source to
-    st1232
-
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
  .../bindings/input/touchscreen/sitronix,st1232.yaml          | 5 +++++
- arch/arm/boot/dts/renesas/r8a7740-armadillo800eva.dts        | 1 +
- 2 files changed, 6 insertions(+)
+ 1 file changed, 5 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
+index 978afaa4fcef..672544e5a26e 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
+@@ -32,6 +32,10 @@ properties:
+     description: A phandle to the reset GPIO
+     maxItems: 1
+ 
++  wakeup-source:
++    description: Device can be used as a wakeup source.
++    type: boolean
++
+ required:
+   - compatible
+   - reg
+@@ -51,6 +55,7 @@ examples:
+                     reg = <0x55>;
+                     interrupts = <2 0>;
+                     gpios = <&gpio1 166 0>;
++                    wakeup-source;
+ 
+                     touch-overlay {
+                             segment-0 {
 -- 
 2.43.0
 

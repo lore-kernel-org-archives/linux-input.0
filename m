@@ -1,319 +1,223 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-b2-smtp.messagingengine.com (fout-b2-smtp.messagingengine.com [202.12.124.145])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E27433EAF9
-	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 12:45:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772801124; cv=pass; b=rBLQgCRrzCQNAktlnOj2HPwf4w4l3TlIgqo/AB+kBiWnIG4JU07zsFDYjXFe2I2QYvzb+2vxQ+/LZ3CGESy9tMJV1nzDEqxAbMFkxrdgh2IFpucyJN4mVcxydnyk9/ymkJdCSaL4j/I0Qdp8yP7pan/b+E+CfrLIav9+dmiXq48=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772801124; c=relaxed/simple;
-	bh=d4+yHnqqrag21e5l+zlyKxbPtZdeRMS/eu8jTZJiNPw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=X/ByPvioS9hMboEatwm006ExlNBP7CS0KNGqfDUdO8jPczJO0vYOL32C2SawcqmvsKiiyYXnLIxg148EFcNLNjZ15oGg4fbzYufMjW/CJVvJZz4pKpPKZYajZ3uK/xuCMa4R+mIdwp5JnbSMe31R6gpw+JyPpR0AAoH7Gql+EHI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NnWMBrBr; arc=pass smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2341C372671;
+	Fri,  6 Mar 2026 13:51:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.145
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772805120; cv=none; b=LWt3XKj3TRHWUt15YqWdWXG30CXEJQSt+aH0TkkHQIAmkEEPyyK7W9MgqmbksCLqp7M++pLGCo4wxKCYHdg7fy9kkkKSVLBPNeIX9HvHmOei2mi14G37nHBhJ4IjXfU2BG5sPb9i32Ex0bdbguoCrMvoZkCD9C8z16EyqoZJujg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772805120; c=relaxed/simple;
+	bh=nyWdwpgttUjFe9Gx6eXPCJdCZS54q4ZmVUJNYwqHfm4=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=VJMHGfnUyqH1Iapzz/lwn/69VzuBlj09g309LWN3XjmrhAthIq+BDBUXcWBMhz0ZD3RY0Yb4uYK597KiS4O7I6IkiS3231Tc2fggyBnOAlXsa6QOWNJy++v7ZMoLrMgyDfucIlM6Qn9JTsj9n40yDnxAwXwG6Hs8jTJSlSPxX2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=TtWDTa6N; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=LblhBxcA; arc=none smtp.client-ip=202.12.124.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NnWMBrBr"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-439b73f4ab4so6013109f8f.1
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 04:45:20 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772801119; cv=none;
-        d=google.com; s=arc-20240605;
-        b=S1zEzOLHwHgaazwdZ+OHqovtG2saPkQH3lA2F85noHiJUzTl3YeS2aWFnivZqMmxsM
-         Pp/PD7hV92V6zSO0zS1bqt/JaqW4CohglPfo/Sq4F4m5eDnV9S9hti6ma5ZzYuKRz+3x
-         xe/+5yU4LakmwIlygkUiC6D4J76bRA2cQO3leOsdPOammLQ5oSMfx92iFIctTkdNxTvR
-         wlfQPFUycToVHdV3Hla3l84s67By5KJL/mx08/+P0V+snpQRIAclJ1n6QFXty6nR/O2g
-         EtutUSDo08gB2IOQEKJv0lyoNMUqZh0TvsNUnmbbt5tMnZlZxX4fmEsQ75rGm5E9Or5h
-         eIJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=O9taYqzLoINgFyYur740XSP0g3dcwW79M5LNhuZRVTQ=;
-        fh=lGDIXPzLMSmJ3NOqxLXYHnE3JfjzF5G/dKqq7E5xx9g=;
-        b=DbcTIfJ96EBPOgQ409/wtjpkpShib9MCXoRANNcr4jHWQ/jvVHaxeuRxgRiiCJhe5o
-         dcUdWlavOU9dd6X2YEMUoEMudRrbcluihoKOXxav6pkI+UWG68ShsviYkDe4DuNc9D/0
-         Zz3U5acsUzJH4EubeQ9AkwGlsMKDdmixg50MLYfVa+89+Ls63usXBH+Ve0SBb89GSDjG
-         +cCS476SAqabs0kJQHTH3sd5O9Bbj26w06+xNyySwat1sU1we8sVH33AZhfw6Bz4PuPT
-         X/bBGUV6HFBP11qBislffKhPVPY+6s6infc9+sRbglgm65WdmDCSmNebvYWrtZTVhTV+
-         /WyQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772801119; x=1773405919; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=O9taYqzLoINgFyYur740XSP0g3dcwW79M5LNhuZRVTQ=;
-        b=NnWMBrBrgbDwZgWxE9kj9+jShrldnAQYtjg/tq0jH5FpEzN6RRZ71jnEuVGHG+VaAk
-         XpnH/PhuRKHCeJBJ+PQDPQp9VkdMN45YFqre4hesuzaHED0GNzkF0yryaooRg3EWWzWu
-         q+kp8zye3xCmftmeM5KQRtdL5+YYu/zdyaGNceUYSWIp50oyk5dKTBtE8Ouv2M+PWLkT
-         LhOYf8OZv1efjqxgXuxiNuXsgBEmfqcyvxx3miZmv0fvg++kmNc5QRWkL7zU+JJgEtMK
-         BL7hioyeWlkaq6KHittHRggg8ClQFVxTIBfZSpAXpixMrLEd30XSKqRpKA1zhqVrv9xp
-         jqXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772801119; x=1773405919;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=O9taYqzLoINgFyYur740XSP0g3dcwW79M5LNhuZRVTQ=;
-        b=Ur3IjFib/4yVYJPMEpS4SNGRTkjsb2NgpogiCgUnIYxUJgzhtVCFYWmUAvMRGle4TH
-         mZDWDf+qjZcD7RpKSxYiuj/gElLBqkgzvK4NSYUtn5HHePhTGM02dYrPGk5xHAdRYJXp
-         zc2X0ZxcqvhQGvG48xwJxE6loXiey5VDHqkDgEH5qUvApPeGdChUQrSfwNR6XNpqtFnx
-         ZscBBM7cdVTi1Jkviv/jdLkZYP5s6UL3kyrjumdXeQxAfFHeqtWzTDr3DbiSv7jWPqhe
-         Ti2wVe9VPpdJT0TeuPVgWIwLniC9y/wBA1r6OuhwJgC/OgQRFoop0gJi1VP7nG3fGSgM
-         cvBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVB3Y9pMUQ7hYlcvgFNDhGCufMRTdKg7k6SZYT17mzWTGAUys8W8DVlmD4ryaRK2CBq55YHLBnsa0sthw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzL4U0N/HcqAeWdh5gPe2bP6S2hdKCCBJ+xi2bMGIvllR6MTham
-	3wuTXLMeZe0Xc7i+UHQKFUjw7yTk0X2AU4i8G2lhI50Ms6uyfSVG9piPx4cWacyF/7dFFzIQpek
-	YDhOcIDtYmDAD+FU8+W7rnTPXZ/qzFpc=
-X-Gm-Gg: ATEYQzxPoJDOg+58qanHAJhiA5JkEScpBFlDUYWNbSA7N0aDyr6Q62/HPc0EV7zvbDc
-	gp3IebwtZsdxNfz/pUVbq6ZU9XFqX8GkLv8AD8NSbchTlOmtCk2Q0UmL+XD9FAVC69pj0FQty7J
-	/E4fiK0scvdkI8lskqqMNhMsSbvw/KV8IUUpxGjXOcsaoY6NPKhkzjOcF6kFKzmkoYmLyXeHBDd
-	8nqjc44FjZQwCHS8Sqao8KDjOh84onCmyuIjY8gN13SXdmDRq/CZye9d4jOSbxP50m2aYl8Q/uk
-	PlMjuOusC/it5uBHwUI=
-X-Received: by 2002:a05:6000:290d:b0:439:b6ae:5d5f with SMTP id
- ffacd0b85a97d-439da882118mr3606908f8f.36.1772801118465; Fri, 06 Mar 2026
- 04:45:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="TtWDTa6N";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="LblhBxcA"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfout.stl.internal (Postfix) with ESMTP id 314491D00031;
+	Fri,  6 Mar 2026 08:51:49 -0500 (EST)
+Received: from phl-imap-08 ([10.202.2.84])
+  by phl-compute-02.internal (MEProxy); Fri, 06 Mar 2026 08:51:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1772805108;
+	 x=1772891508; bh=KqL28PEa1gdOtcPjGDXJw5E9578ySQPb6ffvqQWlJsw=; b=
+	TtWDTa6N5XdzgvKQFRhorHPTlhV7A0q9pfvjkhQqY5fdr27du0GljCVHIslFQ3V8
+	76jLfCfN1kePsMixnpVK91d/MiXGm9c74xF/2jkVWzAVuugTi5U1Z4ccY9HCI6Aw
+	aDoWfig19yKARf+nqAGbrIP7ubgq0dhfZXqGHrEbbdbJHk1f4iplppvTrhFmUMSp
+	Noh2Y/EeL/SAm1Fe5eb4mpJIn+B1mw5yh3jKLg2Cf8jmptE5i6rCNvB1d55diKbP
+	h5Op5s0g2r9E/oaXaI+jyYUQZwb0RmB6LFb1Ay1ULn8B8r8xhWyXMFcZ5pDcah1T
+	5I53FncpVlxO/RdAr6tiHA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1772805108; x=
+	1772891508; bh=KqL28PEa1gdOtcPjGDXJw5E9578ySQPb6ffvqQWlJsw=; b=L
+	blhBxcAshBjlo/AFGF1FaC49vbTEoasREDFsv033Yz63+tACjXJR8o28Ku5Umcrs
+	ScVRCN0ETH8eaAmnPEsGxWDJDfn0ei00bo4npe2Zy1Loea3tyiWKfiNh1sBWVyKX
+	J7IGf6J+2UXaxScTu/9e/N9ghx2YEaahlrPLJdozmuJqXPAwuTH2+Aty8Uzp/BK+
+	3B8lRTM+C54pVymwN3mTHKqK0+/wp1LOQJrUBF0dwxLOpuG6uxbZIbY2AiboH0l0
+	VuiwIKW940p79+2ZbNsceKNI7P1RCLJy2Qay84xom7NIHimIuJxoCKXpfIbNPQ4T
+	9s7rDRyEDWqKFwZH4y8lA==
+X-ME-Sender: <xms:9NuqaVa97MnFvIw0VPM7l8MSpT-LAOX5fujbs9_v92NLfutsAtZJTw>
+    <xme:9NuqaXO1vqZbBf3BhnfcCgX0jv25XbCzuACZhvtVmuB49Cxcz4R4qaXwnruiv3gWm
+    GS5uFWjAWF7sZ2kbstZMlcNPnLhE4sYs_4tTNpQZMYwyzIw3C39yUA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvieelgeehucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedfofgrrhhk
+    ucfrvggrrhhsohhnfdcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtg
+    grqeenucggtffrrghtthgvrhhnpefhveekjeeuueekfefhleeljeehuedugfetffdvteek
+    ffejudelffdvjeekfeehvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrpdhn
+    sggprhgtphhtthhopedufedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepuggvrh
+    gvkhhjohhhnhdrtghlrghrkhesghhmrghilhdrtghomhdprhgtphhtthhopegumhhithhr
+    hidrthhorhhokhhhohhvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepvhhishhhnhhuoh
+    gtvhesghhmrghilhdrtghomhdprhgtphhtthhopehhmhhhsehhmhhhrdgvnhhgrdgsrhdp
+    rhgtphhtthhopehhrghnshhgsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehvshgrnh
+    hkrghrsehlvghnohhvohdrtghomhdprhgtphhtthhopehilhhpohdrjhgrrhhvihhnvghn
+    sehlihhnuhigrdhinhhtvghlrdgtohhmpdhrtghpthhtohepihgsmhdqrggtphhiqdguvg
+    hvvghlsehlihhsthhsrdhsohhurhgtvghfohhrghgvrdhnvghtpdhrtghpthhtoheptgho
+    rhgsvghtsehlfihnrdhnvght
+X-ME-Proxy: <xmx:9NuqaWrSg8AF5PROqsg5PnniT3zw8stMKk9h9ko_dxGZ-HlRyYnX5A>
+    <xmx:9NuqafDnGNTnFzH1MeA3TSavB_FhggH-qHeTmcBeneDnW7frsS5HTA>
+    <xmx:9NuqaRUBA003l2u1uDcXkQMBx5kHE4PpjTdg7MgckKvaJWg03RWX5A>
+    <xmx:9NuqaRB4A84c0Id_cVe7DUfEvJfaFgH2uE2Q4HvB73dX9XkfAZ0sjg>
+    <xmx:9NuqaaFxQmgVNhwslrv0vDqk3fKYErBbQn1eL1ef6aCzJxd4JJk8itiK>
+Feedback-ID: ibe194615:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 1D6CB2CE0072; Fri,  6 Mar 2026 08:51:48 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260209104407.116426-1-clamor95@gmail.com> <20260209104407.116426-8-clamor95@gmail.com>
- <20260306100406.GE183676@google.com>
-In-Reply-To: <20260306100406.GE183676@google.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Fri, 6 Mar 2026 14:45:07 +0200
-X-Gm-Features: AaiRm51NBymZ6EonP39IyTLl3AORXQ6isOvT7w3F168jzatW4GJkZM3l_t1FQ3I
-Message-ID: <CAPVz0n0jnuhmvsSPckfFOQ0NZ3VMe6W2p_Bb5a9pdVZYhVSJhQ@mail.gmail.com>
-Subject: Re: [PATCH v2 7/9] leds: Add driver for Asus Transformer LEDs
-To: Lee Jones <lee@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Pavel Machek <pavel@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sebastian Reichel <sre@kernel.org>, 
-	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	Ion Agorria <ion@agorria.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-ThreadId: AA58JqlF_hbo
+Date: Fri, 06 Mar 2026 08:51:25 -0500
+From: "Mark Pearson" <mpearson-lenovo@squebb.ca>
+To: "Vishnu Sankar" <vishnuocv@gmail.com>,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Henrique de Moraes Holschuh" <hmh@hmh.eng.br>,
+ "Hans de Goede" <hansg@kernel.org>, "Jonathan Corbet" <corbet@lwn.net>,
+ "Derek J . Clark" <derekjohn.clark@gmail.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ ibm-acpi-devel@lists.sourceforge.net, linux-doc@vger.kernel.org,
+ "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>,
+ "Vishnu Sankar" <vsankar@lenovo.com>
+Message-Id: <8a352a34-5ddb-4aa8-b9e1-8c5c8aafca04@app.fastmail.com>
+In-Reply-To: 
+ <CABxCQKvNO78SeVp9pAnBOSAF=x0eFn03F33ftW-x-rZCG0-84Q@mail.gmail.com>
+References: <20260209063355.491189-1-vishnuocv@gmail.com>
+ <CABxCQKvNO78SeVp9pAnBOSAF=x0eFn03F33ftW-x-rZCG0-84Q@mail.gmail.com>
+Subject: Re: [PATCH v7 0/3] TrackPoint doubletap enablement and user control
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-=D0=BF=D1=82, 6 =D0=B1=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 12:04 Lee J=
-ones <lee@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Mon, 09 Feb 2026, Svyatoslav Ryhel wrote:
->
-> > From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> >
-> > Asus Transformer tablets have a green and an amber LED on both the Pad
-> > and the Dock. If both LEDs are enabled simultaneously, the emitted ligh=
-t
-> > will be yellow.
-> >
-> > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> > ---
-> >  drivers/leds/Kconfig        |  11 ++++
-> >  drivers/leds/Makefile       |   1 +
-> >  drivers/leds/leds-asus-ec.c | 104 ++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 116 insertions(+)
-> >  create mode 100644 drivers/leds/leds-asus-ec.c
-> >
-> > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > index 597d7a79c988..96dab210f6ca 100644
-> > --- a/drivers/leds/Kconfig
-> > +++ b/drivers/leds/Kconfig
-> > @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
-> >         To compile this driver as a module, choose M here: the module
-> >         will be called leds-as3668.
-> >
-> > +config LEDS_ASUSEC
-> > +     tristate "LED Support for Asus Transformer charging LED"
-> > +     depends on LEDS_CLASS
-> > +     depends on MFD_ASUSEC
-> > +     help
-> > +       This option enables support for charging indicator on
-> > +       Asus Transformer's Pad and it's Dock.
-> > +
-> > +       To compile this driver as a module, choose M here: the module
-> > +       will be called leds-asus-ec.
-> > +
-> >  config LEDS_AW200XX
-> >       tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
-> >       depends on LEDS_CLASS
-> > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > index 8fdb45d5b439..1117304dfdf4 100644
-> > --- a/drivers/leds/Makefile
-> > +++ b/drivers/leds/Makefile
-> > @@ -16,6 +16,7 @@ obj-$(CONFIG_LEDS_AN30259A)         +=3D leds-an30259=
-a.o
-> >  obj-$(CONFIG_LEDS_APU)                       +=3D leds-apu.o
-> >  obj-$(CONFIG_LEDS_ARIEL)             +=3D leds-ariel.o
-> >  obj-$(CONFIG_LEDS_AS3668)            +=3D leds-as3668.o
-> > +obj-$(CONFIG_LEDS_ASUSEC)            +=3D leds-asus-ec.o
-> >  obj-$(CONFIG_LEDS_AW200XX)           +=3D leds-aw200xx.o
-> >  obj-$(CONFIG_LEDS_AW2013)            +=3D leds-aw2013.o
-> >  obj-$(CONFIG_LEDS_BCM6328)           +=3D leds-bcm6328.o
-> > diff --git a/drivers/leds/leds-asus-ec.c b/drivers/leds/leds-asus-ec.c
-> > new file mode 100644
-> > index 000000000000..5dd76c9247ee
-> > --- /dev/null
-> > +++ b/drivers/leds/leds-asus-ec.c
-> > @@ -0,0 +1,104 @@
-> > +// SPDX-License-Identifier: GPL-2.0-only
-> > +/*
-> > + * ASUS EC driver - battery LED
-> > + */
-> > +
-> > +#include <linux/err.h>
-> > +#include <linux/leds.h>
-> > +#include <linux/mfd/asus-ec.h>
-> > +#include <linux/mod_devicetable.h>
-> > +#include <linux/module.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/slab.h>
-> > +
-> > +/*
-> > + * F[5] & 0x07
-> > + *  auto: brightness =3D=3D 0
-> > + *  bit 0: blink / charger on
-> > + *  bit 1: amber on
-> > + *  bit 2: green on
-> > + */
-> > +
-> > +#define ASUSEC_CTL_LED_BLINK         BIT_ULL(40)
-> > +#define ASUSEC_CTL_LED_AMBER         BIT_ULL(41)
-> > +#define ASUSEC_CTL_LED_GREEN         BIT_ULL(42)
-> > +
-> > +static void asus_ec_led_set_brightness_amber(struct led_classdev *led,
-> > +                                          enum led_brightness brightne=
-ss)
-> > +{
-> > +     const struct asusec_info *ec =3D dev_get_drvdata(led->dev->parent=
-);
-> > +
-> > +     if (brightness)
-> > +             asus_ec_set_ctl_bits(ec, ASUSEC_CTL_LED_AMBER);
-> > +     else
-> > +             asus_ec_clear_ctl_bits(ec, ASUSEC_CTL_LED_AMBER);
-> > +}
-> > +
-> > +static void asus_ec_led_set_brightness_green(struct led_classdev *led,
-> > +                                          enum led_brightness brightne=
-ss)
-> > +{
-> > +     const struct asusec_info *ec =3D dev_get_drvdata(led->dev->parent=
-);
-> > +
-> > +     if (brightness)
-> > +             asus_ec_set_ctl_bits(ec, ASUSEC_CTL_LED_GREEN);
-> > +     else
-> > +             asus_ec_clear_ctl_bits(ec, ASUSEC_CTL_LED_GREEN);
-> > +}
-> > +
-> > +static int asus_ec_led_probe(struct platform_device *pdev)
-> > +{
-> > +     struct asusec_info *ec =3D cell_to_ec(pdev);
->
-> Please remove all of your abstraction layers.  They serve little purpose
-> other than to complicate things.  Just use dev_get_drvdata() here.
->
-> Remove the "_info" part and change "ec" to "ddata".
->
 
-Controller exposes only required stuff, exposing controllers internal
-parts is not desired. Is there any written convention that driver
-private data pointer MUST be named "ddata"? "priv" is pretty well
-fitting to. You are just nitpicking.
-
-> > +     struct device *dev =3D &pdev->dev;
-> > +     struct led_classdev *amber_led, *green_led;
-> > +     int ret;
-> > +
-> > +     platform_set_drvdata(pdev, ec);
+On Mon, Feb 23, 2026, at 6:28 PM, Vishnu Sankar wrote:
+> Hi,
 >
-> Wait, what?
+> Gentle ping on this series.
 >
-> Why are you doing that?
+> This is v7 addressing all previous review comments.
+> Please let me know if any further changes are needed.
 >
-
-This is redundant, yes.
-
-> > +     amber_led =3D devm_kzalloc(dev, sizeof(*amber_led), GFP_KERNEL);
-> > +     if (!amber_led)
-> > +             return -ENOMEM;
-> > +
-> > +     amber_led->name =3D devm_kasprintf(dev, GFP_KERNEL, "%s::amber", =
-ec->name);
-> > +     amber_led->max_brightness =3D 1;
-> > +     amber_led->flags =3D LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTD=
-OWN;
-> > +     amber_led->brightness_set =3D asus_ec_led_set_brightness_amber;
-> > +
-> > +     ret =3D devm_led_classdev_register(dev, amber_led);
-> > +     if (ret)
-> > +             return dev_err_probe(dev, ret, "failed to register amber =
-LED\n");
-> > +
-> > +     green_led =3D devm_kzalloc(dev, sizeof(*green_led), GFP_KERNEL);
-> > +     if (!green_led)
-> > +             return -ENOMEM;
-> > +
-> > +     green_led->name =3D devm_kasprintf(dev, GFP_KERNEL, "%s::green", =
-ec->name);
-> > +     green_led->max_brightness =3D 1;
-> > +     green_led->flags =3D LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTD=
-OWN;
-> > +     green_led->brightness_set =3D asus_ec_led_set_brightness_green;
-> > +
-> > +     ret =3D devm_led_classdev_register(dev, green_led);
-> > +     if (ret)
-> > +             return dev_err_probe(dev, ret, "failed to register green =
-LED\n");
+> Thanks,
+> Vishnu
 >
-> Lots of repetition here.
 >
-> I'd make a sub-function that takes the differences.
+> On Mon, Feb 9, 2026 at 3:34=E2=80=AFPM Vishnu Sankar <vishnuocv@gmail.=
+com> wrote:
+>>
+>> This patch series adds support for TrackPoint doubletap with a clear =
+and
+>> simple separation of responsibilities between drivers:
+>>
+>> 1. Firmware enablement (trackpoint.c):
+>>    Automatically enables doubletap on capable hardware during device
+>>    detection.
+>>
+>> 2. User control (thinkpad_acpi.c):
+>>    Provides a sysfs interface to enable or disable delivery of double=
+tap
+>>    events to userspace.
+>>
+>> The approach follows the KISS principle:
+>> - The TrackPoint driver enables hardware functionality by default.
+>> - The thinkpad_acpi driver controls whether ACPI doubletap events are
+>>   delivered, using existing hotkey filtering infrastructure.
+>> - No cross-driver APIs or dual filtering paths are introduced.
+>>
+>> Changes in v7:
+>> - Removed unwanted comments and logs
+>>
+>> Changes in v6:
+>> - Documentation: fix formatting of the doubletap_enable sysfs attribu=
+te
+>>   description (separate "Values" list)
+>>
+>> Changes in v5:
+>> - Rename sysfs attribute from doubletap_filter to doubletap_enable to
+>>   reflect actual behavior.
+>> - Fix inverted logic so events are delivered only when doubletap is
+>>   enabled.
+>> - Suppress ACPI hotkey delivery instead of injecting or filtering inp=
+ut
+>>   events.
+>> - Register the sysfs attribute via hotkey_attributes[] instead of
+>>   device_create_file().
+>> - Drop unnecessary helper wrappers and debug logging.
+>> - Update Documentation to reflect the new naming and semantics.
+>>
+>> Changes in v4:
+>> - Complete redesign based on reviewer feedback.
+>> - trackpoint.c: Simplified to only enable doubletap by default.
+>> - trackpoint.c: Removed all sysfs attributes and global variables.
+>> - trackpoint.c: Uses firmware ID detection with deny list.
+>> - thinkpad_acpi.c: Added sysfs interface for kernel-level event contr=
+ol.
+>> - thinkpad_acpi.c: No cross-driver dependencies.
+>> - Documentation: Updated to reflect simplified sysfs approach.
+>>
+>> Changes in v3:
+>> - No changes.
+>>
+>> Changes in v2:
+>> - Improved commit messages.
+>> - Removed unnecessary comments and debug messages.
+>> - Switched to strstarts() usage.
+>> - Simplified firmware capability detection logic.
+>>
+>> This version addresses the remaining review feedback by correcting the
+>> naming and logic inversion, aligning sysfs semantics with behavior, a=
+nd
+>> fully integrating with existing thinkpad_acpi hotkey handling.
+>>
+>> Vishnu Sankar (3):
+>>   input: trackpoint - Enable doubletap by default on capable devices
+>>   platform/x86: thinkpad_acpi: Add sysfs control for TrackPoint
+>>     double-tap
+>>   Documentation: thinkpad-acpi - Document doubletap_enable attribute
+>>
+>>  .../admin-guide/laptops/thinkpad-acpi.rst     | 21 +++++++++
+>>  drivers/input/mouse/trackpoint.c              | 45 +++++++++++++++++=
+++
+>>  drivers/input/mouse/trackpoint.h              |  5 +++
+>>  drivers/platform/x86/lenovo/thinkpad_acpi.c   | 42 ++++++++++++++---
+>>  4 files changed, 106 insertions(+), 7 deletions(-)
+>>
+>> --
+>> 2.51.0
+>>
 >
-> Same with the set brightness functions.
->
-> Think to yourself - what if I had to support 16 different LEDs?
->
-
-That is not of my concern what you would do. I have 2 LEDs and I see
-no point in "abstraction for he sake of abstraction".
-
-> > +
-> > +     return 0;
-> > +}
-> > +
-> > +static const struct of_device_id asus_ec_led_match[] =3D {
-> > +     { .compatible =3D "asus,ec-led" },
-> > +     { }
-> > +};
-> > +MODULE_DEVICE_TABLE(of, asus_ec_led_match);
-> > +
-> > +static struct platform_driver asus_ec_led_driver =3D {
-> > +     .driver =3D {
-> > +             .name =3D "asus-ec-led",
-> > +             .of_match_table =3D asus_ec_led_match,
-> > +     },
-> > +     .probe =3D asus_ec_led_probe,
-> > +};
-> > +module_platform_driver(asus_ec_led_driver);
-> > +
-> > +MODULE_AUTHOR("Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>");
-> > +MODULE_AUTHOR("Svyatoslav Ryhel <clamor95@gmail.com>");
-> > +MODULE_DESCRIPTION("ASUS Transformer's charging LED driver");
-> > +MODULE_LICENSE("GPL");
-> > --
-> > 2.51.0
-> >
-> >
 >
 > --
-> Lee Jones [=E6=9D=8E=E7=90=BC=E6=96=AF]
+>
+> Regards,
+>
+>       Vishnu Sankar
+
+Hi Ilpo,
+
+I was just discussing this with Vishnu and wanted to check if anything e=
+lse was needed from your perspective for this patch?
+
+I assume at this point we're waiting for the 7.1 merge window to open. P=
+lease do let us know if there's anything you need from us in the meantim=
+e.=20
+We can't get this pulled into the distro's until it's accepted upstream =
+- and while it's not a critical feature, we'd love it to be in place for=
+ the Linux preloads for the 2026 platforms (coming up soon)
+
+Thanks
+Mark

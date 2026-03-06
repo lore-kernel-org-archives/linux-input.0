@@ -1,95 +1,147 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB91F35E95C
-	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 11:49:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B22B3659F0
+	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 12:05:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772797778; cv=none; b=Oby8/Z/eW1n+Nu57e5YPrgfbbbJdb2qBScS7kqkKsrEoEOy3Q5zpdEduEt9aMAc63JuhZtQvYLJhq191sYI1C92MG7YyVdfqFYQjy0bvMxYrp42xmB9d+f6QafpfbmiPtBJv9kd8CwE9YAjoEaxi2Yk/6A3pRoeAS1HQNN8lPCA=
+	t=1772798754; cv=none; b=I4J3Vtk6oRwcgsjwcNqqPcuR3WmfTZ80XsEHg63uv6QhysxjhqZD8HK814OK76qfXMWtMEto9Sqa7t5Gv3JI7gtX5iPDNhl13vHAiodfk2IYATq8Pjvv8nEO6UR5uNDsrPRUKxhVeL0CXYhqBG08bwbmE135mqyIBsT9EOaheQo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772797778; c=relaxed/simple;
-	bh=Wjq113QW0k+KgsnYyZwGU0Xj1t4ADCVrZtdHXKgwzx8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cZzqXVxpHjlDMTmvWQY4gSARQr1aQWsPEXXj1IRtw/TPnDcPGT5EgGNBt+KtE8eFhU9/e/zhk8OlFGwbMLwuQKK+khb0a2ktcm1lHBqGBJVe0mkJ/lTsGA2zVv+YowtJcKWt/6UI+aHtfPc/Svvj/5pasaeQ/Ge0cM64ZqlqMsY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=dRRi9AoR; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1772798754; c=relaxed/simple;
+	bh=1OGPesTTQ6PdHg6rziXwtnglSKn5QCyc2GI25XQeshs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S6JXLea2Ah2cb4TD7aK6LgSW8jJDtCGOtMSoueERVRBh2U+stDBsuv+ZDt4vNQrxyb4J4CRj9ULOqdLy3w4b0woDlW8oGI/mxDLFG94O5EWPOfDpc6VGsT++oBbvjMaA/mewjuBLiMVl8xV9wav4pwSHwm1R6w8nPkhR5RZHues=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FqBKTlNH; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="dRRi9AoR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Wjq1
-	13QW0k+KgsnYyZwGU0Xj1t4ADCVrZtdHXKgwzx8=; b=dRRi9AoR7gRVGd251cTE
-	dHVicZ7trstUtUl3yYzsOtVT5SX8UyfZRZYEb2dC9lGH0Zz20jj6lmUqXJXCMlqY
-	6ug2WCNbMhICS036H6M1yyNtA3hPB6m0XHb5lYmRgTZI/KvO8UaMifrsffKfQsnE
-	Ay+nFRrjGHu1s+X4bKSzvJqKPfN6OOzC/PpIDxXjJUNGv5WSJolkIwQHKENu4ztw
-	Z++URVXQ5YzCI2EXsjJ3Dy5r8bx2Mq2mLW8R8AlZbBeb2oIVYl0cQTDZKQzGx1cl
-	K8Bu0wq7Kbrkj/12vIuLmGU8CIaj6yXotg34EmEHUj7/qyfpbE0Y31DMmhcK11U1
-	DQ==
-Received: (qmail 1611070 invoked from network); 6 Mar 2026 12:49:26 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Mar 2026 12:49:26 +0100
-X-UD-Smtp-Session: l3s3148p1@9uYapVlMmNsgAwDPXzF+ANZpdrMKUeLI
-Date: Fri, 6 Mar 2026 12:49:25 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: phucduc.bui@gmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FqBKTlNH"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4852a8482fcso498825e9.3
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 04:05:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772798751; x=1773403551; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mTkk7uiuigPho3KVdrJ5hWiT++sJi9u25O2m/ZkmXhs=;
+        b=FqBKTlNHodQghvPRUQQuvUXRcNRwclphFXeubRab5/d6hOXFyG3JF+j2b1/hOIqODh
+         fVU0apcCXG2S6SLCC+dH1aPPp+ID0Q27MX92FqgJ+hT4rY59FZngNaGe8RWeTV+sWFIj
+         +M6IN4Fop6/LYSiebKwsqxKyDP2VAWgOfELb5hQPl+Z+rPjLjHV6SRZLw61l2MMKOWjv
+         4yaMA3C9UwnOrtERp5kBaLNj+VJV0vhTGlhNhVlATTir5wAmYeEoWhMnHacF4pQsKiY/
+         NW0DEFSmZC4pauV5PUo1ZPWPhP8OvzFXxVkT+ZsBaxkLAXPAajm7Jpx2fMyJwl7hXlOB
+         HDUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772798751; x=1773403551;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mTkk7uiuigPho3KVdrJ5hWiT++sJi9u25O2m/ZkmXhs=;
+        b=DdDNBAvVUpp3mojbNt0TPFLxnSpYCUX+T3/J8mWoDX2fs+sgyvaT+3eYwpgmcCZeBJ
+         pYaA503touGmSWOXmrCGnhlBHPje2Wp/mv8Cek40atV8Nuhz6HA7mAthePeFnW+5TOdo
+         ahSQH1856ycs9d4P3H3Ew9tpcHVTu/0jTnC3q1NWXMtqvXwYprvJPl7Q39fgqPQ/yGxK
+         b4ln81SbC0p+KHDN1JJNtO6sXX6uJQaYcp2F1n16QuhUADGTnY6yS4YKvEU04fSeP/Ah
+         6S2/dPoRZN9ScITlJN43nsrUgKqnx1CAh8PwOjBadPXRX1hwbR+UWTBVVghMy7Z6aBcW
+         Modg==
+X-Forwarded-Encrypted: i=1; AJvYcCXGtBfLR6hARXTgV9Lk4yOsNGgFFPEDaYvwblYsHXMZX7kYqXsmzghTtlCI6UfsCH511b6T3LjfbeYcVw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMl3JBS9dxGjL9zzVyJZ5GhzikP8rVcHVUKwyXy+4hYejalkIu
+	w3kTQ/0xps++tth+K2STfIsLkLxRSmlPT40Zg9zsAdSxeppKqXOpjuCR
+X-Gm-Gg: ATEYQzyd/4UqL4cgRoAPpa7uri+RJC/wAksP22d7brpXHygqCypuEVm1PjJi8nVL6vz
+	vmhoQmuZdZeInlqUMrC/mcO2UtNJo9+sPSxuiec9eAKB0vL0lMCsB+UBcnAgD2XeD7ibttwYEI4
+	Ccp57PzZj2b3mSd25Oggs63jha1g5Pg5PQ5M84q7ifgojXSz06hLVuHYtX+A60TOVMIspCeV4XH
+	aIpJRoFanPEHALpxRWncaWkA6pLKZPze4Ds4pB+qf4smBRkpiUBLgPx0Buwh6a94X/Ov4llEYqF
+	yWHwq1IRtGUnl2J7qT7Wk0jExFy5XEgwuevoM9WxnmoRGiO9zk/wz4SnmMtMt77TKVK/X5xaaLy
+	2VPcgciogxhaAD9K1YxQeh/koMBOgpAea2pMlXfROc9i41tdNEiRY9nTZ43AiJ1nSoXmGwGPYaW
+	ldWarf6K/pde+DLGsRcF8=
+X-Received: by 2002:a05:600c:a403:b0:485:2969:cd9f with SMTP id 5b1f17b1804b1-4852969d02emr7858575e9.12.1772798751250;
+        Fri, 06 Mar 2026 04:05:51 -0800 (PST)
+Received: from luca-vm.lan ([154.61.61.58])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439dae2b9d8sm3457225f8f.21.2026.03.06.04.05.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2026 04:05:50 -0800 (PST)
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+To: linux-mediatek@lists.infradead.org
+Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Jeff LaBundy <jeff@labundy.com>, Bastian Hecht <hechtb@gmail.com>,
-	Javier Carrasco <javier.carrasco@wolfvision.net>,
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/3] Input: st1232 - add system wakeup support
-Message-ID: <aaq_Rft0gvVqxmMD@shikoro>
-References: <20260306104025.43970-1-phucduc.bui@gmail.com>
- <20260306111912.58388-1-phucduc.bui@gmail.com>
+	Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Lee Jones <lee@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Val Packett <val@packett.cool>,
+	Gary Bisson <bisson.gary@gmail.com>,
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+	Julien Massot <julien.massot@collabora.com>,
+	Fabien Parent <parent.f@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v2 0/7] Add support for mt6392 PMIC
+Date: Fri,  6 Mar 2026 12:03:04 +0000
+Message-ID: <20260306120521.163654-1-l.scorcia@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="GiP2FLOrzOJ6xXEk"
-Content-Disposition: inline
-In-Reply-To: <20260306111912.58388-1-phucduc.bui@gmail.com>
+Content-Transfer-Encoding: 8bit
 
+The MediaTek mt6392 PMIC is usually found on devices powered by
+the mt8516/mt8167 SoC, and is yet another mt6397 variant.
 
---GiP2FLOrzOJ6xXEk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This series is mostly based around patches submitted a couple
+years ago by Fabien Parent and not merged and from Val Packett's
+submission from Jan 2025 that included extra cleanups, fixes, and a
+new dtsi file similar to ones that exist for other PMICs. Some
+comments weren't addressed and the series was ultimately not merged.
 
+This series only enables three functions: regulators, keys, and RTC.
 
-Krzysztof already adviced you to not attach new series to old threads.
-Please follow this suggestion:
+I have added a handful of device tree improvements to fix some
+dtbs_check errors and addressed the comments from last year's
+reviews. The series has been tested on Xiaomi Mi Smart Clock x04g.
 
-Do not attach (thread) your patchsets to some other threads (unrelated
-or older versions). This buries them deep in the mailbox and might
-interfere with applying entire sets. See also:
-https://elixir.bootlin.com/linux/v6.16-rc2/source/Documentation/process/submitting-patches.rst#L830
+v2: Review feedback - replaced explicit compatibles with fallbacks
 
+Fabien Parent (5):
+  dt-bindings: mfd: mt6397: Add bindings for MT6392 PMIC
+  dt-bindings: regulator: add support for MT6392
+  dt-bindings: input: mtk-pmic-keys: add MT6392 binding definition
+  mfd: mt6397: Add support for MT6392 pmic
+  regulator: mt6392: Add support for MT6392 regulator
 
---GiP2FLOrzOJ6xXEk
-Content-Type: application/pgp-signature; name="signature.asc"
+Val Packett (2):
+  input: keyboard: mtk-pmic-keys: add MT6392 support
+  arm64: dts: mt6392: add mt6392 PMIC dtsi
 
------BEGIN PGP SIGNATURE-----
+ .../bindings/input/mediatek,pmic-keys.yaml    |   1 +
+ .../bindings/mfd/mediatek,mt6397.yaml         |   9 +
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      | 134 +++++
+ drivers/input/keyboard/mtk-pmic-keys.c        |  15 +
+ drivers/mfd/mt6397-core.c                     |  43 ++
+ drivers/mfd/mt6397-irq.c                      |   8 +
+ drivers/regulator/Kconfig                     |   9 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/mt6392-regulator.c          | 491 ++++++++++++++++++
+ include/linux/mfd/mt6392/core.h               |  42 ++
+ include/linux/mfd/mt6392/registers.h          | 487 +++++++++++++++++
+ include/linux/mfd/mt6397/core.h               |   1 +
+ include/linux/regulator/mt6392-regulator.h    |  40 ++
+ 13 files changed, 1281 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 drivers/regulator/mt6392-regulator.c
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+ create mode 100644 include/linux/regulator/mt6392-regulator.h
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmqv0EACgkQFA3kzBSg
-Kbbo6A//YpGu96Gn41EiQBLt67gdeLRRmQVTEg60skkWpxPhAtqQiqF8vTIb+jXo
-DuTrk5LJttrqkSTImDpOSIqU8BaM/R6jcJuUaMj+2idFJw5U/krC5pzB5PpbE+DZ
-LCIDviIpvL88CZApBziiQGSQeQPSXCOZThTw1uu84OxoGFccsoWyHD/cryg3Nk47
-6Z1oNyYrzpWxASSjZMxZyHElJyCWADvm8CUdczIkES/hwuiylQE4m+SvuypUg/Gb
-WpA+nHrQTM42U0E98Gew3CssKnjQFKwDQO2agd9YNAujwSCT9GfLfD/J9Fv6M9nX
-l69PjOayu5+Y/lt6ij7qVf/2Nuez0tqLtRzKuuKHA+BD5IWx9upzGhpLd5q3IfWI
-5IW6wcwt+t8X/uF9rGSbn39ltUZfqIZjtFs8N0qjAwZQtCtoXWqH20Nmj1eNt3M2
-23+LXThZlA5vP9fs8cjANBdWf7Wx+9OV0aemReWMA1KsPxoThnqaW9hE9xvDEklQ
-Go4xk+OKUi8FwJSJp70ve+L0wmHv6iFrzRFYBaLcqQcZ+j5AUWJEaAay+EwyKfRb
-1L7045oF4U8Q/XhF4yr/9FQF63njbdeVH9jsn9uC/2WnMDhvqENoAh4lgcTpSsbd
-t2dFptv8kGc7tA5OwPmimuNmXXyXcCdr6AswimzABUddjrpAQWo=
-=zukW
------END PGP SIGNATURE-----
+-- 
+2.43.0
 
---GiP2FLOrzOJ6xXEk--

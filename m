@@ -1,63 +1,63 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C615C37C92B
-	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 11:19:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633BA35C184
+	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 11:19:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772795982; cv=none; b=HRttnxZTZ5clzbVCaQIInBx8l9pgBJg+InqEW3y0WVK4T0hGrhric/DK7F9ZFmFJK3kIA4dehLfaHcbl+Y32/TLXcYyd4DGFMsthSr9eSTPGxYzg/aluZaAmtcJrso5B+cDhw2xGsfNzuyX1uE2t8D/3hQi787pO0iujOv5xhKk=
+	t=1772795987; cv=none; b=Xxwxhga6AArWsNGncHDKEKF1OShrkBOaP2rYVjGJ9omAxSQvzxXleKP6EGn//GtA8dbmdQ3jPLGNI8hzGKlYo1mKd5okJzWy9+QPdoLkWAKhGBCouUE1i4iZgi0anpucCCwNKyQtCEbwBHqosRVanmMMam0WhfSDCWGQPjHAYQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772795982; c=relaxed/simple;
-	bh=IhHBDjBNblh3SGioE59ahxJ5i5rETskes7udyfMIjwg=;
+	s=arc-20240116; t=1772795987; c=relaxed/simple;
+	bh=h4gOd+UQkfsuU8dfRXEsm3/VN4Iz5YJm2OLlL8dMYmM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PQFkIkNcGjiuIBArFqhGQILceaTvIMu+laPs0ClcfE4IgaPytadPJe6a+dG6k/N2nA1b501mofrNTS93K1plPVWbhdKmghZcphaVHQbctwRV3ByzOORfPmcu0pZkTX7HR86pNQ6x0XudBiEFUKNBgMPP4IgK7bMdzH6XJ5JYcDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jlxhHXd/; arc=none smtp.client-ip=209.85.210.176
+	 MIME-Version; b=AleBdjgMnHGdyrtE1gO9VaVu6U+Tch8BKjSPXv2Ea56XCV8I0V5m1atNZewcybsPHUeLwbVwm457d/jZPft+lMrDmejyz4x4TTpQenoEKKvDgPsXTOTmzj63hJm3qp/QJlrXWpWm9IbPkjWn2lfXam5T4yV9oNZmVt0C9Td+E1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ndFK8GrL; arc=none smtp.client-ip=209.85.210.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jlxhHXd/"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-827270d50d4so9445058b3a.3
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 03:19:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ndFK8GrL"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-82987437624so1016080b3a.1
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 03:19:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772795980; x=1773400780; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772795986; x=1773400786; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=X0jykUN0/tKr1Iorg3HvmMPc1TMCQY6y1V9ModxJUJY=;
-        b=jlxhHXd/NGrSQ1nvRmh1oSOT7gotHVvdSYCloX//S0jbrAsnoz873qynDx3PzwI8rZ
-         aDtTzT1TZ+7Npl7NeA7K80LDZdafOFQ4r00oBtsrT/55VYcTE72ct267O2E/kK0e+tFd
-         MydLm/G2CLy4oEsMptYhCC+Qwm+cvfvk2zdg/TaI4/0assv8dPPyu0WSdnTJvO/148vM
-         Bi0dobeBMJ6ElqtQDhc6/XgRt6B1gJtl+hZ4gFUnPbUFcz4yEO0ZEQzq2BbkhEtxDSK4
-         zsxWZgMN18H2Tbk8mDDeBaFLlPT/BZoIc9ZL46OqZcDS2Jqv9zQ0aLf5Uwf5dlIRy8P4
-         zkbQ==
+        bh=eWAv+cXchBb/HIG329G/h7rJcEkvvlkIxA/O7EdGmJQ=;
+        b=ndFK8GrL8/KeRMaoM5+AzuOtSylcP8MiccGVzhsZ45VSDt5/hyTPbWdyW/LbmJKYMK
+         nuFIwh/6qyggqZX9RC/D61eav+7mbsMgBZx/aA+Gzrj2UBqAKnBoqzNYOXx0kTi/RFRb
+         tv+OJmpKrfabUXti8Yo/BtfF8P+oy9NdQ8h+4f1dBck+X0O1kgLeJGuSVBDGKQglGW0j
+         s6fYLYjFgc9vCU0exeW+jhA1H9iZPrLRGK7bgKep6Tqw+hgCQkWkM2eafznnOjH7ClOR
+         qY1grf2NtsmvWqDCYUAq/VnWo075hk7j7LMg7cqx7wVgnfz9xyINQ4KAoMK575P7zJuA
+         GgNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772795980; x=1773400780;
+        d=1e100.net; s=20230601; t=1772795986; x=1773400786;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=X0jykUN0/tKr1Iorg3HvmMPc1TMCQY6y1V9ModxJUJY=;
-        b=l8+cmn/4t1h+k/OXBtPZiJtAwIUZAmOo/qmBkS5Sy8X5e3evYbQdlf1iDlnV9CppNg
-         zZSvrvo66l+XrqOEsZ3Z7jo7pagd/v+bWvNXyqwY9/K2BApUPj9bZ9vc0QskOPyU9KwN
-         VMZ2lBgmlbwwt5vI7CRVAyD/C+d2LL2cVbX4zObLjZttcMIAweDyVtsW3U+GmRvmAqZc
-         +m0gf67wXlJVWqAaOzsczuKQVffoN+kc/xMbqcF56GS/SHbu7COY71kvXvZXZRxqq7KK
-         KKiRAE9v9KOcB/1eHl+NoEYB3f7GFGMFikiRVj2X+pOu5pM4AXbNzpMymSdDasy7mH4H
-         LVPA==
-X-Forwarded-Encrypted: i=1; AJvYcCUSIZieXD1mzdECTRbxAWWqby7m/ok84vZv6ZQrjyEoFAnLF4xHMSE44VmdzgyxORfEtm/YhkRKQNv1QQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwskcZAmVKv3mitOLkdE96EVAk6+EeLerD6avDo5Zhilpt9ap6w
-	xFuI377dQ0tNM4XlLkZoTJo77ryeAn0hRudp4OKBVkLM3Eof6ax54g3S
-X-Gm-Gg: ATEYQzy/O8OrtbnntDTWz9NqDS/AG2r8GHyJjKKy/PXd52J2RW309VlKXzFJsUPKzBi
-	txeY6lA/JklJRfDeCOgy7Nyt8RwMnKeDJYDJ+A7w9O9R7Q5WOfgE2Q2LMIs3g4Umz4it1tQRWvt
-	3mML8u0BN0B7QLbtjgb+7n3Ssvx5U3vChTLIKs4cW9AQKoNpp6fr50GpQKoZ1+TpG4OoV9KI7zd
-	G2eYucNItH+Z1UxtBZMLlOfuxsK9wRrAkCVttGUGz9pc3wuwWOmDe62tTUV7KY/Vk6NWZDmGpPB
-	I/MS7vUdOeESXDEuaU+ME8PrOIdPIaABjpSg4yThdvNRVgnQ3Cg5uW1OyURXhwVPPBJVqowLjLl
-	/6RN1uQRJMfb43PtquOuM6LvFO/UvPCWpfFODFNWYdjJJhjG+/skGKumvSJNw6gx4IrZ+dwpmaF
-	u7Q9g5YKKTbml1QNYrx5ttIKKxp+vBM1GdvWBfYxQpnqAauTo4bwa4owwS6g==
-X-Received: by 2002:a05:6a00:1c84:b0:827:343a:a1ef with SMTP id d2e1a72fcca58-829a30c2008mr1778823b3a.52.1772795980067;
-        Fri, 06 Mar 2026 03:19:40 -0800 (PST)
+        bh=eWAv+cXchBb/HIG329G/h7rJcEkvvlkIxA/O7EdGmJQ=;
+        b=HUFc6/Y6yvj21D+lyIpyZbUvrfe83kNuxP/4xjHVviRgLJJbfjQHyOuV6Ed6qeLlU6
+         /nmS0/BYk5cFuIv2m49V1CFAqk7bLDAHPsdf0KQILN/sL08YSWILfW2wGfQlfA1FvlQM
+         A4qTlmB7BEHYnDmGQnP4m9x06I5fV8ZjYiEMpNUWg7E19IKXtqXdtP04KPNfQcViTvf1
+         mjS92/J3zGwb+IL7DvXIu2R6THx7iK8g/EZSnsbED0zVTXzwD0uAIuY6nIEdPpyCFQD5
+         PLnkri8z1b/9xXJsoHKPBzTtxYgtvF62wjpQYJhxDcKR0qNPhC3QLqao/z2uHaDUiYVf
+         zVsg==
+X-Forwarded-Encrypted: i=1; AJvYcCUPST+6t/j6OS0Rq/Q+qMFr50FQpO1VTtd9maX9rNxL0s2fqHk6fWENjR8yqlnNni38N5B2N2gmubDgOA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwlP3krr/bEWxQQkiXDEmWW2nortpjmw1K/edogmLbHKkJIdcS3
+	a1WT4zsw5oGf2uy9p7qFAcjUrWyr4+FtUKaJKBFsb3JIS6iiDedBY2Bc
+X-Gm-Gg: ATEYQzzqIPfQchV4H5MjnSHW7C75NL9lgHsDMf6O9u3yJ2B6IklehKssHoEayMpT3dG
+	oE4pahxQp8lP3eByxDmq5cv6I4JqhTr/VcUD3HvIVKxZiFqTzMXjSC68uz+uTtEY5aoBYSGQGmi
+	C9KHOEb4POaA1vK4MjWHc5AXsKUFFfZjHWGNcjBjJ2bwEh96OcMQWTnJfe8s+wfpTjQET+FJtvz
+	55D3CRG8qFgmBvPMpDMLHjM0dsIfIkDZ2lgc0MmuZV+4hm0dqL/PShFrADbxHg0NrQ7+LE0iaRF
+	/tLeGZk5/3vXMZAABozXldPt5qFez4vzfTDcOvSGxdBHejqA/IYXgrXwGOujplPmzydgf9/SvTO
+	sY6FUpii71b7neoqNYY1a4YD6DM97+aqISG/TksoL7vlccUlqCW9QcBn6xGjH79LKC7oruZ5EZN
+	MatDZ9svlc1Yr7s+QJsH+aMMC5nAfsLJr3EL/P71S3bKN2UOu33AduJjojLQ==
+X-Received: by 2002:a05:6a00:1c96:b0:824:b03f:2f65 with SMTP id d2e1a72fcca58-82985586d87mr4495740b3a.7.1772795985792;
+        Fri, 06 Mar 2026 03:19:45 -0800 (PST)
 Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829a4636cfbsm1475973b3a.13.2026.03.06.03.19.36
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829a4636cfbsm1475973b3a.13.2026.03.06.03.19.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Mar 2026 03:19:39 -0800 (PST)
+        Fri, 06 Mar 2026 03:19:45 -0800 (PST)
 From: phucduc.bui@gmail.com
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Rob Herring <robh@kernel.org>,
@@ -73,13 +73,15 @@ Cc: Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-renesas-soc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH v3 0/3] Input: st1232 - add system wakeup support
-Date: Fri,  6 Mar 2026 18:19:09 +0700
-Message-ID: <20260306111912.58388-1-phucduc.bui@gmail.com>
+	bui duc phuc <phucduc.bui@gmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Subject: [PATCH v3 1/3] dt-bindings: input: touchscreen: sitronix,st1232: Add wakeup-source
+Date: Fri,  6 Mar 2026 18:19:10 +0700
+Message-ID: <20260306111912.58388-2-phucduc.bui@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260306104025.43970-1-phucduc.bui@gmail.com>
+In-Reply-To: <20260306111912.58388-1-phucduc.bui@gmail.com>
 References: <20260306104025.43970-1-phucduc.bui@gmail.com>
+ <20260306111912.58388-1-phucduc.bui@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -90,81 +92,37 @@ Content-Transfer-Encoding: 8bit
 
 From: bui duc phuc <phucduc.bui@gmail.com>
 
-Hi all,
+Document the 'wakeup-source' property for Sitronix ST1232 touchscreen
+controllers to allow the device to wake the system from suspend.
 
-This patch series adds system wakeup support for the ST1232 touchscreen
-controller.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
+ .../bindings/input/touchscreen/sitronix,st1232.yaml           | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-During development it was observed that the device did not expose the
-"power/wakeup" sysfs attribute, preventing it from being configured as
-a wakeup source for system suspend.
-
-To address this, the Devicetree node for the touchscreen is updated to
-include the "wakeup-source" property, and the st1232 driver is extended
-to initialize the device wakeup capability and report wakeup events
-to the PM core.
-
-Testing
-
-The changes were tested on the
-Armadillo800EVA board based on the Renesas R8A7740 SoC.
-
-The system successfully resumes from suspend when the LCD panel is
-touched.
-
-Due to the interrupt hierarchy on this platform, the parent interrupt
-controller (GIC, IRQ 24) is recorded as the primary source that wakes
-the SoC, followed by the device interrupt (IRQ 35).
-
-Example kernel log during wakeup:
-
-PM: suspend-to-idle
-PM: Triggering wakeup from IRQ 24
-PM: Triggering wakeup from IRQ 35
-
-Verified functionality
-
-* The "power/wakeup" sysfs attribute is present for the device.
-* The system resumes correctly from 'mem' and 'freeze' states when the
-  touchscreen is touched.
-
-Changes in v3:
-* Patch 3: Removed debug dev_info() log messages for a cleaner
-  production-ready implementation.
-* No changes to Patch 1 and Patch 2.
-
-Changes in v2
-* Drop description for wakeup-source property as suggested by
-  Krzysztof Kozlowski.
-* Updated commit messages for clarity.
-* Added driver-side wakeup handling in st1232.c.
-
-Patch series
-
-1. dt-bindings: input: touchscreen: st1232: document wakeup-source
-2. arm: dts: r8a7740: armadillo800eva: add wakeup-source to st1232
-3. Input: st1232: add wakeup support
-
-This series depends on the following patch which has been
-submitted but not yet merged:
-
-drm: shmobile: Fix blank screen after resume when LCDC is stopped
-Link: https://lore.kernel.org/all/20260226054035.30330-1-phucduc.bui@gmail.com/
-
-Feedback and review are welcome.
-
-
-bui duc phuc (3):
-  dt-bindings: input: touchscreen: sitronix,st1232: Add wakeup-source
-  arm: dts: renesas: r8a7740-armadillo800eva: Add wakeup-source to
-    st1232
-  input: touchscreen: st1232: add system wakeup support
-
- .../input/touchscreen/sitronix,st1232.yaml    |  4 ++++
- .../dts/renesas/r8a7740-armadillo800eva.dts   |  1 +
- drivers/input/touchscreen/st1232.c            | 22 ++++++++++++++-----
- 3 files changed, 21 insertions(+), 6 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
+index 978afaa4fcef..fe1fa217d842 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
+@@ -32,6 +32,9 @@ properties:
+     description: A phandle to the reset GPIO
+     maxItems: 1
+ 
++  wakeup-source:
++    type: boolean
++
+ required:
+   - compatible
+   - reg
+@@ -51,6 +54,7 @@ examples:
+                     reg = <0x55>;
+                     interrupts = <2 0>;
+                     gpios = <&gpio1 166 0>;
++                    wakeup-source;
+ 
+                     touch-overlay {
+                             segment-0 {
 -- 
 2.43.0
 

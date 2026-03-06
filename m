@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F452347527;
-	Fri,  6 Mar 2026 08:18:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B2C318BA6;
+	Fri,  6 Mar 2026 08:41:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772785104; cv=none; b=CwPJ5WmuIHQS7A6ndHwwyjSbq82M6AIDoR4GZPwm2y/LHG8pQ9xfrqeulrShd9esQhWikRKUn8PFT3jAQ7lbA1M3YVq5yS00LFlRkbtudPDrqDC/rJun15YvAvpLfTaBkzTE57pP4U5JeChAw+keWF5Z9yrF/PXgtKkeUDCYzXY=
+	t=1772786466; cv=none; b=YFPi4zPjm/J0LHx52MwK6+AOh71JJkJdt19VzbsXe7f4kONH9ue5Yj4ChDNqpxM8nDqPLNiVReZQqTIu9MCjbAUuLYfusufDNzRmilJc6MmO4oFdhoIUPrLP8Qk+9coLgVmRLpbJJzfEtSDGaCXvjIiS6wybL5oxCiWBQfldbwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772785104; c=relaxed/simple;
-	bh=IuG+vsZROFDb7NeVDqWVEGbfJg4FLMzqUC6J2najeSI=;
+	s=arc-20240116; t=1772786466; c=relaxed/simple;
+	bh=j/AAC+/G7iFDybe4b1BJg3KemjHoaKjMY6v7YfzaANE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jhbNQup7P6sYdE78VjD2D+W1ylNzeeSucIevuAbRJmgNgSY4Q3AGl3qhWdTxe0U4lSBi5VsjXzCFDe+t8D5dx3Uxi69ZvhGyra2jI26i0PFwg6gc4cQ9HoFiDFV87gsecJVtQvccUiTofe5w62dfhTwaItt9VhDIEOWrFyUKXFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a0el0AhV; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lGhN3i7eakXyL2hISlPm0FyNOc0O3CSgnTS8EwxJNF9v3FEM8KKSBHEmgfT9pYHZKOf2dAJ7KvfsIcrfud+9yOeIGyPr3C4YtPCWtI6R1QpMaFFNKdF0wnLaJQAiGjN0MKZ28cXMTkWMMEb1ZrHkTADoTitdflIAdQc4g1Pe7dI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bJ5e010Y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a0el0AhV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762C5C4CEF7;
-	Fri,  6 Mar 2026 08:18:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bJ5e010Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09BFC4CEF7;
+	Fri,  6 Mar 2026 08:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772785104;
-	bh=IuG+vsZROFDb7NeVDqWVEGbfJg4FLMzqUC6J2najeSI=;
+	s=k20201202; t=1772786466;
+	bh=j/AAC+/G7iFDybe4b1BJg3KemjHoaKjMY6v7YfzaANE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=a0el0AhVp7tvh4fNnLUed+ARY0AUUV5WbxJCXnU41KcRWBiKElkzcQNnpNpRH851g
-	 qAuAe2vZRkdAbu388yiczDhpVgmOx1sGMd9KgHnCorrcGej4/YUmXTI9FoZseHylr8
-	 IP74jCXxkZy2yfLrWMkrTF2DhWnqwD7/AI7DxP++w//DS2Jrbhl8UJiTAtBQYQjqv5
-	 knqUK/dbeLV0W3o8b2V74DzeEu/rLYwTYDUDd/06yLVhBrhGtB84sogJ520k3e8cHr
-	 Bm/BLIvSmK7qUqC2RAU6pUcS1fRzFULrFerFJ197175lLD79sDMAdJsHM9B9LYBWcL
-	 SLp71mTfcAW5g==
-Date: Fri, 6 Mar 2026 09:18:21 +0100
+	b=bJ5e010Y3U0wBDmIdaqJO0tkBECkdYO1pyyEUPfBlZk5vAjPa8tXp3VMdh3Uu4b7K
+	 3ku9tBo85IAYvrBsOy817jTxgLBa5yfxWiO9TzFXgA6fzH6GnQXP+9JvT052dEpFPh
+	 +F95jPEsCcM9N36cu5k8CWLJzxQU55WhL6hKr4jlUr7g79CEC8nL2W0+4vYUx4Z5LD
+	 +fQ6fruNWyp6ibU5hFfgcoyzcvY9dF/HsMG4RnmcIB+ieZsbCUHMqyFSSYHr17RYlr
+	 IWNn9I//lnmfoDrSXWgvoKVLZAuCyCbCT5K32x8bGddh63w9kIGzlX1MKKZBytxN6o
+	 sw45EEuAPXZzw==
+Date: Fri, 6 Mar 2026 09:41:03 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
-To: phucduc.bui@gmail.com
-Cc: dmitry.torokhov@gmail.com, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, geert+renesas@glider.be, magnus.damm@gmail.com, 
-	javier.carrasco@wolfvision.net, hechtb@gmail.com, wsa+renesas@sang-engineering.com, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: input: touchscreen: sitronix,st1232:
- Add wakeup-source
-Message-ID: <20260306-fossa-of-unnatural-authority-29e0ed@quoll>
-References: <20260305113512.227269-1-phucduc.bui@gmail.com>
- <20260305113512.227269-2-phucduc.bui@gmail.com>
+To: Frank Li <Frank.Li@nxp.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Yedaya Katsman <yedaya.ka@gmail.com>, 
+	Joel Selvaraj <foss@joelselvaraj.com>, Jens Reidel <adrian@mainlining.org>, 
+	"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, 
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, imx@lists.linux.dev
+Subject: Re: [PATCH 1/1] dt-bindings: input: touchscreen: edt-ft5x06: add
+ edt,edt-ft5x06 for legacy platforms
+Message-ID: <20260306-wolf-of-striking-fragrance-0dee0e@quoll>
+References: <20260305223731.4088953-1-Frank.Li@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,35 +47,39 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260305113512.227269-2-phucduc.bui@gmail.com>
+In-Reply-To: <20260305223731.4088953-1-Frank.Li@nxp.com>
 
-On Thu, Mar 05, 2026 at 06:35:11PM +0700, phucduc.bui@gmail.com wrote:
-> From: bui duc phuc <phucduc.bui@gmail.com>
+On Thu, Mar 05, 2026 at 05:37:29PM -0500, Frank Li wrote:
+> The compatible string "edt,edt-ft5x06" has been used for more than a decade
+> on older platforms such as i.MX6 and OMAP. However, it is currently missing
+> from the binding documentation.
 > 
-> Document the 'wakeup-source' property for Sitronix ST1232 touchscreen
-> controllers to allow the device to wake the system from suspend.
+> Add it to the binding to document existing usage and fix the following
+> CHECK_DTBS warnings.
+>   arch/arm/boot/dts/nxp/imx/imx6dl-nit6xlite.dtb: /soc/bus@2100000/i2c@21a8000/touchscreen@38: failed to match any schema with compatible: ['edt,edt-ft5x06'
 > 
-> Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+> Signed-off-by: Frank Li <Frank.Li@nxp.com>
 > ---
->  .../bindings/input/touchscreen/sitronix,st1232.yaml          | 5 +++++
->  1 file changed, 5 insertions(+)
+>  .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml        | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-> index 978afaa4fcef..672544e5a26e 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-> @@ -32,6 +32,10 @@ properties:
->      description: A phandle to the reset GPIO
->      maxItems: 1
->  
-> +  wakeup-source:
-> +    description: Device can be used as a wakeup source.
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> index 6f90522de8c0a..213451f823369 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> @@ -38,6 +38,7 @@ properties:
+>        - edt,edt-ft5306
+>        - edt,edt-ft5406
+>        - edt,edt-ft5506
+> +      - edt,edt-ft5x06 # Deprecated, not use for new platform.
 
-Drop description
+Then document it as deprecated one.
 
-> +    type: boolean
+OTOH, this above is clearly not correct because we also have
+"edt,edt-ft5506", "edt,edt-ft5x06". Just use git grep.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+I don't understand, though, what is the point of documenting it if there
+is no ABI implemented (nothing in the driver) and it cannot work.
 
 Best regards,
 Krzysztof

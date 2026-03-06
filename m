@@ -1,70 +1,70 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C57E3378D8B
-	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 12:06:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6570B38E120
+	for <linux-input@vger.kernel.org>; Fri,  6 Mar 2026 12:06:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772798765; cv=none; b=hqt/6PdPnaui/Bn3ZCva0Oq7o8FbH2PTf1czqM+lkbc9r9ca+rpFgdlPKWnCuFo6anU4i5qimuVpDU8hZsnnlLwzdS/hyxSA1k69Z1iiZreA9o011XcV1FOJT4LO7sO7zXWgPFLt9qtVKapCQETtnvaxT0sukQu9cdU6IanK+go=
+	t=1772798775; cv=none; b=kzt9KnHUkNAKqmFAVf4Vi6OM/vcFskCOFhGtSzqIY7RM7kYaxPgShLYGrb7rWZhwLgHubQRHueO0SAhsnrf3KEOh9F73h9GWYLe47ZZxZk0Yry/X/LzK2ig0bFW24gKSXaINlyqaiMKS05q1NOshoKegStje+xtR5CzY6EOZasA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772798765; c=relaxed/simple;
-	bh=J83EIuQWnuvi57JW/hDPZJDW/A2HqSUqADqfDfUCqtQ=;
+	s=arc-20240116; t=1772798775; c=relaxed/simple;
+	bh=skkrqdaR/0vPKuUeSwmb6iwhZ8r9gu0r7vVQvuCbBik=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QanXhtJwUFlioyFyWNU0kR9T/RWRaTv7Co4E9YWYzAh8UZXjxfUC/AfON6QeWf/ESOqHiwIl4uX9mIu1DEN1mK89x3iCgE4AUUonyhd6mtpTZmTv/XcXhCaTE1ZcGvn2IODhC2sBkK0mr2USk9GsmYASSjKHLBzbkd0dOEmk5gM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=deu9DuPs; arc=none smtp.client-ip=209.85.128.44
+	 MIME-Version; b=ErInjEJit6JxeAs15hEToAq3Pg5Tb+cprbjD9483cbWQ0NtFxCZXh/bsud7TuGKLMagpUyFtMDCv53br8Wt72OY4v0HP142yYFnEffFmbQGX8bRylEub9WNkkB+GOyAh0SsMEdYRE6B4jnIWzCqnzY7tS7BIOpcXDsGuiIcqN5Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kUSSrAph; arc=none smtp.client-ip=209.85.221.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="deu9DuPs"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-48375f1defeso69104025e9.0
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 04:06:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kUSSrAph"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-439b7c2788dso3970924f8f.1
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 04:06:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772798762; x=1773403562; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1772798773; x=1773403573; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=n1Te5dWKyFtHCAsQSaH2ONpVBfHilH2WjO8uBzqlY+c=;
-        b=deu9DuPsomq4gkRyPCtlT9+w00KPZN3fSf6cPUUbPTbQKNwLRvmo/YegdiNSmq2cgJ
-         NA498QBzW2+K7IXUIW3n5fQ2TyNshyjVa6fcM0sQwWekUWnNBAgU5dnwMVYA0CMvgxiq
-         RLp4t0HUThRig3e559GHHTmAA21HwHhVIKfJ1E+NiWxlgqEuFBXa6adMmsPSMpVSGQws
-         VfFtht6UWWRHNUmH++3vyzaEekn4rEyeGFY22vYDzX+JgFgCqS/K+LqjYfxK2riYqyRR
-         N/4CSmES3EJ6UzPBjJoC0jAy8bIgBZMXFv7aGEsSckXOuCOz0gopKxU84CT2/Ou66wYx
-         G1PA==
+        bh=xWHYFXyM7zqNoEaGGLabRt6WO8B9aIWRMhobpXYX2k4=;
+        b=kUSSrAph8/UVQPztSZw6A1jhHFfGaT6qA/DAJ4/5HsqnIuClA8jEItkmmWq6/UP+kf
+         UYiPomSHwQhyn0IkvRxOSN1NHO6bfE1zaPLFDn9ruR6W/W6GydZdr4jz5wqmTU6s74Jb
+         MPLtCdEZIYlx0D4eTUWWIW4WvTYM+ZwHk2IOGZCC/7ybXxBTHLdjTDVKBlDkWSD0obyb
+         acMgl/B1L8BggiYpMkDGZXR/ESPTFwx5XfVMX8GY5SHaapgK8pjd29XjJVnJeXxjAOUf
+         iofpYaCMPay5bnA69StNLsblT5oXkCKVcRbaLhhacZW0+edSJRyZijnPnuYuTrdvAkyf
+         GOvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772798762; x=1773403562;
+        d=1e100.net; s=20230601; t=1772798773; x=1773403573;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=n1Te5dWKyFtHCAsQSaH2ONpVBfHilH2WjO8uBzqlY+c=;
-        b=Bul8vo6HIJydllQymXnlxx4Ul9QypiEU73nIvdaoXKZMbeGSE/K+f0pb/QoOK9nXhq
-         0UFfW8ROk5KTpHXzSfIpaA+0vimbxd19nWdoinQeycpZaI537uDv264R3dku7kuw4z4J
-         0JlFkR0jZSl4AKnzSkrFfhQeUsUBSeSY0f3Yx6PwHuzRJJ7vvZRpN7rLoskaLH/fNhMp
-         M6IvQjAziKpj5W61hLDGfhtF5lSj0B5ApjXMsvsPhetVjgtNLjSW51OA6fNuuqRxgG3S
-         kZwVwTUqiexiE56rMOXiTFJd+ORgHXP2F8tY4rWb+poSF2BV1WFEE3GCEwSU0mfZlq0r
-         Sfvw==
-X-Forwarded-Encrypted: i=1; AJvYcCUqjnlU1z0ajUgwXWOCY87P0snaUwVEtUhpL/Y9PgWQ2GDOz4hH+aye1h96xOGmreh1ExB0oEMKmTppBg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHRFd/s4dS61aQ52Ffn91vgFWWWsfqvGXwGhnJ9WzUxCwQfyli
-	WoBCcbSNMsQdu/R6ivK0Y6a3CXNt0js2NbUmoAaXjKe6O3g2me+BoT1w
-X-Gm-Gg: ATEYQzwDTnSgEppOp9fNXicqcT1HXgX53NCX/i0ns1J77ylbmF4b0u97gfDU0JkP05H
-	OC6A42jq6C3E7Fh+h5b1eNUYN8XO6qM1k+bKeuTO/Ce9yPg8cz/Y4A4nHUp4e7YW9XkI6Ij6Wvs
-	JlpwXLgs0BASYqzK8ZxSDPLugrqORIWZyj/GDQo0386Eoq26bwu4A9gUR1/NoNI5Pm6EkyJXmz3
-	ZifCxZ1zXLlXdwpTD6f+aZUuJ4zFSDObvWCSCEJETqMDDH3oEunccWI0qWnfOWA332pPUjri5zl
-	ddXG2L6QtKWD1fivvmS9MaJNdXcd92YkReWLE6w3+3VAlnKz/uTMMpmkJHvqHQejCpBamwDJCVJ
-	njTBSflcXmtXh/Lc87/0GyAKMPyqCx5HyWZhszXAj4tOTV8Jxl3WPpxtEyL0muMFpv7cyHLx127
-	EeSYHvDOrV8cppSTlZHh0=
-X-Received: by 2002:a05:600c:6386:b0:483:afbb:a064 with SMTP id 5b1f17b1804b1-48526918f7fmr31691795e9.1.1772798761805;
-        Fri, 06 Mar 2026 04:06:01 -0800 (PST)
+        bh=xWHYFXyM7zqNoEaGGLabRt6WO8B9aIWRMhobpXYX2k4=;
+        b=Xj5MItL0LWAzy6VN4bt9b0/jwKYp9p/vXAmVuEobo/b5Qp8Rw9fdsLX0h9nkwM9JmN
+         VQbWL3myQxq85YHnnbO0u7oD46v9goQL9cSpL3JWtxsAID7b8tt0DtPc3wGw/7TDou3M
+         f1a/FdL4L1Z8EUPVfkoais8Wkmggyhu2YAC7PRofJ6cThkK8LHHJbf/XpgrR/3VNcErH
+         kjvFav+ccUwOg5qXuiCWgsxGwBJ+Erbp1xWFIOaL9pSdNTUpyhwf6qUEFAhWNRxsy0ts
+         HfVYo7bRM5wKLECqXgpDz0VXagmC7qIshrQgMtYJ62RUYIF/iamYzJlcOfE9VJzIdYY3
+         O9WQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWD4TkUO6T6psX5xuQuXr+0oEorx+y2x8kVvO1AGjpnz+3suDIXy0cuDwQqdZ1bPLBavfHtO/FCb+YirQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzMvLN8L2HXYiPQsHH0K/ZJhPTusRJ/R79Un4qiG1CPDMLqCjAD
+	3uhE3sJJrPhcvORtmCENUtjxhL/sGExiGSQ4I10x8wd9Ttpf9StYDfxr
+X-Gm-Gg: ATEYQzxc92VwcAaRVtiHsH3e0BLj5PkpJOMbgZZoL4eGR3SXuQJXSP6mtgP7d+grtAi
+	nVo/ZvyQXv5mDmJosYeGRssCKPkQmyGJhLAVizCDb5mmc03x1/Bo0jT8enqayHvl37V8yeaVaFp
+	d8QTUvEQxuyI7UsfjEDsyY1MUSH8xK32eqTutpXcLKeop6ebDPecARBIPARx97/FRX5nokqXvxg
+	79WDQ3ZvQf8LSVu40HRC/cQ8CFqCT8CicHnMheVPUv9ijPSybpNU+LFZl4QOeRXyyj9CM/W0bLD
+	PWh08zZiU8xfh9YKvgLn1ruX98DTmtTJ6AGYiChFiyrp56jmPZADa5Va66VCnFfeySpfAEoVhZc
+	7LeTAVEFs5yLrPlkMt/Swx+cFAH1nnUa8nc4LlrnoAz31Wl7onpOBNFfmYWbCLLfXdLOt5qoX0V
+	o4duCEyKEoaW6fcP8Ymkajf+xxUCU7FQ==
+X-Received: by 2002:a05:6000:4283:b0:439:b912:7391 with SMTP id ffacd0b85a97d-439da34840bmr3145089f8f.10.1772798772610;
+        Fri, 06 Mar 2026 04:06:12 -0800 (PST)
 Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439dae2b9d8sm3457225f8f.21.2026.03.06.04.06.00
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439dae2b9d8sm3457225f8f.21.2026.03.06.04.06.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Mar 2026 04:06:01 -0800 (PST)
+        Fri, 06 Mar 2026 04:06:12 -0800 (PST)
 From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 To: linux-mediatek@lists.infradead.org
 Cc: Fabien Parent <parent.f@gmail.com>,
 	Val Packett <val@packett.cool>,
 	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Sen Chu <sen.chu@mediatek.com>,
@@ -84,9 +84,9 @@ Cc: Fabien Parent <parent.f@gmail.com>,
 	linux-kernel@vger.kernel.org,
 	linux-pm@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 1/7] dt-bindings: mfd: mt6397: Add bindings for MT6392 PMIC
-Date: Fri,  6 Mar 2026 12:03:05 +0000
-Message-ID: <20260306120521.163654-2-l.scorcia@gmail.com>
+Subject: [PATCH v2 2/7] dt-bindings: regulator: add support for MT6392
+Date: Fri,  6 Mar 2026 12:03:06 +0000
+Message-ID: <20260306120521.163654-3-l.scorcia@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260306120521.163654-1-l.scorcia@gmail.com>
 References: <20260306120521.163654-1-l.scorcia@gmail.com>
@@ -100,41 +100,28 @@ Content-Transfer-Encoding: 8bit
 
 From: Fabien Parent <parent.f@gmail.com>
 
-Add the currently supported bindings for the MT6392 PMIC.
+Add binding documentation of the regulator for MT6392 SoCs.
 
 Signed-off-by: Fabien Parent <parent.f@gmail.com>
 Signed-off-by: Val Packett <val@packett.cool>
 Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
 ---
- .../devicetree/bindings/mfd/mediatek,mt6397.yaml          | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-index 6a89b479d10f..c358b2f8059c 100644
+index c358b2f8059c..bb1456d01ba9 100644
 --- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
 +++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
-@@ -40,6 +40,10 @@ properties:
-           - mediatek,mt6358
-           - mediatek,mt6359
-           - mediatek,mt6397
-+      - items:
-+          - enum:
-+              - mediatek,mt6392
-+          - const: mediatek,mt6323
-       - items:
-           - enum:
-               - mediatek,mt6366
-@@ -72,6 +76,10 @@ properties:
+@@ -100,6 +100,7 @@ properties:
+               - mediatek,mt6328-regulator
+               - mediatek,mt6358-regulator
+               - mediatek,mt6359-regulator
++              - mediatek,mt6392-regulator
+               - mediatek,mt6397-regulator
+           - items:
                - enum:
-                   - mediatek,mt6366-rtc
-               - const: mediatek,mt6358-rtc
-+          - items:
-+              - enum:
-+                  - mediatek,mt6392-rtc
-+              - const: mediatek,mt6397-rtc
- 
-       start-year: true
- 
 -- 
 2.43.0
 

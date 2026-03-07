@@ -1,83 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C9493A4505;
-	Sat,  7 Mar 2026 15:04:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3CC23A1E92
+	for <linux-input@vger.kernel.org>; Sat,  7 Mar 2026 15:05:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772895867; cv=none; b=O82BwU5eqzPVgKGenRZGLkrnGswKymP4luK0FlQG37ykznCqY5OMiT7bQ1UJW0cokOT2ePxXKFVas+S1y8Tg6SB6Dh+ozOiT+G+4l+1VxFiNWNx9Q5FBx/aMOfIr40GlifEEOgUHrrOzikI4QlTz/AZhnfrgjmzKGjstDZnFEZA=
+	t=1772895928; cv=none; b=GC5wdysS4RY0SygaSuac+84JQWL+W3nquARBs2HWLFbJqb8L23oiuP+H8dsh9Giq8EN7zZqFjA16Yu62Z/IaPgTBaPrjRWMLp0t2r8v1j2GxsWb6CFn5AqcrpZThuVo1jAJmXILHaBWNmeN0tEIdsFJ3Mg2SrASjPuZo5/RBJFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772895867; c=relaxed/simple;
-	bh=oCfkRjhztakwBoRUIlo4c4xfYh6OciAHaZzWwJwhHWg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bnzbS3DICCbS4tM24+Kjrcos89akankdFrp8Q1JzGpcYfZirDWHkLdE1M6lTbLzI7WZfNI3HL/iX1HygA4FU5SdVi1s4Uc+dysEwC7xY9qQs9L+aMrL+nl19dwp0bIDGu+zVTiywmMcOGHTl9Teo+yGyjMWkadt67W4VGFCmIzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rDbxv9Ds; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772895928; c=relaxed/simple;
+	bh=SXTXiaTG4+ZryaYukFFiMzr1slrujXgLKw/gsumpA1o=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=E+5BKLcpmDo4/bOkcQvYfkSSHip5H33IyWmXBB0gdtyy82UEG47WwI3iDkAFxNgMFK6WAZdfvCrLJLdJD3FaVgl3XKuMpjLpjzd7khYH4pF5DEI4mCdFl0uhe6EF+EheETLsfRbk9libKYGOtoVPhjNmZ7AY6qvjcQZPF84KtxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nGKuw1IS; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rDbxv9Ds"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43197C19422;
-	Sat,  7 Mar 2026 15:04:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772895866;
-	bh=oCfkRjhztakwBoRUIlo4c4xfYh6OciAHaZzWwJwhHWg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rDbxv9DsATZ11dBfMILI/t2am5ClvAF40FJqSfHCikzMfW0aHrXr0VO56g13BnB08
-	 7wKm/N7a3WfRNon/eprTWUGK4ZE4zWeMxUmffKWE/Y+lCXdy42IJONdJ7FHjQCp5BX
-	 omLNwzvYzlRFnnE/4HRBD6LYPVsTtPDE2uJVKP0C7SxZa4dXyz3XIvM2wlvoUEbAz+
-	 TJwJFtqJUCnfM4ZpNz+uMjew7MACArz+joSsuJuVZdBUo6SHD4I5DbvBMGwJ6d8/dy
-	 znHksHALaCJBaYHyz75/DpmGBjZJFzypLFBS3YAQI4FPEreldLhBbWtm/bU3PuWa+M
-	 WNxQsjcC4eVWQ==
-Date: Sat, 7 Mar 2026 16:04:24 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, Val Packett <val@packett.cool>, 
-	Gary Bisson <bisson.gary@gmail.com>, Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, 
-	Julien Massot <julien.massot@collabora.com>, Fabien Parent <parent.f@gmail.com>, 
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 0/7] Add support for mt6392 PMIC
-Message-ID: <20260307-sensible-enigmatic-crab-7680d4@quoll>
-References: <20260306120521.163654-1-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nGKuw1IS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772895927; x=1804431927;
+  h=date:from:to:cc:subject:message-id;
+  bh=SXTXiaTG4+ZryaYukFFiMzr1slrujXgLKw/gsumpA1o=;
+  b=nGKuw1ISh856ifpCUJbnv/GtkQCEcFcqWUd0H0W+Ytg7wUtNEe4zrZf1
+   e6gE7nzDxbN1kjfxcxnu/GtVQ2K6I+fQ7EVPxLNo+khe57ug0rTaJjb1i
+   mvswB4Vf7ZZXwea9mw7Z4DmsdHhxfTC9lPYWyHrr7pzcO5o23g7y2VCk2
+   gaxRAcdi0cI8yhR7qtNVko301HShBLqB7LeTIWreQl1lDV6t5BLcVslYO
+   yOXr1VZQsz3oFi3m2xSM0laKo1PSysUwAl4hSqvwfv1GwohiB4bxSd6R+
+   fbTE/BUWLdhY0N7WdZSBFFeWY3KQXqjcqP6TfqsbDnNITEUrytXjEp6Su
+   g==;
+X-CSE-ConnectionGUID: ODSGgStkR3S5VJedxStEaQ==
+X-CSE-MsgGUID: VOwufYxVQOCM14wxQoqVsw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11722"; a="85458252"
+X-IronPort-AV: E=Sophos;i="6.23,106,1770624000"; 
+   d="scan'208";a="85458252"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2026 07:05:26 -0800
+X-CSE-ConnectionGUID: XjxhJbi0SKqavOwEq6y+qA==
+X-CSE-MsgGUID: jeZmsSm+SUGGwb8OoiPiBg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,106,1770624000"; 
+   d="scan'208";a="223410617"
+Received: from lkp-server01.sh.intel.com (HELO 058beb05654c) ([10.239.97.150])
+  by orviesa003.jf.intel.com with ESMTP; 07 Mar 2026 07:05:24 -0800
+Received: from kbuild by 058beb05654c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vytDU-0000000027J-3hdo;
+	Sat, 07 Mar 2026 15:05:20 +0000
+Date: Sat, 07 Mar 2026 23:05:14 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>,
+ Mark Pearson <mpearson-lenovo@squebb.ca>,
+ Mario Limonciello <mario.limonciello@amd.com>
+Subject: [hid:for-7.1/lenovo 10/16]
+ drivers/hid/hid-lenovo-go-s.c:164:73: sparse: sparse: Using plain integer as
+ NULL pointer
+Message-ID: <202603072210.hUL7ptt2-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260306120521.163654-1-l.scorcia@gmail.com>
 
-On Fri, Mar 06, 2026 at 12:03:04PM +0000, Luca Leonardo Scorcia wrote:
-> The MediaTek mt6392 PMIC is usually found on devices powered by
-> the mt8516/mt8167 SoC, and is yet another mt6397 variant.
-> 
-> This series is mostly based around patches submitted a couple
-> years ago by Fabien Parent and not merged and from Val Packett's
-> submission from Jan 2025 that included extra cleanups, fixes, and a
-> new dtsi file similar to ones that exist for other PMICs. Some
-> comments weren't addressed and the series was ultimately not merged.
-> 
-> This series only enables three functions: regulators, keys, and RTC.
-> 
-> I have added a handful of device tree improvements to fix some
-> dtbs_check errors and addressed the comments from last year's
-> reviews. The series has been tested on Xiaomi Mi Smart Clock x04g.
-> 
-> v2: Review feedback - replaced explicit compatibles with fallbacks
-> 
-> Fabien Parent (5):
->   dt-bindings: mfd: mt6397: Add bindings for MT6392 PMIC
->   dt-bindings: regulator: add support for MT6392
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-7.1/lenovo
+head:   d2c424e80caf8237bda4c94bc2e25398967243f9
+commit: 4325fdab5dbbfd467df6797e018c9dd0e5c3ae75 [10/16] HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
+config: arc-randconfig-r113-20260307 (https://download.01.org/0day-ci/archive/20260307/202603072210.hUL7ptt2-lkp@intel.com/config)
+compiler: arc-linux-gcc (GCC) 13.4.0
+sparse: v0.6.5-rc1
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260307/202603072210.hUL7ptt2-lkp@intel.com/reproduce)
 
-This is incomplete - where is the actual schema for the regulators?
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603072210.hUL7ptt2-lkp@intel.com/
 
-Best regards,
-Krzysztof
+sparse warnings: (new ones prefixed by >>)
+>> drivers/hid/hid-lenovo-go-s.c:164:73: sparse: sparse: Using plain integer as NULL pointer
 
+vim +164 drivers/hid/hid-lenovo-go-s.c
+
+   159	
+   160	static void cfg_setup(struct work_struct *work)
+   161	{
+   162		int ret;
+   163	
+ > 164		ret = mcu_property_out(drvdata.hdev, GET_VERSION, FEATURE_NONE, 0, 0);
+   165		if (ret) {
+   166			dev_err(&drvdata.hdev->dev, "Failed to retrieve MCU Version: %i\n", ret);
+   167			return;
+   168		}
+   169	}
+   170	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

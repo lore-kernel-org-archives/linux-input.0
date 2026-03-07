@@ -1,86 +1,71 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D478E1EA7F4
-	for <linux-input@vger.kernel.org>; Sat,  7 Mar 2026 02:53:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B30602EB84E
+	for <linux-input@vger.kernel.org>; Sat,  7 Mar 2026 03:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772852022; cv=none; b=oBbELVu9ZBIs7uT8abIqL6NHl8JA9ETxgMWompGF8wy9XPLsXOOVjvdlQ30htQFsnG2Adz7rzx/sqMXESguTQD/1swU6/ZmKvupeDfW7koWnAs/lKvT7FVRHMinGMe5urhyH0fY5poS5nnppBAxsKxtMtUWdXZSFNnl0aQtzJ64=
+	t=1772854211; cv=none; b=PvDl2/YJ2tc9L5UWWplhxU/ZpB32kWEH42HZlc0KjVa2HDjembKkjc06Ed9nmAX5YfhNOFDNEDTcoeWI0Gj2ubXrAl6/HmDupwsXFtZhd4MU3tBbnflqO35JwloYZN4pbovOlefcR4IxPpvX6NxBGx2UbGaKfu9ZXWXIb91j+pk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772852022; c=relaxed/simple;
-	bh=Vco7MCJ15Eb1qsmLNHaRLNzt184+FcP2M9jgKlhN0p4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=jcSEjEN7n7iQ12qbbEHEf5ahiU9obag1vscNNTSp5nXr8ijuEUkr5uxSOosGH1njsOuZdCXtN8NAa0YKH01PthFNDw7bBWKyEDrVKTScmELaX8sNKVIRCxohIJaWSDMOODkhGzDUUY3EZOIIF41Pm5KMQRynM+DXDJcx6hKanwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bi7yN71A; arc=none smtp.client-ip=209.85.215.172
+	s=arc-20240116; t=1772854211; c=relaxed/simple;
+	bh=En+FSzjm9b3yZ7RTDdGPtQq3dmB2SMEVaIrfb8fKjrE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sHjzJEo+slTTgnPfNQPQVe9idOfl1KjsnIHtIX2VlL2n3M8ztwzl+rHeTKxg9mu8jNjac6+tWgKIpnWJqWOOunAAOo8DRUx78x2L0d11JGZOR1GKyx5URbmBuyHXwXvbMZquEVLbLToHGyKVRkDYMmYp6GPuc0stJH11YxmJsZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mmW9v62h; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bi7yN71A"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c7388fb61adso1149457a12.3
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 18:53:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mmW9v62h"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-35990245493so3926632a91.2
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 19:30:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772852020; x=1773456820; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=193j15XFage9v8e5Pr/9GKmDx9DMdhLg6v6zvLBCC/Q=;
-        b=bi7yN71A8TSHS6TpgcDYwNcsXLL1VXB22LAdR7VksENPzPfkIu9KeSl5ahYZ3q5Lj7
-         iW4hCq+FSARdr1tGdDkZ4U4yxELnZIF7K6fTFeU9poo4E2bOTCw4In6zoTStFgzr+ywo
-         67dFHcAS8wYbs0gQ8hpGm+HYAUtW58T9/Ur4AjtUMpw0PAh7cz4iRQSO6M6UM7jQ9OJJ
-         Vpc3tSO4Wz9VzWIzkDdItI8agL71V157vWBgRsHwZb/DAsN7F2bFmmRcdbld/xERrbMX
-         Y/bgJIlW41GI3ypFzbZOUIGRNfVCkZdJ2V1tFdvpZWwRd760BylHU2jMIRHltz8Rrdh9
-         fqjA==
+        d=gmail.com; s=20230601; t=1772854210; x=1773459010; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HUfuF25BN8uUpJXhc6fQg9RcsbS0Xj7nnWqfeLrQ/Xc=;
+        b=mmW9v62hsRnt3QJRlMY4Yha7OWE/d7Q3x75zo1Dsw/OeCWFcNPPet7n0nldJaHWRcV
+         T/4vKOLqRtk9hsMXvMUTqGke3IFjLQ42oq43F8WE5UwXit4zLoBv0/VxpQNL0sQK79qs
+         eoOqv/rT1G1TuZtsNChswA4OxAOJjJlkVeLCmCa+ixtZJU9Li1eyPnbW39bAL71Nl35B
+         6ieazO+yrZC9UseWQ5Kya7lLpKb0d/frvElwvz761nr4bE8zvNZw37ZAI79h95oM0XFt
+         o36QH2AbirI2Bkd7qA5sYeZWRQfngei943C81IWGUAfADNF+ONI+ljIynvMcmTJtLMHn
+         jRvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772852020; x=1773456820;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=193j15XFage9v8e5Pr/9GKmDx9DMdhLg6v6zvLBCC/Q=;
-        b=SV67lpnlMOkmnNdTFbf3Kgdwl4tIcqt1Ti6UeZM/CEGhfcX3n3CRjOLUihF9wYu5R7
-         qRPp6IHLpxC56v0CvI5rDRZ8uRC5Dmwxe3Vb+33yx249La/9vmXsmM98SpPnlF+nAzdK
-         6V4vtrTJWk4bl6ndOS2raGdxH8A3YLDZrnGm5npZ9BEP7z8GWa7r5BiF3LgzO8sDY09t
-         JUTDdQYdzCpGbEof3g1Pm0X2kSN2jZKf3tsKHFhRriJNqQ7RYJGlL3HDsZKuzoNgB8cE
-         eNgc6fV669jutAtBePw35vIHoNEjbb+6WQFaEnn0VN4xp90SmIfR2DoIw+q0bpipewcJ
-         eOjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW9u+eOVEQiYGLJe8p1mksMiB0Lli6YQaPJ36JtpdxGpoD/+Vc87jY/BMOqi3U0lZClCTgNUhQLgcfOLw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvIN7yCREryOYbxGGPvlh07lWKxaTb0Zrr3ry+AjKMjBLdr/dT
-	eOZ5eQNJosBA8Rp/dsLNZVmNclkRmww+ATqTpjMuuYjnXoNCc/8GVS+6
-X-Gm-Gg: ATEYQzyx4wJFJTcUxcHKacKzXjuIz213lhhi+tkY97wp0aP5Rdpwy4yM2PjPVLp32If
-	0n/NbC52qxqSv9ylYWfAQCUOF1EtJzorj5jycjOcnSkHWzuoDfuwsZ5/AlO5QYdBtruZLJlTdXd
-	GMmBFXxFHgyqE5Jz6Y/ialUsJztFxRAzdm4mVtwjtGqPUhpODj9c/ngHNJuPC5raD2K0No9FxNx
-	fInArss01bRtfDrJ1D9UQ6L6IXU4ZGpEfOlXHH66CXW1VxVVV6zzpggcvFH7dY8ool9T4n61Vc6
-	J70YaucCTWQhTyg6AotJwi7bHjaYf+GkMZlAMxEJ3vdNQ1uq+QgYxxAR8tZwFphP9LTsd6qnn46
-	z5OgJlPdixw7KRlPb2E23AxISE/k3DN6xlDAQIb3ee+g1LasfCKrqbdXraterQNpt1o8LXG9RVm
-	hVB3WnlganFIA1iomSYskd32eZcLmUPV7tenkrQsDEb2Ph3M9wS7FU+gdzksXkj/UcmkkTu0dCy
-	Bnz1jBKcHRYm6qDuw==
-X-Received: by 2002:a17:903:2308:b0:2ae:606b:bd98 with SMTP id d9443c01a7336-2ae824dd28amr46174205ad.26.1772852020288;
-        Fri, 06 Mar 2026 18:53:40 -0800 (PST)
-Received: from localhost.localdomain ([2001:ee0:8207:3134:c1c0:ef7d:b1c8:1597])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae840ccb6csm45528445ad.92.2026.03.06.18.53.36
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 06 Mar 2026 18:53:39 -0800 (PST)
-From: phucduc.bui@gmail.com
-To: wsa+renesas@sang-engineering.com
-Cc: conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	geert+renesas@glider.be,
-	hechtb@gmail.com,
-	javier.carrasco@wolfvision.net,
-	jeff@labundy.com,
-	krzk+dt@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	magnus.damm@gmail.com,
-	phucduc.bui@gmail.com,
-	robh@kernel.org
-Subject: Re: [PATCH v3 0/3] Input: st1232 - add system wakeup support
-Date: Sat,  7 Mar 2026 09:53:33 +0700
-Message-Id: <20260307025333.1594-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
-In-Reply-To: <aaq_Rft0gvVqxmMD@shikoro>
-References: <aaq_Rft0gvVqxmMD@shikoro>
+        d=1e100.net; s=20230601; t=1772854210; x=1773459010;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HUfuF25BN8uUpJXhc6fQg9RcsbS0Xj7nnWqfeLrQ/Xc=;
+        b=kzoiTiFbYd43qKrra/0J8Y119RIwf357JGgA/CxaZqjRI8xeZkrjh/4W1QNzVdhQGF
+         4CrS1P3bkmDm/rcWl/C+Fi6OYllAEEKZOuLRRFkJ2Kph5VwmhgMdBjliwUmBTYip9D50
+         JngxSR5uiDZiMp8tVI6AOikXAZFD+jZ7VFlK9fbZfBp46DOhXWy4JxYRE+FHtiPoD9r9
+         Agzc3fmcK+O8gpmirp7vPFd0Jbw6G4YPpfuoXGO9xZ+7MUZGZLYmUuRsLBC2GHjQq5uz
+         1J1ZsDSNayZfhxThuBsMpGlWyaZ3wLoNdpYBPbDgBsdSQCWTRZULY44IbuL1Sj15Dg8h
+         fgUQ==
+X-Gm-Message-State: AOJu0Yxt44u/GCf8hT3yGqSFz03/dpmCqL0hZfRo5ClxqwoMOwz34j1D
+	aNjzPoin4BdcUL8NvYQkjfYm7BsxFc6K+tIK5GOvJJOpWzPPCdhF8JQMOiYR9my5NFM=
+X-Gm-Gg: ATEYQzwz/zgHb+ML8ddoeUC3JQohZ+r+DegPCS3/nDJsvw1izDbKUFt3gd0gabEYNrd
+	ZojErwAQl56cXkzR+xFIrwSJFyhEZFDD6AsmldP0T8ADFUctOLLScvJ/HNEu8TJzkWwRfzpr2FQ
+	crRlxDUdQqQ1M+sdAacxYmx6ObafFJ55rnOvKZXuRTAvMoe7svs3mt23TTkA+aMiV0/zP946Esj
+	R7sDvR3O3NMsPHHHjq4c/ZZiEardUunwbggUyXqzhgh8TtSIcdkmK2XU5RM4F7RkVPEqfRCmHzC
+	su8kGSScxqV5IskLmaF2ObOneE0mrs+f4pAImWkekXxoYtnvk3OGZ0Qm1ehNwWJIY40xadqREDJ
+	J0JbctS/B7ED6flPTA5WP84737wZODEjYxYbeKiOqO81Ele4GZvBOD6fytD77DwqS6ClOu37NGd
+	cU3/MdIfx1llB+hl3remNRkeADUtX8BM3EY+p0bM6INvF8mAp10QkmY4U=
+X-Received: by 2002:a17:90b:388a:b0:359:87ff:f34f with SMTP id 98e67ed59e1d1-359be2331d6mr4219798a91.3.1772854209474;
+        Fri, 06 Mar 2026 19:30:09 -0800 (PST)
+Received: from ryzen ([2601:644:8000:56f5::8bd])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359c003c51bsm3548732a91.1.2026.03.06.19.30.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Mar 2026 19:30:09 -0800 (PST)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>,
+	linux-hardening@vger.kernel.org,
+	gustavoars@kernel.org,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] HID: core: use flex array allocation
+Date: Fri,  6 Mar 2026 19:29:52 -0800
+Message-ID: <20260307032952.642014-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -89,28 +74,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Wolfram,
+Instead of embedding a pointer in the struct, use a flexible array
+member to avoid the + 1 trick to point to allocation after the struct.
 
-> Krzysztof already adviced you to not attach new series to old threads.
-> Please follow this suggestion:
-> 
-> Do not attach (thread) your patchsets to some other threads (unrelated
-> or older versions). This buries them deep in the mailbox and might
-> interfere with applying entire sets. See also:
-> 
-> https://elixir.bootlin.com/linux/v6.16-rc2/source/Documentation/process/submitting-patches.rst#L830
->
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/hid/hid-core.c | 6 ++----
+ include/linux/hid.h    | 2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-You are right, and I apologize for the duplication of the mistake.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 840a60113868..6bd6cbf26c6d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -127,15 +127,13 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
+ 		return NULL;
+ 	}
+ 
+-	field = kvzalloc((sizeof(struct hid_field) +
+-			  usages * sizeof(struct hid_usage) +
+-			  3 * usages * sizeof(unsigned int)), GFP_KERNEL);
++	field = kvzalloc(struct_size(field, usage, usages) +
++			  3 * usages * sizeof(unsigned int), GFP_KERNEL);
+ 	if (!field)
+ 		return NULL;
+ 
+ 	field->index = report->maxfield++;
+ 	report->field[field->index] = field;
+-	field->usage = (struct hid_usage *)(field + 1);
+ 	field->value = (s32 *)(field->usage + usages);
+ 	field->new_value = (s32 *)(field->value + usages);
+ 	field->usages_priorities = (s32 *)(field->new_value + usages);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 2990b9f94cb5..e2c3e2528582 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -524,7 +524,6 @@ struct hid_field {
+ 	unsigned  physical;		/* physical usage for this field */
+ 	unsigned  logical;		/* logical usage for this field */
+ 	unsigned  application;		/* application usage for this field */
+-	struct hid_usage *usage;	/* usage table for this function */
+ 	unsigned  maxusage;		/* maximum usage index */
+ 	unsigned  flags;		/* main-item flags (i.e. volatile,array,constant) */
+ 	unsigned  report_offset;	/* bit offset in the report */
+@@ -549,6 +548,7 @@ struct hid_field {
+ 	struct hid_input *hidinput;	/* associated input structure */
+ 	__u16 dpad;			/* dpad input code */
+ 	unsigned int slot_idx;		/* slot index in a report */
++	struct hid_usage usage[];	/* usage table for this function */
+ };
+ 
+ #define HID_MAX_FIELDS 256
+-- 
+2.53.0
 
-I missed Krzysztof's earlier reply while I was preparing v3, which led to 
-this incorrect threading again. I have already replied to Krzysztof's 
-thread to acknowledge the error.
-
-I will follow the proper process by starting a fresh, un-threaded series 
-for v4.
-
-Thank you for the reminder.
-
-Best regards,
-Phuc

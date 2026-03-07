@@ -1,130 +1,370 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B30602EB84E
-	for <linux-input@vger.kernel.org>; Sat,  7 Mar 2026 03:30:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A47B33D512;
+	Sat,  7 Mar 2026 05:30:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772854211; cv=none; b=PvDl2/YJ2tc9L5UWWplhxU/ZpB32kWEH42HZlc0KjVa2HDjembKkjc06Ed9nmAX5YfhNOFDNEDTcoeWI0Gj2ubXrAl6/HmDupwsXFtZhd4MU3tBbnflqO35JwloYZN4pbovOlefcR4IxPpvX6NxBGx2UbGaKfu9ZXWXIb91j+pk=
+	t=1772861406; cv=none; b=dwS3JoEAKb4L9BYG7X0XYG7eNCKXvS0T9+/R9YAT8bogS/YGbc3gAoBZY8G7mn5fTmUYj/ztBOqmCwToLITmrHryksyDIbEg/rinGSrntOYn0q6mgrxsrfF4/v40z2h2k6+dUUFmPKO3rFL7XC0Nv22wmhP6tUDdqJ8qJf8kqUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772854211; c=relaxed/simple;
-	bh=En+FSzjm9b3yZ7RTDdGPtQq3dmB2SMEVaIrfb8fKjrE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sHjzJEo+slTTgnPfNQPQVe9idOfl1KjsnIHtIX2VlL2n3M8ztwzl+rHeTKxg9mu8jNjac6+tWgKIpnWJqWOOunAAOo8DRUx78x2L0d11JGZOR1GKyx5URbmBuyHXwXvbMZquEVLbLToHGyKVRkDYMmYp6GPuc0stJH11YxmJsZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mmW9v62h; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772861406; c=relaxed/simple;
+	bh=0aWM4pzcPu12J86swN6uhXeWZIYBO4/eGBM7rzwJOUk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=d8Y20nEuQg32icpuZdTq0fWyif8uHHY75hmdPhSp4rhJ4IQ82G+F7RW9aR1Fmu0xZjSNkl2RakPre+0rKlp5cMpMyH6ONSpf2GLM50lBzatobXiuq0dOpFyPzhTbo02aiai+651/DgDz+P2QvdtW7RMgdjVQhjZ90Vyk1PKWTbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=KSE0K3mU; arc=none smtp.client-ip=35.82.102.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mmW9v62h"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-35990245493so3926632a91.2
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2026 19:30:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772854210; x=1773459010; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=HUfuF25BN8uUpJXhc6fQg9RcsbS0Xj7nnWqfeLrQ/Xc=;
-        b=mmW9v62hsRnt3QJRlMY4Yha7OWE/d7Q3x75zo1Dsw/OeCWFcNPPet7n0nldJaHWRcV
-         T/4vKOLqRtk9hsMXvMUTqGke3IFjLQ42oq43F8WE5UwXit4zLoBv0/VxpQNL0sQK79qs
-         eoOqv/rT1G1TuZtsNChswA4OxAOJjJlkVeLCmCa+ixtZJU9Li1eyPnbW39bAL71Nl35B
-         6ieazO+yrZC9UseWQ5Kya7lLpKb0d/frvElwvz761nr4bE8zvNZw37ZAI79h95oM0XFt
-         o36QH2AbirI2Bkd7qA5sYeZWRQfngei943C81IWGUAfADNF+ONI+ljIynvMcmTJtLMHn
-         jRvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772854210; x=1773459010;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HUfuF25BN8uUpJXhc6fQg9RcsbS0Xj7nnWqfeLrQ/Xc=;
-        b=kzoiTiFbYd43qKrra/0J8Y119RIwf357JGgA/CxaZqjRI8xeZkrjh/4W1QNzVdhQGF
-         4CrS1P3bkmDm/rcWl/C+Fi6OYllAEEKZOuLRRFkJ2Kph5VwmhgMdBjliwUmBTYip9D50
-         JngxSR5uiDZiMp8tVI6AOikXAZFD+jZ7VFlK9fbZfBp46DOhXWy4JxYRE+FHtiPoD9r9
-         Agzc3fmcK+O8gpmirp7vPFd0Jbw6G4YPpfuoXGO9xZ+7MUZGZLYmUuRsLBC2GHjQq5uz
-         1J1ZsDSNayZfhxThuBsMpGlWyaZ3wLoNdpYBPbDgBsdSQCWTRZULY44IbuL1Sj15Dg8h
-         fgUQ==
-X-Gm-Message-State: AOJu0Yxt44u/GCf8hT3yGqSFz03/dpmCqL0hZfRo5ClxqwoMOwz34j1D
-	aNjzPoin4BdcUL8NvYQkjfYm7BsxFc6K+tIK5GOvJJOpWzPPCdhF8JQMOiYR9my5NFM=
-X-Gm-Gg: ATEYQzwz/zgHb+ML8ddoeUC3JQohZ+r+DegPCS3/nDJsvw1izDbKUFt3gd0gabEYNrd
-	ZojErwAQl56cXkzR+xFIrwSJFyhEZFDD6AsmldP0T8ADFUctOLLScvJ/HNEu8TJzkWwRfzpr2FQ
-	crRlxDUdQqQ1M+sdAacxYmx6ObafFJ55rnOvKZXuRTAvMoe7svs3mt23TTkA+aMiV0/zP946Esj
-	R7sDvR3O3NMsPHHHjq4c/ZZiEardUunwbggUyXqzhgh8TtSIcdkmK2XU5RM4F7RkVPEqfRCmHzC
-	su8kGSScxqV5IskLmaF2ObOneE0mrs+f4pAImWkekXxoYtnvk3OGZ0Qm1ehNwWJIY40xadqREDJ
-	J0JbctS/B7ED6flPTA5WP84737wZODEjYxYbeKiOqO81Ele4GZvBOD6fytD77DwqS6ClOu37NGd
-	cU3/MdIfx1llB+hl3remNRkeADUtX8BM3EY+p0bM6INvF8mAp10QkmY4U=
-X-Received: by 2002:a17:90b:388a:b0:359:87ff:f34f with SMTP id 98e67ed59e1d1-359be2331d6mr4219798a91.3.1772854209474;
-        Fri, 06 Mar 2026 19:30:09 -0800 (PST)
-Received: from ryzen ([2601:644:8000:56f5::8bd])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359c003c51bsm3548732a91.1.2026.03.06.19.30.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Mar 2026 19:30:09 -0800 (PST)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>,
-	linux-hardening@vger.kernel.org,
-	gustavoars@kernel.org,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] HID: core: use flex array allocation
-Date: Fri,  6 Mar 2026 19:29:52 -0800
-Message-ID: <20260307032952.642014-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="KSE0K3mU"
+Received: from altimeter-info (unknown [45.55.225.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: linux-kernel@altimeter.info)
+	by hognose1.porkbun.com (Postfix) with ESMTPSA id 65723461F97;
+	Sat,  7 Mar 2026 05:22:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
+	s=default; t=1772860968;
+	bh=l8kvMkrDOiaSMv0LXY/178y7A3wVVS/AbOE9Mi5qRqM=;
+	h=Date:From:To:Cc:Subject;
+	b=KSE0K3mUmuXe7V31GOv9kxTt6GEVYWKWYcVCin0VDD14yPkoC9dXYvkv1Cx0d3cjf
+	 fSTq9s5o1s9yOxKk/Axk4EuJ4m77gCKpC6TL4mgLJUecwK3puD9Om06rpjOwYJsyG1
+	 mySBFMOR5SGnhxqkXRBQBsR0PsJw72xz4G1MgOuk=
+Date: Sat, 7 Mar 2026 05:22:46 +0000
+From: Ivan Gorinov <linux-kernel@altimeter.info>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v3] HID: winwing: Enable rumble effects
+Message-ID: <20260307052246.GA21987@altimeter-info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.24 (2015-08-30)
 
-Instead of embedding a pointer in the struct, use a flexible array
-member to avoid the + 1 trick to point to allocation after the struct.
+Enable rumble motor control on TGRIP-15E and TGRIP-15EX throttle grips
+by sending haptic feedback commands (EV_FF events) to the input device.
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
 ---
- drivers/hid/hid-core.c | 6 ++----
- include/linux/hid.h    | 2 +-
- 2 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 840a60113868..6bd6cbf26c6d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -127,15 +127,13 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
- 		return NULL;
- 	}
+    Changes since v2:
+       - Add comments about USB requests for LED and rumble control
+
+    Changes since v1:
+       - Fix possible NULL pointer dereference
+
+
+---
+ drivers/hid/hid-winwing.c | 196 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 182 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index ab65dc12d1e0..9cd25a77999e 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
  
--	field = kvzalloc((sizeof(struct hid_field) +
--			  usages * sizeof(struct hid_usage) +
--			  3 * usages * sizeof(unsigned int)), GFP_KERNEL);
-+	field = kvzalloc(struct_size(field, usage, usages) +
-+			  3 * usages * sizeof(unsigned int), GFP_KERNEL);
- 	if (!field)
- 		return NULL;
+ #define MAX_REPORT 16
  
- 	field->index = report->maxfield++;
- 	report->field[field->index] = field;
--	field->usage = (struct hid_usage *)(field + 1);
- 	field->value = (s32 *)(field->usage + usages);
- 	field->new_value = (s32 *)(field->value + usages);
- 	field->usages_priorities = (s32 *)(field->new_value + usages);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 2990b9f94cb5..e2c3e2528582 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -524,7 +524,6 @@ struct hid_field {
- 	unsigned  physical;		/* physical usage for this field */
- 	unsigned  logical;		/* logical usage for this field */
- 	unsigned  application;		/* application usage for this field */
--	struct hid_usage *usage;	/* usage table for this function */
- 	unsigned  maxusage;		/* maximum usage index */
- 	unsigned  flags;		/* main-item flags (i.e. volatile,array,constant) */
- 	unsigned  report_offset;	/* bit offset in the report */
-@@ -549,6 +548,7 @@ struct hid_field {
- 	struct hid_input *hidinput;	/* associated input structure */
- 	__u16 dpad;			/* dpad input code */
- 	unsigned int slot_idx;		/* slot index in a report */
-+	struct hid_usage usage[];	/* usage table for this function */
+@@ -35,10 +36,14 @@ static const struct winwing_led_info led_info[3] = {
+ 
+ struct winwing_drv_data {
+ 	struct hid_device *hdev;
+-	__u8 *report_buf;
+-	struct mutex lock;
+-	int map_more_buttons;
+-	unsigned int num_leds;
++	struct mutex lights_lock;
++	__u8 *report_lights;
++	__u8 *report_rumble;
++	struct work_struct rumble_work;
++	struct ff_rumble_effect rumble;
++	int rumble_left;
++	int rumble_right;
++	int has_grip15;
+ 	struct winwing_led leds[];
  };
  
- #define HID_MAX_FIELDS 256
+@@ -47,11 +52,15 @@ static int winwing_led_write(struct led_classdev *cdev,
+ {
+ 	struct winwing_led *led = (struct winwing_led *) cdev;
+ 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
+-	__u8 *buf = data->report_buf;
++	__u8 *buf = data->report_lights;
+ 	int ret;
+ 
+-	mutex_lock(&data->lock);
++	mutex_lock(&data->lights_lock);
+ 
++	/*
++	 * Mimicking requests captured by usbmon when LEDs
++	 * are controlled by the vendor's app in a VM.
++	 */
+ 	buf[0] = 0x02;
+ 	buf[1] = 0x60;
+ 	buf[2] = 0xbe;
+@@ -69,7 +78,7 @@ static int winwing_led_write(struct led_classdev *cdev,
+ 
+ 	ret = hid_hw_output_report(led->hdev, buf, 14);
+ 
+-	mutex_unlock(&data->lock);
++	mutex_unlock(&data->lights_lock);
+ 
+ 	return ret;
+ }
+@@ -87,9 +96,9 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	if (!data)
+ 		return -EINVAL;
+ 
+-	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->report_lights = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
+ 
+-	if (!data->report_buf)
++	if (!data->report_lights)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < 3; i += 1) {
+@@ -117,7 +126,7 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	return ret;
+ }
+ 
+-static int winwing_map_button(int button, int map_more_buttons)
++static int winwing_map_button(int button, int has_grip15)
+ {
+ 	if (button < 1)
+ 		return KEY_RESERVED;
+@@ -141,7 +150,7 @@ static int winwing_map_button(int button, int map_more_buttons)
+ 		return (button - 65) + BTN_TRIGGER_HAPPY17;
+ 	}
+ 
+-	if (!map_more_buttons) {
++	if (!has_grip15) {
+ 		/*
+ 		 * Not mapping numbers [33 .. 64] which
+ 		 * are not assigned to any real buttons
+@@ -194,13 +203,149 @@ static int winwing_input_mapping(struct hid_device *hdev,
+ 	/* Button numbers start with 1 */
+ 	button = usage->hid & HID_USAGE;
+ 
+-	code = winwing_map_button(button, data->map_more_buttons);
++	code = winwing_map_button(button, data->has_grip15);
+ 
+ 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 
+ 	return 1;
+ }
+ 
++/*
++ * If x ≤ 0, return 0;
++ * if x is in [1 .. 65535], return a value in [1 .. 255]
++ */
++static inline int convert_magnitude(int x)
++{
++	if (x < 1)
++		return 0;
++
++	return ((x * 255) >> 16) + 1;
++}
++
++static int winwing_haptic_rumble(struct winwing_drv_data *data)
++{
++	__u8 *buf;
++	__u8 m;
++
++	if (!data)
++		return -EINVAL;
++
++	if (!data->hdev)
++		return -EINVAL;
++
++	buf = data->report_rumble;
++
++	if (!buf)
++		return -EINVAL;
++
++	m = convert_magnitude(data->rumble.strong_magnitude);
++	if (m != data->rumble_left) {
++		int ret;
++
++		/*
++		 * Mimicking requests captured by usbmon when rumble
++		 * is activated by the vendor's app in a VM.
++		 */
++		buf[0] = 0x02;
++		buf[1] = 0x01;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_left = m;
++	}
++
++	m = convert_magnitude(data->rumble.weak_magnitude);
++	if (m != data->rumble_right) {
++		int ret;
++
++		/*
++		 * Mimicking requests captured by usbmon when rumble
++		 * is activated by the vendor's app in a VM.
++		 */
++		buf[0] = 0x02;
++		buf[1] = 0x03;
++		buf[2] = 0xbf;
++		buf[3] = 0x00;
++		buf[4] = 0x00;
++		buf[5] = 0x03;
++		buf[6] = 0x49;
++		buf[7] = 0x00;
++		buf[8] = m;
++		buf[9] = 0x00;
++		buf[10] = 0;
++		buf[11] = 0;
++		buf[12] = 0;
++		buf[13] = 0;
++
++		ret = hid_hw_output_report(data->hdev, buf, 14);
++		if (ret < 0) {
++			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
++			return ret;
++		}
++		data->rumble_right = m;
++	}
++
++	return 0;
++}
++
++
++static void winwing_haptic_rumble_cb(struct work_struct *work)
++{
++	struct winwing_drv_data *data;
++
++	data = container_of(work, struct winwing_drv_data, rumble_work);
++	winwing_haptic_rumble(data);
++}
++
++static int winwing_play_effect(struct input_dev *dev, void *context,
++		struct ff_effect *effect)
++{
++	struct winwing_drv_data *data = (struct winwing_drv_data *) context;
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	if (!data)
++		return -EINVAL;
++
++	data->rumble = effect->u.rumble;
++
++	return schedule_work(&data->rumble_work);
++}
++
++static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++	if (!data)
++		return -EINVAL;
++
++	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++	data->rumble_left = -1;
++	data->rumble_right = -1;
++
++	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
++
++	return input_ff_create_memless(hidinput->input, data,
++			winwing_play_effect);
++}
++
+ static int winwing_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -219,10 +364,12 @@ static int winwing_probe(struct hid_device *hdev,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->map_more_buttons = id->driver_data;
+-
++	data->hdev = hdev;
++	data->has_grip15 = id->driver_data;
+ 	hid_set_drvdata(hdev, data);
+ 
++	INIT_WORK(&data->rumble_work, winwing_haptic_rumble_cb);
++
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+@@ -232,19 +379,39 @@ static int winwing_probe(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static void winwing_remove(struct hid_device *hdev)
++{
++	struct winwing_drv_data *data;
++
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
++	if (data)
++		cancel_work_sync(&data->rumble_work);
++
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
+ static int winwing_input_configured(struct hid_device *hdev,
+ 		struct hid_input *hidinput)
+ {
++	struct winwing_drv_data *data;
+ 	int ret;
+ 
++	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
++
+ 	ret = winwing_init_led(hdev, hidinput->input);
+ 
+ 	if (ret)
+ 		hid_err(hdev, "led init failed\n");
+ 
++	if (data->has_grip15)
++		winwing_init_ff(hdev, hidinput);
++
+ 	return ret;
+ }
+ 
++/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
+ static const struct hid_device_id winwing_devices[] = {
+ 	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
+ 	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
+@@ -261,6 +428,7 @@ static struct hid_driver winwing_driver = {
+ 	.input_configured = winwing_input_configured,
+ 	.input_mapping = winwing_input_mapping,
+ 	.probe = winwing_probe,
++	.remove = winwing_remove,
+ };
+ module_hid_driver(winwing_driver);
+ 
 -- 
-2.53.0
+2.43.0
 

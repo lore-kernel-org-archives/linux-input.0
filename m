@@ -1,70 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5463B3C278C;
-	Mon,  9 Mar 2026 18:51:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EDE1175A75;
+	Mon,  9 Mar 2026 19:05:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773082268; cv=none; b=ONJYvrr0jGCxIcAWPAaTvX6YpWHB0n9FJEb3skwaRdq47v3wQbQEJbNHBH74LapAh85WUrPvlysqu8xkJ0cBqFATy4lVkWMaeo9q4z0EmvnJmewaVf32uWHNeutj4c5PRWSPrSDuKVHZbDchTm0I0AuAHAZW/ka6g6RJaPDFVCo=
+	t=1773083100; cv=none; b=CpoqkVVzfg9l74PIJQdJBwXD8HXG2Rgx4yvLlvmfISbSU3oLPOHf8gz0y1C6zuqqdETWkHMzSMsXp1rEGkgtOReW4Y3qg737CqJ70FyWGtN6TfyCm/rRmBCBj4sQuJVBaj96FTnT1g1+OUtQik9q9H1HaumTdf9WG0G0JcBrSBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773082268; c=relaxed/simple;
-	bh=nqYfApOVSSCsS4d7PjZzx+J2r990nk5D5zRmQq7jl0o=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=hf5xxcozgzQ1XnB2L7voIBpK9gXrv/D3AxJrFxg7BGnuSfii5g6dEkSw0d5OcAQAzqH3VTp6aSQd7/i1XCM07sSqlGVAzVtsw4zlwYo7/zB/EAQXEl2cpvC9gttsO0VUC1YKr7F7oUfqBRLvsnwwMCBUiBuedhtS+Z6mdmv3d0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yt6cP81s; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773083100; c=relaxed/simple;
+	bh=1gDb6j/JlkCFdpEsMVdhL8r3rqW83cqfP3G8hG4gcKM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jiaQ7KgA/R+s1i6wxYakm/vZG85AwsPpJd5v2ayDmJmNeqBaLYJ0x3mVSgUzHaXzgzrz6eG8iF7IvZgpViylL+ZwIA/WbHNKQUPqVVKm3Wa5E8ZA3aaPpgPeWWBFKk3ChHdjaRpxFa7WG4FmYwY+VWDOkqJH+JmfVKkQ6OslCJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YEpBXpXv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yt6cP81s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2249BC2BC9E;
-	Mon,  9 Mar 2026 18:51:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YEpBXpXv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A66B2C4CEF7;
+	Mon,  9 Mar 2026 19:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773082268;
-	bh=nqYfApOVSSCsS4d7PjZzx+J2r990nk5D5zRmQq7jl0o=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=Yt6cP81swpC/co1+qqWoCwlgcaif6JxszzVAaSdXZtwNTR2DNPSCteFVlWYP7aJrs
-	 KY4NgwPQ6AmXs6y1RwIJOZNLplhGDvUqfWIf4rdGXziI2qjfypQUDrK/yJoJNaSipu
-	 ToXsMcwwOAOXZD4gu/K2MWu+ZedGNu030OEGezLjrZ/Ct2Kd+Do9cA/BjoTA5ZRIi8
-	 kRL3Bbqr1uidDIXTvWHLdB9//4y2kU4vThDuM6mjvMIP4kzu88RHMjAtA1G0Au61RP
-	 KBqSu5QgDG1vmlRtOS9hFbHejMLzsMr0deWUKGeIE1cL82wlx8RGZ/m7PsgdzzwONB
-	 JWyo9JfREJOAA==
+	s=k20201202; t=1773083100;
+	bh=1gDb6j/JlkCFdpEsMVdhL8r3rqW83cqfP3G8hG4gcKM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YEpBXpXvPEVW8GAI+5ZloOek7XKIqxjjV5UE2cLKLxinFqIXD/evjTez6HIGqdzxS
+	 GStQpJuXnnIzoD65Xx9OIwsE98MXxS0OPuPSxcpWCInouB9ZzdXHco5q3fB98hnc7H
+	 y5XBFylM6wJhgtZdHXimIjotPNSEGiUM9y8JBCKMr4uTxd20WyASXW9p9k3X/jY/xV
+	 kIiLoGB/PCr4bLHIehWv2fHJ1z3+Xw/58/rzzdI/WaC2tgWZIOD/R8KqkJc/LOg0GJ
+	 /haDEWUiJSUULotDUUQXjg2VursYTP8z8S7Fhif19aGfX4CIS6LnzTJSgDxTaiZPye
+	 mPjrXUXssu+qA==
+Date: Mon, 9 Mar 2026 19:04:53 +0000
 From: Lee Jones <lee@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>, 
- Frank Li <Frank.Li@nxp.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
- linux-kernel@vger.kernel.org
-In-Reply-To: <20260211-yaml_mfd-v1-2-05cb48bc6f09@nxp.com>
-References: <20260211-yaml_mfd-v1-2-05cb48bc6f09@nxp.com>
-Subject: Re: (subset) [PATCH 2/3] dt-bindings: mfd: convert
- fsl-imx25-tsadc.txt to yaml format
-Message-Id: <177308226486.1639852.9421685432338403845.b4-ty@kernel.org>
-Date: Mon, 09 Mar 2026 18:51:04 +0000
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Pavel Machek <pavel@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+	Ion Agorria <ion@agorria.com>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH v2 7/9] leds: Add driver for Asus Transformer LEDs
+Message-ID: <20260309190453.GA183676@google.com>
+References: <20260209104407.116426-1-clamor95@gmail.com>
+ <20260209104407.116426-8-clamor95@gmail.com>
+ <20260306100406.GE183676@google.com>
+ <CAPVz0n0jnuhmvsSPckfFOQ0NZ3VMe6W2p_Bb5a9pdVZYhVSJhQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.15-dev-52d38
+In-Reply-To: <CAPVz0n0jnuhmvsSPckfFOQ0NZ3VMe6W2p_Bb5a9pdVZYhVSJhQ@mail.gmail.com>
 
-On Wed, 11 Feb 2026 16:41:05 -0500, Frank Li wrote:
-> Convert fsl-imx25-tsadc.txt to yaml format.
+On Fri, 06 Mar 2026, Svyatoslav Ryhel wrote:
+
+> пт, 6 бер. 2026 р. о 12:04 Lee Jones <lee@kernel.org> пише:
+> >
+> > On Mon, 09 Feb 2026, Svyatoslav Ryhel wrote:
+> >
+> > > From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> > >
+> > > Asus Transformer tablets have a green and an amber LED on both the Pad
+> > > and the Dock. If both LEDs are enabled simultaneously, the emitted light
+> > > will be yellow.
+> > >
+> > > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> > > ---
+> > >  drivers/leds/Kconfig        |  11 ++++
+> > >  drivers/leds/Makefile       |   1 +
+> > >  drivers/leds/leds-asus-ec.c | 104 ++++++++++++++++++++++++++++++++++++
+> > >  3 files changed, 116 insertions(+)
+> > >  create mode 100644 drivers/leds/leds-asus-ec.c
+[
+...]
+
+> > > +static int asus_ec_led_probe(struct platform_device *pdev)
+> > > +{
+> > > +     struct asusec_info *ec = cell_to_ec(pdev);
+> >
+> > Please remove all of your abstraction layers.  They serve little purpose
+> > other than to complicate things.  Just use dev_get_drvdata() here.
+> >
+> > Remove the "_info" part and change "ec" to "ddata".
+> >
 > 
-> Addtional changes:
-> - Add ranges.
+> Controller exposes only required stuff, exposing controllers internal
+> parts is not desired. Is there any written convention that driver
+> private data pointer MUST be named "ddata"? "priv" is pretty well
+> fitting to. You are just nitpicking.
+
+[...] 
+
+> > Lots of repetition here.
+> >
+> > I'd make a sub-function that takes the differences.
+> >
+> > Same with the set brightness functions.
+> >
+> > Think to yourself - what if I had to support 16 different LEDs?
+> >
 > 
-> 
+> That is not of my concern what you would do. I have 2 LEDs and I see
+> no point in "abstraction for he sake of abstraction".
 
-Applied, thanks!
+Your attitude stinks!
 
-[2/3] dt-bindings: mfd: convert fsl-imx25-tsadc.txt to yaml format
-      commit: 61b80ec6685a08addd76ea6622636d709e7d989d
+All of your submissions are now on hold until I can be bothered to look
+at them again.  In the mean time, I suggest you look inward and
+re-evaluate how you choose to communicate with others.
 
---
+-- 
 Lee Jones [李琼斯]
-

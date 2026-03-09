@@ -1,43 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3569B2C158D
-	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 18:11:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C599D345CAA;
+	Mon,  9 Mar 2026 18:21:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773079896; cv=none; b=gf3sAWdVISqryBV+qCeVyyHOwBB49tKCr8+MubvwhfiZImK7PTTOms6gc0236+5z/CBjUE+n/O72ordTDjiGDiAyF4rXWpGVSChL0XnKgQFrYpSCK6XeIIhzaA3cyekkwcqy92ObPdww4lJuJJXzzzrnmKQiJzJyhFFsOAeMxfM=
+	t=1773080510; cv=none; b=FT1l0SkdXEdSeBB0EEO7T8eKNd58To8tKAP2JpQiH9ja6eeJfQbUf5DFnzN19JkYmV1aQiRKFPPaOIEPt3CTEsaz2Z6JkenqnXH3HrLnZkc3ObtQy5ltJCNS6Z5OOTUMsL0EF0RQRhlEFp4b90myGdrKh8XNIoB6m2Dv8O3+Wjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773079896; c=relaxed/simple;
-	bh=Qrin2FaaPd1rwkTqhOGm8c/YGbX8vcRH4wmUrX3MCYs=;
+	s=arc-20240116; t=1773080510; c=relaxed/simple;
+	bh=AhzJup4FGxhmrZeX9UGvsuHLYgt55HtGCy3bEWb8xB0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=BzGby5+WCeltag/MGGWORt/ukYS7JpSyVrzMSosyycfRMfqjG6Qtmyk9Bws//PnvIxKDs44wkC87xoDPXYucxdzcRTtxGojX+fZ4oezoeOGBebAGHIxHWKtyuwddf2FI3pSmPjpNkr2urrkTJMPcAY7YF+zjXVnAn2a6KKzuI7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bnTZ8hZz; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=dN+LIh8skmNKtcxLSqbIf+5YMEn0BfzW6xfxlvH2ghGLtafvjLutWzOTj7r0xT/hJoel+6ON1q3hRim80CPAPlb55ik6VFV0WsSYkEDPqbfW9q3rbaQWPxZS7EDAOWEZloRJ0cQjr2DQYyBxDi84PHmQY/bBM1P5BA3JjUr61Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nU1Aa+WG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bnTZ8hZz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D72C2BC87;
-	Mon,  9 Mar 2026 18:11:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nU1Aa+WG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B709FC4CEF7;
+	Mon,  9 Mar 2026 18:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773079895;
-	bh=Qrin2FaaPd1rwkTqhOGm8c/YGbX8vcRH4wmUrX3MCYs=;
+	s=k20201202; t=1773080510;
+	bh=AhzJup4FGxhmrZeX9UGvsuHLYgt55HtGCy3bEWb8xB0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=bnTZ8hZz2YgqV8urDCZa0GA4faP6QptdzmfwkQQZtLIH2i3sHwm9lHQqs2Bz8aT6A
-	 rAsj1ajAJyQaspaC/+wm1y8DeynUyaU1xv5uRdPz6/dUe9YKD+5+mucWcMaSUuTi+h
-	 zy9i9s7T7GS7Vu/JjRo280eZv59d7hDQHGofVxvpy74Z2VuQhoEJYo0HPzwnXcWqi/
-	 9VAFbItGX4QeBIIFjUwbIJMqpOcPTSan9f2baxScgZMdLHHowLGBt3WJgUZ7e0LVzn
-	 YffgYofjiCFa15rc1VIqu+iR7Qw4rJ1neMGeEi7WLJxP7yHv9GM8jtIXITxVJRCBOA
-	 DITXcwaUXTD7w==
-Date: Mon, 9 Mar 2026 19:11:33 +0100 (CET)
+	b=nU1Aa+WGuq2HAwAzr9X0jTiE0LU8XvMhspnOtQWmyPxsJvbT8LTOaA0ATs2ybcral
+	 HpKseFPG9hU1IcV83X9VGJVBQaUxxRVfOHZLSFooU0uUqc0I8zz7f6KdnqCQwRSWUx
+	 lCSDUdevBpsdTrkIPjiOCzHiDRMU03LX/lg8M2ljU3xdEcrEV5w0z66UZQ04UTWhjU
+	 R3ommc7u2n/UR50NzyqQx7YKYYyhO1ecWfO/0gm/ctuuSCg9mDoZKyFDP1LRp4QACv
+	 BbJkf6vRbUC0H6x5yEN+vemXCBvs3in+pnyRu9al2cdXRLW1FIKNcLUB4GMSO7IwRq
+	 chZ2QMtc0tE6Q==
+Date: Mon, 9 Mar 2026 19:21:47 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Sebastian Reichel <sebastian.reichel@collabora.com>
-cc: Hans de Goede <johannes.goede@oss.qualcomm.com>, 
-    Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-    Benjamin Tissoires <benjamin.tissoires@redhat.com>, 
-    linux-input@vger.kernel.org, ggrundik@gmail.com
-Subject: Re: [PATCH 2/2] HID: input: Add HID_BATTERY_QUIRK_DYNAMIC for Elan
- touchscreens
-In-Reply-To: <aaWvxHt5RPeSRGxJ@venus>
-Message-ID: <nq916rn6-06p0-93n1-r12s-n270qn08o11q@xreary.bet>
-References: <20260228145258.76937-1-johannes.goede@oss.qualcomm.com> <20260228145258.76937-2-johannes.goede@oss.qualcomm.com> <aaTZIcPuY3qz5MJm@google.com> <06d2504d-2b66-4ae7-94ec-8c062a8c15dc@oss.qualcomm.com> <aaWvxHt5RPeSRGxJ@venus>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: input: use __free(kfree) to clean up temporary
+ buffers
+In-Reply-To: <aaPIp-z92hMsI7J5@google.com>
+Message-ID: <s02p88n6-p0p5-pq32-p609-884ors6335nr@xreary.bet>
+References: <aaPIp-z92hMsI7J5@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,14 +44,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 2 Mar 2026, Sebastian Reichel wrote:
+On Sat, 28 Feb 2026, Dmitry Torokhov wrote:
 
-> The rationale and the patch LGTM.
+> The __free() cleanup automatically releases given resource when leaving
+> the scope, so use it to make the code less cluttered with error
+> handling.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Could I then please get your Acked-by: / Reviewed-by: recorded, so that it 
-can be added when applying?
-
-Thanks,
+Applied to hid.git#for-7.1/core. Thanks,
 
 -- 
 Jiri Kosina

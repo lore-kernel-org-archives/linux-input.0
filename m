@@ -1,168 +1,229 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4F0393DF6
-	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 11:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773054079; cv=none; b=QDrSLOkim/HBjxti85lhaSU9NF55s/SchbYSW0Aw7fa2kGiMj+wyw3bg5IMdDc8WjJ9UTPb5h2gGiywLODJq2CUuCpG+IgYSsyYB/Kqb+HIOHEBk/EUqnA11zZHOxYut8fBORrI1d2DM6IDqc58Ri8cZEs+UjyUisnYffbY02Mk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773054079; c=relaxed/simple;
-	bh=M4dFRmrmPmhqXhKhFaGDOffAf2JzsWF1o/D8Jy2z8eM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YVYNdn+8MZLRfQf9kc3ADQbzZAukgpo/FljKIE9Tdb9UeE6DTG8AY/5jyJ/rHJGDiAi5ErSqw53L2CuRTNmTUgbbKo43mlUGm2vjy6yF7ITvct/dWHFdtPw8zctMeREWLHFby5HlFD/te+WuKdorbEuK2bpVcSXSPGeis2dD33A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=amjMW2xf; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C782B376BE4
+	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 11:54:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773057280; cv=pass; b=BCNVp/tYPN++5x79fotKrAnMvicuhicZJdcNz0cbr2N8ZifJS+RpOlRoePLu522uaCYhg6dWUvC/aAP90N2Ca6ntRN9Wq9JLA2vLyjfljb4QFWJUmns04Tl7pQSnpXF8z++3Bzvln7JP8kjyd5o/GmU5KkZNLuEXXOvM3HVhk+8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773057280; c=relaxed/simple;
+	bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mL5qYzEhYFfAZ2zeKGQtmmdWgd8SXG9LxfPoAJW2mPp0dnOuY0KLfulqJXJVDFJbAquAXglTL1YWRG336T1loRzrqbkgIPfuBp+czPqlAcq9RwXxCy91051LRKl1pAjiZwmsKzjM7urkOXUHzKXvh+sI4nHiRcc5JQWXzwA7/Yw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QUQMcRoG; arc=pass smtp.client-ip=209.85.160.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="amjMW2xf"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35980423087so4081178a91.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2026 04:01:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QUQMcRoG"
+Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-4042905015cso4056985fac.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2026 04:54:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773057277; cv=none;
+        d=google.com; s=arc-20240605;
+        b=GVWutP0II/qu5CEMoYKPVEPOLh0s9MEZb9p8cdXOeMhLh/sbo8Ryobk3InSPmfZgIe
+         Jy3oaohPSiMiq4O2IcOkKWRpCXo2ySof66fdHewoYlmhtSF2DzKfNhc6l/U1G4HHaYJE
+         VDEvaS0MT+x3MqvJmyC/2f7MKNY2LzSpCUglXgvbGLsPnTzZ6LNa3f+CnwLZiptKz6SZ
+         JCgNXLfMlsDgDs2EbRIfK5DZo+qbbpHREHhaA+wtZWPJycFUIiQrH6XMAJULmRhqd6lM
+         shsdVYp4pvaVOGR1mqtn60qlCuCSeuulVShcKw2xYCxm479U6LhXf81HzvPo7FRI/kF/
+         SY4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
+        fh=94j/QdI3VMo4wehU8E8r5TH0TIH68rDgdNs5tne0BjY=;
+        b=XqAi4CIGztwfBnmXzIgltP4AScNO1JwORU4BE2BnlaGy3TNcKKA1oERSX8XnLP88/v
+         9vW6nQC8jF6gccbELIkL/cCvZCmvibnijym24OPl6ANiXidiaRBKL3D8Kh3tHZLG4PNl
+         fOTOl6T0xvmbEbsd9hpuC095amu84/+rarLngTlQQo/B4qZsE0As2tpt+oK0WVi5Rx+d
+         aMPVA+OQmKrEi4qf7wSE4pchpcIV/sEnt0WqP72ayesrFMxxeFdnoABM/3sGfSHnwwkr
+         dkYj3RPjOSdmWbebCXKKB+pq16kTrv1j97nkKUOo6oxVADhdo05Xvd7JS9P5Ig92Dwe3
+         oRtQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773054076; x=1773658876; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1773057277; x=1773662077; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nrsLA8b8vlkhz1DvrsNbbbbTjquCC3GRn0AkHrSsHTM=;
-        b=amjMW2xfOCp3KzpmNL9W4+Y27T55Fq4Wee5NpsadSenhrmY2i49oYAEmk6ZoNu95h0
-         W9F5HMQEyfPcUQcTR0dyqWfUTCXVBqtX7mxH9MOjiYfPmc+eqlqIXnGVBQryWCrG4siP
-         PiC5sgPOfgqxEluXuBNs3Mc5EfBeK9701nHa2VW0PV75wotpjZlcFugsEwdyMIgpUz/D
-         fhK9R3j+pIK0HqNvfC7YDXw3/re+Pnw+ozGwrPJ8qbOt4LUh+5f2LbWYaQAo75u1k+yE
-         NN8UpKxGfnUzswspqGy5+a0ThZ88YyoW7fBEURsJkDnRuWF8P9Ny5DJeX8qhmdN2VvBo
-         d5VA==
+        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
+        b=QUQMcRoGLyu4JfPBGFjiqnete61bbmd5v/hk62JonSuwQ5HfS5vcEmoP9GgH3qgPF/
+         b0vRmL+ApSbZlEEQBkZkNR5lo/UQl/1D4feFoO/1aU4cbOgU0K/nsfjEabAOp7hwr03o
+         +BYsLrcKm1uLRdx5KAErSusshfM6hsj3GF+r3mlKT+tn2AgRw6P+/QsO0BGeog5EY6KC
+         64ZPXkDyFqMuZGgT2kSuBfS3gYNENrlra8QegaFi4nl01ABC7rpZafo34WCfQwvpQb9c
+         R6AMkdQF1fZnIrXmM9IO9/u794A2o2kJpkeiIhaojoZF+lg9GD3PK2i6UzVRNu4BPE+w
+         zJxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773054076; x=1773658876;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1773057277; x=1773662077;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=nrsLA8b8vlkhz1DvrsNbbbbTjquCC3GRn0AkHrSsHTM=;
-        b=Isn7uSDatzYavxaWFYUjl3FoRsPLaqgZHy4oVA4i4o51g+Duns9JvRe2iOmSJkMaYw
-         ZHuOoNJfwfkKjFSyRMX/Bpg24PG/EkPHUTHAS6GVC/JDbDsPIh6eJFWsBL+72/czM356
-         8FIuqZhfsuYmivNbhGba8l9goI0vuokSRnGAHvnUhbI0FqEW1Wsh7WloGCh5/ywmF0I6
-         +9mV1B6UgYc9byXNCiabjuJSylPpxYQGj4i7CKbi31auxFKbgcwHoRNlgEdoworJmQp/
-         aYrD5Htctii4rOGuHVYg+EFwGi4C+RgVjv4/0x/L+clQ582bYgAclVL5xem0QZEpwsXg
-         TJTw==
-X-Forwarded-Encrypted: i=1; AJvYcCX3ah6bjZLyGZdcAQZnxCLfbcVWHh7joxi0ecqUUD1aeQPnrw1iLqDkcT0lE+fOhEGnZD4rgnAEevnkmg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxp6hixQk76bzn9tAqmlj+SUlliUgWogjfRIpO+Ls9UlhodDr0l
-	blf79Ul9owMTZgdpqxeKkpKPx2k5eXAwzPFEsUBPIwO2vSE/AXSuspNA
-X-Gm-Gg: ATEYQzyPyEDNSgpZwLlyfSBDR3FoRoyohhsmypoqX9QueUK3mbZROIBP5+OYv15Jdur
-	9txOx9JVYi5gOPUtZwBnNI0A9SjejptaACUxlwWZ5zL0CzisnLsi3UzNhe+BoHTgpZpCAqYNrwU
-	Tlv3v1wo0xT/1qpmLjwj3judsTPX5kb7pPgLla8yxlJPODIkOsSy47CABIu0kJ/X2Ker5EPJWf3
-	7oi+7OF5+0eE2yvR80GXiABDycZXDSLxcHFAz88jVRjd8bDrP9kcDxFfQl9Ni2jkQBBjNKe+Kg+
-	OYXml6jjhV1xBc7MlJHER01/8v4UoEUztuhf3JJVEpyJL+w7RjfSKQfYwllujtUniTH3RP+hvqr
-	q7qlyIoTd7Fz/SsPL1k6tWjQJ4rzrk4qY7l9K9aBwHoPmrSgyIzlj9b9Rowxbp3fuurgF++efsy
-	KZn+F0XIchDoseLZaOdo6gQzRNWLVrEHu2XGqhCExHSrjJn1F7TS+/wPBK9w==
-X-Received: by 2002:a17:90b:2884:b0:359:87ff:f352 with SMTP id 98e67ed59e1d1-359be250d8emr9942768a91.8.1773054076002;
-        Mon, 09 Mar 2026 04:01:16 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359bff279f4sm13268296a91.0.2026.03.09.04.01.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2026 04:01:15 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Marek Vasut <marex@denx.de>,
-	Michael Welling <mwelling@ieee.org>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	phucduc.bui@gmail.com
-Subject: [PATCH 2/2] Input: Touchscreen: tsc200x - delegate wakeup IRQ management to I2C core
-Date: Mon,  9 Mar 2026 18:00:44 +0700
-Message-ID: <20260309110045.108209-3-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260309110045.108209-1-phucduc.bui@gmail.com>
-References: <20260309110045.108209-1-phucduc.bui@gmail.com>
+        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
+        b=RcRPU3U/TuzKgXBm94K09dZcxENd2QpkbWuM+QYJbkW0Yn7QNUsoKI4dbzo9S24GVK
+         ibZ8MooFdeW5uvPUSxwk+JazXgEWuIluEcolSagKpsT+oVyq90ViYOLdi52bQoTCsx6U
+         FkxinIdTdIKD68uOEyzpu6jMUCmVxdV6K8YdCza4pPqiRvt4nYNomLJ9hZZy2ytyu2MY
+         xOBdExNHpIKPPn5gV6PiuIitamNR37Hx3y3XDepE5kU7eJvv6E16+insvoi7nEZDUxWV
+         yYi6EfOSkU8u9LEgkmuD5C28RKl6Pj10RdC/9j0bKcq/62a+fxnwDsk5K4jXGFBkBjAG
+         p4EQ==
+X-Gm-Message-State: AOJu0Yy/8i7ZKvvbyNU8g/DCabTM1mQA6XUj15bgWy07xueO4Awonr5X
+	FCQsS/6BTiESS9wBac2X/PCj4AP3rDyhkzn7fm6+UYIcHmS+QMHawDoMEwEVaboywFZn7Tia9OA
+	fe7D4eeDME7YWCpwjdGNIBf4ynm+9geI=
+X-Gm-Gg: ATEYQzzxkIENG78AhglUtSB/yn5QrN8elQuTfkQpnMYUxUfpqB2HCOYMBsJK0ftuAmB
+	Q2i6DDHlFS6Uk6/8sJNu4P/7rLFG8WGkxzcM7w3Kb50Z8By5m/sm988GAKKaOJLCwtGwoCIdreB
+	E4+Ms5vV07gVrp2/f6SSS+xe9lUVl/fptuxyf8ixQ/4y7E4bRZGW0nW3O8tLmROtQp8ItZov9zh
+	CJ40eJdFnZwcesdo48Fw3i90AIcos66MJRF0YFAvnbDV7OG2D8Z2dxCXYf90IbLkHq1YamYlW4N
+	Gb+20iFUDm3W/CjsEBFp
+X-Received: by 2002:a05:6870:37ce:b0:3d2:4319:38eb with SMTP id
+ 586e51a60fabf-416e448be4amr6727108fac.47.1773057277508; Mon, 09 Mar 2026
+ 04:54:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
+ <CANkKV91Zfp_Bn_koM=Tb5vHQbog2Ja72C819aL-49kQ6PWA_Ow@mail.gmail.com>
+ <CANkKV93wfs7oxU8kiyPWeafOs+ugpZSPLQrea7wtoSuGEG+pPw@mail.gmail.com> <68d90523-33dc-451f-a825-72eaa1c4bcb8@leemhuis.info>
+In-Reply-To: <68d90523-33dc-451f-a825-72eaa1c4bcb8@leemhuis.info>
+From: =?UTF-8?B?UsOhY3ogTcOhdMOp?= <raczm0812@gmail.com>
+Date: Mon, 9 Mar 2026 12:54:25 +0100
+X-Gm-Features: AaiRm51LDGipFhqZVVF8l-P-IJc1_ce37qNAFaXZWS4J57r1zOIpXrOgouSBTr0
+Message-ID: <CANkKV91attPiZ4+6DQKcgG10apUbF6k5hs7aJBrfsnfc5jQCew@mail.gmail.com>
+Subject: Re: [6.18.] ThinkPad T14 Gen 2 AMD (LEN2073) - Synaptics touchpad
+ remains PS/2, intertouch=1 ineffective, lost sync events
+To: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	Linux kernel regressions list <regressions@lists.linux.dev>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+Hi Thorsten,
 
-The tsc200x driver supports both I2C (tsc2004) and SPI (tsc2005)
- interfaces.
-Currently, the driver attempts to manually manage the wakeup interrupt by
-calling enable_irq_wake() and disable_irq_wake() during suspend and resume.
+Thanks for the response.
 
-However, for I2C devices, the I2C core already automatically handles the
-wakeup source initialization and IRQ management if the "wakeup-source"
-property is present in the device tree. Manually managing it again in the
-driver is redundant and can lead to unbalanced IRQ wake reference counts.
+I have not yet tested with 7.0-rc, but I will try building and booting the
+latest mainline release candidate and report whether the issue is still
+present.
 
-Clean up the wakeup IRQ handling by checking the bus type:
-- For I2C (BUS_I2C): Rely entirely on the I2C core for wakeup management.
-- For SPI (BUS_SPI): Explicitly call device_init_wakeup() in probe and
-  manually manage enable/disable_irq_wake() during suspend/resume.
+One additional observation: the touchpad PNP ID on this system is
+LEN2073. I noticed that this ID does not appear in the Synaptics SMBus
+whitelist in drivers/input/mouse/synaptics.c.
 
-The ts->wake_irq_enabled flag is also updated accordingly to ensure the
-driver accurately tracks the wakeup state across both buses.
+Because of this I am wondering whether the device might simply be
+missing from the whitelist rather than this being a regression.
 
-Note: This patch is based on code analysis of the I2C subsystem and
-has not been verified on actual hardware yet.
+I'll first verify the behaviour on 7.0-rc and then investigate further
+(if needed I can also attempt a bisect).
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
- drivers/input/touchscreen/tsc200x-core.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+Best regards,
+Mate
 
-diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
-index eba53613b005..d14d967845c8 100644
---- a/drivers/input/touchscreen/tsc200x-core.c
-+++ b/drivers/input/touchscreen/tsc200x-core.c
-@@ -465,6 +465,7 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
- 	ts->idev = input_dev;
- 	ts->regmap = regmap;
- 	ts->tsc200x_cmd = tsc200x_cmd;
-+	ts->bustype = tsc_id->bustype;
- 
- 	error = device_property_read_u32(dev, "ti,x-plate-ohms", &x_plate_ohm);
- 	ts->x_plate_ohm = error ? TSC200X_DEF_RESISTOR : x_plate_ohm;
-@@ -547,8 +548,9 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
- 		return error;
- 	}
- 
--	device_init_wakeup(dev,
--			   device_property_read_bool(dev, "wakeup-source"));
-+	if (ts->bustype == BUS_SPI)
-+		device_init_wakeup(dev,
-+				 device_property_read_bool(dev, "wakeup-source"));
- 
- 	return 0;
- }
-@@ -565,8 +567,13 @@ static int tsc200x_suspend(struct device *dev)
- 
- 	ts->suspended = true;
- 
--	if (device_may_wakeup(dev))
--		ts->wake_irq_enabled = enable_irq_wake(ts->irq) == 0;
-+	if (device_may_wakeup(dev)) {
-+		if (ts->bustype == BUS_SPI)
-+			ts->wake_irq_enabled = enable_irq_wake(ts->irq) == 0;
-+		else
-+			ts->wake_irq_enabled = true;
-+	} else
-+		ts->wake_irq_enabled = false;
- 
- 	return 0;
- }
-@@ -578,7 +585,8 @@ static int tsc200x_resume(struct device *dev)
- 	guard(mutex)(&ts->mutex);
- 
- 	if (ts->wake_irq_enabled) {
--		disable_irq_wake(ts->irq);
-+		if (ts->bustype == BUS_SPI)
-+			disable_irq_wake(ts->irq);
- 		ts->wake_irq_enabled = false;
- 	}
- 
--- 
-2.43.0
-
+Thorsten Leemhuis <regressions@leemhuis.info> ezt =C3=ADrta (id=C5=91pont: =
+2026.
+m=C3=A1rc. 9., H, 9:12):
+>
+> Hi!
+>
+> On 3/5/26 19:07, R=C3=A1cz M=C3=A1t=C3=A9 wrote:
+> >
+> > I did some additional checks on my system with kernel 6.18.13-200.fc43.=
+x86_64:
+>
+> Have you tried if 7.0-rc is still affected?
+>
+> And if it is: could you bisect? See
+> https://docs.kernel.org/admin-guide/bug-bisect.html
+> for details. Without a bisection developers developers from both
+> subsystems involved (i2c, input) might not look into this, as everyone
+> will suspect it might be some change to the other subsystems that causes
+> this.
+>
+> Ciao, Thorsten
+>
+> > 1. Kernel configuration (relevant parts):
+> >
+> > $ grep -i "RMI\|SMBus" /boot/config-$(uname -r)
+> > CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS=3Dy
+> > CONFIG_RMI4_CORE=3Dm
+> > CONFIG_RMI4_I2C=3Dm
+> > CONFIG_RMI4_SMB=3Dm
+> > CONFIG_HID_RMI=3Dm
+> > CONFIG_I2C_HID=3Dy
+> > CONFIG_I2C_HID_ACPI=3Dm
+> >
+> > 2. dmesg output (filtered):
+> >
+> > [ 1.615300] psmouse serio1: synaptics: Trying to set up SMBus access
+> > [ 1.618151] psmouse serio1: synaptics: SMbus companion is not ready yet
+> > [ 17.949336] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+> > sync at byte 1
+> > [ 17.962506] psmouse serio1: issuing reconnect request
+> > (repeats multiple times)
+> >
+> > 3. libinput reports:
+> >
+> > $ sudo libinput list-devices | grep -i SynPS
+> > Device: SynPS/2 Synaptics TouchPad
+> >
+> > Interpretation:
+> >
+> > - The touchpad is recognized as a SynPS/2 device, i.e., fallback PS/2 m=
+ode.
+> > - SMBus/RMI4 driver stack does not get loaded, despite the kernel
+> > config enabling modules.
+> > - The "SMBus companion is not ready yet" messages indicate that
+> > psmouse attempts SMBus access but cannot reach the device.
+> > - I2C controllers are functional, yet the touchpad does not enumerate
+> > as an I2C HID device.
+> >
+> > Workarounds:
+> >
+> > - Using psmouse.proto=3Dimps avoids lost sync events, confirming
+> > fallback to generic PS/2 handling.
+> >
+> > Observation regarding previous reports:
+> >
+> > - Unlike the 2021 report on ThinkPad P14s Gen 2 (AMD), I do not see
+> > any "bad SMBus base address" messages in dmesg.
+> > - The kernel attempts SMBus access, but fails because the RMI4/hid-rmi
+> > stack does not initialize. The device simply falls back to PS/2 mode.
+> > - Therefore, this does not appear to be the same base address issue as
+> > the earlier P14s case.
+> >
+> > Conclusion:
+> >
+> > - Behavior strongly suggests a missing DMI quirk or regression in the
+> > SMBus detection logic in combination with i2c_piix4 on this Lenovo
+> > ThinkPad T14 Gen 2 (AMD) with LEN2073 touchpad.
+> > - This is reproducible on multiple 6.18.x kernel versions on Fedora 43
+> > stock kernels.
+> >
+> > I can provide full dmesg, libinput outputs, and acpidump if required.
+> >
+> > Best regards,
+> > Mate Racz
+> >
+> > R=C3=A1cz M=C3=A1t=C3=A9 <raczm0812@gmail.com> ezt =C3=ADrta (id=C5=91p=
+ont: 2026. m=C3=A1rc. 4., Sze, 16:02):
+> >>
+> >> This might be related to the earlier report from 2021:
+> >>
+> >> https://lore.kernel.org/linux-input/3d6f7f74-3214-4c03-b352-a2a0d27ea4=
+2b@amd.com/
+> >>
+> >> and a similar report from 2025:
+> >>
+> >> https://lore.kernel.org/linux-input/b2d0af40-876e-4a2d-99a2-236b583e94=
+97@gmail.com/
+> >>
+> >> The 2021 report describes incorrect SMBus address detection with
+> >> i2c_piix4 on ThinkPad P14s Gen 2 (AMD), resulting in RMI4/SMBus not
+> >> functioning correctly and the device remaining in PS/2 mode.
+> >>
+> >> On my system (LEN2073), the behaviour appears very similar:
+> >> - intertouch has no effect
+> >> - "SMBus companion is not ready yet" in dmesg
+> >> - device stays in PS/2 mode
+> >>
+> >> It seems possible that the same underlying piix4 SMBus detection
+> >> issue is still present.
+>

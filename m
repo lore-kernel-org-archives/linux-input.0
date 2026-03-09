@@ -1,229 +1,190 @@
-Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C782B376BE4
-	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 11:54:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773057280; cv=pass; b=BCNVp/tYPN++5x79fotKrAnMvicuhicZJdcNz0cbr2N8ZifJS+RpOlRoePLu522uaCYhg6dWUvC/aAP90N2Ca6ntRN9Wq9JLA2vLyjfljb4QFWJUmns04Tl7pQSnpXF8z++3Bzvln7JP8kjyd5o/GmU5KkZNLuEXXOvM3HVhk+8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773057280; c=relaxed/simple;
-	bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mL5qYzEhYFfAZ2zeKGQtmmdWgd8SXG9LxfPoAJW2mPp0dnOuY0KLfulqJXJVDFJbAquAXglTL1YWRG336T1loRzrqbkgIPfuBp+czPqlAcq9RwXxCy91051LRKl1pAjiZwmsKzjM7urkOXUHzKXvh+sI4nHiRcc5JQWXzwA7/Yw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QUQMcRoG; arc=pass smtp.client-ip=209.85.160.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716D73BE177;
+	Mon,  9 Mar 2026 12:54:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773060858; cv=none; b=SkG3bBzqgSVmF/NiQRsrL9XALYo5qrt13Qslb7d3o+lfdkAp0CRHuGtIoQqozj3ST56357bbnNmJL9tqjpCxTok4fKTlBW3cJMOjsQ9VD4rVN+8KGC4Xiv+BWLl0dC3orrjkrg269jJEPVpxS/6ey83gbA273M0x4Ttgqtsh1N0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773060858; c=relaxed/simple;
+	bh=x7XTUyTEjlyfsknKIPpydodGdMSgv3hWaBjEYFEIgXY=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type; b=mtz4JVeJOMxClo+jdFFkU7CNzokZ1ig+3rnidE0SpKzhTQDHsttBcJIrdUJR7ihhNEjMmZ1z/YaFVd/tJVULu0L1xaRjiX9Ns58/IU4k7r1TmKTTTdzHg5ATa5mth/qb8jNp/4p8YqOIblaCuFwoOsQnEJQBYg2moSlEBg0HGkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b=MBSENcaf; arc=none smtp.client-ip=212.227.17.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QUQMcRoG"
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-4042905015cso4056985fac.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2026 04:54:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773057277; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GVWutP0II/qu5CEMoYKPVEPOLh0s9MEZb9p8cdXOeMhLh/sbo8Ryobk3InSPmfZgIe
-         Jy3oaohPSiMiq4O2IcOkKWRpCXo2ySof66fdHewoYlmhtSF2DzKfNhc6l/U1G4HHaYJE
-         VDEvaS0MT+x3MqvJmyC/2f7MKNY2LzSpCUglXgvbGLsPnTzZ6LNa3f+CnwLZiptKz6SZ
-         JCgNXLfMlsDgDs2EbRIfK5DZo+qbbpHREHhaA+wtZWPJycFUIiQrH6XMAJULmRhqd6lM
-         shsdVYp4pvaVOGR1mqtn60qlCuCSeuulVShcKw2xYCxm479U6LhXf81HzvPo7FRI/kF/
-         SY4w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
-        fh=94j/QdI3VMo4wehU8E8r5TH0TIH68rDgdNs5tne0BjY=;
-        b=XqAi4CIGztwfBnmXzIgltP4AScNO1JwORU4BE2BnlaGy3TNcKKA1oERSX8XnLP88/v
-         9vW6nQC8jF6gccbELIkL/cCvZCmvibnijym24OPl6ANiXidiaRBKL3D8Kh3tHZLG4PNl
-         fOTOl6T0xvmbEbsd9hpuC095amu84/+rarLngTlQQo/B4qZsE0As2tpt+oK0WVi5Rx+d
-         aMPVA+OQmKrEi4qf7wSE4pchpcIV/sEnt0WqP72ayesrFMxxeFdnoABM/3sGfSHnwwkr
-         dkYj3RPjOSdmWbebCXKKB+pq16kTrv1j97nkKUOo6oxVADhdo05Xvd7JS9P5Ig92Dwe3
-         oRtQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773057277; x=1773662077; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
-        b=QUQMcRoGLyu4JfPBGFjiqnete61bbmd5v/hk62JonSuwQ5HfS5vcEmoP9GgH3qgPF/
-         b0vRmL+ApSbZlEEQBkZkNR5lo/UQl/1D4feFoO/1aU4cbOgU0K/nsfjEabAOp7hwr03o
-         +BYsLrcKm1uLRdx5KAErSusshfM6hsj3GF+r3mlKT+tn2AgRw6P+/QsO0BGeog5EY6KC
-         64ZPXkDyFqMuZGgT2kSuBfS3gYNENrlra8QegaFi4nl01ABC7rpZafo34WCfQwvpQb9c
-         R6AMkdQF1fZnIrXmM9IO9/u794A2o2kJpkeiIhaojoZF+lg9GD3PK2i6UzVRNu4BPE+w
-         zJxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773057277; x=1773662077;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ZRP4v7PWPX+zmV8EvqiA/mk3c8DRZ7Oi6bAtzLpOn+E=;
-        b=RcRPU3U/TuzKgXBm94K09dZcxENd2QpkbWuM+QYJbkW0Yn7QNUsoKI4dbzo9S24GVK
-         ibZ8MooFdeW5uvPUSxwk+JazXgEWuIluEcolSagKpsT+oVyq90ViYOLdi52bQoTCsx6U
-         FkxinIdTdIKD68uOEyzpu6jMUCmVxdV6K8YdCza4pPqiRvt4nYNomLJ9hZZy2ytyu2MY
-         xOBdExNHpIKPPn5gV6PiuIitamNR37Hx3y3XDepE5kU7eJvv6E16+insvoi7nEZDUxWV
-         yYi6EfOSkU8u9LEgkmuD5C28RKl6Pj10RdC/9j0bKcq/62a+fxnwDsk5K4jXGFBkBjAG
-         p4EQ==
-X-Gm-Message-State: AOJu0Yy/8i7ZKvvbyNU8g/DCabTM1mQA6XUj15bgWy07xueO4Awonr5X
-	FCQsS/6BTiESS9wBac2X/PCj4AP3rDyhkzn7fm6+UYIcHmS+QMHawDoMEwEVaboywFZn7Tia9OA
-	fe7D4eeDME7YWCpwjdGNIBf4ynm+9geI=
-X-Gm-Gg: ATEYQzzxkIENG78AhglUtSB/yn5QrN8elQuTfkQpnMYUxUfpqB2HCOYMBsJK0ftuAmB
-	Q2i6DDHlFS6Uk6/8sJNu4P/7rLFG8WGkxzcM7w3Kb50Z8By5m/sm988GAKKaOJLCwtGwoCIdreB
-	E4+Ms5vV07gVrp2/f6SSS+xe9lUVl/fptuxyf8ixQ/4y7E4bRZGW0nW3O8tLmROtQp8ItZov9zh
-	CJ40eJdFnZwcesdo48Fw3i90AIcos66MJRF0YFAvnbDV7OG2D8Z2dxCXYf90IbLkHq1YamYlW4N
-	Gb+20iFUDm3W/CjsEBFp
-X-Received: by 2002:a05:6870:37ce:b0:3d2:4319:38eb with SMTP id
- 586e51a60fabf-416e448be4amr6727108fac.47.1773057277508; Mon, 09 Mar 2026
- 04:54:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b="MBSENcaf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1773060847; x=1773665647; i=hendrik-noack@gmx.de;
+	bh=x7XTUyTEjlyfsknKIPpydodGdMSgv3hWaBjEYFEIgXY=;
+	h=X-UI-Sender-Class:Date:From:To:Cc:Message-ID:In-Reply-To:
+	 References:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=MBSENcafam1hrwDp2EsM6ajgp9ZEp7iyDofUtO0FzAbgRUOJK+o6+Ynsl+zgC6eZ
+	 QFM74q9JB1Dt6keHgZNSZV/AKWJDRq9vlwP10Ax3cJfWpiwuXSOodyYQqrsia1skC
+	 wc23HmPTh2aXVSTb0ynU8dYKaqDAMwc5rWLrz/EqbsJqdAwD5Xidw392uS7Q+4XaX
+	 lc9iRd4TKQJ0GiSbqt84uM/93aToRT8cbj3PRURuaRoX5DYkMrYd1MprjyuIJvbRH
+	 uB3MzuTeU15luKMdj+yoOn+y9c+3quaCuDgdPTwHrtTSiAsTmh2Z6Clzkm0rvh7lw
+	 nzjunCCKI/Lg8B2iyg==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MS3mt-1w5sYP3cKJ-00QG4t; Mon, 09
+ Mar 2026 13:54:06 +0100
+Date: Mon, 9 Mar 2026 13:54:05 +0100
+From: Hendrik Noack <hendrik-noack@gmx.de>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Ferass El Hafidi <funderscore@postmarketos.org>,
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Message-ID: <feae85c4-bea1-40b2-87d5-952b26ff3ee3@gmx.de>
+In-Reply-To: <20260308-vivacious-coucal-of-current-2d7ac8@quoll>
+References: <20260307181557.66927-1-hendrik-noack@gmx.de> <20260307181557.66927-2-hendrik-noack@gmx.de> <20260308-vivacious-coucal-of-current-2d7ac8@quoll>
+Subject: Re: [PATCH v4 1/2] dt-bindings: Input: Add Wacom W9000-series
+ penabled touchscreens
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
- <CANkKV91Zfp_Bn_koM=Tb5vHQbog2Ja72C819aL-49kQ6PWA_Ow@mail.gmail.com>
- <CANkKV93wfs7oxU8kiyPWeafOs+ugpZSPLQrea7wtoSuGEG+pPw@mail.gmail.com> <68d90523-33dc-451f-a825-72eaa1c4bcb8@leemhuis.info>
-In-Reply-To: <68d90523-33dc-451f-a825-72eaa1c4bcb8@leemhuis.info>
-From: =?UTF-8?B?UsOhY3ogTcOhdMOp?= <raczm0812@gmail.com>
-Date: Mon, 9 Mar 2026 12:54:25 +0100
-X-Gm-Features: AaiRm51LDGipFhqZVVF8l-P-IJc1_ce37qNAFaXZWS4J57r1zOIpXrOgouSBTr0
-Message-ID: <CANkKV91attPiZ4+6DQKcgG10apUbF6k5hs7aJBrfsnfc5jQCew@mail.gmail.com>
-Subject: Re: [6.18.] ThinkPad T14 Gen 2 AMD (LEN2073) - Synaptics touchpad
- remains PS/2, intertouch=1 ineffective, lost sync events
-To: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	Linux kernel regressions list <regressions@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-Correlation-ID: <feae85c4-bea1-40b2-87d5-952b26ff3ee3@gmx.de>
+X-Provags-ID: V03:K1:nVijRyHmk749Xxe1SaVVxZjhv78CcLPfY5Zp6VWCcVPx0LRgpAv
+ YlUaMlQ2khbG0//+B/pLuxHkEtXU7Wixowg3mGJqr5oPHxCgey/1Jo5veqr7hOEjPdMG6i5
+ tOp4i2in3/ccnIVMsQrfozOT6K/pD3Rkcx8hRou7ucRSOgxqj2EqdCa1pzNoM9PkxcFPlbh
+ x67d4XBXngfBRCh0Q862g==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:+Wdq1jJsiDw=;RzuVWuRaOrWiuFsvF6bWoXiMBZL
+ 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
 
-Hi Thorsten,
+Hello Krzysztof,
 
-Thanks for the response.
+08.03.2026 10:15:35 Krzysztof Kozlowski <krzk@kernel.org>:
 
-I have not yet tested with 7.0-rc, but I will try building and booting the
-latest mainline release candidate and report whether the issue is still
-present.
+> You received review and instruction what to do. Did you read it?
 
-One additional observation: the touchpad PNP ID on this system is
-LEN2073. I noticed that this ID does not appear in the Synaptics SMBus
-whitelist in drivers/input/mouse/synaptics.c.
+I read the review of Dmitry and incorporated it into this version.
 
-Because of this I am wondering whether the device might simply be
-missing from the whitelist rather than this being a regression.
+> Your way of organizing your work makes it difficult for us. Look, try
+> yourself:
+>
+> b4 diff '20260307181557.66927-2-hendrik-noack@gmx.de'
+> Checking for older revisions
+> Grabbing search results from lore.kernel.org
+> =C2=A0 Added from v3: 2 patches
+> ---
+> Analyzing 16 messages in the thread
+> Preparing fake-am for v3: dt-bindings: Input: Add Wacom W9000-series pena=
+bled touchscreens
+> ERROR: v3 series incomplete; unable to create a fake-am range
+> ---
+> Could not create fake-am range for lower series v3
+>
+>
+> Best regards,
+> Krzysztof
 
-I'll first verify the behaviour on 7.0-rc and then investigate further
-(if needed I can also attempt a bisect).
+The b4 diff error might happen because git didn't add the v3 label on
+the 2/2 patch of v3. First running b4 diff on v3 with:
+b4 diff '20251205152858.14415-2-hendrik-noack@gmx.de
+resulted in a working diff on v4:
+
+b4 diff '20260307181557.66927-2-hendrik-noack@gmx.de'
+Grabbing thread from lore.kernel.org/all/20260307181557.66927-2-hendrik-noa=
+ck@gmx.de/t.mbox.gz
+Checking for older revisions
+Grabbing search results from lore.kernel.org
+=C2=A0 Added from v3: 2 patches
+---
+Analyzing 17 messages in the thread
+---
+Diffing v3 and v4
+=C2=A0=C2=A0=C2=A0 Running: git range-diff c371c3410e81..d467d6770a1b 0bfd1=
+357fb44..1c9f51e8b572
+---
+...
 
 Best regards,
-Mate
-
-Thorsten Leemhuis <regressions@leemhuis.info> ezt =C3=ADrta (id=C5=91pont: =
-2026.
-m=C3=A1rc. 9., H, 9:12):
->
-> Hi!
->
-> On 3/5/26 19:07, R=C3=A1cz M=C3=A1t=C3=A9 wrote:
-> >
-> > I did some additional checks on my system with kernel 6.18.13-200.fc43.=
-x86_64:
->
-> Have you tried if 7.0-rc is still affected?
->
-> And if it is: could you bisect? See
-> https://docs.kernel.org/admin-guide/bug-bisect.html
-> for details. Without a bisection developers developers from both
-> subsystems involved (i2c, input) might not look into this, as everyone
-> will suspect it might be some change to the other subsystems that causes
-> this.
->
-> Ciao, Thorsten
->
-> > 1. Kernel configuration (relevant parts):
-> >
-> > $ grep -i "RMI\|SMBus" /boot/config-$(uname -r)
-> > CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS=3Dy
-> > CONFIG_RMI4_CORE=3Dm
-> > CONFIG_RMI4_I2C=3Dm
-> > CONFIG_RMI4_SMB=3Dm
-> > CONFIG_HID_RMI=3Dm
-> > CONFIG_I2C_HID=3Dy
-> > CONFIG_I2C_HID_ACPI=3Dm
-> >
-> > 2. dmesg output (filtered):
-> >
-> > [ 1.615300] psmouse serio1: synaptics: Trying to set up SMBus access
-> > [ 1.618151] psmouse serio1: synaptics: SMbus companion is not ready yet
-> > [ 17.949336] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
-> > sync at byte 1
-> > [ 17.962506] psmouse serio1: issuing reconnect request
-> > (repeats multiple times)
-> >
-> > 3. libinput reports:
-> >
-> > $ sudo libinput list-devices | grep -i SynPS
-> > Device: SynPS/2 Synaptics TouchPad
-> >
-> > Interpretation:
-> >
-> > - The touchpad is recognized as a SynPS/2 device, i.e., fallback PS/2 m=
-ode.
-> > - SMBus/RMI4 driver stack does not get loaded, despite the kernel
-> > config enabling modules.
-> > - The "SMBus companion is not ready yet" messages indicate that
-> > psmouse attempts SMBus access but cannot reach the device.
-> > - I2C controllers are functional, yet the touchpad does not enumerate
-> > as an I2C HID device.
-> >
-> > Workarounds:
-> >
-> > - Using psmouse.proto=3Dimps avoids lost sync events, confirming
-> > fallback to generic PS/2 handling.
-> >
-> > Observation regarding previous reports:
-> >
-> > - Unlike the 2021 report on ThinkPad P14s Gen 2 (AMD), I do not see
-> > any "bad SMBus base address" messages in dmesg.
-> > - The kernel attempts SMBus access, but fails because the RMI4/hid-rmi
-> > stack does not initialize. The device simply falls back to PS/2 mode.
-> > - Therefore, this does not appear to be the same base address issue as
-> > the earlier P14s case.
-> >
-> > Conclusion:
-> >
-> > - Behavior strongly suggests a missing DMI quirk or regression in the
-> > SMBus detection logic in combination with i2c_piix4 on this Lenovo
-> > ThinkPad T14 Gen 2 (AMD) with LEN2073 touchpad.
-> > - This is reproducible on multiple 6.18.x kernel versions on Fedora 43
-> > stock kernels.
-> >
-> > I can provide full dmesg, libinput outputs, and acpidump if required.
-> >
-> > Best regards,
-> > Mate Racz
-> >
-> > R=C3=A1cz M=C3=A1t=C3=A9 <raczm0812@gmail.com> ezt =C3=ADrta (id=C5=91p=
-ont: 2026. m=C3=A1rc. 4., Sze, 16:02):
-> >>
-> >> This might be related to the earlier report from 2021:
-> >>
-> >> https://lore.kernel.org/linux-input/3d6f7f74-3214-4c03-b352-a2a0d27ea4=
-2b@amd.com/
-> >>
-> >> and a similar report from 2025:
-> >>
-> >> https://lore.kernel.org/linux-input/b2d0af40-876e-4a2d-99a2-236b583e94=
-97@gmail.com/
-> >>
-> >> The 2021 report describes incorrect SMBus address detection with
-> >> i2c_piix4 on ThinkPad P14s Gen 2 (AMD), resulting in RMI4/SMBus not
-> >> functioning correctly and the device remaining in PS/2 mode.
-> >>
-> >> On my system (LEN2073), the behaviour appears very similar:
-> >> - intertouch has no effect
-> >> - "SMBus companion is not ready yet" in dmesg
-> >> - device stays in PS/2 mode
-> >>
-> >> It seems possible that the same underlying piix4 SMBus detection
-> >> issue is still present.
->
+Hendrik

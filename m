@@ -1,63 +1,63 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3C6393DF4
-	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 11:01:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4F0393DF6
+	for <linux-input@vger.kernel.org>; Mon,  9 Mar 2026 11:01:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773054074; cv=none; b=IlnGRxjyh1LVVWIvuySds0A5c4Y1dlJNAJel8D2c8fwYlocm+X+R8wRkdKsZ/TK9SrVX5dR/nGuQl8viM/xvR8ADD9yQROb+bP5AKwpYtrOTmNW+hpQFt7jvB59WxvzV8fuNtx8u10DL+6wtCaXmXfDTY4w4fCsf7rTPohenGnM=
+	t=1773054079; cv=none; b=QDrSLOkim/HBjxti85lhaSU9NF55s/SchbYSW0Aw7fa2kGiMj+wyw3bg5IMdDc8WjJ9UTPb5h2gGiywLODJq2CUuCpG+IgYSsyYB/Kqb+HIOHEBk/EUqnA11zZHOxYut8fBORrI1d2DM6IDqc58Ri8cZEs+UjyUisnYffbY02Mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773054074; c=relaxed/simple;
-	bh=L2/qOxKHTQKz7tTe9NevqobBIQclt/atXpIP78HnnLI=;
+	s=arc-20240116; t=1773054079; c=relaxed/simple;
+	bh=M4dFRmrmPmhqXhKhFaGDOffAf2JzsWF1o/D8Jy2z8eM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ULp79EiuY7veN+7nl4JQnb4MnS0nba2uDkk6YvTuUGaTsbx+Dls65Q2favc+FWgYHH5pi0dn7MRsdxvC1UM94Aw1iCN1LcAjJRbxS+Em3Gv7/FO6wHBikrLIQNFCjRtV6IOKOFn0G0nMGKA2LD/ep1aEO73wovz7oIAxY0+vb74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CZM8EwBj; arc=none smtp.client-ip=209.85.216.49
+	 MIME-Version; b=YVYNdn+8MZLRfQf9kc3ADQbzZAukgpo/FljKIE9Tdb9UeE6DTG8AY/5jyJ/rHJGDiAi5ErSqw53L2CuRTNmTUgbbKo43mlUGm2vjy6yF7ITvct/dWHFdtPw8zctMeREWLHFby5HlFD/te+WuKdorbEuK2bpVcSXSPGeis2dD33A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=amjMW2xf; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CZM8EwBj"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-359866a1d02so7167558a91.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2026 04:01:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="amjMW2xf"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35980423087so4081178a91.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2026 04:01:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773054071; x=1773658871; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773054076; x=1773658876; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vdfZbw3s1pisbWO+qyvAF+lK8p/8MUQFjHrM1SRRAD4=;
-        b=CZM8EwBjuXYzMb/pKHsYz6zESqsuMGqyek9eo/kqQEoGdarIYPDJkQL8zeG42vDLeU
-         YAirayWNoIgnbJoHdNfb0yPJNZ2qie3QBuTADlmCz8FT6xPJF6QcIdaeQsmCVNA95dDV
-         qymShDUkDXI1m3SLPWhvc/5Dxv9kBkwVJD+h/hnGKamW+e50SQvcHJ/xysqAnlpY8tdV
-         hpScboRWdKFynu7pYbjhPM3ZicfGYFlQOC0S6gr9xzZqx1Yq082id+OPob8/6hdsNKty
-         d8PfwD761yDkI5YtMxRxAWeFdIXTGQZ40xD56jR9UdD7GkA2diIS0AqRAkSlRL6TVrhW
-         DTTw==
+        bh=nrsLA8b8vlkhz1DvrsNbbbbTjquCC3GRn0AkHrSsHTM=;
+        b=amjMW2xfOCp3KzpmNL9W4+Y27T55Fq4Wee5NpsadSenhrmY2i49oYAEmk6ZoNu95h0
+         W9F5HMQEyfPcUQcTR0dyqWfUTCXVBqtX7mxH9MOjiYfPmc+eqlqIXnGVBQryWCrG4siP
+         PiC5sgPOfgqxEluXuBNs3Mc5EfBeK9701nHa2VW0PV75wotpjZlcFugsEwdyMIgpUz/D
+         fhK9R3j+pIK0HqNvfC7YDXw3/re+Pnw+ozGwrPJ8qbOt4LUh+5f2LbWYaQAo75u1k+yE
+         NN8UpKxGfnUzswspqGy5+a0ThZ88YyoW7fBEURsJkDnRuWF8P9Ny5DJeX8qhmdN2VvBo
+         d5VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773054071; x=1773658871;
+        d=1e100.net; s=20230601; t=1773054076; x=1773658876;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=vdfZbw3s1pisbWO+qyvAF+lK8p/8MUQFjHrM1SRRAD4=;
-        b=DXVsqeXI88KS5CH2OOFOf7Usf2wMrmaaeyV8lpQj6xbsHjSrx2ENaRjd4j4pI1EZdH
-         RoDpx5yTWd2OlL3Ma2lnTqban9pCRICuhOEMgQ32lSd9l5R4LO++s9iMuLc3Ww5npjlo
-         AnqOVzPRfvvyY/ewJUNSYLegn9pZazt0sZgotwmVDNBjs7+JipXNI8WASjjwizNbefxK
-         Zfo4K2RTkO+0vKwUNOEfcEhgSA+1Bta/LHr97mQA4muYMGhGMGqP2bOJpIndm/+sQ0x3
-         NPewoDKax+Q//6Jzn1EWxr+Y3zlk76hziHpSJ8VlMViqJecLznwdr9+uQdWOmLFmZK8G
-         cRsA==
-X-Forwarded-Encrypted: i=1; AJvYcCVChRpNL3Cd92ZzCVfi279KHz8gvwxqAftSx5qpRUResC/IcfFoaS9PYCNzIgJymetzdJ2pQt3KqRurRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwvRiVeXjBt0LrUHRZf/4COHdAgEDnuufVny4JnEfMnMEvqDPHr
-	ZVQedp2SRZ7EX46/IQ5LxUwhzZL0eqUgcZNGUaAXYS6xBpreHqsRam0c
-X-Gm-Gg: ATEYQzyB7gRLFQTvZ1Nw9dPKPrBfOlcqk2s9/bI9ZUi+Cm458t0KtFPjf2LGWDw/hNP
-	6fDJHLmUvRFEciVgn23c+IXbw/C5MjvvlqFTC44Yl3eMjy7I6xxboLxd7D1J9VzJNaw2kXjHEIQ
-	ze5ibvPrjU2gx1l3Ui4WeLzzmFy0Yein7bfE5DBiK/hddrGwwL7tKdaAVRXzUqhaUxnO51UlbAM
-	VflGpt4CT2yOV8F7cuSz03Ed4J286x3VgdMu/PiEPZyV72G2/qa1YGNb1M7VhBxSZ0zwmiTZWMG
-	b5yTRGIcrzZwozfnfz53uteYDU2FkYPohIbxBJdkFRDBYKuo4Gvig95oY0YMNrYIEo/BpX4aM01
-	fEu//NV+fO/jKLc3Y86c/FGGR7GKp0IUqmj6Lqs1KERHU1aLhGoRB6IKI2JBRn7IwY1I8X3dkYv
-	UwSeYXWZWu0F6dppfiKaV+EMKJGZVp5SpOcR7E7dk+QTZav/vdn3v1aZJCCg==
-X-Received: by 2002:a17:90b:2891:b0:359:8ed3:8a65 with SMTP id 98e67ed59e1d1-359be349690mr9632532a91.34.1773054071032;
-        Mon, 09 Mar 2026 04:01:11 -0700 (PDT)
+        bh=nrsLA8b8vlkhz1DvrsNbbbbTjquCC3GRn0AkHrSsHTM=;
+        b=Isn7uSDatzYavxaWFYUjl3FoRsPLaqgZHy4oVA4i4o51g+Duns9JvRe2iOmSJkMaYw
+         ZHuOoNJfwfkKjFSyRMX/Bpg24PG/EkPHUTHAS6GVC/JDbDsPIh6eJFWsBL+72/czM356
+         8FIuqZhfsuYmivNbhGba8l9goI0vuokSRnGAHvnUhbI0FqEW1Wsh7WloGCh5/ywmF0I6
+         +9mV1B6UgYc9byXNCiabjuJSylPpxYQGj4i7CKbi31auxFKbgcwHoRNlgEdoworJmQp/
+         aYrD5Htctii4rOGuHVYg+EFwGi4C+RgVjv4/0x/L+clQ582bYgAclVL5xem0QZEpwsXg
+         TJTw==
+X-Forwarded-Encrypted: i=1; AJvYcCX3ah6bjZLyGZdcAQZnxCLfbcVWHh7joxi0ecqUUD1aeQPnrw1iLqDkcT0lE+fOhEGnZD4rgnAEevnkmg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxp6hixQk76bzn9tAqmlj+SUlliUgWogjfRIpO+Ls9UlhodDr0l
+	blf79Ul9owMTZgdpqxeKkpKPx2k5eXAwzPFEsUBPIwO2vSE/AXSuspNA
+X-Gm-Gg: ATEYQzyPyEDNSgpZwLlyfSBDR3FoRoyohhsmypoqX9QueUK3mbZROIBP5+OYv15Jdur
+	9txOx9JVYi5gOPUtZwBnNI0A9SjejptaACUxlwWZ5zL0CzisnLsi3UzNhe+BoHTgpZpCAqYNrwU
+	Tlv3v1wo0xT/1qpmLjwj3judsTPX5kb7pPgLla8yxlJPODIkOsSy47CABIu0kJ/X2Ker5EPJWf3
+	7oi+7OF5+0eE2yvR80GXiABDycZXDSLxcHFAz88jVRjd8bDrP9kcDxFfQl9Ni2jkQBBjNKe+Kg+
+	OYXml6jjhV1xBc7MlJHER01/8v4UoEUztuhf3JJVEpyJL+w7RjfSKQfYwllujtUniTH3RP+hvqr
+	q7qlyIoTd7Fz/SsPL1k6tWjQJ4rzrk4qY7l9K9aBwHoPmrSgyIzlj9b9Rowxbp3fuurgF++efsy
+	KZn+F0XIchDoseLZaOdo6gQzRNWLVrEHu2XGqhCExHSrjJn1F7TS+/wPBK9w==
+X-Received: by 2002:a17:90b:2884:b0:359:87ff:f352 with SMTP id 98e67ed59e1d1-359be250d8emr9942768a91.8.1773054076002;
+        Mon, 09 Mar 2026 04:01:16 -0700 (PDT)
 Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359bff279f4sm13268296a91.0.2026.03.09.04.01.08
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359bff279f4sm13268296a91.0.2026.03.09.04.01.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Mar 2026 04:01:10 -0700 (PDT)
+        Mon, 09 Mar 2026 04:01:15 -0700 (PDT)
 From: phucduc.bui@gmail.com
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>
@@ -71,9 +71,9 @@ Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	phucduc.bui@gmail.com
-Subject: [PATCH 1/2] dt-bindings: input: touchscreen: ti,tsc2005: Add wakeup-source
-Date: Mon,  9 Mar 2026 18:00:43 +0700
-Message-ID: <20260309110045.108209-2-phucduc.bui@gmail.com>
+Subject: [PATCH 2/2] Input: Touchscreen: tsc200x - delegate wakeup IRQ management to I2C core
+Date: Mon,  9 Mar 2026 18:00:44 +0700
+Message-ID: <20260309110045.108209-3-phucduc.bui@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260309110045.108209-1-phucduc.bui@gmail.com>
 References: <20260309110045.108209-1-phucduc.bui@gmail.com>
@@ -87,54 +87,82 @@ Content-Transfer-Encoding: 8bit
 
 From: bui duc phuc <phucduc.bui@gmail.com>
 
-The tsc200x driver uses the "wakeup-source" device tree property to
-determine whether the device should be configured as a system wakeup
-source.
+The tsc200x driver supports both I2C (tsc2004) and SPI (tsc2005)
+ interfaces.
+Currently, the driver attempts to manually manage the wakeup interrupt by
+calling enable_irq_wake() and disable_irq_wake() during suspend and resume.
 
-In the driver, this property is read with:
+However, for I2C devices, the I2C core already automatically handles the
+wakeup source initialization and IRQ management if the "wakeup-source"
+property is present in the device tree. Manually managing it again in the
+driver is redundant and can lead to unbalanced IRQ wake reference counts.
 
-    device_init_wakeup(dev,
-                       device_property_read_bool(dev, "wakeup-source"));
+Clean up the wakeup IRQ handling by checking the bus type:
+- For I2C (BUS_I2C): Rely entirely on the I2C core for wakeup management.
+- For SPI (BUS_SPI): Explicitly call device_init_wakeup() in probe and
+  manually manage enable/disable_irq_wake() during suspend/resume.
 
-Document this property in the binding to make it visible to DT schema
-validation tools and to clarify its usage in device tree descriptions.
+The ts->wake_irq_enabled flag is also updated accordingly to ensure the
+driver accurately tracks the wakeup state across both buses.
+
+Note: This patch is based on code analysis of the I2C subsystem and
+has not been verified on actual hardware yet.
 
 Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
 ---
- .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml  | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/input/touchscreen/tsc200x-core.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-index 7187c390b2f5..c0aae044d7d4 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-@@ -55,6 +55,9 @@ properties:
-   touchscreen-size-x: true
-   touchscreen-size-y: true
+diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+index eba53613b005..d14d967845c8 100644
+--- a/drivers/input/touchscreen/tsc200x-core.c
++++ b/drivers/input/touchscreen/tsc200x-core.c
+@@ -465,6 +465,7 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
+ 	ts->idev = input_dev;
+ 	ts->regmap = regmap;
+ 	ts->tsc200x_cmd = tsc200x_cmd;
++	ts->bustype = tsc_id->bustype;
  
-+  wakeup-source:
-+    type: boolean
-+
- allOf:
-   - $ref: touchscreen.yaml#
-   - if:
-@@ -97,6 +100,8 @@ examples:
+ 	error = device_property_read_u32(dev, "ti,x-plate-ohms", &x_plate_ohm);
+ 	ts->x_plate_ohm = error ? TSC200X_DEF_RESISTOR : x_plate_ohm;
+@@ -547,8 +548,9 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
+ 		return error;
+ 	}
  
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+
-+            wakeup-source;
-         };
-     };
-   - |
-@@ -124,5 +129,7 @@ examples:
+-	device_init_wakeup(dev,
+-			   device_property_read_bool(dev, "wakeup-source"));
++	if (ts->bustype == BUS_SPI)
++		device_init_wakeup(dev,
++				 device_property_read_bool(dev, "wakeup-source"));
  
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+
-+            wakeup-source;
-         };
-     };
+ 	return 0;
+ }
+@@ -565,8 +567,13 @@ static int tsc200x_suspend(struct device *dev)
+ 
+ 	ts->suspended = true;
+ 
+-	if (device_may_wakeup(dev))
+-		ts->wake_irq_enabled = enable_irq_wake(ts->irq) == 0;
++	if (device_may_wakeup(dev)) {
++		if (ts->bustype == BUS_SPI)
++			ts->wake_irq_enabled = enable_irq_wake(ts->irq) == 0;
++		else
++			ts->wake_irq_enabled = true;
++	} else
++		ts->wake_irq_enabled = false;
+ 
+ 	return 0;
+ }
+@@ -578,7 +585,8 @@ static int tsc200x_resume(struct device *dev)
+ 	guard(mutex)(&ts->mutex);
+ 
+ 	if (ts->wake_irq_enabled) {
+-		disable_irq_wake(ts->irq);
++		if (ts->bustype == BUS_SPI)
++			disable_irq_wake(ts->irq);
+ 		ts->wake_irq_enabled = false;
+ 	}
+ 
 -- 
 2.43.0
 

@@ -1,187 +1,122 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB1343E9C6;
-	Tue, 10 Mar 2026 09:30:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEAFD371067;
+	Tue, 10 Mar 2026 11:11:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773135017; cv=none; b=WC4ZsN+5Klyldpqd3z5i6ciLvwnXLtnMVvhzA8Aj6Vupza2TK7Plq7/xZPvwIcOnXHlwNmQAJGN74Idz4vVzPdfDynTzroiDjUffjByXx4o/qTtG4CFPQ1xWgb7M10Nk20oj1XyKLMuWSFdfF4sWUL5j8J/SLlrpRQOjLA8HQcc=
+	t=1773141111; cv=none; b=hJ0pgTAxD+/L8PnD8DTbiJaEk8wKHjuVDauAQabDSEDshXpB9z5rjg2AL6uE37+w2GTdr+DqYch0wyUun9KSvvXOrtphULncPxCgite7vjUZd777HB1rAnwpeYucbxct9WKz2ggJPVB/9cuglLBnrS80lTOhOVdNWFmXdH6Ly9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773135017; c=relaxed/simple;
-	bh=nQ8AFJwvR5OUsBOuBKedxLD969aJf4vk2lwmCGOgvu8=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=r7U2P9n4omIQEY9WJ/6qZSov5af2A+FpoTE5tmeEEdRbNYVNWOwrrpJHDCFw6u2LHfYv0KtNIFIUCMzYlABsp7hqXwFZlms26p1ri3q+8+R5yUbCH1p6ebTB8XBp8HLgDSbn3pjSqxm+DybVrIWLNcb7ZVVhdTd42w15ZZHjjMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hIUHh3w0; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1773141111; c=relaxed/simple;
+	bh=T/LNN9QFEpL+Sn5oAXB89WXMb/FCc6/ZM0k0NrdVFjg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gw5ZkfIjrxuHrFwf3zVpZHARBQkOI+ukK5mSu3Yz40hwllCTWyuTzVMCVWLL7I0wrJGdfv1r8pDz8ZiiTgp7PoQakQ4KPXiz5Wkrad3YwySDWkggOIekBxBb+ZLuvPoeyNUS47LE3UfFR4ZrRKocvfGrteXpid5G4Uxz+OmWDUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f8B94msR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hIUHh3w0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773135016; x=1804671016;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version:content-id;
-  bh=nQ8AFJwvR5OUsBOuBKedxLD969aJf4vk2lwmCGOgvu8=;
-  b=hIUHh3w0XdqsdAE/8JyozcXB05bwdL6ufHYPMqt7aCzbet/TgsURu4yi
-   uX3bCpX5qzzjhtKV9qAV9hpeJPA2OO2VIcTTBWcnr1QYAq86gFbQ0BACX
-   TUSqqsDJHe/PW6A3BpyuNPM7B6LSAPtpX8szP+E0wUNjhbR5cWPrgLvDJ
-   CO6fiLtXhQk8dvqMYNtaQieFygmvwkKWwRLxZWpelHlZth3GbJ9XmyLjS
-   rXqa7uQ5AQLuCJ02tgrP3jc99FVXMQgqvbYiVV7D6rnImLBuNEhnTyOLf
-   dDPYPvSpOvhZ0l1y4brnKUj79+8UBEsGzbEnlbpuL99ZSwJ+GVttQrWFL
-   g==;
-X-CSE-ConnectionGUID: Ec6v+4N3S4OXniBRrHyOSQ==
-X-CSE-MsgGUID: EFfTuh13TumWuxlDGnk1eg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11724"; a="84886259"
-X-IronPort-AV: E=Sophos;i="6.23,112,1770624000"; 
-   d="scan'208";a="84886259"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 02:30:15 -0700
-X-CSE-ConnectionGUID: AuJOtJojRrqCX5lt7KpKuQ==
-X-CSE-MsgGUID: aGNFE+3STzOG7pjxFFOqAA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,112,1770624000"; 
-   d="scan'208";a="224513921"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.55])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 02:30:10 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Tue, 10 Mar 2026 11:30:07 +0200 (EET)
-To: Vishnu Sankar <vishnuocv@gmail.com>
-cc: Mark Pearson <mpearson-lenovo@squebb.ca>, dmitry.torokhov@gmail.com, 
-    hmh@hmh.eng.br, Hans de Goede <hansg@kernel.org>, corbet@lwn.net, 
-    derekjohn.clark@gmail.com, linux-input@vger.kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>, ibm-acpi-devel@lists.sourceforge.net, 
-    linux-doc@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-    vsankar@lenovo.com
-Subject: Re: [PATCH v7 1/3] input: trackpoint - Enable doubletap by default
- on capable devices
-In-Reply-To: <CABxCQKt_1Hv2hPDpzQQ3TxFJWbRNHs-vRDi9hNhBq4oaoGkt3w@mail.gmail.com>
-Message-ID: <8216aaaf-bdaa-2a48-a7de-b0b81d49eda5@linux.intel.com>
-References: <20260209063355.491189-1-vishnuocv@gmail.com> <20260209063355.491189-2-vishnuocv@gmail.com> <fdd1d48e-61b7-2543-8a30-c7ad416f5dd3@linux.intel.com> <CABxCQKtf=RYrpgnbM0ODo3GA0oW3jgR=_erc9RCD6gEasasA+A@mail.gmail.com> <0df2daf8-31ee-4fe3-fc38-de138b302549@linux.intel.com>
- <CABxCQKt_1Hv2hPDpzQQ3TxFJWbRNHs-vRDi9hNhBq4oaoGkt3w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f8B94msR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0DAC19423;
+	Tue, 10 Mar 2026 11:11:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773141111;
+	bh=T/LNN9QFEpL+Sn5oAXB89WXMb/FCc6/ZM0k0NrdVFjg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=f8B94msRYqeTmWqLjrC9/3cA2NhZBREwwgQkdv8rKD2k1jMQpDtVDQ3SsmllXMNLE
+	 RZN9iMUzX9au4iRtrRffe2jp/gdG+4yiaTfUEys99p6zXSWVLDeEk+eSw2lb3dbovZ
+	 wpIdebI0FnBNL9stO9GZbR3Elvy9GOXKm+SH5psamp9scwlVUrVUHWOwFTV2NZhhME
+	 6jtFygHghPXNdcZxC9Rd31aQfrJxDbCJfW+c4vfXVMVKU/XjEpeMI3Rr1eYj9BpiaS
+	 WARdNAU5JN3CLfYgUgBEFjBeDsvpQW18BEUYu04U819v+IoEiTiQXqtkPb6lPRdd2B
+	 kQ28Odh5p2t2Q==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Bastien Nocera <hadess@hadess.net>,
+	linux-input@vger.kernel.org,
+	stable <stable@kernel.org>
+Subject: [PATCH 6.19 113/311] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
+Date: Tue, 10 Mar 2026 07:02:40 -0400
+Message-ID: <cd66bd2824d7220039ce5daf4138f0f09bd0c4b7.1773140655.git.sashal@kernel.org>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <cover.1773140654.git.sashal@kernel.org>
+References: <cover.1773140654.git.sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323328-2011260643-1773134910=:975"
-Content-ID: <4e383c9d-d7d3-1fed-7dce-ab28f9f3cfd7@linux.intel.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
---8323328-2011260643-1773134910=:975
-Content-Type: text/plain; CHARSET=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <a387f5ec-759a-f740-7eee-091e1525fb64@linux.intel.com>
+commit ecfa6f34492c493a9a1dc2900f3edeb01c79946b upstream.
 
-On Tue, 10 Mar 2026, Vishnu Sankar wrote:
+In commit 2ff5baa9b527 ("HID: appleir: Fix potential NULL dereference at
+raw event handle"), we handle the fact that raw event callbacks
+can happen even for a HID device that has not been "claimed" causing a
+crash if a broken device were attempted to be connected to the system.
 
-> Hi Ilpo,
->=20
-> Thank you.
->=20
-> On Tue, Mar 10, 2026 at 6:15=E2=80=AFPM Ilpo J=C3=A4rvinen
-> <ilpo.jarvinen@linux.intel.com> wrote:
-> >
-> > On Tue, 10 Mar 2026, Vishnu Sankar wrote:
-> >
-> > > Hi Ilpo,
-> > >
-> > > Thank you so much for the review.
-> > >
-> > > On Mon, Mar 9, 2026 at 5:01=E2=80=AFPM Ilpo J=C3=A4rvinen
-> > > <ilpo.jarvinen@linux.intel.com> wrote:
-> > > >
-> > > > On Mon, 9 Feb 2026, Vishnu Sankar wrote:
-> > > >
-> > > > > Enable doubletap functionality by default on TrackPoint devices t=
-hat
-> > > > > support it. The feature is detected using firmware ID pattern mat=
-ching
-> > > > > (PNP: LEN03xxx) with a deny list of incompatible devices.
-> > > > >
-> > > > > This provides immediate doubletap functionality without requiring
-> > > > > userspace configuration. The hardware is enabled during device
-> > > > > detection, while event filtering continues to be handled by the
-> > > > > thinkpad_acpi driver as before.
-> > > > >
-> > > > > Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
-> > > > > Suggested-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-> > > > > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > > ---
-> > > > > Changes in v7:
-> > > > > - Removed unwanted comments
-> > > > > - Removed psmouse_info ()
-> > > > >
-> > > > > Changes in v6:
-> > > > > - No Changes
-> > > > >
-> > > > > Changes in v5:
-> > > > > - Renamed function to trackpoint_is_dt_capable()
-> > > > > - Simplified string comparison without sscanf()
-> > > > > - Removed wrapper function as suggested
-> > > > > - Fixed missing period in comment
-> > > > >
-> > > > > Changes in v4:
-> > > > > - Simplified approach: removed all sysfs attributes and user inte=
-rface
-> > > > > - Enable doubletap by default during device detection
-> > > > > - Removed global variables and complex attribute infrastructure
-> > > > > - Uses minimal firmware ID detection with deny list
-> > > > > - Follows KISS principle as suggested by reviewers
-> > > > >
-> > > > > Changes in v3:
-> > > > > - No changes
-> > > > >
-> > > > > Changes in v2:
-> > > > > - Improve commit messages
-> > > > > - Sysfs attributes moved to trackpoint.c
-> > > > > - Removed unnecessary comments
-> > > > > - Removed unnecessary debug messages
-> > > > > - Using strstarts() instead of strcmp()
-> > > > > - is_trackpoint_dt_capable() modified
-> > > > > - Removed _BIT suffix and used BIT() define
-> > > > > - Reverse the trackpoint_doubletap_status() logic to return error=
- first
-> > > > > - Removed export functions as a result of the design change
-> > > > > - Changed trackpoint_dev->psmouse to parent_psmouse
-> > > > > - The path of trackpoint.h is not changed
-> > > > > ---
-> > > > >  drivers/input/mouse/trackpoint.c | 45 ++++++++++++++++++++++++++=
-++++++
-> > > > >  drivers/input/mouse/trackpoint.h |  5 ++++
-> > > > >  2 files changed, 50 insertions(+)
-> > > > >
-> >
-> > > > > diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mou=
-se/trackpoint.c
-> > > > > index 5f6643b69a2c..e12d76350252 100644
-> > > > > --- a/drivers/input/mouse/trackpoint.c
-> > > > > +++ b/drivers/input/mouse/trackpoint.c
-> >
-> > > > > +     /* Must start with "PNP: LEN03" */
-> > > > > +     if (!strstarts(pnp_id, "PNP: LEN03"))
-> > > >
-> > > > Missing include.
-> > >
-> > > Sorry, I am a bit confused here:
-> > > strstarts() is already available through the existing
-> > > #include <linux/string.h> in thinkpad_acpi.c.
-> > >
-> > > Do you think I should do anything else here?
-> >
-> > Yes.
-> >
-> > The file you're modifying in this patch is trackpoint.c which doesn't
-> > have that include so please add it also there. :-)
-> Aaah, Sorry!!. Got it.
-> I=E2=80=99ll add the missing #include <linux/string.h>
-> Thank you for pointing it out.
+Fix up the remaining in-tree HID drivers that forgot to add this same
+check to resolve the same issue.
 
-Thanks. Please also double check you added inux/array_size.h into the=20
-correct file in case you were confused what file this patch modifies.
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
+Cc: stable <stable@kernel.org>
+Assisted-by: gkh_clanker_2000
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/hid-cmedia.c          | 2 +-
+ drivers/hid/hid-creative-sb0540.c | 2 +-
+ drivers/hid/hid-zydacron.c        | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---=20
- i.
---8323328-2011260643-1773134910=:975--
+diff --git a/drivers/hid/hid-cmedia.c b/drivers/hid/hid-cmedia.c
+index 528d7f3612157..8bf5649b0c793 100644
+--- a/drivers/hid/hid-cmedia.c
++++ b/drivers/hid/hid-cmedia.c
+@@ -99,7 +99,7 @@ static int cmhid_raw_event(struct hid_device *hid, struct hid_report *report,
+ {
+ 	struct cmhid *cm = hid_get_drvdata(hid);
+ 
+-	if (len != CM6533_JD_RAWEV_LEN)
++	if (len != CM6533_JD_RAWEV_LEN || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		goto out;
+ 	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
+ 		goto out;
+diff --git a/drivers/hid/hid-creative-sb0540.c b/drivers/hid/hid-creative-sb0540.c
+index b4c8e7a5d3e02..dfd6add353d19 100644
+--- a/drivers/hid/hid-creative-sb0540.c
++++ b/drivers/hid/hid-creative-sb0540.c
+@@ -153,7 +153,7 @@ static int creative_sb0540_raw_event(struct hid_device *hid,
+ 	u64 code, main_code;
+ 	int key;
+ 
+-	if (len != 6)
++	if (len != 6 || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		return 0;
+ 
+ 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
+diff --git a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
+index 3bdb26f455925..1aae80f848f50 100644
+--- a/drivers/hid/hid-zydacron.c
++++ b/drivers/hid/hid-zydacron.c
+@@ -114,7 +114,7 @@ static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	unsigned key;
+ 	unsigned short index;
+ 
+-	if (report->id == data[0]) {
++	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
+ 
+ 		/* break keys */
+ 		for (index = 0; index < 4; index++) {
+-- 
+2.51.0
+

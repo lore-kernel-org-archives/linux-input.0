@@ -1,94 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E84BD33A717;
-	Tue, 10 Mar 2026 18:55:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9BAE1547C0;
+	Tue, 10 Mar 2026 19:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773168937; cv=none; b=fGxl24RCK5QU29tWgJmgdXUuIybi4PqmYf3cKfAi8SnGH/mOP1CsQtoRw0QsP/WmnOoKpfbk/J7rMJvY0e8J3Hk4InAUSHDxhIUl5dlZ9dKu5i3FtA4ZU5eOXl2dj6S2+15gMjhRLCjxsBew1yP6dFRuT9R62e7hFw6YXrdhO6k=
+	t=1773170313; cv=none; b=eqcugIyjDgvmdecp4rfM+4tjsa72EQuR6DSmzDB5YUHKVc/8MLYtATxUNlbgIMVVk29x20RBcCBbbw44erMYdSq49arUclNQWaJFSxwYVH6A7zhsuGbNxdvWuqYofjk4vkqSosUBDg1mxVQvc5ifsMrAkjm5eUmTBjv0geUBwTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773168937; c=relaxed/simple;
-	bh=6IDe7hZa5b+miIWw+pcE9ZT8CXmolnXKy2LwlhEY6+U=;
+	s=arc-20240116; t=1773170313; c=relaxed/simple;
+	bh=xcdQ7ftwUAonmlIubDJUO2exQTONEx2whkAN5AV9mXY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nlsuGmhyut2soCTJ5gET9x9yM3giwzs1NuWoXV9ps0BivSmMtEukYrjIj7O/TCC3AdYKpllzfTmKUEabMbWpZCkOG3/+E1zdtVwNyC/vOL9s4UPJj1NvqdPiyye4mD+xJvQx/TGzy0o3EETwi27TiuQ6hEgQi1FM8RoC++02SKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kMR1WPOS; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=amMhSsC5BpKPUviWuaDmTFr3ad0U88cmvJTcMHDDQhigdCPlezikXEKn3e+CITn2mcfaKEqO4fHPY+lhjUYchZFRdoBmM1q6USW/OV+f99RvgatW6vfrcjfhEwu8+sCbzLEs0AOVubynt8gwXg0XEbS6NEQDscLkaEsvfAg9AQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OgdQwh9Y; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kMR1WPOS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 696B4C19423;
-	Tue, 10 Mar 2026 18:55:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773168936;
-	bh=6IDe7hZa5b+miIWw+pcE9ZT8CXmolnXKy2LwlhEY6+U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kMR1WPOSFyk9HcYOmORWoyOlpg4CxvvWzANqWpT/VXALBZ1WO536uVfK55TkUTdWh
-	 GiW3gM6VsPiNOe1NdGOpWDQpX38/u9e7zpxCaUsYT3O5qquPzxOVMlZwgbkrfGBwRC
-	 Ufti3m0zL086uOasAh5EaMfH6GYEMT7SFzSUHAvTmXkMBOUisY2Y/kcLBDgv03qlEB
-	 6izryZgbQRdmKdrl/a3teGxXRDN2QCIyLc+gpAn7q6vrBZfUt6sVhS+1tSvmpxTL2K
-	 YADHKhS4jrYRw6XJY9rWQsL44CAR49R8bBbKOg/yXHV2Z8IXIiQno/qBY0g4Ht9/6B
-	 dtPzGGPCvH8Ow==
-Received: by pali.im (Postfix)
-	id 93D11BCC; Tue, 10 Mar 2026 19:55:32 +0100 (CET)
-Date: Tue, 10 Mar 2026 19:55:32 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 60/61] Input alps: Drop unlikely() around IS_ERR_OR_NULL()
-Message-ID: <20260310185532.htsq3koov6f4nhzn@pali>
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
- <20260310-b4-is_err_or_null-v1-60-bd63b656022d@avm.de>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OgdQwh9Y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773170312; x=1804706312;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=xcdQ7ftwUAonmlIubDJUO2exQTONEx2whkAN5AV9mXY=;
+  b=OgdQwh9Yiut7P+6LU45bTw+SVpI3a76YElTSTaXDYQn+M2wczG/JyruP
+   bZ53IQGmU4RFHgVQ7ifh9K9KJx6f+9nmJEvefmuqJLzOu2taorXA1Ieh/
+   iMi4+VRHOEt6IDANAVh7SUZEH0tdEMkgyHAZBR0ga3kZACbeT8w0c3gj6
+   iL7Hc8IUNj9oqfFfXKshaEHtHP04e4bhUdCFy3RRhk6h3Vl0460T1pXSR
+   KtZDk21iW84kBY3ZXgm55tT0q4VzTEmmGzGg+8YNaLNdYUWI4NdOS5c2O
+   j8o1PmHlH1mQP55jofiLW2O0huoMdf1MtAH2opUbiHKodO7ICRmyeWxiq
+   w==;
+X-CSE-ConnectionGUID: r9mlkO+ISSS7N7lkw0Bajw==
+X-CSE-MsgGUID: XbFAWlguROyd1Ddzm/xVoA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11725"; a="77833323"
+X-IronPort-AV: E=Sophos;i="6.23,112,1770624000"; 
+   d="scan'208";a="77833323"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 12:18:32 -0700
+X-CSE-ConnectionGUID: 1b+o1Bi+StapWP0nj7nQpw==
+X-CSE-MsgGUID: i7vlGp/0RdKlly7MEgNErQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,112,1770624000"; 
+   d="scan'208";a="220396741"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.54])
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 12:18:26 -0700
+Date: Tue, 10 Mar 2026 21:18:25 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hugo Villeneuve <hugo@hugovil.com>, robin@protonic.nl, andy@kernel.org,
+	geert@linux-m68k.org, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, hvilleneuve@dimonoff.com,
+	mkorpershoek@kernel.org, matthias.bgg@gmail.com,
+	angelogioacchino.delregno@collabora.com, lee@kernel.org,
+	alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v4 4/4] Input: charlieplex_keypad: add GPIO charlieplex
+ keypad
+Message-ID: <abBugQOUWG_FTs4f@ashevche-desk.local>
+References: <20260305192101.2125660-1-hugo@hugovil.com>
+ <20260305192101.2125660-5-hugo@hugovil.com>
+ <aari1Y1CPZSYEVj3@ashevche-desk.local>
+ <abBkk4Ng-_MDHd6t@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260310-b4-is_err_or_null-v1-60-bd63b656022d@avm.de>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <abBkk4Ng-_MDHd6t@google.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Tuesday 10 March 2026 12:49:26 Philipp Hahn wrote:
-> IS_ERR_OR_NULL() already uses likely(!ptr) internally. checkpatch does
-> not like nesting it:
-> > WARNING: nested (un)?likely() calls, IS_ERR_OR_NULL already uses
-> > unlikely() internally
-> Remove the explicit use of unlikely().
+On Tue, Mar 10, 2026 at 06:37:34PM +0000, Dmitry Torokhov wrote:
+> On Fri, Mar 06, 2026 at 04:21:09PM +0200, Andy Shevchenko wrote:
+> > On Thu, Mar 05, 2026 at 02:20:50PM -0500, Hugo Villeneuve wrote:
+
+...
+
+> > > +	int oline;
+> > 
+> > Why signed?
+> > 
+> > > +	int code;
+> > > +
+> > > +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
+> > 
+> > Can be like
+> > 
+> > 	code = 0;
+> > 	for (unsigned int oline = 0; oline < keypad->nlines; oline++) {
+> > 
+> > as iterator is not used outside the loop.
+> > 
+> > > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
+> > 
+> > > +		int iline;
+> > 
+> > Why signed?
 > 
-> Change generated with coccinelle.
+> Does it make any difference given practical limits on nlines?
 
-Hello, exactly same patch was sent to the list more times and was rejected.
+Maybe not, but might lead to interesting bugs in the future in case if used in
+some arithmetics.
 
-The last attempt was here:
-https://lore.kernel.org/linux-input/1570869407-41262-1-git-send-email-zhengbin13@huawei.com/t/#u
+-- 
+With Best Regards,
+Andy Shevchenko
 
-And the previous one with discussion and explanation is there:
-https://lore.kernel.org/linux-input/1566298572-12409-2-git-send-email-info@metux.net/t/#u
 
-> To: "Pali Rohár" <pali@kernel.org>
-> To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
-> ---
->  drivers/input/mouse/alps.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index f3d3b6b4e02d798e75a90333ace72a367befdbac..82e11efad7f7f02b4aaefde340f9b71fa792cf6b 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1482,7 +1482,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
->  		/* On V2 devices the DualPoint Stick reports bare packets */
->  		dev = priv->dev2;
->  		dev2 = psmouse->dev;
-> -	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
-> +	} else if (IS_ERR_OR_NULL(priv->dev3)) {
->  		/* Register dev3 mouse if we received PS/2 packet first time */
->  		if (!IS_ERR(priv->dev3))
->  			psmouse_queue_work(psmouse, &priv->dev3_register_work,
-> 
-> -- 
-> 2.43.0
-> 

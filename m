@@ -1,46 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE6243E4B8;
-	Tue, 10 Mar 2026 09:02:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 868C044CAF3;
+	Tue, 10 Mar 2026 09:02:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773133330; cv=none; b=phS/WjAHjxovPnnUlPZkYbTVgm31VSt5Zd5C1Z05bwDw1iJQOmQkGUKLrA363M1oqoLgY0Z3nUSZeohZSStVW6V4LlrNGPWNpjVW/hXn1xRvd1GNqkmmavAlQDSGW5Ifk7O1sGP2X5VwEB6CG2u/yQGDh7MrXQFWaroiv+/6hok=
+	t=1773133333; cv=none; b=S1qLaxo9Lp0+NYbVxoCPUqI8b64fNIRk/kN8V4SRn6fiOavLMvzXrpp8nrzCmAzZl5AiLbruP1/6MNbYSjG+77xz1TyLTwukeneUgQqMmHwrqjmiPnf9nPVCcl8oWA058oHIltUNGV+rYzwcMpKLR87u06H1Mc90tEZUP/cW0yA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773133330; c=relaxed/simple;
-	bh=V870Fjn81zA8yB5HaZNIHH8mBMjWxvboo4YRoIuwroY=;
+	s=arc-20240116; t=1773133333; c=relaxed/simple;
+	bh=evhKPyU7Sb5O7u9HZt6apms9Tl1WZKdf1tbga43qqzw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XuhbLLHJ+xTkvrZUPZoVHxmy7ffMgQB7ir7tMfvZYXT1aNrmEyqtWFRUGRtu3Gvzde0u0MPfF0gHYDr5r/+Ffqzymyj9cA2ocbv5jfgsUw+B9V70QQu2i9S4EyL0C0yIIJkOYqe+CjNnlSLg9dV7r4gmmhw4V0boECRVbsPriiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qz3ZRYwt; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=u8ro1k4TArOQ2s53CbNon0WO0OrxQ5SKhT9equvBmJUIqSComY0kbg+A1EDXi1xTsa1bigcm002pYDgwhgsPJMq2HoaGFTDoJ9ht+9yp532dTHdqtGQ1iaW477n30ybXclaSKP/RqokyWg24zFgEdEcdVf9ndsH/2QQrUzXVuNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rV6MmcyS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qz3ZRYwt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 708DAC2BC9E;
-	Tue, 10 Mar 2026 09:02:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rV6MmcyS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C5E9C2BC87;
+	Tue, 10 Mar 2026 09:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773133330;
-	bh=V870Fjn81zA8yB5HaZNIHH8mBMjWxvboo4YRoIuwroY=;
+	s=k20201202; t=1773133333;
+	bh=evhKPyU7Sb5O7u9HZt6apms9Tl1WZKdf1tbga43qqzw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=qz3ZRYwtY6kWZfMAXnwhKa0d8dkX2q9XMXXW9qsSy6kYUVUg9SZAVsoYCmx03Nmo/
-	 cfnXQCbeTJPx+QjJzI4rB+v6yWAByQhTCF8NxmvPRAwtoKoupjgZ+Hp7Asi4mKc3FD
-	 3hARRzsBi2D7zWzfYFT1oXVerZKLn0iF1UVM0ngwQ4q5Ex8hUo42D2BvpHPynL+Zt5
-	 WJMU1oVfIgGkaudUDj5vyaHYoMCnmNuV6HjvMFkPxicbiJHtrMvgZiR1yaIfvIDTAz
-	 U2579wGn0YDB7yO0f//qLPOOo9V1HpdcfH2bIzGAiR1u15ZzdrlnadvECIoITLqDvE
-	 FpPowiDece8bg==
+	b=rV6MmcySTlugw6/Jt8UMLLY6nB0Xq7s0ZvUVsnrX4oyEsPOwenJasQnpvzrbA/Hjl
+	 3QCQeG/7IBxnEqQUIEq/pmO2TDOVXnGRNutzQrGG4WYunyqXMeJhZqUCy+97YtFx4i
+	 BtEeSEzTQgcWsCcVVhftvNGdD437aellmaZlBVriiEQ5yrjgnpWY1AB59HQtyAriJL
+	 F9Tk/3K2cevcKEG7q11bnlnJ9FoGK9Uh9VwIxns4xU2j/ANd/OMUARDGTBsuH04//6
+	 Kylc4112nrTK7tpalNlmcAi9VBUMaa7mFF0Ei1KyBb5Nb7qSXsiT2jnBEbuN9kXngb
+	 pcpGbjzo/aAlQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Romain Sioen <romain.sioen@microchip.com>,
-	Jiri Kosina <jkosina@suse.com>,
+Cc: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
-	gupt21@gmail.com,
 	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-5.10] HID: mcp2221: cancel last I2C command on read error
-Date: Tue, 10 Mar 2026 05:01:16 -0400
-Message-ID: <20260310090145.2709021-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-5.10] HID: asus: avoid memory leak in asus_report_fixup()
+Date: Tue, 10 Mar 2026 05:01:18 -0400
+Message-ID: <20260310090145.2709021-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260310090145.2709021-1-sashal@kernel.org>
 References: <20260310090145.2709021-1-sashal@kernel.org>
@@ -50,118 +47,156 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.19.6
 Content-Transfer-Encoding: 8bit
 
-From: Romain Sioen <romain.sioen@microchip.com>
+From: Günther Noack <gnoack@google.com>
 
-[ Upstream commit e31b556c0ba21f20c298aa61181b96541140b7b9 ]
+[ Upstream commit 2bad24c17742fc88973d6aea526ce1353f5334a3 ]
 
-When an I2C SMBus read operation fails, the MCP2221 internal state machine
-may not reset correctly, causing subsequent transactions to fail.
+The asus_report_fixup() function was returning a newly allocated
+kmemdup()-allocated buffer, but never freeing it.  Switch to
+devm_kzalloc() to ensure the memory is managed and freed automatically
+when the device is removed.
 
-By adding a short delay and explicitly cancelling the last command,
-we ensure the device is ready for the next operation.
+The caller of report_fixup() does not take ownership of the returned
+pointer, but it is permitted to return a pointer whose lifetime is at
+least that of the input buffer.
 
-Fix an issue where i2cdetect was not able to detect all devices correctly
-on the bus.
+Also fix a harmless out-of-bounds read by copying only the original
+descriptor size.
 
-Signed-off-by: Romain Sioen <romain.sioen@microchip.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+Assisted-by: Gemini-CLI:Google Gemini 3
+Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-Now I have a complete picture. Let me summarize the analysis.
-
 ## Analysis
 
-### What the commit fixes
+### Problem Description
 
-The MCP2221 is a USB-to-I2C/UART bridge chip. When an I2C SMBus read
-operation exhausts its 5 retries (meaning the device didn't become
-ready), the function `mcp_i2c_smbus_read` previously returned the error
-immediately without cleaning up the device's internal state machine.
-This left the I2C bus in a stuck state, causing subsequent I2C
-transactions to fail.
+The `asus_report_fixup()` function in `drivers/hid/hid-asus.c` had a
+memory leak in the `QUIRK_T100CHI | QUIRK_T90CHI` path. The buggy code
+used `kmemdup()` to allocate a new report descriptor buffer, but this
+buffer was never freed by anyone:
 
-The fix adds two lines before the error return:
-1. `usleep_range(980, 1000)` - a small delay needed by the device
-2. `mcp_cancel_last_cmd(mcp)` - sends a cancel command to reset the
-   device state and free the I2C bus
+**The leak mechanism (verified by reading hid-core.c:1285-1307):**
+1. Caller allocates `buf` via `kmemdup()` (line 1291)
+2. Caller passes `buf` to `report_fixup()` (line 1296)
+3. The old `report_fixup()` returned a *new* `kmemdup()`'d pointer,
+   discarding `buf`
+4. Caller does `start = kmemdup(start, size, ...)` — making *yet another
+   copy* (line 1303)
+5. Caller does `kfree(buf)` — frees the original, but NOT the
+   intermediate kmemdup from report_fixup()
+6. The intermediate buffer is **leaked**
 
-### Is this a real bug fix?
+### Fix Analysis
 
-Yes. The commit message explicitly states this fixes a real-world issue:
-`i2cdetect` was unable to detect all devices on the bus. This is a
-functional bug where failed reads leave the MCP2221 in a bad state,
-breaking subsequent operations.
+The fix is small (11 insertions, 4 deletions) and does three things:
 
-### Pattern consistency
+1. **Switches from `kmemdup()` to `devm_kzalloc()`**: Ties the
+   allocation to the HID device lifetime, so it's automatically freed on
+   device removal. This eliminates the leak.
 
-The fix follows the **exact same pattern** already used in two other
-places in the same driver:
-1. `mcp_chk_last_cmd_status_free_bus()` (line 225-226):
-   `usleep_range(980, 1000)` + `mcp_cancel_last_cmd(mcp)` on error
-2. `mcp_set_i2c_speed()` (line 244-245): same pattern on error
+2. **Fixes error handling**: Old code returned `NULL` on allocation
+   failure, which the caller doesn't handle well. New code returns the
+   original `rdesc`, matching the pattern already used by
+   `QUIRK_G752_KEYBOARD` in the same function.
 
-This is simply adding the same established error recovery to a path that
-was missing it.
+3. **Fixes out-of-bounds read**: Old code did `kmemdup(rdesc, *rsize,
+   ...)` where `*rsize` was already set to `rsize_orig + 1` (one byte
+   larger than the actual descriptor). New code does `memcpy(new_rdesc,
+   rdesc, rsize_orig)`, copying only the valid data.
 
-### Scope and risk
+### Stable Criteria Assessment
 
-- **2 lines added** - extremely small and surgical
-- **No behavioral change** on the success path
-- Only affects the error path after all 5 retries are exhausted
-- Uses well-established functions already present in the driver
-- Low risk of regression - the alternative (not cancelling) is already
-  broken
+- **Fixes a real bug**: Yes — memory leak on every T100CHI/T90CHI
+  keyboard report descriptor parse
+- **Obviously correct**: Yes — follows the identical pattern used by
+  QUIRK_G752_KEYBOARD in the same function (verified in the diff
+  context)
+- **Small and contained**: Yes — 15 lines changed in a single file
+- **No new features**: Correct — pure bug fix
+- **Bug has existed since 2017**: Commit 73c75d3958579 introduced
+  T100CHI support with the buggy `kmemdup()` pattern, present in all
+  stable trees
 
-### Stable criteria assessment
+### Risk Assessment
 
-- **Obviously correct**: Follows the same pattern used elsewhere in the
-  driver for the same purpose
-- **Fixes a real bug**: I2C bus gets stuck, preventing device detection
-- **Small and contained**: 2 lines added, single file, single error path
-- **No new features**: Just error recovery
+**Very low risk.** The fix:
+- Follows an existing pattern already proven in the same function
+  (QUIRK_G752_KEYBOARD)
+- Only affects ASUS T100CHI and T90CHI hardware
+- The devm_kzalloc lifetime (device lifetime) is correct since the
+  caller copies the returned data immediately
+- No dependencies on other commits
 
 ### Verification
 
-- git log confirmed this is commit b4664742e46dc, merged recently
-- Read the full `mcp_cancel_last_cmd()` function at line 204-211: sends
-  `MCP2221_I2C_CANCEL` to reset device state
-- Read `mcp_chk_last_cmd_status_free_bus()` at line 216-230: confirms
-  the same `usleep + cancel` pattern is established
-- Read `mcp_set_i2c_speed()` at line 232-249: confirms the same pattern
-  in a third location
-- The fix is self-contained with no dependencies on other commits
-- The `mcp_cancel_last_cmd` function has existed since at least v6.1
-  (introduced with the read refactoring), so it's available in stable
-  trees
-- Author is from Microchip (the chip vendor), adding credibility to the
-  fix
+- **Verified caller behavior**: Read `hid-core.c:1285-1307` — confirmed
+  the caller does `kmemdup()` of the returned pointer then `kfree(buf)`,
+  meaning any new allocation from `report_fixup()` is leaked
+- **Verified the existing devm_kzalloc pattern**: The
+  QUIRK_G752_KEYBOARD block in the same function already uses
+  `devm_kzalloc` with the same allocation + `return rdesc` on failure
+  pattern
+- **Verified bug age**: `git log --oneline` showed commit
+  `73c75d3958579` (2017-08-04) introduced the T100CHI support with
+  `kmemdup()`, confirmed present in stable trees via `git tag
+  --contains`
+- **Verified commit SHA**: `git show 5dc6c17c16935` confirmed the commit
+  matches the diff under review, with upstream commit `2bad24c17742f`
+- **Verified the OOB read**: Old code set `*rsize = rsize_orig + 1`
+  BEFORE `kmemdup(rdesc, *rsize, ...)`, reading one byte past the
+  original descriptor — confirmed by the diff context showing the order
+  of operations
+
+This is a clear, small, low-risk fix for a real memory leak (and minor
+OOB read) in a HID driver, following an established pattern already in
+the same function. It meets all stable kernel criteria.
 
 **YES**
 
- drivers/hid/hid-mcp2221.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-asus.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 33603b019f975..ef3b5c77c38e3 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -353,6 +353,8 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 				usleep_range(90, 100);
- 				retries++;
- 			} else {
-+				usleep_range(980, 1000);
-+				mcp_cancel_last_cmd(mcp);
- 				return ret;
- 			}
- 		} else {
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 472bca54642b9..8487332bf43b0 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1306,14 +1306,21 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		 */
+ 		if (*rsize == rsize_orig &&
+ 			rdesc[offs] == 0x09 && rdesc[offs + 1] == 0x76) {
+-			*rsize = rsize_orig + 1;
+-			rdesc = kmemdup(rdesc, *rsize, GFP_KERNEL);
+-			if (!rdesc)
+-				return NULL;
++			__u8 *new_rdesc;
++
++			new_rdesc = devm_kzalloc(&hdev->dev, rsize_orig + 1,
++						 GFP_KERNEL);
++			if (!new_rdesc)
++				return rdesc;
+ 
+ 			hid_info(hdev, "Fixing up %s keyb report descriptor\n",
+ 				drvdata->quirks & QUIRK_T100CHI ?
+ 				"T100CHI" : "T90CHI");
++
++			memcpy(new_rdesc, rdesc, rsize_orig);
++			*rsize = rsize_orig + 1;
++			rdesc = new_rdesc;
++
+ 			memmove(rdesc + offs + 4, rdesc + offs + 2, 12);
+ 			rdesc[offs] = 0x19;
+ 			rdesc[offs + 1] = 0x00;
 -- 
 2.51.0
 

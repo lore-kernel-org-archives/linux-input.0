@@ -1,64 +1,64 @@
 Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34BC73EB7FE
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D8163E958C
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773127790; cv=none; b=N2+MBgPudWbrjGCpxu23MymbvA91TrAS0yg08OQeIQE64pA0Uv6In40pC72DStpLbF/CJ7n1aq1T+mywtgkQT2dg6ExPTDELzLL8zjgtvUuckjGmJeHmt+nb+QTCZP9P1iIvyGzRYIm36wHqcp7oxqjdus0uQlBuJaxASN5x/Ok=
+	t=1773127791; cv=none; b=p6NhhHTMmq5W8wt4V2oXnFQO2d2QJvnJAbFZOhF2MA4k/V6byFoweoDaSoY346gtsopPZbpIdMdMK4iOy1W8TI22QiiFuXq2iVg756RVWf2f+2kJbP+3aD7IfSgc8RFCDpCRlpAI5koJaOwBj0NUGm5EKrXGde7uKoF4cYJPWtM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773127790; c=relaxed/simple;
-	bh=NEydfPX1MKHXnp0TzXwbq3IncMdTuoZl+H2qWySbXdM=;
+	s=arc-20240116; t=1773127791; c=relaxed/simple;
+	bh=FqJg3tER+3ZakLbAqodEwX5qMpqX5ohA1t7cv/evT/s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Kap/T15c++e8WrspiyY2H51W55T5yHf3UgXiPat/6hz5tpj/o5zgMbKCv1HTjMfjdZk53FltQLlzBqWYCAekUCMs2kEPu99AGylNqgpfmDZLaHDkiwbZ46Ru+PFjDDdvyp07pfDEzoZvFoosRA1KF//kmTzKBc9doAwtbecLa7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DtBQl6lA; arc=none smtp.client-ip=74.125.82.170
+	 MIME-Version; b=UXjpEUdubGm53cXX//u6TaGwkdJsUxruZsJ/64mVjd84MOsSRcaOikhsGYK/29Ah/yRDJmDgdhpZgihvuab1dPQCjf/ZIMhstaMyHzkQfoiMOl3LNuepuNAAvutLdBK6j1X4KE6ETrtNm+dru1Mf3yJZ+ewEiUm5ENrgtPaOK58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ke85yFH0; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DtBQl6lA"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2be1ab1fa7dso5595013eec.0
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ke85yFH0"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2bd9a485bd6so8959726eec.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773127788; x=1773732588; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773127789; x=1773732589; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JzHNIoMecUVi7e1tRe6uwCQE+PdFWX4mR56jJmSKFks=;
-        b=DtBQl6lAb54ZZWvEcHQjCYBjNRhfgCMxX5raDs6tjmjbyPqNdt8q/G/iES5t9vejP7
-         gX6Ym/ez9ikmyCXEAfxDixeyyukJGjbAFAfa7dPySElaG31rBabCMyAxwC7UKlW3fq9Q
-         JdFJPDZFF22qeO4SX2C9xozKOFzXDk7Y823xBrp8V4NffmdJhb+lS6dFua3iw5ciUx67
-         fNAYS70xE2WIEQwkIAad/zoSMtrNH4FVS5oFkrNkA5+q+xCu9AZcMv0D95LFkuyUne79
-         m8bD6oaB/NmtJWfQOhYt64KSM9IckguDyX51HnukGN0mpQXwtgx3qOT1kGFZkuGHaOAp
-         mzDQ==
+        bh=rfIfejfLL8bAkAX0LN1/a1iIMrdC2id01EppEdgKGLI=;
+        b=ke85yFH0OglxdcpWrXuZso0k+xZp+5KO3yAfeNuPzEzGmhyD/rECSg6uJ2jXstAnc8
+         f+hEDxHbKyvz7es7Ct1P9d8r2A8Ht4wQ7bTIyWGwoGU8+/y5KT4HvoENd2AtpNxMc8tE
+         n23gMWIeHV+f4CXpIpa8VNr/KI2MJ01LSnrwAIwUk19JCn26lFU40F4+Ms1rbdBDGGOS
+         VhqiTs0UitWevlNtJJX1xFQSRp8Zx/QWxU9E6N1w7qGisoGruxIS3+gmoaueqbZCN2EK
+         9qvm1yFa5yPX5n1lUKGvPIEa/WAWt28vtbdr1w3Xj7qDHBH6/I7puE/EvN/puo5wvgR3
+         qnNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773127788; x=1773732588;
+        d=1e100.net; s=20230601; t=1773127789; x=1773732589;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=JzHNIoMecUVi7e1tRe6uwCQE+PdFWX4mR56jJmSKFks=;
-        b=KmR6hqik84O7ltwdmEVEgXluISZ/v5yo9noppR1XFaDPX1bDCQl6KWVoufdnEOApkw
-         wjU93jc3GAf0lRwtjHSOKhtFxMkno+zlRuwSZ6YNKbD+0OWjFop4uMNmD/bSXeBYZxRs
-         w3CNtgPVGwB8xHhfjHfHjdsgBpfotxnb/N2G6iKx2GMdv/DQbNG4gswP96SuJDs6Up3x
-         vTPsmbgAfKcO4OzbV8YWR8nvvA9eIXjmRobS0gnHmfq+f++pCLiexyng95Gv6MjWtikW
-         K7f8tL7QM4Njxzg4CKhaP8pzxFhKlCAkDG3H6sUyHITrUOAxtRLOVqI8/Tcio2Vme6x7
-         nJmw==
-X-Forwarded-Encrypted: i=1; AJvYcCUakJGn7Pi9/hSBhutM6AqKhm3gnTNdSq4SA7VIF3h9pUUGBhyf+0Z9jAdAOBoEnTCz+msF5oSapX8Xfw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyxAwUGfHDsb/uSQTYuwwtSxREnfqbobfluuE6JRLJFtrLxQ1ZH
-	k3SDXlWhiZ4dgtnn0nKrAfKJ+vT6zXweFL+EaiTLFfDtVdpKadATaLYV
-X-Gm-Gg: ATEYQzw0IR7fPRpewSGlVR5GCKqNj9peQdmKwWB1c3AcljHkU//zH3J1mroUabXcjXm
-	iJXJVt2s1xp/Qol8zXsi8wgYMarDMgWdN10z4w1gVxjy200Q47jx2wY/d79Jws8RHh2FiFDcnoF
-	gRl9HRuQtqiCrgimDRrHcRzQWk+WCIBGFp0KBUIKVoia68sQUryNAtjlz/Aw8WXMSqE5CtgoE0f
-	7Ml8seY1FAgxaM48NWbXOpvQYrm2ikKo07EEAt2RjCPCYTmI75SNTXdBK5La3EH1ij4E5+IOLkQ
-	b+zO9P2aAYrgS6mtGGcQ1zPGYl9rd2ryrRfslssLQf+jS55dGCiv805uqQt7/y88EG4s2adPZHq
-	Il7LhhzxpCJyN5Le9H1v5ExI4uOTBeJQ/lUnAGJPSsUT7Yvs5vgGE6daLfYRIo0pzCSAUDTGqlk
-	OycnIEsKmKASBwvxupvANdawf6xM2neKZSZ8NGwevMKe9kNglDJsYieuLsXdzXcaiaRnXAk+Fs+
-	qiHGQhbWzhb574=
-X-Received: by 2002:a05:7301:4198:b0:2b7:ff39:3123 with SMTP id 5a478bee46e88-2be4de96afemr5712913eec.9.1773127788338;
-        Tue, 10 Mar 2026 00:29:48 -0700 (PDT)
+        bh=rfIfejfLL8bAkAX0LN1/a1iIMrdC2id01EppEdgKGLI=;
+        b=idgu18VPt054G43XI+glT2qq5RFLxfyVdeZar9rq2Lsh011v3C7yKh5KtqQvkpI8yz
+         txakPkWVjuwrxglnd/B8ORe4aP3HfaPdlGceG5xTnOv8rCMqoNei22WJqnYv2mfCu23D
+         CW08+TUj9YEnK5rvR/wPYCBpVSNUmHCNwau0KjVVRkQTZnvIPPpALnMyXeMQC+yiHY1n
+         26ZKlfiW9mdOMrSdQoBAjZ64S1UtJwSNv/xy3ABjvZgfqu7IB8e21Xwj4bYCTmZoQwjd
+         PZ+cwIy0AHimg/fCOHsqYZje53OPzjbjGBxjfell1KjBw4CX5Nd3LL1Bk+D8Y+2L3r7B
+         gqcQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXHmxyUUguq85IpxoWeSRPr3tMm6lax+ZkoToSioEDtPPfPov2fJ4W1cShQw3mb4AQGc9VmCkhBfGoRHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOAZR5YgZIyVHjD2JGDK32NU3YoYcUAIL4QFRM5lo539VZ6kft
+	5w4Pc8STmxUomcsbAxzCMK26q5h8ul23gYkJcxqsvTFz3xwHdU8EvwH9
+X-Gm-Gg: ATEYQzxPruyoPLLnts3jecFwmL2DUvri0jBExJenUUv9mGkyyrxVGwhj7PtlI0ihtJ2
+	IxY8HDvpFKi8F6IPmRJLxy0eE8RGP1esXBJIjvD2m1Bs5+fj2oZv41S1bHqAPImtmvAlfVH5bQ1
+	dbuNDYTvIxptCfEkXipfUTex87tccDHV4orLBRzi4/LSsBpccs/BpbqdP4RpGjIAAlqL1yZYURr
+	JLwTvSlzeLITUrD4ffJWetxO09HX529ae75+5g32VY1WVo0FHuQlzuxV4qgAjh8FsWhOEEfPn+U
+	fZCCYfWdACDR7YuWsDHVbFhifPwzx1CK5lKfnbiWhnzCq66cjT1UO7anMeNca2FPjSfwN5KwZR0
+	WTmaRFKyyRX9G9gnSMXf+4M/kI3RMjdFJamz94Lxx8EvSWJmRmQMRgiEuAJViM0+1KM64yKuPsL
+	bILpxGbfcZ4xj1rI1yS6cyK1TPxpuaR3L6NUojFNSsoOh0o35z75CUUQwc3nhQuREFUP3PbRE1M
+	/9s
+X-Received: by 2002:a05:7300:3724:b0:2be:27db:b16 with SMTP id 5a478bee46e88-2be4deaedb6mr6266093eec.15.1773127789119;
+        Tue, 10 Mar 2026 00:29:49 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 00:29:47 -0700 (PDT)
+        Tue, 10 Mar 2026 00:29:48 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -72,9 +72,9 @@ Cc: Richard Hughes <hughsient@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6 08/19] HID: hid-lenovo-go: Add OS Mode Toggle
-Date: Tue, 10 Mar 2026 07:29:26 +0000
-Message-ID: <20260310072937.3295875-9-derekjohn.clark@gmail.com>
+Subject: [PATCH v6 09/19] HID: Include firmware version in the uevent
+Date: Tue, 10 Mar 2026 07:29:27 +0000
+Message-ID: <20260310072937.3295875-10-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
 References: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
@@ -86,186 +86,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds OS Mode toggle, who's primary function is to change the built-in
-functional chords to use the right handle legion button instead of the
-left handle legion button as the mode shift key.
+From: Mario Limonciello <mario.limonciello@amd.com>
 
+Userspace software fwupd probes some HID devices when the daemon starts
+up to determine the current firmware version in order to be able to offer
+updated firmware if the manufacturer has made it available.
+
+In order to do this fwupd will detach the existing kernel driver if one
+is present, send a HID command and then reattach the kernel driver.
+
+This can be problematic if the user is using the HID device at the time
+that fwupd probes the hardware and can cause a few frames of input to be
+dropped.  In some cases HID drivers already have a command to look up the
+firmware version, and so if that is exported to userspace fwupd can
+discover it and avoid needing to detach the kernel driver until it's time
+to update the device.
+
+Introduce a new member in the struct hid_device for the version and export
+a new uevent variable HID_FIRMWARE_VERSION that will display the version
+that HID drivers obtained.
+
+Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+Cc: Richard Hughes <hughsient@gmail.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 ---
-v6:
-  - Use NULL instead of 0 in mcu_propery_out when there is no data.
-v5:
-  - Remove reset_resume as it doesn't run, the device disconnects are
-    reconnects during suspend. Udev or userspace will reset os_mode
-    after resume.
-v3:
-  - Fix collision with os_mode_index attribute and os_mode_index enum.
----
- drivers/hid/hid-lenovo-go.c | 101 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
+ drivers/hid/hid-core.c | 5 +++++
+ include/linux/hid.h    | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-index 082d1b85d679..54861f2e04fc 100644
---- a/drivers/hid/hid-lenovo-go.c
-+++ b/drivers/hid/hid-lenovo-go.c
-@@ -76,6 +76,7 @@ static struct hid_go_cfg {
- 	u32 mcu_version_product;
- 	u32 mcu_version_protocol;
- 	u32 mouse_dpi;
-+	u8 os_mode;
- 	u8 rgb_effect;
- 	u8 rgb_en;
- 	u8 rgb_mode;
-@@ -166,6 +167,8 @@ enum feature_status_index {
- 	FEATURE_GAMEPAD_MODE = 0x0e,
- };
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a5b3a8ca2fcb..524f2b9ed512 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2887,6 +2887,11 @@ static int hid_uevent(const struct device *dev, struct kobj_uevent_env *env)
+ 	if (add_uevent_var(env, "MODALIAS=hid:b%04Xg%04Xv%08Xp%08X",
+ 			   hdev->bus, hdev->group, hdev->vendor, hdev->product))
+ 		return -ENOMEM;
++	if (hdev->firmware_version) {
++		if (add_uevent_var(env, "HID_FIRMWARE_VERSION=0x%04llX",
++				   hdev->firmware_version))
++			return -ENOMEM;
++	}
  
-+#define FEATURE_OS_MODE 0x69
-+
- enum fps_switch_status_index {
- 	FPS_STATUS_UNKNOWN,
- 	GAMEPAD,
-@@ -311,6 +314,23 @@ enum device_status_index {
- 	GET_HOTKEY_TRIGG_STATUS,
- };
- 
-+enum os_mode_cfg_index {
-+	SET_OS_MODE = 0x09,
-+	GET_OS_MODE,
-+};
-+
-+enum os_mode_type_index {
-+	OS_UNKNOWN,
-+	WINDOWS,
-+	LINUX,
-+};
-+
-+static const char *const os_mode_text[] = {
-+	[OS_UNKNOWN] = "unknown",
-+	[WINDOWS] = "windows",
-+	[LINUX] = "linux",
-+};
-+
- static int hid_go_version_event(struct command_report *cmd_rep)
- {
- 	switch (cmd_rep->sub_cmd) {
-@@ -593,6 +613,21 @@ static int hid_go_device_status_event(struct command_report *cmd_rep)
- 	}
+ 	return 0;
  }
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index dce862cafbbd..ce728c8d5bdc 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -698,6 +698,7 @@ struct hid_device {
+ 	char name[128];							/* Device name */
+ 	char phys[64];							/* Device physical location */
+ 	char uniq[64];							/* Device unique identifier (serial #) */
++	u64 firmware_version;						/* Firmware version */
  
-+static int hid_go_os_mode_cfg_event(struct command_report *cmd_rep)
-+{
-+	switch (cmd_rep->sub_cmd) {
-+	case SET_OS_MODE:
-+		if (cmd_rep->data[0] != 1)
-+			return -EIO;
-+		return 0;
-+	case GET_OS_MODE:
-+		drvdata.os_mode = cmd_rep->data[0];
-+		return 0;
-+	default:
-+		return -EINVAL;
-+	};
-+}
-+
- static int hid_go_set_event_return(struct command_report *cmd_rep)
- {
- 	if (cmd_rep->data[0] != 0)
-@@ -666,6 +701,9 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
- 			break;
- 		};
- 		break;
-+	case OS_MODE_DATA:
-+		ret = hid_go_os_mode_cfg_event(cmd_rep);
-+		break;
- 	default:
- 		goto passthrough;
- 	};
-@@ -1343,6 +1381,64 @@ static ssize_t calibrate_config_options(struct device *dev,
- 	return count;
- }
+ 	void *driver_data;
  
-+static ssize_t os_mode_store(struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
-+{
-+	size_t size = 1;
-+	int ret;
-+	u8 val;
-+
-+	ret = sysfs_match_string(os_mode_text, buf);
-+	if (ret <= 0)
-+		return ret;
-+
-+	val = ret;
-+	ret = mcu_property_out(drvdata.hdev, OS_MODE_DATA, FEATURE_OS_MODE,
-+			       SET_OS_MODE, USB_MCU, &val, size);
-+	if (ret < 0)
-+		return ret;
-+
-+	drvdata.os_mode = val;
-+
-+	return count;
-+}
-+
-+static ssize_t os_mode_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	ssize_t count = 0;
-+	int ret;
-+	u8 i;
-+
-+	ret = mcu_property_out(drvdata.hdev, OS_MODE_DATA, FEATURE_OS_MODE,
-+			       GET_OS_MODE, USB_MCU, NULL, 0);
-+	if (ret)
-+		return ret;
-+
-+	i = drvdata.os_mode;
-+	if (i >= ARRAY_SIZE(os_mode_text))
-+		return -EINVAL;
-+
-+	count = sysfs_emit(buf, "%s\n", os_mode_text[i]);
-+
-+	return count;
-+}
-+
-+static ssize_t os_mode_index_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	ssize_t count = 0;
-+	unsigned int i;
-+
-+	for (i = 1; i < ARRAY_SIZE(os_mode_text); i++)
-+		count += sysfs_emit_at(buf, count, "%s ", os_mode_text[i]);
-+
-+	if (count)
-+		buf[count - 1] = '\n';
-+
-+	return count;
-+}
-+
- static int rgb_cfg_call(struct hid_device *hdev, enum mcu_command_index cmd,
- 			enum rgb_config_index index, u8 *val, size_t size)
- {
-@@ -1712,6 +1808,9 @@ static DEVICE_ATTR_RO_NAMED(gamepad_rumble_intensity_index,
- static DEVICE_ATTR_RW(fps_mode_dpi);
- static DEVICE_ATTR_RO(fps_mode_dpi_index);
- 
-+static DEVICE_ATTR_RW(os_mode);
-+static DEVICE_ATTR_RO(os_mode_index);
-+
- static struct attribute *mcu_attrs[] = {
- 	&dev_attr_fps_mode_dpi.attr,
- 	&dev_attr_fps_mode_dpi_index.attr,
-@@ -1720,6 +1819,8 @@ static struct attribute *mcu_attrs[] = {
- 	&dev_attr_gamepad_mode_index.attr,
- 	&dev_attr_gamepad_rumble_intensity.attr,
- 	&dev_attr_gamepad_rumble_intensity_index.attr,
-+	&dev_attr_os_mode.attr,
-+	&dev_attr_os_mode_index.attr,
- 	&dev_attr_reset_mcu.attr,
- 	&dev_attr_version_firmware_mcu.attr,
- 	&dev_attr_version_gen_mcu.attr,
 -- 
 2.53.0
 

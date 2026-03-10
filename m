@@ -1,64 +1,64 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB60C3ED104
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D83363E9590
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773127793; cv=none; b=eixhBrsjU2Y3rKWzvUUWW2gTKWwrJ10A0Fg/UAwtVh61K36qsmmqujUka/NCu8zjF+jggajTKoqMjBCYzZ1bc+dJbvASU95uiPd8050yL8gMcC6fh04Z6RDvicAb2AVSvczih/z7Vey5NJB8u7M8gmLjjrdOlzRwJJg7KVxzd08=
+	t=1773127796; cv=none; b=HTrK089/OTkQHGqIZdQAu5ObVnByy4D9ZN9IareKeq05H0sL+u3Y/Ky9x9sCzGOa6xwD515WUjYdFD2iNVm9luOYfH58VSJvNdyNRE3ysLcybVeTjCsK7DDG8jmWpP9+Hx3bKHixPVbyq4pLK2uNURRUrqzksLIzK4v+vMiI2jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773127793; c=relaxed/simple;
-	bh=yWkVa/Jth/oJdDOe1ihirkRp8Fbw+pPWZBYFbTWg034=;
+	s=arc-20240116; t=1773127796; c=relaxed/simple;
+	bh=k8Z4PJ0jlhce1UF3Xo+dF+DpVA4UIZlzE5bAxI0XUjs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y6uP6NZ5mfDFAGt5z26Q6CgcMGU3nFXs3o/IswGvdkzuI8Au38Tvuxj1js165uWeAVE63Ci46bK7zAalMW3ZZv3k6uC2HDdTvbM06jP/ZmDVoBTRcK98vn7XLyLIQZoNKAOS0YLpsCocpJ6+s0K5Kzri4luWaJ/cMDhfDsaI73A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vy107Vtx; arc=none smtp.client-ip=74.125.82.181
+	 MIME-Version; b=kh+NHK5fWgrIonXgotgBVp7z548LMwmj0LoopYJGUocTH8nikKY6JuRpuuOmypZL/G7Nhn3RqpmYOgKU8SUOK/wQLqlG/xfIQaYj6ReKKZFx9om0xDzoWn1aliT90aC+/6v9ljTHha4I8oZniMjAFeJpYj6FgcLJbhcKf0R8N0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BBkF2sKH; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vy107Vtx"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2be1c918173so14212427eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BBkF2sKH"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2be1ab1fa7dso5595129eec.0
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773127791; x=1773732591; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773127794; x=1773732594; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UPGAxlsgnQwH8V6ZIVfcEYRPqGnb7Td9A0j4ncYAqN0=;
-        b=Vy107Vtxq8++Xkgtbs6Y3PSL11sp7SFTvd0ZhHtQjOHezOuhN8KWTaOdpSjuRycNjL
-         ww4FgP+sxpuxFdbDXEk2uW/seDRjbzxUWWHgg8dUMlPyGGNddVBHi9FRTVbxqUZEhsiM
-         ekX4cjYncpsym7wbHiEFUoAJZemfmlpqYzlaCN14OAUnCAiv56GX1SzmyiTeyem2fVf8
-         cbYwUPh+SIBadMM2iRpRrC249yQIUFyfKEMRMK4Q9ZdGlaPeAEk3W1JOGeIAa4Mwxqyx
-         EPrAqLFqFAaXSMfE9TX58MqMnTcuyN9cCXEGlcgPlRIC3bJhpoaX8ysgtDduHzLqflal
-         NWJQ==
+        bh=Z+/BdiVbU7ju/RLkpeD6wzKfiL0bcAcvC588TQS18Ao=;
+        b=BBkF2sKHFYIVwzC1kXkqVY7aVv7tG7Qp2J7v/RQ+5LsLCW3MgARSL0wwxdN9xIOC+j
+         rwDDd2tW87ZIyPrnh+gjZedcNmfSaKJ7tnOk+hmUZX9c48ZnlfIZBpwbXclotHAeRPZ6
+         as6tczJhxBzOPBsJXNOUZXYeBVuYNOfMJm6DFAv67S1wdgox1mKa1CoHxEuftcUWOXr6
+         yyQTneJIN0jC2wQ75gyrfhGwijTU78w/UehlI/tEScOQYG3Agz7SFZgCuKCRq+gqsnmV
+         YBrmvbqvuNeXTSralm9QqReXrD1+l7pg8ueW7IiYnO4m5B+hovQq9Uf0i6nLCWUENfcX
+         oTBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773127791; x=1773732591;
+        d=1e100.net; s=20230601; t=1773127794; x=1773732594;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=UPGAxlsgnQwH8V6ZIVfcEYRPqGnb7Td9A0j4ncYAqN0=;
-        b=AG2rmz7l48B0cl+ccyYTMsBjZ/fuMyiJ9skFjhnnukJgrEVyB+rlczcsRt7J8IxRMO
-         PnsmYa33uw5HWozeA1FtlBtp6htnZKL/1mQ/xw0ezWgrQa//vBxpfl4PRR+qNTmqPDUk
-         060JN9ONkVW7ScNiDmdydkubV+VO6WEu2x53rKsd7vTGkJ1vXHX7sNGizIygD9jbZs5Z
-         7BCRAGty3uT1/kAkvhmGqY04xrQ7kLwAesfM6LIuCJyTjWrruw4hIRlV+iEEiPJa8/1R
-         Zr4dJWDgMcw36TXjEv6F0zgjpj36+3+laCaRZ3bzDNT92E3UAI3ytQOUnmOM7MJazhim
-         J/xA==
-X-Forwarded-Encrypted: i=1; AJvYcCXE3YLj6Vfl0XaxLj7E2WvbQxHaCeCPSxNICLFeg5vXpfy1n4rTlDqI1uRzNYNRQgZteK7A3eAzyTq4yQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzIoFFz8NlDCsXgwjV+7xzwshxWWcW3K+XAr0lPFl+W8iBvVTmR
-	A1H62FLMtcEavfXoBf2LtVDuz66EmpzHfVZUl0CveOeKxLkBfDaot7yu
-X-Gm-Gg: ATEYQzwpGNkWt8kP3XHUcT6kncaPLPq2+c11UD5TPjAuVPBek6CeaKQNLd83nOZIy9e
-	rrBPb5gJgq3+JHjhY8VclDlVEgxhEhJUNkzfhc3vEtxI7DdmayHPOvNQYosvNNafoNJUm/x/vgP
-	3pzQTzFsTlF8kbD8prQwy5J7bw0k+MUv5DIuIKS1pm56veJU9nqThSp+8eag1UxcfXTywPgGRNp
-	E8orIyA+28dB3QRLnl1fnmRpE0Qvx64WlcGR+ylGSZstN+zOw+J7RhTmU/nzTOA+DdNjXJPyOmp
-	pCJkL2X0sd0MpJyQAXI0kxLnmQWMV/Rbx2Jqgjim1nQYV4dflPKpfCEnwzQo1zbHaOG54OKj1Vo
-	C4kvhFxL1y92trSx1gbbiFibQsrCI507z93fdMWTHYnv3VAOnHV9ro5tjyre7r9XF7X/6mVtebD
-	SATNzMh4GXVPWakASRpG+To8/i1rXmr+z0nADP/D7J+Z63Fo44vP8y6hzaFK0My5Q2bx8VT4bx8
-	aSs2TlLrRVeVSE=
-X-Received: by 2002:a05:693c:8087:b0:2be:6f30:f2f9 with SMTP id 5a478bee46e88-2be6f30fabemr2064806eec.26.1773127790942;
-        Tue, 10 Mar 2026 00:29:50 -0700 (PDT)
+        bh=Z+/BdiVbU7ju/RLkpeD6wzKfiL0bcAcvC588TQS18Ao=;
+        b=ieFK5Do9M0uO4+mNjP2m8236j71dKyhgu/SwHNE0qXdqniFwrlEcIKCtqD/Pc5Boi9
+         C1+mWVr1xwQSATccFFW5ftSeWAfNJoPx8xSEgAyy80lLfXPvowguRC8g9JPHocaB06DY
+         uNPLN7ulgsqoUuC0d2u/OkUFoZjg8Gm1QpIjS/gxaNnyXRaec26yAzUb+JATz5Qf40on
+         s2SUgCgX7qpJDIlnw5gKE5GufGfkYK4oyEDxDPy961LJ+LXDfX6Vn7S7WA+KP/+j/JCh
+         lKxdNIt7bccpLqRnl3djkKnXWXV1iJfPXq/cf3tzRheJYrbR/Wgv/y5ja4mt6aZocPib
+         wyMg==
+X-Forwarded-Encrypted: i=1; AJvYcCUDuRNmT4dOyQkbfdjfXbWlTj/KNFe4qmDTHH6dnd28PPQ0w5i6pw8gqkYPdwZ/U3Z/GBvZpRkUAksPlg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0O79xNtcCgE/vHSEUQ2ZflwJT0i2hAsmqZqwyYzhW1E4JLpAe
+	LRUI+9N2ecOA4L0j3vD9MZTcrNdhZkvtKVv1KQfdi/nVB0Wr+S4Z+kQoHAP2lQ==
+X-Gm-Gg: ATEYQzy8MNTPeMYxWMxf6g6NO5b3TO//jSTd3H3fZvNhF+mpiPNpAjXIXar04L2C974
+	QNZ2Ls209qg16G1ksp2Cepsn1A5/8pDHQNe2M4URjaAflQ2ueJ201ZIXYdpm8KD11roFosY1OOt
+	Xna6gfGawVKkaHF4hFGAwT203dSq1EZx9D94LbhQkmhqnPS9HQ62lwiRls0mruiEyOCw5O+MAnk
+	XKwJIBMdu00wBW19wTtBQdsACIOUYX1GQ122OOb3sAQtlkm/KBFCCi9Lmc+tPbqImTEO/HI3qFf
+	dOdzOdvQCVVzN7MidPBgHPJ1k+72eUy+vocQLM0feC57EXTAouSWn9WuLQ2q9x3eoHksRPptTV6
+	ZXIr7lAD8KVqTmbBVp32lCx21jmpBRvrIrAFg4YilrpzA1LFCGzfYcNvkYZDDO8jqfPZkkc0V39
+	oxB3+pqgAv9xNgkDRuczPJ0XuOPeVu6ojn1oLw+9v0FB3OrxioEfFcrcWwQy8fAqP0XPrrOgAuS
+	qS2s59cIOKazrg=
+X-Received: by 2002:a05:7300:bc97:b0:2ba:956e:d26a with SMTP id 5a478bee46e88-2be4e06797fmr5706856eec.36.1773127793959;
+        Tue, 10 Mar 2026 00:29:53 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.50
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 00:29:50 -0700 (PDT)
+        Tue, 10 Mar 2026 00:29:53 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -72,9 +72,9 @@ Cc: Richard Hughes <hughsient@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6 11/19] HID: hid-lenovo-go-s: Add MCU ID Attribute
-Date: Tue, 10 Mar 2026 07:29:29 +0000
-Message-ID: <20260310072937.3295875-12-derekjohn.clark@gmail.com>
+Subject: [PATCH v6 13/19] HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
+Date: Tue, 10 Mar 2026 07:29:31 +0000
+Message-ID: <20260310072937.3295875-14-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
 References: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
@@ -86,133 +86,210 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds command to probe for the MCU ID of the Lenovo Legion Go S
-Controller and assign it to a device attribute.
+Adds attributes for managing the touchpad operating modes.
 
 Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
 v6:
+  - Make local attributes static.
   - Use NULL instead of 0 in mcu_propery_out when there is no data.
 ---
- drivers/hid/hid-lenovo-go-s.c | 56 +++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ drivers/hid/hid-lenovo-go-s.c | 142 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
 
 diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index c9f57dfa145a..8ee75f724b5b 100644
+index 97c572cfe66c..5899cabe950f 100644
 --- a/drivers/hid/hid-lenovo-go-s.c
 +++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -18,6 +18,7 @@
- #include <linux/mutex.h>
- #include <linux/printk.h>
- #include <linux/string.h>
-+#include <linux/sysfs.h>
- #include <linux/types.h>
- #include <linux/unaligned.h>
- #include <linux/usb.h>
-@@ -34,8 +35,13 @@ static struct hid_gos_cfg {
- 	struct completion send_cmd_complete;
- 	struct hid_device *hdev;
- 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-+	u8 mcu_id[12];
+@@ -47,6 +47,8 @@ static struct hid_gos_cfg {
+ 	u8 os_mode;
+ 	u8 rgb_en;
+ 	u8 tp_en;
++	u8 tp_linux_mode;
++	u8 tp_windows_mode;
  } drvdata;
  
-+struct gos_cfg_attr {
-+	u8 index;
+ struct gos_cfg_attr {
+@@ -145,6 +147,22 @@ static const char *const dpad_mode_text[] = {
+ 	[DIR4] = "4-way",
+ };
+ 
++enum touchpad_mode_index {
++	TP_REL,
++	TP_ABS,
 +};
 +
- struct command_report {
- 	u8 cmd;
- 	u8 sub_cmd;
-@@ -70,6 +76,14 @@ static int hid_gos_version_event(u8 *data)
- 	return 0;
++static const char *const touchpad_mode_text[] = {
++	[TP_REL] = "relative",
++	[TP_ABS] = "absolute",
++};
++
++enum touchpad_config_index {
++	CFG_WINDOWS_MODE = 0x03,
++	CFG_LINUX_MODE,
++
++};
++
+ static int hid_gos_version_event(u8 *data)
+ {
+ 	struct version_report *ver_rep = (struct version_report *)data;
+@@ -204,6 +222,25 @@ static int hid_gos_gamepad_cfg_event(struct command_report *cmd_rep)
+ 	return ret;
  }
  
-+static int hid_gos_mcu_id_event(struct command_report *cmd_rep)
++static int hid_gos_touchpad_event(struct command_report *cmd_rep)
 +{
-+	drvdata.mcu_id[0] = cmd_rep->sub_cmd;
-+	memcpy(&drvdata.mcu_id[1], cmd_rep->data, 11);
++	int ret = 0;
 +
-+	return 0;
-+}
-+
- static int get_endpoint_address(struct hid_device *hdev)
- {
- 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-@@ -103,6 +117,9 @@ static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	case GET_VERSION:
- 		ret = hid_gos_version_event(data);
- 		break;
-+	case GET_MCU_ID:
-+		ret = hid_gos_mcu_id_event(cmd_rep);
++	switch (cmd_rep->sub_cmd) {
++	case CFG_LINUX_MODE:
++		drvdata.tp_linux_mode = cmd_rep->data[0];
 +		break;
- 	default:
- 		ret = -EINVAL;
- 		break;
-@@ -157,10 +174,41 @@ static int mcu_property_out(struct hid_device *hdev, u8 command, u8 index,
- 	return 0;
- }
- 
-+static ssize_t mcu_id_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	return sysfs_emit(buf, "%*phN\n", 12, &drvdata.mcu_id);
++	case CFG_WINDOWS_MODE:
++		drvdata.tp_windows_mode = cmd_rep->data[0];
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	return ret;
 +}
 +
-+/* MCU */
-+static DEVICE_ATTR_RO(mcu_id);
-+
-+static struct attribute *legos_mcu_attrs[] = {
-+	&dev_attr_mcu_id.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group mcu_attr_group = {
-+	.attrs = legos_mcu_attrs,
-+};
-+
-+static const struct attribute_group *top_level_attr_groups[] = {
-+	&mcu_attr_group,
-+	NULL,
-+};
-+
- static void cfg_setup(struct work_struct *work)
+ static int hid_gos_set_event_return(struct command_report *cmd_rep)
  {
- 	int ret;
+ 	if (cmd_rep->data[0] != 0)
+@@ -251,7 +288,11 @@ static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	case GET_GAMEPAD_CFG:
+ 		ret = hid_gos_gamepad_cfg_event(cmd_rep);
+ 		break;
++	case GET_TP_PARAM:
++		ret = hid_gos_touchpad_event(cmd_rep);
++		break;
+ 	case SET_GAMEPAD_CFG:
++	case SET_TP_PARAM:
+ 		ret = hid_gos_set_event_return(cmd_rep);
+ 		break;
+ 	default:
+@@ -530,6 +571,95 @@ static ssize_t gamepad_property_options(struct device *dev,
+ 	return count;
+ }
  
-+	/* MCU */
-+	ret = mcu_property_out(drvdata.hdev, GET_MCU_ID, FEATURE_NONE, NULL, 0);
-+	if (ret) {
-+		dev_err(&drvdata.hdev->dev, "Failed to retrieve MCU ID: %i\n",
-+			ret);
-+		return;
-+	}
++static ssize_t touchpad_property_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count,
++				       enum touchpad_config_index index)
++{
++	size_t size = 1;
++	u8 val = 0;
++	int ret;
 +
- 	ret = mcu_property_out(drvdata.hdev, GET_VERSION, FEATURE_NONE, NULL, 0);
- 	if (ret) {
- 		dev_err(&drvdata.hdev->dev, "Failed to retrieve MCU Version: %i\n", ret);
-@@ -177,6 +225,13 @@ static int hid_gos_cfg_probe(struct hid_device *hdev,
- 	drvdata.hdev = hdev;
- 	mutex_init(&drvdata.cfg_mutex);
- 
-+	ret = sysfs_create_groups(&hdev->dev.kobj, top_level_attr_groups);
-+	if (ret) {
-+		dev_err_probe(&hdev->dev, ret,
-+			      "Failed to create gamepad configuration attributes\n");
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++		ret = sysfs_match_string(touchpad_mode_text, buf);
++		if (ret < 0)
++			return ret;
++		val = ret;
++		break;
++	case CFG_LINUX_MODE:
++		ret = sysfs_match_string(touchpad_mode_text, buf);
++		if (ret < 0)
++			return ret;
++		val = ret;
++		break;
++	default:
++		return -EINVAL;
++	}
++	if (!val)
++		size = 0;
++
++	ret = mcu_property_out(drvdata.hdev, SET_TP_PARAM, index, &val, size);
++	if (ret < 0)
 +		return ret;
++
++	return count;
++}
++
++static ssize_t touchpad_property_show(struct device *dev,
++				      struct device_attribute *attr, char *buf,
++				      enum touchpad_config_index index)
++{
++	int ret = 0;
++	u8 i;
++
++	ret = mcu_property_out(drvdata.hdev, GET_TP_PARAM, index, NULL, 0);
++	if (ret < 0)
++		return ret;
++
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++		i = drvdata.tp_windows_mode;
++		break;
++	case CFG_LINUX_MODE:
++		i = drvdata.tp_linux_mode;
++		break;
++	default:
++		return -EINVAL;
 +	}
 +
- 	init_completion(&drvdata.send_cmd_complete);
- 
- 	/* Executing calls prior to returning from probe will lock the MCU. Schedule
-@@ -196,6 +251,7 @@ static void hid_gos_cfg_remove(struct hid_device *hdev)
++	if (i >= ARRAY_SIZE(touchpad_mode_text))
++		return -EINVAL;
++
++	return sysfs_emit(buf, "%s\n", touchpad_mode_text[i]);
++}
++
++static ssize_t touchpad_property_options(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf,
++					 enum touchpad_config_index index)
++{
++	size_t count = 0;
++	unsigned int i;
++
++	switch (index) {
++	case CFG_WINDOWS_MODE:
++	case CFG_LINUX_MODE:
++		for (i = 0; i < ARRAY_SIZE(touchpad_mode_text); i++) {
++			count += sysfs_emit_at(buf, count, "%s ",
++					       touchpad_mode_text[i]);
++		}
++		break;
++	default:
++		return count;
++	}
++
++	if (count)
++		buf[count - 1] = '\n';
++
++	return count;
++}
++
+ static ssize_t mcu_id_show(struct device *dev, struct device_attribute *attr,
+ 			   char *buf)
  {
- 	guard(mutex)(&drvdata.cfg_mutex);
- 	cancel_delayed_work_sync(&drvdata.gos_cfg_setup);
-+	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
- 	hid_set_drvdata(hdev, NULL);
+@@ -659,9 +789,21 @@ static struct gos_cfg_attr touchpad_enabled = { FEATURE_TOUCHPAD_ENABLE };
+ LEGOS_DEVICE_ATTR_RW(touchpad_enabled, "enabled", index, gamepad);
+ static DEVICE_ATTR_RO_NAMED(touchpad_enabled_index, "enabled_index");
+ 
++static struct gos_cfg_attr touchpad_linux_mode = { CFG_LINUX_MODE };
++LEGOS_DEVICE_ATTR_RW(touchpad_linux_mode, "linux_mode", index, touchpad);
++static DEVICE_ATTR_RO_NAMED(touchpad_linux_mode_index, "linux_mode_index");
++
++static struct gos_cfg_attr touchpad_windows_mode = { CFG_WINDOWS_MODE };
++LEGOS_DEVICE_ATTR_RW(touchpad_windows_mode, "windows_mode", index, touchpad);
++static DEVICE_ATTR_RO_NAMED(touchpad_windows_mode_index, "windows_mode_index");
++
+ static struct attribute *legos_touchpad_attrs[] = {
+ 	&dev_attr_touchpad_enabled.attr,
+ 	&dev_attr_touchpad_enabled_index.attr,
++	&dev_attr_touchpad_linux_mode.attr,
++	&dev_attr_touchpad_linux_mode_index.attr,
++	&dev_attr_touchpad_windows_mode.attr,
++	&dev_attr_touchpad_windows_mode_index.attr,
+ 	NULL,
+ };
+ 
 -- 
 2.53.0
 

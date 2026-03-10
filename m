@@ -1,64 +1,64 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA1143E9F75
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 711EF426688
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773127798; cv=none; b=tjT/ctQqxdvW+paQ8jS4gPL/TLF/enRQXG6M7PxDvWrcIEv8F2a3Sjs1YBaRYpWaH6v0pVwy5XaoJ1rtoOvQau2outErOGO1uCEP9gz4EY5OxC66p1bhNz3vC01lFsJHEMcrq51lMIhrU5LRjy4xtF+k77p3MT3wzkr8iILUHz4=
+	t=1773127799; cv=none; b=Q6pISKibMSyJ24fO/0lg2Jf5PB6fjGBCF+zQernHUL8v/g2xJu2YmVkKKNP1dAzfSF3JD6FYbzZOCN/A/YqABUjzPZMntIiGOMyX2ciDUK1rcp3L4RyDyhQZ0jpzbVrCcTc806JrqFzs9QSSwHIT5MLLLmADunFmwN850BZRdSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773127798; c=relaxed/simple;
-	bh=zoclcQhIoq427i88b5Nhy19sG+L4nQ2OnMBbqzroscE=;
+	s=arc-20240116; t=1773127799; c=relaxed/simple;
+	bh=ByTxEpcE9fDsHD0eoQcjY11ZtAGzAn9gzw0tgVTUTks=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nVOIJ6CTP/QdsMvO7lA3DnGk26PUA7GxBXGTyMsLr6EIxu70jdy9Ji9SCpVvTX/t2OlWMDH9rzONXwSL2Mf7ilMiydV1fM9kJRPueHd1Y6ir/xf6aykxiadgRF0y+1MMwIuT+rWbxRTEAzs65TQHnseQaoEPRN6q1OIo9W13ab4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F1XT4eb2; arc=none smtp.client-ip=74.125.82.170
+	 MIME-Version; b=YygSSLp93ZN1Xnlo1jPl9Yaexjs60wgatd4tLX+tY2repZ8b9nAiduabRaQc0cfkk/51OokiTYnjv98cjV5YXJ5D4VvoJ9WOvwoUXN/C0DytUjBooOx0ffZCrGgeb7Tsn8qhlnjx638z9ursubfvMY7w9LiTZaFCEw4i8V6jvcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RTLoqNbL; arc=none smtp.client-ip=74.125.82.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F1XT4eb2"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2be19f05d7dso759609eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RTLoqNbL"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2be26842fd5so4130641eec.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1773127795; x=1773732595; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SUlm66Htp2HNWDh+TzACQCB3mxzvVauhHSzODEkj1q4=;
-        b=F1XT4eb23gsNY/xuSscrd585k8LYtQHjllhXDPJ6arLjAmD2/5dAsrWUeMLrrZEzBS
-         8AGU8gIj7SuoXab4RwgBWF7nO32bkQ9c1PyIwhXLBAvzNrCwL6QT0W+NYxAK0yocM/9M
-         mwR/xhW73jHATkDm0Pf24K+EkSuwmjDmxAkFtPQkbScW50huTccSYoPEUXq8hKUrsW6r
-         j6hEP663jnhp7i63eqy1o3poHzvYS5iAQM7b7HgCo9HhUw2v8qMnLKCYKbstCt5pGDvp
-         8rvya+B/GV9vvhnvo/ZzJFsp7a7ko+pzGgEFOH4BZv9KkfEhyzcM70WqjNNmeTW1+3Ys
-         DQdw==
+        bh=XvS66gYJU0TWNIg1a0u1KW72qS57RtywXG3sPMwlyUY=;
+        b=RTLoqNbLFXPEOwOmbS+IjUN1SrcWETG2haSHPnvNssNow8+8hWpUaMYCNiaMc96jGS
+         pSti1HduSsrif5HccjyAW2WHEbyi+L6ZopMwu/GIQX1R6Sgm/wzu9uDkMDqGnqCwWBBv
+         IKbFPY1U4MvqwapaOE+b0bE8DPImnpowVTPmfSyeuMsYcBNRgjZ9i8E18dFzSc/UYhgt
+         6F6mwbgY4SPB88J3E4DUzlqvAwNHRH++uQn0/6B4kHbTcgFrMbN8Tt8mYB865CzHvUCR
+         tP1tb7qiKq8PyF81p/NxeSDGeOtWAFBXN7cYRMra1mSsUNWLpzM5grq8mzb7Swyvik7o
+         ez0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1773127795; x=1773732595;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=SUlm66Htp2HNWDh+TzACQCB3mxzvVauhHSzODEkj1q4=;
-        b=d53S7Wga9iN9sqTiXrLn1CgNcrzMGkt+/dBMGfJwx4pxGo1yS9sMffipip14m1tCRx
-         oLcLVLZL7W26XnilemKaPjxKdsn2sPuxKnjYxyez7E8VM2w9JtJYNoiwGMFj+NVBxq1N
-         O4TIZBdBoZnlhulnsRJdIBviKvc4KOoZe1j3tEpYyTAjOUTMlPOhlfsoVC69GUTiBsIN
-         +Vi0vevqn6sE1LCY9F5tWJg4aAgoY9qVxkVH7qorNKp1l3oM+w2BWzIstn+2VoVoqW2P
-         EPSZ3xsccztYA/5k6xhI4dYu50qkTo0N4NzDLEtA1arB1oUkQDhw+tRYziAKm4bFtFVT
-         BRKA==
-X-Forwarded-Encrypted: i=1; AJvYcCVBVp1rCtvdJZpuq1F5rtLqJGOyPAnYMKLtYr0xr6/Va/5UMrJN8eZ8+f3SKtTG45XgFmNqxgCiyzaDYg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbuuYVkz+FzugOB28DmllELxAXG4zdrqo70jQVMmwmlj9yRSRO
-	CfeUhrSlTLmIFdVAhy9wu0u7HmTOMKNN/ZwJi8sN0ggnv6ggLZ667xEw
-X-Gm-Gg: ATEYQzy5KZhdQ9cd0AWDBHPByTsfF/h0vNM47z51jrBdbXD9rG5EnLPN7krL6gAv5sg
-	IIHhrecQs6QCohwA9j4HnvHsmJU34AaD3SMshVVz4dKFRnPy9sIqcpIvYraGyAtkNlCQzfpMTTe
-	h+c+TSc9/GEgY2YJ4kcK+dTAFusTEX3bKFzKZ4xMnC9iEfpl9i/d91+1XH67ITO7TE1TupWAG2t
-	5I++i8KaQocstC/5zn1Ui+Zd6ywT6pdbMxDIXzxbN3i8PhulbvoBXXHkDbLtwURCszsRoJI/PQN
-	/smvBBZWpiGJJgBXBnm+OO/Vb8MvyOULee9BBecCS5/QLShaXyl5s+P8QoGbobCBDYv0E44L6Qj
-	565lH3cMLH7rB2t3dyryTowkglFW042LaYQ9e5JskynW+gpv4cWePVTID/R90TDDO0F6pWpLlxA
-	anCllV81SLot/lf8WP5NvoMqq4v3j8F7nmAoNr6QfGcDIpsFuTCVMO6Kg0K7ijytH8QH0M+TTFs
-	Prb
-X-Received: by 2002:a05:7301:4591:b0:2b6:ffb9:9633 with SMTP id 5a478bee46e88-2be4de9a868mr5961943eec.15.1773127794796;
-        Tue, 10 Mar 2026 00:29:54 -0700 (PDT)
+        bh=XvS66gYJU0TWNIg1a0u1KW72qS57RtywXG3sPMwlyUY=;
+        b=j6TodAot1NtuSUI7QK+wZYeX/RuN+YtGRIoqbYEC4nQ6Zi0Say97qWLxdkk2UGoq9B
+         rZGWw6+2Xq1QrUGoWPF3wceQ+2QvZikDP26ygZwtfKEyIKWZ60A3VAAzXJO5eb74+kQj
+         XUgphaSH20+9g8btjNlbc8DWdepToCJxbgqA2hD6/I5eeFcg1qU2D4E6Vmz4THq6T379
+         seOGVl1YGeZSBpPV/XcShtQmLXkrOuAmsAbPz32+xGNuVVPG71Hh/iEKoQKUKZLBTuZ1
+         oM0haV9k5OgZwkF01+vB7FzyDj7YXs/dZ/Rn4+Jo+ig3Ebs+/yVmuwZDTsHlBMKDEruw
+         kFyw==
+X-Forwarded-Encrypted: i=1; AJvYcCVmEaZETEto4HXpvZmp93/TgIWBKLF9yfEKILi4LQ3/hJQWlV9HvCSH6eP0ayjuIrBYk5h1tpe6zF/ptQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeHySXIRiRRRdH8qouanRLbDqEFkb9cCDORfFTiHC+Sh+oSvRh
+	SUbTTo8gxAugcOecriKAPXGejrqJHkEayG0xwTVmgQF26Rq2PSI6HeP7
+X-Gm-Gg: ATEYQzxg/dVoqH221VuDiB8uLt2bKC7oJFx2/6cBTFNoUv945STcFe8C4oz7Zmij47E
+	ksTp+OWeJB9OqDsjYLu6992/+8LocyyJo90UiB32ilm47c5ElSR+5Z/epfURr9MqZAqBloK0oQc
+	Ckt6DSK/7pS8zM8Ve/uEQyJr4k51IQtmMpaHzf0hl887iwCtKiRoVdRT55TnAeVHK0h+WlLbJD1
+	bU3a4LgB5nEy2rCCkBUWZ6UIDVIDM2xBLCu16mQJno0bfM1BWOXcJgxr+g/dpft50NfE7GFXi3q
+	eVtS9xScaXIWOL1TGUZP4Y4x9zAXSP149u4MQi/Y7feVqMQvP9CngzRLaGK7BBRsYpGXuxeJ9BA
+	vIr+3tSMrD9F7Wa+kj7qqxz6JR5AdjX09OBPeJnBYA8fMgNzuM5q5i+VYQ6LqtXA6V9r3etL3Pb
+	CdXnSRIObbguu3Qkpye7d7Js7IxMWK49CWspndf6+e2bapl1lk+VwZNaWpxh7v6g+WTFgi8Q1JZ
+	2dU
+X-Received: by 2002:a05:693c:60ce:b0:2be:6693:9b4d with SMTP id 5a478bee46e88-2be7a0dbcd1mr722850eec.9.1773127795462;
+        Tue, 10 Mar 2026 00:29:55 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
         by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 00:29:54 -0700 (PDT)
+        Tue, 10 Mar 2026 00:29:55 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -72,9 +72,9 @@ Cc: Richard Hughes <hughsient@gmail.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6 14/19] HID: hid-lenovo-go-s: Add RGB LED control interface
-Date: Tue, 10 Mar 2026 07:29:32 +0000
-Message-ID: <20260310072937.3295875-15-derekjohn.clark@gmail.com>
+Subject: [PATCH v6 15/19] HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
+Date: Tue, 10 Mar 2026 07:29:33 +0000
+Message-ID: <20260310072937.3295875-16-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
 References: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
@@ -86,11 +86,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds an LED multicolor class device and attribute group for controlling
-the RGB of the Left and right joystick rings. In addition to the standard
-led_cdev attributes, additional attributes that allow for the control of
-the effect (monocolor, breathe, rainbow, and chroma), speed of the
-effect change, an enable toggle, and profile.
+Adds attributes for reporting the touchpad manufacturer, version, and
+IMU manufacturer.
 
 Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
@@ -99,110 +96,92 @@ v6:
   - Make local attributes static.
   - Use NULL instead of 0 in mcu_propery_out when there is no data.
 v4:
-  - Cleaner formatting on multiple debug messages.
+ - Cache RO values at probe instead of calling them at request. Values
+   don't change and reading the touchpad data is slow.
+v3:
+ - Fix bug where the touchpad attributes were assigned to the touchpad
+   _show function instead of the test _show function.
 ---
- drivers/hid/hid-lenovo-go-s.c | 422 ++++++++++++++++++++++++++++++++++
- 1 file changed, 422 insertions(+)
+ drivers/hid/hid-lenovo-go-s.c | 124 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 124 insertions(+)
 
 diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index 5899cabe950f..0123c4b03cf4 100644
+index 0123c4b03cf4..431fffde4695 100644
 --- a/drivers/hid/hid-lenovo-go-s.c
 +++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -16,6 +16,7 @@
- #include <linux/hid.h>
- #include <linux/jiffies.h>
- #include <linux/kstrtox.h>
-+#include <linux/led-class-multicolor.h>
- #include <linux/mutex.h>
- #include <linux/printk.h>
- #include <linux/string.h>
-@@ -34,6 +35,7 @@
- static struct hid_gos_cfg {
- 	struct delayed_work gos_cfg_setup;
- 	struct completion send_cmd_complete;
-+	struct led_classdev *led_cdev;
- 	struct hid_device *hdev;
- 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
- 	u8 gp_auto_sleep_time;
-@@ -45,7 +47,11 @@ static struct hid_gos_cfg {
+@@ -43,6 +43,7 @@ static struct hid_gos_cfg {
+ 	u8 gp_mode;
+ 	u8 gp_poll_rate;
+ 	u8 imu_bypass_en;
++	u8 imu_manufacturer;
+ 	u8 imu_sensor_en;
  	u8 mcu_id[12];
  	u8 mouse_step;
- 	u8 os_mode;
-+	u8 rgb_effect;
- 	u8 rgb_en;
-+	u8 rgb_mode;
-+	u8 rgb_profile;
-+	u8 rgb_speed;
+@@ -55,6 +56,8 @@ static struct hid_gos_cfg {
  	u8 tp_en;
  	u8 tp_linux_mode;
  	u8 tp_windows_mode;
-@@ -163,6 +169,38 @@ enum touchpad_config_index {
++	u8 tp_version;
++	u8 tp_manufacturer;
+ } drvdata;
  
+ struct gos_cfg_attr {
+@@ -201,6 +204,36 @@ enum rgb_config_index {
+ 	USR_LIGHT_PROFILE_3,
  };
  
-+enum rgb_mode_index {
-+	RGB_MODE_DYNAMIC,
-+	RGB_MODE_CUSTOM,
++enum test_command_index {
++	TEST_TP_MFR = 0x02,
++	TEST_IMU_MFR,
++	TEST_TP_VER,
 +};
 +
-+static const char *const rgb_mode_text[] = {
-+	[RGB_MODE_DYNAMIC] = "dynamic",
-+	[RGB_MODE_CUSTOM] = "custom",
++enum tp_mfr_index {
++	TP_NONE,
++	TP_BETTERLIFE,
++	TP_SIPO,
 +};
 +
-+enum rgb_effect_index {
-+	RGB_EFFECT_MONO,
-+	RGB_EFFECT_BREATHE,
-+	RGB_EFFECT_CHROMA,
-+	RGB_EFFECT_RAINBOW,
++static const char *const touchpad_manufacturer_text[] = {
++	[TP_NONE] = "none",
++	[TP_BETTERLIFE] = "BetterLife",
++	[TP_SIPO] = "SIPO",
 +};
 +
-+static const char *const rgb_effect_text[] = {
-+	[RGB_EFFECT_MONO] = "monocolor",
-+	[RGB_EFFECT_BREATHE] = "breathe",
-+	[RGB_EFFECT_CHROMA] = "chroma",
-+	[RGB_EFFECT_RAINBOW] = "rainbow",
++enum imu_mfr_index {
++	IMU_NONE,
++	IMU_BOSCH,
++	IMU_ST,
 +};
 +
-+enum rgb_config_index {
-+	LIGHT_MODE_SEL = 0x01,
-+	LIGHT_PROFILE_SEL,
-+	USR_LIGHT_PROFILE_1,
-+	USR_LIGHT_PROFILE_2,
-+	USR_LIGHT_PROFILE_3,
++static const char *const imu_manufacturer_text[] = {
++	[IMU_NONE] = "none",
++	[IMU_BOSCH] = "Bosch",
++	[IMU_ST] = "ST",
 +};
 +
  static int hid_gos_version_event(u8 *data)
  {
  	struct version_report *ver_rep = (struct version_report *)data;
-@@ -241,6 +279,39 @@ static int hid_gos_touchpad_event(struct command_report *cmd_rep)
+@@ -279,6 +312,30 @@ static int hid_gos_touchpad_event(struct command_report *cmd_rep)
  	return ret;
  }
  
-+static int hid_gos_light_event(struct command_report *cmd_rep)
++static int hid_gos_pl_test_event(struct command_report *cmd_rep)
 +{
-+	struct led_classdev_mc *mc_cdev;
 +	int ret = 0;
 +
 +	switch (cmd_rep->sub_cmd) {
-+	case LIGHT_MODE_SEL:
-+		drvdata.rgb_mode = cmd_rep->data[0];
++	case TEST_TP_MFR:
++		drvdata.tp_manufacturer = cmd_rep->data[0];
 +		ret = 0;
 +		break;
-+	case LIGHT_PROFILE_SEL:
-+		drvdata.rgb_profile = cmd_rep->data[0];
++	case TEST_IMU_MFR:
++		drvdata.imu_manufacturer = cmd_rep->data[0];
 +		ret = 0;
 +		break;
-+	case USR_LIGHT_PROFILE_1:
-+	case USR_LIGHT_PROFILE_2:
-+	case USR_LIGHT_PROFILE_3:
-+		mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+		drvdata.rgb_effect = cmd_rep->data[0];
-+		mc_cdev->subled_info[0].intensity = cmd_rep->data[1];
-+		mc_cdev->subled_info[1].intensity = cmd_rep->data[2];
-+		mc_cdev->subled_info[2].intensity = cmd_rep->data[3];
-+		drvdata.led_cdev->brightness = cmd_rep->data[4];
-+		drvdata.rgb_speed = cmd_rep->data[5];
++	case TEST_TP_VER:
++		drvdata.tp_version = cmd_rep->data[0];
 +		ret = 0;
 +		break;
 +	default:
@@ -212,389 +191,125 @@ index 5899cabe950f..0123c4b03cf4 100644
 +	return ret;
 +}
 +
- static int hid_gos_set_event_return(struct command_report *cmd_rep)
+ static int hid_gos_light_event(struct command_report *cmd_rep)
  {
- 	if (cmd_rep->data[0] != 0)
-@@ -291,7 +362,11 @@ static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct led_classdev_mc *mc_cdev;
+@@ -362,6 +419,9 @@ static int hid_gos_raw_event(struct hid_device *hdev, struct hid_report *report,
  	case GET_TP_PARAM:
  		ret = hid_gos_touchpad_event(cmd_rep);
  		break;
-+	case GET_RGB_CFG:
-+		ret = hid_gos_light_event(cmd_rep);
++	case GET_PL_TEST:
++		ret = hid_gos_pl_test_event(cmd_rep);
 +		break;
- 	case SET_GAMEPAD_CFG:
-+	case SET_RGB_CFG:
- 	case SET_TP_PARAM:
- 		ret = hid_gos_set_event_return(cmd_rep);
+ 	case GET_RGB_CFG:
+ 		ret = hid_gos_light_event(cmd_rep);
  		break;
-@@ -666,6 +741,274 @@ static ssize_t mcu_id_show(struct device *dev, struct device_attribute *attr,
- 	return sysfs_emit(buf, "%*phN\n", 12, &drvdata.mcu_id);
+@@ -735,6 +795,37 @@ static ssize_t touchpad_property_options(struct device *dev,
+ 	return count;
  }
  
-+static int rgb_cfg_call(struct hid_device *hdev, enum mcu_command_index cmd,
-+			enum rgb_config_index index, u8 *val, size_t size)
++static ssize_t test_property_show(struct device *dev,
++				  struct device_attribute *attr, char *buf,
++				  enum test_command_index index)
 +{
-+	if (cmd != SET_RGB_CFG && cmd != GET_RGB_CFG)
-+		return -EINVAL;
++	size_t count = 0;
++	u8 i;
 +
-+	if (index < LIGHT_MODE_SEL || index > USR_LIGHT_PROFILE_3)
-+		return -EINVAL;
-+
-+	return mcu_property_out(hdev, cmd, index, val, size);
-+}
-+
-+static int rgb_attr_show(void)
-+{
-+	enum rgb_config_index index;
-+
-+	index = drvdata.rgb_profile + 2;
-+
-+	return rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, index, NULL, 0);
-+};
-+
-+static ssize_t rgb_effect_store(struct device *dev,
-+				struct device_attribute *attr, const char *buf,
-+				size_t count)
-+{
-+	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	enum rgb_config_index index;
-+	u8 effect;
-+	int ret;
-+
-+	ret = sysfs_match_string(rgb_effect_text, buf);
-+	if (ret < 0)
-+		return ret;
-+
-+	effect = ret;
-+	index = drvdata.rgb_profile + 2;
-+	u8 rgb_profile[6] = { effect,
-+			      mc_cdev->subled_info[0].intensity,
-+			      mc_cdev->subled_info[1].intensity,
-+			      mc_cdev->subled_info[2].intensity,
-+			      drvdata.led_cdev->brightness,
-+			      drvdata.rgb_speed };
-+
-+	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_effect = effect;
-+	return count;
-+};
-+
-+static ssize_t rgb_effect_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	int ret;
-+
-+	ret = rgb_attr_show();
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_effect >= ARRAY_SIZE(rgb_effect_text))
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%s\n", rgb_effect_text[drvdata.rgb_effect]);
-+}
-+
-+static ssize_t rgb_effect_index_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	ssize_t count = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(rgb_effect_text); i++)
-+		count += sysfs_emit_at(buf, count, "%s ", rgb_effect_text[i]);
-+
-+	if (count)
-+		buf[count - 1] = '\n';
++	switch (index) {
++	case TEST_TP_MFR:
++		i = drvdata.tp_manufacturer;
++		if (i >= ARRAY_SIZE(touchpad_manufacturer_text))
++			return -EINVAL;
++		count = sysfs_emit(buf, "%s\n", touchpad_manufacturer_text[i]);
++		break;
++	case TEST_IMU_MFR:
++		i = drvdata.imu_manufacturer;
++		if (i >= ARRAY_SIZE(imu_manufacturer_text))
++			return -EINVAL;
++		count = sysfs_emit(buf, "%s\n", imu_manufacturer_text[i]);
++		break;
++	case TEST_TP_VER:
++		count = sysfs_emit(buf, "%u\n", drvdata.tp_version);
++		break;
++	default:
++		count = -EINVAL;
++		break;
++	}
 +
 +	return count;
 +}
 +
-+static ssize_t rgb_speed_store(struct device *dev,
-+			       struct device_attribute *attr, const char *buf,
-+			       size_t count)
-+{
-+	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	enum rgb_config_index index;
-+	int val = 0;
-+	int ret;
+ static ssize_t mcu_id_show(struct device *dev, struct device_attribute *attr,
+ 			   char *buf)
+ {
+@@ -1076,6 +1167,9 @@ static struct gos_cfg_attr imu_bypass_enabled = { FEATURE_IMU_BYPASS };
+ LEGOS_DEVICE_ATTR_RW(imu_bypass_enabled, "bypass_enabled", index, gamepad);
+ static DEVICE_ATTR_RO_NAMED(imu_bypass_enabled_index, "bypass_enabled_index");
+ 
++static struct gos_cfg_attr imu_manufacturer = { TEST_IMU_MFR };
++LEGOS_DEVICE_ATTR_RO(imu_manufacturer, "manufacturer", test);
 +
-+	ret = kstrtoint(buf, 10, &val);
-+	if (ret)
-+		return ret;
+ static struct gos_cfg_attr imu_sensor_enabled = { FEATURE_IMU_ENABLE };
+ LEGOS_DEVICE_ATTR_RW(imu_sensor_enabled, "sensor_enabled", index, gamepad);
+ static DEVICE_ATTR_RO_NAMED(imu_sensor_enabled_index, "sensor_enabled_index");
+@@ -1083,6 +1177,7 @@ static DEVICE_ATTR_RO_NAMED(imu_sensor_enabled_index, "sensor_enabled_index");
+ static struct attribute *legos_imu_attrs[] = {
+ 	&dev_attr_imu_bypass_enabled.attr,
+ 	&dev_attr_imu_bypass_enabled_index.attr,
++	&dev_attr_imu_manufacturer.attr,
+ 	&dev_attr_imu_sensor_enabled.attr,
+ 	&dev_attr_imu_sensor_enabled_index.attr,
+ 	NULL,
+@@ -1136,6 +1231,12 @@ static struct gos_cfg_attr touchpad_linux_mode = { CFG_LINUX_MODE };
+ LEGOS_DEVICE_ATTR_RW(touchpad_linux_mode, "linux_mode", index, touchpad);
+ static DEVICE_ATTR_RO_NAMED(touchpad_linux_mode_index, "linux_mode_index");
+ 
++static struct gos_cfg_attr touchpad_manufacturer = { TEST_TP_MFR };
++LEGOS_DEVICE_ATTR_RO(touchpad_manufacturer, "manufacturer", test);
 +
-+	if (val < 0 || val > 100)
-+		return -EINVAL;
++static struct gos_cfg_attr touchpad_version = { TEST_TP_VER };
++LEGOS_DEVICE_ATTR_RO(touchpad_version, "version", test);
 +
-+	index = drvdata.rgb_profile + 2;
-+	u8 rgb_profile[6] = { drvdata.rgb_effect,
-+			      mc_cdev->subled_info[0].intensity,
-+			      mc_cdev->subled_info[1].intensity,
-+			      mc_cdev->subled_info[2].intensity,
-+			      drvdata.led_cdev->brightness,
-+			      val };
+ static struct gos_cfg_attr touchpad_windows_mode = { CFG_WINDOWS_MODE };
+ LEGOS_DEVICE_ATTR_RW(touchpad_windows_mode, "windows_mode", index, touchpad);
+ static DEVICE_ATTR_RO_NAMED(touchpad_windows_mode_index, "windows_mode_index");
+@@ -1145,6 +1246,8 @@ static struct attribute *legos_touchpad_attrs[] = {
+ 	&dev_attr_touchpad_enabled_index.attr,
+ 	&dev_attr_touchpad_linux_mode.attr,
+ 	&dev_attr_touchpad_linux_mode_index.attr,
++	&dev_attr_touchpad_manufacturer.attr,
++	&dev_attr_touchpad_version.attr,
+ 	&dev_attr_touchpad_windows_mode.attr,
+ 	&dev_attr_touchpad_windows_mode_index.attr,
+ 	NULL,
+@@ -1245,6 +1348,27 @@ static void cfg_setup(struct work_struct *work)
+ 		dev_err(&drvdata.hdev->dev, "Failed to retrieve MCU Version: %i\n", ret);
+ 		return;
+ 	}
 +
-+	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_speed = val;
-+
-+	return count;
-+};
-+
-+static ssize_t rgb_speed_show(struct device *dev, struct device_attribute *attr,
-+			      char *buf)
-+{
-+	int ret;
-+
-+	ret = rgb_attr_show();
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_speed > 100)
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%hhu\n", drvdata.rgb_speed);
-+}
-+
-+static ssize_t rgb_speed_range_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "0-100\n");
-+}
-+
-+static ssize_t rgb_mode_store(struct device *dev, struct device_attribute *attr,
-+			      const char *buf, size_t count)
-+{
-+	int ret;
-+	u8 val;
-+
-+	ret = sysfs_match_string(rgb_mode_text, buf);
-+	if (ret <= 0)
-+		return ret;
-+
-+	val = ret;
-+
-+	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, LIGHT_MODE_SEL, &val,
-+			   1);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_mode = val;
-+
-+	return count;
-+};
-+
-+static ssize_t rgb_mode_show(struct device *dev, struct device_attribute *attr,
-+			     char *buf)
-+{
-+	int ret;
-+
-+	ret = rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, LIGHT_MODE_SEL, NULL, 0);
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_mode >= ARRAY_SIZE(rgb_mode_text))
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%s\n", rgb_mode_text[drvdata.rgb_mode]);
-+};
-+
-+static ssize_t rgb_mode_index_show(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
-+{
-+	ssize_t count = 0;
-+	unsigned int i;
-+
-+	for (i = 1; i < ARRAY_SIZE(rgb_mode_text); i++)
-+		count += sysfs_emit_at(buf, count, "%s ", rgb_mode_text[i]);
-+
-+	if (count)
-+		buf[count - 1] = '\n';
-+
-+	return count;
-+}
-+
-+static ssize_t rgb_profile_store(struct device *dev,
-+				 struct device_attribute *attr, const char *buf,
-+				 size_t count)
-+{
-+	size_t size = 1;
-+	int ret;
-+	u8 val;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (val < 1 || val > 3)
-+		return -EINVAL;
-+
-+	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, LIGHT_PROFILE_SEL, &val, size);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_profile = val;
-+
-+	return count;
-+};
-+
-+static ssize_t rgb_profile_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	int ret;
-+
-+	ret = rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, LIGHT_PROFILE_SEL, NULL, 0);
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_profile < 1 || drvdata.rgb_profile > 3)
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%hhu\n", drvdata.rgb_profile);
-+};
-+
-+static ssize_t rgb_profile_range_show(struct device *dev,
-+				      struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "1-3\n");
-+}
-+
-+static void hid_gos_brightness_set(struct led_classdev *led_cdev,
-+				   enum led_brightness brightness)
-+{
-+	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	enum rgb_config_index index;
-+	int ret;
-+
-+	if (brightness > led_cdev->max_brightness) {
-+		dev_err(led_cdev->dev, "Invalid argument\n");
++	ret = mcu_property_out(drvdata.hdev, GET_PL_TEST, TEST_TP_MFR, NULL, 0);
++	if (ret) {
++		dev_err(&drvdata.hdev->dev,
++			"Failed to retrieve Touchpad Manufacturer: %i\n", ret);
 +		return;
 +	}
 +
-+	index = drvdata.rgb_profile + 2;
-+	u8 rgb_profile[6] = { drvdata.rgb_effect,
-+			      mc_cdev->subled_info[0].intensity,
-+			      mc_cdev->subled_info[1].intensity,
-+			      mc_cdev->subled_info[2].intensity,
-+			      brightness,
-+			      drvdata.rgb_speed };
-+
-+	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-+	switch (ret) {
-+	case 0:
-+		led_cdev->brightness = brightness;
-+		break;
-+	case -ENODEV: /* during switch to IAP -ENODEV is expected */
-+	case -ENOSYS: /* during rmmod -ENOSYS is expected */
-+		dev_dbg(led_cdev->dev, "Failed to write RGB profile: %i\n",
-+			ret);
-+		break;
-+	default:
-+		dev_err(led_cdev->dev, "Failed to write RGB profile: %i\n",
-+			ret);
-+	};
-+}
-+
- #define LEGOS_DEVICE_ATTR_RW(_name, _attrname, _rtype, _group)                 \
- 	static ssize_t _name##_store(struct device *dev,                       \
- 				     struct device_attribute *attr,            \
-@@ -821,6 +1164,70 @@ static const struct attribute_group *top_level_attr_groups[] = {
- 	NULL,
- };
- 
-+/* RGB */
-+static struct gos_cfg_attr rgb_enabled = { FEATURE_RGB_ENABLE };
-+LEGOS_DEVICE_ATTR_RW(rgb_enabled, "enabled", index, gamepad);
-+static DEVICE_ATTR_RO_NAMED(rgb_enabled_index, "enabled_index");
-+
-+static DEVICE_ATTR_RW_NAMED(rgb_effect, "effect");
-+static DEVICE_ATTR_RO_NAMED(rgb_effect_index, "effect_index");
-+static DEVICE_ATTR_RW_NAMED(rgb_mode, "mode");
-+static DEVICE_ATTR_RO_NAMED(rgb_mode_index, "mode_index");
-+static DEVICE_ATTR_RW_NAMED(rgb_profile, "profile");
-+static DEVICE_ATTR_RO_NAMED(rgb_profile_range, "profile_range");
-+static DEVICE_ATTR_RW_NAMED(rgb_speed, "speed");
-+static DEVICE_ATTR_RO_NAMED(rgb_speed_range, "speed_range");
-+
-+static struct attribute *gos_rgb_attrs[] = {
-+	&dev_attr_rgb_enabled.attr,
-+	&dev_attr_rgb_enabled_index.attr,
-+	&dev_attr_rgb_effect.attr,
-+	&dev_attr_rgb_effect_index.attr,
-+	&dev_attr_rgb_mode.attr,
-+	&dev_attr_rgb_mode_index.attr,
-+	&dev_attr_rgb_profile.attr,
-+	&dev_attr_rgb_profile_range.attr,
-+	&dev_attr_rgb_speed.attr,
-+	&dev_attr_rgb_speed_range.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group rgb_attr_group = {
-+	.attrs = gos_rgb_attrs,
-+};
-+
-+static struct mc_subled gos_rgb_subled_info[] = {
-+	{
-+		.color_index = LED_COLOR_ID_RED,
-+		.brightness = 0x50,
-+		.intensity = 0x24,
-+		.channel = 0x1,
-+	},
-+	{
-+		.color_index = LED_COLOR_ID_GREEN,
-+		.brightness = 0x50,
-+		.intensity = 0x22,
-+		.channel = 0x2,
-+	},
-+	{
-+		.color_index = LED_COLOR_ID_BLUE,
-+		.brightness = 0x50,
-+		.intensity = 0x99,
-+		.channel = 0x3,
-+	},
-+};
-+
-+static struct led_classdev_mc gos_cdev_rgb = {
-+	.led_cdev = {
-+		.name = "go_s:rgb:joystick_rings",
-+		.brightness = 0x50,
-+		.max_brightness = 0x64,
-+		.brightness_set = hid_gos_brightness_set,
-+	},
-+	.num_colors = ARRAY_SIZE(gos_rgb_subled_info),
-+	.subled_info = gos_rgb_subled_info,
-+};
-+
- static void cfg_setup(struct work_struct *work)
- {
- 	int ret;
-@@ -856,6 +1263,21 @@ static int hid_gos_cfg_probe(struct hid_device *hdev,
- 		return ret;
- 	}
- 
-+	ret = devm_led_classdev_multicolor_register(&hdev->dev, &gos_cdev_rgb);
++	ret = mcu_property_out(drvdata.hdev, GET_PL_TEST, TEST_TP_VER, NULL, 0);
 +	if (ret) {
-+		dev_err_probe(&hdev->dev, ret, "Failed to create RGB device\n");
-+		return ret;
++		dev_err(&drvdata.hdev->dev,
++			"Failed to retrieve Touchpad Firmware Version: %i\n", ret);
++		return;
 +	}
 +
-+	ret = devm_device_add_group(gos_cdev_rgb.led_cdev.dev, &rgb_attr_group);
++	ret = mcu_property_out(drvdata.hdev, GET_PL_TEST, TEST_IMU_MFR, NULL, 0);
 +	if (ret) {
-+		dev_err_probe(&hdev->dev, ret,
-+			      "Failed to create RGB configuratiion attributes\n");
-+		return ret;
++		dev_err(&drvdata.hdev->dev,
++			"Failed to retrieve IMU Manufacturer: %i\n", ret);
++		return;
 +	}
-+
-+	drvdata.led_cdev = &gos_cdev_rgb.led_cdev;
-+
- 	init_completion(&drvdata.send_cmd_complete);
+ }
  
- 	/* Executing calls prior to returning from probe will lock the MCU. Schedule
+ static int hid_gos_cfg_probe(struct hid_device *hdev,
 -- 
 2.53.0
 

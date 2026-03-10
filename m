@@ -1,78 +1,96 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6464B318EC7
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 18:37:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2FE83B27C7
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 18:40:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773167860; cv=none; b=kvkbCE1TWqavm0Zeky/8OPC+XTIV+UWcJV7w2kfhOlQ7TERLka3luH2YBjw1nFEud8sVH2jA0WIJ9wWYnfQjEYx/EXR8p7S97uwHJsyKtiRmZzMBysvuyDFAWL62gMBQ/a3EsGjXfy+6mCMWi4BSe8Wc5KQ06QvIY/cgZGPXBCA=
+	t=1773168053; cv=none; b=KqM2/T2vXqnjDgGRoBK5iR544oPKaBlwYYKGSpqcvpEka3+mV18FH/Xy2TmVtFV2NvJCMSa6nqALbvO6GcEdpiZfPwxKm/T4tjGB8Rh52NVCOelTa3baQUL4e/pkORJLi3kk4zH8vx+zEHSA+q5MqTfTvkGVn7vUwCsn3GmoWKI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773167860; c=relaxed/simple;
-	bh=0Tyi5Z6JfhNx2J5HDr8c/SApKa6+kYshAqOaIqXpdKY=;
+	s=arc-20240116; t=1773168053; c=relaxed/simple;
+	bh=67BO0RZg8rxb/E50RmGcBJlsPR5Ae9xmCy+Q7v8QtDY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=onKpAmiSn2JNlC9MF+A9ixXMN1q6XtrSOu7h2CdrNHW1Hm86437QtU5RV+Hj18OovJd1XRNwr9Q5Qm6QcFfvmpoR57yZMf6UQAM91bOIf0u3WjOI0FR5Qm8eiSknoaow8iNcY9pN3cXdigJ9/nUxAkBmScmiAItYQ1ouR1zwCVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mdK6pCkj; arc=none smtp.client-ip=74.125.82.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=YQ7Y+BJ75kE3PUrLK2xmGE2VzDjgbwgry3ij+eqYEa9KovwoTwnDZS6V00J4xiNnk+QK3bDwVdMZ9GzYx4uV//LKFjHJ/0OGhpp6n7Eyg/NwpkISRq/+/0MY4+2kvAW8VTR8kxPtgTZCM4t/AvVyoUe4cKqvg2vmD053hVE1IuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kH0xiiWz; arc=none smtp.client-ip=209.85.214.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mdK6pCkj"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2bdfc4b191fso8720065eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 11:37:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kH0xiiWz"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2a9296b3926so102507495ad.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 11:40:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773167858; x=1773772658; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773168050; x=1773772850; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mEydtYkjbJ0qWFFzbilGZORGZlN37D01JySG0l90LLg=;
-        b=mdK6pCkjLapO6oVF7c0n14UlTfZ/e0pdAiRJhBp4O5S+vWtn648yrkoXO3xDu+b8yG
-         4HF+VbhgdFQKQLp/qcdlUcPON9cYUk5xbIv3yyE+iABPig2XOVG24NpHfsAILeBrgxGJ
-         PqwViQ9Oi7k1F6bfze3Dfk79W0V8pI7N5dKaSfDAPT7vEOkZ8+XnXd3pPqdWOrT4TfPu
-         1OSc8UYLVpY7VRMGMgEq/RrdbUzUmyyj75jrOxiLet8VGEJR0PT/hTNag3BD5TfFnH8L
-         NouTMnxCodSN1kZsgBok6Sm8Nt9Ap/gMq/YFzFrE3/Cw38v2pUn+tTm9sjDU29hQeSoQ
-         Z5og==
+        bh=bjFZ9oZWWc3RZ4UdO5rq+AZbr7uPDX73K58gh1+yuH0=;
+        b=kH0xiiWz4KeHg8qM+UQYFRGEoaB5YhGQ1/l342lI48vVjCWqHFWSBUDJtSv8g6YdEb
+         WUvbLXs80bxV+xnMTu2IxnxqQ1WawTtw06PwWKuvZNeHk5D3euuYdO1/s0++E4FpGP2z
+         +c3ttwFV6WwPOQpNHM7WUIHZNaqG5koiMMCxTax1rBk+j7pB0850FJbGseMzgmcav/Sc
+         D4sAVnEuBVkUt07E/ANMW8DM/NJ+n/hx2N6JUcXYsLZYrFMsnwCK7vKttbH8x8ketzgA
+         AEJgLDRmf5idGKEt1ix0VwO4x51qzzz9/bjh5SLZJM6RE+ISqePxLY2ZYvsw4O/i3F73
+         NyLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773167858; x=1773772658;
+        d=1e100.net; s=20230601; t=1773168050; x=1773772850;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mEydtYkjbJ0qWFFzbilGZORGZlN37D01JySG0l90LLg=;
-        b=qsWajmno8CWTq5j7ep4p/9LcmNqorEmpZuyj3JvUvLOR1kueEktZ1Trn97fMQcKCJa
-         1XXgVMmdslTQRDETENYdctzDbfkrIpPMXfkST3t610I239Si2lBXGXMrgZAujBpL11M1
-         zpb41QdMJpp2UKRf9LjKQmtDEeVH+KdxvOTF/xFy93pqgTmYo3hwAdHkNZPJVw+JcTcD
-         30Mnmn3+m4Pe7+8NKqt3Ec3x0dRJEzBy4ZpsXW4+uCK8Vb1p8eP1PBbGgTidyPCekmRK
-         gHOJVjdJR0YY2OfCyXAqyyh4Wv/kEuZlqjh7yIjQAC0R2eU7IQreVCJCtLK9SwtH009b
-         rpkw==
-X-Forwarded-Encrypted: i=1; AJvYcCVzbiaKegY003v1FAPqhAQLeTghrIBz1v98s7op+4f5U5HizfL26nIRyMrAshD7cQveP/XVlCZXwfIhcA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yywi90E16wN5E+EtzrAKvP2eTclohB74zI0Hj8plZ/JUVxKripk
-	wyhJP5bC/v8x39HpjUBN6u22WUpvxwPbtwk7SlFFIV1coKhSzQo7UVq+
-X-Gm-Gg: ATEYQzxxlJ+X2XWIUASJqL3DA6HhCT5l4YqodRvnQ6uIT83LQVTDayUL0LDcqFYTTRA
-	yH5gCGXxtrs5PwtsGeAmMxKrGOKCMRQOZb5E/J8s1SfTgrx6HOF5LTYfdFIvUCNAa9ZRG3DG+Kf
-	+QB3sWtBAluaaICbrjmGMUYtK3qAhwRcDxIyiMWJLrfzRmZ8217zZETqUx/RdvDE0y8oCPc7BHr
-	TKQ9nwJY+/Gt1qs7z0J/kivpiVrp1fTeCUD21BQxvSwBX8+juJOQPzaNcgeMuxR4e2ZoZ+CGzDz
-	v+j0859zSuAtou+cW37VcePYf2zTwSZS87obNNB0VAO2njYYRStH4gb2ru5zumnHapwpWxdFtY6
-	0wgigBkkoXjsKn5p8u06ck+87WMs/Ch8CUpXucksBQ+SzbH6oOo14r/FaPE19q6ATvqthUcq2Ng
-	lLXYSvm3+/qAF1CW8FB2/6RCvQKvG72ldRSzbmAAdFa9hLkPN9y6DeK/9DB99im4AX
-X-Received: by 2002:a05:7300:2156:b0:2b8:29e2:93e9 with SMTP id 5a478bee46e88-2be4e08fccdmr5761447eec.37.1773167858414;
-        Tue, 10 Mar 2026 11:37:38 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:9:5df8:fa34:6102:3b03])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be4f96f64dsm14294515eec.27.2026.03.10.11.37.36
+        bh=bjFZ9oZWWc3RZ4UdO5rq+AZbr7uPDX73K58gh1+yuH0=;
+        b=K3ErrFAHjwmnBwUbagXEWehgfeobUMsPjuSptY9bh8/mX8KT2c4WVsUDCX0UMQomRL
+         6k63I+Hbptj+H/uzeAdzDoHWh1nzDtyn7Kcpq5iavztF3e4HaaayNqaEg4A1p3fkd4YL
+         guI0u6IU7kE7eV98o4xytk2x2Qbr1U3hKc/sY3YiDstGXBM1Ui3iP5WX0toBzhL7TvWu
+         mgZls3lpoDJesD3TBcPinUsdH3U6/P7Zi3eRSCpT2bRC/C/pVAyZT7U/lnF043/c5y1o
+         A4pW+GE9niVsqbTlfaqbkF+XbagfyRceItqPw/hLilbBmJmWFlrlgDeQDE1THzl4MeC7
+         yaBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVIbqIngLeiK50sPoA7XbpYe8JNrfCu1m6rmEalJk4wAzyEAG3RGABlsY/vZsuFLrW3uMQmSBlu4JWsxA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyL7ZDKsJRNEs88widX2RrYk08DPyKLzEAa29AkgadkqBAMRsEU
+	LJsY0/AjBdWgA5zX9k9/tGEchoGaezw/n8EbmQ4Akxycr5Zv42q4f4v/
+X-Gm-Gg: ATEYQzzHToCznPBqj2IXmSYeH5IO6out1oFFkK519wJRatFLg8dJLbfeEim+0ARFY7Y
+	Gs3eumM8ZzIopprnalGEHcy864ZKgDR5psxhAru2Aj8qZx9Iaxg/54xOnQgnEPWH/CfiecaOAsy
+	c42Zfh4Q8cxsWyHjroTlREDDgj1Zrc6U11QOjxneFPVAyq3wd4KhK7n86YyVN3vSMOwZQpXWfr4
+	w0PycZiNBpYwPkmn14q0H4H9dBGQIepQEkVt9I40Ny9sXeS12bmAAyvucVoZ4Z3pmY3LFITG2AB
+	n8ympnlpl+qOy2Ptm+wnS8zNA2+nkmOqOtDYgoFBLHw2vOaK4NTSheImq4FxqURy0LYmeDPcT7d
+	iecndy3wmPGQeN6kbsni9aC3DcYUxVrDRrgqt4KwURfEQlF9XgTFPT9TGcs9VA9hDODoiVhPndi
+	AGo+SGXROHAea635GvY8YwKMpqmnIqijBRgV17xVCWuFr2WQ==
+X-Received: by 2002:a17:903:28c8:b0:2ae:5671:7071 with SMTP id d9443c01a7336-2ae8252cf0fmr96662285ad.43.1773168050081;
+        Tue, 10 Mar 2026 11:40:50 -0700 (PDT)
+Received: from google.com ([2402:7500:a44:85b:2953:97d3:b283:95c3])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae83e58592sm220535625ad.14.2026.03.10.11.40.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 11:37:37 -0700 (PDT)
-Date: Tue, 10 Mar 2026 18:37:34 +0000
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Hugo Villeneuve <hugo@hugovil.com>, robin@protonic.nl, andy@kernel.org, 
-	geert@linux-m68k.org, robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
-	hvilleneuve@dimonoff.com, mkorpershoek@kernel.org, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, lee@kernel.org, alexander.sverdlin@gmail.com, 
-	marek.vasut@gmail.com, akurz@blala.de, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v4 4/4] Input: charlieplex_keypad: add GPIO charlieplex
- keypad
-Message-ID: <abBkk4Ng-_MDHd6t@google.com>
-References: <20260305192101.2125660-1-hugo@hugovil.com>
- <20260305192101.2125660-5-hugo@hugovil.com>
- <aari1Y1CPZSYEVj3@ashevche-desk.local>
+        Tue, 10 Mar 2026 11:40:49 -0700 (PDT)
+Date: Wed, 11 Mar 2026 02:40:36 +0800
+From: Kuan-Wei Chiu <visitorckw@gmail.com>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev
+Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
+ check - refactor
+Message-ID: <abBlpGKO842B3yl9@google.com>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,38 +99,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aari1Y1CPZSYEVj3@ashevche-desk.local>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
 
-On Fri, Mar 06, 2026 at 04:21:09PM +0200, Andy Shevchenko wrote:
-> On Thu, Mar 05, 2026 at 02:20:50PM -0500, Hugo Villeneuve wrote:
-> > +static void charlieplex_keypad_poll(struct input_dev *input)
-> > +{
-> > +	struct charlieplex_keypad *keypad = input_get_drvdata(input);
-> 
-> > +	int oline;
-> 
-> Why signed?
-> 
-> > +	int code;
-> > +
-> > +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
-> 
-> Can be like
-> 
-> 	code = 0;
-> 	for (unsigned int oline = 0; oline < keypad->nlines; oline++) {
-> 
-> as iterator is not used outside the loop.
-> 
-> > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
-> 
-> > +		int iline;
-> 
-> Why signed?
+Hi Philipp,
 
-Does it make any difference given practical limits on nlines?
+On Tue, Mar 10, 2026 at 12:48:26PM +0100, Philipp Hahn wrote:
+> While doing some static code analysis I stumbled over a common pattern,
+> where IS_ERR() is combined with a NULL check. For that there is
+> IS_ERR_OR_NULL().
+> 
+> I've written a Coccinelle patch to find and patch those instances.
+> The patches follow grouped by subsystem.
+> 
+> Patches 55-58 may be dropped as they have a (minor?) semantic change:
+> They use WARN_ON() or WARN_ON_ONCE(), but only in the IS_ERR() path, not
+> for the NULL check. Iff it is okay to print the warning also for NULL,
+> then the patches can be applied.
+> 
+> While generating the patch set `checkpatch` complained about mixing
+> [un]likely() with IS_ERR_OR_NULL(), which already uses likely()
+> internally. I found and fixed several locations, where that combination
+> has been used.
 
-Thanks.
+Thanks for the patchset. However, I think we need a explanation for why
+switching to IS_ERR_OR_NULL() is an improvement over the existing code.
 
--- 
-Dmitry
+IMHO, the necessity of IS_ERR_OR_NULL() often highlights a confusing or
+flawed API design. It usually implies that the caller is unsure whether
+a failure results in an error pointer or a NULL pointer. Rather than
+doing a treewide conversion of this pattern, I believe it would be much
+more meaningful to review these instances case-by-case and fix the
+underlying APIs or caller logic instead.
+
+Additionally, a treewide refactoring like this has the practical
+drawback of creating unnecessary merge conflicts when backporting to
+stable trees.
+
+Regards,
+Kuan-Wei

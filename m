@@ -1,112 +1,162 @@
-Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3F273B9D84
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 17:10:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01BFF40DFD6
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 17:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773162651; cv=none; b=lqAkOWYgUkgbyMh5R7sNdfaqycvU3Ugenx9nFZisuljQUEDxhQfrUmvLEYeHCrIxu0RUNMGoWkUmVIx1HSDOokN7fwn9JjX5P1H5+Xn1n1xNrxW8gGDUzNWpMaxWqxYoZ7fUgrK57liFX5X+2y0Jm16PVvN/DecKzlj8J3HBI7E=
+	t=1773163796; cv=none; b=VCmmOAyEeMPDsw09InYA1mRekx457L6ts90qbnjyz4Xv6F35JDenpbeRZfVZ33UzsO1APGjGBeY56TsCq7L6nmhjwX5+/ddutx/8NC8ISrZ4qSl9PY9oIjogsw4SNFHWFt71PRE841rulG/dvXPeTgOdOOuQ6WsysQrwLpSFiHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773162651; c=relaxed/simple;
-	bh=07ndbrJflIVkf8+WPofP2WZeeRp05e6JIu3UbX6Kp50=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:Message-ID:
-	 MIME-Version:Content-Type; b=lSJyhga9N/svAx2IeFD4lASPmvZ5Vuycd8ZzguZHa+khdL1hffho5iWZhYpf7JAT4r2cqKCjkvnKtpCIcFp1CxNQpSjARdPmJUW+YbqqRe2APnlCbiCx8u8fadsgI1F574Bc6Oar3gi93gOmL6xlDSLBk+fMkUUoKfjAbsbgLik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=postmarketos.org; spf=pass smtp.mailfrom=postmarketos.org; dkim=pass (2048-bit key) header.d=postmarketos.org header.i=@postmarketos.org header.b=XJ7x/dS7; arc=none smtp.client-ip=91.218.175.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=postmarketos.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=postmarketos.org
+	s=arc-20240116; t=1773163796; c=relaxed/simple;
+	bh=l40j+jh2f/kpVEDQ2DTL5uvYSW5+99uEq+XRihxp/6M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kFa78GufrkmLw9ygmY5Drnumf5xgrXRyv4kWyypNNAUEwQpafNc8lZ0LG6DNfPE6+MTRzYFV5Qw0S5+xss74rQXFoQF7jU0AtNqlSRrFitfypaTnrp0ymKnjdNRSLBfeXMZJd4/vVMoQ/zfNNq/5PJZzMZMJ09S5VT61KM6fTwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lhA7hwQE; arc=none smtp.client-ip=74.125.82.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=postmarketos.org header.i=@postmarketos.org header.b="XJ7x/dS7"
-Date: Tue, 10 Mar 2026 17:08:46 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=postmarketos.org;
-	s=key1; t=1773162647;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=z0zsmE6swrwjZxcPpLTo7Ccdu1wDy0ZaJKXK5yg4Ppg=;
-	b=XJ7x/dS7e+l8XHprHTXdI08ufQkTNp7UiQg1tN0sysJebfPrxheYJNw3mcVAq6GmsSovjs
-	9mp3FKjc1i3SWt3s59PWngd+ET/GUGKSYnkFczC11gboP35lNpLHJUdN4ugMmQ0rVDAUbo
-	ssix3GmGfT3iHBmcSAEZg/dzJDRLMh4ccTh9vuoy1sOlsyu5xlrbLuqpblSipRZTqJgOjw
-	Cnnjf20S02puowKrnW+4Yu/vhK0/9LadBtVb/1zeZjTwXZcDa6JVywHIgSTqTWul9v4ryD
-	DS7fFmMTZslyWb5sL0auTf6+aH0MRfWAYS2gbgCdPIde3yRKWHALZFG8CwQJXg==
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Ferass El Hafidi <funderscore@postmarketos.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>, Hendrik Noack <hendrik-noack@gmx.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] dt-bindings: Input: Add Wacom W9000-series penabled touchscreens
-References: <20260307181557.66927-1-hendrik-noack@gmx.de> <20260307181557.66927-2-hendrik-noack@gmx.de> <20260308-vivacious-coucal-of-current-2d7ac8@quoll> <feae85c4-bea1-40b2-87d5-952b26ff3ee3@gmx.de> <fddf0e3b-707e-41b3-805b-2abeffed6c05@kernel.org> <f067754d-229c-4418-a367-6df5feb6cee0@gmx.de> <21aec29b-595d-4889-a71e-abe9e5ce834f@kernel.org> <tbp04l.1q4xkmdkoohga@postmarketos.org> <0200ee01-b14c-4fec-bbbb-b2a3c0f140f2@kernel.org>
-In-Reply-To: <0200ee01-b14c-4fec-bbbb-b2a3c0f140f2@kernel.org>
-Message-ID: <tbp11w.2apu4pl02emnt@postmarketos.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lhA7hwQE"
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2be8828e632so89644eec.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 10:29:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773163794; x=1773768594; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=gFoQjCDEAsTOhIGMONGAgxTqqQAqRiz05x57wOuY6Hg=;
+        b=lhA7hwQES2dw89ms3TJB/CliS8ApIqv2UUYA5DCObt0H54sBE//ys1CbQluHLbI7IT
+         eDC3as/v+IrKYZ6A5U0z+vY53P8KzguUwSf3+IPZzms4ISoa8GVe6I9C+kNoLshPSoCi
+         Qoe2F5eCmQhaYHdfBxN+XRQDsqUzou1kY1Lnm6lIulBgR3yZpQ+ym+R4RZ68wPOUMeK0
+         /pB4V/WnpEWwb6qHs2O3aNwisRiNobBjFMOH1HKP9yg1DlIi1AuqiM0K/2Ksq+uhQy0Q
+         B4G9jb3WNr0NE5qBnluFxXzFRc7mJHTt9mt+9q9nNCsz/bNPga5nkc3E4z5XamITjkGZ
+         Ru6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773163794; x=1773768594;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gFoQjCDEAsTOhIGMONGAgxTqqQAqRiz05x57wOuY6Hg=;
+        b=XOm9oUHQhP2wkG3K9yX8cYPwsGiOd+wnaiw0IP/DnHamqvzk/LY1mALi16IbFcsC4B
+         ESDw16td3U6wxWZsQscZNYGC1gJVjsdDTxAd78HEkXxX2HZ3HnMv4oafR51Ifp4Fud7i
+         9jcJdYSbMP3l7/zL+wrogE9x25LpQ7tfV1vAy75IcumBXZXGeSKTelYmOy28osOl5wu2
+         fhlb3421+vBfQQ6iEnf56SrCudWM0lo19Y+5HNJZocmJZLZDMNMXtw/2gyTVjZ/OnReC
+         83nim0TuxbzsHAZyCYareGYYUDt0dxSLfJcqfq8rdcGqJoemyZaMEDwD4MC/sVaI38mb
+         GGdA==
+X-Forwarded-Encrypted: i=1; AJvYcCVN5Um58mRnXlxbXtISS4srAyTbMSixes0r0AophN2eIALxmANy3e7rov5v3s91dDLPjwhr/wJPtTgtQA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzopnyB0Rzb6aFmowAt8VUWGdViwgHAKvfdHjsiU0zjcLM0wVQH
+	ZoxpToxJxpxlwjRn2lRCrM1C3Jns1cs3YazY5xkirCkEszJqZhDGfklo
+X-Gm-Gg: ATEYQzwL9nyZ15lkiXJHwJ9mr4JLAjgM6thl2JyXWlont7qL7+83ykK9dn8qS1uXyqH
+	QnHX7gn/GFXkeACB8GkN4B1paMK8KqFpvKOz4cicDLanT8na9wS1PF6Rg9gZ37T3SJFWS7tBJRo
+	h74Fnsr2nuQv3ss2SJYa7YhbESzgJOZ5GjtNcEo8FeR9EWjuEUExx6cOY5CxrGpNc4BIlFr6m4p
+	HUm7Qdk3OQeyUJTwTCi5Twr9L1XLUIIMf3qobMeoMH2m7uJxwMRjp6xoDo23HRmjRVBUhUHLJyh
+	GhzeNUOls8NCUr/By86Zb7wlMFU++oF1hef56Pg6UrZngb9RlsRy9agvewiaOoh/89f2LdofIxX
+	zmFRjLWzkkmtrujVP0G94W6b7awlNdT8rUyZ9xA255aSNrxwXly+d4kQuBVNt0vywGYR+Uo40wf
+	eOdNu5dltD93/9U1cgP5kMc5P2TPkw/A7C1qoM0KifkUR1QX6jSUec4sF3xgk+/rIg
+X-Received: by 2002:a05:7301:3f19:b0:2b6:bb18:c70a with SMTP id 5a478bee46e88-2be7a28d93cmr1648507eec.15.1773163793971;
+        Tue, 10 Mar 2026 10:29:53 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:9:a7a5:8370:70f2:4b53])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be8790b198sm711734eec.14.2026.03.10.10.29.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 10:29:53 -0700 (PDT)
+Date: Tue, 10 Mar 2026 17:29:50 +0000
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Hendrik Noack <hendrik-noack@gmx.de>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Ferass El Hafidi <funderscore@postmarketos.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] dt-bindings: Input: Add Wacom W9000-series
+ penabled touchscreens
+Message-ID: <abBT3jZtpey4-9M7@google.com>
+References: <20260307181557.66927-1-hendrik-noack@gmx.de>
+ <20260307181557.66927-2-hendrik-noack@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=utf-8; format=flowed
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260307181557.66927-2-hendrik-noack@gmx.de>
 
-On Tue, 10 Mar 2026 16:55, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->On 10/03/2026 17:50, Ferass El Hafidi wrote:
->> Hi Krzysztof & Hendrik,
->> 
->> On Mon, 09 Mar 2026 13:21, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->>> On 09/03/2026 14:12, Hendrik Noack wrote:
->>>> Hello Krzysztof,
->>>>
->>>> 09.03.2026 13:56:41 Krzysztof Kozlowski <krzk@kernel.org>:
->>>>
->>>>> On 09/03/2026 13:54, Hendrik Noack wrote:
->>>>>> Hello Krzysztof,
->>>>>>
->>>>>> 08.03.2026 10:15:35 Krzysztof Kozlowski <krzk@kernel.org>:
->>>>>>
->>>>>>> You received review and instruction what to do. Did you read it?
->>>>>>
->>>>>> I read the review of Dmitry and incorporated it into this version.
->>>>>
->>>>> So you ignored my email completely or it did not reach you (it is on
->>>>> lore.kernel.org though)?
->>>>
->>>> I don't know what email you mean. You gave reviews on my first verison, 
->>>> which I already incorporated in v2 and then gave a review-by on v2, 
->>>> which I also added on v3, but now dropped, because I added a property
->>>> to the DT binding.
->>>
->>> The instruction I gave you when giving review.
->> 
->> If you gave review on the v3 dt-bindings, I can't find it on lore:
->> https://lore.kernel.org/all/20251205152858.14415-2-hendrik-noack@gmx.de/
->> 
->> On v2 you gave a R-b to the dt-bindings along with some instructions:
->> https://lore.kernel.org/all/2bf9dbd4-351e-4a79-9fcf-e41c5273d0be@kernel.org/
->> which were followed from what I can tell; your R-b was retained on v3,
->> but dropped on this revision (v4) because of new properties being added
->> (new `reset-gpio` property, technically also `wacom,w9002` compatible
->> but my understanding is new compatibles don't really matter much), as
->> your email said "Please add Acked-by/Reviewed-by/Tested-by tags when
->> posting new versions [...] unless patch changed (e.g. new properties
->> added to the DT bindings)".
->
->Thanks. I also provided the link further explaining what one has to do
->if one ever decide to drop the review.
+Hi Hendrik,
 
-Assuming you're talking about that R-b dropping should be mentioned in
-the cover letter, that was probably just overlooked.
+On Sat, Mar 07, 2026 at 07:15:32PM +0100, Hendrik Noack wrote:
+> Add bindings for Wacom W9002 and two Wacom W9007 variants which can be
+> found in tablets.
+> 
+> Co-developed-by: Ferass El Hafidi <funderscore@postmarketos.org>
+> Signed-off-by: Ferass El Hafidi <funderscore@postmarketos.org>
+> Signed-off-by: Hendrik Noack <hendrik-noack@gmx.de>
+> ---
+>  .../input/touchscreen/wacom,w9007a-lt03.yaml  | 86 +++++++++++++++++++
+>  1 file changed, 86 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,w9007a-lt03.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,w9007a-lt03.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,w9007a-lt03.yaml
+> new file mode 100644
+> index 000000000000..feb87f5db39d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,w9007a-lt03.yaml
+> @@ -0,0 +1,86 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/wacom,w9007a-lt03.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Wacom W9000-series penabled I2C touchscreen
+> +
+> +maintainers:
+> +  - Hendrik Noack <hendrik-noack@gmx.de>
+> +
+> +description: |
+> +  The W9000-series are penabled touchscreen controllers by Wacom.
+> +
+> +  The firmware of chips between devices can differ and with it also
+> +  how the chips behaves.
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - wacom,w9002
+> +      - wacom,w9007a-lt03
+> +      - wacom,w9007a-v1
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  vdd-supply:
+> +    description:
+> +      Optional regulator for the VDD digital voltage.
+> +
+> +  flash-mode-gpios:
+> +    maxItems: 1
+> +    description:
+> +      Optional GPIO specifier for the touchscreen's flash-mode pin.
+> +
+> +  pen-inserted-gpios:
+> +    maxItems: 1
+> +    description:
+> +      Optional GPIO specifier for the touchscreen's pen-insert pin.
 
->
->Dropping it silently is for me rather sign I should ignore this patchset
->to avoid wasting time of lost reviews.
+Looking at this again this has nothing to do with the W9000 touchscreen
+controller. The behavior is applicable to any device with a touchscreen
+and a pen.
 
-That was most likely not the intent, I think your feedback is valuable.
+Rather this is a generic functionality/policy to put the pen
+interface in low power mode when it is put away. I think this should be
+done by userspace through combination to listening to the
+SW_PEN_INSERTED events (via gpio-keys driver) and toggling "inhibit" on
+the touchscreen device.
 
-Best regards,
-Ferass
+Thanks.
 
-[PS: I see you left some review after your last email, thank you for
-     your time and sorry for the inconvenience.]
-
->
->Best regards,
->Krzysztof
+-- 
+Dmitry

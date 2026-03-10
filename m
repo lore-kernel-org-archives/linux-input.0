@@ -1,301 +1,224 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72B4E28468E
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 05:23:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 629A83E8C5B
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773120209; cv=none; b=j1xW7fWEz7hjGAAcouNZEgejsNsUxopw39AFMP8rlPHv7gOyvqxcnAcMkeU00vsIjqliZK9rKmptendB5LdrfeR/L9MO/Ubz+tBiYQreBoEGiqHx3H5dnA5dCbG6qdSwrUBcDRH9mwreVlzhDlDyi/bRefavU7/O1QDpbZeTcao=
+	t=1773127783; cv=none; b=Qaxmn2QMdO2WeBTHkLMn8s/+AKfDE7e+brpRkO/Sk4V+ZCoFQJg5fNRagOLdmz3d+HjVQTOXmpyNghKU77L5s3PwvddpaJ3VX/Udf58OnXvm76WY2Uu2YDFLY+MPoy4wt5uhGNMGuzpPraUEY9As1e0RpkgiTmblmU/lgXvT9/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773120209; c=relaxed/simple;
-	bh=lBOuzX4l01Q2yWEDul1sU6XJKR4kAa0JQYNHakDq5rk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=QRo0Sh2D3QhBYi499sKexoFsCQjSQtuv6OZR/pvB1xVQDUQzYC3ge/MA3rpPK8ofBTVtQnVKrLpx8OA5wHjG97MLT19soWFzO/ruxtCphjYP9WR0QZXg+tBXzv4gnhUhPr57f4rsJJjB4mHTK26m37anqk4KVHZ2kfJFzgjZAmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=vVLkZu/o; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1773127783; c=relaxed/simple;
+	bh=b+DOz3vZdL+D98QLf9xPAO77+3xK09W3fKXvmW7+8Fs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hqZ1Vbfn90bRcnk/zUFNgGg9OFyKLmSET8dKB3zR3pCdd3glBl73L/hRGWHkEvbedu7CQVjAslJCYsAakgPTn5Ga4PCKKDgbqcvjDp+8pM+A12XF3LRQIlHEG9rn4FKdsyNKT8CrT1V1r1n4D9l0dGeGksYKyu1Lui7Ax3iGiKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S4J54rft; arc=none smtp.client-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="vVLkZu/o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1773120207; bh=lBOuzX4l01Q2yWEDul1sU6XJKR4kAa0JQYNHakDq5rk=;
-	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=vVLkZu/ouS2sRqrPdC7Fu23EFIIE2xZl878hGAugigt+MnK1Vbog2VEFGF01q2QDr
-	 M4vDR2Jo5ILlsHzCINzkJAt/juO+lb/SdvUnDdrp2WJDRFqoUoZsenDnXH2/+4WoWw
-	 AntpRm13yda++yu/X1Rirb/I7AxjOtwriPY9YdSVYBSdw78eFuc1Kcv2wNUKKD/Ptx
-	 wqaTjPDPXP+L/1E9Vcg2d8xMOwweykGcVVOit6BBG0DbNeFWXo97LF/PTbFuj4Qq0w
-	 QAi1Nghx78DpCwpxdwcoA+loBPNSLDZn42R1envIMXcHPUs9BiMXb6IvCDXTFtEAA5
-	 92i66nIdstNVg==
-Received: from [192.168.0.22] (71-212-14-89.tukw.qwest.net [71.212.14.89])
-	by endrift.com (Postfix) with ESMTPSA id BCB26A0AA;
-	Mon, 09 Mar 2026 22:23:27 -0700 (PDT)
-Message-ID: <bef55d2b-7f06-48ea-a827-da935f9a8b63@endrift.com>
-Date: Mon, 9 Mar 2026 22:23:26 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S4J54rft"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2bdd40d3c61so10758531eec.1
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773127780; x=1773732580; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ungc3nKaebEzF/mNg2XGVfrnqyJR5bO1BbUSyVSIAiQ=;
+        b=S4J54rft75ETzVGwMBjrz25CEczSvnHpZgV3kdRJmJ0X7zRcZtXKiWrbTRKkxrw0oK
+         oTlMw2BJSUkG2vxyl8w0yh47FVmzA7DjPHUN+fihq9k38hQ0lk7MXG3+nhl/ZePviKmz
+         vbC5ZBM70gcWAYMv/IOU0YmfGkNuzt8Z7ZEwKxiKTF9hbAFSoSU+Jh83xC7S6s7rirs4
+         7SdOD4tZaS5dpAWNp+/CKFL3EjoFZN/LAAfPP1TnHINntsF5Y+MfCHd974hBlIORFOHB
+         SLWgOAmQawPOFe0X/wdZO4cMLRQdR+fZ2ZEKuWizsJiQEwY7Eh6daK5Hm+Lv3BGeDEJR
+         8QZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773127780; x=1773732580;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ungc3nKaebEzF/mNg2XGVfrnqyJR5bO1BbUSyVSIAiQ=;
+        b=V9/jYM955JxkH88jLafHkHZvZUBLEJRYiuMErjrEAZ8iYoNFjQLTfc+Uo2fgCB62L8
+         pH//431Kijc2Ks1UBov9OWMK7ibo3hM2cfu1JvQL9FsvR1BkcG8xfPMqZdxRZDFmk3tq
+         n7kdfSp0aZPKbRWZzoDiUP+6N1f/RC6C1WDm3P7XiQkTqDbyCIQdZjiub/BQK8DeHbgr
+         VdOdw2SO6K0vn24bWi2KN6BrTVT7vAba6xFF+ea3krJ+oq3Scei2H7J5tPj1V+92nVxJ
+         IGRX6KTKpyZkqotyY2s6az5UfT9lh+jwGlVNwHuyzRXDIEWzEaWDWkBWGPPEDo4vOR3W
+         GHjA==
+X-Forwarded-Encrypted: i=1; AJvYcCWxM7DyYX94E9N318WhlGc4TQayrdPifTnmi1L2m6N8vbHd9iCUrB0HiYNmezNm4YQblEKUtXSXBzf9gQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwxVg6LDGkdZko7W95Dh+xUiTCDW6TyCTybAR+Mlo+NbAuGpscR
+	qIA2/3samLrfD2Hq3HP4AMRHofyA65XbT3F7WBcvESvu+7lqegofTmYG
+X-Gm-Gg: ATEYQzxeh4DvpBOHwVxnk9kn/sdTv7plvun7dp3/KwuUQ0uP1HYTRI9M2BSnDgVkYw/
+	qrkL61zjEknJtmBJgeJFZwlEHIJsSZcAb7k/oAVCofIGFSYxeFZdntvnIOkYb7coTejyXRmk+2t
+	ahfdny907OKWBhhNH0Ge6fV0z2k5GsNOPgZvfVxab/SsuuciDiNd+elUjGuNbVh0O7rrziOgK3z
+	N5iM5OXO2ienYxheKQCbIRpJLnKutC8p0FN3iOf10A6o6Oyc6P6HqS0WrRFG2JJEiGEY9EoTdo6
+	4BtALEkx/b6mCE9wGddZjKA4ZP2odvJCAbD79fmglEXZIzrUYPb13rYxxiEq3ti6SWO/hWB75iU
+	Harf9tnALroJE+Up8Wtg15UTWxAZNd0ZVs0DaEi8dFkEdJlmwSW8xeqt3H5C5qGzDFIipDkviSp
+	hyZdqbnCJrDsx639Mop6m90ZQqQh6vEQm6wiDVnmepjt92fVR0b4epGhq4DIMrTeZZ8eidvSZRQ
+	HKhdr43J5sUReo=
+X-Received: by 2002:a05:7301:1286:b0:2ba:6a79:f04c with SMTP id 5a478bee46e88-2be4e055dc5mr5269084eec.18.1773127780326;
+        Tue, 10 Mar 2026 00:29:40 -0700 (PDT)
+Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 00:29:39 -0700 (PDT)
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Richard Hughes <hughsient@gmail.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Zhixin Zhang <zhangzx36@lenovo.com>,
+	Mia Shao <shaohz1@lenovo.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6 00/19] HID: Add Legion Go and Go S Drivers
+Date: Tue, 10 Mar 2026 07:29:18 +0000
+Message-ID: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 10/10] Input: xbox_gip - Add flight stick support
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-References: <20260310052017.1289494-1-vi@endrift.com>
- <20260310052017.1289494-11-vi@endrift.com>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-In-Reply-To: <20260310052017.1289494-11-vi@endrift.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 3/9/26 10:20 PM, Vicki Pfau wrote:
-> This adds preliminary flight stick support, with a few caveats:
-> 
-> - Flight sticks support up to 64 extra buttons. This only exposes the first
->   50, as there isn't any good place to map the remainder.
-> - Flight sticks support up to 12 extra axes. This picks a fairly abritrary
->   mapping for them, as there's again no good place to map them.
-> 
-> Flight sticks also have addressible LEDs, but I don't have a device that
-> supports them so I can't test them yet.
-> 
-> Signed-off-by: Vicki Pfau <vi@endrift.com>
-> ---
->  drivers/input/joystick/gip/Makefile           |   2 +-
->  drivers/input/joystick/gip/gip-core.c         |   4 +-
->  drivers/input/joystick/gip/gip-flight-stick.c | 179 ++++++++++++++++++
->  drivers/input/joystick/gip/gip.h              |   1 +
->  4 files changed, 184 insertions(+), 2 deletions(-)
->  create mode 100644 drivers/input/joystick/gip/gip-flight-stick.c
-> 
-> diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
-> index db6c9079c7e18..4de873f77a020 100644
-> --- a/drivers/input/joystick/gip/Makefile
-> +++ b/drivers/input/joystick/gip/Makefile
-> @@ -1,3 +1,3 @@
->  # SPDX-License-Identifier: GPL-2.0-or-later
->  obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
-> -xbox-gip-y := gip-arcade-stick.o gip-core.o gip-drivers.o gip-wheel.o
-> +xbox-gip-y := gip-arcade-stick.o gip-core.o gip-drivers.o gip-flight-stick.o gip-wheel.o
-> diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-> index 773d7705b7be8..17e2be5cd2444 100644
-> --- a/drivers/input/joystick/gip/gip-core.c
-> +++ b/drivers/input/joystick/gip/gip-core.c
-> @@ -11,9 +11,10 @@
->   * - Sending fragmented messages
->   * - Raw character device
->   * - Wheel force feedback
-> - * - Flight stick support
->   * - More arcade stick testing
->   * - Arcade stick extra buttons
-> + * - More flight stick testing
-> + * - Flight stick LEDs
->   * - Split into driver-per-attachment GIP-as-a-bus approach drivers
->   *
->   * This driver is based on the Microsoft GIP spec at:
-> @@ -319,6 +320,7 @@ static const struct gip_driver* base_drivers[] = {
->  	&gip_driver_arcade_stick,
->  	&gip_driver_trueforce_wheel,
->  	&gip_driver_wheel,
-> +	&gip_driver_flight_stick,
->  	NULL /* Sentinel */
->  };
->  
-> diff --git a/drivers/input/joystick/gip/gip-flight-stick.c b/drivers/input/joystick/gip/gip-flight-stick.c
-> new file mode 100644
-> index 0000000000000..c2b913a012d0e
-> --- /dev/null
-> +++ b/drivers/input/joystick/gip/gip-flight-stick.c
-> @@ -0,0 +1,179 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Drivers for GIP flight stick devices
-> + *
-> + * Copyright (c) 2025 Valve Software
-> + *
-> + * This driver is based on the Microsoft GIP spec at:
-> + * https://aka.ms/gipdocs
-> + * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
-> + */
-> +#include "gip.h"
-> +
-> +/* FlightStick vendor messages */
-> +#define GIP_CMD_DEVICE_CAPABILITIES	0x00
-> +#define GIP_CMD_LED_CAPABILITIES	0x01
-> +#define GIP_CMD_SET_LED_STATE		0x02
-> +
-> +/*
-> + * The spec defines up to 64 extra buttons and 12 extra axes, but there's
-> + * currently no good way to map all of them. For now, let's leave it as a much
-> + * smaller number.and add more when we get a better way.
-> + */
-> +#define MAX_GIP_FLIGHT_STICK_BUTTONS 10
-> +#define MAX_GIP_FLIGHT_STICK_AXES 1
-> +
-> +struct gip_flight_stick_capabilities_response {
-> +	uint8_t extra_button_count;
-> +	uint8_t extra_axis_count;
-> +	uint8_t led_count;
-> +	uint8_t max_global_led_gain;
-> +};
-> +
-> +static const unsigned int gip_flight_stick_extra_buttons[] = {
-> +	BTN_0,
-> +	BTN_1,
-> +	BTN_2,
-> +	BTN_3,
-> +	BTN_4,
-> +	BTN_5,
-> +	BTN_6,
-> +	BTN_7,
-> +	BTN_8,
-> +	BTN_9,
-> +};
-> +
-> +static const unsigned int gip_flight_stick_extra_axes[] = {
-> +	ABS_RUDDER,
-> +};
-> +
-> +static int gip_flight_stick_init(struct gip_attachment *attachment)
-> +{
-> +	int rc = gip_send_vendor_message(attachment, GIP_CMD_DEVICE_CAPABILITIES, 0, NULL, 0);
-> +
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	return GIP_INIT_NO_INPUT;
-> +}
-> +
-> +static int gip_setup_flight_stick_input(struct gip_attachment *attachment, struct input_dev* input)
-> +{
-> +	int i;
-> +	int rc = gip_driver_navigation.setup_input(attachment, input);
-> +
-> +	if (rc)
-> +		return rc;
-> +
-> +	input_set_capability(input, EV_KEY, BTN_TOP);
-> +	input_set_capability(input, EV_KEY, BTN_TOP2);
-> +	for (i = 0; i < attachment->extra_buttons && i < MAX_GIP_FLIGHT_STICK_BUTTONS; i++)
-> +		input_set_capability(input, EV_KEY, BTN_0 + i);
-> +	if (attachment->extra_buttons > MAX_GIP_FLIGHT_STICK_BUTTONS)
-> +		dev_info(GIP_DEV(attachment),
-> +			"Device has too many extra buttons, %i through %i ignored\n",
-> +			MAX_GIP_FLIGHT_STICK_BUTTONS,
-> +			attachment->extra_buttons + 1);
-> +	input_set_abs_params(input, ABS_X, -32768, 32767, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, -32768, 32767, 0, 0);
-> +	input_set_abs_params(input, ABS_Z, -32768, 32767, 0, 0);
-> +	input_set_abs_params(input, ABS_THROTTLE, 0, 65535, 0, 0);
-> +	for (i = 0; i < attachment->extra_axes && i < MAX_GIP_FLIGHT_STICK_AXES; i++)
-> +		input_set_abs_params(input, gip_flight_stick_extra_axes[i], 0, 65535, 0, 0);
-> +
-> +	return 0;
-> +}
-> +
-> +static int gip_handle_flight_stick_report(struct gip_attachment *attachment,
-> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
-> +{
-> +	int32_t axis;
-> +	int rc = gip_driver_navigation.handle_input_report(attachment, input, bytes, num_bytes);
-> +	int i;
-> +
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (num_bytes < 19)
-> +		return -EINVAL;
-> +
-> +	/* Fire 1 and 2 */
-> +	input_report_key(input, BTN_TOP, bytes[2] & BIT(0));
-> +	input_report_key(input, BTN_TOP2, bytes[2] & BIT(1));
-> +
-> +	for (i = 0; i < attachment->extra_buttons && i < MAX_GIP_FLIGHT_STICK_BUTTONS; i++) {
-> +		input_report_key(input, gip_flight_stick_extra_buttons[i],
-> +			bytes[i / 8 + 3] & BIT(i));
-> +	}
-> +
-> +	/*
-> +	 * Roll, pitch and yaw are signed. Throttle and any
-> +	 * extra axes are unsigned. All values are full-range.
-> +	 */
-> +	axis = bytes[11];
-> +	axis |= bytes[12] << 8;
-> +	input_report_abs(input, ABS_X, (int16_t) axis);
-> +
-> +	axis = bytes[13];
-> +	axis |= bytes[14] << 8;
-> +	input_report_abs(input, ABS_Y, (int16_t) axis);
-> +
-> +	axis = bytes[15];
-> +	axis |= bytes[16] << 8;
-> +	input_report_abs(input, ABS_Z, (int16_t) axis);
-> +
-> +	axis = bytes[17];
-> +	axis |= bytes[18] << 8;
-> +	input_report_abs(input, ABS_THROTTLE, axis);
-> +
-> +	for (i = 0; i < attachment->extra_axes && i < MAX_GIP_FLIGHT_STICK_AXES; i++) {
-> +		if (20 + i * 2 >= num_bytes)
-> +			break;
-> +
-> +		axis = bytes[19 + i * 2];
-> +		axis |= bytes[20 + i * 2] << 8;
-> +		input_report_abs(input, gip_flight_stick_extra_axes[i], axis);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int gip_handle_flight_stick_cmd_device_capabilities(struct gip_attachment *attachment,
-> +	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
-> +{
-> +	const struct gip_flight_stick_capabilities_response *response =
-> +		(const struct gip_flight_stick_capabilities_response*)bytes;
-> +	struct input_dev *input;
-> +
-> +	rcu_read_lock();
-> +	input = rcu_dereference(attachment->input);
-> +	rcu_read_unlock();
-> +	if (input)
-> +		return 0;
-> +
-> +	if (num_bytes < 4)
-> +		return -EINVAL;
-> +
-> +	attachment->extra_axes = min(response->extra_axis_count, MAX_GIP_FLIGHT_STICK_AXES);
-> +	attachment->extra_buttons = min(response->extra_button_count, MAX_GIP_FLIGHT_STICK_BUTTONS);
-> +	return gip_setup_input_device(attachment);
-> +}
-> +
-> +const struct gip_driver gip_driver_flight_stick = {
-> +	.types = (const char* const[]) {
-> +		"Windows.Xbox.Input.FlightStick",
-> +		"Microsoft.Xbox.Input.FlightStick",
-> +		NULL
-> +	},
-> +	.guid = GUID_INIT(0x03f1a011, 0xefe9, 0x4cc1, 0x96, 0x9c,
-> +		0x38, 0xdc, 0x55, 0xf4, 0x04, 0xd0),
-> +
-> +	.probe = NULL,
-> +	.remove = NULL,
-> +	.init = gip_flight_stick_init,
-> +	.setup_input = gip_setup_flight_stick_input,
-> +	.handle_input_report = gip_handle_flight_stick_report,
-> +	.vendor_handlers = {
-> +		[GIP_CMD_DEVICE_CAPABILITIES] = gip_handle_flight_stick_cmd_device_capabilities,
-> +	},
-> +};
-> diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-> index 3b5cab96dc0b7..6d70a69d99a39 100644
-> --- a/drivers/input/joystick/gip/gip.h
-> +++ b/drivers/input/joystick/gip/gip.h
-> @@ -323,4 +323,5 @@ extern const struct gip_driver gip_driver_gamepad;
->  extern const struct gip_driver gip_driver_arcade_stick;
->  extern const struct gip_driver gip_driver_wheel;
->  extern const struct gip_driver gip_driver_trueforce_wheel;
-> +extern const struct gip_driver gip_driver_flight_stick;
->  #endif
+This series adds configuration driver support for the Legion Go S,
+Legion Go, and Legion Go 2 built-in controller HID interfaces. This
+allows for configuring hardware specific attributes such as the auso
+sleep timeout, rumble intensity, etc. non-configuration reports are
+forwarded to the HID subsystem to ensure no loss of functionality in
+userspace. Basic gamepad functionality is provided through xpad, while
+advanced features are currently only implemented in userspace daemons
+such as InputPlumber[1]. I plan to move this functionality into the
+kernel in a later patch series.
 
-Shoot, I didn't mean to send this tenth patch. I don't consider it ready due to issues with evdev mapping of purely-numeric, unnamed inputs, but the other 9 should be.
+Three new device.h macros are added that solve a fairly specific
+problem. Many of the attributes need to have the same name as other
+attributes when they are in separate attribute subdirectories. The
+previous version of this series, along with the upcoming his-asus-ally
+driver[2] use this macro to simplify the sysfs by removing redundancy.
+An upcoming out of tree driver for the Zotac Zone [3] also found this
+macro to be useful. This greatly reduces the path length and term
+redundancy of file paths in the sysfs, while also allowing for cleaner
+subdirectories that are grouped by functionality. Rather than carry the
+same macro in four drivers, it seems beneficial to me that we include the
+macro with the other device macros.
 
-Vicki
+A new HID uevent property is also added, HID_FIRMWARE_VERSION, so as to
+permit fwupd to read the firmware version of the Go S HID interface without
+detaching the kernel driver.
+
+Finally, there are some checkpatch warnings that will need to be supressed:
+WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+1292: FILE: drivers/hid/lenovo-legos-hid/lenovo-legos-hid-config.c:1085:
++       case -ENOSYS: /* during rmmod -ENOSYS is expected */
+
+This error handling case was added as it is experienced in the real world
+when the driver is rmmod. The LED subsystem produces this error code in
+its legacy code and this is not a new novel use of -ENOSYS, we are simply
+catching the case to avoid spurious errors in dmesg when the drivers are
+removed.
+
+[1]: https://github.com/ShadowBlip/InputPlumber/tree/main/src/drivers/lego
+[2]: https://lore.kernel.org/all/20240806081212.56860-1-luke@ljones.dev/
+[3]: https://github.com/flukejones/linux/tree/wip/zotac-zone-6.15/drivers/hid/zotac-zone-hid
+
+Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+---
+Change Log
+v6:
+  - Include multiple bug fixes from Ethan Tidmore.
+  - Make all local attributes static.
+  - Invert the rgb_speed logic for the go driver. On the Go this
+    attribute sets a delay, so flip the logic to match Go S where the
+    larger number means faster so userspace can target this consistently.
+  - Include 3 new patches that fix formatting issues with v5 authored by
+    additional developers.
+v5: https://lore.kernel.org/linux-input/20260224013217.1363996-1-derekjohn.clark@gmail.com/
+  - Make all RO attributes cache the data during probe using delayed
+    work for both drivers. All RW attributes are read in realtime to
+    ensure they match the device current state in the event of firmware
+    reset or a userspace application.
+  - Fix endianness of version strings and print as hex for Go driver.
+  - Remove reset__esume function. It was not being hit as the MCU of
+    both devices disconnects of suspend, forcing a reinit of the driver.
+    Udev or userpsace will need to set the OS Mode upon resume.
+v4: https://lore.kernel.org/linux-input/20260220070533.4083667-1-derekjohn.clark@gmail.com/
+  - Use dmabuf allocated per request for both drivers instead of a devm
+    preallocated buffer that is reused. This solves a bug where some
+    attributes couldn't be restored without manual writing after resume.
+  - Reduce the number of quirks and flags in the Go S init to only those
+    necessary. Previously they were duplicated from the Go driver but
+    everything except HID_CONNECT_HIDRAW was found to be unnessary
+    during operational testing.
+  - Clean up formatting for debug prints in Go S driver.
+  - Fix bugs in RGB driver for Go that caused the effect to switch to
+    solid when the speed or brightness was changed.
+  - Remove extraneous setting of os_mode member of drvdata when setting
+    os_mode. It will be read from the hardware in _show.
+v3: https://lore.kernel.org/linux-input/20260124014907.991265-1-derekjohn.clark@gmail.com/
+  - Fix Documentation formatting by removing extra + characters.
+  - Fix bugs in hid-lenovo-go-s IMU & TP RO attributes being tied to the
+    wrong _show function.
+  - Rename enume os_mode_index to os_mode_types_index to fix collision
+    with os_mode_index attribute.
+  - Remove accidental rename for enabled->enable attributes in patch 4
+  - Add SOB for Mario in patch 10 as Co-Developer.
+v2: https://lore.kernel.org/linux-input/20251229031753.581664-1-derekjohn.clark@gmail.com/
+  - Break up adding the Go S driver into feature specific patches.
+  - Rename Go S driver from lenovo-legos-hid to hid-lenovo-go-s and move
+    it out of a subdirectory.
+  - Drop the arbitrary uevent properties patch.
+  - Add Go series driver.
+  - Move DEVICE_ATTR_NAMED macros to device.h.
+v1: https://lore.kernel.org/linux-input/20250703004943.515919-1-derekjohn.clark@gmail.com/
+
+Chen Ni (2):
+  HID: hid-lenovo-go-s: Remove unneeded semicolon
+  HID: hid-lenovo-go: Remove unneeded semicolon
+
+Colin Ian King (1):
+  HID: hid-lenovo-go-s: Fix spelling mistake "configuratiion" ->
+    "configuration"
+
+Derek J. Clark (15):
+  include: device.h: Add named device attributes
+  HID: hid-lenovo-go: Add Lenovo Legion Go Series HID Driver
+  HID: hid-lenovo-go: Add Feature Status Attributes
+  HID: hid-lenovo-go: Add Rumble and Haptic Settings
+  HID: hid-lenovo-go: Add FPS Mode DPI settings
+  HID: hid-lenovo-go: Add RGB LED control interface
+  HID: hid-lenovo-go: Add Calibration Settings
+  HID: hid-lenovo-go: Add OS Mode Toggle
+  HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver
+  HID: hid-lenovo-go-s: Add MCU ID Attribute
+  HID: hid-lenovo-go-s: Add Feature Status Attributes
+  HID: hid-lenovo-go-s: Add Touchpad Mode Attributes
+  HID: hid-lenovo-go-s: Add RGB LED control interface
+  HID: hid-lenovo-go-s: Add IMU and Touchpad RO Attributes
+  HID: Add documentation for Lenovo Legion Go drivers
+
+Mario Limonciello (1):
+  HID: Include firmware version in the uevent
+
+ .../ABI/testing/sysfs-driver-hid-lenovo-go    |  724 +++++
+ .../ABI/testing/sysfs-driver-hid-lenovo-go-s  |  304 ++
+ MAINTAINERS                                   |   11 +
+ drivers/hid/Kconfig                           |   24 +
+ drivers/hid/Makefile                          |    2 +
+ drivers/hid/hid-core.c                        |    5 +
+ drivers/hid/hid-ids.h                         |    7 +
+ drivers/hid/hid-lenovo-go-s.c                 | 1506 ++++++++++
+ drivers/hid/hid-lenovo-go.c                   | 2502 +++++++++++++++++
+ include/linux/device.h                        |   46 +
+ include/linux/hid.h                           |    1 +
+ 11 files changed, 5132 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+ create mode 100644 drivers/hid/hid-lenovo-go-s.c
+ create mode 100644 drivers/hid/hid-lenovo-go.c
+
+-- 
+2.53.0
+

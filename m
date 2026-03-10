@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54D634611EB;
-	Tue, 10 Mar 2026 09:02:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C8547279B;
+	Tue, 10 Mar 2026 09:02:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773133346; cv=none; b=YwkkF37FOh0UjcUdfev9dRnwslyVBfmRNG2wBAyLBqtzNRJwL9EPWuo1GEXzj8Dp6M1k51n4h0HxPyqp9sAl33dabAih9LmBEjFymiX/pwCaRSh8KVkKcwwPwDSGbSvBNEa25NfCuQ7UEyPzm7TGThGeKBxObG4jXQ/7hOguMFQ=
+	t=1773133359; cv=none; b=Wzq5uo2tAADO9OWC+MymFYf83CYc4hQLZThZgsRkInkSUcK4Cd+cjEWtotZHoYgbqIvZbiTw+62/1lRIJR1QwfVamg9hSypl0MZuwHxOCxXKhx5L43qxO7KeMXJoGPDxhG6g6gjQeJBrWXxYsbug67vhnrWgUb5Ey6LyRtJT3pY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773133346; c=relaxed/simple;
-	bh=kJ9yAoKqQR0qPa9X6EJY1Faa7AXdnaoQnpLA7rvbQS8=;
+	s=arc-20240116; t=1773133359; c=relaxed/simple;
+	bh=K997Wr3ov2A3p7MGNXnHurRpkz+YGz/zVkoBQxQymvs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MIPv+YNyVNo0andMqFwO9Y5CCzw8ujb/ltMzFw0eyslPu0aHuH4Li4NEdlG+7uEo2SPYIL1CCi4iL0LEo4Aw3gQKYR0QibukJW+BSn6bUD5Ch/gCB8RmIlz6kpbKK7R1z41UKfFxQQFb2hUHQOPr19r3zpQYNdOYLc5I+F+m4Y0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/M9COnx; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=KjDP+XXIfZcbdw/YsiF6mvbBwzTP5I0848OuQWcDiUQURBTdMDpBgZ4hNbUbNcExBdQlNpJ4/tXpsgCo/mKv1WppsPOGrDrA3GC74jOjSPvhqJpSEVtQJ3jxF+GhscPBisj/3G9XhKWPjupWQsYtlLr5YeEEGB4IEYDfts2rN5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ROUZAKjE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/M9COnx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34AE2C2BC9E;
-	Tue, 10 Mar 2026 09:02:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ROUZAKjE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D02A2C19423;
+	Tue, 10 Mar 2026 09:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773133346;
-	bh=kJ9yAoKqQR0qPa9X6EJY1Faa7AXdnaoQnpLA7rvbQS8=;
+	s=k20201202; t=1773133358;
+	bh=K997Wr3ov2A3p7MGNXnHurRpkz+YGz/zVkoBQxQymvs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=I/M9COnxW8j/hvE6m+KXdZuTWcVPG+jCZflpXB1hi/NhR+0ONcihynp6cazUmfzJV
-	 K8WZLXAvqCKj8YmT5+6bVcs0OQTZPe/0ZP6PnbRCWLSoUj7pBIVtSs8D/ynUQVTohB
-	 NbhBjBpCQxWCsADCdV93UmvRLGik0fGSb5nE7Pn147uivBSbW9dgKL8ibJ0FYkQW6k
-	 fsvuwU2tTthXmlTw7dUD8adaXlH36YnBt0Wosaou1kPFQQE88YQyN42AxHlnzINeUN
-	 AVbgDx4hDR5+osDoaOYHpGIYwvllJAghl4DmiLmBhM+CXOmNPbsrl2cjweD/3VOO4c
-	 B3Mv1si3lzFug==
+	b=ROUZAKjEY2XRlpwcxj7BoUkUrj9vQk95tfX8mcyIY3s/j6xJAcWSY0eCenODgYJD8
+	 jXD2US7fHC9QXub8iTKzd03JeXhEDgR+c4bmqwqf2rqR9+2UXT0KiK3yDbebXRrMM6
+	 5Jsunjp6VJ31H02snV39FtgX9HfzHY82X3isRxLt0w+WTG9tYUpz6YAwo1j3NWMSSm
+	 U3qUhc/jmc2+NHf49IVyYDzMoNDhGUBz4xCoBWtBplUe6a5iiR/sBmKXowwfqVQWT7
+	 qqlRhFKZtG++2joh7Z8l9ZdtsknGvcWoSbsPu7EncGtbllCNqbi/1TrirbnM3HDBAQ
+	 nWfKNdiCrJRIw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.de>,
+Cc: Julius Lehmann <lehmanju@devpi.de>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.12] HID: apple: Add EPOMAKER TH87 to the non-apple keyboards list
-Date: Tue, 10 Mar 2026 05:01:27 -0400
-Message-ID: <20260310090145.2709021-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-5.15] HID: magicmouse: fix battery reporting for Apple Magic Trackpad 2
+Date: Tue, 10 Mar 2026 05:01:36 -0400
+Message-ID: <20260310090145.2709021-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260310090145.2709021-1-sashal@kernel.org>
 References: <20260310090145.2709021-1-sashal@kernel.org>
@@ -51,113 +51,103 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.19.6
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Julius Lehmann <lehmanju@devpi.de>
 
-[ Upstream commit 7c698de0dc5daa1e1a5fd1f0c6aa1b6bb2f5d867 ]
+[ Upstream commit 5f3518d77419255f8b12bb23c8ec22acbeb6bc5b ]
 
-EPOMAKER TH87 has the very same ID as Apple Aluminum keyboard
-(05ac:024f) although it doesn't work as expected in compatible way.
+Battery reporting does not work for the Apple Magic Trackpad 2 if it is
+connected via USB. The current hid descriptor fixup code checks for a
+hid descriptor length of exactly 83 bytes. If the hid descriptor is
+larger, which is the case for newer apple mice, the fixup is not
+applied.
 
-Put three entries to the non-apple keyboards list to exclude this
-device: one for BT ("TH87"), one for USB ("HFD Epomaker TH87") and one
-for dongle ("2.4G Wireless Receiver").
+This fix checks for hid descriptor sizes greater/equal 83 bytes which
+applies the fixup for newer devices as well.
 
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1258455
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Julius Lehmann <lehmanju@devpi.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The patch just adds three string entries to the array. The only concern
-is whether the exact context (previous entries) exists in stable trees,
-but since this is just appending to an array, even if some intermediate
-entries are missing, the patch can be trivially adjusted.
+## Analysis
 
-### Problem Being Fixed
+### Problem
+Battery reporting doesn't work for Apple Magic Trackpad 2 when connected
+via USB if the HID descriptor is larger than exactly 83 bytes. Newer
+Apple devices have expanded HID descriptors, so the original strict
+equality check (`*rsize == 83`) causes the battery report fixup to be
+silently skipped.
 
-The EPOMAKER TH87 keyboard uses the same USB vendor/product ID as Apple
-Aluminum keyboards (05ac:024f). Without this fix, the hid-apple driver
-applies Apple-specific key translation logic to this non-Apple keyboard,
-causing it to not work as expected. The bug is tracked in SUSE's
-bugzilla (bsc#1258455), confirming it affects real users.
+### The Fix
+A single-character change: `*rsize == 83` becomes `*rsize >= 83`. This
+allows the descriptor fixup to apply for newer devices with larger
+descriptors.
 
-### Stable Kernel Rules Assessment
+### Safety Analysis
+The fix is safe because:
+1. The `>= 83` check still guarantees the descriptor is at least 83
+   bytes, so accessing `rdesc[46]` and `rdesc[58]` is within bounds.
+2. The additional content checks (`rdesc[46] == 0x84 && rdesc[58] ==
+   0x85`) still validate the descriptor format before applying any
+   modification.
+3. The device type is still checked (`is_usb_magicmouse2` or
+   `is_usb_magictrackpad2`), so unrelated devices are unaffected.
 
-1. **Obviously correct and tested**: Yes - trivial addition of string
-   entries to a quirk list. Same pattern used for 10+ other keyboards.
-   Comes from SUSE maintainer (Takashi Iwai).
-2. **Fixes a real bug**: Yes - keyboard doesn't work correctly without
-   this fix.
-3. **Important issue**: Yes - keyboard malfunction for affected users
-   (wrong key mappings).
-4. **Small and contained**: Yes - adds 3 lines to a static array, zero
-   logic changes.
-5. **No new features/APIs**: Correct - uses existing infrastructure.
-6. **Applies cleanly**: Should apply with trivial context adjustment if
-   intermediate entries are missing.
+### Stable Criteria Assessment
+- **Fixes a real bug**: Yes — battery reporting completely broken for
+  newer Apple trackpad/mouse devices over USB.
+- **Obviously correct**: Yes — the original check was overly
+  restrictive; the `>=` check is the natural fix while maintaining
+  safety through the other validation checks.
+- **Small and contained**: Yes — single character change in one file,
+  one driver.
+- **No new features**: Correct — just enables existing battery reporting
+  functionality for devices it should already work with.
+- **Low regression risk**: Very low — only affects Apple Magic Mouse 2 /
+  Magic Trackpad 2 USB devices, and the content validation guards
+  against incorrect application.
 
-### Risk Assessment
-
-**Risk: Extremely low.** The change only adds entries to a name-matching
-list. The matching uses `strncmp` prefix matching. The entries are
-specific enough ("TH87", "HFD Epomaker TH87", "2.4G Wireless Receiver")
-to only match intended devices. One concern: "2.4G Wireless Receiver" is
-a somewhat generic name and could match other devices' dongles, but the
-effect of matching (setting `APPLE_IS_NON_APPLE` flag which changes
-fnmode default) is benign for actual non-Apple keyboards.
+### User Impact
+Apple Magic Mouse 2 and Magic Trackpad 2 are widely used peripherals.
+Users connecting via USB (e.g., for charging) lose battery level
+reporting without this fix. This affects real hardware that many people
+use daily.
 
 ### Verification
-
-- **Verified** `non_apple_keyboards` infrastructure was introduced in
-  commit `a0a05054583fe` (v6.0-rc1), present in all current stable trees
-  (6.1.y+).
-- **Verified** the commit adds only 3 string entries to the static
-  `non_apple_keyboards[]` array at line 368-370.
-- **Verified** `apple_is_non_apple_keyboard()` uses `strncmp` prefix
-  matching at line 380.
-- **Verified** the effect of matching is setting `APPLE_IS_NON_APPLE`
-  quirk bit at line 770, which changes function key behavior default.
-- **Verified** the bug is tracked at
-  `https://bugzilla.suse.com/show_bug.cgi?id=1258455` (referenced in
-  Link: tag).
-- **Verified** this follows the exact same pattern as 7+ previous non-
-  apple keyboard additions (GANSS, Hailuck, Jamesdonkey, A3R, hfd.cn,
-  WKB603, SONiX AK870 PRO, SONiX KN85).
-- **Verified** author is Takashi Iwai (tiwai@suse.de), a senior SUSE
-  kernel maintainer.
-
-### Conclusion
-
-This is a textbook hardware quirk addition. It adds device
-identification entries to an existing mechanism, fixing a real-world
-keyboard malfunction reported by users (with bugzilla link). The change
-is trivial (3 lines of string data), zero risk to existing
-functionality, and follows an established pattern used by many other
-entries. It clearly meets all stable kernel criteria.
+- `git blame` confirmed the original `*rsize == 83` check was introduced
+  in commit `0b91b4e4dae63` ("HID: magicmouse: Report battery level over
+  USB", Nov 2021), so the bug has existed since then.
+- Read the surrounding code (lines 973-1006) to confirm the `rdesc[46]`
+  and `rdesc[58]` access is safe with `>= 83` guard.
+- `git log --grep` confirmed multiple battery-related fixes to this
+  driver, indicating ongoing maintenance and real user interest.
+- The device checks (`is_usb_magicmouse2`, `is_usb_magictrackpad2`)
+  limit scope to specific Apple products only.
+- The fix is self-contained with no dependencies on other commits.
 
 **YES**
 
- drivers/hid/hid-apple.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-magicmouse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 233e367cce1d1..2f9a2e07c4263 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -365,6 +365,9 @@ static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
- 	{ "A3R" },
- 	{ "hfd.cn" },
- 	{ "WKB603" },
-+	{ "TH87" },			/* EPOMAKER TH87 BT mode */
-+	{ "HFD Epomaker TH87" },	/* EPOMAKER TH87 USB mode */
-+	{ "2.4G Wireless Receiver" },	/* EPOMAKER TH87 dongle */
- };
- 
- static bool apple_is_non_apple_keyboard(struct hid_device *hdev)
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 91f621ceb924b..f4cf29c2e8330 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -990,7 +990,7 @@ static const __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	 */
+ 	if ((is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+ 	     is_usb_magictrackpad2(hdev->vendor, hdev->product)) &&
+-	    *rsize == 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
++	    *rsize >= 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
+ 		hid_info(hdev,
+ 			 "fixing up magicmouse battery report descriptor\n");
+ 		*rsize = *rsize - 1;
 -- 
 2.51.0
 

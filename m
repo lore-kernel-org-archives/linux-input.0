@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 868C044CAF3;
-	Tue, 10 Mar 2026 09:02:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1900344DB69;
+	Tue, 10 Mar 2026 09:02:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773133333; cv=none; b=S1qLaxo9Lp0+NYbVxoCPUqI8b64fNIRk/kN8V4SRn6fiOavLMvzXrpp8nrzCmAzZl5AiLbruP1/6MNbYSjG+77xz1TyLTwukeneUgQqMmHwrqjmiPnf9nPVCcl8oWA058oHIltUNGV+rYzwcMpKLR87u06H1Mc90tEZUP/cW0yA=
+	t=1773133339; cv=none; b=NUeT7aiJAvnkErUotFDN4UT8MR/EHIjudxZe9AWp+dHjgjLmX4JwMXRGO05x4rKyyvXZRl2m9Fc9RKYQbirzNOqAKBNWPacfxlkPh2aPxI8bHABzEUhd/OCFB3XTaY9AoKKPZVu7kGSmCKqTWNAbPY9wI4cxp9r4Gzbe3GfYEQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773133333; c=relaxed/simple;
-	bh=evhKPyU7Sb5O7u9HZt6apms9Tl1WZKdf1tbga43qqzw=;
+	s=arc-20240116; t=1773133339; c=relaxed/simple;
+	bh=uB6pQPX2I+UNDNo4G/LNGulLPdRkxY5v9RFHFRDAvxc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u8ro1k4TArOQ2s53CbNon0WO0OrxQ5SKhT9equvBmJUIqSComY0kbg+A1EDXi1xTsa1bigcm002pYDgwhgsPJMq2HoaGFTDoJ9ht+9yp532dTHdqtGQ1iaW477n30ybXclaSKP/RqokyWg24zFgEdEcdVf9ndsH/2QQrUzXVuNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rV6MmcyS; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=FyY8wrVJ3yZMlP6wy7hxodsfBKlGhQXcFQF9y8n6cuAxuTfbx9u2EOs7PyTSjbuZdcrEpya8+MI98qci6iJDRv5Uq/7+x3+TVe4/GnLCxjWLx24pHFlENFGO4aG0yGL3fRn8khF8lUqZDnY2BWbIsT6Ab92wfQsb4m28y6gR6Uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XxA+bCvc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rV6MmcyS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C5E9C2BC87;
-	Tue, 10 Mar 2026 09:02:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XxA+bCvc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB64C2BC86;
+	Tue, 10 Mar 2026 09:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773133333;
-	bh=evhKPyU7Sb5O7u9HZt6apms9Tl1WZKdf1tbga43qqzw=;
+	s=k20201202; t=1773133339;
+	bh=uB6pQPX2I+UNDNo4G/LNGulLPdRkxY5v9RFHFRDAvxc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=rV6MmcySTlugw6/Jt8UMLLY6nB0Xq7s0ZvUVsnrX4oyEsPOwenJasQnpvzrbA/Hjl
-	 3QCQeG/7IBxnEqQUIEq/pmO2TDOVXnGRNutzQrGG4WYunyqXMeJhZqUCy+97YtFx4i
-	 BtEeSEzTQgcWsCcVVhftvNGdD437aellmaZlBVriiEQ5yrjgnpWY1AB59HQtyAriJL
-	 F9Tk/3K2cevcKEG7q11bnlnJ9FoGK9Uh9VwIxns4xU2j/ANd/OMUARDGTBsuH04//6
-	 Kylc4112nrTK7tpalNlmcAi9VBUMaa7mFF0Ei1KyBb5Nb7qSXsiT2jnBEbuN9kXngb
-	 pcpGbjzo/aAlQ==
+	b=XxA+bCvcai3gX7vqE9J2y6zWnZw1LTlhEdx4C9IFOYnTVLxyc4Vg/lqTfdiCMOttZ
+	 laWQ7AuV9oWq3uenaCxvvT6BccOEo3e76yidbiwGpLm8L77+ovrk9pWLGzK8Hb9p5Z
+	 EAO5dqMknySa/gpNOhBKaq61N8YAiDI4heldvC+O9EtlwDPYw3+qhxcwLszCImJdZg
+	 L7s/zozHjHVFd83dfkNs4qhWYd+n81/t/vxX6ZwLEChsuN2a+cucxEqzLDt4rTh8C+
+	 W5jgQR2dP+eaOfW5IzXi12GEs4v87KJe76jQaQStGhRsZttas16DoxX4N+sTxrZuuV
+	 prXCTsf7XfO6A==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>,
+	Yajat Kumar <yajatapps3@gmail.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Sasha Levin <sashal@kernel.org>,
-	jikos@kernel.org,
+	hansg@kernel.org,
 	linux-input@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-5.10] HID: asus: avoid memory leak in asus_report_fixup()
-Date: Tue, 10 Mar 2026 05:01:18 -0400
-Message-ID: <20260310090145.2709021-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-5.10] platform/x86: touchscreen_dmi: Add quirk for y-inverted Goodix touchscreen on SUPI S10
+Date: Tue, 10 Mar 2026 05:01:22 -0400
+Message-ID: <20260310090145.2709021-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260310090145.2709021-1-sashal@kernel.org>
 References: <20260310090145.2709021-1-sashal@kernel.org>
@@ -53,25 +55,24 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.19.6
 Content-Transfer-Encoding: 8bit
 
-From: Günther Noack <gnoack@google.com>
+From: Hans de Goede <johannes.goede@oss.qualcomm.com>
 
-[ Upstream commit 2bad24c17742fc88973d6aea526ce1353f5334a3 ]
+[ Upstream commit 7d87ed70fc95482c12edf9493c249b6413be485e ]
 
-The asus_report_fixup() function was returning a newly allocated
-kmemdup()-allocated buffer, but never freeing it.  Switch to
-devm_kzalloc() to ensure the memory is managed and freed automatically
-when the device is removed.
+The touchscreen on the SUPI S10 tablet reports inverted Y coordinates,
+causing touch input to be mirrored vertically relative to the display.
 
-The caller of report_fixup() does not take ownership of the returned
-pointer, but it is permitted to return a pointer whose lifetime is at
-least that of the input buffer.
+Add a quirk to set the "touchscreen-inverted-y" boolean device-property
+on the touchscreen device, so that the goodix_ts driver will fixup
+the coordinates.
 
-Also fix a harmless out-of-bounds read by copying only the original
-descriptor size.
-
-Assisted-by: Gemini-CLI:Google Gemini 3
-Signed-off-by: Günther Noack <gnoack@google.com>
-Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Reported-by: Yajat Kumar <yajatapps3@gmail.com>
+Closes: https://lore.kernel.org/linux-input/20251230221639.582406-1-yajatapps3@gmail.com/
+Tested-by: Yajat Kumar <yajatapps3@gmail.com>
+Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
+Link: https://patch.msgid.link/20260217132346.34535-1-johannes.goede@oss.qualcomm.com
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
@@ -79,124 +80,108 @@ LLM Generated explanations, may be completely bogus:
 
 ## Analysis
 
-### Problem Description
+### What the commit does
+This adds a DMI-based touchscreen quirk for the SUPI S10 tablet. The
+tablet's Goodix touchscreen (GDIX1001) reports inverted Y coordinates,
+causing touch input to be vertically mirrored. The fix adds:
 
-The `asus_report_fixup()` function in `drivers/hid/hid-asus.c` had a
-memory leak in the `QUIRK_T100CHI | QUIRK_T90CHI` path. The buggy code
-used `kmemdup()` to allocate a new report descriptor buffer, but this
-buffer was never freed by anyone:
+1. A new property entry array `gdix1001_y_inverted_props[]` with
+   `touchscreen-inverted-y`
+2. A corresponding `ts_dmi_data` struct pointing to ACPI name "GDIX1001"
+3. A DMI table entry matching vendor "SUPI", product "S10"
 
-**The leak mechanism (verified by reading hid-core.c:1285-1307):**
-1. Caller allocates `buf` via `kmemdup()` (line 1291)
-2. Caller passes `buf` to `report_fixup()` (line 1296)
-3. The old `report_fixup()` returned a *new* `kmemdup()`'d pointer,
-   discarding `buf`
-4. Caller does `start = kmemdup(start, size, ...)` — making *yet another
-   copy* (line 1303)
-5. Caller does `kfree(buf)` — frees the original, but NOT the
-   intermediate kmemdup from report_fixup()
-6. The intermediate buffer is **leaked**
+### Stable kernel criteria assessment
 
-### Fix Analysis
+**Fixes a real bug:** Yes. Without this quirk, touch input is vertically
+mirrored on this tablet, making it essentially unusable for touch
+interaction.
 
-The fix is small (11 insertions, 4 deletions) and does three things:
+**Hardware quirk exception:** This is a textbook DMI-based hardware
+quirk — exactly the type explicitly listed as appropriate for stable
+backporting. The `touchscreen_dmi.c` file exists solely for these
+entries; it has hundreds of similar quirks already.
 
-1. **Switches from `kmemdup()` to `devm_kzalloc()`**: Ties the
-   allocation to the HID device lifetime, so it's automatically freed on
-   device removal. This eliminates the leak.
+**Small and contained:** Yes. ~18 lines added to a single file,
+following the exact same pattern as every other entry in the file.
 
-2. **Fixes error handling**: Old code returned `NULL` on allocation
-   failure, which the caller doesn't handle well. New code returns the
-   original `rdesc`, matching the pattern already used by
-   `QUIRK_G752_KEYBOARD` in the same function.
+**Risk of regression:** Extremely low. The DMI matching
+(`DMI_SYS_VENDOR: "SUPI"`, `DMI_PRODUCT_NAME: "S10"`) ensures this code
+only activates on the specific affected tablet. No other hardware is
+impacted.
 
-3. **Fixes out-of-bounds read**: Old code did `kmemdup(rdesc, *rsize,
-   ...)` where `*rsize` was already set to `rsize_orig + 1` (one byte
-   larger than the actual descriptor). New code does `memcpy(new_rdesc,
-   rdesc, rsize_orig)`, copying only the valid data.
+**Tested and reviewed:** Yes. Has both `Tested-by: Yajat Kumar` (the
+reporter/user) and `Reviewed-by: Ilpo Järvinen` (Intel maintainer). The
+commit author Hans de Goede is the well-known x86 platform maintainer
+who handles most touchscreen quirks.
 
-### Stable Criteria Assessment
+**No new features:** Correct. This uses existing infrastructure
+(`ts_dmi_data`, `property_entry`, `dmi_system_id` matching) to fix a
+specific device.
 
-- **Fixes a real bug**: Yes — memory leak on every T100CHI/T90CHI
-  keyboard report descriptor parse
-- **Obviously correct**: Yes — follows the identical pattern used by
-  QUIRK_G752_KEYBOARD in the same function (verified in the diff
-  context)
-- **Small and contained**: Yes — 15 lines changed in a single file
-- **No new features**: Correct — pure bug fix
-- **Bug has existed since 2017**: Commit 73c75d3958579 introduced
-  T100CHI support with the buggy `kmemdup()` pattern, present in all
-  stable trees
-
-### Risk Assessment
-
-**Very low risk.** The fix:
-- Follows an existing pattern already proven in the same function
-  (QUIRK_G752_KEYBOARD)
-- Only affects ASUS T100CHI and T90CHI hardware
-- The devm_kzalloc lifetime (device lifetime) is correct since the
-  caller copies the returned data immediately
-- No dependencies on other commits
+**Dependencies:** None. The `touchscreen_dmi.c` framework and the Goodix
+driver's handling of `touchscreen-inverted-y` have been present for many
+kernel versions.
 
 ### Verification
+- The commit follows the identical pattern used by all other entries in
+  `touchscreen_dmi.c` — no novel code patterns
+- The `gdix1001_y_inverted_props` is a subset of the existing
+  `gdix1001_upside_down_props` (which sets both inverted-x and
+  inverted-y), confirming this is a well-established mechanism
+- Reporter and tester are the same person (Yajat Kumar), confirming the
+  fix resolves the reported issue
+- The author (Hans de Goede) is the primary maintainer for x86
+  touchscreen quirks
+- The `Closes:` link to lore.kernel.org confirms a real user report from
+  December 2025
 
-- **Verified caller behavior**: Read `hid-core.c:1285-1307` — confirmed
-  the caller does `kmemdup()` of the returned pointer then `kfree(buf)`,
-  meaning any new allocation from `report_fixup()` is leaked
-- **Verified the existing devm_kzalloc pattern**: The
-  QUIRK_G752_KEYBOARD block in the same function already uses
-  `devm_kzalloc` with the same allocation + `return rdesc` on failure
-  pattern
-- **Verified bug age**: `git log --oneline` showed commit
-  `73c75d3958579` (2017-08-04) introduced the T100CHI support with
-  `kmemdup()`, confirmed present in stable trees via `git tag
-  --contains`
-- **Verified commit SHA**: `git show 5dc6c17c16935` confirmed the commit
-  matches the diff under review, with upstream commit `2bad24c17742f`
-- **Verified the OOB read**: Old code set `*rsize = rsize_orig + 1`
-  BEFORE `kmemdup(rdesc, *rsize, ...)`, reading one byte past the
-  original descriptor — confirmed by the diff context showing the order
-  of operations
-
-This is a clear, small, low-risk fix for a real memory leak (and minor
-OOB read) in a HID driver, following an established pattern already in
-the same function. It meets all stable kernel criteria.
+### Risk vs benefit
+- **Benefit:** Makes touchscreen usable on SUPI S10 tablets — critical
+  for those users
+- **Risk:** Near zero — DMI-scoped to one specific device model, uses
+  existing well-tested infrastructure
 
 **YES**
 
- drivers/hid/hid-asus.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 472bca54642b9..8487332bf43b0 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1306,14 +1306,21 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		 */
- 		if (*rsize == rsize_orig &&
- 			rdesc[offs] == 0x09 && rdesc[offs + 1] == 0x76) {
--			*rsize = rsize_orig + 1;
--			rdesc = kmemdup(rdesc, *rsize, GFP_KERNEL);
--			if (!rdesc)
--				return NULL;
-+			__u8 *new_rdesc;
-+
-+			new_rdesc = devm_kzalloc(&hdev->dev, rsize_orig + 1,
-+						 GFP_KERNEL);
-+			if (!new_rdesc)
-+				return rdesc;
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index bdc19cd8d3edf..d83c387821ea1 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -410,6 +410,16 @@ static const struct ts_dmi_data gdix1002_upside_down_data = {
+ 	.properties	= gdix1001_upside_down_props,
+ };
  
- 			hid_info(hdev, "Fixing up %s keyb report descriptor\n",
- 				drvdata->quirks & QUIRK_T100CHI ?
- 				"T100CHI" : "T90CHI");
++static const struct property_entry gdix1001_y_inverted_props[] = {
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	{ }
++};
 +
-+			memcpy(new_rdesc, rdesc, rsize_orig);
-+			*rsize = rsize_orig + 1;
-+			rdesc = new_rdesc;
++static const struct ts_dmi_data gdix1001_y_inverted_data = {
++	.acpi_name	= "GDIX1001",
++	.properties	= gdix1001_y_inverted_props,
++};
 +
- 			memmove(rdesc + offs + 4, rdesc + offs + 2, 12);
- 			rdesc[offs] = 0x19;
- 			rdesc[offs + 1] = 0x00;
+ static const struct property_entry gp_electronic_t701_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
+@@ -1658,6 +1668,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_SKU, "PN20170413488"),
+ 		},
+ 	},
++	{
++		/* SUPI S10 */
++		.driver_data = (void *)&gdix1001_y_inverted_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "SUPI"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "S10"),
++		},
++	},
+ 	{
+ 		/* Techbite Arc 11.6 */
+ 		.driver_data = (void *)&techbite_arc_11_6_data,
 -- 
 2.51.0
 

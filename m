@@ -1,46 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7BDB441021;
-	Tue, 10 Mar 2026 09:02:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24FC441036;
+	Tue, 10 Mar 2026 09:02:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773133360; cv=none; b=WAzqr0uzeF1Efd5M1Pvm/KE0YC+s+PqE0RKUKkHlt6lS0kIp9n5yKonQZMl0nUIXlFLQGDH/+0KCP70UaVB7cBx/8HJI3FRnZQDpioBifjbwfk2x0sxclRu/iPpOwFVWgsgtY1j3ZEoQTLSAqclo2EArODQwjg/7qaVvdm0vZfs=
+	t=1773133364; cv=none; b=ZP3UBCgeLIkhWuwSqHsLWJlttM+wTxVlAxf4QHjIZbPCGbFLWHt4MFNmym7437TiqgsuoPs3PVggvdG8+RmPLSf7vZMK2uzBSV7mRrgNG8iTCHwWh78t1+k0uncKfsATO0dV9GF+QSk2jsPDevCljZfSWwkTETs1X/674xd9ZP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773133360; c=relaxed/simple;
-	bh=fw9kOo8vM9mKBGJG56Xvnt9LPfBT+5AFD83nBuUKDrw=;
+	s=arc-20240116; t=1773133364; c=relaxed/simple;
+	bh=8jrTezgh7FiIbJtZeAaXohKB2BnJG/T2ftDVCgB+k1Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FH3crycVIUoTWj/5OMi/fpNAsadZLTI64g9J0J7mPUJIPY1A3plas4X7pqZkw0OiLlmn1PehLMnUfR20biHjyPTaV7HKwy0HQxanMIoWRlAigwOKp69MRisLlTMde+EV1DwFx9eDxZzqaVaWDTYi6PK8KrriHt7LMAM7s4Dc/Ow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t+XryIQh; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=am7eF7OlzyeMONboQi4l0HSOrHMCJODqd33jHpQmv0/KP0FymVRoQPxubw80uL2kuyaykg7LZID4ABdH8jS467MKrxqIl2hv2M82mhac1m9y20yq7f1lr9LPeXFCJlS/Jvo+KClNnRRli4eWZ9c1y7CANkpcDwMtCoqSAO0FmvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uLFXJBZV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t+XryIQh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B2FC19423;
-	Tue, 10 Mar 2026 09:02:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uLFXJBZV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA94FC2BC86;
+	Tue, 10 Mar 2026 09:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773133360;
-	bh=fw9kOo8vM9mKBGJG56Xvnt9LPfBT+5AFD83nBuUKDrw=;
+	s=k20201202; t=1773133364;
+	bh=8jrTezgh7FiIbJtZeAaXohKB2BnJG/T2ftDVCgB+k1Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=t+XryIQhAMFNExLfRRSO1vkqOr9K7ZxwigjQ3x0c5w5YCjJysJxB22j1BCNW48Pj1
-	 c4z6EuJ2WAQzU5PiBV2XBjCKc0tPbGriAI0+zMk/UwNQSvqaSHOezXmkX77j1YRCLj
-	 fihBOOKqGUWTXZCh5VPgWHrfqb80zj1HXh1aZmG4R2jE/lpJ1KLef3UgqhcsifOQQv
-	 oxyfMbP1X/jiyjzAfoTEk1pcSFo+fGb2NlW0aKd7mBCWgL0EDuv2X+H0bJGjl3dJ/Z
-	 OXFfdyZUp/jwjkuUkG2IvEJMrdeUXMYtjXvf9ZdYMfFsIxgbB+3WrSKW/nMxrY6err
-	 66REj7djtZgxA==
+	b=uLFXJBZVaJKPMfxrnrdlyKdJaqM79C0oqzNHj28LOpvjyEscZdl8TkMXLqvIfBfEg
+	 ncsD0PwuU6Z3swxz2wCszk1S1wT1Sf6eWqVyWpJieb0JZiWmtFJeYg14u3Yv19VKJg
+	 h4sHbCGz2B7Lu2ET5R7UYnZlcfuRIVRXdmInE2F7pr6iaDGjZQE5RmdyRbslcAXU1h
+	 i2WZ5DsSAqsOSyROlhLgEzFY3pTxhaEIAr3Qxf8SZ1bfVcSBTugOdv3/UA8NLFHr6J
+	 X7OVpKgvGa/RMSxZMx8kj81vCjXNwKLe1L2QSw33oO+a1gEMPPkRMxQoNIia64RSfB
+	 foGZzQfr6nfFA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Zhang Lixu <lixu.zhang@intel.com>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jiri Kosina <jkosina@suse.com>,
+Cc: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
-	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.18] HID: intel-ish-hid: ipc: Add Nova Lake-H/S PCI device IDs
-Date: Tue, 10 Mar 2026 05:01:37 -0400
-Message-ID: <20260310090145.2709021-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-5.15] HID: magicmouse: avoid memory leak in magicmouse_report_fixup()
+Date: Tue, 10 Mar 2026 05:01:40 -0400
+Message-ID: <20260310090145.2709021-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260310090145.2709021-1-sashal@kernel.org>
 References: <20260310090145.2709021-1-sashal@kernel.org>
@@ -50,162 +47,124 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.19.6
 Content-Transfer-Encoding: 8bit
 
-From: Zhang Lixu <lixu.zhang@intel.com>
+From: Günther Noack <gnoack@google.com>
 
-[ Upstream commit 22f8bcec5aeb05104b3eaa950cb5a345e95f0aa8 ]
+[ Upstream commit 91e8c6e601bdc1ccdf886479b6513c01c7e51c2c ]
 
-Add device IDs of Nova Lake-H and Nova Lake-S into ishtp support list.
+The magicmouse_report_fixup() function was returning a
+newly kmemdup()-allocated buffer, but never freeing it.
 
-Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+The caller of report_fixup() does not take ownership of the returned
+pointer, but it *is* permitted to return a sub-portion of the input
+rdesc, whose lifetime is managed by the caller.
+
+Assisted-by: Gemini-CLI:Google Gemini 3
+Signed-off-by: Günther Noack <gnoack@google.com>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Analysis: HID: intel-ish-hid: ipc: Add Nova Lake-H/S PCI device IDs
+Now I have all the information needed for a thorough analysis.
 
-### What the commit does
+## Analysis
 
-This commit adds PCI device IDs for two new Intel platforms (Nova Lake-H
-and Nova Lake-S) to the existing `intel-ish-hid` driver. The changes
-are:
+### What the commit fixes
 
-1. Two new `#define` entries for PCI device IDs (`0xD354` for NVL_H,
-   `0x6E78` for NVL_S) in `hw-ish.h`
-2. Two new enum values, firmware generation string macros, driver data
-   entries, and PCI ID table entries in `pci-ish.c`
+The `magicmouse_report_fixup()` function was introduced in commit
+`0b91b4e4dae63` (v5.16 era, 2021) and uses `kmemdup(rdesc + 1, *rsize,
+GFP_KERNEL)` to create a new buffer. The caller in `hid_open_report()`
+(hid-core.c) does **not** free the returned pointer — it immediately
+`kmemdup()`s the result again and frees its own copy. So the buffer
+allocated by magicmouse was leaked every time the device was
+initialized.
 
-### Classification: New Device IDs to Existing Driver
+The fix replaces `kmemdup(rdesc + 1, ...)` with simply `rdesc + 1`,
+returning a sub-portion of the input buffer. This is explicitly
+permitted by the `report_fixup()` contract as documented in
+`include/linux/hid.h` (lines 839-843), and is safe because
+`hid_open_report()` immediately copies the returned data.
 
-This falls squarely into the **"NEW DEVICE IDs"** exception category,
-which is explicitly listed as appropriate for stable backports:
+### Stable kernel criteria assessment
 
-> Adding PCI IDs, USB IDs, ACPI IDs, etc. to existing drivers. These are
-trivial additions that enable hardware support. The driver must already
-exist in stable; only the ID is new.
+1. **Fixes a real bug**: Yes — memory leak on every device probe for
+   Apple Magic Mouse 2 and Magic Trackpad 2 connected via USB.
+2. **Obviously correct**: Yes — the HID core immediately `kmemdup()`s
+   the return value, so returning a pointer into the caller's buffer is
+   safe. The documentation explicitly says "a sub-portion of it" is
+   valid.
+3. **Small and contained**: Yes — removes 3 lines (kmemdup + NULL
+   check), changes one line. Single file, single function.
+4. **No new features**: Correct — pure bug fix.
+5. **Low risk**: Very low — the change is simpler than the original
+   code. Removes an allocation that was never needed.
 
-The `intel-ish-hid` driver has been in the kernel for many years, with a
-long list of existing Intel platform IDs (CHV, BXT, APL, SPT, CNL, GLK,
-ICL, CML, CMP, EHL, TGL, ADL, RPL, MTL, ARL, LNL, PTL, WCL).
+### User impact
 
-### Stable Criteria Assessment
+This affects all users of Apple Magic Mouse 2 and Magic Trackpad 2 over
+USB. Each time the device is probed (e.g., plugged in, resumed), ~82
+bytes are leaked. While not catastrophic per-event, it's a real resource
+leak that accumulates.
 
-- **Obviously correct**: Yes - follows the exact same pattern as all
-  prior device ID additions (PTL, WCL, LNL, etc.)
-- **Fixes a real bug**: Enables hardware that would otherwise be non-
-  functional on Nova Lake platforms
-- **Small and contained**: Yes - only touches two files, adds ~12 lines
-  following an established pattern
-- **No new features/APIs**: Correct - just enables existing driver on
-  new hardware
-- **Risk**: Extremely low - the new IDs only match new hardware;
-  existing hardware is completely unaffected
+### Risk assessment
 
-### Review Quality
+Minimal risk. The fix makes the code simpler and removes a dynamic
+allocation. The HID core's defensive `kmemdup()` of the returned pointer
+ensures the approach is safe.
 
-- **Reviewed-by**: Andy Shevchenko (Intel, prolific kernel reviewer)
-- **Acked-by**: Srinivas Pandruvada (Intel ISH subsystem maintainer)
-- **Signed-off-by**: Jiri Kosina (HID maintainer)
+### Dependency check
 
-This has full maintainer sign-off chain.
-
-### Risk Assessment
-
-The risk is essentially zero. The new PCI device IDs (`0xD354`,
-`0x6E78`) will only match on Nova Lake hardware. No existing systems are
-affected. The code pattern is identical to the most recent additions
-(WCL, PTL) which themselves followed the same pattern.
+The buggy `kmemdup()` was introduced in commit `0b91b4e4dae63` ("HID:
+magicmouse: Report battery level over USB"), which was in v5.16. This
+code exists in all current stable trees (6.1.y, 6.6.y, 6.12.y). The fix
+is self-contained with no dependencies on other commits.
 
 ### Verification
 
-- Verified the diff adds only PCI device ID definitions, enum values,
-  firmware generation strings, driver data entries, and PCI table
-  entries - no behavioral changes to existing code
-- Verified the pattern matches prior additions (e.g., WCL added in the
-  same manner with `ISHTP_DRIVER_DATA_WCL`, `ISH_FW_GEN_WCL`, etc.)
-- Verified the driver (`intel-ish-hid`) has existed in the kernel for
-  many years with 20+ existing platform IDs
-- Verified no code logic changes - purely data additions
-- The commit has proper review chain (Reviewed-by, Acked-by from
-  subsystem maintainer, Signed-off-by from HID maintainer)
+- **git show 0b91b4e4dae63** confirmed the kmemdup was introduced in the
+  original "Report battery level over USB" commit (2021, v5.16 era)
+- **hid-core.c hid_open_report()** verified: the caller kmemdup's the
+  return value immediately and frees its own buffer — it does NOT take
+  ownership of the returned pointer (lines 1285-1307)
+- **include/linux/hid.h documentation** (lines 839-843) confirmed:
+  returning "a sub-portion of it" is explicitly documented as valid
+- **git log --oneline -- drivers/hid/hid-magicmouse.c** confirmed the
+  commit under review (`c0993f362e2ef`) is the fix, with no other
+  dependencies
+- **Commit 225c43c0e9164** (the next commit after) only changes the size
+  check from `== 83` to `>= 83` and does not affect the fix's
+  applicability
 
-### Conclusion
-
-This is a textbook device ID addition to an existing, well-established
-driver. It enables Intel ISH (sensor hub) functionality on Nova Lake-H
-and Nova Lake-S platforms. Without this, users with Nova Lake hardware
-would have non-functional sensor hubs. The change is trivially safe,
-well-reviewed, and follows an established pattern.
+This is a clear, small, self-contained memory leak fix in a widely-used
+driver. It meets all stable kernel criteria with minimal risk.
 
 **YES**
 
- drivers/hid/intel-ish-hid/ipc/hw-ish.h  |  2 ++
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 12 ++++++++++++
- 2 files changed, 14 insertions(+)
+ drivers/hid/hid-magicmouse.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-index fa5d68c363134..27389971b96cc 100644
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-@@ -39,6 +39,8 @@
- #define PCI_DEVICE_ID_INTEL_ISH_PTL_H		0xE345
- #define PCI_DEVICE_ID_INTEL_ISH_PTL_P		0xE445
- #define PCI_DEVICE_ID_INTEL_ISH_WCL		0x4D45
-+#define PCI_DEVICE_ID_INTEL_ISH_NVL_H		0xD354
-+#define PCI_DEVICE_ID_INTEL_ISH_NVL_S		0x6E78
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index f4cf29c2e8330..9eadf3252d0dc 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -994,9 +994,7 @@ static const __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		hid_info(hdev,
+ 			 "fixing up magicmouse battery report descriptor\n");
+ 		*rsize = *rsize - 1;
+-		rdesc = kmemdup(rdesc + 1, *rsize, GFP_KERNEL);
+-		if (!rdesc)
+-			return NULL;
++		rdesc = rdesc + 1;
  
- #define	REVISION_ID_CHT_A0	0x6
- #define	REVISION_ID_CHT_Ax_SI	0x0
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 1612e8cb23f0c..ed3405c05e73c 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -28,11 +28,15 @@ enum ishtp_driver_data_index {
- 	ISHTP_DRIVER_DATA_LNL_M,
- 	ISHTP_DRIVER_DATA_PTL,
- 	ISHTP_DRIVER_DATA_WCL,
-+	ISHTP_DRIVER_DATA_NVL_H,
-+	ISHTP_DRIVER_DATA_NVL_S,
- };
- 
- #define ISH_FW_GEN_LNL_M "lnlm"
- #define ISH_FW_GEN_PTL "ptl"
- #define ISH_FW_GEN_WCL "wcl"
-+#define ISH_FW_GEN_NVL_H "nvlh"
-+#define ISH_FW_GEN_NVL_S "nvls"
- 
- #define ISH_FIRMWARE_PATH(gen) "intel/ish/ish_" gen ".bin"
- #define ISH_FIRMWARE_PATH_ALL "intel/ish/ish_*.bin"
-@@ -47,6 +51,12 @@ static struct ishtp_driver_data ishtp_driver_data[] = {
- 	[ISHTP_DRIVER_DATA_WCL] = {
- 		.fw_generation = ISH_FW_GEN_WCL,
- 	},
-+	[ISHTP_DRIVER_DATA_NVL_H] = {
-+		.fw_generation = ISH_FW_GEN_NVL_H,
-+	},
-+	[ISHTP_DRIVER_DATA_NVL_S] = {
-+		.fw_generation = ISH_FW_GEN_NVL_S,
-+	},
- };
- 
- static const struct pci_device_id ish_pci_tbl[] = {
-@@ -76,6 +86,8 @@ static const struct pci_device_id ish_pci_tbl[] = {
- 	{PCI_DEVICE_DATA(INTEL, ISH_PTL_H, ISHTP_DRIVER_DATA_PTL)},
- 	{PCI_DEVICE_DATA(INTEL, ISH_PTL_P, ISHTP_DRIVER_DATA_PTL)},
- 	{PCI_DEVICE_DATA(INTEL, ISH_WCL, ISHTP_DRIVER_DATA_WCL)},
-+	{PCI_DEVICE_DATA(INTEL, ISH_NVL_H, ISHTP_DRIVER_DATA_NVL_H)},
-+	{PCI_DEVICE_DATA(INTEL, ISH_NVL_S, ISHTP_DRIVER_DATA_NVL_S)},
- 	{}
- };
- MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+ 		rdesc[0] = 0x05;
+ 		rdesc[1] = 0x01;
 -- 
 2.51.0
 

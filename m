@@ -1,151 +1,73 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D8B839937E;
-	Tue, 10 Mar 2026 16:58:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A7FE23BCED;
+	Tue, 10 Mar 2026 17:04:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773161939; cv=none; b=kEkyqLKNXxCkEfrF9VhLVFuWV9BQ+3dk4/1kHw8+sAC4Qtkl0YyynUbeUXc5l+lEGrA735ER4jyNo2LzfXXPyJQpkAyap5+fz1Ahf1CX4ep1Ywy7aAyHA1n7CWOsZLTTnbdrCRSduA5KpBq0X+vV13VrxS3z1ZxqsC1puS+weR4=
+	t=1773162270; cv=none; b=oXSCL4rpPqYmxHSQZ1VCTtdqoUSYHZlHgrBkxslLg2GG+7o1VjgbPqmVRFqtikeb9uOH1VVayvopSRdL3nlrVPZHFfhXpHYAno27DsD0tW2TcdCvh/SyfT6zftc4RhkRxZilLuHQ6Styd2CfycDVmQK5EW5AnoSrtAKlOfa58J8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773161939; c=relaxed/simple;
-	bh=pp038kdnOfQ1chnb8hUbUo961o3bJg+plvWIuDunLxg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WNX1P2eo54muwLwvaK2r9rl7TwWDLTA6OgiKLiX2nZemKa3Uu6OsPIeHs+mErJwUOluCEimIud+aALBOoMcmCk1xb0DuPvrO1R14iTiXhyqc4avGa0b19c3eWTdsqJFWIPUrq9nx9RnKaimIfWpdws2FHPyzp5pVSbMH/1sDYyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M0rB1sWy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773162270; c=relaxed/simple;
+	bh=jcERqjub+kmhj0RtiIDyeSiBqtsaXtarWgmN73wlcFw=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=uPsL9XXczo2ZUMRhagmSHqf28VLSAUsE3Od0F0+1GzNCY1EOQ1IEdZekob2JEvIAUgPIGrtYwSJAwf2jCKfUqOlHmziNEnTPCEr2a4w/PvdWkjzr1yrV0sZl5hoxHaJALIR3trvVScsMsY0RPFK/m/l0JIfJ6FckZzrH9HFyfrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oCNMtQ4n; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M0rB1sWy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 341FAC19423;
-	Tue, 10 Mar 2026 16:58:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oCNMtQ4n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA31C19423;
+	Tue, 10 Mar 2026 17:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773161939;
-	bh=pp038kdnOfQ1chnb8hUbUo961o3bJg+plvWIuDunLxg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=M0rB1sWyGcityTTXiv6LQ3hA/E0qKS1QmhTiRPqDQYQEv9OnRgmfGP1gwD2NtPNw5
-	 jqnsV3NhHNYR9OLkmSWjPVW/AkchwYrKkIuy61IypxD1O+PFO0RTo1zJgF9ibypUOF
-	 SIMjH1rEikOYBhZTpbyp0VdBscg41N6FDdwV3aVV8M26KoBvCtQiDGgFRK3brNxtgH
-	 BILwFYAeqqVKHzLMSPgBmlceItuk9MvAxDddULjMezbK2USeWUmGD8dCmNQo+atjxt
-	 igQ3YT8yVr0k+dl4A30fXBhBcZA3byItWNHa3i5hGcOtFwM93DIl+oogB+OqjKimmC
-	 quDtKUFoYcEpw==
-Message-ID: <0eb4dd77-a5b0-49ce-bc7f-d156f92c8044@kernel.org>
-Date: Tue, 10 Mar 2026 17:58:55 +0100
+	s=k20201202; t=1773162270;
+	bh=jcERqjub+kmhj0RtiIDyeSiBqtsaXtarWgmN73wlcFw=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=oCNMtQ4n1MrzSVmfPqP1FgBZhWFLeEBusYPmOZP36Xdath5uFscCQIp/vkm6Pn9C+
+	 j2yuhLVb27iY5zhNIcL4Ao/+S/FbeITZXM8nmd4k2r43pT5JYZSf3Y/vZ4l9ee8fBN
+	 pukkEnF8ofLinybcNlDX81WJE66ioUVSxwfGMX8rCXniUOHfUf7JEgcVIs8u3LX0fX
+	 r0FMnQMtVkTE9UXJgnRyNwyGs44x9Ol+mCfQj/1YqgpM7YT4090jujIOBMPtHFssmY
+	 7todcJac9tP5g5bCOjEjuYP9b661HwiVVxZNd0ScQhI+IJFlXUb+PjkmbqWQJt72Ug
+	 WGoVvTi56TxWw==
+Date: Tue, 10 Mar 2026 18:04:27 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Denis Benato <denis.benato@linux.dev>
+cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>, 
+    Denis Benato <benato.denis96@gmail.com>
+Subject: Re: [PATCH v2 0/7] HID: asus: increase robustness of the driver
+In-Reply-To: <20260228191010.3830758-1-denis.benato@linux.dev>
+Message-ID: <sp6o244o-8840-3q46-7266-520165onp274@xreary.bet>
+References: <20260228191010.3830758-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/2] dt-bindings: Input: Add Wacom W9000-series
- penabled touchscreens
-To: Hendrik Noack <hendrik-noack@gmx.de>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: Ferass El Hafidi <funderscore@postmarketos.org>,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260307181557.66927-1-hendrik-noack@gmx.de>
- <20260307181557.66927-2-hendrik-noack@gmx.de>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260307181557.66927-2-hendrik-noack@gmx.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-On 07/03/2026 19:15, Hendrik Noack wrote:
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  vdd-supply:
-> +    description:
-> +      Optional regulator for the VDD digital voltage.
+On Sat, 28 Feb 2026, Denis Benato wrote:
 
-Drop "Optional regulator for"
+> Hi all,
+> 
+> Previous asus-wmi maintainer and asus-linux developer has become less
+> active in the project and left me in charge of advancing the support
+> for ASUS equipement on Linux.
+> 
+> I am preparing to send a patchset of his revised work to support ASUS
+> ROG Ally handhelds devices and since that work is also useful in
+> expanding support for 2025 models it is important to improve the
+> hid-asus driver as future patches will build on top of these changes.
 
-Also, vdd is mandatory, not optional. How device can work without supply?
+Patches 1, 4, 5, 6 and 7 applied to hid.git#for-7.1/asus.
 
-> +
-> +  flash-mode-gpios:
-> +    maxItems: 1
-> +    description:
-> +      Optional GPIO specifier for the touchscreen's flash-mode pin.
+Patch 2 applied to hid.git#for-7.0/upstream-fixes.
 
-Drop "Optional GPIO specifier for the". Don't repeat constraints in free
-form text. Schema tells what is optional or what is not. This also
-cannot be anything else than GPIO specifier, so repeating obvious is not
-making it more readable.
+Patch 3 dropped, as it's fixed by 7b2f88cc9dd4c2b9f3d in 
+hid.git#for-7.1/asus.
 
-> +
-> +  pen-inserted-gpios:
-> +    maxItems: 1
-> +    description:
-> +      Optional GPIO specifier for the touchscreen's pen-insert pin.
+Thanks,
 
-Drop "Optional GPIO specifier for the".
+-- 
+Jiri Kosina
+SUSE Labs
 
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +    description:
-> +      Optional GPIO specifier for the touchscreen's reset pin.
-
-Drop description completely. Redundant. It cannot be anything else than
-reset pin.
-
-
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - vdd-supply
-
-
-Best regards,
-Krzysztof

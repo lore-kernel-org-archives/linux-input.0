@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEAFD371067;
-	Tue, 10 Mar 2026 11:11:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20829389113;
+	Tue, 10 Mar 2026 11:26:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773141111; cv=none; b=hJ0pgTAxD+/L8PnD8DTbiJaEk8wKHjuVDauAQabDSEDshXpB9z5rjg2AL6uE37+w2GTdr+DqYch0wyUun9KSvvXOrtphULncPxCgite7vjUZd777HB1rAnwpeYucbxct9WKz2ggJPVB/9cuglLBnrS80lTOhOVdNWFmXdH6Ly9s=
+	t=1773142017; cv=none; b=nkgCb5gT6kA7pMZl8sWJ3Q+59LhOHWYZwosUUOF/NlFfhBazQOqUbrKgK6a3/Zxfi0+/yzEqjX3LUYirmQ+omA3q/YIL+J+1V+zxHbul9K5vdk0wNTD95Sk0f68ucBERVrsivQLJu5r46wJD1tzjYQ8QyfBX4XC3wgNbJ10W8/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773141111; c=relaxed/simple;
+	s=arc-20240116; t=1773142017; c=relaxed/simple;
 	bh=T/LNN9QFEpL+Sn5oAXB89WXMb/FCc6/ZM0k0NrdVFjg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gw5ZkfIjrxuHrFwf3zVpZHARBQkOI+ukK5mSu3Yz40hwllCTWyuTzVMCVWLL7I0wrJGdfv1r8pDz8ZiiTgp7PoQakQ4KPXiz5Wkrad3YwySDWkggOIekBxBb+ZLuvPoeyNUS47LE3UfFR4ZrRKocvfGrteXpid5G4Uxz+OmWDUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f8B94msR; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=WReJXcR11fqQ48APhQAo9Mhmnehmwtpv+VBPXr18cvhMa/clE2mziWtbrSwegrqT6HCGFoOfIH04qr5tAAKT22Omf6/SuluXmmC7gOjLBmiL5abTliSih4ZLJhaXR6Bvh0brXFHAZjLGHsZYHPoYAU+SYONPbeJIA/+r+goi3KI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=byvjL3ng; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f8B94msR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0DAC19423;
-	Tue, 10 Mar 2026 11:11:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="byvjL3ng"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21674C19423;
+	Tue, 10 Mar 2026 11:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773141111;
+	s=k20201202; t=1773142017;
 	bh=T/LNN9QFEpL+Sn5oAXB89WXMb/FCc6/ZM0k0NrdVFjg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=f8B94msRYqeTmWqLjrC9/3cA2NhZBREwwgQkdv8rKD2k1jMQpDtVDQ3SsmllXMNLE
-	 RZN9iMUzX9au4iRtrRffe2jp/gdG+4yiaTfUEys99p6zXSWVLDeEk+eSw2lb3dbovZ
-	 wpIdebI0FnBNL9stO9GZbR3Elvy9GOXKm+SH5psamp9scwlVUrVUHWOwFTV2NZhhME
-	 6jtFygHghPXNdcZxC9Rd31aQfrJxDbCJfW+c4vfXVMVKU/XjEpeMI3Rr1eYj9BpiaS
-	 WARdNAU5JN3CLfYgUgBEFjBeDsvpQW18BEUYu04U819v+IoEiTiQXqtkPb6lPRdd2B
-	 kQ28Odh5p2t2Q==
+	b=byvjL3ngyRT+vLQFtFHZno9MjhWOlgqT7y2JhfD1FczgH1j6jC92jRC9I22geIq64
+	 kaWx7KOZc10Chb7eJDSipLWdt6dRe9bVCTjFXy4Io13QBz2jjhQ+OfdLr1b9C8iCkZ
+	 MbFeA5ZEgmV8lM55I+ab8YQe5KLqI7e3lqIZxJtaAfBr+x7LO5WZdR7ofORNWw/PU2
+	 2UIHvlVz8YPFVdH3MvgGFXpyd4hx5zOUHqiDPAbokuoEoUPB1KqGQF1JqL4EwTwi0o
+	 Ufut4S5jsbnHEhcsgt6GUyzSzh7tDgF4OpwdB9sbYLLGU1oPt/YEhNPoc8ryLnkM7h
+	 ZTLCG/BPmvFEQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
@@ -35,12 +35,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Bastien Nocera <hadess@hadess.net>,
 	linux-input@vger.kernel.org,
 	stable <stable@kernel.org>
-Subject: [PATCH 6.19 113/311] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
-Date: Tue, 10 Mar 2026 07:02:40 -0400
-Message-ID: <cd66bd2824d7220039ce5daf4138f0f09bd0c4b7.1773140655.git.sashal@kernel.org>
+Subject: [PATCH 6.18 143/314] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
+Date: Tue, 10 Mar 2026 07:16:42 -0400
+Message-ID: <39461c943c51cf7de63895da203d485dec1b7bc7.1773141555.git.sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1773140654.git.sashal@kernel.org>
-References: <cover.1773140654.git.sashal@kernel.org>
+In-Reply-To: <cover.1773141554.git.sashal@kernel.org>
+References: <cover.1773141554.git.sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>

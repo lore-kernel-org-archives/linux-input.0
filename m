@@ -1,64 +1,64 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17C23A961F
-	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D1C426EB3
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 07:29:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773127799; cv=none; b=t1U87+jWmYWAykmNxkNoLcjRZJWqnbLGcEFNUwDdbaXXOelOwCAGmMwECadCVmsrHOF8GTzbYUT1V+vB8AKI5yl5d/aveZJG8DpeaQegwQ3hbiji7oouvh3Ms8zHEQYYCMXovqTZV3cIkyfN3+bRGjwLFJwlDHhhDVk/0Demmew=
+	t=1773127800; cv=none; b=hgdShlJ4NiQhvyL9N0I7BE+GNOe9mKm833gmPAwZekaVIz9Ysq16lgXuYelty0KKWcEwUVzkEoXMPiFAsqn0mYcWRjuLgwZ3+cbpW+ZSCExxjfPGH684UbPU8lkGrzl4qnP4zlNk/N2BV2t5Ah/Am8tRLbA1o0BiuLWBKVdnXMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773127799; c=relaxed/simple;
-	bh=i32r1821H3Fvx8Z++mHgDSGJpr7CI9S6224rhikSwqM=;
+	s=arc-20240116; t=1773127800; c=relaxed/simple;
+	bh=gLmiYhsjCO2ewaSKXWLLWhUHbePsZVGcZmhlJxVefm0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tdDEP7hIaqOPsbGNzoWHAZEBIr+FEqwK9oKhfcRxY6oC8KfwJwttgg5Pna0EwXfxBspyaTIirycQbT20mb0usgs8Yjg7mHk4dyqe8rzutaGwu+H7KeVmdBvl7jPPS73DUDN6PGULfNPLS6xJnzG5c3UIJQ5QjgLALtpEKtGzjLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SYB94V8K; arc=none smtp.client-ip=74.125.82.182
+	 MIME-Version; b=WFWU/qa3IesmMWrTX99eC6jyACdF6ttJtCt2+v6o/35VrwVV/NVYRVWfZAWnmTnuPZB91jkyRb+7WQUFDiaNu3zR0fcfRKcqxXExAL8gRFNGP5owPibzpcXzecR9qzFC3Wysqiyv9HpO7J9Q/ksxOrDHuZJpfLTp2ESTkHfB+Z4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dEdPyJSN; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SYB94V8K"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2be1c918173so14212607eec.1
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dEdPyJSN"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2be1b5fe11cso9716846eec.0
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 00:29:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773127797; x=1773732597; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773127798; x=1773732598; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=t3KNqP6Bo2goeMR/7FCuY+JiazyuB86qszEXwjkzo4w=;
-        b=SYB94V8KcxfzB1n8KDgPaIKYwJ/CTThSb9H30jUmkoOkhBu3dldDLy6Qu5NVs1kCoa
-         jvAZdnREi6DBj2MSIMXoeu2gz2gN91Rpu6y5BMypHX+3/hZxT6EGKD2x0NqLrZOvfFs+
-         6EHfCrHZvcu9jgTs5OeM4D17KRxrgNFVXOPqmfIIjD001t31d7xtYIK03jdoMQcWw4pV
-         4seO43dFmTevjtD6SjaZ3Vp8B3oF+tmfXdWbP3KH8N5iU9oxTQ05fK1vpvNKfG5qViqD
-         eRL9T3RK4xiZke43kfCpOb1GgH+KuDjIwUAf2NS4q3WKqPklF+mfznu423J1vkh+/fE/
-         wydA==
+        bh=BxcExIxLmkhlT7+NSIJGyGNNqrKogJfbqsFiKHCpzZM=;
+        b=dEdPyJSN8JWBpBxn9ZapJUfRp1bb3MzkQDwNItg5U/1d9x2kaVu2FkAwQjcwnW98Vp
+         jr6tXFSorYv8NuK3NpFwJb82c9/hSsKx6WVv6pgY5Csgaot6gRdItei44QRnlZu37ws7
+         2imLReW+Khu2tbDbfRihb9W3RK2x8BzdKTnAx1TSzPGApGoop4ooGUOLY1shik8TsHqq
+         W0W1aEY2mMDH+FhJnCmMuB0ILZXl0Y8a5HHioB+5N/hXjI/roWH6FUkmuE9+3rEbaUwX
+         YEWaYjAFMP35Db6oWPdLGQmbjJJjNGAv+PMCAm483ZYK9/n3x0/1ORYnU7CPkfGP4WeD
+         klfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773127797; x=1773732597;
+        d=1e100.net; s=20230601; t=1773127798; x=1773732598;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=t3KNqP6Bo2goeMR/7FCuY+JiazyuB86qszEXwjkzo4w=;
-        b=NmCD0BUQFhg4g05/QIwZd20ErvKXO/I98q42hrumZfIw8kJwbCSneNlRhwX/jLcdib
-         h4kC8HcvYIoAvI8FpV9W8kcVVblgfIwQ2GOQfT3pxsDu8oDCgxdv7vVN4O1/nRGLVIhY
-         8ami/REDnSob4yflvpAOHBr8DafYCybStiLiqGzkGBaGj/XL0d3iPGCPq9SbGom3qOX6
-         BlXGvUx0Vp1wcJMS9iL7TKnB2145dxYMQnUGgafKEOidLRroZ9H8S/3Q8X5VyG5N03dG
-         mlnyEbrIH3U86lX6OOK5d/wqJxKwWx3kE5AriBqD+GF1SojETL7r7nr/n0kyZ0YL+gbK
-         16tQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXixwPNzGzwyzqYDssO0DomJwXw4JBf4ZtqncRzIyRJC9l/HS/P6wEjuWdKtmYisGYlyUoMon+G6p5M6g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYn7jjxDDN7MYT5KDEcsWOPJu3khXoWy/bM/PEVemjnjR5vfMk
-	LOgfORZKm91KImXI2Nl51NzPbFjUhlQy9HwZvI4A12fE8n8epDkMbJR3
-X-Gm-Gg: ATEYQzy3XSJPSMcdX2f7htBuGk3VC6xz3Z8fX/6pWtRvTlUvcvU4ajGsaMIRwJzAqIK
-	ZkHrVdnM/QTfW6KENxVrTKYuj5dJpvssoeMGtle3Z4/zj+scpvwRKvrP1bbfwLOwsNE0joqtjYm
-	0VvW7cIhBHThb/bhOIlR2pdcX5udqzL2AraqB1C6mytkHdsJqri5slr/yVv6yXq7m9rdaClIsZH
-	l+8oNe5EI4qDyBsSe/rekhCFag7bL/MB+M5r1YdAWcXkcTsZvMBkrRXscNFMWpYAmXex/SwOKqP
-	wtotFtG2Cauz/Sz2JMfre/xvGZFVkRc84G807+NCjzcePN4T+ll7tLC2dXvxv247uIgddtlDJtI
-	EPTLu6uWlpUFdnCn2fGq8Y7dfiOh5pJzxCoxAs7tZRgTEiYCvsJjM5E3Z3NdNWBR9ZcMvZJOcpt
-	oN2NyK5h5XlB+nKjDqRoPjAjDD75i7ublZuKDcG3VgxoOmyoZ01vYXqdbpTrhZXAKXLRdj+0TM7
-	gDD
-X-Received: by 2002:a05:7300:a44d:b0:2ba:96d8:530b with SMTP id 5a478bee46e88-2be4e06436bmr5559508eec.32.1773127797107;
+        bh=BxcExIxLmkhlT7+NSIJGyGNNqrKogJfbqsFiKHCpzZM=;
+        b=QgB3+Gg/ctva0pa0ZTOH/zQwzve5GXIHs3hbc6YdyXin+am+aENPx2LU/68SJ51FNI
+         1V8JS5vXiFUsfjBEhjqZTiR4++X14rFN5cBKLdMY487Wi2OmfnAUhxkNv9FyGy/9srvg
+         jGT9J0zsU+JoGm+3atAGd75Uhl3mwcoOpwWyXLZHOH2XsIPdxWUg+it4XnDWCwd9cK4d
+         Zn854HKQyV38hxTZRK74udfnA6VLcCF7F2C9jbiPaojmcWIXlPtEsvl9Lfzunz6G4VFb
+         h7BFGywcs9E/+/YPdjILOQufBsbME17vpDAdMmtPJKnrN2SdD0Vb8EI1VZyIw6WUZsRC
+         Ud8g==
+X-Forwarded-Encrypted: i=1; AJvYcCUvYVprRNea5x+e009Kk/22ewLfIpYqxMUqEUoTdGeP1nnijVIT53pTLtsP7aQU039N3V772ZCLtm+wcw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/xeu5NXzpaSlTGDUdd27scToYhEXA8VGuLMmbPW+Qtu4I+nH8
+	kiGG1rZfJgNnN9nk2QceDvyMDsU97iYLUQPeVYYOPDz5qnekgoTvBnDT
+X-Gm-Gg: ATEYQzxRN7Ai0HUKqtIDwq9McuZOccUOqIpD4sYczfxsNSeqh56SJWxBkveIB1JRjRf
+	BxPNyfPYI9IyPvD8AYCZ6JCF8SETR5rTuQsQzyfaFODCJ0aAdp3+oziAukXE1TRLw92dXjIXj6D
+	kMj30IWBdZDNGh2z27BViTtz4MB8WCI44QHwmg9eDqYcYd7uafkF4aj074i4QvQqQY3N0+72iTD
+	/Zc0Im7Ei773ddYMcNNKooltTQQLdXapcSAE2JHWfUfR01zJUnOSkS37U9p/l/CecRLHa/wTnQM
+	4J02IXls+aDsnHS2HTjldipetSHiyQ4gGJR9ZRXhGTRAJkgZF2fwhXzrEqcFLoxRIv2tjVpQtcz
+	vekh3Ok8NiJKHbWBfivpJxyJaMW6kIcOB+Elj97Nuis5vRTvO4Bdycxy2Fj4oYnV9P/cARKa6s7
+	Dr5PN6G8qeQ73aEVIHNmHrwttdPIASvMJy7iCUr/noSIs7GSc1KOUY8rh6nd1mwXQLA2J5mAK3t
+	CJF
+X-Received: by 2002:a05:7300:a887:b0:2be:198e:438 with SMTP id 5a478bee46e88-2be4e01914fmr5746231eec.16.1773127797902;
         Tue, 10 Mar 2026 00:29:57 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.56
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be81209142sm721925eec.12.2026.03.10.00.29.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 00:29:56 -0700 (PDT)
+        Tue, 10 Mar 2026 00:29:57 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -73,9 +73,9 @@ Cc: Richard Hughes <hughsient@gmail.com>,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Chen Ni <nichen@iscas.ac.cn>
-Subject: [PATCH v6 17/19] HID: hid-lenovo-go-s: Remove unneeded semicolon
-Date: Tue, 10 Mar 2026 07:29:35 +0000
-Message-ID: <20260310072937.3295875-18-derekjohn.clark@gmail.com>
+Subject: [PATCH v6 18/19] HID: hid-lenovo-go: Remove unneeded semicolon
+Date: Tue, 10 Mar 2026 07:29:36 +0000
+Message-ID: <20260310072937.3295875-19-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
 References: <20260310072937.3295875-1-derekjohn.clark@gmail.com>
@@ -89,30 +89,255 @@ Content-Transfer-Encoding: 8bit
 
 From: Chen Ni <nichen@iscas.ac.cn>
 
-Remove unnecessary semicolons reported by Coccinelle/coccicheck and the
-semantic patch at scripts/coccinelle/misc/semicolon.cocci.
+Remove unnecessary semicolons after switch statements and function
+bodies. Most issues were reported by Coccinelle/coccicheck using the
+semantic patch at scripts/coccinelle/misc/semicolon.cocci. Additional
+instances found during manual code review were also fixed.
 
 Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
-Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
- drivers/hid/hid-lenovo-go-s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-lenovo-go.c | 52 ++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index 431fffde4695..8ffa25b20f9c 100644
---- a/drivers/hid/hid-lenovo-go-s.c
-+++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -1097,7 +1097,7 @@ static void hid_gos_brightness_set(struct led_classdev *led_cdev,
+diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+index 54861f2e04fc..d4d26c783356 100644
+--- a/drivers/hid/hid-lenovo-go.c
++++ b/drivers/hid/hid-lenovo-go.c
+@@ -455,7 +455,7 @@ static int hid_go_feature_status_event(struct command_report *cmd_rep)
+ 			return 0;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 	case FEATURE_IMU_BYPASS:
+ 		switch (cmd_rep->device_type) {
+ 		case LEFT_CONTROLLER:
+@@ -466,7 +466,7 @@ static int hid_go_feature_status_event(struct command_report *cmd_rep)
+ 			return 0;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		break;
+ 	case FEATURE_LIGHT_ENABLE:
+ 		drvdata.rgb_en = cmd_rep->data[0];
+@@ -481,7 +481,7 @@ static int hid_go_feature_status_event(struct command_report *cmd_rep)
+ 			return 0;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		break;
+ 	case FEATURE_TOUCHPAD_ENABLE:
+ 		drvdata.tp_en = cmd_rep->data[0];
+@@ -515,7 +515,7 @@ static int hid_go_motor_event(struct command_report *cmd_rep)
+ 			return 0;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		break;
+ 	case RUMBLE_MODE:
+ 		switch (cmd_rep->device_type) {
+@@ -527,7 +527,7 @@ static int hid_go_motor_event(struct command_report *cmd_rep)
+ 			return 0;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 	case TP_VIBRATION_ENABLE:
+ 		drvdata.tp_vibration_en = cmd_rep->data[0];
+ 		return 0;
+@@ -625,7 +625,7 @@ static int hid_go_os_mode_cfg_event(struct command_report *cmd_rep)
+ 		return 0;
  	default:
- 		dev_err(led_cdev->dev, "Failed to write RGB profile: %i\n",
- 			ret);
+ 		return -EINVAL;
 -	};
 +	}
  }
  
- #define LEGOS_DEVICE_ATTR_RW(_name, _attrname, _rtype, _group)                 \
+ static int hid_go_set_event_return(struct command_report *cmd_rep)
+@@ -699,14 +699,14 @@ static int hid_go_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		default:
+ 			ret = -EINVAL;
+ 			break;
+-		};
++		}
+ 		break;
+ 	case OS_MODE_DATA:
+ 		ret = hid_go_os_mode_cfg_event(cmd_rep);
+ 		break;
+ 	default:
+ 		goto passthrough;
+-	};
++	}
+ 	dev_dbg(&hdev->dev, "Rx data as raw input report: [%*ph]\n",
+ 		GO_PACKET_SIZE, data);
+ 
+@@ -925,7 +925,7 @@ static ssize_t feature_status_store(struct device *dev,
+ 		break;
+ 	default:
+ 		return -EINVAL;
+-	};
++	}
+ 
+ 	if (ret < 0)
+ 		return ret;
+@@ -1013,7 +1013,7 @@ static ssize_t feature_status_show(struct device *dev,
+ 			break;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		count = sysfs_emit(buf, "%u\n", i);
+ 		break;
+ 	case FEATURE_FPS_SWITCH_STATUS:
+@@ -1032,7 +1032,7 @@ static ssize_t feature_status_show(struct device *dev,
+ 		break;
+ 	default:
+ 		return -EINVAL;
+-	};
++	}
+ 
+ 	return count;
+ }
+@@ -1070,7 +1070,7 @@ static ssize_t feature_status_options(struct device *dev,
+ 		break;
+ 	default:
+ 		return -EINVAL;
+-	};
++	}
+ 
+ 	if (count)
+ 		buf[count - 1] = '\n';
+@@ -1111,7 +1111,7 @@ static ssize_t motor_config_store(struct device *dev,
+ 		ret = sysfs_match_string(intensity_text, buf);
+ 		val = ret;
+ 		break;
+-	};
++	}
+ 
+ 	if (ret < 0)
+ 		return ret;
+@@ -1161,7 +1161,7 @@ static ssize_t motor_config_show(struct device *dev,
+ 			break;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		if (i >= ARRAY_SIZE(enabled_status_text))
+ 			return -EINVAL;
+ 
+@@ -1177,7 +1177,7 @@ static ssize_t motor_config_show(struct device *dev,
+ 			break;
+ 		default:
+ 			return -EINVAL;
+-		};
++		}
+ 		if (i >= ARRAY_SIZE(rumble_mode_text))
+ 			return -EINVAL;
+ 
+@@ -1197,7 +1197,7 @@ static ssize_t motor_config_show(struct device *dev,
+ 
+ 		count = sysfs_emit(buf, "%s\n", intensity_text[i]);
+ 		break;
+-	};
++	}
+ 
+ 	return count;
+ }
+@@ -1232,7 +1232,7 @@ static ssize_t motor_config_options(struct device *dev,
+ 					       enabled_status_text[i]);
+ 		}
+ 		break;
+-	};
++	}
+ 
+ 	if (count)
+ 		buf[count - 1] = '\n';
+@@ -1333,7 +1333,7 @@ static ssize_t device_status_show(struct device *dev,
+ 		break;
+ 	default:
+ 		return -EINVAL;
+-	};
++	}
+ 
+ 	if (i >= ARRAY_SIZE(cal_status_text))
+ 		return -EINVAL;
+@@ -1459,7 +1459,7 @@ static int rgb_attr_show(void)
+ 	index = drvdata.rgb_profile + 3;
+ 
+ 	return rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, index, NULL, 0);
+-};
++}
+ 
+ static ssize_t rgb_effect_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+@@ -1489,7 +1489,7 @@ static ssize_t rgb_effect_store(struct device *dev,
+ 
+ 	drvdata.rgb_effect = effect;
+ 	return count;
+-};
++}
+ 
+ static ssize_t rgb_effect_show(struct device *dev,
+ 			       struct device_attribute *attr, char *buf)
+@@ -1555,7 +1555,7 @@ static ssize_t rgb_speed_store(struct device *dev,
+ 	drvdata.rgb_speed = val;
+ 
+ 	return count;
+-};
++}
+ 
+ static ssize_t rgb_speed_show(struct device *dev, struct device_attribute *attr,
+ 			      char *buf)
+@@ -1599,7 +1599,7 @@ static ssize_t rgb_mode_store(struct device *dev, struct device_attribute *attr,
+ 	drvdata.rgb_mode = val;
+ 
+ 	return count;
+-};
++}
+ 
+ static ssize_t rgb_mode_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+@@ -1614,7 +1614,7 @@ static ssize_t rgb_mode_show(struct device *dev, struct device_attribute *attr,
+ 		return -EINVAL;
+ 
+ 	return sysfs_emit(buf, "%s\n", rgb_mode_text[drvdata.rgb_mode]);
+-};
++}
+ 
+ static ssize_t rgb_mode_index_show(struct device *dev,
+ 				   struct device_attribute *attr, char *buf)
+@@ -1653,7 +1653,7 @@ static ssize_t rgb_profile_store(struct device *dev,
+ 	drvdata.rgb_profile = val;
+ 
+ 	return count;
+-};
++}
+ 
+ static ssize_t rgb_profile_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+@@ -1668,7 +1668,7 @@ static ssize_t rgb_profile_show(struct device *dev,
+ 		return -EINVAL;
+ 
+ 	return sysfs_emit(buf, "%hhu\n", drvdata.rgb_profile);
+-};
++}
+ 
+ static ssize_t rgb_profile_range_show(struct device *dev,
+ 				      struct device_attribute *attr, char *buf)
+@@ -1707,7 +1707,7 @@ static void hid_go_brightness_set(struct led_classdev *led_cdev,
+ 		break;
+ 	default:
+ 		dev_err(led_cdev->dev, "Failed to write RGB profile: %i\n", ret);
+-	};
++	}
+ }
+ 
+ #define LEGO_DEVICE_ATTR_RW(_name, _attrname, _dtype, _rtype, _group)         \
 -- 
 2.53.0
 

@@ -1,197 +1,275 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5607A33DEC9
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 02:07:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5404D1D5CD1
+	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 03:01:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773194859; cv=pass; b=s/sxN19Bgc2XNdTcSvqrHoT7bfRPAzvlYYwlJN8JiDkeTp1nb9531Ko9uil4QqqrfkqIqrkHfn0tTohrh1B8oev1qpRyqEm6Ki8KBbV9R9b17hHZlrZJ3KzrRTZ5R9b2yOcw8LDvKxTQiTJ2Qgq4pq98M8h8VRcVnbb2J6tTXiU=
+	t=1773198106; cv=pass; b=jB13QyLy7JkVigX9+eSEfTYWpv8c8v5r9r8QL+1q9c+TFkyC/YAON1fy0E7eBvXVlQT2J7vgjLNNJZDDuvRNOVS+Rc7HxQl2m3Nd0spPlqHfTwdzSUQYiqsaYQeR4nCFPoA8k6ZuH5Br4nc9xjRhxI682hN1hQau9eSocrg02Mw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773194859; c=relaxed/simple;
-	bh=8UJnLa/DDQ+b65RDSHa97nR/Rm6zetnRjswOkVb13wc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l2g2yzZ4Dybh6kuhvcBULVguDYhdrEOCm8tFVHG5HxZiMK4r1ieV3XC7DvFbBP/+LmMwsbfu65u9ArSpCtaVdbPZteok84/rVMReHCYXmpmbYEy9zrdrliUY8eD89Ecnaq3KiIRSp5NcaBqhT+HUD7Ww+h1VR8ou9i4C8J9QSO4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=SqpOgAb4; arc=pass smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1773198106; c=relaxed/simple;
+	bh=USuETOR02EbnP9jNk2rssD+vogCYatSUJBzHNjqx5UA=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=XuuKnyIcXR0oS3bAYY8yWM1fB/qIHh/hpTeW9mVKI+ZLV0V0AJcC2/JnfyEZiQEowrho8oAZWQF2GlPuyulcr4ntNLWPgR/ujiJKuzLZV5FtnDLHqcaCmeFN/pUAMbbSILOozZ7BBIZqwb7AQuIU0li/Q1gVByoq13dKYeYPOkw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dqwin20d; arc=pass smtp.client-ip=209.85.210.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SqpOgAb4"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5a1362c9a3cso5630116e87.2
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 19:07:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773194852; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dqwin20d"
+Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-7d75d698ee6so785382a34.3
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 20:01:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773198104; cv=none;
         d=google.com; s=arc-20240605;
-        b=KpkeszJUsq4l4IrVEje3ouwGMCSJ6Dl9wCSo5VgaG+HQCyS7KHC4z3IQ4D4BpbWH4F
-         tkviB4/W3zAcKWO4ywX21hu3Dkw+X1PTBgJeJYnyKauRB75tKQIdaxprRJUKrlHjMOJO
-         268IF82xiEyuh5D2sy40AZIJjRhr7/bN/dlFg2BcQE1f4oS5gdaNrhE7GyQzg1IbapJU
-         MxIYr+wwQoXNLNBd13/1jpJqADotIJZ5g8oyGFkhGiihgiZuEwWA33y3x8SqYJ/o2bBl
-         /NAB06ujL/4iFqxqMBotGzIcTmMtHKGp5Cc4cdUzthmpYS9aQkQ4PBbKUtafothVcx6F
-         SJsA==
+        b=a/wHCHTS+VU8fNKaIBghlX3QUg54x4drW50phAkvI+2oMLRATmWZzrtN+Cf82Zl+10
+         E5ujQsZaLmqe3ZAayAxCRBUZxq2wmHrLiho0rf1A/S6nsKwo/dB7ue92AdFNTISBKuPv
+         TV9o1ED3+d9c8dMMqIzxSL2fEaeThNm4Vdg/+qy8SFvW9Z35Ug9tHPUh0FTt2L4ijPdK
+         8Kd7n+uAkePt9LIgV4z3K19B2uQKoRwuYiWlEmeL5IMiFV7R4ttevZz8aZeeNsolheHN
+         7D1rKe3TISfRSpBWNWT2bQlpnYO6zIEDatGkMJt9uZhgh8tCYf3BY2Uv+6pLGFtGjLyk
+         f9XA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
-        fh=TXfPCz/a+ngk9QhqIxBG3rjO2sa0LFUubCJ++vEhZmQ=;
-        b=IAwnumBX7HK+h+U1i4N9vOmhgWMC6KIYfH+8ow0vsmVsZlsMT4yPvx8JjX/Elq9447
-         FlPoq2N4UFjg6ubqY5Ny6ZKs01HI50StLlqXIZieZZ2fyy1Xe92iLDtuA611x3ttnlBK
-         CGVymH+8jcQScNgEMLNib/PfAYODAna425KjSw8JKJUEMQMAQGl4B1S+9AotdpaQF2qp
-         1DQMckoW80XYY+/ON12dbrmhOh5Zi3D1vNgqFJHl9IYVoxLy3gGSh9YCuEHLUiZigJ2l
-         BD/n1/1Z5ySvbGtNTJqXXNG+CK7NDgyjy/0dQIS+zMaETXmt9kD6+5CESK3Y82TfcUw7
-         L14Q==;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=lwcYZshukT9x5+YvWHrQP2/uutb5FLKAKZH6xp0g/sg=;
+        fh=GKgx6HNRi2Ol1IJn/9BAeTF5q4duRCLO4zw9VtAC1NU=;
+        b=PXfz3q/soFFvos99zCxAOyqfH8ErAx/xlY6dve98io3vSi38tlbDWscllEgLnD65Gz
+         4pVUJG0xPQhqQutIPjju770PSu+/acV9Qy3Knnla152TbSIJ3bFB+DE8z0RXR2U5uZ9T
+         Jz4J88IBpvcHu1RPf8bOi2Y9jA0yoxs0F00P/b3isaE9MVbYWQhBudAFqvFyOLXxmBgj
+         DVgr991+nlsLHciE9yh4XBRg/xbvpsrxw8uAv16Ly7Nfg1MidcagFIsviMnivKMgplDg
+         +xIJ73Ex7fxrVYVoI87STc8QZsR6C2kGeE9yFG/lkL8whRU0VQhtbbtz2oE8A6C/4gjP
+         umhA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1773194852; x=1773799652; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
-        b=SqpOgAb4CQOCp6QT1IhDiJXNOENCCAthmmQiQ2Xm1LqdH6AuNnr9pWEOxoaM6J2EHp
-         TaZvrNsWvEAAdeAh3rGZCGLrxzU767HUy57VJt43+079ae3+2kuAr2+JBVbU8T9+l/BT
-         vjjO+GANIyds0bGFgUhdgNG0FnF3NJi/nWQH4=
+        d=gmail.com; s=20230601; t=1773198104; x=1773802904; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=lwcYZshukT9x5+YvWHrQP2/uutb5FLKAKZH6xp0g/sg=;
+        b=dqwin20dTmizWOEPNxa6+ctOlUBTRtNXbK4U0sGDGJFbFiBM2rAT9NdyWfWaFSHjWI
+         7n3a+vKq62BuA/dMIiYFcsWLCtwcNsArGv5cFNkaO2z25V7NcCFHGXsrRxvG9ApQIT1q
+         5ohoKGtNLIZHsrJM7VMIwLJbF3ZS4aWM8v/1dxOhPoSoIBPBaQiWq1moZ0zQjGCosJrn
+         yNiY8hiuP3GO03TUHmgiAjm5ABdst2BCsvP5IG20xHgkO9f1fJPO+d/gHK85kAyY7Qsd
+         a3ov4TU0Xd9D1zS2hzPBo0fSxwkiuoy5Vz3iB0hFmIO86Lekt5DcwHZ/U/xMv1s9HSqk
+         rLbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773194852; x=1773799652;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=+zLBLQzKjcztDlxJqoLP6w+B6xnZmfHibV4jlBQCebA=;
-        b=jiV2YHB1C/GaftS0hvA7V8/i1HUrp/B+F/ED/v+eSyELxpWvSlKSB1WQACVQjDPhdu
-         gcRcoRbS8Dd3LRHMmf0cN3jAiO1Mj10kVlGDcdJkUEKiH1dilFEDR+QZFaBi4xFbuGp4
-         dFi59Xw4JLiJVefs1HXccB6a0EHuwl9UjyDCMRO4n+GqEvkSnO5hCoXwJY1qMGOaCokx
-         Ao8epK15nExBIP1tvGzkX6nFU186Vc7wBs0yALM94PV84yWOpbq59Y3iQSqkLMoV+FI4
-         /VHFqpuorYt8P0q5ZPnmOFkdpTzO+NlmejF6JcGENmddXfRI2maDCO6VA/cI81xdsOKj
-         qizQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXL9j5rfBBerb7adk7VQ5OM+x9I5T14A2CsGnFb6wlGik/jYdWZKQREdDw/uMqzKWX/8O6K19jswUgE7A==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzi2TnH6zLRjLYoLYx9U8uC/ES9EL8UBVXZTXWQ1w5waM116YPF
-	mOeN+4U/1tOpoIwd9/OFa10xW9zPU5spYMa4D8LYIVdMZ0AXDb/fQ/j/HO/g9LHkAfXilFmWiXi
-	Yl/OEpBlNSOThLA91K+Z2nsp9hdzE6LcQW6jbaAk/
-X-Gm-Gg: ATEYQzyOcPXdkzj8mSqLBqUgdjIQUVYRG6JzsrcebXtlD4rxL1v+ufz6rqKTeT4P6sh
-	7IOK36+1kKqZ5EEFATSCFKXWUAgn5iC07oD6B9lXIbD9VFsVvS3/8+fLMUKG5F1VHC7/gz4vjDY
-	481nr7w1wUKFebsJB5FHKFo9TR+e39fLKFePJ8FbOsCnzCfVNxhIJ+KdTJBO51sLuuDq2r2C8bQ
-	zQamBm0byHQdOIFDo02a1Mtwtupz530jeAYXbxTh6g2wzNWwJ1gR2TQvc/PkKY7vW6ZSkdX5ezk
-	G6wTNR2nMA==
-X-Received: by 2002:ac2:4427:0:b0:5a1:3134:9bac with SMTP id
- 2adb3069b0e04-5a156cbd1bbmr169453e87.28.1773194852284; Tue, 10 Mar 2026
- 19:07:32 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1773198104; x=1773802904;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=lwcYZshukT9x5+YvWHrQP2/uutb5FLKAKZH6xp0g/sg=;
+        b=HulxTN8JX0au69J603n6QtvJCXBSuPNj1YWS/KXe8mSz18oMAKB5BAN6xUYOSUrV60
+         a1166cOTfqZA9WN6KFxQHPaZn6hcpWhOp1RGPWkDRNN4bf6sqx5s8NJNmEtPvfkDSMbx
+         uYZYmzUh7OQwLjPrBqlQHDn6JPISuIq7R/np2Eh4Bvx0CTxZeoyoiYJFl3IvO2qYEiqA
+         wq9ALSgpNWxRMxeyno2ypUVLU4CZemx0OoCIYMhWJuAFr/l4hJ7euSKfYhpJqAzZ2VZk
+         EPNa7m9sHJ8bQ2Hm2J6oPo33J4OJlEOXSw90X10nhse281N5LPZ59T9nb1uxcCUvoY24
+         HiOg==
+X-Forwarded-Encrypted: i=1; AJvYcCW0GtVUDdmHRL67QPRwXAn5H1w8Vi3gYOacRSpph2SqzIZtGZpnidYouG8iMyAm4BSxAS/26PYz9XHWrg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBYgQnjFM2ouCNwgM+QtdZ2Zu6XnUgTwTtxqfQpJoEpSouRN1M
+	XurDBaVg8l/FoZWr/64ZzaLrXruG7BxskR6Bg3yLDFCWVRMroJ77+R9hlWtbkmhR6oXMFCi4VgL
+	p4/U4+ePNK3nY9fyc72Gb+ugCsk9/Ndc=
+X-Gm-Gg: ATEYQzyhwS60jM4CTcRcKdr7EKs7RlQEhu26pImJYnDYgwwkDK8uMgr75mfIXUEg1Z+
+	uW/trw696zGDUtzYMbzZ1DkW3D8mQSwFk2brVE/Y4QFlvMi9rMaGEuZiMrXb4ERP1FaWmwFJLI3
+	/AQkulIgcJwQ4Wvv8MjKQw1798NXwq5eAO65EfLRdPp905fOR7iCu7GZAMYZpY5PHKzYiwcKfdq
+	mACHPqE0mhDnVcb+TKlSmdhdqmOn412fYyHuwVZxUcUnM23ZF7X2CdaL6niQDr2A/FeePhPaupj
+	6Snyzto=
+X-Received: by 2002:a05:6830:81c7:b0:7d7:51a4:d071 with SMTP id
+ 46e09a7af769-7d76a741d8dmr792249a34.15.1773198103815; Tue, 10 Mar 2026
+ 20:01:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de> <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
-In-Reply-To: <20260310-b4-is_err_or_null-v1-56-bd63b656022d@avm.de>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Wed, 11 Mar 2026 11:07:21 +0900
-X-Gm-Features: AaiRm5028PWt8n-JnveiRgn8oYMksdR_-_nk4JOkvxMfplWs-GDr7RRk-OxICyw
-Message-ID: <CAGXv+5FQAVaJjqhv+Xq-ysOc4SHQn2mCNTgCAp8XocmWBWGGoA@mail.gmail.com>
-Subject: Re: [PATCH 56/61] clk: Prefer IS_ERR_OR_NULL over manual NULL check
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr, 
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
-	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	v9fs@lists.linux.dev, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>
+From: Oli <oochiolio@gmail.com>
+Date: Tue, 10 Mar 2026 22:01:41 -0500
+X-Gm-Features: AaiRm50y1v-api-VJGGCuow_byrgIvm0KBWdyp52p0mvuaQCzwMEaVOX9UDzfF0
+Message-ID: <CAOW84UxjnSDKSjsaaS9=DBquCk3SDfb74=OmkHTLUyq5qriYsA@mail.gmail.com>
+Subject: [PATCH] Remove unused headers in x86/tools, scripts, pps, input
+To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Rodolfo Giometti <giometti@enneenne.com>, Henrik Rydberg <rydberg@bitmath.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nsc@kernel.org>, linux-kernel@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	linux-input@vger.kernel.org, x86@kernel.org
+Content-Type: multipart/mixed; boundary="000000000000183e26064cb6dbe3"
+
+--000000000000183e26064cb6dbe3
+Content-Type: multipart/alternative; boundary="000000000000183e26064cb6dbe1"
+
+--000000000000183e26064cb6dbe1
 Content-Type: text/plain; charset="UTF-8"
+
+From c78a0572f5ec2b927f9b723af687e6ef913561a4 Mon Sep 17 00:00:00 2001
+From: Eddie Hudgins <Oochiolio@gmail.com>
+Date: Tue, 10 Mar 2026 21:53:07 -0500
+Subject: [PATCH] Signed-off-by: Eddie Hudgins <Oochiolio@gmail.com>
+ arch/x86/tools: Removed headers in relocs_32.c scripts/basic: Removed
+headers
+ in fixdep.c drivers/pps: Removed headers in pps.c drivers/input: Removed
+ headers in input-mt.c
+
+These changes compile for x86, x86_64, and powerpc (Those were the only
+ones fairly tested) under defconfig. This aims to clean up code and
+simplify the files for developers. This will also contribute to start of
+decluttering the environment.
+---
+ arch/x86/tools/relocs_32.c | 1 -
+ drivers/input/input-mt.c   | 1 -
+ drivers/pps/pps.c          | 3 ---
+ scripts/basic/fixdep.c     | 1 -
+ 4 files changed, 6 deletions(-)
+
+diff --git a/arch/x86/tools/relocs_32.c b/arch/x86/tools/relocs_32.c
+index 9442ff78be83..9e4668e74993 100644
+--- a/arch/x86/tools/relocs_32.c
++++ b/arch/x86/tools/relocs_32.c
+@@ -1,6 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include "relocs.h"
+-
+ #define ELF_BITS 32
+
+ #define ELF_MACHINE            EM_386
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index c06e98fbd77c..b553b7f2313a 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -7,7 +7,6 @@
+
+ #include <linux/input/mt.h>
+ #include <linux/export.h>
+-#include <linux/slab.h>
+ #include "input-core-private.h"
+
+ #define TRKID_SGN      ((TRKID_MAX + 1) >> 1)
+diff --git a/drivers/pps/pps.c b/drivers/pps/pps.c
+index c6b8b6478276..a9a8802c2399 100644
+--- a/drivers/pps/pps.c
++++ b/drivers/pps/pps.c
+@@ -7,14 +7,11 @@
+
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+-#include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+-#include <linux/sched.h>
+ #include <linux/uaccess.h>
+ #include <linux/idr.h>
+ #include <linux/mutex.h>
+-#include <linux/cdev.h>
+ #include <linux/poll.h>
+ #include <linux/pps_kernel.h>
+ #include <linux/slab.h>
+diff --git a/scripts/basic/fixdep.c b/scripts/basic/fixdep.c
+index cdd5da7e009b..feb9e7d8984d 100644
+--- a/scripts/basic/fixdep.c
++++ b/scripts/basic/fixdep.c
+@@ -89,7 +89,6 @@
+  *  but I don't think the added complexity is worth it)
+  */
+
+-#include <sys/types.h>
+ #include <sys/stat.h>
+ #include <unistd.h>
+ #include <fcntl.h>
+--
+2.43.0
+
+--000000000000183e26064cb6dbe1
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 10, 2026 at 9:57=E2=80=AFPM Philipp Hahn <phahn-oss@avm.de> wro=
-te:
->
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
->
-> Semantich change: Previously the code only printed the warning on error,
-> but not when the pointer was NULL. Now the warning is printed in both
-> cases!
->
-> Change found with coccinelle.
->
-> To: Michael Turquette <mturquette@baylibre.com>
-> To: Stephen Boyd <sboyd@kernel.org>
-> To: Daniel Lezcano <daniel.lezcano@kernel.org>
-> To: Thomas Gleixner <tglx@kernel.org>
-> Cc: linux-clk@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
-> ---
->  drivers/clk/clk.c               | 4 ++--
->  drivers/clocksource/timer-pxa.c | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-> index 47093cda9df32223c1120c3710261296027c4cd3..35146e3869a7dd93741d10b72=
-23d4488a9216ed1 100644
-> --- a/drivers/clk/clk.c
-> +++ b/drivers/clk/clk.c
-> @@ -4558,7 +4558,7 @@ void clk_unregister(struct clk *clk)
->         unsigned long flags;
->         const struct clk_ops *ops;
->
-> -       if (!clk || WARN_ON_ONCE(IS_ERR(clk)))
-> +       if (WARN_ON_ONCE(IS_ERR_OR_NULL(clk)))
->                 return;
->
->         clk_debug_unregister(clk->core);
-> @@ -4744,7 +4744,7 @@ void __clk_put(struct clk *clk)
->  {
->         struct module *owner;
->
-> -       if (!clk || WARN_ON_ONCE(IS_ERR(clk)))
-> +       if (WARN_ON_ONCE(IS_ERR_OR_NULL(clk)))
+<div dir=3D"ltr">From c78a0572f5ec2b927f9b723af687e6ef913561a4 Mon Sep 17 0=
+0:00:00 2001<br>From: Eddie Hudgins &lt;<a href=3D"mailto:Oochiolio@gmail.c=
+om">Oochiolio@gmail.com</a>&gt;<br>Date: Tue, 10 Mar 2026 21:53:07 -0500<br=
+>Subject: [PATCH] Signed-off-by: Eddie Hudgins &lt;<a href=3D"mailto:Oochio=
+lio@gmail.com">Oochiolio@gmail.com</a>&gt;<br>=C2=A0arch/x86/tools: Removed=
+ headers in relocs_32.c scripts/basic: Removed headers<br>=C2=A0in fixdep.c=
+ drivers/pps: Removed headers in pps.c drivers/input: Removed<br>=C2=A0head=
+ers in input-mt.c<br><br>These changes compile for x86, x86_64, and powerpc=
+ (Those were the only ones fairly tested) under defconfig. This aims to cle=
+an up code and simplify the files for developers. This will also contribute=
+ to start of decluttering the environment.<br>---<br>=C2=A0arch/x86/tools/r=
+elocs_32.c | 1 -<br>=C2=A0drivers/input/input-mt.c =C2=A0 | 1 -<br>=C2=A0dr=
+ivers/pps/pps.c =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| 3 ---<br>=C2=A0scripts/=
+basic/fixdep.c =C2=A0 =C2=A0 | 1 -<br>=C2=A04 files changed, 6 deletions(-)=
+<br><br>diff --git a/arch/x86/tools/relocs_32.c b/arch/x86/tools/relocs_32.=
+c<br>index 9442ff78be83..9e4668e74993 100644<br>--- a/arch/x86/tools/relocs=
+_32.c<br>+++ b/arch/x86/tools/relocs_32.c<br>@@ -1,6 +1,5 @@<br>=C2=A0// SP=
+DX-License-Identifier: GPL-2.0<br>=C2=A0#include &quot;relocs.h&quot;<br>-<=
+br>=C2=A0#define ELF_BITS 32<br><br>=C2=A0#define ELF_MACHINE =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0EM_386<br>diff --git a/drivers/input/input-mt.c=
+ b/drivers/input/input-mt.c<br>index c06e98fbd77c..b553b7f2313a 100644<br>-=
+-- a/drivers/input/input-mt.c<br>+++ b/drivers/input/input-mt.c<br>@@ -7,7 =
++7,6 @@<br><br>=C2=A0#include &lt;linux/input/mt.h&gt;<br>=C2=A0#include &l=
+t;linux/export.h&gt;<br>-#include &lt;linux/slab.h&gt;<br>=C2=A0#include &q=
+uot;input-core-private.h&quot;<br><br>=C2=A0#define TRKID_SGN =C2=A0 =C2=A0=
+ =C2=A0((TRKID_MAX + 1) &gt;&gt; 1)<br>diff --git a/drivers/pps/pps.c b/dri=
+vers/pps/pps.c<br>index c6b8b6478276..a9a8802c2399 100644<br>--- a/drivers/=
+pps/pps.c<br>+++ b/drivers/pps/pps.c<br>@@ -7,14 +7,11 @@<br><br>=C2=A0#def=
+ine pr_fmt(fmt) KBUILD_MODNAME &quot;: &quot; fmt<br><br>-#include &lt;linu=
+x/kernel.h&gt;<br>=C2=A0#include &lt;linux/module.h&gt;<br>=C2=A0#include &=
+lt;linux/init.h&gt;<br>-#include &lt;linux/sched.h&gt;<br>=C2=A0#include &l=
+t;linux/uaccess.h&gt;<br>=C2=A0#include &lt;linux/idr.h&gt;<br>=C2=A0#inclu=
+de &lt;linux/mutex.h&gt;<br>-#include &lt;linux/cdev.h&gt;<br>=C2=A0#includ=
+e &lt;linux/poll.h&gt;<br>=C2=A0#include &lt;linux/pps_kernel.h&gt;<br>=C2=
+=A0#include &lt;linux/slab.h&gt;<br>diff --git a/scripts/basic/fixdep.c b/s=
+cripts/basic/fixdep.c<br>index cdd5da7e009b..feb9e7d8984d 100644<br>--- a/s=
+cripts/basic/fixdep.c<br>+++ b/scripts/basic/fixdep.c<br>@@ -89,7 +89,6 @@<=
+br>=C2=A0 * =C2=A0but I don&#39;t think the added complexity is worth it)<b=
+r>=C2=A0 */<br><br>-#include &lt;sys/types.h&gt;<br>=C2=A0#include &lt;sys/=
+stat.h&gt;<br>=C2=A0#include &lt;unistd.h&gt;<br>=C2=A0#include &lt;fcntl.h=
+&gt;<br>--<br>2.43.0</div>
 
-clk_get_optional() returns NULL if the clk isn't present.
+--000000000000183e26064cb6dbe1--
+--000000000000183e26064cb6dbe3
+Content-Type: application/octet-stream; 
+	name="0001-Signed-off-by-Eddie-Hudgins-Oochiolio-gmail.com.patch"
+Content-Disposition: attachment; 
+	filename="0001-Signed-off-by-Eddie-Hudgins-Oochiolio-gmail.com.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_mmlgd5rv0>
+X-Attachment-Id: f_mmlgd5rv0
 
-Drivers would just pass this to clk_put(). Your change here would cause
-this pattern to emit a very big warning.
-
-I don't think this change should be landed.
-
-
-ChenYu
-
->                 return;
->
->         clk_prepare_lock();
-> diff --git a/drivers/clocksource/timer-pxa.c b/drivers/clocksource/timer-=
-pxa.c
-> index 7ad0e5adb2ffac4125c34710fc67f4b45f30331d..f65fb0b7fc318b766227e5e7a=
-4c0fb08ba11c8f9 100644
-> --- a/drivers/clocksource/timer-pxa.c
-> +++ b/drivers/clocksource/timer-pxa.c
-> @@ -218,7 +218,7 @@ void __init pxa_timer_nodt_init(int irq, void __iomem=
- *base)
->
->         timer_base =3D base;
->         clk =3D clk_get(NULL, "OSTIMER0");
-> -       if (clk && !IS_ERR(clk)) {
-> +       if (!IS_ERR_OR_NULL(clk)) {
->                 clk_prepare_enable(clk);
->                 pxa_timer_common_init(irq, clk_get_rate(clk));
->         } else {
->
-> --
-> 2.43.0
->
->
+RnJvbSBjNzhhMDU3MmY1ZWMyYjkyN2Y5YjcyM2FmNjg3ZTZlZjkxMzU2MWE0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBFZGRpZSBIdWRnaW5zIDxPb2NoaW9saW9AZ21haWwuY29tPgpE
+YXRlOiBUdWUsIDEwIE1hciAyMDI2IDIxOjUzOjA3IC0wNTAwClN1YmplY3Q6IFtQQVRDSF0gU2ln
+bmVkLW9mZi1ieTogRWRkaWUgSHVkZ2lucyA8T29jaGlvbGlvQGdtYWlsLmNvbT4KIGFyY2gveDg2
+L3Rvb2xzOiBSZW1vdmVkIGhlYWRlcnMgaW4gcmVsb2NzXzMyLmMgc2NyaXB0cy9iYXNpYzogUmVt
+b3ZlZCBoZWFkZXJzCiBpbiBmaXhkZXAuYyBkcml2ZXJzL3BwczogUmVtb3ZlZCBoZWFkZXJzIGlu
+IHBwcy5jIGRyaXZlcnMvaW5wdXQ6IFJlbW92ZWQKIGhlYWRlcnMgaW4gaW5wdXQtbXQuYwoKVGhl
+c2UgY2hhbmdlcyBjb21waWxlIGZvciB4ODYsIHg4Nl82NCwgYW5kIHBvd2VycGMgKFRob3NlIHdl
+cmUgdGhlIG9ubHkgb25lcyBmYWlybHkgdGVzdGVkKSB1bmRlciBkZWZjb25maWcuIFRoaXMgYWlt
+cyB0byBjbGVhbiB1cCBjb2RlIGFuZCBzaW1wbGlmeSB0aGUgZmlsZXMgZm9yIGRldmVsb3BlcnMu
+IFRoaXMgd2lsbCBhbHNvIGNvbnRyaWJ1dGUgdG8gc3RhcnQgb2YgZGVjbHV0dGVyaW5nIHRoZSBl
+bnZpcm9ubWVudC4KLS0tCiBhcmNoL3g4Ni90b29scy9yZWxvY3NfMzIuYyB8IDEgLQogZHJpdmVy
+cy9pbnB1dC9pbnB1dC1tdC5jICAgfCAxIC0KIGRyaXZlcnMvcHBzL3Bwcy5jICAgICAgICAgIHwg
+MyAtLS0KIHNjcmlwdHMvYmFzaWMvZml4ZGVwLmMgICAgIHwgMSAtCiA0IGZpbGVzIGNoYW5nZWQs
+IDYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYvdG9vbHMvcmVsb2NzXzMyLmMg
+Yi9hcmNoL3g4Ni90b29scy9yZWxvY3NfMzIuYwppbmRleCA5NDQyZmY3OGJlODMuLjllNDY2OGU3
+NDk5MyAxMDA2NDQKLS0tIGEvYXJjaC94ODYvdG9vbHMvcmVsb2NzXzMyLmMKKysrIGIvYXJjaC94
+ODYvdG9vbHMvcmVsb2NzXzMyLmMKQEAgLTEsNiArMSw1IEBACiAvLyBTUERYLUxpY2Vuc2UtSWRl
+bnRpZmllcjogR1BMLTIuMAogI2luY2x1ZGUgInJlbG9jcy5oIgotCiAjZGVmaW5lIEVMRl9CSVRT
+IDMyCiAKICNkZWZpbmUgRUxGX01BQ0hJTkUJCUVNXzM4NgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+bnB1dC9pbnB1dC1tdC5jIGIvZHJpdmVycy9pbnB1dC9pbnB1dC1tdC5jCmluZGV4IGMwNmU5OGZi
+ZDc3Yy4uYjU1M2I3ZjIzMTNhIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L2lucHV0LW10LmMK
+KysrIGIvZHJpdmVycy9pbnB1dC9pbnB1dC1tdC5jCkBAIC03LDcgKzcsNiBAQAogCiAjaW5jbHVk
+ZSA8bGludXgvaW5wdXQvbXQuaD4KICNpbmNsdWRlIDxsaW51eC9leHBvcnQuaD4KLSNpbmNsdWRl
+IDxsaW51eC9zbGFiLmg+CiAjaW5jbHVkZSAiaW5wdXQtY29yZS1wcml2YXRlLmgiCiAKICNkZWZp
+bmUgVFJLSURfU0dOCSgoVFJLSURfTUFYICsgMSkgPj4gMSkKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+cHBzL3Bwcy5jIGIvZHJpdmVycy9wcHMvcHBzLmMKaW5kZXggYzZiOGI2NDc4Mjc2Li5hOWE4ODAy
+YzIzOTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvcHBzL3Bwcy5jCisrKyBiL2RyaXZlcnMvcHBzL3Bw
+cy5jCkBAIC03LDE0ICs3LDExIEBACiAKICNkZWZpbmUgcHJfZm10KGZtdCkgS0JVSUxEX01PRE5B
+TUUgIjogIiBmbXQKIAotI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgogI2luY2x1ZGUgPGxpbnV4
+L21vZHVsZS5oPgogI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KLSNpbmNsdWRlIDxsaW51eC9zY2hl
+ZC5oPgogI2luY2x1ZGUgPGxpbnV4L3VhY2Nlc3MuaD4KICNpbmNsdWRlIDxsaW51eC9pZHIuaD4K
+ICNpbmNsdWRlIDxsaW51eC9tdXRleC5oPgotI2luY2x1ZGUgPGxpbnV4L2NkZXYuaD4KICNpbmNs
+dWRlIDxsaW51eC9wb2xsLmg+CiAjaW5jbHVkZSA8bGludXgvcHBzX2tlcm5lbC5oPgogI2luY2x1
+ZGUgPGxpbnV4L3NsYWIuaD4KZGlmZiAtLWdpdCBhL3NjcmlwdHMvYmFzaWMvZml4ZGVwLmMgYi9z
+Y3JpcHRzL2Jhc2ljL2ZpeGRlcC5jCmluZGV4IGNkZDVkYTdlMDA5Yi4uZmViOWU3ZDg5ODRkIDEw
+MDY0NAotLS0gYS9zY3JpcHRzL2Jhc2ljL2ZpeGRlcC5jCisrKyBiL3NjcmlwdHMvYmFzaWMvZml4
+ZGVwLmMKQEAgLTg5LDcgKzg5LDYgQEAKICAqICBidXQgSSBkb24ndCB0aGluayB0aGUgYWRkZWQg
+Y29tcGxleGl0eSBpcyB3b3J0aCBpdCkKICAqLwogCi0jaW5jbHVkZSA8c3lzL3R5cGVzLmg+CiAj
+aW5jbHVkZSA8c3lzL3N0YXQuaD4KICNpbmNsdWRlIDx1bmlzdGQuaD4KICNpbmNsdWRlIDxmY250
+bC5oPgotLSAKMi40My4wCgo=
+--000000000000183e26064cb6dbe3--

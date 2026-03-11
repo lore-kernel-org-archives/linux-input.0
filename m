@@ -1,97 +1,116 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571953DA7D6
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 09:32:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66DA23C8714;
+	Wed, 11 Mar 2026 10:19:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773221546; cv=none; b=r3A+jr7M1dmxDT8g1uoVxFNgfxGhaBjXsjvacilj3BcyZzwORvfTtvKjYFUNV4Iy3JNQcH9GUF3znb9l+F0WMVKwXSlZ9Owut5CA7zZwTFl5kLWk6ISIHa9CZHWTkspowx9370Jj+s/kpd7WyOrSsNIru3yckSVg/sqoBfc61UM=
+	t=1773224340; cv=none; b=fR/+MkHV+JArbx12LwrrFL8FHqlFnD8G63gvsxNX4DAm9FLbWgT1DEQptnL0waWzudboF5dj2Bx3GvOk7+4vxQqmyeqa3ARLc7mZz2p0EW4k9X4kNDXagdhlhhWw4VP7f/hjGqKd2E2NURHABx9ku0c5X6ItQ/LlNI6vx5i1ytA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773221546; c=relaxed/simple;
-	bh=JGYhPK256pxU9EiY8jbQSSjgozqR8V5kd9EUseD+GRo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lDPbIJX30/OfdLsE2BHzTX7jbYMiPXOpA5j6nZZN0URtgNrQnRggRxPparRQodJln6PKo0iETdOrUjfDMLAU6+mt52wlIj51GDRWbeyEWHKG6nftPOXTd1tMgwd1Ubeyd3mhnJ+hfZD/E/jaONTblzUxAJdIQu923r0pSmwOvoM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HFhFoVNi; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773224340; c=relaxed/simple;
+	bh=LO2VOvF1JlLCFxrelSPybMAGAFqWDl+KQZmD1Nb+jIU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UzKpOoDVnv3B7svYE/1u2Zfg1DOQ4umMlGdPFhv2t406yRWeuJUplbOsedC0FAaWwTARULhj7Ou2eywebuufivoYIxImbm6HTL21w4R5lBmJoiAovoAPR41WoBenaeVfK8HapaPC7N4Ip1V5SdqW8biB4t67ch/EjGVnqQ5RfEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y1wvr1+r; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HFhFoVNi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E4EAC2BCF5
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 09:32:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y1wvr1+r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B27C4CEF7;
+	Wed, 11 Mar 2026 10:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773221546;
-	bh=JGYhPK256pxU9EiY8jbQSSjgozqR8V5kd9EUseD+GRo=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=HFhFoVNiTrG9LQIv0ppKNoD/HrLrqirjTX+9UZCfZCZR1ACy9KY8vzAF+UubsxXyb
-	 7A/AuxjB4pyfRVKpNo6VtwqDxAsV9i3OOu1suwbvFFD+dDURdR+fYaKC55vrGeQY9Q
-	 cSfgyMDf/Q66zJ3KWwfMvjGW3KxBKWlpZI+D0gyhlDHCmqkd60AvBaOv309nWmMVWV
-	 CYlN2OWwesW62EumkmGZjYKDzJerzMaIQkjARv2P34b/XlQnitMbZc1GQEBU1oFAvA
-	 btyT8hZcwwyybJD9LXcRDJBi0I3lkqqR8+lcx+5G7+1oP2ywnfC8KCi8970yZ/P/V5
-	 nMGE+UjgzzO6g==
-Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-64ae222d87dso12762983d50.2
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 02:32:26 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU/KtK0A23Eudu0FjLF4CNgfjwaaymZzTUgb27A1Pwqqb0LltjscwmAapT6yGXKo/UvsNyI9PECBmKaPg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyXXr787xqc6wwCW77NwN+AYqdNjhZF8bEhpd1n7el3y90/M2Rh
-	DU6/ULA6Wy+IAcUufObSncYnMIW8/NmSpblD1Wf/R3dZzuKkQag6mECM3BrwciXw03M6KxJPVF+
-	9KkGyHx1QUoy1/gX3X1ZwcJt+GugtQ58=
-X-Received: by 2002:a05:690e:144d:b0:64c:e890:fbb9 with SMTP id
- 956f58d0204a3-64d656f696dmr1649157d50.20.1773221544775; Wed, 11 Mar 2026
- 02:32:24 -0700 (PDT)
+	s=k20201202; t=1773224340;
+	bh=LO2VOvF1JlLCFxrelSPybMAGAFqWDl+KQZmD1Nb+jIU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Y1wvr1+rtBne8iqFrgnqwJzLowdvA6bEy/oMfWVeMCnUlLB9YDXfDrtjYbS6hVhsE
+	 /JmA7krlaTKBv/jCl2tVQs5v7dtUQOtHcwccVNSYRB2XjTJgj+oNlb2NzqG5oBGBVi
+	 taMRFRhjP4AqClhXJ7h6BYeDvH5HRHVw2B3qvyedEVy/1R6jf79ZE4cYU41Kj6OwOe
+	 ahbxJLr0e2Ouq+aOL+tBnqfybyLEaWinTpNtBsn8JSP4zKyp8tZW8sznP/0Z119zPE
+	 fPpTjabUQg4HXY/2iQDBtRdKXfVxRTrIHiclm6wyQXUbsVLabpHEkiVDzmSQ54ahn2
+	 Ub/zbmEJ//f7w==
+Date: Wed, 11 Mar 2026 11:18:22 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Eric-Terminal <ericterminal@gmail.com>, marcel@holtmann.org, 
+	johan.hedberg@gmail.com, luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v2] Bluetooth: HIDP: cap report descriptor size in HID
+ setup
+Message-ID: <abFA9nm_fBqw8mNS@beelink>
+References: <CABBYNZ+9Z8Yd9mRhgz0N9kSSvLR-6euPf9CRA1Sop_D8zV8wqQ@mail.gmail.com>
+ <20260228172657.53040-1-ericterminal@gmail.com>
+ <ee5fc583c7d6dad138db759cddd84e409190d1ae.camel@hadess.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de> <20260310-b4-is_err_or_null-v1-41-bd63b656022d@avm.de>
-In-Reply-To: <20260310-b4-is_err_or_null-v1-41-bd63b656022d@avm.de>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 11 Mar 2026 10:32:12 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnDv00ErgVdQ4EBpKH9KMWrPD8ODrQ6m846zyQ=wNzCzQ@mail.gmail.com>
-X-Gm-Features: AaiRm52aI8z_G2E4qYaKWPEA43RhLektjwMDQXSLwHd-Xy_BYcin-6heFFY4jM4
-Message-ID: <CAD++jLnDv00ErgVdQ4EBpKH9KMWrPD8ODrQ6m846zyQ=wNzCzQ@mail.gmail.com>
-Subject: Re: [PATCH 41/61] pinctrl: Prefer IS_ERR_OR_NULL over manual NULL check
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr, 
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
-	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	v9fs@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ee5fc583c7d6dad138db759cddd84e409190d1ae.camel@hadess.net>
 
-On Tue, Mar 10, 2026 at 12:55=E2=80=AFPM Philipp Hahn <phahn-oss@avm.de> wr=
-ote:
+On Mar 01 2026, Bastien Nocera wrote:
+> On Sun, 2026-03-01 at 01:26 +0800, Eric-Terminal wrote:
+> > From: Yufan Chen <ericterminal@gmail.com>
+> > 
+> > hidp_setup_hid() duplicates the report descriptor from userspace
+> > based on
+> > req->rd_size. Large values can trigger oversized copies.
+> > 
+> > Do not reject the connection when rd_size exceeds
+> > HID_MAX_DESCRIPTOR_SIZE. Instead, cap rd_size in hidp_setup_hid()
+> > and use the capped value for memdup_user() and session->rd_size.
+> > 
+> > This keeps compatibility with existing userspace behavior while
+> > bounding memory usage in the HID setup path.
+> 
+> Cross-sending this to linux-input@ for review, they would know the best
+> way to deal with oversized HID descriptors.
 
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
->
-> Change generated with coccinelle.
->
-> To: Linus Walleij <linusw@kernel.org>
-> Cc: linux-gpio@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+AFAICT the hid-core code would be fine with it (it would parse it), but
+there will be some issues (hidraw will not be able to export the entire
+rdesc, so is the sysfs).
 
-Patch applied to the pinctrl tree as obviously correct.
+For reference, usbhid just returns -EINVAL for oversize report
+descriptors.
 
-Yours,
-Linus Walleij
+Anyway, if the report descriptor is truncated, like in this patch, the
+hid core parse will fail if the data is not correct, so I thing this
+should be safe.
+
+Cheers,
+Benjamin
+
+> 
+> > 
+> > Signed-off-by: Yufan Chen <ericterminal@gmail.com>
+> > ---
+> >  net/bluetooth/hidp/core.c | 7 +++++--
+> >  1 file changed, 5 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> > index 6fe815241..31aeffa39 100644
+> > --- a/net/bluetooth/hidp/core.c
+> > +++ b/net/bluetooth/hidp/core.c
+> > @@ -755,13 +755,16 @@ static int hidp_setup_hid(struct hidp_session
+> > *session,
+> >  				const struct hidp_connadd_req *req)
+> >  {
+> >  	struct hid_device *hid;
+> > +	unsigned int rd_size;
+> >  	int err;
+> >  
+> > -	session->rd_data = memdup_user(req->rd_data, req->rd_size);
+> > +	rd_size = min_t(unsigned int, req->rd_size,
+> > HID_MAX_DESCRIPTOR_SIZE);
+> > +
+> > +	session->rd_data = memdup_user(req->rd_data, rd_size);
+> >  	if (IS_ERR(session->rd_data))
+> >  		return PTR_ERR(session->rd_data);
+> >  
+> > -	session->rd_size = req->rd_size;
+> > +	session->rd_size = rd_size;
+> >  
+> >  	hid = hid_allocate_device();
+> >  	if (IS_ERR(hid)) {
+> 

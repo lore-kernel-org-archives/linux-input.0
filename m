@@ -1,85 +1,121 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2743423EAB2
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 04:28:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39A6A23ABA8;
+	Wed, 11 Mar 2026 04:59:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773203330; cv=none; b=HtLTzqywaJTnsAPUeY0uAgd/7rDWNoFml//cetyhzbLxHGYeVFOZ1YpEDBLRBw6YMimL27hM86uuxs2L/V/Ekzc27DIKQhk/WKBTqAH8HnGySyplN67Wa7bApCI6H1bbw5G68Zv/bT+qXIUOXGsIClXwe10VC7X16GfeoM3kB68=
+	t=1773205159; cv=none; b=AfUOn7Xr22tdivnqiMJmXtugg75clXxy/ixinW+84d9P9bQcU6XygWynS5vcLY1bvg0ClT+/FZLNRV3acp/hmfB7bGKfikZIxgb4DM7rG+GfxYVjjZgSZlcXDJ+WHdNfJlM6MXdJ14xAjKoxZwyPwj2kpc1le2hoxL9iMo6ym0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773203330; c=relaxed/simple;
-	bh=ay7kLC7nSOMoueeuZ07rwxwG7DCmth5fcpnKLvgPIH0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ObZAS6BoU+oHJwEOgkpayuWC++38DBkIUv80F0U9YUqgIFQQOrozt3AidqeboaJ6eN1h6oXoHvnDxapIYtL+W8HR5WxhuFvFFn4kEPf5+vf+wsdwEkYKydagHBD1KyHv4HYCwN+ESaydbYSxcB4h/yxeRbks1dFl5u4nT1Brh4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fIImguK6; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773205159; c=relaxed/simple;
+	bh=hs7h01zebVZ3Cw5TSlyQoCCjwzUa+l8Cgq+3i/i+v4I=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=d+XpBF8R6hSjSTcMBfmH4ILegC+T+VFU6cnWCeL1UynvVuQvwhGK9HU46EbLxpSuUjgEosLLNlyp/vWQRByhJqvaUVytBWX5j1mOlK0gjr5ZpJ0vTdvEsR3BRMdUbUK3k1H4T5bY1NHCoXs6ClvsiRYESo1PnmzsuR0fJZq8vHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R7QWHNq5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fIImguK6"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-354bc7c2c46so8350840a91.0
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2026 21:28:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773203328; x=1773808128; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ay7kLC7nSOMoueeuZ07rwxwG7DCmth5fcpnKLvgPIH0=;
-        b=fIImguK6zYCfpwa+XtsVjt7lUYGrG8nEpJRwKzl+FL8fz89fgoxc9QLTJ65tLjR4Qh
-         NSwC2u4JhpDw/gno06Zk+tMm4r4TU5k0I5F7r7PeUQqEQqivcBo+WtU2Yft3QieFEEF0
-         gtUkeCaPlwkDpmrvLEVpzfgeQL3jdq7z49dZ2q3ztt55UOv37wDxIJnWKTVRnbkNy7ll
-         H9oPNJ8+aqIvgiNUjPOtF6I82Zfn0yAVhebr0SlnjFCI9bQ+jDzyvPjhZM6LNsIFvVb/
-         NQWNoaHdwAs4qg34kCHkpZz2T04iYf8CTB53SLlKsrUZ35b6Y7xRmM3oVl/RnyWlITBR
-         RMEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773203328; x=1773808128;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ay7kLC7nSOMoueeuZ07rwxwG7DCmth5fcpnKLvgPIH0=;
-        b=PoNWqYOk6PAdHsVRPUXt72u+5RCEBz4Adw+VVRqAtgSzTaI/tjW2Z6BdYW/j+fNHXF
-         DHeKLJ35EpxrMje5feLLYcK/XZkAGFFCxUSW3mnKj2CeDdlttiyB8gVMNJraGzf9C6D5
-         CPwweBrfyh1s10JWufJ/XSTYYA86T+uSc5bdxYumpxhlb/mo4behHX5KT8PuuvT493GS
-         I9appvl+waf9saYSTOC0+LZYBJHCrH3lmNng4pBbZI2qhDYucJb7gVkK4FgUlgstr+t/
-         /cOXXUH8IMv23jKty8i+WI+fKWRxRSTPvSX3duamWDsKDoaC5faD1Ii0y1FcETKvdCSR
-         L3Nw==
-X-Gm-Message-State: AOJu0Yx9Ppy4uHfh3IvgRR0SImyRqnjHgDSMGgdOqwRxBtAeOuijnyw3
-	6zzgxdIXIDUTTyxrtqjj0ANKTCVwh1t/etDtPTFjZfULLFWfuwc5xAKp
-X-Gm-Gg: ATEYQzxnG3KkioCqoIwcy3nouoM0XZNPy80nAqrr7cJiz27LLYHwycHY3Y7BE31hNz9
-	n6EadcRFNjmDsRSppZXEl70XXHNzDj65Y5Jus+gUS9hjc4iNLBijI/FFSOY3wepRv2hP4bKajDG
-	uGyhVz9RNeBxrn0hg8fgqeKh5mGgNP6mtNJUBdl0fj9v4xecPZonOLmVydsYwxUN9PdCslbfkxo
-	k1hnY3z272tJE5M2haKB1KIHnp3Paxqb+Fwq+//HN2pftgLo1rDIsMU5j7XuJX5N3xozLUuYXxj
-	fY4V5cp6oAdahZ5KSSD9W5HPoC4FoczltBIYF4eUL3KCcyuN9j892EW4yeATsIhtCbtiquPEzz8
-	iorgnjNUpfrOAA50y52ZURjBzJ7IPsNxakwQ3snD3SlsbqhmhKc7bt2uhi9qgyse0F7qQB4WYSg
-	sVZcU547SHVle3rISuwcwsCDvLGaz+KUYuWGqn+RJNnd5htZ64crx+hwuJPCtW2Hx4S/QsY13gL
-	Ow1BA==
-X-Received: by 2002:a17:90b:4987:b0:359:f7d2:a1fe with SMTP id 98e67ed59e1d1-35a012248e6mr1204164a91.9.1773203328463;
-        Tue, 10 Mar 2026 21:28:48 -0700 (PDT)
-Received: from localhost.localdomain ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a02e660dcsm677629a91.5.2026.03.10.21.28.46
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 10 Mar 2026 21:28:48 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	phucduc.bui@gmail.com
-Subject: Re: [PATCH v4 1/2] dt-bindings: input: touchscreen: 
-Date: Wed, 11 Mar 2026 11:28:43 +0700
-Message-Id: <20260311042843.2468-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
-In-Reply-To: <abCx6kZkHPd3lYh9@google.com>
-References: <abCx6kZkHPd3lYh9@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R7QWHNq5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C9CC4CEF7;
+	Wed, 11 Mar 2026 04:59:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773205158;
+	bh=hs7h01zebVZ3Cw5TSlyQoCCjwzUa+l8Cgq+3i/i+v4I=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=R7QWHNq5KYIpTwVo6Up5GHHSOdSE2gpk5GaKkIBbqjAR4gbzmNPFWIlQW10KkTPof
+	 EwepFELDieEhDwLa7MFg7ekO96kgeq0l/+LlK0SmYNrKgD9B5JFn2p8cKdN19q4bAB
+	 ZH5nM61a+EeP1bfo59H2leGLnAv8MA9DVbVTjKyoY75UQZCsrcqb+6U4ml2aryZAOd
+	 53HkEOSnemZkK807SePgE6JYJ0qIK9ypnQbQrEKCx7cEo9CjlroOKs6BchxOV0buhD
+	 E4Ehzc8FteV6XUFhu9KE6nGI0Pkr7s204WVgcSsEwXmzro7D3LuhuKd0AU39V1R3Ja
+	 2cWkRLISF31UQ==
+Date: Wed, 11 Mar 2026 13:59:11 +0900
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+ bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+ dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+ sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev, Philipp Zabel
+ <p.zabel@pengutronix.de>
+Subject: Re: [PATCH 57/61] reset: Prefer IS_ERR_OR_NULL over manual NULL
+ check
+Message-Id: <20260311135911.ced50d67e940cdf933a98d1a@kernel.org>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-57-bd63b656022d@avm.de>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	<20260310-b4-is_err_or_null-v1-57-bd63b656022d@avm.de>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Dmitry,
+On Tue, 10 Mar 2026 12:49:23 +0100
+Philipp Hahn <phahn-oss@avm.de> wrote:
 
-Thank you for applying the patch.
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+> 
+> Semantich change: Previously the code only printed the warning on error,
+> but not when the pointer was NULL. Now the warning is printed in both
+> cases!
+> 
+> Change found with coccinelle.
+> 
+> To: Philipp Zabel <p.zabel@pengutronix.de>
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+> ---
+>  drivers/reset/core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+> index fceec45c8afc1e74fe46311bdc023ff257e8d770..649bb4ebabb20a09349ccbfc62f8280621df450e 100644
+> --- a/drivers/reset/core.c
+> +++ b/drivers/reset/core.c
+> @@ -715,7 +715,7 @@ EXPORT_SYMBOL_GPL(reset_control_bulk_acquire);
+>   */
+>  void reset_control_release(struct reset_control *rstc)
+>  {
+> -	if (!rstc || WARN_ON(IS_ERR(rstc)))
+> +	if (WARN_ON(IS_ERR_OR_NULL(rstc)))
 
-Best regards,
-Phuc
+This changes the behavior when rstc == NULL.
+WARN_ON does not hit when rstc == NULL in the original code.
+
+Thanks,
+
+>  		return;
+>  
+>  	if (reset_control_is_array(rstc))
+> 
+> -- 
+> 2.43.0
+> 
+> 
+
+
+-- 
+Masami Hiramatsu (Google) <mhiramat@kernel.org>

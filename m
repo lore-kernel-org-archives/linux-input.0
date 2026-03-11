@@ -1,116 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66DA23C8714;
-	Wed, 11 Mar 2026 10:19:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60A8C3CF045
+	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 10:38:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773224340; cv=none; b=fR/+MkHV+JArbx12LwrrFL8FHqlFnD8G63gvsxNX4DAm9FLbWgT1DEQptnL0waWzudboF5dj2Bx3GvOk7+4vxQqmyeqa3ARLc7mZz2p0EW4k9X4kNDXagdhlhhWw4VP7f/hjGqKd2E2NURHABx9ku0c5X6ItQ/LlNI6vx5i1ytA=
+	t=1773225528; cv=none; b=ciKuWacGwQpqJETpV83Il9cy4r1B1FlxC4lE7uwmTEzzSXaY/JElz+fmKgBGFzWfDITolK0jRw+0TXOA1+QsKAq50MAHLxeIlC6l4cog6oFocjCjzlONyo0qdZ06E5L1EjdosR1wunIlh24rVszlNNd00cyODdDr5ICIiDfEEes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773224340; c=relaxed/simple;
-	bh=LO2VOvF1JlLCFxrelSPybMAGAFqWDl+KQZmD1Nb+jIU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UzKpOoDVnv3B7svYE/1u2Zfg1DOQ4umMlGdPFhv2t406yRWeuJUplbOsedC0FAaWwTARULhj7Ou2eywebuufivoYIxImbm6HTL21w4R5lBmJoiAovoAPR41WoBenaeVfK8HapaPC7N4Ip1V5SdqW8biB4t67ch/EjGVnqQ5RfEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y1wvr1+r; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773225528; c=relaxed/simple;
+	bh=i7nUMXQbtZArZGnsatx9qQeykbtPVUo/SqQprsinRno=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=tuMYgWekzNE6esVGzjbyDe2AI1hKzwvLqsl6aVdzS/PUqDNuwOB3nlrR3wfmLqKTHrFEg3yRrQ/RnqC1Lp72WyiDHi5biBsPnyhg4oHYHTStL1Nk+lCsCAwSCTdjuPEKzZGLHI02BGaGixBrUJ+r29Hos+qXi2UpVoIXWYv9dlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J8E+qNcz; arc=none smtp.client-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y1wvr1+r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B27C4CEF7;
-	Wed, 11 Mar 2026 10:18:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773224340;
-	bh=LO2VOvF1JlLCFxrelSPybMAGAFqWDl+KQZmD1Nb+jIU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Y1wvr1+rtBne8iqFrgnqwJzLowdvA6bEy/oMfWVeMCnUlLB9YDXfDrtjYbS6hVhsE
-	 /JmA7krlaTKBv/jCl2tVQs5v7dtUQOtHcwccVNSYRB2XjTJgj+oNlb2NzqG5oBGBVi
-	 taMRFRhjP4AqClhXJ7h6BYeDvH5HRHVw2B3qvyedEVy/1R6jf79ZE4cYU41Kj6OwOe
-	 ahbxJLr0e2Ouq+aOL+tBnqfybyLEaWinTpNtBsn8JSP4zKyp8tZW8sznP/0Z119zPE
-	 fPpTjabUQg4HXY/2iQDBtRdKXfVxRTrIHiclm6wyQXUbsVLabpHEkiVDzmSQ54ahn2
-	 Ub/zbmEJ//f7w==
-Date: Wed, 11 Mar 2026 11:18:22 +0100
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Eric-Terminal <ericterminal@gmail.com>, marcel@holtmann.org, 
-	johan.hedberg@gmail.com, luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Bluetooth: HIDP: cap report descriptor size in HID
- setup
-Message-ID: <abFA9nm_fBqw8mNS@beelink>
-References: <CABBYNZ+9Z8Yd9mRhgz0N9kSSvLR-6euPf9CRA1Sop_D8zV8wqQ@mail.gmail.com>
- <20260228172657.53040-1-ericterminal@gmail.com>
- <ee5fc583c7d6dad138db759cddd84e409190d1ae.camel@hadess.net>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J8E+qNcz"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-829865a8471so6536449b3a.3
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 03:38:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773225527; x=1773830327; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=trxODt72+ZLmM73SSgKB2PrCW34S11oS3WsSFeUrg74=;
+        b=J8E+qNczqifmPq/ZFjhO3BYc1oRJN/PB3QhnQEsTSjTWa59nnf3Gyc27YH2UpdA3cd
+         Mv0+LI//wgiqAEOLdjLa5V8ncUgKiweo5oQWMHFkaMhfCD3Nsl7g6a419u6bN1U8rJsR
+         hnjnmd+m8tabfPNvYR2qj3f4ge2CFBKKieX70VZq/tBZWxLSs+eGNUKCVOs5HPZ7vB1w
+         ygmKehbSGLP0jLLRlnUw6AzOpq81DpVAyOLZpC7Yz4xuo01+WNYvZ85bTIqnrIRnE3kb
+         Wdk9JbIWB41dUzfA0SkorSZPljMyUwAjyYLxSHt45uIoIMQArNAI3NGVcrlHsqbVggsQ
+         HbrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773225527; x=1773830327;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=trxODt72+ZLmM73SSgKB2PrCW34S11oS3WsSFeUrg74=;
+        b=sjHIpFETzKBgIOH9pj5BMzIkFv1hiYuy9DL3lqW5KJ9c18/jys8plmmorNVxE9CfaL
+         1bawodP9LlP7Ozg1R63/fhcVtiAgySEJtISnKSYVYkfyy6zjr9hHVULIYHQPf+3c3dVG
+         xUAocHReACo5oOt3azeyxGoXSM8jT+hh/zJfdlRVcHe/q2Gw53T37qTz5mvQAV5I1MPx
+         AMF8LfgUKCqbPcU662tmMddBNppK+jU4umHg2W/9HAm1O6D9pC864zDZCcFS81hPUXuN
+         Yzfc/FdRC2ot1X8+XYGhLRe0klGT5nGE3Te09Z6ELttTMYFSfdoCETiq9K68/OeCR5bv
+         jISA==
+X-Forwarded-Encrypted: i=1; AJvYcCXwy6/DL3UT1N979bPYlcSf47uBAXq4d8dOLOWsk9hpIzOjoZzLRI8uKshDO6roR/yhPuQR3iAYD8z5Xw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnhNGr/Yz7WViFciD/stlgPSlzulMLqs9GwfDBnol9k877tzyV
+	lwnFsf9eQ7wTvj0CE3M3uIhIz17uJkyP4qXsToAbxjHHyISOGiV/HzRkFrN1Xw==
+X-Gm-Gg: ATEYQzzkouqhu5r8+085IH4iBJFEtlqePjhmJzcPXkauT+xrzpLYY7C6oZWIG8OoCRW
+	5gySMUxRVxe0y5+U2YYSDv13Ldjb4oTNlzPP4Ce9q8+avFNcFecwpYvKRpnQ7VUyADhpMr2xaeZ
+	ecBj4FJbTjW66Bq9HhoJPgb2kfI7EB+yUe7GPxBSStTSEQF9t8n8BdbEW0aP/AmhBggIEdMj2T6
+	hhXJisti0czb4evANbRlI4E/owhxuUXCRrJchKKOX4JT4Wt6hfsv3ZK9yeIS7X8NR62eoXH8z7+
+	+xe1wLj3ioxvLMbk7JR7WnuTzTfeeASdlGU2kyPFktg9qeeFoHuE3DPRA9slI+aIz62bX6NLzr2
+	NpIgco2wYqoQ24wi5T+Aj148+8I8EbByTMrXUnBgOeTKtu8kE0nHFfTtT1aEE467YrduOCPwF9x
+	two7Vh4N/Yq5FT1E5cZIZBcEmTYrNcc0fSnKvMVyJCsWi5NMm2ZnCU2xImAw4OhGBFRa/bdZnGZ
+	la+lw==
+X-Received: by 2002:a05:6a00:189d:b0:81f:38f4:d774 with SMTP id d2e1a72fcca58-829f6ee156dmr2271399b3a.27.1773225526679;
+        Wed, 11 Mar 2026 03:38:46 -0700 (PDT)
+Received: from localhost.localdomain ([14.160.25.72])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829f6f1e374sm1785635b3a.44.2026.03.11.03.38.42
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 11 Mar 2026 03:38:46 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: wsa+renesas@sang-engineering.com
+Cc: conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	geert+renesas@glider.be,
+	hechtb@gmail.com,
+	javier.carrasco@wolfvision.net,
+	jeff@labundy.com,
+	krzk+dt@kernel.org,
+	krzk@kernel.org,
+	krzysztof.kozlowski@oss.qualcomm.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	magnus.damm@gmail.com,
+	phucduc.bui@gmail.com,
+	robh@kernel.org
+Subject: Re: [PATCH v4 0/2] Input: st1232 - add system wakeup support
+Date: Wed, 11 Mar 2026 17:38:38 +0700
+Message-Id: <20260311103838.5541-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
+In-Reply-To: <abCkulmW8XDXkXiT@shikoro>
+References: <abCkulmW8XDXkXiT@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ee5fc583c7d6dad138db759cddd84e409190d1ae.camel@hadess.net>
 
-On Mar 01 2026, Bastien Nocera wrote:
-> On Sun, 2026-03-01 at 01:26 +0800, Eric-Terminal wrote:
-> > From: Yufan Chen <ericterminal@gmail.com>
-> > 
-> > hidp_setup_hid() duplicates the report descriptor from userspace
-> > based on
-> > req->rd_size. Large values can trigger oversized copies.
-> > 
-> > Do not reject the connection when rd_size exceeds
-> > HID_MAX_DESCRIPTOR_SIZE. Instead, cap rd_size in hidp_setup_hid()
-> > and use the capped value for memdup_user() and session->rd_size.
-> > 
-> > This keeps compatibility with existing userspace behavior while
-> > bounding memory usage in the HID setup path.
+Hi,
+
+> > Demo video showing wakeup from suspend:
+> > https://youtu.be/POJhbguiA7A
 > 
-> Cross-sending this to linux-input@ for review, they would know the best
-> way to deal with oversized HID descriptors.
-
-AFAICT the hid-core code would be fine with it (it would parse it), but
-there will be some issues (hidraw will not be able to export the entire
-rdesc, so is the sysfs).
-
-For reference, usbhid just returns -EINVAL for oversize report
-descriptors.
-
-Anyway, if the report descriptor is truncated, like in this patch, the
-hid core parse will fail if the data is not correct, so I thing this
-should be safe.
-
-Cheers,
-Benjamin
-
+> Nice video! You really put some effort here, kudos.
 > 
-> > 
-> > Signed-off-by: Yufan Chen <ericterminal@gmail.com>
-> > ---
-> >  net/bluetooth/hidp/core.c | 7 +++++--
-> >  1 file changed, 5 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> > index 6fe815241..31aeffa39 100644
-> > --- a/net/bluetooth/hidp/core.c
-> > +++ b/net/bluetooth/hidp/core.c
-> > @@ -755,13 +755,16 @@ static int hidp_setup_hid(struct hidp_session
-> > *session,
-> >  				const struct hidp_connadd_req *req)
-> >  {
-> >  	struct hid_device *hid;
-> > +	unsigned int rd_size;
-> >  	int err;
-> >  
-> > -	session->rd_data = memdup_user(req->rd_data, req->rd_size);
-> > +	rd_size = min_t(unsigned int, req->rd_size,
-> > HID_MAX_DESCRIPTOR_SIZE);
-> > +
-> > +	session->rd_data = memdup_user(req->rd_data, rd_size);
-> >  	if (IS_ERR(session->rd_data))
-> >  		return PTR_ERR(session->rd_data);
-> >  
-> > -	session->rd_size = req->rd_size;
-> > +	session->rd_size = rd_size;
-> >  
-> >  	hid = hid_allocate_device();
-> >  	if (IS_ERR(hid)) {
+> Really awesome seeing Linux 7 on this old platform :)
 > 
+> Happy hacking,
+
+Thanks for the kind words and encouragement.
+I'll keep learning from the feedback here and 
+continue hacking on it.
+
+Best regards,
+Phuc

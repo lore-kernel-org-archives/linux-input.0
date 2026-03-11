@@ -1,41 +1,76 @@
-Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC382BD030
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 19:20:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54EF72D97B9
+	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 21:31:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773256809; cv=none; b=qmQFcaMaH64flhii0AJIyyGjqloDH4ap86PjAyRRjcfWlBn4QQga+VRHNnMZRueqtPTbTDtIld8BxXdUDJ5Buk0IwxSLnLuFsXWX+6AfKCUpGYkpO3Rf4YHy6Qt2fyC9ZK1kSTa8yLlmk0RssynGM7wcxPGWAQRIXuCnSQQp5TY=
+	t=1773264709; cv=none; b=kZqcxwpuwcKbLXZh0D3xx6X9hO2XKhZJzrIWD2U2RRWm9AcGpH5E8FjvWvVscuQhxme5ZDfO9agzV1S/CbCQw1AzAvmasBZJvLTB5DhM79mwu22QMRWdSNDkQZ/kYVvW/lvNoF1T3AaLdacjLkXmSWMlHIM7iTPFYwj+GdWbHZs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773256809; c=relaxed/simple;
-	bh=YxX1sdDMy72DRDltHKACTsLy7W1u7nYfvobxcbVkIGU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s85NV5YqdQ1IzFDuBaW0UPUz9wLWbDEh5mcV9MA1TFXRz5AQF/9lvAwqSnBxgduYDKot5B1e3eUkdNqMJUZxOOq3WGWCm3KSOZMAgab54frM9EIqkHzbaD3YxMin08GrOvu3N40gG/s8gcef69vrQKxA4DJqvQ056u0XaiUpjFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=freund.io; spf=pass smtp.mailfrom=freund.io; dkim=pass (2048-bit key) header.d=freund.io header.i=@freund.io header.b=F4Z4pE1M; arc=none smtp.client-ip=91.218.175.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=freund.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=freund.io
+	s=arc-20240116; t=1773264709; c=relaxed/simple;
+	bh=IRq8bUEHznQN9zqCMwpaqY7QqfisFyvKy1SMien43QA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=u1e1Cno4N3Xg4+qtDjKEbjdkESbB3zSrcJYFQbNYhtVLSFoZUG1erUEgZR0D3h67D1CEWhxAC4Eb6gdNMNHVxffzw8CleOdhEnkVNyV7MCKhRvTYR51BpD9N4E2pWilRdiHMHHJ8GTJ7A9HYuXg3e7IyAMfPN5XygAuryGlG5Co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TV97MpgC; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=freund.io header.i=@freund.io header.b="F4Z4pE1M"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=freund.io; s=key1;
-	t=1773256803;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=x03ZhFp6dSAw7w2Qrs8saYHxqzujz5ZCdU9c8bsksK4=;
-	b=F4Z4pE1MBWfVgu2RfNaPOXf3wT/3k0z+LPB0K+htGhP7goKmSJYjg5xa0WcHRA3pGcbzP4
-	9VcpYwsxhwhoRxxYAGo9DhMPwxTg4CW9+2Eq++QSql4GIGI6XtWYpiYK/tBjUTZ8yUBczC
-	s/b2OtVqaMU3meAbWbEBzSYxKs9GOSsxmBtJbsblI999NXgw1VqJxE8nZZcQSyHA1JgaR1
-	O2V/7OT6hGaUkoIhoKJwbtWxoY8KoVvxxgiKXEmaUA9eUriS8DJW3NPv7PtJ9YaW0+lK9P
-	smVIPuiVavArmZCqRtOALZ01eyaujYesiLALXEcOEENoLKJMtSTtk95r2pc/Hw==
-From: Adrian Freund <adrian@freund.io>
-To: linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Adrian Freund <adrian@freund.io>
-Subject: [PATCH] HID: logitech-hidpp: Enable MX Master 4 over bluetooth
-Date: Wed, 11 Mar 2026 20:19:33 +0100
-Message-ID: <20260311191933.81007-1-adrian@freund.io>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TV97MpgC"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8297e0b27e5so243138b3a.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 14:31:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773264708; x=1773869508; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fuih9ShESdPKdWFjHzmIkdBNsXsUSWpB4coqIVUXx/s=;
+        b=TV97MpgC5vAbV4k9Ff2pMgrpcbTZ5guFxGJNBYSYmIrPQ1Qe+dw+wW7rJHthnartis
+         1JF5n0NuNw5fS/MmIxxaAwJ55h0Ow1dwAFjnpxZiedMBML1x5GDRfotrYm3iF20Sycfl
+         Mu8ruC1+il3EkkWrOtZuOAmMGX2LrZ9RqN2CaVmgtCxPI/0ergZiKd0rmF1WzRjEtVnN
+         WmT/bn99zLvYebI6DuvvpNxPyEnxhodu3iHajD/BhGDM8mJtXuP0/Xg0OPnsMUG/gCZ8
+         qVG14EqIexFtjoyFdZMesIj/qxoEdNjRgM7Lir+B8lilyAnq2j6gZctQD4vEWX2l1+7l
+         a8jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773264708; x=1773869508;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fuih9ShESdPKdWFjHzmIkdBNsXsUSWpB4coqIVUXx/s=;
+        b=Iq+LsogEd2uiSYwvX6UoPxQazwFk5i2FEMVY1bL82Legtv6WQOj1bdRwjD4vNz10/c
+         K/Ggdt7xUFhLa9sUKUoN7F7yj5PVleAJuVx/sUReG8nDeUoCn2zBeB3xvZZCaAcbcOM5
+         gsfdcvOCFkM+PYKZVKxcbskkjSxgrMKZskkSzxO1loKZohZt707NwV0ayUCgI0S1YZse
+         pXqrULCqkBbw7ac0xxdpho9xrrlcYiHw/ieUR4bX/iwh9rwLd1bMy8639tuHYEOq9fZ8
+         FTkOFNuqXt8+iXzLUZPj+xh7eSNLfduC/cvK7XvU/QE/RcXGHO3mdh6cGGiHxh7xsMSl
+         MALQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXQAS7iiFNA3JpkiX3w49BGtFaMuzMfKpjZ1wSx3VfZk+geiY3s7rLpc0QNir7z7/clkUFduqOVUi6/SQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwkHthzULctIkRwRkLdC6WqvHcYkbTvt+xhRQ67kmic6stgLlgg
+	OJPi/HDQPREAle6wfoGczYCWcB9cteeoSorm8sPEUC5gVXkPRf9oEH7s
+X-Gm-Gg: ATEYQzx2jE7Pom6ILyK77Oo1ug0xI2JfYLuhkzv4Zkk/y3JplJbMAI3AazHC1bfFuXE
+	Ul86bzkUJMV6mfZL668MCHjkHvv13Gj8XR3RTwmpwpEFXendwWaaB6DRshSaYxzFFjXNAD2YGbx
+	D8kWSWqvwuv5Hm+9nqDRTNz7OIdcsK5bZo2X45HKgrIcSilZCjWku0Uy/6TOI5onEiWuBBXX/Is
+	BOkfXTidqM+ODu5fhAkatRX8GzyNluMQEJqQZHSdelS112Tv0Ryd/jr+2l3rW9SG6oWOhMoqoxa
+	LADiAVvcrWqLm9QEKxspDoT5Qt4vpZZS/pqANs9IOZwG8QNcCKPNyuFLC23Pamu+mHXB67gc7Pd
+	o3/WXvd7x1WePU13ipXCZW0/pDwRBicmimNtWGKiLMmMM2t76+CVujgR0hhLC1vPp+xSTo/OZ7S
+	mucawFNY40tZkoeQc+7rh/pUc0yfHnx3ZfZfXa6GTvpND0Kpiye36r7wEQ2moQyz6702cJYpZqB
+	BpiyJxtXKZA+HEaZO2S92i7xsZWxTZ+FU4KL2nPQqnjs3rnT35R2Q97/fcdH1hGtNg=
+X-Received: by 2002:a05:6a00:3687:b0:829:8015:1637 with SMTP id d2e1a72fcca58-829f7072a12mr3448629b3a.12.1773264707581;
+        Wed, 11 Mar 2026 14:31:47 -0700 (PDT)
+Received: from sanjays-pc.govzhome.govindz.co.nz ([116.251.152.103])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a07244ab3sm696384b3a.7.2026.03.11.14.31.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2026 14:31:46 -0700 (PDT)
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Vicki Pfau <vi@endrift.com>,
+	Sanjay Govind <sanjay.govind9@gmail.com>,
+	Nilton Perim Neto <niltonperimneto@gmail.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Lode Willems <me@lodewillems.com>
+Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] xpad: Add RedOctane Games vendor id
+Date: Thu, 12 Mar 2026 10:31:04 +1300
+Message-ID: <20260311213106.271577-2-sanjay.govind9@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,33 +78,26 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-The Logitech MX Master 4 can be connected over bluetooth or through a
-Logitech Bolt receiver. This change adds support for non-standard HID
-features, such as high resolution scrolling when the mouse is connected
-over bluetooth.
-Because no Logitech Bolt receiver driver exists yet those features
-won't be available when the mouse is connected through the receiver.
+Add vendor ID for RedOctane Games to xpad
 
-Signed-off-by: Adrian Freund <adrian@freund.io>
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index d40932809ce1..cf07660bd85b 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4668,6 +4668,8 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb038) },
- 	{ /* Slim Solar+ K980 Keyboard over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb391) },
-+	{ /* MX Master 4 mouse over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb042) },
- 	{}
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bf4accf3f581..e97ff270d978 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -585,6 +585,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x3651),		/* CRKD Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x366c),		/* ByoWave controllers */
+ 	XPAD_XBOX360_VENDOR(0x37d7),		/* Flydigi Controllers */
++	XPAD_XBOX360_VENDOR(0x3958),		/* RedOctane Games Controllers */
+ 	XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
+ 	{ }
  };
- 
 -- 
 2.53.0
 

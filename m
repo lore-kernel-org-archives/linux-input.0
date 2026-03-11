@@ -1,110 +1,121 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com [209.85.221.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60A8C3CF045
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 10:38:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A4C314D07
+	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 13:24:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773225528; cv=none; b=ciKuWacGwQpqJETpV83Il9cy4r1B1FlxC4lE7uwmTEzzSXaY/JElz+fmKgBGFzWfDITolK0jRw+0TXOA1+QsKAq50MAHLxeIlC6l4cog6oFocjCjzlONyo0qdZ06E5L1EjdosR1wunIlh24rVszlNNd00cyODdDr5ICIiDfEEes=
+	t=1773235465; cv=none; b=EMRKQOESkxfPRhLDCh9boeTre67kP2H6P5Q68tLio22gnjUTp2uB7ODdSQ+DtXeQB/1PYMKw9p5TdhZ6HW+j3dFC9vXLHOhapRQnb4Mf42+CLXlOhrIfky5pdS8yDzl1v+YLdUrliqo9f7TxXDcbdeu2uboEKCPqtxlOdJTJdvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773225528; c=relaxed/simple;
-	bh=i7nUMXQbtZArZGnsatx9qQeykbtPVUo/SqQprsinRno=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=tuMYgWekzNE6esVGzjbyDe2AI1hKzwvLqsl6aVdzS/PUqDNuwOB3nlrR3wfmLqKTHrFEg3yRrQ/RnqC1Lp72WyiDHi5biBsPnyhg4oHYHTStL1Nk+lCsCAwSCTdjuPEKzZGLHI02BGaGixBrUJ+r29Hos+qXi2UpVoIXWYv9dlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J8E+qNcz; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1773235465; c=relaxed/simple;
+	bh=bQRlE5OR+3/41N9B/xBGXfMeOTv3hgeQ2WrY6jcTpBY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=U7m7sqP8RpGcMEWBTUAJ7kiDifphoSHHzhYKQZ4n2HRIjHf6925sb4+w3xgcETMGKmFuBGKwkgPeSHOuvkk2bMfF+H+h2I7rZtN3LIrMPI9d+GD7NTRmB5moXKNcFT8vtF/jE8utiitzSmC2eok5sluZaH/x5hY9oIJx5ODe414=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J8E+qNcz"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-829865a8471so6536449b3a.3
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 03:38:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773225527; x=1773830327; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=trxODt72+ZLmM73SSgKB2PrCW34S11oS3WsSFeUrg74=;
-        b=J8E+qNczqifmPq/ZFjhO3BYc1oRJN/PB3QhnQEsTSjTWa59nnf3Gyc27YH2UpdA3cd
-         Mv0+LI//wgiqAEOLdjLa5V8ncUgKiweo5oQWMHFkaMhfCD3Nsl7g6a419u6bN1U8rJsR
-         hnjnmd+m8tabfPNvYR2qj3f4ge2CFBKKieX70VZq/tBZWxLSs+eGNUKCVOs5HPZ7vB1w
-         ygmKehbSGLP0jLLRlnUw6AzOpq81DpVAyOLZpC7Yz4xuo01+WNYvZ85bTIqnrIRnE3kb
-         Wdk9JbIWB41dUzfA0SkorSZPljMyUwAjyYLxSHt45uIoIMQArNAI3NGVcrlHsqbVggsQ
-         HbrA==
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-56b18f05f49so2424732e0c.1
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 06:24:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773225527; x=1773830327;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=trxODt72+ZLmM73SSgKB2PrCW34S11oS3WsSFeUrg74=;
-        b=sjHIpFETzKBgIOH9pj5BMzIkFv1hiYuy9DL3lqW5KJ9c18/jys8plmmorNVxE9CfaL
-         1bawodP9LlP7Ozg1R63/fhcVtiAgySEJtISnKSYVYkfyy6zjr9hHVULIYHQPf+3c3dVG
-         xUAocHReACo5oOt3azeyxGoXSM8jT+hh/zJfdlRVcHe/q2Gw53T37qTz5mvQAV5I1MPx
-         AMF8LfgUKCqbPcU662tmMddBNppK+jU4umHg2W/9HAm1O6D9pC864zDZCcFS81hPUXuN
-         Yzfc/FdRC2ot1X8+XYGhLRe0klGT5nGE3Te09Z6ELttTMYFSfdoCETiq9K68/OeCR5bv
-         jISA==
-X-Forwarded-Encrypted: i=1; AJvYcCXwy6/DL3UT1N979bPYlcSf47uBAXq4d8dOLOWsk9hpIzOjoZzLRI8uKshDO6roR/yhPuQR3iAYD8z5Xw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnhNGr/Yz7WViFciD/stlgPSlzulMLqs9GwfDBnol9k877tzyV
-	lwnFsf9eQ7wTvj0CE3M3uIhIz17uJkyP4qXsToAbxjHHyISOGiV/HzRkFrN1Xw==
-X-Gm-Gg: ATEYQzzkouqhu5r8+085IH4iBJFEtlqePjhmJzcPXkauT+xrzpLYY7C6oZWIG8OoCRW
-	5gySMUxRVxe0y5+U2YYSDv13Ldjb4oTNlzPP4Ce9q8+avFNcFecwpYvKRpnQ7VUyADhpMr2xaeZ
-	ecBj4FJbTjW66Bq9HhoJPgb2kfI7EB+yUe7GPxBSStTSEQF9t8n8BdbEW0aP/AmhBggIEdMj2T6
-	hhXJisti0czb4evANbRlI4E/owhxuUXCRrJchKKOX4JT4Wt6hfsv3ZK9yeIS7X8NR62eoXH8z7+
-	+xe1wLj3ioxvLMbk7JR7WnuTzTfeeASdlGU2kyPFktg9qeeFoHuE3DPRA9slI+aIz62bX6NLzr2
-	NpIgco2wYqoQ24wi5T+Aj148+8I8EbByTMrXUnBgOeTKtu8kE0nHFfTtT1aEE467YrduOCPwF9x
-	two7Vh4N/Yq5FT1E5cZIZBcEmTYrNcc0fSnKvMVyJCsWi5NMm2ZnCU2xImAw4OhGBFRa/bdZnGZ
-	la+lw==
-X-Received: by 2002:a05:6a00:189d:b0:81f:38f4:d774 with SMTP id d2e1a72fcca58-829f6ee156dmr2271399b3a.27.1773225526679;
-        Wed, 11 Mar 2026 03:38:46 -0700 (PDT)
-Received: from localhost.localdomain ([14.160.25.72])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-829f6f1e374sm1785635b3a.44.2026.03.11.03.38.42
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 11 Mar 2026 03:38:46 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: wsa+renesas@sang-engineering.com
-Cc: conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	geert+renesas@glider.be,
-	hechtb@gmail.com,
-	javier.carrasco@wolfvision.net,
-	jeff@labundy.com,
-	krzk+dt@kernel.org,
-	krzk@kernel.org,
-	krzysztof.kozlowski@oss.qualcomm.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	magnus.damm@gmail.com,
-	phucduc.bui@gmail.com,
-	robh@kernel.org
-Subject: Re: [PATCH v4 0/2] Input: st1232 - add system wakeup support
-Date: Wed, 11 Mar 2026 17:38:38 +0700
-Message-Id: <20260311103838.5541-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
-In-Reply-To: <abCkulmW8XDXkXiT@shikoro>
-References: <abCkulmW8XDXkXiT@shikoro>
+        d=1e100.net; s=20230601; t=1773235463; x=1773840263;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=34DR94e/1PAvLLEaib58vFA4GW0m5SGe6jvxchEhMek=;
+        b=cWmygRjznJ5vqPgsLmVnU9NhopE5a2m6dHT6p0mY16roefHLWnGq4VnNNmPsxazeVC
+         rsSGmEw416mOyi98brLARSodQOR+udDOnEPZ5wsfegBCXerCb1fNv6aAlAo4IzT7FUkX
+         SYsTmev6Btjr3B76FFAsI6ia3jFgVB2gejaxvKALRDgXjtbTiLoBYEf2jLu8F5gW63xz
+         1gXInxypy3rPwVgfvCVhaRL5javwCGfG8lhk1NRC9sRoFE+bi8EaIes2KkeWJwB1Vggh
+         Ou4wPi68E3/ttHXKl7WzRh7rUdHQKTLAF1gVXkguEhuoJi2KhzOrLNxT7q8c76uTv19k
+         Zy5Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUFm0Ma7h2uGAB6wow07X21fTTrQUqUz1/gJCCCcZhDNIjAfdS+3cz65KgGAN+uP9b5vHwWUt08UFdePA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyeQZRycwxFX+dh0qhcXcETf8XVzLHRyEMlfNuu8HNRQ3bey0sS
+	+4l4MAWpns85sN2fhHz+5ftb0+OkiyXKmn4sJdS0ueM9GC8Mi74CZwZfmtgd0aU4Lno=
+X-Gm-Gg: ATEYQzwqdAgwV7oqxWdQi181BS3zDiSqi71DqYeIGm4r2MM00n7pdoqhsh2fRtDiZ50
+	NKohUBvB8gzFPubO3RVGM5Het8TC5DXGe2BAMeT559AlhlY33IwEizwP4X+zH72b02B2W08MZt3
+	27u6TslxBrdxKIYt5h+pcVLnii2C6kFv2elebx8m141Jeh+0oxNT+ekyNaPr63T6szNFzGP910s
+	Et948vivbsFgmsj9Y8neEE1/78YNTBiOD5afh7LFoO3Ak50Y0oNhJf+dnImZzPRA9Ry9aJb8hJf
+	gKrxqI1rABUSInzLjPbBLks99jRfBtCGS24DefgulB03ddoMkheAn1L04YXeRsNA/3OwM+sCFBz
+	U8WVBK8UG5SMoT93rEhkfG2BP7hQCqPJZ/GCMO8L7ZLwnaPBRS+4C17sL1u+h/Tcp/w0luOGvIO
+	eEG2PvEhKQngfVtnDf0SBvAlypDnKyYywxamZgSSgZYxaVCyKbFvdJDCNxBbZv
+X-Received: by 2002:a05:6122:82a7:b0:56b:3736:a6e6 with SMTP id 71dfb90a1353d-56b4754e90emr872378e0c.14.1773235462672;
+        Wed, 11 Mar 2026 06:24:22 -0700 (PDT)
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com. [209.85.222.42])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-94ecff69249sm542111241.12.2026.03.11.06.24.21
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Mar 2026 06:24:22 -0700 (PDT)
+Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-94de88e52e5so8501045241.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 06:24:21 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXYhelvdOUBTC4uvXzkKHmItMqkxtnf1o3HQvittoRjcbwCSEKfoQcLo5RNgdD9/u+EwPx056HWHP0XHw==@vger.kernel.org
+X-Received: by 2002:a05:6122:1d05:b0:55b:7494:177b with SMTP id
+ 71dfb90a1353d-56b4752d806mr922396e0c.10.1773234967338; Wed, 11 Mar 2026
+ 06:16:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de> <20260310-b4-is_err_or_null-v1-36-bd63b656022d@avm.de>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-36-bd63b656022d@avm.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 11 Mar 2026 14:15:56 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXQ8Q4jvkgFRJYhghz2BZRDC-9Mk6DbXxuaOc6C9DFHZQ@mail.gmail.com>
+X-Gm-Features: AaiRm52J84H77ROK64ZWWtJfaiCpnFeKyoSRmPbi-NC8CN6Ju1TJEFxJU9gZQQ8
+Message-ID: <CAMuHMdXQ8Q4jvkgFRJYhghz2BZRDC-9Mk6DbXxuaOc6C9DFHZQ@mail.gmail.com>
+Subject: Re: [PATCH 36/61] arch/sh: Prefer IS_ERR_OR_NULL over manual NULL check
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com, 
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr, 
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
+	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
+	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
+	v9fs@lists.linux.dev, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi,
+On Tue, 10 Mar 2026 at 12:56, Philipp Hahn <phahn-oss@avm.de> wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+>
+> Change generated with coccinelle.
+>
+> To: Yoshinori Sato <ysato@users.sourceforge.jp>
+> To: Rich Felker <dalias@libc.org>
+> To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Cc: linux-sh@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 
-> > Demo video showing wakeup from suspend:
-> > https://youtu.be/POJhbguiA7A
-> 
-> Nice video! You really put some effort here, kudos.
-> 
-> Really awesome seeing Linux 7 on this old platform :)
-> 
-> Happy hacking,
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Thanks for the kind words and encouragement.
-I'll keep learning from the feedback here and 
-continue hacking on it.
+Gr{oetje,eeting}s,
 
-Best regards,
-Phuc
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

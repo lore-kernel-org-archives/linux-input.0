@@ -1,128 +1,113 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AD9036C9C2
-	for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 14:13:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5250634FF58;
+	Wed, 11 Mar 2026 14:26:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773238402; cv=none; b=WC2EtCJKjNc0/U34x6T4pKYD3uNFKJkUMbDJp6iDRmgHiedKjoyyEfTZJ2Co4R7KUrXva3IgEQAybyY03M9ckxn41N/oH/HoslfTS9YqRWrbHGbP7uY7diDYtbEXr88lVyiko36XGlg1E848Y1HkAnC8eok1QeVZdfUayQExgww=
+	t=1773239179; cv=none; b=VnWiUPfNvnVJ7UYZ98C2R28p6WwHIwl5wM2qC7TNu4i5rCOYgallwW4Ml8x00j/oGn4nmbttAHU5SKIwfHZw3v1YFgeLv+JFtNyMPvv4jRNywRz8WDMdlUyqqIINzkV8obFzPpTXsubpjSgl8+RXB246jkX5dM81PniIKbNXBDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773238402; c=relaxed/simple;
-	bh=POUJjzeRhBIXfPGojdZfC417KH92loTKx1KmDpRcfoc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k/LoULU+nIN2Z29PA79FmpHZUIjq2Q3hjFzeKYkRGBRPw+ehSaDUlVK93h3DDTCBueVAa/60DTGxD7nuBWcd9E3OPnIYB+0NV6IDTL62ZmKzlcMs7iHDtwGvYEUDbGjt6iLkqsEM+7U2fOi0uFLEDEXItoUP6qpE+SnJDIFXZgE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b93698bb57aso170423566b.0
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 07:13:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773238398; x=1773843198;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wIz9Fr5w5J45ZN4rxwvT/0kjXMGfLP1VpB2aKPOax7k=;
-        b=K8vXl28x6yHf54b3I7sqL3HGqNz72s4weozhH406Ofylr1AddS/W8MbuTusRHj2wQM
-         F6laf1lfu3KSZalD6jxYCpswOx7WFR5vY4oL4pAAOomFtOGjbJwNDNq0ohSRehf4gDRi
-         R3dFnaXhQitg5oRBJqewlNPaKNtIYGTgQGX31ZAnTl/4ZSj7RqSbg27Nh3atPg13Q6P2
-         yLNy2R8CifNmjjEh7Ja8vwlM9Ca17PBEmyZFh9Ft7lfSw9Okd+vW52MBpEUPMUg15y4g
-         ckhPLZ909GPuTO3ULLBA+cBuUOyxRN0lVcCOtB3xZa+Shc0OQWCjugxuMXBoJ8Zx7vo/
-         0tVg==
-X-Forwarded-Encrypted: i=1; AJvYcCXK0YGgnYrW2uhIy+GFS0Nne2SV0q0krJvdFf4Q3W53S/fA/84xu66PPd+wbnwE+ihO8M6lUsktZcKp5A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqaV6p+vGjBfX9qKtILNZOxmWDrxpv96Y8q4gtZw5TMGDjhmmP
-	c4PxgNQJ9uh7CscUeC7DrC3df9OFEP0eXcvedjMoW53a/wgno7tXpx38XwM9FMe6gYXIvg==
-X-Gm-Gg: ATEYQzyFdwfDLK7TBIrltFmlmu9/8V7w9jtF2jP1O1pKKUpTuHi8oppiriO3WOBFWuh
-	SMMGX2fGGRTqCPghvpQyELV1GKxUryLzXQ4E7brQMJUCL0ie7HfNkQy8GDXIVog65rLqj+Pwwm0
-	KRh0+3mBXgcEHILaAI6RzVlRXhBtRgCS4SuwbF46eQk2zG9EZJ/qYhCQJmKfiORoWs/ozwPiRSN
-	5KAinF5wuZCahMeoUhuRj+JqIoKIXG2OYudNU2ztziXu3MPuG6akH3u0k2qd+WsTc4yl5wDWDko
-	kKo3SC7uPxh9niSgQGrdvx6y0EONXX5+CT9/H6rFVUBPMz9oOl40lAngXt4voyYipsCOJgHh8Sk
-	x2gOGQ86j3o2nqZWmXlad5AUQArL/U+yEbfZ9DrTKlwfZoynyYfOS+Y+cAa3LvEFT9DmsKe+tGk
-	RGLCJBF8i40ET5zO5/B1og1tPW+C9elN02yeOileQ1SiOFrm4nLvrWD4sqc7ed
-X-Received: by 2002:a17:907:3cc2:b0:b96:ddb5:fbe8 with SMTP id a640c23a62f3a-b9711ab5d75mr460410866b.29.1773238397924;
-        Wed, 11 Mar 2026 07:13:17 -0700 (PDT)
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com. [209.85.208.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b972de092b0sm59014166b.3.2026.03.11.07.13.17
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Mar 2026 07:13:17 -0700 (PDT)
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-66325f30570so984560a12.1
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2026 07:13:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVr1+fKL8pSujBNVW8ytdd6ql6iz5XrcSCMVgMC2UPhjvA3xYLG/70pYqOCFcTxAdN7CSO1cVw0k8nwBg==@vger.kernel.org
-X-Received: by 2002:a17:907:6d16:b0:b88:4f25:81da with SMTP id
- a640c23a62f3a-b97113ff0b9mr462021166b.0.1773237981235; Wed, 11 Mar 2026
- 07:06:21 -0700 (PDT)
+	s=arc-20240116; t=1773239179; c=relaxed/simple;
+	bh=UFJj5nlXJjOv7OkDfYn/9Dq27XtDLzCcmr3TL8+spkQ=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=XfzxrfhkNjsLT4VtyUP0m5y0cgi+mTqUghmXY4fcD8gweP5avwYuhJC5o50z2Bz/oAjiEagg1olx/jne67fgESNnrBIdxW7RQN6xQvBeVAjn9L3jMnqkkjQ2KRu8VHYfW7cq7oRFbohpK85n2Vmh7t3YprJ3h9hiRBUtcBnl2vU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=fail (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=HSE5vDuG reason="key not found in DNS"; arc=none smtp.client-ip=162.243.120.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="HSE5vDuG"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=default; h=Content-Transfer-Encoding:Mime-Version:Message-Id:Subject:Cc:
+	To:From:Date:subject:date:message-id:reply-to;
+	bh=Cgamv1/SwJoWr3CbVvyTNp0GlZ/leWyEdkFeMQNIx/4=; b=HSE5vDuGzW7mbfoYMuZSAMBlYw
+	rmZpUlZy0yjDV9X5rrLi/x+/oBFEG+JhuGvNFCe9gYfYGqy/Ivlkqzz0z9umGoVF4NwHsDKdoqAAv
+	VmkOvkU+uOr4T8BlHkCPC6OkngNYAuAWggqhvRFTViY8pHDnXikA7NZJqQ7u1QNrETn0=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168] helo=pettiford.lan)
+	by mail.hugovil.com with esmtpa (Exim 4.98.2)
+	(envelope-from <hugo@hugovil.com>)
+	id 1w0KVe-000000005un-0wgL;
+	Wed, 11 Mar 2026 10:26:04 -0400
+Date: Wed, 11 Mar 2026 10:26:01 -0400
+From: Hugo Villeneuve <hugo@hugovil.com>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, robin@protonic.nl,
+ andy@kernel.org, geert@linux-m68k.org, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org, hvilleneuve@dimonoff.com, mkorpershoek@kernel.org,
+ matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
+ lee@kernel.org, alexander.sverdlin@gmail.com, marek.vasut@gmail.com,
+ akurz@blala.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v4 4/4] Input: charlieplex_keypad: add GPIO charlieplex
+ keypad
+Message-Id: <20260311102601.35ea20963ccebdeebec3c6bb@hugovil.com>
+In-Reply-To: <abBugQOUWG_FTs4f@ashevche-desk.local>
+References: <20260305192101.2125660-1-hugo@hugovil.com>
+	<20260305192101.2125660-5-hugo@hugovil.com>
+	<aari1Y1CPZSYEVj3@ashevche-desk.local>
+	<abBkk4Ng-_MDHd6t@google.com>
+	<abBugQOUWG_FTs4f@ashevche-desk.local>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
- <20260310-b4-is_err_or_null-v1-15-bd63b656022d@avm.de> <20260310100750.303af303@gandalf.local.home>
- <20260311141332.b611237d36b61b2409e66cb3@kernel.org> <20260311100332.6a2ce4b1@gandalf.local.home>
-In-Reply-To: <20260311100332.6a2ce4b1@gandalf.local.home>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 11 Mar 2026 15:06:07 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdX4kRGLaKMzPuhS1Pmxh609eiqQW-cAS_jWBBbt-vE6SA@mail.gmail.com>
-X-Gm-Features: AaiRm53WEGMMLW4z34e7P-lM1qFvsCJGZ_o4JNL5NPWbhJPKmcqz6k9bJcyL--8
-Message-ID: <CAMuHMdX4kRGLaKMzPuhS1Pmxh609eiqQW-cAS_jWBBbt-vE6SA@mail.gmail.com>
-Subject: Re: [PATCH 15/61] trace: Prefer IS_ERR_OR_NULL over manual NULL check
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>, Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org, 
-	apparmor@lists.ubuntu.com, bpf@vger.kernel.org, ceph-devel@vger.kernel.org, 
-	cocci@inria.fr, dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org, 
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org, 
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-bluetooth@vger.kernel.org, linux-btrfs@vger.kernel.org, 
-	linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, 
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org, 
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	samba-technical@lists.samba.org, sched-ext@lists.linux.dev, 
-	target-devel@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	v9fs@lists.linux.dev, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam_score: -2.0
+X-Spam_bar: --
 
-Hi Steven,
+Hi Andy,
 
-On Wed, 11 Mar 2026 at 15:03, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Wed, 11 Mar 2026 14:13:32 +0900
-> Masami Hiramatsu (Google) <mhiramat@kernel.org> wrote:
->
-> > Hmm, now IS_ERR_OR_NULL() is an inline function, so it is safe.
-> > But if you want to use IS_ERR_OR_NULL() here, it will be better something like
-> >
-> > node = rhashtable_walk_next(&iter);
-> > while (!IS_ERR_OR_NULL(node)) {
-> >       fprobe_remove_node_in_module(mod, node, &alist);
-> >       node = rhashtable_walk_next(&iter);
-> > }
->
-> But now you need to have a duplicate code in order to acquire "node"
->
-> I think the patch just makes the code worse.
+On Tue, 10 Mar 2026 21:18:25 +0200
+Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
 
-Obviously we need a new for_each_*() helper hiding all the gory internals?
+> On Tue, Mar 10, 2026 at 06:37:34PM +0000, Dmitry Torokhov wrote:
+> > On Fri, Mar 06, 2026 at 04:21:09PM +0200, Andy Shevchenko wrote:
+> > > On Thu, Mar 05, 2026 at 02:20:50PM -0500, Hugo Villeneuve wrote:
+> 
+> ...
+> 
+> > > > +	int oline;
+> > > 
+> > > Why signed?
+> > > 
+> > > > +	int code;
+> > > > +
+> > > > +	for (code = 0, oline = 0; oline < keypad->nlines; oline++) {
+> > > 
+> > > Can be like
+> > > 
+> > > 	code = 0;
+> > > 	for (unsigned int oline = 0; oline < keypad->nlines; oline++) {
+> > > 
+> > > as iterator is not used outside the loop.
+> > > 
+> > > > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
+> > > 
+> > > > +		int iline;
+> > > 
+> > > Why signed?
+> > 
+> > Does it make any difference given practical limits on nlines?
+> 
+> Maybe not, but might lead to interesting bugs in the future in case if used in
+> some arithmetics.
 
-Gr{oetje,eeting}s,
+I'll fix this in next version.
 
-                        Geert
+Hugo.
+
+
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+> 
+> 
+
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Hugo Villeneuve

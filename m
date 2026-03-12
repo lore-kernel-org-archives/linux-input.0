@@ -1,31 +1,32 @@
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5714F3EF0AF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571E33F1644;
 	Thu, 12 Mar 2026 18:03:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773338595; cv=none; b=ojqHx+UxvlYgctXcBIqFJ8daOalOamH5ANN5pcLfNqT5jSNryFl9ksBmRv3iWUunU4fQjeMF7hXSVIZvYcK6izRzLn0aGWuJ5gXM21/jgnLt99TLvXhr1BVDUOyWgwF2J1dmgR076iD3znarveVVRQQciOM8sXmqbDMjix6QUFs=
+	t=1773338595; cv=none; b=S4k3wGD2bTeROEVR9uQf8wuAEFzyehFtufR+2sm2h2A9so+o1oUc4leG4y+5ZHgVV9ZLzIzRwzqL9KzJHHuf8hTNWOFLI8VOVrCqfs3J3TKWYwDMTcPyurMbHUQS5tcZB0S+xUCz+NMerQ2AhTAq28pC9nz2jpGsEuYUXDxVrPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1773338595; c=relaxed/simple;
-	bh=OFGYfsHGmSwbtW+JBP9n7esUhzkXGYaYnKJ3B/MW9gs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fEobYUJ3X6nmWiLBLTpr/J5+Vzq2QZRRdbITQCTTLvHKHbf4/geYPCpiplBIx3+jxMkcg9SNwFwT239dywxb4SOQfcWS7AljB/70NpgGAIv+tlwU3BdPzFlyKlbUQ06S37Ahm88gozid+LzusSCjfy08W2/nwwJ7oVFGIjOaHSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=fail (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=qMQtASNc reason="key not found in DNS"; arc=none smtp.client-ip=162.243.120.170
+	bh=kEXxkuOtlby15gNOWH0fvqecd3a2UWZIvUrzwcltfl8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OwiSh0Xo2E3gkx1IG4XCsD1THei+FA1ahPrsv+54+TT3ztn3CO+ft2YJ1D98BlsVbi2+x14yWcONjTypK7coD4V63Jie+1Yo/tJKLJwlGSeP6fAkZsUpo8RqTUyuOUgyuYy5tKTbSFfDhPvJPePvQanUu6bdyTDxvi5zeZedoZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=fail (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=pkRqJJlY reason="key not found in DNS"; arc=none smtp.client-ip=162.243.120.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="qMQtASNc"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="pkRqJJlY"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
 	; s=default; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject
 	:Cc:To:From:subject:date:message-id:reply-to;
-	bh=JR/B2dFDOfK/tmEdPLA1FD2R6WjIJ7KHea/shfA4u74=; b=qMQtASNc/qr6quYrPy2H+lf8ry
-	jcAAZ/5H8x/HX8pKxRGVtSGKJNkhC+SG3AHMUMFVgt2wZJEL7FV1fTbA+Mz6dJzaz3S5z4h3+rf+u
-	5UPUX9X+ZDMTjPxFgJhYyc+Z3cgiZXh6xKGmHsmzFjuLmu517lLsI+23PUWeKi4Y/Io8=;
+	bh=QP65QPw5R6QEOwFP1EXlhwulSaa9GL5K/VwO1HQfsdo=; b=pkRqJJlYzzTix2dnjDsKhHXPji
+	erlS1V36ljnu/PE0eI/X3dCtjCe085U7PEjldnYGxisozy13kaOQuMl9KS4kLBKzZclWlgioWSSa0
+	e1IeFMQZQr/g3Eg/g7EGc0FjBoxnc4LH7QjA+jTNLptHe/Yxc7dfNPtnYLEI1cm8AvwY=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168] helo=pettiford.lan)
 	by mail.hugovil.com with esmtpa (Exim 4.98.2)
 	(envelope-from <hugo@hugovil.com>)
-	id 1w0kNI-000000008Fl-00uW;
-	Thu, 12 Mar 2026 14:03:08 -0400
+	id 1w0kNJ-000000008Fl-3z1K;
+	Thu, 12 Mar 2026 14:03:10 -0400
 From: Hugo Villeneuve <hugo@hugovil.com>
 To: robin@protonic.nl,
 	andy@kernel.org,
@@ -48,10 +49,12 @@ Cc: devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	hugo@hugovil.com
-Subject: [PATCH v5 0/4] input: add GPIO-based charlieplex keypad
-Date: Thu, 12 Mar 2026 14:00:54 -0400
-Message-ID: <20260312180304.3865850-1-hugo@hugovil.com>
+Subject: [PATCH v5 1/4] dt-bindings: input: add debounce-delay-ms common property
+Date: Thu, 12 Mar 2026 14:00:55 -0400
+Message-ID: <20260312180304.3865850-2-hugo@hugovil.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260312180304.3865850-1-hugo@hugovil.com>
+References: <20260312180304.3865850-1-hugo@hugovil.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -64,79 +67,135 @@ X-Spam_bar: -
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Hello,
-this patch series add a new GPIO charlieplex keypad driver.
+A few bindings are already defining a debounce-delay-ms property, so
+add it to the input binding to reduce redundant redefines.
 
-The first two patches simply commonize two properties that are present in
-a few bindings, so that the actual patches for the charlieplex keypad driver
-can reuse them instead of also redefining them.
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+---
+ .../devicetree/bindings/auxdisplay/holtek,ht16k33.yaml    | 5 ++---
+ .../devicetree/bindings/input/cirrus,ep9307-keypad.yaml   | 7 +++----
+ .../devicetree/bindings/input/gpio-matrix-keypad.yaml     | 5 ++---
+ Documentation/devicetree/bindings/input/input.yaml        | 8 ++++++++
+ .../devicetree/bindings/input/mediatek,mt6779-keypad.yaml | 1 +
+ Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml    | 2 --
+ 6 files changed, 16 insertions(+), 12 deletions(-)
 
-I have tested the driver on a custom board with a Solidrun RZ/G2LC SOM
-with three charlieplex keyboards, all connected thru a single PCAL6416 I2C GPIO
-expander.
-
-Link: [v1] https://lore.kernel.org/all/20260203155023.536103-1-hugo@hugovil.com/
-Link: [v2] https://lore.kernel.org/all/20260213171431.2228814-1-hugo@hugovil.com/
-Link: [v3] https://lore.kernel.org/all/20260225155409.612478-1-hugo@hugovil.com/
-Link: [v4] https://lore.kernel.org/all/20260305192101.2125660-1-hugo@hugovil.com/
-
-Changes for v5:
-- Add Reviewed-by tags (Rob)
-- Replace GPIO with line in settling-time-us property description (Rob)
-- Reorder Makefile entry (Andy)
-- Change copyright date to 2026 (Andy)
-- Change some signed variables to unsigned (Andy)
-- Move some variables declaration within loop (Andy)
-- Add proper labels for GPIO pin names (Andy)
-
-Changes for v4:
-- Fix indentation in comments (Andy)
-- Add missing includes (Andy)
-- Remove OF dependency (Andy/Dmitry)
-- Uniformize return code variables to "err" (Andy/Dmitry)
-- Change signed iterator to unsigned and move within loop (Andy)
-- Remove unused platform_set_drvdata() (Andy)
-- Fixed typo in cover letter PCAL6416 (Geert)
-- Changed name in bindings example (Geert)
-- Added pull resistors to bindings doc and example (Geert)
-
-Changes for v3:
-- Add ASCII diagram in bindings, and reference to it in example
-- Reorder properties alphabetically
-- Add patch to define common input settling-time-us property
-- Add patch to define common input debounce-delay-ms property
-
-Changes for v2:
-- Fix yamllint error for example
-- Remove unused debug variable (nkeys)
-- Remove support for custom linux,no-autorepeat DT property
-- Remove support for custom gpio-activelow DT property
-
-Thank you.
-
-Hugo Villeneuve (4):
-  dt-bindings: input: add debounce-delay-ms common property
-  dt-bindings: input: add settling-time-us common property
-  dt-bindings: input: add GPIO charlieplex keypad
-  Input: charlieplex_keypad: add GPIO charlieplex keypad
-
- .../bindings/auxdisplay/holtek,ht16k33.yaml   |   5 +-
- .../bindings/input/cirrus,ep9307-keypad.yaml  |   7 +-
- .../input/gpio-charlieplex-keypad.yaml        | 108 +++++++++
- .../bindings/input/gpio-matrix-keypad.yaml    |   5 +-
- .../devicetree/bindings/input/input.yaml      |  16 ++
- .../input/mediatek,mt6779-keypad.yaml         |   1 +
- .../devicetree/bindings/mfd/fsl,mc13xxx.yaml  |   2 -
- MAINTAINERS                                   |   7 +
- drivers/input/keyboard/Kconfig                |  14 ++
- drivers/input/keyboard/Makefile               |   1 +
- drivers/input/keyboard/charlieplex_keypad.c   | 223 ++++++++++++++++++
- 11 files changed, 377 insertions(+), 12 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/gpio-charlieplex-keypad.yaml
- create mode 100644 drivers/input/keyboard/charlieplex_keypad.c
-
-
-base-commit: 6d4b67a2a76a4ff2393fe88119ae4332821b82b4
+diff --git a/Documentation/devicetree/bindings/auxdisplay/holtek,ht16k33.yaml b/Documentation/devicetree/bindings/auxdisplay/holtek,ht16k33.yaml
+index b90eec2077b4b..c46a2471f8b10 100644
+--- a/Documentation/devicetree/bindings/auxdisplay/holtek,ht16k33.yaml
++++ b/Documentation/devicetree/bindings/auxdisplay/holtek,ht16k33.yaml
+@@ -10,6 +10,7 @@ maintainers:
+   - Robin van der Gracht <robin@protonic.nl>
+ 
+ allOf:
++  - $ref: /schemas/input/input.yaml#
+   - $ref: /schemas/input/matrix-keymap.yaml#
+ 
+ properties:
+@@ -33,9 +34,7 @@ properties:
+   interrupts:
+     maxItems: 1
+ 
+-  debounce-delay-ms:
+-    maxItems: 1
+-    description: Debouncing interval time in milliseconds
++  debounce-delay-ms: true
+ 
+   linux,keymap: true
+ 
+diff --git a/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml b/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml
+index a0d2460c55ab6..25b8b29c87d70 100644
+--- a/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml
++++ b/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml
+@@ -10,6 +10,7 @@ maintainers:
+   - Alexander Sverdlin <alexander.sverdlin@gmail.com>
+ 
+ allOf:
++  - $ref: input.yaml#
+   - $ref: /schemas/input/matrix-keymap.yaml#
+ 
+ description:
+@@ -37,10 +38,8 @@ properties:
+   clocks:
+     maxItems: 1
+ 
+-  debounce-delay-ms:
+-    description: |
+-          Time in microseconds that key must be pressed or
+-          released for state change interrupt to trigger.
++  # Time for state change interrupt to trigger
++  debounce-delay-ms: true
+ 
+   cirrus,prescale:
+     description: row/column counter pre-scaler load value
+diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.yaml b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.yaml
+index ebfff9e42a365..69df24a5ae701 100644
+--- a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.yaml
++++ b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.yaml
+@@ -18,6 +18,7 @@ description:
+   report the event using GPIO interrupts to the cpu.
+ 
+ allOf:
++  - $ref: input.yaml#
+   - $ref: /schemas/input/matrix-keymap.yaml#
+ 
+ properties:
+@@ -46,9 +47,7 @@ properties:
+       Force GPIO polarity to active low.
+       In the absence of this property GPIOs are treated as active high.
+ 
+-  debounce-delay-ms:
+-    description: Debounce interval in milliseconds.
+-    default: 0
++  debounce-delay-ms: true
+ 
+   col-scan-delay-us:
+     description:
+diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
+index 94f7942189e8c..502e0b7eb500a 100644
+--- a/Documentation/devicetree/bindings/input/input.yaml
++++ b/Documentation/devicetree/bindings/input/input.yaml
+@@ -14,6 +14,14 @@ properties:
+     description: Enable autorepeat when key is pressed and held down.
+     type: boolean
+ 
++  debounce-delay-ms:
++    description:
++      Debounce delay in milliseconds. This is the time during which the key
++      press or release signal must remain stable before it is considered valid.
++    minimum: 0
++    maximum: 999
++    default: 0
++
+   linux,keycodes:
+     description:
+       Specifies an array of numeric keycode values to be used for reporting
+diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+index e365413732e7b..914dd3283df33 100644
+--- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
++++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+@@ -10,6 +10,7 @@ maintainers:
+   - Mattijs Korpershoek <mkorpershoek@kernel.org>
+ 
+ allOf:
++  - $ref: input.yaml#
+   - $ref: /schemas/input/matrix-keymap.yaml#
+ 
+ description: |
+diff --git a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+index d2886f2686a8d..542ba51144243 100644
+--- a/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
++++ b/Documentation/devicetree/bindings/mfd/fsl,mc13xxx.yaml
+@@ -76,8 +76,6 @@ properties:
+           debounce-delay-ms:
+             enum: [0, 30, 150, 750]
+             default: 30
+-            description:
+-              Sets the debouncing delay in milliseconds.
+ 
+           active-low:
+             description: Set active when pin is pulled low.
 -- 
 2.47.3
 

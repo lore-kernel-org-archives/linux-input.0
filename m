@@ -1,91 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1824D373C15;
-	Thu, 12 Mar 2026 12:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB2EC3C343F
+	for <linux-input@vger.kernel.org>; Thu, 12 Mar 2026 12:57:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773320215; cv=none; b=cC9MrNG4z1oF3VrlAwA6HehvpsMj4Q9v6fxosjdH8MP1QE2TY0bM3nvmDq5h0XkEzPGzxMROw/pqZd0lUcSRgamspq2ZAZtSNxSZuyni61M5AJIsSUyJRGP0NFz5qTAXazhXFkM0lcM9LuARsUWP1fVyRNP+JKZZ1+Gi4rLuuFQ=
+	t=1773320256; cv=none; b=MVfZ9e5YQrDo0XUSmYOMyXhDjBdLJ5ly3IE2785bDMnd41diVW+QmFh/jDSoKo/1hGLjf6bgR9GxL/bJwgKfpIznLZ+J2r0xtazCi7+NvgIoYeoMTNZ+7Ibzk5naaVcov0nI8mZqFwv2xHl5OG4iV3gjbe+1kUSZkI/KIA1nC70=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773320215; c=relaxed/simple;
-	bh=gBZltAF936KTfUzOOgSXawf/jzpmRMXlISQQRiJGysQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=JyU5iynkjWD6Qg940ygGlhiwYLFBxWKv6o95OvtGP/aCLNEt/+KMwijxlCEpf/kwSkw+TUcprwO4GAfZKjY4+oygxvyuRK0TR8+c3TeWZBQ6OzwRAL0NHVeDFiMrumhw9CEX8BqqOx7zjbmdvDIjMt4wWijwEINd93ApQ2dOt1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ChUg1QEr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773320256; c=relaxed/simple;
+	bh=Rr1jkAP22lZkLvo3o90a9fRSWh9+kilNKtAarSScWFY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=X8iLYNc38LRyuAioF1Zr3IXCcJ827DKOuO8rCt7LTMoR59Fn39gEdKSn66EzdfmFanmsB2rNHNw4eLs4YP0n/9P5200GplH5Rm84LkjEIRH+BCoiIoxkblQUOEXBcjx8XyGeBmhYVR6Ov2uWnIooo3WT9+eL3JkBzLcWexzoivI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=fHqxjqGD; arc=none smtp.client-ip=209.85.160.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ChUg1QEr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EE0BC19424;
-	Thu, 12 Mar 2026 12:56:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773320214;
-	bh=gBZltAF936KTfUzOOgSXawf/jzpmRMXlISQQRiJGysQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=ChUg1QErSG7JQH34va4eiKe40JFIt803SahulevsKsRgBUaOWGUHnw/YaBtzSsuN6
-	 jDXgnk1a+FESB7otZS2OQHBgEYUQzuvpRZRkUXlnkMiFzNMvFJn5cmwbBWfXAN+Vm6
-	 UwRQ2yXrAD1a5rtZFtN1+A111L2zZwoAhTqr1QWDTJG7guaslJa0LGIVY6yUHVAyQY
-	 8cl3LyA1h4nss5HiOak0JhOt7Mxr4eZZx4aAl6f9qw42y6H7I56w/Am164DOcB4al8
-	 ZDlYJ2TuoXyrLDBvGnnpGp2Xg0wiNs6ZJSX+zOyjwnjzJ+VVj6ExxN3T/nbrRaf9FR
-	 fH/7TWtNjEU9g==
-Date: Thu, 12 Mar 2026 13:56:51 +0100 (CET)
-From: Jiri Kosina <jikos@kernel.org>
-To: =?ISO-8859-15?Q?Ren=E9_Rebe?= <rene@exactco.de>
-cc: Lukas Bulwahn <lbulwahn@redhat.com>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    Lukas Bulwahn <lukas.bulwahn@redhat.com>
-Subject: Re: [PATCH] HID: quirks: really enable the intended work around for
- appledisplay
-In-Reply-To: <9pos2s83-p7q0-oq36-oqo3-s555o07p31n9@xreary.bet>
-Message-ID: <96qn3q37-6r2r-6101-63ps-4p53s0s18rs2@xreary.bet>
-References: <20260205081131.426899-1-lukas.bulwahn@redhat.com> <944F8139-6528-442E-BFC2-9609A7DACA2D@exactco.de> <9pos2s83-p7q0-oq36-oqo3-s555o07p31n9@xreary.bet>
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="fHqxjqGD"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-50915e14cf6so7425491cf.3
+        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2026 05:57:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1773320252; x=1773925052; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=J1SF1XBHkHR0j7NZVucv0LxpGoGXl67PUefLsfwpAbo=;
+        b=fHqxjqGD7mReR8MT2yBowt9MuNKPAKQc++mWcb4ZOttX6YldICO+OnnxWIQjO0C8L5
+         wjOw0Gg7MqV4U+G9pES+s6h1NtZIjaKrBXMW81hrLyc8SxWYHtvQK3FlTjqiyroZskXE
+         jYj0kUENL7Yhu5zg+0UQ91XYlYYlozX9U8uAqBEFaih0fSnDo8kprjTDRYJ58gzKRExo
+         MSUW+Q+e0P2WpZGotx0DuVRaUqq4vGsUUSX1YbPnOxmRUKlXFY/aNRmXMXDbAEfx0Lnn
+         e41FpuPSZjTSuTkWfTMW8e1MvewVXC2p6zLd4GrSZjvSKS4Q06nDQYaSimUW3qR5RhoY
+         JV6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773320252; x=1773925052;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=J1SF1XBHkHR0j7NZVucv0LxpGoGXl67PUefLsfwpAbo=;
+        b=DTDvmCx17UQK4IXw10gLxEdDpMvmduQcuUMefJlH7xbUlq6I60HW76uZIhG8VeQ8jc
+         leDP/FyzgFi3WyWw31mJj8f5RnQk7o8+Zyjva+tTUz+GH2lq6xyePY7/XexS7s/c5q/q
+         /mQqzgCt5YV3M5E3KkiPIkCV6vbhiSfFXldJ4hlRuZ180e/UBdLcJmAPcPJiNSIB0xlR
+         ydlSkD5XPrny+rOWKmJv4zmx+yLgLWa7V7gdhAccuWOA8oeGT7PWHcyLmWE+qv+48PKV
+         p/bKLszmc6IZNWOMa2KVJwPooVRZV5jvpgnsZuz2U3RAGQsjgOKHLErWhkwGMUoUoIJI
+         Cxww==
+X-Forwarded-Encrypted: i=1; AJvYcCXhgCk/YdV28BJY9tUikW11AxUaT3KqKSDhjFKQUuOtFAiurBjbKL33+VzFY1192PNCT6rxrxic5cylpQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YysWkl8jmfXpz08Qy4/KIL6PNw72Lh0TzF0K2IodSeEfjsmga90
+	Upf8eRRNaQMqM115BgO4/lLU4UdtiUtyy0e817eic8uSnQFPq3g3YlPeInuAdW0eLt4=
+X-Gm-Gg: ATEYQzx3/dMFlpzyaJr7aBs8kgb7fmvWRBjqrlZdf7ci0+xkKb0k6yIc8o/5HfxNo/9
+	cQrpCM8KhiVUrvb+swoysJMLAsnyal8s3cfl6yrAHvNAyNuiJ3tensYCU/aPp8NuarUIr67f21I
+	9guIxNHkT4rVHVMqjA9kL1OFYWmSBSKVjlHBGw20+eeS23QepsOxxbCYEUCgetpFGz1ZrSyFsQ6
+	lsc/rWWzWPXofPdd/9k2GlbmzANl9mU6riOre6Q5+NqwisWIw4txsbWlsCkxW4wAW0HxBi189xM
+	hEfs6UyjAWem+zdbNRGYeWuXyaFDxec84H82tpDRYNI0pEQmrsiycQP20J3sCP0VC0v9V1ugO8D
+	KuEH3LeIL8VfVXKWCtY06SXqTn16htKRMy18k6Gg45OPuRepNPfg+Er5erXhIp7sNfK/d4eoG18
+	O+t2/ISu2tvbXPW0DX+uRLWXP9/aFA26EnU/Aht16ojW69CmSeedqZFAYPKpJ0jykaYvxSbxiPF
+	naR/eC7
+X-Received: by 2002:ac8:5d4d:0:b0:509:cbc:127b with SMTP id d75a77b69052e-5093a1bd58fmr77950521cf.60.1773320251710;
+        Thu, 12 Mar 2026 05:57:31 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89a65bd318fsm33341196d6.8.2026.03.12.05.57.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2026 05:57:31 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1w0fbW-00000006fKD-1POa;
+	Thu, 12 Mar 2026 09:57:30 -0300
+Date: Thu, 12 Mar 2026 09:57:30 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Kuan-Wei Chiu <visitorckw@gmail.com>
+Cc: Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org,
+	apparmor@lists.ubuntu.com, bpf@vger.kernel.org,
+	ceph-devel@vger.kernel.org, cocci@inria.fr,
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev
+Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
+ check - refactor
+Message-ID: <20260312125730.GI1469476@ziepe.ca>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <abBlpGKO842B3yl9@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <abBlpGKO842B3yl9@google.com>
 
-On Sat, 21 Feb 2026, Jiri Kosina wrote:
+On Wed, Mar 11, 2026 at 02:40:36AM +0800, Kuan-Wei Chiu wrote:
 
-> > > Commit c7fabe4ad921 ("HID: quirks: work around VID/PID conflict for
-> > > appledisplay") intends to add a quirk for kernels built with Apple Ci=
-nema
-> > > Display support, but it refers to the non-existing config option
-> > > CONFIG_APPLEDISPLAY, whereas the config option for Apple Cinema Displ=
-ay
-> > > support is named CONFIG_USB_APPLEDISPLAY.
-> > >=20
-> > > Refer to the intended config option CONFIG_USB_APPLEDISPLAY in the if=
-def
-> > > directive.
-> > >=20
-> > > Fixes: c7fabe4ad921 ("HID: quirks: work around VID/PID conflict for a=
-ppledisplay")
-> > > Signed-off-by: Lukas Bulwahn <lukas.bulwahn@redhat.com>
-> > > ---
-> > >=20
-> > > Note this fix suggests that the patch of commit c7fabe4ad921 in this =
-form
-> > > was never effectively tested, checking the effect that the commit mes=
-sage
-> > > claims it would have.
-> >=20
-> > Thanks for spotting this. It was tested when I did this years ago. Thou=
-gh, maybe I
-> > tested before adding the #if IS_ENABLED, anciently hit some key in Vim,=
- o
-> > something was renamed since then.
-> >=20
-> > Either way, I=E2=80=99ll get the display out of the basement and re-tes=
-t it the coming days.
->=20
-> Is there any results of this testing, please?
+> IMHO, the necessity of IS_ERR_OR_NULL() often highlights a confusing or
+> flawed API design. It usually implies that the caller is unsure whether
+> a failure results in an error pointer or a NULL pointer. 
 
-Friendly ping on this one :)
++1
 
---=20
-Jiri Kosina
-SUSE Labs
+IS_ERR_OR_NULL() should always be looked on with suspicion. Very
+little should be returning some tri-state 'ERR' 'NULL' 'SUCCESS'
+pointer. What does the middle condition even mean? IS_ERR_OR_NULL()
+implies ERR and NULL are semanticly the same, so fix the things to
+always use ERR.
 
+If you want to improve things work to get rid of the NULL checks this
+script identifies. Remove ERR or NULL because only one can ever
+happen, or fix the source to consistently return ERR.
+
+Jason

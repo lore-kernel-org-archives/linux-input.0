@@ -1,47 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C1312B94;
-	Thu, 12 Mar 2026 14:00:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE68399347;
+	Thu, 12 Mar 2026 15:02:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773324035; cv=none; b=e4OBsJ4KnFdI9Zgjms1csp89i1cYxZHyFobZ3G7hQRmTVZUPt93eYF5WJRcQ35rRXbYSCuJlvYuhKMG4PAmHUxxRqZCHeOu6MNQ74721rptnhnj00oh2erTQq9n0Ygq2iZ8g5xCHla3P1i3HdeJP+Ji5leSWcUd8o0xN+JP9DAw=
+	t=1773327732; cv=none; b=qtActuvGVMvpRUICXrMaYiNZ61J22EOThkoFtgKTAE824k+w5IfxiIIsW3HUeu5qkZwmUP3WfX+jvP/bVMkbR+4SdPwO655MrHDtHiqynUxLNTGg0RwrIXocE1OBn+gW3RY9hocslTjAR/mOkwW1sudgpYtS0ZIy5nCLszwYx5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773324035; c=relaxed/simple;
-	bh=lgzAwmcia1bIMN1GXKk0zq/eE3MT5qXplE1hzEEEs5I=;
+	s=arc-20240116; t=1773327732; c=relaxed/simple;
+	bh=4vUNgw/dIjwg/gDC3g4/SBHB1dI6lecJoQelequ+HGY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=upDUmoxgapZiPhov0P3hXtR2Bre2g/XQ194BD7rVDs00aGqM+jbsp7eqBUS0V75mVdQ5dUaZVNlHGGf7v/QuiRsKC8oSYkzb4wHSkZD+A7RjDwq4xt0/mk0dzv/ER2nBy3Ce2ma8ZP1+uDVpnllvIz10seBRU+RrKFtYUdp+JRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jMGT4feG; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=BLQlI3JL+mlq8YprkNWjqr+Phd1LjhrvgOvgUv/Zcm8qxUh59De5bIfP3oLN1QI2Enp2Kc+TK5VeFlbC1d8vqzSju6TiY1Iddw1wQpuLi7IW1OgC4J5ORgdNnYZkARrAzOgoyZ7qIQP9cdJKb0eOg6IBv4j5A0I4pIJnvloiJf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tOAGMOCK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jMGT4feG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F01C19424;
-	Thu, 12 Mar 2026 14:00:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tOAGMOCK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47060C4CEF7;
+	Thu, 12 Mar 2026 15:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773324034;
-	bh=lgzAwmcia1bIMN1GXKk0zq/eE3MT5qXplE1hzEEEs5I=;
+	s=k20201202; t=1773327731;
+	bh=4vUNgw/dIjwg/gDC3g4/SBHB1dI6lecJoQelequ+HGY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jMGT4feG0qm/dNmC0kI18hsGyvHTMrmIX0kDEHPHWL7UB352oMdTlgIKXYfNNew7/
-	 1Xt9zSHmZZ/JnC+6zzuRVbhkrzYhPdlqfoEaP8aISQ3Dxu3RhidELIayZ4HIND+jcx
-	 guvMUahvzZmxPvxcjNZLhkMzdwHIWNNrToo0BO0cTp0FaZxPQU3C3AqjsH8UKPdOyQ
-	 iA1w7hcVWmk5qorI3J1lBD9Jcjr1AeG/v+NSt+eodGpbQPXf9X285jYMjEzfxteKuy
-	 7lKup7ivdS2jWbgw0ZELBGgsTNGUXlxJ5gB5Q6QbQb9qm+VqLX4+I84in/oOUTfV2f
-	 fI5xq2q+JgNwA==
-Date: Thu, 12 Mar 2026 09:00:32 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-pm@vger.kernel.org,
-	Conor Dooley <conor+dt@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
-	Ion Agorria <ion@agorria.com>, linux-leds@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/7] dt-bindings: embedded-controller: document ASUS
- Transformer EC
-Message-ID: <177332403209.2914211.14156950861343429723.robh@kernel.org>
-References: <20260304185751.83494-1-clamor95@gmail.com>
- <20260304185751.83494-2-clamor95@gmail.com>
+	b=tOAGMOCKc6PZumrHzBjuGeJMib1dbftYNofU/uzf0f0JJOpZHaf6N5ZPUaNdOUfz1
+	 dwwLwQCGzQLy50uQjv+YVWB/8/4anKKHJAWcLF+AR1oKZacZZENDZ5uJ0S69+6sE6T
+	 0uJh0vlMQqgbClfZaUCIhOQcaBjNQNSrdhSV937l46/rkXXMU7oJwUdCzCbC4o9OBT
+	 Py0f3nelL6gX7nPgi5JZym1IB8ANltYOoFGx4XM8J/959YCLqI9iHSvkA68IfL7YnE
+	 oge1/pdY0ZZB+z0c1AA9mg8+1ISr6Ax874vQoOJvYDZ5ePfCAJAU43p8J2sXKCv0VP
+	 EQnxnLbloFGYw==
+Date: Thu, 12 Mar 2026 10:02:10 -0500
+From: Rob Herring <robh@kernel.org>
+To: Hugo Villeneuve <hugo@hugovil.com>
+Cc: robin@protonic.nl, andy@kernel.org, geert@linux-m68k.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com,
+	hvilleneuve@dimonoff.com, mkorpershoek@kernel.org,
+	matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
+	lee@kernel.org, alexander.sverdlin@gmail.com, marek.vasut@gmail.com,
+	akurz@blala.de, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v4 2/4] dt-bindings: input: add settling-time-us common
+ property
+Message-ID: <20260312150210.GA3121485-robh@kernel.org>
+References: <20260305192101.2125660-1-hugo@hugovil.com>
+ <20260305192101.2125660-3-hugo@hugovil.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,18 +51,39 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260304185751.83494-2-clamor95@gmail.com>
+In-Reply-To: <20260305192101.2125660-3-hugo@hugovil.com>
 
-
-On Wed, 04 Mar 2026 20:57:45 +0200, Svyatoslav Ryhel wrote:
-> Document embedded controller used in ASUS Transformer device series.
+On Thu, Mar 05, 2026 at 02:20:48PM -0500, Hugo Villeneuve wrote:
+> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 > 
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> Add common property that can be reused by other bindings.
+> 
+> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 > ---
->  .../asus,tf201-ec-pad.yaml                    | 119 ++++++++++++++++++
->  1 file changed, 119 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/embedded-controller/asus,tf201-ec-pad.yaml
+> Note: a similar property is used by gpio-matrix-keypad.yaml:
+>   col-scan-delay-us
+> ---
+>  Documentation/devicetree/bindings/input/input.yaml | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
+> diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
+> index 502e0b7eb500a..14652d324e2ca 100644
+> --- a/Documentation/devicetree/bindings/input/input.yaml
+> +++ b/Documentation/devicetree/bindings/input/input.yaml
+> @@ -66,6 +66,14 @@ properties:
+>        reset automatically. Device with key pressed reset feature can specify
+>        this property.
+>  
+> +  settling-time-us:
+> +    description:
+> +      Delay, in microseconds, when activating an output line/col/row GPIO
+> +      before we can reliably read other input GPIOs that maybe affected by this
+> +      output. This can be the case for an output with a RC circuit that affects
+> +      ramp-up/down times.
+
+Whether it is GPIOs or not depends on the implementation. Just drop 
+'GPIO' and replace 'GPIOs' with 'lines'.
 
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
+Rob

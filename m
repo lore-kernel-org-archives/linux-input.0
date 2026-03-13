@@ -1,82 +1,34 @@
-Received: from fhigh-a6-smtp.messagingengine.com (fhigh-a6-smtp.messagingengine.com [103.168.172.157])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0D1345731;
-	Fri, 13 Mar 2026 06:40:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E069836C9CF;
+	Fri, 13 Mar 2026 07:40:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773384016; cv=none; b=mtHGC90JBFxqISQAnEHe69oyTztWxKnAKbPcjDL98S2jox1/t8NN9Udy1hxMIKHGwbIg+U5MBlL69MpnD5MZ7Ew9W1hiZU89H8k30RRET0lGr6lbal6ghQZ1gLmNxU7wfZp6WTfWCNA6vA//MRDuWAFemyLLBCwwLcB9iRw1Kx0=
+	t=1773387646; cv=none; b=bSBXodXwG7xRH+LYSOf5Pooz7cgzy2cY54XvV5FbSkPddeTiyrCeF/8Ov5EyKRG6bWT8qAQyymodMKp2qVbgolj7a3iyWw6Gg3B1YjE+Zh35ZTtqtQonKB0O4RounNtayZLtT2ghxoJSWtqkwKcFRNUZP1pgrumJhoOZEcG2cFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773384016; c=relaxed/simple;
-	bh=NsSbfl+vzeIUhG73tPZWhBpqZDTh3sxSy+8bo9N1urw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=geRQ1wKZQbanCfGOscyzwk1MZG1dVcBvomSLWp7jMpkCvJ8xAoeu9w8UJckVG9BbyI5OnEKK28kIQYiy0GcEQqhljuxy10Q8yLW6syz3jtrEJLDs4hWN+FaNEcFXfjcA4sLcUQui7JtPd2jjZoBOPj8kQAA+MWQRadaHsTGTOrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in; spf=pass smtp.mailfrom=machinesoul.in; dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b=Z2+bO0XW; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=jxjzm4Ms; arc=none smtp.client-ip=103.168.172.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=machinesoul.in
+	s=arc-20240116; t=1773387646; c=relaxed/simple;
+	bh=H1CFBsaIkyQfbdCnL2m+JWCX5uIWvfvwcJttxfEL+KE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rKoGZaOrlobRTIQtQ0YuToMT4TQaAe6GDJQtbKLNmpTMR19rgrog+NT9/xJch3alCbfWv/1dZ34WsNw/Ec7p+EV7LlPXi6GsehKUo9AxhW9uGjYHP8R+elmDTvhl1gOq3ytqGN7aZ9aArEAHROazFb/Bv7ekmgdHxmOd1VgAZ+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rrP0UA21; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b="Z2+bO0XW";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="jxjzm4Ms"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id C4C7614001D4;
-	Fri, 13 Mar 2026 02:40:14 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Fri, 13 Mar 2026 02:40:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=machinesoul.in;
-	 h=cc:cc:content-transfer-encoding:content-type:content-type
-	:date:date:from:from:in-reply-to:in-reply-to:message-id
-	:mime-version:references:reply-to:subject:subject:to:to; s=fm1;
-	 t=1773384014; x=1773470414; bh=mNDO05cRBiZ8fOdQWDfRylFPFVhTYamy
-	Ih1jwcKMpXc=; b=Z2+bO0XWS3kk2PWi7+/eCA8Jkb7I5JYcviIyiiZFoA96YWil
-	w3NBNwIPtM7kXGXUvpRgKERyXCuFgu5Picx7SQwTLLkPE0pkXX339cTdtDCOByHt
-	abeMuPTR532wUP6PgM0aA9Fx4gEB/2So2GBBEI/xHzyxqtA8DhNVYV2C9y14lH5T
-	qipxc37IDUmduaQpBN9tBryBrmCD+XHcALzHccYGxo6QGnyak7RPep/VMJ7NnWp/
-	nh6wNpalDDo6NuwhM7E2dekE6SqofVusuI3CGUNIoefhlVPz3pvX/CCvY8AkE0aU
-	M2tfLoad+66uhfSUQnZsWHEWuf8q5HAQ8tHoDA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1773384014; x=
-	1773470414; bh=mNDO05cRBiZ8fOdQWDfRylFPFVhTYamyIh1jwcKMpXc=; b=j
-	xjzm4Msd4Bx7G0iA84hawpJiCJ1xi11b2eeOCfU2hm5bOUyAimfBhu3cvdOn+4hN
-	johWZ8sBD9kr3jeBsR3+C+vVcl8bGc7Vs6NaT9B46a1nnAcxgrxciqv3N2sssy5z
-	3LILi00yTjdrcPnle1UafzjF4m7N1qZI4i3nFe19gVwQIF6Wu0cf6SBPXujZVb4O
-	iX535GmpOQBT+Y2HN9nzjdESYx5EBhcFDvqOypOasTX5cOSruIY1EZ/8r3bEegFb
-	P+G7YKesseuM+iNALRc9azEY2uJFLebbnM4+6FYueBrkm0rTmx30zdllF+2fpJZD
-	toIQOhuqwpfpg/MNtxrTA==
-X-ME-Sender: <xms:TrGzae55bpKE8XQ_zHwSHhqA5awSz9vtTck7qCgCH8cDaLdxMlxyiQ>
-    <xme:TrGzaT68tUbja1VS1Ds5sTlJUaPF4F6Gis_diCaN_R_FBlfB7CQD_Gk04xLAh-mKQ
-    h2jPHaA4gfI6Tn4fopEkKP-9msWQ8nP-Zl-b8j23pvkwbwm58HETFzH>
-X-ME-Received: <xmr:TrGzafoqbDJAwOwknfJTmNQasatgNpw1gHwMVBCkask8wVlaEBC7rZ1u_B7W9CWPTWo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvkeekleejucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeeuhhhushhh
-    rghnucfuhhgrhhcuoegshhhushhhrghnrdhshhgrhhesmhgrtghhihhnvghsohhulhdrih
-    hnqeenucggtffrrghtthgvrhhnpedtleejffduhedvffeviedvueefhfevkeejffetffeh
-    hefgheegudeitdekvdehueenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpegshhhushhhrghnrdhshhgrhhesmhgrtghhihhnvghsohhulhdrihhn
-    pdhnsggprhgtphhtthhopeekpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlih
-    hnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehk
-    rhiikhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehrohgshheskhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhnvghl
-    rdhorhhgpdhrtghpthhtohepughmihhtrhihrdhtohhrohhkhhhovhesghhmrghilhdrtg
-    homhdprhgtphhtthhopegtohhnohhrodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthht
-    ohepsghhuhhshhgrnhdrshhhrghhsehmrggthhhinhgvshhouhhlrdhinhdprhgtphhtth
-    hopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:TrGzacPI1kOXepWZGzTNaSgI0csW9oR7rnukT2iFfYtu8UcC9T1Jgw>
-    <xmx:TrGzaf2BtI-5YXIB3lAvVyb-LkxRcCX2ctXDFZGnUX21p0ENq23T5A>
-    <xmx:TrGzaTBcbaV7L0dZm02tvZ7QviDQZyYJ-CypIYVT92BJQjY8rXJQmg>
-    <xmx:TrGzaUKQI86DVsuPZu1RMcSlId4UFYM9m2UYUG-KX_HFVEE8Y0UEqg>
-    <xmx:TrGzaaSiiHJ1mXZAxLqFAherz-tVYDALl3wGfehOlTSxmBHcMTD8m0m7>
-Feedback-ID: i6b0e4831:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 13 Mar 2026 02:40:12 -0400 (EDT)
-From: Bhushan Shah <bhushan.shah@machinesoul.in>
-Date: Fri, 13 Mar 2026 12:09:51 +0530
-Subject: [PATCH 2/2] Input: edt-ft5x06 - add support for FocalTech FT3519
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rrP0UA21"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D598EC19421;
+	Fri, 13 Mar 2026 07:40:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773387645;
+	bh=H1CFBsaIkyQfbdCnL2m+JWCX5uIWvfvwcJttxfEL+KE=;
+	h=From:Subject:Date:To:Cc:From;
+	b=rrP0UA21dBzqdAgMZ5X+Yv5bjTeD3KU/+k6dHoEGoFe1TLKXJGSbtQdqXDccoRaqH
+	 +3PgbfDnH0byMbhnqXEWE4EScTopuAu91ARjVJALCVheJuqX7bKCXNWPPyCOZQNLyx
+	 2/8tTFxf+lI2akysZJ/gInW72wOHYcYnM6rKysvPqF1B35scDoADb+Q++w5C9XHOBm
+	 vV+DURrKLyBHo2BCUqG5IpZvoCJ/vE5a4N1NEt/9sm9ssWe/axsF1tzn0/lbfIv8jZ
+	 cWb2CSIVG8pPrysQ1uulUkEhlhnIDb8w0xsvqMqwHcoPcdsgqh46XgaxsXz+zqmN5r
+	 d/UlFyqgJzzhg==
+From: Benjamin Tissoires <bentiss@kernel.org>
+Subject: [PATCH 0/4] HID: bpf fixes for 7.0/7.1
+Date: Fri, 13 Mar 2026 08:40:23 +0100
+Message-Id: <20260313-wip-bpf-fixes-v1-0-74b860315060@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -85,68 +37,59 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260313-edt-ft3519-v1-2-fe5ffc632fd2@machinesoul.in>
-References: <20260313-edt-ft3519-v1-0-fe5ffc632fd2@machinesoul.in>
-In-Reply-To: <20260313-edt-ft3519-v1-0-fe5ffc632fd2@machinesoul.in>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Bhushan Shah <bhushan.shah@machinesoul.in>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3LywqAIBBA0V+RWTcwavT6lWjRY6zZmChUEP570
+ vJwuS8kjsIJBvVC5EuSnL5AVwrWY/Y7o2zFYMg0ZLXFWwIuwaGThxMax21fE1HXEpQnRP5DWcY
+ p5w/t5nzxXwAAAA==
+X-Change-ID: 20260313-wip-bpf-fixes-2fe794000870
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
+ kernel test robot <lkp@intel.com>, stable@vger.kernel.org
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1945;
- i=bhushan.shah@machinesoul.in; h=from:subject:message-id;
- bh=NsSbfl+vzeIUhG73tPZWhBpqZDTh3sxSy+8bo9N1urw=;
- b=owEBbQGS/pANAwAKARGWjESSjK78AcsmYgBps7FGrw35IflAwgroeJ63lvHcwCas6SPa2no/8
- llA8yFhMVWJATMEAAEKAB0WIQSzyzZlUlQL4G7prZcRloxEkoyu/AUCabOxRgAKCRARloxEkoyu
- /OVIB/0fzR/jolKRH/dot/TLz8/+s4he0tsNdC4U17e7HzSZHKqhwQpZhXtNm8sYMqTAASs5JE2
- HHxjDraKhbymfS1SpJaRW5ieOsh66fGH3czq5w4j+wRdy9IXVAFgkoBGgMP508QvLfpdaZv2DsM
- 22p3nZpsxqgzafxtZSMKtudBv7FL5/e1qif8zBummi19ipwebj9E296oJ8sGSpskljga8qaOVdN
- QukE0IZMxfaqIl9cr5DQ57JoeSmdh8D1/dlP1AO30bYvzVrU5sgg2BfXPqCJkA4wjJ4ITg6S1J0
- 1ZefoKYCnqYQxBJXHw+zp2z6sk9Wtx5+fY6+p2w3N4X/o8b0
-X-Developer-Key: i=bhushan.shah@machinesoul.in; a=openpgp;
- fpr=0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1773387643; l=1556;
+ i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
+ bh=H1CFBsaIkyQfbdCnL2m+JWCX5uIWvfvwcJttxfEL+KE=;
+ b=5f+QtsqWE3dR9iDB/Cd7v4XC3J7htx6r2N3VgHwDFa1eP7OngFXN7cRi0+l7GsrxnnAJrr0pl
+ MVlrZqRx3upDhhSIjjS6knzkpLv6gJzrUa++gny5q1u5yYVOhljdtxd
+X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
+ pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-This driver is compatible with the FocalTech FT3519 touchscreen, which
-supports up to 10 concurrent touch points. Add a compatible for it.
+Hi,
 
-Signed-off-by: Bhushan Shah <bhushan.shah@machinesoul.in>
+This is a series that targets a few HID-BPF issues I discovered or I've
+been reported:
+- first 2 patches should go to for-7.0/upstream-fixes:
+  - 1/4 fixes a compilation issue when HID is not enabled
+  - 2/4 is a nasty bug which allows a HID-BPF to crash the running
+    kernel, so not critical (you need special permissions to load the
+    HID-BPF program), but not great as you don't expect tinkering with
+    HID-BPF would crash
+- last 2 patches are more 7.1 material: basically the LEDs on the
+  keyboards are bypassing HID-BPF, and then that made me realize that
+  the fallback calls in case of an unnumbered report is not correct (and
+  likely unnoticed because I don't think I've seen unnumbered reports on
+  anything else than USB devices)
+
+  Cheers,
+  Benjamin
+
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Benjamin Tissoires (4):
+      selftests/hid: fix compilation when bpf_wq and hid_device are not exported
+      HID: bpf: prevent buffer overflow in hid_hw_request
+      HID: fix LEDs when report is unnumbered
+      HID: do not bypass HID-BPF when setting LEDs
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index d0ab644be006..52188e1aa9bc 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1479,6 +1479,10 @@ static const struct edt_i2c_chip_data edt_ft3518_data = {
- 	.max_support_points = 10,
- };
- 
-+static const struct edt_i2c_chip_data edt_ft3519_data = {
-+	.max_support_points = 10,
-+};
-+
- static const struct edt_i2c_chip_data edt_ft5452_data = {
- 	.max_support_points = 5,
- };
-@@ -1508,6 +1512,7 @@ static const struct i2c_device_id edt_ft5x06_ts_id[] = {
- 	{ .name = "edt-ft5506", .driver_data = (long)&edt_ft5506_data },
- 	{ .name = "ev-ft5726", .driver_data = (long)&edt_ft5506_data },
- 	{ .name = "ft3518", .driver_data = (long)&edt_ft3518_data },
-+	{ .name = "ft3519", .driver_data = (long)&edt_ft3519_data },
- 	{ .name = "ft5452", .driver_data = (long)&edt_ft5452_data },
- 	/* Note no edt- prefix for compatibility with the ft6236.c driver */
- 	{ .name = "ft6236", .driver_data = (long)&edt_ft6236_data },
-@@ -1525,6 +1530,7 @@ static const struct of_device_id edt_ft5x06_of_match[] = {
- 	{ .compatible = "edt,edt-ft5506", .data = &edt_ft5506_data },
- 	{ .compatible = "evervision,ev-ft5726", .data = &edt_ft5506_data },
- 	{ .compatible = "focaltech,ft3518", .data = &edt_ft3518_data },
-+	{ .compatible = "focaltech,ft3519", .data = &edt_ft3519_data },
- 	{ .compatible = "focaltech,ft5426", .data = &edt_ft5506_data },
- 	{ .compatible = "focaltech,ft5452", .data = &edt_ft5452_data },
- 	/* Note focaltech vendor prefix for compatibility with ft6236.c */
+ drivers/hid/bpf/hid_bpf_dispatch.c                  |  2 ++
+ drivers/hid/hid-input.c                             | 16 +++++++++-------
+ tools/testing/selftests/hid/progs/hid_bpf_helpers.h | 12 ++++++++++++
+ 3 files changed, 23 insertions(+), 7 deletions(-)
+---
+base-commit: 48976c0eba2ff3a3b893c35853bdf27369b16655
+change-id: 20260313-wip-bpf-fixes-2fe794000870
 
+Best regards,
 -- 
-2.53.0
+Benjamin Tissoires <bentiss@kernel.org>
 

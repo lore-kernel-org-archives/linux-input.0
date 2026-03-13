@@ -1,74 +1,75 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 304D93D6CA7
-	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 17:57:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D04CE3D6CD2
+	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 17:57:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773424657; cv=none; b=NqJX8x3FGpN0WzYwm16qLTWx04+kGE4t5zLht+jhqtuWgI/dYXcsL86Mrlu3RuoYCrKnJlE9xhdNKPelzOQ5cp8FoWDHHh7Z+qvsrN7eLQ7DfJ3r5vMa00sC1MrOa9bCVTbkwO6g159YhGOxTEmzkZgzrAt45tsnd0FVBiPjXR8=
+	t=1773424658; cv=none; b=GzEkj343k/ZRQODRHxdfafrhUCVIAkLCTkpP4oQzYt9czHs95ahIlkPSRCItT5pxQaEBznZ3wI9ZzJgY2UJoepyLBfNXkayCqGGBQYVcLlMZ80BNJCxDYW4D3NuaNLpPrucaRCcuMrVbVpJeASjYMQsLa/b3gC/cwpaUM1PInUs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773424657; c=relaxed/simple;
-	bh=HS/Z+AH39qfldBqX0ociWmwkWElukYrDs05mtH/qmyk=;
+	s=arc-20240116; t=1773424658; c=relaxed/simple;
+	bh=W5eJA3FdCXRXSD7P9MhLPBb4XjdipUURsAA1OWLjpPc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ElqfP+DN81DOOl79HoeNERDyXZcqYeZrJvCehDagblH7UVs0SltCRDKaNJpzEnjjy6EpnXd+EEFYW5yjDQJbeiUbRZPnmr+xlgH8dQVqouqF2VCoUfI8rsViqKCgaF5W2+pNRc2YCBOTamB422eeSgoCrF3VHATeeIMYMHuAuUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work; spf=pass smtp.mailfrom=frame.work; dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b=qbjo0itB; arc=none smtp.client-ip=209.85.210.170
+	 MIME-Version; b=DYnHdMmpFkb/WMgIDExiN6ql5pGCVdbKgKdoM/0AQqg5tKj2051NgdwCKS6wuNKdqBhjKDufI/ugDJ5xvhRdBOp+82J0qOV2c9Tn1qn2em+t2M2F1m4QYFR983DVL/yyFNPd2N7/QNOMiqbifiPcxtmy/7Ly7ULGyS8Z+LlMmC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work; spf=pass smtp.mailfrom=frame.work; dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b=Ma4HJ/e7; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=frame.work
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b="qbjo0itB"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-824c9da9928so1647590b3a.3
-        for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 10:57:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b="Ma4HJ/e7"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-829b2019b39so1451197b3a.3
+        for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 10:57:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=frame.work; s=google; t=1773424652; x=1774029452; darn=vger.kernel.org;
+        d=frame.work; s=google; t=1773424656; x=1774029456; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=y/71wsF7NJlSlhGizAzS3I8ewMhCvkUW4LARJAK5MVU=;
-        b=qbjo0itBEKCsgGx1dNdmlvz/M62gUqYch+TNEygXBQpH2SY2Anvhj+H7R7AD1IeklN
-         EX1K6gkVKFAY6vHgteVEJu4FWrIo1SAnrk42GDEVT5rduHZaAClLf+f5QYHyb1YDWArD
-         9NfnffToHVLl167VQIJAuUi1IUSxG4IUQl/HeNzNfZ3FVUntnV76AUk3lHADRKuZBTlZ
-         m3zccgsx26aGUtYH9b1Ax5hF+EgnboCNzJWMAQhVe9MnWWHcB2EoCsiezc7Vqxix4qMz
-         wU1rHOZL0OgboxjaPZmpSfy8PN+aMlaVtnSZGWoOSqtH7F53MlMZ+iLoXY8o4TEPXfLB
-         j2xA==
+        bh=P6Vh6fXAGFY1am9qZuBu6ZtGkBan5ax492Gc8hpmDA0=;
+        b=Ma4HJ/e7sDsBuKKPvaOz1SQjayT1mNZB9Sc0twHqZK4oK89pLogS8bL1+67gTX+JCc
+         kCX1PYDp4Z8sSOhJjVHyhizxuNMuUteQZQVw5N7W95/foKbUt+mEkgXxoqCfak7Gx934
+         JgkZZT8SBxlGYXdlDBVv70hTGZ58EZqDdp+wscHw5tomlInoSropypaUwkIrda53a99h
+         jWumhpbn0TRfos+JQKSZ7YKmOaWUWO983f4HWBtNempuTXarkm5moRArgvNldTrpUvgW
+         SMLZ4xJUBo1ODMoawZc7JLWlPGsFTRfN+WBDGUyeQ8GOE+HrQDXCY0dQPb96tTYcp+BH
+         lIFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773424652; x=1774029452;
+        d=1e100.net; s=20251104; t=1773424656; x=1774029456;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=y/71wsF7NJlSlhGizAzS3I8ewMhCvkUW4LARJAK5MVU=;
-        b=hIDBzyp4Oww9iZRwmyhoRXyzKBWVI98ODgd1GXfWunMfgCDjmmzDh7Y7CfFORjxPE5
-         aBkpRr66vgVo2jFdUWtJAYoII3pLukSz6VnfjiZjl5K+vYem7eL2sh9kKUB5JxMwppsl
-         BlKF7B1Iysh/PZ6Xt3Ufe7zGnB6BwutMftqHZRZ7ZMoQC7yMIdVTtbjQhN4GvIoi/Hkf
-         MKw12kSrvDR9yajB3bS7HQTzqiW8JsIb59S1gY3neU4fDiilQF46BjBdUICrxBs8NE/A
-         MloRujeISxI0Z/6BHgZEAUF8nktH8bO8gSBQzLcBBa4DEgfIoCQHDMYW9xHTwUajiTkN
-         nQow==
-X-Gm-Message-State: AOJu0YxoxaxPrvGPHTd6AN1eyquJFdMxQou594pjUYrqxEOQUAOUpnWc
-	nijygj1PTWlBy/cfqWAzTMbA0KqJhS2dBlokKKLqKrFkuHoABvUPZ5vWBv90U/J2eAfBwBzxXqm
-	JEwJa
-X-Gm-Gg: ATEYQzzmHjzSaJBds8YjSIknSs9wFvmUzjyazllmJFu3PkJuJ+hLC5jGh+d7s5SmuwB
-	SydxhNTwSM/z1AKOMoZMNOFSsAnpZsiY4j0A9Ces7vkhtrjzz7UVHIwSC3HuZydunEtuNlzA1p1
-	JFyShZx4nxJavllsm7cbtxZ1xLpUdJtNO7v51KeS5Ep5KYaXXIMnLNy1UGv1WShu83wvNnoak56
-	E2tk7LkY0Hyy82O2uedWmdkZxD0Q0neF2cq1JGxajuCD5A9OpFTZrB3B+TwtMrCIOahdRSBl//U
-	jPhXbF7rD3dO1sk98qNKNOU7bMNXuLlYG0/5nfrAM1khACZtDz57ZZ7AJAgaY/EDdSm+3rrC3k1
-	JRUBd+vlqwg0g9IWSDoNJyX1CqI+rh1NvfvFhyMmuGuURH1f+MowC7dVDyW5K2fdTpdla5ybBX1
-	7adpdFOkyRWBaHexf7RKcmFsRs+K4Wj/uto+Im2ki4Stv6ZeY7o54QprPnWmG+OGuhg8ObOy6yA
-	m7nG6y4HyXwZTA/IWFAFYxWr4RsGJmN9Mp1B76qihwzxTzlftUYTutFtizc98MP2xmc5Ud0hJ88
-	kqU9FOW1Hes=
-X-Received: by 2002:a05:6a00:3687:b0:81e:f1c3:89df with SMTP id d2e1a72fcca58-82a1990dcc2mr3398310b3a.50.1773424652365;
-        Fri, 13 Mar 2026 10:57:32 -0700 (PDT)
+        bh=P6Vh6fXAGFY1am9qZuBu6ZtGkBan5ax492Gc8hpmDA0=;
+        b=aJE3BmVXR4sxIvcYgekturnJuYmmwOLbL5xB6xIanJHaQP+ahlP93Ozw6VjrahaPT0
+         ilujPV8w+J61QMEK84ZhxQMFn/GLefPhb8rBDrtkWga8UjVWEWScgyll/lusOIiHEKUp
+         rIQRr5SiujiSIahVV3pvTfy7RqE7pY6r0kyJ7fsy5y9y/LYbuW1iaH88bzOKDE1fnRLF
+         yV/HNZo6s/hIc0UHY017sBkVt0J32rcwJnS8o7sjcPYL2F/BYgevBaxhFC9d2vzZVFLZ
+         ynQcR/qrrdiygJdrAOjpXjISf5B4U1vnDQ2wqI8nYOKWAO8nzM6xxepQc3YtVTkkspP3
+         nXSw==
+X-Gm-Message-State: AOJu0YwaL9YTnu3L5iSOz1C5wgGSFTjD5VT135rl+IiP/ZA4vVEu/4GB
+	asdhlqLe1t85+Gqeq9hje0MXAs2wMRvEt6GBecSooVCfUrpoY5WUpXDLhq8Qc2djHt30CxC8H2a
+	wVWvi
+X-Gm-Gg: ATEYQzyTTR0u+30jivLW/u2YDRdM5ssOBVJX9ksvpX+KAEW5V4WHwTx1izyHNFburGu
+	VyZcSjQCsn+63H+jmjdiKYTt2n/Fe13gErqYEBTqEkUPR3EZ46rqqsRtWpYVYZ6MKPxyHx+rdQg
+	AgiJfhZGE1lNtCFMruY3VkPmLwr/xHMqr2UlbqORSrH5ae3XaksHAtz0YdW7Uld4fm9nAI1EBHV
+	DGIiOeJPLLghzTs+yp7FvhA+TEp4/Et35b3usaJfs+ZVCpYSiU1k/NZkibaLwDcRQs4ZVaJ8Xvr
+	VbsuMRLeP5swWn6e0OgKZWktSXkLJ3dou8o5q1nxHueG5ROqiMpdwgwgswMBBUVJNqS2cuKsL3y
+	sl72Uobtu6ac5Q5KNDSiZLe5U/VPEhnHZ15Nz9twgVr5iJXsYSMT7tX+RFizn7JcN6J23cUqBuu
+	bZgbr83FAoDdrj8i+p/9ywT+BRm0KNsiXXiC80vIKuRLvcyedaebQS28l4zuPY3iEhpuPjidYoA
+	ZXjlaSgXWXpDnNUUw/GUwZFyPtdjvMgxDshxblgGjdZM5jXshdqCzq04vHWVTzD+1tPJgHRgvBG
+X-Received: by 2002:a05:6a00:a803:b0:823:1c83:e4cb with SMTP id d2e1a72fcca58-82a19922f1cmr3487746b3a.62.1773424656090;
+        Fri, 13 Mar 2026 10:57:36 -0700 (PDT)
 Received: from nixos.home (2001-b011-0001-3a55-372a-4d8b-a513-4837.dynamic-ip6.hinet.net. [2001:b011:1:3a55:372a:4d8b:a513:4837])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a0724407csm6265488b3a.8.2026.03.13.10.57.30
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a0724407csm6265488b3a.8.2026.03.13.10.57.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2026 10:57:32 -0700 (PDT)
+        Fri, 13 Mar 2026 10:57:35 -0700 (PDT)
 From: Daniel Schaefer <dhs@frame.work>
 To: linux-input@vger.kernel.org
 Cc: Daniel Schaefer <dhs@frame.work>,
-	Charles Wang <charles.goodix@gmail.com>,
+	Richard Hughes <richard@hughsie.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
 	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Subject: [PATCH 2/4] HID: goodix-spi: Use version_id for device version
-Date: Sat, 14 Mar 2026 01:56:57 +0800
-Message-ID: <20260313175659.268094-3-dhs@frame.work>
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux@frame.work
+Subject: [PATCH 4/4] HID: core: Export device version via HID_FIRMWARE_VERSION uevent
+Date: Sat, 14 Mar 2026 01:56:59 +0800
+Message-ID: <20260313175659.268094-5-dhs@frame.work>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260313175659.268094-1-dhs@frame.work>
 References: <20260313175659.268094-1-dhs@frame.work>
@@ -80,37 +81,46 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use version_id instead of bcd_version for hid->version. The HID
-descriptor contains two version fields:
+Expose the HID device version to userspace via the new
+HID_FIRMWARE_VERSION uevent property. This enables userspace tools
+(such as fwupd and hidapi) to retrieve device firmware version
+information, providing parity with Windows HidD_GetAttributes() API
+which returns VID, PID, and VersionNumber.
 
-  - bcd_version: HID specification version (e.g., 0x0100 for HID 1.0)
-  - version_id: Device-specific version number
+The version is exported as a 4-digit uppercase hexadecimal value
+(e.g., "0100" for version 1.0), consistent with how USB devices
+report bcdDevice.
 
-The current code incorrectly uses bcd_version, which reports the HID
-spec version rather than the actual device/firmware version.
+fwupd can handle this since:
+https://github.com/fwupd/fwupd/commit/fb0d4cc98abe253003ea0e1837277fd42971e0de
+But the kernel hasn't yet exposed this.
 
-Cc: Charles Wang <charles.goodix@gmail.com>
+hidapi patch is in-flight: https://github.com/libusb/hidapi/pull/777
+
+Cc: Richard Hughes <richard@hughsie.com>
+Cc: Mario Limonciello <mario.limonciello@amd.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org
+Cc: linux@frame.work
 Signed-off-by: Daniel Schaefer <dhs@frame.work>
 ---
- drivers/hid/hid-goodix-spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-goodix-spi.c b/drivers/hid/hid-goodix-spi.c
-index 80c0288a3a38..cbe95e0f6ce4 100644
---- a/drivers/hid/hid-goodix-spi.c
-+++ b/drivers/hid/hid-goodix-spi.c
-@@ -653,7 +653,7 @@ static int goodix_hid_init(struct goodix_ts_data *ts)
- 	hid->bus = BUS_SPI;
- 	hid->dev.parent = &ts->spi->dev;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index da57cbf0af26..c2075d5b40c3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2884,6 +2884,9 @@ static int hid_uevent(const struct device *dev, struct kobj_uevent_env *env)
+ 	if (add_uevent_var(env, "HID_UNIQ=%s", hdev->uniq))
+ 		return -ENOMEM;
  
--	hid->version = le16_to_cpu(ts->hid_desc.bcd_version);
-+	hid->version = le16_to_cpu(ts->hid_desc.version_id);
- 	hid->vendor = le16_to_cpu(ts->hid_desc.vendor_id);
- 	hid->product = le16_to_cpu(ts->hid_desc.product_id);
- 	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-gdix",
++	if (add_uevent_var(env, "HID_FIRMWARE_VERSION=%04X", hdev->version))
++		return -ENOMEM;
++
+ 	if (add_uevent_var(env, "MODALIAS=hid:b%04Xg%04Xv%08Xp%08X",
+ 			   hdev->bus, hdev->group, hdev->vendor, hdev->product))
+ 		return -ENOMEM;
 -- 
 2.52.0
 

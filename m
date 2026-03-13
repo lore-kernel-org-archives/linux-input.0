@@ -1,162 +1,166 @@
-Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0AB9369206
-	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 18:20:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773426055; cv=pass; b=NOHzcT/+o8VFijteVBdqDv/JjkERA1ykfyZ3TstER1BV4PtdGC4enj5tq5oKf6YFYd9Nvhci+UW6By20TD3J4EZh37UNSYQ5eWS2hCSLXHRTKnST4w5Z24kK5zu33xN9QqFCHuWRaoxc+tGvS9SB0TTn0EbJYTJY4b7YeHUhlnA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773426055; c=relaxed/simple;
-	bh=EAp5x2rvQX6uIdeKkeZkn7Jqf9cqkZjas5/z+DsY61s=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pVOLuDsZ30y/xWQ414I0KKqFupdfHVsBmcIGxGYI58wWtmB9O4Bi8fAv1YWnk7TxBKZAF+txP8GuaHUBbC4h9GlApqTeI0mb2r0Uxp2CNUrSTcrhAc9Qx5gTFUOKflZ+d3sL3iofhk1C66YbP+ZUTHyw5b+WP8iWz9+Pp0xwIdw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work; spf=pass smtp.mailfrom=frame.work; dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b=bO+GhSbX; arc=pass smtp.client-ip=74.125.224.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=frame.work
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=frame.work
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CCC73DD507
+	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 19:22:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773429750; cv=none; b=k3fZmiwp05N29nUkaVlmMWnaEWOJsngfqW81px+leBbVyq7+wrIjVZbXXs0YPlCHj7FmC5E09Xom6ceDwFgyhrIINk1xLqQq45zuw6vDnyRjsbQoggs85cEQkyVWeICNS4UKofQG9Hx2JvNnP05NBH+1VQuSVm/wzaDSlLSkgMk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773429750; c=relaxed/simple;
+	bh=pL/j9b13bFh0cZAZJhcCPZn1CaRo1RWOXdOwqzbKEsA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cj39l/VW5OuIneLp9+IeUxYNHiViNs/LujV65uGKFfRPoq0BE05VAu9wuSfNhMUJ7N3RMdYFKY71s3yqmAxU203N2NpM23MK3xUUh94nCwOAzCjwZU+unVxSRb75ZjmUlqygPIhCRHPM0OufJaMeuO88y+7L53h4h55RdcHobx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=cwr9QvSb; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K+U59XI2; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=cwr9QvSb; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K+U59XI2; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=frame.work header.i=@frame.work header.b="bO+GhSbX"
-Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-64ad46a44easo2497395d50.0
-        for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 11:20:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773426053; cv=none;
-        d=google.com; s=arc-20240605;
-        b=YnkFDN8YStctkfCvr1ycbFwuOkOGot+sfWeE/z6I37YCXuGlwBx2TFfdT/L24eh378
-         NZMvLu0ue3Zcy09L32aJEp74waRKCeE3UcW359xVWQjNn4yVPosDZ0YYJzlZPLGctbvR
-         HRJxL5NCBQlKb+vRTDu7nXUBB6ZYVYI8wcnDKiU9dPb3TiMt/EL+M1TIqbyv7I8hlHH+
-         1L03+Du83znGn6yIQPdIRe/BFNs9eMUQmG/VZ+zeosjipSpCI6EizhSzMgFwhlC7j4u0
-         R2Zp0BeOnxw0wtrKhxf80sY6gEXfL3BpEdMiAQEz8Y8wzwOthnZCzYGVliEYnun+v+6N
-         gxcQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=2BPb8ZrMTnk8czj+k5rwj3Z1X4vcTwgPV+skAjAYhEk=;
-        fh=ZTHFrkQCW6mcmXo04FE7z9E3BNdsqWyzGa2bHaTNtSE=;
-        b=OiVxy71NK4V1IgO1TdvqeXhIfS3MCfEmTI/LbdvVnpCgOO+zvVkn0M43f8b2TXL6u1
-         i30HPRsVXRucevw5cJt7+PKDdRbnc+PefG+2N9/ucSZCzp8Jyy7u3vC8/1xRttieCcsl
-         ql0sbV9JVIKPjlLXiHPyNWQ8K0gnCEmecYkG6i2UvKfXoDNrj/MV4g91v9FTf1W/H4+6
-         6mpti8x5KA6SF6iMIVSGV1IU5IlBNX++d03EswFoFhEF9iALhjOBAUc8O3MVJVd2gjyW
-         scAgHhWNu/FHLNdPSEwjatv79GNdIMFqBsqFugwPJ4AeDMrpvdONjC1OtQzHDk1dXKbW
-         FB9A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=frame.work; s=google; t=1773426053; x=1774030853; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2BPb8ZrMTnk8czj+k5rwj3Z1X4vcTwgPV+skAjAYhEk=;
-        b=bO+GhSbXhJblROPMmeFumr2sVncqP7+BvsI7RGXZkrPsOioZ6a84YphHbRLIWu1dk5
-         yQ6JR7ojZrJG1MOwiuiGsTQeFoBp7Hn8l2O7x1TDARt8r1lsqLMuVBkFyadgJ+XGMB6g
-         kRShg/pSGUOrVsJdJtQyj8kKiKILziqSgagKG0lWrWLYxU4oyhhAN3eTTVTHmsRkDkVV
-         3/BdhW9v7R3jGiO6u5KPmJvDHsb8+Ri6CUr2tJsrR7gMaHsmiZp7qHqI/QDDNhGLe/LJ
-         JaEtfy5tfwOyonkrrZ5rv9OjOT0cPxxl267eaC2fuHU7V+LkHLs/c47DS2I7ZU7sQD4f
-         9V0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773426053; x=1774030853;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=2BPb8ZrMTnk8czj+k5rwj3Z1X4vcTwgPV+skAjAYhEk=;
-        b=P4LKc4Zp+BxhVBQoxrXiuWfv8CefUDsGxaEW/jAWIEy68MeGKttszdpis90do0QGaw
-         Rpi4V0RiorzTy5tz6dKqGQXQmMtrB8WOGsKPamdGzVVGOQnAuXlNDBPP8tMzR55Za9Bv
-         dw3a2pOlSGMZhlAsQn/+3WShhfv1RgIcxEPoJs2n2EJwZNj+NIo5MlpwLM13WRdkUiXz
-         NdujTHZZXAkEQAUq/94UzANKgrhUp2TFJLVSR3+3KYaFrbDD/38jmmEY2YhabSZMCK2R
-         LiuBRoXHBbaZ1aSUGeetF1gxdoZGrI78Sbv9pYPY6sZzgJJxpruTsxqNB82byvUM2R5Q
-         USpA==
-X-Gm-Message-State: AOJu0YwP2lxuUo0F6L8jD/IO8RBUbjvCrtnYiOGNF7V7xK73DRfst2oX
-	dD4xR2t8pZITdlf39RZoIodp6Wp14vokbetn3o4GBLJHOFWHVG/uUbPEAjzSBzKNhOoaFlCRrPD
-	uef1/v9eFt6E1SHZtTFESrV7wHdZ7kzn/sMalLXw4/w==
-X-Gm-Gg: ATEYQzyo+YvKv2zuBHgHkKNXa7q3bemFqOvQoFC9qs7OgiYC5VebQzGfH8yd9Q7i8Zl
-	lGLVbrl7jeB3qA3fnUAIRcQvP6nl33/+0FaRMhq4Eh52Gy4vHAVWFa45tvw8NeN64Gc4wtbuMoC
-	SXNL+GnAfozI6o1ArTK+sTKlx2Bp2JDslq2KhPzyktRWNTGVhemJbC98cYovnS9ih0FOeuFV2SF
-	XBAk3j9d6qVc/4gcCqtVzjl185gHoNRa8ClLhLMfq31f7ptDePdUfP761Ro/NtGbeL53TayqO/+
-	B4apCcT237h51SjTTzHTfAXLkyNnmQYlo5UiyYWX2lOF6rimqGmb8Q5wHeWZuwjN8rbtkR+9ubz
-	LU/GXggMOPhhP4zI/IHggTxs=
-X-Received: by 2002:a53:bbd1:0:b0:649:b234:3903 with SMTP id
- 956f58d0204a3-64e63070b23mr3317285d50.59.1773426052697; Fri, 13 Mar 2026
- 11:20:52 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="cwr9QvSb";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K+U59XI2";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="cwr9QvSb";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K+U59XI2"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id B208C4D943;
+	Fri, 13 Mar 2026 19:22:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1773429744;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
+	b=cwr9QvSbf3addifFtJFaEE3S5jwqDpZlb749Rs1kTiqHHQe0wIw+TMnTma/8mfA3QiWv+t
+	IZuKpLsIb+k3xwyZAXuL8F5GTiyGUJh1olDjZfpDExV1+UvdVwgZIIojOm6APRysjO8/lt
+	9WDXlxlJVmMpUXoO3id4LXjiv7t5UI0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1773429744;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
+	b=K+U59XI2u6gqS+yANGWtG/Pii/V0SpIQQ7wMg6BtOp5KKFcWyvgFtoDkwX90d0NOWdybeR
+	Ua+tdtixGZm/opAA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1773429744;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
+	b=cwr9QvSbf3addifFtJFaEE3S5jwqDpZlb749Rs1kTiqHHQe0wIw+TMnTma/8mfA3QiWv+t
+	IZuKpLsIb+k3xwyZAXuL8F5GTiyGUJh1olDjZfpDExV1+UvdVwgZIIojOm6APRysjO8/lt
+	9WDXlxlJVmMpUXoO3id4LXjiv7t5UI0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1773429744;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
+	b=K+U59XI2u6gqS+yANGWtG/Pii/V0SpIQQ7wMg6BtOp5KKFcWyvgFtoDkwX90d0NOWdybeR
+	Ua+tdtixGZm/opAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6F14A406AC;
+	Fri, 13 Mar 2026 19:22:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 6cTyGvBjtGnfZAAAD6G6ig
+	(envelope-from <dsterba@suse.cz>); Fri, 13 Mar 2026 19:22:24 +0000
+Date: Fri, 13 Mar 2026 20:22:15 +0100
+From: David Sterba <dsterba@suse.cz>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-mm@kvack.org,
+	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
+	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>
+Subject: Re: [PATCH 02/61] btrfs: Prefer IS_ERR_OR_NULL over manual NULL check
+Message-ID: <20260313192215.GH5735@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-2-bd63b656022d@avm.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260313175659.268094-1-dhs@frame.work> <20260313175659.268094-5-dhs@frame.work>
- <6b53a537-9989-4b34-b033-402773c871be@amd.com>
-In-Reply-To: <6b53a537-9989-4b34-b033-402773c871be@amd.com>
-From: Daniel Schaefer <dhs@frame.work>
-Date: Sat, 14 Mar 2026 02:20:16 +0800
-X-Gm-Features: AaiRm50LAF_Jxr4PTGv9XPdGQzPsDA06FYdEm89VLjhssiSAc-jdeXqpfI1mRaQ
-Message-ID: <CAAjcXz5nhCb5EC848zQ=+CAj5ePtHne_FyFxSdpiqohF-t_3_A@mail.gmail.com>
-Subject: Re: [PATCH 4/4] HID: core: Export device version via
- HID_FIRMWARE_VERSION uevent
-To: Mario Limonciello <mario.limonciello@amd.com>
-Cc: linux-input@vger.kernel.org, Richard Hughes <richard@hughsie.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux@frame.work
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260310-b4-is_err_or_null-v1-2-bd63b656022d@avm.de>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Score: -2.50
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.50 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HAS_REPLYTO(0.30)[dsterba@suse.cz];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLk9qejt5hbtemdgupcccnrijf)];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCPT_COUNT_GT_50(0.00)[56];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:replyto,imap1.dmz-prg2.suse.org:helo];
+	REPLYTO_ADDR_EQ_FROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	REPLYTO_DOM_NEQ_TO_DOM(0.00)[]
+X-Spam-Flag: NO
 
->  Isn't this in
-> hid.git#for-7.1/lenovo-v2
+On Tue, Mar 10, 2026 at 12:48:28PM +0100, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+> 
+> IS_ERR_OR_NULL() already uses likely(!ptr) internally. checkpatch does
+> not like nesting it:
+> > WARNING: nested (un)?likely() calls, IS_ERR_OR_NULL already uses
+> > unlikely() internally
+> Remove the explicit use of likely().
+> 
+> Change generated with coccinelle.
+> 
+> To: Chris Mason <clm@fb.com>
+> To: David Sterba <dsterba@suse.com>
+> Cc: linux-btrfs@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 
-Oh yes okay, I with this already in place, I should make my patches
-set hdev->firmware_version instead of hdev->version.
-Will send another series and drop my last patch in favor of yours:
-https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=3Dfor=
--7.1/lenovo-v2&id=3D6ca9029c823b7853e980585e757343e0e84227cd
-
-
-On Sat, Mar 14, 2026 at 2:00=E2=80=AFAM Mario Limonciello
-<mario.limonciello@amd.com> wrote:
->
->
->
-> On 3/13/2026 12:56 PM, Daniel Schaefer wrote:
-> > Expose the HID device version to userspace via the new
-> > HID_FIRMWARE_VERSION uevent property. This enables userspace tools
-> > (such as fwupd and hidapi) to retrieve device firmware version
-> > information, providing parity with Windows HidD_GetAttributes() API
-> > which returns VID, PID, and VersionNumber.
-> >
-> > The version is exported as a 4-digit uppercase hexadecimal value
-> > (e.g., "0100" for version 1.0), consistent with how USB devices
-> > report bcdDevice.
-> >
-> > fwupd can handle this since:
-> > https://github.com/fwupd/fwupd/commit/fb0d4cc98abe253003ea0e1837277fd42=
-971e0de
-> > But the kernel hasn't yet exposed this.
-> >
-> > hidapi patch is in-flight: https://github.com/libusb/hidapi/pull/777
-> >
-> > Cc: Richard Hughes <richard@hughsie.com>
-> > Cc: Mario Limonciello <mario.limonciello@amd.com>
-> > Cc: Jiri Kosina <jikos@kernel.org>
-> > Cc: Benjamin Tissoires <bentiss@kernel.org>
-> > Cc: linux@frame.work
-> > Signed-off-by: Daniel Schaefer <dhs@frame.work>
-> > ---
-> >   drivers/hid/hid-core.c | 3 +++
-> >   1 file changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index da57cbf0af26..c2075d5b40c3 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -2884,6 +2884,9 @@ static int hid_uevent(const struct device *dev, s=
-truct kobj_uevent_env *env)
-> >       if (add_uevent_var(env, "HID_UNIQ=3D%s", hdev->uniq))
-> >               return -ENOMEM;
-> >
-> > +     if (add_uevent_var(env, "HID_FIRMWARE_VERSION=3D%04X", hdev->vers=
-ion))
-> > +             return -ENOMEM;
-> > +
-> >       if (add_uevent_var(env, "MODALIAS=3Dhid:b%04Xg%04Xv%08Xp%08X",
-> >                          hdev->bus, hdev->group, hdev->vendor, hdev->pr=
-oduct))
-> >               return -ENOMEM;
->
-> Isn't this in
->
-> hid.git#for-7.1/lenovo-v2
+Added to for-next, we seem to be using IS_ERR_OR_NULL() already in a
+few other places so this is makes sense for consistency. Thanks.

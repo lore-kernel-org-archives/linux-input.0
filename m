@@ -1,166 +1,124 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CCC73DD507
-	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 19:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43172218ACC;
+	Fri, 13 Mar 2026 19:34:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773429750; cv=none; b=k3fZmiwp05N29nUkaVlmMWnaEWOJsngfqW81px+leBbVyq7+wrIjVZbXXs0YPlCHj7FmC5E09Xom6ceDwFgyhrIINk1xLqQq45zuw6vDnyRjsbQoggs85cEQkyVWeICNS4UKofQG9Hx2JvNnP05NBH+1VQuSVm/wzaDSlLSkgMk=
+	t=1773430453; cv=none; b=Y9Ti8dk4XeFn9D8UJjaH5IBHzHalhGlCwGTJWzbyYuLj3L3cmnvD5eEmYAjDWUFFxXA40Vvv8sLTivUKnLYyCM9BGUD2cY//OrHJy8vvpgd+cx0gIO1nE7MBozuPndRIe3G8yUU5V4HtRUIaUyazsvghkxXN4MsBwt2l3lY9J60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773429750; c=relaxed/simple;
-	bh=pL/j9b13bFh0cZAZJhcCPZn1CaRo1RWOXdOwqzbKEsA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cj39l/VW5OuIneLp9+IeUxYNHiViNs/LujV65uGKFfRPoq0BE05VAu9wuSfNhMUJ7N3RMdYFKY71s3yqmAxU203N2NpM23MK3xUUh94nCwOAzCjwZU+unVxSRb75ZjmUlqygPIhCRHPM0OufJaMeuO88y+7L53h4h55RdcHobx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=cwr9QvSb; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K+U59XI2; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=cwr9QvSb; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K+U59XI2; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1773430453; c=relaxed/simple;
+	bh=ruWuiHP6e8Pg/aqY9avsDVPT5k3lwjtf/rtJGs9XN5U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q1wuxyMHfEnM28rPi9c0cMhWrs2sjSJLRHd541DtPCakIhuGk4BBJV5+Dpk+Ggon3O3XhkbA6hILqE9hGMKZmP9q8fC8ni1seYFU7SI5yv4ZWkeF+kdzwL5qCWWD0PoHQc9mHTaJQrOGl5K0GnmlRwy1Gim8crc5xTwO9+MxJxc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=oxISchqJ; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=erf4220P; arc=none smtp.client-ip=80.241.56.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="cwr9QvSb";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K+U59XI2";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="cwr9QvSb";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K+U59XI2"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="oxISchqJ";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="erf4220P"
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id B208C4D943;
-	Fri, 13 Mar 2026 19:22:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1773429744;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
-	b=cwr9QvSbf3addifFtJFaEE3S5jwqDpZlb749Rs1kTiqHHQe0wIw+TMnTma/8mfA3QiWv+t
-	IZuKpLsIb+k3xwyZAXuL8F5GTiyGUJh1olDjZfpDExV1+UvdVwgZIIojOm6APRysjO8/lt
-	9WDXlxlJVmMpUXoO3id4LXjiv7t5UI0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1773429744;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
-	b=K+U59XI2u6gqS+yANGWtG/Pii/V0SpIQQ7wMg6BtOp5KKFcWyvgFtoDkwX90d0NOWdybeR
-	Ua+tdtixGZm/opAA==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1773429744;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
-	b=cwr9QvSbf3addifFtJFaEE3S5jwqDpZlb749Rs1kTiqHHQe0wIw+TMnTma/8mfA3QiWv+t
-	IZuKpLsIb+k3xwyZAXuL8F5GTiyGUJh1olDjZfpDExV1+UvdVwgZIIojOm6APRysjO8/lt
-	9WDXlxlJVmMpUXoO3id4LXjiv7t5UI0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1773429744;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lEZDbFbdaiqtR0DORmYiMySif6us6CTI89GNtF8koIU=;
-	b=K+U59XI2u6gqS+yANGWtG/Pii/V0SpIQQ7wMg6BtOp5KKFcWyvgFtoDkwX90d0NOWdybeR
-	Ua+tdtixGZm/opAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6F14A406AC;
-	Fri, 13 Mar 2026 19:22:24 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 6cTyGvBjtGnfZAAAD6G6ig
-	(envelope-from <dsterba@suse.cz>); Fri, 13 Mar 2026 19:22:24 +0000
-Date: Fri, 13 Mar 2026 20:22:15 +0100
-From: David Sterba <dsterba@suse.cz>
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
-	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
-	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>
-Subject: Re: [PATCH 02/61] btrfs: Prefer IS_ERR_OR_NULL over manual NULL check
-Message-ID: <20260313192215.GH5735@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
- <20260310-b4-is_err_or_null-v1-2-bd63b656022d@avm.de>
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4fXZRk1lQKz9tk3;
+	Fri, 13 Mar 2026 20:34:10 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1773430450;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=40VUxoS5o3Aar/wuOcMdG6/+K5PJ2XzNyVo8xag5hlE=;
+	b=oxISchqJUHlflJyo2d0bhzKKP8KmKYGZqg/F8wxMGW4CCT36FvJaw1ozGZQRVukh3/t+4l
+	SBCbvL/Ot81oXNmZoXkr5T1SVhskk5Px7i35FcGFPlg8uYorobTCBriCAX1LJA1OpiNO48
+	2hmnYjjvKqsm251lVQWNC1r5AhaRXQ5xRUs1v6zw50D0sFic3dUEOEoVwhpDIwJwNQxY2I
+	XcaBhj6c+QKIT+OrBQ+fFMky6ilAu6+8weeh4ZbQRsASX7KsbleTX5TWM37u4sAY1hllI3
+	f6873U0pxk6x6kigTgL2CNlvg13+/wLgZgodmo/Gs9mu4srvewIkL6D5rentbw==
+From: Marek Vasut <marek.vasut+renesas@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1773430448;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=40VUxoS5o3Aar/wuOcMdG6/+K5PJ2XzNyVo8xag5hlE=;
+	b=erf4220P0CrcPPqIRqYbdHcfQtzEA4Yd3QRHOq9+XAT7ZArGduvYnW7/9PWVvPhLtU554m
+	2LGMl6II2clFUhxGQbx3e5KUeS6oZtRzL/mtBvakpHSqVOeVqFBQ8vFwVh4BuepXGKD0o8
+	E2cfVoNpKl0aycyoptHdq6Zuk/7os2qSTfCVb9RidWibx7xhiEh0JU6KWZOZReEz1c2JGt
+	1vDxpBKPlu4iYvaUPXboPz0FqTxiEaIKzgl80BY+smSSf2BV057lYIGWOsUlzCk/QlWjxU
+	AXW16waEE/4NkW7tNzSMbvtvaH4IA2IydE2wIctT37tiPQlssNlqQWPjQDn+Zg==
+To: devicetree@vger.kernel.org
+Cc: Marek Vasut <marek.vasut+renesas@mailbox.org>,
+	Conor Dooley <conor.dooley@microchip.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Job Noorman <job@noorman.info>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v2] dt-bindings: touchscreen: trivial-touch: Move allOf: after required:
+Date: Fri, 13 Mar 2026 20:33:41 +0100
+Message-ID: <20260313193403.118617-1-marek.vasut+renesas@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260310-b4-is_err_or_null-v1-2-bd63b656022d@avm.de>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-X-Spam-Score: -2.50
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.50 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	HAS_REPLYTO(0.30)[dsterba@suse.cz];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLk9qejt5hbtemdgupcccnrijf)];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCPT_COUNT_GT_50(0.00)[56];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:replyto,imap1.dmz-prg2.suse.org:helo];
-	REPLYTO_ADDR_EQ_FROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	REPLYTO_DOM_NEQ_TO_DOM(0.00)[]
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-ID: 0be02d3c2c070a2a9a4
+X-MBO-RS-META: fhd1dsfjtrcd7eboredi1bhf8k3y1wks
 
-On Tue, Mar 10, 2026 at 12:48:28PM +0100, Philipp Hahn wrote:
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
-> 
-> IS_ERR_OR_NULL() already uses likely(!ptr) internally. checkpatch does
-> not like nesting it:
-> > WARNING: nested (un)?likely() calls, IS_ERR_OR_NULL already uses
-> > unlikely() internally
-> Remove the explicit use of likely().
-> 
-> Change generated with coccinelle.
-> 
-> To: Chris Mason <clm@fb.com>
-> To: David Sterba <dsterba@suse.com>
-> Cc: linux-btrfs@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+Majority of schemas place 'allOf:' after 'required:' . Documentation
+"Documentation/devicetree/bindings/writing-schema.rst" also hints at
+this ordering. Trivially update this schema. No functional change.
 
-Added to for-next, we seem to be using IS_ERR_OR_NULL() already in a
-few other places so this is makes sense for consistency. Thanks.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Marek Vasut <marek.vasut+renesas@mailbox.org>
+---
+NOTE: This comes from https://lore.kernel.org/all/20260117-grinning-heavy-crab-11f245@quoll/
+      where krzk comments "allOf: should be placed after required: block."
+---
+Cc: Conor Dooley <conor+dt@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Frank Li <Frank.Li@nxp.com>
+Cc: Job Noorman <job@noorman.info>
+Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: devicetree@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org
+---
+V2: - Fix up the nits from Frank
+    - Add RB from Frank
+    - Add AB from Conor
+---
+ .../bindings/input/touchscreen/trivial-touch.yaml           | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/trivial-touch.yaml b/Documentation/devicetree/bindings/input/touchscreen/trivial-touch.yaml
+index 6441d21223caf..6316a8d32f39b 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/trivial-touch.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/trivial-touch.yaml
+@@ -53,14 +53,14 @@ properties:
+ 
+   wakeup-source: true
+ 
+-allOf:
+-  - $ref: touchscreen.yaml
+-
+ required:
+   - compatible
+   - reg
+   - interrupts
+ 
++allOf:
++  - $ref: touchscreen.yaml
++
+ unevaluatedProperties: false
+ 
+ examples:
+-- 
+2.51.0
+

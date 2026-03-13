@@ -1,172 +1,159 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6475366565
-	for <linux-input@vger.kernel.org>; Thu, 12 Mar 2026 22:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A773090C5
+	for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 01:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773356253; cv=pass; b=UCDow/HSWTVzshYUw7oYoy0GAlUXFS7KBaPjJyWxJfSIbXznXOXqVctM8ZiaPW+uuyjQqpV7bHO7Hu5lb13S5TCy7Ns0jJOdGOc459b9G3lixB2IkDehPSkOiTOh8q3wffdqk6c5U3GNGkMsewQLepNEMeGeA8iXSfefHo09wxo=
+	t=1773363644; cv=pass; b=h6qbxkCpwqbbrsz3budfvFZ9mLaKJsT2bvWdUMUnGpi/oxOyWiFRaDLEDsDiMYmIjTwnAsOtTCQRAHSHkN8AHhftOpQTE5NpwyCGb49JbOnf34K371Jx5r7cUL9gW9oRapFQjLQQH9BZch4vNttARlv0ZG2VyIYigB/SQ86N0gs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773356253; c=relaxed/simple;
-	bh=zOgRkQnNB/+Ntg0KnD677Eyon1mNQy4poFFpVwIyOcM=;
+	s=arc-20240116; t=1773363644; c=relaxed/simple;
+	bh=sWXbHUNWyCssRT+Z0j94kKl4zmDZN0doACSqgWVnHEM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=b7dxxQ1L1T8BBoA/dx8uwA2NxsZepR8KOHvKszSrMEp0P6UunPbHtny+4YUdtOc+WM0SZPJfabBg4CYJ8+6Ps/116kRP6QeaM7QP70JOBYkUEGRx9OFVGbAeVM4dmhMfzpa6aw+2pkS5Ehag7pw0z6g+27/qem/uTdHNJBq+FUk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T7apzFEH; arc=pass smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=uAHvSHLOyZs008CnvU3zPnDxGUmSJIOnNmjpF4t8X59DQSK4arvfymOBa1kBMTSa19oeDWSyo2JBvlhiLA6DFG+asYQHmsHdhxpFjdPGKlYriOwngQ6z/zna7IH0irksRZmNVhxhY4ssgbh4wBvcWJDqyG49x9z+n7B2ZFFjM7U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ZA/lz0jz; arc=pass smtp.client-ip=74.125.224.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T7apzFEH"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8cb38e86cf2so163814385a.1
-        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2026 15:57:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773356250; cv=none;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ZA/lz0jz"
+Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-64ca09f2170so1806835d50.1
+        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2026 18:00:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773363641; cv=none;
         d=google.com; s=arc-20240605;
-        b=DoCUBJLfHI3uiyH8fUOqzn3gDnSzZPNzDN1S/DTLJeSExJwQxFJprnk32smKuCqUS7
-         rLmuilU/KGus2rgivkjMe4HYZ9sjDQuF/uvYjmx7cCmHiOICIgtelWKaSdcuw0pPEiaf
-         LTa3/d2pRU+XOksO5NDt59d7EyLrIJb4xjcdbuzKO41YqgU4zQBHBm1DRaljmFHpZgh8
-         jxIq2edVthL+qNNNendoVl3q1WaDnS+If6oAFuglQyJVuX9kXFgz0afMl/EnoEFingKJ
-         HG3+14Fw9+Gaqr3Y2MinyGcpnTc7m4DzgrkPc7PchWk4tI4uTJTGijmvYP1MGZwSE8Nw
-         71Sg==
+        b=GzsxeckqraSG6BGrOqM1pVTAkvElM2w4XaYbr7rjSeqaOC1dzEyHb94afPLOy9yty+
+         XB14GsbL2EFeQCUtH9Xep0x1EHh36Lm7Ma1hgvoF0ilZTGacNYimt5SwalUSc8+TYBJ4
+         UpsNJN2wBpLzC6/VeRgVWXolG3t4R325zWS6l9OUO9AAnYMIlemikYq0tckzNlfeVru7
+         93LoiYbYO6aGYH8F3sRgH6EFjNksDOl1Z89w/PBFevZbvzyi++40Zw50woeC/f38K/5b
+         zwk0LI2pirwrwaGEpdk/Mswy3yTwjFNkPi//5pNYGHQnjtlPaMW4UzGA7f1nGXnUVN+v
+         itzA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=CFgglb1Zf4C09vLpT2zlrzPR5mBWBimjznIcvEhPlMw=;
-        fh=f8ENKslMeLNS/MQioLvzgs9R34Gwhg902lNntiZzmno=;
-        b=Qm9w9Rc0NHdVbVNvTWbYKp5Ck9qyGCK0pKPvPouEtSq1CQBlwhPj93ztUpny46k/sG
-         3lzLQYB7dosXFSBg3ceF2b2mwKdmYW/VuR/lrY7Vh6xPByCikHsqbQB9Nn/p4Ra2ARnA
-         NCdWmN+aYrzmwPe9h3atxw4QW0x2sRWgZviLheGJw58hY59AEurX9v38ComWtAk9IwiG
-         cyW3WJeKJIu+UkMiA9cez/ghf+2rHr1/lvNg/KpqAvJUZcar7Io2Lla4kK79lNi/73uE
-         b0uYY/QOUGT7eU07Bv0PPnRKBOshMrWRgvejg1EWE9wDG4WrlMiB30S/wSjGNafMhVwW
-         IunQ==;
+        bh=WEIoHUDBRKW7sPjWtgozpXFsqYAeqWilfaHlivAXGTA=;
+        fh=7LF27BWIJ9tUnsi/3rE3ElbOTHNYpNsjGJTDI5h4wB8=;
+        b=bs4Qf5wc43V0iTmjO3MSLwSw8AEeiQrhl4ssMQOUECqW0FA1c8koou+nG/DYQtOeLp
+         jRSAHATbGuaSc0v5C1G3d1obeW58PD5BeGVJUYh1J2sN9O4sv4cZo57a0Gg+YenGUWIA
+         87bZjrRj+FQcDC1h2VWo/RF2i9lf/zj8Q+MziOJDgZ4JFny2sNVWWfqMDk3Nn/ks4N31
+         jdvJHP6QIZ4cLBZsuGBhy37Mw7AXeOZ5odwjIfC1v/d7CEtn5CW4w65IkpovcUDF1M16
+         z2U3qnKw7o8D7nNhqC3R9XPzcjCYYiFMzDIFF+lc2yJXhhnqnk9XpSBnsPtnv0rR6EBi
+         uECQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773356250; x=1773961050; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1773363641; x=1773968441; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CFgglb1Zf4C09vLpT2zlrzPR5mBWBimjznIcvEhPlMw=;
-        b=T7apzFEHZqDG3eji3TWOe30IYSv1LuT9JC+rhFG5PLMQC0iRcn63ha2jfFOQvoeYJa
-         9xlJjpdgvsyzKMlDl4n143np6AB7PnIzaGGqg7XD2gXiqmvfF3sJLUBANI+MP7REhlHu
-         6JbOkcxBM7MxpCTIcDFQgxMxDTHDg2gZZLokTQ344VtMk+2vsfvD7G/zsafGsPnizoHe
-         pAbvVpFB53Be0yl4wgiEXMrz0RmBdIXbsHCaPXe1vljNSQQJPNzFo5cBk2+77WQcAPDt
-         HfUxleRRoGi23OA1KsSg6X3g++nEUJuwWepLn0LO3kBXME8pd1KJZhB496UznHKhb8Wh
-         8WZQ==
+        bh=WEIoHUDBRKW7sPjWtgozpXFsqYAeqWilfaHlivAXGTA=;
+        b=ZA/lz0jzZ5SnEt27k5mt290nazi42vhGGnOyNcbDIrJk0WzjSHSUXA0OXFphwHSWli
+         WNhDUXBka7oi/+/SldIRtUuf1Po9CwQ6Y0+CSBiC/7rRru2Mvrwgy2C7Lvu84y8UZU3c
+         nmLVa2qKS2YKHBiYT/MZ/bSmE8EFdQz3BwQto=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773356250; x=1773961050;
+        d=1e100.net; s=20251104; t=1773363641; x=1773968441;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=CFgglb1Zf4C09vLpT2zlrzPR5mBWBimjznIcvEhPlMw=;
-        b=J13zEI698qdP5rET31lUBWt4HvA7J1IA9DctL61mk84WxBTFx8JXzQ+STuWOqxR3YI
-         tFCEDm4jdJDThjjfTjcK4H9SbrWlh+rAdaVutPjuGVGqpQldtzgYrWkCM4IbQls4CmyH
-         scRF/B5VHs1t/ASGRC7nnoEiLOfigE5iWS/wHgsbqaTVW4jut3LmW9zCbM1XYsLpN9dX
-         nF5mqCYkI+KiAYFLqXWmdXS72hsEIh4hmgGhaQuWICjOE1xdNPKDiYMl5L9GtIkFd8iH
-         R2Krj20IMr3q5ZjrybCswrtiynFEfuEV0IK4vTJBJvdbz7dPDcL90e5JpC7fkydr12AP
-         G+sg==
-X-Forwarded-Encrypted: i=1; AJvYcCXmCWZ5HgUqAYNrX/1Tc0DDYdhjAAKDJH/IMPmLuUVtBGJYgH4qKInF/mmYAVVS3YQmbB06yhvfJ8E3uQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2pqSZOO3IdJupTEjwEVkhxulZLz5hxl7VX366rxaCUi5qwsLt
-	MmXiP6CWmpvxdaJ7Jxu3TRQQHlr3OrmWO7x8YtQRbjdasHsdqAllb9ahBMJ8BSVPE5+D+PZcp9+
-	BNCFM7RL6A0pHz2DFFYclfTNdx7YX/P8=
-X-Gm-Gg: ATEYQzy2nezP/8b1O9fM+v0hZdDJBS1SW2yTrKZzjqIWu+dU5BhppU39JtZBHs3ByD1
-	nUYLDLYCYgAtrMF9ZZzvJWrTdk1E87fhAF92clgnOiVB9Y0aUSKAzbRFyU44P1ob7VAkVPNrcRj
-	gPTLkkW7+jPPTXz/5ezsUpE4mAPVqZcXBNOOkdKl2e/Q1alyjemA4qUlr6WK4crT4+9pF6kcwmb
-	pOGDVaefBDxY3x1LT9NNlF+3VhwRoiIX/DnJDAbp6xIo5ipIib83gnHCTa42gMUnTANCYJRgwxd
-	h91Brc1DAWra+xVqWYk=
-X-Received: by 2002:a05:620a:471f:b0:8ca:2a02:dfd5 with SMTP id
- af79cd13be357-8cdb5a709e6mr202126985a.30.1773356249805; Thu, 12 Mar 2026
- 15:57:29 -0700 (PDT)
+        bh=WEIoHUDBRKW7sPjWtgozpXFsqYAeqWilfaHlivAXGTA=;
+        b=VOU+96Xwy+41/eY+7zrPFvl9Yfj2lBCZ1ktRSfiIqbJrMxZTqK8HIYBZ23SPfG+AaL
+         gP2g3LZrl98wTNCZEweF23EHZSjdqLnD17v9wBDC4jbVKqgBR3mh1NATHbFd2V+1eSLe
+         X0Pkx3waqjzOoZjzHmo9JxWfZFQS3hkHvXILzrM/tFYUJDQ04VGSm8sdMj+cnMMm5Aip
+         JHXpy5CQnZsfKiXH0Olq3FX0z1rRf6G1jxVAs/H+10f272KCJGYj5r3wPqOusF5y8wUG
+         dnOH5ouNr2dpQtMYSkD3HC0ygZGrEEK6BANROD0H0uM+n74N32UiE4C6owfqsIW/sdyK
+         ryIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWE/QLP+B09w8BlPaDl9/Muc1HJVKp5sV0J0/+Ul8fbJmufYX1Ho1i6aQma0aVFJUqMl+KFWYhT45HCkw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOv7jX8aGC4IMYtldl++MZd85vC/2YdGnOAF0XIgdvlppsM3Ru
+	z7jd00P4+fhsU0lqiJ9wHMTljS2olRfxAHrpwB8FBx1BgvGZIJ6n7vhgv9H5uSYZuj/BeFZX/Ws
+	VDSDGDN0FmFoQ9JtyFlx13hUp/6fe49/3koOGQdMa
+X-Gm-Gg: ATEYQzzX3pdc4kZjaRXbsYJxybC+Yoqi/34L7Km+ryhd1J/AOOVZkW04kZUh8HR/+91
+	/KSwtQUILNJxWJoRaMlnupJQYnNOq2MVaccEIwidn/QWa3dADvCZUhmIQkf19wVnFVA8MoY/Vu2
+	qp2hfBMkTtmwgMH8muVoLttmy6z/zknDmLHEztlxH0h2GzcfG4OTf38ZLK2avK9UXXAJ74oJX73
+	jH3qAOqcuXv6i0HrdbT0/qDK2sD+eTIzd7qWigxQUpEPKZpVbIxtWVMhoqS4SoDufkymUPz+J3s
+	i0CNJNlfESJ6SyX0x3t2+riMzRtreAABwcPYJtMG
+X-Received: by 2002:a05:690e:23c6:b0:64c:a815:511b with SMTP id
+ 956f58d0204a3-64e62f59679mr1215624d50.3.1773363641056; Thu, 12 Mar 2026
+ 18:00:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260310072937.3295875-17-derekjohn.clark@gmail.com> <7dc9bd14-b21f-461a-9794-070f43db4826@gmail.com>
-In-Reply-To: <7dc9bd14-b21f-461a-9794-070f43db4826@gmail.com>
-From: Derek John Clark <derekjohn.clark@gmail.com>
-Date: Thu, 12 Mar 2026 15:57:19 -0700
-X-Gm-Features: AaiRm50DBo-3LxvMfUFcLMN_dcSC89X0sTH-eHWjKkx6AzFjTRQNvObMpScb3gw
-Message-ID: <CAFqHKTmBBEHJgypooELKa7fU3oELnVk7bjfZwHsFD9Y0b1c3Xg@mail.gmail.com>
-Subject: Re: [PATCH v6 16/19] HID: Add documentation for Lenovo Legion Go drivers
-To: Akira Yokosawa <akiyks@gmail.com>
-Cc: bentiss@kernel.org, hughsient@gmail.com, jikos@kernel.org, 
-	linux-doc@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mario.limonciello@amd.com, 
-	mpearson-lenovo@squebb.ca, pgriffais@valvesoftware.com, shaohz1@lenovo.com, 
-	zhangzx36@lenovo.com
+References: <20260303-send-upstream-v1-0-1515ba218f3d@chromium.org>
+ <20260303-send-upstream-v1-9-1515ba218f3d@chromium.org> <1cc6de61-8b56-492e-ab78-e3aa448f58ad@packett.cool>
+In-Reply-To: <1cc6de61-8b56-492e-ab78-e3aa448f58ad@packett.cool>
+From: Jingyuan Liang <jingyliang@chromium.org>
+Date: Thu, 12 Mar 2026 18:00:30 -0700
+X-Gm-Features: AaiRm529-VNRFl8j9TL1yc6G4h205p6aiqQ4Ar4V5wWtWy0meX15btognc57fcQ
+Message-ID: <CAEe3GZF7ct1ZFH2Zd6AJnO1vBJQZobGaQKO+hTMJjFcCQddq6Q@mail.gmail.com>
+Subject: Re: [PATCH 09/12] dt-bindings: input: Document hid-over-spi DT schema
+To: Val Packett <val@packett.cool>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-spi@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org, hbarnor@chromium.org, 
+	Dmitry Antipov <dmanti@microsoft.com>, Jarrett Schultz <jaschultz@microsoft.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 11, 2026 at 7:44=E2=80=AFPM Akira Yokosawa <akiyks@gmail.com> w=
-rote:
+On Fri, Mar 6, 2026 at 11:25=E2=80=AFPM Val Packett <val@packett.cool> wrot=
+e:
 >
-> Hi,
 >
-> On Tue, 10 Mar 2026 07:29:34 +0000, Derek J. Clark wrote:
-> > Adds ABI documentation for the hid-lenovo-go-s and hid-lenovo-go
-> > drivers.
-> >
-> > Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-> > Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
-> > ---
-> > v3:
-> >   - Remove excess + from every line of patch.
-> > ---
-> >  .../ABI/testing/sysfs-driver-hid-lenovo-go    | 724 ++++++++++++++++++
-> >  .../ABI/testing/sysfs-driver-hid-lenovo-go-s  | 304 ++++++++
-> >  MAINTAINERS                                   |   2 +
-> >  3 files changed, 1030 insertions(+)
-> >  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-g=
-o
-> >  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lenovo-g=
-o-s
+> On 3/3/26 3:13 AM, Jingyuan Liang wrote:
+> > Documentation describes the required and optional properties for
+> > implementing Device Tree for a Microsoft G6 Touch Digitizer that
+> > supports HID over SPI Protocol 1.0 specification.
+> > [=E2=80=A6]
+> > +properties:
+> > +  compatible:
+> > +    oneOf:
+> > +      - items:
+> > +          - enum:
+> > +              - microsoft,g6-touch-digitizer
+> > +          - const: hid-over-spi
+> > +      - description: Just "hid-over-spi" alone is allowed, but not rec=
+ommended.
+> > [=E2=80=A6]
+> > +required:
+> > +  - compatible
+> > +  - interrupts
+> > +  - reset-gpios
 >
-> This (commit 168c91839139 in next-20260311) causes a lot of new warnings
-> in "make htmldocs" such as:
+> Why is reset required? Is it so implausible on some device implementing
+> the spec there wouldn't be a reset gpio?
 >
-> WARNING: /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface n=
-um>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode is defined 2 times: /<=
-...>/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:364; /<...>/Docum=
-entation/ABI/testing/sysfs-driver-hid-lenovo-go-s:234
-> WARNING: /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface n=
-um>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index is defined 2 tim=
-es: /<...>/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:373; /<...>=
-/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:243
-> WARNING: /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface n=
-um>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled is defined 2 =
-times: /<...>/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:636; /<.=
-..>/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:252
-> [snip]
->
-> Please fix.
->
-> Thanks, Akira
+> > +  - vdd-supply
+> Linux makes up a dummy regulator if DT doesn't provide one, so can
+> regulators even be required?
+> > [=E2=80=A6]
+> > +        compatible =3D "hid-over-spi";
+> Not following your own recommendation from above :)
 
-Akira,
+Thanks! I will fix this in v2.
 
-What would an appropriate solution look like? There are two separate
-drivers in this series that are modeled to provide a sysfs that is as
-close to each other as possible. Because of that, they do end up
-having identical attributes for many of the implemented features. In
-most cases they are prefixed in the sysfs by a different component
-name, but that isn't the case for os_mode or touchpad/enabled. I could
-combine documentation for both drivers and de-duplicate, but I'm not
-sure what that would be called, sysfs-driver-hid-lenovo-go? Add them
-all to hid-lenovo docs?
+> > +        reg =3D <0x0>;
+> > +        interrupts-extended =3D <&gpio 42 IRQ_TYPE_EDGE_FALLING>;
+> > +        reset-gpios =3D <&gpio 27 GPIO_ACTIVE_LOW>;
+> > +        vdd-supply =3D <&pm8350c_l3>;
+> > +        pinctrl-names =3D "default";
+> > +        pinctrl-0 =3D <&ts_d6_reset_assert &ts_d6_int_bias>;
+>
+> Heh, "reset_assert" is a name implying it would actually set the value
+> from the pinctrl properties, which is what had to be done before
+> reset-gpios were supported. But now reset-gpios are supported.
 
-If I do that there are some additional de-duplication that could
-reduce the total number of lines. I.E
-What:           /sys/class/leds/[go|go_s]:rgb:joystick_rings/effect
+Taken from the original patch. Will fix this in v2.
 
-Would that syntax be alright? Some of them get a little excessive, for
-example the auto sleep time is defined three times and would be
-combined to something like this:
-What:           /sys/bus/usb/devices/<busnum>-<devnum>:<config
-num>.<interface
-num>/<hid-bus>:<vendor-id>:<product-id>.<num>/[left_handle|right_handle|gam=
-epad]/auto_sleep_time
-
-Otherwise, is there some way to flag the same attribute defined in two
-separate documents provided by two drivers as not being duplicates?
-Thanks,
-Derek
+>
+>
+> Thanks,
+> ~val
+>
+>
+> P.S. happy to see work on this happen again!
+>

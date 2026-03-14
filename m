@@ -1,117 +1,185 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A9751D63F3;
-	Sat, 14 Mar 2026 14:07:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D3F62741A0;
+	Sat, 14 Mar 2026 14:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773497255; cv=none; b=VbwHtpr/YwqxScFm3fcBGRIXUad8VTUT510Oj2y0TIk+ZyuEXTBX49nLCS9DrM/7DQfCDFX/TWCAy0vwLd1pI5uIkYER0XcG81waI5rtWp0lr3+75QXlchavOatLmKlai3OkxsgqJ8ziX51ULwkIcFhgfijOVq2NBmIJXtLhWxo=
+	t=1773500291; cv=none; b=HLlRR5AB9lijPhTF75uc3kcH3jKIRlRF9JD4cSxD3fOvCyM+fwYrDPgLOblBclslAOXbUoe8mkOQLUYO6GC18EE5AZPG+BH8pO8pspXnzFCIbB3QupQ5oeLLmijSIpzi5arm/WDqI0otiJY4fwU5zXD7cv1Dum7x9l/PWWsBiCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773497255; c=relaxed/simple;
-	bh=SV44/ZN/OjIb2n1UHVVokej+vXYWzqmwDFdcOIOLWF4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PzseuF+fU7EdfWYyru1EFqe8mdxu8gt9D3P1JMaz9nNxXjOvv+Y4PgBASJd6WhQ3lCAFY8l2ArhFfQyzcQQYHAiRrJQSwceXaEiVi1R2/EeYRbBdfwHDQ86gGbOz0cErxLeQBoQ03TBvP/KwBjh8/icObs6e0oE1I2lJO3RiXnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iz5AC2zY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773500291; c=relaxed/simple;
+	bh=qzZaBR6WczjUq19/Rm9o4qZLMSf1fqqnVk12OhWwCf0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Fe/IbWVYG06ax/UHXT1WIb/ae03pgV2GIbqph68QfHE93K444wyWdT6gE3BU0HgX9lR+SHWe++NdKnOVp1u0hLe4BYW/bAjHJ5MRvGEEs+ejeZPGhoiV/66v+KzbLQaWvefzCeqSPqor6TB+AL5+63uNtOrqFLJGIHV6LwJ3upU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in; spf=pass smtp.mailfrom=machinesoul.in; dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b=lXjAT81/; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=nGAPURnL; arc=none smtp.client-ip=103.168.172.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=machinesoul.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iz5AC2zY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 562AFC116C6;
-	Sat, 14 Mar 2026 14:07:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773497255;
-	bh=SV44/ZN/OjIb2n1UHVVokej+vXYWzqmwDFdcOIOLWF4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Iz5AC2zYDHfkbj3ZAzPsh7qUAERSuFPxE0vVtOO1gYzOctsXHhmsXIQnuwlG5sFA5
-	 oCvgdZXynGGIx48r8u53MSVcg5KNmZDHIdzbt8eMFQSGVBVGl6kgpqk2/gN0srvEEw
-	 kbz4tfP1Hj9RxnlCNgjh26c2EYBKnyV6tn+dPMBnTv9vXaqUlHnTQROoFSJ38CCq0q
-	 Bc77Me7Ai+4edA+ir03eCsvLjnlTf1v9cgEu3E5QhHBLTgvuHYBi4bjnmv7Mjz0EUr
-	 8jnTWWvA0SGOMJmNTazVDITbEDrla7Jgg1XERd6L1rMmIJCbrjIR7ShlwsHOOQ4VDo
-	 W64jBEuvDxW7Q==
-Message-ID: <df78feab-1876-42b6-b503-07afbd072463@kernel.org>
-Date: Sat, 14 Mar 2026 15:07:31 +0100
+	dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b="lXjAT81/";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="nGAPURnL"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 2FC7114001C1;
+	Sat, 14 Mar 2026 10:58:08 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Sat, 14 Mar 2026 10:58:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=machinesoul.in;
+	 h=cc:cc:content-transfer-encoding:content-type:content-type
+	:date:date:from:from:in-reply-to:message-id:mime-version
+	:reply-to:subject:subject:to:to; s=fm1; t=1773500288; x=
+	1773586688; bh=rewhcCVOaBlBlXLPPExXCzwA+4le69WPGJ1AWUoSONM=; b=l
+	XjAT81/qyCLfokBgEdkYIG/cgFqm6oOWiujh7B8GMytsC4W09SrP5hY3oTz3lqGc
+	vSPJeIUkWQbhPFzLPvSfQF4+PUu5P+cx5eJRkPKgTYGYBH0c3pM6/o71GPNBWZeB
+	OdntNDBDEkNaTRe5NeWITwq996F/oS2rris0XTH7/YMvvmQAFip9IYVLZ2PYcmnv
+	2mVMFSFfBsZkC68ntbQkn8zTDdJ8GZRu0vWrYfkvLjEMUzP08qcLYVTF7vZLuGh0
+	JonVPmNY6UHPzdAi3H9DEoCskrnwpyuexWm/TDafmM+mt+yLHUCBZ7dEUHrVCIwd
+	IB8u4w/xxg5THoiJa1PTw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1773500288; x=1773586688; bh=rewhcCVOaBlBlXLPPExXCzwA+4le
+	69WPGJ1AWUoSONM=; b=nGAPURnLVHeYLbMKQWeK2K9I4N5jTosvdCoXQ5I5/7Iq
+	z/+ImcviSBuL6mdSLTwb2dIHPwU+9YXwnAB47btPpsmwRhRgxVmkzu3n/c6c6qAs
+	IGxqJHgUFJIZTmiXBx3xuIUdAM1Ssg0iwcih9vKM1AJuPpwqZ3gICzDqLEP2FJj5
+	z8R8dvOg0aPQ43T3GUY5zA0UBH40BloV9r6e3wofk717zYxk5XKIX/h4VgfbTKsu
+	YBs9OQAUzPypk4fomWwINvI1V/RrXujyOiSJ7RjUBiN8BRhuO9mqAN7k6rNAJ+NA
+	dBioHt46+LDRD8LwtHB7AFenGaGaLhI6oqUuUY6bVg==
+X-ME-Sender: <xms:f3e1afJ5MVpOaqRCBLJhdOcpanS_luNZLjp81eEFdSCVNa_gJDBBOg>
+    <xme:f3e1afJVcAJgHCP4SOip5iCKezAg1s_vq-6ZhA8h0eRxdo_OSek_KYr1cJ-rm89ZH
+    dJ1AHz0HoGhCD362zDebIQjebtpLJ0dOA8NMKQzN8NMAQDvt9CZag>
+X-ME-Received: <xmr:f3e1aZ5U55D-g9otIkh9XhAe7T__suS18iFqizWCWUZrZIuCyRgAAAYpQu-UUfC-SY0>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvledvkeejucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephfffufggtgfgkffvvefosehtjeertdertdejnecuhfhrohhmpeeuhhhushhhrghn
+    ucfuhhgrhhcuoegshhhushhhrghnrdhshhgrhhesmhgrtghhihhnvghsohhulhdrihhnqe
+    enucggtffrrghtthgvrhhnpedtudffjeelfefhvdekkeeggeffhfeludevtefgkeekgfdt
+    gefgtdegueduledvvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghhuhhshhgrnhdrshhh
+    rghhsehmrggthhhinhgvshhouhhlrdhinhdpnhgspghrtghpthhtohepkedpmhhouggvpe
+    hsmhhtphhouhhtpdhrtghpthhtohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhn
+    vghlrdhorhhgpdhrtghpthhtoheptghonhhorhdoughtsehkvghrnhgvlhdrohhrghdprh
+    gtphhtthhopegshhhushhhrghnrdhshhgrhhesmhgrtghhihhnvghsohhulhdrihhnpdhr
+    tghpthhtohepughmihhtrhihrdhtohhrohhkhhhovhesghhmrghilhdrtghomhdprhgtph
+    htthhopehrohgshheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhhriihkodguthes
+    khgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrh
+    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghr
+    rdhkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:f3e1aZfb4MCgB0X42rOCoXEzdugvYTnAgsh844_AWvRRN8hT3Fc_Bw>
+    <xmx:f3e1aUH-WA2TmBv774NH4ygovlXAlIyosjRcIN1QG9pYabznls0Pyg>
+    <xmx:f3e1aSRdy3L_DURlS5fe_xCfCFbxxio8UvuCGpkm7kG7cpd-Jecy_A>
+    <xmx:f3e1aSYw9SyrnhFUES_1kAdL-SFvqsEl7BwnbQattVu6ueQGZBXqPw>
+    <xmx:gHe1afLgMGPVPNuU4Pyo3NDw7aaVjF1Lz-G5Nx5hQrbScdkjquiEL4SM>
+Feedback-ID: i6b0e4831:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 14 Mar 2026 10:58:05 -0400 (EDT)
+From: Bhushan Shah <bhushan.shah@machinesoul.in>
+Date: Sat, 14 Mar 2026 20:27:58 +0530
+Subject: [PATCH v3] dt-bindings: input: touchscreen: edt-ft5x06: Add
+ FocalTech FT3519
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] dt-bindings: input: touchscreen: edt-ft5x06: Add
- FocalTech FT3519
-To: Bhushan Shah <bhushan.shah@machinesoul.in>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260314-edt-ft3519-v2-1-e28c3f9c6559@machinesoul.in>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGVBBMBCgA/AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJoF1BKBQkWlnSaAAoJEBuTQ307
- QWKbHukP/3t4tRp/bvDnxJfmNdNVn0gv9ep3L39IntPalBFwRKytqeQkzAju0whYWg+R/rwp
- +r2I1Fzwt7+PTjsnMFlh1AZxGDmP5MFkzVsMnfX1lGiXhYSOMP97XL6R1QSXxaWOpGNCDaUl
- ajorB0lJDcC0q3xAdwzRConxYVhlgmTrRiD8oLlSCD5baEAt5Zw17UTNDnDGmZQKR0fqLpWy
- 786Lm5OScb7DjEgcA2PRm17st4UQ1kF0rQHokVaotxRM74PPDB8bCsunlghJl1DRK9s1aSuN
- hL1Pv9VD8b4dFNvCo7b4hfAANPU67W40AaaGZ3UAfmw+1MYyo4QuAZGKzaP2ukbdCD/DYnqi
- tJy88XqWtyb4UQWKNoQqGKzlYXdKsldYqrLHGoMvj1UN9XcRtXHST/IaLn72o7j7/h/Ac5EL
- 8lSUVIG4TYn59NyxxAXa07Wi6zjVL1U11fTnFmE29ALYQEXKBI3KUO1A3p4sQWzU7uRmbuxn
- naUmm8RbpMcOfa9JjlXCLmQ5IP7Rr5tYZUCkZz08LIfF8UMXwH7OOEX87Y++EkAB+pzKZNNd
- hwoXulTAgjSy+OiaLtuCys9VdXLZ3Zy314azaCU3BoWgaMV0eAW/+gprWMXQM1lrlzvwlD/k
- whyy9wGf0AEPpLssLVt9VVxNjo6BIkt6d1pMg6mHsUEVzsFNBFVDXDQBEADNkrQYSREUL4D3
- Gws46JEoZ9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLue
- MNsWLJBvBaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6ei
- OMheesVS5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wA
- GldWsRxbf3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA
- 6z6lBZn0WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9
- YegxWKvXXHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt
- 91pFzBSOIpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gU
- BLHFTg2hYnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/
- JoFzZ4B0p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu
- 4vXVFBYIGmpyNPYzRm0QPwARAQABwsF8BBgBCgAmAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtB
- YpsFAmgXUF8FCRaWWyoACgkQG5NDfTtBYptO0w//dlXJs5/42hAXKsk+PDg3wyEFb4NpyA1v
- qmx7SfAzk9Hf6lWwU1O6AbqNMbh6PjEwadKUk1m04S7EjdQLsj/MBSgoQtCT3MDmWUUtHZd5
- RYIPnPq3WVB47GtuO6/u375tsxhtf7vt95QSYJwCB+ZUgo4T+FV4hquZ4AsRkbgavtIzQisg
- Dgv76tnEv3YHV8Jn9mi/Bu0FURF+5kpdMfgo1sq6RXNQ//TVf8yFgRtTUdXxW/qHjlYURrm2
- H4kutobVEIxiyu6m05q3e9eZB/TaMMNVORx+1kM3j7f0rwtEYUFzY1ygQfpcMDPl7pRYoJjB
- dSsm0ZuzDaCwaxg2t8hqQJBzJCezTOIkjHUsWAK+tEbU4Z4SnNpCyM3fBqsgYdJxjyC/tWVT
- AQ18NRLtPw7tK1rdcwCl0GFQHwSwk5pDpz1NH40e6lU+NcXSeiqkDDRkHlftKPV/dV+lQXiu
- jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
- zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
- XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260314-edt-ft3519-v2-1-e28c3f9c6559@machinesoul.in>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260314-edt-ft3519-v3-1-5ee91b408ed6@machinesoul.in>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/22MQQ6CMBAAv0J6dg3dtQQ8+Q/jActWNtFiWmw0h
+ L9bOGn0OJPMTCpyEI5qX0wqcJIog89Am0LZvvUXBukyKyyxKkkTcDeCG8noBs7E2BJxXTOrHNw
+ DO3mus+Mpcy9xHMJrfSe92L+bpKEEx8Y5WxG6Dg+31vbiOQ6P61a8Wl4JP/vdV4+ggbG25BpbG
+ dP89PM8vwGhzc2A6QAAAA==
+X-Change-ID: 20260313-edt-ft3519-b3e2a33e88ee
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Bhushan Shah <bhushan.shah@machinesoul.in>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2477;
+ i=bhushan.shah@machinesoul.in; h=from:subject:message-id;
+ bh=qzZaBR6WczjUq19/Rm9o4qZLMSf1fqqnVk12OhWwCf0=;
+ b=owEBbQGS/pANAwAKARGWjESSjK78AcsmYgBptXd83zIxZt4ryZZ3gLBK1YM9xRA4A5LrruTxl
+ fIWtbN3e9CJATMEAAEKAB0WIQSzyzZlUlQL4G7prZcRloxEkoyu/AUCabV3fAAKCRARloxEkoyu
+ /O8sB/47ZIF92dSB5JscUM1Y7lQ3GUiLIvtm3M1AJ0L/zRysJXYU6l/cT+5rAqT0MU2rae/Nnty
+ JyonfdUtFdv7fPLkCXKmKn7kFiEUWAaoOttpLFkOTw20BHEZoxU4yiaXM+j586KjL7msGAWUTmV
+ Saq0AmZbCkXuAfi5t3jjhqrR8FpgD/ZHzl6fzVf0CbgRo9Kh/Sjl8C/IdsiQomhC8u8hOpx60fY
+ JINjGIRSFqHI0eORsLClv/qIlvP07ie0+xm88FZawkNeJSlKPpNQpi52o4FrSRBuQ4hgO1wiw0x
+ NlkFkjPqlYLXKiYToeSGZNII2i+08MI3KceHCYFQM7X9yBQI
+X-Developer-Key: i=bhushan.shah@machinesoul.in; a=openpgp;
+ fpr=0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D
 
-On 14/03/2026 14:50, Bhushan Shah wrote:
-> Document FocalTech FT3519 support by adding the compatible. It's 10
-> point touchscreen, which is compatible with FT3518
-> 
-> Signed-off-by: Bhushan Shah <bhushan.shah@machinesoul.in>
-> ---
-> Document FocalTech FT3519 support by adding the compatible. It's 10
-> point touchscreen, which is compatible with FT3518.
-> ---
-> Changes in v2:
-> - Remove the driver change and add only compatible in dt-bindings.
-> - Link to v1: https://lore.kernel.org/r/20260313-edt-ft3519-v1-0-fe5ffc632fd2@machinesoul.in
-> ---
+Document FocalTech FT3519 support by adding the compatible. It's 10
+point touchscreen, which is compatible with FT3518
 
-It does not look like you tested the bindings, at least after quick
-look. Please run `make dt_binding_check` (see
-Documentation/devicetree/bindings/writing-schema.rst for instructions).
-Maybe you need to update your dtschema and yamllint. Don't rely on
-distro packages for dtschema and be sure you are using the latest
-released dtschema.
+Signed-off-by: Bhushan Shah <bhushan.shah@machinesoul.in>
+---
+$ make dt_binding_check DT_SCHEMA_FILES=input/touchscreen/edt-ft5x06.yaml    
+  SCHEMA  Documentation/devicetree/bindings/processed-schema.json
+  CHKDT   ./Documentation/devicetree/bindings
+  LINT    ./Documentation/devicetree/bindings
+  DTEX    Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.example.dts
+  DTC [C] Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.example.dtb
+---
+Changes in v3:
+- Fix syntax
+- Link to v2: https://lore.kernel.org/r/20260314-edt-ft3519-v2-1-e28c3f9c6559@machinesoul.in
+
+Changes in v2:
+- Remove the driver change and add only compatible in dt-bindings.
+- Link to v1: https://lore.kernel.org/r/20260313-edt-ft3519-v1-0-fe5ffc632fd2@machinesoul.in
+---
+ .../bindings/input/touchscreen/edt-ft5x06.yaml     | 30 ++++++++++++----------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+index 6f90522de8c0..68b2f1601654 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+@@ -33,19 +33,23 @@ allOf:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - edt,edt-ft5206
+-      - edt,edt-ft5306
+-      - edt,edt-ft5406
+-      - edt,edt-ft5506
+-      - evervision,ev-ft5726
+-      - focaltech,ft3518
+-      - focaltech,ft5426
+-      - focaltech,ft5452
+-      - focaltech,ft6236
+-      - focaltech,ft8201
+-      - focaltech,ft8716
+-      - focaltech,ft8719
++    oneOf:
++      - enum:
++          - edt,edt-ft5206
++          - edt,edt-ft5306
++          - edt,edt-ft5406
++          - edt,edt-ft5506
++          - evervision,ev-ft5726
++          - focaltech,ft3518
++          - focaltech,ft5426
++          - focaltech,ft5452
++          - focaltech,ft6236
++          - focaltech,ft8201
++          - focaltech,ft8716
++          - focaltech,ft8719
++      - items:
++          - const: focaltech,ft3519
++          - const: focaltech,ft3518
+ 
+   reg:
+     maxItems: 1
+
+---
+base-commit: 0257f64bdac7fdca30fa3cae0df8b9ecbec7733a
+change-id: 20260313-edt-ft3519-b3e2a33e88ee
 
 Best regards,
-Krzysztof
+-- 
+Bhushan Shah <bhushan.shah@machinesoul.in>
+

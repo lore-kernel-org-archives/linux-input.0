@@ -1,79 +1,76 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0683F2D6E6C
-	for <linux-input@vger.kernel.org>; Sat, 14 Mar 2026 01:05:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F61275B18
+	for <linux-input@vger.kernel.org>; Sat, 14 Mar 2026 07:51:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773450345; cv=none; b=FqB5qa/lXooEhQft8IcH4FTGo2Jib4aaXSTwzBQbGfRFOVO2A7VX9W/2huwLUGwi0kyeeA9cRq5kyTlRsYvKkYlylHLlGmGW66M5RdSdbZE36Juji/4mtc48crJhkCc7rZBtnhSnPv8o6MzxHUA3Ul7qpdV2K6MhhlUUCF0l0CY=
+	t=1773474690; cv=none; b=HWYoFe19xPVLmpAgeny+VHLfPPO7biaWCuh+3FkrHiZSE27QHGYikUIRRndkBVxhTg8kgC6pdGW9TWZgKStmf5sDHCcKWaub8xLjMQIFU7WEhElC4AxL0Htsn5dvmq9GOycb5kRhEASVXa1bhBHHmUeg4QI70mGJxd+Os8EApz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773450345; c=relaxed/simple;
-	bh=5UruTDQYwRhP8yhzakmYIDCojVLLfICF8nWe8oykZsk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MgSlWM43aw6qDJQEQPVdh4hDybfoXUOWGRXBgFwP2k3Q5b4n+ZPD/khq5AwpKJ7APUazAn5+mizgsnoCTTQTIKDrCkaORfxuGDMPPG8fjJ/q620aW3fJ2XIrUpGopbSIDDyQTdQA/gRUMBhbR1aeOmvm88QXI6RT8kJk+B7waYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B+bls5o6; arc=none smtp.client-ip=209.85.221.53
+	s=arc-20240116; t=1773474690; c=relaxed/simple;
+	bh=2F8H55rYZ/j2cKInESmasrnF63FUKxVPCPnL+zkPMYc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WWaFLYqAamhhSUwgFK7Fb7RuQD2pdHyPGL0u0aDzCkZHPS0f26axNDu0t6eITLdltp3o3rBj42NzfnBtGmeq373DoMsFnaE5iE+AGGqLk/xcqLoqJOQ7gCY5+T5rHgcQ4jghsPupDCd6kqEPHxlnZOFRFeVim4ze8nMwfRjBhnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l7X1rr1w; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B+bls5o6"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-439b9b1900bso1825874f8f.1
-        for <linux-input@vger.kernel.org>; Fri, 13 Mar 2026 18:05:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l7X1rr1w"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-c70ea5e9e9dso1368647a12.1
+        for <linux-input@vger.kernel.org>; Sat, 14 Mar 2026 00:51:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773450341; x=1774055141; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pPTsETiep3NOBpBHAgOsX9uFP2vJQ7HjGOgXPWAlTNU=;
-        b=B+bls5o69SBh1RyM72tpLB/isfmTFWYJl2O/0vJjqxRN8oVGal2+szUQ10tJmvRf2D
-         NJLRTIQYKzDFJvonPENKrfU82U22Paja1WHT1TgjRio3WxBZEpJ8e+aGHqbamr1Y95df
-         JIDbh1+VIBigH4FJo9Y2PeB1ZE3LMesjEC3drbEkNqzezM5SYydMjpbwPAYNoZ7exVcl
-         SJgOa2mTbY7FBU5xedBV8kuY/yXCOuxLalA7qKqqrM7xVJ4EjpyF+MznRsTzQDNh1B60
-         83Q+5n3CGxscmq+N0+5IKrvwf8muLIGBFFJD3VpfqrLUU8PYZennPHjqeoq76JUwU40a
-         Jyeg==
+        d=gmail.com; s=20230601; t=1773474688; x=1774079488; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=U45jrujbw5JJI0xF9tm4sefL6UUjJiPpRTs8obNU44E=;
+        b=l7X1rr1wbB/KLWcjxdD+evIl38o0XfHBqrGtABhrPtMjWFexhNOMwfYPkIBijHVAVx
+         PAfhpTNIiP5wjy7e522xKYBAbWQrtRxq5JPyk4rr7jLY2eBKe06MkFLNWE+PZocMquL/
+         3ft/6KltiiPUGjgcLc8RD3YDQqSjS+XZiOsUzIPswa9eNAh/zvUBLmMrT/tZUD68vxM2
+         9fQ9GaLTkr6NyvlUaQb/C19f1BYE96HCJULPmCu5cPmXbpDQPcDdW76Sp0QSM4w2FE0x
+         DcDQt07B/4pHxiTe3kSG6jgSX3LHWkJYoeCFuDaHFGcSMIB2vlzy5odhEIYxEivuV9MD
+         Po/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773450341; x=1774055141;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pPTsETiep3NOBpBHAgOsX9uFP2vJQ7HjGOgXPWAlTNU=;
-        b=WzQc3w94byhnONQMFsQLe0PinrSxKFArGoYWtt69OrDkj78o9bqOK6fSZxNbEY+OYx
-         gvisrBQOQXHaNDsKbW8KVVV+U+V5gFrYSMUYfHV/Ab2mtfgrbQ6ap0O409bILnVSypbG
-         3+VUOSu49Nd6np9Pm3v1LdlPrkoGSeonbkZUg+XSReqH+0vS9r04KLiIZUuIhGmwO/xa
-         UJgCXrQ8VkCEBQN3LK9SN/bAcDN1B4TJMOh+uZW6uFJhm+INn7MBLVBRfmiIQY03k+an
-         NULp7btIp3Mun5st8ITv/5QG4mBDn5HIjKCOw3WfFgimxuDfuEN/gbrhtrqU2jKksrT9
-         vyrw==
-X-Gm-Message-State: AOJu0Yyccjr3nEmKGw1am3Y3uJykUC+ZMwjBvMu/2u9ROT4LUGaWcXc0
-	Y7RziMUv70t2kk1iGFyLGEHulY3d37F/2wOCHt5IL85ehklIvifbEApAmRvXpvmrkjcW
-X-Gm-Gg: ATEYQzypWfsXMz69q0p83T4B4/AVzM4hqYfTMrvzxZagCegYO3IFT+C6jdjKj02TSUf
-	1jeaVJxsxgYmtyOPmc2b3gvt8l80lpUAvWFLp0Y5YTfAeQ/k4x4lyPIbljm/n1ftBUOJjA+jR9C
-	trGTXQ10TIUPXYYQ+l4FaR5re2WMYTMDSb8BoKYGXnP/5mS8Mu8TxMXtpF0eiKYiHoTMNDCkZS/
-	etdoOjZPRhZuxYqPqjiOLAssa3ZbB3eB1ypi0EqE7Yuk6NBEn43z7NR28P5vZ0n3cfDMedNh9Td
-	o3lmwi89UOmGTiiM43e3Cp8s2CplIUBv/00xpTRgkJURomv41ND88pQ9bCUCkJsC+K+dc/Yu39D
-	OLnSIuuiM70rj+7Wfk/rhR6MxF35gxLCxmYc5E/HZKzaopHGxx0vMr9KvCValco/r9RpLdCHi4B
-	WKDIIQO9F3zQDUACqBh+BDVJLy383cD48Fz1Uagru2oRrahDg96SUcivqdaQlUjyV7CMtFAU9X6
-	q4APuAXmwTo5maKR2kRCwKKynyWGMVM/Yok1sPwm72rwQM+XsREZTKxocnq2dAmDiNrsZQ3/4PL
-	WJLqRJoAiEm7nfs=
-X-Received: by 2002:a05:6000:4283:b0:439:df17:b037 with SMTP id ffacd0b85a97d-43a04d780f9mr9727413f8f.12.1773450341141;
-        Fri, 13 Mar 2026 18:05:41 -0700 (PDT)
-Received: from sissix.lzampier.com (92.40.172.137.threembb.co.uk. [92.40.172.137])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43a03cfd18fsm13059963f8f.36.2026.03.13.18.05.39
+        d=1e100.net; s=20251104; t=1773474688; x=1774079488;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=U45jrujbw5JJI0xF9tm4sefL6UUjJiPpRTs8obNU44E=;
+        b=cqNYdmougtWEp4mMsWEKvgZg0TsamEg2PCXYXEWCGtuq82gOLXzG30ne17TJGzKzOs
+         XJ/ok9GI2rODiUl3Rq/paEadNBFjzInq5fbjFDvMKjiPFQdH00EuxMOKrMIe1BLHcDv0
+         6ukfLjXIgxBxAPCL0pc7prBO3EtZEjc/c0O8Hm8dTnXPxHjinY63jhY3W8V4HrFWsK79
+         TfkiFPSu0ZhTySC/4UiqmIwl5tIrtYeSYQERvs3IQ5Z0P/FvoILiobHk/iLmLmKiFhtd
+         V3FWC0HPv4x2158/nLYQFdFGBmTSkjqDSMfmPmPc97LJa/I7OKNg+Zkf4H1cgR08XNbE
+         /pHw==
+X-Forwarded-Encrypted: i=1; AJvYcCXU7ZQEOj7xD7nJ5EAef9o7JqiB+LyiyK3Bg3VdQSrJV0zH+kCYm/R9/tVNmBvsVLtUkho52G6L8bi9tQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw08VTVgfbxoLHdAvdGFCiQ5cC9K1O8u49MXFe/IZxE97nxO+vH
+	XDl5hYvCy1JDVj/+NEMLAsvP570sojkNJLB4Z2NW4xu1YvOsU15eBR2O
+X-Gm-Gg: ATEYQzyTSo0ce8absCvmPjaQ6R9pdNcOsj0qkpykafJGqGDEQD84BFtFZpsTfVZjfj3
+	lW5uktFtglUFzdTGrK2KoTBrwXTtqSZ8cjIvR9DWp0ucUi0wrjMEng6PrPewDRW6G35jRy0+ZX7
+	vDIpZmqcVGqN6CKbe2z4wkNA0WGuYj4rSKf3aAQ0aY9YIR7tmnMUuabuNt0uJQ7322s0rkhNl+z
+	TrGMxFwFnHGTdmGz3gy/4L4ejh7KPJ3ZFRwtJ4QZvoS/UhoMRwLdkuQZw29Gn/qJd8ySVv2hXgB
+	glmp1tdnWekUFYkBn0Vz9WbOQ2pdhEBwzoEDLthVGRTI0M8nBqrYP1KBVVTj0979j5wqh79hlBu
+	YKI3dncmJ//ilbpus4q2M9HStoj4xJA/uvOS5ffMPk7IURnE6C9ZmoDi41ys5LopwbLa/BZfbvv
+	0oao3jBmqa01sD1vE5SzEgmVX9pIyLvKilNvl7UJNiI0L3he22rwhAtvdtex0Y0KoB9LuKPTEaJ
+	EyS2D3YxNCmCquVrNKAk+a/SsNzkb927IvFLu2XMjDwFrWldiHBxXr8KlBn40qu9lM=
+X-Received: by 2002:a05:6a21:6f8b:b0:398:a440:e3bc with SMTP id adf61e73a8af0-398ecdfc03dmr5865315637.66.1773474687889;
+        Sat, 14 Mar 2026 00:51:27 -0700 (PDT)
+Received: from sanjays-pc.govzhome.govindz.co.nz ([116.251.152.103])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c73ebb649a8sm3563670a12.18.2026.03.14.00.51.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2026 18:05:40 -0700 (PDT)
-From: Lucas Zampieri <lcasmz54@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Lucas Zampieri <lcasmz54@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Bastien Nocera <hadess@hadess.net>,
-	linux-pm@vger.kernel.org
-Subject: [PATCH v7 3/3] HID: input: Add support for multiple batteries per device
-Date: Sat, 14 Mar 2026 01:05:30 +0000
-Message-ID: <20260314010533.110278-4-lcasmz54@gmail.com>
+        Sat, 14 Mar 2026 00:51:27 -0700 (PDT)
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Vicki Pfau <vi@endrift.com>,
+	Nilton Perim Neto <niltonperimneto@gmail.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Sanjay Govind <sanjay.govind9@gmail.com>,
+	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Cc: Antheas Kapenekakis <lkml@antheas.dev>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] xpad: Overhaul device data for wireless devices
+Date: Sat, 14 Mar 2026 20:50:32 +1300
+Message-ID: <20260314075034.1488655-2-sanjay.govind9@gmail.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260314010533.110278-1-lcasmz54@gmail.com>
-References: <20260314010533.110278-1-lcasmz54@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,191 +79,210 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add support for HID devices that report multiple batteries, each
-identified by its report ID.
+Xbox 360 wireless controllers expose information in the link and
+capabilities reports.
 
-The hid_device->battery pointer is replaced with a batteries list.
-Batteries are named using the pattern hid-{uniq}-battery-{report_id}.
-The hid_get_battery() helper returns the first battery in the list for
-backwards compatibility with single-battery drivers.
+Extract and use the vendor id for wireless controllers, and use
+the subtype to build a nicer device name and product id.
 
-Signed-off-by: Lucas Zampieri <lcasmz54@gmail.com>
+Some xbox 360 controllers put a vid and pid into the stick capability
+data, so check if this was done, and pull the vid, pid and revision from
+there.
+
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
 ---
- drivers/hid/hid-core.c  |  4 ++++
- drivers/hid/hid-input.c | 44 ++++++++++++++++++++++++++++-------------
- include/linux/hid.h     | 11 ++++++++---
- 3 files changed, 42 insertions(+), 17 deletions(-)
+ drivers/input/joystick/xpad.c | 138 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 135 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index da57cbf0a..58a31ee07 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2995,6 +2995,10 @@ struct hid_device *hid_allocate_device(void)
- 	mutex_init(&hdev->ll_open_lock);
- 	kref_init(&hdev->ref);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bf4accf3f581..2490eb21a534 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -94,6 +94,22 @@
+ #define XTYPE_XBOXONE     3
+ #define XTYPE_UNKNOWN     4
  
-+#ifdef CONFIG_HID_BATTERY_STRENGTH
-+	INIT_LIST_HEAD(&hdev->batteries);
-+#endif
++#define FLAG_FORCE_FEEDBACK	0x01
 +
- 	ret = hid_bpf_device_init(hdev);
- 	if (ret)
- 		goto out_err;
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index b5d34658b..8fff185fe 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -507,6 +507,18 @@ static int hidinput_get_battery_property(struct power_supply *psy,
- 	return ret;
++#define SUBTYPE_GAMEPAD			 0x01
++#define SUBTYPE_WHEEL			 0x02
++#define SUBTYPE_ARCADE_STICK	 0x03
++#define SUBTYPE_FLIGHT_SICK		 0x04
++#define SUBTYPE_DANCE_PAD		 0x05
++#define SUBTYPE_GUITAR			 0x06
++#define SUBTYPE_GUITAR_ALTERNATE 0x07
++#define SUBTYPE_DRUM_KIT		 0x08
++#define SUBTYPE_GUITAR_BASS		 0x0B
++#define SUBTYPE_RB_KEYBOARD		 0x0F
++#define SUBTYPE_ARCADE_PAD		 0x13
++#define SUBTYPE_TURNTABLE		 0x17
++#define SUBTYPE_PRO_GUITAR		 0x19
++
+ /* Send power-off packet to xpad360w after holding the mode button for this many
+  * seconds
+  */
+@@ -795,6 +811,9 @@ struct usb_xpad {
+ 	int xtype;			/* type of xbox device */
+ 	int packet_type;		/* type of the extended packet */
+ 	int pad_nr;			/* the order x360 pads were attached */
++	u8 sub_type;
++	u16 flags;
++	u16 wireless_vid;
+ 	const char *name;		/* name of the device */
+ 	struct work_struct work;	/* init/remove device from callback */
+ 	time64_t mode_btn_down_ts;
+@@ -807,6 +826,8 @@ static void xpad_deinit_input(struct usb_xpad *xpad);
+ static int xpad_start_input(struct usb_xpad *xpad);
+ static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
+ static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
++static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad);
++
+ 
+ /*
+  *	xpad_process_packet
+@@ -1026,12 +1047,46 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
+ 	if (data[0] & 0x08) {
+ 		present = (data[1] & 0x80) != 0;
+ 
+-		if (xpad->pad_present != present) {
++		/* delay prescence until after we get the link report */
++		if (!present && xpad->pad_present) {
+ 			xpad->pad_present = present;
+ 			schedule_work(&xpad->work);
+ 		}
+ 	}
+ 
++	/* Link report */
++	if (data[0] == 0x00 && data[1] == 0x0F) {
++		xpad->sub_type = data[25] & 0x7f;
++
++		/* Decode vendor id from link report */
++		xpad->wireless_vid = ((data[0x16] & 0xf) | data[0x18] << 4) << 8 | data[0x17];
++
++		if ((data[25] & 0x80) != 0)
++			xpad->flags |= FLAG_FORCE_FEEDBACK;
++
++		if (!xpad->pad_present) {
++			xpad->pad_present = true;
++			schedule_work(&xpad->work);
++		}
++		xpad_inquiry_pad_capabilities(xpad);
++	}
++
++	/* Capabilities report */
++	if (data[0] == 0x00 && data[1] == 0x05 && data[5] == 0x12) {
++		xpad->flags |= data[20];
++		/*
++		 * A bunch of vendors started putting vids and pids
++		 * into capabilities data because they can't be
++		 * retrieved by xinput easliy.
++		 * Not all of them do though, so check the vids match
++		 * before extracting that info.
++		 */
++		if (((data[11] << 8) | data[10]) == xpad->wireless_vid) {
++			xpad->dev->id.product = (data[13] << 8) | data[12];
++			xpad->dev->id.version = (data[15] << 8) | data[14];
++		}
++	}
++
+ 	/* Valid pad data */
+ 	if (data[1] != 0x1)
+ 		return;
+@@ -1495,6 +1550,31 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
+ 	return xpad_try_sending_next_out_packet(xpad);
  }
  
-+static struct hid_battery *hidinput_find_battery(struct hid_device *dev,
-+						 int report_id)
++static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad)
 +{
-+	struct hid_battery *bat;
++	struct xpad_output_packet *packet =
++			&xpad->out_packets[XPAD_OUT_CMD_IDX];
 +
-+	list_for_each_entry(bat, &dev->batteries, list) {
-+		if (bat->report_id == report_id)
-+			return bat;
-+	}
-+	return NULL;
++	guard(spinlock_irqsave)(&xpad->odata_lock);
++
++	packet->data[0] = 0x00;
++	packet->data[1] = 0x00;
++	packet->data[2] = 0x02;
++	packet->data[3] = 0x80;
++	packet->data[4] = 0x00;
++	packet->data[5] = 0x00;
++	packet->data[6] = 0x00;
++	packet->data[7] = 0x00;
++	packet->data[8] = 0x00;
++	packet->data[9] = 0x00;
++	packet->data[10] = 0x00;
++	packet->data[11] = 0x00;
++	packet->len = 12;
++	packet->pending = true;
++
++	return xpad_try_sending_next_out_packet(xpad);
 +}
 +
- static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 				  struct hid_field *field, bool is_percentage)
+ static int xpad_start_xbox_one(struct usb_xpad *xpad)
  {
-@@ -517,13 +529,15 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	s32 min, max;
  	int error;
+@@ -1965,8 +2045,60 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 	usb_to_input_id(xpad->udev, &input_dev->id);
  
--	if (dev->battery)
--		return 0;	/* already initialized? */
-+	/* Check if battery for this report ID already exists */
-+	if (hidinput_find_battery(dev, field->report->id))
-+		return 0;
- 
- 	quirks = find_battery_quirk(dev);
- 
--	hid_dbg(dev, "device %x:%x:%x %d quirks %d\n",
--		dev->bus, dev->vendor, dev->product, dev->version, quirks);
-+	hid_dbg(dev, "device %x:%x:%x %d quirks %d report_id %d\n",
-+		dev->bus, dev->vendor, dev->product, dev->version, quirks,
-+		field->report->id);
- 
- 	if (quirks & HID_BATTERY_QUIRK_IGNORE)
- 		return 0;
-@@ -538,9 +552,11 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 		goto err_free_bat;
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+-		/* x360w controllers and the receiver have different ids */
+-		input_dev->id.product = 0x02a1;
++		/*
++		 * x360w controllers on windows put the subtype into the product
++		 * for wheels and gamepads, but it makes sense to do it for all
++		 * subtypes
++		 */
++		input_dev->id.product = 0x02a0 + xpad->sub_type;
++		/* If the Link report has provided a vid, it won't be set to 1 */
++		if (xpad->wireless_vid != 1)
++			input_dev->id.vendor = xpad->wireless_vid;
++		switch (xpad->sub_type) {
++		case SUBTYPE_GAMEPAD:
++			input_dev->name = "Xbox 360 Wireless Controller";
++			break;
++		case SUBTYPE_WHEEL:
++			input_dev->name = "Xbox 360 Wireless Wheel";
++			break;
++		case SUBTYPE_ARCADE_STICK:
++			input_dev->name = "Xbox 360 Wireless Arcade Stick";
++			break;
++		case SUBTYPE_FLIGHT_SICK:
++			input_dev->name = "Xbox 360 Wireless Flight Stick";
++			break;
++		case SUBTYPE_DANCE_PAD:
++			input_dev->name = "Xbox 360 Wireless Dance Pad";
++			break;
++		case SUBTYPE_GUITAR:
++			input_dev->name = "Xbox 360 Wireless Guitar";
++			break;
++		case SUBTYPE_GUITAR_ALTERNATE:
++			input_dev->name = "Xbox 360 Wireless Alternate Guitar";
++			break;
++		case SUBTYPE_GUITAR_BASS:
++			input_dev->name = "Xbox 360 Wireless Bass Guitar";
++			break;
++		case SUBTYPE_DRUM_KIT:
++			/* Vendors used force feedback flag to differentiate these */
++			if (xpad->flags & FLAG_FORCE_FEEDBACK)
++				input_dev->name = "Xbox 360 Wireless Guitar Hero Drum Kit";
++			else
++				input_dev->name = "Xbox 360 Wireless Rock Band Drum Kit";
++			break;
++		case SUBTYPE_RB_KEYBOARD:
++			input_dev->name = "Xbox 360 Wireless Rock Band Keyboard";
++			break;
++		case SUBTYPE_ARCADE_PAD:
++			input_dev->name = "Xbox 360 Wireless Arcade Pad";
++			break;
++		case SUBTYPE_TURNTABLE:
++			input_dev->name = "Xbox 360 Wireless DJ Hero Turntable";
++			break;
++		case SUBTYPE_PRO_GUITAR:
++			input_dev->name = "Xbox 360 Wireless Rock Band Pro Guitar";
++			break;
++		}
  	}
  
--	psy_desc->name = devm_kasprintf(&dev->dev, GFP_KERNEL, "hid-%s-battery",
-+	psy_desc->name = devm_kasprintf(&dev->dev, GFP_KERNEL,
-+					"hid-%s-battery-%d",
- 					strlen(dev->uniq) ?
--						dev->uniq : dev_name(&dev->dev));
-+						dev->uniq : dev_name(&dev->dev),
-+					field->report->id);
- 	if (!psy_desc->name) {
- 		error = -ENOMEM;
- 		goto err_free_desc;
-@@ -593,7 +609,7 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	}
- 
- 	power_supply_powers(bat->ps, &dev->dev);
--	dev->battery = bat;
-+	list_add_tail(&bat->list, &dev->batteries);
- 	return 0;
- 
- err_free_name:
-@@ -602,7 +618,6 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	devm_kfree(&dev->dev, psy_desc);
- err_free_bat:
- 	devm_kfree(&dev->dev, bat);
--	dev->battery = NULL;
- 	return error;
- }
- 
-@@ -620,12 +635,13 @@ static bool hidinput_update_battery_charge_status(struct hid_battery *bat,
- 	return false;
- }
- 
--static void hidinput_update_battery(struct hid_device *dev, unsigned int usage,
--				    int value)
-+static void hidinput_update_battery(struct hid_device *dev, int report_id,
-+				    unsigned int usage, int value)
- {
--	struct hid_battery *bat = dev->battery;
-+	struct hid_battery *bat;
- 	int capacity;
- 
-+	bat = hidinput_find_battery(dev, report_id);
- 	if (!bat)
- 		return;
- 
-@@ -661,8 +677,8 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 	return 0;
- }
- 
--static void hidinput_update_battery(struct hid_device *dev, unsigned int usage,
--				    int value)
-+static void hidinput_update_battery(struct hid_device *dev, int report_id,
-+				    unsigned int usage, int value)
- {
- }
- #endif	/* CONFIG_HID_BATTERY_STRENGTH */
-@@ -1546,7 +1562,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 		return;
- 
- 	if (usage->type == EV_PWR) {
--		hidinput_update_battery(hid, usage->hid, value);
-+		hidinput_update_battery(hid, report->id, usage->hid, value);
- 		return;
- 	}
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 71beff003..442a80d79 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -648,6 +648,7 @@ enum hid_battery_status {
-  * @avoid_query: if true, avoid querying battery (e.g., for stylus)
-  * @present: if true, battery is present (may be dynamic)
-  * @ratelimit_time: rate limiting for battery reports
-+ * @list: list node for linking into hid_device's battery list
-  */
- struct hid_battery {
- 	struct hid_device *dev;
-@@ -662,6 +663,7 @@ struct hid_battery {
- 	bool avoid_query;
- 	bool present;
- 	ktime_t ratelimit_time;
-+	struct list_head list;
- };
- 
- struct hid_driver;
-@@ -700,9 +702,10 @@ struct hid_device {
- #ifdef CONFIG_HID_BATTERY_STRENGTH
- 	/*
- 	 * Power supply information for HID devices which report
--	 * battery strength. battery is non-NULL if successfully registered.
-+	 * battery strength. Each battery is tracked separately in the
-+	 * batteries list.
- 	 */
--	struct hid_battery *battery;
-+	struct list_head batteries;
- #endif
- 
- 	unsigned long status;						/* see STAT flags above */
-@@ -767,7 +770,9 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
- #ifdef CONFIG_HID_BATTERY_STRENGTH
- static inline struct hid_battery *hid_get_battery(struct hid_device *hdev)
- {
--	return hdev->battery;
-+	if (list_empty(&hdev->batteries))
-+		return NULL;
-+	return list_first_entry(&hdev->batteries, struct hid_battery, list);
- }
- #endif
- 
+ 	input_dev->dev.parent = &xpad->intf->dev;
 -- 
 2.53.0
 

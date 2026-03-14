@@ -1,185 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6B47303A12;
-	Sat, 14 Mar 2026 12:18:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2365378D86;
+	Sat, 14 Mar 2026 13:51:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773490733; cv=none; b=W1nsxHZmWXxuJotbKSrK3eP2BXg3X/M7FTs7KvzAg88Bx3U3nEJ1yuC3dJFqJIVcvKrUM3KZ472wLLzaWTKWUkAF0+kGMoIV5ABGJZm6wnt73FdqmSayCSTvEmggQVlXgiAYPJhpDk4L7W3d6TAVC5Ixr6v3nTIIGlvA3z1NhqI=
+	t=1773496272; cv=none; b=LBNJenhGcYPzKWZ6yy8tuT4E3cTIYgxkTOoZiFIFNCZYTTfwAkXHM92QwDS+0dajol3zUXEiL6rpFGNZ4fk2ZBdi7QYurWVgP8E/65s0JQMRzGCD6cmbJsN9T5BSVx9XuZKPit4tjon8p1SRlovra6USfujOUYFARkFcNEQo1sM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773490733; c=relaxed/simple;
-	bh=3YXqDZb2j9/Tmqdnz5mG+lyHwXBw7W1+1HfiLDTMsj0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mxuEg2z+F2dkVQFN6wh4RdRkz4Ncy0Dlagez+D4F9hstwRWTaKMqoFxEhsdVrOMwMn1ZpBHMteFWHlcCVaW7aZzSdZWTUedOeYpNNpPXCWhBUYljDzy44NMBV/N1FjVkrLeWbZOrBOt+6q78nTFLatAN29j+xKwGVuVOxDbFyBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V068ur+U; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773496272; c=relaxed/simple;
+	bh=pW7t2BnCj8uwVF79bm6uJuPJ7BiinCQqhERJXQguAjU=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=ag4Mlq0mFBmrw3QjmIh3fgaF2gwRll84f+DrWIt5t8FEThhuPu1Rlsa/VDWNv2cgwR+YatdkNVtKLu98lMWnYRzkIjmEyZ7ndDKWJiwvcdGSzVP8bKXRPvQygaM6iDDnsna9QPphvoJn7r1nuQI0DreWXtuZxKtbeNLZIbDY8CE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in; spf=pass smtp.mailfrom=machinesoul.in; dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b=DTRFNVL2; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=0tUTWAy+; arc=none smtp.client-ip=103.168.172.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=machinesoul.in
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=machinesoul.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V068ur+U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8796EC116C6;
-	Sat, 14 Mar 2026 12:18:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773490733;
-	bh=3YXqDZb2j9/Tmqdnz5mG+lyHwXBw7W1+1HfiLDTMsj0=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=V068ur+U4s7CUaQ6hQBECYL/XVa8UjWp40dxGFHlddWIwgHbCjNaMu6M0GCUwzLO6
-	 elMYK1XSuW1mEhWZ8vdu9m+ArD4EQeGuSJg6eEgvjcOboimkq7Fb/AvR8RewSkJVvc
-	 lLhYfJvjYKwS70t0cMS7GV+SsQTUL6yU5Ljh531BFq8J+9M+0kdgfb7qVSTOPkcpUO
-	 rGNlqrYuNzUtnKRLEuk/KYTgXO9joElM5SVvvMGTMFnq6JNkHYSSqKgGqByr5UsVTC
-	 hHgP/dUBahvqZf2PxXI6SuxKl1n2p7W7gibYbsHNKqPCPcYcXuA7lauRF0RKftJYTx
-	 g4SP80q4ohV3g==
-Date: Sat, 14 Mar 2026 12:18:38 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: David Lechner <dlechner@baylibre.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, Nuno =?UTF-8?B?U8Oh?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Lars
- =?UTF-8?B?TcO2bGxlbmRvcmY=?= <lars.moellendorf@plating.de>, Lars-Peter
- Clausen <lars@metafoo.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jonathan Cameron <Jonathan.Cameron@huawei.com>, Lixu Zhang
- <lixu.zhang@intel.com>, Francesco Lavra <flavra@baylibre.com>,
- linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] iio: orientation: hid-sensor-rotation: add
- timestamp hack to not break userspace
-Message-ID: <20260314121838.620a4b4c@jic23-huawei>
-In-Reply-To: <20260307-iio-fix-timestamp-alignment-v2-1-d1d48fbadbbf@baylibre.com>
-References: <20260307-iio-fix-timestamp-alignment-v2-0-d1d48fbadbbf@baylibre.com>
-	<20260307-iio-fix-timestamp-alignment-v2-1-d1d48fbadbbf@baylibre.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=machinesoul.in header.i=@machinesoul.in header.b="DTRFNVL2";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="0tUTWAy+"
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id EFBF814001D5;
+	Sat, 14 Mar 2026 09:51:08 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-03.internal (MEProxy); Sat, 14 Mar 2026 09:51:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=machinesoul.in;
+	 h=cc:cc:content-transfer-encoding:content-type:content-type
+	:date:date:from:from:in-reply-to:message-id:mime-version
+	:reply-to:subject:subject:to:to; s=fm1; t=1773496268; x=
+	1773582668; bh=IhkQ/5onaqgb/nqLvtpbfM0RpnExUlf8pJvYxq0f4JQ=; b=D
+	TRFNVL2+r2VcPQdjmYxhCClfY0TKepVXB/aBS+wLKbTfH5LDjua7AStSY04i6yT4
+	f+i4udf2U7sclhMd4Hl+StIoA0o2U2xwAw0qACydfGvL22TS89mz/13FZLe0JsK9
+	XABmviX3uQHstfCJGDJ773Bl64wi5kEOFvAx7UtK2rUzxO5DFBaF/FGl5o/VpEJK
+	dfu2/0gtufMJ7EynvUbIzuzlGKFBpG1dw3MwYxo1/BIQfW3ZtfwPVLFE6SUXmErK
+	itKJp2hsZLdRf1tGeQ/HhOZH3PpTlINqMlvwMAIFOvh2CTHpMJPUGqXQUOtcM3SY
+	jBmTCJx+6CQtaGK3wllpg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1773496268; x=1773582668; bh=IhkQ/5onaqgb/nqLvtpbfM0RpnEx
+	Ulf8pJvYxq0f4JQ=; b=0tUTWAy+VlDaqbLR/yLc3IT1lGtCKlultOWmIqBir+5a
+	YNYHiMSGejYo/9A9IXiBmDivnyOqEQIg4yLtjCZjmkc5OknLYOP5CkHN2vIvNqWS
+	3N4Hfz8+96UHsekpvRCJx169JUqyRWVSyPj7LaMpROF8mJL/goV3OPd10/qZhj0H
+	UZAmjnDoESTvh2pPQhmmlMbVaAbloYczL61WXHr//w4ejx0tpr3/te0IBExCoCjv
+	sUlTXg3RBDSyCOgaRHbno8hHcLupNL7V0Tj1BKSB0/gMeEfNMliuZcgOwb7Pk+Vo
+	TYkZOJJ3oEltSi0/Zdj232GcS3wbBXyAfh/pB/zgqQ==
+X-ME-Sender: <xms:zGe1aUQ-HFM9TUYUkzE-I4xTa13355PUSaGz-HQQoVvZbXDIKPHDCA>
+    <xme:zGe1adyYXwKrPO7_xnj2661-mzFe0-kUpyOwEBEFZIuELbRCEZBhrBI67HZSBxgWS
+    4DOPLMYJkodvv_X945UmjR3Ws0YFKXc20SGRoAMojTQNCtFxIaogq4>
+X-ME-Received: <xmr:zGe1aUAOnRv4pnTKF2fBlVtagH9KBi-2gNqAW3r3XFREoXuYjUIQXRVWgVw_QQlaa0A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvledvjeefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephfffufggtgfgkffvvefosehtjeertdertdejnecuhfhrohhmpeeuhhhushhhrghn
+    ucfuhhgrhhcuoegshhhushhhrghnrdhshhgrhhesmhgrtghhihhnvghsohhulhdrihhnqe
+    enucggtffrrghtthgvrhhnpedtudffjeelfefhvdekkeeggeffhfeludevtefgkeekgfdt
+    gefgtdegueduledvvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghhuhhshhgrnhdrshhh
+    rghhsehmrggthhhinhgvshhouhhlrdhinhdpnhgspghrtghpthhtohepkedpmhhouggvpe
+    hsmhhtphhouhhtpdhrtghpthhtohepkhhriihkodgutheskhgvrhhnvghlrdhorhhgpdhr
+    tghpthhtohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtg
+    hpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegshhhushhhrghn
+    rdhshhgrhhesmhgrtghhihhnvghsohhulhdrihhnpdhrtghpthhtoheplhhinhhugidqkh
+    gvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghonhhorhdo
+    ughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvgh
+    gvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepughmihhtrhihrdhtohhrohhkhhho
+    vhesghhmrghilhdrtghomh
+X-ME-Proxy: <xmx:zGe1aZFxYLKMhPS00sVfRsVFo20xY9gcWmM5nxfnRtP9u1D5eW40xg>
+    <xmx:zGe1abN14o-eiTYQxzEus0m-uua-Pe_1O2SXjGeerGOpeNnYzB6R7g>
+    <xmx:zGe1aa6ku4EchJeGTNE7p48cWBIEWRFbSklwsoafn0wgwtD0f8-X5w>
+    <xmx:zGe1aeihwQh6JxpKaLZKTrHdfIrSfy44OOR58lAVqSRFunjo5wV1DQ>
+    <xmx:zGe1abqkN4qpfLNw-E-7VVcQK4QyGBUyBTWTLhSzZAzeTVT91ZHlCVMJ>
+Feedback-ID: i6b0e4831:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 14 Mar 2026 09:51:06 -0400 (EDT)
+From: Bhushan Shah <bhushan.shah@machinesoul.in>
+Date: Sat, 14 Mar 2026 19:20:46 +0530
+Subject: [PATCH v2] dt-bindings: input: touchscreen: edt-ft5x06: Add
+ FocalTech FT3519
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260314-edt-ft3519-v2-1-e28c3f9c6559@machinesoul.in>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23MQQ7CIBCF4as0sxZTmLSprrxH0wXCYCdRMIBE0
+ 3B3sWuX/0vet0GiyJTg3G0QqXDi4FuoQwdm1f5Ggm1rUL0ae5QoyGbhMg7yJK5ISiPSNBFBOzw
+ jOX7v2Ly0XjnlED+7XeRv/csUKXrhaHDOjKicVZeHNit7SuF1P7KHpdb6BWuB5+ipAAAA
+X-Change-ID: 20260313-edt-ft3519-b3e2a33e88ee
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Bhushan Shah <bhushan.shah@machinesoul.in>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2033;
+ i=bhushan.shah@machinesoul.in; h=from:subject:message-id;
+ bh=pW7t2BnCj8uwVF79bm6uJuPJ7BiinCQqhERJXQguAjU=;
+ b=owEBbQGS/pANAwAKARGWjESSjK78AcsmYgBptWfJUaeeT8xABTbpAjxmtsnHJwJTarC1U4Hxh
+ tFZUxWPq3yJATMEAAEKAB0WIQSzyzZlUlQL4G7prZcRloxEkoyu/AUCabVnyQAKCRARloxEkoyu
+ /EVXB/sFcae/tYVTjr/gvm2gl3EABy7+EwMtXqOWmR5O5Uc81Frdr47OlZDqG0CtsBUiaQhFGaG
+ euG63mz1atQa3pcMYxhG/9GzLJghM8l+D9NGDqkbmtcGTWKSyMd/ZEc5KvK+3Y4VdWiA/6YK2ch
+ N6UHy4LAnHVvwXZFwuW5TONnLMk9JxVYc2qzO9DZXvkFXkhLbsO/9taCZ00yu+uZ8/bfQD+nYjK
+ 1Dwl5aLVnAhqmSyYMwgPnGhdsy2MjRw6q0tvHNqA54QVCLjt5F+J9GOTBTd65jLhOUsXnNaaviG
+ ioDjKM1msLUZ2+zYc2xELuSCPzZlkBtsS9deyB6djSkyOIHu
+X-Developer-Key: i=bhushan.shah@machinesoul.in; a=openpgp;
+ fpr=0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D
 
-On Sat, 07 Mar 2026 19:44:09 -0600
-David Lechner <dlechner@baylibre.com> wrote:
+Document FocalTech FT3519 support by adding the compatible. It's 10
+point touchscreen, which is compatible with FT3518
 
-> Add a hack to push two timestamps in the hid-sensor-rotation scan data
-> to avoid breaking userspace applications that depend on the timestamp
-> being at the incorrect location in the scan data due to unintentional
-> misalignment in older kernels.
-> 
-> When this driver was written, the timestamp was in the correct location
-> because of the way iio_compute_scan_bytes() was implemented at the time.
-> (Samples were 24 bytes each.) Then commit 883f61653069 ("iio: buffer:
-> align the size of scan bytes to size of the largest element") changed
-> the computed scan_bytes to be a different size (32 bytes), which caused
-> iio_push_to_buffers_with_timestamp() to place the timestamp at an
-> incorrect offset.
-> 
-> There have been long periods of time (6 years each) where the timestamp
-> was in either location, so to not break either case, we open-code the
-> timestamps to be pushed to both locations in the scan data.
-> 
-> Reported-by: Jonathan Cameron <jic23@kernel.org>
-> Closes: https://lore.kernel.org/linux-iio/20260215162351.79f40b32@jic23-huawei/
-> Fixes: 883f61653069 ("iio: buffer: align the size of scan bytes to size of the largest element")
-> Signed-off-by: David Lechner <dlechner@baylibre.com>
-As suggested, I've applied this one to fixes-togreg and the rest will have
-to wait for now.  Interestingly this cycle has more fixes coming through
-than any I remember!  Hence I've sent a 2nd fixes pull and this will
-be queued up for the 3rd in a week or so.  It's possible the rest
-might have to wait for next cycle though given round trip times etc.
+Signed-off-by: Bhushan Shah <bhushan.shah@machinesoul.in>
+---
+Document FocalTech FT3519 support by adding the compatible. It's 10
+point touchscreen, which is compatible with FT3518.
+---
+Changes in v2:
+- Remove the driver change and add only compatible in dt-bindings.
+- Link to v1: https://lore.kernel.org/r/20260313-edt-ft3519-v1-0-fe5ffc632fd2@machinesoul.in
+---
+ .../bindings/input/touchscreen/edt-ft5x06.yaml     | 30 ++++++++++++----------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
-Let's see.
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+index 6f90522de8c0..cc071acc1c72 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+@@ -33,19 +33,23 @@ allOf:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - edt,edt-ft5206
+-      - edt,edt-ft5306
+-      - edt,edt-ft5406
+-      - edt,edt-ft5506
+-      - evervision,ev-ft5726
+-      - focaltech,ft3518
+-      - focaltech,ft5426
+-      - focaltech,ft5452
+-      - focaltech,ft6236
+-      - focaltech,ft8201
+-      - focaltech,ft8716
+-      - focaltech,ft8719
++    oneOf:
++      - enum:
++        - edt,edt-ft5206
++        - edt,edt-ft5306
++        - edt,edt-ft5406
++        - edt,edt-ft5506
++        - evervision,ev-ft5726
++        - focaltech,ft3518
++        - focaltech,ft5426
++        - focaltech,ft5452
++        - focaltech,ft6236
++        - focaltech,ft8201
++        - focaltech,ft8716
++        - focaltech,ft8719
++      - items:
++        - const: focaltech,ft3519
++        - const: focaltech,ft3518
+ 
+   reg:
+     maxItems: 1
 
-Thanks for sorting this out and for the test scripts etc!
+---
+base-commit: 0257f64bdac7fdca30fa3cae0df8b9ecbec7733a
+change-id: 20260313-edt-ft3519-b3e2a33e88ee
 
-
-Jonathan
-
-> ---
-> 
-> v2 changes:
-> - Rebased on fix that also touches the scan struct.
-> - Improved comments.
-> 
-> I found that I could emulate this thanks to /dev/uhid. And thanks to AI
-> code generators, I was able to reasonably quickly make a script that
-> worked for emulating "HID-SENSOR-20008a". See v1 message for test script
-> source code.
-> 
-> [v1]: https://lore.kernel.org/linux-iio/20260301-iio-fix-timestamp-alignment-v1-1-1a54980bfb90@baylibre.com/
-> 
-> I set up the buffer like this:
-> 
-> cd /sys/bus/iio/devices/iio:device1/buffer0
-> echo 1 > in_rot_quaternion_en
-> echo 1 > in_timestamp_en
-> echo 1 > enable
-> 
-> Before this series is applied, we can see that the timestamp (group of 8
-> ending in "98 18") is at offset of 24 in the 32-byte data.
-> 
-> hd /dev/iio\:device1
-> 
-> 00000000  6a 18 00 00 ac f3 ff ff  83 2d 00 00 02 d3 ff ff  |j........-......|
-> 00000010  00 00 00 00 00 00 00 00  5a 17 a0 2a 73 cb 98 18  |........Z..*s...|
-> 
-> 00000020  ad 17 00 00 6a f4 ff ff  35 2b 00 00 ca d0 ff ff  |....j...5+......|
-> 00000030  00 00 00 00 00 00 00 00  2a a6 bb 30 73 cb 98 18  |........*..0s...|
-> 
-> 00000040  92 1e 00 00 50 ec ff ff  ea c1 ff ff 78 f0 ff ff  |....P.......x...|
-> 00000050  00 00 00 00 00 00 00 00  8f 3b a7 39 77 cb 98 18  |.........;.9w...|
-> 
-> After the first patch, we can see that the timestamp is now repeated at
-> both the correct and previous incorrect offsets (24 and 32). (Normally,
-> the last 8 bytes would be all 00 for padding.)
-> 
-> 00000000  dd e0 ff ff 0e e0 ff ff  75 07 00 00 90 3f 00 00  |........u....?..|
-> 00000010  f4 38 82 d0 3a cc 98 18  f4 38 82 d0 3a cc 98 18  |.8..:....8..:...|
-> 
-> 00000020  a0 e0 ff ff 1d e0 ff ff  a0 0a 00 00 1c 3f 00 00  |.............?..|
-> 00000030  3a 29 9f d6 3a cc 98 18  3a 29 9f d6 3a cc 98 18  |:)..:...:)..:...|
-> 
-> 00000040  a9 e1 ff ff 1e 14 00 00  6c c1 ff ff 98 f2 ff ff  |........l.......|
-> 00000050  39 21 77 11 55 cc 98 18  39 21 77 11 55 cc 98 18  |9!w.U...9!w.U...|
-> ---
->  drivers/iio/orientation/hid-sensor-rotation.c | 22 +++++++++++++++++++---
->  1 file changed, 19 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-> index 6806481873be..5a5e6e4fbe34 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -20,7 +20,12 @@ struct dev_rot_state {
->  	struct hid_sensor_hub_attribute_info quaternion;
->  	struct {
->  		IIO_DECLARE_QUATERNION(s32, sampled_vals);
-> -		aligned_s64 timestamp;
-> +		/*
-> +		 * ABI regression avoidance: There are two copies of the same
-> +		 * timestamp in case of userspace depending on broken alignment
-> +		 * from older kernels.
-> +		 */
-> +		aligned_s64 timestamp[2];
->  	} scan;
->  	int scale_pre_decml;
->  	int scale_post_decml;
-> @@ -154,8 +159,19 @@ static int dev_rot_proc_event(struct hid_sensor_hub_device *hsdev,
->  		if (!rot_state->timestamp)
->  			rot_state->timestamp = iio_get_time_ns(indio_dev);
->  
-> -		iio_push_to_buffers_with_timestamp(indio_dev, &rot_state->scan,
-> -						   rot_state->timestamp);
-> +		/*
-> +		 * ABI regression avoidance: IIO previously had an incorrect
-> +		 * implementation of iio_push_to_buffers_with_timestamp() that
-> +		 * put the timestamp in the last 8 bytes of the buffer, which
-> +		 * was incorrect according to the IIO ABI. To avoid breaking
-> +		 * userspace that may be depending on this broken behavior, we
-> +		 * put the timestamp in both the correct place [0] and the old
-> +		 * incorrect place [1].
-> +		 */
-> +		rot_state->scan.timestamp[0] = rot_state->timestamp;
-> +		rot_state->scan.timestamp[1] = rot_state->timestamp;
-> +
-> +		iio_push_to_buffers(indio_dev, &rot_state->scan);
->  
->  		rot_state->timestamp = 0;
->  	}
-> 
+Best regards,
+-- 
+Bhushan Shah <bhushan.shah@machinesoul.in>
 

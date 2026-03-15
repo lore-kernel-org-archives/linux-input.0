@@ -1,39 +1,39 @@
 Received: from ixit.cz (ixit.cz [185.100.197.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A8FD1A3157;
-	Sun, 15 Mar 2026 15:52:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A271219A7A;
+	Sun, 15 Mar 2026 17:09:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.100.197.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773589936; cv=none; b=uusKLZLqJCBbNnyLGqPyTPDqdAPWFynw0RUEucnITmVJfoICVmup+9vFZ9gYT2XJKt5LKP1CX93gkXbK++9Fz5guT1MfW7dJ4DSs18w3o4ZudGIv/VcCuatecCMhzUvoa6EusnU844ADE9mLg+OqXmtX+q2DX8DzPqlfMfcOETg=
+	t=1773594564; cv=none; b=eCYDPp2s4hynl3X5r3oZHwSP0+YIostIi1Xox9r8kCQciJC+IoM1LGQxGEh0+NsjpCYt/zxPA+UTNYkYf92xIfRc3SVa+w/frWga/jIf/2PaTaE5IZ9SxfLhvPLTIgmI1862h1RJ0spUPFXPHLvUubt2aXLK/Yq2DAWkdfaOMno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773589936; c=relaxed/simple;
-	bh=LiDIOW9Hy8dn6zZF+1pxdZ4F8o3UIcdSMhOoS0H9fe8=;
+	s=arc-20240116; t=1773594564; c=relaxed/simple;
+	bh=mX10FJAkNsenCP5RPPaxWE9Q884YI4qeCI+PcSfQa28=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pLGLCRNwsuQQc8aO9jN33DL/ol8b15JuhMXDNruFRpjcbsURmvblEsmCK6gaiTbX6W02drg/jwcD3/dG6zBw7JiVOQ0FkMyX41lF0FpjpjITEpDjzL9Mm3DE2PejDjGAeQRXecl6JrbgRyK7vE3ISPyCOtnZ7WGnPWBU4PKsWLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=sur3uond; arc=none smtp.client-ip=185.100.197.86
+	 In-Reply-To:Content-Type; b=NYXEnUBnFjRA9ArkheVXzbgkq0DfopFCiw/a8AMS8IsSLq6sVOFNu5H7VZP8mOROdjdTtvINxCGzjC/m5tcQlAIt/SyoF4x6+mqU1DUf3SLYwjwIkZAgahkGqj4w2810t/Cupjm932FlgmVRxpif3M/XQxrwFfdSS2mQXYzoZE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=JDAURPEB; arc=none smtp.client-ip=185.100.197.86
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="sur3uond"
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="JDAURPEB"
 Received: from [IPV6:2a02:f000:10bd:e301::1d7] (unknown [IPv6:2a02:f000:10bd:e301::1d7])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 3716053414BC;
-	Sun, 15 Mar 2026 16:52:02 +0100 (CET)
+	by ixit.cz (Postfix) with ESMTPSA id EC49653400BC;
+	Sun, 15 Mar 2026 18:09:15 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1773589922;
+	t=1773594556;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=6drqG0O4O0AKTzAz4HfPjF25blwHgCBvGYYrFt3dLpA=;
-	b=sur3uond+kX4e4Lgdu7Ywahn999EQBvi+FX+Zcr3zJyp2SOwsJuqWY9U/QscQX/cN9zosE
-	TT78GXoQ6pbkVLSnCYG2tBwDLvyEm1noob52xTzDVQAIhoML1wv2llmZRHKeWlvl1RMZpv
-	zM3eiMJVzZiVcjeQ4JpzliXhF+WOPng=
-Message-ID: <30606457-c28f-44c8-9811-63556a3e3f84@ixit.cz>
-Date: Sun, 15 Mar 2026 16:52:01 +0100
+	bh=gpKpWcE4rirX56wK1cuA2VwU8rzHhAoRcRhE8IIu4P8=;
+	b=JDAURPEBzqngX20RIdtqMbmfw7/J1wVHScRL52inZqhWiKjTTDlI4Epdt7hTK7aEKx34pv
+	+j3/ybQRUfpi3tfrccUnRSkSYYudDDAmWGhBSza51KBVcZVEdUyC9zAfT/5A36dCmXFyd3
+	XcyPVxORq2fmWABVDN1KMBjVb3e+eMo=
+Message-ID: <4b8c8d8c-d2f3-4938-a451-e8e9524d40c3@ixit.cz>
+Date: Sun, 15 Mar 2026 18:09:14 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,24 +41,24 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 10/10] arm64: dts: qcom: sdm845-google: Add STM FTS
- touchscreen support
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Subject: Re: [PATCH 08/10] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce STM FTS5
+To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
  Maxime Coquelin <mcoquelin.stm32@gmail.com>,
  Alexandre Torgue <alexandre.torgue@foss.st.com>,
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>,
  Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
  linux-stm32@st-md-mailman.stormreply.com,
  linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
 References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
- <20260301-stmfts5-v1-10-22c458b9ac68@ixit.cz>
- <b747b545-12c7-4e33-95ae-ffa114fa13ec@oss.qualcomm.com>
+ <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
+ <qibmsgfttxo6kiaqyjljj6otamqp7okfr4abwpmuo7daanl6qu@ka33zvoz7lte>
 Content-Language: en-US
 From: David Heidelberg <david@ixit.cz>
 Autocrypt: addr=david@ixit.cz; keydata=
@@ -104,82 +104,52 @@ Autocrypt: addr=david@ixit.cz; keydata=
  zRKcgRumz2Tc1ouHj6qINlzEe3a5ldctIn/dvR1l2Ko7GBTG+VGp9U5NOAEkGpxHG9yg6eeY
  fFYnMme51H/HKiyUlFiE3yd5LSmv8Dhbf+vsI4x6BOOOq4Iyop/Exavj1owGxW0hpdUGcCl1
  ovlwVPO/6l/XLAmSGwdnGqok5eGZQzSst0tj9RC9O0dXO1TZocOsf0tJ8dR2egX4kxM=
-In-Reply-To: <b747b545-12c7-4e33-95ae-ffa114fa13ec@oss.qualcomm.com>
+In-Reply-To: <qibmsgfttxo6kiaqyjljj6otamqp7okfr4abwpmuo7daanl6qu@ka33zvoz7lte>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+On 01/03/2026 23:40, Dmitry Baryshkov wrote:
 
+[...]
 
-On 02/03/2026 12:06, Konrad Dybcio wrote:
-> On 3/1/26 6:51 PM, David Heidelberg via B4 Relay wrote:
->> From: Petr Hodina <petr.hodina@protonmail.com>
->>
->> Basic touchscreen connected to second i2c bus.
->>
->> Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
->> Co-developed-by: David Heidelberg <david@ixit.cz>
->> Signed-off-by: David Heidelberg <david@ixit.cz>
->> ---
->>   arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts | 21 ++++++++++++++++++++-
->>   1 file changed, 20 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
->> index fa89be500fb85..2501104b06e1b 100644
->> --- a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
->> +++ b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
->> @@ -26,7 +26,26 @@ &i2c2 {
->>   
->>   	status = "okay";
->>   
->> -	/* ST,FTS @ 49 */
->> +	touchscreen@49 {
->> +		compatible = "st,stmfts5";
->> +		reg = <0x49>;
->> +
->> +		pinctrl-0 = <&touchscreen_pins &touchscreen_reset>;
->> +		pinctrl-names = "default";
->> +
->> +		interrupt-parent = <&tlmm>;
->> +		interrupts = <125 IRQ_TYPE_LEVEL_LOW>;
->> +
->> +		irq-gpios = <&tlmm 125 GPIO_ACTIVE_HIGH>;
+>> +    then:
+>> +      properties:
+>> +        switch-gpio:
+>> +          description: Switch between SLPI and AP mode.
 > 
-> This is an anti-pattern - you can translate the GPIO handle to an
-> IRQ handle, but unless the hardware is spectacularly odd, an interrupt
-> reference is usually what you're after
+> This doesn't sounds like the GPIO on the touchscreen, more like the
+> external schematic component. If it need sto be turned to one position,
+> it might be better to use GPIO hog for that.
 
-Thanks, dropped in follow-up version.
+Right now yes, but the GPIO serves to switching between SLPI and AP mode at 
+runtime, see [1]
 
-> 
->> +		switch-gpios = <&tlmm 136 GPIO_ACTIVE_HIGH>;
->> +		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
->> +
->> +		avdd-supply = <&vreg_l14a_1p8>;
->> +		vdd-supply = <&vreg_l19a_3p3>;
->> +
->> +		touchscreen-size-x = <1079>;
->> +		touchscreen-size-y = <2159>;
-> 
-> Are you sure about these off-by-ones?
+The driver lack supports for SLPI, but at moment when SLPI support lands, we 
+should be able do something like:
 
-These we're extracted from st,maxcoords and yet, it should be 1080, 2160. Fixed 
-in follow-up version.
+-> device starts, touchscreen works
+-> screen goes to sleep, but instead of powering off touchscreen, it switches to 
+SLPI mode
+-> user taps at touchscreen, device wakes up
 
-Thanks
+Thus I think we need to support this GPIO in the driver.
+
 David
 
 > 
-> FWIW
+>> +
+>> +      required:
+>> +        - switch-gpio
+>> +
+>>   examples:
+>>     - |
+>>       #include <dt-bindings/interrupt-controller/irq.h>
+>>
+>> -- 
+>> 2.51.0
+>>
+>>
 > 
-> input/touchscreen.c:
-> 
-> touchscreen_get_prop_u32(dev, "touchscreen-size-x",
->                           input_abs_get_max(input,
->                                             axis_x) + 1,
-> 
-> 				            notice ^
-> 
-> Konrad
 
 -- 
 David Heidelberg

@@ -1,126 +1,466 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 082C517A309
-	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 03:46:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 691AE34BA57
+	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 07:20:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773632791; cv=none; b=p0XwL/3Y/EGOBspl9u2lDkl6BuNDysY7dddjFCOFYn1gWquQGCgnsGVaq2+m2kxvnVj3820lXDwtC+iIflEgQbggcMrgMFFAZoyELA3V6aNH5PJ7W2UoKh0s/AqW06dFYtgzFeULNUsR2DM9ppmwtn5ryOVrNbgnMn8eZL2yVU0=
+	t=1773645642; cv=none; b=L8Xk2MpUv2PCHazl4FiZMPcFqRddlyNSHISU7BZegjlZof6Sanzz90mNnunKqUrGstbH3ZDqoYfkZgmQPoXLF7aujb1uadclbo7Dc9GaXdth5VU+cldWVl4VgUIx5QKYN6ilNVXOHt75lOJSYfZVLKdI2lq57E25m4pOt2NRGzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773632791; c=relaxed/simple;
-	bh=YZkTcOEjWtuGRM6CYLskTVAFZsX4Ijie5CUy5nq8B2g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=L/LK/7wYRx4uLGQAx1NiPfvrNmuyKAaJzzpGHDcRThc+QoM9tA8Rqy5DbdvfFwYQEiVQRCEKmTyLOt2saQJ5f54QDCA1XduNlpsSHlLdRd6qpM4gMKSPdJUO+0MC0vXg1Hpflzu/wey0BKgrVMcwBSXxD7OKDRDryY2PZggcfGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efGR1Mx6; arc=none smtp.client-ip=209.85.215.181
+	s=arc-20240116; t=1773645642; c=relaxed/simple;
+	bh=1UBvjYXzZjADypfiBS57a2uqULPwjTs+Pph4HLCIPIw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QkiOTnQxSrEMM1slWQCcEyVAthrKoai1GW7iCQSYTSH/QwPsfzCwUyWJrGLak0aKjZEmWfQDXNPCLG+EuKTOWyI8w/onqMjfe3/qxpn2PoBRws+j6KJva4YgHQNCSnmLDUDVW0Kod8YyxqUjJTquE5p0jf0/g7wBFCSON7L6VVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FzVO3P0Q; arc=none smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efGR1Mx6"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c739561f0d3so2525721a12.3
-        for <linux-input@vger.kernel.org>; Sun, 15 Mar 2026 20:46:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FzVO3P0Q"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-89a14be4733so54009616d6.2
+        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 00:20:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773632789; x=1774237589; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773645639; x=1774250439; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=eiRDluLCPaW8AudHXl/ylAi6akXx9V35HuCJ2UwCo+c=;
-        b=efGR1Mx6Gh6peBzd4+rovnfWhcQ08DdITGWoEATAOnmfiSAIjyJHdWLTWMUIyKyT6o
-         KD5GIfD0rgYa2yYofAqfhdVSWJ7wnDtUZdGb4hsTFDPqVFn8HPt+PdEaZxiV0G858WN2
-         /Fgr62WddyJQjZZsx0P6uW0SiaGHIhPfwOxObLs5htEsGmi5pyVUGd79SQt4qkWhjn4T
-         UWfOmXvWRVzWFZRAgjlfUVEiMHb6Ci18VlCmO+XmazPnfjeTQPh8HkI46NeCQSK1YSq0
-         hIRMAdMoQK+aEPQEP3aDv0C9Y0XYPEkCGkJqllVn5C2EqXyRr39MRvGeOiC2pdILubHq
-         GdSg==
+        bh=2RRAIyRnAbcoBISNjdGUCmVRkS0rAtJ+d8h7Md1eWS8=;
+        b=FzVO3P0QLohYSMPf1gJtqHDcGl6Jxk5XX5rdCJMHLNxCEbUlXOZWYbqsJ8R7hCqxau
+         N3zFNxKwHmCbf9iJUiTseiVcLlcHtLE+HARY9rkuFy+5WDFLX3T/uwBS3bWFEXXfG8KV
+         CGtjIlJ7lI6klIonZ26qfwMZRcx5AykzqxlwVj3o378Vn4yYbkPK/tJxF8HpAwsaw8Mb
+         ymo2OmQ5PFci646rfdCN+cwcL2v4g+lDh03rkHMunkXZtD/tnpB69E84lx5oNlL373So
+         BltVYN7xIRgViO4Oi9OwY85D4ArCj46wdaAjEqG81Gcmr7N6mjJvmBcvDxE4v6BYEEKv
+         JM8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773632789; x=1774237589;
+        d=1e100.net; s=20251104; t=1773645639; x=1774250439;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eiRDluLCPaW8AudHXl/ylAi6akXx9V35HuCJ2UwCo+c=;
-        b=OKtfrfwlyUvZh5Qj8uOxRSmrv5LDvpiuLpPtoOT/K7Q4dqhxzUSIvrt2kYBD09faPO
-         fK6pW1CMlGSquIuGsj5zC+jnZFdEPjtu6+8BYGrqo2nKwpuK5MhvEfqEzk36eDnylMEb
-         MxfbzRNQ2L+V1wRJsF9VP1uxQqIVZsqcxt63ouGM72Q5p2UZXhS5l91wwJRSFFQ6d6MZ
-         maZV0iuCFYtmU10ENCqbjPlk0cPXpeprE4HuQNBMroESIoG++Uh6HcXtj1v8oF52pC7b
-         ThNdQuoGoP/zeV1Pg3SwOkVc/4Z+2wHecW9etRMvA2AXYMfhQQsuXEh/F1B7HC8nvx7n
-         EoMg==
-X-Forwarded-Encrypted: i=1; AJvYcCXYZueW5Ko8qzqsas+JDmeMtxMWre5iNQCu9tN1uFG+niRNuSv9n6QDyNOq7oaZphd02w+vWf1P4Xh39g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzB3Fq1mSG1TXdvtDsqLH7j1qp9WGJXl7KDywe368JGdj2qNchW
-	n/kY+VAZSLjJy4gVN5bzuC/uSYF7aSGcLPNPWOnoys8nHWEYrfBMo+vm
-X-Gm-Gg: ATEYQzzZh9PqYpEgpRCCGEOyDBQuU5CqWaZPoiqZ6ZVHHYLNASGoNTScn2B+l0V3Htw
-	1JscK8QavvXTBFrPYx7XtbazeNO6Hhlqh+yiY5V7MkOTa/f2dkVCoXjOVVQW2AQ+Jaw5cXhy0+m
-	i/s2xijcW4e3AYlHR9RNVdA+d2Oh3He+REaLF4S2fB89iqPNerk/bkuFDExc9/Z9arTC63qZ6LG
-	6RnJHSIQk3hSA4gRlMiiO3u6Q2RXmv+WZnBfhfB/4ihMelhCjKn5j0GgWMBMUsYzRgiyuKPI1dv
-	8xPdt7thAteceVkPB21ff2ulLQ1fiY/zrE1zy25SbQM8RsQSvb2qAlFWWRH3QTMMERAsC4Q4h1j
-	H9aYpPp7bU8dLoxVcihtYOzhCYaGfw29T/ePSuCC9aTBDtclfOJ9Yjpy4dz7In7fTGSMAPluwp3
-	WWB6mCIpyDpIBNaLu8JPn3UoImqtSnZu48ti2OHDPsrJV16/n4MpmpKMfMk+yRf/9lMXxx
-X-Received: by 2002:a17:903:3905:b0:2ae:5464:7a4b with SMTP id d9443c01a7336-2aeca9ffe54mr131666095ad.14.1773632789343;
-        Sun, 15 Mar 2026 20:46:29 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece56ea5bsm116068155ad.5.2026.03.15.20.46.26
+        bh=2RRAIyRnAbcoBISNjdGUCmVRkS0rAtJ+d8h7Md1eWS8=;
+        b=EUZ572Zy0zT2HualqQFNyhgSDFDRSCrElNEE529WPhjGDb/lxKSrZ3OkY5kk6vAyuZ
+         u48xGCCSNB0Wt3jyHyxBVTm5YZ6YrHyHKUbbhp0bZ3s11BWhegBfydCRyKuHb7fCcjwk
+         zPLlpQvHR+ZKZFSBZMtbaEqin46xSBxxAG2xhnHFTjdQiyHyDWbqQ87UJIXX6GirFkcd
+         DB+h5RLsfp9539Cr+fu4p//oSvhE+4/qbD2Wx7NhrViG1ipd6Zy+7xrku4Eeo1DmwzWb
+         J2wQdfgfXQ0HrCPcB+k4iKi54t2pulzpjILGhnPFSpWoux2IPXe3yyTAKc3UWTN8mXpv
+         Qmtw==
+X-Gm-Message-State: AOJu0YxoY1nctaGBRXFwiLMCE0cZEUUP7ye3Sezvkz+czFexutaauDcE
+	32yAQbjUXjITS9lVpfQXew0sbCOn/uMB+x55RCnQVoD/qjIE295dLeyppxeRPxqg
+X-Gm-Gg: ATEYQzyRnvDhVtE1KUhPhDCoV7ODVDH43nVvBUxFC0N49noDRvtDIzGeZr0q0wn67jA
+	yZHwSm+VnhNN25rFefMAwyoxBIA9jq/B6HgYDD+CQFONYhDHImrey18x+mXHtQh2gWCct8uh6K8
+	waELD0whcXNrTpYOxX4yuTMwJzh/OsmpeBoMlpoMwD/jIHQq0p1CN/rBkJZWZyVAURjXpsdvBgL
+	2HOWaU7WkXxnu7XSooaEJZPBsHqUC9SrwhZR8VDxRkIALhTkrrQAEbSzNKjh9bVY7lHiT8vt0ic
+	FPD+GHke73hp80akRzQaG11Q5/N4uMBVcEE7xM+lStgXx2NBrKjyGg3c99hpit9W07hZ369bt43
+	bA39shic6SgCq+6pjTwIyw5LpDVNWb0dUQCMcJqSP8ILtyNyxIFADOwQaWfZF09mG+xd0VBEAq/
+	3Qi11vpxDFTGtPck/f4VIYfnVAz7PzYdBd6r1QBPNpVicFQ3zJTg==
+X-Received: by 2002:ad4:5baa:0:b0:89c:5289:4be6 with SMTP id 6a1803df08f44-89c52894d72mr34426116d6.13.1773645639161;
+        Mon, 16 Mar 2026 00:20:39 -0700 (PDT)
+Received: from cachyos-workstation.hsd1.md.comcast.net ([2601:154:c200:4a60::f299])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89c450ab4efsm36004236d6.51.2026.03.16.00.20.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 20:46:28 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: robh@kernel.org
-Cc: conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	krzk+dt@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	marex@denx.de,
-	mingo@kernel.org,
-	phucduc.bui@gmail.com,
-	tglx@kernel.org
-Subject: [PATCH v2] dt-bindings: input: touchscreen: ti,tsc2005: Add wakeup-source
-Date: Mon, 16 Mar 2026 10:46:06 +0700
-Message-ID: <20260316034606.11304-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Mon, 16 Mar 2026 00:20:38 -0700 (PDT)
+From: Andrew Maney <andrewmaney05@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	benjamin.tissoires@redhat.com,
+	Andrew Maney <andrewmaney05@gmail.com>
+Subject: [RFC PATCH] HID: iota-ups: add driver for LattePanda IOTA UPS
+Date: Mon, 16 Mar 2026 03:20:32 -0400
+Message-ID: <20260316072034.56694-1-andrewmaney05@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+This driver exposes the DFRobot LattePanda IOTA UPS board as a standard
+power_supply device, allowing desktop environments and power management
+tools such as UPower and systemd-logind to display battery status,
+remaining capacity, and charging status without any special
+configuration. It also enables automatic suspend or shutdown on low
+battery and power profile configuration via any tool that supports the
+standard power_supply interface.
 
-Document the "wakeup-source" property for the ti,tsc2005 touchscreen
-controllers to allow the device to wake the system from suspend.
+The UPS presents itself as an Arduino Leonardo HID device running custom
+firmware (VID 0x2341, PID 0x8036). It reports status and capacity via
+HID reports 0x07 and 0x0C respectively.
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+The charge limit (80% or 100%) is configured via a physical DIP switch
+on the UPS board and cannot be detected automatically. Userspace can
+inform the driver of the configured limit via
+charge_control_end_threshold.
+
+Known issue: the driver occasionally reports 0% capacity briefly on
+initial load before the first valid HID report is received. I am
+investigating the cause.
+
+Signed-off-by: Andrew Maney <andrewmaney05@gmail.com>
 ---
- .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml  | 7 +++++++
- 1 file changed, 7 insertions(+)
+ iota-ups.c | 355 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 355 insertions(+)
+ create mode 100644 iota-ups.c
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-index 7187c390b2f5..c0aae044d7d4 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-@@ -55,6 +55,9 @@ properties:
-   touchscreen-size-x: true
-   touchscreen-size-y: true
- 
-+  wakeup-source:
-+    type: boolean
+diff --git a/iota-ups.c b/iota-ups.c
+new file mode 100644
+index 0000000..df334b2
+--- /dev/null
++++ b/iota-ups.c
+@@ -0,0 +1,355 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <linux/completion.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/power_supply.h>
++#include <linux/spinlock.h>
++#include <linux/usb.h>
 +
- allOf:
-   - $ref: touchscreen.yaml#
-   - if:
-@@ -97,6 +100,8 @@ examples:
- 
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
++#define IOTA_UPS_VENDOR_ID	0x2341
++#define IOTA_UPS_PRODUCT_ID	0x8036
 +
-+            wakeup-source;
-         };
-     };
-   - |
-@@ -124,5 +129,7 @@ examples:
- 
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
++#define REPORT_ID_STATUS	0x07
++#define REPORT_ID_CAPACITY	0x0C
 +
-+            wakeup-source;
-         };
-     };
++#define STATUS_PLUGGED_IN	BIT(0)
++#define STATUS_DISCHARGING	BIT(1)
++#define STATUS_CHARGING		BIT(2)
++
++MODULE_AUTHOR("Andrew Maney");
++MODULE_DESCRIPTION("LattePanda IOTA UPS power supply driver");
++MODULE_LICENSE("GPL");
++
++struct iota_ups {
++	struct hid_device		*hiddev;
++	struct power_supply		*psu;
++	struct power_supply_desc	 psu_desc;
++	spinlock_t			 lock; /* Protects all cached HID report values */
++
++	/* Cached values updated from HID reports */
++	char	serial[64];
++	bool	plugged_in;
++	int	psu_status;
++	int	capacity;
++	int	charge_limit;
++
++	/*
++	 * Wait for both status and capacity reports before registering
++	 * with the power_supply core, so initial values are correct.
++	 */
++	struct completion	got_initial_data;
++	bool			data_ready;
++	bool			got_status;
++	bool			got_capacity;
++};
++
++static enum power_supply_property iota_ups_properties[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_TECHNOLOGY,
++	POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD,
++	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
++	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
++	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
++	POWER_SUPPLY_PROP_HEALTH,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_SERIAL_NUMBER,
++};
++
++static const struct hid_device_id iota_ups_devices[] = {
++	{ HID_USB_DEVICE(IOTA_UPS_VENDOR_ID, IOTA_UPS_PRODUCT_ID) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, iota_ups_devices);
++
++static int iota_ups_get_property(struct power_supply *supply,
++				 enum power_supply_property psp,
++				 union power_supply_propval *val)
++{
++	struct iota_ups *ups = power_supply_get_drvdata(supply);
++	unsigned long flags;
++
++	spin_lock_irqsave(&ups->lock, flags);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_STATUS:
++		val->intval = ups->psu_status;
++		break;
++	/* Remaining capacity as a percentage, 0-100 */
++	case POWER_SUPPLY_PROP_CAPACITY:
++		val->intval = ups->capacity;
++		break;
++	/* Always present if the driver is loaded */
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = 1;
++		break;
++	/* Whether mains power is connected */
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = ups->plugged_in ? 1 : 0;
++		break;
++	/* System-level UPS, not a laptop battery */
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_SYSTEM;
++		break;
++	/* V1.0 only accepts 18650 Li-ion cells */
++	case POWER_SUPPLY_PROP_TECHNOLOGY:
++		val->intval = POWER_SUPPLY_TECHNOLOGY_LION;
++		break;
++	/* 80% or 100%, configured via DIP switch on the board */
++	case POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD:
++		val->intval = ups->charge_limit;
++		break;
++	/* V1.0 does not report capacity level via HID */
++	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
++		val->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
++		break;
++	/* V1.0 does not report time remaining */
++	case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
++	case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
++		val->intval = 0;
++		break;
++	/* V1.0 does not report health; assume good */
++	case POWER_SUPPLY_PROP_HEALTH:
++		val->intval = POWER_SUPPLY_HEALTH_GOOD;
++		break;
++	/* 3.7V in microvolts, typical Li-ion resting voltage */
++	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
++		val->intval = 3700000;
++		break;
++	case POWER_SUPPLY_PROP_MANUFACTURER:
++		val->strval = "DFRobot";
++		break;
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval = "LattePanda IOTA UPS";
++		break;
++	/* Retrieved from the USB descriptor */
++	case POWER_SUPPLY_PROP_SERIAL_NUMBER:
++		val->strval = ups->serial;
++		break;
++	default:
++		spin_unlock_irqrestore(&ups->lock, flags);
++		return -EINVAL;
++	}
++
++	spin_unlock_irqrestore(&ups->lock, flags);
++	return 0;
++}
++
++static int iota_ups_set_property(struct power_supply *supply,
++				 enum power_supply_property psp,
++				 const union power_supply_propval *val)
++{
++	struct iota_ups *ups = power_supply_get_drvdata(supply);
++
++	if (psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD) {
++		/*
++		 * V1.0 supports 80% and 100% charge limits only, set via
++		 * DIP switch on the board. This property allows userspace
++		 * to inform the driver which limit is configured.
++		 */
++		if (val->intval != 80 && val->intval != 100)
++			return -EINVAL;
++		ups->charge_limit = val->intval;
++		return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int iota_ups_property_is_writable(struct power_supply *supply,
++					 enum power_supply_property psp)
++{
++	return psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD;
++}
++
++static int iota_ups_raw_event(struct hid_device *hdev,
++			      struct hid_report *report,
++			      u8 *data, int size)
++{
++	struct iota_ups *ups = hid_get_drvdata(hdev);
++	unsigned long flags;
++	bool changed = false;
++
++	/* All UPS reports are at least 2 bytes */
++	if (size < 2)
++		return 0;
++
++	spin_lock_irqsave(&ups->lock, flags);
++
++	switch (data[0]) {
++	case REPORT_ID_STATUS: {
++		u8 status = data[1];
++		int new_status;
++		bool plugged_in = !!(status & STATUS_PLUGGED_IN);
++
++		if (status & STATUS_CHARGING) {
++			if (ups->capacity >= ups->charge_limit)
++				new_status = POWER_SUPPLY_STATUS_FULL;
++			else
++				new_status = POWER_SUPPLY_STATUS_CHARGING;
++		} else if (status & STATUS_DISCHARGING) {
++			new_status = POWER_SUPPLY_STATUS_DISCHARGING;
++		} else if (plugged_in) {
++			new_status = POWER_SUPPLY_STATUS_FULL;
++		} else {
++			new_status = POWER_SUPPLY_STATUS_UNKNOWN;
++		}
++
++		if (new_status != ups->psu_status ||
++		    plugged_in != ups->plugged_in) {
++			ups->plugged_in = plugged_in;
++			ups->psu_status = new_status;
++			changed = true;
++		}
++
++		ups->got_status = true;
++		break;
++	}
++	case REPORT_ID_CAPACITY: {
++		int new_cap = clamp((int)data[1], 0, 100);
++
++		if (new_cap != ups->capacity) {
++			ups->capacity = new_cap;
++			changed = true;
++		}
++
++		ups->got_capacity = true;
++		break;
++	}
++	}
++
++	/*
++	 * Signal ready only once both status and capacity have been
++	 * received, so the power_supply is registered with valid data.
++	 */
++	if (!ups->data_ready && ups->got_status && ups->got_capacity) {
++		ups->data_ready = true;
++		complete(&ups->got_initial_data);
++	}
++
++	spin_unlock_irqrestore(&ups->lock, flags);
++
++	/*
++	 * Notify the power_supply core outside the spinlock. This
++	 * triggers UPower's PropertiesChanged signal with the new values.
++	 */
++	if (changed && ups->psu)
++		power_supply_changed(ups->psu);
++
++	return 0;
++}
++
++static int iota_ups_probe(struct hid_device *hdev,
++			  const struct hid_device_id *id)
++{
++	struct power_supply_config psu_config = {};
++	struct usb_device *udev;
++	struct iota_ups *ups;
++	int ret;
++
++	ups = devm_kzalloc(&hdev->dev, sizeof(*ups), GFP_KERNEL);
++	if (!ups)
++		return -ENOMEM;
++
++	ups->hiddev		= hdev;
++	ups->psu_status		= POWER_SUPPLY_STATUS_UNKNOWN;
++	ups->capacity		= 50;
++	/*
++	 * Default to 100% — the DIP switch may be set to 80% but there
++	 * is no way to detect this automatically from HID reports.
++	 * Userspace can update this via charge_control_end_threshold.
++	 */
++	ups->charge_limit	= 100;
++	ups->data_ready		= false;
++	ups->got_status		= false;
++	ups->got_capacity	= false;
++
++	init_completion(&ups->got_initial_data);
++	spin_lock_init(&ups->lock);
++	hid_set_drvdata(hdev, ups);
++
++	/* Retrieve serial number from the USB descriptor */
++	udev = to_usb_device(hdev->dev.parent->parent);
++	if (udev->serial)
++		strscpy(ups->serial, udev->serial, sizeof(ups->serial));
++	else
++		strscpy(ups->serial, "Unknown", sizeof(ups->serial));
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "HID parse failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
++	if (ret) {
++		hid_err(hdev, "HID hw start failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_err(hdev, "HID hw open failed: %d\n", ret);
++		goto err_stop;
++	}
++
++	/*
++	 * Wait for both status and capacity reports before registering.
++	 * The device sends reports every ~1 second; 3 seconds is safe.
++	 */
++	wait_for_completion_timeout(&ups->got_initial_data,
++				    msecs_to_jiffies(3000));
++
++	ups->psu_desc.name			= "lattepanda-iota-ups";
++	ups->psu_desc.type			= POWER_SUPPLY_TYPE_BATTERY;
++	ups->psu_desc.properties		= iota_ups_properties;
++	ups->psu_desc.num_properties		= ARRAY_SIZE(iota_ups_properties);
++	ups->psu_desc.get_property		= iota_ups_get_property;
++	ups->psu_desc.set_property		= iota_ups_set_property;
++	ups->psu_desc.property_is_writeable	= iota_ups_property_is_writable;
++	psu_config.drv_data = ups;
++
++	ups->psu = devm_power_supply_register(&hdev->dev,
++					      &ups->psu_desc,
++					      &psu_config);
++	if (IS_ERR(ups->psu)) {
++		ret = PTR_ERR(ups->psu);
++		hid_err(hdev, "power_supply register failed: %d\n", ret);
++		goto err_close;
++	}
++
++	/*
++	 * Force an immediate notification so UPower reads the correct
++	 * initial state right after registration.
++	 */
++	power_supply_changed(ups->psu);
++
++	hid_info(hdev, "LattePanda IOTA UPS registered as power supply\n");
++	return 0;
++
++err_close:
++	hid_hw_close(hdev);
++err_stop:
++	hid_hw_stop(hdev);
++	return ret;
++}
++
++static void iota_ups_remove(struct hid_device *hdev)
++{
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static struct hid_driver iota_ups_driver = {
++	.name		= "lattepanda-iota-ups",
++	.id_table	= iota_ups_devices,
++	.probe		= iota_ups_probe,
++	.remove		= iota_ups_remove,
++	.raw_event	= iota_ups_raw_event,
++};
++module_hid_driver(iota_ups_driver);
 -- 
-2.43.0
+2.53.0
 

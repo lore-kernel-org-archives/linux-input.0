@@ -1,128 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A4B37C924;
-	Sun, 15 Mar 2026 18:52:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A01230C617
+	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 02:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773600774; cv=none; b=ci62mDWcFurLutOEdF5yiPF45cUdi3YR6NQKIoGneuh2zuXOrt2fNp5vQyS/+wrYZdJmj32C1ON8lOAwxVlxLCM9qwkOAKcVGOxkXWWdidKZG9ONYt7GVH/thYJacmzBkQxMgwev05/js7FCZKC40ImJ/UHzsuSKn9A18PHnSx8=
+	t=1773628876; cv=none; b=JXsvYb9R1K2olE2EHI9mJ/s0iaDgbq7r2iJNELXgPlAKrIwBfUIPTPgryYwDKfPCMSzO283VHwO1Z6trSpVYOER7f9IeZSWnTZyGIXDM39wMIQsT45DmXaQDC/KXMQ9fyxHFnyqrEHX7JcrEw+NeBalpEUGcHR3SVlvBBsbFcKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773600774; c=relaxed/simple;
-	bh=DRN8Y2azyPABZr+mUTsY8ADaTpvTOyUxWI2eOU/dWp0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iHzx3XIgcU9q+w2Wu+dDfZdzhP8i2PZTqr9Wpo5y4w9Qk50o7kHu+qTmiTkZgUxPcEEaTbDBxKxO5PLCGWVbO6zX0NczPS1HKyaqAh700nyrcqsqGwpQXioIeyL9Gz7ZOmeyK+ZRNNZTTSB0qmXii0RTc9czNnvIwvQrQrzjINw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OAeXjpl+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773628876; c=relaxed/simple;
+	bh=uvscyfAUXBPcXtJxTseop+QZNEX64Gy6pRNaDGlCbOk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=BmCySLd/91k5MFlcfYcY25N+JcGKSYzznv3v7Vt7O5CxuxoyMLkGHu5BmhOL6+357aZx2KU6hra2y8lJ9Gv8at3ItubHNHnTM1UaUKJTdyCzbYxZ4CsTGhjVVQx4+IXj7Xs57gISDG1ObjUSMuRrdFgMQyS+TjoPlTWZ9V77cPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aKY/rmlR; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OAeXjpl+"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D600EC2BCFA;
-	Sun, 15 Mar 2026 18:52:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773600774;
-	bh=DRN8Y2azyPABZr+mUTsY8ADaTpvTOyUxWI2eOU/dWp0=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=OAeXjpl+VhkelY+3qCifOb7WHdtRSrnVmMkjj2LOJIvj23739HrT0R5pLuubtxWro
-	 nxJRoN+orRQTNanig4BZJRTpXvYGrNeR5k1UIJ/y6HTSGgwiN++0+4R6AMrzLUs4OO
-	 KGKBZpjV+wfMScHLKwiWp2MugwoN3KxnMxHc9rM1NC2hlsN0P/VSqedJlJpqElBkUa
-	 DGCL4yrw2aoTHlL27dtpH5mXMsInCogpBvjKz9iYgBLQurJpppz2rjfe2BsDSZtul8
-	 8QS7zI6rkq5X06ji/XjOpXjXmCgWgAVUyOyOOGxtVKeYTUMs4L5sa5nXx/bvOK2EqT
-	 MIrjlWubT30uw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBDDDF30282;
-	Sun, 15 Mar 2026 18:52:53 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Sun, 15 Mar 2026 19:52:47 +0100
-Subject: [PATCH WIP v2 11/11] arm64: dts: qcom: sdm845-google: Add STM FTS
- touchscreen support
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aKY/rmlR"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-358ed696623so1783157a91.0
+        for <linux-input@vger.kernel.org>; Sun, 15 Mar 2026 19:41:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773628874; x=1774233674; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uvscyfAUXBPcXtJxTseop+QZNEX64Gy6pRNaDGlCbOk=;
+        b=aKY/rmlRWfDfzd1iq9OefNg+Jn0z18fx3hFx5CNFryFoCINH/aKXq6LwBdLDD97CcZ
+         6KolU37qiybDLkgbCfH1bzFU2tTXUKs0dNu9V7X6IloY4s7Kbi51s5k07i0ALV2aAZs7
+         zbT1Sox070jZpCMak/W/xAtl39PE+qX0jE0IO71QhoN25bUioTSeejyj7g6EE3ShTml4
+         rDumACeWIp5MhOHU61Jy9gRmco69K8yNvYNFich6HoAil/kEsm8XqZjYnz9POLxF+IkI
+         acMYnA7NDuZyFFzen8a92tmtm4TSSclH5ttdMFM0zYiIM3pX/6YCO0Q0oAdoB+15qXRu
+         ROxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773628874; x=1774233674;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uvscyfAUXBPcXtJxTseop+QZNEX64Gy6pRNaDGlCbOk=;
+        b=D7dp6WrKaFqh+LzMDJe5BPwELVfPH577QdL8uFv9krPztTEMsKdTaAOZaOPQcO+1Yv
+         RDHXvP3B6F2PfWFlUI7CxNSURiFEt7EWg37UptAY1oSdrDx2umOfXI3z83VHdcUPQHfN
+         M+HmJWOltiRkKlLNRgYgWtFWvoGE/y4/cbTmLHzdHgUNkYB0Aw/u/OnCnFzwMlpq6Vhg
+         61HdA4+frBgxywPar0NntIjieXtrDaB6LrP0hBNFjfXO/0amqVinyY256GuoHv7AX9xK
+         6QBLnuwbPMOIU7/v3NeNAecNFui8JnnHzeBwKxG/kr6S0XicE6CkPG/C+WvGN1abuOKS
+         3XHA==
+X-Forwarded-Encrypted: i=1; AJvYcCUNpObMEmtE370/GvIZlaTQ4iMHiHXZ7sgBL7nZlatSqxGL70zw9K+CKE/d+F0+UndngtHTjFunN49byQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxjB0FPh5XFkeHKIDdaPF+nMYbsdxkO6KwZRlIHZmNzIf7B1wKc
+	uDBiPEAnZeL8tiJ0ZMUreKU+O+JLjnTYcvRWVFofld28W3z0wVllAib4
+X-Gm-Gg: ATEYQzy/h3K5r906IwSSmKv5UX169cG5FmjhS0/bk0hG3BAiz2RDInsaIeml9emU4FQ
+	hkOEWkM0waqtaJ2N5nxKE0Mx0BE9lA4IVC1rTrvl7mHuROuwduzFR/xb+6KneNoDTT71VSLW0Kk
+	nPhswcU4hysOW/TiZhHzbf8aIf24uUJeU2cMqkWEnJ2n9hToxf8houivFpNkzYclU7xsiiAXxuL
+	E7uNv+qcDF7ElntmuyIxIJTzMVXR7hRnsLc2GOkNlO7KRAJ+zPa6YtclS2RDREn9BiS3ImcBZIn
+	3Oa2ZFvfC2uGk3qPwAUW4nFb7k+4XCTlgQ/GwMQ5F/UfbGD0BfM4sVoOmMnaJC3oGznMJ1ROnLO
+	Q6xL5LveTB6b9gBdFnLud6JM2y0lyjmVJysEnYwQuC5kO7fF/MdJl6G2CtmX0PcMiLNLI23jbPF
+	j1O99sJc8vDLDnTUICspaULiacRozkax4bakJN6he1oMAIWSssasVFeWWZhASzU/x+u6nS/dta1
+	QMvYG8eXsvN9CRr
+X-Received: by 2002:a17:90b:288e:b0:359:8d0d:5905 with SMTP id 98e67ed59e1d1-35a21eba194mr9030288a91.9.1773628874568;
+        Sun, 15 Mar 2026 19:41:14 -0700 (PDT)
+Received: from localhost.localdomain ([14.160.25.72])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a02e19708sm19539638a91.3.2026.03.15.19.41.11
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 15 Mar 2026 19:41:14 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: robh@kernel.org
+Cc: conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	dmitry.torokhov@gmail.com,
+	krzk+dt@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	marex@denx.de,
+	mingo@kernel.org,
+	mwelling@ieee.org,
+	phucduc.bui@gmail.com,
+	tglx@kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: input: touchscreen: ti,tsc2005: Add 
+Date: Mon, 16 Mar 2026 09:41:03 +0700
+Message-Id: <20260316024103.3403-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
+In-Reply-To: <20260313232347.GA3629471-robh@kernel.org>
+References: <20260313232347.GA3629471-robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260315-stmfts5-v2-11-70bc83ee9591@ixit.cz>
-References: <20260315-stmfts5-v2-0-70bc83ee9591@ixit.cz>
-In-Reply-To: <20260315-stmfts5-v2-0-70bc83ee9591@ixit.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
- David Heidelberg <david@ixit.cz>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1222; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=GLiD2nULc18ENMziPB9JyYEPA1R8XKpCMXaNSc0DKdU=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBptv/6OhC8SocPmih7wGnZLPlUoktbgC3LKcDkk
- rb7jDcfKtuJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCabb/+gAKCRBgAj/E00kg
- cjyAEACecNgd/QeeVImpnVd0/qO9+NmYGuaGVLUdkOlwiR1azyYsPURJ0BoyOPVPUtW2SARrkbp
- /8y+IyIkP6AfVP++jl5EJ6Yb7RANAZofa7WRVNE7EPvM+AinjYj7tk5DCxmS+XbjjG+2fsOZL4n
- Dl0gV1yktFmywT+QT8MjjBZDsgbfZpLBjqJxQmtL4QLcK4bgb78wF0XiWrL4LRdHzKAU6OlpJaI
- LLZhvv4S1aZDfByji/VpDBP7wd78ADZmLqgk1qJrkzJGUpvMdkBWuNNy0ShAPwPQ/6qBCLxBMfi
- KGv68gmommlUQfPd6LWmEX9MRo8aVQloJoeJsr59cRpxKhqYzVENlAF0F2K02rH+CYwz+L1mrER
- z0r96/B3M1MbE3+C2x0pQaXCgiROmD9uWKcQdaURbtuTU7ZPh8a2o/HyfGotrhpkp7dpHd+gaW6
- nWbiiAQACYEfnCaawvKmRL5nX4eUXAN95YFnE9twgQpyQDKJjRMmpAmPpjqF97P3p7LTMpuutth
- cGBOEnjMVoyfpjhAt1qL3bw8zlbnbds2TzfEgRV7jZTAC5o+q6oR4UwDc7HpU3jorAULWVBzD+h
- T88D7ApzdQs8qIaVXoxc9Tf55Dwv6W/74Eed+xnAqYOhVLlW1Knj7K8nSzP+kO6QAFxtb8DY0I4
- yXJg9gbgW+l2ccw==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Transfer-Encoding: 8bit
 
-From: Petr Hodina <petr.hodina@protonmail.com>
+Hi Rob,
 
-Basic touchscreen connected to second i2c bus.
+> Write your commit messages independent of the Linux driver.
 
-Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
-Co-developed-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+Thanks for the feedback.
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-index fa89be500fb85..48d7e7f83c285 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-@@ -26,7 +26,25 @@ &i2c2 {
- 
- 	status = "okay";
- 
--	/* ST,FTS @ 49 */
-+	touchscreen@49 {
-+		compatible = "st,stmfts5";
-+		reg = <0x49>;
-+
-+		pinctrl-0 = <&touchscreen_pins &touchscreen_reset>;
-+		pinctrl-names = "default";
-+
-+		interrupt-parent = <&tlmm>;
-+		interrupts = <125 IRQ_TYPE_LEVEL_LOW>;
-+
-+		switch-gpios = <&tlmm 136 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
-+
-+		avdd-supply = <&vreg_l14a_1p8>;
-+		vdd-supply = <&vreg_l19a_3p3>;
-+
-+		touchscreen-size-x = <1080>;
-+		touchscreen-size-y = <2160>;
-+	};
- };
- 
- &mdss_dsi0 {
+I will rewrite the commit message to focus on the hardware description
+and formalizing the binding, and remove references to the Linux driver
+implementation.
 
--- 
-2.53.0
+I will send a v2 shortly with this change.
 
-
+Best regards,
+Phuc

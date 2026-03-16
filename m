@@ -1,127 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC8527FD43;
-	Mon, 16 Mar 2026 11:13:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3B44B3988EE;
+	Mon, 16 Mar 2026 13:30:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773659599; cv=none; b=p+hKhXaV+A8EHD4EXLc36theZUeY8jlL1ThkFZ3IEhtUM31ks/k2y/DaeC5XHrURoPgfc8aUcDMxlpV9kM6q63Rs45IDoJG/87LgUzKUePDdH5OuZVIpP5n4KLHo4yowlItH2POSvOFLkIAv9Kk86LpnE/pjE/SMv0weQsOBDUk=
+	t=1773667835; cv=none; b=dMmWbQcH9JXXE3dVUgMNW4DFLAhgCEZhhlhpCenx9HwWxkTmE1uTzwVMrvrtGunNs1VrPWP5rZM4lkGQSP7FsIOJODAJxpbrEmTA5eCCzSOxYC5y/ou/ovFowog2PpdEUnuaZZ3pNPDtvj+wqVD6PA4W2aQFgtQyVmbqVOi490o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773659599; c=relaxed/simple;
-	bh=ttOBY1+LrKDtMEh7+kux+ZEKohpNBTus9g20z7+qt34=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=k7adDzDIB5wYCJrC6SIFFmsUgjmtf0vp5oaHBDbhL0Vw1wzaFgzIxqahouNj2jVh6bOlBuJi2q6LaQOS56eMzGzWNUG3Zl9bplIPyih6DE7ALSfQYguI0x49Xp+o9zCl47mpxXOND8GE/ljo8B6Ut5cFP10qQRmuvrfR30I2z3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BltvFN1k; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BltvFN1k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51199C19421;
-	Mon, 16 Mar 2026 11:13:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773659599;
-	bh=ttOBY1+LrKDtMEh7+kux+ZEKohpNBTus9g20z7+qt34=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BltvFN1kAqOYkAZ9PZs5iDmL6fjieyQbR/EL1CYHa64jyARZryULP2q4CerR8WvVZ
-	 lKRfsJjb+Jp5HJtfdTvJGvXdseiFAz8RPuEmZ+xypJ/zhcq+puJbfyrtFjeiIB9MOt
-	 8ZMLvMP7PHbskhZatAHKtIpDEwrElqTMqMnvU8slFPIj8lxOlELKxldj8Ybq7kL2rr
-	 1PAc3/HjsMEobxGgEafd0Ncq59ZcXAT8iUHRtKygQGg1jc3YaPcijLFjXJNvKvlkgm
-	 JHFEqcHaM5Xkuk1JX/DHAbai6NpppaX2Z2bImEF391Hm1ZyBjnQkR/ntbXCn/FkMGg
-	 aevduLaUiDxgQ==
-Date: Mon, 16 Mar 2026 11:13:15 +0000
-From: Conor Dooley <conor@kernel.org>
-To: phucduc.bui@gmail.com
-Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com, krzk+dt@kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	marex@denx.de, mingo@kernel.org, tglx@kernel.org
-Subject: Re: [PATCH v2] dt-bindings: input: touchscreen: ti,tsc2005: Add
- wakeup-source
-Message-ID: <20260316-refusal-disband-54161c7b96e0@spud>
-References: <20260316034606.11304-1-phucduc.bui@gmail.com>
+	s=arc-20240116; t=1773667835; c=relaxed/simple;
+	bh=12QmHVFW6kvGAsAEHlRgc6k9FaOX+eCOvB+1XSjB85g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Bbj9i3OmX6tLHsLG9LsVUer8BMIseUV+cewr4p5b4W0GLlnwPuU7seL8aE/at0nXm72aSd8dJNxLetLzuHHuYyH1LmmKQGBoR67oCN6y9fm4gvzOaf7ZCgi6tFdE7Nt15YoWXaTLjQ3vkM5D8UeKzGqO7h9DPbsmd2QLdRgsNKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 357291477;
+	Mon, 16 Mar 2026 06:30:25 -0700 (PDT)
+Received: from [10.57.61.116] (unknown [10.57.61.116])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9D4953F778;
+	Mon, 16 Mar 2026 06:30:22 -0700 (PDT)
+Message-ID: <2c7466f5-d952-4356-9b55-9d2ebb3471f2@arm.com>
+Date: Mon, 16 Mar 2026 13:30:19 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ucQASI5NdIgitFQ6"
-Content-Disposition: inline
-In-Reply-To: <20260316034606.11304-1-phucduc.bui@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 50/61] iommu: Prefer IS_ERR_OR_NULL over manual NULL check
+To: Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org,
+ apparmor@lists.ubuntu.com, bpf@vger.kernel.org, ceph-devel@vger.kernel.org,
+ cocci@inria.fr, dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+ sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev
+Cc: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-50-bd63b656022d@avm.de>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260310-b4-is_err_or_null-v1-50-bd63b656022d@avm.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+On 2026-03-10 11:49 am, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
 
---ucQASI5NdIgitFQ6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+AFAICS it doesn't look possible for the argument to be anything other 
+than valid at both callsites, so *both* conditions here seem in fact to 
+be entirely redundant.
 
-On Mon, Mar 16, 2026 at 10:46:06AM +0700, phucduc.bui@gmail.com wrote:
-> From: bui duc phuc <phucduc.bui@gmail.com>
->=20
-> Document the "wakeup-source" property for the ti,tsc2005 touchscreen
-> controllers to allow the device to wake the system from suspend.
->=20
-> Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
-> ---
->  .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml  | 7 +++++++
->  1 file changed, 7 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc20=
-05.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.ya=
-ml
-> index 7187c390b2f5..c0aae044d7d4 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-> @@ -55,6 +55,9 @@ properties:
->    touchscreen-size-x: true
->    touchscreen-size-y: true
-> =20
-> +  wakeup-source:
-> +    type: boolean
+> Change generated with coccinelle.
 
-wakeup-source: true
+Please use coccinelle responsibly. Mechanical changes are great for 
+scripted API updates, but for cleanup, whilst it's ideal for *finding* 
+areas of code that are worth looking at, the code then wants actually 
+looking at, in its whole context, because meaningful cleanup often goes 
+deeper than trivial replacement.
 
-> +
->  allOf:
->    - $ref: touchscreen.yaml#
->    - if:
-> @@ -97,6 +100,8 @@ examples:
-> =20
->              ti,x-plate-ohms =3D <280>;
->              ti,esd-recovery-timeout-ms =3D <8000>;
-> +
-
-Remove the blank line please.
-
-pw-bot: changes-requested
+In particular, anywhere IS_ERR_OR_NULL() is genuinely relevant is 
+usually a sign of bad interface design, so if you're looking at this 
+then you really should be looking first and foremost to remove any 
+checks that are already unnecessary, and for the remainder, to see if 
+the thing being checked can be improved to not mix the two different 
+styles. That would be constructive and (usually) welcome cleanup. Simply 
+churning a bunch of code with this ugly macro that's arguably less 
+readable than what it replaces, not so much.
 
 Thanks,
-Conor.
+Robin.
 
-> +            wakeup-source;
->          };
->      };
->    - |
-> @@ -124,5 +129,7 @@ examples:
-> =20
->              ti,x-plate-ohms =3D <280>;
->              ti,esd-recovery-timeout-ms =3D <8000>;
-> +
-> +            wakeup-source;
->          };
->      };
-> --=20
-> 2.43.0
->=20
+> To: Joerg Roedel <joro@8bytes.org>
+> To: Will Deacon <will@kernel.org>
+> To: Robin Murphy <robin.murphy@arm.com>
+> Cc: iommu@lists.linux.dev
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+> ---
+>   drivers/iommu/omap-iommu.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+> index 8231d7d6bb6a9202025643639a6b28e6faa84659..500a42b57a997696ff37c76f028a717ab71d01f9 100644
+> --- a/drivers/iommu/omap-iommu.c
+> +++ b/drivers/iommu/omap-iommu.c
+> @@ -881,7 +881,7 @@ static int omap_iommu_attach(struct omap_iommu *obj, u32 *iopgd)
+>    **/
+>   static void omap_iommu_detach(struct omap_iommu *obj)
+>   {
+> -	if (!obj || IS_ERR(obj))
+> +	if (IS_ERR_OR_NULL(obj))
+>   		return;
+>   
+>   	spin_lock(&obj->iommu_lock);
+> 
 
---ucQASI5NdIgitFQ6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCabflywAKCRB4tDGHoIJi
-0gTQAP4oJY7Vq176j3U9tbFna47XaqNEQpEKxipH8IyCrhXS0QEA56czwGdGvaC4
-jQtQBJvz+z+YeFA9MOb2q3H+panO+A8=
-=dCep
------END PGP SIGNATURE-----
-
---ucQASI5NdIgitFQ6--

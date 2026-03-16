@@ -1,40 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A5163C1996;
-	Mon, 16 Mar 2026 16:00:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84ED03C345E;
+	Mon, 16 Mar 2026 16:00:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773676835; cv=none; b=chQ60SlNYEeqx5V1soLCFXZ91hAT5PyTS/Dne0+QJIwEJumEdal+r9GR+VRxnvsJt1lMlFVP4LCWqNN9mTCLbBZ3NvkBsvRHlDckcNmIVMsoP/MSxo3TVwJF79RyWTdgc7NoaFZyTu1b9uBfjqvpzosWviUlaKHpVSe4Bn9xVw4=
+	t=1773676837; cv=none; b=jXNG0VXzKLkNp2eIDgrZJ+1znfOFifa8rwKV6JY2uzVcGu8iT4grmkL4tk4bBNSfcgAl533fmZtmjvmJCUn3x+Ya56tghdWJJZqPXFYCa5cTLD57y5+Q6G06teKSXds9TlDmz0fjccngsgUvdglioiFkc3swAF706mEEnbk0UCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773676835; c=relaxed/simple;
-	bh=KSKqfxy8eNqY41RWCDVdOYdEp5lq3JM41DGB1zdM43Y=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=bSgAoGFAFE9UHBRJ6mXF366RqSp/dsRlyJDXcmTSjrOiPAbqG7FdE4wXTIkWAsbFRKBaqheybUmaqRoC1ULmrTkOcvSvSOJnRepUhIWAm42/tiCMGQdHmGRYpGgMddDZtdxJ+QXJIVS4cdJ2NFGG/rmbs8P8rymu9aW3DZ9zJoU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J1g1W9iu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773676837; c=relaxed/simple;
+	bh=IU1MBjH4PTTzqtvtGeMpj6CeXYmu0DgE4Gk5/C2LnrY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=Pl2yh8eJUqeg9TJ+lmSW9iafKyI5MCW23MTjAzFe1DPDV0zMG6/AlPhGosBTxu3vjXgGAfofoecJCpRAtZ6u+mr9UVOZ2J2syzlqmfWWxTyUnyAVu02Yb6LcT4R5Iyftr9CpNbIHdCVMghdmU+Sm+jaD8l0+8SUs65mrIEPzzcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oxsGrlMJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J1g1W9iu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9380BC19421;
-	Mon, 16 Mar 2026 16:00:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oxsGrlMJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD40DC2BC9E;
+	Mon, 16 Mar 2026 16:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773676835;
-	bh=KSKqfxy8eNqY41RWCDVdOYdEp5lq3JM41DGB1zdM43Y=;
-	h=From:To:In-Reply-To:References:Subject:Date:From;
-	b=J1g1W9iuokuRh3jnG/rQZBo3DmrSYZaF37xLYX/LCWsGWOs0ToYDwNRHg56d8M6uD
-	 F03yI/o/HoMnOt1/j+yn5D6KWP5HsTsm/bT+mvz+m/cA+aodOK68byIeD08vS/5b8u
-	 x647/V6DrG3l8/Bv2JbxpS2pzYiRmMeLcvH1RjX62AwYjbySGOxlprdwD9wvfmFJb8
-	 n/pkiEJJLnMwgKL838ILmKGtniGMlwPDxTkmjLp+4/xPpv4krMthqonvlKf94K7PsN
-	 R+FGUoMiAR/T3XMTKo3mdnSywt79YneR3vhSglXzJ7Y7F5Igpu2wDUTLkH3QiUCKBy
-	 xVWU0ZxNfBdtA==
+	s=k20201202; t=1773676837;
+	bh=IU1MBjH4PTTzqtvtGeMpj6CeXYmu0DgE4Gk5/C2LnrY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=oxsGrlMJtN06NL/590oUIrmHsEwpKypVpff6KjlCw3J4DQWeo+1dd03po3gq6BUh1
+	 VcixEXexRLtT7h1RUCGdQ0t14/EqhNN+LEQN9a8blph3PJwVWYbFzjhbS8qLUdfs2F
+	 ARvESo5mWtdc6JOnWBWtk/Yw6KZ+KcklyE944aXl8Bgr2udbGPC4mLulK1e3/+w0lh
+	 E79MutXCh4wvJGal8Bfvq7H2GeC6srpgC3m5+EKyoKR1AULExhH0F1KiL6E1Zm++3U
+	 boX+xK9zN5pxUrzuCP2SwECxxq53c8z9+QKV0lBc6FXPCOC2ChJlGuxXkGhsixovKP
+	 JnBrFDkYUI6zw==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Lee Jones <lee@kernel.org>
-In-Reply-To: <20260309145942.1496072-1-lee@kernel.org>
-References: <20260309145942.1496072-1-lee@kernel.org>
-Subject: Re: (subset) [RFC v3 1/2] HID: core: Mitigate potential OOB by
- removing bogus memset()
-Message-Id: <177367679237.2580085.4886533819894692916.b4-ty@kernel.org>
-Date: Mon, 16 Mar 2026 16:59:52 +0100
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>, 
+ stable@vger.kernel.org
+In-Reply-To: <20260313-wip-bpf-fixes-v1-0-74b860315060@kernel.org>
+References: <20260313-wip-bpf-fixes-v1-0-74b860315060@kernel.org>
+Subject: Re: (subset) [PATCH 0/4] HID: bpf fixes for 7.0/7.1
+Message-Id: <177367679366.2580085.7917002120079974985.b4-ty@kernel.org>
+Date: Mon, 16 Mar 2026 16:59:53 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,23 +48,29 @@ Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.14.3
 
 
-On Mon, 09 Mar 2026 14:59:29 +0000, Lee Jones wrote:
-> The memset() in hid_report_raw_event() has the good intention of
-> clearing out bogus data by zeroing the area from the end of the incoming
-> data string to the assumed end of the buffer.  However, as we have
-> previously seen, doing so can easily result in OOB reads and writes in
-> the subsequent thread of execution.
-> 
-> The current suggestion from one of the HID maintainers is to remove the
-> memset() and simply return if the incoming event buffer size is not
-> large enough to fill the associated report.
+On Fri, 13 Mar 2026 08:40:23 +0100, Benjamin Tissoires wrote:
+> This is a series that targets a few HID-BPF issues I discovered or I've
+> been reported:
+> - first 2 patches should go to for-7.0/upstream-fixes:
+>   - 1/4 fixes a compilation issue when HID is not enabled
+>   - 2/4 is a nasty bug which allows a HID-BPF to crash the running
+>     kernel, so not critical (you need special permissions to load the
+>     HID-BPF program), but not great as you don't expect tinkering with
+>     HID-BPF would crash
+> - last 2 patches are more 7.1 material: basically the LEDs on the
+>   keyboards are bypassing HID-BPF, and then that made me realize that
+>   the fallback calls in case of an unnumbered report is not correct (and
+>   likely unnoticed because I don't think I've seen unnumbered reports on
+>   anything else than USB devices)
 > 
 > [...]
 
 Applied, thanks!
 
-[1/2] HID: core: Mitigate potential OOB by removing bogus memset()
-      commit: 0a3fe972a7cb1404f693d6f1711f32bc1d244b1c
+[1/4] selftests/hid: fix compilation when bpf_wq and hid_device are not exported
+      commit: 5d4c6c132ea9a967d48890dd03e6a786c060e968
+[2/4] HID: bpf: prevent buffer overflow in hid_hw_request
+      commit: 2b658c1c442ec1cd9eec5ead98d68662c40fe645
 
 Best regards,
 -- 

@@ -1,38 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581996FC5;
-	Mon, 16 Mar 2026 15:14:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4223A5E6D;
+	Mon, 16 Mar 2026 15:27:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773674069; cv=none; b=t5WDPL8m4CjPlGbdWlrRBh1md8AxtZnoNKy9mcEfFA5XdOeE8irK3e/vt8aeNw3Opd4duItxSacyQIXsUa6O82Fg8j2W1DyvKNQEsYJj0EGmH1L8+qnX7WtGq03suU9xlgo7Px9mYSd6P93VdSI5NgidnZfZ0cfRACHM+jQgQ0A=
+	t=1773674820; cv=none; b=pOsbBjB6SLoJbOKxE+HQURz/V2mTTHO8penAk4Fu7EiKZNm3XUG5diJSbOolNxZ+Pk5mDB+1iTiHTCZtE23zgk5239IXGnvxiCvQ/ZkRnkqm0z0jn6LBTz0/XWHcuwz/rp80zkz6YEMb+hDQicW0SKHjU0pR5xy0rP55YM46zHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773674069; c=relaxed/simple;
-	bh=F3cAGNd9SB+0RBWZxCwdnNZtzcpDfFObfNmQ+6ybl2E=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t0Q3XHfkYAVO5kjojteWLaBPl7zTOg9BJgq7OQbULivJpPSEXNRuGwmBgNwWU1Co4okJVl8TU+dUym3uLEHsEwgUTFYNlC9dWmcs10c7ZoxZEqCt4eaSeLoojBPb/UwVRfPttclJgecp+13ovL1mJdGSV4ul24122xDKkHKWbYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=khYRuxX0; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773674820; c=relaxed/simple;
+	bh=ehXsqtJ7YasZufwAE2oxskuamvJPib4rbli9MVzfodQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uYrHLgrxgoChV9g/dh7dwso/kIR68Bpm4DbYxqk7K/1XpaMEUjFOv2EevfU80hLxlm7BaA4YEU6EFbehmqIuiMhPhdWvQXlEV9Gs+QpLpyY4RmC2FqM/scFfB/qjoxsTdpKDwKd/iQU+2WtGbDRFYB0zpSetdIco6D4LhimxeTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ck4DtVAJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="khYRuxX0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02E97C2BC87;
-	Mon, 16 Mar 2026 15:14:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ck4DtVAJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26965C19421;
+	Mon, 16 Mar 2026 15:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773674069;
-	bh=F3cAGNd9SB+0RBWZxCwdnNZtzcpDfFObfNmQ+6ybl2E=;
-	h=Date:From:To:Subject:References:In-Reply-To:From;
-	b=khYRuxX0bDLNDmT9b5GP/Xzd7UHoylUfyWSvpw5gdiKEyTdmz19LwEWOKcVHsLqRq
-	 +FgaGl0TB9dtTsvPh+STfipYxuUeRQEHj16Vk5SGaX24azF3YpZM+Kere4w1DBri0Q
-	 E4yHT5zxCk5VQ16iyFU/LI4HIrXdEi/zPc7woRDUwSX7ewC+dxEoiNCM0se8q1VL94
-	 D4uKeyGm6jUGcom6n2mTSaXU7tH0F9S2zVnRaSCFa1b6gr9lX8azSMi66TziW1RFWs
-	 D1TNP0Z6i+LCQAHegk/HusTYjjEdxvCbl57JpOKdr2Jmd27s6eLnvFEH6Ve3dAShTa
-	 rd2rB+Y2LLrwQ==
-Date: Mon, 16 Mar 2026 15:14:24 +0000
-From: Lee Jones <lee@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+	s=k20201202; t=1773674820;
+	bh=ehXsqtJ7YasZufwAE2oxskuamvJPib4rbli9MVzfodQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Ck4DtVAJFEPH5xuvzcSVk1SBbswxAiWRs2+VPHvc1kQWuk+NIGgGIuUSJLBdu4LnT
+	 HZVoeKYETOoAdSwURgBOyBp43lmfhZB04382Xg51SSdFHEeSEjAE9FwRH3oY+RjDeK
+	 v0VkziuZTiWbGGxkKZvhLG4Km+vC2Tpsu1crt8L9JtPjHUQUCaLLuZJ5Wvho7MVUNN
+	 eiE829p5CXdFQMhzo5Zpvxdo3SF5tmPvNSEE2X+OOzuKOB0ZhCUAdztGPlKGH19NP5
+	 0r8e1KWuMEjWQW5TLWDkt500LFa+EkKNnK/08PSXfOFNo0BR/iiH+piD/+UQ/M2W3D
+	 hpOdIcx9LM6Qw==
+Date: Mon, 16 Mar 2026 16:26:14 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Lee Jones <lee@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Subject: Re: [RFC v3 1/2] HID: core: Mitigate potential OOB by removing bogus
  memset()
-Message-ID: <20260316151424.GC554736@google.com>
+Message-ID: <abggXH_EE-aJTgY6@beelink>
 References: <20260309145942.1496072-1-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -40,13 +41,11 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <20260309145942.1496072-1-lee@kernel.org>
 
-On Mon, 09 Mar 2026, Lee Jones wrote:
-
+On Mar 09 2026, Lee Jones wrote:
 > The memset() in hid_report_raw_event() has the good intention of
 > clearing out bogus data by zeroing the area from the end of the incoming
 > data string to the assumed end of the buffer.  However, as we have
@@ -63,6 +62,27 @@ On Mon, 09 Mar 2026, Lee Jones wrote:
 > v2 -> v3: Instead of removing the check entirely, show a warning and return early
 > 
 > RFC query: Is it better to return SUCCESS or -EINVAL?
+
+I'd say -EINVAL is better.
+
+Also, one brain fart I had today was that this works in 99% of the cases
+because the transport layer allocates a big enough buffer.
+
+So that means that if this function, and hid_input_report() both have
+the allocated size as parameter, we could make a smarter decision and
+do the memset when we have enough space.
+
+This would require an API change, and probably to keep things under
+control adding a new API with the buffer_allocated_size that would be
+used by uhid, usbhid, i2c-hid, and others when we can.
+
+But let's go with the current state of the patch, and say sorry if we
+break some devices later on. (patch is currently in my queue, no need to
+resend it).
+
+Cheers,
+Benjamin
+
 > 
 >  drivers/hid/hid-core.c | 6 +++---
 >  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -84,8 +104,7 @@ On Mon, 09 Mar 2026, Lee Jones wrote:
 >  	}
 >  
 >  	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
-
-Same here.  Are these still in your queue or would you like me to [RESEND]?
-
--- 
-Lee Jones [李琼斯]
+> -- 
+> 2.53.0.473.g4a7958ca14-goog
+> 
+> 

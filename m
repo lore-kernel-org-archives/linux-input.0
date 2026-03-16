@@ -1,466 +1,310 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 691AE34BA57
-	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 07:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27CE17BED0
+	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 07:32:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773645642; cv=none; b=L8Xk2MpUv2PCHazl4FiZMPcFqRddlyNSHISU7BZegjlZof6Sanzz90mNnunKqUrGstbH3ZDqoYfkZgmQPoXLF7aujb1uadclbo7Dc9GaXdth5VU+cldWVl4VgUIx5QKYN6ilNVXOHt75lOJSYfZVLKdI2lq57E25m4pOt2NRGzM=
+	t=1773646360; cv=none; b=daRRmlgHy5Ilxtb1zqMm0VqqSC9Tz/43ZFOn+wvo8NAFi+AGU06eizCromJNwOi0wcnojcGn/4jaFnVWmtQPs2z++3vEBaUkWv80Y7RIdPddhbAcNCrRNTf3n5b598lOoelObKl89A1IdusmWTqKQJeRsZlcowb5akvyIxIZ6eY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773645642; c=relaxed/simple;
-	bh=1UBvjYXzZjADypfiBS57a2uqULPwjTs+Pph4HLCIPIw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QkiOTnQxSrEMM1slWQCcEyVAthrKoai1GW7iCQSYTSH/QwPsfzCwUyWJrGLak0aKjZEmWfQDXNPCLG+EuKTOWyI8w/onqMjfe3/qxpn2PoBRws+j6KJva4YgHQNCSnmLDUDVW0Kod8YyxqUjJTquE5p0jf0/g7wBFCSON7L6VVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FzVO3P0Q; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773646360; c=relaxed/simple;
+	bh=ZWSH10osJM4At5V9QOSPmcmGBv2LPcFR3huV2+C7rx4=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=TBRC4XqU9MTUfGC8o1+7Ow1caQNf9KmvZsiwvel289QJFY8OcI8AtmQEUCitWCnRDuD4gUIJ0UhzgUuB27zX0hFhkOfUh24pac25kPztFwpA8znN+s3z3BFOdod4OS0F6vf+3ZWNEvh10Gar+oKt1Lihf7C0kwaP3Z5GW4Z5mXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XiJojWx8; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FzVO3P0Q"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-89a14be4733so54009616d6.2
-        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 00:20:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773645639; x=1774250439; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2RRAIyRnAbcoBISNjdGUCmVRkS0rAtJ+d8h7Md1eWS8=;
-        b=FzVO3P0QLohYSMPf1gJtqHDcGl6Jxk5XX5rdCJMHLNxCEbUlXOZWYbqsJ8R7hCqxau
-         N3zFNxKwHmCbf9iJUiTseiVcLlcHtLE+HARY9rkuFy+5WDFLX3T/uwBS3bWFEXXfG8KV
-         CGtjIlJ7lI6klIonZ26qfwMZRcx5AykzqxlwVj3o378Vn4yYbkPK/tJxF8HpAwsaw8Mb
-         ymo2OmQ5PFci646rfdCN+cwcL2v4g+lDh03rkHMunkXZtD/tnpB69E84lx5oNlL373So
-         BltVYN7xIRgViO4Oi9OwY85D4ArCj46wdaAjEqG81Gcmr7N6mjJvmBcvDxE4v6BYEEKv
-         JM8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773645639; x=1774250439;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2RRAIyRnAbcoBISNjdGUCmVRkS0rAtJ+d8h7Md1eWS8=;
-        b=EUZ572Zy0zT2HualqQFNyhgSDFDRSCrElNEE529WPhjGDb/lxKSrZ3OkY5kk6vAyuZ
-         u48xGCCSNB0Wt3jyHyxBVTm5YZ6YrHyHKUbbhp0bZ3s11BWhegBfydCRyKuHb7fCcjwk
-         zPLlpQvHR+ZKZFSBZMtbaEqin46xSBxxAG2xhnHFTjdQiyHyDWbqQ87UJIXX6GirFkcd
-         DB+h5RLsfp9539Cr+fu4p//oSvhE+4/qbD2Wx7NhrViG1ipd6Zy+7xrku4Eeo1DmwzWb
-         J2wQdfgfXQ0HrCPcB+k4iKi54t2pulzpjILGhnPFSpWoux2IPXe3yyTAKc3UWTN8mXpv
-         Qmtw==
-X-Gm-Message-State: AOJu0YxoY1nctaGBRXFwiLMCE0cZEUUP7ye3Sezvkz+czFexutaauDcE
-	32yAQbjUXjITS9lVpfQXew0sbCOn/uMB+x55RCnQVoD/qjIE295dLeyppxeRPxqg
-X-Gm-Gg: ATEYQzyRnvDhVtE1KUhPhDCoV7ODVDH43nVvBUxFC0N49noDRvtDIzGeZr0q0wn67jA
-	yZHwSm+VnhNN25rFefMAwyoxBIA9jq/B6HgYDD+CQFONYhDHImrey18x+mXHtQh2gWCct8uh6K8
-	waELD0whcXNrTpYOxX4yuTMwJzh/OsmpeBoMlpoMwD/jIHQq0p1CN/rBkJZWZyVAURjXpsdvBgL
-	2HOWaU7WkXxnu7XSooaEJZPBsHqUC9SrwhZR8VDxRkIALhTkrrQAEbSzNKjh9bVY7lHiT8vt0ic
-	FPD+GHke73hp80akRzQaG11Q5/N4uMBVcEE7xM+lStgXx2NBrKjyGg3c99hpit9W07hZ369bt43
-	bA39shic6SgCq+6pjTwIyw5LpDVNWb0dUQCMcJqSP8ILtyNyxIFADOwQaWfZF09mG+xd0VBEAq/
-	3Qi11vpxDFTGtPck/f4VIYfnVAz7PzYdBd6r1QBPNpVicFQ3zJTg==
-X-Received: by 2002:ad4:5baa:0:b0:89c:5289:4be6 with SMTP id 6a1803df08f44-89c52894d72mr34426116d6.13.1773645639161;
-        Mon, 16 Mar 2026 00:20:39 -0700 (PDT)
-Received: from cachyos-workstation.hsd1.md.comcast.net ([2601:154:c200:4a60::f299])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89c450ab4efsm36004236d6.51.2026.03.16.00.20.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 00:20:38 -0700 (PDT)
-From: Andrew Maney <andrewmaney05@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org,
-	benjamin.tissoires@redhat.com,
-	Andrew Maney <andrewmaney05@gmail.com>
-Subject: [RFC PATCH] HID: iota-ups: add driver for LattePanda IOTA UPS
-Date: Mon, 16 Mar 2026 03:20:32 -0400
-Message-ID: <20260316072034.56694-1-andrewmaney05@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XiJojWx8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773646359; x=1805182359;
+  h=date:from:to:cc:subject:message-id;
+  bh=ZWSH10osJM4At5V9QOSPmcmGBv2LPcFR3huV2+C7rx4=;
+  b=XiJojWx86BqVB3xynjsXp60bpqyj2929q+OAedNKiFOMg0ozmCCw8tFz
+   yDysBP3Hdux83RrsxEjwRok4/Wlt7jlvEb5wCu5HQaYiscwKDF4Wm22Iu
+   QfKz5U0/OkYeRr65uZpGtaxQcaw04Kq9ffFLoOpdLctl55m4giYU4WyhQ
+   S+EYQ4jKqYlzg7ktOuy6ze0iewcaP1ZMnHprYf+QcbmCYefu6gxmTWPKy
+   SD+KAJG7e+g97LjFjnkjVPnTCiiTfLNhE0cyEkhl7U3KeYwcyFV8tLkqw
+   P0W07INxYm5Y19ZKgPijsn0tELl5nLhiVN1zEt3+mzsUlYjeEdlE6/Xj5
+   A==;
+X-CSE-ConnectionGUID: tDzfunNrTSWYUBdFkD1Y5g==
+X-CSE-MsgGUID: i0WDKv/BRDu9Dz9wFDAlvg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11730"; a="73670451"
+X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
+   d="scan'208";a="73670451"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 00:32:38 -0700
+X-CSE-ConnectionGUID: QaN2CtvJQqGpmmr4odPpsw==
+X-CSE-MsgGUID: f5D3zB01RBOo/ACmXjuU2w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
+   d="scan'208";a="224071160"
+Received: from lkp-server01.sh.intel.com (HELO 892944969b78) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 16 Mar 2026 00:32:37 -0700
+Received: from kbuild by 892944969b78 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w22RG-000000000Ik-3kkV;
+	Mon, 16 Mar 2026 07:32:34 +0000
+Date: Mon, 16 Mar 2026 15:32:03 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ beb2b0a26c3a1021421e8db40154c3b6687b6621
+Message-ID: <202603161557.m9nyfkQn-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-This driver exposes the DFRobot LattePanda IOTA UPS board as a standard
-power_supply device, allowing desktop environments and power management
-tools such as UPower and systemd-logind to display battery status,
-remaining capacity, and charging status without any special
-configuration. It also enables automatic suspend or shutdown on low
-battery and power profile configuration via any tool that supports the
-standard power_supply interface.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: beb2b0a26c3a1021421e8db40154c3b6687b6621  Input: psmouse - remove dedicated kpsmoused workqueue
 
-The UPS presents itself as an Arduino Leonardo HID device running custom
-firmware (VID 0x2341, PID 0x8036). It reports status and capacity via
-HID reports 0x07 and 0x0C respectively.
+elapsed time: 736m
 
-The charge limit (80% or 100%) is configured via a physical DIP switch
-on the UPS board and cannot be detected automatically. Userspace can
-inform the driver of the configured limit via
-charge_control_end_threshold.
+configs tested: 233
+configs skipped: 3
 
-Known issue: the driver occasionally reports 0% capacity briefly on
-initial load before the first valid HID report is received. I am
-investigating the cause.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Signed-off-by: Andrew Maney <andrewmaney05@gmail.com>
----
- iota-ups.c | 355 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 355 insertions(+)
- create mode 100644 iota-ups.c
+tested configs:
+alpha                             allnoconfig    gcc-15.2.0
+alpha                            allyesconfig    gcc-15.2.0
+alpha                               defconfig    gcc-15.2.0
+arc                              allmodconfig    clang-16
+arc                               allnoconfig    gcc-15.2.0
+arc                              allyesconfig    clang-23
+arc                                 defconfig    gcc-15.2.0
+arc                   randconfig-001-20260316    clang-23
+arc                   randconfig-002-20260316    clang-23
+arm                               allnoconfig    clang-23
+arm                               allnoconfig    gcc-15.2.0
+arm                              allyesconfig    clang-16
+arm                                 defconfig    gcc-15.2.0
+arm                   randconfig-001-20260316    clang-23
+arm                   randconfig-002-20260316    clang-23
+arm                   randconfig-003-20260316    clang-23
+arm                   randconfig-004-20260316    clang-23
+arm64                            allmodconfig    clang-23
+arm64                             allnoconfig    gcc-15.2.0
+arm64                               defconfig    gcc-15.2.0
+arm64                 randconfig-001-20260316    clang-23
+arm64                 randconfig-001-20260316    gcc-11.5.0
+arm64                 randconfig-002-20260316    clang-23
+arm64                 randconfig-003-20260316    clang-23
+arm64                 randconfig-004-20260316    clang-19
+arm64                 randconfig-004-20260316    clang-23
+csky                             allmodconfig    gcc-15.2.0
+csky                              allnoconfig    gcc-15.2.0
+csky                                defconfig    gcc-15.2.0
+csky                  randconfig-001-20260316    clang-23
+csky                  randconfig-001-20260316    gcc-15.2.0
+csky                  randconfig-002-20260316    clang-23
+csky                  randconfig-002-20260316    gcc-14.3.0
+hexagon                          allmodconfig    clang-17
+hexagon                          allmodconfig    gcc-15.2.0
+hexagon                           allnoconfig    clang-23
+hexagon                           allnoconfig    gcc-15.2.0
+hexagon                             defconfig    gcc-15.2.0
+hexagon               randconfig-001-20260316    clang-23
+hexagon               randconfig-001-20260316    gcc-11.5.0
+hexagon               randconfig-002-20260316    clang-23
+hexagon               randconfig-002-20260316    gcc-11.5.0
+i386                             allmodconfig    clang-20
+i386                              allnoconfig    gcc-14
+i386                              allnoconfig    gcc-15.2.0
+i386                             allyesconfig    clang-20
+i386        buildonly-randconfig-001-20260316    gcc-14
+i386        buildonly-randconfig-002-20260316    gcc-14
+i386        buildonly-randconfig-003-20260316    gcc-14
+i386        buildonly-randconfig-004-20260316    gcc-14
+i386        buildonly-randconfig-005-20260316    gcc-14
+i386        buildonly-randconfig-006-20260316    gcc-14
+i386                                defconfig    gcc-15.2.0
+i386                  randconfig-001-20260316    gcc-14
+i386                  randconfig-002-20260316    gcc-14
+i386                  randconfig-003-20260316    gcc-14
+i386                  randconfig-004-20260316    gcc-14
+i386                  randconfig-005-20260316    gcc-14
+i386                  randconfig-006-20260316    gcc-14
+i386                  randconfig-007-20260316    gcc-14
+i386                  randconfig-011-20260316    clang-20
+i386                  randconfig-011-20260316    gcc-13
+i386                  randconfig-012-20260316    gcc-13
+i386                  randconfig-012-20260316    gcc-14
+i386                  randconfig-013-20260316    clang-20
+i386                  randconfig-013-20260316    gcc-13
+i386                  randconfig-014-20260316    gcc-13
+i386                  randconfig-015-20260316    clang-20
+i386                  randconfig-015-20260316    gcc-13
+i386                  randconfig-016-20260316    gcc-13
+i386                  randconfig-016-20260316    gcc-14
+i386                  randconfig-017-20260316    clang-20
+i386                  randconfig-017-20260316    gcc-13
+loongarch                        allmodconfig    clang-23
+loongarch                         allnoconfig    clang-23
+loongarch                         allnoconfig    gcc-15.2.0
+loongarch                           defconfig    clang-19
+loongarch             randconfig-001-20260316    gcc-11.5.0
+loongarch             randconfig-001-20260316    gcc-14.3.0
+loongarch             randconfig-002-20260316    clang-18
+loongarch             randconfig-002-20260316    gcc-11.5.0
+m68k                             allmodconfig    gcc-15.2.0
+m68k                              allnoconfig    gcc-15.2.0
+m68k                             allyesconfig    clang-16
+m68k                                defconfig    clang-19
+m68k                                defconfig    gcc-15.2.0
+microblaze                        allnoconfig    gcc-15.2.0
+microblaze                       allyesconfig    gcc-15.2.0
+microblaze                          defconfig    clang-19
+microblaze                          defconfig    gcc-15.2.0
+mips                             allmodconfig    gcc-15.2.0
+mips                              allnoconfig    gcc-15.2.0
+mips                             allyesconfig    gcc-15.2.0
+nios2                            allmodconfig    clang-23
+nios2                             allnoconfig    clang-23
+nios2                             allnoconfig    gcc-11.5.0
+nios2                               defconfig    clang-19
+nios2                               defconfig    gcc-11.5.0
+nios2                 randconfig-001-20260316    gcc-11.5.0
+nios2                 randconfig-002-20260316    gcc-11.5.0
+nios2                 randconfig-002-20260316    gcc-8.5.0
+openrisc                         allmodconfig    clang-23
+openrisc                          allnoconfig    clang-23
+openrisc                          allnoconfig    gcc-15.2.0
+openrisc                            defconfig    gcc-15.2.0
+parisc                           allmodconfig    gcc-15.2.0
+parisc                            allnoconfig    clang-23
+parisc                            allnoconfig    gcc-15.2.0
+parisc                           allyesconfig    clang-19
+parisc                              defconfig    gcc-15.2.0
+parisc                randconfig-001-20260316    gcc-13.4.0
+parisc                randconfig-001-20260316    gcc-8.5.0
+parisc                randconfig-002-20260316    gcc-12.5.0
+parisc                randconfig-002-20260316    gcc-13.4.0
+parisc64                            defconfig    clang-19
+parisc64                            defconfig    gcc-15.2.0
+powerpc                          allmodconfig    gcc-15.2.0
+powerpc                           allnoconfig    clang-23
+powerpc                           allnoconfig    gcc-15.2.0
+powerpc               randconfig-001-20260316    clang-23
+powerpc               randconfig-001-20260316    gcc-13.4.0
+powerpc               randconfig-002-20260316    clang-23
+powerpc               randconfig-002-20260316    gcc-13.4.0
+powerpc64             randconfig-001-20260316    gcc-13.4.0
+powerpc64             randconfig-002-20260316    gcc-13.4.0
+powerpc64             randconfig-002-20260316    gcc-8.5.0
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    clang-23
+riscv                             allnoconfig    gcc-15.2.0
+riscv                            allyesconfig    clang-16
+riscv                               defconfig    gcc-15.2.0
+riscv                 randconfig-001-20260316    gcc-12.5.0
+riscv                 randconfig-001-20260316    gcc-15.2.0
+riscv                 randconfig-002-20260316    gcc-12.5.0
+riscv                 randconfig-002-20260316    gcc-8.5.0
+s390                             allmodconfig    clang-19
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-15.2.0
+s390                                defconfig    gcc-15.2.0
+s390                  randconfig-001-20260316    clang-18
+s390                  randconfig-001-20260316    gcc-12.5.0
+s390                  randconfig-002-20260316    gcc-12.5.0
+s390                  randconfig-002-20260316    gcc-14.3.0
+sh                               allmodconfig    gcc-15.2.0
+sh                                allnoconfig    clang-23
+sh                                allnoconfig    gcc-15.2.0
+sh                               allyesconfig    clang-19
+sh                                  defconfig    gcc-14
+sh                                  defconfig    gcc-15.2.0
+sh                    randconfig-001-20260316    gcc-12.5.0
+sh                    randconfig-001-20260316    gcc-15.2.0
+sh                    randconfig-002-20260316    gcc-12.5.0
+sh                          rsk7203_defconfig    gcc-15.2.0
+sh                           sh2007_defconfig    gcc-15.2.0
+sparc                             allnoconfig    clang-23
+sparc                             allnoconfig    gcc-15.2.0
+sparc                               defconfig    gcc-15.2.0
+sparc                 randconfig-001-20260316    gcc-12.5.0
+sparc                 randconfig-001-20260316    gcc-8.5.0
+sparc                 randconfig-002-20260316    gcc-12.5.0
+sparc64                          allmodconfig    clang-23
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20260316    gcc-12.5.0
+sparc64               randconfig-001-20260316    gcc-8.5.0
+sparc64               randconfig-002-20260316    gcc-12.5.0
+sparc64               randconfig-002-20260316    gcc-15.2.0
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-14
+um                               allyesconfig    gcc-15.2.0
+um                                  defconfig    clang-23
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260316    gcc-12.5.0
+um                    randconfig-001-20260316    gcc-14
+um                    randconfig-002-20260316    clang-23
+um                    randconfig-002-20260316    gcc-12.5.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-20
+x86_64                            allnoconfig    clang-20
+x86_64                            allnoconfig    clang-23
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20260316    clang-20
+x86_64      buildonly-randconfig-001-20260316    gcc-14
+x86_64      buildonly-randconfig-002-20260316    clang-20
+x86_64      buildonly-randconfig-003-20260316    clang-20
+x86_64      buildonly-randconfig-004-20260316    clang-20
+x86_64      buildonly-randconfig-004-20260316    gcc-14
+x86_64      buildonly-randconfig-005-20260316    clang-20
+x86_64      buildonly-randconfig-005-20260316    gcc-14
+x86_64      buildonly-randconfig-006-20260316    clang-20
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-20
+x86_64                randconfig-001-20260316    clang-20
+x86_64                randconfig-001-20260316    gcc-14
+x86_64                randconfig-002-20260316    clang-20
+x86_64                randconfig-003-20260316    clang-20
+x86_64                randconfig-004-20260316    clang-20
+x86_64                randconfig-004-20260316    gcc-14
+x86_64                randconfig-005-20260316    clang-20
+x86_64                randconfig-006-20260316    clang-20
+x86_64                randconfig-011-20260316    gcc-14
+x86_64                randconfig-012-20260316    gcc-14
+x86_64                randconfig-013-20260316    gcc-14
+x86_64                randconfig-014-20260316    gcc-14
+x86_64                randconfig-015-20260316    clang-20
+x86_64                randconfig-015-20260316    gcc-14
+x86_64                randconfig-016-20260316    gcc-14
+x86_64                randconfig-071-20260316    gcc-12
+x86_64                randconfig-072-20260316    gcc-12
+x86_64                randconfig-072-20260316    gcc-14
+x86_64                randconfig-073-20260316    gcc-12
+x86_64                randconfig-073-20260316    gcc-14
+x86_64                randconfig-074-20260316    gcc-12
+x86_64                randconfig-074-20260316    gcc-14
+x86_64                randconfig-075-20260316    clang-20
+x86_64                randconfig-075-20260316    gcc-12
+x86_64                randconfig-076-20260316    clang-20
+x86_64                randconfig-076-20260316    gcc-12
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    clang-23
+xtensa                            allnoconfig    gcc-15.2.0
+xtensa                           allyesconfig    clang-23
+xtensa                randconfig-001-20260316    gcc-12.5.0
+xtensa                randconfig-001-20260316    gcc-15.2.0
+xtensa                randconfig-002-20260316    gcc-12.5.0
+xtensa                randconfig-002-20260316    gcc-15.2.0
 
-diff --git a/iota-ups.c b/iota-ups.c
-new file mode 100644
-index 0000000..df334b2
---- /dev/null
-+++ b/iota-ups.c
-@@ -0,0 +1,355 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <linux/completion.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/power_supply.h>
-+#include <linux/spinlock.h>
-+#include <linux/usb.h>
-+
-+#define IOTA_UPS_VENDOR_ID	0x2341
-+#define IOTA_UPS_PRODUCT_ID	0x8036
-+
-+#define REPORT_ID_STATUS	0x07
-+#define REPORT_ID_CAPACITY	0x0C
-+
-+#define STATUS_PLUGGED_IN	BIT(0)
-+#define STATUS_DISCHARGING	BIT(1)
-+#define STATUS_CHARGING		BIT(2)
-+
-+MODULE_AUTHOR("Andrew Maney");
-+MODULE_DESCRIPTION("LattePanda IOTA UPS power supply driver");
-+MODULE_LICENSE("GPL");
-+
-+struct iota_ups {
-+	struct hid_device		*hiddev;
-+	struct power_supply		*psu;
-+	struct power_supply_desc	 psu_desc;
-+	spinlock_t			 lock; /* Protects all cached HID report values */
-+
-+	/* Cached values updated from HID reports */
-+	char	serial[64];
-+	bool	plugged_in;
-+	int	psu_status;
-+	int	capacity;
-+	int	charge_limit;
-+
-+	/*
-+	 * Wait for both status and capacity reports before registering
-+	 * with the power_supply core, so initial values are correct.
-+	 */
-+	struct completion	got_initial_data;
-+	bool			data_ready;
-+	bool			got_status;
-+	bool			got_capacity;
-+};
-+
-+static enum power_supply_property iota_ups_properties[] = {
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_PRESENT,
-+	POWER_SUPPLY_PROP_ONLINE,
-+	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_TECHNOLOGY,
-+	POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD,
-+	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
-+	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
-+	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
-+	POWER_SUPPLY_PROP_HEALTH,
-+	POWER_SUPPLY_PROP_VOLTAGE_NOW,
-+	POWER_SUPPLY_PROP_MANUFACTURER,
-+	POWER_SUPPLY_PROP_MODEL_NAME,
-+	POWER_SUPPLY_PROP_SERIAL_NUMBER,
-+};
-+
-+static const struct hid_device_id iota_ups_devices[] = {
-+	{ HID_USB_DEVICE(IOTA_UPS_VENDOR_ID, IOTA_UPS_PRODUCT_ID) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, iota_ups_devices);
-+
-+static int iota_ups_get_property(struct power_supply *supply,
-+				 enum power_supply_property psp,
-+				 union power_supply_propval *val)
-+{
-+	struct iota_ups *ups = power_supply_get_drvdata(supply);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ups->lock, flags);
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_STATUS:
-+		val->intval = ups->psu_status;
-+		break;
-+	/* Remaining capacity as a percentage, 0-100 */
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = ups->capacity;
-+		break;
-+	/* Always present if the driver is loaded */
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = 1;
-+		break;
-+	/* Whether mains power is connected */
-+	case POWER_SUPPLY_PROP_ONLINE:
-+		val->intval = ups->plugged_in ? 1 : 0;
-+		break;
-+	/* System-level UPS, not a laptop battery */
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_SYSTEM;
-+		break;
-+	/* V1.0 only accepts 18650 Li-ion cells */
-+	case POWER_SUPPLY_PROP_TECHNOLOGY:
-+		val->intval = POWER_SUPPLY_TECHNOLOGY_LION;
-+		break;
-+	/* 80% or 100%, configured via DIP switch on the board */
-+	case POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD:
-+		val->intval = ups->charge_limit;
-+		break;
-+	/* V1.0 does not report capacity level via HID */
-+	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
-+		val->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
-+		break;
-+	/* V1.0 does not report time remaining */
-+	case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
-+	case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
-+		val->intval = 0;
-+		break;
-+	/* V1.0 does not report health; assume good */
-+	case POWER_SUPPLY_PROP_HEALTH:
-+		val->intval = POWER_SUPPLY_HEALTH_GOOD;
-+		break;
-+	/* 3.7V in microvolts, typical Li-ion resting voltage */
-+	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+		val->intval = 3700000;
-+		break;
-+	case POWER_SUPPLY_PROP_MANUFACTURER:
-+		val->strval = "DFRobot";
-+		break;
-+	case POWER_SUPPLY_PROP_MODEL_NAME:
-+		val->strval = "LattePanda IOTA UPS";
-+		break;
-+	/* Retrieved from the USB descriptor */
-+	case POWER_SUPPLY_PROP_SERIAL_NUMBER:
-+		val->strval = ups->serial;
-+		break;
-+	default:
-+		spin_unlock_irqrestore(&ups->lock, flags);
-+		return -EINVAL;
-+	}
-+
-+	spin_unlock_irqrestore(&ups->lock, flags);
-+	return 0;
-+}
-+
-+static int iota_ups_set_property(struct power_supply *supply,
-+				 enum power_supply_property psp,
-+				 const union power_supply_propval *val)
-+{
-+	struct iota_ups *ups = power_supply_get_drvdata(supply);
-+
-+	if (psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD) {
-+		/*
-+		 * V1.0 supports 80% and 100% charge limits only, set via
-+		 * DIP switch on the board. This property allows userspace
-+		 * to inform the driver which limit is configured.
-+		 */
-+		if (val->intval != 80 && val->intval != 100)
-+			return -EINVAL;
-+		ups->charge_limit = val->intval;
-+		return 0;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int iota_ups_property_is_writable(struct power_supply *supply,
-+					 enum power_supply_property psp)
-+{
-+	return psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD;
-+}
-+
-+static int iota_ups_raw_event(struct hid_device *hdev,
-+			      struct hid_report *report,
-+			      u8 *data, int size)
-+{
-+	struct iota_ups *ups = hid_get_drvdata(hdev);
-+	unsigned long flags;
-+	bool changed = false;
-+
-+	/* All UPS reports are at least 2 bytes */
-+	if (size < 2)
-+		return 0;
-+
-+	spin_lock_irqsave(&ups->lock, flags);
-+
-+	switch (data[0]) {
-+	case REPORT_ID_STATUS: {
-+		u8 status = data[1];
-+		int new_status;
-+		bool plugged_in = !!(status & STATUS_PLUGGED_IN);
-+
-+		if (status & STATUS_CHARGING) {
-+			if (ups->capacity >= ups->charge_limit)
-+				new_status = POWER_SUPPLY_STATUS_FULL;
-+			else
-+				new_status = POWER_SUPPLY_STATUS_CHARGING;
-+		} else if (status & STATUS_DISCHARGING) {
-+			new_status = POWER_SUPPLY_STATUS_DISCHARGING;
-+		} else if (plugged_in) {
-+			new_status = POWER_SUPPLY_STATUS_FULL;
-+		} else {
-+			new_status = POWER_SUPPLY_STATUS_UNKNOWN;
-+		}
-+
-+		if (new_status != ups->psu_status ||
-+		    plugged_in != ups->plugged_in) {
-+			ups->plugged_in = plugged_in;
-+			ups->psu_status = new_status;
-+			changed = true;
-+		}
-+
-+		ups->got_status = true;
-+		break;
-+	}
-+	case REPORT_ID_CAPACITY: {
-+		int new_cap = clamp((int)data[1], 0, 100);
-+
-+		if (new_cap != ups->capacity) {
-+			ups->capacity = new_cap;
-+			changed = true;
-+		}
-+
-+		ups->got_capacity = true;
-+		break;
-+	}
-+	}
-+
-+	/*
-+	 * Signal ready only once both status and capacity have been
-+	 * received, so the power_supply is registered with valid data.
-+	 */
-+	if (!ups->data_ready && ups->got_status && ups->got_capacity) {
-+		ups->data_ready = true;
-+		complete(&ups->got_initial_data);
-+	}
-+
-+	spin_unlock_irqrestore(&ups->lock, flags);
-+
-+	/*
-+	 * Notify the power_supply core outside the spinlock. This
-+	 * triggers UPower's PropertiesChanged signal with the new values.
-+	 */
-+	if (changed && ups->psu)
-+		power_supply_changed(ups->psu);
-+
-+	return 0;
-+}
-+
-+static int iota_ups_probe(struct hid_device *hdev,
-+			  const struct hid_device_id *id)
-+{
-+	struct power_supply_config psu_config = {};
-+	struct usb_device *udev;
-+	struct iota_ups *ups;
-+	int ret;
-+
-+	ups = devm_kzalloc(&hdev->dev, sizeof(*ups), GFP_KERNEL);
-+	if (!ups)
-+		return -ENOMEM;
-+
-+	ups->hiddev		= hdev;
-+	ups->psu_status		= POWER_SUPPLY_STATUS_UNKNOWN;
-+	ups->capacity		= 50;
-+	/*
-+	 * Default to 100% — the DIP switch may be set to 80% but there
-+	 * is no way to detect this automatically from HID reports.
-+	 * Userspace can update this via charge_control_end_threshold.
-+	 */
-+	ups->charge_limit	= 100;
-+	ups->data_ready		= false;
-+	ups->got_status		= false;
-+	ups->got_capacity	= false;
-+
-+	init_completion(&ups->got_initial_data);
-+	spin_lock_init(&ups->lock);
-+	hid_set_drvdata(hdev, ups);
-+
-+	/* Retrieve serial number from the USB descriptor */
-+	udev = to_usb_device(hdev->dev.parent->parent);
-+	if (udev->serial)
-+		strscpy(ups->serial, udev->serial, sizeof(ups->serial));
-+	else
-+		strscpy(ups->serial, "Unknown", sizeof(ups->serial));
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "HID parse failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret) {
-+		hid_err(hdev, "HID hw start failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "HID hw open failed: %d\n", ret);
-+		goto err_stop;
-+	}
-+
-+	/*
-+	 * Wait for both status and capacity reports before registering.
-+	 * The device sends reports every ~1 second; 3 seconds is safe.
-+	 */
-+	wait_for_completion_timeout(&ups->got_initial_data,
-+				    msecs_to_jiffies(3000));
-+
-+	ups->psu_desc.name			= "lattepanda-iota-ups";
-+	ups->psu_desc.type			= POWER_SUPPLY_TYPE_BATTERY;
-+	ups->psu_desc.properties		= iota_ups_properties;
-+	ups->psu_desc.num_properties		= ARRAY_SIZE(iota_ups_properties);
-+	ups->psu_desc.get_property		= iota_ups_get_property;
-+	ups->psu_desc.set_property		= iota_ups_set_property;
-+	ups->psu_desc.property_is_writeable	= iota_ups_property_is_writable;
-+	psu_config.drv_data = ups;
-+
-+	ups->psu = devm_power_supply_register(&hdev->dev,
-+					      &ups->psu_desc,
-+					      &psu_config);
-+	if (IS_ERR(ups->psu)) {
-+		ret = PTR_ERR(ups->psu);
-+		hid_err(hdev, "power_supply register failed: %d\n", ret);
-+		goto err_close;
-+	}
-+
-+	/*
-+	 * Force an immediate notification so UPower reads the correct
-+	 * initial state right after registration.
-+	 */
-+	power_supply_changed(ups->psu);
-+
-+	hid_info(hdev, "LattePanda IOTA UPS registered as power supply\n");
-+	return 0;
-+
-+err_close:
-+	hid_hw_close(hdev);
-+err_stop:
-+	hid_hw_stop(hdev);
-+	return ret;
-+}
-+
-+static void iota_ups_remove(struct hid_device *hdev)
-+{
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+static struct hid_driver iota_ups_driver = {
-+	.name		= "lattepanda-iota-ups",
-+	.id_table	= iota_ups_devices,
-+	.probe		= iota_ups_probe,
-+	.remove		= iota_ups_remove,
-+	.raw_event	= iota_ups_raw_event,
-+};
-+module_hid_driver(iota_ups_driver);
--- 
-2.53.0
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

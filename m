@@ -1,152 +1,160 @@
-Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com [209.85.167.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 584F83DB64B
-	for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 19:56:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79B41364E85;
+	Mon, 16 Mar 2026 22:10:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773691018; cv=none; b=gmcRp6MZWopRHoTvVS7EyK4wJgQtNAuvPnU/wZfTfYCPU180VWyKQOgm4djSgXunPncWiTwRi/6mPcXa7byZcf0bn/++bog3M6ZQTf9uVbHbzH/Idn3e5jk5FZmE3NLxLoLlIj+dGuZI40KoQ8Qt1yN2995Rp77W6zVsUK1BWJc=
+	t=1773699061; cv=none; b=X2HD+TcaXbBKqJwG3FOGvtGJ46b+9I3gceqYyzbiFh6CNe9xr5K5tYkgxy7/FPoH9bW5ibjyU1GRsjl45lwRwaFkYUlkIK460MM/W7tnIzi7BdP62SHY3AFNuzkzLwFRLz8crKfu/KWSHUHvsA941n8ETVzAIJYgBbCgkdzV/Y8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773691018; c=relaxed/simple;
-	bh=ArJd7HrU909urH7zHvCJ4xaUBXk38BgRRNYSJYgMqF0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Llh3goiILiNHvMQVW+kUb446i4I6okkllS+rnMi7KpCy44/m/3YK2MmyYX/bWFMAZPsZrzhHnsqiebxG5nEtuDCKsDI+HhbJ6PFEO19i3SZ0yzFb12SAnlQ7rAdKCUFAKjow1emUZTLjhF6t3RlVvVr+CzciUEQ19SRdxCki9vM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=DtOLkD9f; arc=none smtp.client-ip=209.85.167.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1773699061; c=relaxed/simple;
+	bh=bR3l1XBxxG0Br6WPViaTYx4jBj801ByLeboUNggNeu4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=A38yHLwEglJnAk0B2QCy7stC9vMmro0enVPstLHcOoOWf+ISPC3fMoHAiOFXJpgQ+JEGYQrlTu0OIZqL9gIfg9EuELK7OlOHQThyqCuvdDItVMWZTKlH5lCT2EoHtG4zqNZ3haS7IZ2EcyWbx12HIJK/xKpWlKg0tgYFk4eMcz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=eyO5nsRG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=guCypQjf; arc=none smtp.client-ip=103.168.172.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="DtOLkD9f"
-Received: by mail-oi1-f173.google.com with SMTP id 5614622812f47-464bba3a9easo3187841b6e.0
-        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2026 12:56:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1773691014; x=1774295814; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=I5d1yKuk3SLAtnZLG3Qec0w4FmDKAr8Dh755XkWBDe8=;
-        b=DtOLkD9fB0kwmzV7zR6RizG5yPdnBE7ngZitLZ1UgR0l7o1WPg0qUBQRoFOEWb2Tps
-         mCkObixF25NWYI2tUu0HfYewrGBJ79eGxvwlEPQcFUUf8btaJ1CYWfnKLqERhH0rNT5d
-         RpIV6Yc5/BoTrk08aTXYTGq+TYExd6kqBPQLiNCXHiXVIkiNfTEobTDXp/c+edKAzZYv
-         MoQqGvASrXmb4U2Ss7bo80BnSv5hfXu7MD0ze0bwUZCV18NeN4KQa0kwjUMuPG+1W05z
-         W5rWUfg8VN7IMEdYBTIYBK30OWPNpl2MWhviQ9ag1jit6OGJ4/4h0mzGyZ+h5RwF1t98
-         1u9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773691014; x=1774295814;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=I5d1yKuk3SLAtnZLG3Qec0w4FmDKAr8Dh755XkWBDe8=;
-        b=nai+8SrEv+LmXF6Dti7aVuwPYraKiCBJssAUevGr7LMIPFZ42xWdTymP6EoaJcczZi
-         h4Qo6S+goD2BlU2jhdICXxTn/zAVfA08ALSj150Xz++/qRZZi9jBvj6SxFGyIHbaULbq
-         kHRHTNqiZizd3GlH3GMeJxx3xyJNrminQQcIXJit5rJ45JtJn0+gtzkO9nPToB9TYQTE
-         Mn7vdsYB+A+CKR0YhBISpbLZt//mRXk+rS0jObOef7pJzNU5h+TK9hX4BvT9NSayftFf
-         dmxRu0ZfBq91aQNte/6i+mNYze6TEm877JAcxx1jdHQYw7N5L+v3adtuz4NSAMxSZl5E
-         kD1w==
-X-Forwarded-Encrypted: i=1; AJvYcCW14kjg7g0AVeU1JYOhJlNmQl3uEkxXIv/xU8AfQZx/3r3wc/PUeNArH7ILCMyNX4WdBvQpT/uh1tZoBw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyswh3ZwIWN5p6G5XYiQE+uZ/PHKNOCYDf5ZkGn0N0JbtRqPKGs
-	5HbZFqEIXl9RYeUAl+ZbGq7KqsDROrG5DKjRoP00F1lGfZLgxSd/nqZOS/YfCb0IEVA=
-X-Gm-Gg: ATEYQzz50H93VpzjlDKUIAl6pytB4v8kkLU/aExMlRv/4rRY2M+TZY4Xnj5bM0dyadz
-	7awpQoKzfxFC3DxCTsUA9y64Unu+moyTGKuNR8Vani+ggYu6Yj18DYr3e+gFxXx2DbVGBveIvhO
-	iSxKqPtdvVEhi3fUpGSMoiNyJjp1NdY6tVfSyd3l0pgnq0qMTvPVnkHVaQYIDmKJWfTeoG8DfLG
-	PcEXYXiwGwQY/I2rPzc/RhU/3+MkDYJndgEEj7/qocC0giT07vr1v7y6Rf9Ogw6RS4ndJ3LlfB7
-	OwQQ7cVTbAgYGR1n7pfLipJxHqgyq3il6lJF7meMgETKH5sKr6kM6uFNy7bFUcRYLjg3c8MQRET
-	q5vi0/+6eDteDibQbQsYuMPwyHD/5xbdNurzGxnNNV6pgzLVGst+NilgZrOC1z5P3BIp7cAZTHz
-	njSlSFcz8BjCwufzoltzt5Dc8XX9C8IlJQE52o7si/Oe6ncKdwLHNJJ06pxhDRG0Q5LjikR8nas
-	xBRTLAhChmA
-X-Received: by 2002:a05:6870:63aa:b0:417:1726:9076 with SMTP id 586e51a60fabf-417b93c709cmr8101740fac.29.1773691014173;
-        Mon, 16 Mar 2026 12:56:54 -0700 (PDT)
-Received: from ?IPV6:2600:8803:e7e4:500:e504:a034:1152:a664? ([2600:8803:e7e4:500:e504:a034:1152:a664])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4177e268f37sm16508449fac.6.2026.03.16.12.56.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 16 Mar 2026 12:56:53 -0700 (PDT)
-Message-ID: <b050ce49-9880-4d87-8e52-09705e7166bc@baylibre.com>
-Date: Mon, 16 Mar 2026 14:56:52 -0500
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="eyO5nsRG";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="guCypQjf"
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailflow.phl.internal (Postfix) with ESMTP id 96E81138028E;
+	Mon, 16 Mar 2026 18:10:56 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-01.internal (MEProxy); Mon, 16 Mar 2026 18:10:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1773699056;
+	 x=1773706256; bh=pZj8f0JboyjKt94J8KB7OLIiCOoml43GOZ4w8rDpLPA=; b=
+	eyO5nsRGgscBaSPTlSrjx8D8qsmxFZTD+YBT90C8JLtkSU+JG9otBsGP68/aDjfq
+	Ip8/CY7pDqj8uLfl6tk9PaoCLmHFx9BmC+OLDsgQIKz5wruWwvglBIFTzX8Bgo1G
+	D7tyDhfcq/yYvbxAZYbPlVlov+W1BUQwVVZx34myYfSzzczy+o0TvO2AJR+dEy1d
+	h9Fy4zA0IHy3AyAu2lJw7cTPeRVsoH7Q9DZJUhPGVmEq8IZ5byXvr46eUf3RwYLV
+	Pd21rN+O2sxo21UD0KoApMpHYwnhY5vI1CKlHqs6nb1Q0ON5mjBcz18/WvPyI4M2
+	g7ed/wORmv3aHNEvlM9NEQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1773699056; x=
+	1773706256; bh=pZj8f0JboyjKt94J8KB7OLIiCOoml43GOZ4w8rDpLPA=; b=g
+	uCypQjfxr+Zi7JxdTC/p3wGQ4VV0q/Wv3rf4QuOSSvRwPZ4hwWoKXSQwRlJppx/A
+	eTD/kX8ytMBkqeeAHXi8QojGoDJPwhemKEl1A5BQyy+VTfQ0kjCklEhRU0D9TNU6
+	QzoouUhJdY7Fi24kVLMS4vkfF5Xif+sxcGuZ+ZH9bmNOAZhg/6jHFnuxjrIUYo4Y
+	sJAjmQ/c58h+MsTVokuL8c2t4xBbVGwnTgXIvKplEwnaY81NNzKXbPGa+zPU58N/
+	vwQ/zZfUYT5zYdyXfBWrfC5sZSkqzhpuD1WACxXIM/TD7Jh2N1ZXy8qS+O1DtSBY
+	h24uS6YuZ9c79L+rKNYRA==
+X-ME-Sender: <xms:73-4aYdtUUIQC679P0YPl8k6UZ10Tz8-qTD319yDZEtXusdBhZuXRA>
+    <xme:73-4aTUav9FvduIIOmc0jldmINr5W_MhUsWQFGzP1fBm1dpf8ggOxSMvCMHniLmCu
+    LbRPk360ujIo39hLA6fsP95YlnCLki5WcrUsiuRyEwh6NcxWlxF>
+X-ME-Received: <xmr:73-4aSY56rJyFtQwMFw-H9dfM29zbbMWxWkWrpi3kYaZ1kbqDyXdf5bHU5U>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvleelheegucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfgjfhfogggtgfesthejre
+    dtredtvdenucfhrhhomheptehlvgigucghihhllhhirghmshhonhcuoegrlhgvgiesshhh
+    rgiisghothdrohhrgheqnecuggftrfgrthhtvghrnhepvdekfeejkedvudfhudfhteekud
+    fgudeiteetvdeukedvheetvdekgfdugeevueeunecuvehluhhsthgvrhfuihiivgeptden
+    ucfrrghrrghmpehmrghilhhfrhhomheprghlvgigsehshhgriigsohhtrdhorhhgpdhnsg
+    gprhgtphhtthhopeehhedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepphhhrghh
+    nhdqohhsshesrghvmhdruggvpdhrtghpthhtoheprghmugdqghhfgieslhhishhtshdrfh
+    hrvggvuggvshhkthhophdrohhrghdprhgtphhtthhopegrphhprghrmhhorheslhhishht
+    shdruhgsuhhnthhurdgtohhmpdhrtghpthhtohepsghpfhesvhhgvghrrdhkvghrnhgvlh
+    drohhrghdprhgtphhtthhopegtvghphhdquggvvhgvlhesvhhgvghrrdhkvghrnhgvlhdr
+    ohhrghdprhgtphhtthhopegtohgttghisehinhhrihgrrdhfrhdprhgtphhtthhopegumh
+    dquggvvhgvlheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopegurhhiqdgu
+    vghvvghlsehlihhsthhsrdhfrhgvvgguvghskhhtohhprdhorhhgpdhrtghpthhtohepgh
+    hfshdvsehlihhsthhsrdhlihhnuhigrdguvghv
+X-ME-Proxy: <xmx:73-4aQltNdDVIdEqvCmz7Mlt0qW50NA4CHgJQUMNlacMN4MGiVKHfA>
+    <xmx:73-4acHdFw15OLpR73_B1AdIXJMG-pYssiD_C0T2dj2N-8ux7fVHFg>
+    <xmx:73-4aU6P6J2BtdvPwSPzfrUNjz9-qYacHOOWBucSAMlha23fXDTcIg>
+    <xmx:73-4aaO5YEqAXlnOLRO88GZx1RbxPW8QtXAeqZQNaqmxlgOL7PgFkQ>
+    <xmx:8H-4abIvs_QYur641c9BpnDuFQ6ssCC-7-o-rPLEHWyRxStBDxJEr6SL>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 16 Mar 2026 18:10:52 -0400 (EDT)
+Date: Mon, 16 Mar 2026 16:10:50 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Philipp Hahn <phahn-oss@avm.de>
+Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
+ bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
+ dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+ sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
+ alex@shazbot.org
+Subject: Re: [PATCH 46/61] vfio: Prefer IS_ERR_OR_NULL over manual NULL
+ check
+Message-ID: <20260316161050.01c82973@shazbot.org>
+In-Reply-To: <20260310-b4-is_err_or_null-v1-46-bd63b656022d@avm.de>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	<20260310-b4-is_err_or_null-v1-46-bd63b656022d@avm.de>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/2] iio: add IIO_DECLARE_QUATERNION() macro
-To: Francesco Lavra <flavra@baylibre.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
- Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-input@vger.kernel.org,
- Jonathan Cameron <jic23@kernel.org>, =?UTF-8?Q?Nuno_S=C3=A1?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
- Jiri Kosina <jikos@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-References: <20260228-iio-fix-repeat-alignment-v2-0-d58bfaa2920d@baylibre.com>
- <20260228-iio-fix-repeat-alignment-v2-1-d58bfaa2920d@baylibre.com>
- <7f000ea5-1a41-4da8-aad5-04aa875fa4bc@baylibre.com>
- <0b9ac137f52c2c279e07b2d1d8f7379ca9631cef.camel@baylibre.com>
-Content-Language: en-US
-From: David Lechner <dlechner@baylibre.com>
-In-Reply-To: <0b9ac137f52c2c279e07b2d1d8f7379ca9631cef.camel@baylibre.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 3/16/26 2:03 PM, Francesco Lavra wrote:
-> On Sat, 2026-03-07 at 18:35 -0600, David Lechner wrote:
->> On 2/28/26 2:02 PM, David Lechner wrote:
->>> Add a new IIO_DECLARE_QUATERNION() macro that is used to declare the
->>> field in an IIO buffer struct that contains a quaternion vector.
->>>
->>> Quaternions are currently the only IIO data type that uses the .repeat
->>> feature of struct iio_scan_type. This has an implicit rule that the
->>> element in the buffer must be aligned to the entire size of the
->>> repeated
->>> element. This macro will make that requirement explicit. Since this is
->>> the only user, we just call the macro IIO_DECLARE_QUATERNION() instead
->>> of something more generic.
+On Tue, 10 Mar 2026 12:49:12 +0100
+Philipp Hahn <phahn-oss@avm.de> wrote:
+
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
 > 
-> ...
+> Change generated with coccinelle.
 > 
+> To: Alex Williamson <alex@shazbot.org>
+> Cc: kvm@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
+> ---
+>  drivers/vfio/vfio_main.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->> Hi Francesco,
->>
->> I should have cc'ed you on this one. We'll want to add another macro
->> like this for IIO_DECLARE_QUATERNION_AXIS(), I imagine. (This has been
->> applied to the fixes-togreg branch since it is a dependency to a fix.)
->>
->> What to do on that for the alignment though is an open question since
->> we've never had a repeat of 3 before. The question is if it is OK to
->> have an alignment that isn't a power of two bytes. For your case, since
->> the data is 3 x 16-bit, it would be 3 * 2 = 6 bytes.
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index 742477546b15d4dbaf9ebcfb2e67627db71521e0..d71922dfde5885967398deddec3e9e04b05adfec 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -923,7 +923,7 @@ vfio_ioctl_device_feature_mig_device_state(struct vfio_device *device,
+>  
+>  	/* Handle the VFIO_DEVICE_FEATURE_SET */
+>  	filp = device->mig_ops->migration_set_state(device, mig.device_state);
+> -	if (IS_ERR(filp) || !filp)
+> +	if (IS_ERR_OR_NULL(filp))
+>  		goto out_copy;
+>  
+>  	return vfio_ioct_mig_return_fd(filp, arg, &mig);
 > 
-> Hi David. Differently from the hid-sensor driver (where the `scan` field in
-> struct dev_rot_state is used exclusively for quaternion data), the lsm6dsx
-> driver uses a data structure (see the `iio_buff` variable in
-> st_lsm6dsx_buffer.c:st_lsm6dsx_read_tagged_fifo()) that is shared between
-> all the different data types that can be read from the hardware FIFO
-> (accel, gyro, quaternion, external sensor data), so changing this structure
-> to a quaternion-specific type is not ideal. So I think for the time being
-> there wouldn't be any users of an IIO_DECLARE_QUATERNION_AXIS() macro.
 
-Makes sense.
+As others have expressed in general, this doesn't seem to be cleaner
+and tends to mask that we consider IS_ERR() and NULL as separate cases
+in the goto.  This code looks like it could use some refactoring, and
+likely that refactoring should handle the IS_ERR() and NULL cases
+separately, but conflating them here is not an improvement.  Thanks,
 
-> 
-> As for the alignment, according to your patch at [1], when the repeat
-> number is not a power of two, it is (will be) rounded up to the next power
-> of two (and this is consistent with what the lsm6dsx driver expects), so
-> the alignment will be 8 bytes.
-
-I think you are referring to the 8-byte alignment for the timestamp?
-
-Patch [1] should make a difference when the timestamp is not enabled
-in a buffered read though.
-
-When the timestamp is enabled, the buffer is going to be 16 bytes per
-sample no matter what because of the 8-byte alignment of the timestamp.
-
-But if the timestamp is not enabled, then for 16-bit storagebits and
-repeat of 3, before the patch, the buffer would only be 6 bytes per
-sample, but after the patch would be 8 bytes per sample. This doesn't
-make a difference in the driver itself, but does make a difference to
-userspace that is reading the buffer.
-
-> 
-> [1]
-> https://lore.kernel.org/linux-iio/20260307-iio-fix-timestamp-alignment-v2-4-d1d48fbadbbf@baylibre.com/
-
+Alex

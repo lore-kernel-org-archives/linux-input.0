@@ -1,86 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125C51AA7A6;
-	Tue, 17 Mar 2026 17:20:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AC9D2FD69D;
+	Tue, 17 Mar 2026 17:24:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773768057; cv=none; b=VphojAMpTXlC1XiI6QsqBKs9BegZ0AosJAMHOsE814EbMAXGh2aSPBZk7RnEC2rHsS8qTVR6zVMTB2YHv/GU1RLtAMA7yPXDVP8HYabhVDNN9MYTxKSzPu8kCTm15cJzOP0g/XoEQQhnCMnCJYOWjct4GzsanhH0GKWw0ftugTc=
+	t=1773768261; cv=none; b=KX7WmUXjNaIs7aa5hknhpFuf+6RGcDjvfJvP3l4aepf52WrKZhBhROPFjEeS2rd6u+g+38dmYe5rY4FLY38oATk6oQUSlnBsK8hdboMljVprLoykGcnk2i+C2y9AeqSosalUN/Sehh/fmkDvrYAhsH/SE7grXU2YpCLeikqp0As=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773768057; c=relaxed/simple;
-	bh=HA8S5FPJaQlCmNzH9EOc6wZ/6EIt7evnQbI3jDpHaA4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bMJojlbId1E62YyMx0oEcROBC0FtSPkSBAw3PJQcyf5hp1378N+6qwv7zuXolVUrTxlChlWTnimNx17WNokac4EP3DSjtsdoT3/qXPOohhCb1qU86UdNNx7gghn7IWVjzYhEMg5WyNq8ua8EoRXaCwyW178pQQ8qmsInRf13MuM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CGtwbH7I; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773768261; c=relaxed/simple;
+	bh=jJAHZrGqwR/BsdkM4g1XMcAlOE6apgU4gouZqNdWL8M=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=QgqTOhr9vWDcOyEefQinpJHn+kg6bm7ZpPR7G2Jonx538vpBw8bLJSy6P6XmWmBDN8SMGYYU63zrQnBKViXjpKLCpfsWqxZwaYEwXFhlBx97e8SnrgjTiIginMMk/zfdGjvnhfKHChfT/la58/8zjSdOsUTdh2bHykvAciQpEYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SXwW+dAz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CGtwbH7I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90027C2BC86;
-	Tue, 17 Mar 2026 17:20:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SXwW+dAz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E231DC4CEF7;
+	Tue, 17 Mar 2026 17:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773768056;
-	bh=HA8S5FPJaQlCmNzH9EOc6wZ/6EIt7evnQbI3jDpHaA4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CGtwbH7IXoXwlobnQPihd9c9U4dSvbho1RUAx11gbARjG/xX2edDT0/5PAJ+FE0N5
-	 3N34er9/pvtOiu5zDZvj/YMiElCJn7T2bCa0T5x5Xv8/mNoYhtDh4ShPXQRm3J1l2v
-	 WTrscVULCPV6Ej0UIaWCefWTeAut+rorGbVr13v331/H6FUK6oPzxwN/dBO6lTx1/V
-	 C7Hn2TbG2Wg3Rm4r+nmOBzC/bXods0hdFd1Xu+GJuN6gerg0T+MjpQytnYjw7Rqy5F
-	 7QxP2slVhp7xR5DeRW+2GH6VuENDlnBMYUKOyqsJpiCuOs07RlkmKUhRF0I9fnZfu3
-	 ZgcGK9s8Ddvkg==
-Date: Tue, 17 Mar 2026 17:20:52 +0000
-From: Lee Jones <lee@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
+	s=k20201202; t=1773768261;
+	bh=jJAHZrGqwR/BsdkM4g1XMcAlOE6apgU4gouZqNdWL8M=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=SXwW+dAz+e86ZF8uMkEHwAQX0QzoyrzBM6w0d30GOB/NFwSHdjaf6kgk0IAnAOY8K
+	 TZIhNtbyrFlht54Zpw38mSI4eZSWk9lkOUYjpi45wqYJ58ns4fjLHvfbA+jSNFwuoC
+	 1Y+EDw+sLIEs4WEtBtjHlhlnv3EJp4CghoQdBoV0KpNx06MjcMDCGw03ZOPKRDp9EZ
+	 cGeGJOwpk1c/a0JHksGYFKESFW8d8BMT9eiho012MxNLlxn2KTvuUlKNO0Isp2cAq+
+	 XAhhmZkW1nckys9UBdxDyypn60CYmuM6w2umnRKifvEkauVDdIaHmw0CH3b4UYt9AQ
+	 J+NyP/sQzVoBA==
+Date: Tue, 17 Mar 2026 18:24:18 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Lee Jones <lee@kernel.org>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/1] HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT related
  user initiated OOB write
-Message-ID: <20260317172052.GF554736@google.com>
-References: <20260317162426.1533573-1-lee@kernel.org>
- <abmEJJ9vWz5fiZy6@beelink>
+In-Reply-To: <20260317172052.GF554736@google.com>
+Message-ID: <o5n60785-0900-7869-sn47-7977p8so17nq@xreary.bet>
+References: <20260317162426.1533573-1-lee@kernel.org> <abmEJJ9vWz5fiZy6@beelink> <20260317172052.GF554736@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <abmEJJ9vWz5fiZy6@beelink>
+Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 17 Mar 2026, Benjamin Tissoires wrote:
+On Tue, 17 Mar 2026, Lee Jones wrote:
 
-> On Mar 17 2026, Lee Jones wrote:
-> > logi_dj_recv_send_report() assumes that all incoming REPORT_ID_DJ_SHORT
-> > reports are 14 Bytes (DJREPORT_SHORT_LENGTH - 1) long.  It uses that
-> > assumption to load the associated field's 'value' array with 14 Bytes of
-> > data.  However, if a malicious user only sends say 1 Byte of data,
-> > 'report_count' will be 1 and only 1 Byte of memory will be allocated to
-> > the 'value' Byte array.  When we come to populate 'value[1-13]' we will
-> > experience an OOB write.
+> > > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> > > index 44b716697510..885b986c7a12 100644
+> > > --- a/drivers/hid/hid-logitech-dj.c
+> > > +++ b/drivers/hid/hid-logitech-dj.c
+> > > @@ -1282,6 +1282,12 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
+> > >  		return -ENODEV;
+> > >  	}
+> > >  
+> > > +	if (report->maxfield < 1 || report->field[0]->report_count != DJREPORT_SHORT_LENGTH - 1) {
 > > 
-> > Signed-off-by: Lee Jones <lee@kernel.org>
-> > ---
-> >  drivers/hid/hid-logitech-dj.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> > index 44b716697510..885b986c7a12 100644
-> > --- a/drivers/hid/hid-logitech-dj.c
-> > +++ b/drivers/hid/hid-logitech-dj.c
-> > @@ -1282,6 +1282,12 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
-> >  		return -ENODEV;
-> >  	}
-> >  
-> > +	if (report->maxfield < 1 || report->field[0]->report_count != DJREPORT_SHORT_LENGTH - 1) {
+> > This is all static information. So this should be checked in the
+> > .probe(), once the device has been parsed, not for every single call of
+> > logi_dj_recv_send_report().
 > 
-> This is all static information. So this should be checked in the
-> .probe(), once the device has been parsed, not for every single call of
-> logi_dj_recv_send_report().
+> Doesn't report_count come from the device?
 
-Doesn't report_count come from the device?
+The point is -- maxfield and report_count can't change once parsed unless 
+the report descriptor would be re-read and re-parsed (which doesn't happen 
+in runtime, only during probe).
 
-I can manipulate it with my user app.
+So checking during probe/parse time just once should be sufficient, 
+instead of checking it upon every received report.
+
+Thanks,
 
 -- 
-Lee Jones [李琼斯]
+Jiri Kosina
+SUSE Labs
+

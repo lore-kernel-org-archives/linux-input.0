@@ -1,96 +1,86 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037213F54D9;
-	Tue, 17 Mar 2026 17:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125C51AA7A6;
+	Tue, 17 Mar 2026 17:20:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773766997; cv=none; b=WnyLEqQpPKghjDjsA2YV1T7EPe9tq8lyrmC/D39bR4lhSWzdIv5mBVGt8N7WTljsJMp1p/0p7j075dYmUXVmb5MDDbrCqZlAM64gwucoIzFQPKU7wcCtCAmYpjV0E1zkgO9j7J91D7qW5VDnFv1OBBThKxKm0pERv7WPTwY6hLU=
+	t=1773768057; cv=none; b=VphojAMpTXlC1XiI6QsqBKs9BegZ0AosJAMHOsE814EbMAXGh2aSPBZk7RnEC2rHsS8qTVR6zVMTB2YHv/GU1RLtAMA7yPXDVP8HYabhVDNN9MYTxKSzPu8kCTm15cJzOP0g/XoEQQhnCMnCJYOWjct4GzsanhH0GKWw0ftugTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773766997; c=relaxed/simple;
-	bh=R99pd5idc1J6vFPoSB3qSz7mHfrDv+Kwq/74+/Gmp1A=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=Uszn0HOswz60B4BRQ+yg9MruE+xnmoYtIUm23k+liDsgzFcRNyZ1dpgFjbdNmEmW8hDI8RPg+CZfAPgPvZ2/Ori/HcPnVLZiDi2VIPLSW4qQgqVD9+ssjNt+nRVbxXPbh6Ik0dttkPkEraLQTuywp24oY9qigQE9rQIp6GXqg8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QKmC1GO1; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1773768057; c=relaxed/simple;
+	bh=HA8S5FPJaQlCmNzH9EOc6wZ/6EIt7evnQbI3jDpHaA4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bMJojlbId1E62YyMx0oEcROBC0FtSPkSBAw3PJQcyf5hp1378N+6qwv7zuXolVUrTxlChlWTnimNx17WNokac4EP3DSjtsdoT3/qXPOohhCb1qU86UdNNx7gghn7IWVjzYhEMg5WyNq8ua8EoRXaCwyW178pQQ8qmsInRf13MuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CGtwbH7I; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QKmC1GO1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773766996; x=1805302996;
-  h=from:to:cc:in-reply-to:references:subject:message-id:
-   date:mime-version:content-transfer-encoding;
-  bh=R99pd5idc1J6vFPoSB3qSz7mHfrDv+Kwq/74+/Gmp1A=;
-  b=QKmC1GO12S5TywUYcFiztpyYYlFI9nKLwFJFQK2NOnw/Mt53TrhQ07M5
-   rhNtkZj8+9b2QfgUVdGn5BSCzAHuYtQ1M66FJKdqlx1g8SMpPMJHWiO0G
-   uhFsZYtW9vU8PG7tVc+73yrK7AXcsMuGD5+Scz6ifQAUgSWtT3oYuTzNH
-   oDrArWObARO47c+JMBJWzURa2CJizoQPL8EXV22Qn9apO6gz5UBn4DOiR
-   tAOneASi2XBaUcTf2mCG/GWLhwaJc+e2JfRZDkygo9k+w6ivkUVvZg5gq
-   w5chp46XjP8PbYbmFJuJO1+y6UKGrz55CKcw0gFcnyv0g3HTUc9IQwW+6
-   w==;
-X-CSE-ConnectionGUID: gt0hFIHdTmm+/nXHsQemsw==
-X-CSE-MsgGUID: BSLI8b+GSx+ArGKHfdAlvw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11732"; a="85123000"
-X-IronPort-AV: E=Sophos;i="6.23,126,1770624000"; 
-   d="scan'208";a="85123000"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 10:03:15 -0700
-X-CSE-ConnectionGUID: iJmUbPXkQbyBAfO2Wus5PA==
-X-CSE-MsgGUID: Zu7Ql+mjQaSzFC56nqA22Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,126,1770624000"; 
-   d="scan'208";a="226799524"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.161])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 10:03:09 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To: mpearson-lenovo@squebb.ca, dmitry.torokhov@gmail.com, hmh@hmh.eng.br, 
- hansg@kernel.org, corbet@lwn.net, derekjohn.clark@gmail.com, 
- Vishnu Sankar <vishnuocv@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- ibm-acpi-devel@lists.sourceforge.net, linux-doc@vger.kernel.org, 
- platform-driver-x86@vger.kernel.org, vsankar@lenovo.com
-In-Reply-To: <20260311143144.482145-1-vishnuocv@gmail.com>
-References: <20260311143144.482145-1-vishnuocv@gmail.com>
-Subject: Re: [PATCH v8 0/3] TrackPoint doubletap enablement and user
- control
-Message-Id: <177376698425.15640.5695107795590543274.b4-ty@linux.intel.com>
-Date: Tue, 17 Mar 2026 19:03:04 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CGtwbH7I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90027C2BC86;
+	Tue, 17 Mar 2026 17:20:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773768056;
+	bh=HA8S5FPJaQlCmNzH9EOc6wZ/6EIt7evnQbI3jDpHaA4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=CGtwbH7IXoXwlobnQPihd9c9U4dSvbho1RUAx11gbARjG/xX2edDT0/5PAJ+FE0N5
+	 3N34er9/pvtOiu5zDZvj/YMiElCJn7T2bCa0T5x5Xv8/mNoYhtDh4ShPXQRm3J1l2v
+	 WTrscVULCPV6Ej0UIaWCefWTeAut+rorGbVr13v331/H6FUK6oPzxwN/dBO6lTx1/V
+	 C7Hn2TbG2Wg3Rm4r+nmOBzC/bXods0hdFd1Xu+GJuN6gerg0T+MjpQytnYjw7Rqy5F
+	 7QxP2slVhp7xR5DeRW+2GH6VuENDlnBMYUKOyqsJpiCuOs07RlkmKUhRF0I9fnZfu3
+	 ZgcGK9s8Ddvkg==
+Date: Tue, 17 Mar 2026 17:20:52 +0000
+From: Lee Jones <lee@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
+	Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT related
+ user initiated OOB write
+Message-ID: <20260317172052.GF554736@google.com>
+References: <20260317162426.1533573-1-lee@kernel.org>
+ <abmEJJ9vWz5fiZy6@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <abmEJJ9vWz5fiZy6@beelink>
 
-On Wed, 11 Mar 2026 23:31:41 +0900, Vishnu Sankar wrote:
+On Tue, 17 Mar 2026, Benjamin Tissoires wrote:
 
-> This patch series adds support for TrackPoint doubletap with a clear and
-> simple separation of responsibilities between drivers:
+> On Mar 17 2026, Lee Jones wrote:
+> > logi_dj_recv_send_report() assumes that all incoming REPORT_ID_DJ_SHORT
+> > reports are 14 Bytes (DJREPORT_SHORT_LENGTH - 1) long.  It uses that
+> > assumption to load the associated field's 'value' array with 14 Bytes of
+> > data.  However, if a malicious user only sends say 1 Byte of data,
+> > 'report_count' will be 1 and only 1 Byte of memory will be allocated to
+> > the 'value' Byte array.  When we come to populate 'value[1-13]' we will
+> > experience an OOB write.
+> > 
+> > Signed-off-by: Lee Jones <lee@kernel.org>
+> > ---
+> >  drivers/hid/hid-logitech-dj.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> > 
+> > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> > index 44b716697510..885b986c7a12 100644
+> > --- a/drivers/hid/hid-logitech-dj.c
+> > +++ b/drivers/hid/hid-logitech-dj.c
+> > @@ -1282,6 +1282,12 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
+> >  		return -ENODEV;
+> >  	}
+> >  
+> > +	if (report->maxfield < 1 || report->field[0]->report_count != DJREPORT_SHORT_LENGTH - 1) {
 > 
-> 1. Firmware enablement (trackpoint.c):
->    Automatically enables doubletap on capable hardware during device
->    detection.
-> 
-> [...]
+> This is all static information. So this should be checked in the
+> .probe(), once the device has been parsed, not for every single call of
+> logi_dj_recv_send_report().
 
+Doesn't report_count come from the device?
 
-Thank you for your contribution, it has been applied to my local
-review-ilpo-next branch. Note it will show up in the public
-platform-drivers-x86/review-ilpo-next branch only once I've pushed my
-local branch there, which might take a while.
+I can manipulate it with my user app.
 
-The list of commits applied:
-[1/3] input: trackpoint - Enable doubletap by default on capable devices
-      commit: 9a98ebe630cf13c1a6063afa676d1cecc44fb2c9
-[2/3] platform/x86: thinkpad_acpi: Add sysfs control for TrackPoint double-tap
-      commit: 6227cc32fa01ffbf5bef8dcc6759743a28a2ad57
-[3/3] Documentation: thinkpad-acpi - Document doubletap_enable attribute
-      commit: fa5062e99b984448b7c8ca9aea47e7fc033b6e2f
-
---
- i.
-
+-- 
+Lee Jones [李琼斯]

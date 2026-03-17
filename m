@@ -1,70 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0F7D3E1239;
-	Tue, 17 Mar 2026 14:03:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDCB13E715D;
+	Tue, 17 Mar 2026 14:52:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773756205; cv=none; b=WO5PIWNurLOqh5teq7vYeQiyo5u1VapE3sPjGkDG4/+Tk4yo7EqiXR7Yij66qEMAnn82Z6Ac2o17QNU9XxeG5pxuBvfTsEkTDANpTLX2jLxIPPtoRj784mTuCvVq5ohcUDIT3JXvzBXcZkzYoSonCBPAOMhjC3MJpm4Lab1q9uQ=
+	t=1773759173; cv=none; b=rdf2HY3p2fx2Eb5nL8yu9HrfDAjHOBIR3Kb1fInsN5MEfCYEDEYg27n8zNwvsi4d1h3g9zWU3mlDZgdXNS+IkyeFxp2Lj7B3ugi/eO0cXf6VPsNvcZXSyGioEvTbAUu/zgyaQIsgc69M2x5YGnEh0SMBGjIZNos4xRwPP3g1JaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773756205; c=relaxed/simple;
-	bh=24z8TcWkRCoE/96+WzIo63cjOd7dGKkb9P6RPo3VEsM=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=nPgMdvypP1EBWlRB0yKBop8Uf8LfvzMsRG/AKkZsTuksPOk3P7cVYQOLobcy5liktKNdprdhUpZlhu+VYJgh3+dRvY4kN4Wg95hfCMOO8voi2NSLxOB8A8kKWDgxqrz26yxWbMeQLbcTUxuD1j+Mj+HMyIawSjDqkosuFI02x9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fTNlaOrR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773759173; c=relaxed/simple;
+	bh=SfvfXamo1O39U77ZOFJ9zsbiZyki58q+42fgco/RDq8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=G37OGJi4NlX3MRsDn1+FwM40sa4fiykp5Dx2hcbLKWiSpKzO9YuLm7hcjUOwedzeOrUK/ZYsydcxaGXIxNtUD1f8tHFyjf1BahB4+mkwbMMUpne6RTs0+V5WpVejYt9RMGxlxYdeSHeYYgF3AjTFe2OTK7yjCAPm80tOn5fS4yk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b05rH/Ui; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fTNlaOrR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCB0C2BCAF;
-	Tue, 17 Mar 2026 14:03:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b05rH/Ui"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C504C4CEF7;
+	Tue, 17 Mar 2026 14:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773756204;
-	bh=24z8TcWkRCoE/96+WzIo63cjOd7dGKkb9P6RPo3VEsM=;
-	h=From:To:In-Reply-To:References:Subject:Date:From;
-	b=fTNlaOrRy39ni/i0+AOOFkMBsUNQngAIfs3orvARfFwkmb/TMUBIztNeXLeUzUvf/
-	 Fx3JI3vEiNeh9+2rlwDGaDWZshx0wXFAJ8GQkH/4oTeZ8VJ6DaiMqljcU2Obz8uQpB
-	 1h+cIjGwzW8SzSxl+6J9WAmk5srZcL/pXGNjPv/ilUYtLupr8bGi6STlDSL8zbMin4
-	 /aFmGQIA8/JwF7UZil7GZQEv/QYX3EqCL5Azl9m4l+mfz06Di1h9+A9kVB4At90pMR
-	 ViM9C3kD9Y9BFSjfN8jDNi8n9Y2r2uEda4ZTbUKFaiwA8dGfACyQCHawRJ4qPpT2nc
-	 pF0iF9OAV8UrA==
+	s=k20201202; t=1773759173;
+	bh=SfvfXamo1O39U77ZOFJ9zsbiZyki58q+42fgco/RDq8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=b05rH/UiTWknOn68plXDwb9go0i2wbnDWUlyhtjaTpNAWfZzprJ/6c8HFmOUyQsBj
+	 sQ5HneWt5/5bj4m8ssx5zeWAQSVMUFAqw7N7CMI1llNDUyJv99HfXDF2NZGnRae+qJ
+	 q5IkieQesB5I0K3wApbApLgCVOV0IPaLlN+GhiOOR76btTIH5Y0m66iHzQHjBIfeIq
+	 eGvGsmmxJocz/IobteVWQv2MqYuVhgM095nQ9j/muzrfW4F0zOhPSlX6Wy2kQRJFo1
+	 7ZKEgx9TYL01gv5+MoKBky8wbzIKwLKU0pEBD88kOfSa0uTk5T7/su2uHUOLZsfQwY
+	 52K+rXSvQbpew==
+Date: Tue, 17 Mar 2026 15:52:29 +0100
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Lee Jones <lee@kernel.org>
-In-Reply-To: <20260227163031.1166560-2-lee@kernel.org>
-References: <20260227163031.1166560-1-lee@kernel.org>
- <20260227163031.1166560-2-lee@kernel.org>
-Subject: Re: (subset) [PATCH 2/2] HID: multitouch: Check to ensure report
- responses match the request
-Message-Id: <177375618313.86913.13560090503728581709.b4-ty@kernel.org>
-Date: Tue, 17 Mar 2026 15:03:03 +0100
+To: Lee Jones <lee@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFC v3 2/2] HID: core: Check to ensure report responses match
+ the request
+Message-ID: <ablqdkI1d47xN0LM@beelink>
+References: <20260309145942.1496072-1-lee@kernel.org>
+ <20260309145942.1496072-2-lee@kernel.org>
+ <abghH9Cf5FvUpfE0@beelink>
+ <20260317092056.GE554736@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260317092056.GE554736@google.com>
 
-
-On Fri, 27 Feb 2026 16:30:25 +0000, Lee Jones wrote:
-> It is possible for a malicious (or clumsy) device to respond to a
-> specific report's feature request using a completely different report
-> ID.  This can cause confusion in the HID core resulting in nasty
-> side-effects such as OOB writes.
+On Mar 17 2026, Lee Jones wrote:
+> On Mon, 16 Mar 2026, Benjamin Tissoires wrote:
 > 
-> Add a check to ensure that the report ID in the response, matches the
-> one that was requested.  If it doesn't, omit reporting the raw event and
-> return early.
+> > On Mar 09 2026, Lee Jones wrote:
+> > > It is possible for a malicious (or clumsy) device to respond to a
+> > > specific report's feature request using a completely different report
+> > > ID.  This can cause confusion in the HID core resulting in nasty
+> > > side-effects such as OOB writes.
+> > > 
+> > > Add a check to ensure that the report ID in the response, matches the
+> > > one that was requested.
+> > > 
+> > > Signed-off-by: Lee Jones <lee@kernel.org>
+> > > ---
+> > > v2 -> v3: Cover more bases by moving the check up a layer from MT to HID Core
+> > > 
+> > > RFC query: Is this always okay?
+> > >            Should the report number always match the request?
+> > > 	   Are there legitimate times where the two would differ?
+> > 
+> > Technically, there is no reasons for a HID_SET_REPORT request to change
+> > the incoming buffer. So that test might break it.
+> > 
+> > I prefered fixing the calling sites (hid-multitouch and others), because
+> > here we are making decisions on the device behaviour which is not ours
+> > to make. More specifically, such a test will prevent us to fix a bogus
+> > device by plainly rejecting the call after the facts.
 > 
-> [...]
+> Okay, so this one is a NACK?  No changes, do not resend?
+> 
 
-Applied, thanks!
+Yes, NACK on this one. I've merged the hid-multitouch one which wasn't
+using the API correctly, please send a followup for the other similar
+cases.
 
-[2/2] HID: multitouch: Check to ensure report responses match the request
-      commit: e716edafedad4952fe3a4a273d2e039a84e8681a
-
-Best regards,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
-
+Cheers,
+Benjamin

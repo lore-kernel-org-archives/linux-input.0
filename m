@@ -1,144 +1,155 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C8921F5423
-	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 01:35:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A754D175A7F
+	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 02:30:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773797743; cv=pass; b=iCv5A+Eb6ZkBrMXJijIDPhwCks6Vc5fgWTgsT7uYdcHWjlV35o2br1FJGC+ggjVw64xECAspbL4wtyAiwGHJbybqG0onZMn1IyzZKpZcKkpndoOygbRDUpsqbAqmZER24kFobF3KqGXbDZwTMT43kNTrZ3/DfHb1QSfAOjfMD4s=
+	t=1773801054; cv=pass; b=Px6D70HOcjHtK1HPIO4MLhHcHcWfvbfrs+sAA7D3eacFmMTu4K30xe0wydwZZsn3GzFuLdHE5m4nFNHNwlPbOnPD4Z8f2KDsEMjkNKeC2EKCmw6hIPutG4g/aJnxCVCGClQlFcgeX+MpbWfHIdWxHR/xsA3XH7aX7EFetGcoY7w=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773797743; c=relaxed/simple;
-	bh=r9hsKb9PfTufYzjHiq0hMbGcpfgxzO52s1Vpsdo+xGM=;
+	s=arc-20240116; t=1773801054; c=relaxed/simple;
+	bh=fy+it17j0+Ps8nxeetEypnBbCisckeo5PoSg9rMpSaY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HWoL2V9xQ+0LEPh3Ka/oVO9A0oly4Xrw5mdL7kV7o5QY+y+vrNpwcsspStIYD95P3oFfyjikCaeWHzsGArFNcZzUiJp+1cC5Fi4DLvNXAp8zZ7Fw26JU1B8VD9Xid8u7nQdXL5EfuwrQAytj/CbhOK1kyisjfOkajN0QLtUG7zc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MJb/EnfM; arc=pass smtp.client-ip=209.85.167.50
+	 To:Cc:Content-Type; b=N8PZ2+8+4cJF5c2iqYdldS71DOpXGXJUFcPkbzqYGRVgwML4+MrTfjpejmfvS/2LFYQHf1cOfWA1PyMbhyGe3jqsCUJRvJLk1S2SM/Is2DNIs4Kup5bdxdrpty3eWtoBxZ74kfzMnOR2sf8ZnN3H9rurkCKMSEExqYZWO5aV2Xk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BoHoJnLa; arc=pass smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MJb/EnfM"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-59de8155501so248793e87.3
-        for <linux-input@vger.kernel.org>; Tue, 17 Mar 2026 18:35:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773797740; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BoHoJnLa"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-35b90d6fe14so2264281a91.2
+        for <linux-input@vger.kernel.org>; Tue, 17 Mar 2026 19:30:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773801051; cv=none;
         d=google.com; s=arc-20240605;
-        b=K6mRu8Z62qvoAPUkYJu2NQq0bB3B//vtXH51K5TS2rPr4G8dr9UEtp6y0xS3uLT56e
-         Y3HnOqABf3ocXRjEKtvLKBa6rswYcbj58pCtqM5Ee3/0Bk3zN3gho1MQ2otJdMRNtlNU
-         Di/dTT8ZgjXXwpEJwHPklkLAPCGBqFWlxZWNkPA5RKeZ2I6OQ8gm7drLJjxA3eiT/DsT
-         Lkz/RWhkbfapr5CPQS89CChCM8lVpbQj6GJO46MWiWUeu/qKqeIulrw9JqTARcYi1fi+
-         y16/2umUcyDw3Dls1HDwDpOeuE0wGU2sForzEjrVivuGE3wtfavtpxXIe6qrN0T4Sb1H
-         zM8g==
+        b=NwO7zJp5tQo0RWNM4Vz5rBOLmBIDjrOzktKTsdahI5BzPdFnAahwxvQsSQQXs+BXW3
+         lTT14OoiCt/bW+r8vOmXRnW2Ubwu/nwItWo4VXv21aBwm1qB3I/G3QSyRZryoNkFkbKQ
+         w/ajcIlnk8gblUEaNnP2e/td6WRtDk6vM3v+/AAAy8RqQte4dX1aKgvgfPfQfBpFGt4z
+         ISiuhm5SSGXNMoIEzdU+Noj7O4kfwwcRo9/yq1c6aDBwQgZe156bliTlT4vKKvxierqm
+         AXxW2PnvGUoEyu8b/ZI8skxhadERcmLNy9Lgn+vST/j6CI1oSAq4vgN24q7hNFKqU/UK
+         fL+Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=bnHRGZux9J8/Uki/jwcTCNraQa2a1iivTN3+HD+7Wu4=;
-        fh=WgBcimFdOAyaKgehlcCrMscGC4bVaIqY6bqUWRKfJVY=;
-        b=JSCzdnco36TwL+RPFUFdnYUZtkJU6/k4aiNuVvEwBRa4nqz1oHKJahw3yl1VCkYCbC
-         dgEVjCq5z6IK6yZyURkqlsKIJt9oPENl/X0Qu7D//jzvA7dl5po0Ury4dPoXHaFHu9nz
-         HW7DcIU/75aYgtv9qlFFkIDZC/W8WJ4HhBjiGCUbIN/GAeMMY+pXvUyxeYYf8Q3U7tYC
-         l51JDYoTp0tbVPDWYna+3WpgNpaLuX0tTtCVFu8sO0Q+dJFlWvtifocHB7k5Vhd2UU1y
-         xArd/Xmjw3M0OzRUABIklWIJcJBmwBhY7WPQrUgmUtFVhH4AI7wi1cR4Hkj2PnwWJdZn
-         VBpA==;
+        bh=Aq4o9QA1m9WGEfjaZga/92v/xHZ+8tcWtIREIt3RUjQ=;
+        fh=X7tsTCRFxWdPH3EA4Mn4IcSACpnrgGBr8mOPta9gOSk=;
+        b=aQ/aNzxdPqJ3+5BQ3o6aCI1jWXqoQEuBJpsXdPAw8qh+8Q/vFZsuPra4t1Jo2PdQ42
+         V0HW5ZawuJRD3arseUEIlyFIWS5JDeUJa/2mnl4jw/y6BdIZa55UflYalR0Ew2xaXgll
+         xdad/sQ4WKj/HYTfLTPb6ab5SztdzvMSuzV8vyxPwOQui7Sj+TxWsrVH8tCbfDVrgaT+
+         O0d1zy8Bqwjz245s3qts5EmaYAAaFgh0S+IbQosv9iMwfwMtm8ABfhVcxdfx6gUf87SA
+         dPlEuMbfTFsuE0MP2M9F3rL6kxMq2RcqIEthv9rIpcuLUwTjsKiqeWZBwSoFjt10hVGB
+         SecA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773797740; x=1774402540; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773801051; x=1774405851; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bnHRGZux9J8/Uki/jwcTCNraQa2a1iivTN3+HD+7Wu4=;
-        b=MJb/EnfMuI8mxqMYieH9cSSAYbkj1/9JrXHzCirnzWKMiNdOd+NHuD6KqvuFBjtNmY
-         vqLqqIH6NS00QytxnujFiXf/tgxFtvPQvCHvLsIXJnJN569g0cM6ZnJPn4VdmJBDpZQE
-         hLKiA2CLtIrPhWEK/u8MPCwIGW5Oh9Q5dUAMD5E1wjg4aDxUdQPukqf/jrJmVFXc+dwS
-         hTqYsUkZLFWaJlZrSYmH4/vQ6n3S/rPodYMMR3dc3cPLb8ldk1Tnfq+K7BHjeaSpeVYY
-         bYo8ebgNfQxjDrV1wN1PvvfNWnQ3DWfz+0reXYT82J8bDzZoZFxw1YrhNX+8USWsuxFE
-         O5iA==
+        bh=Aq4o9QA1m9WGEfjaZga/92v/xHZ+8tcWtIREIt3RUjQ=;
+        b=BoHoJnLakeDvMm3ioyQkb01V9A31DAxJj/thy0/aRrGAc6fFbsg66dVhqtos1H7iKc
+         7OI4HQKBap58a/6jx9df7QoXC5m4RGp9cFVPU5RIatALy8/jlBHzWNyDfEGAI+UMIWsg
+         vKVIyDiT7MMkPttfaz+PQG7pkkH3dy9ygEN7EXn1PnZA8caxVCxWPMPETWbVG5+86KrM
+         GA2voLMQedGNPjDdp58K/4CkAXybPcV7KUBV45S85xxV4NfHr5UJ3dFiHCmXrfixbuD6
+         kDfJWu5ydD+hPDJCVN9fI8zaaEKLwcaqz7sIyQTp7GKzYyfRqchQTv9Mj10zUIcXxT0I
+         b21A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773797740; x=1774402540;
+        d=1e100.net; s=20251104; t=1773801051; x=1774405851;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=bnHRGZux9J8/Uki/jwcTCNraQa2a1iivTN3+HD+7Wu4=;
-        b=deo9wBxY0BxLyrC+BoG+UZAz/22voyHvxt6V8XCIPwoa4cVXzH65+zNyoZ1Qmhgmzs
-         NFGM1OvJXnxd973U2yPU7AizD5gkGT55R7CapXVeIhow2gaYTXVTjk+z9ULUIRayZ+CB
-         zPznHVCOkqCWdKZyKChn+TrakR69LzyLyrEStiWlQbdmb1IiMYgLq22pvHae6p0bIqCJ
-         fgoYb60v8vUYwv6VbL3bHpf25DrYWvGdxwU4MiRSfPF/dzdALmrd2WlejzqYPEq1ktf1
-         2Tu4UtSBFH5/rYN9k3bnvIqXO4QgqIOxTbk4i6M2JMFYOmyShFWqMZnwhen4MRdb2LWD
-         NHuw==
-X-Forwarded-Encrypted: i=1; AJvYcCX8qou6nPBI2U6q+8qj4qK6q0ho+zIFQlrUzm1prypV/we/vxE64j0ZqB2Mp3jFtRl51vUJKhcLYjAjLw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz7D7dLrtSb6NKOGhiDeIfbmNL2hLaa2eWT5LZv+z5sbjLGrvZK
-	XsRJkcKUvdTnM8yDqBeQwF9M32YABB/gxs+LjAqtP6ypJDbojBzj39S7yatIUkqT0v0jnm/4OBn
-	IxvEx9wHhjL5qMBPlNiClMggyR8w8YBw=
-X-Gm-Gg: ATEYQzxR2/K3lxDz49VTZ1lNxI4Ugzj05M0h+h+NY2zI5AT/TMsHHU7nzZ6zp5qTkFM
-	hJQbFPZl08gsPlH3JJsWm8zPMwvi1hynalKuiM6MZSW9grmXhoIXDepAWjLIUQg7MAOs1vVPpft
-	YIDf4Ylk0KqzOzTu59OUoY7EHJ82RmEsemXRNHbRTNeO6itzEiWdQHCgRoDOYAVwoE7bNStC4a7
-	QXF2ttYx3H5PCqTBjFKOiVGsPbg/KP7FX2/dVNeMqZm+O1NVWXLnjIBTx30Uwdg8PEhFy+m9LbO
-	nd2xh9E=
-X-Received: by 2002:a05:6512:3258:b0:5a1:1914:2bac with SMTP id
- 2adb3069b0e04-5a2796b0670mr475858e87.25.1773797740151; Tue, 17 Mar 2026
- 18:35:40 -0700 (PDT)
+        bh=Aq4o9QA1m9WGEfjaZga/92v/xHZ+8tcWtIREIt3RUjQ=;
+        b=XuMcW6x2NMmKYKmNvvq27AZHKmqxXauzFknot8/Yq5lCo+5vD93Kn5k3K+Ux+O86Vz
+         nHd1PtDZmAUbXwLs0zI13vEr6uuBtH312issKD9x0bMfqkNByCOHKBtY5hYIduQLobeI
+         /2eT/teqb9j4C1B+skmfBIbYnWJQLLhbm+a60TRmAARw7XMstbMtV9lPId9hjARUkj01
+         IPw+6+GX0iXfMD1l3FHH8bauRpOEnW1H3ftHmfybALLMO7cFkh15OxMpnpvPh+30SXo+
+         HlkrRetmBbZcZ+6RhW/RX4fTQLPFfSdUDfdFLfdeyeL29EYshqGu/weXOohigvsbNaeh
+         04gw==
+X-Forwarded-Encrypted: i=1; AJvYcCVDvinJdRqvUU5ogJNWPtglzNGurskspE6xHxxcqAxCfkgE/N3B+CyFWtLZWnzbMhAXS9PbT3pE3U3fjw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyj3cj0nO7J/+ff4IPJ4GuTTPUM4pOka64TdfGGO83EnkKICFDO
+	KSARRUZ0QheD3ujXM2AaL39s1LGfTrGUosmy5xJ+gVORY9GkY+3bl6hUx1GxxsdMjfwWrBVBNan
+	zHzLBgcebAZBF3YeMklcHTudC/QJrWpc=
+X-Gm-Gg: ATEYQzzUCM37fky6u8QFUYVQpTPujZa15rNeqYZjw2KwLpSKhRQMrwcHvXY6X+7b2fX
+	nx5I5VeUCW1lHlHh6XUV8e3KYlWiptsvA9OqsIek4KGO48F9ex9+X8hcnf+LIXB7br1gcR8b1v6
+	YWJQRygyUfiiJzervkkRUgWqLI7yi2ZQ6GU+Bganygn+smdd/BJ3PdeTtUUp6WOE+KVPy20Y+pp
+	QTDgeG1+TKH7OIUxkNtuldHVU0rUEPHVxZikJvvpqnX4p6/WJTl0JOYZhGxtMZkW5T25YDw4G27
+	oDW2BF8MwomcJgPqVuklZgTLO/Ds06WOalBJ9QgaOrMXfl2r
+X-Received: by 2002:a17:90b:4ccb:b0:356:1db4:8fe5 with SMTP id
+ 98e67ed59e1d1-35bb9f477f0mr1591451a91.29.1773801051076; Tue, 17 Mar 2026
+ 19:30:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260311143144.482145-1-vishnuocv@gmail.com> <177376698425.15640.5695107795590543274.b4-ty@linux.intel.com>
-In-Reply-To: <177376698425.15640.5695107795590543274.b4-ty@linux.intel.com>
-From: Vishnu Sankar <vishnuocv@gmail.com>
-Date: Wed, 18 Mar 2026 10:35:03 +0900
-X-Gm-Features: AaiRm53Lg5Zo2AJUp6xaTGJ_mBVnBHtnars3jJTNT9JwA8Rtk6OghHrOaVZ_8Bo
-Message-ID: <CABxCQKtNSjdj0pj_-Bt7Jrs9pEp-SbOyjGUno8xc8FpfojGpkQ@mail.gmail.com>
-Subject: Re: [PATCH v8 0/3] TrackPoint doubletap enablement and user control
-To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Cc: mpearson-lenovo@squebb.ca, dmitry.torokhov@gmail.com, hmh@hmh.eng.br, 
-	hansg@kernel.org, corbet@lwn.net, derekjohn.clark@gmail.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	ibm-acpi-devel@lists.sourceforge.net, linux-doc@vger.kernel.org, 
-	platform-driver-x86@vger.kernel.org, vsankar@lenovo.com
+References: <20260316034606.11304-1-phucduc.bui@gmail.com> <20260316-refusal-disband-54161c7b96e0@spud>
+ <fef8779a-a5e6-45f0-82dd-0cd8a892c0ea@kernel.org> <20260317-another-wrongdoer-5b4c56ab6027@spud>
+In-Reply-To: <20260317-another-wrongdoer-5b4c56ab6027@spud>
+From: Bui Duc Phuc <phucduc.bui@gmail.com>
+Date: Wed, 18 Mar 2026 09:30:39 +0700
+X-Gm-Features: AaiRm53uUzVLsNfk0d_vpvS972DrNGMXHue77LwQ9-whJ0zALN--Uym6f8-JxYI
+Message-ID: <CAABR9nHO1L8PokYV8=hpEYwz4-pXfnvPFQ=qOob3w1GRL3U2oA@mail.gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: input: touchscreen: ti,tsc2005: Add wakeup-source
+To: Conor Dooley <conor@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, robh@kernel.org, conor+dt@kernel.org, 
+	devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, krzk+dt@kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, marex@denx.de, 
+	mingo@kernel.org, tglx@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Ilpo,
+Hi Conor, Krzysztof,
 
-Thank you for accepting this.
+Thanks for the review.
+I will remove the extra blank line in the next version.
+As for the wakeup-source property, I'll keep it as a boolean as per the cur=
+rent
+patch.
 
-On Wed, Mar 18, 2026 at 2:03=E2=80=AFAM Ilpo J=C3=A4rvinen
-<ilpo.jarvinen@linux.intel.com> wrote:
+Best Regards,
+Phuc
+
+On Tue, Mar 17, 2026 at 7:14=E2=80=AFPM Conor Dooley <conor@kernel.org> wro=
+te:
 >
-> On Wed, 11 Mar 2026 23:31:41 +0900, Vishnu Sankar wrote:
->
-> > This patch series adds support for TrackPoint doubletap with a clear an=
-d
-> > simple separation of responsibilities between drivers:
+> On Mon, Mar 16, 2026 at 06:10:23PM +0100, Krzysztof Kozlowski wrote:
+> > On 16/03/2026 12:13, Conor Dooley wrote:
+> > > On Mon, Mar 16, 2026 at 10:46:06AM +0700, phucduc.bui@gmail.com wrote=
+:
+> > >> From: bui duc phuc <phucduc.bui@gmail.com>
+> > >>
+> > >> Document the "wakeup-source" property for the ti,tsc2005 touchscreen
+> > >> controllers to allow the device to wake the system from suspend.
+> > >>
+> > >> Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+> > >> ---
+> > >>  .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml  | 7 ++++=
++++
+> > >>  1 file changed, 7 insertions(+)
+> > >>
+> > >> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,=
+tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc20=
+05.yaml
+> > >> index 7187c390b2f5..c0aae044d7d4 100644
+> > >> --- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005=
+.yaml
+> > >> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005=
+.yaml
+> > >> @@ -55,6 +55,9 @@ properties:
+> > >>    touchscreen-size-x: true
+> > >>    touchscreen-size-y: true
+> > >>
+> > >> +  wakeup-source:
+> > >> +    type: boolean
+> > >
+> > > wakeup-source: true
 > >
-> > 1. Firmware enablement (trackpoint.c):
-> >    Automatically enables doubletap on capable hardware during device
-> >    detection.
+> > I am not so sure.
 > >
-> > [...]
+> > The property is multi-type, so we want to choose one - bool, IMO,
+> > because device cannot wakeup the specific system idle states. Or am I
+> > misinterpreting the phandles behind wakeup-source and every device can
+> > be differently routed in such system?
 >
->
-> Thank you for your contribution, it has been applied to my local
-> review-ilpo-next branch. Note it will show up in the public
-> platform-drivers-x86/review-ilpo-next branch only once I've pushed my
-> local branch there, which might take a while.
-Acked.
->
-> The list of commits applied:
-> [1/3] input: trackpoint - Enable doubletap by default on capable devices
->       commit: 9a98ebe630cf13c1a6063afa676d1cecc44fb2c9
-> [2/3] platform/x86: thinkpad_acpi: Add sysfs control for TrackPoint doubl=
-e-tap
->       commit: 6227cc32fa01ffbf5bef8dcc6759743a28a2ad57
-> [3/3] Documentation: thinkpad-acpi - Document doubletap_enable attribute
->       commit: fa5062e99b984448b7c8ca9aea47e7fc033b6e2f
->
-> --
->  i.
->
-
-
---=20
-
-Regards,
-
-      Vishnu Sankar
+> I checked before my original comment, and there there's a bout a 2:1
+> ratio of defined v true. I suppose my comment can be ignored, I am just
+> used to this always being true.

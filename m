@@ -1,168 +1,169 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB55B37B417
-	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 21:25:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773869141; cv=pass; b=vCaGDg71WNNZ/LdWFGj3y3kiA+qDWdzM0aHarMHwkviYo2oM+DtIYzm+KNYWHJMOPG0OzjReqvfNtnebNrKvl7oi8ykzVKxPZKzqMJhSNSPGhrUy7nemmE1J05u5At7sf2s4Xd7TDf6JD9flRA9ZmkCSaFxxpI9Fj+Z/NtnWpIk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773869141; c=relaxed/simple;
-	bh=EQzldedRTpvLua9RqcprZmThFLsNIvG4JO/73zahzZY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GzvGPvh1jbtOI9c5qVm8RrV5lwtlwVoJPnaWnh6DySqslcaWbbJaRComx54cCh1OIkAWVMmDb4ST6GkM9tb38zotlunXsb+U6ITXBYM/K13ptomB9J4znJ+k/JS9Lf4sjhdwEBwWC7kUgKUebr1VLKsyP9A8ZrdLB4hDDClpcN0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Re2OHwjP; arc=pass smtp.client-ip=209.85.218.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C72D533DEDD;
+	Wed, 18 Mar 2026 22:14:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773872064; cv=none; b=cFtLuS8lmcH2tHEyoJ9JlJ40zLrxJjiGiKrz4q6Riz/7lLkPg75BC/XgyKBHjyiZoaktJsa/9IVgmLvUJv8N+qbskAqm3mtK+9xuxPvRcC/wUmhzEeSB18bWBhT8V7LkODimT5lI/uZMYXgAA3zF53q2XOb2iYM6FzECAfGFsCs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773872064; c=relaxed/simple;
+	bh=vAyd5i9QgWmNXiH7zOoCmSu78yF0HGi3HGDWdzOPJiE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LV1XSOdfEANUH8lN4IWwPjbgKeG6w5U9jiOFi+1CfiW3qykc0vAZ5xFWbS5rRnqKHGdJ0QBD7UKycxXq9vuxJrGdcTvOWWW3RuV1m/e8uhbwCgLoJccjgXhgmkJOk7W49BaTMXNToSbqAjCpDUAIYwwUaipFV5z3YAdQF90LKNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o9aZw+Gg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Re2OHwjP"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-b8d7f22d405so44194266b.0
-        for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 14:25:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773869139; cv=none;
-        d=google.com; s=arc-20240605;
-        b=cLQosSQUrvdmY7VMiCI7THoJfYw4m3j/QP5bPogv55IAYR9CzNsrjZ7B/9ZgascX8l
-         i7qreeGqud9Vh2DoYrG/XZ7w6JzIuvzVsPpCa//7rrC6oxM2pQpWgyDhPPq+6/R+OE4+
-         9t+DKZcUajM7X4LdfQr4l2PhcK4asilDRiWOAwTkvlbW25ScTw+paRarLFIxkTpEuL2R
-         COR0zhn86rI5R1dkwVlKC7n51azig9PklrJOJlpznjkePsMG6zPAdARYo29BJaKednJA
-         eqeCTva6YH1mqctLIPzAAsRhKFB1Z0ZXF2bVpyZLuxLK7x8MRlgnu5SlU5TzjfPoX7e9
-         3wVQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=K6f1m8W1umobQ+ktMqqvSwqw9J/2mgt2skFeEG9RxsI=;
-        fh=vC+2g04IfRAehfrYl+DHkKoPxLRKUgxUnRe9GRDYZNI=;
-        b=NGMmPxdHLG/LzPcsXeyMgGoczXB4JSDjOk8LBc3WX+HiD2MHLR8qAfsVLf+ahrtjSG
-         AUcqgkoczHweq57OM7PsWYSIzq4tLM0/EulvaiPSBge/PfhOAEt75Gdo53dq4B4IxBU5
-         QFE5Xl7S13YGHuNvz7Q+jeYJ5W91vvXqYfedWZLWrSAj6/wH0kj2xsOYnsHds0GDmDbw
-         OUV38XowObm2uNXjXu+H34EGVuK+iTTWSSb4kvgiv/Q8oashCi951HMUhEgzXRBZWvZr
-         yfH28fj7RtS6MLPC5UIPR8EndWVFeE2z3nFBGZNBInUNrHLST+crHzL6yZKC85B9JyS6
-         55Ug==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773869139; x=1774473939; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=K6f1m8W1umobQ+ktMqqvSwqw9J/2mgt2skFeEG9RxsI=;
-        b=Re2OHwjPI/wDcppVPDTGr/Fitxq6TGT4tDY56to6JnJhMTzzYCnafDK2PCKKqDSUhn
-         BsEOrJGmt853phtdlbowPRteBqyNBP2j/wLp2BNDngQ8Hr+WDtb0lfJTnLWr8J3xSMFv
-         M6J6232/9vpMujn96uwoXZjGFD0Mvgz7BE8MN6bSibhrvytfifEJT/eGz63qWwHHuLYi
-         YrUA0/dWuACmf31FnFD1Na/MNCDQ7gFYhTyFqTPVoSiNmt6c6Qpp7TClWNTea3UMaECd
-         rWXoYYF793tZZfc3i3TgpUr5JwMODjualvrvBQTo5Fyfgcc+6nUn9WM3fkL17AaQ+Md5
-         i19g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773869139; x=1774473939;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=K6f1m8W1umobQ+ktMqqvSwqw9J/2mgt2skFeEG9RxsI=;
-        b=GySIz+XtNjutup2nbl0aAaNfx6Ia5r+bx4OE5HiGGneoRgrVycGcPfnI5WW1zMTJ5/
-         PjQ1ungFcGxncxNw5UY5Wg6OvRu0BaH+Wi14Wh71Cnn6A327BE2GYCX4kljUYyrCXenc
-         Iy3ektCXPCiS2jL9/WGCqqV9QLjvwk3ci3mzBe+by/G7l582sJjh5nzZ52t6CqQibKmJ
-         4gPS7vtwJgqxCJvPM5oRY1O4b7ADiIAN8QALr86HeylEIaCyoiEmgEtyl1ihlgrdCaRQ
-         hS3mel1yawiLN6cdP4WhCQF6hsNUtD9rFBrMzlGUFDi/RxXlaV3b3y41GxFxr7sdf7zX
-         T/dQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVUzSJ+Can8HKn9k6vTdzaq8L6nb+z5ObdPosSxM+ftPwPKZ0rA0O0hlOv8128Mo3ecjJ59oQFiM0y7JQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8aDNFl5hZOSCQWRYPskluXF7Q/Tc+ut4X8BMwUAcuNUUDU4Vc
-	eHqK3a+fM1tIQJ5gnJ1irrsY6A9cp0YXivbddP+3LFSVD156EknAdDzp0GtDkcLXnGiGGWkr7uy
-	tsCpJsUPmYF2DawHVSw5XfHv7t6nPM8E=
-X-Gm-Gg: ATEYQzzTlBq1yN5evykYMwXVRQ5KIiiSAlbbbuVd45yqi3LvT8ZCm6uyWYNRO3ebnjw
-	EURcjKDV6izkh0Lq4AHplRFV477XGrhwoSX+jnDO6iLVACad05HMePpyJ1jZ29Q6JGOrqPmHgLw
-	7tgAgRCjxtnQcw6Uk+fFkIIds9ljX3nI8kjqQNXG7yHAztkUyYe66hQ1WoyDeYvLwDY8q5RtB5o
-	uZCTh3qY1SMa6x3Zm/iLjShe+OMIqX1zVQAD9FqrCOe8m8Z6TrPCsKzaoVJ/B5gZ476cKT/rO6t
-	mvqH4A==
-X-Received: by 2002:a17:906:99c5:b0:b93:9407:ea5c with SMTP id
- a640c23a62f3a-b97f4b70e51mr342818966b.57.1773869138582; Wed, 18 Mar 2026
- 14:25:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o9aZw+Gg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA819C19421;
+	Wed, 18 Mar 2026 22:14:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773872064;
+	bh=vAyd5i9QgWmNXiH7zOoCmSu78yF0HGi3HGDWdzOPJiE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=o9aZw+Gg0nHOp5Ibo5oK9H7Ce9dZCmevq+v/rju7q3H3vdfaTnuH4x0mCPHzNUFY4
+	 s9WrWfKgkHsjAcRdXpNJHX0Nf3vUpEeqpxNZvVBNjBhtiS9W7At9kODZozsv20j5sq
+	 cRkpcnyaR8XsGNJ5MuS28eLjk2DOwzyzV0iwEEGacnN+NsyhiGj6w+Q/Rrzu6NbWZs
+	 j5XtuSwmhUuo+BnPt/txOMBIbRADzC/DsX1ofsAESJSKSO6gy16a25Zt8pwIzy9M/H
+	 SuEEmup9A3pdEFU5W8B8Tw069z8PF1AObRFotfD7TeTwWhteYi8H4TkP8O6DoG5IA3
+	 EteTazBDOOwJw==
+Message-ID: <ad0d1ea1-4c5d-4cfc-af0d-8d843e7e0e9e@kernel.org>
+Date: Wed, 18 Mar 2026 23:14:16 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260317184507.523060-1-l.scorcia@gmail.com> <20260317184507.523060-4-l.scorcia@gmail.com>
- <20260318-nickel-serval-of-tolerance-621bad@quoll>
-In-Reply-To: <20260318-nickel-serval-of-tolerance-621bad@quoll>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Wed, 18 Mar 2026 22:25:26 +0100
-X-Gm-Features: AaiRm51yI9RGCvrRh7GVNMdJwfVjHSZ_bJ1ljw9KDUXHaZfxU7GvIWfUsRzyb80
-Message-ID: <CAORyz2Laoo4EiLcHZ-ygLiFGW_h8qV7QxqNsMbueM=nov5zH0A@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 3/9] dt-bindings: regulator: Document MediaTek MT6392
  PMIC Regulators
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-mediatek@lists.infradead.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
-	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
-	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Julien Massot <julien.massot@collabora.com>, Gary Bisson <bisson.gary@gmail.com>, 
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Val Packett <val@packett.cool>, 
-	Fabien Parent <parent.f@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Linus Walleij <linusw@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, Julien Massot
+ <julien.massot@collabora.com>, Gary Bisson <bisson.gary@gmail.com>,
+ Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+ Val Packett <val@packett.cool>, Fabien Parent <parent.f@gmail.com>,
+ Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-gpio@vger.kernel.org
+References: <20260317184507.523060-1-l.scorcia@gmail.com>
+ <20260317184507.523060-4-l.scorcia@gmail.com>
+ <20260318-nickel-serval-of-tolerance-621bad@quoll>
+ <CAORyz2Laoo4EiLcHZ-ygLiFGW_h8qV7QxqNsMbueM=nov5zH0A@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <CAORyz2Laoo4EiLcHZ-ygLiFGW_h8qV7QxqNsMbueM=nov5zH0A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Il giorno mer 18 mar 2026 alle ore 08:43 Krzysztof Kozlowski
-<krzk@kernel.org> ha scritto:
+On 18/03/2026 22:25, Luca Leonardo Scorcia wrote:
+>>
+>> Drop compatible. Regulator nodes do not have compatibles.
+> 
+> Thanks for this comment. It took me a while to understand what you
+> meant as most of the MediaTek PMIC regulator drivers still require the
+> compatible node to probe, including MT6397 that was the template for
+> this patch. I compared the driver to MT6359 that does not use it and I
+> am now working on the driver to not rely on it.
+> 
+>> With this, you can also drop example as it won't be used.
+> 
+> Just to be sure - do you mean remove the compatible attribute from the
+> example, or the whole example section?
 
-> Please use subject prefixes matching the subsystem. You can get them for
-> example with 'git log --oneline -- DIRECTORY_OR_FILE' on the directory
-> your patch is touching. For bindings, the preferred subjects are
-> explained here:
-> https://www.kernel.org/doc/html/latest/devicetree/bindings/submitting-patches.html#i-for-patch-submitters
->
-> You already received this feedback from Mark.
+The entire example because without the compatible it will be no-op.
 
-I am sorry I missed these. I will revise all of them in the next version.
+> 
+>>> +
+>>> +patternProperties:
+>>> +  "^(buck_)?v(core|proc|sys)$":
+>>
+>> Nope, underscores are not allowed. Use only hyphens.
+> 
+> Got it. I will actually completely remove the (buck_|ldo_) prefix
+> altogether as suggested in another comment.
+> 
+>>> +  "^(ldo_)?v(adc18|camio|cn18|io18)$":
+>>> +    description: LDOs with fixed 1.8V output
+>>
+>> If fixed, then encode it in the schema - min/max microvolt.
+> 
+> If possible I'd like some clarification here. According to Chen-Yu
+> Tsai comment [1], dtsi shouldn't contain voltage constraints. The way
 
-> > +++ b/Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml
-[...]
-> > +properties:
-> > +  compatible:
-> > +    items:
-> > +      - const: mediatek,mt6392-regulator
->
-> Drop compatible. Regulator nodes do not have compatibles.
+That's odd, because long time in the past I heard that DTS must
+absolutely set min/max constraints, because these are real hardware
+(board) constraints for each regulator, unlike the generic and broad
+ones from the driver.
 
-Thanks for this comment. It took me a while to understand what you
-meant as most of the MediaTek PMIC regulator drivers still require the
-compatible node to probe, including MT6397 that was the template for
-this patch. I compared the driver to MT6359 that does not use it and I
-am now working on the driver to not rely on it.
+IOW, driver has what datasheet tells. DTS has what actually should be used.
 
-> With this, you can also drop example as it won't be used.
+Also, I did not actually require to make min/max required, just they
+have to be specific/constrained.
 
-Just to be sure - do you mean remove the compatible attribute from the
-example, or the whole example section?
+> I understood this is that electrical constraints are a matter of the
+> actual board layout, so if adjustments are needed they have to be in
+> the board dts. But you also specify "If fixed", so maybe there's an
+> exception to this rule when the constraint is "absolute" and boards
+> can't actually set a different value?
 
-> > +
-> > +patternProperties:
-> > +  "^(buck_)?v(core|proc|sys)$":
->
-> Nope, underscores are not allowed. Use only hyphens.
+Now I am confused. You wrote - LDOs with fixed 1.8V output - so board
+cannot set it to 2.0V for example. They are affixed. This regulator
+CANNOT physically produce anything else.
 
-Got it. I will actually completely remove the (buck_|ldo_) prefix
-altogether as suggested in another comment.
+At least this is the meaning of the text you wrote.
 
-> > +  "^(ldo_)?v(adc18|camio|cn18|io18)$":
-> > +    description: LDOs with fixed 1.8V output
->
-> If fixed, then encode it in the schema - min/max microvolt.
 
-If possible I'd like some clarification here. According to Chen-Yu
-Tsai comment [1], dtsi shouldn't contain voltage constraints. The way
-I understood this is that electrical constraints are a matter of the
-actual board layout, so if adjustments are needed they have to be in
-the board dts. But you also specify "If fixed", so maybe there's an
-exception to this rule when the constraint is "absolute" and boards
-can't actually set a different value?
-
-[1] https://lore.kernel.org/linux-mediatek/28102417-4a2a-4e29-afbd-d0f2aa76074b@collabora.com/T/#mb1473bb5515f3e5a1bb3ff20c717b387c42373ef
-
-Thank you for your help!
--- 
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
+Best regards,
+Krzysztof

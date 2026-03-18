@@ -1,122 +1,101 @@
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9195C35CB68
-	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 05:43:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7D238462
+	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 05:49:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773812638; cv=none; b=Tf+ZPz3bLsjd8pF80YNRDySlUru8rXFRCyx3hav2v9caAIzs2kYnhzsq5ztmdttP4DWg7a1HMezxPiNtx+8NSneXrt3N2umI/HVAidkUaOnIHfOXgbtt2+qif5NbZkM32PBK7zY+ojYfJmtzkBw7tA0dXXMxcXrSwUCWH48f2g4=
+	t=1773812979; cv=none; b=iu00D1O6Mwb66+lGincfN2YAnt1f0QFfZkaMDSeEG5vP5zfR1uVqHUXnyi4vlM/HyGW2a/Hi8dT1tLoequSDrckl7GW4QeDr8NVMkNpwxXUSssXRTIVIeMiwnmEQHDZBRzNleK+6ZnOetJMOSQEh86cpj6DOH+QRjzyUaWaD5L4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773812638; c=relaxed/simple;
-	bh=CXRBvalcT81w/ixpe/yNM9i+ibJxfbY5qwzKyFWXZpw=;
+	s=arc-20240116; t=1773812979; c=relaxed/simple;
+	bh=NqpgiLDqf9bodps8r/peqgJc11LkNBuj/Hhw1apBlRA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LwLWMSPIYXeXgK1ePVgB9vlfL8HXLdsgJPaeevCKwRt0O08xajZr7TedmyAfDBqnaeSZhVstKcdbylNifTa407tY4X+9Zh3DrZstQJUeBk5miR7E8NgB0dRzl5kXcOYF2qDp/u5v8kh2xbZc3cTeJXb9Nt2lAseK9AYEQFZ74ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/w223m2; arc=none smtp.client-ip=74.125.82.44
+	 Content-Type:Content-Disposition:In-Reply-To; b=PEOREq8VoPXVm78SQSfJ2n9zb0oAmiG0By4VppXHjTirJAEtk0ZR/qpovDThrlj71XJHnNwbN52b6su7PL9Yi2GVZQiGtcL1FFksLngRLWoDbv0ReztjLWDVSgjxjlKss+W7pj7aK8nDBbPjN1h/+DaK/hm3Ga0mBB9qXiSPPKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ENK2EJH3; arc=none smtp.client-ip=74.125.82.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/w223m2"
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-126ea4b77adso7861017c88.1
-        for <linux-input@vger.kernel.org>; Tue, 17 Mar 2026 22:43:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ENK2EJH3"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2ba895adfeaso6404392eec.0
+        for <linux-input@vger.kernel.org>; Tue, 17 Mar 2026 22:49:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773812637; x=1774417437; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=AqHQpUZ1gJiIMiWqrq/dfIimRVU3WpV6voI1z6tR3r0=;
-        b=R/w223m2U3KHXuVBZ1IQGaahPrCiZ1HKZMjnbhtoT52UC18/aQ/0d7O8SQCy69uM22
-         9Y1u/4cPEfBFJO4vv1leo09ZlB2+hs65UNyIYbIeq2ToY0lmgoagxOQ89JP0Zp8jJTRp
-         msoCHBnx/ToQTK6kHFIr5D+ZZaN+3LWsPeenPrIw6EAV6M8Ww+1xuvt9U8jXClq7sRpW
-         19U+zBOQ1NiX4ukzmA1SVEcY1bPK8aprG4MMqbVXmMa4wZTBXDBlNy8md39Goz/K8chy
-         P3sWJKsbyc+TjmkjONnz+v84ri3odBeopMtp36Np3g4s0TqHsgh0Kvr/sdpJzuBECLYE
-         6R2g==
+        d=gmail.com; s=20230601; t=1773812978; x=1774417778; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=RXkrUplNInJMfmyDQfO7rf+b8M4RvjKyBssY4KRAMJM=;
+        b=ENK2EJH3TSxD/1gxpTJ0hcoaP4z5J+4xIEUlcb6J0Hyvjg1fdupFgnwlDOfjnyWZ1C
+         2NaQXjUI3DvMDIT5UDkLyibyRb653mvdzYw0/kX1+U7n1lvEEomKb5sEo/oiOHcbfz3e
+         GB8HuOu39k+3Rhd+CSYV4FPaQeef8h8VpggqBG7ALuVQUOuhWs0dHk3yeEfvhG6xa1yK
+         oIOhuPLO6zy4cW8Q8mgoKUZIRtod449VzpBVhfqrkoHFkbcTlKNeZLoJwpDvtYmh3B+H
+         yTKyTxR6EXGzORscJERggR+mmIbvhov59RXkM9/usMV3q71eIdFK3FMdFLbYscQrvmOz
+         OUGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773812637; x=1774417437;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AqHQpUZ1gJiIMiWqrq/dfIimRVU3WpV6voI1z6tR3r0=;
-        b=noFOQSn1La3+6YkpXcbFXUrA09VMJ0DLXh2kzjoA1S+ItfVI5cVZkLf8XkbYIyZarl
-         KM0U3GEk2/SfQ8ApBlm/fKcx/Tg+2cPuT26/+MYILBJjFRP7NisZEkoXZT00a93PTnQk
-         4iJSWwUxOs7JmSR3V4viOETTqgM/zmEUueGdYj0QOJYDLX+va+XBzBVxuI+9Vy2QFSlZ
-         7yZYMVbsHZhubd0hNM9xCSK02NaCDjX019Wywp6qyU91H3QIot5gwixiPe4E31aYYGdk
-         Md32dK/5tD+i9Ec75q4jS3wobGJRISnqetjHcjb4gj+oZbPPFLmnZjXXPBxXo18EnrR/
-         QEkg==
-X-Gm-Message-State: AOJu0YwRKYZ7pRGGhN96wTD6z3mwh9AFm3cpkYrEjC7fI3CKxlO0RUw9
-	oIIv6T24urdMvY2CLf1eXAEve87Yx1dOagRT/Oo2rCNZS9elFkLFD5Zd
-X-Gm-Gg: ATEYQzyhRcEnikkYrGKiPLZfQVqCoAA+mws1J/ew3rg16F4JEn883nJXjD8PRXaXwA+
-	0m2BlOSIC7f+Kt6finq3RvhWU2EC+mtwGK2Sk7bRwFU921wxT1J7h6G+O6EqMC8iASmCchxceqj
-	DNAC/+IJ5zte4JEEU4XSUn94z86V2/XV7/tKYbxhzzu6a3nbbjL6QhUh3PZuVOkTuPfqQn9noHh
-	Hl5DXMglRZIR0vr+LYS/cu3M0KmrQ6X/DxI/QKtaLj8WApToqJ3QBnYds+yZdk5Vj4FpYsAWtvG
-	xiaVM3jnkiKgvxWSCy6OU86qCxAefsfnPNV2IovFAYLT19a5/pemAaJWN6YHSJUpj+HMRu1ccHm
-	nE6jgZ7/uwID5pJjvlin20wkjDkjVWOW4cKSkSg4Elu8rMnXdR2OIrFiL5Z/wMeqYx/LwqhuiOg
-	SWwgf28xcTbTPDzMDnjyGjtAzaJiRMRdUBqtESe3j3ch3Xzmxv8muXoRJxjzpmNESe
-X-Received: by 2002:a05:7022:689a:b0:128:ced9:93ef with SMTP id a92af1059eb24-129a7198bdamr1122052c88.39.1773812636454;
-        Tue, 17 Mar 2026 22:43:56 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1773812978; x=1774417778;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RXkrUplNInJMfmyDQfO7rf+b8M4RvjKyBssY4KRAMJM=;
+        b=lLUnY+UwZnc+gQx1AHMAiVGKUf8Nsh9VfVczbrWIMKvxDeLaXzyusKxFnutn9n7olT
+         pr0cvt4oP8iKwoKZ1gzzL4FEe49K5EmnnSlZ3NuCrEXJoVKCdW/9f/H+2czaDa65t5Gv
+         wL2MRDzqsDSZI7YKhstedMWbdjBWgT2gkenqtvmlxR1UOij6phGear3TksnHWzHSbX2t
+         XKsi/z2jkX10dVUx4Xw88SPx4x6c10tsaS7x4H0e1ot7HN3v9VtLucTqxFDGzwXQDrad
+         ivIe3T2UJuPxMNXx8mUVpnvmEWjgfC83LTPTCYZXW/ZdOkOwd0NOPJgzKX4DDlh5QAjp
+         gIew==
+X-Forwarded-Encrypted: i=1; AJvYcCXmhlXU+UIbkk2My0cixefQX3N/GUvXWn6dNSKSrYZTLENvsErwgprXmIg+rC+ppKZtL9HfDS3CLdXL6Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxFUbFucwFWFSCcxFQB7M2REINUeDxiQ5ZYgNBBoxLXKhaSZY1E
+	bQzVye1wuSOGB318kb0DdnxMlOPtMlSwuz8TFnNOmEKT3vyB7dUMs1FR
+X-Gm-Gg: ATEYQzyD/MquogbX4vPmwKkA+86tKvAXoPyy81ALxnusYlylZioPnPd5KumSwRXpnDS
+	1J1deUAubtou2d5H6ZFaY8MJ7i3o3ZVDN//8edhxQnvA3RMZ+/O1m8MsjnfiAumWML9RZprJscm
+	5jYEhySjb1f1AOTLORsvIrVV4ozElvuNkkjkFsCi0bELPBtv+CojALw6JqFh52sWRyVnds+Hq8I
+	dsLZJVjqbd9PwXCZqhmzfSj1i2Ezrcb5K+stng61ASzr8/z+PbZtOPMh8/f8np0CfnGhiiCd+UQ
+	PZzSBBZ1AjxxoSpoL29gIViAN6PSFy4hQk1deJHqarsaEDv7tf5miL/VxlG5mcD3H0Z35KM5vfh
+	Hc4y9BAUMNcHLu6RxP069lUmijGHVaYqeKKXdyLfTcLhoHLoUAogpSak8VKMoGWWJtUuZdL51h2
+	aFPnWdKA1lXHwzS76bDB/6Vr0kjdIKComS9o2pZqzE6s5IN7f/ERXetTjq92lXESI9
+X-Received: by 2002:a05:7300:fd0a:b0:2b7:32a6:82bc with SMTP id 5a478bee46e88-2c0e510fd58mr909045eec.26.1773812977591;
+        Tue, 17 Mar 2026 22:49:37 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:ed44:64cd:4ba5:bc15])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-129a723f829sm2948716c88.1.2026.03.17.22.43.54
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c0e5368a7fsm3638984eec.1.2026.03.17.22.49.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Mar 2026 22:43:55 -0700 (PDT)
-Date: Tue, 17 Mar 2026 22:43:51 -0700
+        Tue, 17 Mar 2026 22:49:37 -0700 (PDT)
+Date: Tue, 17 Mar 2026 22:49:34 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Joseph Salisbury <joseph.salisbury@oracle.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [External] : [PATCH] Input: sentelic: fix comment typo
-Message-ID: <abo7FVLq3qUzxkee@google.com>
-References: <20260316181200.146681-1-joseph.salisbury@oracle.com>
- <e35b4f27-53c1-41c2-a321-42a34ade9839@oracle.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	Linux ACPI <linux-acpi@vger.kernel.org>, linux-input@vger.kernel.org
+Subject: Re: [PATCH v1] Input: atlas - convert ACPI driver to a platform one
+Message-ID: <abo86i-bOwo7-vv5@google.com>
+References: <3429591.aeNJFYEL58@rafael.j.wysocki>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e35b4f27-53c1-41c2-a321-42a34ade9839@oracle.com>
+In-Reply-To: <3429591.aeNJFYEL58@rafael.j.wysocki>
 
-Hi Joseph,
-
-On Mon, Mar 16, 2026 at 07:48:31PM -0400, Joseph Salisbury wrote:
+On Sat, Mar 14, 2026 at 12:54:58PM +0100, Rafael J. Wysocki wrote:
+> From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 > 
+> In all cases in which a struct acpi_driver is used for binding a driver
+> to an ACPI device object, a corresponding platform device is created by
+> the ACPI core and that device is regarded as a proper representation of
+> underlying hardware.  Accordingly, a struct platform_driver should be
+> used by driver code to bind to that device.  There are multiple reasons
+> why drivers should not bind directly to ACPI device objects [1].
 > 
-> On 3/16/26 2:12 PM, Joseph Salisbury wrote:
-> > The file contains a spelling error in a source comment (formating).
-> > 
-> > Typos in comments reduce readability and make text searches less reliable
-> > for developers and maintainers.
-> > 
-> > Replace 'formating' with 'formatting' in the affected comment. This is a
-> > comment-only cleanup and does not change behavior.
-> > 
-> > Fixes: fc69f4a6af49 ("Input: add new driver for Sentelic Finger Sensing Pad")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Joseph Salisbury <joseph.salisbury@oracle.com>
-> > ---
-> >   drivers/input/mouse/sentelic.h | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-> > index 02cac0e7ad63..9ba3631e3d0f 100644
-> > --- a/drivers/input/mouse/sentelic.h
-> > +++ b/drivers/input/mouse/sentelic.h
-> > @@ -60,7 +60,7 @@
-> >   #define	FSP_REG_SN1		(0x41)
-> >   #define	FSP_REG_SN2		(0x42)
-> > -/* Finger-sensing Pad packet formating related definitions */
-> > +/* Finger-sensing Pad packet formatting related definitions */
-> >   /* absolute packet type */
-> >   #define	FSP_PKT_TYPE_NORMAL	(0x00)
-> I inadvertently added Fixes: and Cc: stable tags.  If possible, please
-> remove them as they are not appropriate for fixes to misspellings in code
-> comments.  If it's not possible to remove them, I can send a v2.
+> Overall, it is better to bind drivers to platform devices than to their
+> ACPI companions, so convert the ACPI Atlas button driver to a platform
+> one.
 > 
+> While this is not expected to alter functionality, it changes sysfs
+> layout and so it will be visible to user space.
+> 
+> Link: https://lore.kernel.org/all/2396510.ElGaqSPkdT@rafael.j.wysocki/ [1]
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Sorry I did not receive the original patch but even with the typo fixed
-this comment needs more work to improve readability.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

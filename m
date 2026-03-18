@@ -1,79 +1,40 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE0A937D104
-	for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 08:31:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F3AD346E56;
+	Wed, 18 Mar 2026 09:13:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773822713; cv=none; b=N2WRK3RhpEA0gFC9k+rvNHiQQLoBAHL9D85xOr3xZUBisjlJcpyxE4Fo+PMoJoi5cjJ8ASqQhly1EmUwPAolj6QprowyJ58i1LBaZeUcUa/5iryVsgbFcldZG2jty/XqS/vKVYnx+mHWjJD8ZshQDLVXPO7S/0zYwEbdr1xih4Y=
+	t=1773825214; cv=none; b=EKm4ksHUxU/PpKF/5w7ZfVTp1KgQF/1f+wX3Kwv6Kpy9XbrixNo+U0tPnU4W8JqbPcPT02rkgAHiXcAR33UlHBuro78kUZkw8PmZW3149gnZBEPpVkKHSUHDRUAZ80V6TWSGsxebEQAfHgyLeqOGL9pfvoGgjZQotkEcn8k5Thk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773822713; c=relaxed/simple;
-	bh=XHnB+mK6xGRUI/1P4LOs4QVdLEWard9D2s8tWWJqkKU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UI8YzEZWU5LY/8mSc5+4eKhftNIuLg2EAcsHvA6dmZFCvp08spA9hZWCLFf+rKT9fdqdt8mtwvBMh3dV7fS8ifly3fHnR+DOxZGoUJ1thQZqkFva4wefXRaFx5bFL5uD/dDHwkGfNp+PoSCWaFZ+NegHmtcqe94pPuuExq6AH6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hoZAx2mR; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773825214; c=relaxed/simple;
+	bh=p8TM90r5gf/sqVmE8YlDpMBRxDp8j1cmd5bqFX1pqE4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bjx4YZlbjRfdtQfW6PtimwE2c9wMSVPIWZTlOKe+TPMJ6ksffByGWnzLEqZGfdGr1DDFw3iOKhhXaTOMM0cJjpxLwZ5ouUBWexQiJPKl+v93V62MrO4Ysj0q+mg1ArpR4wh/lgNFbXrDkpXEzDcrAj6tp4ZK+NSFqTWzJ4o21VY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=MAPMUM8x; arc=none smtp.client-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hoZAx2mR"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-82735a41920so2523470b3a.2
-        for <linux-input@vger.kernel.org>; Wed, 18 Mar 2026 01:31:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773822711; x=1774427511; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=klbyuhxtyqmgcbtWm671qhdJGBO8PRmtUd+eMK0w1Ho=;
-        b=hoZAx2mR8E2ire7IG5+lIrpFPYe0PmnV+6mHumZk3d4JhRVPHG9Zv58fzgnoG3x8Dh
-         r6c/7XEu2j+oKE6Hwp+9S1c9kuNCXZD9snT1rAZ+jNiv7Two1H9QwhSBJYOTajZhFleJ
-         fpkhE6coKZR6QyQvK2U3cJJ5owOOdE/RI37LAjCTJTrx29DhtBe+uQ7OfIWzoWMMHTDZ
-         5OckJtF6asHq/XRtbNFJEE5eq4NwY16eDV8Rf9/zy2BaAw/g3hiV8Oypfsb8Vw+R9i8z
-         sEZtyuSwAPOJ51LsRmSutPALJ6if1swNIpVIDk8Zxeu61VqIrlJJUxyg2mmsEcq5ZiOm
-         UMrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773822711; x=1774427511;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=klbyuhxtyqmgcbtWm671qhdJGBO8PRmtUd+eMK0w1Ho=;
-        b=dO2Lep0ODEzlmN2Qh/zYgVFUyzfGZbejjOX3+GRCW6R7gGhaQaS76ttxxNigB8ZX9S
-         l0kKgkW1UYhLtJ56vOpkjzb1QPTxo8Qtg9wD3VlcVTNaf6cUU+6SHglV/BNjT5CL0yPn
-         5mpCsir3k2qmwHdPTDOMEXHx/gd+qREvsH+UPl/xEcIAFsT0gT6nf/8qANJNBLYUEWNK
-         ARyhaZS3UVSGIKhsXQEJzCdGqfI7GdgYyVcYI8NCqY+zYC4vrGiKzVfabgNgS1AFcZv5
-         wKK5FmI+uV6gCTgRt8hqnuA0feza5E0CXi1k9I2jHMiTt/LNq9YagJ9Q0opn/bwQqcVa
-         hNmg==
-X-Forwarded-Encrypted: i=1; AJvYcCXQEs9lni0CgLXcdTSk73mEe4Njh6pDOsBTrhx8bxCLqNJpbbEOInPDzKFGRbcD9RAMY+sc0piqf0AB/g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwgjmhMGVtImtkOqcqNn5DiSxkatls9leh2PHQ6a0fCxF9rN2fU
-	mivXgmraYSg+XPg0Az541lJQ9F80RD8rziT3g/Q5KEmbbl4wY6aJCU6D
-X-Gm-Gg: ATEYQzzaW+VDHnLV/eoMedWmCsN9l+Su/JnJhOkCWIDrPrewJXyCOoB9kwDzGX+3D/Q
-	eDPizCLoqeagQW+HkxvC+lEaC+ka0UXdx52Ay7k8iury7BPMThOBbeo4Y76Vkt2cgTrx9vWGuN/
-	2kRLkvsAxCx63Tz+ewimDOAlR48NlePr6c8ZncrLbOO9QNgMgO/xx5Vb1Z7rXShEunUQPtdPd71
-	f0Vy3SsHOm6qJEtmEzQDJgtzS78FAB1BKb4iUMwX5mqzUIM1TmhGw1+5xj7KdupC9reDSL1vyv4
-	HpSikNZM3bXK4449029dDiIeFvsNaFOEInjbhdabK6t7pY3qpII3UkmsbvYOYJ7uPdQQuiyfnRC
-	phAFZjFv2OuiOP1XsS0KsY+wgZ/kP0Vw4YR6GlVLT2cBjcLS/dq+y15VKlF56VHDT+AmaXbVemn
-	6ieqca69+qEQ/71Tw3l7vdCdNLyzw5HYwIDN75KzzHww/YuVMWh93uNCEsxw==
-X-Received: by 2002:a05:6a00:1702:b0:82a:60ad:87e with SMTP id d2e1a72fcca58-82a6adff9e8mr2364033b3a.19.1773822711265;
-        Wed, 18 Mar 2026 01:31:51 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a6bbe5ea9sm1794663b3a.45.2026.03.18.01.31.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Mar 2026 01:31:50 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: conor+dt@kernel.org,
-	krzk+dt@kernel.org,
-	robh@kernel.org
-Cc: conor@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	krzk@kernel.org,
-	linux-input@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="MAPMUM8x"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=i0
+	6aL62inD/1Fdie+/OoLINYJZHJ/OEGix0QNe8SMIg=; b=MAPMUM8xY+2kx0r8El
+	d4RFnKAtFiVDcSuIsCRaHNmTAecI3h0TnFzLbWADB2vv0HfIEkKGuFO1l+iKTrI9
+	flhOVFTCscvyUG0NpkAowsYXpJVmZ3TndEy2rj1BneNm62f7yCuwXy1ov1peCrs2
+	KwjtbWt1fXG0V6mB+erDqPJBo=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDXvx6ibLppEjCaBg--.45257S2;
+	Wed, 18 Mar 2026 17:13:08 +0800 (CST)
+From: Miao Li <limiao870622@163.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	marex@denx.de,
-	mingo@kernel.org,
-	tglx@kernel.org,
-	phucduc.bui@gmail.com
-Subject: [PATCH v3] dt-bindings: input: touchscreen: ti,tsc2005: Add wakeup-source
-Date: Wed, 18 Mar 2026 15:31:24 +0700
-Message-ID: <20260318083124.21793-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	limiao870622@163.com,
+	Miao Li <limiao@kylinos.cn>
+Subject: [PATCH] HID: huawei: fix CD30 keyboard report descriptor issue
+Date: Wed, 18 Mar 2026 17:12:49 +0800
+Message-Id: <20260318091249.217283-1-limiao870622@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,52 +42,170 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDXvx6ibLppEjCaBg--.45257S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW3Xr18Cw1xur45XF4xZrWrKrg_yoW7KF45pF
+	4DurWvkr4DJw1ag3yj934UCrW5K3Z2yFyfZrWfGw4YgayxAFWktrn3t3y5Xr1rXrW8J3W2
+	qryF9rW7KFWq93DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pioq2AUUUUU=
+X-CM-SenderInfo: 5olpxtbryxiliss6il2tof0z/xtbCzQRNG2m6bKRKLgAA3g
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+From: Miao Li <limiao@kylinos.cn>
 
-Document the "wakeup-source" property for the ti,tsc2005 touchscreen
-controllers to allow the device to wake the system from suspend.
+When the Huawei CD30 USB keyboard undergoes 500 reboot cycles,
+initialization may fail due to a report descriptor problem.
+The error log is as follows:
+[pid:175,cpu0,kworker/0:1,6]usb 1-1.2.2: new low-speed USB device number 6 using xhci-hcd
+[pid:175,cpu0,kworker/0:1,9]usb 1-1.2.2: New USB device found, idVendor=12d1, idProduct=109b, bcdDevice= 1.03
+[pid:175,cpu0,kworker/0:1,0]usb 1-1.2.2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[pid:175,cpu0,kworker/0:1,1]usb 1-1.2.2: Product: HUAWEI USB Wired Keyboard
+[pid:175,cpu0,kworker/0:1,2]usb 1-1.2.2: Manufacturer: HUAWEI
+[pid:175,cpu0,kworker/0:1,4]input: HUAWEI HUAWEI USB Wired Keyboard as /devices/platform/efc00000.hisi_usb/efc00000.dwc3/xhci-hcd.1.auto/usb1/1-1/1-1.2/1-1.2.2/1-1.2.2:1.0/0003:12D1:109B.0002/input/input6
+[pid:175,cpu0,kworker/0:1,5]hid-generic 0003:12D1:109B.0002: input,hidraw1: USB HID v1.10 Keyboard [HUAWEI HUAWEI USB Wired Keyboard] on usb-xhci-hcd.1.auto-1.2.2/input0
+[pid:175,cpu0,kworker/0:1,9]hid-generic 0003:12D1:109B.0003: collection stack underflow
+[pid:175,cpu0,kworker/0:1,0]hid-generic 0003:12D1:109B.0003: item 0 0 0 12 parsing failed
+[pid:175,cpu0,kworker/0:1,1]hid-generic: probe of 0003:12D1:109B.0003 failed with error -22
+...
+When encountering such a situation, fix it with the correct report descriptor.
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+Signed-off-by: Miao Li <limiao@kylinos.cn>
 ---
+ drivers/hid/Kconfig      |  7 ++++
+ drivers/hid/Makefile     |  1 +
+ drivers/hid/hid-huawei.c | 82 ++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h    |  3 ++
+ 4 files changed, 93 insertions(+)
+ create mode 100644 drivers/hid/hid-huawei.c
 
-changes:
-v3: Remove blank lines
-v2: Revise the commit content and remove patch1 related to I2C and SPI 
-wakeup handling
-
- .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml    | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-index 7187c390b2f5..a9842509c1fe 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-@@ -55,6 +55,9 @@ properties:
-   touchscreen-size-x: true
-   touchscreen-size-y: true
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c1d9f7c6a..2fab4964d 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1435,6 +1435,13 @@ config HID_KUNIT_TEST
  
-+  wakeup-source:
-+    type: boolean
+ 	  If in doubt, say "N".
+ 
++config HID_HUAWEI
++	tristate "Huawei HID devices support"
++	depends on USB_HID
++	help
++	  Support for huawei cd30 keyboard or other hid devices
++	  that need fix-ups to work properly.
 +
- allOf:
-   - $ref: touchscreen.yaml#
-   - if:
-@@ -97,6 +100,7 @@ examples:
+ endmenu
  
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+            wakeup-source;
-         };
-     };
-   - |
-@@ -124,5 +128,6 @@ examples:
+ source "drivers/hid/bpf/Kconfig"
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index e01838239..616ff2185 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -152,6 +152,7 @@ obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
+ obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+ obj-$(CONFIG_HID_VIEWSONIC)	+= hid-viewsonic.o
+ obj-$(CONFIG_HID_VRC2)		+= hid-vrc2.o
++obj-$(CONFIG_HID_HUAWEI)	+= hid-huawei.o
  
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+            wakeup-source;
-         };
-     };
+ wacom-objs			:= wacom_wac.o wacom_sys.o
+ obj-$(CONFIG_HID_WACOM)		+= wacom.o
+diff --git a/drivers/hid/hid-huawei.c b/drivers/hid/hid-huawei.c
+new file mode 100644
+index 000000000..6a616bf21
+--- /dev/null
++++ b/drivers/hid/hid-huawei.c
+@@ -0,0 +1,82 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  HID driver for some huawei "special" devices
++ *
++ * Copyright (c) 2026 Miao Li <limiao@kylinos.cn>
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/usb.h>
++
++#include "hid-ids.h"
++
++static const __u8 huawei_cd30_kbd_rdesc_fixed[] = {
++	0x05, 0x01,		/* Usage Page (Generic Desktop)		*/
++	0x09, 0x80,		/* Usage (System Control)		*/
++	0xa1, 0x01,		/* Collection (Application)		*/
++	0x85, 0x01,		/*   Report ID (1)			*/
++	0x19, 0x81,		/*   Usage Minimum (System Power Down)	*/
++	0x29, 0x83,		/*   Usage Maximum (System Wake Up)	*/
++	0x15, 0x00,		/*   Logical Minimum (0)		*/
++	0x25, 0x01,		/*   Logical Maximum (1)		*/
++	0x75, 0x01,		/*   Report Size (1 bit)		*/
++	0x95, 0x03,		/*   Report Count (3)			*/
++	0x81, 0x02,		/*   Input (Data,Var,Abs)		*/
++	0x95, 0x05,		/*   Report Count (5)			*/
++	0x81, 0x01,		/*   Input (Cnst,Ary,Abs)		*/
++	0xc0,			/* End Collection			*/
++	0x05, 0x0c,		/* Usage Page (Consumer)		*/
++	0x09, 0x01,		/* Usage (Consumer Control)		*/
++	0xa1, 0x01,		/* Collection (Application)		*/
++	0x85, 0x02,		/*   Report ID (2)			*/
++	0x19, 0x00,		/*   Usage Minimum (0)			*/
++	0x2a, 0x3c, 0x02,	/*   Usage Maximum (0x023C)		*/
++	0x15, 0x00,		/*   Logical Minimum (0)		*/
++	0x26, 0x3c, 0x02,	/*   Logical Maximum (0x023C)		*/
++	0x95, 0x01,		/*   Report Count (1)			*/
++	0x75, 0x10,		/*   Report Size (16 bits)		*/
++	0x81, 0x00,		/*   Input (Data,Ary,Abs)		*/
++	0xc0			/* End Collection			*/
++};
++
++static const __u8 *huawei_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				  unsigned int *rsize)
++{
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++
++	switch (hdev->product) {
++	case USB_DEVICE_ID_HUAWEI_CD30KBD:
++		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
++			if (*rsize != sizeof(huawei_cd30_kbd_rdesc_fixed) ||
++				memcmp(huawei_cd30_kbd_rdesc_fixed, rdesc,
++					sizeof(huawei_cd30_kbd_rdesc_fixed)) != 0) {
++				hid_info(hdev, "Replacing Huawei cd30 keyboard report descriptor.\n");
++				*rsize = sizeof(huawei_cd30_kbd_rdesc_fixed);
++				return huawei_cd30_kbd_rdesc_fixed;
++			}
++		}
++		break;
++	}
++
++	return rdesc;
++}
++
++static const struct hid_device_id huawei_devices[] = {
++	/* HUAWEI cd30 keyboard */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HUAWEI, USB_DEVICE_ID_HUAWEI_CD30KBD)},
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, huawei_devices);
++
++static struct hid_driver huawei_driver = {
++	.name = "huawei",
++	.id_table = huawei_devices,
++	.report_fixup = huawei_report_fixup,
++};
++module_hid_driver(huawei_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Miao Li <limiao@kylinos.cn>");
++MODULE_DESCRIPTION("HID driver for some huawei \"special\" devices");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4ab7640b1..35df11561 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1581,4 +1581,7 @@
+ #define USB_VENDOR_ID_JIELI_SDK_DEFAULT		0x4c4a
+ #define USB_DEVICE_ID_JIELI_SDK_4155		0x4155
+ 
++#define USB_VENDOR_ID_HUAWEI			0x12d1
++#define USB_DEVICE_ID_HUAWEI_CD30KBD		0x109b
++
+ #endif
 -- 
-2.43.0
+2.25.1
 

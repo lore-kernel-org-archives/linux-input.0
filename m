@@ -1,162 +1,114 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 772541EFFB7;
-	Wed, 18 Mar 2026 17:22:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820DF3F54DD;
+	Wed, 18 Mar 2026 19:57:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773854572; cv=none; b=Q3OJ6VHcwGMEysximcEOC9z3csCcX+fkVUvWEPVEBD0fi1YHBJZTFPWpRt9RiDhxc6tP0bzhqiTyucwcyfIdJj0OySnyOlCYGMcJ7NXQATryLbLdmzEXShe7Fle1gGxFrYMt9LsE9VQ5L7ubyJHhJwDirmf8FKh/vSgTwozT3HM=
+	t=1773863837; cv=none; b=Rkw/+wzepqRouD5VQy9I42hnFrBDYCdY4ZPZXfz1m5hZ0hcZA34xJkYI1F/oq3ABbZnh9a25Y9MM4lLXOu3y7VlK/J56iIhOhYnjc2C55nxYQgPMWr8Z1/drScx1gMnjtseu/9BPxLTpatYyd4V8Q5F7TMD6MpoD5CoI67MszRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773854572; c=relaxed/simple;
-	bh=ynyBnNeJwC1iJq0V3/CMoDF/qT11osJ8LY2W6q765hQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PxzYRQ7erFWLpSMrBJ3TfkGxiYHUVMzpLzOJvF6A1vNeTWydO4kWgQPXP7wKNwDLAY5lVljd3thpEzWps9kRbZptdbBBz91MjMlfl2o+Z56VGXnXtc13Cu+otmU0V3LV2U9AYVdAhHwqmEt2gjch6r6eKHk+WgRnsdqZPaUsQTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=LyHi1XOm; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1773863837; c=relaxed/simple;
+	bh=FE2ttuvV+KBb44hFRvqmh0FjK3w624gREPleu9qGu4M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=t1ceFa5L0U4n8woJ+ALo3TspfGLExws/izeQ4vGj2ut+SId9OJDypuEuZ2+DRSCyo+qD0SIrIQ3VzR2DfZyELVRWcPa42E6agGCDheqhUnetGq1wfM7msMa8n8LbmhrCam2O3X2n536EEa+sv7Ej58c+WNZT947hrbIprfWirfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CPA3lDa2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="LyHi1XOm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1773854564;
-	bh=ynyBnNeJwC1iJq0V3/CMoDF/qT11osJ8LY2W6q765hQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=LyHi1XOm1XcajxqvX8esnSlpNh+SuznV4YyDPzPfC9JVObF6JgfRs4SwkgSAOF0lv
-	 UGSt5RYxqSzjSPjKlKHDHW00v1tO3jTscIB081PEEy1mov+ontvkNhwayX9+2bqNRU
-	 uKehGX45Du8tFja1zwTWI9Ycc7eQz25D1TX6hNBaPjOS61OaZF0/Ar3V2gJYT4uoJK
-	 N7eZWmXpDW8/0GcgkyOZNoJUy7P7UdOIccATW18cRm0nV8bxRlqX9tdBRXeMTJjpIm
-	 14Jx6vgXSlS3XqONXD83EYEd1Q9Er0WNnjiU2wzQkfOA/d/divMEK14Gswr9AI2ohL
-	 Jn6NbHB4FYxPw==
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 68F7617E0E42;
-	Wed, 18 Mar 2026 18:22:43 +0100 (CET)
-Message-ID: <28102417-4a2a-4e29-afbd-d0f2aa76074b@collabora.com>
-Date: Wed, 18 Mar 2026 18:22:42 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CPA3lDa2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BCDC2BCAF;
+	Wed, 18 Mar 2026 19:57:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773863837;
+	bh=FE2ttuvV+KBb44hFRvqmh0FjK3w624gREPleu9qGu4M=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=CPA3lDa25LYpMQlNVSQE7creOvrQaav7OfPs8GWdjcrcKMQhr6VYqEaOekX5MKXSL
+	 jSvDTGiY+jvipCaXAAfF1Hkfmni2l+dCpaK3QlMs43T9U4DfE+hMtj7G+joJPy4dIf
+	 dL1u5WJVx3bnpUoSGCjnNCHKnjSrTAbwofsWMHnRrf8O43Ere6llSHcjtxeWwjPyNE
+	 iEG623GXDkKrdfm4lnBOY94/Y4Xs/bFMmKueZa/8pJN8rQtML+TFCHzC0L3nJ1hUD/
+	 CUnpwTa+eQ0OhOd5KHbjFpEW9hbzPJZyRuqH7013XRjyVbEW6hLEqkLXjFyg2saNzX
+	 D/5DSLR7rG/VQ==
+Date: Wed, 18 Mar 2026 20:56:50 +0100
+From: Nicolas Schier <nsc@kernel.org>
+To: Oli <oochiolio@gmail.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Rodolfo Giometti <giometti@enneenne.com>,
+	Henrik Rydberg <rydberg@bitmath.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Nathan Chancellor <nathan@kernel.org>, linux-kernel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	linux-input@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH] Remove unused headers in x86/tools, scripts, pps, input
+Message-ID: <absDgpUDubJvDbEy@derry.ads.avm.de>
+References: <CAOW84UxjnSDKSjsaaS9=DBquCk3SDfb74=OmkHTLUyq5qriYsA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 9/9] arm64: dts: mt6392: add mt6392 PMIC dtsi
-To: wens@kernel.org
-Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
- linux-mediatek@lists.infradead.org, Val Packett <val@packett.cool>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
- Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
- Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Linus Walleij <linusw@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Gary Bisson <bisson.gary@gmail.com>,
- Julien Massot <julien.massot@collabora.com>,
- Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
- Fabien Parent <parent.f@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-References: <20260317184507.523060-1-l.scorcia@gmail.com>
- <20260317184507.523060-10-l.scorcia@gmail.com>
- <c1a425ba-a4ca-49ea-9660-5de74bede124@collabora.com>
- <CAGb2v64+oofwTiJTXDYCuzUEpk=zioi16i8a7iMimc_eZ1RPUQ@mail.gmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <CAGb2v64+oofwTiJTXDYCuzUEpk=zioi16i8a7iMimc_eZ1RPUQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOW84UxjnSDKSjsaaS9=DBquCk3SDfb74=OmkHTLUyq5qriYsA@mail.gmail.com>
 
-Il 18/03/26 14:54, Chen-Yu Tsai ha scritto:
-> On Wed, Mar 18, 2026 at 8:39 PM AngeloGioacchino Del Regno
-> <angelogioacchino.delregno@collabora.com> wrote:
->>
->> Il 17/03/26 19:43, Luca Leonardo Scorcia ha scritto:
->>> From: Val Packett <val@packett.cool>
->>>
->>> Add the dts to be included by all boards using the MT6392 PMIC.
->>>
->>> Signed-off-by: Val Packett <val@packett.cool>
->>> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
->>> ---
->>>    arch/arm64/boot/dts/mediatek/mt6392.dtsi | 141 +++++++++++++++++++++++
->>>    1 file changed, 141 insertions(+)
->>>    create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
->>>
->>> diff --git a/arch/arm64/boot/dts/mediatek/mt6392.dtsi b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
->>> new file mode 100644
->>> index 000000000000..fbf6f671524c
->>> --- /dev/null
->>> +++ b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
->>> @@ -0,0 +1,141 @@
->>> +// SPDX-License-Identifier: GPL-2.0
->>> +/*
->>> + * Copyright (c) 2019 MediaTek Inc.
->>> + * Copyright (c) 2024 Val Packett <val@packett.cool>
->>> + */
->>> +
->>> +#include <dt-bindings/input/input.h>
->>> +
->>> +&pwrap {
->>> +     pmic: pmic {
->>> +             compatible = "mediatek,mt6392", "mediatek,mt6323";
->>> +             interrupt-controller;
->>> +             #interrupt-cells = <2>;
->>> +
->>> +             keys {
->>> +                     compatible = "mediatek,mt6392-keys";
->>> +
->>> +                     key-power {
->>> +                             linux,keycodes = <KEY_POWER>;
->>> +                             wakeup-source;
->>> +                     };
->>> +
->>> +                     key-home {
->>> +                             linux,keycodes = <KEY_HOME>;
->>> +                             wakeup-source;
->>> +                     };
->>> +             };
->>> +
->>> +             pio6392: pinctrl {
->>> +                     compatible = "mediatek,mt6392-pinctrl";
->>> +
->>> +                     gpio-controller;
->>> +                     #gpio-cells = <2>;
->>> +             };
->>> +
->>> +             rtc {
->>> +                     compatible = "mediatek,mt6392-rtc",
->>> +                             "mediatek,mt6323-rtc";
->>> +             };
->>> +
->>> +             regulators {
->>> +                     compatible = "mediatek,mt6392-regulator";
->>> +
->>> +                     mt6392_vproc_reg: buck_vproc {
->>
->> s/buck//g
->>
->> Also, no min/max voltages?!
+Hi Oli,
+
+thanks for your contribution.  Some comments below:
+
+On Tue, Mar 10, 2026 at 10:01:41PM -0500, Oli wrote:
+> From c78a0572f5ec2b927f9b723af687e6ef913561a4 Mon Sep 17 00:00:00 2001
+> From: Eddie Hudgins <Oochiolio@gmail.com>
+> Date: Tue, 10 Mar 2026 21:53:07 -0500
+> Subject: [PATCH] Signed-off-by: Eddie Hudgins <Oochiolio@gmail.com>
+>  arch/x86/tools: Removed headers in relocs_32.c scripts/basic: Removed
+> headers
+>  in fixdep.c drivers/pps: Removed headers in pps.c drivers/input: Removed
+>  headers in input-mt.c
+
+Usually, patch mails do not contain mail headers within their body; the
+only possible exception is 'From:' if the sender is not the patch
+author.  These additional headers prevent the usual patch application
+(e.g. 'git am <mail').
+
 > 
-> We really shouldn't set min/max voltages in the PMIC dtsi file.
+> These changes compile for x86, x86_64, and powerpc (Those were the only
+> ones fairly tested) under defconfig. This aims to clean up code and
+> simplify the files for developers. This will also contribute to start of
+> decluttering the environment.
+
+A commit subject should start with a subsystem identifier.  A commit
+message should tell about the what and why of the patch, followed by a
+'Signed-of-by'.  E.g.:
+
+   kbuild: fixdep: Remove unused includes
+
+   Remove unused #include statements for clean up.
+
+   Signed-off-by: Your Name <your.e.mail@addre.ss>
+
+(More complex changes require more details commit message).
+
+Please check Documentation/process/submitting-patches.rst.
+
+[...]
+> diff --git a/scripts/basic/fixdep.c b/scripts/basic/fixdep.c
+> index cdd5da7e009b..feb9e7d8984d 100644
+> --- a/scripts/basic/fixdep.c
+> +++ b/scripts/basic/fixdep.c
+> @@ -89,7 +89,6 @@
+>   *  but I don't think the added complexity is worth it)
+>   */
 > 
-> The min/max voltages are supposed to be the intersection of the
-> consumers acceptable operating ranges. The min/max of the regulator
-> itself is already implied by the model / compatible.
-> 
+> -#include <sys/types.h>
+>  #include <sys/stat.h>
+>  #include <unistd.h>
+>  #include <fcntl.h>
+> --
+> 2.43.0
 
-Your point is fair, but it's also true that some of the regulators are not
-really meant to ever output anything different than what they are supposed
-to, though, with slight variations being possible... I guess the best option
-here is to leave declaring voltages to board DTs instead, which is sensible
-in the end.
+The change in scripts/basic/fixdep.c looks good to me.  Do you want to
+prepare a new kbuild-only patch and want me to take it for kbuild?
 
-Okay, agreed. Let's go with no voltages.
-
-Reminder for myself: there's a bunch of PMIC devicetrees to cleanup in here...
-
-Cheers,
-Angelo
-
+Kind regards,
+Nicolas

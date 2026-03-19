@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E36238422A;
-	Thu, 19 Mar 2026 14:44:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76EFC3D8131;
+	Thu, 19 Mar 2026 15:01:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773931452; cv=none; b=BlLfw1ubxBdrZXgAyWn0eh55vsOnh2qP1Bdij+CeB6nydC0wLAfhPB1KqrDSmfyZ8BoYCverdXwNYAQTem4mswNbeMv/+sbOHIzVSXySialgWoWPpItD2fHL+w+eKX7BLvBlTckCBpfBDM+UobhmembyI+EN/sH56yXxVpbFp34=
+	t=1773932483; cv=none; b=dD3XdsOyuxDDY+2JAFz0yhL/PJOyB+MbUjYdhzQM+V1FeQqya8Dcq8covF1e09yDl+mLsyGI0znuSwoiFdCZK7MiAm3V+uKvaa0mEvJqkCzjEUKEaR+Preh7snKc4jpiHfyAPia14+miDhopjPlTvZIHlSwprNiHo1p/Eamh63Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773931452; c=relaxed/simple;
-	bh=sTGmiklD2tcpNYpkOOx2CIDAhq83C1OkRPhDzO1C9EE=;
+	s=arc-20240116; t=1773932483; c=relaxed/simple;
+	bh=Jbl4h7EyS3qPXNKnUxxzVBqe4EY5cH12TK/UrsUq6O4=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=r3J1sYieQ6QpwTamTe54nY6JT/wi1LraW0LyVTdJu5Ix92xyrQvWO/BJ5+GmiEVeu/9P6dtHG1fJP01TXxjWWapvsRHVe6eDHyMhjPDVaQDU0j49AYE9S3/QnhVTx8VU8SGPYq2yAgvZaID83fFUkm9woRNWwxvytoMGgHatooo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tuDhEb7r; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=j7HoEMF7fdaMFCfpp5PZqUa1kATk3dWY+Z/NNp0X796aF7ZTUOcVfU9Qiagl3W0GYvZ/C5N78LKgzpEU6gaudbIS5NgKYFeM23jmen2A8CyAtIlexPEyQ6ZWdMr5Kez8Fha2B5efuMZ+JnMy1LweHQkurI75KBcp1aQz9s/SJGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jK71JIEX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tuDhEb7r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D38C19424;
-	Thu, 19 Mar 2026 14:44:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jK71JIEX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8123BC19424;
+	Thu, 19 Mar 2026 15:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773931451;
-	bh=sTGmiklD2tcpNYpkOOx2CIDAhq83C1OkRPhDzO1C9EE=;
+	s=k20201202; t=1773932482;
+	bh=Jbl4h7EyS3qPXNKnUxxzVBqe4EY5cH12TK/UrsUq6O4=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=tuDhEb7rPASYtKMUvgusN672z4034w1ncPa5IEEkL3+iLQB8g8+DiH96XPXQOjOtI
-	 YLO5RqLeVZBkiVo3xW95wLkA999K/ASqi+YDJtcr6hWAXxGlnCTFrUxq8gnjbdVjSn
-	 /rOkLpsH/TcS2a7Iv/OUw45IBxAs7CJ/hAU0WS1YxgiZ7BHfiqOW7txykA2+20iGpc
-	 buzGxsFGLwTdy1JKhkptotx4TRtYMTVa2apEA3REGZ1Q8Kp2/sG6upsceIxR4u2gk0
-	 MROe8pmwUWVnZ5HJhM6L8UnaOCZB0kwRRCBBtKeAuH6OwF2hxryIbbEhCOnOHmeHs0
-	 hpEaeeDkEV4yg==
+	b=jK71JIEXp2WMI3m8bAQq3u9SN/366CdtcK1n1IuptDT8k0X9c8BOvw7IBFZUV56Gl
+	 ThjNgR6FdYw3ku5WL600D94vrQykjN/2jPqgo77kgjBaFciosxlgN/aXnCpBHLRjWq
+	 kGFUGcWA1T2SB/VmFD13ldxIn4fajsrIE77i3aZc3idu96L0Gklc2mBFyxrEOWnCRX
+	 SxvhaUVeBCcatwEgebfjWR2pPtJrZ3ITcb7rJ3jUaTm7PzYoGGnmQUT18lkzhKiAY8
+	 Sz9bkUBQwdJ0riME1To9/YuJgNy66KbR89N43zU4zkIcQbB33N/WBKAJauabpNYltk
+	 TzwVpW8GIzNgw==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Rishi Gupta <gupt21@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
- linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
- Linus Walleij <linusw@kernel.org>, Colin Ian King <colin.i.king@gmail.com>
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260314170225.1260440-1-colin.i.king@gmail.com>
-References: <20260314170225.1260440-1-colin.i.king@gmail.com>
-Subject: Re: [PATCH][next] HID: mcp2221: Fix spelling mistake "Enfore" ->
- "Enforce"
-Message-Id: <177393142895.111633.13460322534663563257.b4-ty@kernel.org>
-Date: Thu, 19 Mar 2026 15:43:48 +0100
+To: linux-input@vger.kernel.org, Lucas Zampieri <lcasmz54@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, 
+ Sebastian Reichel <sre@kernel.org>, Bastien Nocera <hadess@hadess.net>, 
+ linux-pm@vger.kernel.org
+In-Reply-To: <20260314010533.110278-1-lcasmz54@gmail.com>
+References: <20260314010533.110278-1-lcasmz54@gmail.com>
+Subject: Re: [PATCH v7 0/3] HID: Add support for multiple batteries per
+ device
+Message-Id: <177393246035.125995.2162038231287893815.b4-ty@kernel.org>
+Date: Thu, 19 Mar 2026 16:01:00 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,15 +47,26 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.14.3
 
-On Sat, 14 Mar 2026 17:02:25 +0000, Colin Ian King wrote:
-> There is a spelling mistake in a module description. Fix it.
+On Sat, 14 Mar 2026 01:05:27 +0000, Lucas Zampieri wrote:
+> This series adds support for HID devices with multiple batteries.
 > 
+> Currently, the HID battery reporting subsystem only supports one battery per
+> device. There are several devices with multiple batteries that would benefit
+> from this support:
+> - Gaming headsets with batteries in both the headset and charging dock
+> - Wireless earbuds with per-earbud batteries plus charging case
+> - Split keyboards with per-side batteries
 > 
+> [...]
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.1/mcp2221), thanks!
+Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.1/core-v2), thanks!
 
-[1/1] HID: mcp2221: Fix spelling mistake "Enfore" -> "Enforce"
-      https://git.kernel.org/hid/hid/c/ac977b900907
+[1/3] HID: input: Convert battery code to devm_*
+      https://git.kernel.org/hid/hid/c/5a9df498581a
+[2/3] HID: input: Introduce struct hid_battery and refactor battery code
+      https://git.kernel.org/hid/hid/c/7a3ac62473f2
+[3/3] HID: input: Add support for multiple batteries per device
+      https://git.kernel.org/hid/hid/c/4a58ae85c3f9
 
 Cheers,
 -- 

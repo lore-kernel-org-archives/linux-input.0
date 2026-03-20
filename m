@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8A83CF69A;
-	Fri, 20 Mar 2026 16:44:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27F1E3CFF61;
+	Fri, 20 Mar 2026 16:44:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774025085; cv=none; b=FSGzIOEN7F38BBBEa+sG2BRTTImAwoAPNm8ctUCQOBOPnVp+z/LQFqMj27czvfjcdTcAXODXXVcip8HdDz6sjU75mbRbs44GC/QZt0sCi7AMvZrooHLG+TR38I6Y0XlrUJ1XsUBmGDNAMskif33l7upF+TMPoQ4T39XBlSuWxu4=
+	t=1774025085; cv=none; b=feYlMcdgnhE+aNlPh74QKzQw6q8/4Z+VkR+8ouWKDRMzLntqmF5IIosYVpujfqytP+1CRpP6l1fGsJpoGa0rJ5ZGVh8wFzZ3xClwsnkMAsjV3xCkjUVZ3+Pm8mnmNOFdrPMwMqhVpXKQ6ODI7euechy7CBCf2yP9N3shyXI3i48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1774025085; c=relaxed/simple;
-	bh=yBJmkZpufPY1WUXDSv28YDsjQl6uOA45y0Ghb+/k38o=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=CAYYDGkpHNdq3/VXL5IKw6e4MbkqFPTTSfMMPm+dYfC6eEZHdRz8wjHaKJP/sRF33bWAH6WYa55bwfcGMkqkUSDSnaYCyBeEj11D6vB7Sq1RWNaKi9Wze45IgtUTGJDc4mKUwhvTGeSKx9l25Fxy6PYxOMrxv8lEpFTdf+YzysM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nf1DQRKO; arc=none smtp.client-ip=10.30.226.201
+	bh=BU6kdVo0x4D70Au3+d7B1+eMYVpO0+uLzE4YH6wdmWA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=P3tRjLPs8Y83o51PpQLP3paDtMU63Q6sXAoarpnuk1DDHEDyM3oFhBeu6sVtIrUbaVXj1/crsJiH+JQ/bJPuAsNQ8Djf3UBxdzdz2EYFonEs07rMsKRJWF/C0vL+Izb/SURweL1riYq7g5PhOcAzDs4HWaeLlIUYxCl0Bd76Rv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RxgLClzM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nf1DQRKO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B6EE1C19425;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RxgLClzM"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F0615C2BCB0;
 	Fri, 20 Mar 2026 16:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774025084;
-	bh=yBJmkZpufPY1WUXDSv28YDsjQl6uOA45y0Ghb+/k38o=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=nf1DQRKO7yjcCHG7OX9uNPguRBl7A+27BBZmI6WnhcQtmmELJy07oD+c+iXme9Fad
-	 A3TVsdzN4WFf04G944A0KqX5N1AZXPUV2SuuTpjlobWaR5R75EpEEJDudzdB2TDh/W
-	 2aXPniRsycdo0hqv+ZnKbzXH2Ln4GNdO1cX3MkxW+klrr6VBQb6UEcvGoBFcL4j5ef
-	 JR53UFjhK4NJKPUzRg9ngTYqXsZeCz4QFnCLqUQm6zCo4MmZeWK06vCmRsESivpvVq
-	 6V66GKbQ6uNyje7dD4/QoFKSCOa6+kWC8hChtwd9cLHG8pbX9EneP3W+3L58fBdTdR
-	 G5PodXYujUbmg==
+	s=k20201202; t=1774025085;
+	bh=BU6kdVo0x4D70Au3+d7B1+eMYVpO0+uLzE4YH6wdmWA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=RxgLClzMp1rr8GwMcLP049NK9cYWyZTO04tfXAwUPr1ApfmRDVfsitquHuJqQeaTn
+	 oi8gQxSas0GvNZ5Fo0SrZa579ERm3PTrFr8sPeiPfYHTrMm7h+VCRCmxGstHId4JaZ
+	 /+iUPt8+j/8F4/yBOp/R54kTAnqBa3H8UkIZN6KLTLrcnc3oI/0/rme91nAsrjcJ88
+	 1u2C0LpCL24lhDDroI5D5EUam8AJHQY6oLuTOx0lPQFHHig2oz69ldNlNeTg8ZwvaI
+	 VNGdBTTM5zhxFIkDrtA/dHqZ9qqzRzd8jWYfQ5IdjT1TERVApZuQF9Dn10OUrBkrOo
+	 fEI2zTjcd+htw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACA1310987A6;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E85F310987B7;
 	Fri, 20 Mar 2026 16:44:44 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH v7 0/7] Input: synaptics-rmi4 - add quirks for third party
- touchscreen controllers
-Date: Fri, 20 Mar 2026 17:44:41 +0100
-Message-Id: <20260320-synaptics-rmi4-v7-0-379360de18d0@ixit.cz>
+Date: Fri, 20 Mar 2026 17:44:45 +0100
+Subject: [PATCH v7 4/7] Input: synaptics-rmi4 - f55: handle zero electrode
+ count
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,11 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAHl5vWkC/3XMTQ6CMBCG4auYrq3pLxRX3sO4aEuRWQikJQ1Iu
- LuFhUiImdU3yfNOKDgPLqDraULeRQjQNmnk5xOytW6eDkOZNmKEScKJwmFsdNeDDdi/QGCrODO
- syrl1BiXUeVfBsAbvj7RrCH3rx7Uf+fL9m4ocE8yoLLnLmSo0u8EA/cW+0RKKYsOCsAMWCVNjC
- pnOyUzssfzBlBywTNiIhZMqV6bY4+yLKaX8gLOEy0LxTFfaKEI3PM/zBzBHWIRhAQAA
-X-Change-ID: 20250308-synaptics-rmi4-c832b2f73ceb
+Message-Id: <20260320-synaptics-rmi4-v7-4-379360de18d0@ixit.cz>
+References: <20260320-synaptics-rmi4-v7-0-379360de18d0@ixit.cz>
+In-Reply-To: <20260320-synaptics-rmi4-v7-0-379360de18d0@ixit.cz>
 To: Kaustabh Chakraborty <kauschluss@disroot.org>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -54,126 +52,61 @@ To: Kaustabh Chakraborty <kauschluss@disroot.org>,
  Vincent Huang <vincent.huang@tw.synaptics.com>
 Cc: David Heidelberg <david@ixit.cz>, linux-input@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Casey Connolly <casey.connolly@linaro.org>, phone-devel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk@kernel.org>
+ Casey Connolly <casey.connolly@linaro.org>, phone-devel@vger.kernel.org
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4592; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1139; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=yBJmkZpufPY1WUXDSv28YDsjQl6uOA45y0Ghb+/k38o=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBpvXl6E7Z+KQX8x6VprwyucrHr33T69lho7oguE
- VI2bpl/z4qJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCab15egAKCRBgAj/E00kg
- cjB9D/90e02X2vcwXhyA4nff9zMHOaGM5vwijheP0UV+2by6Klm4pqmIw6CebjwJNN7sEG5pwDT
- O5fSetYtvoTBl+RTREvHa4hr1qa57l8Y3x9Co3Y6j231glebB2w6swENcnmetIf0iRacfAyFNja
- GkmvEjWr+uTl/vvfS+raMulT0ETqLGepr1D+92Fb2mzS9iHCLichhtcUz6a4QELQQqrMn1hBbXV
- rRZgV2aYT0ASTHnYV3TsCx9KuJyrH9rXUKR+gnQ8gNopHUwkbUX6j12WKe5Ne5Uc1CEfeGcCc7Z
- OwZY2Z26l13aXNAXfoIO1rZzCVd5r6/gtOT8tUc2ycvqF0pDOiw0mxcZsx4kiJymeiuiNKLc39+
- ugos44XbAIvmQSFKC2UU+oBjakyY/ox/35ocfRvCSX4eW5qKXu5vvHU3AOC7LvAl4qbqcfU+Z6o
- fs6qcAJOPiqTfrkqezuuOsb7MHn4mVMQXD0niO+qeiAryr9ygLnOAt+kxQ3rR24HCgQU/1qK3ou
- DQnqudBVRE25t0rmpJzNr2koU0ut9EXNxBBJDFC54aT7fV5V563VXlQzaw/tugWsN4SOxmQg2Ri
- WkTspqpa5qbBPPTFZQcd74XKIxv7XhIDWoCF4bJbXC9L/Yp3cFaamyI1iU+IXHwImxXqnE8xFzC
- n2Z7AJ8L+YBQIew==
+ bh=AmUwE6dlCCX02pALY0B7wBasdQMVqYZC32vlnsSfL44=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBpvXl7/pqB1jbTnOT25HQzbiHjSJxghiXVEFt6P
+ c+AXX9sjEeJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCab15ewAKCRBgAj/E00kg
+ crFUD/9KPBitTbe3GmT0dwbYVEkdnHvBGVEUT0z8TTB3Ovk+dE4my9X33BijUL52X53vWXx1ek0
+ 1VUAFpg95Uo0piNjuG/jplIoTHISeQhOjVriFgmyWvsQdqnNYhle+JBDRy2DNKJMo5enxRJcMrL
+ gSkG6v+H6NIE0mDPTrWnDlcgNs/Q/coU/4mDojlN64/OtnqnvQWDrAghJKwO044lbWFmN4YhNu1
+ fcQf67s9d02FVp4Wb6BoVKVFu4NvrNUcrxV1l8PojD+XTkDkhUiJ//1DUKexFYc4ffQsh+vBxMn
+ TvmYjAhDKSWa9fFV3CvRma7GGsYmc3+VJF0smo4GJiBGt5E2axaOvauGNSDqOb0nWEWD9C3mFT5
+ d6NvdgKqphchrYP/FcneYLjeg6cLZJZ4Plb3M1Ze6+OHy95GlaGpAem53TZdhQeReK8/p6bhJDd
+ EgA1T3nxcPiltag+Vg2hQt/KxFiCnAlelhHX6mU5YmKENS8hI3YpcM+HeuGA8hjX8E+rruwJwLQ
+ AFQ+GlEJ9TR/2S/rp3++ONjZG6C7/x3dv7dVTKWPP5e/M0ysepBFZjGp1P3+B5vAQXEzdCQS8Jg
+ Cvdmm4fyVmOcMwJQSp2sG3nDMtDYs2weEVb19mcgj0D+Ny7lhkSu7gsoZRNuCBy5errnB9G1iU/
+ x+xt48fBeaZTJkA==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
 X-Original-From: David Heidelberg <david@ixit.cz>
 Reply-To: david@ixit.cz
 
-With the growing popularity of running upstream Linux on mobile devices,
-we're beginning to run into more and more edgecases. The OnePlus 6 is a
-fairly well supported 2018 era smartphone, selling over a million units
-in it's first 22 days. With this level of popularity, it's almost
-inevitable that we get third party replacement displays, and as a
-result, replacement touchscreen controllers.
+From: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-The OnePlus 6 shipped with an extremely usecase specific touchscreen
-driver, it implemented only the bare minimum parts of the highly generic
-rmi4 protocol, instead hardcoding most of the register addresses.
-  
-As a result, the third party touchscreen controllers that are often
-found in replacement screens, implement only the registers that the 
-downstream driver reads from. They additionally have other restrictions
-such as heavy penalties on unaligned reads.
+Some third party ICs claim to support f55 but report an electrode count
+of 0. Catch this and bail out early so that we don't confuse the i2c bus
+with 0 sized reads.
+
+Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
+[simplify code, adjust wording]
+Signed-off-by: Casey Connolly <casey.connolly@linaro.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+ drivers/input/rmi4/rmi_f55.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
+index 488adaca4dd00..776c915b82e72 100644
+--- a/drivers/input/rmi4/rmi_f55.c
++++ b/drivers/input/rmi4/rmi_f55.c
+@@ -52,6 +52,11 @@ static int rmi_f55_detect(struct rmi_function *fn)
  
-This series attempts to implement the necessary workaround to support  
-some of these chips with the rmi4 driver. Although it's worth noting
-that at the time of writing there are other unofficial controllers in
-the wild that don't work even with these patches.
+ 	f55->num_rx_electrodes = f55->qry[F55_NUM_RX_OFFSET];
+ 	f55->num_tx_electrodes = f55->qry[F55_NUM_TX_OFFSET];
++	if (!f55->num_rx_electrodes || !f55->num_tx_electrodes) {
++		dev_err(&fn->dev, "%s: F55 query returned no electrodes, giving up\n",
++			__func__);
++		return -EINVAL;
++	}
  
-We have been shipping these patches in postmarketOS for the last several
-years, and they are known to not cause any regressions on the OnePlus
-6/6T (with the official Synaptics controller), however I don't own any
-other rmi4 hardware to further validate this.
+ 	f55->cfg_num_rx_electrodes = f55->num_rx_electrodes;
+ 	f55->cfg_num_tx_electrodes = f55->num_rx_electrodes;
 
-The series is also available (until merged) at
-  https://gitlab.com/sdm845/sdm845-next/-/commits/b4/synaptics-rmi4
-
----
-Changes in v7:
-- Rebased on top of next-20260320, no other changes.
-- Link to v6: https://lore.kernel.org/r/20251113-synaptics-rmi4-v6-0-d9836afab801@ixit.cz
-
-Changes in v6:
-- Rebased on top of next-20251113.
-- No other change since the Rob Herring comment.
-- Link to v5: https://lore.kernel.org/r/20250410-synaptics-rmi4-v5-0-b41bb90f78b9@ixit.cz
-
-Changes in v5:
-- Removed -i2c suffix from rmi4-s3706b-i2c (Krzysztof).
-- Link to v4: https://lore.kernel.org/r/20250402-synaptics-rmi4-v4-0-1bb95959e564@ixit.cz
-
-Changes in v4:
-- Replaced patch "dt-bindings: input: syna,rmi4: document syna,pdt-fallback-desc"
-  with patch documenting specific touchscreen model used in OnePlus 6 and 6T.
-- Fixed zero electrode return code (Dmitry).
-- Switched the duplicate detection algo to bitmap (Dmitry).
-- Optimized rmi_device_platform_data struct to avoid unnecessary
-  padding.
-- Changed fallback_size from int to unsigned int.
-- Changed SoB from nickname and old address (methanal <baclofen@tuta.io>) to
-  Kaustabh Chakraborty <kauschluss@disroot.org>.
-  Verified ownership through the sdm845 chatroom on Matrix.
-- Link to v3: https://lore.kernel.org/r/20250308-synaptics-rmi4-v3-0-215d3e7289a2@ixit.cz
-
-Changes in v3:
-- reworded dt-bindings property description
-- fixed the rmi_driver_of_probe definition for non device-tree builds.
-- fixed some indentation issues reported by checkpatch
-- change rmi_pdt_entry_is_valid() variable to unsigned 
-- Link to v2: https://lore.kernel.org/all/20230929-caleb-rmi4-quirks-v2-0-b227ac498d88@linaro.org
-
-Changes in v2:
-- Improve dt-bindings patch (thanks Rob)
-- Add missing cast in patch 5 to fix the pointer arithmetic
-- Link to v1: https://lore.kernel.org/r/20230929-caleb-rmi4-quirks-v1-0-cc3c703f022d@linaro.org
-
----
-Casey Connolly (1):
-      Input: synaptics-rmi4 - handle duplicate/unknown PDT entries
-
-David Heidelberg (1):
-      dt-bindings: input: syna,rmi4: Document syna,rmi4-s3706b
-
-Kaustabh Chakraborty (5):
-      Input: synaptics-rmi4 - f12: use hardcoded values for aftermarket touch ICs
-      Input: synaptics-rmi4 - f55: handle zero electrode count
-      Input: synaptics-rmi4 - don't do unaligned reads in IRQ context
-      Input: synaptics-rmi4 - read product ID on aftermarket touch ICs
-      Input: synaptics-rmi4 - support fallback values for PDT descriptor bytes
-
- .../devicetree/bindings/input/syna,rmi4.yaml       |  11 +-
- drivers/input/rmi4/rmi_driver.c                    | 124 +++++++++++++++++----
- drivers/input/rmi4/rmi_driver.h                    |  10 ++
- drivers/input/rmi4/rmi_f01.c                       |  14 +++
- drivers/input/rmi4/rmi_f12.c                       | 117 ++++++++++++++-----
- drivers/input/rmi4/rmi_f55.c                       |   5 +
- include/linux/rmi.h                                |   3 +
- 7 files changed, 234 insertions(+), 50 deletions(-)
----
-base-commit: 785f0eb2f85decbe7c1ef9ae922931f0194ffc2e
-change-id: 20250308-synaptics-rmi4-c832b2f73ceb
-
-Best regards,
 -- 
-David Heidelberg <david@ixit.cz>
+2.53.0
 
 

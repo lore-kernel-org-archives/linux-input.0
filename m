@@ -1,176 +1,106 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFBD01DE3DB;
-	Sat, 21 Mar 2026 13:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 917B230C37E
+	for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 20:26:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774098950; cv=none; b=sUQ/quMXLPAzZzPBafjvbGCNXpVjj0EsiNi1yWXOtofjK4g4n+5EVOeJ50MIK7XH19qdYvyrq41nLpGOnACTiKXfFZOXIN2HgQ+zsYEs552mI3tBybtZ2sf7TsE43FXj1r+/yWh71wuV+8UAjSCpY4eavdGW4KX5DGj8druu7qQ=
+	t=1774124769; cv=none; b=hP0W3x382Z2LnsUhWT959Az1OR57MXK7tOnouszO2Ok0Ehj5wgxYxemhmb9ROWmtr/8vV2uVHaJRemyuMn4WOk9USOTSTKIi4xsUpzfKXg5ZBteVNapLJGIMeT+tzwGlqIgmRvkPX8w4OfvnANccMaJddI9ot2yMrL6AzxQVI6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774098950; c=relaxed/simple;
-	bh=v7vo608Xn8vb6rZ3iS2Wj0Z2ZYx3mX8gI12Uyx7v45g=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=TY76iXdU93L+c32lJY5j0w47Ku1R7QVl/P9A9aRn3SNby+SCUI+5hMNz/3n3IytY4cfaxpQOCFmg4v+Vm6YJIavqWHrx6TcPP6YDxmUrOQoh6ZzdBZXNR9Ovdd6BGvohGikT3vPhwmULkRHBf9yLoALgxXo8oRtTmjnC+VDk5ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=REAuo9uC; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
+	s=arc-20240116; t=1774124769; c=relaxed/simple;
+	bh=geq5BT+A0hLULhKJpZ2RxBbwJytNC0jP0k9eCTgnWEI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IqUCHxR4mO7DGcHKdr5O9xNHfjphqoTlR0laDgFCVwJxyUYii99P8VGrdi+3Z/Z9NcmfaOudwdVeY8kan8kXvLENNjckXSxzxdFie5v+XOnIjD373+185CQegwxuoK668Od+88yDWXLDg10+I5YwfFOMPh+f20zBcWm2yf8+f0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ELT+9P4p; arc=none smtp.client-ip=209.85.222.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="REAuo9uC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1774098945;
-	bh=v7vo608Xn8vb6rZ3iS2Wj0Z2ZYx3mX8gI12Uyx7v45g=;
-	h=From:Date:Subject:To:Cc:From;
-	b=REAuo9uCuP6bJWjG/bevFhWOtF/UaAmlJaX0XQ/XAqk4HL+3XHDsPF6SigK7TSSPD
-	 thPKnqaynI0ULv1/Udg0h9i55FM8AZO8XYnQUuJ+OxCxJ2znNPZ3mKk4ZoBDbEpW3F
-	 OSHH12VV4No+oeCjNQC4LWsJAsnYUXQQ2ZtkO1B8=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Sat, 21 Mar 2026 14:15:45 +0100
-Subject: [PATCH] HID: drop 'default !EXPERT' from tristate symbols
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ELT+9P4p"
+Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-94ac7f22d23so362556241.3
+        for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 13:26:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774124767; x=1774729567; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=kjPztHOYpRe/z66XBvAyt9iPj/WVCgBCacwWJUnDs4U=;
+        b=ELT+9P4pOVpBHUJa0Y18waeuA5kCOdd/aD8RcWbHKD+qQdcj9QBykRoW+vYVMkJuSa
+         3jdSOE+K+gu3fYZEkAneNnSp9DWlDBcFqQHRe2xNuPlVlBsvKqkutJsatJxEHv4Z9y0C
+         Q43WwUmadrcf08QGz8/xXgeUD2f8EJn8AhtRp9C/jur8aWdMBvq6Xhw3opBk0TRzO4iY
+         hVl9wMsUcZmgvtgxGNpcQJggzpGGCIil+bl4eLqEMr5J3oDvqvTH4Wl/JambSRmak93f
+         cxAnhl3ux+5bT9VJGcKMD8s1zawyLWjISGWr4CsS6m3cMZ4Mq1/Kjsrg4nNtBjHPHU9F
+         emaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774124767; x=1774729567;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kjPztHOYpRe/z66XBvAyt9iPj/WVCgBCacwWJUnDs4U=;
+        b=RF9kpV50oU7FrDRlwrpppruST1wJ9Wpcmwyb0qXdHm/bt1SO5M7A8SdueOv7Sr8QQ9
+         4ETfw3QY/qzkBPEwVpeOB2tAfckwB9dgAthgFHdQlhXEWW61Po7VR+3yzTKGfCvSv+7B
+         ozAARUQli89gynL7ZBkmkboFBxVLFws33MMLZ7RsEWaqomsxVRcIVR/ZcvkAhXx8g8x0
+         cfFTsgGf+Od/FnSfCxS2bsq2nx7VUR9ReI+HKH2YF7+sWEr9x1n1mXag+/nucpC81/a6
+         zZwvnEi2wZyGqU/UBnWu9G5p/0rkLKZRHSRrPY5whlwEPll49NsahOzMfRXLKC+o0hkP
+         uFGg==
+X-Forwarded-Encrypted: i=1; AJvYcCXeQGTLFoJdS2u0GCdOmTBPxI7iyiA12kP4jeivmpgryDG318u9j/axZcHc4OIUdABxAMQZCtOKOFFsSw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyb0F98gG74dQt/dwDXVlAAN+/uQr4V/9cv+XE2w9Z3NH26GfrQ
+	Madqb8bn/2D9QFk5JddV+ryn8YwJ/2rCCe886u3DiT2Eit403nXkT/G8
+X-Gm-Gg: ATEYQzzDGFygV2rkS4u0JXXvwBW8YJUrY9yUlCVIBmNWB1AXOJCNtaudUprww9ycgI5
+	3rOpBi04iEHytbqYvaxyiiLRIfUACv1mClgHMftjbnV026AjwSq/AN4bQj2UwMC8o9ZnBcLicuX
+	HoVPtzVJZ3A5iRhLfQiVIxV/vPdeNH4RNuIizlG7FDzPXCiAaqZqI30mJSPPjkQ2qTldJzGwKTQ
+	lw3Cxj8BVWHb97X5b5sp5RvXjGfWLx7eOuzqz2/gj2dGUm4HR8rpcXPwld4JDgzFxmSP0uzytme
+	m4LX4r6LpaSJ2qD9SxILeAbZq8D9yyO8bIVg/H6o3Ma5PIZOxpSr16QR+69BVWwv1KyaXRyN8t0
+	rzeBC40Lzr7oB21IjbDukcKxxQ4Avq2bzZNuyr/1bPuJpOdS0svR0TWpaUVlnod+oR/SvRhzRYq
+	eIpWqUSQU8UljNG4HE9dGQug65FgEjiJYC9g==
+X-Received: by 2002:a05:6102:8099:b0:602:8c16:b24c with SMTP id ada2fe7eead31-602aeca17e2mr3234341137.19.1774124767446;
+        Sat, 21 Mar 2026 13:26:07 -0700 (PDT)
+Received: from charlesdias.. ([191.22.16.211])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-95136de53d9sm4144378241.8.2026.03.21.13.26.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Mar 2026 13:26:06 -0700 (PDT)
+From: charles.embedded@gmail.com
+To: Anshul Dalal <anshulusr@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>,
+	Brigham Campbell <me@brighamcampbell.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Charles Dias <charlesdias.cd@outlook.com>
+Subject: [PATCH 0/3] Input: adafruit-seesaw: use dev_err_probe and add IRQ support
+Date: Sat, 21 Mar 2026 17:24:43 -0300
+Message-ID: <20260321202446.724277-1-charles.embedded@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260321-hid-expert-v1-1-4a6d81b4f3ac@weissschuh.net>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDYyND3YzMFN3UioLUohJdC/O05DQzA0sjY4NEJaCGgqLUtMwKsGHRsbW
- 1AIthYp9cAAAA
-X-Change-ID: 20260321-hid-expert-87fcf609230a
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1774098945; l=3214;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=v7vo608Xn8vb6rZ3iS2Wj0Z2ZYx3mX8gI12Uyx7v45g=;
- b=vwSOmWBl9mpKPYEV9Hn5mRqyhTs2EtvzuhvmYf7cwnsN9dC32PE88brTTHc0gCUjUJuHpQc+t
- 02Wcvid1wevAnupitkr23Y4iZ11YOn8v76fB0MDVKdO7oi+kPPZ9oz1
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-There is no reason to build random drivers for obscure hardware into the
-core kernel by default.
+From: Charles Dias <charlesdias.cd@outlook.com>
 
-The usages of 'default !EXPERT' for the HID_PICOLCD suboptions are kept,
-as these make some sense, although they probably should use 'default y'.
+This series improves the Adafruit seesaw gamepad driver in two steps.
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/hid/Kconfig | 13 -------------
- 1 file changed, 13 deletions(-)
+The first patch switches to using dev_err_probe() in seesaw_probe()
+to improve error handling.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 10c12d8e6557..7b1d8d81bd65 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -107,7 +107,6 @@ menu "Special HID drivers"
- 
- config HID_A4TECH
- 	tristate "A4TECH mice"
--	default !EXPERT
- 	help
- 	Support for some A4TECH mice with two scroll wheels.
- 
-@@ -140,7 +139,6 @@ config HID_APPLE
- 	tristate "Apple {i,Power,Mac}Books"
- 	depends on LEDS_CLASS
- 	depends on NEW_LEDS
--	default !EXPERT
- 	help
- 	Support for some Apple devices which less or more break
- 	HID specification.
-@@ -209,7 +207,6 @@ config HID_AUREAL
- 
- config HID_BELKIN
- 	tristate "Belkin Flip KVM and Wireless keyboard"
--	default !EXPERT
- 	help
- 	Support for Belkin Flip KVM and Wireless keyboard.
- 
-@@ -237,14 +234,12 @@ config HID_BIGBEN_FF
- 
- config HID_CHERRY
- 	tristate "Cherry Cymotion keyboard"
--	default !EXPERT
- 	help
- 	Support for Cherry Cymotion keyboard.
- 
- config HID_CHICONY
- 	tristate "Chicony devices"
- 	depends on USB_HID
--	default !EXPERT
- 	help
- 	Support for Chicony Tactical pad and special keys on Chicony keyboards.
- 
-@@ -322,7 +317,6 @@ config HID_CREATIVE_SB0540
- 
- config HID_CYPRESS
- 	tristate "Cypress mouse and barcode readers"
--	default !EXPERT
- 	help
- 	Support for cypress mouse and barcode readers.
- 
-@@ -388,7 +382,6 @@ config HID_EVISION
- 
- config HID_EZKEY
- 	tristate "Ezkey BTC 8193 keyboard"
--	default !EXPERT
- 	help
- 	Support for Ezkey BTC 8193 keyboard.
- 
-@@ -564,7 +557,6 @@ config HID_ICADE
- 
- config HID_ITE
- 	tristate "ITE devices"
--	default !EXPERT
- 	help
- 	Support for ITE devices not fully compliant with HID standard.
- 
-@@ -585,7 +577,6 @@ config HID_TWINHAN
- 
- config HID_KENSINGTON
- 	tristate "Kensington Slimblade Trackball"
--	default !EXPERT
- 	help
- 	Support for Kensington Slimblade Trackball.
- 
-@@ -666,7 +657,6 @@ config HID_LOGITECH
- 	depends on USB_HID
- 	depends on LEDS_CLASS
- 	depends on LEDS_CLASS_MULTICOLOR
--	default !EXPERT
- 	help
- 	Support for Logitech devices that are not fully compliant with HID standard.
- 
-@@ -781,20 +771,17 @@ config HID_MEGAWORLD_FF
- 
- config HID_REDRAGON
- 	tristate "Redragon keyboards"
--	default !EXPERT
- 	help
-     Support for Redragon keyboards that need fix-ups to work properly.
- 
- config HID_MICROSOFT
- 	tristate "Microsoft non-fully HID-compliant devices"
--	default !EXPERT
- 	select INPUT_FF_MEMLESS
- 	help
- 	Support for Microsoft devices that are not fully compliant with HID standard.
- 
- config HID_MONTEREY
- 	tristate "Monterey Genius KB29E keyboard"
--	default !EXPERT
- 	help
- 	Support for Monterey Genius KB29E.
- 
+The second patch adds optional interrupt support for button events when
+an IRQ is described in DTS. Joystick axes remain polled because the
+default Adafruit seesaw gamepad firmware exposes button interrupts
+through the GPIO module, while the joystick positions are read from ADC
+channels.
 
----
-base-commit: 2bbe306cc6f970474cb2ad7d5332220e81119bbd
-change-id: 20260321-hid-expert-87fcf609230a
+When no IRQ is described in DTS, the driver continues to operate in
+pure polling mode.
 
-Best regards,
--- 
-Thomas Weißschuh <linux@weissschuh.net>
+This series was validated on a BeaglePlay board with the Adafruit
+Seesaw Gamepad, both with the interrupt enabled in DTS and without it.
+
+Charles Dias (3):
+  Input: adafruit-seesaw - switch to using dev_err_probe()
+  Input: adafruit-seesaw - add interrupt support
+  dt-bindings: input: adafruit-seesaw-gamepad: fix interrupt polarity
+
+ .../input/adafruit,seesaw-gamepad.yaml        |  12 +-
+ drivers/input/joystick/adafruit-seesaw.c      | 160 ++++++++++++------
+ 2 files changed, 119 insertions(+), 53 deletions(-)
 

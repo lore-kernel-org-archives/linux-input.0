@@ -1,101 +1,87 @@
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B001F0E25
-	for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 07:06:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BCDF253F13
+	for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 07:33:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774076797; cv=none; b=PY6E6i9oULP+Q+JXhsU/En+hnV7z5r0FMT1GwpiPhMGmLls01C0jIAuoneoyfM1eKUxdTsVLWN4jmxhcSAtODXI9AKsjK0vD6oLd7CTvZW23UJip0ozDFB5hvp1L6ZqiOg89mZJDwc4fm71tZ8cLheRCqdyu4/frMxVrRRq9Tz0=
+	t=1774078413; cv=none; b=FZD8Yu8QK3PwGSzWVu8ltzkow4WX+LbHrSbpp5gn5nTguX+By3Ecnr88hlhU1u/vgSOiBW/Y539V8hdcr3TK/1ytfvggDKxNodHEyXeUqXbNa4qz2EBzFMelbF1mreoqj2VD3jnLivVjTlT+vxuLsAsr/DE843vhhlRe10dgadE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774076797; c=relaxed/simple;
-	bh=z3fmfS+LImVeX1+tGTz9kHAxSZ1FCOZ2h8Lcu1Luy3o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jEOOhDav9iNBHUslVQnxfqnQb91doMLpR3m8zXGXlfWlcFfSRMuH3kA68e+uR24FCO/Vt/BYaw668Nt4U3TR5dbx/+F3/e5BXdsXh6KBmsxmA/Eov0Pz98nItb72JwhneDyEkZ0N5Drzqm4f6gzeSOpuqeFa5P3zC10Zu/7kdbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NHOGOXhC; arc=none smtp.client-ip=74.125.82.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774078413; c=relaxed/simple;
+	bh=ohd6sExu0boJe37wSbF8PjokdWTXmSyxm0K7qXBQ5T0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OlLnldVVNv4oQUY8PP4ZKhCjuzpfz/5ZiWUg01R4xwSyhzDayMtNjEIWYoLWSKJQKDlsIJECWDEJR/kiXwENTqmsH6HatcXU23z5Tsmn8XgqAyugKi/ByxlC7GZwnhLF2Kn31HTIwiwjZNvxqLIe/WN8srbkDHteEIETXUMuS+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=packett.cool; spf=pass smtp.mailfrom=packett.cool; dkim=pass (2048-bit key) header.d=packett.cool header.i=@packett.cool header.b=EjBYmNLr; arc=none smtp.client-ip=91.218.175.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=packett.cool
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=packett.cool
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NHOGOXhC"
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-126ea4e9694so3234872c88.1
-        for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 00:06:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774076796; x=1774681596; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=C8JZrG0B3dlINvpjIa5zOH6GeUNvOA11xJxOZvdAFWI=;
-        b=NHOGOXhCUGyfgPmj2Qvrt1P3Cka8KkE3ASxzxDTyLaDysvSkwp+WugCppPjsi2vOKA
-         siQkL3kv65Um1tq4mzcyyotIMcDkjoN/XuixDrPOLsJt1WOWA60fnn65Qt2nISsVmtjH
-         aIeSGXePYtrslXnPveAzYfpBL/4djQLTe7q2xDc1bB4xD9ILZUGqQ9N3S94IFOR7BzLM
-         4F4bY9dQZbF9kDQfxFjkMPlh0dj1dsCISjJYvIdMUB1SSxH6o8EJZ/hKTmZdHYuMP1K0
-         fXUBoQLdX8pUqH7z8FhQZi01rDyUI5bSVcydLkGJlA0MBSjcqMopdDNHd7Zyv3x7Cx08
-         kJjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774076796; x=1774681596;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C8JZrG0B3dlINvpjIa5zOH6GeUNvOA11xJxOZvdAFWI=;
-        b=GGbRg3w43q0EMusuMzPUuo2Ze/oFUFFEcBY0zBsdzmz6YjGKcFlOrZhijwxYAd2kZy
-         ZQSlrjAXbAvwUkmttETY+TXeihbgCZkKkR4LktD75/QZV5UaciO/d2wpLnoJDcdlZ0Ct
-         TvnPk9sPrpO78XkWZ1dVF2SSooNm+S4bmquwMFaGN0n3N5dqbfTSqi5cC8SGbJKky1wC
-         wTBcKOn0kg80RcTSrpIY9GGcm8kbO+0QbUmwVr0aMwP0HzLLn5C0fftbYJwBAKNrrXGa
-         Lh/mWqz7RL2QCT+C+XhsuuzQOQJVXEy6tPUOp7SqS+u6ly2BF9lHwCRBkr69f3Bge5EQ
-         rFUg==
-X-Gm-Message-State: AOJu0Yx8Jn/gaQ0WoYNQo+vhX3YbpN1Jukw+9pmi3Sx+mBlq0YIkv4NN
-	A2zqw5R3WtcbyDG3ZTmf9PPUCfUKCnwmnyMXlVL5MKnm8mqfu+N1f9Rr
-X-Gm-Gg: ATEYQzy3nsuUNtx/Fm5uSZiwyNpuKp+z66upSeDc9/Ecwu9MXCx0yii/P61UI8TNuXr
-	orWCpmnfZ3Ig9lvfSSm+hJCnEwOe48r2RWtzfEX6i1h4KNPLz1sRezhSt1FQ/7aJ/8dXrzDu64U
-	DffiugwKQ0qJ2nWvTgc981ewJvSPsdpR5D5Pd9/CZHaXzrfMwUcZJnQtUUvMzOMpAacsozs7FpR
-	jA7vz3SPoc/YGqW8Uyk7a+MYl8FEVGrgZ3Gq8KPlJt42pB23cADmD3ztXkY5Wy1JIUK2IlLEqHn
-	3rA/niOacg5fe0Owp8eAs/0T5bZN5+4jIhBOc0LkLelkT09xzkFSicjedWAv2KM3UuHf5VhLBvE
-	Z6CL8+PYNF1zWiweOAZ6R1CPEFFHCYX+E2dCrArmFYbrxMyxfo+QRJ7ruJY0cmC8uHGpHr3gbqx
-	uN9Zh+VEok5qmQnw0kLewP9fb5LBMG1COQKQ+aTGe1OeUv00hhpLktcmf5V4exRdDD
-X-Received: by 2002:a05:7022:41a8:b0:127:33e0:ea33 with SMTP id a92af1059eb24-12a726b3177mr2850825c88.22.1774076795723;
-        Sat, 21 Mar 2026 00:06:35 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:9f7e:6d98:a88f:a990])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12a733d199asm4589877c88.4.2026.03.21.00.06.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Mar 2026 00:06:34 -0700 (PDT)
-Date: Sat, 21 Mar 2026 00:06:31 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Xiong Nandi <xndchn@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Gatien Chevallier <gatien.chevallier@foss.st.com>, Ingo Molnar <mingo@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Marco Crivellari <marco.crivellari@suse.com>, 
-	Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: Re: [PATCH] Input: gpio-keys - add full support of EV_REL and EV_ABS
-Message-ID: <ab5CXO6Fk7lhGazv@google.com>
-References: <20260320145217.9088-1-xndchn@gmail.com>
+	dkim=pass (2048-bit key) header.d=packett.cool header.i=@packett.cool header.b="EjBYmNLr"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=packett.cool;
+	s=key1; t=1774078408;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=okBqHNZetlSObACyiKEtIep5x52Gimb817rennDzcCs=;
+	b=EjBYmNLrmAgk9A0ZuLVS2hiWCcRNXNAgCcKt5emjohE7XXAVyXzhNPx2vxFubsBZdL7UQE
+	W16g1obNopC3A2CJyoljobuJBsOkb9Z1yZDOJ1cnUvTevT89w3ev8rH+lpi3Q5hPs9drln
+	iyEFuwvpHivY6lPGMcQs05JJvE4fSKA2lweOpeG8wCJdONH6R0NwwZEQjZpdATGV83M1H3
+	hrwhnf+Za5MK+W5rKFUf6pNJKiBAupKa8yK80Q1SFEQgmxiYryFhvW8/4r5DXj+W9Lky5g
+	ODjxN6AJU0zq1a2W6fbwDc3zYu6hDioIWqSvtFyp9nEeX9WqYNSx3hyN50a8QQ==
+From: Val Packett <val@packett.cool>
+To: Hans de Goede <hansg@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Henrik Rydberg <rydberg@bitmath.org>
+Cc: Val Packett <val@packett.cool>,
+	Stanislav Zaikin <zstaseg@gmail.com>,
+	linux-input@vger.kernel.org,
+	phone-devel@vger.kernel.org,
+	~postmarketos/upstreaming@lists.sr.ht,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: goodix-berlin: report a resolution of 10 units/mm
+Date: Sat, 21 Mar 2026 04:30:07 -0300
+Message-ID: <20260321073242.556253-1-val@packett.cool>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260320145217.9088-1-xndchn@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Hi Xiong,
+Without a reported resolution, userspace was assuming 1 unit/mm which
+is wildly wrong: a regular smartphone is clearly not 2.4 meters tall.
+Most applications do not care much for this kind of raw mm value,
+but Phosh's on-screen keyboard would accidentally trigger swipe-to-close
+gestures due to misinterpreting small movements as huge ones.
 
-On Fri, Mar 20, 2026 at 10:52:14PM +0800, Xiong Nandi wrote:
-> gpio_keys_gpio_report_event() handled EV_ABS but silently ignored EV_REL,
-> while the polled driver supports both.  Extend the interrupt-driven driver
-> to fire an EV_REL event on button press.
-> 
-> For EV_ABS, use a shared atomic counter per (type, code) pair so that
-> a zero-value reset is sent only when the last active button on an axis
-> is released, avoiding premature axis resets when multiple buttons share
-> the same axis code.
-> 
-> Add gpio_keys_set_abs_params() to call input_set_abs_params() at setup
-> time, deriving the axis min/max from the configured button values.
-> Without this the input subsystem reports unbounded axis ranges.
+Do what the older goodix.c driver does and set the resolution to 10
+units/mm to make sure the numbers calculated by userspace are reasonable.
 
-Could you please split this out? It looks like there are 2 or 3
-logically separate changes.
+Signed-off-by: Val Packett <val@packett.cool>
+---
+ drivers/input/touchscreen/goodix_berlin_core.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Thanks.
-
+diff --git a/drivers/input/touchscreen/goodix_berlin_core.c b/drivers/input/touchscreen/goodix_berlin_core.c
+index 83f28b870531..b0938a4f3fec 100644
+--- a/drivers/input/touchscreen/goodix_berlin_core.c
++++ b/drivers/input/touchscreen/goodix_berlin_core.c
+@@ -628,6 +628,14 @@ static int goodix_berlin_input_dev_config(struct goodix_berlin_core *cd,
+ 
+ 	touchscreen_parse_properties(cd->input_dev, true, &cd->props);
+ 
++	/*
++	 * The resolution of these touchscreens is about 10 units/mm, the actual
++	 * resolution does not matter much since we set INPUT_PROP_DIRECT.
++	 * Set it to 10 to ensure userspace isn't off by an order of magnitude.
++	 */
++	input_abs_set_res(cd->input_dev, ABS_MT_POSITION_X, 10);
++	input_abs_set_res(cd->input_dev, ABS_MT_POSITION_Y, 10);
++
+ 	error = input_mt_init_slots(cd->input_dev, GOODIX_BERLIN_MAX_TOUCH,
+ 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+ 	if (error)
 -- 
-Dmitry
+2.53.0
+

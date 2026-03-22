@@ -1,179 +1,131 @@
-Received: from mail-ed1-f67.google.com (mail-ed1-f67.google.com [209.85.208.67])
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FDB9363C5E
-	for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 15:38:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.67
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774193885; cv=pass; b=Mr6Rtirm9dzdtI8uvsyFVSsDCmnzOfcdWthGOL2gKwdvRnH8Dm4ys/1upMK62PFMIy1lUv2MVxazG1cIPEyZvqtFl6yZUdDmLeRJ9bnm375hkSON7/qEPUMI2BYfwMlUZXNSLq1G79xJ3/L3SbRYOBijET3M413MEb+J0T0A+jc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774193885; c=relaxed/simple;
-	bh=2iyufkCChmK3C3NNI3URbAXDxCjY1XVTVqwNvJiE034=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LValC67BGJsFO/j+dn1fpoyVYW5Qbpr3nkGAbVv6XxUXmRW7whRQkvntkMsgmOLB6/7vJCs2ZkCQXOjHTXreycnHDv0vFBNe7SCLmm4qGDS3ENI/PzEOmNKSdn6e34PqN21El34vTeVK8zJtcjeQ6qL2vDSGulkCj9yTukbjw10=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EEPDJyAj; arc=pass smtp.client-ip=209.85.208.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B2C337BB8
+	for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 22:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774218269; cv=none; b=RU+6j6673nM1pUhn1nWxos/ANnzwweywbm1PUT2OqROCdoxnH1vP1z+f9zpPj/5YoKqLl4pNnPU0etLJiEJfSKk3Ujf/KWyzqk8007++8BQpIZOpG0wqAjNgL/Ac4Y3UwpGlNSCXysTnR56je2Kmgy9yhxym7GjHslaVoueGV/E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774218269; c=relaxed/simple;
+	bh=YMkX6r2NEeeGAVKAmeo/RTP8S5oRupKhDNo1SE7wpzs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SRdB02g4EXaxvsbZrR3cHPIv5bhywROe/YRRE9PLoJtDZs3ROunE/RRXroIJ6I+SErWfHRA0OPHdkbqGqpgjnpelM3cNtIFAmQcqtKXxqkq/iBzDhHjPUQH6HTwU9S7EKOY7T92cDuX1BqM8TEpGh1piv9LPDR8o8PA8hD4x+kE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aaXQ7Ftn; arc=none smtp.client-ip=74.125.82.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EEPDJyAj"
-Received: by mail-ed1-f67.google.com with SMTP id 4fb4d7f45d1cf-668e55bd36bso2172908a12.3
-        for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 08:38:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774193883; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JLroFJk8nxJSj2LOuV2TEYPR3LQNuhpN67S92K6ZiFHYkq1Q9UbxmEAHM0mTZjehVq
-         tWw6EXLExya08KxKDO+un27SjSd33hBOhDEdxB5ymoM3U0mgau4epg61V0iM7c6d/g/e
-         RsD9cOJ+shdCbpfeDqSj13Vzboj3REsATyUdnxh1+3jM2S9nW7IR1fo3qEU+WfeAaCXo
-         +DO/Md8Ah6R5jPjDWRluMDd0sv87mwZfw3fl1UwBmpa/7paF6Uu8iWnU8kyy1WmwBhgy
-         LZo1wS8zu7XwxxqVbMbbFuXbvjlGzQ+GoUL3NJAIo2dPutjSRLTIL2wZrHIrX1+aHbyn
-         nc5Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=aCoJs6JbmGbtI1WN4Udl0z6hLtb+BVAEkUCWkGIOZuk=;
-        fh=g/NP35/TFs87nXGScELnyIK8Ed+4LtPThgBEqZIfN8s=;
-        b=YlzrT63Mqc8EzGTCZCnGBa7Cy5WSxFDL/mu/ZkX3NsL1jp9agytJtyRVAPqpnJHbJV
-         shAEFyFLG4/MhNm5A1LKxNzd/2EXVd9a8TrJOHvO7WyG5gbCNBpqk5QACUZBqnQm9V0O
-         KZXW0fA8DzXRqM/W97wIMln4OdNfdOR3cQcLeLH1nzhFwFvnbBt8aVvH9ICLveyo3s7m
-         JZShW7AojEZaQlhlUQuoJEsb1bH1sxYT2B5f6YCnW2N9MwKZiYUm7LjVm9IPFKpuazki
-         V2hX1aG1aPjL0JQCDwZNb1+M21cC/vOCwhJfvVZInKmHjipInPVeLc7DBxmpuSJbvQj3
-         g4zg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aaXQ7Ftn"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2c0bb213b16so6448062eec.0
+        for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 15:24:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774193883; x=1774798683; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aCoJs6JbmGbtI1WN4Udl0z6hLtb+BVAEkUCWkGIOZuk=;
-        b=EEPDJyAjOX2+DZ7Pbr1SKyA1l9+dhoijd6tjm7unrdhudc2zruN1x9dd4IZq5wwoMz
-         vTd2/634Uw6W1/YLO5U8/C2U+le8xwEPs8fMQ/PrVe7uXQ2pzO37oayyijEG/v+4KM1D
-         8RaPCpPQA7lWikIjbPksP/ZswhCPOjdgOBkmhI62r1w4SafEyFx9XwrW2nLYwKpBA+OJ
-         t9JNOYQGW2R9fV9WlHePEJMtrfvH3f5dGns11w4+RKKmq1tUUlxgTJK7jQsBtEsozyqL
-         p2arTlgjNPpiPxKiPOToVz6WZfViNAK24upd8kY7WNRuH4INxdqX9krbm4lFCm1Gaew0
-         bn+A==
+        d=gmail.com; s=20230601; t=1774218267; x=1774823067; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=wHlux91S1pcszks5LnQqDKbd7Lhdihe1iwVw4ZIiPgU=;
+        b=aaXQ7Ftnbu7tCcuKXH+FgmtDYIuzIUZvoyrMg2S9hF68XsNFaBQQ1GMW6c0CsCPmCw
+         5/+VPIQ1zYJLhJPghk/oQGNtyzZ3a2ez5G+S430E2EPwI8leNcpVXB6cDM0e7zKf3MOm
+         40kV/gIaCNZ5Vm5NfejbsyBk++oMfCkr6Og4l9mMKjsHsegJO/ms7qpamno4WzKr9XM0
+         6/KKCdb1dMTh1P1VuvJitv7JZQlQF7GH2DGGEj1CI5AhQGPBSemx1fLz4kxy0aHKqJSe
+         F5EnHxlRcPkLZZyB5hDyzhObwU0mqV6ndQNnLmD4yDBIxG7AOJz+2cpiIS483wwACNPY
+         SzRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774193883; x=1774798683;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=aCoJs6JbmGbtI1WN4Udl0z6hLtb+BVAEkUCWkGIOZuk=;
-        b=QAhQB7/CXVB0BPj01YgUNLF5NMVafvlFwej5pkAH5LSZjEahxtIGlAf94C7srcDu77
-         sJu+gJgpTXAgNqLv4R3YFYAR3dxxFcc6Hb+vHGxqfTNXRfHgbDcGe6MjP2Wu21ieZbAf
-         9S/zFXPHVPYXkJQ+C6BxseLYMRwnzxvfesk8i00KJgjdHexFY8aEGUIv9JZEC0Jyz0O8
-         T0BBiq8uGMGD81rZmjM0pHItmo2VshjRg1LZ/DqaI8toYzVVr17LRfS0Wu5jHB6dWDta
-         iPv2RVrYEgVX3RPAAl79qAvqpbvlZsxqXQWC8yDEa08JCpMWAfUbH/dEsjB3PX60d1F+
-         vcvA==
-X-Forwarded-Encrypted: i=1; AJvYcCXHtB8Fl1d7xJ2lOiE6MAMrkpS5jUzGFisfZE8vB8cNKmDVjeUzJupXGImYaJcbpA39pklGzgVWrLbi/w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXKcDU/TmVZQ5J5+plg9vTCucCkNY7HDLrK0M3NSQkFfiOPbcE
-	POw4xNBrrGikhAUdN0KQjEdetd6NHFr5UEg6PlRjeG8yrwSVv8ylln53bsvup83HBNVigUw2NXO
-	Odk7ek6VvfUVkSvP/ubgmXBX1k4iECbs=
-X-Gm-Gg: ATEYQzyFubXtZx5CBUdkHg0IQhAEAJjEc7LLCn/g44Be46IVFRvR5mk2WxpU/A/eN6J
-	MPACGp3xbfWAIdU9nTMHpp0+CW2FsrXdi6ga+uLHylYm6vigGiO0sPpvAMII5UIx6OSB05yD4SD
-	F11yAM6/4iHYzIvxQrl57xqI/cWKybPHOco1tIDoSFtb19Ju4Mh91KAdn4XfsXQtOK5XGRm7hd2
-	TR1532TPOBFCa7vEBHnhihmHCfgHW5T6m/Xo1z/+kftlgurjUWkifhNfGL/76OTrOTeujQIhc49
-	f7zSeSGd6NNdTxdShw/9EbeuBRy4dkKcq0f5XqE=
-X-Received: by 2002:a05:6402:1ecc:b0:668:368b:38d7 with SMTP id
- 4fb4d7f45d1cf-668c93239dfmr6585165a12.8.1774193882341; Sun, 22 Mar 2026
- 08:38:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1774218267; x=1774823067;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wHlux91S1pcszks5LnQqDKbd7Lhdihe1iwVw4ZIiPgU=;
+        b=OD7NDxnRi5SravnQUPd9mVF+AueIQX9m+mX2XBskIE6qrUADyn65meRx2G2S0hES4o
+         TA0VGefEYLEBa0598R65QxeMOIBhJe1bvm+YDKXitQqm6nljcLwJjA+1KlzE7V2eSBGs
+         SrgN36uD5VVKIlzypwsE5UmpY6EMzNIFVhYpHoAKEpSK7zCHOzdA3dVHx1vtpuWzGevz
+         djwZ97HyQ3h4hzpJHxTbH1GaDYbu1nrRbqW4cq4pWvTqL9Ez+An40lqO1v7WzjFy0soj
+         maO3etrblOg272FexKakXNgFTyXKxuBwPgiI5LQ5AGZJabkqE5X5v6NLAK3kkyrbb2bz
+         CUvg==
+X-Forwarded-Encrypted: i=1; AJvYcCWmfvkkDE9u4K+zgxGvuoIjIpx5KjOKTJKVnYxjxU4E7ehaHngk2aRsh1sgjGFxLWaTKwwdqrzsy21+ng==@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywt4sU1KA9nFrEfp6s2MucwoOJI4oeRfreP8xLZshHICV+CbTj5
+	c5GXII1Hupqu0J4Cdl7y93xU166O2Cu5hPUltp4RIKoqIv40TERPgmu3
+X-Gm-Gg: ATEYQzyrfERLCXKjV7mJEWwEOHgeZ8bKdWIqJzJ/SJIq55o6zVDEYJss2RNUaHzn7Uj
+	KjpZeXQAZAAFrAh9IlIvBp2+wKH+qM5Ig5Kl2l2+HZKbxOub3qvdPaRyiHJjgpWtT4nGUUbbtql
+	M/TGUDidAHCk2Yb/oo9h4JRvA3w4MMODVg5uQ7zU5hSuTdibVMq/d6btyE2FO3HjX88xm4Vv8v1
+	vDn8XeYV/BummumaymBbrkquHE+HSQ7g73qHevnUtrqojVXYPj5fb3uupTatKzO4OWOAs2a8tgI
+	AmP79aMFT0enz6Rwm+D51UED5X+BhTyTdwg8qc2jK56EdY+kbj6P1qiIZ9A5AhdhcFHMDnhlloD
+	LmN6baLYp0pOzF8u/tpoD7I7ncM+MFuibRsyu+md45BJeX9+l5FFbe1Q6F6H2UL/Hs8Mob/Rr3x
+	kF98nPoNw84EfVxtbldrZWs7JISRtE6DetQnnWPJs5z2p+MSv8wih73U65jdpsY3CxaqManbpE4
+	Jk=
+X-Received: by 2002:a05:7300:134a:b0:2c1:7ca:ceb1 with SMTP id 5a478bee46e88-2c109567522mr4864099eec.6.1774218266887;
+        Sun, 22 Mar 2026 15:24:26 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:b768:22ed:3eba:aeb3])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b1a88e5sm13452469eec.13.2026.03.22.15.24.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Mar 2026 15:24:26 -0700 (PDT)
+Date: Sun, 22 Mar 2026 15:24:21 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Romain Gantois <romain.gantois@bootlin.com>
+Cc: MyungJoo Ham <myungjoo.ham@samsung.com>, 
+	Chanwoo Choi <cw00.choi@samsung.com>, Guenter Roeck <linux@roeck-us.net>, 
+	Peter Rosin <peda@axentia.se>, Jonathan Cameron <jic23@kernel.org>, 
+	David Lechner <dlechner@baylibre.com>, Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, 
+	Michael Hennerich <Michael.Hennerich@analog.com>, Mariel Tinaco <Mariel.Tinaco@analog.com>, 
+	Kevin Tsai <ktsai@capellamicro.com>, Linus Walleij <linus.walleij@linaro.org>, 
+	Eugen Hristev <eugen.hristev@linaro.org>, Vinod Koul <vkoul@kernel.org>, 
+	Kishon Vijay Abraham I <kishon@kernel.org>, Sebastian Reichel <sre@kernel.org>, Chen-Yu Tsai <wens@csie.org>, 
+	Hans de Goede <hansg@kernel.org>, Support Opensource <support.opensource@diasemi.com>, 
+	Paul Cercueil <paul@crapouillou.net>, Iskren Chernev <me@iskren.info>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Matheus Castello <matheus@castello.eng.br>, Saravanan Sekar <sravanhome@gmail.com>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Casey Connolly <casey.connolly@linaro.org>, 
+	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
+	Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Sylwester Nawrocki <s.nawrocki@samsung.com>, Olivier Moysan <olivier.moysan@foss.st.com>, 
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+	linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-phy@lists.infradead.org, linux-pm@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-mediatek@lists.infradead.org, 
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, Sebastian Reichel <sebastian.reichel@collabora.com>, 
+	Andy Shevchenko <andriy.shevchenko@intel.com>
+Subject: Re: [PATCH v2 2/2] iio: inkern: Use namespaced exports
+Message-ID: <acBr-W2ILu9tnMyd@google.com>
+References: <20251209-iio-inkern-use-namespaced-exports-v2-0-9799a33c4b7f@bootlin.com>
+ <20251209-iio-inkern-use-namespaced-exports-v2-2-9799a33c4b7f@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CABBYNZ+9Z8Yd9mRhgz0N9kSSvLR-6euPf9CRA1Sop_D8zV8wqQ@mail.gmail.com>
- <20260228172657.53040-1-ericterminal@gmail.com> <ee5fc583c7d6dad138db759cddd84e409190d1ae.camel@hadess.net>
- <abFA9nm_fBqw8mNS@beelink>
-In-Reply-To: <abFA9nm_fBqw8mNS@beelink>
-From: Eric_Terminal <ericterminal@gmail.com>
-Date: Sun, 22 Mar 2026 23:37:50 +0800
-X-Gm-Features: AQROBzBauQzm29du9pe-bkZS9i4dd3Z3Buwh7em_P0ixOAlN6NN3EOpYsbqh59Q
-Message-ID: <CAKNPVZCm9joG7szVjMa2VZuqF_oY5nBqWjjLYa8rqReqWeZ0tg@mail.gmail.com>
-Subject: Re: [PATCH v2] Bluetooth: HIDP: cap report descriptor size in HID setup
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Bastien Nocera <hadess@hadess.net>, marcel@holtmann.org, johan.hedberg@gmail.com, 
-	luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251209-iio-inkern-use-namespaced-exports-v2-2-9799a33c4b7f@bootlin.com>
 
-Hi all,
+On Tue, Dec 09, 2025 at 09:25:56AM +0100, Romain Gantois wrote:
+> Use namespaced exports for IIO consumer API functions.
+> 
+> This will make it easier to manage the IIO export surface. Consumer drivers
+> will only be provided access to a specific set of functions, thereby
+> restricting usage of internal IIO functions by other parts of the kernel.
+> 
+> This change cannot be split into several parts without breaking
+> bisectability, thus all of the affected drivers are modified at once.
+> 
+> Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com> # for power-supply
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
 
-Just a gentle ping on this patch.
+For input:
 
-Since Benjamin reviewed it from the input side and concluded it should
-be safe, I was wondering if there are any further comments from the
-Bluetooth side, or if anything else is needed from me for this to be
-merged?
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Thanks,
-Yufan
+Thanks.
 
-On Wed, Mar 11, 2026 at 6:19=E2=80=AFPM Benjamin Tissoires <bentiss@kernel.=
-org> wrote:
->
-> On Mar 01 2026, Bastien Nocera wrote:
-> > On Sun, 2026-03-01 at 01:26 +0800, Eric-Terminal wrote:
-> > > From: Yufan Chen <ericterminal@gmail.com>
-> > >
-> > > hidp_setup_hid() duplicates the report descriptor from userspace
-> > > based on
-> > > req->rd_size. Large values can trigger oversized copies.
-> > >
-> > > Do not reject the connection when rd_size exceeds
-> > > HID_MAX_DESCRIPTOR_SIZE. Instead, cap rd_size in hidp_setup_hid()
-> > > and use the capped value for memdup_user() and session->rd_size.
-> > >
-> > > This keeps compatibility with existing userspace behavior while
-> > > bounding memory usage in the HID setup path.
-> >
-> > Cross-sending this to linux-input@ for review, they would know the best
-> > way to deal with oversized HID descriptors.
->
-> AFAICT the hid-core code would be fine with it (it would parse it), but
-> there will be some issues (hidraw will not be able to export the entire
-> rdesc, so is the sysfs).
->
-> For reference, usbhid just returns -EINVAL for oversize report
-> descriptors.
->
-> Anyway, if the report descriptor is truncated, like in this patch, the
-> hid core parse will fail if the data is not correct, so I thing this
-> should be safe.
->
-> Cheers,
-> Benjamin
->
-> >
-> > >
-> > > Signed-off-by: Yufan Chen <ericterminal@gmail.com>
-> > > ---
-> > >  net/bluetooth/hidp/core.c | 7 +++++--
-> > >  1 file changed, 5 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> > > index 6fe815241..31aeffa39 100644
-> > > --- a/net/bluetooth/hidp/core.c
-> > > +++ b/net/bluetooth/hidp/core.c
-> > > @@ -755,13 +755,16 @@ static int hidp_setup_hid(struct hidp_session
-> > > *session,
-> > >                             const struct hidp_connadd_req *req)
-> > >  {
-> > >     struct hid_device *hid;
-> > > +   unsigned int rd_size;
-> > >     int err;
-> > >
-> > > -   session->rd_data =3D memdup_user(req->rd_data, req->rd_size);
-> > > +   rd_size =3D min_t(unsigned int, req->rd_size,
-> > > HID_MAX_DESCRIPTOR_SIZE);
-> > > +
-> > > +   session->rd_data =3D memdup_user(req->rd_data, rd_size);
-> > >     if (IS_ERR(session->rd_data))
-> > >             return PTR_ERR(session->rd_data);
-> > >
-> > > -   session->rd_size =3D req->rd_size;
-> > > +   session->rd_size =3D rd_size;
-> > >
-> > >     hid =3D hid_allocate_device();
-> > >     if (IS_ERR(hid)) {
-> >
+-- 
+Dmitry

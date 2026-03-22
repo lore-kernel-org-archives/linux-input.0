@@ -1,137 +1,138 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4185B1946DA
-	for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 03:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774149641; cv=pass; b=DS/I0xsyHLo0y+jCcD4jZMvSm+mUd+uzlNbz6xJsnr8sYExjwuoRnu9HkWrofvcxZgiCwWTAk0qH09mCHzse2Bxv9CCCB8zlhzHYjwAdl9GjeSvmjvhYaZ6McAW/21imjFYBdxizhLCytZ7svXB8eLf3u+NhCkKyFgtpmu+znhk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774149641; c=relaxed/simple;
-	bh=D/jXk1pI5cXw11B7dE5qYnkpodxoajS0naREmh8Tang=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WEki1nHgbqzk0VHRvdFLWszvFPotCTT50QSJSmw98O53EiZL1nRz6KqoN9qKd9gvAR+pWmxr0J7rYVHeAiy68N7w/jDrMkoCr+0gqIx3TD9HruU4Sm8k6o4+n3UfiT9W2JrTfZXuDVIK/6MwgSSJNsI5h+GaSIBSNbf9ixi7P3Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cy+SnTzT; arc=pass smtp.client-ip=209.85.219.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9E7A70808;
+	Sun, 22 Mar 2026 10:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774174612; cv=none; b=RHllpygClPCP0CCA9hnVojXkdiVkkRIqhSTU4MBSTfbJ8exVrGVuYHuLvZ8xB7xQpS3OIfDRQ2VvuhBEzm0snrzeYPIyJ2SfHBstLPBS/Rw+c8ec0nYP4LMkOfX5LaamADXLAfCLcDUI0OZ3Ht0BRsXK9PfOGNjRm9vWjoHc2oU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774174612; c=relaxed/simple;
+	bh=po8CNnTkaQpHNLdR0yFceY24ysPtBKZ0S56BW+e5MOw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CMKskzmaR9qSXfPGIwxrrSV/wcfFyrzQQRSdwmwDZQN3kA7I6KqSlVvDmvRE98xACGrf8GNb8YFh4k787EPglShXlAEkp0e4UgE67x99yHbqp99pRbQJD/h6zUB6q7jWY1qhhNieGE+mz+OXQMooZMis3hfPOzG2A/LihGSf4QY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hE1w3KiU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cy+SnTzT"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-89a14be4733so41304986d6.2
-        for <linux-input@vger.kernel.org>; Sat, 21 Mar 2026 20:20:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774149639; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JPePM8gGuQprt6vjZQ6vh6Rl7d/eVsGzmCHi8D83o3KkO4m+94fCBBpchimDi58dva
-         Q7az/uyEqQJWbGiL/3dBqyhcj/3FTSKfwZOiKW11y68lSAHDYaAOJZ3AOB+agano5Of1
-         kAa4UrwpMGxpK/EIdCH7964aB5+mjqJ8yTzHQgsmC4IXOmHHEM0eltARBSLc8Y1PqK8L
-         fZvPIYJ4OCl0lcehjlsmhBn6szPX0ks3jgdbwfa6qVEW3dqVZY14bXi7ySZ9WRl/sPEB
-         m2PMZyKvzrS32+VmkjIH5/7Mny/i+P/VOHw8peR17gmS2DlBEUq2GRXr9wd5yulKO8km
-         Hp6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=JuN3KmF+V3XuyVg+Ox3zokYqXtXUn8OU7JfRGLL9pOw=;
-        fh=IwBJkzjnepWsP003R1FMa/XEuj6fTgHKCKJE14Y8Tss=;
-        b=iFCqAk9RB8ycA93EHEqfeNfUVHY+rCSlvZkEDpTVD8Z+HbKLiqKpKlbZPhQUsXv9Lr
-         z88UZjPw+asAAR5PqHotk6WfqkTgAmOKuryNZwU42SYxbOIl9Q2bQWJBITVoOkO8iG2x
-         D0Zn4m3BH67uGhEKhowk1fpwa9kEKXLhrpceg0gXSpUhihFZIow1f+QdH2+RjLGLhdRN
-         vBRjxMeYmRIkoU0/KwzJXWBqCEpkYKsSxnSFgI3SlOyT0ffAHKITtF0IIhGSWCP/VfOc
-         T0HesLQxTP52ICUK6c7zspM/xPRIiYt4nH3nCd/F2Ebuzd8kzmFDAUPhL0Emv5EuUC4U
-         ePTA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774149639; x=1774754439; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JuN3KmF+V3XuyVg+Ox3zokYqXtXUn8OU7JfRGLL9pOw=;
-        b=cy+SnTzT12rdFe52I1H6QnKGY58j2E2ZK5q1d1acOg3CJ29DSLcYpm5SRbSAa+mK3D
-         SC9ie1gCLDIzH7PGWs5lJvl66fM55H8Pavl8RUTd8d/F/oz/IZoB2foEm5kbsQz1k5e2
-         BE9ySdGSwy/j3K9na0ZR6yETuPJCE66hUEfBuxTAKjlR+Y5AMJGLZCeA3nc63AXOTpEs
-         FG78RAAgs/SWKqpQ3QrSZtECv3UubABNKG5HXzM6kG/bmioyjDE9grwXi+8x21hjfFiq
-         YPslOQ8a4Kl9g6WwxcxWUSmohQK9/fb2cfMmXFzAQ2CHLWr+X9dgfDPjO1hlGLuJwuKg
-         c1fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774149639; x=1774754439;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=JuN3KmF+V3XuyVg+Ox3zokYqXtXUn8OU7JfRGLL9pOw=;
-        b=l2q2mNcd9ov7m60Fj1AZseR7A8hRkMHguI0MrL2AL5kgO4IlKKQSAOsk/VHbeV9+OM
-         t1bwru0ImoMtZNyXZAuboGzhHyzbmwB41Sba5iOjY4cl1X0gnl1sUIz5yRaPVyQIkZJD
-         V65gk1UGLUpf4byzBIei3YDpNZXsh22L0QNzanqBKMo7UXBliSl+v9h66X2T60SWa59k
-         fNscT3r0ogE+H3JN5M/R7OFBjN0QxOMzTvJ1RNBhkppb/V0f8cNKcMbFftApM6YgQJK6
-         xyQxlMzBVgR1wntwHJysA8k4K54jS2m2UNNVdYad1jDIe2OPjhcRFXkwCQ536VV/KNvb
-         N3tA==
-X-Forwarded-Encrypted: i=1; AJvYcCXuxZs4UuvbQTHnmJTsrP0Dea6SAOjQvtI69EjBVTptbow1UsdtXmsalWDg5EE4Hsr5sReAG/kPdWbHDQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzrM1g72jGt7KKdKujy3b9wnE+S1wmjq0FGd1wDb9rhbFU9dFQ4
-	2xyCcmnWd3fMtQV/86B9mpvBXpZYwlOviUraP+wC/JpmrstXkB0hx5/gMD6Gb7mP9wXD/VckucP
-	gqZkr+Rp8HvQAJBh3BLsstWrKIv3kQxc=
-X-Gm-Gg: ATEYQzyW35eCAMrX8LtiQjV0e+WAToHE9Gal5P0ovUmo619ffiwL2PZnf4bODvRygSt
-	QAnLEc2rOLUd+V4jqhZuSBcwFUcRE9Y6/kbh9kaR0nWxrHTJlkroJhEMZHUDQDXNHH9Bm8bHlLb
-	jyYRu5LH/m433184RWw0aqGwmqyHQ2jX1j9c+OFonEx2NVPKCnPCniHKsTXGkQqWQ47vjsq5MiC
-	I9zodwhDT5NSI/2Iz7hupS7CQQ5WZvsGwbjuQmOJtpSTMWTvquLpy//9whPPRsKV96XVGGl/9Wq
-	48vUp5Ob
-X-Received: by 2002:a05:6214:1bce:b0:89a:10d8:f9ca with SMTP id
- 6a1803df08f44-89c859e84d5mr132297946d6.26.1774149639178; Sat, 21 Mar 2026
- 20:20:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hE1w3KiU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA548C19424;
+	Sun, 22 Mar 2026 10:16:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774174612;
+	bh=po8CNnTkaQpHNLdR0yFceY24ysPtBKZ0S56BW+e5MOw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=hE1w3KiUolvaky3I2jyH23SJbxCpZg2xDQkAuvRw236wK/t8yGIvgxVtJ3rhMqnOw
+	 g3N06F++bLXBiAdoBCvT3P9LPeT11C1TXIhO2xeIEVZW8B6ZDpHkUd85wwRu9Itr3w
+	 HlFjzlUEo9nWeyMlIrdzCjqEZEdo1UpyBOTAjqDwk0hwl9m9dz0vd5ZkncvnRmR5Sc
+	 xgDQM4Rya32OYPCBUrsQe+/tJ0VPx9lNS/OJ2HUADij412RdZySs6mUnndpLainOOF
+	 gZ5Np9lolvvg7SHfBWTZaJQCcIVHWSEZfh1Jg5Bt3iv2MkuHLC76GBWTWJCgSP+XE8
+	 A97JWiU8rt+kw==
+Message-ID: <9b1a9660-3672-4165-b5bb-c7807ce885cc@kernel.org>
+Date: Sun, 22 Mar 2026 11:16:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260322031615.1524307-1-derekjohn.clark@gmail.com>
-In-Reply-To: <20260322031615.1524307-1-derekjohn.clark@gmail.com>
-From: Derek John Clark <derekjohn.clark@gmail.com>
-Date: Sat, 21 Mar 2026 20:20:28 -0700
-X-Gm-Features: AaiRm51WFDkUJtKya_d2Hd7XzkBhvrWuYD4OyuVFWBTk5xib76q2ZKap24xbwmU
-Message-ID: <CAFqHKTk54aN0c1SjjjEf33rbWuPWEfDpaKpDvmAPJ-2L1PNcwQ@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Add OneXPlayer Configuration HID Driver
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Lambert Fan <fanzhaoming@anopc.com>, 
-	linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/10] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce STM FTS5
+To: David Heidelberg <david@ixit.cz>,
+ Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ phone-devel@vger.kernel.org
+References: <20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz>
+ <20260301-stmfts5-v1-8-22c458b9ac68@ixit.cz>
+ <qibmsgfttxo6kiaqyjljj6otamqp7okfr4abwpmuo7daanl6qu@ka33zvoz7lte>
+ <4b8c8d8c-d2f3-4938-a451-e8e9524d40c3@ixit.cz>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <4b8c8d8c-d2f3-4938-a451-e8e9524d40c3@ixit.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, Mar 21, 2026 at 8:16=E2=80=AFPM Derek J. Clark
-<derekjohn.clark@gmail.com> wrote:
->
-> Adds an HID driver for OneXPlayer HID configuration devices. There are
-> currently 2 generations of OneXPlayer HID protocol. The first generation
-> (OneXPlayer F1 series) only provides an RGB control interface over HID.
-> The Second generation (X1 mini series, G1 series, AOKZOE A1X) also
-> includes a hardware level button mapping interface, as well as a
-> "takeover" mode that was added by the ODM for debugging the button map.
-> This takeover mode can be useful for exposing the M1 and M2 accessory
-> buttons as unique inputs with some userspace tools that can consume it.
->
-> Signed-off-by: Derel J. Clark <derekjohn.clark@gmail.com>
->
-> Derek J. Clark (4):
->   HID: hid-oxp: Add OneXPlayer configuration driver
->   HID: hid-oxp: Add Second Generation RGB Control
->   HID: hid-oxp: Add Second Generation Takeover Mode
->   HID: hid-oxp: Add Button Mapping Interface
->
->  MAINTAINERS           |    6 +
->  drivers/hid/Kconfig   |   12 +
->  drivers/hid/Makefile  |    1 +
->  drivers/hid/hid-ids.h |    6 +
->  drivers/hid/hid-oxp.c | 1340 +++++++++++++++++++++++++++++++++++++++++
->  5 files changed, 1365 insertions(+)
->  create mode 100644 drivers/hid/hid-oxp.c
->
-> --
-> 2.53.0
->
+On 15/03/2026 18:09, David Heidelberg wrote:
+> On 01/03/2026 23:40, Dmitry Baryshkov wrote:
+> 
+> [...]
+> 
+>>> +    then:
+>>> +      properties:
+>>> +        switch-gpio:
+>>> +          description: Switch between SLPI and AP mode.
+>>
+>> This doesn't sounds like the GPIO on the touchscreen, more like the
+>> external schematic component. If it need sto be turned to one position,
+>> it might be better to use GPIO hog for that.
+> 
+> Right now yes, but the GPIO serves to switching between SLPI and AP mode at 
+> runtime, see [1]
+> 
+> The driver lack supports for SLPI, but at moment when SLPI support lands, we 
+> should be able do something like:
+> 
+> -> device starts, touchscreen works
+> -> screen goes to sleep, but instead of powering off touchscreen, it switches to 
+> SLPI mode
+> -> user taps at touchscreen, device wakes up
+> 
+> Thus I think we need to support this GPIO in the driver.
 
-Note to everyone: I forgot to rebase to a clean for-next branch before
-sending this so build bots will likely fail. I'll be sure to update
-the source branch to the appropriate branch for v2 after a few days to
-allow time for comments on the patch substance. Sorry about the extra
-churn here.
+But that's not role of this device. You cannot just hook random GPIOs
+into this device node, just because you want some use-case in the driver.
 
-Thanks,
-Derek
+Best regards,
+Krzysztof

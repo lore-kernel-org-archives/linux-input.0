@@ -1,98 +1,120 @@
-Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 385512609EE
-	for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 05:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774242751; cv=none; b=o26OzEWeY46qnB1SIiyWH/QL6Cr4SAJX7hG7UF5VLMsV8TWze2EjSZ5VYIQkZ0TP+07jr0zIjfNZMBcdsNDMbl7lvrnmfPX2mExSFOzVtceYLeJmY64iQCdNnttv0M/grY7Bdt/vELycgN8jvmfrS1Ak5aSYpdvImQAzcZrHm9s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774242751; c=relaxed/simple;
-	bh=NKrMi73IqQ46eVsbY68Xq0Mn71PRrCKQTsaSsDKzMLQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B3JywJTZ8ZA+Ji3YjtUJr/oDE9Olvunpuf9JMVfXCwbJbzc+otKV4xMARgZLPx5p0S4h2RQLE7xUKDpDyS679AnkltVEDdC8bnTqeeT9DsRLHUeiP5E4Qpt69FtQNup001cqZKYztDk/WbsuqF6My3jepFV3zceNKIOoY8eycAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H1v6g3fJ; arc=none smtp.client-ip=74.125.82.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BDA7219E8
+	for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 05:17:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774243035; cv=pass; b=m0/nNiKuheCfjZG0hBWEezpL6obmoIdHlGIiCZhOLWoiIE1y6/t3SKPK9x+DAQD+DZ/KEusyDynk7gjXM6gc2zwz5UEiMxmfaCcDO0YzpqR0uZ5AxqWoE96qeM+METfmhImCGJRmYt6n7CkkklMjfVaMrYfA3ez3yfF58rEKBQA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774243035; c=relaxed/simple;
+	bh=UdXKq1Z08MfDjVf3UvM0lSQZNqNJk0Y2QOCyuFIplP0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aV91YktRdwJUJxLM+3K2vgNnCF3z/gHuc+y/Lv++rwL2Sy7QA9lz7OCScgEFw4i5uJDp5nacd3m0mLCsJiTMhzi74Uh18gPrYDLEC5HmmxM27HZkST7h+76gVmSFMqDRkgutXik+nAPG5qkVxPCjW9eP7XI+OsEOeruyw/Z73CY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RFOpFNac; arc=pass smtp.client-ip=209.85.210.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H1v6g3fJ"
-Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-1271195d2a7so5512197c88.0
-        for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 22:12:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RFOpFNac"
+Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7d1872504cbso3518621a34.0
+        for <linux-input@vger.kernel.org>; Sun, 22 Mar 2026 22:17:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774243033; cv=none;
+        d=google.com; s=arc-20240605;
+        b=EhltPG5h1O4jH0z1tpAy+LmdI8FrIE7zeuUFhvGAm2P7TzgtbyJJ8wCMfQcwiw7vpU
+         UeyWkvz5C62JVCZkxD6tvcJaQDurMR1sVTSFJMO8nhZB7WtYXS3sPS8izI5uSzjst6BK
+         csRKpTCUl1nc3RhDBUGGfkrQLJenqNIU+iOww/dk8hH81/XE+h/qnAKGowLVpF1KjJPs
+         o5Rb8qBXrFroclwQWoqw1+w7M1q+eY0NjIeVXS+JmdgwwCYNbtV5R76OYC+ZzRQFHzZF
+         Gc/eeN0u0Q/XxoTb5smdFnguh/5UNx+fOQ+ls2KYbOoKAMdPE4ldCyuPzecMoeaPj178
+         yCcQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=UdXKq1Z08MfDjVf3UvM0lSQZNqNJk0Y2QOCyuFIplP0=;
+        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
+        b=AA2DA2quMZQLts/uBTQwXfola52zQA2hjZ0mDAus95JCca+LIaWDX67kTWtuBDxYad
+         g8f34yNHY+foC7y1PbHHupi+T32zJ/XqJgFV4IZhSnn8cMXDn8AUS16B7JVMixoAF+UA
+         Rsne+6JwARkx+2LeJ3oeM2T1DzdHxJGwbCq82UOLwbjqpJR6ZZ/Kdb8hbpnPZj2Ydp5t
+         18nmz8I0roL8Huo9uRpq8YkIqM1J37p7+wISZSiNIOuVWbUGeHpblQ4Yl+0dRJmAB9Q7
+         e33ruK+ugM/BroaTQA3bzXUHkiYHHVBrKAqgCW7MTKazOCjoUVxr9ivO04avXHra2Nxh
+         rQtw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774242749; x=1774847549; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=C10CIn9egPb7Wwv3+IYiGxhrZ0mPyMt1sPTDwK7YNzg=;
-        b=H1v6g3fJVlgBXOufWxqvGDebhUGp+5v73v2JjBLPAsI0E/iJk9aTv7/lypfOuL8jZu
-         JFRLmT5Z/H9uW/N7hpdEplg8pE5o6MZQxoPAu69xz1bsaJZ6nmAesXw9KArpS33BvZYp
-         +OERE7YEfpnpPcVk7HBe4X1QUHq62KMa+364GReIr/fALWqFa3mdFoUO53MZ3YPbSos0
-         eL7vgxtDAIqIgZKp8vBD/ooJ3o6RdcAC/8ckhQhqWRq9SbWf6uA/X6lBjpvx78cQg/69
-         QSRY8jcnKZkOlklFDzgILNE11QBMooGxpiw3CabBNE843ej4PMu2ntgFQTpo0DELiGzj
-         3jXA==
+        d=gmail.com; s=20230601; t=1774243033; x=1774847833; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UdXKq1Z08MfDjVf3UvM0lSQZNqNJk0Y2QOCyuFIplP0=;
+        b=RFOpFNacaZC8FTfsLZo/QFwBc3e3eP10g+XOFRHTCm1OfPUL4oUjzGwCwRoYZEkUf9
+         L7BvEjdQE8UIWWPDUeB85011ys2e6NQdjHOl4sLXwFJgTokDS5VFfOipCJi9DA2DNtrN
+         xnKlWKMnkkp2BgQAG7x5vpUYLLTYvvcFcOGXjQFRvnMws7R0cuIyks05Lkun6niInAVD
+         W6PlLgENtTJmD1pvi05ewzEU3a6KlW4m4RH58XlDc+BFvqTSM0wsYHFG7+AoKXa4cGDz
+         CsMFMeCsxUSschrC60KX8RjeMFBxJxOvnhAc+vgH7l2FmCQHnT32PtCAaYdeA4+nn7XW
+         mWig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774242749; x=1774847549;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C10CIn9egPb7Wwv3+IYiGxhrZ0mPyMt1sPTDwK7YNzg=;
-        b=EzfbuZn5sgDTpilWLx32IK5awBCnkWUjXwLRVGTYKOzU9CQxJQi69+SmV34tOQlwUG
-         96ryEhMJZBcYZlwrsogij6lE7Nsc3JDn3033h4CKeOxQTULLhp9Sd3LwCX5V+BLZEhJd
-         WqLIin0jIZzEefUdlFLZxdi2Yng4lZ4UWGsRk9hWyn97BNf2qdo4lWq7CmPB4e+vOVmf
-         P/LT03cQg0yR0WNJkmmINjVnorsgzrkV02N4DcZv/7lwAqywHPYl1LxF8q86Z/cQUbMd
-         19QahGAduLi8Dq1sUYXWLFK/WlBY9cB1ks9VOHo/Kh5o+ZUZdSalGgZPy6hiyngjuhU5
-         6VbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWio1QBlQvFzeTUT6PSXCODJlWBa2xT3+GANNzsDQqVkaLcWLOL4vW6bSjtYFd1O8tnnuwFhzO9rSCq1Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDdg4vKAzchS3mIqIXRmhl/bf1FiVBhNWt51V72QsYZIGLg+Lm
-	ObXMXVhObUol7i2Od1+wJe2sHkHRL9cmsq62jAjqagilTwHBWEJjrk+E
-X-Gm-Gg: ATEYQzwI7TFTXZ7klheU+636jBldSMDPz+24eeVfGhQx5/oWBOvOGycUUjREZ7bEV03
-	VilyWEAbEn1C+MYdAlRdnW1qqanMjbPmHIZFpCZDQUKi/PQlkBbm1vOqXmC6dH81TZzRZ3ls6RV
-	t2LoQfoMSAhsxOWrZ7nQPbo1jEerattLX5AerJ1cpbahUO3FCvzzGLNDF6o3bNWmdv9J2CzUukg
-	rOQpaKenRnMHMrZ+XDeNTYdRrtQtbTeMzIHPCLjVIuXAoaIAPZj74mVXEgiFEhJmHwahRb4XMgS
-	QeYMK3V6SS/ll8YfZOPOm3NA9hlun1lSypB7kuMOJjNwwnpZitXdH/yub6HYnlaMIw6W/P+Ocdc
-	vas3nNffiQaFLB5qmLTtX423QCtVNo1HWmeNN8FiDSFdi2YbV8oknxCYdVV8cp/faO+bakfUDhi
-	MiGTlLXfdr1GxI5Cuyt97XUP6tJxud12KflP4nqB2mdfqg2BrVGCbR9GfymMBwzAgg
-X-Received: by 2002:a05:7022:ef09:b0:11e:161:c008 with SMTP id a92af1059eb24-12a726ab2d4mr5210493c88.26.1774242749245;
-        Sun, 22 Mar 2026 22:12:29 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:b768:22ed:3eba:aeb3])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12a736cf7e1sm8219871c88.15.2026.03.22.22.12.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Mar 2026 22:12:28 -0700 (PDT)
-Date: Sun, 22 Mar 2026 22:12:25 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: charles.embedded@gmail.com
-Cc: Anshul Dalal <anshulusr@gmail.com>, Shuah Khan <shuah@kernel.org>, 
-	Brigham Campbell <me@brighamcampbell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Charles Dias <charlesdias.cd@outlook.com>
-Subject: Re: [PATCH 2/3] Input: adafruit-seesaw - add interrupt support
-Message-ID: <acDLSiujizhuYfOt@google.com>
-References: <20260321202446.724277-1-charles.embedded@gmail.com>
- <20260321202446.724277-3-charles.embedded@gmail.com>
+        d=1e100.net; s=20251104; t=1774243033; x=1774847833;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=UdXKq1Z08MfDjVf3UvM0lSQZNqNJk0Y2QOCyuFIplP0=;
+        b=rtcxRcQrFCyQkdHrYO/wRnWIxbSZ+EFqzg9VuHlCJnH+fvl2/+WgWHXkENNoFt6478
+         WEgOPFn0uXDnSB85GIwfWd4u/EygPupjQAVDwHTu0TyDM9pSS79tvyBefJ3kkc1C1foq
+         yKwBiqhROSzyE8IxCcz6ISWaAlfhLdoBcwyU+MIy1gqf8F5bRG0QKftRIm2cJJGPSoV4
+         qBxa4D67xnjZacZzMtwOl4lPpmFqQYb4CimNtgSAFrssy246vPywSRSyZLWUosvAOlyr
+         GSpfFZPOgh/59ra4LasMmifng6xyCXcpvqol1p0gQrcdGI1ByDwRXQvo94guPhcWAUv2
+         WDmQ==
+X-Gm-Message-State: AOJu0YxIruHfy4RTll4U5cPWoQ3AdTIC0I2nku2RRThNhGd1QmfK3fiW
+	8IgWE1pWHjirGMgq6vz8qNTBEfm2zGNyHxuPdnM31fcktOtIMvysCIPVYqu73j7G9KThook48o7
+	Sybq8qc96C7W4y0BWLQQfvK3H7E7vcg5/Bj4y3Cex3MvE
+X-Gm-Gg: ATEYQzwCG5o02v6bIdmLb5FpJxQW/ZtRMrHnbo/6jNTgkkCehoYzq9c5086qaeNIIQU
+	2b5Nhp6BunyTKXPo5j92rxAWnuTAcHFNKuLdUJKWN9wxQZTFuMztFMiTVayA7S1Ish8OF4tQ6qc
+	4Is9xHizxtsmxgr7EfEnIDraicPH/RlHbsGe9epWuwLxuMnYqYC5BeJQc7eJaKTRM/7LuUz6JC1
+	36THWd1h4LlW5qeKb02oVs+1wrO4GQ7L/zgQXftLnonV0zSrhre+2octI/DIJFcrxXsvZmtoj85
+	DwCTkxpHlQ==
+X-Received: by 2002:a05:6830:3148:b0:7d7:cc47:9623 with SMTP id
+ 46e09a7af769-7d7eaad0866mr7928378a34.10.1774243033457; Sun, 22 Mar 2026
+ 22:17:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260321202446.724277-3-charles.embedded@gmail.com>
+References: <20260228223628.472208-1-mikhail.v.gavrilov@gmail.com> <acCpW6McaPOE0Jq5@google.com>
+In-Reply-To: <acCpW6McaPOE0Jq5@google.com>
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Date: Mon, 23 Mar 2026 10:17:01 +0500
+X-Gm-Features: AaiRm53nOUp6SCUYn9hkkKQdCYAOA8tYJeFzsWWyfvFPlEv9FDr1aPczIYfzwqA
+Message-ID: <CABXGCsOwJu2dw67bR38MJb5DFvGon=MUCxKcGEQYfT6qrPZU1w@mail.gmail.com>
+Subject: Re: [PATCH] Input: uinput - fix circular locking dependency with ff-core
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Charles,
+On Mon, Mar 23, 2026 at 7:47=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Thank you for the patch, it looks solid, however I wonder if creating a
+> separate "state_lock" spinlock would not be better than reusing
+> requests_lock?
 
-On Sat, Mar 21, 2026 at 05:24:45PM -0300, charles.embedded@gmail.com wrote:
-> @@ -289,6 +341,19 @@ static int seesaw_probe(struct i2c_client *client)
->  	input_set_max_poll_interval(seesaw->input_dev, SEESAW_GAMEPAD_POLL_MAX);
->  	input_set_min_poll_interval(seesaw->input_dev, SEESAW_GAMEPAD_POLL_MIN);
->  
-> +	if (client->irq) {
-> +		err = seesaw_register_write_u32(client, SEESAW_GPIO_INTENSET, SEESAW_BUTTON_MASK);
-> +		if (err)
-> +			return dev_err_probe(&client->dev, err,
-> +						"failed to enable hardware interrupts\n");
+Hi Dmitry,
 
-Maybe this should be in seesaw_open()?
+Thank you for the review.
 
-Thanks.
+A separate spinlock would certainly be cleaner from a naming
+perspective. One thing I'd like to note though: the current
+approach of reusing requests_lock has the benefit of atomically
+checking state and queueing the event in uinput_request_send(),
+and atomically changing state and flushing requests in
+uinput_destroy_device(). With a separate state_lock these become
+two independent locks, so the ordering between them would need to
+be defined.
 
--- 
-Dmitry
+That said, if you prefer the cleaner separation I'm happy to make
+the change. Please let me know.
+
+--=20
+Best Regards,
+Mike Gavrilov.

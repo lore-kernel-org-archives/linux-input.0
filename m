@@ -1,86 +1,123 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4832A3988EB;
-	Mon, 23 Mar 2026 12:17:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F0383A9DAF
+	for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 12:47:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774268241; cv=none; b=dmmvve2Oc3tA7H/l99aFZ7V36wsVnV5TaUJIAzGq50fgLgn7LdmQoRQPmPFAiHWRYo6+moy4+wcFe+iJ7z87Mvi528DkvGMEHwdiHiYVT6yAETQth1uLrrukx2Bslx1yU/kSHMFo4EHLVjE3J8Uzt9uYdcN0lIrOwgdzxfAWNZc=
+	t=1774270064; cv=none; b=WMpi5wN4ct0I6CISHkusgZYg4gpARc6qZz2epMPZow14poNiCTlMDqPA5rgU1yG/v4Zz/JuRfUj4eHJ8b0tShYYp+dVa7KUDly3yaQDTiFHtkIKIySPKW0ImxIwlY7X3TISR8ixS0///ZpBZV3qToK5XhJdzuXrcPsImoRdW+tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774268241; c=relaxed/simple;
-	bh=6Uov2+PW9/M/oe3iDa1DE2p+e19tzWdz1aw1mX/WKu8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sh1YNeRdFBBjTdKB1SLbnEP/nRRSPbyrKCJWkNoIJo1YzKNTtHlKZubNuYUktNVEzz9I97XLnasv2M4XINncnlYm37UCwxJ/M2EtPWnDBrY7hU+DjVlB9qtXHnbMZod91QLQ99vNZVqCi9o08X0UMEzQua5LnQeo+avGKs0fpHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.197])
-	by APP-03 (Coremail) with SMTP id rQCowAAnSeBLL8FpzImMCw--.60661S2;
-	Mon, 23 Mar 2026 20:17:16 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: dmitry.torokhov@gmail.com
-Cc: andriy.shevchenko@linux.intel.com,
-	kees@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	pengpeng@iscas.ac.cn
-Subject: [PATCH] Input: penmount: bound packet buffer indices in IRQ path
-Date: Mon, 23 Mar 2026 20:17:15 +0800
-Message-ID: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
+	s=arc-20240116; t=1774270064; c=relaxed/simple;
+	bh=FPy5DMKzxSPiAP71gLkItOyOW+8j23ia4aqdfyJTKpA=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ASqFM2VywCE2w4RTX2OlORBhKVtcZ0iseAQlV+rhXs8N9Sc3TqUsGafFhXiCipgGgtYmx3dJ+EsgTysCrroAaxVrk/F8x3gyVxqgW4XprEuKP0yeqDmLI/5KUz/ZvPyxkbkgY9LtJxOSDhWXlAz6PG7Xhd9RZ1ozSrUdrxpmiPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QJ1U2ng9; arc=none smtp.client-ip=209.85.221.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QJ1U2ng9"
+Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-43b4dcdb372so2149992f8f.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 05:47:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774270060; x=1774874860; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=KTk88O6Az6LW1fqafxLDYIbj6PJZ1YEruBsLXP4TxP4=;
+        b=QJ1U2ng9kTpxnMSVKbjqmZEWl2MEU1IeHEIp4wI/MIunfRmtTVAPXGNcpE2C6ZusHk
+         zCTY6yZ8BcCmenzhmS0AGoLr/GW1Oi2WbwzPXd+c0Xh9Y3V7szqOxnuBJ/bvhREygW2v
+         kuhge4vB0PD9/uLsr43iOlt5H5Z6jiBYOayFmWx0Tt2sa4zhH/lfqCZJEFc2KtHFgdbm
+         vDRtJ94pPa277Io3oeoYml/3d/hMkNcY4CpGiNuxNtlZVb5XThulmFlH90fz/mbVzoWu
+         TFzcdvGYSKp1xNU3aIVOmSoRWxqsmQljJ5S7nkXs5gY1OrnKy8SWX1RxjT8Ed+5LL8Jb
+         DBvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774270060; x=1774874860;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KTk88O6Az6LW1fqafxLDYIbj6PJZ1YEruBsLXP4TxP4=;
+        b=F15VCInETztNyucj+5mun20z9IYfNyil0LggGwlSHtRcUSgL/qdYEwThVGNJTEeVQM
+         hxC+kUXdQLUy4cpcLKmjQVGa2zs/6Gsl1+V9pQTusuf/UOR6Tb6xgMa+Ba0wYsTTpKFd
+         Glzja36Ch/FsLGcCbVOYMftCTSbK+lwLL80P/f2IhKbNFiOv2ttRwPzSP2JnWUR449ht
+         Z9/YoL3NXUIyMFXxh8u0uoPUhN1H+M9R788EY51gMNfEv2fS9bCX3hAz5KDjGAy9kpAe
+         Q9PlL05/weFLjPzobz+/d+pi0POwWnRb1ZoPbFqS/EYMG5bWVNNDKywUjRRJLFI5/T/F
+         HKAQ==
+X-Gm-Message-State: AOJu0YyPQ0JP4ky9z5/VjK7ujgjAvCq8HNv3nUmLQeS7/2IiKwJ93arJ
+	Heojqr99fTjiSu97Z+UsN1yDRU+KhWYtX3aBO/ZHO/jecoY3og7/rW2q3/LtyHKytK8Pay1R8Pr
+	wP9VxZvVZYg==
+X-Received: from wmjk5.prod.google.com ([2002:a7b:c305:0:b0:485:2e9a:31b4])
+ (user=bsevens job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:5294:b0:486:fe46:b647
+ with SMTP id 5b1f17b1804b1-4870334cb27mr115435455e9.10.1774270060394; Mon, 23
+ Mar 2026 05:47:40 -0700 (PDT)
+Date: Mon, 23 Mar 2026 12:47:37 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowAAnSeBLL8FpzImMCw--.60661S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrZr45uw4rurWrAFWfAFWrXwb_yoWkJwcE9r
-	y8JF95Gw1UCrZF9wnFkry3ZryS9FW2vFykZw13Krs5Gry5X39xta95A3Z3ArWDCw47tr45
-	C3y7XryxZ34xKjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb48FF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-	Cr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s
-	1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0
-	cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8Jw
-	ACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc7CjxVAaw2AFwI0_JF0_
-	Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxV
-	WUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI
-	7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r
-	1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI
-	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUjO6pDUUUU
-	U==
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.959.g497ff81fa9-goog
+Message-ID: <20260323124737.3223129-1-bsevens@google.com>
+Subject: [PATCH] HID: playstation: validate num_touch_reports in DualShock 4 reports
+From: FirstName LastName <bsevens@google.com>
+To: Roderick Colenbrander <roderick.colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"=?UTF-8?q?Beno=C3=AEt=20Sevens?=" <bsevens@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The IRQ handler stores each incoming byte into pm->data[] before the
-packet parser gets a chance to reset pm->idx. If the incoming serial
-stream never matches one of the expected packet headers, pm->idx can
-advance past the fixed receive buffer and the next IRQ will write beyond
-PM_MAX_LENGTH.
+From: Beno=C3=AEt Sevens <bsevens@google.com>
 
-Reset stale indices before writing the next byte so malformed packet
-streams cannot walk past the end of the local packet buffer.
+The DualShock 4 HID driver fails to validate the num_touch_reports field
+received from the device in both USB and Bluetooth input reports.
+A malicious device could set this field to a value larger than the
+allocated size of the touch_reports array (3 for USB, 4 for Bluetooth),
+leading to an out-of-bounds read in dualshock4_parse_report().
 
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+This can result in kernel memory disclosure when processing malicious
+HID reports.
+
+Validate num_touch_reports against the array size for the respective
+connection types before processing the touch data.
+
+Signed-off-by: Beno=C3=AEt Sevens <bsevens@google.com>
 ---
- drivers/input/touchscreen/penmount.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-playstation.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
-index 4b57b6664e37..ba09096c6573 100644
---- a/drivers/input/touchscreen/penmount.c
-+++ b/drivers/input/touchscreen/penmount.c
-@@ -163,6 +163,9 @@ static irqreturn_t pm_interrupt(struct serio *serio,
- {
- 	struct pm *pm = serio_get_drvdata(serio);
- 
-+	if (pm->idx >= pm->packetsize || pm->idx >= PM_MAX_LENGTH)
-+		pm->idx = 0;
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 3c0db8f93c82..c43caac20b61 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -2377,6 +2377,12 @@ static int dualshock4_parse_report(struct ps_device =
+*ps_dev, struct hid_report *
+ 		struct dualshock4_input_report_usb *usb =3D
+ 			(struct dualshock4_input_report_usb *)data;
+=20
++		if (usb->num_touch_reports > ARRAY_SIZE(usb->touch_reports)) {
++			hid_err(hdev, "DualShock4 USB input report has invalid num_touch_report=
+s=3D%d\n",
++				usb->num_touch_reports);
++			return -EINVAL;
++		}
 +
- 	pm->data[pm->idx] = data;
- 
- 	pm->parse_packet(pm);
--- 
-2.50.1 (Apple Git-155)
+ 		ds4_report =3D &usb->common;
+ 		num_touch_reports =3D usb->num_touch_reports;
+ 		touch_reports =3D usb->touch_reports;
+@@ -2391,6 +2397,12 @@ static int dualshock4_parse_report(struct ps_device =
+*ps_dev, struct hid_report *
+ 			return -EILSEQ;
+ 		}
+=20
++		if (bt->num_touch_reports > ARRAY_SIZE(bt->touch_reports)) {
++			hid_err(hdev, "DualShock4 BT input report has invalid num_touch_reports=
+=3D%d\n",
++				bt->num_touch_reports);
++			return -EINVAL;
++		}
++
+ 		ds4_report =3D &bt->common;
+ 		num_touch_reports =3D bt->num_touch_reports;
+ 		touch_reports =3D bt->touch_reports;
+--=20
+2.53.0.959.g497ff81fa9-goog
 

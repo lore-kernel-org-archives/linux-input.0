@@ -1,84 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2899E3AF679;
-	Mon, 23 Mar 2026 14:50:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 094D21DA0E1;
+	Mon, 23 Mar 2026 14:58:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774277449; cv=none; b=f8hzTlcNgQwsZm+LVNUPd6wITNft2WxrqF5iSf5YL+/ffE41Cv3+KZtt7BnCy2esP1Iaq4yF9eaxgH3J/otZvJEnb1oeoNWI3mR4bh4vYmrLuk8LgZwjthO9oNVQPDRHJmzM3e0O219+7pYEyRcf2T/N8c3KsiHoQ1NzlgRvv7Q=
+	t=1774277914; cv=none; b=kHEUiXjzwwehgy7zdiQPwADLZsoUKu3PqecoCDvtDWfQ0oLBj0IMyRkfw+m4bk4bOTnb8Jz4fnhqy+7VoCfA90SjBs0MzHVzDb9bN7L6oEm99Sj6uqoet7JIyhcIF+QKTGJ+pYz7Ei9Rqq2bD/VF6lugAB8fnRaD2+DQQPwN82c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774277449; c=relaxed/simple;
-	bh=4f9AlNnvt1H1wntRZn7D84y90Dv7pzJJe2ZUYbDXEHM=;
+	s=arc-20240116; t=1774277914; c=relaxed/simple;
+	bh=EJoB4/6S2K2JhXF7hIxOmkKY7a75/VZlB6bv5gaJcBQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Gsdh/vF6f5Uz9yHX707+2OuWpw4adIqv1xBf4K6I0VGuaH+FB8E6W72rX36haPjVhE+jAR5HSk8bzUKIVHCNcSuveUSDSgKFfo9VKilPgxm7rA915dTLlFfZT0o4uqhP5EAOJq4GMbxpLb8TfQ9FzqZqoLu7Wl876wjz9UwfjZE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FOaDly/p; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Drz3rtl5FPc1fsOD6UAaPyegjgByhul67iyLlCOgo33vvdaMl86JGKJO8NE8t64kaygX7vVmN+FtAepRYr/Jb32SuMvMlkWgTkXB1dC+379Adr2kYsMisEBTIFiIBcc3SWWWW2ZRLjgsRlQDPLAfNIOscl+JBxvGRjpkMnqhIPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=wvqUKztp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FOaDly/p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED885C4CEF7;
-	Mon, 23 Mar 2026 14:50:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774277448;
-	bh=4f9AlNnvt1H1wntRZn7D84y90Dv7pzJJe2ZUYbDXEHM=;
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="wvqUKztp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A09FC4CEF7;
+	Mon, 23 Mar 2026 14:58:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1774277913;
+	bh=EJoB4/6S2K2JhXF7hIxOmkKY7a75/VZlB6bv5gaJcBQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=FOaDly/pqt/70MZIhJMoawJx76IEihEHmZB1Ce+Y5f6I8d/wxrvQPxgDDnzXM0ZQK
-	 Merm8QOne1mkGi8lCRYK4bmQyrR555HqK49t3LE/DwKK/o2zXdD83yfs4Py5Gc53u3
-	 gnE3Fv7dX4u5h9EISNvxniACL61WTnS/suvEhuPrpF2l2gm09PBtT0CSzrly0RJkPO
-	 kq2b5ZiGV1zmF2hCVIxL2z1ql+6OD439tLE59xZ/BSkB24sLfvDTOdhE+wvEzYcOBE
-	 N0/Tk3Bn8RU8cRwJeoQSvAfFma+GIGjJ7FHRRTmkiwFTbxC5OSotDW/EmbrVjtyD1O
-	 gsNjbK6+DMb2g==
-From: Bjorn Andersson <andersson@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
+	b=wvqUKztpNpEWE9aLFm2vlLTsd+/l/d3QEWxjzeZFZy50v4n7/PJHovuMZ2loZ7V1i
+	 MmYUdpHxTULIust8rvy4Q5jP1Cb+BAErLWVsOK+8qq0aD95o5YDZsX67MEq430PgJS
+	 DG2QDc4qYZ5wzzfwX1ac44FaslYfwG9piJAJ+KPY=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Casey Connolly <casey.connolly@linaro.org>,
-	=?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-	David Heidelberg <david@ixit.cz>
-Cc: linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	phone-devel@vger.kernel.org,
-	Gergo Koteles <soyer@irl.hu>,
-	Casey Connolly <casey@connolly.tech>
-Subject: Re: (subset) [PATCH v8 0/2] Add support for sound profile switching and leverage for OnePlus slider
-Date: Mon, 23 Mar 2026 09:50:42 -0500
-Message-ID: <177427743912.13372.18307860238374412246.b4-ty@kernel.org>
+	Bastien Nocera <hadess@hadess.net>,
+	linux-input@vger.kernel.org,
+	stable <stable@kernel.org>
+Subject: [PATCH 6.6 099/567] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
+Date: Mon, 23 Mar 2026 14:40:19 +0100
+Message-ID: <20260323134536.274258546@linuxfoundation.org>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20251113-op6-tri-state-v8-0-54073f3874bc@ixit.cz>
-References: <20251113-op6-tri-state-v8-0-54073f3874bc@ixit.cz>
+In-Reply-To: <20260323134533.749096647@linuxfoundation.org>
+References: <20260323134533.749096647@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
+6.6-stable review patch.  If anyone has any objections, please let me know.
 
-On Thu, 13 Nov 2025 17:02:57 +0100, David Heidelberg wrote:
-> This series add initial support for OnePlus 6 and 6T, but other OnePlus
-> phones contains same mechanism to switch sound profiles.
-> 
-> This code was tested for two years within the downstream Snapdragon 845 tree.
-> It is now perfectly integrated with feedbackd in the Phosh environment.
-> 
-> The series is also available (until merged) at
->   https://gitlab.com/sdm845/sdm845-next/-/commits/b4/op6-tri-state
-> 
-> [...]
+------------------
 
-Applied, thanks!
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[2/2] arm64: dts: qcom: sdm845-oneplus: Add alert-slider
-      commit: ca5adb26c5927f28016c6b1778622dee9ada5ca0
+commit ecfa6f34492c493a9a1dc2900f3edeb01c79946b upstream.
 
-Best regards,
--- 
-Bjorn Andersson <andersson@kernel.org>
+In commit 2ff5baa9b527 ("HID: appleir: Fix potential NULL dereference at
+raw event handle"), we handle the fact that raw event callbacks
+can happen even for a HID device that has not been "claimed" causing a
+crash if a broken device were attempted to be connected to the system.
+
+Fix up the remaining in-tree HID drivers that forgot to add this same
+check to resolve the same issue.
+
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
+Cc: stable <stable@kernel.org>
+Assisted-by: gkh_clanker_2000
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/hid-cmedia.c          |    2 +-
+ drivers/hid/hid-creative-sb0540.c |    2 +-
+ drivers/hid/hid-zydacron.c        |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/hid/hid-cmedia.c
++++ b/drivers/hid/hid-cmedia.c
+@@ -99,7 +99,7 @@ static int cmhid_raw_event(struct hid_de
+ {
+ 	struct cmhid *cm = hid_get_drvdata(hid);
+ 
+-	if (len != CM6533_JD_RAWEV_LEN)
++	if (len != CM6533_JD_RAWEV_LEN || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		goto out;
+ 	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
+ 		goto out;
+--- a/drivers/hid/hid-creative-sb0540.c
++++ b/drivers/hid/hid-creative-sb0540.c
+@@ -153,7 +153,7 @@ static int creative_sb0540_raw_event(str
+ 	u64 code, main_code;
+ 	int key;
+ 
+-	if (len != 6)
++	if (len != 6 || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		return 0;
+ 
+ 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
+--- a/drivers/hid/hid-zydacron.c
++++ b/drivers/hid/hid-zydacron.c
+@@ -114,7 +114,7 @@ static int zc_raw_event(struct hid_devic
+ 	unsigned key;
+ 	unsigned short index;
+ 
+-	if (report->id == data[0]) {
++	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
+ 
+ 		/* break keys */
+ 		for (index = 0; index < 4; index++) {
+
+

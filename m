@@ -1,83 +1,46 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 562C23B95F2
-	for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 16:01:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 236A23B2FF5;
+	Mon, 23 Mar 2026 16:10:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774281691; cv=none; b=Z2X5GTsmTI/GoWz3doAjaP58A6q35M1fmFolnEqPx0N3VfNPE/i7dhdeyvLonlT0cOUvFmDe9AO056rgSHzQdpxJlVuX0OmvScz0hhZCU/1173rK38PQ7CGGXSbVPRlVkos7exyJEnOO0NyMBMVPmcphdMGdawuUSOz5X3EYN0k=
+	t=1774282230; cv=none; b=Vu26g84fS9A2+baOBjMhk7zpcupKvBQFXvftHEjadAPBlyFACX4/ZZTBDUuMSpvZoOUvKhxJP2hKRCMVM4gx3WeClUUcBV/jwxMZhEf7UtdqWG0RxL9Wq8ADLPAPu3jPiC3bvn3pAVc2Wq7bQn+8PsKeuvV16qKgaj5btOZhTOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774281691; c=relaxed/simple;
-	bh=LmRSwQX52HdCSQ6DgmgIrFMSbUGlSX08R5zAJjefNRE=;
+	s=arc-20240116; t=1774282230; c=relaxed/simple;
+	bh=3eZTIzvF47nEsRJ3ScegTeypL8shHJ/kJJRpBzyyvoM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eT8zFO80HOcT50fEia+qGF91Du9tTjyDhYAedARAJcZdFNisvdXJX+w2h/udnJi5x42ABQlza4iM1roJtAkdNZoFrU405+ruIOwlb8WGwzDy+TFB2rzO7+8FbanVcdp3keBuDV5cm8Nhx0LIEqI6xuZoOOcsvyd5DQqF2uUPPaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org; spf=pass smtp.mailfrom=bitbyteword.org; dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b=Yvpef8nc; arc=none smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bitbyteword.org
+	 MIME-Version; b=CKwKwuO6M4ya6EU/fc3Ndb1cZt3stA1LK0DvHqmctDCcn4kMmKue41ahpTvKDapcfCFEh7jY7xKqhiN3WDUigtMIAIVpQhDyPLb0ouzZ2278EH/uBpATKMEIqy9XVFP6a8Fg9/z9rFfdPk7TsTwlTtGcoq9f4S7CgWX8zLcyPg8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=TYdZu/6G; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b="Yvpef8nc"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-7982c3b7dfcso40494077b3.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Mar 2026 09:01:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bitbyteword.org; s=google; t=1774281689; x=1774886489; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UgN/E5MstV8O0ZehCwcajMwfgG6bTnMGl7IbsNbuSbg=;
-        b=Yvpef8ncSCd/mgYgKB6DDojYjCqUdSXzm0Imxo/VsLFBrKTiZ39UcRbhTlARyeIkeu
-         zqiln+ejCXT6pcaOuyLOK0Kn1piVmM8gKaB1QP6LJ/f2yVn35uLAK9NVwrkYmNuhrQRQ
-         ckSk/w4EqmdE6YtectdRdWmqTqyc6LgHiq/onmWddp3WIW0uoHlDc0J8wexbkmYmL9d+
-         omBSzmgqVEQBWpGfxQBBb+O/ro+vUqR9Qt/4piQICffiXSQR3NqL0Qu7Q1fzOfYR5fGV
-         rugc0aj1/S5Cak4xRlTwUVTIDNChsAn67nu8eTIbv2wJ3HELfPmqHW8WRiggspNGkg/b
-         c3Yw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774281689; x=1774886489;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=UgN/E5MstV8O0ZehCwcajMwfgG6bTnMGl7IbsNbuSbg=;
-        b=qsZMm5Qd9d5t8u3xu+3X0uzEKxV/JWIoZ90lL71XPgUE4s/g9TMG4xOK2JR+epvXvS
-         1lBq7vJebycfOw3IZnhsNqFqgMv6WXn2dN78XftDNbX5fULGHZAghqSVmfNt/RJ3a0Mv
-         NaaYA69rXV8MiWbHDLuR3OcgDe2f6+2i83PX+NILxUCwtoqGHUy0GvouEbjPVKTYfSfh
-         AqtszxiEQXU6BPl9bYcNr6N7tSl3sAs//521Gyy+hXgEZkDRwmQZhvPIH7De8IVVKa4Y
-         Bva3cHbzTnydch/PRAGnxfA64ryRJ2lkBMek31gmyYV5YIAPXWaSefHbxdpJL439p8ks
-         gy5Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWrUe+UuqAGPEcLCs19JUEnp1H4RZX6DQ/tOe5KTWOKors9Gfr2MP1bGQ+86JAag8RhXUya3PGHWXMKzw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyL+opUZClZEQccUj18k/X1v6UERgN5Xgq9C8KzEJ4/DWPV/OoU
-	LzH3M4i6bGSfVamCbsdF8kIFQu7nVnx2Lae9LN8Bgz5f2E9ysHZcO1s3+vPGebFGgGo=
-X-Gm-Gg: ATEYQzyCPUzFqDiSgFh/IyTjQkFH2vCly2uJBcDCKqodXqehWr1AK1NLY84oSDyuOaY
-	a4Jiqjk4vs/Dth3cabt3WqXL3Lb8kUGREjdrdjGaE05jiWFJYKj2CxALxs72SER+h4kEqZeAkYp
-	E4Qy3tgDjiIOagQsdOuxqTootFpYYEEIzCT5wh6Clqj8H9EJ02uQ9qtZ0CFLHOCBBMJglRk2Ggx
-	w6pCejudp8uc1vILJmQXAoXFGvyE5Dodu2EttRKF3ZcHojORNZHYaVrOhLsKyC34zTaDGp3t8tx
-	X/azo+u8xhRT7O2mU+HQkWbNMIeGDWtK6agXR0X4u/R1WltFGYslQHbcawlxzmD8z+3TamrRTTL
-	RYXHndBP83x4w+MDuHyB+qE2Tz+vG7WLtyeq/Y4oMLZB2kdgSdorHcJleR7EKJBXghL4GKA1NWn
-	wXTbmIQNEOBLaifxjgQYYbTyCpJ/gktohe8R2/EaRg9vgazB5CPZnQqt9ps+7N8CYsz0EDJvE95
-	Mto
-X-Received: by 2002:a05:690c:d88:b0:798:7821:8b8c with SMTP id 00721157ae682-79a90c25bc0mr126905677b3.49.1774281687685;
-        Mon, 23 Mar 2026 09:01:27 -0700 (PDT)
-Received: from vinmini.lan (c-73-143-21-186.hsd1.vt.comcast.net. [73.143.21.186])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cfc9088df1sm843364185a.25.2026.03.23.09.01.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Mar 2026 09:01:27 -0700 (PDT)
-From: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
-To: 
-Cc: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="TYdZu/6G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BC5C4CEF7;
+	Mon, 23 Mar 2026 16:10:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1774282229;
+	bh=3eZTIzvF47nEsRJ3ScegTeypL8shHJ/kJJRpBzyyvoM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=TYdZu/6GVUpqP3atpjSOtPPKR0R+Cvf1ov+xJfYUrTN7yYQFDTLZ8tHF6nnN6twCa
+	 e8j7Y3Lh+df2HEZH4h280BqfZTeruKYjFkTSLdvMxkIKPySQerdHMc0VCvgGDKbYPI
+	 VrRgw2r/K4R6GC9h0tQ2QCec5LnrldrFPfCi5/uk=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Zhang Lixu <lixu.zhang@intel.com>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bastien Nocera <hadess@hadess.net>,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org
-Subject: [PATCH v2 11/19] HID: Use trace_call__##name() at guarded tracepoint call sites
-Date: Mon, 23 Mar 2026 12:00:30 -0400
-Message-ID: <20260323160052.17528-12-vineeth@bitbyteword.org>
+	stable <stable@kernel.org>
+Subject: [PATCH 6.1 078/481] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
+Date: Mon, 23 Mar 2026 14:41:00 +0100
+Message-ID: <20260323134527.132382130@linuxfoundation.org>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260323160052.17528-1-vineeth@bitbyteword.org>
-References: <20260323160052.17528-1-vineeth@bitbyteword.org>
+In-Reply-To: <20260323134525.256603107@linuxfoundation.org>
+References: <20260323134525.256603107@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -86,33 +49,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace trace_foo() with the new trace_call__foo() at sites already
-guarded by trace_foo_enabled(), avoiding a redundant
-static_branch_unlikely() re-evaluation inside the tracepoint.
-trace_call__foo() calls the tracepoint callbacks directly without
-utilizing the static branch again.
+6.1-stable review patch.  If anyone has any objections, please let me know.
 
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Vineeth Pillai (Google) <vineeth@bitbyteword.org>
-Assisted-by: Claude:claude-sonnet-4-6
+------------------
+
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+commit ecfa6f34492c493a9a1dc2900f3edeb01c79946b upstream.
+
+In commit 2ff5baa9b527 ("HID: appleir: Fix potential NULL dereference at
+raw event handle"), we handle the fact that raw event callbacks
+can happen even for a HID device that has not been "claimed" causing a
+crash if a broken device were attempted to be connected to the system.
+
+Fix up the remaining in-tree HID drivers that forgot to add this same
+check to resolve the same issue.
+
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
+Cc: stable <stable@kernel.org>
+Assisted-by: gkh_clanker_2000
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-cmedia.c          |    2 +-
+ drivers/hid/hid-creative-sb0540.c |    2 +-
+ drivers/hid/hid-zydacron.c        |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index ed3405c05e73c..8d36ae96a3eea 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -110,7 +110,7 @@ void ish_event_tracer(struct ishtp_device *dev, const char *format, ...)
- 		vsnprintf(tmp_buf, sizeof(tmp_buf), format, args);
- 		va_end(args);
+--- a/drivers/hid/hid-cmedia.c
++++ b/drivers/hid/hid-cmedia.c
+@@ -99,7 +99,7 @@ static int cmhid_raw_event(struct hid_de
+ {
+ 	struct cmhid *cm = hid_get_drvdata(hid);
  
--		trace_ishtp_dump(tmp_buf);
-+		trace_call__ishtp_dump(tmp_buf);
- 	}
- }
+-	if (len != CM6533_JD_RAWEV_LEN)
++	if (len != CM6533_JD_RAWEV_LEN || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		goto out;
+ 	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
+ 		goto out;
+--- a/drivers/hid/hid-creative-sb0540.c
++++ b/drivers/hid/hid-creative-sb0540.c
+@@ -153,7 +153,7 @@ static int creative_sb0540_raw_event(str
+ 	u64 code, main_code;
+ 	int key;
  
--- 
-2.53.0
+-	if (len != 6)
++	if (len != 6 || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		return 0;
+ 
+ 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
+--- a/drivers/hid/hid-zydacron.c
++++ b/drivers/hid/hid-zydacron.c
+@@ -114,7 +114,7 @@ static int zc_raw_event(struct hid_devic
+ 	unsigned key;
+ 	unsigned short index;
+ 
+-	if (report->id == data[0]) {
++	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
+ 
+ 		/* break keys */
+ 		for (index = 0; index < 4; index++) {
+
 

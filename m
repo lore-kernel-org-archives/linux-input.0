@@ -1,107 +1,115 @@
-Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC053624BC;
-	Tue, 24 Mar 2026 14:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 882B34207A;
+	Tue, 24 Mar 2026 14:37:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774362484; cv=none; b=h3iPYxXvfn0HYV7ftl81qTGxxKBG2lf/F0Qg3hhLshSQL1MV+BSDizgUyiJkbdJF8qy9SuWMkK5899VCqoQB1EaX96zgWHQF6KepC4Gx91RDol7GHEAcNut1k0//iKz8e5Ii9c2aB5p5PFtDfVWYCeU/kwz/EuZgs3WGn8PkyAk=
+	t=1774363026; cv=none; b=H76/+v02Z99ytdVBYsNJWHBggQ5dXlDWpo5xqA7qmCCawyDzDalnJlHJtzFWwgeiLub897Ov8wQ70GfgI5FjQ83Obnm4vKLJwq2EOnkPMYENcUQqd1ClHzIgJxeTgahOeV7BxQbb55Tne3GePtEvwU6tjnViVTcMMHnzVopzNJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774362484; c=relaxed/simple;
-	bh=Tli2X3y0LVZah9JzvHCs3qERanTby0V0BrV4nXSA3Js=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EDiC7YBWVSVjd1xuN7MVDRcf1lwlemnAX/FkCSHp/Ezdt1+m+mPid5mVMNdulCjbxsxh4eT78D7rBs8HwjJ/iKvV8gjj9zg0VDoo27Fby5ccARnIYHDa1LrGYzOUjtE/gLloBphqYFyF+ujqub7B3s3H2caxCrixTxF3dwC49Ng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf02.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay09.hostedemail.com (Postfix) with ESMTP id 1F17D9396F;
-	Tue, 24 Mar 2026 14:27:53 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf02.hostedemail.com (Postfix) with ESMTPA id DC83180011;
-	Tue, 24 Mar 2026 14:27:20 +0000 (UTC)
-Date: Tue, 24 Mar 2026 10:28:02 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Dmitry Ilvokhin <d@ilvokhin.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Ingo Molnar <mingo@redhat.com>, Jens
- Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
- <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov
- <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Marcelo Ricardo
- Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Jon
- Maloy <jmaloy@redhat.com>, Aaron Conole <aconole@redhat.com>, Eelco
- Chaudron <echaudro@redhat.com>, Ilya Maximets <i.maximets@ovn.org>,
- netdev@vger.kernel.org, bpf@vger.kernel.org, linux-sctp@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, dev@openvswitch.org, Jiri Pirko
- <jiri@resnulli.us>, Oded Gabbay <ogabbay@kernel.org>, Koby Elbaz
- <koby.elbaz@intel.com>, dri-devel@lists.freedesktop.org, "Rafael J.
- Wysocki" <rafael@kernel.org>, Viresh Kumar <viresh.kumar@linaro.org>,
- "Gautham R. Shenoy" <gautham.shenoy@amd.com>, Huang Rui
- <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, Len
- Brown <lenb@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, linux-pm@vger.kernel.org, MyungJoo
- Ham <myungjoo.ham@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>,
- Chanwoo Choi <cw00.choi@samsung.com>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- linaro-mm-sig@lists.linaro.org, Eddie James <eajames@linux.ibm.com>, Andrew
- Jeffery <andrew@codeconstruct.com.au>, Joel Stanley <joel@jms.id.au>,
- linux-fsi@lists.ozlabs.org, David Airlie <airlied@gmail.com>, Simona Vetter
- <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, Danilo
- Krummrich <dakr@kernel.org>, Matthew Brost <matthew.brost@intel.com>,
- Philipp Stanner <phasta@kernel.org>, Harry Wentland
- <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
- amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mark Brown
- <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
- Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, "Martin K.
- Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, Chris
- Mason <clm@fb.com>, David Sterba <dsterba@suse.com>,
- linux-btrfs@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Andrew
- Morton <akpm@linux-foundation.org>, SeongJae Park <sj@kernel.org>,
- linux-mm@kvack.org, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/19] tracepoint: Avoid double static_branch
- evaluation at guarded call sites
-Message-ID: <20260324102802.4f8af148@gandalf.local.home>
-In-Reply-To: <20260323160052.17528-1-vineeth@bitbyteword.org>
-References: <20260323160052.17528-1-vineeth@bitbyteword.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1774363026; c=relaxed/simple;
+	bh=k0+sRC9RFye3DN2uZ/F37ej+HMwLf9FlhcBhnkPBxsY=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=C+mnhkUy6DL388pZjJNWRU0/fktykeS3zmU3Q7EfnORe/10k1AV3Odims0aAayN3SS2wdND3Pfz4S1QQMpWRfBfiVSvGmXrJfFNMD92hVbSUwDGlk7KN1ldg4qrSOCJN9n6LrthTwq6Bcidr3C0W1Jhw/n2t2PQ6kuG4BCEAQ3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SZpuSYqd; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SZpuSYqd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3811C19424;
+	Tue, 24 Mar 2026 14:37:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774363026;
+	bh=k0+sRC9RFye3DN2uZ/F37ej+HMwLf9FlhcBhnkPBxsY=;
+	h=From:To:Subject:Date:From;
+	b=SZpuSYqdp3XB+8xvk724JE6UfUo4sBOsz95fDMK5ijBhepOdQ5OX2Hu3rZqXHqGQ3
+	 klgw+g8HFT2CLBOIysjDswzRkEJNIA54L++kIcnx8efMqm9HYiQLimP8ufI0eu6EqB
+	 63QQVGz9KuoBxgzo68jH508c5aHDElVaZA++Yz1lh9LKt15678kyilkGOVvnu8oTOU
+	 imLzyzeGfAt64dzMuto7VZ5bWw7cEuHFbvgbxc2TnYGZfu/sO5B78TbfKKMiQKscyV
+	 9BGybpueL633qo/WexfTB3IHt/KD1SdzNdiZdRKGzLwfZgQKrPW2et4w4EU1g1a8JH
+	 od4ppSztPpnOA==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/2] HID: logitech-dj: Standardise hid_report_enum variable nomenclature
+Date: Tue, 24 Mar 2026 14:36:43 +0000
+Message-ID: <20260324143651.342273-1-lee@kernel.org>
+X-Mailer: git-send-email 2.53.0.983.g0bb29b3bc5-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: rgnt1g9q8d9rzsk6azwgoui85joqhwik
-X-Rspamd-Server: rspamout04
-X-Rspamd-Queue-Id: DC83180011
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX19u4yDoihzmlvbQbp4GBKk4Sx0FsrK0H8g=
-X-HE-Tag: 1774362440-296898
-X-HE-Meta: U2FsdGVkX18Kg3NfvHLPV0rnp3UrERb/HeySVgjR0PuCDys+LVJ4s2L8fsy1rJHv82yu9UO4h+xU9iEx3z3YFKVS1OFx2Vvti4rEmq0enV2xaTwbpZ+YWf60TFzb8QMlheid4NsXOVqOYcFPHCn+ZrWqPDCdrmq0l+tkyLSeYhbpJixFuANIjXhtSBZInyEBtAAqHPqUuWZ3PdZupXAY7JMTASH2KNw+CMFxYOXnDTbb38gpzJzBKiUcyoxK6GlO0db0aEPLlOAMHWKzcQEu5msgaweBGFFWtD9G0uWRbe+OcS9gBl+SI1CDJFvGCt0Z8gh5xinNWW7KF0gSIEh3ZlA0AO0+B5wCRjivVxgdquYH5bWbk7CtReb5es0u0tOp
+Content-Transfer-Encoding: 8bit
 
-On Mon, 23 Mar 2026 12:00:19 -0400
-"Vineeth Pillai (Google)" <vineeth@bitbyteword.org> wrote:
+Since we will need to differentiate between the two report_enum types
+soon, let's unify the naming conventions now to save confusion and/or
+unnecessary/unrelated changes in upcoming commits.
 
-> When a caller already guards a tracepoint with an explicit enabled check:
-> 
->   if (trace_foo_enabled() && cond)
->       trace_foo(args);
+{input,output}_report_enum is used in other places to let's conform.
 
-Thanks Vineeth!
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
+v1 => v2: New patch
 
-I'm going to start pulling in this series. I'll take the first patch, and
-then any patch that has an Acked-by or Reviewed-by from the maintainer.
+ drivers/hid/hid-logitech-dj.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-For patches without acks, I'll leave alone and then after the first patch
-gets merged into mainline, the maintainers could pull in their own patches
-at their own convenience. Unless of course they speak up now if they want
-me to take them ;-)
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 44b716697510..32139b2561c0 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1858,7 +1858,7 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+ static int logi_dj_probe(struct hid_device *hdev,
+ 			 const struct hid_device_id *id)
+ {
+-	struct hid_report_enum *rep_enum;
++	struct hid_report_enum *input_report_enum;
+ 	struct hid_report *rep;
+ 	struct dj_receiver_dev *djrcv_dev;
+ 	struct usb_interface *intf;
+@@ -1903,10 +1903,10 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 		}
+ 	}
+ 
+-	rep_enum = &hdev->report_enum[HID_INPUT_REPORT];
++	input_report_enum = &hdev->report_enum[HID_INPUT_REPORT];
+ 
+ 	/* no input reports, bail out */
+-	if (list_empty(&rep_enum->report_list))
++	if (list_empty(&input_report_enum->report_list))
+ 		return -ENODEV;
+ 
+ 	/*
+@@ -1914,7 +1914,7 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 	 * Note: we should theoretically check for HID++ and DJ
+ 	 * collections, but this will do.
+ 	 */
+-	list_for_each_entry(rep, &rep_enum->report_list, list) {
++	list_for_each_entry(rep, &input_report_enum->report_list, list) {
+ 		if (rep->application == 0xff000001)
+ 			has_hidpp = true;
+ 	}
+@@ -1927,7 +1927,7 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 		return -ENODEV;
+ 
+ 	/* get the current application attached to the node */
+-	rep = list_first_entry(&rep_enum->report_list, struct hid_report, list);
++	rep = list_first_entry(&input_report_enum->report_list, struct hid_report, list);
+ 	djrcv_dev = dj_get_receiver_dev(hdev, id->driver_data,
+ 					rep->application, has_hidpp);
+ 	if (!djrcv_dev) {
+@@ -1935,7 +1935,7 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (!rep_enum->numbered)
++	if (!input_report_enum->numbered)
+ 		djrcv_dev->unnumbered_application = rep->application;
+ 
+ 	/* Starts the usb device and connects to upper interfaces hiddev and
+-- 
+2.53.0.983.g0bb29b3bc5-goog
 
--- Steve

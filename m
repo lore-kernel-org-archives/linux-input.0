@@ -1,136 +1,131 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A136A3FE372
-	for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 13:59:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774360767; cv=pass; b=UK7zygtf6JJCd68qCY6+8JRTT/IWtr+NNjvz81UIcbD1F9ktDXKRF/O+4TRRQQ4XSwo4NOkYaXunO1qW8rBFVZ2Ohvw1DS23H3O+y1j9pQqDgTGmA8QJqxFXn6fN2y0DNGEeuweM6Ymkump8zc2OpH+kVcsDuACe1ShCYbMmdeE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774360767; c=relaxed/simple;
-	bh=vyYBXmhCUT5TEiHQD+vOUjtsirAq1qrV4cFv8LNcU/E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YRJhCtEdLVDBjyspOpOe4y+iZP/VCLhS6k7LJlPmxA7cgPb5B0+Ol97qv9Cblh1MGBikT8cosHtaqCcOWBWgRiNwqq6qCJ25UKSf+YoShFfiLl1CdtZGGcEOnCcGLcVUu0KUrDUb8KTcTVx6wZeNCkWRvRCH8z2RyIDAN3A2HDY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B0gQGQ9O; arc=pass smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B549B3264EF
+	for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 14:25:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774362319; cv=none; b=rKjIeq/x8ndQ6ljgEXWLUetpKkPrDWpRD38uKhP8ufsNKTUCGa+OaYnPvjMjhPfsqkoiB6pYJ7LpvmLtXU3QK0Z4B4DDG3Dt0af3v8F0qGjYs9QPkv9Zpc13DKbPiHGzY1Q7j5Ixmx2L30qEvttvfZem1wps+3fbv9ssX+cijDQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774362319; c=relaxed/simple;
+	bh=3QvBchthoOHVbCy8CfjbKSzVJSPT+5XJuQlt/tUBvdk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dd8OD4ROSiiYS4Yl2xlUoQeWLzwHYiXNDlOXvi9IblXhKJqBwJgZ9t/YOPB7CWg320f5b/dn7KnPmMZPot0M8Db9NDSHoUJsOKJ88dqWPqnI3G/1M8m4lKYIKj/p2TRLttZAz1eM7qJ8GvBYCI6U/J5fmeGMPX20nB0Il4TMypw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=D4etKWb4; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=BHbHHLUb; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B0gQGQ9O"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-661d20c9787so1907247a12.0
-        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 06:59:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774360764; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Ud3dfbNc3P0Ki0t+UcOp0skwgv37uK1kv37buYJOq/yHOd0+Olgv/yjHmFevw2dDLG
-         gXMIfLtx5E0LTjN7Zhay1IGTbYbZ6pH9rgvIWu7ypUbr9oKOnaIvFWwig21g/A1FptPS
-         UP/a3qAJWyT/1Tfr6/qXLHHKw0NERkmlY4G0oXFLdUWFcn4TN3Zpm1ifTCR6LbH7DQOo
-         4LTv1nRfxByBeWE/ay0RAJUulhk+we8PN1Yai7CgELH4iWUXN6tCA5q4WHT2L1Q8NTxl
-         Divbm6/mKcyqENUEF99QcQ7/tFME/I9vJxoFeRRUgxDQDc+q7BA6lVip1AXCX7x4oxOV
-         +27w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=nZr+AxGZP6/2WYmYW4LcFFjgJ/CK7ZmXGyAcp7nSmlk=;
-        fh=h7DmfadJxR6M7zM4p0zZvAna60LxNA6c89AcQr+dozg=;
-        b=A1HIqf+gRRNIgRIMLhPRw0/zJH7usUhJRs+vKouTamamwqHDE+YKzDQAg923zIfs+C
-         c8Hlc5+BB7ey5bnkql59dV+RpgYpBuARd9EDcJ70YAaKKGvWN4fvDoT4YR/d4QdNCIsJ
-         pJTBWricxxyYcAS9VgsgpyMN0mF1D8w24Xx4PtBKKyHctaX9NdAprw13hp7dtuF9pM9q
-         b+tcwwpfLtwgQcfnEjzq1/yLwNwiFPetr7v46zLI40nh71Jbi2ONZgIDsEdWQh92ltHT
-         1RNIA9tV1d5JCZhGfsuImvDFyhO/5TM16xy66HdFwbzG/IgH7H/bhL/Q4VNPuB/rL69p
-         Z/Mw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774360764; x=1774965564; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nZr+AxGZP6/2WYmYW4LcFFjgJ/CK7ZmXGyAcp7nSmlk=;
-        b=B0gQGQ9OlF5Yl5HbXvhSaAYUoBeiP4S9pqt+UC/6o/k7Wg64BkHRM9cKOBmr6YxTmM
-         RIba0ZXx6GfxoAC315YHFrGzr4Xwzjsn0y5nqy5oAd9IWNfW2PrbVnwRqX6kLtz+68hg
-         06YPd8LSU/HaFkWYHiYnp0ch+14IUAy6uKYM6uRfCfg+pK1SyVR8CwB8+QcayNjYQd8e
-         qCFtCV9fRLqo4k3UC32CcJgwV8oI1fKZj2GbR+dU0Tt9ZrODg5ydzgJJPV7MIE1Q4OGM
-         qL7rnwpEGnrg5pRYxWHp3mCihQCPtHs8EUtosS9ICSL6dJw2PkjgnPyt9sNdJ7tN/lZS
-         B9OQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774360764; x=1774965564;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nZr+AxGZP6/2WYmYW4LcFFjgJ/CK7ZmXGyAcp7nSmlk=;
-        b=WFg/sfvyTQRidfdhch5GnrCXUk6sjuNMkZRwCGR6rQ9aXvE0rNZlRoY8mSVcku38F9
-         REm5lwW2m9fYijMdyOS4+tIlEFbVWG+T/f5WT3Zm9TPNn4GPr2gCXa10CH2dhNVJ5hsa
-         D0owOKKXJVSPtiG7iZLtO+IA3s71Y/258dAKVYo3N7cQf6G3UnyFg6u8nrtu6LoAxHAm
-         vZFeIntfXHGm6yQWUQObmG7bmFgCxRENW7Qv2sR6IHr1IkvWXU1muhUn3vU3IFSAATS0
-         CGz0zWFJcA6OLuWIrvWZdxVHwbFFfNlVOs47GRK+/Y1jNc/TEoLU3J21vVolTQGMoR8K
-         mSMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWcr5dby8kP3a0Q2kxxguz0TJHM9leX6WdQ+XYgVTKabH23zrInabgWXtl0fMb+xBg5dCBhKgJznyaZJw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXu39b4Hzy51rS4JuSUd2cEBNJ2XvvotOnED9eNES3s1f9WxhY
-	hfz+lijJgrfWY8WFbT7ujcaASp3QZbAY4XCBJDVzIBpkBj1/XUJykB6rw8iBoshj3mw3e32xpl2
-	/lvXuV/KJBFmGWPcbeeHVU7m/BPBrV1E=
-X-Gm-Gg: ATEYQzyynCqWw46O20PrhHsMdvKAPFZ4YWUcPuZq9HRJe6QiklKzC+aPlO8ynQQ2K4a
-	pJCX6cxm+nyy+icxGIY2b4z7YAfdChQQvszjHptfO4WJUn4PYbp8kRPtHB/yQnEnUY/+j3tCLMP
-	MP1N7GAfmdv18XnE67KybfCiqZ0CP0xUK3FM/FUoF2SskVb/ZnNgO3mqEyE0oohBwUvLKw/FVkS
-	i2T1yUgo87TfJzmfDYbd500T3IhUFUiL/i0BkqlBPcGTbbc7M0Qp4d6CajMf6ni0xrZt3lsfuZ9
-	RGF0VkY=
-X-Received: by 2002:a05:6402:5050:b0:664:bc6:69a9 with SMTP id
- 4fb4d7f45d1cf-668c97208femr10485898a12.17.1774360763402; Tue, 24 Mar 2026
- 06:59:23 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="D4etKWb4";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="BHbHHLUb"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D13465BCEB;
+	Tue, 24 Mar 2026 14:25:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1774362316; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Ufxtf7QTVkGvh2epedeXnvaSsWiKPcKKXdefsHTouoY=;
+	b=D4etKWb4/vWKn/x7ZMxIyqHIGHOIu0selQHEDALB8CW0wv0SvxMqZEozjYFg5tcfe33BDR
+	RyyRZM/Bv+Anp1q3lYDxlnz57SlNpQ7F+K068l/L3DghW+VAHl0WCnOEi1JbCCx6AOHPGR
+	LMD6S68s6szxTck13cbx3Yp/2JR4+1s=
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=BHbHHLUb
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1774362314; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Ufxtf7QTVkGvh2epedeXnvaSsWiKPcKKXdefsHTouoY=;
+	b=BHbHHLUb2U/y8N//z0TSLdbkc9TOJJDA+IniHHoQ1TSduO3i7agvwssH1nkvCO4TQyST1E
+	/Ou89xibQ0l8luHYsfWB09VKxDKNoqxoqx2a3AHxI+Vd/dNc8QBbMo6fgvsYiVPZlUFFSg
+	p1wRwKC1J+GfvpXM335FBkBMKla+XeM=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id ABA5F43EA6;
+	Tue, 24 Mar 2026 14:25:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id UJfDKMqewml8ZAAAD6G6ig
+	(envelope-from <oneukum@suse.com>); Tue, 24 Mar 2026 14:25:14 +0000
+From: Oliver Neukum <oneukum@suse.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-usb@vger.kernel.org
+Cc: Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH] hid: usbhid: fix deadlock in hid_post_reset()
+Date: Tue, 24 Mar 2026 15:24:54 +0100
+Message-ID: <20260324142507.74873-1-oneukum@suse.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260321202446.724277-1-charles.embedded@gmail.com>
- <20260321202446.724277-3-charles.embedded@gmail.com> <acDLSiujizhuYfOt@google.com>
-In-Reply-To: <acDLSiujizhuYfOt@google.com>
-From: Charles Dias <charles.embedded@gmail.com>
-Date: Tue, 24 Mar 2026 10:59:11 -0300
-X-Gm-Features: AQROBzAF-LG6jdD_Sy_sIcgbUNU2zraLmv4fBSoiT-048QHGq-fTekGn3Hr0M8w
-Message-ID: <CAHua+AMP-gwgFCX67rdDrfS8RUGpiw2msKYRn07AVWy+u_vTwQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] Input: adafruit-seesaw - add interrupt support
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Anshul Dalal <anshulusr@gmail.com>, Shuah Khan <shuah@kernel.org>, 
-	Brigham Campbell <me@brighamcampbell.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Charles Dias <charlesdias.cd@outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:dkim,suse.com:mid,suse.com:email];
+	FROM_HAS_DN(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:dkim,suse.com:mid,suse.com:email];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[5];
+	DKIM_TRACE(0.00)[suse.com:+]
+X-Rspamd-Queue-Id: D13465BCEB
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-On Mon, Mar 23, 2026 at 2:12=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Charles,
->
-> On Sat, Mar 21, 2026 at 05:24:45PM -0300, charles.embedded@gmail.com wrot=
-e:
-> > @@ -289,6 +341,19 @@ static int seesaw_probe(struct i2c_client *client)
-> >       input_set_max_poll_interval(seesaw->input_dev, SEESAW_GAMEPAD_POL=
-L_MAX);
-> >       input_set_min_poll_interval(seesaw->input_dev, SEESAW_GAMEPAD_POL=
-L_MIN);
-> >
-> > +     if (client->irq) {
-> > +             err =3D seesaw_register_write_u32(client, SEESAW_GPIO_INT=
-ENSET, SEESAW_BUTTON_MASK);
-> > +             if (err)
-> > +                     return dev_err_probe(&client->dev, err,
-> > +                                             "failed to enable hardwar=
-e interrupts\n");
->
-> Maybe this should be in seesaw_open()?
->
-> Thanks.
->
-> --
-> Dmitry
+You can build a USB device that includes a HID component
+and a storage or UAS component. The components can be reset
+only together. That means that hid_pre_reset() and hid_post_reset()
+are in the block IO error handling. Hence no memory allocation
+used in them may do block IO because the IO can deadlock
+on the mutex held while resetting a device and calling the
+interface drivers.
+Use GFP_NOIO for all allocations in them.
 
-Hi Dmitry. Thank you for your review!
+Fixes: dc3c78e434690 ("HID: usbhid: Check HID report descriptor contents after device reset")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+---
+ drivers/hid/usbhid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Since this is a one-time setup, I believe it should remain as is
-within the seesaw_probe() function, similar to other pin
-configurations.
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ddd5d77fb5a5..fd3e1aedc5cb 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1552,7 +1552,7 @@ static int hid_post_reset(struct usb_interface *intf)
+ 	 * configuration descriptors passed, we already know that
+ 	 * the size of the HID report descriptor has not changed.
+ 	 */
+-	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
++	rdesc = kmalloc(hid->dev_rsize, GFP_NOIO);
+ 	if (!rdesc)
+ 		return -ENOMEM;
+ 
+-- 
+2.53.0
 
-Please let me know if I'm missing any point here.
-
-Best regards,
-Charles Dias

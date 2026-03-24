@@ -1,78 +1,50 @@
-Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com [209.85.217.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F41D034A3C4
-	for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 20:19:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F0B349B15;
+	Tue, 24 Mar 2026 20:43:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774383546; cv=none; b=b5Rw6C7NHdOiiB22sDdTf6Ig/dU7cHZlFOvy39sQ7eroZ618H/QJq5qNSjrGBBnvxgff9HgZyeUhjQ9RYSQvGoF026FAu7El+BGo9f0OgpHQv3l7Rvdm4wQhBCbdiCPDH/an23s69Xwm4P20hsU7tHkRBqHZmHWI23NFp5Zswd0=
+	t=1774385023; cv=none; b=W17Djtnp/64iFK7ywwhFepdNLsZzVu7dlsL2y7zpEYAHzEqDL10XAXfeA+GrBvUNOOs7I+ZcgQK/JVE2yY5zdazJGw/mDqTK6/MUKYTwoCo3WJ79u2z++VeGq407o3ytnz0WbnLy8gKtEsUnX1P57v5/yo0oPXp4qKxstP92Cmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774383546; c=relaxed/simple;
-	bh=Dyg46i6NCc1WhVwi8ovx5dhpXtlJuvYJqgKq6QPv0Pc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DdVKeDgk2iJLfDn0hL4RP5K2b82MWIxbfFZOG/VbFTydduUspVviyjZuDcPoqO5H3Fv1O9Q2ieL493G2njiE3SQzyds0oubl2CbTXWXPNWOxZYNWrvI64LRs6vQVpBNRSyq4BH2LZWRDSsnk5KM8BBTOrPf78dsyqwqA9xfoYKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6vCoVf1; arc=none smtp.client-ip=209.85.217.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774385023; c=relaxed/simple;
+	bh=zIjaFuHVsgATx3kOGS+yxxCDKfhOBnpZGownF3ywmCc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A3/5nBbPmdBNu5Fbw103axDRcp0jKIdyvgHCIlQM/N47fXWaIiUkgtg+pC/S8nMJBiA4C6yuTmlthhIHheAWRQ8Qiuh0Nwns7+AN0Gnlv8lNLWV5DbwABnqHC70TPliY3BkTwyBzDbqhTpSGD16qwk/vPoo8uWcP1D5RkcYEfBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lodewillems.com; spf=pass smtp.mailfrom=lodewillems.com; dkim=pass (2048-bit key) header.d=lodewillems.com header.i=@lodewillems.com header.b=RNDsfnNj; arc=none smtp.client-ip=80.241.56.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lodewillems.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lodewillems.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6vCoVf1"
-Received: by mail-vs1-f45.google.com with SMTP id ada2fe7eead31-602947681e2so995998137.0
-        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 13:19:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774383544; x=1774988344; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c/LwkGsCAcMgkIjG5Z0vM08NnZ6ybKA3EObcdXRbB+Q=;
-        b=e6vCoVf12gK9VWthRMn61bBa/NccVDO0jp6+PjF+1gUG5lfxCW6Lloo3qiTgcbzK7o
-         UWAtpQ9YKK28PesKG0rLIAedXyI/0nD1swFFk6XPzyl2mBdcb3seQOz3nEhdf4bZq9uB
-         EGmF2C+5lfuGxGxTL3WIZq5wH0V092DYfTyuaYnC6oL5iXbypLgE305y0Y4m6mHrcc6f
-         3nzxCMRssTptHAgaolWDwMolk+l6XgqgJFCabVIgG0i24QbVuC/oWc5Ke/tpCLlxPW3K
-         24OArcrdEiHivf4LCu7yZG6D0xrVagMIRTvdogvgB6wtzFA6XroaH2xmI70oJZAU5RQC
-         yaTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774383544; x=1774988344;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=c/LwkGsCAcMgkIjG5Z0vM08NnZ6ybKA3EObcdXRbB+Q=;
-        b=AbGiRPDwe303wvNvgRv3QpKaebc7oh2mHXdCzWcrCE/ZjyYoSdncA/PQFVnKGpDrPD
-         o7VempsFeuPt48+iAsCQsyjgiHRJF/rALqd3QJ2Rlmd4KIz2alLwDqIWIE+BrU/FxQop
-         HS9vfx7RY4GiBj5pxULQeVqP1TMxggCsLBcsM4LJdUKH9+gLLYCCv7Mi5mvOSF5RM+0/
-         psTD6ZSp4Mgm7jD2Z/Qa99aYDINGNQQD9qm0oHCi/wGEPMoiOpu8OyOLbfyEs3PFsVdF
-         20XH/41kv2zUeUmj0Cct47qDMmdWS7rpjVxKR0QvFc3bWIKIcIdoRZvqCzS2LL5aMshp
-         ZimA==
-X-Forwarded-Encrypted: i=1; AJvYcCUM2td86Y2r0Uwjmq65k/Qi2WWrZB8a6b0zpGDnLpwrYx9Kv0+0Do5OddUh7kTRdFFcg6JbdgJVpJ+83g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2j5idq/eGN+z8EIaUlg5uR0NOhEugtkHed4p9GAL8Trg3Q6tq
-	pNkXIb1+Abdgz3vS47RYCwC7wtHKXjtyWppqbCuOSl+fX+oPAwAw9RoJ
-X-Gm-Gg: ATEYQzyQF58iA0BcYh2OkdjVmdvmXEYQD3aSMFG9/RIlLA5KEtiV1XUHDKDhXHIZRn5
-	6qvdt0cmU2BiXou/MMm5FrxoQUzKeREgdwwTUM5FqGTpp3NV4y5+pig8REgknVPyIErY+q2OJYQ
-	KLS972B3Tsr5+HZy64ngx3DruP/dhU5MT73iNYq7TV7GMcll0fj0wSHpZ11XYyeoWlqn+Vr5fN1
-	/g9/f8qwABgqB72WdfEiP9NXIvbKDqwgOF9VpJ96g0WAweWJoCxIzYW+dh291/+KycljlSrdiHA
-	RMaCcwBhSigUle8i2gYdTZ6FuD/gAnYwdFu3sc4JUImXXTYM8j72VYStMGGNLdNaL3glZkUVZwN
-	a1JgJuE4jwUKL5AP+Wbiq5O7aDRBTuV4w0QN72d0vcTe1lc4weHnKNXWZmcWwuMW0lqpDG8wtw4
-	NAzcVcjLUqN+kXIUygsDKufVtKFwuEe3hBHg==
-X-Received: by 2002:a05:6102:4425:b0:602:a4af:5fe with SMTP id ada2fe7eead31-603870b6353mr706587137.9.1774383543988;
-        Tue, 24 Mar 2026 13:19:03 -0700 (PDT)
-Received: from localhost.localdomain ([2a09:bac6:d6dd:aa::11:17b])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-602b549fff7sm11665211137.7.2026.03.24.13.19.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Mar 2026 13:19:03 -0700 (PDT)
-From: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
-To: michael.zaidman@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=lodewillems.com header.i=@lodewillems.com header.b="RNDsfnNj"
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4fgMSh59NCz9tnT;
+	Tue, 24 Mar 2026 21:43:32 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lodewillems.com;
+	s=MBO0001; t=1774385012;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=vo0WoiOwSs1ZytETNhbzaLr+3NJA/ey1WnXjpVlnyTw=;
+	b=RNDsfnNj+2ijdaVxtonf25IPl55rSFvnFMhb6ptZQCWEzb/bN8yiXOBYh1KOCj96bmYDO7
+	7CNOTFaGSGzopFeJ3mFROhsuqr4fBsFZGKHM8B79tsD41sarkqo3I94htZefQN79yxuGd8
+	x/khHwZmrX2YHwMhJTOm5FkDmB01S60yZ22HEbEmfH5gTAu/Zc098qc4JK6exmED3CC+88
+	zMtF2YvAlRs/76zF/uAPzFuSydXuEyDpLEv7ftM6YPQv5QCF4TX58oB/yIYIZhSr3ZfxoJ
+	AlMfUUkqSOsCgCnV7QPIo3K/hwBBA6kMOY7i+6BZc2a5X7IBAeCc6TcSD66Naw==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=none;
+	spf=pass (outgoing_mbo_mout: domain of me@lodewillems.com designates 2001:67c:2050:b231:465::202 as permitted sender) smtp.mailfrom=me@lodewillems.com
+From: Lode Willems <me@lodewillems.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
-Subject: [PATCH v2] HID: ft260: validate report size and payload length in raw_event
-Date: Tue, 24 Mar 2026 14:18:58 -0600
-Message-ID: <20260324201858.46591-1-sebasjosue84@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260324173527.11321-1-sebasjosue84@gmail.com>
-References: <20260324173527.11321-1-sebasjosue84@gmail.com>
+	Lode Willems <me@lodewillems.com>,
+	Dominykas Svetikas <dominykas@svetikas.lt>
+Subject: [PATCH] HID: Kysona: Add support for VXE Dragonfly R1 Pro
+Date: Tue, 24 Mar 2026 21:43:06 +0100
+Message-ID: <20260324204306.694760-1-me@lodewillems.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,51 +52,47 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 4fgMSh59NCz9tnT
 
-ft260_raw_event() casts the raw data buffer to a
-ft260_i2c_input_report struct and accesses its fields without
-validating the size parameter. Since __hid_input_report() invokes
-the driver's raw_event callback before hid_report_raw_event()
-performs its own report-size validation, a device sending a
-truncated HID report can cause out-of-bounds heap reads.
+Apparently this same protocol is used by more mice from different brands.
 
-Additionally, even with a full-sized report, a corrupted
-xfer->length field can cause memcpy to read beyond the report
-buffer. The existing check only validates against the destination
-buffer size, not the source data available in the report.
+This patch adds support for the VXE Dragonfly R1 Pro.
 
-Add two checks: reject reports shorter than FT260_REPORT_MAX_LENGTH,
-and verify that xfer->length does not exceed the actual data
-available in the report. Log warnings to aid debugging.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+Tested-by: Dominykas Svetikas <dominykas@svetikas.lt>
+Signed-off-by: Lode Willems <me@lodewillems.com>
 ---
- drivers/hid/hid-ft260.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-kysona.c | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 333341e80..68008a423 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -1068,6 +1068,17 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	struct ft260_device *dev = hid_get_drvdata(hdev);
- 	struct ft260_i2c_input_report *xfer = (void *)data;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index afcee13bad61..772f24e80baa 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1471,6 +1471,10 @@
+ #define USB_VENDOR_ID_VTL		0x0306
+ #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
  
-+	if (size < FT260_REPORT_MAX_LENGTH) {
-+		hid_warn(hdev, "short report: %d\n", size);
-+		return 0;
-+	}
++#define USB_VENDOR_ID_VXE		0x3554
++#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE	0xf58a
++#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED	0xf58c
 +
-+	if (xfer->length > size - offsetof(struct ft260_i2c_input_report, data)) {
-+		hid_warn(hdev, "payload %d exceeds report size %d\n",
-+			 xfer->length, size);
-+		return 0;
-+	}
-+
- 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
- 	    xfer->report <= FT260_I2C_REPORT_MAX) {
- 		ft260_dbg("i2c resp: rep %#02x len %d\n", xfer->report,
+ #define USB_VENDOR_ID_WACOM		0x056a
+ #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
+ #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
+diff --git a/drivers/hid/hid-kysona.c b/drivers/hid/hid-kysona.c
+index 09bfe30d02cb..ccbd8380064e 100644
+--- a/drivers/hid/hid-kysona.c
++++ b/drivers/hid/hid-kysona.c
+@@ -272,6 +272,8 @@ static void kysona_remove(struct hid_device *hdev)
+ static const struct hid_device_id kysona_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_DONGLE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_WIRED) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, kysona_devices);
 -- 
-2.43.0
+2.53.0
 

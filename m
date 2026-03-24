@@ -1,99 +1,101 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B74F3F7AAE;
-	Tue, 24 Mar 2026 13:14:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C49DE37BE7F
+	for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 13:40:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774358089; cv=none; b=I1nQ+PfxHUTmRyKOCE5/ZYDvw6x9myZaH3nP2CPbKlVtcxtM6ywOdNYSLDgcIpTShWdVVBczbaebBsQW3uWl5Vd/gbDK3n7WmzmlTi1yZcbEtrNG/kWR9G8Wzaq9XuLr35HWkfMvCHJjF8bGOJNN6YzbYY59g0LcheB0tXf+Py4=
+	t=1774359606; cv=none; b=hQcA6khTON9DR9HFjOyNArBsyKg97xP0maijfWBXZvmjoaATUAW9JjY99tWnF2XtGlsp2wdv2dswIsGPU/8Rj7z/GuIaFfskIZETRixr/nWvARMsU9iH4BTtSu4pvvnly4xGcYorzW2mX1h6ACuFvYXMIjSDvRxMwNW7WRx/+AA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774358089; c=relaxed/simple;
-	bh=+dM2lNuv2wsA7qramJDcF0xEWV/xVrPNwsSdGkLdbbE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YcZRtQiv6yHFcJNX7wy3ogEKx+Cna0d91PRENYqk+pzwvFbuyz3+sQtaDP3LKxzACA842KvvOtWh3GtXKhQDtV+4x4khHpc2LD4IvOOGMYMFWQAgn2KnU+uLveq9b7Aq43nMcM+irR4+QL/YCR3jCtZMuzbY/fEkdp+TxP0Nacs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.197])
-	by APP-03 (Coremail) with SMTP id rQCowAC3m+JCjsJp2ruqCw--.32110S2;
-	Tue, 24 Mar 2026 21:14:43 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: dmitry.torokhov@gmail.com
-Cc: andriy.shevchenko@linux.intel.com,
-	kees@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	pengpeng@iscas.ac.cn
-Subject: [PATCH v2] Input: penmount: bound packet buffer indices in IRQ path
-Date: Tue, 24 Mar 2026 21:14:42 +0800
-Message-ID: <20260324131442.27632-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
-References: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
+	s=arc-20240116; t=1774359606; c=relaxed/simple;
+	bh=gB9UGxCWxD/PtBMHenHcj06EGocK8eI8EN2Vt90PtuE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gMrCs61Ntcwqlj20pbOutg8CTyONW/slfmRPscPnlhxFCmNgLrgKEv/O3B1gYU8+z+koVH90Fo7NvoOp9Fq0LeYDu4DLv7MyAh3qSd9PraoIxvv7EZY2TQrx9BIZReMN19Xa0FVH3V6T/1iNNX0uDxJIrtbkWuO1XF5zaAsgYog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu; spf=fail smtp.mailfrom=g.harvard.edu; dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b=bGV68UCs; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=g.harvard.edu
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b="bGV68UCs"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-8cb20bcff5aso472875685a.3
+        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 06:40:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rowland.harvard.edu; s=google; t=1774359604; x=1774964404; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=s8FPgOYJRQg2TdSQ65IcaLDL29XA7DW6gJZHjee2pCc=;
+        b=bGV68UCsFF4FxRtVW/vq1xVoHoWI8wwM81iNK/x0W7LnjtdStUC9tWPUxSdx9Fifbj
+         evBnsEItgui46b0YA0p+Ot+HJzC3qQFPMi4ISsfgcPZNdnn6JibogN+NqhhAxTELOYhT
+         005ldLSoFwG7tBVf6VhH65pp55bo2o3QDfAtRft7JVe+bS6paoGA/WYZXfkDELJBmCte
+         xtxlkTG47zUGBmLbytUvI/GEag5RfDAQ9rzoIz73ZaHCGG73HTJyXKpeGY/cNsf2L6F/
+         Zvy9/Our6dpdxwuPos76S5hYZgZhbjs7wrGJuO/4X/q1ulSpmvCc3oCMt72DCehMWbRG
+         IOHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774359604; x=1774964404;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=s8FPgOYJRQg2TdSQ65IcaLDL29XA7DW6gJZHjee2pCc=;
+        b=f7mGkz8uFZLa4B/BFC61aKOI12FFHe1vs1zRTC+U6xuQ2xUiXCswq77soY4yw+XMqO
+         INwO23+3xmmtlwsJB/mrZYQZ1zZkb6n/miab0lB/M6H0hu9Ca40GQ9uVtU7YQHHVvTIf
+         rpApnxIRu8dMOD/he3Eg4vy52VuvjLgGAgGlV4k9qvDwlOPjUvBjX/IufgFvqMCPuRlc
+         LoK6fXpGbtShD7vWPP9nkPSRvDwrEQgiqM+e7mQdFlaFk33ZJ8rk1yWtOC3Pzd9gfT2F
+         9r29+pBHl4kLcpXjk8Fh3jcar+LhguVHRQoF1T9pEoY2ct0daTXmYlbHveB50OSKN40I
+         vA5w==
+X-Forwarded-Encrypted: i=1; AJvYcCVpTqDP7WSHlofnkg1dsiRvfiqoxmmp+RmiMn4fDLbbuCoXJgSElCFAu3C/LMg1GQRTshKSS6375J+E8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz3pE4e61wVQjtkq5uqIBS859YVr7lQR7SiyNJ/eyiUJmnMrWSC
+	dDqE4IQA7+jfgkYanZoOKUjXRbkYv9r46onUsjVQeQm4eoK7ts/4AOuI9m01OmF9Yg==
+X-Gm-Gg: ATEYQzxqDDd8JpKYZJojsGlx3aJPpEhu3Ig3wUbIrNZPMg03KnETfwa+YJbDWMs9v3V
+	P4Z00pv7Ww3WAJP2kFYiw6cqJf44HfQ4+Tqxcd+uvptlCriT3a4/3yiaFKaE0OPE08BaUdVxWb8
+	03jWazx6l5guK/wxwOKyBagQaHr+y7wrpXJX3exHeCaHROMqfk+Z0OWpqaAxJgbYNI8jhZrH0+k
+	JbTtW5dJ7JEwFLmSs/Z1++cbtONquVDj5yMGxTKZGdnjsvEa72SaQxyTxADALwfggld4irgw+nB
+	r/i0LVo86jht0OVSTnh1GBm1YXaHAxuWQCzq9kZrFleaMVXHhYAjijKN5jGnnA88lxqr8mnEIm0
+	o2qBDWT+aufnH/ZK1Vs6iYinb+B9oEfhMLGFKQvekLmNDdNVQyylUehC4k5jgloWxfrFQ0BAbxj
+	oUgQDEziN44dGgtLUqvUNeBjg7
+X-Received: by 2002:a05:620a:28d5:b0:8cf:e0fe:f21b with SMTP id af79cd13be357-8cfe0ff1025mr1325658785a.16.1774359603620;
+        Tue, 24 Mar 2026 06:40:03 -0700 (PDT)
+Received: from rowland.harvard.edu ([2601:19b:d01:d210::9c76])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cfc90ba89fsm1046907285a.40.2026.03.24.06.40.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2026 06:40:03 -0700 (PDT)
+Date: Tue, 24 Mar 2026 09:40:00 -0400
+From: Alan Stern <stern@rowland.harvard.edu>
+To: Oliver Neukum <oneukum@suse.com>
+Cc: USB list <linux-usb@vger.kernel.org>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: Re: Question regarding error handling in usbhid
+Message-ID: <5ed78115-abbb-4ca7-ab07-2280019f6ab5@rowland.harvard.edu>
+References: <8d665258-6dd6-404a-85e0-a2f3420cd992@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowAC3m+JCjsJp2ruqCw--.32110S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Cr18ArWkXFW7ZFWfKry8Xwb_yoW8Wr1xpa
-	13Gr9I9r4DJa1Fya9Fya15ZFy5C3y3Ja43Krykuw409a1Yqryvv3Zaqay29Fy5trWkAw1r
-	XFs5Z3yYyFyDAaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-	jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
-	1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v26r12
-	6r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI
-	0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y
-	0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxV
-	WUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1l
-	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUcBMtUUU
-	UU=
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8d665258-6dd6-404a-85e0-a2f3420cd992@suse.com>
 
-pm_interrupt() stores each incoming byte into pm->data[] before the
-packet parser gets a chance to reset pm->idx. If the incoming serial
-stream never matches one of the expected packet headers, pm->idx can
-advance past the fixed receive buffer and the next IRQ will write beyond
-PM_MAX_LENGTH.
+On Tue, Mar 24, 2026 at 10:57:16AM +0100, Oliver Neukum wrote:
+> Hi,
+> 
+> hid_io_error(), in case it decides that a reset is necessary,
+> schedules reset_work(). reset_work() in turn calls usb_queue_reset_device().
+> Why? Is there a reason usb_queue_reset_device() is not used directly
+> in hid_io_error()?
 
-Reset stale indices before storing the next byte. Once pm->idx has
-already moved past the valid packet buffer state, the current partial
-packet can no longer be trusted, so the smallest local recovery is to
-drop that stale state and resynchronize from the current byte instead of
-carrying the invalid index into the next interrupt.
+This is partly explained in the changelog for commit 8f507ef522d5 ("HID: 
+usbhid: improve handling of Clear-Halt and reset"):
 
-Found by static code analysis.
-Fixes: 98b013eb7a94 ("Input: penmount - rework handling of different protocols")
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
----
-v2:
-- note that the issue was found by static code analysis
-- explain why resetting the stale index is the preferred resynchronization path
-- add a Fixes tag
+    The way resets are carried out is also changed.  Now the driver will
+    call usb_queue_reset_device() instead of calling usb_reset_device()
+    directly.  This avoids a deadlock that would arise when a device is
+    unplugged: The hid_reset() routine runs as a workqueue item, a reset
+    attempt after the device has been unplugged will fail, failure will
+    cause usbhid to be unbound, and the disconnect routine will try to do
+    cancel_work_sync().  The usb_queue_reset_device() implementation is
+    carefully written to handle scenarios like this one properly.
 
- drivers/input/touchscreen/penmount.c | 3 +++
- 1 file changed, 3 insertions(+)
+The other part of the explanation is that the reset code was added to 
+hid_io_error() before usb_queue_reset_device() existed (2006 vs 2008).
 
-diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
-index 4b57b6664e37..ba09096c6573 100644
---- a/drivers/input/touchscreen/penmount.c
-+++ b/drivers/input/touchscreen/penmount.c
-@@ -163,6 +163,9 @@ static irqreturn_t pm_interrupt(struct serio *serio,
- {
- 	struct pm *pm = serio_get_drvdata(serio);
- 
-+	if (pm->idx >= pm->packetsize || pm->idx >= PM_MAX_LENGTH)
-+		pm->idx = 0;
-+
- 	pm->data[pm->idx] = data;
- 
- 	pm->parse_packet(pm);
--- 
-2.50.1 (Apple Git-155)
-
+Alan Stern

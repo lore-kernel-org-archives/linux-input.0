@@ -1,90 +1,99 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A123DDDC7;
-	Tue, 24 Mar 2026 12:11:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B74F3F7AAE;
+	Tue, 24 Mar 2026 13:14:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774354316; cv=none; b=JUQfOUiwVeBvB1p7Hae0yf1afytOz+n/aYqtFSAwscR6xWYg8g+kDUxFOOnE3rCxLJBb9NyvaSF+q0LAOKNBnmuBk4pSfBUgoBJ+QGBFylCuVsaVtMZmAs8Qa2qYE7Lm/7KzZlq0LSxhmOct4pLyorX668kULlDekam1NXujqVs=
+	t=1774358089; cv=none; b=I1nQ+PfxHUTmRyKOCE5/ZYDvw6x9myZaH3nP2CPbKlVtcxtM6ywOdNYSLDgcIpTShWdVVBczbaebBsQW3uWl5Vd/gbDK3n7WmzmlTi1yZcbEtrNG/kWR9G8Wzaq9XuLr35HWkfMvCHJjF8bGOJNN6YzbYY59g0LcheB0tXf+Py4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774354316; c=relaxed/simple;
-	bh=tnjgl7FshrcTDYjFxCRkvsQvHRM1Z2PmgQRVSmPHYHo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L2UYV+qfzmpi8p7UCQ/i1N7Tk9kDNfsc/kmPsITF6W2m38L/7w0XBIgxRfLAwmxplxVJjMSCE4cn01sVGTacQ5HR9XQLE6mQb2yS6aNHBnd+4uf9vwvRUla+zsOhP+Vgr1eEPTR2+QHrGpB1+uGAbWX/y9OpBYZtsaH2hFj4vh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CCgyt9Ex; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CCgyt9Ex"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774354315; x=1805890315;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=tnjgl7FshrcTDYjFxCRkvsQvHRM1Z2PmgQRVSmPHYHo=;
-  b=CCgyt9ExLQNZTpYE17OnSqsKbl8E9HtrdBtxmhykYswZuelg0t474kbS
-   8NQp1KDTGOCuORIRJmiHEFQDNOM83eMqc+uSkr465Ex6fzF+U7X0xwsjH
-   vi+OJQJn+Zgr7GM2qNzP/OUb8NF7B6QbKQ/wWoD+Fi37WTmo0vii3BWb5
-   MWqwOmvDF4weNCcrO5ilZzesoPOgnjSFID7TGTdLTL9YUUUWVLQT8TBj/
-   a5nhRL8M/+DKII/GLsYaUJEP14R4SFyhwEa2xey0OQ7qTryQVzJJd+ccZ
-   COcA7XLRIlMvUZ0exSN+ZxJbo3tA6PgvHwPK6fan91FRMn78Gn2/zpdlG
-   A==;
-X-CSE-ConnectionGUID: 6o6ExiLeT4mmhU/6YxZadg==
-X-CSE-MsgGUID: CYbAwCqOTPa7tnW73jjpKg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11738"; a="75558566"
-X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
-   d="scan'208";a="75558566"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 05:11:54 -0700
-X-CSE-ConnectionGUID: UGJTvI9pTAeFWI3Ipg4R4Q==
-X-CSE-MsgGUID: 6RYjJXnxTay+/hHYtKF3PQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
-   d="scan'208";a="224303459"
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.214])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 05:11:52 -0700
-Date: Tue, 24 Mar 2026 14:11:49 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: andy@kernel.org, hansg@kernel.org, mchehab@kernel.org,
-	gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH] Input: penmount: bound packet buffer indices in IRQ path
-Message-ID: <acJ_hbhH-XeRokDY@ashevche-desk.local>
+	s=arc-20240116; t=1774358089; c=relaxed/simple;
+	bh=+dM2lNuv2wsA7qramJDcF0xEWV/xVrPNwsSdGkLdbbE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YcZRtQiv6yHFcJNX7wy3ogEKx+Cna0d91PRENYqk+pzwvFbuyz3+sQtaDP3LKxzACA842KvvOtWh3GtXKhQDtV+4x4khHpc2LD4IvOOGMYMFWQAgn2KnU+uLveq9b7Aq43nMcM+irR4+QL/YCR3jCtZMuzbY/fEkdp+TxP0Nacs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.197])
+	by APP-03 (Coremail) with SMTP id rQCowAC3m+JCjsJp2ruqCw--.32110S2;
+	Tue, 24 Mar 2026 21:14:43 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: dmitry.torokhov@gmail.com
+Cc: andriy.shevchenko@linux.intel.com,
+	kees@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	pengpeng@iscas.ac.cn
+Subject: [PATCH v2] Input: penmount: bound packet buffer indices in IRQ path
+Date: Tue, 24 Mar 2026 21:14:42 +0800
+Message-ID: <20260324131442.27632-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
 References: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
- <20260324022950.456-1-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260324022950.456-1-pengpeng@iscas.ac.cn>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:rQCowAC3m+JCjsJp2ruqCw--.32110S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cr18ArWkXFW7ZFWfKry8Xwb_yoW8Wr1xpa
+	13Gr9I9r4DJa1Fya9Fya15ZFy5C3y3Ja43Krykuw409a1Yqryvv3Zaqay29Fy5trWkAw1r
+	XFs5Z3yYyFyDAaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+	jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
+	1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v26r12
+	6r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI
+	0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y
+	0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxV
+	WUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1l
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUcBMtUUU
+	UU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-On Tue, Mar 24, 2026 at 10:29:50AM +0800, Pengpeng Hou wrote:
-> 
-> This was found during static code analysis of the packet receive path.
-> 
-> About the fix: my reasoning was that once pm->idx has already moved past
-> the valid packet buffer state, the current partial packet is no longer
-> usable, so the safest local recovery is to drop that stale state and
-> resynchronize from the current byte. That is why I reset the index before
-> storing the next byte.
-> 
-> I did not choose to ignore the IRQ entirely because the interrupt has
-> already delivered a byte, and simply returning without resetting the stale
-> state would leave the parser in the same invalid condition for the next
-> interrupt. Resetting the index seemed like the smallest change that both
-> prevents the out-of-bounds write and lets the parser recover cleanly.
+pm_interrupt() stores each incoming byte into pm->data[] before the
+packet parser gets a chance to reset pm->idx. If the incoming serial
+stream never matches one of the expected packet headers, pm->idx can
+advance past the fixed receive buffer and the next IRQ will write beyond
+PM_MAX_LENGTH.
 
-Good, (summary of) this should be in the commit message in the first place.
+Reset stale indices before storing the next byte. Once pm->idx has
+already moved past the valid packet buffer state, the current partial
+packet can no longer be trusted, so the smallest local recovery is to
+drop that stale state and resynchronize from the current byte instead of
+carrying the invalid index into the next interrupt.
 
+Found by static code analysis.
+Fixes: 98b013eb7a94 ("Input: penmount - rework handling of different protocols")
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+v2:
+- note that the issue was found by static code analysis
+- explain why resetting the stale index is the preferred resynchronization path
+- add a Fixes tag
+
+ drivers/input/touchscreen/penmount.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/input/touchscreen/penmount.c b/drivers/input/touchscreen/penmount.c
+index 4b57b6664e37..ba09096c6573 100644
+--- a/drivers/input/touchscreen/penmount.c
++++ b/drivers/input/touchscreen/penmount.c
+@@ -163,6 +163,9 @@ static irqreturn_t pm_interrupt(struct serio *serio,
+ {
+ 	struct pm *pm = serio_get_drvdata(serio);
+ 
++	if (pm->idx >= pm->packetsize || pm->idx >= PM_MAX_LENGTH)
++		pm->idx = 0;
++
+ 	pm->data[pm->idx] = data;
+ 
+ 	pm->parse_packet(pm);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.50.1 (Apple Git-155)
 

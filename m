@@ -1,189 +1,94 @@
-Received: from fhigh-a5-smtp.messagingengine.com (fhigh-a5-smtp.messagingengine.com [103.168.172.156])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0E93E1D09;
-	Wed, 25 Mar 2026 14:46:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A90F53ED11E
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:08:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774450019; cv=none; b=eASCPonrDCIszlwkoRWifPoIdvCKL/g4qNoJrpE1eLdzJm6W0X/jpaFDRwSMAs9Uoo3aLLv8D2KKcdOC0a6reTHpd7UxCx+vQDq6QY/ksOLD7i2+RV30WChfKIY5wcdLsdCT3Ii2W8HWfv2RmZunDhuTYPeG+mhsSRwZscpOJPQ=
+	t=1774454909; cv=none; b=mr3qPqMm9nKzx+fw6mgxM8Uoo9oT4QjvM2z90KX5xiyqzkg544qMI/Qakm+sNFULJExstVN0B6IN/zHcOU/GeZK+/sJ0RAxkDAiDOiyDCQc4vDHgklJSNHtGj+OV+IKqw6dePm18P6uZ4blfkISP4Em8rQ3hRXM3MlbRNNxepL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774450019; c=relaxed/simple;
-	bh=iEtWqnaNHDK+HKROoZFAFhlgb9sMKAraf5fE2xdLZAo=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=Ud1pikD3nuokq6w5GS9d9VJy3gG4oMF9dOvfWBnbbkJ9/EeVU4yAzwbeyAA1KqENfukZ08/F0WXtKAnSP+YBewAlvSjM5jSRSXzuHHaA9bIQ4oMvQkpuRD6Bms4DuWt643hZdjYAUXHhCwqKm/thk/0N31m8LPfEQG7uoysbESs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=vvpAAVHH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=dFv4xJT/; arc=none smtp.client-ip=103.168.172.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
+	s=arc-20240116; t=1774454909; c=relaxed/simple;
+	bh=hNNwjsHedzC//Q9OJ1PxWjJ65mudSwkNnDyt7S2u1vM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KQIokDVfctjTRmXKfBtwHlaLajV6WYJRCQ4I01t+4bqW19BZB6+kzMeiDLAu7GSKXnvhMfrxmknuUb2fH4vkOGsdtjbuLBp5LiEbkKcYLbk/GVdcGe1TeuovNLNg85vfy4icFGOn68OLCkeLH8BfZVo2bl8VoKVFSCe6TpIKPf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=clJIUZkH; arc=none smtp.client-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="vvpAAVHH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dFv4xJT/"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 8B5A01400218;
-	Wed, 25 Mar 2026 10:46:54 -0400 (EDT)
-Received: from phl-imap-08 ([10.202.2.84])
-  by phl-compute-02.internal (MEProxy); Wed, 25 Mar 2026 10:46:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1774450014;
-	 x=1774536414; bh=z7qXp1yIZCNMXld9KFgoV7znI1zKPo766t3TOhqje+A=; b=
-	vvpAAVHHB8NgSvrv1BIYfYLIXmXiJl07oaJV/rwX98dKU9QjHg3bim2oVausI3Na
-	A6A5/0HIXO0X4gmkwDJDbzFXWLBGTSDyK5r5LU0TBuGJl5LgOJE+LpG0GuKyVPfb
-	qw+297/9XiPh1QPtMKObGr/Rzcgyyx2b3rV3U6Dm27XQfycroqxNTfPuNrHquFfP
-	iqN4Wu9LymcaIq57VPRlew32GNkHyY/AfcdTJkAG+BkkCc37SF97oLqMMgIBbLML
-	vE1KvftkoMs/cf2bzJaVXAC4pGDMI7n1ElEu/JsZKi9SsP65ZUZBNRikRbXpxWXI
-	o+nbq7OeUnDJ7ijAUCXXzQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1774450014; x=
-	1774536414; bh=z7qXp1yIZCNMXld9KFgoV7znI1zKPo766t3TOhqje+A=; b=d
-	Fv4xJT/d5h2g6E6QYuVRspsenLhfu08TDPn1ZxcKT93hqzqChOM/Fs6ahE2vyY3e
-	jY/tyK855gYAI409ABeaA7rXQeqfsUwbjxYyymVrrFvia0hBNev64trbMXT/P5/V
-	zb1izl1t4dghcxUyKFsSVmfPOhRuBIsgSPCx0+WKZxew73arFq1Hp/KUM9S27CbA
-	AcRpEJ4O5U+VJBxbZ9571fN1a8Qw9MA2/9Yx5Et1aMYkgzKF52D9aXcsSeBY11P+
-	1VfljKcINLb6CBVyG24toQCugiOZZ+zbb1do5hMLQimhdsxr1RdlwO/aI9R0femT
-	7hwaodH5pYEASAnA+JNwg==
-X-ME-Sender: <xms:XvXDaZot0d6Sl4mj01RxZrqAUaEaTBQ9_y2VeBGj7PCnvfpy6MQyXw>
-    <xme:XvXDaWeajz83Izy53V63dIN1f7qDGxRj8IsN8ibAKJ8A9tjP3g8KLhkgA2mnDord_
-    HJwwDJ5td2-wvLLiu227c2701vmiUGrDDld8WDpSfNhGf56TtuiOEE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdefvdegjeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedfofgrrhhk
-    ucfrvggrrhhsohhnfdcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtg
-    grqeenucggtffrrghtthgvrhhnpefhuedvheetgeehtdehtdevheduvdejjefggfeijedv
-    geekhfefleehkeehvdffheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrpdhn
-    sggprhgtphhtthhopeduvddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhgrrh
-    hiohdrlhhimhhonhgtihgvlhhlohesrghmugdrtghomhdprhgtphhtthhopegrrhhnuges
-    rghrnhgusgdruggvpdhrtghpthhtohepghgvvghrthdorhgvnhgvshgrshesghhlihguvg
-    hrrdgsvgdprhgtphhtthhopeguvghrvghkjhhohhhnrdgtlhgrrhhksehgmhgrihhlrdgt
-    ohhmpdhrtghpthhtohepvghthhgrnhhtihgumhhorhgvtdeisehgmhgrihhlrdgtohhmpd
-    hrtghpthhtohepjhguvghnohhsvgesghhoohhglhgvrdgtohhmpdhrtghpthhtoheprghr
-    nhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopegsvghnthhishhssehkvghrnhgvlh
-    drohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:XvXDaegdMOXhD_Fk34ZTrgw2cgdrlQkErJ29d5QMp2LCyGBQj5EXMQ>
-    <xmx:XvXDaXL9Ob3GgwiG_l5EB8YF6VTBHL_UbqyFOfqYEWuc2ss9He8hqw>
-    <xmx:XvXDaVljFva7nA6OD-2hLzq1N9zSwJo39pxU0Z6o9b-NnF8Hw55wSw>
-    <xmx:XvXDaXPBQPt8EL4-7s1bhfnm7qq_I4MRfLsjxy_Y14Tz6s1wb-YBNQ>
-    <xmx:XvXDaToIwoYmba0B2kECkrp6_kb8DQSG4kO7y5XMxfMR6PWrqVPGCfNO>
-Feedback-ID: ibe194615:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id F10DD2CE0083; Wed, 25 Mar 2026 10:46:53 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="clJIUZkH"
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-12a747e7b2fso975c88.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 09:08:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774454908; x=1775059708; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=M17iBYC/F74Bg+gul2lB6f/cFM/aLJkZMkbSd6hygpg=;
+        b=clJIUZkH41qGVMiDA2PYJ5BmcpUqHxDDxnCQ9AO3RS4db9KnC7MBoTDDaapUMlyw6n
+         qE/em8tvVIZCxR5Jy3HUyqoCVKkyA0T//9nfYhQmQcq7E57A9TAS6OY4RjNK8tX8tYN5
+         aoCSkAEtVYqZE3PhH8V4MUJG6va7jLCWPbWdjoAl4dOZ4CBaw10QugLCa8C6W8UIVZKg
+         fEgUX4bZnwVs+pE/wTnEawVSz6IGyS1JLbatQi/NozomPIaGLcly3oAe7tXF+VlJIfqp
+         GEKbfkC1Aim+416DSlCWydXn/6wIUhmUpWISWUaRQYLMTkhN8pUGkmmJuT7CcSoFKKdY
+         jO+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774454908; x=1775059708;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=M17iBYC/F74Bg+gul2lB6f/cFM/aLJkZMkbSd6hygpg=;
+        b=ZXfPllNoXGd7ENX4E6ELoUhVKHd+HbBpm1KUWHhoFB9FED8BWBrFrNsUFCoGCLMSDY
+         p1gumZQborAnys+oTxqAXlLVgQ4einlrDkkXvgjkvJ+WnXIWr3HcJHpHCSmj+fOW6Dnb
+         +3LljJ8QIVc7kzCx0iFh6cB6kygI4x0BNLXam6wuRruETGnfWikHIcbCjLvJvhkJfZZT
+         RgCaDCfWpTdQMxsu69LEDeTAnw9svGgkV93HuaRNi84D8QY8CwZodcHWslR8quT6dXY0
+         ZcOIybap2GaNAGzgOYfCpAA+hgEaJj3atG+FNvXLsZOCxfEXHXqz6oumEZkTOpZcTQKK
+         tGmA==
+X-Forwarded-Encrypted: i=1; AJvYcCUfUAEr0C56ZnpGqM7Z60dalb2AjRHLPdZDnqtE608QCeRSGMgyGif5Ns2h0O/HsgcrEgQjzs8ImQv0Kw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/TlRm+YOhHE4FDuJByaJAzvwGtVhpBrBis/YsDNv56B18IeC4
+	9uSUuBD37hYNDDKQqFv8CAxJH0B7X8LMxfO/Apz/Q0ytE2N5BEvwMqADJb+gOg==
+X-Gm-Gg: ATEYQzygcJG25WVUDom4HCWnva/XncxiFozvFluBUTiP1EITlb2S2KOYc1LQn6B8Lir
+	9EcZD0ugQfFBpXT5V/jDO4hy0UMsN7czAgLwVNneYsOFgUlZPxP9XjMWDzk4qXmE3Z0gmAMID1g
+	aXgaZGt3pmV1cY+KCLTYrU4K6TJVvTw5G1uuPlLa90p4coJzdxnKiCk2fvzlGg8cFfpSmJBAw0Q
+	h5SW3eDMLgRI0ZUSgG3i5xvumenisJapS3dolMMOybq47wbSQeWHMtCe71oZpoF7PeCW/8/9/3e
+	LE+E7RQN3nUTLX18taMB6qEkNoFBs/ULkVIxa8bbHntspg90fZxkB7sxr43ed79i/qqG4QMjgGT
+	JnpUZSnhG0sPwoRnx44XUhKLVTvUOrgl0CXJFPnO90dw2g8mfdrNYvCh+tG2o+4r3hvk2e4fOZF
+	czxws8whhj14QJcryDS15Q28Hwkw3i8vESz1xhtk2RB9HHRbvfzt/1i24+8hIx9BYJ
+X-Received: by 2002:a05:7022:ec86:b0:128:d3de:c9e4 with SMTP id a92af1059eb24-12a96ee7658mr1893590c88.30.1774454907665;
+        Wed, 25 Mar 2026 09:08:27 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12aa6e5b9d9sm194018c88.3.2026.03.25.09.08.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Mar 2026 09:08:26 -0700 (PDT)
+Date: Wed, 25 Mar 2026 09:08:23 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Val Packett <val@packett.cool>
+Cc: Hans de Goede <hansg@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
+	Stanislav Zaikin <zstaseg@gmail.com>, linux-input@vger.kernel.org, phone-devel@vger.kernel.org, 
+	~postmarketos/upstreaming@lists.sr.ht, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: goodix-berlin: report a resolution of 10 units/mm
+Message-ID: <acQIdFQeUi5E227r@google.com>
+References: <20260321073242.556253-1-val@packett.cool>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ApD5rVnmxPON
-Date: Wed, 25 Mar 2026 10:46:33 -0400
-From: "Mark Pearson" <mpearson-lenovo@squebb.ca>
-To: "Arnd Bergmann" <arnd@kernel.org>, "Jiri Kosina" <jikos@kernel.org>,
- "Benjamin Tissoires" <bentiss@kernel.org>,
- "Derek J . Clark" <derekjohn.clark@gmail.com>,
- "Limonciello, Mario" <mario.limonciello@amd.com>,
- "Ethan Tidmore" <ethantidmore06@gmail.com>
-Cc: "Arnd Bergmann" <arnd@arndb.de>, "Aditya Garg" <gargaditya08@live.com>,
- "Jonathan Denose" <jdenose@google.com>,
- "Geert Uytterhoeven" <geert+renesas@glider.be>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Message-Id: <eabb24a2-6703-4613-bc3e-62e3fdd6155c@app.fastmail.com>
-In-Reply-To: <20260324192045.2895560-1-arnd@kernel.org>
-References: <20260324192045.2895560-1-arnd@kernel.org>
-Subject: Re: [PATCH] HID: hid-lenovo-go: fix LEDS dependencies
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260321073242.556253-1-val@packett.cool>
 
+On Sat, Mar 21, 2026 at 04:30:07AM -0300, Val Packett wrote:
+> Without a reported resolution, userspace was assuming 1 unit/mm which
+> is wildly wrong: a regular smartphone is clearly not 2.4 meters tall.
+> Most applications do not care much for this kind of raw mm value,
+> but Phosh's on-screen keyboard would accidentally trigger swipe-to-close
+> gestures due to misinterpreting small movements as huge ones.
+> 
+> Do what the older goodix.c driver does and set the resolution to 10
+> units/mm to make sure the numbers calculated by userspace are reasonable.
+> 
+> Signed-off-by: Val Packett <val@packett.cool>
 
-On Tue, Mar 24, 2026, at 3:20 PM, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The newly added hid-lenovo-go and hid-lenovo-go-s drivers attempt to
-> 'select LEDS_CLASS', which has a dependency on NEW_LEDS, causing a build
-> failure when NEW_LEDS itself it disabled:
->
-> WARNING: unmet direct dependencies detected for LEDS_CLASS
->   Depends on [n]: NEW_LEDS [=n]
->   Selected by [m]:
->   - HID_LENOVO_GO [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
->   - HID_LENOVO_GO_S [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
->
-> WARNING: unmet direct dependencies detected for LEDS_CLASS_MULTICOLOR
->   Depends on [n]: NEW_LEDS [=n] && LEDS_CLASS [=m]
->   Selected by [m]:
->   - HID_LENOVO_GO [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
->   - HID_LENOVO_GO_S [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
-> ERROR: modpost: "led_set_brightness_nopm" [drivers/leds/led-class.ko] 
-> undefined!
-> ERROR: modpost: "led_set_brightness" [drivers/leds/led-class.ko] 
-> undefined!
-> ERROR: modpost: "led_get_color_name" 
-> [drivers/leds/led-class-multicolor.ko] undefined!
-> ERROR: modpost: "led_set_brightness" 
-> [drivers/leds/led-class-multicolor.ko] undefined!
->
-> Device drivers generally should not select other subsystems like this, as
-> that tends to cause dependency problems including loops in the dependency
-> graph.
->
-> Change these two and the older hid-lenovo driver to behave the same way 
-> as all
-> other HID drivers and use 'depends on LEDS_CLASS' or 'depends on 
-> LEDS_CLASS_MULTICOLOR'
-> instead, which itself has NEW_LEDS and LEDS_CLASS as dependencies.
->
-> Fixes: a23f3497bf20 ("HID: hid-lenovo-go-s: Add Lenovo Legion Go S 
-> Series HID Driver")
-> Fixes: d69ccfcbc955 ("HID: hid-lenovo-go: Add Lenovo Legion Go Series 
-> HID Driver")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/hid/Kconfig | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 10c12d8e6557..f658ed0168ea 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -610,8 +610,7 @@ config HID_LED
-> 
->  config HID_LENOVO
->  	tristate "Lenovo / Thinkpad devices"
-> -	select NEW_LEDS
-> -	select LEDS_CLASS
-> +	depends on LEDS_CLASS
->  	help
->  	Support for IBM/Lenovo devices that are not fully compliant with HID standard.
-> 
-> @@ -626,8 +625,7 @@ config HID_LENOVO
->  config HID_LENOVO_GO
->  	tristate "HID Driver for Lenovo Legion Go Series Controllers"
->  	depends on USB_HID
-> -	select LEDS_CLASS
-> -	select LEDS_CLASS_MULTICOLOR
-> +	depends on LEDS_CLASS_MULTICOLOR
->  	help
->  	Support for Lenovo Legion Go devices with detachable controllers.
-> 
-> @@ -638,8 +636,7 @@ config HID_LENOVO_GO
->  config HID_LENOVO_GO_S
->  	tristate "HID Driver for Lenovo Legion Go S Controller"
->  	depends on USB_HID
-> -	select LEDS_CLASS
-> -	select LEDS_CLASS_MULTICOLOR
-> +	depends on LEDS_CLASS_MULTICOLOR
->  	help
->  	Support for Lenovo Legion Go S Handheld Console Controller.
-> 
-> -- 
-> 2.39.5
+Applied, thank you.
 
-Looks good to me.
-Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-
-Mark
+-- 
+Dmitry

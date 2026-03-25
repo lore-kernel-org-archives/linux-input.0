@@ -1,98 +1,103 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F0B349B15;
-	Tue, 24 Mar 2026 20:43:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C5FF2066DE
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 01:36:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774385023; cv=none; b=W17Djtnp/64iFK7ywwhFepdNLsZzVu7dlsL2y7zpEYAHzEqDL10XAXfeA+GrBvUNOOs7I+ZcgQK/JVE2yY5zdazJGw/mDqTK6/MUKYTwoCo3WJ79u2z++VeGq407o3ytnz0WbnLy8gKtEsUnX1P57v5/yo0oPXp4qKxstP92Cmk=
+	t=1774402596; cv=none; b=pWqsIoHMl9geXS1WhQjDyHK3k4O1RuR1AjkkfVNgrmcpkY7SpgeTMNLQl4uXVaxEGREqKRE4iNWsIgu8F9ImG6QKsBzOfX+/y84096zqm/9JRFhSkrcROP5cjfzNNREbw9ZFQhGuCyN2XYytgeQV12v3wpKqlKDvIy9VKiuYYYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774385023; c=relaxed/simple;
-	bh=zIjaFuHVsgATx3kOGS+yxxCDKfhOBnpZGownF3ywmCc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A3/5nBbPmdBNu5Fbw103axDRcp0jKIdyvgHCIlQM/N47fXWaIiUkgtg+pC/S8nMJBiA4C6yuTmlthhIHheAWRQ8Qiuh0Nwns7+AN0Gnlv8lNLWV5DbwABnqHC70TPliY3BkTwyBzDbqhTpSGD16qwk/vPoo8uWcP1D5RkcYEfBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lodewillems.com; spf=pass smtp.mailfrom=lodewillems.com; dkim=pass (2048-bit key) header.d=lodewillems.com header.i=@lodewillems.com header.b=RNDsfnNj; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lodewillems.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lodewillems.com
+	s=arc-20240116; t=1774402596; c=relaxed/simple;
+	bh=RYbTtBTIQC/2zekrz1ZNuc6XbPGA++D398QAiC+0UKA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MdVTlUG+Ggr+UoyYJ983g1FOB4/xm2ei2Nk4XEfFuhP1TNrfMhZF2do0UvC1dEfWoRwBWOMbN6SaBgScTmH/0SpNkXbUmKvSDCImakE/hjx9XkSO26ESkjjxuLIdbKPEgBuonoOSJXi9Xjd78j3p4t6fhmO1T3bCbR3DS6h2m0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XWviNaKJ; arc=none smtp.client-ip=74.125.82.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lodewillems.com header.i=@lodewillems.com header.b="RNDsfnNj"
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4fgMSh59NCz9tnT;
-	Tue, 24 Mar 2026 21:43:32 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lodewillems.com;
-	s=MBO0001; t=1774385012;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=vo0WoiOwSs1ZytETNhbzaLr+3NJA/ey1WnXjpVlnyTw=;
-	b=RNDsfnNj+2ijdaVxtonf25IPl55rSFvnFMhb6ptZQCWEzb/bN8yiXOBYh1KOCj96bmYDO7
-	7CNOTFaGSGzopFeJ3mFROhsuqr4fBsFZGKHM8B79tsD41sarkqo3I94htZefQN79yxuGd8
-	x/khHwZmrX2YHwMhJTOm5FkDmB01S60yZ22HEbEmfH5gTAu/Zc098qc4JK6exmED3CC+88
-	zMtF2YvAlRs/76zF/uAPzFuSydXuEyDpLEv7ftM6YPQv5QCF4TX58oB/yIYIZhSr3ZfxoJ
-	AlMfUUkqSOsCgCnV7QPIo3K/hwBBA6kMOY7i+6BZc2a5X7IBAeCc6TcSD66Naw==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=none;
-	spf=pass (outgoing_mbo_mout: domain of me@lodewillems.com designates 2001:67c:2050:b231:465::202 as permitted sender) smtp.mailfrom=me@lodewillems.com
-From: Lode Willems <me@lodewillems.com>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-kernel@vger.kernel.org,
-	Lode Willems <me@lodewillems.com>,
-	Dominykas Svetikas <dominykas@svetikas.lt>
-Subject: [PATCH] HID: Kysona: Add support for VXE Dragonfly R1 Pro
-Date: Tue, 24 Mar 2026 21:43:06 +0100
-Message-ID: <20260324204306.694760-1-me@lodewillems.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XWviNaKJ"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-1271257ae53so2112023c88.1
+        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 18:36:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774402595; x=1775007395; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=V3AYzet/rbgbElXL1qLXjB5IItamG2qrNQe2ZTLEwoI=;
+        b=XWviNaKJT8y8v7VLaJW7IeEyK3lkCaKi/wrFB2ygAK4gnwdeEIID7htOUJITU3nA6R
+         cl2PfVY4JCOxIgu9+CKHiaZg8END9CUBzSy0TcLe2kKFInUZxObSggimkCzhqZypHMJh
+         dMTojfdiUrcZxAP7Fm1f/5LVJEPkqZ29YN2SrSZvXswWpzjN0dLzbX8U+tp/On2Iclkd
+         37MYpRLeXlDEXy5V1+XAiDzL34lurGOu2DSqeczpH/XFn3iOiK+F9j5eVkroM69lbore
+         HB+RhVXWXbjNab7yMwITZggta/FMyfFQny3dP0ftl+InGwbvPT+RzOMOvRdeRRYxvtwZ
+         lyQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774402595; x=1775007395;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=V3AYzet/rbgbElXL1qLXjB5IItamG2qrNQe2ZTLEwoI=;
+        b=i7XlaSgPsYwCehKRR3ephHyXMbnHw5NRYXXr+K1/bMhW65z7e0jen5VtD8GMpUK1ad
+         2tcdQc3e2JftlmTINbuxyGEyVB+t0Qf3sdFT5VnujR1fMMC8wLAaoo2PysJQHN9uibSa
+         FhTl3mUXPswHbuUFH/5dZymt25j52yOXjqHM3PpIKAtrDBWssGufRro6M+wLna1zecHo
+         fmv6mJ+BVhCMdIvzHbmTIoCLN2mDnKYuPp1ZoQZMkJNIyXCjwxtlTfWUmnXdvXBMsRY2
+         DDbnjnbHsD94LigU79V6Zpr74lSbOzk/q4IPHi+5LIuH6DjGpDJeUfmZi7lKUfTvqK/T
+         7CBA==
+X-Forwarded-Encrypted: i=1; AJvYcCWjbXyI0xAN9rex3fiC8sp95vokE9c34dSXauKX6Qu1LUbUaPzY5y+Yih0TGTYlumsZf7pThHIH28+PBg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2JRRQ29eQHbXVd5O/M7wviSOZ4/CCgP6//pnSWVmnxKeV/O7A
+	dfEgHd8FPmuWDDpl/7c52suGYLsk7iWyBPNysOjQQN6h1phvmLaZoDVe
+X-Gm-Gg: ATEYQzwsKy7b9oOiC8IXfjxjQw4xXyLoaE4hPWdvIRlXM8UfRfLRHPZ7c+WnDdNl+bf
+	QhWL+eclTqYNernH50s074XhqfMC3CuV427zwB+7ePqGu7+950Y8fkYqsc8iZB4x34EMoFBEgGS
+	dl+2FBt20bABqFwVVU0U2guY3IwVC3a/DwzdAqHXf3R0p/T+WXZquvxXqZlFSH+aysGQ+WCN8kA
+	Gj26FEeGx6Gt0dSzjuzoSylUoDG76aLmqUhXKPwyehmzKHALYy6zzXKDLOCN5I+9q4sjMbw4juA
+	f9CA6CYcVc5bmzJylJrzjbRr/cPBKoIGuHPacxpn7+defRQqpmRBOhDDiIXAquVOziU4SqSnJti
+	4rrtT8fQZVVewTyCyAlSHAMQ9lvX9KbD5yM0DLr/moFP4D0xkxbo8uJhowIBkUVRRo6jcb4iCuB
+	17faPBJLca2A0lBh8QnXpdpAgw+mFhckrPUeOe/0BsCHJJuO/y+jda5ljN7QbPyszC
+X-Received: by 2002:a05:7022:69a7:b0:127:366f:8bb7 with SMTP id a92af1059eb24-12a96eceb78mr711116c88.25.1774402594510;
+        Tue, 24 Mar 2026 18:36:34 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:a686:fd7f:70d3:9156])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b17b90dsm21300866eec.10.2026.03.24.18.36.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2026 18:36:33 -0700 (PDT)
+Date: Tue, 24 Mar 2026 18:36:29 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Cc: andriy.shevchenko@linux.intel.com, kees@kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: penmount: bound packet buffer indices in IRQ
+ path
+Message-ID: <acM7X47UDx_yYNJ1@google.com>
+References: <20260323121715.74954-1-pengpeng@iscas.ac.cn>
+ <20260324131442.27632-1-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4fgMSh59NCz9tnT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260324131442.27632-1-pengpeng@iscas.ac.cn>
 
-Apparently this same protocol is used by more mice from different brands.
+Hi Pengpeng,
 
-This patch adds support for the VXE Dragonfly R1 Pro.
+On Tue, Mar 24, 2026 at 09:14:42PM +0800, Pengpeng Hou wrote:
+> pm_interrupt() stores each incoming byte into pm->data[] before the
+> packet parser gets a chance to reset pm->idx. If the incoming serial
+> stream never matches one of the expected packet headers, pm->idx can
+> advance past the fixed receive buffer and the next IRQ will write beyond
+> PM_MAX_LENGTH.
 
-Tested-by: Dominykas Svetikas <dominykas@svetikas.lt>
-Signed-off-by: Lode Willems <me@lodewillems.com>
----
- drivers/hid/hid-ids.h    | 4 ++++
- drivers/hid/hid-kysona.c | 2 ++
- 2 files changed, 6 insertions(+)
+How will it advance? The handlers do:
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index afcee13bad61..772f24e80baa 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1471,6 +1471,10 @@
- #define USB_VENDOR_ID_VTL		0x0306
- #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
- 
-+#define USB_VENDOR_ID_VXE		0x3554
-+#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE	0xf58a
-+#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED	0xf58c
-+
- #define USB_VENDOR_ID_WACOM		0x056a
- #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
- #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
-diff --git a/drivers/hid/hid-kysona.c b/drivers/hid/hid-kysona.c
-index 09bfe30d02cb..ccbd8380064e 100644
---- a/drivers/hid/hid-kysona.c
-+++ b/drivers/hid/hid-kysona.c
-@@ -272,6 +272,8 @@ static void kysona_remove(struct hid_device *hdev)
- static const struct hid_device_id kysona_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_WIRED) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, kysona_devices);
+	if (byte_0_check() && pm->packetsize == ++pm->idx)
+		...
+
+If we never match any of the protocols then pm->idx will never advance
+past 0 (and we will keep overwriting the first byte of the packet
+array).
+
+Does your analyzer miss the "short-circuiting" nature of && operator?
+
+Thanks.
+
 -- 
-2.53.0
-
+Dmitry

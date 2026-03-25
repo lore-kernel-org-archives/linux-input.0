@@ -1,391 +1,109 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFA1C3FB05A
-	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:58:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02AF741C2FA
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 18:08:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774457903; cv=none; b=KPNLOtwspSnQVVGPpmsu5y98GfPsKRdpr2xitFd2uTjGrcapPlkGDN4H4Tdg5+ICo3ys2OOW/Dz6kxewIKZbr3zzHYNdFD9VSO7jNziuIm5c7nEFXw8ojudgb//WHOQDJbqi1vlCeYTiRaaGDqgwFkObj20qvWVc4xvAP+t/LeE=
+	t=1774462127; cv=none; b=uvbLlZmG+jiJ//RqaJdI46SCB6XAO9ICynKsx3GbqFDP4h+H5U1QXbrpWjeNvdrbJvCOer1aaCmgeeBDVrV5CQ5DDfh1z7BOrvZndsIu5oiSi7IgwAZowXNesl5QeE6Zsfhjv78wO8pRJ0C/41LYcqsS9u2A2ygXJwRHPt0luvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774457903; c=relaxed/simple;
-	bh=yBtblwKtwPk8EhQMFF2wyxjQq4VjCTCNZY9jsQu2kB8=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=c3yZIGO0Yw8n/lqHG+vOFGHOlHimkUK81tFPxdksH7h+JSp5mYiyJUWSP5r1Z2AnrFoPR8eb19fNMYfcYIjpRzTacrIhw2dHrU0KAKEdrtQbr0fr8I2ajolxfmXV3fl884vhyfvdtPkW9ase2Cml7uIm5DOpmckvCXMHkV2yn7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=COL0Yj6o; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1774462127; c=relaxed/simple;
+	bh=4AA+m62a7JQxXTacpd7FQVVcjxswdHf0m2hjvOlNIDE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mHfnC0CzySMK2GwPunuFsMhkSWZsG2O/4CC0B00FP19B3YbGyiXkNqe3Xv/pO5Fzx7GZtOiBSCSbXR165HNRdNd5ZjeAf+JP002t1QrowPxVYHCBX0O9oryTxU6y/EAQNyHteduap0NnE0RjgaLzs+q43tbNV7nIJ9o45F2Yyi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EZhm0Oy/; arc=none smtp.client-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="COL0Yj6o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774457899; x=1805993899;
-  h=date:from:to:cc:subject:message-id;
-  bh=yBtblwKtwPk8EhQMFF2wyxjQq4VjCTCNZY9jsQu2kB8=;
-  b=COL0Yj6oybw1AByjd9ZYApVo7Dnt22YEdF0F39KdY2Qu0V16NfFCPkqw
-   HtAi2miLCMI4wJRSsUtgHglwFD8lrwER5sSyXOGFiZXacYtksz2UC4WOc
-   2XVdhOS3aOYqPO5kFWfqCv0VrOO1s/CyN5u0w7kWCtOxOUuz8YYNdReDq
-   dKzrd6cCIa6Bwlp+dUGroeEi7yr/bfwjh4oHKUXmriEsYJFM4mqE5En6O
-   Cj6JmQr8C/gt08V/zGN0u6J3B60WMiFhiCLjXcIDU4nCbKEidM4I812A/
-   Lq6gXdI6SHNfiGOPGg4+ZwHIZNkbz/U0uiFmhN5CPeCwNrCvTd9Ni86Ck
-   g==;
-X-CSE-ConnectionGUID: vydn/Wl3TfaN+UEYkHIHAg==
-X-CSE-MsgGUID: 9b1WRUzgS+upVAginF0bxw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11740"; a="75522374"
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="75522374"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 09:58:14 -0700
-X-CSE-ConnectionGUID: l44niLfMSsiHE/K6G1MYOA==
-X-CSE-MsgGUID: hjvAyXvcSqePUkYbOyJU3A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
-   d="scan'208";a="220335265"
-Received: from lkp-server01.sh.intel.com (HELO 3905d212be1b) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 25 Mar 2026 09:58:12 -0700
-Received: from kbuild by 3905d212be1b with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1w5RYX-000000007Jj-1mvh;
-	Wed, 25 Mar 2026 16:58:09 +0000
-Date: Thu, 26 Mar 2026 00:57:28 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD REGRESSION
- 303cdff39cdb1895a6d2b08e8946cc89feaf405c
-Message-ID: <202603260011.j4APQxUV-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZhm0Oy/"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2b4520f6b32so202556eec.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 11:08:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774462124; x=1775066924; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aKB5r8ldkjXo9I8tKLwqIrOGcsIw5EUTDw+8JcXL628=;
+        b=EZhm0Oy/iYrKKc3SLWr4XNRTBx7RqVenivDF22g+4nV1+GcZM8WYBuxvW3E+say78z
+         LDLgWYxppR7f3us3tqwgbPIZdKpOeIU9mbuPnlYZ2uOmhfVaMiH6yG9/sanxOEwXlp92
+         I44UGRN+jPT6HK+Ti3NF96MvuAbppilZK/rvj1ePEs7D8ZG0KErQydc4Cy06FsCNCT0T
+         eMqqMuAHfzF/S2uAtk7qsr+30/Q3MJprvD8TZrBmatv0pyRnqXdXwtPIrdnbVVkovpm0
+         Q5Nx6DbDT2S0W5YHZA6yTEWCqlEGFH1Tn6nPwRixneGtgqdNUrjMB/ErWgUhkVMavBLG
+         vlsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774462124; x=1775066924;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aKB5r8ldkjXo9I8tKLwqIrOGcsIw5EUTDw+8JcXL628=;
+        b=GRD2+rJXoQ4R3l8WCRRuiMkSQDjOu1J8cIzdPWjag+UDLPaSSbV6gxSC3Wi8s22+gV
+         CXF8f2CwsYUGgiWBNnhg8Py3UPx7LB050yHejTgCz06BVsho5xI4N2J6AyXiOSk0lDf5
+         WEO9Le39FS9yG6vA/AgjGYCt5q+mH6O01Ftgp+tkWOn3KfxDBK98Kq227lyu+WVoN6ps
+         /17GQt001KISpeoeKpZExcfbfK4rhNvEE2Iw+31jG1mJRmq9ayxzrE+7TYBQCYd6s3M5
+         i1WWJqKiFyfd3Iv1qhIG4VUtJJ2mTHNpzcoSvgHt1SgzP5pWUBL7ViBlpjeU1sPeGDgX
+         Psrw==
+X-Gm-Message-State: AOJu0YwDj5Rwoi/Mx9emvGXR7Rvito3yrN86CH+jeTrM1IHOfRQ4HR0W
+	h98Nf64LDQizPmp3gde1sP3VLTyDNZY6XJ2fKKgIKd7Sfw8PvNZsC1uBqpkLXg==
+X-Gm-Gg: ATEYQzy091bYaCdsEGUTc9I6reocWcM7RQN/kpAM9b/5MlbqmijnJkMso27dVbv4dDc
+	dlSTHGS4sLIDr6kszQFG7tdgaT9V3Xg25n3/Y8nddlwyV7a3hG3O3psWxBeMJlq+JyWy5hSPK3m
+	wkuE0j3JylYNAP3951Anq0a9F6EB6MsNUaS+pAWv/lxg5hTpPVYyoqCq1LayzXIIJOonZA3IM5q
+	RcO7+cwFmXPkBergArM3Dm3x49IbIiM9KMh+dW8clOCdGQKuJLkbddC4t7lR6tes4IRxVm/inlk
+	SiEDQgkypqdGDQFcDAvplcdiQXEl2Z1vTn1eF/o2y+LQszQQw3hlLd+E6a7JWhHwA30vaTDs6A+
+	bCbBN6qNM2mOyn6v6UXhtA7TSy0mwzjUIJa4YXHaE7olZHDLX1rlI3/ZCEtNfYVoSh655047NRv
+	51wOMlXtIddPPFTFoOihLPO5j+62AVLTUlzEflV4ODqRCrzCRofRZnD4JmcusvGNKR
+X-Received: by 2002:a05:7301:19a8:b0:2be:7885:31df with SMTP id 5a478bee46e88-2c15d3db093mr1848709eec.17.1774462123653;
+        Wed, 25 Mar 2026 11:08:43 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c16edde435sm306686eec.25.2026.03.25.11.08.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Mar 2026 11:08:43 -0700 (PDT)
+Date: Wed, 25 Mar 2026 11:08:40 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/7] Input: aiptek: validate macro key indices
+Message-ID: <acQkOfB1UsN7S0QV@google.com>
+References: <20260323070311.42849-1-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260323070311.42849-1-pengpeng@iscas.ac.cn>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 303cdff39cdb1895a6d2b08e8946cc89feaf405c  Input: zinitix - use guard notation when acquiring mutex
+On Mon, Mar 23, 2026 at 03:03:11PM +0800, Pengpeng Hou wrote:
+> aiptek_irq() derives macro key indices directly from tablet reports and
+> then uses them to index macroKeyEvents[]. Report types 4 and 5 use
+> (data[3] >> 1), while report type 6 reads a 16-bit macro number from the
+> packet body. None of those indices are checked against the array bounds
+> before input_report_key() dereferences them.
+> 
+> Reject out-of-range macro indices at each use site so malformed reports
+> cannot read past macroKeyEvents[].
+> 
+> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> ---
+>  drivers/input/tablet/aiptek.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+> index 6df24cee3c9d..ab5886a9241d 100644
+> --- a/drivers/input/tablet/aiptek.c
+> +++ b/drivers/input/tablet/aiptek.c
+> @@ -676,12 +676,15 @@ static void aiptek_irq(struct urb *urb)
+>  			}
+>  		}
+>  
+> -		if (aiptek->lastMacro != -1 && aiptek->lastMacro != macro) {
+> +		if (aiptek->lastMacro >= 0 &&
+> +		    aiptek->lastMacro < ARRAY_SIZE(macroKeyEvents) &&
 
-Error/Warning (recently discovered and may have been fixed):
+I think we do not need to check lastMacro if we make sure that macro is
+in correct range.
 
-    https://lore.kernel.org/oe-kbuild-all/202603252030.fwSlmiBx-lkp@intel.com
-    https://lore.kernel.org/oe-kbuild-all/202603252057.JgSqGyIe-lkp@intel.com
+Thanks.
 
-    drivers/input/touchscreen/mxs-lradc-ts.c:508:1: error: macro "class_spinlock_irqsave_constructor" passed 2 arguments, but takes just 1
-    drivers/input/touchscreen/mxs-lradc-ts.c:508:3: error: initializing 'class_spinlock_irqsave_t' with an expression of incompatible type 'class_spinlock_irqsave_t (spinlock_t *)' (aka 'class_spinlock_irqsave_t (struct spinlock *)')
-    drivers/input/touchscreen/mxs-lradc-ts.c:508:45: error: too many arguments provided to function-like macro invocation
-    drivers/input/touchscreen/mxs-lradc-ts.c:508:8: error: macro "class_spinlock_irqsave_constructor" passed 2 arguments, but takes just 1
-    drivers/input/touchscreen/mxs-lradc-ts.c:508:8: error: macro 'class_spinlock_irqsave_constructor' passed 2 arguments, but takes just 1
-    include/linux/cleanup.h:300:17: error: invalid initializer
-    include/linux/cleanup.h:303:17: error: invalid initializer
-    include/linux/cleanup.h:303:3: error: invalid initializer
-
-Error/Warning ids grouped by kconfigs:
-
-recent_errors
-|-- alpha-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- arc-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- arc-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- arm-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- arm-randconfig-003-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- arm64-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- arm64-randconfig-002-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- arm64-randconfig-r122-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- csky-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- csky-randconfig-002-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- hexagon-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- i386-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- i386-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- i386-buildonly-randconfig-005-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- loongarch-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- loongarch-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- loongarch-randconfig-002-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- m68k-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- m68k-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- mips-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- mips-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- nios2-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- nios2-randconfig-r133-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- openrisc-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- openrisc-randconfig-r071-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- parisc-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- parisc-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- powerpc-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- powerpc-randconfig-002-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- riscv-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- riscv-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- riscv-randconfig-001-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- s390-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- s390-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- sh-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- sh-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- sparc-randconfig-r134-20260325
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- sparc64-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- um-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- um-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-|   `-- include-linux-cleanup.h:error:invalid-initializer
-|-- x86_64-allmodconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-|-- x86_64-allyesconfig
-|   |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:initializing-class_spinlock_irqsave_t-with-an-expression-of-incompatible-type-class_spinlock_irqsave_t-(spinlock_t-)-(aka-class_spinlock_irqsave_t-(struc
-|   `-- drivers-input-touchscreen-mxs-lradc-ts.c:error:too-many-arguments-provided-to-function-like-macro-invocation
-`-- xtensa-allyesconfig
-    |-- drivers-input-touchscreen-mxs-lradc-ts.c:error:macro-class_spinlock_irqsave_constructor-passed-arguments-but-takes-just
-    `-- include-linux-cleanup.h:error:invalid-initializer
-
-elapsed time: 740m
-
-configs tested: 170
-configs skipped: 2
-
-tested configs:
-alpha                             allnoconfig    gcc-15.2.0
-alpha                            allyesconfig    gcc-15.2.0
-alpha                               defconfig    gcc-15.2.0
-arc                              allmodconfig    clang-16
-arc                               allnoconfig    gcc-15.2.0
-arc                              allyesconfig    clang-23
-arc                                 defconfig    gcc-15.2.0
-arc                   randconfig-001-20260325    gcc-8.5.0
-arc                   randconfig-002-20260325    gcc-8.5.0
-arm                               allnoconfig    gcc-15.2.0
-arm                              allyesconfig    clang-16
-arm                                 defconfig    gcc-15.2.0
-arm                       netwinder_defconfig    gcc-15.2.0
-arm                   randconfig-001-20260325    gcc-8.5.0
-arm                   randconfig-002-20260325    gcc-8.5.0
-arm                   randconfig-003-20260325    gcc-8.5.0
-arm                   randconfig-004-20260325    gcc-8.5.0
-arm64                            allmodconfig    clang-23
-arm64                             allnoconfig    gcc-15.2.0
-arm64                               defconfig    gcc-15.2.0
-arm64                 randconfig-001-20260325    clang-23
-arm64                 randconfig-002-20260325    clang-23
-arm64                 randconfig-003-20260325    clang-23
-arm64                 randconfig-004-20260325    clang-23
-csky                             allmodconfig    gcc-15.2.0
-csky                              allnoconfig    gcc-15.2.0
-csky                                defconfig    gcc-15.2.0
-csky                  randconfig-001-20260325    clang-23
-csky                  randconfig-002-20260325    clang-23
-hexagon                          allmodconfig    gcc-15.2.0
-hexagon                           allnoconfig    gcc-15.2.0
-hexagon                             defconfig    gcc-15.2.0
-hexagon               randconfig-001-20260325    gcc-11.5.0
-hexagon               randconfig-002-20260325    gcc-11.5.0
-i386                             allmodconfig    clang-20
-i386                              allnoconfig    gcc-15.2.0
-i386                             allyesconfig    clang-20
-i386        buildonly-randconfig-001-20260325    gcc-14
-i386        buildonly-randconfig-002-20260325    gcc-14
-i386        buildonly-randconfig-003-20260325    gcc-14
-i386        buildonly-randconfig-004-20260325    gcc-14
-i386        buildonly-randconfig-005-20260325    gcc-14
-i386        buildonly-randconfig-006-20260325    gcc-14
-i386                                defconfig    gcc-15.2.0
-i386                  randconfig-001-20260325    clang-20
-i386                  randconfig-002-20260325    clang-20
-i386                  randconfig-003-20260325    clang-20
-i386                  randconfig-004-20260325    clang-20
-i386                  randconfig-005-20260325    clang-20
-i386                  randconfig-006-20260325    clang-20
-i386                  randconfig-007-20260325    clang-20
-i386                  randconfig-011-20260325    clang-20
-i386                  randconfig-012-20260325    clang-20
-i386                  randconfig-013-20260325    clang-20
-i386                  randconfig-014-20260325    clang-20
-i386                  randconfig-015-20260325    clang-20
-i386                  randconfig-016-20260325    clang-20
-i386                  randconfig-017-20260325    clang-20
-loongarch                        allmodconfig    clang-23
-loongarch                         allnoconfig    gcc-15.2.0
-loongarch                           defconfig    clang-19
-loongarch             randconfig-001-20260325    gcc-11.5.0
-loongarch             randconfig-002-20260325    gcc-11.5.0
-m68k                             alldefconfig    gcc-15.2.0
-m68k                             allmodconfig    gcc-15.2.0
-m68k                              allnoconfig    gcc-15.2.0
-m68k                             allyesconfig    clang-16
-m68k                                defconfig    clang-19
-microblaze                        allnoconfig    gcc-15.2.0
-microblaze                       allyesconfig    gcc-15.2.0
-microblaze                          defconfig    clang-19
-mips                             allmodconfig    gcc-15.2.0
-mips                              allnoconfig    gcc-15.2.0
-mips                             allyesconfig    gcc-15.2.0
-nios2                            allmodconfig    clang-23
-nios2                             allnoconfig    clang-23
-nios2                               defconfig    clang-19
-nios2                 randconfig-001-20260325    gcc-11.5.0
-nios2                 randconfig-002-20260325    gcc-11.5.0
-openrisc                         allmodconfig    clang-23
-openrisc                          allnoconfig    clang-23
-openrisc                            defconfig    gcc-15.2.0
-openrisc                       virt_defconfig    gcc-15.2.0
-parisc                           allmodconfig    gcc-15.2.0
-parisc                            allnoconfig    clang-23
-parisc                           allyesconfig    clang-19
-parisc                              defconfig    gcc-15.2.0
-parisc                randconfig-001-20260325    clang-23
-parisc                randconfig-002-20260325    clang-23
-parisc64                            defconfig    clang-19
-powerpc                          allmodconfig    gcc-15.2.0
-powerpc                           allnoconfig    clang-23
-powerpc               randconfig-001-20260325    clang-23
-powerpc               randconfig-002-20260325    clang-23
-powerpc64             randconfig-001-20260325    clang-23
-powerpc64             randconfig-002-20260325    clang-23
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    clang-23
-riscv                            allyesconfig    clang-16
-riscv                               defconfig    gcc-15.2.0
-riscv                 randconfig-001-20260325    gcc-8.5.0
-riscv                 randconfig-002-20260325    gcc-8.5.0
-s390                             allmodconfig    clang-19
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-15.2.0
-s390                                defconfig    gcc-15.2.0
-s390                  randconfig-001-20260325    gcc-8.5.0
-s390                  randconfig-002-20260325    gcc-8.5.0
-sh                               allmodconfig    gcc-15.2.0
-sh                                allnoconfig    clang-23
-sh                               allyesconfig    clang-19
-sh                                  defconfig    gcc-14
-sh                    randconfig-001-20260325    gcc-8.5.0
-sh                    randconfig-002-20260325    gcc-8.5.0
-sparc                             allnoconfig    clang-23
-sparc                               defconfig    gcc-15.2.0
-sparc                 randconfig-001-20260325    gcc-13
-sparc                 randconfig-002-20260325    gcc-13
-sparc64                          allmodconfig    clang-23
-sparc64                             defconfig    gcc-14
-sparc64               randconfig-001-20260325    gcc-13
-sparc64               randconfig-002-20260325    gcc-13
-um                               allmodconfig    clang-19
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-15.2.0
-um                                  defconfig    gcc-14
-um                             i386_defconfig    gcc-14
-um                    randconfig-001-20260325    gcc-13
-um                    randconfig-002-20260325    gcc-13
-um                           x86_64_defconfig    gcc-14
-x86_64                           allmodconfig    clang-20
-x86_64                            allnoconfig    clang-23
-x86_64                           allyesconfig    clang-20
-x86_64      buildonly-randconfig-001-20260325    gcc-14
-x86_64      buildonly-randconfig-002-20260325    gcc-14
-x86_64      buildonly-randconfig-003-20260325    gcc-14
-x86_64      buildonly-randconfig-004-20260325    gcc-14
-x86_64      buildonly-randconfig-005-20260325    gcc-14
-x86_64      buildonly-randconfig-006-20260325    gcc-14
-x86_64                              defconfig    gcc-14
-x86_64                                  kexec    clang-20
-x86_64                randconfig-001-20260325    gcc-12
-x86_64                randconfig-002-20260325    gcc-12
-x86_64                randconfig-003-20260325    gcc-12
-x86_64                randconfig-004-20260325    gcc-12
-x86_64                randconfig-005-20260325    gcc-12
-x86_64                randconfig-006-20260325    gcc-12
-x86_64                randconfig-011-20260325    clang-20
-x86_64                randconfig-012-20260325    clang-20
-x86_64                randconfig-013-20260325    clang-20
-x86_64                randconfig-014-20260325    clang-20
-x86_64                randconfig-015-20260325    clang-20
-x86_64                randconfig-016-20260325    clang-20
-x86_64                randconfig-071-20260325    gcc-14
-x86_64                randconfig-072-20260325    gcc-14
-x86_64                randconfig-073-20260325    gcc-14
-x86_64                randconfig-074-20260325    gcc-14
-x86_64                randconfig-075-20260325    gcc-14
-x86_64                randconfig-076-20260325    gcc-14
-x86_64                               rhel-9.4    clang-20
-x86_64                           rhel-9.4-bpf    gcc-14
-x86_64                          rhel-9.4-func    clang-20
-x86_64                    rhel-9.4-kselftests    clang-20
-x86_64                         rhel-9.4-kunit    gcc-14
-x86_64                           rhel-9.4-ltp    gcc-14
-x86_64                          rhel-9.4-rust    clang-20
-xtensa                            allnoconfig    clang-23
-xtensa                           allyesconfig    clang-23
-xtensa                randconfig-001-20260325    gcc-13
-xtensa                randconfig-002-20260325    gcc-13
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+-- 
+Dmitry

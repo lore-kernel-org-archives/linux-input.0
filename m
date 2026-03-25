@@ -1,89 +1,113 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EAD35DA46
-	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:10:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E703ED5AA
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:14:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774455020; cv=none; b=Mje04AZk48OqM2RlmyCSxROJMVLIxyoGMyKXSktRV3pAxv+Pb8ENkh52cz5dI5vtenbqA6qaIrJHHuu4Fg7CDF83U33bEjPnhtGpXRhWAG9gb/SUm5WGd/KqFKUqvL5hoyaQyqBm71NSLqBWn2z/UM2dD/gaqGCkVRM3UMuDhwY=
+	t=1774455249; cv=none; b=ctVjbpjc85ec6/M46IjyVZXtDxJoAA69X04Gk8TiRU7NVrHKsjSDm0ZdUxyvX5iu0GCKBRDT2vjlk/51tVNF+hXDBJHSvAR4BvOtAeBJG97HoIiIxPvNS9unSO7NTLkIQPiqbe/Dh7E4qYyU+03DWpS4n1m0ckvUqJQKMNdpAns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774455020; c=relaxed/simple;
-	bh=dvFi8SJREKcTnv11d71GI3s1iMiLPZh8VYrtAvSd/ZI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aV2EmSgXBxr1d5dn8SdAsj2haWVmoMBuX+c0Kle5VUFIv7fye6LrVzeDmtJv4syX2Jt8kVvvZ82CrDFQ8ZsgPgfcoepfbmffSsT3EJSQBkKZgmhlitKmyrnZZ33FvLKWgkbSLyRdE6onn98lCewUshNXQs9CRJt5XOqTuLAyHOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dXLiNN6y; arc=none smtp.client-ip=74.125.82.179
+	s=arc-20240116; t=1774455249; c=relaxed/simple;
+	bh=WXqfz/CRjp+tCNRZ20cIGl65WOjMv6PFBL8LPFClGSc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ktlfm5ZLG7sZ0sNPdHBy6W1DNGV+oP5UeKPxVs1VhIko+vZChFe9ALB5xYWtPOKSkzTXn52abXi/UZZgKTvykYZEbUHveQPHNPSjxP3J+A2cZuz//GLXDvmOCtsm3/pAedXlptXkL3BJCb5aDt0U0BvxeaRePpGFTVpyVD9lxbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mdi9qaVg; arc=none smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dXLiNN6y"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2b4520f6b32so44113eec.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 09:10:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mdi9qaVg"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c70c112cb61so70127a12.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 09:14:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774455018; x=1775059818; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aF/yB3MA6FfUyxHiRxkYKaKFeNHb6nR5Wo6UMsmYEL8=;
-        b=dXLiNN6yhRIjpu/qu4Zs2xr0LetHJsLAytFz6gXdLQ9aO3aJUR9/p1qH2k8W3ceOd2
-         qjge37VrJJuGwcxytBqQbiyX/irl47Bk/+/lxW1cQ+dBbC4JOcq48mvyNbAvlRgeKoRq
-         M4IoScYHROUJPNNBNUme9vo9dGVQPzZPHRrC0xmPycvWYzZ2o0Fkth7MbzJN5Sqdx2mY
-         wq/Afvl4789qcvCpTDK2zO5nIiRCGH4OXTQv5MCkVqQrWS7CvC38vT5MRs+5t1+GbxNl
-         t8G+rkTIt0qtm59l3DPQ9TWQkR8XJBjjJtC/FNNrAsbmzK2syYLj7f8ywr3PEKgFd9Op
-         85gg==
+        d=gmail.com; s=20251104; t=1774455245; x=1775060045; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5QWtbrnIPLe7UVe9X1ymrZwEQiveci/bM6lp3XBmjtE=;
+        b=mdi9qaVgbenT06npHhQXpGNhyPnysrlF5yhN8IOvWbv5w3bzI86I+8O6LI730tT5km
+         QCoyak3unSi1vChoy8D9lL8TTTOT/4OoH2a9lZjVSQRPp43lRn5Df5iK/V5R6owxCTsR
+         1ItvHoS9BwjQqgsgpEUpkcLg20Q9yKqdDGuMMIBi7BIMcc31hScASiOBg4TgPkP5IRhO
+         zQP4ZTYHfSPoh0DbsSqVl4Y0R7C6gf7wLfeRi6UpZMWm4Hnp4lKgcCkBBnmzrbbpO8it
+         5v12dSCsCTS8r59HB5FkwzamHaeg1qpvCLmW/hmnCbQ5pMq1TzgIrNfKdwcyXn0X0CRs
+         2kbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774455018; x=1775059818;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=aF/yB3MA6FfUyxHiRxkYKaKFeNHb6nR5Wo6UMsmYEL8=;
-        b=rpUu51wrlji/4/Gkl290ueUTi22NtnUoIU8NERetrL0XX6BHcGBuRYoja7rug6zQw3
-         v6n4SSVvR1CqyOymr5Wm4PHRorypv/mr34KdAd0sXTHEv4BkQv41XN1amV2RGwYRXQ85
-         sBS1qatOUephhVi+vKppGgvXmFrLy7LuGf78kXnL0bOSudeLWT4cnig0j+JJSZsA3t5V
-         olZbJEqspEdwhgRby/TstqK9TYHw3UojralDOWWy+m7Ubgw8lyBsSTBbWZw6hb+GHQBX
-         vDO2VBO4XCk1oexRTaqfwTuLePrQYdGPWu3qtWKOlwuIQRryZ9Nv6smOWFX4r2Hd7ZqV
-         i4TQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWNBEDUKNEqYOnDtXko20E4dFiYvoGjkXn+0ji+BuST/H7FhiLoX8T9M9pJWvW7R3SKz4lcCBSqHMe/8Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyeyr5pZw1qBreQ1Hr8SyWQoH9sECIs58GT3F8bWVqwqWSUC2fS
-	loKeuS6fT1ihq9+rs72B+8JYX2Sb9qfjyv7pR9tjO9Wk6oi9liptG56M
-X-Gm-Gg: ATEYQzw/6qu4btOu4TMd/7JW9j8D/nuiFe/njwu+11+JHzXd965C5ho9IIncLdmz3fE
-	n0PYh49gGmYPS85z9Y2OtF02AnViAklUlTXX3H1/hxgDt44FKLOEectu5+nrDdGG/CPPS2vml9a
-	TcLci0/cOZomj79pXrLm6iIVnGkmrKoOayrMUtge3QklzTvD68BOkhC+NKxF6GJden5XySlz0bb
-	wR322OEnPQoG9wXFLabCzDlZAr54T0YY6+KxrgI/0RbjqRn369cx83qObtNMPIE+B/fFFVytRgQ
-	OHDu4zUi9ewfHD+EgBgNYAnUTP50zqjJSgZ08uJHXwUzqDoMLwhxW4C1wFHVxcvh9RUCDz+lNZb
-	4hu2qUtdpuXfbmZIC4iC6UM+E2fU/9ti8KmoELB0/DRyTz+begi+bPsUWUaHMZtcGEG5ywKNWL1
-	VbjvxtmvkVwdhGcbZXRiLCe2n9CTQt545V+N2z6b6X9z/qp2+hBIz8KEki4Shc0uqJ6XglkenCa
-	K8=
-X-Received: by 2002:a05:7301:5f14:b0:2c1:2706:b412 with SMTP id 5a478bee46e88-2c15d28bd1cmr2464011eec.5.1774455018266;
-        Wed, 25 Mar 2026 09:10:18 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c16edc0436sm39305eec.22.2026.03.25.09.10.16
+        d=1e100.net; s=20251104; t=1774455245; x=1775060045;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5QWtbrnIPLe7UVe9X1ymrZwEQiveci/bM6lp3XBmjtE=;
+        b=suRI19sBuYN5JRRED85wsHVXn66J1CyjvP8tnMPtK3SfabazuFTK/OLiusa06I1Md2
+         WUnSKXP/Jqwx6VonGTiZsEfGN88v3iqUViBeTy51mcUvXohSTeF2zGO5zfAFEQmSRR6K
+         EW4NDMPpLysd/BRN+oADwrHL61Zfj+ULKewpIQqEgN7Yu/5edntz48HuCleQlqqbWq45
+         JSvPjM6/D6EZRSClxKcsdDIR3v0sE0LbgBgJM2GyGP4RMxrx78g17JEvEWie7OJfXTyN
+         6/N8vpa4vdi9AnfRfbOcH/0SLhyTDS/tAlMnyYixLhUEwWS0Jdd+nVqvMlgtN4RU/1gA
+         EOYw==
+X-Gm-Message-State: AOJu0YyTq9ryoAltf4L7hbv5DC6WgUki6RI9t3CWnfZ4M4pb0mgyGJbo
+	eimhfldCKV/8C28OmiaS5lBXl485QJHGRX+5XEIrZgYwIeq0ZgKajUSK
+X-Gm-Gg: ATEYQzzn3geerIGJLKO34zv85Re5xkZR/YAQ/R58j51tHWCOiCKE11in5Keo95qPQuP
+	6A0JMdcFpaL8KtdIkEcKsPsZ26UOsxGINIhTPZzWkarJJr7RhyL3FMk+/sJHY7wxgj42mRWFZt9
+	FxF/eViyI+nJN21M1NBUGiobH2j+9kCQZagBRrnSk9I+5fRol/3/1Aey62mu0iy7MpzUwerK6N5
+	W0sz+OIL1slKnklxdb7X3ux80FWBsbmPFsb4YnJn+Wejmk7Xgp8sNAFDqK+Gy/f6KftvCxzmPCM
+	siP0ZHlNW5IhaZC/tsgxn/2Sq20fH/A88uAM+WcdnqjAC6EVf/kKbXAsAPAEoerGWAZSbjUITyY
+	krmEgDgSWR++SNspYGr61W4LSNjTEMARKvJ+npmV2pp7L8zq9pOtGAeBWOHu6LzADL1/Hgvmn+t
+	bzIob6zEg9lAT1kAu+T4dlXyT1wS2WloYbMuh8mbeo0dznIXRT9TUSEXCscw==
+X-Received: by 2002:a05:6a20:431f:b0:394:6344:e5c4 with SMTP id adf61e73a8af0-39c4aaa560amr4777403637.3.1774455245559;
+        Wed, 25 Mar 2026 09:14:05 -0700 (PDT)
+Received: from debian.killsync.com ([152.58.216.86])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c74443ccbf0sm13620304a12.26.2026.03.25.09.14.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 09:10:17 -0700 (PDT)
-Date: Wed, 25 Mar 2026 09:10:14 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Oliver Neukum <oneukum@suse.com>
-Cc: kees@kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/2] input: pegasus_notetaker: use HID defines
-Message-ID: <acQI5JFR-aUiBeW8@google.com>
-References: <20260325143256.371854-1-oneukum@suse.com>
- <20260325143256.371854-2-oneukum@suse.com>
+        Wed, 25 Mar 2026 09:14:05 -0700 (PDT)
+From: aravindanilraj0702@gmail.com
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Aravind Anilraj <aravindanilraj0702@gmail.com>
+Subject: [PATCH] HID: cherry: Fix switch case formatting
+Date: Wed, 25 Mar 2026 12:13:28 -0400
+Message-ID: <20260325161328.260110-1-aravindanilraj0702@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260325143256.371854-2-oneukum@suse.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 25, 2026 at 03:32:47PM +0100, Oliver Neukum wrote:
-> The driver uses its own definitions for HID requests.
-> This leads to duplication and obfuscation. Use HID's
-> definitions.
-> 
-> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+From: Aravind Anilraj <aravindanilraj0702@gmail.com>
 
-Applied, thank you.
+Fix checkpatch warnings by splitting single-line case
+statements into multiple lines.
 
+No functional changes.
+
+Signed-off-by: Aravind Anilraj <aravindanilraj0702@gmail.com>
+---
+ drivers/hid/hid-cherry.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-cherry.c b/drivers/hid/hid-cherry.c
+index a504632febfc..828a3cc67512 100644
+--- a/drivers/hid/hid-cherry.c
++++ b/drivers/hid/hid-cherry.c
+@@ -43,9 +43,15 @@ static int ch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		return 0;
+ 
+ 	switch (usage->hid & HID_USAGE) {
+-	case 0x301: ch_map_key_clear(KEY_PROG1);	break;
+-	case 0x302: ch_map_key_clear(KEY_PROG2);	break;
+-	case 0x303: ch_map_key_clear(KEY_PROG3);	break;
++	case 0x301:
++		ch_map_key_clear(KEY_PROG1);
++		break;
++	case 0x302:
++		ch_map_key_clear(KEY_PROG2);
++		break;
++	case 0x303:
++		ch_map_key_clear(KEY_PROG3);
++		break;
+ 	default:
+ 		return 0;
+ 	}
 -- 
-Dmitry
+2.47.3
+

@@ -1,147 +1,189 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a5-smtp.messagingengine.com (fhigh-a5-smtp.messagingengine.com [103.168.172.156])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF25435A3B7
-	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 14:33:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0E93E1D09;
+	Wed, 25 Mar 2026 14:46:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774449194; cv=none; b=HYtfvz5HOCKwAMeJKWRyjjmC1yRknqaNeyZJ3hXl7J5Dj883GaeeTKSn88vKIKZSsdlfWEz86foBeF1F9Ek8vwlnRZBT4/IQNHGqzsxA8Rwzq8i1i0lKT3k14i8znxAQ1Y7QTI0J6K+M9m+958q6YOBUpxakZfFp1AquKfo7VfE=
+	t=1774450019; cv=none; b=eASCPonrDCIszlwkoRWifPoIdvCKL/g4qNoJrpE1eLdzJm6W0X/jpaFDRwSMAs9Uoo3aLLv8D2KKcdOC0a6reTHpd7UxCx+vQDq6QY/ksOLD7i2+RV30WChfKIY5wcdLsdCT3Ii2W8HWfv2RmZunDhuTYPeG+mhsSRwZscpOJPQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774449194; c=relaxed/simple;
-	bh=dPvxvX9nQc9FpsbTO0SBzKoc2D8QHIuieg+Bz2G1nFU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hr0C9AdwI2P2OwzhSgNrrZIl04lm2sq9ZNUJSIcS/o3BFMTqbNt2BK8NWpFJgrz+G7e4Mn7Mj35MSJ71m/Fbz6x46nbSqMpdGzN7ZVu6I995t5BfF8FCb3yuPxDagtevngwuRUaFROzDDr4yjqE2IZt62bNivD8gzg9akAL07rE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=IfuUQjy5; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=mkSFR5ar; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1774450019; c=relaxed/simple;
+	bh=iEtWqnaNHDK+HKROoZFAFhlgb9sMKAraf5fE2xdLZAo=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=Ud1pikD3nuokq6w5GS9d9VJy3gG4oMF9dOvfWBnbbkJ9/EeVU4yAzwbeyAA1KqENfukZ08/F0WXtKAnSP+YBewAlvSjM5jSRSXzuHHaA9bIQ4oMvQkpuRD6Bms4DuWt643hZdjYAUXHhCwqKm/thk/0N31m8LPfEQG7uoysbESs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=vvpAAVHH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=dFv4xJT/; arc=none smtp.client-ip=103.168.172.156
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="IfuUQjy5";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="mkSFR5ar"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id C670D4D24A;
-	Wed, 25 Mar 2026 14:33:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1774449184; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RyeMdoMN2/0nPvf5qPhfrPzPhrKhmgc0Nle6QK4eJS8=;
-	b=IfuUQjy5dK0TruJdjB93ZJbRGPK5k4uWUOgDmgCMSbu7QOBP61dwfoE2qbkueMcBXgQESu
-	evdDi5V+4DvQCtJCQNg1dyQlhyT/6yRb3FVpT/8JRmL1/5rBZwSMWNpU3cJCNkWInM+anw
-	R+0/PRcGcUiFRB1Pg6hzS6V1bqsXlNI=
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1774449183; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RyeMdoMN2/0nPvf5qPhfrPzPhrKhmgc0Nle6QK4eJS8=;
-	b=mkSFR5argTv2xjaphXyJFF/8uhDx6y2TB5WDV95EEmtx4I+zf2W+e5PMjFKzxf2qLnBagX
-	EA5CnYW8dhje0+xAZAGsaOc9o8g3i8sY2mI311oG6nwIfCzW6dW+cd78LURbRfYH6EBK31
-	2bGLd1sGKzW6360651pkYRcTVd+epqw=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A27F14444E;
-	Wed, 25 Mar 2026 14:33:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id YKKfJh/yw2lSTAAAD6G6ig
-	(envelope-from <oneukum@suse.com>); Wed, 25 Mar 2026 14:33:03 +0000
-From: Oliver Neukum <oneukum@suse.com>
-To: dmitry.torokhov@gmail.com,
-	kees@kernel.org,
-	linux-input@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 2/2] input: pegasus_notetaker: use HID defines
-Date: Wed, 25 Mar 2026 15:32:47 +0100
-Message-ID: <20260325143256.371854-2-oneukum@suse.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260325143256.371854-1-oneukum@suse.com>
-References: <20260325143256.371854-1-oneukum@suse.com>
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="vvpAAVHH";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dFv4xJT/"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 8B5A01400218;
+	Wed, 25 Mar 2026 10:46:54 -0400 (EDT)
+Received: from phl-imap-08 ([10.202.2.84])
+  by phl-compute-02.internal (MEProxy); Wed, 25 Mar 2026 10:46:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1774450014;
+	 x=1774536414; bh=z7qXp1yIZCNMXld9KFgoV7znI1zKPo766t3TOhqje+A=; b=
+	vvpAAVHHB8NgSvrv1BIYfYLIXmXiJl07oaJV/rwX98dKU9QjHg3bim2oVausI3Na
+	A6A5/0HIXO0X4gmkwDJDbzFXWLBGTSDyK5r5LU0TBuGJl5LgOJE+LpG0GuKyVPfb
+	qw+297/9XiPh1QPtMKObGr/Rzcgyyx2b3rV3U6Dm27XQfycroqxNTfPuNrHquFfP
+	iqN4Wu9LymcaIq57VPRlew32GNkHyY/AfcdTJkAG+BkkCc37SF97oLqMMgIBbLML
+	vE1KvftkoMs/cf2bzJaVXAC4pGDMI7n1ElEu/JsZKi9SsP65ZUZBNRikRbXpxWXI
+	o+nbq7OeUnDJ7ijAUCXXzQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1774450014; x=
+	1774536414; bh=z7qXp1yIZCNMXld9KFgoV7znI1zKPo766t3TOhqje+A=; b=d
+	Fv4xJT/d5h2g6E6QYuVRspsenLhfu08TDPn1ZxcKT93hqzqChOM/Fs6ahE2vyY3e
+	jY/tyK855gYAI409ABeaA7rXQeqfsUwbjxYyymVrrFvia0hBNev64trbMXT/P5/V
+	zb1izl1t4dghcxUyKFsSVmfPOhRuBIsgSPCx0+WKZxew73arFq1Hp/KUM9S27CbA
+	AcRpEJ4O5U+VJBxbZ9571fN1a8Qw9MA2/9Yx5Et1aMYkgzKF52D9aXcsSeBY11P+
+	1VfljKcINLb6CBVyG24toQCugiOZZ+zbb1do5hMLQimhdsxr1RdlwO/aI9R0femT
+	7hwaodH5pYEASAnA+JNwg==
+X-ME-Sender: <xms:XvXDaZot0d6Sl4mj01RxZrqAUaEaTBQ9_y2VeBGj7PCnvfpy6MQyXw>
+    <xme:XvXDaWeajz83Izy53V63dIN1f7qDGxRj8IsN8ibAKJ8A9tjP3g8KLhkgA2mnDord_
+    HJwwDJ5td2-wvLLiu227c2701vmiUGrDDld8WDpSfNhGf56TtuiOEE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdefvdegjeefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedfofgrrhhk
+    ucfrvggrrhhsohhnfdcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtg
+    grqeenucggtffrrghtthgvrhhnpefhuedvheetgeehtdehtdevheduvdejjefggfeijedv
+    geekhfefleehkeehvdffheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrpdhn
+    sggprhgtphhtthhopeduvddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhgrrh
+    hiohdrlhhimhhonhgtihgvlhhlohesrghmugdrtghomhdprhgtphhtthhopegrrhhnuges
+    rghrnhgusgdruggvpdhrtghpthhtohepghgvvghrthdorhgvnhgvshgrshesghhlihguvg
+    hrrdgsvgdprhgtphhtthhopeguvghrvghkjhhohhhnrdgtlhgrrhhksehgmhgrihhlrdgt
+    ohhmpdhrtghpthhtohepvghthhgrnhhtihgumhhorhgvtdeisehgmhgrihhlrdgtohhmpd
+    hrtghpthhtohepjhguvghnohhsvgesghhoohhglhgvrdgtohhmpdhrtghpthhtoheprghr
+    nhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopegsvghnthhishhssehkvghrnhgvlh
+    drohhrghdprhgtphhtthhopehjihhkohhssehkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:XvXDaegdMOXhD_Fk34ZTrgw2cgdrlQkErJ29d5QMp2LCyGBQj5EXMQ>
+    <xmx:XvXDaXL9Ob3GgwiG_l5EB8YF6VTBHL_UbqyFOfqYEWuc2ss9He8hqw>
+    <xmx:XvXDaVljFva7nA6OD-2hLzq1N9zSwJo39pxU0Z6o9b-NnF8Hw55wSw>
+    <xmx:XvXDaXPBQPt8EL4-7s1bhfnm7qq_I4MRfLsjxy_Y14Tz6s1wb-YBNQ>
+    <xmx:XvXDaToIwoYmba0B2kECkrp6_kb8DQSG4kO7y5XMxfMR6PWrqVPGCfNO>
+Feedback-ID: ibe194615:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id F10DD2CE0083; Wed, 25 Mar 2026 10:46:53 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -5.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-5.30 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.995];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TAGGED_RCPT(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email];
-	RCVD_COUNT_TWO(0.00)[2];
-	FREEMAIL_TO(0.00)[gmail.com,kernel.org,vger.kernel.org];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email];
-	RCPT_COUNT_THREE(0.00)[4];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Flag: NO
+X-ThreadId: ApD5rVnmxPON
+Date: Wed, 25 Mar 2026 10:46:33 -0400
+From: "Mark Pearson" <mpearson-lenovo@squebb.ca>
+To: "Arnd Bergmann" <arnd@kernel.org>, "Jiri Kosina" <jikos@kernel.org>,
+ "Benjamin Tissoires" <bentiss@kernel.org>,
+ "Derek J . Clark" <derekjohn.clark@gmail.com>,
+ "Limonciello, Mario" <mario.limonciello@amd.com>,
+ "Ethan Tidmore" <ethantidmore06@gmail.com>
+Cc: "Arnd Bergmann" <arnd@arndb.de>, "Aditya Garg" <gargaditya08@live.com>,
+ "Jonathan Denose" <jdenose@google.com>,
+ "Geert Uytterhoeven" <geert+renesas@glider.be>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Message-Id: <eabb24a2-6703-4613-bc3e-62e3fdd6155c@app.fastmail.com>
+In-Reply-To: <20260324192045.2895560-1-arnd@kernel.org>
+References: <20260324192045.2895560-1-arnd@kernel.org>
+Subject: Re: [PATCH] HID: hid-lenovo-go: fix LEDS dependencies
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The driver uses its own definitions for HID requests.
-This leads to duplication and obfuscation. Use HID's
-definitions.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
----
- drivers/input/tablet/pegasus_notetaker.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+On Tue, Mar 24, 2026, at 3:20 PM, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The newly added hid-lenovo-go and hid-lenovo-go-s drivers attempt to
+> 'select LEDS_CLASS', which has a dependency on NEW_LEDS, causing a build
+> failure when NEW_LEDS itself it disabled:
+>
+> WARNING: unmet direct dependencies detected for LEDS_CLASS
+>   Depends on [n]: NEW_LEDS [=n]
+>   Selected by [m]:
+>   - HID_LENOVO_GO [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
+>   - HID_LENOVO_GO_S [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
+>
+> WARNING: unmet direct dependencies detected for LEDS_CLASS_MULTICOLOR
+>   Depends on [n]: NEW_LEDS [=n] && LEDS_CLASS [=m]
+>   Selected by [m]:
+>   - HID_LENOVO_GO [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
+>   - HID_LENOVO_GO_S [=m] && HID_SUPPORT [=y] && HID [=m] && USB_HID [=m]
+> ERROR: modpost: "led_set_brightness_nopm" [drivers/leds/led-class.ko] 
+> undefined!
+> ERROR: modpost: "led_set_brightness" [drivers/leds/led-class.ko] 
+> undefined!
+> ERROR: modpost: "led_get_color_name" 
+> [drivers/leds/led-class-multicolor.ko] undefined!
+> ERROR: modpost: "led_set_brightness" 
+> [drivers/leds/led-class-multicolor.ko] undefined!
+>
+> Device drivers generally should not select other subsystems like this, as
+> that tends to cause dependency problems including loops in the dependency
+> graph.
+>
+> Change these two and the older hid-lenovo driver to behave the same way 
+> as all
+> other HID drivers and use 'depends on LEDS_CLASS' or 'depends on 
+> LEDS_CLASS_MULTICOLOR'
+> instead, which itself has NEW_LEDS and LEDS_CLASS as dependencies.
+>
+> Fixes: a23f3497bf20 ("HID: hid-lenovo-go-s: Add Lenovo Legion Go S 
+> Series HID Driver")
+> Fixes: d69ccfcbc955 ("HID: hid-lenovo-go: Add Lenovo Legion Go Series 
+> HID Driver")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/hid/Kconfig | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 10c12d8e6557..f658ed0168ea 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -610,8 +610,7 @@ config HID_LED
+> 
+>  config HID_LENOVO
+>  	tristate "Lenovo / Thinkpad devices"
+> -	select NEW_LEDS
+> -	select LEDS_CLASS
+> +	depends on LEDS_CLASS
+>  	help
+>  	Support for IBM/Lenovo devices that are not fully compliant with HID standard.
+> 
+> @@ -626,8 +625,7 @@ config HID_LENOVO
+>  config HID_LENOVO_GO
+>  	tristate "HID Driver for Lenovo Legion Go Series Controllers"
+>  	depends on USB_HID
+> -	select LEDS_CLASS
+> -	select LEDS_CLASS_MULTICOLOR
+> +	depends on LEDS_CLASS_MULTICOLOR
+>  	help
+>  	Support for Lenovo Legion Go devices with detachable controllers.
+> 
+> @@ -638,8 +636,7 @@ config HID_LENOVO_GO
+>  config HID_LENOVO_GO_S
+>  	tristate "HID Driver for Lenovo Legion Go S Controller"
+>  	depends on USB_HID
+> -	select LEDS_CLASS
+> -	select LEDS_CLASS_MULTICOLOR
+> +	depends on LEDS_CLASS_MULTICOLOR
+>  	help
+>  	Support for Lenovo Legion Go S Handheld Console Controller.
+> 
+> -- 
+> 2.39.5
 
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 3a8493ed5e44..6415bfe1886e 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -36,6 +36,7 @@
-  * T	Tip
-  */
- 
-+#include <linux/hid.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/input.h>
-@@ -44,10 +45,6 @@
- #include <linux/workqueue.h>
- #include <linux/mutex.h>
- 
--/* USB HID defines */
--#define USB_REQ_GET_REPORT		0x01
--#define USB_REQ_SET_REPORT		0x09
--
- #define USB_VENDOR_ID_PEGASUSTECH	0x0e20
- #define USB_DEVICE_ID_PEGASUS_NOTETAKER_EN100	0x0101
- 
-@@ -108,7 +105,7 @@ static int pegasus_control_msg(struct pegasus *pegasus, u8 *data, int len)
- 
- 	result = usb_control_msg(pegasus->usbdev,
- 				 usb_sndctrlpipe(pegasus->usbdev, 0),
--				 USB_REQ_SET_REPORT,
-+				 HID_REQ_SET_REPORT,
- 				 USB_TYPE_VENDOR | USB_DIR_OUT,
- 				 0, 0, cmd_buf, sizeof_buf,
- 				 USB_CTRL_SET_TIMEOUT);
--- 
-2.53.0
+Looks good to me.
+Reviewed-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 
+Mark

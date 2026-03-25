@@ -1,74 +1,89 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3CB19B5A3;
-	Wed, 25 Mar 2026 01:46:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B5BF283CBF
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 03:03:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774403221; cv=none; b=qvSmbVUCRQ9Xm7DBcC5GdKmfTersPopGXlKgQNj/Dl3rnvzL7lm9ykL/vxtajX4W2KJ8JPCFYr7i8HEETYdEXNNZDL3Yyda22hBs/9ywk+RhUuFYo75H1HtnVYhUgXn8y/VjOPQ34KuiwELcOLozHf0gh36ovOh5gtwfiCvTXOU=
+	t=1774407781; cv=none; b=itKzUtiGXbFrn2oyccqDGIT9AQWjWuQKqBN2pBV4RmAo/BKlEqa7XilfeyA0MfHu8NS5QO0FKoPbuB+3PoFtTQS8v3RVauD49ScFM8eADwcX656iZ2wBR8Ua3BAjv0dE39hlPd9rs7pSyRmU/Yr39BiaTAhFUKxHOi+POMnmYcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774403221; c=relaxed/simple;
-	bh=R40G8pe6GUERSy1cKnPSBGxCKWSGspKB0j3sk9WgB14=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ndipQFZDcmGxJH9/cP35LbukxUzYHWC34OERZ5B6tfz9L9x8SX3YpGYFUCqLKYSbdmH6fxfq8eL0Kx+G5kqzkddChYDCmS6W6bPz98B1RHQBiBNqXIssnWtjeOP7Eh03Qmz3BFNYViGHETL+SGhFD/w2Uzj+UxgpFeRbzlcoCKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.197])
-	by APP-01 (Coremail) with SMTP id qwCowABnDWmJPsNpq8wRCw--.8367S2;
-	Wed, 25 Mar 2026 09:46:49 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
-	andriy.shevchenko@linux.intel.com,
-	kees@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] Input: penmount: bound packet buffer indices in IRQ path
-Date: Wed, 25 Mar 2026 09:46:49 +0800
-Message-ID: <20260325014649.36468-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260324131442.27632-1-pengpeng@iscas.ac.cn>
-References: <20260323121715.74954-1-pengpeng@iscas.ac.cn> <20260324131442.27632-1-pengpeng@iscas.ac.cn>
+	s=arc-20240116; t=1774407781; c=relaxed/simple;
+	bh=ciVx9jHFNYrHDZGtnQDQQLsYePwgjL7ss9dD+19+xhs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=h9B+BUx6jZmw7SBxz2L3vLKi761YdmkW6EgC0Z09HctG/pGrayhPrdSPTTOuZ1DWFtzBcEk98IeidPAeN2Sen36T95GkYRkymnp8wILBNw0a7yUeLdVfaAC2Spseydo6l5aU5eUZMuqtZXnA4mX8oLuhMvHk5cs37KX7KuINvDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VQB/6zPb; arc=none smtp.client-ip=74.125.82.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VQB/6zPb"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-128b9b7e3edso10759189c88.0
+        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2026 20:03:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774407780; x=1775012580; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jvHvghd1xcxSMrHBMQMHxfVnj6Gwc5uE+5un2zwivFw=;
+        b=VQB/6zPbQ+7iYZFFKaIugChTNATN3trHWSSag4oY9X2/OUIRQ/JOqUlCOC9J/WUxJq
+         sfNRP8JyW6F4e6zXJHc43Dlby2F4mEOQebrSHMm3wAQNiQbIOGbnMZsWQWSH3lyOIp0J
+         sqqZnZmlgW+kEhga65LDOttj6jxrlXEQWY1+LTYgudntehde0cTPx9Uc/08CtNsUMYEt
+         VCl5E57E+CaxKggjXbLNmJzQkV+FTqbGiCZshXRgy51zuZFtQZ2tpnuQO2d1GIbO7qkK
+         Hp+cVQ/+hzOnGN7JUjDdYkLIP1gl4SkQon8UF8au+O7ZGxEBpKwti35KPjurE9QTBc7a
+         v6Tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774407780; x=1775012580;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jvHvghd1xcxSMrHBMQMHxfVnj6Gwc5uE+5un2zwivFw=;
+        b=d0UCR5QiXLsBU4xhg/gPTH67vjCiVtC+ScOwN3PTiHJqj3EuKcJBqz148kNHsJP/2K
+         eFzDGW3EgBuGus+W0kyt/aAr0IEVX4oEHGDlvc8LXF7hrr/h3HpI6dulm7Mrev/lLymm
+         z0Ud7cucyb4FkJD6ZLfM7Zp3WDFtEGL9+byQMm0l0PWAvaA2gMWfJFUWyCXkSbcsZunw
+         dqIWxSQ9Se2pAbL7y24NlU0GfhUJFZKOtnHPUiv4X28Ew0jllt7tWpksuxZkbJFv2NP7
+         CDFNOTSSlJBgksJiZFYU4yPM+KiFGClWG0O7brGILfBt4CPPQuaocxPT6VKnwVfh+z+G
+         tIcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUjEd501enL6N9cVNoCpK/VIVdba1rcd51Sv39Bi/jxBQ6Bbs8slbT4bgNa1ZGOQm65REO0teJ7/6xigg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz63UrYJE0kiQIpZGlgF57Zszj8p1rsHQQGUmO/d8lurPsjnSQd
+	q8KERgZ0O+ds0IrdXd12as0FuSZIOCrJ5te/6edTXH+lq8xghxV/mLn1
+X-Gm-Gg: ATEYQzzFREU7U10GG0970L4fI1o9vEgWNHlSCrKM1/5sk2hiJNncw0FEkeDWZWr7p6H
+	Nrx4G1w4wVF9Qiva2gI7acrjxzyA8visaemnjrtA3zyowDz0fLUkovk076UV+5D3PzK7cplgUmB
+	W9JMxWb1L7mkJJXjPkyOEinX64+OtbupEH7+IgHSAwWq59N2/fnpAZ3waq6/vDaebFtEXOfnEm/
+	Dr9O0PFk4UT3j3pOzIMCPQYxhIr1gjR2CuMr9y1D1Np7NqCBt2fhqDAvhQCVh8luefo6t5DXVXy
+	a8NwXmBqWN4EH4PUtRUp0SuH9/wuUAU6fLVcWfE+/zVkTKwM5WkZDS8FWEwB2YvqirNYOrsmlNZ
+	gvSSNikoh/ssJU2QWdElgqPjCcj86jzOHva6vGHJ27GQj1e+UAnW4ByJ2T1B6RazeqRz0TqcPKv
+	M4ssUCDQqmusRobBN+ep+s7OYMnMe/hwW09YGu4xDVJXHo08YNgIJxPPt4VVjvIJ7P
+X-Received: by 2002:a05:7022:2220:b0:11b:ec5f:1c37 with SMTP id a92af1059eb24-12a96e6afe6mr1029426c88.18.1774407779571;
+        Tue, 24 Mar 2026 20:02:59 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:a686:fd7f:70d3:9156])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c10b14bac4sm22668916eec.4.2026.03.24.20.02.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2026 20:02:58 -0700 (PDT)
+Date: Tue, 24 Mar 2026 20:02:55 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Bhushan Shah <bhushan.shah@machinesoul.in>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] dt-bindings: input: touchscreen: edt-ft5x06: Add
+ FocalTech FT3519
+Message-ID: <acNQW9d_S1Zvjtgj@google.com>
+References: <20260314-edt-ft3519-v3-1-5ee91b408ed6@machinesoul.in>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowABnDWmJPsNpq8wRCw--.8367S2
-X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY47AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E
-	6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28Cjx
-	kF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8I
-	cVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2js
-	IEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE
-	6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72
-	CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7
-	MxAIw28IcxkI7VAKI48JMxAqzxv26xkF7I0En4kS14v26r126r1DMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMI
-	IF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4l
-	IxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvf
-	C2KfnxnUUI43ZEXa7VUbrMaUUUUUU==
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260314-edt-ft3519-v3-1-5ee91b408ed6@machinesoul.in>
 
-Hi Dmitry,
+On Sat, Mar 14, 2026 at 08:27:58PM +0530, Bhushan Shah wrote:
+> Document FocalTech FT3519 support by adding the compatible. It's 10
+> point touchscreen, which is compatible with FT3518
+> 
+> Signed-off-by: Bhushan Shah <bhushan.shah@machinesoul.in>
 
-You are right, thanks for pointing this out.
+Applied, thank you.
 
-I rechecked the control flow and my analysis was wrong here. If the
-first byte does not match a supported packet header, the left side of
-the && fails and ++pm->idx is not evaluated, so pm->idx stays at 0. If
-the first byte does match, pm->idx only advances until packetsize and
-is then reset to 0 in the handler.
-
-So this does not provide a path for pm->idx to grow past the packet
-buffer. My analyzer missed the short-circuiting behavior of && here.
-
-I will drop this patch.
-
-Best regards,
-Pengpeng
-
+-- 
+Dmitry

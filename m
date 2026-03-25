@@ -1,71 +1,69 @@
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A90F53ED11E
-	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:08:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C02A13E9295
+	for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 16:10:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774454909; cv=none; b=mr3qPqMm9nKzx+fw6mgxM8Uoo9oT4QjvM2z90KX5xiyqzkg544qMI/Qakm+sNFULJExstVN0B6IN/zHcOU/GeZK+/sJ0RAxkDAiDOiyDCQc4vDHgklJSNHtGj+OV+IKqw6dePm18P6uZ4blfkISP4Em8rQ3hRXM3MlbRNNxepL8=
+	t=1774455011; cv=none; b=ubmB5dK2BeLrJEPSAjGI6MjhyoAY/K9+S77W5VoWwIFAatzKTnF4e1uyPzyux/6WMWtK/hP61cKln3+reaVojI1XXCUhHtfDBTxcK5DN49KXz8LWU6R2thVp777mGUxfRDcClUChj1bpDn1lYoibXn8QdG4Ot6EXvriC8Yp6u6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774454909; c=relaxed/simple;
-	bh=hNNwjsHedzC//Q9OJ1PxWjJ65mudSwkNnDyt7S2u1vM=;
+	s=arc-20240116; t=1774455011; c=relaxed/simple;
+	bh=HFKMEf51litA9/inWSKBQf7hbskWp96ia+y9Fji0g5Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KQIokDVfctjTRmXKfBtwHlaLajV6WYJRCQ4I01t+4bqW19BZB6+kzMeiDLAu7GSKXnvhMfrxmknuUb2fH4vkOGsdtjbuLBp5LiEbkKcYLbk/GVdcGe1TeuovNLNg85vfy4icFGOn68OLCkeLH8BfZVo2bl8VoKVFSCe6TpIKPf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=clJIUZkH; arc=none smtp.client-ip=74.125.82.46
+	 Content-Type:Content-Disposition:In-Reply-To; b=R7GG8s6T66RTSY9ArGhffZe7lFUtQtmwcDWBxUVweMWTp0a/PQPrtR+MGUUy6ysusmNAcxSfPAh5JRqPi8FFJn197m/fVo+uzprn1YNrV1cIaGrNPufZnj2P6Q5gWzuRDUNwDMgKY6QjQ3E1/lWsCaSqdfAH5Tix81zRTOXvqvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VcBF1dml; arc=none smtp.client-ip=74.125.82.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="clJIUZkH"
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-12a747e7b2fso975c88.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 09:08:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VcBF1dml"
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1273349c56bso7438c88.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 09:10:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774454908; x=1775059708; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1774455010; x=1775059810; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=M17iBYC/F74Bg+gul2lB6f/cFM/aLJkZMkbSd6hygpg=;
-        b=clJIUZkH41qGVMiDA2PYJ5BmcpUqHxDDxnCQ9AO3RS4db9KnC7MBoTDDaapUMlyw6n
-         qE/em8tvVIZCxR5Jy3HUyqoCVKkyA0T//9nfYhQmQcq7E57A9TAS6OY4RjNK8tX8tYN5
-         aoCSkAEtVYqZE3PhH8V4MUJG6va7jLCWPbWdjoAl4dOZ4CBaw10QugLCa8C6W8UIVZKg
-         fEgUX4bZnwVs+pE/wTnEawVSz6IGyS1JLbatQi/NozomPIaGLcly3oAe7tXF+VlJIfqp
-         GEKbfkC1Aim+416DSlCWydXn/6wIUhmUpWISWUaRQYLMTkhN8pUGkmmJuT7CcSoFKKdY
-         jO+Q==
+        bh=1RTMzbPyJc/jcC1jyTvhSmLDBvTP0Tnj61vxqJ27DvE=;
+        b=VcBF1dmlTxAZtGwybBQdxmkmLqH2E18otB13Nb60Uitv19AwM0fOugYziPsYemo6Du
+         umD+l6B1guy8SrXB5vOz5WzvKT9QB6pg5Yv81smYYi0irkZKos7cZxv6JK/F8WVDTngl
+         5BrR3hfmxZj7E3Cq08ibtliiXfVaUxfIc1g08CvOfJFB81pcG2VCXsCSClHRi8uJe/3t
+         m9Z74X1poqODvNDhrXRYS9tAukmg2lpy5vNpxWufBlgfl1AzHFHp1x7qmTBjjYlZGV1X
+         gd8Lk5I4YiVa2bifR1dJRjhwGUW2G/9Bpf5kcKSFr9prisHJuOE7io6f1oohuCB5N/hO
+         QILw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774454908; x=1775059708;
+        d=1e100.net; s=20251104; t=1774455010; x=1775059810;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=M17iBYC/F74Bg+gul2lB6f/cFM/aLJkZMkbSd6hygpg=;
-        b=ZXfPllNoXGd7ENX4E6ELoUhVKHd+HbBpm1KUWHhoFB9FED8BWBrFrNsUFCoGCLMSDY
-         p1gumZQborAnys+oTxqAXlLVgQ4einlrDkkXvgjkvJ+WnXIWr3HcJHpHCSmj+fOW6Dnb
-         +3LljJ8QIVc7kzCx0iFh6cB6kygI4x0BNLXam6wuRruETGnfWikHIcbCjLvJvhkJfZZT
-         RgCaDCfWpTdQMxsu69LEDeTAnw9svGgkV93HuaRNi84D8QY8CwZodcHWslR8quT6dXY0
-         ZcOIybap2GaNAGzgOYfCpAA+hgEaJj3atG+FNvXLsZOCxfEXHXqz6oumEZkTOpZcTQKK
-         tGmA==
-X-Forwarded-Encrypted: i=1; AJvYcCUfUAEr0C56ZnpGqM7Z60dalb2AjRHLPdZDnqtE608QCeRSGMgyGif5Ns2h0O/HsgcrEgQjzs8ImQv0Kw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx/TlRm+YOhHE4FDuJByaJAzvwGtVhpBrBis/YsDNv56B18IeC4
-	9uSUuBD37hYNDDKQqFv8CAxJH0B7X8LMxfO/Apz/Q0ytE2N5BEvwMqADJb+gOg==
-X-Gm-Gg: ATEYQzygcJG25WVUDom4HCWnva/XncxiFozvFluBUTiP1EITlb2S2KOYc1LQn6B8Lir
-	9EcZD0ugQfFBpXT5V/jDO4hy0UMsN7czAgLwVNneYsOFgUlZPxP9XjMWDzk4qXmE3Z0gmAMID1g
-	aXgaZGt3pmV1cY+KCLTYrU4K6TJVvTw5G1uuPlLa90p4coJzdxnKiCk2fvzlGg8cFfpSmJBAw0Q
-	h5SW3eDMLgRI0ZUSgG3i5xvumenisJapS3dolMMOybq47wbSQeWHMtCe71oZpoF7PeCW/8/9/3e
-	LE+E7RQN3nUTLX18taMB6qEkNoFBs/ULkVIxa8bbHntspg90fZxkB7sxr43ed79i/qqG4QMjgGT
-	JnpUZSnhG0sPwoRnx44XUhKLVTvUOrgl0CXJFPnO90dw2g8mfdrNYvCh+tG2o+4r3hvk2e4fOZF
-	czxws8whhj14QJcryDS15Q28Hwkw3i8vESz1xhtk2RB9HHRbvfzt/1i24+8hIx9BYJ
-X-Received: by 2002:a05:7022:ec86:b0:128:d3de:c9e4 with SMTP id a92af1059eb24-12a96ee7658mr1893590c88.30.1774454907665;
-        Wed, 25 Mar 2026 09:08:27 -0700 (PDT)
+        bh=1RTMzbPyJc/jcC1jyTvhSmLDBvTP0Tnj61vxqJ27DvE=;
+        b=BNhhAVTm1dIPYWWkAykx5eot9UwAZaVZHeRvYbpxCdKCOMuDnec0dEwbOvpBAo9nRQ
+         2PL04jsZF/GYFS5dihQiAFKAznAN9AZNj4VlJZOTbyNFSNchkoyMkH6eFsk3rf/c/NoM
+         yAKq9TaCMPlsAmkUEN69SBGen2x/0mKagJgBxNxiM4OWLEJZm/uUwnH74pzq11FIXLQh
+         kaidr6InkuA1UYhFsLGzXOJ+JV0pyTo7GmNhjP4tlvZ3VfLbm62ZKjQB6bnlAihhpUpK
+         Xu5UVWaulcH4H7aNC6nnbje1WUIC9H2ZrOSLNY+LVjJKSTiaMDPbShW7Awx9PwzS9e6Q
+         619A==
+X-Forwarded-Encrypted: i=1; AJvYcCWKyfoWEWMmKhfCmIQscjtu+YK1ACGzUbC/sgsEVhbwfrUPgXdwNvecpT/CeV7sT2M6euj6zcCn7GHW0w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMRwpsNmEWFsUfIJnKuUYUhjUUvOleMu8pkTwZD6HVJCVPpl4h
+	GKf16dy90eFaXz7KuiHw8RYXMZJXsju8kndleZClQoDiD5RMsZnMLOsb0uWKZQ==
+X-Gm-Gg: ATEYQzwRPH7fJaIGiTPQ1tcqEKOtNNK9Mk2DvlPIi1wj5osTMS1z3vVagPUBbdA2KgK
+	DNtYuv5brNVQe7k7KpLwbjApAUM8dfvzOgsljkP9QLzQOnaxDJnnI1auDCwTxzyhBXwwkyycwUa
+	3+LnNjpve+W0qi6wUULL/ATG3FbwKTKfgFku52MM3BK6ScvEdfR2QNmij41KwvpMpVTZBScBeQ+
+	PjXWv1O5dXzQYqoNEz5nM+odI2YTne5bHZaaP6f5aRyBTQT3xsC05YatTULPUZkyJ69XlkB9/X1
+	mVwCQuV3+UMo8rXfvH/X1WSwmiqFdpYwIrNTpPaVrICH56MYqAsfS6BKINbFtnyMwlrodqKE8Df
+	lRoqBvFa5urcR9nnf3mpsi/GdZCaNhZ5pqUWdWta3GNnWJ+OPOw0hpeGMWoCmVr9sGq0zUzIYDh
+	1WhGNeRjzM9X8AwNoHXdknZF8bEt9ZgQ8YsnIMwvWBw6tQYQH4krKuFeTxgjSBL0zq
+X-Received: by 2002:a05:7022:429:b0:127:9ece:c47a with SMTP id a92af1059eb24-12a96f09732mr2117269c88.36.1774455009760;
+        Wed, 25 Mar 2026 09:10:09 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12aa6e5b9d9sm194018c88.3.2026.03.25.09.08.26
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12aa7248731sm211161c88.4.2026.03.25.09.10.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 09:08:26 -0700 (PDT)
-Date: Wed, 25 Mar 2026 09:08:23 -0700
+        Wed, 25 Mar 2026 09:10:08 -0700 (PDT)
+Date: Wed, 25 Mar 2026 09:10:06 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Val Packett <val@packett.cool>
-Cc: Hans de Goede <hansg@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
-	Stanislav Zaikin <zstaseg@gmail.com>, linux-input@vger.kernel.org, phone-devel@vger.kernel.org, 
-	~postmarketos/upstreaming@lists.sr.ht, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: goodix-berlin: report a resolution of 10 units/mm
-Message-ID: <acQIdFQeUi5E227r@google.com>
-References: <20260321073242.556253-1-val@packett.cool>
+To: Oliver Neukum <oneukum@suse.com>
+Cc: kees@kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH 1/2] input: aiptek: use HID headers
+Message-ID: <acQI1xvTrEhr9Iz1@google.com>
+References: <20260325143256.371854-1-oneukum@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,19 +72,14 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260321073242.556253-1-val@packett.cool>
+In-Reply-To: <20260325143256.371854-1-oneukum@suse.com>
 
-On Sat, Mar 21, 2026 at 04:30:07AM -0300, Val Packett wrote:
-> Without a reported resolution, userspace was assuming 1 unit/mm which
-> is wildly wrong: a regular smartphone is clearly not 2.4 meters tall.
-> Most applications do not care much for this kind of raw mm value,
-> but Phosh's on-screen keyboard would accidentally trigger swipe-to-close
-> gestures due to misinterpreting small movements as huge ones.
+On Wed, Mar 25, 2026 at 03:32:46PM +0100, Oliver Neukum wrote:
+> The driver uses its own definitions for HID requests.
+> This leads to duplication and obfuscation. Use HID's
+> definitions.
 > 
-> Do what the older goodix.c driver does and set the resolution to 10
-> units/mm to make sure the numbers calculated by userspace are reasonable.
-> 
-> Signed-off-by: Val Packett <val@packett.cool>
+> Signed-off-by: Oliver Neukum <oneukum@suse.com>
 
 Applied, thank you.
 

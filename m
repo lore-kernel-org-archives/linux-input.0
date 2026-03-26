@@ -1,213 +1,158 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11012040.outbound.protection.outlook.com [52.101.66.40])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80DF3914FA
-	for <linux-input@vger.kernel.org>; Thu, 26 Mar 2026 06:25:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774506349; cv=none; b=J7ZmVv7mv5nQQAyyL26EO6YfusWLt5Ap8sK3P4pKBXHWAIg43+4i2gHVYR+9RHUDc8e1bwRD37gkW5WNH1zvW2x0A8OYGMJKGzmIfkAjkYVPSEWsl3RizmG9n1RZ2ITmxApjDHJjVwsBFgVObAHEg/69kAH9ctKigPNIKcdguoU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774506349; c=relaxed/simple;
-	bh=E+4C3n1s7tOvVik6cAb2pb9Je5bsVW5yonX4fJHWRDk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aj20YQynbBp1kEjx0C+oiOwGidvK5NXmXM/q7t3/ZPsZbodP9onnD9mLj4nTbj274b5A3QlDwmrEEMv1A0kDriCE7r8ptjoKFRXm2Xq02a/GrumCtceQzqJgwlDvHI55EttQhxDHdH2AxGiS0WCLvY9P5cV3a/zueVQvPx8JKVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lUyXaE4M; arc=none smtp.client-ip=74.125.82.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DFAE3A7839;
+	Thu, 26 Mar 2026 10:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.66.40
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774521493; cv=fail; b=i7dQp+nPKqyDZjTeOrVqcVQEE+0FMjhnCBKmPc0otSuCG7rnJBAf56MZYwL6y618t0mZusen140wq2Kh8rmIG5ugSgAI1cS1IYaAFytKqGdSMhgJ6sw433Mu2p89qf/Cns/4PGpw8e5mSuVPJPrskFxVQY35qExhpprtCxVbSt0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774521493; c=relaxed/simple;
+	bh=2yHwQckEwnpiCMrOqalfLIBh2CZgUsWlpceHYSxS8/s=;
+	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=kTvUlrwUWgP11SDofkHQamsTzFQJt8+iuc/q6I+BdBybpwdVao95lWtK+2GPkCJ2AN8vQPUWqIHCuORftzuQyJ+8GIugH44WImvr43Pdr2u5txP3VYtpliIjMnxG5OvknAbAK408fLL/DWig2MA2Vp0DeA5MGh2FSrrnrudgJc4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=SRcuE6z+; arc=fail smtp.client-ip=52.101.66.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lUyXaE4M"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2c107ef474fso1577908eec.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 23:25:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774506347; x=1775111147; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HuSy2/PhgqqDWpXtTQHNQtoOW4iKSEs+6du+OT5tKB4=;
-        b=lUyXaE4MGm1n7ZafjgcDskvZSUvMW6j0y11kBNLlwGLQRgCbYKNTB52fK00McmuDzn
-         EiSfrFZwuxrlc//Owh4N6Ji9c4KwwVamA28lwdqjaAD4x8TavxR0N4QVcn0BZgjqtVZ/
-         l3jBMbJa6aN8MRzUzkupCn/G6E39AL7N5TA+Omyotc1wErzeq+Wv+fo1AYD5ZdSs6esY
-         +2htcJgTwltDX4nPdaNyvmNzXxuyw0eFyAzmRiBIBqpUkzzuHuKsNDQSw00dm1J+Yi2v
-         BxwJ5eaWGNEueyU4x84HopQCjpik2N/Yh+Y7riWMlruYoKOYqFLsUxMJOTdEU/oXKeyA
-         ug4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774506347; x=1775111147;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=HuSy2/PhgqqDWpXtTQHNQtoOW4iKSEs+6du+OT5tKB4=;
-        b=HvcJ6ccNTe9zF5U6xU0ckvMf72bdtQ18/mYcHyctUQk7Hro81cTB+HPCVjmH7/fAnM
-         SMRElax+MQbYcbqiZQQVrECdBkruagkCfAi37bQiKyfa930Pv0OUyvpMcKgk5Zqp39pD
-         y8IGrx4cdU+MdtCGXw76ZaK2p2z7+mH4fe3CE5h8JoQdrqcQloMR3a52XYwkbgT0+ovf
-         eETJ0NQRx0odnjX4fpeaWYLFzI703KZaLtqvJGeTQJL3Vp2AuOwOinrJ8o8VgYEHC5Pi
-         OyZVEW5AeQlD7fmNhjbezZ6zuL3dngWk27iAt+8bEme8dhxnZYoaDzJ/jMvtD/Ren7Uc
-         5fXw==
-X-Gm-Message-State: AOJu0Yw1dMpZAH3AE+Cjvoa2rvX5sTtBezU681iktZoreBIh5iuDWjNa
-	8bgRRbgwJn5ffQq9X0cOLyzYGi8ivr2oxDQdptXiomEAf3jWjOT11VgX
-X-Gm-Gg: ATEYQzyA3N7f/KC+846jSm1+LnNmtvlcGQMypRSFc9/2aoWT9AlSIZ1SFwLYs8+lQlE
-	7Tz0ZJws7EOAf3HiFkITHtgW/H++H1rq7PUm8Y8DWpTMAUSlbF4wZgSkSNQTaNxloMIbFutCzeU
-	kFhVI9WgWuOKo1J4dbLyYu4VSQ2nrKoQp623LSPoSfKJxUyFn6zBA2o0Lm6PUiYwB/5kZPlm3aT
-	+KsNMdWXebwcLEvQUvOy7aHGIBKrlj/Y8hr+w8nSdLCEfJuPJTsBsAjyKyOLxvgL6xDKCgG4+X2
-	1wFYGD02lBplgVdot49kBP2vLu52OjDzDxN8BEAAYQ3uZug4Mh36GCDzUmsGdr3uYpiKKkVyqKB
-	avxpxiFLOlEDP3eLXfrKUpF/Oz+HVzVpr7QRx3/SO7Y3BraKZvMBr5PuXrzERGLyUfwryggut10
-	njQ97rLjZkjI4uBcDu1ZFqkf/mJ34LdCgSV1rWNNmeRFoO179e/uYXzeh3X3E+GYDi8cyqrGruS
-	teLaFt2IP7ZKls=
-X-Received: by 2002:a05:7300:a94b:b0:2c1:558c:16f0 with SMTP id 5a478bee46e88-2c15d3e2f5dmr4108426eec.22.1774506346526;
-        Wed, 25 Mar 2026 23:25:46 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c16edc047esm1659207eec.23.2026.03.25.23.25.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 23:25:45 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] HID: core: use __free(kfree) and __free(kvfree) to clean up temporary buffers
-Date: Wed, 25 Mar 2026 23:25:38 -0700
-Message-ID: <20260326062539.750272-2-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
-In-Reply-To: <20260326062539.750272-1-dmitry.torokhov@gmail.com>
-References: <20260326062539.750272-1-dmitry.torokhov@gmail.com>
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="SRcuE6z+"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=GPmp4kfWegv7QvlT6yquPz31L8G5GYBKb6MZGk3OWXzf8voEwuH4+IoOeewyGMH0LXDNuNj07w/KTE6MQcR5jX4nC2b9k7aqUWzV34XXkf0/EGqkGfXpBaIiD+oyMjgCB1E3kb3llgikmG44lwWyWZP996MD03CuSjznaboWZ9tPB4IJm9CV3bJRyj6n+oFnd5GxViGtyY2kupLDk+ELFM78+EjVaCygvoSFQw6HZHIYx5wy3ssQYHnGnOhhYfeO5o7/f316T9vD6ddOFqQqQtq7czjGEyWLB86DuCaDv8e0SqHKuOQwpRqerX4nLAZ7mU9Gycf9WTBD0pJczxfRtQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VMUlKmfFriUwcga70NUsguDAtjCPa0xKET+NT/73wX4=;
+ b=QD+pudkrgPAoAG34nu5061n0mv8R0kgU/WuCzMUHga45kpCGcXmTT8sD8Ww1m3S4P5DOQTirObOZVanFV7ly8VDprOnVN+CjgF9eekJyRYjKLDz661CBDuWpEsr+gzR1Rm+Qi+UxtbcM36vwZ3cbUyiFk+yKPWwsMpKFmsjbNRFnfe1ZmDEbg0rn8B+rRTys3vSB4kGxspzwCthVR7ru1hTB0e5KWtb+YW8T/LSh9ArERYfBo5p/QIhk9tqMD+mPJct1EHFP4S2kaoMy87JIXdcRHgrRJF/7kVavSaPe7jXRHTGfOe10zM3fDkvd32pn8crEKg+24hsUt0gW8FBEGg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VMUlKmfFriUwcga70NUsguDAtjCPa0xKET+NT/73wX4=;
+ b=SRcuE6z+3P3CKtIYOCYLdoHENK1au7jNlo22dhxKM9gS0DN9TrHfdA1h/7UeABCGxS/EL/7TNNZMay3fpdWQI0FT7Wycj+bgc788dP2rc5j4IlqjTF1/Net83Tv1hg+ZQGL8ugjhgMJdZvyZBGARE3jh5paBu7xlsoz8VnJI68HKFAhuRtYkbL77DmNKhNW0omtd+REAuMaDpTsJDX9+C6OltzYpehZXETyeyoj5qaa7u/FNhkaWKMFvoaamrckj+HMCMfwmr0EwVpfWvn2wvdEZMHrX//MK8S1mli8fIVvx+uxC6PJVCc4Qz7AzErH5+huKJZsV64bd8gIyaqCoBw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+Received: from AS4PR04MB9386.eurprd04.prod.outlook.com (2603:10a6:20b:4e9::8)
+ by PAXPR04MB9006.eurprd04.prod.outlook.com (2603:10a6:102:20e::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Thu, 26 Mar
+ 2026 10:38:09 +0000
+Received: from AS4PR04MB9386.eurprd04.prod.outlook.com
+ ([fe80::1fdb:9c8f:5400:8bdb]) by AS4PR04MB9386.eurprd04.prod.outlook.com
+ ([fe80::1fdb:9c8f:5400:8bdb%4]) with mapi id 15.20.9745.019; Thu, 26 Mar 2026
+ 10:38:09 +0000
+From: Joy Zou <joy.zou@nxp.com>
+Subject: [PATCH 0/3] snvs_pwrkey - code improvements and add report event
+Date: Thu, 26 Mar 2026 18:39:37 +0800
+Message-Id: <20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAOkMxWkC/x3MSwqAIBRG4a3EHSeogVBbiQbR/atLYaL0Itp70
+ vAbnPNQQhQkaoqHIg5JsvkMUxY0zL2foISzyWrrdGWdCmdccKthRe/3oOqaK4YzYMeUoxAxyvU
+ P2+59P5ERVwFgAAAA
+X-Change-ID: 20260326-pwrkey-cleanup-99d3de61ed6d
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Frank Li <Frank.Li@nxp.com>, Peng Fan <peng.fan@nxp.com>, 
+ Jacky Bai <ping.bai@nxp.com>, Ye Li <ye.li@nxp.com>
+Cc: imx@lists.linux.dev, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Joy Zou <joy.zou@nxp.com>
+X-Mailer: b4 0.14.2
+X-ClientProxiedBy: MA0PR01CA0073.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:ad::12) To AS4PR04MB9386.eurprd04.prod.outlook.com
+ (2603:10a6:20b:4e9::8)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS4PR04MB9386:EE_|PAXPR04MB9006:EE_
+X-MS-Office365-Filtering-Correlation-Id: 494658f3-0577-4b59-4bb8-08de8b23c608
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|52116014|376014|19092799006|366016|38350700014|56012099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	Jq8eIHQYsVkGNXP3rFHNCbMHFAe3E1KoPNm6Qi13HLLOLD9dgtvTLvuBLCVi2bnFlMUuC/TpVNMSHEYNQ2XpC1uhudYLRPtV6Uxx/5kDRcjMjpCzTJSsoXRe6JPXs9CxvJ8pOF/FJ0gsM1x+uaRdIuH7AtzMhq+KoQFoQSNZuAO7ljCudIZzZwa1OnHEnqTNt8rshSFrltMkZE7AlfY4p2YLPXhNKS8pe7XnFdMoBYcQWKyDTMtesqYv3+QvetRjJSRqhho+w4WVE+SGpCfNeN60HafRqB9d9oBH2O2IEmpoQRzI89Ki9qFgUeFpgKOYwrcrXiQwwIs2YXi5Y3OVk+lki3bcjBIv1a7T+W/UQ4nVhwSyMTSGEZQElVjb8c+fmxLJybwahV6aDuS68/hKwvMrGTcD/UuNrQWThnrgpreBWhEV1mqwZSLygBVJwQazynlfX4khaG0KaylD72E4c2+ahIDAfD/53KkowBgw97ZFq9cNgy+eFk1wetdPzaDZW2tBVybrBqZD10+6Cjuq/eM5aNpcBxNwaXGyOQY+TERElUiL1PiuPb0S6fxVYY/d0B/h6HlfTiBxbhJ2K9/VEbc5EOEAktkoFDYAkLMRmi5KhIMiVHBV4iVywawP2Evlci/fwDlPl2yMZg7GniCga8SfIqmxIe9M0zxjVGVO4qqdfA8OP+JyiudL9sqWm1XJwkeccb6zdZPl89suYa6zavQoCxRjSgmQuR2lolYxqb7tqFMzGJUkk4GhTIT9K8PjCPobHYvOSzeOe/fPlJL4yh/2tIFR6GJauGBIDgmRRaQ=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS4PR04MB9386.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(376014)(19092799006)(366016)(38350700014)(56012099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?TSs0UTVaYnY5YUkwOWs5U0YwaWp4OFVPNk9razVveGFWWm80VFIyNVRXMnhu?=
+ =?utf-8?B?Vld5UHNqZCtiNjBpbitRaUc3WUNDM2FzbHNPVXlNTm9ZeTloeFBPd1YwS3hp?=
+ =?utf-8?B?K3U5MkdsYWNUTWZFSmtqMXpSbFZ3dXpLTVE5QlkyaUZ6ZXhNWVNpNDVjcjBG?=
+ =?utf-8?B?QWxJWldCWExrSndjZWYzWGhGcVJSWjZLS3RteFpPZ1BlU3FWSDZRSVdvL2wx?=
+ =?utf-8?B?WDZBYkdHKzNuS0R2dmw1Wm9McEloS3JvbWlHOW9qRzZ3alRJeFRxVzlNQkIz?=
+ =?utf-8?B?RzUwalRDdHRxaFMyZS9SMyszbUIwbWcyTTZ5WURNbGRiSkVKOTJGSmFzSVdC?=
+ =?utf-8?B?RUh2cUMrOGtTY0lZZzNoK3JqemxtMnlhdVVxc095bTBRdzRQaUNRaUtEbFp3?=
+ =?utf-8?B?elA0WmFmZlBybEg1TzRGcDBoNDZyUktyeWVkeWYzMkpxV3doVEM4bDFMNWhC?=
+ =?utf-8?B?N24vMXV3bWVEYWxUSEVhb1NVM3d0QlNBb2dZRm1FdVlpYnpETXJjOHcwNDVT?=
+ =?utf-8?B?Mzdjc2E0SDB5TDZlK2ZpSExmTHN4a01BeU1EK3hKMmtsRmJmaVRaUEpUS2h6?=
+ =?utf-8?B?dWZ5VjlGM09yN2dBbzlCdU1SQ0xCVjlFdERRcGxkRytkajVuamF5bVJ3V1FT?=
+ =?utf-8?B?TldBZXdYenJHa0lPNXdpeU5laHpsaGpIK1pnZThBakR2U2FjQkhUWVZzek5J?=
+ =?utf-8?B?UjlSSUdWeDlUN1dGQThVREgwOElobE1kQmlWR2hKRTA3dlRvOWJhNG4yMEFL?=
+ =?utf-8?B?NG1oY2ZpbTRraUFlM3o5OWhCTW9yRWZCQk9jY1hKYXJGK290a3JZbUVVdFNQ?=
+ =?utf-8?B?V0xaZU9XVVV1Q0x6eVhQVkZQMTgxSTVmN3A5WjNkcnBKcTRkeVhGZXltTit4?=
+ =?utf-8?B?K1ZJeW9MamhzVHd2R3ZwS3ltelFnbkJhVXg3cm8vVGlVcElkcFpVYTFDQkNM?=
+ =?utf-8?B?YU5DNjBUMWlKcG0rSDQ5Ujd0MVFqaHpiQUVOa1h6YVJHMlpyU1BJL3VRc0Fy?=
+ =?utf-8?B?U2RRbzlaT2NFSkNOU2hVZVNsQ1BkYmZ0WlhBWms3U2YzeTg1NktwWFA1NGl3?=
+ =?utf-8?B?Y0J4eTlvd013YlFuS1VDKzg5WEtaZ1hneHVCQjd0UDhYcFYxMmZDb3NMUmZX?=
+ =?utf-8?B?dkNlNkIzWXlFZFNhY2taRXZpdGJOb3FSYUFmYkZDT0hDOVF1c3FPdEVRUWc0?=
+ =?utf-8?B?R3lUSjhCM2dxOExKdWRFbzJ4cnFRYklhTzU2RVFvZGdwa043d0FRbGptNjc2?=
+ =?utf-8?B?OUc4eHhKTE12NjR1RGZZN2ZpeUxpc3hnODNxM0EwQTNRUkVYc2cxMG9rQXVF?=
+ =?utf-8?B?TDB1d0toN0pqWHgzQm5wUXVrSkpBUGFJb2EyZnp6YXcyd3lyekl0a3NrQ3ZM?=
+ =?utf-8?B?SVZKMEVDb3hzOTM4SHJmY1ZxNy9Fa0E5NUxtVkl1QWNwbENmMUlyNXhKTU8z?=
+ =?utf-8?B?Ti8xejJBdUk5ZUw5TkV1Y0NhTEg0VTdRZUFsOFVwM0FOc1VyVG85SWd0NE9m?=
+ =?utf-8?B?KzdTSWliNUEvR2xLSWIrbXNPRjZhRG16N1ZhWFd3SWEvU2laODhES1ByL1dQ?=
+ =?utf-8?B?L0NOblFqUUluRndvaGRSV1kzYU9GUHkvQWhYalI5VVdHRjd2YnZUTHBqOExB?=
+ =?utf-8?B?UWN5RmJnOWcwN2pJR2ZWdXRrdlZJbHFzZFp3R0lKb1BFWEFVRUROWS9hU2xn?=
+ =?utf-8?B?OFFJblgxQWVxNDVBWHBkcWczQ2VVaDc3VUJiSEtick8yejVrRlYvRU95UThP?=
+ =?utf-8?B?YzljejdtNU14OWZWWTVXRDhLZGxrUjM4MmU0c2hYOTdTa0x3NWdIOXlpN1VO?=
+ =?utf-8?B?RStGOFBiS3BFVmpPc1JKL2lmdGVBTkdhVlc2Sjltc0t5NVpQTXprUGZLdDBU?=
+ =?utf-8?B?bWZjV0YzdlNQc0l0cHIrZ285MTFpenB0RURYVzloYlozaW1BbXMyTTcwWkhI?=
+ =?utf-8?B?c1FaQW1qbDJFNkQzb1dUL1FpSTZhd3E5RW56bkxaVGpPcjVxM2Vub1psZlNH?=
+ =?utf-8?B?cmswR0hQaEJMR1Myd3piNWNoQXIzbFB5Y2dUcHQ1bE1zaXBXV25UZGErcEp4?=
+ =?utf-8?B?c0IxSVNYbFkwOXFnRW9TdnNkMmVlYXQ1WUdNbUVQSU95MFJVb2FncVJUNHhw?=
+ =?utf-8?B?WmEvTUZ0c29JdzE3M1NYb1hEbnJQNnhVejlWK1p3Tjh2RjNlTysvRTExQ3R2?=
+ =?utf-8?B?d0h5WU5wdHBHZkp5dkhybDkyUzJwMkNjb1F6elE0REY4R1BVVitxOTZaMEJS?=
+ =?utf-8?B?V1RUSjZUZ3VoS2s1ekNRUlN5aXdxV3dpeWVHQndqU0ExODBkZStlQ3pYT3VS?=
+ =?utf-8?Q?84YLOfoa/nuOr0tlL8?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 494658f3-0577-4b59-4bb8-08de8b23c608
+X-MS-Exchange-CrossTenant-AuthSource: AS4PR04MB9386.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Mar 2026 10:38:09.7048
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QRPpaiI9T0Q17kQ+aZ1fYr+xV110E6Exgu40mD2LDTyqwcjtQJLUB9PgBPUB0Bl1
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB9006
 
-This simplifies error handling and protects against memory leaks.
+This patch series improves the snvs_pwrkey driver with better code quality
+and add report press event.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The main improvements include:
+1. Clean up the code by using local device pointers and dev_err_probe() for
+better readability and easier debugging.
+
+2. Fix potential event loss during system suspend by reporting key press events
+directly in the interrupt handler.
+
+Signed-off-by: Joy Zou <joy.zou@nxp.com>
 ---
- drivers/hid/hid-core.c | 34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+Joy Zou (3):
+      Input: snvs_pwrkey - make use of dev_err_probe()
+      Input: snvs_pwrkey - use local device pointer avoid reference platform_device pointer every time
+      Input: snvs_pwrkey - report press event in interrupt handler
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index bb13dcb116a9..b40953e0f52e 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -924,7 +924,6 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
-  */
- static int hid_scan_report(struct hid_device *hid)
- {
--	struct hid_parser *parser;
- 	struct hid_item item;
- 	const __u8 *start = hid->dev_rdesc;
- 	const __u8 *end = start + hid->dev_rsize;
-@@ -936,7 +935,7 @@ static int hid_scan_report(struct hid_device *hid)
- 		hid_parser_reserved
- 	};
- 
--	parser = vzalloc(sizeof(struct hid_parser));
-+	struct hid_parser *parser __free(kvfree) = vzalloc(sizeof(*parser));
- 	if (!parser)
- 		return -ENOMEM;
- 
-@@ -987,7 +986,6 @@ static int hid_scan_report(struct hid_device *hid)
- 	}
- 
- 	kfree(parser->collection_stack);
--	vfree(parser);
- 	return 0;
- }
- 
-@@ -1246,7 +1244,6 @@ EXPORT_SYMBOL_GPL(hid_setup_resolution_multiplier);
- 
- static int hid_parse_collections(struct hid_device *device)
- {
--	struct hid_parser *parser;
- 	struct hid_item item;
- 	const u8 *start = device->rdesc;
- 	const u8 *end = start + device->rsize;
-@@ -1259,7 +1256,7 @@ static int hid_parse_collections(struct hid_device *device)
- 		hid_parser_reserved
- 	};
- 
--	parser = vzalloc(sizeof(*parser));
-+	struct hid_parser *parser __free(kvfree) = vzalloc(sizeof(*parser));
- 	if (!parser)
- 		return -ENOMEM;
- 
-@@ -1267,10 +1264,9 @@ static int hid_parse_collections(struct hid_device *device)
- 
- 	device->collection = kzalloc_objs(*device->collection,
- 					  HID_DEFAULT_NUM_COLLECTIONS);
--	if (!device->collection) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!device->collection)
-+		return -ENOMEM;
-+
- 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
- 	for (unsigned int i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
- 		device->collection[i].parent_idx = -1;
-@@ -1322,7 +1318,6 @@ static int hid_parse_collections(struct hid_device *device)
- 
- out:
- 	kfree(parser->collection_stack);
--	vfree(parser);
- 	return ret;
- }
- 
-@@ -1358,9 +1353,9 @@ int hid_open_report(struct hid_device *device)
- 		 * on a copy of our report descriptor so it can
- 		 * change it.
- 		 */
--		__u8 *buf = kmemdup(start, size, GFP_KERNEL);
-+		u8 *buf __free(kfree) = kmemdup(start, size, GFP_KERNEL);
- 
--		if (buf == NULL)
-+		if (!buf)
- 			return -ENOMEM;
- 
- 		start = device->driver->report_fixup(device, buf, &size);
-@@ -1371,8 +1366,7 @@ int hid_open_report(struct hid_device *device)
- 		 * needs to be cleaned up or not at the end.
- 		 */
- 		start = kmemdup(start, size, GFP_KERNEL);
--		kfree(buf);
--		if (start == NULL)
-+		if (!start)
- 			return -ENOMEM;
- 	}
- 
-@@ -1998,11 +1992,11 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
- int __hid_request(struct hid_device *hid, struct hid_report *report,
- 		enum hid_class_request reqtype)
- {
--	char *buf, *data_buf;
-+	u8 *data_buf;
- 	int ret;
- 	u32 len;
- 
--	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
-@@ -2021,17 +2015,13 @@ int __hid_request(struct hid_device *hid, struct hid_report *report,
- 	ret = hid_hw_raw_request(hid, report->id, buf, len, report->type, reqtype);
- 	if (ret < 0) {
- 		dbg_hid("unable to complete request: %d\n", ret);
--		goto out;
-+		return ret;
- 	}
- 
- 	if (reqtype == HID_REQ_GET_REPORT)
- 		hid_input_report(hid, report->type, buf, ret, 0);
- 
--	ret = 0;
--
--out:
--	kfree(buf);
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(__hid_request);
- 
+ drivers/input/keyboard/snvs_pwrkey.c | 75 ++++++++++++++++++------------------
+ 1 file changed, 38 insertions(+), 37 deletions(-)
+---
+base-commit: 66ba480978ce390e631e870b740a3406e3eb6b01
+change-id: 20260326-pwrkey-cleanup-99d3de61ed6d
+
+Best regards,
 -- 
-2.53.0.1018.g2bb0e51243-goog
+Joy Zou <joy.zou@nxp.com>
 

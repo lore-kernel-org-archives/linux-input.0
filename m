@@ -1,198 +1,284 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57ABF3A3E8B
-	for <linux-input@vger.kernel.org>; Thu, 26 Mar 2026 05:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EBE23914FA
+	for <linux-input@vger.kernel.org>; Thu, 26 Mar 2026 06:25:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774503805; cv=none; b=atFLdbAfSPAfi4rvYJS5ErjNKQfNcGVGANFCW5yWgUwvCl/q8s5orqQbziQ4Q8AhG6cF0ak+g9kx4/O7dyUOUKmJmp/CHId/+CcLnnknBS/5TuGqQWLVo5TJFy6lxLu8gezdncwf5s1MRxLkBHUeQgxT5YAhgSb9SJfmikUCpMU=
+	t=1774506347; cv=none; b=vEiPCosNq8f8A416Tqjk4jUROSfEhBdlcJ0cW6PxUAqhDcO0VMhfbcX0yVc2QH2aA+6+bSTXPif5/6/VjcKpyHueAQKWQYlqSRvCE5Bd7iA7U1BIEjkPD2Yv1+EAZSpiN4TrZ015g+BCaIWrESkv4kk/Kjrfd8n6rxKYegbn3C8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774503805; c=relaxed/simple;
-	bh=s27fcGErMBzKxY6t96v5alAOcgMfI4+l2mcmFG7QKYY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DO8lx2f5JNxUsYwMnFTZFGOIRZLv5xQY+Ucilz4Yvm1ffxO/JB/vSQSpuhlTrL9Ce1ZWZH38jyVnu+D5r7ftBuB+59aV04+H7tq8BztVykFuzWiV+egFuP1XIhqbR9P1K3kA1nhwjupIhwX+gq02/H/1hXTvfc0BAQ+9/F2rLI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=j9VIybWW; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1774506347; c=relaxed/simple;
+	bh=BG9dwq32Jw5ObkBUCNM0jEEHZe4n9bTRXKHeoa/5Jss=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pQ+vZbS8vF4lyh12+62YTvTWzkrQKQY3bPq8VhzsCC4eFrq8KTmesgC6FeOBWt3AaFpeulB5GimijLeLatYmfgOuoOtV6T7ny7wOAXlJtK5mJfNllHsXVjwe6gd599MfVFpESafZKEcvwm3/L2qwHjEw/SDvHRjSVwSQy+LcbYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nuIrbNp6; arc=none smtp.client-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="j9VIybWW"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-82985f42664so332947b3a.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 22:43:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nuIrbNp6"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2c160308a54so1595713eec.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2026 23:25:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1774503804; x=1775108604; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=MC8YZMrpOiVQXaQsK16bopjggMD7NER7fOf0qrCs7A0=;
-        b=j9VIybWWMartLF4E6u3VULN362czlBOTKyMl0iyYmmoAGbIhvg3XMOa6JDr0RwEPfv
-         0s8bBNttKoQKhSHOwxycdbFzFsjM8f4Qcx+/rh0wlb2A2z2EFLB7wyAFHpMid1CKZCF3
-         ODrhVtSkmB2Jc+j7xaCNZFM9E3NOxLvsHVvls=
+        d=gmail.com; s=20251104; t=1774506344; x=1775111144; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YYZRc5c/hfM+a8SsAQf2L3jVT1t8JOqTOKgOG/Px7dk=;
+        b=nuIrbNp6oVTYcHe3B9CWHjMHdz1TEk16iinxcUcPHwD1Gnh9giGcLbFKWNBdCkz1BY
+         GVbUkNw0sg7i6uicUu4etJ0vphv7+ecYoiaBQnjlxZAe0uK8rzMxC7vqvWJGfZRd1TP4
+         yko8EUJQ9D1GOHojNKoy6HUAkO14IMEOkp7ost76PFv+bM6hvQv+gD/jrjkZrBKKbv8L
+         gTCVnnPOmHMEeDZEpFwD1OO2/PYPWDQupEml0v7jVGP0ycrhX0cBEMlRpShcsK9YrTHO
+         8x4IcZ71bVISBMB80Q+sCeCZEnhZHrnHtJqq/PK5daSD4d6BQLpQJm+ziGF2d71Aru6Q
+         bRfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774503804; x=1775108604;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MC8YZMrpOiVQXaQsK16bopjggMD7NER7fOf0qrCs7A0=;
-        b=euDfibZyxy45cM0YQishZZPyfJlJRvJD4eoVzIm5VGeibkSh4LgYeEE3drHrMnDy9S
-         WqSVG2RtWXvzYfDkvO+w/7Tz4ucJBmWa8PlXPbrsEjvC4jYInOVGK570J8HN7KtQ+Qw9
-         nLNoaj9z48yfGg6mkeBaBx2k8mAJAp4kCw+cJvLmlhhj1gpd3wqmn7tY/c+KagEq0AJd
-         fLeqEsPxC64ZVEmAUv9SOwSPZrCzdO7pd5Mt33Amsle++mL6wrRH/20Q4syt0ywknBeJ
-         cPEajvoI2PWiajt6irIx5bfSyjSAwCmSn1Opwid1D5ya5y1wTjwJvqTDnB+hIukvnkqy
-         FDDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUYfQGr58+SKdqOjQk2y3Xshj7PisHoCT2KKuzqEJG8bFNpoQDlKzJLw+GErUJtBHgEnHjsCCt88YRueQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxZCA3uRgQV7ltxjFa1MjDa7oE984t8QbqF2C2VdZcOZaZoOUa4
-	feezR6fcd/2w8ZPUYhOk+8dGAqDnOBgpEKqyY7Ji3w0ZSs2GFnOMiy2IameUOXRTqg==
-X-Gm-Gg: ATEYQzxi12IsOufudGTP16NK/FEDuhriBp4uZmU+fAx8dYMjC+4l9quV/TnT6oya/kD
-	18NpZ+SMzltjWzl4OwDniTZNa+UEIGX/fWL0k6aA6oFVIDyuQa2sdEY80fCemtz91bmbA/o7UnE
-	4x/w2H1RNXrjj+dfvwG/pLH7f32zT/e30YODT6OgvFpLIFv/KnUFrhlpu5/TkTuhdkcMPop8tax
-	4GwgMs5Jz1TJ3xcVSYzUMJvyr5LThfQI6tHyifckUNk19/VQCeGmXfCfyHz+FtheGDsWOSPli9e
-	lLtYAVgYnV6Dy+24Ku++J2NttkzDtWt482/4U3DmsIpQConKiMQ9laePU5lt19FFFlyiFoDwXCR
-	OOVcNdkOVFC/OVhCql9On2K8wMNbAHCOtwXMB8A2BambxQifW9GE5Z94gDdyWayqASQPMyzEuIi
-	7T19Cxk6tdYofOOsO/qQ1ZQDgcmzq+IHBI6BEZ11B8X90CZrCOFbFs/Dk=
-X-Received: by 2002:a05:6a00:1ac7:b0:820:2f9b:fe31 with SMTP id d2e1a72fcca58-82c6dfb1e09mr6141757b3a.30.1774503803653;
-        Wed, 25 Mar 2026 22:43:23 -0700 (PDT)
-Received: from google.com ([2a00:79e0:201d:8:3ed5:7e63:b37c:a7d7])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82c7d5d89b5sm1411849b3a.41.2026.03.25.22.43.18
+        d=1e100.net; s=20251104; t=1774506344; x=1775111144;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YYZRc5c/hfM+a8SsAQf2L3jVT1t8JOqTOKgOG/Px7dk=;
+        b=ksZmcUfLAT7crUZufxBb8sLqqSA2poNykyM+HJuitRqyrH7yEmLBMkp0RzqEkfeijH
+         rhCxrxEhWdAhx3elx4n+uhILZ2/Z1CMfx84N22vv58zD6NycPzjzHi0Rv+UTOWcOcW9B
+         /UQ0jSnw0trYL1L2Y77FTKItkPpVn3z4bWwR6UZpvumvyymJHsAYnc6q0Iwmj4DjUaTV
+         mY/GtF3SKOlE1D4W3UN/3OD8dHCT4qi+9dqP+DbQtj3y2TASC8USXNYZ4qYtFUO773kp
+         GXYPWmyKpHr6qxVxk+a+AqtTgQ/xLp8KmtZcgiZ4DpQxp0iDTHg4WTM90nz292CRrNFR
+         EuBQ==
+X-Gm-Message-State: AOJu0YznZeGJaiBDkZLH0mzNOzV4FVNZQRiLno3xgUFslYj/TNwufC+R
+	zCtwbZeBOcQcp1GshN3FvN+S1wfL/WldtySAlQUCe3i571tbXoQozxl9
+X-Gm-Gg: ATEYQzzaAA41J0f8OuHIp5JloU370RYzPofZL670ZUPkelreb2VvgTPR/sWBAIHq2w9
+	YjvnTyBHnWCyQAKhjjj7aDgOz/XDSZXvc7EqswVlbkEYYwfFKkf3ySl9Cjklx1QteenxVZkDjpj
+	pS8QEaK+pFjP/6QSJfJwci8XyEBhtlx4VKpHpxUFhTsoD9ccGZ338NbFjPvi+nnt3MfgB81F7Fe
+	307+DCAiS8AHhlX0GkNEZlljBcZBl+hp7HNXsIcNXEdsT9HvZiBRzv9+X5zDQtaLM5vbpw0clDD
+	56c+wlprZm4kIE2c6ucVVdbi8mdcSUJJOTdMotevyDqNMqp39vWl3Jqn/7gIcGNsECIHbNvimBM
+	I57J3mMPXrtIyy0nvVJVK+Xs0f9Fyg/+6gRxCYB+VvHKenovOopIj+smWUaLKL41c0ywms2YsYG
+	pdcqbSyrFFhSJ8h5LYrtZ5ln/W7MdBny3/d+AV/QhXqwXBSek3cSZ8g3/VwCOY5g3q5xIPcP7Rs
+	B9yKKaoyubkhmk=
+X-Received: by 2002:a05:7301:e8d:b0:2ba:6d87:cf6e with SMTP id 5a478bee46e88-2c15d26fb08mr3208917eec.4.1774506344279;
+        Wed, 25 Mar 2026 23:25:44 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:b7b4:352d:eb23:66e5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c16edc047esm1659207eec.23.2026.03.25.23.25.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 22:43:23 -0700 (PDT)
-Date: Thu, 26 Mar 2026 13:43:16 +0800
-From: Chen-Yu Tsai <wenst@chromium.org>
-To: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: wens@kernel.org, Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	linux-mediatek@lists.infradead.org, Val Packett <val@packett.cool>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Gary Bisson <bisson.gary@gmail.com>,
-	Julien Massot <julien.massot@collabora.com>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Fabien Parent <parent.f@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v3 9/9] arm64: dts: mt6392: add mt6392 PMIC dtsi
-Message-ID: <20260326054316.GB910813@google.com>
-References: <20260317184507.523060-1-l.scorcia@gmail.com>
- <20260317184507.523060-10-l.scorcia@gmail.com>
- <c1a425ba-a4ca-49ea-9660-5de74bede124@collabora.com>
- <CAGb2v64+oofwTiJTXDYCuzUEpk=zioi16i8a7iMimc_eZ1RPUQ@mail.gmail.com>
- <28102417-4a2a-4e29-afbd-d0f2aa76074b@collabora.com>
+        Wed, 25 Mar 2026 23:25:43 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] HID: core: factor out hid_parse_collections()
+Date: Wed, 25 Mar 2026 23:25:37 -0700
+Message-ID: <20260326062539.750272-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <28102417-4a2a-4e29-afbd-d0f2aa76074b@collabora.com>
 
-On Wed, Mar 18, 2026 at 06:22:42PM +0100, AngeloGioacchino Del Regno wrote:
-> Il 18/03/26 14:54, Chen-Yu Tsai ha scritto:
-> > On Wed, Mar 18, 2026 at 8:39 PM AngeloGioacchino Del Regno
-> > <angelogioacchino.delregno@collabora.com> wrote:
-> > > 
-> > > Il 17/03/26 19:43, Luca Leonardo Scorcia ha scritto:
-> > > > From: Val Packett <val@packett.cool>
-> > > > 
-> > > > Add the dts to be included by all boards using the MT6392 PMIC.
-> > > > 
-> > > > Signed-off-by: Val Packett <val@packett.cool>
-> > > > Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> > > > ---
-> > > >    arch/arm64/boot/dts/mediatek/mt6392.dtsi | 141 +++++++++++++++++++++++
-> > > >    1 file changed, 141 insertions(+)
-> > > >    create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
-> > > > 
-> > > > diff --git a/arch/arm64/boot/dts/mediatek/mt6392.dtsi b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-> > > > new file mode 100644
-> > > > index 000000000000..fbf6f671524c
-> > > > --- /dev/null
-> > > > +++ b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-> > > > @@ -0,0 +1,141 @@
-> > > > +// SPDX-License-Identifier: GPL-2.0
-> > > > +/*
-> > > > + * Copyright (c) 2019 MediaTek Inc.
-> > > > + * Copyright (c) 2024 Val Packett <val@packett.cool>
-> > > > + */
-> > > > +
-> > > > +#include <dt-bindings/input/input.h>
-> > > > +
-> > > > +&pwrap {
-> > > > +     pmic: pmic {
-> > > > +             compatible = "mediatek,mt6392", "mediatek,mt6323";
-> > > > +             interrupt-controller;
-> > > > +             #interrupt-cells = <2>;
-> > > > +
-> > > > +             keys {
-> > > > +                     compatible = "mediatek,mt6392-keys";
-> > > > +
-> > > > +                     key-power {
-> > > > +                             linux,keycodes = <KEY_POWER>;
-> > > > +                             wakeup-source;
-> > > > +                     };
-> > > > +
-> > > > +                     key-home {
-> > > > +                             linux,keycodes = <KEY_HOME>;
-> > > > +                             wakeup-source;
-> > > > +                     };
-> > > > +             };
-> > > > +
-> > > > +             pio6392: pinctrl {
-> > > > +                     compatible = "mediatek,mt6392-pinctrl";
-> > > > +
-> > > > +                     gpio-controller;
-> > > > +                     #gpio-cells = <2>;
-> > > > +             };
-> > > > +
-> > > > +             rtc {
-> > > > +                     compatible = "mediatek,mt6392-rtc",
-> > > > +                             "mediatek,mt6323-rtc";
-> > > > +             };
-> > > > +
-> > > > +             regulators {
-> > > > +                     compatible = "mediatek,mt6392-regulator";
-> > > > +
-> > > > +                     mt6392_vproc_reg: buck_vproc {
-> > > 
-> > > s/buck//g
-> > > 
-> > > Also, no min/max voltages?!
-> > 
-> > We really shouldn't set min/max voltages in the PMIC dtsi file.
-> > 
-> > The min/max voltages are supposed to be the intersection of the
-> > consumers acceptable operating ranges. The min/max of the regulator
-> > itself is already implied by the model / compatible.
-> > 
-> 
-> Your point is fair, but it's also true that some of the regulators are not
-> really meant to ever output anything different than what they are supposed
-> to, though, with slight variations being possible... I guess the best option
-> here is to leave declaring voltages to board DTs instead, which is sensible
-> in the end.
-> 
-> Okay, agreed. Let's go with no voltages.
-> 
-> Reminder for myself: there's a bunch of PMIC devicetrees to cleanup in here...
+In preparation to making use of __free(...) cleanup facilities to
+clean up temporary buffers, factor out code parsing collections into
+a separate function to make the code simpler.
 
-And to be honest, even the default names are not needed. They are again
-implied by the compatible, and even the regulator's own node name.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/hid/hid-core.c | 169 ++++++++++++++++++++++-------------------
+ 1 file changed, 89 insertions(+), 80 deletions(-)
 
-So either we could have a whole bunch of empty regulator nodes with
-labels for easy reference, or just have the upper level "regulators"
-wrapper node with a "mt63??_regulators" label for board dts files
-to reference and add the _used_ regulators to.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 833df14ef68f..bb13dcb116a9 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1244,6 +1244,88 @@ void hid_setup_resolution_multiplier(struct hid_device *hid)
+ }
+ EXPORT_SYMBOL_GPL(hid_setup_resolution_multiplier);
+ 
++static int hid_parse_collections(struct hid_device *device)
++{
++	struct hid_parser *parser;
++	struct hid_item item;
++	const u8 *start = device->rdesc;
++	const u8 *end = start + device->rsize;
++	const u8 *next;
++	int ret;
++	static typeof(hid_parser_main) (* const dispatch_type[]) = {
++		hid_parser_main,
++		hid_parser_global,
++		hid_parser_local,
++		hid_parser_reserved
++	};
++
++	parser = vzalloc(sizeof(*parser));
++	if (!parser)
++		return -ENOMEM;
++
++	parser->device = device;
++
++	device->collection = kzalloc_objs(*device->collection,
++					  HID_DEFAULT_NUM_COLLECTIONS);
++	if (!device->collection) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
++	for (unsigned int i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
++		device->collection[i].parent_idx = -1;
++
++	ret = -EINVAL;
++	while ((next = fetch_item(start, end, &item)) != NULL) {
++		start = next;
++
++		if (item.format != HID_ITEM_FORMAT_SHORT) {
++			hid_err(device, "unexpected long global item\n");
++			goto out;
++		}
++
++		if (dispatch_type[item.type](parser, &item)) {
++			hid_err(device, "item %u %u %u %u parsing failed\n",
++				item.format,
++				(unsigned int)item.size,
++				(unsigned int)item.type,
++				(unsigned int)item.tag);
++			goto out;
++		}
++	}
++
++	if (start != end) {
++		hid_err(device, "item fetching failed at offset %u/%u\n",
++			device->rsize - (unsigned int)(end - start),
++			device->rsize);
++		goto out;
++	}
++
++	if (parser->collection_stack_ptr) {
++		hid_err(device, "unbalanced collection at end of report description\n");
++		goto out;
++	}
++
++	if (parser->local.delimiter_depth) {
++		hid_err(device, "unbalanced delimiter at end of report description\n");
++		goto out;
++	}
++
++	/*
++	 * fetch initial values in case the device's
++	 * default multiplier isn't the recommended 1
++	 */
++	hid_setup_resolution_multiplier(device);
++
++	device->status |= HID_STAT_PARSED;
++	ret = 0;
++
++out:
++	kfree(parser->collection_stack);
++	vfree(parser);
++	return ret;
++}
++
+ /**
+  * hid_open_report - open a driver-specific device report
+  *
+@@ -1258,21 +1340,9 @@ EXPORT_SYMBOL_GPL(hid_setup_resolution_multiplier);
+  */
+ int hid_open_report(struct hid_device *device)
+ {
+-	struct hid_parser *parser;
+-	struct hid_item item;
+ 	unsigned int size;
+-	const __u8 *start;
+-	const __u8 *end;
+-	const __u8 *next;
+-	int ret;
+-	int i;
+-	static int (*dispatch_type[])(struct hid_parser *parser,
+-				      struct hid_item *item) = {
+-		hid_parser_main,
+-		hid_parser_global,
+-		hid_parser_local,
+-		hid_parser_reserved
+-	};
++	const u8 *start;
++	int error;
+ 
+ 	if (WARN_ON(device->status & HID_STAT_PARSED))
+ 		return -EBUSY;
+@@ -1309,74 +1379,13 @@ int hid_open_report(struct hid_device *device)
+ 	device->rdesc = start;
+ 	device->rsize = size;
+ 
+-	parser = vzalloc(sizeof(struct hid_parser));
+-	if (!parser) {
+-		ret = -ENOMEM;
+-		goto alloc_err;
+-	}
+-
+-	parser->device = device;
+-
+-	end = start + size;
+-
+-	device->collection = kzalloc_objs(struct hid_collection,
+-					  HID_DEFAULT_NUM_COLLECTIONS);
+-	if (!device->collection) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
+-	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
+-	for (i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
+-		device->collection[i].parent_idx = -1;
+-
+-	ret = -EINVAL;
+-	while ((next = fetch_item(start, end, &item)) != NULL) {
+-		start = next;
+-
+-		if (item.format != HID_ITEM_FORMAT_SHORT) {
+-			hid_err(device, "unexpected long global item\n");
+-			goto err;
+-		}
+-
+-		if (dispatch_type[item.type](parser, &item)) {
+-			hid_err(device, "item %u %u %u %u parsing failed\n",
+-				item.format, (unsigned)item.size,
+-				(unsigned)item.type, (unsigned)item.tag);
+-			goto err;
+-		}
+-
+-		if (start == end) {
+-			if (parser->collection_stack_ptr) {
+-				hid_err(device, "unbalanced collection at end of report description\n");
+-				goto err;
+-			}
+-			if (parser->local.delimiter_depth) {
+-				hid_err(device, "unbalanced delimiter at end of report description\n");
+-				goto err;
+-			}
+-
+-			/*
+-			 * fetch initial values in case the device's
+-			 * default multiplier isn't the recommended 1
+-			 */
+-			hid_setup_resolution_multiplier(device);
+-
+-			kfree(parser->collection_stack);
+-			vfree(parser);
+-			device->status |= HID_STAT_PARSED;
+-
+-			return 0;
+-		}
++	error = hid_parse_collections(device);
++	if (error) {
++		hid_close_report(device);
++		return error;
+ 	}
+ 
+-	hid_err(device, "item fetching failed at offset %u/%u\n",
+-		size - (unsigned int)(end - start), size);
+-err:
+-	kfree(parser->collection_stack);
+-alloc_err:
+-	vfree(parser);
+-	hid_close_report(device);
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(hid_open_report);
+ 
+-- 
+2.53.0.1018.g2bb0e51243-goog
 
-If you agree, I can do the cleanup work.
-
-ChenYu

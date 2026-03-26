@@ -1,170 +1,192 @@
-Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11012055.outbound.protection.outlook.com [52.101.66.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30ABD3CB2D4;
-	Thu, 26 Mar 2026 10:38:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.66.55
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774521504; cv=fail; b=rP6Z7ZaLfa5bcUaL5+zezNUXkf3VlEyVM6d0kXDKFzB2AQL1zkazMf2XRKZyTXaWM6oh8XM9h47kvh5EYeqppoQJGe4MgbVbAq3rG/P8Nr1eCFtUfVMpeakPLSgdaEG533NMoil33RhyZE+1xEZfjVh0Zg6/JzoIwNptiBejTII=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774521504; c=relaxed/simple;
-	bh=/2/BO45Jja4fcC085rLdKcjKpiEWhLQ4uUt+3HA19g4=;
-	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
-	 To:Cc:MIME-Version; b=nsJUiZUkYml3Z1wmSd+zNPFwdAyt8cG9Q1U7yeHYumYxJQQ4bHsHApv+soRQCInFndyNl8cYK6OD71Q486RKVjCe7++rGYuo/Wmx7MPTmEx48jTKL8MWUlTjSCpfM2Tx6nYDkdahicHfPKMWejuHcd07RbNg0VQSODG+OJ8etfw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=K5SoM5hE; arc=fail smtp.client-ip=52.101.66.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268A33BF660;
+	Thu, 26 Mar 2026 12:10:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774527020; cv=none; b=P+3Dii8vwhYcOmp9iuhIHij9c8li2THQe7Quh0yW1DMyYpQdU3Ei3gCgkOACveGpte+2nHyiFWMJUeconhEpQj7hXl85i9bPnQtbHd+2XTyusWZ2LBMDoBihdH1pM+z57jW5oIpfjK+s0hVediKyAuTNaNDW/Qf0eYjdD5NgVm8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774527020; c=relaxed/simple;
+	bh=dtdPYOxSruNMTYr7ovgDe+Uvc6axC30hpLRYIuFkgWM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W5Ek1Hcm/9atOhsdjXT/PYLbHyySqNie95Z3X0QpReWsikjva2cM+5VWMKDpOOYz2PU0NpVgcu1JRWcF4I9v/mJ5YT/0x1Pa/Eoxha/Vsg+RewUxGkHeEVSpj/26AapFWzAag4NgxKcLlp8nAa5ABjguVHzhAeaTbeevLO0I5Co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V5kZbdoV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="K5SoM5hE"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=nz+OZN8CRghIc1QloiQ/OOgemZ4j7c3khLqf8BlCu1REVN5gP8g3Ug3q/sdOMVJmcfZheR9M0S37uT7b3Px7wwUYbhhqDIP//e1mGscid+uHn2zlznp2ENjJY9ikh9rbB8qZT/kIK/K8VnnabmM9cbIy9+BcefLpB2Wc3267yTv4XUK54mpoUAHl0p2YWJcizmzvCTkRFG/NIzK/BdEgVj5HGz020k6/4blKWxDj5dTxCaxXh9wbdUIoE9nxJ0uWo/SLgN2ppMOrhnMJGTXN9BasEQ9CbsyKpsB1K/Hdzoza/0o5HFSpUdY1wfLwJ8EGJQvOq6HTicpOdnJd+1CulA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=470TGF1THXUR8+txISwEJDWq/GamtjNHEH4q/KT7paE=;
- b=k7f0+gYAepf3jdsg4WF6zJ9mI1Y2TUIzB+BY+2nOyqYxiAcg2LxbriOJ3S7NaOcv33qPTSZm7vlY3TeK7qQLQdu+fKrplBwDDd4C/Yke+Eaw9A8n9TUJxHBxPE6J2oH67X1V1rziHjggo4+48J9a9VPr8BR8f8xswDG4wsacnf5+PxlPaQlDeKau+b4HPtQzpjx+8k+swrmK42ddd4lwJ4r8i8/qcFDsPKPLfOtX0eFsdf89xNCFr8WaSto0vs6UXBIKBvuvSf6Slt3Metx6W98s79MSjF6N0nqmAVjeIlMjcHjmg173yFyuvbdZ/Yufh8uiBbKIFFczWZNDQR2g7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=470TGF1THXUR8+txISwEJDWq/GamtjNHEH4q/KT7paE=;
- b=K5SoM5hErUUVfNNMhYbJhJzXDGBYQMofl0lmETKJT41laP5bEEGgddYQIwFn6RXpD5UmN9S3mZ9FwE7SGSEwvk3ZjLB+uIuk+6zK731lhdzv6E4Qm5y5jLD3fg2deNorNwgymekH/yMxBmQPWmR94OANysKAKdSX+TswFwQ57zPtPdWmUsDtWc12GoE57FoBYshbNxYbOIfhAePTS7aOHxwN7XaiCZPId+FeK+4xnGjw0+i3kN04CluXctiDCALljRUgqdSDSVd8XrXlYgb48X3RfIyKsOViZhOFZw+aurbPHxgvNkREzpfWDuAIYEnCE4H7EMeWODC2nmFfvYogbQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from AS4PR04MB9386.eurprd04.prod.outlook.com (2603:10a6:20b:4e9::8)
- by AS8PR04MB7765.eurprd04.prod.outlook.com (2603:10a6:20b:2ae::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Thu, 26 Mar
- 2026 10:38:20 +0000
-Received: from AS4PR04MB9386.eurprd04.prod.outlook.com
- ([fe80::1fdb:9c8f:5400:8bdb]) by AS4PR04MB9386.eurprd04.prod.outlook.com
- ([fe80::1fdb:9c8f:5400:8bdb%4]) with mapi id 15.20.9745.019; Thu, 26 Mar 2026
- 10:38:20 +0000
-From: Joy Zou <joy.zou@nxp.com>
-Date: Thu, 26 Mar 2026 18:39:40 +0800
-Subject: [PATCH 3/3] Input: snvs_pwrkey - report press event in interrupt
- handler
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260326-pwrkey-cleanup-v1-3-d85d7c0bf275@nxp.com>
-References: <20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com>
-In-Reply-To: <20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Frank Li <Frank.Li@nxp.com>, Peng Fan <peng.fan@nxp.com>, 
- Jacky Bai <ping.bai@nxp.com>, Ye Li <ye.li@nxp.com>
-Cc: imx@lists.linux.dev, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Joy Zou <joy.zou@nxp.com>
-X-Mailer: b4 0.14.2
-X-ClientProxiedBy: MA0PR01CA0073.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:ad::12) To AS4PR04MB9386.eurprd04.prod.outlook.com
- (2603:10a6:20b:4e9::8)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V5kZbdoV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6694C116C6;
+	Thu, 26 Mar 2026 12:10:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774527019;
+	bh=dtdPYOxSruNMTYr7ovgDe+Uvc6axC30hpLRYIuFkgWM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=V5kZbdoVPJdViQFbIY/5CRC1c7nchphQYFhcb7T1/liR7daVygcSF5m9TyRiB+5eF
+	 F3u68kr9P7CzybtGbNfE0aP5Ha1I8Qkz9ADEFCOntBNCNFuYk6oiNgHPPZxjLneYDM
+	 w9QH5qIF31eEEtlMnz19jP71zUtcw+7c1Bf4ynVhIzLpNjj+k0STMzKeqeCA/UMxCP
+	 AgBsYrhc2FOXIbsV1WWLlWOB0Pj8trZ9drWF0t3UUHJLfCvJn21W9jWVIQYmxPX1UX
+	 RMti/wsGhFhmDstvUMxcGgV0/W9ULyjJ50M4/VTPPoz5ciJG9DUx/Svj8R3oVNRU1v
+	 ZiAb7woNojxYw==
+Date: Thu, 26 Mar 2026 12:10:12 +0000
+From: Lee Jones <lee@kernel.org>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>,
+	Val Packett <val@packett.cool>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Julien Massot <julien.massot@collabora.com>,
+	Gary Bisson <bisson.gary@gmail.com>,
+	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-gpio@vger.kernel.org
+Subject: Re: [PATCH v3 5/9] mfd: mt6397: Add support for MT6392 pmic
+Message-ID: <20260326121012.GM1141718@google.com>
+References: <20260317184507.523060-1-l.scorcia@gmail.com>
+ <20260317184507.523060-6-l.scorcia@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS4PR04MB9386:EE_|AS8PR04MB7765:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3bf22082-abd2-4a27-fdff-08de8b23cc9e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|52116014|366016|19092799006|22082099003|18002099003|56012099003|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	aBjc9JdphpwM8S8X4M4bUkNNhsOG2EZHcVD6LwbyetlsnjuMAabzwb6RVkTQ2FhLQJxKUgiUG8ZVaORtooLzTN5KZ+6o0uYYHXtLD/rkijYKlx7f7FlnJ1fapBvn5GTEQbCdOkf0N5BZsim+BrFVvT4oCn9ktMqO2LaYNafF5NufYxRKMibKpjLxoZn6rhbVnl7GiF7bI0HSWDtkoPS1Oi0U75PjIQhbEM+X1QVJqobr4Hv2UPcHWXtDSQsn826ziD6theE9sNuU1sVHfAAXXJwhZdTS6seh1IgC5ycWelNk9Wf8IJpxS7m2i8jQ1gagkNPzZCOO74j+MZ+Nhym4HDjgjRrsDk92o9tackT/Wp6NUT3WZuKsvuK7K62Z9par+IHedpVxUQv03AXHKVdgETab2J/jdu8LktBEV3++qPwHln3wVBDXM/3ql+oCZ1g86S1H8LfnGK15VBEKzUgVoWsqEmmYCBRsVqXz8pcRo6zlwIQq1Oo1HGsKeCYk2EcGXdHmcsE//GrEHpz8PIfHcxMv3/B2PKpLpmmO1kyU+A50rdGuL0RE4bd8y+QMIfk3hdwD/+HMSUQ1KpFMpqYD9Qn4x8jrQRjLjAhZU03hIqjL3RooJiNMhhPLs4Tbhh3YkPiHqR5LTo1W6Q0iwvCm7bJ0be3+URARBh62J0RKn0hIYnsFDUpS/tCPFz60RhSqdsfsB/hrVY8KnCRVUAhgq3Kyr2tRqzINgnF2pC//za02Pv1lL83Krp0sWXl1hTKR7CUx6zjTDf1ZyKHXDkumuj7iDibfxWe1Xpw2/AgFaq8=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS4PR04MB9386.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(52116014)(366016)(19092799006)(22082099003)(18002099003)(56012099003)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?c0Z2ZERrU0RHVXZ0aFUrcytkQUhRcEx4eE1mWFJqRVVuMEhtL2JQWWJvMlpk?=
- =?utf-8?B?V2R5M1ZhVS9TanVRSGQvY2JmYnc0a1VvMEt2MnJyWFl5eTc3ZjhYVE5mYi9E?=
- =?utf-8?B?RjZiZTVVM0NQdXpURVFaeDFYNzZaejlxSnJ1TFh5WHpUVUlvOVVBT0lhQXlw?=
- =?utf-8?B?REhqbkkrdUNRL0xsSmhmenptUTJ3eFF1NFZ3eHhnT3RUTE9Nby9LM1BValp6?=
- =?utf-8?B?c3dDdThPSExnZXIzS1M0QXc3VVZGd1VuUHIwbkZFcWJRUUZxNDVaYVNHTHUr?=
- =?utf-8?B?T2JGL2tLVzlNUnUweWh1dTZrMnYrcDJZVjRyL3c4QU1JelJKeFJwZXc5L0Fm?=
- =?utf-8?B?L1lUcGwxNFhhUk9ZbzlTZ1ROdnlXdUw1M3dmajR1b3hxaEJIYm41NVNNYkhm?=
- =?utf-8?B?blovakRYRmxkd3NkbGRTa016UjJXbDIyVStUa0dRVDVkSGlKZVhra2l5Z09v?=
- =?utf-8?B?ZllnQkk3TTBnZnR2NW1MNFc3M1F0YS9Fc2xIY3lMSTBVTGV5R1dBWTJaV29h?=
- =?utf-8?B?WEpJbnRIYzA1RGtZTTZSVmNXVnEvT3JhVGJmc3RSNmdody9nblQ3eHRuUXd5?=
- =?utf-8?B?cnhyUWM5bWExMWdDcDM2cVoyWjJjMW1WNnF3RGJ1cnJPc2ozYU9aZlpxVGEw?=
- =?utf-8?B?RDFPLzRrYjh1YUZWQ1NDMk9KVE9yOWhpRTcwckIwR0R3OEVTdkgvZ2tmWHBD?=
- =?utf-8?B?bWFpemtZZWNHYkVJUHpzMGMxZ0tFckk4SXZVb3A0N3FDbDZpaTFjMVlBR3hr?=
- =?utf-8?B?dlNOZWcyVkVuK29xRS95NEJKNzVvWWtpRFl4cFptdjZNUVVwZndxTW1oaVRM?=
- =?utf-8?B?S2RTbS90VzlkNkhwa1VzN1VZSWt4QmozS2ZNaTQyOENTUzJ3TktZa1pXTkt2?=
- =?utf-8?B?Yk80SE8ranBXL05iOUxib1djK3B1ZlJIMlNEYytYNTVkWVpybzF4cWZZSHdG?=
- =?utf-8?B?MDdsV29na2lpTGIrYlpkcFlJWUE3MTZ4YjQ2ZFRJMlMvankyaDVJcW42QVRm?=
- =?utf-8?B?aTl4QURadGhTaFprcklrQ3YxbFJMRkNrd0E2ODNtMVBwUklnY3NrMjQyY0Vm?=
- =?utf-8?B?RXhwZnQ4SzVlK1lHWVdWdlhnZGJ1djZPelVpZExRYWZwb2pLZkZYZjQvRFZY?=
- =?utf-8?B?dUx0RWNCUCsxdlFUWjJyU0VIZFhRRWFXZm85TWUyQXJNTzl3a0IwR25SU1NY?=
- =?utf-8?B?bldtM281S2VjeFphYUJ2UWZQZEZPclowVmZ0OEFhNS9mSEVCQkRHQUtWNS9m?=
- =?utf-8?B?c1ZTUU9maENrK2RUc2JMK3lDd2NNdzZVVllKbWVtalhiWEZ5blNRdGx5UnhD?=
- =?utf-8?B?NWpaWmZPK2owNzBWNUE3V0F5bzVRTFNJY3UxWjd6MTUrVnpuYVRKQkpyWi9h?=
- =?utf-8?B?Yms1YjdNbXA1amtMcXhqZE5tTzJ0RkxhQUZhb2F0cU1janpOWEgyVm51N1JS?=
- =?utf-8?B?QTJ5WUtrVW9nRVdVRWZQZkhkWGpmVE50YzNodE12bkYvdjZWcGRhYlVtbWIz?=
- =?utf-8?B?VWV4TzI4QXhiWG05NFRnY1ZhWHAvSm9mV2c0Rnp5TW9UTTNlbEt5OE45azRV?=
- =?utf-8?B?RUkzOVppL1RLWDBxcjhTbkRMQUpwYm9lNFluS3Y3aGM0bVJpVFhoUm5JbDVv?=
- =?utf-8?B?NWYxYklDckdDVjBDK2w3T0VnSjVVQlQvYzRRZDVHWHBFa0llVTVtMFpvNGlS?=
- =?utf-8?B?Z3RNVTBiVDV3TCtYUFZDWCswaWNJcXhTVFR2SjBnOExraldIQ1B5aE9tYVFt?=
- =?utf-8?B?MFNoaW5NRGhKWUExd0d2QzB4WWw4YjdXRHB2eUlqWmhXMmc3cUdQbVJucXds?=
- =?utf-8?B?dnpDMmQ0T1l5MlB6aEFmVkhvWmVBSkYrTm9teDBVUFBVbjBwMjdUQ2RlaEMz?=
- =?utf-8?B?ejZiLzU4Y0pJc09YQzJnUVJXc0ZOUkx6OXZOSWV5dzdaOUN4Wi9XcHZURW15?=
- =?utf-8?B?RFNpVWN3UXptcW9RaVJSQ0ZFZTZleFE4WTNIeXAvOFZRaE9YYnNENkxpZDFr?=
- =?utf-8?B?WXptKzlaaVRZRzBSUkltbVA3REJIMGpCWTF4RHlmeTJZNkRJRG5qcTVac0xl?=
- =?utf-8?B?ZlpyWkcrcnh6TUlKTDl5TmZzWmdSQm1iWlJZZVZ0L0NOTTdQR3BZT1pSUGlX?=
- =?utf-8?B?amc0NTFwSnp1VTFhRGdlL0UwcTh5dTQwYU5pc1JIUTBibkpReEIyeHEwakh1?=
- =?utf-8?B?ZVM2eDNUQlBHbCtLV1I3WkUwV1FpUk4wVVk3SlZ0VjF2RGdLMUM2b3lrY0Ny?=
- =?utf-8?B?eDhJMnVhYTlodnl0dG9id0k1eTR2NTJ3anR2azNHcEI3d2Rpb1Z3QXBCOHJ5?=
- =?utf-8?B?VUdTOU8wdWxaNjVWVlBQZEVJSHBTR01RQnE2eUhReWhUV0hibjhydz09?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3bf22082-abd2-4a27-fdff-08de8b23cc9e
-X-MS-Exchange-CrossTenant-AuthSource: AS4PR04MB9386.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Mar 2026 10:38:20.7409
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cUlVjgj5I/E6GOElNRSNzx1btL5q9g/PaBzpyKRlHJsdorf4eAE1g60ZcYOjFVD8
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB7765
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260317184507.523060-6-l.scorcia@gmail.com>
 
-On some boards such as i.MX8MQ-EVK, the PCIe driver may take up to
-200ms to restore the PCIe link during the no_irq resume phase. This
-causes key press events to be lost because the key may be released
-before the timer starts running, as interrupts are disabled during
-this 200ms window.
+On Tue, 17 Mar 2026, Luca Leonardo Scorcia wrote:
 
-Report key press events directly in interrupt handler to prevent event
-loss during system suspend.
+> From: Fabien Parent <parent.f@gmail.com>
+> 
+> Update the MT6397 MFD driver to support the MT6392 PMIC.
+> 
+> Signed-off-by: Fabien Parent <parent.f@gmail.com>
+> Signed-off-by: Val Packett <val@packett.cool>
+> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+> ---
+>  drivers/mfd/mt6397-core.c            |  46 +++
+>  drivers/mfd/mt6397-irq.c             |   8 +
+>  include/linux/mfd/mt6392/core.h      |  42 +++
+>  include/linux/mfd/mt6392/registers.h | 487 +++++++++++++++++++++++++++
+>  include/linux/mfd/mt6397/core.h      |   1 +
+>  5 files changed, 584 insertions(+)
+>  create mode 100644 include/linux/mfd/mt6392/core.h
+>  create mode 100644 include/linux/mfd/mt6392/registers.h
+> 
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 3e58d0764c7e..c4b86a44c68b 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/mfd/mt6357/core.h>
+>  #include <linux/mfd/mt6358/core.h>
+>  #include <linux/mfd/mt6359/core.h>
+> +#include <linux/mfd/mt6392/core.h>
+>  #include <linux/mfd/mt6397/core.h>
+>  #include <linux/mfd/mt6323/registers.h>
+>  #include <linux/mfd/mt6328/registers.h>
+> @@ -25,6 +26,7 @@
+>  #include <linux/mfd/mt6357/registers.h>
+>  #include <linux/mfd/mt6358/registers.h>
+>  #include <linux/mfd/mt6359/registers.h>
+> +#include <linux/mfd/mt6392/registers.h>
+>  #include <linux/mfd/mt6397/registers.h>
+>  
+>  #define MT6323_RTC_BASE		0x8000
+> @@ -39,6 +41,9 @@
+>  #define MT6358_RTC_BASE		0x0588
+>  #define MT6358_RTC_SIZE		0x3c
+>  
+> +#define MT6392_RTC_BASE		0x8000
+> +#define MT6392_RTC_SIZE		0x3e
+> +
+>  #define MT6397_RTC_BASE		0xe000
+>  #define MT6397_RTC_SIZE		0x3e
+>  
+> @@ -65,6 +70,11 @@ static const struct resource mt6358_rtc_resources[] = {
+>  	DEFINE_RES_IRQ(MT6358_IRQ_RTC),
+>  };
+>  
+> +static const struct resource mt6392_rtc_resources[] = {
+> +	DEFINE_RES_MEM(MT6392_RTC_BASE, MT6392_RTC_SIZE),
+> +	DEFINE_RES_IRQ(MT6392_IRQ_RTC),
+> +};
+> +
+>  static const struct resource mt6397_rtc_resources[] = {
+>  	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
+>  	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
+> @@ -114,6 +124,11 @@ static const struct resource mt6331_keys_resources[] = {
+>  	DEFINE_RES_IRQ_NAMED(MT6331_IRQ_STATUS_HOMEKEY, "homekey"),
+>  };
+>  
+> +static const struct resource mt6392_keys_resources[] = {
+> +	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_PWRKEY, "powerkey"),
+> +	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_FCHRKEY, "homekey"),
+> +};
+> +
+>  static const struct resource mt6397_keys_resources[] = {
+>  	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_PWRKEY, "powerkey"),
+>  	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_HOMEKEY, "homekey"),
+> @@ -253,6 +268,26 @@ static const struct mfd_cell mt6359_devs[] = {
+>  	},
+>  };
+>  
+> +static const struct mfd_cell mt6392_devs[] = {
+> +	{
+> +		.name = "mt6392-rtc",
+> +		.num_resources = ARRAY_SIZE(mt6392_rtc_resources),
+> +		.resources = mt6392_rtc_resources,
+> +		.of_compatible = "mediatek,mt6392-rtc",
+> +	}, {
+> +		.name = "mt6392-regulator",
+> +		.of_compatible = "mediatek,mt6392-regulator",
+> +	}, {
+> +		.name = "mt6392-pinctrl",
+> +		.of_compatible = "mediatek,mt6392-pinctrl",
+> +	}, {
+> +		.name = "mt6392-keys",
+> +		.num_resources = ARRAY_SIZE(mt6392_keys_resources),
+> +		.resources = mt6392_keys_resources,
+> +		.of_compatible = "mediatek,mt6392-keys"
+> +	},
+> +};
+> +
+>  static const struct mfd_cell mt6397_devs[] = {
+>  	{
+>  		.name = "mt6397-rtc",
+> @@ -335,6 +370,14 @@ static const struct chip_data mt6359_core = {
+>  	.irq_init = mt6358_irq_init,
+>  };
+>  
+> +static const struct chip_data mt6392_core = {
+> +	.cid_addr = MT6392_CID,
+> +	.cid_shift = 0,
+> +	.cells = mt6392_devs,
 
-Signed-off-by: Joy Zou <joy.zou@nxp.com>
----
- drivers/input/keyboard/snvs_pwrkey.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+I'm not really sure what came over me when I accepted this 6 years ago,
+but I have a _strong_ aversion to MFD data being passed through the OF APIs.
 
-diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index bab3ab57fdac77256be75a080773ea99372ec9c7..b557c1618d7369e872c6ce708a7b3017264ee385 100644
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -78,6 +78,16 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
- 
- 	pm_wakeup_event(input->dev.parent, 0);
- 
-+	/*
-+	 * Report key press events directly in interrupt handler to prevent event
-+	 * loss during system suspend.
-+	 */
-+	if (pdev->dev.power.is_suspended) {
-+		pdata->keystate = 1;
-+		input_report_key(input, pdata->keycode, 1);
-+		input_sync(input);
-+	}
-+
- 	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
- 	if (lp_status & SNVS_LPSR_SPO) {
- 		if (pdata->minor_rev == 0) {
+Before this patch lands, please could you refactor this driver to only
+pass through an identifier through mt6397_of_match[*].data.  Then, you
+can match on that via a switch statement where you can allocate each
+device's data structures.
+
+This is how the vast majority of MFD drivers work so there should be
+lots of examples to work through to make this trivial.
+
+> +	.cell_size = ARRAY_SIZE(mt6392_devs),
+> +	.irq_init = mt6397_irq_init,
+> +};
 
 -- 
-2.37.1
-
+Lee Jones [李琼斯]

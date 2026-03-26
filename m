@@ -1,192 +1,227 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268A33BF660;
-	Thu, 26 Mar 2026 12:10:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1180E84039;
+	Thu, 26 Mar 2026 14:04:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774527020; cv=none; b=P+3Dii8vwhYcOmp9iuhIHij9c8li2THQe7Quh0yW1DMyYpQdU3Ei3gCgkOACveGpte+2nHyiFWMJUeconhEpQj7hXl85i9bPnQtbHd+2XTyusWZ2LBMDoBihdH1pM+z57jW5oIpfjK+s0hVediKyAuTNaNDW/Qf0eYjdD5NgVm8=
+	t=1774533858; cv=none; b=fHPz8zo6PBhQDvwj6NXkghw9Ldkkl/+yd+fZZe93TUXXmrqazbQsl8V+AHRsSZlXH71w629gEQJaOQHUIkKZoNE0wMjnmnJxq340Kx3bubfXTSsuv/qMHquNU/GAzBCelp/sxF3rov7fgkJz5GYOzi0ikt0xTNb/rzeqUJrl/m4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774527020; c=relaxed/simple;
-	bh=dtdPYOxSruNMTYr7ovgDe+Uvc6axC30hpLRYIuFkgWM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W5Ek1Hcm/9atOhsdjXT/PYLbHyySqNie95Z3X0QpReWsikjva2cM+5VWMKDpOOYz2PU0NpVgcu1JRWcF4I9v/mJ5YT/0x1Pa/Eoxha/Vsg+RewUxGkHeEVSpj/26AapFWzAag4NgxKcLlp8nAa5ABjguVHzhAeaTbeevLO0I5Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V5kZbdoV; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774533858; c=relaxed/simple;
+	bh=iI9W14V1RMJIRNQD8EbjPf4OEseF5EtwFKCyEm0lqYY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=R47NJJSXVvN3ZtkpjZdtRVNXDroayDX7d7c9jMnwvoTdbNMioqZnTpcOscw7g6WW5dZj7tzdM+mPlfg2HPgQ8Q/UGChFEHQMW9SuKc+hzwjKZS9KYxGlAvCTuLNQHYu4gshqbc8mgdcV/qLvxB7K1+16VeJW7tPmVqlhEApq95U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RxwtBkzy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V5kZbdoV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6694C116C6;
-	Thu, 26 Mar 2026 12:10:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RxwtBkzy"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id ADFE4C116C6;
+	Thu, 26 Mar 2026 14:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774527019;
-	bh=dtdPYOxSruNMTYr7ovgDe+Uvc6axC30hpLRYIuFkgWM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V5kZbdoVPJdViQFbIY/5CRC1c7nchphQYFhcb7T1/liR7daVygcSF5m9TyRiB+5eF
-	 F3u68kr9P7CzybtGbNfE0aP5Ha1I8Qkz9ADEFCOntBNCNFuYk6oiNgHPPZxjLneYDM
-	 w9QH5qIF31eEEtlMnz19jP71zUtcw+7c1Bf4ynVhIzLpNjj+k0STMzKeqeCA/UMxCP
-	 AgBsYrhc2FOXIbsV1WWLlWOB0Pj8trZ9drWF0t3UUHJLfCvJn21W9jWVIQYmxPX1UX
-	 RMti/wsGhFhmDstvUMxcGgV0/W9ULyjJ50M4/VTPPoz5ciJG9DUx/Svj8R3oVNRU1v
-	 ZiAb7woNojxYw==
-Date: Thu, 26 Mar 2026 12:10:12 +0000
-From: Lee Jones <lee@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>,
-	Val Packett <val@packett.cool>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Julien Massot <julien.massot@collabora.com>,
-	Gary Bisson <bisson.gary@gmail.com>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v3 5/9] mfd: mt6397: Add support for MT6392 pmic
-Message-ID: <20260326121012.GM1141718@google.com>
-References: <20260317184507.523060-1-l.scorcia@gmail.com>
- <20260317184507.523060-6-l.scorcia@gmail.com>
+	s=k20201202; t=1774533857;
+	bh=iI9W14V1RMJIRNQD8EbjPf4OEseF5EtwFKCyEm0lqYY=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=RxwtBkzystJSG6+xlFe+4+30rrspFUiSANLl0nRRKCHD2hd/Rmc7H79UnXmSB4s1j
+	 yI/bYKCTaZ01XVvIwswALoV9zkt9jLe6ol4GwF5d+mGauexJw05cdERgUfy3JKykAV
+	 1rqdqjAv8zvWbB+Ocyf+mF2bfrQsIXq1tVgZM1yhFVEbF0ULD2wV7NEhrEqH4UaVh3
+	 BrlUGdEYljmvtIdCNmunRIhWwPxUO//tQsinpG3EpwYeWrvyIBuRGswTLSzASYBK4C
+	 VL94poAozjiddu7/Kksj+OkH3tK/IQPeZMZwzA9dlBmfaz5mxEK/n6VIgEWkCp7gGi
+	 jOuJVIQLP2IYw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92F2F10A62DA;
+	Thu, 26 Mar 2026 14:04:17 +0000 (UTC)
+From: =?utf-8?q?J=2E_Neusch=C3=A4fer_via_B4_Relay?= <devnull+j.ne.posteo.net@kernel.org>
+Date: Thu, 26 Mar 2026 15:03:48 +0100
+Subject: [PATCH v2] HID: wiimote: Fix table layout and whitespace errors
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260317184507.523060-6-l.scorcia@gmail.com>
+Message-Id: <20260326-wiimod-table-v2-1-a11703ccdf41@posteo.net>
+X-B4-Tracking: v=1; b=H4sIAMM8xWkC/3XMQQ6CMBCF4auQWTumUyKKK+5hWLRlkEmUkrapG
+ sLdrexd/i953wqRg3CEa7VC4CxR/FxCHypwk5nvjDKUBq10o2pq8CXy9AMmYx+MbmiNdcpo016
+ gXJbAo7x37taXniQmHz67num3/oEyIaGjsSXL6kT1uVt8TOyPMyfot237ArcxjZepAAAA
+X-Change-ID: 20260316-wiimod-table-cd9abc0a2a98
+To: David Rheinsberg <david@readahead.eu>, Jiri Kosina <jikos@kernel.org>, 
+ Benjamin Tissoires <bentiss@kernel.org>, 
+ Bogdan Petru <thonkdifferent@outlook.com>, 
+ Joshua Jun <joshuajun@vivaldi.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ =?utf-8?q?J=2E_Neusch=C3=A4fer?= <j.ne@posteo.net>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1774533856; l=7027;
+ i=j.ne@posteo.net; s=20240329; h=from:subject:message-id;
+ bh=FgYpCYvhtgKlsH8SHBekcIbkuz7x2xhzDunKOXgRYgY=;
+ b=jlQ/SIc+gN4uLo3iBU+tNL2ZJ6ufbZYYpdrx121lMLWovx77IB3Bhvih4SGi05hEJVrkpjGvF
+ QHAlRKyXcMeDfUdVRumQuX2Ggq3I0N1K89kzRGNe1Qn1/jfYHKO65sz
+X-Developer-Key: i=j.ne@posteo.net; a=ed25519;
+ pk=NIe0bK42wNaX/C4bi6ezm7NJK0IQE+8MKBm7igFMIS4=
+X-Endpoint-Received: by B4 Relay for j.ne@posteo.net/20240329 with
+ auth_id=156
+X-Original-From: =?utf-8?q?J=2E_Neusch=C3=A4fer?= <j.ne@posteo.net>
+Reply-To: j.ne@posteo.net
 
-On Tue, 17 Mar 2026, Luca Leonardo Scorcia wrote:
+From: "J. Neuschäfer" <j.ne@posteo.net>
 
-> From: Fabien Parent <parent.f@gmail.com>
-> 
-> Update the MT6397 MFD driver to support the MT6392 PMIC.
-> 
-> Signed-off-by: Fabien Parent <parent.f@gmail.com>
-> Signed-off-by: Val Packett <val@packett.cool>
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> ---
->  drivers/mfd/mt6397-core.c            |  46 +++
->  drivers/mfd/mt6397-irq.c             |   8 +
->  include/linux/mfd/mt6392/core.h      |  42 +++
->  include/linux/mfd/mt6392/registers.h | 487 +++++++++++++++++++++++++++
->  include/linux/mfd/mt6397/core.h      |   1 +
->  5 files changed, 584 insertions(+)
->  create mode 100644 include/linux/mfd/mt6392/core.h
->  create mode 100644 include/linux/mfd/mt6392/registers.h
-> 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 3e58d0764c7e..c4b86a44c68b 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-> @@ -18,6 +18,7 @@
->  #include <linux/mfd/mt6357/core.h>
->  #include <linux/mfd/mt6358/core.h>
->  #include <linux/mfd/mt6359/core.h>
-> +#include <linux/mfd/mt6392/core.h>
->  #include <linux/mfd/mt6397/core.h>
->  #include <linux/mfd/mt6323/registers.h>
->  #include <linux/mfd/mt6328/registers.h>
-> @@ -25,6 +26,7 @@
->  #include <linux/mfd/mt6357/registers.h>
->  #include <linux/mfd/mt6358/registers.h>
->  #include <linux/mfd/mt6359/registers.h>
-> +#include <linux/mfd/mt6392/registers.h>
->  #include <linux/mfd/mt6397/registers.h>
->  
->  #define MT6323_RTC_BASE		0x8000
-> @@ -39,6 +41,9 @@
->  #define MT6358_RTC_BASE		0x0588
->  #define MT6358_RTC_SIZE		0x3c
->  
-> +#define MT6392_RTC_BASE		0x8000
-> +#define MT6392_RTC_SIZE		0x3e
-> +
->  #define MT6397_RTC_BASE		0xe000
->  #define MT6397_RTC_SIZE		0x3e
->  
-> @@ -65,6 +70,11 @@ static const struct resource mt6358_rtc_resources[] = {
->  	DEFINE_RES_IRQ(MT6358_IRQ_RTC),
->  };
->  
-> +static const struct resource mt6392_rtc_resources[] = {
-> +	DEFINE_RES_MEM(MT6392_RTC_BASE, MT6392_RTC_SIZE),
-> +	DEFINE_RES_IRQ(MT6392_IRQ_RTC),
-> +};
-> +
->  static const struct resource mt6397_rtc_resources[] = {
->  	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
->  	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
-> @@ -114,6 +124,11 @@ static const struct resource mt6331_keys_resources[] = {
->  	DEFINE_RES_IRQ_NAMED(MT6331_IRQ_STATUS_HOMEKEY, "homekey"),
->  };
->  
-> +static const struct resource mt6392_keys_resources[] = {
-> +	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_PWRKEY, "powerkey"),
-> +	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_FCHRKEY, "homekey"),
-> +};
-> +
->  static const struct resource mt6397_keys_resources[] = {
->  	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_PWRKEY, "powerkey"),
->  	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_HOMEKEY, "homekey"),
-> @@ -253,6 +268,26 @@ static const struct mfd_cell mt6359_devs[] = {
->  	},
->  };
->  
-> +static const struct mfd_cell mt6392_devs[] = {
-> +	{
-> +		.name = "mt6392-rtc",
-> +		.num_resources = ARRAY_SIZE(mt6392_rtc_resources),
-> +		.resources = mt6392_rtc_resources,
-> +		.of_compatible = "mediatek,mt6392-rtc",
-> +	}, {
-> +		.name = "mt6392-regulator",
-> +		.of_compatible = "mediatek,mt6392-regulator",
-> +	}, {
-> +		.name = "mt6392-pinctrl",
-> +		.of_compatible = "mediatek,mt6392-pinctrl",
-> +	}, {
-> +		.name = "mt6392-keys",
-> +		.num_resources = ARRAY_SIZE(mt6392_keys_resources),
-> +		.resources = mt6392_keys_resources,
-> +		.of_compatible = "mediatek,mt6392-keys"
-> +	},
-> +};
-> +
->  static const struct mfd_cell mt6397_devs[] = {
->  	{
->  		.name = "mt6397-rtc",
-> @@ -335,6 +370,14 @@ static const struct chip_data mt6359_core = {
->  	.irq_init = mt6358_irq_init,
->  };
->  
-> +static const struct chip_data mt6392_core = {
-> +	.cid_addr = MT6392_CID,
-> +	.cid_shift = 0,
-> +	.cells = mt6392_devs,
+Some tab characters snuck into the data layout table for turntable
+extensions, which resulted in the table only looking right at a tabstop
+of 4, which is uncommon in the kernel. Change them to the equivalent
+amount of spaces, which should look correct in any editor.
 
-I'm not really sure what came over me when I accepted this 6 years ago,
-but I have a _strong_ aversion to MFD data being passed through the OF APIs.
+While at it, also fix the other whitespace errors (trailing spaces at
+end of line) introduced in the same commit.
 
-Before this patch lands, please could you refactor this driver to only
-pass through an identifier through mt6397_of_match[*].data.  Then, you
-can match on that via a switch statement where you can allocate each
-device's data structures.
+Fixes: 05086f3db530b3 ("HID: wiimote: Add support for the DJ Hero turntable")
+Reviewed-by: David Rheinsberg <david@readahead.eu>
+Signed-off-by: J. Neuschäfer <j.ne@posteo.net>
+---
+Changes in v2:
+- also fix the other whitespace errors in the file
+  (suggested by David Rheinsberg <david@readahead.eu>)
+- add Reviewed-by
+- Link to v1: https://lore.kernel.org/r/20260316-wiimod-table-v1-1-c1f91be05137@posteo.net
+---
+ drivers/hid/hid-wiimote-modules.c | 58 +++++++++++++++++++--------------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
 
-This is how the vast majority of MFD drivers work so there should be
-lots of examples to work through to make this trivial.
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index dbccdfa6391672..dccb78bb3afd61 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -2403,7 +2403,7 @@ static const struct wiimod_ops wiimod_guitar = {
+ 	.in_ext = wiimod_guitar_in_ext,
+ };
+ 
+-/* 
++/*
+  * Turntable
+  * DJ Hero came with a Turntable Controller that was plugged in
+  * as an extension.
+@@ -2439,15 +2439,15 @@ static const __u16 wiimod_turntable_map[] = {
+ static void wiimod_turntable_in_ext(struct wiimote_data *wdata, const __u8 *ext)
+ {
+ 	__u8 be, cs, sx, sy, ed, rtt, rbg, rbr, rbb, ltt, lbg, lbr, lbb, bp, bm;
+-	/* 
++	/*
+ 	 * Byte |  7   |  6  |  5  |  4  |  3  |  2   |  1   |  0     |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+-	 *   0  | RTT<4:3>   | 		      	  SX <5:0> 			      |
+-	 *   1  | RTT<2:1>   |				  SY <5:0>			      |
++	 *   0  | RTT<4:3>   |                SX <5:0>                |
++	 *   1  | RTT<2:1>   |                SY <5:0>                |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 *   2  |RTT<0>|  ED<4:3>  |          CS<3:0>        | RTT<5> |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+-	 *   3  |     ED<2:0> 	   | 			 LTT<4:0>			  |
++	 *   3  |     ED<2:0>      |             LTT<4:0>             |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 *   4  |  0   |  0  | LBR |  B- |  0  |  B+  |  RBR | LTT<5> |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+@@ -2458,20 +2458,20 @@ static void wiimod_turntable_in_ext(struct wiimote_data *wdata, const __u8 *ext)
+ 	 * With Motion+ enabled, it will look like this:
+ 	 * Byte |  8   |  7  |  6  |  5  |  4  |  3   |  2   |  1     |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+-	 *   1  | RTT<4:3>   | 		      	  SX <5:1> 		 |	  0   |
+-	 *   2  | RTT<2:1>   |				  SY <5:1>		 |	  0   |
++	 *   1  | RTT<4:3>   |                SX <5:1>       |    0   |
++	 *   2  | RTT<2:1>   |                SY <5:1>       |    0   |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 *   3  |RTT<0>|  ED<4:3>  |          CS<3:0>        | RTT<5> |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+-	 *   4  |     ED<2:0> 	   | 			 LTT<4:0>			  |
++	 *   4  |     ED<2:0>      |             LTT<4:0>             |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 *   5  |  0   |  0  | LBR |  B- |  0  |  B+  | RBR  |  XXXX  |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 *   6  | LBB  |  0  | RBG |  BE | LBG | RBB  | XXXX |  XXXX  |
+ 	 *------+------+-----+-----+-----+-----+------+------+--------+
+ 	 */
+-	
+-	be = !(ext[5] & 0x10); 
++
++	be = !(ext[5] & 0x10);
+ 	cs = ((ext[2] & 0x1e));
+ 	sx = ext[0] & 0x3f;
+ 	sy = ext[1] & 0x3f;
+@@ -2499,32 +2499,32 @@ static void wiimod_turntable_in_ext(struct wiimote_data *wdata, const __u8 *ext)
+ 	input_report_abs(wdata->extension.input, ABS_HAT1X, ltt);
+ 	input_report_abs(wdata->extension.input, ABS_HAT2X, cs);
+ 	input_report_abs(wdata->extension.input, ABS_HAT3X, ed);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_G_RIGHT], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_G_RIGHT],
+ 					rbg);
+ 	input_report_key(wdata->extension.input,
+ 					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_R_RIGHT],
+ 					rbr);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_B_RIGHT], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_B_RIGHT],
+ 					rbb);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_G_LEFT], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_G_LEFT],
+ 					lbg);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_R_LEFT], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_R_LEFT],
+ 					lbr);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_B_LEFT], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_B_LEFT],
+ 					lbb);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_EUPHORIA], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_EUPHORIA],
+ 					be);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_PLUS], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_PLUS],
+ 					bp);
+-	input_report_key(wdata->extension.input, 
+-					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_MINUS], 
++	input_report_key(wdata->extension.input,
++					wiimod_turntable_map[WIIMOD_TURNTABLE_KEY_MINUS],
+ 					bm);
+ 
+ 	input_sync(wdata->extension.input);
+@@ -2557,7 +2557,7 @@ static void wiimod_turntable_close(struct input_dev *dev)
+ static int wiimod_turntable_probe(const struct wiimod_ops *ops,
+ 			       struct wiimote_data *wdata)
+ {
+- 	int ret, i;
++	int ret, i;
+ 
+ 	wdata->extension.input = input_allocate_device();
+ 	if (!wdata->extension.input)
+@@ -2594,9 +2594,9 @@ static int wiimod_turntable_probe(const struct wiimod_ops *ops,
+ 	input_set_abs_params(wdata->extension.input,
+ 			     ABS_HAT1X, -8, 8, 0, 0);
+ 	input_set_abs_params(wdata->extension.input,
+-			     ABS_HAT2X, 0, 31, 1, 1);	
++			     ABS_HAT2X, 0, 31, 1, 1);
+ 	input_set_abs_params(wdata->extension.input,
+-			     ABS_HAT3X, 0, 7, 0, 0);	 
++			     ABS_HAT3X, 0, 7, 0, 0);
+ 	ret = input_register_device(wdata->extension.input);
+ 	if (ret)
+ 		goto err_free;
 
-> +	.cell_size = ARRAY_SIZE(mt6392_devs),
-> +	.irq_init = mt6397_irq_init,
-> +};
+---
+base-commit: f338e77383789c0cae23ca3d48adcc5e9e137e3c
+change-id: 20260316-wiimod-table-cd9abc0a2a98
 
+Best regards,
 -- 
-Lee Jones [李琼斯]
+J. Neuschäfer <j.ne@posteo.net>
+
+

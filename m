@@ -1,39 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B033DCD86;
-	Fri, 27 Mar 2026 10:34:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985F533BBAF;
+	Fri, 27 Mar 2026 10:49:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774607680; cv=none; b=gMv0xA+oE9BrOFzdmpBPphE+MxbIJdroKWeiJMLwGgTiCiyPqyGMkf+WiGW+gu5IvCW463abcJnW0lq3lJtefPlZb2PFrn2yHEWdQIJmTNdGSyGmkjcUFuA+vRORjd8CsZRxTjTEDCNa1zR9I50ed+eOlGkMhMdt9lVAdw721qs=
+	t=1774608569; cv=none; b=bF/S+znhESDb5dWSrypkzhlM8LHSdFSq2Sl8+edYAhIYRuhvcGpaSmmeTMBrZ6PPVehQ6PXHrvc39klc4ySoE/ctrP736tt924+2465ItF+qGY/wzlnY/qL1QNy+27nssGRgiH5XUn4YEI8nbytfwH1dwkQdrLlNqgxM2N5XQiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774607680; c=relaxed/simple;
-	bh=4sUKYgBOEs3FD3rjP6cVlv/E0i5DPhetm8gwMcWWtqk=;
+	s=arc-20240116; t=1774608569; c=relaxed/simple;
+	bh=bitapPgxqWOqMFhsgzAFD7H7x7NLEV9/HXYn2fueJpI=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=tG0vHPBkZIGw2DrSJMb26tW6rBlUDZhJVSK9gNBkBWO4DdVt1uSJ3MP3KqUcGsRjW9e8xoS1clOpd0taphjlUZVVZSkSu8y+bQ+49fFcIiOjR7fi5rdzffzlbidjq/R3DZppPRkc5WNzuIfnJ+cGYiIldc7XV0wwWRsTkKK4xp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fQMtiach; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=hHMmtyJVb88Af7x83jgDpdUjEUw/JlNupyKSBa/s5jb8L7GvMMnBD6HTFH+cxtesasQt4Sk0usIbutlbFb7s32BciR1Y33jmI51Tx1zzH0xImy/91aIStHz51o7g0QZg4jdsB90TIekMvyq9S7h63qYQrHmMlx4Aq+vVj7ivj/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uJ46I4BX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fQMtiach"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83ADC19423;
-	Fri, 27 Mar 2026 10:34:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uJ46I4BX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A76C19423;
+	Fri, 27 Mar 2026 10:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774607680;
-	bh=4sUKYgBOEs3FD3rjP6cVlv/E0i5DPhetm8gwMcWWtqk=;
+	s=k20201202; t=1774608569;
+	bh=bitapPgxqWOqMFhsgzAFD7H7x7NLEV9/HXYn2fueJpI=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=fQMtiach/q2xAdGKAn8NvdBGb6YjU7OTgOX/yjAjtre7DhzJKtwNkQlNjAxsCDIsx
-	 wbOC/+ZG9vUmRWCSkFT1iqwqiCTovDqIYiR81KlpA+m2UPxgygCIDusKOHnH9DrPtu
-	 5TPWNnZYPMJ7GoBgtZLaisHdiDnyB54OmwwvHFEfU/kTYPX3AV2v5k1oUX7P9jcayG
-	 nqqTmviflmhFwt2yvGD1PFvX5RGGvE7hjyoYJBSHb9U5I4AbIpQ5mS+0PplTq/2qi3
-	 9C3uTs8czXA067mNQCol8TAcAy/WHgzuKmvRExsbmljK7/Z0QqkEbQE7zybY0Mt0K1
-	 Wk8rFUzb4YDIg==
-Date: Fri, 27 Mar 2026 11:34:37 +0100 (CET)
+	b=uJ46I4BXG/VzYe81wxB/Gcp8N/PIiywQy/SiIRuMZylL/oelqauZNiPF2wYoGnf0I
+	 1SBVwwt7w3GgnKu9afeXfIcLtLeUzrKlL0zMCG931ffGsTDsFBqy+uOu5sSxWTarfy
+	 XFEDIvbu9XrZjQUD75NiJ/9LRDzieWecO6OwW+agC5pgSKiZE7HBU6v1OTB7pnklsX
+	 hnFcBFVKhYgoRldA66aWNTU8EX+zZrfxMwVodwsSl64gdQPtKLgqnz3jSssEHCeTtC
+	 Ma4FuijZImJ0GOz9+TZoYgTQHxplkQ2GeRMO0WNpMnSfOVLMDlLN3tRNKkgdqIetdw
+	 jMrtudPPMzd6w==
+Date: Fri, 27 Mar 2026 11:49:26 +0100 (CET)
 From: Jiri Kosina <jikos@kernel.org>
-To: Oliver Neukum <oneukum@suse.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: [PATCH] hid: usbhid: fix deadlock in hid_post_reset()
-In-Reply-To: <20260324142507.74873-1-oneukum@suse.com>
-Message-ID: <8q66o2o4-7844-6p76-9964-7pr205p190pr@xreary.bet>
-References: <20260324142507.74873-1-oneukum@suse.com>
+To: Rosalie Wanders <rosalie@mailbox.org>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Sanjay Govind <sanjay.govind9@gmail.com>, 
+    Brenton Simpson <appsforartists@google.com>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: sony: add support for more instruments
+In-Reply-To: <20260228060552.53741-2-rosalie@mailbox.org>
+Message-ID: <oq3n5s06-7r00-069q-qpp9-5450525n856r@xreary.bet>
+References: <20260228060552.53741-2-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,26 +45,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 24 Mar 2026, Oliver Neukum wrote:
+On Sat, 28 Feb 2026, Rosalie Wanders wrote:
 
-> You can build a USB device that includes a HID component
-> and a storage or UAS component. The components can be reset
-> only together. That means that hid_pre_reset() and hid_post_reset()
-> are in the block IO error handling. Hence no memory allocation
-> used in them may do block IO because the IO can deadlock
-> on the mutex held while resetting a device and calling the
-> interface drivers.
-> Use GFP_NOIO for all allocations in them.
+> This patch adds support for the following instruments:
 > 
-> Fixes: dc3c78e434690 ("HID: usbhid: Check HID report descriptor contents after device reset")
-> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+> * Rock Band 1/2/3 Wii/PS3 instruments
+> * Rock Band 3 PS3 Pro instruments
+> * DJ Hero Turntable
+> 
+> Wii and PS3 instruments are the same besides the vendor and product ID.
+> 
+> This patch also fixes the mappings for the existing Guitar Hero
+> instruments.
+> 
+> Co-developed-by: Sanjay Govind <sanjay.govind9@gmail.com>
+> Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+> Co-developed-by: Brenton Simpson <appsforartists@google.com>
+> Signed-off-by: Brenton Simpson <appsforartists@google.com>
+> Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
 
-Thanks Oliver.
-
-Did you find this just by code inspection, or was this reported with a 
-real device?
-
-Thanks,
+Applied to hid.git#for-7.1/sony, thanks!
 
 -- 
 Jiri Kosina

@@ -1,226 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp25.cstnet.cn [159.226.251.25])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3923352927;
-	Sat, 28 Mar 2026 15:55:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 634A640DFA2;
+	Sun, 29 Mar 2026 00:17:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774713356; cv=none; b=AYkg6vzRnyNaldCPyybmoHtPVb/KGdtDnlyfxhA244TXXw+0wuXu3gtuN3aV6s2AJyjlcqeltHEH6zbGlW4CaaW0LvGdRGOQo32L5+87exGpPaSDgR9ojvjP85NDFWyP91AaiyRL5grT5PVnVVIzPUDHVnXzO3djsFzf0IjBoIE=
+	t=1774743437; cv=none; b=KXmkMGqv0lMxIFYmdmXG07eJI+oM17oUXlviRrNBqU3MgZ9AywOGqP55qvNbM/8K6ePt+mN/PapFxL7b0r+GllxBPtLNM7bIy//1Yf3Cj51KFfsrfdgbvWboSXUp1Px31zEZc/7bfj7mxGZGOyjmCHIsKG3zKwx4lwVJ4fv+eRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774713356; c=relaxed/simple;
-	bh=UD/TwSuuylvsTVk6WuLqLc/i823tJemYw2VTGjQDzOU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=kMgKiyVhwGX4uyRyXSoWxqVEmksfTZAXyYtqr3rdWe5Ff/RS9HFerBnAgbY7e2OUQrDSAd1ytgY9iwoVKTCcC7rfuT9jcwsXHLq2YrY8XCjbMPsPF1BSyvvz37dfzfb1lfnTOmAIEfskv24c0ViRZ02+SWqbrgQs+3bXug+SljA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bm7fMoYF; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bm7fMoYF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A26C2BC86;
-	Sat, 28 Mar 2026 15:55:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774713356;
-	bh=UD/TwSuuylvsTVk6WuLqLc/i823tJemYw2VTGjQDzOU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Bm7fMoYFkUbimvOYpNbqJa1zS9jOSlu3hhkd1VIWosEKAiRFMr0AbqbdeuoXQ6za1
-	 slZjp+JbOw4XGUTyGKd83DJdlyE5RLol1fN1LxQZS3Qy5C5ae/SHwu7NvyvLNl+7Kl
-	 Tmy9K7uxnwDUIRiXkcR4sy4eXorE6OLiKOqpKde6NYgCh+LgD0jhwG5nfFsQoePwmZ
-	 5NBVj5J41BY1UqisNpeBe79Z7tqOQ3DxRnBATawJnrhNFinStUy9sE6tcHzv/y5sVB
-	 +qsZ1B1KWFzbeMgHRm8nwy9ZbvEPdthwa1FuEKJx/2bZcB7mlBXeONsodKpwPcFNS7
-	 d0+YXPgPSQ2hA==
-From: Linus Walleij <linusw@kernel.org>
-Date: Sat, 28 Mar 2026 16:55:48 +0100
-Subject: [PATCH 2/2] MIPS/mtd: Handle READY GPIO in generic NAND platform
- data
+	s=arc-20240116; t=1774743437; c=relaxed/simple;
+	bh=FSdOx/dtI5u/q7uad+y3xAVWN57X+pw/p2xoLVjBEx0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jIdpLMKm4thHykK7jrPXx3mHdDRkexIcCHLZxqZgwvSwlWWsdlZpJPv1kkEL1BToC29OPkIjIID5IR3DP8tV2H+HVJ2tF9ZWS5YNXy8mUL2jebteYiH/U7Uicmsum4cE6Z/VoBXuW4fkdxtFxA9kx72bD1P94AaVEldJn6vaUC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.197])
+	by APP-05 (Coremail) with SMTP id zQCowADXZQmHb8hpe4LICw--.39110S2;
+	Sun, 29 Mar 2026 08:17:12 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: dmitry.torokhov@gmail.com
+Cc: andriy.shevchenko@linux.intel.com,
+	kees@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	pengpeng@iscas.ac.cn
+Subject: [PATCH v2] Input: aiptek: validate raw macro indices before updating state
+Date: Sun, 29 Mar 2026 08:17:11 +0800
+Message-ID: <20260329001711.88076-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260323070311.42849-1-pengpeng@iscas.ac.cn>
+References: <20260323070311.42849-1-pengpeng@iscas.ac.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260328-mips-input-rb532-button-v1-2-98e201621501@kernel.org>
-References: <20260328-mips-input-rb532-button-v1-0-98e201621501@kernel.org>
-In-Reply-To: <20260328-mips-input-rb532-button-v1-0-98e201621501@kernel.org>
-To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Bartosz Golaszewski <brgl@kernel.org>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, 
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>
-Cc: linux-mips@vger.kernel.org, linux-input@vger.kernel.org, 
- linux-gpio@vger.kernel.org, linux-mtd@lists.infradead.org, 
- Linus Walleij <linusw@kernel.org>
-X-Mailer: b4 0.14.3
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQCowADXZQmHb8hpe4LICw--.39110S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7WF43ZFyDXryfCrWUGr13twb_yoW5Jry3pr
+	WUX39IkFWvva17Xw12qw1UAry5twsrtrZ8XF13Jw4q9F1FqryxW3s8J3y2vF95CF1kJ39F
+	qrs3tr4DCr9rZF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkE14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr
+	1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv
+	7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r
+	1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AK
+	xVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F4
+	0E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1l
+	IxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxV
+	AFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j
+	6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUSNt
+	xUUUUU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-The callbacks into the MIPS RB532 platform to read the GPIO pin
-indicating that the NAND chip is ready are oldschool and does
-not assign GPIOs as properties to the NAND device.
+aiptek_irq() derives macro key indices directly from tablet reports and
+then uses them to index macroKeyEvents[]. Report types 4 and 5 also save
+the derived value in aiptek->lastMacro and later use that state to
+release the previous key.
 
-Add a capability to the generic platform NAND chip driver to use
-a GPIO line to detect if a NAND chip is ready and override the
-platform-local drv_ready() callback with this check if the GPIO
-is present.
+Validate the raw macro index once before it enters that state machine, so
+lastMacro only ever stores an in-range macro key. Keep direct bounds
+checks for report type 6, which reads the macro number from the packet
+body and uses it immediately.
 
-This makes it possible to drop the legacy include header
-<linux/gpio.h> from the RB532 devices.
-
-Signed-off-by: Linus Walleij <linusw@kernel.org>
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
 ---
- arch/mips/rb532/devices.c        | 36 +++++++++++++++++++++---------------
- drivers/mtd/nand/raw/plat_nand.c | 24 +++++++++++++++++++++++-
- 2 files changed, 44 insertions(+), 16 deletions(-)
+v2:
+- validate the raw `macro` value before it enters `lastMacro`
+- drop the redundant bounds checks on `lastMacro` itself
 
-diff --git a/arch/mips/rb532/devices.c b/arch/mips/rb532/devices.c
-index 3f56d9feb73a..c3d8d96d0ef5 100644
---- a/arch/mips/rb532/devices.c
-+++ b/arch/mips/rb532/devices.c
-@@ -14,7 +14,6 @@
- #include <linux/platform_device.h>
- #include <linux/mtd/platnand.h>
- #include <linux/mtd/mtd.h>
--#include <linux/gpio.h>
- #include <linux/gpio/machine.h>
- #include <linux/gpio/property.h>
- #include <linux/gpio_keys.h>
-@@ -135,12 +134,6 @@ static struct platform_device cf_slot0 = {
- 	.num_resources = ARRAY_SIZE(cf_slot0_res),
- };
+ drivers/input/tablet/aiptek.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 6df24cee3c9d..e0f64ed63543 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -658,6 +658,8 @@ static void aiptek_irq(struct urb *urb)
+ 		pck = (data[1] & aiptek->curSetting.stylusButtonUpper) != 0 ? 1 : 0;
  
--/* Resources and device for NAND */
--static int rb532_dev_ready(struct nand_chip *chip)
--{
--	return gpio_get_value(GPIO_RDY);
--}
--
- static void rb532_cmd_ctrl(struct nand_chip *chip, int cmd, unsigned int ctrl)
- {
- 	unsigned char orbits, nandbits;
-@@ -166,16 +159,23 @@ static struct resource nand_slot0_res[] = {
- };
+ 		macro = dv && p && tip && !(data[3] & 1) ? (data[3] >> 1) : -1;
++		if (macro >= ARRAY_SIZE(macroKeyEvents))
++			macro = -1;
+ 		z = get_unaligned_le16(data + 4);
  
- static struct platform_nand_data rb532_nand_data = {
--	.ctrl.dev_ready = rb532_dev_ready,
- 	.ctrl.cmd_ctrl	= rb532_cmd_ctrl,
- };
+ 		if (dv) {
+@@ -700,6 +702,8 @@ static void aiptek_irq(struct urb *urb)
+ 		right = (data[1] & aiptek->curSetting.mouseButtonRight) != 0 ? 1 : 0;
+ 		middle = (data[1] & aiptek->curSetting.mouseButtonMiddle) != 0 ? 1 : 0;
+ 		macro = dv && p && left && !(data[3] & 1) ? (data[3] >> 1) : 0;
++		if (macro >= ARRAY_SIZE(macroKeyEvents))
++			macro = -1;
  
--static struct platform_device nand_slot0 = {
--	.name = "gen_nand",
--	.id = -1,
--	.resource = nand_slot0_res,
--	.num_resources = ARRAY_SIZE(nand_slot0_res),
--	.dev.platform_data = &rb532_nand_data,
-+static const struct property_entry nand0_properties[] = {
-+	PROPERTY_ENTRY_GPIO("ready-gpios", &rb532_gpio0_node,
-+			    GPIO_RDY, GPIO_ACTIVE_HIGH),
-+	{ }
-+};
-+
-+static const struct platform_device_info nand0_info  __initconst = {
-+	.name		= "gen_nand",
-+	.id		= PLATFORM_DEVID_NONE,
-+	.res		= nand_slot0_res,
-+	.num_res	= ARRAY_SIZE(nand_slot0_res),
-+	.data		= &rb532_nand_data,
-+	.size_data	= sizeof(struct platform_nand_data),
-+	.properties	= nand0_properties,
- };
- 
- static struct mtd_partition rb532_partition_info[] = {
-@@ -234,7 +234,6 @@ static struct platform_device rb532_uart = {
- 
- static struct platform_device *rb532_devs[] = {
- 	&korina_dev0,
--	&nand_slot0,
- 	&cf_slot0,
- 	&rb532_led,
- 	&rb532_uart,
-@@ -321,6 +320,13 @@ static int __init plat_setup_devices(void)
+ 		if (dv) {
+ 		        /* If the selected tool changed, reset the old
+@@ -737,11 +741,11 @@ static void aiptek_irq(struct urb *urb)
  	 */
- 	software_node_register(&rb532_gpio0_node);
+ 	else if (data[0] == 6) {
+ 		macro = get_unaligned_le16(data + 1);
+-		if (macro > 0) {
++		if (macro > 0 && macro - 1 < ARRAY_SIZE(macroKeyEvents)) {
+ 			input_report_key(inputdev, macroKeyEvents[macro - 1],
+ 					 0);
+ 		}
+-		if (macro < 25) {
++		if (macro + 1 < ARRAY_SIZE(macroKeyEvents)) {
+ 			input_report_key(inputdev, macroKeyEvents[macro + 1],
+ 					 0);
+ 		}
+@@ -760,7 +764,8 @@ static void aiptek_irq(struct urb *urb)
+ 				aiptek->curSetting.toolMode;
+ 		}
  
-+	pd = platform_device_register_full(&nand0_info);
-+	ret = PTR_ERR_OR_ZERO(pd);
-+	if (ret) {
-+		pr_err("failed to create NAND slot0 device: %d\n", ret);
-+		return ret;
-+	}
-+
- 	pd = platform_device_register_full(&rb532_button_info);
- 	ret = PTR_ERR_OR_ZERO(pd);
- 	if (ret) {
-diff --git a/drivers/mtd/nand/raw/plat_nand.c b/drivers/mtd/nand/raw/plat_nand.c
-index 0bcd455328ef..fe31551bcf5f 100644
---- a/drivers/mtd/nand/raw/plat_nand.c
-+++ b/drivers/mtd/nand/raw/plat_nand.c
-@@ -6,6 +6,7 @@
-  */
- 
- #include <linux/err.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-@@ -17,6 +18,7 @@ struct plat_nand_data {
- 	struct nand_controller	controller;
- 	struct nand_chip	chip;
- 	void __iomem		*io_base;
-+	struct gpio_desc	*ready_gpio;
- };
- 
- static int plat_nand_attach_chip(struct nand_chip *chip)
-@@ -32,6 +34,14 @@ static const struct nand_controller_ops plat_nand_ops = {
- 	.attach_chip = plat_nand_attach_chip,
- };
- 
-+/* Resources and device for NAND */
-+static int plat_nand_gpio_dev_ready(struct nand_chip *chip)
-+{
-+	struct plat_nand_data *data = nand_get_controller_data(chip);
-+
-+	return gpiod_get_value(data->ready_gpio);
-+}
-+
- /*
-  * Probe for the NAND device.
-  */
-@@ -41,6 +51,7 @@ static int plat_nand_probe(struct platform_device *pdev)
- 	struct plat_nand_data *data;
- 	struct mtd_info *mtd;
- 	const char **part_types;
-+	struct nand_chip *chip;
- 	int err = 0;
- 
- 	if (!pdata) {
-@@ -59,9 +70,17 @@ static int plat_nand_probe(struct platform_device *pdev)
- 	if (!data)
- 		return -ENOMEM;
- 
-+	data->ready_gpio = devm_gpiod_get_optional(&pdev->dev, "ready",
-+						   GPIOD_IN);
-+	if (IS_ERR(data->ready_gpio))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(data->ready_gpio),
-+				     "could not get READY GPIO\n");
-+
- 	data->controller.ops = &plat_nand_ops;
- 	nand_controller_init(&data->controller);
- 	data->chip.controller = &data->controller;
-+	chip = &data->chip;
-+	nand_set_controller_data(chip, data);
- 
- 	data->io_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(data->io_base))
-@@ -74,7 +93,10 @@ static int plat_nand_probe(struct platform_device *pdev)
- 	data->chip.legacy.IO_ADDR_R = data->io_base;
- 	data->chip.legacy.IO_ADDR_W = data->io_base;
- 	data->chip.legacy.cmd_ctrl = pdata->ctrl.cmd_ctrl;
--	data->chip.legacy.dev_ready = pdata->ctrl.dev_ready;
-+	if (data->ready_gpio)
-+		data->chip.legacy.dev_ready = plat_nand_gpio_dev_ready;
-+	else
-+		data->chip.legacy.dev_ready = pdata->ctrl.dev_ready;
- 	data->chip.legacy.select_chip = pdata->ctrl.select_chip;
- 	data->chip.legacy.write_buf = pdata->ctrl.write_buf;
- 	data->chip.legacy.read_buf = pdata->ctrl.read_buf;
-
+-		input_report_key(inputdev, macroKeyEvents[macro], 1);
++		if (macro < ARRAY_SIZE(macroKeyEvents))
++			input_report_key(inputdev, macroKeyEvents[macro], 1);
+ 		input_report_abs(inputdev, ABS_MISC,
+ 				 1 | AIPTEK_REPORT_TOOL_UNKNOWN);
+ 		input_sync(inputdev);
 -- 
-2.53.0
+2.50.1 (Apple Git-155)
 

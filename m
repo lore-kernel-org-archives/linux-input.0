@@ -1,202 +1,159 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from OS0P286CU010.outbound.protection.outlook.com (mail-japanwestazolkn19011010.outbound.protection.outlook.com [52.103.66.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 263E0376496
-	for <linux-input@vger.kernel.org>; Sun, 29 Mar 2026 16:10:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774800644; cv=none; b=jpKnBLr6Z9g3v+hUj/mpsrdRnrZ2fBAX83j/zIdipcKCWc79gP41HkhZCXxfrL2Ea1B9TrF+FOetUpNFgh92S3xT9e2SI3p/6FbIMUh9RtHC0e9qh6M/PEvSKY6NepIJB0u0cuLq0elOVIUL0vDQvIB3GqEZ8//pSyYkcZAWRKI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774800644; c=relaxed/simple;
-	bh=tLbYrAYU48JKNqnDBs+QZA4JgP4x2BYSR5fHXk3Tglc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CWTOMGfllvdNBJotcQkyYYjavP17Rq6+Wry+ZB6z0+P7ngqWT1PdcekDWLdmQnAY/4z2EHMco6iJqQOYd3C9OGV33thbtXfRISDJdXdvOs4NGEke0s+mbng4tebKm86rB3eNRmLRkrkWiJVjeNytPkZtEtZLmBT65O9O/GfJbtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i4hnbHvG; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712451E505;
+	Sun, 29 Mar 2026 17:57:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.66.10
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774807022; cv=fail; b=DkgcWs1vgm7tfShnRbMSwBpqkocv7UgFfRFStBe/ZyK7jwosXV2JHbAqK2dlGpnSNY+E017u3Ttd706e8wNKhPcbcKFcNN5wXX9yaPNbG+i7Q9/20do1LxXyGURHY0Jf5x8RTlYdgKsxBAdiDvPbXR7FE9P3zynJ0s42uxNQyrg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774807022; c=relaxed/simple;
+	bh=v+4Dw/Wx84fdCyIXSpZBvsKgRudlVSeIZ1r/vGiaBXQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=BDKuk4q/rwJxWiDbr2enzHslsvJfUbIuwNFEMsIByRYJ0c5f6EY0IfRpiU77Ck45+qjZs3UHyiZYyGV3qngcjo17GsFnubmlqfibsDeGltXD+m9QrWc5aLjaoKGIfL7+lTQHQsh/dqEilsmZ5BEZBhoTaSOFNHjVt7s7m9tqma0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=jfd7uObB; arc=fail smtp.client-ip=52.103.66.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i4hnbHvG"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-48540d21f7dso43192265e9.0
-        for <linux-input@vger.kernel.org>; Sun, 29 Mar 2026 09:10:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774800641; x=1775405441; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=VflfZdxciTOg4YKIWLyjZt5vcJCG67ZijmEFDKFCFrw=;
-        b=i4hnbHvG5aJ+M+7b1B5zAbRCOEr3zNkjLjZ+AL8Ot8WFrEnSu1LIijj0yA/va9C+Pq
-         Vv8BOZ+G1uDP17qJc6FsXt4AjwnEfwFGQjLKf/XjNfqBAPQAea5tkrhWBpvc36d4fpDw
-         2mEVSvoJguLyjCSgicHm0GvALAgt/+BI+54ViZrhdaEzfJsjBSabK35iB0xc/mcf4+It
-         tttGpSQjHngbGDuR9Sgag2MKtxzdux3MFThBkx2MlvBhQqZYvpAAWfglbdsfTeS8P7P8
-         oeTe/EcgFIKRgP5eP7RAbV1KIGN5mmYE2MAX+6DWdmfYd2EgeUBTTVFq+62GEau5tECg
-         Xzxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774800641; x=1775405441;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VflfZdxciTOg4YKIWLyjZt5vcJCG67ZijmEFDKFCFrw=;
-        b=FaiRF3iUGX9ssSc+7Y18uadfiozlkt6+w2ORBuv1LWyUktzE8IDFgIpr0dQbgQoMw1
-         QgVvNeStn0swA42/GX/ws9NETZfzCatl26uANNV+XKH7vVBT1wN13SsCI4KLCr3My+OV
-         z1bjE0YO6kGP/66BfvX9eI52k/fdPXeT8cGS4vuD3YidyMkZBm/+DPS8/3lxn007+Qa6
-         gJy7CPasNL2sDrBifDW4kMBoxuD1vXcwt2rVe84HYOo7SMbY+EpY9oT+1f3ZV8Ox+fhr
-         sRgLRfkgw5QjVqIuT9jXmF32pwvErmqyOpGAVYRfsS9FVxOW8Ta/Noz6VvgU3UECCoL3
-         u7QQ==
-X-Gm-Message-State: AOJu0Yxh43fP7Am4n2rnwIiUAfjIezUxnNnf8RtW7jY8w91speaMPTXN
-	N2g4pbKqHhIVPLsJ/1+b1OJNKXJlENiZs2xo1BZTXYB1F6/REFqd9uNi
-X-Gm-Gg: ATEYQzyVMqaIeQVVeIqmYmxAjwTB2m/0YTr+zVj8pV0Nda7t3W7rvvHuMjvdAYnDyLg
-	VmtkMjSxBTY8Pk3BgsqU3qV3yT2HbcL+BgdfwUwTjj2Avo7fcq+G8oCTNqLg610KV5ZFUWqBaKV
-	rkpFAG3XJd3VtIBhU8Gf94NexrCeNpvZIcKl/sOXiM8nunbFJ5s1inGYImXq9EyiCAvQZC2jTis
-	7IXE6094MMSb9T6n7cFjkgnJXomle8ikGRHt7Xtbaq9Yn3MuXKQew5gXewaFQwITmS9FdZKookU
-	REO9B49m3g3XxWtLjM+ZUQX0WiefjsbHeE/E8kjAzTXDUyjVTkwHrmB2s3Lwsxf/yrBGAqOHliR
-	dv8qxqF00HR7cIR2D0XM38+2DVwW+aDbd6fKhSs096SnKe0K/W5TGD+OZSnDsolk47IT1rmozy3
-	0/wTaKn+kTS84IhjF1gYlqj5PkStf86BUd0EiZII6CRz9uYsbFgv76Z4SjxDTAp2kRjDqmRUpmi
-	IWNzovGe7Y=
-X-Received: by 2002:a05:600c:a44:b0:487:59c:2bad with SMTP id 5b1f17b1804b1-48727efcbffmr149121765e9.24.1774800641218;
-        Sun, 29 Mar 2026 09:10:41 -0700 (PDT)
-Received: from corblimey.Home ([2a02:c7c:37d6:c100:b925:e5a5:df37:b353])
-        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-48725eca5f1sm59902635e9.10.2026.03.29.09.10.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Mar 2026 09:10:40 -0700 (PDT)
-From: Adrian McMenamin <adrianmcmenamin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Adrian McMenamin <adrianmcmenamin@gmail.com>
-Subject: [PATCH] update email address and firmware url for Dreamcast
-Date: Sun, 29 Mar 2026 17:04:24 +0100
-Message-ID: <20260329160423.200574-2-adrianmcmenamin@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="jfd7uObB"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=RwbyyVydwHNe4jSH4/nkJwXMkZBGN8DpVefTKZBFWx8Eqt7CbyIrSuwlenLSjtA8zGuScr5sIf22G0YUGiWXPYnCGeiR7bqAaEgch8A892nIqHD6bR1Z+i+f7nEZAjRDB9xRJcOpvAnob8rx4cKaUDtPfuJ38cr8wqETZpRCLt1zQP1uOqQK9lE9uLoH7L/lnuXyeLZ2DPQmDL7QHIL0O9766R7sOmJE4seVD5uE1yNF3nkAD6YncUhH1PncZM0LMLyd/DHq1OgD+KG9sT57rAkIEF5YCxPf5ooY2Vq9uR/Cw4jM4WxxMpr1X01Dn5phjgz10c5B2s0MpF6ISllZfw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9tXcgDqSYY8Ka7FJteWoiSfpBCoXZJkGL5ZaTuuGFXA=;
+ b=n+gI7githC1Q3l8CJrSeIiHafmjjpHVoXDzEPrCCkCvUvjrLTbSZvBQAVO3p7VtG+mwRs0tO3ai/wvpQU9q5oam9CBFCoh0UINzbCtaxAhoMYarMjk75/BqMdjP1nn82vS6FRUdRIXhudm18ogVoeum2NRFUjM+AoEeoIEtXBC6YQhMuI1wuX3LWcUbuFmxaWhX+TsZrQ/TOYa+nB8AUeyonWpY4sq4OVBe/+LeDkPpEZdNjHUrFnmMXmArSKqGJczbbJ7TtXZyfEXultsSZnOfuhr/qU9ssfR2LAb03oB0MJw5efOA/uy/NnOmWz1STsW0v52573CKh5fFiYHMDng==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9tXcgDqSYY8Ka7FJteWoiSfpBCoXZJkGL5ZaTuuGFXA=;
+ b=jfd7uObB8xTWh2/0JHSpuUwFug711m2CR1nH+66tN6i6J/Uwaj3ylGMxceFjWGT1pNFU7JG3ggztFqe7whcJLk4zGs12Wy6m4SsDIh3+8Add9CEgh9FaexhCP521uF5jnGx1lT40bnUksfAjLnbZrpcuZAVXrf1WyE9QvycicmycNvRHGaBvmwZUviOBnR8jmDEIHUxzjjnPau++Ynw27IKQrnVY4DjzT98AWNjW4rN/7u7NcXmzzzKSjMBpJ9V6jkiqh1PWwrub/LfB1mds/PE7NkrXHf+oL6a1v4/tsfo5LErRgaGJWIap6pQkw7ucDykgZw4Rb08VFDj3dmeCOg==
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ (2603:1096:405:235::10) by TY3PR01MB9951.jpnprd01.prod.outlook.com
+ (2603:1096:400:1dc::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.28; Sun, 29 Mar
+ 2026 17:56:58 +0000
+Received: from TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2]) by TY4PR01MB14432.jpnprd01.prod.outlook.com
+ ([fe80::de2b:6c81:9bd7:99c2%6]) with mapi id 15.20.9745.027; Sun, 29 Mar 2026
+ 17:56:58 +0000
+From: Shengyu Qu <wiagn233@outlook.com>
+To: dmitry.torokhov@gmail.com,
+	vi@endrift.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Shengyu Qu <wiagn233@outlook.com>
+Subject: [PATCH RESEND] input: xpad: Add support for BETOP BTP-KP50B/C controller's wireless mode
+Date: Mon, 30 Mar 2026 01:56:49 +0800
+Message-ID:
+ <TY4PR01MB14432B4B298EA186E5F86C46B9855A@TY4PR01MB14432.jpnprd01.prod.outlook.com>
+X-Mailer: git-send-email 2.53.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SL2P216CA0152.KORP216.PROD.OUTLOOK.COM
+ (2603:1096:101:35::11) To TY4PR01MB14432.jpnprd01.prod.outlook.com
+ (2603:1096:405:235::10)
+X-Microsoft-Original-Message-ID: <20260329175649.84015-1-wiagn233@outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TY4PR01MB14432:EE_|TY3PR01MB9951:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4f05e22c-5909-47d8-350e-08de8dbc90a0
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|15080799012|461199028|23021999003|8022599003|19110799012|8060799015|5072599009|5062599005|440099028|3412199025|26104999006|1710799026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?3iLVlVwOVGULoqDxElSb6wIqTSo6tjnYW0Io1VCB4yvUSxy6AP4UnwPifdLO?=
+ =?us-ascii?Q?0oplmDkhkGaVKpnHpThW7vEL69KLBBJKAB1Lr2XCwO4NSVuH5FKA5QkvPSQ9?=
+ =?us-ascii?Q?hY5geBv1O9wLCsn3K0fK6C/cEmycmauz97QEI9BMk7pGxsXtScXMHDAbNOK0?=
+ =?us-ascii?Q?acGJM6dahWrVSZg2fvAcb4leDbfaH56B1P++dfvWAYZn59X1W1dqnu4duPSd?=
+ =?us-ascii?Q?nlWcFxja3VDY1UCmEzypCq6cunG/3+9qAzB4uKa+u7RLZPksYXS8xkVI270F?=
+ =?us-ascii?Q?cUnjTgWIXSMUP3Ls9rAl6lqBVmqY+alD11td4lPOaBt+PNcVoJknrmTC3Rn7?=
+ =?us-ascii?Q?O1IQkpRNIBCnehe6ThwMhQMbR5b6ebq0HXdfg7mzXHz68vWQqJWQCVcx2KI1?=
+ =?us-ascii?Q?HwPfiEBbxBvOuogYQHHK6rUe65v/GwxQq/RTxQmT6T8osOYnA/79qs5ZApCs?=
+ =?us-ascii?Q?OX1cMte1C4VDqTGk3AXbqCQv9Sv4LP2XBsPcSGxxj7X0sRU4A+cMph6UWMab?=
+ =?us-ascii?Q?qUs/kGF5SKNSSJu6qRFxUO3VAbimkwIcZf9qhg7ghmAcGF8BlylJMd2cSJcc?=
+ =?us-ascii?Q?1S9lG06uInbiSUf/ugLj+77qyg/MSoWoAZSSslNuc76+I+EYQLZgBPRALu/G?=
+ =?us-ascii?Q?EHmdxbM461RqOxQKNR3EORSJRmQpw95zmfbPCU4XzcqFrDY4VOXhzV3Ald3h?=
+ =?us-ascii?Q?aHdjkxDGYj8GfHynRuaVUx87QT08mVUxN90x8p2RqwGICkhELNcZJKxBkrYq?=
+ =?us-ascii?Q?aJHvwzyTwSVQOYOopDepTaG9X14qLkNkmIBw7PSauP7q0qrwuyYlbVVikjCq?=
+ =?us-ascii?Q?Tfii5uK9drDrq9b6m2JNy0iMZBiQaOGzwAapCX0tcMQRK9Yvw/gCXJyPlSCW?=
+ =?us-ascii?Q?QLsp3x93bCUpafw/0JXEBQM883h4KPER0QSlAJFYwzlhcgiz/WW5quJn+wGV?=
+ =?us-ascii?Q?IiEHHnd+K5Ao8JlkViPVQg=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?if1hhP6HGf39anZ6iRdJAqcduCdOkJR++NwJEGHsXchLeMKdazCf20g0aEWQ?=
+ =?us-ascii?Q?8hCpvvn3vEZD97kDhM6o1pTab0k+bbmX5FRDnJ/YD+/H9npW7Gf91prfq6Op?=
+ =?us-ascii?Q?8NusTUxxpk5l2mVFrISQ/Lw/kFXhc3MbZ0ovRNE0zlZIuQ10K3M+3umh7A2P?=
+ =?us-ascii?Q?n+5BonGId5bDOp3BVmUH2cWKFmb8I1OPlfeewODHo4iQYegA3a3Hbr66Xa9X?=
+ =?us-ascii?Q?mgON2g9mYZGY7U/KKpG0WMwM64SZp3WXW94B8n37qwQyEHuI3vzeSFU6T/qe?=
+ =?us-ascii?Q?D0tIVM06zq688/zcVgkESk5FHVGOI5S/Aa3aXcQd+dSKGvglce8X4ZaJAjSM?=
+ =?us-ascii?Q?FsoPMgcDl/aBharzSml8AtRSkA83nNDgudDV6WgzMM6p7Jp8Z7/3YKll5kGB?=
+ =?us-ascii?Q?byho1dJSWy7SnLQ00djA6X09+cvIk7UDVNAZ0dWn3HPd04OuZurFiaV6R14Z?=
+ =?us-ascii?Q?m/LEn6FWy0KF1ql/eO4ZY3qch2sJSTijgxRJVd5wpEOaRcPN3L1xA0jdyjaC?=
+ =?us-ascii?Q?uN65iPPd1U1YurTeNwWPAYhWymLEKxfjrF2jW1OoMHjUMA0qnTdtwfqPVBgS?=
+ =?us-ascii?Q?NDJ4sXSfaOSUW5tbICyn9ITCK8vgDhesDNcZrBndi1d0TnqQQaktk7UJRF74?=
+ =?us-ascii?Q?9vAfL21kDWxL1Pbv1YuuSffPPg+I+PUqN5xLkd2mFto81vOELARceFus6tld?=
+ =?us-ascii?Q?2D/xH9Ksw335jeYJXMBhqzo4erZbZw50ddGXEdQFJIo7DLGxOuVPR6Tn1xyU?=
+ =?us-ascii?Q?ZO6f/6nScKdpYNml74hA6nQKBwjuqj81z9nKvg/620bVU5QrZG7v1p1u+1Av?=
+ =?us-ascii?Q?0qs7YN3xuBOWKkZvv6XVL7HKpR8kEF57LDn8NdN9pM9MdvEIssbcQFBOFftM?=
+ =?us-ascii?Q?f5xFFZMfhaYvrV3Qt4cVFiXgDFiTXZmakE1MX/838TODGn4NsnOOpAz9/MaN?=
+ =?us-ascii?Q?JzarnOzNw20dmencwwdANKmZmDX/qqH6loBhp/lEWjjOl7T/aTYiczl3tnuR?=
+ =?us-ascii?Q?DLuwSmdHHuHKjeuqV8zSdVKpbHywqs6JhYGBlhIFV9NDp1v97ZeqNa6m3uJp?=
+ =?us-ascii?Q?Q3+CftKR1/G9jDWymBUBN2uw1aoElrfBNe1yzLK0uXJyXX/sCI8iFgTgQQbM?=
+ =?us-ascii?Q?EFCMgcQ/K+XYMLdKgqNY4V1hGd++KPo4mj8vB/FIbz4Y2HQvilZvp/C+rlrs?=
+ =?us-ascii?Q?qciR4wk7ZY+M9urG221hgnLslCfn7yJqe0yK5aYjTEZDx2Ht03frn56JRN3p?=
+ =?us-ascii?Q?bNPdYbH/2RYATaZRZ9t5CYCVw6+TTqsBFwJnPOYtoimcwEj+JoOdb9LzUF+i?=
+ =?us-ascii?Q?qsewfAVghnAj1heb7uD0Dklt7xf3GKdcw16M/NWxlhcIwihZB0H2JxmhRq5I?=
+ =?us-ascii?Q?GG9mQjQY0q4G/HLWIr5O0hoCpGet1fW/IyRaDVYPIHVQ+FNzBnsx7RcYSMlU?=
+ =?us-ascii?Q?Pot0bf0fIvXsRWPH/2DpE9aal/acrQHL?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4f05e22c-5909-47d8-350e-08de8dbc90a0
+X-MS-Exchange-CrossTenant-AuthSource: TY4PR01MB14432.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2026 17:56:57.7400
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY3PR01MB9951
 
+BETOP's BTP-KP50B and BTP-KP50C controller's wireless dongles are both
+working as standard Xbox 360 controllers. Add USB device IDs for them to
+xpad driver.
 
-These patches replace my old email address with my current email
-address, should anyone wish to contact me about these devices.
-Additionally they update information about where to get the firware for
-the Dreamcast sound driver.
-Beyond embedding a different string for my email address they don't
-change any build outcome and are a low priority for a change: but it
-would be helpful to the small, but still active, Dreamcast community to
-update this.
-
-Adrian McMenamin
-
+Signed-off-by: Shengyu Qu <wiagn233@outlook.com>
 ---
- Documentation/fb/pvr2fb.rst           | 2 +-
- drivers/cdrom/gdrom.c                 | 2 +-
- drivers/input/joystick/maplecontrol.c | 2 +-
- drivers/input/keyboard/maple_keyb.c   | 2 +-
- drivers/input/mouse/maplemouse.c      | 2 +-
- sound/sh/aica.c                       | 8 ++++----
- sound/sh/aica.h                       | 2 +-
- 7 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/input/joystick/xpad.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/fb/pvr2fb.rst b/Documentation/fb/pvr2fb.rst
-index 315ce085a585..6887044044d1 100644
---- a/Documentation/fb/pvr2fb.rst
-+++ b/Documentation/fb/pvr2fb.rst
-@@ -63,4 +63,4 @@ on any 2.6 series kernel.
- 
- Paul Mundt <lethal@linuxdc.org>
- 
--Updated by Adrian McMenamin <adrian@mcmen.demon.co.uk>
-+Updated by Adrian McMenamin <adrianmcmenamin@gmail.com>
-diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
-index 4ba4dd06cbf4..cab4c7af2bbd 100644
---- a/drivers/cdrom/gdrom.c
-+++ b/drivers/cdrom/gdrom.c
-@@ -876,6 +876,6 @@ static void __exit exit_gdrom(void)
- 
- module_init(init_gdrom);
- module_exit(exit_gdrom);
--MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
-+MODULE_AUTHOR("Adrian McMenamin <adrianmcmenamin@gmail.com>");
- MODULE_DESCRIPTION("SEGA Dreamcast GD-ROM Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
-index 7f36f73844a9..c393aecccbf4 100644
---- a/drivers/input/joystick/maplecontrol.c
-+++ b/drivers/input/joystick/maplecontrol.c
-@@ -15,7 +15,7 @@
- #include <linux/timer.h>
- #include <linux/maple.h>
- 
--MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
-+MODULE_AUTHOR("Adrian McMenamin <adrianmcmenamin@gmail.com>");
- MODULE_DESCRIPTION("SEGA Dreamcast controller driver");
- MODULE_LICENSE("GPL");
- 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index 80a5181313e1..7531ff1b2008 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -19,7 +19,7 @@ static DEFINE_MUTEX(maple_keyb_mutex);
- 
- #define NR_SCANCODES 256
- 
--MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk");
-+MODULE_AUTHOR("Adrian McMenamin <adrianmcmenamin@gmail.com");
- MODULE_DESCRIPTION("SEGA Dreamcast keyboard driver");
- MODULE_LICENSE("GPL");
- 
-diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maplemouse.c
-index c99f7e234219..93defe596691 100644
---- a/drivers/input/mouse/maplemouse.c
-+++ b/drivers/input/mouse/maplemouse.c
-@@ -15,7 +15,7 @@
- #include <linux/timer.h>
- #include <linux/maple.h>
- 
--MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
-+MODULE_AUTHOR("Adrian McMenamin <adrianmcmenamin@gmail.com>");
- MODULE_DESCRIPTION("SEGA Dreamcast mouse driver");
- MODULE_LICENSE("GPL");
- 
-diff --git a/sound/sh/aica.c b/sound/sh/aica.c
-index 9438c3a68ee9..ed262e2263d1 100644
---- a/sound/sh/aica.c
-+++ b/sound/sh/aica.c
-@@ -2,10 +2,10 @@
- /*
- *
- * Copyright Adrian McMenamin 2005, 2006, 2007
--* <adrian@mcmen.demon.co.uk>
-+* <adrianmcmenamin@gmail.com>
- * Requires firmware (BSD licenced) available from:
--* http://linuxdc.cvs.sourceforge.net/linuxdc/linux-sh-dc/sound/oss/aica/firmware/
--* or the maintainer
-+* https://www.alsa-project.org/files/pub/firmware/
-+* (aica_firmware.bin)
- */
- 
- #include <linux/init.h>
-@@ -29,7 +29,7 @@
- #include <mach/sysasic.h>
- #include "aica.h"
- 
--MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
-+MODULE_AUTHOR("Adrian McMenamin <adrianmcmenamin@gmail.com>");
- MODULE_DESCRIPTION("Dreamcast AICA sound (pcm) driver");
- MODULE_LICENSE("GPL");
- MODULE_FIRMWARE("aica_firmware.bin");
-diff --git a/sound/sh/aica.h b/sound/sh/aica.h
-index 021b132e088e..75e25dbf58a8 100644
---- a/sound/sh/aica.h
-+++ b/sound/sh/aica.h
-@@ -3,7 +3,7 @@
-  * Header file for ALSA driver for
-  * Sega Dreamcast Yamaha AICA sound
-  * Copyright Adrian McMenamin
-- * <adrian@mcmen.demon.co.uk>
-+ * <adrianmcmenamin@gmail.com>
-  * 2006
-  */
- 
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bf4accf3f581b..4eb85fa933f4b 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -360,6 +360,8 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
+ 	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
++	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
++	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
+ 	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
+ 	{ 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Series X|S", 0, XTYPE_XBOXONE },
+ 	{ 0x20d6, 0x2064, "PowerA Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+@@ -562,6 +564,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x1a86),		/* Nanjing Qinheng Microelectronics (WCH) */
+ 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harmonix Rock Band guitar and drums */
+ 	XPAD_XBOX360_VENDOR(0x1ee9),		/* ZOTAC Technology Limited */
++	XPAD_XBOX360_VENDOR(0x20bc),		/* BETOP wireless dongles */
+ 	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA controllers */
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA controllers */
+ 	XPAD_XBOX360_VENDOR(0x2345),		/* Machenike Controllers */
 -- 
-2.43.0
+2.53.0
 

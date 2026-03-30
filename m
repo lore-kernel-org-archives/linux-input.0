@@ -1,71 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596793BBA0E;
-	Mon, 30 Mar 2026 13:32:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 844023D890C;
+	Mon, 30 Mar 2026 14:22:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774877567; cv=none; b=EOEPY5gi6pIj6+d/zXkz+IRB6Hv+cY6F76Bfrwp4PwV/5p3e8+NzXwBX6REn8hqUlzFq7cKY/2PscwaC555g8WqJV0yuXhaggho5y8lip6Kv8h4ayEwrBWgaJnXtWlSbkvXGu96vB5Y9lP0pajTl4Wf0uwXlTxTqj5+UXOO+4iU=
+	t=1774880522; cv=none; b=nSYW8Cw1BxeExz9N3npcBfQsK9MC3CgepU2fQ2pWHHvO1HP/XhYfldwrHqRF9xEakdzGp8oai/Ved0Cr0YFLXxYWuw442uWNWf/6/Zyu4TAfAmbrxDG6CWkXTNRhgTk1trYrXgjqqhUbKpycY9skIYPspwpY/GAigr/uQT7uGhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774877567; c=relaxed/simple;
-	bh=ra43UpYFfhWwinth+UXzN3p/HvOi7/4hhAxRnpd3qlY=;
+	s=arc-20240116; t=1774880522; c=relaxed/simple;
+	bh=Ic1RGzhhSbQ+YrDsDkpkls2djTt4iLSTo2bi6782Umc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=YCxWfxkyS4DF1o3+GNe+TLCQw18DtZ7EE7rUW5Gz5vYNoO6aAgCKfJ9X1QuqseR2MkvG+R8OC2ZMkeU4JwMmNpQsc7ZlnjmzGoz0T8VApxn45Wa4gBiC1ZX8lc/mVjzfjP+5KQlQ99YkzqHgH80FZzTsY57rRywl1mOmed3mBOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uFFqSrAn; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=keMW00EPNuUfwRkcrFsNa/TiNM5w0zK3MBV7iov6Vab2NYbZ9RrU6syFMR9IAkn5sohoG++451E+/l2yRTUSpWp7CbBUi4BrChAKC0puoqk+PxOrmWt0SNWuuDyzPoRJ27QDS4MTU2YjsM+reHE40SIipcwpuV6vtZ8hm69+VQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ELTT1yun; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uFFqSrAn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61623C2BCB0;
-	Mon, 30 Mar 2026 13:32:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ELTT1yun"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04580C4CEF7;
+	Mon, 30 Mar 2026 14:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774877566;
-	bh=ra43UpYFfhWwinth+UXzN3p/HvOi7/4hhAxRnpd3qlY=;
+	s=k20201202; t=1774880522;
+	bh=Ic1RGzhhSbQ+YrDsDkpkls2djTt4iLSTo2bi6782Umc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=uFFqSrAn/moPMfUielMllyht0STk5LMZtYedahR79dGOMxBLs2Ccckm3u5KZGUInM
-	 r9JSfsihLVewrdt70No1LY+l2OPLYSP2tHK7OpMktCUzQdeNxajwIdIupiZYDHgckQ
-	 2ezuThyRhN602HsHyJB99SKfIql8E6kNC0Ho4qPHICuK7JFIt4YcYbEIX0YcVQ2/q1
-	 m9PfA4LJKkfMDFsm7BsMHUNLrsOm/7myXUvbEXHjS3HBgq3TgVpDDODLJMCf/N2DWv
-	 vMD6B7wMbbjJndUqifatdZG2M+F2kFg5ZQOixVLoPuCHal94kJMWrZ2r6Co//uM9i+
-	 3qZfVz3FhKOjg==
-Date: Mon, 30 Mar 2026 15:32:44 +0200 (CEST)
+	b=ELTT1yun+1gKgYpYMGSXAuKb9FTiGOXgUHke/3XCEZBU1NgIdFAsdTUrlpBYuYZiI
+	 uSeP15D5VW6zsjRF6w8KHjq0AnPu51f+qxN+1+zSq6Mw04WOVmlVLTGf+YjyphhD47
+	 TpEi6warlaZMCjtKNuxYnlxVCUgDyvtoGKikEGt7s9lWdXtM0ssmym/v0dD+mHTTzr
+	 hW7WWDR5byoVIvSzKTFeqOynO1/zQLXsFwb9RQPPeXIpjCii1KK+bTCUMfdStpUvQ4
+	 BPqCTrel8ekEUxqSk20fRlrgu6H3XzSeyPSbnob6xh+1Ud8xPvuSZEfBwvgl7gEchu
+	 RSRVXFdRL52Eg==
+Date: Mon, 30 Mar 2026 16:21:59 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Thorsten Leemhuis <linux@leemhuis.info>
-cc: Sasha Levin <sashal@kernel.org>, patches@lists.linux.dev, 
-    stable@vger.kernel.org, Lee Jones <lee@kernel.org>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, honjow <honjow311@gmail.com>
-Subject: Re: [PATCH AUTOSEL 6.19-6.18] HID: core: Mitigate potential OOB by
- removing bogus memset()
-In-Reply-To: <695caa61-20f9-4932-9ff9-431be7615c43@leemhuis.info>
-Message-ID: <q6311n5r-p656-1rr1-n757-2o4sn8p041r1@xreary.bet>
-References: <20260324111931.3257972-1-sashal@kernel.org> <20260324111931.3257972-18-sashal@kernel.org> <695caa61-20f9-4932-9ff9-431be7615c43@leemhuis.info>
+To: honjow <honjow311@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, denis.benato@linux.dev, 
+    linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: gpd: fix report descriptor on GPD Win handheld
+ (2f24:0137)
+In-Reply-To: <20260324013847.68024-1-honjow311@gmail.com>
+Message-ID: <4666no95-0r6o-q7rs-os15-0n8s85p41021@xreary.bet>
+References: <20260324013847.68024-1-honjow311@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 30 Mar 2026, Thorsten Leemhuis wrote:
+On Tue, 24 Mar 2026, honjow wrote:
 
-> > From: Lee Jones <lee@kernel.org>
-> >=20
-> > [ Upstream commit 0a3fe972a7cb1404f693d6f1711f32bc1d244b1c ]
->=20
-> TWIMC, honjow (now CCed) reported a regression (GPD Win5 handhelds
-> stopped working) caused by this change =E2=80=93 and provided a patch (wh=
-ich
-> misses a Fixes tag) to resolve it:
->=20
-> https://bugzilla.kernel.org/show_bug.cgi?id=3D221271
-> https://lore.kernel.org/all/20260324013847.68024-1-honjow311@gmail.com/
+> The OEM USB HID interface found on GPD Win handhelds (VID 2f24, registered
+> to ShenZhen HuiJiaZhi / GameSir, PID 0137) declares 63-byte Input and
+> Feature reports for Report ID 1, but the firmware only transfers 11 data
+> bytes per interrupt.
+> 
+> Since commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> bogus memset()"), the HID core rejects undersized reports instead of zero-
+> padding them. This breaks the device entirely on kernels >= v7.0-rc5.
+> 
+> Fix it by patching the report descriptor in report_fixup(), reducing
+> Report Count from 63 to 11 for both Input and Feature.
+> 
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221271
+> Signed-off-by: honjow <honjow311@gmail.com>
 
-Thanks for pointing out the missing Fixes: tag, I'll add it manually when=
-=20
-applying.
+I have added Fixes: tag and applied to hid.git#for-7.0/upstream-fixes, 
+thanks.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
 

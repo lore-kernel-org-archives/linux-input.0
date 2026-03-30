@@ -1,160 +1,198 @@
-Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 904B13043CF
-	for <linux-input@vger.kernel.org>; Sun, 29 Mar 2026 22:38:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774823940; cv=none; b=OxHdnjMmQbHuiu04wGOJKebDIaTlv3VC89vPXFi2kwyEkzTfoVX4dZV36FKL9zlofvySR9RySX/WkpqxZgjPoTGRLgnaUYNRfa+EkatFz/AlWvvKfj87weNowxMC2cDXVvPnWHXQ6c7RfsuXZYpoUXJgXzgNn01CFfp6jp76exU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774823940; c=relaxed/simple;
-	bh=i29DEr+cmezm28yicchzfOLgpY1e17qMsYz+akHVLMk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SmjbqIG0Xp04Z5BTVqfUUXWoIFGSxadNxF57slSRY8qxy9UuNmdZeLaJYtp3BnWHSYFbPw9G4Z/0hidtRr69TfwcbImOechnrRLz6zFDNWu2wnwPyfWoBHBu9pro1aUenhJxLU7BmF0msSKDk3iQEP5TFfSwpgccAHNXpyOqYTs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a85LHOyH; arc=none smtp.client-ip=74.125.82.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422AC18871F;
+	Mon, 30 Mar 2026 00:42:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.16
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774831326; cv=fail; b=kavwQZ/visB2aIwcQ/Z7qy0y2+aerNkdKjCNEaSYXtphMXBQBdhcrgmmMOiDNsI2k9jYyoRCpO+dgq6mwbKaQ4XkwWOAUY50ijBNyLnELpRIUNm7Dzr4sxPes8o/DZXrmNYKkENHR+SQIcSgK5dmEVbKI9ZB5r87xUrtPr6d+Vc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774831326; c=relaxed/simple;
+	bh=HVWs2iBxVW7ANrOXzHvTl3jAKpjtMQIT3EjNNpCOMQs=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=nb6wicGjOy7CcFQG7cB3wIrSn90yaBBCHeFqDzqqgtu+f8AVmE2+lhblT1t3bZKFkJSrx9AN64PaO8vA1xhEkVfm+okJVm3862/T09L6bLyMRwViqr5zry+tFIlm16zvY0xMVBFPd1Gt8TIgkMcHHaDFP2efx9Eok+2MRsEO9fI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XAjaKszI; arc=fail smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a85LHOyH"
-Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-12732e6a123so1787018c88.1
-        for <linux-input@vger.kernel.org>; Sun, 29 Mar 2026 15:38:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774823938; x=1775428738; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mIaCRwsPiPLGbHW57vve74Uei7PyZwajOXtEVAjCMmE=;
-        b=a85LHOyH+4K7mj7zgCILRDQ/Q4Q/mEgptLKc8va27S0sLXjfSmYkvBXujQ4Z8SyFcu
-         EPpTKHaIzrAm/HJIZZT/7u/Fx4oBX1b7WXJDyhv3mQvYtdG7OkG4YzJtwOfNu6ZaUjCJ
-         Srwn3Avm9v30sKjDlQ2lJZzri72n9b5NLRCyspb5pXQxx3szjwtBVEEHBsyIx91PiORl
-         J4jPWuScqu/tdNHKD+ExOuROfmztCOyJIpa0nexyczDwFkRrcwOaOqXb7JZkQlhjCA1p
-         DziKNlsHsBaHZCsvuBE83MqQLgjXQISpFRSOztWGIkbPmHi64FRPDHxRDRMfYN4KCPtb
-         8Nsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774823938; x=1775428738;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mIaCRwsPiPLGbHW57vve74Uei7PyZwajOXtEVAjCMmE=;
-        b=oimH6Lw6/ddy50uVSvSB6S00K9MpD1fx+q2DEWeeFrNKa1pJnLzrqdC+8XFccuM0RQ
-         cPhIMsY0pQEoH5BS2vJU1leC8PzScTXWAFnPVOTgBD3IkepnZsyMUrJhxa9ThJB6q35w
-         wfQBsqlXNX5iBSlvSYj13+xCCsq1KvWFXgGvo4dhsGb+yrBSMw4sBYROm7aibki6Re21
-         UzsI+uLyZ3K+T9VLfvy3j+1b3IO9S3VOz3P/fBJ1Vzkh6QhrCuXhRkdwxxntXGyfZdoj
-         xkJcHs9y2N/8iggO0kZfCsl+xVOMrKR0Ll0d5xXJL39PGNCjMgrIJPCph+lUxGTxyOms
-         pxUQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWtscWUL5B9odqFUtY44+vxR/povvBtcc/OA2G1k3QM/U+khO4/sx61cBgBUz7FlU6qW8x32M8Vx5P06w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDgAKClrSyAK0P9VLqCtA0xj6hjoTBrH8xkUDKVTyiIiadh5FL
-	mvPuo0AnZPbmUl5pI24YwcewNnedIk4fk6l4vxe1z3wF+k4Imng/lXlr
-X-Gm-Gg: ATEYQzyv5uguEcaW76aMSnYbII2QWIyLq987teEb7Kt/PtPGeZdkpxizGTmd/IfPJeU
-	vdTj8nVLXA72Bor/dk3vCfkeHWDB6WSWN25EGf3OeaTsMe+n4MPck4GOa6f2lsOkW2M5oD/Pf9u
-	3IribU2NLl82zdWWyFgcHKxzksiCxNzbNvb9qEu3EcdfmzGyvuh1OGyd1DohC+B0ylbmcwuMA8I
-	468UoofIQ+qYsIgZ5cEJRcCfTiQFLCAwA+wNIdBaw08y/6xZXsbwjxEpDue3hr5Jkj4B/bC263j
-	LrNn7xLnpvo9Mf1PVjyTjK3WtGngT/jEWPxGLZsFlMtMo5aSRH+xAAodmvT29YnXJhImqm8KAJY
-	0CTGog5YCypAefndSL5SBkNYrDNE63Atb6e53o+XAMxlCCxcbzS6f3aKdX+CUi1eet0yZ2SRWsX
-	9OujZKuUFYxnhlNFK6vhSd6THMup/zCoLMMLTRjG9ZlArDZEI6iX4/9KZye/8sBoeO
-X-Received: by 2002:a05:7022:6190:b0:11a:641f:ba11 with SMTP id a92af1059eb24-12ab2928cb4mr5161322c88.29.1774823937606;
-        Sun, 29 Mar 2026 15:38:57 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:7265:773a:8e51:c62f])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12ab983f9f3sm8212926c88.10.2026.03.29.15.38.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Mar 2026 15:38:57 -0700 (PDT)
-Date: Sun, 29 Mar 2026 15:38:53 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Linus Walleij <linusw@kernel.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, 
-	linux-mips@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-mtd@lists.infradead.org
-Subject: Re: [PATCH 1/2] MIPS/input: Move RB532 button to GPIO descriptors
-Message-ID: <acmo7_clKRWzhyOi@google.com>
-References: <20260328-mips-input-rb532-button-v1-0-98e201621501@kernel.org>
- <20260328-mips-input-rb532-button-v1-1-98e201621501@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XAjaKszI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774831324; x=1806367324;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=HVWs2iBxVW7ANrOXzHvTl3jAKpjtMQIT3EjNNpCOMQs=;
+  b=XAjaKszICNVoAsxh3LoqchWBe3WXsK54S7LE/uQRR0Qx/v+PFyqD1yK5
+   XTznd8vUcAiUY4/mvXj+mLS2srfsw/H0F08hPx7Wl0y1arOVWkfmnNAYN
+   vxtkFgV9djI8Dz/SCrQVLp15CRHTBtzY3uVSF6CtjrOvWE3xvGnmkDP0w
+   hVLV3h7D3S/5gnlSzjMrTr7uoWizncL4TMoBGeryyOi16NgHWCOgXwDCJ
+   Hp7+NNdiD283V82QqLZRxeNqcpRLXeDVA0SgeeFmiQKr84ykkm/N58NZZ
+   eobgdeYoZAWwUj0OChRKoFq0y/5wBI2+WrACEkJVwrWFqY/DznlmCfRW5
+   Q==;
+X-CSE-ConnectionGUID: KghMxChkTSKPG1tWYTUyoA==
+X-CSE-MsgGUID: jucCsqQ8RfCrT6Lsh5hmkQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11743"; a="63370350"
+X-IronPort-AV: E=Sophos;i="6.23,148,1770624000"; 
+   d="scan'208";a="63370350"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2026 17:42:04 -0700
+X-CSE-ConnectionGUID: ucfvLR8pRyKf3sODcCHD8g==
+X-CSE-MsgGUID: UhqxqZW+RIK/qkzQBuHFeA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,148,1770624000"; 
+   d="scan'208";a="230365940"
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by orviesa004.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2026 17:42:03 -0700
+Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Sun, 29 Mar 2026 17:42:02 -0700
+Received: from fmsedg903.ED.cps.intel.com (10.1.192.145) by
+ FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37 via Frontend Transport; Sun, 29 Mar 2026 17:42:02 -0700
+Received: from SA9PR02CU001.outbound.protection.outlook.com (40.93.196.21) by
+ edgegateway.intel.com (192.55.55.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Sun, 29 Mar 2026 17:42:02 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=W8E0jnonG+5sNl0XzgX7DuB3EPC0GVb16J0uVAmuShraDrN2f0FOvUGHu16jPIo/oN5/VxzpzRwF2nZ3+NRNSrYa8Gjy1rPxAxAI0zX/Y0sgbgRMyeDZ40gHfLWZpB7z402Sv2on8ULXaJf2knIJcw8qfWcWivU4u0bNTghnbiXAw9uy/i5bfRVE1j0kKEFG8z9eJH6zr5s9nz3nKd+KjPbzL531bo8iaxEDprfdNUJT4+O/WzfuNmihNvA7m+UXKSho6W0Y7srlusLzHIdXkeRw5x6w52zaSciF7HWsGYheS34aJ8eWIFCsFAvage/mRuVjj1rEy6UowI6jJCpMNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HVWs2iBxVW7ANrOXzHvTl3jAKpjtMQIT3EjNNpCOMQs=;
+ b=RNH6I2LtjF7+cm5fRvih3+wPFN+e8uLtWQKC5kC3BKZ+LlJta1I38YPY7qg+upyNn1wVe29NscVmMnKcFR83OyRfkBwhiH684oCzzW36hDcoDAbpaqlUFeQKxgLCXDy3na5BHhPZrkyVo2PA/CH7uFokFEBUlgIYpr7DMKNO/PNN8AdjJ+MnnFr5c+rV2p9oIS++/HcPoHDie5wv04t7SQsgeCZzahm3zdfI5rqslZNF1M9cMUU7pmBBu4TglJLWbnT1uv2pjhjyXMoHyQwXYqc1paGiaSf1eSdVnxHre+NYdfPbEvpp8q6Xv/xjn6WeCJo5t0BBdVNs2yEBgppzqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
+ by IA1PR11MB8785.namprd11.prod.outlook.com (2603:10b6:208:599::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.15; Mon, 30 Mar
+ 2026 00:42:00 +0000
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::b1d9:3282:7e31:3799%3]) with mapi id 15.20.9769.014; Mon, 30 Mar 2026
+ 00:41:59 +0000
+From: "Xu, Even" <even.xu@intel.com>
+To: Jiri Kosina <jikos@kernel.org>
+CC: "bentiss@kernel.org" <bentiss@kernel.org>,
+	"srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Zhang, Rui1"
+	<rui1.zhang@intel.com>
+Subject: RE: [PATCH] Hid: Intel-thc-hid: Intel-thc: Add more frequency support
+ for SPI
+Thread-Topic: [PATCH] Hid: Intel-thc-hid: Intel-thc: Add more frequency
+ support for SPI
+Thread-Index: AQHctoYiOyu2aQKwAUqMv8p5jtmvALXCXmaAgAPwZnA=
+Date: Mon, 30 Mar 2026 00:41:59 +0000
+Message-ID: <IA1PR11MB6098E1719F7D2848FE13A156F452A@IA1PR11MB6098.namprd11.prod.outlook.com>
+References: <20260318032204.835621-1-even.xu@intel.com>
+ <3op0o0rq-o5r3-4n68-n3pp-237s14106qs5@xreary.bet>
+In-Reply-To: <3op0o0rq-o5r3-4n68-n3pp-237s14106qs5@xreary.bet>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|IA1PR11MB8785:EE_
+x-ms-office365-filtering-correlation-id: a486dcc0-f9cc-417c-7349-08de8df52740
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700021|22082099003|18002099003|56012099003;
+x-microsoft-antispam-message-info: aPI4q4PLODC0fi98LsqrWaqLyx+V5II9oQOXUmJYj0SlS2Dc2gzHglp1mCVYDeUjr67Z80fIU1fPzWrDsyWouC1qTfd7ngJxwWfuCaG6BHZkwE14a6h3wZKpxiGl7wsWDmvcnTUM57c0Q8CU2PZ7tFGdhgTsA6z93DLc0f9zAF/JOTYkigJP47ZaUA8ol7f4IgTe4HvXZm6tQ75xduUo0yQNZfa5/eUNX2EqAMVUTh3S0ggnrmAcU3BH5+YSBWXEsEFuGbXo83y6MSLzzceutugOWRcLwYvgfyWoxgYkY/ZAzrt+TZ84Wgn9oeoQhNBb5yGTIKLppjwt6rh8Dvg1sdTY25LR5TLgAkHLPyJyv1G8X+RQG82KGYTn/sJAxZIEeuPidEBsoHxD/M7BpZWuXvSjdQNzDIaskMQgW6d9LAUAXBtiddB6lDs4Wvv9/9T7gPhRJrML/XfNorB8CcBCumSbsuS1FZnK6GgjFwnkBarkq1m4OgjdUp01Jn0qkwAAGjIMs+MCPWl2n8Gbb5tE85JWI6hqEJLwKoZgQvHXBJxdEcaR8pt9qiaFbNVaW3hSsatpslEPWwFBbJqJIJ4BXq68OEiSoUPIaEGUHHq+E0UCoh/94rWPo9TEW1I0w145loi1U1IMwzUOtKJFaBPXToCq8ZM7jnu1qXlpmN5QMCeucYh5zKuSGAJp10DIgzw8X25zFVr457oWjeizr/SDHXJwwujCmYxdd6pf+FbTKwDbEMB9bNfdSYGZf2Jjtr3Syxnf0lyuzmoMEMIoMKkmie/0wANidD3VtfV+L3e9vaw=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700021)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?q6eYSv7XZfeQSrKOwr1gKf21c/S68KPUTOJoa3hSbxSpDW7rY7F1G1gsSjEh?=
+ =?us-ascii?Q?KFh+beGLLEhSvu87f2Z6Hwx2kyJFJH10h9yPkx+GX3C91ao6lW15VfF+R98O?=
+ =?us-ascii?Q?XTt1JvMIzd4HQ6OQ8l90BajFq7XosLV9L7NG0UmG+wvltwJUn6bhzVHOcCg5?=
+ =?us-ascii?Q?Eeh2NdMlvs4vjjQIBKisUIhXVeX4nUVuEiHUMnxySXg2w8SuAWrmwlJ+LUMj?=
+ =?us-ascii?Q?vX30EfF7gPafykmwe3jE0D/t9v/ix0dLySFtKCCyAcTgaCaTCoXyYWQnCKa8?=
+ =?us-ascii?Q?ZzslnKPkitruKQUWyoAJv2qfsM3bO7YpmggOW0mbfjq6Q5JVD5KUq3uFMHn7?=
+ =?us-ascii?Q?hTmjikj0zBbW1F71DPQUlOizW8sC0aJ+1DJOJR3Z/MCCrEkK90C+knre94lg?=
+ =?us-ascii?Q?3iRYh8OxIGvHmczzGdlPtsHeGTamMl4iR4lvjq8xkS8itzZBS5ygyNE8ZygH?=
+ =?us-ascii?Q?gkFK9LlKhsC5E+L6D+2XlBVU16OrKf2OqFiWqIrFRjYZa5qUaa4YPAJZaD4G?=
+ =?us-ascii?Q?mo3IeoH0HQybTtHCpPFQeF0NtBdBUKwEwKL4yHtvy0z3hQP4jn/FcK8P5ffS?=
+ =?us-ascii?Q?siLZu75nhmKIWwEmMWgmvi0h9q+4e1NnVMPhYS9mGeRHUn6WxuLZu9E0Bx7X?=
+ =?us-ascii?Q?k3AEtd1QennlMq8hkswcFO+clkTxBW95ugFW93hsKoTO8o9RhP4KNE6z6+QT?=
+ =?us-ascii?Q?oS3ulqdL61cxUckBcwtjAxgYkI/DSZy41TrYUO2VEiWMDjAIZeZ/5sF1iJNm?=
+ =?us-ascii?Q?DxUN90AWVNDsD7kaFEogUQ4MOE1VrSixIrTTjUhPHQrm37hQUH7oXH3Psjg5?=
+ =?us-ascii?Q?GdS45o5JNgheqpVbDpzex51ztvYNDF4PJx8A/NY2n3ZptvtBCuFlNukM10Tx?=
+ =?us-ascii?Q?763oEQ4OyBGg4Uv4fI2DIbjPrshKZlE8VOG9vdfmkO9lGEjBBxaevQDD0LFo?=
+ =?us-ascii?Q?dIQXnoQ115jCa1gMuTzcBCt6a+cGtDg11gX0GMjTooSRNlg2EXjkCZQO5E0W?=
+ =?us-ascii?Q?1nMUNU1NnsX0CV78R2eKFQKf7/FnXjKP0M5XVKSVm4nufxH7xL0sE4P0CdIg?=
+ =?us-ascii?Q?54MOrCyBfJRGQ9QXI/SG459iB8aJrZE5ETQF0jhaOWdWopoGEQbf+VV1jVBr?=
+ =?us-ascii?Q?goqE4hqYaO0B1gbxWG0LEoG2FL6yCdMIWRCktJ0MDmEPP0E+G/V5qPmg5lFp?=
+ =?us-ascii?Q?wltrVCNwkFUyHmu0IUGSgr1WBywI4bSX1sLAC6x3qgIOuNaSo1AHPvZaEAJz?=
+ =?us-ascii?Q?tuRJyiMQlpNgJBciPMrKMrCRqwspve1y05YzK22Un5+pwZsHbaglG+vrpW/m?=
+ =?us-ascii?Q?8JsK6N33vxpGC1rfFdD5nq4U7NG5sxvx3TkAB5SyGvBu0I2OmYSYB610/ICG?=
+ =?us-ascii?Q?Jzhk4qCjy1kFv34vAxZaez8qEOjuhXMM6Bxe6x5g1tZiltjhViHcPdSr8gHX?=
+ =?us-ascii?Q?RuZW5SRs4GL5hVjspMvfhlDt6zMAolh+MfyAgrv+jRgGpu+9/hJVIG3ayImp?=
+ =?us-ascii?Q?/kpbZg5G00VeUcR4OIrIKeYj5QmSSqUP85bCYRjGtdquQrOS/iP0bMNM3SPc?=
+ =?us-ascii?Q?JbYjW8Z1bGa8gi/N8a/AVfyj0qjM8hzSyncH+Sr2pGCDDvAlkKcgRSGXwKOJ?=
+ =?us-ascii?Q?+24xdv1YvHDaSjDB8+4v+Muu2ZFWCi7AG+xd38kCJTKYVp9GcE/hcO+PeWvf?=
+ =?us-ascii?Q?MUB5SULAjgB2wTMEPsohffOYJUEuEXBdvcXeSXSprfsKRYpZ?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260328-mips-input-rb532-button-v1-1-98e201621501@kernel.org>
+X-Exchange-RoutingPolicyChecked: BmshZWy48sFYjeD9m/98P8wcxfBWLHsM8puFb+MYoq/Lw5fyb3Kd4ty6w4UZ57xB8lZWgRvfleVaTas8KGrX7eQtUt8DUtFN8v0t4jlf37elJpwC4jhmMaTVfUuxVE0uYasOdAzIBUjCj59xSHc3JDw5goj/YiHUy34zi2BZsE6np2ZvCfovhNIy0lPBFDsny3ytw9J+CZ7s2nnnRfN2S9U9ntGw/xgXivQhyyrhJpgYejkdLBtWJpg8CsrqtFVTRZjfd3Y411xIBDoGxNPB3VOaC8hA5EQrN63Y7txbx9GGDSVciHDfQ7iobBsPM/Mg7pbMbVI8uHl9JgVdVPbW0g==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a486dcc0-f9cc-417c-7349-08de8df52740
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Mar 2026 00:41:59.7637
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: yStsSom/UMeDdbGDCbCJv/psj5RD4xRFSOMHpkDOyo/BJchUcNqbW2uT5oTPNF1+2MURZbg4KIBhP93ynGI5Ew==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR11MB8785
+X-OriginatorOrg: intel.com
 
-Hi Linus,
+Thanks Jiri!
 
-On Sat, Mar 28, 2026 at 04:55:47PM +0100, Linus Walleij wrote:
-> Convert the Mikrotik RouterBoard RB532 to use GPIO descriptors
-> by defining a software node for the GPIO chip, then register
-> the button platform device with full info passing the GPIO
-> as a device property.
-> 
-> This can be used as a base to move more of the RB532 devices
-> over to passing GPIOs using device properties.
-> 
-> Use the GPIO_ACTIVE_LOW flag and drop the inversion in the
-> rb532_button_pressed() function.
-> 
-> Signed-off-by: Linus Walleij <linusw@kernel.org>
-> ---
->  arch/mips/rb532/devices.c         | 47 +++++++++++++++++++++++++++++++++------
->  drivers/input/misc/rb532_button.c | 35 ++++++++++++++++++++++++-----
->  2 files changed, 69 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/mips/rb532/devices.c b/arch/mips/rb532/devices.c
-> index 4f027efbf27b..3f56d9feb73a 100644
-> --- a/arch/mips/rb532/devices.c
-> +++ b/arch/mips/rb532/devices.c
-> @@ -16,8 +16,10 @@
->  #include <linux/mtd/mtd.h>
->  #include <linux/gpio.h>
->  #include <linux/gpio/machine.h>
-> +#include <linux/gpio/property.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/input.h>
-> +#include <linux/property.h>
->  #include <linux/serial_8250.h>
->  
->  #include <asm/bootinfo.h>
-> @@ -38,6 +40,10 @@ extern unsigned int idt_cpu_freq;
->  
->  static struct mpmc_device dev3;
->  
-> +static const struct software_node rb532_gpio0_node = {
-> +	.name = "gpio0",
-> +};
+Will use "HID" next time, thank for the reminder!
 
-You need to move this and registration into arch/mips/rb532/gpio.c,
-export it and use it here: Bartosz is against using gpiohip label to
-match with software node name and prefers identity matching.
+Best Regards,
+Even Xu
 
-...
+> -----Original Message-----
+> From: Jiri Kosina <jikos@kernel.org>
+> Sent: Friday, March 27, 2026 8:32 PM
+> To: Xu, Even <even.xu@intel.com>
+> Cc: bentiss@kernel.org; srinivas.pandruvada@linux.intel.com; linux-
+> input@vger.kernel.org; linux-kernel@vger.kernel.org; Zhang, Rui1
+> <rui1.zhang@intel.com>
+> Subject: Re: [PATCH] Hid: Intel-thc-hid: Intel-thc: Add more frequency su=
+pport for
+> SPI
+>=20
+> On Wed, 18 Mar 2026, Even Xu wrote:
+>=20
+> > The Nova Lake platform enhances THC with half divider capability for
+> > clock division, allowing more granular frequency control for the THC
+> > SPI port.
+> >
+> > Supported frequencies include 50MHz (125MHz/2.5), 35MHz (125MHz/3.5),
+> > and 10MHz (125MHz/8/1.5).
+> >
+> > Signed-off-by: Even Xu <even.xu@intel.com>
+> > Tested-by: Rui Zhang <rui1.zhang@intel.com>
+>=20
+> Applied to hid.git#for-7.1/intel-thc. Once again -- if you could follow t=
+he standard
+> shortlog convention with all-uppercase "HID: " prefix in the shortlog, it=
+'d be
+> appreciated.
+>=20
+> --
+> Jiri Kosina
+> SUSE Labs
 
-> -static bool rb532_button_pressed(void)
-> +static bool rb532_button_pressed(struct rb532_button *button)
->  {
->  	int val;
->  
->  	set_latch_u5(0, LO_FOFF);
-> -	gpio_direction_input(GPIO_BTN_S1);
-> +	gpiod_direction_input(button->gpio);
->  
-> -	val = gpio_get_value(GPIO_BTN_S1);
-> +	val = gpiod_get_value(button->gpio);
->  
->  	rb532_gpio_set_func(GPIO_BTN_S1);
->  	set_latch_u5(LO_FOFF, 0);
->  
-> -	return !val;
-> +	return val;
->  }
-
-I suppose there is no reasonable way of making this work with
-gpio-keys...
-
-For input piece:
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Thanks.
-
--- 
-Dmitry

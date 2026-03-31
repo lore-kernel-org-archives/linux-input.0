@@ -1,100 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6A4F40DFCB;
-	Tue, 31 Mar 2026 07:04:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D023C196A
+	for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 07:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774940689; cv=none; b=d1WxB+Kt9Cppt4/0q0M2aze0K+SzhQqjdqIjf8CdTr6NqoMea4pHOShUwarS6wyyK6DaSYyahgBdDYuiVcXrFCg6W/fI9mICKxkC4hMYNvT+AboNaEvvixWWY2QidmBj8CelM+a4JBMGqERwL908XbiLlbmliZ2SSEiEiuNpto8=
+	t=1774942862; cv=none; b=Kcy2cWLLyKj3dNKq9Mw1kIZirsUFooZ37jGmu1a4oz6vx2Wwiw2ZFsSV7ZRQzonGulT9M80MjoiY0U1FcNtp6V1TGBr97QHdrl99LaDbLNE+qBaln2xB8sfOzgnMQPTcjB75K2DoBPhx72+VFU61mZu3bl5pN0VOgjd5OzpniLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774940689; c=relaxed/simple;
-	bh=BVLZuM9Tb/IhhGxxJ8XR8Poig0u+Q+Ff5TgQHV/QdUM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jDHcPCebW6bdAe1G1mxBqInXahkFjzaLQfDVFQLx8UqnfI+PGg1TkytnPtwi7lPjlR+MktlPvdK+d0zAcz5pndemHZD2jp7uHMA2ILx2UnPAj+GMgkJhuFhnJi1Udv7h+8ONad86zyd6g6xANbMLtT/qVVU8HeW35iAgcxihmUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WyjRDPlK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774942862; c=relaxed/simple;
+	bh=nSOeRy9yjh9m3FQneok9U0OvjSYiWqO2RbCLMu4zLnM=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=eu316UgcxXDTmCVhh/x7tFk7Xl+gah6RbNwSPfT+M06Jf64yu8ufjZBuSnf7fhIaHChY3OhaTmWsTji9bPD8KKE+7+4GbKOC+bP7BX+qY2q0FMZKNnZyj5WzKSp7oCP7OiyypM13taxMj3q4eOagYlebcitSG6AZi1yTABLKBUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--gnoack.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KTM7ZsOk; arc=none smtp.client-ip=209.85.128.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--gnoack.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WyjRDPlK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF191C19423;
-	Tue, 31 Mar 2026 07:04:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774940689;
-	bh=BVLZuM9Tb/IhhGxxJ8XR8Poig0u+Q+Ff5TgQHV/QdUM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WyjRDPlKTvxSBHEu0LQLHoB1bQ/7j2PGJ6zJDIoHHdF+eBnsNlBA5/G4e28/majZK
-	 sS077DV5gR/nH1tMgvhznEkv+Q2Wk1R45tJpKqEHewhqdfiBxdx5Em7UNtvvstnU73
-	 qBbVOHhjODHeamOhG1TTMXU73wHPIsRUqK/1QqtRvzYCYQRQuN3KsSyqra5jT+VJsw
-	 bjrTTqDZJyKs7NrrYsLa0V44TDs2+EJ8o0L0qosiqCKI6uNH+EFpHcFqF3xIg/NYy5
-	 +KBqYG+Xo3nwq1B+PeOy8B+ONGiaqyxH0mzvlNxlFCZou4Kar1nWPAiy1Etu9Dya8N
-	 5wv0si+9LT7CQ==
-Date: Tue, 31 Mar 2026 09:04:47 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Cc: linux-mediatek@lists.infradead.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Julien Massot <julien.massot@collabora.com>, Gary Bisson <bisson.gary@gmail.com>, 
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Val Packett <val@packett.cool>, 
-	Fabien Parent <parent.f@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v4 3/9] regulator: dt-bindings: Add MediaTek MT6392 PMIC
-Message-ID: <20260331-gorgeous-bloodhound-of-dew-cfbfbb@quoll>
-References: <20260330083429.359819-1-l.scorcia@gmail.com>
- <20260330083429.359819-4-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KTM7ZsOk"
+Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-4887e4b338bso2348925e9.1
+        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 00:40:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1774942857; x=1775547657; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=mMHyAJ93rDGMSG71PUrqZFXXLKPTxBZ/U5bGQv1HBLQ=;
+        b=KTM7ZsOk3ML3QGj4L/R9CMG6U3kk/+syLp4P7RPrcdOiXmBqQxQ1zDNsYoaFEr2FxB
+         X1w1gTFD3+I3mS3eaitk1v98u2mxWyQ6ahRaWVPZlkVvMdlPtSqSlSMoJDntrl357UzX
+         Ye29/8JzkaqpEaL9ZR0J1zIDE9SyCBpgT22xN6V1vdbA0xQium+HGf4+54OnLdd4VMla
+         Wyhzv6oca3Ur2EIi/Htb+cLnUY5T2H908nAx7+Tapx85vb1yrJ0t58RSgRXZw0Q0dM7p
+         dQLWq8L7MxK3/bdgXt200yuM08u4gmHBGHfw0xR1S3xBPX9OW51TuI+CoaaEbAtIpvUB
+         dXmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774942857; x=1775547657;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mMHyAJ93rDGMSG71PUrqZFXXLKPTxBZ/U5bGQv1HBLQ=;
+        b=dc8jKBSKO6d+82QFK4eLePgCLvB1lqzN7RrMOW814rf4mm15RQxgRWI74crFU+3zPc
+         wiooHqCALE2ojdVojSFGCMq+m1AAQSbiU/etnYmpcW8Y8Fxtv+YcCj1Thq+K+3+9zMu7
+         v0Eq1B27MqLMUKh2NKY12JLeBcR/EuicB84j+UlN/Ud54yXL01Cb7PWXf6bvBYzwdM2x
+         4Xx/cjgjNQDlvQeYemgk0GqmU60dtr1R4XmI3WoMM7xAqsCQfPeOheLHck0FdWM5sLAC
+         yEJG1Lwx0F6Yy4xQk5orfX41gssjoyVifWlMjW7Dh2yzDwSaKa7VFtCfIKpq3JxgbHT5
+         TyuA==
+X-Forwarded-Encrypted: i=1; AJvYcCVZaf8K7wdK5V7SWVHrj/FisS9y+x8eqmu9FE8oHTGczHpCrOCa50kCdfKxezOcTnJ/u94wqulnvTCP9g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxmngnSp4LOzNGrfH3XbSvonf3USG5BzaM+0b2qh+mRBu32Apkp
+	6i+BzUGn3ChdDRV3wvvhRvmSChUnY2JWuYtpnH+P0ZCHKcH463I34+3dLCwrRaB6BV93qetvrlO
+	isCe6ZA==
+X-Received: from wmti11.prod.google.com ([2002:a05:600c:8b8b:b0:485:37cb:adc1])
+ (user=gnoack job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:83c3:b0:485:3428:774c
+ with SMTP id 5b1f17b1804b1-48878281a4cmr39196805e9.4.1774942857164; Tue, 31
+ Mar 2026 00:40:57 -0700 (PDT)
+Date: Tue, 31 Mar 2026 09:40:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260330083429.359819-4-l.scorcia@gmail.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
+Message-ID: <20260331074052.194064-1-gnoack@google.com>
+Subject: [PATCH] HID: logitech-hidpp: Check bounds when deleting
+ force-feedback effects
+From: "=?UTF-8?q?G=C3=BCnther=20Noack?=" <gnoack@google.com>
+To: "=?UTF-8?q?Filipe=20La=C3=ADns?=" <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: "=?UTF-8?q?G=C3=BCnther=20Noack?=" <gnoack@google.com>, Lee Jones <lee@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 30, 2026 at 09:29:37AM +0100, Luca Leonardo Scorcia wrote:
-> Add bindings for the regulators found in the MediaTek MT6392 PMIC,
-> usually found in board designs using the MediaTek MT8516/MT8167 SoCs.
-> 
-> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-> ---
->  .../regulator/mediatek,mt6392-regulator.yaml  | 74 +++++++++++++++++++
->  .../regulator/mediatek,mt6392-regulator.h     | 24 ++++++
->  2 files changed, 98 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml
->  create mode 100644 include/dt-bindings/regulator/mediatek,mt6392-regulator.h
-> 
-> diff --git a/Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml b/Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml
-> new file mode 100644
-> index 000000000000..24fbaef0e717
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml
-> @@ -0,0 +1,74 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/regulator/mediatek,mt6392-regulator.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: MediaTek MT6392 regulator
-> +
-> +description:
-> +  Regulator node of the PMIC. This node should under the PMIC's device node.
-> +  MT6392 is a power management system chip containing three buck converters and
-> +  23 LDOs. All voltage regulators provided by the PMIC are described as
-> +  sub-nodes of this node.
-> +
+Without this bounds check, this might otherwise overwrite index -1.
 
-So that's a dead code / schema.
+Triggering this condition requires action both from the USB device and from
+userspace, which reduces the scenarios in which it can be exploited.
 
-Try yourself if it works.
+Cc: Lee Jones <lee@kernel.org>
+Signed-off-by: G=C3=BCnther Noack <gnoack@google.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-Your parent schema must reference this one for the regulators node.
-
-Best regards,
-Krzysztof
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index d1dea7297712..5f63f1d2303a 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2502,12 +2502,15 @@ static void hidpp_ff_work_handler(struct work_struc=
+t *w)
+ 		}
+ 		break;
+ 	case HIDPP_FF_DESTROY_EFFECT:
+-		if (wd->effect_id >=3D 0)
+-			/* regular effect destroyed */
+-			data->effect_ids[wd->params[0]-1] =3D -1;
+-		else if (wd->effect_id >=3D HIDPP_FF_EFFECTID_AUTOCENTER)
+-			/* autocenter spring destroyed */
+-			data->slot_autocenter =3D 0;
++		slot =3D wd->params[0];
++		if (slot > 0 && slot <=3D data->num_effects) {
++			if (wd->effect_id >=3D 0)
++				/* regular effect destroyed */
++				data->effect_ids[slot-1] =3D -1;
++			else if (wd->effect_id >=3D HIDPP_FF_EFFECTID_AUTOCENTER)
++				/* autocenter spring destroyed */
++				data->slot_autocenter =3D 0;
++		}
+ 		break;
+ 	case HIDPP_FF_SET_GLOBAL_GAINS:
+ 		data->gain =3D (wd->params[0] << 8) + wd->params[1];
+--=20
+2.53.0.1018.g2bb0e51243-goog
 

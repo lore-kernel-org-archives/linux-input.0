@@ -1,79 +1,77 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 678193E3172
-	for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 08:36:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D603A1E70
+	for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 10:15:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774946174; cv=pass; b=ZFfvIWPiW6wCr+5dPqt0KxWf8xOS5LtWvkgrysWnowtw646ZNRBtGPXzQax1Egr0WiPHo2GlvPmS4c2SshWnw0hpTNuc9/A2oPMUUBkfd+AmeXIZcSzigQdhWVHtEmyhthmcXjZ++FSl7niXjwXCVlM0vYmbBZ8BXdiELebBrOs=
+	t=1774952116; cv=pass; b=T7zc/37zCnYBaxIoVyf1IBKAFGvuGZHKilXxxQGcfecpsAwSRgSFy0HRDuocxfDCrkbEWWfHZUWeHsmnS8/LFNEw3rqVZkDp2l0UGq1yaG1J3kW71OQ3uUJ07DpSA1NZVrWAXej1Uhey5aG/pIw0SVVE2IA9k6j+n7eFk3ekAIM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774946174; c=relaxed/simple;
-	bh=XVn2QcmjcQjFkVK1YggfjpxaDDncirg+Y3RdNmPE/+Y=;
+	s=arc-20240116; t=1774952116; c=relaxed/simple;
+	bh=+BfKSKWqlI1AALMWRDnBgfbKxVWZIsKfVTDoY9LW9As=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JPDroQLztybXvjNpEG1pK24a2JJ82ntNHXxnOsclMWLjWZWUtTruHhujvrNjNJU+pAa5d56UmabS9koM8v1IFc9vmbCfEwhqz9iwDvr1QURXqc9EbgXP9JoAF2YPM9zkhV/tJ9TcX87qSpd5a6HAt7kbgwb7qZtiqFsvMn7S2KE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L+mjZTkM; arc=pass smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=gQ1kYfqXQHEm+0Hx8xgojK55Vr2dEaShWtdL6U4fJtAR3tOuA8gOCUElWGVUa5gujC+FtfZ8sMMuH0r7yCHumJV7MnNaVzc85mWjOocekfDQgzuzCHdIFo6WyJHJ/+km4jZJ984VIrayutbVUVpkaOyQI+H+1J32oGxK06Chypo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=e5BZFsRn; arc=pass smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L+mjZTkM"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b9b1ffbb9f5so649959966b.2
-        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 01:36:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774946172; cv=none;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="e5BZFsRn"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5a2b636b944so1695237e87.1
+        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 03:15:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774952113; cv=none;
         d=google.com; s=arc-20240605;
-        b=AewGlrpp7rXB10wA1pIN9iLVWx2Yam9NUKUA6q31GT/Lbgct1geoU0+B6rkq1eRE+J
-         tuMhyO9QzyH6DAWdCG2/900eN0Yftm88gRlqSdTrKW3tCL3DvKb7VeLKbo/JK/7J0X4r
-         wixatmhJSj7Ymz1oFcD4pl4Rbd2LCI4QPfrLhYMIJle/HjsEP84MRPUt0n/3jdt2wG6A
-         8HmXbQIhg6wuhJy1SL8yAN2fT9j+aKD+bMj+WlEpMJQM/4gvBfcPHtnPJ78yJrP+Yrxw
-         lPzBfCk/HAxYHJ7rLFAoMpqaZ6Dmal/VM6XkUMCrnzAgUjapjjPz4Ehu5vsXnnKurdN3
-         D/yg==
+        b=RmBB+MBPWz8KwrzkFt2N/KHXLFe4du1meQb6N4lME2KOJ/C6mAzksHtuQW7Ovio0Aw
+         xe5wopoWVfT2b5dha0hQMsaYPGDfWqnljOycyhpqyiFhCPpdLqkVv5FzV0RQcMQ18DaA
+         2qKAjkHgrn/NSIoUlu40J1tdVYrdNenmCtkeDVYIpLCenfOxKHVfd38sO+oQ1lhItmZj
+         AJ35C6h/2Dl0c1MbcP6+/Yx91eFv2qNcqYWuDfFYIZQHOjCPGLcmzXPefK78uBSQW5oR
+         6uR0Mwufszvb7yuxkAkqXcZh6d7lm5iyuFdmZKLnt8VgS+bTc8Ah66a8naujd4sIsa1V
+         7H+A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=L3TSuB1FbI7lqYJC1uY7y+dtfsWxR+6ey/FSJ/giDGM=;
-        fh=/DYy44e4whkPu81/u3lYEfl9usgD3UL62cTLu0w38Xs=;
-        b=YQLszNPxH3sF2BUnfyplN5yxKBbxVxxdbclPRWxEfw6Cvj5rU601C+BVjUoKObnoUm
-         QR+pBDf9kumR+fz5v7C600+Kmb2Ik7q1tBptdF5myzeM7c9litBf0NgqJmRpi2X6Oe3/
-         FDrEiE3q0ttFlUax8HoBJaoEgkl6RNPPq36vxa0gKFc9Cw7kXaWiD7mBRDzFoJ8CzWSv
-         8iqRH3SII8ukcHqTIGXIrhd81rXTPUvfBBC2aZxKQ1HXfJzDk42JtX7KdxIJwV0aRp57
-         7BVIq4Iz2QL9khMfln4KU4puogvZIVCuPtC6fbG/QEfO3fpLC80/sshU551SUazbPLXE
-         Fghg==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=IwM4Dg0oPoF1Vd4vmJzcbvBl/vV3R15yI0dEAidybMw=;
+        fh=H0qSs6mt+7/IxRlRxplX1QhdUnrzZeWAjPzogh2DnuQ=;
+        b=Sh8a3bqchj04vYwT6BFC/4R4mAmkugXDwWVUKS9xDmHn53cGO+0iCNvn9K5TURHJUQ
+         xdiEPYCMUygSaGdSWpRyyXtMf3PqoRwHDsNY6e6mqLzn+jsbZhsUCeKOzbL8QUB86Xly
+         Z7rAHmH0bpTSUA4iHG3Kb/Bs+3YTj8b9mlRseIvcA7bMRRVACMbnl2Afg5hSDc6Ov8CF
+         JWo1TTZniQqsW1BXehd2PrWAqQmMGbRDeoQE66rAz1pTn+IrzPJx9HZ1vfjDt1uYZFPF
+         9LorlPlhdvwDp6VMLULOtPhqcKSdbYz4jXNyifFp9N0gef4qPe9Q4j8AHXeopDnSzJHg
+         1xHA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774946172; x=1775550972; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=L3TSuB1FbI7lqYJC1uY7y+dtfsWxR+6ey/FSJ/giDGM=;
-        b=L+mjZTkMhikoveXVS1doON1iA1D3e19kfJZdouvzvYjjCPs/Ox04vxuqTbHSBKdSmV
-         ijzCACmhOB8z87E+xJGzEsmDKjEmXyZpcjBDQu20B+9pmLPVkF3yGnXCMv2iT4yM0+rl
-         UisC10rV3oTOuBJjPJkEKe8C2wrlXqN5ZWuoeaeag8EleBfREB/CfMh9tbMsQEQzV9Oq
-         2Zmm3ciexDl+gwr6RCPdgTmPgLplOkSvhRb1pYOpi7ylQOEmqHPU9cpxeutJkskX3aVw
-         we7CjQ6vN46t+XJp/YOMcWWwMk5ZCF6RUK7UUq8UhLrCQ7yk+AFwH/kQCnElpUKajMdW
-         JLQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774946172; x=1775550972;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1774952113; x=1775556913; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=L3TSuB1FbI7lqYJC1uY7y+dtfsWxR+6ey/FSJ/giDGM=;
-        b=XFfbhCgpWEc2ILJrqZFwn1xh/FXK0WRAIoNMpPqMr7mCly1I4XrYrhMP61PYP+rv8W
-         jUeaRam8C/YpW3o0xFmW0AZ3weTDW7HV0xlwFFFLALtojvrHTpCaRWcs+VdySxPp21rV
-         FivRWyUZEoMraJGW+QdtIGwK/JUS/i4MyDyHIFasvdV/oQdIx6pecaN+ob2tpqcwqVpC
-         0z08ds7Q4X4+ndcPDIBj9DahP8OwKBY3jXIRqL3YJ/uS1uPD+jX6704S7Ug+ncEWZnQW
-         Fr4on1LEzNWUsnj0ghTxtgIMWey+JgtaGU/7JLzJohbCXX1A5GEJAqumeVFZ+qK5eXGB
-         EkCw==
-X-Forwarded-Encrypted: i=1; AJvYcCXJKAwuchpUXte7mCwZEqMv+xdNHNyUWFPOApxsIzqG8/nTYiGQJ6KiwGLntBWuXXOBZoj6RZtiqVwziA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwJi/xXrP5ORVGEPwlsb3+j9On+LQgI+/X1FO7OyPaUvnZW6mqd
-	USJK+7J6u9HoNPsUT6t5BOqKFpL7XLMm15r9AkcoYEKHxLHthG1IFubtkGnl8IscDO0SWaOEi2G
-	gEXOLGGrLzyM65MwPNrI3BYlwQ6Urkpg=
-X-Gm-Gg: ATEYQzzfsikQabyT005kqdXyzoSoVwasfo+qgP/9xSTcyqxvTohvtasS/rhfFU4tCAl
-	tW7w7MELW0ugJkvEYuYybZWY4wSykLfDiOZ0imHK9ZYKvp9MTneynYPSjhYV8AWQXBPFUc26tU7
-	rPrMfCIb6fjgJApIEtxgx7GprJg7DHBCB4D85oVhz32qfqNSv+6sDr0OUn/9I6D5Qcqb+c6wht0
-	DLIS5681TjfFlCaL2sbxi8pHR8Z7cQrUjGG0eFilwdbwe3qYYJnLceoj8tGZhSOysxr92vc9WW2
-	iFCFiQ==
-X-Received: by 2002:a17:907:da7:b0:b9b:fa57:d5b2 with SMTP id
- a640c23a62f3a-b9bfa57d98amr71812766b.42.1774946171488; Tue, 31 Mar 2026
- 01:36:11 -0700 (PDT)
+        bh=IwM4Dg0oPoF1Vd4vmJzcbvBl/vV3R15yI0dEAidybMw=;
+        b=e5BZFsRn/cfpSycQzHhx6SgKcDUhEghskKFh5tjggHr+u1Q5FSqdzgqusYEcSCjvQ4
+         exY5t/ZwDAOFgB1YJN5OD0uSazh0rbi1aaNP/EzL2I5FVQPPaHYlBt+YICa2lHtBJrzo
+         sufMri1ejYJf8oRnZWnESOlRSYZcHIZ8UGZrY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774952113; x=1775556913;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=IwM4Dg0oPoF1Vd4vmJzcbvBl/vV3R15yI0dEAidybMw=;
+        b=F1VCHZhpG9KG/hV8LOaNnGSTSzx/Jb9T9xXu9TWqGxqwZLSHfrB27F+3vOhFcD0RvH
+         R5G5NXAYu7umqqqmnboF/8KZ3m2xM8q6S6ONlEy8JYpEB+W0+wd9OEsKWKCIw4XGd0vP
+         PsBnoNvY6SYu+mQa4dbFEpctGQbuIede88vRp0RmAvDYr8JGmSC9I4VPV1pJ/hNYPrwE
+         vyZkgykHZ1rq/mx2iODlYHPWxNCYXIFRzyF+ov0lLyGR3qiJJcV6xagT/4IBu1qlZ1/V
+         r4QTXtrQQwS8g6J8zqpegWOUfNu9+hOe3FgORQcBGY1qKTYiOXTfiemoIAgo+0Cjx2wf
+         E4KQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWf12tNH20LB5vEwfmhD2OdkQ3B4kXFG41b7p8jM8n6Cx2OJaVbE6Dup3uErWd7MCnKFleVLoOJTVfM0g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnPkft1KmVn/C6U2DH3yeCK3IsNdOCAORqODPXBV/JIL/MHVNo
+	K6/44By9imQWQoBJKNrf7a39CUVtWmEy5sy1vc/9tCYb25dpsEi1x953VQMt55RpAeOH+BFhIIX
+	Bzs5PxYHk9SyjBwm9mRpx6alepX8oqciLpqFGc9lm
+X-Gm-Gg: ATEYQzxL9LcmzKHstVjNu+34y0qK/cd3R/R4QjZiEn2iQBjESYFaX1c6nMT0pXOa2fQ
+	idw6IAvEN1ry4pmenqjOtKON1CjKqmS0dMfqG3IESd24Fb2Yg8scva1Z4/U9AxqBoB6dYLxD46i
+	bpKoJvgQKj99cD5yltuQOjU9Cwa7raGCh+n+GklqSQCBfJ5ClrS71UytuzKk9Z/1/1GCLxr1Sqj
+	SuqBoTz0X+LvS/rjU6hp9JmYJP7mu32tmYsg7vZO9ey7gykuby09z421uj7XZOhrm6hrR72PWjf
+	+Np9UBzY4chrAFy8f8+YQ/xSF9rXV7+CgctBXQ==
+X-Received: by 2002:a05:6512:10d1:b0:5a2:a5f6:dfce with SMTP id
+ 2adb3069b0e04-5a2ab7ea285mr5687077e87.11.1774952111900; Tue, 31 Mar 2026
+ 03:15:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,20 +79,20 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260330083429.359819-1-l.scorcia@gmail.com> <20260330083429.359819-2-l.scorcia@gmail.com>
- <20260331-flawless-bronze-lorikeet-59a6ff@quoll>
-In-Reply-To: <20260331-flawless-bronze-lorikeet-59a6ff@quoll>
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Date: Tue, 31 Mar 2026 10:36:00 +0200
-X-Gm-Features: AQROBzCHGHvki3QPtgYv0FgcoeVoJGVuIm0WEFEat61ZeqaJ2itNlZb_JB2hAws
-Message-ID: <CAORyz2+1bc9Z-opoNqyUU_WFzyXZKGQmR_Ur=4UonOC=AWtQ8w@mail.gmail.com>
+ <20260331-flawless-bronze-lorikeet-59a6ff@quoll> <CAORyz2+1bc9Z-opoNqyUU_WFzyXZKGQmR_Ur=4UonOC=AWtQ8w@mail.gmail.com>
+In-Reply-To: <CAORyz2+1bc9Z-opoNqyUU_WFzyXZKGQmR_Ur=4UonOC=AWtQ8w@mail.gmail.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Tue, 31 Mar 2026 18:15:00 +0800
+X-Gm-Features: AQROBzCSfOwC7PpxPWsVcV8RwypXUnG7y9-g_GLDlmzGCrhYIDEBqda8qgwR7SE
+Message-ID: <CAGXv+5F2nMwftF4JvXLuJr8Oz9VSoB1f1qq9mPcMYegmJ6BP_g@mail.gmail.com>
 Subject: Re: [PATCH v4 1/9] dt-bindings: mfd: mt6397: Add MT6392 PMIC
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>, 
-	Val Packett <val@packett.cool>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, linux-mediatek@lists.infradead.org, 
+	Fabien Parent <parent.f@gmail.com>, Val Packett <val@packett.cool>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>, 
+	Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>, 
+	Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
 	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
 	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
 	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>, Gary Bisson <bisson.gary@gmail.com>, 
@@ -103,28 +101,65 @@ Cc: linux-mediatek@lists.infradead.org, Fabien Parent <parent.f@gmail.com>,
 	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
 	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > -    required:
-> > -      - compatible
+On Tue, Mar 31, 2026 at 4:36=E2=80=AFPM Luca Leonardo Scorcia
+<l.scorcia@gmail.com> wrote:
 >
-> Not really, this affects existing ABI and might make the child schema
-> being applied. Basically regulators node can be anything now.
+> > > -    required:
+> > > -      - compatible
+> >
+> > Not really, this affects existing ABI and might make the child schema
+> > being applied. Basically regulators node can be anything now.
+> >
+> > This is definitely not a binding we want. The syntax for parent schema
+> > when listing only compatibles is requiring this compatible. You cannot
+> > have here whatever empty node.
 >
-> This is definitely not a binding we want. The syntax for parent schema
-> when listing only compatibles is requiring this compatible. You cannot
-> have here whatever empty node.
+> Hi, it felt quite strange to me too, but that's what I thought you
+> meant with your previous suggestion [1].
+> To keep the required attribute I would be happy to reintroduce the
+> compatible here, in the regulator schema and the pmic dtsi.
+>
+> Before I do that and resubmit, could you please help me understand
+> what you meant before?
 
-Hi, it felt quite strange to me too, but that's what I thought you
-meant with your previous suggestion [1].
-To keep the required attribute I would be happy to reintroduce the
-compatible here, in the regulator schema and the pmic dtsi.
+I think the point is that compatibles for regulator sub-nodes on MFDs
+is no longer accepted.
 
-Before I do that and resubmit, could you please help me understand
-what you meant before?
+Instead if you want to have a separate binding for the regulator part,
+you would need to reference the binding directly.
 
-Thank you!
+Say the binding is at bindings/regulator/mt6392.yaml, in this patch
+you would have something after the "additionalProperties: false" like:
 
-[1] https://lists.infradead.org/pipermail/linux-mediatek/2026-March/105060.html
--- 
-Luca Leonardo Scorcia
-l.scorcia@gmail.com
+allOf:
+  - if:
+      properties:
+        "compatible":
+          contains:
+            const: mediatek,mt6392
+    then:
+      properties:
+        regulators:
+          $ref: /schemas/regulator/mt6392.yaml
+    else:
+      properties:
+        regulators:
+          required:
+            - compatible
+
+And drop the "required: - compatible" part from the common regulator
+node bits of the binding.
+
+
+ChenYu
+
+> Thank you!
+>
+> [1] https://lists.infradead.org/pipermail/linux-mediatek/2026-March/10506=
+0.html
+> --
+> Luca Leonardo Scorcia
+> l.scorcia@gmail.com
+>

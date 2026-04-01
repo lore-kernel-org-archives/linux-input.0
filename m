@@ -1,77 +1,73 @@
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC9E3F8DEE
-	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 16:11:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817313328FD
+	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 16:22:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775059907; cv=none; b=Jh3k8pzJcEws4KewAHV6jZCd+jK0bF3Nkq9NOs/YqG8mFxdWFx9z5LpQB6QddAhvXbFel3JT9mFbwp1x+VsLOEiKUubDRHqQ50nLYF32r/dt/ws8/E0Z/R6w1xidBwbPrEXwjPpQf18CrrBR6S2u1fwmFUVscszEWla+aTf7VSg=
+	t=1775060537; cv=none; b=Y5HJR5YPsgGusDK2lCXHbpb4t7vAtDvYmtrQpTL+MzyVPF6GqNnZTmN+dJZWYdasWUDNuDi55EjAT5n/UgS7aVtKoAYwjx6CeUMQxFIP+DQTR1PDpAITu/oUWyqtJAZ/aa0azBedxDRHj2/245oFxevfZsBAIjSulxvm/bNgrZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775059907; c=relaxed/simple;
-	bh=Lll5oR6Qy//fClu5g8F3P8kwsGrz/Ee9mZz01vlvygw=;
+	s=arc-20240116; t=1775060537; c=relaxed/simple;
+	bh=eEznR8syPkJOrRU/GYCTPgqrI5JczG8KDcC89fQ8tA0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f2i+C08vysYzddYKVRzsyQUZco013WbVR0PFMoJdxmM8zEin1pVzN3KBShMtNpgGlMIO2hV0lekProRERivNglc8Xr3y07n8U33E8I32sudR0lpEo0ca+b9YmZeX5uaiq3DKcr3smifNfqgDMZCWUO7z5pm9W3P5gzwKciA+IaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rspx1OdJ; arc=none smtp.client-ip=74.125.82.177
+	 Content-Type:Content-Disposition:In-Reply-To; b=bI3rVrOi9XT3YReQ3mlA8yq878EFN1YyW8T++dIOWXuWpT3ZllMKRoKaO47Asa4YUhHaa8/0DdxP5E2fPsfXoVpt4KpSoqG+Cb+b99p4LDgjTPXQ3e9Sa3o/2K6eY8WmCuah8oo+RdYvg35np8X3wfEjWhyUw/qUCf4Z3eJaq+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pttmuz35; arc=none smtp.client-ip=74.125.82.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rspx1OdJ"
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2c156c4a9efso6874558eec.1
-        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2026 09:11:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pttmuz35"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-128b9b7e3edso5289721c88.0
+        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2026 09:22:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775059905; x=1775664705; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775060536; x=1775665336; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=iMl5RIQBcoAsWtIwo/RmJcT3IoyJkv4pCoZnoXhZT0k=;
-        b=rspx1OdJ+amBWmL2aOWQ1W9dz6725GF83pw51m3+pzjzfvH+HUxL46SoQDZfJJxN/U
-         8ieQcdLJJBAtxYRXRBVqYjd/F7BFl8wTxzYP/9Vz2UGcZMja0pOIqtXcaYqVVaIKlIfK
-         hQ//9nMFzjEo54iq6BiilD4n220MOXLxkOL4k20ZErkD6/aA/xv846yE26v7fdBg6t4b
-         3xMXv7WGT8+G0OtH3CS0hypuQla1Wg8wniUXWx+qQrWgO1NeWrcZjrxSRTucx5Yd7X2q
-         XCsVTWxbk4FhudxUawZjRgtkfcYUIlyWyUzbQeReKfaXDa+AL9gy9aQRiyiuIHNWye6a
-         1yJg==
+        bh=+yQCMr4xhDbSLOpznXHVtBGjZR5IN7E32vmlNU3HZAU=;
+        b=pttmuz35t+WSPGc0FnOnmWXe7x3enLVmZ2qukvgt5c2+D000nxHBCe7nS72joPOBvs
+         rrJsUOuILTsf5a5Pd3DFjFy+7U7iimqObBOe2n7VEovGZfYwbbA6RCSyITuq1XJx+LeX
+         BcUR3E4Nr2uDOTfDmyePjxIGxBhftUbj/ucIJh+X0bFu3SuoU6eA8MZYFy40B2+Gqdc0
+         kRy4/BdCwSl59ORhNK9AdYLCUE3xQPXf062+ipyHtVo25JhVX2GkVc7mn4giT/fxibs1
+         xpV/Qdu67ZNZQIdCgz+Vol9lgvG937cpwH4VtSxcBlbOVrZmhi+97YX3dTXwD/yeBtOV
+         k7lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775059905; x=1775664705;
+        d=1e100.net; s=20251104; t=1775060536; x=1775665336;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iMl5RIQBcoAsWtIwo/RmJcT3IoyJkv4pCoZnoXhZT0k=;
-        b=l/Xohu3/xnCO/gtzlUpk6MOVp4f/ecrriMJtz5QCp7Fl95Vmm9c56Lhu7SqisdAii1
-         qvEXWvhSvg4hclLLe72LZ2dxGbXysFoGwxYmQCPWz/qlPn9fuiSVWQWDrkhRe/CFfz+b
-         CQ5mn5/SR16UCx3SNf+0uZHwM62/IhBfb3Evtv4VeaLxx76q2AIB8II3a5yRir8Xp3Nx
-         KACFaIJt6cLqZZ7SmAANa94S0sRubnMIoXdXsS8RIY3vkM6mgKs8ougys60v70ogLilw
-         c6eG9pX/UkDAnbldnZ4VRfDO8RsmWEXjMe9zzbqmLZgugZZ1go8yJVRHmV2qobDQ+qwL
-         iatQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVajthP+aU3qAcbjTLr8iSbLr7D95xcBqmu3xzLNwLhXUiMsEKJh3zBTpjpnprJeFnY6+gMTeVPEJ9N5Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4XVJqofxldmAWhePQPEww6bWq/pjeMf/SDlwtaoPcj9lzgfAN
-	SN7siy6iTxafSGdE01P87IpKUAu0AqylwAcyGtLj8e8BvZhrrhZfMIUmR3qwwA==
-X-Gm-Gg: ATEYQzzLVd9b8k2qigSSJ/8xQpnJVb13UL531GLG3lNuvw1rMm182B2XH/C3dxLw7YR
-	hgjAFKgo4N/fdJb9cyuBCFYSLYEiNpc3kAdXXmo0GThPwHPX29vnGyvijwtM89FEQkXkz8TTA0j
-	NQhg9uD6yA7kZLDaVljXPmfT8C4ZnA/bh/wRMbFC7zmP9CMNs6lDaIlYhh0KnN3okaLQUFaffw1
-	2rGtkoYWSIfpGmAKrqlePEEdK8Ay6LC+WutjXE1P9gXBSnTb6Vl97wnQl9h7HGCg3nE2gpV/mwH
-	mwbzZD5ZHhILEisWlt/GwTNvhNv47kpW+ncvTHwfHSWORO8dtg4ZGjL8sr3WNF0bKhWjLmlUFLP
-	shXzdx+ydrBKoiVcC3NWow/MhVsVG6sIUyEg3Q7sTLv3y9PTUmcJiY7r0ulscO4vXfq4dT/LKtl
-	HuoG+u66OGFkKOBbX26gKQc9f+XLrKhKHZ33EWmLnw049GeyESBUzQE/lPdzZ0RkvypqHWUAfmu
-	BU=
-X-Received: by 2002:a05:7300:ed0e:b0:2c3:d51b:91c4 with SMTP id 5a478bee46e88-2c930e6b8b1mr2353682eec.7.1775059905279;
-        Wed, 01 Apr 2026 09:11:45 -0700 (PDT)
+        bh=+yQCMr4xhDbSLOpznXHVtBGjZR5IN7E32vmlNU3HZAU=;
+        b=Bdz2m4LM0cZpA3kuYwp42NAtEv4Trxw5Ofys/uAZ2zFFwcNRjmYr9MAs3r7q9N1b7U
+         M/hAQBpTJWELkymPYcTOq6A15yCNJqXdOMtNEN2QJKZ7NK6NsvHb+jptMsa50R4h4evY
+         1L/jIwOd+Kg96MzSbkbG4qV+vXAmK95FpY79LfgcVXRAhaBl7nobGyfbxf2o9y+rvbXT
+         9mijYeBxIc41PcpOnIxVV7kA8gc6NBpbpXnP42AQKszdVmP46QhlREdENREM+Nhfdd6f
+         7Sn9n9U4PyHm34rSp28hl29zL6la+oxCtaLYdqSrZLrWBRvnTy+sOVtzSTc9ovVhEgnz
+         ih4A==
+X-Forwarded-Encrypted: i=1; AJvYcCUag9hiz+1ViQZm2W+BQSEKyiWC1ca2wu1UcqW9YP6y05vfA0ydqJur0sGKKlMlMYIOrqSt/lqLFccjkA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzUtWLOKPsPdQOcY0IO6hCregsAdJo0HNHSR6oJj5l85epz19sz
+	lXySB16x2qwFjFq1ZbF78Gt4H+x9cG5Ajmlbrika8jXktr1AlGZWhAZJ
+X-Gm-Gg: ATEYQzwSL9+mSp9s2XHrbqukDuQTnQwuzFwiKq3ZLSge7kytzax4BEFcYOCwFHuL7P6
+	n+tlw0R+Rs07g5J4/s9hGLIQpGjhed/njjBwGOY/j3ZR93DbO++tBsgjyTKslR3uWPi6r9DvI+Y
+	duzQQigWHkGB8PcosSHZuWvoK6df87sUclk4UiOQJa4G/clJ9Ly4G5N8wMBjSYP055wRddZfB9j
+	AiEVYI5zhlsHjaCjSOUtXdmOewANeLIiJWR/QgQ96KJC7Am3O3PGgwXoLStIITqtwiQbLHgPf7J
+	1epuQgYaqxDrY9SOp0qdSHALEvqVqbJJ9rdOWtvf/4RhNPOwL7ivkB8vsv21/Im+Tir7BptZxh/
+	vvLwFEThZQ66wzoQewjMkyzpqrGpQ4GIkz4GIZp0fB9iMOyIw1//RHpMtvDVGBG1kzPx8QIVEXd
+	3JbztHvFGSneCHHLni1k+M49baXe1b8z/9bBQY6+G95tL0raw7U0DaV6HS9MI+t3os
+X-Received: by 2002:a05:7022:48e:b0:12a:6ab7:3f73 with SMTP id a92af1059eb24-12be62ec33bmr2441593c88.0.1775060535628;
+        Wed, 01 Apr 2026 09:22:15 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:5f38:4c97:ec41:caa0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca7cf1271asm139156eec.26.2026.04.01.09.11.43
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bedd4de78sm240597c88.2.2026.04.01.09.22.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2026 09:11:44 -0700 (PDT)
-Date: Wed, 1 Apr 2026 09:11:41 -0700
+        Wed, 01 Apr 2026 09:22:14 -0700 (PDT)
+Date: Wed, 1 Apr 2026 09:22:12 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Luca Weiss <luca.weiss@fairphone.com>
-Cc: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v4 3/4] Input: aw86938 - add driver for Awinic AW86938
-Message-ID: <ac1DclNOl3ZA5bUg@google.com>
-References: <20260302-aw86938-driver-v4-0-92c865df9cca@fairphone.com>
- <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
- <aae7fRYaoDHMptyu@google.com>
- <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
+To: Werner Sembach <wse@tuxedocomputers.com>
+Cc: Christoffer Sandberg <cs@tuxedo.de>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: i8042 - add TUXEDO InfinityBook Max 16 Gen10 AMD
+ to i8042 quirk table
+Message-ID: <ac1FzV9dmb_JDXxo@google.com>
+References: <20260223142054.50310-1-wse@tuxedocomputers.com>
+ <aZzMe2-4IqzIg3HS@google.com>
+ <11135d8c-ef30-410a-a94a-4e11e062c27b@tuxedocomputers.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -80,35 +76,43 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
+In-Reply-To: <11135d8c-ef30-410a-a94a-4e11e062c27b@tuxedocomputers.com>
 
-On Wed, Apr 01, 2026 at 04:44:47PM +0200, Luca Weiss wrote:
-> Hi Dmitry,
+Hi Werner,
+
+On Wed, Apr 01, 2026 at 05:48:20PM +0200, Werner Sembach wrote:
+> Hello Dmitry
 > 
-> On Wed Mar 4, 2026 at 5:56 AM CET, Dmitry Torokhov wrote:
-> > On Mon, Mar 02, 2026 at 11:50:27AM +0100, Griffin Kroah-Hartman wrote:
-> >> Add support for the I2C-connected Awinic AW86938 LRA haptic driver.
-> >> 
-> >> The AW86938 has a similar but slightly different register layout. In
-> >> particular, the boost mode register values.
-> >> The AW86938 also has some extra features that aren't implemented
-> >> in this driver yet.
-> >> 
-> >> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-> >
+> Am 23.02.26 um 22:54 schrieb Dmitry Torokhov:
+> > On Mon, Feb 23, 2026 at 03:20:45PM +0100, Werner Sembach wrote:
+> > > From: Christoffer Sandberg <cs@tuxedo.de>
+> > > 
+> > > The device occasionally wakes up from suspend with missing input on the
+> > > internal keyboard and the following suspend attempt results in an instant
+> > > wake-up. The quirks fix both issues for this device.
+> > > 
+> > > Signed-off-by: Christoffer Sandberg <cs@tuxedo.de>
+> > > Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
 > > Applied, thank you.
+> > 
+> May i ask you where it was applied?
 > 
-> I'm curious, where did you apply these patches? linux-next doesn't have
-> it and I don't see it in your kernel.org repo either.
-> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/
+> I can only find the former patch https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?id=aed3716db7fff74919cc5775ca3a80c8bb246489
+> for the InfinityBook Max 15 and not this one for the InfinityBook Max 16
+> (both patches have a nearly identical subject line).
+
+Isn't it this:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=for-linus&id=5839419cffc7788a356428d321e3ec18055c0286
+
+?
+
 > 
-> Did this slip through the cracks or will these patches still appear
-> there?
+> Also I forgot to add cc stable, if the patch is not yet applied, can you add
+> it before?
 
-My bad, I think there was a conflict with Dan Carpenter's patch and as a
-result the series got stuck in my internal queue. My apologies.
-
-Should be out in 'next' branch now.
+I added the tags to the commit above (unless it is not the right one,
+they all look very similar).
 
 Thanks.
 

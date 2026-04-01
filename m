@@ -1,80 +1,71 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71B52820C6;
-	Wed,  1 Apr 2026 01:22:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2171A282F15
+	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 04:50:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775006529; cv=none; b=NeuznNfPFKW5Nf764rn22MWf+rOfeYXMz9QLVL0AR1487yccOgra5csfx9eXE4P1r0Fx071ZjT7d0BDAyAoLqnYk7PmMyEIRpCtqR7DCr8Hmb+iDAVxlOG1d+/EcRgubkfTVaLkNJHqiyilAqmF/ubNl5EY7UHZwA1rsoa6sOxg=
+	t=1775019006; cv=none; b=HOldr5bMcYCPaaAREeKwhWWnHIytmpXjrQT1coH6B7iyxVt6+q0H4MbqtiyistqYlUn8OWR3lRE3sXUzX1zoKTUGO+qdq1Q0uUgXHtXxQO+6yLz1J2FTQUmLrzlK7fm7NqvjTwBrS8brtp7zm6uJLVAwWY0qEddQpQV2egsbM6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775006529; c=relaxed/simple;
-	bh=IV/ezrq2wJekwozwDxi/VB18Q8hzC5mhy/g8CQQwaXc=;
+	s=arc-20240116; t=1775019006; c=relaxed/simple;
+	bh=cz3Xvg0U0I6Gs5gJ8VAhE+Mmd78tyESPPwAOC1A+rPA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=excqkUfe7AbnOLHDc3HhC7u7ahVd533+JctpLxmOzhWwBGzZqqRQ8IwS9SiAPLyAJDaOYSOlxbdJnXMKnTem+CvtGvTdykGwt8MSiMomixISAuOIwqbUcy+pDHJ72wC1uay4tEXT+Fg5PzGanrCkLqXV8k8DH3r3F8SxoMm5qG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aII2l34u; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=XQcPkCo3KlMR2bA2asuIpCVDLoW2yBzvSRKezO5UfaREHijW9B0hJ7wD7/BW1ywNd9cHN/4poa1pVTNXe73ZzNEjOUegrgvSyKGs31vPWNynX7MK0crlVG1rHbob7CvN5U1/sI2k8VcMnD5NM249Qyuh0RHjoZ681wHNlE6WHsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eRNHZa8I; arc=none smtp.client-ip=74.125.82.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aII2l34u"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1775006527; x=1806542527;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=IV/ezrq2wJekwozwDxi/VB18Q8hzC5mhy/g8CQQwaXc=;
-  b=aII2l34uU29bBx13Ay+fMRhmHb5qHvI0YfumytNwZt2/yC1IrmGQd0HW
-   5m9xwsa01zql3KjxsXj3kV2Yp5fRUvrkhScMG+7e+PFdr88UftAmhd8Q/
-   ccVPPJbf+51BOwaU+AcWtNSDPD05rsgNpPT9BhgXbRwKhFGDzK+7M7pgQ
-   TLpqef8R59XxpY3PqUkXTGpqf3H1VKL7KDxDRzMLUVP2O+CxWCvcnG+UC
-   emx7GaDEEAzJIqc07lRQueOTRZEK7ZoOwm4sfvJtwAItW8LdBCgUtL534
-   /KYQP/WMMnfkc6Ly/U1m4j5VN9e3U6swkgbib8xTh8naWF0V0uZDd5kgT
-   A==;
-X-CSE-ConnectionGUID: AQK2wqqaR4iJQfD6tU00Sw==
-X-CSE-MsgGUID: PPZVv3svRx2ih+4ku6XB7w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11745"; a="75073339"
-X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
-   d="scan'208";a="75073339"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 18:22:07 -0700
-X-CSE-ConnectionGUID: tC+gR6JkSHirq2rGvZGdwg==
-X-CSE-MsgGUID: k10tL47EQp29KSvB8kLdpw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
-   d="scan'208";a="230596232"
-Received: from lkp-server01.sh.intel.com (HELO 283bf2e1b94a) ([10.239.97.150])
-  by orviesa003.jf.intel.com with ESMTP; 31 Mar 2026 18:22:00 -0700
-Received: from kbuild by 283bf2e1b94a with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1w7kHN-000000004XR-0wJY;
-	Wed, 01 Apr 2026 01:21:57 +0000
-Date: Wed, 1 Apr 2026 09:21:46 +0800
-From: kernel test robot <lkp@intel.com>
-To: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	linux-mediatek@lists.infradead.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Fabien Parent <parent.f@gmail.com>, Val Packett <val@packett.cool>,
-	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Julien Massot <julien.massot@collabora.com>,
-	Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
-	Gary Bisson <bisson.gary@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH v4 7/9] regulator: Add MediaTek MT6392 regulator
-Message-ID: <202604010924.UuETwSKZ-lkp@intel.com>
-References: <20260330083429.359819-8-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eRNHZa8I"
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1279eced0b9so8773785c88.0
+        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2026 21:50:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775019004; x=1775623804; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fHQEld5+nd41UvOGakypuczq2ymCpPSNo2keMgfXMas=;
+        b=eRNHZa8IMp+7shw6ZAFAgHyGsfwJcU+p1aC6joxKxO42XogFNg+JMZDNITY99Nz+pF
+         rZd8ZSkHFguPjFOXEet6KDtAZYbNKspXyNS3KW+6TXm7wnrUKqMwKpywLBjAUMattBzI
+         Kp+FnGRsiA7nxPrLacd+4B7qtZAsT20nTx7iwYUglGQODH4nmxAD9eOsPrcJrtOQ1VLB
+         R1wZMIC6nU6cdtpr5Q/bLE9vkNsQ540VFCG31C+IK5TpL4AItzNJO9vhMmrYJexJueS4
+         wN0R6Z4gFpCaNmU7WLEKdjsIWaH0+Avk7CAL1nqdBayy0ZVymed5GfZk61LNyzm4oGSd
+         N2+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775019004; x=1775623804;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fHQEld5+nd41UvOGakypuczq2ymCpPSNo2keMgfXMas=;
+        b=U43MENZdPJHZRFdyWb3L1LGF+r2hZ7yWWKXi59G20YYypkPGqKry84SPyrD4mMqEkj
+         745vmzlF1tkPGHuIqEb9xMdRk/Go1MHyUzStDMPrwe3ZUjamoPM97hvbYe9g/pIUUod+
+         OGymdNlvAteg86gF+kMJuvY5+2XHGPPMBtvkt1ZGJuwSKWC+M+gZb5/AzRter6vhd0Yq
+         1d70eUn9rQ1+9jr0/lrKwuP87fbvvXp5ikw214rpEqKeo/S0AScFINupqaf/uTh/VIcY
+         rIwhbt2MVRH/do6sa6STEMXdr45vEm6vJqxzDYv2pZm/b0uQgsS8UM23wqXK05N9+XXy
+         J8Uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVz+VLH+mU33/TCIYfQDCiO0ZRLZziD926hMV+DanO5H9gjrmfUIn6zKnAbUzjlfLkatYJwSPBPrjZqpA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy0QhU7MPDMPQnflSqs2BX0m38HODvFFpCIp6YbdUjPAjXmxN+B
+	xfB1OvYgZNGVueaoAtzlGtcTW/ieTs8Y9HhIU4BXlWWQYqB+02ltR9UY
+X-Gm-Gg: ATEYQzxZJAlXHhl5EkNAWKUYagcJVQXZulwLou/XNXSxPxWI7kcRchGkP87uQSkDPgI
+	rmJUfxi4BDPRhunDDS+ixFpr8lQ2X2Lll4hxDyD0yCp6Bh1QT9ow3Kduv6yHimZ4mc66qHtYk5L
+	FDIA8OY6Setkd65xyA4e2XAQciantrvAZ/gPDOL8BnfcZmw5d5Jqa5IVzy9/BBZzAjN0LrVC5vp
+	O4Pgq971ySiy4PVQFFwel9XMw5fo5P2/rZ2Mk9bsBvoN92IZAyIuxtjadjj4rPLSgCkJLP6g/mC
+	UDEKVGWXJVStuZdFo1hP20+RF6XyV6/Ii0INQHLSjYMi9+8H7QR9FYQL4rZg5g6llieoOy/XDpG
+	1hyX0Fjb/OcrZWMnvaB7woLYPY8byUR9ik5PGdm1MbCNUkv084Rfk//+N2DOElZBXMPCcD5t7W+
+	GF9UsKknWeZy9tiVlDL+3/b5obWR0/io1B2g7UAu9V7WXYDVSvOXcZ97TmFptT5Tbi
+X-Received: by 2002:a05:7022:ef18:b0:123:345b:ba05 with SMTP id a92af1059eb24-12be64acde8mr1328345c88.22.1775019004105;
+        Tue, 31 Mar 2026 21:50:04 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:1dbf:b0e0:8ad0:5a2e])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12ab97efb42sm17866414c88.7.2026.03.31.21.50.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Mar 2026 21:50:03 -0700 (PDT)
+Date: Tue, 31 Mar 2026 21:50:00 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Joy Zou <joy.zou@nxp.com>
+Cc: Frank Li <Frank.Li@nxp.com>, Peng Fan <peng.fan@nxp.com>, 
+	Jacky Bai <ping.bai@nxp.com>, Ye Li <ye.li@nxp.com>, imx@lists.linux.dev, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] snvs_pwrkey - code improvements and add report event
+Message-ID: <acyj0nmx9MRYGjM6@google.com>
+References: <20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -83,47 +74,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260330083429.359819-8-l.scorcia@gmail.com>
+In-Reply-To: <20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com>
 
-Hi Luca,
+On Thu, Mar 26, 2026 at 06:39:37PM +0800, Joy Zou wrote:
+> This patch series improves the snvs_pwrkey driver with better code quality
+> and add report press event.
+> 
+> The main improvements include:
+> 1. Clean up the code by using local device pointers and dev_err_probe() for
+> better readability and easier debugging.
+> 
+> 2. Fix potential event loss during system suspend by reporting key press events
+> directly in the interrupt handler.
+> 
+> Signed-off-by: Joy Zou <joy.zou@nxp.com>
 
-kernel test robot noticed the following build warnings:
+Please address comments form here:
 
-[auto build test WARNING on lee-mfd/for-mfd-next]
-[also build test WARNING on broonie-regulator/for-next linusw-pinctrl/devel linusw-pinctrl/for-next lee-mfd/for-mfd-fixes linus/master v7.0-rc6 next-20260330]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+https://sashiko.dev/#/patchset/20260326-pwrkey-cleanup-v1-0-d85d7c0bf275%40nxp.com
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Luca-Leonardo-Scorcia/dt-bindings-mfd-mt6397-Add-MT6392-PMIC/20260331-081127
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git for-mfd-next
-patch link:    https://lore.kernel.org/r/20260330083429.359819-8-l.scorcia%40gmail.com
-patch subject: [PATCH v4 7/9] regulator: Add MediaTek MT6392 regulator
-config: hexagon-allmodconfig (https://download.01.org/0day-ci/archive/20260401/202604010924.UuETwSKZ-lkp@intel.com/config)
-compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260401/202604010924.UuETwSKZ-lkp@intel.com/reproduce)
+Majority of them seem valid.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202604010924.UuETwSKZ-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/regulator/mt6392-regulator.c:181:18: warning: unused variable 'ldo_volt_table1b' [-Wunused-const-variable]
-     181 | static const u32 ldo_volt_table1b[] = {
-         |                  ^~~~~~~~~~~~~~~~
-   1 warning generated.
-
-
-vim +/ldo_volt_table1b +181 drivers/regulator/mt6392-regulator.c
-
-   180	
- > 181	static const u32 ldo_volt_table1b[] = {
-   182		1500000, 1800000, 2500000, 2800000,
-   183	};
-   184	
+Thanks.
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Dmitry

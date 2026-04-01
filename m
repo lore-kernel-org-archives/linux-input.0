@@ -1,111 +1,173 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+Received: from mail-ed1-f74.google.com (mail-ed1-f74.google.com [209.85.208.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDEE47279C
-	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 14:44:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00E54779B9
+	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 14:48:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775054692; cv=none; b=S/3VAnsqSsK3FALjYqGnWkDup4DiHtHj0no1psg2epDPd0HkEEszwhI5fJ4ITyTwNYAy4MeF2yvauxFW18Vg6BEZoLG3A4VYMqhPY1+dwMEjTGNFMxRGJ6Q/7/Jse0a/T9QLFalDApipmBqAt6gNnnowH/H5Sse2du3avcBI6Cg=
+	t=1775054906; cv=none; b=bvv/2jCTr+cTxegLxc26bWChza5py2yx6aHO8EOnGCxBprZUPTq28z9r8CFgmfuQ3pIEEDpj0ME/hu15t7uvwHiflJlmRgrBBKwTL9JwCx1UVLOZpZCAnRATQ7a9GAdWeF4YpZYqpg2nbXCa5s7Bf4BDh7UlR/2hPy+SBKvxILE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775054692; c=relaxed/simple;
-	bh=eCtz8uzC3ZyJhfgNc4nb8F31dhwu97gqPpF2HvCCt2s=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
-	 References:In-Reply-To; b=PkLsr17XsTa5GLx7Q9SWxeoXHcOGnXNQPOSxUQIpA1hC/dXRZh4B66YqR50e8GmvG6oOX/egzoD3qnu8WZR8AWFB/zVzzCyoHlx+xaBlFTty/tlDPR6HfTckw9lhusYYqENeXrksqsBGszEDg64oMX+fCsD652gr/Xr3hHFqrew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=1sXwq8NL; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
+	s=arc-20240116; t=1775054906; c=relaxed/simple;
+	bh=gfu8a4I+/sJXCMRFXUH7ETxcIlZFh7QaBEWEGohuf3Q=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=f4AZtGRryd1Wq5LYJgwYGt/1mhYgwDTfxotUmr+C9HJ+8Bu0ZydXqeIeFxL60e/xagay7WOxOVdeLpDUOZprs6Yb79dKySKeshdStIiKCrgXYtjVnaQ3TdQYRT2Rzk79uby1+FVASgCHTK2bNS3bNmR+LY91xEPYTFNBCzW+Ldw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=S2m5Vi2M; arc=none smtp.client-ip=209.85.208.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="1sXwq8NL"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b9c1da7ac63so135531866b.0
-        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2026 07:44:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="S2m5Vi2M"
+Received: by mail-ed1-f74.google.com with SMTP id 4fb4d7f45d1cf-66c73f6be2cso1693461a12.0
+        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2026 07:48:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1775054689; x=1775659489; darn=vger.kernel.org;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eCtz8uzC3ZyJhfgNc4nb8F31dhwu97gqPpF2HvCCt2s=;
-        b=1sXwq8NLtGdu7z6wbHuWIWyUwu/5yButIFiqdCXoUK8dS+HqT0cW9HZen+TJFo24Ny
-         L8+15BoEum2NVrcrquJ7scAQPBtdnPQqZyh8pyZW42E5vPez6PxzlZWHnydLJEgxm3M9
-         vTO3/WDspo0LQg/TytROkih1KmnuprcqS92TP2t0p2LxVdPi48V7Uo/vxCDanx6E4SpM
-         NywT1I8Xa4yxvU3uRlUf8NfYOZSNT+cQwi2e4sLpaMukapsxG8Gnz2hrVX36cFDHdt19
-         ty2aTjEfoptx5PUiuVcOVWM93GsLHLTXagjVw5sFVMzIfL/6xHIdpNkQS+ZkXooL/F/9
-         NChg==
+        d=google.com; s=20251104; t=1775054899; x=1775659699; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QT3vxZejCM69HEFY76z9Yry9MQ0IbkM3I0QXLUzp4IA=;
+        b=S2m5Vi2MWr7Ymn+ONx8k3r0KOcXMb6/Nrf8kKZfgViTt56TBhE23LZZ8OnvHLMf6X9
+         aHxmLIGfXuVsB4AavWJIMuUmo45giGqyi6FsdmVg0S2oGriPN3+2ispl4Biu/1dYASd7
+         OhgB38E1BNl86E6GjkhPAiruJyPZQhi9ySDGGRj3ucGNjqEYvD5dGW9f2SRTNLlkrQLX
+         5P7qNljjuKXHRU0KZdDs/fa97FPG/da7Ixzu2xZkHN0wjxCvvsy/RiScYbyXNt4JglZf
+         asxlQd+OwagKBRd3D0egTY+tNY5VHVmwjDVN4V+z2yXfAGhx6vDaUny7ulQ6+cPbYApR
+         +XTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775054689; x=1775659489;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=eCtz8uzC3ZyJhfgNc4nb8F31dhwu97gqPpF2HvCCt2s=;
-        b=LKzMQ2QcBRV00B0fDFkc2owbcyUSFR4TLRh+IkELu+2q7V8HqIWzpytKfFoPkvxkFH
-         1tc6LrVnNHyfUpHIdnYBLevfGwSku10+BRbHvdWot+qJ7vitOHQ1tq6yPOuKdN3xXeUt
-         nvrGcXsUdRs85OCAzJHoLwAj8zJeJScTnFGx1v7IADRQsph490pFCciJq/6Rs0VoAH3D
-         TWcbh7yLrClbLYhAc2ZsYTgh1xDrbqMK6B7GxjFiMsYEEqmGl72j9YW3U/IyNofZkN5x
-         PhJ87rKAsKkuvQPFfHquNdTyyBPbZhiHoUVGmuIxEJdaVhkE2RH6g7rJHzd0DRNLqEXO
-         M6/w==
-X-Forwarded-Encrypted: i=1; AJvYcCV9hMGkWQ7aloI7752P/Iv1U/JbHzkBn9UBtcMyPFYCrpImfCHkDWCHte1Y8chJ83VzlvC0y5q93UEdAA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMYv+AvW3wezVRuOmIvKSfwSWQcB4Mv+z7hCjf9jN454LVted9
-	5U+xgal0CM6CrrlikIWKDlLPQ8WF+NqZQopAachtcBXO7iG/U10Xmjjg7a65nLZaVso=
-X-Gm-Gg: ATEYQzyM3yoBZLaN3uvIex7u2l1Zv3P0oXRigsmlaRrocwUfamDhk4ezJB6bFdrhpUX
-	+jnIX4Tl3nnPsEbB7aiCy0Cgn4HzRH0QblK+R/gTscZE1ElRIV9hwwwZy7tTnVeVNwNnQpXypB4
-	Pz+o7nIR+7VflLxJbFWmWozLAEQTxEOHZHaxr359ixBl9+TiYtrP8Y47gvK627gNAsgCPSLOho4
-	jk+DTb7vS99EiZp1tLYDVUjtj7eEUUJHhDP+EGHJFxmwEJSLIFlnJhhsUqMrWhpfCkZKDynelth
-	fRK4/J6yNaKa6BT3dc4mHcwBfFjIou760uA/tyqIiHex8FPgS5tugxDkaS2j6U1sM7iNReZdzLh
-	H0MENa48ejW8+iT2XW/2N77gu72vF3RQ6of9QqUceqVc13AA5+kEQ1VQ5G4r63C3tyx6b3d4Em7
-	ZSKt4ofvmlMRz5m6mysZcqrF4pKBXf+mxs2RZcCi3TqixuvPWEmcwD1wR/iUWnuWljcv5Gb+cKK
-	nxYcigir1N9P0aIHF3Q5vk6ILUXjEK//NGo
-X-Received: by 2002:a17:906:3750:b0:b9c:1a5:acb4 with SMTP id a640c23a62f3a-b9c13ca82fcmr213347166b.45.1775054689211;
-        Wed, 01 Apr 2026 07:44:49 -0700 (PDT)
-Received: from localhost (2001-1c00-3b89-c600-71a4-084f-6409-1447.cable.dynamic.v6.ziggo.nl. [2001:1c00:3b89:c600:71a4:84f:6409:1447])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b9b7b1a5fb3sm538720866b.31.2026.04.01.07.44.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Apr 2026 07:44:48 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775054899; x=1775659699;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QT3vxZejCM69HEFY76z9Yry9MQ0IbkM3I0QXLUzp4IA=;
+        b=q3yqPywPlBGTC+tEHkCXGMSGNgmGSh0DEvqQfMTghhC0PjDAos49wv8QJRGpu8UdGa
+         N3KBTb4FCQUeI5SWdhqs3WV8nzIa24KNHADxFXIMrSZZ1eZvw/f3Xr8Apm322M2ZnYfY
+         F9d1VBuurbr7s0zDHAFDE7cRoSFZKBPjh/dQG718xmBVdZv2jjLWlLX9t2wIfd1S6Ukd
+         oTYzRNeJu/0o10a1BspqQC3C+Gkyj2SYK9cfbsJWYJFN/3yNewFcnxq/j8b1oGWjV93X
+         htFzW97je2skmaZ5+T3fNQhag06EXF5nmEvnJThahR9U4rx9Usz4Yn+aRayceMFHAveI
+         p3Pw==
+X-Forwarded-Encrypted: i=1; AJvYcCWer7FMeKHxMXyRDhyoB+tS18ipPPOElSPB9Qf7j+0VzK8AYxdB/OhlrfnixxJfLA1atECbLqHG5beN1w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyiQzJHsFLh2BdotH6v6Rn96ozTNQEk3zDbHGcjO4rZ3oPheZyj
+	LUILNMkhO19OfYkfr6v5dqZCrDChNqc5MmyjKpjJmkgihfxSj9zib7DpKIIrPLVLEFcutXkd9Xi
+	2Xra6fl5u8w==
+X-Received: from edaa4.prod.google.com ([2002:a05:6402:24c4:b0:66c:1cd0:6f8e])
+ (user=bsevens job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6402:4001:b0:66d:eee2:8c9e
+ with SMTP id 4fb4d7f45d1cf-66deee28de7mr374028a12.3.1775054898469; Wed, 01
+ Apr 2026 07:48:18 -0700 (PDT)
+Date: Wed,  1 Apr 2026 14:48:11 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.1118.gaef5881109-goog
+Message-ID: <20260401144811.1242722-1-bsevens@google.com>
+Subject: [PATCH] HID: logitech-hidpp: fix race condition when accessing stale
+ stack pointer
+From: Benoit Sevens <bsevens@google.com>
+To: "=?UTF-8?q?Filipe=20La=C3=ADns?=" <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	"=?UTF-8?q?Beno=C3=AEt=20Sevens?=" <bsevens@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 01 Apr 2026 16:44:47 +0200
-Message-Id: <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Griffin Kroah-Hartman"
- <griffin.kroah@fairphone.com>
-Cc: "Rob Herring" <robh@kernel.org>, "Krzysztof Kozlowski"
- <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>, "Bjorn
- Andersson" <andersson@kernel.org>, "Konrad Dybcio"
- <konradybcio@kernel.org>, "Luca Weiss" <luca.weiss@fairphone.com>,
- <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>
-Subject: Re: [PATCH v4 3/4] Input: aw86938 - add driver for Awinic AW86938
-From: "Luca Weiss" <luca.weiss@fairphone.com>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260302-aw86938-driver-v4-0-92c865df9cca@fairphone.com>
- <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
- <aae7fRYaoDHMptyu@google.com>
-In-Reply-To: <aae7fRYaoDHMptyu@google.com>
 
-Hi Dmitry,
+From: Beno=C3=AEt Sevens <bsevens@google.com>
 
-On Wed Mar 4, 2026 at 5:56 AM CET, Dmitry Torokhov wrote:
-> On Mon, Mar 02, 2026 at 11:50:27AM +0100, Griffin Kroah-Hartman wrote:
->> Add support for the I2C-connected Awinic AW86938 LRA haptic driver.
->>=20
->> The AW86938 has a similar but slightly different register layout. In
->> particular, the boost mode register values.
->> The AW86938 also has some extra features that aren't implemented
->> in this driver yet.
->>=20
->> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
->
-> Applied, thank you.
+The driver uses hidpp->send_receive_buf to point to a stack-allocated
+buffer in the synchronous command path (__do_hidpp_send_message_sync).
+However, this pointer is not cleared when the function returns.
 
-I'm curious, where did you apply these patches? linux-next doesn't have
-it and I don't see it in your kernel.org repo either.
-https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/
+If an event is processed (e.g. by a different thread) while the
+send_mutex is held by a new command, but before that command has
+updated send_receive_buf, the handler (hidpp_raw_hidpp_event) will
+observe that the mutex is locked and dereference the stale pointer.
 
-Did this slip through the cracks or will these patches still appear
-there?
+This results in an out-of-bounds access on a different thread's kernel
+stack (or a NULL pointer dereference on the very first command).
 
-Regards
-Luca
+Fix this by:
+1. Clearing hidpp->send_receive_buf to NULL before releasing the mutex
+   in the synchronous command path.
+2. Moving the assignment of the local 'question' and 'answer' pointers
+   inside the mutex_is_locked() block in the handler, and adding
+   a NULL check before dereferencing.
+
+Signed-off-by: Beno=C3=AEt Sevens <bsevens@google.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index e871f1729d4b..42f7ea5b25dc 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -306,21 +306,22 @@ static int __do_hidpp_send_message_sync(struct hidpp_=
+device *hidpp,
+ 	if (ret) {
+ 		dbg_hid("__hidpp_send_report returned err: %d\n", ret);
+ 		memset(response, 0, sizeof(struct hidpp_report));
+-		return ret;
++		goto out;
+ 	}
+=20
+ 	if (!wait_event_timeout(hidpp->wait, hidpp->answer_available,
+ 				5*HZ)) {
+ 		dbg_hid("%s:timeout waiting for response\n", __func__);
+ 		memset(response, 0, sizeof(struct hidpp_report));
+-		return -ETIMEDOUT;
++		ret =3D -ETIMEDOUT;
++		goto out;
+ 	}
+=20
+ 	if (response->report_id =3D=3D REPORT_ID_HIDPP_SHORT &&
+ 	    response->rap.sub_id =3D=3D HIDPP_ERROR) {
+ 		ret =3D response->rap.params[1];
+ 		dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
+-		return ret;
++		goto out;
+ 	}
+=20
+ 	if ((response->report_id =3D=3D REPORT_ID_HIDPP_LONG ||
+@@ -328,10 +329,14 @@ static int __do_hidpp_send_message_sync(struct hidpp_=
+device *hidpp,
+ 	    response->fap.feature_index =3D=3D HIDPP20_ERROR) {
+ 		ret =3D response->fap.params[1];
+ 		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+-		return ret;
++		goto out;
+ 	}
+=20
+-	return 0;
++	ret =3D 0;
++
++out:
++	hidpp->send_receive_buf =3D NULL;
++	return ret;
+ }
+=20
+ /*
+@@ -3840,8 +3845,7 @@ static int hidpp_input_configured(struct hid_device *=
+hdev,
+ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
+ 		int size)
+ {
+-	struct hidpp_report *question =3D hidpp->send_receive_buf;
+-	struct hidpp_report *answer =3D hidpp->send_receive_buf;
++	struct hidpp_report *question, *answer;
+ 	struct hidpp_report *report =3D (struct hidpp_report *)data;
+ 	int ret;
+ 	int last_online;
+@@ -3851,6 +3855,12 @@ static int hidpp_raw_hidpp_event(struct hidpp_device=
+ *hidpp, u8 *data,
+ 	 * previously sent command.
+ 	 */
+ 	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
++		question =3D hidpp->send_receive_buf;
++		answer =3D hidpp->send_receive_buf;
++
++		if (!question)
++			return 0;
++
+ 		/*
+ 		 * Check for a correct hidpp20 answer or the corresponding
+ 		 * error
+--=20
+2.53.0.1118.gaef5881109-goog
+

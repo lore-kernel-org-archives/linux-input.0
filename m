@@ -1,69 +1,159 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A753933F36D;
-	Wed,  1 Apr 2026 07:23:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3754C3AC0EA;
+	Wed,  1 Apr 2026 08:23:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775028213; cv=none; b=q69es3RnhFXSG1nyRSI2lQXKOrkl/FO25nGTOPwaz+lbCGo4bldUVCrBQ1RPbmCBGvBTDM3Tx9XBzJxHU5r/i3qcj8DUhWhOqLc5vmnGkC1FpiLyptrMcophOFh215/irJpOgcqVrvH2OeNNrnc+eH+8rLXk0QU4e5xbvvhkUL4=
+	t=1775031792; cv=none; b=PF5ZNv3gCyqkeEo1GSMwums9ccJXnHo6AYFj0qoj9uLhlDn9c6usW8P1bVWFkmsfhnliR6JeKTVnLKHS7i+BSVkQetn4D1lSkmoNQMwZQlUdnEhNYc6P444vA3yGLn3y57GszzsYdo28NiJod6jhxMeOSABDGOtqGpIk1O+q5kA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775028213; c=relaxed/simple;
-	bh=sTTxU0r5oAfkXSFho3yKIsWmWia6/oV2ArumN8jjoQQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PYqc3DsJ6q+z6ACxEUDvsZQE0fmNVH2lBQVUlU9dNGXTqzBME3PV3+9otJlthgO0Jkjr7EQBhejzep4ShP1jUDv4dwj8hnlo9+V6Luwws8jICRqNEJqwdRwMZNjEXKMsFF3wGdtge8jlPlL8Fy4Xk4u4c4QDw6xIqT6/HuPdFuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CQaqqDkL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775031792; c=relaxed/simple;
+	bh=Nq/ZgQQEPtF88L8sfmyqs0B57W0/6SQan2r/zelBRiA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YCtIeiBKDrEKzF8+15vpxdlXy+W7VxvFa8WnX+gllJVtZUQUzorHV0MejKGGaHPBE2dBCi0EfhwmOdSeNe1FaJJRUpy/WLztPFXF/kA5KqdVhyBY6/by0xr7655pqolf6p1J4a3j2mlFkNWt4NgXwSNfK76naF2wgRF3+6ze18o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mMOUu2Sx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CQaqqDkL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D364C4CEF7;
-	Wed,  1 Apr 2026 07:23:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mMOUu2Sx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3115C2BC9E;
+	Wed,  1 Apr 2026 08:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775028213;
-	bh=sTTxU0r5oAfkXSFho3yKIsWmWia6/oV2ArumN8jjoQQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CQaqqDkLFw1B5CH6vsmkNCuJrLrNRVx3hEDSt2okJ5KtmFZd9pXHubtaYc3/8WQWS
-	 s7pdAHy01k31rVYk8Cg/ckxl2B/PSan7IXuvqOOhzD+IP44nromIkGYsZRWc3UZGw8
-	 0/ykBjMAkCj3GBqd8CX0CDrybJAt2GXFA9zIhscw/hrztE4ADZAfHypXnpZOEW7Fpw
-	 MoMbUEPZbkaJXuyY6f5BJybX0VCaw0+KNdj38wdCYQmX2tNzTiHIkdFJhADuEABkxr
-	 2msDei8qeQ83oibIXFe9Szoa3dA5RxTVO5pW8hooFfanCtjLOyEcdn2sBMp+1ES+vX
-	 dvs3nkW0/6mFQ==
+	s=k20201202; t=1775031791;
+	bh=Nq/ZgQQEPtF88L8sfmyqs0B57W0/6SQan2r/zelBRiA=;
+	h=From:To:Cc:Subject:Date:From;
+	b=mMOUu2Sx/Hsx3vVsrMZJCbXODBjJdPj6MFQ2tFA0foNbYaELw7Bhe7S/TxxRGcEv1
+	 8wVQGkJSRceG12fP4+1gOYkdfHhHmVBm1eo2jOZ9oFgCR+4bmvje9Ql8rmZN7rwWJ/
+	 JpSlI+kYN82H9z6RUtPeqtW6wIgyIObgY6P7W2LhkkWf8luGYTBX6Vl/edOBb6pUJk
+	 oUKTPgepiU+UCAL1IxDjUNJ7uOPCOd2czynlimUMrYSG+HOJdAfw+43G27QTCEmT0a
+	 kbhsaWjfSLJTuuTvPYKsmCcNTwXbgVRENGyGO/sCyy6xt0q4ZU1YPePexXvZP1vWMF
+	 bTdS6uUnDetTw==
 Received: from johan by xi.lan with local (Exim 4.98.2)
 	(envelope-from <johan@kernel.org>)
-	id 1w7pvG-000000095m5-3YKa;
-	Wed, 01 Apr 2026 09:23:30 +0200
-Date: Wed, 1 Apr 2026 09:23:30 +0200
+	id 1w7qqz-000000099FN-2hAw;
+	Wed, 01 Apr 2026 10:23:09 +0200
 From: Johan Hovold <johan@kernel.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Input: refactor USB endpoint lookups
-Message-ID: <aczH8sLWWYkn9JOr@hovoldconsulting.com>
-References: <20260330095948.1663141-1-johan@kernel.org>
- <acsNayeGbU6cRw3P@google.com>
- <acwskOMBhv9yWkD7@google.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan@kernel.org>
+Subject: [PATCH v2] Input: usbtouchscreen - refactor endpoint lookup
+Date: Wed,  1 Apr 2026 10:22:12 +0200
+Message-ID: <20260401082212.2180434-1-johan@kernel.org>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <acwskOMBhv9yWkD7@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 31, 2026 at 01:21:05PM -0700, Dmitry Torokhov wrote:
-> On Mon, Mar 30, 2026 at 04:55:35PM -0700, Dmitry Torokhov wrote:
-> > On Mon, Mar 30, 2026 at 11:59:44AM +0200, Johan Hovold wrote:
-> > > Use the common USB helpers for looking up bulk and interrupt endpoints
-> > > instead of open coding.
-> > 
-> > Applied the lot, thank you.
-> 
-> Actually, dropped patch #4:
-> 
-> https://sashiko.dev/#/patchset/20260330095948.1663141-1-johan%40kernel.org
+Use the common USB helpers for looking up bulk and interrupt endpoints
+(and determining endpoint numbers) instead of open coding.
 
-Thanks, I saw this one last night as well (after reading the LWN
-article). 
+Note that the NEXIO data interface has two bulk endpoints (see commit
+5197424cdccc ("Input: usbtouchscreen - add NEXIO (or iNexio) support")
+for the descriptors).
 
-I'll send a v2.
+The lookup in probe handles both bulk-in and interrupt-in endpoints and
+was added to handle NEXIO devices. Replace the open coded lookup with a
+lookup for the common interrupt endpoint and an explicit fallback
+accepting a bulk endpoint.
 
-Johan
+This iterates over the (two) endpoints twice for NEXIO devices but makes
+it more clear what is going on.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+
+Changes in v2
+ - add the missing fallback to handle bulk endpoints to probe
+ - amend commit message
+
+
+ drivers/input/touchscreen/usbtouchscreen.c | 43 ++++++++--------------
+ 1 file changed, 16 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 657555c8796c..daa28135f887 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -969,24 +969,21 @@ static int nexio_init(struct usbtouch_usb *usbtouch)
+ {
+ 	struct usb_device *dev = interface_to_usbdev(usbtouch->interface);
+ 	struct usb_host_interface *interface = usbtouch->interface->cur_altsetting;
++	struct usb_endpoint_descriptor *ep_in, *ep_out;
+ 	struct nexio_priv *priv = usbtouch->priv;
+-	int ret = -ENOMEM;
+ 	int actual_len, i;
+ 	char *firmware_ver = NULL, *device_name = NULL;
+-	int input_ep = 0, output_ep = 0;
++	int input_ep, output_ep;
++	int ret;
+ 
+ 	/* find first input and output endpoint */
+-	for (i = 0; i < interface->desc.bNumEndpoints; i++) {
+-		if (!input_ep &&
+-		    usb_endpoint_dir_in(&interface->endpoint[i].desc))
+-			input_ep = interface->endpoint[i].desc.bEndpointAddress;
+-		if (!output_ep &&
+-		    usb_endpoint_dir_out(&interface->endpoint[i].desc))
+-			output_ep = interface->endpoint[i].desc.bEndpointAddress;
+-	}
+-	if (!input_ep || !output_ep)
++	ret = usb_find_common_endpoints(interface, &ep_in, &ep_out, NULL, NULL);
++	if (ret)
+ 		return -ENXIO;
+ 
++	input_ep = usb_endpoint_num(ep_in);
++	output_ep = usb_endpoint_num(ep_out);
++
+ 	u8 *buf __free(kfree) = kmalloc(NEXIO_BUFSIZE, GFP_NOIO);
+ 	if (!buf)
+ 		return -ENOMEM;
+@@ -1427,18 +1424,6 @@ static void usbtouch_free_buffers(struct usb_device *udev,
+ 	kfree(usbtouch->buffer);
+ }
+ 
+-static struct usb_endpoint_descriptor *
+-usbtouch_get_input_endpoint(struct usb_host_interface *interface)
+-{
+-	int i;
+-
+-	for (i = 0; i < interface->desc.bNumEndpoints; i++)
+-		if (usb_endpoint_dir_in(&interface->endpoint[i].desc))
+-			return &interface->endpoint[i].desc;
+-
+-	return NULL;
+-}
+-
+ static int usbtouch_probe(struct usb_interface *intf,
+ 			  const struct usb_device_id *id)
+ {
+@@ -1447,17 +1432,21 @@ static int usbtouch_probe(struct usb_interface *intf,
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	const struct usbtouch_device_info *type;
+-	int err = -ENOMEM;
++	int err;
+ 
+ 	/* some devices are ignored */
+ 	type = (const struct usbtouch_device_info *)id->driver_info;
+ 	if (!type)
+ 		return -ENODEV;
+ 
+-	endpoint = usbtouch_get_input_endpoint(intf->cur_altsetting);
+-	if (!endpoint)
+-		return -ENXIO;
++	err = usb_find_int_in_endpoint(intf->cur_altsetting, &endpoint);
++	if (err) {
++		err = usb_find_bulk_in_endpoint(intf->cur_altsetting, &endpoint);
++		if (err)
++			return -ENXIO;
++	}
+ 
++	err = -ENOMEM;
+ 	usbtouch = kzalloc_obj(*usbtouch);
+ 	input_dev = input_allocate_device();
+ 	if (!usbtouch || !input_dev)
+-- 
+2.52.0
+

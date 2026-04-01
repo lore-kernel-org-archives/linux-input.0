@@ -1,84 +1,116 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9EBF3A381F;
-	Wed,  1 Apr 2026 15:48:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC9E3F8DEE
+	for <linux-input@vger.kernel.org>; Wed,  1 Apr 2026 16:11:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775058507; cv=none; b=mft78+fIMDi7f1oLQHN0B+yMVfEAeojea93uwMnZHRGrpiDHYttvYJTNJXiHRF7hFqDpTQehDMkfRSJvMqlpHDylQAfF6dfYFGqzZxXpOIi3vf9kpO0me73zBuEAagpyKZc+q5wnGQPxDRyRoGehlwzFgQ17qmmXTeDUPjkw+jE=
+	t=1775059907; cv=none; b=Jh3k8pzJcEws4KewAHV6jZCd+jK0bF3Nkq9NOs/YqG8mFxdWFx9z5LpQB6QddAhvXbFel3JT9mFbwp1x+VsLOEiKUubDRHqQ50nLYF32r/dt/ws8/E0Z/R6w1xidBwbPrEXwjPpQf18CrrBR6S2u1fwmFUVscszEWla+aTf7VSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775058507; c=relaxed/simple;
-	bh=I7aoulrs1bcrK8d8xYvpYMlROIiWesUP7YD4GwyW/fs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LbVWShy/zIB+G5d/yn+z4Frhd52+oOKF2jKXf8CpJ3C/wHcfhSEBCMNJbypG/G2a90kvKXBOCPL/RcLVtq1tcAcPTQFFt35nr/7uvSEvppVsedYY10SrgLqh4l9su0O2IMJfWeC2Tg5krfBf4iVdnpf3DlIruq64rJ2WKNPmCIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=H5XRykJH; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1775059907; c=relaxed/simple;
+	bh=Lll5oR6Qy//fClu5g8F3P8kwsGrz/Ee9mZz01vlvygw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=f2i+C08vysYzddYKVRzsyQUZco013WbVR0PFMoJdxmM8zEin1pVzN3KBShMtNpgGlMIO2hV0lekProRERivNglc8Xr3y07n8U33E8I32sudR0lpEo0ca+b9YmZeX5uaiq3DKcr3smifNfqgDMZCWUO7z5pm9W3P5gzwKciA+IaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rspx1OdJ; arc=none smtp.client-ip=74.125.82.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="H5XRykJH"
-Received: from [192.168.178.25] (i5C75F65A.versanet.de [92.117.246.90])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id E3A7D2FC0050;
-	Wed,  1 Apr 2026 17:48:20 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1775058501;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dq+Je/kzLaXm1ZMd3ISybo0gkzYJjCFQJOBFEU4vcAI=;
-	b=H5XRykJHRUdl0H9KqEG1Kwpdl40DEV/hTIp2jYmShHuby3L0dY1UbAZ1i1cP46VrsPqbXb
-	5Lj0qXXwEJutwAZHI3f0HJrIFxQrwldarLtJ2OjnO8SU3DZDmzgJ/JlGplM1UXU/IjFJrL
-	I3hAcP0+2AWfYRWH3+zAMwSSiCfAEOQ=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-Message-ID: <11135d8c-ef30-410a-a94a-4e11e062c27b@tuxedocomputers.com>
-Date: Wed, 1 Apr 2026 17:48:20 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rspx1OdJ"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2c156c4a9efso6874558eec.1
+        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2026 09:11:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775059905; x=1775664705; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=iMl5RIQBcoAsWtIwo/RmJcT3IoyJkv4pCoZnoXhZT0k=;
+        b=rspx1OdJ+amBWmL2aOWQ1W9dz6725GF83pw51m3+pzjzfvH+HUxL46SoQDZfJJxN/U
+         8ieQcdLJJBAtxYRXRBVqYjd/F7BFl8wTxzYP/9Vz2UGcZMja0pOIqtXcaYqVVaIKlIfK
+         hQ//9nMFzjEo54iq6BiilD4n220MOXLxkOL4k20ZErkD6/aA/xv846yE26v7fdBg6t4b
+         3xMXv7WGT8+G0OtH3CS0hypuQla1Wg8wniUXWx+qQrWgO1NeWrcZjrxSRTucx5Yd7X2q
+         XCsVTWxbk4FhudxUawZjRgtkfcYUIlyWyUzbQeReKfaXDa+AL9gy9aQRiyiuIHNWye6a
+         1yJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775059905; x=1775664705;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iMl5RIQBcoAsWtIwo/RmJcT3IoyJkv4pCoZnoXhZT0k=;
+        b=l/Xohu3/xnCO/gtzlUpk6MOVp4f/ecrriMJtz5QCp7Fl95Vmm9c56Lhu7SqisdAii1
+         qvEXWvhSvg4hclLLe72LZ2dxGbXysFoGwxYmQCPWz/qlPn9fuiSVWQWDrkhRe/CFfz+b
+         CQ5mn5/SR16UCx3SNf+0uZHwM62/IhBfb3Evtv4VeaLxx76q2AIB8II3a5yRir8Xp3Nx
+         KACFaIJt6cLqZZ7SmAANa94S0sRubnMIoXdXsS8RIY3vkM6mgKs8ougys60v70ogLilw
+         c6eG9pX/UkDAnbldnZ4VRfDO8RsmWEXjMe9zzbqmLZgugZZ1go8yJVRHmV2qobDQ+qwL
+         iatQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVajthP+aU3qAcbjTLr8iSbLr7D95xcBqmu3xzLNwLhXUiMsEKJh3zBTpjpnprJeFnY6+gMTeVPEJ9N5Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz4XVJqofxldmAWhePQPEww6bWq/pjeMf/SDlwtaoPcj9lzgfAN
+	SN7siy6iTxafSGdE01P87IpKUAu0AqylwAcyGtLj8e8BvZhrrhZfMIUmR3qwwA==
+X-Gm-Gg: ATEYQzzLVd9b8k2qigSSJ/8xQpnJVb13UL531GLG3lNuvw1rMm182B2XH/C3dxLw7YR
+	hgjAFKgo4N/fdJb9cyuBCFYSLYEiNpc3kAdXXmo0GThPwHPX29vnGyvijwtM89FEQkXkz8TTA0j
+	NQhg9uD6yA7kZLDaVljXPmfT8C4ZnA/bh/wRMbFC7zmP9CMNs6lDaIlYhh0KnN3okaLQUFaffw1
+	2rGtkoYWSIfpGmAKrqlePEEdK8Ay6LC+WutjXE1P9gXBSnTb6Vl97wnQl9h7HGCg3nE2gpV/mwH
+	mwbzZD5ZHhILEisWlt/GwTNvhNv47kpW+ncvTHwfHSWORO8dtg4ZGjL8sr3WNF0bKhWjLmlUFLP
+	shXzdx+ydrBKoiVcC3NWow/MhVsVG6sIUyEg3Q7sTLv3y9PTUmcJiY7r0ulscO4vXfq4dT/LKtl
+	HuoG+u66OGFkKOBbX26gKQc9f+XLrKhKHZ33EWmLnw049GeyESBUzQE/lPdzZ0RkvypqHWUAfmu
+	BU=
+X-Received: by 2002:a05:7300:ed0e:b0:2c3:d51b:91c4 with SMTP id 5a478bee46e88-2c930e6b8b1mr2353682eec.7.1775059905279;
+        Wed, 01 Apr 2026 09:11:45 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:5f38:4c97:ec41:caa0])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca7cf1271asm139156eec.26.2026.04.01.09.11.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2026 09:11:44 -0700 (PDT)
+Date: Wed, 1 Apr 2026 09:11:41 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Luca Weiss <luca.weiss@fairphone.com>
+Cc: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH v4 3/4] Input: aw86938 - add driver for Awinic AW86938
+Message-ID: <ac1DclNOl3ZA5bUg@google.com>
+References: <20260302-aw86938-driver-v4-0-92c865df9cca@fairphone.com>
+ <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
+ <aae7fRYaoDHMptyu@google.com>
+ <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: i8042 - add TUXEDO InfinityBook Max 16 Gen10 AMD
- to i8042 quirk table
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Christoffer Sandberg <cs@tuxedo.de>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260223142054.50310-1-wse@tuxedocomputers.com>
- <aZzMe2-4IqzIg3HS@google.com>
-Content-Language: en-US
-From: Werner Sembach <wse@tuxedocomputers.com>
-In-Reply-To: <aZzMe2-4IqzIg3HS@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
 
-Hello Dmitry
+On Wed, Apr 01, 2026 at 04:44:47PM +0200, Luca Weiss wrote:
+> Hi Dmitry,
+> 
+> On Wed Mar 4, 2026 at 5:56 AM CET, Dmitry Torokhov wrote:
+> > On Mon, Mar 02, 2026 at 11:50:27AM +0100, Griffin Kroah-Hartman wrote:
+> >> Add support for the I2C-connected Awinic AW86938 LRA haptic driver.
+> >> 
+> >> The AW86938 has a similar but slightly different register layout. In
+> >> particular, the boost mode register values.
+> >> The AW86938 also has some extra features that aren't implemented
+> >> in this driver yet.
+> >> 
+> >> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+> >
+> > Applied, thank you.
+> 
+> I'm curious, where did you apply these patches? linux-next doesn't have
+> it and I don't see it in your kernel.org repo either.
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/
+> 
+> Did this slip through the cracks or will these patches still appear
+> there?
 
-Am 23.02.26 um 22:54 schrieb Dmitry Torokhov:
-> On Mon, Feb 23, 2026 at 03:20:45PM +0100, Werner Sembach wrote:
->> From: Christoffer Sandberg <cs@tuxedo.de>
->>
->> The device occasionally wakes up from suspend with missing input on the
->> internal keyboard and the following suspend attempt results in an instant
->> wake-up. The quirks fix both issues for this device.
->>
->> Signed-off-by: Christoffer Sandberg <cs@tuxedo.de>
->> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-> Applied, thank you.
->
-May i ask you where it was applied?
+My bad, I think there was a conflict with Dan Carpenter's patch and as a
+result the series got stuck in my internal queue. My apologies.
 
-I can only find the former patch 
-https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?id=aed3716db7fff74919cc5775ca3a80c8bb246489 
-for the InfinityBook Max 15 and not this one for the InfinityBook Max 16 (both 
-patches have a nearly identical subject line).
+Should be out in 'next' branch now.
 
-Also I forgot to add cc stable, if the patch is not yet applied, can you add it 
-before?
+Thanks.
 
-Best regards,
-
-Werner
-
+-- 
+Dmitry

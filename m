@@ -1,234 +1,130 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DAA3BC660
-	for <linux-input@vger.kernel.org>; Thu,  2 Apr 2026 11:06:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775127986; cv=pass; b=hZqOXfty1IfNX2Psi1Wyt5fB4AIzdBt0UwgMYemDFbZgjx92pRDZbQz6lf+i+xaAnTOoP0UchAyqDmhPK7V9ZLQZqy0BhlRA7UvqVJv5pDfnVsRyPJG4vXgySbXQrNvS+t2oQM4a4vhpX/18XKxdJLvNT30bS2N6cjyTuysJIy8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775127986; c=relaxed/simple;
-	bh=NSh6yIN0BHnkGF7khR3HCZiFXn+Vf6SCCfxbZ/iwsQU=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=mc/Bv9vSgGwdRtz/yxAkexPEdmdrqnERIilDwPmr/BFX5vrCUzMaj8Nt+a91JGHlnEBWHm5VsqLw612Z88JcOVOc2XkvK+X6bD6+xpKDmXqEfuH3vRodKOulJktmKztXf1IVxjHt1dR7mrb04c3aIV2ENmxU6S8YKq/nrshXnTg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G6MQaG1p; arc=pass smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AC9A28643C;
+	Thu,  2 Apr 2026 16:01:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775145680; cv=none; b=uUq61/A/5AF9YEY85Fmv0cXidCkzskjuG9GESL0k63CJVBcPUBMsftaU674WPFXopjDQaX7Fh9BqPE1xdQbiXElnoO6rT57fDVJkqHEeMAH5nqG77Wff6/XMGkrQXqxJIF78XOZR9JpJIUlh6DxFw79+lU9x62gg5kzSUXLxCEk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775145680; c=relaxed/simple;
+	bh=KHRihAGGsHauZBPjlRB3rhuKAhewWChjxrG5vcIgGJs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qUU/66TJgqp4cu27PxJpLrHvqrxQiVVA93hO9F804WFhYHmAkeTStCZU0BI/CFDnNU+PGdFNeyK7mHNjucAjx4yz67YPTCufZezDreUVhFrAlOSt3JPcHjqGUSGC357cT3PeW44BsT3ZJ+6swU8v5HxrNyvMmfn7VcLwHtxdE6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=El9wDeMb; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=mvY3Mz9C; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G6MQaG1p"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7d7653db148so436475a34.2
-        for <linux-input@vger.kernel.org>; Thu, 02 Apr 2026 04:06:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775127982; cv=none;
-        d=google.com; s=arc-20240605;
-        b=VRyaWutNFExj5kBCWKbmhTjOhMrazsfS27HMx4evqWXymXULcP0mn14kQN7ZpBa5je
-         ig+R8j9m0aMuDNBy2Br8WI3XBKlhvu/Vwsy6nX/BQFNKBrno/g3PZHLLO0/7qXLC6Otp
-         w/TzbE9Rwodk7Clt16ZNfOTzhbROAaLWFFVnCSINcXzVZF0VdoZxDNKvqjUF0Dq9Oxm8
-         2smjz8FIuBRprKAyN5btAttHe/67oyuyUn2SVi4RLqd9XSW6oU2KuSfHGUrzLArId+7y
-         XKksce+Q2AAP/CCVgGoKHMwWZraucQ4DgdzO05nC0D+3PpKjrHiNxLTxlORADbWj63Oi
-         h3cw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :mime-version:dkim-signature;
-        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
-        fh=Xq6RRb9M3aHxcP3JXJsOxF302/V4FDVhjnoKYC9vUfg=;
-        b=QJSXXPXT1qWWAKm9+x5liwz/I2v3s27m3oYFjYDr+vfpsDl1Dh2zBekLXPsmEGBYIS
-         YsHTwCvXx/8bZqmzXyRnUNDBT6cLHLDSlhFCjZ//KERcPkGmUqUzEr4sAPUgQ0BE/Af7
-         1yMDeMWvo5wNZMgJOhJdMh6xtqjpFiJ8A/KKogr3s8LtrVkgGSiAQZFglQiEEjDi9Tot
-         Ixms8jETF8HmbCV44G3uM/dk3IbirBY9Q6jZjXOD9dPpwfIy4UwBACyJIzoxqq+yNb+M
-         KpkkRBWuHLrBdUsAzeh/Aur83fX2BEbismsTvwLcT1f8PbaGOUl0chVmQbzYtXQPZXgs
-         CHzg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775127982; x=1775732782; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
-        b=G6MQaG1pURHpLku9X7N2Ohznho2Qoa6O+BeWvYtmnWYUnFaBnggWNMMGP1/tIaJvje
-         ShvveJNoJxJ+DkyTd0oIcpUY/0RFH/+6EePX0YoJD0j5CLBAzWwZNm6C9arPvg3uI659
-         hsUmGf/X9LCSJ32+I9c58Mh5f/c3sLi0Ao53UJONi4fD0fPJG307cewWfVUPtxr2uvjW
-         AmTxx1p7xGaUVbdPG7zkGpnmG0anPtuiWbbWxR15Ef8M22Xa3NcYQqRp62EQjh0MOQDy
-         7NtkNOyMaNqibSX2CJjt7v9xilgb+K4flwud3Up0W0mrdyNG0XyutJiuPmtMGGXywFmH
-         zHaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775127982; x=1775732782;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
-        b=p54jtlFJeG+pY0e3I2JNtvXKFt6uBBQiHQLMlOiWsuUg+CgW9hkgq5bsQBaRulXpNm
-         2lDUIQSEDWIqIWJjHZrVtEgVz5/T/+pHIpolCAsjw4tIWJSI1fzaaq+tXi4frJgPXQBg
-         1SJ6wcPsklznBvgAbSXhGQm3H7hXf/iEZMOeb+TxnHspg/9rJnp+D4VaPOx9lVIuJkMY
-         UzGRFtsTjZqHYdFTMieAXen3o6Mv7CAHJxhsl9O30SrOdWILOmAsiz9yLmuZEzolkPI7
-         3BPjkz1gNAmtD235SaIOZk7syWt6gm+psvBbqRxYa8Wdnxn5CsoYqKiOot2/WSXri1lr
-         r3fA==
-X-Gm-Message-State: AOJu0YwMZDz7jbOXTkw4PSpsr/zBJn9MFBdSE5yczl2P74O/cBBl1tk+
-	nL7PmOQjCyIh09sV22Fn71IuWzI0HjmcFM8lKXghRn753DttYU1jE8BgsF9S8afzSK7nvkueRyZ
-	mR2xgQOq/bvtBvLGCjDaSfWP1sX6ek5nYhtCf
-X-Gm-Gg: ATEYQzzTlEPiwXPprwHfYpiN5UKxWaEvTFvvOY7p97640kFDaszeNyZ781X0oCdM6za
-	/gJNcJs7IBAYsaAXYCRWp/hhiLQ7BycX9wz9PO8Bb8qFHQsUKhKI9DiViAcZMsnpzPcr5fE2vA1
-	eTJMmKr+jK2R5bkghVavuk/bOQzrzjQQwIaSZj1CFXw65Ekrk2b9rtHyXDk1hvyinM5zxdRdpMo
-	7bBmdYlaViw09Sfuwo9c77f74u/XFNOWF/l7U0vlEz4EL5DmTk227ownEsxurVG5dU9RYgDqqDQ
-	HMuvAho=
-X-Received: by 2002:a05:6820:3083:b0:67e:1be2:59e1 with SMTP id
- 006d021491bc7-680a5edb59amr1590758eaf.18.1775127982160; Thu, 02 Apr 2026
- 04:06:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="El9wDeMb";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="mvY3Mz9C"
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4fmmmr2Nxcz9vPP;
+	Thu,  2 Apr 2026 18:01:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775145676;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YQcYj4F5FPtBaPpjP0DI7ebJORyqPZ/maPs2DBC/QE4=;
+	b=El9wDeMbRU4m0C3cwlJLDY527j/iZ/0xOIwHQBx1+KkV+JFn6tNhL+ZxKbWAy9Nc30lujT
+	rhJiHVM9XEtVWezgOFDIvHoOLg6PoThNfkp0weP9PzYY4W6jjMPmnj6QPcvQ+C7xgKBwX8
+	pzuh0YtaDAZnMM+SU5jb2yHkWyIeLrUAu7hJZpoR4Bju4uaCL2c0K3rPnFUUWeAZdJBTtD
+	gFHmchG4GOzTQxys00ENyJCxZLp+574JAkLta6B6kR/Bn4+cvD2aTxuCXMBiVuRf5+cOUQ
+	YK7lXzG+DWORBAcC8nYnSGjRTu2ABcbEIi6lSM5HnO/dFtL+OYdSPu6BRXb8xA==
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775145673;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YQcYj4F5FPtBaPpjP0DI7ebJORyqPZ/maPs2DBC/QE4=;
+	b=mvY3Mz9CPTcjBIJVWb5AVM37xU6JrRCJU9/sWYJOYmLlV2qVulZ84mYFhGAQuwjstgFh8h
+	l3jmnKJfgZiVJnnfdgkaEdpzJGjZAQUyjwTvY4A4a+c9SJRV62WhUouEKzVAliTismytkq
+	LGar2jyihACBkzR2sn+aCgAaZxNMHKFk/nQprcsRNvconx9PiBZWB/pSpzPT3xgJwMTng9
+	AL1i4XvyMhqkh14ce5FncgxnG6nhK3EoIPkgEdeIdsK4kOsqxyAuDoLT3gHpeFKjoTKxKB
+	F222VflZ7L7trhqVVXw+Co822G79EA7A/eoW3dq5e79NW7jm8tKQu4tdVl2gEA==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Rosalie Wanders <rosalie@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: sony: update module description
+Date: Thu,  2 Apr 2026 17:59:15 +0200
+Message-ID: <20260402155915.17745-2-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Chris <elvis.kelly@gmail.com>
-Date: Thu, 2 Apr 2026 12:06:10 +0100
-X-Gm-Features: AQROBzBNDxAuU-KMO-uvc38zCeOJyYWCPXLGXXp1y5prZAlk0AUOvHhXTH1_AcI
-Message-ID: <CAAi5AcpJ6E4cRxQna73VNbJLt9UK58uV5c_EGOZ0a6x3VtLZ0Q@mail.gmail.com>
-Subject: =?UTF-8?Q?=5BBUG=5D_i2c=5Fhid=5Facpi=3A_Synaptics_touchpad_stalls_after_?=
-	=?UTF-8?Q?=7E6_min_idle_=E2=80=94_firmware_sleep_notification_unhandled_=28Dell_?=
-	=?UTF-8?Q?Latitude_7420=29?=
-To: linux-input@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-ID: 894a8fca85fc3277746
+X-MBO-RS-META: fe5rifjejx8ifnny5orchwkxi3n9m9pa
 
-Hi,
+This commit updates the hid-sony module description to make it correct
+with the recent hid-sony changes alongside making it more consistent.
 
-I'd like to report a reproducible touchpad stall on a Dell Latitude
-7420 that I've traced
-to what appears to be an unhandled firmware sleep notification in the
-i2c_hid_acpi / hid-multitouch
-stack.
+Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+---
+ drivers/hid/Kconfig    | 12 +++++++-----
+ drivers/hid/hid-sony.c |  6 +++---
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
-=3D=3D Hardware =3D=3D
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c1d9f7c6a5f2..b287023437ca 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1100,13 +1100,15 @@ config HID_SONY
+ 	help
+ 	Support for
+ 
+-	  * Sony PS3 6-axis controllers
++	  * Sixaxis controllers for PS3
+ 	  * Buzz controllers
+-	  * Sony PS3 Blue-ray Disk Remote Control (Bluetooth)
+-	  * Logitech Harmony adapter for Sony Playstation 3 (Bluetooth)
+-	  * Guitar Hero Live PS3, Wii U and PS4 guitar dongles
+-	  * Guitar Hero PS3 and PC guitar dongles
++	  * Blu-ray Disc Remote Control for PS3
++	  * Logitech Harmony adapter for PS3
++	  * Guitar Hero Live PS3, Wii U and PS4 guitars
++	  * Guitar Hero PS3 and PC guitars
++	  * Rock Band 1, 2 and 3 PS3 and Wii instruments
+ 	  * Rock Band 4 PS4 and PS5 guitars
++	  * DJ Hero Turntable for PS3
+ 
+ config SONY_FF
+ 	bool "Sony PS2/3/4 accessories force feedback support"
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 4b0992cfc8a7..bd4b4a470869 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ /*
+- *  HID driver for Sony / PS2 / PS3 / PS4 / PS5 BD devices.
++ *  HID driver for Sony / PS2 / PS3 BD / PS4 / PS5 devices.
+  *
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+@@ -68,7 +68,7 @@
+ #define RB4_GUITAR_PS4_BT         BIT(19)
+ #define RB4_GUITAR_PS5            BIT(20)
+ #define RB3_PS3_PRO_INSTRUMENT    BIT(21)
+-#define PS3_DJH_TURNTABLE		  BIT(22)
++#define PS3_DJH_TURNTABLE         BIT(22)
+ 
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+@@ -2616,5 +2616,5 @@ static void __exit sony_exit(void)
+ module_init(sony_init);
+ module_exit(sony_exit);
+ 
+-MODULE_DESCRIPTION("HID driver for Sony / PS2 / PS3 / PS4 / PS5 BD devices");
++MODULE_DESCRIPTION("HID driver for Sony / PS2 / PS3 BD / PS4 / PS5 devices");
+ MODULE_LICENSE("GPL");
+-- 
+2.53.0
 
-  Machine:  Dell Latitude 7420
-  Touchpad: DELL0A36:00 06CB:CE65 (Synaptics)
-  Bus:      i2c-1 (i2c_designware.1, PCI 00:15.1 =E2=80=94 Intel Tiger Lake=
- I2C #1)
-  Driver:   i2c_hid_acpi + hid-multitouch
-  Kernel:   6.17.0-19-generic (Ubuntu 24.04, Wayland/GNOME)
-
-=3D=3D Symptom =3D=3D
-
-After approximately 6 minutes of complete idle (no touch or keyboard
-input), the touchpad
-stops responding entirely. The driver remains bound, all three power
-layers stay active/on,
-and no kernel errors are logged. IRQ 162 (intel-gpio 327, DELL0A36:00)
-stops firing.
-Rebinding i2c_hid_acpi recovers the device immediately.
-
-=3D=3D Reproduction =3D=3D
-
-  1. Use the touchpad normally.
-  2. Leave the system completely idle (no keyboard, no touch) for ~6=E2=80=
-=938 minutes.
-  3. Touchpad is unresponsive. IRQ 162 count frozen.
-  4. Recovery: echo i2c-DELL0A36:00 >
-/sys/bus/i2c/drivers/i2c_hid_acpi/unbind && \
-                echo i2c-DELL0A36:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bi=
-nd
-
-=3D=3D Trace evidence =3D=3D
-
-I captured ftrace i2c events (filtered to adapter 1) across multiple
-stall events.
-The pattern is consistent across all captures:
-
-  1. Normal multitouch packets at ~140 Hz while in use:
-       i2c_reply: i2c-1 a=3D02c l=3D64 [20-00-03-03-<X_lo>-<X_hi>-<Y_lo>-<Y=
-_hi>-...]
-
-  2. After finger lifted, ~30 seconds of silence, then two unusual
-packets fire in
-     quick succession:
-       i2c_reply: i2c-1 a=3D02c l=3D64 [40-00-0c-06-00-00-00-00-00-00-...]
-       i2c_reply: i2c-1 a=3D02c l=3D64 [0f-00-00-00-00-00-00-00-00-00-...]
-
-     The first is a 64-byte report (length field 0x0040) with what appears =
-to be
-     report ID 0x0c and sub-type 0x06. The second is a null/empty packet
-     (length field 0x000f, all-zero payload), consistent with an
-end-of-transfer signal.
-
-  3. No i2c_write from the driver follows these packets.
-
-  4. ~140=E2=80=93380 seconds later, the same two-packet sequence fires aga=
-in.
-
-  5. The IRQ then goes permanently silent =E2=80=94 touchpad stalled.
-
-A representative excerpt from a stall trace (timestamps are kernel
-seconds since boot):
-
-  2565.349  i2c_reply [20-00-03-01-64-02-d1-01-...]  =E2=86=90 last touch
-packet (finger lift)
-                                                      =E2=86=90 30s gap
-  2595.511  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 unknown repo=
-rt
-(sleep notify?)
-  2595.522  i2c_reply [0f-00-00-00-00-00-00-00-...]  =E2=86=90 null packet
-                                                      =E2=86=90 378s gap
-  2973.423  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 same again
-  2973.435  i2c_reply [0f-00-00-00-00-00-00-00-...]
-                                                      =E2=86=90 stall; IRQ =
-162 frozen
-
-The same 0x0c report appears ~6 minutes after each rebind in
-subsequent captures,
-with the stall following within 1=E2=80=933 minutes thereafter.
-
-=3D=3D Hypothesis =3D=3D
-
-The Synaptics firmware appears to send a proprietary power/sleep-state
-notification
-(report ID 0x0c) after a period of inactivity. The i2c_hid_acpi driver
-does not respond
-to this report =E2=80=94 no i2c_write is observed following it. The firmwar=
-e
-may be waiting for
-an acknowledgement or handshake that never arrives, and locks up as a resul=
-t.
-
-This is consistent with:
-  - The stall being time-based (not load or temperature dependent)
-  - Rebinding fully recovering the device (firmware reset via HID RESET com=
-mand)
-  - The IRQ going silent with no kernel errors (driver still considers
-device healthy)
-  - libinput occasionally logging "Touch jump detected" immediately
-prior to a stall
-    (possibly the firmware sending corrupt data as it enters the sleep stat=
-e)
-
-=3D=3D Power management note =3D=3D
-
-The device hierarchy (PCI 00:15.1 =E2=86=92 i2c_designware.1 =E2=86=92
-i2c-DELL0A36:00) must all be
-pinned to runtime_status=3Dactive to avoid a separate (unrelated) class
-of failure where
-the I2C bus autosuspends. That issue is already worked around via udev
-rules. The stall
-described here occurs independently, with all three layers confirmed
-active throughout.
-
-=3D=3D Workaround =3D=3D
-
-Rebind the driver after ~2 minutes of idle via a watchdog script
-monitoring IRQ 162.
-This preempts the firmware before it sends the 0x0c report.
-
-=3D=3D Question for maintainers =3D=3D
-
-Is report ID 0x0c a known Synaptics vendor report that the driver
-should be handling?
-Should i2c_hid be sending a SET_POWER or RESET in response to an
-unsolicited report of
-this type? Any guidance on what the correct driver-side response
-should be would be
-appreciated =E2=80=94 I'm happy to test patches.
-
-Full ftrace dumps available on request.
-
-Thanks,
-
-Chris

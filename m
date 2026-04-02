@@ -1,691 +1,234 @@
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1CE4389445
-	for <linux-input@vger.kernel.org>; Thu,  2 Apr 2026 07:53:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775116389; cv=none; b=YqqcesQ3L7wcCfpuG/EPoozJnA5pyQ3lncbgeyVNM36YsK4KoSpVjzmy0BDEIdT/7ZInbvpob3S2vv9JNF5qKuafR0i+VFQcSa2hNmDBVWcwZh5eY/YPv6TsXPFH9khO/aX/t/n4ppbW47LawfOPPqQCXrvRw+MlXTB4an/ooYs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775116389; c=relaxed/simple;
-	bh=V+SVqun5vRvW3I0C1/EtQwFeaNc/NquM09wBgmWW0Aw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=AOLXSMBgKytDjnLztNZFDKJu3WXqjHQ8M5QWhww1xMzXjMebRCBLsD/XKYLDcISpMkKilY9rkc1MMeCYsA1HZoH6szyge7F6IHgX2A/wBHEqljMD8EW9Qv8ywHcTLztl/VqIwWqWKXF9DjpIBMF6shSbRDEZ2h56hRfdjNJL1II=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bes.tel; spf=pass smtp.mailfrom=bes.tel; dkim=pass (2048-bit key) header.d=bes.tel header.i=@bes.tel header.b=Eqh5qOpB; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=ml98B+lf; arc=none smtp.client-ip=34.202.193.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bes.tel
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bes.tel
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DAA3BC660
+	for <linux-input@vger.kernel.org>; Thu,  2 Apr 2026 11:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775127986; cv=pass; b=hZqOXfty1IfNX2Psi1Wyt5fB4AIzdBt0UwgMYemDFbZgjx92pRDZbQz6lf+i+xaAnTOoP0UchAyqDmhPK7V9ZLQZqy0BhlRA7UvqVJv5pDfnVsRyPJG4vXgySbXQrNvS+t2oQM4a4vhpX/18XKxdJLvNT30bS2N6cjyTuysJIy8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775127986; c=relaxed/simple;
+	bh=NSh6yIN0BHnkGF7khR3HCZiFXn+Vf6SCCfxbZ/iwsQU=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=mc/Bv9vSgGwdRtz/yxAkexPEdmdrqnERIilDwPmr/BFX5vrCUzMaj8Nt+a91JGHlnEBWHm5VsqLw612Z88JcOVOc2XkvK+X6bD6+xpKDmXqEfuH3vRodKOulJktmKztXf1IVxjHt1dR7mrb04c3aIV2ENmxU6S8YKq/nrshXnTg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G6MQaG1p; arc=pass smtp.client-ip=209.85.210.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bes.tel header.i=@bes.tel header.b="Eqh5qOpB";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="ml98B+lf"
-Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=Eqh5qOpBuu0zhhxJOWloy5rp3iiwjicVLP7z4xJtsqp7Urf+2K5X4XNL6livo4VBqZaV54kzpxs9fAyViDkuuIOsUXQRLC1CyWBcG3SPZ8lxGC0+5qdjHUGAG+nr9/mLm4wcFabW/Sk5P5gYj5E5Tpzr5g4dANqQenMiWu6rX0kE/GBzAjka+ZmeiRpYWNOs9eV8JW5Q7PIYIleMKypEvBh5Q4DYcT33yLMIL3VfeeyxIrAB2rfs76jntCchmAzD+uJBcYYlIStBbhC1qCYLPv7bsusaZ+ISIFKTj3oUgamfftZ3YRdRLfOQMZb2fH5/KzssZkU6pPJfl2qoY0cUKQ==; s=purelymail2; d=bes.tel; v=1; bh=V+SVqun5vRvW3I0C1/EtQwFeaNc/NquM09wBgmWW0Aw=; h=Received:Received:From:To:Subject:Date;
-DKIM-Signature: a=rsa-sha256; b=ml98B+lf347V5oX1uJYbiklgYENdwIAlbeCtr0TsOIrs8tAn2HHupLoN7KWwP6pkuoqXt0k4dHDz0ya+c830g9GlpGauIWBXZ5e1vLX8fa4ZMPxsxsYd/xHnTHgaPkbbOeabct1fSScEPiVmTGhVeprP6egpoLYcA3sa1sIUD/nLa2n3fAJIu0RjQisMgI1gJz3zFAQ+zk1HmvyOjhmXsoPpebACdVFlmVYG0BbKbZcwgDk9Kl9MvkqSTaEEzgEBgVCDzppkqjANdy2Lsh5rCXxRJN24GkMvv9H0gVOv38+t4VfCTmFdIluoP3qfETqcgoT56IvK3RKJUJVuGspNVg==; s=purelymail2; d=purelymail.com; v=1; bh=V+SVqun5vRvW3I0C1/EtQwFeaNc/NquM09wBgmWW0Aw=; h=Feedback-ID:Received:Received:From:To:Subject:Date;
-Feedback-ID: 19882:3702:null:purelymail
-X-Pm-Original-To: linux-input@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 408787887;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Thu, 02 Apr 2026 07:52:49 +0000 (UTC)
-Received: from xav13.bestouff.prv (xav13.bestouff.prv [10.2.161.35])
-	by awak.mobi (Postfix) with ESMTPSA id 3052F3600E7;
-	Thu,  2 Apr 2026 09:52:48 +0200 (CEST)
-From: Xavier Bestel <xav@bes.tel>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Hans de Goede <hansg@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Xavier Bestel <xav@bes.tel>
-Subject: [PATCH] HID: lg-g15: Add support for the Logitech G710/G710+ gaming keyboards
-Date: Thu,  2 Apr 2026 09:52:38 +0200
-Message-ID: <20260402075239.3829699-1-xav@bes.tel>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G6MQaG1p"
+Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-7d7653db148so436475a34.2
+        for <linux-input@vger.kernel.org>; Thu, 02 Apr 2026 04:06:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775127982; cv=none;
+        d=google.com; s=arc-20240605;
+        b=VRyaWutNFExj5kBCWKbmhTjOhMrazsfS27HMx4evqWXymXULcP0mn14kQN7ZpBa5je
+         ig+R8j9m0aMuDNBy2Br8WI3XBKlhvu/Vwsy6nX/BQFNKBrno/g3PZHLLO0/7qXLC6Otp
+         w/TzbE9Rwodk7Clt16ZNfOTzhbROAaLWFFVnCSINcXzVZF0VdoZxDNKvqjUF0Dq9Oxm8
+         2smjz8FIuBRprKAyN5btAttHe/67oyuyUn2SVi4RLqd9XSW6oU2KuSfHGUrzLArId+7y
+         XKksce+Q2AAP/CCVgGoKHMwWZraucQ4DgdzO05nC0D+3PpKjrHiNxLTxlORADbWj63Oi
+         h3cw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:dkim-signature;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        fh=Xq6RRb9M3aHxcP3JXJsOxF302/V4FDVhjnoKYC9vUfg=;
+        b=QJSXXPXT1qWWAKm9+x5liwz/I2v3s27m3oYFjYDr+vfpsDl1Dh2zBekLXPsmEGBYIS
+         YsHTwCvXx/8bZqmzXyRnUNDBT6cLHLDSlhFCjZ//KERcPkGmUqUzEr4sAPUgQ0BE/Af7
+         1yMDeMWvo5wNZMgJOhJdMh6xtqjpFiJ8A/KKogr3s8LtrVkgGSiAQZFglQiEEjDi9Tot
+         Ixms8jETF8HmbCV44G3uM/dk3IbirBY9Q6jZjXOD9dPpwfIy4UwBACyJIzoxqq+yNb+M
+         KpkkRBWuHLrBdUsAzeh/Aur83fX2BEbismsTvwLcT1f8PbaGOUl0chVmQbzYtXQPZXgs
+         CHzg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775127982; x=1775732782; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        b=G6MQaG1pURHpLku9X7N2Ohznho2Qoa6O+BeWvYtmnWYUnFaBnggWNMMGP1/tIaJvje
+         ShvveJNoJxJ+DkyTd0oIcpUY/0RFH/+6EePX0YoJD0j5CLBAzWwZNm6C9arPvg3uI659
+         hsUmGf/X9LCSJ32+I9c58Mh5f/c3sLi0Ao53UJONi4fD0fPJG307cewWfVUPtxr2uvjW
+         AmTxx1p7xGaUVbdPG7zkGpnmG0anPtuiWbbWxR15Ef8M22Xa3NcYQqRp62EQjh0MOQDy
+         7NtkNOyMaNqibSX2CJjt7v9xilgb+K4flwud3Up0W0mrdyNG0XyutJiuPmtMGGXywFmH
+         zHaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775127982; x=1775732782;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        b=p54jtlFJeG+pY0e3I2JNtvXKFt6uBBQiHQLMlOiWsuUg+CgW9hkgq5bsQBaRulXpNm
+         2lDUIQSEDWIqIWJjHZrVtEgVz5/T/+pHIpolCAsjw4tIWJSI1fzaaq+tXi4frJgPXQBg
+         1SJ6wcPsklznBvgAbSXhGQm3H7hXf/iEZMOeb+TxnHspg/9rJnp+D4VaPOx9lVIuJkMY
+         UzGRFtsTjZqHYdFTMieAXen3o6Mv7CAHJxhsl9O30SrOdWILOmAsiz9yLmuZEzolkPI7
+         3BPjkz1gNAmtD235SaIOZk7syWt6gm+psvBbqRxYa8Wdnxn5CsoYqKiOot2/WSXri1lr
+         r3fA==
+X-Gm-Message-State: AOJu0YwMZDz7jbOXTkw4PSpsr/zBJn9MFBdSE5yczl2P74O/cBBl1tk+
+	nL7PmOQjCyIh09sV22Fn71IuWzI0HjmcFM8lKXghRn753DttYU1jE8BgsF9S8afzSK7nvkueRyZ
+	mR2xgQOq/bvtBvLGCjDaSfWP1sX6ek5nYhtCf
+X-Gm-Gg: ATEYQzzTlEPiwXPprwHfYpiN5UKxWaEvTFvvOY7p97640kFDaszeNyZ781X0oCdM6za
+	/gJNcJs7IBAYsaAXYCRWp/hhiLQ7BycX9wz9PO8Bb8qFHQsUKhKI9DiViAcZMsnpzPcr5fE2vA1
+	eTJMmKr+jK2R5bkghVavuk/bOQzrzjQQwIaSZj1CFXw65Ekrk2b9rtHyXDk1hvyinM5zxdRdpMo
+	7bBmdYlaViw09Sfuwo9c77f74u/XFNOWF/l7U0vlEz4EL5DmTk227ownEsxurVG5dU9RYgDqqDQ
+	HMuvAho=
+X-Received: by 2002:a05:6820:3083:b0:67e:1be2:59e1 with SMTP id
+ 006d021491bc7-680a5edb59amr1590758eaf.18.1775127982160; Thu, 02 Apr 2026
+ 04:06:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Chris <elvis.kelly@gmail.com>
+Date: Thu, 2 Apr 2026 12:06:10 +0100
+X-Gm-Features: AQROBzBNDxAuU-KMO-uvc38zCeOJyYWCPXLGXXp1y5prZAlk0AUOvHhXTH1_AcI
+Message-ID: <CAAi5AcpJ6E4cRxQna73VNbJLt9UK58uV5c_EGOZ0a6x3VtLZ0Q@mail.gmail.com>
+Subject: =?UTF-8?Q?=5BBUG=5D_i2c=5Fhid=5Facpi=3A_Synaptics_touchpad_stalls_after_?=
+	=?UTF-8?Q?=7E6_min_idle_=E2=80=94_firmware_sleep_notification_unhandled_=28Dell_?=
+	=?UTF-8?Q?Latitude_7420=29?=
+To: linux-input@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by Purelymail
 
-Add support for the Logitech G710 and G710+ (USB ID 046d:c24d) gaming
-keyboards to the hid-lg-g15 driver.
+Hi,
 
-These keyboards have 6 G-keys (G1-G6), M-keys (M1-M3, MR), a game mode
-toggle, and two independent backlights: one for the main keyboard and one
-for the WASD keys, each with a physical button to cycle brightness through
-5 levels (0-4).
+I'd like to report a reproducible touchpad stall on a Dell Latitude
+7420 that I've traced
+to what appears to be an unhandled firmware sleep notification in the
+i2c_hid_acpi / hid-multitouch
+stack.
 
-Key implementation details:
+=3D=3D Hardware =3D=3D
 
- - G-keys and M-keys are reported via HID input report 0x03 (4 bytes)
-   using KEY_MACRO1-6, KEY_MACRO_PRESET1-3 and KEY_MACRO_RECORD_START.
+  Machine:  Dell Latitude 7420
+  Touchpad: DELL0A36:00 06CB:CE65 (Synaptics)
+  Bus:      i2c-1 (i2c_designware.1, PCI 00:15.1 =E2=80=94 Intel Tiger Lake=
+ I2C #1)
+  Driver:   i2c_hid_acpi + hid-multitouch
+  Kernel:   6.17.0-19-generic (Ubuntu 24.04, Wayland/GNOME)
 
- - The WASD backlight LED is registered as
-   "g15::kbd_zoned_backlight-wasd" rather than with a
-   "::kbd_backlight" suffix, because UPower currently only supports a
-   single kbd_backlight LED per device. This follows the nomenclature
-   from Documentation/leds/leds-class.rst
+=3D=3D Symptom =3D=3D
 
- - The G710+ firmware GET_REPORT for the backlight feature (0x08)
-   always returns the power-on default values, ignoring any changes
-   made via SET_REPORT. To work around this, the backlight brightness
-   is tracked in the driver cache and brightness_get returns the
-   cached value. M-key and game mode LEDs read back correctly.
+After approximately 6 minutes of complete idle (no touch or keyboard
+input), the touchpad
+stops responding entirely. The driver remains bound, all three power
+layers stay active/on,
+and no kernel errors are logged. IRQ 162 (intel-gpio 327, DELL0A36:00)
+stops firing.
+Rebinding i2c_hid_acpi recovers the device immediately.
 
- - The physical brightness cycle buttons are handled following the
-   same pattern as the G15/G15v2: no key events are sent, instead the
-   driver cycles the cached brightness and calls
-   led_classdev_notify_brightness_hw_changed() from a work function,
-   which allows GNOME to show the brightness OSD.
+=3D=3D Reproduction =3D=3D
 
- - The game mode toggle is handled entirely by the firmware (it
-   disables the Super key and lights an indicator LED). The driver
-   exposes a read-only LED "g15::gamemode" with the
-   LED_BRIGHT_HW_CHANGED flag, and notifies userspace of state
-   changes via led_classdev_notify_brightness_hw_changed() by reading
-   back the actual firmware state on each toggle.
+  1. Use the touchpad normally.
+  2. Leave the system completely idle (no keyboard, no touch) for ~6=E2=80=
+=938 minutes.
+  3. Touchpad is unresponsive. IRQ 162 count frozen.
+  4. Recovery: echo i2c-DELL0A36:00 >
+/sys/bus/i2c/drivers/i2c_hid_acpi/unbind && \
+                echo i2c-DELL0A36:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bi=
+nd
 
- - Both brightness LEDs are registered with the LED_BRIGHT_HW_CHANGED
-   flag to enable the brightness_hw_changed sysfs attribute.
+=3D=3D Trace evidence =3D=3D
 
- - HID_QUIRK_NOGET is set because the keyboard has buggy GET_REPORT
-   handling that causes timeouts on some feature reports.
+I captured ftrace i2c events (filtered to adapter 1) across multiple
+stall events.
+The pattern is consistent across all captures:
 
- - The G-keys feature report (0x09) uses 2 bytes per key rather than
-   1 as on the G510, so the report size calculation is adjusted
-   accordingly.
+  1. Normal multitouch packets at ~140 Hz while in use:
+       i2c_reply: i2c-1 a=3D02c l=3D64 [20-00-03-03-<X_lo>-<X_hi>-<Y_lo>-<Y=
+_hi>-...]
 
- - Also fix a pre-existing comment typo: "f000.0000" -> "ff00.0000"
-   for the application report ID.
+  2. After finger lifted, ~30 seconds of silence, then two unusual
+packets fire in
+     quick succession:
+       i2c_reply: i2c-1 a=3D02c l=3D64 [40-00-0c-06-00-00-00-00-00-00-...]
+       i2c_reply: i2c-1 a=3D02c l=3D64 [0f-00-00-00-00-00-00-00-00-00-...]
 
- - The loop bounds in lg_g15_led_set() and lg_g510_led_set() are
-   tightened from "< LG_G15_LED_MAX" to "<=3D LG_G15_MACRO_RECORD" to
-   avoid iterating over the new LG_G15_GAMEMODE enum value which does
-   not apply to those keyboards.
+     The first is a 64-byte report (length field 0x0040) with what appears =
+to be
+     report ID 0x0c and sub-type 0x06. The second is a null/empty packet
+     (length field 0x000f, all-zero payload), consistent with an
+end-of-transfer signal.
 
-Signed-off-by: Xavier Bestel <xav@bes.tel>
----
- drivers/hid/hid-ids.h    |   1 +
- drivers/hid/hid-lg-g15.c | 393 ++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 384 insertions(+), 10 deletions(-)
+  3. No i2c_write from the driver follows these packets.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index afcee13bad61..7c0f930bd014 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -904,6 +904,7 @@
- #define USB_DEVICE_ID_LOGITECH_G15_V2_LCD=090xc227
- #define USB_DEVICE_ID_LOGITECH_G510=09=090xc22d
- #define USB_DEVICE_ID_LOGITECH_G510_USB_AUDIO=090xc22e
-+#define USB_DEVICE_ID_LOGITECH_G710=09=090xc24d
- #define USB_DEVICE_ID_LOGITECH_G29_WHEEL=090xc24f
- #define USB_DEVICE_ID_LOGITECH_G920_WHEEL=090xc262
- #define USB_DEVICE_ID_LOGITECH_G923_XBOX_WHEEL=090xc26e
-diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-index 1a88bc44ada4..8a4c4eb22c07 100644
---- a/drivers/hid/hid-lg-g15.c
-+++ b/drivers/hid/hid-lg-g15.c
-@@ -29,6 +29,11 @@
- #define LG_G510_INPUT_MACRO_KEYS=090x03
- #define LG_G510_INPUT_KBD_BACKLIGHT=090x04
-=20
-+#define LG_G710_FEATURE_GAMEMODE        0x05
-+#define LG_G710_FEATURE_M_KEYS_LEDS     0x06
-+#define LG_G710_FEATURE_BACKLIGHT       0x08
-+#define LG_G710_FEATURE_EXTRA_KEYS      0x09
-+
- #define LG_G13_INPUT_REPORT=09=090x01
- #define LG_G13_FEATURE_M_KEYS_LEDS=090x05
- #define LG_G13_FEATURE_BACKLIGHT_RGB=090x07
-@@ -48,6 +53,7 @@ enum lg_g15_model {
- =09LG_G15_V2,
- =09LG_G510,
- =09LG_G510_USB_AUDIO,
-+=09LG_G710,
- =09LG_Z10,
- };
-=20
-@@ -59,6 +65,7 @@ enum lg_g15_led_type {
- =09LG_G15_MACRO_PRESET2,
- =09LG_G15_MACRO_PRESET3,
- =09LG_G15_MACRO_RECORD,
-+=09LG_G15_GAMEMODE,
- =09LG_G15_LED_MAX
- };
-=20
-@@ -91,7 +98,9 @@ struct lg_g15_data {
- =09enum lg_g15_model model;
- =09struct lg_g15_led leds[LG_G15_LED_MAX];
- =09bool game_mode_enabled;
-+=09u16 pressed_keys;
- =09bool backlight_disabled;=09/* true =3D=3D HW backlight toggled *OFF* */
-+=09unsigned long brightness_changed;=09/* bitmask of LEDs hw-cycled */
- };
-=20
- /********* G13 LED functions ***********/
-@@ -334,7 +343,7 @@ static int lg_g15_led_set(struct led_classdev *led_cdev=
-,
- =09=09g15->transfer_buf[1] =3D g15_led->led + 1;
- =09=09g15->transfer_buf[2] =3D brightness << (g15_led->led * 4);
- =09} else {
--=09=09for (i =3D LG_G15_MACRO_PRESET1; i < LG_G15_LED_MAX; i++) {
-+=09=09for (i =3D LG_G15_MACRO_PRESET1; i <=3D LG_G15_MACRO_RECORD; i++) {
- =09=09=09if (i =3D=3D g15_led->led)
- =09=09=09=09val =3D brightness;
- =09=09=09else
-@@ -567,7 +576,7 @@ static int lg_g510_mkey_led_set(struct led_classdev *le=
-d_cdev,
-=20
- =09mutex_lock(&g15->mutex);
-=20
--=09for (i =3D LG_G15_MACRO_PRESET1; i < LG_G15_LED_MAX; i++) {
-+=09for (i =3D LG_G15_MACRO_PRESET1; i <=3D LG_G15_MACRO_RECORD; i++) {
- =09=09if (i =3D=3D g15_led->led)
- =09=09=09val =3D brightness;
- =09=09else
-@@ -597,6 +606,239 @@ static int lg_g510_mkey_led_set(struct led_classdev *=
-led_cdev,
- =09return ret;
- }
-=20
-+/******** G710 LED functions ********/
-+
-+static int lg_g710_update_game_led_brightness(struct lg_g15_data *g15)
-+{
-+=09int ret;
-+
-+=09ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_GAMEMODE,
-+=09=09=09=09 g15->transfer_buf, 8,
-+=09=09=09=09 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+=09if (ret !=3D 8) {
-+=09=09hid_err(g15->hdev, "Error getting gamemode LED brightness: %d\n", re=
-t);
-+=09=09return (ret < 0) ? ret : -EIO;
-+=09}
-+
-+=09g15->leds[LG_G15_GAMEMODE].brightness =3D
-+=09=09!!g15->transfer_buf[1];
-+
-+=09return 0;
-+}
-+
-+static int lg_g710_update_mkey_led_brightness(struct lg_g15_data *g15)
-+{
-+=09int ret;
-+
-+=09ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_M_KEYS_LEDS,
-+=09=09=09=09 g15->transfer_buf, 2,
-+=09=09=09=09 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+=09if (ret !=3D 2) {
-+=09=09hid_err(g15->hdev, "Error getting macro LED brightness: %d\n", ret);
-+=09=09return (ret < 0) ? ret : -EIO;
-+=09}
-+
-+=09g15->leds[LG_G15_MACRO_PRESET1].brightness =3D
-+=09=09!!(g15->transfer_buf[1] & 0x10);
-+=09g15->leds[LG_G15_MACRO_PRESET2].brightness =3D
-+=09=09!!(g15->transfer_buf[1] & 0x20);
-+=09g15->leds[LG_G15_MACRO_PRESET3].brightness =3D
-+=09=09!!(g15->transfer_buf[1] & 0x40);
-+=09g15->leds[LG_G15_MACRO_RECORD].brightness =3D
-+=09=09!!(g15->transfer_buf[1] & 0x80);
-+
-+=09return 0;
-+}
-+
-+static int lg_g710_update_kbd_led_brightness(struct lg_g15_data *g15)
-+{
-+=09int ret;
-+
-+=09ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_BACKLIGHT,
-+=09=09=09=09 g15->transfer_buf, 4,
-+=09=09=09=09 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+=09if (ret !=3D 4) {
-+=09=09hid_err(g15->hdev, "Error getting LED brightness: %d\n", ret);
-+=09=09return (ret < 0) ? ret : -EIO;
-+=09}
-+
-+=09g15->leds[LG_G15_KBD_BRIGHTNESS].brightness =3D 4 - g15->transfer_buf[2=
-];
-+=09g15->leds[LG_G15_LCD_BRIGHTNESS].brightness =3D 4 - g15->transfer_buf[1=
-];
-+
-+=09return 0;
-+}
-+
-+static enum led_brightness lg_g710_led_get(struct led_classdev *led_cdev)
-+{
-+=09struct lg_g15_led *g15_led =3D
-+=09=09container_of(led_cdev, struct lg_g15_led, cdev);
-+=09struct lg_g15_data *g15 =3D dev_get_drvdata(led_cdev->dev->parent);
-+=09enum led_brightness brightness;
-+
-+=09mutex_lock(&g15->mutex);
-+=09/*
-+=09 * The G710+ firmware's GET_REPORT for the backlight always returns
-+=09 * the power-on default values, ignoring any changes made via
-+=09 * SET_REPORT. Use the cached brightness which is kept in sync by
-+=09 * the _set callbacks. M-key and gamemode LEDs read back correctly.
-+=09 */
-+=09if (g15_led->led >=3D LG_G15_BRIGHTNESS_MAX && g15_led->led < LG_G15_GA=
-MEMODE)
-+=09=09lg_g710_update_mkey_led_brightness(g15);
-+=09else if (g15_led->led >=3D LG_G15_GAMEMODE)
-+=09=09lg_g710_update_game_led_brightness(g15);
-+=09brightness =3D g15->leds[g15_led->led].brightness;
-+=09mutex_unlock(&g15->mutex);
-+
-+=09return brightness;
-+}
-+
-+static int lg_g710_mkey_led_set(struct led_classdev *led_cdev,
-+=09=09=09  enum led_brightness brightness)
-+{
-+=09struct lg_g15_led *g15_led =3D
-+=09=09container_of(led_cdev, struct lg_g15_led, cdev);
-+=09struct lg_g15_data *g15 =3D dev_get_drvdata(led_cdev->dev->parent);
-+=09u8 val, mask =3D 0;
-+=09int i, ret;
-+
-+=09/* Ignore LED off on unregister / keyboard unplug */
-+=09if (led_cdev->flags & LED_UNREGISTERING)
-+=09=09return 0;
-+
-+=09mutex_lock(&g15->mutex);
-+
-+=09g15->transfer_buf[0] =3D LG_G710_FEATURE_M_KEYS_LEDS;
-+
-+=09for (i =3D LG_G15_MACRO_PRESET1; i <=3D LG_G15_MACRO_RECORD; i++) {
-+=09=09if (i =3D=3D g15_led->led)
-+=09=09=09val =3D brightness;
-+=09=09else
-+=09=09=09val =3D g15->leds[i].brightness;
-+
-+=09=09if (val)
-+=09=09=09mask |=3D 1 << (i - LG_G15_MACRO_PRESET1 + 4);
-+=09}
-+
-+=09g15->transfer_buf[1] =3D mask;
-+
-+=09ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_M_KEYS_LEDS,
-+=09=09=09=09 g15->transfer_buf, 2,
-+=09=09=09=09 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+=09if (ret =3D=3D 2) {
-+=09=09/* Success */
-+=09=09g15_led->brightness =3D brightness;
-+=09=09ret =3D 0;
-+=09} else {
-+=09=09hid_err(g15->hdev, "Error setting LED brightness: %d\n", ret);
-+=09=09ret =3D (ret < 0) ? ret : -EIO;
-+=09}
-+
-+=09mutex_unlock(&g15->mutex);
-+
-+=09return ret;
-+}
-+
-+static int lg_g710_kbd_led_set(struct led_classdev *led_cdev,
-+=09=09=09  enum led_brightness brightness)
-+{
-+=09struct lg_g15_led *g15_led =3D
-+=09=09container_of(led_cdev, struct lg_g15_led, cdev);
-+=09struct lg_g15_data *g15 =3D dev_get_drvdata(led_cdev->dev->parent);
-+=09int ret;
-+
-+=09/* Ignore LED off on unregister / keyboard unplug */
-+=09if (led_cdev->flags & LED_UNREGISTERING)
-+=09=09return 0;
-+
-+=09mutex_lock(&g15->mutex);
-+
-+=09g15->transfer_buf[0] =3D LG_G710_FEATURE_BACKLIGHT;
-+=09g15->transfer_buf[3] =3D 0;
-+
-+=09if (g15_led->led =3D=3D LG_G15_KBD_BRIGHTNESS) {
-+=09=09g15->transfer_buf[1] =3D 4 - g15->leds[LG_G15_LCD_BRIGHTNESS].bright=
-ness;
-+=09=09g15->transfer_buf[2] =3D 4 - brightness;
-+=09} else {
-+=09=09g15->transfer_buf[1] =3D 4 - brightness;
-+=09=09g15->transfer_buf[2] =3D 4 - g15->leds[LG_G15_KBD_BRIGHTNESS].bright=
-ness;
-+=09}
-+
-+=09ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_BACKLIGHT,
-+=09=09=09=09 g15->transfer_buf, 4,
-+=09=09=09=09 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+=09if (ret =3D=3D 4) {
-+=09=09/* Success */
-+=09=09g15_led->brightness =3D brightness;
-+=09=09ret =3D 0;
-+=09} else {
-+=09=09hid_err(g15->hdev, "Error setting LED brightness: %d\n", ret);
-+=09=09ret =3D (ret < 0) ? ret : -EIO;
-+=09}
-+
-+=09mutex_unlock(&g15->mutex);
-+
-+=09return ret;
-+}
-+
-+/*
-+ * The G710+ has separate physical keys for cycling the main keyboard back=
-light
-+ * and the WASD backlight. The firmware handles the actual brightness chan=
-ge
-+ * internally, but GET_REPORT always returns the power-on defaults regardl=
-ess
-+ * of any changes. So we must track the brightness in our cache and cycle =
-it
-+ * ourselves when a hardware brightness key press is detected.
-+ *
-+ * The firmware cycles brightness DOWN: 4 =E2=86=92 3 =E2=86=92 2 =E2=86=
-=92 1 =E2=86=92 0 =E2=86=92 4 (in wire
-+ * format where 0 =3D brightest, 4 =3D off). In user-facing terms (inverte=
-d):
-+ * 4 =E2=86=92 3 =E2=86=92 2 =E2=86=92 1 =E2=86=92 0 =E2=86=92 4.
-+ *
-+ * The game mode toggle is also handled here: the firmware toggles game mo=
-de
-+ * internally and updates the LED, so we read back the actual state via
-+ * GET_REPORT and notify userspace of the change.
-+ */
-+static void lg_g710_leds_changed_work(struct work_struct *work)
-+{
-+=09struct lg_g15_data *g15 =3D container_of(work, struct lg_g15_data, work=
-);
-+=09enum led_brightness brightness[LG_G15_BRIGHTNESS_MAX];
-+=09bool changed[LG_G15_BRIGHTNESS_MAX] =3D {};
-+=09bool gamemode_changed;
-+=09int i;
-+
-+=09mutex_lock(&g15->mutex);
-+=09for (i =3D 0; i < LG_G15_BRIGHTNESS_MAX; i++) {
-+=09=09if (!test_and_clear_bit(i, &g15->brightness_changed))
-+=09=09=09continue;
-+
-+=09=09changed[i] =3D true;
-+
-+=09=09if (g15->leds[i].brightness > 0)
-+=09=09=09g15->leds[i].brightness--;
-+=09=09else
-+=09=09=09g15->leds[i].brightness =3D
-+=09=09=09=09g15->leds[i].cdev.max_brightness;
-+
-+=09=09brightness[i] =3D g15->leds[i].brightness;
-+=09}
-+
-+=09gamemode_changed =3D test_and_clear_bit(LG_G15_GAMEMODE,
-+=09=09=09=09=09      &g15->brightness_changed);
-+=09if (gamemode_changed)
-+=09=09lg_g710_update_game_led_brightness(g15);
-+=09mutex_unlock(&g15->mutex);
-+
-+=09for (i =3D 0; i < LG_G15_BRIGHTNESS_MAX; i++) {
-+=09=09if (!changed[i])
-+=09=09=09continue;
-+
-+=09=09led_classdev_notify_brightness_hw_changed(&g15->leds[i].cdev,
-+=09=09=09=09=09=09=09  brightness[i]);
-+=09}
-+
-+=09if (gamemode_changed)
-+=09=09led_classdev_notify_brightness_hw_changed(
-+=09=09=09&g15->leds[LG_G15_GAMEMODE].cdev,
-+=09=09=09g15->leds[LG_G15_GAMEMODE].brightness);
-+}
-+
- /******** Generic LED functions ********/
- static int lg_g15_get_initial_led_brightness(struct lg_g15_data *g15)
- {
-@@ -619,6 +861,16 @@ static int lg_g15_get_initial_led_brightness(struct lg=
-_g15_data *g15)
- =09=09=09return ret;
-=20
- =09=09return lg_g510_update_mkey_led_brightness(g15);
-+=09case LG_G710:
-+=09=09ret =3D lg_g710_update_game_led_brightness(g15);
-+=09=09if (ret)
-+=09=09=09return ret;
-+
-+=09=09ret =3D lg_g710_update_mkey_led_brightness(g15);
-+=09=09if (ret)
-+=09=09=09return ret;
-+
-+=09=09return lg_g710_update_kbd_led_brightness(g15);
- =09case LG_Z10:
- =09=09/*
- =09=09 * Getting the LCD backlight brightness is not supported.
-@@ -890,6 +1142,74 @@ static int lg_g510_leds_event(struct lg_g15_data *g15=
-, u8 *data)
- =09return 0;
- }
-=20
-+static int lg_g710_event(struct lg_g15_data *g15, u8 *data, int size)
-+{
-+=09/*
-+=09 * Bits 0-5:  G1-G6 keys
-+=09 * Bits 6-8:  M1-M3 keys
-+=09 * Bit 9:     MR key
-+=09 * Bit 10:    WASD backlight cycle (handled as hw brightness change)
-+=09 * Bit 11:    Kbd backlight cycle (handled as hw brightness change)
-+=09 * Bit 12:    Game mode toggle (LED state change, handled by firmware)
-+=09 */
-+=09static const u16 keymap[] =3D {
-+=09=09KEY_MACRO1,
-+=09=09KEY_MACRO2,
-+=09=09KEY_MACRO3,
-+=09=09KEY_MACRO4,
-+=09=09KEY_MACRO5,
-+=09=09KEY_MACRO6,
-+=09=09KEY_MACRO_PRESET1,
-+=09=09KEY_MACRO_PRESET2,
-+=09=09KEY_MACRO_PRESET3,
-+=09=09KEY_MACRO_RECORD_START,
-+=09=090,=09/* WASD illumination cycle - not a key event */
-+=09=090,=09/* Kbd illumination cycle - not a key event */
-+=09=090,=09/* Game mode toggle */
-+=09};
-+=09u16 pressed_keys, changed;
-+=09int i;
-+
-+=09if (size !=3D 4 || data[0] !=3D 3)
-+=09=09return 1;
-+
-+=09pressed_keys =3D (data[1] & 0x3f) | ((data[2] & 0xf0) << 2) |
-+=09=09       ((data[3] & 0x7) << 10);
-+=09changed =3D pressed_keys ^ g15->pressed_keys;
-+
-+=09for (i =3D 0; i < ARRAY_SIZE(keymap); i++) {
-+=09=09if (keymap[i] && (changed & BIT(i)))
-+=09=09=09input_report_key(g15->input, keymap[i],
-+=09=09=09=09=09 pressed_keys & BIT(i));
-+=09}
-+=09input_sync(g15->input);
-+
-+=09/*
-+=09 * Detect brightness key presses (0->1 transition) and schedule
-+=09 * the work function to cycle cached brightness and notify userspace.
-+=09 * Bit 10 =3D WASD backlight (maps to LG_G15_LCD_BRIGHTNESS slot).
-+=09 * Bit 11 =3D Kbd backlight (maps to LG_G15_KBD_BRIGHTNESS slot).
-+=09 */
-+=09if ((changed & BIT(10)) && (pressed_keys & BIT(10))) {
-+=09=09set_bit(LG_G15_LCD_BRIGHTNESS, &g15->brightness_changed);
-+=09=09schedule_work(&g15->work);
-+=09}
-+=09if ((changed & BIT(11)) && (pressed_keys & BIT(11))) {
-+=09=09set_bit(LG_G15_KBD_BRIGHTNESS, &g15->brightness_changed);
-+=09=09schedule_work(&g15->work);
-+=09}
-+
-+=09/* Game mode toggle =E2=80=94 bit 12 is a state bit, trigger on any cha=
-nge */
-+=09if (changed & BIT(12)) {
-+=09=09set_bit(LG_G15_GAMEMODE, &g15->brightness_changed);
-+=09=09schedule_work(&g15->work);
-+=09}
-+
-+=09g15->pressed_keys =3D pressed_keys;
-+
-+=09return 0;
-+}
-+
- static int lg_g15_raw_event(struct hid_device *hdev, struct hid_report *re=
-port,
- =09=09=09    u8 *data, int size)
- {
-@@ -924,6 +1244,10 @@ static int lg_g15_raw_event(struct hid_device *hdev, =
-struct hid_report *report,
- =09=09if (data[0] =3D=3D LG_G510_INPUT_KBD_BACKLIGHT && size =3D=3D 2)
- =09=09=09return lg_g510_leds_event(g15, data);
- =09=09break;
-+=09case LG_G710:
-+=09=09if (data[0] =3D=3D 0x03 && size =3D=3D 4)
-+=09=09=09return lg_g710_event(g15, data, size);
-+=09=09break;
- =09}
-=20
- =09return 0;
-@@ -1055,6 +1379,37 @@ static int lg_g15_register_led(struct lg_g15_data *g=
-15, int i, const char *name)
- =09=09=09ret =3D devm_led_classdev_register(&g15->hdev->dev, &g15->leds[i]=
-.cdev);
- =09=09}
- =09=09break;
-+=09case LG_G710:
-+=09=09switch (i) {
-+=09=09case LG_G15_LCD_BRIGHTNESS:
-+=09=09=09/*
-+=09=09=09 * The G710+ does not have a separate LCD brightness,
-+=09=09=09 * but it does have a separate brightness for WASD keys.
-+=09=09=09 * Do not use the ::kbd_backlight suffix here, UPower
-+=09=09=09 * only supports one kbd_backlight LED per device.
-+=09=09=09 */
-+=09=09=09g15->leds[i].cdev.name =3D "g15::kbd_zoned_backlight-wasd";
-+=09=09=09fallthrough;
-+=09=09case LG_G15_KBD_BRIGHTNESS:
-+=09=09=09g15->leds[i].cdev.brightness_set_blocking =3D
-+=09=09=09=09lg_g710_kbd_led_set;
-+=09=09=09g15->leds[i].cdev.brightness_get =3D
-+=09=09=09=09lg_g710_led_get;
-+=09=09=09g15->leds[i].cdev.max_brightness =3D 4;
-+=09=09=09g15->leds[i].cdev.flags =3D LED_BRIGHT_HW_CHANGED;
-+=09=09=09break;
-+=09=09default:
-+=09=09=09if (i !=3D LG_G15_GAMEMODE)
-+=09=09=09=09g15->leds[i].cdev.brightness_set_blocking =3D
-+=09=09=09=09=09lg_g710_mkey_led_set;
-+=09=09=09g15->leds[i].cdev.brightness_get =3D
-+=09=09=09=09lg_g710_led_get;
-+=09=09=09g15->leds[i].cdev.max_brightness =3D 1;
-+=09=09=09if (i =3D=3D LG_G15_GAMEMODE)
-+=09=09=09=09g15->leds[i].cdev.flags =3D LED_BRIGHT_HW_CHANGED;
-+=09=09}
-+=09=09ret =3D devm_led_classdev_register(&g15->hdev->dev, &g15->leds[i].cd=
-ev);
-+=09=09break;
- =09}
-=20
- =09return ret;
-@@ -1079,13 +1434,16 @@ static void lg_g15_init_input_dev_core(struct hid_d=
-evice *hdev, struct input_dev
- static void lg_g15_init_input_dev(struct hid_device *hdev, struct input_de=
-v *input,
- =09=09=09=09  const char *name)
- {
-+=09struct lg_g15_data *g15 =3D hid_get_drvdata(hdev);
- =09int i;
-=20
- =09lg_g15_init_input_dev_core(hdev, input, name);
-=20
--=09/* Keys below the LCD, intended for controlling a menu on the LCD */
--=09for (i =3D 0; i < 5; i++)
--=09=09input_set_capability(input, EV_KEY, KEY_KBD_LCD_MENU1 + i);
-+=09if (g15->model !=3D LG_G710) {
-+=09=09/* Keys below the LCD, intended for controlling a menu on the LCD */
-+=09=09for (i =3D 0; i < 5; i++)
-+=09=09=09input_set_capability(input, EV_KEY, KEY_KBD_LCD_MENU1 + i);
-+=09}
- }
-=20
- static void lg_g13_init_input_dev(struct hid_device *hdev,
-@@ -1119,6 +1477,7 @@ static int lg_g15_probe(struct hid_device *hdev, cons=
-t struct hid_device_id *id)
- =09=09"g15::macro_preset2",
- =09=09"g15::macro_preset3",
- =09=09"g15::macro_record",
-+=09=09"g15::gamemode",
- =09};
- =09u8 gkeys_settings_output_report =3D 0;
- =09u8 gkeys_settings_feature_report =3D 0;
-@@ -1137,8 +1496,8 @@ static int lg_g15_probe(struct hid_device *hdev, cons=
-t struct hid_device_id *id)
- =09=09return ret;
-=20
- =09/*
--=09 * Some models have multiple interfaces, we want the interface with
--=09 * the f000.0000 application input report.
-+=09 * Some models have multiple interfaces, we want the interface
-+=09 * with the ff00.0000 application input report.
- =09 */
- =09rep_enum =3D &hdev->report_enum[HID_INPUT_REPORT];
- =09list_for_each_entry(rep, &rep_enum->report_list, list) {
-@@ -1212,6 +1571,13 @@ static int lg_g15_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
- =09case LG_Z10:
- =09=09connect_mask =3D HID_CONNECT_HIDRAW;
- =09=09break;
-+=09case LG_G710:
-+=09=09INIT_WORK(&g15->work, lg_g710_leds_changed_work);
-+=09=09hdev->quirks |=3D HID_QUIRK_NOGET;
-+=09=09connect_mask =3D HID_CONNECT_DEFAULT;
-+=09=09gkeys_settings_feature_report =3D LG_G710_FEATURE_EXTRA_KEYS;
-+=09=09gkeys =3D 6;
-+=09=09break;
- =09}
-=20
- =09ret =3D hid_hw_start(hdev, connect_mask);
-@@ -1234,11 +1600,14 @@ static int lg_g15_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
- =09}
-=20
- =09if (gkeys_settings_feature_report) {
-+=09=09int report_size =3D ((g15->model =3D=3D LG_G710) ?
-+=09=09=09=09   gkeys * 2 : gkeys) + 1;
-+
- =09=09g15->transfer_buf[0] =3D gkeys_settings_feature_report;
--=09=09memset(g15->transfer_buf + 1, 0, gkeys);
-+=09=09memset(g15->transfer_buf + 1, 0, report_size - 1);
- =09=09ret =3D hid_hw_raw_request(g15->hdev,
- =09=09=09=09gkeys_settings_feature_report,
--=09=09=09=09g15->transfer_buf, gkeys + 1,
-+=09=09=09=09g15->transfer_buf, report_size,
- =09=09=09=09HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
- =09}
-=20
-@@ -1327,7 +1696,7 @@ static int lg_g15_probe(struct hid_device *hdev, cons=
-t struct hid_device_id *id)
- =09=09goto error_hw_stop;
-=20
- =09/* Register LED devices */
--=09for (i =3D 0; i < LG_G15_LED_MAX; i++) {
-+=09for (i =3D 0; i < LG_G15_LED_MAX - (g15->model !=3D LG_G710); i++) {
- =09=09ret =3D lg_g15_register_led(g15, i, led_names[i]);
- =09=09if (ret)
- =09=09=09goto error_hw_stop;
-@@ -1366,6 +1735,10 @@ static const struct hid_device_id lg_g15_devices[] =
-=3D {
- =09{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- =09=09=09 USB_DEVICE_ID_LOGITECH_G510_USB_AUDIO),
- =09=09.driver_data =3D LG_G510_USB_AUDIO },
-+=09/* G710 or G710+ */
-+=09{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+=09=09=09 USB_DEVICE_ID_LOGITECH_G710),
-+=09=09.driver_data =3D LG_G710 },
- =09/* Z-10 speakers */
- =09{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- =09=09=09 USB_DEVICE_ID_LOGITECH_Z_10_SPK),
---=20
-2.53.0
+  4. ~140=E2=80=93380 seconds later, the same two-packet sequence fires aga=
+in.
 
+  5. The IRQ then goes permanently silent =E2=80=94 touchpad stalled.
+
+A representative excerpt from a stall trace (timestamps are kernel
+seconds since boot):
+
+  2565.349  i2c_reply [20-00-03-01-64-02-d1-01-...]  =E2=86=90 last touch
+packet (finger lift)
+                                                      =E2=86=90 30s gap
+  2595.511  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 unknown repo=
+rt
+(sleep notify?)
+  2595.522  i2c_reply [0f-00-00-00-00-00-00-00-...]  =E2=86=90 null packet
+                                                      =E2=86=90 378s gap
+  2973.423  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 same again
+  2973.435  i2c_reply [0f-00-00-00-00-00-00-00-...]
+                                                      =E2=86=90 stall; IRQ =
+162 frozen
+
+The same 0x0c report appears ~6 minutes after each rebind in
+subsequent captures,
+with the stall following within 1=E2=80=933 minutes thereafter.
+
+=3D=3D Hypothesis =3D=3D
+
+The Synaptics firmware appears to send a proprietary power/sleep-state
+notification
+(report ID 0x0c) after a period of inactivity. The i2c_hid_acpi driver
+does not respond
+to this report =E2=80=94 no i2c_write is observed following it. The firmwar=
+e
+may be waiting for
+an acknowledgement or handshake that never arrives, and locks up as a resul=
+t.
+
+This is consistent with:
+  - The stall being time-based (not load or temperature dependent)
+  - Rebinding fully recovering the device (firmware reset via HID RESET com=
+mand)
+  - The IRQ going silent with no kernel errors (driver still considers
+device healthy)
+  - libinput occasionally logging "Touch jump detected" immediately
+prior to a stall
+    (possibly the firmware sending corrupt data as it enters the sleep stat=
+e)
+
+=3D=3D Power management note =3D=3D
+
+The device hierarchy (PCI 00:15.1 =E2=86=92 i2c_designware.1 =E2=86=92
+i2c-DELL0A36:00) must all be
+pinned to runtime_status=3Dactive to avoid a separate (unrelated) class
+of failure where
+the I2C bus autosuspends. That issue is already worked around via udev
+rules. The stall
+described here occurs independently, with all three layers confirmed
+active throughout.
+
+=3D=3D Workaround =3D=3D
+
+Rebind the driver after ~2 minutes of idle via a watchdog script
+monitoring IRQ 162.
+This preempts the firmware before it sends the 0x0c report.
+
+=3D=3D Question for maintainers =3D=3D
+
+Is report ID 0x0c a known Synaptics vendor report that the driver
+should be handling?
+Should i2c_hid be sending a SET_POWER or RESET in response to an
+unsolicited report of
+this type? Any guidance on what the correct driver-side response
+should be would be
+appreciated =E2=80=94 I'm happy to test patches.
+
+Full ftrace dumps available on request.
+
+Thanks,
+
+Chris

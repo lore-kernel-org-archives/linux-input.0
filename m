@@ -1,132 +1,123 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C6334AAF2
-	for <linux-input@vger.kernel.org>; Fri,  3 Apr 2026 04:07:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0612F39AB
+	for <linux-input@vger.kernel.org>; Fri,  3 Apr 2026 08:23:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775189262; cv=none; b=ZfLaPOLFb3ovLb+wQK2e6/pn4tmSzeaYE20OaqU/7qEYMiASC0aVa1mMEX1JN4T4qsA68/8uNqRFiHVxc0Ml2k3ouKsMmGtCK1c+k5fRoSBBf7+cibGb+MTz8I1tU2WJ9V/5qzE0QVLF9FQ10yAM5Tj2bM7cXxz6HqKVrd+sR2o=
+	t=1775204595; cv=none; b=M0UyUD5eGS6WtqGQR/sxIPTcdRseciGkizAmjFS2/jaW+AzmWrb3qoI3tTxHVdxAWtHMryv3DhvtngkrASEdLazXo5v90+Ef8ao0K8js/5VWR5kgEot7XAhnSN8GlwH8BEJhfUSUQ+iqmSkGnJCBAIm4qiA9CXBeiSF+MB40Q2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775189262; c=relaxed/simple;
-	bh=Pid7hTafOZC+LLrMLIawjf+RXr0bKIf4ja36qYzJILw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XgBarEFma5SD+qpy2vuKUszgSndj29lehJpPccMruLPYw5PNxHbX7vOcQuzdF56GyHlCUS4VE15yZg8SrYvPA25eOHEJLI9RhWsHrcc9bSbVYJrNCwlQXaO1gbgpqfvtNIysS1Im/VgBsI9Y5fMj28ToCESkks05yC3XRMhh4B4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q538iIiJ; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775204595; c=relaxed/simple;
+	bh=23lg71SS1ypLE/10It2aQYW4KhKP+2cYmx1DGLGdzjA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=P5BJtvg/+WiYh5+T/Y7nX8As8cPe20wVn4rdX8LafaqNA8CMEXJljmjQ1L4QsX9LXKF9Zo6+gC/2GNLEZExOJ67ElcpG9mY0ckRYnnb3Vrv/EdnvnsPPb8uDVrP2MkvjLRAXwn69IvxW2gNmSW2b0/9+SkvflJ3Al0ocPUOkVaU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=x281Uxd+; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q538iIiJ"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-35dac556bb2so961138a91.1
-        for <linux-input@vger.kernel.org>; Thu, 02 Apr 2026 21:07:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="x281Uxd+"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-66dece07f3fso2612999a12.3
+        for <linux-input@vger.kernel.org>; Fri, 03 Apr 2026 01:23:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775189260; x=1775794060; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=DEYIJvEIn0om0NJGkMkijlcVIHQGMYf7Ieidykk7GMQ=;
-        b=Q538iIiJ2tRsFhidb9CGbVK2HmPi2OxOEZx7kirEqbVcjdWqhXucZMVYUwEACN2cMD
-         voEJjzJhCal2W7VySnNXdUKE5DcQD1PT1L+eday+AOAmRWY1KOrFGiDCQ/BCUT00KEWs
-         tQM4mRb7/40pIc3wUMGKH3os5ZTV0bB5kTvXfP+AEUz17zHgw37THlVD7h+ud598IPD8
-         NEUO5ef3zscsUA5mRFQKdlVKTKAsTcQJQj+j98QPQNIl8iEDOOXevFPr3yXhP5OTpDZE
-         ddmftGZbt8Qy+JFJDnG8E98FX1F0Twu3kyulXYSIgbGLRwF2Ac8W/q8k81AwQFW584F0
-         U0ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775189260; x=1775794060;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=fairphone.com; s=fair; t=1775204593; x=1775809393; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DEYIJvEIn0om0NJGkMkijlcVIHQGMYf7Ieidykk7GMQ=;
-        b=A7G5uTLQdHH5y0yiiI0SllEW3a4EUOxW0ilBABqoVBzfV0pIcUE3spixcUnhivDhSI
-         H/ZyTVF2YtTvkf/4uEY3aCKr8vryOBmI3gJ5PkE/q1xWtXAe7PAKepcDrbQznunwYKBW
-         t1pB0bdqBXUMtpVQzj7vey+2tgGxfiRfQDM861Fg3hckXEIOOdsB2wYEKGeTMkw+6GH4
-         AQ2xT3X4jTl+1pDxVVgpXP/LFs92ZndtVwrRQhSywbagqh6KatB4mCphYIEHYj7xmRJA
-         s1ZywuYuTDmBIEnsALBsIUi6ICI3zwzwL2mUSELiNbL0S8mzrn3qFAEqGZwd4Bd0wc3t
-         9hcA==
-X-Forwarded-Encrypted: i=1; AJvYcCVw/BDoUIvlpE4Ses1ykXnRu5B4461jV1SSQziORURj/nZyyL2dlnSGpFWP9uc3suJQnTuV/mymTYQfrg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2YSpYWAhwVlPQ03E3DcKH0ULERHkoj3Q1d5Ep5ZAKBVxMVdWU
-	WsO1OsIiXWpwlUxi3yowiYzl4ODcKGOi5esIEw390mRc+Orn/iaNP2Vc
-X-Gm-Gg: AeBDietgY1+t6DtGEyUXKlOxHUlBiRIXGsZeXKRP4f5TbLim0i89nYxoSj/JT1NAZ0q
-	aZEDrnK03skNYYh/KeoeBoD43b/4Svm4URgyRnvAp6/aSgZk0yCYMsx12MzaSGptEZpcJIaYZth
-	CJtkuiLCz8X+45g5mz7JSDwuzXHwt061xiWeela12hxmH9xAc/EPymkOWGKp6Fw3Qg4yfMzAeDc
-	MeKp9/8bQuGOk/LvCvYFSdBhigioNEApkP/N4g30i0ORYOLHOLspv+GXReqb2jC5wy1pHXNAavO
-	67ajHL0F1tFMZ75s3IYkHbkRi4JOy8Yi0S21OYnShhEdl7nrSo6xpiSpPSaN2rhTd4aPkBZ3tjJ
-	htu/IxZ585J9TmqiFdn1PwXqAreYgmPbZNhvjKDk2eurRYY0cyWy+F4ihH6vRJS8SuHjHYK5lGb
-	FVHZ47+6qWyYDFBk+lpEtICTUmnBt4gCXA3Gf3Q0VKVcUrW5th/vvdtREVRA==
-X-Received: by 2002:a17:90b:47:b0:35a:24f3:2c8e with SMTP id 98e67ed59e1d1-35de6894809mr1218653a91.9.1775189260493;
-        Thu, 02 Apr 2026 21:07:40 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe977031sm9483779a91.17.2026.04.02.21.07.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 21:07:40 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: robh@kernel.org
-Cc: conor+dt@kernel.org,
-	conor@kernel.org,
-	devicetree@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	krzk+dt@kernel.org,
-	krzk@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	marex@denx.de,
-	mingo@kernel.org,
-	phucduc.bui@gmail.com,
-	tglx@kernel.org
-Subject: [PATCH v4] dt-bindings: input: touchscreen: ti,tsc2005: Add wakeup-source
-Date: Fri,  3 Apr 2026 11:07:14 +0700
-Message-ID: <20260403040714.106093-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        bh=23lg71SS1ypLE/10It2aQYW4KhKP+2cYmx1DGLGdzjA=;
+        b=x281Uxd+O1epRbfuICmVyPJkXA5SYdzMCZSDDYsaDeMWFjMZydJgqdSsBiP4QkdMTH
+         wdwKFSAQ7txNW6HyUljdoUrfpaGIzbIL8Bd4WlM1ry+xIUjOlpPr48DdUXY9Lvu58rTc
+         O74XJFcQG7oAytQiloE4qjmhbU1siHb+95qe+uXBaLqAfpLPhAJpLeUhqAWeKprmhtia
+         zHIe2TK9cg/K07gEjcgtRR/e3fjO2HTYc5OZbziBYtWFctlonKUrc6ZD1JZNY0PIa3eO
+         M4/wUPjbs5zxDjzf3g25tDZhbg0hUrf2dAOMw/W+2yXnG7EMOd1EGrOJR4v2pLWagNS0
+         ujKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775204593; x=1775809393;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=23lg71SS1ypLE/10It2aQYW4KhKP+2cYmx1DGLGdzjA=;
+        b=GG+23dIMoNUWxA0y97lZ5C8/d3SJaQ4vnMXxAHIHqJFIN4PhzfIvV4x0wVujphr8wP
+         Yu3wWbOlAw8X6PghuK42HHH+XHTBTaUbTQmBhzXMugqiCirDpUpfeK7NYOO9BocoE2q4
+         3WM39H4aRuOiyHiTny2T7wTjddBHMj7loFzN5270yaOdbG6WjIKjoXmVPS5WEqgJ5QAb
+         lP+kC8V3OcvCWtQmymGOeLWx4J0fcHCGiOhtn+XwkWfznF6J2g9xspAgOYSnhXeuyQQp
+         1XjL3noJXt+7yE92K4h/HCRPUDJZSpcI5WE1j8RPIItSXa4U5lH18S/DM0LvWfgc9VP1
+         u9XA==
+X-Forwarded-Encrypted: i=1; AJvYcCUu34wCrUNYe14Lw6Yd/nOohQYK/kyk3lCuI58a+owFgHi5CRwzZbSMj3WK+0WkTgCsH3+je8JeTeoD3Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzvAnfTQY6kj0HZbw3FRBeSAaRVBFaGcRTm+urf0c2a09+VePGm
+	mitcpaVVTj2gcfA+MuayyqNi3KBJ6C4V73sh4nzJMM2KSvn0ceeudQcZWqz9+MipLaI=
+X-Gm-Gg: ATEYQzwB4ssBYzBkR6sizqinyd0Pb4Egn9iogkIsSRyY8Kz23jp9qiw8vp7EWFEa6vm
+	cdOZe0x+BY6B2prDZgvJJbN+Opd0IMu7t7JIglMf6RJ/BNSv2PHIyEb4F6hkfjts71Sgjv29c2M
+	jMt3R9Qwp4UP0njx+xbbYkDqKlMxd7RcdCL4FansVe27YDmLSQSkYziEuZEw3S/l4l2bSVbbill
+	fkMF8w4OTk+TI205qRwsIFrc5wLkCFUO+NzYU1LoatBfK+ZCVJn/FVfatQ750KRrJFednIsd/Vg
+	p5iPmP8LFDYJGXjU59TaJy0u4Y6G6TlXSQn/jzpiJDxH3vGEupfJbpyex+w9NhmJyGpv5mpTPfR
+	2ZCnpDD19HS77xvIUYqwBCfveRqwNPh/AydL5m73iz0Li5kv+jQSe5sdkIZDCZMgpdN0c38nsou
+	XvJmLOFut7+ycPGERDJ0aO99hmjyNWo5HxML8J6BeQDWVkzpcZQdkpRrS046Jv3hQawAculjYxd
+	LehJa70ZUuIPI/on93mwgETlgCEbaBHCcsV
+X-Received: by 2002:a17:906:b391:b0:b96:e593:fd32 with SMTP id a640c23a62f3a-b9c67308377mr71993466b.12.1775204592537;
+        Fri, 03 Apr 2026 01:23:12 -0700 (PDT)
+Received: from localhost (2001-1c04-0504-7401-4b2e-1820-6d24-b264.cable.dynamic.v6.ziggo.nl. [2001:1c04:504:7401:4b2e:1820:6d24:b264])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-66e034d60desm1398832a12.31.2026.04.03.01.23.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Apr 2026 01:23:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 03 Apr 2026 10:23:11 +0200
+Message-Id: <DHJDIAVJ89XO.2OH312F9UMLXN@fairphone.com>
+Cc: "Griffin Kroah-Hartman" <griffin.kroah@fairphone.com>, "Rob Herring"
+ <robh@kernel.org>, "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor
+ Dooley" <conor+dt@kernel.org>, "Bjorn Andersson" <andersson@kernel.org>,
+ "Konrad Dybcio" <konradybcio@kernel.org>, <linux-input@vger.kernel.org>,
+ <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-arm-msm@vger.kernel.org>
+Subject: Re: [PATCH v4 3/4] Input: aw86938 - add driver for Awinic AW86938
+From: "Luca Weiss" <luca.weiss@fairphone.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Luca Weiss"
+ <luca.weiss@fairphone.com>
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260302-aw86938-driver-v4-0-92c865df9cca@fairphone.com>
+ <20260302-aw86938-driver-v4-3-92c865df9cca@fairphone.com>
+ <aae7fRYaoDHMptyu@google.com> <DHHWDE7QEOTO.1AQ85UBLO8IQG@fairphone.com>
+ <ac1DclNOl3ZA5bUg@google.com>
+In-Reply-To: <ac1DclNOl3ZA5bUg@google.com>
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+On Wed Apr 1, 2026 at 6:11 PM CEST, Dmitry Torokhov wrote:
+> On Wed, Apr 01, 2026 at 04:44:47PM +0200, Luca Weiss wrote:
+>> Hi Dmitry,
+>>=20
+>> On Wed Mar 4, 2026 at 5:56 AM CET, Dmitry Torokhov wrote:
+>> > On Mon, Mar 02, 2026 at 11:50:27AM +0100, Griffin Kroah-Hartman wrote:
+>> >> Add support for the I2C-connected Awinic AW86938 LRA haptic driver.
+>> >>=20
+>> >> The AW86938 has a similar but slightly different register layout. In
+>> >> particular, the boost mode register values.
+>> >> The AW86938 also has some extra features that aren't implemented
+>> >> in this driver yet.
+>> >>=20
+>> >> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+>> >
+>> > Applied, thank you.
+>>=20
+>> I'm curious, where did you apply these patches? linux-next doesn't have
+>> it and I don't see it in your kernel.org repo either.
+>> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/
+>>=20
+>> Did this slip through the cracks or will these patches still appear
+>> there?
+>
+> My bad, I think there was a conflict with Dan Carpenter's patch and as a
+> result the series got stuck in my internal queue. My apologies.
+>
+> Should be out in 'next' branch now.
+>
+> Thanks.
 
-Document the "wakeup-source" property for the ti,tsc2005 touchscreen
-controllers to allow the device to wake the system from suspend.
+Thanks, appreciate it!
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
-
-changes:
-v4: Drop redundant "type: boolean" for wakeup-source to use the core 
-    definition from dt-schema (as suggested by Rob Herring).
-v3: Remove blank lines (suggested by Conor).
-v2: Revise the commit content and remove patch1 related to I2C and SPI 
-wakeup handling
- .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml     | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-index 7187c390b2f5..c06a85b74533 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
-@@ -55,6 +55,8 @@ properties:
-   touchscreen-size-x: true
-   touchscreen-size-y: true
- 
-+  wakeup-source: true
-+
- allOf:
-   - $ref: touchscreen.yaml#
-   - if:
-@@ -97,6 +99,7 @@ examples:
- 
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+            wakeup-source;
-         };
-     };
-   - |
-@@ -124,5 +127,6 @@ examples:
- 
-             ti,x-plate-ohms = <280>;
-             ti,esd-recovery-timeout-ms = <8000>;
-+            wakeup-source;
-         };
-     };
--- 
-2.43.0
-
+Regards
+Luca

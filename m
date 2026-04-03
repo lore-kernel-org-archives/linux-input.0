@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 286DB3CF673;
-	Fri,  3 Apr 2026 16:12:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 408323CFF4A;
+	Fri,  3 Apr 2026 16:12:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775232754; cv=none; b=cBwC3jBOvGrQ95DW3xnP/Jq70tKvFJLOpESh6cn+9LphVxkR00Znx5ZjFFcRiEP6GVoH9xFf3ewM/1M5qEVAoioVqVu9B8hQGDevpaF5wtSpfpEmI2mIjbJVXjJydCL96vrH56FK3/uUU2KldjpKQsXKWf+i2P4wnjSXXYuk01c=
+	t=1775232755; cv=none; b=rxXvk5YH4a3caiwk63xmqR6T/lF2pGbp1Fa4aLqsQGPpM09CKy2pr6lptvwRjwGP5cEhjIlqtU+R2ao3zmtIIvdVoRqCpjekz+yi4gwVB97MM1QARgxBCzbtGBEuFFNcKCVJj2FrbAx0tnCUOqVUXs9xbXYHrxsfv1QMSGxjHyo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775232754; c=relaxed/simple;
-	bh=KDwz/4L8x+PCtjlGWnrKbO/cQWSNwxPg/CgLKH5OKQA=;
+	s=arc-20240116; t=1775232755; c=relaxed/simple;
+	bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tQKng//fgBqOyxT+qErn9q9UAPUaUo347UtFsIf9NkvSdkmnGmizVfs4iox4oJvGw+cRpmURJ1B/3siRNlEhenXdzn0VeD3/AxwMr9NNdACPQydAWKFpvaHpsQmOIHm3Y6WAXGE+o+F7UHNFDMIZMTMmJQty20M7bs7roE+N0A4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i3IW/0Ls; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=DfbLvdJlffdnsPOWjE3AW4Un1YWhu00l84ua1rgc8JLxnCBOACsfR1mNWFsy3MIcYIzs51Il0kZ574R88Y9fmqC6vB4Mk6XZrGjcLvkTuXcaZzHTFYmroYayco7T/rJ5M1iMYapQbC5slvI2lg8MoY6KeHobRQjmM1rGfCj7Gu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iD6wOeMY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i3IW/0Ls"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA201C19421;
-	Fri,  3 Apr 2026 16:12:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iD6wOeMY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437D5C2BCB0;
+	Fri,  3 Apr 2026 16:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775232753;
-	bh=KDwz/4L8x+PCtjlGWnrKbO/cQWSNwxPg/CgLKH5OKQA=;
+	s=k20201202; t=1775232755;
+	bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=i3IW/0LsCROl8M1m2pPze6HcqkjQ9ovsJUIQ+NJjvBMJBfKLprzu9d4eztSeYmxbj
-	 nn2AbH+P//toBohQECNaeiw9NgodEY6IQMvGaG7htbRKDV58cauB5olzS0h3dc8A6C
-	 4RXtUAV++eK3XkIEJ1EPyjvpowrKWW07Lm/DvnGdEKSlKKPiEFVmHvPV/XpLFo5H6k
-	 U95UIAC65Vp7ohmeKBrL3t641/wf0nGwC1f4Ad9W4Si09qPmj8dBwNZsMd//rOcU9D
-	 y2T5hAG3gOIVHTCzrFyWjKLNQKdfgqGaVSzLWn+o90IC5KrpRYpHzVmkAH1bzoA4hl
-	 p7TqdeuJ3Ug3A==
+	b=iD6wOeMYC1bg4sz6kLyGmRYfAPTJDhGo5JWUeesXn6/2siBpvWwDd7lsRFAVE7lYk
+	 0L1TihpPfNQBmkhrVHPvZTj9mkMyyLZROXMn9Xsph5zh5X0aTYYm1SRsFzDmInJCaN
+	 CD13dZ+RbJVkEbMN2auBIUrgrG4axGzqTR3B0LACTXitII7A8zeRgTYtHQ+LcMocJs
+	 3ZyiqAjMD42QepMaoVHJldFld6DH0TBzHd4y4z09Zr2+xrmaFkJiQbjMAjoE/CdFZX
+	 EDTAO26Hoy3w3rnOhlhaVZXxe6njXBWXYrPGjGLolj+zbytmWcCy5NHzrWM6E2Fhme
+	 VNLmtuqWbqctA==
 From: Benjamin Tissoires <bentiss@kernel.org>
-Date: Fri, 03 Apr 2026 18:12:19 +0200
-Subject: [PATCH 1/8] HID: bpf: fix some signed vs unsigned compiler
- warnings
+Date: Fri, 03 Apr 2026 18:12:20 +0200
+Subject: [PATCH 2/8] HID: bpf: hid_bpf_helpers: provide a cleanup functions
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -38,89 +37,180 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-1-978cedb9a074@kernel.org>
+Message-Id: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-2-978cedb9a074@kernel.org>
 References: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-0-978cedb9a074@kernel.org>
 In-Reply-To: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-0-978cedb9a074@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Benjamin Tissoires <bentiss@kernel.org>, 
- Peter Hutterer <peter.hutterer@who-t.net>
+ Benjamin Tissoires <bentiss@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1775232750; l=2735;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1775232750; l=5515;
  i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=8NOYANGVsBPe2PvEMa1dbDbeNVoX4fiDjdeEyTSOcgE=;
- b=q5dqAFWFjs8JhBRIM9ii4CGs7PwtSyje0KI/+ZA/ZdCVABoXxDhL6jFTIt6V5HT3RAz9MnKHY
- 4lAqD7Ek5PdBtfhAYOOTvSMaQAxCsLWpae9oYMy9eTQmlQ30qzzWvbt
+ bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
+ b=b+305jvTJQE6dXGa3nTOwrv0ebGBGLXW67YF/pdV+4IABbwLtSm5Q14/jr/MHnVzq/i4O0t6D
+ i9PuJCmuLkKAwpC7Q4e+3Tz81rOIhavS3ZJrIF2n0lzbq9tQGU3K2UE
 X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
  pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-From: Peter Hutterer <peter.hutterer@who-t.net>
+Combination of 2 udev-hid-bpf commits:
+bpf: hid_bpf_helpers: provide a cleanup function for hid_bpf_release_context
+bpf: helpers: add guard(bpf_spin) macro
 
-On udev-hid-bpf, we are now getting warnings here, shut them off.
-
-Link: https://gitlab.freedesktop.org/libevdev/udev-hid-bpf/-/merge_requests/227
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Link: https://gitlab.freedesktop.org/libevdev/udev-hid-bpf/-/merge_requests/221
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- drivers/hid/bpf/progs/Huion__KeydialK20.bpf.c         | 3 ++-
- drivers/hid/bpf/progs/IOGEAR__Kaliber-MMOmentum.bpf.c | 2 +-
- drivers/hid/bpf/progs/Wacom__ArtPen.bpf.c             | 2 +-
- drivers/hid/bpf/progs/XPPen__DecoMini4.bpf.c          | 2 +-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/bpf/progs/hid_bpf_async.h   | 36 +++++++--------
+ drivers/hid/bpf/progs/hid_bpf_helpers.h | 80 +++++++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/hid/bpf/progs/Huion__KeydialK20.bpf.c b/drivers/hid/bpf/progs/Huion__KeydialK20.bpf.c
-index ec360d71130f..c562c2d684fe 100644
---- a/drivers/hid/bpf/progs/Huion__KeydialK20.bpf.c
-+++ b/drivers/hid/bpf/progs/Huion__KeydialK20.bpf.c
-@@ -462,7 +462,8 @@ int BPF_PROG(k20_fix_events, struct hid_bpf_ctx *hctx)
- 			__u32 buttons;
- 			__u8 wheel;
- 		} __attribute__((packed)) *pad_report;
--		int i, b;
-+		int i;
-+		size_t b;
- 		__u8 modifiers = data[1];
- 		__u32 buttons = 0;
+diff --git a/drivers/hid/bpf/progs/hid_bpf_async.h b/drivers/hid/bpf/progs/hid_bpf_async.h
+index 9ab585434239..877bb7e81f03 100644
+--- a/drivers/hid/bpf/progs/hid_bpf_async.h
++++ b/drivers/hid/bpf/progs/hid_bpf_async.h
+@@ -116,15 +116,14 @@ static int hid_bpf_async_find_empty_key(void)
+ 		if (!elem)
+ 			return -ENOMEM; /* should never happen */
  
-diff --git a/drivers/hid/bpf/progs/IOGEAR__Kaliber-MMOmentum.bpf.c b/drivers/hid/bpf/progs/IOGEAR__Kaliber-MMOmentum.bpf.c
-index 82f1950445dd..253b96458c58 100644
---- a/drivers/hid/bpf/progs/IOGEAR__Kaliber-MMOmentum.bpf.c
-+++ b/drivers/hid/bpf/progs/IOGEAR__Kaliber-MMOmentum.bpf.c
-@@ -34,7 +34,7 @@ int BPF_PROG(hid_fix_rdesc, struct hid_bpf_ctx *hctx)
- 	if (data[3] != 0x06)
- 		return 0;
+-		bpf_spin_lock(&elem->lock);
++		{
++			guard(bpf_spin)(&elem->lock);
  
--	for (int idx = 0; idx < ARRAY_SIZE(offsets); idx++) {
-+	for (size_t idx = 0; idx < ARRAY_SIZE(offsets); idx++) {
- 		u8 offset = offsets[idx];
+-		if (elem->state == HID_BPF_ASYNC_STATE_UNSET) {
+-			elem->state = HID_BPF_ASYNC_STATE_INITIALIZING;
+-			bpf_spin_unlock(&elem->lock);
+-			return i;
++			if (elem->state == HID_BPF_ASYNC_STATE_UNSET) {
++				elem->state = HID_BPF_ASYNC_STATE_INITIALIZING;
++				return i;
++			}
+ 		}
+-
+-		bpf_spin_unlock(&elem->lock);
+ 	}
  
- 		/* if Input (Cnst,Var,Abs) , make it Input (Data,Var,Abs) */
-diff --git a/drivers/hid/bpf/progs/Wacom__ArtPen.bpf.c b/drivers/hid/bpf/progs/Wacom__ArtPen.bpf.c
-index 2da680bc4e11..ed60a660cc1a 100644
---- a/drivers/hid/bpf/progs/Wacom__ArtPen.bpf.c
-+++ b/drivers/hid/bpf/progs/Wacom__ArtPen.bpf.c
-@@ -148,7 +148,7 @@ int probe(struct hid_bpf_probe_args *ctx)
- {
- 	struct hid_bpf_ctx *hid_ctx;
- 	__u16 pid;
--	int i;
-+	size_t i;
+ 	return -EINVAL;
+@@ -175,18 +174,19 @@ static int hid_bpf_async_delayed_call(struct hid_bpf_ctx *hctx, u64 milliseconds
+ 	if (!elem)
+ 		return -EINVAL;
  
- 	/* get a struct hid_device to access the actual pid of the device */
- 	hid_ctx = hid_bpf_allocate_context(ctx->hid);
-diff --git a/drivers/hid/bpf/progs/XPPen__DecoMini4.bpf.c b/drivers/hid/bpf/progs/XPPen__DecoMini4.bpf.c
-index 46d5c459d0c9..ac07216f5b67 100644
---- a/drivers/hid/bpf/progs/XPPen__DecoMini4.bpf.c
-+++ b/drivers/hid/bpf/progs/XPPen__DecoMini4.bpf.c
-@@ -173,7 +173,7 @@ int BPF_PROG(hid_device_event_xppen_deco_mini_4, struct hid_bpf_ctx *hctx)
- {
- 	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 8 /* size */);
- 	__u8 button_mask = 0;
--	int d, b;
-+	size_t d, b;
+-	bpf_spin_lock(&elem->lock);
+-	/* The wq must be:
+-	 * - HID_BPF_ASYNC_STATE_INITIALIZED -> it's been initialized and ready to be called
+-	 * - HID_BPF_ASYNC_STATE_RUNNING -> possible re-entry from the wq itself
+-	 */
+-	if (elem->state != HID_BPF_ASYNC_STATE_INITIALIZED &&
+-	    elem->state != HID_BPF_ASYNC_STATE_RUNNING) {
+-		bpf_spin_unlock(&elem->lock);
+-		return -EINVAL;
++	{
++		guard(bpf_spin)(&elem->lock);
++
++		/* The wq must be:
++		 * - HID_BPF_ASYNC_STATE_INITIALIZED -> it's been initialized and ready to be called
++		 * - HID_BPF_ASYNC_STATE_RUNNING -> possible re-entry from the wq itself
++		 */
++		if (elem->state != HID_BPF_ASYNC_STATE_INITIALIZED &&
++		    elem->state != HID_BPF_ASYNC_STATE_RUNNING)
++			return -EINVAL;
++
++		elem->state = HID_BPF_ASYNC_STATE_STARTING;
+ 	}
+-	elem->state = HID_BPF_ASYNC_STATE_STARTING;
+-	bpf_spin_unlock(&elem->lock);
  
- 	if (!data)
- 		return 0; /* EPERM check */
+ 	elem->hid = hctx->hid->id;
+ 
+diff --git a/drivers/hid/bpf/progs/hid_bpf_helpers.h b/drivers/hid/bpf/progs/hid_bpf_helpers.h
+index 228f8d787567..5e3ffca1ed7b 100644
+--- a/drivers/hid/bpf/progs/hid_bpf_helpers.h
++++ b/drivers/hid/bpf/progs/hid_bpf_helpers.h
+@@ -40,6 +40,86 @@ extern int bpf_wq_set_callback(struct bpf_wq *wq,
+ #define HID_MAX_DESCRIPTOR_SIZE	4096
+ #define HID_IGNORE_EVENT	-1
+ 
++/**
++ * Use: _cleanup_(somefunction) struct foo *bar;
++ */
++#define _cleanup_(_x) __attribute__((cleanup(_x)))
++
++/**
++ * Use: _release_(foo) *bar;
++ *
++ * This requires foo_releasep() to be present, use DEFINE_RELEASE_CLEANUP_FUNC.
++ */
++#define _release_(_type) struct _type __attribute__((cleanup(_type##_releasep)))
++
++/**
++ * Define a cleanup function for the struct type foo with a matching
++ * foo_release(). Use:
++ * DEFINE_RELEASE_CLEANUP_FUNC(foo)
++ * _unref_(foo) struct foo *bar;
++ */
++#define DEFINE_RELEASE_CLEANUP_FUNC(_type)				\
++	static inline void _type##_releasep(struct _type **_p) {	\
++		if (*_p)						\
++			_type##_release(*_p);				\
++	}								\
++	struct __useless_struct_to_allow_trailing_semicolon__
++
++/* for being able to have a cleanup function */
++#define hid_bpf_ctx_release hid_bpf_release_context
++DEFINE_RELEASE_CLEANUP_FUNC(hid_bpf_ctx);
++
++/*
++ * Kernel-style guard macros adapted for BPF
++ * Based on include/linux/cleanup.h from the Linux kernel
++ *
++ * These provide automatic lock/unlock using __attribute__((cleanup))
++ * similar to how _release_() works for contexts.
++ */
++
++/**
++ * DEFINE_GUARD(name, type, lock, unlock):
++ *	Define a guard for automatic lock/unlock using the same pattern as _release_()
++ *	@name: identifier for the guard (e.g., bpf_spin)
++ *	@type: lock variable type (e.g., struct bpf_spin_lock)
++ *	@lock: lock function name (e.g., bpf_spin_lock)
++ *	@unlock: unlock function name (e.g., bpf_spin_unlock)
++ *
++ * guard(name):
++ *	Declare and lock in one statement - lock held until end of scope
++ *
++ * Example:
++ *	DEFINE_GUARD(bpf_spin, struct bpf_spin_lock, bpf_spin_lock, bpf_spin_unlock)
++ *
++ *	void foo(struct bpf_spin_lock *lock) {
++ *		guard(bpf_spin)(lock);
++ *		// lock held until end of scope
++ *	}
++ */
++
++/* Guard helper struct - stores lock pointer for cleanup */
++#define DEFINE_GUARD(_name, _type, _lock, _unlock)			\
++struct _name##_guard {							\
++	_type *lock;							\
++};									\
++static inline void _name##_guard_cleanup(struct _name##_guard *g) {	\
++	if (g && g->lock) 						\
++		_unlock(g->lock);					\
++}									\
++static inline struct _name##_guard _name##_guard_init(_type *l) {	\
++	if (l)								\
++		_lock(l);						\
++	return (struct _name##_guard){.lock = l};			\
++}									\
++struct __useless_struct_to_allow_trailing_semicolon__
++
++#define guard(_name) \
++	struct _name##_guard COMBINE(guard, __LINE__) __attribute__((cleanup(_name##_guard_cleanup))) = \
++		_name##_guard_init
++
++/* Define BPF spinlock guard */
++DEFINE_GUARD(bpf_spin, struct bpf_spin_lock, bpf_spin_lock, bpf_spin_unlock);
++
+ /* extracted from <linux/input.h> */
+ #define BUS_ANY			0x00
+ #define BUS_PCI			0x01
 
 -- 
 2.53.0

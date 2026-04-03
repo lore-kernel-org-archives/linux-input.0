@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 408323CFF4A;
-	Fri,  3 Apr 2026 16:12:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C661D3CF673;
+	Fri,  3 Apr 2026 16:12:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775232755; cv=none; b=rxXvk5YH4a3caiwk63xmqR6T/lF2pGbp1Fa4aLqsQGPpM09CKy2pr6lptvwRjwGP5cEhjIlqtU+R2ao3zmtIIvdVoRqCpjekz+yi4gwVB97MM1QARgxBCzbtGBEuFFNcKCVJj2FrbAx0tnCUOqVUXs9xbXYHrxsfv1QMSGxjHyo=
+	t=1775232756; cv=none; b=gKKFJS3EbCXe1VxMwnu2fjH/QrYJgsUXCVXLAHFI5QYFKYLZKo9xM1MNV/4MbXiW+N4ffPcrGN2mrKkb3OPCNmzbqlhMpP5Vzm1iVXAmYAwHqysJVVTpBDvSU0BvXNzHOqXN5uA7M0Pc5ICFb9LbhYq1Aa4ABbsFz9Armhh9xD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775232755; c=relaxed/simple;
-	bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
+	s=arc-20240116; t=1775232756; c=relaxed/simple;
+	bh=oTzJx4TGLkAb64Ts6MQn7QYIZdcx61tz57ztiNvNZ7A=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=DfbLvdJlffdnsPOWjE3AW4Un1YWhu00l84ua1rgc8JLxnCBOACsfR1mNWFsy3MIcYIzs51Il0kZ574R88Y9fmqC6vB4Mk6XZrGjcLvkTuXcaZzHTFYmroYayco7T/rJ5M1iMYapQbC5slvI2lg8MoY6KeHobRQjmM1rGfCj7Gu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iD6wOeMY; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=CgBIiCyQOw0GURiVBtVF8E58WGmBCH9U+Dg2l9eHUbzZ/KQfU5PKDLWyy9q2puTUsf20yCj6TlI1fgXBCZ6wzmvN+edUfVY0OBD9K93aOycXYyc3bI4WWWguYj/ifH2wzeEUKUTZJcJU75G/nPQPxK0cwNOlHlgcy3nvdtB022s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i0iCakjZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iD6wOeMY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437D5C2BCB0;
-	Fri,  3 Apr 2026 16:12:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i0iCakjZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 853A0C19421;
+	Fri,  3 Apr 2026 16:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775232755;
-	bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
+	s=k20201202; t=1775232756;
+	bh=oTzJx4TGLkAb64Ts6MQn7QYIZdcx61tz57ztiNvNZ7A=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=iD6wOeMYC1bg4sz6kLyGmRYfAPTJDhGo5JWUeesXn6/2siBpvWwDd7lsRFAVE7lYk
-	 0L1TihpPfNQBmkhrVHPvZTj9mkMyyLZROXMn9Xsph5zh5X0aTYYm1SRsFzDmInJCaN
-	 CD13dZ+RbJVkEbMN2auBIUrgrG4axGzqTR3B0LACTXitII7A8zeRgTYtHQ+LcMocJs
-	 3ZyiqAjMD42QepMaoVHJldFld6DH0TBzHd4y4z09Zr2+xrmaFkJiQbjMAjoE/CdFZX
-	 EDTAO26Hoy3w3rnOhlhaVZXxe6njXBWXYrPGjGLolj+zbytmWcCy5NHzrWM6E2Fhme
-	 VNLmtuqWbqctA==
+	b=i0iCakjZVMIy1jnabsZxbJtvPqKaWFofcGKEVhC8ve2YbHPgF01YgMEYqhLB919L8
+	 gQ2CjolpmPDSkHPT3AYcHxzq9E4lS3LfeYvNBo4KSyvF5Phnhb6pswFnsR5TZQ1KmB
+	 8145cKA21z00yGiYBZAX0nCnFIzBfP1uGVNY59aqM3V/4L/gCtpqB58hab/eDvBjvi
+	 llJmks2gBCmyuNYGHigp3AMW2/dVYX9+J76txcvOrEpQFO1/P2+n1N1gwpUI5Ap778
+	 t7wrK/vuj0O/FonzAMmbu/NFnqz6k2kgbMpzbsriIuDUHj0BiNTO/4hRFzd//cQlZ9
+	 /8inc5HS9WtCA==
 From: Benjamin Tissoires <bentiss@kernel.org>
-Date: Fri, 03 Apr 2026 18:12:20 +0200
-Subject: [PATCH 2/8] HID: bpf: hid_bpf_helpers: provide a cleanup functions
+Date: Fri, 03 Apr 2026 18:12:21 +0200
+Subject: [PATCH 3/8] HID: bpf: add helper macros for LE/BE conversion
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -37,180 +37,117 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-2-978cedb9a074@kernel.org>
+Message-Id: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-3-978cedb9a074@kernel.org>
 References: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-0-978cedb9a074@kernel.org>
 In-Reply-To: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-0-978cedb9a074@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Benjamin Tissoires <bentiss@kernel.org>
+ Benjamin Tissoires <bentiss@kernel.org>, 
+ Peter Hutterer <peter.hutterer@who-t.net>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1775232750; l=5515;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1775232750; l=3829;
  i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=nwtt+FcuK5HLjwtaSmiikbjw3Qdf1NxzJRbkXYYA6GM=;
- b=b+305jvTJQE6dXGa3nTOwrv0ebGBGLXW67YF/pdV+4IABbwLtSm5Q14/jr/MHnVzq/i4O0t6D
- i9PuJCmuLkKAwpC7Q4e+3Tz81rOIhavS3ZJrIF2n0lzbq9tQGU3K2UE
+ bh=9njiCApk6Gx042A/Eg3M37IHKmB5diYrBQXA1AeCaFM=;
+ b=mtqWgtODlpTqIvDPIevVn2/RsvpQRrlkLYb1vbMtKNnYaVXe6QO6x4SC+wrwCc1EgH3uEb247
+ sHOMO7GgEI4AXHAkoc2ad+RbPPjunzSYyet7XPEs73s3lCrEu9t2yhj
 X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
  pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-Combination of 2 udev-hid-bpf commits:
-bpf: hid_bpf_helpers: provide a cleanup function for hid_bpf_release_context
-bpf: helpers: add guard(bpf_spin) macro
+From: Peter Hutterer <peter.hutterer@who-t.net>
+
+BPF has bpf_htons and friends but those only work with data in Big
+Endian format. HID is little endian so we need our own macros.
 
 Link: https://gitlab.freedesktop.org/libevdev/udev-hid-bpf/-/merge_requests/221
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- drivers/hid/bpf/progs/hid_bpf_async.h   | 36 +++++++--------
- drivers/hid/bpf/progs/hid_bpf_helpers.h | 80 +++++++++++++++++++++++++++++++++
- 2 files changed, 98 insertions(+), 18 deletions(-)
+ drivers/hid/bpf/progs/hid_bpf_helpers.h | 67 +++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
 
-diff --git a/drivers/hid/bpf/progs/hid_bpf_async.h b/drivers/hid/bpf/progs/hid_bpf_async.h
-index 9ab585434239..877bb7e81f03 100644
---- a/drivers/hid/bpf/progs/hid_bpf_async.h
-+++ b/drivers/hid/bpf/progs/hid_bpf_async.h
-@@ -116,15 +116,14 @@ static int hid_bpf_async_find_empty_key(void)
- 		if (!elem)
- 			return -ENOMEM; /* should never happen */
- 
--		bpf_spin_lock(&elem->lock);
-+		{
-+			guard(bpf_spin)(&elem->lock);
- 
--		if (elem->state == HID_BPF_ASYNC_STATE_UNSET) {
--			elem->state = HID_BPF_ASYNC_STATE_INITIALIZING;
--			bpf_spin_unlock(&elem->lock);
--			return i;
-+			if (elem->state == HID_BPF_ASYNC_STATE_UNSET) {
-+				elem->state = HID_BPF_ASYNC_STATE_INITIALIZING;
-+				return i;
-+			}
- 		}
--
--		bpf_spin_unlock(&elem->lock);
- 	}
- 
- 	return -EINVAL;
-@@ -175,18 +174,19 @@ static int hid_bpf_async_delayed_call(struct hid_bpf_ctx *hctx, u64 milliseconds
- 	if (!elem)
- 		return -EINVAL;
- 
--	bpf_spin_lock(&elem->lock);
--	/* The wq must be:
--	 * - HID_BPF_ASYNC_STATE_INITIALIZED -> it's been initialized and ready to be called
--	 * - HID_BPF_ASYNC_STATE_RUNNING -> possible re-entry from the wq itself
--	 */
--	if (elem->state != HID_BPF_ASYNC_STATE_INITIALIZED &&
--	    elem->state != HID_BPF_ASYNC_STATE_RUNNING) {
--		bpf_spin_unlock(&elem->lock);
--		return -EINVAL;
-+	{
-+		guard(bpf_spin)(&elem->lock);
-+
-+		/* The wq must be:
-+		 * - HID_BPF_ASYNC_STATE_INITIALIZED -> it's been initialized and ready to be called
-+		 * - HID_BPF_ASYNC_STATE_RUNNING -> possible re-entry from the wq itself
-+		 */
-+		if (elem->state != HID_BPF_ASYNC_STATE_INITIALIZED &&
-+		    elem->state != HID_BPF_ASYNC_STATE_RUNNING)
-+			return -EINVAL;
-+
-+		elem->state = HID_BPF_ASYNC_STATE_STARTING;
- 	}
--	elem->state = HID_BPF_ASYNC_STATE_STARTING;
--	bpf_spin_unlock(&elem->lock);
- 
- 	elem->hid = hctx->hid->id;
- 
 diff --git a/drivers/hid/bpf/progs/hid_bpf_helpers.h b/drivers/hid/bpf/progs/hid_bpf_helpers.h
-index 228f8d787567..5e3ffca1ed7b 100644
+index 5e3ffca1ed7b..f9071444c938 100644
 --- a/drivers/hid/bpf/progs/hid_bpf_helpers.h
 +++ b/drivers/hid/bpf/progs/hid_bpf_helpers.h
-@@ -40,6 +40,86 @@ extern int bpf_wq_set_callback(struct bpf_wq *wq,
- #define HID_MAX_DESCRIPTOR_SIZE	4096
- #define HID_IGNORE_EVENT	-1
+@@ -7,6 +7,7 @@
  
-+/**
-+ * Use: _cleanup_(somefunction) struct foo *bar;
+ #include "vmlinux.h"
+ #include <bpf/bpf_helpers.h>
++#include <bpf/bpf_endian.h>
+ #include <linux/errno.h>
+ 
+ extern __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx,
+@@ -263,4 +264,70 @@ DEFINE_GUARD(bpf_spin, struct bpf_spin_lock, bpf_spin_lock, bpf_spin_unlock);
+ 	_EXPAND(_ARG, __VA_ARGS__) \
+ } _device_ids SEC(".hid_bpf_config")
+ 
++
++/* Equivalency macros for bpf_htons and friends which are
++ * Big Endian only - HID needs little endian so these are the
++ * corresponding macros for that. See bpf/bpf_endian.h
 + */
-+#define _cleanup_(_x) __attribute__((cleanup(_x)))
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++# define __hid_bpf_le16_to_cpu(x)		(x)
++# define __hid_bpf_le32_to_cpu(x)		(x)
++# define __hid_bpf_le64_to_cpu(x)		(x)
++# define __hid_bpf_cpu_to_le16(x)		(x)
++# define __hid_bpf_cpu_to_le32(x)		(x)
++# define __hid_bpf_cpu_to_le64(x)		(x)
++# define __hid_bpf_constant_le16_to_cpu(x)	(x)
++# define __hid_bpf_constant_le32_to_cpu(x)	(x)
++# define __hid_bpf_constant_le64_to_cpu(x)	(x)
++# define __hid_bpf_constant_cpu_to_le16(x)	(x)
++# define __hid_bpf_constant_cpu_to_le32(x)	(x)
++# define __hid_bpf_constant_cpu_to_le64(x)	(x)
++#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
++# define __hid_bpf_le16_to_cpu(x)		__builtin_bswap16(x)
++# define __hid_bpf_le32_to_cpu(x)		__builtin_bswap32(x)
++# define __hid_bpf_le64_to_cpu(x)		__builtin_bswap64(x)
++# define __hid_bpf_cpu_to_le16(x)		__builtin_bswap16(x)
++# define __hid_bpf_cpu_to_le32(x)		__builtin_bswap32(x)
++# define __hid_bpf_cpu_to_le64(x)		__builtin_bswap64(x)
++# define __hid_bpf_constant_le16_to_cpu(x)	__bpf_swab16(x)
++# define __hid_bpf_constant_le32_to_cpu(x)	__bpf_swab32(x)
++# define __hid_bpf_constant_le64_to_cpu(x)	__bpf_swab64(x)
++# define __hid_bpf_constant_cpu_to_le16(x)	__bpf_swab16(x)
++# define __hid_bpf_constant_cpu_to_le32(x)	__bpf_swab32(x)
++# define __hid_bpf_constant_cpu_to_le64(x)	__bpf_swab64(x)
++#else
++# error "Invalid __BYTE_ORDER__"
++#endif
 +
-+/**
-+ * Use: _release_(foo) *bar;
-+ *
-+ * This requires foo_releasep() to be present, use DEFINE_RELEASE_CLEANUP_FUNC.
-+ */
-+#define _release_(_type) struct _type __attribute__((cleanup(_type##_releasep)))
++#define hid_bpf_le16_to_cpu(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_le16_to_cpu(x) : __hid_bpf_le16_to_cpu(x))
 +
-+/**
-+ * Define a cleanup function for the struct type foo with a matching
-+ * foo_release(). Use:
-+ * DEFINE_RELEASE_CLEANUP_FUNC(foo)
-+ * _unref_(foo) struct foo *bar;
-+ */
-+#define DEFINE_RELEASE_CLEANUP_FUNC(_type)				\
-+	static inline void _type##_releasep(struct _type **_p) {	\
-+		if (*_p)						\
-+			_type##_release(*_p);				\
-+	}								\
-+	struct __useless_struct_to_allow_trailing_semicolon__
++#define hid_bpf_le32_to_cpu(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_le32_to_cpu(x) : __hid_bpf_le32_to_cpu(x))
 +
-+/* for being able to have a cleanup function */
-+#define hid_bpf_ctx_release hid_bpf_release_context
-+DEFINE_RELEASE_CLEANUP_FUNC(hid_bpf_ctx);
++#define hid_bpf_le64_to_cpu(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_le64_to_cpu(x) : __hid_bpf_le64_to_cpu(x))
 +
-+/*
-+ * Kernel-style guard macros adapted for BPF
-+ * Based on include/linux/cleanup.h from the Linux kernel
-+ *
-+ * These provide automatic lock/unlock using __attribute__((cleanup))
-+ * similar to how _release_() works for contexts.
-+ */
++#define hid_bpf_cpu_to_le16(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_cpu_to_le16(x) : __hid_bpf_cpu_to_le16(x))
 +
-+/**
-+ * DEFINE_GUARD(name, type, lock, unlock):
-+ *	Define a guard for automatic lock/unlock using the same pattern as _release_()
-+ *	@name: identifier for the guard (e.g., bpf_spin)
-+ *	@type: lock variable type (e.g., struct bpf_spin_lock)
-+ *	@lock: lock function name (e.g., bpf_spin_lock)
-+ *	@unlock: unlock function name (e.g., bpf_spin_unlock)
-+ *
-+ * guard(name):
-+ *	Declare and lock in one statement - lock held until end of scope
-+ *
-+ * Example:
-+ *	DEFINE_GUARD(bpf_spin, struct bpf_spin_lock, bpf_spin_lock, bpf_spin_unlock)
-+ *
-+ *	void foo(struct bpf_spin_lock *lock) {
-+ *		guard(bpf_spin)(lock);
-+ *		// lock held until end of scope
-+ *	}
-+ */
++#define hid_bpf_cpu_to_le32(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_cpu_to_le32(x) : __hid_bpf_cpu_to_le32(x))
 +
-+/* Guard helper struct - stores lock pointer for cleanup */
-+#define DEFINE_GUARD(_name, _type, _lock, _unlock)			\
-+struct _name##_guard {							\
-+	_type *lock;							\
-+};									\
-+static inline void _name##_guard_cleanup(struct _name##_guard *g) {	\
-+	if (g && g->lock) 						\
-+		_unlock(g->lock);					\
-+}									\
-+static inline struct _name##_guard _name##_guard_init(_type *l) {	\
-+	if (l)								\
-+		_lock(l);						\
-+	return (struct _name##_guard){.lock = l};			\
-+}									\
-+struct __useless_struct_to_allow_trailing_semicolon__
++#define hid_bpf_cpu_to_le64(x)				\
++	(__builtin_constant_p(x) ?			\
++	 __hid_bpf_constant_cpu_to_le64(x) : __hid_bpf_cpu_to_le64(x))
 +
-+#define guard(_name) \
-+	struct _name##_guard COMBINE(guard, __LINE__) __attribute__((cleanup(_name##_guard_cleanup))) = \
-+		_name##_guard_init
++#define hid_bpf_be16_to_cpu(x)	bpf_ntohs(x)
++#define hid_bpf_be32_to_cpu(x)	bpf_ntohl(x)
++#define hid_bpf_be64_to_cpu(x)	bpf_be64_to_cpu(x)
++#define hid_bpf_cpu_to_be16(x)	bpf_htons(x)
++#define hid_bpf_cpu_to_be32(x)	bpf_htonl(x)
++#define hid_bpf_cpu_to_be64(x)	bpf_cpu_to_be64(x)
 +
-+/* Define BPF spinlock guard */
-+DEFINE_GUARD(bpf_spin, struct bpf_spin_lock, bpf_spin_lock, bpf_spin_unlock);
-+
- /* extracted from <linux/input.h> */
- #define BUS_ANY			0x00
- #define BUS_PCI			0x01
+ #endif /* __HID_BPF_HELPERS_H */
 
 -- 
 2.53.0

@@ -1,340 +1,179 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from MA0PR01CU012.outbound.protection.outlook.com (mail-southindiaazolkn19011025.outbound.protection.outlook.com [52.103.67.25])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB813A5421
-	for <linux-input@vger.kernel.org>; Sat,  4 Apr 2026 08:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775292053; cv=none; b=jxxuFpVqtz5YjDmyfdIgHWR74rG5Bx8/JOGgdCYW+R60XL2bTRer3vFHEknlWznzK9Sc0KQBKACTl+eV0SqYaYDonJcMXYZLmlFcKJgjJE6s1UwL1dolJvLqWgHsJRIdlOO8WJNZpQW6ZnS6KA+n03LLh/0TT9zn00m32A/kEww=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775292053; c=relaxed/simple;
-	bh=hhsZ6j19W4o6s/8yEV+HcIniEdGTRY8zKrXFnU1OXxQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pf7zcVMfw9zzg5xmqs5NoFSabOrSE2hWYAxqZHyQtiqZST7g2Tlr8+vrFdXOEV0G6/WtqT58HpaLKIhpSzGlfbCbHtIpvCm6Cgkyr2uIgZVCYwrtU4XpxPI0T9DmoGnM3avMZF5TpJjaEX8mpepTZoEo0u9SO7SS+d5J8lmkw5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tNKx9Jir; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5951C3A7F48;
+	Sat,  4 Apr 2026 09:45:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.67.25
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775295915; cv=fail; b=OxM5jWwKeLZIolo4bNNl1i0yCQjiDJ0vKB4gO7CSpf6o1md04c3vO5923zMUtbaHfbeG/ykQgOqsY4E7xQvExqZxoF7+vCffz6QKZryzyXt5ecH5v2O6nTGY+CGhnPSiWOSjqSneOLdxDIAdZ95Tr/x2Y5XwgDPRvHD/9JdAFlo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775295915; c=relaxed/simple;
+	bh=ETyRZexaccSo1y+lj8UN+EyYdey064NQXdVLI95w0tA=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=kYdl7tKMxIggCLBnsykdZBqqGUXgjGY9ztDtWBSNIW1Eg0wS9R0gUbi03itn966SRMprrVJPiVwLV9j6tcWJFKERoUguUyMc3iaIPSpTUzRKaE25PcOhnncWv8LH5kCu63M4NmfMMi7k6EoM+fmeAYoIYFwnxlHDl0DnCk5quBo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com; spf=pass smtp.mailfrom=live.com; dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b=fJq44Y5f; arc=fail smtp.client-ip=52.103.67.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=live.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tNKx9Jir"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ab46931cf1so23969115ad.0
-        for <linux-input@vger.kernel.org>; Sat, 04 Apr 2026 01:40:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775292050; x=1775896850; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Mq7B89Ewf697Bx8LyU72ArzYBHLBGffy4a2kKVItZjM=;
-        b=tNKx9JirkTeDwIu+ww2hJ3xrJA1qYqAiMYz7BvLNIRZ/tTYVsem/sUWbfCrDl+z00d
-         qu5cIK4N4lxr21gs3r6Icq8dpsLGDsdEIEGKqxqI8hzV6LVhJoQDkczSj2MUbwpgLjOM
-         zaOOg6RZ+12kg4Q4zSn68Ed3gqEoiPwHbeA2WoyKtusekb2Wxn9ji6ljh8PeZwotpEea
-         6aYQPlRieM+9C+rigAIJuF1XhT510hVdwPpRl+R40zjyPreZofIqbfScQraEsYTMlwlD
-         B9aHHWqfRnlqGZOXflEcL3TeNBXLnugtzjZTUiXBmLsPAgxMDg0xS4KhmgoXd7LpX/62
-         gS1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775292050; x=1775896850;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Mq7B89Ewf697Bx8LyU72ArzYBHLBGffy4a2kKVItZjM=;
-        b=hJk7C4Xzd1TVVBNGMVrbR1pOdEbTp1IdNPWFH3/d+caubenTNK9XgXaJzk2KrX1s9X
-         uce3A7Zzr3lk+XGG/doczhwMMle8sLsA2FIzEdNm2b9YWrIfVBrMZr/5/2/n3vXy703o
-         Md0YxPXo03YIeLnx2IVHjOqjZBWdK+iy5yqT5LGuWm1RB03PZO7XTTHLn/15HbZLPAdk
-         dU8bGPLbzMoNXhrdt61JxiTLNyeDlG0LzYGZ0in5CTYp5VZi8SvWXOGoJcADvFsqBsbE
-         tUSiVnXD8aiOfDO2lEBQ+MA567MvwgUBg0AEZ4MWksRCxPeO41IxFpJte2qdHHgeHpkw
-         qT4A==
-X-Forwarded-Encrypted: i=1; AJvYcCWfz073T68n5ikX2y5+hQ6Kz+8aV/CTFotwX7h8J958JDxekpWn0EPZcfiJ2CPCaW0SwDeD+9b3zYmS2A==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzuTBkSK/nsS1CBT4GaEi4XTZqGKIHV7xS8S5v+kosAs6R1CdFE
-	e7+Xgo5AnxvYt4Z2eVbBtPRhFpHOkmEsL01z2QW4iBenBVnbbV1SSODi
-X-Gm-Gg: AeBDiet1SKfLZjLAwohoKQ4H7oArLD3+y5PrPCnxSf9vv8IYEAMd9x+wUfKTcpmpE10
-	YmI9cXeKtrDZhff3pMGtB4ahvlDb5lKKOYLq8ko773ct+XFfuBCRje/uTUahzerRPJ9ZOF5Txr1
-	U/JoSO1PTdWlCE+CtC3x09p+ME4k3Tzw6xkamv4A8aCYfUvwahXJA6DepF19l25nun53W7mQCoZ
-	6j03olSmXdiIzIDTBP9+uGCv7tBNywcnnxrAotBAtB/IHKytA9mRR5fvR0mtheHZ4F8uzctpODA
-	GUbxnkutndjdDJMo+Zz095JUvJnOrOpdHXDbmK300+mFYbJNQBefJlOQP+Gqzd6oiGQcqOLBXyi
-	BwXlVrBp2efYW3G8Rl1TclwtUA2xFGwT75KfHrh+bshYcoAe4wRhlLbLO/TG1dFva27WvTpQZeq
-	codwQciwW8Mu4Kzs0nbDdmZk0M2qabxcBwRRSG5eSU0MxfazsDZSTc+hXtLwm19gsSz0v0gIzG2
-	zphA1qEqKumduCgtHqg19a/9iUVmnv7TXvqMbZrEE5GyRlgxs6fVDsrTtFMkQ==
-X-Received: by 2002:a17:903:4b03:b0:2ae:5a38:96bb with SMTP id d9443c01a7336-2b277d633f8mr88046425ad.2.1775292049716;
-        Sat, 04 Apr 2026 01:40:49 -0700 (PDT)
-Received: from sanjays-pc.govzhome.govindz.co.nz ([203.94.63.0])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b274735633sm81277905ad.6.2026.04.04.01.40.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Apr 2026 01:40:49 -0700 (PDT)
-From: Sanjay Govind <sanjay.govind9@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Vicki Pfau <vi@endrift.com>,
-	Nilton Perim Neto <niltonperimneto@gmail.com>,
-	Sanjay Govind <sanjay.govind9@gmail.com>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	Antheas Kapenekakis <lkml@antheas.dev>
-Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] xpad: Overhaul device data for wireless devices
-Date: Sat,  4 Apr 2026 21:39:27 +1300
-Message-ID: <20260404083928.489966-3-sanjay.govind9@gmail.com>
+	dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b="fJq44Y5f"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=FI4umOQEcmEFU5fwr7lHwGiv6l2ge0YM1ZsnCLj4FeW6vy3vGEObs7bvFksZ/mMwCFfR6fAo+fc6S3q2fiaUvuJi4uxdi7vorwXLBLzVcEo8qGwu23LzSwwUx7inoqSMUEKNFb8fyp9FR5hUs1joYWtZYtd+FNTPeWX4tJWI/1nM5qW8QFLurMtOEJRIXEnli4Fj9iCyEtEqZvgU7/zplBbQ/ioY0W7dnFjY3hfOHX08h+DnVaLE4k2XPVGRhuT0h3zYl4sBhnNugZ+rGHaB96dYd2XdKRh63pQMriOtFOt2+28jvMc7nd5YDg8WnneWvyKMC1uE4W649h2WhBFrBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5w5QYwHIZLxTST7EjuflNQlu9HEiffUx9lGy4RKW4Vc=;
+ b=pZgx3eYXmUNmZsF4Dy72QZtS3tx1y0t5cGbCgX/3v4VYpSzD9XZPzRTsyco5vgRnUwCAqmWS6QlofUr9DgdD3gEBqvFWtoFdEudGf4PQAGruAtd8+A42G+KT8dHuWA5Ysu3VRXJq3WE88CtkIYdhzxV7LZCf7ECO3prJ04gNt8HJ0Tf89rphebOnw1ZvIR2AGmtOQ6MgomRBfojT/d3oV9QDrIt7/i3Q02Jq888zKibywXbyATCalemdSXsw3vARC9x9ky92IRj1kz1tTnUa6BGo5NN/XpfNubYDNaQh8ARqKfYtqgUsailzCqr+Qd0EP2E06IgQ6crBFiKySdf2Pg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5w5QYwHIZLxTST7EjuflNQlu9HEiffUx9lGy4RKW4Vc=;
+ b=fJq44Y5frWRzb2brDJwCVUJ6ib+sa33vlsOpdyWSd9jH6yoXSLnAjwNYD/Tdichg8R8EqziuNrqvbyxFhUiWsU1UVMoNGvwxiEyjxFsJzog1jpovYjVPBHKVcKcvT7idJQuVSsQffBS/xTmmlf/2PLfjr9TaA5M/pVq4Vo+Kkq+BCGGb7DqoZ8+AA15RvA15ML0JergGornQ0yzBIBsiHMWdvjxQ/YC3WqJSXRjdUK9s/Ywi0wMdpnYWWrjJXfjJJgZTVJQQt1xy7pIdo/UEkjl+eIZS1zdE1tKFqzb/ezGJCth9zfwM7axU1Q66ZxabWphxiHlS2oRTs832xfdILQ==
+Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:19c::18) by PN3PR01MB7000.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:ab::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.21; Sat, 4 Apr
+ 2026 09:45:10 +0000
+Received: from MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::1fed:9b0b:69b:9295]) by MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::1fed:9b0b:69b:9295%6]) with mapi id 15.20.9769.018; Sat, 4 Apr 2026
+ 09:45:09 +0000
+From: Aditya Garg <gargaditya08@live.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	=?UTF-8?q?Andr=C3=A9=20Eikmeyer?= <andre.eikmeyer@gmail.com>
+Subject: [PATCH] HID: apple: ensure the keyboard backlight is off if suspending
+Date: Sat,  4 Apr 2026 15:14:34 +0530
+Message-ID:
+ <MAUPR01MB115467C51E492BD620ED390B6B85FA@MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM>
 X-Mailer: git-send-email 2.53.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: PN4PR01CA0057.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:274::16) To MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a01:19c::18)
+X-Microsoft-Original-Message-ID: <20260404094442.6040-1-gargaditya08@live.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MAUPR01MB11546:EE_|PN3PR01MB7000:EE_
+X-MS-Office365-Filtering-Correlation-Id: 44f12d1a-993e-468a-7dd5-08de922edbc8
+X-MS-Exchange-SLBlob-MailProps:
+	WaIXnCbdHrPy8Gg0T1tV+ubdyTLMpos/xYcxR7TY+ceHg3Nhq89ATvKlWbc7Is4EQmpoGttsMu97EeMHRvEygKxOjAy1ePkt21NogoRTmY5b6pRRXmhs0HckjcpJ5Ea9LKHZuN4Jui857nPv4yqG7SJuByWSF0anDy3Y4YX7zE8s+z189y9oYnjcTdAPFiOFVPayTyyh6kP2wNRP3dkRa2m4GyhLBjqUhEunXevrRRKXU/NmuV3JFD69edII8LtN/bxcmyt37Se3Cck3LZdLQE9e55bTrB74K/4vVJLMBHBq5w2cZkS+nwC5pLDjrG/FbPoYTDyN1Bkm7OxwXEco0udIJSONPufzEN/bTzVtPyenUCjUA5HLkrlM9Z8do5XeWHx1PSs4zJCR5GmwPoOCwjySx3oab4fNbaJTL7WoBDlYx0VzcqnJXZFuHKcvAdBNUIpDGFMvK4knhFCGfA+9lVCT/l9MllygUxHzXli8PzWouQMAvc06rYkQMGIEY8QGoIhfO3yMubKlyVM9l61H5ehGH/k2AbdwYEffO+3jyRM0rpPadh51V3popojRzaBeRP1KPcv+PvqGzdgcwXeFyFCCxAUyTURar7/GM52dvhI+71GJhv6EWyir1Pv0wwPMm0jdOTbjtC/yWzT1f+QstPUBPD841p2+RU8Xyu9LqWaBK4x+VCeyabsAy4KZRCQ54RovBsGeb4ZSV1A+atO0Fn8gx7jFbN8QwCLno/D0k/tZywyeZLJf5OJhIZHavegkolxEW6MyRLQ=
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|5072599009|5062599005|19110799012|25031999004|6090799003|23021999003|8060799015|461199028|15080799012|40105399003|52005399003|440099028|3412199025|26121999003;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?S3dRQks1TUhOcDNFS0QyeHBXVTFwVFIzWTVhRS9MODNGbHJCVm9ZQXJUSDM4?=
+ =?utf-8?B?NGVuM1hUNkk1a2s4bVFiYW1SdVZ3WnB6YnZ5YTMvZ2dFU1JocldyKzAxZ1lt?=
+ =?utf-8?B?UWxlV005N1dZT0Fpc25SbWd4T0tQclNsSU1yRE5hdlJpZEtBYVdZQVhwQTJ0?=
+ =?utf-8?B?SXorT3drOHVEcklzYmpGODROQlI2bVI3RlFVc0IwZlgvWVpZQU1EZWMwM3gw?=
+ =?utf-8?B?VnJKL0NSOFJsUVI3eHhFUGs0b0t6OU9yTUZlVnNmUkhtbkwyVjdPZ0xkWWVj?=
+ =?utf-8?B?a1Z5dWdic0VSYlcxdncyWHYyK29ucWxadllRZWVNalByeS9SbUJhakhPa0F6?=
+ =?utf-8?B?M1plZ1lYY2tuS3czc2RBZkNNQVlGRDhUV0dtQkhRVUhFY0FUZVZtVFZUUkpj?=
+ =?utf-8?B?ZHVJQ2FtbE8weS9ZcWpQZnl5R1dIM3VhcEZqa2h0T1EvbzlmMkRNVy9oNDdU?=
+ =?utf-8?B?MVFWaTFxSjZORUR4Nm4reEVOTWJITy9PcS92Z1V1ZTEzNXBJaUtNUmJzUWQx?=
+ =?utf-8?B?OFRyZUtISE4wS0ovWUpBNHc4dUg1Wkphc0F2SzBMd1hhaU83YURMQTdzdXYv?=
+ =?utf-8?B?R3RFRTNuQVdGd3B4b3VQeS9SNFIvTkRDZzVXbjh1cUZvYXk5RHVtWWc2UXNV?=
+ =?utf-8?B?YzVFNHA3azZsZGY3N3pxQ3hnbUZoaXFSK0RoRDFsQzJvblZQV2hYUkF2UWRo?=
+ =?utf-8?B?cGg2UjNoYjUzMzZmRkRTdmp3Y2MxMEFXK05uZzgwSjNMNTgyb2gzb2J1UEdx?=
+ =?utf-8?B?ZWUwYXN6YWZzYTVtUERtbHpUc2FQWGlUbWlVcm9MZ2IxNFFuNXFIRUM4T2NR?=
+ =?utf-8?B?VWQ0MU56ZWlSYmtYcGhSWUFYZENaWC9CSWZ5K3lkYkdWMlVjekZJL05MUVYx?=
+ =?utf-8?B?bTJYV3BpdWprSHRJaER1VlNhQXE1d3grL1kxMjBsSVQyODNrLzlxb2FBK3p5?=
+ =?utf-8?B?djhGRk5DZmpxR1pmSDd0OVFpZGtnYi8yQVVLYXNEcHpaZUlJb0dmeWVPb0hS?=
+ =?utf-8?B?S1EyQnJGdWdhVDNQZ1hrN0VsajZza0Q5eDFzR0FodHVpSVFzMEkzOWVmaFJR?=
+ =?utf-8?B?OHNPMlJaM0Q5TWVaV0toK0xCa0ZoeW9tQmhJOVRYc1N4R3ZmVWJpVURLS2xi?=
+ =?utf-8?B?c3Y2ZEZOU3hmc1FQUWl2WjdwelhGeHphUmdHcGdkRGhUdzc3bGpNc25naEhk?=
+ =?utf-8?B?azNIaCtiTDBUenA3bmxRUnhDTDFlVE1HalBtSU5SYmVHRFlQSkFOaVZ1NVRI?=
+ =?utf-8?B?MTJGYWZxOE5XSEM5SldiWnBKR3RDV3dxTXRIN1RTUERpdWlOaVRMdVlXTlFn?=
+ =?utf-8?B?V3VoUEQ2R2E5cmxwckhGK3VXbk1KQ0g1RTlEV2FFajl1dTVPTWlFamlQQ0RM?=
+ =?utf-8?B?R2Z3QUxxY3VBa3c9PQ==?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?V05oZUV5NVpycXhqZHh2aGlXZ09uSTJpSUt3RnZRZllqZ2JleGxkN0JDdFZs?=
+ =?utf-8?B?M3FZZVdNOGtCcC8wRWk0L1lpeEpIRENFUUpxQXUxZGNmSkthQkhFWjh1U0dP?=
+ =?utf-8?B?dHl1ay9yMWdPK1ptY21Fc1FNS1dQVDVnSnA3bWFmMUFKbytKWVc2Q2JtWm51?=
+ =?utf-8?B?YWhpcmlhZG1EczNmbzJnUkR5YnFpZnZEalNkQ2ExczFkTCtVMUxtYkJZRHhj?=
+ =?utf-8?B?RGhwTjMyMXVNa2NteEhqNkpRY2R2T3hjY0p4TXBCbk9KL1BFMEE1QzZvb2pG?=
+ =?utf-8?B?WDRrdTZjUjVJWG5CdjRYV1FLSjZEdm01L3U2Z2JEWUo1ZVY1blBxYXhTTHcz?=
+ =?utf-8?B?WUI2ZS9uWjgzN3FIY0piRThnZ3lTcEZ2cm5DL2VMMnB6My9XZjdrOXRTMnJk?=
+ =?utf-8?B?VnhTR0FmWjZ1NEdieUxaUlU1ZVI3UVU2dTQ0SVlOWmFxK2NHZG1UOHp4ZHNw?=
+ =?utf-8?B?MXZmM0FaNzMxcVE1c2JxN1haWHozZXNZYWhnaXJjb2VqaGtvczRNdlNHb1ZV?=
+ =?utf-8?B?T2tiNXlJcTVrTDVWMEVFZElzei9iWnBGRHRIUzhaVGtRRFBJdlYrdXNrTjBo?=
+ =?utf-8?B?NUFJT1BaZmFoRnJMU0VEZnpJS3VXbGwzaG1wY0tXVE9NZGtwWFB4MnJOTDdq?=
+ =?utf-8?B?MFFlaUZOUkpxV3dyVlZYdkoydVpRdHlwQnk1OWp3U2VaRm0zWEJ0SUQyWXdW?=
+ =?utf-8?B?aU4vVGowenN2dWwwazdSK0lEeHhoRDZVN1hxRDdyeitwb2QyZ3h5YmY1NS9H?=
+ =?utf-8?B?UEswak50SndPN25IZ0NidUhCUlJyZG5DK1MwWm0weUZ4eWF2MWpZNFRiTXRC?=
+ =?utf-8?B?NWI4RFY0ZVQvUTU0MlBadXpoNEpIajY4ZjNOaU9pTlh4TmVVc3hlc0lHYjNR?=
+ =?utf-8?B?aktLUWVLVTlwS0tlZEdLRDY2MFJybE0xKzBTSEpJUlRUVzVyNUs4VDlrSXFh?=
+ =?utf-8?B?RHhNNThUQld5TzVFRnNTSWVEc0p5am82QTAwM1VpKytzZHE5VGYvK0J4OVc3?=
+ =?utf-8?B?T2hZSnBKdDBrUUJDaThLM01odmpoNnRLM1Zzai9PREF4aWhsMWJQTEpQZHJx?=
+ =?utf-8?B?alFrS0pmQlV3Nk1vcnlCUlF1MkpBeGZ1M0NpMDE4QllPOFpTMmdxZVBaditj?=
+ =?utf-8?B?dC9GZ0swZHp0UXpzb24wWW5Vc2hBYU9YRmU0cnVCTEs4U3NMbzVPb3o0cXZx?=
+ =?utf-8?B?c3VUZndRQVZrbCtQUW1wUFpydTBPU2RKZVRQQ250Z1lqWkgwMGlGUndNSi9O?=
+ =?utf-8?B?eWZ3Nk9BWmcvQlI0dzZ4WHJTUC9SSS9uU1krbE1yelNRMlRGdWNkZDREWGh3?=
+ =?utf-8?B?ZG1HNk5QVkZXSEJma1FpbnNqdWFJZGU2RVdTUzYwNGl3Q2JDUHljenVvYzZH?=
+ =?utf-8?B?MGM5YzZoQW9yQVNlcjh0SVJvMUVyWTl0eTIwalhjK2w2cGRTbHZkbEx5N3Rt?=
+ =?utf-8?B?c1V5ZThCSzVTYUJOVnk5RW1JSjhyeGkyZlRPR3UzMW1YdWhQR2srYkg2RGtR?=
+ =?utf-8?B?bHhmUlNzUHlKV2c5U1A3SldqMHQ2VmYvMDlnSWNHVW82dG9Ld3BSdE1hR1pm?=
+ =?utf-8?B?Zjk1QlQwQ1BXMjE4SWg5NFpIVlhuL3ExQ3pwVlVFUHZ4L3NPQWpIS2ZPVzNH?=
+ =?utf-8?B?VVdISFJRTVNoaWVUN3l1MWFGak9TK2lBQjJnRk5oNEp6VjR5N1Yrb05KNGto?=
+ =?utf-8?B?bVNGOU9yRS9OaFJoVndjdkc5VHMxbG03cnF3bldpOXFrVzFJclIxQm1wTXd0?=
+ =?utf-8?B?b0s3b0NhaGZNZnNwNTdwZktrOEtrdjQ3YUk4L0VhT3FCSXlSVjNvdmVGc09u?=
+ =?utf-8?B?aUJLR1JIN2llWnp3QXN6ZlhxeVRvQzBEQ1V2U2VRMWVuWU8yckNCUllwM3FG?=
+ =?utf-8?B?NkxsNXlmK1BuUTN3aG4wOFk3RzZFUmRzUzVWUTI0RGJtL3FKL0dZWXJiRmUr?=
+ =?utf-8?Q?L7m1aYjAE8xnQoeRYHWL4ioaMJfSqX9s?=
+X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-63b91.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 44f12d1a-993e-468a-7dd5-08de922edbc8
+X-MS-Exchange-CrossTenant-AuthSource: MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Apr 2026 09:45:09.2317
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN3PR01MB7000
 
-Xbox 360 wireless controllers expose information in the link and
-capabilities reports.
+Some users reported that upon suspending their keyboard backlight
+remained on. Fix this by adding the missing LED_CORE_SUSPENDRESUME flag.
 
-Extract and use the vendor id for wireless controllers, and use
-the subtype to build a nicer device name and product id.
-
-Some xbox 360 controllers put a vid and pid into the stick capability
-data, so check if this was done, and pull the vid, pid and revision from
-there.
-
-Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 394ba612f941 ("HID: apple: Add support for magic keyboard backlight on T2 Macs")
+Fixes: 9018eacbe623 ("HID: apple: Add support for keyboard backlight on certain T2 Macs.")
+Reported-by: André Eikmeyer <andre.eikmeyer@gmail.com>
+Tested-by: André Eikmeyer <andre.eikmeyer@gmail.com>
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
 ---
-v2: Delay marking device as present until after capabilities or timeout
- drivers/input/joystick/xpad.c | 162 ++++++++++++++++++++++++++++++++--
- 1 file changed, 155 insertions(+), 7 deletions(-)
+ drivers/hid/hid-apple.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index bf4accf3f581..c35512c7c199 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -68,6 +68,7 @@
- #include <linux/slab.h>
- #include <linux/stat.h>
- #include <linux/module.h>
-+#include <linux/unaligned.h>
- #include <linux/usb/input.h>
- #include <linux/usb/quirks.h>
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index fc5897a6b..2eb45fac8 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -858,6 +858,7 @@ static int apple_backlight_init(struct hid_device *hdev)
+ 	asc->backlight->cdev.name = "apple::kbd_backlight";
+ 	asc->backlight->cdev.max_brightness = rep->backlight_on_max;
+ 	asc->backlight->cdev.brightness_set_blocking = apple_backlight_led_set;
++	asc->backlight->cdev.flags = LED_CORE_SUSPENDRESUME;
  
-@@ -94,6 +95,22 @@
- #define XTYPE_XBOXONE     3
- #define XTYPE_UNKNOWN     4
+ 	ret = apple_backlight_set(hdev, 0, 0);
+ 	if (ret < 0) {
+@@ -926,6 +927,7 @@ static int apple_magic_backlight_init(struct hid_device *hdev)
+ 	backlight->cdev.name = ":white:" LED_FUNCTION_KBD_BACKLIGHT;
+ 	backlight->cdev.max_brightness = backlight->brightness->field[0]->logical_maximum;
+ 	backlight->cdev.brightness_set_blocking = apple_magic_backlight_led_set;
++	backlight->cdev.flags = LED_CORE_SUSPENDRESUME;
  
-+#define FLAG_FORCE_FEEDBACK	0x01
-+
-+#define SUBTYPE_GAMEPAD			 0x01
-+#define SUBTYPE_WHEEL			 0x02
-+#define SUBTYPE_ARCADE_STICK	 0x03
-+#define SUBTYPE_FLIGHT_SICK		 0x04
-+#define SUBTYPE_DANCE_PAD		 0x05
-+#define SUBTYPE_GUITAR			 0x06
-+#define SUBTYPE_GUITAR_ALTERNATE 0x07
-+#define SUBTYPE_DRUM_KIT		 0x08
-+#define SUBTYPE_GUITAR_BASS		 0x0B
-+#define SUBTYPE_RB_KEYBOARD		 0x0F
-+#define SUBTYPE_ARCADE_PAD		 0x13
-+#define SUBTYPE_TURNTABLE		 0x17
-+#define SUBTYPE_PRO_GUITAR		 0x19
-+
- /* Send power-off packet to xpad360w after holding the mode button for this many
-  * seconds
-  */
-@@ -795,8 +812,13 @@ struct usb_xpad {
- 	int xtype;			/* type of xbox device */
- 	int packet_type;		/* type of the extended packet */
- 	int pad_nr;			/* the order x360 pads were attached */
-+	u8 sub_type;
-+	u16 flags;
-+	u16 wireless_vid;
-+	u16 wireless_pid;
-+	u16 wireless_version;
- 	const char *name;		/* name of the device */
--	struct work_struct work;	/* init/remove device from callback */
-+	struct delayed_work work;	/* init/remove device from callback */
- 	time64_t mode_btn_down_ts;
- 	bool delay_init;		/* init packets should be delayed */
- 	bool delayed_init_done;
-@@ -807,6 +829,8 @@ static void xpad_deinit_input(struct usb_xpad *xpad);
- static int xpad_start_input(struct usb_xpad *xpad);
- static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
- static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
-+static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad);
-+
+ 	apple_magic_backlight_set(backlight, 0, 0);
  
- /*
-  *	xpad_process_packet
-@@ -980,7 +1004,7 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
- 
- static void xpad_presence_work(struct work_struct *work)
- {
--	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
-+	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work.work);
- 	int error;
- 
- 	if (xpad->pad_present) {
-@@ -1028,10 +1052,60 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 
- 		if (xpad->pad_present != present) {
- 			xpad->pad_present = present;
--			schedule_work(&xpad->work);
-+			if (present) {
-+				/*
-+				 * Delay marking device as present, so we can make sure
-+				 * we have received all the information from the capabilities
-+				 * report. Some devices don't send one, so the delay
-+				 * guarantees that these devices are still initialized.
-+				 */
-+				schedule_delayed_work(&xpad->work, msecs_to_jiffies(500));
-+			} else {
-+				schedule_delayed_work(&xpad->work, 0);
-+			}
- 		}
- 	}
- 
-+	/* Link report */
-+	if (data[0] == 0x00 && data[1] == 0x0F) {
-+		xpad->sub_type = data[25] & 0x7f;
-+
-+		/* Decode vendor id from link report */
-+		xpad->wireless_vid = ((data[0x16] & 0xf) | data[0x18] << 4) << 8 | data[0x17];
-+		/*
-+		 * x360w controllers on windows put the subtype into the product
-+		 * for wheels and gamepads, but it makes sense to do it for all
-+		 * subtypes. This will be used if the capabilities report
-+		 * doesn't provide us with a product id later.
-+		 */
-+		xpad->wireless_pid = 0x02a0 + xpad->sub_type;
-+		xpad->wireless_version = 0;
-+
-+		if ((data[25] & 0x80) != 0)
-+			xpad->flags |= FLAG_FORCE_FEEDBACK;
-+
-+		xpad_inquiry_pad_capabilities(xpad);
-+	}
-+
-+	/* Capabilities report */
-+	if (data[0] == 0x00 && data[1] == 0x05 && data[5] == 0x12) {
-+		xpad->flags |= data[20];
-+		/*
-+		 * A bunch of vendors started putting vids and pids
-+		 * into capabilities data because they can't be
-+		 * retrieved by xinput easliy.
-+		 * Not all of them do though, so check the vids match
-+		 * before extracting that info.
-+		 */
-+		if (get_unaligned_le16(data + 10) == xpad->wireless_vid) {
-+			xpad->wireless_pid = get_unaligned_le16(data + 12);
-+			xpad->wireless_version = get_unaligned_le16(data + 14);
-+		}
-+		/* We got the capabilities report, so mark the device present now */
-+		cancel_delayed_work(&xpad->work);
-+		schedule_delayed_work(&xpad->work, 0);
-+	}
-+
- 	/* Valid pad data */
- 	if (data[1] != 0x1)
- 		return;
-@@ -1495,6 +1569,31 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
- 	return xpad_try_sending_next_out_packet(xpad);
- }
- 
-+static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad)
-+{
-+	struct xpad_output_packet *packet =
-+			&xpad->out_packets[XPAD_OUT_CMD_IDX];
-+
-+	guard(spinlock_irqsave)(&xpad->odata_lock);
-+
-+	packet->data[0] = 0x00;
-+	packet->data[1] = 0x00;
-+	packet->data[2] = 0x02;
-+	packet->data[3] = 0x80;
-+	packet->data[4] = 0x00;
-+	packet->data[5] = 0x00;
-+	packet->data[6] = 0x00;
-+	packet->data[7] = 0x00;
-+	packet->data[8] = 0x00;
-+	packet->data[9] = 0x00;
-+	packet->data[10] = 0x00;
-+	packet->data[11] = 0x00;
-+	packet->len = 12;
-+	packet->pending = true;
-+
-+	return xpad_try_sending_next_out_packet(xpad);
-+}
-+
- static int xpad_start_xbox_one(struct usb_xpad *xpad)
- {
- 	int error;
-@@ -1893,7 +1992,7 @@ static void xpad360w_stop_input(struct usb_xpad *xpad)
- 	usb_kill_urb(xpad->irq_in);
- 
- 	/* Make sure we are done with presence work if it was scheduled */
--	flush_work(&xpad->work);
-+	flush_delayed_work(&xpad->work);
- }
- 
- static int xpad_open(struct input_dev *dev)
-@@ -1965,8 +2064,57 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 	usb_to_input_id(xpad->udev, &input_dev->id);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		/* x360w controllers and the receiver have different ids */
--		input_dev->id.product = 0x02a1;
-+		/* If the Link report has provided a vid, it won't be set to 1 */
-+		if (xpad->wireless_vid != 1)
-+			input_dev->id.vendor = xpad->wireless_vid;
-+		if (xpad->wireless_version)
-+			input_dev->id.version = xpad->wireless_version;
-+		input_dev->id.product = xpad->wireless_pid;
-+		switch (xpad->sub_type) {
-+		case SUBTYPE_GAMEPAD:
-+			input_dev->name = "Xbox 360 Wireless Controller";
-+			break;
-+		case SUBTYPE_WHEEL:
-+			input_dev->name = "Xbox 360 Wireless Wheel";
-+			break;
-+		case SUBTYPE_ARCADE_STICK:
-+			input_dev->name = "Xbox 360 Wireless Arcade Stick";
-+			break;
-+		case SUBTYPE_FLIGHT_SICK:
-+			input_dev->name = "Xbox 360 Wireless Flight Stick";
-+			break;
-+		case SUBTYPE_DANCE_PAD:
-+			input_dev->name = "Xbox 360 Wireless Dance Pad";
-+			break;
-+		case SUBTYPE_GUITAR:
-+			input_dev->name = "Xbox 360 Wireless Guitar";
-+			break;
-+		case SUBTYPE_GUITAR_ALTERNATE:
-+			input_dev->name = "Xbox 360 Wireless Alternate Guitar";
-+			break;
-+		case SUBTYPE_GUITAR_BASS:
-+			input_dev->name = "Xbox 360 Wireless Bass Guitar";
-+			break;
-+		case SUBTYPE_DRUM_KIT:
-+			/* Vendors used force feedback flag to differentiate these */
-+			if (xpad->flags & FLAG_FORCE_FEEDBACK)
-+				input_dev->name = "Xbox 360 Wireless Guitar Hero Drum Kit";
-+			else
-+				input_dev->name = "Xbox 360 Wireless Rock Band Drum Kit";
-+			break;
-+		case SUBTYPE_RB_KEYBOARD:
-+			input_dev->name = "Xbox 360 Wireless Rock Band Keyboard";
-+			break;
-+		case SUBTYPE_ARCADE_PAD:
-+			input_dev->name = "Xbox 360 Wireless Arcade Pad";
-+			break;
-+		case SUBTYPE_TURNTABLE:
-+			input_dev->name = "Xbox 360 Wireless DJ Hero Turntable";
-+			break;
-+		case SUBTYPE_PRO_GUITAR:
-+			input_dev->name = "Xbox 360 Wireless Rock Band Pro Guitar";
-+			break;
-+		}
- 	}
- 
- 	input_dev->dev.parent = &xpad->intf->dev;
-@@ -2106,7 +2254,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		xpad->delay_init = true;
- 
- 	xpad->packet_type = PKT_XB;
--	INIT_WORK(&xpad->work, xpad_presence_work);
-+	INIT_DELAYED_WORK(&xpad->work, xpad_presence_work);
- 
- 	if (xpad->xtype == XTYPE_UNKNOWN) {
- 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
 -- 
-2.53.0
+2.52.0
 

@@ -1,141 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778333D5670;
-	Fri,  3 Apr 2026 17:08:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3502F313E3B
+	for <linux-input@vger.kernel.org>; Sat,  4 Apr 2026 05:03:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775236118; cv=none; b=ehgdCJQ+mAk43OP1Oy5BakehhQL+7Al5EVlcTHxoQ2e8YdShUAs/sn1/g+BzNAnBW9VUThsmRHBPDt8+9nIcCcScHX6qVVYFGHgA1doGf+gZ6jiaFMvsh++MO6MM8E2DFon7FYFf6AUL2EcwtAOLfS4TPiLQcaGamh2316Q9H78=
+	t=1775279005; cv=none; b=FDOFAeEzj8SFGahHlOUQFnJPYRSfM7KmUGtqIJQ92v1Mgdb6CIccxpcA4KYbE/QbOPgMLkyLaDIxxFMs+ceY0llCCvMrkU+Zof5pFhftIW+fkkM2sAA0nSbxxCB3qfy152Mh/XsN+eCpl3hTu12WahflY0ijP+tbUsy2CZdGiHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775236118; c=relaxed/simple;
-	bh=TdrKbk/IAUXNS6Sk9zy9AdX94k46z6QijMe7AIc7bWA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=XxQqnmeQdkQEVBcSp41fq2Q+fMh0Hh6ViBLDckot+2AeXz0NtLg7lwSzqsD9fmke5fynUALLxEuXmwu1e8lcmD731zNqSqgPQmAviEjFMsB/Lo2tACtuA9ZPrKR8nmnt9W0zp7KLpDTtklgfTrdgw91TLhAo10jjKnIcY/Jnr24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lj5P/7sn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775279005; c=relaxed/simple;
+	bh=Id06bL8KAqRgYnB0wvBbwqJ4hRL3XYyS4BozJ4jZ1cw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qRQNMwci5focmYfn0iniuKIrupetWtsHzJmbjFFvMGIIE2Wjmop3B3otGleULyRkjAYM3Enofzf+a2WboZTycsfJD3YBPHGRhKrR/rczIimSQNBmHlvHJw7ONd72lgZMBzIoPowcRCCeF/XQ1zA3CMzBgLsv+jgguVnrDvH2D3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZZnWn98G; arc=none smtp.client-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lj5P/7sn"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 519D7C4AF19;
-	Fri,  3 Apr 2026 17:08:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775236118;
-	bh=TdrKbk/IAUXNS6Sk9zy9AdX94k46z6QijMe7AIc7bWA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Lj5P/7snoFUsjral5txOxDHgw9vRFkIdWG6hA6XGpF/oNTs/Q7IFxbsYNMdwgXUrp
-	 CLgtgGidd75uqZsFjOuaT2STcZsx3Xqm9KoD8UCcj1kEEeobnbtvxANsEMQokHeFDq
-	 hEsw1IRvmER1lPC2SGDpoxC13QmvIj05Dd8Kup9GDAUR8zYicV+ar2bXiWtXxuCz9S
-	 Z40F3Ku3ehs+kFjQr6bykCrC3zhbyaNwTDklkshawPnA7DjAXBtlPyNq0o3IxuZQ59
-	 2auLFyKEoiQ6JKdHTopHFyHSDkVj5cnDg/my1jZd9KhFVa7deZYG4lD76f0G530UTl
-	 5enlCA/qA8LfQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45F77E85385;
-	Fri,  3 Apr 2026 17:08:38 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Fri, 03 Apr 2026 19:08:40 +0200
-Subject: [PATCH WIP v3 11/11] arm64: dts: qcom: sdm845-google: Add STM FTS
- touchscreen support
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZZnWn98G"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2cc4c693d59so2702824eec.1
+        for <linux-input@vger.kernel.org>; Fri, 03 Apr 2026 22:03:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775279003; x=1775883803; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3a//nVWssxzHcHgtzqRxbVbtfFF+cFpYppCpsEPItgk=;
+        b=ZZnWn98GCJ0SeNG/Z2fXMZncb/vzhEN2MkY8kGt2dUNkXub6JU8T248RRv5+7eR+mG
+         xZ3D7zJD9+K/Gma4fmP8bxkAAOOGXdxsydd4NsfQdbyyXqXSBV7wKU+yLmDXyqAMGm5w
+         ZG6bqwWGFMqe1DQaTlXkvkl6UkOU0qj2wBOZje4qDvCpjMPyWMyu2+fyREo0vjX9/HwF
+         whle4MYUeF1DdE0G3rzOAGnlLHkUvwsewzGcZNJ0uZesINYPEPyraptcKkhlwfCmIx+6
+         FmmnwjyeXsT15S8b4d/elOFuGFdzD88LeVjvhRGruyZILvTr1A6zMu8voLIKjFpWreWr
+         UQQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775279003; x=1775883803;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3a//nVWssxzHcHgtzqRxbVbtfFF+cFpYppCpsEPItgk=;
+        b=sUi8zv2Z6B///dc6uJEgD5bdELuCvIW5GsNWvjMx3y3a+r0KhM/Y18cJA2nPFwwuFa
+         e3Yf6OSyIcdy7vzduewMMtORUW/0Ru/Dc8XNhPvyqPPNKoAmq/q7zUGENb9Yu16Gfk1O
+         KZE8Hxttcba+YAZht+5d8vnF0DSHOtHXilPBnZh0+OlPxPjFb6GHkt/HR3qQUYUSqVxu
+         RrGWqQPJdp5h5b6ev6AAoMGoPv8dt8EK9M0RJayb9heE9UIFwChZKEpWJl6iArrHH1u1
+         4BpdD04Hq9/9oU16hyQAmYwQYoAYupYZfyWaxBx8yJKtm0y90Acdt458Idp//JxG1klk
+         IAww==
+X-Gm-Message-State: AOJu0YwYIyPFDEvSKBS0cyGTaTERTyBrcp6YMcIf/1ky40oGPo+PL5MJ
+	JKnBJ71bLNiro7TOnwunaLmMz0tIlcKd2qAau1mbOMVIOYBX9WR7vm8qYG21XQ==
+X-Gm-Gg: AeBDiet7Xv+xpf75oGwRru9+Bk2pND4V1XlfQgdDVhCMVnc2ZzRUwJV/Z8giMQBZhRo
+	jb7ReHYDbLiaeDGCScsZy7W1s4J3ElIDjW/d6FNVRyjAHuqyqZqHE6hLheBBcB7fcpu4U2NRyvx
+	3up2Ys271/yRyiboHxBx2UKeGpntjeBb8cqnt5zPvPuao0EEd/KfOHDsAuM3VNMr643GKP80Ft6
+	EmeZxH/885lwKNbhNp1ntOHXzyCWyKvqYofdkj7Bj3Afw9VwKrZyMk2mdn/t5ONJthAn2PJcpli
+	wjyPehCheIMT0TBUoI8ZWBRUgoeGr6qCN1TqLv+6RA5KClTYVow21/Nh7+7wFxnLUILa8vbnGnL
+	YFQX8Dnh2/fQ8aP8bRrCSjexKXTdLpEsakZLz42p/QsepH2bHIy/3pw7a9MLXAhNYKgHZMUPu9d
+	NthyB5HwtVb2gYlJ3042Qi/E/1BXZPJctIeRPEyuCwj+KBB9rhHQZ8Nq59IfDtVMYm
+X-Received: by 2002:a05:7300:b594:b0:2c5:220c:5673 with SMTP id 5a478bee46e88-2cbf99ec1e9mr2782321eec.5.1775279003260;
+        Fri, 03 Apr 2026 22:03:23 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:2357:9278:e4dd:85f2])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca78df8942sm9448144eec.2.2026.04.03.22.03.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2026 22:03:22 -0700 (PDT)
+Date: Fri, 3 Apr 2026 22:03:18 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Elliot Tester <elliotctester1@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Elliot Tester <elliotctester@gmail.com>
+Subject: Re: [PATCH] xpad: remove stale TODO and changelog header
+Message-ID: <adCbfho4hwTpUZiR@google.com>
+References: <20260325221618.135833-1-elliotctester1@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260403-stmfts5-v3-11-5da768cfd201@ixit.cz>
-References: <20260403-stmfts5-v3-0-5da768cfd201@ixit.cz>
-In-Reply-To: <20260403-stmfts5-v3-0-5da768cfd201@ixit.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
- David Heidelberg <david@ixit.cz>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1795; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=TQFq+PWyeQhZg/mK5NDBcGQfwDmMOnudDkXhMTWZo0k=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBpz/QQaX/GLHPgoCPSGD4vNqAN8c8Vp77YqqTST
- i8q9/7tueKJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCac/0EAAKCRBgAj/E00kg
- cnt3EAC9+/iOdH/C6Es8Y3zt7BHJHf73YRjGK9TxmQWh0Se913LW/Ngdu9eFlAJWY68ZVPNjmVQ
- fz1LCUrEtsNRrP6s7heETZ+K/mqf/w2eUlTxqf1HET5boZNzsCktlhmZdoKCssdMlnv43oebS10
- I5Vk+JD8virH49O9TKrew6a+jI1giQqXSwSz3LfCGo0TaVTPYhmui1VI50ths7OddPmZ6HXHi3N
- XV4Gz2OWsBluDhNmPrCVBCwFXcjNolDz5jpeZcUEAlIczTmx0NdhGx+6djhB0HZ3We7WsbdyjL2
- 6AGdgeIbfDwb/Wkx5YjSFgk+3fb+aqDi1DCobwtW12vOmp4E1LUNq8Vn2Cu8k8Jvpd5HccMpjDK
- Yk1r5QGsPcrwnH/9LX69W+5nT74tYVGtULwB8Rkd5q9E0QFp0XST3zfBGdT+RwuJL7PhHuGMh6U
- O1vX5VOfABaqlEAVllwLw06IcmAUPhtO229992eu/kc3i5RAdybgdklByl4cMq8qTwdcuCB3kbB
- DC1Fj6lCVj5NJ27yaa4GiQ0ZlfC1/cHmBYNhnk+9oAe12lDGa0YoZruthb6uyZMSbDb2qgeEqY/
- zurHwlr0x55LAv4y5pM00T9QB3Rc+fGWK4RJoWy+zJLIyrQwKTaDeZxf3LtdeO6ZKtpbf5D7zvD
- iYVCEiUAlCVnGyg==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260325221618.135833-1-elliotctester1@gmail.com>
 
-From: Petr Hodina <petr.hodina@protonmail.com>
+On Wed, Mar 25, 2026 at 11:16:17PM +0100, Elliot Tester wrote:
+> From: Elliot Tester <elliotctester@gmail.com>
+> 
+> All items in the TODO block have since been addressed: axis tuning,
+> analog button handling, rumble support, and dance pad USB IDs are all
+> implemented. The manual changelog is also removed as history is tracked
+> in git.
+> 
+> Signed-off-by: Elliot Tester <elliotctester1@gmail.com>
 
-Basic touchscreen connected to second i2c bus.
-
-Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
-Co-developed-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts | 19 ++++++++++++++++++-
- arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi  |  2 +-
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-index fa89be500fb85..8fb988130b551 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-google-blueline.dts
-@@ -26,7 +26,24 @@ &i2c2 {
- 
- 	status = "okay";
- 
--	/* ST,FTS @ 49 */
-+	touchscreen@49 {
-+		compatible = "st,stmfts5";
-+		reg = <0x49>;
-+
-+		pinctrl-0 = <&touchscreen_irq_n>, <&touchscreen_reset>;
-+		pinctrl-names = "default";
-+
-+		interrupts-extended = <&tlmm 125 IRQ_TYPE_LEVEL_LOW>;
-+
-+		mode-switch-gpios = <&tlmm 136 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
-+
-+		avdd-supply = <&vreg_l14a_1p8>;
-+		vdd-supply = <&vreg_l19a_3p3>;
-+
-+		touchscreen-size-x = <1080>;
-+		touchscreen-size-y = <2160>;
-+	};
- };
- 
- &mdss_dsi0 {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-index 6930066857768..4653c63ec26d2 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi
-@@ -466,7 +466,7 @@ touchscreen_reset: ts-reset-state {
- 		bias-pull-up;
- 	};
- 
--	touchscreen_pins: ts-pins-gpio-state {
-+	touchscreen_irq_n: ts-irq-n-gpio-state {
- 		pins = "gpio125";
- 		function = "gpio";
- 		drive-strength = <2>;
+Applied, thank you.
 
 -- 
-2.53.0
-
-
+Dmitry

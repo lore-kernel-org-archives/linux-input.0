@@ -1,125 +1,121 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B20918AFE
-	for <linux-input@vger.kernel.org>; Sat,  4 Apr 2026 06:02:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775282538; cv=none; b=Fes6xMLafvzq9uyurkVz59D6IJkv+ncsNT9vVWtO7ZpuFzS1tsjP/fstVU2FZJwNDJ+q0+xnkOrx/QuToNE98h6bhKSkB6pvzkq8jgdZUgkFpcWW6lD9pGRVh0tSMJ+h6gN6PHG1zLWynLHnrx+rYm3/bWNOLoynb47Wp2/9nTU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775282538; c=relaxed/simple;
-	bh=2sQ+YTIFrOmgcVUpPJ3pmmxuh1GbpJU3WoDq909YeGA=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=VLDfZ8ZdT3DG0aIrHd1y041GD3I++SsnQ0sCDpOtNssOadm4sV5ZGyFzh3vv2zQA52vGPpkvyH0YxW+c9YmAaZnoA8Rg6/xnX+AWfytpPLluG24EImR03v2fWhfZhz2tW0iLONq0mg4br9WRMV1bvIjf72yxDxCcygdJ1kzgfEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TZ8Tnjmi; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC5AD327C09
+	for <linux-input@vger.kernel.org>; Sat,  4 Apr 2026 06:35:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775284551; cv=pass; b=ZFcq04bQXlDjct/uTLVufPnEz6aDB3a4oDzHiy9DC4g0gtGsgvix09tCzR/ylQYfjdsdSY48pYEar+kjp0Ya4PUKXOHwA8bb4Lz07+xkD9Te8L6lt+PZUfBCQWWJHSEeYsFCw3p1REq6ofBXOQfXNVhMmiEXCI7qXRDI6u6HpF4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775284551; c=relaxed/simple;
+	bh=uVzym6+krh/LgTBrpskVv5luYvR9/FZD00nHLAFGwoA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IqejXTCtheczGdnYj21bmzWPuPP7pjNURYjBtGR0qxP/UNRpL/NvhYL75cgZ/c0NH4FqFiUaLm8TogBmGwnJNAiJHojwmZ/UJ5sN7Neo54vzi81PBeueddcZWYbQshDsvVY/G+uIveYdTcf/gRGRjbbhA3ucAZj2WzM5Fs/M7FA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lgqyxEy4; arc=pass smtp.client-ip=209.85.167.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZ8Tnjmi"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-2c1632faeb9so4776992eec.0
-        for <linux-input@vger.kernel.org>; Fri, 03 Apr 2026 23:02:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lgqyxEy4"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5a2c77c62d7so2151147e87.0
+        for <linux-input@vger.kernel.org>; Fri, 03 Apr 2026 23:35:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775284548; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Slar8TxXUBI60tDke8+GTtkcLpwmIpZjRTTkbgWZUs+QW/YbpkDddDYNoSWa7l+SZ7
+         3vUJ8hhfQvgLfW2eDzW2YDJ9fUsQihmwJbKS0C7Z+hlfCvdRv1mxdwzfH0OLHfV23ZeB
+         wSO2OTOrpZQcHdLJyKGBAJl9PlW+0ge+gXf9ZTNiKBudhYdb+LTYvaD3gcTH2kU1GRTY
+         q7oDPo7qrjrjit156uAv0Hf+BNerLEuIu6Qq67AnIHTykK9ljUebGNUacweUoXGHrhRk
+         1CrO+uisOJGAypYJFwpKm04wOqtmC3jwFdR2eskehSS3BnWfYtPB5M5LonbD3vak03Wh
+         FRLg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=WqmiWU2XtdFSsfny1VWVIlsyGUTOxWwYStNu5opN0/g=;
+        fh=aYc1YHr0aHTLlJDQ/u1Hj/W+PL7WlhNetwNQ9BqX6o8=;
+        b=Jdpa9nKZkaW/tIgLGhOSP3bdCqp3cLWO4twDHy3mB0GBuqSNYd8LSpJmomf6w/c8hO
+         npxyCG8XsjTkYHNxox0V1zN/dyZn4er7dkdptACuYeeNwzx/wApL5z0FZicajEJ8zF65
+         Tag+dHP3wq3nAWhEDIlZmxHTKneBZk7+9piOFYLenyqM59tcQmRmeXMb4h0/EUQq3RHm
+         3adOZ3uBH8VgCSnbrCcxKUaXI1kH11BH2Wvq50yrOX9VU/81m+VyoIgi8aT/l1wm7Pzs
+         JBkpnzWadkIIstG8w2++Jsp8ydAJgy+417sCzNaO1cRodLoZrnLE5mQHiIKkFLEZfvRD
+         cOyA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775282537; x=1775887337; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=1E2eZc0jwkmIlJxkGYRNMBZasOtrF33EURwo2fuo+HA=;
-        b=TZ8TnjmiQf8UcRw8t7DoXGk/iZ3xgMzBJ7wvgKNhJf9j7WMtI6dhsk7eYx6EhjrVpi
-         JeVPLlB+txnfRLRTmdCIPIgmddun+pc6XvSPYX8GukTGo06jBulDPh+zaUmo50o0Thn6
-         WBFkcaVl1hpIUHe8meE3LH4YLgIn77hkXEZkEiI98PICfie1GNGOMUJcOxrLf37qj2jI
-         n/Kn1ogZGtci2T8gsjHkpfoUYTMTqY1j/eZnJLNqJJSiwdaCUKkH2o+3MsHFSb6r1trP
-         TBxXMFLUae6mTf24SCiQ7CsPwZNeWCMPYr2hz3Pr8ogeJhdIrwxdMatgl0dGbyDB6rbq
-         dvCg==
+        d=gmail.com; s=20251104; t=1775284548; x=1775889348; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=WqmiWU2XtdFSsfny1VWVIlsyGUTOxWwYStNu5opN0/g=;
+        b=lgqyxEy4etEBN4JCUfnAGDY6QIkC9xqCYzz8Qm7SzIly4WhjX7ojqg0weQQHg677iA
+         uAqb9+p1FGUjfIGsQsj/s/3FZ+5feFLnyWB3darhcmEQHi9+644aG09QfKUyUUM8Ufrg
+         E5vBV/3xyh1pqN0sg4IXQmoCYpGMZW29XttZc7ZPWA3HWwhk50mwuXyizor4EdydDBEm
+         KJpxnmxeqMMDLKJz1o55RrCGvOj4hNfkunWMI0UgBmUbAsHatZP4xuMqwkbHJKwxJFbM
+         Q7jxZRz17Wfd69zyfIl5YGd7TPYDOVfwbNlj/KFvgLtKWp51A41FGBGMWmo+kqpgGGkv
+         ji2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775282537; x=1775887337;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1E2eZc0jwkmIlJxkGYRNMBZasOtrF33EURwo2fuo+HA=;
-        b=H9xfpSPwVDVCJgi6Tx+wf9WKbsJdjTE+XDZHitqU3Q+H4pZ5qhdVUzPSzA808OBkJQ
-         wZGGAJCtM43dcntv5C8N5tZrPX8dRutz6ieZ2hZ477bwuOdSirn9JEJgJGbdGlM9nSKj
-         jnBI6jqHviplhcwjuYSgTy8PwpivvIknrisf+dslaWITTpA2rnQBXHrMbjb+uoRTrdlX
-         SZRjMxpCBaSdo5k9wc6oBdiOucJUryBKuq/XW+LINMw2R17DAWs0fh5O4Rk6EGLqtobj
-         Jc0CRApkR5iDWBGTQlZ/eFd8me5sZA+xTgQz1lk2MUwk7xZ6Tlov2frqHumWIngMWvrV
-         huaA==
-X-Forwarded-Encrypted: i=1; AJvYcCVg7WuSxj2OBjWdxS831ecIbqVpg33hVxKbs+wXAXaTg7u2e1Nl/v3EjYSwSDL1VUv1MrImupAgoAngyQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyENfUySbSPYBkLrW2tCoArjUfWU06Bfo/7W2VyCi6LtrgsI0Cl
-	cC8UdwwKvCzDe6oQMzeBZU/OPqM9fRo9CPS79dnezoh//ZWuljOn5f5f
-X-Gm-Gg: AeBDiescYYDtoej3BqUiMcLhx+wqatKBY3udC/Ep/LmgDDpGVFfJBVEvICqSBWeAAnA
-	WlAJvZnSnpu78ja9pjWzP7uFzfJNcutBuoPMYuiakxJhd7J3DB+4TZPnz62vaYT9DqBbmnjlHjb
-	fNZAY8MFFOtFfk89eKPCX3E6sL12naHZEXlKrRxwHwleGL4AVXqNLWeWIFvcchc6JuGeae8r+bx
-	+y4PhkMlTEbLOk4sb/V6kUDDbDHaF5PKAkp0fnPies+u0fA3tTn5raygQ8HCfP+AtJ7j0bab0e/
-	TARZ4a37XW34mAwJ2RosjFMXtMYs99/Mjpo1u5kEgVChjRMmgiBM+fqQiwVscv3gXxtON6GaU+g
-	Vc4P7c4mOEeLZkgoRg6xjXvxrE3/DJBGSuxX1wfffKh0Z5Cu9rEr5sreqs9ILFdVMmPmz+f0/r4
-	01A9h599R1HPbHu6Ck52R0e5BrbSkzwgjXJVJ7fSNGf6beoGLjjUieSjc/6fQqSmWg
-X-Received: by 2002:a05:7301:1688:b0:2c6:cdb3:bd5e with SMTP id 5a478bee46e88-2cbfc365473mr2745111eec.28.1775282536552;
-        Fri, 03 Apr 2026 23:02:16 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:2357:9278:e4dd:85f2])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2cc63960a56sm3348615eec.13.2026.04.03.23.02.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2026 23:02:14 -0700 (PDT)
-Date: Fri, 3 Apr 2026 23:02:12 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [git pull] Input updates for v7.0-rc6
-Message-ID: <adCpWQOyfvE6E6k0@google.com>
+        d=1e100.net; s=20251104; t=1775284548; x=1775889348;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WqmiWU2XtdFSsfny1VWVIlsyGUTOxWwYStNu5opN0/g=;
+        b=cWtTRDYf04HBJS+lq0ifQhkysdPhAq9BDDgdxTJ9L9P87VMhAk0moi+g2fB55g3LME
+         wYw7N19NG499AHnmW5uVift6TVYatkLRa5MlN6NcSp8NVNTpwV3IPgHX1KiPLHUgwo/O
+         tMUDV9HcWm/jZlBS+Tus5Qccqo8g4UCrY71PvPxvKCsWP8NvuBqm57DDfCXy3uuyfcw7
+         zCEo0AY10Lw7+IpMYD4YpWVv9fwV2OT9N65BDVpNUug1uxQvMLV9roJWyVhM/+Ibe9wr
+         jGhw23DmbnF9X7z4ochFM8px/HBTJ2S4hHJlHnAvBjTL2uh6q59m8aUXggRbvVyBiGbS
+         1NVA==
+X-Forwarded-Encrypted: i=1; AJvYcCWlAswxnPp3LR04PB2+lMQehlelRYKEj/yrhrWJQFrJFVjQVk99kv4uM5twlQh5q/bhi7jwC41wKCpb8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwM7FWWZ6JqOtiFP2ExwgYpbjBxEhKzzZ40czT82P8EAiGpQyVh
+	WsgdQYn1hwPUSqARl91e/iPE/U5Nwo8GPV3XjunAgmziNC7QSN9ddZuwRhHJzYKbqhVnos0+ju3
+	f8BADCNv3nT+mYhkMWJxG9cb8Z08yDB8=
+X-Gm-Gg: AeBDiestNOtFMHj99qe9z6zV7piSpNI16wTUfBkhVlhL7Fyh68KT0h4qJjTTSKaQAVL
+	zymvvJ2OJioHOXk3aWFHoimX/Mwk92WnctR76mnKB+oaX2AvfjSY5UeVNI/GM6WTWNGV6rpfHe0
+	gQ6+vB3rIjv7LbnUpSyFlQNx2EP/KVh/kXnAMnARY+oRBZ2rMLf4pVrZceEGYukfgEGFCGTlOIQ
+	/Rk6lFk9lBsdWF4YDUOCLUepCSN+Hw7C7XNGpYdhxI1lIS/j4gUEqFPAg92EYsdvQDcye9R/XJQ
+	zptPYE0qQsCq9YbcpRGjxkVoMyM5GMjWAyoDZmxxMoaki44mgVMjReHTdjQKuFDQmdcpaBifzz0
+	GSr5bOpg=
+X-Received: by 2002:a05:6512:1096:b0:5a2:bc66:b4a5 with SMTP id
+ 2adb3069b0e04-5a3375561d0mr1634961e87.9.1775284547392; Fri, 03 Apr 2026
+ 23:35:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260314075034.1488655-2-sanjay.govind9@gmail.com> <adCc8OuHm7wwkysq@google.com>
+In-Reply-To: <adCc8OuHm7wwkysq@google.com>
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+Date: Sat, 4 Apr 2026 19:35:35 +1300
+X-Gm-Features: AQROBzCQUpmGZNxvfs1hK2d45MePXE1jEwfQynOKmEyFonRgRRy572pwa35uL_A
+Message-ID: <CALQgdA1soGo6U2_pKS0RZ6smOSS9Zd-g+eMD7KjwUwz-_pAK_w@mail.gmail.com>
+Subject: Re: [PATCH] xpad: Overhaul device data for wireless devices
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vicki Pfau <vi@endrift.com>, Nilton Perim Neto <niltonperimneto@gmail.com>, 
+	Mario Limonciello <mario.limonciello@amd.com>, 
+	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Antheas Kapenekakis <lkml@antheas.dev>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Linus,
+> However you should not change product and version once input device is
+> registered. So you should delay not until after link packet is received,
+> but until after the capabilities packet.
+Yeah i wanted to do that originally, but the main issue with that is
+some gamepads don't actually send the capabilities data at all. An
+Easy solution I could think of is to just start a timer and continue
+the init if it expires and we haven't gotten the capabilities data.
 
-Please pull from:
+> Another option is to use version field...
+Yeah that is reasonable, I had just gone with putting it in the
+product id like that as it made things easier for SDL, and microsoft
+had done that for the wheel subtype already, so some apps already have
+the 0x02a2 pid.
+Happy to change that though if you'd prefer i use the version field.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.0-rc6
-
-to receive updates for the input subsystem. You will get:
-
-- new IDs for BETOP BTP-KP50B/C and Razer Wolverine V3 Pro added to
-  xpad controller driver
-
-- another quirk for new TUXEDO InfinityBook added to i8042
-
-- a small fixup for Synaptics RMI4 driver to properly unlock mutex when
-  encountering an error in F54
-
-- an update to bcm5974 touch controller driver to reliably switch into
-  wellspring mode.
-
-Changelog:
----------
-
-Bart Van Assche (1):
-      Input: synaptics-rmi4 - fix a locking bug in an error path
-
-Christoffer Sandberg (1):
-      Input: i8042 - add TUXEDO InfinityBook Max 16 Gen10 AMD to i8042 quirk table
-
-Liam Mitchell (1):
-      Input: bcm5974 - recover from failed mode switch
-
-Shengyu Qu (1):
-      Input: xpad - add support for BETOP BTP-KP50B/C controller's wireless mode
-
-Zoltan Illes (1):
-      Input: xpad - add support for Razer Wolverine V3 Pro
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c         |  5 +++++
- drivers/input/mouse/bcm5974.c         | 42 ++++++++++++++++++++++++++++++++++-
- drivers/input/rmi4/rmi_f54.c          |  4 ++--
- drivers/input/serio/i8042-acpipnpio.h |  7 ++++++
- 4 files changed, 55 insertions(+), 3 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+> Maybe have an array of
+>
+>   [type] = "Name"
+>
+> instead of this switch?
+The main problem is there's a lot of gaps in the list of subtypes, and
+this also isn't an exhaustive list, there are a few other subtypes out
+there that were used for some bespoke controllers, and so using switch
+at least means they can keep a generic name if they are used.

@@ -1,87 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 097F633120C;
-	Mon,  6 Apr 2026 14:04:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6DAE38759C
+	for <linux-input@vger.kernel.org>; Mon,  6 Apr 2026 16:08:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775484254; cv=none; b=AVYK7udW8mhu6UbIJaCrVw2dJUPa2D7GSDOz3+E07Y1CqpT6OgJIJiDt2h+roUewkpWvhZG0H+6FCD+scV8xDSwY5qyvP93Wb3IOrc1A/ENZZzJjVlX1/Ill+VoyaFljBqywDeGuXsRew5yAElaAEkLBtlzgVvloFFTfd1sBqAs=
+	t=1775491701; cv=none; b=QGELiTDgeAUbpZo1XBdgz7+2T305w+FoFNQ95yrpscSbizM3JJA9xH/GrwCacMrTuMAWQXvX+dZe1UW886/yj68hec3C0tRmMp/HvYkDWEINNygI0CZFM8EkIs3UxN1lpLI9D3azsnARGByrGmmDtwcge8cHRb+HwRk3CFTZJus=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775484254; c=relaxed/simple;
-	bh=StVaAU5WDJR4wwnqHgcwI2Ek4SQNKX4MRUU6DxCm/Ho=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=N8fP5CvjYHm42PXrHDth/X79RsjP8xQ710WZNp1VmaFMTAYEFhe6DSMU8c22Ciwu51Gv7rE9V9p4Apo8IdMmuN4EZ/5iCC9qf7q7UHTkJvtWS/tTJMCRwk02FdStdxgQIW921I2Z5AqgBUyhA7msCBuN60OloKJvCpKTPnfIel0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Z3/eBoFA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775491701; c=relaxed/simple;
+	bh=iWvCwSJMYymgZV6gOSS+VX8uxdvvq3QEoS4l42ivpDw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DRzC1WrKJ6YfHrqIWd1ernGE7B3lCJOPWwcb28EJwxm/lY1vkL7ec2ho4pdlSNAYCHDF/JObOXan78sPhQm/gAbhQvCWX6cpo/SpGXBcCuwU7pL7wJ2BdKcIGCvIqwLTKeC2XKQiZrgZf+590q9F8zBGi+bYNqg0XRWdzqE+X9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AgY4mffj; arc=none smtp.client-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Z3/eBoFA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45387C4CEF7;
-	Mon,  6 Apr 2026 14:04:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1775484253;
-	bh=StVaAU5WDJR4wwnqHgcwI2Ek4SQNKX4MRUU6DxCm/Ho=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Z3/eBoFA6kSlJk0lo7lYxGNjNX07fo7aOXCGaU3xjZiYy+Fw6gO4KaXEmsPLi+HKv
-	 BPNiPE2B9yeEBcfOc46obmW72/x+S4aMQthQQfQU31RNhZvJR+bvPCYUIMtcvh7OZb
-	 ANnJdXnc1e8YVnJHwWa9uKAjzfqcAv4IEpGJaR8g=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	stable <stable@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Subject: [PATCH] HID: core: clamp report_size in s32ton() to avoid undefined shift
-Date: Mon,  6 Apr 2026 16:04:10 +0200
-Message-ID: <2026040609-equation-ascent-2b3d@gregkh>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AgY4mffj"
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2b4520f6b32so4337167eec.0
+        for <linux-input@vger.kernel.org>; Mon, 06 Apr 2026 09:08:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775491698; x=1776096498; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=kV4jvdGIhOck112pxUmzJ/qnhiF45DasGsL0Uopy8yk=;
+        b=AgY4mffjKB4D01PQAuTWU0uWWTzo2TzWtnxmV31jQBnFkufemiDo7fKdaFjFeaAZdo
+         Vs18pg1mRCCMPssBKSovxEL+6YFjJ/1zFJAwyLdh7nyr01sUKMBP/JAGCl5H3Y+4Da47
+         UCf7VhWf/XZMmQeYr/LAuV7PhlSZX24OWZWUCUB9wo2PxJ0UTuTghhQ29NjPkNnxeAvU
+         nDa+LJGX7YPFzwDC9Mbe2KeYjZXjGGcMJnCtGk9RHR/f4kUqo/RVR1q830xPt+oD5iRL
+         Y1xzFfvtm5/nN22wx1nJ37sbly/8YFxAVlUWDchIUZSVHcNdDxIQtsd1936Ek7Ls9mbe
+         gEiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775491698; x=1776096498;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kV4jvdGIhOck112pxUmzJ/qnhiF45DasGsL0Uopy8yk=;
+        b=ajY6N7zlVGwSHuS1dMOs90Upms7260sBWalTIRcuNl6n+NKXG9kd+RG6uoSq6m1EMO
+         NDOJDZ04y9NJSm3pkebB1sE2dgX2uncSsEH+0bT1ku12b93jFSw1QcRgQe1/hEGBZZXb
+         msg5bZAr4mHQ+HotarB4ltOgIhqt2E/saWZttXVnWBCxsGBtYcQVbz94hhFRAIIqY5fx
+         F+6F96RE3duRAHri0oI6u2j6Z4uFcR0qey/KJHhb2G9kKhlh25tEqCYBZ7RyWYRSYjOL
+         /QFhOJz0tF0DzVietW0NkGXPGatEKAwrgdCY9sc2jwsw7JQa6xDiF7Lt7P8wLR8lErmJ
+         hIYA==
+X-Gm-Message-State: AOJu0Yzsuowi/MDoY5cZ4IMNUD7A2jFFAWmMueKn4Ctscq0MEkhiCF7J
+	SJtOYNvrfBFrk9jQprI8dVzpjYrPnM9yh0BhEqgs7puMszRP7gERh76U
+X-Gm-Gg: AeBDiev9h+WcO+gBQWxsjJx60UrTnRZC2rj541fcCTAQCH16v85HiPlnCRBhnpHRUCf
+	hdLbEjRaBhny19HNb1rm6pokYDSd5N5o2Mcwv1eYFISL7TdBQZspJJgQU0hBZM5qq7XKLEHOwqc
+	Lb22TiRgakFCnlK88FTPfFT+hd2qN+OmYhWYS+4TmMawhkdfIEFZMrScH7wUaPzO/jh7gbN7pB+
+	FAfBfYE6F3qtXZjPPI0+KMTqj+XWBbCKi+tww0klLhFZjVAd9EEZ7XSYOwiFcaXR4FV+vAPI0PQ
+	nLFEYxFK2jJRGQoyINCwpXXiqTRTbK7XRcTP+p2lKkBnzGt4YRTaaNsEmSAUx+Ff6hX8Q9++U3q
+	ae0bN6qFfz3b2EPgjZ4AX4roJpp1ZXgiHN5TB553g+BOLvCub53VFguBcPGLpi1Jj+PriL+zl00
+	4e3l4XUufEXIlkIytrZWQVQK4NRg4zmzkwL4ak5xR5bM4HualgK8HzF8Irrtu24cewBGjOc+B2K
+	ryGu1p/mWQp7T6r2TtBCA3FNvvBPdabMIzgBArcOfRaEySegnUyZdo=
+X-Received: by 2002:a05:7300:a14b:b0:2c1:6676:5ed6 with SMTP id 5a478bee46e88-2cbfbf7a279mr5723302eec.25.1775491697583;
+        Mon, 06 Apr 2026 09:08:17 -0700 (PDT)
+Received: from uf0ccb33743a85f.ant.amazon.com ([2601:642:4e01:ba30:bfe6:a9ff:a137:33b4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca78df5ec7sm12912679eec.3.2026.04.06.09.08.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Apr 2026 09:08:17 -0700 (PDT)
+From: Armando De Leon <auribe84@gmail.com>
+X-Google-Original-From: Armando De Leon <learmand@amazon.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Armando De Leon <learmand@amazon.com>
+Subject: [PATCH] Input: gpio-keys - add hibernation support
+Date: Mon,  6 Apr 2026 09:04:37 -0700
+Message-ID: <20260406160437.3084755-1-learmand@amazon.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1437; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=StVaAU5WDJR4wwnqHgcwI2Ek4SQNKX4MRUU6DxCm/Ho=; b=owGbwMvMwCRo6H6F97bub03G02pJDJmX90Z+/em9qG8Kd31oamJm7WPptRcjF4RdkJrz0fZms HByeIBERywLgyATg6yYIsuXbTxH91ccUvQytD0NM4eVCWQIAxenAEzE24phwcoVN1jeu1upv9e2 8XMSqFA/sm+SJ8OC5vTGPw+Nk4Km2ZU77PzUq/d/a4wrAA==
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
 Content-Transfer-Encoding: 8bit
 
-s32ton() shifts by n-1 where n is the field's report_size, a value that
-comes directly from a HID device.  The HID parser bounds report_size
-only to <= 256, so a broken HID device can supply a report descriptor
-with a wide field that triggers shift exponents up to 256 on a 32-bit
-type when an output report is built via hid_output_field() or
-hid_set_field().
+The gpio-keys driver uses DEFINE_SIMPLE_DEV_PM_OPS which maps .freeze
+and .restore to the same callbacks as .suspend and .resume. This is
+insufficient for hibernation (suspend-to-disk) because the SoC is fully
+powered off, unlike suspend-to-RAM where hardware state is preserved.
 
-Commit ec61b41918587 ("HID: core: fix shift-out-of-bounds in
-hid_report_raw_event") added the same n > 32 clamp to the function
-snto32(), but s32ton() was never given the same fix as I guess syzbot
-hadn't figured out how to fuzz a device the same way.
+After hibernation resume, GPIO keys fail to function correctly because
+the interrupt controller (e.g. GIC) is fully re-initialized during
+restore, resetting all IRQ trigger type configurations to defaults.
+GPIO keys require IRQ_TYPE_EDGE_BOTH for proper press/release detection,
+but after the interrupt controller re-initialization only a single edge
+remains active. This causes buttons to report only release events but
+not press events, or vice versa.
 
-Fix this up by just clamping the max value of n, just like snto32()
-does.
+The existing gpio_keys_button_disable_wakeup() does restore
+IRQ_TYPE_EDGE_BOTH, but only when wakeup_trigger_type is non-zero.
+When the device tree does not specify wakeup-event-action (the common
+case), wakeup_trigger_type defaults to zero and the IRQ type
+restoration is skipped entirely.
 
-Cc: stable <stable@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org
-Assisted-by: gregkh_clanker_t1000
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by implementing dedicated .freeze and .restore callbacks:
+
+- gpio_keys_freeze(): Marks all buttons as suspended before the
+  hibernate image is created. Unlike .suspend, it does not configure
+  wakeup IRQs since the SoC will be powered off.
+
+- gpio_keys_restore(): Re-applies the pinctrl default state to restore
+  GPIO pin configuration, explicitly reconfigures IRQ trigger type to
+  IRQ_TYPE_EDGE_BOTH for all GPIO-backed buttons, clears the suspended
+  flag, and re-syncs current GPIO state with the input subsystem.
+
+The .thaw callback reuses gpio_keys_resume() since the SoC remains
+powered when hibernation is aborted and hardware state is intact.
+
+Signed-off-by: Armando De Leon <learmand@amazon.com>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/keyboard/gpio_keys.c | 60 +++++++++++++++++++++++++++++-
+ 1 file changed, 59 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 833df14ef68f..868c65684aa8 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -71,6 +71,9 @@ static u32 s32ton(__s32 value, unsigned int n)
- 	if (!value || !n)
- 		return 0;
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index e19617485..9fb77c9aa 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -27,6 +27,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/spinlock.h>
+ #include <dt-bindings/input/gpio-keys.h>
  
-+	if (n > 32)
-+		n = 32;
+@@ -1088,7 +1089,64 @@ static int gpio_keys_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static DEFINE_SIMPLE_DEV_PM_OPS(gpio_keys_pm_ops, gpio_keys_suspend, gpio_keys_resume);
++static int gpio_keys_freeze(struct device *dev)
++{
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
++	struct gpio_button_data *bdata;
++	int i;
 +
- 	a = value >> (n - 1);
- 	if (a && a != -1)
- 		return value < 0 ? 1 << (n - 1) : (1 << (n - 1)) - 1;
++	for (i = 0; i < ddata->pdata->nbuttons; i++) {
++		bdata = &ddata->data[i];
++		bdata->suspended = true;
++	}
++
++	return 0;
++}
++
++static int gpio_keys_restore(struct device *dev)
++{
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
++	struct gpio_button_data *bdata;
++	int error;
++	int i;
++
++	error = pinctrl_pm_select_default_state(dev);
++	if (error)
++		dev_warn(dev, "failed to restore pinctrl default state: %d\n",
++			 error);
++
++	for (i = 0; i < ddata->pdata->nbuttons; i++) {
++		bdata = &ddata->data[i];
++		bdata->suspended = false;
++
++		/*
++		 * After hibernation the interrupt controller is
++		 * re-initialized and loses its configuration.
++		 * Restore dual-edge triggering for GPIO-backed
++		 * buttons so both press and release are detected.
++		 */
++		if (bdata->gpiod) {
++			error = irq_set_irq_type(bdata->irq,
++						 IRQ_TYPE_EDGE_BOTH);
++			if (error)
++				dev_warn(dev,
++					 "failed to restore IRQ %d trigger: %d\n",
++					 bdata->irq, error);
++		}
++	}
++
++	gpio_keys_report_state(ddata);
++	return 0;
++}
++
++static const struct dev_pm_ops gpio_keys_pm_ops = {
++	.suspend	= gpio_keys_suspend,
++	.resume		= gpio_keys_resume,
++	.freeze		= gpio_keys_freeze,
++	.restore	= gpio_keys_restore,
++	.thaw		= gpio_keys_resume,
++	.poweroff	= gpio_keys_suspend,
++};
+ 
+ static void gpio_keys_shutdown(struct platform_device *pdev)
+ {
 -- 
-2.53.0
+2.43.0
 

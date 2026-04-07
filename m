@@ -1,116 +1,372 @@
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 860B93382E8
-	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 08:40:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775551204; cv=pass; b=k/Mk2v0Q9avTMs/tXq6iv7H0rnQobDh60ZZcopDJEpks58+Kgm6va8ZKSkdYpvs1DS16yc9pkAdN+wZ3JkIPV/IMnFc3YH/hQIPagR46lUgdmMHscpYfOXxqfyphwztLdlQ7CgYWIf5S2YRNYi5xH24fKjKxNlBjmtTmxDDhgOs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775551204; c=relaxed/simple;
-	bh=oL1LEvi+swarBNOFxg3pitzGuJ4R9brYJXVb8aoJ1eY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=giieqoodR+KAMupO3Vb1wLEcehGt21lkLTp73WUfKc4lP8o5VfnUjm3siORYx7M2jGEa8zakITPbH4OHPZBGuMsEGlrEwSk36jnbCWUOsY3p/WsmqUwb+bwN9ds3MAnRH9QuKU04VPyicM63dzVA0/VQZ/1X2CsSf0y4j1+Xp1I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WHw75yrQ; arc=pass smtp.client-ip=209.85.210.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D2E93A450C
+	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 09:56:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775555817; cv=none; b=M181k1cDBpIxLFV7nx0mE7gJBV/ie55VDZ+j/jcZpzlFUQeXvcbSO4Gt4MSaUu+sp0lJdnPq9IZSoRITz178nvzDFQY0QbrhzE0Jh1RO6ovsWv1nHUjQ/Y1g9oYkEDRjA4/pa01i+uL4o37zF4x2YGH6bqRcNml82mcbY6qBrQg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775555817; c=relaxed/simple;
+	bh=3pAwfqTPswzhD9kszlJAYCP4MLV+Rxa5iOcskrOSYD0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lzm5OkcFmMP/ZzbOc3sRhBVzpSdkQALtGMzXvV7ZSe8VZEKJ3Je+GjliPKMZgbrYXSTp0+0m6QHNmPBX2toOGAkf4stvNYOKtBtWBuuWYCRYguwosNNlgo7xFzzckHEbSywaf3RTq3wRZ+8CCTSsGVsxaCEJADWcKgoCkHOWj98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hMGdgwW3; arc=none smtp.client-ip=209.85.210.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WHw75yrQ"
-Received: by mail-ot1-f53.google.com with SMTP id 46e09a7af769-7dbcf927395so1403923a34.0
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 01:40:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775551202; cv=none;
-        d=google.com; s=arc-20240605;
-        b=e1461cWweDxM6sGF6lWr3cg+efbxALPbcCg3blw6PLx5KhjiqlvasB90m/xbcTJHJb
-         IGSQsgXKJGCKh0x6GJp3rW2LTJqq3rteeg286Z1dU78oQT8R1PT/0gPqfam8Sz+3N77L
-         mkvNgloq2WruYNUOd1nYq0OKgCbr3pe+6z0OJZyQdYDYLb0cpd78rbcsA2s/08jTBThA
-         UEjOFaxOGwDeR0gtFTDHifJiaqmG1Gc9cYyB2HDzWsFRj9R8n4Y+un3QstOBkmX6xI8w
-         KxFfPLNnxEWz1CzOyYWlO+J8IR7RUdNSbblSnadJxxHKmB0qC7iQOhoENN3QTKToUtTL
-         TGAw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=oL1LEvi+swarBNOFxg3pitzGuJ4R9brYJXVb8aoJ1eY=;
-        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
-        b=PjbaqJPmKlXXE6ko6c0gUwiCWvJxXP/fZ9VIbAwxrFUYXmwkKU+E+ppupBtYEvH1qY
-         24lWXX/LI0FB9RnumaMdlN1+7Lh9Rp/tYJ1763DgPmnc/vx2CoD+smB/3kz6YfrV0wL5
-         +nx1bQHb7oUl16CaXNFMdzWjnERmElCkEGH4znG1GhXADejffj9YwSp3bFQto3FGa1KP
-         ycNIzrvMZW7pgx3CAeWrWtgpgtvH2S56Fk3csqRIDNqBFv2G8gkJ6dkCqn6KaKB8iHq0
-         YdAp0AYzhLmMzlTOtgqZPwseM3xeZ/48GAia88+hctH4blRfOl/9Xo/7PV8/k38mJo0h
-         U7Ag==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hMGdgwW3"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-82cf976ecacso1938183b3a.1
+        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 02:56:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775551202; x=1776156002; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oL1LEvi+swarBNOFxg3pitzGuJ4R9brYJXVb8aoJ1eY=;
-        b=WHw75yrQARLWidO8valBg1di6MDRPVtgUCuRKo0QHikx9G43NpDtSkm31zO3xdehPJ
-         A4DdRSjsz8KZgAh1yYwHYFN+lThqm5OKa36UMh4pL2WFNFOdm2Qx0lo8LEhFa2X2QjSf
-         u5tUHiW6P9bb6JX0RVmvg0bZiOnFFpFgLB+cbxAQjJJkGYpIUQUh4F81qCEjm8HPJY/p
-         pI/yVhF7IdF6Jm3tWu0D4kumNMqpEXGB3Dl2HQVaAn9V9DfZNb7HznpYq34kXg0m1Qbj
-         imH5qXJXxsojgi776RyUFq6X6aJuKIWGQCZ13EY0TGhhjB0ZETwzSGNDg+uWuPit2Zhv
-         uMDA==
+        d=gmail.com; s=20251104; t=1775555814; x=1776160614; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DEUnVKGORnEEzzFazHNc131qDUHhTVAbHhPNT5PRsBA=;
+        b=hMGdgwW3uBOhzd3W+MnyxUnJr/Stlz3mZYRz2HJcKeIi7kheQdd/k9w3dwqnkoSw3h
+         FmNtm1BtOASZZPpVp2J7WGB5CNX4SLZ+NlqL/GZS31t8WMXDE44nvvoDBl1hH5zvBZpH
+         PFkVRrqv8yz5hs1rMfihsanDWI4sde61TF7aZQnNFPRJNV4LM74LzQPSKvqN1+Mu/CEd
+         IUInEMVmtwYa43dOKzcI8fMe3OCfkXjpGrNM30PV/jT91IwaQ4bMuheldZ6oyoRnbsqp
+         oWVMhy6qi52zuHPQ7rNMccoKeN1po7yxXe3T++GPkvNZarVaYCcGAT1MHkXBjs1s14I5
+         AUvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775551202; x=1776156002;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=oL1LEvi+swarBNOFxg3pitzGuJ4R9brYJXVb8aoJ1eY=;
-        b=YjdAgLbREEBpMCv6EVx8eO8zl2SBx8O72hysuLr/75yYzDm/8RsKUuTUsyIWmrVIEc
-         CX0A0xuo1pYOHlTz9jjZddxXHhmG9mUl+L4WivStfHesy+FCY9aw637x3wV9HMuspI8p
-         x09kVKYyBbsvUBL57dF6gBIBYNH1g++WOba6eXIYHUeIoXXQatvUWIzefpC1Fx7iBlM1
-         9GozMA+DtDmcQRq4/fW1ka+DXvWaJ/SFyfbhvhq6iqZX+sYlxu3GwvK0sKMVIN7EgbmK
-         X3lj7uSMEhcy67g4kz17LjtS/MTjp4QUCXfrdW5VPhjD0zbBN1TrigbRm7UQIN9w0HAD
-         6aeg==
-X-Gm-Message-State: AOJu0Yy+a4N+n/DCMFIopFvomvxrWMbPq2kyuxXE0D3yGyI8w0eMGiH0
-	x2PqRmqMSjcJlwzbwI1eQRl+J7sKAdJMahEA7go4iABLwvaUyTMpTpNLMqw8ckX/x+5cax2QbKq
-	3QJayolG75wKpjhOOO5P6sJsTnCkTSHs=
-X-Gm-Gg: AeBDies8GsR8qLraH8C+1V7fPNAvdyQ8Mnuc0j5/0mbs5gESFr/4vm0DTQaYr4ILhej
-	AmZX3vtuUJtrjmDnkw2MR1KvuYuVC/ywp1fANB5fR0Ff50RUG6WupX8CVMQ+8KIS0+NG6gpiud9
-	1HNEYN0pcAOhZyNNFCmHqoaq1COqYDRPkia53KoYnmKd6uKMIDzAqesSd4gExTVlmfwZ80bzr5d
-	nwoBxp5LtQk0V1Z8vqI2Ykm7KzVIVHcyVCIUdU6UOhVoujttACYHh3cOTstoVSazxzKUxYmcjEp
-	+FGQRYfKdOnB+RuQo6CH
-X-Received: by 2002:a05:6830:611b:b0:7d7:c96c:c5d6 with SMTP id
- 46e09a7af769-7dbb6f1aea6mr9515559a34.1.1775551202385; Tue, 07 Apr 2026
- 01:40:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775555814; x=1776160614;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DEUnVKGORnEEzzFazHNc131qDUHhTVAbHhPNT5PRsBA=;
+        b=H3JsS+OQsoFU49uNSnJgmOL0VAM+2iDLLBQoHfeX000dsFGw+UQDEDQ1CgleiccSFH
+         Mo/bvbH8KvGq0vc9guV4VI2+OoTiEVuCic3jnThXCa+GJaM3mjQJ8nl29WAcP4LG9P9/
+         38PbKNZ+DR22QnL4CpMiDeEmgaTJqSwzPt/A68k+Az7T3XvUVaLtvHUAQRhJGzOR5jXY
+         Jy6irYTgBKKwKKZhp2yvld8oBHTM0s1cep07jJ9iwRJI0XXdhIVKCEfRUCNlK8VJnk0j
+         +T8XJb7UGsUaO1F9k0LH6m8FDPC0nf5CNk9WM3nUhcD0mLmFD2ywMm0wRWQGU3K243z2
+         T6mQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUaOZ8mq6ADAozFzkr/ip28BigPbwUGNdS3u50ubApTKQSKFsS/ojNPJyiBiS+q7eNt3jmK7tip2NzSfg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzYwItnTri8ioNsEvtM8a/OZI7+XlMFzCOGYG53RCDql9vSKTfI
+	RNAPBK5vdfjsE0DoRMrvJHn7a162sOO91oNJ6fjzZLJSV6B7wNnZjAvS
+X-Gm-Gg: AeBDiesEE+ph1ObwXBL5DQqVL0W9rD8fJWt+QHn6fJzkk3axDWOjKlGYWTaPG5RE5HK
+	NJ/iwNeWBi2FI2JWchryN68wja8lxgsZKXF4muYitboDwYpU/VKFLupYXAddc1YSXaPE4WsrQHF
+	w4mXRL4ZWK37QtO9Cle871sxTL+n7eQqTdSY+VTQKeGrDpkVQuimTjkmy1eYz77kxF9EjWZjYUi
+	+TOtoyISPxV/nP+z+C6Qz725TxxeYuSWmmzjgv53FEKuoe3CfSy/iAG1MYeSC65kVVug54cD8JO
+	jwM2yBSwpFwpYj+yl9OuaQ+kLkcXlbP7oQ2oRGxrkI1FIBiAk8PiIM/OZuLp0o/D8d7opZDHz3L
+	haRCIWVZMpuv0yEXRDE7bRH+hJiLpujzr1ftf5kRjVNNrIrNUvWubqcwbIgtmiKf0lbGFOXoOLI
+	UmeLSw0bac/S6SzYXs28O7PG6r0txhodsJHxLw0fcOEclNIOncUldwoD8yKBBLLjM3zRats3ZUo
+	H4WO6MVvElc7c366/D4z2yWtvWbeWZHl+Tu3GU6GQ1pEXv5b6Gvbz2gJY1+Irmz9A==
+X-Received: by 2002:a05:6a00:2e1e:b0:82c:ae0e:dea with SMTP id d2e1a72fcca58-82d0db4fc91mr15582462b3a.32.1775555814417;
+        Tue, 07 Apr 2026 02:56:54 -0700 (PDT)
+Received: from sanjays-pc.govzhome.govindz.co.nz ([139.180.64.234])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9ca79basm20739511b3a.58.2026.04.07.02.56.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2026 02:56:53 -0700 (PDT)
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Vicki Pfau <vi@endrift.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Sanjay Govind <sanjay.govind9@gmail.com>,
+	Nilton Perim Neto <niltonperimneto@gmail.com>,
+	Lode Willems <me@lodewillems.com>
+Cc: Antheas Kapenekakis <lkml@antheas.dev>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5] xpad: Overhaul device data for wireless devices
+Date: Tue,  7 Apr 2026 21:51:27 +1200
+Message-ID: <20260407095127.2925581-4-sanjay.govind9@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260228223628.472208-1-mikhail.v.gavrilov@gmail.com>
- <acCpW6McaPOE0Jq5@google.com> <CABXGCsOwJu2dw67bR38MJb5DFvGon=MUCxKcGEQYfT6qrPZU1w@mail.gmail.com>
- <acDPeFpxX57Uu0Mm@google.com> <CABXGCsNwLTAKFdRDHnGBdF-h3fnKY0_ysQJevMTv-N7+MNwS1A@mail.gmail.com>
- <adSSoVZBLs8b6I0J@google.com>
-In-Reply-To: <adSSoVZBLs8b6I0J@google.com>
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Date: Tue, 7 Apr 2026 13:39:51 +0500
-X-Gm-Features: AQROBzCJtkPIqc7N9wP6rPRXvkReRBhdOO-IpfQOPFoPiFgNGDd50QdTm0W2VmU
-Message-ID: <CABXGCsPToHH27vN2DF2O8Dq+rrbHaxLKPJ+u+GbgS-Rxrq9uVQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: uinput - fix circular locking dependency with ff-core
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 7, 2026 at 10:19=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> I was talking about taking this new lock in both uinput_request_send()
-> as well as in uinput_destroy_device() when updating the state. With that
-> requests_lock will be taken only in uinput_request_alloc_id(),
-> uinput_request_release_slot(), and uinput_flush_requests().
+Xbox 360 wireless controllers expose information in the link and
+capabilities reports.
 
-Hi Dmitry,
+Extract and use the vendor id for wireless controllers, and use
+the subtype to build a nicer device name and product id.
 
-I've sent v2 as a separate thread with a dedicated state_lock
-spinlock as you suggested, along with Fixes and Cc: stable tags.
+Some xbox 360 controllers put a vid and pid into the stick capability
+data, so check if this was done, and pull the vid, pid and revision from
+there.
 
-https://lore.kernel.org/all/20260407075031.38351-1-mikhail.v.gavrilov@gmail=
-.com/
+Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
+---
+v2: Delay marking device as present until after capabilities or timeout
+v3: Fix issues when receiving incorrect or missing link and capabilities reports
+v4: Clear wireless state when processing device prescence change
+v5: Fix typo, fix some potential race conditions with work scheduling
+ drivers/input/joystick/xpad.c | 180 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 171 insertions(+), 9 deletions(-)
 
---=20
-Best Regards,
-Mike Gavrilov.
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bf4accf3f581..6f8d87ce08a0 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -68,6 +68,7 @@
+ #include <linux/slab.h>
+ #include <linux/stat.h>
+ #include <linux/module.h>
++#include <linux/unaligned.h>
+ #include <linux/usb/input.h>
+ #include <linux/usb/quirks.h>
+ 
+@@ -94,6 +95,22 @@
+ #define XTYPE_XBOXONE     3
+ #define XTYPE_UNKNOWN     4
+ 
++#define FLAG_FORCE_FEEDBACK	0x01
++
++#define SUBTYPE_GAMEPAD			 0x01
++#define SUBTYPE_WHEEL			 0x02
++#define SUBTYPE_ARCADE_STICK	 0x03
++#define SUBTYPE_FLIGHT_STICK	 0x04
++#define SUBTYPE_DANCE_PAD		 0x05
++#define SUBTYPE_GUITAR			 0x06
++#define SUBTYPE_GUITAR_ALTERNATE 0x07
++#define SUBTYPE_DRUM_KIT		 0x08
++#define SUBTYPE_GUITAR_BASS		 0x0B
++#define SUBTYPE_RB_KEYBOARD		 0x0F
++#define SUBTYPE_ARCADE_PAD		 0x13
++#define SUBTYPE_TURNTABLE		 0x17
++#define SUBTYPE_PRO_GUITAR		 0x19
++
+ /* Send power-off packet to xpad360w after holding the mode button for this many
+  * seconds
+  */
+@@ -795,8 +812,13 @@ struct usb_xpad {
+ 	int xtype;			/* type of xbox device */
+ 	int packet_type;		/* type of the extended packet */
+ 	int pad_nr;			/* the order x360 pads were attached */
++	u8 sub_type;
++	u16 flags;
++	u16 wireless_vid;
++	u16 wireless_pid;
++	u16 wireless_version;
+ 	const char *name;		/* name of the device */
+-	struct work_struct work;	/* init/remove device from callback */
++	struct delayed_work work;	/* init/remove device from callback */
+ 	time64_t mode_btn_down_ts;
+ 	bool delay_init;		/* init packets should be delayed */
+ 	bool delayed_init_done;
+@@ -807,6 +829,8 @@ static void xpad_deinit_input(struct usb_xpad *xpad);
+ static int xpad_start_input(struct usb_xpad *xpad);
+ static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
+ static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
++static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad);
++
+ 
+ /*
+  *	xpad_process_packet
+@@ -980,7 +1004,7 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
+ 
+ static void xpad_presence_work(struct work_struct *work)
+ {
+-	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
++	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work.work);
+ 	int error;
+ 
+ 	if (xpad->pad_present) {
+@@ -1017,7 +1041,7 @@ static void xpad_presence_work(struct work_struct *work)
+  * 01.1 - Pad state (Bytes 4+) valid
+  *
+  */
+-static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
++static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
+ {
+ 	struct input_dev *dev;
+ 	bool present;
+@@ -1028,7 +1052,68 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
+ 
+ 		if (xpad->pad_present != present) {
+ 			xpad->pad_present = present;
+-			schedule_work(&xpad->work);
++			xpad->wireless_vid = 0;
++			xpad->wireless_pid = 0;
++			xpad->wireless_version = 0;
++			xpad->flags = 0;
++			xpad->sub_type = 0;
++			if (present) {
++				/*
++				 * Delay marking device as present, so we can make sure
++				 * we have received all the information from the capabilities
++				 * report. Some devices don't send one, so the delay
++				 * guarantees that these devices are still initialized.
++				 */
++				mod_delayed_work(system_percpu_wq,
++						 &xpad->work, msecs_to_jiffies(500));
++			} else {
++				mod_delayed_work(system_percpu_wq, &xpad->work, 0);
++			}
++		}
++	}
++
++	/* Link report */
++	if (len >= 26 && data[0] == 0x00 && data[1] == 0x0F) {
++		xpad->sub_type = data[25] & 0x7f;
++
++		/* Decode vendor id from link report */
++		xpad->wireless_vid = ((data[0x16] & 0xf) | data[0x18] << 4) << 8 | data[0x17];
++
++		/*
++		 * If the link report doesn't provide a proper vid, it sets the vid to 1.
++		 * In that case we zero out wireless_vid, so that we fall back to the vid
++		 * from the receiver instead.
++		 */
++		if (xpad->wireless_vid == 1)
++			xpad->wireless_vid = 0;
++		/*
++		 * x360w controllers on windows put the subtype into the product
++		 * for wheels and gamepads, but it makes sense to do it for all
++		 * subtypes. This will be used if the capabilities report
++		 * doesn't provide us with a product id later.
++		 */
++		xpad->wireless_pid = 0x02a0 + xpad->sub_type;
++		xpad->wireless_version = 0;
++
++		if ((data[25] & 0x80) != 0)
++			xpad->flags |= FLAG_FORCE_FEEDBACK;
++
++		xpad_inquiry_pad_capabilities(xpad);
++	}
++
++	/* Capabilities report */
++	if (len >= 21 && data[0] == 0x00 && data[1] == 0x05 && data[5] == 0x12) {
++		xpad->flags |= data[20];
++		/*
++		 * A bunch of vendors started putting vids and pids
++		 * into capabilities data because they can't be
++		 * retrieved by xinput easliy.
++		 * Not all of them do though, so check the vids match
++		 * before extracting that info.
++		 */
++		if (get_unaligned_le16(data + 10) == xpad->wireless_vid) {
++			xpad->wireless_pid = get_unaligned_le16(data + 12);
++			xpad->wireless_version = get_unaligned_le16(data + 14);
+ 		}
+ 	}
+ 
+@@ -1254,7 +1339,7 @@ static void xpad_irq_in(struct urb *urb)
+ 		xpad360_process_packet(xpad, xpad->dev, 0, xpad->idata);
+ 		break;
+ 	case XTYPE_XBOX360W:
+-		xpad360w_process_packet(xpad, 0, xpad->idata);
++		xpad360w_process_packet(xpad, 0, xpad->idata, urb->actual_length);
+ 		break;
+ 	case XTYPE_XBOXONE:
+ 		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
+@@ -1495,6 +1580,31 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
+ 	return xpad_try_sending_next_out_packet(xpad);
+ }
+ 
++static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad)
++{
++	struct xpad_output_packet *packet =
++			&xpad->out_packets[XPAD_OUT_CMD_IDX];
++
++	guard(spinlock_irqsave)(&xpad->odata_lock);
++
++	packet->data[0] = 0x00;
++	packet->data[1] = 0x00;
++	packet->data[2] = 0x02;
++	packet->data[3] = 0x80;
++	packet->data[4] = 0x00;
++	packet->data[5] = 0x00;
++	packet->data[6] = 0x00;
++	packet->data[7] = 0x00;
++	packet->data[8] = 0x00;
++	packet->data[9] = 0x00;
++	packet->data[10] = 0x00;
++	packet->data[11] = 0x00;
++	packet->len = 12;
++	packet->pending = true;
++
++	return xpad_try_sending_next_out_packet(xpad);
++}
++
+ static int xpad_start_xbox_one(struct usb_xpad *xpad)
+ {
+ 	int error;
+@@ -1893,7 +2003,7 @@ static void xpad360w_stop_input(struct usb_xpad *xpad)
+ 	usb_kill_urb(xpad->irq_in);
+ 
+ 	/* Make sure we are done with presence work if it was scheduled */
+-	flush_work(&xpad->work);
++	cancel_delayed_work_sync(&xpad->work);
+ }
+ 
+ static int xpad_open(struct input_dev *dev)
+@@ -1965,8 +2075,60 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 	usb_to_input_id(xpad->udev, &input_dev->id);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+-		/* x360w controllers and the receiver have different ids */
+-		input_dev->id.product = 0x02a1;
++		if (xpad->wireless_vid)
++			input_dev->id.vendor = xpad->wireless_vid;
++		if (xpad->wireless_pid)
++			input_dev->id.product = xpad->wireless_pid;
++		else
++			/* Default product id for x360w controllers */
++			input_dev->id.product = 0x02a1;
++		if (xpad->wireless_version)
++			input_dev->id.version = xpad->wireless_version;
++		switch (xpad->sub_type) {
++		case SUBTYPE_GAMEPAD:
++			input_dev->name = "Xbox 360 Wireless Controller";
++			break;
++		case SUBTYPE_WHEEL:
++			input_dev->name = "Xbox 360 Wireless Wheel";
++			break;
++		case SUBTYPE_ARCADE_STICK:
++			input_dev->name = "Xbox 360 Wireless Arcade Stick";
++			break;
++		case SUBTYPE_FLIGHT_SICK:
++			input_dev->name = "Xbox 360 Wireless Flight Stick";
++			break;
++		case SUBTYPE_DANCE_PAD:
++			input_dev->name = "Xbox 360 Wireless Dance Pad";
++			break;
++		case SUBTYPE_GUITAR:
++			input_dev->name = "Xbox 360 Wireless Guitar";
++			break;
++		case SUBTYPE_GUITAR_ALTERNATE:
++			input_dev->name = "Xbox 360 Wireless Alternate Guitar";
++			break;
++		case SUBTYPE_GUITAR_BASS:
++			input_dev->name = "Xbox 360 Wireless Bass Guitar";
++			break;
++		case SUBTYPE_DRUM_KIT:
++			/* Vendors used force feedback flag to differentiate these */
++			if (xpad->flags & FLAG_FORCE_FEEDBACK)
++				input_dev->name = "Xbox 360 Wireless Guitar Hero Drum Kit";
++			else
++				input_dev->name = "Xbox 360 Wireless Rock Band Drum Kit";
++			break;
++		case SUBTYPE_RB_KEYBOARD:
++			input_dev->name = "Xbox 360 Wireless Rock Band Keyboard";
++			break;
++		case SUBTYPE_ARCADE_PAD:
++			input_dev->name = "Xbox 360 Wireless Arcade Pad";
++			break;
++		case SUBTYPE_TURNTABLE:
++			input_dev->name = "Xbox 360 Wireless DJ Hero Turntable";
++			break;
++		case SUBTYPE_PRO_GUITAR:
++			input_dev->name = "Xbox 360 Wireless Rock Band Pro Guitar";
++			break;
++		}
+ 	}
+ 
+ 	input_dev->dev.parent = &xpad->intf->dev;
+@@ -2106,7 +2268,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		xpad->delay_init = true;
+ 
+ 	xpad->packet_type = PKT_XB;
+-	INIT_WORK(&xpad->work, xpad_presence_work);
++	INIT_DELAYED_WORK(&xpad->work, xpad_presence_work);
+ 
+ 	if (xpad->xtype == XTYPE_UNKNOWN) {
+ 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
+-- 
+2.53.0
+

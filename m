@@ -1,234 +1,605 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6083A3802
-	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 07:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E39FB3A381A;
+	Tue,  7 Apr 2026 07:59:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775548243; cv=none; b=FuLg2kSXDLvvKiS7bQ3jvzhwemNxV4o+rqQ3eWMGSXIEldsgfSZIxMVWN3WY3ymWtxrkh4HveM36bCHtFxyaqO8huqBQ0+bF5TLZfd/c+dDyReZs+4NsPUKg/WP93taPVj6MsulWWSY1SpLmba1hZNAjlls3mLEWM9YLttM8EZQ=
+	t=1775548779; cv=none; b=Ozox7WiTiBUTG7XW4xDty6dvE3OPZRyVoTbSBf3QMLAfTBkNHNolHHNFDaq88Qr7PQUeya4u/g1xDqu5DoCaBrL0+Jb0iBYPN62MoNqAuSbxmNH4/PKj3o0VjZQlHzX49eAPBOLY9M9p81BeYRLU6B4l05SUF0lbqag3s/0jajE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775548243; c=relaxed/simple;
-	bh=IdWuS85toG2XB88l83aLIKH1J6yNHDj+tjm+o0igdrQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ISuSULMOhJ9UFVyMfVl/i+GZdk7qjEou93aq2aQXJobnux5HwkCoxwU9XT5hTDJbC7XkMR5FPmRrzqL8gflfoij99ghpKW2ukN45Y+THv3dFeOuqEGlNGMmQXGVF/yRJarKE7KILulgAZX0j6Bf9pWahkQK06sf0pyeV3fx7pd0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G13xeWcv; arc=none smtp.client-ip=209.85.208.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775548779; c=relaxed/simple;
+	bh=zhhTeBpFoUG8VaBKsvUgNyjLqgc044+xIspskNWKVP4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NtQyT8Rxk88FTsbtH/MLrWXH4CxZyigQyHUvEYo1G4ucxerKtliiWjZS0xmsYsU9PpOHxNOMDjc9es71KEo16UFdxeX5RaXQWxrsiZPK9C5zeZ6Vy+R1Rm2fLKoJTyyxx9FMwu62hCHBmdXVLWlVmamZPLU9gzjM/fCm9QzhmUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=egtwvSYg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G13xeWcv"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-38c620f1699so50534641fa.0
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 00:50:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775548240; x=1776153040; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=unfP0Io+eWCdwZ48Sql8cCkVMUb4bc5MzgzrzSKUpi4=;
-        b=G13xeWcvZFDw0Xh+1xVbLWgukSCj29I1HQmfZwONtjQXufSiiADJ9iUV3YXk0vO4IV
-         ornxOYJWZ83+XzxCSA4JL0WUi09uji1QYpJ1uvEknMa3qAJjAQpLTtbpJ+CaAVKPB7/m
-         hcllfU6GaJm0cuAuTTHFdAIbmpyQ/7LZHJEcmpKW6wdQo1xXOmT8EGCdj/V347TH0rbc
-         5SJR09E75Nwk/2kX43vEX19J01p3fS6BRSSz49alF6EWTXxTkC2DYQLvTRTTLdSigi2N
-         q20/p700y83oKypb9mY0PdwxxfmwZY+A4J8QxAKGbQf2x7NJBsvbHsp4vRf2OR+TROlH
-         ADjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775548240; x=1776153040;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=unfP0Io+eWCdwZ48Sql8cCkVMUb4bc5MzgzrzSKUpi4=;
-        b=FmrLSjHf0xZ5VoVrQkuwPCNQ1F+zkWsoUnPrLkuuIsScCkxqfHz7ygLFeBWDZOaelH
-         yHyjEOWZ+neRn4j7ObaZReQ3IEMgZgxIAQ+VgZgnu4NXTnc+th58n8sDFp7j97Y49Bgs
-         gfUlFLc8I0s0reU3Qe2CvgR5mye8ROzhYUn7WHurGQJZ8vsKz36fnL7/ZBCYB6N2J78B
-         bwY5tb0SosXciKcdqHfKv5hXrVVSepTB9yPuRpYS3+DGgoL9jea/Yb6BfnEmaiQz+hh9
-         Epz11HtSRZUOuv46yNNpGFo64FIR8oOwxOCYchM1mCaFeZwApd/J+vcF3h5byobAJS3M
-         J7fQ==
-X-Gm-Message-State: AOJu0YzCck7nHIXbP8SXJdjI3+iJvJtdiYjdrLHuxJhJARqiNS/WgGUB
-	6YyQAeqpG24bsGoB19eQuGzrdSbeb3qWWeg9ugglEFX/HZhf5TStJybw
-X-Gm-Gg: AeBDiet45/J299Ob62M5Z2xbIsfeS8qiqc8l0SjSv81HC9h1wch9+na/Z6OstLZHbZq
-	UhVaktuea6YCf4oLg3UF0po7XpJqKCk3jzdvv5F6aNGnvJ7DHxymauBni75BfOiRA3A64BZ03ls
-	dfF94jW2Ex5dAuPLx6aLGldgi2Qo7zNMkIoG85i97pCOO9jwOoqm23vGHd8oxM9VJ4HHdr6gFSi
-	EF4XRuD7k0xWJpsBc6D5ZKEMfUvttWPjd0wW4EtGnuAU+2X731Mv67JgUpw9wYSzNe5SWtHKgvo
-	QemjDF7RDNSz6jJuXK88Ksku7h8uOqb1PFS/7NqiwSKWARSs+bHh3akwm+afpnU02YNckyeW13I
-	rQrlf9MbVB0byDm54ZMrtyq8viIa9sZlswE6FIRUVvD/sc8oS9oo60JznwiZ9LwzK0AZWmbjC67
-	sOR9sC5/UlELLKDbsMN/j+dGncUy3wFe8Fcw==
-X-Received: by 2002:a05:6512:124e:b0:5a2:a753:8f0a with SMTP id 2adb3069b0e04-5a337591ec2mr4435727e87.34.1775548239590;
-        Tue, 07 Apr 2026 00:50:39 -0700 (PDT)
-Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a2c6c9519bsm3960950e87.8.2026.04.07.00.50.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2026 00:50:38 -0700 (PDT)
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Subject: [PATCH v2] Input: uinput - fix circular locking dependency with ff-core
-Date: Tue,  7 Apr 2026 12:50:31 +0500
-Message-ID: <20260407075031.38351-1-mikhail.v.gavrilov@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="egtwvSYg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD93C116C6;
+	Tue,  7 Apr 2026 07:59:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775548778;
+	bh=zhhTeBpFoUG8VaBKsvUgNyjLqgc044+xIspskNWKVP4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=egtwvSYgyOmREZVPD7UcnwT4S1by9tY5VEXmmqWHqCg5VRgU9mWN+YY+PpQ3w//vF
+	 WgwTbsJuiGlNbI+5YN16kZJFLaZssm48pORAB5I0xS3g91B5AO/OncXA9jKReFBQvv
+	 1R/JiD2ZjRcP4TSsUiqWgVTPmLv0EyIpxdmG29Jg+htqwWvFk/s4go/tTwrwdeYitW
+	 l+2S1uFE70M2ui61W/+i0nUnnG4IakgeG6LX2hvyyJgNFGcTx1K5zg8D7SIZUkO3zg
+	 DF7uekyvD9Qfd8rT9gWoQSP68j+rm7K8W4fwEhrfM0M0bUiHU6lQ6mJIVzInOfQcWo
+	 jecqK7LORQBow==
+Date: Tue, 7 Apr 2026 09:59:34 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Zubeyr Almaho <zybo1000@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, security@kernel.org
+Subject: Re: [PATCH v2 1/1] HID: add malicious HID device detection driver
+Message-ID: <adSxXidgeWF0-Ewn@beelink>
+References: <20260404133746.80914-1-zybo1000@gmail.com>
+ <20260404133746.80914-2-zybo1000@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260404133746.80914-2-zybo1000@gmail.com>
 
-A lockdep circular locking dependency warning can be triggered
-reproducibly when using a force-feedback gamepad with uinput (for
-example, playing ELDEN RING under Wine with a Flydigi Vader 5
-controller):
+Hi,
 
-  ff->mutex -> udev->mutex -> input_mutex -> dev->mutex -> ff->mutex
+On Apr 04 2026, Zubeyr Almaho wrote:
+> Add a passive HID driver that computes a suspicion score for keyboard-like
+> USB devices based on:
+> 
+> - low keystroke timing entropy,
+> - immediate post-enumeration typing,
+> - known suspicious VID/PID and descriptor anomalies.
+> 
+> If the score exceeds a tunable threshold, the driver emits a warning and
+> suggests userspace blocking (e.g. usbguard). The module never blocks or
+> modifies HID events.
+> 
+> Signed-off-by: Zubeyr Almaho <zybo1000@gmail.com>
 
-The cycle is caused by four lock acquisition paths:
+As Greg said, a HID-BPF program would be far better in terms of scope
+because there are numerous pitfal in your implementation.
 
-1. ff upload: input_ff_upload() holds ff->mutex and calls
-   uinput_dev_upload_effect() -> uinput_request_submit() ->
-   uinput_request_send(), which acquires udev->mutex.
+The question will be how to notify userspace of the suspicious HID
+device in HID-BPF, but here, you are also just emitting a dmesg warning,
+so it's not doing much either.
 
-2. device create: uinput_ioctl_handler() holds udev->mutex and calls
-   uinput_create_device() -> input_register_device(), which acquires
-   input_mutex.
+Anyway, comments inline, but please reach out to the end where I explain
+why the implementation can't work in it's current state.
 
-3. device register: input_register_device() holds input_mutex and
-   calls kbd_connect() -> input_register_handle(), which acquires
-   dev->mutex.
+> ---
+>  drivers/hid/hid-omg-detect.c | 435 ++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 435 insertions(+)
+>  create mode 100644 drivers/hid/hid-omg-detect.c
+> 
+> diff --git a/drivers/hid/hid-omg-detect.c b/drivers/hid/hid-omg-detect.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/drivers/hid/hid-omg-detect.c
+> @@ -0,0 +1,435 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * hid-omg-detect.c - Malicious HID Device Detection Kernel Module
+> + *
+> + * Detects O.MG Cable and similar BadUSB devices by combining:
+> + *   1. Keystroke timing entropy analysis (human vs machine rhythm)
+> + *   2. Plug-and-type detection (typing immediately after connect)
+> + *   3. USB descriptor fingerprinting (known bad VID/PIDs + anomalies)
+> + *
+> + * When suspicion score >= threshold, logs a kernel warning and suggests
+> + * blocking the device with usbguard.
+> + *
+> + * The driver is purely passive — it does not drop, modify, or delay any
+> + * HID events.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/hid.h>
+> +#include <linux/usb.h>
+> +#include <linux/ktime.h>
+> +#include <linux/slab.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/math64.h>
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Zübeyr Almaho <zybo1000@gmail.com>");
+> +MODULE_DESCRIPTION("O.MG Cable / Malicious HID Device Detector");
+> +
+> +/* ============================================================
+> + * Tuneable parameters (pass as insmod args)
+> + * ============================================================ */
 
-4. evdev release: evdev_release() calls input_flush_device() under
-   dev->mutex, which calls input_ff_flush() acquiring ff->mutex.
+I'm pretty sure checkpatch.pl would complain about those multiline
+comments.
 
-Fix this by introducing a new state_lock spinlock to protect
-udev->state and udev->dev access in uinput_request_send() instead of
-acquiring udev->mutex.  The function only needs to atomically check
-device state and queue an input event into the ring buffer via
-uinput_dev_event() -- both operations are safe under a spinlock
-(ktime_get_ts64() and wake_up_interruptible() do not sleep).  This
-breaks the ff->mutex -> udev->mutex link since a spinlock is a leaf in
-the lock ordering and cannot form cycles with mutexes.
+> +static int score_threshold = 70;
+> +module_param(score_threshold, int, 0644);
+> +MODULE_PARM_DESC(score_threshold,
+> +	"Suspicion score (0-100) to trigger alert (default: 70)");
+> +
+> +static int plug_type_ms = 500;
+> +module_param(plug_type_ms, int, 0644);
+> +MODULE_PARM_DESC(plug_type_ms,
+> +	"Max ms after connect before first key = plug-and-type (default: 500)");
+> +
+> +static int entropy_variance_low = 500;
+> +module_param(entropy_variance_low, int, 0644);
+> +MODULE_PARM_DESC(entropy_variance_low,
+> +	"Variance (us^2) below which typing is machine-like (default: 500)");
+> +
+> +/* ============================================================
+> + * Constants
+> + * ============================================================ */
+> +#define DRIVER_NAME		"hid_omg_detect"
+> +#define MAX_TIMING_SAMPLES	64
+> +#define MIN_SAMPLES		10
+> +
+> +/* ============================================================
+> + * Known suspicious VID/PID pairs (O.MG Cable, Rubber Ducky, etc.)
+> + * ============================================================ */
+> +static const struct {
+> +	u16 vid;
+> +	u16 pid;
+> +	const char *name;
+> +} suspicious_ids[] = {
+> +	{ 0x16c0, 0x27db, "O.MG Cable (classic)" },
+> +	{ 0x1209, 0xa000, "O.MG Cable (Elite)" },
+> +	{ 0x16c0, 0x27dc, "USB Rubber Ducky" },
+> +	{ 0x1b4f, 0x9208, "LilyPad Arduino BadUSB" },
+> +};
+> +
+> +/* ============================================================
+> + * Per-device state (allocated on probe, freed on remove)
+> + * ============================================================ */
+> +struct omg_device_state {
+> +	struct hid_device  *hdev;
+> +
+> +	/* --- connection timing --- */
+> +	ktime_t		connect_time;
+> +	ktime_t		first_key_time;
+> +	bool		first_key_seen;
+> +
+> +	/* --- keystroke interval circular buffer --- */
+> +	ktime_t		last_key_time;
+> +	s64		intervals_us[MAX_TIMING_SAMPLES];
+> +	unsigned int	sample_count;
+> +	unsigned int	sample_head;
+> +
+> +	/* --- USB info (immutable after probe) --- */
+> +	u16		vid;
+> +	u16		pid;
+> +	const char	*vid_pid_match_name;	/* non-NULL if VID/PID matched */
+> +	bool		descriptor_anomaly;
+> +
+> +	/* --- verdict --- */
+> +	int		score;
+> +	bool		alerted;
+> +
+> +	spinlock_t	lock;
+> +};
+> +
+> +/* ============================================================
+> + * Math helpers
+> + * ============================================================ */
+> +static void timing_stats(struct omg_device_state *s, s64 *mean, s64 *variance)
+> +{
+> +	unsigned int i, n;
+> +	s64 sum = 0, sq = 0, m;
+> +
+> +	n = min(s->sample_count, (unsigned int)MAX_TIMING_SAMPLES);
+> +
+> +	if (n < 2) {
+> +		*mean = 0;
+> +		*variance = 0;
+> +		return;
+> +	}
+> +
+> +	for (i = 0; i < n; i++)
+> +		sum += s->intervals_us[i];
+> +	m = div_s64(sum, n);
+> +
+> +	for (i = 0; i < n; i++) {
+> +		s64 d = s->intervals_us[i] - m;
+> +
+> +		sq += d * d;
+> +	}
+> +
+> +	*mean     = m;
+> +	*variance = div_s64(sq, n);
+> +}
+> +
+> +/* ============================================================
+> + * Signal 1: Timing entropy
+> + *
+> + * Humans: high variance (pauses, rhythm changes)
+> + * Machines: low variance (constant clock)
+> + *
+> + * Also penalises extremely fast consistent typing (mean < 15 ms).
+> + * ============================================================ */
+> +static int score_entropy(struct omg_device_state *s)
+> +{
+> +	s64 mean, var;
+> +	int pts = 0;
+> +
+> +	if (s->sample_count < MIN_SAMPLES)
+> +		return 0;
+> +
+> +	timing_stats(s, &mean, &var);
+> +
+> +	if (var < (s64)entropy_variance_low)
+> +		pts += 35;
+> +	else if (var < (s64)entropy_variance_low * 10)
+> +		pts += 20;
+> +	else if (var < (s64)entropy_variance_low * 40)
+> +		pts += 8;
+> +
+> +	if (mean > 0 && mean < 5000)
+> +		pts += 25;
+> +	else if (mean > 0 && mean < 15000)
+> +		pts += 10;
+> +
+> +	return min(pts, 60);
+> +}
+> +
+> +/* ============================================================
+> + * Signal 2: Plug-and-type
+> + *
+> + * A legitimate keyboard sits idle for a while after connect.
+> + * A script device starts injecting within milliseconds.
+> + * ============================================================ */
+> +static int score_plug_type(struct omg_device_state *s)
+> +{
+> +	s64 delta_ms;
+> +
+> +	if (!s->first_key_seen)
+> +		return 0;
+> +
+> +	delta_ms = ktime_to_ms(ktime_sub(s->first_key_time, s->connect_time));
+> +
+> +	if (delta_ms < 100)
+> +		return 30;
+> +	if (delta_ms < (s64)plug_type_ms)
+> +		return 15;
+> +	if (delta_ms < 2000)
+> +		return 5;
+> +
+> +	return 0;
+> +}
+> +
+> +/* ============================================================
+> + * Signal 3: USB descriptor fingerprint
+> + * ============================================================ */
+> +static int score_descriptor(struct omg_device_state *s)
+> +{
+> +	int pts = 0;
+> +
+> +	if (s->vid_pid_match_name)
+> +		pts += 50;
+> +
+> +	if (s->descriptor_anomaly)
+> +		pts += 20;
+> +
+> +	return min(pts, 50);
+> +}
+> +
+> +/* ============================================================
+> + * Combine all signals and return per-signal breakdown.
+> + * Caller is responsible for alerting outside any lock.
+> + * ============================================================ */
+> +struct omg_score_result {
+> +	int entropy;
+> +	int plug_type;
+> +	int descriptor;
+> +	int total;
+> +	bool newly_alerted;
+> +};
+> +
+> +static void compute_score(struct omg_device_state *s,
+> +			   struct omg_score_result *res)
+> +{
+> +	res->entropy   = score_entropy(s);
+> +	res->plug_type = score_plug_type(s);
+> +	res->descriptor = score_descriptor(s);
+> +	res->total     = min(res->entropy + res->plug_type + res->descriptor,
+> +			     100);
+> +
+> +	s->score = res->total;
+> +	res->newly_alerted = false;
+> +
+> +	if (res->total >= score_threshold && !s->alerted) {
+> +		s->alerted = true;
+> +		res->newly_alerted = true;
+> +	}
+> +}
+> +
+> +/* Emit alert outside of spinlock */
+> +static void emit_alert(struct hid_device *hdev,
+> +		       struct omg_device_state *s,
+> +		       const struct omg_score_result *res)
+> +{
+> +	hid_warn(hdev, "=============================================\n");
+> +	hid_warn(hdev, "!! SUSPICIOUS HID DEVICE DETECTED !!\n");
+> +	hid_warn(hdev, "Device : %s\n", hdev->name);
+> +	hid_warn(hdev, "VID/PID: %04x:%04x\n", s->vid, s->pid);
+> +	if (s->vid_pid_match_name)
+> +		hid_warn(hdev, "Match  : %s\n", s->vid_pid_match_name);
+> +	hid_warn(hdev, "Score  : %d/100  (threshold=%d)\n",
+> +		 res->total, score_threshold);
+> +	hid_warn(hdev, "  Entropy      : %d pts\n", res->entropy);
+> +	hid_warn(hdev, "  Plug-and-type: %d pts\n", res->plug_type);
+> +	hid_warn(hdev, "  Descriptor   : %d pts\n", res->descriptor);
+> +	hid_warn(hdev, "Action : sudo usbguard block-device <id>\n");
+> +	hid_warn(hdev, "=============================================\n");
+> +}
+> +
+> +/* ============================================================
+> + * HID raw_event hook — called for every incoming HID report
+> + *
+> + * This runs in softirq/BH context — no sleeping locks allowed.
+> + * ============================================================ */
+> +static int omg_raw_event(struct hid_device *hdev,
+> +			 struct hid_report *report,
+> +			 u8 *data, int size)
+> +{
+> +	struct omg_device_state *s = hid_get_drvdata(hdev);
+> +	struct omg_score_result res;
+> +	ktime_t now;
+> +	unsigned long flags;
+> +	bool keystroke = false;
+> +	int i;
+> +
+> +	if (!s)
+> +		return 0;
+> +
+> +	if (report->type != HID_INPUT_REPORT)
+> +		return 0;
+> +
+> +	/* Byte 0 = modifier, byte 1 = reserved, bytes 2-7 = keycodes */
 
-To keep state transitions visible to uinput_request_send(), protect
-writes to udev->state in uinput_create_device() and
-uinput_destroy_device() with the same state_lock spinlock.
+That's a strong assumption. This actually depend on the report
+descriptor of the device and what you said is generally true for USB
+keyboards, but not all of HID devices behave like that:
+- bluetooth keyboards usually have a report ID in byte 0
+- some devices are reporting gyro data, so they are sending a stream of
+	events which would likely be tagged as "suspicious"
+- some devices are reporting touch information, and as such they are
+	also reporting a constant stream of events as long as at least one
+	finger is touching the sensor
+- yubikeys, other security keys and gaming devices are devices
+	specifically tailored to send a stream of events, being a keyboard
+	macro, or a one time password, or a stored passwored in the key
+- not all devices are keyboards :)
 
-Additionally, move init_completion(&request->done) from
-uinput_request_send() to uinput_request_submit() before
-uinput_request_reserve_slot().  Once the slot is allocated,
-uinput_flush_requests() may call complete() on it at any time from
-the destroy path, so the completion must be initialised before the
-request becomes visible.
+> +	for (i = 2; i < size && i < 8; i++) {
+> +		if (data[i] != 0) {
+> +			keystroke = true;
+> +			break;
+> +		}
+> +	}
+> +	if (size > 0 && data[0] != 0)
+> +		keystroke = true;
+> +
+> +	if (!keystroke)
+> +		return 0;
+> +
+> +	now = ktime_get();
+> +
+> +	spin_lock_irqsave(&s->lock, flags);
 
-Lock ordering after the fix:
+Why spin_locking?
 
-  ff->mutex -> state_lock (spinlock, leaf)
-  udev->mutex -> state_lock (spinlock, leaf)
-  udev->mutex -> input_mutex -> dev->mutex -> ff->mutex (no back-edge)
+> +
+> +	if (!s->first_key_seen) {
+> +		s->first_key_seen = true;
+> +		s->first_key_time = now;
+> +		s->last_key_time  = now;
+> +	} else {
+> +		s64 interval = ktime_to_us(ktime_sub(now, s->last_key_time));
+> +
+> +		/* ignore idle gaps > 10 s */
+> +		if (interval < 10000000LL) {
+> +			s->intervals_us[s->sample_head] = interval;
+> +			s->sample_head =
+> +				(s->sample_head + 1) % MAX_TIMING_SAMPLES;
+> +			if (s->sample_count < MAX_TIMING_SAMPLES)
+> +				s->sample_count++;
+> +		}
+> +		s->last_key_time = now;
+> +	}
+> +
+> +	compute_score(s, &res);
+> +
+> +	spin_unlock_irqrestore(&s->lock, flags);
+> +
+> +	/* Alert outside the spinlock — hid_warn may sleep */
+> +	if (res.newly_alerted)
+> +		emit_alert(hdev, s, &res);
+> +
+> +	return 0;
+> +}
+> +
+> +/* ============================================================
+> + * HID probe — device connected
+> + * ============================================================ */
+> +static int omg_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +{
+> +	struct omg_device_state *s;
+> +	struct usb_interface *intf;
+> +	struct usb_device *udev;
+> +	struct omg_score_result res;
+> +	int ret, i;
+> +
+> +	if (hdev->bus != BUS_USB)
+> +		return -ENODEV;
 
-Fixes: ff462551235d ("Input: uinput - switch to the new FF interface")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/CABXGCsMoxag+kEwHhb7KqhuyxfmGGd0P=tHZyb1uKE0pLr8Hkg@mail.gmail.com/
-Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
----
+Why restricting to BUS_USB only? Bluetooth could be a strong acttack
+vector as well.
 
-Changes since v1:
-https://lore.kernel.org/all/20260228223628.472208-1-mikhail.v.gavrilov@gmail.com/
+> +
+> +	s = kzalloc(sizeof(*s), GFP_KERNEL);
 
-- Use a dedicated state_lock spinlock instead of reusing requests_lock,
-  as suggested by Dmitry Torokhov
-- Add Fixes and Cc: stable tags
+devm_kzalloc?
 
- drivers/input/misc/uinput.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+> +	if (!s)
+> +		return -ENOMEM;
+> +
+> +	spin_lock_init(&s->lock);
+> +	s->hdev         = hdev;
+> +	s->connect_time = ktime_get();
+> +
+> +	/* Extract USB descriptor info */
+> +	intf = to_usb_interface(hdev->dev.parent);
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index e589060db280..e24caf6fc8e8 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -57,6 +57,7 @@ struct uinput_device {
- 	struct input_dev	*dev;
- 	struct mutex		mutex;
- 	enum uinput_state	state;
-+	spinlock_t		state_lock;
- 	wait_queue_head_t	waitq;
- 	unsigned char		ready;
- 	unsigned char		head;
-@@ -146,19 +147,15 @@ static void uinput_request_release_slot(struct uinput_device *udev,
- static int uinput_request_send(struct uinput_device *udev,
- 			       struct uinput_request *request)
- {
--	int retval;
-+	int retval = 0;
- 
--	retval = mutex_lock_interruptible(&udev->mutex);
--	if (retval)
--		return retval;
-+	spin_lock(&udev->state_lock);
- 
- 	if (udev->state != UIST_CREATED) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
- 
--	init_completion(&request->done);
--
- 	/*
- 	 * Tell our userspace application about this new request
- 	 * by queueing an input event.
-@@ -166,7 +163,7 @@ static int uinput_request_send(struct uinput_device *udev,
- 	uinput_dev_event(udev->dev, EV_UINPUT, request->code, request->id);
- 
-  out:
--	mutex_unlock(&udev->mutex);
-+	spin_unlock(&udev->state_lock);
- 	return retval;
- }
- 
-@@ -175,6 +172,13 @@ static int uinput_request_submit(struct uinput_device *udev,
- {
- 	int retval;
- 
-+	/*
-+	 * Initialize completion before allocating the request slot.
-+	 * Once the slot is allocated, uinput_flush_requests() may
-+	 * complete it at any time, so it must be initialized first.
-+	 */
-+	init_completion(&request->done);
-+
- 	retval = uinput_request_reserve_slot(udev, request);
- 	if (retval)
- 		return retval;
-@@ -289,7 +293,14 @@ static void uinput_destroy_device(struct uinput_device *udev)
- 	struct input_dev *dev = udev->dev;
- 	enum uinput_state old_state = udev->state;
- 
-+	/*
-+	 * Update state under state_lock so that concurrent
-+	 * uinput_request_send() sees the state change before we
-+	 * flush pending requests and tear down the device.
-+	 */
-+	spin_lock(&udev->state_lock);
- 	udev->state = UIST_NEW_DEVICE;
-+	spin_unlock(&udev->state_lock);
- 
- 	if (dev) {
- 		name = dev->name;
-@@ -366,7 +377,9 @@ static int uinput_create_device(struct uinput_device *udev)
- 	if (error)
- 		goto fail2;
- 
-+	spin_lock(&udev->state_lock);
- 	udev->state = UIST_CREATED;
-+	spin_unlock(&udev->state_lock);
- 
- 	return 0;
- 
-@@ -384,6 +397,7 @@ static int uinput_open(struct inode *inode, struct file *file)
- 		return -ENOMEM;
- 
- 	mutex_init(&newdev->mutex);
-+	spin_lock_init(&newdev->state_lock);
- 	spin_lock_init(&newdev->requests_lock);
- 	init_waitqueue_head(&newdev->requests_waitq);
- 	init_waitqueue_head(&newdev->waitq);
--- 
-2.53.0
+You can't call that function unless you are sure that you are talking to
+ta USB device. If the user is using a uhid device (because they are
+replaying another), the transport driver is not usbhid, and you'll end
+up with a lot of issues.
 
+There is a function for checking if the transport is usb: hid_is_usb()
+
+> +	udev = interface_to_usbdev(intf);
+> +	s->vid = le16_to_cpu(udev->descriptor.idVendor);
+> +	s->pid = le16_to_cpu(udev->descriptor.idProduct);
+> +
+> +	/* Check known bad VID/PID table (once, at probe time) */
+> +	for (i = 0; i < ARRAY_SIZE(suspicious_ids); i++) {
+> +		if (s->vid == suspicious_ids[i].vid &&
+> +		    s->pid == suspicious_ids[i].pid) {
+> +			s->vid_pid_match_name = suspicious_ids[i].name;
+> +			break;
+> +		}
+> +	}
+> +
+> +	/*
+> +	 * Anomaly: legitimate HID keyboards use bDeviceClass = 0x00
+> +	 * (class defined at interface level).  Any other value here
+> +	 * for a device presenting as a keyboard is suspicious.
+> +	 */
+> +	s->descriptor_anomaly =
+> +		(udev->descriptor.bDeviceClass != 0x00 &&
+> +		 udev->descriptor.bDeviceClass != 0x03);
+> +
+> +	hid_set_drvdata(hdev, s);
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "hid_parse failed: %d\n", ret);
+> +		goto err_free;
+> +	}
+> +
+> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +	if (ret) {
+> +		hid_err(hdev, "hid_hw_start failed: %d\n", ret);
+> +		goto err_free;
+> +	}
+> +
+> +	hid_info(hdev, "Monitoring %s (VID=%04x PID=%04x%s%s)\n",
+> +		 hdev->name, s->vid, s->pid,
+> +		 s->vid_pid_match_name ? " KNOWN-BAD:" : "",
+> +		 s->vid_pid_match_name ? s->vid_pid_match_name : "");
+> +
+> +	if (s->descriptor_anomaly)
+> +		hid_warn(hdev, "Descriptor anomaly: bDeviceClass=0x%02x\n",
+> +			 udev->descriptor.bDeviceClass);
+> +
+> +	/* Run initial descriptor-only score */
+> +	compute_score(s, &res);
+> +	if (res.newly_alerted)
+> +		emit_alert(hdev, s, &res);
+> +
+> +	return 0;
+> +
+> +err_free:
+> +	hid_set_drvdata(hdev, NULL);
+> +	kfree(s);
+
+no need to free when using devm_kzalloc.
+
+> +	return ret;
+> +}
+> +
+> +/* ============================================================
+> + * HID remove — device disconnected
+> + * ============================================================ */
+> +static void omg_remove(struct hid_device *hdev)
+> +{
+> +	struct omg_device_state *s = hid_get_drvdata(hdev);
+> +
+> +	hid_hw_stop(hdev);
+> +
+> +	if (s) {
+> +		hid_info(hdev, "Removed %s (final score: %d/100)\n",
+> +			 hdev->name, s->score);
+> +		hid_set_drvdata(hdev, NULL);
+> +		kfree(s);
+> +	}
+> +}
+
+this omg_remove() function can be removed entirely when using
+devm_kzalloc.
+
+> +
+> +/* Match all USB HID devices — we inspect and score them all */
+> +static const struct hid_device_id omg_table[] = {
+> +	{ HID_USB_DEVICE(HID_ANY_ID, HID_ANY_ID) },
+
+ouch. Very much ouch:
+You are binding to any USB device, but you don't have implemented a
+.match callback, meaning that you are racing with any other driver to
+take the ownership of a USB device.
+
+This is where your plan falls completely. There can only be one HID
+driver attached to a specific HID device. And we have multiple HID
+drivers in the subsystem. So either they get their fixes (the original
+HID driver), either they'll get the new security driver but they can not
+have both. And even worse, there is no guarantee one driver will be
+loaded before the other.
+
+hid-generic is a special case as this is a fallback driver. So
+hid-generic is capable of unbinding itself to let device specific
+drivers to take over the device. But here, that driver just takes
+ownership and can't release it (otherwise it's pointless).
+
+So definitively, addressing that problem at the driver level is the
+wrong place:
+- either make it a HID core feature, but it'll be harder to sell IMO
+- either make it a separate module that HID core calls in: slightly
+	easier to sell, but still hard
+- either work at the HID-BPF level: much better because you'll need some
+	userspace eventually and this way you control from userpsace both the
+	HID-BPF program and your userspace part
+
+I've recently added the parsed report descriptor injection during probe
+in the HID-BPF program (assuming you use udev-hid-bpf to load HID-BPF).
+So in theory, you can create a HID-BPF which would matches on keyboards,
+chose which bytes are interesting to look at and then bind on those *in
+addition* to any kernel driver. It happens before any kernel processing
+so you've got the raw event stream and can decide to block or not the
+stream.
+
+Anyway, even with the various issues I mentioned in the code, this
+present version can't be merged, as long as you are using a HID driver.
+
+Cheers,
+Benjamin
+
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, omg_table);
+> +
+> +static struct hid_driver omg_driver = {
+> +	.name      = DRIVER_NAME,
+> +	.id_table  = omg_table,
+> +	.probe     = omg_probe,
+> +	.remove    = omg_remove,
+> +	.raw_event = omg_raw_event,
+> +};
+> +
+> +module_hid_driver(omg_driver);
+> 

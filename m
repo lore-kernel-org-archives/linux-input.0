@@ -1,277 +1,145 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E6A35F8D1;
-	Tue,  7 Apr 2026 19:51:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 397DF22D7A1;
+	Tue,  7 Apr 2026 19:54:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775591500; cv=none; b=Tcmr4VA41jfcM6Oi2Z/FoXsq0jfjOLqyWnRQR9VFk5fMBE5SoQcSRWwxQoYP23hlht2qzbYXMyqqUEPnQm19uahNYZzqvyvgCmyiT10dca7r2T6rqcITo3ClPetZsUalbNGRSQbleBtecKVY9Z6rcafSnk/EWpIrZL+LyBbl4tM=
+	t=1775591668; cv=none; b=ZQcEadrQO9QTlG0ZcsPxoxUSuFL7etYCQrU4nrHru6Xau5O0YfR23H8y/3nDd0nI3rkNXIF9IjN3aDoeForMkqt9/I3Fj/VnaaL4RC+3H5U2Bh01pNvzFJABCDoo0X1ea0MDkE2u63DSgiClf+CriCIpyVhHTYjJrtQr6fjh98s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775591500; c=relaxed/simple;
-	bh=wkJaa1V5imfoX3g+eLH6u6RILerj7s1gC85sLBO5f70=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=poBAEX1wP8XLAJm4ZS8dC+jtQBeezuNR8gQK4XEFi1aMzlih1RMP0CSbUBJXudGon88dhKh8V9FC7xORDCNJQF58reg5tg9BrAqZKPW4StkuruXEACef0gnojx7FmNIXnSLGmzMHqgtJ86NMzOmC7lvYyMdAUqja8znWQDulnm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ACoNBpPy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775591668; c=relaxed/simple;
+	bh=2/kKpFUnaqzjcbovXq+VQVXNhYOQzJkqUNcqzdQGrUg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=G3l06fi5cbFBqtZ6dX10ShjbxwVaWiUvWbuT1NftcJ9tifkQYfMBoTuHixEbxd84wQlqNd+9iUHgZNkg8jrvdBy5tY8Q7gAB+d5QQA27J/n1DTnzKjw+vUrBXrsLdIpBVR1zcNBSzfDRymZvBPB1xcvxyzQyQpYTYa7uX2RgTys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=BAO351g8; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=re2DW877; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ACoNBpPy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C261C116C6;
-	Tue,  7 Apr 2026 19:51:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775591499;
-	bh=wkJaa1V5imfoX3g+eLH6u6RILerj7s1gC85sLBO5f70=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=ACoNBpPyg4GhTe7JZgsiCgbXjp0BmfyIeEhRtUpBZCTlP7FiGIHi6P7XZrHS4bqiz
-	 hVd91KzLvNFk/qSjRGxAemkE+Afo1nQMkMKc68QGgk9x6pKf9jYdMje+P0yAYq4QGG
-	 xsQUL/z2ADclvh1NQZOVBygfUYr27ogh6uyKQGDyH2C/ocNAS79+TBJQ193Ex1sqLP
-	 zRkOh1Yd8nZj4vb3MP31OCwRV45CBifFTplEYCGOhx3Ouv+XOy0QhDue13YViZSHxZ
-	 U9KgML9coqTtH+lM4W8DSuUi0dm84cMLm8GEHAkNU4MVYho92Dd/9Z1uOhEuoPOO6H
-	 qJdauKh0STq0w==
-Date: Tue, 7 Apr 2026 14:51:38 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Vojtech Pavlik <vojtech@ucw.cz>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	"Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: Re: [RFC PATCH 3/5] Input: pc110pad - remove driver
-Message-ID: <20260407195138.GA251078@bhelgaas>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="BAO351g8";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="re2DW877"
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4fqxjP0NFlz9vD7;
+	Tue,  7 Apr 2026 21:54:17 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775591657;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=x86pVHQR/svNC0yaZHLdvmGrMwT9asrVKDYoDYKjc6o=;
+	b=BAO351g88AbYX1pEiR2FveP+Y3N6Cf2SDn/mfp3VlDfaQMuFz0MBvsHDIoT8PQQkr63met
+	rRXZUXUmvqB7TXb48IIcx2N2JSWpfGtSO6bMlIjf/leBPMcaKNv2HFI8EMxARfu+te7KYX
+	3GmzndUOZSRtGaOLZWIxQisMH4GDeI1JYEXb5mFD1Co+0gwNnz7i+NnjRg7lwguS6VDuWy
+	5mNCm7kIC/w/g2XMBP2n5YDAXO09h4tDp1boeiCwSzSkQ3gJ0ZeJxjmo8VjAOmEONFJMK+
+	rP3M+aspV+20MkBnXHlxGA9uBcWFiOKPVFo/rVd5eatFDVEmFJv7pd+Jt2dlew==
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775591655;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=x86pVHQR/svNC0yaZHLdvmGrMwT9asrVKDYoDYKjc6o=;
+	b=re2DW877fQEOjjDoP9KvsQ0uVNPw89fcb20E+EvnFbuBvGU00cYdorGdJe80SCUOwzT/Ue
+	veHTSslGsoeQ592KX1M7FzPb9Vg3lY0b2l8X3IG3UnAKSMn1o1n2GlTN+mjnzLpFJi/Mvq
+	XJ5TyOU0ZygcM1n8sY2uIh/esLWYU6SQi3hGrKBzAu36EPT7H86ODUVGXHDzjyIAI6FN1Q
+	2UlnXoWFIBvBXqq9Ig5qj2RZwxygQr8O6PUpH0DeXur/biueg+/StjZ74DCkZ95pmVjPpx
+	nZtGC8rJvUklVeDwNetfP0y0yafPKa3DSj9y+hL3TtYK34thB6TaoxjTXe3jFg==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Rosalie Wanders <rosalie@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] HID: quirks: update hid-sony supported devices
+Date: Tue,  7 Apr 2026 21:53:28 +0200
+Message-ID: <20260407195327.10698-3-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240808172733.1194442-4-dmitry.torokhov@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: irazssqmyqe5w54fcgti6ega5g7cukkt
+X-MBO-RS-ID: dda892efeedc98b95fe
 
-[+cc Maciej]
+hid-sony has been updated with new device support, update the
+hid_have_special_driver list accordingly.
 
-On Thu, Aug 08, 2024 at 10:27:29AM -0700, Dmitry Torokhov wrote:
-> Palm Top PC 110 is a handheld personal computer with 80486SX CPU that
-> was released exclusively in Japan in September 1995.
-> 
-> While the kernel still supports 486 CPU it is highly unlikely that
-> anyone is using this device with the latest kernel.
-> 
-> Remove the driver.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+---
+changes:
+v2: rebase on v2 of 'HID: sony: add support for more instruments'
 
-I applied this patch only to remove pc110pad to pci/enumeration for
-v7.1, since "x86/cpu: Remove M486/M486SX/ELAN support" has been queued
-for v7.1:
-https://lore.kernel.org/all/20251214084710.3606385-2-mingo@kernel.org/
+ drivers/hid/hid-quirks.c | 46 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 7 deletions(-)
 
-I put this in the PCI tree because pc110pad was the only user of
-no_pci_devices(), which we can now remove as well.
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index edc4339adb50..7c411e59fa6b 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -690,22 +690,54 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_5_PRO) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SONY)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIER_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_PS4_STRATOCASTER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_JAGUAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS5_RIFFMASTER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIER_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SPEEDLINK)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },
+-- 
+2.53.0
 
-> ---
->  drivers/input/mouse/Kconfig    |  10 ---
->  drivers/input/mouse/Makefile   |   1 -
->  drivers/input/mouse/pc110pad.c | 160 ---------------------------------
->  3 files changed, 171 deletions(-)
->  delete mode 100644 drivers/input/mouse/pc110pad.c
-> 
-> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> index f660e6ba24c2..7b7053c57588 100644
-> --- a/drivers/input/mouse/Kconfig
-> +++ b/drivers/input/mouse/Kconfig
-> @@ -312,16 +312,6 @@ config MOUSE_ELAN_I2C_SMBUS
->  
->  	   If unsure, say Y.
->  
-> -config MOUSE_PC110PAD
-> -	tristate "IBM PC110 touchpad"
-> -	depends on ISA
-> -	help
-> -	  Say Y if you have the IBM PC-110 micro-notebook and want its
-> -	  touchpad supported.
-> -
-> -	  To compile this driver as a module, choose M here: the
-> -	  module will be called pc110pad.
-> -
->  config MOUSE_AMIGA
->  	tristate "Amiga mouse"
->  	depends on AMIGA
-> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-> index e745b64fed49..4f9fb7d87a37 100644
-> --- a/drivers/input/mouse/Makefile
-> +++ b/drivers/input/mouse/Makefile
-> @@ -13,7 +13,6 @@ obj-$(CONFIG_MOUSE_CYAPA)		+= cyapatp.o
->  obj-$(CONFIG_MOUSE_ELAN_I2C)		+= elan_i2c.o
->  obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
->  obj-$(CONFIG_MOUSE_MAPLE)		+= maplemouse.o
-> -obj-$(CONFIG_MOUSE_PC110PAD)		+= pc110pad.o
->  obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
->  obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
->  obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
-> diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
-> deleted file mode 100644
-> index efa58049f746..000000000000
-> --- a/drivers/input/mouse/pc110pad.c
-> +++ /dev/null
-> @@ -1,160 +0,0 @@
-> -// SPDX-License-Identifier: GPL-2.0-or-later
-> -/*
-> - *  Copyright (c) 2000-2001 Vojtech Pavlik
-> - *
-> - *  Based on the work of:
-> - *	Alan Cox	Robin O'Leary
-> - */
-> -
-> -/*
-> - * IBM PC110 touchpad driver for Linux
-> - */
-> -
-> -#include <linux/module.h>
-> -#include <linux/kernel.h>
-> -#include <linux/errno.h>
-> -#include <linux/ioport.h>
-> -#include <linux/input.h>
-> -#include <linux/init.h>
-> -#include <linux/interrupt.h>
-> -#include <linux/pci.h>
-> -#include <linux/delay.h>
-> -
-> -#include <asm/io.h>
-> -#include <asm/irq.h>
-> -
-> -MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
-> -MODULE_DESCRIPTION("IBM PC110 touchpad driver");
-> -MODULE_LICENSE("GPL");
-> -
-> -#define PC110PAD_OFF	0x30
-> -#define PC110PAD_ON	0x38
-> -
-> -static int pc110pad_irq = 10;
-> -static int pc110pad_io = 0x15e0;
-> -
-> -static struct input_dev *pc110pad_dev;
-> -static int pc110pad_data[3];
-> -static int pc110pad_count;
-> -
-> -static irqreturn_t pc110pad_interrupt(int irq, void *ptr)
-> -{
-> -	int value     = inb_p(pc110pad_io);
-> -	int handshake = inb_p(pc110pad_io + 2);
-> -
-> -	outb(handshake |  1, pc110pad_io + 2);
-> -	udelay(2);
-> -	outb(handshake & ~1, pc110pad_io + 2);
-> -	udelay(2);
-> -	inb_p(0x64);
-> -
-> -	pc110pad_data[pc110pad_count++] = value;
-> -
-> -	if (pc110pad_count < 3)
-> -		return IRQ_HANDLED;
-> -
-> -	input_report_key(pc110pad_dev, BTN_TOUCH,
-> -		pc110pad_data[0] & 0x01);
-> -	input_report_abs(pc110pad_dev, ABS_X,
-> -		pc110pad_data[1] | ((pc110pad_data[0] << 3) & 0x80) | ((pc110pad_data[0] << 1) & 0x100));
-> -	input_report_abs(pc110pad_dev, ABS_Y,
-> -		pc110pad_data[2] | ((pc110pad_data[0] << 4) & 0x80));
-> -	input_sync(pc110pad_dev);
-> -
-> -	pc110pad_count = 0;
-> -	return IRQ_HANDLED;
-> -}
-> -
-> -static void pc110pad_close(struct input_dev *dev)
-> -{
-> -	outb(PC110PAD_OFF, pc110pad_io + 2);
-> -}
-> -
-> -static int pc110pad_open(struct input_dev *dev)
-> -{
-> -	pc110pad_interrupt(0, NULL);
-> -	pc110pad_interrupt(0, NULL);
-> -	pc110pad_interrupt(0, NULL);
-> -	outb(PC110PAD_ON, pc110pad_io + 2);
-> -	pc110pad_count = 0;
-> -
-> -	return 0;
-> -}
-> -
-> -/*
-> - * We try to avoid enabling the hardware if it's not
-> - * there, but we don't know how to test. But we do know
-> - * that the PC110 is not a PCI system. So if we find any
-> - * PCI devices in the machine, we don't have a PC110.
-> - */
-> -static int __init pc110pad_init(void)
-> -{
-> -	int err;
-> -
-> -	if (!no_pci_devices())
-> -		return -ENODEV;
-> -
-> -	if (!request_region(pc110pad_io, 4, "pc110pad")) {
-> -		printk(KERN_ERR "pc110pad: I/O area %#x-%#x in use.\n",
-> -				pc110pad_io, pc110pad_io + 4);
-> -		return -EBUSY;
-> -	}
-> -
-> -	outb(PC110PAD_OFF, pc110pad_io + 2);
-> -
-> -	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL)) {
-> -		printk(KERN_ERR "pc110pad: Unable to get irq %d.\n", pc110pad_irq);
-> -		err = -EBUSY;
-> -		goto err_release_region;
-> -	}
-> -
-> -	pc110pad_dev = input_allocate_device();
-> -	if (!pc110pad_dev) {
-> -		printk(KERN_ERR "pc110pad: Not enough memory.\n");
-> -		err = -ENOMEM;
-> -		goto err_free_irq;
-> -	}
-> -
-> -	pc110pad_dev->name = "IBM PC110 TouchPad";
-> -	pc110pad_dev->phys = "isa15e0/input0";
-> -	pc110pad_dev->id.bustype = BUS_ISA;
-> -	pc110pad_dev->id.vendor = 0x0003;
-> -	pc110pad_dev->id.product = 0x0001;
-> -	pc110pad_dev->id.version = 0x0100;
-> -
-> -	pc110pad_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> -	pc110pad_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
-> -	pc110pad_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> -
-> -	input_abs_set_max(pc110pad_dev, ABS_X, 0x1ff);
-> -	input_abs_set_max(pc110pad_dev, ABS_Y, 0x0ff);
-> -
-> -	pc110pad_dev->open = pc110pad_open;
-> -	pc110pad_dev->close = pc110pad_close;
-> -
-> -	err = input_register_device(pc110pad_dev);
-> -	if (err)
-> -		goto err_free_dev;
-> -
-> -	return 0;
-> -
-> - err_free_dev:
-> -	input_free_device(pc110pad_dev);
-> - err_free_irq:
-> -	free_irq(pc110pad_irq, NULL);
-> - err_release_region:
-> -	release_region(pc110pad_io, 4);
-> -
-> -	return err;
-> -}
-> -
-> -static void __exit pc110pad_exit(void)
-> -{
-> -	outb(PC110PAD_OFF, pc110pad_io + 2);
-> -	free_irq(pc110pad_irq, NULL);
-> -	input_unregister_device(pc110pad_dev);
-> -	release_region(pc110pad_io, 4);
-> -}
-> -
-> -module_init(pc110pad_init);
-> -module_exit(pc110pad_exit);
-> -- 
-> 2.46.0.76.ge559c4bf1a-goog
-> 

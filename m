@@ -1,64 +1,64 @@
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DAA737756A
-	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 04:13:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5B1F377ECE
+	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 04:13:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775535241; cv=none; b=g1CCU3aN7Cim4uN93eobHLJ0HgWHJnmIt76Gsk5CXh7TnLE44pWtGUlVDVb8aUv/tsZU9mlGA68/9l8iHOMOArtTTCcIihSH0klmstngQV4zbx3pqR+vkoTKqKzCc9Du7Sr2fzj4obtTFnlrqFcv0w7HPgtYAwucxleOqcdMv9E=
+	t=1775535241; cv=none; b=gn4TTDV1RtaXuk/U7gHiQSnWKGba5SXVwLZ8r8W7P0LDDIVoc/HnZyPss2IagwAnuSisSCm0jiB055qAPhpWe+qQfWHmhoxc1WUcpJ7PlTMYmrjWW2XWwP8sF59QH9/PETcUWGt6ng93HmjdJKEOeCxu8fDVEdTaeY1A/Vr1EaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1775535241; c=relaxed/simple;
-	bh=VNmm68um5E7L9cqU8euL5RXfyKEX2LSFMsdm18SqoEE=;
+	bh=usmYDq97Sg76UklSs3ptf29YaZhkgp2uHecyG8pdypk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rrPKNc30Dohu8sHh+xTpTswD0mI0LJTqK3T93UztT3iIPkp70FKBhWfXIVjgRYlBlVMC/YNZz9VWkm4aD0jTWfDZpsQS7pLUHyg06zK/CYEW1clbqiPH/aGbfA65LbigydMghA6x7GgI5PAIrVCdV4jq3qOA/fjs7llR+Lx+SJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hlhrS79i; arc=none smtp.client-ip=74.125.82.44
+	 MIME-Version; b=cMWZo8rew/8sUmhCQ6FKZTjYiE8hAv6AHkdJZSWfVKx12ukhKr5X+cJmnG0cjZnJGXJdehnhj0NaZti8khLq6rgI9vtPv9ld/X/RmCcz/fNsljZMXXE9bew76Gr1s2OLI5F1rz1DKRVUUiTmvnM9KmU9dSMtRqWh3s8/pBpyVew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XdW3elJF; arc=none smtp.client-ip=74.125.82.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hlhrS79i"
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12776bebe9fso10570786c88.1
-        for <linux-input@vger.kernel.org>; Mon, 06 Apr 2026 21:13:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XdW3elJF"
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-128b9b7e3edso2689737c88.0
+        for <linux-input@vger.kernel.org>; Mon, 06 Apr 2026 21:13:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775535238; x=1776140038; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775535239; x=1776140039; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8x59B/kzq/4f/8zT8VdT9atN7wRB60adY4f1oIhSU0E=;
-        b=hlhrS79i+q/OKTOsAzFRg27YhJegTLaOQOp+uR8Jtc/O4TD1BDLu5gehvWgFsM3Qvn
-         GiYTV3270rZq9EyLtNqVnBStaRmcN0MLX1Ely3o1x3dWKV6iXaVFW6D0Sy6DZ8JYBQMD
-         3FwzOk4aqHKdOAW8xjsUdRNI1KgHKamlmmyorOnh4YVvGjvyH3EliQpzQPWsoYTF2V+w
-         4psT8UoQjKyVLU/lyjQSv+V8bgo/sA9uTp6MvUBPuzzIygeqKFwPCA5K7OarlZGA2ZBA
-         J470RW3LFd/Qy7X+UVa2BZAxGunX5TiRAVGXefY7eeqWjz7vX/U38cVQ9RUJqUyDpAJL
-         HvWQ==
+        bh=+BUPfatehd4OwQWVH3wip0eKYYTenln556l3fMYEsrA=;
+        b=XdW3elJF1M3ShVzMu80KD6Ff9fOYK7e/qVN1DPniXSk4VAgZZism0wQtu06lZHZ4qj
+         mMN+6k+s0mrzQ7IVGMmtv/g0aIn8idrbgwIU093DLtxilzwT3wik3dl93IgorItyLK1h
+         eT/TWY6/Laeplvto9BsdIb4fNX0kmvIRws3ESvoTeXkO7NsFPIn2iJdaftfqxJz2LnZ8
+         M60wm9xZ8SZtbR0akdcr2B2fEnfXdHaRUw8vcpl/WgO7QomnREkko0gQndRQLe7IK1G1
+         SMJZgkLHH7R4cLwCQ7I+iyxv/MpeKgdluRuXO/Df5vdxM6XGdxpuMO2GvZagk/iGnbO3
+         ZZ6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775535238; x=1776140038;
+        d=1e100.net; s=20251104; t=1775535239; x=1776140039;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=8x59B/kzq/4f/8zT8VdT9atN7wRB60adY4f1oIhSU0E=;
-        b=pmOm1g0GAMLoJlWDWU6ASIwRY9FXSCy2VKvqa+tsiRBeEhppvDM3Uof+LuGdXT3t/K
-         FElY6RYXfuiUjhb82uXGh1anC1QJE+aj8ZOLuWVWGDHVZYgb8EFevHSC8hxAsI9N9n0f
-         60akCLRPsibnrjOr7AfEQNUaHdkPiMPUW3KIhNhBkKh6LYVnr8JRFZsx+XjEOjaVsT7a
-         QpmczzeCwxbPMXTezmWat+iEG3pjMGomOGr6RlTZ0HhuKZRFHvws6hJFE3i+ep9bh/v9
-         DJd7emh1cSs7mXFkprXUkg2abq1zp4iJpTUtsTcvOE/o9y2lUD8P19K3jikATIpBybpg
-         G8hw==
-X-Forwarded-Encrypted: i=1; AJvYcCVgdvCy3rG8beKgbLNAN9/mKXntDRiyTjpU8V9b5l4FDxrRZKTDajx6bK1FjPs+yCqvPuQKT9Nl8I9Jxw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzH9wt5Bf3lb/mzQXehMrgb2rEoBv7BLIALR4zxLvuaBZG2u+Mn
-	KXBmMnYWv17fNuMUFUKpyYbgpt6JN+I9ojU01sZmqQcOGI5mCn9HI4S2
-X-Gm-Gg: AeBDiesdHXJt4XCIOWK9r2zW2AAshLnJ08JrALf9ewV7LIeAWs0SgB7QfYmkTx3R36d
-	5hrFVMZUQp8VAxdptCNzWfN6vX99scqFVBsBTZlafXY4qi8sCyMCI+NuSKN+o8zPx1oO8UYvzlH
-	vkEjo1pMpoKCdUUY2i9kiHT8UPbI7PXu4lrf+OAGb9awXyrW4x5xDKor7NE2mmCrf/IojhWBA4k
-	fk4jFGWr+LenFBIu9UjCURkxqDekxJBXhP6F3cx0hm6gSvZ+YuJSWuiEF5SyR5ROnxMYMT+D6VA
-	mkCPUxFAi4Bg3ZhenPgTYdfNTAOsTfZCccXNyQv+722Y2lZu7G09klLHsDRe+b0bWUJWAAsKiLf
-	hc7S6sz66ymzhRshddYIyGTaE7gvKhwMGo3esItzYN736Iy9vQdpmvdSOHbX3bj1tpPJ8KwQFCn
-	apq/8CJzE1rEttJI11SctUlddZNdTvNGkK62TACjilxSK43FNfhPnJ42sIgDvsYbBNDZaoccqNZ
-	E5ECYEXli++uj8=
-X-Received: by 2002:a05:7022:45a6:b0:128:dbbf:fd35 with SMTP id a92af1059eb24-12bfb76607fmr7309229c88.28.1775535237987;
-        Mon, 06 Apr 2026 21:13:57 -0700 (PDT)
+        bh=+BUPfatehd4OwQWVH3wip0eKYYTenln556l3fMYEsrA=;
+        b=pmzGuU8UHKg+JzuiuOehzo++C9kVn3ktEdGw7W+Mn+nPZ8wYJHifiQjHRBNABa32iH
+         P5dx7RyDgzcoYcJi20hAbrNHRihDlb25AU3SnH+AoJ6nQlfw6WWnoX8QuCMRzpmWN93J
+         JvibMRGJe8rHFviVrxkmLSuvtV8aNrAq4GNynulOTgLREjt/4xaEPyf0xEoGGI3h5Azi
+         gaqj0Gq4TTzzawIEVCIXOH02lJ4CEHVn26FmZNPvK3Dh6R2c18OTWwsWytjWV+JWZWCL
+         AeQ6QFheOide0Ipcqx1kWzsEEz/vfgfOJJdcKbPjOZGAjBhjMX079Nf89HgGjlMU/Yjq
+         +67Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUGoFOHefMMHQxLEaILfvjnfDfBFz6uC0EmXgsqzwH0qbT1H4YqEXAVbxAmXt4n7nsa7YzWlYgS62wwcw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzV+rP3XoBb1Ms2LCAaAXmpuu0nABmZJmdoJc9ATdMTiJCrJQ+H
+	/NvPwK2ZO4NV/lWh2kpGRPo/Nv61bEhFw0+ucMtRU+HDcDmZWH8prV5s
+X-Gm-Gg: AeBDiet/tuXra3TcClzjIEOGOjZqaX5J9Bzdbj6Gkn/yFcIIuCnz2SsoK4Udd9F23O/
+	uce5gI4I95xRdZn/0wVRys3o0SzIBlRnoeSn1BkpJlEWRIM3hmq58qxe3LYX1YE71cIHMfHq5Uj
+	2eXdN0N/H/JJsp8sdC3iHyA3upy6H4n0MIlN/9IfGbZBu6Uxqxtja31MvUGtn2FXEPLOc79+lqn
+	WhufBQRg8OqGiXETPyCYHtTUChrYWL/yi9XUY3p3Mx/OVk5Ty40RzdV+XZ04VGm4S6B3o26rUR9
+	PO4vJeVcMCnneu1cks/ZN1TI55+GsggjcII1bdtQdMFMqKAcMB28NFDbzuLwK/lzpXna7K4H7YY
+	bCxz41W8FOVqUoC3YdzpYMMvpbwRZrmXwmqZkisPm5TKtWh4/HVT+jrDmts5VpbZfpcSocs3Fwn
+	gq6bRkiUjE8sddUIFnpiDdo2xQw8FoAhiu27K0DJ+6D3b7Jk7PYfSAQP1EcZKg8lRBO18jXs7B1
+	PqzVoyGXhTbWlE=
+X-Received: by 2002:a05:7022:388a:b0:123:348d:8576 with SMTP id a92af1059eb24-12bfb6ec50bmr8556077c88.6.1775535238604;
+        Mon, 06 Apr 2026 21:13:58 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bed93f861sm18523808c88.0.2026.04.06.21.13.57
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bed93f861sm18523808c88.0.2026.04.06.21.13.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2026 21:13:57 -0700 (PDT)
+        Mon, 06 Apr 2026 21:13:58 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -68,9 +68,9 @@ Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/5] HID: hid-oxp: Add OneXPlayer configuration driver
-Date: Tue,  7 Apr 2026 04:13:50 +0000
-Message-ID: <20260407041354.2283201-2-derekjohn.clark@gmail.com>
+Subject: [PATCH v2 2/5] HID: hid-oxp: Add Second Generation RGB Control
+Date: Tue,  7 Apr 2026 04:13:51 +0000
+Message-ID: <20260407041354.2283201-3-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260407041354.2283201-1-derekjohn.clark@gmail.com>
 References: <20260407041354.2283201-1-derekjohn.clark@gmail.com>
@@ -82,259 +82,119 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds OneXPlayer HID configuration driver. In this initial driver patch,
-add the RGB interface for the first generation of HID based RGB control.
+Adds support for the second generation of RGB Control for OneXPlayer
+devices. The interface mirrors the first generation, with some
+differences to how messages are formatted.
 
-This interface provides the following attributes:
-- brightness: provided by the LED core, this works in a fairly unique
-  way on this device. The hardware accepts 5 brightness values (0-4),
-  which affects the brightness of the multicolor and animated effects
-  built into the MCU firmware. For monocolor settings, the device
-  expects the hardware brightness value to be pushed to maximum, then we
-  apply brightness adjustments mathematically based on % (0-100). This
-  leads to some odd conversion as we need the brightness slider to reach
-  the full range, but it has no affect when incrementing between the
-  division points for other effects.
-- multi-intensity: provided by the LED core for red, green, and blue.
-- effect: Allows the MCU to set 19 individual effects.
-- effect_index: Lists the 19 valid effect names for the interface.
-- enabled: Allows the MCU to toggle the RGB interface on/off.
-- enabled_index: Lists the valid states for enabled.
-- speed: Allows the MCU to set the animation rate for the various
-  effects.
-- speed_range: Lists the valid range of speed (0-9).
-
-The MCU also has a few odd quirks that make sending multiple synchronous
-events challenging. It will essentially freeze if it receives another
-message before it has finished processing the last command. It also will
-not reply if you wait on it using a completion. To get around this, we
-do a 200ms sleep inside a work queue thread and debounce all but the most
-recent message using a 50ms mod_delayed_work. This will cache the last
-write, queue the work, then return so userspace can release its write
-thread. The work queue is only used for brightness/multi-intensity as
-that is the path likely to receive rapid successive writes.
+Some devices have both a GEN1 MCU for RGB control and a GEN2 MCU for
+button mapping. To avoid conflicts, quirk these devices to skip RGB
+setup for the GEN2_USAGE_PAGE.
 
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
- MAINTAINERS           |   6 +
- drivers/hid/Kconfig   |  12 +
- drivers/hid/Makefile  |   1 +
+v2:
+  - Add DMI quirks table.
+---
+ drivers/hid/Kconfig   |   1 +
  drivers/hid/hid-ids.h |   3 +
- drivers/hid/hid-oxp.c | 651 ++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 673 insertions(+)
- create mode 100644 drivers/hid/hid-oxp.c
+ drivers/hid/hid-oxp.c | 151 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 155 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6f6517bf4f97..dae814192fa4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19707,6 +19707,12 @@ S:	Maintained
- F:	drivers/mtd/nand/onenand/
- F:	include/linux/mtd/onenand*.h
- 
-+ONEXPLAYER HID DRIVER
-+M:	Derek J. Clark <derekjohn.clark@gmail.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/hid-oxp.c
-+
- ONEXPLAYER PLATFORM EC DRIVER
- M:	Antheas Kapenekakis <lkml@antheas.dev>
- M:	Derek John Clark <derekjohn.clark@gmail.com>
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 3c034cd32fa8..2deaec9f467d 100644
+index 2deaec9f467d..b779088b80b6 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -919,6 +919,18 @@ config HID_ORTEK
- 	   - Ortek WKB-2000
- 	   - Skycable wireless presenter
- 
-+config HID_OXP
-+	tristate "OneXPlayer handheld controller configuration support"
-+	depends on USB_HID
-+	depends on LEDS_CLASS
-+	depends on LEDS_CLASS_MULTICOLOR
-+	help
-+	  Say Y here if you would like to enable support for OneXPlayer handheld
-+	  devices that come with RGB LED rings around the joysticks and macro buttons.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called hid-oxp.
-+
- config HID_PANTHERLORD
- 	tristate "Pantherlord/GreenAsia game controller"
+@@ -924,6 +924,7 @@ config HID_OXP
+ 	depends on USB_HID
+ 	depends on LEDS_CLASS
+ 	depends on LEDS_CLASS_MULTICOLOR
++	depends on DMI
  	help
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 03ef72ec4499..bda8a24c9257 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -99,6 +99,7 @@ obj-$(CONFIG_HID_NTI)			+= hid-nti.o
- obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
- obj-$(CONFIG_HID_NVIDIA_SHIELD)	+= hid-nvidia-shield.o
- obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
-+obj-$(CONFIG_HID_OXP)		+= hid-oxp.o
- obj-$(CONFIG_HID_PRODIKEYS)	+= hid-prodikeys.o
- obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
- obj-$(CONFIG_HID_PENMOUNT)	+= hid-penmount.o
+ 	  Say Y here if you would like to enable support for OneXPlayer handheld
+ 	  devices that come with RGB LED rings around the joysticks and macro buttons.
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5bad81222c6e..dcc5a3a70eaf 100644
+index dcc5a3a70eaf..0d1ff879e959 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1131,6 +1131,9 @@
- #define USB_VENDOR_ID_NVIDIA				0x0955
- #define USB_DEVICE_ID_NVIDIA_THUNDERSTRIKE_CONTROLLER	0x7214
+@@ -1134,6 +1134,9 @@
+ #define USB_VENDOR_ID_CRSC			0x1a2c
+ #define USB_DEVICE_ID_ONEXPLAYER_GEN1		0xb001
  
-+#define USB_VENDOR_ID_CRSC			0x1a2c
-+#define USB_DEVICE_ID_ONEXPLAYER_GEN1		0xb001
++#define USB_VENDOR_ID_WCH			0x1a86
++#define USB_DEVICE_ID_ONEXPLAYER_GEN2		0xfe00
 +
  #define USB_VENDOR_ID_ONTRAK		0x0a07
  #define USB_DEVICE_ID_ONTRAK_ADU100	0x0064
  
 diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-new file mode 100644
-index 000000000000..c4219ecd8d71
---- /dev/null
+index c4219ecd8d71..25214356163e 100644
+--- a/drivers/hid/hid-oxp.c
 +++ b/drivers/hid/hid-oxp.c
-@@ -0,0 +1,651 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ *  HID driver for OneXPlayer gamepad configuration devices.
-+ *
-+ *  Copyright (c) 2026 Valve Corporation
-+ */
-+
-+#include <linux/array_size.h>
-+#include <linux/cleanup.h>
-+#include <linux/delay.h>
-+#include <linux/dev_printk.h>
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/jiffies.h>
-+#include <linux/kstrtox.h>
-+#include <linux/led-class-multicolor.h>
-+#include <linux/mutex.h>
-+#include <linux/sysfs.h>
-+#include <linux/types.h>
-+#include <linux/workqueue.h>
-+
-+#include "hid-ids.h"
-+
-+#define OXP_PACKET_SIZE 64
-+
-+#define GEN1_MESSAGE_ID	0xff
-+
-+#define GEN1_USAGE_PAGE	0xff01
-+
-+enum oxp_function_index {
-+	OXP_FID_GEN1_RGB_SET =		0x07,
-+	OXP_FID_GEN1_RGB_REPLY =	0x0f,
-+};
-+
-+static struct oxp_hid_cfg {
-+	struct led_classdev_mc *led_mc;
-+	struct hid_device *hdev;
-+	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-+	u8 rgb_brightness;
-+	u8 rgb_effect;
-+	u8 rgb_speed;
-+	u8 rgb_en;
-+} drvdata;
-+
-+enum oxp_feature_en_index {
-+	OXP_FEAT_DISABLED,
-+	OXP_FEAT_ENABLED,
-+};
-+
-+static const char *const oxp_feature_en_text[] = {
-+	[OXP_FEAT_DISABLED] = "false",
-+	[OXP_FEAT_ENABLED] = "true",
-+};
-+
-+enum oxp_rgb_effect_index {
-+	OXP_UNKNOWN,
-+	OXP_EFFECT_AURORA,
-+	OXP_EFFECT_BIRTHDAY,
-+	OXP_EFFECT_FLOWING,
-+	OXP_EFFECT_CHROMA_1,
-+	OXP_EFFECT_NEON,
-+	OXP_EFFECT_CHROMA_2,
-+	OXP_EFFECT_DREAMY,
-+	OXP_EFFECT_WARM,
-+	OXP_EFFECT_CYBERPUNK,
-+	OXP_EFFECT_SEA,
-+	OXP_EFFECT_SUNSET,
-+	OXP_EFFECT_COLORFUL,
-+	OXP_EFFECT_MONSTER,
-+	OXP_EFFECT_GREEN,
-+	OXP_EFFECT_BLUE,
-+	OXP_EFFECT_YELLOW,
-+	OXP_EFFECT_TEAL,
-+	OXP_EFFECT_PURPLE,
-+	OXP_EFFECT_FOGGY,
-+	OXP_EFFECT_MONO_LIST, /* placeholder for effect_index_show */
-+};
-+
-+/* These belong to rgb_effect_index, but we want to hide them from
-+ * rgb_effect_text
-+ */
-+
-+#define OXP_GET_PROPERTY 0xfc
-+#define OXP_SET_PROPERTY 0xfd
-+#define OXP_EFFECT_MONO_TRUE 0xfe /* actual index for monocolor */
-+
-+static const char *const oxp_rgb_effect_text[] = {
-+	[OXP_UNKNOWN] = "unknown",
-+	[OXP_EFFECT_AURORA] = "aurora",
-+	[OXP_EFFECT_BIRTHDAY] = "birthday_cake",
-+	[OXP_EFFECT_FLOWING] = "flowing_light",
-+	[OXP_EFFECT_CHROMA_1] = "chroma_popping",
-+	[OXP_EFFECT_NEON] = "neon",
-+	[OXP_EFFECT_CHROMA_2] = "chroma_breathing",
-+	[OXP_EFFECT_DREAMY] = "dreamy",
-+	[OXP_EFFECT_WARM] = "warm_sun",
-+	[OXP_EFFECT_CYBERPUNK] = "cyberpunk",
-+	[OXP_EFFECT_SEA] = "sea_foam",
-+	[OXP_EFFECT_SUNSET] = "sunset_afterglow",
-+	[OXP_EFFECT_COLORFUL] = "colorful",
-+	[OXP_EFFECT_MONSTER] = "monster_woke",
-+	[OXP_EFFECT_GREEN] = "green_breathing",
-+	[OXP_EFFECT_BLUE] = "blue_breathing",
-+	[OXP_EFFECT_YELLOW] = "yellow_breathing",
-+	[OXP_EFFECT_TEAL] = "teal_breathing",
-+	[OXP_EFFECT_PURPLE] = "purple_breathing",
-+	[OXP_EFFECT_FOGGY] = "foggy_haze",
-+	[OXP_EFFECT_MONO_LIST] = "monocolor",
-+};
-+
-+struct oxp_gen_1_rgb_report {
+@@ -10,6 +10,7 @@
+ #include <linux/delay.h>
+ #include <linux/dev_printk.h>
+ #include <linux/device.h>
++#include <linux/dmi.h>
+ #include <linux/hid.h>
+ #include <linux/jiffies.h>
+ #include <linux/kstrtox.h>
+@@ -24,12 +25,15 @@
+ #define OXP_PACKET_SIZE 64
+ 
+ #define GEN1_MESSAGE_ID	0xff
++#define GEN2_MESSAGE_ID	0x3f
+ 
+ #define GEN1_USAGE_PAGE	0xff01
++#define GEN2_USAGE_PAGE	0xff00
+ 
+ enum oxp_function_index {
+ 	OXP_FID_GEN1_RGB_SET =		0x07,
+ 	OXP_FID_GEN1_RGB_REPLY =	0x0f,
++	OXP_FID_GEN2_STATUS_EVENT =	0xb8,
+ };
+ 
+ static struct oxp_hid_cfg {
+@@ -121,6 +125,22 @@ struct oxp_gen_1_rgb_report {
+ 	u8 blue;
+ } __packed;
+ 
++struct oxp_gen_2_rgb_report {
 +	u8 report_id;
++	u8 header_id;
++	u8 padding_2;
 +	u8 message_id;
-+	u8 padding_2[2];
-+	u8 effect;
++	u8 padding_4[2];
 +	u8 enabled;
 +	u8 speed;
 +	u8 brightness;
 +	u8 red;
 +	u8 green;
 +	u8 blue;
++	u8 padding_12[3];
++	u8 effect;
 +} __packed;
 +
-+static u16 get_usage_page(struct hid_device *hdev)
-+{
-+	return hdev->collection[0].usage >> 16;
-+}
-+
-+static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
+ static u16 get_usage_page(struct hid_device *hdev)
+ {
+ 	return hdev->collection[0].usage >> 16;
+@@ -161,6 +181,44 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
 +				   struct hid_report *report, u8 *data,
 +				   int size)
 +{
 +	struct led_classdev_mc *led_mc = drvdata.led_mc;
-+	struct oxp_gen_1_rgb_report *rgb_rep;
++	struct oxp_gen_2_rgb_report *rgb_rep;
 +
-+	if (data[1] != OXP_FID_GEN1_RGB_REPLY)
++	if (data[0] != OXP_FID_GEN2_STATUS_EVENT)
 +		return 0;
 +
-+	rgb_rep = (struct oxp_gen_1_rgb_report *)data;
++	if (data[3] != OXP_GET_PROPERTY)
++		return 0;
++
++	rgb_rep = (struct oxp_gen_2_rgb_report *)data;
 +	/* Ensure we save monocolor as the list value */
 +	drvdata.rgb_effect = rgb_rep->effect == OXP_EFFECT_MONO_TRUE ?
 +			     OXP_EFFECT_MONO_LIST :
@@ -359,494 +219,179 @@ index 000000000000..c4219ecd8d71
 +	return 0;
 +}
 +
-+static int oxp_hid_raw_event(struct hid_device *hdev, struct hid_report *report,
-+			     u8 *data, int size)
-+{
-+	u16 up = get_usage_page(hdev);
-+
-+	dev_dbg(&hdev->dev, "raw event data: [%*ph]\n", OXP_PACKET_SIZE, data);
-+
-+	switch (up) {
-+	case GEN1_USAGE_PAGE:
-+		return oxp_hid_raw_event_gen_1(hdev, report, data, size);
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mcu_property_out(u8 *header, size_t header_size, u8 *data,
-+			    size_t data_size, u8 *footer, size_t footer_size)
-+{
-+	unsigned char *dmabuf __free(kfree) = kzalloc(OXP_PACKET_SIZE, GFP_KERNEL);
-+	int ret;
-+
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	if (header_size + data_size + footer_size > OXP_PACKET_SIZE)
-+		return -EINVAL;
-+
-+	guard(mutex)(&drvdata.cfg_mutex);
-+	memcpy(dmabuf, header, header_size);
-+	memcpy(dmabuf + header_size, data, data_size);
-+	if (footer_size)
-+		memcpy(dmabuf + OXP_PACKET_SIZE - footer_size, footer, footer_size);
-+
-+	dev_dbg(&drvdata.hdev->dev, "raw data: [%*ph]\n", OXP_PACKET_SIZE, dmabuf);
-+
-+	ret = hid_hw_output_report(drvdata.hdev, dmabuf, OXP_PACKET_SIZE);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* MCU takes 200ms to be ready for another command. */
-+	msleep(200);
-+	return ret == OXP_PACKET_SIZE ? 0 : -EIO;
-+}
-+
-+static int oxp_gen_1_property_out(enum oxp_function_index fid, u8 *data,
+ static int oxp_hid_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			     u8 *data, int size)
+ {
+@@ -171,6 +229,8 @@ static int oxp_hid_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	switch (up) {
+ 	case GEN1_USAGE_PAGE:
+ 		return oxp_hid_raw_event_gen_1(hdev, report, data, size);
++	case GEN2_USAGE_PAGE:
++		return oxp_hid_raw_event_gen_2(hdev, report, data, size);
+ 	default:
+ 		break;
+ 	}
+@@ -216,6 +276,18 @@ static int oxp_gen_1_property_out(enum oxp_function_index fid, u8 *data,
+ 	return mcu_property_out(header, header_size, data, data_size, NULL, 0);
+ }
+ 
++static int oxp_gen_2_property_out(enum oxp_function_index fid, u8 *data,
 +				  u8 data_size)
 +{
-+	u8 header[] = { fid, GEN1_MESSAGE_ID };
++	u8 header[] = { fid, GEN2_MESSAGE_ID, 0x01 };
++	u8 footer[] = { GEN2_MESSAGE_ID, fid };
 +	size_t header_size = ARRAY_SIZE(header);
++	size_t footer_size = ARRAY_SIZE(footer);
 +
-+	return mcu_property_out(header, header_size, data, data_size, NULL, 0);
++	return mcu_property_out(header, header_size, data, data_size, footer,
++				footer_size);
 +}
 +
-+static int oxp_rgb_status_store(u8 enabled, u8 speed, u8 brightness)
-+{
-+	u16 up = get_usage_page(drvdata.hdev);
-+	u8 *data;
-+
-+	/* Always default to max brightness and use intensity scaling when in
-+	 * monocolor mode.
-+	 */
-+	switch (up) {
-+	case GEN1_USAGE_PAGE:
-+		data = (u8[4]) { OXP_SET_PROPERTY, enabled, speed, brightness };
+ static int oxp_rgb_status_store(u8 enabled, u8 speed, u8 brightness)
+ {
+ 	u16 up = get_usage_page(drvdata.hdev);
+@@ -230,6 +302,11 @@ static int oxp_rgb_status_store(u8 enabled, u8 speed, u8 brightness)
+ 		if (drvdata.rgb_effect == OXP_EFFECT_MONO_LIST)
+ 			data[3] = 0x04;
+ 		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 4);
++	case GEN2_USAGE_PAGE:
++		data = (u8[6]) { OXP_SET_PROPERTY, 0x00, 0x02, enabled, speed, brightness };
 +		if (drvdata.rgb_effect == OXP_EFFECT_MONO_LIST)
-+			data[3] = 0x04;
-+		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 4);
-+	default:
-+		return -ENODEV;
-+	}
-+}
++			data[5] = 0x04;
++		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 6);
+ 	default:
+ 		return -ENODEV;
+ 	}
+@@ -244,6 +321,9 @@ static ssize_t oxp_rgb_status_show(void)
+ 	case GEN1_USAGE_PAGE:
+ 		data = (u8[1]) { OXP_GET_PROPERTY };
+ 		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
++	case GEN2_USAGE_PAGE:
++		data = (u8[3]) { OXP_GET_PROPERTY, 0x00, 0x02 };
++		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 3);
+ 	default:
+ 		return -ENODEV;
+ 	}
+@@ -274,6 +354,16 @@ static int oxp_rgb_color_set(void)
+ 			data[3 * i + 3] = blue;
+ 		}
+ 		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, size);
++	case GEN2_USAGE_PAGE:
++		size = 57;
++		data = (u8[57]) { OXP_EFFECT_MONO_TRUE, 0x00, 0x02 };
 +
-+static ssize_t oxp_rgb_status_show(void)
-+{
-+	u16 up = get_usage_page(drvdata.hdev);
-+	u8 *data;
-+
-+	switch (up) {
-+	case GEN1_USAGE_PAGE:
-+		data = (u8[1]) { OXP_GET_PROPERTY };
-+		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
-+	default:
-+		return -ENODEV;
-+	}
-+}
-+
-+static int oxp_rgb_color_set(void)
-+{
-+	u8 max_br = drvdata.led_mc->led_cdev.max_brightness;
-+	u8 br = drvdata.led_mc->led_cdev.brightness;
-+	u16 up = get_usage_page(drvdata.hdev);
-+	u8 green, red, blue;
-+	size_t size;
-+	u8 *data;
-+	int i;
-+
-+	red = br * drvdata.led_mc->subled_info[0].intensity / max_br;
-+	green = br * drvdata.led_mc->subled_info[1].intensity / max_br;
-+	blue = br * drvdata.led_mc->subled_info[2].intensity / max_br;
-+
-+	switch (up) {
-+	case GEN1_USAGE_PAGE:
-+		size = 55;
-+		data = (u8[55]) { OXP_EFFECT_MONO_TRUE };
-+
-+		for (i = 0; i < (size - 1) / 3; i++) {
-+			data[3 * i + 1] = red;
-+			data[3 * i + 2] = green;
-+			data[3 * i + 3] = blue;
++		for (i = 1; i < size / 3; i++) {
++			data[3 * i] = red;
++			data[3 * i + 1] = green;
++			data[3 * i + 2] = blue;
 +		}
-+		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, size);
-+	default:
-+		return -ENODEV;
-+	}
-+}
-+
-+static int oxp_rgb_effect_set(u8 effect)
-+{
-+	u16 up = get_usage_page(drvdata.hdev);
-+	u8 *data;
-+	int ret;
-+
-+	switch (effect) {
-+	case OXP_EFFECT_AURORA:
-+	case OXP_EFFECT_BIRTHDAY:
-+	case OXP_EFFECT_FLOWING:
-+	case OXP_EFFECT_CHROMA_1:
-+	case OXP_EFFECT_NEON:
-+	case OXP_EFFECT_CHROMA_2:
-+	case OXP_EFFECT_DREAMY:
-+	case OXP_EFFECT_WARM:
-+	case OXP_EFFECT_CYBERPUNK:
-+	case OXP_EFFECT_SEA:
-+	case OXP_EFFECT_SUNSET:
-+	case OXP_EFFECT_COLORFUL:
-+	case OXP_EFFECT_MONSTER:
-+	case OXP_EFFECT_GREEN:
-+	case OXP_EFFECT_BLUE:
-+	case OXP_EFFECT_YELLOW:
-+	case OXP_EFFECT_TEAL:
-+	case OXP_EFFECT_PURPLE:
-+	case OXP_EFFECT_FOGGY:
-+		switch (up) {
-+		case GEN1_USAGE_PAGE:
-+			data = (u8[1]) { effect };
-+			ret = oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
++		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, size);
+ 	default:
+ 		return -ENODEV;
+ 	}
+@@ -310,6 +400,10 @@ static int oxp_rgb_effect_set(u8 effect)
+ 			data = (u8[1]) { effect };
+ 			ret = oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
+ 			break;
++		case GEN2_USAGE_PAGE:
++			data = (u8[3]) { effect, 0x00, 0x02 };
++			ret = oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 3);
 +			break;
-+		default:
-+			ret = -ENODEV;
-+		}
-+		break;
-+	case OXP_EFFECT_MONO_LIST:
-+		ret = oxp_rgb_color_set();
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_effect = effect;
-+
-+	return 0;
-+}
-+
-+static ssize_t enabled_store(struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
-+{
-+	int ret;
-+	u8 val;
-+
-+	ret = sysfs_match_string(oxp_feature_en_text, buf);
-+	if (ret < 0)
-+		return ret;
-+	val = ret;
-+
-+	ret = oxp_rgb_status_store(val, drvdata.rgb_speed,
-+				   drvdata.rgb_brightness);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_en = val;
-+	return count;
-+}
-+
-+static ssize_t enabled_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	int ret;
-+
-+	ret = oxp_rgb_status_show();
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_en >= ARRAY_SIZE(oxp_feature_en_text))
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%s\n", oxp_feature_en_text[drvdata.rgb_en]);
-+}
-+static DEVICE_ATTR_RW(enabled);
-+
-+static ssize_t enabled_index_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	size_t count = 0;
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(oxp_feature_en_text); i++)
-+		count += sysfs_emit_at(buf, count, "%s ", oxp_feature_en_text[i]);
-+
-+	if (count)
-+		buf[count - 1] = '\n';
-+
-+	return count;
-+}
-+static DEVICE_ATTR_RO(enabled_index);
-+
-+static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
-+			    const char *buf, size_t count)
-+{
-+	int ret;
-+	u8 val;
-+
-+	ret = sysfs_match_string(oxp_rgb_effect_text, buf);
-+	if (ret < 0)
-+		return ret;
-+
-+	val = ret;
-+
-+	ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed,
-+				   drvdata.rgb_brightness);
-+	if (ret)
-+		return ret;
-+
-+	ret = oxp_rgb_effect_set(val);
-+	if (ret)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t effect_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	int ret;
-+
-+	ret = oxp_rgb_status_show();
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_effect >= ARRAY_SIZE(oxp_rgb_effect_text))
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%s\n", oxp_rgb_effect_text[drvdata.rgb_effect]);
-+}
-+
-+static DEVICE_ATTR_RW(effect);
-+
-+static ssize_t effect_index_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	size_t count = 0;
-+	unsigned int i;
-+
-+	for (i = 1; i < ARRAY_SIZE(oxp_rgb_effect_text); i++)
-+		count += sysfs_emit_at(buf, count, "%s ", oxp_rgb_effect_text[i]);
-+
-+	if (count)
-+		buf[count - 1] = '\n';
-+
-+	return count;
-+}
-+static DEVICE_ATTR_RO(effect_index);
-+
-+static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	int ret;
-+	u8 val;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > 9)
-+		return -EINVAL;
-+
-+	ret = oxp_rgb_status_store(drvdata.rgb_en, val, drvdata.rgb_brightness);
-+	if (ret)
-+		return ret;
-+
-+	drvdata.rgb_speed = val;
-+	return count;
-+}
-+
-+static ssize_t speed_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
-+{
-+	int ret;
-+
-+	ret = oxp_rgb_status_show();
-+	if (ret)
-+		return ret;
-+
-+	if (drvdata.rgb_speed > 9)
-+		return -EINVAL;
-+
-+	return sysfs_emit(buf, "%hhu\n", drvdata.rgb_speed);
-+}
-+static DEVICE_ATTR_RW(speed);
-+
-+static ssize_t speed_range_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "0-9\n");
-+}
-+static DEVICE_ATTR_RO(speed_range);
-+
-+static void oxp_rgb_queue_fn(struct work_struct *work)
-+{
-+	unsigned int max_brightness = drvdata.led_mc->led_cdev.max_brightness;
-+	unsigned int brightness = drvdata.led_mc->led_cdev.brightness;
-+	u8 val = 4 * brightness / max_brightness;
-+	int ret;
-+
-+	if (drvdata.rgb_brightness != val) {
-+		ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed, val);
-+		if (ret)
-+			dev_err(drvdata.led_mc->led_cdev.dev,
-+				"Error: Failed to write RGB Status: %i\n", ret);
-+
-+		drvdata.rgb_brightness = val;
-+	}
-+
-+	if (drvdata.rgb_effect != OXP_EFFECT_MONO_LIST)
-+		return;
-+
-+	ret = oxp_rgb_effect_set(drvdata.rgb_effect);
-+	if (ret)
-+		dev_err(drvdata.led_mc->led_cdev.dev, "Error: Failed to write RGB color: %i\n",
-+			ret);
-+}
-+
-+static DECLARE_DELAYED_WORK(oxp_rgb_queue, oxp_rgb_queue_fn);
-+
-+static void oxp_rgb_brightness_set(struct led_classdev *led_cdev,
-+				   enum led_brightness brightness)
-+{
-+	led_cdev->brightness = brightness;
-+	mod_delayed_work(system_wq, &oxp_rgb_queue, msecs_to_jiffies(50));
-+}
-+
-+static struct attribute *oxp_rgb_attrs[] = {
-+	&dev_attr_effect.attr,
-+	&dev_attr_effect_index.attr,
-+	&dev_attr_enabled.attr,
-+	&dev_attr_enabled_index.attr,
-+	&dev_attr_speed.attr,
-+	&dev_attr_speed_range.attr,
-+	NULL,
+ 		default:
+ 			ret = -ENODEV;
+ 		}
+@@ -560,6 +654,56 @@ static struct led_classdev_mc oxp_cdev_rgb = {
+ 	.subled_info = oxp_rgb_subled_info,
+ };
+ 
++struct quirk_entry {
++	bool hybrid_mcu;
 +};
 +
-+static const struct attribute_group oxp_rgb_attr_group = {
-+	.attrs = oxp_rgb_attrs,
++static struct quirk_entry quirk_hybrid_mcu = {
++	.hybrid_mcu = true,
 +};
 +
-+static struct mc_subled oxp_rgb_subled_info[] = {
++static const struct dmi_system_id oxp_hybrid_mcu_list[] = {
 +	{
-+		.color_index = LED_COLOR_ID_RED,
-+		.intensity = 0x24,
-+		.channel = 0x1,
++		.ident = "OneXPlayer Apex",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ONEXPLAYER APEX"),
++		},
++		.driver_data = &quirk_hybrid_mcu,
 +	},
 +	{
-+		.color_index = LED_COLOR_ID_GREEN,
-+		.intensity = 0x22,
-+		.channel = 0x2,
++		.ident = "OneXPlayer G1 AMD",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ONEXPLAYER G1 A"),
++		},
++		.driver_data = &quirk_hybrid_mcu,
 +	},
 +	{
-+		.color_index = LED_COLOR_ID_BLUE,
-+		.intensity = 0x99,
-+		.channel = 0x3,
++		.ident = "OneXPlayer G1 Intel",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ONEXPLAYER G1 i"),
++		},
++		.driver_data = &quirk_hybrid_mcu,
 +	},
++	{},
 +};
 +
-+static struct led_classdev_mc oxp_cdev_rgb = {
-+	.led_cdev = {
-+		.name = "oxp:rgb:joystick_rings",
-+		.color = LED_COLOR_ID_RGB,
-+		.brightness = 0x64,
-+		.max_brightness = 0x64,
-+		.brightness_set = oxp_rgb_brightness_set,
-+	},
-+	.num_colors = ARRAY_SIZE(oxp_rgb_subled_info),
-+	.subled_info = oxp_rgb_subled_info,
-+};
-+
-+static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
++static bool oxp_hybrid_mcu_device(void)
 +{
-+	int ret;
++	const struct dmi_system_id *dmi_id;
++	struct quirk_entry *quirks;
 +
-+	hid_set_drvdata(hdev, &drvdata);
-+	mutex_init(&drvdata.cfg_mutex);
-+	drvdata.hdev = hdev;
-+	drvdata.led_mc = &oxp_cdev_rgb;
++	dmi_id = dmi_first_match(oxp_hybrid_mcu_list);
++	if (!dmi_id)
++		return false;
 +
-+	ret = devm_led_classdev_multicolor_register(&hdev->dev, &oxp_cdev_rgb);
-+	if (ret)
-+		return dev_err_probe(&hdev->dev, ret,
-+				     "Failed to create RGB device\n");
++	quirks = dmi_id->driver_data;
 +
-+	ret = devm_device_add_group(drvdata.led_mc->led_cdev.dev,
-+				    &oxp_rgb_attr_group);
-+	if (ret)
-+		return dev_err_probe(drvdata.led_mc->led_cdev.dev, ret,
-+				     "Failed to create RGB configuration attributes\n");
-+
-+	ret = oxp_rgb_status_show();
-+	if (ret)
-+		dev_warn(drvdata.led_mc->led_cdev.dev,
-+			 "Failed to query RGB initial state: %i\n", ret);
-+
-+	return 0;
++	return quirks->hybrid_mcu;
 +}
 +
-+static int oxp_hid_probe(struct hid_device *hdev,
-+			 const struct hid_device_id *id)
-+{
-+	int ret;
-+	u16 up;
+ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ {
+ 	int ret;
+@@ -567,6 +711,10 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ 	hid_set_drvdata(hdev, &drvdata);
+ 	mutex_init(&drvdata.cfg_mutex);
+ 	drvdata.hdev = hdev;
 +
-+	ret = hid_parse(hdev);
-+	if (ret)
-+		return dev_err_probe(&hdev->dev, ret, "Failed to parse HID device\n");
++	if (up == GEN2_USAGE_PAGE && oxp_hybrid_mcu_device())
++		goto skip_rgb;
 +
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret)
-+		return dev_err_probe(&hdev->dev, ret, "Failed to start HID device\n");
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_hw_stop(hdev);
-+		return dev_err_probe(&hdev->dev, ret, "Failed to open HID device\n");
-+	}
-+
-+	up = get_usage_page(hdev);
-+	dev_dbg(&hdev->dev, "Got usage page %04x\n", up);
-+
-+	switch (up) {
-+	case GEN1_USAGE_PAGE:
-+		ret = oxp_cfg_probe(hdev, up);
-+		if (ret) {
-+			hid_hw_close(hdev);
-+			hid_hw_stop(hdev);
-+		}
-+
-+		return ret;
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static void oxp_hid_remove(struct hid_device *hdev)
-+{
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+static const struct hid_device_id oxp_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CRSC, USB_DEVICE_ID_ONEXPLAYER_GEN1) },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, oxp_devices);
-+static struct hid_driver hid_oxp = {
-+	.name = "hid-oxp",
-+	.id_table = oxp_devices,
-+	.probe = oxp_hid_probe,
-+	.remove = oxp_hid_remove,
-+	.raw_event = oxp_hid_raw_event,
-+};
-+module_hid_driver(hid_oxp);
-+
-+MODULE_AUTHOR("Derek J. Clark <derekjohn.clark@gmail.com>");
-+MODULE_DESCRIPTION("Driver for OneXPlayer HID Interfaces");
-+MODULE_LICENSE("GPL");
+ 	drvdata.led_mc = &oxp_cdev_rgb;
+ 
+ 	ret = devm_led_classdev_multicolor_register(&hdev->dev, &oxp_cdev_rgb);
+@@ -585,6 +733,7 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ 		dev_warn(drvdata.led_mc->led_cdev.dev,
+ 			 "Failed to query RGB initial state: %i\n", ret);
+ 
++skip_rgb:
+ 	return 0;
+ }
+ 
+@@ -613,6 +762,7 @@ static int oxp_hid_probe(struct hid_device *hdev,
+ 
+ 	switch (up) {
+ 	case GEN1_USAGE_PAGE:
++	case GEN2_USAGE_PAGE:
+ 		ret = oxp_cfg_probe(hdev, up);
+ 		if (ret) {
+ 			hid_hw_close(hdev);
+@@ -633,6 +783,7 @@ static void oxp_hid_remove(struct hid_device *hdev)
+ 
+ static const struct hid_device_id oxp_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CRSC, USB_DEVICE_ID_ONEXPLAYER_GEN1) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WCH, USB_DEVICE_ID_ONEXPLAYER_GEN2) },
+ 	{}
+ };
+ 
 -- 
 2.53.0
 

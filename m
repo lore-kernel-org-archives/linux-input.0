@@ -1,73 +1,75 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E46F244675
-	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 18:24:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234D01FBEBC
+	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 19:20:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775586288; cv=none; b=aK1ObKa9jzaTR3lZWqby5iOVdl7Gw/AOgTbQx+ibN2QaIEQvsZM7Lb5Ak34yvLpPXmQP8+czxYWAYBaC4hLzXGvhfiO3ARDxThQX9HPakOOtP7GRT2uASbVgOAEIOYV9Tqi7RrNlHjunYVoN/OFwtYV91pQyJIKT7lRrJwD0N2Y=
+	t=1775589645; cv=none; b=XctxzG0B1v5X1tVRvMiIdnZQHoG9HFkw9aaucYGhGksbgAm6dEqJJXSPpdRYxkVWs6hwn8f4ocqfPEYbo6K2UevlrPq5dvWFB32LpbyBfCzQipD6iYaykBwjhCo/Z4MKUMmZ+yorI+rrm+KEEam2U95Gb+OQs+lxv24rtswgQLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775586288; c=relaxed/simple;
-	bh=EIMxTr8g8vgkzicLd9lgLZ7A1brpKbrYYbsdUofXoyM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hdc3/Fn/LL/cFXgAnne77E1KtljFhZiAtB7uWefngRLMiz6W5lOjRWJcui5AUgsGOmy+yP4nn7eT45rlrtQTX49UC8ddFreWfgb2ZxOcJTbq35HqkYHOJx/yawrqAEhmN4FHBhvust66AAId+F1Nae7XOeS5XGwu0CANABrcxBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EaGBrOYE; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1775589645; c=relaxed/simple;
+	bh=aESIEwxM0gLMvBgQFVFiv/mzhsgDSflE6QsbWL34NBQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BJmAVu59eM9tRJPvam30adq+vDAThDgrdUng+fdt8Ziqx5mwFEfVyT94isnA2+VkeI7iusZ2eUjA5Dl2E3uDJTHonPiMK+E5oLjXxfzsGVrAff+xKrQ1txfEQ6zLlVdQkdmvQaoKbbMdwDp1hXlJL9V8ZkhBvo2LDDGdFTG4CPc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jgTl2FF1; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EaGBrOYE"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-82cd5c07f93so2355227b3a.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 11:24:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jgTl2FF1"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2b2503753efso44506945ad.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 12:20:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775586285; x=1776191085; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775589643; x=1776194443; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=6BciVAhV3TqcU2aLTyJ6aAzolhJEmsHsiy3M3MrUiMo=;
-        b=EaGBrOYE7rx5OgJe/+6ehgZXHcZQDcBbdfjV9Tki1lfRumhm/n2YwAMBqjxkpCyBq9
-         L/8s0H7Q/1SWo9n3RwlgLaXSTH4o6WyG35XYJth4/PirKdf38x0+q+ynb/alP75fmx9t
-         QrP15AA6vEwRnFCVx6QmmquOPh03jSsRZ31pLVR/nD9SuJTvIZ3DCv1zHmIvRf7880ti
-         Dh6S1ghXtIfi/evjLJ2zysVlXq3+rKzb8qgVDHbMKZAXPIlc/mwIPEYU56GMVuVwTXe4
-         1OcbKufS7LsCNAsIHjMxBa2BcWmVvrX02FFuhitGEzGmamBlHqG/uY8dUhtSZZtEiw5Y
-         egHw==
+        bh=0O7DuTZ+D85au3JMLP+CFqFmga9iJn/jwHe9ZeB2Ij0=;
+        b=jgTl2FF1uRkq766OsJdFX0KlWDMap4vzQc5NYQGWvUJw/jNSm2F4pqYegSWb94kYlN
+         r27eD8d91iQAYwrFUGHRsYZDGZ968QDp9FpPi9OZ6/RJloJXaIf5ReMQH4BKcFsWU0FT
+         QSZ3rwkYSq9p/MeYU7/2CiFG1XGzLv/Y3SDvNygrJTgW1KrmkkQKraouuSTEOukj69u+
+         bNlP0AkphSX9j3waWXqHUw3zpnAWV8Zff6yXngV5nnGMqUoHOWpviR+BeZHqiskyaQwu
+         5rZK3wArTuVPLc+0Q+eGo6BesL5qxVf0OcUhKLQWS4GRBh4H8ns8shSk3ekhkbYTJSse
+         EVTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775586285; x=1776191085;
+        d=1e100.net; s=20251104; t=1775589643; x=1776194443;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6BciVAhV3TqcU2aLTyJ6aAzolhJEmsHsiy3M3MrUiMo=;
-        b=X5Xq6IZIOdv/8Z5Jdo2UZmCUul35KH4sbAseBfsbMryzjAZOCPsSRbJoNSAjQq7+pe
-         kBwIUBtw+vixi9MP1aIvfI2liKtwPd2SIkfVREShsDAlbDKxbo5Gqgkn9LB1S4lTLZTb
-         okVFMqhmQuUc49+LRGGsU/6q2fyxwfCPYDi/CackBIdxPxARmRS3DfVkCcOGvGPnzTqx
-         6YyvNr7wtCLMMBSJi5DOWJm+4F2xrpPl0f9jHj0mCU0LBQrcmZD9z7fhS1OeY9Sz4Kfz
-         OGOwBNAo8JKutLGfvxG/Qj8FIPx+gyoAScJGCEh5uKme33p2RCVDLLk7C18IfT+5D9hK
-         sqWQ==
-X-Gm-Message-State: AOJu0Yz9cuiE4sYQFn4KZF+ArVGPjtfNsaehvpznoC34oyhaCupkuIun
-	IRN1nMbYJK7iu0u9w5Z3kWxv0hZ3uC+KyhkDLujqF4mediqZUS6bK0Oc
-X-Gm-Gg: AeBDietilK7v2OcSf944gy/eoTjxAk/6H0cCjDMF6opyC6m0OsmMy+H08ICjdIT9/aH
-	o5L3rBEMX6aWlttG/fnaFcsWGviytbDXyNjnso72QOyWaZEeK+JRvIEFqwBQR55q1fisa8pXko6
-	8Zxr5Xyxilk8D6xkDyGvQ9+mXHecEESX5knmNaZW8iMcXfhBRPciTyJjPUu9m2A0ItXpqYsgAU1
-	weHQ+zdvkTxJZpzNLqh4w6FRxhGfGM/kCge2XQGDPLWDiBTJC9Gc0X4iFy/xSEEzB7lMqDLa4bl
-	IOzykkWyaBX4FoVyMZtYf9T3dnxqao/nmvNpTCHG3RGGnnGxFYN796zPS3jhp5y2Jhz1ru+c9oF
-	vygxntQf4btcsWPLMPxOr1mWqz9lLgnFjK+WPZjFTJsHNe7tZPtXAb6WOFTGr+IMBbgBd9q9lo/
-	YlGRXxuXavMPFbm1hjIwp26X9P6wP/3ougbMvUBMuOanNqyyilUYLCGzhF7ZHEktPP8dTd88ocQ
-	drDinSF79v0+sA2PpDyRbuENNN3wgY3lZR6zE1+NfbE+FHP3wWZY0ITN0VNxUiocNYLJ/aUBxpU
-X-Received: by 2002:a05:6a20:9389:b0:39b:c4cd:d848 with SMTP id adf61e73a8af0-39f2edd0c7amr18023948637.22.1775586284607;
-        Tue, 07 Apr 2026 11:24:44 -0700 (PDT)
+        bh=0O7DuTZ+D85au3JMLP+CFqFmga9iJn/jwHe9ZeB2Ij0=;
+        b=soU85BCK42PP0OhVYWBppeTPHlm7Lu0P1AUuwBJMZTIuJBZ+6BgD2AnCXAniMFj76x
+         mRJzxZfSgAxfJvh4wr+i4LE4HbuKQy4zum6swMAg6aYrhQ69Rye0uPaUgmoZkPukUgh/
+         jzi0w5wNvjiSr6pbf60Eaf/zk+jSHnYrq4EFkt+OgLyOraifAaiPTE1ny1mYlowSQPx2
+         ghIWvCY4ZmiRV7T0zRhOUgBwH8Lz3Sp0UbgnOcY45Ra35qoJeHjRSORAGG0JdbXhyVpZ
+         OtFDG23r3Bu47VOvGACKfFGKxaok/QfkGdflc605r95Y0YxyMuBHPp4U11i0LbJdq4Sd
+         /JMg==
+X-Forwarded-Encrypted: i=1; AJvYcCU+DKEc1QFQPO99+dndWEj+VJuZkyHH3Y3NHha45sQYvJvVlcmETbDest7vYsMlzkfEeuJPZKSzl5cD+w==@vger.kernel.org
+X-Gm-Message-State: AOJu0YylXqu5OoGm1E0hh5o5Mpg6zmv0sAL3W6k3E5SE49S4LoD0DESB
+	N+ztsQMsRxaMsoNXVnO/HACLPH/URW0cubQSOEdBXtwohib6N/BRI1oSb2f/IXzC
+X-Gm-Gg: AeBDiesaCu4bCCptbV+v3BHZ8QG1NuGAMh8kEPmw+76OtBysPN77nHCCSDdf00EuX+X
+	Sv3Xd7pplV1r1l2bza+FdlUx5Ewnn+B0gb55z7pRji8D8mfonrtIZla/cTp0vV0rgcd/bORFN6I
+	DacH1b9sSeAg6QtSZOLBf69RGyAAPTlN+IgW5na4GI+ZG9hnUlsZ1yLdJjDZNAbzbkFcL60fbdQ
+	XYvsNSZgS1tIUnxjPh5G8vLVqrXrKMkqAi+3pRpUJYLHGGPcpfyRoa4UE8sYDGWTZO4KPzTTg97
+	PBbCmDI2FBa4NO6RaDolvO4G/h0BYRGHjLvSN+xXworoRiuY5xxPb5OYPJK7MkC113R8WguMBFo
+	kJ+LwZ5mBE9ptQ7YezjcW7kyqk71qLSlLC/vnlCPMYdOGpGIujtq+mNLaOFSjXWU+DgPxSPIjl2
+	pb5/V545j82eeKHNCYiptibeGS5HFhNNpdUJZ4s/inGhOgVGfuyJV68wN7XkMQ3+uzqp+mdSHzE
+	jsLHirx2+igWoKAylt58ArJHXHlL/72gPum1++Ip3ErGSdroqsUlP3UcL2q/LkgNA==
+X-Received: by 2002:a17:903:acc:b0:2b2:5042:dd22 with SMTP id d9443c01a7336-2b281935ddamr194221005ad.34.1775589643338;
+        Tue, 07 Apr 2026 12:20:43 -0700 (PDT)
 Received: from sanjays-pc.govzhome.govindz.co.nz ([139.180.64.234])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c76c6475ae9sm16276034a12.2.2026.04.07.11.24.40
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b27472d55fsm235782245ad.11.2026.04.07.12.20.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2026 11:24:43 -0700 (PDT)
+        Tue, 07 Apr 2026 12:20:42 -0700 (PDT)
 From: Sanjay Govind <sanjay.govind9@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Vicki Pfau <vi@endrift.com>,
 	Nilton Perim Neto <niltonperimneto@gmail.com>,
 	Mario Limonciello <mario.limonciello@amd.com>,
 	Sanjay Govind <sanjay.govind9@gmail.com>,
-	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-Cc: linux-input@vger.kernel.org,
+	Lode Willems <me@lodewillems.com>
+Cc: Antheas Kapenekakis <lkml@antheas.dev>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6] xpad: Overhaul device data for wireless devices
-Date: Wed,  8 Apr 2026 06:20:10 +1200
-Message-ID: <20260407182011.73834-3-sanjay.govind9@gmail.com>
+Subject: [PATCH v7] xpad: Overhaul device data for wireless devices
+Date: Wed,  8 Apr 2026 07:17:52 +1200
+Message-ID: <20260407191753.178576-3-sanjay.govind9@gmail.com>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -94,11 +96,12 @@ v3: Fix issues when receiving incorrect or missing link and capabilities reports
 v4: Clear wireless state when processing device prescence change
 v5: Fix typo, fix some potential race conditions with work scheduling
 v6: Fix typo, address potential time-of-check time-of-use issues with presence work
- drivers/input/joystick/xpad.c | 197 +++++++++++++++++++++++++++++++---
- 1 file changed, 183 insertions(+), 14 deletions(-)
+v7: Explicitly check if the input device has been initialized already when processing presence changes
+ drivers/input/joystick/xpad.c | 209 ++++++++++++++++++++++++++++++----
+ 1 file changed, 188 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index bf4accf3f581..90f531bed3db 100644
+index bf4accf3f581..018c186f78ef 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
 @@ -68,6 +68,7 @@
@@ -132,15 +135,7 @@ index bf4accf3f581..90f531bed3db 100644
  /* Send power-off packet to xpad360w after holding the mode button for this many
   * seconds
   */
-@@ -766,6 +783,7 @@ struct usb_xpad {
- 	struct usb_device *udev;	/* usb device */
- 	struct usb_interface *intf;	/* usb interface */
- 
-+	bool pending_pad_present;
- 	bool pad_present;
- 	bool input_created;
- 
-@@ -795,8 +813,13 @@ struct usb_xpad {
+@@ -795,8 +812,13 @@ struct usb_xpad {
  	int xtype;			/* type of xbox device */
  	int packet_type;		/* type of the extended packet */
  	int pad_nr;			/* the order x360 pads were attached */
@@ -155,7 +150,7 @@ index bf4accf3f581..90f531bed3db 100644
  	time64_t mode_btn_down_ts;
  	bool delay_init;		/* init packets should be delayed */
  	bool delayed_init_done;
-@@ -807,6 +830,8 @@ static void xpad_deinit_input(struct usb_xpad *xpad);
+@@ -807,6 +829,8 @@ static void xpad_deinit_input(struct usb_xpad *xpad);
  static int xpad_start_input(struct usb_xpad *xpad);
  static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
  static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
@@ -164,7 +159,7 @@ index bf4accf3f581..90f531bed3db 100644
  
  /*
   *	xpad_process_packet
-@@ -980,15 +1005,18 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
+@@ -980,19 +1004,12 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
  
  static void xpad_presence_work(struct work_struct *work)
  {
@@ -172,22 +167,40 @@ index bf4accf3f581..90f531bed3db 100644
 +	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work.work);
  	int error;
 -
-+	if (xpad->pad_present == xpad->pending_pad_present)
-+		return;
-+	xpad->pad_present = xpad->pending_pad_present;
- 	if (xpad->pad_present) {
- 		error = xpad_init_input(xpad);
- 		if (error) {
- 			/* complain only, not much else we can do here */
+-	if (xpad->pad_present) {
+-		error = xpad_init_input(xpad);
+-		if (error) {
+-			/* complain only, not much else we can do here */
 -			dev_err(&xpad->dev->dev,
 -				"unable to init device: %d\n", error);
-+			if (xpad->dev)
-+				dev_err(&xpad->dev->dev,
-+					"unable to init device: %d\n", error);
- 		} else {
- 			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
- 		}
-@@ -1017,18 +1045,77 @@ static void xpad_presence_work(struct work_struct *work)
+-		} else {
+-			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
+-		}
+-	} else {
++	/* Check if the pad presence has changed */
++	if (xpad->pad_present == xpad->input_created)
++		return;
++	if (xpad->input_created) {
+ 		RCU_INIT_POINTER(xpad->x360w_dev, NULL);
+ 		synchronize_rcu();
+ 		/*
+@@ -1000,6 +1017,15 @@ static void xpad_presence_work(struct work_struct *work)
+ 		 * using input device we can get rid of it.
+ 		 */
+ 		xpad_deinit_input(xpad);
++	} else {
++		error = xpad_init_input(xpad);
++		if (error) {
++			/* complain only, not much else we can do here */
++			dev_err(&xpad->intf->dev,
++				"unable to init device: %d\n", error);
++		} else {
++			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
++		}
+ 	}
+ }
+ 
+@@ -1017,10 +1043,11 @@ static void xpad_presence_work(struct work_struct *work)
   * 01.1 - Pad state (Bytes 4+) valid
   *
   */
@@ -200,13 +213,11 @@ index bf4accf3f581..90f531bed3db 100644
  
  	/* Presence change */
  	if (data[0] & 0x08) {
- 		present = (data[1] & 0x80) != 0;
+@@ -1028,7 +1055,65 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
  
--		if (xpad->pad_present != present) {
--			xpad->pad_present = present;
+ 		if (xpad->pad_present != present) {
+ 			xpad->pad_present = present;
 -			schedule_work(&xpad->work);
-+		if (xpad->pending_pad_present != present) {
-+			xpad->pending_pad_present = present;
 +			if (present) {
 +				/*
 +				 * Delay marking device as present, so we can make sure
@@ -269,7 +280,7 @@ index bf4accf3f581..90f531bed3db 100644
  		}
  	}
  
-@@ -1254,7 +1341,7 @@ static void xpad_irq_in(struct urb *urb)
+@@ -1254,7 +1339,7 @@ static void xpad_irq_in(struct urb *urb)
  		xpad360_process_packet(xpad, xpad->dev, 0, xpad->idata);
  		break;
  	case XTYPE_XBOX360W:
@@ -278,7 +289,7 @@ index bf4accf3f581..90f531bed3db 100644
  		break;
  	case XTYPE_XBOXONE:
  		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
-@@ -1495,6 +1582,31 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
+@@ -1495,6 +1580,31 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
  	return xpad_try_sending_next_out_packet(xpad);
  }
  
@@ -310,16 +321,18 @@ index bf4accf3f581..90f531bed3db 100644
  static int xpad_start_xbox_one(struct usb_xpad *xpad)
  {
  	int error;
-@@ -1893,7 +2005,7 @@ static void xpad360w_stop_input(struct usb_xpad *xpad)
+@@ -1892,8 +2002,8 @@ static void xpad360w_stop_input(struct usb_xpad *xpad)
+ {
  	usb_kill_urb(xpad->irq_in);
  
- 	/* Make sure we are done with presence work if it was scheduled */
+-	/* Make sure we are done with presence work if it was scheduled */
 -	flush_work(&xpad->work);
++	/* Cancel any pending presence work */
 +	cancel_delayed_work_sync(&xpad->work);
  }
  
  static int xpad_open(struct input_dev *dev)
-@@ -1945,6 +2057,11 @@ static void xpad_deinit_input(struct usb_xpad *xpad)
+@@ -1945,6 +2055,11 @@ static void xpad_deinit_input(struct usb_xpad *xpad)
  {
  	if (xpad->input_created) {
  		xpad->input_created = false;
@@ -331,7 +344,7 @@ index bf4accf3f581..90f531bed3db 100644
  		xpad_led_disconnect(xpad);
  		input_unregister_device(xpad->dev);
  	}
-@@ -1965,8 +2082,60 @@ static int xpad_init_input(struct usb_xpad *xpad)
+@@ -1965,8 +2080,60 @@ static int xpad_init_input(struct usb_xpad *xpad)
  	usb_to_input_id(xpad->udev, &input_dev->id);
  
  	if (xpad->xtype == XTYPE_XBOX360W) {
@@ -394,7 +407,7 @@ index bf4accf3f581..90f531bed3db 100644
  	}
  
  	input_dev->dev.parent = &xpad->intf->dev;
-@@ -2106,7 +2275,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+@@ -2106,7 +2273,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
  		xpad->delay_init = true;
  
  	xpad->packet_type = PKT_XB;

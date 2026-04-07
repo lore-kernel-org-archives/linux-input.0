@@ -1,347 +1,109 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4142B342CA9;
-	Tue,  7 Apr 2026 20:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775592197; cv=none; b=QExhbI+WS5WFXMV4g6SiAiPggSvW2yN1kuURvshmSTefm2sgVxyXux4j4dlWY9YWGKFqDK59iqhFl81bDJ93axhMAWekYPP17ljowOLYXNe73HFrGZmRjyx9UiR68w4pR8BVLZ4KBY0b+7an6kHrkl7v2yIZ7DHLfXkX9wvGAQM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775592197; c=relaxed/simple;
-	bh=1jW9W2YghLmRt8gMee4GbxW53S/HuEdpSv5fvfYcCPo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K8WQdWNpELvHrbO1xHWJld/ecfwk0Jg3VZRYqxzbC0K6X4NReSZhjw7NB5RXaHG2NUawn6yuoC17RA6yygenJHfbQOWbfKnl9JrJBfojz54kz00lcFlq9p47g06WrAawYHEa9e1I07OesZHteWn/nj6ihpU4bg+d4bBF0Ace28A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=boXWDTvq; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=lSDv3C2V; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1F5C286D4D;
+	Tue,  7 Apr 2026 20:59:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775595599; cv=pass; b=J3xApefUC521EgNWq1eR7ha6FS6tV5UKXC3+F0f6Y/iQnsQ+n/5Jf3xaMS7S4e7GXb0DK4OFbS6ZOOLbKm+evAEW3LyeF2Qh4v776ak6XEjGPatmd06tU0UshsnJmAOzQ4ZM7bcr2YpMdEP16/l8L3kRZLup7D7YH0X66JtcvZQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775595599; c=relaxed/simple;
+	bh=0tFn4yNCXlDsMFWLlCMxKy8hAuf1D+gUVNDNCi7qWNQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=BzvR3ZmIpuGptXO8UOz39MCWyPBlzbvm7PVNZAUSHX6lb1gw+nHe2vSDMt42p2jpOcMRbpyxiF2ysGfWscmS/B98X2bH6NewTW9OzDAW04TWDwYWf0Ae3whIup/nibaPof3iINIJWs2q683ELfMj/mZAWAjusKB9jk6/T3UjI6o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nfraprado@collabora.com header.b=UFJA+SGh; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="boXWDTvq";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="lSDv3C2V"
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4fqxh96xDQz9ssx;
-	Tue,  7 Apr 2026 21:53:13 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1775591594;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O+ETWUYWWOV/f+XG1i+HJfrRdNRG73DZGp/5N+z/kuo=;
-	b=boXWDTvqxnzews9mj7dJTqbD9WbGzU4d3A2xZF1xo4heiRQ9BavUe3+CM+wAfSrFfyGcxN
-	1JS39IFBgdBQtNwMz8IPTi5y0LwfEca4+0mSHDiwLI8nGSfoPHxD0jOVRJmz5kSOGDPINW
-	a703rwYwbRcBFsAwCRcmsZjOl7a7cMyIQ8TK5BPrjtAjw6apybAtGwEpnG7MV72ffodmw0
-	9o7CCHv55FFE//DsX8vgbKrkcJiDOdKYJ6hZXxI08vy4zU1+DCwc0ie+aut5N906pAE8Ba
-	OSg8L8UtH1zYX3xaIIr/arBbwzAoHcJrQyP+YM8ldssmQPTVd3rbhmHj3AXknA==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=lSDv3C2V;
-	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::1 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1775591592;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=O+ETWUYWWOV/f+XG1i+HJfrRdNRG73DZGp/5N+z/kuo=;
-	b=lSDv3C2VISJYPAAr/CDLSoMaApVRbmJ0ct6euDjeu+wL8ld7Zh1gM7hkrlzFBu7iysXiQJ
-	Tb2fmaoyU11ZIOV8jB24IV7XN5PLZSpKklipDa/dj2c/BqymGYdxHoOOrd2c/pyw4D2Zdj
-	M1shc/ugvcw/JdwqiGn1nSfBJVCiJdsuEXRErFFrKjYdkbUjVp2OW0BVjFrJ9D9Vtxh2Oj
-	tRF1uwp9Y6Gw4S3g4pHYWfyWWQlvO8U8FSVtfr9OHSMVIGCR4mCCCFkc92L/0uoh6pRvZT
-	X/cl8ZFwlu5+XZC6sIRnqz5XHcCvyul0qxedhHka1c0PtCavjc31oTDuXW3zoA==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Henrik Rydberg <rydberg@bitmath.org>
-Cc: Rosalie Wanders <rosalie@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: sony: fix style issues
-Date: Tue,  7 Apr 2026 21:49:20 +0200
-Message-ID: <20260407194920.9927-2-rosalie@mailbox.org>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=nfraprado@collabora.com header.b="UFJA+SGh"
+ARC-Seal: i=1; a=rsa-sha256; t=1775595587; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=bcYOoIL79LJpAs1FWY6Lctv+gH8KmffX5oi2Bg5i3fVl8qGfOqUHYwU+a+nFC/9BRvAS676nsP6xGhkoBUJJ/RBFy6aOxLo0EEQrX/FlTUwVo2l86pSgsaJy+sNtWqeOvzsBEaPTjHG0ideofu3XEX5OG34B8jgTt7CXXZisBd4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1775595587; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=bAvykgs9czbUIgmWbpfltONWSBxOyO9DGFwZ/4BKhwI=; 
+	b=a4GbbGyE3xKIvSkUASKncQmUpVxDlyTYe5GXiSSS5ImjyC0sbpd+eTLcp7KP8+gjRvkEcKIRl473+0Z6AuQ9/ev2fgnekXrH420mXYdBF2yfDlOux8e9MYPgblJE2/l8hLu5ljSOUGbdw5mqTLHLGh9UMAw28uM6LUrfggErKEI=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=nfraprado@collabora.com;
+	dmarc=pass header.from=<nfraprado@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775595587;
+	s=zohomail; d=collabora.com; i=nfraprado@collabora.com;
+	h=From:From:Date:Date:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Message-Id:To:To:Cc:Cc:Reply-To;
+	bh=bAvykgs9czbUIgmWbpfltONWSBxOyO9DGFwZ/4BKhwI=;
+	b=UFJA+SGhgJ4vV2ABE5/IflovgGX+PCbtqcSZdB5gW0eeKISuAHhmo/bUMNuYp9Bx
+	SVVOg5gA/CtGwnibc5yPMhgAFiQm0q5Nt19tVrXvL92zQXhEG9SZDsxS0jUD3/tMpRD
+	PR6A0ea1gQ4JqNd+9yYaazznoTjq9eBdsB1ee+g4=
+Received: by mx.zohomail.com with SMTPS id 1775595585948874.4083395664982;
+	Tue, 7 Apr 2026 13:59:45 -0700 (PDT)
+From: =?utf-8?q?N=C3=ADcolas_F=2E_R=2E_A=2E_Prado?= <nfraprado@collabora.com>
+Date: Tue, 07 Apr 2026 16:59:28 -0400
+Subject: [PATCH] HID: quirks: Set ALWAYS_POLL for LOGITECH_BOLT_RECEIVER
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: 905fd699f2c47ebbf87
-X-MBO-RS-META: ez53fnurno3qitdyts3s5s5nw5zowsia
-X-Rspamd-Queue-Id: 4fqxh96xDQz9ssx
+Message-Id: <20260407-logi-bolt-hid-quirk-always-poll-v1-1-4dae0fda344e@collabora.com>
+X-B4-Tracking: v=1; b=H4sIAC9w1WkC/x2NywqDMBAAf0X23IUYtWp/pfQQzVYXF2OT+kL8d
+ 4OXgbnMHBDIMwV4JQd4WjiwG6OkjwTa3owdIdvooJV+qlyVKK5jbJz8sWeLv5n9gEZWswecnAg
+ Wtm5rnVUROcTK5OnL2314f87zAnwxbSRxAAAA
+X-Change-ID: 20260407-logi-bolt-hid-quirk-always-poll-5d9c9238c924
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: kernel@collabora.com, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ =?utf-8?q?N=C3=ADcolas_F=2E_R=2E_A=2E_Prado?= <nfraprado@collabora.com>
+X-Mailer: b4 0.14.3
+X-ZohoMailClient: External
 
-This commit fixes inconsistent quirk names and also fixes all the
-checkpatch.pl issues alongside inconsistent code, it also adds static
-asserts to assert struct sizes at compile time.
+The Logitech Bolt receiver once connected to a wireless device will
+generate data on interface 2. If this data isn't polled, when the USB
+port it is connected to gets suspended (and if that happens within 5
+minutes of the last input from the wireless device), it will trigger a
+remote wakeup 3 seconds later, which will result in a spurious system
+wakeup if the port was suspended as part of system sleep.
 
-Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+Set the ALWAYS_POLL quirk for this device to ensure interface 2 is
+always polled and this spurious wakeup never happens.
+
+With this change in place the system can be suspended with the receiver
+plugged in and the system can be woken up when an input is sent from the
+wireless device.
+
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 ---
-changes:
-v2: rebase on v2 of 'HID: sony: add support for more instruments'
+Hi,
 
- drivers/hid/hid-sony.c | 77 +++++++++++++++++++-----------------------
- 1 file changed, 34 insertions(+), 43 deletions(-)
+Given that the polling only needs to happen before the device goes into
+suspend, I wonder if it might make sense to introduce a new quirk type
+that only does a poll before the device goes into suspend (both for
+system sleep and runtime suspend). It would reduce the extra bit of USB
+traffic that ends up happening in this case with ALWAYS_POLL every time
+a wireless device connects to the receiver.
+---
+ drivers/hid/hid-quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index a14e730318ce..e37e19c017af 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -67,8 +67,8 @@
- #define RB4_GUITAR_PS4_USB        BIT(18)
- #define RB4_GUITAR_PS4_BT         BIT(19)
- #define RB4_GUITAR_PS5            BIT(20)
--#define RB3_PS3_PRO_INSTRUMENT    BIT(21)
--#define PS3_DJH_TURNTABLE		  BIT(22)
-+#define RB3_PRO_INSTRUMENT        BIT(21)
-+#define DJH_TURNTABLE             BIT(22)
- 
- #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
- #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
-@@ -110,13 +110,6 @@ static const char ghl_ps4_magic_data[] = {
- 	0x30, 0x02, 0x08, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00
- };
- 
--/* Rock Band 3 PS3 Pro Instruments require sending a report
-- * once an instrument is connected to its dongle.
-- * We need to retry sending these reports,
-- * but to avoid doing this too often we delay the retries
-- */
--#define RB3_PRO_INSTRUMENT_POKE_RETRY_INTERVAL 8 /* In seconds */
--
- /* PS/3 Motion controller */
- static const u8 motion_rdesc[] = {
- 	0x05, 0x01,         /*  Usage Page (Desktop),               */
-@@ -477,6 +470,7 @@ struct sixaxis_led {
- 	u8 duty_off; /* % of duty_length the led is off (0xff means 100%) */
- 	u8 duty_on;  /* % of duty_length the led is on (0xff mean 100%) */
- } __packed;
-+static_assert(sizeof(struct sixaxis_led) == 5);
- 
- struct sixaxis_rumble {
- 	u8 padding;
-@@ -485,6 +479,7 @@ struct sixaxis_rumble {
- 	u8 left_duration;    /* Left motor duration (0xff means forever) */
- 	u8 left_motor_force; /* left (large) motor, supports force values from 0 to 255 */
- } __packed;
-+static_assert(sizeof(struct sixaxis_rumble) == 5);
- 
- struct sixaxis_output_report {
- 	u8 report_id;
-@@ -494,11 +489,13 @@ struct sixaxis_output_report {
- 	struct sixaxis_led led[4];    /* LEDx at (4 - x) */
- 	struct sixaxis_led _reserved; /* LED5, not actually soldered */
- } __packed;
-+static_assert(sizeof(struct sixaxis_output_report) == 36);
- 
- union sixaxis_output_report_01 {
- 	struct sixaxis_output_report data;
- 	u8 buf[36];
- };
-+static_assert(sizeof(union sixaxis_output_report_01) == 36);
- 
- struct motion_output_report_02 {
- 	u8 type, zero;
-@@ -506,6 +503,7 @@ struct motion_output_report_02 {
- 	u8 zero2;
- 	u8 rumble;
- };
-+static_assert(sizeof(struct motion_output_report_02) == 7);
- 
- #define SIXAXIS_REPORT_0xF2_SIZE 17
- #define SIXAXIS_REPORT_0xF5_SIZE 8
-@@ -536,7 +534,7 @@ struct sony_sc {
- 	struct led_classdev *leds[MAX_LEDS];
- 	unsigned long quirks;
- 	struct work_struct state_worker;
--	void (*send_output_report)(struct sony_sc *);
-+	void (*send_output_report)(struct sony_sc *sc);
- 	struct power_supply *battery;
- 	struct power_supply_desc battery_desc;
- 	int device_id;
-@@ -613,11 +611,11 @@ static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev,
- 	pipe = usb_sndctrlpipe(usbdev, 0);
- 
- 	cr = devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
--	if (cr == NULL)
-+	if (!cr)
- 		return -ENOMEM;
- 
- 	databuf = devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
--	if (databuf == NULL)
-+	if (!databuf)
- 		return -ENOMEM;
- 
- 	cr->bRequestType =
-@@ -952,6 +950,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
- 	unsigned long flags;
- 	int offset;
-+	u8 index;
- 	u8 battery_capacity;
- 	int battery_status;
- 
-@@ -967,7 +966,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 		battery_capacity = 100;
- 		battery_status = (rd[offset] & 0x01) ? POWER_SUPPLY_STATUS_FULL : POWER_SUPPLY_STATUS_CHARGING;
- 	} else {
--		u8 index = rd[offset] <= 5 ? rd[offset] : 5;
-+		index = rd[offset] <= 5 ? rd[offset] : 5;
- 		battery_capacity = sixaxis_battery_capacity[index];
- 		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
- 	}
-@@ -1005,7 +1004,7 @@ static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	 *   the touch-related data starts at offset 2.
- 	 * For the first byte, bit 0 is set when touchpad button is pressed.
- 	 * Bit 2 is set when a touch is active and the drag (Fn) key is pressed.
--	 * This drag key is mapped to BTN_LEFT.  It is operational only when a 
-+	 * This drag key is mapped to BTN_LEFT.  It is operational only when a
- 	 *   touch point is active.
- 	 * Bit 4 is set when only the first touch point is active.
- 	 * Bit 6 is set when only the second touch point is active.
-@@ -1152,11 +1151,10 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
- 	 * sending full reports, and 0x02 when only sending navigation.
- 	 */
--	if ((sc->quirks & RB3_PS3_PRO_INSTRUMENT) && rd[24] == 0x02) {
--		/* Only attempt to enable report every 8 seconds */
-+	if ((sc->quirks & RB3_PRO_INSTRUMENT) && rd[24] == 0x02) {
-+		/* Only attempt to enable full report every 8 seconds */
- 		if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
--			sc->rb3_pro_poke_jiffies = jiffies +
--				(RB3_PRO_INSTRUMENT_POKE_RETRY_INTERVAL * HZ);
-+			sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
- 			rb3_pro_instrument_enable_full_report(sc);
- 		}
- 	}
-@@ -1218,7 +1216,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & GH_GUITAR_TILT)
- 		return gh_guitar_mapping(hdev, hi, field, usage, bit, max);
- 
--	if (sc->quirks & PS3_DJH_TURNTABLE)
-+	if (sc->quirks & DJH_TURNTABLE)
- 		return djh_turntable_mapping(hdev, hi, field, usage, bit, max);
- 
- 	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
-@@ -1273,19 +1271,18 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
- 
- 	if (touch_major > 0) {
--		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR, 
-+		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR,
- 			0, touch_major, 0, 0);
- 		if (touch_minor > 0)
--			input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR, 
-+			input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR,
- 				0, touch_minor, 0, 0);
- 		if (orientation > 0)
--			input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION, 
-+			input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION,
- 				0, orientation, 0, 0);
- 	}
- 
--	if (sc->quirks & NSG_MRXU_REMOTE) {
-+	if (sc->quirks & NSG_MRXU_REMOTE)
- 		__set_bit(EV_REL, sc->touchpad->evbit);
--	}
- 
- 	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
- 	if (ret < 0)
-@@ -1440,7 +1437,7 @@ static void sixaxis_set_leds_from_id(struct sony_sc *sc)
- 
- 	int id = sc->device_id;
- 
--	BUILD_BUG_ON(MAX_LEDS < ARRAY_SIZE(sixaxis_leds[0]));
-+	BUILD_BUG_ON(ARRAY_SIZE(sixaxis_leds[0]) > MAX_LEDS);
- 
- 	if (id < 0)
- 		return;
-@@ -1458,7 +1455,7 @@ static void buzz_set_leds(struct sony_sc *sc)
- 		struct hid_report, list);
- 	s32 *value = report->field[0]->value;
- 
--	BUILD_BUG_ON(MAX_LEDS < 4);
-+	BUILD_BUG_ON(4 > MAX_LEDS);
- 
- 	value[0] = 0x00;
- 	value[1] = sc->led_state[0] ? 0xff : 0x00;
-@@ -1655,15 +1652,12 @@ static int sony_leds_init(struct sony_sc *sc)
- 			name_sz = strlen(dev_name(&hdev->dev)) + strlen(color_name_str[n]) + 2;
- 
- 		led = devm_kzalloc(&hdev->dev, sizeof(struct led_classdev) + name_sz, GFP_KERNEL);
--		if (!led) {
--			hid_err(hdev, "Couldn't allocate memory for LED %d\n", n);
-+		if (!led)
- 			return -ENOMEM;
--		}
- 
- 		name = (void *)(&led[1]);
- 		if (use_color_names)
--			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev),
--			color_name_str[n]);
-+			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), color_name_str[n]);
- 		else
- 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
- 		led->name = name;
-@@ -2180,7 +2174,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 		}
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
--	} else if (sc->quirks & RB3_PS3_PRO_INSTRUMENT) {
-+	} else if (sc->quirks & RB3_PRO_INSTRUMENT) {
- 		/*
- 		 * Rock Band 3 PS3 Pro Instruments also do not handle HID Output
- 		 * Reports on the interrupt EP like they should, so we need to force
-@@ -2309,10 +2303,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		quirks |= SHANWAN_GAMEPAD;
- 
- 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
--	if (sc == NULL) {
--		hid_err(hdev, "can't alloc sony descriptor\n");
-+	if (!sc)
- 		return -ENOMEM;
--	}
- 
- 	spin_lock_init(&sc->lock);
- 
-@@ -2360,9 +2352,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err;
- 	}
- 
--	if (sc->quirks & RB3_PS3_PRO_INSTRUMENT) {
-+	if (sc->quirks & RB3_PRO_INSTRUMENT)
- 		sc->rb3_pro_poke_jiffies = 0;
--	}
- 
- 	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
- 		if (!hid_is_usb(hdev)) {
-@@ -2514,7 +2505,7 @@ static const struct hid_device_id sony_devices[] = {
- 		.driver_data = INSTRUMENT },
- 	/* DJ Hero PS3 Guitar Dongle */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE),
--		.driver_data = PS3_DJH_TURNTABLE | INSTRUMENT },
-+		.driver_data = DJH_TURNTABLE | INSTRUMENT },
- 	/* Guitar Hero Live PS4 guitar dongles */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE),
- 		.driver_data = GHL_GUITAR_PS4 | GH_GUITAR_TILT | INSTRUMENT },
-@@ -2550,15 +2541,15 @@ static const struct hid_device_id sony_devices[] = {
- 		.driver_data = INSTRUMENT },
- 	/* Rock Band 3 PS3 Pro instruments */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR),
--		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+		.driver_data = INSTRUMENT | RB3_PRO_INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE),
--		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+		.driver_data = INSTRUMENT | RB3_PRO_INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIER_MODE),
--		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+		.driver_data = INSTRUMENT | RB3_PRO_INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD),
--		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+		.driver_data = INSTRUMENT | RB3_PRO_INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE),
--		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+		.driver_data = INSTRUMENT | RB3_PRO_INSTRUMENT },
- 	/* Rock Band 4 PS4 guitars */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER),
- 		.driver_data = RB4_GUITAR_PS4_USB | INSTRUMENT },
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 02f7db5c1056..eb811b1fb80f 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -134,6 +134,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6093), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS), HID_QUIRK_NOGET },
+
+---
+base-commit: 816f193dd0d95246f208590924dd962b192def78
+change-id: 20260407-logi-bolt-hid-quirk-always-poll-5d9c9238c924
+
+Best regards,
 -- 
-2.53.0
+Nícolas F. R. A. Prado <nfraprado@collabora.com>
 

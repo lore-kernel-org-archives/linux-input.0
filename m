@@ -1,128 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F9391F37D3;
-	Tue,  7 Apr 2026 14:00:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46B422DFA4;
+	Tue,  7 Apr 2026 14:43:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775570400; cv=none; b=Haa5fFGmrABPr+NfEBHh1WcpCqTUmEqfrTn5ksKAD2jjpEL8kpljOsC+zJ6DP5VLA+17e8hXAu2vxQXSmJcMWrJO8f17x7ffSMf2WewW7gDhA0WelNh8PhraD6Xvum+eO48zouKrDZiADbsHsWm2ap/sgO7rjs+gLOe+YZ+vH0g=
+	t=1775573025; cv=none; b=rpiKgW7r7i8RtqctoKgOnDqj7OUnZ2VCBrEaQQE8GWGH+a9b59pDl8bnnldpCNzso5UU06c+CSV78g8rxzIx+DdXKBux4+ZqTAa5qgOI7f2hgoQP0Ky7PpN18lkEFq7au+j52jH3F42568hPLlYBe/LhdQxTbA3Fy4JIY0empPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775570400; c=relaxed/simple;
-	bh=jbmo6TexSbEcoRdlaixuW+CRJp5pJOh4qd6rxz1IDOY=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QWF4GCGy3tHXD2bpjRLip78ZZ/Bz8Mqc1B17kcJ2bx+VNV0oABN+MTODuNvOcZIj6c8J/XBJH1fUiaf/xWxAx7wGFZoChR9Mi7JHUrYN4Gfi5DVrQHrKHLg5H6WtIA0IKIMn9TpFoWlGbpEQgXKtxAlSPiHlSdMsc0Em6VZsYQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p55xoDrT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775573025; c=relaxed/simple;
+	bh=ZWQZkB5fL2jhom5Ev8sclKjxQBPOPMo69UQQ+wJrLgM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VFJvojIibL/5BKBc9cm9IWtA8OhRD00FVtlBD9bredOU9MTy1icC9nu00XyUf79AywrWV79GNW2Nl4osezMmSEqVtEUGaHKwMl0VQUFi7GEZIUN2DcbF5kST61rXlC5LV2f3xTvgGbywp2m0vw59KZCIr0CKzuBAi4Z2vFmeE20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=CuwdhuJQ; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=relcAJo0; arc=none smtp.client-ip=80.241.56.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p55xoDrT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8EF8C116C6;
-	Tue,  7 Apr 2026 13:59:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775570400;
-	bh=jbmo6TexSbEcoRdlaixuW+CRJp5pJOh4qd6rxz1IDOY=;
-	h=Date:From:To:Subject:References:In-Reply-To:From;
-	b=p55xoDrTiGgEGYnGEqtmoCldgbGPbjSRHnZJgvKEwjxdUmk9SZiu7SY/GPNpC0NEe
-	 obTw7ebFBlV9qr24BGUO6gn6cUj3bEd0YZewENlDmF62C3nq7bz/L+9UTbwB/0DpFU
-	 LWTWCWP6X1bAdRRPE6hVk1R3rr1EohfBH+eBqukQ2u2Z21XR9o+dkqzCUG3GfhRGiR
-	 vlEkOwo5V9b3/LLVMGG3Lt/ARN+mCPuAMQqTWNR6G2o9e719WkdIf+ZYeJI08guUi9
-	 4fEEenBaPwetX89MROHD+BDX4U958IA0YYpDCr536K6omBkNsJoZuAiDdWzOeFZPAj
-	 YnbaViYZsJQ9g==
-Date: Tue, 7 Apr 2026 14:59:55 +0100
-From: Lee Jones <lee@kernel.org>
-To: Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] HID: logitech-dj: Standardise hid_report_enum
- variable nomenclature
-Message-ID: <20260407135955.GQ3795166@google.com>
-References: <20260324143651.342273-1-lee@kernel.org>
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="CuwdhuJQ";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="relcAJo0"
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4fqppw1jmjz9v0X;
+	Tue,  7 Apr 2026 16:43:36 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775573016;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=1XWzvWAUkGN++QKroI/b4jcpPSjnYK6PwADhbIi07oI=;
+	b=CuwdhuJQgSIG1Lijl1ar3MiXj/e9LLJz8zY2y6toqrJ8BUcvw7gd6hKiobT8a8j5nNOsqK
+	Va2PABeuGIAVjUcafsqS+XspwdJVu+1nXYp2ZUNto5tDPWE8SsrtWAtDYv9e9MJAlCytX3
+	bW7iKkDSBeWl9lsurKBhC16YeQVgZGH7hfiTlypZ8c1MG1Jws9+F2uT11au+rhuP+wYrDZ
+	QtnLW5NGY8KzFeO9Fh9YZJkmb5UeCuyLXHDoM5b+i/PpDcm5ili4q30qogthA6NMUs1R+s
+	zPh+fyZIJACSX/gV49FvDZ+oXPBaeCTIz9h+u3q60MNUFsbvnqDFMKI7TPJLqg==
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1775573014;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=1XWzvWAUkGN++QKroI/b4jcpPSjnYK6PwADhbIi07oI=;
+	b=relcAJo0uaVqR4mL/BtaNGDVSzPk3Rq/WiEm9s7YkelfyKl7ea/6MWUsTnsR9Bk42iX98f
+	zCezMDXhSE7/Aust2kuClY9aNPuJcoFBm2huAKdruSNgDkmnQQnXf4ifxSljqntwJDjUOD
+	XJ0oPLyEhBMzhEYgJeqP8y2+Hxa/lNsIypkh0FkY4BH4OTlzmRSlYeM+h/u0HtCiAshdd1
+	+iuC/YromP9GtTLmCcajqW0nuknubJSDUjBeCHZpdal/yIJ3AeooL7Ex0Z3D9wPmL/hFHc
+	hH+pC4zqsJTlN93TEjxPuRjtu4eBUNqY7D/ayCXdVmLgxywoMtrZLAjWHROgLw==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Rosalie Wanders <rosalie@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: quirks: update hid-sony supported devices
+Date: Tue,  7 Apr 2026 16:42:47 +0200
+Message-ID: <20260407144247.368567-2-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260324143651.342273-1-lee@kernel.org>
+X-MBO-RS-ID: 2ab0f46691e981e6764
+X-MBO-RS-META: 1fb4eysyy7xfyihc8ugiu6sfboce8mzg
 
-On Tue, 24 Mar 2026, Lee Jones wrote:
+hid-sony has been updated with new device support, update the
+hid_have_special_driver table accordingly.
 
-> Since we will need to differentiate between the two report_enum types
-> soon, let's unify the naming conventions now to save confusion and/or
-> unnecessary/unrelated changes in upcoming commits.
-> 
-> {input,output}_report_enum is used in other places to let's conform.
-> 
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
-> v1 => v2: New patch
-> 
->  drivers/hid/hid-logitech-dj.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+---
+ drivers/hid/hid-quirks.c | 48 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 7 deletions(-)
 
-During a previous submission you indicated that you preferred pings over
-[RESEND]s - so this is it.
-
-This submission was posted 2 weeks ago.  Could someone take a look please?
-
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 44b716697510..32139b2561c0 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1858,7 +1858,7 @@ static int logi_dj_raw_event(struct hid_device *hdev,
->  static int logi_dj_probe(struct hid_device *hdev,
->  			 const struct hid_device_id *id)
->  {
-> -	struct hid_report_enum *rep_enum;
-> +	struct hid_report_enum *input_report_enum;
->  	struct hid_report *rep;
->  	struct dj_receiver_dev *djrcv_dev;
->  	struct usb_interface *intf;
-> @@ -1903,10 +1903,10 @@ static int logi_dj_probe(struct hid_device *hdev,
->  		}
->  	}
->  
-> -	rep_enum = &hdev->report_enum[HID_INPUT_REPORT];
-> +	input_report_enum = &hdev->report_enum[HID_INPUT_REPORT];
->  
->  	/* no input reports, bail out */
-> -	if (list_empty(&rep_enum->report_list))
-> +	if (list_empty(&input_report_enum->report_list))
->  		return -ENODEV;
->  
->  	/*
-> @@ -1914,7 +1914,7 @@ static int logi_dj_probe(struct hid_device *hdev,
->  	 * Note: we should theoretically check for HID++ and DJ
->  	 * collections, but this will do.
->  	 */
-> -	list_for_each_entry(rep, &rep_enum->report_list, list) {
-> +	list_for_each_entry(rep, &input_report_enum->report_list, list) {
->  		if (rep->application == 0xff000001)
->  			has_hidpp = true;
->  	}
-> @@ -1927,7 +1927,7 @@ static int logi_dj_probe(struct hid_device *hdev,
->  		return -ENODEV;
->  
->  	/* get the current application attached to the node */
-> -	rep = list_first_entry(&rep_enum->report_list, struct hid_report, list);
-> +	rep = list_first_entry(&input_report_enum->report_list, struct hid_report, list);
->  	djrcv_dev = dj_get_receiver_dev(hdev, id->driver_data,
->  					rep->application, has_hidpp);
->  	if (!djrcv_dev) {
-> @@ -1935,7 +1935,7 @@ static int logi_dj_probe(struct hid_device *hdev,
->  		return -ENOMEM;
->  	}
->  
-> -	if (!rep_enum->numbered)
-> +	if (!input_report_enum->numbered)
->  		djrcv_dev->unnumbered_application = rep->application;
->  
->  	/* Starts the usb device and connects to upper interfaces hiddev and
-> -- 
-> 2.53.0.983.g0bb29b3bc5-goog
-> 
-
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index edc4339adb50..17639d340efc 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -690,22 +690,56 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_5_PRO) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SONY)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_SQUIRE_GUITAR) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_PS4_STRATOCASTER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_JAGUAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS5_RIFFMASTER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIRE_MODE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_SQUIRE_GUITAR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SPEEDLINK)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },
 -- 
-Lee Jones [李琼斯]
+2.53.0
+

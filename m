@@ -1,570 +1,277 @@
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADFD535F8D1;
-	Tue,  7 Apr 2026 19:49:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E6A35F8D1;
+	Tue,  7 Apr 2026 19:51:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775591359; cv=none; b=E99fA1q4bWV5MCo5W60WquAZTew+KRZB1IKgqsqGBw9fUMvo1u6GBrW3r5CsyvdPTFxjJih2x4iB1FaKTZ/g9+QtSmApuZdbPWMfJ3uCIvV+iwQw8sN/pszw3GG8hWS4FRKstqgcU6yFWNgYrGs/i+bjACmjB6ACyNnwVtEzpPI=
+	t=1775591500; cv=none; b=Tcmr4VA41jfcM6Oi2Z/FoXsq0jfjOLqyWnRQR9VFk5fMBE5SoQcSRWwxQoYP23hlht2qzbYXMyqqUEPnQm19uahNYZzqvyvgCmyiT10dca7r2T6rqcITo3ClPetZsUalbNGRSQbleBtecKVY9Z6rcafSnk/EWpIrZL+LyBbl4tM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775591359; c=relaxed/simple;
-	bh=1XRIRXKHfADw5sPT12qql1nurfrnyJRzWcm5RXwFVnQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l25CeEMkiw+H3m16DV3TOC+HAyGamHpxwjtVRd1t0WRuRLDevxfMErHnFf5fk4kYTpe4lmwspVGcgS+qQej7n7+sDxPvmEQ2lTD5slplMAa791wwXWSphLuME3MgN7bTXgsqNO6hiSuFUZOZfpQzMm9ZRksG8v/E+Uz2YOAMCes=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=iGCtZCeI; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=GIt9iBY4; arc=none smtp.client-ip=80.241.56.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1775591500; c=relaxed/simple;
+	bh=wkJaa1V5imfoX3g+eLH6u6RILerj7s1gC85sLBO5f70=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=poBAEX1wP8XLAJm4ZS8dC+jtQBeezuNR8gQK4XEFi1aMzlih1RMP0CSbUBJXudGon88dhKh8V9FC7xORDCNJQF58reg5tg9BrAqZKPW4StkuruXEACef0gnojx7FmNIXnSLGmzMHqgtJ86NMzOmC7lvYyMdAUqja8znWQDulnm0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ACoNBpPy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="iGCtZCeI";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="GIt9iBY4"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4fqxbS4p3vz9tSp;
-	Tue,  7 Apr 2026 21:49:08 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1775591348;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=rrrin/VRVilJCoqnNHdLFJcLFCETk2bCfvvfa6UW5X4=;
-	b=iGCtZCeIuwoNJPFmJMNCCzH0cr675iTyeLYWveqdJmrOlkBYXUjgoHKhlR0Xu2Lz+H3vIO
-	RsrbEbVx7lY+fuRpPD4XVNkEYqCEHQSlt3AIpmkE0A3OPYJNo+diegpyGTUgTaWVskY8HL
-	iAXJFwMRuH07prXBm1jv4SIaHR7N+C9AvDxqXtISiQOkFm2j80N9Pjq1Q3zn6rxTnZFza6
-	FkVFftKAkzYg7nHvzUZ5nmB9d/bA0SavSUXpJR4wh+n4tULSmJbDIoa42IGnqcWXU6hXpp
-	oHJyclqrDTbn3yDU3aRq0HC8x+J7eSqJS94QI+nEzG3tTp9ZR/ZX/oYrjbYcDg==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=GIt9iBY4;
-	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1775591347;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=rrrin/VRVilJCoqnNHdLFJcLFCETk2bCfvvfa6UW5X4=;
-	b=GIt9iBY4AEjvoUzy5F8WMoYsb+K6/hW2IPQayKXylqFl+vcA1+zYsPqZ9t/qehRk0Uaep4
-	f9KvrSutvnl517v4euXgyf2xEuQqR3ZlnFzGksoczRU6ewoOnbXrneVgoo91mwE3cSq0Sl
-	jcgJiLzp3NSRA3bf5KUn3IUA/JT34dZ/v7vX/GIT1ibT0PNPU85cQne9os3IaS2CuHV7Lq
-	fOt9jQvDZA814ghGT03Jw6D1laqCsPlCfBCFLEZIkRbJt7yOj/0lga2uVeV2rzVfbBd96r
-	ZOLCFz0WBOrSVu6nm8bNCE+EnjOEKVADZgof0wi3LXpBguZYl4ERZMfv+4qqVw==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Rosalie Wanders <rosalie@mailbox.org>,
-	Sanjay Govind <sanjay.govind9@gmail.com>,
-	Brenton Simpson <appsforartists@google.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: sony: add support for more instruments
-Date: Tue,  7 Apr 2026 21:46:36 +0200
-Message-ID: <20260407194636.9671-2-rosalie@mailbox.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ACoNBpPy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C261C116C6;
+	Tue,  7 Apr 2026 19:51:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775591499;
+	bh=wkJaa1V5imfoX3g+eLH6u6RILerj7s1gC85sLBO5f70=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=ACoNBpPyg4GhTe7JZgsiCgbXjp0BmfyIeEhRtUpBZCTlP7FiGIHi6P7XZrHS4bqiz
+	 hVd91KzLvNFk/qSjRGxAemkE+Afo1nQMkMKc68QGgk9x6pKf9jYdMje+P0yAYq4QGG
+	 xsQUL/z2ADclvh1NQZOVBygfUYr27ogh6uyKQGDyH2C/ocNAS79+TBJQ193Ex1sqLP
+	 zRkOh1Yd8nZj4vb3MP31OCwRV45CBifFTplEYCGOhx3Ouv+XOy0QhDue13YViZSHxZ
+	 U9KgML9coqTtH+lM4W8DSuUi0dm84cMLm8GEHAkNU4MVYho92Dd/9Z1uOhEuoPOO6H
+	 qJdauKh0STq0w==
+Date: Tue, 7 Apr 2026 14:51:38 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Vojtech Pavlik <vojtech@ucw.cz>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	"Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: Re: [RFC PATCH 3/5] Input: pc110pad - remove driver
+Message-ID: <20260407195138.GA251078@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: a1mfx8k5nd4dx58fsy7cjbi3x561zap9
-X-MBO-RS-ID: 9e0216b620e89cbddfb
-X-Rspamd-Queue-Id: 4fqxbS4p3vz9tSp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240808172733.1194442-4-dmitry.torokhov@gmail.com>
 
-This patch adds support for the following instruments:
+[+cc Maciej]
 
-* Rock Band 1/2/3 Wii/PS3 instruments
-* Rock Band 3 PS3 Pro instruments
-* DJ Hero Turntable
+On Thu, Aug 08, 2024 at 10:27:29AM -0700, Dmitry Torokhov wrote:
+> Palm Top PC 110 is a handheld personal computer with 80486SX CPU that
+> was released exclusively in Japan in September 1995.
+> 
+> While the kernel still supports 486 CPU it is highly unlikely that
+> anyone is using this device with the latest kernel.
+> 
+> Remove the driver.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Wii and PS3 instruments are the same besides the vendor and product ID.
+I applied this patch only to remove pc110pad to pci/enumeration for
+v7.1, since "x86/cpu: Remove M486/M486SX/ELAN support" has been queued
+for v7.1:
+https://lore.kernel.org/all/20251214084710.3606385-2-mingo@kernel.org/
 
-This patch also fixes the mappings for the existing Guitar Hero
-instruments.
+I put this in the PCI tree because pc110pad was the only user of
+no_pci_devices(), which we can now remove as well.
 
-Co-developed-by: Sanjay Govind <sanjay.govind9@gmail.com>
-Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
-Co-developed-by: Brenton Simpson <appsforartists@google.com>
-Signed-off-by: Brenton Simpson <appsforartists@google.com>
-Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
----
-changes:
-v2: correct squier device name and remove non-existent squier usb device
-
- drivers/hid/hid-ids.h  |  26 +++-
- drivers/hid/hid-sony.c | 274 ++++++++++++++++++++++++++++++++++-------
- 2 files changed, 253 insertions(+), 47 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3e299a30dcde..3dab8b910831 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -664,6 +664,18 @@
- #define USB_DEVICE_ID_UGCI_FLYING	0x0020
- #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
- 
-+#define USB_VENDOR_ID_HARMONIX		0x1bad
-+#define USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR	0x0004
-+#define USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR	0x3010
-+#define USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS	    0x0005
-+#define USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS	    0x3110
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE	0x3138
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR	0x3430
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE	0x3438
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIER_MODE	0x3538
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD	        0x3330
-+#define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE	0x3338
-+
- #define USB_VENDOR_ID_HP		0x03f0
- #define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A		0x464a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
-@@ -1298,8 +1310,18 @@
- #define USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER	0x1000
- 
- #define USB_VENDOR_ID_SONY_RHYTHM	0x12ba
--#define USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE	0x074b
--#define USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE	0x0100
-+#define USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE	0x074b
-+#define USB_DEVICE_ID_SONY_PS3_GH_GUITAR	0x0100
-+#define USB_DEVICE_ID_SONY_PS3_GH_DRUMS		0x0120
-+#define USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE	0x0140
-+#define USB_DEVICE_ID_SONY_PS3_RB_GUITAR	0x0200
-+#define USB_DEVICE_ID_SONY_PS3_RB_DRUMS		0x0210
-+#define USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE	0x0218
-+#define USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR	0x2430
-+#define USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE	0x2438
-+#define USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIER_MODE	0x2538
-+#define USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD	        0x2330
-+#define USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE	0x2338
- 
- #define USB_VENDOR_ID_SINO_LITE			0x1345
- #define USB_DEVICE_ID_SINO_LITE_CONTROLLER	0x3008
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index a89af14e4acc..a14e730318ce 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- /*
-- *  HID driver for Sony / PS2 / PS3 / PS4 BD devices.
-+ *  HID driver for Sony / PS2 / PS3 / PS4 / PS5 BD devices.
-  *
-  *  Copyright (c) 1999 Andreas Gal
-  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-@@ -12,9 +12,10 @@
-  *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
-  *  Copyright (c) 2018 Todd Kelner
-  *  Copyright (c) 2020-2021 Pascal Giard <pascal.giard@etsmtl.ca>
-- *  Copyright (c) 2020 Sanjay Govind <sanjay.govind9@gmail.com>
-+ *  Copyright (c) 2020-2026 Sanjay Govind <sanjay.govind9@gmail.com>
-  *  Copyright (c) 2021 Daniel Nguyen <daniel.nguyen.1@ens.etsmtl.ca>
-  *  Copyright (c) 2026 Rosalie Wanders <rosalie@mailbox.org>
-+ *  Copyright (c) 2026 Brenton Simpson <appsforartists@google.com>
-  */
- 
- /*
-@@ -59,12 +60,15 @@
- #define NSG_MR5U_REMOTE_BT        BIT(11)
- #define NSG_MR7U_REMOTE_BT        BIT(12)
- #define SHANWAN_GAMEPAD           BIT(13)
--#define GH_GUITAR_CONTROLLER      BIT(14)
--#define GHL_GUITAR_PS3WIIU        BIT(15)
--#define GHL_GUITAR_PS4            BIT(16)
--#define RB4_GUITAR_PS4_USB        BIT(17)
--#define RB4_GUITAR_PS4_BT         BIT(18)
--#define RB4_GUITAR_PS5            BIT(19)
-+#define INSTRUMENT                BIT(14)
-+#define GH_GUITAR_TILT            BIT(15)
-+#define GHL_GUITAR_PS3WIIU        BIT(16)
-+#define GHL_GUITAR_PS4            BIT(17)
-+#define RB4_GUITAR_PS4_USB        BIT(18)
-+#define RB4_GUITAR_PS4_BT         BIT(19)
-+#define RB4_GUITAR_PS5            BIT(20)
-+#define RB3_PS3_PRO_INSTRUMENT    BIT(21)
-+#define PS3_DJH_TURNTABLE		  BIT(22)
- 
- #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
- #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
-@@ -87,6 +91,10 @@
- #define GHL_GUITAR_POKE_INTERVAL 8 /* In seconds */
- #define GUITAR_TILT_USAGE 44
- 
-+#define TURNTABLE_EFFECTS_KNOB_USAGE 44
-+#define TURNTABLE_PLATTER_BUTTONS_USAGE 45
-+#define TURNTABLE_CROSS_FADER_USAGE 46
-+
- /* Magic data taken from GHLtarUtility:
-  * https://github.com/ghlre/GHLtarUtility/blob/master/PS3Guitar.cs
-  * Note: The Wii U and PS3 dongles happen to share the same!
-@@ -102,6 +110,13 @@ static const char ghl_ps4_magic_data[] = {
- 	0x30, 0x02, 0x08, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00
- };
- 
-+/* Rock Band 3 PS3 Pro Instruments require sending a report
-+ * once an instrument is connected to its dongle.
-+ * We need to retry sending these reports,
-+ * but to avoid doing this too often we delay the retries
-+ */
-+#define RB3_PRO_INSTRUMENT_POKE_RETRY_INTERVAL 8 /* In seconds */
-+
- /* PS/3 Motion controller */
- static const u8 motion_rdesc[] = {
- 	0x05, 0x01,         /*  Usage Page (Desktop),               */
-@@ -427,20 +442,25 @@ static const unsigned int rb4_absmap[] = {
- 	[0x31] = ABS_Y,
- };
- 
--static const unsigned int rb4_keymap[] = {
--	[0x1] = BTN_WEST, /* Square */
--	[0x2] = BTN_SOUTH, /* Cross */
--	[0x3] = BTN_EAST, /* Circle */
--	[0x4] = BTN_NORTH, /* Triangle */
--	[0x5] = BTN_TL, /* L1 */
--	[0x6] = BTN_TR, /* R1 */
--	[0x7] = BTN_TL2, /* L2 */
--	[0x8] = BTN_TR2, /* R2 */
--	[0x9] = BTN_SELECT, /* Share */
--	[0xa] = BTN_START, /* Options */
--	[0xb] = BTN_THUMBL, /* L3 */
--	[0xc] = BTN_THUMBR, /* R3 */
--	[0xd] = BTN_MODE, /* PS */
-+static const unsigned int ps3_turntable_absmap[] = {
-+	[0x32] = ABS_X,
-+	[0x35] = ABS_Y,
-+};
-+
-+static const unsigned int instrument_keymap[] = {
-+	[0x1] = BTN_WEST,
-+	[0x2] = BTN_SOUTH,
-+	[0x3] = BTN_EAST,
-+	[0x4] = BTN_NORTH,
-+	[0x5] = BTN_TL,
-+	[0x6] = BTN_TR,
-+	[0x7] = BTN_TL2,
-+	[0x8] = BTN_TR2,
-+	[0x9] = BTN_SELECT,
-+	[0xa] = BTN_START,
-+	[0xb] = BTN_THUMBL,
-+	[0xc] = BTN_THUMBR,
-+	[0xd] = BTN_MODE,
- };
- 
- static enum power_supply_property sony_battery_props[] = {
-@@ -490,6 +510,7 @@ struct motion_output_report_02 {
- #define SIXAXIS_REPORT_0xF2_SIZE 17
- #define SIXAXIS_REPORT_0xF5_SIZE 8
- #define MOTION_REPORT_0x02_SIZE 49
-+#define PRO_INSTRUMENT_0x00_SIZE 8
- 
- #define SENSOR_SUFFIX " Motion Sensors"
- #define TOUCHPAD_SUFFIX " Touchpad"
-@@ -539,6 +560,9 @@ struct sony_sc {
- 	/* GH Live */
- 	struct urb *ghl_urb;
- 	struct timer_list ghl_poke_timer;
-+
-+	/* Rock Band 3 Pro Instruments */
-+	unsigned long rb3_pro_poke_jiffies;
- };
- 
- static void sony_set_leds(struct sony_sc *sc);
-@@ -610,35 +634,108 @@ static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev,
- 	return 0;
- }
- 
--static int gh_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-+
-+
-+/*
-+ * Sending HID_REQ_SET_REPORT enables the full report. Without this
-+ * Rock Band 3 Pro instruments only report navigation events
-+ */
-+static int rb3_pro_instrument_enable_full_report(struct sony_sc *sc)
-+{
-+	struct hid_device *hdev = sc->hdev;
-+	static const u8 report[] = { 0x00, 0xE9, 0x00, 0x89, 0x1B,
-+								 0x00, 0x00, 0x00, 0x02, 0x00,
-+								 0x00, 0x00, 0x00, 0x00, 0x00,
-+								 0x00, 0x00, 0x00, 0x00, 0x00,
-+								 0x00, 0x00, 0x80, 0x00, 0x00,
-+								 0x00, 0x00, 0x89, 0x00, 0x00,
-+								 0x00, 0x00, 0x00, 0xE9, 0x01,
-+								 0x00, 0x00, 0x00, 0x00, 0x00,
-+								 0x00 };
-+	u8 *buf;
-+	int ret;
-+
-+	buf = kmemdup(report, sizeof(report), GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(report),
-+				  HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	kfree(buf);
-+
-+	return ret;
-+}
-+
-+static int djh_turntable_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			  struct hid_field *field, struct hid_usage *usage,
- 			  unsigned long **bit, int *max)
- {
- 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
- 		unsigned int abs = usage->hid & HID_USAGE;
- 
--		if (abs == GUITAR_TILT_USAGE) {
-+		if (abs == TURNTABLE_CROSS_FADER_USAGE) {
-+			hid_map_usage_clear(hi, usage, bit, max, EV_ABS, ABS_RX);
-+			return 1;
-+		} else if (abs == TURNTABLE_EFFECTS_KNOB_USAGE) {
- 			hid_map_usage_clear(hi, usage, bit, max, EV_ABS, ABS_RY);
- 			return 1;
-+		} else if (abs == TURNTABLE_PLATTER_BUTTONS_USAGE) {
-+			hid_map_usage_clear(hi, usage, bit, max, EV_ABS, ABS_RZ);
-+			return 1;
- 		}
-+	} else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
-+		unsigned int abs = usage->hid & HID_USAGE;
-+
-+		if (abs >= ARRAY_SIZE(ps3_turntable_absmap))
-+			return -1;
-+
-+		abs = ps3_turntable_absmap[abs];
-+
-+		hid_map_usage_clear(hi, usage, bit, max, EV_ABS, abs);
-+		return 1;
- 	}
- 	return 0;
- }
- 
--static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-+static int instrument_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			  struct hid_field *field, struct hid_usage *usage,
- 			  unsigned long **bit, int *max)
- {
- 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
- 		unsigned int key = usage->hid & HID_USAGE;
- 
--		if (key >= ARRAY_SIZE(rb4_keymap))
-+		if (key >= ARRAY_SIZE(instrument_keymap))
- 			return 0;
- 
--		key = rb4_keymap[key];
-+		key = instrument_keymap[key];
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, key);
- 		return 1;
--	} else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
-+	}
-+
-+	return 0;
-+}
-+
-+static int gh_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			  struct hid_field *field, struct hid_usage *usage,
-+			  unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
-+		unsigned int abs = usage->hid & HID_USAGE;
-+
-+		if (abs == GUITAR_TILT_USAGE) {
-+			hid_map_usage_clear(hi, usage, bit, max, EV_ABS, ABS_RY);
-+			return 1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int rb4_guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			  struct hid_field *field, struct hid_usage *usage,
-+			  unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
- 		unsigned int abs = usage->hid & HID_USAGE;
- 
- 		/* Let the HID parser deal with the HAT. */
-@@ -1052,6 +1149,18 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		return 1;
- 	}
- 
-+	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
-+	 * sending full reports, and 0x02 when only sending navigation.
-+	 */
-+	if ((sc->quirks & RB3_PS3_PRO_INSTRUMENT) && rd[24] == 0x02) {
-+		/* Only attempt to enable report every 8 seconds */
-+		if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
-+			sc->rb3_pro_poke_jiffies = jiffies +
-+				(RB3_PRO_INSTRUMENT_POKE_RETRY_INTERVAL * HZ);
-+			rb3_pro_instrument_enable_full_report(sc);
-+		}
-+	}
-+
- 	if (sc->defer_initialization) {
- 		sc->defer_initialization = 0;
- 		sony_schedule_work(sc, SONY_WORKER_STATE);
-@@ -1065,6 +1174,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			unsigned long **bit, int *max)
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
-+	int ret;
- 
- 	if (sc->quirks & BUZZ_CONTROLLER) {
- 		unsigned int key = usage->hid & HID_USAGE;
-@@ -1098,9 +1208,19 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & SIXAXIS_CONTROLLER)
- 		return sixaxis_mapping(hdev, hi, field, usage, bit, max);
- 
--	if (sc->quirks & GH_GUITAR_CONTROLLER)
-+	/* INSTRUMENT quirk is used as a base mapping for instruments */
-+	if (sc->quirks & INSTRUMENT) {
-+		ret = instrument_mapping(hdev, hi, field, usage, bit, max);
-+		if (ret != 0)
-+			return ret;
-+	}
-+
-+	if (sc->quirks & GH_GUITAR_TILT)
- 		return gh_guitar_mapping(hdev, hi, field, usage, bit, max);
- 
-+	if (sc->quirks & PS3_DJH_TURNTABLE)
-+		return djh_turntable_mapping(hdev, hi, field, usage, bit, max);
-+
- 	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
- 		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
- 
-@@ -2060,6 +2180,19 @@ static int sony_input_configured(struct hid_device *hdev,
- 		}
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
-+	} else if (sc->quirks & RB3_PS3_PRO_INSTRUMENT) {
-+		/*
-+		 * Rock Band 3 PS3 Pro Instruments also do not handle HID Output
-+		 * Reports on the interrupt EP like they should, so we need to force
-+		 * HID output reports to use HID_REQ_SET_REPORT on the Control EP.
-+		 *
-+		 * There is also another issue about HID Output Reports via USB,
-+		 * these instruments do not want the report_id as part of the data
-+		 * packet, so we have to discard buf[0] when sending the actual
-+		 * control message, even for numbered reports.
-+		 */
-+		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
-+		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
-@@ -2227,6 +2360,10 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err;
- 	}
- 
-+	if (sc->quirks & RB3_PS3_PRO_INSTRUMENT) {
-+		sc->rb3_pro_poke_jiffies = 0;
-+	}
-+
- 	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
- 		if (!hid_is_usb(hdev)) {
- 			ret = -EINVAL;
-@@ -2364,35 +2501,82 @@ static const struct hid_device_id sony_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
- 		.driver_data = NSG_MR7U_REMOTE_BT },
- 	/* Guitar Hero Live PS3 and Wii U guitar dongles */
--	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE),
--		.driver_data = GHL_GUITAR_PS3WIIU | GH_GUITAR_CONTROLLER },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE),
-+		.driver_data = GHL_GUITAR_PS3WIIU | GH_GUITAR_TILT | INSTRUMENT },
- 	/* Guitar Hero PC Guitar Dongle */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_GUITAR_DONGLE),
--		.driver_data = GH_GUITAR_CONTROLLER },
--	/* Guitar Hero PS3 World Tour Guitar Dongle */
--	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE),
--		.driver_data = GH_GUITAR_CONTROLLER },
-+		.driver_data = GH_GUITAR_TILT | INSTRUMENT },
-+	/* Guitar Hero PS3 Guitar Dongle */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR),
-+		.driver_data = GH_GUITAR_TILT | INSTRUMENT },
-+	/* Guitar Hero PS3 Drum Dongle */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS),
-+		.driver_data = INSTRUMENT },
-+	/* DJ Hero PS3 Guitar Dongle */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE),
-+		.driver_data = PS3_DJH_TURNTABLE | INSTRUMENT },
- 	/* Guitar Hero Live PS4 guitar dongles */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_REDOCTANE, USB_DEVICE_ID_REDOCTANE_PS4_GHLIVE_DONGLE),
--		.driver_data = GHL_GUITAR_PS4 | GH_GUITAR_CONTROLLER },
-+		.driver_data = GHL_GUITAR_PS4 | GH_GUITAR_TILT | INSTRUMENT },
-+	/* Rock Band 1 Wii instruments */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS),
-+		.driver_data = INSTRUMENT },
-+	/* Rock Band 2 Wii instruments */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS),
-+		.driver_data = INSTRUMENT },
-+	/* Rock Band 3 Wii instruments */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIER_MODE),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE),
-+		.driver_data = INSTRUMENT },
-+	/* Rock Band 3 PS3 instruments */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS),
-+		.driver_data = INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE),
-+		.driver_data = INSTRUMENT },
-+	/* Rock Band 3 PS3 Pro instruments */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR),
-+		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE),
-+		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIER_MODE),
-+		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD),
-+		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE),
-+		.driver_data = INSTRUMENT | RB3_PS3_PRO_INSTRUMENT },
- 	/* Rock Band 4 PS4 guitars */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_RIFFMASTER),
--		.driver_data = RB4_GUITAR_PS4_USB },
-+		.driver_data = RB4_GUITAR_PS4_USB | INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG),
--		.driver_data = RB4_GUITAR_PS4_USB },
-+		.driver_data = RB4_GUITAR_PS4_USB | INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS4_GIBSON_SG_DONGLE),
--		.driver_data = RB4_GUITAR_PS4_USB },
-+		.driver_data = RB4_GUITAR_PS4_USB | INSTRUMENT },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_JAGUAR),
--		.driver_data = RB4_GUITAR_PS4_BT },
-+		.driver_data = RB4_GUITAR_PS4_BT | INSTRUMENT },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_PS4_STRATOCASTER),
--		.driver_data = RB4_GUITAR_PS4_BT },
-+		.driver_data = RB4_GUITAR_PS4_BT | INSTRUMENT },
- 	/* Rock Band 4 PS5 guitars */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS5_RIFFMASTER),
--		.driver_data = RB4_GUITAR_PS5 },
-+		.driver_data = RB4_GUITAR_PS5 | INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG),
--		.driver_data = RB4_GUITAR_PS5 },
-+		.driver_data = RB4_GUITAR_PS5 | INSTRUMENT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CRKD, USB_DEVICE_ID_CRKD_PS5_GIBSON_SG_DONGLE),
--		.driver_data = RB4_GUITAR_PS5 },
-+		.driver_data = RB4_GUITAR_PS5 | INSTRUMENT },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sony_devices);
-@@ -2428,5 +2612,5 @@ static void __exit sony_exit(void)
- module_init(sony_init);
- module_exit(sony_exit);
- 
--MODULE_DESCRIPTION("HID driver for Sony / PS2 / PS3 / PS4 BD devices");
-+MODULE_DESCRIPTION("HID driver for Sony / PS2 / PS3 / PS4 / PS5 BD devices");
- MODULE_LICENSE("GPL");
--- 
-2.53.0
-
+> ---
+>  drivers/input/mouse/Kconfig    |  10 ---
+>  drivers/input/mouse/Makefile   |   1 -
+>  drivers/input/mouse/pc110pad.c | 160 ---------------------------------
+>  3 files changed, 171 deletions(-)
+>  delete mode 100644 drivers/input/mouse/pc110pad.c
+> 
+> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+> index f660e6ba24c2..7b7053c57588 100644
+> --- a/drivers/input/mouse/Kconfig
+> +++ b/drivers/input/mouse/Kconfig
+> @@ -312,16 +312,6 @@ config MOUSE_ELAN_I2C_SMBUS
+>  
+>  	   If unsure, say Y.
+>  
+> -config MOUSE_PC110PAD
+> -	tristate "IBM PC110 touchpad"
+> -	depends on ISA
+> -	help
+> -	  Say Y if you have the IBM PC-110 micro-notebook and want its
+> -	  touchpad supported.
+> -
+> -	  To compile this driver as a module, choose M here: the
+> -	  module will be called pc110pad.
+> -
+>  config MOUSE_AMIGA
+>  	tristate "Amiga mouse"
+>  	depends on AMIGA
+> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+> index e745b64fed49..4f9fb7d87a37 100644
+> --- a/drivers/input/mouse/Makefile
+> +++ b/drivers/input/mouse/Makefile
+> @@ -13,7 +13,6 @@ obj-$(CONFIG_MOUSE_CYAPA)		+= cyapatp.o
+>  obj-$(CONFIG_MOUSE_ELAN_I2C)		+= elan_i2c.o
+>  obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
+>  obj-$(CONFIG_MOUSE_MAPLE)		+= maplemouse.o
+> -obj-$(CONFIG_MOUSE_PC110PAD)		+= pc110pad.o
+>  obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
+>  obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
+>  obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
+> diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
+> deleted file mode 100644
+> index efa58049f746..000000000000
+> --- a/drivers/input/mouse/pc110pad.c
+> +++ /dev/null
+> @@ -1,160 +0,0 @@
+> -// SPDX-License-Identifier: GPL-2.0-or-later
+> -/*
+> - *  Copyright (c) 2000-2001 Vojtech Pavlik
+> - *
+> - *  Based on the work of:
+> - *	Alan Cox	Robin O'Leary
+> - */
+> -
+> -/*
+> - * IBM PC110 touchpad driver for Linux
+> - */
+> -
+> -#include <linux/module.h>
+> -#include <linux/kernel.h>
+> -#include <linux/errno.h>
+> -#include <linux/ioport.h>
+> -#include <linux/input.h>
+> -#include <linux/init.h>
+> -#include <linux/interrupt.h>
+> -#include <linux/pci.h>
+> -#include <linux/delay.h>
+> -
+> -#include <asm/io.h>
+> -#include <asm/irq.h>
+> -
+> -MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+> -MODULE_DESCRIPTION("IBM PC110 touchpad driver");
+> -MODULE_LICENSE("GPL");
+> -
+> -#define PC110PAD_OFF	0x30
+> -#define PC110PAD_ON	0x38
+> -
+> -static int pc110pad_irq = 10;
+> -static int pc110pad_io = 0x15e0;
+> -
+> -static struct input_dev *pc110pad_dev;
+> -static int pc110pad_data[3];
+> -static int pc110pad_count;
+> -
+> -static irqreturn_t pc110pad_interrupt(int irq, void *ptr)
+> -{
+> -	int value     = inb_p(pc110pad_io);
+> -	int handshake = inb_p(pc110pad_io + 2);
+> -
+> -	outb(handshake |  1, pc110pad_io + 2);
+> -	udelay(2);
+> -	outb(handshake & ~1, pc110pad_io + 2);
+> -	udelay(2);
+> -	inb_p(0x64);
+> -
+> -	pc110pad_data[pc110pad_count++] = value;
+> -
+> -	if (pc110pad_count < 3)
+> -		return IRQ_HANDLED;
+> -
+> -	input_report_key(pc110pad_dev, BTN_TOUCH,
+> -		pc110pad_data[0] & 0x01);
+> -	input_report_abs(pc110pad_dev, ABS_X,
+> -		pc110pad_data[1] | ((pc110pad_data[0] << 3) & 0x80) | ((pc110pad_data[0] << 1) & 0x100));
+> -	input_report_abs(pc110pad_dev, ABS_Y,
+> -		pc110pad_data[2] | ((pc110pad_data[0] << 4) & 0x80));
+> -	input_sync(pc110pad_dev);
+> -
+> -	pc110pad_count = 0;
+> -	return IRQ_HANDLED;
+> -}
+> -
+> -static void pc110pad_close(struct input_dev *dev)
+> -{
+> -	outb(PC110PAD_OFF, pc110pad_io + 2);
+> -}
+> -
+> -static int pc110pad_open(struct input_dev *dev)
+> -{
+> -	pc110pad_interrupt(0, NULL);
+> -	pc110pad_interrupt(0, NULL);
+> -	pc110pad_interrupt(0, NULL);
+> -	outb(PC110PAD_ON, pc110pad_io + 2);
+> -	pc110pad_count = 0;
+> -
+> -	return 0;
+> -}
+> -
+> -/*
+> - * We try to avoid enabling the hardware if it's not
+> - * there, but we don't know how to test. But we do know
+> - * that the PC110 is not a PCI system. So if we find any
+> - * PCI devices in the machine, we don't have a PC110.
+> - */
+> -static int __init pc110pad_init(void)
+> -{
+> -	int err;
+> -
+> -	if (!no_pci_devices())
+> -		return -ENODEV;
+> -
+> -	if (!request_region(pc110pad_io, 4, "pc110pad")) {
+> -		printk(KERN_ERR "pc110pad: I/O area %#x-%#x in use.\n",
+> -				pc110pad_io, pc110pad_io + 4);
+> -		return -EBUSY;
+> -	}
+> -
+> -	outb(PC110PAD_OFF, pc110pad_io + 2);
+> -
+> -	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL)) {
+> -		printk(KERN_ERR "pc110pad: Unable to get irq %d.\n", pc110pad_irq);
+> -		err = -EBUSY;
+> -		goto err_release_region;
+> -	}
+> -
+> -	pc110pad_dev = input_allocate_device();
+> -	if (!pc110pad_dev) {
+> -		printk(KERN_ERR "pc110pad: Not enough memory.\n");
+> -		err = -ENOMEM;
+> -		goto err_free_irq;
+> -	}
+> -
+> -	pc110pad_dev->name = "IBM PC110 TouchPad";
+> -	pc110pad_dev->phys = "isa15e0/input0";
+> -	pc110pad_dev->id.bustype = BUS_ISA;
+> -	pc110pad_dev->id.vendor = 0x0003;
+> -	pc110pad_dev->id.product = 0x0001;
+> -	pc110pad_dev->id.version = 0x0100;
+> -
+> -	pc110pad_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> -	pc110pad_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
+> -	pc110pad_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> -
+> -	input_abs_set_max(pc110pad_dev, ABS_X, 0x1ff);
+> -	input_abs_set_max(pc110pad_dev, ABS_Y, 0x0ff);
+> -
+> -	pc110pad_dev->open = pc110pad_open;
+> -	pc110pad_dev->close = pc110pad_close;
+> -
+> -	err = input_register_device(pc110pad_dev);
+> -	if (err)
+> -		goto err_free_dev;
+> -
+> -	return 0;
+> -
+> - err_free_dev:
+> -	input_free_device(pc110pad_dev);
+> - err_free_irq:
+> -	free_irq(pc110pad_irq, NULL);
+> - err_release_region:
+> -	release_region(pc110pad_io, 4);
+> -
+> -	return err;
+> -}
+> -
+> -static void __exit pc110pad_exit(void)
+> -{
+> -	outb(PC110PAD_OFF, pc110pad_io + 2);
+> -	free_irq(pc110pad_irq, NULL);
+> -	input_unregister_device(pc110pad_dev);
+> -	release_region(pc110pad_io, 4);
+> -}
+> -
+> -module_init(pc110pad_init);
+> -module_exit(pc110pad_exit);
+> -- 
+> 2.46.0.76.ge559c4bf1a-goog
+> 

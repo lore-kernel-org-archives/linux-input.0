@@ -1,115 +1,115 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDC23271450
-	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 05:19:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775539151; cv=none; b=PQyOmbMORxwduTUjWnJFAAjOzQGpxQQpG2/JgSey41RU/Fd9aeBnEgwlNnzdF9/RXEBy/95p25WaW1Mz9G2u+6MrmZSxFXQhE/OYj+ZaAfcpnMqFCZVdIxwoUntGl3InLdteNrpXUQp2AsoqiZeVNux6fU8nx/eNoIkS8PKyYKI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775539151; c=relaxed/simple;
-	bh=BIleVtqMchT8Tl8GbjBxQORlC1W+9SAKfnuSUEn7qaY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CSxNbY6EI97z2LQZrOTWi7sWs1I8lEL6XpDtH2FkzxN0v7mPMvx5A0x3HyvAEA/IuUjMhf8c25Fn7SfdF/nWsl7Ac37yXz6RL8aS64bale3Wf9kDPfd119LyvwOzV6/6SayrnsFdw/ukzoLP+v4slGkV/V15jEjxZi1mwXOw6SU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FnCe4h8A; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F17A3890ED
+	for <linux-input@vger.kernel.org>; Tue,  7 Apr 2026 06:36:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775543803; cv=pass; b=oqHjIlUFD8oKsHOoXqZUEa5wgAtkL0dG1qDs0lWKObQShrwImzmht5ss72YWQoN/Jv1EMXu7H98m1jrpu1vo9wvJbiXNP9NgJu9aH4lcfeZttKGEc7RB6Ptg4BQqBbFwwwQn8/hYb1sC+y5usbkNBGlLsVKzjAErNzvEKOokJHg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775543803; c=relaxed/simple;
+	bh=0KTV1piEa67h9fbXdHytFQysMdXw0NexIEM8lAxKmHA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DKuwfGtHBJVu58DRJG2KJlUIBrtteZvFiYuZ57rZewn1NxhZA+R8fcfhMu4sO9x0eI2rOFMsisxbBXTwY5T5u20mgZ/HfdqF+DhdQdmfsd2icdtA5ZYyItCzQTiEUwj0zFLnsQ+j+cw3kjSykRloYtrX7bI5UazXotMe3Y6+EfA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pjtxcCQU; arc=pass smtp.client-ip=209.85.208.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FnCe4h8A"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2ce22328930so3846753eec.0
-        for <linux-input@vger.kernel.org>; Mon, 06 Apr 2026 22:19:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pjtxcCQU"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-38e0aa4221fso9879761fa.2
+        for <linux-input@vger.kernel.org>; Mon, 06 Apr 2026 23:36:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775543800; cv=none;
+        d=google.com; s=arc-20240605;
+        b=cGgGiPKaRAB/yQCvRnvom+M2HjN99wi1rq731p4tt3Dz/r0V3rwKlzzhQfUqeZfOl1
+         xKhKl8bqeLqvq/pK+chVk8mByCwOeCl6QIBN/+i2t1cnf7sAIn6m0lBJNlVORWGZNu+Q
+         KDpZAcns2X1fogOu664G59vXkzAjJLvk6i8y3JA+qtfxI8xbIwD3Qu2Ldcd75TI2BBAX
+         MqJ8zJ6UdrWyXC2au6rVPQoYWBMY+zmmD6QiFgw5svxGYdKTzCWjApHDkFybW5LKN8Vf
+         mAAs545byCEyFmBBHK2XvP3HXZzZAC10Sm6C3HEExGUFYlGL6+NFQ7mSri5RdBWXwJWR
+         fwHg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=0KTV1piEa67h9fbXdHytFQysMdXw0NexIEM8lAxKmHA=;
+        fh=W0ONg5d/Igb9IujJdyLQt4jDshvpFFmYJUloX2vSx/o=;
+        b=f4MTwLHuesCbqPGZaRoG5IZ3fNonQJVR6BiZtGEl1T80URrrBpDtkRLtMOVw/9/iKh
+         TCFVB5v9+TqYrVnzVs1uhDbsItQvBezOD/a6QFL7m/jSd3cnAoH5YVcJUkk1nM1Nck6n
+         AQDIOvWgqIlRY/iSLB9Jh2mmL3Vfhu5RQQpnnfOYx9jC2StkV0JbPKPKTxUAC355VxkL
+         t20heYJ7kgFEYuQ5Mhxi6mcRzFYebQvPhOvB/W9BtB1o+zLGBcV+9UELPVSdmXovkp29
+         /NlF91PQnso5c3mWjYINRvWFuGlxMtIKh4c+fqYdRyvQ9J0SPrjb1hIRNZomtPg67ArS
+         FTmQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775539149; x=1776143949; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=aJPRef6pu2ylG0bboh+7Z2QxwB192DESyzZ2pn62zC0=;
-        b=FnCe4h8AxfC0PsPdZnwVmKxQrpAti8vZ0oKMph8Ziu9GULaBexYT8JgnrgdfPbZKBA
-         RyePj0UkvJgiw7Tmys6liHWQG+zBkIPPXHieDacxcChkHkaJXj2SckuPfuHGlonu022H
-         TUA9eNY6ZUnif4zcShj89jz8aAhmYn/+/mM1YDdZWxLWtlAmAwc8peDYTP3L7mJUn6VZ
-         TIE6irgBOv+CtoB87A+TYAU0A+3p4wHbOc+nXYlOiwlyhWoIHmSQtjGwhnRwH/mGlEuu
-         1f0yYcQFbf8oBGxnDm4HvgDwp1UpvwQnUall6tmzasUkQ9YF+o5JsgPpnRR8GdZ1hnPZ
-         dBqQ==
+        d=gmail.com; s=20251104; t=1775543800; x=1776148600; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0KTV1piEa67h9fbXdHytFQysMdXw0NexIEM8lAxKmHA=;
+        b=pjtxcCQUqqMaVGwZwpZjxCFZCIMz6YtykBF1r9MUH0scHuLTnm0F/T3aIGzfZM8ORE
+         LxcacKgnC4/pY0Jm0ui8EGga1EruhqWiDoFBWd0CJhad7VqNKtK+k9TXHF85HcDm5/MA
+         5BkjDZ5BvD2tpxh8X0yr1USA/GlYm9Lcr+Adek6+MXnzV/P6IOxjZUooGNRNvrpPsQJD
+         Y4X4uJApeftOGyCQDxxA4rs4kLpaNcD0PSFuJmuSTyAsVSnGs6LRRzay7ST4piVCWk0Y
+         HFQzq0bthaR7gPbndPIbNNoxFJ/+dB5cHH4DXnbcqDCKtQcfjhB4jVvNlEPLAQWEhAHu
+         Mvkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775539149; x=1776143949;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aJPRef6pu2ylG0bboh+7Z2QxwB192DESyzZ2pn62zC0=;
-        b=AHKPiRwDSBSIlp91tmSd9JqX1UZNYFVrW79TcIbxevAww7Y/9MnhEYAAhM4So+kZG+
-         TCOONB5KcjAgs8FkhysvwSks2rqmDO/+QE+ZhERcD76V2BXKQlQypwaZhd83ewqXl5yE
-         +g/Vu/EnIZDsZVAq6OYLoN44VGMsCaRb7wHo3JYvFDRFOYiFcB9N1by16XuSEn4RA1Cf
-         3fpWQuh91m3/O2PA8jb4Hr65L1RdDtUh2ap7zyDMiBNC2M3vSwRCpK4TV5Sl3iYtzAPF
-         gcIkUAXn/SFXO9b5Ogi3ycDVLp46cA3iiwBE/1eS6tcdri8dN0RfMsniSWdXtBZ/9f9I
-         H/iA==
-X-Gm-Message-State: AOJu0YyvDCWUs+Z+y+HnPdEjZVth8zQroVAC3srH30B/cpjGpkWzNIJ2
-	IW0QJZ24wMPzV/2gcQrasIpYR67ucB/jiMHBVZoBgxKbGxK9+HGK9C5c
-X-Gm-Gg: AeBDies/o2iiVwKtr5CbP/OSsnOyXbBRGpaUZYjfLDZ6xzbdH+g4SHWad9eX2f9hleK
-	HyymTHmwElFqhNjrccOV2q+YbDbr/w7LlbPIWU9CB2hS3EZYHiCNkumFTjzKT/uOhcBpyoMom4T
-	JBUAAjiIZ2O1Xujb7+WMk2Eam5GQXlgVeMa8Ezt3f5sr/0l/mCVXotJ9NVBwa0uXMl2lWjU1KiU
-	GMrr3nJqPLp7mBHAcXw17fYtO5vQ3HAi9rddBKoqxHkZ04hyr8V/mNp+db7vkNQvdDZ3lDtB6m+
-	aO1VT9JdGPO5vsB8iBBHFC5qY54+htCJ1QkRfegdN3RJaCaP/uW4tXKwq9exxaphUBUFf19Lp39
-	NvQO9PlGJb6zXkA+IhYE7hKlYONFhdvg+x/Bbo9JtLtUzgZLCix5d7fIyg+Gq1DQw6if65vFKdV
-	b5ovi5FkJApXfDpKu2hq8JRKyItcxpduIYOgnsewON13ryp6kwRqW1dfSmKPfJSszB
-X-Received: by 2002:a05:693c:3005:b0:2c5:60d0:7031 with SMTP id 5a478bee46e88-2cbf97f57d8mr8312335eec.4.1775539148835;
-        Mon, 06 Apr 2026 22:19:08 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:dd71:7176:b4e4:a7a5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2d16d115c00sm1766354eec.12.2026.04.06.22.19.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2026 22:19:08 -0700 (PDT)
-Date: Mon, 6 Apr 2026 22:19:05 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: uinput - fix circular locking dependency with
- ff-core
-Message-ID: <adSSoVZBLs8b6I0J@google.com>
-References: <20260228223628.472208-1-mikhail.v.gavrilov@gmail.com>
- <acCpW6McaPOE0Jq5@google.com>
- <CABXGCsOwJu2dw67bR38MJb5DFvGon=MUCxKcGEQYfT6qrPZU1w@mail.gmail.com>
- <acDPeFpxX57Uu0Mm@google.com>
- <CABXGCsNwLTAKFdRDHnGBdF-h3fnKY0_ysQJevMTv-N7+MNwS1A@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1775543800; x=1776148600;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=0KTV1piEa67h9fbXdHytFQysMdXw0NexIEM8lAxKmHA=;
+        b=CB8nVQd897s/dVmDJq7NVp4JtIia2ttEbc1aDOZXHvH0X7zytqI+el1lbxe94EH3Es
+         GByXMUEoWyPKVPXe7TfQ2B1SwrAymgeb0yAszbmR+yCwbbTFie6gnD/FpyIfQy0EcSre
+         OH2PAPLMkb1rX6jVV8U6pwW083Hx5aYtFmAiA6Rc/Kv9lf1RkGcnksNoRdRMA0EtB3SS
+         yT7/Ye6p5STR6St/fA7h88YHTV0xqHSBrM56ng/0ybCGbCZCzB+plr6aj2Xg+1Lf5JYD
+         9hh3BNhKOC39HcaW2Vn5gWpwFIsb5I8kOZkndIntzav8LbcN5RkaFEu6DgaA3vV00dk9
+         XAjg==
+X-Forwarded-Encrypted: i=1; AJvYcCU0KKlODW4cSJoZXyJZCx/MU1rN5t+TasqDgvXEBXvm6aP6c515C5/PcDEDqfJNXTiB/CM8iw21/LginA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyj/zmThgTKzr6ZvuPTrB1hWe4HL9tFN8ixNySYKLpgz+rNKv2G
+	HPAbEt6QM8AxAUWOfpxKYK48+Uxn0cAzln4QCcZGJF6j1KIDUXWSBa9arEnvB5841Qtfl6HsUyV
+	P3fVtAQAj+ZqJ0IrWTmNpgL1WdMCoMHc=
+X-Gm-Gg: AeBDieum0SfI0AmEU/bTRaC8suhmcZ5LxBIoxmN1FGOHuh+HPaTLhMlbnWZrArlaM5j
+	Y7p21xv/Vc/9AorYjqCTxUj9ujQ6bhXJ4QC9OCVbebBvVyP0QnYCUgcHwExs2nUCah/MtgZ58m6
+	zsACUKywYBsuw3Ah1R84pERv775tzg937JjF2892HlicWi8TaiBfIcjUfptQ2JXJrANGwkTsnlw
+	k8jB+wfKyb0WMnrw/95PD/QNCpxlo5T71Y39s9Q3Xm4GyftUBErYnDIbd02sORkJydhO3GMYjrZ
+	fCokGIzhunJiv832w0M+Qfwv8oKb9YzkLf5PSI6rrFDlVRUhWbdaFmDP/DMZ08Dv1nfIafA4BtY
+	BONbecFScKJo=
+X-Received: by 2002:a05:6512:3096:b0:5a2:c6f2:c217 with SMTP id
+ 2adb3069b0e04-5a337558230mr4951342e87.14.1775543800007; Mon, 06 Apr 2026
+ 23:36:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CABXGCsNwLTAKFdRDHnGBdF-h3fnKY0_ysQJevMTv-N7+MNwS1A@mail.gmail.com>
+References: <20260404083928.489966-3-sanjay.govind9@gmail.com> <adSJp5U47g1JnImj@google.com>
+In-Reply-To: <adSJp5U47g1JnImj@google.com>
+From: Sanjay Govind <sanjay.govind9@gmail.com>
+Date: Tue, 7 Apr 2026 18:36:28 +1200
+X-Gm-Features: AQROBzDnKG9Vz7PSqTwsNBT9y413jgZH5hEGjacFPHk-FidaRHO09dS_JJlXocI
+Message-ID: <CALQgdA0oYzWqFtyG2eZKgwKr-QLYz5dLbsFbpY8qDrpxK7vj8Q@mail.gmail.com>
+Subject: Re: [PATCH v2] xpad: Overhaul device data for wireless devices
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vicki Pfau <vi@endrift.com>, Nilton Perim Neto <niltonperimneto@gmail.com>, 
+	Mario Limonciello <mario.limonciello@amd.com>, Antheas Kapenekakis <lkml@antheas.dev>, 
+	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Sorry for disappearing again...
+On Tue, Apr 7, 2026 at 4:46=E2=80=AFPM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> When will it be set to 1?
+The link report itself sets it to 1 in some cases, but i think i will
+just change this so that if we get a link report and the vid =3D=3D 1, we
+set wireless_vid to 0, so we can rely on it being a non zero value
+instead
 
-On Mon, Mar 23, 2026 at 10:39:29AM +0500, Mikhail Gavrilov wrote:
-> On Mon, Mar 23, 2026 at 10:34 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > Hmm, I am not sure I see the issue. We are not going to change state
-> > back to UIST_CREATED until after uinput_destroy_device() returns so we
-> > will not submit more requests...
-> >
-> > What am I missing?
-> 
-> You are right, there is no lock ordering issue since the state
-> transition is one-way.
-> 
-> The reason I reused requests_lock is that uinput_request_send()
-> needs to atomically check state and access udev->dev. If we use a
-> separate state_lock and release it before calling
-> uinput_dev_event(), uinput_destroy_device() could run in between,
-> unregister the device, and we'd hit a use-after-free on udev->dev.
-> 
-> A separate lock would need to be held across the same scope,
-> making it functionally equivalent to reusing requests_lock.
+> Maybe this should be disable_delayed_work() instead...
+For simplicity I'll just get rid of that, and we can just always wait
+for it to expire instead of trying to shortcut it if we get the
+capabilities report faster than 500ms.
 
-I was talking about taking this new lock in both uinput_request_send()
-as well as in uinput_destroy_device() when updating the state. With that
-requests_lock will be taken only in uinput_request_alloc_id(),
-uinput_request_release_slot(), and uinput_flush_requests().
-
-Thanks.
-
--- 
-Dmitry
+> Can this also read stale data for the same reason if the packet is too sh=
+ort?
+I'll add in length checks.

@@ -1,119 +1,102 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12FB3D3D06
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 17:23:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8449F2494F0;
+	Wed,  8 Apr 2026 17:34:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775669020; cv=none; b=XHo+snc8W2ZXfaO7YEIRpWidvIcVuNGCrPVWPnDbH/pBJeORQ3+S7KJVtiodmKUia4QC6grwGYV4qXupv28iD0mm8LNaLDQVLXwWxk9bJEGyyLsa61tJ2jeXMBtShG0WHONZ8UQzF7nRXlLBqSrHBHhgdfpMvbwmtlRK4tO8OOg=
+	t=1775669673; cv=none; b=hzWxeB4QWESztnxXZwtH2sdFGffqvzwmIUoRpjhLWbldwwNnFNwJtba6RDOq0VFLTL+mjqHt6XQn3wPyfautIQ6EF6srANLrD2ZPNx5DpJ5TyTB4Q91kCuTTsSWsDPoZxgnVvhjKRAYPp5A9rcp3/wohBX2HaR7cxexxtPOmBxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775669020; c=relaxed/simple;
-	bh=RTbLhkhaBejIuEkJARpEiuDCP8K6mIalCvZyNgaquTU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Q6x6kUsRYYvKewu2wKXj8dU5HLVyl8b3CMiyKvscgPNnmDSTjp7aSjwal+alnGh0v0lOyfRFk8Bmnm6cJ/ZMtGO4Ym7FR0WJiqstdazOLZP6TdbpKGbCHKsuQw+ihoUJ87SdBFcqCg37cdotHn7ILw7zpipB8y4cop9f0mTYqec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dXHdzfgv; arc=none smtp.client-ip=209.85.215.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775669673; c=relaxed/simple;
+	bh=JzKGMSO1Qx98W099lIY3XmzWJxWoll9867PldA76mjU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Yld3Ed1liG/Ieb9RfutSqCAWl4GMOmEMI5Yvn7IeMlxoBnyhbWBF+4gQE8687CU3NPb5zuB/gRIlHL1CeqUJRe8N5DTbbRCBbS1eXkAqpQnzp19/hXvVYgNPm1fD3R/XNPyh8pjQ/yJtLA5o20Eim2W/G7F8LrMVNTW/pksh+Eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JTpD6i1d; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dXHdzfgv"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c70ea5e9e9dso90714a12.1
-        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 10:23:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775669019; x=1776273819; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=AT6B8NYC432IDQyByzB2HxtyFZqyMNPP7ngONKK/AVk=;
-        b=dXHdzfgvrlHLa02Kn68DBHsI73kEpxJIVaVCZKHr7PBuoksYqErOimj+QPPkoaJg5w
-         vR0ZDaHHGGtVA61JH3woq3UsdFVEf+j474//Q90f501V6YcGBedekGssMcqk5AEosOlE
-         aLbKCD5ud5hZzhmggyr/HcwT9Ln/XqFySSHyuP+RgBNBw+inSlZzSY9ln+5ja4awzlYK
-         lpmYfpacDGPs0IDbF+YHq8TIpa4C0h/khEwOLX6F/V5/3rWq9+RQikVY/iVEDRyVk0l8
-         lYTedRgUxZJwcyvaZLuilszKGisjauXzCRvkPtY/TrRH5YZ+K80W8hxNlgTrp6cMmKoK
-         jAdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775669019; x=1776273819;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AT6B8NYC432IDQyByzB2HxtyFZqyMNPP7ngONKK/AVk=;
-        b=asm+0wvmz6hBxQVgc8KICItwzNFqztt1h25M1A/dnIHN+COwmK043hu4ho5ftszlts
-         DLHNrt7Fc1Frkq6UyW7TEQdHJkR4k20pe6RU8vTg+VA1I8bZLT7dLDtWHX2+gaaOeyHp
-         ThN3gbApA4HJbKfCnqYdNpjrkMOcMMwPfBl8VG+b+oDh+wnewIuWP2uAkh0aEdAQuXx7
-         ek66vr+d8L/eN4p8vVMAWnXsRxCAsrW+ruO8bodHcUxtHwT2x++DV0iqp8AcBoKNj0EN
-         QRdMeG+AbphrnSf7g/+I6XAsi7K1E2ykxbbvH53ymz9LgI7VyvWQdiCxoAqTpi7PSUGF
-         hQgA==
-X-Forwarded-Encrypted: i=1; AJvYcCVTglKOpAJNOWFwrEqpbKke9zSaGgUDuSJ3tZqF91BeeOqlk8jPCBNErmB4hEGMtoVvtAPrHfJ/qOb5mg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0VjRnnw/V0g3073w+xIkj6O+KIAIQM7hmxgWmqhe/Rh0e4AS6
-	3SJ1pUiOjPM37wTbPf2A4Ls4afiuuZb7B61mXMeiLI96ustK++9vvWQYQvAehw==
-X-Gm-Gg: AeBDiesWGZ7PISDEDluIk/GpP26X7em4DGZeoIu7zbqwQjVZuQoo/vAe3ouBu2IazQg
-	7S0LtgVSvdQ2lC9luj1FPGOcP2UAXETS33XlU2RKWSMzn7oQYoJbxhcmF+aG84mInRBIpelE9tx
-	0gVg9q6K83wlsv2q5RpiTPkipYMOc+u5Sj5jRH7/xWQuLDnmZ4V/kAq2WZDl109t3mUVfZVujE1
-	NYNAXIVZrt4etIe2x+uYB69r/TjZKr5bNQL7ZLO+Tu/1TqHBM4pUvXuUBWYCgbICv7sBF6hWZnq
-	kcFdogCcuRq2l1MT56E5/iX6iK5pi+34HSm6volw3yLYwaJmt0D6IRLSwxzzRK/hEh5frobF1x8
-	YN7aQf1x3es8U7PwzQWZDI2Xgf/Ey9ZAwfOeAdhM27g22is4BcsGT+uppkWCZ0HJnsG9HEXmN9d
-	myisIXsGZjZaGNyvchwAmQ2QLMujtk9sfIUeX8XvZxDfrW0EiJdAozwS+drYNsYOy5
-X-Received: by 2002:a05:7022:fe09:b0:11b:f056:a19b with SMTP id a92af1059eb24-12c28bf9ee0mr191421c88.18.1775669018691;
-        Wed, 08 Apr 2026 10:23:38 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:f3cf:7538:b120:7924])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bede545e8sm19029716c88.11.2026.04.08.10.23.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2026 10:23:38 -0700 (PDT)
-Date: Wed, 8 Apr 2026 10:23:35 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Antheas Kapenekakis <lkml@antheas.dev>, 
-	Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Sanjay Govind <sanjay.govind9@gmail.com>, Vicki Pfau <vi@endrift.com>, 
-	Nilton Perim Neto <niltonperimneto@gmail.com>, Mario Limonciello <mario.limonciello@amd.com>, 
-	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] xpad: Overhaul device data for wireless devices
-Message-ID: <adaOmEQNXXPhxmmx@google.com>
-References: <20260404083928.489966-3-sanjay.govind9@gmail.com>
- <adSJp5U47g1JnImj@google.com>
- <CALQgdA0oYzWqFtyG2eZKgwKr-QLYz5dLbsFbpY8qDrpxK7vj8Q@mail.gmail.com>
- <CALQgdA0UpJb7Lztkts3LrFtWrAP3V3CivFv3NKJDFg1VY_q_0A@mail.gmail.com>
- <adXe452989A6k2PJ@google.com>
- <CALQgdA04mczQoJ4HyjSwgeXMHwLT+Rv0AEoArpwBohzL9oa1nw@mail.gmail.com>
- <CAGwozwEoFWG-sQAbT8zxqEg8Q=+=xULj-a9y7yoEqu3ehZtSUw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JTpD6i1d"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 326E5C19421;
+	Wed,  8 Apr 2026 17:34:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775669673;
+	bh=JzKGMSO1Qx98W099lIY3XmzWJxWoll9867PldA76mjU=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=JTpD6i1dFv1hzkJMCLmROA7toGOiYQ8KLSmTWWNO5OWmAGxM8fccIZnG2Fn73CSND
+	 +dqr3y174BYm75bfLiJdwu06weHxEDGV859Z5xB1nwS9epIeFzHameyDOLBfMe2GHU
+	 lc4qzepVqpd1AHLwlvCAl0cIO3qiVPykRByWIbYXqrjMR4vY1xlw3yv7ojhh+CNxPt
+	 oWrQXWBXBFTr7ZBstisbP9NvT7/U6Q3sHGOX6xTCQdTUTbwRi0nroX3thop1Hw08fg
+	 lBttZ1AAcMvWYh7gL85F6478lhiETdWtC5AtrcZDEJC88IIrIGZtzC25eFJMgnkPJH
+	 rD0plpab466yw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F3CA10F9963;
+	Wed,  8 Apr 2026 17:34:33 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Subject: [PATCH 0/2] Introduce OnePlus 6/6T touchscreen compatible
+Date: Wed, 08 Apr 2026 19:34:31 +0200
+Message-Id: <20260408-synaptics-rmi4-dt-v1-0-2d32bacce673@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGwozwEoFWG-sQAbT8zxqEg8Q=+=xULj-a9y7yoEqu3ehZtSUw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAKeR1mkC/x3MTQ5AMBBA4as0szZJi/i7ilhUO5iFko4IEXfXW
+ H6L9x4QikwCnXog0snCW0gwmQK32DATsk+GXOeVLnWDcge7H+wE48ol+gMbS+NUmLrV3kHq9kg
+ TX/+zH973A7nUXfhjAAAA
+X-Change-ID: 20260408-synaptics-rmi4-dt-8aebf31790dc
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
+ Vincent Huang <vincent.huang@tw.synaptics.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ phone-devel@vger.kernel.org, David Heidelberg <david@ixit.cz>, 
+ Krzysztof Kozlowski <krzk@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=766; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=JzKGMSO1Qx98W099lIY3XmzWJxWoll9867PldA76mjU=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1pGnAYMMzfmWVcCoSBFRXxcsIHcyzsFYYsnCw
+ LV/rmkIDtiJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadaRpwAKCRBgAj/E00kg
+ cmpSEACRduCxZQPGLcSjXukxyg+Is/ZozXUdsnX4cggpr/x5ZQRcu6UBppSw7dD/CtCepy4ieZ5
+ 3p33gqJs1q+bed23rLuPGo8aBqBZ1FzYaskzHqU8FSmGIHHDJK4jepK3QFbYG7s0QUK1yxhwNkB
+ WydDiRnL/HUhjnVoQjI6NcIHZd0lo+8cy4rTnw3ZE8cRP0qFS6HyGtHjVDiu2bfDeUtifX3o+Dp
+ qMMRMXs7rSec7ZwpkdH9ZICDCXql1y70IZ1b2Lm2zgDbKlWxsH1dyWw9CGJOAVoCW76LfJQ4VL3
+ X1KR1W/nBNea/Je09+qXRHjEh8rzDVJLwIwU6xzO7HTll62bT1ldHrKOglQjCWHdDr98BXwWGFN
+ eYu0/vlBcw2Rm7pEWBH/wTXKkzAiqB67gpDQW8VZ+DYXEOpkCXxQrdijSbBgzMU7ikVMdZXdG/E
+ lA8qO5ez1v96CVaz7ysgA74aDcaVk2yXe3EPYUOa1hD4hr48ckFJ2c5cRrKEAT4yZIT+apWIhW3
+ zBRylTDonCLUrAuV9b/hsIFA6s4GeQMnBhvXexaYJ0nFHrE0u9BvVl/O6XSGy1b1Llzx2/JIr2e
+ rYZDcjJMAS1Cf9ozQ9uLnzV2UuTeIV7CIJscLWSkNceZMxT6QSwC7ujsbCBXm1WZ7VWqLRPLeBe
+ 63DkU6NxRswBFrg==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
 
-On Wed, Apr 08, 2026 at 05:47:06PM +0200, Antheas Kapenekakis wrote:
-> On Wed, 8 Apr 2026 at 07:04, Sanjay Govind <sanjay.govind9@gmail.com> wrote:
-> >
-> > On Wed, Apr 8, 2026 at 4:52 PM Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > I think you'd have to spin up your own instance for that...
-> >
-> > makes sense
-> >
-> 
-> Hi Sanjay,
-> I have a workflow for running an llm and getting reviews locally.
-> Perhaps I will post it to the mailing list soon. I can cc you. I have
-> been out for the Easter holidays
-> 
-> Of course, you will need your own LLM and harness for that, Claude
-> code/Antigravity/Copilot/Opencode, etc. I know they aren't
-> particularly cheap.
-> 
-> Dmitry, sashiko looks great, I left a star. I could also cc you. I
-> will also reference the prompts used in that as it claims some
-> subsystem specific ones. From a quick glance it seems to might suffer
-> from context bloat though. There are a lot of guideline files that
-> could have higher information density.
+Mostly related to the
+  https://codeberg.org/sdm845/linux/commits/branch/b4/synaptics-rmi4
+series, but independent on other changes which I trying to upstream for
+more than one year.
 
-I am just a happy user of sashiko, I'll leave it to Roman to comment on
-the potential bloat concerns.
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+David Heidelberg (2):
+      dt-bindings: input: syna,rmi4: Document syna,rmi4-s3706b
+      arm64: dts: qcom: sdm845-oneplus: Update compatible to include model
 
-Thanks.
+ Documentation/devicetree/bindings/input/syna,rmi4.yaml | 11 ++++++++---
+ arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi    |  2 +-
+ 2 files changed, 9 insertions(+), 4 deletions(-)
+---
+base-commit: f3e6330d7fe42b204af05a2dbc68b379e0ad179e
+change-id: 20260408-synaptics-rmi4-dt-8aebf31790dc
 
+Best regards,
 -- 
-Dmitry
+David Heidelberg <david@ixit.cz>
+
+

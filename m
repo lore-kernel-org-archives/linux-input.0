@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538D737F75B
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 22:24:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369BB3A3838;
+	Wed,  8 Apr 2026 22:25:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775687085; cv=none; b=TKkrmX5WThUDleIcjhsvUznk/g+pp+ZcFEx7psdQJLraxHU9ttrrJXe/1viJzKN1cSE5O68QhkO9v7rHE6SyV+ElbaxfApzSHNtLxfGrea2JIOAbaERwtSYuvNA1iNEV2+FwQ7M3VokcnZlBChWoi+rPdTJKTvGTIomQXleNjJ8=
+	t=1775687143; cv=none; b=CFwdjvoLX0Z/l//5eDypyaa1zDe2vWszjt/PvbPIcJp43vy0OzuR2NJi1oXQDS2evUkiq8TSg0AHwnRmySkDVm2GRDlQgec0dDlaElwHg41dulgjv4gEJheN4xHIE9MSyREMSBV1kWy/6v+GVXBly/deVAkEas8Pvl/xS2/63nA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775687085; c=relaxed/simple;
-	bh=VMPTIugCSXhWJKcfPc2gio22OBCtYUfAHwdXEaKBGQE=;
+	s=arc-20240116; t=1775687143; c=relaxed/simple;
+	bh=hZt+wqMKpMBPgil4InK03dCInyT+1C7gGrlGgS0bASk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=OMH7yob+Nz3kCGHAKtKQnEF6Lp7AKNncbO42LmCRnvB87YxCIXa7oxLmlanLcCZAEFj3CSAOppFT89mkMk0Pzqd7HcaAlyD7zfcCT0XrNoNfBAHFTpHldHKp7eICigAswEPajr3B+pODtubEdbjwYOlSyyk5BbPhXcR2u04aDxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qJExUfDw; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=ktA+GF7ik786OKuEMjo39H5KsaH5DhR6gk/s+Cps/0mPt/WvCikLjgeW4ZmxtP2iWzFfqF+m487s7q0LqPnWXSTbigIy/0mk4wFOFNSguvsGEmDYzfwbIf506g4sRKQppvidpngqDVtYTim1BOqP7xEBC2Mj7sseHwHfo5nk9LM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O7k9ZqIC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qJExUfDw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45682C19421;
-	Wed,  8 Apr 2026 22:24:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O7k9ZqIC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 757E8C19421;
+	Wed,  8 Apr 2026 22:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775687084;
-	bh=VMPTIugCSXhWJKcfPc2gio22OBCtYUfAHwdXEaKBGQE=;
+	s=k20201202; t=1775687142;
+	bh=hZt+wqMKpMBPgil4InK03dCInyT+1C7gGrlGgS0bASk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=qJExUfDw8T5stmJIzrL5Degq07w9yg131Zp0yc6xx4aZ59sMs0DRvrqD1DiU/+r29
-	 gNLtaeZw+95D5GFpxHL4ywrDiUKSqGLzRG+hDQsV9mAoyGneStIgiHKT1uRlhGd8dl
-	 H+U0Hu2s7iFzlyUx+z5XVnYVZLEKZhTplxP3qLOE49A2hsRO0B5USI2Vb0peKWAUdH
-	 IYx8Sfcfi+I43ZxgpyyDixmrS/l7yYzRJ9kgeW2jQIh8r7k2Gz/E2iAmwcbYGLRzOx
-	 WMbOnfz8XKmk0AH6Lvr+yP32futDffNFxrGLeGqHw66N6mQ5uU73sSm+39RACj4Nni
-	 FsHhdg6tw46DA==
-Date: Thu, 9 Apr 2026 00:24:42 +0200 (CEST)
+	b=O7k9ZqICnefW+7lfJnL3r9CWZ9JfHBWRgjGMGQ+rMlcvXGO7v7fLUFShbSwswng58
+	 R+T/hzChxH11F/+Xq9Jb2Sp3/ToPouu/2PmD52/UQub3QvgsuISTp9B2YwvwGy6Ulu
+	 LX5dMCpqR1YgnBfIgTd5s+0/4Ubk3B3YHgbkOQTVbUH/Ea7hgWX+alQKm+vDXY4+nl
+	 jJdtKcr5ps5KNK1nb+5EBTjOhnx2MEPHH3zPWfMXdbktDThLo9UIhvPHzHndfGRU5t
+	 vK9rQqpZjyJeG0EpLwYg9XMplrKc0KhUF5Lnrgg93DdRnKBWN014KB9187I+qtI3Dt
+	 +k/nUMUuhmlAw==
+Date: Thu, 9 Apr 2026 00:25:40 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: deqrocks <andre@negmaster.com>
-cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: Re: [PATCH 0/3] HID: apple: reinitialize T2 HID devices after
- resume
-In-Reply-To: <20260403130620.91999-1-andre@negmaster.com>
-Message-ID: <3n79q9p1-9n3r-4o52-r04p-9405160671q6@xreary.bet>
-References: <20260403130620.91999-1-andre@negmaster.com>
+To: utzcoz <utzcoz@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: apple: Add Niz keyboard dongle to non-apple keyboards
+ list
+In-Reply-To: <20260403161806.31908-1-utzcoz@gmail.com>
+Message-ID: <0rqo1ors-45s9-n22r-6qss-2q3q96n5r6rr@xreary.bet>
+References: <20260403161806.31908-1-utzcoz@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,15 +44,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 3 Apr 2026, deqrocks wrote:
+On Sat, 4 Apr 2026, utzcoz wrote:
 
-> This series improves suspend and resume handling for Apple T2 based Macs.
+> Niz X99 uses a 2.4GHz wireless dongle (Milsky LL Dongle) that
+> reports Apple's vendor and product IDs (05ac:0220), causing
+> hid-apple to apply Apple function key translation. Since the
+> dongle has no Apple Fn key, F1-F12 become unreachable when fnmode
+> defaults to media-first behavior.
 > 
-> On affected systems, Apple T2 HID-backed devices can disappear across suspend and resume and come back with freshly enumerated interfaces. Reusing the pre-suspend device state leaves parts of the stack non-functional after resume, especially keyboard backlight and Touch Bar related devices.
+> Add the Milsky LL Dongle to the non_apple_keyboards list so that
+> fnmode=3 (auto) correctly resolves to fnmode=2, making F1-F12 work
+> as standard function keys.
 > 
-> This series adds the required Apple T2 HID identifiers, wires up PM handling for the relevant Apple HID path, and reworks teardown and reprobe handling so stale state is discarded and devices are initialized again after resume.
-> 
-> Tested on: MacBookAir9,1, MacBookPro15,1, MacBookPro16,1, MacBookPro16,2, MacBookPro16,4
+> Signed-off-by: utzcoz <utzcoz@gmail.com>
 
 Thanks a lot for the patches.
 
@@ -61,10 +66,10 @@ being fine, but stil ... would you mind submitting this under some more
 comprehensible authorship? (anonymous submissions are still not allowed, 
 BTW).
 
-deqrocks doesn't really sound too well established identity to me, 
+utzcoz doesn't really sound too well established identity to me, 
 unfortunately ... if it is, I'd be happy to stay corrected.
 
-Thanks a lot,
+Thanks again,
 
 -- 
 Jiri Kosina

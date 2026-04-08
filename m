@@ -1,91 +1,139 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D23D534678C
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 16:08:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9A6839F19E
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 16:29:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775664482; cv=none; b=bx5oFOA0AKC9w/S1TO0ke4+cbPjarEeiI23rV11AX2U35NuuEAq1OhZAhJ2Utm1ynomjTB/8EPu1tp/fixHhM11YfVvi2g41F48csZMU1pnCrWZNl/53TF78ewBJI5hWPF6enQr9msjKryT93E2/1OT6vZhtOFhgPysUa1kGOEc=
+	t=1775665741; cv=none; b=PNXLdHnMPYOyPfqthpcXxbwWpn0KmJT9zcuIKiddvJw++vYmOVGpI37J7NuehrbJfd8BX/ZoJHCR7HgYUsAUBATLfyShA16FeMIxntTPjmj6dY+X7rF2/fQbxRhAcIfWZzAL4q7d2E+B8J88x44g7i+YXAW3uLCMov6lqGSL/QI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775664482; c=relaxed/simple;
-	bh=MfborNBhbArbEBHQP4SuZyjfWstGTD3GEhTSMsnnQGk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OBqXlXBOovY+5z8orBVFU0UW+o+ezrSN/1vlpNbJ41IRZrQtgzX6uf7pjTq+xy30fKueGlJQ7dj+qpGNztce1hLP0neEdEpIk8lU9VU+0KFMQLkedmdVKo2tSp/N9x4Sqgo1Bx03+fJp7YyV1Y2nfh12pOHWuBYzn2uzZ6hvifc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gB4CBzcX; arc=none smtp.client-ip=209.85.210.174
+	s=arc-20240116; t=1775665741; c=relaxed/simple;
+	bh=dqxnVKxxEQqelt9ZmVN8qxxzJUpK6afsE76/17F3qdI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kTiCh1TweWz1nwhVR0g0Tt8g9m1H63BlzS5CoQJcGmMgL7WwLqTf6r2lbM4a1XwGplRiETkX/+WgK+NuYsCd6FJ4sK9m7IxjeuYt+up6i6eSV+ipuJ5uZ7exwu9RWH7bEITIlfoOrJJfAxvb4B7e0IHwund775/7ePdsEhR50uE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C4+DidSW; arc=none smtp.client-ip=209.85.215.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gB4CBzcX"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-82cebbdab08so4594156b3a.2
-        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 09:08:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C4+DidSW"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c742723c863so54703a12.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 09:29:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775664481; x=1776269281; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MfborNBhbArbEBHQP4SuZyjfWstGTD3GEhTSMsnnQGk=;
-        b=gB4CBzcXG3vAI1pPMeYg5Bf41CtLqvdIbTBaP+SV9/Z8UC83E4qYnFLxIhYKm9nvj7
-         A2LRL8x23ABqPjiI8ZYqBZ67g/ojAoFsw6fdzG1AB23NADCBD1nguIOd3mb6vvGDuzM1
-         aWSCeYXb2OxahBPqreAEm6Jn3NvECuVzMg6/kwlqu9ROO0WDmuANh4V5vogYL5FlevTT
-         fkZ+pZ+k1Zo4sATp5P+2yZ/7Y1suG8Y3kdK+folCXAIujNhA4BQSevx4KIJnPlphTolQ
-         Wjz6Saj+uVQ1fAdHcYogq1tgaOgik/eBPrXf6IHTa/uyTZN9KxXXDyZE9j/1jSzor/ui
-         wADg==
+        d=gmail.com; s=20251104; t=1775665740; x=1776270540; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KgdAcd0x/A2kXj/AwWy/WhMgCIhkhzimEAEUs1pmai4=;
+        b=C4+DidSWcPbBnUOJBypThREO+wQzK1mYAqrlRgk2DnlddbMoDeCM8jcBaVrCBpS9QZ
+         Z74HPAHujGRYQsH/6CeB7oL3Ss5CQIttLu9Zok5TYO/x9X+csGUQeskipwpJv4RzsRx0
+         FvT8b+awqQRRCF5VTD8kcbMPSj+oz+XyUfyQIg06hWs0UILJ7ZbKEYVpMoI7zyxrTNL3
+         OHC9rQaTE42iJS6JgwRad/WPx5lG9Fs/sY8TqH/JFpmM0fKaZVlrw7GUXmr6Qlf1nxNU
+         t29H+f8+ZVytOWobrXiPPLohxaEmp9CdRhr+7gXzBLIy8PJMkCUgpj2PXWqnYvMTEv/v
+         f8KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775664481; x=1776269281;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MfborNBhbArbEBHQP4SuZyjfWstGTD3GEhTSMsnnQGk=;
-        b=OlhoO4F2xy/0Y9L1ERne01UJxpXOpp1Aj886UPJ+SOfc+Sml0MMZz8bZJOWm7ZGui6
-         OL/K0sG7s5ywAwtX8T6IAxPkbNayazum0y4GOBir3QU9fIDzYC87aeLwqxlkRRykSEbb
-         bhOC0P/nnG2z4u9X8svV1Q3f5kB9UaiEC9KksezV6BbQx3V15tHIHdQrO/NCu5q8VgU4
-         EFNgJGHfDlAR9pucyJsEMLZToaGC2s7rf4+t0aXJhK6dZd04EV1skIiPpothxs6Cm/3D
-         TIEmn0nrQjO8BeSPY4UCr62sPnjohNihb3yW0N3odc9559UMfadcjffSuzHYjVCqm6sd
-         nSqA==
-X-Forwarded-Encrypted: i=1; AJvYcCXQYoenBin/tlNQyQIdplUCgezh2mDdZ7ewSwblJtCWYLyX9mCrD4vmqIuS7QjmsYun8TNdGJUmGuufvg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTtMcVnIuaWROp13kUI9TO/3+MQcJellT5a3F5ccX13TuTFRyE
-	AvUAIhX63+647UyW4SGNbkHicGZl8z6KkARCJ2YtnWHaczBHIjeN8Odh
-X-Gm-Gg: AeBDiet5BKOm6WF5jzxzbmw4ePmCOinA9tlACkLpCEKkNr3WdDt7lshS6ksuKxEKX4g
-	9DmwPA8RxSMJAKEj9wZECyR4aWnc+hSdsQltBBh3vPHlnK5gAyUpxr2uDoJY6vKVCpkIm4szOsi
-	+tiaymKzG9O/bbh8jJtWiuDL/r+jgI1MlRB4ez0d10Qb4ivZKlL5M5ZdbZJb3a6x+uHlkeqX2VG
-	VbuMRkysvhlVEhSO8LB+/84OfKnrNJZUc3xHJWNFTzBYf80W2S3YimL0U2oDhDa1yFnRcE8ihQJ
-	JiNaigD4hP61R6l/b3DkGfk7roFAeyIxGWx9ehPOy/eOMUZuQBrYp8MOwLJPPuwQ6pecmhPDGjY
-	oTB5lEzWZ073f9dJ6YMIe67j5I2matR+pAz6cOz40wJVzYJHMHE3po4egXWvRIe+pxdDzaO6X5v
-	LK0kc/1wJoa8HXAqYGZg6ThcEjBLeU2LEOso8E
-X-Received: by 2002:a05:6a00:951b:b0:82c:f45d:415e with SMTP id d2e1a72fcca58-82dd89937e9mr75389b3a.8.1775664481109;
-        Wed, 08 Apr 2026 09:08:01 -0700 (PDT)
-Received: from ITX.tail9b489a.ts.net ([103.142.140.151])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9b261absm25004779b3a.7.2026.04.08.09.07.58
+        d=1e100.net; s=20251104; t=1775665740; x=1776270540;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KgdAcd0x/A2kXj/AwWy/WhMgCIhkhzimEAEUs1pmai4=;
+        b=g8Nsg1jcYQRbQnGT+6gBL9sRbt/KEkRZ0ScZ5sEc/O1jJ3lOMIfod88ofNAWJZrXjC
+         Lfhefe0foblYjVpjYkwSUczrUZMgSR3L0qeCzYMpvgLy+eOTH6KhVP0AwPxWOWnB0Vop
+         iOMt7u8IldI1C08XXWBi+hjQWWRjev0nVeqpfR+RljuXqBVx3l2ZRlRTIvI0Y88cn4bo
+         ZCVKLb8mWzdN5VTQsLsITFIljGvROL26mfPER3TWfSBun2uXKnTKtGn5S5zC3BwzZvfY
+         xq5PEk8lNnTJ47zT0vHl6/Dp4tEyvx9lBaLUm4rilXoWbsI/DeTUXyPo8UP3kvkg9po3
+         9Abw==
+X-Forwarded-Encrypted: i=1; AJvYcCUrYBA+rpTU1X9Ts2KjIqgBnP8NLcOr/sjuI/KiHwF+dj9/vhQFghDb+kAl3Gr4uA1CfuuwJ5Fvp5DPlQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzAFZ9To3tw5ssZCmjMWUYTVf+4cRRXmWfjXuAbumxClqH+6byh
+	xPginpbhE3lWmVnfeHI/C32SGWm5G80HQYggpmO1YhBa//2gv9ppebkbBHKJqKx4
+X-Gm-Gg: AeBDieufRFJmIHK3Gnq8pygEsFvS4pYkNJ4B09MJxTgGF5Y91tZoIDmhzzSBWbeWeK0
+	Zq0f+YLdWQTaLlr/nsUk1zYOvlJbqgZjkRJgxCE9rPT9h9LRd/T9t7ubvUbqR1TCS8cMTJ/YMw7
+	tS5JX9t7+uzc2Mw3nB7xTNu+GVNWPx6KMALbxwSLn6bYOti0U/BA+uYjwwi/XTa7vhEloNIEsfK
+	NaZvMwnXKX6YE8wfiPF5xrvfRKlWnDxbe7Cx/VleVKS5HEIb794eEbKcPiMElavH/RwXswAPmif
+	DMom9JvGzPGSF502agx3qQnv6f6F2IllK2L4YHXz+wwzUMn1GwyWa8F3CODk207D8NtxsKWONWX
+	YfOfNKdQzLF9MFKTqiud0BDAPeeDv2D0X4NEW9mvyjoe7MFXqQfGpwzZcpv3OtszoWqPLiM7gSr
+	dI76BIGsFlMc/7sQ8ZqMGJkCL+ZVH4VZk1ZcGbk0YOHmORJMyx
+X-Received: by 2002:a05:6a21:6d96:b0:39c:187f:6f91 with SMTP id adf61e73a8af0-39f2ee01085mr24061670637.18.1775665739869;
+        Wed, 08 Apr 2026 09:28:59 -0700 (PDT)
+Received: from raizudeen.. ([45.251.33.107])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c76c65812f4sm19347716a12.25.2026.04.08.09.28.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2026 09:08:00 -0700 (PDT)
-From: Zhouwang Huang <honjow311@gmail.com>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	denis.benato@linux.dev,
+        Wed, 08 Apr 2026 09:28:59 -0700 (PDT)
+From: Mohamad Raizudeen <raizudeen.kerneldev@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: Mohamad Raizudeen <raizudeen.kerneldev@gmail.com>,
+	kees@kernel.org,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	honjow311@gmail.com
-Subject: Re: [PATCH] HID: core: add short report quirk and use it for GPD Win (2f24:0137)
-Date: Thu,  9 Apr 2026 00:07:55 +0800
-Message-ID: <20260408160755.21464-1-honjow311@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <adZ2PTzQ05iObcGt@beelink>
-References: <20260407173212.86942-1-honjow311@gmail.com> <adZ2PTzQ05iObcGt@beelink>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: serio - fix O(n^2) complexity in serio_unregister_driver()
+Date: Wed,  8 Apr 2026 21:58:47 +0530
+Message-ID: <20260408162849.4639-1-raizudeen.kerneldev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hi Benjamin,
+The current implementation restarts the scan from the beginning after
+each disconnection(goto start_over) because serio_disconnect_port() may
+delete the current list entry. This results in O(n^2) worst case
+behaviour.
 
-Thanks. Agreed, a core fix that checks the actual buffer size would be
-much cleaner than a per-device quirk.
+Replace with a two-phase approach:
 
-Happy to test when it's ready.
+	1.Collect only top-level ports bound to the driver(skip those whose parent is also bound to the same driver) into a
+	  temporary list.
 
-Thanks,
-Zhouwang
+	2.Process each collected port once, moving it back to serio_list first to maintain invariants expected by serio_destroy_port().
+
+This eliminates the restart loop, reduces complexity from O(n^2) to O(n)
+and avoids use-after-free by never collecting child ports separately.
+
+Signed-off-by: Mohamad Raizudeen <raizudeen.kerneldev@gmail.com>
+---
+ drivers/input/serio/serio.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 54dd26249b02..46b8faf1a46c 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -821,22 +821,27 @@ EXPORT_SYMBOL(__serio_register_driver);
+ 
+ void serio_unregister_driver(struct serio_driver *drv)
+ {
+-	struct serio *serio;
++	struct serio *serio, *next;
++	LIST_HEAD(disconnect_list);
++
+ 
+ 	guard(mutex)(&serio_mutex);
+ 
+ 	drv->manual_bind = true;	/* so serio_find_driver ignores it */
+ 	serio_remove_pending_events(drv);
+ 
+-start_over:
+-	list_for_each_entry(serio, &serio_list, node) {
+-		if (serio->drv == drv) {
+-			serio_disconnect_port(serio);
+-			serio_find_driver(serio);
+-			/* we could've deleted some ports, restart */
+-			goto start_over;
++	/*Collect all ports bound to this driver first*/
++	list_for_each_entry_safe(serio, next, &serio_list, node) {
++		if (serio->drv == drv && !(serio->parent && serio->parent->drv == drv)) {
++			list_move_tail(&serio->node, &disconnect_list);
+ 		}
+ 	}
++	
++	list_for_each_entry_safe(serio, next, &disconnect_list, node) {
++		list_move_tail(&serio->node, &serio_list);
++		serio_disconnect_port(serio);
++		serio_find_driver(serio);
++	}
+ 
+ 	driver_unregister(&drv->driver);
+ }
+-- 
+2.43.0
+

@@ -1,43 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2094536CDF8;
-	Wed,  8 Apr 2026 22:19:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538D737F75B
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 22:24:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775686800; cv=none; b=WbWk7AJwzvIRQdKBw+4zsuNWrRhGZFKw8Adovh0fXczyLbEK2OHoULWanR6nc1VToLjQsKQuAFB/+tl+OYR98muGN8W9jrfcCQpiRHfAkod7VyewmuhicPQWW5E6OHk35dviW7MbS8vU9qne2Y09w/xIFUzGSN3zy3CZ8uKUs4w=
+	t=1775687085; cv=none; b=TKkrmX5WThUDleIcjhsvUznk/g+pp+ZcFEx7psdQJLraxHU9ttrrJXe/1viJzKN1cSE5O68QhkO9v7rHE6SyV+ElbaxfApzSHNtLxfGrea2JIOAbaERwtSYuvNA1iNEV2+FwQ7M3VokcnZlBChWoi+rPdTJKTvGTIomQXleNjJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775686800; c=relaxed/simple;
-	bh=pDfc5qh29eGb4XdLO6xFraNPQ6Qug2f/jNfa5W4JIh8=;
+	s=arc-20240116; t=1775687085; c=relaxed/simple;
+	bh=VMPTIugCSXhWJKcfPc2gio22OBCtYUfAHwdXEaKBGQE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=cyI6ep8vTpsoflJ6qffhD6HikyKf9cKD8pXwrfHEvNOPvSBsE6KlGbzEA9+lpwWZwQj69Lg2iUCBnG4bw3Ta+QaRMJ66bB2YLz5D307yyTuMzxyGjUFD2uKp2KG7snI19NVee4mjB61plg9LjcrCUVyqq5hzbag8XByHCT/Y2jM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ewZwxZjh; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=OMH7yob+Nz3kCGHAKtKQnEF6Lp7AKNncbO42LmCRnvB87YxCIXa7oxLmlanLcCZAEFj3CSAOppFT89mkMk0Pzqd7HcaAlyD7zfcCT0XrNoNfBAHFTpHldHKp7eICigAswEPajr3B+pODtubEdbjwYOlSyyk5BbPhXcR2u04aDxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qJExUfDw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ewZwxZjh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62123C19421;
-	Wed,  8 Apr 2026 22:19:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qJExUfDw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45682C19421;
+	Wed,  8 Apr 2026 22:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775686799;
-	bh=pDfc5qh29eGb4XdLO6xFraNPQ6Qug2f/jNfa5W4JIh8=;
+	s=k20201202; t=1775687084;
+	bh=VMPTIugCSXhWJKcfPc2gio22OBCtYUfAHwdXEaKBGQE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=ewZwxZjhZEaBq0NVI9NBgM/sf3ufH999kn7fjjxJzAH83osV9p95uqGsI2S66Tq79
-	 jEXA5lbCdlIdsVd3lRQ22nnU+u5yebW762maCuArvQblmput1vDbzI134uYYm25wiB
-	 eQntkzYk1qw+bnFoHKtQ9NAcb9j44qhK32O5oW9DYvSUZIdFWa6nCN1pMQ0/+IOSf3
-	 0l37j44JSY2+wYg7FjxVQXNXqduOJtV9oNBJc1gkKmsvxxLsyXxH7dbEU3rQdIYQgJ
-	 S6ApgtsbIVfjR4bVm6FY04R702MSWz4uOqaAAdV5eFdbZZxN7ObOPSityTkbcV0xt7
-	 rLIhkEnJROKbg==
-Date: Thu, 9 Apr 2026 00:19:57 +0200 (CEST)
+	b=qJExUfDw8T5stmJIzrL5Degq07w9yg131Zp0yc6xx4aZ59sMs0DRvrqD1DiU/+r29
+	 gNLtaeZw+95D5GFpxHL4ywrDiUKSqGLzRG+hDQsV9mAoyGneStIgiHKT1uRlhGd8dl
+	 H+U0Hu2s7iFzlyUx+z5XVnYVZLEKZhTplxP3qLOE49A2hsRO0B5USI2Vb0peKWAUdH
+	 IYx8Sfcfi+I43ZxgpyyDixmrS/l7yYzRJ9kgeW2jQIh8r7k2Gz/E2iAmwcbYGLRzOx
+	 WMbOnfz8XKmk0AH6Lvr+yP32futDffNFxrGLeGqHw66N6mQ5uU73sSm+39RACj4Nni
+	 FsHhdg6tw46DA==
+Date: Thu, 9 Apr 2026 00:24:42 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Rosalie <rosalie@mailbox.org>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    Sanjay Govind <sanjay.govind9@gmail.com>, 
-    Brenton Simpson <appsforartists@google.com>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: sony: add support for more instruments
-In-Reply-To: <cb0617fb-76b0-4241-8fba-982a5ffa4525@mailbox.org>
-Message-ID: <r803963p-778n-84p8-3046-s7118rr376pp@xreary.bet>
-References: <20260407194636.9671-2-rosalie@mailbox.org> <37nrpop7-rn05-pqo6-3951-171nr8nq441o@xreary.bet> <6893d7ea-f585-45fa-aa53-cd7a10fec34a@mailbox.org> <o488s484-r1os-6736-o800-7on55687757s@xreary.bet>
- <cb0617fb-76b0-4241-8fba-982a5ffa4525@mailbox.org>
+To: deqrocks <andre@negmaster.com>
+cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH 0/3] HID: apple: reinitialize T2 HID devices after
+ resume
+In-Reply-To: <20260403130620.91999-1-andre@negmaster.com>
+Message-ID: <3n79q9p1-9n3r-4o52-r04p-9405160671q6@xreary.bet>
+References: <20260403130620.91999-1-andre@negmaster.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,23 +43,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 9 Apr 2026, Rosalie wrote:
+On Fri, 3 Apr 2026, deqrocks wrote:
 
-> Yes I do apologize, and I'll be mindful of either doing a series, mark
-> dependencies clearly or do a pull request.
+> This series improves suspend and resume handling for Apple T2 based Macs.
 > 
-> I didn't expect to be sending this many patches at all in the first place, but
-> one minor annoyance of the code bothers me one day and then another day
-> someone else mentions that e.g a device name is incorrect, so that kinda led
-> to this chaos.
+> On affected systems, Apple T2 HID-backed devices can disappear across suspend and resume and come back with freshly enumerated interfaces. Reusing the pre-suspend device state leaves parts of the stack non-functional after resume, especially keyboard backlight and Touch Bar related devices.
 > 
-> Apologies and I'll try preventing it in the future, and thanks for the advice,
+> This series adds the required Apple T2 HID identifiers, wires up PM handling for the relevant Apple HID path, and reworks teardown and reprobe handling so stale state is discarded and devices are initialized again after resume.
+> 
+> Tested on: MacBookAir9,1, MacBookPro15,1, MacBookPro16,1, MacBookPro16,2, MacBookPro16,4
 
-No worries. I've just update hid.git#for-7.1/sony and I believe it's now 
-in proper state with all the patch dependencies correctly captured. If you 
-see any issue there, please let me know.
+Thanks a lot for the patches.
 
-Thanks,
+I know that the kernel documentation is now a little bit more liberal 
+about not having to use real names, but "well established identities" 
+being fine, but stil ... would you mind submitting this under some more 
+comprehensible authorship? (anonymous submissions are still not allowed, 
+BTW).
+
+deqrocks doesn't really sound too well established identity to me, 
+unfortunately ... if it is, I'd be happy to stay corrected.
+
+Thanks a lot,
 
 -- 
 Jiri Kosina

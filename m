@@ -1,99 +1,138 @@
 Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D65302459DD
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 04:52:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 954F22BAF7
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 04:56:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775623936; cv=none; b=PWdTeXkvMtwGn2AWxOF2DSKbb8rcV4cLkWNnUdcCpHTkgbtzqeFtVAbGvOWQajU2lbROqWbq3qPVa23j1N9Kxv5GepsSar0BmOIXm82hoQdkTIbS4MvPJ2b75kdXj4IVRDKHcQmVxeMoAaoOCzO+NFaZzGa/Lpr81SCtuRDN84c=
+	t=1775624216; cv=none; b=Uh+baCexoUVRiiiSeBg+QKxKoFh1FiR3C00rbZcHUjJHWRtOlF7dL4zQaNWHbS0MDlsmSXnarkStKTCEgvRf865HzKGth2usRDGzi9qZrkhd/cBocLpHHVdzCouLTLiM3iX7if6m9zv3XZDFG1S/YC5j/dsFxJP5Yf/aeJZYswI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775623936; c=relaxed/simple;
-	bh=hPt1M2a0e+3ZAXOzl5YwUYXekAQ0Z9YQj0Eq/wQrYvM=;
+	s=arc-20240116; t=1775624216; c=relaxed/simple;
+	bh=XEkNsmWLejJaEAa2btyI+2+LS9nihG6p+YzF1yRW+TQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oIB+eRwrRNVSA37FFaJDFywDyvqIMBxsZ4NdU5peBVWtnkqvZ4zXuxA8JZxJnQVD/PatDBQD8VbR8+RHmhq164f6wBFK7Igjf0M4X+YLTb6BoPwcxNL/WM5VOo/b2ZqWmnqE+ZTPi+zhWTrIF3geZ33CK8+CykY3TFXeJZOK1YE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QfzwKg7J; arc=none smtp.client-ip=74.125.82.41
+	 Content-Type:Content-Disposition:In-Reply-To; b=EXk04eNAn+sqp4+0TuJCGA6A1jxFfDpGctOMaZipRmB1Jakf6dEHzhU2TKJAQpnfs4cXTy+McOwYQ0voMCK6mK+EbMx/Qm3wsd9fOAJcCOwfclAowhJtRLAhiqyp6HRJT084OHN/VZcWWWSl5yi0SJL8r+3a/3UjY32v63+B+Sg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FWotXj7H; arc=none smtp.client-ip=74.125.82.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QfzwKg7J"
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-127380532eeso6076187c88.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 21:52:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FWotXj7H"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-12c0b72dac7so3520760c88.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 21:56:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775623933; x=1776228733; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=pDgChiZxCMmKoaDNFzAxAMKQ9VnLkJ2lK6MWhC8hRc8=;
-        b=QfzwKg7JOrz1voBmfbrvnpYR0qNdlV2+cutoKF6iQX9yxG9DWoaHKfsKkoVL4Mkheq
-         RjEzOWiP2cDjkRg6Nlg8hJe20vmSMTSqYaknzSREnzEzhpf4SL6M6SyUe8GbqPJQIY1J
-         /1Xh+TtkibW9UWdfYb3Trs9XTJR9sHCK2SqlldkR+hAFJJThHhaATUBFdGDhDh45ysao
-         0T5oikJGvJ6KtV/yf+BeA6cUo6cv8PPrqAz0Ov2FRQL9hUWPZqEg9LfeRYNITxlURpRm
-         0ZLGNw2FxF0IgGdCdv5BKHD7AWcFxpT/6gz0GaIuQn6VZCe1XgDroHHHIo4LG8lMRvWa
-         1+Ww==
+        d=gmail.com; s=20251104; t=1775624215; x=1776229015; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+jJXI3O21KfFgoB4qZzgO2BFty+d1rzq3Wn8c+oB3WA=;
+        b=FWotXj7HuNUUpOTdkd/qKRj0CfbTZDwXp2EzSNlvFHEAS8da3TCLr/rJI15COOTn6t
+         pzQXnvMYE09u2yaZkl//WhQmmY35cO8hJeL6xcGNcvnmQ18NK8RPsbm3kKiz38IM9b8k
+         +VHaU5UbYmkSGYJvIN5mYRGxJ/YQM6nN5jdVMlwgO7Bq6kz/Kef7kXCsqeOiyQe8u06F
+         5s4IMtPV5MFof4hA7i8GFd6jI3ZC6yEg/276WCQiQD6NYduAWT0ZT7zHi/++4x68v8U0
+         uAPeYbL/PZTNhtHsB0KrBBQbId2b+oApnPb98aqFmHS3wganPrLUHYkf9rcJ4QbqWM90
+         yh+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775623933; x=1776228733;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pDgChiZxCMmKoaDNFzAxAMKQ9VnLkJ2lK6MWhC8hRc8=;
-        b=XYhGssk+72d/2tdq8bHSVPGGPUqA6VZs0jzlU75sKN6shhFvSjOTFDhFHl/GlA8F7N
-         fRhd/VsgciiAyHrNN2gFz2W3O25h8TPxCaWAR8moHelYrffFhDYUnRzNKGAtslj1Nc5x
-         qFL3bNl9y7UnE3gBEZ81iswMQrG3UHjhRXsdXVOR/5NkFRKjyvutsZnBXPaTx7PZmG9G
-         DjiUVSr3ypgCRAqlpHZJpeYFIDl94IYdNA8SSlewuMMvgzarz70Rjsgtn59q14qMjBl+
-         +8m0+oBBubZMn3geMhLBp5bkA5foV8VQpzmVwtBxx77hlTB+5NYSknVvEDUMGjTADNkp
-         ojgw==
-X-Forwarded-Encrypted: i=1; AJvYcCVF3353EINwSafYH+BEqNIWZxU2NySSovl9o8uSQsu6EvAvjbp9jwuYhtRbTPdz4wvSCcxwkBPQmkRNWA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyiOIUKaS76na7IWYK7vnfXsXLfdrZJW8CrPBkiEptwQaMVq5Si
-	ztfXpLtFRFJRrehWv8dw96SVzhY7Z7hPCibQGRXXzvEh56csxeauXv1l
-X-Gm-Gg: AeBDiev6Oc1gx5f3slhMhEKcL364Jyft7dAJWVpZRkr7y0BE/KBJ5o+hNzi33BGFsLm
-	0ir1QTKkydo0axnv6wR7euEWWyeQ/CAHqsv4sOgQIDYf4A28c9FvTYEWy57m5Nq9weVIbvWPY7D
-	SsbPCRvp0eXBma12iv+epYGXDkmK/rneDUxyqlYodAtQubv2QQZ5MUEChy0a8c8pCp5LZqtwIW9
-	lUqdMVaKCFXdZmh7/2b3ZW1Hyn4jSvuA1GBKQS81xaUWYOGozVwW+hctBBRP4v2uNJqvOLmqKGD
-	YtvY1XgARwjaXmpeoy2WAPBvD/lC2/iUm/GFY8HwBHdzwJxw8wxEESeKefNyinaczG/XWmDxw+G
-	jADMPu7d0y0j9Qdv4hnTf5iRHPRllD/d1WqTuM5WKQPHdY6HuiedCAnnyM8k/bNYWj/ONyerrWy
-	HwyvYQKThv9RQTKuuTsEwacEZtrUkxeeCyY837z6UnNOTwfUaAfnPxjobP8rIE/S2J0tBeEt1zM
-	5Y=
-X-Received: by 2002:a05:7022:10d:b0:12a:796b:7cf1 with SMTP id a92af1059eb24-12bfb7458c4mr9659532c88.23.1775623933418;
-        Tue, 07 Apr 2026 21:52:13 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775624215; x=1776229015;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+jJXI3O21KfFgoB4qZzgO2BFty+d1rzq3Wn8c+oB3WA=;
+        b=OWTVtMPhnYlygKdJvEVomvt5dLJlWvmU65YcDEEI2rW1XNixREQU228dSn6ped0uhM
+         hZPFDvXEsPDxcOaEZn0Caq8PO4eiLXbkAwQgb7AbzXJWMovsBM4Px741B1h6JyR0L5R/
+         ER+dgn2AEdcjbLOCbuAa/9LP4G/fffUeFupuIL/tjCNgiBtvEDTJhPEtmCKYC9TbNCOR
+         TQvM+4ZvgMAbDAsnnycPG1buW3IE6Mjv0PZeeRnZm5/YWU9tdtxtNnmNFMjsi0Nvgh3+
+         iM6qNjhKRh14FIiY1nsmNj4VT+T0lo/d5RoOVoNE3RKYKt2HRMZD13JLMQ+GxWS0TDEG
+         2NgA==
+X-Gm-Message-State: AOJu0Yzn1XTUOgppswruyFOKf1jpM2zdX68u5NSuJWO43a0PESHDLf3C
+	9S0sjwI4CxDO6wHKKHpBijBLZmZ0ON8DjcI8+rwKI/6ulkbZx/13Z98k
+X-Gm-Gg: AeBDieuXbyyNmSMwdcbMw7VoBrs7/JacH42uDcHOkYxPKkZn9pWuAY0Mu/Z9TRo3P0W
+	79yNEiSo6d2hFeD9b9E4Xn1EqHC9p6OH8sTEhxhaOSf4lM4x0vJLRqYsaOlOGbjrBPu1IJFAwcb
+	6EFbHhVRBXvBO2farto5Bs5DurvsfAqP/Dd25ryNqS9O9nLw4hAH5c1gbizEG6zubDRcrxYPQiq
+	QTk9X5ACTd3PMebaRgL0znFW4H4yRA5hNeMPthQuzQZx1x93yxwqizBCbP8H/czLMvSt70sgxfz
+	EYtUMV4m4AVJXaCxS9Xuo+ATgZiTDlqoBb0dRvYxhHiWfHs/4fvgae6tgdnG/+9VeJFFwTpbYLo
+	+lUDn32j4lXlvGkCJKtj1rfzLu380uZXZZEAlVnqiOea23BYXjCt3WYTx5s4cWZ5tDkeJy+uV0I
+	YRkErllKKw2ybbxzLs6wnutMkZWWh3JzNvzSH3JmYTW3/AGdjVz9OHxkLMx1BfyjZXIBm6aFkfv
+	Ss=
+X-Received: by 2002:a05:7022:b9c:b0:119:e56c:18ab with SMTP id a92af1059eb24-12bfb760b8cmr8584264c88.19.1775624214588;
+        Tue, 07 Apr 2026 21:56:54 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:4faa:4b67:d989:bce2])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca7cae9e9esm19044914eec.23.2026.04.07.21.52.11
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2cc0c6ec215sm17449902eec.4.2026.04.07.21.56.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2026 21:52:12 -0700 (PDT)
-Date: Tue, 7 Apr 2026 21:52:09 -0700
+        Tue, 07 Apr 2026 21:56:52 -0700 (PDT)
+Date: Tue, 7 Apr 2026 21:56:49 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Sanjay Govind <sanjay.govind9@gmail.com>
-Cc: Vicki Pfau <vi@endrift.com>, 
-	Nilton Perim Neto <niltonperimneto@gmail.com>, Mario Limonciello <mario.limonciello@amd.com>, 
-	Antheas Kapenekakis <lkml@antheas.dev>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] xpad: Overhaul device data for wireless devices
-Message-ID: <adXe452989A6k2PJ@google.com>
-References: <20260404083928.489966-3-sanjay.govind9@gmail.com>
- <adSJp5U47g1JnImj@google.com>
- <CALQgdA0oYzWqFtyG2eZKgwKr-QLYz5dLbsFbpY8qDrpxK7vj8Q@mail.gmail.com>
- <CALQgdA0UpJb7Lztkts3LrFtWrAP3V3CivFv3NKJDFg1VY_q_0A@mail.gmail.com>
+To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: uinput - fix circular locking dependency with
+ ff-core
+Message-ID: <adXgDI9yOU5L-7D-@google.com>
+References: <20260407075031.38351-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CALQgdA0UpJb7Lztkts3LrFtWrAP3V3CivFv3NKJDFg1VY_q_0A@mail.gmail.com>
+In-Reply-To: <20260407075031.38351-1-mikhail.v.gavrilov@gmail.com>
 
-On Wed, Apr 08, 2026 at 07:22:08AM +1200, Sanjay Govind wrote:
-> On Tue, Apr 7, 2026 at 4:46 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
+On Tue, Apr 07, 2026 at 12:50:31PM +0500, Mikhail Gavrilov wrote:
+> A lockdep circular locking dependency warning can be triggered
+> reproducibly when using a force-feedback gamepad with uinput (for
+> example, playing ELDEN RING under Wine with a Flydigi Vader 5
+> controller):
 > 
-> > Sashuko correctly identified issues areoud re-scheduling work that
-> already completed, please see:
+>   ff->mutex -> udev->mutex -> input_mutex -> dev->mutex -> ff->mutex
 > 
-> Is there a way to test a patch against sashiko without submitting it
-> to the mailing list?
+> The cycle is caused by four lock acquisition paths:
+> 
+> 1. ff upload: input_ff_upload() holds ff->mutex and calls
+>    uinput_dev_upload_effect() -> uinput_request_submit() ->
+>    uinput_request_send(), which acquires udev->mutex.
+> 
+> 2. device create: uinput_ioctl_handler() holds udev->mutex and calls
+>    uinput_create_device() -> input_register_device(), which acquires
+>    input_mutex.
+> 
+> 3. device register: input_register_device() holds input_mutex and
+>    calls kbd_connect() -> input_register_handle(), which acquires
+>    dev->mutex.
+> 
+> 4. evdev release: evdev_release() calls input_flush_device() under
+>    dev->mutex, which calls input_ff_flush() acquiring ff->mutex.
+> 
+> Fix this by introducing a new state_lock spinlock to protect
+> udev->state and udev->dev access in uinput_request_send() instead of
+> acquiring udev->mutex.  The function only needs to atomically check
+> device state and queue an input event into the ring buffer via
+> uinput_dev_event() -- both operations are safe under a spinlock
+> (ktime_get_ts64() and wake_up_interruptible() do not sleep).  This
+> breaks the ff->mutex -> udev->mutex link since a spinlock is a leaf in
+> the lock ordering and cannot form cycles with mutexes.
+> 
+> To keep state transitions visible to uinput_request_send(), protect
+> writes to udev->state in uinput_create_device() and
+> uinput_destroy_device() with the same state_lock spinlock.
+> 
+> Additionally, move init_completion(&request->done) from
+> uinput_request_send() to uinput_request_submit() before
+> uinput_request_reserve_slot().  Once the slot is allocated,
+> uinput_flush_requests() may call complete() on it at any time from
+> the destroy path, so the completion must be initialised before the
+> request becomes visible.
+> 
+> Lock ordering after the fix:
+> 
+>   ff->mutex -> state_lock (spinlock, leaf)
+>   udev->mutex -> state_lock (spinlock, leaf)
+>   udev->mutex -> input_mutex -> dev->mutex -> ff->mutex (no back-edge)
+> 
+> Fixes: ff462551235d ("Input: uinput - switch to the new FF interface")
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/all/CABXGCsMoxag+kEwHhb7KqhuyxfmGGd0P=tHZyb1uKE0pLr8Hkg@mail.gmail.com/
+> Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-I think you'd have to spin up your own instance for that...
+Applied, thank you.
 
 -- 
 Dmitry

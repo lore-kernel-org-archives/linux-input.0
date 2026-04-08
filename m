@@ -1,44 +1,45 @@
 Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E378A3D669A;
-	Wed,  8 Apr 2026 17:50:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA343D88F5;
+	Wed,  8 Apr 2026 17:50:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775670638; cv=pass; b=GVtDFpOU9XXwFI+QDmB3EKNIlUZRFLHV9u7csjlTT8EWOYTTQ473RnrLIwgX41/t+zdzHPPQzAN65H4zzElsLY3JJhrBytJnVDswZVAbW5IUhoBrwEZLqBpYKsRtNAVRBM9UYdPzuQtW1IgjV7zybLo8b5pHEzkkO122wqI6N+c=
+	t=1775670640; cv=pass; b=YkvFfzsv7u4IeRoQ/Fho/DcgnhRDsnI5eZIawNnA/mlrSTqJ0PORpoa/BSGCsJggH/2/CsqHs1ZiQ9d5SyfYJGIS+r7ZxGeY9KhjFe/e7o0d1/qeJxvyTMH1foAIRuIf1sxhJvfq0M1nS/XmcVwk3aYWbkVFxbRP3NJLlTuBBhc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775670638; c=relaxed/simple;
-	bh=/nQiDWZWHUCr9JBVikoU/pdq20N8ZPS328YR4lrL/Rw=;
+	s=arc-20240116; t=1775670640; c=relaxed/simple;
+	bh=r5udnECKsPpJoxQWnr5d1htCr/6wgjxSCKGHWijo7rg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=loadV/ZEjnNHiA71TprIo7idIpOtRPCAkeBmpJBvoHaawzsRThjTTY4ohC9unQKvG65q2RGZdHGnsAUH8SIyAAFqX4c78foWdgsCxMQIJIxytCloBP1mHzXqZUho+WGuQycVly/wkaqsbKOIxlxhC0ixlYpAWL5aoar8PzI+E/U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=lMZpj1ZW; arc=pass smtp.client-ip=136.143.188.112
+	 In-Reply-To:To:Cc; b=pK/w7aDd37JeyJ4Y2Hbo3qzYJRid3kmkVJtj2PXlKwfZ8HLlUxqiYFCLdVimQMdsEPmnrjCCclhNxm7r02hOeEhtklSjTXUDsNf5eWktmoOMNrURX4vx3R4V+tXNfu+pC+WuXqX8BDZGMnxNy3MPGwf+hQX5QRo7j5qoMhhCDgE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=N4nEnWLM; arc=pass smtp.client-ip=136.143.188.112
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="lMZpj1ZW"
-ARC-Seal: i=1; a=rsa-sha256; t=1775670618; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="N4nEnWLM"
+ARC-Seal: i=1; a=rsa-sha256; t=1775670616; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=I4u7FW/tPFG/CjB3SVm9X11ID8dowsVwLk0U0XFJSktZfhxVxfvs0egS0DOr+EX4OnoeGTsG9e2tpJnwnnuhn0JLh6RwiHNPf6Wrvu91iEXbYzAduzZr2xkh+BuM36cS/Eu0gKzMMMy4lS5bI9+I8KfpaxXCVj4kVbqyhUbeeOc=
+	b=QUScs5mcJ8uy13JCHd8SMzLuRaH68GUmqUcqijRhMKJQUiwMMvuwKS7bk9N7/h3xclq0zMLEAc3wiRku0vRffYCBOXNKctTBFPxi/xv9T6QqVUC1AxYQqLeE7e5pL56S16h9l1v4AvZMu1ShIE9zRpLIVFinlURy1K0oSecue9s=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1775670618; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=I7h9KF6DUxHVCjojEM2b2Af8cE4DbNkN2i/zma/X7Ow=; 
-	b=PWYdccTH0fTMhS8GnUFkVIC58LJW4LVpFfewPfog1+ChdTuVMML+UqSt8TjdrD8JUyDU2ItiUjqRmR5QCYT6NEX+rurSRhkYWk+66sF0VyvANCGvk6/0FEu40Tp1v3KCkAJJPr8AXoqHp5dCFap3jpV0m23dYsgcIqT2zaLAwmU=
+	t=1775670616; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=aGdOZPDEQlZyEcepynzJddniCrCMmyXxDTt6mBa/WB0=; 
+	b=coKOFAGutKI5LC0u5bwhvRDLLGK0BlPAhsoJyKuj2yu9MYXWrPJiQCJTJ1ExUGawn1eW9nM8p9jEP2vfXl4da6zOxnLWDpT6veilWNog4t667IqMcpiqbREX4gvSUiKobdNzM/qyHTIVxnm0aBW6P16K1Wcqv6FZQJEletnkf4E=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=nicolas.frattaroli@collabora.com;
 	dmarc=pass header.from=<nicolas.frattaroli@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775670618;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775670616;
 	s=zohomail; d=collabora.com; i=nicolas.frattaroli@collabora.com;
 	h=From:From:Date:Date:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Message-Id:References:In-Reply-To:To:To:Cc:Cc:Reply-To;
-	bh=I7h9KF6DUxHVCjojEM2b2Af8cE4DbNkN2i/zma/X7Ow=;
-	b=lMZpj1ZW+MX0hZ9CgXdA71UCvB5cuthaTJKBL771nBkz1A214PCJUozqdEKMx/s0
-	blEHdcUhbm08487WO1RemLqcEovi9I44DBqB9TzNhbIxNhub328hJdjkhVBveyPHEOO
-	FPRM4mhZkg7nTT/De8DKSnl5M0ucMYOyzyb3fuQ8=
-Received: by mx.zohomail.com with SMTPS id 1775670617761642.4208513616555;
-	Wed, 8 Apr 2026 10:50:17 -0700 (PDT)
+	bh=aGdOZPDEQlZyEcepynzJddniCrCMmyXxDTt6mBa/WB0=;
+	b=N4nEnWLMzTCmJkE/R/EN7V/ihhXfmmeEyc6TUOI7prTIIS+XMpg63eNJ1Z6yaf+u
+	EBrOSOWIQ269238tcsEZZMWuc4AeByNHh+rP+P3Hwzc33tf/g+wq+UBqlebySYjk9ir
+	aLLrYgDVCFL9AmGFVWL8CbWVeeOS5tV3X+gcxepA=
+Received: by mx.zohomail.com with SMTPS id 1775670614366927.2234922599506;
+	Wed, 8 Apr 2026 10:50:14 -0700 (PDT)
 From: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
-Date: Wed, 08 Apr 2026 19:49:42 +0200
-Subject: [PATCH v3 4/4] arm64: dts: rockchip: add analog audio to ROCK 4D
+Date: Wed, 08 Apr 2026 19:49:41 +0200
+Subject: [PATCH v3 3/4] Input: adc-keys - Use dev_err_probe in probe
+ function
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,7 +48,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260408-rock4d-audio-v3-4-49e43c3c2a68@collabora.com>
+Message-Id: <20260408-rock4d-audio-v3-3-49e43c3c2a68@collabora.com>
 References: <20260408-rock4d-audio-v3-0-49e43c3c2a68@collabora.com>
 In-Reply-To: <20260408-rock4d-audio-v3-0-49e43c3c2a68@collabora.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -58,183 +59,131 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: kernel@collabora.com, linux-input@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, 
- Nicolas Frattaroli <nicolas.frattaroli@collabora.com>, 
- Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+ Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
 X-Mailer: b4 0.15.1
 
-The RADXA ROCK 4D, like many other Rockchip-based boards, uses an ES8388
-analog audio codec. On the production version of the board, the codec's
-LOUT1 and ROUT1 pins are tied to the headphone jack, whereas pins LOUT2
-and ROUT2 lead to a non-populated speaker amplifier that itself leads to
-a non-populated speaker jack. The schematic is still haunted by the
-ghosts of those symbols, but it clearly marks them as "NC".
+Rework the probe function, and functions called by the probe function,
+to use dev_err_probe for error logging.
 
-The 3.5mm TRRS jack has its microphone ring (and ground ring) wired to
-the codec's LINPUT1 and RINPUT1 pins for differential signalling.
+While at it, also do some minor style cleanups, like not error logging
+on -ENOMEM and using ! instead of == 0.
 
-Furthermore, it uses the SoCs ADC to detect whether the inserted cable
-is of headphones (i.e., no microphone), or a headset (i.e., with
-microphone). The way this is done is that the ADC input taps the output
-of a 100K/100K resistor divider that divides the microphone ring pin
-that's pulled up to 3.3V.
-
-There is no ADC level difference between a completely empty jack and one
-with a set of headphones (i.e., ones that don't have a microphone)
-connected. Consequently headphone insertion detection isn't something
-that can be done.
-
-Add the necessary codec and audio card nodes. The non-populated parts,
-i.e. LOUT2 and ROUT2, are not modeled at all, as they are not present on
-the hardware.
-
-Also, add an adc-keys node for the headset detection, which uses an
-input type of EV_SW with the SW_MICROPHONE_INSERT keycode. Below the
-220mV pressed voltage level of our SW_MICROPHONE_INSERT switch, we also
-define a button that emits a KEY_RESERVED code, which is there to model
-this part of the voltage range as not just being extra legroom for the
-button above it, but actually a state that is encountered in the real
-world, and should be recognised as a valid state for the ADC range to be
-in so that no "closer" ADC button is chosen.
-
-Tested-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
 ---
- arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts | 90 +++++++++++++++++++++++++
- 1 file changed, 90 insertions(+)
+ drivers/input/keyboard/adc-keys.c | 53 ++++++++++++++++-----------------------
+ 1 file changed, 21 insertions(+), 32 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts b/arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts
-index 899a84b1fbf9..c848c706196e 100644
---- a/arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts
-@@ -6,6 +6,7 @@
- /dts-v1/;
+diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
+index 62376f34f7d0..6f2ddcecea99 100644
+--- a/drivers/input/keyboard/adc-keys.c
++++ b/drivers/input/keyboard/adc-keys.c
+@@ -74,10 +74,8 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
+ 	int i;
  
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/leds/common.h>
- #include <dt-bindings/pinctrl/rockchip.h>
- #include <dt-bindings/pwm/pwm.h>
-@@ -37,6 +38,31 @@ hdmi_con_in: endpoint {
- 		};
- 	};
+ 	st->num_keys = device_get_child_node_count(dev);
+-	if (st->num_keys == 0) {
+-		dev_err(dev, "keymap is missing\n");
+-		return -EINVAL;
+-	}
++	if (!st->num_keys)
++		return dev_err_probe(dev, -EINVAL, "keymap is missing\n");
  
-+	es8388_sound: es8388-sound {
-+		compatible = "simple-audio-card";
-+		simple-audio-card,format = "i2s";
-+		simple-audio-card,mclk-fs = <256>;
-+		simple-audio-card,name = "On-board Analog ES8388";
-+		simple-audio-card,widgets = "Microphone", "Headphone Mic",
-+					    "Headphone", "Headphone";
-+		simple-audio-card,routing = "Headphone", "LOUT1",
-+					    "Headphone", "ROUT1",
-+					    "Left PGA Mux", "Differential Mux",
-+					    "Differential Mux", "LINPUT1",
-+					    "Differential Mux", "RINPUT1",
-+					    "LINPUT1", "Headphone Mic",
-+					    "RINPUT1", "Headphone Mic";
+ 	map = devm_kmalloc_array(dev, st->num_keys, sizeof(*map), GFP_KERNEL);
+ 	if (!map)
+@@ -86,17 +84,16 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
+ 	i = 0;
+ 	device_for_each_child_node_scoped(dev, child) {
+ 		if (fwnode_property_read_u32(child, "press-threshold-microvolt",
+-					     &map[i].voltage)) {
+-			dev_err(dev, "Key with invalid or missing voltage\n");
+-			return -EINVAL;
+-		}
++					     &map[i].voltage))
++			return dev_err_probe(dev, -EINVAL,
++					     "Key with invalid or missing voltage\n");
 +
-+		simple-audio-card,cpu {
-+			sound-dai = <&sai1>;
-+		};
-+
-+		simple-audio-card,codec {
-+			sound-dai = <&es8388>;
-+			system-clock-frequency = <12288000>;
-+		};
-+	};
-+
- 	rfkill {
- 		compatible = "rfkill-gpio";
- 		pinctrl-names = "default";
-@@ -65,6 +91,37 @@ user-led {
- 		};
- 	};
+ 		map[i].voltage /= 1000;
  
-+	saradc_keys: adc-keys {
-+		compatible = "adc-keys";
-+		io-channels = <&saradc 3>;
-+		io-channel-names = "buttons";
-+		keyup-threshold-microvolt = <3000000>;
-+		poll-interval = <100>;
-+
-+		/*
-+		 * During insertion and removal of a regular set of headphones,
-+		 * i.e. one without a microphone, the voltage level briefly
-+		 * dips below the 220mV of the headset connection switch.
-+		 * By having a button definition with a KEY_RESERVED signal
-+		 * between 0 to 220, we ensure no driver implementation thinks
-+		 * that the closest thing to 0V is 220mV so clearly there must
-+		 * be a headset connected.
-+		 */
-+
-+		button-headset-disconnected {
-+			label = "Headset Microphone Disconnected";
-+			linux,code = <KEY_RESERVED>;
-+			press-threshold-microvolt = <0>;
-+		};
-+
-+		button-headset-connected {
-+			label = "Headset Microphone Connected";
-+			linux,code = <SW_MICROPHONE_INSERT>;
-+			linux,input-type = <EV_SW>;
-+			press-threshold-microvolt = <220000>;
-+		};
-+	};
-+
- 	vcc_5v0_dcin: regulator-vcc-5v0-dcin {
- 		compatible = "regulator-fixed";
- 		regulator-always-on;
-@@ -696,6 +753,25 @@ eeprom@50 {
- 	};
- };
+ 		if (fwnode_property_read_u32(child, "linux,code",
+-					     &map[i].code)) {
+-			dev_err(dev, "Key with invalid or missing linux,code\n");
+-			return -EINVAL;
+-		}
++					     &map[i].code))
++			return dev_err_probe(dev, -EINVAL,
++					     "Key with invalid or missing linux,code\n");
  
-+&i2c3 {
-+	status = "okay";
-+
-+	es8388: audio-codec@10 {
-+		compatible = "everest,es8388", "everest,es8328";
-+		reg = <0x10>;
-+		clocks = <&cru CLK_SAI1_MCLKOUT_TO_IO>;
-+		AVDD-supply = <&vcca_3v3_s0>;
-+		DVDD-supply = <&vcc_3v3_s0>;
-+		HPVDD-supply = <&vcca_3v3_s0>;
-+		PVDD-supply = <&vcc_3v3_s0>;
-+		assigned-clocks = <&cru CLK_SAI1_MCLKOUT_TO_IO>;
-+		assigned-clock-rates = <12288000>;
-+		#sound-dai-cells = <0>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&sai1m0_mclk>;
-+	};
-+};
-+
- &mdio0 {
- 	rgmii_phy0: ethernet-phy@1 {
- 		compatible = "ethernet-phy-id001c.c916";
-@@ -770,10 +846,24 @@ wifi_en_h: wifi-en-h {
- 	};
- };
+ 		if (fwnode_property_read_u32(child, "linux,input-type",
+ 					     &map[i].type))
+@@ -129,7 +126,8 @@ static int adc_keys_probe(struct platform_device *pdev)
  
-+&sai1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&sai1m0_lrck
-+		     &sai1m0_sclk
-+		     &sai1m0_sdi0
-+		     &sai1m0_sdo0>;
-+	status = "okay";
-+};
-+
- &sai6 {
- 	status = "okay";
- };
+ 	st->channel = devm_iio_channel_get(dev, "buttons");
+ 	if (IS_ERR(st->channel))
+-		return PTR_ERR(st->channel);
++		return dev_err_probe(dev, PTR_ERR(st->channel),
++				     "Could not get iio channel\n");
  
-+&saradc {
-+	vref-supply = <&vcca1v8_pldo2_s0>;
-+	status = "okay";
-+};
+ 	if (!st->channel->indio_dev)
+ 		return -ENXIO;
+@@ -138,16 +136,13 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 	if (error < 0)
+ 		return error;
+ 
+-	if (type != IIO_VOLTAGE) {
+-		dev_err(dev, "Incompatible channel type %d\n", type);
+-		return -EINVAL;
+-	}
++	if (type != IIO_VOLTAGE)
++		return dev_err_probe(dev, -EINVAL, "Incompatible channel type %d\n", type);
+ 
+ 	if (device_property_read_u32(dev, "keyup-threshold-microvolt",
+-				     &st->keyup_voltage)) {
+-		dev_err(dev, "Invalid or missing keyup voltage\n");
+-		return -EINVAL;
+-	}
++				     &st->keyup_voltage))
++		return dev_err_probe(dev, -EINVAL, "Invalid or missing keyup voltage\n");
 +
- &sdmmc {
- 	bus-width = <4>;
- 	cap-mmc-highspeed;
+ 	st->keyup_voltage /= 1000;
+ 
+ 	error = adc_keys_load_keymap(dev, st);
+@@ -155,10 +150,8 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 		return error;
+ 
+ 	input = devm_input_allocate_device(dev);
+-	if (!input) {
+-		dev_err(dev, "failed to allocate input device\n");
++	if (!input)
+ 		return -ENOMEM;
+-	}
+ 
+ 	input_set_drvdata(input, st);
+ 
+@@ -178,19 +171,15 @@ static int adc_keys_probe(struct platform_device *pdev)
+ 
+ 
+ 	error = input_setup_polling(input, adc_keys_poll);
+-	if (error) {
+-		dev_err(dev, "Unable to set up polling: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "Unable to set up polling\n");
+ 
+ 	if (!device_property_read_u32(dev, "poll-interval", &value))
+ 		input_set_poll_interval(input, value);
+ 
+ 	error = input_register_device(input);
+-	if (error) {
+-		dev_err(dev, "Unable to register input device: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "Unable to register input device\n");
+ 
+ 	return 0;
+ }
 
 -- 
 2.53.0

@@ -1,106 +1,135 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C78C70830
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 05:04:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775624681; cv=pass; b=EfLS3CtVEFtCh0IrVtZ1C0gDEP1CoWWgZ6GgxXTCEzmUzzf52QgLb8VkLxyY6+nhmGGM6boUR9eWKMg+XyhbWvSxMfbedCT0afdgHUqzy0iMyPpmEGUgDohms2PxH1adnVMGeDAKCSV1ewCjSKEH1WSYbWWjA8o4zh6IPAYDHtg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775624681; c=relaxed/simple;
-	bh=VD0qh+RFQUSHzBgUqIzPvuk0eeELe6OUOVMSLF+bvos=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=C4eP7SPt1nhnsKIHbXiOKbhQ8HMWQmqv2bOJg5qdNl8h6trYqcdGXbNm5ZmGPnJUaYAo5mvDMCX/d2sqfCCXbdDSOhMQsIcKolZFziQQabGewK1iFWV4YqiPcFMliUAt3yXGS/5SducnHCB1Lw5Ui/RvaLs4HKWoBe3PltIEjlQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l0/Ctqqx; arc=pass smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665C923EA8A
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 05:16:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775625393; cv=none; b=GyYv7W1T3yPHHTcM8iofW6WUxPv9id3uBLF1gY8KpLgxmioMuAqj/gQbgLUOHNmHK/SnDA8hnfJGN5jTJiKz6trooACxqKo1Ey7UJWss5ne9KKhX3DSLoPeoT6i318vQ4WuHHVSVowwta8v+q1+6CR5+W2Dxyy9FbwmE0PkctVw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775625393; c=relaxed/simple;
+	bh=/Edk8lNtgYHzW4kh2l1uclCuMA1blZ7sUmH+m7M5h3E=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=S5MP4H8EaKWGqNWv50npCAaNNEL/IFw+if1ce2Um8OSiX04lLw4wgFF+Bt+SIyJjqY105HGIZdbKaElFs/APPiy7jqpq6BrJIgyRLioMEVK4ITL8WjA8obTVNBN//xEVNqNEpcRGcIrhrsuntIUPRxSmouT9Hpy6a3gxqKVmDR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sZd1ys0K; arc=none smtp.client-ip=74.125.82.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l0/Ctqqx"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-38a01c80c34so41996761fa.0
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 22:04:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775624678; cv=none;
-        d=google.com; s=arc-20240605;
-        b=jIjhwibTx7anPrXvWB23PAym5hgVBmyCXq1iNDsyAHFtrKf7w4WKF1XQZyDqW2ygbw
-         ntYTXLeL6KvEqtc7A93AuXS2EVMd4W+JFhQL8y85D5foQN30DE+Dbhs5fpOoMNMD1tTg
-         644bb+tgF4G0aci+YM/RfxC4hof7qgndzHsktQLOl26N2UVdM9/Pyash9rXv2RMAVLBs
-         q/5e4+YulQDVSPsl/ImPdiHgmHqE+ggBYk73IEcCoXJr2pi16ed419mNZ16wcQov9SpV
-         pcDjhmBMNQEazj0/mlgznIOUp7Ao5j5StUcpwJEmLzz8wUTiLsXOyoe7tAsRjnK6Xrnq
-         lupQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=VD0qh+RFQUSHzBgUqIzPvuk0eeELe6OUOVMSLF+bvos=;
-        fh=dgCZxwFkNPA+JqH10lSfG/+YCfuBcsOjF3ZBWPoE8t8=;
-        b=dW5MXwSw5V+lT+H4/EiEm3tR1+30UdGD+pxKBB0W3698F11bYm16T6iqWWHYKn+Udf
-         DI/bl+YBjMA7E7o1ongpCBGEsIbc7ftzc2rDsBZfQ3a9coLKvWcK18fwyn09x4syeL2+
-         RP1jE7lGAaG5qV4QWJIsk/4y0U/8kkZChJL76KCkAdAGnygD5irlfzS9gHomiREnXjFH
-         7ovOcdZmW60A3H1Yb1Jc+6sV4bUBSAi+fgeUMMsmV/pQyYeZQdzkNPjAcF45A8SGkU9a
-         WmefbP81e/XI2DmX7xN9TYiwuJg5AutvIKbV+e+pFhsh83KnR+Kxyx0smSkdUNEi/NRm
-         zbNQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sZd1ys0K"
+Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-12c0433a4b9so2134162c88.1
+        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2026 22:16:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775624678; x=1776229478; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VD0qh+RFQUSHzBgUqIzPvuk0eeELe6OUOVMSLF+bvos=;
-        b=l0/Ctqqx8nqv60h7AuTcmIJm3xFDZeh3w6GbBQRiDN3MgJ5i/rQJ7zP0Wcy1VEPLI9
-         WZDc57RKjSmeykbNbGJB3dqsIb2ULmNLBDETLrNvdAWBv7inVZjOXPuXjU6WVozutxHH
-         sZSucOnxzwp8+TEJ8bodK2PatG8dCeEA9xlLnmpC8JerFRxTC6czichPtNI6sr2inUoO
-         kVecooxVt4UgCbMK7yLPPqmYkkZTmEvk5CSi6pRmgEm0u/83Zoesfv7UYmUqXZVbP4XA
-         F4mvnWZ5gSWp9aSSj1kPwsHnt6J4bdn6fZfMXvCoa3WJLQvyjrccWzSV9yWIZGcYzXMm
-         MICg==
+        d=gmail.com; s=20251104; t=1775625391; x=1776230191; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=bJwo+bUkwq4R20/wGCVVzJubVVnKL9F/dxM6esPvz74=;
+        b=sZd1ys0KzBmi+G0zUo3R8gJB1gHCa0Yqyqf07+sJ5QlLVylw5Nz/Flb2wC8rDr4G4l
+         P0lcaC+3xJEQbrsYlsoQSi4uS4q2PCN2UOp21CJT+K5GtZlEGp002aOzXnRQx1Rqrfaa
+         bop5CfrJ5VI2o7KsL7KnVAHMLF7WS5Y+kIz3oRFI+qHTTphQF/dziqZkgc3BZP2p+VR2
+         sqyrmkgin20yT4Ymeh0Bg3c1dJ5rKpjLkfECYtoautV5dVEIt9I7qNNulSfEKMpxQdI3
+         mdXsaCUFGBtHDF/OJzueLQmovAca2VMpm+QvJRwIwTDzzxWZJ5u4pBfME3r7Wk38B+PV
+         kTkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775624678; x=1776229478;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=VD0qh+RFQUSHzBgUqIzPvuk0eeELe6OUOVMSLF+bvos=;
-        b=GaMWTSy7RPOlUj71/S+3QrHCvrx4l7V/VSVghxwNtPufTytCfqzc7cv0DM4SMeR9r2
-         PizhhHCpskVo8beKK1od0E53cvRK9SLsvKz4LhkJH0P4hxYbMLC2bU10n9KDJ/LSzx+R
-         31wS6YjYp3e0QL/spI4co0QX+IcYMENINdlYV07o0q+ZNxRvcgh9cDqxGheUoAJSdRi0
-         rSQOMtcKh6thpt7AzpwMQPdawP7b5kzHXE6bndzq3NLRcDz6rLfaazWWz1GoWlyfXHe7
-         UIZem15H/5on+1vGsUOUpUH+I5TBy5WOabn4wS+m57upUft3Trx9zOAzMVdt4MG97lp6
-         E6MA==
-X-Forwarded-Encrypted: i=1; AJvYcCX+GSIG2j0KrYOdU/BvO3nox3EIe4kj8Nj8gLnixjyK0YJaH8tQKCnQWJi7PAN2C85C/7eOl5NxttJBSQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxYxs0z97dNughSl0aENsWrC/7qTWvtCxesnNooEnWarihXl9wJ
-	+lR7lhSELtcwL7uXqRJfVP2XTsiEg7fXDxFI6W1oV4Wq/dqeYmnU0wCDvTHWpH5NVWEXFO/HfzJ
-	Ny8hq2H73pcMA7gRz7hLkZGpL8yogHjo=
-X-Gm-Gg: AeBDies99y9F25Kkowcc5QAYZ6q2mkO+MFmcCKcmVOXxyB/s7u2txaaL7s3Z8Gu7K5V
-	dTdZFd4SCbzRVNa8H7vtystaJ7F4lBS23UTYIVnu2Fu2pPBJPgHOy+evl9PZ1sPzwOdiggpGQu3
-	TjDNK5o89j9/WE4ztY+mDFr84h/FpWjyWSiiJUIat0TL8QMQGB5Nz+61lz9gm5s7nRBN9rfYrI+
-	pvEG9ywyZw3bf0mVFUJsDNRroERIPViwFBGBhBTUrrGc6/bCzuQlU7zivM8Q981sfz5XXV271xA
-	5HKbrTn2o78uUVg4Fd+TMoh8ar6ABusx5HeXEiQBq93JDzV997k6K/jkRYCCDF0HrJahQWXTJti
-	vQpUx6fCqktY=
-X-Received: by 2002:a2e:bc84:0:b0:38d:e220:8dc2 with SMTP id
- 38308e7fff4ca-38de2209a3fmr51723481fa.20.1775624678298; Tue, 07 Apr 2026
- 22:04:38 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775625391; x=1776230191;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bJwo+bUkwq4R20/wGCVVzJubVVnKL9F/dxM6esPvz74=;
+        b=Issi7SkRkRKPlmaXBqj5elvbTBRkNixS3hTtXhu0wjXnN5TOxdImwbn94SuixgFdOr
+         K7ZLd8UZeBr279O6XIJkWdcL+8kCawtlZ21cYcMhn3F9coe4aHOkdYoyVy1729W8RVmU
+         3hNtgtyXpo0IC4wE9YveuupSHxQrblByspCbefjwcLj3d6MoQdXHVg5J3gmtpRgtZ2yo
+         az/qLHcFdcALYWETBLaMbu1StjYburdPPC8DxFEqNRa01x9QTE5yZ+teKYThDVavuFGL
+         0oUC988nNwiObUEzwUjViaKAu6kSS9moL6Kro/qbzyFyuJQrwhTS0dY5/LKeD0a6rcKr
+         lRXw==
+X-Gm-Message-State: AOJu0YyjtLB9PS52SjDGTFzhYhXu644pWQGDMCbNV1Lad+fP79dP9HGJ
+	HVOowFz9ckzdaOMfQqohnLbNkuYKjMoE9JpzFYIwpyUvUqBWuKVzg0JEenyLvA==
+X-Gm-Gg: AeBDiesEtlMRjByPLCzCzeqN5CPLDP4o2vIOVTNZW671Iy83qZagEtR8uqq8pgFEG7r
+	t3fo5HZ8O38HGsbryu7/+w1U/xyA+VZ3OQJ9tNDICDPUMd2waLE+JdjiO9t8cn2DiQHuC6hW6h6
+	RbDrZ8rAZkivSq1GiAWTyimTdpBYEeovda8ctGSAwI3diQ2JJLLApgcJYk3yk0D733iJUPBStBP
+	FaVECsghxNga4+deszk+hC4RYr5lMsSSaMqJljf1Q0ztUHyung11bduKE0dNXlKEq3cNk6sH9pU
+	xy9NSl/nRjCqhJsG6MEOUjxqeyz6I/2TMfG2P7u2QEa2vhywCJ2xUTkw1AM0T9uUQMSEaeeLSSg
+	mX/m0wsx6eYNdFENNzRtAgsvBr2mnavbbL1X8ylWUS7JjnEsT0xN0sFNjNjVXSOd/ueBeyAiVzQ
+	kfDLgv1zEE7CkfRCycNlCvEh019TbZ0o33ztUoS+n5jKS7B0knwL0ud2y/WX4LmcCI
+X-Received: by 2002:a05:7022:6b85:b0:12b:f899:717f with SMTP id a92af1059eb24-12bfb6fb68bmr10117071c88.9.1775625390816;
+        Tue, 07 Apr 2026 22:16:30 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:4faa:4b67:d989:bce2])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12c0ce7dfe8sm11090749c88.3.2026.04.07.22.16.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2026 22:16:30 -0700 (PDT)
+Date: Tue, 7 Apr 2026 22:16:27 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>, 
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: uinput - take event lock when submitting FF request
+ "event"
+Message-ID: <adXkf6MWzlB8LA_s@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260404083928.489966-3-sanjay.govind9@gmail.com>
- <adSJp5U47g1JnImj@google.com> <CALQgdA0oYzWqFtyG2eZKgwKr-QLYz5dLbsFbpY8qDrpxK7vj8Q@mail.gmail.com>
- <CALQgdA0UpJb7Lztkts3LrFtWrAP3V3CivFv3NKJDFg1VY_q_0A@mail.gmail.com> <adXe452989A6k2PJ@google.com>
-In-Reply-To: <adXe452989A6k2PJ@google.com>
-From: Sanjay Govind <sanjay.govind9@gmail.com>
-Date: Wed, 8 Apr 2026 17:04:25 +1200
-X-Gm-Features: AQROBzCbDXK4IlLEJhSOy65YBAmmDG8VLVROtjTn3Q1vbjprO3i7GNLfFyE66dY
-Message-ID: <CALQgdA04mczQoJ4HyjSwgeXMHwLT+Rv0AEoArpwBohzL9oa1nw@mail.gmail.com>
-Subject: Re: [PATCH v2] xpad: Overhaul device data for wireless devices
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Vicki Pfau <vi@endrift.com>, Nilton Perim Neto <niltonperimneto@gmail.com>, 
-	Mario Limonciello <mario.limonciello@amd.com>, Antheas Kapenekakis <lkml@antheas.dev>, 
-	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, Apr 8, 2026 at 4:52=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> I think you'd have to spin up your own instance for that...
+To avoid racing with FF playback events and corrupting device's event
+queue take event_lock spinlock when calling uinput_dev_event() when
+submitting a FF upload or erase "event".
 
-makes sense
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+
+Mikhail, could you please try this one?
+
+ drivers/input/misc/uinput.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index e24caf6fc8e8..d32fa4b508fc 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -25,8 +25,10 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
++#include <linux/lockdep.h>
+ #include <linux/miscdevice.h>
+ #include <linux/overflow.h>
++#include <linux/spinlock.h>
+ #include <linux/input/mt.h>
+ #include "../input-compat.h"
+ 
+@@ -76,6 +78,8 @@ static int uinput_dev_event(struct input_dev *dev,
+ 	struct uinput_device	*udev = input_get_drvdata(dev);
+ 	struct timespec64	ts;
+ 
++	lockdep_assert_held(&dev->event_lock);
++
+ 	ktime_get_ts64(&ts);
+ 
+ 	udev->buff[udev->head] = (struct input_event) {
+@@ -147,6 +151,7 @@ static void uinput_request_release_slot(struct uinput_device *udev,
+ static int uinput_request_send(struct uinput_device *udev,
+ 			       struct uinput_request *request)
+ {
++	unsigned long flags;
+ 	int retval = 0;
+ 
+ 	spin_lock(&udev->state_lock);
+@@ -160,7 +165,9 @@ static int uinput_request_send(struct uinput_device *udev,
+ 	 * Tell our userspace application about this new request
+ 	 * by queueing an input event.
+ 	 */
++	spin_lock_irqsave(&udev->dev->event_lock, flags);
+ 	uinput_dev_event(udev->dev, EV_UINPUT, request->code, request->id);
++	spin_unlock_irqrestore(&udev->dev->event_lock, flags);
+ 
+  out:
+ 	spin_unlock(&udev->state_lock);
+-- 
+2.53.0.1213.gd9a14994de-goog
+
+
+-- 
+Dmitry

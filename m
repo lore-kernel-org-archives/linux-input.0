@@ -1,190 +1,117 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA343D88F5;
-	Wed,  8 Apr 2026 17:50:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775670640; cv=pass; b=YkvFfzsv7u4IeRoQ/Fho/DcgnhRDsnI5eZIawNnA/mlrSTqJ0PORpoa/BSGCsJggH/2/CsqHs1ZiQ9d5SyfYJGIS+r7ZxGeY9KhjFe/e7o0d1/qeJxvyTMH1foAIRuIf1sxhJvfq0M1nS/XmcVwk3aYWbkVFxbRP3NJLlTuBBhc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775670640; c=relaxed/simple;
-	bh=r5udnECKsPpJoxQWnr5d1htCr/6wgjxSCKGHWijo7rg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pK/w7aDd37JeyJ4Y2Hbo3qzYJRid3kmkVJtj2PXlKwfZ8HLlUxqiYFCLdVimQMdsEPmnrjCCclhNxm7r02hOeEhtklSjTXUDsNf5eWktmoOMNrURX4vx3R4V+tXNfu+pC+WuXqX8BDZGMnxNy3MPGwf+hQX5QRo7j5qoMhhCDgE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=N4nEnWLM; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148DF3D88F4
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 17:56:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775670992; cv=none; b=Ax43BpiDin1g5QoYb8sfBOdoLq1vSUTxINl1Bnq+X62fZKVBAYSgsvsHOOwNTohkBzwFUHf5vtEvmal4QUhFO7Xsi/0WquNRi/8xJTX74ubHauMTFOgFJQey9Dd5eL3OFXRMTKMyn6kNPFQkEaisfjEsem1Q1WSNtNE59VahBGo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775670992; c=relaxed/simple;
+	bh=7BYRe7ZHkNeoh9cn6zRYpespCM9IuTIIZJVVoLdSPoQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UUPGlHDzMx/G1Rt+mhe9qQp9BcVpjgQXG6xQDW5BLzBEB9KnIMAPFFUh3DUQwyfU/RZ4u84lvwpxgF1izfTHnn5yjAjnmneeHYquNP2l6I+OZKw0db3T2ReXhnMJz9nul/twuWukTqj+VFUGYsMlk5JmPsv6f62a6q+ujSfeWdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BJhZJGmk; arc=none smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="N4nEnWLM"
-ARC-Seal: i=1; a=rsa-sha256; t=1775670616; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=QUScs5mcJ8uy13JCHd8SMzLuRaH68GUmqUcqijRhMKJQUiwMMvuwKS7bk9N7/h3xclq0zMLEAc3wiRku0vRffYCBOXNKctTBFPxi/xv9T6QqVUC1AxYQqLeE7e5pL56S16h9l1v4AvZMu1ShIE9zRpLIVFinlURy1K0oSecue9s=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1775670616; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=aGdOZPDEQlZyEcepynzJddniCrCMmyXxDTt6mBa/WB0=; 
-	b=coKOFAGutKI5LC0u5bwhvRDLLGK0BlPAhsoJyKuj2yu9MYXWrPJiQCJTJ1ExUGawn1eW9nM8p9jEP2vfXl4da6zOxnLWDpT6veilWNog4t667IqMcpiqbREX4gvSUiKobdNzM/qyHTIVxnm0aBW6P16K1Wcqv6FZQJEletnkf4E=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=nicolas.frattaroli@collabora.com;
-	dmarc=pass header.from=<nicolas.frattaroli@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775670616;
-	s=zohomail; d=collabora.com; i=nicolas.frattaroli@collabora.com;
-	h=From:From:Date:Date:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Message-Id:References:In-Reply-To:To:To:Cc:Cc:Reply-To;
-	bh=aGdOZPDEQlZyEcepynzJddniCrCMmyXxDTt6mBa/WB0=;
-	b=N4nEnWLMzTCmJkE/R/EN7V/ihhXfmmeEyc6TUOI7prTIIS+XMpg63eNJ1Z6yaf+u
-	EBrOSOWIQ269238tcsEZZMWuc4AeByNHh+rP+P3Hwzc33tf/g+wq+UBqlebySYjk9ir
-	aLLrYgDVCFL9AmGFVWL8CbWVeeOS5tV3X+gcxepA=
-Received: by mx.zohomail.com with SMTPS id 1775670614366927.2234922599506;
-	Wed, 8 Apr 2026 10:50:14 -0700 (PDT)
-From: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
-Date: Wed, 08 Apr 2026 19:49:41 +0200
-Subject: [PATCH v3 3/4] Input: adc-keys - Use dev_err_probe in probe
- function
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BJhZJGmk"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c70c112cb61so9333a12.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 10:56:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775670990; x=1776275790; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=X7QZewUT0BWk5yZHEqmvJYle58rVlSnReBc0oklkAx0=;
+        b=BJhZJGmkin45pVziXe1uMRoz2gnUSAsTwrI/1yqbqdURix8idSZEt/6TY9eOsWFm5D
+         ZI6Zwjvf05hfSf4y8hPTcPj+IbJB3cYHgFMrQyCH+vYyD1ofzVb8UKLZzzrTPu5OcDLA
+         Xq3t4hmiKn0FjN9PUGvoYtLH8gM9Nl7NxuXo0EXvAbhoGJTgYIJ5z2gKPjP+PBq4cf+9
+         RKqTxnoz4A+QGYGqDYdf54e+t1l97iF2jr0sezWDASGVNLIwZBd/nf39pX0lVWqcJfEt
+         /fuCyX9/om2bl8vrlRp4Qsv/kLLf7pfGFbN3dtEsc58sTacb5HaHV8XPjubsve1Gp4eV
+         4thg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775670990; x=1776275790;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=X7QZewUT0BWk5yZHEqmvJYle58rVlSnReBc0oklkAx0=;
+        b=OvR5oEVmlxQNNYCHAihfJbrp0dKMY4VlzgJxCo/ln9rWO4z80wXz7ggCc48EiUvoAB
+         7kHBb/N3VQydsGVYK8DkfKyA4d7OQYBWw7r1jk8J+V58UsObqRcmcdkH8GfiKQ2ijuVz
+         Q4cbDM5EWaOZf+s/l9LkEMTy76od4Gnvy2C0XQYV7P2FZkCY8DN2b/UX2AP0nvf8TuMz
+         dDucNSD+p6Fk2IBAwCrpZyKHF7W53Dzv7kxZ0BsTG8HKxPGNxBxl3R5NCgbSef5vu6oA
+         1HtXOSWCUDeAH59PS9PZPKT32tHitbztU2rnZQRahda4IRoUox020660+Go3iG24DQZd
+         5L2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVNXLbGDVWr0hR6Wf/xbPk+3L6a2p9lI4HLZXFrbwmB2ZRb7EhyRBEk9JcyzFnFwh20+ETuy3cfMnUEGg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyDkv08IihW4FT8MIpMolgs1lTBlfjK9RGE5n+6Sfhh6sY2HdDY
+	qTG5D77sYY+Rtu5xHrr6k6vgh45DH/3HjhgEJ9bOYbxpwfUIAUGIw1BU
+X-Gm-Gg: AeBDietDFC8xpI8U+Qhu9abir67bmUwS/w4Vdip5DNehfmMjLnwJL9/fQL6LFXIYyNs
+	WIf1KiAlFF4QpQwSrvgMOouoijvCdQcdJ93Dv1Rs0km+YvEdZTJDk08XLLWfww2iAb/4JidLn+w
+	ojv18rzzgHM/qNK9R695QyoFodQvsZQmyv69n5fbz7H+vjUWo5G9IdBbuNh1hlENWOzwfa0xXiX
+	KzoZG/5WRyTXqaX2UuzeL8xYJDE4gLPxnWVuzF9ChzskA3PjnvTkb5khN4FsiVzNHaYCzgpxzVf
+	u21EMo26kIaUym1I4eiL9kkcC4jfyxo80ZS7kjQJUaTdbIr5RN9KzRdrzU0fe7WZGMOzo9AJ4DQ
+	hXIeJrv/CYJD5GB3eno5c4VIvAYon5jZRe0ZA+gz1vDYBiXM6N0FhAkvAT7J5ogFYUqWurem4wv
+	NaioujQldBCxvo/99mIAAIay1mG3CA9wuIDXcbCuaCSH95d+EtbwWvI3oxXCjz0YFG
+X-Received: by 2002:a05:7022:3d0b:b0:12a:6fbb:3353 with SMTP id a92af1059eb24-12bfb6e8cd5mr12723523c88.3.1775670990283;
+        Wed, 08 Apr 2026 10:56:30 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:f3cf:7538:b120:7924])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bfea5f860sm20383342c88.2.2026.04.08.10.56.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2026 10:56:29 -0700 (PDT)
+Date: Wed, 8 Apr 2026 10:56:26 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Mohamad Raizudeen <raizudeen.kerneldev@gmail.com>
+Cc: kees@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: serio - fix O(n^2) complexity in
+ serio_unregister_driver()
+Message-ID: <adaWU9rlMKcxLO1G@google.com>
+References: <20260408162849.4639-1-raizudeen.kerneldev@gmail.com>
+ <adaJ1MJ-Rg9qeeyr@google.com>
+ <CABkOv5cU8D8oo8scTOojvJ8hUeq4nxm6GGuA3GaBvebzdMBYpg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260408-rock4d-audio-v3-3-49e43c3c2a68@collabora.com>
-References: <20260408-rock4d-audio-v3-0-49e43c3c2a68@collabora.com>
-In-Reply-To: <20260408-rock4d-audio-v3-0-49e43c3c2a68@collabora.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Heiko Stuebner <heiko@sntech.de>
-Cc: kernel@collabora.com, linux-input@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, 
- Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
-X-Mailer: b4 0.15.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CABkOv5cU8D8oo8scTOojvJ8hUeq4nxm6GGuA3GaBvebzdMBYpg@mail.gmail.com>
 
-Rework the probe function, and functions called by the probe function,
-to use dev_err_probe for error logging.
+On Wed, Apr 08, 2026 at 11:21:30PM +0530, Mohamad Raizudeen wrote:
+> Hi Dmitry,
 
-While at it, also do some minor style cleanups, like not error logging
-on -ENOMEM and using ! instead of == 0.
+Please do not top-post.
 
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
----
- drivers/input/keyboard/adc-keys.c | 53 ++++++++++++++++-----------------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+> 
+> *We do not have such setups at the moment, but what about parent's parent's
+> parent?*
+> You are right. Even though we don't have such setups today, let me explain
+> why the patch works for arbitrary depth.
+> 
+> If we have three ports linked like A->B->C (A is top, B is child of A, C is
+> child of B) and all use the same driver.
 
-diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
-index 62376f34f7d0..6f2ddcecea99 100644
---- a/drivers/input/keyboard/adc-keys.c
-+++ b/drivers/input/keyboard/adc-keys.c
-@@ -74,10 +74,8 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
- 	int i;
- 
- 	st->num_keys = device_get_child_node_count(dev);
--	if (st->num_keys == 0) {
--		dev_err(dev, "keymap is missing\n");
--		return -EINVAL;
--	}
-+	if (!st->num_keys)
-+		return dev_err_probe(dev, -EINVAL, "keymap is missing\n");
- 
- 	map = devm_kmalloc_array(dev, st->num_keys, sizeof(*map), GFP_KERNEL);
- 	if (!map)
-@@ -86,17 +84,16 @@ static int adc_keys_load_keymap(struct device *dev, struct adc_keys_state *st)
- 	i = 0;
- 	device_for_each_child_node_scoped(dev, child) {
- 		if (fwnode_property_read_u32(child, "press-threshold-microvolt",
--					     &map[i].voltage)) {
--			dev_err(dev, "Key with invalid or missing voltage\n");
--			return -EINVAL;
--		}
-+					     &map[i].voltage))
-+			return dev_err_probe(dev, -EINVAL,
-+					     "Key with invalid or missing voltage\n");
-+
- 		map[i].voltage /= 1000;
- 
- 		if (fwnode_property_read_u32(child, "linux,code",
--					     &map[i].code)) {
--			dev_err(dev, "Key with invalid or missing linux,code\n");
--			return -EINVAL;
--		}
-+					     &map[i].code))
-+			return dev_err_probe(dev, -EINVAL,
-+					     "Key with invalid or missing linux,code\n");
- 
- 		if (fwnode_property_read_u32(child, "linux,input-type",
- 					     &map[i].type))
-@@ -129,7 +126,8 @@ static int adc_keys_probe(struct platform_device *pdev)
- 
- 	st->channel = devm_iio_channel_get(dev, "buttons");
- 	if (IS_ERR(st->channel))
--		return PTR_ERR(st->channel);
-+		return dev_err_probe(dev, PTR_ERR(st->channel),
-+				     "Could not get iio channel\n");
- 
- 	if (!st->channel->indio_dev)
- 		return -ENXIO;
-@@ -138,16 +136,13 @@ static int adc_keys_probe(struct platform_device *pdev)
- 	if (error < 0)
- 		return error;
- 
--	if (type != IIO_VOLTAGE) {
--		dev_err(dev, "Incompatible channel type %d\n", type);
--		return -EINVAL;
--	}
-+	if (type != IIO_VOLTAGE)
-+		return dev_err_probe(dev, -EINVAL, "Incompatible channel type %d\n", type);
- 
- 	if (device_property_read_u32(dev, "keyup-threshold-microvolt",
--				     &st->keyup_voltage)) {
--		dev_err(dev, "Invalid or missing keyup voltage\n");
--		return -EINVAL;
--	}
-+				     &st->keyup_voltage))
-+		return dev_err_probe(dev, -EINVAL, "Invalid or missing keyup voltage\n");
-+
- 	st->keyup_voltage /= 1000;
- 
- 	error = adc_keys_load_keymap(dev, st);
-@@ -155,10 +150,8 @@ static int adc_keys_probe(struct platform_device *pdev)
- 		return error;
- 
- 	input = devm_input_allocate_device(dev);
--	if (!input) {
--		dev_err(dev, "failed to allocate input device\n");
-+	if (!input)
- 		return -ENOMEM;
--	}
- 
- 	input_set_drvdata(input, st);
- 
-@@ -178,19 +171,15 @@ static int adc_keys_probe(struct platform_device *pdev)
- 
- 
- 	error = input_setup_polling(input, adc_keys_poll);
--	if (error) {
--		dev_err(dev, "Unable to set up polling: %d\n", error);
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(dev, error, "Unable to set up polling\n");
- 
- 	if (!device_property_read_u32(dev, "poll-interval", &value))
- 		input_set_poll_interval(input, value);
- 
- 	error = input_register_device(input);
--	if (error) {
--		dev_err(dev, "Unable to register input device: %d\n", error);
--		return error;
--	}
-+	if (error)
-+		return dev_err_probe(dev, error, "Unable to register input device\n");
- 
- 	return 0;
- }
+What happens if B uses different driver from A?
+
+> 
+> C sees its parent B is using the same driver, skip C
+> B sees its parent A is using the same driver, skip B
+> A has no parent using the same driver, collect A
+> 
+> When we disconnect A, it automatically destroys B and C. So all ports are
+> cleaned up. The logic works for any number of levels.
+> 
+> * Could you explain more about the use-after-free scenario?*
+> If we collected both A and B, disconnecting A would free B. Then when we
+> try to process B from the list, we would use memory that is already freed
+> that leads to crash. My patch avoids this by never collecting a port whose
+> parent is also using the same driver.
+
+But currently we restart scanning the list, so there won't be any stale
+entries. How would we end up with touching freed memory?
+
+Thanks.
 
 -- 
-2.53.0
-
+Dmitry

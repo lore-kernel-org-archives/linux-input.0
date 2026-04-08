@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4385C3A2577;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4538C3A3806;
 	Wed,  8 Apr 2026 22:15:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775686551; cv=none; b=CdXaTkAg/BfQsVCFvKMxEQKQjuHafci0jeJN3QqqGl83oSiufqBGEHPysVh/LcreS6vuz9cF75rQOuUIx83HKhFkNbknTc2gbsFBZ+4IdjTYGHHw+21nLa6q5yHYLxC07DIMvn7Lcz9cZa+wIloP6NYAHTqp5akhDOPybC2a0QA=
+	t=1775686551; cv=none; b=dEi4Z0iBAW2ygPyEKdk+2jpKM6NmNbw5DosYykbY9AGWbSCMUXmcxO7eNLdxP4fx1yA6tAlIiX7gSlrjnX524KmhBEHPcPPg57QuCpb7H/klmCndkO3KnoIVNxPZwhnySrB1yvEnGyhFgc3Usc+1ymdxHA0ZfRFKSamQ/xVMD7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1775686551; c=relaxed/simple;
-	bh=ZLkarQW8/Az8rauhmR2HAn+rZrJRg5Nvg4DuBB8fGyg=;
+	bh=3YxUzY2Fah3UfJvijShkLXUQPt/K+SOukUffoWVie/8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=JG4cndDE9A4J0iidCqnf+WQZTw+/nmxvdINnUVW6FrK2ZZ6ctImEaRAqi7j2fj6LvJMD1KxVwm3XXbzgBVDiClaxGOw5XGYjF9ak9arqsA/Ea/IiMii+oCF5bzA3CGLPh0pEN09NBjOPPun7bAo1ES1k6iWodun6Fv6hwLEQCPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R4RCEQfR; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=OJc8oeyoccJoBtl9uphvRDKqdtIML/W7U3l1MTwBcOKl4ZMpsro9djkmycNO1OUaKwRnlFFSLTqCNnwinaF4SkM7SX0nck6MvInqRajWNXLNi9JSbTroGJfeqPbEfJEDZ/nnU5vIjMaV9gFaAO1JFVC3T4G+JzLDCzeRoCrQa9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LFtLkyc5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R4RCEQfR"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EEF17C2BCC7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LFtLkyc5"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D56B6C4AF11;
 	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775686551;
-	bh=ZLkarQW8/Az8rauhmR2HAn+rZrJRg5Nvg4DuBB8fGyg=;
+	s=k20201202; t=1775686550;
+	bh=3YxUzY2Fah3UfJvijShkLXUQPt/K+SOukUffoWVie/8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=R4RCEQfRBQG3Jocz4jTbcIGP9WAfz5heuJgd5C57LX/dV9t0iZy5YJYZ+BHNnLNjI
-	 vtOd7CmFnNBpRMtw6yaMZsRZZhqoFmO6I/UC9PKvwQGk93F3p5sHoBikw8puZ86dN8
-	 SeB5c3LhesPxoN1XhJGPaeJke6UnMvO8c5HzKo6m3usZk6T2925Ox7+GALpn8JFp0j
-	 qqG2Z2MVBfS5wyv6V+gVdZ2bVvtjqms1uZGMqIDx5/1nH+VwUdC69UiXUKeUVwcoWk
-	 wk2fuITpB4+77KqAYxUhrgfN375O7Zw9uYkeoIUUX40gSj9vFdkRXtb1d2mLUEGNK/
-	 bCOjZ4n0Zadzw==
+	b=LFtLkyc5y3Y4zaUhkX9mFib8lqm3w0H6It8p0Uoeeu3JR6kSzM2i5Z/upk5ejlGd0
+	 508BKqA2F7BXJRPfKKkHMTUYr/Rq36NWJCEdgp/mAX11VM2lWiEueRuaz9VfLUjL0N
+	 QeB++/1sewqYrEzN5peujgE4KeL7o1E+mbCM8tls4tECiK8PkhN8qfMaAwadPYR8v7
+	 7D0FaMooXP8h3QZzbPejjFvmyLTK2sSehKFyoGvc53PLZSeUYmJmOFRZZdshPiTgFY
+	 imz4txeF2iXgc18fJ+q+qXMQJzmidZrPgw/ZPabcIp3HwpebTPMVgVNdXZwR3JzaHR
+	 N/g7heHDojI6Q==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E567A10FC456;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C688E10FC453;
 	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Thu, 09 Apr 2026 00:15:49 +0200
-Subject: [PATCH v4 06/11] Input: stmfts - use client to make future code
- cleaner
+Date: Thu, 09 Apr 2026 00:15:47 +0200
+Subject: [PATCH v4 04/11] Input: stmfts - abstract reading information from
+ the firmware
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260409-stmfts5-v4-6-64fe62027db5@ixit.cz>
+Message-Id: <20260409-stmfts5-v4-4-64fe62027db5@ixit.cz>
 References: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 In-Reply-To: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -58,55 +58,95 @@ Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=999; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1821; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=b/jklM1zbCQq0LgFU9O2NrDUidLzNIiCSesKs846UrE=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOSX/8wXIcBMj7wQU9sHsMyexCIa9bif82F+
- jn4O1E6y7uJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
- cqcjEACw7KJL1B4IeGb5Y5BLhFGgrkasV9+ayx/oBWguyFHfkrIFB+xMFBltOu2p09IDBo1J4+p
- 4qTRCWcb6YWbnDCLB9ROTbkJHB6FqnyqD0qHhzhCj6oe6bBX8VtwihwshYUqCMOiqYTPTfyZdYA
- zSPIchO03UcluHlUbSNzns5DBC8wz7OuPjcumDzo4Ookxf5SkDVFbL1jOsWIQaf9EV8NDTp0kYv
- Qd8zrfrmVJyd7TGsfqwYgEreMlu829h7AQSzyXM01kObdBqce32QrmXVCZvDMjTIXxkjy1YbmAJ
- gkWpCMn40rVe07LKoU1qu/Eur0SmHWQhrUqYTQP0NeUH9PpeQTOn7QqiY6cA2gGkzLLnt2KjDr3
- xlghMrox8RCtiMLMLcRJnJ26jJoDdxG+Omr8AE22F4bzHTUGQhZbBR/etFEzUAKKxXAxIu4By1X
- iReyQ06qNMqe2ZarSxS8YemKaFQa+TJ4kfHhjx/3k0v213zjyLkoRRBZxBy09lgIqJDCf9HsOpe
- fMArxmvZS0rqEKK82VhfTkuPnAPzTPV7FVjxCijX6gsJnS/DFfaqcIXXGWdnGAYnjby7VipMIz/
- lPcTzlVlCUbfVXC6WuirJsGcmE5Q+6v5jMgd1eq3D/gIEjipqbxu6SHj47+2DJ5T7zDrBW6FHh0
- a4CNzCUEFCnoVyQ==
+ bh=MRRMNTeMVS8qh5Y3wcBKjF6ySEKPpTml4To4kFWgqxE=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOSDBefFkQ6pmg/ESv1rmphll3moGBi4877/
+ AdaIOG9cUOJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
+ ci2eEADECFzczHHY3Pw3nIE/rotnNSqUwkRYNMEFGe9E4VNC5iFgbpJXPFfYNTTC4gXdevtmLO1
+ 7QJz6f+uU0/a3G2yD3nPkQS83GYu4J7uDTFtkuQsDQ18s53YPBE8qSYkQXoJPPpd2DHPbdq5YKe
+ 0jIKBqpffX5dmbgcc2eRxHV5gV97Sw7cgl9VKNxanE9NWpZr3NV5fc7MsrcKWSwaljGS43jDCIY
+ KEf9IyFIfwtdSymkLbG3JTHR6JfQYoTpeXAbG6pjARjAclR/w1o8Vz79Ywj757eGg6Eg+MyQjPk
+ sg5GdSWX2qjTaxMaiUjXoXjG/ZHqp8Y5RbH+wGxA6wYgq4Y7/4D/QqG2tWSqVzSCrY4feS7/6s0
+ JGAdBH5Yz6UslhhAmjf5WM99L7LfvmCzoXdTu3XZupZ2G+VXs8C4NxsYMjEdcDjJaabDo7P0xfd
+ Zzl/UgcHiMIgvEiYrYJOX9LdVyplaOE4sHSKD4nfallEMxdDX+XeMIYEAtFMDjCbVk5X+j+Vz41
+ X7BSz4YcnVUuenHs66nZRHYyIl3RH8oyAnoIeeHg2jK9gjV3PuxDzCQ5ADe6rgC8KSW/SI340vc
+ AWWcgF7gyLrOQVjwJadnY1XIvwgrAkfOZMPD3HQ5mtlmbLawInYnA+Aq1p4tBv3NGyfahtAAu6N
+ WampsCjGPsTGc0A==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
 X-Original-From: David Heidelberg <david@ixit.cz>
 Reply-To: david@ixit.cz
 
-From: Petr Hodina <petr.hodina@protonmail.com>
+From: David Heidelberg <david@ixit.cz>
 
-Make code cleaner, compiler will optimize it away anyway.
+Improves readability and makes splitting power on function in following
+commit easier.
 
-Preparation for FTM5 support, where more steps are needed.
-
-Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- drivers/input/touchscreen/stmfts.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/stmfts.c | 36 ++++++++++++++++++++++++------------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 290511dd69437..b61a19e954296 100644
+index ff884e04ad4c8..71d9b747ccfc5 100644
 --- a/drivers/input/touchscreen/stmfts.c
 +++ b/drivers/input/touchscreen/stmfts.c
-@@ -769,9 +769,10 @@ static int stmfts_runtime_suspend(struct device *dev)
- static int stmfts_runtime_resume(struct device *dev)
+@@ -518,22 +518,11 @@ static struct attribute *stmfts_sysfs_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(stmfts_sysfs);
+ 
+-static int stmfts_power_on(struct stmfts_data *sdata)
++static int stmfts_read_system_info(struct stmfts_data *sdata)
  {
- 	struct stmfts_data *sdata = dev_get_drvdata(dev);
-+	struct i2c_client *client = sdata->client;
- 	int ret;
+ 	int err;
+ 	u8 reg[8];
  
--	ret = i2c_smbus_write_byte(sdata->client, STMFTS_SLEEP_OUT);
-+	ret = i2c_smbus_write_byte(client, STMFTS_SLEEP_OUT);
- 	if (ret)
- 		dev_err(dev, "failed to resume device: %d\n", ret);
+-	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
+-				    sdata->supplies);
+-	if (err)
+-		return err;
+-
+-	/*
+-	 * The datasheet does not specify the power on time, but considering
+-	 * that the reset time is < 10ms, I sleep 20ms to be sure
+-	 */
+-	msleep(20);
+-
+ 	err = i2c_smbus_read_i2c_block_data(sdata->client, STMFTS_READ_INFO,
+ 					    sizeof(reg), reg);
+ 	if (err < 0)
+@@ -547,6 +536,29 @@ static int stmfts_power_on(struct stmfts_data *sdata)
+ 	sdata->config_id = reg[4];
+ 	sdata->config_ver = reg[5];
  
++	return 0;
++}
++
++static int stmfts_power_on(struct stmfts_data *sdata)
++{
++	int err;
++
++	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
++				    sdata->supplies);
++	if (err)
++		return err;
++
++	/*
++	 * The datasheet does not specify the power on time, but considering
++	 * that the reset time is < 10ms, I sleep 20ms to be sure
++	 */
++	msleep(20);
++
++
++	err = stmfts_read_system_info(sdata);
++	if (err)
++		return err;
++
+ 	enable_irq(sdata->client->irq);
+ 
+ 	msleep(50);
 
 -- 
 2.53.0

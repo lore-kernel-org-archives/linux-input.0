@@ -1,41 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9C70379EF6;
-	Wed,  8 Apr 2026 19:30:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F4C93D9025;
+	Wed,  8 Apr 2026 19:48:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775676658; cv=none; b=F2yhEyEuu4A4XERBD9qiF+omX4d71fn3My5foWsuxizHaO4r1yhFGqb9rAnLSuy3O9GN/Ed7uAqvAU30fwdzPDFTBdlPguub8zUpDopGLqGuFgd82E8qLkqwt+ZDE5qj7U3AuEBMQx4EiPYsWm3TPLJEJ2IqnjVqHCahdxcAjLk=
+	t=1775677684; cv=none; b=RAFm5IQeksrOKXCcEtGnHDIxEKHgMaskAAVDyz0QifUgNL74XOxm9KeqRQZAkSm/RYrvKRtl9EI7GeaiEI2APENjoiwZXWhZH6FZJgfRxG3C5a1V4RmvD3crXQrRGXA44sx1Vq6AwMtW2VDBLdUF83XHHSqQNyEmjMpGts+sd4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775676658; c=relaxed/simple;
-	bh=iPMhfVLkiRFGmKf/uet8JOEWLR1LlRRHZ7gCYNyb2Do=;
+	s=arc-20240116; t=1775677684; c=relaxed/simple;
+	bh=3CVVOy4rJq9P788JGenumBRfJ9lUzFMwXLkO0/vx9p0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=Ip305F/l9VXXO09VouW/CBwF/FE95NGMGXViux7WY197FCZ9wqFyMcSP+Tr3BmmdkQjYpaqwpdL/59y8+tNvrKArTMc7u8gX23f8o7Oe4lIdPzIYi7IfT99qMljYmoWui7XTmken/OiOOrI5z9VUDrlDWWElWDXUF11fISveCKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xgti+FSp; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=KWXbf3FaPodjTKA3t0Bxhsj5KeDRm3xmsoR58h3Naay02LyXNkarRqbgDy9bx3ytSwuf1c3qulPyC6LSeh2rNjaMTgq1/7GduBFHtaQZXLq8L7gOg0ExW6k/O96vBFtVyPZ7JuSL3L5WMM6TsZl+a98I1gu8ZmZdipga+xX+Ydg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EKoXHBIX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xgti+FSp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B3CC2BC9E;
-	Wed,  8 Apr 2026 19:30:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EKoXHBIX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7B8C19421;
+	Wed,  8 Apr 2026 19:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775676658;
-	bh=iPMhfVLkiRFGmKf/uet8JOEWLR1LlRRHZ7gCYNyb2Do=;
+	s=k20201202; t=1775677683;
+	bh=3CVVOy4rJq9P788JGenumBRfJ9lUzFMwXLkO0/vx9p0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Xgti+FSpmid8Bd6xjWEAIPXsMaD749NRRpQDny1VEKXSpM7zzI9k6mQVN3OCJmD4r
-	 FUqqB/r0bYZNtGCmsOZ12Kif7IzGMJJ03Z2v7ulEImeluivp0WJg02zJmE787JvTM8
-	 4/1PvEGPeRic2v0K1nwGFTICvImzG3He8Q9dsUVkFrf+r8lwVIv3fvGY1PI4dMj67q
-	 nkKYNso7obSr19xHARHQRuYsoyiDjPVfxSxG+Ifhro43dx0e6NYwl+6tCe+W9sXcUp
-	 gsRPyxwDOzWHt4lcZZZ7g9WVnmlBaQPgnHdbSOC+F7re97qetPfAGsmLdbf13mygSw
-	 AYnN76w5elPAg==
-Date: Wed, 8 Apr 2026 21:30:55 +0200 (CEST)
+	b=EKoXHBIXOCSf+JVp2IANj1cNDRBbuBYJpAFakptcpEAEkNZXi8HLI+6bTPCI9GbZf
+	 +OrK4vW2A8tVZMY1BkIvd/1btXyUInfMeZRN2vh59WsqqfKUt+7IxdQpPzSaaw5hrn
+	 PrkQz46voSfZWOeqIRww6GDzrTKq9wufT2rghh43/1D1BQ4UL8vKcygHXYqGPT4YNj
+	 ClT9Z29roabudPWd888oiLjr/AI/judRmvbxvfJcArrupiVmOKLx5TO19bYplyQs2v
+	 OLjKtboqi/h+Pp7xoqEF8jYeslMuPRJo+gY6eZSjtfYI/81PBdhmMQzo4/UDlRIGrv
+	 opB0g+13AcOvA==
+Date: Wed, 8 Apr 2026 21:48:01 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
 To: Benjamin Tissoires <bentiss@kernel.org>
-cc: Zhouwang Huang <honjow311@gmail.com>, denis.benato@linux.dev, 
-    linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH] HID: core: add short report quirk and use it for GPD
- Win (2f24:0137)
-In-Reply-To: <adZ2PTzQ05iObcGt@beelink>
-Message-ID: <0q5589o7-0qp9-25oq-7n97-50q172q8s1o8@xreary.bet>
-References: <20260407173212.86942-1-honjow311@gmail.com> <adZ2PTzQ05iObcGt@beelink>
+cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    muhammed Rishal <muhammedrishal7777777@gmail.com>
+Subject: Re: [PATCH 8/8] bpf: Add fix for Trust Philips SPK6327 (145f:024b)
+ modifier keys
+In-Reply-To: <ac_nblOZD_DwTYKb@beelink>
+Message-ID: <1572prq2-rp66-22or-q8so-ns9098o4r9qs@xreary.bet>
+References: <20260403-wip-sync-udev-hid-bpf-2026-04-v1-0-978cedb9a074@kernel.org> <20260403-wip-sync-udev-hid-bpf-2026-04-v1-8-978cedb9a074@kernel.org> <ac_nblOZD_DwTYKb@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,14 +44,16 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 8 Apr 2026, Benjamin Tissoires wrote:
+On Fri, 3 Apr 2026, Benjamin Tissoires wrote:
 
-> OK, so if a firmware already fixed the bug, I'll drop 9e2a17d2e808 from
-> for-next and not include it in the final 7.0 PR I'll need to send. 
+> Of course, you hit send and you realize the commit message is missing
+> the 'HID:' marker. Sorry Jiri.
+> 
+> Also, this commit should probably be tagged with:
+> From: muhammed Rishal <muhammedrishal7777777@gmail.com>
 
-Now dropped.
-
-Thanks,
+I have fixed that manually and queued the series now in 
+hid.git#for-7.1/hid-bpf. Thanks,
 
 -- 
 Jiri Kosina

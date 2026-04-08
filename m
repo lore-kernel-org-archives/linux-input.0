@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587963A3E81;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B81B3A383F;
 	Wed,  8 Apr 2026 22:15:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775686551; cv=none; b=pZw3QEGrHYzIHq+fptBbLVQBPhBvN1vWkeMNfNEsB6P0+LYJGnjJEnv6C/seJfgjzhIC2tg4X3EH17ExOrWkwujVmP7pNK/RPtZX4ix9js5kJqbg1rWfN8LR1bN/CI8nK/K8xujkaWB694+wV7kv9Rpcyvxz2mUti67kVmd6irE=
+	t=1775686551; cv=none; b=PYSTjFv3stmp97EkcdhVzq+J6SOss+iHscZpLYUqGvnzVNNhUI+72Br3+REYulzFc8udwYwQYqfGHDpnj0XrBOZo6t8M/kWy+FDJUJcH57/qVyduEyM+VVoo6Q8I1cwiqKvq0GQnHP0WDHid90aQZSGOxzHQyH4f8BPooD3qzwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1775686551; c=relaxed/simple;
-	bh=htLSa/pFYIGLX2V/bgi6ZPOMIyGWL50VFCX7LC8EdCc=;
+	bh=mWau+z9gzfl+tuHR+lGcgDHqPCc2l27GPvMVfJPudmg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TF+5wiplOHLXA6mDOdJ8RjX4uEWgBGlwKoWoxBmU+Q33YOMP9P5jp/z6g3a5d6g/xdtN7uaZL2CNj9BFjqEv+p4L9Qg46aLkilb3isxJlmR15W9Nm0+R5aUhVNnGpSFSsfGjB4nUNbybmOFuxyfxNNSE/Xr55eVQMz+T5Utvk6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AsoKgq3l; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=WQQIcm9jyWmnLYMPF6OoGdHgoJYQ28bUkm32cFua866pe+YsOtA/UwX9GeYcOd9h6wlbzFCFhoPFhO3dQ0pdYFkF5tBS33fZS/mVPeXjs9xqTr1mB73JkY3nG8tfzHaaFOI6QThafMpA4X79sX0ag5feo0LNk2grJA5nzhwEIrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OvVPmU0s; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AsoKgq3l"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2B7DCC2BCB0;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OvVPmU0s"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 09F50C19424;
 	Wed,  8 Apr 2026 22:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1775686551;
-	bh=htLSa/pFYIGLX2V/bgi6ZPOMIyGWL50VFCX7LC8EdCc=;
+	bh=mWau+z9gzfl+tuHR+lGcgDHqPCc2l27GPvMVfJPudmg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=AsoKgq3l4qG2R9BpXaj8Ed0eyWn5uFLGOWCXpzxxJqEcRmBgPazn3Tdyr0qgYxdzu
-	 1abMDWTUowTlv2E+nnQIeX6xOQIA/H3AtAjk5veNqWW4sy6SrlYKX7x9WxzljhaLuu
-	 SGAN3Gplt1KC6NKmwxEqaAeQmSZYS30y95QN5xOWXY0SYQbntN7zay2XM5/GvaKaFz
-	 +fPzh8O2uLMNwIx+yxydg0ykNDloMrzRlW8zjAeafZOhhcHpzqvpi+qhSpZAnQ5I9i
-	 hlzEGXaflEwhVz7jGh6pQAkHi49fEg4l4ZRd7IT6I1ROjRrKJlkdJ758Ea+RbbpDRX
-	 5ZD5Xc2qX5N+Q==
+	b=OvVPmU0sOx9UheEeMlhva0qkdxI4ZiTjaSG9XNByx3cr3yZnZLrqyCRbnsWH6EM1q
+	 Iv8iT7gfPpVFZVAsKRv3d6SoXRQAcvjQiLeD/867RNqUhf6L6QORbflBqA7WOZwyJN
+	 vCXjAlQvr53AfqjM4VV2x6Exh5DO+EjW9nuBra/kcM6DjGD2IE5+L+n6qTMR4gs5qj
+	 IKgwDQKTJETdOb4HsjEFLbmUIK8G0Lnag+fi8qMdnTFNQraE/1SQmOqb1TzBoDl+GV
+	 ZaikM9VNne7gjBsu+f6bbg0OIhrJmecEB/pkneJ5Eu2Dz5wK8/jrXFSq+/Nbyb04pf
+	 2F4vtKJM7N9uw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23D2410FC45A;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0107810FC45C;
 	Wed,  8 Apr 2026 22:15:51 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Thu, 09 Apr 2026 00:15:52 +0200
-Subject: [PATCH v4 09/11] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
+Date: Thu, 09 Apr 2026 00:15:50 +0200
+Subject: [PATCH v4 07/11] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce reset GPIO
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260409-stmfts5-v4-9-64fe62027db5@ixit.cz>
+Message-Id: <20260409-stmfts5-v4-7-64fe62027db5@ixit.cz>
 References: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 In-Reply-To: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -58,21 +58,21 @@ Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1224; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=774; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=ghceD3FEXE+XcrRARnEBBTznzq4UXU11eu6mo0R07f4=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOSgCz7jjy058wzeL7LEkYevCLbVWdEmzY1J
- Rkf7VMNi46JAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
- cpX5D/oCsqGXfeV1fdW/6kPezRfYNu5hhWyw2cIJv2dQySwVh3VIq/lGZPocjSySj/ZqaaOV+c+
- QJTF4ztbrpockeRkdSjn1jAiitpI6pRMmmZrgFooZXmWRW4nbnKeU/KduTJESeV+/87YHWAAhZW
- J/3BBXIoNOz8UJWO74AtUzniMZLLg3d6UEyuHq6SoWAHvk+mcD0L0To0/V2/CjY4Focrw0b7MdW
- kVezi/67hyObLSWoAb17K0Y5YHlKSac3hN8qZfdVxJrIelIDV7yVmI2zfBIvfyTOxFv3eQW2q6A
- ujJ0o3qvv/2w+Q6STHp/UEn2+bUHxn/rrCQt79Ey9NvIDTp+gwzYxBpglNAYo9NJjgd/ioxTSd6
- ukaEOGEq97o5BV8DbYRLH5ZH2PHpWm/dfKjEiFdjCzGV5XnhY58+6yx8YxyGebQpJMadkGByr5Q
- oZvXvM0JEQcdmW0rcNpyvZBiYARyDo3wuwevv1EF+1NBF3vgiWnrm/2BRYVSh3H4lzOiPOO2tdd
- ZKbIc3XhChBKg90OO2g35xjLR7p8+Yl9ykvdAvH30xxEWZmqx28jXrW33XHYEsoe2EE9H3u6XHq
- Vrcp+m10PE00u0oVk8dwKd+hIzWNRuhU79eKzTcapUzO5fUBIddcmrG1TU870LA6t7Kzxevfvdl
- A3sh9vK8HMeppZw==
+ bh=B9kCQKy2FHl0reom6sgNtirncPHLOm+2NoyBOxtDRYc=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOSJUHdlj3O0LPhM1jaiJv/ALPX+SD6InEhO
+ o/IffCvj2GJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
+ csyXD/9/mTo3zD8m6fYZQtO0bvVO2xJ+E9/paboBT2bTq30RkJAtPxJMH+l5LwJAAMOz+RlfBDs
+ a9GEsQj0fEeU33q4F7tDgH2l1jX7wvOzes41WGBRRTThMvbrpq5/UfNcqGtoHrLG5pQQ85keYID
+ YtbgeV1EyDkV6h6oGWHNduo2e7IOsX8PMjXcgkWGniJTjeuMM/t1VlBsb02WDj5vCnnBnzLJzWk
+ Q2YO4Jr024nHqEQ8OeRXu4RZrrbGLyzHvMK+6Zaz06VndUFlKelFCb0H2nxBJr38simrrDsn+AZ
+ TduQwSLEtpXvnGmLr35o112ZfG45NyHteCGGvmrVnEfWdOJZk+3J8DTnJaaYMWhAiU37NfflkhR
+ Bdbwxt2jwx0twBZ15uVW9C8tDJM39mDXiEEWjXOB+31qJ5LJ9bRSI5dEaPalnfk+qJvAiojLPQa
+ rQJkoysMbAyJqiYgJaOkFoHG6K3eFSkla9+K1DC+JQSkQnqGl20Xc9CgPFJbioU8lNfm2nFsmYO
+ RTLoXFzxS9S83/AYR22zQI1GjnTsqslGGVzzSv0Ybe4MMOFIKkqZMcR6HpkFQv4TuGbE8jAt01/
+ HKdGaSAZrw8vEyoMRqcSW2wQyt9k2Lnyn+F+fvFGV6Rn+cHhfGmng6sbgVbXrUsyG7/oAOYLOd2
+ AatmeUfB27sCQyg==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
@@ -81,49 +81,28 @@ Reply-To: david@ixit.cz
 
 From: David Heidelberg <david@ixit.cz>
 
-Introduce more recent STM FTS5 touchscreen support.
+FTS has associated reset GPIO, document it.
 
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- .../devicetree/bindings/input/touchscreen/st,stmfts.yaml  | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-index 64c4f24ea3dd0..441fc92b9a4ed 100644
+index 12256ae7df90d..64c4f24ea3dd0 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
 +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-@@ -16,10 +16,19 @@ description:
- 
- allOf:
-   - $ref: touchscreen.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          const: st,stmfts5
-+    then:
-+      required:
-+        - mode-switch-gpios
- 
- properties:
-   compatible:
--    const: st,stmfts
-+    enum:
-+      - st,stmfts
-+      - st,stmfts5
- 
-   reg:
-     maxItems: 1
-@@ -40,6 +49,10 @@ properties:
+@@ -40,6 +40,10 @@ properties:
    vdd-supply:
      description: Power supply
  
-+  mode-switch-gpios:
-+    description: Switch between touchscreen SLPI and AP mode.
++  reset-gpios:
++    description: Reset GPIO (active-low)
 +    maxItems: 1
 +
-   reset-gpios:
-     description: Reset GPIO (active-low)
-     maxItems: 1
+ required:
+   - compatible
+   - reg
 
 -- 
 2.53.0

@@ -1,68 +1,87 @@
-Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D840C3D091A
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 14:19:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15BB039F169
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 14:47:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775657992; cv=none; b=rjPi0Hv3/YYbGmLZRY5SOHPgAmtvhfmL5i0WhwGNQ+jzUzMcLCgHY5D9t0/8BUG7B6eCIXT22DFKnW66jUaAgIzst50X5PhteciNo1jDVBrGQgTbRAN19D3LntohCvw37j1mDH8s1iTP1ckBtiI/g/AbPos/szj5lQpysNxhV7s=
+	t=1775659659; cv=none; b=eML5+m54+/Gwma+ej3pVKxLDk1WAjYDf9MHRVMTCCcrJ1bFoYkS/HVsLzIszw//xmEnSwWwBrjBqMkzBcneyvd+hAnN4ZSOPHaw/dYvcfugPKo2t5e4M7wFtuwwzKky8XztJYE9CKBYvehA7px52qBp8zMpN/aKuDusMnhTuHbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775657992; c=relaxed/simple;
-	bh=/RQPtUAL2UmqJa95AwJGh3fSalm3PSqkznyBvQeuVNQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fd33d0HCnS3iCixOTXKszCEYAly141Mk98iBFqehbyN9yVjYBV1IjTxqKaJZEmpsFEIrC20pbvCnv78sHA6mvzic0XH9LyGA3MUtpjgQc/s/5+FfGlYhQ5FRevHtzlFc0+mQAAorUIEptF2QQxdBlsnXvZu+KJ7ga8piH7elunA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uYR0e/W2; arc=none smtp.client-ip=91.218.175.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1775659659; c=relaxed/simple;
+	bh=XD/VeR7izK6kTKHFyoEfKHxdjgkwYY8WzKbo/vkGJG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sT1fe8lOn8P9soFus0kTPCZjcsK2vnLbUxnm0ZtuFQq0eJ6G1l8whnluEPgLD+FHO8DtcQIjz1x3ZJdf454rjc9b+Cdry+UzegsoCn6TEyoMR7nY5YB739t8lx++B2xL19VhVV+YcBxNlycXVCNKIyLrsmm+/uQ6tMZ82Bu68wM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OCKwpV5H; arc=none smtp.client-ip=74.125.82.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uYR0e/W2"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1775657978;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Xqhcz0s899DFFE92Y1TSvGkuk/W1D4YwpjJ1vQJtGog=;
-	b=uYR0e/W2AJbMrcXrs6CKF/1Ks0thxqqJzlBpro8qh/QMM8U0HMTOyhoVHsgon4krj02rnu
-	k2qLcZzlZdda3G98vlMS2Pz71vxbsnAICyYk6EdabnVoXz+kikFhRi/pwQfqV3tkgVqz4D
-	NAH8rDbyL8ZWjZFjk6100y1XTKI34v8=
-From: Thorsten Blum <thorsten.blum@linux.dev>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thorsten Blum <thorsten.blum@linux.dev>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] Input: qt1050 - inline i2c_check_functionality check
-Date: Wed,  8 Apr 2026 16:19:25 +0200
-Message-ID: <20260408141926.1181389-3-thorsten.blum@linux.dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OCKwpV5H"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-12c1a170a50so1969974c88.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 07:47:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775659657; x=1776264457; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=EdkcGsGD82PVNH0uT7AdIxGIf9fHnZQFnXf4LWOVvTI=;
+        b=OCKwpV5HoDwg4+l/k0xNx7W9Ui3eD2cnkgolrHt6xfCs575Flg5cwBdLOkAXs+RR2v
+         klC7lckvsWDoG+skn3mDHkQ+iLLUfcPV+GfKoMfYpxg512ByUnAz2u7mLQN5GtnpPqND
+         nXNuIlsK0IoR2i9O9bfr2VW1myaT5YUmA4qvTwfKU+dQPT3vD3HTWRpUCgrHoRZbvchF
+         4wyJqW7HkWAm6L0XJYdehyZ2RP1NqN83tpy2AHPqD810rpDiH2t6t6W0wYU3ZsXH66yX
+         RoJCFvABP2u87I3q95cbzzSuXpzQGOvTPhW0Rr2UbZ07J6WrxuoOfx/TQeF9WcUM+pjh
+         5ydg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775659657; x=1776264457;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EdkcGsGD82PVNH0uT7AdIxGIf9fHnZQFnXf4LWOVvTI=;
+        b=bwzNdtHK4sbeS+X4A3Slq6+R760XZ+5RlMCgsVaQgsqcKNT7Jje6FDHWuWReIitx9j
+         DCH5fuq44A19/YajeNja1dKDpkwn2/gFdDJ+NEp89X2EcvTC4i9TvOxzodtq8fVPiYvB
+         kM4YMkpddsz/gurWvFfMjOee3fwIBKW+wHz1dWRZUJ9r0eNexm0rAdcKusQx7t/9fxKU
+         15NFdJ+m0fpGlu9wPHMpUaYNaKjQTJznkStkrlidgQ59YWwwufMoODPbNPB0YcgkLcPN
+         QdNFpaPyKmE3E+2YcKqot4wzxWlO34bGxOTrMo9cJMvN16oc+xYBxNADLO6ouvlbjBaz
+         H3mw==
+X-Gm-Message-State: AOJu0YwqS0vLWqZGrZu3xByGZKJIupvifw1gzNp15ynRtRdbKvJZvBhZ
+	uJM6kf5UFdBctjNQc3YqSviHygI6Uv/vYi7bIt7bH7t9sieoQEzYEWo4
+X-Gm-Gg: AeBDieuvef1AbVrSjV18kb67hDCrZG2G/h6dVqrCiYS17C5Xdqi/vYSqiC46uJvBQnD
+	vz3dCPPq97AktW0/hzb21KBTCIXdWQ4ttv0eBJSvFjGUjkCOE/yXqIK8baMl0J/cstbqBjaU3Te
+	fpCITW7lLIHPu/EZ3VsfWSDOn7KdimMBh1TxC3lZRyzkH71k3lB9YnwhFbGCmxn+6MNcp3HVMog
+	AJgkVgha2dRiDhdZ5UL2orqXG1kAyZ+7Xy5BENTKeTHigxpQc3PUT+5JRK0roZEBqFaNq97B9Z2
+	t8QZxV3mNrZ/Qzw2+9jf/ZQXFOprKjQR995AX3ErFo3TNH3DDrL6Kqjgu8i523MuAbsyX/1jvyE
+	WpLOsZt8WGayKd0qpuEV7lsYS82l407DJP2hsliwj8xDVGsuKz75G98x1ddFzVdwqBH4eUjWc3S
+	2rZyetmQVqbt7ORuIhx1egHJ9f+FP7w/bDGLD+A8Ii8kXBI/UF9GGa3GnAyd37114G
+X-Received: by 2002:a05:7022:6b85:b0:12a:b932:81fa with SMTP id a92af1059eb24-12bfb6fb367mr10997008c88.9.1775659656967;
+        Wed, 08 Apr 2026 07:47:36 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:f3cf:7538:b120:7924])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bede7f085sm19585452c88.12.2026.04.08.07.47.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2026 07:47:36 -0700 (PDT)
+Date: Wed, 8 Apr 2026 07:47:20 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Thorsten Blum <thorsten.blum@linux.dev>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Input: qt1050 - inline i2c_check_functionality check
+Message-ID: <adZqZdP92Nt25uMj@google.com>
+References: <20260408141926.1181389-3-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=878; i=thorsten.blum@linux.dev; h=from:subject; bh=/RQPtUAL2UmqJa95AwJGh3fSalm3PSqkznyBvQeuVNQ=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDJnXkt/di1r3ZNImnqdlvDw+yjpFMmtWs287qpTJ8fT5i j3bnguc7yhlYRDjYpAVU2R5MOvHDN/SmspNJhE7YeawMoEMYeDiFICJ5P5mZJg3jZ9R2D5/02c/ ru7Jet95Lt7dYrp1/rtShW0cBl4bvXcwMmzeHioxf+LXqTGTDHSWTrtXdl28bFqzG2vmEi9lLde Da9kB
-X-Developer-Key: i=thorsten.blum@linux.dev; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260408141926.1181389-3-thorsten.blum@linux.dev>
 
-Inline the i2c_check_functionality() check, since the function returns a
-boolean status rather than an error code.
+On Wed, Apr 08, 2026 at 04:19:25PM +0200, Thorsten Blum wrote:
+> Inline the i2c_check_functionality() check, since the function returns a
+> boolean status rather than an error code.
+> 
+> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 
-Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
----
- drivers/input/keyboard/qt1050.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Applied both, thank you.
 
-diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
-index bce8157d1871..f9f480c91032 100644
---- a/drivers/input/keyboard/qt1050.c
-+++ b/drivers/input/keyboard/qt1050.c
-@@ -435,8 +435,7 @@ static int qt1050_probe(struct i2c_client *client)
- 	int err;
- 
- 	/* Check basic functionality */
--	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
--	if (!err) {
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE)) {
- 		dev_err(&client->dev, "%s adapter not supported\n",
- 			dev_driver_string(&client->adapter->dev));
- 		return -ENODEV;
+Thanks.
+
+-- 
+Dmitry

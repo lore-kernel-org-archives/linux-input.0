@@ -1,131 +1,119 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA9E3D47A5;
-	Wed,  8 Apr 2026 17:12:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775668337; cv=pass; b=ggAy/GKNNv+NodWcCkL/O/40k2C3tV+t9HckkuNQF8TeNLXysD0e/9G68PxLhboyqfJtEk+b9jaGcyuaZSyrdfT4LrmvA5CyMLlT1Y5zD1NFSNImb5hB5V8dzBrbY0ZsU6XrLM4mxJWzr3GlXIRqeKj6gfKZEO5St5I1PDT6PwI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775668337; c=relaxed/simple;
-	bh=sw4U23/BDwEzAjGcSXxTAe0SH3ZOEZ4VKUIAWOe/H1U=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GBA6RrRFRggv2ra4z7/8oIJC7ckYU446Bio6tLUctV/0GYZle7lE8mj7FYe0sTvl4jHOhEazARU6EfZF3qUbhDwpwzGUxh2aHNO1alyuvNQIu22hKvtuOE3fbmkVT9oFKSYNsCIDfFoIL6qyM4RRAJ9bLRvs57D0/FQR334W4R0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b=NSpC7zR+; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12FB3D3D06
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 17:23:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775669020; cv=none; b=XHo+snc8W2ZXfaO7YEIRpWidvIcVuNGCrPVWPnDbH/pBJeORQ3+S7KJVtiodmKUia4QC6grwGYV4qXupv28iD0mm8LNaLDQVLXwWxk9bJEGyyLsa61tJ2jeXMBtShG0WHONZ8UQzF7nRXlLBqSrHBHhgdfpMvbwmtlRK4tO8OOg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775669020; c=relaxed/simple;
+	bh=RTbLhkhaBejIuEkJARpEiuDCP8K6mIalCvZyNgaquTU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Q6x6kUsRYYvKewu2wKXj8dU5HLVyl8b3CMiyKvscgPNnmDSTjp7aSjwal+alnGh0v0lOyfRFk8Bmnm6cJ/ZMtGO4Ym7FR0WJiqstdazOLZP6TdbpKGbCHKsuQw+ihoUJ87SdBFcqCg37cdotHn7ILw7zpipB8y4cop9f0mTYqec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dXHdzfgv; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=nicolas.frattaroli@collabora.com header.b="NSpC7zR+"
-ARC-Seal: i=1; a=rsa-sha256; t=1775668295; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=e4N/JLlRUOlFB2xo44u+ZMYrcs3vP2PA7vnWC39SX9oJjS7XD9B1DsLowD8Klz2MonLxa0npqMlnQ4TFq08Swn+qaYBZ/Z4/RJegWcCzwX3JRlA6xWTQd72F3XfN5qMyTKELXbuyfL/1M+kDr8nGh8KcHRxmiEWFe6XYlBErgRo=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1775668295; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=sw4U23/BDwEzAjGcSXxTAe0SH3ZOEZ4VKUIAWOe/H1U=; 
-	b=j3Od4SUlU0DrvH1qRlTCzUjMI/8SjwhNgIQkD5kttdpfFVC3zhrCX3eFh1LajHHRypMaEWLmNjaSfKZIiHGSctMaXBy3dWlyfuyTiqI3T4pxQkVARXDgNUVcZIEpxeiZ/zvGJcXQqmV282UoRl0fyJDZec3AbX5xrLFp12ze5B8=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=nicolas.frattaroli@collabora.com;
-	dmarc=pass header.from=<nicolas.frattaroli@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1775668295;
-	s=zohomail; d=collabora.com; i=nicolas.frattaroli@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Content-Type:Message-Id:Reply-To;
-	bh=sw4U23/BDwEzAjGcSXxTAe0SH3ZOEZ4VKUIAWOe/H1U=;
-	b=NSpC7zR+KQtQ2vtE01p5tHBEBvVjOqX5MjwAWa8KLwwQwsbmfVUHJFofvbe5MY7X
-	yuubN5SQLs89CcIZWfk68D/FJ/O+hZQkrM5XOkXH+rErpkACUV/JKQLtC1oUmrVcZQl
-	nNhXC4mw4Yh6rkUAwJF0MCB9HCkCxaaSasMXEb4I=
-Received: by mx.zohomail.com with SMTPS id 1775668294549723.4122281165437;
-	Wed, 8 Apr 2026 10:11:34 -0700 (PDT)
-From: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
-To: Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Heiko Stuebner <heiko@sntech.de>, kernel@collabora.com,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-rockchip@lists.infradead.org
-Subject:
- Re: [PATCH v2 1/4] dt-bindings: input: adc-keys: allow linux,input-type
- property
-Date: Wed, 08 Apr 2026 19:11:19 +0200
-Message-ID: <4589987.mvXUDI8C0e@workhorse>
-In-Reply-To: <adaJOEZHHmvZM_cB@google.com>
-References:
- <20251215-rock4d-audio-v2-0-82a61de39b4c@collabora.com>
- <20251217133440.GA724723-robh@kernel.org> <adaJOEZHHmvZM_cB@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dXHdzfgv"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c70ea5e9e9dso90714a12.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 10:23:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775669019; x=1776273819; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=AT6B8NYC432IDQyByzB2HxtyFZqyMNPP7ngONKK/AVk=;
+        b=dXHdzfgvrlHLa02Kn68DBHsI73kEpxJIVaVCZKHr7PBuoksYqErOimj+QPPkoaJg5w
+         vR0ZDaHHGGtVA61JH3woq3UsdFVEf+j474//Q90f501V6YcGBedekGssMcqk5AEosOlE
+         aLbKCD5ud5hZzhmggyr/HcwT9Ln/XqFySSHyuP+RgBNBw+inSlZzSY9ln+5ja4awzlYK
+         lpmYfpacDGPs0IDbF+YHq8TIpa4C0h/khEwOLX6F/V5/3rWq9+RQikVY/iVEDRyVk0l8
+         lYTedRgUxZJwcyvaZLuilszKGisjauXzCRvkPtY/TrRH5YZ+K80W8hxNlgTrp6cMmKoK
+         jAdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775669019; x=1776273819;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=AT6B8NYC432IDQyByzB2HxtyFZqyMNPP7ngONKK/AVk=;
+        b=asm+0wvmz6hBxQVgc8KICItwzNFqztt1h25M1A/dnIHN+COwmK043hu4ho5ftszlts
+         DLHNrt7Fc1Frkq6UyW7TEQdHJkR4k20pe6RU8vTg+VA1I8bZLT7dLDtWHX2+gaaOeyHp
+         ThN3gbApA4HJbKfCnqYdNpjrkMOcMMwPfBl8VG+b+oDh+wnewIuWP2uAkh0aEdAQuXx7
+         ek66vr+d8L/eN4p8vVMAWnXsRxCAsrW+ruO8bodHcUxtHwT2x++DV0iqp8AcBoKNj0EN
+         QRdMeG+AbphrnSf7g/+I6XAsi7K1E2ykxbbvH53ymz9LgI7VyvWQdiCxoAqTpi7PSUGF
+         hQgA==
+X-Forwarded-Encrypted: i=1; AJvYcCVTglKOpAJNOWFwrEqpbKke9zSaGgUDuSJ3tZqF91BeeOqlk8jPCBNErmB4hEGMtoVvtAPrHfJ/qOb5mg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0VjRnnw/V0g3073w+xIkj6O+KIAIQM7hmxgWmqhe/Rh0e4AS6
+	3SJ1pUiOjPM37wTbPf2A4Ls4afiuuZb7B61mXMeiLI96ustK++9vvWQYQvAehw==
+X-Gm-Gg: AeBDiesWGZ7PISDEDluIk/GpP26X7em4DGZeoIu7zbqwQjVZuQoo/vAe3ouBu2IazQg
+	7S0LtgVSvdQ2lC9luj1FPGOcP2UAXETS33XlU2RKWSMzn7oQYoJbxhcmF+aG84mInRBIpelE9tx
+	0gVg9q6K83wlsv2q5RpiTPkipYMOc+u5Sj5jRH7/xWQuLDnmZ4V/kAq2WZDl109t3mUVfZVujE1
+	NYNAXIVZrt4etIe2x+uYB69r/TjZKr5bNQL7ZLO+Tu/1TqHBM4pUvXuUBWYCgbICv7sBF6hWZnq
+	kcFdogCcuRq2l1MT56E5/iX6iK5pi+34HSm6volw3yLYwaJmt0D6IRLSwxzzRK/hEh5frobF1x8
+	YN7aQf1x3es8U7PwzQWZDI2Xgf/Ey9ZAwfOeAdhM27g22is4BcsGT+uppkWCZ0HJnsG9HEXmN9d
+	myisIXsGZjZaGNyvchwAmQ2QLMujtk9sfIUeX8XvZxDfrW0EiJdAozwS+drYNsYOy5
+X-Received: by 2002:a05:7022:fe09:b0:11b:f056:a19b with SMTP id a92af1059eb24-12c28bf9ee0mr191421c88.18.1775669018691;
+        Wed, 08 Apr 2026 10:23:38 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:f3cf:7538:b120:7924])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bede545e8sm19029716c88.11.2026.04.08.10.23.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2026 10:23:38 -0700 (PDT)
+Date: Wed, 8 Apr 2026 10:23:35 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Antheas Kapenekakis <lkml@antheas.dev>, 
+	Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Sanjay Govind <sanjay.govind9@gmail.com>, Vicki Pfau <vi@endrift.com>, 
+	Nilton Perim Neto <niltonperimneto@gmail.com>, Mario Limonciello <mario.limonciello@amd.com>, 
+	"Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] xpad: Overhaul device data for wireless devices
+Message-ID: <adaOmEQNXXPhxmmx@google.com>
+References: <20260404083928.489966-3-sanjay.govind9@gmail.com>
+ <adSJp5U47g1JnImj@google.com>
+ <CALQgdA0oYzWqFtyG2eZKgwKr-QLYz5dLbsFbpY8qDrpxK7vj8Q@mail.gmail.com>
+ <CALQgdA0UpJb7Lztkts3LrFtWrAP3V3CivFv3NKJDFg1VY_q_0A@mail.gmail.com>
+ <adXe452989A6k2PJ@google.com>
+ <CALQgdA04mczQoJ4HyjSwgeXMHwLT+Rv0AEoArpwBohzL9oa1nw@mail.gmail.com>
+ <CAGwozwEoFWG-sQAbT8zxqEg8Q=+=xULj-a9y7yoEqu3ehZtSUw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGwozwEoFWG-sQAbT8zxqEg8Q=+=xULj-a9y7yoEqu3ehZtSUw@mail.gmail.com>
 
-On Wednesday, 8 April 2026 18:59:08 Central European Summer Time Dmitry Tor=
-okhov wrote:
-> On Wed, Dec 17, 2025 at 07:34:40AM -0600, Rob Herring wrote:
-> > On Wed, Dec 17, 2025 at 01:57:46PM +0100, Nicolas Frattaroli wrote:
-> > > On Wednesday, 17 December 2025 09:31:15 Central European Standard Tim=
-e Krzysztof Kozlowski wrote:
-> > > > On Mon, Dec 15, 2025 at 01:29:29PM +0100, Nicolas Frattaroli wrote:
-> > > > > adc-keys, unlike gpio-keys, does not allow linux,input-type as a =
-valid
-> > > > > property. This makes it impossible to model devices that have ADC=
- inputs
-> > > > > that should generate switch events.
-> > > >=20
-> > > > The solution is to use unevaluatedProps instead, which also allows
-> > > > dropping other properties.
-> > > >=20
-> > > > Best regards,
-> > > > Krzysztof
-> > > >=20
-> > > >=20
-> > >=20
-> > > Hi Krzysztof,
-> > >=20
-> > > to understand the motivation behind this suggestion correctly:
-> > > are the "linux," vendor prefixed properties, especially with regards
-> > > to key codes, generally a bit of a thorn in the side of DT bindings
-> > > maintainers?
-> >=20
-> > Not really. Most have existed for decades. New ones get extra scrutiny=
-=20
-> > and often end up dropping the linux prefix.
-> >=20
-> > > I'd imagine so since they technically tie the DT to a specific OS
-> > > kernel (though of course, others are free to translate those key
-> > > codes). And the whole idea of configuring which code is emitted
-> > > from something is basically abusing DT for configuring software
-> > > rather than describing hardware.
-> > >=20
-> > > I'm mainly interested because this is a thought that has been in
-> > > the back of my mind for a while now, and I'm curious if the DT
-> > > binding maintainers happen to have arrived at the same impass=C3=A9,
-> > > where linux,input-type et al abuse the DT model for something we
-> > > would tell any other vendor not to abuse it for, but no better
-> > > solution exists right now to achieve the same thing.
-> >=20
-> > Not sure what the BSDs do here. It's never come up that I remember. Bes=
-t=20
-> > I can tell is they just make it a userspace problem. So every possible=
-=20
-> > keyboard needs a keymap file. Though I'm not sure how that would work=20
-> > with GPIO keys as you don't really have a scan code.
->=20
-> Is there an update for this binding or should I apply the current
-> version? I am OK with the driver changes...
->=20
-> Thanks.
->=20
->=20
+On Wed, Apr 08, 2026 at 05:47:06PM +0200, Antheas Kapenekakis wrote:
+> On Wed, 8 Apr 2026 at 07:04, Sanjay Govind <sanjay.govind9@gmail.com> wrote:
+> >
+> > On Wed, Apr 8, 2026 at 4:52 PM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > I think you'd have to spin up your own instance for that...
+> >
+> > makes sense
+> >
+> 
+> Hi Sanjay,
+> I have a workflow for running an llm and getting reviews locally.
+> Perhaps I will post it to the mailing list soon. I can cc you. I have
+> been out for the Easter holidays
+> 
+> Of course, you will need your own LLM and harness for that, Claude
+> code/Antigravity/Copilot/Opencode, etc. I know they aren't
+> particularly cheap.
+> 
+> Dmitry, sashiko looks great, I left a star. I could also cc you. I
+> will also reference the prompts used in that as it claims some
+> subsystem specific ones. From a quick glance it seems to might suffer
+> from context bloat though. There are a lot of guideline files that
+> could have higher information density.
 
-I will send a new version that doesn't add the property but allows
-unevaluatedProps instead. Thanks for reminding me.
+I am just a happy user of sashiko, I'll leave it to Roman to comment on
+the potential bloat concerns.
 
-Kind regards,
-Nicolas Frattaroli
+Thanks.
 
-
+-- 
+Dmitry

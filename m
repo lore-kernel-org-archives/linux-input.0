@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312AB3A0B2D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FBE3A254E;
 	Wed,  8 Apr 2026 22:15:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775686551; cv=none; b=SNTXR6cNkhExnL5pWHdUGWBGBGXXeI0sEcQxSEWbuNCOJLppVsBCNutffSdesF8SajIAUjJlHNjJV3lD0J84u7SumOmVg6bbvyhxMII6HCcwp6DjgfQ+Hja3i5B96pS/0Qbb1h8S2XdbmI58MwKu9o7edSFqOHRCG8geSMmVmIg=
+	t=1775686551; cv=none; b=kOTarVN8vjFvI0zZUwCHGVb+xL0Hu+2nnPH8aUb0FFzB481zGLvWlMePKHUDwb0JrAjVSzMl0trS6asW6FsH++c5nNbqV3Mdn7PUKOeHbSv1HmJTPNDmLecaP0q4au4tQK1EVMj03zIOJI0fe7R12k2jlzYSpdZqVxOHDTxEE1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1775686551; c=relaxed/simple;
-	bh=VugrxAEpcoaq9VvpeVHYFFo4mzyAFJTTi30xWQb6Pkw=;
+	bh=bqHJlgvFMDOO/lnNU/fWghkOHQbJPVEBKj2oKZvCSNA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Rf6tXPHLpOPs1Ey3RW0WITZW6t7gCgjXBhdXvWIesjs05NnHojn5GHFpQkT6dP9sQ9LVPLR6EyLrYr/RzEeE4vxMjAZpdxEKyD12o3IeJWp3QxICYUXyP+qtGK9dFTG7+trQjc9/glJU4J31T5B/GysGMAxyUx1Q19tQj6O+3QE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aQPzF6Vn; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=lsK6qvBfuYJQrqumSgSIzA3LrvYjK3VDdABkzFQ4dnqS9mLi5b2aerQI+g0jfP10sm0XFMYQQ51OP8F088X30QzlsHMJa1X6msbbWTfBjO+QX0IZN1XjJ7LeL4x2P+WrdU/5Q6lYfVkeoayIgxD5/Nplwfoh9cE0qg3mcY+J1a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ANjq9x/u; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aQPzF6Vn"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C97B1C2BCB1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ANjq9x/u"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DDA38C2BCC6;
 	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1775686550;
-	bh=VugrxAEpcoaq9VvpeVHYFFo4mzyAFJTTi30xWQb6Pkw=;
+	bh=bqHJlgvFMDOO/lnNU/fWghkOHQbJPVEBKj2oKZvCSNA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=aQPzF6Vn67pewcIXCtxfCI8bXpJvqQJ5JQxAxBOb3hbSRy5i5h6kwpHbL5hsVR9tC
-	 wWC29n9wAz75QquVv2X/qzPGCCxowEKDBVUiYpYPtODWwSlsRKsYlOotwpu4C7AG/a
-	 58GxY8/68QdM0MMYCCM0MI7qZfzrfLi7EyVuoDS+aGVHJLziwsnu5ZIMxSx+GXZ+5A
-	 8o5Nn325CPBgDsB4w5I2mGDPwP+EGCs/OfEWRHIFOQA/gaIa8x8W8gaL19xntR+y2F
-	 EgTBRi4fa4VUtvOBuB1uV0hRen2fHWPn67jawmQQuVs66ovSkEivDR0tPtRdbyRHGl
-	 dhphH8YYpA9uw==
+	b=ANjq9x/uvYB8wOkN1F5FOWVCAzVzYlW8w3sY4HH8Gxg3xXBY2br3EbI1cgMDhLRwZ
+	 t4oOXJFdrFN8uHtods2lCUE7X5+TJZizqdUUv1PJn4869YNjqCNoyaafC2c3Ej0ygh
+	 nm4LJeuzA9loKSltfg4BNfs6fMxWctY8dTOM6ij/xerOmzCY/gw2vugr+MWaOvg6lH
+	 ydrHyuTV90ekDGuwukxenYAgjXzPvWmFsl2qn2rqMAJlWkaavaghzetOEENVp2u6u9
+	 Yy8hL2uxm+NDKuBeg6OfsAzq4qzaiLDE/2uemNlLgGGb2Ax9HsMzRVL+Zc/yS5S210
+	 voGsDZ9JclZLg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B814910FC45C;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D570A10FC45A;
 	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
 From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Thu, 09 Apr 2026 00:15:46 +0200
-Subject: [PATCH v4 03/11] Input: stmfts - Switch to
- devm_regulator_bulk_get_const
+Date: Thu, 09 Apr 2026 00:15:48 +0200
+Subject: [PATCH v4 05/11] Input: stmfts - disable regulators when power on
+ fails
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260409-stmfts5-v4-3-64fe62027db5@ixit.cz>
+Message-Id: <20260409-stmfts5-v4-5-64fe62027db5@ixit.cz>
 References: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 In-Reply-To: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -58,21 +58,21 @@ Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
  David Heidelberg <david@ixit.cz>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2336; i=david@ixit.cz;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1834; i=david@ixit.cz;
  h=from:subject:message-id;
- bh=FK/zsREY/XInSNUuszAKmQ33vgOOISGuAWF3OsBIumA=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOS/t9Q5M2mBMugd7+B1QN2+hFxl8CFpy5AT
- r9wo8bBUf6JAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
- cskbEADD0uywNEE0C4Qby+S4+XcDg8r/GbAfO73ZJ/s7X57qvmjMTkGGfXcMP19sgrxkJcxhY2z
- zrrYel32XiQtz+OCps0jAH+zm/p3d4UUrKBOybWVORZnRSG399kFlnZcOItbNnHNPfEy+NFfqFS
- Jel//UoxSwOzXV3vdHyc/ts2NkKN+D83pJGXDhBMEeddrtlqySPhJfPNzYSotEGXac1ZLAccZln
- gxvoL5opp2EAq47kAQE7L12qzzqxGLxW8g8zxGmyGamabjlGjqDQe05fi7x4t9UsyDGEE5cPzko
- 7zbjOk+YJ4JngzfvrKYbXU5iWxz0BDJxwnjXDDNIH2urZhM1C0e2BWMFxIYqFiW1JIsrGsAAgZg
- b8VdNdMtBxaO710QM5TjtJzUpHekWBtTQwl5ueJeQzXdmUurfzaNPW7M5ViP7BI7qUSV4k1VYA6
- plOTN0DmqnBmOivHy3lCfFqFWMODLtZ28gJcYPQB5EvO1BFcoa6YU396qSbRIa2ftw5aD4+KXfX
- FBw/qmyyZ2iBn2u+5VYO+7vf7aqDXjW1wVNNJwqGqeEB9ivdFJSU2KyhSt4qZ0S0FxwT9KeBoWX
- kXx06/kok7uLh7RiD62AwdGAmxepAhN5Q1NqsK+RXRMLoGyslXwQN1k33nqxlXYLcu67w0xXan7
- Ib7gBUWLHXj/tdA==
+ bh=otDxlvvUy+vHqWnlpecsigv9uo2JKsE9RKwSL0jKxqM=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tOSqxbb22SJazyTsOITYMHjjDrzpzJN7VpNu
+ 4ltZ1OQGniJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkgAKCRBgAj/E00kg
+ cmzrD/4tZ0pmiTNrRcm3Y2eAc1o7V/ba3zu0DiVu8JqUrJ1yR3ITurB98GgXril/pT5MbPi9Z/C
+ 29ddmYiNjNewyip5qQD7oGYtlKx9peclhWk37mV1OsbrGScrmFPMbayNpwtXJY827ep2dfVZIlK
+ 8I4GyUUgZyTP8IDJ2g7oeudDLZVXV8vSMX5s4+6qMHecpp3/U3Kj49/LL88Xc9CvNc1aPzY87lZ
+ Xm3hwBHlvRj7sEhxUv4sTgQWT/8YohJkA+srZfOJlAxhK1SBVlKATd1X100W3cNHaoakVtxDivh
+ l/uTAX1FW5BxVxdzXhgWvbrqvwpGeGZUmlti/gbjpmL+ysz3ANWaW8gUNEFVYHbMS6jOzzj3d9S
+ KQQbLDAREvM/D7c6XoA29y7dCjNjoYyyMPubUi9RgBhSX3DRKGtMif5WyUhl2h+3kSC6hSEIkn5
+ Uqgk45GsgTtEdB2syjwbLPkaYGY/LXw9wsc5ONduLLTd2q3m52FThLf0LyxdK+7tNsz9qYKsLEc
+ pZtK9QG+DfIJaFnY2GtewcKK+6TyZ+/ySIVMmxQo3O0vpafq1OYLi75OkEEJQ4lTlqOJ7jUqG2X
+ bleIhh88KpQVs2DBplB5bMLJWyitMYGasnl7c0NY/mvy/mDIdiMQC/En//3ubLhHTxW2ppuEtm0
+ ePllMuTArMZK1xw==
 X-Developer-Key: i=david@ixit.cz; a=openpgp;
  fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
 X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
@@ -81,78 +81,72 @@ Reply-To: david@ixit.cz
 
 From: David Heidelberg <david@ixit.cz>
 
-Switch to devm_regulator_bulk_get_const() to stop setting the supplies
-list in probe(), and move the regulator_bulk_data struct in static const.
+We must power off regulators after failing at power on phase.
+Create stmfts_configure function, so we don't have to use goto.
 
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- drivers/input/touchscreen/stmfts.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ drivers/input/touchscreen/stmfts.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 7b1e975a85668..ff884e04ad4c8 100644
+index 71d9b747ccfc5..290511dd69437 100644
 --- a/drivers/input/touchscreen/stmfts.c
 +++ b/drivers/input/touchscreen/stmfts.c
-@@ -69,9 +69,9 @@
- #define STMFTS_MAX_FINGERS	10
- #define STMFTS_DEV_NAME		"stmfts"
- 
--enum stmfts_regulators {
--	STMFTS_REGULATOR_VDD,
--	STMFTS_REGULATOR_AVDD,
-+static const struct regulator_bulk_data stmfts_supplies[] = {
-+	{ .supply = "vdd" },
-+	{ .supply = "avdd" },
- };
- 
- struct stmfts_data {
-@@ -82,7 +82,7 @@ struct stmfts_data {
- 
- 	struct touchscreen_properties prop;
- 
--	struct regulator_bulk_data regulators[2];
-+	struct regulator_bulk_data *supplies;
- 
- 	/*
- 	 * Presence of ledvdd will be used also to check
-@@ -523,8 +523,8 @@ static int stmfts_power_on(struct stmfts_data *sdata)
- 	int err;
- 	u8 reg[8];
- 
--	err = regulator_bulk_enable(ARRAY_SIZE(sdata->regulators),
--				    sdata->regulators);
-+	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
-+				    sdata->supplies);
- 	if (err)
- 		return err;
- 
-@@ -589,8 +589,8 @@ static void stmfts_power_off(void *data)
- 	struct stmfts_data *sdata = data;
- 
- 	disable_irq(sdata->client->irq);
--	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
--						sdata->regulators);
-+	regulator_bulk_disable(ARRAY_SIZE(stmfts_supplies),
-+			       sdata->supplies);
+@@ -539,22 +539,10 @@ static int stmfts_read_system_info(struct stmfts_data *sdata)
+ 	return 0;
  }
  
- static int stmfts_enable_led(struct stmfts_data *sdata)
-@@ -638,11 +638,10 @@ static int stmfts_probe(struct i2c_client *client)
- 	mutex_init(&sdata->mutex);
- 	init_completion(&sdata->cmd_done);
+-static int stmfts_power_on(struct stmfts_data *sdata)
++static int stmfts_configure(struct stmfts_data *sdata)
+ {
+ 	int err;
  
--	sdata->regulators[STMFTS_REGULATOR_VDD].supply = "vdd";
--	sdata->regulators[STMFTS_REGULATOR_AVDD].supply = "avdd";
--	err = devm_regulator_bulk_get(dev,
--				      ARRAY_SIZE(sdata->regulators),
--				      sdata->regulators);
-+	err = devm_regulator_bulk_get_const(dev,
-+					    ARRAY_SIZE(stmfts_supplies),
-+					    stmfts_supplies,
-+					    &sdata->supplies);
+-	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
+-				    sdata->supplies);
+-	if (err)
+-		return err;
+-
+-	/*
+-	 * The datasheet does not specify the power on time, but considering
+-	 * that the reset time is < 10ms, I sleep 20ms to be sure
+-	 */
+-	msleep(20);
+-
+-
+ 	err = stmfts_read_system_info(sdata);
  	if (err)
  		return err;
+@@ -596,6 +584,29 @@ static int stmfts_power_on(struct stmfts_data *sdata)
+ 	return 0;
+ }
  
++static int stmfts_power_on(struct stmfts_data *sdata)
++{
++	int err;
++
++	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
++				    sdata->supplies);
++	if (err)
++		return err;
++
++	/*
++	 * The datasheet does not specify the power on time, but considering
++	 * that the reset time is < 10ms, I sleep 20ms to be sure
++	 */
++	msleep(20);
++
++	err = stmfts_configure(sdata);
++	if (err)
++		regulator_bulk_disable(ARRAY_SIZE(stmfts_supplies),
++				       sdata->supplies);
++
++	return err;
++}
++
+ static void stmfts_power_off(void *data)
+ {
+ 	struct stmfts_data *sdata = data;
 
 -- 
 2.53.0

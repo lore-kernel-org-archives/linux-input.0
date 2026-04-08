@@ -1,116 +1,110 @@
-Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [80.241.56.171])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CA634AB0B;
-	Wed,  8 Apr 2026 22:12:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F39543314C3;
+	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775686350; cv=none; b=AzdEIWgk0W/sE3DtLAIzcrNDGuaIh8Bf+nM5DnqS1hfN2pCio00oMZ0FDrHWWGa79yR8bCeFony5UetlpsD/NT/E10Ze/qjmse7vz9A4b4tkUTvJ9xBesyZaBtxVLG48v8uiTlfzKmKhPfDTlOJ1UGRDCl8L1oEGe4GKmjUHkpw=
+	t=1775686551; cv=none; b=PwBCkT5TPK7Ro7v6dm2uOjLI5832t8UgtuzQQG8dDoj4pZJJR9nVVM1rT26MMUyl91/5v7apI27G2ecpul+ekwr+OFUAZ3iuiOJPFBikeTXBxyRBpqBP9fnsS+YgZC2lT8teBbI0q2Dm/hAhmg7SZ4/BWzlOZfFrtqhrlaXPfHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775686350; c=relaxed/simple;
-	bh=pqwV+oJ3w2K/hYZPQb/pIQ5pclPK+IroLz874iSGfJk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AIejQgd3npuih/zmxXIROyGTVX8XIzI630GztJ90M697SWb7Z6qMS38VOOViP4ojFpHwXASLsoO5Ma/QCLXe7P00ku+0soQjTSJdudL+c4t8eMZQi+/2yx7Dh28AF3IgBDaiClnwInlGPOVbDINzFo2PeLE3MrHX2ELubDUW3cU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=XyB8k6lG; arc=none smtp.client-ip=80.241.56.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1775686551; c=relaxed/simple;
+	bh=qd97gSvYOsCinrKqjfSpyQyyC3+0l1mQqK8cxyagYwE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=oLHRc4AFqLip6Aexo0EBgK8qMhvcOQRmIEABRRWRcwNwZydfYRc7kt92b89IJPzp4P0WW8txyGPdQd8GbKEK9tIqDlaVPs35SNshz8kJUYWv4lM61t4SAoeezU+GfUbxqx0ao0AN4K8lWpVSFENu/sRf/y04io0GEcAMDlo5/3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R+DqiOCS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="XyB8k6lG"
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4frckJ54RTz9tVN;
-	Thu,  9 Apr 2026 00:12:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1775686344;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=p1becq35fIReczOnVJOiksebaJpra7TLnWBbLID2w5I=;
-	b=XyB8k6lG5pK/56x4cbIoKwj0/W1bdMtiw6v+9+1EMIphInL51//TsySSFPCqhG6SYLpuXf
-	P9u32vVp3pPzWzfzx7g4sGUaiY9Y6qbw/bDanoUtOpKptukeS1R1qiqzCmg75Zqz7aruMg
-	1AoMkdEqE77tGW1unL7BJvbnsVqTi6j7ChSzWf3yLlOrKk44aMYDQ0FPH4qCfGR8meNkNk
-	cxtaNKb1hFwF7+Rl136mZ/VCize5DZi+CvlnvlKIMa5Z+LGPi/SVU0Zql76XON2Spsbgti
-	e5wtSoJ0hSZiFMBIs2iUBfi7g03QoldtxlLxn42k62XrqbnLYcy3bDXBBoEj5A==
-Message-ID: <cb0617fb-76b0-4241-8fba-982a5ffa4525@mailbox.org>
-Date: Thu, 9 Apr 2026 00:12:22 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R+DqiOCS"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AAD25C2BC9E;
+	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775686550;
+	bh=qd97gSvYOsCinrKqjfSpyQyyC3+0l1mQqK8cxyagYwE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=R+DqiOCSf/aujk+/xbB+PZWiT9ZtmXyhrGmTI4F61VWOZGE7VZjJVXcjpydhKEd0D
+	 FSLTkselCkhjq7lzKIwFgqd5CiAJIu7gGpdo+1EVTI8BvvHp37HFMtEUXFWvgiUOp3
+	 VqG5dIqLdQt8/4PyiI7R32P2G9iaVEGBD53noNcQJQtvdtzskzHnijw4trNfOs4Dp1
+	 8Sc7swjiRZyguUUvPXSaJ2WOo+RQbJcyHVLsy0sWcEs27ZCuSYgGGZLgjiTFYo7GB1
+	 wsoETo9MCIw+PICPnfSHRKQ9n4gyTnS9jeDo96pGtqwFc/yQVHhXGmbBeIRWiRwl2N
+	 96BvZaXVUrdWA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9761C10FC459;
+	Wed,  8 Apr 2026 22:15:50 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Date: Thu, 09 Apr 2026 00:15:44 +0200
+Subject: [PATCH v4 01/11] Input: stmfts - Fix the MODULE_LICENSE() string
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] HID: sony: add support for more instruments
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
- Sanjay Govind <sanjay.govind9@gmail.com>,
- Brenton Simpson <appsforartists@google.com>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260407194636.9671-2-rosalie@mailbox.org>
- <37nrpop7-rn05-pqo6-3951-171nr8nq441o@xreary.bet>
- <6893d7ea-f585-45fa-aa53-cd7a10fec34a@mailbox.org>
- <o488s484-r1os-6736-o800-7on55687757s@xreary.bet>
-Content-Language: en-US
-From: Rosalie <rosalie@mailbox.org>
-In-Reply-To: <o488s484-r1os-6736-o800-7on55687757s@xreary.bet>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-MBO-RS-META: 17iizibys1oukqinzkfsm5m1h9k1863y
-X-MBO-RS-ID: cc05d464b3688a79a3b
+Message-Id: <20260409-stmfts5-v4-1-64fe62027db5@ixit.cz>
+References: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
+In-Reply-To: <20260409-stmfts5-v4-0-64fe62027db5@ixit.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
+ linux-stm32@st-md-mailman.stormreply.com, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
+ David Heidelberg <david@ixit.cz>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1002; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=QDQEyb6yQN5WPWE8pVdtCQECptdn8p6xNSQzeqr7Q2U=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBp1tORTVIWUARSt+X8PEgpRWebBk61lkEJPfSUe
+ Qn5hhASu4WJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCadbTkQAKCRBgAj/E00kg
+ cpLTEACo06/04dYc2te03+Sy7fTTeUeGNPVohJ8IYXHmRlzwNqxLbH3zEffYQo4ogIp4AzNTrdQ
+ PQMBbB9CZKT8OJSWPojgGhodpGdwTQLAxShW6fr0vY14adVsuUUie7qLGvopPQRm1tYaA+uqxe9
+ mr2M+ylz9qrFPPrJaogMehFSipIUAdMFb5MnqDFWA0NjEqZp1uGbHC4T1F65w+49RlzaBu7z1AC
+ zDrENGQ3dmQS8uNxV5xr08qCHSJq9U3PqSR3fc5jsrqTzxoLA48AGBGsbBEsFUrvpI6kCt/XXFO
+ UdGalj2w2HB2KHwaYeneO4KFu/mD3Fe2Ylme65GClsUAjmxyoWfTPgOltIpUXgdBV1il1iS/+22
+ ixalfRz2aHIDZv6t2lGFPM8eNxL/RgaRygUjSu4kvSIXJnodGhIXXs/VsIX0bVPccnbOSL2Afwh
+ pzurDOVnmHN1gJitTqPEbmY17fl4llN1pEpYqDCB09ZjMdg99pYvhQqgxDxq+mc+NuGeGvOMt8n
+ KjRzDRDXQy02HnXXjyKPdVEBnt1oWpHNdvS/dDaZXkoXHbbVLrTLtD7iQnuT2DulPtl/Sxp9+r1
+ RXOiG/xINI+Hwj/2Azta5YpuTyxQOfNwpZyr6Lt5fLSnNJOkVVt5xvrzx/cs1tiCsYIXjRdvM8k
+ wl7YY81E8PSVRWA==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
 
-Hello,
+From: David Heidelberg <david@ixit.cz>
 
-Yes I do apologize, and I'll be mindful of either doing a series, mark 
-dependencies clearly or do a pull request.
+Replace the bogus "GPL v2" with "GPL" as MODULE_LICNSE() string. The
+value does not declare the module's exact license, but only lets the
+module loader test whether the module is Free Software or not.
 
-I didn't expect to be sending this many patches at all in the first 
-place, but one minor annoyance of the code bothers me one day and then 
-another day someone else mentions that e.g a device name is incorrect, 
-so that kinda led to this chaos.
+See commit bf7fbeeae6db ("module: Cure the MODULE_LICENSE "GPL" vs.
+"GPL v2" bogosity") in the details of the issue. The fix is to use
+"GPL" for all modules under any variant of the GPL.
 
-Apologies and I'll try preventing it in the future, and thanks for the 
-advice,
-Rosalie
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+ drivers/input/touchscreen/stmfts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 4/9/26 00:08, Jiri Kosina wrote:
-> On Thu, 9 Apr 2026, Rosalie wrote:
-> 
->> Hello,
->>
->> I've sent 'HID: sony: fix incorrect Squier name and remove non-existent
->> device', though I will mention you didn't apply 'HID: quirks: update hid-sony
->> supported devices' cleanly because it duplicated the vendor and device ID
->> defines in hid-ids.h for the Wii instruments so it will not compile, I'd
->> advise you apply the patches in the following order to prevent issues:
->>
->> 1) v1 of 'HID: sony: add support for more instruments'
->> 2) 'HID: sony: fix incorrect Squier name and remove non-existent device'
->> 3) v2 of 'HID: quirks: update hid-sony supported devices' but without changing
->> hid-ids.h
->> 4) v2 of 'HID: sony: fix style issues' (if you want this patch to be included
->> that is)
->>
->> alternatively you could also do:
->>
->> 1) v2 of 'HID: sony: add support for more instruments'
->> 2) v2 of 'HID: quirks: update hid-sony supported devices'
->> 3) v2 of 'HID: sony: fix style issues'
->>
->> I hope this doesn't cause too much hassle,
-> 
-> Thanks, I will look into it. But going forward, you really should either
-> send this as series, or clearly mark the dependencies. Sending it as a
-> followup fix in the same thread also works.
-> 
-> Or, even better, send a pull request against a git branch if the
-> interdependencies are tricky.
-> 
-> Imagine you're getting higher tens of patches a day (including e.g. quite
-> often v1->v5 within a timeframe of a few hours), and you are somehow
-> magically expected to untangle all this.
-> 
-> Thanks,
-> 
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index 8af87d0b6eb64..def6bd0c8e059 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -807,4 +807,4 @@ module_i2c_driver(stmfts_driver);
+ 
+ MODULE_AUTHOR("Andi Shyti <andi.shyti@samsung.com>");
+ MODULE_DESCRIPTION("STMicroelectronics FTS Touch Screen");
+-MODULE_LICENSE("GPL v2");
++MODULE_LICENSE("GPL");
+
+-- 
+2.53.0
+
 

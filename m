@@ -1,141 +1,139 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436E83D3498
-	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 16:53:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 443BC3B9D8F
+	for <linux-input@vger.kernel.org>; Wed,  8 Apr 2026 16:59:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775667233; cv=none; b=k48TMwSB1uVRGaV1RBgS5myIWqSKkskY184zezmm/bMgjGAdgiK6w430pFuIG12PQNMsQZG13KZHAuyjIOF2iKiHhwPSiaoaPbwiWq2Nm6ABvjfDeV7oyWj0XkouKjlQxEY7ZS1Ov7C/woW5IWxgq3vMNWMWi4eyuRNhMV73pl8=
+	t=1775667554; cv=none; b=IzC4JZoqVCC0IrWY3YyEcN8bd5+xSoUV+k4R4Vzwup6MuU1TELwFzdEk7Xs/KMKhxuzHdfrNShpa6FqNvTgMfex4J312yu4y7kHFCmrc2TOS3P2A+ERgL2nK5lNAiykh3IDa+zhn/Rjs5DwDxdnceBFDpTq6qaoZGfXmiNpQU6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775667233; c=relaxed/simple;
-	bh=vejERJLbtHMItX9QwbdLlH7SUjKNtSbDUb8OrpTRBqE=;
+	s=arc-20240116; t=1775667554; c=relaxed/simple;
+	bh=qhbh9JrUDjvFvh4qX8SCpaVDvbkTMEfimmeFPmtkOjk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mX4gs55VMyLXjqfgzMn8kD8AIUynsGLS+SE0tPO0SBKwB/frVMb2gViX9LgGMjPJQQXSpI2jhzIFOduAulNXU86/hM0tH+m0El5wOOlVGZfj4z5y1vGX7d/xj1NvInh+/PiHTJcnrOrlYrdf0nqqM8M4w14iyh5jMFRZPxqaBuA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PDA0FAAR; arc=none smtp.client-ip=209.85.215.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=u8KDgar4OjQtpxc9KH1oo15XbsshkYlo4JxbyF0G4Xhn2slFVbUHcHrwvy532XpphDMTgMq53evg/YjBmlf38WJk1BTj35TDDsPxCQ8a8NlF4YHLtKm3sknp4F1O5z99GWG1blTe2Ok8beS5SAshMUfBbMwiizT1AmQPVyFXoSE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C8wjkz2M; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PDA0FAAR"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c76e702e01aso37149a12.3
-        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 09:53:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C8wjkz2M"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-358ed696623so52752a91.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2026 09:59:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775667231; x=1776272031; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=FRas9nghnlejMyC8GOsPHc9l1zlwDenXkPzL6Ft8tXM=;
-        b=PDA0FAARkO7RO+UzVsv+EdE5RqQ7krcMeGpIaWRlwgtuGE9wU8ts1LIxaU7PhKjWva
-         YwYJWf1MN8wO0BErcqnXHF0/fnjmDyPZu6TxQrkqnxwoRvnp4Ka915sglgVwEk54C8Xu
-         crtbOVJGhjTHD19BMP1knPwDZ601pAfcEsMA/MU9+p3J1REdQdkXLSMN6AwA0YglWy2Z
-         ABFVPJu7SiX/vPAVDeH/G2bnjkrqZbq9lXJ/dm1Y9s96aCVy0jDxLf/0WROX1Sxmv++a
-         Xy432MQZbI848LjgaBmdn6s7Dm2hAfGwDZNKUgTtHR8gnXv/OIFSpuJ59zmCcW3GxwdD
-         fRzg==
+        d=gmail.com; s=20251104; t=1775667552; x=1776272352; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iNqmvT7YdCXAJg4FUIwYA7EHq158uKGOYNj5DRKvtwE=;
+        b=C8wjkz2Mygmhu112xWRjgZTYR199Iyrm+scL3jroLtsEsH7fUoLYFeV35z4tPLEZrN
+         aUrSA2Ocm5FiVCqn9vyqaN6kOv48tJESmc6SzOAFxRls7a2RzSn8UzLIvQOx5C+l0TP5
+         Cv3A3su1LPduabNmGvpTUI3shJh7czSVfwUK/b8CVT63Jjtvjltg0MFdIlEFXsSBjQWB
+         o3mG2bYezN3PHW3ibC+eF5gKLn96NYvwkttt1ISR71GOnj1WAZYkDDoT+iELiz0KRKB2
+         P6bMdDNPLjb0l+HSopC5RS5rCPxt00exMDSaQaZOGnW+bkXgHXkA7Ri8XjapOrMboINu
+         SRXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775667231; x=1776272031;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FRas9nghnlejMyC8GOsPHc9l1zlwDenXkPzL6Ft8tXM=;
-        b=AYfw6hmK49sell2rZTkAOJ5qw9aMieAGvrtxsyOgZzW3BCJsCuQc6X/mOQMRXr4svw
-         gYMoSEynD9z/cGaEGnCkpUxy0XP29pfC4kWzKaQA0YVupzMkLqn8OZqb73Ns+UeSaFBc
-         oZ1S/ATymXQ2BBq4mhnOrh90aMBevdWyYmOcPMWlz9n6SG7Gcs74bqVD3V//1Z/KkmiJ
-         SFyrYQNA6RZ8VPhc31J8kC1icftNM2VhCoaGGjeji1pY183UYcqljgjmwLpvTQbd2Lj2
-         6FC3vGHOft9MshjFbpEtRoiqPB0Y5i4V2N5CcFgdqrXyku3jPCnhBKPz/BzlZwx7dwct
-         WQEg==
-X-Forwarded-Encrypted: i=1; AJvYcCXH/L+eyQqBK6ORsrRvd9x58PGJoxOVQRUeZvTycY/IcDX7w5ZZp21hSUz3DF+YNjDxfpIwHCAd422jCw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxslPrkau6CL8U+pScyc4LSvxYzkbKrXofXTmfHvFstTZRJJ2uy
-	X5JtzvFAjxbBYkhJmaTzmq+WTW8Y1CI1+VC4CcZb7xgRdmMjEns9UtfG
-X-Gm-Gg: AeBDies2Y7lznBlctX8bMZrIoSftkU+q5jUOvN6K79XwrsoOgYwD7i69r23yAAWcpi7
-	NNFuSuUsrv6HbnL/GME6aGqaW+kPoTgSbyzpslINEb16UpsztdEZ811EuFePGYXefyr2yK+Y7WU
-	fJPSdNQ2QqmbemBYUY0jJnPzcN/H/LM9wG+8uhmQF7SYRarfq7K1NXQTXGc89fWkSMmOfqbMebx
-	oqNW3y5575wZr/tkATHJbF0YWvPxAqaIW8ZSBRl6ZykxzythFqBcjpDSJJYuAZ85GBGP/jurceN
-	X+J+41Bch0HeG9Lzluy/I/HmD0d6nibH7x4ZpJtBntbOVS48LSWN+sN5LjkBI2AAUbAlAxRyAg7
-	91QrrraYEYxR+jVQUKeWJGCidPjaUW6LiqrJqv1h3mxe1CHCpdJBkWxwzHgLegxS3PY080Opzck
-	qi0Bt63asejzROMZ6R4Lq/y9MsP1fNb3kLanV2fQUVdpcMlW7S5QLtDxuLKjHjd+AN
-X-Received: by 2002:a05:7022:229:b0:12c:8b9:71f7 with SMTP id a92af1059eb24-12c28c07c1dmr113916c88.24.1775667231398;
-        Wed, 08 Apr 2026 09:53:51 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775667552; x=1776272352;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iNqmvT7YdCXAJg4FUIwYA7EHq158uKGOYNj5DRKvtwE=;
+        b=eXGUhFnfpRAHuRmkO7d6v46Ep0Fuyc/oPKdJt64/R3O2kiFe4B0pdgH4UQC8x9TSA4
+         6kvCTOmhNTzMT8catpBBJPq0nWNa73Xgpk7vtC3CzT2SnJ2s1AUOtSbkcl2Xv+F1303w
+         4Cn1Q7T3eCQJ9lDIz1ChLrJ+3gEnw0cZqgiVT8uI3nmACPS5BJ3JLmD8BwqDoskkVsSV
+         XGwQLRr3ggawW2J1zl3kEZFgq0SDlb5/+nEBk8GqWQjPU8PXoTIKHR2ebO5q841eCaJG
+         ZueEKkPYAksNLzzrGIxLRQ+vMl6fUtFvcEUlLcGQnnaVcg9Q/EzTCHer8qAiIwmLjfeL
+         /1CQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXbAvwiVw/joJjgfjowonTA1eN2rtjrtaZIT1dXr04y4ygZ9JVYxUsur5Y5KqjSMYSP+HBh3vGOQ4hmUw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyxIR/CJIhkmHreIrWsc+m3hllH9UkNOxMgmDy9UhBNUnMM7A9E
+	J3ZvfscNKR+KBehQ7KYD+kQP1omPJC6FVguseQs+0mvhd5BgpjYQjBp0
+X-Gm-Gg: AeBDieuehNp0UWI9pllSTfnKjYgsBOKoIMwMgd/jAdHu8/PaffO67DVNQVOagg4Zi1R
+	FK0XMKh/Fq9Hbv0yqrOhfSOvsdqjFLcVsk0G89gDh1/UBvUcCWCWxZXSOFG6wIrbAS1n86URlBl
+	fmofOFICEVSrru+GzSl9abiq6xKNbq2KQfgWRr7YrMkgiAnf42BkPh5aiEWdJeg6uYahKzToK55
+	dbfV4TSKbrcfERcsFHdOT184WkiYB4pq4OuoNr22SYZsTH3Tt1RpthSpsZWZMsSTdNARfxeqMBy
+	8NYZzqrHRa2WuCZTm4FfcjFJyP2oXvk3o5/YhvxaqePQ0D6yIKgIe8VXFpUGN62b21FIgBdMTUb
+	YaQd4VdHCSfCo6br02s0rf6u3XQYiX870laOItzhb2ghZhtCkaOv6mpKSxSQfZcw4bgqatVD9AQ
+	BkFDPpLsGUdqswgUdOLS41n0F3i0o2/DQzo2yHmfjUc0IO+iQYClaari/uxZgkt1sD
+X-Received: by 2002:a05:7301:6097:b0:2b7:38cf:c2fd with SMTP id 5a478bee46e88-2d40e9cdf98mr157907eec.26.1775667552362;
+        Wed, 08 Apr 2026 09:59:12 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:f3cf:7538:b120:7924])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12bede7f085sm20058558c88.12.2026.04.08.09.53.50
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca760b0518sm22328464eec.0.2026.04.08.09.59.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2026 09:53:50 -0700 (PDT)
-Date: Wed, 8 Apr 2026 09:53:47 -0700
+        Wed, 08 Apr 2026 09:59:11 -0700 (PDT)
+Date: Wed, 8 Apr 2026 09:59:08 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: pip-izony <eeodqql09@gmail.com>
-Cc: Kyungtae Kim <Kyungtae.Kim@dartmouth.edu>, 
-	Sanghoon Choi <csh0052@gmail.com>, Dan Carpenter <dan.carpenter@linaro.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] Input: ims-pcu - fix heap-buffer-overflow in
- ims_pcu_process_data()
-Message-ID: <adaH0JBCaG1pzseE@google.com>
-References: <20251220002447.392843-4-eeodqql09@gmail.com>
- <20251221211442.841549-2-eeodqql09@gmail.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Heiko Stuebner <heiko@sntech.de>, kernel@collabora.com, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
+Subject: Re: [PATCH v2 1/4] dt-bindings: input: adc-keys: allow
+ linux,input-type property
+Message-ID: <adaJOEZHHmvZM_cB@google.com>
+References: <20251215-rock4d-audio-v2-0-82a61de39b4c@collabora.com>
+ <20251215-rock4d-audio-v2-1-82a61de39b4c@collabora.com>
+ <20251217-tough-ultra-junglefowl-f1a9ae@quoll>
+ <6778765.lOV4Wx5bFT@workhorse>
+ <20251217133440.GA724723-robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20251221211442.841549-2-eeodqql09@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20251217133440.GA724723-robh@kernel.org>
 
-Hi,
+On Wed, Dec 17, 2025 at 07:34:40AM -0600, Rob Herring wrote:
+> On Wed, Dec 17, 2025 at 01:57:46PM +0100, Nicolas Frattaroli wrote:
+> > On Wednesday, 17 December 2025 09:31:15 Central European Standard Time Krzysztof Kozlowski wrote:
+> > > On Mon, Dec 15, 2025 at 01:29:29PM +0100, Nicolas Frattaroli wrote:
+> > > > adc-keys, unlike gpio-keys, does not allow linux,input-type as a valid
+> > > > property. This makes it impossible to model devices that have ADC inputs
+> > > > that should generate switch events.
+> > > 
+> > > The solution is to use unevaluatedProps instead, which also allows
+> > > dropping other properties.
+> > > 
+> > > Best regards,
+> > > Krzysztof
+> > > 
+> > > 
+> > 
+> > Hi Krzysztof,
+> > 
+> > to understand the motivation behind this suggestion correctly:
+> > are the "linux," vendor prefixed properties, especially with regards
+> > to key codes, generally a bit of a thorn in the side of DT bindings
+> > maintainers?
+> 
+> Not really. Most have existed for decades. New ones get extra scrutiny 
+> and often end up dropping the linux prefix.
+> 
+> > I'd imagine so since they technically tie the DT to a specific OS
+> > kernel (though of course, others are free to translate those key
+> > codes). And the whole idea of configuring which code is emitted
+> > from something is basically abusing DT for configuring software
+> > rather than describing hardware.
+> > 
+> > I'm mainly interested because this is a thought that has been in
+> > the back of my mind for a while now, and I'm curious if the DT
+> > binding maintainers happen to have arrived at the same impassé,
+> > where linux,input-type et al abuse the DT model for something we
+> > would tell any other vendor not to abuse it for, but no better
+> > solution exists right now to achieve the same thing.
+> 
+> Not sure what the BSDs do here. It's never come up that I remember. Best 
+> I can tell is they just make it a userspace problem. So every possible 
+> keyboard needs a keymap file. Though I'm not sure how that would work 
+> with GPIO keys as you don't really have a scan code.
 
-On Sun, Dec 21, 2025 at 04:14:42PM -0500, pip-izony wrote:
-> From: Seungjin Bae <eeodqql09@gmail.com>
-> 
-> The `ims_pcu_process_data()` processes incoming URB data byte by byte.
-> However, it fails to check if the `read_pos` index exceeds
-> IMS_PCU_BUF_SIZE.
-> 
-> If a malicious USB device sends a packet larger than IMS_PCU_BUF_SIZE,
-> `read_pos` will increment indefinitely. Moreover, since `read_pos` is
-> located immediately after `read_buf`, the attacker can overwrite
-> `read_pos` itself to arbitrarily control the index.
-> 
-> This manipulated `read_pos` is subsequently used in
-> `ims_pcu_handle_response()` to copy data into `cmd_buf`, leading to a
-> heap buffer overflow.
-> 
-> Specifically, an attacker can overwrite the `cmd_done.wait.head` located
-> at offset 136 relative to `cmd_buf` in the `ims_pcu_handle_response()`.
-> Consequently, when the driver calls `complete(&pcu->cmd_done)`, it
-> triggers a control flow hijack by using the manipulated pointer.
-> 
-> Fix this by adding a bounds check for `read_pos` before writing to
-> `read_buf`. If the packet is too long, discard it, log a warning,
-> and reset the parser state.
-> 
-> Fixes: 628329d524743 ("Input: add IMS Passenger Control Unit driver")
-> Co-developed-by: Sanghoon Choi <csh0052@gmail.com>
-> Signed-off-by: Sanghoon Choi <csh0052@gmail.com>
-> Signed-off-by: Seungjin Bae <eeodqql09@gmail.com>
-> ---
->  v1 -> v2: Add warning and reset the state of the parser for bad packet
->  v2 -> v3: Add co-author information
-> 
->  drivers/input/misc/ims-pcu.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
-> 
-> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-> index 4581f1c53644..c98ef71c841e 100644
-> --- a/drivers/input/misc/ims-pcu.c
-> +++ b/drivers/input/misc/ims-pcu.c
-> @@ -450,6 +450,16 @@ static void ims_pcu_process_data(struct ims_pcu *pcu, struct urb *urb)
->  			continue;
->  
->  		if (pcu->have_dle) {
-> +			if (pcu->read_pos >= IMS_PCU_BUF_SIZE) {
-> +				dev_warn(pcu->dev,
-> +					 "Packet too long (%d bytes), discarding\n",
-> +					 pcu->read_pos);
-> +				pcu->have_stx = false;
-> +				pcu->have_dle = false;
-> +				pcu->read_pos = 0;
+Is there an update for this binding or should I apply the current
+version? I am OK with the driver changes...
 
-Here and in the other place we also need to reset checksum, otherwise a
-valid packet might get rejected.
-
-I factored out the code resetting packet state and applied, thanks.
+Thanks.
 
 -- 
 Dmitry

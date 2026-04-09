@@ -1,40 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DD093624DE;
-	Thu,  9 Apr 2026 15:58:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4952B364E8B;
+	Thu,  9 Apr 2026 16:00:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775750316; cv=none; b=ikHEY9Ur+D7oUG1OTHQTijEONs9XDwWl4sfZ5xZhfM7q1Rco3SfxW5eajhJngj3DN6E5tXbUFnMFpLTFTL70m30oV4MJFxd2PCsSu66XSeHY5S+Z5oH+uGCBXmvPQ6G0pyb68lCwoEK4tl58ZsCnllR5x37LajtYENIuZmt/9RE=
+	t=1775750429; cv=none; b=pVzAG0PIKBOf8O91eEebZLre8aYMoGnLHNaeCUc/JNr/+6y20IVmEKXqn45pb/wIxoc3pGgaEV7/O27OzntEXthUxBQLnVDWgqnLysEZXLBWw/up3/jqunrGg9Wb0yJHWL78a2fWrHc/KnQ9TXAZ1kacB7GD11yjPH0e0lZLJHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775750316; c=relaxed/simple;
-	bh=jQj/r7Jxg9dGziOOR621+A4MxvmiTARyzSLpXkG90lE=;
+	s=arc-20240116; t=1775750429; c=relaxed/simple;
+	bh=XClp+LjL8QErC1rBNtYTq2teTqspWq+kIHsvqvRndWE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=jEM6Bcg8wrjQYo67SZkRYV8/diXrJCHZsLjnofbT4XMw69Z9vxuIo95xbWfuSh+5lRNndqTTHkqGDsmynF2l0JbUOYxi5CFqTRlWefaVMp/lLMLH5Bp1k+q7Z/SljGa9mZQjIGcMlVTM/S1hCvT0QB9u4+awqGirYge3jGcAPUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qWxXiIgl; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=SVgUhUpoeXyC3oKaIb3wCw6s0LFGb0j8HreFdfH02jgPLNYj9lF8AXzTVFlH0Sjji1TGnyiyohELaZANbHhW4UWm4lebfyPt34JGZDAa2eLYu/bANL6ejt+DYtrnPzMyr4mqAGWTkt2RXyTVgWUlHvaeop0wmNWxvgZLf+hd8i4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iEMyOnac; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qWxXiIgl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF2A6C4CEF7;
-	Thu,  9 Apr 2026 15:58:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iEMyOnac"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 877FCC4CEF7;
+	Thu,  9 Apr 2026 16:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775750316;
-	bh=jQj/r7Jxg9dGziOOR621+A4MxvmiTARyzSLpXkG90lE=;
+	s=k20201202; t=1775750428;
+	bh=XClp+LjL8QErC1rBNtYTq2teTqspWq+kIHsvqvRndWE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=qWxXiIglznV3vgH6ptP3vR7rCZOZKS2L5rQadTw4/R/iwTCNaXuA5qGbL/LkBCwpS
-	 EsjL5azIx6M+QL6tbs+LEEVNlxqmCuwrhF/0p+EtKyEtlG15jWwNRnq9UGJ9PPfK1M
-	 oyO3mhJ5VnBXwjqxudsIhtErcPfEXuI1aW49KJTbqFpLPXwyQhz3yJcPqCJWXzr+k/
-	 XsQP6u/7ZU3P/V1ck38VwnglHvjgniglWUyesfAhI//U2hEszyjH5wIZZk4WpaVuEK
-	 7fdc0JYaiwoAHVgKaVhDxtW4H6XsBc/Wtb+LN/Kci3ywASQdaunaQyPDlbx+E41TZh
-	 qLnK0YFuAzwyw==
-Date: Thu, 9 Apr 2026 17:58:33 +0200 (CEST)
+	b=iEMyOnacDKdT7fDpcYe9HOEo9rGq9prZBvHDtIOJtgXTr5ajoawMJ3djDxYYEdBoH
+	 NQqv+VUJ86dWS3hFi/2zsXHl3faXafS9hwM7au8GA/nEj5Q1CcNFCBCKZiGj/nb05m
+	 d+jdAqIxIg8+r20+jFuEh4hLGMisBrYpcVJDUXN4VmzyGIS1oEePA/QA96OLOxcvYn
+	 R/1jTBmGJSFjeUwTjd+gwhGPbkCSbu8p8ftexPAJI/0Lk6ToVjoP8PyxsP3vlB/Kxk
+	 KUyaUVOgyhIF+n7m5GNSNofaye4W8AaF/JDfVkB6K3voGLuwbDvFuGtLJLAOlRY+A2
+	 ob9Gkzxl6pq8Q==
+Date: Thu, 9 Apr 2026 18:00:26 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Johan Hovold <johan@kernel.org>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-usb@vger.kernel.org, 
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Peter Hutterer <peter.hutterer@who-t.net>, Kees Cook <kees@kernel.org>, 
+    Alan Stern <stern@rowland.harvard.edu>, 
+    Charles Keepax <ckeepax@opensource.cirrus.com>, 
     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: usbhid: refactor endpoint lookup
-In-Reply-To: <20260330095034.1662231-1-johan@kernel.org>
-Message-ID: <487p6rr1-r913-8s90-n6nr-rp4n464q7sqr@xreary.bet>
-References: <20260330095034.1662231-1-johan@kernel.org>
+Subject: Re: [PATCH] HID: core: do not allow parsing 0-sized reports
+In-Reply-To: <acy1QWcu-yfd_kAu@google.com>
+Message-ID: <3r0pp7nq-rqo1-p07p-4166-2o2qo1717n30@xreary.bet>
+References: <acy1QWcu-yfd_kAu@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,12 +46,15 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 30 Mar 2026, Johan Hovold wrote:
+On Tue, 31 Mar 2026, Dmitry Torokhov wrote:
 
-> Use the common USB helper for looking up interrupt-in endpoints instead
-> of open coding.
+> Commit d7db259bd6df ("HID: core: factor out hid_parse_collections()")
+> reworked collection parsing code and inadvertently allowed returning
+> "success" when parsing 0-sized reports where old code returned -EINVAL.
 
-Good catch, thanks Johan. Now applied to hid.git#for-7.1/core-v2.
+Ah, good catch, I've missed that.
+
+Applied on top, thanks.
 
 -- 
 Jiri Kosina

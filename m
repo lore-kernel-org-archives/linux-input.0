@@ -1,248 +1,194 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7156D3E314E;
-	Thu,  9 Apr 2026 18:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775758382; cv=none; b=jPBFkce5IdXM1oR73zp4d1LQl0Kwxcrj3NcvsS19vR4mmxL8wW/vH//PX2n7RpmzuRHzssvYEPhl5QPncuxqBy+krKZnaIm0reghk/4NWMmfYlJ8evh3v7iUEaEc0I+SF6w4e1Ha4sSEUxrh4xsoCtEMjb8aPXFlJblfS6a99es=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775758382; c=relaxed/simple;
-	bh=BoGW7oywgvm57yYmgFIJhKPYzBfyhEW/uN+KSu6heaU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z1pkP+nYR0+2vauJLLzvKfLodZ7EBKfx8ohRzW6suEJnaHscQ4K//wJ7y+uvbvFBWGNcUG/+A0YIABFmqUyBZ8NS1VCLOEy6CEBGLnc7RZqBdLn9hWKo5XW/dWgWg1Fas/wZxp/gVYCP0n4sY3yf/wK+9LX+VXoeij5b9l9mkaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=JJcsCEca; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3E7B1A6829
+	for <linux-input@vger.kernel.org>; Thu,  9 Apr 2026 18:25:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775759114; cv=pass; b=Zst9k/8/tmttudrDVSlkXuC5Dp3wL/2oYKAbbLnP4U8usMOt2tSSLj8O8FyTvjCaoxEAPZwP2/uZMmH26Q39HdxwcCsP0YmW9ktImEaUcbuDsfEZfFZW8Nf99F9YB7dn2uoByC116iLfB/Yf54Cp+ucb/5SzFRzpTVAMx7C6IQ0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775759114; c=relaxed/simple;
+	bh=uRIpHIXY1Jgv/tUqLrduouxc+mc9S9SHsVuyZmzj/QA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FbNMKsX14X3BWeYDyBvnYGJ/+v3QrgD9gOhXU04cngbUcgrM08urWeSAZ0XvKH4xs5HcsU7ZWT/Qc3AmtveWinjcKTrmhFP7gCht6ZYsXaxi7OA9Vvy90hfnzL8GyB0YtLDkdg+JO00QxtCn/NWgt+dfFYqLRq8Q2oScC5/RuGA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LzLxomTq; arc=pass smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="JJcsCEca"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=BoGW7oywgvm57yYmgFIJhKPYzBfyhEW/uN+KSu6heaU=; b=JJcsCEcaKqyNrvJOUZ8XOnA1AS
-	yC//2gnLRa8FcBRiXofOYljopOoyt9r8CbkWaLEFmbUVfW5qK5utkUh3D77jxlkhKoZiYVbvdTEnm
-	X8jEr88bUddVEJ+24e8elVa7rPEDm9C+KeO3Yi+QSp+riwZi9Be8u3P2jnyNq7RhzU24dEi9YT5JB
-	9o5OjQL5vQk2h32ksN+l6XHB7LZbu7YtKRAMPXU1ZH+Yata0JOXemtl88QWI3UJ7mBXR7GCgddkg5
-	qrhpzNPrKwHYiMCapxKfC0E4ZwUatWZBULD1y88efyo7haqTewJrOOn317SRlKBwAg9TXV76h3bsC
-	A/eZOWQA==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wAtvH-00000003xj6-26He;
-	Thu, 09 Apr 2026 18:16:11 +0000
-Date: Thu, 9 Apr 2026 19:16:11 +0100
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Philipp Hahn <phahn-oss@avm.de>
-Cc: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
-	bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
-	dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-	gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
-	intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-mm@kvack.org,
-	linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
-	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
-	sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
-	Julia Lawall <Julia.Lawall@inria.fr>,
-	Nicolas Palix <nicolas.palix@imag.fr>, Chris Mason <clm@fb.com>,
-	David Sterba <dsterba@suse.com>, Ilya Dryomov <idryomov@gmail.com>,
-	Alex Markuze <amarkuze@redhat.com>,
-	Viacheslav Dubeyko <slava@dubeyko.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Andreas Dilger <adilger.kernel@dilger.ca>,
-	Steve French <sfrench@samba.org>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
-	Shyam Prasad N <sprasad@microsoft.com>, Tom Talpey <tom@talpey.com>,
-	Bharath SM <bharathsm@microsoft.com>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Latchesar Ionkov <lucho@ionkov.net>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Christian Schoenebeck <linux_oss@crudebyte.com>,
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <lihongbo22@huawei.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-	Andreas Gruenbacher <agruenba@redhat.com>,
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Jan Kara <jack@suse.com>, Phillip Lougher <phillip@squashfs.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Tejun Heo <tj@kernel.org>, David Vernet <void@manifault.com>,
-	Andrea Righi <arighi@nvidia.com>,
-	Changwoo Min <changwoo@igalia.com>, Ingo Molnar <mingo@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Petr Pavlu <petr.pavlu@suse.com>,
-	Daniel Gomez <da.gomez@kernel.org>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Aaron Tomlin <atomlin@atomlin.com>,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
-	Takashi Iwai <tiwai@suse.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>,
-	Benjamin Marzinski <bmarzins@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	David Ahern <dsahern@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	Johan Hedberg <johan.hedberg@gmail.com>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>,
-	Olga Kornievskaia <okorniev@redhat.com>,
-	Dai Ngo <Dai.Ngo@oracle.com>, Jon Maloy <jmaloy@redhat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Russell King <linux@armlinux.org.uk>,
-	John Crispin <john@phrozen.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Andrzej Hajda <andrzej.hajda@intel.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-	Jonas Karlman <jonas@kwiboo.se>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	Sandy Huang <hjc@rock-chips.com>,
-	Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
-	Andy Yan <andy.yan@rock-chips.com>,
-	Igor Russkikh <irusskikh@marvell.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Pavan Chebbi <pavan.chebbi@broadcom.com>,
-	Michael Chan <mchan@broadcom.com>,
-	Potnuri Bharat Teja <bharat@chelsio.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Taras Chornyi <taras.chornyi@plvision.eu>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Iyappan Subramanian <iyappan@os.amperecomputing.com>,
-	Keyur Chudgar <keyur@os.amperecomputing.com>,
-	Quan Nguyen <quan@os.amperecomputing.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Vinod Koul <vkoul@kernel.org>, Linus Walleij <linusw@kernel.org>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Eduardo Valentin <edubezval@gmail.com>, Keerthy <j-keerthy@ti.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Mark Greer <mgreer@animalcreek.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Kieran Bingham <kieran.bingham@ideasonboard.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>, Justin Sanders <justin@coraid.com>,
-	Jens Axboe <axboe@kernel.dk>, Georgi Djakov <djakov@kernel.org>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/61] treewide: Use IS_ERR_OR_NULL over manual NULL
- check - refactor
-Message-ID: <20260409181611.GP3836593@ZenIV>
-References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LzLxomTq"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-66c05fb27e4so2199231a12.2
+        for <linux-input@vger.kernel.org>; Thu, 09 Apr 2026 11:25:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775759111; cv=none;
+        d=google.com; s=arc-20240605;
+        b=RqDP0q9AiU9Ik2nTACmFyOQUdzm9NDbt23X0Eu64DS4r8CoobAMtfZBSQMNpEY5F+U
+         sjFKKZYZefRjyRP0G+DRRI8aHe3e76uj+DXhJFMiurdYiDeZNfJtx5NWj+ex+u3Su/IF
+         zgnvrhy2pCpZCq5gIcIoyKiU/k3zegRwYoGWQvXCjEAhA3Hpqu+6dqQapv2vAqftsGOf
+         iM7otFcKdUtVScWT8S3UEtP5hOrXFtUals3Db/D+p01Blb5keDSrKx/qBNy94EdaPuZx
+         oAuEa/OEYFvUIWSaouadhvMWTbwoSu/njkiHnYq2fHm91wpe5joPFkna49H4+4tWe8VW
+         dHvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        fh=R5pvR1q5z0qbUOUlECRlQ2zmZ1pBbkGwcFSYRTXjxCk=;
+        b=khYsOGGlXF4WihB+pPr97YLSF8zZ6q8WAJ6gn3WCj8WN+ajsGnusl8ajiDFrFf4f8W
+         dzmTtEgm5y8kmC2gu9LzQAyhyzAv06agY03HAGSGOUmh/zvoETfZcG34BeGTIv3mcM6y
+         oUwaRRIfZ0Hr+JudYaR1snxIdsMgC9gqV9lmcFac2+24Dtv75MecO97Ov6f5OsWgjJn8
+         rZvfRTf8hg0qE03gZcyofnKFezq2q6BK1ZHf9mwX6qlTmkdyS0BLoMjhMIAPI+p/lix3
+         zYDOXYCZemqdw4d8pKjiXWL4K/Z10vt+ReIMhAT2b7WwBFYVerZgZ2oFrhFS5gOykEQb
+         cr0g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775759111; x=1776363911; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        b=LzLxomTqu3hI303cqh2kQu4o2QnX1b75nZh+6sCJ14WZQWRlau3rNtsEsjvR8ReWl4
+         P5xC3YMB1IhHq1kdyBqUhi2nCBOXRxuHWNcvMIXZyADz281HJsOEBMIAhEbVLPuXaj7J
+         ndczERAsnqnzXca/SLqO1WOQjw4VQ/7YKEkd22YnM6sYbeRUXQaUnNyqN0w7Lcn2ONgO
+         9Opx+SCMutnon9umjt7iexP3KFc5RVv8ATMueCPD8aQA7XrarOswzjrs1YW9Uqa7YAFb
+         Pf5B0nrRwGHlRmvI0+M/4f8iueNgVYY+xRf+APnq7COAdYqymyaDyL+0WTbNtiDuuvu8
+         JF1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775759111; x=1776363911;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        b=Pog0UVBYjsDuJNlL48Dyp3297BpzvRDn82xjmzCfQwQOA897NdLZmuCNFG86XvIhcB
+         FGpALeibNE++bhMIp0P/nk2kEFMAOF8Vs1Q5lKfLHqfptkV9Wr8BCUM0jkubDRXAwxa5
+         J4XPugXeIB+DATpSq7U1/lcg/4Ha62ZCAp9S8EpILKMJU0xu7tSszMJbhsHVQopfaiZj
+         pT4juWPs52Jp219stPzDrfwayVgDSqSLW21G1T7Fz1NFKMcSpIhWk42wVuytNMdNHECb
+         oOud0f0dfkKHbwgUZWQszRf2JFpGFmuIHmsAYScQ6EjOh5nYfJ7rMkekEqNC1zdlU5Mj
+         wSHA==
+X-Forwarded-Encrypted: i=1; AJvYcCVUcnkwo/OKtb4DhxTk7As3jCrpWFdn8IzFLGTh+lPwz5IVByqmcIJJYlBO2oD3pm+ng8iit2kjhimJPw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+sD1wzyZNsvpfj0ittPcZGhXKpl/+gpIax15rU2nydGepxOME
+	kTl3BL48+cuj2x4lggNtyreI5d++LTqRf6ziOo/nSsp4dhMPdf+ge/MHgny2ojQXoJjwMIV+lQU
+	IJ98/2jEYTrrBy3uI+sPEo68rC0GuJTM=
+X-Gm-Gg: AeBDietDX5dTuivXKBuQn7XXD1P6JXtJ5Fz1iDhb1y+lszoMo1cRp/jmMjG9g4h7Ruf
+	vW6CZphAjg2bq5253fU2OtHwRPTOjfsO0gwshO2KfftdUBdXn12K8kJ8fPZpzR5tIXm8OHcjfTh
+	dsRVMbJcBCfISRpXUEgu1NKccc1bWADh6Gq6oBH8PrktXq2ToK3l4Eu8zpNgyDjAY+tST4Mjbpk
+	q8SeyGTbg5++KXe1gyn5e3FtzeS6bXllQEgMaxQgIrRXAIkDrIXlBKrtle8ACY6Yc2zEC4l3HgA
+	3Lxovd4=
+X-Received: by 2002:a05:6402:358e:b0:66e:f4c0:c348 with SMTP id
+ 4fb4d7f45d1cf-66ef4c0c5a1mr8652002a12.7.1775759110757; Thu, 09 Apr 2026
+ 11:25:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+References: <20260324173527.11321-1-sebasjosue84@gmail.com>
+ <20260324201858.46591-1-sebasjosue84@gmail.com> <2o8np813-n9n6-32sn-922p-6qnrq45s7rs7@xreary.bet>
+In-Reply-To: <2o8np813-n9n6-32sn-922p-6qnrq45s7rs7@xreary.bet>
+From: Michael Zaidman <michael.zaidman@gmail.com>
+Date: Thu, 9 Apr 2026 21:24:59 +0300
+X-Gm-Features: AQROBzD5ryy57P3iGUvqLsmBCdxSK-kLXMP5Y7ZvC8lV482_vL8uUBuQIdBTpOA
+Message-ID: <CAPnwWgPhb+owa69-pTADpqk=KMWH71EUT6cxwCeT5KGnBWk+Xg@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: ft260: validate report size and payload length in raw_event
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>, 
+	linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 10, 2026 at 12:48:26PM +0100, Philipp Hahn wrote:
-> While doing some static code analysis I stumbled over a common pattern,
-> where IS_ERR() is combined with a NULL check. For that there is
-> IS_ERR_OR_NULL().
+On Thu, Apr 9, 2026 at 6:50=E2=80=AFPM Jiri Kosina <jikos@kernel.org> wrote=
+:
+>
+> On Tue, 24 Mar 2026, Sebastian Josue Alba Vives wrote:
+>
+> > ft260_raw_event() casts the raw data buffer to a
+> > ft260_i2c_input_report struct and accesses its fields without
+> > validating the size parameter. Since __hid_input_report() invokes
+> > the driver's raw_event callback before hid_report_raw_event()
+> > performs its own report-size validation, a device sending a
+> > truncated HID report can cause out-of-bounds heap reads.
+> >
+> > Additionally, even with a full-sized report, a corrupted
+> > xfer->length field can cause memcpy to read beyond the report
+> > buffer. The existing check only validates against the destination
+> > buffer size, not the source data available in the report.
+> >
+> > Add two checks: reject reports shorter than FT260_REPORT_MAX_LENGTH,
+> > and verify that xfer->length does not exceed the actual data
+> > available in the report. Log warnings to aid debugging.
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+> > ---
+> >  drivers/hid/hid-ft260.c | 11 +++++++++++
+> >  1 file changed, 11 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> > index 333341e80..68008a423 100644
+> > --- a/drivers/hid/hid-ft260.c
+> > +++ b/drivers/hid/hid-ft260.c
+> > @@ -1068,6 +1068,17 @@ static int ft260_raw_event(struct hid_device *hd=
+ev, struct hid_report *report,
+> >       struct ft260_device *dev =3D hid_get_drvdata(hdev);
+> >       struct ft260_i2c_input_report *xfer =3D (void *)data;
+> >
+> > +     if (size < FT260_REPORT_MAX_LENGTH) {
+> > +             hid_warn(hdev, "short report: %d\n", size);
+> > +             return 0;
+>
+> Michael, can you please confirm whether the device can never legitimately
+> send shorter than FT260_REPORT_MAX_LENGTH reports?
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-... and valid uses of IS_ERR_OR_NULL are rare as hen teeth.
-Most of those are "I'm not sure how this function returns an
-error, let's use that just in case".
+Hi Jiri,
 
-Please, do not introduce more of that crap.
+The FT260 uses different report IDs (0xD0 through 0xDE) for different paylo=
+ad
+lengths, with each report ID defining a different report size in the HID
+descriptor. So yes, the device can legitimately send reports shorter than
+FT260_REPORT_MAX_LENGTH, and a blanket size < 64 check would break valid
+short transfers.
+
+Looking at __hid_input_report(), the HID core could validate size against
+hid_compute_report_size(report) before the raw_event call - essentially
+moving the check that hid_report_raw_event() already does to happen earlier=
+.
+That would handle truncated reports generically for all HID drivers. Howeve=
+r,
+such a change would affect all HID drivers and require broad testing, so th=
+at
+is your call.
+
+What the HID core cannot validate is driver-specific payload semantics. In
+ft260, the I2C input report has a length field at byte 1 that indicates the
+payload size, and the driver uses it as the memcpy length without checking
+it against the actual report size or against the expected data capacity for
+the specific report ID.
+
+I will submit a per-driver fix with two checks, both essential:
+First, a minimum size check before accessing any header fields. Currently,
+the HID core does not validate report size before calling raw_event, so a
+1-byte report would cause an OOB read just from accessing the length field
+at byte 1. This check is necessary regardless of the second check.
+
+Second, a validation of xfer->length against the expected data capacity for
+the given report ID. Each I2C input report ID defines a specific data capac=
+ity
+(report 0xD0 holds up to 4 bytes, 0xDE up to 60 bytes). A corrupted length
+field exceeding this capacity would cause an OOB read from the source buffe=
+r
+during memcpy, even if the report itself is full-sized. Only the driver kno=
+ws
+these per-report-ID limits.
+
+I have the hardware to test this change. I will credit Sebastian with
+Reported-by for identifying the issue.
+
+Thanks,
+Michael

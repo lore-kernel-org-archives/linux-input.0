@@ -1,68 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9682E347BDC;
-	Thu,  9 Apr 2026 15:46:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CE262E8B83;
+	Thu,  9 Apr 2026 15:48:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775749618; cv=none; b=H6ecu93s8ZSlFXkGcj/WpjWB7dQhEKsY/klFU97UsDsqjTsWn1fSxRoaWvT0aU7SgWdvHP675+K+LpAGqgqUj5/pGheRU4+zWsb/8gNx3dcT33wgCIPf4JtIJlNTl3+MPZlnHukms2VBNeQBAcb8Hu6VdZgW/Dsb2Q461Wbgvx0=
+	t=1775749706; cv=none; b=SHtDVkC0BaUlVtr+a4WUnzZEUfvRLeJm3rBntTXY5DdAvjlcJC1VJbGqJjFBzjXCkjfRofcMhjKmkFCHe0NU3Qd4CatNxuwjCaWOE6IWHWRm0NWRsrSyxL0T7YpAAGDjBhYASSwrKGEFO6nBZkn6jiF2UESO6NZhsNbBogu6BFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775749618; c=relaxed/simple;
-	bh=OSccliokziw5UV6rkIs5aYcLuqOR8iiesk548tSKKeg=;
+	s=arc-20240116; t=1775749706; c=relaxed/simple;
+	bh=1uH6OyOsw32MyEmT3kQyj9XcSuezy/f3r6d9sRwMEHo=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=HcSC+nyyIHoTJu6VUaE2RPnpvCcnnwuX3QcNSYxf941DipBBlX8PiowQ7kPsAUKFuwxa1n9yDzi39WHcQ/FwWWpM9QzEqgMNpH6x6SIQgXRiBN7V3Eu0vc/DF9qUL0WIMcIfjvByu34X0e6CwG+vHjGYahBq0ICjbxajmBHJ57w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=piMk2zAF; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=E1M8Oa/c1janEvVyKX/hDcvohpJTv4ZvBhxmB+nyCUSJ5ciFI5Y6E+DhG/ZWY3RFeynTTWMenGJ8SbTjbknd+Rg33V4ws4fkvmlTmmRmiCkACwrh1/os8wfa1BHj2K3sHeLsbXtW9pXtSDUd6iUhEhPsS9Ba9mh+arqg/MrrNDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vMhoJ7uJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="piMk2zAF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 756B0C4CEF7;
-	Thu,  9 Apr 2026 15:46:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vMhoJ7uJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53838C116C6;
+	Thu,  9 Apr 2026 15:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775749617;
-	bh=OSccliokziw5UV6rkIs5aYcLuqOR8iiesk548tSKKeg=;
+	s=k20201202; t=1775749705;
+	bh=1uH6OyOsw32MyEmT3kQyj9XcSuezy/f3r6d9sRwMEHo=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=piMk2zAF2OvdFuRIrYheqQbPcmcaKGOSclhZsdLV/qdV7nvGrRKk1nLfBUX5CwApK
-	 MAAyc7pDzGQyRcBFimcTyMe/DoEOExBa01w0o/lRNbGiLrOl624a4od44322l+53ka
-	 YacjwD4/+GT+IXQvFxYAE93nWW1xxrOn3kj9mrhtwNbyQ2TDYyP2lf9XXCcpAJKUih
-	 HI3xjzQs0GDkp5UsqGGsq9KBKqDRgf4txMTNhbH6TZA9lil34+I68gbqp2i5zBhhFC
-	 NfaPF+1QU/SbLZqniHl1tQ4T2085vWSfirvcCmY2x1sQhcGpGZfAyXgCM/vVY9LZ81
-	 SkJgxilusC+lg==
-Date: Thu, 9 Apr 2026 17:46:55 +0200 (CEST)
+	b=vMhoJ7uJkTkHoUHEYngLe7WoNhxMDmoBdsXXcgzyU9Kclkv2uAlD/WIzEvEDdKdpA
+	 zz3ThHTLeONgWXrtQ2osJcOHh/+uNZqevbs3nCUSEqUNAAdcQL3wQK8tiHaQ0X/XaV
+	 OJV7/vWqOalrdUufJfHFDkT4fT2SlHVrXQsxw/3jbYSrolB1cIzzbYbIXKeVZFfDYC
+	 nF0/iP+cQqeE6VL2xdyO+W6lrDUa+Ckbq6cxMtgLRRGUDXb+dhCc/WIMJVeoUDNd8R
+	 w5FcK0kWWz1AW+tp4BrHezmBZwTn5rn3wNCkpKZJzeZTHOsIcmWzlAMcQd39kgm0eS
+	 G5sE/zTtB54AA==
+Date: Thu, 9 Apr 2026 17:48:23 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Aditya Garg <gargaditya08@live.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-    =?ISO-8859-15?Q?Andr=E9_Eikmeyer?= <andre.eikmeyer@gmail.com>
-Subject: Re: [PATCH] HID: apple: ensure the keyboard backlight is off if
- suspending
-In-Reply-To: <MAUPR01MB115467C51E492BD620ED390B6B85FA@MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM>
-Message-ID: <rp2oq787-0721-4005-9050-n437310rqo22@xreary.bet>
-References: <MAUPR01MB115467C51E492BD620ED390B6B85FA@MAUPR01MB11546.INDPRD01.PROD.OUTLOOK.COM>
+To: Oliver Neukum <oneukum@suse.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Subject: Re: [PATCH] hid: usbhid: fix deadlock in hid_post_reset()
+In-Reply-To: <036cb81b-ae6e-4dcd-8f97-593e754279d1@suse.com>
+Message-ID: <57ps39r7-1sqr-1s50-rpsn-731on7s2q023@xreary.bet>
+References: <20260324142507.74873-1-oneukum@suse.com> <8q66o2o4-7844-6p76-9964-7pr205p190pr@xreary.bet> <036cb81b-ae6e-4dcd-8f97-593e754279d1@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 4 Apr 2026, Aditya Garg wrote:
+On Mon, 30 Mar 2026, Oliver Neukum wrote:
 
-> Some users reported that upon suspending their keyboard backlight
-> remained on. Fix this by adding the missing LED_CORE_SUSPENDRESUME flag.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 394ba612f941 ("HID: apple: Add support for magic keyboard backligh=
-t on T2 Macs")
-> Fixes: 9018eacbe623 ("HID: apple: Add support for keyboard backlight on c=
-ertain T2 Macs.")
-> Reported-by: Andr=E9 Eikmeyer <andre.eikmeyer@gmail.com>
-> Tested-by: Andr=E9 Eikmeyer <andre.eikmeyer@gmail.com>
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+> > Did you find this just by code inspection, or was this reported with a
+> > real device?
+> 
+> Pure inspection. We are looking at USB error handling
+> in general right now.
 
-Applied, thanks.
+OK, thanks. Now queued in hid.git.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
 

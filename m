@@ -1,39 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CE262E8B83;
-	Thu,  9 Apr 2026 15:48:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C7893DBD7C;
+	Thu,  9 Apr 2026 15:50:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775749706; cv=none; b=SHtDVkC0BaUlVtr+a4WUnzZEUfvRLeJm3rBntTXY5DdAvjlcJC1VJbGqJjFBzjXCkjfRofcMhjKmkFCHe0NU3Qd4CatNxuwjCaWOE6IWHWRm0NWRsrSyxL0T7YpAAGDjBhYASSwrKGEFO6nBZkn6jiF2UESO6NZhsNbBogu6BFo=
+	t=1775749830; cv=none; b=ZqGRlPa7E2X1e7cQQRLsHieApA1wY1mihkP1Xryj6R2TJ7eJFXXjLYDkcoQS8J7mx5DnpdtTovoCASk+JHHeLRY34j71BU6RvNn1R0+L7u+MCzCU61qVr4HUtaNopTnb5Kwih8tQrbNly8MPDI4E06mR0G2WVIQLRH32HaZgcqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775749706; c=relaxed/simple;
-	bh=1uH6OyOsw32MyEmT3kQyj9XcSuezy/f3r6d9sRwMEHo=;
+	s=arc-20240116; t=1775749830; c=relaxed/simple;
+	bh=rX48IB2IMYPI8ssHHUyPf1RQIH+r7jVnPzWySnEGRM4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=E1M8Oa/c1janEvVyKX/hDcvohpJTv4ZvBhxmB+nyCUSJ5ciFI5Y6E+DhG/ZWY3RFeynTTWMenGJ8SbTjbknd+Rg33V4ws4fkvmlTmmRmiCkACwrh1/os8wfa1BHj2K3sHeLsbXtW9pXtSDUd6iUhEhPsS9Ba9mh+arqg/MrrNDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vMhoJ7uJ; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=bnwTcPqB8GZtxZ6S5ogkFFtgxwCGKLpBZg8WuAj6o66gq+BmMXQPirdStcyRkL4OHB7/4TYoeUiypY9s1ml9RIkE1Jn8iDinToEfysBmD6EJdVRRGMTAcsM5TRvGtTyAZfEMr1fPw5Oitwphvi4QaPg57Ksn/6NKatPw+0lwrKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DH87QZ7N; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vMhoJ7uJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53838C116C6;
-	Thu,  9 Apr 2026 15:48:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DH87QZ7N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5A4C4CEF7;
+	Thu,  9 Apr 2026 15:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775749705;
-	bh=1uH6OyOsw32MyEmT3kQyj9XcSuezy/f3r6d9sRwMEHo=;
+	s=k20201202; t=1775749830;
+	bh=rX48IB2IMYPI8ssHHUyPf1RQIH+r7jVnPzWySnEGRM4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=vMhoJ7uJkTkHoUHEYngLe7WoNhxMDmoBdsXXcgzyU9Kclkv2uAlD/WIzEvEDdKdpA
-	 zz3ThHTLeONgWXrtQ2osJcOHh/+uNZqevbs3nCUSEqUNAAdcQL3wQK8tiHaQ0X/XaV
-	 OJV7/vWqOalrdUufJfHFDkT4fT2SlHVrXQsxw/3jbYSrolB1cIzzbYbIXKeVZFfDYC
-	 nF0/iP+cQqeE6VL2xdyO+W6lrDUa+Ckbq6cxMtgLRRGUDXb+dhCc/WIMJVeoUDNd8R
-	 w5FcK0kWWz1AW+tp4BrHezmBZwTn5rn3wNCkpKZJzeZTHOsIcmWzlAMcQd39kgm0eS
-	 G5sE/zTtB54AA==
-Date: Thu, 9 Apr 2026 17:48:23 +0200 (CEST)
+	b=DH87QZ7N6UcwtKUBAr0wpcBi/Xu6vuM5dbUfRNcjafYFQqaDtqjkrtzOmPBK9Ob44
+	 Lexi64L8VLvmpCrkwglBxgdxKh8/iu8Jc9oWrDrlVruud9M8R3J7uPNIw5D9q0gEmZ
+	 IVW1BNeMDwWcW1eOvr+1d3jwpAgMYXHa+ZXiQqE073o88VmlpFA8B01v31gbgLWViY
+	 YlWsIoieOfv2bMem+D8QdUwgj2lkFuWfniXCmPMISa362NEFHd+lIBOIp6ZrNOEYhQ
+	 QeTH+xu49d9IlyfubVOrBepMdSHwnN9G56W3USD89L7nJk9oBSf75UnU6Sleio9MyZ
+	 9hhCpc0BXUYvA==
+Date: Thu, 9 Apr 2026 17:50:27 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Oliver Neukum <oneukum@suse.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: Re: [PATCH] hid: usbhid: fix deadlock in hid_post_reset()
-In-Reply-To: <036cb81b-ae6e-4dcd-8f97-593e754279d1@suse.com>
-Message-ID: <57ps39r7-1sqr-1s50-rpsn-731on7s2q023@xreary.bet>
-References: <20260324142507.74873-1-oneukum@suse.com> <8q66o2o4-7844-6p76-9964-7pr205p190pr@xreary.bet> <036cb81b-ae6e-4dcd-8f97-593e754279d1@suse.com>
+To: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+cc: michael.zaidman@gmail.com, Benjamin Tissoires <bentiss@kernel.org>, 
+    linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] HID: ft260: validate report size and payload length
+ in raw_event
+In-Reply-To: <20260324201858.46591-1-sebasjosue84@gmail.com>
+Message-ID: <2o8np813-n9n6-32sn-922p-6qnrq45s7rs7@xreary.bet>
+References: <20260324173527.11321-1-sebasjosue84@gmail.com> <20260324201858.46591-1-sebasjosue84@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,15 +45,46 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 30 Mar 2026, Oliver Neukum wrote:
+On Tue, 24 Mar 2026, Sebastian Josue Alba Vives wrote:
 
-> > Did you find this just by code inspection, or was this reported with a
-> > real device?
+> ft260_raw_event() casts the raw data buffer to a
+> ft260_i2c_input_report struct and accesses its fields without
+> validating the size parameter. Since __hid_input_report() invokes
+> the driver's raw_event callback before hid_report_raw_event()
+> performs its own report-size validation, a device sending a
+> truncated HID report can cause out-of-bounds heap reads.
 > 
-> Pure inspection. We are looking at USB error handling
-> in general right now.
+> Additionally, even with a full-sized report, a corrupted
+> xfer->length field can cause memcpy to read beyond the report
+> buffer. The existing check only validates against the destination
+> buffer size, not the source data available in the report.
+> 
+> Add two checks: reject reports shorter than FT260_REPORT_MAX_LENGTH,
+> and verify that xfer->length does not exceed the actual data
+> available in the report. Log warnings to aid debugging.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+> ---
+>  drivers/hid/hid-ft260.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 333341e80..68008a423 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+> @@ -1068,6 +1068,17 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+>  	struct ft260_device *dev = hid_get_drvdata(hdev);
+>  	struct ft260_i2c_input_report *xfer = (void *)data;
+>  
+> +	if (size < FT260_REPORT_MAX_LENGTH) {
+> +		hid_warn(hdev, "short report: %d\n", size);
+> +		return 0;
 
-OK, thanks. Now queued in hid.git.
+Michael, can you please confirm whether the device can never legitimately 
+send shorter than FT260_REPORT_MAX_LENGTH reports?
+
+Thanks,
 
 -- 
 Jiri Kosina

@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 948413DE43A
-	for <linux-input@vger.kernel.org>; Thu,  9 Apr 2026 15:43:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87C203D34A8;
+	Thu,  9 Apr 2026 15:45:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775749425; cv=none; b=h2Qa4ns5V4nX5BqUH4a62RvqzK95DyKoUrjIAMjnljoAgxw73fRpoz3Z/lmiU26kbX0q+vx6qQ9St6rPqRBAUG8SA986f1ekMMobdTiIWGbnOEoliMVmVA20/t7eSRBeDBbnnf8fwBMpZ1ajDDCmT0YeqTg9vebjz/sPjnOQUfY=
+	t=1775749540; cv=none; b=D3suIa8a4utEuOFMpvZoYm5dmHitivMnhvl5EMm56gIwBDzVAkyC4V+gdhhD1d/Hy2VWaGK1JQYk2L5UTMUV1xXUOLJE60xH311yw1ju+x/Iyodrmeg9xyiQq/B9Ingpsz0ebWRDzjeM3g6/QeR/8BLU7SuB9KyebpCWekk4NKs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775749425; c=relaxed/simple;
-	bh=UaN1gyj75H5bk/unBTKoBzbFX8FR16et5rK8j+ala0E=;
+	s=arc-20240116; t=1775749540; c=relaxed/simple;
+	bh=acSSKfdjbJu+SJGT84w52d6DgdH8i1cbh1HK7OI2nnM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=dY05MxsMOIoL8ajuSaM07o+tHbrPNe3rAlTvOZ5J2+2caXL1NnFpMmZQUsk79rqgzexOgqqqnQiICrMxbFTU9YGbwYOFgxSAA6HHtbMJjQUq7AV6kJmFJKL3Ff6CYD1yLwilKig6zXHSkZ1Rb+0ru/FH80ZpF6UCzwMfUHUofW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XE4D5+io; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=PjoqUUceECVFcl77PhKg81m68jNxUW5dcbT0fnkIUj2NcvglXndfkAQ+kQkCTzGm00Svhx10n4IQUqUFtkZOL3JmE34pDe3m9IT2sYOF9b17S6JZ15MYVO9KqoOILTPRq6XxSvE30rLG8ZbjU55bDQSroJGRMd5c2CCf3sf7qOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s/UWnFdf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XE4D5+io"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 990F3C4CEF7;
-	Thu,  9 Apr 2026 15:43:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s/UWnFdf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF404C116C6;
+	Thu,  9 Apr 2026 15:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775749425;
-	bh=UaN1gyj75H5bk/unBTKoBzbFX8FR16et5rK8j+ala0E=;
+	s=k20201202; t=1775749540;
+	bh=acSSKfdjbJu+SJGT84w52d6DgdH8i1cbh1HK7OI2nnM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=XE4D5+ioJ8myi3XQlz6HuHth4qxD+olTvTQyP7TY41YRHLlnsYSLQr98qjs69bIWA
-	 O/jEYAql/D19x6Z5d4wvIbVoEz2WU1pxDxQN61nymM4di5pV+tNnyjUIlJ1jrh6JqG
-	 6U1aVb5K2gCAth46Y5N2mJPlnT2xSkt9qCoW5bEZMJiH6U6a3+d/Dn67TmnIwiCTqG
-	 paAJdc8LNPYvrHUWdj9pB3HWhM1M7767FFXkMLsPN5t1E4yxXGlYA+SXfL4ODPdXd6
-	 Mb4geRn2XFW5VwDb0lQ12b3molRIlqqn6+4ueF2avmDHT5+CFDGW12Xkm/Guxy+dUJ
-	 AvEARsU+zJNcw==
-Date: Thu, 9 Apr 2026 17:43:42 +0200 (CEST)
+	b=s/UWnFdfiOh77pAzJBrAqYga3uRDVCgmo3MMKTV6y+t0g+pADfy6WWbwulz1jgju/
+	 dF742joSdUnMx1tdDsUGVQJ88i7sn22InoelpvSQBc6R9/sTzJ9D1ybax9IiutE7oB
+	 lSkQ9Dr4+KrzaflreMKQtlB8XXIYRWFrlzRtJnCHr6HAd27/Bzotg48XDN6heS+xL9
+	 clwyxdQpYxW7253N6dpV7VNoIi2sD7NcdWtwQjS3VHWgKDDjcq3MWKmUFjCvsGFC8T
+	 d+6E/zlwkWRh3VlJec6chMzKRtw9TZYK8MFoys1tmPuS3ynwmwRKs6nV96L0fXn8Du
+	 BwxNd1OFBfK3g==
+Date: Thu, 9 Apr 2026 17:45:37 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: =?ISO-8859-15?Q?Ren=E9_Onier?= <rene.onier@gmail.com>
-cc: linux-input@vger.kernel.org, bentiss@kernel.org, ivan.gorinov@gmail.com
-Subject: Re: [PATCH] HID: winwing: add support for URSA MINOR combat
- joysticks
-In-Reply-To: <20260404172641.195619-1-rene.onier@gmail.com>
-Message-ID: <29p33srq-315n-npps-2588-o2298nrp5pnp@xreary.bet>
-References: <20260404172641.195619-1-rene.onier@gmail.com>
+To: =?ISO-8859-15?Q?N=EDcolas_F=2E_R=2E_A=2E_Prado?= <nfraprado@collabora.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, kernel@collabora.com, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: quirks: Set ALWAYS_POLL for
+ LOGITECH_BOLT_RECEIVER
+In-Reply-To: <20260407-logi-bolt-hid-quirk-always-poll-v1-1-4dae0fda344e@collabora.com>
+Message-ID: <pnsp10o8-2q6o-64sq-90rp-nso9779o1623@xreary.bet>
+References: <20260407-logi-bolt-hid-quirk-always-poll-v1-1-4dae0fda344e@collabora.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,38 +45,38 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Sat, 4 Apr 2026, Ren=E9 Onier wrote:
+On Tue, 7 Apr 2026, N=EDcolas F. R. A. Prado wrote:
 
-> Add device IDs for the Winwing URSA MINOR Combat Joystick L (0xbc29)
-> and R (0xbc2a). These joysticks declare 128 buttons in their HID
-> report descriptor, causing the generic HID driver to reject buttons
-> above KEY_MAX (767) with "Invalid code" errors.
+> The Logitech Bolt receiver once connected to a wireless device will
+> generate data on interface 2. If this data isn't polled, when the USB
+> port it is connected to gets suspended (and if that happens within 5
+> minutes of the last input from the wireless device), it will trigger a
+> remote wakeup 3 seconds later, which will result in a spurious system
+> wakeup if the port was suspended as part of system sleep.
 >=20
-> The URSA MINOR joysticks use buttons in the 33-64 range for grip
-> controls including the index trigger, so map_more_buttons is set
-> to 1 to enable the extended KEY_MACRO mapping.
+> Set the ALWAYS_POLL quirk for this device to ensure interface 2 is
+> always polled and this spurious wakeup never happens.
 >=20
-> Tested with both left and right URSA MINOR joysticks on kernel 6.19.
+> With this change in place the system can be suspended with the receiver
+> plugged in and the system can be woken up when an input is sent from the
+> wireless device.
 >=20
-> Signed-off-by: Ren=E9 Onier <rene.onier@gmail.com>
+> Signed-off-by: N=EDcolas F. R. A. Prado <nfraprado@collabora.com>
 > ---
->  hid-winwing.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Hi,
 >=20
-> diff --git a/hid-winwing.c b/hid-winwing.c
-> index ab65dc1..f3e6ea0 100644
-> --- a/hid-winwing.c
-> +++ b/hid-winwing.c
+> Given that the polling only needs to happen before the device goes into
+> suspend, I wonder if it might make sense to introduce a new quirk type
+> that only does a poll before the device goes into suspend (both for
+> system sleep and runtime suspend). It would reduce the extra bit of USB
+> traffic that ends up happening in this case with ALWAYS_POLL every time
+> a wireless device connects to the receiver.
 
-Thanks for the patch!
-
-You seem to have generated it however without a full path, so it can't be=
+I don't think it's worth the hassle, but if you feel strongly about it, I=
 =20
-applied using standard patch -p1 way ... could you please fix that up and=
-=20
-resend?
+wouldn't object too strongly.
 
-Thanks,
+In the meantime, I am applying this one. Thanks,
 
 --=20
 Jiri Kosina

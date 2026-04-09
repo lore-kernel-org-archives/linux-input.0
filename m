@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDD7D368946;
-	Thu,  9 Apr 2026 15:36:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4307363C57;
+	Thu,  9 Apr 2026 15:37:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775748989; cv=none; b=AGKagKiGsr8CHfZFelO3zjpFMvvSPK/vU+0PnYYAhJm9TDR/3BKa5h5H5hJiDRsthBh1ayLhLQ8tK4Ey+QacS++py3ten7v7v/oR0A6+YNB3LKNLQI6MRds69r8o/saXEH/62DfT/4BsdAbjt4SWmDPEBGXoh6DDFapQR808Y6Q=
+	t=1775749073; cv=none; b=snNtO5XNSeuGZ4JdMhE+cN4bBgj9yHryG6mii+dXpVZWRp20PVVQ6gfwu4U4kl2Nbr8fSfCQQTKg5U5/DC1Q/oU7vhh9WPpMcUc1iuTwRlA+nGcnsmd2vNkOfVFzYD3Qh1pZpNWTg2zfROdWXXo3sIB0KC1NSpZGyw3lLPAMeNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775748989; c=relaxed/simple;
-	bh=l2HDiYAuPv41xjTQMJo4TXbDoENUOQjegtG57Dv4K0k=;
+	s=arc-20240116; t=1775749073; c=relaxed/simple;
+	bh=GwJLfya6YyydHUXQLitjkkc5F+r3bKlg0aeyyIpRDbc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=F2/RMtPAQzXgRRVLeoH7Vnow6xS1g5rLwT61wp+LOxJa6uaHIh1I+JXz3L5FRe5kbj6NJuQZb4HZVr43rxmmh49zu35dWDf89os2uqo2r+DhFItzIRXsibG2xCIu8lkR5q6kuAxIH6qGB7CZIAtQjUTjUNqLvoFnQRCPnBXKO1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BFyfFNw3; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=BXA2RFftyetjTnWjVH3OrcgI6N5Xf3h94oOGh8ltpP6cb34mHu44TO44H9348rygra3j2RSTF8ASUerYONRswx9htP5cxFHD8sGidQ1C8kZp/gFC9iUCl8LU1ydf+JM3Dul5Dx+nscktpKQ8UWnYesrUc421r8j367BfwtMTIc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OZkSB82b; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BFyfFNw3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248DDC4CEF7;
-	Thu,  9 Apr 2026 15:36:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OZkSB82b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F75EC4CEF7;
+	Thu,  9 Apr 2026 15:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775748989;
-	bh=l2HDiYAuPv41xjTQMJo4TXbDoENUOQjegtG57Dv4K0k=;
+	s=k20201202; t=1775749073;
+	bh=GwJLfya6YyydHUXQLitjkkc5F+r3bKlg0aeyyIpRDbc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=BFyfFNw32v7cikwgp7WIOzyxFf2FfbLZuUspupyacD3IZX/g/WKZbFtz5Y9u+8RV9
-	 /Ehkd8BfbCNTHg4Sqr3Q2CiG1YZx9AvckFdF+zhr27xq5wbj5pqC/fUsNKQPjCvxkY
-	 G6ZqdpeD3p1lsitJljyCrLbBBeNViqoEcgzDUXuGgBKEZopavuhS5lTOehQChz44BN
-	 zqC7URqvjMK2f0+leJV9+jdRtcVK4k5QL7tIGmoOXsqX3eaWQTvBYBz5Q81mlvZ70z
-	 lg0qn+gerEyOG371iPqJ3zTNnFxyh/DaOUCJiiFXJ2yfCXed5XILkYCoI6VFrhubeW
-	 tDoLCiNwNR67Q==
-Date: Thu, 9 Apr 2026 17:36:26 +0200 (CEST)
+	b=OZkSB82bzhUyUgkG6CAgyN2nYxRHSBh2LP6xmL/wZRXvdQ4r2e3ZkMFg3FBzXForq
+	 ZHmoI+lahxZehBxxn76cr/M8cH87urGCn/qW5JLuARNu7Jknelh6xzetjs4L3YgaPb
+	 IE7zNeNEeDYdJAlMdd/klDW2fseT6DIMlK/F+J4eeB6/YBuN7oHHjwnB3HL2P0vvLa
+	 2Z/PN3crhchTPJxvYOmdXH0mqXLVqx5XD6C2sht3qKqoYQPlIrJPaU7OfKxiy7A+Ll
+	 /07bWI0r3yDk/8K5Q4a2ecpa/ZSZg49hckdSaATv6I8iuf8UslZLfD+TH8MDUjBxA7
+	 vViJbTB8Ed6gQ==
+Date: Thu, 9 Apr 2026 17:37:50 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Lee Jones <lee@kernel.org>
-cc: =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] HID: logitech-dj: Standardise hid_report_enum
- variable nomenclature
-In-Reply-To: <20260407135955.GQ3795166@google.com>
-Message-ID: <6ro65p70-nqoq-7s19-or58-sn31ns1r4438@xreary.bet>
-References: <20260324143651.342273-1-lee@kernel.org> <20260407135955.GQ3795166@google.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    stable <stable@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+    Masaki Ota <masaki.ota@jp.alps.com>
+Subject: Re: [PATCH] HID: alps: fix NULL pointer dereference in
+ alps_raw_event()
+In-Reply-To: <2026040624-overjoyed-impart-6fa4@gregkh>
+Message-ID: <s244nnns-p3p4-6q1o-or9r-poqpr203023n@xreary.bet>
+References: <2026040624-overjoyed-impart-6fa4@gregkh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,27 +45,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 7 Apr 2026, Lee Jones wrote:
+On Mon, 6 Apr 2026, Greg Kroah-Hartman wrote:
 
-> > Since we will need to differentiate between the two report_enum types
-> > soon, let's unify the naming conventions now to save confusion and/or
-> > unnecessary/unrelated changes in upcoming commits.
-> > 
-> > {input,output}_report_enum is used in other places to let's conform.
-> > 
-> > Signed-off-by: Lee Jones <lee@kernel.org>
-> > ---
-> > v1 => v2: New patch
-> > 
-> >  drivers/hid/hid-logitech-dj.c | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> Commit ecfa6f34492c ("HID: Add HID_CLAIMED_INPUT guards in raw_event
+> callbacks missing them") attempted to fix up the HID drivers that had
+> missed the previous fix that was done in 2ff5baa9b527 ("HID: appleir:
+> Fix potential NULL dereference at raw event handle"), but the alps
+> driver was missed.
 > 
-> During a previous submission you indicated that you preferred pings over
-> [RESEND]s - so this is it.
+> Fix this up by properly checking in the hid-alps driver that it had been
+> claimed correctly before attempting to process the raw event.
 > 
-> This submission was posted 2 weeks ago.  Could someone take a look please?
+> Fixes: 73196ebe134d ("HID: alps: add support for Alps T4 Touchpad device")
+> Cc: stable <stable@kernel.org>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Benjamin Tissoires <bentiss@kernel.org>
+> Cc: Masaki Ota <masaki.ota@jp.alps.com>
+> Cc: linux-input@vger.kernel.org
+> Assisted-by: gregkh_clanker_t1000
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Sorry for the delay. Now applied. Thanks!
+Applied, thanks.
 
 -- 
 Jiri Kosina

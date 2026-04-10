@@ -1,94 +1,71 @@
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 429D33DDDAE
-	for <linux-input@vger.kernel.org>; Fri, 10 Apr 2026 15:20:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.9.28.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 403343E0C49;
+	Fri, 10 Apr 2026 15:23:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775834438; cv=none; b=az4aQ6AOxvdUtAeLhS9VXTJ+PkYXIFfMxeecsO3xqCELqZa80fNUwtUmgkhECAk0kQU2OtVCyD7upM5V2d7T/+05u4F/jLbbcCUe1g84Azonf6U2Xar0pV3rY2XE+Ek5vMY2wApysGNDCwmjS7yATjEHZ0CmSq2rifg0D2QhmEI=
+	t=1775834629; cv=none; b=HTvU8sPs/iA6RojRr++pv+H2BGERvtqj/Vbnowv41uNxQgmz2TJXRdm2ZO3MdAXjv7WAySgGIs698mJkpvgc04SMlaE2HYenkavjKhiX6waS3dK4VFv2zzV1D4c0+vq+XT7JmLpbNjO7LhoisTk78UXfHw4TO8sPdhPsDnBVNxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775834438; c=relaxed/simple;
-	bh=2PJcapuxUWWHQgHKuYh+AB0Bg9+uWPE8WWtuj/kl/pY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Caj45RuL99Os4Tl6gzwuzbkCnfoS3Y9udIvH2uhnWynKV6gTGNyrkeIWFasQnzlr34w/7STDbBmNO5JY19yFTWPV+n0Vrh5NDAutpUNa2NQW0/XSf8zB1B8KzgjsTdD3octpJaKHY3dEYYWe4FNPXvd+qIHxB3uEM55h/+hv2tI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu; spf=pass smtp.mailfrom=mit.edu; dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b=VM9pR3FU; arc=none smtp.client-ip=18.9.28.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mit.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mit.edu
+	s=arc-20240116; t=1775834629; c=relaxed/simple;
+	bh=YzOCSYHu178KLseWG3qA3bP7hShe7pQ/4iull4GeOgU=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=JF8im54lsM10LRxqhaIgy2Q/rEGoGzHXrQ8n3vgkOQO+tiwN3yUQWc6ytj3anbo/WSicprLfKbrR6+xRdHAS1vBoiEM41j4LEJ7NeaP20v13Epoe5bPQvwutptNsRc9g0/dN+niNkJtUkVCzsgoaC1Vewn2STkmKIN5aTMEGVl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PIsdPiN+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b="VM9pR3FU"
-Received: from trampoline.thunk.org (pool-173-48-116-90.bstnma.fios.verizon.net [173.48.116.90])
-	(authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-	by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 63AFIonm015842
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Apr 2026 11:18:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-	t=1775834338; bh=eTlXD+fEi5OyNbu4TxRTwpDmEzFd2ThBwniicSqJG9M=;
-	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	b=VM9pR3FUqiyu4dGQLYjxtn5fwtIzfU7ySZMp0abbH18xV6/gDABRi9uB743lXz8hh
-	 DLg+D58JGiw6cmfTe96qrNZsfI1LrX8CH4Z4SZsryjUI4LnJNSYnME68kmTAWN0bac
-	 +APmObxjmRctPfSGmHJbriSXfrkN55pWYIbiVRfu2y0ECqpOPHSJun6K+BHM+LkVI2
-	 DM7T+QYmlRWbU/sqPlO03FdXluf2F9iRmmuiDmCsbPLwL4U9izV2zs90P/AyWnNi7/
-	 WJE2W3FtW9KojAgen2wKI5w3YJJGh4CS8IuF5T47bMgUta6WPQzUW9F7QaunmIRgXz
-	 enYXQQPwNnobw==
-Received: by trampoline.thunk.org (Postfix, from userid 15806)
-	id 0D7462E00E1; Fri, 10 Apr 2026 11:18:48 -0400 (EDT)
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: amd-gfx@lists.freedesktop.org, apparmor@lists.ubuntu.com,
-        bpf@vger.kernel.org, ceph-devel@vger.kernel.org, cocci@inria.fr,
-        dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
-        gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
-        intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
-        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
-        sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev,
-        Philipp Hahn <phahn-oss@avm.de>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>
-Subject: Re: [PATCH 04/61] ext4: Prefer IS_ERR_OR_NULL over manual NULL check
-Date: Fri, 10 Apr 2026 11:18:40 -0400
-Message-ID: <177583430870.2758959.6171961359325912353.b4-ty@b4>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260310-b4-is_err_or_null-v1-4-bd63b656022d@avm.de>
-References: <20260310-b4-is_err_or_null-v1-4-bd63b656022d@avm.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PIsdPiN+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C2BDC2BC87;
+	Fri, 10 Apr 2026 15:23:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775834628;
+	bh=YzOCSYHu178KLseWG3qA3bP7hShe7pQ/4iull4GeOgU=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=PIsdPiN+myYVn93MLhzmtfAl7IaZSVfK2uVkazpzb8+wfBcfhofALs8Cpv9ZbN8rN
+	 N340pA08Un5wgnFTnvgHrHl28Rx87O5Sl0/T2zIUO3dPnzK9WAG1S4Epg5kW3kL8tr
+	 cAofb3Jm2ScFwQWmkj54Ar5tpMKq3ilXTQ9AT4WdFnItZ13zcviujmA+dWxGsMvIzB
+	 jaQmeSbPJVYeKEn01g57vI6f1qDSzN4EOO9pz0hHXxH6fKLg/ijOyMX0P3+PNm3OSe
+	 RoL4PTs+5X8Sra7+x41X/1l7Y3BZhk7dMOUoYFk8Yt5r7CkWH4fOSmfgt1d31oPjCZ
+	 +3f8jnJeG2vfw==
+Date: Fri, 10 Apr 2026 17:23:46 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+cc: =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
+    Lee Jones <lee@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: logitech-dj: fix wrong detection of bad DJ_SHORT
+ output report
+In-Reply-To: <20260410-fix-logitech-dj-v1-1-5533381f8d1b@kernel.org>
+Message-ID: <2qo95np2-n977-9r09-p016-880q98025q44@xreary.bet>
+References: <20260410-fix-logitech-dj-v1-1-5533381f8d1b@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
+On Fri, 10 Apr 2026, Benjamin Tissoires wrote:
 
-On Tue, 10 Mar 2026 12:48:30 +0100, Philipp Hahn wrote:
-> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
-> check.
+> commit b6a57912854e ("HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT
+> related user initiated OOB write") assumed that all HID devices attached
+> to the logitech-dj driver was having an output report of DJ_SHORT.
 > 
-> Change generated with coccinelle.
+> However, on the receiver itself, we have 2 other HID device we attach
+> here: the mouse emulation and the keyboard emulation. For those devices
+> the value of rep is NULL and we are triggered a segfault here.
+> 
+> This is doubly required because logitech-dj also handles non DJ devices
+> that might not have the DJ collection.
+> 
+> Fixes: b6a57912854e ("HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT related user initiated OOB write")
+> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 
-Applied, thanks!
+Thanks a lot Benjamin, your CI be praised!
 
-[04/61] ext4: Prefer IS_ERR_OR_NULL over manual NULL check
-        commit: 1d749e110277ce4103f27bd60d6181e52c0cc1e3
+Applied.
 
-Best regards,
 -- 
-Theodore Ts'o <tytso@mit.edu>
+Jiri Kosina
+SUSE Labs
+

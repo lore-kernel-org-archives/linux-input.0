@@ -1,245 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F6683932DC;
-	Fri, 10 Apr 2026 17:35:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC8643E3D88
+	for <linux-input@vger.kernel.org>; Fri, 10 Apr 2026 18:11:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775842507; cv=none; b=pb+jCFW/Q24RbBnwvKOSa8dlXm5zHieUplaqqF1FzieeWG3SkOb5Uhfq7pEpvqqX2KDwCXldkANho4mKRWZ5vSjdhh5dlH3txbOurTJZq2rtXPACq/dv4vxCFH0Oo0mQ/OloDwpAOjVrxqsIDvTpN7ngoqdmfgd6bq9HIVFAldk=
+	t=1775844674; cv=none; b=Is36ucVMypcnvPU389rrZKHjazAjKgqlKH1qSrHJItU99v2sD5ObHiI7jL7B9MRm1i0G5s3Pesv0dyT/uygS6mSLlv0fJKuq/Jx/niAvZTA02Kf/mqKr+NjWVjR9UIvnCyo1bYtEDNU/0yY4SWOv23zNZegDANJxS8ynrkQ0BS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775842507; c=relaxed/simple;
-	bh=h1W+nyCu3AOJVaJuJJ/UvEnAIZZjEkoSXon0451Q0vk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IzmpkuAaH/y1FaJjKSx/TwuRMODYAk5JPBgnyzeRZb2POphmq0EAkmDoeM86pRnKC/Mi1kTpQmUQhJmmYa0nCFvPjOL9pmruMlFE9zSMfTNTXq2SJ5+BhvVSPA3jLKJ2Cg1dP1sj+jt+n5sHcSnOU7d6QEKJCleW/j+3MFIaOXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O1mT/k3H; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775844674; c=relaxed/simple;
+	bh=o+sRuMQMoIrz0nU46qaFqSGl53FPeisF7BoEaxpxUjY=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=uukVR9Nre0EZP1oEGIQk+4GhIuvXIEtvF3zTfJ2dbQbHXvf5CLjKEUUID5eSc3HxX3qrWqmlFR5V9dnIFHMkH7+5n8QbVHYAjxhj9yCYrGN/gauxfK6TXoT3Grt5qg6uUSEA32XwhHcywszZ/yberLDdRIJLCF4AiP/EPtt4sdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RZPEEEeu; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O1mT/k3H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B12C19421;
-	Fri, 10 Apr 2026 17:35:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775842507;
-	bh=h1W+nyCu3AOJVaJuJJ/UvEnAIZZjEkoSXon0451Q0vk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=O1mT/k3HhTHNYK81OxaH3vAGpsRsnuAV1awUyf8HE7TVdol8gDe6cz8YN44ypy5iV
-	 vZELjyydPtVCl+2LrVweRR5qe+pBzJzt5p9862QVldQF9wrtRBtG6bemEVgPwhFtVs
-	 pK3faRODfqyul8Q7/mz/Qzte2uXgcRJhyM9HbV3nfz9OZdAW3gAPzjhcQ9l9jIeQ6n
-	 5epLNxpS7vRjxJDiGuHoGI7nyx5DJ1ujPvmYqL8UDERWEJU3K2y7StZj4okRKuG+25
-	 EIiALU8mP4PsNuVGfUdUzHsgWrbuv5VC+TzzaqgEnmKgPfE68hpNFYpDLiLDUIDgF+
-	 wCw9Udl7NTiBA==
-Date: Fri, 10 Apr 2026 18:35:00 +0100
-From: Conor Dooley <conor@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RZPEEEeu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1775844673; x=1807380673;
+  h=date:from:to:cc:subject:message-id;
+  bh=o+sRuMQMoIrz0nU46qaFqSGl53FPeisF7BoEaxpxUjY=;
+  b=RZPEEEeuTzOQJiRd2+rBOIQ+f+eMJss5C0GE3siHOuytgLq3pnaHNSnk
+   SN1HUiM1EzyGmZHZVOhAde+AWdmV4pghaJ6V4+vKfQq8/wNgohVvyKs3p
+   fi4c51GG25059ZII3a/vi7a1SqZnKPWeo5Gana13TVHHMT0ucQsMRT/Fx
+   hrlkm1ihnl5qtUfyPMcBOnFAtfzaEnTi8BTK3TI8c5g7OdLnbctO7HsZe
+   7h8eiqMJB+/l7OpmWhwRB+k2NeM0ZpYm6ZFc6gXpjlOpxTeBuCPAXeD5o
+   eFR7F4fia9t5VfG4KC8Jk87vZGRs4vUMoW1r/joJbrp3qEfq6UGV4WXY4
+   w==;
+X-CSE-ConnectionGUID: BbJ6xygMR9uFRtZ5IKe4rA==
+X-CSE-MsgGUID: YtAY3A1XTxmm7+crd0KifQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11755"; a="80732085"
+X-IronPort-AV: E=Sophos;i="6.23,172,1770624000"; 
+   d="scan'208";a="80732085"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 11:11:13 -0700
+X-CSE-ConnectionGUID: b54w1jbFRLS4UWthL6CrDA==
+X-CSE-MsgGUID: REK24vaSSZaxDGdj3wr+Fg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,172,1770624000"; 
+   d="scan'208";a="229039481"
+Received: from lkp-server01.sh.intel.com (HELO 6449335cace3) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 10 Apr 2026 11:11:13 -0700
+Received: from kbuild by 6449335cace3 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wBGJy-000000004By-0SJO;
+	Fri, 10 Apr 2026 18:11:10 +0000
+Date: Sat, 11 Apr 2026 02:10:27 +0800
+From: kernel test robot <lkp@intel.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jingyuan Liang <jingyliang@chromium.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, hbarnor@chromium.org,
-	tfiga@chromium.org, Dmitry Antipov <dmanti@microsoft.com>,
-	Jarrett Schultz <jaschultz@microsoft.com>
-Subject: Re: [PATCH v3 09/11] dt-bindings: input: Document hid-over-spi DT
- schema
-Message-ID: <20260410-sake-dollop-9f253ddb0749@spud>
-References: <20260402-send-upstream-v3-0-6091c458d357@chromium.org>
- <20260402-send-upstream-v3-9-6091c458d357@chromium.org>
- <20260409-defuse-thank-4b038128fac5@spud>
- <adfdkwq_bF9dirAq@google.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:master] BUILD SUCCESS
+ 875115b82c295277b81b6dfee7debc725f44e854
+Message-ID: <202604110221.KRyyMOMS-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Y/RXBM/umoYzjiEA"
-Content-Disposition: inline
-In-Reply-To: <adfdkwq_bF9dirAq@google.com>
 
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git master
+branch HEAD: 875115b82c295277b81b6dfee7debc725f44e854  Input: ims-pcu - fix heap-buffer-overflow in ims_pcu_process_data()
 
---Y/RXBM/umoYzjiEA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+elapsed time: 730m
 
-On Thu, Apr 09, 2026 at 10:16:46AM -0700, Dmitry Torokhov wrote:
-> On Thu, Apr 09, 2026 at 05:02:11PM +0100, Conor Dooley wrote:
-> > On Thu, Apr 02, 2026 at 01:59:46AM +0000, Jingyuan Liang wrote:
-> > > Documentation describes the required and optional properties for
-> > > implementing Device Tree for a Microsoft G6 Touch Digitizer that
-> > > supports HID over SPI Protocol 1.0 specification.
-> > >=20
-> > > The properties are common to HID over SPI.
-> > >=20
-> > > Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
-> > > Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
-> > > Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
-> > > ---
-> > >  .../devicetree/bindings/input/hid-over-spi.yaml    | 126 +++++++++++=
-++++++++++
-> > >  1 file changed, 126 insertions(+)
-> > >=20
-> > > diff --git a/Documentation/devicetree/bindings/input/hid-over-spi.yam=
-l b/Documentation/devicetree/bindings/input/hid-over-spi.yaml
-> > > new file mode 100644
-> > > index 000000000000..d1b0a2e26c32
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/input/hid-over-spi.yaml
-> > > @@ -0,0 +1,126 @@
-> > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/input/hid-over-spi.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: HID over SPI Devices
-> > > +
-> > > +maintainers:
-> > > +  - Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > +  - Jiri Kosina <jkosina@suse.cz>
-> >=20
-> > Why them and not you, the developers of the series?
-> >=20
-> > > +
-> > > +description: |+
-> > > +  HID over SPI provides support for various Human Interface Devices =
-over the
-> > > +  SPI bus. These devices can be for example touchpads, keyboards, to=
-uch screens
-> > > +  or sensors.
-> > > +
-> > > +  The specification has been written by Microsoft and is currently a=
-vailable
-> > > +  here: https://www.microsoft.com/en-us/download/details.aspx?id=3D1=
-03325
-> > > +
-> > > +  If this binding is used, the kernel module spi-hid will handle the
-> > > +  communication with the device and the generic hid core layer will =
-handle the
-> > > +  protocol.
-> >=20
-> > This is not relevant to the binding, please remove it.
-> >=20
-> > > +
-> > > +allOf:
-> > > +  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
-> > > +
-> > > +properties:
-> > > +  compatible:
-> > > +    oneOf:
-> > > +      - items:
-> > > +          - enum:
-> > > +              - microsoft,g6-touch-digitizer
-> > > +          - const: hid-over-spi
-> > > +      - description: Just "hid-over-spi" alone is allowed, but not r=
-ecommended.
-> > > +        const: hid-over-spi
-> >=20
-> > Why is it allowed but not recommended? Seems to me like we should
-> > require device-specific compatibles.
->=20
-> Why would we want to change the driver code to add a new compatible each
-> time a vendor decides to create a chip that is fully hid-spi-protocol
-> compliant? Or is the plan to still allow "hid-over-spi" fallback but
-> require device-specific compatible that will be ignored unless there is
-> device-specific quirk needed?
+configs tested: 55
+configs skipped: 1
 
-This has nothing to do with the driver, just the oddity of having a
-comment saying that not having a device specific compatible was
-permitted by not recommended in a binding. Requiring device-specific
-compatibles is the norm after all and a comment like this makes draws
-more attention to the fact that this is abnormal. Regardless of what the
-driver does, device-specific compatibles should be required.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-> > > +
-> > > +  reg:
-> > > +    maxItems: 1
-> > > +
-> > > +  interrupts:
-> > > +    maxItems: 1
-> > > +
-> > > +  reset-gpios:
-> > > +    maxItems: 1
-> > > +    description:
-> > > +      GPIO specifier for the digitizer's reset pin (active low). The=
- line must
-> > > +      be flagged with GPIO_ACTIVE_LOW.
-> > > +
-> > > +  vdd-supply:
-> > > +    description:
-> > > +      Regulator for the VDD supply voltage.
-> > > +
-> > > +  input-report-header-address:
-> > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > +    minimum: 0
-> > > +    maximum: 0xffffff
-> > > +    description:
-> > > +      A value to be included in the Read Approval packet, listing an=
- address of
-> > > +      the input report header to be put on the SPI bus. This address=
- has 24
-> > > +      bits.
-> > > +
-> > > +  input-report-body-address:
-> > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > +    minimum: 0
-> > > +    maximum: 0xffffff
-> > > +    description:
-> > > +      A value to be included in the Read Approval packet, listing an=
- address of
-> > > +      the input report body to be put on the SPI bus. This address h=
-as 24 bits.
-> > > +
-> > > +  output-report-address:
-> > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > +    minimum: 0
-> > > +    maximum: 0xffffff
-> > > +    description:
-> > > +      A value to be included in the Output Report sent by the host, =
-listing an
-> > > +      address where the output report on the SPI bus is to be writte=
-n to. This
-> > > +      address has 24 bits.
-> > > +
-> > > +  read-opcode:
-> > > +    $ref: /schemas/types.yaml#/definitions/uint8
-> > > +    description:
-> > > +      Value to be used in Read Approval packets. 1 byte.
-> > > +
-> > > +  write-opcode:
-> > > +    $ref: /schemas/types.yaml#/definitions/uint8
-> > > +    description:
-> > > +      Value to be used in Write Approval packets. 1 byte.
-> >=20
-> > Why can none of these things be determined from the device's compatible?
-> > On the surface, they like the kinds of things that could/should be.
->=20
-> Why would we want to keep tables of these values in the kernel and again
-> have to update the driver for each new chip?
+tested configs:
+alpha         allnoconfig    gcc-15.2.0
+alpha        allyesconfig    gcc-15.2.0
+arc          allmodconfig    gcc-15.2.0
+arc           allnoconfig    gcc-15.2.0
+arc          allyesconfig    gcc-15.2.0
+arm           allnoconfig    clang-23
+arm          allyesconfig    gcc-15.2.0
+arm64        allmodconfig    clang-19
+arm64         allnoconfig    gcc-15.2.0
+csky         allmodconfig    gcc-15.2.0
+csky          allnoconfig    gcc-15.2.0
+hexagon      allmodconfig    clang-17
+hexagon       allnoconfig    clang-23
+i386         allmodconfig    gcc-14
+i386          allnoconfig    gcc-14
+i386         allyesconfig    gcc-14
+loongarch    allmodconfig    clang-19
+loongarch     allnoconfig    clang-23
+m68k         allmodconfig    gcc-15.2.0
+m68k          allnoconfig    gcc-15.2.0
+m68k         allyesconfig    gcc-15.2.0
+microblaze    allnoconfig    gcc-15.2.0
+microblaze   allyesconfig    gcc-15.2.0
+mips         allmodconfig    gcc-15.2.0
+mips          allnoconfig    gcc-15.2.0
+mips         allyesconfig    gcc-15.2.0
+nios2        allmodconfig    gcc-11.5.0
+nios2         allnoconfig    gcc-11.5.0
+openrisc     allmodconfig    gcc-15.2.0
+openrisc      allnoconfig    gcc-15.2.0
+parisc       allmodconfig    gcc-15.2.0
+parisc        allnoconfig    gcc-15.2.0
+parisc       allyesconfig    gcc-15.2.0
+powerpc      allmodconfig    gcc-15.2.0
+powerpc       allnoconfig    gcc-15.2.0
+riscv        allmodconfig    clang-23
+riscv         allnoconfig    gcc-15.2.0
+riscv        allyesconfig    clang-16
+s390         allmodconfig    clang-18
+s390          allnoconfig    clang-23
+s390         allyesconfig    gcc-15.2.0
+sh           allmodconfig    gcc-15.2.0
+sh            allnoconfig    gcc-15.2.0
+sh           allyesconfig    gcc-15.2.0
+sparc         allnoconfig    gcc-15.2.0
+sparc64      allmodconfig    clang-23
+um           allmodconfig    clang-19
+um            allnoconfig    clang-23
+um           allyesconfig    gcc-14
+x86_64       allmodconfig    clang-20
+x86_64        allnoconfig    clang-20
+x86_64       allyesconfig    clang-20
+x86_64      rhel-9.4-rust    clang-20
+xtensa        allnoconfig    gcc-15.2.0
+xtensa       allyesconfig    gcc-15.2.0
 
-That's pretty normal though innit? It's what match data does.
-If someone wants to have properties that communicate data that
-can be determined from the compatible, they need to provide
-justification why it is being done.
-
-> It also probably firmware-dependent.
-
-
---Y/RXBM/umoYzjiEA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCadk0wQAKCRB4tDGHoIJi
-0oXEAQDSWNAocQ7MVn24Zy2B1nO6Pq/WY3ecja9nGfaWTvDSXQEApF/WEBk8cXP0
-lP16gSN1Sk/PgPbZlHSiBOGQckqj/Qo=
-=fNLv
------END PGP SIGNATURE-----
-
---Y/RXBM/umoYzjiEA--
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

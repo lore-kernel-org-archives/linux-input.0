@@ -1,188 +1,962 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from mail.koesling.network (vmd143767.contaboserver.net [45.67.216.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D6F8846F;
-	Sun, 12 Apr 2026 04:54:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86C721D00A;
+	Sun, 12 Apr 2026 08:03:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.67.216.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775969670; cv=none; b=ovofAeBW6zh99RqXe8/5iRePLkEJWD7yXkzb5wi8bdT1QINBXZJwtjss2fWOxgrI7/+aKTZ5hRjnrPvmOGAhU9BTAKaMlPXPaRhvgBIO1xHNgUp5ITGe94/A5NPK5S0m+PSio4IaPsyQf5kzVkM80mlOfYHk4YlG2BmGVgZpQAw=
+	t=1775980995; cv=none; b=VBHiIxn8ay0QaF2SCuejQpNj+vXfAjaZEQN+1q0fC5PaIO5oNC4dXT4DuRhMrt1PG1qmXX3VvDSNG0Blo+MhPeCNvYZMn3t8aZC9AZ5H7Zm6E6BYA99eTgUywNau6MxfWolI8gKA4azvcihStLYgvHc46GvtQRSjl+ubCWcK9aw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775969670; c=relaxed/simple;
-	bh=ko+Np9Wl+y+M5hFm/qlqkUs6vzBVP2ZkZ/5kZlmYmnE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lL00tY0SuU/D9WKBORMkB+q03fbsrZLuGNynsexkej/T2G9jJFrjfyDkyt4kB68ve2GjiTjfyjxnZtwr09k1z7XSXwyOjq0zre4p82XzadzZ5ZIc4Hpqz7bqs3bqcGbV6P7+MMPZvvYNy0szttP4gI1TU9aMcp6O/Ad2H7UrtxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=E8G6zVjy; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1775980995; c=relaxed/simple;
+	bh=Bf36S2zGgPRgw0W+QKHIFpi7bwhNFdXdbwzq1Eh2Bmg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DOBifP7Fql9wqqqFDmWfAPStyr2D5tDMhBftpXcZJIDXzmg8YXJLfEzJUnfBPhJa2U7hYODv/GfMNsyJ+bv2IX230b3XlX4qFO616YSM8NVn4exAlQHXvdgW29bzGtRYJwRwLdbvGN4Np7xtSO561RjSH4Kgt+C1/rPCA4HUark=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info; spf=none smtp.mailfrom=koesling.info; dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b=pQ5/BlYI; arc=none smtp.client-ip=45.67.216.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=koesling.info
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=koesling.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="E8G6zVjy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1775969669; x=1807505669;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ko+Np9Wl+y+M5hFm/qlqkUs6vzBVP2ZkZ/5kZlmYmnE=;
-  b=E8G6zVjyfs7kJq8wWSdajsPQzJdbvOVq4BlyJHUoF/yy+zgjcKjSI7Hy
-   TXujQkWcUI4GnF2yH2wWCjXbmOlEB3Rr4OY6S56hrreXVFi/3lrzotj00
-   pv3jqpsHitJRWi+ueokiVnMQceh/2sgw0MEcK6W70ZgsA5cELw4DWrT++
-   o7kqnY7W4fVMgY45Ydq8Kk8SLL5YIIbTXe+L9a7yZeAthViJ2vHoR/lBu
-   9jJNf+SEtE12UkDKHtha31z+C8xsUwR02BrcYGd7N2CVP/W3XLB/C0rub
-   4XvtudmrwNmmfslqVcBj2R+LN6nIbHm3RAruz5T3kxCgo//Oen0O26cew
-   A==;
-X-CSE-ConnectionGUID: HsBRjH79S4SWHd0BZMEKUA==
-X-CSE-MsgGUID: tusbhHCKSbaUXo/qamheYA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11755"; a="88385734"
-X-IronPort-AV: E=Sophos;i="6.23,174,1770624000"; 
-   d="scan'208";a="88385734"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2026 21:54:28 -0700
-X-CSE-ConnectionGUID: 0aEk/+J2R5OqeAqlivoI9g==
-X-CSE-MsgGUID: 8KC92sWCRPClc+D/WbJH8Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,174,1770624000"; 
-   d="scan'208";a="225184915"
-Received: from lkp-server01.sh.intel.com (HELO 3eaaf1a74b89) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 11 Apr 2026 21:54:25 -0700
-Received: from kbuild by 3eaaf1a74b89 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wBmpz-000000001sj-1q69;
-	Sun, 12 Apr 2026 04:54:23 +0000
-Date: Sun, 12 Apr 2026 12:53:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: Nikolas Koesling <nikolas@koesling.info>,
-	Jiri Kosina <jikos@kernel.org>,
+	dkim=pass (2048-bit key) header.d=koesling.info header.i=@koesling.info header.b="pQ5/BlYI"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BB0A413216B8;
+	Sun, 12 Apr 2026 09:55:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=koesling.info;
+	s=dkim; t=1775980513; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=k+Qyb4E5alaNwalcfyY0FtmnpKQT/qW3mVPPXDeKAxk=;
+	b=pQ5/BlYIGraRfiL28hdOIB+rosIxk4zfyUiTLvo1H8Y2ezkyor2Jt1mxDfusyW+S2WN/ia
+	rmb1MNZwt4oy3rQyAu8lop6hpmDfhyI5g9qF8aIFSH300/D/BC/qYooKK1JTvMJEe+EDnz
+	faIeTo47jL0Wi3spDIQBb21ZVUoHfFXa4H8eKsQMYEJa/CjEc2v+ZIB9CfkI/rJJnCsyxP
+	e0atUBKlv+EKps6RiqaeWfdiUcZxoV47ghGo31+NFsQYVfo2nH8N5FKYvgfYs+rd57uKrb
+	r/7/IVQ6scEUTKQ8VU3DTiuf9ejfIPdRNL1coc2UGCTIcvtCUgYTbyldQBk4hg==
+From: Nikolas Koesling <nikolas@koesling.info>
+To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo <leo@managarm.org>
-Subject: Re: [PATCH v2] HID: pulsar: add driver for Pulsar gaming mice
-Message-ID: <202604121253.ZYbxnPmo-lkp@intel.com>
-References: <20260401185708.286359-1-nikolas@koesling.info>
+Cc: Lode Willems <me@lodewillems.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Leo <leo@managarm.org>
+Subject: [PATCH v3] HID: pulsar: add driver for Pulsar gaming mice
+Date: Sun, 12 Apr 2026 09:53:46 +0200
+Message-ID: <20260412075346.100567-1-nikolas@koesling.info>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260401185708.286359-1-nikolas@koesling.info>
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Nikolas,
+Add a HID driver for Pulsar wireless gaming mice (X2 V2, X2H, X2A,
+Xlite V3). The driver exposes battery level, voltage, and charging
+status through the power supply framework. It supports wired, 1kHz,
+and 4kHz wireless dongle connections.
 
-kernel test robot noticed the following build warnings:
+The driver also supports Kysona M600 ATK, VXE R1 SE+ and
+VXE Dragonfly R1 Pro, which use the same protocol for reading
+battery status and availability.
 
-[auto build test WARNING on v7.0-rc7]
-[cannot apply to hid/for-next linus/master next-20260410]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+The protocol used by this driver is based on findings from
+python-pulsar-mouse-tool by Andrew Rabert (MIT License):
+https://github.com/andrewrabert/python-pulsar-mouse-tool
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Nikolas-Koesling/HID-pulsar-add-driver-for-Pulsar-gaming-mice/20260411-084544
-base:   v7.0-rc7
-patch link:    https://lore.kernel.org/r/20260401185708.286359-1-nikolas%40koesling.info
-patch subject: [PATCH v2] HID: pulsar: add driver for Pulsar gaming mice
-config: alpha-allyesconfig (https://download.01.org/0day-ci/archive/20260412/202604121253.ZYbxnPmo-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 15.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260412/202604121253.ZYbxnPmo-lkp@intel.com/reproduce)
+ATK vendor and device IDs were provided by Leo <leo@managarm.org>.
+VXE and Kysona vendor and device IDS are from hid-kysona.c by
+        Lode Willems <me@lodewillems.com>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202604121253.ZYbxnPmo-lkp@intel.com/
+Tested-by: Leo <leo@managarm.org>
+Signed-off-by: Nikolas Koesling <nikolas@koesling.info>
+---
+Changes in v2:
+- Add support for Kysona M600, ATK VXE R1 SE+, and VXE Dragonfly R1 Pro
+- Add device type enum to distinguish vendors and generate proper
+  battery names per vendor/model
+- Add mutual exclusion with HID_KYSONA in Kconfig
+- Add ATK and VXE vendor/device IDs to hid-ids.h
+- Refactor model name generation: extract model_pulsar() and add
+  model_atk() for vendor-specific battery naming
+- Fall back to hdev->name for battery model when device info read
+  fails on non-Pulsar devices (downgrade error to debug log)
+- Remove POWER_SUPPLY_PROP_MANUFACTURER property
+- Pass device type via driver_data in hid_device_id table
 
-All warnings (new ones prefixed by >>):
+Changes in v3:
+- Increase size of battery model name to hid device name size
+---
+ MAINTAINERS              |   6 +
+ drivers/hid/Kconfig      |  15 +
+ drivers/hid/Makefile     |   1 +
+ drivers/hid/hid-ids.h    |  15 +
+ drivers/hid/hid-pulsar.c | 754 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 791 insertions(+)
+ create mode 100644 drivers/hid/hid-pulsar.c
 
-   drivers/hid/hid-pulsar.c: In function 'pulsar_init_work':
->> drivers/hid/hid-pulsar.c:601:27: warning: '%s' directive output may be truncated writing up to 127 bytes into a region of size 32 [-Wformat-truncation=]
-     601 |                          "%s", hdev->name);
-         |                           ^~
-   drivers/hid/hid-pulsar.c:600:17: note: 'snprintf' output between 1 and 128 bytes into a destination of size 32
-     600 |                 snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
-         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     601 |                          "%s", hdev->name);
-         |                          ~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-pulsar.c:586:59: warning: '%s' directive output may be truncated writing up to 127 bytes into a region of size 32 [-Wformat-truncation=]
-     586 |                          sizeof(drvdata->battery.model), "%s", hdev->name);
-         |                                                           ^~
-   drivers/hid/hid-pulsar.c:585:17: note: 'snprintf' output between 1 and 128 bytes into a destination of size 32
-     585 |                 snprintf(drvdata->battery.model,
-         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     586 |                          sizeof(drvdata->battery.model), "%s", hdev->name);
-         |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +601 drivers/hid/hid-pulsar.c
-
-   553	
-   554	static void pulsar_init_work(struct work_struct *work)
-   555	{
-   556		struct pulsar_data *drvdata;
-   557		struct hid_device *hdev;
-   558		struct power_supply_config psy_cfg;
-   559		int ret;
-   560		u8 data[DEV_INFO_LEN];
-   561	
-   562		drvdata = container_of(work, struct pulsar_data, init_work.work);
-   563		hdev = drvdata->hdev;
-   564	
-   565		ret = read_device_info(drvdata, data);
-   566		if (ret == -ETIMEDOUT) {
-   567			if (drvdata->init_retries--) {
-   568				hid_dbg(hdev,
-   569					"device info read timed out, retrying (%u left)\n",
-   570					drvdata->init_retries);
-   571				schedule_delayed_work(&drvdata->init_work,
-   572						      msecs_to_jiffies
-   573						      (INIT_DELAY_MSEC));
-   574				return;
-   575			}
-   576			hid_err(hdev, "device info read timed out, giving up\n");
-   577			return;
-   578		}
-   579		if (ret < 0) {
-   580			if (drvdata->type == TYPE_PULSAR) {
-   581				hid_err(hdev, "failed to read device info: %d\n", ret);
-   582				return;
-   583			}
-   584			hid_dbg(hdev, "failed to read device info: %d\n", ret);
-   585			snprintf(drvdata->battery.model,
-   586				 sizeof(drvdata->battery.model), "%s", hdev->name);
-   587			goto register_battery;
-   588		}
-   589	
-   590		hid_dbg(hdev, "device info: %*ph (%d)\n", DEV_INFO_LEN, data, ret);
-   591	
-   592		switch (drvdata->type) {
-   593		case TYPE_PULSAR:
-   594			model_pulsar(data, drvdata);
-   595			break;
-   596		case TYPE_ATK:
-   597			model_atk(data, drvdata);
-   598			break;
-   599		default:
-   600			snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
- > 601				 "%s", hdev->name);
-   602		}
-   603	
-   604	register_battery:
-   605		init_power_supply_desc(drvdata);
-   606	
-   607		psy_cfg = (struct power_supply_config) {.drv_data = drvdata };
-   608		drvdata->battery.ps =
-   609		    devm_power_supply_register(&hdev->dev, &drvdata->battery.desc,
-   610					       &psy_cfg);
-   611		if (IS_ERR(drvdata->battery.ps)) {
-   612			hid_err(hdev, "failed to register battery: %ld\n",
-   613				PTR_ERR(drvdata->battery.ps));
-   614			drvdata->battery.ps = NULL;
-   615			return;
-   616		}
-   617	
-   618		atomic_set(&drvdata->device_verified, 1);
-   619		hid_info(hdev, "device verified, battery registered\n");
-   620	}
-   621	
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c3fe46d7c4bc..207216632918 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11352,6 +11352,12 @@ L:	linux-input@vger.kernel.org
+ S:	Supported
+ F:	drivers/hid/hid-playstation.c
+ 
++HID PULSAR DRIVER
++M:	Nikolas Koesling <nikolas@koesling.info>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-pulsar.c
++
+ HID SENSOR HUB DRIVERS
+ M:	Jiri Kosina <jikos@kernel.org>
+ M:	Jonathan Cameron <jic23@kernel.org>
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c1d9f7c6a5f2..333d165554ee 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -511,12 +511,15 @@ config HID_KYE
+ config HID_KYSONA
+ 	tristate "Kysona devices"
+ 	depends on USB_HID
++	depends on !HID_PULSAR
+ 	help
+ 	Support for Kysona mice.
+ 
+ 	Say Y here if you have a Kysona M600 mouse
+ 	and want to be able to read its battery capacity.
+ 
++	Note: The Kysona M600 is also supported by HID_PULSAR.
++
+ config HID_UCLOGIC
+ 	tristate "UC-Logic"
+ 	depends on USB_HID
+@@ -1280,6 +1283,18 @@ config HID_UNIVERSAL_PIDFF
+ 
+ 	  Supports Moza Racing, Cammus, VRS, FFBeast and more.
+ 
++config HID_PULSAR
++	tristate "Pulsar gaming mouse support"
++	depends on USB_HID
++	select POWER_SUPPLY
++	help
++	  Support for Pulsar gaming mice (X2 V2, X2H, X2A, Xlite V3)
++	  connected via 1kHz/4kHz USB dongle or wired.
++	  Provides battery level, voltage, and charging status
++	  monitoring via the power supply framework.
++
++	  Additional supported devices: Kysona M600, ATK VXE R1 SE+
++
+ config HID_WACOM
+ 	tristate "Wacom Intuos/Graphire tablet support (USB)"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index e01838239ae6..67ad39b47df1 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -112,6 +112,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PLAYSTATION)	+= hid-playstation.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_PULSAR)	+= hid-pulsar.o
+ obj-$(CONFIG_HID_PXRC)		+= hid-pxrc.o
+ obj-$(CONFIG_HID_RAPOO) += hid-rapoo.o
+ obj-$(CONFIG_HID_RAZER)	+= hid-razer.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index afcee13bad61..5ce542150d61 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -248,6 +248,12 @@
+ #define USB_VENDOR_ID_ATMEL_V_USB	0x16c0
+ #define USB_DEVICE_ID_ATMEL_V_USB	0x05df
+ 
++#define USB_VENDOR_ID_ATK		0x373B
++#define USB_DEVICE_ID_ATK_VXE_R1_SE_WIRED	0xF58F
++
++#define USB_VENDOR_ID_ATK_ALT		0x3554
++#define USB_DEVICE_ID_ATK_VXE_R1_SE_DONGLE	0x1085
++
+ #define USB_VENDOR_ID_AUREAL		0x0755
+ #define USB_DEVICE_ID_AUREAL_W01RN	0x2626
+ 
+@@ -1169,6 +1175,11 @@
+ #define USB_VENDOR_ID_PRODIGE		0x05af
+ #define USB_DEVICE_ID_PRODIGE_CORDLESS	0x3062
+ 
++#define USB_VENDOR_ID_PULSAR		0x3554
++#define USB_DEVICE_ID_PULSAR_WIRED	0xf507
++#define USB_DEVICE_ID_PULSAR_1KHZ	0xf508
++#define USB_DEVICE_ID_PULSAR_4KHZ	0xf509
++
+ #define I2C_VENDOR_ID_QTEC              0x6243
+ 
+ #define USB_VENDOR_ID_QUANTA		0x0408
+@@ -1471,6 +1482,10 @@
+ #define USB_VENDOR_ID_VTL		0x0306
+ #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
+ 
++#define USB_VENDOR_ID_VXE				0x3554
++#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE	0xf58a
++#define USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED	0xf58c
++
+ #define USB_VENDOR_ID_WACOM		0x056a
+ #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
+ #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
+diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
+new file mode 100644
+index 000000000000..f95b7a33d9e5
+--- /dev/null
++++ b/drivers/hid/hid-pulsar.c
+@@ -0,0 +1,754 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * HID driver for pulsar mice
++ *
++ * Supported pulsar devices:
++ *	- Pulsar
++ *		- X2 V2
++ *		- X2H
++ *		- X2A
++ *		- Xlite V3
++ *	- Kysona
++ *		-M600
++ *	- ATK
++ *		- VXE R1 SE+
++ *	- VXE
++ *		- Dragonfly R1 Pro
++ *
++ * Copyright (c) 2026 Nikolas Koesling
++ */
++
++#include <linux/hid.h>
++#include <linux/usb.h>
++#include <linux/power_supply.h>
++#include "hid-ids.h"
++
++/* ----- driver settings ----- */
++#define CMD_TIMEOUT_MSEC 100
++#define MAX_BATTERY_AGE_NS 60000000000ULL	/* 60s */
++#define MAX_UNAVAIL_AGE_NS 5000000000ULL	/* 5s */
++#define INIT_RETRIES 1
++#define INIT_DELAY_MSEC 1000
++
++/* ----- constants ----- */
++#define USB_INTERFACE 1
++#define USB_PAYLOAD_LEN 17
++#define CMD_HID_REPORT_ID 0x08
++#define CHECKSUM_MAGIC 0x55
++#define DEV_INFO_LEN 4
++#define CON_1K 0x00
++#define CON_4K 0x01
++#define CON_WIRED 0x02
++
++/* ----- device commands ----- */
++enum pulsar_cmd {
++	CMD_NONE = 0,
++	CMD_INFO = 0x01,
++	CMD_STATUS = 0x03,
++	CMD_POWER = 0x04,
++	CMD_EVENT = 0x0a,	/* recv only */
++};
++
++#define EVENT_PWR 0x40		/* power status change */
++#define EVENT_PWR_CHK 0xf9
++
++/* ----- device types ----- */
++enum dev_type {
++	TYPE_UNKNOWN,
++	TYPE_PULSAR,
++	TYPE_KYSONA,
++	TYPE_ATK,
++	TYPE_VXE,
++};
++
++/* ----- structs ----- */
++struct pulsar_battery {
++	struct power_supply *ps;
++	struct power_supply_desc desc;
++	char name[48];
++	char model[MAX(32, sizeof((struct hid_device){}).name)];
++	u8 level;		/* percent */
++	u16 voltage;		/* millivolts */
++	bool conn;
++	bool available;
++	u64 last_read;
++	u64 last_status;
++};
++
++struct pulsar_data {
++	struct hid_device *hdev;
++
++	enum dev_type type;
++
++	spinlock_t raw_event_lock;	/* protects response_buf, pending_event */
++	struct mutex lock_cmd;		/* serializes device command execution */
++	struct rw_semaphore lock_bat;	/* protects battery state */
++
++	struct completion response_ready;
++	u8 response_buf[USB_PAYLOAD_LEN];
++	u8 pending_event;
++	struct work_struct power_uevent_work;
++	struct delayed_work init_work;
++	unsigned int init_retries;
++	atomic_t device_verified;
++	atomic_t stopping;
++
++	struct pulsar_battery battery;
++};
++
++static u8 calc_checksum(const u8 *data, size_t len)
++{
++	u8 sum = 0;
++
++	for (size_t i = 0; i < len - 1; i++)
++		sum += data[i];
++
++	return (u8)CHECKSUM_MAGIC - sum;
++}
++
++static int send_cmd(struct hid_device *hdev, const u8 *buf, size_t len)
++{
++	int ret;
++	u8 *dmabuf;
++
++	hid_dbg(hdev, "send command: %*ph\n", (int)len, buf);
++
++	dmabuf = kmemdup(buf, len, GFP_KERNEL);
++	if (!dmabuf)
++		return -ENOMEM;
++
++	/* device listens only to control transfers */
++	ret = hid_hw_raw_request(hdev, dmabuf[0], dmabuf, len,
++				 HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
++
++	kfree(dmabuf);
++
++	if (ret < 0)
++		return ret;
++	if (ret != len)
++		return -EIO;
++
++	return 0;
++}
++
++static int exec_cmd(struct pulsar_data *drvdata, const u8 *payload,
++		    u8 *response, unsigned int timeout_msec)
++{
++	struct hid_device *hdev = drvdata->hdev;
++	unsigned long flags;
++	int ret;
++	unsigned long timeout;
++	u8 checksum;
++
++	if (atomic_read(&drvdata->stopping))
++		return -ENODEV;
++
++	mutex_lock(&drvdata->lock_cmd);
++
++	if (atomic_read(&drvdata->stopping)) {
++		ret = -ENODEV;
++		goto out;
++	}
++
++	spin_lock_irqsave(&drvdata->raw_event_lock, flags);
++	reinit_completion(&drvdata->response_ready);
++	drvdata->pending_event = payload[1];
++	spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
++
++	ret = send_cmd(hdev, payload, USB_PAYLOAD_LEN);
++
++	if (ret < 0) {
++		spin_lock_irqsave(&drvdata->raw_event_lock, flags);
++		drvdata->pending_event = CMD_NONE;
++		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
++		hid_err(hdev, "failed to send command 0x%02x: %d\n",
++			payload[1], ret);
++		goto out;
++	}
++
++	timeout = wait_for_completion_timeout(&drvdata->response_ready,
++					      msecs_to_jiffies(timeout_msec));
++
++	if (timeout == 0) {
++		spin_lock_irqsave(&drvdata->raw_event_lock, flags);
++		drvdata->pending_event = CMD_NONE;
++		spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
++		ret = -ETIMEDOUT;
++		goto out;
++	}
++
++	spin_lock_irqsave(&drvdata->raw_event_lock, flags);
++	memcpy(response, drvdata->response_buf, USB_PAYLOAD_LEN);
++	spin_unlock_irqrestore(&drvdata->raw_event_lock, flags);
++
++	/* validate checksum */
++	checksum = calc_checksum(response, USB_PAYLOAD_LEN);
++
++	if (response[USB_PAYLOAD_LEN - 1] != checksum) {
++		hid_err(hdev,
++			"invalid checksum in response: 0x%02x (expected 0x%02x)\n",
++			response[USB_PAYLOAD_LEN - 1], checksum);
++		ret = -EIO;
++		goto out;
++	}
++
++	ret = 0;
++out:
++	mutex_unlock(&drvdata->lock_cmd);
++	return ret;
++}
++
++static inline void finalize_payload(u8 *payload, u8 cmd)
++{
++	payload[0] = CMD_HID_REPORT_ID;
++	payload[1] = cmd;
++	payload[USB_PAYLOAD_LEN - 1] = calc_checksum(payload, USB_PAYLOAD_LEN);
++}
++
++static int read_status(struct pulsar_data *drvdata)
++{
++	int ret;
++	u8 payload[USB_PAYLOAD_LEN] = { 0 };
++	u8 response[USB_PAYLOAD_LEN];
++
++	finalize_payload(payload, CMD_STATUS);
++
++	ret = exec_cmd(drvdata, payload, response, CMD_TIMEOUT_MSEC);
++	if (ret < 0)
++		return ret;
++	if (response[6] > 0x01)
++		return -EIO;
++
++	return (int)response[6];	/* 1: available, 0: not available */
++}
++
++static int read_device_info(struct pulsar_data *drvdata, u8 *data)
++{
++	int ret;
++	u8 payload[USB_PAYLOAD_LEN] = { 0 };
++	u8 response[USB_PAYLOAD_LEN];
++
++	payload[5] = DEV_INFO_LEN * 2;
++	get_random_bytes(payload + 6, DEV_INFO_LEN);
++	finalize_payload(payload, CMD_INFO);
++
++	ret = exec_cmd(drvdata, payload, response, CMD_TIMEOUT_MSEC);
++	if (ret < 0)
++		return ret;
++
++	if (data)
++		memcpy(data, response + 6 + DEV_INFO_LEN, DEV_INFO_LEN);
++
++	response[8 + DEV_INFO_LEN] = 0;
++	response[9 + DEV_INFO_LEN] = 0;
++
++	/*
++	 * Verify challenge-response. Response layout from offset 6:
++	 *   [0..3] encoded response   [4..7] device info (ID + conn type)
++	 *
++	 * resp[i] = challenge[i] * (i+1) + challenge[(i+1) % 4] + device_id[i]
++	 *
++	 * bytes 6..7 are zeroed for verification.
++	 */
++	for (int i = 0; i < DEV_INFO_LEN; i++) {
++		u8 expect = response[6 + DEV_INFO_LEN + i];
++		u8 actual = response[6 + i] - (i + 1) * payload[6 + i] -
++		    payload[6 + (i + 1) % DEV_INFO_LEN];
++
++		if (expect != actual) {
++			hid_warn(drvdata->hdev,
++				 "device info[%d] mismatch: %02x != %02x\n",
++				 i, expect, actual);
++			return -EIO;
++		}
++	}
++
++	return 0;
++}
++
++static int read_power(struct pulsar_data *drvdata)
++{
++	u64 now;
++	bool need_status, need_power;
++	int ret = 0;
++	u8 payload[USB_PAYLOAD_LEN] = { 0 };
++	u8 response[USB_PAYLOAD_LEN];
++	struct pulsar_battery *battery = &drvdata->battery;
++
++	now = ktime_get_ns();
++
++	down_write(&drvdata->lock_bat);
++
++	need_status = (now - battery->last_status >= MAX_UNAVAIL_AGE_NS);
++	need_power = battery->available &&
++	    (now - battery->last_read >= MAX_BATTERY_AGE_NS);
++
++	if (!need_status && !need_power)
++		goto unlock;
++
++	if (need_status) {
++		ret = read_status(drvdata);
++		if (ret < 0) {
++			hid_err(drvdata->hdev,
++				"%s: failed to read status: %d\n",
++				__func__, ret);
++			goto unlock;
++		}
++
++		battery->last_status = now;
++
++		if (!ret) {
++			battery->available = false;
++			goto unlock;
++		}
++
++		/* device just became available, force power read */
++		if (!battery->available)
++			need_power = true;
++	}
++
++	if (!need_power)
++		goto unlock;
++
++	finalize_payload(payload, CMD_POWER);
++
++	ret = exec_cmd(drvdata, payload, response, CMD_TIMEOUT_MSEC);
++	if (ret < 0) {
++		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
++			__func__, ret);
++		goto unlock;
++	}
++
++	if (response[6] > 100 || response[7] > 0x01) {
++		ret = -EIO;
++		goto unlock;
++	}
++
++	battery->available = true;
++	battery->level = response[6];
++	battery->conn = response[7] == 1;
++	battery->voltage = (response[8] << 8) | response[9];
++	battery->last_read = now;
++
++	hid_dbg(drvdata->hdev, "%s: level=%d, conn=%d, voltage=%d\n",
++		__func__, battery->level, battery->conn, battery->voltage);
++
++unlock:
++	up_write(&drvdata->lock_bat);
++	return ret;
++}
++
++static int battery_get_property(struct power_supply *psy,
++				enum power_supply_property psp,
++				union power_supply_propval *val)
++{
++	struct pulsar_data *drvdata;
++	int ret;
++
++	drvdata = power_supply_get_drvdata(psy);
++
++	ret = read_power(drvdata);
++	if (ret)
++		return ret;
++
++	down_read(&drvdata->lock_bat);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_STATUS:
++		if (!drvdata->battery.available)
++			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++		else if (drvdata->battery.conn && drvdata->battery.level < 100)
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++		else if (drvdata->battery.conn && drvdata->battery.level >= 100)
++			val->intval = POWER_SUPPLY_STATUS_FULL;
++		else
++			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY:
++		val->intval = drvdata->battery.level;
++		break;
++	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
++		val->intval = drvdata->battery.voltage * 1000;
++		break;
++	case POWER_SUPPLY_PROP_PRESENT:
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = drvdata->battery.available;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval = drvdata->battery.model;
++		break;
++	default:
++		ret = -EINVAL;
++	}
++
++	up_read(&drvdata->lock_bat);
++	return ret;
++}
++
++static void power_uevent_work_handler(struct work_struct *work)
++{
++	struct pulsar_data *drvdata;
++	int ret;
++
++	drvdata = container_of(work, struct pulsar_data, power_uevent_work);
++
++	if (atomic_read(&drvdata->stopping))
++		return;
++
++	down_write(&drvdata->lock_bat);
++	drvdata->battery.last_read = 0;
++	drvdata->battery.last_status = 0;
++	up_write(&drvdata->lock_bat);
++
++	ret = read_power(drvdata);
++	if (ret < 0) {
++		hid_err(drvdata->hdev, "%s: failed to read power: %d\n",
++			__func__, ret);
++		return;
++	}
++
++	power_supply_changed(drvdata->battery.ps);
++}
++
++static int pulsar_raw_event(struct hid_device *hdev,
++			    struct hid_report *report, u8 *data, int size)
++{
++	struct pulsar_data *drvdata;
++
++	drvdata = hid_get_drvdata(hdev);
++	if (!drvdata)
++		return 0;
++
++	hid_dbg(hdev, "received raw event: %*ph\n", size, data);
++
++	if (size != USB_PAYLOAD_LEN || data[0] != CMD_HID_REPORT_ID)
++		return 0;
++
++	if (data[1] != CMD_EVENT) {
++		spin_lock(&drvdata->raw_event_lock);
++		if (drvdata->pending_event != data[1]) {
++			spin_unlock(&drvdata->raw_event_lock);
++			return 0;
++		}
++		memcpy(drvdata->response_buf, data, size);
++		drvdata->pending_event = CMD_NONE;
++		complete(&drvdata->response_ready);
++		spin_unlock(&drvdata->raw_event_lock);
++		return 1;
++	}
++
++	if (!atomic_read(&drvdata->device_verified))
++		return 0;
++
++	if (data[6] == EVENT_PWR && data[USB_PAYLOAD_LEN - 1] == EVENT_PWR_CHK) {
++		schedule_work(&drvdata->power_uevent_work);
++		hid_dbg(hdev, "received power event\n");
++		return 1;
++	}
++
++	return 0;
++}
++
++static const enum power_supply_property pulsar_battery_props[] = {
++	POWER_SUPPLY_PROP_STATUS, POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW, POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_MODEL_NAME, POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_PRESENT
++};
++
++static void init_power_supply_desc(struct pulsar_data *drvdata)
++{
++	drvdata->battery.desc.name = drvdata->battery.name;
++	drvdata->battery.desc.type = POWER_SUPPLY_TYPE_BATTERY;
++	drvdata->battery.desc.properties = pulsar_battery_props;
++	drvdata->battery.desc.num_properties = ARRAY_SIZE(pulsar_battery_props);
++	drvdata->battery.desc.get_property = battery_get_property;
++}
++
++static void model_pulsar(u8 *device_id, struct pulsar_data *drvdata)
++{
++	u16 model_id;
++	const char *con_type = "unknown";
++
++	model_id = device_id[0] << 8 | device_id[1];
++
++	switch (device_id[2]) {
++	case CON_1K:
++		con_type = "1kHz";
++		break;
++	case CON_4K:
++		con_type = "4kHz";
++		break;
++	case CON_WIRED:
++		con_type = "wired";
++		break;
++	}
++
++	switch (model_id) {
++	case 0x060a:
++	case 0x060b:
++	case 0x0612:
++	case 0x0613:
++	case 0x0614:
++	case 0x0615:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Pulsar X2 V2 (%s)", con_type);
++		break;
++	case 0x060c:
++	case 0x060d:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Pulsar X2H (%s)", con_type);
++		break;
++	case 0x0607:
++	case 0x060e:
++	case 0x060f:
++	case 0x0610:
++	case 0x0611:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Pulsar Xlite V3 (%s)", con_type);
++		break;
++	case 0x0608:
++	case 0x0609:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Pulsar X2A (%s)", con_type);
++		break;
++	default:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Pulsar unknown (%s)", con_type);
++	}
++}
++
++static void model_atk(u8 *device_id, struct pulsar_data *drvdata)
++{
++	u16 model_id;
++	const char *con_type = "unknown";
++
++	model_id = device_id[0] << 8 | device_id[1];
++
++	switch (device_id[2]) {
++	case CON_1K:
++		con_type = "1kHz";
++		break;
++	case CON_4K:
++		con_type = "4kHz";
++		break;
++	case CON_WIRED:
++		con_type = "wired";
++		break;
++	}
++
++	switch (model_id) {
++	case 0x0220:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "ATK VXE R1 SE+ (%s)", con_type);
++		break;
++	default:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "Unknown ATK (%s)", con_type);
++	}
++}
++
++static void pulsar_init_work(struct work_struct *work)
++{
++	struct pulsar_data *drvdata;
++	struct hid_device *hdev;
++	struct power_supply_config psy_cfg;
++	int ret;
++	u8 data[DEV_INFO_LEN];
++
++	drvdata = container_of(work, struct pulsar_data, init_work.work);
++	hdev = drvdata->hdev;
++
++	ret = read_device_info(drvdata, data);
++	if (ret == -ETIMEDOUT) {
++		if (drvdata->init_retries--) {
++			hid_dbg(hdev,
++				"device info read timed out, retrying (%u left)\n",
++				drvdata->init_retries);
++			schedule_delayed_work(&drvdata->init_work,
++					      msecs_to_jiffies
++					      (INIT_DELAY_MSEC));
++			return;
++		}
++		hid_err(hdev, "device info read timed out, giving up\n");
++		return;
++	}
++	if (ret < 0) {
++		if (drvdata->type == TYPE_PULSAR) {
++			hid_err(hdev, "failed to read device info: %d\n", ret);
++			return;
++		}
++		hid_dbg(hdev, "failed to read device info: %d\n", ret);
++		snprintf(drvdata->battery.model,
++			 sizeof(drvdata->battery.model), "%s", hdev->name);
++		goto register_battery;
++	}
++
++	hid_dbg(hdev, "device info: %*ph (%d)\n", DEV_INFO_LEN, data, ret);
++
++	switch (drvdata->type) {
++	case TYPE_PULSAR:
++		model_pulsar(data, drvdata);
++		break;
++	case TYPE_ATK:
++		model_atk(data, drvdata);
++		break;
++	default:
++		snprintf(drvdata->battery.model, sizeof(drvdata->battery.model),
++			 "%s", hdev->name);
++	}
++
++register_battery:
++	init_power_supply_desc(drvdata);
++
++	psy_cfg = (struct power_supply_config) {.drv_data = drvdata };
++	drvdata->battery.ps =
++	    devm_power_supply_register(&hdev->dev, &drvdata->battery.desc,
++				       &psy_cfg);
++	if (IS_ERR(drvdata->battery.ps)) {
++		hid_err(hdev, "failed to register battery: %ld\n",
++			PTR_ERR(drvdata->battery.ps));
++		drvdata->battery.ps = NULL;
++		return;
++	}
++
++	atomic_set(&drvdata->device_verified, 1);
++	hid_info(hdev, "device verified, battery registered\n");
++}
++
++static int pulsar_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	struct usb_interface *intf;
++	struct usb_device *usbdev;
++	struct pulsar_data *drvdata;
++	struct hid_report *report_in;
++	struct hid_report *report_out;
++
++	if (!hid_is_usb(hdev))
++		return -ENODEV;
++
++	ret = hid_parse(hdev);
++	if (ret < 0) {
++		hid_err(hdev, "hid_parse failed: %d\n", ret);
++		return ret;
++	}
++
++	intf = to_usb_interface(hdev->dev.parent);
++	report_in =
++	    hdev->report_enum[HID_INPUT_REPORT].report_id_hash[CMD_HID_REPORT_ID];
++	report_out =
++	    hdev->report_enum[HID_OUTPUT_REPORT].report_id_hash[CMD_HID_REPORT_ID];
++
++	if (!report_in || !report_out ||
++	    hid_report_len(report_in) != USB_PAYLOAD_LEN ||
++	    hid_report_len(report_out) != USB_PAYLOAD_LEN ||
++	    intf->cur_altsetting->desc.bInterfaceNumber != USB_INTERFACE)
++		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	if (!drvdata)
++		return -ENOMEM;
++
++	drvdata->hdev = hdev;
++	drvdata->type = id->driver_data;
++
++	mutex_init(&drvdata->lock_cmd);
++	init_rwsem(&drvdata->lock_bat);
++
++	usbdev = interface_to_usbdev(intf);
++
++	spin_lock_init(&drvdata->raw_event_lock);
++	hid_set_drvdata(hdev, drvdata);
++	init_completion(&drvdata->response_ready);
++	INIT_WORK(&drvdata->power_uevent_work, power_uevent_work_handler);
++	INIT_DELAYED_WORK(&drvdata->init_work, pulsar_init_work);
++	drvdata->init_retries = INIT_RETRIES;
++
++	snprintf(drvdata->battery.name, sizeof(drvdata->battery.name),
++		 "pulsar_%s_battery", usbdev->devpath);
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret < 0) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_open(hdev);
++	if (ret < 0) {
++		hid_err(hdev, "hw open failed\n");
++		goto err_open;
++	}
++
++	schedule_delayed_work(&drvdata->init_work, 0);
++
++	return 0;
++
++err_open:
++	cancel_work_sync(&drvdata->power_uevent_work);
++	hid_hw_stop(hdev);
++	return ret;
++}
++
++static void pulsar_remove(struct hid_device *hdev)
++{
++	struct pulsar_data *drvdata;
++
++	drvdata = hid_get_drvdata(hdev);
++	if (!drvdata) {
++		hid_hw_stop(hdev);
++		return;
++	}
++
++	atomic_set(&drvdata->stopping, 1);
++	cancel_delayed_work_sync(&drvdata->init_work);
++	cancel_work_sync(&drvdata->power_uevent_work);
++
++	/* wait for active device i/o (exec_cmd) */
++	mutex_lock(&drvdata->lock_cmd);
++	hid_hw_close(hdev);
++	mutex_unlock(&drvdata->lock_cmd);
++
++	hid_hw_stop(hdev);
++	mutex_destroy(&drvdata->lock_cmd);
++}
++
++static const struct hid_device_id pulsar_table[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PULSAR, USB_DEVICE_ID_PULSAR_WIRED),
++	  .driver_data = TYPE_PULSAR },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PULSAR, USB_DEVICE_ID_PULSAR_1KHZ),
++	  .driver_data = TYPE_PULSAR },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PULSAR, USB_DEVICE_ID_PULSAR_4KHZ),
++	  .driver_data = TYPE_PULSAR },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_DONGLE),
++	  .driver_data = TYPE_KYSONA },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_WIRED),
++	  .driver_data = TYPE_KYSONA },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ATK, USB_DEVICE_ID_ATK_VXE_R1_SE_DONGLE),
++	  .driver_data = TYPE_ATK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ATK_ALT, USB_DEVICE_ID_ATK_VXE_R1_SE_WIRED),
++	  .driver_data = TYPE_ATK },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE),
++	  .driver_data = TYPE_VXE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED),
++	  .driver_data = TYPE_VXE },
++	{ }
++};
++
++static struct hid_driver pulsar_driver = {
++	.name = "pulsar",
++	.id_table = pulsar_table,
++	.probe = pulsar_probe,
++	.remove = pulsar_remove,
++	.raw_event = pulsar_raw_event,
++};
++
++module_hid_driver(pulsar_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("HID driver for pulsar mice");
++MODULE_AUTHOR("Nikolas Koesling");
++MODULE_DEVICE_TABLE(hid, pulsar_table);
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.53.0
+

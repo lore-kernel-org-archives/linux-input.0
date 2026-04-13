@@ -1,82 +1,117 @@
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FE02F8BC3;
-	Mon, 13 Apr 2026 16:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA51B30AACB;
+	Mon, 13 Apr 2026 16:22:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776097242; cv=none; b=B9rQpsGxWxNp4CBkavJehWFstEh5dOVlowIDU1huSlNfIDV99HPqSobkSK00o0lLtjIUnDjSNRY0XERVyJqHx8nlVsQ3eGAtttL/AWr3zSRl82YJArdQ8LpVnpn+Gz63rrU0hM8NeH69R6TcOkA9zdBIYFyWN9arPn9aqgWiC8k=
+	t=1776097324; cv=none; b=lZlprDs5CMMc/EREVpjts8fkNLZXaMFIBqUBctwdNuWC37+jJox2aYSxFXrX3pA9IPheWZ9ek4lTgeYunCr/fIKeXdna157W4WmsV4aYYqfP2HomaRSCWRm5AmYfziB/rwe19goJppYO9Le/V6Tba2asN9IIhjQgqxB2J2G3Gzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776097242; c=relaxed/simple;
-	bh=g/WtVQkyeD/GocRIbrpr/aBI66iBgMs11BwvGQKEUnk=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=qxqInaKEJ2aBWnVkxWkklR8k/857/08Ra8XYreGMBE0D27hY1OMhFznMFes865M3/StiXOC+61hMAnQ7KHAUKndwIKqI76KaE3yYwBq2/4XnxfxM7DOs6YE6tEsdxTnxm7qlg9HzrQq2xQ6HF+/vCjo4++1K6F1yDVLNB/ha7Dg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=ALkNiugE; arc=none smtp.client-ip=162.243.120.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hugovil.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
+	s=arc-20240116; t=1776097324; c=relaxed/simple;
+	bh=ZHuf12WZYizrx3QHSG3Hs69gilKzKhp/7uYaGeXK78I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gZYmoTNkR61GBi4NgOCLhKSP7AlnZknR1FW2GQ637a4mNbuvff/Vuv5hfp4vtg5iM3EstcfZOSLp76Nqd9b0CK4qGr+/0ZNb3LXZgAp/9b0qyq0iMkAz5pqAxdL1tU/4s8HkR2C8rxbXjxAsy1tEnE/Walpu4hYVBxspcsNaD0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=K6A6Hv1S; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="ALkNiugE"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-	; s=default; h=Content-Transfer-Encoding:Mime-Version:Message-Id:Subject:Cc:
-	To:From:Date:subject:date:message-id:reply-to;
-	bh=YH0mHltCpk09vpZSv6nIZp375YekbuGJG93Vt+2dp8Y=; b=ALkNiugEU9QiB3sJvasopnP1WS
-	kPR56ItS7pU6bT5IH8rswElfE1WdMcdIDusm0jcm9/uDclmAMqs79cE2jmokMOPy2XWOhBC38obV7
-	CY9jjmfZ5fa3Mf90rM4Lo9YhfnlZMMnfbwkT2BrOhU/+ApeCaJKd5hqCiVwMmJxvIGco=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168] helo=pettiford.lan)
-	by mail.hugovil.com with esmtpa (Exim 4.98.2)
-	(envelope-from <hugo@hugovil.com>)
-	id 1wCK1R-0000000038Y-2Ca0;
-	Mon, 13 Apr 2026 12:20:26 -0400
-Date: Mon, 13 Apr 2026 12:20:24 -0400
-From: Hugo Villeneuve <hugo@hugovil.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: robin@protonic.nl, andy@kernel.org, geert@linux-m68k.org,
- robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
- dmitry.torokhov@gmail.com, hvilleneuve@dimonoff.com,
- mkorpershoek@kernel.org, matthias.bgg@gmail.com,
- angelogioacchino.delregno@collabora.com, lee@kernel.org,
- alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v5 4/4] Input: charlieplex_keypad: add GPIO charlieplex
- keypad
-Message-Id: <20260413122024.0abf7e1da5e1e954edc52bc9@hugovil.com>
-In-Reply-To: <abPXX1eWoq7C7J1R@ashevche-desk.local>
-References: <20260312180304.3865850-1-hugo@hugovil.com>
-	<20260312180304.3865850-5-hugo@hugovil.com>
-	<abPXX1eWoq7C7J1R@ashevche-desk.local>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="K6A6Hv1S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0557FC2BCAF;
+	Mon, 13 Apr 2026 16:22:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1776097324;
+	bh=ZHuf12WZYizrx3QHSG3Hs69gilKzKhp/7uYaGeXK78I=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=K6A6Hv1S8fIkyJe9MmCPk7OA+I2o83xiEuUtL6nTPShLkh3U1iYUjmjxFRDxaXnA0
+	 /lPD7ZpH81shiuEfuIvupU0Rk6l70XEWMDuo+DoGPSRzueCLtv4mOd8atPlT52aueG
+	 q8yxLfACjtlD5XofB2rUBZPLv8UTa46GOo0Arj4o=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Bastien Nocera <hadess@hadess.net>,
+	linux-input@vger.kernel.org,
+	stable <stable@kernel.org>
+Subject: [PATCH 5.15 050/570] HID: Add HID_CLAIMED_INPUT guards in raw_event callbacks missing them
+Date: Mon, 13 Apr 2026 17:53:01 +0200
+Message-ID: <20260413155832.314658870@linuxfoundation.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260413155830.386096114@linuxfoundation.org>
+References: <20260413155830.386096114@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam_score: -2.0
-X-Spam_bar: --
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+5.15-stable review patch.  If anyone has any objections, please let me know.
 
-On Fri, 13 Mar 2026 11:22:39 +0200
-Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
+------------------
 
-> On Thu, Mar 12, 2026 at 02:00:58PM -0400, Hugo Villeneuve wrote:
-> > 
-> > Add support for GPIO-based charlieplex keypad, allowing to control
-> > N^2-N keys using N GPIO lines.
-> > 
-> > Reuse matrix keypad keymap to simplify, even if there is no concept
-> > of rows and columns in this type of keyboard.
-> 
-> LGTM,
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I was just wondering if this will go into v7.1, as I am not seing the
-patch series in your input/next tree/branch for the moment? Let me know
-if you need me to rebase it on v7.0.
+commit ecfa6f34492c493a9a1dc2900f3edeb01c79946b upstream.
 
--- 
-Hugo Villeneuve
+In commit 2ff5baa9b527 ("HID: appleir: Fix potential NULL dereference at
+raw event handle"), we handle the fact that raw event callbacks
+can happen even for a HID device that has not been "claimed" causing a
+crash if a broken device were attempted to be connected to the system.
+
+Fix up the remaining in-tree HID drivers that forgot to add this same
+check to resolve the same issue.
+
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
+Cc: stable <stable@kernel.org>
+Assisted-by: gkh_clanker_2000
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/hid-cmedia.c          |    2 +-
+ drivers/hid/hid-creative-sb0540.c |    2 +-
+ drivers/hid/hid-zydacron.c        |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/hid/hid-cmedia.c
++++ b/drivers/hid/hid-cmedia.c
+@@ -99,7 +99,7 @@ static int cmhid_raw_event(struct hid_de
+ {
+ 	struct cmhid *cm = hid_get_drvdata(hid);
+ 
+-	if (len != CM6533_JD_RAWEV_LEN)
++	if (len != CM6533_JD_RAWEV_LEN || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		goto out;
+ 	if (memcmp(data+CM6533_JD_SFX_OFFSET, ji_sfx, sizeof(ji_sfx)))
+ 		goto out;
+--- a/drivers/hid/hid-creative-sb0540.c
++++ b/drivers/hid/hid-creative-sb0540.c
+@@ -153,7 +153,7 @@ static int creative_sb0540_raw_event(str
+ 	u64 code, main_code;
+ 	int key;
+ 
+-	if (len != 6)
++	if (len != 6 || !(hid->claimed & HID_CLAIMED_INPUT))
+ 		return 0;
+ 
+ 	/* From daemons/hw_hiddev.c sb0540_rec() in lirc */
+--- a/drivers/hid/hid-zydacron.c
++++ b/drivers/hid/hid-zydacron.c
+@@ -114,7 +114,7 @@ static int zc_raw_event(struct hid_devic
+ 	unsigned key;
+ 	unsigned short index;
+ 
+-	if (report->id == data[0]) {
++	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
+ 
+ 		/* break keys */
+ 		for (index = 0; index < 4; index++) {
+
+

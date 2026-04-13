@@ -1,114 +1,219 @@
-Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com [209.85.160.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2CA9397689
-	for <linux-input@vger.kernel.org>; Mon, 13 Apr 2026 22:23:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CFDF36605A;
+	Mon, 13 Apr 2026 22:34:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776118987; cv=none; b=F8Y4wclSwMZJx4L5Hl/kg5TXNyQmI8CVzbOhMzhAbctmbqZOVwYcRwgUNlCC8tOgsjzeLQxY8wekccx4eIkOW8lToetH1YPqwFa83SkX7eNPgf/h1fzIE1ql8DXvNPkO0m8ICVNx6KFo5LbWyTcXnPpYGU5lcq9HauYn/9gQfuA=
+	t=1776119682; cv=none; b=K6LysRdTVvNyIAdIuEmKaL6lbrXgG/fsGaXqYTWRvVOWkeAI99NvMsVXEYyVB6DRy2Upgtk7cyQ9fTEU4k3rl3b0ox6wvNaqH6ixExA0/f6eXiCnYV4TJpIaXkTv6t3rVih1LyMfe7QJRWtKze3lbCZWLqqmYb9udffEIEM2lQg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776118987; c=relaxed/simple;
-	bh=BkklVpMlhTd+gH7Ejnq/e0uJuCjCLduLhF9pFyVjvCg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LrI+sjXE6TUqxOtjmwY3dkOO0PDm1jMnWwaBaG/ZYlLEnijMhVLqxwSQVGqrySD8xnxyL1ZULBcUq4gf8YxbN5DeC+9uPSrtzLdwe/84bGngAm7l5fW6WOIcVEyTHfppK6YhE4XYWivGD+Fd9oUoSnXTSPcskPF0R7H2LhRVGRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oMk4xTbl; arc=none smtp.client-ip=209.85.160.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776119682; c=relaxed/simple;
+	bh=Cu8QPFAj6Omdz5GFbQTJq3dzW1ndULZyXPq+DakSqVU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LFUKF1AsOt2Irlb+KY/yQAswaGIWvz/QwTY7rEwaqtTDaXHHmPOlJ2+N90mKXUnHULzxWSRQcDCCf+CXtbO0FmpEuiaDwoTpqztzD0p/LScJP6Zy64ww1bKhS/QiDJBciCa3gdpzTlJzKprJ5FPDWWlvSzsSQGeLKXwEDtdQ8tY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OuRiGdCf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oMk4xTbl"
-Received: by mail-oa1-f52.google.com with SMTP id 586e51a60fabf-423b7100bedso3749857fac.2
-        for <linux-input@vger.kernel.org>; Mon, 13 Apr 2026 15:23:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776118986; x=1776723786; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Tzt7ZlPIbuh9m3r4chtO7LLki6qG2/dJ0U5jd5tlIC8=;
-        b=oMk4xTblZBhuqRb2rImcjFniKdDljrLxkoq+nOVNl5CJ/c+mgoaRzgC00dl1B2NEjy
-         uhZHk3q1IWL4fEgTfffGX4gpRO8yscKLMSg0QxWvaQIg9VXnjiww3orNeLJmv9EY4ETN
-         PUPNCnrbvUhyXxNJyjXEZ/g+C8nTBx4x15IYwxKlpY9ETiiwYOJO5rbjTfZtq05ZwMJf
-         JtFwXR8GmxsXfM9RLIBPyqzDWHzx7+RpuGN8NqcnoQ8EUWqJMr3Vd9U4ezaCz7Z6v+YG
-         T5nZWN8MMyj5dwQGwwQII7yUTOOU31uz81Drq9G7EMJd4HDlVRQ7cHBB85l0Xrkt70CV
-         jGQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776118986; x=1776723786;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Tzt7ZlPIbuh9m3r4chtO7LLki6qG2/dJ0U5jd5tlIC8=;
-        b=p31aCs2oCnESIQdlhqWNpZem2DUIs7CHbXSWlWmX6jYuwIpPf3MbsXHCQY5rwl15Jb
-         Zmp3MBqTk3DCIOjLMkeeimTLrADoovYMPh2g+k0DqioKAJQQeeAieKoZfzJtdOk6PW5U
-         cKp+PXKdLQ7O5L20enHCcdq1+n27+2lanzMhk/flEEAY9X15TNxk7BplhlV3NCMcItAp
-         IQ04Y/HYFPy31p5QfnYxCxgFEtzFJPQdFTDekwiTLvHqoAc/OO/Cr0PfIT5bLw1OBrUi
-         Zt+77S57tm+HJpSKheBcA4FbK6+1RiEi7EwuCFDum5eRMRmOIyk+cUb1mv2abSJnU14Q
-         264g==
-X-Gm-Message-State: AOJu0YziEq2JeAj3GYl3VvI/RPzyt+aojAdRmbJ+O262AX444oMrvIri
-	TbUJL2F4pZIlT2a5tJvMSzMv/y5X7CzFRG+I1GkLmSkurVEA5bViR5ZR
-X-Gm-Gg: AeBDievGy1hNjtQhtvKGh+OGGvrWldVNgp6V2FV3yLX2wpR7iLfuwH8spIYtN658x1E
-	Gx25YpWF6uk7SNTDdSC1gC0D+/19R51KFNiziD7g1AiwQcHrrCtg6xwkh3djDSItgsFK1brnqp0
-	xH8qHn1t/YohsVmJ4oWlymwnR9haGBmPYa4IKUxG211RxSj01+QudwgX0udOgKv0AbGThjq3OHx
-	k4xFg0Kf+mNOllYHbrX3GDd4vkBg+Zu1fTvCqRugT0yPx9OD/+RImVPEOoXmNfr0Ld+9BAboMfr
-	TfOuUf1eCV157qfs6DQ2ACuwP7Ua+MGTj4eVwB8E8UjGVvnwHlWEZx5jqGfjQ++Z0GD9hH/tLwE
-	hJ/ozzcR/raLyMndsmdym0onrQd33N94L0T+LGTIQ6/Md8ZB8/BctHovojeMiCKiAa52ttb+sui
-	bolkscmtqKNFWJWplCQXC0FR9iVastbLXZmXY5
-X-Received: by 2002:a05:6870:5d91:b0:41b:ff2c:de23 with SMTP id 586e51a60fabf-423e0e2c330mr10158863fac.10.1776118985786;
-        Mon, 13 Apr 2026 15:23:05 -0700 (PDT)
-Received: from Dell.cheetah-searobin.ts.net ([2600:1702:56e9:4b40::33])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-423ddb80ccesm9403198fac.13.2026.04.13.15.23.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Apr 2026 15:23:04 -0700 (PDT)
-From: Akash Sukhavasi <akash.sukhavasi@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Akash Sukhavasi <akash.sukhavasi@gmail.com>
-Subject: [PATCH 2/2] Input: analog: Fix coding style - indentation and parenthesis spacing
-Date: Mon, 13 Apr 2026 17:19:28 -0500
-Message-ID: <20260413221928.21748-3-akash.sukhavasi@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
-References: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OuRiGdCf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E550C2BCAF;
+	Mon, 13 Apr 2026 22:34:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776119681;
+	bh=Cu8QPFAj6Omdz5GFbQTJq3dzW1ndULZyXPq+DakSqVU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OuRiGdCfU8gDxaKCCYDmxUAp7jkhhJm36S/p/WHsvqrttBHSWlwefyol5Y5kKP7uu
+	 d6HcCZ9wpbIZkzBZ6UojpbThwuvTuxHzvwRWc76izV3hUEhh8HFRoTWl42JfVsPtDz
+	 2Nel5icunSsiownPDufl3GFNla3H1o8KleUTtVcpU/WVVL5BU0otXb81RzDpapgTKY
+	 6n0aAPRGUgr8VcAeBWzErUwVCs1D62kGDBbnYwzTqD076497jXGQdtwaIeZYK6XFUd
+	 /peXnfZWDq9ecHXb2MsFXpXOaAdu5wPJlWuP7M3e53gtCgw4Gz1HOvuxs/4XztR+4l
+	 DRbiuOH7AAeNg==
+Date: Mon, 13 Apr 2026 17:34:39 -0500
+From: Rob Herring <robh@kernel.org>
+To: Conor Dooley <conor@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jingyuan Liang <jingyliang@chromium.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-spi@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, hbarnor@chromium.org,
+	tfiga@chromium.org, Dmitry Antipov <dmanti@microsoft.com>,
+	Jarrett Schultz <jaschultz@microsoft.com>
+Subject: Re: [PATCH v3 09/11] dt-bindings: input: Document hid-over-spi DT
+ schema
+Message-ID: <20260413223439.GA3647847-robh@kernel.org>
+References: <20260402-send-upstream-v3-0-6091c458d357@chromium.org>
+ <20260402-send-upstream-v3-9-6091c458d357@chromium.org>
+ <20260409-defuse-thank-4b038128fac5@spud>
+ <adfdkwq_bF9dirAq@google.com>
+ <20260410-sake-dollop-9f253ddb0749@spud>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260410-sake-dollop-9f253ddb0749@spud>
 
-The checkpatch.pl script reports minor whitespace and indentation
-warnings in the analog joystick driver. Specifically, there is a
-misaligned port->loop assignment using spaces instead of tabs, and
-an extraneous space before a closing parenthesis in the
-ANALOG_BTNS_TLR mask expression.
+On Fri, Apr 10, 2026 at 06:35:00PM +0100, Conor Dooley wrote:
+> On Thu, Apr 09, 2026 at 10:16:46AM -0700, Dmitry Torokhov wrote:
+> > On Thu, Apr 09, 2026 at 05:02:11PM +0100, Conor Dooley wrote:
+> > > On Thu, Apr 02, 2026 at 01:59:46AM +0000, Jingyuan Liang wrote:
+> > > > Documentation describes the required and optional properties for
+> > > > implementing Device Tree for a Microsoft G6 Touch Digitizer that
+> > > > supports HID over SPI Protocol 1.0 specification.
+> > > > 
+> > > > The properties are common to HID over SPI.
+> > > > 
+> > > > Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
+> > > > Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
+> > > > Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
+> > > > ---
+> > > >  .../devicetree/bindings/input/hid-over-spi.yaml    | 126 +++++++++++++++++++++
+> > > >  1 file changed, 126 insertions(+)
+> > > > 
+> > > > diff --git a/Documentation/devicetree/bindings/input/hid-over-spi.yaml b/Documentation/devicetree/bindings/input/hid-over-spi.yaml
+> > > > new file mode 100644
+> > > > index 000000000000..d1b0a2e26c32
+> > > > --- /dev/null
+> > > > +++ b/Documentation/devicetree/bindings/input/hid-over-spi.yaml
+> > > > @@ -0,0 +1,126 @@
+> > > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > > > +%YAML 1.2
+> > > > +---
+> > > > +$id: http://devicetree.org/schemas/input/hid-over-spi.yaml#
+> > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > > > +
+> > > > +title: HID over SPI Devices
+> > > > +
+> > > > +maintainers:
+> > > > +  - Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > > +  - Jiri Kosina <jkosina@suse.cz>
+> > > 
+> > > Why them and not you, the developers of the series?
+> > > 
+> > > > +
+> > > > +description: |+
+> > > > +  HID over SPI provides support for various Human Interface Devices over the
+> > > > +  SPI bus. These devices can be for example touchpads, keyboards, touch screens
+> > > > +  or sensors.
+> > > > +
+> > > > +  The specification has been written by Microsoft and is currently available
+> > > > +  here: https://www.microsoft.com/en-us/download/details.aspx?id=103325
+> > > > +
+> > > > +  If this binding is used, the kernel module spi-hid will handle the
+> > > > +  communication with the device and the generic hid core layer will handle the
+> > > > +  protocol.
+> > > 
+> > > This is not relevant to the binding, please remove it.
+> > > 
+> > > > +
+> > > > +allOf:
+> > > > +  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
+> > > > +
+> > > > +properties:
+> > > > +  compatible:
+> > > > +    oneOf:
+> > > > +      - items:
+> > > > +          - enum:
+> > > > +              - microsoft,g6-touch-digitizer
+> > > > +          - const: hid-over-spi
+> > > > +      - description: Just "hid-over-spi" alone is allowed, but not recommended.
+> > > > +        const: hid-over-spi
+> > > 
+> > > Why is it allowed but not recommended? Seems to me like we should
+> > > require device-specific compatibles.
+> > 
+> > Why would we want to change the driver code to add a new compatible each
+> > time a vendor decides to create a chip that is fully hid-spi-protocol
+> > compliant? Or is the plan to still allow "hid-over-spi" fallback but
+> > require device-specific compatible that will be ignored unless there is
+> > device-specific quirk needed?
 
-Signed-off-by: Akash Sukhavasi <akash.sukhavasi@gmail.com>
----
- drivers/input/joystick/analog.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The plan is the latter case (the 1st entry up above). The comment is 
+remove the 2nd entry (with 'Just "hid-over-spi" alone is allowed, but 
+not recommended.').
 
-diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
-index 6e1255a82..04fd5b119 100644
---- a/drivers/input/joystick/analog.c
-+++ b/drivers/input/joystick/analog.c
-@@ -330,7 +330,7 @@ static void analog_calibrate_timer(struct analog_port *port)
- 			tx = t;
- 	}
- 
--        port->loop = tx / 50;
-+	port->loop = tx / 50;
- }
- 
- /*
-@@ -490,7 +490,7 @@ static int analog_init_masks(struct analog_port *port)
- 			| ((~analog[0].mask & ANALOG_HAT_FCS) << 4);
- 
- 	analog[0].mask &= ~(ANALOG_THROTTLE | ANALOG_RUDDER)
--			| (((~analog[0].mask & ANALOG_BTNS_TLR ) >> 10)
-+			| (((~analog[0].mask & ANALOG_BTNS_TLR) >> 10)
- 			&  ((~analog[0].mask & ANALOG_BTNS_TLR2) >> 12));
- 
- 	analog[1].mask = ((i >> 20) & 0xff) | ((i >> 12) & 0xf0000);
--- 
-2.53.0
+> This has nothing to do with the driver, just the oddity of having a
+> comment saying that not having a device specific compatible was
+> permitted by not recommended in a binding. Requiring device-specific
+> compatibles is the norm after all and a comment like this makes draws
+> more attention to the fact that this is abnormal. Regardless of what the
+> driver does, device-specific compatibles should be required.
+> 
+> > > > +
+> > > > +  reg:
+> > > > +    maxItems: 1
+> > > > +
+> > > > +  interrupts:
+> > > > +    maxItems: 1
+> > > > +
+> > > > +  reset-gpios:
+> > > > +    maxItems: 1
+> > > > +    description:
+> > > > +      GPIO specifier for the digitizer's reset pin (active low). The line must
+> > > > +      be flagged with GPIO_ACTIVE_LOW.
+> > > > +
+> > > > +  vdd-supply:
+> > > > +    description:
+> > > > +      Regulator for the VDD supply voltage.
+> > > > +
+> > > > +  input-report-header-address:
+> > > > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > > > +    minimum: 0
+> > > > +    maximum: 0xffffff
+> > > > +    description:
+> > > > +      A value to be included in the Read Approval packet, listing an address of
+> > > > +      the input report header to be put on the SPI bus. This address has 24
+> > > > +      bits.
+> > > > +
+> > > > +  input-report-body-address:
+> > > > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > > > +    minimum: 0
+> > > > +    maximum: 0xffffff
+> > > > +    description:
+> > > > +      A value to be included in the Read Approval packet, listing an address of
+> > > > +      the input report body to be put on the SPI bus. This address has 24 bits.
+> > > > +
+> > > > +  output-report-address:
+> > > > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > > > +    minimum: 0
+> > > > +    maximum: 0xffffff
+> > > > +    description:
+> > > > +      A value to be included in the Output Report sent by the host, listing an
+> > > > +      address where the output report on the SPI bus is to be written to. This
+> > > > +      address has 24 bits.
+> > > > +
+> > > > +  read-opcode:
+> > > > +    $ref: /schemas/types.yaml#/definitions/uint8
+> > > > +    description:
+> > > > +      Value to be used in Read Approval packets. 1 byte.
+> > > > +
+> > > > +  write-opcode:
+> > > > +    $ref: /schemas/types.yaml#/definitions/uint8
+> > > > +    description:
+> > > > +      Value to be used in Write Approval packets. 1 byte.
+> > > 
+> > > Why can none of these things be determined from the device's compatible?
+> > > On the surface, they like the kinds of things that could/should be.
+> > 
+> > Why would we want to keep tables of these values in the kernel and again
+> > have to update the driver for each new chip?
+> 
+> That's pretty normal though innit? It's what match data does.
+> If someone wants to have properties that communicate data that
+> can be determined from the compatible, they need to provide
+> justification why it is being done.
 
+IIRC, it was explained in prior versions the spec itself says these 
+values vary by device. If we expect variation, then I think these 
+properties are fine. But please capture the reasoning for them in this 
+patch or we will just keep asking the same questions over and over. 
+
+Rob

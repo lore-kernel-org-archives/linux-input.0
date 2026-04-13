@@ -1,78 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4AD1DED63;
-	Mon, 13 Apr 2026 13:15:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BB7063CA485;
+	Mon, 13 Apr 2026 13:45:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.175.24.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776086140; cv=none; b=KcLMjGDGO2130RRvbRXNUs0BRjJik93EfJSI4MfAeTQMmVaGufH5D2iUqRTTZ9LPfP2GRpv4U05nhrzPuTU57B1Xdchlx+CtW1srO5uDbiLCUqLrOL442+5QEGZyCjIxZDR2rT1/DdtwWdGiMAUJO2bgl3gkdz++4bpG9SKDtdg=
+	t=1776087924; cv=none; b=d6476Xm7hhjIIYz9Tl+kM7fT8f4WGmtAzo/VuiBm6e1sd3nsJ2duo2RBZVH4fu1N/AxGeTyBSrCMxsWfO/ctQ4LkoQdh3lHBilaKqviIPsGk8/XmatxqKKp7mFPauqc3pRg3fhQhYksEaP2zexVdB1tFXJY1lUjFPjR+FU6D4h0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776086140; c=relaxed/simple;
-	bh=/JR21NDTH95Y3c7Ag44ZDUuNUUUFUKPQ1K19da8Xq3c=;
+	s=arc-20240116; t=1776087924; c=relaxed/simple;
+	bh=Odv5zH1J4LxnKF5UkH74kWOp+Irz5AABX7a6T6Der+A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bFnDTbrQQjVfrbwuPBFnRmXN7I50nbW/ZBHvXYEvE7lPIdsGlJ2/6xLLiWeLLjl9EQ2so/4vz+pvv0LRgF//sjmyGSGoPvI9YfiwJvMY3DdFCNiSo0iDro4wP1j1S0Ia068oLftIQtLWkYvUYuFcpY//APZrcXKPSxN3VwCGREY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H3GAplui; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H3GAplui"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C682AC2BCAF;
-	Mon, 13 Apr 2026 13:15:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776086140;
-	bh=/JR21NDTH95Y3c7Ag44ZDUuNUUUFUKPQ1K19da8Xq3c=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=H3GApluipnwXL3popVRbBcOVQY08pv2nflC4fMCRuD6FX827ohQTW6momdhp+WOsm
-	 9E+oJJ362NRUguArFhF9LwKH2FhcWYUYqSu91t7v56DezUDE8xBtMq7yzXS+r+ljrD
-	 d09fHOf22Ciw3gKxysf26E+YEd81thHSxZjQCjv0ujTLt6lSx9AZXcfukiUU3hXshz
-	 fKOa5p/BKEm19bG1LLmt6KJwlYDTLhWZ6h/tXzRLcSiyxRav5Jj5nhZTKgG7a39gWy
-	 hlK9eY4s48knSeXO3BupDUfx3SElcmeRsVwj5C9RaGbxuGa/krN4Sm3u9bn3PtxQ25
-	 wDRg8Sy/Kf2LQ==
-Date: Mon, 13 Apr 2026 14:15:35 +0100
-From: Lee Jones <lee@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: logitech-dj: fix wrong detection of bad DJ_SHORT
- output report
-Message-ID: <20260413131535.GA10076@google.com>
-References: <20260410-fix-logitech-dj-v1-1-5533381f8d1b@kernel.org>
- <2qo95np2-n977-9r09-p016-880q98025q44@xreary.bet>
+	 Content-Type:Content-Disposition:In-Reply-To; b=HXpJr/Ggow+GTZfGd4SaydFs2g1O6G32W61MnYbN9r6/K1EnhduU/508tygRgkAdItTkIXSny+QxAW4q0JGntXiTxi09NMklmF6cp/x7vlVLkpK0qeMlJIVPsy/eOBP5RGzpy8+skpHD7eH3JXholfI+nrFdhgJ8n1YF77vatys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alpha.franken.de; spf=pass smtp.mailfrom=alpha.franken.de; arc=none smtp.client-ip=193.175.24.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alpha.franken.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alpha.franken.de
+Received: from uucp by elvis.franken.de with local-rmail (Exim 3.36 #1)
+	id 1wCHbE-0004aF-00; Mon, 13 Apr 2026 15:45:12 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+	id 3E540C0256; Mon, 13 Apr 2026 15:43:01 +0200 (CEST)
+Date: Mon, 13 Apr 2026 15:43:01 +0200
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To: Linus Walleij <linusw@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>,
+	Vignesh Raghavendra <vigneshr@ti.com>, linux-mips@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-mtd@lists.infradead.org
+Subject: Re: [PATCH 0/2] MIPS RB532 GPIO descriptor conversion
+Message-ID: <adzy5WHWbZUZjQ8I@alpha.franken.de>
+References: <20260328-mips-input-rb532-button-v1-0-98e201621501@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2qo95np2-n977-9r09-p016-880q98025q44@xreary.bet>
+In-Reply-To: <20260328-mips-input-rb532-button-v1-0-98e201621501@kernel.org>
 
-On Fri, 10 Apr 2026, Jiri Kosina wrote:
-
-> On Fri, 10 Apr 2026, Benjamin Tissoires wrote:
+On Sat, Mar 28, 2026 at 04:55:46PM +0100, Linus Walleij wrote:
+> This moves the MIPS Mikrotik RouterBoard RB532 over to using
+> GPIO descriptors by augmenting the two remaining drivers using
+> GPIOs to use software nodes and device properties.
 > 
-> > commit b6a57912854e ("HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT
-> > related user initiated OOB write") assumed that all HID devices attached
-> > to the logitech-dj driver was having an output report of DJ_SHORT.
-> > 
-> > However, on the receiver itself, we have 2 other HID device we attach
-> > here: the mouse emulation and the keyboard emulation. For those devices
-> > the value of rep is NULL and we are triggered a segfault here.
-> > 
-> > This is doubly required because logitech-dj also handles non DJ devices
-> > that might not have the DJ collection.
-> > 
-> > Fixes: b6a57912854e ("HID: logitech-dj: Prevent REPORT_ID_DJ_SHORT related user initiated OOB write")
-> > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> This is part of the pull to get rid of the legacy GPIO API
+> inside the kernel.
 > 
-> Thanks a lot Benjamin, your CI be praised!
+> It would be nice if someone can test of this actually works,
+> I've only compile-tested it.
+> 
+> If we can agree on this method to move forward with this machine
+> it would be nice if the MIPS maintainer could merge the end
+> result with ACKs from the input and MTD maintainers.
+> 
+> Signed-off-by: Linus Walleij <linusw@kernel.org>
+> ---
+> Linus Walleij (2):
+>       MIPS/input: Move RB532 button to GPIO descriptors
+>       MIPS/mtd: Handle READY GPIO in generic NAND platform data
+> 
+>  arch/mips/rb532/devices.c         | 83 ++++++++++++++++++++++++++++-----------
+>  drivers/input/misc/rb532_button.c | 35 ++++++++++++++---
+>  drivers/mtd/nand/raw/plat_nand.c  | 24 ++++++++++-
+>  3 files changed, 113 insertions(+), 29 deletions(-)
 
-Thanks Benjamin.  I appreciate your work.
+series applied to mips-next
 
-If it's not too late:
-
-  Reviewed-by: Lee Jones <lee@kernel.org>
+Thomas.
 
 -- 
-Lee Jones [李琼斯]
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]

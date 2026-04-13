@@ -1,138 +1,124 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8610236164E
-	for <linux-input@vger.kernel.org>; Mon, 13 Apr 2026 04:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776052995; cv=pass; b=LTRb/2dDBQkuV/UP2REzhdbgjGNTlTbU3ch6PrAIsQhAsDYtiZerkAbPmoTYIKiDHoD4OcXc8eN/BkraU2UAxuCjc80PDDaeXLU2y207epz901U7Q548dlQsLvXxyPjGxNVVgQmG6lvx5fiSwH2881GFavADupND+BAsxs7rZMg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776052995; c=relaxed/simple;
-	bh=xnFjURGcC9mwc5Q/a/TVmDEA+1HFKtEIWS9kmopnHqI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Gsv24Mmm44VZY30LfsjMiLbmPksSJcnZqTfiIUuWNx6uDPrVenSJGvzODP+OiZ99Sad/Vv6GjdkmcWM11Jz1GKIMmXnJlWBDk1jFTCggTzcrU2vIx0HvQgQ9NLueh96EhGMRJkXFlnzKQ20tlcH8M9FcjOV8XXP4xwEIbA4eHE8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cTVpYeC3; arc=pass smtp.client-ip=209.85.208.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B3237CD56
+	for <linux-input@vger.kernel.org>; Mon, 13 Apr 2026 04:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776053174; cv=none; b=jnBGH4ErUzteS095l43SLY3h6+8iixAKVlqrHLsIKkwRrn0avMQkGYk6UbHjsbotKj1FusqJMNYGuMMqXVA7MUNbDw4ELUQp2dz03mtjU0915LcaWDK1AYavhTzqV2JL9nworkhN6C+6ym4POx7nM8iE/WxsqNr7bjrBYV+0NVs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776053174; c=relaxed/simple;
+	bh=mEMVuATy7dHKqzrpnkbq61aIth/jimGFihuRh/sWPLg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g0lSkI0+FmlRltoy4TFBmTyfhmsB3nm8ZNPVyrG+btDNmzxqJlqqDWMgPUkYYnPY5Q/SqMcFK0vi4w+VODU0kTg14tFv+baxWJZW6Mk/0WJMcj3qPaXNjuj0h6qoiUI7YlCLKK0enQYiDCZkdhHg0JE/dW1rly1jCPxi/7PeIEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n2Crb4m8; arc=none smtp.client-ip=74.125.82.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cTVpYeC3"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-38cc8708d76so31350931fa.3
-        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2026 21:03:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776052992; cv=none;
-        d=google.com; s=arc-20240605;
-        b=D+r1dJBscwN7VCwqFBBDFl3Ootl73l5Wpb+XqWi9cHKWXBClOGaJ2SeblFwmcy5G05
-         Xw+KHiXtnW+w2RVSeTdmrw2Fe8JuV0iT8leaXNSj06SSsEr74phng2VwwwmZfz5JCa4a
-         fwIS/28OJZIbMkGC/ePyBaWfAfkyR0DLttr8OqwC+iuz3N6ND0/FGByELwE7Z3rFqk2K
-         zJ9vsTuwATMJ149S7E8jn6hfn6PF+w17gxWr01AaYwcnEfCcB6pe3jswnHlhtTkTsX2t
-         x3HP7xQK8w3YKOVa6DZzJ/P7+xyO9yDzxBhwWeAOGPg8gxl3quY4gLAuZ0wBB3b5DGwS
-         H4Pg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=95H/QlgBc5RQr/l2ccnGAxTUXjWqBmxAcOZN0vE6yyc=;
-        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
-        b=J7aQavacGKMIpv5hpxZNb7N+UsMsv4etnguOaaTI3aQsvDxIxuzOcLyxZ9J2s0sOD7
-         9iad+9DHXSlI9wSNo4gll2NlmSdgCm2A3cUjAeTCx2vHPvWAHGOiQSsYyCf/TkLjaHpD
-         m0yHKSnAVpQ6vAi6elZ1Q+772GEMm1rDIlBBCO8slrS/ac2mWCflo31CQyJ0GctVhFbR
-         bRqgXCK9X9vA83aZeuS+nSR+SltlEkEtvl4a8/CAocvJ6TeXZtzqOlXyEjZ2J4/tig5j
-         /ugzYDpGm7/rKD72Jt5PqieD1iEbXmYOl/lf06jrRPnnoEjdDkZ3FNxryWk+xVhVwdOb
-         KhtQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n2Crb4m8"
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1271195d2a7so5011909c88.0
+        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2026 21:06:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776052992; x=1776657792; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=95H/QlgBc5RQr/l2ccnGAxTUXjWqBmxAcOZN0vE6yyc=;
-        b=cTVpYeC3Oj/Hs9GwfAIh88YDmvvE0fHUY14PkjGxqTcjvQjKMSY5jwS3QLrzEVsC+S
-         xNDuq59GP4PcxQa3+aXf0Nztl1erptvhEqvyY/9wdlqRvoFmvckL9AGrKA9RQamVukBF
-         xM4MC+7tdof1yXEoLDPOiMVTPDLYb5o+U4MeatrNOAuFpjeWszpx2gBzoaGqrY2C5KcW
-         VSuxtVJPUJk8b95Vhz5r7b49VWAHjLkVHUkNzXrd20yCg5M9lpNl7r7ybEl8rQFJB/aO
-         LL3ZShd6hukBv4CY+mZKvRjV2x+S/ets655C6c4WL1AURWuivUJCHOXQav1XV0y1hQ0z
-         n/4g==
+        d=gmail.com; s=20251104; t=1776053169; x=1776657969; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=nb0cKWhfZ2pbCxb4NS25yOctz6k2jHUyzjk8q6pYUyA=;
+        b=n2Crb4m8vUbtzzPg05iuE0i+dYP3nznk16gbtVnbEex1RLg4imC3fE+eJANAdmLfOz
+         k0ZZJdOqcIcG6fUU5ZYduhGIvWyJKFtsQ8Cbk/9Ikeh9S1i11nNsfhM0ZWaxR2OQTddX
+         q/GjxrN625eVbZ20Vd4EkHDr9T1kIKnXeJRbgvhEVnxBwY2u1ghl8WPgamf1yTQKD7FE
+         dB1jqHhGv6BdV5SXWqmSfvnpPTvSM5ODa/qrc2wJsPG6B6REzM8IQ8Q2VXcf2H66rcyk
+         ddOxTY7IWwcX3kqVMvK26JYFtafu/35aFv/CaJd7UV4sVRKC4L+n9kv04b7r3I5aQenC
+         1RJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776052992; x=1776657792;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=95H/QlgBc5RQr/l2ccnGAxTUXjWqBmxAcOZN0vE6yyc=;
-        b=KeAD8ExVzH4Kpw1c4Ev4TMrC4gNpjQLN3Pgdn0IvHqTD5g/6gEUYDF3vp3CFnDd8fQ
-         2CJtjEDYoiaytQMPDDS2tbKj7nWe//jY0fBRMAqYZ0w6X63dHR7ujsM03g4tNQnG7NZ6
-         r9fnjGS1jfZ+pQjQq99SHySnqOM9NuPmG3u1QfdX6SJtpkYIzXLvrUTQjWWnrjp1EDSw
-         jWBFLyn1tu+WSHp7+Djl7mUexktRTDPzGIyFt5RQEbJzJaeMZhNQ/VGP0pOcdJ9qgMZ9
-         t9foe2F5P42ETve6NSitFTNXDpY1jTLYo0aND/ZcsWcI3V+FndZrKbIf6igWx2HsBLq9
-         mE5Q==
-X-Gm-Message-State: AOJu0Yyiy4Hog1as03rasO9E84oJzDQfe5D4nX9X2KhEwasvxEFBcq7r
-	BQvtBru0Ji99fb6rK71CxokCe1Uo2RYXtaSaDhYLuPzZ5+o73TZ8AtzeLIqIcQg+UPFaPjMpSlh
-	kguq/+ir41kKBXeN/L23wGx+BkQ67vuE=
-X-Gm-Gg: AeBDiesNZlbce+IG77+mY4Qb4DupJ6+2CO86bx/Z8n/w7SM/m/OnvzqPWZnE+lgBjFF
-	A+0igNJ4IIb/VhZyHZh0LF79gbw0qaRYTCZGkzTxdW+v1+Vb0kfYikl2eTqsoWc7GDfJRzt0XCg
-	uw9yGuJpVoylsq5viyzjwcBGwSWeyVcMKJvJx01iyUq4fcQL0zfEFm21nttYAkbUgV+/5/TVj/A
-	R6NQ23od771Vrtb95f4Ax1waMzUf0DxvLbd07rpCHjVgFCXvEI170jZxQyhHfB4UJyYynO5WmH5
-	okTXJCcGmcob2KadD+04ybpe2ECAuR7rqkAi/bKZ9uOKzAItIa+hW3P2pM/8PwOjw2fs
-X-Received: by 2002:a05:651c:f04:b0:38e:4b8:4644 with SMTP id
- 38308e7fff4ca-38e4bfec6f7mr33021391fa.34.1776052991347; Sun, 12 Apr 2026
- 21:03:11 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1776053169; x=1776657969;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=nb0cKWhfZ2pbCxb4NS25yOctz6k2jHUyzjk8q6pYUyA=;
+        b=EI1KDPDP2vI3TLL8r54iNT5biohqx9BdlvyLxpcJmGyCBuPOZ8FzksHhlFFZ1xtRM9
+         OOrMlS1w9wzbvVOYYIKMMrX5Pqk+Kcz/GPzCjl1w4qTEhcrYad24xJ37chxdzFzj0rZ5
+         8gD9QIZJ1drngSYI0L6Xx5sY1gJzbCdrEYhKQXtf6QdCT9bM4r30bbQudXSPvMO1GbV0
+         r9Xuy/xWPiXfoa3RZyaJgUO1oYzp6n+AnemB2XNdOq8xo+50qM+8yVy9hgJYwlsUEq6s
+         KFE6Et0XiyTQyqLrjmjzuj3qZsOin+JJVwJUoXi64BaiPp6fikE48DsZyE+1O5QP5IIx
+         MoTw==
+X-Gm-Message-State: AOJu0YyUf+biu0tjo+vEwhaHe+1yT71diYUS+0puHm1ZcBM0Lng/agWb
+	1u2clMii72PsJyktEXdyP5sr70u0KrQlCyG/WjoCmSQ8zIn1b/sai0Rj
+X-Gm-Gg: AeBDieuWLTcfdFaXrrzpVMYuMQmNsTAL80yGqMXxIBmFjL8vhyXub/dHTkq0d/o6vYc
+	8XD45ZFZ7s2xqWlcNoUG7nmdhPS9GSslo6rP47OFXjK5WTNHIQvwqEiRyMt3T01eB2iKQQphqxm
+	si2+mwCsvT8gYg6hXvthJmfEtt6QhVg87Z/fG3dWo+Pomnht0itS3aP3D2CqKMqgNNt3PZEc0Ss
+	ca0k0EHG+YncdbSJXORSNr3GB4AjaXRlAuAjKcMrZlAMnmlt8UIFC8zoEzSsRBGhYZoTF7jFPSZ
+	uYqUYQZdoH62/wn6+wMGw90pxd3JGpJLrR4JfbzjNznt80lNo3y5acarcV+DrpolBahsrOpBQa2
+	9NJkbQrVaexkWbzVKkM8qgWPf+oS8946VFYYomxuxsm8sVK52sM88ZOuAqpNT/3CjrYy8C6Pwpa
+	0iF1rOwKWvSoLkGj3ySaO4fQ3Aw4OmemT2WB3VQIklxl+ulX89H+QN1tS+NLPOgdCI
+X-Received: by 2002:a05:7022:2581:b0:12b:ec96:c936 with SMTP id a92af1059eb24-12c34eab249mr6929273c88.14.1776053169070;
+        Sun, 12 Apr 2026 21:06:09 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:fd17:4617:989a:1816])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2d55f5c69d5sm17394977eec.3.2026.04.12.21.06.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Apr 2026 21:06:07 -0700 (PDT)
+Date: Sun, 12 Apr 2026 21:06:05 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Aaron Kling <webgeek1234@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: edt-ft5x06 - Support label device property for
+ input name
+Message-ID: <adxrORktLYWfD4TI@google.com>
+References: <20260409-ft5x06-label-v1-1-21e8a9ae9a60@gmail.com>
+ <adxpdaSXYAa9dLPD@google.com>
+ <CALHNRZ_m-hWpmp5OgOjHEc-QHRAkmTGaJX=O_K-X6EwY-5ToFQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260409-ft5x06-label-v1-1-21e8a9ae9a60@gmail.com> <adxpdaSXYAa9dLPD@google.com>
-In-Reply-To: <adxpdaSXYAa9dLPD@google.com>
-From: Aaron Kling <webgeek1234@gmail.com>
-Date: Sun, 12 Apr 2026 23:02:59 -0500
-X-Gm-Features: AQROBzD36ijtQLFWaIeZ5U1ctxOqnjHqMq4ws4BaFNLEqMBaNDO3T0_KJX4mfrA
-Message-ID: <CALHNRZ_m-hWpmp5OgOjHEc-QHRAkmTGaJX=O_K-X6EwY-5ToFQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: edt-ft5x06 - Support label device property for
- input name
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALHNRZ_m-hWpmp5OgOjHEc-QHRAkmTGaJX=O_K-X6EwY-5ToFQ@mail.gmail.com>
 
-On Sun, Apr 12, 2026 at 10:58=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Aaron,
->
-> On Thu, Apr 09, 2026 at 06:16:08PM -0500, Aaron Kling via B4 Relay wrote:
-> > From: Aaron Kling <webgeek1234@gmail.com>
+On Sun, Apr 12, 2026 at 11:02:59PM -0500, Aaron Kling wrote:
+> On Sun, Apr 12, 2026 at 10:58 PM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
 > >
-> > The AYN Thor uses a ft5426 and a ft5452 for each screen respectively an=
-d
-> > these currently get the same input name, making them indistinguishable
-> > from userspace. Support setting a label in kernel dt to make these
-> > report uniquely.
+> > Hi Aaron,
 > >
-> > Signed-off-by: Aaron Kling <webgeek1234@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/edt-ft5x06.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > On Thu, Apr 09, 2026 at 06:16:08PM -0500, Aaron Kling via B4 Relay wrote:
+> > > From: Aaron Kling <webgeek1234@gmail.com>
+> > >
+> > > The AYN Thor uses a ft5426 and a ft5452 for each screen respectively and
+> > > these currently get the same input name, making them indistinguishable
+> > > from userspace. Support setting a label in kernel dt to make these
+> > > report uniquely.
+> > >
+> > > Signed-off-by: Aaron Kling <webgeek1234@gmail.com>
+> > > ---
+> > >  drivers/input/touchscreen/edt-ft5x06.c | 4 +++-
+> > >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> > > index ba8ff65f7ea671..c36497571b1aa1 100644
+> > > --- a/drivers/input/touchscreen/edt-ft5x06.c
+> > > +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> > > @@ -1285,7 +1285,9 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
+> > >               "Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
+> > >               tsdata->name, tsdata->fw_version, tsdata->num_x, tsdata->num_y);
+> > >
+> > > -     input->name = tsdata->name;
+> > > +     if (device_property_read_string(&client->dev, "label", &input->name))
+> > > +             input->name = tsdata->name;
+> > > +
 > >
-> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/tou=
-chscreen/edt-ft5x06.c
-> > index ba8ff65f7ea671..c36497571b1aa1 100644
-> > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > @@ -1285,7 +1285,9 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client)
-> >               "Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
-> >               tsdata->name, tsdata->fw_version, tsdata->num_x, tsdata->=
-num_y);
-> >
-> > -     input->name =3D tsdata->name;
-> > +     if (device_property_read_string(&client->dev, "label", &input->na=
-me))
-> > +             input->name =3D tsdata->name;
-> > +
->
-> You should be able to differentiate them by their sysfs path.
+> > You should be able to differentiate them by their sysfs path.
+> 
+> My target use case is Android, which to my knowledge can only use
+> vid:pid or device name to differentiate input devices. The sysfs path
+> does not help this case.
 
-My target use case is Android, which to my knowledge can only use
-vid:pid or device name to differentiate input devices. The sysfs path
-does not help this case.
+Please work with Android team to add missing functionality.
 
-Aaron
+Thanks.
+
+-- 
+Dmitry

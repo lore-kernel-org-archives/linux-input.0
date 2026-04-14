@@ -1,35 +1,51 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.61.107])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E0C2289367
-	for <linux-input@vger.kernel.org>; Tue, 14 Apr 2026 01:51:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2BD3947AA;
+	Tue, 14 Apr 2026 08:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.61.107
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776131506; cv=none; b=P4OCdFSYkWQ0yvKjvDvzW7mJ+qz+KeE4bYcGmmKhSNhnzIKIGODsmWxmDHzNiTBHUerpjfEIeC51oVFfP6PiOiticuHjE+w6JxVbQ/BzsE69QLmG3dIVtSDbDRKRLVVsKaMH9lHYV3jts9JG45YLFHedNxEIi6hZICc8PxD+tk4=
+	t=1776154293; cv=none; b=rdDfewO1G0XUpd2MQVJoz5Ur4SEfNHrHMzX/5VCRpC+0GRa7yk+67NWgrNApAPiMN12L4/CZ1/m5ooebnzfTGjZnQakpi5/V1DxCTfg6NPdEu9ZNORz6NHLbVvcvdj3sUTB8J/NpHiDcUQQGnFFdQmr11oU1BAa/N/FZq5tGT3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776131506; c=relaxed/simple;
-	bh=wp6e3uo7vpMuSgCicjDDkZi6aeRkNINYBkhWcCLpG5o=;
+	s=arc-20240116; t=1776154293; c=relaxed/simple;
+	bh=3II7iFs9k1U9eqXK7mJNp1S6e2prLniTDEA66+b0H64=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KOPQR0roALPORIlw/ieTE5U9zlM8wGEKhptCIYMBnJ8Cnmoy/yq9AU7poS4/dHRSJGLvFsXQelfYQ5CEIzPQ9tp2EdZbkl07fnaLn2ltgoa1LU9hQnnjvBreA2fFJlovlKPxwGYc9xR6gjuA1HMZKrWZVjETvGctltc186ot4j4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=PIzx4JNQ; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	 In-Reply-To:Content-Type; b=c6onuUZFq6P6jGbmkSZvpeGJGXW2l+I8WoazlQeO1jG8LwOEDqmMp/qnOZEFPlhSugVTmczbjBvF7UfwGxbZxwZaZRbQxZjUxlSlJCbA9mhfn5wIzuWaPhw3TsgmYMOrxMFtjX40tmr/4fBNPDUNzTJubQdVFDz/pU6ZmqXv3TU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=dgwhulhm; arc=none smtp.client-ip=188.68.61.107
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="PIzx4JNQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1776131497; bh=wp6e3uo7vpMuSgCicjDDkZi6aeRkNINYBkhWcCLpG5o=;
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="dgwhulhm"
+Received: from mors-relay-8405.netcup.net (localhost [127.0.0.1])
+	by mors-relay-8405.netcup.net (Postfix) with ESMTPS id 4fvxn41m8Sz74SJ;
+	Tue, 14 Apr 2026 10:11:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
+	s=key2; t=1776154280;
+	bh=3II7iFs9k1U9eqXK7mJNp1S6e2prLniTDEA66+b0H64=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PIzx4JNQXdZBgWcxbkOa3Cs6+o5leF1IzfbnWITP+p+9ClqNPBh1+0OQbsQgZZlEQ
-	 PimXWLA2Sh70JbCH1OxnT4hvy65tcKFS/EY7pIz+4Xzm1rLQQjDaTnku3wzfzj0mdd
-	 6J0VnGVOvZJ7TYAaDN5sjlD30EGwNkPfdj8I0Z4h4cB4H6x60kKwVe7xMixYAW7m/Z
-	 iEINUXnunrjLdGkTd+vkS0NnTff+1E5zq4VZio7pPl0cS/GtjyLL5yasTpexyr1gW7
-	 ca9iLB5UXWoc4H+zzrfM0n5/nvChfv/19vmpJ2v3kp4dIpWjdzreM8Piig8gfHAOs3
-	 HBwq1F/u4LgYg==
-Received: from [192.168.1.158] (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 956C1A028;
-	Mon, 13 Apr 2026 18:51:37 -0700 (PDT)
-Message-ID: <092fa3e7-da59-4b3a-b3e4-c412e391fd3d@endrift.com>
-Date: Mon, 13 Apr 2026 18:51:36 -0700
+	b=dgwhulhmUPKv6z44pNyD5XNkC85t+0zDmHBSK3e+GuOoB6NQF3wRqS3pW/rFeZrCo
+	 YpyEW0bH1jdUfFfIoNq3W548SG5vJFrSIds0ZuFhobgDR4q3Rn99WnjrQyGZT2AwfE
+	 UDC7RNlMu92OGRpvfdvopn4puyFZzawJkctGjBuQHBEM7tr8rWAFQypcctjMlJKm0v
+	 AC1NMdwqfAQ4VAXJbnhLrn2k4mfkfuwyxR36WwKbP9bCKIWGOgoZ/CUB6Qq9tSoJCp
+	 YYOMuWvhudo124QvGQqrd6wxBNg+eqx4Qm6d5+II+KEHYv/Z/ZGAUpKbUBEwZHyjGn
+	 4Qvc4mnY/vSjA==
+Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
+	by mors-relay-8405.netcup.net (Postfix) with ESMTPS id 4fvxn412R4z74SG;
+	Tue, 14 Apr 2026 10:11:20 +0200 (CEST)
+Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4fvxn33XSKz8sbB;
+	Tue, 14 Apr 2026 10:11:19 +0200 (CEST)
+Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
+	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 2FEA160305;
+	Tue, 14 Apr 2026 10:11:18 +0200 (CEST)
+Authentication-Results: mxe9fb;
+        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
+Received-SPF: pass (mxe9fb: connection is authenticated)
+Message-ID: <652713b8-aa98-4ca7-8cd4-8f7ad6cff77f@leemhuis.info>
+Date: Tue, 14 Apr 2026 10:11:17 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -37,232 +53,303 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/3] HID: nintendo: Add preliminary Switch 2 controller
- driver
-To: Silvan Jegen <s.jegen@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org
-References: <20260318030850.289712-1-vi@endrift.com>
- <20260318030850.289712-2-vi@endrift.com>
- <3GWQPE79MJ7Y0.2LOOIA8A83N7R@homearch.localdomain>
- <ee55d9f8-506d-4b95-a63b-01844e4e1bdf@endrift.com>
- <2Z2BPKWVI345D.3HJTS194G9TXN@homearch.localdomain>
- <a2b087ef-e814-444a-9c1e-716310ed1948@endrift.com>
- <3GLFHF2SBGI6U.3O3D6XCXP4074@homearch.localdomain>
- <631510d1-2b9a-4288-a0ac-1c3d1253a0fa@endrift.com>
- <3D95AXVJ22C7J.26Z5DELLJGZTA@homearch.localdomain>
-Content-Language: en-US
-From: Vicki Pfau <vi@endrift.com>
-Autocrypt: addr=vi@endrift.com; keydata=
- xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
- K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
- pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
- Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
- MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
- AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
- 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
- WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
- bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
- Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
- d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
- YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
- AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
- t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
- 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
- BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
- qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
- IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
- QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
- h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
- LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
- 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
- rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
-In-Reply-To: <3D95AXVJ22C7J.26Z5DELLJGZTA@homearch.localdomain>
+Subject: Re: [PATCH] HID: core: add short report quirk and use it for GPD Win
+ (2f24:0137)
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, denis.benato@linux.dev,
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ honjow <honjow311@gmail.com>, Anj D <aduvnjak@hotmail.com>,
+ Zhouwang Huang <honjow311@gmail.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ Linux kernel regressions list <regressions@lists.linux.dev>
+References: <20260407173212.86942-1-honjow311@gmail.com>
+ <adZ2PTzQ05iObcGt@beelink>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+Content-Language: de-DE, en-US
+X-Enigmail-Draft-Status: N11222
+Autocrypt: addr=linux@leemhuis.info; keydata=
+ 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 MEK4
+In-Reply-To: <adZ2PTzQ05iObcGt@beelink>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-PPP-Message-ID: <177615427872.897500.17673503289321988800@mxe9fb.netcup.net>
+X-Rspamd-Server: rspamd-worker-8404
+X-Rspamd-Queue-Id: 2FEA160305
+X-NC-CID: Gs6n8XE4DCV6qwuai70j8wNN5PI8UVILezZqgzGy+/hbPvjVzRg=
 
-
-
-On 4/11/26 8:29 AM, Silvan Jegen wrote:
-> Vicki Pfau <vi@endrift.com> wrote:
->> On 4/10/26 12:44, Silvan Jegen wrote:
->>> Vicki Pfau <vi@endrift.com> wrote:
->>>> Replies inline
->>>>
->>>> On 4/8/26 12:51, Silvan Jegen wrote:
->>>>> Heyhey!
->>>>>
->>>>> Vicki Pfau <vi@endrift.com> wrote:
->>>>>> Hi,
->>>>>>
->>>>>> Replies inline
->>>>>>
->>>>>> On 4/2/26 12:09 PM, Silvan Jegen wrote:
->>>>>>> Hi
->>>>>>>
->>>>>>> Thanks for the patch!
->>>>>>>
->>>>>>> Just some comments and questions inline below.
->>>>>>>
->>>>>>> Vicki Pfau <vi@endrift.com> wrote:
->>>>>>>>
->>>>>>>> [...]
->>>>>>>>
->>>>>>>> +
->>>>>>>> +static int switch2_set_report_format(struct switch2_controller *ns2, enum switch2_report_id fmt)
->>>>>>>> +{
->>>>>>>> +	__le32 format_id = __cpu_to_le32(fmt);
->>>>>>>> +
->>>>>>>> +	if (!ns2->cfg)
->>>>>>>> +		return -ENOTCONN;
->>>>>>>> +	return ns2->cfg->send_command(NS2_CMD_INIT, NS2_SUBCMD_INIT_SELECT_REPORT,
->>>>>>>> +		&format_id, sizeof(format_id),
->>>>>>>> +		ns2->cfg);
->>>>>>>> +}
->>>>>>>> +
->>>>>>>> +static int switch2_init_controller(struct switch2_controller *ns2)
->>>>>>>
->>>>>>> This is now a recursive call while in v1 it wasn't. I think I preferred
->>>>>>> the non-recursive version as there was one place where init_step
->>>>>>> state was changed while now I am not sure where it happens (and whether
->>>>>>> there is a code path where we end up in an infinite recursion)
->>>>>>>
->>>>>>> What is the advantage of the recursive version compared to the
->>>>>>> non-recursive one?
->>>>>    >
->>>>>>
->>>>>> The old version incremented the step regardless of whether or not it
->>>>>> could confirm it had happened. Since the confirmation is now handled
->>>>>> with an external step, calling into switch2_init_step_done, the loop
->>>>>> condition would become somewhat complicated.
->>>>>> I replaced it with explicit tail calls since that make the
->>>>>> control flow simplier, and it is always matched with a call to
->>>>>> switch2_init_step_done to ensure that the state is always advanced. As
->>>>>
->>>>>   From what I can tell switch2_init_step_done currently only advances
->>>>> the state if the current state is the expected one. This seems fine,
->>>>> but it also means that if the state is not the expected one, the
->>>>> state is not advanced and the recursive call continues anyway (in the
->>>>> NS2_INIT_READ_USER_SECONDARY_CALIB case, for example). I assume this
->>>>> should never happen but if we end up in this case for some reason we
->>>>> will recurse forever.
->>>>
->>>> That's correct, and the only way it would happen forever is if there's a
->>>> bug. The same would be true in a loop version if it doesn't advance the
->>>> state properly either, fwiw, which happened during development of this
->>>> version. Regardless, I can reduce the chance of introducing such a bug
->>>> by passing ns2->init_step instead of a constant, so I'll make that
->>>> change in v4.
->>>>
->>>>>
->>>>> The same case also potentially calls switch2_read_flash and it isn't
->>>>> clear to me if this means that the initialisation is done (as there
->>>>> is no switch2_init_step_done call and we are not in the FINISH state
->>>>> either). There is also the possibility of switch2_read_flash calling
->>>>> switch2_init_controller again, which one then has to check ... (note
->>>>> that this is not the case here though)
->>>>
->>>> switch2_handle_flash_read will advance the state once it's verified that
->>>> the read actually happened. If the step failed for whatever reason, this
->>>> same codepath will retry the specific read, as the caller
->>>> (switch2_receive_command) will always call into switch2_init_controller
->>>> if setup isn't done. This is how the retry logic works.
->>>
->>> Ah, so the call chain looks something like the below?
->>>
->>> switch2_read_flash->
->>> switch2_usb_send_cmd->
->>> switch2_usb_message_in_work (?)->
->>> switch2_receive_command->
->>> switch2_handle_flash_read->
->>> switch2_init_step_done
+On 4/8/26 17:41, Benjamin Tissoires wrote:
+> Definitely not a big fan of that new quirk. The issue is that current
+> hid-core fix is too restrictive because it doesn't have enough
+> information, like the actual allocated buffer size.
+> 
+> On Apr 08 2026, Zhouwang Huang wrote:
+>> Commit 9e2a17d2e808 ("HID: gpd: fix report descriptor on GPD Win
+>> handheld (2f24:0137)") used report_fixup to shrink Report Count from
+>> 63 to 11 so that short reports from firmware <= 1.09 would not be
+>> rejected by hid_report_raw_event().
 >>
->> Yes, and then switch2_init_controller is called again at the end of 
->> switch2_receive_command
->>>
->>>>
->>>>>
->>>>> To me it seems like it would be clearer to do a `ns2->init_step++` and
->>>>> then `continue` to make the progress of the state more visible and to
->>>>> do an explicit `break` when we are supposed to stop the initialisation.
->>>>>
->>>>
->>>> The problem with the loop approach, in my opinion is due to the fact
->>>> that the loop is the *exception*, not the rule. The loop idiom makes it
->>>> look like a loop is expected. Further the ns2->init_step++ in the
->>>> previous version means that the verification does not occur, so in the
->>>> case of any sort of failure it'll plow ahead anyway instead of retrying.
->>>> The point of this approach is to avoid that.
->>>
->>> In my mind a while-loop like you mentioned it above would make the state
->>> changes more obvious (since they could all be done in the loop body), while
->>> still allowing for retries. Something like the below, perhaps (untested).
->>>
->>> while (ns2->init_step < NS2_INIT_DONE) {
->>> 	switch (ns2->init_step) {
->>> 		...
->>> 		case NS2_INIT_READ_FACTORY_TRIGGER_CALIB:
->>> 			if (ns2->ctlr_type != NS2_CTLR_TYPE_GC) {
->>> 				ns->init_step++
->>> 				continue;
->>> 			}
->>>
->>> 			ret = switch2_read_flash(ns2, NS2_FLASH_ADDR_FACTORY_TRIGGER_CALIB,
->>> 			        NS2_FLASH_SIZE_FACTORY_TRIGGER_CALIB);		
->>> 			if (ret) {
->>> 				// if it makes sense to retry here
->>> 				continue;
->>> 			}
->>>
->>> 			ns->init_step++
->>> 			break;
->>>
->>> 		case ...
->>> 	}
->>> }
->>>
->>
->> This can't be done because the process is fundamentally asynchronous. 
->> We'd have to block on waiting for a reply to the USB packet, which is 
->> not a good idea. This is why switch2_receive_command calls into 
->> switch2_init_controller at the end: it's resuming where it left off. 
+>> However, firmware 1.10 fixed the report length and now sends the full
+>> 63 bytes.  Because report_fixup already shrank the descriptor,
+>> usbhid allocates a 12-byte URB buffer — far too small for the 64-byte
+>> transfer — causing continuous -EOVERFLOW on every interrupt-in URB.
+>> The HID report descriptor and bcdDevice are identical across firmware
+>> versions, so report_fixup cannot conditionally apply.
 > 
-> Ah, that wasn't clear to me either.
-> 
-> I assume having the code wait for the reply is not allowed because
-> otherwise it would stall the whole bootup process (or will there be some
-> sort of dedicated Kthread for this)?
+> OK, so if a firmware already fixed the bug, I'll drop 9e2a17d2e808 from
+> for-next and not include it in the final 7.0 PR I'll need to send.
 
-I'm not sure there is a synchronous USB API at all, but if there is it should really only be used when absolutely necessary. If you can get away without blocking, do.
+Well, that meanwhile dropped commit 9e2a17d2e808 ("HID: gpd: fix report
+descriptor on GPD Win handheld (2f24:0137)") was supposed to fix a
+regression honjow (now CCed) reported on 2026-03-23:
+https://bugzilla.kernel.org/show_bug.cgi?id=221271
+https://lore.kernel.org/all/20260324013847.68024-1-honjow311@gmail.com/
 
-> 
-> Are you aware of any documentation where I can read up on how the probing
-> of USB HID devices work in the Linux Kernel?
+So it is still unfixed as of now, I assume?
 
-This has nothing to do with HID, actually. The Switch 2 controllers have a proprietary side-channel interface that we need to poke at here to get it to do anything. It's called cfg in the code and over USB it uses a bulk interface, which is unusual. Presumably because the side-channel doesn't care about latency, whereas the HID interface does. Something similar happens over bluetooth where they're accessed through disparate attributes. The latter isn't handled here yet, though.
+Side note: was honjow even notified about dropping the commit?
 
-> 
-> Thanks for the help!
-> 
->> Each of those returns is a step that interacts with the hardware, and we 
->> need to wait for the hardware to reply.
->>
->> There is a potential weird interaction here whereby if we get an 
->> unprompted command and/or reply from the controller it will retry a step 
->> before it gets a reply for it, but in practice this doesn't happen. The 
->> controllers, as far as we know, only reply and never initiate any 
->> commands. Furthermore, all of these steps are also idempotent, so it's 
->> not a big deal of they get repeated erroneously.
-> 
-> Could there be another reply incoming while the driver is still processing
-> the previous one? I assume at least at probing time that shouldn't be
-> the case. I wouldn't expect an USB HID device to send unsolicited replies
-> in general ...
+> We can tell people to upgrade to the latest firmware
 
-Replies only come in one at a time. Unless we send multiple messages without waiting for a reply first, which this code is specifically designed *not* to do, I don't think it will happen in practice.
+Well, that should not be required by users when it comes to regressions
+-- unless maybe no other way to fix a severe issue can be found. Is that
+the case here?
 
+> while I work on a proper fix.
+
+How far is a proper fix away? And will that be GPD Win specific, or fix
+issues with other issues, too. Because Anj D (now CCed) recently
+reported a flooded dmesg caused by 0a3fe972a7cb ("HID: core: Mitigate
+potential OOB by removing bogus memset()") with a APC UPS (USB VID/PID
+051D:0002):
+https://lore.kernel.org/all/MW5PR84MB135613E7947113897DD9FDA4C7272@MW5PR84MB1356.NAMPRD84.PROD.OUTLOOK.COM/
+
+That's with 6.19.12, as the commit was recently backported to 6.18.y and
+6.19.y.
+
+Ciao, Thorsten
+
+> BTW, technically we could also not change the report descriptor if we
+> detect the correct firmware version. That would be easier to implement
+> than a global quirk. But hopefully we won't have to do anything and get
+> the proper hid-core fix soon.
 > 
 > Cheers,
-> Silvan
+> Benjamin
+> 
+>>
+>> Replace the report_fixup driver with a new per-device quirk
+>> HID_QUIRK_ALLOW_SHORT_REPORTS.  When set, hid_report_raw_event()
+>> zero-pads short reports instead of rejecting them — the same behaviour
+>> the core had before commit 0a3fe972a7cb ("HID: core: Mitigate
+>> potential OOB by removing bogus memset()").  The descriptor is left
+>> unmodified so the URB buffer matches the declared report size and works
+>> with any firmware version.
+>>
+>> Remove hid-gpd.c, its Kconfig entry and Makefile line; the device is
+>> now handled by hid-generic with the quirk applied from hid-quirks.c.
+>>
+>> Fixes: 9e2a17d2e808 ("HID: gpd: fix report descriptor on GPD Win handheld (2f24:0137)")
+>> Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+>> ---
+>>  drivers/hid/Kconfig      | 10 --------
+>>  drivers/hid/Makefile     |  1 -
+>>  drivers/hid/hid-core.c   | 11 +++++----
+>>  drivers/hid/hid-gpd.c    | 52 ----------------------------------------
+>>  drivers/hid/hid-quirks.c |  2 ++
+>>  include/linux/hid.h      |  2 ++
+>>  6 files changed, 11 insertions(+), 67 deletions(-)
+>>  delete mode 100644 drivers/hid/hid-gpd.c
+>>
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index 2159d0fb7020..c1d9f7c6a5f2 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -419,16 +419,6 @@ config HID_GLORIOUS
+>>  	  Support for Glorious PC Gaming Race mice such as
+>>  	  the Glorious Model O, O- and D.
+>>  
+>> -config HID_GPD
+>> -	tristate "GPD Win handheld OEM HID support"
+>> -	depends on USB_HID
+>> -	help
+>> -	  Report descriptor fix for the OEM USB HID interface (GameSir
+>> -	  2f24:0137) found on GPD Win handhelds. The firmware declares 63-byte
+>> -	  reports but only sends 11 bytes, which the HID core rejects.
+>> -
+>> -	  Say Y or M here if you use a GPD Win handheld with this interface.
+>> -
+>>  config HID_HOLTEK
+>>  	tristate "Holtek HID devices"
+>>  	depends on USB_HID
+>> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+>> index f69cd6015465..e01838239ae6 100644
+>> --- a/drivers/hid/Makefile
+>> +++ b/drivers/hid/Makefile
+>> @@ -53,7 +53,6 @@ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
+>>  obj-$(CONFIG_HID_EVISION)	+= hid-evision.o
+>>  obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+>>  obj-$(CONFIG_HID_FT260)		+= hid-ft260.o
+>> -obj-$(CONFIG_HID_GPD)		+= hid-gpd.o
+>>  obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
+>>  obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
+>>  obj-$(CONFIG_HID_GLORIOUS)  += hid-glorious.o
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index f5587b786f87..52e86f927a38 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -2057,10 +2057,13 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
+>>  		rsize = max_buffer_size;
+>>  
+>>  	if (csize < rsize) {
+>> -		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %d)\n",
+>> -				     report->id, rsize, csize);
+>> -		ret = -EINVAL;
+>> -		goto out;
+>> +		if (!(hid->quirks & HID_QUIRK_ALLOW_SHORT_REPORTS)) {
+>> +			hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %d)\n",
+>> +					     report->id, rsize, csize);
+>> +			ret = -EINVAL;
+>> +			goto out;
+>> +		}
+>> +		memset(cdata + csize, 0, rsize - csize);
+>>  	}
+>>  
+>>  	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
+>> diff --git a/drivers/hid/hid-gpd.c b/drivers/hid/hid-gpd.c
+>> deleted file mode 100644
+>> index 5b4d203e2499..000000000000
+>> --- a/drivers/hid/hid-gpd.c
+>> +++ /dev/null
+>> @@ -1,52 +0,0 @@
+>> -// SPDX-License-Identifier: GPL-2.0-or-later
+>> -/*
+>> - *  HID report descriptor fixup for GPD Win handhelds.
+>> - *
+>> - *  The OEM HID interface (VID 2f24 / GameSir, PID 0137) declares Report ID 1
+>> - *  with Report Count 63 (8-bit fields) for both Input and Feature, but the
+>> - *  firmware only sends 11 bytes of payload after the report ID.
+>> - */
+>> -
+>> -#include <linux/hid.h>
+>> -#include <linux/module.h>
+>> -
+>> -#include "hid-ids.h"
+>> -
+>> -#define RDESC_LEN		38
+>> -#define RPT_COUNT_INPUT_OFF	21
+>> -#define RPT_COUNT_FEATURE_OFF	34
+>> -
+>> -static const __u8 *gpd_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>> -				    unsigned int *rsize)
+>> -{
+>> -	if (*rsize != RDESC_LEN)
+>> -		return rdesc;
+>> -
+>> -	if (rdesc[RPT_COUNT_INPUT_OFF - 1] == 0x95 &&
+>> -	    rdesc[RPT_COUNT_INPUT_OFF] == 0x3f &&
+>> -	    rdesc[RPT_COUNT_FEATURE_OFF - 1] == 0x95 &&
+>> -	    rdesc[RPT_COUNT_FEATURE_OFF] == 0x3f) {
+>> -		hid_info(hdev, "fixing report counts (63 -> 11 bytes)\n");
+>> -		rdesc[RPT_COUNT_INPUT_OFF] = 11;
+>> -		rdesc[RPT_COUNT_FEATURE_OFF] = 11;
+>> -	}
+>> -
+>> -	return rdesc;
+>> -}
+>> -
+>> -static const struct hid_device_id gpd_devices[] = {
+>> -	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMESIR, USB_DEVICE_ID_GAMESIR_0137) },
+>> -	{ }
+>> -};
+>> -MODULE_DEVICE_TABLE(hid, gpd_devices);
+>> -
+>> -static struct hid_driver gpd_driver = {
+>> -	.name = "gpd",
+>> -	.id_table = gpd_devices,
+>> -	.report_fixup = gpd_report_fixup,
+>> -};
+>> -
+>> -module_hid_driver(gpd_driver);
+>> -
+>> -MODULE_DESCRIPTION("HID report descriptor fix for GPD Win handheld (GameSir 2f24:0137)");
+>> -MODULE_LICENSE("GPL");
+>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+>> index f6be3ffee023..b9ae1442eba9 100644
+>> --- a/drivers/hid/hid-quirks.c
+>> +++ b/drivers/hid/hid-quirks.c
+>> @@ -97,6 +97,8 @@ static const struct hid_device_id hid_quirks[] = {
+>>  		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
+>>  		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMESIR, USB_DEVICE_ID_GAMESIR_0137),
+>> +		HID_QUIRK_ALLOW_SHORT_REPORTS },
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index 31324609af4d..212dd13bfcfa 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -381,6 +381,7 @@ struct hid_item {
+>>   * | @HID_QUIRK_X_INVERT:
+>>   * | @HID_QUIRK_Y_INVERT:
+>>   * | @HID_QUIRK_IGNORE_MOUSE:
+>> + * | @HID_QUIRK_ALLOW_SHORT_REPORTS: accept shorter-than-expected reports, zero-pad
+>>   * | @HID_QUIRK_SKIP_OUTPUT_REPORTS:
+>>   * | @HID_QUIRK_SKIP_OUTPUT_REPORT_ID:
+>>   * | @HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP:
+>> @@ -408,6 +409,7 @@ struct hid_item {
+>>  #define HID_QUIRK_X_INVERT			BIT(12)
+>>  #define HID_QUIRK_Y_INVERT			BIT(13)
+>>  #define HID_QUIRK_IGNORE_MOUSE			BIT(14)
+>> +#define HID_QUIRK_ALLOW_SHORT_REPORTS		BIT(15)
+>>  #define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
+>>  #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
+>>  #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
+>> -- 
+>> 2.53.0
+>>
+>>
+> 
 

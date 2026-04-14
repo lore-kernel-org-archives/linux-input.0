@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F2F3DCD95;
-	Tue, 14 Apr 2026 11:25:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B312D3DE45B;
+	Tue, 14 Apr 2026 11:25:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776165919; cv=none; b=juUeVMxmZIpyoXCyYdF7wC7v6CT+k7B5C5g69XzQfwVcB3btZOtk+n+mUGRVZfFFC38s6WBL5MyPJEYmB2szpqNrMF0WILwtPPEEXvoU60l1sJ6psXUf0SSxniiil/leOkTCYFZCMwqkf/mbz61BwTWDr7bMH5paZQd91O6pRDg=
+	t=1776165925; cv=none; b=lLeBEEWZiUTXT5ucKYjOJ0iFGSNuF4iC1xAHj/Nr6k89bT0s0O6i+aXxbWNYGJnAoQySwzivIST3+dMrMjbv5fXBz/jSBuiLx141KdBZCslRBl5+CT5f4xDw7NrJjfyHepYIz+9rPwbzUIzGrMEfStGtJMeEJTcn6PkEtgLGnRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776165919; c=relaxed/simple;
-	bh=5IWa6TshAWH4hjpYTKzLaOdn0cI8aHPYQMWN5ZlDuYM=;
+	s=arc-20240116; t=1776165925; c=relaxed/simple;
+	bh=8xv1b0sIQ8eCwo0ODJU3Epv00PcqmUKDKUUCzF1Pu6o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fitziWF5kkHbeC0tw42aPdRuRoCVCmszm8Nmd7gZaOln0gBbpvMPe5MfAXCZ1Bi7yi10eTnrhNvKyLr7agFelGjGgQ9hKAOGea7Y4xdGRnCf4RImqg051TjC8UYqFLj1KHKlt4srL7i6x01LuqdaxnYGv2G/Ow/Wk31f2gxosEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SiAeCH/M; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=jYXurT9PlMvc5nA3ziREpG5wgWo97kuwuBShndT89eVHP8V7PqzMzI8p2aN7sA7X1IBuiIRrimzTtFJZnvw5wnzenjFLp5WgeRjZGZvfg7benOnsmPngVAbY2eey9eEU18cB5OaBE9YnraTuhCI0Sdd9M4P/2guDQgM5l5Gt0Iw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KB2K3EOO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SiAeCH/M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A688C2BCB5;
-	Tue, 14 Apr 2026 11:25:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KB2K3EOO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D6CCC19425;
+	Tue, 14 Apr 2026 11:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776165919;
-	bh=5IWa6TshAWH4hjpYTKzLaOdn0cI8aHPYQMWN5ZlDuYM=;
+	s=k20201202; t=1776165925;
+	bh=8xv1b0sIQ8eCwo0ODJU3Epv00PcqmUKDKUUCzF1Pu6o=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=SiAeCH/MwX7x0HA5nWAEjLLsucKbpJNSy9E4oWkxvI4NHUChSE4QzvVSfLI5t3av3
-	 5Csqui+FWhOL82e0dX9uhHSlx8dnJPfKaDtWnHWuovWPCAiYZ/Ng3Y+OoA5enxpsvq
-	 Rtbvi+fGXFHuzj9OSyv1CojM07o2NIptwePukxv5DAKX/D03fgR74/yhrdY0bO25O3
-	 bzZUPHtHCET+xMbsjMcWE9SS1gNxGftDmzG7MLxgiTWqXkwuoYl8ULEmdNZ3whYaep
-	 qqEyIiWO/4mRrCyeqQ/7In7tDTBTYL7SktVwsBgnDIoX5tMhYqFde5136IrlvJGWc+
-	 i6HI82FTIQ6Eg==
+	b=KB2K3EOOlhliof9FEWFOWMgP+mum11TwBTuWtnXWSbetiEl27l/9zMVXLGOwrEhOT
+	 hp/4m5YIOOhz8YqBSZzvikJOOG/XZrsMvFoTXYpK8S0pO5QKUjxRsTkovGu9kp9W9i
+	 NJKop/QywiPwD9GLVi2+92q6Gr3NF6SuTwh/KRaAG76IgEFmSIsBqfwkp0LVqJKr5s
+	 vmdAIAXjnuIQSwWyDvbijzhQaA7pBXk0j1QnwYS9Dt9pve7bmGUtHoJ5YuDWsHiAk6
+	 QjChOnDoRFgCfpKYVp46bH2qq1kV/LFchFOeBPRSZW1Ta8ediHMHwjwBK4TMXHoF7c
+	 0E8BN9Qh2ZBZQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: =?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
-	Silvan Jegen <s.jegen@gmail.com>,
+Cc: Even Xu <even.xu@intel.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
-	erazor_de@users.sourceforge.net,
+	xinpeng.sun@intel.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-5.10] HID: roccat: fix use-after-free in roccat_report_event
-Date: Tue, 14 Apr 2026 07:25:02 -0400
-Message-ID: <20260414112509.410217-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.19-6.18] HID: Intel-thc-hid: Intel-quickspi: Add NVL Device IDs
+Date: Tue, 14 Apr 2026 07:25:06 -0400
+Message-ID: <20260414112509.410217-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260414112509.410217-1-sashal@kernel.org>
 References: <20260414112509.410217-1-sashal@kernel.org>
@@ -50,348 +49,254 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.19.12
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Benoît Sevens <bsevens@google.com>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit d802d848308b35220f21a8025352f0c0aba15c12 ]
+[ Upstream commit 48e91af0cbe942d50ef6257d850accdca1d01378 ]
 
-roccat_report_event() iterates over the device->readers list without
-holding the readers_lock. This allows a concurrent roccat_release() to
-remove and free a reader while it's still being accessed, leading to a
-use-after-free.
+Add Nova Lake THC QuickSPI device IDs to support list.
 
-Protect the readers list traversal with the readers_lock mutex.
-
-Signed-off-by: Benoît Sevens <bsevens@google.com>
-Reviewed-by: Silvan Jegen <s.jegen@gmail.com>
+Signed-off-by: Even Xu <even.xu@intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-Good. Now I have all the information needed for a complete analysis.
+Now I have a clear picture. Let me complete the formal analysis.
 
----
-
-## FULL ANALYSIS
-
-### PHASE 1: COMMIT MESSAGE FORENSICS
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
 **Step 1.1: Subject Line**
-- Subsystem: `HID: roccat`
-- Action verb: "fix"
-- Summary: Fix use-after-free in `roccat_report_event` — a clear bug
-  fix.
-- Record: [HID: roccat] [fix] [use-after-free when iterating readers
-  list without lock]
+- Subsystem: `HID: Intel-thc-hid: Intel-quickspi`
+- Action verb: "Add"
+- Summary: Adding Nova Lake (NVL) THC QuickSPI PCI device IDs to the
+  support list
 
 **Step 1.2: Tags**
-- `Signed-off-by: Benoît Sevens <bsevens@google.com>` — Author, Google
-  security researcher
-- `Reviewed-by: Silvan Jegen <s.jegen@gmail.com>` — Review from external
-  developer
+- `Signed-off-by: Even Xu <even.xu@intel.com>` — author, Intel engineer,
+  regular THC driver contributor
 - `Signed-off-by: Jiri Kosina <jkosina@suse.com>` — HID subsystem
-  maintainer accepted it
-- No Fixes: tag, no Cc: stable, no Reported-by — expected for manual
-  review candidates
-- Record: Accepted by HID maintainer Jiri Kosina. Author is a Google
-  security researcher (bsevens@google.com — Benoît Sevens is known for
-  kernel security work).
+  maintainer
+- No Fixes: tag (expected — this is a device ID addition, not a bug fix)
+- No Reported-by, Tested-by, Link tags
 
-**Step 1.3: Commit Body Analysis**
-- Bug: `roccat_report_event()` iterates `device->readers` list without
-  holding `readers_lock`
-- Race: Concurrent `roccat_release()` can remove and free a reader while
-  it's being accessed
-- Failure mode: Use-after-free — accessing freed memory
-- Fix: Add `readers_lock` around the list traversal
-- Record: Clear UAF bug. The race is between report_event (iterating
-  readers) and release (freeing a reader). Author explains root cause
-  clearly.
+**Step 1.3: Body Text**
+Simple: "Add Nova Lake THC QuickSPI device IDs to support list." No bug
+described — this is hardware enablement.
 
 **Step 1.4: Hidden Bug Fix?**
-- No — this is explicitly labeled as a use-after-free fix. Not disguised
-  at all.
+No. This is explicitly a device ID addition — it enables new hardware.
 
-### PHASE 2: DIFF ANALYSIS
+## PHASE 2: DIFF ANALYSIS
 
 **Step 2.1: Inventory**
-- Files changed: 1 (`drivers/hid/hid-roccat.c`)
-- Lines added: 2 (`mutex_lock(&device->readers_lock)` and
-  `mutex_unlock(&device->readers_lock)`)
-- Lines removed: 0
-- Functions modified: `roccat_report_event()`
-- Scope: Single-file, single-function, 2-line surgical fix
-- Record: Minimal +2 line fix in one function in one file.
+- `pci-quickspi.c`: +6 lines (3 lines for `nvl` driver_data struct, 2
+  lines for PCI table entries, 1 blank line)
+- `quickspi-dev.h`: +2 lines (2 `#define` for PCI device IDs)
+- Total: +8 lines, 0 removed
+- Functions modified: None — only data structures/tables
 
-**Step 2.2: Code Flow Change**
-- BEFORE: `roccat_report_event()` takes only `cbuf_lock`, then iterates
-  `device->readers` list
-- AFTER: `roccat_report_event()` takes `readers_lock` first, then
-  `cbuf_lock`, iterates `device->readers`, then unlocks both in reverse
-  order
-- The readers list traversal is now protected against concurrent
-  modification by `roccat_release()`
+**Step 2.2: Code Flow Changes**
+- Adds `struct quickspi_driver_data nvl` with `.max_packet_size_value =
+  MAX_PACKET_SIZE_VALUE_LNL` (same as LNL and PTL)
+- Adds two `#define` for NVL PCI IDs: `0xD349` (Port1) and `0xD34B`
+  (Port2)
+- Adds two entries to `quickspi_pci_tbl[]` PCI device table linking
+  those IDs to the `nvl` driver_data
 
 **Step 2.3: Bug Mechanism**
-- Category: Race condition / Use-after-free
-- Mechanism: `list_for_each_entry(reader, &device->readers, node)`
-  iterates the readers list. Concurrently, `roccat_release()` at line
-  218-221 takes `readers_lock`, calls `list_del(&reader->node)`,
-  unlocks, then calls `kfree(reader)`. Without `readers_lock` in
-  `report_event`, the iterator can be traversing a reader node that gets
-  deleted and freed mid-iteration.
-- Record: Classic list-traversal-vs-concurrent-deletion UAF. Fix is
-  adding the existing designed-for-this-purpose lock.
+N/A — this is not a bug fix. It's a device ID addition.
 
 **Step 2.4: Fix Quality**
-- Obviously correct: The lock `readers_lock` was explicitly designed to
-  "protect modifications of readers list" (comment at line 48). It's
-  already used in `roccat_open()` (line 169) and `roccat_release()`
-  (line 218). The fix simply adds it to the one place that was missing.
-- Minimal: Just 2 lines.
-- Lock ordering: After fix, `readers_lock` -> `cbuf_lock` in
-  `roccat_report_event()`. In `roccat_read()`, only `cbuf_lock` is taken
-  (no `readers_lock`). In `roccat_open()` and `roccat_release()`, only
-  `readers_lock` is taken (no `cbuf_lock`). No conflicting lock ordering
-  exists — no deadlock risk.
-- Record: Fix is obviously correct, minimal, and safe. No regression
-  risk.
+The pattern is identical to every other device ID addition in the same
+file (MTL, LNL, PTL, WCL, ARL). Trivially correct. Zero regression risk
+— the new PCI IDs will only match on Nova Lake hardware.
 
-### PHASE 3: GIT HISTORY
+## PHASE 3: GIT HISTORY
 
-**Step 3.1: Blame**
-- The buggy code (list traversal without `readers_lock`) at line 270 was
-  introduced by commit `206f5f2fcb5ff5` (Stefan Achatz, 2010-05-19), the
-  original roccat module. This code has been present since Linux
-  v2.6.35.
-- The `cbuf_lock` around it was added later by `cacdb14b1c8d3` (Hyunwoo
-  Kim, 2022-09-04) for v6.1.
-- Record: Buggy code from 2010, present in ALL stable trees. The
-  readers_lock was always available but never used here.
+**Step 3.1: Blame** — The PCI table and driver_data structs follow a
+clear, consistent pattern established at driver creation.
 
-**Step 3.2: Fixes Tag**
-- No Fixes: tag present. Based on blame, the bug was introduced by
-  `206f5f2fcb5ff5` (v2.6.35, 2010).
+**Step 3.2: Fixes tag** — N/A, no Fixes: tag.
 
-**Step 3.3: File History**
-- Recent changes to hid-roccat.c are mostly cosmetic (constify,
-  sysfs_emit, etc.)
-- The most relevant prior fix is `cacdb14b1c8d3` ("HID: roccat: Fix use-
-  after-free in roccat_read()") which added `cbuf_lock` to
-  `roccat_report_event()`. This fixed a different UAF (concurrent
-  read/write of cbuf), but did NOT address the readers list race.
-- This commit is standalone — no dependencies on other patches.
+**Step 3.3: File History** — Recent additions of WCL (`cc54ed51c7617`)
+and ARL (`50f1f782f8d62`) IDs follow the exact same pattern. This commit
+is standalone.
 
-**Step 3.4: Author**
-- Benoît Sevens (bsevens@google.com) has 2 other commits visible in the
-  tree, both security fixes:
-  - `3d78386b14445` "HID: wacom: fix out-of-bounds read in
-    wacom_intuos_bt_irq"
-  - `b909df18ce2a9` "ALSA: usb-audio: Fix potential out-of-bound
-    accesses for Extigy and Mbox devices"
-- Pattern: Google security researcher finding and fixing kernel
-  vulnerabilities.
+**Step 3.4: Author** — Even Xu is a regular Intel THC driver contributor
+(co-author of the driver itself). The commit was signed off by HID
+maintainer Jiri Kosina.
 
-**Step 3.5: Dependencies**
-- The fix depends on `cbuf_lock` existing in the function (added by
-  `cacdb14b1c8d3`, v6.1). For trees v6.1+, this applies cleanly.
-- For trees older than v6.1 (5.15, 5.10), the cbuf_lock won't exist, so
-  the fix would need minor adaptation (just add readers_lock without the
-  cbuf_lock context). But the readers list traversal and the
-  readers_lock mutex exist in all trees.
+**Step 3.5: Dependencies** — This commit is fully self-contained. It
+only adds new entries to existing data structures.
 
-### PHASE 4: MAILING LIST RESEARCH
+## PHASE 4: MAILING LIST RESEARCH
 
-**Step 4.1-4.4:** Lore searches were blocked by Anubis CAPTCHA. Could
-not access mailing list discussions. Record: UNVERIFIED — could not
-access lore.kernel.org.
+Skipping deep lore investigation — device ID additions are a well-
+established exception category that doesn't require mailing list
+analysis to determine stable suitability.
 
-### PHASE 5: CODE SEMANTIC ANALYSIS
+## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1: Functions Modified**
-- Only `roccat_report_event()` is modified.
+**Step 5.1-5.5:** The change is purely data-driven. No functions are
+modified. The PCI ID table is used by the PCI subsystem's device
+matching infrastructure, which is well-tested and unchanged. The `nvl`
+driver_data struct uses the same `MAX_PACKET_SIZE_VALUE_LNL` as LNL/PTL,
+so behavior for NVL devices follows an already-proven code path.
 
-**Step 5.2: Callers**
-- `roccat_report_event()` is an EXPORT_SYMBOL_GPL function called from
-  **16 sites** across 10 different roccat HID drivers (arvo, isku, kone,
-  koneplus, konepure, kovaplus, pyra, ryos, savu). It's called from
-  their `raw_event` handlers — the main HID event processing path for
-  these devices.
+## PHASE 6: STABLE TREE ANALYSIS
 
-**Step 5.3-5.4: Call Chain**
-- HID subsystem -> raw_event callback in roccat driver ->
-  `roccat_report_event()`
-- This is the core event reporting path for all Roccat hardware. Any
-  user with a Roccat device who opens the chardev and then
-  disconnects/closes while events arrive could trigger the race.
-
-**Step 5.5: Similar Patterns**
-- The prior fix `cacdb14b1c8d3` fixed an analogous UAF in this same
-  function (cbuf access without lock). The readers_lock omission is the
-  same class of bug — incomplete locking.
-
-### PHASE 6: STABLE TREE ANALYSIS
-
-**Step 6.1: Buggy Code in Stable**
-- The original code is from v2.6.35 (2010). Present in ALL active stable
-  trees.
-- The `cbuf_lock` context from `cacdb14b1c8d3` exists in v6.1+. For
-  v6.1, v6.6, and v6.12+ stable trees, the patch applies cleanly.
-- For v5.15 and v5.10 (if still active), minor adaptation needed.
+**Step 6.1: Buggy Code in Stable?**
+The Intel THC QuickSPI driver was first introduced in the v6.13→v6.14
+cycle. It does NOT exist in LTS trees (6.12.y, 6.6.y, 6.1.y, etc.). It
+would only be applicable to stable trees v6.14.y and later.
 
 **Step 6.2: Backport Complications**
-- For v6.1+: Clean apply expected — the cbuf_lock lines exist as
-  context.
-- For older trees: Trivial adaptation (readers_lock wrapping only the
-  list traversal).
+For trees where the driver exists, this should apply cleanly. The WCL
+and ARL IDs were added after v6.15, so depending on the target stable
+tree, those entries may or may not be present, but device ID table
+entries are independent and ordering doesn't matter functionally.
 
-**Step 6.3: Related Fixes Already in Stable**
-- `cacdb14b1c8d3` (cbuf_lock fix) is in v6.1+ stable trees. This new
-  commit fixes a DIFFERENT, remaining race in the same function.
+**Step 6.3: Related fixes in stable** — No related fixes needed.
 
-### PHASE 7: SUBSYSTEM CONTEXT
+## PHASE 7: SUBSYSTEM CONTEXT
 
-**Step 7.1:** HID subsystem, `drivers/hid/` — IMPORTANT level. Roccat
-devices are popular gaming peripherals.
+**Step 7.1:** HID subsystem, specifically Intel THC (Touch Host
+Controller) for SPI-connected input devices. Criticality: PERIPHERAL —
+affects Intel Nova Lake laptop/platform users with THC-connected touch
+devices.
 
-**Step 7.2:** The hid-roccat.c core hasn't changed much since 2022; it's
-mature code with long-standing bugs.
+**Step 7.2:** The driver is actively developed (new platform IDs being
+added regularly).
 
-### PHASE 8: IMPACT AND RISK ASSESSMENT
+## PHASE 8: IMPACT AND RISK
 
-**Step 8.1: Affected Users**
-- Users of Roccat gaming hardware (keyboards, mice) using the roccat
-  chardev for special events. This is a hardware-specific driver but
-  Roccat is a well-known peripherals brand.
+**Step 8.1: Affected Users** — Users with Intel Nova Lake hardware with
+THC QuickSPI touch devices. Without this patch, touch input devices
+won't be recognized on NVL platforms.
 
-**Step 8.2: Trigger Conditions**
-- Race between: event delivery (`roccat_report_event` from HID event
-  handler) and file close (`roccat_release` from userspace close()).
-  Triggering requires concurrent device events and chardev fd close.
-- An unprivileged user who has access to the device can trigger this
-  (open/close the chardev while the device is sending events).
-- Security relevance: UAF can potentially be exploited for privilege
-  escalation.
+**Step 8.2: Trigger** — Device probe at boot or PCI hotplug. Without the
+IDs, the device simply won't bind to the driver.
 
-**Step 8.3: Failure Mode Severity**
-- Use-after-free: Accessing freed `roccat_reader` memory during list
-  traversal.
-- Consequences: kernel crash/oops, potential memory corruption,
-  potential security exploit.
-- Severity: **HIGH** (UAF = crash or security vulnerability)
+**Step 8.3: Severity** — Without the IDs: touch device doesn't work at
+all on NVL hardware. With the IDs: device works normally. This is
+hardware enablement, not crash prevention.
 
-**Step 8.4: Risk-Benefit Ratio**
-- BENEFIT: High — prevents UAF that can crash the kernel or be
-  exploited.
-- RISK: Very low — 2-line addition of a mutex that was designed for
-  exactly this purpose, consistent lock ordering, no deadlock risk.
-- Ratio: Strongly favorable for backporting.
+**Step 8.4: Risk-Benefit**
+- **Benefit**: Enables touch input devices on Nova Lake hardware —
+  essential for users of that platform.
+- **Risk**: Essentially zero. New PCI IDs only match on new hardware.
+  Existing systems are completely unaffected. The driver_data values
+  mirror already-proven configurations.
 
-### PHASE 9: FINAL SYNTHESIS
+## PHASE 9: FINAL SYNTHESIS
 
 **Step 9.1: Evidence Summary**
 
 FOR backporting:
-- Fixes a real use-after-free bug (HIGH severity)
-- 2-line surgical fix — minimal scope
-- Obviously correct — uses the existing `readers_lock` for its intended
-  purpose
-- No regression risk — consistent lock ordering verified
-- Author is a Google security researcher (credibility)
-- Reviewed-by present, accepted by HID maintainer
-- Bug present since 2010 — affects all stable trees
-- Called from 16 sites across 10 roccat drivers — affects all Roccat
-  hardware users
+- Classic device ID addition — a well-established stable exception
+  category
+- Trivially small (8 lines added), obviously correct
+- Follows identical pattern to all other platform ID additions in the
+  same driver
+- Zero regression risk — only matches on Nova Lake hardware
+- Written by the driver's co-author, signed off by HID maintainer
+- Enables real hardware for real users
 
 AGAINST backporting:
-- No Fixes: tag (expected — that's why it needs review)
-- Could not verify lore discussion (Anubis blocked)
-- Minor: comment says "called from interrupt handler" but function
-  already uses mutexes (pre-existing, not introduced by this fix)
-
-UNRESOLVED:
-- Lore discussion not accessible
+- Driver is very new (v6.14), so it's only applicable to recent stable
+  trees
+- Nova Lake hardware may not be widely deployed yet
+- Not fixing a bug — pure hardware enablement
 
 **Step 9.2: Stable Rules Checklist**
-1. Obviously correct and tested? **YES** — uses existing lock for its
-   documented purpose
-2. Fixes a real bug? **YES** — use-after-free in readers list traversal
-3. Important issue? **YES** — UAF = crash or security vulnerability
-4. Small and contained? **YES** — 2 lines in one function in one file
-5. No new features or APIs? **YES** — purely adding missing locking
-6. Can apply to stable trees? **YES** — clean for v6.1+, trivial
-   adaptation for older
+1. Obviously correct? **YES** — identical pattern to all other IDs
+2. Fixes a real bug? **N/A** — but falls under device ID exception
+3. Important issue? **YES** — hardware doesn't work without it
+4. Small and contained? **YES** — 8 lines, 2 files, data only
+5. No new features/APIs? **YES** — no new interfaces, just enables
+   existing driver on new hardware
+6. Can apply to stable? **YES** — for trees that contain the driver
+   (v6.14+)
 
-**Step 9.3: Exception Categories**
-- Not an exception category — this is a standard bug fix (the best kind
-  of stable material).
+**Step 9.3: Exception Category**
+**YES — Device ID addition to existing driver.** This is explicitly
+listed as a permitted exception in stable kernel rules.
 
-**Step 9.4: Decision**
-This is a textbook stable backport candidate: a small, obviously correct
-fix for a use-after-free vulnerability found by a security researcher,
-with minimal regression risk.
+## Verification
 
-### Verification
+- [Phase 1] Parsed tags: SOBs from Even Xu (Intel, driver co-author) and
+  Jiri Kosina (HID maintainer). No Fixes/Reported-by tags (expected for
+  device ID addition).
+- [Phase 2] Diff analysis: +8 lines total. 2 PCI ID defines, 1
+  driver_data struct (3 lines + blank), 2 PCI table entries. Data-only
+  change, no function modifications.
+- [Phase 3] git log: Driver first appeared in v6.14 cycle (commit
+  c8f3027dd2a5b). WCL and ARL IDs added after v6.15 with identical
+  patterns.
+- [Phase 3] git log --author: Even Xu has 15+ commits to THC driver, is
+  co-author of the driver.
+- [Phase 5] No functions modified — change is purely data
+  structures/tables.
+- [Phase 6] Driver does NOT exist in LTS trees 6.12.y and earlier. Only
+  applicable to v6.14.y+ stable trees.
+- [Phase 8] Risk: zero (new PCI IDs only match NVL hardware). Benefit:
+  enables touch input on Nova Lake platforms.
 
-- [Phase 1] Parsed tags: Signed-off-by from author (Google security),
-  Reviewed-by present, maintainer SOB (Jiri Kosina)
-- [Phase 2] Diff analysis: +2 lines adding mutex_lock/unlock of
-  readers_lock around list traversal in roccat_report_event()
-- [Phase 2] Lock ordering verified: readers_lock (outer) -> cbuf_lock
-  (inner) is consistent; roccat_read() takes only cbuf_lock;
-  roccat_open()/release() take only readers_lock (under devices_lock).
-  No deadlock path.
-- [Phase 3] git blame: buggy code from commit 206f5f2fcb5ff5 (Stefan
-  Achatz, 2010, v2.6.35), present in all stable trees
-- [Phase 3] Prior fix cacdb14b1c8d3 ("Fix use-after-free in
-  roccat_read()") added cbuf_lock but NOT readers_lock — this is a
-  different remaining bug
-- [Phase 3] Author Benoît Sevens has 2 other security fix commits in the
-  tree (wacom OOB read, ALSA OOB access)
-- [Phase 5] roccat_report_event() called from 16 sites across 10 roccat
-  drivers — core event path for all Roccat hardware
-- [Phase 5] Race confirmed: roccat_release() does list_del+kfree under
-  readers_lock; roccat_report_event() iterates without lock
-- [Phase 6] Buggy code exists in all active stable trees (original from
-  2010)
-- [Phase 6] Clean apply expected for v6.1+ (cbuf_lock context present)
-- [Phase 8] Failure mode: UAF -> kernel crash or potential security
-  exploit, severity HIGH
-- UNVERIFIED: Could not access lore.kernel.org discussion due to Anubis
-  CAPTCHA
+This is a textbook device ID addition — small, safe, data-only,
+following an established pattern, enabling hardware support on a new
+Intel platform. It meets the well-known stable exception for new device
+IDs added to existing drivers.
 
 **YES**
 
- drivers/hid/hid-roccat.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 6 ++++++
+ drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h | 2 ++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index c7f7562e22e56..e413662f75082 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -257,6 +257,7 @@ int roccat_report_event(int minor, u8 const *data)
- 	if (!new_value)
- 		return -ENOMEM;
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index ad6bd59963b28..b6a69995692cb 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -37,6 +37,10 @@ struct quickspi_driver_data arl = {
+ 	.max_packet_size_value = MAX_PACKET_SIZE_VALUE_MTL,
+ };
  
-+	mutex_lock(&device->readers_lock);
- 	mutex_lock(&device->cbuf_lock);
++struct quickspi_driver_data nvl = {
++	.max_packet_size_value = MAX_PACKET_SIZE_VALUE_LNL,
++};
++
+ /* THC QuickSPI ACPI method to get device properties */
+ /* HIDSPI Method: {6e2ac436-0fcf-41af-a265-b32a220dcfab} */
+ static guid_t hidspi_guid =
+@@ -982,6 +986,8 @@ static const struct pci_device_id quickspi_pci_tbl[] = {
+ 	{PCI_DEVICE_DATA(INTEL, THC_WCL_DEVICE_ID_SPI_PORT2, &ptl), },
+ 	{PCI_DEVICE_DATA(INTEL, THC_ARL_DEVICE_ID_SPI_PORT1, &arl), },
+ 	{PCI_DEVICE_DATA(INTEL, THC_ARL_DEVICE_ID_SPI_PORT2, &arl), },
++	{PCI_DEVICE_DATA(INTEL, THC_NVL_H_DEVICE_ID_SPI_PORT1, &nvl), },
++	{PCI_DEVICE_DATA(INTEL, THC_NVL_H_DEVICE_ID_SPI_PORT2, &nvl), },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(pci, quickspi_pci_tbl);
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+index c30e1a42eb098..bf5e18f5a5f42 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
+@@ -23,6 +23,8 @@
+ #define PCI_DEVICE_ID_INTEL_THC_WCL_DEVICE_ID_SPI_PORT2 	0x4D4B
+ #define PCI_DEVICE_ID_INTEL_THC_ARL_DEVICE_ID_SPI_PORT1 	0x7749
+ #define PCI_DEVICE_ID_INTEL_THC_ARL_DEVICE_ID_SPI_PORT2 	0x774B
++#define PCI_DEVICE_ID_INTEL_THC_NVL_H_DEVICE_ID_SPI_PORT1	0xD349
++#define PCI_DEVICE_ID_INTEL_THC_NVL_H_DEVICE_ID_SPI_PORT2	0xD34B
  
- 	report = &device->cbuf[device->cbuf_end];
-@@ -279,6 +280,7 @@ int roccat_report_event(int minor, u8 const *data)
- 	}
- 
- 	mutex_unlock(&device->cbuf_lock);
-+	mutex_unlock(&device->readers_lock);
- 
- 	wake_up_interruptible(&device->wait);
- 	return 0;
+ /* HIDSPI special ACPI parameters DSM methods */
+ #define ACPI_QUICKSPI_REVISION_NUM			2
 -- 
 2.53.0
 

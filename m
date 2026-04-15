@@ -1,60 +1,61 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A1D2F1FFC;
-	Wed, 15 Apr 2026 16:01:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F19731AAA8;
+	Wed, 15 Apr 2026 16:56:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776268886; cv=none; b=ibOlp4g3UjhVSD0uU96UsllWyX+T2o3lKH4pR1NXrpmGst/6PawjkW8xVrOaTG3MfxQGJ8njp2U5bSynk/YRMx5RhZ08DopJR/uLC4DDSe8AGWAyUAKI9Sr/lwDZA/95QyV+l8KnvVdPY9WvmS7o/MoS6TJ9GJnoaljFNf7VvSA=
+	t=1776272202; cv=none; b=g8OFtWiB+lfQokgfTii7r8Twgxrn9G4Xj8Yk3QFuhgweH6kbLtx95zzL4TtDML8T3lIyeVOULLKiRwmjHsF4kD7D/t4AiO5xv978FEfQe9H8mF1Cc+jcdnzm62lPM1ZCAwFGp1raETGfnjud/pLAOIaBOH7HlI1WU6jbLXD+hRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776268886; c=relaxed/simple;
-	bh=MuvDVLXqoa0XjmM13vYHEiGiWkzcoBaHbiANh4CmqN0=;
+	s=arc-20240116; t=1776272202; c=relaxed/simple;
+	bh=SGp0XOaBVkQVpgegDk9HsXP7yhHMKHP6gmPz3OlevZQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jXpj0jYR67qdn3ipRtm7GiF2XeIq5h0CBDKbmKW/5eaisIiRmih4f/pPQ3U105frNmGuYhEWbNp0JbzxhhZEr4YV0aVchTiNEhp+4jt4Dp6hM5S85HDg82MTlKXcV0BJ1nXocHBH2/79aQJcEd8osLrbQrwlUhtIeKRGZuMI05A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gT4bR41U; arc=none smtp.client-ip=198.175.65.11
+	 Content-Type:Content-Disposition:In-Reply-To; b=pXvZHr+OOigyme3pMsNcIpCJJGaup2DL4H4awSHmZgHhOEAgkh8PRbmLTr2MYDyZ/NiyF16yxFYJsbcHzq6/C7jt3LquXs+JAPJUujYrDI/N8f1Nqukyg/OWs0XLNhiZKqkrPbaxZzTXZq4s4hSi3Ab6nzXzrIfNW7wqOosMFIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DzCcG+e7; arc=none smtp.client-ip=198.175.65.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gT4bR41U"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DzCcG+e7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776268882; x=1807804882;
+  t=1776272201; x=1807808201;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=MuvDVLXqoa0XjmM13vYHEiGiWkzcoBaHbiANh4CmqN0=;
-  b=gT4bR41UfF3eqsD0N43S4Qbj+85mx3SHyF0/e4mSbmJjzVY8ARjY7wfN
-   nmdBurEGWfpgP4lZ30HPgLlpPQABfwvv/DOGHgLL3bFXnkpxWFheAEnPa
-   Ue6ik/7jIDWzAal3b7xmro0rjva7d01W200IHCs3Y2FiX1f9eXH6Ip0pi
-   qYiNteC7oeMeWgWqtmDWcNZpmyTRFm7fkFcDZQtMK8+2LBHVrG3bStJPm
-   TFiToPlY96MPbosQ3mrVTV+jCWIzwgXXbF2aB0qDPfS0y8xuNH9RPn8CK
-   bsLQILclYGhIwRhW1/YLQWAumcIhcOGTRB9wqJEdWSho2oN+ZSZ8BQ+fw
-   Q==;
-X-CSE-ConnectionGUID: 27iZzf7BT2WFgSUYQX32gg==
-X-CSE-MsgGUID: cuew1ddSQliB0/fSD4xUNg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11760"; a="87559406"
+  bh=SGp0XOaBVkQVpgegDk9HsXP7yhHMKHP6gmPz3OlevZQ=;
+  b=DzCcG+e7DoMNWupcsExIAy47IJ++aQ4kTWHE/eKS0iKvA/QgFdafg7YR
+   yNhSQD9T/emWf0J3WOkVvNDwqc7xFqk36C1uiMAggYFFXvE+HfRAnsVcW
+   1s/fFrMJapFGf8QLcnOYUzMx0CL5Ktf/Ut4/YhP+KhOt1BPq+1ZD/MTld
+   fM+y+ucrZB1tqgeOHfHNB8JX8kN0U5GlJ9UDHAdZ2KnMIoCZewd+Osmfk
+   uFRWl4i2OP/w1GHKhz1L1fu1BuecFBZw2AFt9kUE8isPWlqO9pg0tkJ8k
+   a2UZun1iVZHUTEN69IIs/hf/mOFlyYQmGZJHLKJMdxIX5ybkUcu51rOy1
+   g==;
+X-CSE-ConnectionGUID: Thlij3CJS0+9/lhGwg0JvQ==
+X-CSE-MsgGUID: 2V4D72DHSeq1w8F+JEDBIw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11760"; a="80858564"
 X-IronPort-AV: E=Sophos;i="6.23,179,1770624000"; 
-   d="scan'208";a="87559406"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2026 09:01:21 -0700
-X-CSE-ConnectionGUID: umEDh5bcSNOaWC7kxxqbNg==
-X-CSE-MsgGUID: rmHFsDaDRyylWCnv/vDYKQ==
+   d="scan'208";a="80858564"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2026 09:56:28 -0700
+X-CSE-ConnectionGUID: 3egZ7QjBTr+iwKmmTvyAfA==
+X-CSE-MsgGUID: ZWl5qtGKS8K3KFkmM+7S0w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.23,179,1770624000"; 
-   d="scan'208";a="260890388"
+   d="scan'208";a="232214306"
 Received: from lkp-server01.sh.intel.com (HELO 7f3b36e5d6a5) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 15 Apr 2026 09:01:19 -0700
+  by fmviesa004.fm.intel.com with ESMTP; 15 Apr 2026 09:56:24 -0700
 Received: from kbuild by 7f3b36e5d6a5 with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1wD2g0-000000000eg-1NgE;
-	Wed, 15 Apr 2026 16:01:16 +0000
-Date: Thu, 16 Apr 2026 00:01:02 +0800
+	id 1wD3XK-000000000jY-1z1n;
+	Wed, 15 Apr 2026 16:56:22 +0000
+Date: Thu, 16 Apr 2026 00:56:08 +0800
 From: kernel test robot <lkp@intel.com>
 To: Rosalie Wanders <rosalie@mailbox.org>, Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, Rosalie Wanders <rosalie@mailbox.org>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Rosalie Wanders <rosalie@mailbox.org>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] HID: quirks: update hid-sony supported devices
-Message-ID: <202604152332.KsvO9aH8-lkp@intel.com>
+Message-ID: <202604160057.euPpXOLj-lkp@intel.com>
 References: <20260407144247.368567-2-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -81,171 +82,79 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Rosalie-Wanders/HID-quirk
 base:   v7.0
 patch link:    https://lore.kernel.org/r/20260407144247.368567-2-rosalie%40mailbox.org
 patch subject: [PATCH] HID: quirks: update hid-sony supported devices
-config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20260415/202604152332.KsvO9aH8-lkp@intel.com/config)
-compiler: arc-linux-gcc (GCC) 15.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260415/202604152332.KsvO9aH8-lkp@intel.com/reproduce)
+config: loongarch-allmodconfig (https://download.01.org/0day-ci/archive/20260416/202604160057.euPpXOLj-lkp@intel.com/config)
+compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260416/202604160057.euPpXOLj-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202604152332.KsvO9aH8-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202604160057.euPpXOLj-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
-   In file included from drivers/hid/hid-quirks.c:15:
->> drivers/hid/hid-quirks.c:698:26: error: 'USB_VENDOR_ID_HARMONIX' undeclared here (not in a function); did you mean 'USB_VENDOR_ID_HANVON'?
+>> drivers/hid/hid-quirks.c:698:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      698 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS) },
-         |                          ^~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:36: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                    ^~~
->> drivers/hid/hid-quirks.c:698:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:698:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS'
      698 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_DRUMS) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:699:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR' undeclared here (not in a function)
+         |                                                  ^
+   drivers/hid/hid-quirks.c:699:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      699 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:700:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:699:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR'
+     699 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB1_GUITAR) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:700:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      700 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:701:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:700:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS'
+     700 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_DRUMS) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:701:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      701 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:702:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD'?
+         |                          ^
+>> drivers/hid/hid-quirks.c:701:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR'
+     701 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB2_GUITAR) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:702:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      702 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:703:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:702:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD'
+     702 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:703:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      703 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:704:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:703:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE'
+     703 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_DRUMS_MODE) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:704:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      704 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:705:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:704:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE'
+     704 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:705:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      705 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:706:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:705:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE'
+     705 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:706:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      706 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:707:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR' undeclared here (not in a function)
+         |                          ^
+>> drivers/hid/hid-quirks.c:706:43: error: use of undeclared identifier 'USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE'
+     706 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE) },
+         |                                                  ^
+   drivers/hid/hid-quirks.c:707:19: error: use of undeclared identifier 'USB_VENDOR_ID_HARMONIX'
      707 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:708:50: error: 'USB_DEVICE_ID_HARMONIX_WII_RB3_SQUIRE_GUITAR' undeclared here (not in a function)
-     708 |         { HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_SQUIRE_GUITAR) },
-         |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:731:53: error: 'USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE_DONGLE'?
-     731 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:732:53: error: 'USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE'?
-     732 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:733:53: error: 'USB_DEVICE_ID_SONY_PS3_GH_DRUMS' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     733 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:734:53: error: 'USB_DEVICE_ID_SONY_PS3_GH_GUITAR' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     734 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:735:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     735 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:736:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     736 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:737:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE' undeclared here (not in a function)
-     737 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
->> drivers/hid/hid-quirks.c:738:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE' undeclared here (not in a function)
-     738 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
-   drivers/hid/hid-quirks.c:739:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIRE_MODE' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     739 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIRE_MODE) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
-   drivers/hid/hid-quirks.c:740:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_GUITAR_DONGLE'?
-     740 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
-   drivers/hid/hid-quirks.c:741:53: error: 'USB_DEVICE_ID_SONY_PS3_RB3_SQUIRE_GUITAR' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     741 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_SQUIRE_GUITAR) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
-   drivers/hid/hid-quirks.c:742:53: error: 'USB_DEVICE_ID_SONY_PS3_RB_DRUMS' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     742 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
-   drivers/hid/hid-quirks.c:743:53: error: 'USB_DEVICE_ID_SONY_PS3_RB_GUITAR' undeclared here (not in a function); did you mean 'USB_DEVICE_ID_SONY_PS3_BDREMOTE'?
-     743 |         { HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR) },
-         |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:785:54: note: in definition of macro 'HID_USB_DEVICE'
-     785 |         .bus = BUS_USB, .vendor = (ven), .product = (prod)
-         |                                                      ^~~~
+         |                          ^
+   fatal error: too many errors emitted, stopping now [-ferror-limit=]
+   20 errors generated.
 
 
-vim +698 drivers/hid/hid-quirks.c
+vim +/USB_VENDOR_ID_HARMONIX +698 drivers/hid/hid-quirks.c
 
    223	
    224	/*
@@ -731,8 +640,8 @@ vim +698 drivers/hid/hid-quirks.c
  > 704		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE) },
  > 705		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_MUSTANG_MODE) },
  > 706		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_SQUIRE_MODE) },
- > 707		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR) },
- > 708		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_SQUIRE_GUITAR) },
+   707		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_MUSTANG_GUITAR) },
+   708		{ HID_USB_DEVICE(USB_VENDOR_ID_HARMONIX, USB_DEVICE_ID_HARMONIX_WII_RB3_SQUIRE_GUITAR) },
    709		{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
    710		{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_PS4_STRATOCASTER) },
    711		{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_PDP, USB_DEVICE_ID_PDP_PS4_JAGUAR) },
@@ -755,19 +664,19 @@ vim +698 drivers/hid/hid-quirks.c
    728		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
    729		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
    730		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
- > 731		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE) },
- > 732		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE) },
- > 733		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS) },
- > 734		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR) },
- > 735		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD) },
- > 736		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE) },
- > 737		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE) },
- > 738		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE) },
- > 739		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIRE_MODE) },
- > 740		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR) },
- > 741		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_SQUIRE_GUITAR) },
- > 742		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS) },
- > 743		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR) },
+   731		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3WIIU_GHLIVE) },
+   732		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_DJH_TURNTABLE) },
+   733		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_DRUMS) },
+   734		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_GH_GUITAR) },
+   735		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_KEYBOARD) },
+   736		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_DRUMS_MODE) },
+   737		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_KEYBOARD_MODE) },
+   738		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_MUSTANG_MODE) },
+   739		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MPA_SQUIRE_MODE) },
+   740		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_MUSTANG_GUITAR) },
+   741		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB3_SQUIRE_GUITAR) },
+   742		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_DRUMS) },
+   743		{ HID_USB_DEVICE(USB_VENDOR_ID_SONY_RHYTHM, USB_DEVICE_ID_SONY_PS3_RB_GUITAR) },
    744	#endif
    745	#if IS_ENABLED(CONFIG_HID_SPEEDLINK)
    746		{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },

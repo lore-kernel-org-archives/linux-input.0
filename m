@@ -1,373 +1,138 @@
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp37.cstnet.cn [159.226.251.37])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B632C13AA2D;
-	Wed, 15 Apr 2026 02:51:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B82D2745E
+	for <linux-input@vger.kernel.org>; Wed, 15 Apr 2026 03:38:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776221494; cv=none; b=QpNoRkFPOt0Z/1Pi0Oj/fcasXeRVnvsS20rlnFgq7HsaAZAkQs/DqMsGgaMX4JBBJsQZIzlQsHR1jCV3fpmr9bgBiU1c8mwcq1qbtOzHSjuZe2XJQN/mJCmQRZvmyScdukFNjEXUZMzZqoCef68sq3GQD/X4QHXw8fvDoO4TvRs=
+	t=1776224294; cv=none; b=jwFD8u0jyspNc2Fv0DEg3968FZXjScIrx/V/O+nVNp39NmpZrGBMH9UjxUUDLDoOqwhU41LHZTAbd40wcufS/ZBZ5ustVE9Pp5vROibEKy5/0AvhNKAvf3Hy/VgV/+bBtoKQel1o430yh8mIBkbNzKmyhywjdriBaJhuR5YHO0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776221494; c=relaxed/simple;
-	bh=z3/MZKPm6SMtftKa9QM2NhQ+CcJT5PZ84VoULLXNW/Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=R+Lz0NRaODOQPueM/C5nEOoJjDJOnVea0Q1CQTfXxQUaVzANiQetQ9xhoqVn4Xqm9H/5Td+jF6KfGdwdSfUsEEYfsLQIi6rO4yl95XhPID6a61EEOo0c12SxXc+ydUzYqj2BEp25xXB9coXn5nMRPQzVhrBTFRMolmce3NCxwL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=DvYEqjOM; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=gUeXRxx8; arc=none smtp.client-ip=80.241.56.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="DvYEqjOM";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="gUeXRxx8"
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4fwQdX4WNKz9tZ8;
-	Wed, 15 Apr 2026 04:51:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1776221488;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=seGwNOEgWC8LBHXwPUU5VGXD7bkUR/9WMYM2m+Rt7K8=;
-	b=DvYEqjOM/81aku3PWDRFZ/duddSJW5tuQcDZi4LFTw0roF87BQKcDEVAchppWZ+gHQGehe
-	8P1+TuKODQFDoa3qbgLw27CUXVU3rjekt0LwSEy2Ov5iigjLpDLLfUbeANvA5sfKcydIku
-	NWK+TT47ymqkWuM0UVycSqKhCPsI4OJDuq7b86SuqHhafwK/eX1yHkCdNBVcA7R2KjgnsM
-	+ITJZ8BgmxXXnvvW13KKobPoPdb01lExrZqJcG9b8pLHNoptj0+SAVSwgZSbF1sTodyfkM
-	qwyi00aV/IMB/AfrAPLfxfbbzAiOFeY1uABUcndvM8kpHR+dz8lwzNahCyg+1w==
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1776221487;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=seGwNOEgWC8LBHXwPUU5VGXD7bkUR/9WMYM2m+Rt7K8=;
-	b=gUeXRxx8kfj+eBi/X3R+3spctQwoDVc5esgsE94UNDSxEli5Jt2mbqd1Gm9l01lhfsr3gq
-	Xk8KDmpKAlXosSzeUAvizjYkHGMqEtOxfemYXyeS/pe1GJRMBFpKbSj5d69XgzEDu39EwN
-	+hBgEOdzljVlsRJmK2u2iLUcABdhekgFcvvtsOXOKHhYoRcggynXm+GjCk30CS8V5A5cP9
-	FjK+Ko7R65ABwWXIXfbAvsOe7xr6bdp3mspfyNul8aXq8Knhvd+1BNBC/17ZBARAORKbuv
-	wItcGVTilDVR6Hw3Nz6xQaga/K3kA3sgcNmKfogjIHAldj8oVrBNlE4GutRd/g==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Rosalie Wanders <rosalie@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: sony: use dedicated raw_event() handlers in sony_raw_event()
-Date: Wed, 15 Apr 2026 04:45:10 +0200
-Message-ID: <20260415024509.42505-3-rosalie@mailbox.org>
+	s=arc-20240116; t=1776224294; c=relaxed/simple;
+	bh=9/HNYPZSaPuhx07wIcLfqG16/CzsQiLpX5oLmujUPnk=;
+	h=Date:From:To:Cc:Subject:Content-Type:MIME-Version:Message-ID; b=FuFd9EczE6bln0P/letbKECAa4S/SZFtSzdpGyKaxmJXs0ZBRXvtSWVc3JdWp/HsWK6wQBBPXUYVxvUS8R4rzUf8YoAgPMi/HzU/Lb2AGNF1vG8BVvwp1bdVrS2/GNjmbwnWXRnEZbt8GuuozXN1zgWtNlHM31wsH/FoFjSvUYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mails.ucas.ac.cn; spf=pass smtp.mailfrom=mails.ucas.ac.cn; arc=none smtp.client-ip=159.226.251.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mails.ucas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mails.ucas.ac.cn
+Received: from xudongjie25$mails.ucas.ac.cn ( [111.199.66.103] ) by
+ ajax-webmail-APP-12 (Coremail) ; Wed, 15 Apr 2026 11:38:06 +0800
+ (GMT+08:00)
+Date: Wed, 15 Apr 2026 11:38:06 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: =?UTF-8?B?6K645Lic5rSB?= <xudongjie25@mails.ucas.ac.cn>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, zhaoruilin22@mails.ucas.ac.cn
+Subject: [BUG] list_add double add in cm109_input_open
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2024.1-cmXT5 build
+ 20240627(e6c6db66) Copyright (c) 2002-2026 www.mailtech.cn cnic.cn
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: e098c1b4752fdd33126
-X-MBO-RS-META: aqe7q5w7rdxrszfrirpp5mhcwy7p6jfo
+Message-ID: <1fdc2218.4cc75.19d8f37b6dd.Coremail.xudongjie25@mails.ucas.ac.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:tgCowADX4dEeCN9pqiweAA--.42038W
+X-CM-SenderInfo: p0xg00pjmlvj2v6ptx1ovo3u1dvotugofq/1tbiBwoSB2ne2qmaAw
+	ACsH
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWkCw
+	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+	daVFxhVjvjDU=
 
-This commit changes the way sony_raw_event() works by adding a function
-pointer to a raw_event() handler in the sc struct instead of manually
-checking the quirk in order to call the right function, this simplifies
-the sony_raw_event() function alongside making the raw_event() handlers
-more self-contained, thus making the code more readable.
-
-The raw_event() handler should be configured using the new
-sony_init_raw_event_handler() function in sony_input_configured(), where
-we already check for quirks and apply device specific workarounds.
-
-Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
----
-This patch depends on the following patches:
-- 'HID: sony: add missing size validation for SMK-Link remotes'
-- 'HID: sony: add missing size validation for Rock Band 3 Pro instruments'
-
- drivers/hid/hid-sony.c | 143 +++++++++++++++++++++++++----------------
- 1 file changed, 89 insertions(+), 54 deletions(-)
-
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index e75246d29e16..827cb00ff095 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -81,6 +81,7 @@
- #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | MOTION_CONTROLLER)
- #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
- #define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
-+#define RB4_GUITAR_PS4 (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT)
- 
- #define MAX_LEDS 4
- #define NSG_MRXU_MAX_X 1667
-@@ -534,6 +535,7 @@ struct sony_sc {
- 	struct input_dev *sensor_dev;
- 	struct led_classdev *leds[MAX_LEDS];
- 	unsigned long quirks;
-+	int (*raw_event)(struct sony_sc *sc, u8 *rd, int size);
- 	struct work_struct state_worker;
- 	void (*send_output_report)(struct sony_sc *sc);
- 	struct power_supply *battery;
-@@ -946,7 +948,7 @@ static const u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
- 	return rdesc;
- }
- 
--static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int sixaxis_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
- 	unsigned long flags;
-@@ -955,6 +957,31 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	u8 battery_capacity;
- 	int battery_status;
- 
-+	if (unlikely(size != 49 || rd[0] != 0x01))
-+		return 0;
-+
-+	if (sc->quirks & SIXAXIS_CONTROLLER) {
-+		/*
-+		 * When connected via Bluetooth the Sixaxis occasionally sends
-+		 * a report with the second byte 0xff and the rest zeroed.
-+		 *
-+		 * This report does not reflect the actual state of the
-+		 * controller must be ignored to avoid generating false input
-+		 * events.
-+		 */
-+		if (rd[1] == 0xff)
-+			return -EINVAL;
-+
-+		/*
-+		 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
-+		 * has to be BYTE_SWAPPED before passing up to joystick interface
-+		 */
-+		swap(rd[41], rd[42]);
-+		swap(rd[43], rd[44]);
-+		swap(rd[45], rd[46]);
-+		swap(rd[47], rd[48]);
-+	}
-+
- 	/*
- 	 * The sixaxis is charging if the battery value is 0xee
- 	 * and it is fully charged if the value is 0xef.
-@@ -993,13 +1020,18 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 
- 		input_sync(sc->sensor_dev);
- 	}
-+
-+	return 0;
- }
- 
--static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int nsg_mrxu_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	int n, offset, relx, rely;
- 	u8 active;
- 
-+	if (unlikely(size < 12 || rd[0] != 0x02))
-+		return 0;
-+
- 	/*
- 	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
- 	 *   the touch-related data starts at offset 2.
-@@ -1067,10 +1099,33 @@ static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	input_mt_sync_frame(sc->touchpad);
- 
- 	input_sync(sc->touchpad);
-+	return 0;
-+}
-+
-+static int rb3_pro_instrument_raw_event(struct sony_sc *sc, u8 *rd, int size)
-+{
-+	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
-+	 * sending full reports, and 0x02 when only sending navigation.
-+	 */
-+	if (size < 25 || rd[24] != 0x02)
-+		return 0;
-+
-+	/* Only attempt to enable full report every 8 seconds */
-+	if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
-+		sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
-+		rb3_pro_instrument_enable_full_report(sc);
-+	}
-+
-+	return 0;
- }
- 
--static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int rb4_ps4_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
-+	const int expected_size = (sc->quirks & RB4_GUITAR_PS4_BT) ? 78 : 64;
-+
-+	if (unlikely(size != expected_size || rd[0] != 0x01))
-+		return 0;
-+
- 	/*
- 	 * Rock Band 4 PS4 guitars have whammy and
- 	 * tilt functionality, they're located at
-@@ -1084,9 +1139,10 @@ static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	input_report_abs(sc->input_dev, ABS_RZ, rd[45]);
- 
- 	input_sync(sc->input_dev);
-+	return 0;
- }
- 
--static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int rb4_ps5_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	u8 charging_status;
- 	u8 battery_data;
-@@ -1094,6 +1150,9 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	u8 battery_status;
- 	unsigned long flags;
- 
-+	if (unlikely(size != 64 || rd[0] != 0x01))
-+		return 0;
-+
- 	/*
- 	 * Rock Band 4 PS5 guitars have whammy and
- 	 * tilt functionality, they're located at
-@@ -1138,62 +1197,19 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	spin_unlock_irqrestore(&sc->lock, flags);
- 
- 	input_sync(sc->input_dev);
-+	return 0;
- }
- 
- static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		u8 *rd, int size)
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
-+	int ret;
- 
--	/*
--	 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
--	 * has to be BYTE_SWAPPED before passing up to joystick interface
--	 */
--	if ((sc->quirks & SIXAXIS_CONTROLLER) && rd[0] == 0x01 && size == 49) {
--		/*
--		 * When connected via Bluetooth the Sixaxis occasionally sends
--		 * a report with the second byte 0xff and the rest zeroed.
--		 *
--		 * This report does not reflect the actual state of the
--		 * controller must be ignored to avoid generating false input
--		 * events.
--		 */
--		if (rd[1] == 0xff)
--			return -EINVAL;
--
--		swap(rd[41], rd[42]);
--		swap(rd[43], rd[44]);
--		swap(rd[45], rd[46]);
--		swap(rd[47], rd[48]);
--
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & MOTION_CONTROLLER_BT) && rd[0] == 0x01 && size == 49) {
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 && size == 49) {
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02 && size >= 12) {
--		nsg_mrxu_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS4_USB) && rd[0] == 0x01 && size == 64) {
--		rb4_ps4_guitar_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS4_BT) && rd[0] == 0x01 && size == 78) {
--		rb4_ps4_guitar_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS5) && rd[0] == 0x01 && size == 64) {
--		rb4_ps5_guitar_parse_report(sc, rd, size);
--		return 1;
--	}
--
--	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
--	 * sending full reports, and 0x02 when only sending navigation.
--	 */
--	if ((sc->quirks & RB3_PRO_INSTRUMENT) && size >= 25 && rd[24] == 0x02) {
--		/* Only attempt to enable full report every 8 seconds */
--		if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
--			sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
--			rb3_pro_instrument_enable_full_report(sc);
--		}
-+	if (sc->raw_event) {
-+		ret = sc->raw_event(sc, rd, size);
-+		if (unlikely(ret < 0))
-+			return ret;
- 	}
- 
- 	if (sc->defer_initialization) {
-@@ -1256,7 +1272,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & DJH_TURNTABLE)
- 		return djh_turntable_mapping(hdev, hi, field, usage, bit, max);
- 
--	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
-+	if (sc->quirks & RB4_GUITAR_PS4)
- 		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
- 
- 	if (sc->quirks & RB4_GUITAR_PS5)
-@@ -2110,6 +2126,12 @@ static void sony_release_device_id(struct sony_sc *sc)
- 	}
- }
- 
-+static inline void sony_init_raw_event_handler(struct sony_sc *sc,
-+				int (*raw_event)(struct sony_sc *, u8 *, int))
-+{
-+	sc->raw_event = raw_event;
-+}
-+
- static inline void sony_init_output_report(struct sony_sc *sc,
- 				void (*send_output_report)(struct sony_sc *))
- {
-@@ -2185,6 +2207,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & NAVIGATION_CONTROLLER_BT) {
- 		/*
-@@ -2199,6 +2222,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & RB3_PRO_INSTRUMENT) {
- 		/*
-@@ -2213,6 +2237,8 @@ static int sony_input_configured(struct hid_device *hdev,
- 		 */
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
-+
-+		sony_init_raw_event_handler(sc, rb3_pro_instrument_raw_event);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
-@@ -2237,6 +2263,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
- 		/*
-@@ -2258,6 +2285,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & NSG_MRXU_REMOTE) {
- 		/*
-@@ -2273,8 +2301,15 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, nsg_mrxu_raw_event);
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
-+		if (sc->quirks & MOTION_CONTROLLER_BT)
-+			sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, motion_send_output_report);
-+	} else if (sc->quirks & RB4_GUITAR_PS4) {
-+		sony_init_raw_event_handler(sc, rb4_ps4_guitar_raw_event);
-+	} else if (sc->quirks & RB4_GUITAR_PS5) {
-+		sony_init_raw_event_handler(sc, rb4_ps5_guitar_raw_event);
- 	}
- 
- 	if (sc->quirks & SONY_LED_SUPPORT) {
--- 
-2.53.0
-
+SGksCgpXaGlsZSBydW5uaW5nIGZ1enppbmcgdGVzdHMgb24gNi4xOS4wLXJjNSwgd2UgaGl0IGEg
+Imxpc3RfYWRkIGRvdWJsZSBhZGQiIGJ1ZyB0cmlnZ2VyZWQgYnkgdGhlIGNtMTA5IGRyaXZlci4K
+ClRoZSByb290IGNhdXNlIGxpZXMgaW4gaG93IHRoZSBkcml2ZXIgaGFuZGxlcyBtdWx0aXBsZSBp
+bnB1dCBkZXZpY2VzLiBEdXJpbmcgcHJvYmUsIHRoZSBkcml2ZXIgcmVnaXN0ZXJzIHR3byBzZXBh
+cmF0ZSBpbnB1dCBkZXZpY2VzIChpZGV2IGFuZCBrZXlwYWQpLiBCb3RoIGRldmljZXMgc2hhcmUg
+dGhlIHNhbWUgY20xMDlfaW5wdXRfb3BlbigpIGFuZCBjbTEwOV9pbnB1dF9jbG9zZSgpIGNhbGxi
+YWNrcy4gSWYgYm90aCBpbnB1dCBkZXZpY2VzIGFyZSBvcGVuZWQgYnkgdXNlciBzcGFjZSwgY20x
+MDlfaW5wdXRfb3BlbigpIGlzIGNhbGxlZCB0d2ljZS4KCkhvd2V2ZXIsIGNtMTA5X2lucHV0X29w
+ZW4oKSBkb2Vzbid0IGNoZWNrIGlmIHRoZSBVUkJzIGFyZSBhbHJlYWR5IGluIGZsaWdodC4gSXQg
+c2ltcGx5IHNldHMgZGV2LT5vcGVuID0gMSBhbmQgY2FsbHMgdXNiX3N1Ym1pdF91cmIoKSB1bmNv
+bmRpdGlvbmFsbHkuIFN1Ym1pdHRpbmcgdGhlIHNhbWUgVVJCIHR3aWNlIGNhdXNlcyB0aGUgZG91
+YmxlIGxpc3RfYWRkIEJVRyBpbiB0aGUgVVNCIGNvcmUuCgpBIHBvc3NpYmxlIGZpeCB3b3VsZCBi
+ZSB0byBjb252ZXJ0IHRoZSBkZXYtPm9wZW4gdmFyaWFibGUgZnJvbSBhIGJvb2xlYW4gZmxhZyBp
+bnRvIGEgcmVmZXJlbmNlIGNvdW50ZXIuIFdlIGNvdWxkIGluY3JlbWVudCBpdCBpbiBjbTEwOV9p
+bnB1dF9vcGVuKCkgYW5kIG9ubHkgc3VibWl0IHRoZSBVUkJzIGlmIGl0IHRyYW5zaXRpb25zIGZy
+b20gMCB0byAxLCBhbmQgZGVjcmVtZW50IGl0IGluIGNtMTA5X2lucHV0X2Nsb3NlKCksIGtpbGxp
+bmcgdGhlIFVSQnMgb25seSB3aGVuIHRoZSBjb3VudGVyIHJlYWNoZXMgMC4KCldlIGRvIG5vdCBo
+YXZlIGEgZm9ybWFsIHBhdGNoIHJlYWR5IHlldCwgYnV0IHdlIGFyZSBoYXBweSB0byBoZWxwIHRl
+c3QgYW55IHByb3Bvc2VkIGZpeGVzLgoKQ3Jhc2ggbG9nLCBjYWxsIHRyYWNlLCBhbmQgbWFjaGlu
+ZSBpbmZvIGFyZSBhcyBmb2xsb3dzOgoKW01hY2hpbmUgSW5mb10KUUVNVSBlbXVsYXRvciB2ZXJz
+aW9uIDYuMi4wCkNQVTogSW50ZWwoUikgWGVvbihSKSBHb2xkIDUyMTggQ1BVIEAgMi4zMEdIeiAo
+NCBjb3JlcykKS2VybmVsIFZlcnNpb246IDYuMTkuMC1yYzUtMDAwNDItZzk0NGFhY2I2OGJhZgoK
+W0NyYXNoIFJlcG9ydCAmIENhbGwgVHJhY2VdCmlucHV0OiBDTTEwOSBVU0IgZHJpdmVyIGFzIC9k
+ZXZpY2VzL3BsYXRmb3JtL2R1bW15X2hjZC4yL3VzYjMvMy0xLzMtMTowLjAvaW5wdXQvaW5wdXQy
+NCBsaXN0X2FkZCBkb3VibGUgYWRkOiBuZXc9ZmZmZjg4ODAzMzYwNjgxOCwgcHJldj1mZmZmODg4
+MDMzNjA2ODE4LCBuZXh0PWZmZmY4ODgwMmRhYzYwNzguIC0tLS0tLS0tLS0tLVsgY3V0IGhlcmUg
+XS0tLS0tLS0tLS0tLSBrZXJuZWwgQlVHIGF0IGxpYi9saXN0X2RlYnVnLmM6MzUhIE9vcHM6IGlu
+dmFsaWQgb3Bjb2RlOiAwMDAwIFsjMV0gU01QIEtBU0FOIE5PUFRJIENQVTogMCBVSUQ6IDAgUElE
+OiA4NDAgQ29tbToga3dvcmtlci8wOjIgVGFpbnRlZDogRyAgICAgICAgICAgICBMICAgICAgNi4x
+OS4wLXJjNS0wMDA0Mi1nOTQ0YWFjYjY4YmFmICMxIFBSRUVNUFQoZnVsbCkgVGFpbnRlZDogW0xd
+PVNPRlRMT0NLVVAgSGFyZHdhcmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJ
+WCwgMTk5NiksIEJJT1MgMS4xNS4wLTEgMDQvMDEvMjAxNCBXb3JrcXVldWU6IHVzYl9odWJfd3Eg
+aHViX2V2ZW50IFJJUDogMDAxMDpfX2xpc3RfYWRkX3ZhbGlkX29yX3JlcG9ydCsweDE0Mi8weDE5
+MCBsaWIvbGlzdF9kZWJ1Zy5jOjM1IENvZGU6IDE2IDQ4IDg5IGYxIDQ4IGM3IGM3IGMwIGJhIGQy
+IDhiIDRjIDg5IGU2IGU4IGI1IDEzIGYxIGZjIDBmIDBiIDQ4IDg5IGYyIDRjIDg5IGUxIDRjIDg5
+IGVlIDQ4IGM3IGM3IDQwIGJiIGQyIDhiIGU4IDllIDEzIGYxIGZjIDwwZj4gMGIgNDggUlNQOiAw
+MDE4OmZmZmZjOTAwMDU2MmVjYzAgRUZMQUdTOiAwMDAxMDA4NiBSQVg6IDAwMDAwMDAwMDAwMDAw
+NTggUkJYOiBmZmZmODg4MDMzNjA2ODAwIFJDWDogZmZmZmM5MDAyMzM1ZTAwMCBSRFg6IDAwMDAw
+MDAwMDAwMDAwMDAgUlNJOiBmZmZmZmZmZjgxOWVjYjEwIFJESTogMDAwMDAwMDAwMDAwMDAwNSBS
+QlA6IDAwMDAwMDAwMDAwMDAwMjAgUjA4OiAwMDAwMDAwMDAwMDAwMDAxIFIwOTogZmZmZmVkMTAw
+YzRjNDhmMSBSMTA6IDAwMDAwMDAwODAwMDAwMDIgUjExOiAwMDAwMDAwMDAwMGE0OGMwIFIxMjog
+ZmZmZjg4ODAyZGFjNjA3OCBSMTM6IGZmZmY4ODgwMzM2MDY4MTggUjE0OiBmZmZmODg4MDJkYWM2
+MDgwIFIxNTogZmZmZjg4ODAzMzYwNjgxOCBGUzogIDAwMDAwMDAwMDAwMDAwMDAoMDAwMCkgR1M6
+ZmZmZjg4ODBjZWQ2NDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwIENTOiAgMDAxMCBE
+UzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwMzMgQ1IyOiAwMDAwN2ZiMzVlN2Fm
+ZTAwIENSMzogMDAwMDAwMDAzYjZiODAwMCBDUjQ6IDAwMDAwMDAwMDA3NTJlZjAgUEtSVTogNTU1
+NTU1NTQgQ2FsbCBUcmFjZTogPFRBU0s+IF9fbGlzdF9hZGRfdmFsaWQgaW5jbHVkZS9saW51eC9s
+aXN0Lmg6OTYgW2lubGluZV0gX19saXN0X2FkZCBpbmNsdWRlL2xpbnV4L2xpc3QuaDoxNTggW2lu
+bGluZV0gbGlzdF9hZGRfdGFpbCBpbmNsdWRlL2xpbnV4L2xpc3QuaDoxOTEgW2lubGluZV0gdXNi
+X2hjZF9saW5rX3VyYl90b19lcCsweDIyMC8weDNhMCBkcml2ZXJzL3VzYi9jb3JlL2hjZC5jOjEx
+NTggZHVtbXlfdXJiX2VucXVldWUrMHgyYjEvMHg5NzAgZHJpdmVycy91c2IvZ2FkZ2V0L3VkYy9k
+dW1teV9oY2QuYzoxMjg4IHVzYl9oY2Rfc3VibWl0X3VyYisweDI2Ni8weDFmZDAgZHJpdmVycy91
+c2IvY29yZS9oY2QuYzoxNTQ2IHVzYl9zdWJtaXRfdXJiKzB4ODgwLzB4MThmMCBkcml2ZXJzL3Vz
+Yi9jb3JlL3VyYi5jOjU4NyBjbTEwOV9pbnB1dF9vcGVuKzB4Mjc5LzB4NDkwIGRyaXZlcnMvaW5w
+dXQvbWlzYy9jbTEwOS5jOjU2NiBpbnB1dF9vcGVuX2RldmljZSsweDI0NS8weDNmMCBkcml2ZXJz
+L2lucHV0L2lucHV0LmM6NjAxIGtiZF9jb25uZWN0KzB4MTI3LzB4MTgwIGRyaXZlcnMvdHR5L3Z0
+L2tleWJvYXJkLmM6MTU2MyBpbnB1dF9hdHRhY2hfaGFuZGxlcisweDE3Yi8weDI2MCBkcml2ZXJz
+L2lucHV0L2lucHV0LmM6OTk0IGlucHV0X3JlZ2lzdGVyX2RldmljZSsweGE0Zi8weDExOTAgZHJp
+dmVycy9pbnB1dC9pbnB1dC5jOjIzNzggY20xMDlfdXNiX3Byb2JlKzB4MTI4Yy8weDE4ODAgZHJp
+dmVycy9pbnB1dC9taXNjL2NtMTA5LmM6Nzk3IHVzYl9wcm9iZV9pbnRlcmZhY2UrMHgzMGIvMHhh
+YjAgZHJpdmVycy91c2IvY29yZS9kcml2ZXIuYzozOTYgY2FsbF9kcml2ZXJfcHJvYmUgZHJpdmVy
+cy9iYXNlL2RkLmM6NTgxIFtpbmxpbmVdIHJlYWxseV9wcm9iZSsweDI1Mi8weGIyMCBkcml2ZXJz
+L2Jhc2UvZGQuYzo2NTkgX19kcml2ZXJfcHJvYmVfZGV2aWNlKzB4MWRmLzB4NDcwIGRyaXZlcnMv
+YmFzZS9kZC5jOjgwMSBkcml2ZXJfcHJvYmVfZGV2aWNlKzB4NGMvMHgxYTAgZHJpdmVycy9iYXNl
+L2RkLmM6ODMxIF9fZGV2aWNlX2F0dGFjaF9kcml2ZXIrMHgxZGIvMHgzNDAgZHJpdmVycy9iYXNl
+L2RkLmM6OTU5IGJ1c19mb3JfZWFjaF9kcnYrMHgxNGIvMHgxZDAgZHJpdmVycy9iYXNlL2J1cy5j
+OjUwMCBfX2RldmljZV9hdHRhY2grMHgxZWUvMHg0ZjAgZHJpdmVycy9iYXNlL2RkLmM6MTAzMSBk
+ZXZpY2VfaW5pdGlhbF9wcm9iZSsweGFhLzB4YzAgZHJpdmVycy9iYXNlL2RkLmM6MTA4NiBidXNf
+cHJvYmVfZGV2aWNlKzB4NjQvMHgxNTAgZHJpdmVycy9iYXNlL2J1cy5jOjU3NCBkZXZpY2VfYWRk
+KzB4MTEzMi8weDE5MzAgZHJpdmVycy9iYXNlL2NvcmUuYzozNjg5IHVzYl9zZXRfY29uZmlndXJh
+dGlvbisweDExOTQvMHgxYzcwIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jOjIyMTAgdXNiX2dl
+bmVyaWNfZHJpdmVyX3Byb2JlKzB4YjcvMHgxMTAgZHJpdmVycy91c2IvY29yZS9nZW5lcmljLmM6
+MjUwIHVzYl9wcm9iZV9kZXZpY2UrMHhlZC8weDQwMCBkcml2ZXJzL3VzYi9jb3JlL2RyaXZlci5j
+OjI5MSBjYWxsX2RyaXZlcl9wcm9iZSBkcml2ZXJzL2Jhc2UvZGQuYzo1ODEgW2lubGluZV0gcmVh
+bGx5X3Byb2JlKzB4MjUyLzB4YjIwIGRyaXZlcnMvYmFzZS9kZC5jOjY1OSBfX2RyaXZlcl9wcm9i
+ZV9kZXZpY2UrMHgxZGYvMHg0NzAgZHJpdmVycy9iYXNlL2RkLmM6ODAxIGRyaXZlcl9wcm9iZV9k
+ZXZpY2UrMHg0Yy8weDFhMCBkcml2ZXJzL2Jhc2UvZGQuYzo4MzEgX19kZXZpY2VfYXR0YWNoX2Ry
+aXZlcisweDFkYi8weDM0MCBkcml2ZXJzL2Jhc2UvZGQuYzo5NTkgYnVzX2Zvcl9lYWNoX2Rydisw
+eDE0Yi8weDFkMCBkcml2ZXJzL2Jhc2UvYnVzLmM6NTAwIF9fZGV2aWNlX2F0dGFjaCsweDFlZS8w
+eDRmMCBkcml2ZXJzL2Jhc2UvZGQuYzoxMDMxIGRldmljZV9pbml0aWFsX3Byb2JlKzB4YWEvMHhj
+MCBkcml2ZXJzL2Jhc2UvZGQuYzoxMDg2IGJ1c19wcm9iZV9kZXZpY2UrMHg2NC8weDE1MCBkcml2
+ZXJzL2Jhc2UvYnVzLmM6NTc0IGRldmljZV9hZGQrMHgxMTMyLzB4MTkzMCBkcml2ZXJzL2Jhc2Uv
+Y29yZS5jOjM2ODkgdXNiX25ld19kZXZpY2UrMHhkMmMvMHgxYWMwIGRyaXZlcnMvdXNiL2NvcmUv
+aHViLmM6MjY5NSBodWJfcG9ydF9jb25uZWN0IGRyaXZlcnMvdXNiL2NvcmUvaHViLmM6NTU2NyBb
+aW5saW5lXSBodWJfcG9ydF9jb25uZWN0X2NoYW5nZSBkcml2ZXJzL3VzYi9jb3JlL2h1Yi5jOjU3
+MDcgW2lubGluZV0gcG9ydF9ldmVudCBkcml2ZXJzL3VzYi9jb3JlL2h1Yi5jOjU4NzEgW2lubGlu
+ZV0gaHViX2V2ZW50KzB4MmVmYS8weDUwMjAgZHJpdmVycy91c2IvY29yZS9odWIuYzo1OTUzIHBy
+b2Nlc3Nfb25lX3dvcmsrMHg5OTAvMHgxYWYwIGtlcm5lbC93b3JrcXVldWUuYzozMjU3IHByb2Nl
+c3Nfc2NoZWR1bGVkX3dvcmtzIGtlcm5lbC93b3JrcXVldWUuYzozMzQwIFtpbmxpbmVdIHdvcmtl
+cl90aHJlYWQrMHg2N2UvMHhlOTAga2VybmVsL3dvcmtxdWV1ZS5jOjM0MjEga3RocmVhZCsweDQ0
+Ni8weDg5MCBrZXJuZWwva3RocmVhZC5jOjQ2MyByZXRfZnJvbV9mb3JrKzB4OTViLzB4YWUwIGFy
+Y2gveDg2L2tlcm5lbC9wcm9jZXNzLmM6MTU4IHJldF9mcm9tX2ZvcmtfYXNtKzB4MWEvMHgzMCBh
+cmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TOjI0NiA8L1RBU0s+Clh1IERvbmdqaWUKVW5pdmVyc2l0
+eSBvZiBDaGluZXNlIEFjYWRlbXkgb2YgU2NpZW5jZXM=

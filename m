@@ -1,106 +1,123 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.166])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674F93264D4;
-	Wed, 15 Apr 2026 09:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.166
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6077B33AD85;
+	Wed, 15 Apr 2026 09:38:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776244630; cv=none; b=iB90cmKkiMQxGTqdklIpUotylkdhXgf2ATAoBd/DYwfBaYTLE3oDRefc+ySduQkcJB3vJ8yUG/0byZgHrW6kDnY2CwWgn3cQSk1O7xyaX2l4aK0PRyfawR5evJ4Mxvwz6KNFeFxMxeowFvO6r9QCt0Yrhmi1kH6mD2Z1/X+i+3g=
+	t=1776245929; cv=none; b=bbgJ9f+ZAFI3sIw7JBp1gVmr9X0wQXMg91TcZzqneqOkT2Ki4ghReNAH3EVQnQTbmJpCl5aK0vFxJMksx7SW8t+FDKnYDbtxA++d8W4mVJiC4FQEP7z/w9MYyc2fXWA6c42J7T27LuPM8Y/tK/NjQrny9QiWixwy/ATITbK0GGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776244630; c=relaxed/simple;
-	bh=IwsBV3cK6S9hnl6YZYnd3vNZCkuvsU86N6xLae159yY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZVNUFVZBgtKn3x547Ziz3E2wZENTBe+jfc1wBQG0OMBeRFLNJlE06e0VFO7Uxl33znKPoT7td9Tiic0enhkTWwjmc/ifXQHydvt8thLzcYCEKir5yqXutOTwKxmA6kT5l+9djX6pyZTZzHQsfrsPJEfMCOH2oGehGVaGAF8SDkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=ZcbSjh5/; arc=none smtp.client-ip=188.68.63.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	s=arc-20240116; t=1776245929; c=relaxed/simple;
+	bh=r5vc1JuI0NmO1ufLcnSujmQ430UsiCtxiof7usGgCuM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=bsmkvzi5yujBZzpcRwbj+4668DKYT4ptDSrfUXp1rbf/Yc0EgauhSBkMe+DYINA8STqPM0Wpy0WHMkIrpFLi3+UH155BApijonYMBwLIuvRxe7sHzOAc3RPoqQ9TOitQsLOoNjvOxShx3MBm90X7RPjq5qepTK4UmiqvMhwNOCM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jZPr+B3H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="ZcbSjh5/"
-Received: from mors-relay-8202.netcup.net (localhost [127.0.0.1])
-	by mors-relay-8202.netcup.net (Postfix) with ESMTPS id 4fwb2T3fQHz47c3;
-	Wed, 15 Apr 2026 11:10:09 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1776244209;
-	bh=IwsBV3cK6S9hnl6YZYnd3vNZCkuvsU86N6xLae159yY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZcbSjh5/4fQPrOBHKzfd6r9KRqnPImnh8CTuuhtjyCwdtr1NHkB6vqfPXh3sYLpHz
-	 Wqe8D3hmv0ohUgzTJhYUuGN7Jbi4tShZYQV5Rx7iY9Cy0+b6co+47LuES08OJYayQ1
-	 2zAd5232CsL98dYV9C9q1zwW1Riuf83f/8aJr0O3vqL1btHcG1rc+V8igG6cj6pIgC
-	 eO0ZCH5gv2xQMLtqFw1HXZNwDvqSo8M+SSr4xQee24qHeFzSKdp/IsKcY7JEzhRCYN
-	 9W1wYXmG0YOWcnOVyrcM/d1PfWCzcRtAHRbBn2XrRl/j5vs2KY61oJnnh7W63NeuVr
-	 T3f8ycSiZdO4A==
-Received: from policy01-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-8202.netcup.net (Postfix) with ESMTPS id 4fwb2T2ws7z47Ww;
-	Wed, 15 Apr 2026 11:10:09 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at policy01-mors.netcup.net
-X-Spam-Flag: NO
-X-Spam-Score: -2.901
-X-Spam-Level: 
-Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4fwb2S0YZDz8tdB;
-	Wed, 15 Apr 2026 11:10:08 +0200 (CEST)
-Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 42EAC633C0;
-	Wed, 15 Apr 2026 11:10:07 +0200 (CEST)
-Authentication-Results: mxe9fb;
-        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
-Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <43bf6733-cd16-4455-9a69-5b03a6159810@leemhuis.info>
-Date: Wed, 15 Apr 2026 11:10:05 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jZPr+B3H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141A6C2BCB4;
+	Wed, 15 Apr 2026 09:38:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776245929;
+	bh=r5vc1JuI0NmO1ufLcnSujmQ430UsiCtxiof7usGgCuM=;
+	h=From:Subject:Date:To:Cc:From;
+	b=jZPr+B3HsYd+hr9A+OTyz2y2Qq9/mSlpx+Y3rQBn0bX9iXAA8Kq+YQZD4oO/5WsTJ
+	 wsX6U12u+KWLAcvDZJAk6+C7etgNNsqXR94dURIf0F9W4RWKaIVEif5UFnLDbgwGLY
+	 Igf8rjwptq085OkTDDSgirkT/3rllZNVHGustb3S7Uj/KogefD63zjO8LCK2jLrT6D
+	 4OU5RfJfgD/+dBIA+slguwXxLa6aRVy1It2hK3C+rtcaf/A11vF4V2HT4bWKkE5+aJ
+	 E0ZKsX/W+oypfijaOc7IML4Lilt4QF+4sBVP/NIqFY2ZAOIYSpiTV3KtIxC8apoJX4
+	 drVLksX5TXXvQ==
+From: Benjamin Tissoires <bentiss@kernel.org>
+Subject: [PATCH 0/4] HID: Proper fix for OOM in hid-core
+Date: Wed, 15 Apr 2026 11:38:13 +0200
+Message-Id: <20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] HID: core: add short report quirk and use it for GPD Win
- (2f24:0137)
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, denis.benato@linux.dev,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
- honjow <honjow311@gmail.com>, Anj D <aduvnjak@hotmail.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux kernel regressions list <regressions@lists.linux.dev>
-References: <20260407173212.86942-1-honjow311@gmail.com>
- <adZ2PTzQ05iObcGt@beelink>
- <652713b8-aa98-4ca7-8cd4-8f7ad6cff77f@leemhuis.info>
- <ad9IhFBm85HmoxB2@beelink>
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Content-Language: de-DE, en-US
-In-Reply-To: <ad9IhFBm85HmoxB2@beelink>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-PPP-Message-ID: <177624420763.2228407.6812998034623786511@mxe9fb.netcup.net>
-X-Rspamd-Server: rspamd-worker-8404
-X-Rspamd-Queue-Id: 42EAC633C0
-X-NC-CID: Rhz0ySDaoI1Yepp8sqywB97cgdA2gvB6ipVnPRrr2KLZFKCq5TI=
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqAIBAAvyJ7bkEjTfpKdAjdai8qChWIf086D
+ sNMhUKZqcAiKmS6uXAMHdQgwF17OAnZd4ZRjkZOSuPDCQ9+0cVMOHurndXKkJfQk5Spu3+3bq1
+ 9oIjJHl4AAAA=
+X-Change-ID: 20260415-wip-fix-core-7d85c8516ed0
+To: Jiri Kosina <jikos@kernel.org>, 
+ =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
+ Bastien Nocera <hadess@hadess.net>, Ping Cheng <ping.cheng@wacom.com>, 
+ Jason Gerecke <jason.gerecke@wacom.com>, Viresh Kumar <vireshk@kernel.org>, 
+ Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lee Jones <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
+ linux-usb@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
+ stable@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1776245925; l=2605;
+ i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
+ bh=r5vc1JuI0NmO1ufLcnSujmQ430UsiCtxiof7usGgCuM=;
+ b=AEVtDlGIETuRO7ZbHuSO1IbBMWRBRslLQwsR1ORqtNTPP4CHo2ExMTjVQlAguVTyl4lsnFMPZ
+ qkPY2we0cJuCMY3TPltDvi+xnK5tuWvm4kNGP8xLzYkuGmOTwmsx7yP
+X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
+ pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-On 4/15/26 10:23, Benjamin Tissoires wrote:
-> On Apr 14 2026, Thorsten Leemhuis wrote:
->> On 4/8/26 17:41, Benjamin Tissoires wrote:
+Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+bogus memset()") enforced the provided data to be at least the size of
+the declared buffer in the report descriptor to prevent a buffer
+overflow.
 
-Thx for the reply.
+We only had corner cases of malicious devices exposing the OOM because
+in most cases, the buffer provided by the transport layer needs to be
+allocated at probe time and is large enough to handle all the possible
+reports.
 
-> [...]
->>> We can tell people to upgrade to the latest firmware
->> Well, that should not be required by users when it comes to regressions
->> -- unless maybe no other way to fix a severe issue can be found. Is that
->> the case here?
-> Sigh. The fix that was introduced in the previous release cycle was a
-> "security" one. [...]
+However, the patch from above, which enforces the spec a little bit more
+introduced both regressions for devices not following the spec (not
+necesserally malicious), but also a stream of errors for those devices.
 
-Yeah, I figured and should have made this more obvious in my reply
-(sorry), but it's hard to distinguish "this is a fix for something that
-is unlikely to happen" and is fine to be reverted again temporarily in
-case of regressions from those where that's not a good idea. And I
-wanted to know which of it it was, but clearly did so poorly. Sorry!
->> How far is a proper fix away? And will that be GPD Win specific, or fix
-> Should be out today or tomorrow, [...]
+Let's revert to the old behavior by giving more information to HID core
+to be able to decide whether it can or not memset the rest of the buffer
+to 0 and continue the processing.
 
-Great, thx!
+Note that the first commit makes an API change, but the callers are
+relatively limited, so it should be fine on its own. The second patch
+can't really make the same kind of API change because we have too many
+callers in various subsystems. We can switch them one by one to the safe
+approach when needed.
 
-Ciao, Thorsten
+The last 2 patches are small cleanups I initially put together with the
+2 first patches, but they can be applied on their own and don't need to
+be pulled in stable like the first 2.
+
+Cheers,
+Benjamin
+
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+---
+Benjamin Tissoires (4):
+      HID: pass the buffer size to hid_report_raw_event
+      HID: core: introduce hid_safe_input_report()
+      HID: multitouch: use __free(kfree) to clean up temporary buffers
+      HID: wacom: use __free(kfree) to clean up temporary buffers
+
+ drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
+ drivers/hid/hid-core.c             | 63 +++++++++++++++++++++++++++++---------
+ drivers/hid/hid-gfrm.c             |  4 +--
+ drivers/hid/hid-logitech-hidpp.c   |  2 +-
+ drivers/hid/hid-multitouch.c       | 18 +++++------
+ drivers/hid/hid-primax.c           |  2 +-
+ drivers/hid/hid-vivaldi-common.c   |  2 +-
+ drivers/hid/i2c-hid/i2c-hid-core.c |  7 +++--
+ drivers/hid/usbhid/hid-core.c      | 11 ++++---
+ drivers/hid/wacom_sys.c            | 46 ++++++++++------------------
+ drivers/staging/greybus/hid.c      |  2 +-
+ include/linux/hid.h                |  6 ++--
+ include/linux/hid_bpf.h            | 14 ++++++---
+ 13 files changed, 105 insertions(+), 78 deletions(-)
+---
+base-commit: 7df6572f1cb381d6b89ceed58e3b076c233c2cd0
+change-id: 20260415-wip-fix-core-7d85c8516ed0
+
+Best regards,
+-- 
+Benjamin Tissoires <bentiss@kernel.org>
+

@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D8A42045AD;
-	Thu, 16 Apr 2026 14:48:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4641A39B94A;
+	Thu, 16 Apr 2026 14:48:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776350924; cv=none; b=Wir5DWhkKbEs0yzBoOX9y7PtyYHkt2GuUvm62uQUyPYNOgk+kwpWqFbDSyZDYGdpX1TG3lSgpUAC+UdKe2Ki4Igy57qQb0TDJdaEK5f6Wl8XgmayYhBUGxJXuZ5UZq30O4JP5BQgRdQUbuM78hTyCFzI++RVLKfHsRmSMIimzDs=
+	t=1776350927; cv=none; b=NsX8QJzVODKdU87kAHBbxeZAfH5E2thIDasAhZxh6Lt9OujN2YZBRqBz8AZIWGE6Zs5gI75yI8cyG/zf5bmgj2LiNiP8mKgoAmKYgJWhBSrUmSDZl6tE7kPOybeAWmmwqfNYd2LVvdjOGATICaRPEfCmjyyp5vFiTEBmhNOBb5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776350924; c=relaxed/simple;
-	bh=p6yeoEak9mTQ0fS2V2dwoa/+Qm8bsXAjoO+/AGCnjjI=;
+	s=arc-20240116; t=1776350927; c=relaxed/simple;
+	bh=Pa/2L7eIdmrjdbfKI3MgdidyJjVklBaEyUx380P8wuQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VQZk1GTqhiTWDgi3xbszc7YKseNwL+/vnix1IMSaSAW3TYRht1ZO+D3DB3kbxXSuekZ9BfyfvZnyatr8XfssBrXZeLhdupXZM3GbNh55LEtnSauuK8AZCCClHYWdzrLsF/IKOebZTer6IElhiL7yVs8BAlMo3va3VnEDV0kFz8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rAEl0sRg; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=E6S1TxE++63AsRxMZ61DyS4N28m7iB0Shyrf0/sn9keeOG2NjSWx1A/SYfV3/FFFaH9mv4b/8mBy04CpIhC522FRm9dyyFyQBI5LyYWuiPSlHwO/FTJFTWvWgMNGlHMX6/s6GWf/Tp93rOlyz+7qWR99WcFzfa5mmZfml5nHQC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SYIHIWkn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rAEl0sRg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDCC1C2BCAF;
-	Thu, 16 Apr 2026 14:48:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SYIHIWkn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F00C2BCB3;
+	Thu, 16 Apr 2026 14:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776350923;
-	bh=p6yeoEak9mTQ0fS2V2dwoa/+Qm8bsXAjoO+/AGCnjjI=;
+	s=k20201202; t=1776350927;
+	bh=Pa/2L7eIdmrjdbfKI3MgdidyJjVklBaEyUx380P8wuQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=rAEl0sRgZJNoM4KPxJ+PMYJIeqlnykPOZ99MJSHpCt7NAkECfz2AE+UzzesGbiU5t
-	 AU64YA48xj/8WcvVFK70cGAhi6/RsEaMIJFulC/h+ZewSSJ/iPdLorL/6RDcD6CArp
-	 YKC4wFXH77AHwxfQtokn7jKHx7mbC1fyLNVezRF0SSRfQFeuLIto6KtFbC9acFheLQ
-	 HQrDNVLqvFF3SQKIdTbHv+tOvz6Ab4KMNeGo4oFQ9Upgqo5mq/LIo1fnYg0x2xY3mr
-	 7UphLxnKU+PVyzXy0gZBrFEsF4cfJf3idQi13tB6UxJK8/fizTolG1ojEhWg5z+U1X
-	 pCAUjsBJY/nTA==
+	b=SYIHIWknhKKbOBANKtTlfg6eU9q9igs+VyBdSqQzKTTmtLNN+y1bul+KNldzZj4Rt
+	 ZO9xSbPWK0T2lsbap7w24juHrd/z7RfUyLrC4HnkpLmUhivAKHKY0pKWBAXRIdMoeW
+	 yZ+zKu7ZidILXJ+rcPmfSP2s07vG+qxv2kaBR+uvjBTer76zoGTwtAd/4Ilr6rQrjt
+	 FR2ljp+rBAH7En5gdyYiUwnApyQ81tFmgPRyuPMdSEJlIx1j6amDJlagX93kSNi18a
+	 oPLOT4uOVNlSb1w/wFA5pNMu37Rl0hUM7k3fjp2y7qzQgI6Q3dnM7Z80XknTjZZAR8
+	 lMgb6WJJt3acg==
 From: Benjamin Tissoires <bentiss@kernel.org>
-Date: Thu, 16 Apr 2026 16:48:29 +0200
-Subject: [PATCH v2 3/4] HID: multitouch: use __free(kfree) to clean up
- temporary buffers
+Date: Thu, 16 Apr 2026 16:48:30 +0200
+Subject: [PATCH v2 4/4] HID: wacom: use __free(kfree) to clean up temporary
+ buffers
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260416-wip-fix-core-v2-3-be92570e5627@kernel.org>
+Message-Id: <20260416-wip-fix-core-v2-4-be92570e5627@kernel.org>
 References: <20260416-wip-fix-core-v2-0-be92570e5627@kernel.org>
 In-Reply-To: <20260416-wip-fix-core-v2-0-be92570e5627@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>, 
@@ -51,11 +51,11 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
  linux-usb@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1776350910; l=2586;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1776350910; l=6343;
  i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=p6yeoEak9mTQ0fS2V2dwoa/+Qm8bsXAjoO+/AGCnjjI=;
- b=vDXlv5FoFD+joa4c5NkM+G7XOK+m3tC7z7CxK9IpBQvNTN/NB5XScWV7l7O+WxD8GmNISaD8i
- KKHebRDksFvCnmZXJsm9ZyeC4EYGNt2qrvpQuX6cajMOeIoywZ4yCH4
+ bh=Pa/2L7eIdmrjdbfKI3MgdidyJjVklBaEyUx380P8wuQ=;
+ b=hoXnxJi3kCy+HiIoj6vvIyW/sQb0GiuOXocmG80seZ5hu9tdoKbRZ3BPI4tKVSaOilSdUDhD4
+ +EzcKFes0x+ApkLuygUNVPyD9udiTsf8SKxz3qHgNngFPOXnwA3U3D2
 X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
  pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
@@ -63,79 +63,198 @@ This simplifies error handling and protects against memory leaks.
 
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/hid/wacom_sys.c | 40 +++++++++++++---------------------------
+ 1 file changed, 13 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index eeab0b6e32cc..b19463e545d6 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -507,7 +507,6 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index a32320b351e3..adb31f54e524 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -70,11 +70,10 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
  {
- 	int ret;
- 	u32 size = hid_report_len(report);
--	u8 *buf;
+ 	while (!kfifo_is_empty(fifo)) {
+ 		int size = kfifo_peek_len(fifo);
+-		u8 *buf;
+ 		unsigned int count;
+ 		int err;
  
- 	/*
- 	 * Do not fetch the feature report if the device has been explicitly
-@@ -516,7 +515,7 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 	if (hdev->quirks & HID_QUIRK_NO_INIT_REPORTS)
- 		return;
- 
--	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
- 	if (!buf)
- 		return;
- 
-@@ -529,7 +528,7 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 		/* The report ID in the request and the response should match */
- 		if (report->id != buf[0]) {
- 			hid_err(hdev, "Returned feature report did not match the request\n");
--			goto free;
-+			return;
+-		buf = kzalloc(size, GFP_KERNEL);
++		u8 *buf __free(kfree) = kzalloc(size, GFP_KERNEL);
+ 		if (!buf) {
+ 			kfifo_skip(fifo);
+ 			continue;
+@@ -87,7 +86,6 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
+ 			// to flush seems reasonable enough, however.
+ 			hid_warn(hdev, "%s: removed fifo entry with unexpected size\n",
+ 				 __func__);
+-			kfree(buf);
+ 			continue;
  		}
- 
- 		ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
-@@ -537,9 +536,6 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 		if (ret)
- 			dev_warn(&hdev->dev, "failed to report feature\n");
- 	}
+ 		err = hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, size, false);
+@@ -95,8 +93,6 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
+ 			hid_warn(hdev, "%s: unable to flush event due to error %d\n",
+ 				 __func__, err);
+ 		}
 -
--free:
--	kfree(buf);
+-		kfree(buf);
+ 	}
  }
  
- static void mt_feature_mapping(struct hid_device *hdev,
-@@ -1658,7 +1654,6 @@ static bool mt_need_to_apply_feature(struct hid_device *hdev,
- 	struct mt_class *cls = &td->mtclass;
- 	struct hid_report *report = field->report;
- 	unsigned int index = usage->usage_index;
--	char *buf;
- 	u32 report_len;
- 	int max;
+@@ -311,7 +307,6 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 	struct wacom_features *features = &wacom->wacom_wac.features;
+ 	struct hid_data *hid_data = &wacom->wacom_wac.hid_data;
+ 	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+-	u8 *data;
+ 	int ret;
+ 	u32 n;
  
-@@ -1673,17 +1668,18 @@ static bool mt_need_to_apply_feature(struct hid_device *hdev,
- 			return false;
- 
- 		if (cls->quirks & MT_QUIRK_FORCE_GET_FEATURE) {
--			report_len = hid_report_len(report);
--			buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+			char *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
+@@ -325,10 +320,11 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 		/* leave touch_max as is if predefined */
+ 		if (!features->touch_max) {
+ 			/* read manually */
+-			n = hid_report_len(field->report);
+-			data = hid_alloc_report_buf(field->report, GFP_KERNEL);
++			u8 *data __free(kfree) = hid_alloc_report_buf(field->report, GFP_KERNEL);
 +
- 			if (!buf) {
- 				hid_err(hdev,
- 					"failed to allocate buffer for report\n");
- 				return false;
+ 			if (!data)
+ 				break;
++			n = hid_report_len(field->report);
+ 			data[0] = field->report->id;
+ 			ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
+ 					       data, n, WAC_CMD_RETRIES);
+@@ -344,7 +340,6 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 					 "defaulting to %d\n",
+ 					  features->touch_max);
  			}
-+
-+			report_len = hid_report_len(report);
- 			hid_hw_raw_request(hdev, report->id, buf, report_len,
- 					   HID_FEATURE_REPORT,
- 					   HID_REQ_GET_REPORT);
--			kfree(buf);
+-			kfree(data);
  		}
+ 		break;
+ 	case HID_DG_INPUTMODE:
+@@ -386,10 +381,11 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 	case WACOM_HID_WD_OFFSETRIGHT:
+ 	case WACOM_HID_WD_OFFSETBOTTOM:
+ 		/* read manually */
+-		n = hid_report_len(field->report);
+-		data = hid_alloc_report_buf(field->report, GFP_KERNEL);
++		u8 *data __free(kfree) = hid_alloc_report_buf(field->report, GFP_KERNEL);
++
+ 		if (!data)
+ 			break;
++		n = hid_report_len(field->report);
+ 		data[0] = field->report->id;
+ 		ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
+ 					data, n, WAC_CMD_RETRIES);
+@@ -400,7 +396,6 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 			hid_warn(hdev, "%s: could not retrieve sensor offsets\n",
+ 				 __func__);
+ 		}
+-		kfree(data);
+ 		break;
+ 	}
+ }
+@@ -581,7 +576,6 @@ static int wacom_hid_set_device_mode(struct hid_device *hdev)
+ static int wacom_set_device_mode(struct hid_device *hdev,
+ 				 struct wacom_wac *wacom_wac)
+ {
+-	u8 *rep_data;
+ 	struct hid_report *r;
+ 	struct hid_report_enum *re;
+ 	u32 length;
+@@ -595,7 +589,7 @@ static int wacom_set_device_mode(struct hid_device *hdev,
+ 	if (!r)
+ 		return -EINVAL;
  
- 		field->value[index] = td->inputmode_value;
+-	rep_data = hid_alloc_report_buf(r, GFP_KERNEL);
++	u8 *rep_data __free(kfree) = hid_alloc_report_buf(r, GFP_KERNEL);
+ 	if (!rep_data)
+ 		return -ENOMEM;
+ 
+@@ -614,8 +608,6 @@ static int wacom_set_device_mode(struct hid_device *hdev,
+ 		 rep_data[1] != wacom_wac->mode_report &&
+ 		 limit++ < WAC_MSG_RETRIES);
+ 
+-	kfree(rep_data);
+-
+ 	return error < 0 ? error : 0;
+ }
+ 
+@@ -921,7 +913,6 @@ static int wacom_add_shared_data(struct hid_device *hdev)
+ 
+ static int wacom_led_control(struct wacom *wacom)
+ {
+-	unsigned char *buf;
+ 	int retval;
+ 	unsigned char report_id = WAC_CMD_LED_CONTROL;
+ 	int buf_size = 9;
+@@ -940,7 +931,8 @@ static int wacom_led_control(struct wacom *wacom)
+ 		report_id = WAC_CMD_WL_INTUOSP2;
+ 		buf_size = 51;
+ 	}
+-	buf = kzalloc(buf_size, GFP_KERNEL);
++
++	unsigned char *buf __free(kfree) = kzalloc(buf_size, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -996,7 +988,6 @@ static int wacom_led_control(struct wacom *wacom)
+ 
+ 	retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, buf_size,
+ 				  WAC_CMD_RETRIES);
+-	kfree(buf);
+ 
+ 	return retval;
+ }
+@@ -1004,11 +995,10 @@ static int wacom_led_control(struct wacom *wacom)
+ static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
+ 		const unsigned len, const void *img)
+ {
+-	unsigned char *buf;
+ 	int i, retval;
+ 	const unsigned chunk_len = len / 4; /* 4 chunks are needed to be sent */
+ 
+-	buf = kzalloc(chunk_len + 3 , GFP_KERNEL);
++	unsigned char *buf __free(kfree) = kzalloc(chunk_len + 3, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -1018,7 +1008,7 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
+ 	retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, 2,
+ 				  WAC_CMD_RETRIES);
+ 	if (retval < 0)
+-		goto out;
++		return retval;
+ 
+ 	buf[0] = xfer_id;
+ 	buf[1] = button_id & 0x07;
+@@ -1038,8 +1028,6 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
+ 	wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, 2,
+ 			 WAC_CMD_RETRIES);
+ 
+-out:
+-	kfree(buf);
+ 	return retval;
+ }
+ 
+@@ -1948,10 +1936,9 @@ static int wacom_remote_create_attr_group(struct wacom *wacom, __u32 serial,
+ static int wacom_cmd_unpair_remote(struct wacom *wacom, unsigned char selector)
+ {
+ 	const size_t buf_size = 2;
+-	unsigned char *buf;
+ 	int retval;
+ 
+-	buf = kzalloc(buf_size, GFP_KERNEL);
++	unsigned char *buf __free(kfree) = kzalloc(buf_size, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -1960,7 +1947,6 @@ static int wacom_cmd_unpair_remote(struct wacom *wacom, unsigned char selector)
+ 
+ 	retval = wacom_set_report(wacom->hdev, HID_OUTPUT_REPORT, buf,
+ 				  buf_size, WAC_CMD_RETRIES);
+-	kfree(buf);
+ 
+ 	return retval;
+ }
 
 -- 
 2.53.0

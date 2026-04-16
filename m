@@ -1,199 +1,155 @@
-Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6292D33F595;
-	Thu, 16 Apr 2026 09:36:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C69337C924;
+	Thu, 16 Apr 2026 12:25:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776332191; cv=none; b=OexlQURCq07lQ5vgl/KNC/5soXh6S7E7gS3tqWevHmYI89gkn12ScKHmqQpteAymr7fdHohz5tNPvMPA2Kf5ZRSaQF5x5tQS0B7pRbLkgmVC14MH1HjxW9aWfd5MuXD02tZmW7vMA1JkXAlbyUAzKAHdb4ElOXxlIS+A7jKBCDQ=
+	t=1776342318; cv=none; b=BxN9ADopjT0HG67ERqv27hTKoTqduufKYyqNQQVEskErZusc7h4cHqQrNDfWE/SFLyKX16g5jXT54Xde2HaMrxPV4Q6gUQOSGC3FPPnSWxfIbdpoGLYoNnXoowfaZAPpalMqUekDmhLyuprL40HoH41iMxukcXlhldI0BRF2E7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776332191; c=relaxed/simple;
-	bh=hoInmZ73SZ0TC4oz/P60lYrFRq/SfRLDJNoAx+zCHxo=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=jDso2UW7spHzsE6bCzPoUqJC9yrr+6gQ4aEoyocUeByPAiGpaEepXKCmgfixIHWUMeqhnHHmRRIWVH+yzxPuxCcknscoYfCRUNCFvhE86uRGxGV3kTZOk2FMFm/SYxQGectfWpjPJpF37Jpjhj86lGQzCPGVD+yzNP2TcH/Qlbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net; spf=pass smtp.mailfrom=hadess.net; arc=none smtp.client-ip=217.70.178.249
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hadess.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hadess.net
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
-	by mslow3.mail.gandi.net (Postfix) with ESMTP id C822B5830F6;
-	Thu, 16 Apr 2026 09:32:23 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 7DB5F3EBD5;
-	Thu, 16 Apr 2026 09:32:14 +0000 (UTC)
-Message-ID: <8fedad8e9caecd379f2296562cd6abd37f7cee46.camel@hadess.net>
-Subject: Re: [PATCH 2/4] HID: core: introduce hid_safe_input_report()
-From: Bastien Nocera <hadess@hadess.net>
-To: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-  Filipe =?ISO-8859-1?Q?La=EDns?=	 <lains@riseup.net>, Ping Cheng
- <ping.cheng@wacom.com>, Jason Gerecke	 <jason.gerecke@wacom.com>, Viresh
- Kumar <vireshk@kernel.org>, Johan Hovold	 <johan@kernel.org>, Alex Elder
- <elder@kernel.org>, Greg Kroah-Hartman	 <gregkh@linuxfoundation.org>, Lee
- Jones <lee@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
-	linux-usb@vger.kernel.org, stable@vger.kernel.org
-Date: Thu, 16 Apr 2026 11:32:14 +0200
-In-Reply-To: <20260415-wip-fix-core-v1-2-ed3c4c823175@kernel.org>
-References: <20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org>
-	 <20260415-wip-fix-core-v1-2-ed3c4c823175@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
+	s=arc-20240116; t=1776342318; c=relaxed/simple;
+	bh=gECMS4EGrtN1lWkNcMdqV1cQaJPbxrgRQTXN3zouHSg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qdy/3MK0MwfEslDJpUvmQ3NbrxoYe4MuYEDd5I/0hg/Nklg/98f/WeraW+0hZjOYR3ll5HB/lln9Vf/aNZ/P5qvUZTryMZaQMBekQrlZ6d0uvRI+GqT9D3Ogs1R7/zYBLCu6V41SnsfnNkoGkdpGsPaklv/lrlL6JXwJhjAW5P8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GQGv29sX; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GQGv29sX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4797C2BCB3;
+	Thu, 16 Apr 2026 12:25:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776342318;
+	bh=gECMS4EGrtN1lWkNcMdqV1cQaJPbxrgRQTXN3zouHSg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=GQGv29sXj5S5z7UPKnXaUJAuD1qc92DQaWs8UXQ6wwBCK62RBOeMuB3RtNcxzLs+n
+	 PPcHL7L8pFqT/h2G0bvvPkUySB8nqp1hX+g8DsxNBEPpxoa8+yXm1bMdZVixBjqxgs
+	 n60V3osh+8lSW6pt2nDmsfqoDHDW6Auv9CDrXKgdtoPlM9Xla54AXl1OSAYSKpcXrA
+	 NmL+fSV7Qk/BTzx5WK8y+vV+U+fxOTS5SiuiemUg0UByoPARoWSlKdZYhXUYnMvTFf
+	 DgJsTYvf1ogHE4V/gC2FO90mA6aK9sVcz0Z1Cm9dDcGVpaCAj1nCKENYb7/YBcL1F4
+	 1oc9q29NjGBrg==
+Message-ID: <1fd72d1b-f5cd-447f-ae11-6f4d4426b8e8@kernel.org>
+Date: Thu, 16 Apr 2026 14:24:57 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-GND-Sasl: hadess@hadess.net
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: dmFkZTEqBTRK5tvLZzwWSgB/1iJazKNDFIG9byJ8UVkzpHcdH0usiWKsROoc8Q2CRru0qWFQORNAF/Tb04YmWqG32X+x5nBDVo/u8NkoEzWCUHzK2un2k1fYD5mKn6XzX6mYnfVOHNLU9m0W90nOhD0PA3yoG4nrzzlK0PtSmD82ncFPd7HIZGaxRdIIlljDzx2aitBkm2FkdYbs6FVpZK/Lmx7w8ejEhx3SbTi0JL0QI1Oi4JbCJXQlRtjvcZzLkoGGGZYoPjaP3qXrxOcWXyn4LQjwvCgp+DR30ABShmHhs5abvDEv2veZG1z1PX4KhVg+iKO5vRt3Yj82Fq/dJ/ucBHNNJ68t643Vg0eFUdAXvO0oGI4TRUIgFg1DAIW4xdq89pBlAjnI4UEWBs/UBJk2uMQ3ksqBBmey/z0Jm8GpMvkXHf4xWwS0HnfiYFAOWaZiRKnZmegara1pPlzIAgn064hqdZ6OV6qGb54kpGE1/jQpL33e26TrDmyizOFueMs+WI42ez5u6TWtWeZQ1Dg+DBzySQFowwqKiy7TTOlHSUEnP8nPG/xC1HlnctqmDegj4xZs8oB9Iwfk9OVbWc4uVXAl7OzVREg73SnT0vo7Q30SGCGO+1pumgOyVBtpy0oohmiCbfq9lFVMFL0IHZ3Vy+abHKSCboIOrhy5siR8YCE1sA
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 55/61] interconnect: Prefer IS_ERR_OR_NULL over manual
+ NULL check
+To: Philipp Hahn <phahn-oss@avm.de>, amd-gfx@lists.freedesktop.org,
+ apparmor@lists.ubuntu.com, bpf@vger.kernel.org, ceph-devel@vger.kernel.org,
+ cocci@inria.fr, dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ gfs2@lists.linux.dev, intel-gfx@lists.freedesktop.org,
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mm@kvack.org,
+ linux-modules@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-nfs@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-trace-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, samba-technical@lists.samba.org,
+ sched-ext@lists.linux.dev, target-devel@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, v9fs@lists.linux.dev
+Cc: Georgi Djakov <djakov@kernel.org>
+References: <20260310-b4-is_err_or_null-v1-0-bd63b656022d@avm.de>
+ <20260310-b4-is_err_or_null-v1-55-bd63b656022d@avm.de>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20260310-b4-is_err_or_null-v1-55-bd63b656022d@avm.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, 2026-04-15 at 11:38 +0200, Benjamin Tissoires wrote:
-> hid_input_report() is used in too many places to have a commit that
-> doesn't cross subsystem borders. Instead of changing the API,
-> introduce
-> a new one when things matters in the transport layers:
-> - usbhid
-> - i2chid
->=20
-> This effectively revert to the old behavior for those two transport
-> layers.
->=20
-> Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> bogus memset()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+On 10/03/2026 12:49, Philipp Hahn wrote:
+> Prefer using IS_ERR_OR_NULL() over using IS_ERR() and a manual NULL
+> check.
+> 
+> Semantich change: Previously the code only printed the warning on error,
+> but not when the pointer was NULL. Now the warning is printed in both
+> cases!
+
+NAK, read the code
+
+> 
+> Change found with coccinelle.
+> 
+> To: Georgi Djakov <djakov@kernel.org>
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Philipp Hahn <phahn-oss@avm.de>
 > ---
-> =C2=A0drivers/hid/hid-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 21 +++++++++++++++++++++
-> =C2=A0drivers/hid/i2c-hid/i2c-hid-core.c |=C2=A0 7 ++++---
-> =C2=A0drivers/hid/usbhid/hid-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 11 ++=
-++++-----
-> =C2=A0include/linux/hid.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 2 ++
-> =C2=A04 files changed, 33 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index a806820df7e5..cb0ad99e7a0a 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2191,6 +2191,27 @@ int hid_input_report(struct hid_device *hid,
-> enum hid_report_type type, u8 *data
-> =C2=A0}
-> =C2=A0EXPORT_SYMBOL_GPL(hid_input_report);
-> =C2=A0
-> +/**
-> + * hid_safe_input_report - report data from lower layer (usb, bt...)
-> + *
-> + * @hid: hid device
-> + * @type: HID report type (HID_*_REPORT)
-> + * @data: report contents
-> + * @bufsize: allocated size of the data buffer
-> + * @size: useful size of data parameter
-> + * @interrupt: distinguish between interrupt and control transfers
-> + *
-> + * This is data entry for lower layers.
+>  drivers/interconnect/core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+> index 8569b78a18517b33abeafac091978b25cbc1acc7..22e92b30f73853d5bd2e05b4f52cb5aa22556468 100644
+> --- a/drivers/interconnect/core.c
+> +++ b/drivers/interconnect/core.c
+> @@ -790,7 +790,7 @@ void icc_put(struct icc_path *path)
+>  	size_t i;
+>  	int ret;
+>  
+> -	if (!path || WARN_ON(IS_ERR(path)))
+> +	if (WARN_ON(IS_ERR_OR_NULL(path)))
 
-You probably want to explain why it should be used instead of
-hid_input_report() in this doc blurb, and modify the hid_input_report()
-docs to mention that this should be used.
+IS_ERR_OR_NULL is simply discouraged, but beside of code preference, you
+just added bug here. This is clearly not equivalent and you emit warn on
+perfectly valid case!
 
-Maybe hid_input_report() should also be marked as deprecated somehow,
-to avoid new users?
-
-Cheers
-
-> + */
-> +int hid_safe_input_report(struct hid_device *hid, enum
-> hid_report_type type, u8 *data,
-> +			=C2=A0 size_t bufsize, u32 size, int interrupt)
-> +{
-> +	return __hid_input_report(hid, type, data, bufsize, size,
-> interrupt, 0,
-> +				=C2=A0 false, /* from_bpf */
-> +				=C2=A0 false /* lock_already_taken */);
-> +}
-> +EXPORT_SYMBOL_GPL(hid_safe_input_report);
-> +
-> =C2=A0bool hid_match_one_id(const struct hid_device *hdev,
-> =C2=A0		=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 const struct hid_device_id *id)
-> =C2=A0{
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-
-> hid/i2c-hid-core.c
-> index 5a183af3d5c6..e0a302544cef 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -574,9 +574,10 @@ static void i2c_hid_get_input(struct i2c_hid
-> *ihid)
-> =C2=A0		if (ihid->hid->group !=3D HID_GROUP_RMI)
-> =C2=A0			pm_wakeup_event(&ihid->client->dev, 0);
-> =C2=A0
-> -		hid_input_report(ihid->hid, HID_INPUT_REPORT,
-> -				ihid->inbuf + sizeof(__le16),
-> -				ret_size - sizeof(__le16), 1);
-> +		hid_safe_input_report(ihid->hid, HID_INPUT_REPORT,
-> +				=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ihid->inbuf + sizeof(__le16),
-> +				=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ihid->bufsize -
-> sizeof(__le16),
-> +				=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret_size - sizeof(__le16), 1);
-> =C2=A0	}
-> =C2=A0
-> =C2=A0	return;
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-
-> core.c
-> index fbbfc0f60829..5af93b9b1fb5 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -283,9 +283,9 @@ static void hid_irq_in(struct urb *urb)
-> =C2=A0			break;
-> =C2=A0		usbhid_mark_busy(usbhid);
-> =C2=A0		if (!test_bit(HID_RESUME_RUNNING, &usbhid->iofl)) {
-> -			hid_input_report(urb->context,
-> HID_INPUT_REPORT,
-> -					 urb->transfer_buffer,
-> -					 urb->actual_length, 1);
-> +			hid_safe_input_report(urb->context,
-> HID_INPUT_REPORT,
-> +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 urb->transfer_buffer,
-> urb->transfer_buffer_length,
-> +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 urb->actual_length,
-> 1);
-> =C2=A0			/*
-> =C2=A0			 * autosuspend refused while keys are
-> pressed
-> =C2=A0			 * because most keyboards don't wake up when
-> @@ -482,9 +482,10 @@ static void hid_ctrl(struct urb *urb)
-> =C2=A0	switch (status) {
-> =C2=A0	case 0:			/* success */
-> =C2=A0		if (usbhid->ctrl[usbhid->ctrltail].dir =3D=3D
-> USB_DIR_IN)
-> -			hid_input_report(urb->context,
-> +			hid_safe_input_report(urb->context,
-> =C2=A0				usbhid->ctrl[usbhid-
-> >ctrltail].report->type,
-> -				urb->transfer_buffer, urb-
-> >actual_length, 0);
-> +				urb->transfer_buffer, urb-
-> >transfer_buffer_length,
-> +				urb->actual_length, 0);
-> =C2=A0		break;
-> =C2=A0	case -ESHUTDOWN:	/* unplug */
-> =C2=A0		unplug =3D 1;
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index ac432a2ef415..bfb9859f391e 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -1030,6 +1030,8 @@ struct hid_field *hid_find_field(struct
-> hid_device *hdev, unsigned int report_ty
-> =C2=A0int hid_set_field(struct hid_field *, unsigned, __s32);
-> =C2=A0int hid_input_report(struct hid_device *hid, enum hid_report_type
-> type, u8 *data, u32 size,
-> =C2=A0		=C2=A0=C2=A0=C2=A0=C2=A0 int interrupt);
-> +int hid_safe_input_report(struct hid_device *hid, enum
-> hid_report_type type, u8 *data,
-> +			=C2=A0 size_t bufsize, u32 size, int interrupt);
-> =C2=A0struct hid_field *hidinput_get_led_field(struct hid_device *hid);
-> =C2=A0unsigned int hidinput_count_leds(struct hid_device *hid);
-> =C2=A0__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16
-> code);
+Best regards,
+Krzysztof

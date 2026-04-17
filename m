@@ -1,97 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55A933D6FC;
-	Fri, 17 Apr 2026 21:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE33D2C326D
+	for <linux-input@vger.kernel.org>; Fri, 17 Apr 2026 23:00:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776462841; cv=none; b=gVQjITvz5nfCs0zxP8ipO5TU2kUU4+64k80B75VeWoGIlVp/UqJXaPeorJva46bmFrHwE4XEhThuigh4WTczGt/8kVdmtZcp/faJU++yrGhAxeHjpqdneqAMyhR1I8tH9wrvwxDuPtWxJ06xTotoa6p8CDA673SWWIkUgRVweYk=
+	t=1776466852; cv=none; b=a2GITyOF/IGNbQI3IElu7FoPTYBjlEYR6/htRfJEsuee+DdMBZXlG3MF1/dgjLTuJrfuqo55qHDeZSIjWg46khGyd3PzyLyjtHT421T/ePDkmXovxWlkN5InKw1+LLI4FZuPwAZrrBEl6OZBJc6hEPxOL71a6wYacyQyFN/pk3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776462841; c=relaxed/simple;
-	bh=E+jxqs8F9ufMGOmh/Ivt/Xyd1sQx1Pm/CicD6O3g26c=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=ewiL31pcImXmfvd09ucbRHMI6wo9en2uJxcrHTwfh6jMHoTwyYvFVgEy30VlvIS4CvwcKV2Pc2+00FbcKkiJq1ZcV76fRqiP9JbpElc3LNwFcM0ad9IKclRXo07wF7zDk3Qi4CkQKP9Ml5s0VrDAis5HIZ2YjR9crtu/2WpGYhI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EWSZmOXW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776466852; c=relaxed/simple;
+	bh=tnH/tm354C2LHKU1HohnWm2cykJvmp+fjPzvH4K81Zc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y5uHa7NhBlRyUEgkKVWRMX23GlqlmWIcEAr4NAcFRW01WVZufRDxMuCu1kCBlcuEOLr8Bb5uTz/NTuOTXH82X/XjOHTof2fv+2iRq5PKatwdDyjlRqhGLqk7xVdcuSOXr8mypr2QHXE6DNVov7QQ4/n301UJ4d0RK++SC7ijDXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=Q5osMVK0; arc=none smtp.client-ip=74.125.82.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EWSZmOXW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED905C2BCB0;
-	Fri, 17 Apr 2026 21:53:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776462840;
-	bh=E+jxqs8F9ufMGOmh/Ivt/Xyd1sQx1Pm/CicD6O3g26c=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=EWSZmOXW+LHkNMWHhanXnazK/6BnISpAXIz/DrfkdBb3OUq4QR75M3+Iu3nUx4Rre
-	 sxZbovRXwr//j+UHzUK+Cab6bYR2ZPEqlpNX0a65Q6cRL49TZbUozKE+BC92WGQdP6
-	 tuCPENQ2ZpXmabBpJWrG04rgduK2EvULWtmXQQdPYMQykuP7Y07yVALf9xS4uHnNUD
-	 mXJrTOxjWtVCryG6iQhKd61Uf9aWmafs+0UDBO7XGi1+mL0iHcGWWvwBucsj/AL/Mm
-	 QKZJkShUF3s2xCjTDpCdm3A6Tzx65oxGbUU1I0cpzmAOLUnY+nWU6nQQ2BGYwN73in
-	 tciGDSGKfhnHQ==
-Date: Fri, 17 Apr 2026 16:53:58 -0500
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="Q5osMVK0"
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2c15849aa2cso1632701eec.0
+        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2026 16:00:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=usp.br; s=usp-google; t=1776466848; x=1777071648; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=SaOUMlV4k+LOLbYB+ezceMJb46TNU8NlhAFEDoc0KOk=;
+        b=Q5osMVK0q0lfzpYjPcCF/oIxpX9traB2iOmJwoUAAsjlRl9PMS1o0q+uhdoMmL8zjL
+         NS8S4LXdpHzaUZfF4auEYaupSEJwzfBTooLG12VH7vfgFdKVQTamrlocTOhdmxasloUq
+         /us9v77PfQBBgfvc0DjFzgW02Igmzkk99cvDrH5sfZYLlpxRDT8cqnamNy6BdOjhrQYt
+         BwlMRxnuUSQgpl1fxuLAlLGb81GColIjWiVY1Y8AMeFSxWzxq/zo9tJWQJusjN8U58ZC
+         ZjhII/M1f+7SbuNO45AFXCcpYqBxT44tBgTDw6KD/PNWOc32u8KvZ9AF4DUqj1jQcQRp
+         4Vsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776466848; x=1777071648;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SaOUMlV4k+LOLbYB+ezceMJb46TNU8NlhAFEDoc0KOk=;
+        b=q6USvk8YnYAT8Xg+gR6Clx8sd+9495bfwL5ryXFoQf0WFZI80hFUs4uZMhZrreoC4x
+         Pn0Y0VXicI5bNRzoEsWyXpXFmQW6or/YueHHazef2zZAC7843xr6hgQw4/+Yqp306cKz
+         X+lQyIGNUt4FCj+1lToRHsqDoCGIrnJWLdOWO6rlENwLz06HQmvR2+QphrAS7kNOX2wp
+         OUWOljbazkFD5zRh1MTTPdKYSlBgt+DaV8mtQQ5GEvLpCmjd7yY61vtfwS+LVCkXTJMP
+         osFNWDgO0j0Mn1z7flCd2B9Akf1xlERk/aiPpJpgdSyNrwhzYzGpn5QFTVOVAYWpW+dV
+         wBzQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/BOmPHNAN0gEwB9yz0MeiyiBY/QFDwQuR99JnFHh0CNOPEDAYjDr+rohqnhmjhPJIy9OP+zCaHPTHkwA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyfVzDCrWS+7ChCwTPInLW1L/U4D942bhmMRtWZY5jT8cfVvRje
+	6iSZracCFUZULsHxHqke7Z4iUPa2G0z8l1fMWezM8n1IpegGWkxF0OW5FYZYYK7BDz8=
+X-Gm-Gg: AeBDiesDMJYquK38FlJwB7gB+JkJY2Wi+n4l1pQy83gRHglyDUjVXrJdA7Y9d/4IMMT
+	vgOiXgmYaQ+zyFmLOCrkeIFo4JM5qXiQBghhe/7n6YZ4s5uq+LwZ+9th92+NUUkzByQSzsTgIwT
+	7CTI7cdp/Ej6T5mbg+1IXk5Vy1JnUl3Bg4hkO2G+gNm+3GgP6wh40S6VSQLfp24p/lSQDIKLCfn
+	V/s3pchViDOgSp5LmOej/gY02lshxcw3F76Ll5i2lC2lwX3omvtQLb2/8yGagoQxoqBa1voFTam
+	Y2CnynYXNrt0EFgi+SkLiVnnKRNtfd5dn5Ox6Z5vuGEEtmL5Ja+V4V88lG3B6seMrOL89of5d5W
+	+EjKHcVIfLr5fOIU0plHoXtp6kCLlDJSlfVhNuQ+u9UraY9VCSKrcQ4xcDwjPa/an1CzyHcfcF8
+	nRA4lP6z3iuDbTl1xPpsWLZnoBrqoAYceZRTcSVA==
+X-Received: by 2002:a05:7300:d70d:b0:2d3:f3fc:bb6b with SMTP id 5a478bee46e88-2e4646cca96mr2836393eec.1.1776466847775;
+        Fri, 17 Apr 2026 16:00:47 -0700 (PDT)
+Received: from natalia-pc ([187.116.73.68])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53ccce440sm4117637eec.14.2026.04.17.16.00.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2026 16:00:47 -0700 (PDT)
+From: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>
+To: andy@kernel.org,
+	bentiss@kernel.org,
+	dlechner@baylibre.com,
+	jic23@kernel.org,
+	jikos@kernel.org,
+	nuno.sa@analog.com,
+	srinivas.pandruvada@linux.intel.com
+Cc: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>,
+	linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCH 0/7] iio: HID: Add helper method hid_sensor_adjust_channel_bit_mask()
+Date: Fri, 17 Apr 2026 19:58:43 -0300
+Message-ID: <20260417225959.16688-1-natalia.andre@ime.usp.br>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@kernel.org>, 
- devicetree@vger.kernel.org, David Lechner <dlechner@baylibre.com>, 
- linux-kernel@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
- linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-In-Reply-To: <20260417071106.21984-3-clamor95@gmail.com>
-References: <20260417071106.21984-1-clamor95@gmail.com>
- <20260417071106.21984-3-clamor95@gmail.com>
-Message-Id: <177646283671.2492094.16417574111285272935.robh@kernel.org>
-Subject: Re: [PATCH v4 2/6] dt-bindings: input: cpcap-pwrbutton: convert to
- DT schema
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+This patch series introduces a generic helper function to handle channel bit mask adjustments 
+for HID sensors. Currently, multiple drivers implement identical logic for this task
 
-On Fri, 17 Apr 2026 10:11:02 +0300, Svyatoslav Ryhel wrote:
-> Convert power button devicetree bindings for the Motorola CPCAP MFD from
-> TXT to YAML format. This patch does not change any functionality; the
-> bindings remain the same.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  .../bindings/input/cpcap-pwrbutton.txt        | 20 ------------
->  .../input/motorola,cpcap-pwrbutton.yaml       | 32 +++++++++++++++++++
->  2 files changed, 32 insertions(+), 20 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
-> 
+Natália Salvino André (7):
+  iio: HID: Add helper method hid_sensor_adjust_channel_bit_mask()
+  iio: accel: HID: Replace method accel_3d_adjust_channel_bit_mask()
+  iio: gyro: HID: Replace method gyro_3d_adjust_channel_bit_mask()
+  iio: light: HID: Replace method als_adjust_channel_bit_mask()
+  iio: light: HID: Replace method prox_adjust_channel_bit_mask()
+  iio: magnetometer: HID: Replace method
+    magn_3d_adjust_channel_bit_mask()
+  iio: pressure: HID: Replace method press_adjust_channel_bit_mask()
 
-My bot found errors running 'make dt_binding_check' on your patch:
+ drivers/iio/accel/hid-sensor-accel-3d.c             | 13 +------------
+ .../iio/common/hid-sensors/hid-sensor-attributes.c  | 11 +++++++++++
+ drivers/iio/gyro/hid-sensor-gyro-3d.c               | 13 +------------
+ drivers/iio/light/hid-sensor-als.c                  | 13 +------------
+ drivers/iio/light/hid-sensor-prox.c                 | 13 +------------
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c       | 13 +------------
+ drivers/iio/pressure/hid-sensor-press.c             | 13 +------------
+ include/linux/hid-sensor-hub.h                      |  3 +++
+ 8 files changed, 20 insertions(+), 72 deletions(-)
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-
-
-doc reference errors (make refcheckdocs):
-Warning: Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260417071106.21984-3-clamor95@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
+-- 
+2.51.0
 

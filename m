@@ -1,343 +1,149 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB1E30F7E8
-	for <linux-input@vger.kernel.org>; Thu, 16 Apr 2026 17:38:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A011018D636
+	for <linux-input@vger.kernel.org>; Fri, 17 Apr 2026 02:19:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776361124; cv=none; b=tQFOvmTf3zTyFVGc9kTpzq1a90j3CFMApmVTpnj9cnPXciwke3HMXmup+ODi4HOhkmXzXb8R7IO8IKsPi3W6hISERgaHjX0qTGjdUXxGP7ecCpbqzfWuL94T3MJ0oApDtbg4vgXFby3WXOr3MBfBcLP2y8Tfsn2hqtG4S61OQDw=
+	t=1776392358; cv=none; b=OZ1HlqF72O+NCoOmt/ejp6Pnt5vOv6rBcV6J540eeRZbmuc3k1tkfQ5mjiaXTG6sBAm4PmkDW2r8MvNnETUhMmY7fUGRXVO5ag2pdf8a+jBqoGliMOUJzSav3jnzjCR0Tpd7FtmgWpQz5TLP7lvZCFgZ5/Exk2AoYUPQwOhB97g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776361124; c=relaxed/simple;
-	bh=BZ+24iXZEC1PRASbgGmmSh+Uju6qEmMfcHUxZ3xV5nY=;
-	h=Date:To:Cc:Subject:From:References:In-Reply-To:Message-Id:
-	 MIME-Version:Content-Type; b=i8lgvcgZp6AnT+FSZJHmM9loR/H7i/0udDam73CS7LPQRBpra5OaAtNwB5w6lh1ZRZkz+VzYtG1oFtSHeX93AoE1ra6WtknerrgYDcStV2jKdWpcCItr1NmszTwPYdOLNfDEfpJTU7sSchKV68EgTFsdjoVUstLW5timG8ul0CE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZAxd0CyA; arc=none smtp.client-ip=209.85.128.52
+	s=arc-20240116; t=1776392358; c=relaxed/simple;
+	bh=BO2i1/v+gTWrIcLiVciQV3wUwpKBs4fxw7jV5qK2atc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pLbuqIZQN5liVdqesyMDYdIZUB3e8MxVwoNtDeMo4/W1CNmDonDF+PYIiynCgSlp99gLiDwmaXHdLhQQnU54BqRslH61dXZkEgctsmwg9T/DhwmNxe7m4gNILT2NlhP3KmeOoUuK/5rg1DsXtE9mTwPlm8708FOzQAOFOipVFq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J1wXakc9; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZAxd0CyA"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-488ab2db91aso125977495e9.3
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2026 10:38:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J1wXakc9"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35fb166b0c6so678480a91.0
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2026 19:19:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776361121; x=1776965921; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:user-agent:message-id
-         :in-reply-to:references:from:subject:cc:to:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=D8RSn48L4Hoxdvbx7PGbILJFZ/y2Lv8iAOeSsgk7+aQ=;
-        b=ZAxd0CyAsxtb2U1DUx7nFAuM9w5kNBjVQQ6VS/eoLNBFvRhm0Z0TdTJAxfxzM48U7Z
-         He1RGLN6AwOsPfXuvYp1xG3i3+fltE3RiJp7d5BcLOxlzhZVBo8x/1+/kxy1MS74yE5t
-         KElQsjknf07tSmSvEWy0ExY1r7jF0dg9lu4T4+IecgDQG6jCj/x/GG5iB48I4agLEFvN
-         oTHKpWu5fKgroJRwSZnMXguqMaSnp0sGMc0tR9Li4ux7h4UO0YdhAnTEY05F3cdJUMPm
-         N13vc4NhFD1BslX4a6LI/rivEj6IaEDDzKHiBXjqFqH/IyRQXmi151jC8T3xrLSD9ya6
-         09Nw==
+        d=gmail.com; s=20251104; t=1776392357; x=1776997157; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UG8pXz+YVfOJAlLhN292spUHd5vpocuDHEllV74RzpA=;
+        b=J1wXakc9nowN9rQu/XyKbQemkmtz+NmL6BxgMjFC3Eq0/GTnFicO01cMReBfL4fVEK
+         zVsB5Gc59QBSu4TOuZzSrUgitzcIS8IsbLUQAENU0cwImck/pX1X70/DUMkBeaR6qDLw
+         fyHbmkc46RensyacCpopXoy5mokxepy6ihcJ/FAFzpjPO99kmMNA9x9rvi/PA27aqdOn
+         nGhvGSSWUaAOMmGU2O3bdhMA0swW21AdGsoy4FsQfVXH/7eAFUG8vcTvcvgWdd/Tbq+O
+         akztTWmhSNiN5+bCdd2sjbSbcRL+5GbpmWOvsk0uuj0d6/W8SSIZhHVPMs979m7MwzYw
+         vS9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776361121; x=1776965921;
-        h=content-transfer-encoding:mime-version:user-agent:message-id
-         :in-reply-to:references:from:subject:cc:to:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D8RSn48L4Hoxdvbx7PGbILJFZ/y2Lv8iAOeSsgk7+aQ=;
-        b=f3OSdSJkUaDBvNjlAu+T8tKfkLE0iohq6X69fZ8aOLd4tFMmrQyAQiS+v4Wy77y9M5
-         9lOYpqj0i1synPOorF5A7ekVxGGpbSAe2Ji0NT24y0MHCjHTfJJ06vJhGuxbtNMFWOTl
-         nCgSRPRpddY47ksCbdNExJM+MDDKk785vCuohHAhTsLqvP95/r5p9fLTNCq68jZsBMDi
-         jhPQbBmz4OohiChL5qWvZTktYADOJDAsRfacvk6ccgdwgr+A60IZtzAVzkGRxohYvzpx
-         EGUTYVw5Lj4hp39Zk4CbUSkPGgTOJ2v3I849dwhszw4yujaioP9P4He5GBWTmWMMX1sK
-         5RNQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+WR0BcG+L+f6331nNr9FcfCYQZQBe31E4iaswPXxgCn6POM3xCzo2ITfzpc6kUdfSAJjAjeCDqEnQmTA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywqri4WujNVEfA7hxhYTVNC7JTBj4LSs0jUXoiSqwRC/az62A0g
-	RgJ2QnB+rOnO8+DCzeeAa2rWlb6hRXm7ZaRnV69GfFi93MtSdHmeOydu
-X-Gm-Gg: AeBDietHKKHJFal2BS5QZtWPyeassYVJkIcFbr04dOApxBxN42391fKQlRK+5u5sv+G
-	1KaxVlAwP3DiK/FtRXa+vK6y4Qs8gatNLf0SMGxYpCyf12Kuhr9B662VFRLrcYSDsJuxBo85Sun
-	p6NZUja4Fp06+IaWGmXY+YZ2FoyNiN5lfA+xibihM6mwAJXIHNQIxLeMcq9C1r2zeUUtLDMlN9o
-	1y/7HJqy+0wMs3cxkRJB20L/UV/55uMZwdk1P3HNnzO+Jk8bF4P7ARjl/f2sHwG1w7Eg1rrmMZz
-	TOSxhyump8ObGEy3700rBUYoyK0aety83GTR+AGrVXHt0Zq3BwqrOXpU9ycj52aShYBTLXgS5OI
-	K6HOiTtiTovO05EpDM1NnRRbE2RjCNETzus111hJ/3xAIWXRlTcRunn3japX1t4qG2OO0muRtbz
-	hAlnenfLcoR49GNP5H+g+i0EK4Yw==
-X-Received: by 2002:a05:600c:c108:b0:488:c282:e78c with SMTP id 5b1f17b1804b1-488d684bd3amr260980485e9.19.1776361120405;
-        Thu, 16 Apr 2026 10:38:40 -0700 (PDT)
-Received: from localhost ([2a02:169:1e9:0:8f4d:9ee2:cc35:c67b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488f581b9fbsm66770985e9.5.2026.04.16.10.38.39
+        d=1e100.net; s=20251104; t=1776392357; x=1776997157;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UG8pXz+YVfOJAlLhN292spUHd5vpocuDHEllV74RzpA=;
+        b=E2bEbYFGCT8MIHkNVNKmoLG/6glSYtneXCpH6tjbT2OCjZo9sEA4jDl2f6abJtkzt5
+         aDnFbVfBZiUAoSDNquahy+qCkiRHWR24Ji49EEMrUL43QNzE6FrkwRMF13bfQzFj3Hi1
+         ufRejgvomM6lraJsqUdWt7HpdsQT7tj4N+wd48baTpiWmhhIE10L/SraxBKsR7fpkuWc
+         ng3pUp8lZBOnuNbbBbMCeMcRgjdoPhsKM74omQpmdUv5/DplPKskbRKJ7h03oHTWAZco
+         +ubtblGO89GT9bHtYwMNk03VBAZlExzN/8Jw+TCFRaV6CJnS1GYRgQAA/eUWreBs+bDw
+         MYYQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+CrTfduzp2gte2pWS4StpWfhWHLTygQ8RjljtFGmohKmhS21s3uJPp6N63WL2tGz1mZj7Xc7zsCe/iyA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxa9WuMCmY351aXdJ/UsQD/uTVaxsKY1U+NgniCDaRiAsfFrSWK
+	ydMOq2FkPcwM2Xron+RgMAA0dvlXE2IH7LAUwe71LkuD4Eftjas2jMi1AN+Pzw==
+X-Gm-Gg: AeBDiesSyo/cN7FifCbFtdyCLQBmXb3U8Has0zreewzccj+KwX/o/A3tosDjEBKK8z3
+	AGVOVQyEiiyMh5eVLvNr7+SCjUpC3P1qAMzOZsfPTqmSKmMAFG9L6b02bmc8m1LX1f0McsxV4EH
+	+o+pHSMiXfrgqX5HaRGprfsceKIKEChWBD5xEfQcC9ciNXGytIrqM+YcRhpu6C60Uy6BMK+hvsW
+	mWLFN+By/vAsNX720uwJUQzdJGbXnN4ZJdXD/0yX05cV1jqREjjWxXK5Q35Fas8TiXmn1awQS/k
+	hcpOLeoDocRwVoqw2k+OTpcbh1tcT8sTx/YXjV5PgL2HiJ9hBBnLoGyhSBJv/W1CRJi2OPzjtyK
+	RGkymODbDDy6TW72xJh4E2RST9FbCWy6D3GpmtIDf9JAbGjW/wMSaT8nqBStchVjZXavGx3EY2O
+	uxjevDa0J4LuVDtWSkOEYAObIRlMW0RneTQN699OgG7tpwpLrjEdqp2FeRzfa+c8iiM20p
+X-Received: by 2002:a17:902:bb96:b0:2b2:5168:2f82 with SMTP id d9443c01a7336-2b5f9ed4d0cmr4664685ad.24.1776392356836;
+        Thu, 16 Apr 2026 19:19:16 -0700 (PDT)
+Received: from phuc-desktop.. ([183.91.15.56])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5faa4f092sm2755845ad.36.2026.04.16.19.19.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2026 10:38:39 -0700 (PDT)
-Date: Thu, 16 Apr 2026 19:38:39 +0200
-To: Vicki Pfau <vi@endrift.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina
- <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] HID: nintendo: Add preliminary Switch 2
- controller driver
-From: "Silvan Jegen" <s.jegen@gmail.com>
-References: <20260318030850.289712-1-vi@endrift.com>
- <20260318030850.289712-2-vi@endrift.com>
- <3GWQPE79MJ7Y0.2LOOIA8A83N7R@homearch.localdomain>
- <ee55d9f8-506d-4b95-a63b-01844e4e1bdf@endrift.com>
- <2Z2BPKWVI345D.3HJTS194G9TXN@homearch.localdomain>
- <a2b087ef-e814-444a-9c1e-716310ed1948@endrift.com>
- <3GLFHF2SBGI6U.3O3D6XCXP4074@homearch.localdomain>
- <631510d1-2b9a-4288-a0ac-1c3d1253a0fa@endrift.com>
- <3D95AXVJ22C7J.26Z5DELLJGZTA@homearch.localdomain>
- <092fa3e7-da59-4b3a-b3e4-c412e391fd3d@endrift.com>
-In-Reply-To: <092fa3e7-da59-4b3a-b3e4-c412e391fd3d@endrift.com>
-Message-Id: <2GA4OPTHV6V4V.3QTZM7EDGHKCF@homearch.localdomain>
-User-Agent: mblaze/1.4-1-g5a69507 (2026-01-24)
+        Thu, 16 Apr 2026 19:19:16 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: nick@shmanahar.org,
+	dmitry.torokhov@gmail.com,
+	nicolas.ferre@microchip.com,
+	alexandre.belloni@bootlin.com,
+	claudiu.beznea@tuxon.dev,
+	lee@kernel.org,
+	heiko@sntech.de,
+	gregkh@linuxfoundation.org,
+	linusw@kernel.org,
+	zyw@rock-chips.com,
+	zhangqing@rock-chips.com,
+	gene_chen@richtek.com,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-usb@vger.kernel.org,
+	bui duc phuc <phucduc.bui@gmail.com>
+Subject: [PATCH] dt-bindings: Remove the redundant 'type: boolean'
+Date: Fri, 17 Apr 2026 09:18:58 +0700
+Message-ID: <20260417021858.6582-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Vicki Pfau <vi@endrift.com> wrote:
->=20
->=20
-> On 4/11/26 8:29 AM, Silvan Jegen wrote:
-> > Vicki Pfau <vi@endrift.com> wrote:
-> >> On 4/10/26 12:44, Silvan Jegen wrote:
-> >>> Vicki Pfau <vi@endrift.com> wrote:
-> >>>> Replies inline
-> >>>>
-> >>>> On 4/8/26 12:51, Silvan Jegen wrote:
-> >>>>> Heyhey!
-> >>>>>
-> >>>>> Vicki Pfau <vi@endrift.com> wrote:
-> >>>>>> Hi,
-> >>>>>>
-> >>>>>> Replies inline
-> >>>>>>
-> >>>>>> On 4/2/26 12:09 PM, Silvan Jegen wrote:
-> >>>>>>> Hi
-> >>>>>>>
-> >>>>>>> Thanks for the patch!
-> >>>>>>>
-> >>>>>>> Just some comments and questions inline below.
-> >>>>>>>
-> >>>>>>> Vicki Pfau <vi@endrift.com> wrote:
-> >>>>>>>>
-> >>>>>>>> [...]
-> >>>>>>>>
-> >>>>>>>> +
-> >>>>>>>> +static int switch2_set_report_format(struct switch2_controller =
-*ns2, enum switch2_report_id fmt)
-> >>>>>>>> +{
-> >>>>>>>> +	__le32 format_id =3D __cpu_to_le32(fmt);
-> >>>>>>>> +
-> >>>>>>>> +	if (!ns2->cfg)
-> >>>>>>>> +		return -ENOTCONN;
-> >>>>>>>> +	return ns2->cfg->send_command(NS2_CMD_INIT, NS2_SUBCMD_INIT_SE=
-LECT_REPORT,
-> >>>>>>>> +		&format_id, sizeof(format_id),
-> >>>>>>>> +		ns2->cfg);
-> >>>>>>>> +}
-> >>>>>>>> +
-> >>>>>>>> +static int switch2_init_controller(struct switch2_controller *n=
-s2)
-> >>>>>>>
-> >>>>>>> This is now a recursive call while in v1 it wasn't. I think I pre=
-ferred
-> >>>>>>> the non-recursive version as there was one place where init_step
-> >>>>>>> state was changed while now I am not sure where it happens (and w=
-hether
-> >>>>>>> there is a code path where we end up in an infinite recursion)
-> >>>>>>>
-> >>>>>>> What is the advantage of the recursive version compared to the
-> >>>>>>> non-recursive one?
-> >>>>>    >
-> >>>>>>
-> >>>>>> The old version incremented the step regardless of whether or not =
-it
-> >>>>>> could confirm it had happened. Since the confirmation is now handl=
-ed
-> >>>>>> with an external step, calling into switch2_init_step_done, the lo=
-op
-> >>>>>> condition would become somewhat complicated.
-> >>>>>> I replaced it with explicit tail calls since that make the
-> >>>>>> control flow simplier, and it is always matched with a call to
-> >>>>>> switch2_init_step_done to ensure that the state is always advanced=
-. As
-> >>>>>
-> >>>>>   From what I can tell switch2_init_step_done currently only advanc=
-es
-> >>>>> the state if the current state is the expected one. This seems fine=
-,
-> >>>>> but it also means that if the state is not the expected one, the
-> >>>>> state is not advanced and the recursive call continues anyway (in t=
-he
-> >>>>> NS2_INIT_READ_USER_SECONDARY_CALIB case, for example). I assume thi=
-s
-> >>>>> should never happen but if we end up in this case for some reason w=
-e
-> >>>>> will recurse forever.
-> >>>>
-> >>>> That's correct, and the only way it would happen forever is if there=
-'s a
-> >>>> bug. The same would be true in a loop version if it doesn't advance =
-the
-> >>>> state properly either, fwiw, which happened during development of th=
-is
-> >>>> version. Regardless, I can reduce the chance of introducing such a b=
-ug
-> >>>> by passing ns2->init_step instead of a constant, so I'll make that
-> >>>> change in v4.
-> >>>>
-> >>>>>
-> >>>>> The same case also potentially calls switch2_read_flash and it isn'=
-t
-> >>>>> clear to me if this means that the initialisation is done (as there=
+From: bui duc phuc <phucduc.bui@gmail.com>
 
-> >>>>> is no switch2_init_step_done call and we are not in the FINISH stat=
-e
-> >>>>> either). There is also the possibility of switch2_read_flash callin=
-g
-> >>>>> switch2_init_controller again, which one then has to check ... (not=
-e
-> >>>>> that this is not the case here though)
-> >>>>
-> >>>> switch2_handle_flash_read will advance the state once it's verified =
-that
-> >>>> the read actually happened. If the step failed for whatever reason, =
-this
-> >>>> same codepath will retry the specific read, as the caller
-> >>>> (switch2_receive_command) will always call into switch2_init_control=
-ler
-> >>>> if setup isn't done. This is how the retry logic works.
-> >>>
-> >>> Ah, so the call chain looks something like the below?
-> >>>
-> >>> switch2_read_flash->
-> >>> switch2_usb_send_cmd->
-> >>> switch2_usb_message_in_work (?)->
-> >>> switch2_receive_command->
-> >>> switch2_handle_flash_read->
-> >>> switch2_init_step_done
-> >>
-> >> Yes, and then switch2_init_controller is called again at the end of=20=
+The 'wakeup-source' property already has its type defined in the core
+schema. Remove the redundant 'type: boolean' from the binding file to
+clean up the binding files.
 
-> >> switch2_receive_command
-> >>>
-> >>>>
-> >>>>>
-> >>>>> To me it seems like it would be clearer to do a `ns2->init_step++` =
-and
-> >>>>> then `continue` to make the progress of the state more visible and =
-to
-> >>>>> do an explicit `break` when we are supposed to stop the initialisat=
-ion.
-> >>>>>
-> >>>>
-> >>>> The problem with the loop approach, in my opinion is due to the fact=
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
+ Documentation/devicetree/bindings/input/atmel,maxtouch.yaml | 3 +--
+ Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml   | 3 +--
+ Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml  | 3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
 
-> >>>> that the loop is the *exception*, not the rule. The loop idiom makes=
- it
-> >>>> look like a loop is expected. Further the ns2->init_step++ in the
-> >>>> previous version means that the verification does not occur, so in t=
-he
-> >>>> case of any sort of failure it'll plow ahead anyway instead of retry=
-ing.
-> >>>> The point of this approach is to avoid that.
-> >>>
-> >>> In my mind a while-loop like you mentioned it above would make the st=
-ate
-> >>> changes more obvious (since they could all be done in the loop body),=
- while
-> >>> still allowing for retries. Something like the below, perhaps (untest=
-ed).
-> >>>
-> >>> while (ns2->init_step < NS2_INIT_DONE) {
-> >>> 	switch (ns2->init_step) {
-> >>> 		...
-> >>> 		case NS2_INIT_READ_FACTORY_TRIGGER_CALIB:
-> >>> 			if (ns2->ctlr_type !=3D NS2_CTLR_TYPE_GC) {
-> >>> 				ns->init_step++
-> >>> 				continue;
-> >>> 			}
-> >>>
-> >>> 			ret =3D switch2_read_flash(ns2, NS2_FLASH_ADDR_FACTORY_TRIGGER_CAL=
-IB,
-> >>> 			        NS2_FLASH_SIZE_FACTORY_TRIGGER_CALIB);	=09
-> >>> 			if (ret) {
-> >>> 				// if it makes sense to retry here
-> >>> 				continue;
-> >>> 			}
-> >>>
-> >>> 			ns->init_step++
-> >>> 			break;
-> >>>
-> >>> 		case ...
-> >>> 	}
-> >>> }
-> >>>
-> >>
-> >> This can't be done because the process is fundamentally asynchronous.=20=
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+index 9bf07acea599..26ea78df27c4 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+@@ -88,8 +88,7 @@ properties:
+       - 2 # ATMEL_MXT_WAKEUP_GPIO
+     default: 0
+ 
+-  wakeup-source:
+-    type: boolean
++  wakeup-source: true
+ 
+ required:
+   - compatible
+diff --git a/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml b/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
+index 0676890f101e..a58d9455a1a5 100644
+--- a/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
++++ b/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
+@@ -44,8 +44,7 @@ properties:
+     description:
+       Telling whether or not this PMIC is controlling the system power.
+ 
+-  wakeup-source:
+-    type: boolean
++  wakeup-source: true
+ 
+   vcc1-supply:
+     description:
+diff --git a/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml b/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
+index ae611f7e57ca..ec0d83220527 100644
+--- a/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
++++ b/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
+@@ -33,8 +33,7 @@ properties:
+   vbus-supply:
+     description: VBUS power supply
+ 
+-  wakeup-source:
+-    type: boolean
++  wakeup-source: true
+ 
+   connector:
+     type: object
+-- 
+2.43.0
 
-> >> We'd have to block on waiting for a reply to the USB packet, which is=20=
-
-> >> not a good idea. This is why switch2_receive_command calls into=20
-> >> switch2_init_controller at the end: it's resuming where it left off.=20=
-
-> >=20
-> > Ah, that wasn't clear to me either.
-> >=20
-> > I assume having the code wait for the reply is not allowed because
-> > otherwise it would stall the whole bootup process (or will there be som=
-e
-> > sort of dedicated Kthread for this)?
->=20
-> I'm not sure there is a synchronous USB API at all, but if there is it
-> should really only be used when absolutely necessary. If you can get
-> away without blocking, do.
-
-Makes sense!
-
-
-> >=20
-> > Are you aware of any documentation where I can read up on how the probi=
-ng
-> > of USB HID devices work in the Linux Kernel?
->=20
-> This has nothing to do with HID, actually. The Switch 2 controllers
-> have a proprietary side-channel interface that we need to poke at here
-> to get it to do anything. It's called cfg in the code and over USB
-> it uses a bulk interface, which is unusual. Presumably because the
-
-I have seen this part of the code, but have assumed that it's actually
-part of the regular HID spec ...
-
-
-> side-channel doesn't care about latency, whereas the HID interface
-> does. Something similar happens over bluetooth where they're accessed
-> through disparate attributes. The latter isn't handled here yet,
-> though.
->=20
-> >=20
-> > Thanks for the help!
-> >=20
-> >> Each of those returns is a step that interacts with the hardware, and =
-we=20
-> >> need to wait for the hardware to reply.
-> >>
-> >> There is a potential weird interaction here whereby if we get an=20
-> >> unprompted command and/or reply from the controller it will retry a st=
-ep=20
-> >> before it gets a reply for it, but in practice this doesn't happen. Th=
-e=20
-> >> controllers, as far as we know, only reply and never initiate any=20
-> >> commands. Furthermore, all of these steps are also idempotent, so it's=
-=20
-> >> not a big deal of they get repeated erroneously.
-> >=20
-> > Could there be another reply incoming while the driver is still process=
-ing
-> > the previous one? I assume at least at probing time that shouldn't be
-> > the case. I wouldn't expect an USB HID device to send unsolicited repli=
-es
-> > in general ...
->=20
-> Replies only come in one at a time. Unless we send multiple messages
-> without waiting for a reply first, which this code is specifically
-> designed *not* to do, I don't think it will happen in practice.
-
-That's what I would have expected as well. Thanks for clearing that up!
-
-Cheers,
-Silvan

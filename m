@@ -1,85 +1,72 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from sonic301-20.consmr.mail.gq1.yahoo.com (sonic301-20.consmr.mail.gq1.yahoo.com [98.137.64.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A011018D636
-	for <linux-input@vger.kernel.org>; Fri, 17 Apr 2026 02:19:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7375931D375
+	for <linux-input@vger.kernel.org>; Fri, 17 Apr 2026 05:25:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=98.137.64.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776392358; cv=none; b=OZ1HlqF72O+NCoOmt/ejp6Pnt5vOv6rBcV6J540eeRZbmuc3k1tkfQ5mjiaXTG6sBAm4PmkDW2r8MvNnETUhMmY7fUGRXVO5ag2pdf8a+jBqoGliMOUJzSav3jnzjCR0Tpd7FtmgWpQz5TLP7lvZCFgZ5/Exk2AoYUPQwOhB97g=
+	t=1776403545; cv=none; b=eVpb1yjYQgvoPcntKaAb+rd4GHSI5tjsLUfADex6z+NdT/dM7+ppp1Qq/g36C0H4gxfLThzuIp9zZabbnISTq0pduuF0ed77QjpBzRITAY/u6/YYtOC9CUPWpN5QJBD1ffUn5lINML0XZQtdW4Kol1x8e4q/XSqukSH6iYoOMQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776392358; c=relaxed/simple;
-	bh=BO2i1/v+gTWrIcLiVciQV3wUwpKBs4fxw7jV5qK2atc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pLbuqIZQN5liVdqesyMDYdIZUB3e8MxVwoNtDeMo4/W1CNmDonDF+PYIiynCgSlp99gLiDwmaXHdLhQQnU54BqRslH61dXZkEgctsmwg9T/DhwmNxe7m4gNILT2NlhP3KmeOoUuK/5rg1DsXtE9mTwPlm8708FOzQAOFOipVFq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J1wXakc9; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776403545; c=relaxed/simple;
+	bh=lqRcrFalZmTwDqqlPgrjBpSpxBFJWhSFvtK9XK9FksA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:References; b=cqVV5Vlz5GH5UpkpUCCQ2h5qUi3X4/NjFzEx/WV7K13A9E7N8pLIk/ghVyoJrf980Xm8mqHcbJlO8JbdKpYu1sBP/SvX4hZoLdxoIP0T5AiL+AuJKd6LjWducBut5Tta/INM2kdTsbRfbX0qVncyH4BrzoyYO1FfPVHKStGHb7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com; spf=pass smtp.mailfrom=yahoo.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=dc8l0XK0; arc=none smtp.client-ip=98.137.64.146
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J1wXakc9"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35fb166b0c6so678480a91.0
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2026 19:19:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776392357; x=1776997157; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=UG8pXz+YVfOJAlLhN292spUHd5vpocuDHEllV74RzpA=;
-        b=J1wXakc9nowN9rQu/XyKbQemkmtz+NmL6BxgMjFC3Eq0/GTnFicO01cMReBfL4fVEK
-         zVsB5Gc59QBSu4TOuZzSrUgitzcIS8IsbLUQAENU0cwImck/pX1X70/DUMkBeaR6qDLw
-         fyHbmkc46RensyacCpopXoy5mokxepy6ihcJ/FAFzpjPO99kmMNA9x9rvi/PA27aqdOn
-         nGhvGSSWUaAOMmGU2O3bdhMA0swW21AdGsoy4FsQfVXH/7eAFUG8vcTvcvgWdd/Tbq+O
-         akztTWmhSNiN5+bCdd2sjbSbcRL+5GbpmWOvsk0uuj0d6/W8SSIZhHVPMs979m7MwzYw
-         vS9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776392357; x=1776997157;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UG8pXz+YVfOJAlLhN292spUHd5vpocuDHEllV74RzpA=;
-        b=E2bEbYFGCT8MIHkNVNKmoLG/6glSYtneXCpH6tjbT2OCjZo9sEA4jDl2f6abJtkzt5
-         aDnFbVfBZiUAoSDNquahy+qCkiRHWR24Ji49EEMrUL43QNzE6FrkwRMF13bfQzFj3Hi1
-         ufRejgvomM6lraJsqUdWt7HpdsQT7tj4N+wd48baTpiWmhhIE10L/SraxBKsR7fpkuWc
-         ng3pUp8lZBOnuNbbBbMCeMcRgjdoPhsKM74omQpmdUv5/DplPKskbRKJ7h03oHTWAZco
-         +ubtblGO89GT9bHtYwMNk03VBAZlExzN/8Jw+TCFRaV6CJnS1GYRgQAA/eUWreBs+bDw
-         MYYQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+CrTfduzp2gte2pWS4StpWfhWHLTygQ8RjljtFGmohKmhS21s3uJPp6N63WL2tGz1mZj7Xc7zsCe/iyA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxa9WuMCmY351aXdJ/UsQD/uTVaxsKY1U+NgniCDaRiAsfFrSWK
-	ydMOq2FkPcwM2Xron+RgMAA0dvlXE2IH7LAUwe71LkuD4Eftjas2jMi1AN+Pzw==
-X-Gm-Gg: AeBDiesSyo/cN7FifCbFtdyCLQBmXb3U8Has0zreewzccj+KwX/o/A3tosDjEBKK8z3
-	AGVOVQyEiiyMh5eVLvNr7+SCjUpC3P1qAMzOZsfPTqmSKmMAFG9L6b02bmc8m1LX1f0McsxV4EH
-	+o+pHSMiXfrgqX5HaRGprfsceKIKEChWBD5xEfQcC9ciNXGytIrqM+YcRhpu6C60Uy6BMK+hvsW
-	mWLFN+By/vAsNX720uwJUQzdJGbXnN4ZJdXD/0yX05cV1jqREjjWxXK5Q35Fas8TiXmn1awQS/k
-	hcpOLeoDocRwVoqw2k+OTpcbh1tcT8sTx/YXjV5PgL2HiJ9hBBnLoGyhSBJv/W1CRJi2OPzjtyK
-	RGkymODbDDy6TW72xJh4E2RST9FbCWy6D3GpmtIDf9JAbGjW/wMSaT8nqBStchVjZXavGx3EY2O
-	uxjevDa0J4LuVDtWSkOEYAObIRlMW0RneTQN699OgG7tpwpLrjEdqp2FeRzfa+c8iiM20p
-X-Received: by 2002:a17:902:bb96:b0:2b2:5168:2f82 with SMTP id d9443c01a7336-2b5f9ed4d0cmr4664685ad.24.1776392356836;
-        Thu, 16 Apr 2026 19:19:16 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5faa4f092sm2755845ad.36.2026.04.16.19.19.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2026 19:19:16 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: nick@shmanahar.org,
-	dmitry.torokhov@gmail.com,
-	nicolas.ferre@microchip.com,
-	alexandre.belloni@bootlin.com,
-	claudiu.beznea@tuxon.dev,
-	lee@kernel.org,
-	heiko@sntech.de,
-	gregkh@linuxfoundation.org,
-	linusw@kernel.org,
-	zyw@rock-chips.com,
-	zhangqing@rock-chips.com,
-	gene_chen@richtek.com,
-	linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="dc8l0XK0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1776403538; bh=B9BNCvCcJON6w4dWFj1ORo2p50udYVqX7VweGTT9oyI=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=dc8l0XK0puB7604jmdZvuJWf3SvcG9wPpqiecPWzyfb5w4pzM0vfQOuenZkgCM2JFpPLB+A8pqiwS9m1LuqInGkTASO0ZDxcuMbIw2x1uZikHFrZMAlilqMZQSEqO+2AHxjNvtvHh2bI+CRMn0Ll4X7yfb/RmXSDwjWbnRlAf4G68eicmt1Clsngd8DOxrqhraTGciMAb73uPrV/hBCIR514F0+JN1RJUIFSh+Fmyt/FnKwgPdOncX75oxZeBA3e/e5NdYB1PCc7s4N1k384/BzGDxF6Huo8LvdiJrhJg1X0SE37NypRaGvzdPWX5bxYJAVgMdTOeH9qJL7Imr2G1g==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1776403538; bh=n41WJO0RMuBtRwkaLj3Z0dtfhoIHqauia2NjVgORpFX=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=T7M02xJmCL/xTqk9LoPY33ha3Vgkaeg7uYR/1hDmPLAe7mVAcJe5mBLVJ/bqRc9whz28g7UomNxZY6f9Ea7nLu2JLS419L7RW1AhZ5L1UOxOY/tc0ZM6YNB0oneLsc3/04gVdsLQ3HAGWAXGQ1xsj0RsKo7OPgZNv3cSSO+wLoaBJvBhER4dXVw8sstJTlBQJVGqllXxEYqzh05Ayt9EDKyoJadCe64A7TJRyLMfZLetB9J8zfOtCUm/ylPr/TSj7qtSU64xVxUqVCKvVui8idoUI46FzqgfD+/JDs4DhiBtut4n8P+4H3M2Pt3S+0p/H04LBHMAp57FHd75txU2Dw==
+X-YMail-OSG: AbVn0kQVM1l4mYvMyPS0llwcXmVvKhXiM5PZbnlZZ5gZgEZ._DwUnAHL6IG9W_8
+ kDlhMC84cZOgJwCpxZghfBPZ_1trEf1nUabUUCxp5._VZnvtgEW3HEulRwl3jCxR23xAlzse1X89
+ Ek_swy1ARH4EwkjP2jLH.5p_GK_gIU1rSGYrwpO6BKOjMgyJTLrOAZ58G3pkXTWfiln1lmVI48D_
+ Z5XFfszhzH58f8LaAya5ZK1v2JV41Rwq.SywvYRqT1NoL9P5yqnUphml6l6WFDQQrYB.zml6eEPl
+ .IlbbzHCuxJwrwCGT7ba.KoN4cIv175sKdAnsVLd8FrYRuBGuIa2N.ZN0jCwlAkVjh4t7X0oehoY
+ XIUedZP2lARuj9QvQTyqJ2_aRAyXDq_5TWzAcdudlzFnJpWDE2.NOiDmvDxH7REFzK9Ulv6cBpnX
+ qyDu9jAcxbdYDxSUngte_UpIaTN64EY5v493eVZhTokaaFUrugfKIAZI2.7ibK_4aKgGfvMtpyP9
+ zPWRZys4I8ZtmugX29ALjl41iOZtwM7NinsPN6_fWqgkmi6_gFICx3btfgUWWCKEHHLCFkVRE74e
+ 3MgGQTwfIWRahtsXVFWb5VClCLi0MXNQdVwafcUuZt9n8Trv0v0c9gLa8GOHKz8WZ.X6ryrw8Dcp
+ J.Omb9m1qjhdw.pAS9iJa2aaIlP7lKdARLSeI5gFZ3TtSLmMpiSIR3GP2MQcHiEbNgVG99qQ51zq
+ 8h2dJz6BM0iK_lUmiM5nTND9Wim6jq84YPEttaOmv.3qP86yQOP.IncA5BblwUdUHOSn6jtlMWFL
+ fdLBn9m3ITQu09eE_o7iNb9tYgawQwposgUuAlWinqKGTL8FOzQzMc7N2WMuTPmF8N7Lro3RyUxX
+ lH4qa8XFs37JY.x_zRRU2HOY3KoycaERR6wG_dBPZNuMU1H1uEV3CvoU3pcXkO5TGsMwnvmM5MHq
+ aZkrBe_b77fi6eKdOfGjqH5OEVhpWl8n_vnzHkM5ZCje7F75X8kNyM4iP4VT6Z5FbmSOyM_ctnso
+ q9KS0I2uFF2JOaE07njHJvc6ztSvKn7fkkO_Mlq5b3gvQOltQbocwB2MBCvnfqcFNKXnTHHSigIf
+ zpb71CIXCmFe5TpAI97XnfnhlijVDct_fWcA6LYcdX7l1PgEfW766iDCtf43__vvzBpwRvvAkT88
+ 6swp3kKrBTMLKe6w5McpIui7UJJa_jun51ZFAoiv2MCbH8QCwFlBLe6B1xvP4xVVY5TSISo5ouef
+ mQXtcLccFPi7My9Q.d_JJl4Kt2sfDnrbSlhMrxu9ilRfTYq0eBNciXuACuNA29xkpKmz5Q9GKkv6
+ D9QAs1rN5k6AR1K_toap7N.38RDyKISjLAJUbHJbXhAGPb03AAgtbiIcrDogcetDB0BzFZdYo2Y5
+ _b5yLD2KbxJLB43QWdVmhjcyebO3Y.BWgXyZFSUwJ29C_zK.Fa89o4UT44eblHySzbbZko7WfJRv
+ vQC8l5buWncT_nSkOHM4rxD7iyB2a50SHOBkYQqVLgzKPIqAM6vouxwCMF.kKbTOanx2cDfWP36M
+ G7w46x3_MaOMi2wIX5U6m9eed1H2fSeaj6Ju8kmeDuNOwHTaTyb4KragN3CiEwLDnGV.QzQv0R08
+ 9hOP5ziufBllb6Y31UxwQ2NlFg.6r0HPkzQxl1DyIpSzHPRPw7yK4m4cb2gt3AXQ1PFJh6c8B_Fx
+ 3BeDZo_sK0uFCzwIqZPIMKcdnuFdqoG2eHc5vfCog_9xOr9y8LsiID1fceA5Ed4eardm0YjiOPsQ
+ wjjYhWConjOI4skFbmagzcA2YI.Sg.eW6JQCefdBjdg668YG_fXRrcIM41Nw4vv9lqyAfo3dzfCd
+ kld3KlUjokcvTHfrjNAhNA.ULmYRrQ4cWGlxpUShRSgCWydK_bRo46ciylYl7xKtGdAKVJxIg.c6
+ 2U9tAq..N8Uov050.3DbMXcVJ1TeG1QfMKuWe2thoY7Qj9UwtrY6Gp3uY3AL22x8EeGTHR_U__ce
+ RtiQ7hoT7j.Z2KwfGPPKEAyC9ap1yjg2yzcBw..ERRNrvDBRl3sVF1u.ieNWv2JQmzUSwPSbCr6y
+ P87SHz.2GmiDWzA1xwxIvs50TVH954y4PDVD.4VojBN9z_yfId5tcEqysWbA3LtCQt5q0q47X5a2
+ Ld9Iz_nuCpl5d5yPpMi5q8pER0Y0tfHQqU4wehJTTccNNru1iq_fpv30k9ZR9isSsZF7hfqgcQ.C
+ Ct2RZCPkTwafd2ZU8Xk6U1GjKDpc8eZgO04SnOv.KfLBCNuExz1Yfoy4iNdmuRyNOAVQHTH5l5ZI
+ -
+X-Sonic-MF: <sainiharpreet29@yahoo.com>
+X-Sonic-ID: 9b4d61ef-95d8-4972-980c-164a6834cebd
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.gq1.yahoo.com with HTTP; Fri, 17 Apr 2026 05:25:38 +0000
+Received: by hermes--production-bf1-697f88457-j95vr (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 38d5a94697f1210cb7ec8e732b22a1d9;
+          Fri, 17 Apr 2026 05:25:35 +0000 (UTC)
+From: Harpreet Saini <sainiharpreet29@yahoo.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: David Lechner <david@lechnology.com>,
+	Harpreet Saini <sainiharpreet29@yahoo.com>,
 	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-usb@vger.kernel.org,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH] dt-bindings: Remove the redundant 'type: boolean'
-Date: Fri, 17 Apr 2026 09:18:58 +0700
-Message-ID: <20260417021858.6582-1-phucduc.bui@gmail.com>
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/2] input: misc: Add PixArt PAJ7620 gesture sensor
+Date: Fri, 17 Apr 2026 01:25:25 -0400
+Message-ID: <20260417052527.62535-1-sainiharpreet29@yahoo.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -88,62 +75,34 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+References: <20260417052527.62535-1-sainiharpreet29.ref@yahoo.com>
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+This series adds support for the PixArt PAJ7620 gesture sensor.
 
-The 'wakeup-source' property already has its type defined in the core
-schema. Remove the redundant 'type: boolean' from the binding file to
-clean up the binding files.
+Following review feedback on v1, the driver has been moved from IIO
+to the Input subsystem as gestures are user-interaction events.
+The bindings have been updated to include mandatory power supplies
+and GPIO controller properties.
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
- Documentation/devicetree/bindings/input/atmel,maxtouch.yaml | 3 +--
- Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml   | 3 +--
- Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml  | 3 +--
- 3 files changed, 3 insertions(+), 6 deletions(-)
+Changes in v2:
+- Moved driver from drivers/iio/light to drivers/input/misc
+- Updated DT bindings to include mandatory vdd, vbus, and vled supplies
+- Added Runtime PM support with autosuspend logic
+- Combined bindings and driver into a single series
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-index 9bf07acea599..26ea78df27c4 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-@@ -88,8 +88,7 @@ properties:
-       - 2 # ATMEL_MXT_WAKEUP_GPIO
-     default: 0
- 
--  wakeup-source:
--    type: boolean
-+  wakeup-source: true
- 
- required:
-   - compatible
-diff --git a/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml b/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
-index 0676890f101e..a58d9455a1a5 100644
---- a/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
-+++ b/Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml
-@@ -44,8 +44,7 @@ properties:
-     description:
-       Telling whether or not this PMIC is controlling the system power.
- 
--  wakeup-source:
--    type: boolean
-+  wakeup-source: true
- 
-   vcc1-supply:
-     description:
-diff --git a/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml b/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
-index ae611f7e57ca..ec0d83220527 100644
---- a/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
-+++ b/Documentation/devicetree/bindings/usb/richtek,rt1711h.yaml
-@@ -33,8 +33,7 @@ properties:
-   vbus-supply:
-     description: VBUS power supply
- 
--  wakeup-source:
--    type: boolean
-+  wakeup-source: true
- 
-   connector:
-     type: object
+Harpreet Saini (2):
+  dt-bindings: input: Add PixArt PAJ7620 gesture sensor
+  input: misc: Add PixArt PAJ7620 gesture sensor driver
+
+ .../bindings/input/pixart,paj7620.yaml        |  70 ++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ drivers/input/misc/Kconfig                    |  12 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/paj7620.c                  | 350 ++++++++++++++++++
+ 5 files changed, 435 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/pixart,paj7620.yaml
+ create mode 100644 drivers/input/misc/paj7620.c
+
 -- 
 2.43.0
 

@@ -1,116 +1,143 @@
-Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86671326938;
-	Sat, 18 Apr 2026 07:14:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 354EA2609E3
+	for <linux-input@vger.kernel.org>; Sat, 18 Apr 2026 16:32:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776496483; cv=none; b=SLoTSGtPmGfCjEB5QqdVp7SF665rR+1C0J/ZoYTbLq9q1iVnB4DIZA3/nyLyJc+2kf89OYhNmOFgS+wwYywYu+6IMin2fVIwMo7VsdlNhPalUNaWvTm2kDoaWTa4xoj3KY1lOeNPnbjXSFamiPSEyo03H3/DJnmKo+GmBrtqoNM=
+	t=1776529938; cv=none; b=Cn4qQSalSRAjG4HBVRFaduvCj3G0NyBQbrkhdwe9FIC3W8ajVoDeGV4DhyOKLlzdpvF3vasU2Qe2+YWj2Elvs0EJQtgzigqCyzbl7TXdv9ZuTdPP5igmHPGOMyLaf/g9HMSRGemy78cGG0F4Rha+Xw7TvT7h4RoXW6Z1W6MSQo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776496483; c=relaxed/simple;
-	bh=9gkKROIrKMDYokgdoKbSwsI9W1L9HMdv/hQ5Qmf9yYI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WLQuz4rjTun0dbX+BCVKlKxqNC2mRG6YZ+vVZPdv5q32lNaEJBmjzFY9t+CLhtfN74KL5TcupmlkeaLRbVIYQxCKxbgL/I1xV1UzHGoMdWjt2GNpM4xVhhoM4X7yIf5KDq4X0VLSfeh4KbCy6bDPDwmw04EaAMDZguruNjP7xjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=D0UlEWiG; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=uSPPKZB+; arc=none smtp.client-ip=103.168.172.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
+	s=arc-20240116; t=1776529938; c=relaxed/simple;
+	bh=PX7Xc4ornFJUYlDahMoLBg+jWsibb+OPMgZuhF93y2o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JSB3JBSPrwTmnIgKa+CdwEPib6hIubDbVrhkOoQnc2ZnYBvcyHQ34HdfbiVEcXZJjeK8+Gq96HSPrOJLYsjUtJlevJqizYcHfx5Id9gj/6WP1OSiPUfM01KJD3u42VY6V2A/WqAZ30wo5HXqyYTEx4avsEIca6dwf4RP3cvsv1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b=i/Gnh/Tf; arc=none smtp.client-ip=209.85.210.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="D0UlEWiG";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="uSPPKZB+"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id BB0F41400095;
-	Sat, 18 Apr 2026 03:14:40 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-06.internal (MEProxy); Sat, 18 Apr 2026 03:14:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1776496480; x=1776582880; bh=GtnYZp7AKb
-	GAz+DaPar8dtMqZFmTpMDldNC/2g0WWao=; b=D0UlEWiGpTmJ5HplBfqkgIcIWL
-	+h3OyKmM9UyrGd/ppWKFYS5IohNTWuls0bZpqF40DT/7Z/rlde4+3tZoyRtHa2eS
-	R8Nlt+TsKAF44nUyAxsiTycEhFLxsSbHhXGh1/do4tPzARyVBiQjnPp1clNNCM+q
-	3bXSIM1lVIJvhBFejY9SvVF9boJOp9FLleLVZCFmfjbwSwO0SdlW8Pcq74bKLhHK
-	eno4uERm4ojQy/zJ6DCbGqh0FeOhneUfc/g/FDzdVn4POByZaeV4VQV0z06sGm/n
-	e9cFMx1TpdGdMCvxc4WXYE4prGZXr2Ppir0uGGa9a7qbziunDzbutOqKrdig==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1776496480; x=1776582880; bh=GtnYZp7AKbGAz+DaPar8dtMqZFmTpMDldNC
-	/2g0WWao=; b=uSPPKZB+mcA25MUIGNUpxRNJujlFMHOi4scYPvlNfdH9R3nouOu
-	Z4CgOiUqDXb+PSc/jG9n2sUXJzb1iArxNM871DzOiBv9Sp2P+MbVmKQMIkQbf0GV
-	qB2GMM9HlfVtLhuqk+xJR03+y0kZn/fRYFbFfhT+sSJc+cFJakphF4EV8QSV5nK2
-	XOz/kt+/AINIzR6mOls3AoP7xQBYdwO4F5OBExfVt7eFhaL+ke08wBiExb2nKSF1
-	95wlDRmiHWvN8mV8Qps5HAbsKcev23Y8Rld38LDi2mT5YQMhlKeAaAQVcmEcSXh2
-	Fyeb1DWBNJ6/odNzDjuPXBfPOKNkM9YHEuw==
-X-ME-Sender: <xms:YC_jaZn4wn2Yc_NPPeOPKWfu7cH_yLJ-LvbyZx4vKvIql9z82J_Xkw>
-    <xme:YC_jaRibE6A1x7cRgbBR0eYL95AGqVF9Mof_1Za7WTFONsAq5d58DYoq1j2tdNoHp
-    80il8lJHRnkM14GvtnUAi0KJdF5V7jRk0Cr5Rpk0SsAY1j0Mg>
-X-ME-Received: <xmr:YC_jaTh8vgljbTmWzxkOmKGfNKmRvRjTO5xtCxwa_I9v95qbZG7wpi-r5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdehvddufecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcumffj
-    uceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehgedvvedvle
-    ejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homhdpnhgspghrtghpthhtohepuddvpdhmohguvgepshhmthhpohhuthdprhgtphhtthho
-    pehtrgihlhhorhesvgigphhonhgvnhhtrdguihhgihhtrghlpdhrtghpthhtohepjhhikh
-    hosheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepsggvnhhtihhssheskhgvrhhnvghl
-    rdhorhhgpdhrtghpthhtoheplhhinhhugidquhhssgesvhhgvghrrdhkvghrnhgvlhdroh
-    hrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdho
-    rhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrd
-    horhhg
-X-ME-Proxy: <xmx:YC_jaTsnG_u62w8sRheLlORiBLjLDIM442fdPfYQzGSIbuDSSLo9yA>
-    <xmx:YC_jabsDqmvzDO0Nh1xa1b61i6wC-BZMedeIApgLudbxY0nLEL-PxQ>
-    <xmx:YC_jaRrgoWF7JDzvbIFV0G-vrW5yCvfQlwH-wTSgSPU18b0N7qi_kA>
-    <xmx:YC_jaSJPpkQmtLH1YCkOQHRIhzMJWgJB4rVeNVHuukjNw_AZKumqzg>
-    <xmx:YC_jaSZO-G0QqeknlxNuCW_XGu9Eq4t4BNuWhJeBMc-mHRmnvN8YKAxq>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 18 Apr 2026 03:14:40 -0400 (EDT)
-Date: Sat, 18 Apr 2026 09:14:08 +0200
-From: Greg KH <greg@kroah.com>
-To: Taylor Hewetson <taylor@exponent.digital>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: usbhid: sanitize hid->uniq against non-printable
- bytes
-Message-ID: <2026041845-approve-pelvis-9845@gregkh>
-References: <20260418025823.21767-1-taylor@exponent.digital>
+	dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b="i/Gnh/Tf"
+Received: by mail-ot1-f46.google.com with SMTP id 46e09a7af769-7d55b97f358so998001a34.3
+        for <linux-input@vger.kernel.org>; Sat, 18 Apr 2026 09:32:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20251104.gappssmtp.com; s=20251104; t=1776529935; x=1777134735; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=0Ku9MieWOFONWlsgDNSFQqxrZ45MKffmqudSoMnAel0=;
+        b=i/Gnh/Tf5I64JIAIXpg9FyWjEsoTPbDXVOYSLG13K2CyxBvBa42n1+iHlEWf1Emrj8
+         M40/9XzM38SvrQQ7nzNU4sdBkKtWvZf3SE7PCug9XS+UNsmZMwWNwr1lphhpXkMXxAbx
+         hqRAG8p1jMt1u+zXEuQYTGD1v3yka49nLg1tC1IzMorIeqGtm/3OIFQMPoC3Uum5VT2F
+         TY0zJFOO5bBnchBmybeaEXSAFBbafcbBCCwOU+P7RWSWya64XNJf+udOlZfngBzspbJB
+         yJxpqWM0DVSEZZN1zay8YCjJNiSWdtwBCiL/ufjUsZc+HmJ+q689QpI67zGznYyZsugP
+         8ekg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776529935; x=1777134735;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0Ku9MieWOFONWlsgDNSFQqxrZ45MKffmqudSoMnAel0=;
+        b=Jt7QmGoUgorHjCs/JOARojFoOXO5BZWhu0E99Ncm5O1qFVFqq3Qm9pklJ6oN6muBoV
+         zMvTcRjcQu9yjqYOXHf2BcLoo1jPnZCVYxELabZwPG0yoR6p9bYocGAZKCj/poG8VB4B
+         ULDOeKLKnsLWWjDmepoF9Az4xV6luHbBLa+OBQPwEJZYFQ9fy4TAGL/W0mBS1N67EJdX
+         /2+VYiGyUs7Nd5RzF76thjorvQcPT0aDTEO31Nt78M8vyevcZdzcVKtZ8+x6cxIUpHWq
+         99Q31LxCXtFg+wgFGrLePtvJ99ieqTqsjCzCE0amxkMtSYvqxAVX4gBfdqKUnKp2Afk2
+         xBvw==
+X-Forwarded-Encrypted: i=1; AFNElJ/WzN1rZl57ECAmdAwH761KpAxT1WSuyRph9UxDQ490+svvnw5PYsPSUeHUY8ZgJO59Miyh26McVS24TQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3OhvFC1r+txTnQjSL/++qeg+WawRw956vwHTBlw8+NyRR456a
+	BwnYNOprYz6WhA4E37RyIxSCaooRFcvAPAcj3ztD0BjAGMLB6oOE8kUVRb1u9Xe9jtI=
+X-Gm-Gg: AeBDievVNlbfRTvJlFLs6F56v726xQ0LjTYgzCxcwO2x3+FYaboDTYAwoBgV7MNppJG
+	HKEry5Rl5AtpRzriByiyEJ4BySBQx72RfBlDDv/z+nENvPVcQ3SbKlSexK86aka7fKeO1stCgNe
+	V057NPGNu3b/ayCQOtEaY9sI3KRRo/4XcTrgr4THCS3ehERknY8ZFwGemqpsTOaWQZre9oQ9Nog
+	0bjm7LRMbzp/dsBF4nDR0uTOtvSTSa10nRvbbdUGHWsW+V8VPOiDQGCbyYORG6sTHTunugPzxFN
+	e+aNzm2+NvywXJL2A5tLAs8IWarzFUelb4QI2ThYuu5hhgDBifqfTmh5E1tIlfQe7bfQwHkj5c3
+	RREJS0QwSW6n7z/VAGPuKFSQTuL9wrYc2jz13QeaFHADDqr/g71NfT9YYPuQKmwjk6CgMpmxqt2
+	54dbS1xpGuMsgV6siTT5av7NRxfKSEj/xo6wwIW2ASKS1XByqaeqf2i61a05Kq1EmFBk3MMGiaD
+	S7h3xAMqQza9DBpMXqdUsM=
+X-Received: by 2002:a05:6820:82b:b0:692:c2fa:17aa with SMTP id 006d021491bc7-69462e394eamr4281331eaf.16.1776529935203;
+        Sat, 18 Apr 2026 09:32:15 -0700 (PDT)
+Received: from ?IPV6:2600:8803:e7e4:500:b1f8:aabe:74d7:21ba? ([2600:8803:e7e4:500:b1f8:aabe:74d7:21ba])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-69465edde74sm2750450eaf.10.2026.04.18.09.32.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 18 Apr 2026 09:32:14 -0700 (PDT)
+Message-ID: <1c49e011-ae23-4c6f-ad6f-f0b494c2dbbc@baylibre.com>
+Date: Sat, 18 Apr 2026 11:32:13 -0500
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260418025823.21767-1-taylor@exponent.digital>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/7] iio: HID: Add helper method
+ hid_sensor_adjust_channel_bit_mask()
+To: =?UTF-8?Q?Nat=C3=A1lia_Salvino_Andr=C3=A9?= <natalia.andre@ime.usp.br>,
+ andy@kernel.org, bentiss@kernel.org, jic23@kernel.org, jikos@kernel.org,
+ nuno.sa@analog.com, srinivas.pandruvada@linux.intel.com
+Cc: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>,
+ linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+References: <20260417225959.16688-1-natalia.andre@ime.usp.br>
+ <20260417225959.16688-2-natalia.andre@ime.usp.br>
+Content-Language: en-US
+From: David Lechner <dlechner@baylibre.com>
+In-Reply-To: <20260417225959.16688-2-natalia.andre@ime.usp.br>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sat, Apr 18, 2026 at 02:58:23PM +1200, Taylor Hewetson wrote:
-> Some USB HID devices (observed on ASUS ROG Azoth via its 2.4GHz
-> dongle, USB ID 0b05:1a85) report an iSerialNumber string whose
-> USB string descriptor declares a longer length than the actual
-> serial, leaving uninitialized firmware memory - including control
-> characters such as 0x18 - appended to the returned string.
+On 4/17/26 5:58 PM, Natália Salvino André wrote:
+> Add helper method to deduplicate code in HID sensors.
 > 
-> These non-printable bytes propagate into hid->uniq, which in turn
-> populates /sys/class/input/inputN/uniq. Downstream userspace
-> components (systemd sd-device property_is_valid(), and by extension
-> mutter input enumeration on GNOME Wayland sessions) reject devices
-> with control characters in their uniq, rendering otherwise-
-> functional input devices unusable in graphical sessions despite
-> the kernel input layer correctly translating keypresses.
+> Signed-off-by: Natália Salvino André <natalia.andre@ime.usp.br>
+> Co-developed-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+> Signed-off-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+> ---
+>  .../iio/common/hid-sensors/hid-sensor-attributes.c    | 11 +++++++++++
+>  include/linux/hid-sensor-hub.h                        |  3 +++
+>  2 files changed, 14 insertions(+)
 > 
-> Truncate hid->uniq at the first byte outside the printable ASCII
-> range (0x20..0x7e) after the serial is read.
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index c115a72832b2..12728cfa5d44 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -589,6 +589,17 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
+>  }
+>  EXPORT_SYMBOL_NS(hid_sensor_parse_common_attributes, "IIO_HID");
+>  
+> +void hid_sensor_adjust_channel_bit_mask(struct iio_chan_spec *channels,
+> +					int channel, int size)
+> +{
+> +	channels[channel].scan_type.sign = 's';
 
-Why aren't we doing this in the USB core instead of forcing all users of
-this to do it instead?
+We recently renamed the `sign` field to `format`, so it would be nice
+to use the new name in new code. (If it is already used in this file,
+make a precursor patch to do the rename of existing ones first.)
 
-thanks,
+> +	/* Real storage bits will change based on the report desc. */
+> +	channels[channel].scan_type.realbits = size * 8;
 
-greg k-h
+There is a BITS_PER_BYTE macro that would make sense here.
+
+> +	/* Maximum size of a sample to capture is u32 */
+> +	channels[channel].scan_type.storagebits = sizeof(u32) * 8;
+
+and here.
+
+> +}
+> +EXPORT_SYMBOL_NS(hid_sensor_adjust_channel_bit_mask, "IIO_HID");
+> +
+>  MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@intel.com>");
+>  MODULE_DESCRIPTION("HID Sensor common attribute processing");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index e71056553108..6523d46c63e0 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -281,4 +281,7 @@ bool hid_sensor_batch_mode_supported(struct hid_sensor_common *st);
+>  int hid_sensor_set_report_latency(struct hid_sensor_common *st, int latency);
+>  int hid_sensor_get_report_latency(struct hid_sensor_common *st);
+>  
+> +void hid_sensor_adjust_channel_bit_mask(struct iio_chan_spec *channels,
+> +					int channel, int size);
+> +
+>  #endif
+

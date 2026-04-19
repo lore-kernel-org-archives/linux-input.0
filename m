@@ -1,176 +1,138 @@
-Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [185.185.170.37])
+Received: from sender4-op-o12.zoho.com (sender4-op-o12.zoho.com [136.143.188.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54BA91C3C1F;
-	Sun, 19 Apr 2026 16:21:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.185.170.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A68727FB0E;
+	Sun, 19 Apr 2026 16:26:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.12
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776615670; cv=pass; b=MX5MHPM82UFivnfa9gCrRq3ZSnalrynA26oIL05JGPmdNVYgsbArq7mx5edAxo5LBsXM4hMG5SRAsMYBjV3/73vbu6c575mQZevSySwS21PJd0TQa4CXOkF3AiZYpFgCunWAgrrSjKfy+b1Q9i3OzbE5ITS6yF4a7hpNE2NSonU=
+	t=1776616015; cv=pass; b=oUT6hLm/fxhoa8NT7T+NoCAk0LX3sAyLp7sZaxy4WPxwCnEGGCR6RlAhzbqtJmXimhFbE3EF0JDlSJMg0N+6xW8wHB7bdyl0zBWWXg0GCYVye+UoRcAtjyoQWW2Byg5XV+3LisNTMqxrvJP+Y2Cf4EjQH77DdNNXRozzbPbPMfY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776615670; c=relaxed/simple;
-	bh=61vVW5aGCnzVF4GoEJPKAGsyaoh4olcL1bjqP2JGL3A=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TaxM1daq6m8iOx4a+BmVXgWelZRXALYXk3bgFqkVJcPje/ZJ8aS8YmBluCtctOhn64SbFfjYNiJNhLreGN05Vz0ASZseCYW1Y9jqkQy7YznoR7uHu4QuERikGwtHamaYU6zPSoqWbNZV97LbOhGXweCheHAUSPh7NCGNd7bVAdU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iki.fi; spf=pass smtp.mailfrom=iki.fi; dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b=KRzcMkLB; arc=pass smtp.client-ip=185.185.170.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iki.fi
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iki.fi
+	s=arc-20240116; t=1776616015; c=relaxed/simple;
+	bh=yxjEoMXGzc/WdkfSdsocpIic0FHGlTrW9jCQZ5b8YNk=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Xmd9ieqHhzPFJQTEaFrON9XhR66J5gYyCBjmqfET3ClDk805LXdaxaqNZYKsbttI8MadJy1yDfS4x+q2/DOciRX1XcyiHOJYj/ZsOPaQwqYiecHgbgq5lYLz6/ED/S0WcwY+nIgwOaYrxFMxzWNNOtBlAnrmMBaT20nZSwrQgC4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=icenowy.me; spf=pass smtp.mailfrom=icenowy.me; dkim=pass (2048-bit key) header.d=icenowy.me header.i=uwu@icenowy.me header.b=nsdRXPDA; arc=pass smtp.client-ip=136.143.188.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=icenowy.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=icenowy.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b="KRzcMkLB"
-Received: from darkstar.. (unknown [83.245.248.121])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: aaro.koskinen)
-	by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 4fzDPv0z8Jz49QFl;
-	Sun, 19 Apr 2026 19:21:07 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
-	t=1776615667;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JpcBR4k0LbC/Ndgf6TQTCcQuvX8Fc8RSJqb/Bb6m7Bo=;
-	b=KRzcMkLB12GjNcjXxQI6w95I0GJx3/hleCQ7rVx02HnGzZFn8Qn6IeFRwvrCqD+Y/JVBLG
-	+Y58FghU+AtLCrkLekAXUXz7U48vdCsW3B/UQaznrmIvZdO+koujI2f2KJg/m/vpbTDLg3
-	/l/qfBXVO4O061JWNTP8mSy2wVPkiKV5XYqPcGrmoX9zHCNh9J1D7e6E00Veb1u3yS0fy+
-	gVqCBDGZM3hieH5g3FgbMPZnLSbaeqE/1/yIybahy4uNDZ8zzXDdK3Gwdy9n92TLbVmVrC
-	pUlIz74rIL3Njey3WzlJ3szpAgcYOoelLplAlH2aSeoPwKKnJIU5pcSULuHWcA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
-	s=lahtoruutu; t=1776615667;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JpcBR4k0LbC/Ndgf6TQTCcQuvX8Fc8RSJqb/Bb6m7Bo=;
-	b=N2aSXXZOukfVNlRb5un21AKEHCdXmsx+HVZx4bUQogCFYc+GISwLvslWrOmOa/sAvFIsW5
-	tJuBEEC5oUcikBOi60o5tGkKfHWypR7lI7cLiW5+/2ZQZh6pv7MR7mTTAg90FGi5LAwhAm
-	nXjrC4egxV+F641Ba79+8Xld+pR0u1EPmehDO4WeZw/hwyI0o4fzfaRNlejgEIk5wMquav
-	lU6y8LhHcm7JYWx4VSiqyokulhtNIZv6dTUhqbtLpWmmW4VCE5yQ1Q6yANkMkOhju82vll
-	K6gdYCez3k0sd3pxgtluklqnAAzl4DAjLUf2Ny58Fyesnj+QOoPB0f6aM6KPNA==
-ARC-Authentication-Results: i=1;
-	ORIGINATING;
-	auth=pass smtp.auth=aaro.koskinen smtp.mailfrom=aaro.koskinen@iki.fi
-ARC-Seal: i=1; a=rsa-sha256; d=iki.fi; s=lahtoruutu; cv=none; t=1776615667;
-	b=TYxO1KuJ3rG6tTBlU6MdPmT/afCCcDZwgRkl44DiQeNJgNPwsYsShQVSlY7nFNsEHr1AVf
-	afAruzwHQRXHUe7hYyCIUP7K63TMmhI3QvxaMsp7ouvOozSJUgv1SJXR9kNT33HmkQ8MxA
-	OHtHsunnyAA9MEVooK5r5+EQ4fqWURpRh02YCTZMItW7Y8tx+ohcg8a8E5HXI/kmRKn/Tg
-	VQy34HjZHDGgq4vwHfc6KJPEZX8MLVwedd2vT3FkpyByOtxXDfFdLTqys573ka4OTKSd4y
-	TSjB/3mY2DCASXMAXnzYt39QV1aNiNBd45gFHx947Br11ZDT+WAPyeSjImFKJw==
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Linus Walleij <linusw@kernel.org>,
-	linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	linux-omap@vger.kernel.org,
-	Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [PATCH v2 2/2] Input: ads7846 - fix up the pendown GPIO setup on Nokia 770
-Date: Sun, 19 Apr 2026 19:18:48 +0300
-Message-ID: <20260419161848.825831-3-aaro.koskinen@iki.fi>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260419161848.825831-1-aaro.koskinen@iki.fi>
-References: <20260419161848.825831-1-aaro.koskinen@iki.fi>
+	dkim=pass (2048-bit key) header.d=icenowy.me header.i=uwu@icenowy.me header.b="nsdRXPDA"
+ARC-Seal: i=1; a=rsa-sha256; t=1776615992; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=kQSnz1iBfr3zPc9JyMtd71bSN55fRDtkz8V+izPOrszcIFWW8eiE2GQ805NYkzw77JS5KVENc6lXWNqZOe+/sKNLz69fHuCgfAF9oCtd1e5aU6VeHPwPIef8/XgyMuaMjGAkUPZoJNTH9pAZNy3PCt9oSc0vBJAAF2REgRnjEu4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1776615992; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=XDxRzUYghQyLSOtVSFJCCp821NYg75PtJOz/TeevvgQ=; 
+	b=F+vTlr3zGS9R9vpQsoUo6w/jtWCGwtwsWifitwBJRmWj5Oc0ZJqTvR+Qoq63JAbiZzaKyzNxjDWmicFYMzfQHkC/DurWfG2e41wz5IDi9JM0qfH7bNq2MXicFJ5hGdhAwEKiTYXPVCcLFzOZxN2YXPJqlTA/9X+LVqyuTqv5uT4=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=icenowy.me;
+	spf=pass  smtp.mailfrom=uwu@icenowy.me;
+	dmarc=pass header.from=<uwu@icenowy.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1776615992;
+	s=zmail2; d=icenowy.me; i=uwu@icenowy.me;
+	h=Message-ID:Subject:Subject:From:From:To:To:Cc:Cc:Date:Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-Id:Reply-To;
+	bh=XDxRzUYghQyLSOtVSFJCCp821NYg75PtJOz/TeevvgQ=;
+	b=nsdRXPDAm9LAwbVoZpAUCLGasQ0RZhdslKj90S5qOE/YGg6tTQNGWI++ab7vFRhm
+	tPo+C6x4ZEwqbQgprBNDC0VpMnZPpBVq519MrRKAXD6UrRI9aeEjP6c8p4sHI0me7oj
+	+vk8EP4DaZcvoR9xvAB77dl7f+W2Q8fdGtIrAED43YQ8fZWfGYPKZ9CSX/3D4+L/m8I
+	FSskX4UJkqr4+vW0c++dI1oahwaQ7tafT9MGLcOpXrj1JlRj7GDhF5w9z0qdiuGmiPP
+	iI5D7oJdTY/7n1AwonQDyHr22e2tyhDVq198BodPjidz+iYfWris+qlVcGt+fn+Zg5O
+	imvgwHnlNg==
+Received: by mx.zohomail.com with SMTPS id 1776615989353789.8106081725186;
+	Sun, 19 Apr 2026 09:26:29 -0700 (PDT)
+Message-ID: <938e8afadcbf2d7b9f0397e24926224985d9c385.camel@icenowy.me>
+Subject: Re: [PATCH v2 1/4] HID: pass the buffer size to hid_report_raw_event
+From: Icenowy Zheng <uwu@icenowy.me>
+To: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+  Filipe =?ISO-8859-1?Q?La=EDns?=	 <lains@riseup.net>, Bastien Nocera
+ <hadess@hadess.net>, Ping Cheng	 <ping.cheng@wacom.com>, Jason Gerecke
+ <jason.gerecke@wacom.com>, Viresh Kumar	 <vireshk@kernel.org>, Johan Hovold
+ <johan@kernel.org>, Alex Elder	 <elder@kernel.org>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Lee Jones	 <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
+	linux-usb@vger.kernel.org, stable@vger.kernel.org
+Date: Mon, 20 Apr 2026 00:26:21 +0800
+In-Reply-To: <20260416-wip-fix-core-v2-1-be92570e5627@kernel.org>
+References: <20260416-wip-fix-core-v2-0-be92570e5627@kernel.org>
+	 <20260416-wip-fix-core-v2-1-be92570e5627@kernel.org>
+Organization: Anthon Open-Source Community
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-Commit 767d83361aaa6 ("Input: ads7846 - Convert to use software nodes")
-added gpiod set up for the IRQ in the 770 board file, then another in
-the touchscreen driver for reading the pen state. This will make the probe
-fail:
+=E5=9C=A8 2026-04-16=E5=9B=9B=E7=9A=84 16:48 +0200=EF=BC=8CBenjamin Tissoir=
+es=E5=86=99=E9=81=93=EF=BC=9A
+> commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> bogus memset()") enforced the provided data to be at least the size
+> of
+> the declared buffer in the report descriptor to prevent a buffer
+> overflow. However, we can try to be smarter by providing both the
+> buffer
+> size and the data size, meaning that hid_report_raw_event() can make
+> better decision whether we should plaining reject the buffer (buffer
+> overflow attempt) or if we can safely memset it to 0 and pass it to
+> the
+> rest of the stack.
+>=20
+> Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> bogus memset()")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> ---
+> =C2=A0drivers/hid/bpf/hid_bpf_dispatch.c |=C2=A0 6 ++++--
+> =C2=A0drivers/hid/hid-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 42 +++++++++++++++++++++++++---
+> ----------
+> =C2=A0drivers/hid/hid-gfrm.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++--
+> =C2=A0drivers/hid/hid-logitech-hidpp.c=C2=A0=C2=A0 |=C2=A0 2 +-
+> =C2=A0drivers/hid/hid-multitouch.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=
+=C2=A0 2 +-
+> =C2=A0drivers/hid/hid-primax.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+> =C2=A0drivers/hid/hid-vivaldi-common.c=C2=A0=C2=A0 |=C2=A0 2 +-
+> =C2=A0drivers/hid/wacom_sys.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 6 +++---
+> =C2=A0drivers/staging/greybus/hid.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=
+ 2 +-
+> =C2=A0include/linux/hid.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++--
+> =C2=A0include/linux/hid_bpf.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 | 14 ++++++++-----
+> =C2=A011 files changed, 53 insertions(+), 33 deletions(-)
 
-[    1.347381] ads7846 spi2.0: failed to request pendown GPIO
-[    1.361846] ads7846: probe of spi2.0 failed with error -16
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D 8< =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
 
-I originally tried to fix it using non-exclusive flag, but that was not
-found acceptable. Instead, just use a single gpiod.
+> diff --git a/drivers/staging/greybus/hid.c
+> b/drivers/staging/greybus/hid.c
+> index 1f58c907c036..37e8605c6767 100644
+> --- a/drivers/staging/greybus/hid.c
+> +++ b/drivers/staging/greybus/hid.c
+> @@ -201,7 +201,7 @@ static void gb_hid_init_report(struct gb_hid
+> *ghid, struct hid_report *report)
+> =C2=A0	 * we just need to setup the input fields, so using
+> =C2=A0	 * hid_report_raw_event is safe.
+> =C2=A0	 */
+> -	hid_report_raw_event(ghid->hid, report->type, ghid->inbuf,
+> size, 1);
+> +	hid_report_raw_event(ghid->hid, report->type, ghid->inbuf,
+> ghib->bufsize, size, 1);
 
-Fixes: 767d83361aaa6 ("Input: ads7846 - Convert to use software nodes")
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
----
- arch/arm/mach-omap1/board-nokia770.c | 11 -----------
- drivers/input/touchscreen/ads7846.c  | 12 +++++++-----
- 2 files changed, 7 insertions(+), 16 deletions(-)
+Oops, "ghid" is misspelled here...
 
-diff --git a/arch/arm/mach-omap1/board-nokia770.c b/arch/arm/mach-omap1/board-nokia770.c
-index a5bf5554800f..8b8013ab4590 100644
---- a/arch/arm/mach-omap1/board-nokia770.c
-+++ b/arch/arm/mach-omap1/board-nokia770.c
-@@ -285,9 +285,6 @@ static void __init nokia770_cbus_init(void)
- static struct gpiod_lookup_table nokia770_irq_gpio_table = {
- 	.dev_id = NULL,
- 	.table = {
--		/* GPIO used by SPI device 1 */
--		GPIO_LOOKUP("gpio-0-15", 15, "ads7846_irq",
--			    GPIO_ACTIVE_HIGH),
- 		/* GPIO used for retu IRQ */
- 		GPIO_LOOKUP("gpio-48-63", 14, "retu_irq",
- 			    GPIO_ACTIVE_HIGH),
-@@ -307,8 +304,6 @@ static struct gpiod_lookup_table nokia770_irq_gpio_table = {
- 
- static void __init omap_nokia770_init(void)
- {
--	struct gpio_desc *d;
--
- 	/* On Nokia 770, the SleepX signal is masked with an
- 	 * MPUIO line by default.  It has to be unmasked for it
- 	 * to become functional */
-@@ -322,12 +317,6 @@ static void __init omap_nokia770_init(void)
- 	platform_add_devices(nokia770_devices, ARRAY_SIZE(nokia770_devices));
- 
- 	gpiod_add_lookup_table(&nokia770_irq_gpio_table);
--	d = gpiod_get(NULL, "ads7846_irq", GPIOD_IN);
--	if (IS_ERR(d))
--		pr_err("Unable to get ADS7846 IRQ GPIO descriptor\n");
--	else
--		nokia770_spi_board_info[1].irq = gpiod_to_irq(d);
--
- 	spi_register_board_info(nokia770_spi_board_info,
- 				ARRAY_SIZE(nokia770_spi_board_info));
- 	omap_serial_init();
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 4f8cc450e779..ca7dbd3afe29 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1084,6 +1084,8 @@ static int ads7846_setup_pendown(struct spi_device *spi,
- 			dev_err(&spi->dev, "failed to request pendown GPIO\n");
- 			return PTR_ERR(ts->gpio_pendown);
- 		}
-+		if (!spi->irq)
-+			spi->irq = gpiod_to_irq(ts->gpio_pendown);
- 		if (pdata->gpio_pendown_debounce)
- 			gpiod_set_debounce(ts->gpio_pendown,
- 					   pdata->gpio_pendown_debounce);
-@@ -1374,11 +1376,6 @@ static int ads7846_probe(struct spi_device *spi)
- 	unsigned long irq_flags;
- 	int err;
- 
--	if (!spi->irq) {
--		dev_dbg(dev, "no IRQ?\n");
--		return -EINVAL;
--	}
--
- 	/* don't exceed max specified sample rate */
- 	if (spi->max_speed_hz > (125000 * SAMPLE_BITS)) {
- 		dev_err(dev, "f(sample) %d KHz?\n",
-@@ -1455,6 +1452,11 @@ static int ads7846_probe(struct spi_device *spi)
- 	if (err)
- 		return err;
- 
-+	if (!spi->irq) {
-+		dev_dbg(dev, "no IRQ?\n");
-+		return -EINVAL;
-+	}
-+
- 	if (pdata->penirq_recheck_delay_usecs)
- 		ts->penirq_recheck_delay_usecs =
- 				pdata->penirq_recheck_delay_usecs;
--- 
-2.39.2
+Found this when building some gaint kernel with this patchset.
 
+Thanks,
+Icenowy
+
+> =C2=A0}
+> =C2=A0
+> =C2=A0static void gb_hid_init_reports(struct gb_hid *ghid)

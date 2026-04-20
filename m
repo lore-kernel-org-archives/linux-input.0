@@ -1,149 +1,227 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C99B433B96B;
-	Mon, 20 Apr 2026 13:59:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E4236AB57
+	for <linux-input@vger.kernel.org>; Mon, 20 Apr 2026 14:07:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776693581; cv=none; b=gj/qbZZc2VZ4SWZhn7fdO3BnggphWVsu0hSmSI85IO7EM+DkR+6OUJCF1CWK0QelvOy+gvCFirQKv7CHKpxmLvoYP9CwhWXbMNVLsFiGkFPf+51EqUtbnj0ZsSJV0MexFLVE7XU1Me43HaFz3KcMAppHUTxnC/BKi2f1wxOmaoc=
+	t=1776694028; cv=none; b=C70j7Aj5vOEnUfRFf0qB/yZz4vTPUkapEJOat0X+shvR2HbaXQUPUYfjI7FcS2pyesqd4QfIfDmQkfuDiIoytvd9bkJL+lAT1BiyZ1NmmT3Bq3LU7w9auSvllBM8HaUL3tvzjclXbs1czkgIm1pPLPu4EwuHa7mqyYiFw6ME3IM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776693581; c=relaxed/simple;
-	bh=Qk9FZ+oE67kJLcTv95A0xV7cOG1EF5353kmvzuVgTDo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NH4GWG+ujAlmGy56TYmSsLRa2Ro0VvTZ4A5H8AuEywYXYjeSqoJVa/1BD+FAadLrwBRr6InTUKH22KORxqIzm4rs+pS7emrfQTrZRs/4MmD7XEW8tp1JHz0hIEY+KyNHkIs9P+LNQkBUjva100ZhsCbH4kCmj3noxzEjsDq8KG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hqlIbT6l; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776694028; c=relaxed/simple;
+	bh=3fzJIu4mmT8yy9A8tLrrLk0n0q1GKdusk7kTMmSsaAo=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=qtmAbPbWa9TONeFRpZ/nB+5OLtAxooJpizXA240elyxbJj0snrKcPMS0EJ0C1NnlrEunBRJ6239zaA7O6l0nKwOV3wvyVRva13/L376qQ7v2PuNZEJsG32EosOR4Gebz+defs/uSK0txqDBSDP9y9us3cxCzvzKeFOsWmsf2Q9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FgbdBcY9; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hqlIbT6l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D565CC19425;
-	Mon, 20 Apr 2026 13:59:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776693581;
-	bh=Qk9FZ+oE67kJLcTv95A0xV7cOG1EF5353kmvzuVgTDo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=hqlIbT6lADMqJHJ/rJXvZi6LNNCmlpyO1aFuHxlfDVxj5EDiAfdCCIlzSJIo+s93R
-	 U8K4GgRUKufbTYa/uhNXVeuyfUZTTxFlbFAOmLIx5HgEp5NFDM3jKaUj/nxwrxLcPR
-	 mLYIyYsGFWs2Dd7d5Q1iHUJYSNfEFZsOd2YFoPBvZcpifCNzw8AweXdSRK60kY95O7
-	 Dx/hFbbQUVUle55Tgs1rVwo+xn4TI9XfCA0Rox72qK01lpWzbxfAWQe4Y4Q6eoeqfa
-	 VuzbUPmbfkY3rjqLCGhoI98VRGppWsYrtSHAyVlTKum102BaSQsKNcuyQC6Zoqpp+p
-	 mGR1RP7TicAAw==
-Date: Mon, 20 Apr 2026 15:59:38 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Harpreet Saini <sainiharpreet29@yahoo.com>
-Cc: Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: input: Add PixArt PAJ7620 gesture
- sensor
-Message-ID: <20260420-impossible-muscular-junglefowl-5ec64c@quoll>
-References: <20260418062241.104697-1-sainiharpreet29@yahoo.com>
- <20260418062241.104697-2-sainiharpreet29@yahoo.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FgbdBcY9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1776694026; x=1808230026;
+  h=date:from:to:cc:subject:message-id;
+  bh=3fzJIu4mmT8yy9A8tLrrLk0n0q1GKdusk7kTMmSsaAo=;
+  b=FgbdBcY9fFQeB7kef8Ke0wi5wEay0lD8jpfe3Xqn46vGIzX4PV59Qo6o
+   8/uUQ1D2SO0KcG2yT6B4iMw4UHXoRfH4aVxjO8rGFsSSC2yFgBesv/Jj2
+   u4jP7Q1Xfl76mO1xyScWCepvHoaEDH2/Dfz848ZzDbV6KgAN5AJ+tnwfN
+   7OwWHOIipHjQFHVc7WEuD8Y0hiTZnp86IrXMo1uWENOPVTGGXPQ7+BKnb
+   W4ejr1WyfKKE4Orr8K9r6WP/N0gfgXi2dZVlPR5PMMLyvsCNGjO7Cn9Qg
+   dyn0OhyIPlV1y8JXUYcWXwmnjnsuRf2hXnLxv/GYWqOz4nIa9RELODwJp
+   g==;
+X-CSE-ConnectionGUID: Q2nHTGUjQGa9EF66ulH0Ag==
+X-CSE-MsgGUID: s8AZfdhfTEKZTpNkb78AuQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11762"; a="88226061"
+X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
+   d="scan'208";a="88226061"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 07:07:05 -0700
+X-CSE-ConnectionGUID: wGI0bZtySzi8FLTMjgj/Vg==
+X-CSE-MsgGUID: xSv66kjJQsqg5KB9gb/9rg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
+   d="scan'208";a="231637262"
+Received: from lkp-server01.sh.intel.com (HELO 7e48d0ff8e22) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 20 Apr 2026 07:07:04 -0700
+Received: from kbuild by 7e48d0ff8e22 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wEpHB-000000002Rg-2TlU;
+	Mon, 20 Apr 2026 14:07:01 +0000
+Date: Mon, 20 Apr 2026 22:06:02 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ 2ca45e57ea027fffe3350ae5e21ad9cecb0dce74
+Message-ID: <202604202253.ciTDEOi4-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260418062241.104697-2-sainiharpreet29@yahoo.com>
 
-On Sat, Apr 18, 2026 at 02:22:32AM -0400, Harpreet Saini wrote:
-> The binding include mandatory power supplies (vdd, vbus, vled)
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: 2ca45e57ea027fffe3350ae5e21ad9cecb0dce74  Input: charlieplex_keypad - add GPIO charlieplex keypad
 
-Drop this part
+elapsed time: 723m
 
-> and optional GPIO controller properties to describe the hardware's
-> ability to repurpose SPI pins opeating in I2C mode.
+configs tested: 150
+configs skipped: 13
 
-And just explain what is the purpose of GPIO controller - is this a GPIO
-controller?
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Plus language typo, run spell check.
+tested configs:
+alpha                             allnoconfig    gcc-15.2.0
+alpha                            allyesconfig    gcc-15.2.0
+alpha                               defconfig    gcc-15.2.0
+arc                              allmodconfig    gcc-15.2.0
+arc                               allnoconfig    gcc-15.2.0
+arc                              allyesconfig    gcc-15.2.0
+arc                                 defconfig    gcc-15.2.0
+arc                   randconfig-001-20260420    gcc-8.5.0
+arc                   randconfig-002-20260420    gcc-14.3.0
+arm                               allnoconfig    clang-23
+arm                              allyesconfig    gcc-15.2.0
+arm                                 defconfig    clang-23
+arm                   randconfig-001-20260420    gcc-8.5.0
+arm                   randconfig-002-20260420    gcc-12.5.0
+arm                   randconfig-003-20260420    clang-23
+arm                   randconfig-004-20260420    clang-23
+arm64                            allmodconfig    clang-19
+arm64                             allnoconfig    gcc-15.2.0
+arm64                               defconfig    gcc-15.2.0
+arm64                 randconfig-001-20260420    clang-23
+arm64                 randconfig-002-20260420    clang-23
+arm64                 randconfig-003-20260420    gcc-8.5.0
+arm64                 randconfig-004-20260420    gcc-15.2.0
+csky                             allmodconfig    gcc-15.2.0
+csky                              allnoconfig    gcc-15.2.0
+csky                                defconfig    gcc-15.2.0
+csky                  randconfig-001-20260420    gcc-9.5.0
+csky                  randconfig-002-20260420    gcc-10.5.0
+hexagon                          allmodconfig    clang-17
+hexagon                           allnoconfig    clang-23
+hexagon                             defconfig    clang-23
+hexagon               randconfig-001-20260420    clang-20
+hexagon               randconfig-002-20260420    clang-23
+i386                             allmodconfig    gcc-14
+i386                              allnoconfig    gcc-14
+i386                             allyesconfig    gcc-14
+i386        buildonly-randconfig-001-20260420    clang-20
+i386        buildonly-randconfig-002-20260420    gcc-14
+i386        buildonly-randconfig-003-20260420    clang-20
+i386        buildonly-randconfig-004-20260420    clang-20
+i386        buildonly-randconfig-005-20260420    gcc-14
+i386        buildonly-randconfig-006-20260420    gcc-14
+i386                                defconfig    clang-20
+i386                  randconfig-011-20260420    clang-20
+i386                  randconfig-012-20260420    gcc-14
+i386                  randconfig-013-20260420    gcc-14
+i386                  randconfig-014-20260420    clang-20
+i386                  randconfig-015-20260420    clang-20
+i386                  randconfig-016-20260420    gcc-14
+i386                  randconfig-017-20260420    clang-20
+loongarch                        allmodconfig    clang-19
+loongarch                         allnoconfig    clang-23
+loongarch             randconfig-001-20260420    gcc-15.2.0
+loongarch             randconfig-002-20260420    clang-18
+m68k                             allmodconfig    gcc-15.2.0
+m68k                              allnoconfig    gcc-15.2.0
+m68k                             allyesconfig    gcc-15.2.0
+microblaze                        allnoconfig    gcc-15.2.0
+microblaze                       allyesconfig    gcc-15.2.0
+mips                             allmodconfig    gcc-15.2.0
+mips                              allnoconfig    gcc-15.2.0
+mips                             allyesconfig    gcc-15.2.0
+nios2                            allmodconfig    gcc-11.5.0
+nios2                             allnoconfig    gcc-11.5.0
+nios2                 randconfig-001-20260420    gcc-8.5.0
+nios2                 randconfig-002-20260420    gcc-8.5.0
+openrisc                         allmodconfig    gcc-15.2.0
+openrisc                          allnoconfig    gcc-15.2.0
+openrisc                            defconfig    gcc-15.2.0
+parisc                           alldefconfig    gcc-15.2.0
+parisc                           allmodconfig    gcc-15.2.0
+parisc                            allnoconfig    gcc-15.2.0
+parisc                           allyesconfig    gcc-15.2.0
+parisc                              defconfig    gcc-15.2.0
+parisc                randconfig-001-20260420    gcc-11.5.0
+parisc                randconfig-002-20260420    gcc-8.5.0
+powerpc                          allmodconfig    gcc-15.2.0
+powerpc                           allnoconfig    gcc-15.2.0
+powerpc               randconfig-001-20260420    gcc-8.5.0
+powerpc               randconfig-002-20260420    clang-16
+powerpc64             randconfig-001-20260420    clang-19
+powerpc64             randconfig-002-20260420    clang-18
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    gcc-15.2.0
+riscv                            allyesconfig    clang-16
+riscv                               defconfig    clang-23
+riscv                 randconfig-001-20260420    gcc-14.3.0
+riscv                 randconfig-002-20260420    gcc-9.5.0
+s390                             allmodconfig    clang-18
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-15.2.0
+s390                                defconfig    clang-23
+s390                  randconfig-001-20260420    clang-23
+s390                  randconfig-002-20260420    gcc-11.5.0
+sh                               allmodconfig    gcc-15.2.0
+sh                                allnoconfig    gcc-15.2.0
+sh                               allyesconfig    gcc-15.2.0
+sh                                  defconfig    gcc-15.2.0
+sh                    randconfig-001-20260420    gcc-14.3.0
+sh                    randconfig-002-20260420    gcc-11.5.0
+sparc                             allnoconfig    gcc-15.2.0
+sparc                               defconfig    gcc-15.2.0
+sparc                 randconfig-001-20260420    gcc-15.2.0
+sparc                 randconfig-002-20260420    gcc-8.5.0
+sparc                       sparc64_defconfig    gcc-15.2.0
+sparc64                          allmodconfig    clang-23
+sparc64                             defconfig    clang-20
+sparc64               randconfig-001-20260420    gcc-9.5.0
+sparc64               randconfig-002-20260420    clang-23
+um                               allmodconfig    clang-19
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-14
+um                                  defconfig    clang-23
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260420    clang-23
+um                    randconfig-002-20260420    gcc-14
+um                           x86_64_defconfig    clang-23
+x86_64                           allmodconfig    clang-20
+x86_64                            allnoconfig    clang-20
+x86_64                           allyesconfig    clang-20
+x86_64      buildonly-randconfig-001-20260420    gcc-14
+x86_64      buildonly-randconfig-002-20260420    clang-20
+x86_64      buildonly-randconfig-003-20260420    gcc-14
+x86_64      buildonly-randconfig-004-20260420    gcc-14
+x86_64      buildonly-randconfig-005-20260420    gcc-14
+x86_64      buildonly-randconfig-006-20260420    gcc-14
+x86_64                              defconfig    gcc-14
+x86_64                randconfig-001-20260420    clang-20
+x86_64                randconfig-002-20260420    clang-20
+x86_64                randconfig-003-20260420    gcc-13
+x86_64                randconfig-004-20260420    gcc-14
+x86_64                randconfig-005-20260420    clang-20
+x86_64                randconfig-006-20260420    gcc-14
+x86_64                randconfig-011-20260420    gcc-14
+x86_64                randconfig-012-20260420    gcc-14
+x86_64                randconfig-013-20260420    clang-20
+x86_64                randconfig-014-20260420    gcc-14
+x86_64                randconfig-015-20260420    clang-20
+x86_64                randconfig-016-20260420    clang-20
+x86_64                randconfig-071-20260420    gcc-14
+x86_64                randconfig-072-20260420    gcc-14
+x86_64                randconfig-073-20260420    gcc-14
+x86_64                randconfig-074-20260420    gcc-14
+x86_64                randconfig-075-20260420    clang-20
+x86_64                randconfig-076-20260420    gcc-12
+x86_64                          rhel-9.4-rust    clang-20
+xtensa                            allnoconfig    gcc-15.2.0
+xtensa                           allyesconfig    gcc-15.2.0
+xtensa                randconfig-001-20260420    gcc-11.5.0
+xtensa                randconfig-002-20260420    gcc-9.5.0
 
-> 
-> Signed-off-by: Harpreet Saini <sainiharpreet29@yahoo.com>
-> ---
->  .../bindings/input/pixart,paj7620.yaml        | 79 +++++++++++++++++++
->  .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
->  2 files changed, 81 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/pixart,paj7620.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/input/pixart,paj7620.yaml b/Documentation/devicetree/bindings/input/pixart,paj7620.yaml
-> new file mode 100644
-> index 000000000000..ad051cf641a6
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/pixart,paj7620.yaml
-> @@ -0,0 +1,79 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/pixart,paj7620.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: PixArt PAJ7620 Gesture Sensor
-> +
-> +maintainers:
-> +  - Harpreet Saini <sainiharpreet29@yahoo.com>
-> +
-> +description: |
-
-Do not need '|' unless you need to preserve formatting.
-
-> +  The PixArt PAJ7620 is a gesture recognition sensor with an integrated
-> +  infrared LED and CMOS array. It communicates over an I2C interface and
-> +  provides gesture data via a dedicated interrupt pin.
-> +
-> +properties:
-> +  compatible:
-> +    const: pixart,paj7620
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  vdd-supply:
-> +    description: Main power supply.
-> +
-> +  vbus-supply:
-> +    description: I/O and I2C bus power supply.
-> +
-> +  vled-supply:
-> +    description: Power for the integrated IR LED.
-> +
-> +  linux,keycodes:
-> +    minItems: 9
-> +    maxItems: 9
-> +    description: |
-
-Do not need '|' unless you need to preserve formatting.
-
-> +      List of keycodes mapping to the 9 supported gestures.
-> +
-> +  gpio-controller: true
-> +
-> +  "#gpio-cells":
-> +    const: 2
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - vdd-supply
-> +  - vbus-supply
-> +  - vled-supply
-> +
-
-Missing allOf: with $ref to input.yaml schema. You use its properties.
-
-Commit description said SPI, so missing ref to spi-peripheral-props.
-
-> +additionalProperties: false
-
-And this should be then unevaluatedProperties: false.
-
-Best regards,
-Krzysztof
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

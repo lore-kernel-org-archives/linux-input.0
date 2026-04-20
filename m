@@ -1,139 +1,94 @@
-Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D26F23A5E75
-	for <linux-input@vger.kernel.org>; Mon, 20 Apr 2026 18:15:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 609FF1A9FBD;
+	Mon, 20 Apr 2026 18:59:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776708943; cv=none; b=Un10drXnB+jEOMZu2X/P/CxgSmavVEtda5k+yC4MTTsx0yW1qnEvUL0BXeY68sS8kNmr8sciAzFzCbjwNlKBLK7e94lGVKMxsZYEaXawD24qZSITyh2+3lIcKsl1F9/qu74heyeC9Q3cwZk8qCJprMxjujmKeDQ3eQQvWPEbg3U=
+	t=1776711590; cv=none; b=ry8xuzWCi6SxCAC21Fdu/BMOFegq72eAlpU6vaXYNvCRR6h8TBL0YsmsLq7BB770dVflSuftX4YdkzU2GnlNjy9Jdfxpeu5qsDdxeDtIHGFezILa/7V28+sZJzZqeBHPXkay5eVS19Oj8wkvvDQuwX0zX6KSOQJi0j93rXKYMmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776708943; c=relaxed/simple;
-	bh=EemnUs5FFrPDECYbiRyH9NCl5jBWOQdZi5WTfKx22KQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aZkdjXM9GvvOQcu9fuVKsvIQ7aJcxZjz5NmHVdhrZv7dEZrysPVJxntm5FPNht5lIllwuasBcvbE+kpPscxoTt39MEFqrbO6qSfadEnhQ/hY+mOxkCZZqLY2KmgDDlJ8zVuZVODsBZpCKeA2YBQsg/tH086v7bE9sOSr49OVepM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uF2ywO0Z; arc=none smtp.client-ip=95.215.58.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1776711590; c=relaxed/simple;
+	bh=J3NMr6092uvohqhv7FYHv5SZnsSVWIMfkeigwEDkSu0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=X+rbycu5WtQJbvK5Acs7kbp3eNvbKc8OoGIXQ8h+YzIrXHnslhBy+iNHryZCIV/U/hprhrDV22CgtqQKrZiOzNa+1WXC3mhmObqhMWprPFSILDfwFRH7TSe7X48YDLe+rUzCV+TNTkih7/Q4lkHWbkOEMy3dlIYn8IYu7js+etg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=mYqNHsVX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uF2ywO0Z"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1776708939;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=CBg+5OvftSflpxhdipcLP0c6mKAJZPXjDUv8bmAFcEA=;
-	b=uF2ywO0ZRxf+8kfk61CegeDsRjOTdxFmT+ubuCgV5PJNa8fTFvaUhui7vaktjnbYL1ppj8
-	oMI79X0iw/4Y7Uipe+555YXTL9IZtU+F4KRbr0e5yVvqJPMP/D313jEzJxYJvVveUM8IOa
-	oU97OsdT8a3Yp5gb0vfZ9xDTFNrrxWM=
-From: Matthew Schwartz <matthew.schwartz@linux.dev>
-To: derekjohn.clark@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: mpearson-lenovo@squebb.ca,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Matthew Schwartz <matthew.schwartz@linux.dev>
-Subject: [PATCH] HID: hid-lenovo-go-s: restore OS_TYPE after resume from s2idle
-Date: Mon, 20 Apr 2026 11:15:22 -0700
-Message-ID: <20260420181522.521627-1-matthew.schwartz@linux.dev>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="mYqNHsVX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 841A4C19425;
+	Mon, 20 Apr 2026 18:59:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1776711590;
+	bh=J3NMr6092uvohqhv7FYHv5SZnsSVWIMfkeigwEDkSu0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=mYqNHsVXUJw7FVAhVGGPJcdrtT8/y9CwIJmTR80IgY0iL6iUNKgE4mjp65Y4orrK1
+	 F0ptv2K5ZrkIvolqde1w6rrUQDeggzijf7VYu5+29t25szqCo+g9GG41jjb/ze5GpU
+	 8+qFFpr2A3hm1hu8XicRkVv0wfhy7EZWRLZaAzIs=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	stable <stable@kernel.org>
+Subject: [PATCH 2/2] Input: synaptics-rmi4 - use u32 for reg_size to avoid sign extension into item->reg_size
+Date: Mon, 20 Apr 2026 20:59:46 +0200
+Message-ID: <2026042046-clad-aspect-e8f9@gregkh>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <2026042044-amuser-tantrum-73af@gregkh>
+References: <2026042044-amuser-tantrum-73af@gregkh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1843; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=J3NMr6092uvohqhv7FYHv5SZnsSVWIMfkeigwEDkSu0=; b=owGbwMvMwCRo6H6F97bub03G02pJDJnPyhdN3yHapnFw5db5BVzzJi97ap+9cuGUVyWCkuWK/ x7M7dX/2RHLwiDIxCArpsjyZRvP0f0VhxS9DG1Pw8xhZQIZwsDFKQATSfVimMWsMe3djagJflfn 8W52eXZWWG5NylKGBVe1z339vNJj2o3ta2Y1HfW3rdLSaAMA
+X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-The controller MCU does not persist OS_TYPE across power cycles. During
-s2idle resume, the USB device may be power-cycled, causing the OS_TYPE
-setting to revert to the default Windows value.
+rmi_read_register_desc() builds the 4-byte register size from device
+bytes:
 
-Add a reset_resume callback so that this is correctly restored after
-resume.
+	reg_size = struct_buf[offset] |
+		   (struct_buf[offset + 1] << 8) |
+		   (struct_buf[offset + 2] << 16) |
+		   (struct_buf[offset + 3] << 24);
 
-Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
-Signed-off-by: Matthew Schwartz <matthew.schwartz@linux.dev>
+struct_buf is u8 *, so each byte is promoted to int before the shift.  A
+device that supplies a top byte with bit 7 set (e.g. 00 00 00 00 00 00
+80 in struct_buf to reach the 4-byte path with offset+3 = 0x80) makes
+(0x80 << 24) overflow into the int sign bit, and the OR result is
+negative.  reg_size is then assigned to item->reg_size, which is
+unsigned long, so the negative int sign-extends to a value near
+ULONG_MAX.
+
+After this, bad things happen when numbers start wrapping and buffers
+are allocatged based on those numbers, and then accessed based on those
+buffers assuming to be a sane size (bigger or smaller).
+
+Fix this all up by just properly making reg_size be a u32.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: b43d2c1e9353 ("Input: synaptics-rmi4 - add support for F12")
+Cc: stable <stable@kernel.org>
+Assisted-by: gkh_clanker_t1000
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-lenovo-go-s.c | 44 +++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index 01c7bdd4fbe0..ff1782a75191 100644
---- a/drivers/hid/hid-lenovo-go-s.c
-+++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -1369,6 +1369,14 @@ static void cfg_setup(struct work_struct *work)
- 			"Failed to retrieve IMU Manufacturer: %i\n", ret);
- 		return;
- 	}
-+
-+	ret = mcu_property_out(drvdata.hdev, GET_GAMEPAD_CFG, FEATURE_OS_MODE,
-+			       NULL, 0);
-+	if (ret) {
-+		dev_err(&drvdata.hdev->dev,
-+			"Failed to retrieve OS Mode: %i\n", ret);
-+		return;
-+	}
- }
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 9143f11e42a3..801096c7235e 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -643,7 +643,7 @@ int rmi_read_register_desc(struct rmi_device *d, u16 addr,
+ 	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
+ 	for (i = 0; i < rdesc->num_registers; i++) {
+ 		struct rmi_register_desc_item *item = &rdesc->registers[i];
+-		int reg_size;
++		u32 reg_size;
  
- static int hid_gos_cfg_probe(struct hid_device *hdev,
-@@ -1427,6 +1435,27 @@ static void hid_gos_cfg_remove(struct hid_device *hdev)
- 	hid_set_drvdata(hdev, NULL);
- }
- 
-+static int hid_gos_cfg_reset_resume(struct hid_device *hdev)
-+{
-+	u8 os_mode = drvdata.os_mode;
-+	int ret;
-+
-+	ret = mcu_property_out(drvdata.hdev, SET_GAMEPAD_CFG,
-+			       FEATURE_OS_MODE, &os_mode, 1);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = mcu_property_out(drvdata.hdev, GET_GAMEPAD_CFG,
-+			       FEATURE_OS_MODE, NULL, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (drvdata.os_mode != os_mode)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- static int hid_gos_probe(struct hid_device *hdev,
- 			 const struct hid_device_id *id)
- {
-@@ -1481,6 +1510,20 @@ static void hid_gos_remove(struct hid_device *hdev)
- 	}
- }
- 
-+static int hid_gos_reset_resume(struct hid_device *hdev)
-+{
-+	int ep = get_endpoint_address(hdev);
-+
-+	switch (ep) {
-+	case GO_S_CFG_INTF_IN:
-+		return hid_gos_cfg_reset_resume(hdev);
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct hid_device_id hid_gos_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QHE,
- 			 USB_DEVICE_ID_LENOVO_LEGION_GO_S_XINPUT) },
-@@ -1496,6 +1539,7 @@ static struct hid_driver hid_lenovo_go_s = {
- 	.probe = hid_gos_probe,
- 	.remove = hid_gos_remove,
- 	.raw_event = hid_gos_raw_event,
-+	.reset_resume = hid_gos_reset_resume,
- };
- module_hid_driver(hid_lenovo_go_s);
- 
+ 		if (offset >= rdesc->struct_size)
+ 			goto malformed;
 -- 
 2.53.0
 

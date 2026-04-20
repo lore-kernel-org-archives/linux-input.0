@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E11D3B3BF4;
-	Mon, 20 Apr 2026 13:16:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C59493C3C1A;
+	Mon, 20 Apr 2026 13:17:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776691008; cv=none; b=ha90zNdL22EoGQ3kFks+ebOImToHkwi12rmJ9SXFyRuH6ztw3eUs64hhlEQ8dwNXI1IkkAhF+9vUv9q9QcMK44pFnMa0aRXkwGIDWCjySXexWPHErUJjmBQc+VF+sAM3phwnDR9SA/7M4Se6PdPMFMbg9IZjyt/RwA6mxLZK8wg=
+	t=1776691052; cv=none; b=riW8Xav1SVbJj6PhnQY2Y3LW3/r09PYziAD/I1vAWyMjlMjsn2BLIJZPRZubwBkeJD0KqZDHlaAsmheKm0RQfhc5bcO0EJ35dEjnnu8BubhOBNyd3InOloc0EU3MpbrFN4l0J3uR8OO4aw9BIdowcpyE1vnq6FlCJ+xIz3V7lAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776691008; c=relaxed/simple;
-	bh=gNoPHLTzLSHP/u4qNCTb11g14KhSXkf/SUU7ZM0A0fc=;
+	s=arc-20240116; t=1776691052; c=relaxed/simple;
+	bh=8uyOdQ5vyf5e19NAA4Tw4yoMXSJzWRde3/EYk8juQqo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LrA1/TaRMntCXLDanu2+JnrSr8TgPoFvfJK0H+3BdAjiz9vg6Q8PQqBlZayDVRNiegULiwiAvL1sCWpj0Wp33M9sjQ6+vOaenWAuAFalBZDlZ4V+kAl2BJxRWg4Y8/7klScM1FhUDbkOMo9hInEyDbPX1G4pZ5WHGey8+mnvHvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uP9Rcf1c; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=NuNyhrVhUpp/CEPwT8eR8oebVR0WHNwJivCaLwiYekxXf+LktgAauAhvz3ItGU5Ua3uzBDPJogRrH7bXpZhvZVeZ8KgdKy/NtRiMY0ktbQZJPVgrAkEAXqf51uLPNI8fUjoW2hB9LkvcgyrJWbmJRlGHP8OEMZJDk7cJvmsAYA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qENMbiBZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uP9Rcf1c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB63C19425;
-	Mon, 20 Apr 2026 13:16:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qENMbiBZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941D8C2BCB7;
+	Mon, 20 Apr 2026 13:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776691008;
-	bh=gNoPHLTzLSHP/u4qNCTb11g14KhSXkf/SUU7ZM0A0fc=;
+	s=k20201202; t=1776691052;
+	bh=8uyOdQ5vyf5e19NAA4Tw4yoMXSJzWRde3/EYk8juQqo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=uP9Rcf1cPXITWjO0cXgPkcUF9ghG0vptRgstt0vXQFDTFth9Rp2qHCbFvHr0xNCz/
-	 bO5oZsvsTgyR8rb36kbMvYOSs3RaU9BUGQDamiB16gDkNZHS8OiGVzR+nTGiBN/q19
-	 VquL+5OeAYCdDOYSUpPiBz3YnxdYuYGBS0r379dg5CZdgIzmNRIKe6spI9mgNd2r+p
-	 5LqwcquxoXEc8RBzf1kfGFqF2qT/mlaxMIHSayFqTLONG747XG0Dm42BOX2Y/Z/AJZ
-	 Pm4sGx/A80D0FyKULaMs3e9/YZ+R5nLHhny7wC2eK+W/ogpaHcHbw2AQ5IpgeO5EyR
-	 0pdnv3/OjKYIg==
+	b=qENMbiBZe+IZ6CycRAlxkOw/tQwgBbVgLv+LF30D/rIMwRZn5uPEbcrsRNEBCZArM
+	 Sgc9uOlgKG/+ShM6Dp5mbZh9MsJYOTekPXxXvweIGeaIgyHqkpfBTyubyjZwsfE1Za
+	 h+56QEool4YsBEyxydNmewjO1u2lLNXd54zOK/jU6J4BzIOxld7zBOaLE0CS4Eoh9S
+	 0BwAIB4LZs/OgP/7ZNxXTGvZWoDd1Fl9SZIBJHkZvpDLLTax+T/6YQazftEE95LagQ
+	 EOhwbt5I4jUC3aAwkYfLpx5NPTpJqQi/mF21HqGyeKFnQ/vstu+FFhC5SPvZHpmoDW
+	 f5zQDg1HdN/WQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: =?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+Cc: =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Lee Jones <lee@kernel.org>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-6.6] HID: logitech-hidpp: fix race condition when accessing stale stack pointer
-Date: Mon, 20 Apr 2026 09:08:26 -0400
-Message-ID: <20260420131539.986432-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-6.18] HID: logitech-hidpp: Check bounds when deleting force-feedback effects
+Date: Mon, 20 Apr 2026 09:08:52 -0400
+Message-ID: <20260420131539.986432-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260420131539.986432-1-sashal@kernel.org>
 References: <20260420131539.986432-1-sashal@kernel.org>
@@ -54,428 +55,402 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0
 Content-Transfer-Encoding: 8bit
 
-From: Benoît Sevens <bsevens@google.com>
+From: Günther Noack <gnoack@google.com>
 
-[ Upstream commit e2aaf2d3ad92ac4a8afa6b69ad4c38e7747d3d6e ]
+[ Upstream commit e606d8329be1e19b7eb3e0c6c72a73cbbb25ae3d ]
 
-The driver uses hidpp->send_receive_buf to point to a stack-allocated
-buffer in the synchronous command path (__do_hidpp_send_message_sync).
-However, this pointer is not cleared when the function returns.
+Without this bounds check, this might otherwise overwrite index -1.
 
-If an event is processed (e.g. by a different thread) while the
-send_mutex is held by a new command, but before that command has
-updated send_receive_buf, the handler (hidpp_raw_hidpp_event) will
-observe that the mutex is locked and dereference the stale pointer.
+Triggering this condition requires action both from the USB device and from
+userspace, which reduces the scenarios in which it can be exploited.
 
-This results in an out-of-bounds access on a different thread's kernel
-stack (or a NULL pointer dereference on the very first command).
-
-Fix this by:
-1. Clearing hidpp->send_receive_buf to NULL before releasing the mutex
-   in the synchronous command path.
-2. Moving the assignment of the local 'question' and 'answer' pointers
-   inside the mutex_is_locked() block in the handler, and adding
-   a NULL check before dereferencing.
-
-Signed-off-by: Benoît Sevens <bsevens@google.com>
+Cc: Lee Jones <lee@kernel.org>
+Signed-off-by: Günther Noack <gnoack@google.com>
+Reviewed-by: Lee Jones <lee@kernel.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-Now I have enough information to make a thorough analysis. Let me
-compile my findings.
+## Analysis
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+### PHASE 1: COMMIT MESSAGE FORENSICS
 
-**Step 1.1: Parse Subject Line**
-- Record: Subsystem `HID: logitech-hidpp`, action verb `fix`, summary:
-  race condition when accessing stale stack pointer (clear bug fix).
+**Step 1.1: Parse subject line**
+Record: Subsystem `HID: logitech-hidpp:`, action verb `Check` (adding a
+missing check). Summary: add missing bounds-check when deleting force-
+feedback effects.
 
-**Step 1.2: Parse Tags**
-- Record: `Signed-off-by: Benoît Sevens <bsevens@google.com>` (author)
-  and `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID subsystem
-  maintainer). No Reported-by/Link/Fixes tags. No stable tag. Author is
-  a known Google security researcher (has other HID UAF/OOB fixes in
-  roccat and wacom).
+**Step 1.2: Parse commit message tags**
+Record:
+- `Cc: Lee Jones <lee@kernel.org>` (HID area reviewer, not stable)
+- `Signed-off-by: Günther Noack <gnoack@google.com>` (author - Google
+  security engineer)
+- `Reviewed-by: Lee Jones <lee@kernel.org>`
+- `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
+- **NOT** present: `Cc: stable@vger.kernel.org`, `Fixes:`, `Reported-
+  by:`, `Link:`
+- No syzbot, no user bug report, no sanitizer report
 
-**Step 1.3: Analyze Body**
-- Record: Bug description: `hidpp->send_receive_buf` is assigned to
-  point at a stack-allocated response buffer inside
-  `__do_hidpp_send_message_sync()` but never cleared when the function
-  returns. Meanwhile `hidpp_raw_hidpp_event()` speculatively reads this
-  pointer whenever `send_mutex` is locked. The race:
-  1. Thread A finishes a command; leaves `send_receive_buf` pointing at
-     A's stack.
-  2. Thread B grabs `send_mutex`; there is a window before B writes
-     `send_receive_buf = response`.
-  3. Event handler fires (different thread), sees the mutex locked,
-     dereferences the stale pointer from A's stack. The handler even
-     performs `*answer = *report` — a WRITE to the stale stack pointer
-     using device-supplied data (potential stack corruption / info leak
-     / exploit primitive).
-  4. On very first use, `send_receive_buf` is NULL → NULL deref.
-     Symptom: OOB stack access on a different thread or NULL deref on
-     first command.
+**Step 1.3: Analyze commit body**
+Record: Author describes a missing bounds check that "might otherwise
+overwrite index -1". Explicitly notes reduced exploitability:
+"Triggering this condition requires action both from the USB device and
+from userspace, which reduces the scenarios in which it can be
+exploited." This is a security-hardening fix with an author-acknowledged
+limited attack surface.
 
-**Step 1.4: Hidden Bug Detection**
-- Record: Not hidden — commit title already says "fix race condition".
-  Classic race + UAF/stale-pointer bug.
+**Step 1.4: Hidden bug fix?**
+Record: Not hidden at all - clearly a bug fix (missing bounds check
+preventing OOB write). The "Check bounds" phrasing is classic stable-
+style bug fix language.
 
-## PHASE 2: DIFF ANALYSIS
+### PHASE 2: DIFF ANALYSIS
 
 **Step 2.1: Inventory**
-- Record: One file changed (`drivers/hid/hid-logitech-hidpp.c`), +17/-7
-  lines. Two functions touched: `__do_hidpp_send_message_sync()` and
-  `hidpp_raw_hidpp_event()`. Classification: single-file surgical fix.
+Record: 1 file modified: `drivers/hid/hid-logitech-hidpp.c`. 9 lines
+added, 6 removed. Single function modified: `hidpp_ff_work_handler()`,
+single switch case: `HIDPP_FF_DESTROY_EFFECT`. Classification: single-
+file surgical fix.
 
-**Step 2.2: Code Flow Change**
-- Record: Producer (`__do_hidpp_send_message_sync`): early returns
-  converted to `goto out`, new `out:` label clears
-  `hidpp->send_receive_buf = NULL` before returning. Consumer
-  (`hidpp_raw_hidpp_event`): `question/answer` assignments moved inside
-  the `mutex_is_locked()` block, plus `if (!question) return 0;` NULL
-  guard before use.
+**Step 2.2: Code flow change**
+Record:
+- BEFORE: In `HIDPP_FF_DESTROY_EFFECT`, unconditionally writes
+  `data->effect_ids[wd->params[0]-1] = -1` when `effect_id >= 0`. No
+  bounds check on `wd->params[0]`.
+- AFTER: First reads `slot = wd->params[0]`, then wraps the writes in
+  `if (slot > 0 && slot <= data->num_effects)`.
+- This is an error-path / invalid-state handling fix, but on a normal
+  runtime path.
 
-**Step 2.3: Bug Mechanism**
-- Record: Category (b)+(d) — race / memory safety fix. Adds implicit
-  synchronization by ensuring the shared pointer is NULL'd while still
-  holding `send_mutex`, and adds a NULL check on the read side to close
-  the small window between mutex acquisition and pointer assignment.
-  Addresses two failure modes: stale stack pointer dereference (UAF of
-  stack memory) and NULL dereference on first use.
+**Step 2.3: Bug mechanism**
+Record: Category (f) Memory safety - bounds check added. Specific
+mechanism: `wd->params[0]` is set by `hidpp_ff_find_effect()` (line
+2478), which returns 0 when the requested `effect_id` is not present in
+`data->effect_ids[]`. For `HIDPP_FF_EFFECTID_AUTOCENTER`, it's set to
+`data->slot_autocenter` (initially 0 before autocenter is uploaded).
+When `params[0] == 0`, the expression `params[0] - 1` promotes through
+int arithmetic to `-1`, causing `data->effect_ids[-1] = -1` - an out-of-
+bounds write of a fixed value `-1` at index `-1` of a
+`kzalloc`-allocated `int*` array. The analogous
+`HIDPP_FF_DOWNLOAD_EFFECT` case (lines 2493-2502) already contains the
+exact same defensive check `if (slot > 0 && slot <= data->num_effects)`
+- this fix restores symmetry.
 
-**Step 2.4: Fix Quality**
-- Record: Obviously correct. Minimal. No new locks, no API/ABI changes.
-  Possible (extremely minor) regression risk: if a report raced in
-  between `mutex_lock` and the assignment, the early-out `return 0` will
-  now skip matching it against the question — but this was already
-  broken (it used a stale pointer) and the send path has a 5-second
-  timeout with retry, so the benign behavior is strictly safer. No
-  regression risk beyond that.
+**Step 2.4: Fix quality**
+Record: Obviously correct - mirrors existing defensive check from the
+same function's DOWNLOAD case. Minimal/surgical. Zero regression risk:
+the added condition only suppresses an invalid index write; it doesn't
+restrict any legitimate behavior. No red flags.
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+### PHASE 3: GIT HISTORY INVESTIGATION
 
-**Step 3.1: Blame**
-- Record: The stale-pointer pattern (`hidpp->send_receive_buf =
-  response;` and the speculative read `struct hidpp_report *question =
-  hidpp->send_receive_buf;`) dates to commit `2f31c52529103d` "HID:
-  Introduce hidpp" by Benjamin Tissoires, Sep 2014 (≈ v3.18). Bug is
-  therefore present in every stable tree from v3.18 through
-  v6.19/mainline.
+**Step 3.1: git blame**
+Record: The buggy `HIDPP_FF_DESTROY_EFFECT` handler was introduced by
+commit `ff21a635dd1a9c` (Edwin Velds, 2016-01-11) "HID: logitech-hidpp:
+Force feedback support for the Logitech G920". `git describe --contains`
+places it at `v4.6-rc1~107^2^4~1` - first appeared in v4.6. The code has
+been stable for ~10 years and is present in every supported stable tree.
 
-**Step 3.2: Fixes: tag**
-- Record: No `Fixes:` tag in the commit. Manually identified introducing
-  commit as `2f31c52529103d` (original driver introduction, 2014).
+**Step 3.2: Follow Fixes: tag**
+Record: No `Fixes:` tag in the commit, but git blame identifies the
+introducing commit as `ff21a635dd1a9c` (v4.6). That original commit is
+in all stable trees that fork from ≥v4.6, which is every currently-
+supported stable tree (5.4, 5.10, 5.15, 6.1, 6.6, 6.12, 6.19).
 
-**Step 3.3: Related Changes to the File**
-- Record: Recent file history shows actively maintained file (device ID
-  adds, quirks, other UAF fix `f7a4c78b` "Prevent use-after-free on
-  force feedback initialisation failure"). Function was split into
-  `__do_hidpp_send_message_sync`/`hidpp_send_message_sync` in
-  `60165ab774cb0c` (v6.7, Jul 2023). Before that split (v6.6 is the
-  earliest with `__do_hidpp_send_message_sync`), the logic lived inline
-  in `hidpp_send_message_sync`.
+**Step 3.3: Related recent changes**
+Record: Recent related work:
+- `f7a4c78bfeb32` (Feb 2026) - Lee Jones, "Prevent use-after-free on
+  force feedback initialisation failure" - UAF fix in same FF path, no
+  `Cc: stable`.
+- `1547d41f9f19d` (Jan 2026) - Günther Noack, "Check maxfield in
+  hidpp_get_report_length()" - hardening fix, **has** `Cc: stable`.
+- This commit is standalone and self-contained; not part of a series (b4
+  dig -a shows only v1).
 
-**Step 3.4: Author's Other Commits**
-- Record: Benoît Sevens (Google) has prior HID security fixes:
-  `d802d848` (roccat UAF), `2f1763f6` (wacom OOB), plus similar fixes in
-  uvcvideo and ALSA. Consistent pattern of Google-originated kernel
-  security research. High trust.
+**Step 3.4: Author's other commits**
+Record: Günther Noack (Google) has been actively hardening HID drivers
+against malicious/fake USB devices: `HID: asus: avoid memory leak`,
+`HID: magicmouse: Do not crash on missing msc->input` (+Cc stable),
+`HID: prodikeys: Check presence of pm->input_ep82` (+Cc stable), `HID:
+logitech-hidpp: Check maxfield in hidpp_get_report_length()` (+Cc
+stable). Author is credible, security-focused, and knows stable
+conventions.
 
 **Step 3.5: Dependencies**
-- Record: Self-contained, no prerequisites. Fix only touches one file
-  and two functions. For v6.1.y and older the function was not yet
-  split, so the fix requires trivial rewording to apply (move the NULL-
-  out before `mutex_unlock` in `hidpp_send_message_sync`), but the
-  change is mechanical.
+Record: No dependencies. Standalone, self-contained fix.
 
-## PHASE 4: MAILING LIST RESEARCH
+### PHASE 4: MAILING LIST / EXTERNAL RESEARCH
 
-**Step 4.1: Original Discussion**
-- Record: `b4 dig -c e2aaf2d3ad92a` found the thread at https://lore.ker
-  nel.org/all/20260401144811.1242722-1-bsevens@google.com/. Only one
-  version (v1) was posted; no review-imposed revisions.
+**Step 4.1: b4 dig original submission**
+Record: `b4 dig -c e606d8329be1e` returned a single-message thread at `h
+ttps://lore.kernel.org/all/20260331074052.194064-1-gnoack@google.com/`.
+`b4 dig -a` confirms only v1 was posted - no revision history.
 
-**Step 4.2: Reviewers**
-- Record: `b4 dig -w`: patch CC'd `Filipe Laíns`, `Bastien Nocera`,
-  `Jiri Kosina`, `Benjamin Tissoires`, linux-input, linux-kernel — all
-  the correct maintainers. Merged by Jiri Kosina (subsystem maintainer)
-  with note: "Now applied. Benjamin had some ideas on further cleanup
-  (allocating with __free__ instead of using stack pointer), but that'd
-  be a little bigger cleanup, so let's keep that separate." Confirms
-  maintainer reviewed and accepted; any follow-up is an orthogonal
-  cleanup, not a fix correction.
+**Step 4.2: Recipients**
+Record: `b4 dig -w` shows patch was sent to Filipe Laíns, Bastien
+Nocera, Jiri Kosina (HID maintainer), Benjamin Tissoires (HID co-
+maintainer), Lee Jones, linux-input@vger.kernel.org, linux-
+kernel@vger.kernel.org. Appropriate audience.
 
-**Step 4.3: Bug Reports**
-- Record: No Reported-by or Link tags. Author is from Google — likely
-  discovered via internal audit/fuzzing. No public reproducer cited.
+**Step 4.3: Bug report**
+Record: No bug report referenced; no syzbot/KASAN/KMSAN tag. Appears to
+be a code-audit / hardening finding by the author.
 
-**Step 4.4: Related Series**
-- Record: Single standalone patch, no series.
+**Step 4.4: Thread discussion**
+Record: Thread saved to `/tmp/hidpp_thread.mbox`. Contents:
+- Lee Jones: "LGTM. Reviewed-by: Lee Jones <lee@kernel.org>"
+- Jiri Kosina: "Applied, thanks."
+- **No reviewer suggested `Cc: stable`**. No NAKs, no concerns raised.
 
-**Step 4.5: Stable ML**
-- Record: Not searched; the patch was only posted April 1, 2026 and
-  applied soon after — too fresh for independent stable ML activity.
+**Step 4.5: Stable-list discussion**
+Record: No evidence of prior stable-list discussion for this particular
+bug.
 
-## PHASE 5: CODE SEMANTIC ANALYSIS
+### PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1: Key Functions**
-- Record: `__do_hidpp_send_message_sync` (producer) and
-  `hidpp_raw_hidpp_event` (consumer).
+**Step 5.1: Functions in diff**
+Record: Only `hidpp_ff_work_handler()` (switch case
+`HIDPP_FF_DESTROY_EFFECT`).
 
-**Step 5.2: Callers**
-- Record: 45 call sites for `hidpp_send_*_sync` inside the driver —
-  every HID++ query (battery, connect, feature discovery, probe,
-  get_report_length, etc.). `hidpp_raw_hidpp_event` is invoked from
-  `hidpp_raw_event` (registered as `.raw_event` in `hid_ll_driver`),
-  reached from the HID core for every HID report coming from any
-  Logitech HID++ device (receivers, mice, keyboards, touchpads). Both
-  paths fire during normal operation — not rare.
+**Step 5.2: Callers / trigger path**
+Record: `hidpp_ff_work_handler` is the workqueue callback scheduled by
+`hidpp_ff_queue_work()`. The DESTROY path is queued by
+`hidpp_ff_erase_effect()` (line 2712), which is assigned to `ff->erase`
+(line 2877). `ff->erase` is the standard input-layer callback invoked
+when userspace calls `EVIOCRMFF` ioctl on `/dev/input/eventX` of the FF
+device. So the buggy code is reachable via a standard userspace ioctl on
+any user with access to the device node (typically needs `input` group
+membership, or root).
 
 **Step 5.3: Callees**
-- Record: Sync path calls `__hidpp_send_report()` (USB/Bluetooth
-  transmit) and `wait_event_timeout()`. Event path does a struct-copy
-  `*answer = *report` — this is the dangerous write when `answer` is
-  stale.
+Record: `hidpp_ff_find_effect()` iterates `data->effect_ids[]` and
+returns `i+1` if found, `0` otherwise. The return value `0` directly
+causes the `params[0]-1 = -1` OOB when the destroy command proceeds.
 
 **Step 5.4: Reachability**
-- Record: The sync path runs in process context (probe, sysfs,
-  workqueue). The event path runs from HID input processing (URB
-  completion / BT callback, softirq or kthread depending on transport).
-  Different contexts on different CPUs → true concurrent race possible.
-  Triggers do not require privilege — any HID++ device that sends
-  unsolicited reports while a command is in flight can race. This is the
-  normal mode of operation for hidpp devices (connect events, battery
-  notifications, keypresses).
+Record: Buggy path is reachable from userspace: `EVIOCRMFF` ioctl →
+`ff->erase` → `hidpp_ff_erase_effect` →
+`hidpp_ff_queue_work(HIDPP_FF_DESTROY_EFFECT)` → workqueue →
+`hidpp_ff_work_handler`. Needs a Logitech HID++ FF-capable device (e.g.,
+G920 wheel) and a userspace condition that erases an effect not present
+in the driver's tracking array (race between operations, stale
+effect_id, or autocenter destroy before upload).
 
-**Step 5.5: Similar Patterns**
-- Record: Only one occurrence of `send_receive_buf` in the file; pattern
-  is unique to this driver.
+**Step 5.5: Similar patterns**
+Record: The same function already has the correct pattern in
+`HIDPP_FF_DOWNLOAD_EFFECT` (lines 2494-2502): `slot =
+response.fap.params[0]; if (slot > 0 && slot <= data->num_effects) { ...
+}`. This fix brings DESTROY into symmetry with DOWNLOAD.
 
-## PHASE 6: STABLE TREE ANALYSIS
+### PHASE 6: CROSS-REFERENCING AND STABLE TREE ANALYSIS
 
-**Step 6.1: Buggy Code in Stable**
-- Record: Verified via `git show <tag>:drivers/hid/hid-logitech-hidpp.c`
-  that the exact same vulnerable pattern (`send_receive_buf = response`
-  without clearing, `question = hidpp->send_receive_buf` read without
-  NULL check) exists in v4.19, v5.4, v5.10, v5.15, v6.1, v6.6. All
-  active stable trees are affected.
+**Step 6.1: Buggy code in stable trees?**
+Record: The buggy code was added in v4.6 (Jan 2016) and is virtually
+unchanged since then (blame shows only a whitespace/comment tweak in
+2024). Present in every supported stable tree: 5.4.y, 5.10.y, 5.15.y,
+6.1.y, 6.6.y, 6.12.y, 6.19.y.
 
-**Step 6.2: Backport Complications**
-- Record: v6.6+ (and mainline): patch applies cleanly — identical
-  function structure. v6.1 and earlier: `__do_hidpp_send_message_sync`
-  does not yet exist; the logic is inline in `hidpp_send_message_sync`
-  which also holds/releases `send_mutex`. Backport requires mechanically
-  placing `hidpp->send_receive_buf = NULL;` before
-  `mutex_unlock(&hidpp->send_mutex)` in `hidpp_send_message_sync`, and
-  applying the event-handler hunk unchanged. Straightforward for the
-  stable maintainers.
+**Step 6.2: Backport complications**
+Record: Minimal. Recent churn in the function: Yan Zhen (2024, comment
+typo fix) and Lee Jones (2026, adjacent UAF fix in init path - not this
+function). The switch statement body targeted by this patch is identical
+to what has been in the tree since 2016. Clean apply expected on all
+stable branches, modulo trivial context adjustments.
 
-**Step 6.3: Related Fixes in Stable**
-- Record: No prior independent fix for this specific race is in stable.
-  Unrelated recent fixes (force-feedback UAF `f7a4c78b`) target other
-  paths.
+**Step 6.3: Related fixes in stable**
+Record: No prior fix for this specific OOB. Some adjacent FF hardening
+(UAF fix `f7a4c78bfeb32`) exists in mainline but also lacks Cc: stable.
 
-## PHASE 7: SUBSYSTEM CONTEXT
+### PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 7.1: Criticality**
-- Record: Subsystem: `drivers/hid/` HID++ Logitech driver. Logitech
-  Unifying receivers/MX mice/keyboards are ubiquitous on laptops and
-  desktops; the driver ships on most distributions. Classification:
-  IMPORTANT (wide hardware user base), not CORE.
+**Step 7.1: Subsystem criticality**
+Record: `drivers/hid/hid-logitech-hidpp.c` - HID driver for specific
+Logitech HID++ devices (G920 wheel, MX mice, etc.). Classification:
+PERIPHERAL (hardware-specific driver), but FF is a userspace-reachable
+subsystem where games commonly issue erase/upload ioctls, so realistic
+number of users on systems with a G920/G923 wheel.
 
-**Step 7.2: Activity**
-- Record: Actively developed — multiple merges per release cycle (device
-  IDs, quirks, bug fixes). Mature core codepaths in the driver have been
-  stable for years.
+**Step 7.2: Subsystem activity**
+Record: Actively developed, with a mix of feature additions (new device
+support) and security hardening (see Günther Noack's string of commits).
+Mature codebase.
 
-## PHASE 8: IMPACT AND RISK ASSESSMENT
+### PHASE 8: IMPACT AND RISK ASSESSMENT
 
-**Step 8.1: Who Is Affected**
-- Record: Anyone with a Logitech HID++ device (mice, keyboards,
-  receivers, presenters) using the in-tree driver. Essentially most
-  laptop users with Logitech peripherals. Driver-specific but very
-  widespread hardware.
+**Step 8.1: Affected users**
+Record: Users of Logitech HID++ FF-capable devices (G920/G923 wheels and
+similar). Not universal - driver-specific. Requires the device to be
+plugged in and a userspace FF client (game, test tool, etc.).
 
-**Step 8.2: Trigger Conditions**
-- Record: Requires concurrent activity: one thread invoking a sync
-  command while the device sends an asynchronous report. Races happen
-  during connect/disconnect, battery reporting, feature queries. The
-  very-first-use path yields NULL deref (no concurrency needed: any
-  async event before any sync command completes once) — but that path is
-  rare because probe typically drives the first sync command before any
-  report arrives. Attacker plane: a malicious or faulty HID device can
-  flood reports to widen the window — reachable from device-trust
-  boundary, relevant for BadUSB-style threat models.
+**Step 8.2: Trigger conditions**
+Record: Author states "requires action both from the USB device and from
+userspace." In practice: userspace invokes `EVIOCRMFF` with an effect_id
+that the driver cannot find in `data->effect_ids[]` (e.g., effect never
+uploaded, already erased, or device returned unexpected slot) AND the
+device responds successfully to the destroy command. Not triggerable by
+an unprivileged attacker alone; requires access to the evdev node.
 
-**Step 8.3: Failure Mode Severity**
-- Record: (a) NULL pointer dereference → kernel oops (CRITICAL: crash).
-  (b) Stale stack pointer read → OOB read (HIGH: info leak). (c) Stale
-  stack pointer WRITE via `*answer = *report` using device-controlled
-  data → stack corruption on an unrelated thread (CRITICAL: memory
-  corruption, potential privilege escalation/exploit primitive). Overall
-  severity: CRITICAL.
+**Step 8.3: Failure mode**
+Record: Out-of-bounds write of the fixed value `-1` (`0xFFFFFFFF`) at
+index `-1` of the `kzalloc`ed `data->effect_ids[]` array (an `int *`).
+This corrupts 4 bytes immediately before the allocation - likely slab
+metadata / redzone or an adjacent slab object. Severity: HIGH (memory
+corruption), but with limited exploitability because (a) both value and
+offset are fixed (not attacker-controlled), (b) requires non-trivial
+combination of device + userspace state. Not directly security-critical
+as a remote/local privilege escalation primitive, but an unambiguous
+memory-safety bug.
 
-**Step 8.4: Risk/Benefit**
-- Record: Benefit HIGH — closes a long-standing race with
-  crash/corruption potential in a widely-deployed driver. Risk LOW —
-  24-line surgical change, no new locking, no API change, reviewed and
-  applied by subsystem maintainer, only risk is a missed-answer timeout
-  that already has retry logic and a 5-second wait. Ratio clearly favors
-  backporting.
+**Step 8.4: Benefit/risk**
+Record:
+- BENEFIT: Fixes a 10-year-old memory-corruption bug in a userspace-
+  reachable code path. Medium-low because the trigger is narrow, but
+  non-zero - silent slab corruption can manifest as hard-to-debug
+  crashes.
+- RISK: Extremely low. 9-line purely additive bounds-check that mirrors
+  an existing check in the same function. Zero regression potential on
+  normal operation.
+- Ratio: Low benefit but near-zero risk → favorable for stable.
 
-## PHASE 9: FINAL SYNTHESIS
+### PHASE 9: FINAL SYNTHESIS
 
-**Step 9.1: Evidence**
-- FOR: Fixes real race/UAF/NULL-deref, very widespread hardware, small
-  and surgical, author has security-fix track record, applied by
-  subsystem maintainer, bug is 10+ years old (present in every active
-  stable), failure modes include potential stack corruption from device-
-  controlled data (security-relevant).
-- AGAINST: No Reported-by/Fixes/Cc: stable tag; no public reproducer;
-  for older stables (≤v6.1) a trivial mechanical adaptation is needed
-  because the function was later split.
-- UNRESOLVED: Exact kernel trigger rate in the wild is not documented;
-  CVE status unknown.
+**Evidence FOR backporting:**
+- Clear out-of-bounds memory write (OOB pattern - recognized stable
+  category).
+- Bug present in all stable trees since v4.6 (2016).
+- Fix is 9 lines, in a single function, obviously correct.
+- Mirrors existing defensive check in the same function
+  (`HIDPP_FF_DOWNLOAD_EFFECT`).
+- Reviewed by Lee Jones; applied by HID maintainer Jiri Kosina.
+- Author is a security-focused developer doing ongoing HID hardening.
+- Clean apply expected on all stable branches.
+- Zero regression risk.
 
-**Step 9.2: Stable Rules**
-1. Obviously correct & tested? Yes — tiny, mechanical; applied by
-   maintainer.
-2. Fixes real bug? Yes — race + stale/NULL pointer deref with concrete
-   failure modes.
-3. Important? Yes — kernel oops and potential stack corruption.
-4. Small & contained? Yes — 24 lines, one file, two functions.
-5. No new features/APIs? Correct — pure fix.
-6. Applies to stable? v6.6+: clean. ≤v6.1: needs trivial adaptation.
+**Evidence AGAINST backporting:**
+- Author explicitly noted reduced exploitability ("requires action both
+  from the USB device and from userspace").
+- Author did NOT include `Cc: stable@vger.kernel.org`, despite including
+  it on several similar HID hardening commits in the same timeframe.
+  This is a deliberate signal from a stable-aware author.
+- No `Fixes:` tag, no bug report, no syzbot/KASAN evidence of real-world
+  triggers.
+- Trigger requires specific hardware (Logitech FF wheel) + specific
+  userspace sequence.
+- Bug has been present 10 years without reported user impact.
 
-**Step 9.3: Exceptions**
-- Not an exception category; qualifies on normal bug-fix merit.
+**Stable rules checklist:**
+1. Obviously correct and tested? YES - mirrors existing pattern;
+   reviewed and applied.
+2. Fixes a real bug? YES - OOB write is a real memory-safety bug.
+3. Important issue? BORDERLINE - memory corruption but with narrow, non-
+   attacker-controlled trigger.
+4. Small and contained? YES - 9 insertions, 6 deletions, one function.
+5. No new features? YES - pure defensive check.
+6. Applies cleanly? YES - expected clean on all active stable branches.
 
-**Step 9.4: Decision**
-- The commit is a textbook stable candidate: small, targeted race fix in
-  a broadly used driver, repairing a NULL-deref + stale-pointer write
-  that a faulty/malicious device can provoke.
+**Exception categories:** Not applicable (not a device-
+ID/quirk/DT/build/doc fix).
+
+**Decision rationale:**
+This is a borderline case. Technically, it is a legitimate memory-safety
+fix for a bug in userspace-reachable code that has been in the tree for
+a decade. The patch is small, obviously correct, and zero-risk. OOB
+writes are a canonical stable-backport category per the rule set.
+
+The strongest counter-signal is the author's deliberate omission of `Cc:
+stable` while including it on peer hardening patches, combined with the
+explicit statement about limited exploitability. However, per the task
+instructions, the absence of `Cc: stable` is explicitly NOT a negative
+signal, and the technical criteria for stable are met.
+
+Weighing the risk (near-zero) against the benefit (fixes a real OOB
+write, even if rarely triggered), this is the kind of defensive bounds-
+check fix that stable trees routinely accept. Memory corruption with a
+hardcoded value at a hardcoded offset is still memory corruption.
 
 ### Verification
 
-- [Phase 1] Read full commit message — no Fixes/Reported-by/Cc: stable
-  tags; identified bug description and two-step fix.
-- [Phase 2] Read diff end-to-end; confirmed +17/-7 in one file, two
-  functions, classic NULL-out + NULL-check pattern with `goto out`.
-- [Phase 3] `git blame` on both functions: pattern dates to
-  `2f31c52529103d` (2014, v3.18). Split into
-  `__do_hidpp_send_message_sync` at `60165ab774cb0c` (v6.7).
-- [Phase 3] `git log --oneline -- drivers/hid/hid-logitech-hidpp.c`:
-  file is actively maintained.
-- [Phase 3] `git log --oneline --author="Benoit Sevens\|Benoît Sevens"`:
-  confirmed author's pattern of HID/UVC/ALSA security fixes.
-- [Phase 4] `b4 dig -c e2aaf2d3ad92a`: found lore thread at `https://lor
-  e.kernel.org/all/20260401144811.1242722-1-bsevens@google.com/`.
-- [Phase 4] `b4 dig -w`: confirmed CC list includes Jiri Kosina,
-  Benjamin Tissoires, Filipe Laíns, Bastien Nocera, linux-input, linux-
-  kernel.
-- [Phase 4] `b4 dig -a`: only v1 was posted; no further revisions.
-- [Phase 4] Read `/tmp/hidpp_race.mbox`: confirmed maintainer Jiri
-  Kosina's "Now applied" reply and note about deferred cleanup idea from
-  Benjamin Tissoires.
-- [Phase 5] `rg send_receive_buf`: confirmed only 4 references (struct
-  member + 1 write + 2 reads), no other use sites.
-- [Phase 5] Read `hidpp_raw_event` caller: confirmed registered as
-  `.raw_event` and called for every HID++ short/long/very-long report
-  from the device.
-- [Phase 6] `git show vX:drivers/hid/hid-logitech-hidpp.c` for v4.19,
-  v5.4, v5.10, v5.15, v6.1, v6.6: verified vulnerable pattern exists in
-  every stable tree.
-- [Phase 6] Verified `__do_hidpp_send_message_sync` only exists from
-  v6.6 onward; older trees need trivial adaptation of the producer hunk.
-- [Phase 8] Reviewed event handler body: `*answer = *report` is a write,
-  confirming the stack-corruption / write-primitive aspect (not merely
-  an info leak).
-- UNVERIFIED: Whether a CVE was assigned; whether a public reproducer
-  exists; exact in-wild trigger rate.
+- [Phase 1] Parsed tags from commit message: found Signed-off-by (Noack,
+  Kosina), Reviewed-by (Jones), Cc (Jones). No `Cc: stable`, no
+  `Fixes:`, no `Reported-by:`, no `Link:`.
+- [Phase 2] Diff analysis: 9 lines added, 6 removed, single file, single
+  function (`hidpp_ff_work_handler`), single case
+  (`HIDPP_FF_DESTROY_EFFECT`). Confirmed by `git show e606d8329be1e`.
+- [Phase 2] Confirmed symmetry with existing check in
+  `HIDPP_FF_DOWNLOAD_EFFECT` by reading `drivers/hid/hid-logitech-
+  hidpp.c` lines 2493-2511.
+- [Phase 3] `git blame -L 2502,2515 drivers/hid/hid-logitech-hidpp.c`:
+  buggy code introduced by `ff21a635dd1a9c` (Edwin Velds, 2016-01-11).
+- [Phase 3] `git describe --contains ff21a635dd1a9c`:
+  `v4.6-rc1~107^2^4~1` (present since v4.6, 2016).
+- [Phase 3] `git log --author="gnoack@google.com" --oneline`: confirmed
+  author's pattern of HID hardening work, including `Cc: stable`-tagged
+  peer commits (`17abd396`, `cee8337e`, `1547d41f`).
+- [Phase 4] `b4 dig -c e606d8329be1e`: matched single thread at
+  `lore.kernel.org/all/20260331074052.194064-1-gnoack@google.com/`.
+- [Phase 4] `b4 dig -a`: only v1 was posted - no revisions.
+- [Phase 4] `b4 dig -w`: recipients include HID maintainers (Kosina,
+  Tissoires) and linux-input.
+- [Phase 4] Read saved mbox `/tmp/hidpp_thread.mbox`: Lee Jones gave
+  Reviewed-by, Jiri Kosina said "Applied, thanks." No stable request or
+  concerns raised.
+- [Phase 5] Confirmed reachability: `hidpp_ff_erase_effect()` wired to
+  `ff->erase` (line 2877), reachable via `EVIOCRMFF` ioctl. Confirmed
+  `hidpp_ff_find_effect` returns 0 when effect not found (line 2457).
+- [Phase 5] Confirmed the buggy `params[0]-1 = -1` path when the
+  returned slot is 0.
+- [Phase 6] Confirmed `ff21a635dd1a9c` pre-dates all active stable
+  branches (branch points are all after v4.6).
+- [Phase 7] Subsystem `drivers/hid/` - PERIPHERAL driver for specific
+  Logitech HID++ devices with FF.
+- [Phase 8] Failure mode: OOB write of fixed value `-1` at fixed offset
+  `-1` → slab corruption, severity HIGH but limited exploitability
+  primitive.
+- UNVERIFIED: Did not run per-branch apply test on each stable tree, but
+  the function body is unchanged since 2016 so clean apply is highly
+  likely.
+- UNVERIFIED: Could not find any user-reported crash or bug report
+  pointing to this specific OOB (no bug-tracker links in the commit
+  message or on the mailing list).
 
-The fix is small, surgical, reviewed by the HID maintainer, repairs a
-long-standing race with crash and stack-corruption consequences
-affecting extremely common Logitech hardware, and backports cleanly to
-recent stables with only a mechanical adjustment needed for older ones.
+The fix is small, obviously correct, low-risk, and addresses a real out-
+of-bounds write in a userspace-reachable path. Even with the author's
+deliberate omission of `Cc: stable`, the technical stable criteria are
+met, and bounds-check fixes of this nature are routinely backported.
 
 **YES**
 
- drivers/hid/hid-logitech-hidpp.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 5f63f1d2303a0..b1330d23bd2d0 100644
+index d1dea7297712d..5f63f1d2303a0 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -306,21 +306,22 @@ static int __do_hidpp_send_message_sync(struct hidpp_device *hidpp,
- 	if (ret) {
- 		dbg_hid("__hidpp_send_report returned err: %d\n", ret);
- 		memset(response, 0, sizeof(struct hidpp_report));
--		return ret;
-+		goto out;
- 	}
- 
- 	if (!wait_event_timeout(hidpp->wait, hidpp->answer_available,
- 				5*HZ)) {
- 		dbg_hid("%s:timeout waiting for response\n", __func__);
- 		memset(response, 0, sizeof(struct hidpp_report));
--		return -ETIMEDOUT;
-+		ret = -ETIMEDOUT;
-+		goto out;
- 	}
- 
- 	if (response->report_id == REPORT_ID_HIDPP_SHORT &&
- 	    response->rap.sub_id == HIDPP_ERROR) {
- 		ret = response->rap.params[1];
- 		dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
--		return ret;
-+		goto out;
- 	}
- 
- 	if ((response->report_id == REPORT_ID_HIDPP_LONG ||
-@@ -328,10 +329,14 @@ static int __do_hidpp_send_message_sync(struct hidpp_device *hidpp,
- 	    response->fap.feature_index == HIDPP20_ERROR) {
- 		ret = response->fap.params[1];
- 		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
--		return ret;
-+		goto out;
- 	}
- 
--	return 0;
-+	ret = 0;
-+
-+out:
-+	hidpp->send_receive_buf = NULL;
-+	return ret;
- }
- 
- /*
-@@ -3843,8 +3848,7 @@ static int hidpp_input_configured(struct hid_device *hdev,
- static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 		int size)
- {
--	struct hidpp_report *question = hidpp->send_receive_buf;
--	struct hidpp_report *answer = hidpp->send_receive_buf;
-+	struct hidpp_report *question, *answer;
- 	struct hidpp_report *report = (struct hidpp_report *)data;
- 	int ret;
- 	int last_online;
-@@ -3854,6 +3858,12 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 	 * previously sent command.
- 	 */
- 	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
-+		question = hidpp->send_receive_buf;
-+		answer = hidpp->send_receive_buf;
-+
-+		if (!question)
-+			return 0;
-+
- 		/*
- 		 * Check for a correct hidpp20 answer or the corresponding
- 		 * error
+@@ -2502,12 +2502,15 @@ static void hidpp_ff_work_handler(struct work_struct *w)
+ 		}
+ 		break;
+ 	case HIDPP_FF_DESTROY_EFFECT:
+-		if (wd->effect_id >= 0)
+-			/* regular effect destroyed */
+-			data->effect_ids[wd->params[0]-1] = -1;
+-		else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
+-			/* autocenter spring destroyed */
+-			data->slot_autocenter = 0;
++		slot = wd->params[0];
++		if (slot > 0 && slot <= data->num_effects) {
++			if (wd->effect_id >= 0)
++				/* regular effect destroyed */
++				data->effect_ids[slot-1] = -1;
++			else if (wd->effect_id >= HIDPP_FF_EFFECTID_AUTOCENTER)
++				/* autocenter spring destroyed */
++				data->slot_autocenter = 0;
++		}
+ 		break;
+ 	case HIDPP_FF_SET_GLOBAL_GAINS:
+ 		data->gain = (wd->params[0] << 8) + wd->params[1];
 -- 
 2.53.0
 

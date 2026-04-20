@@ -1,99 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [185.185.170.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6BA3A758C;
-	Mon, 20 Apr 2026 19:05:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776711935; cv=none; b=BI7J44Z9+PngzR3s1AAV7pM+ylp9bSSY51Fbs2CNm7bIi2HYqF2jVZlIUoJP1cCsGvvrZIjET+14dv5CbvIuyqB5lPRf0rgoicWXo+4mkW2cAZdJb+8mVWpuq8r7EZyprId5ops6pqMxr9woNGXclDE4KfxZMJAkMM/wksXzuN4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776711935; c=relaxed/simple;
-	bh=XgW4QYPS5kTqM0w2kxIea5GLDUvVoZyEea4mI4ONZBc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Vws5JZ+suLLxWre20D2+sg8/1ZMGMCt2EG2pdzWNJ/NvNsQfhLOZHN9EoAkjf/89TULlOiBTA6r3WkR3fpkV/lGQOobUTIaNSOSki5O5CN4/hEqTW57R9eymAAh8ed2LwsWvjQCaF7WoIG2Mnf6wA3bRr4QiAEaBHLGwm0p0/NY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=nboAmfvc; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7B42E3B15;
+	Mon, 20 Apr 2026 19:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.185.170.37
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776713535; cv=pass; b=oqzBvYzbkPS0f+f69FvfCic/FJGysShlfWgEbtMSn5VhObkZRAGo9DcClhWaI7JJyllIybEmNn65aufo6kq7wRlyEfnQ8IFTxIb0OlC94OMzpX1la15w+dmtxTJ4doOlvnJyVTiNqV6ntWJElBJanJisZDPTCcLEgc9fZ17O3pY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776713535; c=relaxed/simple;
+	bh=MnjgDgm43KQZ2fMMPFZVWkYkAZQlDlm19bghmyolsKk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bcz7JorPDMxyU4AIT2G3tQ0aJLjT32geRJAI+fZ0huiMcXvtr3XqiPsuQYctI5iS+QJOSnLTPdp2mmHElqb1TidmzTWe0DS1P5lnuKq9eVz+6zryB83oxOrowVmnX61wExru7clqy8ZTbj+p8PyCp2ZISxpe3CZOqhpfNJprm6g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iki.fi; spf=pass smtp.mailfrom=iki.fi; dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b=ukG37M+X; arc=pass smtp.client-ip=185.185.170.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iki.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iki.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="nboAmfvc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82252C19425;
-	Mon, 20 Apr 2026 19:05:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1776711934;
-	bh=XgW4QYPS5kTqM0w2kxIea5GLDUvVoZyEea4mI4ONZBc=;
-	h=From:To:Cc:Subject:Date:From;
-	b=nboAmfvcUUYAdy2CozRFihkisF7kprwtug37SdGtZyy0DvATKV42CTvl2NaXMVp9+
-	 EIoIvlas15hXa/msgQMZuRvgSJxe188fim4urbe4hT9IHPMa9EuE1brlXbnO+NRSDb
-	 rbGYtdiZt3oNDs0upoQEfLBzujmf9MR8OD2083q0=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	stable <stable@kernel.org>
-Subject: [PATCH] Input: ims-pcu - bound frame parser write index against read_buf size
-Date: Mon, 20 Apr 2026 21:05:31 +0200
-Message-ID: <2026042030-mobilize-suspense-88f9@gregkh>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b="ukG37M+X"
+Received: from darkstar.musicnaut.iki.fi (unknown [83.245.248.121])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange secp256r1 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: aaro.koskinen)
+	by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 4fzwbp6gfLz49PtL;
+	Mon, 20 Apr 2026 22:32:06 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+	t=1776713527;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6qxViCgW6EC8n2IF2MWZbBd3t3RwgF7Ubx8QXH+7lRc=;
+	b=ukG37M+XatFsnxm9gU5ZNXIygD0o16uXUHcSw677csPPsQbW20k1PzrsWYosrp17ktYOXX
+	QbWsqGecvBY82M5QVGZuJXuLj5eceOBWRESbxR9n7gvSK000cWB5h+7ywH5J3G1B8Payio
+	HR0x66QzjYvKpPlVn7T74VRqoxigMyidQtK1R+JDwy/XX1uBAwAdQNaIHeu8sta8gJWpc4
+	LO5Pk9LsfLYqEC3GXYdectkvyYL17TeLG+0P7+CPSL+E2UQUT91kedIs2XUixceEygw02X
+	BcdhJQZYIP+SeMP7jFjDbg+Poa7TMeEb86d8yYlyaL3m6qqkx9e3x93JB0DjPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+	s=lahtoruutu; t=1776713527;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6qxViCgW6EC8n2IF2MWZbBd3t3RwgF7Ubx8QXH+7lRc=;
+	b=azDM6yqK+EV2EmHdu1jfjA5cOhVrSzBrR/HgqvQw0XTLLFdmeLXMolAYQyRX4jeGZFzO6e
+	Tcpud8QZhLAZYTWB9b/LdiYrC0r8Py5breR8kd3f7VQR2VwHd9pWCXQoJ7pQNCpmVMJBCz
+	ucm3Mop9Xz1LqKj6DpRw/6lLh354RKqRylaorP3BqKAMnvLAXa+v2HiLM9OjP67dJTL23u
+	J6SqYtzRC5VR1fjl0/n1JULtMlVyHq20SiJi/BQshI3VBUOy9VDqCDL4WvVCYCYQFOMImL
+	KMahVddGP51yyVicnI9uK6uZZNLh2znft4rVeGrmbuO208QNgt9hWPA9zddCEQ==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=aaro.koskinen smtp.mailfrom=aaro.koskinen@iki.fi
+ARC-Seal: i=1; a=rsa-sha256; d=iki.fi; s=lahtoruutu; cv=none; t=1776713527;
+	b=JAv0zZ7FBakVrPut9I8lBCR/KRYwoX4vJr/jHUknOIAxbDUq8X2fstMoq79ICvNuOFhIYC
+	APCOKpkK00hB3ipZzzkDalbIMhDzuwY4pcfBRd8bWuSvYqbAKRFO+fPRhEZD+5hlM/JbQD
+	HPu0mGFvWsjk8w35ofD3aHBshqSzVPzhpvamVRVmTQrujCKL7iDRR8GewTXpOsecoxgUPd
+	aDeDfSlHJf1nRO3t5KupwUsgTkI7Y6zfXzbXD8+Y2WxFX3GdUl4GAPwo6MuhlyOi/R9bPO
+	JsUjIoLNkLj2GpwwfCblU4U9FIlaPtDwIAJ81FGK+xl2Fkz3bVla2sHE6OtJ0g==
+Date: Mon, 20 Apr 2026 22:32:03 +0300
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, Linus Walleij <linusw@kernel.org>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-omap@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] Input: ads7846 - restore half-duplex support
+Message-ID: <aeZ_M7jjisCExva8@darkstar.musicnaut.iki.fi>
+References: <20260419161848.825831-1-aaro.koskinen@iki.fi>
+ <20260419161848.825831-2-aaro.koskinen@iki.fi>
+ <aeVu2-zlzl-fn1dN@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1834; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=XgW4QYPS5kTqM0w2kxIea5GLDUvVoZyEea4mI4ONZBc=; b=kA0DAAIRMUfUDdst+ykByyZiAGnmePuhhRcIpWw+ocp/4y0u2BYbP57uvXsu67ao/yX0sY1pJ IhdBAARAgAdFiEE9LYMxb94wiFKMT3LMUfUDdst+ykFAmnmePsACgkQMUfUDdst+ym2TwCgzIhF B9sz+b/PvR5gGMh7UOsYFjkAnRFAO0Ghc9UwLiRJL3PFFVgMgKEw
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aeVu2-zlzl-fn1dN@google.com>
 
-ims_pcu_process_data() implements a STX/DLE/ETX byte-stuffing parser
-that accumulates frame payload into pcu->read_buf[] using the running
-index pcu->read_pos.  read_buf is IMS_PCU_BUF_SIZE (128) bytes and
-read_pos is u8 but of course, we don't check the index before actually
-writing the data :(
+Hi,
 
-Fix this up by properly rejecting the frame at the first attempt to
-write past read_buf and resync on the next STX, mirroring how the parser
-handles short and bad-checksum frames on ETX.
+On Sun, Apr 19, 2026 at 05:13:56PM -0700, Dmitry Torokhov wrote:
+> > +static void ads7846_halfd_read_state(struct ads7846 *ts)
+> > +{
+> > +	struct ads7846_packet *packet = ts->packet;
+> > +	int msg_idx = 0;
+> > +
+> > +	packet->ignore = false;
+> > +
+> > +	while (msg_idx < ts->msg_count) {
+> > +		int error;
+> > +
+> > +		ads7846_wait_for_hsync(ts);
+> > +
+> > +		error = spi_sync(ts->spi, &ts->msg[msg_idx]);
+> > +		if (error) {
+> > +			dev_err_ratelimited(&ts->spi->dev, "spi_sync --> %d\n",
+> > +					    error);
+> > +			packet->ignore = true;
+> > +			return;
+> 
+> Sashiko recommends trying to power down ADC on errors, what do you
+> think?
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-Cc: stable <stable@kernel.org>
-Assisted-by: gkh_clanker_t1000
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/input/misc/ims-pcu.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+If we want to re-work error handling, then I guess it should be done the
+same way for both full and half-duplex modes, and belongs to a separate
+change set. This code has been in use quite a while, maybe 20 years,
+and I haven't seen those errors in real use anyway, and AFAIK there
+hasn't been any bug/problem reports by others either.
 
-diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-index f69de9762c4e..87c66483b493 100644
---- a/drivers/input/misc/ims-pcu.c
-+++ b/drivers/input/misc/ims-pcu.c
-@@ -451,6 +451,8 @@ static void ims_pcu_process_data(struct ims_pcu *pcu, struct urb *urb)
- 
- 		if (pcu->have_dle) {
- 			pcu->have_dle = false;
-+			if (pcu->read_pos >= IMS_PCU_BUF_SIZE)
-+				goto frame_overflow;
- 			pcu->read_buf[pcu->read_pos++] = data;
- 			pcu->check_sum += data;
- 			continue;
-@@ -491,10 +493,19 @@ static void ims_pcu_process_data(struct ims_pcu *pcu, struct urb *urb)
- 			break;
- 
- 		default:
-+			if (pcu->read_pos >= IMS_PCU_BUF_SIZE)
-+				goto frame_overflow;
- 			pcu->read_buf[pcu->read_pos++] = data;
- 			pcu->check_sum += data;
- 			break;
- 		}
-+		continue;
-+
-+frame_overflow:
-+		dev_warn(pcu->dev, "Frame longer than %d bytes, discarding\n", IMS_PCU_BUF_SIZE);
-+		pcu->have_stx = false;
-+		pcu->have_dle = false;
-+		pcu->read_pos = 0;
- 	}
- }
- 
--- 
-2.53.0
+Maybe it wasn't so clearly stated in the commit message, but the patch
+just restores the old code verbatim that was working fine for half-duplex
+mode.
 
+(Thanks for introducing Sashiko, I wasn't aware.)
+
+A.

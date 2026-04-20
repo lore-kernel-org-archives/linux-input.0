@@ -1,96 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7776F345752;
-	Mon, 20 Apr 2026 16:13:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B8F2F5A13;
+	Mon, 20 Apr 2026 16:50:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776701590; cv=none; b=XVcMQv+tjOkWP0IrMU9qIAHHTwuGPNXX1dd2eghrjx2NUq5zWiP06rcFJU2ZseuM5rpRz9zNEPqGQiqfy8oKjwKwqd6PhPGEUhG+JoAewvezw+uuFb3yF5kL+iuO+FAp9SJO3rCb2qZKo0eX2qp2vDcSRnNuHPtFkZH8YmkyCeQ=
+	t=1776703837; cv=none; b=KntQ/+X5h3LKMRGvnalCKfDjL2Lkf0KzCiD1LQNA4YvTskU+3S0xpeEf1uaTxwIxnDvgo69pP9S2YqxwvgG5RTWh/jAYhe8GI9l/J2Zjn0qlFyppx4KzjBCqWvHp/XLlP7QN+0z/rwmAfrDFTMubCIRlPlKtbwF0vvklHZF4rt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776701590; c=relaxed/simple;
-	bh=a9uTXcO3PsYxxt/OPq1p6TAxbS+fSZ0fDOPPGimJuyU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Pu2Y5s1vWQo+63lMa1Qx8+3r3zOy5ygd9qVHbMk7sblq7U+uXEs3aD5cdMA9p2uwD+EDML77loWrrbbcAHArNxn8W4kQjvMX/ekd5w09BOFBCLeLUTkqWLaJaWxXUP8mWLaq+0yKsUHrsQDGFSMuyIC95AQys1mIVsOPl1cvsgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=SvbaM+eK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776703837; c=relaxed/simple;
+	bh=Kr6h74H8lz0vsV0jhb5XQdSGijgvq9UENV23oNMwFIM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tCUIUvtoAsZr87hBTH6pQGJl3wy9MGbsBWrtMSxF1ZcIEOEZ6LhxN69xqj2KubeSaK/RECImS6LyJQqCBaN+TxBbxLOyI8C8gnlo30UpQOzFxOO4EVJvyyq5iGyLHlM7UXojL0zfP4dWiZLQMQupX0BTOO8dO9cJi0P7x2XONuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NtqVqpLj; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="SvbaM+eK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A87C2BCB4;
-	Mon, 20 Apr 2026 16:13:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1776701590;
-	bh=a9uTXcO3PsYxxt/OPq1p6TAxbS+fSZ0fDOPPGimJuyU=;
-	h=From:To:Cc:Subject:Date:From;
-	b=SvbaM+eK9v7Pem6paCQ6W+8gS1fsXFU48jbyAqOffBKD2iSkBjqwEsbo0SJiaATXn
-	 K1ru5al4OtIEVSkFhPhIHe0pMExPOZWzgls/Uqr8hKpX5hEa6KNVCQ7JMMi9KY/kDF
-	 4mFhcY/HoqqJx0pfJMG6JrptaS0IQI60MzxZXgOo=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	stable <stable@kernel.org>
-Subject: [PATCH] Input: usbtouchscreen - clamp NEXIO data_len/x_len to URB buffer size
-Date: Mon, 20 Apr 2026 18:00:27 +0200
-Message-ID: <2026042026-chlorine-epidermis-fd6d@gregkh>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NtqVqpLj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1776703836; x=1808239836;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Kr6h74H8lz0vsV0jhb5XQdSGijgvq9UENV23oNMwFIM=;
+  b=NtqVqpLjjYVI6x4gNQgCKttlHIeoZhJtjff0PrVcXH+Wt6vlhsG3nHVf
+   fCitcjrGhABRFvhEf5wN453u8PBcwZwWhG+iM5b57Qtyw2Z5YvW71ibBb
+   rKaCDEL86GRXsdx7RT9es1ygrRNosdnkVF1SK/wHsiM5ZJsPnUueICwcT
+   +RWMjjK7RZjMwsX1mGTtW5xaH7o/31kGtFooAn4E5i0R268T2PxL+uWrA
+   bLudvfPDBOlggEFohJOrUMZ6QAIzXTeOSV8x+GeG6b3itueQgn4BNcy63
+   PR4jog0hjG14bs0hUDBBZi+1B8bE9typfvlYDsVfsD3r3GSILkhKih9iL
+   Q==;
+X-CSE-ConnectionGUID: unEBkKXyTxeLUWvPJKqBlg==
+X-CSE-MsgGUID: r1ENBFsBS1uNYnU4fyoTdg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11762"; a="77500308"
+X-IronPort-AV: E=Sophos;i="6.23,190,1770624000"; 
+   d="scan'208";a="77500308"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 09:50:35 -0700
+X-CSE-ConnectionGUID: m3oeEsfORrS2N62Iojd/gQ==
+X-CSE-MsgGUID: OKIxIq1ESS6p/5vZY+3tBA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,190,1770624000"; 
+   d="scan'208";a="236140257"
+Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.90])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 09:50:32 -0700
+Date: Mon, 20 Apr 2026 19:50:30 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Joshua Crofts <joshua.crofts1@gmail.com>, jikos@kernel.org,
+	jic23@kernel.org, dlechner@baylibre.com, nuno.sa@analog.com,
+	andy@kernel.org, linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] iio: magnetometer: hid-sensor-magn-3d: prefer
+ 'unsigned int'
+Message-ID: <aeZZVgvfmQDVO5jm@ashevche-desk.local>
+References: <20260419180523.37396-1-joshua.crofts1@gmail.com>
+ <4e84f9cc258676ed038e1f932137f10f34064aca.camel@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2134; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=a9uTXcO3PsYxxt/OPq1p6TAxbS+fSZ0fDOPPGimJuyU=; b=owGbwMvMwCRo6H6F97bub03G02pJDJnPfGettOiIO7Q+v6BX7UOXvc3Tlml8L1le55hwKpRP/ Cn7vs2/I5aFQZCJQVZMkeXLNp6j+ysOKXoZ2p6GmcPKBDKEgYtTACayK45hvgOP52bG9t/x9jYT 6iYsXLpyScACGYYFCz5MOB5g+dT8vchy272qZ2Olpe7vAQA=
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <4e84f9cc258676ed038e1f932137f10f34064aca.camel@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-nexio_read_data() pulls data_len and x_len from a packed __be16 header
-in the device's interrupt packet and then walks packet->data[0..x_len)
-and packet->data[x_len..data_len) comparing each byte against a
-threshold.
+On Mon, Apr 20, 2026 at 08:46:57AM -0700, srinivas pandruvada wrote:
+> On Sun, 2026-04-19 at 20:05 +0200, Joshua Crofts wrote:
+> > Use 'u32' instead of bare 'unsigned' to resolve checkpatch.pl
+> > warnings
+> > and correct type use as defined in the hid_sensor_hub_callbacks
+> > struct.
+> > 
+> > No functional change.
+> > 
+> > Signed-off-by: Joshua Crofts <joshua.crofts1@gmail.com>
+> 
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Both fields are 16-bit on the wire (max 65535).  The existing
-adjustments shave at most 0x100 / 0x80 off, so the loop bound can still
-reach roughly 0xfeff.  The URB transfer buffer for NEXIO is rept_size
-(1024) bytes from usb_alloc_coherent(), with the first 7 occupied by the
-packed header â€” so packet->data[] has 1017 valid bytes.  read_data()
-callbacks are not given urb->actual_length, and nothing else bounds the
-walk.
+The Subject needs to be adjusted as well.
 
-A device that lies about its length can get a ~64 KiB out-of-bounds read
-past the coherent DMA allocation.  The first index whose byte exceeds
-NEXIO_THRESHOLD lands in begin_x / begin_y and from there into the
-reported touch coordinates, so adjacent kernel memory contents leak to
-userspace as ABS_X / ABS_Y events.  Far enough out, the read can also
-hit an unmapped page and fault.
+> > ---
+> > v2:
+> >  - changed 'unsigned int' to 'u32' per struct definition
 
-Fix this all by clamping data_len to the buffer's data[] capacity and
-x_len to data_len.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Fixes: 5197424cdccc ("Input: usbtouchscreen - add NEXIO (or iNexio) support")
-Cc: stable <stable@kernel.org>
-Assisted-by: gkh_clanker_t1000
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/input/touchscreen/usbtouchscreen.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 657555c8796c..866d4a7fbe42 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -1070,6 +1070,11 @@ static int nexio_read_data(struct usbtouch_usb *usbtouch, unsigned char *pkt)
- 	if (x_len > 0xff)
- 		x_len -= 0x80;
- 
-+	if (data_len > usbtouch->data_size - sizeof(*packet))
-+		data_len = usbtouch->data_size - sizeof(*packet);
-+	if (x_len > data_len)
-+		x_len = data_len;
-+
- 	/* send ACK */
- 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
- 	if (ret)
 -- 
-2.53.0
+With Best Regards,
+Andy Shevchenko
+
 

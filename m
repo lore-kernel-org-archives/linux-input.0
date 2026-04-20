@@ -1,227 +1,281 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E4236AB57
-	for <linux-input@vger.kernel.org>; Mon, 20 Apr 2026 14:07:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A39F33C52E;
+	Mon, 20 Apr 2026 15:02:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776694028; cv=none; b=C70j7Aj5vOEnUfRFf0qB/yZz4vTPUkapEJOat0X+shvR2HbaXQUPUYfjI7FcS2pyesqd4QfIfDmQkfuDiIoytvd9bkJL+lAT1BiyZ1NmmT3Bq3LU7w9auSvllBM8HaUL3tvzjclXbs1czkgIm1pPLPu4EwuHa7mqyYiFw6ME3IM=
+	t=1776697329; cv=none; b=cBRtpW9ynj5sAMsDJa8hM2AxEk56iE6KnZKvmoOW/VBKIB35hWXn7tQbAlPR/1x4iCt4bNzTBe8/y3R3Ic0IJpDPJOZ4hp+sRHsJN/YrNdMbdf+vzhtk53D5fvGxyUek4FfPoR99VhAFWLCillM8FxKXWCHR4seFDYx4mcIpUyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776694028; c=relaxed/simple;
-	bh=3fzJIu4mmT8yy9A8tLrrLk0n0q1GKdusk7kTMmSsaAo=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=qtmAbPbWa9TONeFRpZ/nB+5OLtAxooJpizXA240elyxbJj0snrKcPMS0EJ0C1NnlrEunBRJ6239zaA7O6l0nKwOV3wvyVRva13/L376qQ7v2PuNZEJsG32EosOR4Gebz+defs/uSK0txqDBSDP9y9us3cxCzvzKeFOsWmsf2Q9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FgbdBcY9; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1776697329; c=relaxed/simple;
+	bh=ppmcDQ+6aBiLTNJXmGSl+uAXZF8qtgwLq4lIwLkS/v0=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=RjitGJIZcv35STEEZ/VdelYQmDKQFeNm+oh1Qyj4mYxtlS5+651m/UTtuHO1UfnqqM7hn5VfFMDInW7WTy9GiNuAsyokxCn+TXc5+h5udupBbmvFJks83aBp+z9Qt8fV5/7sZnOzXMdVoZyBI3PawxPWiGDrisCvLFoVH6OeMec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=fX1lO7lX; arc=none smtp.client-ip=162.243.120.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FgbdBcY9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776694026; x=1808230026;
-  h=date:from:to:cc:subject:message-id;
-  bh=3fzJIu4mmT8yy9A8tLrrLk0n0q1GKdusk7kTMmSsaAo=;
-  b=FgbdBcY9fFQeB7kef8Ke0wi5wEay0lD8jpfe3Xqn46vGIzX4PV59Qo6o
-   8/uUQ1D2SO0KcG2yT6B4iMw4UHXoRfH4aVxjO8rGFsSSC2yFgBesv/Jj2
-   u4jP7Q1Xfl76mO1xyScWCepvHoaEDH2/Dfz848ZzDbV6KgAN5AJ+tnwfN
-   7OwWHOIipHjQFHVc7WEuD8Y0hiTZnp86IrXMo1uWENOPVTGGXPQ7+BKnb
-   W4ejr1WyfKKE4Orr8K9r6WP/N0gfgXi2dZVlPR5PMMLyvsCNGjO7Cn9Qg
-   dyn0OhyIPlV1y8JXUYcWXwmnjnsuRf2hXnLxv/GYWqOz4nIa9RELODwJp
-   g==;
-X-CSE-ConnectionGUID: Q2nHTGUjQGa9EF66ulH0Ag==
-X-CSE-MsgGUID: s8AZfdhfTEKZTpNkb78AuQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11762"; a="88226061"
-X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
-   d="scan'208";a="88226061"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 07:07:05 -0700
-X-CSE-ConnectionGUID: wGI0bZtySzi8FLTMjgj/Vg==
-X-CSE-MsgGUID: xSv66kjJQsqg5KB9gb/9rg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
-   d="scan'208";a="231637262"
-Received: from lkp-server01.sh.intel.com (HELO 7e48d0ff8e22) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 20 Apr 2026 07:07:04 -0700
-Received: from kbuild by 7e48d0ff8e22 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wEpHB-000000002Rg-2TlU;
-	Mon, 20 Apr 2026 14:07:01 +0000
-Date: Mon, 20 Apr 2026 22:06:02 +0800
-From: kernel test robot <lkp@intel.com>
+	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="fX1lO7lX"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=default; h=Content-Transfer-Encoding:Mime-Version:Message-Id:Subject:Cc:
+	To:From:Date:subject:date:message-id:reply-to;
+	bh=lArVrBn/x5rTmypa5CmSx1ZlITyRRcDc30mnIjp2KpQ=; b=fX1lO7lXlbcZkWbqF5Vl8AKrFY
+	PL6aJ/ecp6cwzbZVPLyqPNq9GGGgnYWrU0J+UARb0+2IlW4qDB5K9N6PCSf9hGi4DaHghmF1aG4XE
+	gbheHtXZQRlp3RFYMaGjm98ttXUK7EfpxgVcnzmwIxUqPPuWCaj0C1GqvfEE2ybScMf4=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168] helo=pettiford.lan)
+	by mail.hugovil.com with esmtpa (Exim 4.98.2)
+	(envelope-from <hugo@hugovil.com>)
+	id 1wEq8N-000000006HH-36N1;
+	Mon, 20 Apr 2026 11:02:00 -0400
+Date: Mon, 20 Apr 2026 11:01:59 -0400
+From: Hugo Villeneuve <hugo@hugovil.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD SUCCESS
- 2ca45e57ea027fffe3350ae5e21ad9cecb0dce74
-Message-ID: <202604202253.ciTDEOi4-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+Cc: robin@protonic.nl, andy@kernel.org, geert@linux-m68k.org,
+ robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+ hvilleneuve@dimonoff.com, mkorpershoek@kernel.org, matthias.bgg@gmail.com,
+ angelogioacchino.delregno@collabora.com, lee@kernel.org,
+ alexander.sverdlin@gmail.com, marek.vasut@gmail.com, akurz@blala.de,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH v5 4/4] Input: charlieplex_keypad: add GPIO charlieplex
+ keypad
+Message-Id: <20260420110159.29ccb815eb584bca18a407ac@hugovil.com>
+In-Reply-To: <aeWtDA7snjJmiF9K@google.com>
+References: <20260312180304.3865850-1-hugo@hugovil.com>
+	<20260312180304.3865850-5-hugo@hugovil.com>
+	<aeWtDA7snjJmiF9K@google.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam_score: -2.0
+X-Spam_bar: --
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 2ca45e57ea027fffe3350ae5e21ad9cecb0dce74  Input: charlieplex_keypad - add GPIO charlieplex keypad
+Hi Dmitry,
 
-elapsed time: 723m
+On Sun, 19 Apr 2026 21:47:40 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-configs tested: 150
-configs skipped: 13
+> Hi Hugo,
+> 
+> On Thu, Mar 12, 2026 at 02:00:58PM -0400, Hugo Villeneuve wrote:
+> > +
+> > +static void charlieplex_keypad_report_key(struct input_dev *input)
+> > +{
+> > +	struct charlieplex_keypad *keypad = input_get_drvdata(input);
+> > +	const unsigned short *keycodes = input->keycode;
+> > +
+> > +	if (keypad->current_code > 0) {
+> > +		input_event(input, EV_MSC, MSC_SCAN, keypad->current_code);
+> > +		input_report_key(input, keycodes[keypad->current_code], 0);
+> 
+> This needs input_sync() as otherwise userspace is free to only recognize
+> the last MSC_SCAN event.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Ok, now I get it, my code would have been be working only if it was an
+if/else.
 
-tested configs:
-alpha                             allnoconfig    gcc-15.2.0
-alpha                            allyesconfig    gcc-15.2.0
-alpha                               defconfig    gcc-15.2.0
-arc                              allmodconfig    gcc-15.2.0
-arc                               allnoconfig    gcc-15.2.0
-arc                              allyesconfig    gcc-15.2.0
-arc                                 defconfig    gcc-15.2.0
-arc                   randconfig-001-20260420    gcc-8.5.0
-arc                   randconfig-002-20260420    gcc-14.3.0
-arm                               allnoconfig    clang-23
-arm                              allyesconfig    gcc-15.2.0
-arm                                 defconfig    clang-23
-arm                   randconfig-001-20260420    gcc-8.5.0
-arm                   randconfig-002-20260420    gcc-12.5.0
-arm                   randconfig-003-20260420    clang-23
-arm                   randconfig-004-20260420    clang-23
-arm64                            allmodconfig    clang-19
-arm64                             allnoconfig    gcc-15.2.0
-arm64                               defconfig    gcc-15.2.0
-arm64                 randconfig-001-20260420    clang-23
-arm64                 randconfig-002-20260420    clang-23
-arm64                 randconfig-003-20260420    gcc-8.5.0
-arm64                 randconfig-004-20260420    gcc-15.2.0
-csky                             allmodconfig    gcc-15.2.0
-csky                              allnoconfig    gcc-15.2.0
-csky                                defconfig    gcc-15.2.0
-csky                  randconfig-001-20260420    gcc-9.5.0
-csky                  randconfig-002-20260420    gcc-10.5.0
-hexagon                          allmodconfig    clang-17
-hexagon                           allnoconfig    clang-23
-hexagon                             defconfig    clang-23
-hexagon               randconfig-001-20260420    clang-20
-hexagon               randconfig-002-20260420    clang-23
-i386                             allmodconfig    gcc-14
-i386                              allnoconfig    gcc-14
-i386                             allyesconfig    gcc-14
-i386        buildonly-randconfig-001-20260420    clang-20
-i386        buildonly-randconfig-002-20260420    gcc-14
-i386        buildonly-randconfig-003-20260420    clang-20
-i386        buildonly-randconfig-004-20260420    clang-20
-i386        buildonly-randconfig-005-20260420    gcc-14
-i386        buildonly-randconfig-006-20260420    gcc-14
-i386                                defconfig    clang-20
-i386                  randconfig-011-20260420    clang-20
-i386                  randconfig-012-20260420    gcc-14
-i386                  randconfig-013-20260420    gcc-14
-i386                  randconfig-014-20260420    clang-20
-i386                  randconfig-015-20260420    clang-20
-i386                  randconfig-016-20260420    gcc-14
-i386                  randconfig-017-20260420    clang-20
-loongarch                        allmodconfig    clang-19
-loongarch                         allnoconfig    clang-23
-loongarch             randconfig-001-20260420    gcc-15.2.0
-loongarch             randconfig-002-20260420    clang-18
-m68k                             allmodconfig    gcc-15.2.0
-m68k                              allnoconfig    gcc-15.2.0
-m68k                             allyesconfig    gcc-15.2.0
-microblaze                        allnoconfig    gcc-15.2.0
-microblaze                       allyesconfig    gcc-15.2.0
-mips                             allmodconfig    gcc-15.2.0
-mips                              allnoconfig    gcc-15.2.0
-mips                             allyesconfig    gcc-15.2.0
-nios2                            allmodconfig    gcc-11.5.0
-nios2                             allnoconfig    gcc-11.5.0
-nios2                 randconfig-001-20260420    gcc-8.5.0
-nios2                 randconfig-002-20260420    gcc-8.5.0
-openrisc                         allmodconfig    gcc-15.2.0
-openrisc                          allnoconfig    gcc-15.2.0
-openrisc                            defconfig    gcc-15.2.0
-parisc                           alldefconfig    gcc-15.2.0
-parisc                           allmodconfig    gcc-15.2.0
-parisc                            allnoconfig    gcc-15.2.0
-parisc                           allyesconfig    gcc-15.2.0
-parisc                              defconfig    gcc-15.2.0
-parisc                randconfig-001-20260420    gcc-11.5.0
-parisc                randconfig-002-20260420    gcc-8.5.0
-powerpc                          allmodconfig    gcc-15.2.0
-powerpc                           allnoconfig    gcc-15.2.0
-powerpc               randconfig-001-20260420    gcc-8.5.0
-powerpc               randconfig-002-20260420    clang-16
-powerpc64             randconfig-001-20260420    clang-19
-powerpc64             randconfig-002-20260420    clang-18
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    gcc-15.2.0
-riscv                            allyesconfig    clang-16
-riscv                               defconfig    clang-23
-riscv                 randconfig-001-20260420    gcc-14.3.0
-riscv                 randconfig-002-20260420    gcc-9.5.0
-s390                             allmodconfig    clang-18
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-15.2.0
-s390                                defconfig    clang-23
-s390                  randconfig-001-20260420    clang-23
-s390                  randconfig-002-20260420    gcc-11.5.0
-sh                               allmodconfig    gcc-15.2.0
-sh                                allnoconfig    gcc-15.2.0
-sh                               allyesconfig    gcc-15.2.0
-sh                                  defconfig    gcc-15.2.0
-sh                    randconfig-001-20260420    gcc-14.3.0
-sh                    randconfig-002-20260420    gcc-11.5.0
-sparc                             allnoconfig    gcc-15.2.0
-sparc                               defconfig    gcc-15.2.0
-sparc                 randconfig-001-20260420    gcc-15.2.0
-sparc                 randconfig-002-20260420    gcc-8.5.0
-sparc                       sparc64_defconfig    gcc-15.2.0
-sparc64                          allmodconfig    clang-23
-sparc64                             defconfig    clang-20
-sparc64               randconfig-001-20260420    gcc-9.5.0
-sparc64               randconfig-002-20260420    clang-23
-um                               allmodconfig    clang-19
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-14
-um                                  defconfig    clang-23
-um                             i386_defconfig    gcc-14
-um                    randconfig-001-20260420    clang-23
-um                    randconfig-002-20260420    gcc-14
-um                           x86_64_defconfig    clang-23
-x86_64                           allmodconfig    clang-20
-x86_64                            allnoconfig    clang-20
-x86_64                           allyesconfig    clang-20
-x86_64      buildonly-randconfig-001-20260420    gcc-14
-x86_64      buildonly-randconfig-002-20260420    clang-20
-x86_64      buildonly-randconfig-003-20260420    gcc-14
-x86_64      buildonly-randconfig-004-20260420    gcc-14
-x86_64      buildonly-randconfig-005-20260420    gcc-14
-x86_64      buildonly-randconfig-006-20260420    gcc-14
-x86_64                              defconfig    gcc-14
-x86_64                randconfig-001-20260420    clang-20
-x86_64                randconfig-002-20260420    clang-20
-x86_64                randconfig-003-20260420    gcc-13
-x86_64                randconfig-004-20260420    gcc-14
-x86_64                randconfig-005-20260420    clang-20
-x86_64                randconfig-006-20260420    gcc-14
-x86_64                randconfig-011-20260420    gcc-14
-x86_64                randconfig-012-20260420    gcc-14
-x86_64                randconfig-013-20260420    clang-20
-x86_64                randconfig-014-20260420    gcc-14
-x86_64                randconfig-015-20260420    clang-20
-x86_64                randconfig-016-20260420    clang-20
-x86_64                randconfig-071-20260420    gcc-14
-x86_64                randconfig-072-20260420    gcc-14
-x86_64                randconfig-073-20260420    gcc-14
-x86_64                randconfig-074-20260420    gcc-14
-x86_64                randconfig-075-20260420    clang-20
-x86_64                randconfig-076-20260420    gcc-12
-x86_64                          rhel-9.4-rust    clang-20
-xtensa                            allnoconfig    gcc-15.2.0
-xtensa                           allyesconfig    gcc-15.2.0
-xtensa                randconfig-001-20260420    gcc-11.5.0
-xtensa                randconfig-002-20260420    gcc-9.5.0
+> 
+> > +	}
+> > +
+> > +	if (keypad->debounce_code) {
+> > +		input_event(input, EV_MSC, MSC_SCAN, keypad->debounce_code);
+> > +		input_report_key(input, keycodes[keypad->debounce_code], 1);
+> > +	}
+> > +
+> > +	input_sync(input);
+> > +	keypad->current_code = keypad->debounce_code;
+> > +}
+> > +
+> > +static void charlieplex_keypad_check_switch_change(struct input_dev *input,
+> > +						   int code)
+> > +{
+> > +	struct charlieplex_keypad *keypad = input_get_drvdata(input);
+> > +
+> > +	if (code != keypad->debounce_code) {
+> > +		keypad->debounce_count = 0;
+> > +		keypad->debounce_code = code;
+> > +	} else if (keypad->debounce_count < keypad->debounce_threshold) {
+> 
+> This does not work if debouncing is disabled (debounce threshold is 0).
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Yes.
+
+
+> 
+> > +		keypad->debounce_count++;
+> > +
+> > +		if (keypad->debounce_count >= keypad->debounce_threshold &&
+> > +		    keypad->debounce_code != keypad->current_code)
+> > +			charlieplex_keypad_report_key(input);
+> > +	}
+> > +}
+> > +
+> > +static void charlieplex_keypad_poll(struct input_dev *input)
+> > +{
+> > +	struct charlieplex_keypad *keypad = input_get_drvdata(input);
+> > +	int code;
+> > +
+> > +	code = 0;
+> > +	for (unsigned int oline = 0; oline < keypad->nlines; oline++) {
+> > +		DECLARE_BITMAP(values, MATRIX_MAX_ROWS);
+> > +		int err;
+> > +
+> > +		/* Activate only one line as output at a time. */
+> > +		gpiod_direction_output(keypad->line_gpios->desc[oline], 1);
+> > +
+> > +		if (keypad->settling_time_us)
+> > +			fsleep(keypad->settling_time_us);
+> > +
+> > +		/* Read input on all other lines. */
+> > +		err = gpiod_get_array_value_cansleep(keypad->line_gpios->ndescs,
+> > +						     keypad->line_gpios->desc,
+> > +						     keypad->line_gpios->info, values);
+> > +		if (err)
+> > +			return;
+> 
+> We need to deactivate the line on error too.
+
+Yer, good catch.
+
+> 
+> > +
+> > +		for (unsigned int iline = 0; iline < keypad->nlines; iline++) {
+> > +			if (iline == oline)
+> > +				continue; /* Do not read active output line. */
+> > +
+> > +			/* Check if GPIO is asserted. */
+> > +			if (test_bit(iline, values)) {
+> > +				code = MATRIX_SCAN_CODE(oline, iline,
+> > +							get_count_order(keypad->nlines));
+> > +				/*
+> > +				 * Exit loop immediately since we cannot detect
+> > +				 * more than one key press at a time.
+> > +				 */
+> > +				break;
+> > +			}
+> > +		}
+> > +
+> > +		gpiod_direction_input(keypad->line_gpios->desc[oline]);
+> > +
+> > +		if (code)
+> > +			break;
+> > +	}
+> > +
+> > +	charlieplex_keypad_check_switch_change(input, code);
+> > +}
+> > +
+> > +static int charlieplex_keypad_init_gpio(struct platform_device *pdev,
+> > +					struct charlieplex_keypad *keypad)
+> > +{
+> > +	char **pin_names;
+> > +	char label[32];
+> > +
+> > +	snprintf(label, sizeof(label), "%s-pin", pdev->name);
+> > +
+> > +	keypad->line_gpios = devm_gpiod_get_array(&pdev->dev, "line", GPIOD_IN);
+> > +	if (IS_ERR(keypad->line_gpios))
+> > +		return PTR_ERR(keypad->line_gpios);
+> > +
+> > +	keypad->nlines = keypad->line_gpios->ndescs;
+> > +
+> > +	if (keypad->nlines > MATRIX_MAX_ROWS)
+> > +		return -EINVAL;
+> > +
+> > +	pin_names = devm_kasprintf_strarray(&pdev->dev, label, keypad->nlines);
+> > +	if (IS_ERR(pin_names))
+> > +		return PTR_ERR(pin_names);
+> > +
+> > +	for (unsigned int i = 0; i < keypad->line_gpios->ndescs; i++)
+> > +		gpiod_set_consumer_name(keypad->line_gpios->desc[i], pin_names[i]);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int charlieplex_keypad_probe(struct platform_device *pdev)
+> > +{
+> > +	struct charlieplex_keypad *keypad;
+> > +	unsigned int debounce_interval_ms;
+> > +	unsigned int poll_interval_ms;
+> > +	struct input_dev *input_dev;
+> > +	int err;
+> > +
+> > +	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+> > +	if (!keypad)
+> > +		return -ENOMEM;
+> > +
+> > +	input_dev = devm_input_allocate_device(&pdev->dev);
+> > +	if (!input_dev)
+> > +		return -ENOMEM;
+> > +
+> > +	keypad->input_dev = input_dev;
+> > +
+> > +	device_property_read_u32(&pdev->dev, "poll-interval", &poll_interval_ms);
+> > +	device_property_read_u32(&pdev->dev, "debounce-delay-ms", &debounce_interval_ms);
+> > +	device_property_read_u32(&pdev->dev, "settling-time-us", &keypad->settling_time_us);
+> 
+> Not all of these are required properties. If they are missing the driver
+> will operate on garbage values.
+
+Yes.
+
+
+> 
+> > +
+> > +	keypad->current_code = -1;
+> > +	keypad->debounce_code = -1;
+> > +	keypad->debounce_threshold = DIV_ROUND_UP(debounce_interval_ms, poll_interval_ms);
+> 
+> This will bomb if poll interval is 0.
+
+Yes.
+
+> 
+> > +
+> > +	err = charlieplex_keypad_init_gpio(pdev, keypad);
+> > +	if (err)
+> > +		return err;
+> > +
+> > +	input_dev->name		= pdev->name;
+> > +	input_dev->id.bustype	= BUS_HOST;
+> > +
+> > +	err = matrix_keypad_build_keymap(NULL, NULL, keypad->nlines,
+> > +					 keypad->nlines, NULL, input_dev);
+> > +	if (err)
+> > +		dev_err_probe(&pdev->dev, -ENOMEM, "failed to build keymap\n");
+> 
+> Missing "return".
+> 
+> > +
+> > +	if (device_property_read_bool(&pdev->dev, "autorepeat"))
+> > +		__set_bit(EV_REP, input_dev->evbit);
+> > +
+> > +	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> > +
+> > +	err = input_setup_polling(input_dev, charlieplex_keypad_poll);
+> > +	if (err)
+> > +		dev_err_probe(&pdev->dev, err, "unable to set up polling\n");
+> 
+> Missing "return".
+
+Ok for both.
+
+> I fixed it up and applied, please take a look in my 'next' branch and
+> tell me if I messed up.
+
+Thank you for the review and the fixes.
+
+I tested it on the real hardware and all is good.
+
+So I imagine that it can still go into 7.1 since it is a new driver
+and not a modification of an existing one?
+
+
+-- 
+Hugo Villeneuve

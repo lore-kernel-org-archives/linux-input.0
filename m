@@ -1,96 +1,126 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71897298CA5;
-	Mon, 20 Apr 2026 07:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAA42DAFCB;
+	Mon, 20 Apr 2026 08:02:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776670609; cv=none; b=YDvWfNemIvsUyV0rH98H/vP/SdMLvRWwM7iirlJvN2meQdeKioahSoxdZrwyKfzpqMUaCcMj5G7mOJ7UP91w5PcvSkbkpSpngzIjn4wJ7vpoabFA1fegFH3iKtMlyhqgrxSylkBfasnHQA0RcZhyoqiPllGf+Eyw2mHQqEm5AlA=
+	t=1776672121; cv=none; b=HHMub3LhNAmvTgpu3fdNj7wrbe3BW/D2iOCR1tTk/omABU+cfC9A8abpAJXf1D2P3JluZj/K57swHi1Pwqv0Vbi1y4VSN5rYEw0mD58NgvGfUsqW+bts/RtTwQapySP6aXc75fRnqIqgbBKpQAENkJOxHNw1UriKIrPkRgC9gf4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776670609; c=relaxed/simple;
-	bh=8whNwNLICqb+0Yx7LD1vb3V7QW1bBxZ6Jc58zR1F0BI=;
+	s=arc-20240116; t=1776672121; c=relaxed/simple;
+	bh=iDBvIru/tesedpbSi6rP/YlULqPhxZRplQYFZ9Je2fU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hl6cmLqUSXpnju5WxD1F4Updeq3sr4hC3hl/iDuxf37fdrSaF2JsQBW7jH8yzk8VEz01TKusitnZ5+9xjeM6+S2+HcqXzRTcUcHp3VPap7R+K+9RrnTK73CIr9JdrOWcRr1AuvtcmoA5eMBmsPBftSQ6/E2xcM6/1JZg4p47SgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JyG838VN; arc=none smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=LOQYaWfME0s3w/EMy5Jf3OaiLB6ne8wXB+G3QHDSKjrYh4MwWNpbrZBLpJ5b/3KALQhO4wccKjdNKmPQL2YbbzsVtPDY2c0D/Utvb3wKsdQoehaMnNIr2XwlVEviVED3CKZNltMTIwSYWiYalC96VW3wBWfcGaXcviHnYWpS4uA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J9ORtTHc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JyG838VN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776670608; x=1808206608;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=8whNwNLICqb+0Yx7LD1vb3V7QW1bBxZ6Jc58zR1F0BI=;
-  b=JyG838VNzly/d3sq8OpSRfwlc3rLkXanzy61Z1X1P4Jj75Z/bQgfsi3m
-   d2xO0h50FH1tOxmKfIzDtjF4a0hsgXbgYsuuC3w7YRtJ7YMaePuaDx0YJ
-   uxQBRP4od1/XiPXx3GE5IJKP8RGWkiFR04bicVXsG6uidmBDIc4iyT3Jh
-   hQUPjjimOGPe0UkL4g1zSQCANm5AI6/Ig+gysG1/96I1VIWMglJK31Fh7
-   jztLcx+qK/tVmPIUFEF4rfT8zW/MMaZ/bfkKZJr9lQ4hKxdsrGP+q9oOq
-   vpKD7IvN2KY4mH+/rQ8dMg7ZYQl3ODlqtqVplC+oVwOZ9LQdrUpDiHp4z
-   w==;
-X-CSE-ConnectionGUID: 4vbydUHFQjuaT/ygFjjb8A==
-X-CSE-MsgGUID: usjrjGYLQXCBVXYIPNz/7w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11762"; a="77284671"
-X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
-   d="scan'208";a="77284671"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 00:36:47 -0700
-X-CSE-ConnectionGUID: AzzR7xmGR5m7ww3S0hWYqg==
-X-CSE-MsgGUID: awcxNqqNQWuitTiBhq/dcw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,189,1770624000"; 
-   d="scan'208";a="228964209"
-Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.90])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2026 00:36:43 -0700
-Date: Mon, 20 Apr 2026 10:36:41 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: David Lechner <dlechner@baylibre.com>
-Cc: =?iso-8859-1?Q?Nat=E1lia_Salvino_Andr=E9?= <natalia.andre@ime.usp.br>,
-	andy@kernel.org, bentiss@kernel.org, jic23@kernel.org,
-	jikos@kernel.org, nuno.sa@analog.com,
-	srinivas.pandruvada@linux.intel.com,
-	Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 1/7] iio: HID: Add helper method
- hid_sensor_adjust_channel_bit_mask()
-Message-ID: <aeXXiWGJIvdhdBMQ@ashevche-desk.local>
-References: <20260417225959.16688-1-natalia.andre@ime.usp.br>
- <20260417225959.16688-2-natalia.andre@ime.usp.br>
- <1c49e011-ae23-4c6f-ad6f-f0b494c2dbbc@baylibre.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J9ORtTHc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AEABC19425;
+	Mon, 20 Apr 2026 08:01:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776672121;
+	bh=iDBvIru/tesedpbSi6rP/YlULqPhxZRplQYFZ9Je2fU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=J9ORtTHcmeeW1ldGdfVssTVlaTvgTh5Tpv2wS1moFGJR8ett0fzPWyx6pZf9OLYfu
+	 hANmhY0gzaxIZwQZndP7wjNlo0Z+If63EMCGOKPdX2O5XLaAcYs5CBlxX3+whFIROB
+	 5Z2mNX4TzPNE/7R45AblYs17ben9spn0RwztRrQDapS7pkiQg91FEaUtbyKKbxBjj/
+	 z4mLziUwTCuBoPHVZwd7+HHEtUv8NXd3s1ei5x9i4F3V3vBD/Mn89a92t63fOUonve
+	 TZ6ryAlrpDK1rcTZ2+zbchpxnANLS8Id88GlneU/FHK3nMxDDIYjnEhi7Lbbzh8U7P
+	 zvCr73X5+v6Ow==
+Date: Mon, 20 Apr 2026 10:01:55 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Icenowy Zheng <uwu@icenowy.me>
+Cc: Jiri Kosina <jikos@kernel.org>, 
+	Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lee Jones <lee@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
+	linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] HID: pass the buffer size to hid_report_raw_event
+Message-ID: <aeXdKFJe8JyatqLR@beelink>
+References: <20260416-wip-fix-core-v2-0-be92570e5627@kernel.org>
+ <20260416-wip-fix-core-v2-1-be92570e5627@kernel.org>
+ <938e8afadcbf2d7b9f0397e24926224985d9c385.camel@icenowy.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1c49e011-ae23-4c6f-ad6f-f0b494c2dbbc@baylibre.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <938e8afadcbf2d7b9f0397e24926224985d9c385.camel@icenowy.me>
 
-On Sat, Apr 18, 2026 at 11:32:13AM -0500, David Lechner wrote:
-> On 4/17/26 5:58 PM, Nat�lia Salvino Andr� wrote:
-> > Add helper method to deduplicate code in HID sensors.
-
-...
-
-> > +	/* Real storage bits will change based on the report desc. */
-> > +	channels[channel].scan_type.realbits = size * 8;
+On Apr 20 2026, Icenowy Zheng wrote:
+> 在 2026-04-16四的 16:48 +0200，Benjamin Tissoires写道：
+> > commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> > bogus memset()") enforced the provided data to be at least the size
+> > of
+> > the declared buffer in the report descriptor to prevent a buffer
+> > overflow. However, we can try to be smarter by providing both the
+> > buffer
+> > size and the data size, meaning that hid_report_raw_event() can make
+> > better decision whether we should plaining reject the buffer (buffer
+> > overflow attempt) or if we can safely memset it to 0 and pass it to
+> > the
+> > rest of the stack.
+> > 
+> > Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> > bogus memset()")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> > ---
+> >  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++++--
+> >  drivers/hid/hid-core.c             | 42 +++++++++++++++++++++++++---
+> > ----------
+> >  drivers/hid/hid-gfrm.c             |  4 ++--
+> >  drivers/hid/hid-logitech-hidpp.c   |  2 +-
+> >  drivers/hid/hid-multitouch.c       |  2 +-
+> >  drivers/hid/hid-primax.c           |  2 +-
+> >  drivers/hid/hid-vivaldi-common.c   |  2 +-
+> >  drivers/hid/wacom_sys.c            |  6 +++---
+> >  drivers/staging/greybus/hid.c      |  2 +-
+> >  include/linux/hid.h                |  4 ++--
+> >  include/linux/hid_bpf.h            | 14 ++++++++-----
+> >  11 files changed, 53 insertions(+), 33 deletions(-)
 > 
-> There is a BITS_PER_BYTE macro that would make sense here.
-
-> > +	/* Maximum size of a sample to capture is u32 */
-> > +	channels[channel].scan_type.storagebits = sizeof(u32) * 8;
+> ============ 8< ===================
 > 
-> and here.
+> > diff --git a/drivers/staging/greybus/hid.c
+> > b/drivers/staging/greybus/hid.c
+> > index 1f58c907c036..37e8605c6767 100644
+> > --- a/drivers/staging/greybus/hid.c
+> > +++ b/drivers/staging/greybus/hid.c
+> > @@ -201,7 +201,7 @@ static void gb_hid_init_report(struct gb_hid
+> > *ghid, struct hid_report *report)
+> >  	 * we just need to setup the input fields, so using
+> >  	 * hid_report_raw_event is safe.
+> >  	 */
+> > -	hid_report_raw_event(ghid->hid, report->type, ghid->inbuf,
+> > size, 1);
+> > +	hid_report_raw_event(ghid->hid, report->type, ghid->inbuf,
+> > ghib->bufsize, size, 1);
+> 
+> Oops, "ghid" is misspelled here...
 
-FWIW, we have BYTES_TO_BITS().
+Damn, you're correct. Sorry.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Jiri, do you want me to send v3? Or can you fix it while applying?
 
+> 
+> Found this when building some gaint kernel with this patchset.
 
+Thanks a lot for spotting this.
+
+Cheers,
+Benjamin
+
+> 
+> Thanks,
+> Icenowy
+> 
+> >  }
+> >  
+> >  static void gb_hid_init_reports(struct gb_hid *ghid)
+> 

@@ -1,79 +1,148 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DA032E719B
-	for <linux-input@vger.kernel.org>; Sun, 19 Apr 2026 20:11:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 599184A23
+	for <linux-input@vger.kernel.org>; Mon, 20 Apr 2026 00:06:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776629472; cv=none; b=r6Q/9dTISojUZBmlibx4kD5VMyMWLWxmT0htkcnsIgml+3ehwcIPg26mISSRjS10WYgFu7VxJ8252FP3Ormx3lh/efMuTUWb7jNBgl32Qhvx2TemrNfrtOTFwfBLUUtWFkVytvQ20Nbngl9t5uJ0lUmpcf34l8B49VUVyJOACUU=
+	t=1776643619; cv=none; b=HSdejSm+mLKvKV+cQxdzZVNMjIn4XzmZhhGDEwCB9853lhbHpX4kYgyUbYWG6Ray93R0TYPnWNteakz490zY2pUADI2A6Yqpm49a6x/plmbVuC1qrS5GFNpttTyCAqPARvaP1dA3WNON3QKieqFYSTu8LApUNfDdbv9TUPMg9wA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776629472; c=relaxed/simple;
-	bh=UcBLBDVePmWio9ZZxW8xvAPtwx4gH23Dc5k3bSjMaag=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KdHy5Atx23+DeCpTp69nkyhSMbvjsDUuME87s/9zxuWqw//JZkWwkTn/ZRQO7Q61Z7fbsk2DEI8YE7xlMgFywC1YXXBSbxAma3UkC3mQ6OLx90UiA0OvA9RZHjtVAY2qIk/pV6UXJAhATChiWatkETFKE5T8HtxRUOuZ0YLRmtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KRgF9HQg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776643619; c=relaxed/simple;
+	bh=gDoBAxabA/vuB2DuUd7qLM2A4GacNMLMKn8azMkS+l8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FkqNJfPC1g+7M6YfiCOccdANJGYU5zxVrTFyIyyk792oUbcV1PpG3AWEElntzT97y0+cD07z89xkOJbrGhrpl5Wu+l8o+71rZFf/gv1+1gc/hFGrVWKGOh7a+euTOOF004Ov4UdZL7ZLVY+44liszYD+809Q1JigQRTFs2nJxa0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FaPUgd0p; arc=none smtp.client-ip=74.125.82.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KRgF9HQg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0821C2BCB8
-	for <linux-input@vger.kernel.org>; Sun, 19 Apr 2026 20:11:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776629471;
-	bh=UcBLBDVePmWio9ZZxW8xvAPtwx4gH23Dc5k3bSjMaag=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=KRgF9HQgFOSXT8N07R5TjXaaBBbTppNSQTHzQwVEn/aSjRc5AClVdKaspIFrddAda
-	 A9E37/ZhHBn/MEYHNuHsp3xzsBr0De3l7thc0EWePLXeAVoU01BcMO0vUXKr1YEips
-	 V+UpgH0pzlbwXyZ7+9nw+yeKHrSq25SLMjKM34o/S7pTSjNVTZoBnAm1joF1xxg9n8
-	 XBcdYGf49fsJIGZFufObHzJNi0KAOHdUx0BNXRHTK2odLkkhZtLW2cXv8QEErmXmpp
-	 vBSzh2+U8jtmqAwF+S7m9amwXdla5JS8qcjckJy4cndhX51SwJtyZ/gfaOrYosP0pc
-	 Y0iacsJHREsSg==
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5a2c77c62d7so2450369e87.0
-        for <linux-input@vger.kernel.org>; Sun, 19 Apr 2026 13:11:11 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ+q0SsIgmAJ03qaA2ygR4pSHM4GvUp/qUFLavCD+9TsMGIu3uHrpZDETwyO2SxvQ3DMe2I8QCotxwwOFw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YweX3JSiH7yUWYC0Z2NtOMjcCeaU+qOISTLLt5ZgZ8WJyVtE6OX
-	pTmTbDtwL+TYsIc5Pb9SNXsU78ag89GJlJ0KMa+AIJF1mnfFJfj8B7LpO/321YeofXDmy9CVC7c
-	OwfaXPOZB1Az2IS4TK4BtKCpR8Lqe+mo=
-X-Received: by 2002:a05:6512:6d0:b0:5a2:b487:b945 with SMTP id
- 2adb3069b0e04-5a4172c67afmr3476577e87.18.1776629470575; Sun, 19 Apr 2026
- 13:11:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FaPUgd0p"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-1279eced0b9so3265278c88.0
+        for <linux-input@vger.kernel.org>; Sun, 19 Apr 2026 17:06:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776643617; x=1777248417; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=QDe9T+Ne4Qdf5vTIpzGNL8rfAB6MOiSoIWj2DlQdxfo=;
+        b=FaPUgd0p50N1S1v66COpoGRpZ6UNUn9aTHy7FxI2N+/yuEOlWH/pPwi5hZ8jwOy6Yy
+         0CHFxCFdQixMJp9jS5OBuK1n2isPCTLw21tRrcPHpa4Sx1t0GkDW0nabpGGHA47HLnZw
+         2fHImW8+8ygByMw/2M29ZuB3rAyzhLRR7hyxKkJGY6ZZ3yAi90DafylpXzPQqyO9ZHVx
+         SFmO5XaFWhnfqfXqeOh/p7MexB7vtQ/7btkgI16UU+3URPQSL5UKyHlHvYToD8p92U05
+         Gu44NwYiUxvA4m3q/U3OIZd/vyWhYqvdaPFvqqMyrWY4wcH3XNezDNVUqSY1cQU6ID/u
+         +pCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776643617; x=1777248417;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QDe9T+Ne4Qdf5vTIpzGNL8rfAB6MOiSoIWj2DlQdxfo=;
+        b=N7tqg1o4AL391wbGfkQI+JQYXKgglQWRR4ibLB981tyaJMtMym/RIzBu9jvZezGNVJ
+         hImtdvIbi+bmrs4uNl6+DAe67ua7VRyjE8XVWV5vVSL8voaDlwUtYY6+XL80PDV3CBgH
+         NU4HMxqHaKEloOQo84m/wIgNcdC9TUwlSy8Rnn/DLgVkLJ6eMbVpraLk36+AKB57KhJY
+         nK5wYk16kRvnzLR1qmBYZj65y8K5hBIPDldXd7jaIUJPM8LGT79iUvTAsmvtYtrj2A7N
+         0jDsyDl5462lTeoqOYBcb95Avg1sT809XFpnXp6W8qtLL2l6P+3fOxJU/oJ0upf50Rxu
+         T4sQ==
+X-Forwarded-Encrypted: i=1; AFNElJ98RlUI4tPw5x8zKYyzNaF0ZVDk9LP/8bE8W+HsblnjedhmDJtIpe7LQXkUBK/w5uhAIhh4A3yzwd/PIw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyWj1jcqPgopZa7P0DLwnSdqbup3PrNflQr64yhOXfZ9m0f+9Qz
+	oHQbEKRy8Gvvxr01SIEBOWiLStvQv50ANqaIJs9id4JJ80EFYARyIzoG
+X-Gm-Gg: AeBDieuL35Yfmk2O2aLqz7eVbuu0CL9K8ZpzuFOQVXOKICCmEb66S7CggPRY+9iIkjN
+	6r1TGnxr0eD3/Nj0SkwT30M6bmIl0HU/71zI9rIUK3YRH+gVctfBlJlDdVirV6aTfcGw+OKTmZ/
+	fc7diywL+Ut6x6AGFyZTkLalefgDVnhoXBgPUlhCB2IuLYkYSzbIHCdtB3yd7M6j2iMAOUdbTMw
+	5L7afPs+d3QU7XOcaKAmgp3pVR85XBEjXxikxZHJfh1c3XS4o04t9Z5njeOCFt6GcoMM1UQJZvj
+	azK96CJ75CnMLbmXp44soUUtFIolkohDRq5KYv7lvzzvOYD78HY6tpnz8Vzqum9sMcHjEW7P9TJ
+	VY3oQ9MBrYA/fC8zaAee7xbs9+1tclWzEfYszuXIclX8lkuNSQ5VNNtaBd4lFw+rfgqES2gyEGn
+	9pnkc9L+81YwWRui5ORDuaHz69o62So2O8J7plMlReY2cHwM0N+YoRBEEgpYGCRLRhSlwC8+VQh
+	LE=
+X-Received: by 2002:a05:7301:3d19:b0:2c1:7793:7bbb with SMTP id 5a478bee46e88-2e4873f3103mr6158572eec.27.1776643617331;
+        Sun, 19 Apr 2026 17:06:57 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:1a4e:4965:5dff:cdee])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53ccce440sm11564185eec.14.2026.04.19.17.06.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Apr 2026 17:06:56 -0700 (PDT)
+Date: Sun, 19 Apr 2026 17:06:53 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, 
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>, Tony Lindgren <tony@atomide.com>, 
+	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-omap@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] Input: ads7846 - fix up the pendown GPIO setup on
+ Nokia 770
+Message-ID: <aeVs2VUqPL1v0Vka@google.com>
+References: <20260419161848.825831-1-aaro.koskinen@iki.fi>
+ <20260419161848.825831-3-aaro.koskinen@iki.fi>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260419161848.825831-1-aaro.koskinen@iki.fi>
-In-Reply-To: <20260419161848.825831-1-aaro.koskinen@iki.fi>
-From: Linus Walleij <linusw@kernel.org>
-Date: Sun, 19 Apr 2026 22:10:57 +0200
-X-Gmail-Original-Message-ID: <CAD++jL=YJCPdnLZRCPkVLb6m+ULeywZdzDkwoLzL5J1=Uv1Uvw@mail.gmail.com>
-X-Gm-Features: AQROBzDyNzhVlHDZVgQdbAN2C4fg4Fdd9GDDwXUeYl-2FQtPZbTICvEtDlQrjGY
-Message-ID: <CAD++jL=YJCPdnLZRCPkVLb6m+ULeywZdzDkwoLzL5J1=Uv1Uvw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] Input/omap1: fix touchscreen functionality on
- Nokia 770
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, 
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260419161848.825831-3-aaro.koskinen@iki.fi>
 
-On Sun, Apr 19, 2026 at 6:21=E2=80=AFPM Aaro Koskinen <aaro.koskinen@iki.fi=
-> wrote:
+Hi Aaro,
 
-> Another attempt to make 770 touchscreen work again.
->
-> v2: Unrelated fbdev patch dropped (already merged)
->     GPIO setup fixed by deleting the conflicting descriptor.
->
-> v1: https://lore.kernel.org/linux-input/20250102181953.1020878-1-aaro.kos=
-kinen@iki.fi/
->
-> Aaro Koskinen (2):
->   Input: ads7846 - restore half-duplex support
->   Input: ads7846 - fix up the pendown GPIO setup on Nokia 770
+On Sun, Apr 19, 2026 at 07:18:48PM +0300, Aaro Koskinen wrote:
+> Commit 767d83361aaa6 ("Input: ads7846 - Convert to use software nodes")
+> added gpiod set up for the IRQ in the 770 board file, then another in
+> the touchscreen driver for reading the pen state. This will make the probe
+> fail:
+> 
+> [    1.347381] ads7846 spi2.0: failed to request pendown GPIO
+> [    1.361846] ads7846: probe of spi2.0 failed with error -16
+> 
+> I originally tried to fix it using non-exclusive flag, but that was not
+> found acceptable. Instead, just use a single gpiod.
+> 
+> Fixes: 767d83361aaa6 ("Input: ads7846 - Convert to use software nodes")
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> ---
+>  arch/arm/mach-omap1/board-nokia770.c | 11 -----------
+>  drivers/input/touchscreen/ads7846.c  | 12 +++++++-----
+>  2 files changed, 7 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap1/board-nokia770.c b/arch/arm/mach-omap1/board-nokia770.c
+> index a5bf5554800f..8b8013ab4590 100644
+> --- a/arch/arm/mach-omap1/board-nokia770.c
+> +++ b/arch/arm/mach-omap1/board-nokia770.c
+> @@ -285,9 +285,6 @@ static void __init nokia770_cbus_init(void)
+>  static struct gpiod_lookup_table nokia770_irq_gpio_table = {
+>  	.dev_id = NULL,
+>  	.table = {
+> -		/* GPIO used by SPI device 1 */
+> -		GPIO_LOOKUP("gpio-0-15", 15, "ads7846_irq",
+> -			    GPIO_ACTIVE_HIGH),
+>  		/* GPIO used for retu IRQ */
+>  		GPIO_LOOKUP("gpio-48-63", 14, "retu_irq",
+>  			    GPIO_ACTIVE_HIGH),
+> @@ -307,8 +304,6 @@ static struct gpiod_lookup_table nokia770_irq_gpio_table = {
+>  
+>  static void __init omap_nokia770_init(void)
+>  {
+> -	struct gpio_desc *d;
+> -
+>  	/* On Nokia 770, the SleepX signal is masked with an
+>  	 * MPUIO line by default.  It has to be unmasked for it
+>  	 * to become functional */
+> @@ -322,12 +317,6 @@ static void __init omap_nokia770_init(void)
+>  	platform_add_devices(nokia770_devices, ARRAY_SIZE(nokia770_devices));
+>  
+>  	gpiod_add_lookup_table(&nokia770_irq_gpio_table);
+> -	d = gpiod_get(NULL, "ads7846_irq", GPIOD_IN);
+> -	if (IS_ERR(d))
+> -		pr_err("Unable to get ADS7846 IRQ GPIO descriptor\n");
+> -	else
+> -		nokia770_spi_board_info[1].irq = gpiod_to_irq(d);
 
-Patches look good to me!
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+No, I think what we need here is a simple gpiod_put(). The mapping is
+not going to change unless someone tries to unload gpiochip, but then
+the device is not going to work anyway.
 
-Yours,
-Linus Walleij
+Longer term we need to figure out how to describe interrupts with
+software nodes (or wait long enough for everything to get converted to
+device tree).
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,137 +1,164 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from emcscan.emc.com.tw (emcscan.emc.com.tw [192.72.220.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E09C02853F3
-	for <linux-input@vger.kernel.org>; Tue, 21 Apr 2026 06:59:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776754745; cv=none; b=f89i2k3s79Cm2Dol3z7pjsRUGw3xhfxRWLunK8I02mjX1fWpOHiVL+9oLxfN+bH/BHN8Z4KVRavx3jdueTKdXqsiZ9JpqknX33gr06tKbASzg6o0YaYiMSO3fdY6uGPEL+fGMAK33qE5iQE9ZCXT6H39BoYpmhypI1c1MeE9mLQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776754745; c=relaxed/simple;
-	bh=i8TdYVTnlgUx8z+S0f17uyrfNqpqBeM0AvvLy2KDWXk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LxGVoMMdWLXz8xo0xisihe2HDe2QZFlsxBxxprJMDNVG4mN1eVANcNSEzWZBCadjTsCqpNZIC2WG07rE+DL7aa2DV0R2tYegPg//dSprbCD9sEvx1hSOkvzvKGo+kwfpOMkvIPEuR/fmjhZvRKFL8/9XpqwE5DSyua9GBq8srjg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RUCH4HP/; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F9BC30BF5C;
+	Tue, 21 Apr 2026 07:01:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.72.220.5
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776754889; cv=fail; b=pQAShun11lw/k8Sod6fegQtWbyCVPip5aaJpMH4S4or78BvlXOwDLkxiTYrJBq+sQ1g/PRuU/YQcRsCCJ5HAZ21kdC2EUwh5KzT//jtzRVo2bvG4ClKhC2Ikt6KvRYUsm5WupIX368ULPpH6/SjvTxENpehlgc70nZIDzwVQntY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776754889; c=relaxed/simple;
+	bh=TqKkFN8FNaY80otxnssULB67U2sY8bMJQzekh+ygwDo=;
+	h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ZQQgC7OkMmIk9ARsygGpJtipEztgrYiyiWUwzYH9IUp2c4vUPAaqQw6aSgjdAZWgpk7DGu4cGDvhF83GrGWmXV32BzyQLY6N2S6jJchFWcjJR9fVdRVSdwBUgIVhvB5MRvVKwwD/USWMyFJbFjrbQN8nH+ifdu/S4nxwSyg6eqM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=emc.com.tw; spf=pass smtp.mailfrom=emc.com.tw; dkim=pass (2048-bit key) header.d=emc.com.tw header.i=@emc.com.tw header.b=Yequehjc; dkim=pass (1024-bit key) header.d=emccomtw.onmicrosoft.com header.i=@emccomtw.onmicrosoft.com header.b=Jil2nsY6; arc=fail smtp.client-ip=192.72.220.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=emc.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=emc.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RUCH4HP/"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ba7a1cc0380so361193366b.2
-        for <linux-input@vger.kernel.org>; Mon, 20 Apr 2026 23:59:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=emc.com.tw header.i=@emc.com.tw header.b="Yequehjc";
+	dkim=pass (1024-bit key) header.d=emccomtw.onmicrosoft.com header.i=@emccomtw.onmicrosoft.com header.b="Jil2nsY6"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=emc.com.tw; i=@emc.com.tw; q=dns/txt; s=emcselector;
+  t=1776754885; x=1808290885;
+  h=from:to:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=TqKkFN8FNaY80otxnssULB67U2sY8bMJQzekh+ygwDo=;
+  b=Yequehjc0uyjI5X4MtBOG/ZPTmd8ZQLNLavzRMeVMhyoQSm2e03OZzC0
+   MdQO4BoNeX+ZVLRAHy3+9GqbGz0jnBOP3opt86M4AlJGTeXvu9CojlEd7
+   T2UbFH+xkxxGJi04TkzXP7DoyTfmcWqBdr9i250HTF3bzjUodm5Ad2SiL
+   ZKZH86UwrLR4Rd/FIg8L6e3yFqTeRQ11ASvAhlCwx16tOTxfnre5fhFqy
+   sm09kOyv9KCVhP4GNCGMSmvqb9tfvJAir1gU7katinjsjkJ16DvstUp4y
+   sOpp3mCu8zXqR7+Ow8Ww+ZA6er7PQDzA1lEpzrsrH4MiWa9JK4Xe5BuUP
+   A==;
+X-CSE-ConnectionGUID: NBarMJK3SzCk3Vn288eL+g==
+X-CSE-MsgGUID: 6YEVkfPBQseziMvLQ73InQ==
+X-IronPort-AV: E=Sophos;i="6.23,191,1770566400"; 
+   d="scan'208";a="13177335"
+Received: from unknown (HELO ELAN-EXMBX01.elan.corp) ([192.168.10.67])
+  by emcscan.emc.com.tw with ESMTP; 21 Apr 2026 15:00:13 +0800
+Received: from ELAN-EXMBX01.elan.corp (192.168.10.67) by
+ ELAN-EXMBX01.elan.corp (192.168.10.67) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.33; Tue, 21 Apr 2026 15:00:13 +0800
+Received: from SI4PR04CU002.outbound.protection.outlook.com (40.93.129.120) by
+ ELAN-EXMBX01.elan.corp (192.168.10.67) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.33 via Frontend Transport; Tue, 21 Apr 2026 15:00:13 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=LiihP6v8Rs1WRRH4PU5zmLBoks33hkIKIS5hb9p2xKatX4jxFChgafa/I1rqltHNrgKBNBzHlgU04cbBjBaiC1CxNgabqFuniR8S2Tew5BhkGMoELFZ52d5vi8rPYDECQQ1Y43bRc3xK3KEPUKCOI2jaXOCr8Ax4uM39aV5SkN0byCii/qDZtlSM+fj29WyRWrgUiEZzlDIu5jlSb3jPxd8X5hmDTZNGnnV78flmxnc0L9/6k3TBualRU8IIaWBZkYNL3ENs8GhFMeDVU2RyRXbdnGWITq/kFclSvdTBzSLhIZ9N1Tk7AfxL8LgyJ4I2bcgPw+64Ys70/vwgQz3a6w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TqKkFN8FNaY80otxnssULB67U2sY8bMJQzekh+ygwDo=;
+ b=Z+LSLaVTdwOzEXDRcvzi27XiZ7za8n+Ocu23CRL3DThIT5wVF18SSFBIQQJZM+H1yzQhpQdhnVA7Qkk8zPDrF38hU0YczjvjgYXbLJZXwGI45NHOIfvuaQ7HyJ/aALxzVgDbK7gx3c+tsegOl0li6B5rZdNmtoRHTPryTgH5DTWGp0n5zYJ8T5zhWYFBDMiHlZW+Fl9RJ+5AN188U7otOa0N319X8GzxwG8/m1dk3Vvf/jvhdxUqHhGbpyYAGpZaBjmlx4oDuF6WMTrH/zxdIbN1B604pCsyrY5b62CD/qxAwAqYnyWl1a/ZQE0YrDQvlVUtgQvFDFEe2j/CfPDcuQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=emc.com.tw; dmarc=pass action=none header.from=emc.com.tw;
+ dkim=pass header.d=emc.com.tw; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776754741; x=1777359541; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Edq2ptyCRSr5qgmGluyTV2ehlX9fHU1GZR+pVn7rhBE=;
-        b=RUCH4HP/ykh3NGKzIm6LXQjRgpU28l0tWJpePijh3zcFKxJ27UCCeiZr+7JjkHPfho
-         NoyeUQobP1wtbaPWXOxP38XRa31IVb9x96sB2akCOh8fHKQpq/EpTttpHZbFtyvqC1l7
-         ocORswVl9T5Lj1rxWtdIQbJwqIwrYOo0i4wNGpipic5eN0BNLGnPFjLWOAAnOIHbz+5P
-         GUItn4Z7uotGyLzrxMZBmD9VRTIuuVU7EpqXdbwBIbsjy9IISE+uhOMT53z/nR3HZjSf
-         WAUpHTfEy4ufTIER4ljuZISTOhoIFtv0FIvnftbKhXDtkhorhQ5pumcv2z1zEIaPAvsg
-         bACA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776754741; x=1777359541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Edq2ptyCRSr5qgmGluyTV2ehlX9fHU1GZR+pVn7rhBE=;
-        b=ga4PpK5HqhKIbsijE9IvzOxsZuwPVGtdj7dmQVYPpwUMVfVyo2YgyhmD6BjunQ1T51
-         zTQoAfhkvVAWeWN6E3Lj6bgjaTueiSFub4WENcpTpQ6BOzlgwXMUjL5LAazX5R99NTck
-         ojAWz+TxPCjQMwhs8aMs/4PkNeInIsVfu3pW7GzhqpDo9JWOz7vGOqMwJ3dofpzboEos
-         9B3CKNvGjjG90IQqQUDg3i4gQR0Wa/Ddd3b4qUxWDpzKUemd/Xlv+w6Ec4bVCJabZ7f9
-         Co2S4whurM6zMi9DeWzU5OOOmEWGQvw88H8x6xn/PT8WGOkQN15oQINqNNtpKtwM+fi6
-         +csw==
-X-Forwarded-Encrypted: i=1; AFNElJ+cT6lYBffS5ZSPZa/gPliRla6dEbUTjWUD7a/g/8BMILIjSCWCavLXhBdbhpTH+BgAiNKr0JMyLpbIRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyjBCKZ8vveMHdWqFwvGpgVTvPJOaQczQEtubol7w9HrkG8Nfn3
-	ZQMNXhQilOqgBvFBS4mHhETh9gJBS0lK+WVlbgfWAjAKYYJd3QgYYDQJ
-X-Gm-Gg: AeBDieusVfhq9mrOStQa6ydx1BOXqHAzTOwbiEhX/ksrddVQs+18McJQ/BrstVc8gJQ
-	fB+UuO+aYWFnc1wlAI5CCvYgaOPf3tc85aCERCd9oel41kSlF7CVB+T2TGjYJxOXyp1bCiYV3Bl
-	NC5/sLPgMl3dwbCewAYJ9TiZOOzNlacSFvffzjE4aveevVcgCYzCB8/imhabn0yZnP+vVJwRjfT
-	S9IsBI2kb40WIXjKDlgIwtezqJay86fD1EEEWv2HeG2a26VBeZHlPT1k/ingnhrOsaSCMxu+rj8
-	0p0C7ZGZAB5VbNMITMZ1ish9z8t9ybWBsG2Yjc00V/bhKK3NbFbMX5MH6UVaaDzOGKtpu3Yi6xk
-	GIBPvzefpZdGRSR+va/mHSH8YUtjqSY2QUNp5kmfX5HRn/CbcM+kEwzI2zk+qWgx8wA1Kx2lSEi
-	PUpiRue0GzlzpGaAVDDmCtOBUBMyXohd+FlyR8ey8NyODcdN6re3pVDkryCpnhW/qGlN9+sQ8/h
-	8ViElh9y7Yrx5rlbB5moWQy69JVB7C/0DqRn7NvjmiOzJjXU9KrhjA8qilWS46tbaLDcM+lxgKM
-	2jDe1CUhdFbW17eQ+t3CARDsho1yIps3kBEZB+QrdCrtjbm6a1P5UCgEb8snSXGsFtgSeLRAjp4
-	H3sDssVXICWFG/nctkLi+qhTq4i0Rr3ICNaI/UwmRwcM+p0a28tA7ZqikLr/CvLSVZw7kZeY7ug
-	1wv4FSBEo=
-X-Received: by 2002:a17:907:d508:b0:ba9:3e6d:f768 with SMTP id a640c23a62f3a-ba93e6df95emr158575066b.2.1776754740965;
-        Mon, 20 Apr 2026 23:59:00 -0700 (PDT)
-Received: from cs-280612103108-default.europe-west4-a.c.od237066db22328bb-tp.internal (172.178.13.34.bc.googleusercontent.com. [34.13.178.172])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ba455533bdfsm409675366b.57.2026.04.20.23.59.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2026 23:59:00 -0700 (PDT)
-From: Joshua Crofts <joshua.crofts1@gmail.com>
-To: jikos@kernel.org,
-	jic23@kernel.org,
-	srinivas.pandruvada@linux.intel.com
-Cc: dlechner@baylibre.com,
-	nuno.sa@analog.com,
-	andy@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Joshua Crofts <joshua.crofts1@gmail.com>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>
-Subject: [PATCH v3] iio: magnetometer: hid-sensor-magn-3d: prefer 'u32' type
-Date: Tue, 21 Apr 2026 06:58:37 +0000
-Message-ID: <20260421065837.1290-1-joshua.crofts1@gmail.com>
-X-Mailer: git-send-email 2.43.0
+ d=emccomtw.onmicrosoft.com; s=selector1-emccomtw-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TqKkFN8FNaY80otxnssULB67U2sY8bMJQzekh+ygwDo=;
+ b=Jil2nsY6CROnmgHqPHFd2c5u1ajPdD0KYPXxAsxXE3Fv5YbNvq9BSqZlMYKubOog8Bv60X9mPMGeb8tnmUw9OChGb9JaSnuE6q5QOn6fR8r2BhXESkUHNk13sOf1DoqiuouPlQOJAODVRFD2MXbYtNUQ3PtPE6l0S4n/r7stqAY=
+Received: from KL1PR01MB5116.apcprd01.prod.exchangelabs.com
+ (2603:1096:820:dd::14) by SI2PR01MB4499.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:1e2::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.33; Tue, 21 Apr
+ 2026 07:00:10 +0000
+Received: from KL1PR01MB5116.apcprd01.prod.exchangelabs.com
+ ([fe80::dccb:b51b:bbd3:1bfc]) by KL1PR01MB5116.apcprd01.prod.exchangelabs.com
+ ([fe80::dccb:b51b:bbd3:1bfc%3]) with mapi id 15.20.9818.033; Tue, 21 Apr 2026
+ 07:00:10 +0000
+From: =?big5?B?SmluZ2xlIFd1IKdkqvew6g==?= <jingle.wu@emc.com.tw>
+To: "Linux-kernel@vger.kernel.org" <Linux-kernel@vger.kernel.org>,
+	"Linux-input@vger.kernel.org" <Linux-input@vger.kernel.org>,
+	"Dmitry.torokhov@gmail.com" <Dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: elan_i2c - Add ic type 0x19
+Thread-Topic: [PATCH] Input: elan_i2c - Add ic type 0x19
+Thread-Index: AdzRXB4aUV5k1HjqTxCxwRD0rny77A==
+Date: Tue, 21 Apr 2026 07:00:10 +0000
+Message-ID: <KL1PR01MB511699853D1B66D137C06806DC2C2@KL1PR01MB5116.apcprd01.prod.exchangelabs.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=emc.com.tw;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: KL1PR01MB5116:EE_|SI2PR01MB4499:EE_
+x-ms-office365-filtering-correlation-id: 17069b46-f6e5-4aa8-17a7-08de9f73a11c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|19092799006|366016|376014|1800799024|38070700021|56012099003|18002099003;
+x-microsoft-antispam-message-info: S8+MaNQT1ZjNKa2el7KkHLFWgmiaZy9q1Abt0cuxPp0ixCw5iaF9BFoskT9rodhOhP1TIgJsTyhtIU7c188cYsd5zKdkJFRRsSeKVEpE2PjwDppqQmAfn+2mFd+eHgQUH/6I6QGNLwn7EzYOxMGyt5LAScDw5M45HhzvCaXDcBcutQ/QlaLDUJ5rnd/AoFBRdSFkt2Cx/04FC7aowP9S1F7+wdyniMey7NI9OrOzVMPFNNOHdH9blnZ++0kQYjFtyKym23FW33hRxZCSd0oiSowSpddl162ZpOMCNnzxKHwmHEc0Vi2lPOKWS1ib6QSpGrGAnlGh6zGgmGyQf2N7HigVjeZnwWDUeEClD4bAIo+3tviKky7XUauS9xw/82Nv08528fgEPZOaM+lmT0SNGllqWHU6bnaZWv+hCWhZqVaO8TvwAB9cYnN0pfV5CMGW8zW4LdCuKIGQR9XEBf7R9RHj/NQ0GwicShNLo0c6HPeOMUA/QDm4USWocTRqp2PQQbYP2dp8++O+6lh0v+N6+Uvx4gr6Zij+9KjlZnxSop7eg6ay23Wqv/ToNpXKuZwMbQp/Icv3lX98OyYA6A9fIhrfoMzqDY33e7OAsJgNb8M1zaMrxan5+pYdt+ef9voKzC5EHLjz7TDZH5uiyJq7BApIkwmz5pxRZNN/qUO4iJYSaBYdYA7/NjZ5qf5V2d9pHTaQVfnjPBu3oNSXuCsaWc58kYqeXj+d6Z0bypQOBnaBQ2GLajhTWz7phqnnJ/D0/7Nb0lkusxOfQ20hrpVIhs1NR7SxFdvOelTTC6pstQs=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:zh-tw;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KL1PR01MB5116.apcprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(366016)(376014)(1800799024)(38070700021)(56012099003)(18002099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?big5?B?NnRDdU1TS1E1L210UWRKWUtETW55aU5QbExIVFFnZHRYUEFEZzNpZStUbjMzbkYw?=
+ =?big5?B?ZXVIUVloQisxWkU4RnduK2pwY3gvOXQ4R3RPN2RaUTFWVEZlZllrRWo4RXBxQWpi?=
+ =?big5?B?TkJLNFlPWEZ6ZkVTU3lEWk1Gd0pTS0U4RGRONU1pOE5yYitNQnduWnhiZmpuUXM0?=
+ =?big5?B?NEZZVXlmLzBGMExqMS9Lem5NOW5ZeEY3R1M3cW1RY040M29MSjR1MkRoWnhubnI5?=
+ =?big5?B?WEk0UnpSeDFlZlFJOWNQRDV5YXZXTnhpNHI4TFdHelNsQmdId2JGUTBSbVVORG0z?=
+ =?big5?B?UUdsVlJILzRyaENuRldITzRXaGdZcjVjQkcvSGh3UHFab1Yrd1ZMWEpOaFl3bXVV?=
+ =?big5?B?Qks5cnZhVi9MQWJ3YWMzdzl2dm1zTkMzMmpuWTY5ODFxTDhqMHZ6SDVZUStESXBD?=
+ =?big5?B?ZjVmR010YXhBOUh0MlU5N3pMYi9hYWt6cmJiVWNmSE4weWl6bXJVWjRQOXdPbjZy?=
+ =?big5?B?OFBCVE8xcTRnc0VhWnA5V0srcWRESnF3dUNXWXhWTXN0TzRyNmRmZTJCQ2ZlSmla?=
+ =?big5?B?V1NZKzVUbWdxOVhZVDh5UDdCOGY3VmpnT2hUblNhV1ViRHR2S2xkcHhrUHFHOWVm?=
+ =?big5?B?WWFmWGJaTUFJOC9MYTdoVFd5OVdmUFFNbjU5WVF6RUJ1MTJzNHMybTBTT2MvK2ht?=
+ =?big5?B?aG8wMUcwSzI0bURhbjc1RllxeTFzMjIzSm04V0x4NEJscUs4UG9RSEd1cVRLanl4?=
+ =?big5?B?SGY5Z3pybzdrbE9FaVlPaVI2cFlYZGtUdFdHeWpRM2VjazFzK0VWdEo0bUNzOENM?=
+ =?big5?B?ZGVBRy9wcTgvTUI2dzBPSzBGRHJ0RWlXamg2LytIcHhSV2t4bUhveGJtQzc1bzN1?=
+ =?big5?B?UWI5Z2ErdGdZYmhRM0lkVThPM21OSkNNSmFpdjJ1TlJ5NkhhcXU5M3Q3MlQ2UHhL?=
+ =?big5?B?RDJOb2poc3NnYm45QVFRalBaN1ZaeTJyTFlUMENZNDdsQWNseitKZTJuWFRZekhr?=
+ =?big5?B?a3FqOCtOaDRRZFdLdlU4SVc5Y21WeFhUNnBCRDhDbVVpK1E5VldWQ2dqWjZsczdC?=
+ =?big5?B?NHpMY3gvVXZaSDNkS0xVODBLQnZXbFN0dlcxaHJKSU1WMVY2MExwV2xLK1MrSnpr?=
+ =?big5?B?bzVuTHhUdUhuQWVZSGpXdzBRekcwaDV3cklaZzl4V3RjTnRwVWVVSDdlOUE3enBF?=
+ =?big5?B?c1ZoQnNxaG91WjlCcVlqcEJFcWxLeDhvbTV2V0hKeWZiL25sMzgrZWVveWxYc2Fk?=
+ =?big5?B?UkJVUjRNSlUvbVE5NTNDYzVLelM1ZVRhdmxDZWpweXZNdXMzSkpEUXRibi9kcmpO?=
+ =?big5?B?VTA1TWhhU3pQL0Jad3F1TFpOVW5qTHRtOVRyL3g0ME5DcHd0Q25uVEV3UURySXN2?=
+ =?big5?B?TU9MOEIrNGNOS2R6V1BSdVZUSks4M1N0cWgvVWw2SGx1MFVoWE94YVQ4dzg2K29R?=
+ =?big5?B?SkMxU2NuTmhxTlg4VzFQSEYwYTg0WHZSQjVaa1puUUt6S0k3UDNiQ2pRUERPUzFN?=
+ =?big5?B?OW0rdVhtRWQrbTlOQzh3bXVUenJHbEpLcmxYRjdJcm1Qb3JZWGNZbGZ1SnpQcnRx?=
+ =?big5?B?RW9mZURzdnp1TXJmUFI3ZTlGSUNGQ1NROFVYY0tLNThzeE9TYnh0SWVDVS9BL1pE?=
+ =?big5?B?QnlzQWhTSC94dkEzdlZydjZPS3Y0U1lHdlg1dk45NlNOdUZDcTM4anRVeGdXdzht?=
+ =?big5?B?UVV3dU9jWEI3TkhGaUd0MHdSZGFSamhIMDQ2RHlCZ25BSXBiWENoWjBZbHdTQlE1?=
+ =?big5?B?NUZpeVAwM0FXU2JlaWhWaG1lSjROaXpwS2R5NVYzU0JuYzUyOGVJazF4Kzk1NDVM?=
+ =?big5?B?RnBaTndNajdoc1k3ZFVseUhERGRHMlBiL0ZzNkp6ZHZDN1FhbFNCYzRXei92bUtD?=
+ =?big5?B?UXg2enl5amJCSytxay9Jd2NRL1V3VWRndlRiU1JaaTVRWHB6MnRoWG5uMEVQdjNT?=
+ =?big5?B?dmdIcGp4ZTJIRkd6M0Z2VTg2UjUzeHRPalFlSE5nWG91SysreEdrZy9yaEJvb2FU?=
+ =?big5?B?MFJpNUJzVENHZnFUN0F2c0tCYWJxOEtjNE1wVjBkQkhHdHgrUWdpNTdMUjMzcWNx?=
+ =?big5?B?TFZrZlA4VzVYM0hDYmRMc0xkNHlTZFg2ZGR4dnhBcHZaTzNWbjVKWEk5bGJsaGh1?=
+ =?big5?B?YWRwTkNadmhQSFp2QmEvUm1VQmw4anNkL2xoZE1OcTZvK2RDZXZCelZad2FSUXE3?=
+ =?big5?B?L0tQVXZMMWQvYkVseW9pUG9kTVI3cEhBUjRrK3dOQm5IdTZKaUpjcXJxMG5ZWjFh?=
+ =?big5?B?QXFybHR6dGhjRkJCdm1jdm9weXpJUT09?=
+Content-Type: text/plain; charset="big5"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Exchange-RoutingPolicyChecked: eLzlALPvGMshm9SJaJEXyg9d390Iuej4I+oimypPp4hhQHh0VguHtyNCNAVeViqdYbo1hMABMHZZazQ9k5q5ntWcSEMkS0lxAeKqFoA+YE+7BMpqhDFPKcwRoUiyOeuxk8MODKRyL+OfUwDm8rbNKchonBkukihY8NP2C68WPC4ll3VcPyMVEK301cbGWwO5/ylpsU7jYdyNSEV599MOfm4hJj6dEIgN3TnjeHW0F8W6U2y/j3dWICAbApHTMrh3WYf6dN1cGQ6Q4YCpku5oz/azgGui8cqn2U3FvVJDSemS/fkDYqeuo11jtdDLO7mp/pJC4nfNwvsf2fQPjz4cGw==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: KL1PR01MB5116.apcprd01.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 17069b46-f6e5-4aa8-17a7-08de9f73a11c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Apr 2026 07:00:10.5803
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 665042ad-2a24-4d2d-b35e-cb1d8bcb0cd1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: bXADlfBdOgcOkUmgUJxFOqin2cgBBskNz5exaKJ3U/SBD9CVs8S0fRC5YeczypSWYQEOs5RCMZo4/kNWbCYapQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SI2PR01MB4499
+X-OriginatorOrg: emc.com.tw
 
-Use 'u32' instead of bare 'unsigned' to resolve checkpatch.pl warnings
-and correct type use as defined in the struct hid_sensor_hub_callbacks.
-
-No functional change.
-
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Joshua Crofts <joshua.crofts1@gmail.com>
----
-v2:
- - changed 'unsigned int' to 'u32' per struct definition
-v3:
- - commit message edits
-
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index c673f9323e4..b01dd53eb10 100644
---- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-+++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-@@ -280,7 +280,7 @@ static const struct iio_info magn_3d_info = {
- 
- /* Callback handler to send event after all samples are received and captured */
- static int magn_3d_proc_event(struct hid_sensor_hub_device *hsdev,
--				unsigned usage_id,
-+				u32 usage_id,
- 				void *priv)
- {
- 	struct iio_dev *indio_dev = platform_get_drvdata(priv);
-@@ -302,7 +302,7 @@ static int magn_3d_proc_event(struct hid_sensor_hub_device *hsdev,
- 
- /* Capture samples in local storage */
- static int magn_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
--				unsigned usage_id,
-+				u32 usage_id,
- 				size_t raw_len, char *raw_data,
- 				void *priv)
- {
-@@ -350,7 +350,7 @@ static int magn_3d_parse_report(struct platform_device *pdev,
- 				struct hid_sensor_hub_device *hsdev,
- 				struct iio_chan_spec **channels,
- 				int *chan_count,
--				unsigned usage_id,
-+				u32 usage_id,
- 				struct magn_3d_state *st)
- {
- 	int i;
--- 
-2.47.3
-
+VGhlIDB4MTkgaXMgdmFsaWQgMzAwMCBzZXJpYWwgaWMgdHlwZSB0b28uDQoNClNpZ25lZC1vZmYt
+Ynk6IEppbmdsZSBXdSA8amluZ2xlLnd1QGVtYy5jb20udHc+DQotLS0NCiBkcml2ZXJzL2lucHV0
+L21vdXNlL2VsYW5faTJjX2NvcmUuYyB8IDMgKysrDQogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0
+aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9tb3VzZS9lbGFuX2kyY19jb3Jl
+LmMgYi9kcml2ZXJzL2lucHV0L21vdXNlL2VsYW5faTJjX2NvcmUuYw0KaW5kZXggZmVlMTc5NmRh
+M2QwLi43NDc1ODAzYzZjZTQgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2lucHV0L21vdXNlL2VsYW5f
+aTJjX2NvcmUuYw0KKysrIGIvZHJpdmVycy9pbnB1dC9tb3VzZS9lbGFuX2kyY19jb3JlLmMNCkBA
+IC0xNjIsNiArMTYyLDkgQEAgc3RhdGljIGludCBlbGFuX2dldF9md2luZm8odTE2IGljX3R5cGUs
+IHU4IGlhcF92ZXJzaW9uLCB1MTYgKnZhbGlkcGFnZV9jb3VudCwNCiAJY2FzZSAweDE1Og0KIAkJ
+KnZhbGlkcGFnZV9jb3VudCA9IDEwMjQ7DQogCQlicmVhazsNCisJY2FzZSAweDE5Og0KKwkJKnZh
+bGlkcGFnZV9jb3VudCA9IDIwMzI7DQorCQlicmVhazsNCiAJZGVmYXVsdDoNCiAJCS8qIHVua25v
+d24gaWMgdHlwZSBjbGVhciB2YWx1ZSAqLw0KIAkJKnZhbGlkcGFnZV9jb3VudCA9IDA7DQotLSAN
+CjIuMzQuMQ0K

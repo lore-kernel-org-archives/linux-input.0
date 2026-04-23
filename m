@@ -1,39 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0433933FE2F;
-	Thu, 23 Apr 2026 04:50:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15FC1611E;
+	Thu, 23 Apr 2026 04:52:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776919818; cv=none; b=aBHwPWTwm/0zMwuwnBSS/67AnZmOf/Wh9myVpiix1WXp0xhYdUxb6VF0a4qeDZrDhEN1m8kVV1/oSvceF4s9Oi1D4gvtaD7CLkGNCaKTZzhxiOZVdnQaAUPlDIr9LFYJ1sd2WJrnpJtamsfTVwk5icKJFJMUDTlSDqFqnmCkAOo=
+	t=1776919947; cv=none; b=ZZdGjFd0znTjTRObMcgD1X7MVIPfX2mTJ64nqJYrzeayb/SVJFcZEIBBQ2W7t4VtnqidMLg7sdubTl/MY4y3ZHcpanttuSAkpGhRNoaSipiFzBAu2nBpg0ktrFqUOfHbtLAFEkX6S6xN1lktX/yy0jGKLgmaX1cq7Lc4Z26revQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776919818; c=relaxed/simple;
-	bh=6r+D5E1lQ4qTV8wmRzMZrCF3i/bUraA7GSXSYijUsbQ=;
+	s=arc-20240116; t=1776919947; c=relaxed/simple;
+	bh=93fGNDWcICWnA6HRqSFHnwKb92WjD6khshKJOZFhWog=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UrdhXAnrV6xDN+hfJ3BxBsKySVAzkWyCe0R2QkTGo42uDUshtpdTMkBmVhDnesxQyKid/6hDVxEZ6XKiYchASi5zFEZxEoUtm0biFvEXSvKg/egnlr7FjRrFviRhuDALBtHs5cCYfy6fKsjOBvvbwissQ0iGvRUk6GHt0jAeRyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=h/b1rbeQ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=e7frL2LivMVqZ9d9ygwLy3D7KrX9hp7/07F+5VtrWEg2NKeZYFW7bRF/LGA7gxgu0ubTVqTi30ajjm/PC/QzTIgJeMg0CIx20Ws5jXngf6FhKcgGIAewQ30fhbZe1vdNBAM6W81FXYFls8a3E0nZBi59yQ6HqVp4eI73z6RsQE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=RxWnVknJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="h/b1rbeQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41638C2BCB4;
-	Thu, 23 Apr 2026 04:50:17 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="RxWnVknJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B7D3C2BCB4;
+	Thu, 23 Apr 2026 04:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1776919817;
-	bh=6r+D5E1lQ4qTV8wmRzMZrCF3i/bUraA7GSXSYijUsbQ=;
+	s=korg; t=1776919946;
+	bh=93fGNDWcICWnA6HRqSFHnwKb92WjD6khshKJOZFhWog=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=h/b1rbeQmddcSuyvmQbhA7tY59tMGf/ptECvG7dTZrQ4p9YTDVhE++mqhynpFmtqC
-	 G88faRQVC2WNG3cJKtHcgxc5VCbFAveOzGObMNkMq1kHzF9jo2a+9o5PcmmibOtFJR
-	 HGnoVTQ7yB1+kkO/r/c4yApFhEO3JkrZqFMlglwg=
-Date: Thu, 23 Apr 2026 06:50:14 +0200
+	b=RxWnVknJy8jHCRgvkuXwK64kOdoSIbM0cSFlymP2g4V9Lx4Zjc8pgLRyI/y19v2zo
+	 3XkplvSjef8IBCAgXlBe4zuvlPXxGWMr+/pBNK64QzmhAAH+6h6NCuIOSOsbiufNfb
+	 1ouhUrzX84b9sBHrG2XQ+AV/fNaHfEbU84WQDqsY=
+Date: Thu, 23 Apr 2026 06:52:23 +0200
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
 	stable <stable@kernel.org>
-Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - use u32 for reg_size to
- avoid sign extension into item->reg_size
-Message-ID: <2026042351-smokeless-unflawed-2709@gregkh>
-References: <2026042044-amuser-tantrum-73af@gregkh>
- <2026042046-clad-aspect-e8f9@gregkh>
- <ael3yDbI3_1oarHN@google.com>
+Subject: Re: [PATCH] Input: ims-pcu - bound frame parser write index against
+ read_buf size
+Message-ID: <2026042322-swooned-bauble-40eb@gregkh>
+References: <2026042030-mobilize-suspense-88f9@gregkh>
+ <ael3agFzDEV0SgxT@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,37 +41,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ael3yDbI3_1oarHN@google.com>
+In-Reply-To: <ael3agFzDEV0SgxT@google.com>
 
-On Wed, Apr 22, 2026 at 06:59:31PM -0700, Dmitry Torokhov wrote:
-> On Mon, Apr 20, 2026 at 08:59:46PM +0200, Greg Kroah-Hartman wrote:
-> > rmi_read_register_desc() builds the 4-byte register size from device
-> > bytes:
-> > 
-> > 	reg_size = struct_buf[offset] |
-> > 		   (struct_buf[offset + 1] << 8) |
-> > 		   (struct_buf[offset + 2] << 16) |
-> > 		   (struct_buf[offset + 3] << 24);
-> > 
-> > struct_buf is u8 *, so each byte is promoted to int before the shift.  A
-> > device that supplies a top byte with bit 7 set (e.g. 00 00 00 00 00 00
-> > 80 in struct_buf to reach the 4-byte path with offset+3 = 0x80) makes
-> > (0x80 << 24) overflow into the int sign bit, and the OR result is
-> > negative.  reg_size is then assigned to item->reg_size, which is
-> > unsigned long, so the negative int sign-extends to a value near
-> > ULONG_MAX.
-> > 
-> > After this, bad things happen when numbers start wrapping and buffers
-> > are allocatged based on those numbers, and then accessed based on those
-> > buffers assuming to be a sane size (bigger or smaller).
-> > 
-> > Fix this all up by just properly making reg_size be a u32.
+On Wed, Apr 22, 2026 at 06:36:24PM -0700, Dmitry Torokhov wrote:
+> Hi Greg,
 > 
-> Shouldn't it be replaced with get_unaligned_le32() instead?
+> On Mon, Apr 20, 2026 at 09:05:31PM +0200, Greg Kroah-Hartman wrote:
+> > ims_pcu_process_data() implements a STX/DLE/ETX byte-stuffing parser
+> > that accumulates frame payload into pcu->read_buf[] using the running
+> > index pcu->read_pos.  read_buf is IMS_PCU_BUF_SIZE (128) bytes and
+> > read_pos is u8 but of course, we don't check the index before actually
+> > writing the data :(
+> > 
+> > Fix this up by properly rejecting the frame at the first attempt to
+> > write past read_buf and resync on the next STX, mirroring how the parser
+> > handles short and bad-checksum frames on ETX.
+> > 
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
+> > Cc: stable <stable@kernel.org>
+> > Assisted-by: gkh_clanker_t1000
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> I already have a patch for this, thanks.
 
-Sure, be glad to do that instead, this was just a "simpler" solution :)
-
-I'll respin that after -rc1 is out.
+Ah, missed that, sorry, I was working against Linus's tree.  I am
+guessing you are referring to commit 875115b82c29 ("Input: ims-pcu - fix
+heap-buffer-overflow in ims_pcu_process_data()")?  If so, why wasn't
+that tagged for stable inclusion?
 
 thanks,
 

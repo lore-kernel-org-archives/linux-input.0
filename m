@@ -1,120 +1,108 @@
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E731542AA6
-	for <linux-input@vger.kernel.org>; Thu, 23 Apr 2026 17:24:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77AFC30BF4F
+	for <Linux-input@vger.kernel.org>; Thu, 23 Apr 2026 18:02:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776965054; cv=none; b=DPG/g3Uz33HYuhMGUvMpoxEMJ+fymfIVL6rpy72YLNWT4J3cXJ6/59B1e9Ch35LxIyLm9DTUkQ3yMkPPONHg8xbENyXzs+78S77K86PTUrb9RsJSMjebn93qYV41ZKA1mijtNzaa/fwEDHf42jvGEwmwri0YQh25atqt3JfDdvs=
+	t=1776967343; cv=none; b=lVjdtseE1PbeRJSqiWKN9kbLHFnkSenfCo9PuHyNuPJ3wwZ7fkXlJrJ4o+IFQ4a3dLosISl7ArmjEQgk69wabEvvLdusc7vIpPtiSC5IvqFTNARHKNDhG4Q9QoUGmlOKgQVkF7Ff3GjMrnpKQw9LnJsSZsUtyvvGciwpOS0v+4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776965054; c=relaxed/simple;
-	bh=FO3LihRMtSAe5CC6vyzEK6/XGTlkw9lZsMKeZZvdXws=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GmXcBNN1xoGsVwt7gKgO1BPaTbUGFS8v/ydTSpRa7m5Wj/R3gtWwR2puMlbXIVWZNre1HP0Ct1cUYeyOKz0FS2I59U/K35BVIa+GrdRPN7igIabC1J/8rN7HQosTrhBqd8ppFSYOdsX6H3AjGKvrtK4mRHsPGigGZLjlNNE6p28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IqfZU/56; arc=none smtp.client-ip=74.125.82.41
+	s=arc-20240116; t=1776967343; c=relaxed/simple;
+	bh=r0R20wCh8nE2MmXjcLRKuJIe3i9K+zM1L+E1C7rSXfw=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EcrX25o0ukmu7rM7tY+CChFOjHmFV7+faRA/awiRhpuLh7RqdWI3KbwUTq2z0PW4stVJO8HAryezKCc/Vcf2Buxbn9biB8zoNpQ2smw7okbvLPCgRAEuyqW/varJuUTu9ryquL8+UiRXUT2ph5bO7s1I+ZBfWo50Mxww7ncLFz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bw6PCSUT; arc=none smtp.client-ip=74.125.82.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IqfZU/56"
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-1279eced0b9so10317166c88.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Apr 2026 10:24:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bw6PCSUT"
+Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-12c726ef332so9793624c88.1
+        for <Linux-input@vger.kernel.org>; Thu, 23 Apr 2026 11:02:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776965052; x=1777569852; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JgwqX5pfhmFEj4eQ0zNPlI36ziFgHDkO24T5ZYsAFjU=;
-        b=IqfZU/56TDHx43u31H01GE76XK749EN3dpEZKMxGaNy4KJvIolsrDMJn0qSGkkMzo1
-         uwrbYooELEyAIznoEeNsxD/Ue8taWhQqeoCXwI/y7gzMjWTtvCdAXuzIGIhMwBPC27jl
-         AagzBlcTzCbHVJUkHoEc/7nud5U0xgeNzvq7kCOMajSwKukLZ1E9ymQ+fcbuvzr8c46p
-         jdKB0HrCJbi78gdsCa2aqyW400A1SF/FQ/6uDoR8CVwjONMbHUl3nT+C7p2f3Zx1eLPs
-         klFSBRhDUV69w5XHN5kXOhwHhqiM3EtFgBRtBfmyRyjsP4OljOG/3Q9z/2SxYrX+iXtt
-         +wvA==
+        d=gmail.com; s=20251104; t=1776967341; x=1777572141; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=pvHA4p32KMCd76eNXkI97f+ghwRdYIBFegcIJqr8FGE=;
+        b=Bw6PCSUTTW5eWYP3tu2v578Hvc70jzM2ehWn2sFnwzgEJ0NyNVxOZiZrqFmQNjGmQa
+         xzvW0L0YmOIEi+bNnTGIO0CiWiNkOAOHIbsHp6navpXjKjQaB/rZxls1KBYvaxyXwvgc
+         s4ZTft6SsDAzK76Qp4soyuUTDI2RWxp4OWTe6ngf1kjkUrM5L6WQBIyh9S50KUZ7xkBi
+         2Hpqm3/0dMf/wzwFxUzIEY+6iu5S4dRojI1sJasWg7ijnbskfSVdvJEK/Zd0UHmXRA2t
+         SMwEF2E0wG1glbxcqcvXZQpPoV3ctegle9t6W8avcg5e20KUW5chUjqgSotSJxzq5gL1
+         2x0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776965052; x=1777569852;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JgwqX5pfhmFEj4eQ0zNPlI36ziFgHDkO24T5ZYsAFjU=;
-        b=YYBuoPsffQzbX2TxdTq9tcSehFmCPRsf8DlNVVoCGJAuAJ9Ns7g95k3OP7y5dG/bEC
-         NyTK7VJwzqHw3GSNJBsY1q+tMTI5g2YR2MXegf793Quv1SDHRDwiLmP1DAFNdtqJJf4D
-         I4on99TXeomxX5TIej9z5PBSJmW2MPVcDCUFzKQCinPa/qNjayzMaw5tJmgds+6+lPvR
-         X1aO0GK34HS3QF6Cq04xPAjmPTdQ99Dt2A9dv2Kgr/TYjLkSi2AdZbYk1utQV5kr9aFK
-         CfllloR2FBFuruSyYZSaLBQtngQL3jHQv0csLpi1E4KVBVTBqjLE0M4zBCcJjHsEn/rH
-         zRYg==
-X-Gm-Message-State: AOJu0YzFnksxDGRaxppuXavSKRLRmwKv4I8JRdEkYijqaM3+gy5a3ag0
-	SfXE//xyFYGb0Nnc/CQhax1l8bzRtAnNlwK69Ihf8Yv26EuqD7HykJf4
-X-Gm-Gg: AeBDiesoYFwko/GzJLHYNhgk9g5QGgV364U04i+/lVQakutgNznlroZAlOvmAe0CYj4
-	9EO3oB8rd6xjGOMQtKDn5ki8fHWMyBGZwT4fyVDYOUTQ7MUflm77VingZuyzYBzEXEZ0cBfg6Iv
-	IX7FCvJumkkRAON6XsZjgEcA4EDTIx7W+uRfopR85nvGu/NiwVyay34tuoCguvKJKoomu3wP98/
-	SyTzKn81Amjk27ZaMoVj4PSr9Kcl3V5p3N/LYTBYzeUpmNZLK+cUQnZi8BFJPi6abIMZ0RvZNBg
-	TZcoTbeRb3VPYgzyN4+pMYBmi3h5wju9Yqgu7adI3KYQt9qCabTtP10cdsxzcYAcjTNkNjz3VXz
-	eWTYt4KvLwmPjLFqF0jqHnHngyogy1HX4yIoJZrc8UGP+L+cDp/xPl0FzgEqAmfSaWS09vYfuAB
-	fh1MuAwQNZUF6ywCcz4VZxBMut1FZGMNuBVwFKIGY81HdbR8nex4arD8M1sY7tJm2x6tbGF5Hn+
-	Mlj9v9U88mUHg==
-X-Received: by 2002:a05:7022:6b99:b0:128:d352:bf8a with SMTP id a92af1059eb24-12c73fcec58mr15148605c88.33.1776965051848;
-        Thu, 23 Apr 2026 10:24:11 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1776967341; x=1777572141;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pvHA4p32KMCd76eNXkI97f+ghwRdYIBFegcIJqr8FGE=;
+        b=KmkgfIf8Y/lutRzuu/Zg2TWVCP8oAmP3e+8855sd278wbf1D2Kt4FCzE6bQtJMX9nK
+         xCr4ljDfeDXK9lhQVdX9F9rsUdNpzfIzSz8sLvsPGX+WsxeQchmzcBhyEL9jcgjAW0jT
+         Wdz24ywcmanpZafZAimeCgMe1ZCnIU2iVlVKw/QurubqsaxRjvGdNoDRCt2B/FtqdCD8
+         43a7YJ7zqzf9OusRev0mJRHVLvh3R8M99ZRQvib+OnXXE5mteMcLRh13qlKFkbNloRov
+         SgSqokex7ikyuKJlWNZAQQ528PypyRpGsUWxmoXAueQLPmdQvEKtIFLdO+bl24l5yoUs
+         9CWg==
+X-Forwarded-Encrypted: i=1; AFNElJ/Geef9KvtmitpbU1IT6Axmfv3EcczwPspXMTHwqB+Esr+oebLZshoGil1wdeo0AC8uRpL+IoqteEx3WQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9tYJUXDMLU0V9CEVkHFbz482hvllFFwOCGt7ah3W7tqTiey3I
+	V/lGB1KFMEDRya9xFCGHx1R4okKQIN8Fk/ekD5dff5j9ijUYVHtxEUuucFUMndy7
+X-Gm-Gg: AeBDieufGexb8t+smaE3ZMCZEF7kQcq1bF1NMXd/atOVHtJ5kKhv5Pqh92x1gHzpI6u
+	Uabq7K61cQqn+B8xX/N3nIxP5PjdGPZcQaIP+h6lBimuOUbh5GvMw/+p34z1/eir8o1CaQqdZEd
+	DftfuoJ6r6V3uSrmb0JlNiwN6+MVt8TcwXCYQBm/X2Nnyg+C/ZDiEgwEInkKRv5EXwxqeMIvrXj
+	IU6nOUe3fHyjNNvS1NtupeeL8MAO/gDBhux7RQ6CRMN146iyryggzr9+hr1ZslZKTjRYbglpC9J
+	dtflbcxkhauKrfMrnk0W26rp2QjW5y3x8G2TI0hI3npTejrl+CPiF8iuuFOfFr2+WWyjgvbZ/eE
+	ZZeATtHwHW8WhzA3zN6K7UAqtBHWJYd04Qym6/d8pJkLW5QTL2VoDyMywJqQuM3kMvMSDPpdUZh
+	HfPsKbKFuQ/BQqmFIhsAMA3pHaWthGzRHwy7fe/O9QXfqDEkm/mIDnEH933HLAXZ8f4Ez8cyz/T
+	Cg=
+X-Received: by 2002:a05:7022:69a:b0:122:2f4:b285 with SMTP id a92af1059eb24-12c73fa37c4mr11973583c88.25.1776967338750;
+        Thu, 23 Apr 2026 11:02:18 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:2359:5fa4:9c29:41b1])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12c919266f6sm21816482c88.1.2026.04.23.10.24.10
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12c74a20eb5sm36223335c88.14.2026.04.23.11.02.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 10:24:11 -0700 (PDT)
-Date: Thu, 23 Apr 2026 10:24:08 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable <stable@kernel.org>
-Subject: Re: [PATCH] Input: ims-pcu - bound frame parser write index against
- read_buf size
-Message-ID: <aepUPTvakExa3OZS@google.com>
-References: <2026042030-mobilize-suspense-88f9@gregkh>
- <ael3agFzDEV0SgxT@google.com>
- <2026042322-swooned-bauble-40eb@gregkh>
+        Thu, 23 Apr 2026 11:02:17 -0700 (PDT)
+From: "Dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+X-Google-Original-From: "Dmitry.torokhov@gmail.com" <Dmitry.torokhov@gmail.com>
+Date: Thu, 23 Apr 2026 11:02:15 -0700
+To: Jingle Wu =?utf-8?B?5ZCz6YeR5ZyL?= <jingle.wu@emc.com.tw>
+Cc: "Linux-kernel@vger.kernel.org" <Linux-kernel@vger.kernel.org>, 
+	"Linux-input@vger.kernel.org" <Linux-input@vger.kernel.org>
+Subject: Re: [PATCH] Input: elan_i2c - Add ic type 0x19
+Message-ID: <aepelDuMgLKALr-7@google.com>
+References: <KL1PR01MB511699853D1B66D137C06806DC2C2@KL1PR01MB5116.apcprd01.prod.exchangelabs.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <2026042322-swooned-bauble-40eb@gregkh>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <KL1PR01MB511699853D1B66D137C06806DC2C2@KL1PR01MB5116.apcprd01.prod.exchangelabs.com>
 
-On Thu, Apr 23, 2026 at 06:52:23AM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Apr 22, 2026 at 06:36:24PM -0700, Dmitry Torokhov wrote:
-> > Hi Greg,
-> > 
-> > On Mon, Apr 20, 2026 at 09:05:31PM +0200, Greg Kroah-Hartman wrote:
-> > > ims_pcu_process_data() implements a STX/DLE/ETX byte-stuffing parser
-> > > that accumulates frame payload into pcu->read_buf[] using the running
-> > > index pcu->read_pos.  read_buf is IMS_PCU_BUF_SIZE (128) bytes and
-> > > read_pos is u8 but of course, we don't check the index before actually
-> > > writing the data :(
-> > > 
-> > > Fix this up by properly rejecting the frame at the first attempt to
-> > > write past read_buf and resync on the next STX, mirroring how the parser
-> > > handles short and bad-checksum frames on ETX.
-> > > 
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-> > > Cc: stable <stable@kernel.org>
-> > > Assisted-by: gkh_clanker_t1000
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > I already have a patch for this, thanks.
+On Tue, Apr 21, 2026 at 07:00:10AM +0000, Jingle Wu 吳金國 wrote:
+> The 0x19 is valid 3000 serial ic type too.
 > 
-> Ah, missed that, sorry, I was working against Linus's tree.  I am
-> guessing you are referring to commit 875115b82c29 ("Input: ims-pcu - fix
-> heap-buffer-overflow in ims_pcu_process_data()")?  If so, why wasn't
-> that tagged for stable inclusion?
+> Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index fee1796da3d0..7475803c6ce4 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -162,6 +162,9 @@ static int elan_get_fwinfo(u16 ic_type, u8 iap_version, u16 *validpage_count,
+>  	case 0x15:
+>  		*validpage_count = 1024;
+>  		break;
+> +	case 0x19:
+> +		*validpage_count = 2032;
+> +		break;
+>  	default:
+>  		/* unknown ic type clear value */
+>  		*validpage_count = 0;
 
-I do not believe it is worth it. The driver is for specialized hardware,
-so common distros will not be enabling it, and systems where it is used
-likely do not allow plugging weird stuff into them and probably do not
-use stable either.
-
-I actually wonder if we need to carry the driver or if we should simply
-drop it. The only non-cleanup change to it was done in 2014.
-
-Thanks.
+Applied both, thank you.
 
 -- 
 Dmitry

@@ -1,115 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D123E4C95;
-	Thu, 23 Apr 2026 09:20:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B09D23E4C7E;
+	Thu, 23 Apr 2026 09:30:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776936054; cv=none; b=P+KTjoFFDbpw65+19XWAzLD5qTMo5HuVJsFUJ97frruOPH4NJwmQ4eES6uSlIejLjW0Srt4DAtxszg6LHI6MGusKNxVqgro0+bgdHEVBtKwm3ryxOqtTUQ6eMXwtGzaVEmD6NT2BhUM17gRlwCcOMPNkpgYqK3rZi2W+5tpu+mg=
+	t=1776936604; cv=none; b=tcI/YZrQTnSEsIu5+j1AoJQuKVnegAMOnd+ne2z9LQC+sb8HC8FUZSAQe7+5dwcXWeiflSIgIVtXFYHgK96Zn6GFpnAhpF5wg+fHwRqJHG3RqHznDHWkKbn6Z8wnEUMVP0lT1y/g/TGi3knnH+nWmIJvKzwbgIJfP9rObkXMb48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776936054; c=relaxed/simple;
-	bh=vHRM0uxiZ5qAtiW8wGxBLYuYJEsQ0LID8FgwWHz2Vy8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RnL+6RcDlYhIzeDmP3pJk/xzXUqUFYj7Ity1BZIVjPooWOtiDhI1WOWUFtG8YMxULaZ2xLvpqCGhgNOHJiKDEnwK6Cn0wneZeylPoMAj/I5XuiNiIqTReECroxj+o9pkuYAsIRm/X+YfJFBE10u0D9A9v0VZDJLT/vt3To052h4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JsaQ7n8x; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776936604; c=relaxed/simple;
+	bh=Wi5/rBKURpnNc2R9Vdfej9cuoowcDYrMRwgp5zTNKlI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mhVpj4wPEXmX8oVe4Ozsi+7hanGI+ETkmeUkLujJ0QA/IivBnhm+JJQTGtKF//YLGTZljw9PrGkGV62Ni7aa4Li+Vjl1vR4QpuuK4igKJtSsbcd6zdguQYQMZzcC5N+C63icLo44KDuV1z+lWfLgpa0rFBaIKs7s7E+3AtAXCWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=fVQgsPnf; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=fuZLdphI; arc=none smtp.client-ip=202.12.124.158
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JsaQ7n8x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C868EC2BCAF;
-	Thu, 23 Apr 2026 09:20:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776936054;
-	bh=vHRM0uxiZ5qAtiW8wGxBLYuYJEsQ0LID8FgwWHz2Vy8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=JsaQ7n8xBYuvWoiItmBpXn7lwrP5vob1yBcn35v4h2MEWJ48IqXzU7oQvzeM8trls
-	 1GsFFxlJRB0AcMlco4DpqfQgH/tPBPpp5obWixVNIZMAP6NDH/gIDQwCrcvJg6K6yB
-	 9jMNXqZyUbVp/ZMPEEi8lKWBzXhabDWVjfs8qyN6GxOMuOWzSI7hokh5l3KSJtkLN9
-	 NZJUA5ptJxAWHzD7goVi6R8JvCIPHcMpjCRQh+T6YiJeijrCoBlMU/QVFCBMytLbNj
-	 hAIWBnIzfsnmje+00hCYTpZ8CJ6L1OVA1dcRdj4Qa+VIQa21NlBdfHtLgrad5CIuiA
-	 qQDvnWcLK2e5g==
-Message-ID: <a145db93-a8ad-4bee-8404-21f356d7d4ab@kernel.org>
-Date: Thu, 23 Apr 2026 11:20:47 +0200
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="fVQgsPnf";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="fuZLdphI"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id A03CD7A01A8;
+	Thu, 23 Apr 2026 05:30:01 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Thu, 23 Apr 2026 05:30:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1776936601; x=1777023001; bh=yjmwU5OqE8
+	utfq4q/myWomZazCtRFydVgM1omsCuU44=; b=fVQgsPnfsPAGzhsAC+6U7FzQGE
+	SrbuL/lwDyEVmE+lNf/DO8ruCqoAJNKd9E5SYH6Yxv6AdkbSROxigVJgS/cT5fam
+	eDr/rHO/Y9Vwak8Lx+YNm7gKsCRf6RrTLkRr/3e0T82MIZPHqFw2TJie9DMHQZ7U
+	DM0Lc1leFjFm1ejDbtI4VpWLFdvCbzqO6yOYEVO/qx9lIqsFm8cuDkUWgCm8JWVo
+	vFffmDsX1leXqM69Wr5xWnp5Mb1ZvESGY3FeV4gGP54d/YdsbfMV0vsQDRjVfDOR
+	rXdIt2SMUC3g1bFCvhflZZqmqqWuPTdxbXf5QiXJ3Ee6MY7PHFV/pYVxJOCQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1776936601; x=1777023001; bh=yjmwU5OqE8utfq4q/myWomZazCtRFydVgM1
+	omsCuU44=; b=fuZLdphIyVhEA/nk5XEU5EItX+KoLx1sVCwy/uJJqUImlZKjZc+
+	GOzLrnWsnlJOvJBql4ub1/VebvXCsaRCuWP20Eg1gzQHIkQ4NSmgdQtDmTrkv71O
+	7lUmtS2ptXPPUhPPcd6nAiJj0M3os429e0dZQ9kjlSVhrbnere1o3RHi7HwGnEJe
+	p7K3pE+4/Q0W7sUkRJ5Q/Er3zHJ0ODdNRobjsrNdFdWW1Qc+q6vT2Vt3cKEF5/R4
+	nUcyiFwlPg4JqOfTmW+KNqcyXxpEyIBQkQKui7TmMDzqIwWCN+O1lJZ/q/1q7mRj
+	0x5LCvCJdHKeXaiTjq556ldNGK21SqbpYrA==
+X-ME-Sender: <xms:mObpaZDCW9vyv1SerQ8AIxrSBrYsgZculc2K7im2djHgGTX8hHbjbw>
+    <xme:mObpaW9bBi-tyt9F1Z7LLuEiyoW6nQHU4kSPqg-QOyB4N_MqXH48hk4cD41iws8_I
+    1FYiAu1lNWFea7jdEkZ_nwYTovtJ2DvG5OdYezIA0V6jutbGg>
+X-ME-Received: <xmr:mObpaVqtWdzY4Tw6CT35dVHR5eWVIkn1xOxNrchRJqXMgKKE8jREAM230psPr_c_p9XNbuYl6p0trGM4kJIJfFLt_w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdeiieejlecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcumffj
+    uceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpedvjefhvefhje
+    ejfeefleejteegtedvgeeghfeuveevgfffueelhffhhedugffhkeenucffohhmrghinhep
+    ghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmpdhnsggprhgtphhtthhopedugedp
+    mhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepughnrghimhestggrtghhhihoshdroh
+    hrghdprhgtphhtthhopehtrgihlhhorhesvgigphhonhgvnhhtrdguihhgihhtrghlpdhr
+    tghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepsggvnhhtih
+    hssheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidquhhssgesvhhgvghr
+    rdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrh
+    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgv
+    rhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:mObpaYEekHIyOGC9WqVYWaA4zZU-Y-4LNQNl-_wedf7iQgRdQCZzjA>
+    <xmx:mObpaR9TlKBGW8EMQzatAK8QXmTbSyM0PHMo_ksUI5kKF-8kqQgsTA>
+    <xmx:mObpadQN-3pqowZ_SnVrP3rgJ0aUC_LblXQ_51_zjct0Lv5avmNJQA>
+    <xmx:mObpaeplbJ1tUGYFR-g5vwVsnf1SlsQa0wuvAQWjiGCOwOyBDRyDUQ>
+    <xmx:mebpabxoVgI1fn53R-YbRO7OcOC_iqWHwuaPMkDvAcoq5Z7OtqwkyBIM>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 23 Apr 2026 05:30:00 -0400 (EDT)
+Date: Thu, 23 Apr 2026 11:29:58 +0200
+From: Greg KH <greg@kroah.com>
+To: Eric Naim <dnaim@cachyos.org>
+Cc: Taylor Hewetson <taylor@exponent.digital>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>, linux-usb@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: usbhid: sanitize hid->uniq against non-printable
+ bytes
+Message-ID: <2026042330-underarm-reusable-effa@gregkh>
+References: <20260418025823.21767-1-taylor@exponent.digital>
+ <2026041845-approve-pelvis-9845@gregkh>
+ <81ef5ca0-b070-4afc-bda7-3e5a49677115@cachyos.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: Remove the redundant 'type: boolean'
-To: phucduc.bui@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
- conor+dt@kernel.org
-Cc: nick@shmanahar.org, dmitry.torokhov@gmail.com,
- nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com,
- claudiu.beznea@tuxon.dev, lee@kernel.org, heiko@sntech.de,
- gregkh@linuxfoundation.org, linusw@kernel.org, zyw@rock-chips.com,
- zhangqing@rock-chips.com, gene_chen@richtek.com,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org
-References: <20260417021858.6582-1-phucduc.bui@gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGVBBMBCgA/AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJoF1BKBQkWlnSaAAoJEBuTQ307
- QWKbHukP/3t4tRp/bvDnxJfmNdNVn0gv9ep3L39IntPalBFwRKytqeQkzAju0whYWg+R/rwp
- +r2I1Fzwt7+PTjsnMFlh1AZxGDmP5MFkzVsMnfX1lGiXhYSOMP97XL6R1QSXxaWOpGNCDaUl
- ajorB0lJDcC0q3xAdwzRConxYVhlgmTrRiD8oLlSCD5baEAt5Zw17UTNDnDGmZQKR0fqLpWy
- 786Lm5OScb7DjEgcA2PRm17st4UQ1kF0rQHokVaotxRM74PPDB8bCsunlghJl1DRK9s1aSuN
- hL1Pv9VD8b4dFNvCo7b4hfAANPU67W40AaaGZ3UAfmw+1MYyo4QuAZGKzaP2ukbdCD/DYnqi
- tJy88XqWtyb4UQWKNoQqGKzlYXdKsldYqrLHGoMvj1UN9XcRtXHST/IaLn72o7j7/h/Ac5EL
- 8lSUVIG4TYn59NyxxAXa07Wi6zjVL1U11fTnFmE29ALYQEXKBI3KUO1A3p4sQWzU7uRmbuxn
- naUmm8RbpMcOfa9JjlXCLmQ5IP7Rr5tYZUCkZz08LIfF8UMXwH7OOEX87Y++EkAB+pzKZNNd
- hwoXulTAgjSy+OiaLtuCys9VdXLZ3Zy314azaCU3BoWgaMV0eAW/+gprWMXQM1lrlzvwlD/k
- whyy9wGf0AEPpLssLVt9VVxNjo6BIkt6d1pMg6mHsUEVzsFNBFVDXDQBEADNkrQYSREUL4D3
- Gws46JEoZ9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLue
- MNsWLJBvBaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6ei
- OMheesVS5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wA
- GldWsRxbf3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA
- 6z6lBZn0WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9
- YegxWKvXXHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt
- 91pFzBSOIpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gU
- BLHFTg2hYnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/
- JoFzZ4B0p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu
- 4vXVFBYIGmpyNPYzRm0QPwARAQABwsF8BBgBCgAmAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtB
- YpsFAmgXUF8FCRaWWyoACgkQG5NDfTtBYptO0w//dlXJs5/42hAXKsk+PDg3wyEFb4NpyA1v
- qmx7SfAzk9Hf6lWwU1O6AbqNMbh6PjEwadKUk1m04S7EjdQLsj/MBSgoQtCT3MDmWUUtHZd5
- RYIPnPq3WVB47GtuO6/u375tsxhtf7vt95QSYJwCB+ZUgo4T+FV4hquZ4AsRkbgavtIzQisg
- Dgv76tnEv3YHV8Jn9mi/Bu0FURF+5kpdMfgo1sq6RXNQ//TVf8yFgRtTUdXxW/qHjlYURrm2
- H4kutobVEIxiyu6m05q3e9eZB/TaMMNVORx+1kM3j7f0rwtEYUFzY1ygQfpcMDPl7pRYoJjB
- dSsm0ZuzDaCwaxg2t8hqQJBzJCezTOIkjHUsWAK+tEbU4Z4SnNpCyM3fBqsgYdJxjyC/tWVT
- AQ18NRLtPw7tK1rdcwCl0GFQHwSwk5pDpz1NH40e6lU+NcXSeiqkDDRkHlftKPV/dV+lQXiu
- jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
- zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
- XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260417021858.6582-1-phucduc.bui@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <81ef5ca0-b070-4afc-bda7-3e5a49677115@cachyos.org>
 
-On 17/04/2026 04:18, phucduc.bui@gmail.com wrote:
-> From: bui duc phuc <phucduc.bui@gmail.com>
+On Thu, Apr 23, 2026 at 05:55:00AM +0000, Eric Naim wrote:
+> On 4/18/26 3:14 PM, Greg KH wrote:
+> > On Sat, Apr 18, 2026 at 02:58:23PM +1200, Taylor Hewetson wrote:
+> >> Some USB HID devices (observed on ASUS ROG Azoth via its 2.4GHz
+> >> dongle, USB ID 0b05:1a85) report an iSerialNumber string whose
+> >> USB string descriptor declares a longer length than the actual
+> >> serial, leaving uninitialized firmware memory - including control
+> >> characters such as 0x18 - appended to the returned string.
+> >>
+> >> These non-printable bytes propagate into hid->uniq, which in turn
+> >> populates /sys/class/input/inputN/uniq. Downstream userspace
+> >> components (systemd sd-device property_is_valid(), and by extension
+> >> mutter input enumeration on GNOME Wayland sessions) reject devices
+> >> with control characters in their uniq, rendering otherwise-
+> >> functional input devices unusable in graphical sessions despite
+> >> the kernel input layer correctly translating keypresses.
+> >>
+> >> Truncate hid->uniq at the first byte outside the printable ASCII
+> >> range (0x20..0x7e) after the serial is read.
+> > 
+> > Why aren't we doing this in the USB core instead of forcing all users of
+> > this to do it instead?
 > 
-> The 'wakeup-source' property already has its type defined in the core
-> schema. Remove the redundant 'type: boolean' from the binding file to
-> clean up the binding files.
+> Should it be up to the kernel to do this as well? Currently this is only a
+> problem with systemd because they added this check, and it looks like they
+> have something in mind to fix it as well [1].
 > 
-> Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
-> ---
->  Documentation/devicetree/bindings/input/atmel,maxtouch.yaml | 3 +--
->  Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml   | 3 +--
-Why did you change one file and ignore the rest?
+> [1] https://github.com/systemd/systemd/issues/41339#issuecomment-4266429563
 
-Why did you not mention previous feedback I gave you on your patches
-(some time ago), that there are TWO TYPES defined for wakeup-source.
+It's either up to the kernel, or every single userspace program that
+reads the strings from a device.  Might as well do it in one place,
+right?
 
-Best regards,
-Krzysztof
+thanks,
+
+greg k-h

@@ -1,214 +1,383 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24F2734BA5B;
-	Thu, 23 Apr 2026 08:49:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776934151; cv=fail; b=E1u35TIPiR5B6Mzrz0SXUQUrBPEeO/5a5/uk3dAubh9tB6ZMVV76Hz6bnUQ9EwVcRXjPSCPzQZfHa8U5ffoRADDymiYCf9rfUKoY7M0Bz6jxliGADm2sn7pUSV80ieWqmwGIA34Ywygdw53YEdyTHrSIHbjk7FUAWGY5tH9HJr4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776934151; c=relaxed/simple;
-	bh=E1IKl15En5DYvAnNAjpbEO9AxbegN2RDwxbc3/LLxrE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=F0FfHsPt+nvrr2kEtT7lJbVEcl6mCuXOcbZnaKTEMBIUrjq+XSsEW+VCIZ7/wd/vA4Cr4aXQ0Gkw5ePhnHxXEK7jgraTBVUwhykFN/j3PqeTAhzSF2CqkNbgizkpcwq13PvJYa6RV7Opm/+LvS1KDoRueQ1WGEb1uyNFLSlHzyo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nqm7HQX2; arc=fail smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67DCB285CA4;
+	Thu, 23 Apr 2026 08:50:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776934247; cv=none; b=Hl6qDyPA95xuIcE235FyGZwHxER0G9AsUBK8H0bK6PHEEiQ96dEcO9fA0BVr2yjEzk3dU9jpUDuqeMXyY5Y/HsX2XxeBjm5oCpamJaBfgIQpcqizKB0kaEb6SlwqX5enZPAKckyb7QNGBG7PMzU6gLBEf/4dWLUsPOlnrX/yZUs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776934247; c=relaxed/simple;
+	bh=Nf7a9JOk2uJpfA/NRPEWCqAZePFm+qXJDHl+zo8rgzY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fY8iFj3+yTLWIf4M68XTLWjPjrtu7l7Z8j1Lr0Nhesyc7ASPPi3p1BEIXmtnMcy099bRLTxz/Hp0IIZBDLk+zP+tzQ0wMM9yWqPOEomEvtHqBQySRmI0tg59gnp70FBmcH1InWLUkxqcTwMipifS82nMf0eiVUskzkz3PH1hi0Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=FTC16EWX; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=ZM7Gj5ib; arc=none smtp.client-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nqm7HQX2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776934149; x=1808470149;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=E1IKl15En5DYvAnNAjpbEO9AxbegN2RDwxbc3/LLxrE=;
-  b=nqm7HQX2kt6OB/CaMddxNycibbejiIbc7OnDiYioauMYwW+qxVVq0u1c
-   19qkvdOx7iVZK+0DaeEPcd1V1fqkKnx3RSpoah03SUuWVL5YslqJWrxdm
-   uTsz8DildP49l1BTYsUKvIyPY7/eaQk1KVppp+xO3pVuUgsw5GH8tTnjA
-   pwlUz1QasVKT1tf13dZVZSYotKDzrxry+/gBXGmHb7VXA8W1G7RIm1miL
-   89JBEkfrfx6ox8Z80JK3MzK92kvC/9nJdYVQYf9uSbk9u+KcOkTj/u7KN
-   WfGuNrucW2hODuMMj8nVJ6Pl8e0suZr1COCwF+qFMOMkn3AO7U6rApo2B
-   Q==;
-X-CSE-ConnectionGUID: M/PnPE5gQpWhNNYRtzXANg==
-X-CSE-MsgGUID: XEpUBypLR2KMEPDtc3MpMA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11764"; a="88506628"
-X-IronPort-AV: E=Sophos;i="6.23,194,1770624000"; 
-   d="scan'208";a="88506628"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 01:49:08 -0700
-X-CSE-ConnectionGUID: D3Dd/QAWScihwgC9jo0iUA==
-X-CSE-MsgGUID: KMpIxNnjTGaczQqKy93aIw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,194,1770624000"; 
-   d="scan'208";a="270720467"
-Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
-  by orviesa001.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 01:49:07 -0700
-Received: from FMSMSX902.amr.corp.intel.com (10.18.126.91) by
- fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Thu, 23 Apr 2026 01:49:06 -0700
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Thu, 23 Apr 2026 01:49:06 -0700
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (40.93.195.63)
- by edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Thu, 23 Apr 2026 01:49:04 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=IJUdQjva7Yu74i7LYirKO9a1CSj5JSYdwLtypQxOLIVdwnGvJ3I6Ljr8bxge18xmYsCaLvFzFDSa+Y4S1EUggteqtVPF8wd7ezcieSvSwAx6dMYRORzK4YxmrLDEsUOrTv+CMgm+YZQTprjwEEYSxkA7JL5/GoVJ9rCaxRV9aQucq6otPhmKbnBUHSweF9WZYvf3byFoNHMe1a0jsIc8MNU7qPI3ztqAR4/C3AdDk6tQ15P28FbUUwZalrZRJVs8E1iYr/HzNmG+lB+QCtbeZY+A8ETSyMS34SZPddx34dzxWXs6kbP6AlCigEt1zQ2zgavKIb91vWtSzI/b9cfHRg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FBR9zbwtrE9JRjofg7+7Dj5FqQ0IfYOy0Lfl8/VpFwE=;
- b=Q0vWQ6tWkuCJ/ABRmsM29828UOCG081Rw0gvgGJLuTwRvr1mBnyPp0+cjKg0MqJqmgKfWG4mnxT4eUfFFGUYCWMDkp4bE6B86Alt9UPF+/NublWIx0HJdnz+3M/hqTZLdiqgeVjHvN1VJwzD6j8KJEHfz+QpMxOMCZVtfQ5wIdKm2JxevMjQkFKVIlxv3vvlxPYvNp2pbX4ek0qYyE8Z1vY6+jgy3cZiCli/bk3Um3KjkZ0jO/FSpwRmj7zCA/bPn4GEYnEDQikDD9IfNxUGikqLwBqQUMxMeLPiJ+djqRbT7eHyaKNIikxs2O0IHfqZn3whj5UeCiVqDzUnNiuwIA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from SJ0PR11MB5613.namprd11.prod.outlook.com (2603:10b6:a03:3ab::12)
- by CY5PR11MB6533.namprd11.prod.outlook.com (2603:10b6:930:43::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9846.22; Thu, 23 Apr
- 2026 08:48:59 +0000
-Received: from SJ0PR11MB5613.namprd11.prod.outlook.com
- ([fe80::a7ca:db6b:7913:d6ae]) by SJ0PR11MB5613.namprd11.prod.outlook.com
- ([fe80::a7ca:db6b:7913:d6ae%6]) with mapi id 15.20.9846.021; Thu, 23 Apr 2026
- 08:48:59 +0000
-From: "Zhang, Lixu" <lixu.zhang@intel.com>
-To: "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
-	"natalia.andre@ime.usp.br" <natalia.andre@ime.usp.br>
-CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "andy@kernel.org"
-	<andy@kernel.org>, "bentiss@kernel.org" <bentiss@kernel.org>, "Lechner,
- David" <dlechner@baylibre.com>, "jic23@kernel.org" <jic23@kernel.org>,
-	"jikos@kernel.org" <jikos@kernel.org>, "nuno.sa@analog.com"
-	<nuno.sa@analog.com>, "srinivas.pandruvada@linux.intel.com"
-	<srinivas.pandruvada@linux.intel.com>
-Subject: RE: [PATCH v2 1/7] iio: HID: Add helper method
- hid_sensor_adjust_channel_bit_mask()
-Thread-Topic: [PATCH v2 1/7] iio: HID: Add helper method
- hid_sensor_adjust_channel_bit_mask()
-Thread-Index: AQHc0vZqDQ0J1Ape/UGPXdZFwL3g3LXsVJXA
-Date: Thu, 23 Apr 2026 08:48:59 +0000
-Message-ID: <SJ0PR11MB5613F611426BE08F274A7277932A2@SJ0PR11MB5613.namprd11.prod.outlook.com>
-References: <20260421222210.16016-1-natalia.andre@ime.usp.br>
- <20260421222210.16016-2-natalia.andre@ime.usp.br>
- <20260423032038.233475-1-lixu.zhang@intel.com>
- <aenQNrLHqGxbiipb@ashevche-desk.local>
-In-Reply-To: <aenQNrLHqGxbiipb@ashevche-desk.local>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SJ0PR11MB5613:EE_|CY5PR11MB6533:EE_
-x-ms-office365-filtering-correlation-id: 86435a3b-9647-49f6-84c1-08dea1152992
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700021|22082099003|56012099003|18002099003;
-x-microsoft-antispam-message-info: Y8G85Iuws+XbAQ0xiVeRqYkqyDGrGiizhx7YhgZ9xml5dN0cJJdloifezQQ6fCL8WPXsxwsoeS7UfFwMOrz9Ddbc6RyeNFgTTdepJq01gFU0rIGG9dDRKen12PiCmJt2m7TA3GYkLgKwnQ9yNWfy7WNyr6D3us/V1Nhg5giO8i3zBIAY6gFWqE/SGeFbtzbJ3bUbTpUO5GzUGsDKqPC9v4nFlR/Ia2QgK1vBiYR64jdX54GGEFUfUY27awr1lzSYzSPOjgN7kGiHqzXlZWV3zUmvkn00NCRXwj9NLvC6PYuZErPrN8DjYO2W+LEk6lj9SIejsGDvVbCuvST5RzUbUq4bKFJkM/utgog6gD+WGCgPW8J42zgggNtNDV7hSHAU+mC8Lxo+Zs5Dxdzni5L5jUf25T6pDkcc8MOR0CeUyaGRanfuFLXnykcjp1JVXS7xYUOVF9sGq/GSy5tHXP8w6ri06JcC3Ve7CGN+DrsFF81Qp/vqD4iO5WTsvt2xnsC2CnRO1GeFuXf6oppKoNjujmivE6GXB6QojQZiE4Q48LgIeuswYB7dHShoRas6HM5lIYD+SROvz6UMzmzvqZ9bht1GTcKUGNKSpxGAncgbAU0UyWUu/oQZPyoCj39w3xjlEVch0F3maNxTLaDgRzlmQx5brqBLbBaAgA24b7MPDKDWfxbEucMFkTRebIWutraMN1t/35YBMILyJB5rOzHCgbXSOjej//ECjLsOnJ25VhN6DBdiUH9hquob59jVlyoLtiuEaJlE8QryXc45teRbhhlWoq8AFmaynnu8KX7hLUg=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB5613.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700021)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?LSubxj/FfKK5n94bkKjfCBfzFKCtbRmWtEKd4mNzhgWAOexd19GBwS7z+G?=
- =?iso-8859-1?Q?TVFzEgT35sc6fled58IXKtSKvkqC3eDPMJANOXcX17XDnQm1NgIDCqkOMa?=
- =?iso-8859-1?Q?izvMrrZGZ/lcoo5ew5W0XlehfN6pTnsN/rywo0QgQ9AnAxHUM8TQihWVUY?=
- =?iso-8859-1?Q?4lf3JTODQ5ru/c8tAnlB5WbjUTfd8DhynKHxYuxfhJKMMNN9B4XF+HNx1U?=
- =?iso-8859-1?Q?yNngGHfOFASEljSaTk6hXZFznwl/IB+FCJrUfCSjd+CRTF2QzYgF87Dp/v?=
- =?iso-8859-1?Q?oOnBgNNZMGXrjbvoBeZ9BASd8p6f7rTUlsRWoGxdItTrzt7Uqne/+rY7+a?=
- =?iso-8859-1?Q?1wflRxNVMglq/HxuNM1tJWfzSJFsCp3NfI08phRXL/z4VsLc7CGwT4pn0w?=
- =?iso-8859-1?Q?/Jm/0NZ/qqouU1Phpb8pfBJAa6X4pEe+WfKFFUUqVpFTVUPYPBqkkmnDCE?=
- =?iso-8859-1?Q?cgMRxuI46xnNNhv/+v9YqPhmjp/7E8gexb/k/h/ezjOKUZweklKDqvi9s3?=
- =?iso-8859-1?Q?we8/OaGAGGCoMkJqvsLCGadHf81rNn5q+FDvx/YVRBoIM7F5h8zUmVCgmE?=
- =?iso-8859-1?Q?LyqM3WoGxi4kupzm9pVO9TPDjtgGntyw20f1xd5i2pqKnhB7eIOY6b367V?=
- =?iso-8859-1?Q?RP+edg4eSorsI2MFQH+Ym/q7PZOC5yiOmN13uSoKdGCz/89k0MIWjwNG7S?=
- =?iso-8859-1?Q?shA0mSx0+SA5ov5JkxjX0z5eqvKusyjhCS1LDQxizFfgDUvsQ5iLSd9yu+?=
- =?iso-8859-1?Q?Cx7oArA9LZ4BV5ePEbUdRcDFXLmQTtadVQfkSmMflQJhATnVGXe7TyKyqA?=
- =?iso-8859-1?Q?tJN+DfT0Hphk9mtCTpjIeleVoRLBx1/myMoqyb9EItH/5ZE5EO6iUe0dBx?=
- =?iso-8859-1?Q?3p0WDvsMr3HgPzxW59uwooYiApPwCcRSXhWEcw6o+Vt1sYRpCfAIFk7bBz?=
- =?iso-8859-1?Q?8kqfxRFgCoaBnZgMsKr+yrdxEGDYW1B/3fxZ0zXGdQ1PHsXZ7whYUq6JRE?=
- =?iso-8859-1?Q?9kCy8FV5HZ+zeUZYI9mkKKyx0byEam+PXgWM3ApwG/q4KdiT50tkiQonVG?=
- =?iso-8859-1?Q?WUI9lwxqq1LPb+6GIyIhV2ycdY+l1Zv2xVYhPDcwe88joUBqdXQm5fCsoi?=
- =?iso-8859-1?Q?hvJEs/cQDl9HDwErzkODw/eXXBpNe4LyQqUsG9MGgcZsFIhcJOSvid3jUn?=
- =?iso-8859-1?Q?H2T+Gw2ipGZVwgTTD2YFX/mBdnb3h6ghz5xKasH5XhlQaq2Y49NijkaS5r?=
- =?iso-8859-1?Q?DeH6AdHJdZ+yIR/XPQtm+pAf8WjleOxl4ELrRjy3U7geCCkPY7d+t2LZme?=
- =?iso-8859-1?Q?l31swfUiWQUAy9MmjhB4MP+XFlpySpUyfh6olOxam2K7qGU8/+Haf750S2?=
- =?iso-8859-1?Q?IfRGwiB8jaM0sshIiPuN5/kAAgb2xOTSG43/NWH5qZ1dqzy5AsDmQwSvsk?=
- =?iso-8859-1?Q?bhbSDGtAzvVDxBgDa3PIc/Cm9AFnWyJBHvLtjtlWk/qzN5rRLLOdnpU0ZI?=
- =?iso-8859-1?Q?2HO0FQvBcwL/4TdCOt/vKJDhaLOr3npqtYiYOhsv1XsqsDsrR43fycrn6p?=
- =?iso-8859-1?Q?yvCAJfpU3JJwFcDOlAIOu8Sez9pHR/gUCswkN8wKZ5P4ixMS1My4o6QhCD?=
- =?iso-8859-1?Q?DEkX7yR+M9T5IVc6goj/GQtRAbt8s5If1e0O79Ic0EEVxUUVVLmzA+hV+6?=
- =?iso-8859-1?Q?cZmhTIsr+yAbYbCBOT1K3m/ijhB50qfNMA9DYyfpzDfX9iJmNwcsw2VOGQ?=
- =?iso-8859-1?Q?VA6DPJ6mB5LlZxRpmfpDIASOOEDkGlbGiNXUkn7IcBSsl7?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="FTC16EWX";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="ZM7Gj5ib"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4g1VDD1gZrz9tbV;
+	Thu, 23 Apr 2026 10:50:36 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1776934236;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7yvHc+U+CiRT9LO/XFcAT8S5jzULbQIt5f4WsLehEJY=;
+	b=FTC16EWX6O8QCcWWxeGlXCJnMZY798J2Rxf0dRI3vP65Vvny7VNPy7wuHl7x0oOUp6J2g+
+	imVl4agJom0gRBLrG23/RCbrsuDeIYP16kByKdSlhiMT92yy2/v9RsWQVMIqwEAEPYPKL6
+	Xy+ZcJKmwAeXIpBVm6qss4tlohE3aqSVN4EFfjR93v1AMONOO16ZVu+cbMGXaE7I6TJO7U
+	cziF46NGkpwS95oEHPKVJgd01RtnO6Wtrs4FIh7BZyFmiq+IH39lGBjX4p3+s9L+vwJAM4
+	WA4xOfFcRV5x29JyhRGF3RYIszbXYREZsgDQHU2/kuqdJKb+odoGzuC7XiVCdA==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=ZM7Gj5ib;
+	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
+From: Rosalie Wanders <rosalie@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1776934234;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7yvHc+U+CiRT9LO/XFcAT8S5jzULbQIt5f4WsLehEJY=;
+	b=ZM7Gj5ibnPF38c2WCt8y0s52KoeJtAKAS+P4Nt/cwqAJb6oFVsSU5myZCp+8DPACPcF1oK
+	Pd2/E/iMSQ5dMfgWN3bchUE8P4ddr4v3e1DEavi0M7cR2p8bxvhnf3mga20MOu250InR+V
+	qdn6FlUxPM9lXVNcMb99ZFs7xpKuJCV6zc/NuatGGFJ/N+zcuvcyksl5Mec8uwT4SBX/ji
+	lQdiOLpsK4/xWXyh49WakGdSg+i3tQirobklsd1mJvVIZBhZxzH/j9lL0feSHqa0X4N9ei
+	Icb6AGKXX4kFnUI6WVPM5HZoeZQbqmNcxz1hxPgj+bUnIdFSPvedFA7WYn/HgQ==
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Rosalie Wanders <rosalie@mailbox.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] HID: sony: use dedicated raw_event() handlers in sony_raw_event()
+Date: Thu, 23 Apr 2026 10:46:25 +0200
+Message-ID: <20260423084624.19033-3-rosalie@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: DcEnU1ImemDRDpTS+Ke8VPVEM9FQKsfLxtRFivBaSfcbwarXNeq0lXkzgLru5x8edplMu1anb64UapYkJpVoe+aRxcqf4rnNjFCfrcHPGxusjiwhZ1/F6flg/abTBF4YySZJAxxCc6TM/x0InvHEATpwgR/JADyWt2Wh4GZpNRyxzbZHRGvnnqvqpBUwqGtJg86QyfN1wrwq5yfrQUetJKQ2PYqNm28x6x1R7ZzyTDVhn62stxNESEcPOrudOlQNMOf01hC/VLocxQszmf1pRwilXj2dedRq6tx2YoO9L2IyvCmEA2sZpjleXn2Tw8CVua5bYmerdGwjEoZM1FOHsA==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB5613.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 86435a3b-9647-49f6-84c1-08dea1152992
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Apr 2026 08:48:59.6520
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: BsdnqCQe7XKEs8a/dUFXXTxXl6VhO5cN3dAD0phanDfhlz7UjaB1GHHcfjQxSNslJkzcYMYBhKrQXlcJisILMA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR11MB6533
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: r8w7etnm5pg5jc78dozn53dg14mfgdur
+X-MBO-RS-ID: bd88ca08955700a01a3
+X-Rspamd-Queue-Id: 4g1VDD1gZrz9tbV
 
->-----Original Message-----
->From: Shevchenko, Andriy <andriy.shevchenko@intel.com>
->Sent: Thursday, April 23, 2026 3:55 PM
->To: Zhang, Lixu <lixu.zhang@intel.com>
->Cc: natalia.andre@ime.usp.br; linux-input@vger.kernel.org; linux-
->iio@vger.kernel.org; andy@kernel.org; bentiss@kernel.org; Lechner, David
-><dlechner@baylibre.com>; jic23@kernel.org; jikos@kernel.org;
->nuno.sa@analog.com; srinivas.pandruvada@linux.intel.com
->Subject: Re: [PATCH v2 1/7] iio: HID: Add helper method
->hid_sensor_adjust_channel_bit_mask()
->
->On Thu, Apr 23, 2026 at 11:20:38AM +0800, Zhang Lixu wrote:
->> On Tue, Apr 21, 2026 at 07:20:33PM -0300, Nat=E1lia Salvino Andr=E9 wrot=
-e:
->> > Add helper method to deduplicate code in HID sensors.
->
->...
->
->> > +void hid_sensor_adjust_channel_bit_mask(struct iio_chan_spec
->*channels,
->> > +					int channel, int size)
->> > +{
->> > +	channels[channel].scan_type.format =3D 's';
->>
->> There is no 'format' field in struct iio_scan_type. This should be:
->>         channels[channel].scan_type.sign =3D 's';
->
->Your information is outdated, I believe.
+This commit changes the way sony_raw_event() works by adding a function
+pointer to a raw_event() handler in the sc struct instead of manually
+checking the quirk in order to call the right function, this simplifies
+the sony_raw_event() function alongside making the raw_event() handlers
+more self-contained, thus making the code more readable.
 
-You are right. I checked commit 3253477893b2 ("iio: Replace 'sign' field
-with union in struct iio_scan_type") in the IIO testing branch, which
-deprecates the 'sign' field and introduces 'format' as its replacement.
+The raw_event() handler should be configured using the new
+sony_init_raw_event_handler() function in sony_input_configured(), where
+we already check for quirks and apply device specific workarounds.
 
-My apologies for the incorrect review comment.
+Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
+---
+v2: add an additional unlikely() in sony_raw_event()
 
-Thanks,
-Lixu
+This patch depends on the following patches:
+- 'HID: sony: add missing size validation for SMK-Link remotes'
+- 'HID: sony: add missing size validation for Rock Band 3 Pro instruments'
 
->
->> > +	/* Real storage bits will change based on the report desc. */
->> > +	channels[channel].scan_type.realbits =3D size * BITS_PER_BYTE;
->> > +	/* Maximum size of a sample to capture is u32 */
->> > +	channels[channel].scan_type.storagebits =3D sizeof(u32) *
->> > +BITS_PER_BYTE; }
->
->With Best Regards,
->Andy Shevchenko
->
+ drivers/hid/hid-sony.c | 145 +++++++++++++++++++++++++----------------
+ 1 file changed, 90 insertions(+), 55 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index e75246d29e16..2d9a5261b63f 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -81,6 +81,7 @@
+ #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | MOTION_CONTROLLER)
+ #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
+ #define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
++#define RB4_GUITAR_PS4 (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT)
+ 
+ #define MAX_LEDS 4
+ #define NSG_MRXU_MAX_X 1667
+@@ -534,6 +535,7 @@ struct sony_sc {
+ 	struct input_dev *sensor_dev;
+ 	struct led_classdev *leds[MAX_LEDS];
+ 	unsigned long quirks;
++	int (*raw_event)(struct sony_sc *sc, u8 *rd, int size);
+ 	struct work_struct state_worker;
+ 	void (*send_output_report)(struct sony_sc *sc);
+ 	struct power_supply *battery;
+@@ -946,7 +948,7 @@ static const u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
+ 	return rdesc;
+ }
+ 
+-static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
++static int sixaxis_raw_event(struct sony_sc *sc, u8 *rd, int size)
+ {
+ 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
+ 	unsigned long flags;
+@@ -955,6 +957,31 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	u8 battery_capacity;
+ 	int battery_status;
+ 
++	if (unlikely(size != 49 || rd[0] != 0x01))
++		return 0;
++
++	if (sc->quirks & SIXAXIS_CONTROLLER) {
++		/*
++		 * When connected via Bluetooth the Sixaxis occasionally sends
++		 * a report with the second byte 0xff and the rest zeroed.
++		 *
++		 * This report does not reflect the actual state of the
++		 * controller must be ignored to avoid generating false input
++		 * events.
++		 */
++		if (rd[1] == 0xff)
++			return -EINVAL;
++
++		/*
++		 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
++		 * has to be BYTE_SWAPPED before passing up to joystick interface
++		 */
++		swap(rd[41], rd[42]);
++		swap(rd[43], rd[44]);
++		swap(rd[45], rd[46]);
++		swap(rd[47], rd[48]);
++	}
++
+ 	/*
+ 	 * The sixaxis is charging if the battery value is 0xee
+ 	 * and it is fully charged if the value is 0xef.
+@@ -993,13 +1020,18 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 
+ 		input_sync(sc->sensor_dev);
+ 	}
++
++	return 0;
+ }
+ 
+-static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
++static int nsg_mrxu_raw_event(struct sony_sc *sc, u8 *rd, int size)
+ {
+ 	int n, offset, relx, rely;
+ 	u8 active;
+ 
++	if (unlikely(size < 12 || rd[0] != 0x02))
++		return 0;
++
+ 	/*
+ 	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
+ 	 *   the touch-related data starts at offset 2.
+@@ -1067,10 +1099,33 @@ static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	input_mt_sync_frame(sc->touchpad);
+ 
+ 	input_sync(sc->touchpad);
++	return 0;
++}
++
++static int rb3_pro_instrument_raw_event(struct sony_sc *sc, u8 *rd, int size)
++{
++	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
++	 * sending full reports, and 0x02 when only sending navigation.
++	 */
++	if (size < 25 || rd[24] != 0x02)
++		return 0;
++
++	/* Only attempt to enable full report every 8 seconds */
++	if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
++		sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
++		rb3_pro_instrument_enable_full_report(sc);
++	}
++
++	return 0;
+ }
+ 
+-static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
++static int rb4_ps4_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
+ {
++	const int expected_size = (sc->quirks & RB4_GUITAR_PS4_BT) ? 78 : 64;
++
++	if (unlikely(size != expected_size || rd[0] != 0x01))
++		return 0;
++
+ 	/*
+ 	 * Rock Band 4 PS4 guitars have whammy and
+ 	 * tilt functionality, they're located at
+@@ -1084,9 +1139,10 @@ static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	input_report_abs(sc->input_dev, ABS_RZ, rd[45]);
+ 
+ 	input_sync(sc->input_dev);
++	return 0;
+ }
+ 
+-static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
++static int rb4_ps5_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
+ {
+ 	u8 charging_status;
+ 	u8 battery_data;
+@@ -1094,6 +1150,9 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	u8 battery_status;
+ 	unsigned long flags;
+ 
++	if (unlikely(size != 64 || rd[0] != 0x01))
++		return 0;
++
+ 	/*
+ 	 * Rock Band 4 PS5 guitars have whammy and
+ 	 * tilt functionality, they're located at
+@@ -1138,65 +1197,22 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	spin_unlock_irqrestore(&sc->lock, flags);
+ 
+ 	input_sync(sc->input_dev);
++	return 0;
+ }
+ 
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *rd, int size)
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
++	int ret;
+ 
+-	/*
+-	 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
+-	 * has to be BYTE_SWAPPED before passing up to joystick interface
+-	 */
+-	if ((sc->quirks & SIXAXIS_CONTROLLER) && rd[0] == 0x01 && size == 49) {
+-		/*
+-		 * When connected via Bluetooth the Sixaxis occasionally sends
+-		 * a report with the second byte 0xff and the rest zeroed.
+-		 *
+-		 * This report does not reflect the actual state of the
+-		 * controller must be ignored to avoid generating false input
+-		 * events.
+-		 */
+-		if (rd[1] == 0xff)
+-			return -EINVAL;
+-
+-		swap(rd[41], rd[42]);
+-		swap(rd[43], rd[44]);
+-		swap(rd[45], rd[46]);
+-		swap(rd[47], rd[48]);
+-
+-		sixaxis_parse_report(sc, rd, size);
+-	} else if ((sc->quirks & MOTION_CONTROLLER_BT) && rd[0] == 0x01 && size == 49) {
+-		sixaxis_parse_report(sc, rd, size);
+-	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 && size == 49) {
+-		sixaxis_parse_report(sc, rd, size);
+-	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02 && size >= 12) {
+-		nsg_mrxu_parse_report(sc, rd, size);
+-		return 1;
+-	} else if ((sc->quirks & RB4_GUITAR_PS4_USB) && rd[0] == 0x01 && size == 64) {
+-		rb4_ps4_guitar_parse_report(sc, rd, size);
+-		return 1;
+-	} else if ((sc->quirks & RB4_GUITAR_PS4_BT) && rd[0] == 0x01 && size == 78) {
+-		rb4_ps4_guitar_parse_report(sc, rd, size);
+-		return 1;
+-	} else if ((sc->quirks & RB4_GUITAR_PS5) && rd[0] == 0x01 && size == 64) {
+-		rb4_ps5_guitar_parse_report(sc, rd, size);
+-		return 1;
+-	}
+-
+-	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
+-	 * sending full reports, and 0x02 when only sending navigation.
+-	 */
+-	if ((sc->quirks & RB3_PRO_INSTRUMENT) && size >= 25 && rd[24] == 0x02) {
+-		/* Only attempt to enable full report every 8 seconds */
+-		if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
+-			sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
+-			rb3_pro_instrument_enable_full_report(sc);
+-		}
++	if (sc->raw_event) {
++		ret = sc->raw_event(sc, rd, size);
++		if (unlikely(ret < 0))
++			return ret;
+ 	}
+ 
+-	if (sc->defer_initialization) {
++	if (unlikely(sc->defer_initialization)) {
+ 		sc->defer_initialization = 0;
+ 		sony_schedule_work(sc, SONY_WORKER_STATE);
+ 	}
+@@ -1256,7 +1272,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	if (sc->quirks & DJH_TURNTABLE)
+ 		return djh_turntable_mapping(hdev, hi, field, usage, bit, max);
+ 
+-	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
++	if (sc->quirks & RB4_GUITAR_PS4)
+ 		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
+ 
+ 	if (sc->quirks & RB4_GUITAR_PS5)
+@@ -2110,6 +2126,12 @@ static void sony_release_device_id(struct sony_sc *sc)
+ 	}
+ }
+ 
++static inline void sony_init_raw_event_handler(struct sony_sc *sc,
++				int (*raw_event)(struct sony_sc *, u8 *, int))
++{
++	sc->raw_event = raw_event;
++}
++
+ static inline void sony_init_output_report(struct sony_sc *sc,
+ 				void (*send_output_report)(struct sony_sc *))
+ {
+@@ -2185,6 +2207,7 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			goto err_stop;
+ 		}
+ 
++		sony_init_raw_event_handler(sc, sixaxis_raw_event);
+ 		sony_init_output_report(sc, sixaxis_send_output_report);
+ 	} else if (sc->quirks & NAVIGATION_CONTROLLER_BT) {
+ 		/*
+@@ -2199,6 +2222,7 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			goto err_stop;
+ 		}
+ 
++		sony_init_raw_event_handler(sc, sixaxis_raw_event);
+ 		sony_init_output_report(sc, sixaxis_send_output_report);
+ 	} else if (sc->quirks & RB3_PRO_INSTRUMENT) {
+ 		/*
+@@ -2213,6 +2237,8 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		 */
+ 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+ 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
++
++		sony_init_raw_event_handler(sc, rb3_pro_instrument_raw_event);
+ 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+ 		/*
+ 		 * The Sony Sixaxis does not handle HID Output Reports on the
+@@ -2237,6 +2263,7 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			goto err_stop;
+ 		}
+ 
++		sony_init_raw_event_handler(sc, sixaxis_raw_event);
+ 		sony_init_output_report(sc, sixaxis_send_output_report);
+ 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+ 		/*
+@@ -2258,6 +2285,7 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			goto err_stop;
+ 		}
+ 
++		sony_init_raw_event_handler(sc, sixaxis_raw_event);
+ 		sony_init_output_report(sc, sixaxis_send_output_report);
+ 	} else if (sc->quirks & NSG_MRXU_REMOTE) {
+ 		/*
+@@ -2273,8 +2301,15 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			goto err_stop;
+ 		}
+ 
++		sony_init_raw_event_handler(sc, nsg_mrxu_raw_event);
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
++		if (sc->quirks & MOTION_CONTROLLER_BT)
++			sony_init_raw_event_handler(sc, sixaxis_raw_event);
+ 		sony_init_output_report(sc, motion_send_output_report);
++	} else if (sc->quirks & RB4_GUITAR_PS4) {
++		sony_init_raw_event_handler(sc, rb4_ps4_guitar_raw_event);
++	} else if (sc->quirks & RB4_GUITAR_PS5) {
++		sony_init_raw_event_handler(sc, rb4_ps5_guitar_raw_event);
+ 	}
+ 
+ 	if (sc->quirks & SONY_LED_SUPPORT) {
+-- 
+2.53.0
 

@@ -1,383 +1,115 @@
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67DCB285CA4;
-	Thu, 23 Apr 2026 08:50:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72D123E4C95;
+	Thu, 23 Apr 2026 09:20:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776934247; cv=none; b=Hl6qDyPA95xuIcE235FyGZwHxER0G9AsUBK8H0bK6PHEEiQ96dEcO9fA0BVr2yjEzk3dU9jpUDuqeMXyY5Y/HsX2XxeBjm5oCpamJaBfgIQpcqizKB0kaEb6SlwqX5enZPAKckyb7QNGBG7PMzU6gLBEf/4dWLUsPOlnrX/yZUs=
+	t=1776936054; cv=none; b=P+KTjoFFDbpw65+19XWAzLD5qTMo5HuVJsFUJ97frruOPH4NJwmQ4eES6uSlIejLjW0Srt4DAtxszg6LHI6MGusKNxVqgro0+bgdHEVBtKwm3ryxOqtTUQ6eMXwtGzaVEmD6NT2BhUM17gRlwCcOMPNkpgYqK3rZi2W+5tpu+mg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776934247; c=relaxed/simple;
-	bh=Nf7a9JOk2uJpfA/NRPEWCqAZePFm+qXJDHl+zo8rgzY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fY8iFj3+yTLWIf4M68XTLWjPjrtu7l7Z8j1Lr0Nhesyc7ASPPi3p1BEIXmtnMcy099bRLTxz/Hp0IIZBDLk+zP+tzQ0wMM9yWqPOEomEvtHqBQySRmI0tg59gnp70FBmcH1InWLUkxqcTwMipifS82nMf0eiVUskzkz3PH1hi0Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=FTC16EWX; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=ZM7Gj5ib; arc=none smtp.client-ip=80.241.56.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1776936054; c=relaxed/simple;
+	bh=vHRM0uxiZ5qAtiW8wGxBLYuYJEsQ0LID8FgwWHz2Vy8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RnL+6RcDlYhIzeDmP3pJk/xzXUqUFYj7Ity1BZIVjPooWOtiDhI1WOWUFtG8YMxULaZ2xLvpqCGhgNOHJiKDEnwK6Cn0wneZeylPoMAj/I5XuiNiIqTReECroxj+o9pkuYAsIRm/X+YfJFBE10u0D9A9v0VZDJLT/vt3To052h4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JsaQ7n8x; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="FTC16EWX";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="ZM7Gj5ib"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4g1VDD1gZrz9tbV;
-	Thu, 23 Apr 2026 10:50:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1776934236;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=7yvHc+U+CiRT9LO/XFcAT8S5jzULbQIt5f4WsLehEJY=;
-	b=FTC16EWX6O8QCcWWxeGlXCJnMZY798J2Rxf0dRI3vP65Vvny7VNPy7wuHl7x0oOUp6J2g+
-	imVl4agJom0gRBLrG23/RCbrsuDeIYP16kByKdSlhiMT92yy2/v9RsWQVMIqwEAEPYPKL6
-	Xy+ZcJKmwAeXIpBVm6qss4tlohE3aqSVN4EFfjR93v1AMONOO16ZVu+cbMGXaE7I6TJO7U
-	cziF46NGkpwS95oEHPKVJgd01RtnO6Wtrs4FIh7BZyFmiq+IH39lGBjX4p3+s9L+vwJAM4
-	WA4xOfFcRV5x29JyhRGF3RYIszbXYREZsgDQHU2/kuqdJKb+odoGzuC7XiVCdA==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=ZM7Gj5ib;
-	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1776934234;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=7yvHc+U+CiRT9LO/XFcAT8S5jzULbQIt5f4WsLehEJY=;
-	b=ZM7Gj5ibnPF38c2WCt8y0s52KoeJtAKAS+P4Nt/cwqAJb6oFVsSU5myZCp+8DPACPcF1oK
-	Pd2/E/iMSQ5dMfgWN3bchUE8P4ddr4v3e1DEavi0M7cR2p8bxvhnf3mga20MOu250InR+V
-	qdn6FlUxPM9lXVNcMb99ZFs7xpKuJCV6zc/NuatGGFJ/N+zcuvcyksl5Mec8uwT4SBX/ji
-	lQdiOLpsK4/xWXyh49WakGdSg+i3tQirobklsd1mJvVIZBhZxzH/j9lL0feSHqa0X4N9ei
-	Icb6AGKXX4kFnUI6WVPM5HZoeZQbqmNcxz1hxPgj+bUnIdFSPvedFA7WYn/HgQ==
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Rosalie Wanders <rosalie@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: sony: use dedicated raw_event() handlers in sony_raw_event()
-Date: Thu, 23 Apr 2026 10:46:25 +0200
-Message-ID: <20260423084624.19033-3-rosalie@mailbox.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JsaQ7n8x"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C868EC2BCAF;
+	Thu, 23 Apr 2026 09:20:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776936054;
+	bh=vHRM0uxiZ5qAtiW8wGxBLYuYJEsQ0LID8FgwWHz2Vy8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=JsaQ7n8xBYuvWoiItmBpXn7lwrP5vob1yBcn35v4h2MEWJ48IqXzU7oQvzeM8trls
+	 1GsFFxlJRB0AcMlco4DpqfQgH/tPBPpp5obWixVNIZMAP6NDH/gIDQwCrcvJg6K6yB
+	 9jMNXqZyUbVp/ZMPEEi8lKWBzXhabDWVjfs8qyN6GxOMuOWzSI7hokh5l3KSJtkLN9
+	 NZJUA5ptJxAWHzD7goVi6R8JvCIPHcMpjCRQh+T6YiJeijrCoBlMU/QVFCBMytLbNj
+	 hAIWBnIzfsnmje+00hCYTpZ8CJ6L1OVA1dcRdj4Qa+VIQa21NlBdfHtLgrad5CIuiA
+	 qQDvnWcLK2e5g==
+Message-ID: <a145db93-a8ad-4bee-8404-21f356d7d4ab@kernel.org>
+Date: Thu, 23 Apr 2026 11:20:47 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: r8w7etnm5pg5jc78dozn53dg14mfgdur
-X-MBO-RS-ID: bd88ca08955700a01a3
-X-Rspamd-Queue-Id: 4g1VDD1gZrz9tbV
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: Remove the redundant 'type: boolean'
+To: phucduc.bui@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org
+Cc: nick@shmanahar.org, dmitry.torokhov@gmail.com,
+ nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com,
+ claudiu.beznea@tuxon.dev, lee@kernel.org, heiko@sntech.de,
+ gregkh@linuxfoundation.org, linusw@kernel.org, zyw@rock-chips.com,
+ zhangqing@rock-chips.com, gene_chen@richtek.com,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org
+References: <20260417021858.6582-1-phucduc.bui@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20260417021858.6582-1-phucduc.bui@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-This commit changes the way sony_raw_event() works by adding a function
-pointer to a raw_event() handler in the sc struct instead of manually
-checking the quirk in order to call the right function, this simplifies
-the sony_raw_event() function alongside making the raw_event() handlers
-more self-contained, thus making the code more readable.
+On 17/04/2026 04:18, phucduc.bui@gmail.com wrote:
+> From: bui duc phuc <phucduc.bui@gmail.com>
+> 
+> The 'wakeup-source' property already has its type defined in the core
+> schema. Remove the redundant 'type: boolean' from the binding file to
+> clean up the binding files.
+> 
+> Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/input/atmel,maxtouch.yaml | 3 +--
+>  Documentation/devicetree/bindings/mfd/rockchip,rk816.yaml   | 3 +--
+Why did you change one file and ignore the rest?
 
-The raw_event() handler should be configured using the new
-sony_init_raw_event_handler() function in sony_input_configured(), where
-we already check for quirks and apply device specific workarounds.
+Why did you not mention previous feedback I gave you on your patches
+(some time ago), that there are TWO TYPES defined for wakeup-source.
 
-Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
----
-v2: add an additional unlikely() in sony_raw_event()
-
-This patch depends on the following patches:
-- 'HID: sony: add missing size validation for SMK-Link remotes'
-- 'HID: sony: add missing size validation for Rock Band 3 Pro instruments'
-
- drivers/hid/hid-sony.c | 145 +++++++++++++++++++++++++----------------
- 1 file changed, 90 insertions(+), 55 deletions(-)
-
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index e75246d29e16..2d9a5261b63f 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -81,6 +81,7 @@
- #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | MOTION_CONTROLLER)
- #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
- #define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
-+#define RB4_GUITAR_PS4 (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT)
- 
- #define MAX_LEDS 4
- #define NSG_MRXU_MAX_X 1667
-@@ -534,6 +535,7 @@ struct sony_sc {
- 	struct input_dev *sensor_dev;
- 	struct led_classdev *leds[MAX_LEDS];
- 	unsigned long quirks;
-+	int (*raw_event)(struct sony_sc *sc, u8 *rd, int size);
- 	struct work_struct state_worker;
- 	void (*send_output_report)(struct sony_sc *sc);
- 	struct power_supply *battery;
-@@ -946,7 +948,7 @@ static const u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
- 	return rdesc;
- }
- 
--static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int sixaxis_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
- 	unsigned long flags;
-@@ -955,6 +957,31 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	u8 battery_capacity;
- 	int battery_status;
- 
-+	if (unlikely(size != 49 || rd[0] != 0x01))
-+		return 0;
-+
-+	if (sc->quirks & SIXAXIS_CONTROLLER) {
-+		/*
-+		 * When connected via Bluetooth the Sixaxis occasionally sends
-+		 * a report with the second byte 0xff and the rest zeroed.
-+		 *
-+		 * This report does not reflect the actual state of the
-+		 * controller must be ignored to avoid generating false input
-+		 * events.
-+		 */
-+		if (rd[1] == 0xff)
-+			return -EINVAL;
-+
-+		/*
-+		 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
-+		 * has to be BYTE_SWAPPED before passing up to joystick interface
-+		 */
-+		swap(rd[41], rd[42]);
-+		swap(rd[43], rd[44]);
-+		swap(rd[45], rd[46]);
-+		swap(rd[47], rd[48]);
-+	}
-+
- 	/*
- 	 * The sixaxis is charging if the battery value is 0xee
- 	 * and it is fully charged if the value is 0xef.
-@@ -993,13 +1020,18 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 
- 		input_sync(sc->sensor_dev);
- 	}
-+
-+	return 0;
- }
- 
--static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int nsg_mrxu_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	int n, offset, relx, rely;
- 	u8 active;
- 
-+	if (unlikely(size < 12 || rd[0] != 0x02))
-+		return 0;
-+
- 	/*
- 	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
- 	 *   the touch-related data starts at offset 2.
-@@ -1067,10 +1099,33 @@ static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	input_mt_sync_frame(sc->touchpad);
- 
- 	input_sync(sc->touchpad);
-+	return 0;
-+}
-+
-+static int rb3_pro_instrument_raw_event(struct sony_sc *sc, u8 *rd, int size)
-+{
-+	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
-+	 * sending full reports, and 0x02 when only sending navigation.
-+	 */
-+	if (size < 25 || rd[24] != 0x02)
-+		return 0;
-+
-+	/* Only attempt to enable full report every 8 seconds */
-+	if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
-+		sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
-+		rb3_pro_instrument_enable_full_report(sc);
-+	}
-+
-+	return 0;
- }
- 
--static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int rb4_ps4_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
-+	const int expected_size = (sc->quirks & RB4_GUITAR_PS4_BT) ? 78 : 64;
-+
-+	if (unlikely(size != expected_size || rd[0] != 0x01))
-+		return 0;
-+
- 	/*
- 	 * Rock Band 4 PS4 guitars have whammy and
- 	 * tilt functionality, they're located at
-@@ -1084,9 +1139,10 @@ static void rb4_ps4_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	input_report_abs(sc->input_dev, ABS_RZ, rd[45]);
- 
- 	input_sync(sc->input_dev);
-+	return 0;
- }
- 
--static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+static int rb4_ps5_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- {
- 	u8 charging_status;
- 	u8 battery_data;
-@@ -1094,6 +1150,9 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	u8 battery_status;
- 	unsigned long flags;
- 
-+	if (unlikely(size != 64 || rd[0] != 0x01))
-+		return 0;
-+
- 	/*
- 	 * Rock Band 4 PS5 guitars have whammy and
- 	 * tilt functionality, they're located at
-@@ -1138,65 +1197,22 @@ static void rb4_ps5_guitar_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	spin_unlock_irqrestore(&sc->lock, flags);
- 
- 	input_sync(sc->input_dev);
-+	return 0;
- }
- 
- static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		u8 *rd, int size)
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
-+	int ret;
- 
--	/*
--	 * Sixaxis HID report has acclerometers/gyro with MSByte first, this
--	 * has to be BYTE_SWAPPED before passing up to joystick interface
--	 */
--	if ((sc->quirks & SIXAXIS_CONTROLLER) && rd[0] == 0x01 && size == 49) {
--		/*
--		 * When connected via Bluetooth the Sixaxis occasionally sends
--		 * a report with the second byte 0xff and the rest zeroed.
--		 *
--		 * This report does not reflect the actual state of the
--		 * controller must be ignored to avoid generating false input
--		 * events.
--		 */
--		if (rd[1] == 0xff)
--			return -EINVAL;
--
--		swap(rd[41], rd[42]);
--		swap(rd[43], rd[44]);
--		swap(rd[45], rd[46]);
--		swap(rd[47], rd[48]);
--
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & MOTION_CONTROLLER_BT) && rd[0] == 0x01 && size == 49) {
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 && size == 49) {
--		sixaxis_parse_report(sc, rd, size);
--	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02 && size >= 12) {
--		nsg_mrxu_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS4_USB) && rd[0] == 0x01 && size == 64) {
--		rb4_ps4_guitar_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS4_BT) && rd[0] == 0x01 && size == 78) {
--		rb4_ps4_guitar_parse_report(sc, rd, size);
--		return 1;
--	} else if ((sc->quirks & RB4_GUITAR_PS5) && rd[0] == 0x01 && size == 64) {
--		rb4_ps5_guitar_parse_report(sc, rd, size);
--		return 1;
--	}
--
--	/* Rock Band 3 PS3 Pro instruments set rd[24] to 0xE0 when they're
--	 * sending full reports, and 0x02 when only sending navigation.
--	 */
--	if ((sc->quirks & RB3_PRO_INSTRUMENT) && size >= 25 && rd[24] == 0x02) {
--		/* Only attempt to enable full report every 8 seconds */
--		if (time_after(jiffies, sc->rb3_pro_poke_jiffies)) {
--			sc->rb3_pro_poke_jiffies = jiffies + secs_to_jiffies(8);
--			rb3_pro_instrument_enable_full_report(sc);
--		}
-+	if (sc->raw_event) {
-+		ret = sc->raw_event(sc, rd, size);
-+		if (unlikely(ret < 0))
-+			return ret;
- 	}
- 
--	if (sc->defer_initialization) {
-+	if (unlikely(sc->defer_initialization)) {
- 		sc->defer_initialization = 0;
- 		sony_schedule_work(sc, SONY_WORKER_STATE);
- 	}
-@@ -1256,7 +1272,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & DJH_TURNTABLE)
- 		return djh_turntable_mapping(hdev, hi, field, usage, bit, max);
- 
--	if (sc->quirks & (RB4_GUITAR_PS4_USB | RB4_GUITAR_PS4_BT))
-+	if (sc->quirks & RB4_GUITAR_PS4)
- 		return rb4_guitar_mapping(hdev, hi, field, usage, bit, max);
- 
- 	if (sc->quirks & RB4_GUITAR_PS5)
-@@ -2110,6 +2126,12 @@ static void sony_release_device_id(struct sony_sc *sc)
- 	}
- }
- 
-+static inline void sony_init_raw_event_handler(struct sony_sc *sc,
-+				int (*raw_event)(struct sony_sc *, u8 *, int))
-+{
-+	sc->raw_event = raw_event;
-+}
-+
- static inline void sony_init_output_report(struct sony_sc *sc,
- 				void (*send_output_report)(struct sony_sc *))
- {
-@@ -2185,6 +2207,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & NAVIGATION_CONTROLLER_BT) {
- 		/*
-@@ -2199,6 +2222,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & RB3_PRO_INSTRUMENT) {
- 		/*
-@@ -2213,6 +2237,8 @@ static int sony_input_configured(struct hid_device *hdev,
- 		 */
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
-+
-+		sony_init_raw_event_handler(sc, rb3_pro_instrument_raw_event);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
-@@ -2237,6 +2263,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
- 		/*
-@@ -2258,6 +2285,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & NSG_MRXU_REMOTE) {
- 		/*
-@@ -2273,8 +2301,15 @@ static int sony_input_configured(struct hid_device *hdev,
- 			goto err_stop;
- 		}
- 
-+		sony_init_raw_event_handler(sc, nsg_mrxu_raw_event);
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
-+		if (sc->quirks & MOTION_CONTROLLER_BT)
-+			sony_init_raw_event_handler(sc, sixaxis_raw_event);
- 		sony_init_output_report(sc, motion_send_output_report);
-+	} else if (sc->quirks & RB4_GUITAR_PS4) {
-+		sony_init_raw_event_handler(sc, rb4_ps4_guitar_raw_event);
-+	} else if (sc->quirks & RB4_GUITAR_PS5) {
-+		sony_init_raw_event_handler(sc, rb4_ps5_guitar_raw_event);
- 	}
- 
- 	if (sc->quirks & SONY_LED_SUPPORT) {
--- 
-2.53.0
-
+Best regards,
+Krzysztof

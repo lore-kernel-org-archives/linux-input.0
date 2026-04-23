@@ -1,71 +1,72 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8C791DED49
-	for <linux-input@vger.kernel.org>; Thu, 23 Apr 2026 01:36:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72DFF29BD88
+	for <linux-input@vger.kernel.org>; Thu, 23 Apr 2026 01:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776908190; cv=none; b=QUMTcfZehDXEr72imKi5lwBIYy3gehlCj06QVHHT/YWwF6rAHAiuYXIo5SScQFs+ZaTDk4c0qcOAgXPA7QLhtiRK1kUWj08DBFnA+9EQp8LDWOyHwoSGMawlPtXu6u/xs2Smo+86SV3DJMtktOVmOiRBzml+JwucnEgAr24KyEI=
+	t=1776909576; cv=none; b=S56q15vzxfOwjuSjJji4B4sKu2YG1Uup372bFMgzcD1LVc7jPVX+M6DrYvDDB+wc+STuuXWL6WVCbolmPOY5vhaZe0oDLDySCixXOMBj63VU8tSFYSo0ckPUR5hnTOnwwEAtstidjrbDI3suuZRXuV1J5B7tz8E3dwgrH4K+zBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776908190; c=relaxed/simple;
-	bh=DNM/Q7BXBRM3geBXRtwNtxkvBloQ2P48yd5lWCONBGk=;
+	s=arc-20240116; t=1776909576; c=relaxed/simple;
+	bh=Lterwony2FtJvjP1BuB8aBl1R1VftyjEEpqcp+6Ekhs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I5ogQWSvXvCe54zs3h+PNXSWn/6gyNRSUttt1uWIJDWr6CMURSJvAI4MmuG5hS1dLXcAhCxQZ2L5dxSRGLb9jzVw1oq0QJ6zXqHfrwQqY43RcKo7ZWRpJxvOgmEnBqMY5lK+n+gjFOigqPRLapia8C3yAkESsCezuaK6Rb9Yp3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MM/o6Gc2; arc=none smtp.client-ip=74.125.82.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=kqD77hNQ64rlqiiAAr9MJ0E6nAJEFKKu6IobDtMd97cQ6YO6xuXcp3O74UgDpJZuj2GtWtY+1GP4JaaFMEqiE1i4B3+8/xZHiJSrJ6avM7Zddq+V2woV3pjsBjSnHI4wCtU/uzk/VCXwGcBZa8seY0JPZEwSQu9u1oqMbwfHWxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AKkN10sb; arc=none smtp.client-ip=74.125.82.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MM/o6Gc2"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2de831d2b20so3385175eec.1
-        for <linux-input@vger.kernel.org>; Wed, 22 Apr 2026 18:36:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AKkN10sb"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2d832f2f44cso5572990eec.0
+        for <linux-input@vger.kernel.org>; Wed, 22 Apr 2026 18:59:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776908188; x=1777512988; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1776909575; x=1777514375; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NJqvA3CG/4ClRueOcMsL0HE6ub/+ekGaW8D/MPEOUJw=;
-        b=MM/o6Gc2Cv1JvuG0OMRchVVqMJxpG5nCVBgtj92X+XEcHon6ZAov88sACKJL3v2auK
-         stHqClJqCP8KOjzsuuTu7FWBuOIKnWv44Lxq1lv8/1UQs3XowVwzCwmAaBVBrmRgsW55
-         Ow0cO6ibmChnhPf3xl7/zDjrN8eGke0PqeaAt/flANpx8Wby+86Eo7YK3wgAwThGR3BL
-         /UaQT7ICItk3WexzoyqpomXegUFtElUf5Vyo3crGdZsIEIYvoS9XKroutsnkQ8MKUncG
-         mlDEy0clqfqmlgm9PsEEglj4RckcX4lchOhMLhwiSoya7xrHLVa0HGF6swOqs9VfFP89
-         lqmA==
+        bh=rDeKDbl3FkCpnF1llZ8KN55wot3WZsG6pj/Ef7jrG+g=;
+        b=AKkN10sbZyYz8UJClUc6Iulml1n0Od2UXmKmGodrRa00BKkl6zdQmlQ2olNux2ArVy
+         0ZG3Mto6IXXjiQp92vhIyKhffojUooSpxMe3p0A5688/ryr59Hz40bBqHPCkOBx1x9tt
+         JDJTvOHbCcBcAllEa6HTksCUo+vUpQWZ5MSse/q7j0reQHrWjt/dE6TYlZWaql/jNXV3
+         LwtfxLbhPcaFIlQH3+d27KJhnLdUefpIOaYTT0OHQlAIwQqjVLzaznbVjRsIVQRGtcST
+         fnqLRtrv7SpaXJagNijAqLBmZtE31yzHFoMmlawHiji+5G85Taod0ywIN/c4GUdtEzJw
+         vKDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776908188; x=1777512988;
+        d=1e100.net; s=20251104; t=1776909575; x=1777514375;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NJqvA3CG/4ClRueOcMsL0HE6ub/+ekGaW8D/MPEOUJw=;
-        b=mXKV9SwUoiGu+3ZK8Y7T3bcQLP0nlo7HPaqdJe7XZPzD5kmBXzyk/7tdA7lHYP8cHd
-         dtHm85v52d/payB+lKXrrFrCybXI8sQq1PGdnG1soyFDao8yXcAk37r+Fr44sqlHCVnQ
-         6sWHL5z2v5lfKxGVO5Ir5z4Hpr/dEiD8N/JqazICh1X9ZXxuwdV2kZ0LAkn0OPOGw4cg
-         p0ITvKwvf+YRXifftmxr6zgVNn24jHM9eVWiWeB8mxPiRxDdUXXTAqPFOBRE1+uerEnt
-         Bh60XYHRnH6NLZDr3nc8U3U8xIf7uZQFzmoeWbx7GRNYhqGAONCa3cdbic3KcbYdMfNe
-         GW9w==
-X-Gm-Message-State: AOJu0YyU0F+q7DgI4j0iCNb9UMN/hJ7C/7sDaXSqa4HzwwZiWcSPpYMC
-	/Zet7vDI65LT0Hrhib/mh3WZdY1RwBPb3hPJYKvLYjUsAV9wYWJBFOzE64HoW+rR
-X-Gm-Gg: AeBDiesVwMjhFe83lq2nhd4cArqR7LqC3rZxHkA6GDIonsuL2R4Q2ujnNJw2h8IaKt+
-	eveAe35n1ZOQqgG+tKXA6nrszx3HxRTU5Z0M40e+ffH+/9qsW7fInWyTnbx8lrISFdl9eMo7Sbz
-	ZqGfUT5cotytUB00byX2clz9alwZI398qNZe2ezmOr1b1ovdKefft2coNxUi88Itwt4k1sclYZQ
-	86f+SI1z6nsOwDq7imf3MTaHTSmdA2eiqhHTJzPKUnECMzgGyuplb+9b2wXpND1rPvQoXULLGVf
-	/20AABqIqh+DuoqJ1cXLhlzZ4sV41tAoHtQyrZS3REmx99HOQs1XD/jWVczr6NcWAfcZAOx2uFs
-	qGslIEfpsKaRCDCeOTH4lVM5fP69vbUZl2KsWlvpl2jEMls+O+vOBnL/zOCwkcjM82f3lFVZF4n
-	IRmqXAMROldEIo0PN6R1cSJo0gcHwV2IXMk+ue+FNBopLjkTDL82PuqmYDDMR1JZUOXk3OY8oD2
-	j6nxTygeLG6Fw==
-X-Received: by 2002:a05:7301:4593:b0:2da:10f0:a8de with SMTP id 5a478bee46e88-2e464db026fmr13762210eec.8.1776908187976;
-        Wed, 22 Apr 2026 18:36:27 -0700 (PDT)
+        bh=rDeKDbl3FkCpnF1llZ8KN55wot3WZsG6pj/Ef7jrG+g=;
+        b=asd6cOC7qfzQingz1slxWPk3FD7Bm3t3+3WdpKiB54pOaSmpB2hKhk4Gc24WShg4HL
+         vXwCcoHPEuhEgFLR0/yP9i3NKQPB17rjdY2BEAfo90pNA7XVih4PbqA+OBdVbYrNsQ0L
+         K4kEc3g1L3wZMlJ3gd3WCPBmp7W28ruxiPPZxns0H6wcbG9JZ3ffm8737xB5RdhL20Ob
+         ilMH3yq3NF89bSF1sdwcRnEB2GDe3r+V2sJdKERGAa+f7fSRzTTEgM8nFA8qOzvaVSKK
+         D6tn3/K9v9iJgn1YXDO9PdzZppQKD8NAPjXKylA8aClJ2nQfinIaBSunn7VIJLh9duj4
+         ELLg==
+X-Gm-Message-State: AOJu0YwwQoyV2/K6lUymdD5SfJthnZDNdg9T2MYRb1KRgBQE089UngMb
+	V79Shocpze2THNQkOwrRIeV9oeZbQJCmHHqnvuiP3hhUtmt7zZQPz6D9
+X-Gm-Gg: AeBDiesIF8mO5NngVliCIcCPIbBbzTudNuQ80Dm3SFMkPpdAPZx0LU77g6aRyyLUz7G
+	64GMcd8XsRmYbeMyrICnQdvz+0czWGqIRIzfZ/WANx+8mWd5IA8XEs662I/oUeI0EiV6DUZjScg
+	LnXoAxjwboyh1dvHsewJi78DhSlRjcXQsyzUXDZ4l+1/0nuxUX2LqL3kV28F+kW96WeAkIBvWko
+	OdP9VnBHMs6M+WSAI1njucKx2rmjz3/9gyhtgbl0+L4HNT03JutmJe1/aCkudcpFWC94nJ/YSE2
+	Y1FKdqmioF58vJE7XKCdT7tb8sadjRtEcTXHbyYbq/ieVz4le84YDW4P7v8nIz4MySBOYjOFmNU
+	dleToGTO5N/yqM9tSrumnVr4WswRqunDKCKrDbm0/k0Tt7szr0z69oGobG1hBYfdUBs4xyx5t9u
+	jiHG/oxwuL3MzYKKLkxR0gsJ5rBcrZ7/lXHexG9/HoZz8B5bDXrIzyqlvRZ9RbfgCRReIds769A
+	2c=
+X-Received: by 2002:a05:7301:1f01:b0:2c7:5a7b:e8c0 with SMTP id 5a478bee46e88-2e4657714d1mr13182745eec.12.1776909574457;
+        Wed, 22 Apr 2026 18:59:34 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:2359:5fa4:9c29:41b1])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53a4a8018sm32568357eec.8.2026.04.22.18.36.26
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53a4a80c7sm32163227eec.10.2026.04.22.18.59.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2026 18:36:27 -0700 (PDT)
-Date: Wed, 22 Apr 2026 18:36:24 -0700
+        Wed, 22 Apr 2026 18:59:33 -0700 (PDT)
+Date: Wed, 22 Apr 2026 18:59:31 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	stable <stable@kernel.org>
-Subject: Re: [PATCH] Input: ims-pcu - bound frame parser write index against
- read_buf size
-Message-ID: <ael3agFzDEV0SgxT@google.com>
-References: <2026042030-mobilize-suspense-88f9@gregkh>
+Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - use u32 for reg_size to
+ avoid sign extension into item->reg_size
+Message-ID: <ael3yDbI3_1oarHN@google.com>
+References: <2026042044-amuser-tantrum-73af@gregkh>
+ <2026042046-clad-aspect-e8f9@gregkh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,28 +75,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2026042030-mobilize-suspense-88f9@gregkh>
+In-Reply-To: <2026042046-clad-aspect-e8f9@gregkh>
 
-Hi Greg,
-
-On Mon, Apr 20, 2026 at 09:05:31PM +0200, Greg Kroah-Hartman wrote:
-> ims_pcu_process_data() implements a STX/DLE/ETX byte-stuffing parser
-> that accumulates frame payload into pcu->read_buf[] using the running
-> index pcu->read_pos.  read_buf is IMS_PCU_BUF_SIZE (128) bytes and
-> read_pos is u8 but of course, we don't check the index before actually
-> writing the data :(
+On Mon, Apr 20, 2026 at 08:59:46PM +0200, Greg Kroah-Hartman wrote:
+> rmi_read_register_desc() builds the 4-byte register size from device
+> bytes:
 > 
-> Fix this up by properly rejecting the frame at the first attempt to
-> write past read_buf and resync on the next STX, mirroring how the parser
-> handles short and bad-checksum frames on ETX.
+> 	reg_size = struct_buf[offset] |
+> 		   (struct_buf[offset + 1] << 8) |
+> 		   (struct_buf[offset + 2] << 16) |
+> 		   (struct_buf[offset + 3] << 24);
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-> Cc: stable <stable@kernel.org>
-> Assisted-by: gkh_clanker_t1000
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> struct_buf is u8 *, so each byte is promoted to int before the shift.  A
+> device that supplies a top byte with bit 7 set (e.g. 00 00 00 00 00 00
+> 80 in struct_buf to reach the 4-byte path with offset+3 = 0x80) makes
+> (0x80 << 24) overflow into the int sign bit, and the OR result is
+> negative.  reg_size is then assigned to item->reg_size, which is
+> unsigned long, so the negative int sign-extends to a value near
+> ULONG_MAX.
+> 
+> After this, bad things happen when numbers start wrapping and buffers
+> are allocatged based on those numbers, and then accessed based on those
+> buffers assuming to be a sane size (bigger or smaller).
+> 
+> Fix this all up by just properly making reg_size be a u32.
 
-I already have a patch for this, thanks.
+Shouldn't it be replaced with get_unaligned_le32() instead?
+
+Thanks.
 
 -- 
 Dmitry

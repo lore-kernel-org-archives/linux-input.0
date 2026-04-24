@@ -1,203 +1,143 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 293853C4545
-	for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 12:58:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777035536; cv=pass; b=Rf2HguzbZSosnSQujyo2ssDFrmc/jR8b41i4axBJL2QlgSAtOZAG36QIq3nx6sDyDTu9/2KAa8IRdY5V21jCBU2cH0pJ6VhHRtOnHWk9k33olHCO3vrDOvEXyx/QLVqQOtgx/XVjFwHR41NUgXzwYx2ND1SmqJvouliuPZoF5Kw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777035536; c=relaxed/simple;
-	bh=ChMklle/g4BHeag6UQCkoA0kKv0IAhf6rxUmuITbmqc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KthaHRgX5C6x6smM/D2u/AqHqXEvJ8xcjjpmOjTr3+31ODJP1/fmfyKgUqH/Pxm6jXT3P6NTrklx8TgmTGjaOJL27elXrArNgo2SUBbiqLFEHc9bSjgZ61upcdQzLiiBaasC8/LAMHjis24Rb/HH4tOuDluGZ7sW3ce++D6D2QA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gFyF8nEz; arc=pass smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5D023D4114
+	for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 13:22:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777036924; cv=none; b=k1/y7VJMd19Wdd6V3vjJPck7h+Kz0pRujHpg0KFYUEoHdVbCirg2+E87lZH8dY0dbeKphykJ3YotQfYHSP7HCIQB0oEfRbuMpllVnE0UGb8TIIO0EZaKteOUwGIQ433hYohf37JTy18E/X98AF/0k8sH+QODDFun3Q0pISugnCo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777036924; c=relaxed/simple;
+	bh=eTYYUYoBCUJYd6cOvj5WMnAu4WIx1W9ruVTfxT+rW2I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pGj5FF8u9Jfj7b41sm/tuovMIrQ9h02wLK5MPWlZap/bwR+SxbW8/CsUA+4CUGqhpcM2jYTwU2LvuOJnfRQES+blfgHulSD5aoFNbgSZ9ziZ3XleJCMiHEnPRwa+bxJhSoENGZ/s2X7T4/2yVdJX1DV//V0vl0eeMTj0Mpw3k2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dh+aCNsi; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gFyF8nEz"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-43d572f7437so5160116f8f.1
-        for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 05:58:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777035526; cv=none;
-        d=google.com; s=arc-20240605;
-        b=M/FbJpqLprBtvLVeRcxulAFusLuIGGcxTA5cHnfX4nuRRxso2yN2raY0SlyUx4wPJI
-         ih3dzuBJ+uhR48pPQPIVAc4SIlsEVxAAWu0oQHVd/II8Mu+pvcFnvX4OmCAZVyNx00Aq
-         Q4DCAxy0fna9pkxChoFYhyDjRr+33EA2k8BsVOgFR5/Zt7gqdncRcsAcEiClDwdqdlCM
-         2td15Q4em08hr3u4eD1s02Te90scAWvLdrWsE0W9QPCmNPCRbXPn4LwIV4gXgfc9Y+YX
-         T0XoFKGpNfW32tRkLNvJuOQf1WvhMwXpUjvDqP4QA7iZtUM1vmJIGgw3GgYgU9d7MdNT
-         cgow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=wFsKGWNGgInqejR3E/bOc4DWytiIehmTO4wKF2AyXZI=;
-        fh=ns4ReZyZpmh7creiAzm5SnUuB7J+4F1+oHX13SUMEKA=;
-        b=AumHJ2iT1uiIj4zJkGwF0+mQvN7uqUVwI6AxOD1MDrh/ONHxxKxYWcayQ0MP0RocJU
-         p97WoTkl0AuxwCmHHZbBqw9aW+O+9YhGHi+Gv5fJyPxPrfA1x/EXkJCsxZ3G1NjxztQr
-         VChkXORkosQzg3T/aHv8Ov2T89vAE+nIFGAuDG72qvoijWKwj72muKtZ2zxPsqV/kffh
-         KHa4iL1vLgslnW5X5G6O+oCrHkwyPyuVvpIY+Tb/nDtJNr8algTiNatmF5/OhlYlHoFT
-         rnxrJVWoxyQIf3+HDZKmN3EttAEjTKa+W5IRl+tRywJEq+ful7uuwdhRcpjTNaNnudAW
-         NaiQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dh+aCNsi"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2b2503753efso80207805ad.0
+        for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 06:22:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777035526; x=1777640326; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wFsKGWNGgInqejR3E/bOc4DWytiIehmTO4wKF2AyXZI=;
-        b=gFyF8nEzzJN/laq3H+355n9mb1550gG8CdafiGl8gzvzI8Li8mnXMHivpPxrcf9P/x
-         WizW+CKJnkSU6R9KobQmnMcv0k/ujLM0a2wn5YQEGIlY25GrBJhrA3uiCRg8zjA1gkHz
-         bkjM8DFtX9JarnOcr7PgE7oS9QUpM1a3UfjFtFkoaK0ZBjMCV/1TTOa2Zw3KrmAm6Wxo
-         lVBJqwHofZmwtTT0YPWiA5/LTSVEKe1gmy60E1/zsnOuBo82AeCVXjezudKPqLUXB8Sh
-         rO7l1oyZG4j3fxcOjY8XHmdqMnUMCjsymPR7HVQLG+6Ki8lR0pBKqNiiiD3B+5D/pqJF
-         nPKw==
+        d=gmail.com; s=20251104; t=1777036922; x=1777641722; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ybrSWmSvBg9HMhpBAZRFHbe/rCyD4fuA5/9B69lAdq8=;
+        b=Dh+aCNsiDgxJuE3pAkIHdFua6DtTlEGMsHTWQJAGOEUODJNC95MJsiexaW38edR73S
+         IjUkvJmUjXJ7ya7r6GuuHWeiBSotgcNJTAfdNuA0vGaorkbR18UVOt244kdLymxRzcG9
+         94xjTyJEHtTIB1odu6Bk9VzoDWJkuqDpgPbaj+Pd+aGxQY7CDK7OVnME4+c4p7fnw6j8
+         8Q5o+tUZxwy3y8OCLMJig623HeZR6S0UvRn+PlPg+62H5mvE2VH7BEv39oOuuAxxo3LL
+         MILFHnI6CFOO1bMbUxCgZ4PggbVryyN2IesThAWWQv9OCbckH0NXxqXZN/waN01YeLdE
+         duWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777035526; x=1777640326;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=wFsKGWNGgInqejR3E/bOc4DWytiIehmTO4wKF2AyXZI=;
-        b=NHm1xNiZmkXa+YL3azYvf4XxCarX8Gcth/gQ6MBGsVMpxmCGQgJvi0gj3S0yvdBZKM
-         mOcAol6986Ib7cmlAJWR9Ro5YwG6HAplGgqEvFXjSWbJld1ccsR9eO7ITKq1OaHvHKWY
-         Q3opeoJ7GoJ3EiclLb+Gxb5V5fSPZhARHJtzH/DaXvF4Z5raLbIrPz/W5mL5/+R7S3IZ
-         VpMHFjj39Q5m8gWFKiEX0cs1k+X4SMWyjE3ynIvZXeI73/UBh4PLkNIpXIWbHhkO4nuf
-         BrKsEbYHMa5uEdzff9fqFQltE8J7FKu3CGrlfiFRTWB94DMK7Mae88V1BwBab77mFqbS
-         YwOg==
-X-Forwarded-Encrypted: i=1; AFNElJ9eJ5iIH3MI5Mb08f9yNtxIwHexh3rOy59tU5tBDtQc900EJTqOhdNI7rxz0DCR2s4wZGauZYEo0xZvQw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzAd/VVq6vPGzaqcrf2s7zjbP103TJ+am0/gZib/KbgNglRjAE9
-	/iHmjHunsYctgPRLC+oLmrUnv04i2W54OWLKwxIJILhB9w3/o/Pche36/K526EinzTWm/063HLc
-	hrn387javz1i3/f2OtbEl3bf70dbQ5w8=
-X-Gm-Gg: AeBDiet1mmABs22eqwXY/qgEVRsMzWWsaL5a133IBof940/TmA90sTp/1iNZv5pJRe0
-	Vt5HPLmjthQKzqbcHS9AiRCok2I//Cffm3ozMU7dtaRCcF6OHiKYugobWbq9VtIEJBhLR9BLRiY
-	ZioCASAzFJHIaQD7/9acEan0yQ/CctTnqmHNEWH+isYw84wwvM+otQRQOiwXoO7l3ztAvQoBcrn
-	smbo4F6SA3/4lZ6sDIeuJNC8oCpH+a3JjSW9SALiWyewXjIo6PFAOLEeIDPUOqYLP7v1o67XXzp
-	kjNCLasav5yFg1PfIMQ=
-X-Received: by 2002:a05:6000:1886:b0:43d:7e11:1b72 with SMTP id
- ffacd0b85a97d-43fe3dbece0mr46576017f8f.9.1777035525465; Fri, 24 Apr 2026
- 05:58:45 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1777036922; x=1777641722;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ybrSWmSvBg9HMhpBAZRFHbe/rCyD4fuA5/9B69lAdq8=;
+        b=VXwyEcZsuSfd1uANFPxLgUs6czxS+vXu/AMQPMXmGr5kUK5sN28wox1by+ZKEQi59t
+         afGOOxqDyvaqiFZ75H03vd00LoY7Co7uPf5fYYq5CGuTfwVZlXHTLVvNtnanZbn7HIzk
+         MqElZ7RijAY0/bF3JqmPvyZ7MVCTjRxUQQvjXf+PRPQP6kuOQlUMy/+8efu6NbXaYlQm
+         ydm+cjmWROPdC9N5Ldg7HNXrIu3FvsbzWkne1EEbgzUTIGuB5+bLytmdeT3Mo6x6YHG6
+         VGU/+A2Gs38PXJxAlVYac4VBquOrA6MO0WwClw6/nI6MIacm/aJE59esYfJEqs4cBETR
+         dLBQ==
+X-Gm-Message-State: AOJu0YzCEjx/HqhifKi3vNELkrgM8kUPpYAmnLCri+DuK6+H5dDoC7G2
+	5Nhl0YkXvxNt+mK1hOk24Id/NHz8BCvm3xQbK5c/3QfWm9VagwiQTz8=
+X-Gm-Gg: AeBDievvv2mZqkElQ8LJKNUGq3LSCWk+Nx6U0h6cfI8TBe6OUZ2yPP0aks5CmZGEOZx
+	HpyQ8BsImo71kjXR1KSsmnUkNkM7yPYvySYQzcLJXqrxbvuB9bXtwrqCdxNnQW4Uo0pYOE9bEVV
+	Y6NPcxzXiq0iT2dIRi5i35rlIlDOWYfuOLMPZWMa2FQokDlK65EIfJtFdEIXRl3IuyVmeV0Mbz2
+	chHkJ+fVTphjooQy+oJKUI4C6JgiIZnkUyITHC7VooB0s7ZBa6UcvMeQ9j2PzXz9XY97UxgQqvJ
+	+gSbXoHI8mn3T/lHexrfIpVLt6DwG7rhhNX1eNAKAHcMpND3p4h3oc3BypknMu4wuLgoEcCYNxQ
+	tICBtzAoWNCSIr2gNNGaGy/7s3VUHAUpBSgMkX+AxQbw3dJOVcuVZrweI89qBkL7fPIjC1DKY/t
+	GIEhLVQkYLU27wVIo5zcfxJrf2wep0nA+qpsYqQdrBc5qi0p8m3xeizaOYp1fCxC7z/lfvnN+c4
+	ZG1W9YB/cLnBiA=
+X-Received: by 2002:a17:903:37c3:b0:2b7:aba0:ac10 with SMTP id d9443c01a7336-2b7aba0aea6mr72508065ad.11.1777036922129;
+        Fri, 24 Apr 2026 06:22:02 -0700 (PDT)
+Received: from localhost.localdomain ([1.226.165.54])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5fab30f29sm224955695ad.68.2026.04.24.06.22.00
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 24 Apr 2026 06:22:01 -0700 (PDT)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Myeonghun Pak <mhun512@gmail.com>
+Subject: [PATCH] HID: u2fzero: free allocated URB on probe errors
+Date: Fri, 24 Apr 2026 22:21:31 +0900
+Message-ID: <20260424-u2fzero-probe-urb-unwind-v1-1-mhun512@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260424071305.89503-1-clamor95@gmail.com> <20260424071305.89503-2-clamor95@gmail.com>
- <177701943440.2848156.923810545023102522.robh@kernel.org> <CAPVz0n3Wxk=9YpmU0nXsOQdtxBhoTBv8283+OHhUr-TKxkAb5A@mail.gmail.com>
- <CAL_Jsq+dekx_vVFXxLb3oFQ7MM6xkPSSB7vyTV0YWh9BPLhEDw@mail.gmail.com>
-In-Reply-To: <CAL_Jsq+dekx_vVFXxLb3oFQ7MM6xkPSSB7vyTV0YWh9BPLhEDw@mail.gmail.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Fri, 24 Apr 2026 15:58:34 +0300
-X-Gm-Features: AQROBzAJjSjFj8WjNqd-oMltJq7zQMurtPb02KET3uiSv0VX_tvTiMnlwtA6iIc
-Message-ID: <CAPVz0n1Pmq+fKFw5sPG7Gxjxs59jsA2s64ChnWt2SqkjGon2Aw@mail.gmail.com>
-Subject: Re: [PATCH v1 1/2] dt-bindings: input: Document Imagis ISA1200 haptic
- motor driver
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, 
-	Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-=D0=BF=D1=82, 24 =D0=BA=D0=B2=D1=96=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 14:5=
-5 Rob Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Fri, Apr 24, 2026 at 3:57=E2=80=AFAM Svyatoslav Ryhel <clamor95@gmail.=
-com> wrote:
-> >
-> > =D0=BF=D1=82, 24 =D0=BA=D0=B2=D1=96=D1=82. 2026=E2=80=AF=D1=80. =D0=BE =
-11:30 Rob Herring (Arm) <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
-> > >
-> > >
-> > > On Fri, 24 Apr 2026 10:13:04 +0300, Svyatoslav Ryhel wrote:
-> > > > Document the Imagis ISA1200 haptic motor driver, used primarily in =
-mobile
-> > > > handheld devices and capable of supporting up to two motors.
-> > > >
-> > > > The exact datasheet for the ISA1200 is not available; all data was =
-modeled
-> > > > based on available downstream kernel sources for various devices an=
-d
-> > > > fragments of information scattered across the internet.
-> > > >
-> > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > ---
-> > > >  .../bindings/input/imagis,isa1200.yaml        | 145 ++++++++++++++=
-++++
-> > > >  include/dt-bindings/input/isa1200.h           |  16 ++
-> > > >  2 files changed, 161 insertions(+)
-> > > >  create mode 100644 Documentation/devicetree/bindings/input/imagis,=
-isa1200.yaml
-> > > >  create mode 100644 include/dt-bindings/input/isa1200.h
-> > > >
-> > >
-> > > My bot found errors running 'make dt_binding_check' on your patch:
-> > >
-> > > yamllint warnings/errors:
-> > >
-> > > dtschema/dtc warnings/errors:
-> > > /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindin=
-gs/input/imagis,isa1200.example.dtb: haptic-engine@49 (imagis,isa1200): ena=
-ble-gpios: [[4294967295, 22, 0], [4294967295, 23, 0]] is too long
-> > >         from schema $id: http://devicetree.org/schemas/gpio/gpio-cons=
-umer-common.yaml
-> > >
-> > > doc reference errors (make refcheckdocs):
-> > >
-> > > See https://patchwork.kernel.org/project/devicetree/patch/20260424071=
-305.89503-2-clamor95@gmail.com
-> > >
-> > > The base for the series is generally the latest rc1. A different depe=
-ndency
-> > > should be noted in *this* patch.
-> > >
-> > > If you already ran 'make dt_binding_check' and didn't see the above
-> > > error(s), then make sure 'yamllint' is installed and dt-schema is up =
-to
-> > > date:
-> > >
-> > > pip3 install dtschema --upgrade
-> > >
-> > > Please check and re-submit after running the above command yourself. =
-Note
-> > > that DT_SCHEMA_FILES can be set to your schema file to speed up check=
-ing
-> > > your schema. However, it must be unset to test all examples with your=
- schema.
-> > >
-> >
-> > I am not sure what is going on here. I have installed dtschema-2026.4
-> > which seems to be the latest. Running the check with this schema gives
-> > a clean result, no errors produced.
-> >
-> >   SCHEMA  Documentation/devicetree/bindings/processed-schema.json
-> >   CHKDT   ./Documentation/devicetree/bindings
-> >   LINT    ./Documentation/devicetree/bindings
-> >   DTEX    Documentation/devicetree/bindings/input/imagis,isa1200.exampl=
-e.dts
-> >   DTC [C] Documentation/devicetree/bindings/input/imagis,isa1200.exampl=
-e.dtb
->
-> Let me guess, you have DT_SCHEMA_FILES set? Then you are only
-> validating against the schemas that match and not all of them. There's
-> a single binding target now. See commit 400fbf4b5870 ("dt-bindings:
-> kbuild: Support single binding targets"). Of course, changes in this
-> schema could affect any other example, so you ultimately have to check
-> everything with just 'make dt_binding_check'.
->
+u2fzero_fill_in_urb() allocates dev->urb with usb_alloc_urb(), but
+u2fzero_probe() ignored its return value and only freed the URB from
+u2fzero_remove().
 
-Thank you for explanation. That is unfortunate.
+If LED or hwrng registration fails after the URB allocation, probe returns
+an error and the driver core does not call .remove(), leaking the URB. A
+failed URB setup was also allowed to continue probing with an unusable
+device.
 
-> The issue here is enable-gpios is defined as a standard property name
-> with 1 GPIO. I don't think we want to extend that because with more
-> than 1 you have to know what each signal is and the relationship
-> between them which will vary.
->
+Check the URB setup result and add the missing probe-error unwind so the
+URB is freed before returning from later errors.
 
-Is it still possible to use enable-gpios for 2 gpios in local cases
-(like this one) or I have to use some non-standard naming like
-en-gpios or control-gpios etc.? This device has 2 pins called hen and
-len, usually they are hooked to a single gpio, but that is not
-universally true.
+Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+---
+ drivers/hid/hid-u2fzero.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-> Rob
+diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
+index 744a91e6e7..82404b6e2d 100644
+--- a/drivers/hid/hid-u2fzero.c
++++ b/drivers/hid/hid-u2fzero.c
+@@ -341,29 +341,33 @@ static int u2fzero_probe(struct hid_device *hdev,
+ 	if (ret)
+ 		return ret;
+ 
+-	u2fzero_fill_in_urb(dev);
++	ret = u2fzero_fill_in_urb(dev);
++	if (ret)
++		goto err_hid_hw_stop;
+ 
+ 	dev->present = true;
+ 
+ 	minor = ((struct hidraw *) hdev->hidraw)->minor;
+ 
+ 	ret = u2fzero_init_led(dev, minor);
+-	if (ret) {
+-		hid_hw_stop(hdev);
+-		return ret;
+-	}
++	if (ret)
++		goto err_free_urb;
+ 
+ 	hid_info(hdev, "%s LED initialised\n", hw_configs[dev->hw_revision].name);
+ 
+ 	ret = u2fzero_init_hwrng(dev, minor);
+-	if (ret) {
+-		hid_hw_stop(hdev);
+-		return ret;
+-	}
++	if (ret)
++		goto err_free_urb;
+ 
+ 	hid_info(hdev, "%s RNG initialised\n", hw_configs[dev->hw_revision].name);
+ 
+ 	return 0;
++
++err_free_urb:
++	usb_free_urb(dev->urb);
++err_hid_hw_stop:
++	hid_hw_stop(hdev);
++	return ret;
+ }
+ 
+ static void u2fzero_remove(struct hid_device *hdev)
+-- 
+2.50.1
+

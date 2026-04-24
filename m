@@ -1,167 +1,96 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.126.com (m16.mail.126.com [220.197.31.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF96635DA7F
-	for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 08:57:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777021070; cv=pass; b=mW/za5Rlz7ZZK30VzWASszdlErtqDZbDZ1Fbzu4+PsLBKt9Hzh8Ar+zm/71kcM6tCKF83MOlet8CnvWBWbJEGNUHS1+gpGXdVlP3Lfc6JuiT553GB3G7zzdAZi+P/Oc356lJSW/bBFr0iJmY9KkpRPFS5/qF1Kih/jg+0uz7YZg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777021070; c=relaxed/simple;
-	bh=IfKvf93/fHy1rj1oZj9bcZtbnRQSWZ5z4Es12q0WTSk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RwVVZvJGSbnqSGx4PkJZ4+Lu1Zu5qw+TcxSEAPBgijEiiaEAhBerUqfVKbVLvRooXa4NsLRJxVDK9HvjAbC0jS4ltfm6+1MeKdhesHQnkS0O/W/LNZD9DrQ5X4oBLKmkV2l0u6oDVsnFCWwkjBIWF7orwv3qMDDu5F5lxfYRB2s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BQj6qIkj; arc=pass smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B5D35AC16;
+	Fri, 24 Apr 2026 10:23:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.9
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777026185; cv=none; b=ig5KNE5ouPr/1wHDpsPGInmaEyOLNhDN6VhmOFPV8s54OLeDLJQFzEQclGcWHPF3HM3+qM1aSEYEPjxuZlokNoQ6JvyhwWde38xEOiRwm06FIf3w6mAf9jOTcSoZAhv2/ChoLRaGfOqknWlwJwPkISCHeRm5atD2CbAfwWuJuu0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777026185; c=relaxed/simple;
+	bh=/smHRgVH2uUcf0Bx7y3tGTkCASaVbYrlYycSncycJDk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=HbwXSg06ivDoBXb5yHWFsIW8c9TCdv9l9VDEu/J5Ih70VwrdpEdsS9IESw/UYTllNr5Do1qJZkw0t2gmNuA0PSp9f5oskrgjeKZjxqLB1BP1DFbASn4E6vC4CMp1CCPhOt5+sGxTgE53M/BHNbHHR62Z6LuDjApyUnp0DipJuCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com; spf=pass smtp.mailfrom=126.com; dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b=bKxbAZLs; arc=none smtp.client-ip=220.197.31.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=126.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BQj6qIkj"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-43d7badbd7dso3751579f8f.2
-        for <linux-input@vger.kernel.org>; Fri, 24 Apr 2026 01:57:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777021067; cv=none;
-        d=google.com; s=arc-20240605;
-        b=CSqBedZC5KhcKkDDlqKTlA0NkjXCTgsAj+BVTTUuGjUnwJIMNm5UedTp1s+FC8oic7
-         twagpK5x5M8vXLLuPkDBFeOPaGxHWdWLZIKZofxIZa9MLRCRg9XX0+JHu+7EuntMg3Wr
-         LaVrTRdpz3OaHj+6+brFkq+Joi7n7D6KJxGfwZ6oM9h37uKZHmJCgUwtuFJXScd76fHk
-         nxzvMY7zbiK8vyqxVH89fmik8nxFEVh5ENsrAS0fzxYFQ2385fCYleiIpb9bH2GCKoRD
-         x6VVsUrPoN0vaktdtXkxkYGf5HQs4/wCJzQLiaCqejCvyVbeX7hDS7kk/lU4QPi8wSJB
-         qjcw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9z4hswWE287FQxlOjCjfpY7MiH4HcJodItFz2a2PWxQ=;
-        fh=IT/4e7ksjmjYqSoPew3gBnyFyqPvp1LloqCgsr3V7Jc=;
-        b=F+eF88ixFeLv7GPQ4kwI0BUiAQiBt7w2b4QvTa7QCyO6cmG81TPmxRLDfbLHHgTE2y
-         PM3YFXeSJrQfEkVLe3z2tMP/5E0kD1SXzRqCiJh4nYz4bXwMOgJeqRPXlnMIs3kVRKY6
-         d+FWTtqav6/cTiZzvmUZORa5rH7/s65wBXPae/B+/RD9E6aarZqYkB381hYV9hdnAXDI
-         IKFHN+vvhysTCbQSDryJ5vAt7Z7UOmECskhdoVzW6ZpXgBYoS/0orlXj9rhCtVqgmWA7
-         gzZJ/HfwiTqqNqoiCiHpaJyoIF0vqPLQvPCc0I63thTgDjqprgPrLEXrFGI4s0tQ/DbG
-         QLIg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777021067; x=1777625867; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9z4hswWE287FQxlOjCjfpY7MiH4HcJodItFz2a2PWxQ=;
-        b=BQj6qIkjQe47mpx2I0zTSHuwW5rImrI9mLcugHhZK76giYbaLZpsIYTKZDDq6Di+Dy
-         CeoaTCHXypzMeNpamD1Od9LYzZSjeQekz+n8QhZD/TfSO9BoBk4R3lp/fdw02i+vkqPs
-         T3UDICxuFW61k1TKioYOlGTdKq8Tbj4PpWr0jLoyo6uCiT2aR2QmNHrcEkUA8hDMSPqR
-         48j5OKf1Rzxo39+jFETuC9L2lT0FemW7/S+6Eyvl14SKSNSRW6a++27tmKTdNf8HxOcz
-         +6MQzSsq1zVGmqfge7LQ2+lmQoxG3OcOw0vAjDvE/vjRB9f1VoqJSHpa8k12dSnNruoh
-         AvTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777021067; x=1777625867;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9z4hswWE287FQxlOjCjfpY7MiH4HcJodItFz2a2PWxQ=;
-        b=QkeHKZabtjrqBW/WZiFxWx8xSoyd6aP5JWJ/bqeu02UARvyMYos3Q/zHGk3Skk6TPB
-         FItV302ExhkxgxC5n8lQtUl1LG7IWgaLeHO7m+zSsXDfbhj3mrZAmnsj4BZ4bWX7TOZ2
-         VgIoaJY+aErjC7K+rj4XuEpLVDbczriSKWsLOH3RMGWvjokL+Q1x9Lq+9pU4Oaaag76F
-         ZsDZMu8kH+9E3APHjZxRoUFtfZgxs5fRua4LqMCbHd86LRffRAgOo1S2oIoajNzuJcnW
-         YcwLi5gZWgFI4OKLgz19GcExaCL5ykQ+dr4VTsYYPb1FNWQFyz58UW/5h70237/0/gj7
-         2/GA==
-X-Forwarded-Encrypted: i=1; AFNElJ9Q1UzjUUtYdWEi6RchrsSQXzr8ZbkxPL1l6Kvck2/79CimilsKYJsuWEGFPS09RDLltWGSCkTbwDB2/g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwwFqYmRt5KIuxSAhn29gMqvTaaCynW9bdg+KcnzM3aUAU2LGP+
-	eBuAAMfoLDD93aPCFNepEmkcErFY9DbjKDCOgiGzHgEketGqGPpjiJNAVxpoI+dH11Z+Pjvzjtz
-	nmRL2DunryoL8S6nZJhbD2yhmdS/IuL4=
-X-Gm-Gg: AeBDietstKVxZvnU1INkH0UQQtJ+mPZXGMJ0DK52jQuErnSDihcX4ZhDkTp9E5v2cse
-	YUEiKtI8oOB1oLlGvbt/8rkXDuilz5MmdH2PdMPaZxytt7OO2uVu0B3FfNiom12yHsgYDtbgemj
-	rvTtgEgjt4yA05DwmC73S/9IOe3Kg8IVfy0S5isQGLnylRz3Vz63vCPq4zwSgTva4jiMEHw4+Kg
-	5QaoS4CwPhbo/TWmOyZakdhx14kdNleu/2QSqMfpb70PhDnFOunelqg4u4vITeXAmhojyv2eOr4
-	jykqJ8oD2xHftDtfUss=
-X-Received: by 2002:a05:6000:22ca:b0:43d:6f0f:32fe with SMTP id
- ffacd0b85a97d-43fe3dfd65fmr45399717f8f.31.1777021066953; Fri, 24 Apr 2026
- 01:57:46 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=126.com header.i=@126.com header.b="bKxbAZLs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+	s=s110527; h=From:Date:Subject:MIME-Version:Content-Type:
+	Message-Id:To; bh=qHrxNLSOcJ6r263jUyXsEigXpI69D7O6xkhPLCHj+K0=;
+	b=bKxbAZLsYFNt4fwi8XXXew0GkdnO5C3jtJa8iSo8pZXiKPGzrQRg1YAnm40g3j
+	GXTCtsVy0dNP4WkfjvnFFivZliCpRwSI4G8HOWPi4Imp11x1r0rVlDWZKvbd3QDQ
+	z/gGYgwvt55jrtED3UXn4dqhoCQu4WhnFu4rQE3YqKn+0=
+Received: from [127.0.1.1] (unknown [])
+	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wD3x7dwROtpjpPtAA--.18658S2;
+	Fri, 24 Apr 2026 18:22:41 +0800 (CST)
+From: Zhao Mengmeng <zhaomzhao@126.com>
+Date: Fri, 24 Apr 2026 18:22:35 +0800
+Subject: [PATCH] HID: bpf: Sync KF_SLEEPABLE flags in
+ hid_bpf_syscall_kfuncs set
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260424071305.89503-1-clamor95@gmail.com> <20260424071305.89503-2-clamor95@gmail.com>
- <177701943440.2848156.923810545023102522.robh@kernel.org>
-In-Reply-To: <177701943440.2848156.923810545023102522.robh@kernel.org>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Fri, 24 Apr 2026 11:57:35 +0300
-X-Gm-Features: AQROBzDScWYaus6U9VV9QoT0Rdk9xjg-bMRUaI6ooRINx-Q4dXSeM0bN_-tH6O4
-Message-ID: <CAPVz0n3Wxk=9YpmU0nXsOQdtxBhoTBv8283+OHhUr-TKxkAb5A@mail.gmail.com>
-Subject: Re: [PATCH v1 1/2] dt-bindings: input: Document Imagis ISA1200 haptic
- motor driver
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, 
-	Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260424-btf-define-v1-1-0f52dffad5aa@kylinos.cn>
+X-B4-Tracking: v=1; b=H4sIAGpE62kC/yXMwQ5AMBCE4VeRPWvCRiq8ijhUDdahpEUk4t0Vx
+ 2+S+S8K8IJAdXKRxyFBFheRpwnZybgRSvpo4ox1VnChum1QPQZxUJpZV6UxsMgpHlYf9/OLNe3
+ vsHcz7PYW6L4fI/PV424AAAA=
+X-Change-ID: 20260424-btf-define-622697aaece1
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bpf@vger.kernel.org, Zhao Mengmeng <zhaomengmeng@kylinos.cn>
+X-Mailer: b4 0.15.2
+X-CM-TRANSID:_____wD3x7dwROtpjpPtAA--.18658S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7Kw43CryDAw48tw1rtry5Jwb_yoW8CFW3pa
+	n7trWUCF18tw4rJa17CF45KFy5u340vw43ury7Cay5uan0vF98Xw1IgFy8Zasxtry8Gr4U
+	Xr10ywsrZr12k37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UrKsbUUUUU=
+X-CM-SenderInfo: 52kd0zp2kd0qqrswhudrp/xtbBlhGC+WnrRHFYqQAA36
 
-=D0=BF=D1=82, 24 =D0=BA=D0=B2=D1=96=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 11:3=
-0 Rob Herring (Arm) <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
->
-> On Fri, 24 Apr 2026 10:13:04 +0300, Svyatoslav Ryhel wrote:
-> > Document the Imagis ISA1200 haptic motor driver, used primarily in mobi=
-le
-> > handheld devices and capable of supporting up to two motors.
-> >
-> > The exact datasheet for the ISA1200 is not available; all data was mode=
-led
-> > based on available downstream kernel sources for various devices and
-> > fragments of information scattered across the internet.
-> >
-> > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > ---
-> >  .../bindings/input/imagis,isa1200.yaml        | 145 ++++++++++++++++++
-> >  include/dt-bindings/input/isa1200.h           |  16 ++
-> >  2 files changed, 161 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1=
-200.yaml
-> >  create mode 100644 include/dt-bindings/input/isa1200.h
-> >
->
-> My bot found errors running 'make dt_binding_check' on your patch:
->
-> yamllint warnings/errors:
->
-> dtschema/dtc warnings/errors:
-> /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/i=
-nput/imagis,isa1200.example.dtb: haptic-engine@49 (imagis,isa1200): enable-=
-gpios: [[4294967295, 22, 0], [4294967295, 23, 0]] is too long
->         from schema $id: http://devicetree.org/schemas/gpio/gpio-consumer=
--common.yaml
->
-> doc reference errors (make refcheckdocs):
->
-> See https://patchwork.kernel.org/project/devicetree/patch/20260424071305.=
-89503-2-clamor95@gmail.com
->
-> The base for the series is generally the latest rc1. A different dependen=
-cy
-> should be noted in *this* patch.
->
-> If you already ran 'make dt_binding_check' and didn't see the above
-> error(s), then make sure 'yamllint' is installed and dt-schema is up to
-> date:
->
-> pip3 install dtschema --upgrade
->
-> Please check and re-submit after running the above command yourself. Note
-> that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-> your schema. However, it must be unset to test all examples with your sch=
-ema.
->
+From: Zhao Mengmeng <zhaomengmeng@kylinos.cn>
 
-I am not sure what is going on here. I have installed dtschema-2026.4
-which seems to be the latest. Running the check with this schema gives
-a clean result, no errors produced.
+Pahole intersects flags across BTF_ID_FLAGS() occurrences, so omitting
+KF_SLEEPABLE may drops the flags globally. sync this flags in
+hid_bpf_syscall_kfuncs set to enforce consistency and safety.
 
-  SCHEMA  Documentation/devicetree/bindings/processed-schema.json
-  CHKDT   ./Documentation/devicetree/bindings
-  LINT    ./Documentation/devicetree/bindings
-  DTEX    Documentation/devicetree/bindings/input/imagis,isa1200.example.dt=
-s
-  DTC [C] Documentation/devicetree/bindings/input/imagis,isa1200.example.dt=
-b
+Link: https://lore.kernel.org/sched-ext/177693500312.275653.17323765149266875001.b4-reply@b4/
+Signed-off-by: Zhao Mengmeng <zhaomengmeng@kylinos.cn>
+---
+ drivers/hid/bpf/hid_bpf_dispatch.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
+index 50c7b45c59e3..62db80ead86e 100644
+--- a/drivers/hid/bpf/hid_bpf_dispatch.c
++++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+@@ -585,11 +585,11 @@ static const struct btf_kfunc_id_set hid_bpf_kfunc_set = {
+ 
+ /* for syscall HID-BPF */
+ BTF_KFUNCS_START(hid_bpf_syscall_kfunc_ids)
+-BTF_ID_FLAGS(func, hid_bpf_allocate_context, KF_ACQUIRE | KF_RET_NULL)
+-BTF_ID_FLAGS(func, hid_bpf_release_context, KF_RELEASE)
+-BTF_ID_FLAGS(func, hid_bpf_hw_request)
+-BTF_ID_FLAGS(func, hid_bpf_hw_output_report)
+-BTF_ID_FLAGS(func, hid_bpf_input_report)
++BTF_ID_FLAGS(func, hid_bpf_allocate_context, KF_ACQUIRE | KF_RET_NULL | KF_SLEEPABLE)
++BTF_ID_FLAGS(func, hid_bpf_release_context, KF_RELEASE | KF_SLEEPABLE)
++BTF_ID_FLAGS(func, hid_bpf_hw_request, KF_SLEEPABLE)
++BTF_ID_FLAGS(func, hid_bpf_hw_output_report, KF_SLEEPABLE)
++BTF_ID_FLAGS(func, hid_bpf_input_report, KF_SLEEPABLE)
+ BTF_KFUNCS_END(hid_bpf_syscall_kfunc_ids)
+ 
+ static const struct btf_kfunc_id_set hid_bpf_syscall_kfunc_set = {
+
+---
+base-commit: a67bb21a5fc478443d6db490c7049e9aeeb92bd4
+change-id: 20260424-btf-define-622697aaece1
+
+Best regards,
+--  
+Zhao Mengmeng <zhaomengmeng@kylinos.cn>
+

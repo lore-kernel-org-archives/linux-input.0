@@ -1,75 +1,62 @@
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C653A192D8A
-	for <linux-input@vger.kernel.org>; Sun, 26 Apr 2026 05:12:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 059D770818;
+	Sun, 26 Apr 2026 05:31:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777180377; cv=none; b=WsDIQZ8Mt2Bb6TxaUzTnvI1zqxN70LCe0Vj/3412sDUTiyZwDoec357A0hzItrlyRhlkFHrNJiN7vQFb4ycL6+F6kDhRh9COXV35S5fanDGxfRfdO+tsoX6DFw0XbnArXoQB+l0DM70CnKS4YFORfNFCrFIuSZcWWViSoyGdu/Q=
+	t=1777181472; cv=none; b=o03Ylh2gjoR4VL3U5vE1y6G4s5i2F28K9dskhlC7jrF/eC3V16eHQ2pgvsG3Hrr4IaK94xwi6yo2motlPJp5Y9MB0aGy2SwpUdLqmxjzenjimIKXCQHSMmtgOzqaBbXCcPQmNMm30xmlH5yVtPFnBpV5Q1uD+ZNRLf+OYi7E8dI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777180377; c=relaxed/simple;
-	bh=xXdyKTyEPTZJednWsZsTNyCnuqtfS/3akGJIlvKa2+Y=;
+	s=arc-20240116; t=1777181472; c=relaxed/simple;
+	bh=uu2Y+WrvrFZ/fHQt0Se4aE3/RKLma4q81XoocE9F9ik=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YuaMjtRQb4JSEVObA87MopGYBFXmsw2EUI7F0XhTGGF3haKdXIhtOE+8bUL9qCf3e+k+fWqdiwLK96V20R4D16i0uwkNK43jzxlQzYtZNpV4K4xn/87mC9TaKUTDKMEbK52mSqof1ew3+F7J1L9b3fc6fxyM+8WZzWUVG0SJ6E8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sPTEODj4; arc=none smtp.client-ip=74.125.82.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=VnfSCWvCs+uWoXdeIZS+M3IJAAmtTWIHC2roxNPiG/j+Z5MNQNVo7xVhx702uWKerN65KWoI8geBCZ8wjXI8VpLQQhRD6GEH7MHkTzIUv8zN4tc/n5qUN0H32Q6FVrLfihCg8z8TDdUXG8quQtPs9f79L0MGM5t3jwKVjhlg9os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ONWZ32Mi; arc=none smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sPTEODj4"
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-12c8f9846c8so9003197c88.0
-        for <linux-input@vger.kernel.org>; Sat, 25 Apr 2026 22:12:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777180375; x=1777785175; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=98rDKFjiqIk7JzA95AP0WmmQtnrklmD9O8WJG5uKSAg=;
-        b=sPTEODj4bEts3R/BUKIt+Ot+mB7Q8zRN88lRvHah3eTo9rxW24LH6T2i7cdRKJNRJ8
-         Jq57C7LjAICWNywC4UF5jf640dc7M6ljQHPCb62Ennkd6Yf/nNi+9RCPoW5OzNqCc03o
-         Lvx15Y6jQaludIcVl8Ae79K5qe47/D0l+JAw8Qc/NKA2OaELP8b9QRTlHW8EWjKCQdol
-         fJ+VY7/ObLkGVsCUfXeTf435hnvKL6jKe0mpznF+IDw23FHz+vd9wHMOKBXcje7iT6XN
-         ogdVCCm+TDL6C13ENd9KfAgLaQbu9SyC2zfCiHXGBCcbs2BEt2UP5wdUyGGT1557YA+j
-         ARoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777180375; x=1777785175;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=98rDKFjiqIk7JzA95AP0WmmQtnrklmD9O8WJG5uKSAg=;
-        b=eBeYrNPP7tF1O1HN7KUqSIOFcOlsIgmYgHt0djiItuvXUX+OYG/iMTyHdAJ23sCqTk
-         qOrrAcXmFwgbmZxSEL+Vnk8jPIqxU0jF+4ggDJcf3ZrPjNhLkJZ56u9ZI0bArDAqhDU6
-         VNuDNNWwfrLd1vuZswMZfP/6vp9usH8DOtics8WPV1C9vGk9qni30q08ywNFVWzVQ+FW
-         /TFSPumSJgqF6hkfpZiJDiEbfsoOWLVg6ig46+f9GFN4zufyCiU8knRQFufmp34nGXVq
-         lA+xf5spYnp8lxiwJ6k1Q4oiSMwqMYCep7eUjhLo4/H1+fzQ1VKtHEVMHmVCKG24HHZo
-         PdQw==
-X-Gm-Message-State: AOJu0Yzz0HjdN1fmKckXW0rOekSAC88wjsrYDBQA7acCbqEAzQJ5RS9L
-	ebqDGiI6IN3W5xSnClotwN8GJ9gEjkea7QfEZHLs7FgjM1Jenp7ZVWuq
-X-Gm-Gg: AeBDieuVy7BK0sU4cPYS8fecISlyU3tmEoPRR9uNi/Q8lFEMjr+QAAIoXwWJRQK/PiD
-	YAjAfPGPS6rSet/kIZzCmG7ORH8blpkFcJcIrh8qbyftt+BC6NId+IUZxqmhQc466mJWlgwdnbV
-	64ybMDW8qPTray/X0I/2TBvHjXrsm1w8j5bgnzBFcgViFuqCDFGHXTyzmgK+yP7kU/yyGgcShqz
-	3QdhJftNgIvNz/yXGZdXo3eMtqtpbd534j8HWEvE6jKCTRufB64j01svhi/SWTSk0PjorQH55VT
-	4MvHcxgjqBW3kJ+6H7vQgqz2sT2y/RWMkGg/hx/nS4BpXAjM5IHNmRNaQ9rLR4rJqYHlM4vGfD2
-	IgNxMDrIGbchj2NtO57UKccf7PlQxrGcASa/1fi5RGXyFnH/hAwyR1lDSYUsnQr3mr21U6S9c/W
-	wlN5dNA49zDAa+Iqxf6SsrBLdWL5+/qe55/0FwJudWMDIBLxrnMt4IfhlhOcvHJIXbRKNuku9ZW
-	HM=
-X-Received: by 2002:a05:7022:f92:b0:12d:ce69:1109 with SMTP id a92af1059eb24-12dce69119emr1791764c88.4.1777180374858;
-        Sat, 25 Apr 2026 22:12:54 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:f359:aa0c:530d:9dfd])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12dbe78e12fsm18353826c88.15.2026.04.25.22.12.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Apr 2026 22:12:54 -0700 (PDT)
-Date: Sat, 25 Apr 2026 22:12:51 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable <stable@kernel.org>
-Subject: Re: [PATCH] Input: ims-pcu - bound frame parser write index against
- read_buf size
-Message-ID: <ae2ePyF_jDzVhgLf@google.com>
-References: <2026042030-mobilize-suspense-88f9@gregkh>
- <ael3agFzDEV0SgxT@google.com>
- <2026042322-swooned-bauble-40eb@gregkh>
- <aepUPTvakExa3OZS@google.com>
- <2026042414-demeanor-dimple-83b0@gregkh>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ONWZ32Mi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777181470; x=1808717470;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=uu2Y+WrvrFZ/fHQt0Se4aE3/RKLma4q81XoocE9F9ik=;
+  b=ONWZ32Mi9gXsNy8nt8tyGDT8zrJj49+CwoKdIZ1944v06JBYaiX4ZcTE
+   CcKXMQkh53CFksrpILhjm3Q9AGuhnBtjFidKA6R2bj80CPqC9EO6UZfdC
+   Vpb08VshSx1Fltcp1dGmyHyxuUzcKDRx+RCq5S7FpehZDEKOsorqVZJk7
+   rtpos2zSipKzkt4flw4jy+kIsCuGznHotdH85hcVM2YjNi4+l4RtLfPvm
+   /+JFRM/InzINazHDU670Z4QfZtUo0zeDias9tHymAYQvE2LaLo+SYK7L2
+   Km7cpSfJkDHIN8m5o4WcLFvuiAYerQZ/n8m0yxA0dNWZhcTot+3c+bRy8
+   g==;
+X-CSE-ConnectionGUID: asvvfluySL2Zvp9VmV4Wcw==
+X-CSE-MsgGUID: uNPgQyTZRFGBRbH9B864Tw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11767"; a="95670370"
+X-IronPort-AV: E=Sophos;i="6.23,199,1770624000"; 
+   d="scan'208";a="95670370"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2026 22:31:10 -0700
+X-CSE-ConnectionGUID: ITpluNw7SfSHuoQgpUnfKg==
+X-CSE-MsgGUID: a31AQ2nyQR6pH5+Y21/HKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,199,1770624000"; 
+   d="scan'208";a="271452556"
+Received: from lkp-server01.sh.intel.com (HELO aa799cca880d) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 25 Apr 2026 22:31:08 -0700
+Received: from kbuild by aa799cca880d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wGs5A-000000007W1-44ps;
+	Sun, 26 Apr 2026 05:31:04 +0000
+Date: Sun, 26 Apr 2026 13:31:03 +0800
+From: kernel test robot <lkp@intel.com>
+To: Tomasz =?utf-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>,
+	jikos@kernel.org, bentiss@kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, oleg@makarenk.ooo,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	tomasz.pakula.oficjalny@gmail.com
+Subject: Re: [PATCH] HID: pidff: Fix integer overflow in pidff_rescale
+Message-ID: <202604261334.MiQX0gtI-lkp@intel.com>
+References: <20260421194941.1422722-1-tomasz.pakula.oficjalny@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,56 +65,43 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2026042414-demeanor-dimple-83b0@gregkh>
+In-Reply-To: <20260421194941.1422722-1-tomasz.pakula.oficjalny@gmail.com>
 
-On Fri, Apr 24, 2026 at 06:16:57AM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Apr 23, 2026 at 10:24:08AM -0700, Dmitry Torokhov wrote:
-> > On Thu, Apr 23, 2026 at 06:52:23AM +0200, Greg Kroah-Hartman wrote:
-> > > On Wed, Apr 22, 2026 at 06:36:24PM -0700, Dmitry Torokhov wrote:
-> > > > Hi Greg,
-> > > > 
-> > > > On Mon, Apr 20, 2026 at 09:05:31PM +0200, Greg Kroah-Hartman wrote:
-> > > > > ims_pcu_process_data() implements a STX/DLE/ETX byte-stuffing parser
-> > > > > that accumulates frame payload into pcu->read_buf[] using the running
-> > > > > index pcu->read_pos.  read_buf is IMS_PCU_BUF_SIZE (128) bytes and
-> > > > > read_pos is u8 but of course, we don't check the index before actually
-> > > > > writing the data :(
-> > > > > 
-> > > > > Fix this up by properly rejecting the frame at the first attempt to
-> > > > > write past read_buf and resync on the next STX, mirroring how the parser
-> > > > > handles short and bad-checksum frames on ETX.
-> > > > > 
-> > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > > Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-> > > > > Cc: stable <stable@kernel.org>
-> > > > > Assisted-by: gkh_clanker_t1000
-> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > 
-> > > > I already have a patch for this, thanks.
-> > > 
-> > > Ah, missed that, sorry, I was working against Linus's tree.  I am
-> > > guessing you are referring to commit 875115b82c29 ("Input: ims-pcu - fix
-> > > heap-buffer-overflow in ims_pcu_process_data()")?  If so, why wasn't
-> > > that tagged for stable inclusion?
-> > 
-> > I do not believe it is worth it. The driver is for specialized hardware,
-> > so common distros will not be enabling it, and systems where it is used
-> > likely do not allow plugging weird stuff into them and probably do not
-> > use stable either.
-> 
-> Android allows a lot of odd things to be plugged into it :(
+Hi Tomasz,
 
-Well, that's on them. Do they enable drivers blindly?
+kernel test robot noticed the following build errors:
 
-> 
-> > I actually wonder if we need to carry the driver or if we should simply
-> > drop it. The only non-cleanup change to it was done in 2014.
-> 
-> I'll gladly send a patch to delete it if you want me to.
+[auto build test ERROR on hid/for-next]
+[also build test ERROR on linus/master v7.0 next-20260424]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Sure, let's do it. It's easy to restore it if it is actually needed.
+url:    https://github.com/intel-lab-lkp/linux/commits/Tomasz-Paku-a/HID-pidff-Fix-integer-overflow-in-pidff_rescale/20260424-133424
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260421194941.1422722-1-tomasz.pakula.oficjalny%40gmail.com
+patch subject: [PATCH] HID: pidff: Fix integer overflow in pidff_rescale
+config: microblaze-allyesconfig (https://download.01.org/0day-ci/archive/20260426/202604261334.MiQX0gtI-lkp@intel.com/config)
+compiler: microblaze-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260426/202604261334.MiQX0gtI-lkp@intel.com/reproduce)
 
-Thanks.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202604261334.MiQX0gtI-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   microblaze-linux-ld: drivers/hid/usbhid/hid-pidff.o: in function `pidff_set':
+>> hid-pidff.o:(.text+0x6f4): undefined reference to `__divdi3'
+   microblaze-linux-ld: drivers/hid/usbhid/hid-pidff.o: in function `pidff_set_signed':
+   hid-pidff.o:(.text+0xb0c): undefined reference to `__divdi3'
+   microblaze-linux-ld: drivers/hid/usbhid/hid-pidff.o: in function `pidff_set_envelope_report':
+   hid-pidff.o:(.text+0x2094): undefined reference to `__divdi3'
+>> microblaze-linux-ld: hid-pidff.o:(.text+0x2104): undefined reference to `__divdi3'
+   microblaze-linux-ld: drivers/hid/usbhid/hid-pidff.o: in function `pidff_upload_effect':
+   hid-pidff.o:(.text+0x25c0): undefined reference to `__divdi3'
 
 -- 
-Dmitry
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

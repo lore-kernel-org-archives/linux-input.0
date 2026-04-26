@@ -1,198 +1,191 @@
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F7E4C6C
-	for <linux-input@vger.kernel.org>; Sun, 26 Apr 2026 02:00:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777168833; cv=pass; b=r+oKoRpou/6hmc7EpDptKMJcp5wxs1RwAFfD75BoOKctGV05wMk/Vzu6Lzpu1crgVKczKU0qpEDoy5VvXFPjpyDxC2L5w3v+AjJ3EBLvqBvWoh0ZGkjExpyFE84ahRH7ivupHBnwGpjeuCXztjmvIBZONNIXWTUvekCQ0i42o7A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777168833; c=relaxed/simple;
-	bh=3EmKKcdSbo1bYhw/2BproWkmD5PtZPJvDfR7VR8pCVo=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=uOxIgtFRtzp80eyOrHCQwCq0ljMQbRFIaC6+bLF5equ+cxWy/O3Mqr/6YrAvxRxokNM0h7KoR8VDFEpZd2AWO498i0rh4I46pDL/KD3FZTlSuZK3zmjBK6eUPlFpigCa5L4BF2le//K/5DmdQzp1rRv0ulI5bmtS6AjDfcuEj9E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J3DncFOr; arc=pass smtp.client-ip=209.85.210.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C636271464
+	for <linux-input@vger.kernel.org>; Sun, 26 Apr 2026 03:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777173517; cv=none; b=i2jYQXzQLPPdzCKe1Wq6EPuSjgrWzOsFUx9XIVAE/rFVpByl+805Dgn5HlnJKAnENDMmnNO35fulpyaojTFVNA5HDwPLlDZUas1706pjiMNnYAu2t+5/87amOQqE5ia0fxcTA3H+/eBmQ4cFYJ535audboTVJcr2+jvfm79zvtk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777173517; c=relaxed/simple;
+	bh=ytpZS2Ma4tFKNX6RrgtmGAZMrRcjOrWuzslU2uyrAKs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=P0GFotqaT9bv8+ICdrjcWfwIcTvwougvnJ1FSKyFyfKoMyoI3H4oTkVIffJotkhFwgo+1lhVDLxpdQMALht4jZgxSMOnnNjd/A+Tgm3fTdhvpgPU2RzxoYTZksC7yO5AYXIlrC5txRweeab3FOCifTVki1Z6GtM6clqUS24lp5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LYEcXyy8; arc=none smtp.client-ip=74.125.82.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J3DncFOr"
-Received: by mail-ot1-f45.google.com with SMTP id 46e09a7af769-7dca00c1591so2887733a34.3
-        for <linux-input@vger.kernel.org>; Sat, 25 Apr 2026 19:00:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777168831; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fqOBEXM0fgx6BkTo7j5oG6YU2Se5NjiuIxvf3tdTO+HFTJLAejJOrcx4FBbNghuqtv
-         jrQLM5s+3n0X1LDV9STNJZbomT5Mjlsg7PYvwelzr1/J9xUMAHfKlh6uhyf2MhHEYa7E
-         T80z6rjzBQaol+9pN1QRVNiwnbHhZN7eO9xgtzezwsqQLsVnPEh3SaSTwiA6up+Ma/lU
-         YNS4i2IwnMv8TddkwJMde+2TbTaN0KWIWClswA+aG4Oy+n8tkeK5ICrNt4UpSFNUL4Cl
-         7+2s6YVCjzjLMYonrBHSDn/Jl41jx6EfOyMv7/iHheHr/BoIULoBe5YZD66SwBCT2Z6H
-         DmyQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:dkim-signature;
-        bh=Zo8vxeDPp/MX9x4fc4JbpDqrrXY9z+GHDCCnQjfbQYQ=;
-        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
-        b=ZvyY00xNNu9IkG0XyCrDhBfbqDAz7wR9A6Nuh6Gmkdp4wIZzesvn/z0eD/BjolcIYw
-         roVwWmUvPE9gKW83xQ3sl/tQ/WaLyfMfaJLzD7yVhSUvN+tyAxYcPhX3nJgQ/BipvNYL
-         bQtwSQAXGBfaW9gDzl/ndy0vD8+7QGCKnzRlDMX/O++3Qre+S2oZmvfe7k5EccyhXRJn
-         VgHwavcYkAcBcM7p73njhuezTU3/4t7osyA4l5Z48wwoJ06Jfh8KGMS9LSO20LKqvyLS
-         Lynu9CNqXwft/A64xW6ZSq26LiEcYm8+dJ0ZP+2IzagygXox1kamUrHc2/co8Udxe5nb
-         wTRg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LYEcXyy8"
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-2bd9a485bd6so12834778eec.1
+        for <linux-input@vger.kernel.org>; Sat, 25 Apr 2026 20:18:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777168831; x=1777773631; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zo8vxeDPp/MX9x4fc4JbpDqrrXY9z+GHDCCnQjfbQYQ=;
-        b=J3DncFOriwDKrq9PNalUNO0AosgcvZV1jPHYR4QQ2N7pXimi18tNabcRkIpPVqG3Vp
-         yR/rhz3i3OkzgBPQbQ/1YgZW+BSUFnO2Mf4T7X/YnhTMNewvIAJWYFg0/d+QiDRQ5QoJ
-         e/EwzEFJBCeIaRwFe/bGCLBj5MDM08zRMs3diI/eEe9KasT1dHwVHiXh6+zj7dxy9U/j
-         HX1YCDEimpUZn6dzOSG3BezSwRrMXW+zKyX4GhrBjjNzh1ygj35Bdjd2LzeOS1HS9LsJ
-         yoN+N9j+4TG0jLn5hY4V51hmeJPNyOxE1m0Fcmj3CyF5QYzY3IBvgCmgL7UizASAnhhe
-         Q3hQ==
+        d=gmail.com; s=20251104; t=1777173515; x=1777778315; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BOpEXIF2g2G1Ob1yI6Lq6IwecSOhOIJp2ENXAioyHuI=;
+        b=LYEcXyy8MhWotFQY8xt0oLk79Suf77itzM8DqsK8T6b9zrIzAFfHkEx2mZWXsb/BzO
+         NZRMMOzi64u2kAhjdbfwxPzmTf4iuN4nN4lTIZOrsmCxMNccW3Wr/zRw9pVB/27+low3
+         3ygITopAIn1rgPfEHng2aL0K4URVGf4khYNN1KZZ7GjjD6RUw7rR4Icymm4wUO7WBp4M
+         qMMVcVkT+rbdxGl5g7gR7/U+jeAf1DYWLK4qM3NWhlJwFHD8YW9VBtabnIigD+LjRMZP
+         WVH6sZtewsL7toGA4vOMhkeY0JQ4w+CMVuOq1UAnjiuCbRuMPVT754jahOWVx2wHRn4y
+         eJmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777168831; x=1777773631;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1777173515; x=1777778315;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Zo8vxeDPp/MX9x4fc4JbpDqrrXY9z+GHDCCnQjfbQYQ=;
-        b=bS9v4timhsvnc6AZF/tBfZzPpFfZy/FSdvrb3pXXDcIeL9xoT8KBJbn1T3BH8utk04
-         ReY4aj1oYMgBHSsKg+r05H5ouG5RWi3gBF3iRpDt7PKLWrNWNO604lLSwvkixJ2+t61d
-         FGxjix9STD1AQbVYwz0Cxy/Yp5QX1yaWK5/bWh7B0UasKJBb965g59hQ4Sj8lNw95oGA
-         M+P11pqd0vTLJus9zSUe7icH7H5V1mlvMp6Pip2rMRR2bQLDJkBUYqXYwu5X4eFwKCPc
-         AsGH0LZo0BDXK976dRLweBsa0nYid9Pmwn0s80A+zqw35nv1ANF/wPHP/7XPd9J1YlIn
-         uWpg==
-X-Gm-Message-State: AOJu0Yyx+Th3PpDpZMxeKe7lGzrKKGf+Y8F24Uy8FtmuNux3AlXlwr0S
-	2vCvQBqkjIEFp7j3NH5M5h3x+0RNwSfxuUT8GwjU5fGokLwzL5l2yQFfqegj7WdwyCQ9ytRy79j
-	csiTqF9bEkGBfvmNOkldaxQhkPWUYfjVyQcHrvMQ=
-X-Gm-Gg: AeBDiesNY0HzF6IRjx5eIAGvIztBcHk7+0jNKMPHxZSk0GrGHJwM6gdCCMqW/zR+htG
-	qI9lM1SEYRr9+ucidEInqkAsDuncLkLl3cUxiitxGkGHZvFZC+tNbvdVWXQJrx0w+6KykOuMMeb
-	DMkXzE6jqE5rZys9p5lRQKFPEfuyDHCywVoEQ1ge/zF/Lq+AcwN32d7Fjpd5yj0U3wpXJAdeZVX
-	yV4dtg99uinRNnZtlRpP0M0NnryjcJ6f6hsH8i777lPEuasi02wJLt0pFQxRZiOEKVLsUrZrips
-	t1jL5yiH415mcrm06PnbL7jRfRS4FlWH0plw9B/DYjQRfURubBlqc0/9AiS3Yq11PAhcfqvvrg=
-	=
-X-Received: by 2002:a05:6830:906:b0:7dc:dbe4:3f25 with SMTP id
- 46e09a7af769-7dcdbe440dfmr14807889a34.28.1777168831404; Sat, 25 Apr 2026
- 19:00:31 -0700 (PDT)
+        bh=BOpEXIF2g2G1Ob1yI6Lq6IwecSOhOIJp2ENXAioyHuI=;
+        b=fsnYYadETP2W4HKJ0mNwJFWHswZqaxgdcnj8qqkGrU1GLGVa/rNiEpaEyJwlyNK3hA
+         6hh4/1mrgyJFUr7cIpgssWuWz6iXlzWQAnHkRTHgFGpyGkq15m+KpmYutblF8janIKnL
+         z3/L0Ke/mFsK91bABy+eM8UVbyFfYO9sr6LvG4KfqMUT9ypEd4+8bORp3aqK/IoTZiFG
+         NDpyHy0m8dbuqf4vEP56iNKIfZ6ysRGwEuNxTPzz0+iFbIbb05NZUkQGTM7HqhcLq+9x
+         k6+FlEqdTX6SwftIdR0zVwAdLxlsOlVBs9HBbqxETJFFLcY/YFyR+yr7oiq7sMS6g/9A
+         o2Jg==
+X-Forwarded-Encrypted: i=1; AFNElJ9et8rT1O4Q1R8TdzLasc6rQeST7bKBuDHEc5Atson9S6rnK4zTvnK/gBK6DwwInT6l/3mZ1SvFm+fV5w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz3PQsGswKCaGavCt9yq4fvV8FfwgQ+OHeCY9ThHyipxYi6JFJg
+	9/SxXx+nmi6GAaWmlKK3V2x1NXfxGeat2vcUzLxw6qWyJmft3rGBbDoO
+X-Gm-Gg: AeBDiestZ9/GBIJLyYoJZq9Iny0yT+N6eCeUxtPRo8P0h/asTZvqYN4ABgQZ8ZDCihc
+	QwpDeYNPeYLJ9S1T2hDZ+DxfQdG5CGhrxmYpgLeOqrahY2ljAt5G1AJvJ4fVfcB2J6PA4feQV3a
+	KcYYucUz4wahSurEAIMhgVqbVuXDBquArh2zyz9cO36VP/n4vR/+Db84Qm6ACe52CNbGszQwc18
+	iAREjRTYIgx4ISz9IIhl3iZV60Vqpchk+lJuvKYRsyOzMi4kOdCiZRJhyBBJJWyxMEg50B5f/1b
+	0wjGg7fFCYtw7KGUv2l8WvzeyO10mGc0Vz7wImUUMAxi+LYduxJbf/ePMxv7Bo88LkbU6RnDkT1
+	e5zLx9xQpH+qrqruq0wQhRhRR3Mx6hOD57dTPjDua1Y4cOpSi+vLnlNGqIWh5odwnp1glaahaOQ
+	PdyodThHy1zcnMcdDniGDTt50QDXMPRucbp0M+l49X4AVYLCoAsYzRP8Li5zUgL+XVGKieKJt6y
+	idsVb9J
+X-Received: by 2002:a05:7301:5784:b0:2de:c5ca:c1f3 with SMTP id 5a478bee46e88-2e465293dfdmr20058158eec.4.1777173514934;
+        Sat, 25 Apr 2026 20:18:34 -0700 (PDT)
+Received: from gigachadarch.hsd1.ca.comcast.net ([2601:647:4482:bbd0::89b2])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53d8b944bsm38501554eec.28.2026.04.25.20.18.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Apr 2026 20:18:34 -0700 (PDT)
+From: Nikhil Chatterjee <nikhilc1527@gmail.com>
+To: jikos@kernel.org
+Cc: bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	Nikhil Chatterjee <nikhilc1527@gmail.com>
+Subject: [PATCH] HID: bpf: Add Huion Inspiroy Frego M button quirk
+Date: Sat, 25 Apr 2026 20:18:19 -0700
+Message-ID: <20260426031819.808555-1-nikhilc1527@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: =?UTF-8?B?15nXldeg15kg15HXmdeY15XXnw==?= <jony10biton@gmail.com>
-Date: Sun, 26 Apr 2026 05:00:20 +0300
-X-Gm-Features: AQROBzBbcIEnGWp6FF9A7P4CJ8dHR4UrQ0tHkTX0SPUt1IPQozfqfPtEEERbomQ
-Message-ID: <CADsO33iSRHjn=iZunyokTtQSbEav3pJmXk5OGhSDb5FYMbbrxQ@mail.gmail.com>
-Subject: [BUG] Intel ISH (Lunar Lake) firmware rejected on ASUS Vivobook 16
- Flip TP3607SH
-To: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi,
+The Huion Inspiroy Frego M pen report descriptor exposes the second
+side button as Secondary Tip Switch instead of Secondary Barrel Switch.
+This makes userspace see the control as the wrong pen button.
 
- I'm reporting a bug with ISH firmware loading on a Lunar Lake-based
-2-in-1
- laptop (ASUS Vivobook 16 Flip TP3607SH).
+Add a HID-BPF report descriptor fixup for the Bluetooth 256c:8251
+device and USB 256c:2012 L610 variant. The fixup matches the expected
+pen descriptor and rewrites the offending usage from Secondary Tip
+Switch to Secondary Barrel Switch.
 
- =3D=3D Hardware =3D=3D
+Tested by building the HID-BPF object with:
 
-   Vendor:  ASUSTeK COMPUTER INC.
-   Product: ASUS Vivobook 16 Flip TP3607SH_TP3607SH
-   Family:  ASUS Vivobook 16 Flip
-   CPU:     Intel Core Ultra 7 258V (Lunar Lake)
-   Kernel:  6.19.13-200.fc43.x86_64
-   ISH:     00:12.0 (intel_ish_ipc loaded)
+  make -C drivers/hid/bpf/progs Huion__Inspiroy-Frego-M.bpf.o
 
- =3D=3D Symptom =3D=3D
+Signed-off-by: Nikhil Chatterjee <nikhilc1527@gmail.com>
+---
+ .../bpf/progs/Huion__Inspiroy-Frego-M.bpf.c   | 87 +++++++++++++++++++
+ 1 file changed, 87 insertions(+)
+ create mode 100644 drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
 
- On every boot, the ISH firmware loader fails with:
+diff --git a/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c b/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
+new file mode 100644
+index 000000000000..e6ba2295dc77
+--- /dev/null
++++ b/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
+@@ -0,0 +1,87 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include "vmlinux.h"
++#include "hid_bpf.h"
++#include "hid_bpf_helpers.h"
++#include <bpf/bpf_tracing.h>
++
++/*
++ * Huion Inspiroy Frego M Pen Tablet
++ * Model L610
++ * 256c:8251 (Bluetooth)
++ * 256c:2012 (USB)
++ */
++#define VID_HUION			0x256C
++#define PID_INSPIROY_FREGO_M		0x8251
++#define PID_L610			0x2012
++
++#define PEN_RDESC_SIZE			125
++#define SECONDARY_SWITCH_OFFSET		17
++
++HID_BPF_CONFIG(
++	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, VID_HUION, PID_INSPIROY_FREGO_M),
++	HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, VID_HUION, PID_L610)
++);
++
++/*
++ * The pen descriptor reports the second side button as Secondary Tip Switch
++ * instead of Secondary Barrel Switch.
++ *
++ * Relevant part of the original pen report descriptor:
++ *
++ * 0x09, 0x42,       // Usage (Tip Switch)                  12
++ * 0x09, 0x44,       // Usage (Barrel Switch)               14
++ * 0x09, 0x43,       // Usage (Secondary Tip Switch)        16 <- change to 0x5a
++ * 0x09, 0x3c,       // Usage (Invert)                      18
++ * 0x09, 0x45,       // Usage (Eraser)                      20
++ * 0x15, 0x00,       // Logical Minimum (0)                 22
++ * 0x25, 0x01,       // Logical Maximum (1)                 24
++ */
++SEC(HID_BPF_RDESC_FIXUP)
++int BPF_PROG(fix_secondary_barrel_rdesc, struct hid_bpf_ctx *hctx)
++{
++	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, HID_MAX_DESCRIPTOR_SIZE /* size */);
++
++	if (!data)
++		return 0; /* EPERM check */
++
++	if (hctx->size != PEN_RDESC_SIZE)
++		return 0;
++
++	if (data[0] != 0x05 || data[1] != 0x0d || /* Usage Page (Digitizers) */
++	    data[2] != 0x09 || data[3] != 0x02 || /* Usage (Pen) */
++	    data[16] != 0x09 ||
++	    data[SECONDARY_SWITCH_OFFSET] != 0x43) /* Secondary Tip Switch */
++		return 0;
++
++	data[SECONDARY_SWITCH_OFFSET] = 0x5a;
++
++	return 0;
++}
++
++HID_BPF_OPS(fix_secondary_barrel) = {
++	.hid_rdesc_fixup = (void *)fix_secondary_barrel_rdesc,
++};
++
++SEC("syscall")
++int probe(struct hid_bpf_probe_args *ctx)
++{
++	ctx->retval = ctx->rdesc_size != PEN_RDESC_SIZE;
++	if (ctx->retval) {
++		ctx->retval = -EINVAL;
++		return 0;
++	}
++
++	if (ctx->rdesc[0] != 0x05 || ctx->rdesc[1] != 0x0d || /* Usage Page (Digitizers) */
++	    ctx->rdesc[2] != 0x09 || ctx->rdesc[3] != 0x02 || /* Usage (Pen) */
++	    ctx->rdesc[16] != 0x09 ||
++	    ctx->rdesc[SECONDARY_SWITCH_OFFSET] != 0x43) { /* Secondary Tip Switch */
++		ctx->retval = -EINVAL;
++		return 0;
++	}
++
++	ctx->retval = 0;
++
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+-- 
+2.53.0
 
-   intel_ish_ipc 0000:00:12.0: ISH loader: load firmware:
-     intel/ish/ish_lnlm.bin cmd 2 failed 10
-   (repeated 3 times, then ISH gives up)
-
- The generic ish_lnlm.bin from linux-firmware is loaded into memory
-but the
- ISH bootloader rejects it (cmd 2 =3D START, error 10 =3D rejected).
-
- =3D=3D Impact =3D=3D
-
- Without a working ISH:
-   - No IIO sensors visible under /sys/bus/iio/devices/
-   - iio-sensor-proxy cannot detect orientation
-   - No SW_TABLET_MODE events from Intel HID driver
-   - Screen rotation and tablet mode are completely non-functional
-
- The DSDT _QAC method (EC query 0xAC, triggered on hinge fold) reads
-hinge
- angle from EC RAM 0x90CF =E2=80=94 a value populated by the ISH. Without I=
-SH,
-the
- entire tablet detection chain is broken.
-
- =3D=3D What I tried =3D=3D
-
- The Windows driver package for this device ships two ISH firmwares:
-   - ishheci.inf.../FwImage/0003/ishS_SI_5.8.0.7725.bin  (991 KB)
-   - ishheciextensiontemplate.inf.../FwImage/0003/ishS_SI.bin  (523
-KB)
-
- Both are $CPD/$ISHM format (verified with hexdump). I renamed the
-larger
- one to ish_lnlm_ef534c00_621ac0c8.bin (using DMI CRC32 values: vendor
- ef534c00, product 621ac0c8) and installed it to
-/lib/firmware/intel/ish/.
-
- Result: same "cmd 2 failed 10" failure. After rmmod/modprobe, a
-different
- error appeared ("Timed out waiting for HW ready"), likely a hardware
-state
- issue from the hot-reload. After a full reboot: back to "cmd 2 failed
-10".
-
- =3D=3D Root cause hypothesis =3D=3D
-
- Based on the similar report for Samsung Galaxy Book5 (also Lunar
-Lake), and
- feedback from Intel engineer Zhang Lixu, the understanding is:
-
-   The ISH bootloader on Lunar Lake is baked into ME/BIOS and
-validates the
-   signature of the loaded firmware. The Windows firmware is signed for the
-   Windows HECI loading protocol. The Linux ISHTP FW-Loader uses a
-different
-   mechanism and requires an OEM-signed firmware specifically
-built/signed for
-   Linux.
-
-   ASUS has not contributed such a firmware to linux-firmware.git. The
-only
-   vendor-specific Lunar Lake ISH firmwares currently in linux-firmware are
-   for CRC prefix 53c4ffad (HP/Lenovo?), not ef534c00 (ASUSTeK).
-
- =3D=3D Request =3D=3D
-
- 1. Can anyone confirm whether my root-cause analysis is correct =E2=80=94
-i.e., that
-    the Windows firmware is genuinely incompatible with the Linux ISHTP loa=
-der
-    due to signing, not just naming?
-
- 2. Is there a known process for requesting that ASUS contribute the
-correct
-    firmware? I'm happy to open a bug on ASUS's Linux tracker or
-contact their
-    developer relations if that would help.
-
- 3. Are there other Lunar Lake ASUS users hitting this? I'd like to
-know if
-    it's device-specific or affects the entire ASUSTeK Lunar Lake lineup.
-
- DMI info for reference:
-   sys_vendor CRC32:    ef534c00  ("ASUSTeK COMPUTER INC.")
-   product_name CRC32:  621ac0c8  ("ASUS Vivobook 16 Flip
-TP3607SH_TP3607SH")
-   product_family CRC32: f25e936f ("ASUS Vivobook 16 Flip")
-
- Thanks, jony....

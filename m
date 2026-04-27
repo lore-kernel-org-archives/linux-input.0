@@ -1,103 +1,172 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEF1D39B4BE;
-	Mon, 27 Apr 2026 11:16:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5622EFD9B;
+	Mon, 27 Apr 2026 14:34:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777288585; cv=none; b=R5DdCHgqkVZQNzZ9jU7wFMDD8n/veQ2yGM4qqiO+TGnNmEMGtV8Ak6VUBMZCQwBmlOucqFulqVwZDhVIn3q0aICLbW4vQXZ3pXvBiKMa+PDOelVZ8WW4gKqTUzgiLGzpbcDwU18+YXGRf9k/sHAr6Dn3/GXpLoZa/gSTmXuKNEs=
+	t=1777300452; cv=none; b=c4JAYdF5SidyQj80ED0n9lQXcfGStJU4nx/sLm9etIycViD4Y8yxBXD0y70ckIl0/oKndbYbEsn7eaiDvrRwXeEGUd5BdHXO1t5H9T4ZN9TWBQW46PDGS586+vQyG0aVKbopL1gs30HKH1hs3eWPj75ylJj88fQGY308iktlsXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777288585; c=relaxed/simple;
-	bh=9T8FEDtKFmUhZxwB8rgvIA3wS0jmwsgVlArGvq/MQNs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lFKg9ReJM+b+NS7aTmWGQXtIl2+B01dq6JlagQwIQ0LEdMzyWC9slF+V2ovkNSr7q49R06q5pYWxa1a6Bx8AeUQlJeoj+kSFddrqbndz9x8sr22DMKyEQNqdtXr47EHQd8KiWWvqhScK3QmesHvtTdgL2CbY80j2DHeJxwvTzlY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=wxEm6TZ5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777300452; c=relaxed/simple;
+	bh=Uu70zpQsAsxpUVC8lO1BNp5pfR3GRNVLVZiVQ4UlGIk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ZXaldM9zyPBCMSMKbDX0RXSjef2OhKvmloCWCCvLISnrIoJ2sftPxxsPCl4iAEEtCtAvbZZ/VYy9nrnfYgFJjSGli9hfoB3yumUfgaaDDb2kdlTwlbd9j+AFth+1N3Nr1FhFO66kuLZx33Safej7IOEDLydgi4djEonbOn1fMqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ReMw50p2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="wxEm6TZ5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813CEC2BCB4;
-	Mon, 27 Apr 2026 11:16:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1777288585;
-	bh=9T8FEDtKFmUhZxwB8rgvIA3wS0jmwsgVlArGvq/MQNs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=wxEm6TZ53bBJH+ocT/w/yaPcHaTjhL86G+G+Ig8RA1WEKReowKob8aW8g3O904RJn
-	 lfP9wU8pIeqFYctzZaaN37+YcXfiwa47Qke9UCuMuAOicCuS39W3fFeRx0OQZSfi2u
-	 SIN/9HR/FrDoK0SpIqcnPRjCCZ9rfIuX8HUvIVII=
-Date: Mon, 27 Apr 2026 05:15:50 -0600
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable <stable@kernel.org>
-Subject: Re: [PATCH] Input: xpad - reject short Xbox One packets before
- len-relative share-button index
-Message-ID: <2026042729-phobia-deftly-0176@gregkh>
-References: <2026042014-freestyle-deluxe-48e4@gregkh>
- <ae7kWV1Km1qoEeq3@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ReMw50p2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EF5C19425;
+	Mon, 27 Apr 2026 14:34:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777300452;
+	bh=Uu70zpQsAsxpUVC8lO1BNp5pfR3GRNVLVZiVQ4UlGIk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=ReMw50p2CxZGIeRlhgnCabAdqL16XkFoH7Qn8uhf4S04SXvOvmLQEnY+0skBtRTBL
+	 xA4Z50B8PkYr8jz2xK9uHClVAb2wVNglOjfzSF3ARjQa6OMi7FuIFbdKoNSfpGVvVL
+	 ZduWSRDxMiVnAL6SAUqPOwr0YS4cfsgX3n8EmBZKhkudoHN44+uRgim3dqRnn0xeUK
+	 ViT83pBHvDKpKH3mlM9tnNfOcOcdrU9hCdMiISOttZ1C5kRO+EYIyxw9HywCwi8O2F
+	 NltInq9oGAzyf/WIOdiq56wVWyNdgWWTc0n8GXpSkOyLeHqWqm8XMXO5B5mOUnLYaI
+	 k1hBNGDZXoxKA==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Lee Jones <lee@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Gatien Chevallier <gatien.chevallier@foss.st.com>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Charles Keepax <ckeepax@opensource.cirrus.com>,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] [v2] input: gpio-keys: make legacy gpiolib optional
+Date: Mon, 27 Apr 2026 16:33:49 +0200
+Message-Id: <20260427143406.3020992-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ae7kWV1Km1qoEeq3@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Sun, Apr 26, 2026 at 09:22:21PM -0700, Dmitry Torokhov wrote:
-> Hi Greg,
-> 
-> On Mon, Apr 20, 2026 at 05:53:15PM +0200, Greg Kroah-Hartman wrote:
-> > xpadone_process_packet() receives len directly from urb->actual_length
-> > and uses it to index the share-button byte at data[len - 18] or
-> > data[len - 26].  Since both len and data[0] are under the device's
-> > control, a broken controller can send a GIP_CMD_INPUT packet with
-> > actual_length < 18 (e.g. 5 bytes) and reach this code path, causing
-> > accesses beyond the actual array.
-> > 
-> > Since len is u32, 5 - 26 wraps to 0xFFFFFFEB, and data[0xFFFFFFEB] can
-> > dereference about 4 GiB past the 64-byte usb_alloc_coherent() idata
-> > buffer.  On a KASAN system this is an immediate splat otherwise the read
-> > will either fault on an unmapped page (DoS) or pull a bit from arbitrary
-> > kernel memory and report it as KEY_RECORD.
-> > 
-> > Fix this all up by properly bounds checking the value provided by the
-> > device.
-> > 
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Fixes: 4ef46367073b ("Input: xpad - fix Share button on Xbox One controllers")
-> > Cc: stable <stable@kernel.org>
-> > Assisted-by: gkh_clanker_t1000
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/input/joystick/xpad.c | 11 +++++++----
-> >  1 file changed, 7 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> > index d6fc3d6006bb..7d99fe0ecf91 100644
-> > --- a/drivers/input/joystick/xpad.c
-> > +++ b/drivers/input/joystick/xpad.c
-> > @@ -1110,10 +1110,13 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
-> >  		input_report_key(dev, BTN_START,  data[4] & BIT(2));
-> >  		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
-> >  		if (xpad->mapping & MAP_SHARE_BUTTON) {
-> > -			if (xpad->mapping & MAP_SHARE_OFFSET)
-> > -				input_report_key(dev, KEY_RECORD, data[len - 26] & BIT(0));
-> > -			else
-> > -				input_report_key(dev, KEY_RECORD, data[len - 18] & BIT(0));
-> > +			if (xpad->mapping & MAP_SHARE_OFFSET) {
-> > +				if (len >= 26)
-> > +					input_report_key(dev, KEY_RECORD, data[len - 26] & BIT(0));
-> > +			} else {
-> > +				if (len >= 18)
-> > +					input_report_key(dev, KEY_RECORD, data[len - 18] & BIT(0));
-> > +			}
-> 
-> Thank you for the report, but this is quite ugly. I committed an
-> alternative version of the fix.
+From: Arnd Bergmann <arnd@arndb.de>
 
-Not a problem at all, thanks for doing this, all I want is to see the
-issue fixed :)
+Most users of gpio-keys and gpio-keys-polled use modern gpiolib
+interfaces, but there are still number of ancient sh, arm32 and x86
+machines that have never been converted.
 
-thanks,
+Add an #ifdef block for the parts of the driver that are only used on
+those legacy machines.
 
-greg k-h
+The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+passing an IRQ number instead. In order to keep this working both with
+and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+the gpio number if an IRQ is passed.
+
+Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+v2: skip the fake GPIO number passing from mfd
+---
+ drivers/input/keyboard/gpio_keys.c        | 7 ++++---
+ drivers/input/keyboard/gpio_keys_polled.c | 2 ++
+ drivers/mfd/rohm-bd71828.c                | 1 -
+ drivers/mfd/rohm-bd718x7.c                | 1 -
+ include/linux/gpio_keys.h                 | 2 ++
+ 5 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index aed4c9be35d2..e988657f97cb 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -528,7 +528,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 			 */
+ 			bdata->gpiod = NULL;
+ 		}
+-	} else if (gpio_is_valid(button->gpio)) {
++#ifdef CONFIG_GPIOLIB_LEGACY
++	} else if (!button->irq && gpio_is_valid(button->gpio)) {
+ 		/*
+ 		 * Legacy GPIO number, so request the GPIO here and
+ 		 * convert it to descriptor.
+@@ -546,6 +547,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 
+ 		if (button->active_low ^ gpiod_is_active_low(bdata->gpiod))
+ 			gpiod_toggle_active_low(bdata->gpiod);
++#endif
+ 	}
+ 
+ 	if (bdata->gpiod) {
+@@ -583,8 +585,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 			if (irq < 0) {
+ 				error = irq;
+ 				dev_err_probe(dev, error,
+-					      "Unable to get irq number for GPIO %d\n",
+-					      button->gpio);
++					      "Unable to get irq number for GPIO\n");
+ 				return error;
+ 			}
+ 			bdata->irq = irq;
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index c7aea2cdd712..4e7a366ff05b 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -301,6 +301,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 				return dev_err_probe(dev, PTR_ERR(bdata->gpiod),
+ 						     "failed to get gpio\n");
+ 			}
++#ifdef CONFIG_GPIOLIB_LEGACY
+ 		} else if (gpio_is_valid(button->gpio)) {
+ 			/*
+ 			 * Legacy GPIO number so request the GPIO here and
+@@ -323,6 +324,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 			if (button->active_low ^ gpiod_is_active_low(bdata->gpiod))
+ 				gpiod_toggle_active_low(bdata->gpiod);
++#endif
+ 		}
+ 
+ 		bdata->last_state = -1;
+diff --git a/drivers/mfd/rohm-bd71828.c b/drivers/mfd/rohm-bd71828.c
+index a79f354bf5cb..df6dad762ec9 100644
+--- a/drivers/mfd/rohm-bd71828.c
++++ b/drivers/mfd/rohm-bd71828.c
+@@ -39,7 +39,6 @@
+ 
+ static struct gpio_keys_button button = {
+ 	.code = KEY_POWER,
+-	.gpio = -1,
+ 	.type = EV_KEY,
+ 	.wakeup = 1,
+ };
+diff --git a/drivers/mfd/rohm-bd718x7.c b/drivers/mfd/rohm-bd718x7.c
+index ff714fd4f54d..dd774aa8828b 100644
+--- a/drivers/mfd/rohm-bd718x7.c
++++ b/drivers/mfd/rohm-bd718x7.c
+@@ -20,7 +20,6 @@
+ 
+ static struct gpio_keys_button button = {
+ 	.code = KEY_POWER,
+-	.gpio = -1,
+ 	.type = EV_KEY,
+ };
+ 
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 80fa930b04c6..e8d6dc290efb 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -25,7 +25,9 @@ struct device;
+  */
+ struct gpio_keys_button {
+ 	unsigned int code;
++#ifdef CONFIG_GPIOLIB_LEGACY
+ 	int gpio;
++#endif
+ 	int active_low;
+ 	const char *desc;
+ 	unsigned int type;
+-- 
+2.39.5
+

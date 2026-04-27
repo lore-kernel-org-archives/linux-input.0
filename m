@@ -1,172 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5622EFD9B;
-	Mon, 27 Apr 2026 14:34:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C497320CD1
+	for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 16:20:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777300452; cv=none; b=c4JAYdF5SidyQj80ED0n9lQXcfGStJU4nx/sLm9etIycViD4Y8yxBXD0y70ckIl0/oKndbYbEsn7eaiDvrRwXeEGUd5BdHXO1t5H9T4ZN9TWBQW46PDGS586+vQyG0aVKbopL1gs30HKH1hs3eWPj75ylJj88fQGY308iktlsXw=
+	t=1777306806; cv=none; b=bsSB6TgUev6CyCbweTMOLUS3nYtp5B4ot3JykeXx5nQUQhZfkJky2bPXMRWPA6B7ZCuBmYPcY02qyAUItqYbRH7unPRmjfvONGdXkqs3VgKhLp33dLnO2L7f1GrB83w6mg6jlQrGl2b28JVm95MTw/0UMghyafT+vNFCiRVqZN0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777300452; c=relaxed/simple;
-	bh=Uu70zpQsAsxpUVC8lO1BNp5pfR3GRNVLVZiVQ4UlGIk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ZXaldM9zyPBCMSMKbDX0RXSjef2OhKvmloCWCCvLISnrIoJ2sftPxxsPCl4iAEEtCtAvbZZ/VYy9nrnfYgFJjSGli9hfoB3yumUfgaaDDb2kdlTwlbd9j+AFth+1N3Nr1FhFO66kuLZx33Safej7IOEDLydgi4djEonbOn1fMqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ReMw50p2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777306806; c=relaxed/simple;
+	bh=xidvJQjpM7yPCqe5PKIOorDtLSAo4K6bgw4e3ytK1qY=;
+	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=QZc6iWFJBA1J4NqQAdmYeZQ7A/lv6aoDEZGEbaR1drt1hX4JeUxZbJHaGcr6PNWEay3zlRoSgY6dHGmnuS1s+nZ7P3GIlQO6+Fl4aT96jLLT+c+Bur3wX/v5ZfY1e2eqhGquOYRCd2+Q2pof21pi3wIcF1WlnPc5U6WiTA8D+0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com; spf=pass smtp.mailfrom=embeddedts.com; dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b=FQs3GDZ5; arc=none smtp.client-ip=209.85.216.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedts.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ReMw50p2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EF5C19425;
-	Mon, 27 Apr 2026 14:34:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777300452;
-	bh=Uu70zpQsAsxpUVC8lO1BNp5pfR3GRNVLVZiVQ4UlGIk=;
-	h=From:To:Cc:Subject:Date:From;
-	b=ReMw50p2CxZGIeRlhgnCabAdqL16XkFoH7Qn8uhf4S04SXvOvmLQEnY+0skBtRTBL
-	 xA4Z50B8PkYr8jz2xK9uHClVAb2wVNglOjfzSF3ARjQa6OMi7FuIFbdKoNSfpGVvVL
-	 ZduWSRDxMiVnAL6SAUqPOwr0YS4cfsgX3n8EmBZKhkudoHN44+uRgim3dqRnn0xeUK
-	 ViT83pBHvDKpKH3mlM9tnNfOcOcdrU9hCdMiISOttZ1C5kRO+EYIyxw9HywCwi8O2F
-	 NltInq9oGAzyf/WIOdiq56wVWyNdgWWTc0n8GXpSkOyLeHqWqm8XMXO5B5mOUnLYaI
-	 k1hBNGDZXoxKA==
-From: Arnd Bergmann <arnd@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Matti Vaittinen <mazziesaccount@gmail.com>,
-	Lee Jones <lee@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Gatien Chevallier <gatien.chevallier@foss.st.com>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Charles Keepax <ckeepax@opensource.cirrus.com>,
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] [v2] input: gpio-keys: make legacy gpiolib optional
-Date: Mon, 27 Apr 2026 16:33:49 +0200
-Message-Id: <20260427143406.3020992-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b="FQs3GDZ5"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-35fc258aaa4so6474665a91.2
+        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 09:20:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=embeddedts.com; s=google; t=1777306804; x=1777911604; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=ot5/VkkpAMcYPEn/1toyTMHXbfWqkhlcoGx5NqyUByo=;
+        b=FQs3GDZ59mCkixfqWKRa0YoBHHPrPBCM6BijDOo3TqYenzhklcdOEaCrj1CAwHLtWy
+         xL1nVWrmkPAF0Ub5UK46RDkBSXx5aY3iVO9/ulYVIMnQu317isIFU9saspWlKqzF1t6Q
+         Jb13N3yS0TOOyXEkJQQlL+o39Iy196Yk4f5+4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777306804; x=1777911604;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ot5/VkkpAMcYPEn/1toyTMHXbfWqkhlcoGx5NqyUByo=;
+        b=NUV9rnAsLxQfvfmQSqxGjN5sPZQwuBSnNvtPZ33bDvRqd/AdoibZHfSEHf/F7uwH6Z
+         ZDkF7BjtkVKfqQ3mWByNCvq6k+Du/83QhaIE0zIQUkN314zI7ADWJmSae+uQagKI7BH+
+         33QxQ96h7ef+iXnk3NbdNbWlt5BMYpWfLPjKTqq1WtvrH1iZm9s6JXVBCuZxYsA6QuHO
+         1btT7R88R6d85rbD2MYxhdDlBu7aATvHj2M45IMy6gfupE2BAWVeaFxfqIG3Nanl5kNI
+         19K3S6rUaaAej5Y3TqkWbmS9OO4ZYiYxDXscnI2fR2COyat9zHPdd11s68sHxqszFsxM
+         YU5A==
+X-Forwarded-Encrypted: i=1; AFNElJ+freNnZNL31nZx8viNzQ4CKL2csFOtQadB0+KO/ew7Zo0+b0YnJ7S5l/R/uRHKYTCpFJ7czkzIN0yrRg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxT8FswQlN2Rj4hRxJEkvWYkrL1tjLqA3Iv4cISsQIZAb0a9tff
+	/pM/QqApvLb+WCyrSUzG7Iiw15Sabq9nWx2ZhcMEDP7hm29zEcLooegLMcHRxj95m7nlgTUneIH
+	oyx3dTEYu8g==
+X-Gm-Gg: AeBDiesMcnttLqOTTRPsWu3a/At+dHSSFZVJ04qebeDVlt5Djoow7THPrFhIAlXFUu3
+	s1uT+A8baUeediomqux8MCR0EchZ/knbmF2TIRjND+TADipJ/lldVmK1zuNiGoSBxcLzc/SC0pc
+	k7bDzKJ22c6ON61wd6pEdEUWsU5fw/W8NvT1HAoENJzx5JTo9upTh0Y97z9RMbkFDnzxts7bANw
+	wJJCj0muqxJPj7YIJ0WVUv3EUQsaaLcTyG12alEbiDw4ghA+3QUPS5+gamHkzT9uH5Oeny9POn0
+	CYheeBr19fMWCoDSYVzE7P1tUS+/sfMH7OVMGPQm7hSwYVVZmZ0Lt7cbkCp4+xDd8xqzJjAr4CZ
+	r0KsYAVcC1w4y8rDOa3PZhRxvTBGt9NAikO6pUE904irkbfGVQnQr7a7aiR8Pg8vPAlJMBZO7KN
+	Rog/lzrTixofI5S41QG3iw9odtCINpewbYyFS3lxM69s82/kRkVCO3+lL2OqabROn4hZRlcG/0e
+	UUo7+iK8MKK/b9XbczaTtpSTthaYkD8rFg7aITCRPuDeRnSfAc07N5FOXT74+W4h0IjTpBMHTEV
+	URiJm8cKNKG4tDb327IZzlX9Lrql0TXHd9Lm
+X-Received: by 2002:a17:90b:3b4a:b0:35d:a4c0:a0ac with SMTP id 98e67ed59e1d1-361403d61camr43690659a91.3.1777306803667;
+        Mon, 27 Apr 2026 09:20:03 -0700 (PDT)
+Received: from [10.10.10.191] (97-120-253-104.ptld.qwest.net. [97.120.253.104])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-361410cc196sm33025839a91.17.2026.04.27.09.20.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Apr 2026 09:20:02 -0700 (PDT)
+From: Kris Bahnsen <kris@embeddedts.com>
+X-Google-Original-From: Kris Bahnsen <kris@embeddedTS.com>
+Message-ID: <12a76d8c-344e-49a3-b168-6cd353d720a0@embeddedTS.com>
+Date: Mon, 27 Apr 2026 09:20:01 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: ads7846 - don't use scratch for tx_buf when
+ clearing register
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org,
+ Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260424192534.3504976-1-kris@embeddedTS.com>
+ <ae2YWxew6M03MFfN@google.com>
+Content-Language: en-US
+In-Reply-To: <ae2YWxew6M03MFfN@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Arnd Bergmann <arnd@arndb.de>
 
-Most users of gpio-keys and gpio-keys-polled use modern gpiolib
-interfaces, but there are still number of ancient sh, arm32 and x86
-machines that have never been converted.
 
-Add an #ifdef block for the parts of the driver that are only used on
-those legacy machines.
+On 4/25/26 9:51 PM, Dmitry Torokhov wrote:
+> Hi Kris,
+> 
+> On Fri, Apr 24, 2026 at 07:25:34PM +0000, Kris Bahnsen wrote:
+>> The workaround for XPT2046 clears the command register, giving the
+>> touchscreen controller a NOP. The change incorrectly re-uses the
+>> req->scratch variable which is used as rx_buf for xfer[5], so by
+>> the time xfer[6] occurs, the contents of req->scratch may not be
+>> 0. It was found that the touchscreen controller can end up in
+>> a completely unresponsive state due to it being given a command
+>> the driver does not expect.
+>>
+>> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
+>> transmit all 0 bits, moving the 3 bytes to a single message.
+>>
+>> This change was tested on real TSC2046 and ADS7843 controllers,
+>> but not the XPT2046 the workaround was originally created for.
+>> Confirming that the original modification to clear the command
+>> register does not impact either real controller.
+>>
+>> Fixes: 781a07da9bb94 ("Input: ads7846 - add dummy command register clearing cycle")
+>> Cc: stable@vger.kernel.org
+>> Co-developed-by: Mark Featherston <mark@embeddedTS.com>
+>> Signed-off-by: Mark Featherston <mark@embeddedTS.com>
+>> Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+>> ---
+>>  drivers/input/touchscreen/ads7846.c | 13 ++++---------
+>>  1 file changed, 4 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+>> index 4b39f7212d35c..599793d27129e 100644
+>> --- a/drivers/input/touchscreen/ads7846.c
+>> +++ b/drivers/input/touchscreen/ads7846.c
+>> @@ -327,7 +327,7 @@ struct ser_req {
+>>  	u8			ref_off;
+>>  	u16			scratch;
+>>  	struct spi_message	msg;
+>> -	struct spi_transfer	xfer[8];
+>> +	struct spi_transfer	xfer[7];
+>>  	/*
+>>  	 * DMA (thus cache coherency maintenance) requires the
+>>  	 * transfer buffers to live in their own cache lines.
+>> @@ -403,16 +403,11 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+>>  	spi_message_add_tail(&req->xfer[5], &req->msg);
+>>  
+>>  	/* clear the command register */
+>> -	req->scratch = 0;
+>> -	req->xfer[6].tx_buf = &req->scratch;
+>> -	req->xfer[6].len = 1;
+>> +	req->xfer[6].rx_buf = &req->scratch;
+>> +	req->xfer[6].len = 3;
+> 
+> Doesn't this overflow "scratch" which is only 2 bytes? I guess there is
+> a hole in ser_req between "scratch" and "msg" but I do not think we
+> should rely on this.
+> 
+> Can we also set rx_buf to NULL to discard incoming data?
 
-The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
-passing an IRQ number instead. In order to keep this working both with
-and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
-the gpio number if an IRQ is passed.
+Well spotted! I'm quite annoyed with myself that I fixed one pointer
+use bug to introduce a buffer overflow.
 
-Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-v2: skip the fake GPIO number passing from mfd
----
- drivers/input/keyboard/gpio_keys.c        | 7 ++++---
- drivers/input/keyboard/gpio_keys_polled.c | 2 ++
- drivers/mfd/rohm-bd71828.c                | 1 -
- drivers/mfd/rohm-bd718x7.c                | 1 -
- include/linux/gpio_keys.h                 | 2 ++
- 5 files changed, 8 insertions(+), 5 deletions(-)
+Will send a v2 patch later today.
+ 
+> [credit to sashiko].
+> 
+> Thanks.
+> 
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index aed4c9be35d2..e988657f97cb 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -528,7 +528,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 			 */
- 			bdata->gpiod = NULL;
- 		}
--	} else if (gpio_is_valid(button->gpio)) {
-+#ifdef CONFIG_GPIOLIB_LEGACY
-+	} else if (!button->irq && gpio_is_valid(button->gpio)) {
- 		/*
- 		 * Legacy GPIO number, so request the GPIO here and
- 		 * convert it to descriptor.
-@@ -546,6 +547,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 
- 		if (button->active_low ^ gpiod_is_active_low(bdata->gpiod))
- 			gpiod_toggle_active_low(bdata->gpiod);
-+#endif
- 	}
- 
- 	if (bdata->gpiod) {
-@@ -583,8 +585,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 			if (irq < 0) {
- 				error = irq;
- 				dev_err_probe(dev, error,
--					      "Unable to get irq number for GPIO %d\n",
--					      button->gpio);
-+					      "Unable to get irq number for GPIO\n");
- 				return error;
- 			}
- 			bdata->irq = irq;
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index c7aea2cdd712..4e7a366ff05b 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -301,6 +301,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 				return dev_err_probe(dev, PTR_ERR(bdata->gpiod),
- 						     "failed to get gpio\n");
- 			}
-+#ifdef CONFIG_GPIOLIB_LEGACY
- 		} else if (gpio_is_valid(button->gpio)) {
- 			/*
- 			 * Legacy GPIO number so request the GPIO here and
-@@ -323,6 +324,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 			if (button->active_low ^ gpiod_is_active_low(bdata->gpiod))
- 				gpiod_toggle_active_low(bdata->gpiod);
-+#endif
- 		}
- 
- 		bdata->last_state = -1;
-diff --git a/drivers/mfd/rohm-bd71828.c b/drivers/mfd/rohm-bd71828.c
-index a79f354bf5cb..df6dad762ec9 100644
---- a/drivers/mfd/rohm-bd71828.c
-+++ b/drivers/mfd/rohm-bd71828.c
-@@ -39,7 +39,6 @@
- 
- static struct gpio_keys_button button = {
- 	.code = KEY_POWER,
--	.gpio = -1,
- 	.type = EV_KEY,
- 	.wakeup = 1,
- };
-diff --git a/drivers/mfd/rohm-bd718x7.c b/drivers/mfd/rohm-bd718x7.c
-index ff714fd4f54d..dd774aa8828b 100644
---- a/drivers/mfd/rohm-bd718x7.c
-+++ b/drivers/mfd/rohm-bd718x7.c
-@@ -20,7 +20,6 @@
- 
- static struct gpio_keys_button button = {
- 	.code = KEY_POWER,
--	.gpio = -1,
- 	.type = EV_KEY,
- };
- 
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index 80fa930b04c6..e8d6dc290efb 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -25,7 +25,9 @@ struct device;
-  */
- struct gpio_keys_button {
- 	unsigned int code;
-+#ifdef CONFIG_GPIOLIB_LEGACY
- 	int gpio;
-+#endif
- 	int active_low;
- 	const char *desc;
- 	unsigned int type;
 -- 
-2.39.5
+Kris Bahnsen
+Software Engineer
+embeddedTS
 

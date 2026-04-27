@@ -1,190 +1,243 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from m65s28.vlinux.de (m65s28.vlinux.de [83.151.22.62])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701E8286D4D;
-	Mon, 27 Apr 2026 04:47:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB9F37D138
+	for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 06:39:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.151.22.62
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777265225; cv=none; b=NLGNuX7tiL+mz88pwFBDpFdNwSUNqXr66tcfumfg+3b5G4w4CFXWA4DzJGuI/vGERReXZgJA7CwPWteGEMHf/ndsz3oxo1yjMWNiORZSx9wLVcg9RKkjPzqvTLKtRSCwICX0bRt3BTS3T8+IkRJduWB1Tg0Vi3VEtOk0/VOcFj4=
+	t=1777271968; cv=none; b=KnpK9b+eHyv5F9wgwRAzp2plsjtoMD5OXrwPsocE6JdOAUxPZeTFYoH83GfTA3h7+ttMl+PM9GhwhgO+WwxQjhIQ7ErAtPEUOEMzKPGsaSZN5QQeVWprEymbvjtZ3fUc/h3dNr0eT1nricz5c9VlcPLQ1dhTP0Si6xhN4MuvgJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777265225; c=relaxed/simple;
-	bh=vj4lGOnuMauUDY6y8oGjCiXJfacmhk1x7ZU6bLMUDxU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cg3kv/QfIsggBDu9dWdpSmNOfxpRN+yzC+vXbw8O3a8Q9u6A6aCIhtmFPzgs8vWe6SNzw451acmqA9vrP7v9LXDl8U4LAKSMar49ZAORrjPS3kI/SmDE3wksVA/OP1tfEBHzLkoKohJn1vPipoFt+WYLBKiVYYvRT8Vkj3t4yLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EVEG3PIH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777271968; c=relaxed/simple;
+	bh=zGr2MiaJCIIoGjUHV/V9LZkNhxnxC459zgBMAnhzilk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BuUwIgzz9cU6pwF90dnIW8Rjn0ijh40XXTl9iim8v/yLSC2RyovZTjaohnq14FNLxGk7P9IHyUXVF4BLf6eTZ3wGy9bel8bNjrMPNWtMajGVxitU7FNeKLVQEnPoBhXDK8k+8Z28aYeaOmPeKhIPlt3/AjX66Ajk6ZVkk2L6rzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net; spf=pass smtp.mailfrom=chaoticmind.net; dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b=Vw23hzMr; arc=none smtp.client-ip=83.151.22.62
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chaoticmind.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EVEG3PIH"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 16BD3C2BCB7;
-	Mon, 27 Apr 2026 04:47:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777265225;
-	bh=vj4lGOnuMauUDY6y8oGjCiXJfacmhk1x7ZU6bLMUDxU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=EVEG3PIH8s3d/zPdejKC8a2LxnASTxCIbosAJwxA6BS3tXRnKq7q0BBuNmtoi37oX
-	 91hGLWhggdXQgDnh4aMVYIJWfPQp/GYXYGQaTTy7v04+xvj/VuFJgwDKVMHTCddo/L
-	 wNmfwckOuTNFfIKJFjIq0agWJc+jbkAfwpV5ePeRVQQHxydX0B2W5NzZ2FBQsIB5Ir
-	 7oxY6R5iyj7ugbQkUCicgImYTx6v1OHcy6k+SlnQTcGvej94jh4fQkY46KHFE/ePQp
-	 43xYiVIDqWcemUpW0yHhSrhMlF8n1pocoQKBny9t7O7bH62CBktiMnotvACqeXdVsa
-	 k6/fzQnKzRGlg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0750CFF8850;
-	Mon, 27 Apr 2026 04:47:05 +0000 (UTC)
-From: Harpreet Saini via B4 Relay <devnull+sainiharpreet29.yahoo.com@kernel.org>
-Date: Mon, 27 Apr 2026 00:46:53 -0400
-Subject: [PATCH v5 1/2] dt-bindings: input: Add PixArt PAJ7620 gesture
- sensor
+	dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b="Vw23hzMr"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=chaoticmind.net; s=default; h=Content-Type:Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=nS0rTV2BfIneBKjrF7tjsYbLuA+dQpylwEvTuBzu7To=; b=Vw23hzMrC0eqOKxy5OMy5XWzDt
+	7EIiC6K09UeanTopz/EsNZsf7kDUSnnj3kad3IyU5q3nOAR/7T7fXlLZNZ92PTfwWKu39n+xmiVhC
+	O7vd6NHqljpFuMTK8LH4y7UF4ckWC/dNvwMSghkCekDhUOtMSNnXVMaxOdX6sdvpqI7UpQSpklxdo
+	OqKpVgdVIRSBBFLesEyGphvVdzXmE5nfemo6sGZAh5M9ejXwkws9nztsrfGcf599Xz+aGuS4+Fi4n
+	L048Rz8RSKi498bXVuj96CRnAJd/M+qefsOMgiQMZj92DfOc8KE957mch6yPwEQeaYKy0f2vWFvaN
+	m4ibtlow==;
+Received: from 165.99.104.92.dynamic.cust.swisscom.net ([92.104.99.165] helo=lothlorien.localnet)
+	by m65s28.vlinux.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <hcb@chaoticmind.net>)
+	id 1wHFMv-0002UZ-Mh; Mon, 27 Apr 2026 08:22:58 +0200
+From: Helge Bahmann <hcb@chaoticmind.net>
+To: Nehal Bakulchandra Shah <Nehal-Bakulchandra.Shah@amd.com>,
+ Sandeep Singh <Sandeep.singh@amd.com>,
+ Basavaraj Natikar <Basavaraj.Natikar@amd.com>, jikos@kernel.org,
+ bentiss@kernel.org
+Cc: linux-hid@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH] amd-sfh-hid: tablet mode switch and asus quirk
+Date: Mon, 27 Apr 2026 08:22:54 +0200
+Message-ID: <6879487.lOV4Wx5bFT@lothlorien>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260427-paj7620-v5-v5-1-6f9bbe7b4ce3@yahoo.com>
-References: <20260427-paj7620-v5-v5-0-6f9bbe7b4ce3@yahoo.com>
-In-Reply-To: <20260427-paj7620-v5-v5-0-6f9bbe7b4ce3@yahoo.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Harpreet Saini <sainiharpreet29@yahoo.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1777265221; l=3632;
- i=sainiharpreet29@yahoo.com; s=20260427; h=from:subject:message-id;
- bh=ZvENQ6/JadZnjlGXWa5Ps7cylg37z6EcwIcl+Se1DuE=;
- b=blzvXiksAhu/u+yp4Y4duHPBPxxo7+WfYYpl98WUpyC1nOSzv7QcaNU1xFwArybRK+0FnoKsl
- ol/frT1mSojD7lPaEgdUceMNt1UQS12jHbqMkGDdWiE9UNP2Arowao5
-X-Developer-Key: i=sainiharpreet29@yahoo.com; a=ed25519;
- pk=xht+vKyGRLShWSTBYoH2qBaDzKUL90zr77TVwj1ra9s=
-X-Endpoint-Received: by B4 Relay for sainiharpreet29@yahoo.com/20260427
- with auth_id=754
-X-Original-From: Harpreet Saini <sainiharpreet29@yahoo.com>
-Reply-To: sainiharpreet29@yahoo.com
 
-From: Harpreet Saini <sainiharpreet29@yahoo.com>
+Add an input driver that interprets the "operation mode" sensor offered
+by the amd sfh on some laptop models.
 
-Add Device Tree bindings for Pixart PAJ7620 gesture sensor.
-The sensor supports 9 hand gestures via I2C interface.
+Add a quirk to make the driver work again with the Asus VivoBook
+VivoBook (turn off the "disable interrupts" flag).
 
-The GPIO controller properties are included to describe the
-hardware's ability to repurpose SPI pins as GPIOs when the
-sensor is used in I2C mode.
+Expose the intr_disable flag as a module parameter in case it turns out
+to be needed on further laptop models.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Signed-off-by: Harpreet Saini <sainiharpreet29@yahoo.com>
+Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
 ---
- .../devicetree/bindings/input/pixart,paj7620.yaml  | 84 ++++++++++++++++++++++
- .../devicetree/bindings/vendor-prefixes.yaml       |  2 +
- 2 files changed, 86 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c | 25 ++++++++------
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c    | 43 ++++++++++++++++++++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.h    |  6 ++++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   |  9 +++++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.h   |  3 ++
+ 5 files changed, 75 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/pixart,paj7620.yaml b/Documentation/devicetree/bindings/input/pixart,paj7620.yaml
-new file mode 100644
-index 000000000000..089e864e82ea
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/pixart,paj7620.yaml
-@@ -0,0 +1,84 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/pixart,paj7620.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: PixArt PAJ7620 Gesture Sensor
-+
-+maintainers:
-+  - Harpreet Saini <sainiharpreet29@yahoo.com>
-+
-+description:
-+  The PixArt PAJ7620 is a gesture recognition sensor with an integrated
-+  infrared LED and CMOS array. It communicates over an I2C interface and
-+  provides gesture data via a dedicated interrupt pin. When operating in
-+  I2C mode, the unused SPI pins can be repurposed as GPIOs.
-+
-+allOf:
-+  - $ref: input.yaml#
-+  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-+
-+properties:
-+  compatible:
-+    const: pixart,paj7620
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  vdd-supply:
-+    description: Main power supply.
-+
-+  vbus-supply:
-+    description: I/O and I2C bus power supply.
-+
-+  vled-supply:
-+    description: Power for the integrated IR LED.
-+
-+  linux,keycodes:
-+    minItems: 9
-+    maxItems: 9
-+    description:
-+      List of keycodes mapping to the 9 supported gestures.
-+
-+  gpio-controller: true
-+
-+  "#gpio-cells":
-+    const: 2
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - vdd-supply
-+  - vbus-supply
-+  - vled-supply
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/input/input.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        gesture@73 {
-+            compatible = "pixart,paj7620";
-+            reg = <0x73>;
-+            interrupt-parent = <&gpio>;
-+            interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
-+            vdd-supply = <&reg_3v3>;
-+            vbus-supply = <&reg_1v8>;
-+            vled-supply = <&reg_3v3>;
-+            linux,keycodes = <KEY_UP KEY_DOWN KEY_LEFT KEY_RIGHT
-+                             KEY_ENTER KEY_BACK KEY_NEXT KEY_PREVIOUS
-+                             KEY_MENU>;
-+            gpio-controller;
-+            #gpio-cells = <2>;
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index ee7fd3cfe203..d73a0bf62b62 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -1273,6 +1273,8 @@ patternProperties:
-     description: Pine64
-   "^pineriver,.*":
-     description: Shenzhen PineRiver Designs Co., Ltd.
-+  "^pixart,.*":
-+    description: PixArt Imaging Inc.
-   "^pixcir,.*":
-     description: PIXCIR MICROELECTRONICS Co., Ltd
-   "^plantower,.*":
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+index 7017bfa59093..a24757c5a203 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+@@ -128,10 +128,16 @@ void amd_sfh_work_buffer(struct work_struct *work)
+ 	guard(mutex)(&mp2->lock);
+ 	for (i = 0; i < cli_data->num_hid_devices; i++) {
+ 		if (cli_data->sensor_sts[i] == SENSOR_ENABLED) {
+-			report_size = mp2->mp2_ops->get_in_rep(i, cli_data->sensor_idx[i],
+-							       cli_data->report_id[i], in_data);
+-			hid_input_report(cli_data->hid_sensor_hubs[i], HID_INPUT_REPORT,
+-					 in_data->input_report[i], report_size, 0);
++			if (cli_data->hid_sensor_hubs[i]) {
++				report_size = mp2->mp2_ops->get_in_rep(i, cli_data->sensor_idx[i],
++								       cli_data->report_id[i],
++								       in_data);
++				hid_input_report(cli_data->hid_sensor_hubs[i], HID_INPUT_REPORT,
++						 in_data->input_report[i], report_size, 0);
++			} else if (cli_data->sensor_idx[i] == op_idx &&
++				   cli_data->modeswitch_input) {
++				amdtp_modeswitch_report(i, cli_data->modeswitch_input, in_data);
++			}
+ 		}
+ 	}
+ 	schedule_delayed_work(&cli_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
+@@ -327,15 +333,12 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
 
--- 
-2.43.0
+ 	for (i = 0; i < cl_data->num_hid_devices; i++) {
+ 		cl_data->cur_hid_dev = i;
+-		if (cl_data->sensor_idx[i] == op_idx) {
+-			dev_dbg(dev, "sid 0x%x (%s) status 0x%x\n",
+-				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
+-				cl_data->sensor_sts[i]);
+-			continue;
+-		}
+
+ 		if (cl_data->sensor_sts[i] == SENSOR_ENABLED) {
+-			rc = amdtp_hid_probe(i, cl_data);
++			if (cl_data->sensor_idx[i] != op_idx)
++				rc = amdtp_hid_probe(i, cl_data);
++			else
++				rc = amdtp_modeswitch_probe(i, cl_data);
+ 			if (rc)
+ 				goto cleanup;
+ 		} else {
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+index 81f3024b7b1b..44008c02b63c 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+@@ -181,4 +181,47 @@ void amdtp_hid_remove(struct amdtp_cl_data *cli_data)
+ 			cli_data->hid_sensor_hubs[i] = NULL;
+ 		}
+ 	}
++
++	/* note: cli_data->modeswitch_input implicitly cleaned by devres */
++}
++
++int amdtp_modeswitch_probe(u32 cur_hid_dev, struct amdtp_cl_data *cli_data)
++{
++	struct amd_mp2_dev *mp2 = container_of(cli_data->in_data, struct amd_mp2_dev, in_data);
++	struct device *dev = &mp2->pdev->dev;
++	struct input_dev *input;
++	int rc;
++
++	input = devm_input_allocate_device(dev);
++	if (IS_ERR(input))
++		return PTR_ERR(input);
++
++	input->name = "AMD SFH tablet mode switch sensor";
++	input->id.bustype = BUS_PCI;
++
++	input_set_capability(input, EV_SW, SW_TABLET_MODE);
++
++	rc = input_register_device(input);
++	if (rc)
++		goto cleanup;
++
++	cli_data->modeswitch_input = input;
++
++	return 0;
++
++cleanup:
++	return rc;
++}
++
++void amdtp_modeswitch_report(u32 index, struct input_dev *input, struct amd_input_data *in_data)
++{
++	u32 *sensor_virt_addr = in_data->sensor_virt_addr[index];
++	u32 value = sensor_virt_addr[0];
++
++	if (value == AMD_SFH_OP_IDX_MODE_TABLET)
++		input_report_switch(input, SW_TABLET_MODE, 1);
++	else
++		input_report_switch(input, SW_TABLET_MODE, 0);
++
++	input_sync(input);
+ }
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+index 7452b0302953..20aff7b75fbd 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+@@ -11,6 +11,8 @@
+ #ifndef AMDSFH_HID_H
+ #define AMDSFH_HID_H
+
++#include <linux/input.h>
++
+ #define MAX_HID_DEVICES		7
+ #define AMD_SFH_HID_VENDOR	0x1022
+ #define AMD_SFH_HID_PRODUCT	0x0001
+@@ -50,6 +52,7 @@ struct amdtp_cl_data {
+ 	u8 sensor_idx[MAX_HID_DEVICES];
+ 	u8 *feature_report[MAX_HID_DEVICES];
+ 	u8 request_done[MAX_HID_DEVICES];
++	struct input_dev *modeswitch_input;
+ 	struct amd_input_data *in_data;
+ 	struct delayed_work work;
+ 	struct delayed_work work_buffer;
+@@ -78,4 +81,7 @@ void amdtp_hid_remove(struct amdtp_cl_data *cli_data);
+ int amd_sfh_get_report(struct hid_device *hid, int report_id, int report_type);
+ void amd_sfh_set_report(struct hid_device *hid, int report_id, int report_type);
+ void amdtp_hid_wakeup(struct hid_device *hid);
++int amdtp_modeswitch_probe(u32 cur_hid_dev, struct amdtp_cl_data *cli_data);
++void amdtp_modeswitch_report(u32 index, struct input_dev *input, struct amd_input_data *in_data);
++
+ #endif
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 1d9f955573aa..cd9cff75f114 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -39,6 +39,8 @@ module_param_named(sensor_mask, sensor_mask_override, int, 0444);
+ MODULE_PARM_DESC(sensor_mask, "override the detected sensors mask");
+
+ static bool intr_disable = true;
++module_param_named(intr_disable, intr_disable, bool, 0444);
++MODULE_PARM_DESC(intr_disable, "override the interrupt disable sensor bit");
+
+ static int amd_sfh_wait_response_v2(struct amd_mp2_dev *mp2, u8 sid, u32 sensor_sts)
+ {
+@@ -317,6 +319,13 @@ static const struct dmi_system_id dmi_sfh_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP ProBook x360 435 G7"),
+ 		},
+ 	},
++	{
++		.callback = mp2_disable_intr,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "VivoBook_ASUSLaptop TP420UA_TM420UA"),
++		}
++	},
+ 	{}
+ };
+
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+index 2eb61f4e8434..5e968894ebe4 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+@@ -83,6 +83,9 @@ enum sensor_idx {
+ 	als_idx = 19
+ };
+
++#define AMD_SFH_OP_IDX_MODE_LAPTOP 1
++#define AMD_SFH_OP_IDX_MODE_TABLET 3
++
+ enum mem_use_type {
+ 	USE_DRAM,
+ 	USE_C2P_REG,
+--
+2.47.3
+
+
 
 

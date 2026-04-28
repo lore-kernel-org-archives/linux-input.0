@@ -1,137 +1,114 @@
-Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2237478;
-	Tue, 28 Apr 2026 04:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6C0827FB1F
+	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 04:14:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777349558; cv=none; b=ehmyI4+QtkOh02B1cD+pzT4AkliKHtFFAkZvSmYsXHGgE2bbyNXiT95zAnDo9tqqqPcb+buvI4HNW2pnGA0667mIORo5AdUD4dhJYTNYxtV5ZdNBv7y14EFbdUO3Un895aGEFM+DsGdezeCGtA2ORws1FQgW/oEY4nAUW1zPgIo=
+	t=1777349684; cv=none; b=uFPeOIzSaHACr5Z7sHRc4bv5I2KKLmPleOVgCpkAPkg22mBbtnUjFaYaVPALinqj+KaQBWV8ux3GPed2RVh+HqjpLoa1FnO0fjDn5rmVPuiJT1f6t18LNAAvcI2tXMhcTkShqELDr98h2DGgc8O0aGpMm8QvL+ZSg2oGVg1cBQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777349558; c=relaxed/simple;
-	bh=RdCNYgtTfUx2w+VEsHqK9DmXdFYgykhdOYA8kLFGzXw=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=tYaKE3goSsCx52nsMqrEukp5/Sl/T9Ibc+/8pXRFiLTpZR0LXVzv2g3FtT5D++soLIiCuy7B077tde+Wl2KcvMdP+LnH0nQnsLj+5Jd8EgfH/G1xwWkyak+o70qkqgbAA+5mZ68ma39qoa0aI62HYcvj4ZRnFuy2uYxqoUNPSmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=Gidu5s8F; arc=none smtp.client-ip=162.62.57.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1777349684; c=relaxed/simple;
+	bh=dIyVXV1vWjWkWQ8ruG4jjcBiCKLroMm3AaMH2Co8U/o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BvjOoI9DiBM1D31olE4qXg8VN6R187dH0zsgAzBvE5dE2EOeZEFbvTNTLeSVsGrKOzTXPG8psQuCFJyAZ0h047oIXtF+Sjw2ccYb5gocPMz/1W/mSyb1QOykVa3zBPkqJl7h2hw818jksGJ4HvESfobq8Yb82QO2HU4BX4T6+ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZfC4WT/f; arc=none smtp.client-ip=74.125.82.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="Gidu5s8F"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1777349550; bh=1Nt6ugEPShLCYKEr6+BVNpxdhANPlQCmEmONk5oMCbE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Gidu5s8FB3dgC4Y0T8o7Bt6g6MXwJTNjS9D0A7Jlck6mhzAuLqvgWW3BpSPU7WOPF
-	 nwWu6E0xsM06WkpZcd+dOOmyfQueniBr/1PaIaISLvfx2KQp268ySG5xSN6tDrBJB5
-	 H91rv9r50jYxD94gA9H3NffH9IO4f4KZX5ZtOIXg=
-Received: from lxu-ped-host.. ([111.198.231.89])
-	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
-	id 31AAAA9C; Tue, 28 Apr 2026 12:12:26 +0800
-X-QQ-mid: xmsmtpt1777349546tscspmme0
-Message-ID: <tencent_BB7C33EB9EA41B7B4B5F1B8B25C0BA13BB08@qq.com>
-X-QQ-XMAILINFO: MRMtjO3A6C9XhkF96blYDQH0VPzreY9tKY5JuknvLzdgIEAjNqWLdM9Dg8nldw
-	 c62V5Fp7hmu3D5bC+ppaDSTRgBOpo2vrct3aBswas/SwezWrSFP9CEDq7nOZcQkLtcRmsfYkSMBo
-	 Wtrn/I+EMDcmgFnqMcob9yLJ5zkXeaX+DHKmzxPQtVK5dTZDdt+DI3oj+LeUjD6qOdHXGepPVIGz
-	 7VufDrexR9nyOpG33zaRWDLiV3PC2fVQrDlr7ftO+K574ajdU+yhtp8Pgqo4Xah7zl2+UvWaiTOw
-	 cZbOKf4C+RiD7Ysul249AZgSi6xe5R6zRbf3c/E05YQTzGAhSLNLqz4u0fTM9Ew3bo204l7dQVbW
-	 TIptGNFIfSS3P3a6sOfPrrMi7sviIym0DwVCjc11+ezkQQOcVX4wccpKXqTbWk8yA8h0m17KCfKV
-	 iBowgNClmXRYmJXgIcRwmv4Ix2vJTFvCYjAWpkORkTQaqhnHjPKy8OEeyVYZ4Sgs7Jwcxkn8EdWy
-	 SZfhkfRXxEahQc34m3D1Epg/wwkME+gNIA6GLtnHdplkx02pU9T/hyihHDePDhEG0Ymiqo6yRttp
-	 wo5bEcAc3RSTP1PuuUUN+6xEh+hgnicY+wQEFIvvwHzQ1FN+y28tu907vN/gO5+bpATC4w2GZE56
-	 P8yiT+UkeTkJbrlNJrEu2mulRU7sX/I6gv/btBhp9bvhAU907L5PmiUMlT1ez9LrZzMaxIIO/VCZ
-	 i2brY6DLwTD+dPfSsLknwN119rXfSBNzhHIrsRXqoVbNcy28WRYupSGXCsgv6lmPg6+R3LjUy7QG
-	 44A/NHdmpRQIvfMJ0SLXHfCV1dZ32q+jl2p/WkCVS3pzNojihg705GaeKrKaNkiT/JVp3vCjnCOk
-	 qeT4Hkw+Z7qj0O9bIQPpjc9iCCudC9c8qKWfcjy7PqN7mXspeUYksQm4VKb5sOPju3zJAizzHk3p
-	 fjvpBGy3Q8ponppkAd4FdcNZo2BNCUqZEDniMhU0xbLv73FxUCyKjeYW5ZzaAWXNZ56pp4fTV3C4
-	 1rBFje17SQ4ckPz2FIyDGdlRVJiBI=
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-From: Edward Adam Davis <eadavis@qq.com>
-To: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
-Cc: bentiss@kernel.org,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: [PATCH] hwmon: prevent packets from going to driver for probe
-Date: Tue, 28 Apr 2026 12:12:26 +0800
-X-OQ-MSGID: <20260428041225.235251-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <69eed7e0.a00a0220.7773.0026.GAE@google.com>
-References: <69eed7e0.a00a0220.7773.0026.GAE@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZfC4WT/f"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2ed0a45e970so419433eec.1
+        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 21:14:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777349683; x=1777954483; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=kEz0oDUdcTpFuThs6YX23JY5C5KbjbJBY3HgDPzdlsM=;
+        b=ZfC4WT/fJJpZvEc6wpGFwfi8GMKcAJybsGz7JqB8sk40gvTnEA47n0HZI/HVh5d5ZC
+         W7g1VoPQ9oBNjlXolezxvo5Al9HBTooTJsLe/IqRoRDPWnUOHJwJpiKh4TQtYgTQxyPb
+         CcgRs18UAQj/MgVkorkqsUJLNNs5w/sZMlYf47ZKYeO5NQgcjUj17eY56ILgWYsoRK1F
+         eAso6/f5UBe6H1p947qiD4AXYcLYrE7EwuE9X9o3vzuQXHwmdht1hfbKBo8Beu5Aru/Q
+         RzARFFXZ1WVkt7mxmsDBgAH3Ikrf9+qmVfJndoCEvmTFktWVAqvRngXtXdsI6dVIDBr7
+         my0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777349683; x=1777954483;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kEz0oDUdcTpFuThs6YX23JY5C5KbjbJBY3HgDPzdlsM=;
+        b=NLS55iho8zpaX8wH/tG2llWzmVE+OpourhRjFuSSOMwD3rqxO4GuJGHePOtxztArd/
+         MqEVx8bYeMlVVMmrU5FITjdzjxbwFsPdwegxOnBsFIDRKrb+IAg1/H5+P1RFTJsOySuj
+         IIvp2RTDwaFkKsLE2ANExkVwFpU1N4/uJePqCB1hVO7WtG6FILgoYnt1r49O4p5xuCPj
+         ehJMRJD4z9mUvikCV0BDks3Yf5jpmrGA1Zc9K6q0untO3nQKMt1B14gr1pLyp4tyK6Mc
+         4RAsp8FUDlv1uNdkZYFuTi2sygXs9PbR/nn+hszjGLA6RO5hKxqewfGpWaTjEVLpYNwO
+         KTag==
+X-Forwarded-Encrypted: i=1; AFNElJ8srIEiiPB6D85XpPzYIT0L9mBCFjJDQechOsr2uiqdGKauarISOessuriLpGtOpGdYkn82R3mBciS5Nw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzI7lVxZCeLyCnvq3xHF1sCiMJVklTsveDRh1NAd5D5w0QGZKik
+	WQWk0jSQA2EnMsHZDNOcgQH4jfEqRbua5ztsyQy1iIsSvPCTVvbVVPXX
+X-Gm-Gg: AeBDiett0s+7hU/YSsI7npkhhmZP0YNC0ABfp0X+1TxdP6xKBAwr4Sir5XXUNZxtwCq
+	7eRRPIs4642zfFR7s35xw5Njo53ZzHDkLFR9T3i4ySBRxov5mvCHyBBOAhyZIrHODOqug7tJQL7
+	I3cUVXsBOvByahd9gtNC5ywxvujCJcc6CySW/kP1YifsHN07peV9EnmQSo/UnyIkNNM3UNHrvBI
+	1zdk1YioCtfornVVe/eYj7KCA29tq/5Pp0LxdHRnXG7T91UlSN5DNwaHKVzn9GaYQXWF5pKw0r3
+	FJtI6Pyh1jmjX4lEwO/6vvHRcQy6gtlKr5O1b7Ur06hR6KiTJT1mYT1tspxp4J2SSZpVrvf4hVr
+	ZEx4zky89Jsq0WE9+VM+S0q4uv8lpHadEXSZDXIZd8qlGnVMgdkWH5xY2LG4HIbvkJdJfwoImO0
+	5NfuD1UZLfoMEKNvg/cMP+W71MljAPLYSFwxS3dFUn/9aoR4IfmS6NXyczYNxQR9H2P3X9i8Tmg
+	rHM764WElhx8Q==
+X-Received: by 2002:a05:7300:6147:b0:2c1:7afc:df06 with SMTP id 5a478bee46e88-2ed09f92a3dmr773004eec.5.1777349682735;
+        Mon, 27 Apr 2026 21:14:42 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:e678:f42a:a63c:516c])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ed0a10650esm1250234eec.22.2026.04.27.21.14.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2026 21:14:42 -0700 (PDT)
+Date: Mon, 27 Apr 2026 21:14:38 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Matti Vaittinen <mazziesaccount@gmail.com>, Lee Jones <lee@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Gatien Chevallier <gatien.chevallier@foss.st.com>, 
+	Marco Crivellari <marco.crivellari@suse.com>, Fabrice Gasnier <fabrice.gasnier@foss.st.com>, 
+	Andreas Kemnade <andreas@kemnade.info>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	Charles Keepax <ckeepax@opensource.cirrus.com>, Christophe JAILLET <christophe.jaillet@wanadoo.fr>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [v2] input: gpio-keys: make legacy gpiolib optional
+Message-ID: <afAz-UQY0aCaThV3@google.com>
+References: <20260427143406.3020992-1-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260427143406.3020992-1-arnd@kernel.org>
 
-A race condition exists between hid_input_report() and the point
-immediately following the execution of hid_device_io_start() within
-corsairpsu_probe(). If the probe operation fails after "io start" has
-been initiated, this race condition will result in a uaf vulnerability
-[1].
+On Mon, Apr 27, 2026 at 04:33:49PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Most users of gpio-keys and gpio-keys-polled use modern gpiolib
+> interfaces, but there are still number of ancient sh, arm32 and x86
+> machines that have never been converted.
+> 
+> Add an #ifdef block for the parts of the driver that are only used on
+> those legacy machines.
+> 
+> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+> passing an IRQ number instead. In order to keep this working both with
+> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+> the gpio number if an IRQ is passed.
+> 
+> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> v2: skip the fake GPIO number passing from mfd
+> ---
+>  drivers/input/keyboard/gpio_keys.c        | 7 ++++---
+>  drivers/input/keyboard/gpio_keys_polled.c | 2 ++
+>  drivers/mfd/rohm-bd71828.c                | 1 -
+>  drivers/mfd/rohm-bd718x7.c                | 1 -
 
-CPU0				CPU1
-====				====
-corsairpsu_probe()
- hid_device_io_start()
-  ... unlock driver_input_lock 
- hid_hw_stop()
-  kfree(hidraw)			__hid_input_report()
-				 ... acquire driver_input_lock
-				 hid_report_raw_event()
-				  hidraw_report_event()
-				   ... access hidraw's list_lock // trigger uaf
+Let's see if my patches to rohm drivers will get accepted and then maybe
+we can remove legacy gpio API from gpio-keys altogether.
 
-Consequently, when corsairpsu_probe() fails and hid_hw_stop() needs to
-be executed, the io_started flag is first cleared while holding the
-driver_input_lock to prevent potential race conditions involving input
-reports.
+Thanks.
 
-[1]
-BUG: KASAN: slab-use-after-free in rt_spin_lock+0x83/0x400 kernel/locking/spinlock_rt.c:56
-Call Trace:
- hidraw_report_event+0x5d/0x3a0 drivers/hid/hidraw.c:577
- hid_report_raw_event+0x311/0x1730 drivers/hid/hid-core.c:2076
- __hid_input_report drivers/hid/hid-core.c:2152 [inline]
- hid_input_report+0x44e/0x580 drivers/hid/hid-core.c:2174
- hid_irq_in+0x47e/0x6d0 drivers/hid/usbhid/hid-core.c:286
- __usb_hcd_giveback_urb+0x3b3/0x5e0 drivers/usb/core/hcd.c:1657
- dummy_timer+0x8a9/0x47d0 drivers/usb/gadget/udc/dummy_hcd.c:2005
-
-Allocated by task 10:
- hidraw_connect+0x57/0x430 drivers/hid/hidraw.c:606
- hid_connect+0x5bf/0x19d0 drivers/hid/hid-core.c:2277
- hid_hw_start+0xa8/0x120 drivers/hid/hid-core.c:2387
- corsairpsu_probe+0xd9/0x3c0 drivers/hwmon/corsair-psu.c:782
-
-Freed by task 10:
- hidraw_disconnect+0x4f/0x60 drivers/hid/hidraw.c:662
- hid_disconnect drivers/hid/hid-core.c:2362 [inline]
- hid_hw_stop+0x101/0x1e0 drivers/hid/hid-core.c:2407
- corsairpsu_probe+0x327/0x3c0 drivers/hwmon/corsair-psu.c:826
- 
-Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
-Reported-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=9eebf5f6544c5e873858
-Tested-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
-Signed-off-by: Edward Adam Davis <eadavis@qq.com>
----
- drivers/hwmon/corsair-psu.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hwmon/corsair-psu.c b/drivers/hwmon/corsair-psu.c
-index dddbd2463f8d..4e766bf32189 100644
---- a/drivers/hwmon/corsair-psu.c
-+++ b/drivers/hwmon/corsair-psu.c
-@@ -823,6 +823,7 @@ static int corsairpsu_probe(struct hid_device *hdev, const struct hid_device_id
- fail_and_close:
- 	hid_hw_close(hdev);
- fail_and_stop:
-+	hid_device_io_stop(hdev);
- 	hid_hw_stop(hdev);
- 	return ret;
- }
 -- 
-2.43.0
-
+Dmitry

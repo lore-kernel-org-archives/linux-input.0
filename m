@@ -1,97 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11733947B0;
-	Tue, 28 Apr 2026 17:15:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5790F47279E;
+	Tue, 28 Apr 2026 18:12:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777396551; cv=none; b=crxfjioenMMKyPf2u51pgfhyekH3mG0GXuumSI3/rF93vWtUvRXSGzhMiarB0NMbz9k2J41gr1/aVBrtw+Ej0KK1Wy6vwVopTOw54nl8lHzTCirbwBKymlLwZGbx64zXo0MbdO/M+vZt5Cv5LF1C0wv1+y32ms2eHb/P/W8WY60=
+	t=1777399978; cv=none; b=om/vzJOxxOtZqSAhDnWJv7iFJBeZeBqrlSNL11TzvJG0xVKx5Rg5oAcVjBEOxSzVW+Ea72c9/YR0ga9hvOdUSxls52qQtM+MePmD36SJV+v4QcFL/zEE5xmJeS2U5GduAy4sDGU1EOITRjEKqLb1lS/EvYhzPGSmzO1BvxgTd+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777396551; c=relaxed/simple;
-	bh=QWfEq6gUlnAeK6XQ6Qanv4z6/M5X52A4bB2elgt2z4w=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=M1M3oZt0KYKIP7O7QGXAZniZvDdOeOlykCtOoOBsqBSoGHsjHsyXWeCGuKEdapQ6j+1l5WQm6oh7sBQGZ/faT0+eF3tg1QwZNHnjlwVpCh252xc6ZxxsW8Bocw4t6P4ZSw5NJ3B6EDr4UXMVos3H7w4zLF4wvVFyJ11+X9PXMoI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I1xtkjv3; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777399978; c=relaxed/simple;
+	bh=z/B96qf1K/NvZuga2ktlNvxm+UAaKNFzwLpC03Lk3GA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=KeJDyVDQ5ZZTFnl6+3KTZH3QUd6Z2cKEPT0BTTWtFsCRLZx73A3Zmq2VFX7O0cQJeuEMqiJXFmgpFgV7yB4sTw7mibQmJRb2iWU2i4/A7YbitVmKu2FlsLqeQT8rExrfje9Ibw29/4CRoStw4SykiymH9Es4RIymVOyk6ocKMlQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b82WKQGn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I1xtkjv3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B99C2BCAF;
-	Tue, 28 Apr 2026 17:15:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b82WKQGn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F39C2BCAF;
+	Tue, 28 Apr 2026 18:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777396550;
-	bh=QWfEq6gUlnAeK6XQ6Qanv4z6/M5X52A4bB2elgt2z4w=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=I1xtkjv3s2UMpQSKJiMlo/BpkRkkOuE0sudgr/xnfXf6C4Ccyn5msPuZ2A8aq6mSE
-	 PpfbDElRewlLf0NXAL5E2+DJnKlzJX2Em3MhjGdtB2dieqA4zdR8cTm8hVJPPrTjAp
-	 AHkrYg0q1K8N6cc6aFUjjHmZ6NS2ZBGhYc619kFNCwCBwrwBCCLXGQ8y2AtfRNAAHR
-	 OXLiGeAk20Wk1nUXxw/N2EB+jGeXoqQP763nWe1YU7pQiuWgW1ILnN0NXw3z3PRa39
-	 3pfL29V7esdUOfutEMLDZXcv5cE9zbzOxd5JckG/3b0q92o/wlAqBqT1Y1stIqIexV
-	 XtcnpqNDDz90Q==
-Date: Tue, 28 Apr 2026 12:15:49 -0500
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=k20201202; t=1777399977;
+	bh=z/B96qf1K/NvZuga2ktlNvxm+UAaKNFzwLpC03Lk3GA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=b82WKQGnuKCXEIxGEf/9Rxee78c5poBTMy1UAdfzMauUkQwsQDRf/gQ6dg9eZ8SxT
+	 v3shUgMMj28ir9ROfaQkDQODSWxPGuamHGgHbUMWj0VkaVitcQrc1kdAZEZbHcb0Uh
+	 0LZUbq7O9R3cNcUzPavIxoiKwwnVr7Xq+HwzZn0MygeBvFcowTOdoh2ECCtzl879KH
+	 c5RS2+8a9b1+Miq/LPV4ZByilQapekRCfHjRUWHS1pemh5X/8ncIQYNRGQ3cZgLLHY
+	 ABvTVoyhUf8pFPmE5epqAcAXTRBnq9JCMvJ6b/7AD442VDNMUisWbtXB7qvOgfCCXs
+	 k51+VHhjfXRnQ==
+Date: Tue, 28 Apr 2026 19:12:46 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: =?UTF-8?B?TmF0w6FsaWE=?= Salvino =?UTF-8?B?QW5kcsOp?=
+ <natalia.andre@ime.usp.br>, andy@kernel.org, bentiss@kernel.org,
+ dlechner@baylibre.com, jikos@kernel.org, nuno.sa@analog.com,
+ srinivas.pandruvada@linux.intel.com, Pietro Di Consolo Gregorio
+ <pietro.gregorio@usp.br>, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 2/7] iio: accel: HID: Replace method
+ accel_3d_adjust_channel_bit_mask()
+Message-ID: <20260428191246.152c2972@jic23-huawei>
+In-Reply-To: <ae8upGN9ILmtCzeA@ashevche-desk.local>
+References: <20260421222210.16016-1-natalia.andre@ime.usp.br>
+	<20260421222210.16016-3-natalia.andre@ime.usp.br>
+	<aeiPuxj2TRLNRbv1@ashevche-desk.local>
+	<20260424200847.78494f27@jic23-huawei>
+	<ae8upGN9ILmtCzeA@ashevche-desk.local>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Conor Dooley <conor+dt@kernel.org>, linux-leds@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Tony Lindgren <tony@atomide.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- David Lechner <dlechner@baylibre.com>, Lee Jones <lee@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 
- Pavel Machek <pavel@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-In-Reply-To: <20260428153611.142816-3-clamor95@gmail.com>
-References: <20260428153611.142816-1-clamor95@gmail.com>
- <20260428153611.142816-3-clamor95@gmail.com>
-Message-Id: <177739654665.2299307.14959755210536638419.robh@kernel.org>
-Subject: Re: [PATCH v4 2/6 RESEND] dt-bindings: input: cpcap-pwrbutton:
- convert to DT schema
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, 27 Apr 2026 12:38:44 +0300
+Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
 
-On Tue, 28 Apr 2026 18:36:07 +0300, Svyatoslav Ryhel wrote:
-> Convert power button devicetree bindings for the Motorola CPCAP MFD from
-> TXT to YAML format. This patch does not change any functionality; the
-> bindings remain the same.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  .../bindings/input/cpcap-pwrbutton.txt        | 20 ------------
->  .../input/motorola,cpcap-pwrbutton.yaml       | 32 +++++++++++++++++++
->  2 files changed, 32 insertions(+), 20 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
-> 
+> On Fri, Apr 24, 2026 at 08:08:47PM +0100, Jonathan Cameron wrote:
+> > On Wed, 22 Apr 2026 12:07:07 +0300
+> > Andy Shevchenko <andriy.shevchenko@intel.com> wrote: =20
+> > > On Tue, Apr 21, 2026 at 07:20:34PM -0300, Nat=C3=A1lia Salvino Andr=
+=C3=A9 wrote: =20
+>=20
+> ...
+>=20
+> > > > -		accel_3d_adjust_channel_bit_mask(channels,
+> > > > -				CHANNEL_SCAN_INDEX_X + i,
+> > > > -				st->accel[CHANNEL_SCAN_INDEX_X + i].size);
+> > > > +		hid_sensor_adjust_channel_bit_mask(channels,
+> > > > +			CHANNEL_SCAN_INDEX_X + i,
+> > > > +			st->accel[CHANNEL_SCAN_INDEX_X + i].size);   =20
+> > >=20
+> > > Indentation is broken. Taking into account that the last line is too =
+long when
+> > > properly indented, perhaps
+> > >=20
+> > > 		hid_sensor_adjust_channel_bit_mask(channels,
+> > > 				CHANNEL_SCAN_INDEX_X + i,
+> > > 				st->accel[CHANNEL_SCAN_INDEX_X + i].size);
+> > >=20
+> > > Which makes it most right and under 80 limit. =20
+>=20
+> > Why the double tab? Maybe just go long on this one and align after the =
+( =20
+>=20
+> I never know when you are strict about 80 limit :-)
+>=20
+I was meaning vs single tab really.
 
-My bot found errors running 'make dt_binding_check' on your patch:
+You are slowly wearing me down on the 80 limit by pointing out lots of
+cases where going beyond it really helps! ;)
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-
-
-doc reference errors (make refcheckdocs):
-Warning: Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260428153611.142816-3-clamor95@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
 

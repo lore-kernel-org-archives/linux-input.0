@@ -1,120 +1,139 @@
-Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8ABC23504B
-	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 15:01:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 986B738AC91
+	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 15:36:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777388494; cv=none; b=dcevY0pEdCZfLF5e3cLOcRqzFlwhoHg0jF7qdqw9FdgkRzz/cbWYyVTF2NPfG+l4tdKLcpuD6pLHQYgQWB92r7hYe+lcOMMdPbXwUh9ZTAV1UA0RkA4O2bUWSdgJEw3Tz3wc6TRUx9/kebBx+K5i0tTXSDgyBnLEdhoiXQh0Lfw=
+	t=1777390597; cv=none; b=OtC45M9GThmGJhiqHmThOt/hRNeNP6aIRbxBfrvSO41CEvwP7nhBihNXxL3cjXFW5qPojLmKI6vqCd/+VUsPdp956WJoPuyK8RGbCC5LepS+gWFWMf+K0IV49y+rI1tMbKqfD8t3QQaf/E0lHFczrVLfY0HcBMjkXJ2I0RjlpwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777388494; c=relaxed/simple;
-	bh=nLpPzCe2ljuL0sRb2p6KAKmnsPQb+LnUenFd07PXUys=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EuaK3YDBcrpcgxbHf6DNW9M+Lrq7t4mgJzT+hdkT2+p/k8Sh5Q3YY2RuLf7JBomKl1exhDRjghXJANf9/cow2rb9n7h88iF0ypDlawRT/4xEENYp/AoMWyjhGfakYu0GYm2AZu6id2BwyuHM7oKVh+ccklYXhipcXBXNXTsIc00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pS6dVqXv; arc=none smtp.client-ip=74.125.82.172
+	s=arc-20240116; t=1777390597; c=relaxed/simple;
+	bh=DS7IGgGnbIXdTV3Ckzjjp/VaA8K3sQmCMzuIXSeyGfQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NLei3ysh99X+s7f1YITWhe+jkKttFJSkDFMEXgzrGLedLCCR9VFTh+/6SUhb2cEb8ACWVKRQzA3C8ONBGLD5jnQRHYMBZGWEkmQuqZwe1ljfE8No9NMwwYT6MTBTCD2GWOwBXAY1IDFUBACoAUa0vRiNxsw4FqXgq5SO2BkHNo0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HtfWfNKP; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pS6dVqXv"
-Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2ed0a45e970so969502eec.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 08:01:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HtfWfNKP"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4893940bb5eso62477025e9.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 08:36:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777388492; x=1777993292; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=INMBOsmLdoiLumBVRra1XlRsxSOZVzfiWs4rBqTbmEE=;
-        b=pS6dVqXvYd7yNReifz9gEY45F2SHZK4C3LRGd1RpCQLA5gbRJQc1f0SKANQ447ZwEc
-         CPF/TGJZklmk6lc6t25CtGlhWAvIIyDm5YjA99p+uWQaXjSPvc3VmNj1BXzgnU5lvebB
-         ONBaFMQVIVGn6NvbBWxoPzsspWktJ97frJimvpb1kf0Si8ITjg2utpn9oj0nmdtLyemy
-         aATH15gECz1Rhou2+xjd0Xs9R8GMf8k3rOavZwQ4JPDya+YdDXDwHQzyAbV4OO0rMAl6
-         Lw/OHITW5qAU9gBsxPTWotmOU+4rtjNF3KJs0lSIuV4+wD3NACudtqZbwyEuuf3rmy3V
-         3TfQ==
+        d=gmail.com; s=20251104; t=1777390594; x=1777995394; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6ptl6Lh7lPIlpY98SxXugxOD9pHianxtP6o9VGnO134=;
+        b=HtfWfNKP+FzEIYqUx0AKZvRh3pQbWZzYID3Fk6aRmF1ChVYFf650ZQF/myLrhUf3x4
+         k2RiOmnG3G+1NiEn6gXaL+ILGh6IXxZJHhTth7NRHJMR68lH34tXhbG2KPT7UDZTGlw+
+         PwpGBYPfr3/q2DLEe2f8D/kPuqbqZnuNa9gN+XdVtrZ87qMs8CVPvlMOdfesODx7Kgwq
+         Nx0L+iMFbqOk4PUGo6JS0mXENafaMzVU8ngmN15368JbOHGPBuc6zkSS3scjOuMiwwpZ
+         Xs514eCjJq3GLK+7SUwDFVBBrBEJaDb4sjeZAuM8IkiijZUuzktoitgVNnj+BQoIGgax
+         d0dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777388492; x=1777993292;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=INMBOsmLdoiLumBVRra1XlRsxSOZVzfiWs4rBqTbmEE=;
-        b=Be2rSqpOX/8q48TTm8vf7e+CBlQRAXWbVstqPGcKMFYrJbW7zvnJMrDn8g96d+TbEs
-         E3cIdx9v/vJ3ihgKKJATWGwmNUuuulvG1/gq6bWbAJtHborxkMzyIYyCDt5/bfGe6n+i
-         jyFgUnW9CjahKXAc1nl9//t5MngZUN3+uscot64+gaB5Fcj4PL7lowikPeIUsWdH4eB4
-         g5EOV5BUwMd9WEePvO5GFLIwe1rIUEMNB/1jpU1mB5PET++udVPOVi145AXXfDRcEyq7
-         aVIbls0mco1cohd+UkOhLNzOXJQopeguais17xKmfLsV/uEPkyulJ7Cx0k2Luo1GAE3I
-         UYBw==
-X-Gm-Message-State: AOJu0Yxx7CXh2xN4JtID2yoPqNBtozApL4ouVowUi1GBtvWRV8WfRopX
-	BXkLgDuNo43LNFim+CG67EkNf8zb44ix1QN34NDoE7t+kUKC8lZWCC4d
-X-Gm-Gg: AeBDiesBi17uuWt5E4mZujQ0OfiFNDJTlFXv2nHdzfdfi5Bkp5bZ1sNZAcDR+t5llvw
-	+4DLNgFzWbesLflo2gxkgVHnYDd8IRKK2QJOF1clXVMD+xAd+i2Ja2QxmqJOFIEEsNOfNXz10Uf
-	bdKFf8AlfcfNB+i40pMRjmUpV+Gee8+WUc67pFuVkZru/Wk+UrHgfYJ6c56QG4MH7WIfTEh7R0C
-	/5xBzFLGALaYdan0FWmkcg8TUo86IGNTHWfhhiGyNWesZKMXP/3KJct7lU126Jo4+OKkdDpbyvQ
-	dzTUarxBT8SdGVFom0uK2K5pLmsJnYiWrpkXjTZTE8EErk/exHeSbZrT02j/TJ/2R7izx6Vj+fX
-	k4ImnlCqoNkaEbPfrPePesjVwiN/NRtFthMkwVu/vCGmOQh5gZefjKeKnmNcUZxOCMSBZGfwiYt
-	pWmX1ZoqbVgvNrBpQblEOX6w+hL+TWqUtcXbaAah/u8zdMWbUneUvwhe2UsEHhD0tqbHgMAWrMF
-	5I=
-X-Received: by 2002:a05:7300:2319:b0:2ed:e12:376b with SMTP id 5a478bee46e88-2ed0e12877cmr1147727eec.33.1777388491554;
-        Tue, 28 Apr 2026 08:01:31 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:e678:f42a:a63c:516c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ed09f8a909sm2669108eec.4.2026.04.28.08.01.30
+        d=1e100.net; s=20251104; t=1777390594; x=1777995394;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6ptl6Lh7lPIlpY98SxXugxOD9pHianxtP6o9VGnO134=;
+        b=pxFuaFsQQGaGtsXJQK0fMW/18BqtO46BbVtGX9BlMkcjubQRU5f8YwObmTjkZGueH9
+         kRq3RrK4WDUFB1Z+LyqZAubuzDjAlWRdlgBdKNISQ3xUWDoap4JjVFUgITZJwm6FLXet
+         EW5mkzlbyeqD+ysrQHr+df8N/0meW8vA6YvunMTx7cOTNz2u//26GWFhedXiickCVQgr
+         jlXja/5FoALim/ij1Qoxwnnl6NYC2FWCMZOVkyf4eBKbtHJerI9wmpyv26GZe9SY9sQU
+         i+sn+HI06oUeNO0DcZ9/ZHm06Ot1XWTXZQytt5wpH88/EkxgfIL36/aBZOSy3pPzg9m9
+         /EYw==
+X-Gm-Message-State: AOJu0YxM7ldaXSvTmTtM8s1OSmTLQFpr7S2oeBMiOuCGE0sxIVn3cpAQ
+	nxiMHC5zSvq41qQ6znvtyiXNC1xYIxtc4om/AGRVQiCxM/mziLFmhyGb
+X-Gm-Gg: AeBDieukWFmZ7VeAxyR539TxijvBmVQAQpRUwceFe9n9mW+cNbORSwHxF67IbcNRY5M
+	CCY/y4nLHWvOaIe5EnWeLRFUh83bCC8HN8nmi1Hn3yteEWZRE0Lw49kqP871eGbvIpl+y0ZONwd
+	MTYQ+/skc10t+KKG78EsoUPt21fTcdALuCKtaCjLiX+GYFLrC5/2VU4vpIv5TUJMTyg2WI1I+wl
+	z3SG2Cz+5Fv1aoQ0EXStCHvYxq+AUmg2i5Dt2bI+SA1vvTHIdBjloR9G2gZ0GQid32Wc7+bZXiG
+	wMXOQnD/2fqk+9QIF5oDrYu41Newg8plzslsNtyC3caoAy6sSJCT7byLihaPH4BqtPIKeIYeW4h
+	DhwELEcr1f597Qo5atqY2DPeK2Mv2dmnt6FGOM39fXYSbxjffRbo7o5Ye32/dXvqAuEatReCS91
+	grmRsCwVHQzEe4T1laXMo989U=
+X-Received: by 2002:a05:600c:c109:b0:489:2005:b36e with SMTP id 5b1f17b1804b1-48a77b179ebmr44911195e9.19.1777390593844;
+        Tue, 28 Apr 2026 08:36:33 -0700 (PDT)
+Received: from xeon ([188.163.112.56])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7b56c2d0sm1358875e9.11.2026.04.28.08.36.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 08:01:30 -0700 (PDT)
-Date: Tue, 28 Apr 2026 08:01:27 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ginger <ginger.jzllee@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [bug report] Potential order bug in 'drivers/input/misc',
- particularly 'ati_remote2.c', 'cm109.c', 'keyspan_remote.c'
-Message-ID: <afA2VUnd1GxWs055@google.com>
-References: <CAGp+u1aFTivN-EC5QQaQ=j21GaGHktunHEzWQ9e2uASsE40svQ@mail.gmail.com>
+        Tue, 28 Apr 2026 08:36:33 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	David Lechner <dlechner@baylibre.com>,
+	Tony Lindgren <tony@atomide.com>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v4 0/6 RESEND] mfd: cpcap: convert documentation to schema and add Mot board support
+Date: Tue, 28 Apr 2026 18:36:05 +0300
+Message-ID: <20260428153611.142816-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGp+u1aFTivN-EC5QQaQ=j21GaGHktunHEzWQ9e2uASsE40svQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Ginger,
+The initial goal was only to add support for the CPCAP used in the Mot
+Tegra20 board; however, since the documentation was already partially
+converted, I decided to complete the conversion to schema too.
 
-On Tue, Apr 28, 2026 at 12:18:46PM +0800, Ginger wrote:
-> Dear Linux kernel maintainers,
-> 
-> My research-based static analyzer found a potential order bug within
-> the ' drivers/input/misc' subsystem. I will use the potential bug
-> found in 'drivers/input/misc/ati_remote2.c' as the typical example.
-> The similar potential bug patterns are also observed in 'cm109.c' and
-> 'keyspan_remote.c'.
-> 
-> Kernel version: long-term kernel v6.18.9
-> 
-> Potential issue:
-> T0:
-> ati_remote2_disconnect
->     --> ar2 = usb_get_intfdata(interface);
->     --> usb_set_intfdata(interface, NULL);
->     --> input_unregister_device(ar2->idev);
->     --> usb_driver_release_interface(&ati_remote2_driver, ar2->intf[1]);
->     --> kfree(ar2)
-> 
-> T1:
-> ati_remote2_store_channel_mask (registered as the device attribute
-> function and exposed via the sysfs)
->     --> struct ati_remote2 *ar2 = usb_get_intfdata(intf);
->     --> ar2->mode_mask = mask;
-> 
-> In T0, the interface is nullified before its get deregistered. Thus,
-> it is possible for T1 to still get the usb dev and access it via the
-> interface, which, however, has been already nullified or even freed.
-> This similar pattern is also observed in 'cm109_usb_disconnect()' of
-> file 'cm109.c' and 'keyspan_disconnect()' of file 'keyspan_remote.c'.
+The CPCAP regulator, leds, rtc, pwrbutton and core files were converted
+from TXT to YAML while preserving the original structure. Mot board
+compatibility was added to the regulator and core schema. Since these
+were one-line patches, they were not separated into dedicated commits;
+however, the commit message notes this for both cases.
 
-Driver core is supposed to remove sysfs attributes before calling
-remove() or disconnect() (see drivers/base/dd.c::device_remove()) and
-sysfs ensures that all threads leave sysfs show() and store() methods
-before the call to delete the attributes returns.
+Finally, the CPCAP MFD was slightly refactored to improve support for
+multiple subcell compositions.
 
-Thanks.
+---
+Changes in v2:
+- fixed code style
+- rtc conversion was picked, so patch dropped
+- added audio ports description into mfd schema
+- splitted schema conversion and compatible addition
+- minor style improvements and typo fixes
+
+Changes in v3:
+- added regulator node names list into pattern
+- filled spi_device_id with driver data
+- ADC patches were picked, so changes dropped
+
+Changes in v4:
+- dropped regulator patches (applied)
+---
+
+Svyatoslav Ryhel (6):
+  dt-bindings: leds: leds-cpcap: convert to DT schema
+  dt-bindings: input: cpcap-pwrbutton: convert to DT schema
+  dt-bindings: mfd: motorola-cpcap: convert to DT schema
+  dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
+  mfd: motorola-cpcap: diverge configuration per-board
+  mfd: motorola-cpcap: add support for Mot CPCAP composition
+
+ .../bindings/input/cpcap-pwrbutton.txt        |  20 -
+ .../input/motorola,cpcap-pwrbutton.yaml       |  32 ++
+ .../devicetree/bindings/leds/leds-cpcap.txt   |  29 --
+ .../bindings/leds/motorola,cpcap-leds.yaml    |  42 ++
+ .../bindings/mfd/motorola,cpcap.yaml          | 419 ++++++++++++++++++
+ .../bindings/mfd/motorola-cpcap.txt           |  78 ----
+ drivers/mfd/motorola-cpcap.c                  | 151 ++++++-
+ 7 files changed, 626 insertions(+), 145 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+ create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
+ delete mode 100644 Documentation/devicetree/bindings/leds/leds-cpcap.txt
+ create mode 100644 Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+ delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
 
 -- 
-Dmitry
+2.51.0
+

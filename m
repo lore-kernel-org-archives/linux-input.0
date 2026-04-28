@@ -1,62 +1,62 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91F53AB262
-	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 15:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52CD935A384
+	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 15:36:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777390603; cv=none; b=stnGTvgQVc6AiCOqzoECaXIoE/K/2jbqANZmMKI0OuJKuR7Y1EOsMo/bBMTC0tjzk1rZaCrDT1eFkShCJLhiQ3uiVOG5xxgjtH2VtFHa721fHG8aaMKlDXoGteZ3D3IlBevCjv4aRvZKqA3b4qHKnRKBx4VZ3h8bpVgNc4jXiZE=
+	t=1777390605; cv=none; b=grIe9GRiNaCm+6xpYmMlCWTjMXFaeGd/QwHqcKq3Uob1ZFsPffuiF1v0+LnfhVvCwU8chqs9bfzxBPdwIkiVVK+v2Mo1EgCTVW35gknIR8Keer8mc/fFZaYc7iA2WXARw9ZEl0mcGfquUO7Vf444XIylfjgiHS8rdlon7duqwCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777390603; c=relaxed/simple;
-	bh=0gEwZwS/FYqnGRZ59VSyvYE3yvqWMDCYZCh5Jh3+mCc=;
+	s=arc-20240116; t=1777390605; c=relaxed/simple;
+	bh=w1dOcGnTI59GCQNhwQP6xzsT4wAulf/UcemmHchCPqw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=P/M1y/L+2HvJwjsZRp14MAHU3UWLw3lZ1MAoxvkWl9i5UBl4F4WAH1t/LqhGP7Uo6eWiecZr0gA/pkaK7PjmmAnDCGXQPUJw5986PGqKTXoAzWP9QRIQC8E3NUNjhf97P18dVnXY2hq7xHFOqfYsj+W//nxax1B7OQ8eda5UwQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r4nYMmJk; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version; b=Di0uMZ1wy2N9Zze/xLtSwn0sjT/SbVdotUWPVWHs88qwDNDC0LnYKDL+JyHdOg/MiNFTtKxU7AaaSKsqKGyA2Q6nPmZXVSRKbZKXhPiB+Y4/89HbcEKdlpVo2v+rXg2IqxqMGee37jNRNR31H2ISNLPqbAqa3U/BPTbbURyRezs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C3Q0+Ha3; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r4nYMmJk"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-488af96f6b2so152916885e9.0
-        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 08:36:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C3Q0+Ha3"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-48334ee0aeaso120999405e9.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 08:36:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777390599; x=1777995399; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777390601; x=1777995401; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=l4Ch5JjZSDRX/44ND7WHKAD/uEQw2ql3s+wN8Su8rG0=;
-        b=r4nYMmJkiJTzRJALEoN24245AHb4CqIdo17Jns3G8n63iDncjs01KiHsuYg0Sqpspf
-         BfJfemDC7I0uzEUtAwYY1auLUAkmBb88nZ9xETv2Jv5gZ1/zpCrMOr3FAlJkAky6ZT4l
-         ydUwXHZR5eE4l6u83FeKOPRudATyx4Gyz3gjK5AoWOKGcZeT3zpCmmfDXKvAM0QBsOLR
-         MqhLoGMXCQ1UvfO0uDe4XAIQff+KYQ9BXR6Kzj6X5wKZ5qYZ6KchatBo9oz7J3nD/pNY
-         U59W1xbdTkysfrL+xH9nVPcHfgFc62ljOEdYwVsTQr9Ca1jWJfBxg6z6p4h/wzzhCWxX
-         064g==
+        bh=53/v+YSG+6GYj3ywOiaHOLUwr98tdqBSh9I2cLizLtg=;
+        b=C3Q0+Ha3niA+phA2/JO6CfVgc1Z+kbW/DmXN3FUc5Qch7M5fzGHyJ+DwXZf7qo6zcU
+         Xudbu/FyVlr8RqaQYfJQpBtchVqDKSerH8tthnh/4qi1qN+CBE3/8yOZeUrEU0qVQSgS
+         bu0N9t1a60RgDhr+Fh0MpaL3aMskjuq/bG4VUv5QHv0RwyeSIgDpFiNPRjwworGND5RT
+         ixBEacwrdMKArQTg2ioFkkarciD/vyozMPjSF6QFw38Iz2HUmq0eyXXo14+oCy15qZXi
+         9QMEPjlifBACQe1tXZitXLIX4Z6/aLhYg1vBpQ+lutnm1vhZvFQiu88pfDjamEQ2G/9Z
+         KIQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777390599; x=1777995399;
+        d=1e100.net; s=20251104; t=1777390601; x=1777995401;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=l4Ch5JjZSDRX/44ND7WHKAD/uEQw2ql3s+wN8Su8rG0=;
-        b=f3EJqvgsPjk3PIk7XC3GMqi1cFzl48R5IHU4Lodpc3IiHM7cLc9Wdt3d3xvmPQFR6z
-         R0cQKO2oETmhoYGV8f9pyKnZz3mpZxsev//EGHJfd/V5QdVaEBjZPRf73POw0k7LH/Hu
-         Fk2WwHLuctQHBMxce5ZxhSzdtkYYQJI9bCGc9A6zyLYYwsKzvSkgxyC29Zq/gDoBq40H
-         7ICDkq6wV/YAv9I+/VaGHQsZOgwKWuJHkdZs3xQATu4fRQ8qRq/VnNast7HepqFfR3us
-         5ixY57qwdLKCyGMSeagnKe9ar1loQw84/cL4PMomoF1O33mQTr58aXM1Gq1BInax1Q0+
-         oiGw==
-X-Gm-Message-State: AOJu0Yxoxb82+5nRRLYnKcIfDT8QF4f7VmlUxdsYEXKCMSUwoBVjnxSI
-	Yw753vyPKDnqJIkMsMgdYg3JSrYvZ41DDg5UbxqHQ19cRk87fLr8vADW
-X-Gm-Gg: AeBDieuBKZNlySqd/4fyAM1VAcoR4XvV8KnmUisPIjHEVdAyEv16qOJ/4fLaNkMymD4
-	RVOr9p3qNLPZFaJHFUycLf3msckCl2ClC38l0DhKPmtMle25meo8UHuQmjTXwFg3W4cecDDWI3w
-	1jtiBTYyDn5lKXpodYyCYC0gC/+Rgp9EIUV4V0AWBqJTc5eL5qcIH/XPsH/NmSusCbMdwm/YLpK
-	7WeyunsOkLZV3n6Su2/7enCUErl7AqNNJX1oVm1wlD+mtZ1bgbObilM7Uirq8fZfKCc2JfBcgG4
-	U/mBLz81gE4olBBwlBXyCZnWVrTx2ta4Xx+APB7U9bHmBvbd5I+r68giuNTPTf2ISg0uPrWq5wR
-	lODGpuxvpmMAncVvZEVaLUYIkkTQl9MCfyXCvOdMCsZ5yFwdQzC2yCxcmQEk/zrcHNm+Tsb9RzT
-	301fqTqCWj1nQDDOYliDgjQ7SEmgSoYLKH2A==
-X-Received: by 2002:a05:600c:b8d:b0:489:1f98:71e3 with SMTP id 5b1f17b1804b1-48a77b21791mr56327465e9.28.1777390598799;
-        Tue, 28 Apr 2026 08:36:38 -0700 (PDT)
+        bh=53/v+YSG+6GYj3ywOiaHOLUwr98tdqBSh9I2cLizLtg=;
+        b=ePGGkoiPuh6c9EobnqX51J7oDGL7/VvWDSInBAQQHre+T03AObgTffdBf7Q7hZ/BpY
+         8xY6l/qekUjSJiq6Mqlx/Rs15DIjd9Ld9qk5EcDApzF6J8fBWFfbmY/I5iAHHuMkuzFu
+         TsuAU8K3WggJdFLPjSoiznr2Iit0hGq9jMUVG1UKg82PcaSCAtV+nqi2FZ/sgKigUhWL
+         9gxOhlofb0Oi7KXfbHCoyxXebxSG7eQy93NRKwjl/YAVLrKTNKzmgRTImSQyi+dL9cJ0
+         LD6CjvR7QPW4Lu+4N12XKCJueIGIoojo/IRVP5/63haptLs7A2M5544ltDhjfk5CmrWq
+         4Czw==
+X-Gm-Message-State: AOJu0YzdKbdRlhsJ0be9G9H1F3UldXPZYk/AXXHIgBX0RpWZ1/FiOzAJ
+	3qHhSukEtZxKmoeFVdj+avfbrjK4fJae4MxJOetXiUw3uhTlZqGTO6gp
+X-Gm-Gg: AeBDieu+C58Um1+ACF9Jya+UpTdHgtwFOB3y1SPy7oqJ2Cvx5BA5uLrt6NvV5WoXKdl
+	/X4vaAFVFHSSVKffgKkSMfeE+27Iok2MeIivBuecbbwPNIVNotYN3zLm9JKkZpfCGxcs+jedfYX
+	eufWXQTCsyArJc+ytbCghlwaSxr7CaHoVmQieHpz+zwLQ9YFVEvXcdehPuE07tIPU99ctIEVk6/
+	5Hq032X7NFNK+4sqsuMUz5MocEJlWnu0c9VSuK5EHpx9NOqAIoXrDm8pmqz9vhVh6hX390gL8WJ
+	8XUvXq6DKSOduHMy2cpBsdR5dtU9zUx7m/ymXd3WnMI8p/Xf+te9IVaHE6m938bc9LwhJwXtkn7
+	nz8jssl+SCNo3gQZcYT6+f3jTzXm1sHd8fkSa29K0NBNiXnkj9VAJkCSAjEAYEDLDhiM1G/OzyI
+	tpeHANeDsH3VFE53KDhnLbeNo=
+X-Received: by 2002:a05:600c:c08f:b0:489:1b10:d896 with SMTP id 5b1f17b1804b1-48a7b4d165cmr3095065e9.0.1777390601346;
+        Tue, 28 Apr 2026 08:36:41 -0700 (PDT)
 Received: from xeon ([188.163.112.56])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7b56c2d0sm1358875e9.11.2026.04.28.08.36.37
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7b56c2d0sm1358875e9.11.2026.04.28.08.36.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 08:36:38 -0700 (PDT)
+        Tue, 28 Apr 2026 08:36:40 -0700 (PDT)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -71,9 +71,9 @@ Cc: linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-leds@vger.kernel.org
-Subject: [PATCH v4 4/6 RESEND] dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
-Date: Tue, 28 Apr 2026 18:36:09 +0300
-Message-ID: <20260428153611.142816-5-clamor95@gmail.com>
+Subject: [PATCH v4 6/6 RESEND] mfd: motorola-cpcap: add support for Mot CPCAP composition
+Date: Tue, 28 Apr 2026 18:36:11 +0300
+Message-ID: <20260428153611.142816-7-clamor95@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260428153611.142816-1-clamor95@gmail.com>
 References: <20260428153611.142816-1-clamor95@gmail.com>
@@ -85,38 +85,89 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add compatibles for Mapphone and Mot CPCAP subdevice compositions. Both
-variations cannot use st,6556002 fallback since they may be based on
-different controllers.
+Add a MFD subdevice composition used in Tegra20 based Mot board
+(Motorola Atrix 4G and Droid X2).
 
 Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 ---
- .../devicetree/bindings/mfd/motorola,cpcap.yaml       | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/mfd/motorola-cpcap.c | 50 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-index 7f257f3a1a5a..542d149d2b39 100644
---- a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-+++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-@@ -14,9 +14,14 @@ allOf:
+diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
+index 516d1e33affa..fdec92f5c6b0 100644
+--- a/drivers/mfd/motorola-cpcap.c
++++ b/drivers/mfd/motorola-cpcap.c
+@@ -335,6 +335,54 @@ static const struct cpcap_chip_data cpcap_mapphone_data = {
+ 	.num_devices = ARRAY_SIZE(cpcap_mapphone_mfd_devices),
+ };
  
- properties:
-   compatible:
--    items:
--      - const: motorola,cpcap
--      - const: st,6556002
-+    oneOf:
-+      - enum:
-+          - motorola,mapphone-cpcap
-+          - motorola,mot-cpcap
++/*
++ * The Mot board features a USB-PHY and charger similar to the ones in
++ * Mapphone; however, because Mot is based on Tegra20, it is incompatible
++ * with the existing implementation, which is tightly interconnected with
++ * the OMAP USB PHY.
++ */
++static const struct mfd_cell cpcap_mot_mfd_devices[] = {
++	{
++		.name          = "cpcap_adc",
++		.of_compatible = "motorola,mot-cpcap-adc",
++	}, {
++		.name          = "cpcap_battery",
++		.of_compatible = "motorola,cpcap-battery",
++	}, {
++		.name          = "cpcap-regulator",
++		.of_compatible = "motorola,mot-cpcap-regulator",
++	}, {
++		.name          = "cpcap-rtc",
++		.of_compatible = "motorola,cpcap-rtc",
++	}, {
++		.name          = "cpcap-pwrbutton",
++		.of_compatible = "motorola,cpcap-pwrbutton",
++	}, {
++		.name          = "cpcap-led",
++		.id            = 0,
++		.of_compatible = "motorola,cpcap-led-red",
++	}, {
++		.name          = "cpcap-led",
++		.id            = 1,
++		.of_compatible = "motorola,cpcap-led-green",
++	}, {
++		.name          = "cpcap-led",
++		.id            = 2,
++		.of_compatible = "motorola,cpcap-led-blue",
++	}, {
++		.name          = "cpcap-led",
++		.id            = 3,
++		.of_compatible = "motorola,cpcap-led-adl",
++	}, {
++		.name          = "cpcap-codec",
++	},
++};
 +
-+      - items:
-+          - const: motorola,cpcap
-+          - const: st,6556002
- 
-   reg:
-     maxItems: 1
++static const struct cpcap_chip_data cpcap_mot_data = {
++	.mfd_devices = cpcap_mot_mfd_devices,
++	.num_devices = ARRAY_SIZE(cpcap_mot_mfd_devices),
++};
++
+ static int cpcap_probe(struct spi_device *spi)
+ {
+ 	struct cpcap_ddata *cpcap;
+@@ -389,6 +437,7 @@ static int cpcap_probe(struct spi_device *spi)
+ static const struct of_device_id cpcap_of_match[] = {
+ 	{ .compatible = "motorola,cpcap", .data = &cpcap_default_data },
+ 	{ .compatible = "motorola,mapphone-cpcap", .data = &cpcap_mapphone_data	},
++	{ .compatible = "motorola,mot-cpcap", .data = &cpcap_mot_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, cpcap_of_match);
+@@ -396,6 +445,7 @@ MODULE_DEVICE_TABLE(of, cpcap_of_match);
+ static const struct spi_device_id cpcap_spi_ids[] = {
+ 	{ .name = "cpcap", .driver_data = (kernel_ulong_t)&cpcap_default_data },
+ 	{ .name = "mapphone-cpcap", .driver_data = (kernel_ulong_t)&cpcap_mapphone_data },
++	{ .name = "mot-cpcap", .driver_data = (kernel_ulong_t)&cpcap_mot_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(spi, cpcap_spi_ids);
 -- 
 2.51.0
 

@@ -1,123 +1,166 @@
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D43227FB1F
-	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 04:18:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777349937; cv=pass; b=FvQmxSRLTdZJXQ/dGjWg0scltWY8A4cajJm5JOLp92c+hAIf0f0YY6skB5Vg4OQkgPM/m+a4RMleoBccrWJh0G+nL1mu0K/kzYHij2RySZmSdjMRrOkTlxPDAJPeBXZ62UGeA0vD3jq9+zfwtKq72UxaguYQTsnBTWB/ga5WAQo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777349937; c=relaxed/simple;
-	bh=9xTat86ZHK5zDlLwjXBVdCkNB988EHIwokmlOjoulAw=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=DotbicPCnobR+GM1DFvWzgZemG6xTjA6Mx2wyGfGCAeH/sGmsCpMdKmB4xlVyUmUIkzRumGj12Tcdp1rQ1OQ1b0ScyOsGdyX+mb4pIQxgIbHaByfvm/qDDmI++r7OoiU/A3K1BKtzSl4usg4+A3tVjpBTmhVXkHkxq6pQQZ9cb8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JNzd5u24; arc=pass smtp.client-ip=209.85.128.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7350F175A66;
+	Tue, 28 Apr 2026 06:13:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777356800; cv=none; b=Gj4DzgwF3Sv+4SKYbgwd0OiYBFMAio5lxMlk/kmd0q+r9OSZyv9QsufmLuJ7SgXtGjqYfctoJ0Yp41riKN6TNaC8mDj3kwrSfqIxNJjICCZNnnkuGAkR//x9yR0h+K7QivOSwEDCgibJ3K4gBbILdJxYOQ9FZoV8EPHAS8+RCVU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777356800; c=relaxed/simple;
+	bh=ZeynYF64G5AE7okyvFbotmxtDPhhHOdwoQNrsORmlOo=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=F1lIvlsfB9plpyQfmATFWb8saBRq8IsYTsuvH8kHqAzpsh3YgiTJi0dnaYfUxg88tmYqVb55ZIrSqeILAv9/FvyR5iAy/Lhnr8afiQVedX82Va2sS27tpGOnzpJO1RJIsIj2CrjeUOBW0anoUrc4BEBsYGQe1QFvrDU6bdVzA9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=il/84dKJ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=XnMBgkEp; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JNzd5u24"
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-79495b1aaa7so110864107b3.1
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 21:18:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777349936; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JjUculMr12Jbu+buhWKIUlqJE4WejkQGydwX6E34tsGT3igzgsnBOFAwxIftOYcIHi
-         oCbV5wKL8uTcqkNfZDuJg1BugIf4xjbi8Gw5n0PVLlF4mOIVyxV5cHtF+M8pfLJkFhbw
-         wKuR4QW9EEmdFZrhlVs2qyv4KbHWE50x0CcABFMrmaLB1B1ILaLzze1ixZsH4jsGzyDV
-         cZRXQ6bdRAonMWWzaWR904UjontDdE2BIjG4lFp8Zat0wmaDvZSIRpjAPpvKjc1fkB/e
-         Ii3QbIidg0o8ehnGKL/wcaH/YMGz/MGkxaVNGwUDrJuBiP7KnZAdiy9WYaYKGg3kdnu8
-         7kGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=1kHYMN2hdrkh8km3xuB3DZPgiACrDlk18Lyz165PNqs=;
-        fh=On0FlpeAXZW6i6EK2bPFR7t02H5LEFG7rvNLtIaW+OI=;
-        b=gwYDW2d5O0UrfD+U0MiT+htVF3vMJZTDSQEMbuUxcUb6eHGWHelSkHTeQ92Hh1vAi+
-         DE3M90WFy8b+mVj+Ozs5QbNMbAs1QYtHnwpv84r1uMbJRzklIZWvtDpnqT9zZwAn80fk
-         Ktljn+2hV/2AaUWv7C0F1RBkp9G1edGBIic7yLGQnzXZG9FtqgcohWFHjiYuKXlc1rAR
-         crKN14MkI4wKokZcvkxCrVGXdDEIVra4kF6dINcXvfDSWQhD3u3vYQVPWXMMEXVitGgR
-         JoyKRA7ZavNDOUy+2222nInhYxaGep6gI+Tb4J7RqvHJNRaca0IsA48ViLxHYE/BIUiu
-         Sglg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777349936; x=1777954736; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=1kHYMN2hdrkh8km3xuB3DZPgiACrDlk18Lyz165PNqs=;
-        b=JNzd5u24km3bWHK6BmP3my/BFsSijvqqPBGLCKnFCQnJP3DtssTniNz3jG5Q/QSRZJ
-         VAGisQA1aUYeVfsWQ2ULpDFY3z8XDGy8RWttieIF1GadsoISpw67Vz/2n6jB8QKaAEv4
-         /YZpAUzpBgxWn9zbFz1pn9rZF6ZbTKsjksxeZhDslMh4kZf0rZaMAhs1vluhiaRxaMF9
-         NVXIF1Q/2DLN7Go3ssiHO+yMlfsgQFMFi+2uQeuQ0RwrEydq/RVXFuba7VEDF6G9YCwx
-         oGQpru51aLnXQ+Uz3B0FA8h66w88NIvSQXkyoVoJwIfb/d1jM18UPuYclDmYHttKa00F
-         hyHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777349936; x=1777954736;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=1kHYMN2hdrkh8km3xuB3DZPgiACrDlk18Lyz165PNqs=;
-        b=mfPy8vVRziUaoNEkgvdNEpLFboGkMTDM6iPh3LbbgPTS0FHMtzo/EDN7t2XsTMhATs
-         PTI/OaJdaW5inoQxcMq4pPgMHjxc9XLF3D7uRZw8GBb3+O6/kh/lUjg+m7dgRfpvl52y
-         bt2F0qhrDImcfondaCApYpUZHp7L0tgPXPHoXrKGrET+nt9tjzzcdD8DcsgViDHpM7oi
-         a7gKOxc9rQgQj7oL7z6OuAyGD42WEjCK9T1nqtNXcbOANz7HVOZS1uuafNmtme+zio6z
-         aJRM7J9aZEj8Y5d2Hqqof5jzZKl786UPOKZiYpLOoPUgtVc8NIdWaj+VrrWiP4zISrsI
-         t/Jg==
-X-Gm-Message-State: AOJu0YxNO6FKl5ia1QmfWgorPMfYaWCw065rut+KOfHRhBjMpM/LQn4J
-	zVNq42Jq7gqdB+3vG977CG33kY/UwCmr6gECHv2rGNPlCNWcNfmu0HI+RIxTYUI0Rs4MjeNyuMQ
-	AtfX2//1yTU7Gx5Q7XIdjMzX30rYuJs8=
-X-Gm-Gg: AeBDietho6AyaUlqOCjHZz8ThYVR2MvLsVcZuKc4kbqmDPlzby7Fis5sqYxuUUbqD/N
-	pP0b6k6H45xoHJSZzlMsgEMNH83sOFYyI2VF3VhdNfs9Xk7J7iBuNEXbbdwYcvo5PcJP0NtN81y
-	sGOBMxMgUzJp7QRx6bZfTPFphymhpHgrplb4Aca52glwTF0LFShQG86B6pETmBBsmfilnABDNtk
-	vojcUocg7pRWU6o8Z2izKc35ovv3gl5VB8yoBTvvG9al2MYgL7uIOpr9PkkoBJgDGM484vnVBk1
-	zBdRYlPNCaar7bXSvYOB
-X-Received: by 2002:a05:690c:a01c:b0:7b4:b591:e77f with SMTP id
- 00721157ae682-7bcf558d887mr10349877b3.32.1777349935652; Mon, 27 Apr 2026
- 21:18:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="il/84dKJ";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="XnMBgkEp"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id 38295EC00C3;
+	Tue, 28 Apr 2026 02:13:17 -0400 (EDT)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Tue, 28 Apr 2026 02:13:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1777356797;
+	 x=1777443197; bh=AsOgAGNJHq3X7FnUeeXySU9AI8SpiZkaDu+P0QkPXd4=; b=
+	il/84dKJlbIGd7TFxdYNfPdlAH4WvSbmTYYdGf892ISblTjX1/5SV+96vwPUZKrS
+	elUk4yMY9TJzYWv8eaAASHi7sle+LPKjGse8JOHmUoxgcQTq3qwPR7V6mQNSKn+g
+	HYmlVDoU0PJUBU9UeIundK739hJwEb0ZyRd3QK+avtIO1v0wqhfjYTflGg+fn2uC
+	YHS1YTablkblXC98D/B0ypqTQwHis/AEPEhyFj0GlKYh4yo3tf/4iLOhMRb7p8c1
+	rvc/s1M//j1dQpezuthgvGEYM8GBdVqJ19FAjZG0QbTn5ClF8DnQSU814aQXKU8D
+	0OA/c+oHHJifLYas6pE5tQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777356797; x=
+	1777443197; bh=AsOgAGNJHq3X7FnUeeXySU9AI8SpiZkaDu+P0QkPXd4=; b=X
+	nMBgkEpgNb8egEMU+zZM2UxJcjnwOv2droNboHZQ+hOwl9zyUfsaKOIZUo1vProe
+	Z0HwhusK1cthpnxzRAlHxD1rKQwpM+15egf7VhshmLqQuNFcsdMQb+9UMlP5CT//
+	QCLJc/9M9HRa7xhLZHXKACpov3wsSQlyX5yldbuX7nCCdu7ji242OqlgMQBHzIKA
+	IwYfXPPdW/n3w1EhOwziorV82f+B5oz73+ndnOuYxOQdCnHl3WGBOTpzlRMLVJMN
+	1CHm+HQ5JJIn9W7zoEWiIvYkhJNjNKrjippn05quKCkl09K9mOrQSiGp5sUkfxtk
+	1HHI3RURy6fwbeA/pKPng==
+X-ME-Sender: <xms:_E_waZIu7tiZZVtGK-wIAKJU-Dj9LziHYIgP98QmA91n7MJTO4-anw>
+    <xme:_E_waf_TZ8F3HpPmqybADNtGqHV78mtEwMOIoxmS7QSb7nV50gRZ6ajmNkkYwDo6o
+    Aqf7dJhKUaJ_Do6NG2CFmyUueLXR-VVFrjgtbzbsIf7YFMYAOi8HJ8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdektdekvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpeefhfehteffuddvgfeigefhjeetvdekteekjeefkeekleffjeetvedvgefhhfeihfen
+    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghp
+    thhtohepudefpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehfrggsrhhitggvrd
+    hgrghsnhhivghrsehfohhsshdrshhtrdgtohhmpdhrtghpthhtohepghgrthhivghnrdgt
+    hhgvvhgrlhhlihgvrhesfhhoshhsrdhsthdrtghomhdprhgtphhtthhopegumhhithhrhi
+    drthhorhhokhhhohhvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepmhgriiiiihgvshgr
+    tggtohhunhhtsehgmhgrihhlrdgtohhmpdhrtghpthhtoheprghnughrvggrsheskhgvmh
+    hnrgguvgdrihhnfhhopdhrtghpthhtoheprghrnhgusehkvghrnhgvlhdrohhrghdprhgt
+    phhtthhopehkrhiikheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhgvvgeskhgvrh
+    hnvghlrdhorhhgpdhrtghpthhtoheptghkvggvphgrgiesohhpvghnshhouhhrtggvrdgt
+    ihhrrhhushdrtghomh
+X-ME-Proxy: <xmx:_E_waZgLc6oNDSlvY-6PeIzyihvg6PagyrXMcPufjKbQZFtWwnZ4Sg>
+    <xmx:_E_wadm-pA36UutHMBzWnsWNTaAVfBb4hzN9myTckKIUNMV6LSk7VA>
+    <xmx:_E_wadbLI9O8tKP2ZkrJg4KzV23mYAMzXUHlafCGZKteH3xmDbn2oA>
+    <xmx:_E_waQyOiM3HCYA9txsJNVYACnTO3gy3wagWlA9DFSKKKAW-Ni3AMg>
+    <xmx:_U_waVVlJta6KnJiK5YcinKIb-JJwoXqJuwZwtEmVddTARGDMhWKKsHd>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 8C02D700065; Tue, 28 Apr 2026 02:13:16 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Ginger <ginger.jzllee@gmail.com>
-Date: Tue, 28 Apr 2026 12:18:46 +0800
-X-Gm-Features: AVHnY4LK5k7_yeoTcHWaYdG0jtTJFEEtWGGZjLrgR1V3Qv7wDtplfZgEtsigmis
-Message-ID: <CAGp+u1aFTivN-EC5QQaQ=j21GaGHktunHEzWQ9e2uASsE40svQ@mail.gmail.com>
-Subject: [bug report] Potential order bug in 'drivers/input/misc',
- particularly 'ati_remote2.c', 'cm109.c', 'keyspan_remote.c'
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-ThreadId: AnQ8bV8uQ6GB
+Date: Tue, 28 Apr 2026 08:12:36 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ "Arnd Bergmann" <arnd@kernel.org>
+Cc: "Matti Vaittinen" <mazziesaccount@gmail.com>,
+ "Lee Jones" <lee@kernel.org>,
+ "Gatien Chevallier" <gatien.chevallier@foss.st.com>,
+ "Marco Crivellari" <marco.crivellari@suse.com>,
+ "Fabrice GASNIER" <fabrice.gasnier@foss.st.com>,
+ "Andreas Kemnade" <andreas@kemnade.info>,
+ "Krzysztof Kozlowski" <krzk@kernel.org>,
+ "Charles Keepax" <ckeepax@opensource.cirrus.com>,
+ "Christophe JAILLET" <christophe.jaillet@wanadoo.fr>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <7f64a929-c879-4839-a7ee-1da2e423b156@app.fastmail.com>
+In-Reply-To: <afAz-UQY0aCaThV3@google.com>
+References: <20260427143406.3020992-1-arnd@kernel.org>
+ <afAz-UQY0aCaThV3@google.com>
+Subject: Re: [PATCH] [v2] input: gpio-keys: make legacy gpiolib optional
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Dear Linux kernel maintainers,
+On Tue, Apr 28, 2026, at 06:14, Dmitry Torokhov wrote:
+> On Mon, Apr 27, 2026 at 04:33:49PM +0200, Arnd Bergmann wrote:
+>> 
+>> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+>> passing an IRQ number instead. In order to keep this working both with
+>> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+>> the gpio number if an IRQ is passed.
+>> 
+>> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> ---
+>> v2: skip the fake GPIO number passing from mfd
+>> ---
+>>  drivers/input/keyboard/gpio_keys.c        | 7 ++++---
+>>  drivers/input/keyboard/gpio_keys_polled.c | 2 ++
+>>  drivers/mfd/rohm-bd71828.c                | 1 -
+>>  drivers/mfd/rohm-bd718x7.c                | 1 -
+>
+> Let's see if my patches to rohm drivers will get accepted and then maybe
+> we can remove legacy gpio API from gpio-keys altogether.
 
-My research-based static analyzer found a potential order bug within
-the ' drivers/input/misc' subsystem. I will use the potential bug
-found in 'drivers/input/misc/ati_remote2.c' as the typical example.
-The similar potential bug patterns are also observed in 'cm109.c' and
-'keyspan_remote.c'.
+I think it would be good to still merge the drivers/input
+parts of my patch. Since CONFIG_GPIOLIB_LEGACY is still set
+unconditionally at the moment, that should work fine as long
+as your patches for the rohm drivers get merged before
+we turn off CONFIG_GPIOLIB_LEGACY for modern platforms.
 
-Kernel version: long-term kernel v6.18.9
+In linux-next, I see these users of the legacy gpio-keys platform
+data remaining:
 
-Potential issue:
-T0:
-ati_remote2_disconnect
-    --> ar2 = usb_get_intfdata(interface);
-    --> usb_set_intfdata(interface, NULL);
-    --> input_unregister_device(ar2->idev);
-    --> usb_driver_release_interface(&ati_remote2_driver, ar2->intf[1]);
-    --> kfree(ar2)
+arch/arm/mach-mv78xx0/buffalo-wxl-setup.c
+arch/arm/mach-orion5x/dns323-setup.c
+arch/arm/mach-orion5x/mv2120-setup.c
+arch/arm/mach-orion5x/net2big-setup.c
+arch/arm/mach-orion5x/ts209-setup.c
+arch/arm/mach-orion5x/ts409-setup.c
+arch/arm/mach-s3c/mach-crag6410.c
+arch/arm/mach-sa1100/assabet.c
+arch/arm/mach-sa1100/collie.c
+arch/arm/mach-sa1100/h3xxx.c
+arch/mips/alchemy/devboards/db1300.c
+arch/mips/bcm47xx/buttons.c
+arch/sh/boards/mach-rsk/devices-rsk7203.c
+arch/sh/boards/mach-x3proto/setup.c
+drivers/input/misc/soc_button_array.c
+drivers/mfd/ucb1x00-assabet.c
 
-T1:
-ati_remote2_store_channel_mask (registered as the device attribute
-function and exposed via the sysfs)
-    --> struct ati_remote2 *ar2 = usb_get_intfdata(intf);
-    --> ar2->mode_mask = mask;
+Do you already have patches for more of these? I would like to
+kill off mv78xx0, orion5x and sa1100 board files (including
+the ucb1x00-assabet mfd driver) soon, but that still leaves s3c,
+alchemy, bcm47xx, rsk and x3proto. These platforms are in
+varying states of disrepair, maybe a few more of those
+can be removed instead of converted. I know that Mark
+Brown is still using the s3c board, and Waldemar Brodkorb
+was recently working on restoring bcm47xx into a usable
+state.
 
-In T0, the interface is nullified before its get deregistered. Thus,
-it is possible for T1 to still get the usb dev and access it via the
-interface, which, however, has been already nullified or even freed.
-This similar pattern is also observed in 'cm109_usb_disconnect()' of
-file 'cm109.c' and 'keyspan_disconnect()' of file 'keyspan_remote.c'.
+I assume you'll take care of the soc_button_array one.
 
-Thank you for your time and consideration.
-
-Sincerely,
-Ginger
+     Arnd

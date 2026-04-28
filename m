@@ -1,166 +1,133 @@
-Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7350F175A66;
-	Tue, 28 Apr 2026 06:13:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6557F3B9D9C
+	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 07:16:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777356800; cv=none; b=Gj4DzgwF3Sv+4SKYbgwd0OiYBFMAio5lxMlk/kmd0q+r9OSZyv9QsufmLuJ7SgXtGjqYfctoJ0Yp41riKN6TNaC8mDj3kwrSfqIxNJjICCZNnnkuGAkR//x9yR0h+K7QivOSwEDCgibJ3K4gBbILdJxYOQ9FZoV8EPHAS8+RCVU=
+	t=1777360582; cv=none; b=uX3jBBCGEbmF21xrkAob1IN40X7LrEHWfSEekCUxL2hnFZHN+HnQrWPsrC1TBnpsY+eJkVAkfJUc9+otrw7j06ZEMJksmiAWo3sA/yTSRMY1tMDK2nLrYnWZOS3QqlZT+/ng73J9F7+WTl9l5MM+W0yEzGncLZ7XAJwDALHI7S0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777356800; c=relaxed/simple;
-	bh=ZeynYF64G5AE7okyvFbotmxtDPhhHOdwoQNrsORmlOo=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=F1lIvlsfB9plpyQfmATFWb8saBRq8IsYTsuvH8kHqAzpsh3YgiTJi0dnaYfUxg88tmYqVb55ZIrSqeILAv9/FvyR5iAy/Lhnr8afiQVedX82Va2sS27tpGOnzpJO1RJIsIj2CrjeUOBW0anoUrc4BEBsYGQe1QFvrDU6bdVzA9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=il/84dKJ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=XnMBgkEp; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1777360582; c=relaxed/simple;
+	bh=vnQVADDxQ0ttdYZpf97F0FvwlAmDKtuJ+IcyZBRg7gc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=G6IEAAB6yIYUiFNbd8Z5rosFQiRjpaObEoHqUHe60+RVpzDgDFgBvLtv1DEyP+MBVdhDjKCfIkS+JyQfQWECyaCbnoEGYaZjVKKt6F8bdA9PvfUm9dIuCmY9yOiNr+xTnrvgw7ustkl+CIyP6dhnyC/ppWBcbZHY4EzTyEfEQZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IaUrad+H; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="il/84dKJ";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="XnMBgkEp"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 38295EC00C3;
-	Tue, 28 Apr 2026 02:13:17 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-04.internal (MEProxy); Tue, 28 Apr 2026 02:13:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1777356797;
-	 x=1777443197; bh=AsOgAGNJHq3X7FnUeeXySU9AI8SpiZkaDu+P0QkPXd4=; b=
-	il/84dKJlbIGd7TFxdYNfPdlAH4WvSbmTYYdGf892ISblTjX1/5SV+96vwPUZKrS
-	elUk4yMY9TJzYWv8eaAASHi7sle+LPKjGse8JOHmUoxgcQTq3qwPR7V6mQNSKn+g
-	HYmlVDoU0PJUBU9UeIundK739hJwEb0ZyRd3QK+avtIO1v0wqhfjYTflGg+fn2uC
-	YHS1YTablkblXC98D/B0ypqTQwHis/AEPEhyFj0GlKYh4yo3tf/4iLOhMRb7p8c1
-	rvc/s1M//j1dQpezuthgvGEYM8GBdVqJ19FAjZG0QbTn5ClF8DnQSU814aQXKU8D
-	0OA/c+oHHJifLYas6pE5tQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777356797; x=
-	1777443197; bh=AsOgAGNJHq3X7FnUeeXySU9AI8SpiZkaDu+P0QkPXd4=; b=X
-	nMBgkEpgNb8egEMU+zZM2UxJcjnwOv2droNboHZQ+hOwl9zyUfsaKOIZUo1vProe
-	Z0HwhusK1cthpnxzRAlHxD1rKQwpM+15egf7VhshmLqQuNFcsdMQb+9UMlP5CT//
-	QCLJc/9M9HRa7xhLZHXKACpov3wsSQlyX5yldbuX7nCCdu7ji242OqlgMQBHzIKA
-	IwYfXPPdW/n3w1EhOwziorV82f+B5oz73+ndnOuYxOQdCnHl3WGBOTpzlRMLVJMN
-	1CHm+HQ5JJIn9W7zoEWiIvYkhJNjNKrjippn05quKCkl09K9mOrQSiGp5sUkfxtk
-	1HHI3RURy6fwbeA/pKPng==
-X-ME-Sender: <xms:_E_waZIu7tiZZVtGK-wIAKJU-Dj9LziHYIgP98QmA91n7MJTO4-anw>
-    <xme:_E_waf_TZ8F3HpPmqybADNtGqHV78mtEwMOIoxmS7QSb7nV50gRZ6ajmNkkYwDo6o
-    Aqf7dJhKUaJ_Do6NG2CFmyUueLXR-VVFrjgtbzbsIf7YFMYAOi8HJ8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdektdekvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpeefhfehteffuddvgfeigefhjeetvdekteekjeefkeekleffjeetvedvgefhhfeihfen
-    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghp
-    thhtohepudefpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehfrggsrhhitggvrd
-    hgrghsnhhivghrsehfohhsshdrshhtrdgtohhmpdhrtghpthhtohepghgrthhivghnrdgt
-    hhgvvhgrlhhlihgvrhesfhhoshhsrdhsthdrtghomhdprhgtphhtthhopegumhhithhrhi
-    drthhorhhokhhhohhvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepmhgriiiiihgvshgr
-    tggtohhunhhtsehgmhgrihhlrdgtohhmpdhrtghpthhtoheprghnughrvggrsheskhgvmh
-    hnrgguvgdrihhnfhhopdhrtghpthhtoheprghrnhgusehkvghrnhgvlhdrohhrghdprhgt
-    phhtthhopehkrhiikheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhgvvgeskhgvrh
-    hnvghlrdhorhhgpdhrtghpthhtoheptghkvggvphgrgiesohhpvghnshhouhhrtggvrdgt
-    ihhrrhhushdrtghomh
-X-ME-Proxy: <xmx:_E_waZgLc6oNDSlvY-6PeIzyihvg6PagyrXMcPufjKbQZFtWwnZ4Sg>
-    <xmx:_E_wadm-pA36UutHMBzWnsWNTaAVfBb4hzN9myTckKIUNMV6LSk7VA>
-    <xmx:_E_wadbLI9O8tKP2ZkrJg4KzV23mYAMzXUHlafCGZKteH3xmDbn2oA>
-    <xmx:_E_waQyOiM3HCYA9txsJNVYACnTO3gy3wagWlA9DFSKKKAW-Ni3AMg>
-    <xmx:_U_waVVlJta6KnJiK5YcinKIb-JJwoXqJuwZwtEmVddTARGDMhWKKsHd>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 8C02D700065; Tue, 28 Apr 2026 02:13:16 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IaUrad+H"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c795f441ff7so7643793a12.2
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 00:16:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777360580; x=1777965380; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=VzVQi/4uRerG6QDvEL4eh9INtxekMjFaRMwVGPZBDjw=;
+        b=IaUrad+HtrmT3IuwKqnF4KABvAgmBt4T+2G6fOaJmBmqjdTF0ZBJTSy46eIBoUaONF
+         ZMr04A5m07U/MCJIQxhpM+t0kbWcvRC/F/g6x4HEsH7QqDwuY+HbTmyK8HkmHhdT6w8k
+         9k+ICUsU3fX/y5bDUG4DFL+0hsNIsY8P5+jpIH3P2sAqIw5Dmg2kqTBOYRsL/wB7ZHme
+         OIhbSEY7NcjkM2fOntrtKyK+8Bm/cgzPn7c5rnvFUA9HXk+TubXUqegTyeTyXWSuk6Xb
+         5ExKhbPBy8KGYIEFyFT1XB8ibbp4mqqdcHubdg7cgvf1NjcMbqh9aauonHV7cWxFi4qw
+         5WYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777360580; x=1777965380;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VzVQi/4uRerG6QDvEL4eh9INtxekMjFaRMwVGPZBDjw=;
+        b=gIbjg06p2n47cNxVkpTEkB31Hl0zevYbd7r/oKuRf4yJvxTtZgqFreG4t9TT4iTV40
+         qtLp1nBu7V32UgQxk+ZAEbD0K4pVnvEjXAtZKL6qpXqjwzGwiwuea6h8vTkHvDKrWEQ2
+         1Cmbdba+IgCm6ZEt5OH0xhRR7HwkuImg0iWgDO+AwT5nLEbd/pKG9QqdJXS0Cp3oSE1C
+         4bdGTT/J/VZT0fw/0yF0hoNNVqG4AX3MzdIivU7xMJemVlpGBwiqhcihabn+JqGhcLvC
+         Ux7eh9/3ikKQChko30S7bIvWlBBIooQt4RiEs4xo08SdYTbpH3lKp1AYeGnF6zRzjDiv
+         i0NA==
+X-Forwarded-Encrypted: i=1; AFNElJ+2WR0ZwOO2uOWLfIGZGt+HPQa6J79RR88NLDYNTzBo6hhyG8ddudCgQthAtvGkraUzrH23dOuUxE3kyQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVyw88jhsPk5NMpgbytPvCm87X91oOvsd/XxJ60GC6OP+438e/
+	N85T5DZVY4TGG4us6FcF5Mf3WPjpK7PpL4SzcREhoq05Md/f6DIsqxWC
+X-Gm-Gg: AeBDiesQ4Lmg4bLJeK3N2xKAgnagaUUXnh1Vwm4GGV+tdkWm9t5MbBcXcmaMmhTRSnn
+	NmDUaOZwka+yMpwPwgsVnFvNVi0GvP+2iG+6gt6JDsu15dgT/ZY1wzPGcWwhK1+b24OdFi2LEBX
+	kV7Ib4lJVl5BMOMHyr4/3njvmWn3MhvZLaZuC45O3KC2COZz+MNn5o0Nndh42FP+NAaWcgYZPtm
+	X4M350Qtkkg/45SvH5BwDgO1DuLp2taKBoUaaDuZ2O9NGiU3Q+tNv+Au6YJpwy19QdTYqeRx3uO
+	OC8RiqfPOwTnDgRdzb8OV0/f8081FmlvvJWqsfIHo6pA4Nsb5XShpYHdoElh8/jYQuB0AyRbhro
+	cKDtI4kXCM3OK8r+ldAKNeodSDIQwUd2yErTpNUX5vlXSWYPpQWudyDQQUvERIl6sVFEo6GEzlT
+	MlNbB9ldrK/qkpW+WyZoALtgdVicxUBV9VzdVb42SQxJSASrSz7Dnkvkmi8ZM=
+X-Received: by 2002:a05:6a21:6da2:b0:3a2:f14a:4275 with SMTP id adf61e73a8af0-3a39c062af9mr2437037637.6.1777360579637;
+        Tue, 28 Apr 2026 00:16:19 -0700 (PDT)
+Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-834daf5705fsm1987335b3a.42.2026.04.28.00.16.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2026 00:16:19 -0700 (PDT)
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	srinivas.pandruvada@linux.intel.com
+Cc: dlechner@baylibre.com,
+	nuno.sa@analog.com,
+	andy@kernel.org,
+	sakari.ailus@linux.intel.com,
+	sanjayembeddedse@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 00/10] iio: drop redundant iio_dev argument from hid_sensor_remove_trigger()
+Date: Tue, 28 Apr 2026 12:46:03 +0530
+Message-Id: <20260428071613.1134053-1-sanjayembedded@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AnQ8bV8uQ6GB
-Date: Tue, 28 Apr 2026 08:12:36 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- "Arnd Bergmann" <arnd@kernel.org>
-Cc: "Matti Vaittinen" <mazziesaccount@gmail.com>,
- "Lee Jones" <lee@kernel.org>,
- "Gatien Chevallier" <gatien.chevallier@foss.st.com>,
- "Marco Crivellari" <marco.crivellari@suse.com>,
- "Fabrice GASNIER" <fabrice.gasnier@foss.st.com>,
- "Andreas Kemnade" <andreas@kemnade.info>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- "Charles Keepax" <ckeepax@opensource.cirrus.com>,
- "Christophe JAILLET" <christophe.jaillet@wanadoo.fr>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <7f64a929-c879-4839-a7ee-1da2e423b156@app.fastmail.com>
-In-Reply-To: <afAz-UQY0aCaThV3@google.com>
-References: <20260427143406.3020992-1-arnd@kernel.org>
- <afAz-UQY0aCaThV3@google.com>
-Subject: Re: [PATCH] [v2] input: gpio-keys: make legacy gpiolib optional
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 28, 2026, at 06:14, Dmitry Torokhov wrote:
-> On Mon, Apr 27, 2026 at 04:33:49PM +0200, Arnd Bergmann wrote:
->> 
->> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
->> passing an IRQ number instead. In order to keep this working both with
->> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
->> the gpio number if an IRQ is passed.
->> 
->> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> ---
->> v2: skip the fake GPIO number passing from mfd
->> ---
->>  drivers/input/keyboard/gpio_keys.c        | 7 ++++---
->>  drivers/input/keyboard/gpio_keys_polled.c | 2 ++
->>  drivers/mfd/rohm-bd71828.c                | 1 -
->>  drivers/mfd/rohm-bd718x7.c                | 1 -
->
-> Let's see if my patches to rohm drivers will get accepted and then maybe
-> we can remove legacy gpio API from gpio-keys altogether.
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-I think it would be good to still merge the drivers/input
-parts of my patch. Since CONFIG_GPIOLIB_LEGACY is still set
-unconditionally at the moment, that should work fine as long
-as your patches for the rohm drivers get merged before
-we turn off CONFIG_GPIOLIB_LEGACY for modern platforms.
+The iio_dev argument has been unused since buffer cleanup moved out of
+hid_sensor_remove_trigger(). All required resources are tracked via
+hid_sensor_common, making the extra argument redundant and allowing
+future devm conversion.
 
-In linux-next, I see these users of the legacy gpio-keys platform
-data remaining:
+This is a mechanical change with no functional impact.
 
-arch/arm/mach-mv78xx0/buffalo-wxl-setup.c
-arch/arm/mach-orion5x/dns323-setup.c
-arch/arm/mach-orion5x/mv2120-setup.c
-arch/arm/mach-orion5x/net2big-setup.c
-arch/arm/mach-orion5x/ts209-setup.c
-arch/arm/mach-orion5x/ts409-setup.c
-arch/arm/mach-s3c/mach-crag6410.c
-arch/arm/mach-sa1100/assabet.c
-arch/arm/mach-sa1100/collie.c
-arch/arm/mach-sa1100/h3xxx.c
-arch/mips/alchemy/devboards/db1300.c
-arch/mips/bcm47xx/buttons.c
-arch/sh/boards/mach-rsk/devices-rsk7203.c
-arch/sh/boards/mach-x3proto/setup.c
-drivers/input/misc/soc_button_array.c
-drivers/mfd/ucb1x00-assabet.c
+Testing:
+  - Compiled with W=1
+  - Build-tested on QEMU x86_64
 
-Do you already have patches for more of these? I would like to
-kill off mv78xx0, orion5x and sa1100 board files (including
-the ucb1x00-assabet mfd driver) soon, but that still leaves s3c,
-alchemy, bcm47xx, rsk and x3proto. These platforms are in
-varying states of disrepair, maybe a few more of those
-can be removed instead of converted. I know that Mark
-Brown is still using the s3c board, and Waldemar Brodkorb
-was recently working on restoring bcm47xx into a usable
-state.
+Feedback and reviews are very welcome.
 
-I assume you'll take care of the soc_button_array one.
+Thanks,
+Sanjay Chitroda
 
-     Arnd
+Sanjay Chitroda (10):
+  iio: hid-sensors: drop redundant iio_dev argument
+  iio: orientation: adapt to hid_sensor_remove_trigger() API change
+  iio: gyro: adapt to hid_sensor_remove_trigger() API change
+  iio: pressure: adapt to hid_sensor_remove_trigger() API change
+  iio: temperature: adapt to hid_sensor_remove_trigger() API change
+  iio: humidity: adapt to hid_sensor_remove_trigger() API change
+  iio: light: adapt to hid_sensor_remove_trigger() API change
+  iio: magnetometer: adapt to hid_sensor_remove_trigger() API change
+  iio: position: adapt to hid_sensor_remove_trigger() API change
+  iio: accel: adapt to hid_sensor_remove_trigger() API change
+
+ drivers/iio/accel/hid-sensor-accel-3d.c              | 4 ++--
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c  | 3 +--
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.h  | 3 +--
+ drivers/iio/gyro/hid-sensor-gyro-3d.c                | 4 ++--
+ drivers/iio/humidity/hid-sensor-humidity.c           | 4 ++--
+ drivers/iio/light/hid-sensor-als.c                   | 4 ++--
+ drivers/iio/light/hid-sensor-prox.c                  | 4 ++--
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c        | 4 ++--
+ drivers/iio/orientation/hid-sensor-incl-3d.c         | 4 ++--
+ drivers/iio/orientation/hid-sensor-rotation.c        | 4 ++--
+ drivers/iio/position/hid-sensor-custom-intel-hinge.c | 4 ++--
+ drivers/iio/pressure/hid-sensor-press.c              | 4 ++--
+ drivers/iio/temperature/hid-sensor-temperature.c     | 4 ++--
+ 13 files changed, 24 insertions(+), 26 deletions(-)
+
+
+base-commit: eade2b843d9b1f668fc1775f15611bb0a1999cd9
+-- 
+2.34.1
+

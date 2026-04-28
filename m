@@ -1,63 +1,63 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E39883D3D09
-	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 07:16:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F004E3D47A7
+	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 07:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777360610; cv=none; b=L5ZaW8/3xa7z0dPauUWsAA4cAv5wkl40qIUWhEomwY/+VwEReSuzZvrRl8yZb3i9yiVVmE7m2popy1lDgYDje6l50S6fgKP4SwIVPXNwWJH86d/8sLCSN6hno4laoRxskA53jI70bhydN13kJQ2jRGsAnpjZsCoWOaK3sFDW+ng=
+	t=1777360614; cv=none; b=R7g7z+GLHkGl7K/TMawlHFwwcDuhj6+k0cZAoKciPB+Xr7CwrnQCz1i38xNQtyqw5a0kW89kG4FxYX0Ls2DzAbDF2OSQQxAAb9kin04wCkBMRqswW4cmPm7BIS2/g1TmFIc2d87izCOckuqKE5PJe+J2kM5/+j5UOTUCJQ6dYeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777360610; c=relaxed/simple;
-	bh=dSkKJ7Howa8/r4sWuIZt5n9X5Q8SwwWpZB/z0c/7jDY=;
+	s=arc-20240116; t=1777360614; c=relaxed/simple;
+	bh=jj0oKGMSJItbsfmBv49PEQMMzZmhENkSicxavbGihZk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Q3G465Tn6GCB7MDluZMzF/Ar1uOplPK0JW+QhTQFeDH40RHqGHgNc8XkWWhQnMT6r41c9KRUTowEsMDKN+zO8tKiC+VbWKAB4XxhU1HBpHkcN+GZjXyDzqldL7biXX9C18L+1LwITnYk6CXthlTj7ZQv//xCeMvt2x7QNJ02Pa8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pP7BkeJ+; arc=none smtp.client-ip=209.85.210.177
+	 MIME-Version; b=EkfQVfRaqD4I+nVHa1Jc4Vy4++r3SxTGEQh4OPY44vA/IQLyT+mVoNQmZJadA5DFkyuNAW8XfYMnQTJcqta3peoPFsV9LZuBv4qbl2MayVuQnjIwTnFPYE5pVsdXjVB0NB8F3Ne9x6JAbmavsbQBqkAIFMR4ZL2P6bRPdUX5ZBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VzYXteKK; arc=none smtp.client-ip=209.85.210.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pP7BkeJ+"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-834da62e52dso335585b3a.3
-        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 00:16:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VzYXteKK"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-83177129e28so2178991b3a.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 00:16:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777360608; x=1777965408; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777360612; x=1777965412; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B7mkX+e8bgIQ85sCXfa5nrQnLaf7XTdt8ByhqMB6hCw=;
-        b=pP7BkeJ+ajK/LdDoi1VVXAhOtRKBqee/gf9FcJ0MSNEAl/QzrK8HxemRZNbx0IPHgU
-         OzyXooy5/FZMt3fRqvEhgrR+UscQOWENZv4nmvkO+g3Ota+6PSuUf3C8kXC3knxtzNQr
-         3FrNHcv9/x/wwOygkNf1OBQaSsXy6vRCxo6LJNwmmgZPCUvSG+jNAroLQ12CmBWew8UT
-         PJ185C4SGmOiExHsIDTKnQVFpncH2D2zk19N2anBpHMtOfZFhY0fdxtVAb+WZWbfxZI/
-         bd2Zmuj057Wv6xzSOkdMzrWDgV3kS/Po4HsVCVqlV+uN6hvhbqTEA7rQqdYwjlqT4aR/
-         TvHA==
+        bh=lyeuJKAlOIXJCmj0O+A4wW9kGaPEO/cRUvtuXdGiC48=;
+        b=VzYXteKK78S9/oZIV5Kurp8xxOaj7VjyyWNi9Kt6Ma0jI+zoJtCBPJimbVbKQjz/mi
+         kujhdZj6BdK+CCm2lxb3TImkAC3JZSDey879DAZozIh43O5Hu0y0n+xEjM2BKAmL7lKQ
+         5PquKrpj/BlnKvsEi6FYe+xUN1g08dGBWUczM8NchEDomXGX7flt99+qLsopsRd9uw32
+         RwVn3u4fUZSr46gy4MRMiu4PvS/5MN7iIsCEdE6qclTOaiuOgikVbL39J9CSBMbNPK8G
+         R+N5HtyEklduaf8yV9MN+BiQ0R/BJrumOQJW0xfzvJ6kvOtNHUYeJmtNmlQwgxaiIuyG
+         VMPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777360608; x=1777965408;
+        d=1e100.net; s=20251104; t=1777360612; x=1777965412;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=B7mkX+e8bgIQ85sCXfa5nrQnLaf7XTdt8ByhqMB6hCw=;
-        b=p4IKoyj0gNx4NR9H3jjMcw/YT3tI+qCnAzS0KW7u9daIoM8pJ+4Ne/asyZB+3H/qI7
-         Ayqp49SGeQDV7UBtS/wqnlxcslm7vPqDeEqW07JnvcygDD3pDvbpB7x7Ci4DfPEbufek
-         FbstDsyOkSNpK0b3GKwyb4oUxFoNWl1qr+gpMp4EQL99FaD0ziK+0VKFy0L4NhZof+O+
-         EJI3ZvKrIdIhap0sA9pg52YjqogbjUHKSeDwCU2TNMoNMOooRE/XnRvlr9AlqG1XwpPh
-         NqeZjCfo4UPtrwL+uat6amNtO6X1pdbBS4Yr5rgjcjkjdmGkKBx1yaTZEa5SivmQnJTF
-         xu3A==
-X-Forwarded-Encrypted: i=1; AFNElJ9wY0pQh9GV95gaCSNJ/szecNCIu8+ZvDhA2cC6UIJ3fCmF94GsVYIswcxnDxJjLQJmyqsstHYWvB2qCg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZelXa4V3tcyVii8zXzPQHPwLzdiQ3pH1r9RY0EuVaR40mzkRP
-	5eQH8LuXOBUe39oc1lqYhHo306zK0F7skExdlAfQEnslJopZZFTf6MQ0
-X-Gm-Gg: AeBDietKVcwf54vTRVeNgsm1W0t19i2MnPlLVUttUrGtQ1N/xubvMBPM+Tt7oVBHP0/
-	iaTPSf85sUhMrTSH4zwvq9WycSLauerxmaqOSqpB7moeAJ0fUQTDf6W6zhpclEckBJoCQ5H5Lo0
-	tGrep2acLl6jNneSj6ed2JbIqpR0D8svVrjcuLdk3dSaGsz0MnxTUOm3F4wVrnP7EYpIlDVSJYE
-	QjFRpBbAXgPphLgIiE6xN0KMcshB1XL2kC+3FcUfwPn10rJnxAQQk1chMbuxpu8o5zqVR0wscR/
-	PIt3rpuU4zixdVxdL+exGVSv8c8CwDuyPNnnFV2J+3SEyrp66co0MzylXr6gjVT4ktQdmZHCrPT
-	EA53jCpiDK7+gTmwHGCXXXJIFB2v49QzhfVq43CIGEoZkcYUS8KFx4Zi9AFOugq6zu1XwjTzY0w
-	P9gEOPRYYtzsLopJ3bYQdaRDPVJtKtj1UViKENzfRNYd/yvOfqPqmCC8qiBw8=
-X-Received: by 2002:aa7:88d0:0:b0:82a:ea3:c172 with SMTP id d2e1a72fcca58-834ddc0c4bfmr1981054b3a.46.1777360608302;
-        Tue, 28 Apr 2026 00:16:48 -0700 (PDT)
+        bh=lyeuJKAlOIXJCmj0O+A4wW9kGaPEO/cRUvtuXdGiC48=;
+        b=JSDOb6wB2/ocp2HxuI1r3xqxQkhL1Wm1MoKqSn9umTqv1E+3cryYnJ3Oa1sHka2dDn
+         puwIlOj4P9OMLUxnPmKKvkGf8Ee+LYqPbV3j7yR4FxJk56dDTDkdVYNuaitZgSXkdDjL
+         4Nhmp9X1pc9yQRtKJ9czRmLRTzI/TiyKDVQH6TJOAdNVO+KLFZNZyLhvmSEJaHKLir7x
+         X6SHxdO2wSSueNJYTUV3S/0KrcoNroX0PNDKFNpxnowVRRWVuA1vSegm++LL8GEMEMVY
+         5Szpo9wDFmHoeDZFWypEcU4/P8FMTmT8LQryD3h7rY0TSqQUj4Vv8LzCSCFTo9QaU1Uv
+         6iog==
+X-Forwarded-Encrypted: i=1; AFNElJ++O9pK3iRPyyg/UC3nD1zXO69E78gMqYeOgMV8opMrCaypa0X0IHBOcItNZTmYMv8mTTikMe7+N44tEQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxYvbRG4pXThuszo9PpUf+PwKWFNYu6A7FdpyIb/Ovkb84YhbBT
+	2rz8K85uVyc9DYW0QQDpC7VPIOZ9RiAyi0drG56fHlIjJVD/f+t/okWs
+X-Gm-Gg: AeBDieuU0Kd8+gIJa0CLPEbuO4EjTqKT3l7ca2jT7lkUIKYw8FFGbZfGQTV86G2oprv
+	q2CgkkEiSoCaJG4NIRRWDtL1F5tTVEQ8MHlUOS1jgSyWWHkVYX3eN/OuB/GmmvRVUtLEXQFocfK
+	7zNdWTXzSvIH1WkjUBEKjppS8B9DF8JLBbuHf7KBM7/na9qgWTEOLit6v7VngQlDeabwszFHTvG
+	EI7Vqv/lxYta2mVELmQJaPS1Q5yIw7GlCtCc6flhxZ1qBclVVGvCskJ2G9v3F8MKWi5A95mPVrD
+	NQQ6Z0EdtrWnIE+MRLYFupFCv+d9SlRfbUVJyGEjFy3i2LLvOyrExMwz02XTMHdFLFlHGo634wV
+	amLnndz8UYFDeIx8hGZZ+j+NbW+4KquDBT653ACkcp3rJc+rhqm0NIeVt4HD7tL/ZA44TS01gXL
+	frVmJeiwnDKmdpbanSMON60RDPloBUI9NAHHHN0pyQVtTDCKVMxZ5rDhqEnLFmtEOxb9PsPQ==
+X-Received: by 2002:a05:6a00:99f:b0:82c:ded1:261f with SMTP id d2e1a72fcca58-834ddbe7be7mr1926583b3a.27.1777360612421;
+        Tue, 28 Apr 2026 00:16:52 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-834daf5705fsm1987335b3a.42.2026.04.28.00.16.44
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-834daf5705fsm1987335b3a.42.2026.04.28.00.16.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 00:16:47 -0700 (PDT)
+        Tue, 28 Apr 2026 00:16:52 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
 To: jikos@kernel.org,
@@ -71,9 +71,9 @@ Cc: dlechner@baylibre.com,
 	linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 07/10] iio: light: adapt to hid_sensor_remove_trigger() API change
-Date: Tue, 28 Apr 2026 12:46:10 +0530
-Message-Id: <20260428071613.1134053-8-sanjayembedded@gmail.com>
+Subject: [PATCH 08/10] iio: magnetometer: adapt to hid_sensor_remove_trigger() API change
+Date: Tue, 28 Apr 2026 12:46:11 +0530
+Message-Id: <20260428071613.1134053-9-sanjayembedded@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260428071613.1134053-1-sanjayembedded@gmail.com>
 References: <20260428071613.1134053-1-sanjayembedded@gmail.com>
@@ -92,54 +92,31 @@ prototype, which no longer requires struct iio_dev.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/light/hid-sensor-als.c  | 4 ++--
- drivers/iio/light/hid-sensor-prox.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 384572844162..9b57cdced18a 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -432,7 +432,7 @@ static int hid_als_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+index b01dd53eb100..8be3dfe4dd58 100644
+--- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
++++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+@@ -542,7 +542,7 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
  error_iio_unreg:
  	iio_device_unregister(indio_dev);
  error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
-+	hid_sensor_remove_trigger(&als_state->common_attributes);
+-	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
++	hid_sensor_remove_trigger(&magn_state->magn_flux_attributes);
  	return ret;
  }
  
-@@ -445,7 +445,7 @@ static void hid_als_remove(struct platform_device *pdev)
+@@ -555,7 +555,7 @@ static void hid_magn_3d_remove(struct platform_device *pdev)
  
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+ 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
  	iio_device_unregister(indio_dev);
--	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
-+	hid_sensor_remove_trigger(&als_state->common_attributes);
+-	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
++	hid_sensor_remove_trigger(&magn_state->magn_flux_attributes);
  }
  
- static const struct platform_device_id hid_als_ids[] = {
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index efa904a70d0e..473c45626487 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -340,7 +340,7 @@ static int hid_prox_probe(struct platform_device *pdev)
- error_iio_unreg:
- 	iio_device_unregister(indio_dev);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
-+	hid_sensor_remove_trigger(&prox_state->common_attributes);
- 	return ret;
- }
- 
-@@ -353,7 +353,7 @@ static void hid_prox_remove(struct platform_device *pdev)
- 
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- 	iio_device_unregister(indio_dev);
--	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
-+	hid_sensor_remove_trigger(&prox_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_prox_ids[] = {
+ static const struct platform_device_id hid_magn_3d_ids[] = {
 -- 
 2.34.1
 

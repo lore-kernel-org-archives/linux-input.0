@@ -1,75 +1,62 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A26A282F3F
-	for <linux-input@vger.kernel.org>; Tue, 28 Apr 2026 01:09:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2237478;
+	Tue, 28 Apr 2026 04:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777338566; cv=none; b=AMtR9vq2evLjcBaxqIn/2KVwNp42gVKR9GT4x1dWiTeblOJ18gTqcBm3pCzX9s0+0dUdlX/JivJoxCcA+nUvERwL1Lbm4Dyxx4RoaGFKalHZ1f8YFCbICNxS75JVR65oUwOTOlpYAijSupSsZ/78Nt/vbnzabx408w094c4OZVE=
+	t=1777349558; cv=none; b=ehmyI4+QtkOh02B1cD+pzT4AkliKHtFFAkZvSmYsXHGgE2bbyNXiT95zAnDo9tqqqPcb+buvI4HNW2pnGA0667mIORo5AdUD4dhJYTNYxtV5ZdNBv7y14EFbdUO3Un895aGEFM+DsGdezeCGtA2ORws1FQgW/oEY4nAUW1zPgIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777338566; c=relaxed/simple;
-	bh=r/elXJM0fR9V2vGs3JzDAmTG3GxkVjz51UhlEFnw6jg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=k+VAMTwsh7vvnuoIcpXHttyGOispTfyctRELw5tvKZEGUpL1/9AniF2JAGMasEx5xSPH8If1fjKS93t828i4X6lZzjGdC2SXlNh6ZX49uEdLBZ0F4ygWRyopU/avdLGmOOTKdD9e8u4wEmJCeSupsJnd0nCWmxLelIAo4gUnL5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iFRnZk3I; arc=none smtp.client-ip=74.125.82.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777349558; c=relaxed/simple;
+	bh=RdCNYgtTfUx2w+VEsHqK9DmXdFYgykhdOYA8kLFGzXw=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=tYaKE3goSsCx52nsMqrEukp5/Sl/T9Ibc+/8pXRFiLTpZR0LXVzv2g3FtT5D++soLIiCuy7B077tde+Wl2KcvMdP+LnH0nQnsLj+5Jd8EgfH/G1xwWkyak+o70qkqgbAA+5mZ68ma39qoa0aI62HYcvj4ZRnFuy2uYxqoUNPSmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=Gidu5s8F; arc=none smtp.client-ip=162.62.57.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iFRnZk3I"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2d9916deb14so19170292eec.0
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2026 18:09:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777338564; x=1777943364; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=V1UWV0CnQblrZEKWmmzMKh8oajfG3299hpJ7cT8CIuo=;
-        b=iFRnZk3ITSRmxH7NkzG/vprI/o5ytQJu8Z1aZ2NcyzHHGPiTOkAC3T8CXnl3CVFdRQ
-         yqpSGWcEbf+blMdzomdGkaTwRhhYClhoeqWW1F71QU//TwwG7GWUJJxG3EtEp2wMBMvZ
-         7Vm0TDUF4QeWZNZ143XwqQrI3/WGEw6jFTvEVL7iLtYTa1iB+kaD43ZU51OQ1OMKG01E
-         hZca01+7P8dFU3VoI8MH7sYEKMo7kv0CddJbpMZDLnU+zWN1CpEpF/EttZBPy4zMEOAQ
-         va3YOOkYB+G8BsP9sgfQ1TK0kdiLYkPI4auskCcF0NYjoBm+OvPqCJgDrR4kiLQM3E6y
-         YrPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777338564; x=1777943364;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=V1UWV0CnQblrZEKWmmzMKh8oajfG3299hpJ7cT8CIuo=;
-        b=r4NoqtrRL2gKBf0yeZ6YkTWbhmhldxrRzs7XrR447BNYfvmbor2raTKWrmfDjkg/eS
-         QNMXs+bivfyOtIVsGc14isG8Y6kisA3GH9TXMGj23rUSIvB4dih+ciuxAEZnOXBZM8st
-         8T26eerapJFxnJECGkSKClIzUdriSmsMP686Nm1RnxkoSH05+d9iigutBDrnF7umkdmB
-         sKQzqBv2WwAA+bqJo4VOUf5tgksRIn8MEHC6h+awYWAMlR6CrP74irm0hWaCy4ujaCGX
-         wu2LltGuvwsNkbWk//vNAMaCk1ZrTdF2leZ0irsxHM9xU4Xq1LyOms1PVvchC08wVxar
-         Ygqg==
-X-Gm-Message-State: AOJu0YzIpPYQJy9aJ9BJybG9QVNH1+Rx8/dx8e0t0+xlRwMNkRcuMHEA
-	Psr7q6mGFWc40H3dEZkXcF6meoB0h3I2aPy+vH5tScV2ZzmGeoAI97QgTyOG7Q==
-X-Gm-Gg: AeBDietSTsua+04eOs2X8l81jFSYXUAoomqcf/+9meaOwTE/R3yhfcGxzNku86lfop3
-	2btcEz1GhCG2cTIk1EY6HJu41Yh0FaavSMfOLe6FdvtVbdaBq/GdpomeKOPHxQy/P/jUGtzpbkc
-	mN4iYQYujN0bnvHkZnbVeXB43gRZyD8rBwhjRejgX/0Z7mVzWuSpYMYUVXiq4LSUnl5rwBsIb7+
-	ohBJfiAiM+zH+UCkrVECfXQcwFD51KSoxcC10xIdx1lsdDzBAUq7YYAynFqtsIh6b15GhVEFYrI
-	Koygk8hAR9A/T6EBVPiEINN174ZiYYYYfsDAbWE0PeStbaBNwar19xwbi+RKVCExIEkB2PnpBOd
-	y71QHmfvvuqYiUK6HfkEK39+byanVNvQWwmMLcH0dUeFRpaCE6dKNibzldmcLka85W5j4/0LEGA
-	XIxHLX5QL6te7+IoFWOyw2hdTDXZBKQLDkB16loQKcNM+D8t5bRAmV2bAgq9CJyHXEXc4rbBGP4
-	laBkzr82PdagjhJtxPnNCHrWOWbgDrormVP
-X-Received: by 2002:a05:7300:5721:b0:2d9:b466:5e19 with SMTP id 5a478bee46e88-2ed0a155432mr640510eec.21.1777338564052;
-        Mon, 27 Apr 2026 18:09:24 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:e678:f42a:a63c:516c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ed09fb64d7sm1071380eec.9.2026.04.27.18.09.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 18:09:23 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Marge Yang <Marge.Yang@tw.synaptics.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="Gidu5s8F"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1777349550; bh=1Nt6ugEPShLCYKEr6+BVNpxdhANPlQCmEmONk5oMCbE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=Gidu5s8FB3dgC4Y0T8o7Bt6g6MXwJTNjS9D0A7Jlck6mhzAuLqvgWW3BpSPU7WOPF
+	 nwWu6E0xsM06WkpZcd+dOOmyfQueniBr/1PaIaISLvfx2KQp268ySG5xSN6tDrBJB5
+	 H91rv9r50jYxD94gA9H3NffH9IO4f4KZX5ZtOIXg=
+Received: from lxu-ped-host.. ([111.198.231.89])
+	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
+	id 31AAAA9C; Tue, 28 Apr 2026 12:12:26 +0800
+X-QQ-mid: xmsmtpt1777349546tscspmme0
+Message-ID: <tencent_BB7C33EB9EA41B7B4B5F1B8B25C0BA13BB08@qq.com>
+X-QQ-XMAILINFO: MRMtjO3A6C9XhkF96blYDQH0VPzreY9tKY5JuknvLzdgIEAjNqWLdM9Dg8nldw
+	 c62V5Fp7hmu3D5bC+ppaDSTRgBOpo2vrct3aBswas/SwezWrSFP9CEDq7nOZcQkLtcRmsfYkSMBo
+	 Wtrn/I+EMDcmgFnqMcob9yLJ5zkXeaX+DHKmzxPQtVK5dTZDdt+DI3oj+LeUjD6qOdHXGepPVIGz
+	 7VufDrexR9nyOpG33zaRWDLiV3PC2fVQrDlr7ftO+K574ajdU+yhtp8Pgqo4Xah7zl2+UvWaiTOw
+	 cZbOKf4C+RiD7Ysul249AZgSi6xe5R6zRbf3c/E05YQTzGAhSLNLqz4u0fTM9Ew3bo204l7dQVbW
+	 TIptGNFIfSS3P3a6sOfPrrMi7sviIym0DwVCjc11+ezkQQOcVX4wccpKXqTbWk8yA8h0m17KCfKV
+	 iBowgNClmXRYmJXgIcRwmv4Ix2vJTFvCYjAWpkORkTQaqhnHjPKy8OEeyVYZ4Sgs7Jwcxkn8EdWy
+	 SZfhkfRXxEahQc34m3D1Epg/wwkME+gNIA6GLtnHdplkx02pU9T/hyihHDePDhEG0Ymiqo6yRttp
+	 wo5bEcAc3RSTP1PuuUUN+6xEh+hgnicY+wQEFIvvwHzQ1FN+y28tu907vN/gO5+bpATC4w2GZE56
+	 P8yiT+UkeTkJbrlNJrEu2mulRU7sX/I6gv/btBhp9bvhAU907L5PmiUMlT1ez9LrZzMaxIIO/VCZ
+	 i2brY6DLwTD+dPfSsLknwN119rXfSBNzhHIrsRXqoVbNcy28WRYupSGXCsgv6lmPg6+R3LjUy7QG
+	 44A/NHdmpRQIvfMJ0SLXHfCV1dZ32q+jl2p/WkCVS3pzNojihg705GaeKrKaNkiT/JVp3vCjnCOk
+	 qeT4Hkw+Z7qj0O9bIQPpjc9iCCudC9c8qKWfcjy7PqN7mXspeUYksQm4VKb5sOPju3zJAizzHk3p
+	 fjvpBGy3Q8ponppkAd4FdcNZo2BNCUqZEDniMhU0xbLv73FxUCyKjeYW5ZzaAWXNZ56pp4fTV3C4
+	 1rBFje17SQ4ckPz2FIyDGdlRVJiBI=
+X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
+From: Edward Adam Davis <eadavis@qq.com>
+To: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
+Cc: bentiss@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH 2/2] Input: rmi4 - fix num_subpackets overflow in register descriptor
-Date: Mon, 27 Apr 2026 18:09:16 -0700
-Message-ID: <20260428010917.1320927-2-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
-In-Reply-To: <20260428010917.1320927-1-dmitry.torokhov@gmail.com>
-References: <20260428010917.1320927-1-dmitry.torokhov@gmail.com>
+	linux-usb@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com
+Subject: [PATCH] hwmon: prevent packets from going to driver for probe
+Date: Tue, 28 Apr 2026 12:12:26 +0800
+X-OQ-MSGID: <20260428041225.235251-2-eadavis@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <69eed7e0.a00a0220.7773.0026.GAE@google.com>
+References: <69eed7e0.a00a0220.7773.0026.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,64 +65,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RMI_REG_DESC_SUBPACKET_BITS is defined as 296 (37 * BITS_PER_BYTE). This
-may overflow num_subpackets in struct rmi_register_desc_item which is
-defined as a u8.
+A race condition exists between hid_input_report() and the point
+immediately following the execution of hid_device_io_start() within
+corsairpsu_probe(). If the probe operation fails after "io start" has
+been initiated, this race condition will result in a uaf vulnerability
+[1].
 
-Fix this by changing the type of num_subpackets to u16.
+CPU0				CPU1
+====				====
+corsairpsu_probe()
+ hid_device_io_start()
+  ... unlock driver_input_lock 
+ hid_hw_stop()
+  kfree(hidraw)			__hid_input_report()
+				 ... acquire driver_input_lock
+				 hid_report_raw_event()
+				  hidraw_report_event()
+				   ... access hidraw's list_lock // trigger uaf
 
-Pack the structure by rearranging the members to avoid holes, change
-reg_size from unsigned long to u32 to save space and ensure consistent
-size across 32-bit and 64-bit architectures, and use DECLARE_BITMAP()
-for subpacket_map.
+Consequently, when corsairpsu_probe() fails and hid_hw_stop() needs to
+be executed, the io_started flag is first cleared while holding the
+driver_input_lock to prevent potential race conditions involving input
+reports.
 
-Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+[1]
+BUG: KASAN: slab-use-after-free in rt_spin_lock+0x83/0x400 kernel/locking/spinlock_rt.c:56
+Call Trace:
+ hidraw_report_event+0x5d/0x3a0 drivers/hid/hidraw.c:577
+ hid_report_raw_event+0x311/0x1730 drivers/hid/hid-core.c:2076
+ __hid_input_report drivers/hid/hid-core.c:2152 [inline]
+ hid_input_report+0x44e/0x580 drivers/hid/hid-core.c:2174
+ hid_irq_in+0x47e/0x6d0 drivers/hid/usbhid/hid-core.c:286
+ __usb_hcd_giveback_urb+0x3b3/0x5e0 drivers/usb/core/hcd.c:1657
+ dummy_timer+0x8a9/0x47d0 drivers/usb/gadget/udc/dummy_hcd.c:2005
+
+Allocated by task 10:
+ hidraw_connect+0x57/0x430 drivers/hid/hidraw.c:606
+ hid_connect+0x5bf/0x19d0 drivers/hid/hid-core.c:2277
+ hid_hw_start+0xa8/0x120 drivers/hid/hid-core.c:2387
+ corsairpsu_probe+0xd9/0x3c0 drivers/hwmon/corsair-psu.c:782
+
+Freed by task 10:
+ hidraw_disconnect+0x4f/0x60 drivers/hid/hidraw.c:662
+ hid_disconnect drivers/hid/hid-core.c:2362 [inline]
+ hid_hw_stop+0x101/0x1e0 drivers/hid/hid-core.c:2407
+ corsairpsu_probe+0x327/0x3c0 drivers/hwmon/corsair-psu.c:826
+ 
+Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
+Reported-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=9eebf5f6544c5e873858
+Tested-by: syzbot+9eebf5f6544c5e873858@syzkaller.appspotmail.com
+Signed-off-by: Edward Adam Davis <eadavis@qq.com>
 ---
- drivers/input/rmi4/rmi_driver.h | 8 ++++----
- drivers/input/rmi4/rmi_f12.c    | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/hwmon/corsair-psu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index e84495caab15..865ffc7882f3 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -11,6 +11,7 @@
- #include <linux/hrtimer.h>
- #include <linux/ktime.h>
- #include <linux/input.h>
-+#include <linux/types.h>
- #include "rmi_bus.h"
- 
- #define SYNAPTICS_INPUT_DEVICE_NAME "Synaptics RMI4 Touch Sensor"
-@@ -52,10 +53,9 @@ struct pdt_entry {
- /* describes a single packet register */
- struct rmi_register_desc_item {
- 	u16 reg;
--	unsigned long reg_size;
--	u8 num_subpackets;
--	unsigned long subpacket_map[BITS_TO_LONGS(
--				RMI_REG_DESC_SUBPACKET_BITS)];
-+	u16 num_subpackets;
-+	u32 reg_size;
-+	DECLARE_BITMAP(subpacket_map, RMI_REG_DESC_SUBPACKET_BITS);
- };
- 
- /*
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 8246fe77114b..9bcc27e9d308 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -88,7 +88,7 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
- 
- 	if (item->reg_size > sizeof(buf)) {
- 		dev_err(&fn->dev,
--			"F12 control8 should be no bigger than %zd bytes, not: %ld\n",
-+			"F12 control8 should be no bigger than %zd bytes, not: %d\n",
- 			sizeof(buf), item->reg_size);
- 		return -ENODEV;
- 	}
+diff --git a/drivers/hwmon/corsair-psu.c b/drivers/hwmon/corsair-psu.c
+index dddbd2463f8d..4e766bf32189 100644
+--- a/drivers/hwmon/corsair-psu.c
++++ b/drivers/hwmon/corsair-psu.c
+@@ -823,6 +823,7 @@ static int corsairpsu_probe(struct hid_device *hdev, const struct hid_device_id
+ fail_and_close:
+ 	hid_hw_close(hdev);
+ fail_and_stop:
++	hid_device_io_stop(hdev);
+ 	hid_hw_stop(hdev);
+ 	return ret;
+ }
 -- 
-2.54.0.545.g6539524ca2-goog
+2.43.0
 

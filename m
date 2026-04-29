@@ -1,72 +1,59 @@
-Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FA7E2FD7BE
-	for <linux-input@vger.kernel.org>; Wed, 29 Apr 2026 19:19:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F85175A81;
+	Wed, 29 Apr 2026 19:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777490354; cv=none; b=HSAaO++D/PEsj2ndCgBDDMLcfvWmKARIEAVBKw1S3qRS2LlGN7C36ZRs2xlAyykxZsCe36V8LxS4ftzKE7fif8k4qYB2Zg0jdp6L8n8p2ANprrxlXjf7D+fmjIlzJid5BLWx7gCbgb3p9LHJ3iEh9vMEfV9IVVQ0scGPQXL6frw=
+	t=1777491093; cv=none; b=F6J+uC4bWZnn6mwNnpFTbqRHATqTH8HGONdAxdorWP65k+qYNi8I5gfALLvPvllhNaLZc19tRm6IN7ihENvhZ3Ns5C8szHgoJlh+p2YbJ6qSMVknrU0v2MM85XoSq78kOWAs43ynN5QdHnHdnTow9vOXY16nZVTy04xvQz4BU2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777490354; c=relaxed/simple;
-	bh=kE6z6ho481l3cRMIBg1rjaXuPr/oIN2dimR6vL3X4OM=;
+	s=arc-20240116; t=1777491093; c=relaxed/simple;
+	bh=+LQhbcAgW3ewVCWmY7VLHYmTyq4G9Fc7ntXY7yWyRyY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aXBiY9UtvC6KjGQom/VsTNGfC3DGpLLwY2OYPHA3uApTablCsnh9DL/wEHeHcqiqAI8vbvaz8J8APd4QgRfxEqgNVuSlpHB8wSQBLsYxrH+bFDFCKjc1dBEQtREvHgOpb6LOXQq1P7Mpkz5sOfRhAjH/6Kt5XQF3vinm+gLYOcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JYSnVTNF; arc=none smtp.client-ip=74.125.82.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sTL5I83DbVxkGCRfprY+8wsaN15C0904VxVt3zlu7oBoI5KBiGKATu+5Orjf3kxTRiMMNi/SLzbcOcVSZOlh72fP4az4d/xwR4tDRcAISqXg6QOWJ0Mw0EmNpKWNmdfa3OudphncsoeCkvxnIf8JJeQ6AEJPYP1hOvMJbSheIaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ht8drbHF; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JYSnVTNF"
-Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-12de530cbf1so353939c88.0
-        for <linux-input@vger.kernel.org>; Wed, 29 Apr 2026 12:19:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777490353; x=1778095153; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=01rquaTt7d61QtrEpYATFjqsbMMGQjEoJs+Y2dcPj8w=;
-        b=JYSnVTNFLCdlQ763sQtm2Wly08DJv6/hbybz83UsID4Jm5UOVq18R8wjWxg/RRMNEZ
-         4si19zKAJqBM4dKxIX+zGIHF+DHBRFSRwDyfDbqL6UvTvnG/SIGdCiGu0g1zuOmIJ3mW
-         PWFwuoGLxmIzspyAx7vkpKW3PfrL319H/BrD8wcmvJc3NVn1+UmTbyCTiKfwbZLkgoAa
-         CnVN/Nna8CYct1fwo9GIqkqb57n1g7sADA15x41Kguxay3l7Borf+ZtdLN0TFAF4u2Vv
-         rHO/7tSrD/x2RMoaE2nN7vKdtH4syZpfT+qMJkU5iHYn5/0vE1B8Knn9Ahhr7HIL2ZcN
-         bMOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777490353; x=1778095153;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=01rquaTt7d61QtrEpYATFjqsbMMGQjEoJs+Y2dcPj8w=;
-        b=WCrN+Pk4VGGqeyjHClGEiMbeEtj1piFRQ/57N/y1uP6nXPQ0R+Ex+uJAj5Ksx9OYmR
-         yZHlOX+JP006TVfUufMaHI42yaa3PPbf+irvFVKGE3KlSRcd5yrxG5RDmz77V5AXT+Iz
-         lTmpubGwca9pXoPH1xNjGb2H7wdEM99MrIJt87i116pLMQvR7DPYyRHp4t4JCGaGohvm
-         x1mRTEDcskizP2VnLfpM2rCTY5galxC2N26TBbsu5+zKhy+zlIU7QikCrI/0IJipoRLf
-         5RNyo2fuJJlUBjlcMegCj5TfQ1CU4I2Of8szDmYQVmUAVMStkPhBDoPAy38yTYYnNmP4
-         M8WQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9QVZBH+uFY/pu4f/idIVCmpvMqNQvNKCuCELsJnFMMRpGaeSS3S0L0Vg3F7HngxRpigYwwWyHUW8N32g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwFnuUIb6/uS7YLUi8v2t4GXKPX7/G8V7ZNe37XLwlQUrlMJdDa
-	dRSvjbI2GA04xGGJXOUaeryV9KLvq1DPj1Qh3CDMmBmNo61ue7m2ZonK8Ff3og==
-X-Gm-Gg: AeBDievolzzTKTd5pbIs+iKEQFKI349RhJPlUK2CPERX+NCd6CvpiwIkThPVyfv6fma
-	hfYCzU4+Q2xK2OlbT6WEmjAVD4xC2GB7vuqgKfRCatSVrB/HwbnpEd+jOcyPW3TMpvjETibVWRJ
-	JmzmrGrkgAVbl/HGRsMY9knTC01uPNn1Grb1ktx7RYbVPMuyuCEzqUZaW2YtQ++k/X6Fl7k83wU
-	V1orMkw45e4F5y8gihg14PP29YPPJolPs47I4WiDKydagmtuIxmliJJqgIc6GxTDtXtuh7Jpn6e
-	aIM/wbyYwgbl/tplztASGnoj3lZumKzN5IDLsmUHxdcFmKdH1acq2mLskbCleLuxSkMrKr/UZrC
-	rkWjL839yAoQ2HzRuhQmaG9gC0O5Avb7ZioxSYj2kIAaX7jnmyYlOd8GAOFxTI8OMx9oj9GmmKJ
-	KjnKObAn5m0bbHUmgukYT6QlQ+x1BAubEUilJnlSGGkJJluUuC1k6wQd5R9oTkHapoVH1B+Onlz
-	cbTAMdypIiq
-X-Received: by 2002:a05:7022:23a8:b0:12a:b3c4:c3b6 with SMTP id a92af1059eb24-12ddd984e39mr4038307c88.21.1777490352727;
-        Wed, 29 Apr 2026 12:19:12 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:54e3:5ca2:4f82:c61])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12de32173acsm4929916c88.5.2026.04.29.12.19.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Apr 2026 12:19:12 -0700 (PDT)
-Date: Wed, 29 Apr 2026 12:19:09 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Kris Bahnsen <kris@embeddedts.com>
-Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org, 
-	Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] Input: ads7846 - don't use scratch for tx_buf when
- clearing register
-Message-ID: <afJZSCXeoSO502o1@google.com>
-References: <20260427174657.691272-1-kris@embeddedTS.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ht8drbHF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777491093; x=1809027093;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+LQhbcAgW3ewVCWmY7VLHYmTyq4G9Fc7ntXY7yWyRyY=;
+  b=Ht8drbHFx/+OoN6gUqisP0/yg2ZRF2J88yIeJ+3e6yy8dVk0PGmKjIdi
+   KbXo7p4izPsSIVyuyzupEIO/kCsITcMdLsIbkyXoyBqB97XT8k8Yj2VMu
+   gT/pdQ2e/Jk6J2ULqP1ere41sM4DWbLhgWIbFOl4ZXZtwdTQdGi3+EhSl
+   YTxct06MDO/3M5M5wm0IbscuVNZugiw8mxO512tUyyqQaHCkZKyuxKXjY
+   cKktXUHkddcrFITjHfjJJhFvkqojZE+j0DKc0bDwOJxm0dxqpILVz6H0J
+   3+kv+xNQPmCpkr+otZs0N4NTHp3ptOs96H28idgOyvx81BJ0jIY3RwCud
+   Q==;
+X-CSE-ConnectionGUID: k31J6NvjR9mAZCcjkcHk0A==
+X-CSE-MsgGUID: IPUYTkjLQLCAmWLQTuF9EA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11771"; a="78539244"
+X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
+   d="scan'208";a="78539244"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2026 12:31:32 -0700
+X-CSE-ConnectionGUID: +uiXokeTRuqGBpQp4Gcjqg==
+X-CSE-MsgGUID: x9wi+QFoQlCA+0Jjwuucfw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
+   d="scan'208";a="231222186"
+Received: from ettammin-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.141])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2026 12:31:29 -0700
+Date: Wed, 29 Apr 2026 22:31:27 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com,
+	dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
+	sakari.ailus@linux.intel.com, linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] iio: hid-sensors: introduce device managed API
+Message-ID: <afJcj34Fc_aUMVhe@ashevche-desk.local>
+References: <20260429175918.2541914-1-sanjayembedded@gmail.com>
+ <20260429175918.2541914-3-sanjayembedded@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,27 +62,59 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260427174657.691272-1-kris@embeddedTS.com>
+In-Reply-To: <20260429175918.2541914-3-sanjayembedded@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Apr 27, 2026 at 05:46:57PM +0000, Kris Bahnsen wrote:
-> The workaround for XPT2046 clears the command register, giving the
-> touchscreen controller a NOP. The change incorrectly re-uses the
-> req->scratch variable which is used as rx_buf for xfer[5], so by
-> the time xfer[6] occurs, the contents of req->scratch may not be
-> 0. It was found that the touchscreen controller can end up in
-> a completely unresponsive state due to it being given a command
-> the driver does not expect.
+On Wed, Apr 29, 2026 at 11:29:16PM +0530, Sanjay Chitroda wrote:
+
+> hid_sensor_setup_trigger() is common API used for the HID IIO drivers,
+> prepare devm API devm_hid_sensor_setup_trigger() to acquire resource
+> during setup and release using device managed framework during drivers
+> fail, unbind or remove path.
 > 
-> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
-> transmit all 0 bits. Also set rx_buf to NULL because the value
-> returned does not matter. Thus moving the 3 byte pattern to clear
-> the command register to a single message.
+> Register action with devm_add_action_or_reset() to release resource with
+> devres framework.
 
-Unfortunately my suggestion was flawed: I think this will flood the logs
-with "Bufferless transfer has length %3". We need to have either tx or
-rx buffer :(
+...
 
-Thanks.
+> +static void hid_sensor_remove_trigger_action(void *ptr)
+> +{
+> +	struct hid_sensor_common *attrb = ptr;
+> +
+> +	hid_sensor_remove_trigger(attrb);
+> +}
+
+Casting is not needed here.
+
+static void hid_sensor_remove_trigger_action(void *attrb)
+{
+	hid_sensor_remove_trigger(attrb);
+}
+
+...
+
+> +int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *indio_dev,
+> +				  const char *name, struct hid_sensor_common *attrb)
+> +{
+> +	int ret;
+> +
+> +	ret = hid_sensor_setup_trigger(indio_dev, name, attrb);
+> +	if (ret)
+> +		return ret;
+
+> +	ret = devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, attrb);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+
+	return devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, attrb);
+
+> +}
 
 -- 
-Dmitry
+With Best Regards,
+Andy Shevchenko
+
+

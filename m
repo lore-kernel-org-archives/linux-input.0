@@ -1,55 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26E839EF30
-	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 09:16:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE573A0E8D
+	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 09:22:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777540582; cv=none; b=iLMIdz5sKYSTRVepPJppKBXrosvVPzR6XOwz0Q5UmvQzDgbsgpKRsbeHbGMDHEXca7qHO9rNqPcQstFMDSGokBr3nb1LoHvToRRaqLr5HOOsICfKAWXpym62ZHGj/O1DpI4ZvJgUw7Oit2/4ILSjRv4YvhTfRaJaONl1VVK7I0k=
+	t=1777540963; cv=none; b=N0use8YZfWdWh17sFVudtb+deGgPcQf6t8IZKFMuwe1xR2I3tFHiH4RLr/AiWyF0gxeM3VG9+ddhKvOG1OXpZO3QyWcCthMkIJlWLvzzKGvmYJWPkGLfMe9LeOZ3tArR4X664TVZ1XL92i77Eyul7MlwPw0qRFA8jQHj3lKUE90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777540582; c=relaxed/simple;
-	bh=l/a9wTobf92jzFsZf8ZAfVoB3S09T9fDX5ODjewF+L8=;
+	s=arc-20240116; t=1777540963; c=relaxed/simple;
+	bh=1hbv3+qsz7CdCFW9e9Eg5avIqTaq6+B/xrpTsHNZWcU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fHyTf3aiEnr8H1hZWgbd0O/7HFQqj+M9HFAx3O7LlKDj8WWA2GYZLT+stsyfwu6ti7VTn3vCMfdbIv4WrHzjLa/Glhhrxku+9QaXr8GA9DnjT7n5QxYHHDYH/zFRHHJJVoKdJhL638JRa3pkBDnfLyVmfcBmarya0TdZPSt6aDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XxSw9Azx; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=Ta0Cv5pxjz2ckxyVH/82EqLPujBE8gBI2Ahzzjg2oB94cmd6UCjw9xDPVREy2Q39mJug+ycDQlU9CbWT7gpdd686/tYWa0ZC5m5KyM8UD6W6a9YoNoAsIpAhRLU6qSvC7N5nZFrjKrkbcXkI4eUg+T9Y+GLlSd71baxnmYuwmLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VMKdY2df; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XxSw9Azx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5693DC2BCB3
-	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 09:16:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VMKdY2df"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB07C2BCC4
+	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 09:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777540582;
-	bh=l/a9wTobf92jzFsZf8ZAfVoB3S09T9fDX5ODjewF+L8=;
+	s=k20201202; t=1777540963;
+	bh=1hbv3+qsz7CdCFW9e9Eg5avIqTaq6+B/xrpTsHNZWcU=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=XxSw9AzxoYt46bWLk0+BUP246OuYJuavYu58ARFXbwxQDvbl9wJNpP4njjiFJ+znQ
-	 l3CzvECCTjE1v9YM3fVA9yVzRMpjccUimLzbeWx3sIRB+8ok5/k5EgAaC4TkN5Nwe3
-	 Iwt2BbgDnI5+eF2oO9JeyCW1GpgD64kWo3YpAMPzSrJdg3RG4ulDh2j+jAhKzGayhy
-	 au3vssuRMFpoIX7q/Pq43M4Tvv9wz0etUTbgS9gJ8HPdJ3kNNJyvGb6g5Py7M3XYjw
-	 baPvjV88aJdsiJZqszHLaGwvTu4WLaDjV0wDTb+DsQ8Djt8ElbZwUWrVpSS+TSC3kl
-	 nQc+kYeU/QTWA==
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5a62a049c1fso667932e87.3
-        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 02:16:22 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8T8Za06fPzcX+YRH3cP0auSUKQKB39BgMdFV8QKu1SzrCyVQ41zBKYFJzgWnySSOJRIxKm/EKMp1CLRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yze469Mg7VYVNYUAHfKx7y3TrYcobgGK7NtluFz+ybfmw0giPdk
-	5Aq2IzNPZ2gfUsDHRB34REHxaBQw0q4sF55JqIRugoh8BeZI98pdY2o0JuDvb+jYa64se9NIEPV
-	93XPHIpDvNQLEhfiEwr5wMRvYcp4e2pw=
-X-Received: by 2002:ac2:4e0a:0:b0:5a7:46f9:a6be with SMTP id
- 2adb3069b0e04-5a8522ae059mr614505e87.2.1777540581025; Thu, 30 Apr 2026
- 02:16:21 -0700 (PDT)
+	b=VMKdY2dfVWcbbZvc918bTL/VkVKqVFw9sXvIrXHI+68s9DTcF8/LPxzvryMLaIVhK
+	 W8+UCb0dtRlkwEW02Jf+8aXwn+AWVA4sYHDlgrvxk1b1Q+UAdxYrdjEGt8pJXsmB9+
+	 h1r1QOO8DDl2qNUYA5a4pV5fkdIZBQyN7Vf+CvurQ5l5a6is3BVz9F+xFNzmaxt6ou
+	 jqykk0YmGCdQrNV+uUBJpDMocDVtIqdtQRdlz7nMvbKWXnJdurdRA0kewf+aE0Js1K
+	 oU16Qh3LMIkKIZ6vLb2Ju+69FqaSpKDZUDLUqJgIf2nbxSplxELFU9/NHTPVnhoIeY
+	 3NpJgP2fwOW4w==
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-38cc8708d76so6582361fa.3
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 02:22:42 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ++xGJ+ukntWLSNsDfwy8K77xj8uw6H2P+VjlethUjOwcZS4gvJ3PRqXfuFPJPSLPto2+kG17TZJJawbg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyoWmNpvYl06b+XU2Guvftggm0VlKVdau2lcJIhvuB9ZmtiJ5Rx
+	rPtO/aRY5nQBPu8SR7EDWMU7/MAf+HmaF8jHzj+xTg7rUtemu0q4ZI5Z10/HInPaojk7Jvt3Qr8
+	DP97TSn0PzSYkTXeLOq1llUQSKakINgs=
+X-Received: by 2002:a05:6512:10cb:b0:5a4:157:5354 with SMTP id
+ 2adb3069b0e04-5a8522bc5ffmr721493e87.12.1777540961140; Thu, 30 Apr 2026
+ 02:22:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260428114308.113253-1-clamor95@gmail.com>
-In-Reply-To: <20260428114308.113253-1-clamor95@gmail.com>
+References: <20260428114308.113253-1-clamor95@gmail.com> <20260428114308.113253-3-clamor95@gmail.com>
+In-Reply-To: <20260428114308.113253-3-clamor95@gmail.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 30 Apr 2026 11:16:09 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmNKWwHAxV8OLK5wupwj4dT1TWEn2Dmd6gP-Ez9Pgk0tw@mail.gmail.com>
-X-Gm-Features: AVHnY4KwPkvtgXF1IwqfGILo71AwcUURVjSi3qnAcbBTxlC6djjCjkTEfm11Kfo
-Message-ID: <CAD++jLmNKWwHAxV8OLK5wupwj4dT1TWEn2Dmd6gP-Ez9Pgk0tw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] input: misc: add support for Imagis ISA1200 haptic
- motor driver
+Date: Thu, 30 Apr 2026 11:22:29 +0200
+X-Gmail-Original-Message-ID: <CAD++jLkU-G38xtzzfAV_otiYuM2G5NHdCdtjFjsy2AjpG22_rg@mail.gmail.com>
+X-Gm-Features: AVHnY4JNoOOgq4asQaW05QkAmgJoAjyrhDY2aKkW9L0o-hpZE2efG82M63foOSM
+Message-ID: <CAD++jLkU-G38xtzzfAV_otiYuM2G5NHdCdtjFjsy2AjpG22_rg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] Input: isa1200 - new driver for Imagis ISA1200
 To: Svyatoslav Ryhel <clamor95@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
@@ -57,58 +56,63 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
+Hi Svyatoslav,
+
+I just saw this thing:
+
 On Tue, Apr 28, 2026 at 1:43=E2=80=AFPM Svyatoslav Ryhel <clamor95@gmail.co=
 m> wrote:
 
-> The ISA1200 is a haptic feedback unit from Imagis Technology using two
-> motors for haptic feedback in mobile phones. Used in many mobile devices
-> c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
-> GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
->
-> The exact datasheet for the ISA1200 is not available; all data was modele=
-d
-> based on available downstream kernel sources for various devices and
-> fragments of information scattered across the internet.
+> +/* HCTRL5 controls the PWM high duty cycle of internal channel */
+> +#define ISA1200_HCTRL5                 0x35
+(...)
+> +struct isa1200_config {
+(...)
+> +       u32 duty;
+> +};
+> +       /* Duty cycle */
+> +       regmap_write(isa->map, ISA1200_HCTRL5, config->period >> 1);
+(...)
+> +       if (isa->clk)
+> +               regmap_write(isa->map, ISA1200_HCTRL5, config->duty);
+(..)
+> +       if (isa->clk) {
+> +               ret =3D device_property_read_u32(dev, "imagis,period-ns",
+> +                                              &config->period);
+> +               if (ret)
+> +                       return dev_err_probe(dev, ret,
+> +                                            "failed to get period\n");
+> +
+> +               config->period /=3D ISA1200_HCTRL6_PERIOD_SCALE;
+> +               config->duty =3D config->period >> 1;
+> +       }
+> +
+> +       if (isa->pwm) {
+> +               struct pwm_state state;
+> +
+> +               pwm_init_state(isa->pwm, &state);
+> +
+> +               if (!state.period)
+> +                       return dev_err_probe(dev, -EINVAL,
+> +                                            "PWM period cannot be zero\n=
+");
+> +
+> +               config->freq =3D div64_u64(NANO, state.period * config->c=
+lkdiv);
+> +               config->duty =3D state.period >> 1;
 
-I applied a patch to the Janice devicetree like this:
+So you don't need the same code writing
+regmap_write(isa->map, ISA1200_HCTRL5, config->period >> 1);
+above, just use confg->duty which contains config->period >> 1
+(...)
+> +       device_property_read_u32(dev, "imagis,duty-cycle-ns", &config->du=
+ty);
 
-+               /* Haptic feedback unit Immersion ISA1200 */
-+               haptic-engine@49 {
-+                       compatible =3D "immersion,isa1200";
-+                       reg =3D <0x49>;
-+
-+                       /* clkout1 from ACLK divided by 8 */
-+                       clocks =3D <&clkout_clk DB8500_CLKOUT_1
-DB8500_CLKOUT_SRC_ACLK 8>;
-+
-+                       /*
-+                        * GPIO194 pin HEN (motor hardware enable)
-+                        * GPIO195 pin LEN (motor LDO enable)
-+                        */
-+                       control-gpios =3D <&gpio6 2 GPIO_ACTIVE_HIGH>,
-<&gpio6 3 GPIO_ACTIVE_HIGH>;
-+
-+                       imagis,clk-div =3D <256>;
-+                       imagis,pll-div =3D <2>;
-+
-+                       imagis,mode =3D <0>; /* LRA_MODE */
-+
-+                       imagis,period-ns =3D <1340000>;
-+                       imagis,duty-cycle-ns =3D <100>;
-+
-+                       pinctrl-names =3D "default";
-+                       pinctrl-0 =3D <&isa1200_janice_default>;
-+
-+                       ldo {
-+                               regulator-name =3D "vdd_vib";
-+                               regulator-min-microvolt =3D <3000000>;
-+                               regulator-max-microvolt =3D <3000000>;
-+                       };
-+               };
-
-It works, I get rumble on the keys.
-
-Tested-by: Linus Walleij <linusw@kernel.org>
+I'm not sure about this, it works for me when I set this to 100
+resulting in a register write of 100 to ISA1200_HCTRL5. But are
+we sure that this register is expressed in nanoseconds? I think
+some calculation is needed here (and probably another value
+in my device tree).
 
 Yours,
 Linus Walleij

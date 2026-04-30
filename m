@@ -1,122 +1,119 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2566A28CF77;
-	Wed, 29 Apr 2026 19:54:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7236039D6E3
+	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 07:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777492500; cv=none; b=HFoIJyfMxjqIMX4zEQg6AzIbn3U69yU1CEAvEd2g2L8OixxG5EbRq8S59TVDIgN5SaZUu1syDplTsv7jfwalSYQ5NEkVXUt8M/pLwVFSh9hU01UTyrxd1UtemR+eTKAEINqB+Fz4+guihAiK4H7YD/00zEEi+EvI71hu43wdY8Y=
+	t=1777533324; cv=none; b=WG9Dr/HYyqVct5eMI3xbki2F+pC5zW8LHRHAc63sIkoE3qMD/D0kmqLO4OIMY8+wBzy3LYst1TBzDBp0JOd/aDQjuz40dR3DxTGp9ZXorNgzQ3fcciqlQaQHKHZtENCPXLow+Ifp7w3LTmMH4P1NO9TmpjrinnPID/RWw1OetTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777492500; c=relaxed/simple;
-	bh=pmAzQAVQCStUE+VV4MqMdSPR/Xvj9wQV7X1h/44Yzh0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qCkxL/TO8Iome9D76RrC+0iMpSXfeUsa4V37JYf4U1FsYymM1dF0F2+M1/o00bdsfsqf0iFcH3DdM3mIxsRLa8TJeQyBCuqPpELZ94FQuaTLaDPyk6Hj96PiJLALrQygx+t4GpR4DpkxiFzzYSjkQ8hTbj9CVV/TPIqVvO8i/mk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NtpHMcFo; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1777533324; c=relaxed/simple;
+	bh=6M8vIhC5eapisP8abzJ0zTYqUAp/C0pP3Z4DEPMcxH0=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=erubUQQ15pm+2OTSgd5WeQyQnYq1HF4N2T+MYbw6JD0ivdUgvpBqUfREs8s1tmsuOiWg6MaPRWw5q0iRm6sqLYFtOj3JfiteIbZM7Ji5bNWQQ2YYyZ/qMUlDsV8oUykbKBEuNvBXg1qKKzanRsNzTd3ePVxbHGYueCuVEYFBIEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AI2Ieis+; arc=none smtp.client-ip=209.85.216.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NtpHMcFo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1777492500; x=1809028500;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=pmAzQAVQCStUE+VV4MqMdSPR/Xvj9wQV7X1h/44Yzh0=;
-  b=NtpHMcFoSwX54qPTJ+xlFbS/9i5I1LZIH7+OuQVDXqcA7oJUAvHRxU+I
-   7u09djQH+okK0nqmuURxBHhjS352GpzkhGFbT0gKCfWhFjlUd3m9gUhib
-   86egqHkVk9IhrEGtcoiP7G1+S/J00FbsPP+FlHbNOtdanMUNtxUl1has8
-   cPJXMUmdOOjKKdbeYP8oZdVrD7dsXS6naJpejdvaHgnM0bZzD6gVOatTC
-   CCDQ1KJ1HLSBbi6O+33JJe3NrgvBciA9uidk/4t5Io6F3wHXCVOIqtEg+
-   +tDG8wlfmc/7zEw9sT+Eb6Lz6fjcrokqEzu2Mq8xCi7EDvrOMDDNzNKSu
-   A==;
-X-CSE-ConnectionGUID: MUxGrwVuTL65LwZyFJON/A==
-X-CSE-MsgGUID: KZ/omD7ySkq6Rkp4mT/Xug==
-X-IronPort-AV: E=McAfee;i="6800,10657,11771"; a="78622350"
-X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
-   d="scan'208";a="78622350"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2026 12:54:59 -0700
-X-CSE-ConnectionGUID: F8LI1en1TseWX+MXIn003Q==
-X-CSE-MsgGUID: Ia6ryg3NREilKcLYOPysZg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
-   d="scan'208";a="234391917"
-Received: from ettammin-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.141])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2026 12:54:56 -0700
-Date: Wed, 29 Apr 2026 22:54:53 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: =?iso-8859-1?Q?Nat=E1lia_Salvino_Andr=E9?= <natalia.andre@ime.usp.br>,
-	andy@kernel.org, bentiss@kernel.org, dlechner@baylibre.com,
-	jikos@kernel.org, nuno.sa@analog.com,
-	srinivas.pandruvada@linux.intel.com,
-	Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2 2/7] iio: accel: HID: Replace method
- accel_3d_adjust_channel_bit_mask()
-Message-ID: <afJiDeoCdH0egapV@ashevche-desk.local>
-References: <20260421222210.16016-1-natalia.andre@ime.usp.br>
- <20260421222210.16016-3-natalia.andre@ime.usp.br>
- <aeiPuxj2TRLNRbv1@ashevche-desk.local>
- <20260424200847.78494f27@jic23-huawei>
- <ae8upGN9ILmtCzeA@ashevche-desk.local>
- <20260428191246.152c2972@jic23-huawei>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AI2Ieis+"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-358ed696623so238429a91.0
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 00:15:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777533323; x=1778138123; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=OPFz+mq7sl2va3Zah4DKkwVBgZIJ3y6xrphGxYzZrW0=;
+        b=AI2Ieis+jb9TwUXNJlQguPaNnuHgeKAoe7l/E9kBdldGrvq6FQvmRIqe3g/QaI2kGF
+         3COxRjJCtmOEdEaCyHm3KkCWWJEQ98ZnuXk6Q1na++UpXxt8ZxabBEurwzfo4wpjW5on
+         /YMqyVV/5G4SmuNgNUfDbh+GfStciPCD8Fd5solgfPiplY1KKYHnoHP0hIYIWfnBDQPa
+         E1RcOQi0btsiL2QWMWW0xgYdFtYLV2hVEbTM5ZpFHC4smeEzkd//QFhvj+rikmwqSo4n
+         hl/a0/ifrzfQGv4SaThSyXLRyeWem1LSiZLpbmQr5EJW9LZukbzi4ELEOwf3CADhG1PN
+         j1YQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777533323; x=1778138123;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=OPFz+mq7sl2va3Zah4DKkwVBgZIJ3y6xrphGxYzZrW0=;
+        b=XJFikNBroKGUtPmUoOjNvERdH6Ir3EWu/13Qr9ldPE12x8iuyQ0uhxwbqqwvyZHbx3
+         BJ65m+6K1/iqXuNTBWZ6Y6jbg5o5c3WQSP4oWwedTYki2wFczDm7L4zzfh3eC8Xv+VOq
+         Ir0GW3TMLQg4q+j1VMOIWm8/F3JR5Z4X4KdR+9W2rbdmDpfLoQWQ5u+WHhfKvARkRWZ5
+         /fBQbWyOh4Iy9XnzrMjl+mwSbaprmE9DhWmbyuj8sOyEN4Wo1Ohv6gDbaG10PhZMtZ75
+         mVpHyhIFZ6tg1nRP+Ob4TkNDRntx6ttZ/qGRkwDExCikWIHoyi26I6Q517tSP/a9ubQG
+         xEMQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9MQgkVOFONcXKQNRpNjasLXjlF4QLaRcfJFSeT6/n6IdO9eDaCMjTYCdexp6CWHq5jLZJbRKOx7uB3bw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzRenCYl4I80NHXaup2PQGFv/h4lGRMWrNF34aPRxblKDLmur/
+	YL/cFqwXGZKmJlxkQHhlQULyvL2S0C8qpstt27ai4uQUim71ERCFU+7V
+X-Gm-Gg: AeBDietg6xd+MuqRJOgLxsNvinTvZQSXrWi+n+5Lpe7+HJWGqbo0emTUMwegn3WaIG6
+	TKY6XxiL2VtAKT0LkO0MtFhLHIh+KAwH2tZe8CTpjoz589StXWnun9gNSCMCaI9BDbU+mm9fIr0
+	xVdzR/7Do0+bUmYr+hRHJpcet8WYDZKiGcaBDBh9Fhz5cUViJ74vckEyO8w9yEbqhnn2/vt0Hzh
+	+v0rIelxx97kr3u3abmpjHc3ZQk8RNDzXFCRGM2f4Xx48yVa5NsP+LHc7JOGnVtpnPEF8bxB6SD
+	LmOdiThPJBmIuCI2Qj4VpiUF9QQwDEZ4hJmJ8NUXKfm8i534nG4kqNYVTA6A8x8106WRrIjKhXt
+	+EhSRwzCNIn/mzLNylvM5EzKKlafm8UxYXvapDDU+HtaF/ny7rIATv+GKAfsr7GYryua4aMVsET
+	qeOyi/mNM9UXwdVeib
+X-Received: by 2002:a17:90b:544f:b0:359:8e5e:43de with SMTP id 98e67ed59e1d1-364c3167242mr1804841a91.22.1777533322766;
+        Thu, 30 Apr 2026 00:15:22 -0700 (PDT)
+Received: from lgs.. ([2001:250:5800:1000::5a26])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-364d1c70d8csm1165825a91.13.2026.04.30.00.15.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Apr 2026 00:15:22 -0700 (PDT)
+From: Guangshuo Li <lgs201920130244@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Guangshuo Li <lgs201920130244@gmail.com>,
+	Kees Cook <kees@kernel.org>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: wacom_w8001 - avoid double release of pen input device
+Date: Thu, 30 Apr 2026 15:13:11 +0800
+Message-ID: <20260430071311.451957-1-lgs201920130244@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260428191246.152c2972@jic23-huawei>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Tue, Apr 28, 2026 at 07:12:46PM +0100, Jonathan Cameron wrote:
-> On Mon, 27 Apr 2026 12:38:44 +0300
-> Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
-> > On Fri, Apr 24, 2026 at 08:08:47PM +0100, Jonathan Cameron wrote:
-> > > On Wed, 22 Apr 2026 12:07:07 +0300
-> > > Andy Shevchenko <andriy.shevchenko@intel.com> wrote:  
-> > > > On Tue, Apr 21, 2026 at 07:20:34PM -0300, Natália Salvino André wrote:  
+When registering the touch input device fails after the pen input device
+has already been registered, w8001_connect() jumps to fail4 and
+unregisters w8001->pen_dev.  It then falls through to fail1 where
+input_dev_pen is passed to input_free_device().
 
-...
+Once input_register_device() has succeeded, the device must be released
+with input_unregister_device(), and input_free_device() must not be used
+on the same object afterwards.  Since input_dev_pen still aliases
+w8001->pen_dev, this can result in a use-after-free or kref underflow.
 
-> > > > > -		accel_3d_adjust_channel_bit_mask(channels,
-> > > > > -				CHANNEL_SCAN_INDEX_X + i,
-> > > > > -				st->accel[CHANNEL_SCAN_INDEX_X + i].size);
-> > > > > +		hid_sensor_adjust_channel_bit_mask(channels,
-> > > > > +			CHANNEL_SCAN_INDEX_X + i,
-> > > > > +			st->accel[CHANNEL_SCAN_INDEX_X + i].size);    
-> > > > 
-> > > > Indentation is broken. Taking into account that the last line is too long when
-> > > > properly indented, perhaps
-> > > > 
-> > > > 		hid_sensor_adjust_channel_bit_mask(channels,
-> > > > 				CHANNEL_SCAN_INDEX_X + i,
-> > > > 				st->accel[CHANNEL_SCAN_INDEX_X + i].size);
-> > > > 
-> > > > Which makes it most right and under 80 limit.  
-> > 
-> > > Why the double tab? Maybe just go long on this one and align after the (  
-> > 
-> > I never know when you are strict about 80 limit :-)
-> > 
-> I was meaning vs single tab really.
+Clear the local and container aliases after unregistering the pen device
+so that the common cleanup path does not try to free it again.
 
-Ah, my point if the line is too long and maintainer is too strict about
-the limit the indentation I would like to use is to occupy as much room as
-possible. I.o.w. to indent right as much as possible to fit the limit.
+This issue was found by a static analysis tool I am developing.
 
-> You are slowly wearing me down on the 80 limit by pointing out lots of
-> cases where going beyond it really helps! ;)
+Fixes: e0361b70175f0 ("Input: wacom_w8001 - split the touch and pen devices into two devices")
+Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+---
+ drivers/input/touchscreen/wacom_w8001.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Ha-ha :-)
-
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index 45930d731873..a3b283c59cdd 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -665,8 +665,11 @@ static int w8001_connect(struct serio *serio, struct serio_driver *drv)
+ 	return 0;
+ 
+ fail4:
+-	if (w8001->pen_dev)
++	if (w8001->pen_dev) {
+ 		input_unregister_device(w8001->pen_dev);
++		input_dev_pen = NULL;
++		w8001->pen_dev = NULL;
++	}
+ fail3:
+ 	serio_close(serio);
+ fail2:
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.43.0
 

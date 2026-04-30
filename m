@@ -1,354 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03CED33EB10;
-	Thu, 30 Apr 2026 16:43:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 931D233F597
+	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 16:54:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777567431; cv=none; b=LD8YLj++m8Yur7/+ecC2GEmfgjfFddbb/xdUwwGIr6TQ/EjLkDxT8UC65E/btc6tSiCo3fzTK92Xq9R+D8CymjSmbENjI3CDOy4fZKwXy5zlV4kRh6s6JrPOc9sHiLCiQrbcFfgmUOfX3XQfSaznmK9cfHICzRVJKinae3QH3Xs=
+	t=1777568100; cv=none; b=Ao48UHF7Q1BCvQ9Tfg3Q2mDvkPrz/DXoxl7Fb91IJAcDa1BuQayNjjmkamAOnd2hiGE6zYZsIFvmFGLMs56phTnCLwZIKgdsy1S/3dntM/8EWD2xkpFrUHIPAUM4Rm17KbQadNRvU2jANMZwWrAGjqvLex8q3+DvE2gWVPMk9fc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777567431; c=relaxed/simple;
-	bh=W60QlEGQY7R/p2X61VGSVCKKfosx5mD7nj7fHtSbTfg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JWgsLYVyJ66/4qE5WKXwBtm2b0MKn9JiKVFhuYFsj8SUZSBKR5bo2cm5YUvtLAAkiBml+YmGMxWltxvjIF9GG9HpASq4lxQvqH0G/csN0EgS9RE532omveJ8CNOQfBrrHj7qvlvS2LjwyUXEC11sbif+G3hC7EeQGYboxR/LDQU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JLJNRqzf; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777568100; c=relaxed/simple;
+	bh=eUBp07JKTe82zy1ykUrgvp3E6cfoSBuBKsp0BQUA5sM=;
+	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=m96x01vP46S0CjqOakXQRGC13unWCxGzNAkiewS6Nd4qH+h/H1eHFW7DXynf0VgU6wQmkZc5d/tm3U/rcw3y7YdxyHQAMtRGeDj3Y9zSjOso3NmZLwLcHFOD3LZ03HsVZXbXjZG4w71awgAFnkOX9g09GOUMaghFPw4xF9WJLvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com; spf=pass smtp.mailfrom=embeddedts.com; dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b=la+T50yT; arc=none smtp.client-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedts.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JLJNRqzf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9876CC2BCB3;
-	Thu, 30 Apr 2026 16:43:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777567430;
-	bh=W60QlEGQY7R/p2X61VGSVCKKfosx5mD7nj7fHtSbTfg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JLJNRqzfN9G1N2QwYeooMDOvkDXNOvV7na3Y+pYdRvaCR6W0WYF6x9yhz1TsGORxp
-	 IhNg+9IW7uxAvlEJdEHg2dkxtJ0ccQx0n2VPguh+WaWibO6AniZRBOedgRskrWaGlx
-	 kYiha8G0sCqhK7LU74rXZH5fYpRWBTwNQDuQc2/9irmeCNwbPZArhNdoKm3QWQZeh6
-	 XJwaT3TXj345rOjlc/3/9BIoWrKZWpVHJn6DIdUPkXh8FvMa/6fgEXGQTZzlT+GN2G
-	 jnLTlmQ0/jRCrWNC3lGY9Dhy3jKDy4U3yrKAmhl7aEnfKpxqZ/X86ysmkWViriOdE+
-	 nzPIiHVIZ3uYw==
-From: Arnd Bergmann <arnd@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: [PATCH 2/2] input: pcap_ts - remove unused driver
-Date: Thu, 30 Apr 2026 18:42:48 +0200
-Message-Id: <20260430164326.2766500-2-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260430164326.2766500-1-arnd@kernel.org>
-References: <20260430164326.2766500-1-arnd@kernel.org>
+	dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b="la+T50yT"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2d96243c91fso842034eec.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 09:54:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=embeddedts.com; s=google; t=1777568098; x=1778172898; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=nSw+yolZYnlsfqzqQJDRiH90jYV8jI3JvmhNU4UgfQ8=;
+        b=la+T50yT46UYls8wd9vBo9pXd4/tj2bcTxIu4bambdQoDJPCPZ2egjDPqeAj8oYlX2
+         gHz7qwDpPautLnVmijMOK/HbbhxbPTpc7NbGGlJSAdyt0ZjyPlIt60+/E+yQ/6giPD9i
+         VNk3JBUvvf7fWlVmW5DXSdf5FqqtO34OhCHyI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777568098; x=1778172898;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=nSw+yolZYnlsfqzqQJDRiH90jYV8jI3JvmhNU4UgfQ8=;
+        b=an2kU5PN4pqjB+pZ3MaSOiffcdILBYfIvRgggrI3/ABnTBs9lHeVt4iDoAU5lX6a3d
+         MPeizTKjAzoSy3CFgHp19mQGPPD3m02NK2BWnskpweGJKhqL8SbtXQzRamAP177tvbFy
+         OHJ01ygizeZWeYcZ9LACCJxXKRltd7JSUxzeFR1BnfIwzrRAYBegW43eGpxsE2haLU8Z
+         /9lnk3sKZ85rT+M872oJUlNBedcsj2PHMeRYI0iSZ62sO6TJjQOgWKwz9id6ajw81pA4
+         C8+B36KsyKWWhw4cj5TpW5rZpE0xIahl9STKsz/cauG2v4noCsrHdNQoO7dyzk1JXxW6
+         t/zQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+pbHhAJcPQ9rOxtPGwfmi24E4caLlHF84OEcDJJFxdxf3XBarZSYOaiOTW19feFhtWKM2Sjg/2hmNZPQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxy/MxdmtLN8YWymRsnw+bWdIkAZha+Bvsymsiu8h5CFBLwmRVQ
+	fjDNvLByx2j1JyqHT6UiM5/lDoIvmaqqBZCPNb216yPnZMcBCznA0Dc1LDl2zMh/EhY=
+X-Gm-Gg: AeBDietqvr7UaRsPaWJj3BiDcOCVQz6GkRwbcBMMP9OhNe9wtuU/v5fJfdGJb8MOBXq
+	XhlFv+NuMihTPTaumgBds4xgtXJEl7tvFzMLh9wif4n8Cf8n6KzW6BZz6iC8aZCAdzDcaxoz1EU
+	iWGCIi5Mr6iZPXBoLZCrWQe10KFZEtV3vOn/MdOguasdJ20HWqhqLxYiC1eT5C/FJ3UQPc+f3zj
+	JSqzQ+CbdF0ruxn9KMPM1Ce02urfoFpxk85rsjL0g7uP+rZ0MuAR3lmBHMFhi5VoEMXpOLg+D+0
+	4s7DOAHtZYF8e5z9JaUhEn4BJDxJ7orRknyoZkF0BshNQtUd1sqQSRX6wxsGc6T1NLh00fk2Waf
+	oyRRnXGJx/Uglvjeuf3kXPK6r/SN/0i8GeT1s18PgfKYeaBEr5hsapNKlqIm5Km1iyBrUt3aTqn
+	urtFOBw7NozJfQGv6bba/ITprlSyEhs5DsgYIny3guxRSqcETMo6v5B+5gyWAxrT9KDa893QhyZ
+	hUL9s2qEYCv61DEpCWzikzEUyXOtgOzXlIHbxYhm4yVGdPipunxy3bdbJ/4mNuViROwfEKDLUhv
+	c0XxAgAL6hLwAKbAR4wW41BnTCtOqfmk9qqk
+X-Received: by 2002:a05:7301:6508:b0:2df:7b88:a1b0 with SMTP id 5a478bee46e88-2ed3e67ba53mr2079292eec.27.1777568097436;
+        Thu, 30 Apr 2026 09:54:57 -0700 (PDT)
+Received: from [10.10.10.191] (97-120-253-104.ptld.qwest.net. [97.120.253.104])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3b29b11fsm553662eec.19.2026.04.30.09.54.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2026 09:54:56 -0700 (PDT)
+From: Kris Bahnsen <kris@embeddedts.com>
+X-Google-Original-From: Kris Bahnsen <kris@embeddedTS.com>
+Message-ID: <271d8aeb-1159-46f3-b290-31b6e094d8a0@embeddedTS.com>
+Date: Thu, 30 Apr 2026 09:54:53 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] Input: ads7846 - don't use scratch for tx_buf when
+ clearing register
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org,
+ Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260427174657.691272-1-kris@embeddedTS.com>
+ <afJZSCXeoSO502o1@google.com>
+Content-Language: en-US
+In-Reply-To: <afJZSCXeoSO502o1@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Arnd Bergmann <arnd@arndb.de>
+Dmitry,
 
-Support for the ezx series of phones was removed in 2022, this
-driver is just dead code.
+On 4/29/26 12:19 PM, Dmitry Torokhov wrote:
+> On Mon, Apr 27, 2026 at 05:46:57PM +0000, Kris Bahnsen wrote:
+>> The workaround for XPT2046 clears the command register, giving the
+>> touchscreen controller a NOP. The change incorrectly re-uses the
+>> req->scratch variable which is used as rx_buf for xfer[5], so by
+>> the time xfer[6] occurs, the contents of req->scratch may not be
+>> 0. It was found that the touchscreen controller can end up in
+>> a completely unresponsive state due to it being given a command
+>> the driver does not expect.
+>>
+>> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
+>> transmit all 0 bits. Also set rx_buf to NULL because the value
+>> returned does not matter. Thus moving the 3 byte pattern to clear
+>> the command register to a single message.
+> 
+> Unfortunately my suggestion was flawed: I think this will flood the logs
+> with "Bufferless transfer has length %3". We need to have either tx or
+> rx buffer :(
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/input/touchscreen/Kconfig   |  10 --
- drivers/input/touchscreen/Makefile  |   1 -
- drivers/input/touchscreen/pcap_ts.c | 252 ----------------------------
- 3 files changed, 263 deletions(-)
- delete mode 100644 drivers/input/touchscreen/pcap_ts.c
+Ah. I do see that dev_err() line in spi_transfer_one_message().
+All of my testing up to this point has been with an SPI host driver
+that implements its own transfer_one() operation so that error
+was never actually reached.
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index aeaf9a9cbb41..484522d8d675 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1178,16 +1178,6 @@ config TOUCHSCREEN_TSC2007_IIO
- 	  or ambient light monitoring), temperature and raw input
- 	  values.
- 
--config TOUCHSCREEN_PCAP
--	tristate "Motorola PCAP touchscreen"
--	depends on EZX_PCAP
--	help
--	  Say Y here if you have a Motorola EZX telephone and
--	  want to enable support for the built-in touchscreen.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called pcap_ts.
--
- config TOUCHSCREEN_RM_TS
- 	tristate "Raydium I2C Touchscreen"
- 	depends on I2C
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index f2b002abebe8..6d397268d2e3 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -74,7 +74,6 @@ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
- obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
- obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
- obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
--obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
- obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
- obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
- obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
-diff --git a/drivers/input/touchscreen/pcap_ts.c b/drivers/input/touchscreen/pcap_ts.c
-deleted file mode 100644
-index 7b89eb74b9de..000000000000
---- a/drivers/input/touchscreen/pcap_ts.c
-+++ /dev/null
-@@ -1,252 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Driver for Motorola PCAP2 touchscreen as found in the EZX phone platform.
-- *
-- *  Copyright (C) 2006 Harald Welte <laforge@openezx.org>
-- *  Copyright (C) 2009 Daniel Ribeiro <drwyrm@gmail.com>
-- */
--
--#include <linux/module.h>
--#include <linux/fs.h>
--#include <linux/string.h>
--#include <linux/slab.h>
--#include <linux/pm.h>
--#include <linux/timer.h>
--#include <linux/interrupt.h>
--#include <linux/platform_device.h>
--#include <linux/input.h>
--#include <linux/mfd/ezx-pcap.h>
--
--struct pcap_ts {
--	struct pcap_chip *pcap;
--	struct input_dev *input;
--	struct delayed_work work;
--	u16 x, y;
--	u16 pressure;
--	u8 read_state;
--};
--
--#define SAMPLE_DELAY	20 /* msecs */
--
--#define X_AXIS_MIN	0
--#define X_AXIS_MAX	1023
--#define Y_AXIS_MAX	X_AXIS_MAX
--#define Y_AXIS_MIN	X_AXIS_MIN
--#define PRESSURE_MAX	X_AXIS_MAX
--#define PRESSURE_MIN	X_AXIS_MIN
--
--static void pcap_ts_read_xy(void *data, u16 res[2])
--{
--	struct pcap_ts *pcap_ts = data;
--
--	switch (pcap_ts->read_state) {
--	case PCAP_ADC_TS_M_PRESSURE:
--		/* pressure reading is unreliable */
--		if (res[0] > PRESSURE_MIN && res[0] < PRESSURE_MAX)
--			pcap_ts->pressure = res[0];
--		pcap_ts->read_state = PCAP_ADC_TS_M_XY;
--		schedule_delayed_work(&pcap_ts->work, 0);
--		break;
--	case PCAP_ADC_TS_M_XY:
--		pcap_ts->y = res[0];
--		pcap_ts->x = res[1];
--		if (pcap_ts->x <= X_AXIS_MIN || pcap_ts->x >= X_AXIS_MAX ||
--		    pcap_ts->y <= Y_AXIS_MIN || pcap_ts->y >= Y_AXIS_MAX) {
--			/* pen has been released */
--			input_report_abs(pcap_ts->input, ABS_PRESSURE, 0);
--			input_report_key(pcap_ts->input, BTN_TOUCH, 0);
--
--			pcap_ts->read_state = PCAP_ADC_TS_M_STANDBY;
--			schedule_delayed_work(&pcap_ts->work, 0);
--		} else {
--			/* pen is touching the screen */
--			input_report_abs(pcap_ts->input, ABS_X, pcap_ts->x);
--			input_report_abs(pcap_ts->input, ABS_Y, pcap_ts->y);
--			input_report_key(pcap_ts->input, BTN_TOUCH, 1);
--			input_report_abs(pcap_ts->input, ABS_PRESSURE,
--						pcap_ts->pressure);
--
--			/* switch back to pressure read mode */
--			pcap_ts->read_state = PCAP_ADC_TS_M_PRESSURE;
--			schedule_delayed_work(&pcap_ts->work,
--					msecs_to_jiffies(SAMPLE_DELAY));
--		}
--		input_sync(pcap_ts->input);
--		break;
--	default:
--		dev_warn(&pcap_ts->input->dev,
--				"pcap_ts: Warning, unhandled read_state %d\n",
--				pcap_ts->read_state);
--		break;
--	}
--}
--
--static void pcap_ts_work(struct work_struct *work)
--{
--	struct delayed_work *dw = to_delayed_work(work);
--	struct pcap_ts *pcap_ts = container_of(dw, struct pcap_ts, work);
--	u8 ch[2];
--
--	pcap_set_ts_bits(pcap_ts->pcap,
--			pcap_ts->read_state << PCAP_ADC_TS_M_SHIFT);
--
--	if (pcap_ts->read_state == PCAP_ADC_TS_M_STANDBY)
--		return;
--
--	/* start adc conversion */
--	ch[0] = PCAP_ADC_CH_TS_X1;
--	ch[1] = PCAP_ADC_CH_TS_Y1;
--	pcap_adc_async(pcap_ts->pcap, PCAP_ADC_BANK_1, 0, ch,
--						pcap_ts_read_xy, pcap_ts);
--}
--
--static irqreturn_t pcap_ts_event_touch(int pirq, void *data)
--{
--	struct pcap_ts *pcap_ts = data;
--
--	if (pcap_ts->read_state == PCAP_ADC_TS_M_STANDBY) {
--		pcap_ts->read_state = PCAP_ADC_TS_M_PRESSURE;
--		schedule_delayed_work(&pcap_ts->work, 0);
--	}
--	return IRQ_HANDLED;
--}
--
--static int pcap_ts_open(struct input_dev *dev)
--{
--	struct pcap_ts *pcap_ts = input_get_drvdata(dev);
--
--	pcap_ts->read_state = PCAP_ADC_TS_M_STANDBY;
--	schedule_delayed_work(&pcap_ts->work, 0);
--
--	return 0;
--}
--
--static void pcap_ts_close(struct input_dev *dev)
--{
--	struct pcap_ts *pcap_ts = input_get_drvdata(dev);
--
--	cancel_delayed_work_sync(&pcap_ts->work);
--
--	pcap_ts->read_state = PCAP_ADC_TS_M_NONTS;
--	pcap_set_ts_bits(pcap_ts->pcap,
--				pcap_ts->read_state << PCAP_ADC_TS_M_SHIFT);
--}
--
--static int pcap_ts_probe(struct platform_device *pdev)
--{
--	struct input_dev *input_dev;
--	struct pcap_ts *pcap_ts;
--	int err = -ENOMEM;
--
--	pcap_ts = kzalloc_obj(*pcap_ts);
--	if (!pcap_ts)
--		return err;
--
--	pcap_ts->pcap = dev_get_drvdata(pdev->dev.parent);
--	platform_set_drvdata(pdev, pcap_ts);
--
--	input_dev = input_allocate_device();
--	if (!input_dev)
--		goto fail;
--
--	INIT_DELAYED_WORK(&pcap_ts->work, pcap_ts_work);
--
--	pcap_ts->read_state = PCAP_ADC_TS_M_NONTS;
--	pcap_set_ts_bits(pcap_ts->pcap,
--				pcap_ts->read_state << PCAP_ADC_TS_M_SHIFT);
--
--	pcap_ts->input = input_dev;
--	input_set_drvdata(input_dev, pcap_ts);
--
--	input_dev->name = "pcap-touchscreen";
--	input_dev->phys = "pcap_ts/input0";
--	input_dev->id.bustype = BUS_HOST;
--	input_dev->id.vendor = 0x0001;
--	input_dev->id.product = 0x0002;
--	input_dev->id.version = 0x0100;
--	input_dev->dev.parent = &pdev->dev;
--	input_dev->open = pcap_ts_open;
--	input_dev->close = pcap_ts_close;
--
--	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
--	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
--	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
--			     PRESSURE_MAX, 0, 0);
--
--	err = input_register_device(pcap_ts->input);
--	if (err)
--		goto fail_allocate;
--
--	err = request_irq(pcap_to_irq(pcap_ts->pcap, PCAP_IRQ_TS),
--			pcap_ts_event_touch, 0, "Touch Screen", pcap_ts);
--	if (err)
--		goto fail_register;
--
--	return 0;
--
--fail_register:
--	input_unregister_device(input_dev);
--	goto fail;
--fail_allocate:
--	input_free_device(input_dev);
--fail:
--	kfree(pcap_ts);
--
--	return err;
--}
--
--static void pcap_ts_remove(struct platform_device *pdev)
--{
--	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
--
--	free_irq(pcap_to_irq(pcap_ts->pcap, PCAP_IRQ_TS), pcap_ts);
--	cancel_delayed_work_sync(&pcap_ts->work);
--
--	input_unregister_device(pcap_ts->input);
--
--	kfree(pcap_ts);
--}
--
--#ifdef CONFIG_PM
--static int pcap_ts_suspend(struct device *dev)
--{
--	struct pcap_ts *pcap_ts = dev_get_drvdata(dev);
--
--	pcap_set_ts_bits(pcap_ts->pcap, PCAP_ADC_TS_REF_LOWPWR);
--	return 0;
--}
--
--static int pcap_ts_resume(struct device *dev)
--{
--	struct pcap_ts *pcap_ts = dev_get_drvdata(dev);
--
--	pcap_set_ts_bits(pcap_ts->pcap,
--				pcap_ts->read_state << PCAP_ADC_TS_M_SHIFT);
--	return 0;
--}
--
--static const struct dev_pm_ops pcap_ts_pm_ops = {
--	.suspend	= pcap_ts_suspend,
--	.resume		= pcap_ts_resume,
--};
--#define PCAP_TS_PM_OPS (&pcap_ts_pm_ops)
--#else
--#define PCAP_TS_PM_OPS NULL
--#endif
--
--static struct platform_driver pcap_ts_driver = {
--	.probe		= pcap_ts_probe,
--	.remove		= pcap_ts_remove,
--	.driver		= {
--		.name	= "pcap-ts",
--		.pm	= PCAP_TS_PM_OPS,
--	},
--};
--module_platform_driver(pcap_ts_driver);
--
--MODULE_DESCRIPTION("Motorola PCAP2 touchscreen driver");
--MODULE_AUTHOR("Daniel Ribeiro / Harald Welte");
--MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:pcap_ts");
+I'll send a v3 today that reverts back to the two separate xfers,
+using scratch for the rx_buf, and then NULL for tx_buf. That
+sounds like that should be the path of least resistance.
+
+> 
+> Thanks.
+> 
+
 -- 
-2.39.5
+Kris Bahnsen
+Software Engineer
+embeddedTS
 

@@ -1,394 +1,163 @@
-Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07AE1E1E04
-	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 15:03:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777647833; cv=none; b=eqaDkqkq4R3baxVPNZYRl3TAWdrm9bH6nYCunBMN9A7XJ0Fbylb35N/JHNfeYSOeeyXLCkFKW/UjWhdc+Mk9RHbwXk7gEqiDDS4cu9mcw/zi8kgamdRb1N6s7XmcEQVdq+/oM6yM3cBOvI1rx8ka9V5/YmVvuZR0Wv4N7H9Hdps=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777647833; c=relaxed/simple;
-	bh=vP1bM33vhoRcW3sAXry/KoPju2GzWZYKmqvvMGGZWiY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OrCcZ3TBw7QMIGn+PMYDeFrPWpKP5j32gnL6F7D78kAYwKlptNDc90F3DQQml+QvGHalL1YMH0sLxCUrDMCRAUsBijC8TD5ITCw5V0g2c6Ize+7r99OJr+FCuJ8z4H1R4XTGS0Vu0ELcLO587mZzwhOwUPf3CZ6nGLtXyv2UyRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=V+Qh6Hnv; arc=none smtp.client-ip=91.218.175.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C698B413225
+	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 18:26:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777659975; cv=pass; b=VrH2NVfvV7gF0QTatCncePoAht2FiND7ILzMd95T/zyVjNo3sktS7RWhD6jycsQoW+b+RfIksyQBjacXM+G8OUGDe44NtZtfHfggkdUsfOBAgn64nnSTuO76B4fhQEu12KFjdLr8kKkZLsCzAI+O905afsR4n9qtaxrGLX625i8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777659975; c=relaxed/simple;
+	bh=pV+suN9W1A6yZfc4Ibsbi1Vqls27R+qZ5YNULCTDH3U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VCHL6+aDsOsLmz247wEquK79FTD1KVsbRh8l4EuxnrPus+b6SJ4lytddDu/VWm7o7QORBgLmewTVHipyP75MnYLZy5FNawrql55l62tS6StkR0QVtr+QvunLN6EXzG9X12DNNXEVioF39j8ycuyNgS7PcOpUZInVHugUzX1SUL4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pef8mdG/; arc=pass smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="V+Qh6Hnv"
-Message-ID: <458d9e6c-8702-4cbc-9c4f-33cbd1175e67@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1777647819;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zQHMeF7CFzMLwAGgl1ysY1Mx+gLUBweNCzENr7NU1Bk=;
-	b=V+Qh6HnvXVW45KSTg/cv6lyqatM7ZbcbSP+Kh6FwdQGCe3jQlv18aY1sRM8keIGm+9qomX
-	2ifWYZ3ACC6MY8ehzRGilv7TdgpH8C4Y9lI1Z4PjUkcXXiDSKpUjSt1leVouCowzGA/oSF
-	avsX0aYAp/PdWxmAcnTE+7gmre1ZI0g=
-Date: Fri, 1 May 2026 17:03:35 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pef8mdG/"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b8f9568e074so341720666b.0
+        for <linux-input@vger.kernel.org>; Fri, 01 May 2026 11:26:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777659972; cv=none;
+        d=google.com; s=arc-20240605;
+        b=lxBz30UPpKqet6f6kC4m4wkV+u0mBvtJohnNIcyMCzomDxjRi21/ZJq+Xy6D0j0ehQ
+         rbDN435iWEfQ+8REsZ1Xm/PfmN3c82J9rlFlRzrkgEaborHc8f/6obgrTjV+8ZOyRrMW
+         LHfhu71lUCi7bDvlPW4a0UcmlBfkWJH/6iHrH/L5Y9ix0F6F4rpdcSIODkPciieYcvdO
+         wP5J89LQ0Q+/xgPeVxq+rVsRfEpC2nXMama1Gzxjj/4Vslwnt0v+RqRJiNNrDRBk9bhK
+         PJqKNFU/0qhvEGwNcmtoELIMKsybBq3hARytJeW3TF9Aos+MD06oe0tQheafTDliBA8h
+         Fcww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=mjEo9TVAU6E8H22fl8jtqKDStep6BqgLc7IS8Y+Q4Uc=;
+        fh=ARiZraFj4HtELFO5GaZJD8t7p8jFAQoD1fXslbMStLo=;
+        b=kZWTLKu6UwANrXzjjjhtGNjfVfkPimH1FMzLtxGuX8hNqrv9aMXLWmn6vRzwOjGi9f
+         3qdEA2An5TR2rLSkREJ85CxtBdyN0RQgnGQKGhls+O2xcVBlkWgy2RiTFGnUu0DsYNx7
+         90EoUgc75MVLtUT6AzaIfN56EI2emabT0HhK2eYQqQkxk+qwz0KLHiEelfj5Bj6MKydV
+         EYzz/jo+GRl708xRAK8FCfuj6GXRgpUC2Ws+HPDmYmhyxdvU3xvXaEekPMq9BDSSiJYn
+         EsX5SQOiiv43a37mOh0udMv6MxMkcBJxbec/4a3OX+qYrY3JcbxwltCCXpcoynCOUcnN
+         OcGg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777659972; x=1778264772; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mjEo9TVAU6E8H22fl8jtqKDStep6BqgLc7IS8Y+Q4Uc=;
+        b=pef8mdG/fSsLQeWZJ1ZqD7HSUqFOkNFzMfntyjPWlz0C+0uJtLAoxlLvZ4pwDPOL10
+         WHN03FNGpDUR7oDFcrcqdYTnEu/IAvO1nn9iXSwjAwrTl43gm+81xC4RfOMRmeuM2Fke
+         QT8NzAfQbuAQ6GEBitxCEU4abFD7C9bqH6rJMI22IBnwR/4c6qD7BD0S2Hs8W0+VRlgR
+         cUkKqIw4ODhFNdn5g5FBsWUwm3qVbiwmsn+D1QPAjlwnhoxGYoMS6iYH3NOUaAlp4Hg0
+         rH0xOYC9iNeLV0Kty8mvx/8i+cUjbRXveB/3b6BCEkaMRloVUGXPHQVTlE6fIyjGZk/C
+         4cxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777659972; x=1778264772;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=mjEo9TVAU6E8H22fl8jtqKDStep6BqgLc7IS8Y+Q4Uc=;
+        b=bW/feGss43IiU/uEWsoYtQYltqtXJaN6m/tbPzXbtGRckv0SSJOob1TRetPuaw2pMb
+         u0NWl0UBHUFbzPIEblK7z5IIjSAumXPm7Ato3XyrG0bRwqyvn2bhgPoCejQ3gYqoDOrc
+         q+ZslTVHfSJ2JXADz5cav0WH4vEXRLisgyQcUcSCTjx5sCs4d+8LNpHBQ+pWw3WASv03
+         w/I1UPJoMk/VICYkKwmc/4t8xCT+DnW0XbwZUxF99W9KrfsHN8sfPRbSCrUzNNiJ8qmz
+         mJshv3yvh9kTLtsnsDMT/wRMfD8+0TGKf1Ag4/DdEAcTvSLrBdKVkEDKGaH8wHvlDXKf
+         C3NQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9vab5PKjaCiW6Q6Mm2HBKX1cN5pMRdVxZMpcv79yv9WjQr1tPBeDsiIo1WQ3fttaV1vUOkoY5b8cHFQg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzhU7fClol3YGeQ2C1pBZ7FF850ipBJnpUaTVjjbPe7d6gVr4P
+	NH+gjaXFPwpbRNVxBTU1Hm/dhhw/eAtOlEt0419RvckRvITHaQr29vRFYfND+TayMtCRdgmbo5O
+	CmtNfqffhIQN9InuyA7/FmokuMdn0cgzbiesp
+X-Gm-Gg: AeBDievAIiOFbRXwa6LjgPoxHIaDoZ/SsEXiP1SrVRTeAJUndetn0qDgttoEsM0WOWX
+	KVHTIRIlUKO+4mFuEx+AzJIX/lw2CY9+zJqgKEbxJLp5hZIxeiMhii6ix167G/3Cm6Bi+58+XJ+
+	0p68qJie/iVnEVYL/mouMYeJRFZuseyzm8RxRXZl9MGca7aNyRHc+BNOHVBTEysDbNofNpudGQh
+	ORZg6N4bsOHl50Pk1Y7oRIKQ5lx/CNRXXApFHzhtqdoRtOFhbW2LWdm+XRpKlDrSH5lPKTimGWL
+	CDHowY0orhLHL9/gBCchcPzKkrUxoNvF+zuP+FzZCYMz+8wIkfSHJCPacm6HZRjFUWEJhguOZIv
+	E7rlZ1acllVNO8bP17g==
+X-Received: by 2002:a17:907:934b:b0:ba9:aeaa:fd18 with SMTP id
+ a640c23a62f3a-bbffb951c50mr8523766b.28.1777659971938; Fri, 01 May 2026
+ 11:26:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH] platform/x86: asus-wmi: fix fn-lock on platforms where
- WMI DEVS is a no-op
-To: =?UTF-8?Q?Marcus_Gren=C3=A4ngen?= <marcus@grenangen.se>,
- platform-driver-x86@vger.kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- luke@ljones.dev, hansg@kernel.org, ilpo.jarvinen@linux.intel.com,
- jikos@kernel.org, bentiss@kernel.org, corentin.chary@gmail.com
-References: <20260430080527.12754-1-marcus@grenangen.se>
-Content-Language: en-US, it-IT, en-US-large
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20260430080527.12754-1-marcus@grenangen.se>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+References: <20260429175918.2541914-1-sanjayembedded@gmail.com>
+ <20260429175918.2541914-5-sanjayembedded@gmail.com> <afJdJIQS1vwOcaGT@ashevche-desk.local>
+ <12C22ED3-20F9-401C-ACC9-D666393B292A@gmail.com>
+In-Reply-To: <12C22ED3-20F9-401C-ACC9-D666393B292A@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 1 May 2026 21:25:35 +0300
+X-Gm-Features: AVHnY4JiQImi-kzKeeq0M395Ntrx9wDGlULAMAnx041KdEXGJGgDR69IdiMeRVo
+Message-ID: <CAHp75VdzPr+SLCPT85zw6aK8pSueBHr-OFpJ1Vmsow61e8=p4w@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] iio: humidity: drop hid_sensor_remove_trigger()
+ using devm API
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, jikos@kernel.org, jic23@kernel.org, 
+	srinivas.pandruvada@linux.intel.com, dlechner@baylibre.com, 
+	nuno.sa@analog.com, andy@kernel.org, sakari.ailus@linux.intel.com, 
+	linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Apr 30, 2026 at 10:21=E2=80=AFPM Sanjay Chitroda
+<sanjayembeddedse@gmail.com> wrote:
+> On 30 April 2026 1:03:56=E2=80=AFam IST, Andy Shevchenko <andriy.shevchen=
+ko@intel.com> wrote:
+> >On Wed, Apr 29, 2026 at 11:29:18PM +0530, Sanjay Chitroda wrote:
+> >
+> >> Use devm_hid_sensor_setup_trigger() to automatically release resource
 
-On 4/30/26 10:05, Marcus Grenängen wrote:
-> Some ASUS laptops (e.g. ProArt P16, N-Key keyboard 0B05:19B6) advertise
-> the WMI fn-lock DEVID (0x00100023) as present but the DEVS call has no
-> effect. On these machines fn-lock must be toggled via a HID feature report
-> sent directly to the N-Key keyboard, which is handled by hid-asus.
-Hi, thanks for your work on this!
+resources
 
-> Add a DMI quirk flag fnlock_use_hid for such platforms. When set,
-> asus_wmi_has_fnlock_key() checks for a registered hid-asus listener that
-> supports fnlock instead of querying DEVS, and asus_wmi_fnlock_update()
-> dispatches to asus_hid_set_fnlock().
-Do you think there might be something that might make this auto-detected
-instead of using a quirk?
-> Extend struct asus_hid_listener with a fnlock_set callback and wire it up
-> in hid-asus for QUIRK_ROG_NKEY_KEYBOARD + QUIRK_HID_FN_LOCK devices.
-> Initialize fn_lock_sync_work and register the listener in the probe path
-> for these keyboards (previously the early return for ROG N-Key devices
-> skipped asus_input_configured where this was done).
+> >> during fail, unbind or removal of driver using devres framework.
+
+failure
+
+> >>
+> >> This simplify the setup, remove goto, avoid manual resource cleanup in
+
+simplifies
+removes
+and avoids
+
+OR
+
+"This is done in a way to simplify..."
+
+> >> teardown path.
+
+...
+
+> >> +    ret =3D devm_hid_sensor_setup_trigger(&indio_dev->dev, indio_dev,=
+ name,
+> >> +                                        &humid_st->common_attributes)=
+;
+> >
+> >I believe the first parameter is utterly wrong here.
+> >Or other way around, same issue but in the previous patch.
+> >
+> Thank you Andy for the review comment.
 >
-> Also add a fnlock_status sysfs attribute (RW) under the asus-wmi platform
-> device so userspace (e.g. asusctl) can read and set fn-lock state without
-> needing to open /dev/hidraw directly.
-I believe the place for this is asus-armoury driver not asus-wmi...
-it's easier too to do it in asus-armoury too.
-> Fix a NULL pointer dereference in do_kbd_led_set(): brightness_set was
-> called unconditionally on all listeners, but listeners that only implement
-> fnlock_set leave brightness_set NULL.
-This is spelled a bit weird since the issue does not exists until you add another
-listener type: can you split up this patch in maybe 3? One where you prepare
-asus-wmi for your additions, one where you add to asus-armoury and one where
-you actually add the functionality into asus-wmi? (also maybe is worth adding a
-4th one with modifications on asus-hid)?
-
-> Signed-off-by: Marcus Grenängen <marcus@grenangen.se>
-> ---
->  drivers/hid/hid-asus.c                     |  24 ++++-
->  drivers/platform/x86/asus-nb-wmi.c         |  13 +++
->  drivers/platform/x86/asus-wmi.c            | 101 ++++++++++++++++++++-
->  drivers/platform/x86/asus-wmi.h            |   5 +
->  include/linux/platform_data/x86/asus-wmi.h |   7 +-
->  5 files changed, 143 insertions(+), 7 deletions(-)
+> It looks in same humidity probe of hid sensor with devm API two device po=
+inter are used &pdev->dev and &indio_dev->dev; ideally all devm should have=
+ same parent device for devres resource framework and over here preferable =
+and consistent device should be &pdev->dev;
 >
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index d34d74df3dc0..71ced03c0f7e 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -143,6 +143,7 @@ struct asus_drvdata {
->  	unsigned long battery_next_query;
->  	struct work_struct fn_lock_sync_work;
->  	bool fn_lock;
-> +	struct asus_hid_listener fn_lock_listener;
->  };
->  
->  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
-> @@ -584,6 +585,15 @@ static void asus_sync_fn_lock(struct work_struct *work)
->  	asus_kbd_set_fn_lock(drvdata->hdev, drvdata->fn_lock);
->  }
->  
-> +static void asus_hid_fnlock_set(struct asus_hid_listener *listener, bool enabled)
-> +{
-> +	struct asus_drvdata *drvdata =
-> +		container_of(listener, struct asus_drvdata, fn_lock_listener);
-> +
-> +	drvdata->fn_lock = enabled;
-> +	schedule_work(&drvdata->fn_lock_sync_work);
-> +}
-> +
->  static void asus_schedule_work(struct asus_kbd_leds *led)
->  {
->  	unsigned long flags;
-> @@ -1319,8 +1329,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	 * For ROG keyboards, skip rename for consistency and ->input check as
->  	 * some devices do not have inputs.
->  	 */
-> -	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD)
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +		if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
-> +			drvdata->fn_lock = true;
-> +			INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
-> +			asus_kbd_set_fn_lock(hdev, true);
-> +			drvdata->fn_lock_listener.fnlock_set = asus_hid_fnlock_set;
-> +			asus_hid_register_listener(&drvdata->fn_lock_listener);
-> +		}
->  		return 0;
-> +	}
->  
->  	/*
->  	 * Check that input registration succeeded. Checking that
-> @@ -1362,8 +1380,10 @@ static void asus_remove(struct hid_device *hdev)
->  		cancel_work_sync(&drvdata->kbd_backlight->work);
->  	}
->  
-> -	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
-> +	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
-> +		asus_hid_unregister_listener(&drvdata->fn_lock_listener);
->  		cancel_work_sync(&drvdata->fn_lock_sync_work);
-> +	}
->  
->  	hid_hw_stop(hdev);
->  }
-> diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-> index b4677c5bba5b..44e4cf68ff70 100644
-> --- a/drivers/platform/x86/asus-nb-wmi.c
-> +++ b/drivers/platform/x86/asus-nb-wmi.c
-> @@ -155,6 +155,10 @@ static struct quirk_entry quirk_asus_z13 = {
->  	.tablet_switch_mode = asus_wmi_kbd_dock_devid,
->  };
->  
-> +static struct quirk_entry quirk_asus_proart_p16 = {
-> +	.fnlock_use_hid = true,
-> +};
-> +
->  static int dmi_matched(const struct dmi_system_id *dmi)
->  {
->  	pr_info("Identified laptop model '%s'\n", dmi->ident);
-> @@ -553,6 +557,15 @@ static const struct dmi_system_id asus_quirks[] = {
->  		},
->  		.driver_data = &quirk_asus_z13,
->  	},
-> +	{
-> +		.callback = dmi_matched,
-> +		.ident = "ASUS ProArt P16",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_FAMILY, "ProArt P16"),
-> +		},
-> +		.driver_data = &quirk_asus_proart_p16,
-> +	},
->  	{},
->  };
->  
-> diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-> index 80144c412b90..70758a20551d 100644
-> --- a/drivers/platform/x86/asus-wmi.c
-> +++ b/drivers/platform/x86/asus-wmi.c
-> @@ -1759,6 +1759,24 @@ int asus_hid_event(enum asus_hid_event event)
->  }
->  EXPORT_SYMBOL_GPL(asus_hid_event);
->  
-> +/*
-> + * Called by asus-wmi to propagate an fn-lock state change to all registered
-> + * hid-asus listeners. Used on platforms where the WMI DEVS path for fn-lock
-> + * (0x00100023) is a no-operation and the HID feature report path must be used
-> + * instead (e.g. ASUS ProArt P16, USB keyboard product ID 0x19B6).
-> + */
-> +void asus_hid_set_fnlock(bool enabled)
-> +{
-> +	struct asus_hid_listener *listener;
-> +
-> +	guard(spinlock_irqsave)(&asus_ref.lock);
-> +	list_for_each_entry(listener, &asus_ref.listeners, list) {
-> +		if (listener->fnlock_set)
-> +			listener->fnlock_set(listener, enabled);
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(asus_hid_set_fnlock);
-> +
->  /*
->   * These functions actually update the LED's, and are called from a
->   * workqueue. By doing this as separate work rather than when the LED
-> @@ -1852,7 +1870,8 @@ static void do_kbd_led_set(struct led_classdev *led_cdev, int value)
->  
->  	scoped_guard(spinlock_irqsave, &asus_ref.lock) {
->  		list_for_each_entry(listener, &asus_ref.listeners, list)
-> -			listener->brightness_set(listener, asus->kbd_led_wk);
-> +			if (listener->brightness_set)
-> +				listener->brightness_set(listener, asus->kbd_led_wk);
->  	}
->  }
->  
-> @@ -4495,21 +4514,64 @@ static void asus_screenpad_exit(struct asus_wmi *asus)
->  
->  /* Fn-lock ********************************************************************/
->  
-> +static bool asus_hid_has_fnlock_listener(void)
-> +{
-> +	struct asus_hid_listener *listener;
-> +
-> +	guard(spinlock_irqsave)(&asus_ref.lock);
-> +	list_for_each_entry(listener, &asus_ref.listeners, list) {
-> +		if (listener->fnlock_set)
-> +			return true;
-> +	}
-> +	return false;
-> +}
-> +
->  static bool asus_wmi_has_fnlock_key(struct asus_wmi *asus)
->  {
->  	u32 result;
->  
-> +	/* Some platforms have a non-functional WMI path — use HID directly */
-> +	if (asus->driver->quirks->fnlock_use_hid)
-> +		return asus_hid_has_fnlock_listener();
-> +
->  	asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_FNLOCK, &result);
->  
-> -	return (result & ASUS_WMI_DSTS_PRESENCE_BIT) &&
-> -		!(result & ASUS_WMI_FNLOCK_BIOS_DISABLED);
-> +	if ((result & ASUS_WMI_DSTS_PRESENCE_BIT) &&
-> +	    !(result & ASUS_WMI_FNLOCK_BIOS_DISABLED))
-> +		return true;
-> +
-> +	/*
-> +	 * Some platforms (e.g. ASUS ProArt P16) have a non-functional WMI
-> +	 * DEVS path for fn-lock (DEVS returns One unconditionally with no
-> +	 * side effects). On these platforms fn-lock is controlled via a HID
-> +	 * feature report sent directly to the N-Key keyboard. Return true if
-> +	 * a hid-asus listener with fnlock support has registered, so that
-> +	 * asus-wmi can manage the fn-lock state and expose the sysfs knob.
-> +	 */
-> +	return asus_hid_has_fnlock_listener();
->  }
->  
->  static void asus_wmi_fnlock_update(struct asus_wmi *asus)
->  {
->  	int mode = asus->fnlock_locked;
-> +	u32 result;
->  
-> -	asus_wmi_set_devstate(ASUS_WMI_DEVID_FNLOCK, mode, NULL);
-> +	/* Platform has non-functional WMI DEVS for fn-lock — use HID directly */
-> +	if (asus->driver->quirks->fnlock_use_hid) {
-> +		asus_hid_set_fnlock(mode);
-> +		return;
-> +	}
-> +
-> +	asus_wmi_get_devstate(asus, ASUS_WMI_DEVID_FNLOCK, &result);
-> +
-> +	if ((result & ASUS_WMI_DSTS_PRESENCE_BIT) &&
-> +	    !(result & ASUS_WMI_FNLOCK_BIOS_DISABLED)) {
-> +		asus_wmi_set_devstate(ASUS_WMI_DEVID_FNLOCK, mode, NULL);
-> +		return;
-> +	}
-> +
-> +	/* WMI path absent or non-functional — delegate to hid-asus */
-> +	asus_hid_set_fnlock(mode);
->  }
->  
->  /* WMI events *****************************************************************/
-> @@ -4690,6 +4752,34 @@ static ssize_t cpufv_store(struct device *dev, struct device_attribute *attr,
->  
->  static DEVICE_ATTR_WO(cpufv);
->  
-> +static ssize_t fnlock_status_show(struct device *dev,
-> +				  struct device_attribute *attr, char *buf)
-> +{
-> +	struct asus_wmi *asus = dev_get_drvdata(dev);
-> +
-> +	return sysfs_emit(buf, "%d\n", asus->fnlock_locked);
-> +}
-> +
-> +static ssize_t fnlock_status_store(struct device *dev,
-> +				   struct device_attribute *attr,
-> +				   const char *buf, size_t count)
-> +{
-> +	struct asus_wmi *asus = dev_get_drvdata(dev);
-> +	bool enable;
-> +	int err;
-> +
-> +	err = kstrtobool(buf, &enable);
-> +	if (err)
-> +		return err;
-> +
-> +	asus->fnlock_locked = enable;
-> +	asus_wmi_fnlock_update(asus);
-> +
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR_RW(fnlock_status);
-> +
->  static struct attribute *platform_attributes[] = {
->  	&dev_attr_cpufv.attr,
->  	&dev_attr_camera.attr,
-> @@ -4698,6 +4788,7 @@ static struct attribute *platform_attributes[] = {
->  	&dev_attr_lid_resume.attr,
->  	&dev_attr_als_enable.attr,
->  	&dev_attr_fan_boost_mode.attr,
-> +	&dev_attr_fnlock_status.attr,
->  #if IS_ENABLED(CONFIG_ASUS_WMI_DEPRECATED_ATTRS)
->  		&dev_attr_charge_mode.attr,
->  		&dev_attr_egpu_enable.attr,
-> @@ -4741,6 +4832,8 @@ static umode_t asus_sysfs_is_visible(struct kobject *kobj,
->  		devid = ASUS_WMI_DEVID_ALS_ENABLE;
->  	else if (attr == &dev_attr_fan_boost_mode.attr)
->  		ok = asus->fan_boost_mode_available;
-> +	else if (attr == &dev_attr_fnlock_status.attr)
-> +		ok = asus_wmi_has_fnlock_key(asus);
->  
->  #if IS_ENABLED(CONFIG_ASUS_WMI_DEPRECATED_ATTRS)
->  	if (attr == &dev_attr_charge_mode.attr)
-> diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-> index 5cd4392b964e..6c50b11860e8 100644
-> --- a/drivers/platform/x86/asus-wmi.h
-> +++ b/drivers/platform/x86/asus-wmi.h
-> @@ -52,6 +52,11 @@ struct quirk_entry {
->  	 */
->  	int no_display_toggle;
->  	u32 xusb2pr;
-> +	/*
-> +	 * Some platforms report WMI DEVID_FNLOCK as present but the DEVS call
-> +	 * is a no-op. Force the HID feature report path via hid-asus instead.
-> +	 */
-> +	bool fnlock_use_hid;
->  };
->  
->  struct asus_wmi_driver {
-> diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/linux/platform_data/x86/asus-wmi.h
-> index 554f41b827e1..569289417a51 100644
-> --- a/include/linux/platform_data/x86/asus-wmi.h
-> +++ b/include/linux/platform_data/x86/asus-wmi.h
-> @@ -173,10 +173,11 @@ enum asus_ally_mcu_hack {
->  	ASUS_WMI_ALLY_MCU_HACK_DISABLED,
->  };
->  
-> -/* Used to notify hid-asus when asus-wmi changes keyboard backlight */
-> +/* Used to notify hid-asus when asus-wmi changes keyboard backlight or fn-lock */
->  struct asus_hid_listener {
->  	struct list_head list;
->  	void (*brightness_set)(struct asus_hid_listener *listener, int brightness);
-> +	void (*fnlock_set)(struct asus_hid_listener *listener, bool enabled);
->  };
->  
->  enum asus_hid_event {
-> @@ -196,6 +197,7 @@ int asus_wmi_evaluate_method(u32 method_id, u32 arg0, u32 arg1, u32 *retval);
->  int asus_hid_register_listener(struct asus_hid_listener *cdev);
->  void asus_hid_unregister_listener(struct asus_hid_listener *cdev);
->  int asus_hid_event(enum asus_hid_event event);
-> +void asus_hid_set_fnlock(bool enabled);
->  #else
->  static inline void set_ally_mcu_hack(enum asus_ally_mcu_hack status)
->  {
-> @@ -227,6 +229,9 @@ static inline int asus_hid_event(enum asus_hid_event event)
->  {
->  	return -ENODEV;
->  }
-> +static inline void asus_hid_set_fnlock(bool enabled)
-> +{
-> +}
->  #endif
->  
->  #endif	/* __PLATFORM_DATA_X86_ASUS_WMI_H */
+> I would first update existing devm_* API to have consistent device and on=
+ top of that will use same device in devm conversation.
+>
+> While for gyro change device is consistent as &pdev->dev across all devm =
+API.
+
+The idea is that you have to go deeply understanding the object
+lifetimes for the cases of different device instances along with
+userspace communication channels (all possible ABIs the driver uses).
+With only that the proper parameter may be chosen or even confirmed
+that device managed resources must not be used. Yeah, this is one of
+the downsides of devm_*() APIs.
+
+--=20
+With Best Regards,
+Andy Shevchenko

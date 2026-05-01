@@ -1,149 +1,86 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-ot1-f44.google.com (mail-ot1-f44.google.com [209.85.210.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 026ED7082D
-	for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 19:30:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9751D23BD17
+	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 02:25:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777577441; cv=none; b=VQGGJBzEv86zBHXQ4BXXRVqezPDYtgyuJvzI5wHlcHyVubJrIpbN1le3S1I2GrIxlIH57EDtxOm/JRXx+8mxWT1WIDBcJMFvACb0v4WLakH2TsEQBG/gK6tEoUL8ofMfW/yY/Q5/ULgoNQd0j3khWF/zt388ZFgJ8RTj0vhgazk=
+	t=1777602334; cv=none; b=lOYgBeKaNz/d9e4pBIjMe/KmVMB2+pgD0VN2ywBHGorEDC51ik336YYD/aglhM/6sdtmaycFNU3JYBGux3eXbYTRbWoVMW7+X3Py9zvTxij4WiwNzAoiNuiXrKz1OQRSykgAumAAmC/jtLcEWHtRSNuECLWsYRow4sF4y5tNtWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777577441; c=relaxed/simple;
-	bh=KJesWsbuDzQpkNp8k17t23YomF1fs6T42RqnGIbmT+M=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=ODqpCaN3g/KzChavr0496fkgczqJ8asNhELhfqbfDMdPbabUHXufpu6pblbWn9JG1BpmRtFmtsDDpkCCtoYwQpeCJRQWMZDZaB7vMzA+VMm3tQ7yQSRJ4EdkICqHkK66F0TICCsCep68YT078lejrcmptsTPcpRBMCDUlidiBwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JGbttGbc; arc=none smtp.client-ip=209.85.214.178
+	s=arc-20240116; t=1777602334; c=relaxed/simple;
+	bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ILXp2ave/i7qHXSLzAdMTHxEcCcHgss45/sfl075UykxnlVA1cCVfnnKMIQUxTKmdNLRncMnPjlcNDdtSEuw6O+CnmABEei9D/591wHbXaJvZOeijR3+hF2X73wrPPpGOTTzVDCh8u27JTniNBkZBB0FTecM187KjkCGQ5+dAP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TsnDZ0QP; arc=none smtp.client-ip=209.85.210.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JGbttGbc"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ad21f437eeso8996365ad.0
-        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 12:30:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TsnDZ0QP"
+Received: by mail-ot1-f44.google.com with SMTP id 46e09a7af769-7de4ed0593fso980503a34.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 19:25:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777577439; x=1778182239; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=GxuNSv+nlSzXKcfeo3FfuQD7X7e1NhixT6Zs+fqDCx0=;
-        b=JGbttGbc+tG+gUSPvjEJ0qXv+SCE9UzH/cRWyBAWzAoDWWQ33JNC8IkdrLwQfqxJRC
-         p83OVs2oBraSpsEuOlb7JLakBEXcH/pQ5USAFV3nmbM9776vNyU7CUgNM3aWTeYjIFRI
-         DFyvzq+bpI7vaXxweouctvSwHNh0BiSdA24GR8dQdZijB3csvA5qffGFj4WknMk9nGfx
-         zZiyxS85z6ybeDu7HcCB3q3WSyQpHFTxfL9ucSffQT8CHL4j/Ot5ureduJjjPPVrDZ2j
-         Z5VniMYVqDuIUzTBBkPHoOrnrF6wLM5OfhfhOAWGMnKisu5YjMYM2rj0hFB1c31duSTL
-         7o9A==
+        d=gmail.com; s=20251104; t=1777602332; x=1778207132; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
+        b=TsnDZ0QP+CiNsPZeq/US/wWu/fMtnWKS623RPAtQkEU7JYMDarNSe7K1pOWLl3KVav
+         lYcZRNgBHqx4EwqKOALj31qeC7rv6KzR2klHJ+/f3wkTn4Ts6or9hJA8eJz2iXNEF+y0
+         ocVuYNJ5zSxnYxoxddq5mSBWNHHcWGmdx8MccGvQ+Ce5vQJLjSTzI15JYAQZ4+fTPFWI
+         I4zozp5Ix2aM6054HX5fvdzPo/TTrgN021OYkhtOpwDqet7znPa/1peV67WhyJ+HVbJA
+         YBn8TvjmB0owrz7Ib2DgjvS9L8XHOe3hpOTPo0blzD5brUbCWqtkxrpATlU5AxA5punD
+         qBaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777577439; x=1778182239;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GxuNSv+nlSzXKcfeo3FfuQD7X7e1NhixT6Zs+fqDCx0=;
-        b=V9F4xswHNBI74IkDNxKF3KHxTWUMpbAsD/Ahw75lQpcqU0bLOKyqcgy0GKU/JdZIMX
-         eRckFpsgww9GRIRc5mLUfCYt4MSVIwbuEx+0ex+kYOmVvRT920/1R897OiA+GzwSJ4zq
-         cTnNMZE2Yl6aR8rdx/P1YReeUbyzQyQ8CgovxhxFhlpk4FQdOHy1/5u1QwVZKtFYSxMt
-         XSccJN3IGlMEAEtpXp6d8L6DgGxRhUN3WNLPSTlSx34w3Adfd0Kt1VfP58K7Ty6lQ37m
-         Qhk/sKeDyZp22FPB7dVNztZ9sA78X+iqAYnQ7LSiHSnuNno8lfAXmKhADty8HmtE6WkE
-         +JFg==
-X-Forwarded-Encrypted: i=1; AFNElJ+EQMCiZhs841TASt/iSy8jd+noa9Nh9WdRUzpNR7lQZZ6oUslqJynRwWJZKthmzlrwdkFKGHTvt90zEw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKJrTRUj4sCvVOHBPt2Fd2xBMVWmj7JtqxEvzcxYRMrRnjoBLv
-	E5kDgmARR0kNO5twQZBJXEB8QXUQI5mxJwWmqNkFcsX4Z2QxJtTwxLb+
-X-Gm-Gg: AeBDievFQk2otnmahIvGGwn8356HEqfkS6grQslS43nUUVQdLdDEdVCv5SYqye3sR7F
-	1xpdQMFC/n8iYH0oIBVm01joZ20ckOO5ovR1MQgCpCo5oC4HzF1wpM3CrS3HJsmrW9ogPy2YiQR
-	pfhAUbDlwBRKTVyxyXx7EaHl3sxwhie/K9KXl4XE9g5jQ7zEG6L83Sf/Akk5P+0DrWZixIDIAAQ
-	bmZbCJcRVZeHRljt9Djw4nYmDmg/R5E3qnQAcE9qPlUUCjTKafyPBOPVvoZmgi/z5iHIeUthFAO
-	fBcLNAcl29zN3jqVV+XB+t4/lvrKGGxi6zPq9U80i0d/lRLT6ZNXii7hWiDZvZ6IRiXKVPU+WgO
-	77xzloxiC4J+/ionl6JgelDIRnwT3or5IHZjt8hOEOeCy3d5SKVF8TzjRkKMtidW0LSU9lUqKYw
-	K6unTQhPix9cAYzYY6/rK28OI2oje8YjYoaRmk9/NmiM0j
-X-Received: by 2002:a17:902:ef11:b0:2b2:5070:8b with SMTP id d9443c01a7336-2b9a428297cmr33927525ad.1.1777577439347;
-        Thu, 30 Apr 2026 12:30:39 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2401:4900:53d0:4e4d::e3d:bc05])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9caaaec82sm3750855ad.24.2026.04.30.12.30.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Apr 2026 12:30:38 -0700 (PDT)
-Date: Fri, 01 May 2026 01:00:31 +0530
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-CC: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com,
- dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
- sakari.ailus@linux.intel.com, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] iio: hid-sensors: introduce device managed API
-User-Agent: Thunderbird for Android
-In-Reply-To: <afJcj34Fc_aUMVhe@ashevche-desk.local>
-References: <20260429175918.2541914-1-sanjayembedded@gmail.com> <20260429175918.2541914-3-sanjayembedded@gmail.com> <afJcj34Fc_aUMVhe@ashevche-desk.local>
-Message-ID: <D8E78026-517D-4CE8-927E-6F4AC7E21454@gmail.com>
+        d=1e100.net; s=20251104; t=1777602332; x=1778207132;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
+        b=l82C92zKj0tDkPx0thc3TEs80gGAEKZodBv7+lYqfKPrhQ+CHAcOofF5ljHjbtzSOU
+         RaLyf7pfFwMNK3v2/bqOed/qgGVvsCH3TcDWtsRyyndH5c9UNnEo0DhvfzhgoQUxfniy
+         xnp/4IUI9nEcoqohWxnKApP5zVfLG1AwUc1BMKX2GIz6b11XxWBU79Z00Kc0HHsV+5e9
+         waMZlfk4mudC5rJAfXU60FCMPbmcqFWA7+gvS3bPHqlVUXk0UmIn2/3W+z7h5rHWvyp1
+         ws3+En592xJmufb9unD/+DgnRlfX5FOjGdhe6IB5MQl+7PIlByt+/wjbYmaMW6/NnC8N
+         r9+g==
+X-Forwarded-Encrypted: i=1; AFNElJ9Y0BgkEchEuHSziaP9Y+Bx8dRXskBO5F1KdzBFmAHx4SDJKB/VgzFveuPRo9P0SrTZDT41OXiHZ/rJTA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCf/SPSv9kf8Ga608oAwHvPbS5iX2uzys+plCv3PG4+JbFbX1g
+	p7jOYi4Bs27+Jg3Od2siW353jMgkWIQ+gWzu69rqOgtcWLyMHyJ68/vi
+X-Gm-Gg: AeBDiesIjYN0lY9BFK+dWPsc9TwZPt5KoxJcBK0JcLbe+sxmp+j9oH7pgdRRLakug2q
+	s3ZUd00Uhh/bfDBCaFZy4h7sjVgHfTbT51DztaL4A50GWulo9ysd1BzG5oKdxPVztoIsjgLZbWK
+	vknydKk48P1TAvqhG3+prCMrZVlGFUUU4NgEYEhrm2C0wzJ+5FUOBzuwZubDBbSLxXRhjsk2Uu2
+	FdPO8UR9+mMBGL79beHN1a60e8CFapcGSk74RJqkXOiIWAPq7P3wKU3E75b4gPnh6ZC+K+u6I7G
+	hUnj9vOcA+zaHTsbuY+Kxq0aphedJS/NA6A/uKApAHVc3JtYtw8RSdvBxtcPABh7WQ6/xY13Ghg
+	3ZQZ5gxpJKtjN7Pp7EJvwTlpOhmtsJjXwAgjVJw2l/ekB1vqth2/zwITbJLdB69TGU0Pr+i83II
+	mt/cWKcaP4UwwfQUCLaR6uAo1nqSHhpajPjuCL9tDIERpUEkSEMQIIYGZdvr7hL7oA
+X-Received: by 2002:a05:6820:1606:b0:696:1abe:a51 with SMTP id 006d021491bc7-6967a6031b1mr2849998eaf.49.1777602332599;
+        Thu, 30 Apr 2026 19:25:32 -0700 (PDT)
+Received: from Dell.cheetah-searobin.ts.net ([108.243.219.47])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6968945d6d2sm728624eaf.4.2026.04.30.19.25.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Apr 2026 19:25:31 -0700 (PDT)
+From: Akash Sukhavasi <akash.sukhavasi@gmail.com>
+To: akash.sukhavasi@gmail.com
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] Input: analog: fix coding style violations
+Date: Thu, 30 Apr 2026 21:25:29 -0500
+Message-ID: <20260501022529.132812-1-akash.sukhavasi@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
+References: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
+Hi Dmitry,
 
+Gentle ping on this patch series now that the merge window
+has closed. Let me know if you need me to rebase it.
 
-On 30 April 2026 1:01:27=E2=80=AFam IST, Andy Shevchenko <andriy=2Eshevche=
-nko@intel=2Ecom> wrote:
->On Wed, Apr 29, 2026 at 11:29:16PM +0530, Sanjay Chitroda wrote:
->
->> hid_sensor_setup_trigger() is common API used for the HID IIO drivers,
->> prepare devm API devm_hid_sensor_setup_trigger() to acquire resource
->> during setup and release using device managed framework during drivers
->> fail, unbind or remove path=2E
->>=20
->> Register action with devm_add_action_or_reset() to release resource wit=
-h
->> devres framework=2E
->
->=2E=2E=2E
->
->> +static void hid_sensor_remove_trigger_action(void *ptr)
->> +{
->> +	struct hid_sensor_common *attrb =3D ptr;
->> +
->> +	hid_sensor_remove_trigger(attrb);
->> +}
->
->Casting is not needed here=2E
->
->static void hid_sensor_remove_trigger_action(void *attrb)
->{
->	hid_sensor_remove_trigger(attrb);
->}
->
-
-True, the cast isn=E2=80=99t required=2E I kept the typed variable for cla=
-rity and type checking on devm_add=2E=2E API which pass void * callback and=
- remove trigger API which has struct hid_sensor_common=2E
-
-Happy to simplify if preferred=2E
-
->=2E=2E=2E
->
->> +int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *=
-indio_dev,
->> +				  const char *name, struct hid_sensor_common *attrb)
->> +{
->> +	int ret;
->> +
->> +	ret =3D hid_sensor_setup_trigger(indio_dev, name, attrb);
->> +	if (ret)
->> +		return ret;
->
->> +	ret =3D devm_add_action_or_reset(dev, hid_sensor_remove_trigger_actio=
-n, attrb);
->> +	if (ret)
->> +		return ret;
->> +
->> +	return 0;
->
->	return devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, a=
-ttrb);
->
-
-Agree, will update in next series=2E
 Thanks,
-Sanjay Chitroda
-
->> +}
->
+Akash Sukhavasi

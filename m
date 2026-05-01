@@ -1,86 +1,142 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B93A129D294
-	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 04:58:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F119D38CFF1;
+	Fri,  1 May 2026 11:53:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777611515; cv=none; b=fnb92q5WwW0cGQcmXQ88r27DRVNmxpBXrlNsMWJ0GstCNv53KAzCkw5kyq91iD4jQ4Ud5HXG28TPWT/AE81lev62M8KonIJmLWTzkoC3Yxphgr7cYYXgbv0QEkxcr0USpKniBPQ5wJCED72uNQAiRWL1Ac5zOuyeQRhoqmEFGC0=
+	t=1777636431; cv=none; b=VG1/YCNWmaP8alcUg40opdKcSUbIrmYETCn1Qblcz2oclBFOkcAqPG60/Qd1Xilweq5n3BsBh+YX6Xto/3TmpmrEBGB3uWwLdWh2aufhFtpb+AQ+hioMq2wDpuXjCMZChEn8QA/ziu5YhqE683kHcKeVhN2SMqR97lqX4M0ANA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777611515; c=relaxed/simple;
-	bh=tdU8YY96P8aS4onFWRXSJvfYotvS45VlIad9aLpAvDM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ht4hL2SwreDvVlHdSaO6oc+y6Slh1IYQCbLUuIUDh75PzIMcgfriqCwCjMWeOHQ/Ka3NT+FvnsXQnOfUJEgDY6+O7a4LJm3EUqqIjmhlnaMtzXAICGDbmitIUhOfBe9U0XeVsMObay/tKHGm0iRsrsSlfES1Dv2Glf/hIlERsPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GbIP4dAF; arc=none smtp.client-ip=74.125.82.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777636431; c=relaxed/simple;
+	bh=3pxpCNf+ef0ocrUA+f82Nd4u4cD+I9MZYEJbEcUssN8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=NsIQRVoBJFOrtpf2jOnjD9JWfwmbtBwfDaeotTHjEppJRwYXIHYWdiRoki12Qu/PjrlcvNRuYJU9y5kT0F0Lfrn8oLCqrYVaAli4cVIowbjqABl87yCHZSm8N66zyx0d6UYgLBOgVgrDbWCYVPHXVFKbv2oF3W33r+NW8Fpg9oU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gc/S8lOQ; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GbIP4dAF"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-12c19d23b19so2453371c88.0
-        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 21:58:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777611514; x=1778216314; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EZVXvV64KApiaOjGiC5GXYBkmQwWs+olbrbOlrpU7rc=;
-        b=GbIP4dAFA2TD9TqLc2Eqsq+UDnVzDSqwt/wPU/tejIVA4ax/kfjJg50AZY8mq41OdW
-         GCrtkwJPPj6lgRV6hXQQBy9nXA38aN3ioTOVPQPYmLhF1c2cx/6JDQHQ5suGh3jhAH9G
-         MrPdG0TK86637zn0V/ou1cwIJWMeHHqJWK43BjQoeRw/QjEVIHVyP6FYVZakS5uaRNN3
-         AcdYBQBjJAceJLQjN1yfqujgWOmKX3Q0sWY3hdpnNdt+Xt9xPu8ASbfYVtwrzLmwRqLu
-         Ex4tGnO27WgQwk3SAd+SAA9qwh9akOS8nPxO/2xqWGAzJALFepxp70t1dfoUGyxMmYaq
-         YXwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777611514; x=1778216314;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EZVXvV64KApiaOjGiC5GXYBkmQwWs+olbrbOlrpU7rc=;
-        b=Kewb20c3TNUSiM0MHvs7q9o4+f2CPg2Awe1fCxFB15tQIdYtu64Kw24zDh7SeXuqYt
-         raESn0+YJS7odp5zhI12oAgjf7f/0sWqxll52Hh4r0EkLUH69k6ErvsZ7b9Bpy5Sg8FR
-         CHVShaytWEA4Gpj9MkL5UQs7w0gvFcpuxChk9NnfeHWoiB3KvbcI/zcf7qogNeVtdBl4
-         n8pwficmlTv0873J8P7/08ndnSsmEuTPmHVZg/S8F/qc/+jus4oXXv9ChEfg7IeUUSWg
-         ork4+0+qoHXMrUSgQ/2LkJz+CaZy0GEgoB+xQNxnseeRLhg4Gh+ujEZX7OzWkIBd8Yzu
-         f8JA==
-X-Gm-Message-State: AOJu0YzUY7QrX9xV+0Uksp3GHaohYRXoaCC1qETbmpv4qvOMiULL2Ufc
-	d4iYleWyn+XQfPiTT/cRgQTxWbqF6cT5mTQO3PoXBIct4mPnLIlyNEit9jZnGg==
-X-Gm-Gg: AeBDietCyzB2+c1JKZZ/5tALX6xLWnpzVOqn89PjWYNyJBqLWeEqU6hv/gOob/5Fuua
-	QzPxiYVsNASXTHTx8ekPMRXR7lN2Yjc25WGu2YbtppBob+kYaDzhRVMyWpRkHy7L4K17p9cJRNO
-	9Epw2l2RpUxU305tPCPLdAf+EKsZB3LBBntnYR1mmgnED3bZqAtYKan5YPYHrt96Ra0C7o1M/k9
-	GriL/K+wA7nVc5SObqWg7fiYyDCQyX6fv7Ar6LMWog5avbdKVeQxnHmte4xHRrmilKzCpbvyO9s
-	fmI4Isy+fHLCCMTlazsahcOchzYtbv+ShvkESXu0mJQmckuPETggkSU9GGBXHzSi/Pj4rc02hCv
-	vq1k90k2DOAFfSAGMjUXm5QD0koy7AJAsFg4E6dPTXn3bl9H3CXkAR6gbagV1tRuh+fDfHTHIay
-	WrMW0cqmhn8ivSWVlUVbxgRxTGp7Pd48b9dIZW28AMZ2d7kuwwvJYIvgPMnZQo1LlDiKeFHHRRK
-	f0=
-X-Received: by 2002:a05:7022:1702:b0:12d:ccf5:271c with SMTP id a92af1059eb24-12deace0f72mr1179952c88.22.1777611513565;
-        Thu, 30 Apr 2026 21:58:33 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:4372:f619:5d87:d4e4])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12df843f04esm1421359c88.13.2026.04.30.21.58.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2026 21:58:32 -0700 (PDT)
-Date: Thu, 30 Apr 2026 21:58:29 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Qbeliw Tanaka <q.tanaka@gmx.com>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [PATCH resend] xpad: Add "Nova 2 Lite" from GameSir
-Message-ID: <afQy7-nP_0UApV2H@google.com>
-References: <20260211.101707.2126959894059795107.q.tanaka@gmx.com>
- <20260429.162040.930225048583399359.q.tanaka@gmx.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gc/S8lOQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777636430; x=1809172430;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=3pxpCNf+ef0ocrUA+f82Nd4u4cD+I9MZYEJbEcUssN8=;
+  b=gc/S8lOQuSk68QOcUyLGVtBK4GuMNWdrkLfYqz6u2dxyijXxjBcYLzcU
+   4NO4bl7xK59z55kh2MsX9Ow4/57idrrdss+F2ttRFJ12155LpdZQOv8Ar
+   86sqWMze33Mxko1fX3Phn14eGMBI7AOV5HJy9o/832yDor0eeGgQ4PYpE
+   ycsU953GvagFUUuwQWBM5IFK2Sy/Z9g9u/33+WVkl9JhbNozqUxi1Om7D
+   jyV/H8lBiQWRUs/7DHwfa1TczVb++BgYAn7XdWhGtCODzGEgtOnfFPF7p
+   vudu3q//eNVE3V2X4g0eeb4PCG3J/LSPg61Nls1iweIgpuvdOhDvaIYcH
+   Q==;
+X-CSE-ConnectionGUID: ccMTBsZcRM6zjryDpYOZQQ==
+X-CSE-MsgGUID: +zq/Z3JIT7a69xryAeENjg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11772"; a="101261474"
+X-IronPort-AV: E=Sophos;i="6.23,210,1770624000"; 
+   d="scan'208";a="101261474"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2026 04:53:50 -0700
+X-CSE-ConnectionGUID: gum3g4pZSPyNqTubLjEy8g==
+X-CSE-MsgGUID: qWfDuUcWTOC8MJMkwPriZQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,210,1770624000"; 
+   d="scan'208";a="258197893"
+Received: from dnelso2-mobl.amr.corp.intel.com (HELO [10.125.109.137]) ([10.125.109.137])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2026 04:53:47 -0700
+Message-ID: <15509f5e5a6642d2a4b0ccc13bc7d40d3b79f72a.camel@linux.intel.com>
+Subject: Re: [PATCH v2 0/4] iio: introduce devm_ API for hid sensro setup
+ and cleanup
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>, jikos@kernel.org, 
+	jic23@kernel.org
+Cc: dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org, 
+	sakari.ailus@linux.intel.com, linux-input@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Zhang Lixu
+	 <lixu.zhang@intel.com>
+Date: Fri, 01 May 2026 04:53:38 -0700
+In-Reply-To: <20260429175918.2541914-1-sanjayembedded@gmail.com>
+References: <20260429175918.2541914-1-sanjayembedded@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260429.162040.930225048583399359.q.tanaka@gmx.com>
 
-On Wed, Apr 29, 2026 at 04:20:40PM +0900, Qbeliw Tanaka wrote:
-> Add support for the gamepad "Nova 2 Lite" from GameSir, compatible with the Xbox 360 gamepad.
-> 
-> Signed-off-by: Qbeliw Tanaka <q.tanaka@gmx.com>
++ Lixu
 
-Applied, thank you.
+On Wed, 2026-04-29 at 23:29 +0530, Sanjay Chitroda wrote:
+> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+>=20
+> Key highlights:
+> - Prepare change as pre-requisite for devm conversion for HID IIO
+> =C2=A0 drivers by removing redundant argument
+> - Add devm API to setup trigger and clenaup resource using
+> =C2=A0 devm_add_action_or_reset()
+> - few sample driver update using devm conversion to auto release
+> resource
+>=20
 
--- 
-Dmitry
+devm_* calls are fine but needs tests particularly when forces ISH PCI
+drivers unbind, while iio-sensor-proxy has open sessions.
+
+Lixu, Please check.
+
+Thanks,
+Srinivas
+
+
+
+> changes in v2:
+> - Following input from Jonathan and Andy, squash initial patch v1
+> =C2=A0 series in single change as individual change should not break
+> anything
+> - Add devm API support and two driver using the same
+> - v1 series ->
+> https://lore.kernel.org/all/20260428071613.1134053-1-sanjayembedded@gmail=
+.com/
+>=20
+> Testing:
+> =C2=A0 - Compiled with W=3D1
+> =C2=A0 - Build-tested on QEMU x86_64
+>=20
+> Based on further feedback and reviews, I would extend this series to
+> convert all HID IIO driver to use devm_* API.
+>=20
+> Thanks,
+> Sanjay Chitroda
+>=20
+> Sanjay Chitroda (4):
+> =C2=A0 iio: hid-sensors: drop redundant iio_dev argument
+> =C2=A0 iio: hid-sensors: introduce device managed API
+> =C2=A0 iio: gyro: drop hid_sensor_remove_trigger() using devm API
+> =C2=A0 iio: humidity: drop hid_sensor_remove_trigger() using devm API
+>=20
+> =C2=A0drivers/iio/accel/hid-sensor-accel-3d.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 |=C2=A0 4 +--
+> =C2=A0.../common/hid-sensors/hid-sensor-trigger.c=C2=A0=C2=A0 | 27
+> +++++++++++++++++--
+> =C2=A0.../common/hid-sensors/hid-sensor-trigger.h=C2=A0=C2=A0 |=C2=A0 5 +=
++--
+> =C2=A0drivers/iio/gyro/hid-sensor-gyro-3d.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 | 10 +++----
+> =C2=A0drivers/iio/humidity/hid-sensor-humidity.c=C2=A0=C2=A0=C2=A0 | 10 +=
+++----
+> =C2=A0drivers/iio/light/hid-sensor-als.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 +--
+> =C2=A0drivers/iio/light/hid-sensor-prox.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 +--
+> =C2=A0drivers/iio/magnetometer/hid-sensor-magn-3d.c |=C2=A0 4 +--
+> =C2=A0drivers/iio/orientation/hid-sensor-incl-3d.c=C2=A0 |=C2=A0 4 +--
+> =C2=A0drivers/iio/orientation/hid-sensor-rotation.c |=C2=A0 4 +--
+> =C2=A0.../position/hid-sensor-custom-intel-hinge.c=C2=A0 |=C2=A0 4 +--
+> =C2=A0drivers/iio/pressure/hid-sensor-press.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 |=C2=A0 4 +--
+> =C2=A0.../iio/temperature/hid-sensor-temperature.c=C2=A0 |=C2=A0 4 +--
+> =C2=A013 files changed, 52 insertions(+), 36 deletions(-)
+>=20
+>=20
+> base-commit: eade2b843d9b1f668fc1775f15611bb0a1999cd9

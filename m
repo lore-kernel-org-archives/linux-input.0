@@ -1,86 +1,97 @@
-Received: from mail-ot1-f44.google.com (mail-ot1-f44.google.com [209.85.210.44])
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9751D23BD17
-	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 02:25:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59F191F7569
+	for <linux-input@vger.kernel.org>; Fri,  1 May 2026 04:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777602334; cv=none; b=lOYgBeKaNz/d9e4pBIjMe/KmVMB2+pgD0VN2ywBHGorEDC51ik336YYD/aglhM/6sdtmaycFNU3JYBGux3eXbYTRbWoVMW7+X3Py9zvTxij4WiwNzAoiNuiXrKz1OQRSykgAumAAmC/jtLcEWHtRSNuECLWsYRow4sF4y5tNtWE=
+	t=1777610212; cv=none; b=i3FAV8F47gFK5ypQoGYbAQgez2N8JJZI5D2yRsYucTBpAOhe4eZzXPwcfiWRVehF54qRuIjOV9/8cHpOsGSfwgExWPk9cdZj2jNH6kY/DTj6msNZZnGcswQ225fJu4LkhdlJUxZaWiNABBZldFPoIEnA1PfOwT61ety4J8f87UM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777602334; c=relaxed/simple;
-	bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ILXp2ave/i7qHXSLzAdMTHxEcCcHgss45/sfl075UykxnlVA1cCVfnnKMIQUxTKmdNLRncMnPjlcNDdtSEuw6O+CnmABEei9D/591wHbXaJvZOeijR3+hF2X73wrPPpGOTTzVDCh8u27JTniNBkZBB0FTecM187KjkCGQ5+dAP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TsnDZ0QP; arc=none smtp.client-ip=209.85.210.44
+	s=arc-20240116; t=1777610212; c=relaxed/simple;
+	bh=w1pT9M9mg7eUK2sPWLZz8L0U5nfFXbTqeZJY+y+h5Yc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tLwaIMInhxdmJ6SxKcvv/imlQNX+XpL4tAx3t+4c+cSOx+vA7cmIbL1zm2DMMnGXE6Z0js1gUltMjRlHaJGQqrXECTNUdwlTQV0PrysjLy/Fus7qC3JGbYEAKdG9tYmuIzN2iZ+GLw6ll18QiAtZNxZOLfoGBiG+yiof/S1cX8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K2/CxJ+d; arc=none smtp.client-ip=74.125.82.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TsnDZ0QP"
-Received: by mail-ot1-f44.google.com with SMTP id 46e09a7af769-7de4ed0593fso980503a34.1
-        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 19:25:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K2/CxJ+d"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2e221a71e19so2297126eec.0
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2026 21:36:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777602332; x=1778207132; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
-        b=TsnDZ0QP+CiNsPZeq/US/wWu/fMtnWKS623RPAtQkEU7JYMDarNSe7K1pOWLl3KVav
-         lYcZRNgBHqx4EwqKOALj31qeC7rv6KzR2klHJ+/f3wkTn4Ts6or9hJA8eJz2iXNEF+y0
-         ocVuYNJ5zSxnYxoxddq5mSBWNHHcWGmdx8MccGvQ+Ce5vQJLjSTzI15JYAQZ4+fTPFWI
-         I4zozp5Ix2aM6054HX5fvdzPo/TTrgN021OYkhtOpwDqet7znPa/1peV67WhyJ+HVbJA
-         YBn8TvjmB0owrz7Ib2DgjvS9L8XHOe3hpOTPo0blzD5brUbCWqtkxrpATlU5AxA5punD
-         qBaA==
+        d=gmail.com; s=20251104; t=1777610210; x=1778215010; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=xGPR+UFOagP7MNesgTuCdliIp0Vodm9r6lolMKcJLkU=;
+        b=K2/CxJ+dQRF7JpmaLRrQo/TGqDFvqtAgmVnxp0sPfpUqokbpR7L+KQCtDnu9b+PGC5
+         ZfulMoI675P/fB+dxd2GftszWs97gfDHIad7fUJCN34bhg45xGR1DV45hcYvvKwClXri
+         a01IgI4/Pl8EKzKl9LjqK9mFWygoE0YJlCB21w+YM3FOZZa3/HVd2mjjYUFD4zHmIATY
+         pBQ2e5rWvJKwXWYIqTx3Hzgnc9MEgWykatHlH41EKcYjApf1ePV97cOLNm8wZw5maxvs
+         IuldJojrKaSkFarqLEO5l6fJQI2tGBz1/nCULb8EHO/y2wnA792tvCWgwt4mEXtBtxgW
+         2m2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777602332; x=1778207132;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=MFsNY9rjhkkxw/84W2CnIHgI6mhRRCoDddZoNXyMnNw=;
-        b=l82C92zKj0tDkPx0thc3TEs80gGAEKZodBv7+lYqfKPrhQ+CHAcOofF5ljHjbtzSOU
-         RaLyf7pfFwMNK3v2/bqOed/qgGVvsCH3TcDWtsRyyndH5c9UNnEo0DhvfzhgoQUxfniy
-         xnp/4IUI9nEcoqohWxnKApP5zVfLG1AwUc1BMKX2GIz6b11XxWBU79Z00Kc0HHsV+5e9
-         waMZlfk4mudC5rJAfXU60FCMPbmcqFWA7+gvS3bPHqlVUXk0UmIn2/3W+z7h5rHWvyp1
-         ws3+En592xJmufb9unD/+DgnRlfX5FOjGdhe6IB5MQl+7PIlByt+/wjbYmaMW6/NnC8N
-         r9+g==
-X-Forwarded-Encrypted: i=1; AFNElJ9Y0BgkEchEuHSziaP9Y+Bx8dRXskBO5F1KdzBFmAHx4SDJKB/VgzFveuPRo9P0SrTZDT41OXiHZ/rJTA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyCf/SPSv9kf8Ga608oAwHvPbS5iX2uzys+plCv3PG4+JbFbX1g
-	p7jOYi4Bs27+Jg3Od2siW353jMgkWIQ+gWzu69rqOgtcWLyMHyJ68/vi
-X-Gm-Gg: AeBDiesIjYN0lY9BFK+dWPsc9TwZPt5KoxJcBK0JcLbe+sxmp+j9oH7pgdRRLakug2q
-	s3ZUd00Uhh/bfDBCaFZy4h7sjVgHfTbT51DztaL4A50GWulo9ysd1BzG5oKdxPVztoIsjgLZbWK
-	vknydKk48P1TAvqhG3+prCMrZVlGFUUU4NgEYEhrm2C0wzJ+5FUOBzuwZubDBbSLxXRhjsk2Uu2
-	FdPO8UR9+mMBGL79beHN1a60e8CFapcGSk74RJqkXOiIWAPq7P3wKU3E75b4gPnh6ZC+K+u6I7G
-	hUnj9vOcA+zaHTsbuY+Kxq0aphedJS/NA6A/uKApAHVc3JtYtw8RSdvBxtcPABh7WQ6/xY13Ghg
-	3ZQZ5gxpJKtjN7Pp7EJvwTlpOhmtsJjXwAgjVJw2l/ekB1vqth2/zwITbJLdB69TGU0Pr+i83II
-	mt/cWKcaP4UwwfQUCLaR6uAo1nqSHhpajPjuCL9tDIERpUEkSEMQIIYGZdvr7hL7oA
-X-Received: by 2002:a05:6820:1606:b0:696:1abe:a51 with SMTP id 006d021491bc7-6967a6031b1mr2849998eaf.49.1777602332599;
-        Thu, 30 Apr 2026 19:25:32 -0700 (PDT)
-Received: from Dell.cheetah-searobin.ts.net ([108.243.219.47])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6968945d6d2sm728624eaf.4.2026.04.30.19.25.29
+        d=1e100.net; s=20251104; t=1777610210; x=1778215010;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xGPR+UFOagP7MNesgTuCdliIp0Vodm9r6lolMKcJLkU=;
+        b=d7bnJO6Me/ESGrA+vuFtt/EtLUdyrqFXTwunu3ulgn5LFWeMqL2BK/oGZZzdeKVdrR
+         Nu9QCBadIBf06lvGz8B89zNwQu6qYQ0fHMnbxEDszDLUwOHujgdEuc4aQFt1J039PQXa
+         N1I876xlKlxciHHXnesNCG9cqGSl3GXB7NLtFNmhOp5VpTLZLDq2xGS9J0LIoXfd/sRK
+         +BPt5L24kG6nw8bbaBdd6BqlPfhp6DDMAiTQu9rp8alvRIdzUurU//bh5QgFRIJnTSLY
+         H5OXXGK70bmB8l+AWTVkAPquPlczVWE8tVcIXmKs1ZIYQluFFORuZTiA8Rn9S6ThUaVm
+         4XiQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9WobV1wsVlOctpQjnYEoP5Z47Q1jTMY8i7GeJS4V1KPIgIu/8a9EEEA4DPMH6zwVaCTjWkibX4i9UD9Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzrC8C/WwV22ApOCR3ytAtl4ZN6ubhAjXZ4bY27gp80yTR90m/F
+	sSjZEqWvWkrKnmY1QCaA/gOjJyAd1DdPJ7FnvWTPaJWNAhzSAK7mYOUR
+X-Gm-Gg: AeBDiesrVB9+Uwp5F10/orA1jqJuQIuiGPTmzMAxp+B1gi01k+awGXJkdBaFBGryIoP
+	zG/2rWv/ed0apDVpZ4n55HX2GmgJ7A+cm8T4d86imtdoJMb4zBPZ/9Za/Gpf1GdViDZH/BtAYfe
+	Plx04BnyDzTs36AhM/VuacbS8vH172KcxfOy7dpv0OatwsmVKQoLzlsUhBkEe4lN57UeVzTbmTN
+	bgJw2Uf1dQyCCuXjowMAqc3nmr0zJOJYF6KMro2/UbrAW7bW7WY9mfTaHwgovc6VDJIcmJxNYTk
+	KxavgGwbyeuMdtpe7v5VtpzkoqiC1PlrhJyulbzMzxUCzKA0Fn/zozSSkUV6BnthycTaKaI5ghu
+	w5l3gIwNiBQhEsn1BlgGMMoUR+vlsRxkRte+joDiYX9wNNcF0Qu7+S9ZsmSzfMTYic5JQqyElMi
+	GTSic02cUl8PoIw39H+sVA7SSU+n6PAQSZT4LHo2SiPZNSvALE22SCnUZB92XXToabn4CJfqRre
+	jE=
+X-Received: by 2002:a05:7301:e8d:b0:2ed:e14:7f5e with SMTP id 5a478bee46e88-2ed3f15aed3mr2637343eec.34.1777610210382;
+        Thu, 30 Apr 2026 21:36:50 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:4372:f619:5d87:d4e4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3889cf53sm3955869eec.5.2026.04.30.21.36.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2026 19:25:31 -0700 (PDT)
-From: Akash Sukhavasi <akash.sukhavasi@gmail.com>
-To: akash.sukhavasi@gmail.com
-Cc: dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] Input: analog: fix coding style violations
-Date: Thu, 30 Apr 2026 21:25:29 -0500
-Message-ID: <20260501022529.132812-1-akash.sukhavasi@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
-References: <20260413221928.21748-1-akash.sukhavasi@gmail.com>
+        Thu, 30 Apr 2026 21:36:49 -0700 (PDT)
+Date: Thu, 30 Apr 2026 21:36:46 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH 2/2] input: pcap_ts - remove unused driver
+Message-ID: <afQtoTDYJBkYqpkp@google.com>
+References: <20260430164326.2766500-1-arnd@kernel.org>
+ <20260430164326.2766500-2-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260430164326.2766500-2-arnd@kernel.org>
 
-Hi Dmitry,
+On Thu, Apr 30, 2026 at 06:42:48PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Support for the ezx series of phones was removed in 2022, this
+> driver is just dead code.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Gentle ping on this patch series now that the merge window
-has closed. Let me know if you need me to rebase it.
+Applied, thank you!
 
-Thanks,
-Akash Sukhavasi
+From sashiko:
+
+"Does removing this config leave a dangling CONFIG_TOUCHSCREEN_PCAP=m
+entry in arch/arm/configs/pxa_defconfig? Would it be better to clean up
+that entry as well to avoid a defconfig warning?"
+
+-- 
+Dmitry

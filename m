@@ -1,108 +1,191 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCAFA28643C
-	for <linux-input@vger.kernel.org>; Sat,  2 May 2026 15:09:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E94BC346E46
+	for <linux-input@vger.kernel.org>; Sat,  2 May 2026 17:42:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777734600; cv=none; b=FPqxKKwT5uW7RHuojG7Ysb8BhxE3AvhoswNLN8Ru+qd//LwKJ6w6u7FesaCWTvdo2EIo5iE9xYd94DKS2PPZZByKi15UQ14RyLbo2ZmcCDEyjV+hxHQytiBdMRmn1rV2AuVziPu7S/D4pVjG+ydKhYM1/f+OAKpbCML9zTdEp1k=
+	t=1777743755; cv=none; b=ZSElXUIETzTo0REsYKiEQ9429YPSmHRxERIMHgvK7gqqX0t2qOolY9ctdwz9TwUCU0tv8KsYrwXFq1wxpyKFSmKvVyfsiyDId+9B7SRIpl0CBtxldjFEhNzwkrgM6K2Bhgb5B8yLzFO+/Tv3kpxhkJLeDMz4iqH1HyU1PDQYwbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777734600; c=relaxed/simple;
-	bh=ptxSujRFAo9vo0OGCu3Zr32RZJm3vWSjYX0mK7rYhT0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=e0CQIW42OtrcbD0jGL6+n8W6+n0eCe59J83XIWWD7PK15kKom4ldRerctYCwvge4tuIVXFwFpu6XRVyAY8nEG+2xGi/Y0++ahYlXVlO5AcK8mIfH9zXzy/fkju4QhHsU4Yg6/7VXeZQoSAkdIfY+ikOglpRzHrhaaSKizyJlSPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G0vJCufK; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777743755; c=relaxed/simple;
+	bh=OZfl3HSItlYpSRPVyW84PMrnL07RU5Ol0KgOguzlVqw=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=aePqMGEO6pET4A1BhoGcMX+RAEQAhg9sYojTaBl4dFwCncFit8RcQGEFxcLa9OQ2lqiVex9rL3iebdvKD/PE+ljtjXI01mJv5RUxhL3CSf/8GKyOvta7SrQ7MQRh+npW8/CRlxAkQkybQIxkaUCB9zyFEgkdF4uJjUGEL+9pveA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=k4+Kf/r5; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G0vJCufK"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-c801b30188dso72977a12.3
-        for <linux-input@vger.kernel.org>; Sat, 02 May 2026 08:09:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777734599; x=1778339399; darn=vger.kernel.org;
-        h=mime-version:message-id:date:user-agent:subject:cc:to:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Eq7tSSSRZQ1vJ+lfSbnUOmydYvdp1sAAcJl8m2PMdu8=;
-        b=G0vJCufKU79nK7Fg/wYJ5+OkYyjTIkuD0Rm1XMm62EbeK3skywJUPa4TruKZ1Vae/6
-         e2rsi2HNjkQaPjcbBBkezbIhiYMd6PztE+ydxsjNhZxJ0wtfMHNPTmGhp2JKpN6Pc8ZQ
-         zfMq5rQmg5hdY8MYalGwgIwMQ2m65Ba9oOC2pBZyNfZcz0ZdtR4Ffk16T0nXm1rH7gI4
-         0uvDVBs7LCDciUgJiDwAchCPU8JjmrOUsds1skWdO6kvFti1n+80m06yfNiRhCIELfPt
-         pDLDUCvtO9z+vAHQe2vJiNe6kECCi7pqu17U7smLbO4QFlRh5wnYXh9Bkeq/CoafeMdE
-         lwZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777734599; x=1778339399;
-        h=mime-version:message-id:date:user-agent:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Eq7tSSSRZQ1vJ+lfSbnUOmydYvdp1sAAcJl8m2PMdu8=;
-        b=URWJR4A1nrAisPgFHKM4pYfPpDtHKJMvkSYWWZfPLpIirOBMhEytS3uwF2oCoh7lAv
-         TzF2ARQDcDBw41/pxH2we8qRDjgqpItYcIyq0k55mOXeh13W+xbJLLdWbLYw2VF/oOyX
-         oJEnwIYSjwv4+W9URke/gXPSd3r+vPOVjyJFkYLW4g1RNXolAjBTzwxrPDVHeyh0M3MU
-         i5xlkZOWIj6sRfE/zlUHulwEo8b9z4teITm0enMjbsW5cYQOi4l31L7h7uosKcvxO7bd
-         9p+UML82k6l3bdmsApntUxQw1f7aH0pzhVJfoApgplBz3uWM0HrKHxeuCjTnew+R8xbc
-         +f8g==
-X-Gm-Message-State: AOJu0Yx+W0ONE1poAsogiibpyMCNaFZoC1EpAT6bcIVE0hXxLFGW2PQQ
-	zwBr8FoMg7z9wWo7spPkaZrvh0hQ4TrVld36QWl9tDqVcK8sYgh2DcqFOvIIiyewOjQ=
-X-Gm-Gg: AeBDieseYX8fgegh/notJDMadDKmAOUWyrKAvYoarawUPVS6IKYrkO2Ny9t3JpeKzyu
-	/ozqEF8xtgeprAdk2lUEPUNBkGWvtU232ddc6bn5ECXK2vRoOU+tMiFhSSKfOCGxyNPjXgGObpw
-	jOFVPClykDhG3HQf59sD12pI74wJRZNfxJVSEVDl5zIWy7YU0Au1ucuoKk1wivWN5/j8GhdYTHv
-	w8WUMqrPKoGmWqfX3R8ex9qmqVCyPpkkt58UAXDF02sPSvGliI2BaroIXcN9F8hAN7/EA1mvOLZ
-	iEquVVv38hBEaTsb7ySpGGO41kSaFT7FqQsgva3Q7c+8muywytAKUjRji0VfB53A8WuZTs2WHHY
-	gbONgea5Mj5FOd0VjHwd3qj1m6XNFA3+JABWI6OXSTxYRBv+SLOF/Ss1aQ5jT9GMKC2RNhJsoev
-	kUlYLcrmayOwNmn8gCtPHZ85vWXj6yure11DvYFSyWERWugQ==
-X-Received: by 2002:a05:6300:218d:b0:3a1:1120:7981 with SMTP id adf61e73a8af0-3a7f1b2ec60mr3273184637.20.1777734599100;
-        Sat, 02 May 2026 08:09:59 -0700 (PDT)
-Received: from localhost ([49.36.181.110])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c801fd404basm502800a12.24.2026.05.02.08.09.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 May 2026 08:09:58 -0700 (PDT)
-From: Annmay Arora <annmayarora13@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [QUESTION] (Resent) HID: Lenovo Essential Gen2 Fnlock patch
- (1a81:1026) 
-User-Agent: mu4e 1.12.13; emacs 30.2
-Date: Sat, 02 May 2026 20:39:53 +0530
-Message-ID: <87qzntg85a.fsf@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="k4+Kf/r5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777743752; x=1809279752;
+  h=date:from:to:cc:subject:message-id;
+  bh=OZfl3HSItlYpSRPVyW84PMrnL07RU5Ol0KgOguzlVqw=;
+  b=k4+Kf/r5GTZYVHk4rf/SRadLb+X0n+gqfolkfCPA7Arbrh18/YpIFjeX
+   t+d7Opj+qTh4WGPUF0j09Mr86O3CAfuyVUGNfkjI0/6F5s6jGanQq8J5E
+   XfVYlXtN7qth5/vvZbDXrS4yk4A9tZ65QI+9GUAQPwT2AHL5wG7uxtJMF
+   XiSBOJpTEbEvagu9Jhyo3TCdXTKKSnTLRuJgKEk8+eFPiIE+3BF4Fn4XE
+   FhIfrx8mhcmxSihSIY/r8HqdcyLqEERaZcWGZyEDsYNrGo9ujB0k3vjQJ
+   mJ5WtjT4+V4Wwuqbt+nEGqzWk7VmNJPisIt18aT3W/aLuGYcsMpKEvt7H
+   w==;
+X-CSE-ConnectionGUID: 7oAMA8xiQMi+4CKDBKY7MQ==
+X-CSE-MsgGUID: GyDiAb5GRnq/Ljl9x7WJzw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11774"; a="78601282"
+X-IronPort-AV: E=Sophos;i="6.23,212,1770624000"; 
+   d="scan'208";a="78601282"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2026 10:42:32 -0700
+X-CSE-ConnectionGUID: 5zeFVca3TFmqcsfASi0Kdw==
+X-CSE-MsgGUID: BjJnWUphRYeVDcd1DOkEVA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,212,1770624000"; 
+   d="scan'208";a="228641922"
+Received: from lkp-server01.sh.intel.com (HELO 781826d00641) ([10.239.97.150])
+  by fmviesa009.fm.intel.com with ESMTP; 02 May 2026 10:42:30 -0700
+Received: from kbuild by 781826d00641 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wJEMG-000000001gT-1lch;
+	Sat, 02 May 2026 17:42:28 +0000
+Date: Sun, 03 May 2026 01:42:17 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:for-linus] BUILD SUCCESS
+ 1f6ac0f8441c48c4cc250141e1da8486c13512ba
+Message-ID: <202605030102.jPaXUpwj-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
 
-Resending with corrected recipient headers (previous mail missed LKML).
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 1f6ac0f8441c48c4cc250141e1da8486c13512ba  Input: xpad - add "Nova 2 Lite" from GameSir
 
-Hi,
+elapsed time: 2197m
 
-I am working on:
-    (lsusb output)> 1a81:1026 Holtek Semiconductor, Inc. Lenovo
-    Essential Wireless Combo Keyboard & Mouse Gen2
+configs tested: 114
+configs skipped: 2
 
-to bring the F-Keys functionality to parity as under Windows. The
-peripheral was observed with Wireshark (4.6.5) and USBpcap on a windows
-11 LTSC install. The SET_REPORT to unlock proper functionality from F-keys
-is as follows:
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-  ON  -> 06 ce 01 01 00 00 00 00
-  OFF -> 06 ce 00 01 00 00 00 00
+tested configs:
+alpha                             allnoconfig    gcc-15.2.0
+alpha                            allyesconfig    gcc-15.2.0
+alpha                               defconfig    gcc-15.2.0
+arc                               allnoconfig    gcc-15.2.0
+arc                                 defconfig    gcc-15.2.0
+arm                               allnoconfig    gcc-15.2.0
+arm                                 defconfig    gcc-15.2.0
+arm64                             allnoconfig    gcc-15.2.0
+arm64                               defconfig    gcc-15.2.0
+arm64                          randconfig-001    gcc-10.5.0
+arm64                 randconfig-001-20260502    gcc-10.5.0
+arm64                          randconfig-002    gcc-10.5.0
+arm64                 randconfig-002-20260502    gcc-10.5.0
+arm64                          randconfig-003    gcc-10.5.0
+arm64                 randconfig-003-20260502    gcc-10.5.0
+arm64                          randconfig-004    gcc-10.5.0
+arm64                 randconfig-004-20260502    gcc-10.5.0
+csky                             allmodconfig    gcc-15.2.0
+csky                              allnoconfig    gcc-15.2.0
+csky                                defconfig    gcc-15.2.0
+csky                           randconfig-001    gcc-10.5.0
+csky                  randconfig-001-20260502    gcc-10.5.0
+csky                           randconfig-002    gcc-10.5.0
+csky                  randconfig-002-20260502    gcc-10.5.0
+hexagon                          allmodconfig    gcc-15.2.0
+hexagon                           allnoconfig    gcc-15.2.0
+hexagon                             defconfig    gcc-15.2.0
+hexagon               randconfig-001-20260502    clang-23
+hexagon               randconfig-002-20260502    clang-23
+i386                              allnoconfig    gcc-15.2.0
+i386                 buildonly-randconfig-001    gcc-14
+i386        buildonly-randconfig-001-20260502    gcc-14
+i386                 buildonly-randconfig-002    gcc-14
+i386        buildonly-randconfig-002-20260502    gcc-14
+i386                 buildonly-randconfig-003    gcc-14
+i386        buildonly-randconfig-003-20260502    gcc-14
+i386                 buildonly-randconfig-004    gcc-14
+i386        buildonly-randconfig-004-20260502    gcc-14
+i386                 buildonly-randconfig-005    gcc-14
+i386        buildonly-randconfig-005-20260502    gcc-14
+i386                 buildonly-randconfig-006    gcc-14
+i386        buildonly-randconfig-006-20260502    gcc-14
+i386                                defconfig    gcc-15.2.0
+i386                  randconfig-011-20260502    clang-20
+i386                  randconfig-012-20260502    clang-20
+i386                  randconfig-013-20260502    clang-20
+i386                  randconfig-014-20260502    clang-20
+i386                  randconfig-015-20260502    clang-20
+i386                  randconfig-016-20260502    clang-20
+i386                  randconfig-017-20260502    clang-20
+loongarch                         allnoconfig    gcc-15.2.0
+loongarch                           defconfig    clang-19
+loongarch             randconfig-001-20260502    clang-23
+loongarch             randconfig-002-20260502    clang-23
+m68k                             allmodconfig    gcc-15.2.0
+m68k                              allnoconfig    gcc-15.2.0
+m68k                                defconfig    clang-19
+microblaze                        allnoconfig    gcc-15.2.0
+microblaze                       allyesconfig    gcc-15.2.0
+microblaze                          defconfig    clang-19
+mips                              allnoconfig    gcc-15.2.0
+mips                             allyesconfig    gcc-15.2.0
+nios2                            allmodconfig    clang-23
+nios2                             allnoconfig    clang-23
+nios2                               defconfig    clang-19
+nios2                 randconfig-001-20260502    clang-23
+nios2                 randconfig-002-20260502    clang-23
+openrisc                         allmodconfig    clang-23
+openrisc                          allnoconfig    clang-23
+openrisc                            defconfig    gcc-15.2.0
+parisc                            allnoconfig    clang-23
+parisc                              defconfig    gcc-15.2.0
+parisc                randconfig-001-20260502    gcc-12.5.0
+parisc                randconfig-002-20260502    gcc-12.5.0
+parisc64                            defconfig    clang-19
+powerpc                           allnoconfig    clang-23
+powerpc               randconfig-001-20260502    gcc-12.5.0
+powerpc               randconfig-002-20260502    gcc-12.5.0
+powerpc64             randconfig-001-20260502    gcc-12.5.0
+powerpc64             randconfig-002-20260502    gcc-12.5.0
+riscv                             allnoconfig    clang-23
+riscv                               defconfig    gcc-15.2.0
+riscv                 randconfig-001-20260502    gcc-14.3.0
+riscv                 randconfig-002-20260502    gcc-14.3.0
+s390                              allnoconfig    clang-23
+s390                                defconfig    gcc-15.2.0
+s390                  randconfig-001-20260502    gcc-14.3.0
+s390                  randconfig-002-20260502    gcc-14.3.0
+sh                               allmodconfig    gcc-15.2.0
+sh                                allnoconfig    clang-23
+sh                    randconfig-001-20260502    gcc-14.3.0
+sh                    randconfig-002-20260502    gcc-14.3.0
+sh                      rts7751r2d1_defconfig    gcc-15.2.0
+sparc                             allnoconfig    clang-23
+sparc                               defconfig    gcc-15.2.0
+sparc64                          allmodconfig    clang-23
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-15.2.0
+x86_64                            allnoconfig    clang-23
+x86_64      buildonly-randconfig-001-20260502    clang-20
+x86_64      buildonly-randconfig-002-20260502    clang-20
+x86_64      buildonly-randconfig-003-20260502    clang-20
+x86_64      buildonly-randconfig-004-20260502    clang-20
+x86_64      buildonly-randconfig-005-20260502    clang-20
+x86_64      buildonly-randconfig-006-20260502    clang-20
+x86_64                                  kexec    clang-20
+x86_64                               rhel-9.4    clang-20
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-20
+x86_64                    rhel-9.4-kselftests    clang-20
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+xtensa                            allnoconfig    clang-23
+xtensa                           allyesconfig    clang-23
 
-where the ON state allows the user to interact with media keys (Eg. Fn +
-F1 allows us to toggle mute).
-
-This was tested successfully  with a python script to enable the Fnlock
-and later with a out-of-kernel module which is not production ready and
-would ideally not be upstreamed. I have a few questions in order to
-attempt to send a few patches. 
-
-Questions:
-1) The device presents itself to be Holtek, but does not seem to match
-the manufacturer code. Would another id need to be added to
-drivers/hid/hid-ids.h
-
-2) Would it be ideal to create a hid-holtek-lenovo.c or should one of
-the existing drivers should be modified? If yes, which one?
-
-
-TIA,
-
-Annmay Arora
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

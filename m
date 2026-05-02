@@ -1,114 +1,164 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50361231A21
-	for <linux-input@vger.kernel.org>; Sat,  2 May 2026 11:25:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E3733DEF2
+	for <linux-input@vger.kernel.org>; Sat,  2 May 2026 12:41:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777721158; cv=none; b=eYJ4bTqSvgYkUHgAgUtr4GqJv9TBPtWxgKRHVdK5w5/gi3EKZRK5RnxATY28es5gqJ6fN+f2CaHXS1sVy5m4GnrQKXbNgXlFE2wA0WrPjvPzIdoG48oErbNAYUf6UIe/IlPnpySCWk+hZBiwsGlTvog7qjl6MMSQ0Dk8mRsTVQo=
+	t=1777725678; cv=none; b=bscwmqEehxlPkuPccMnIDI+u0J/6yQq4ngDjPtatmGGu0YTnSROn5GljbW/M8tAenhRLW9Otc5cblzNvWl/5ytWC86K6xTo8HcMWQWOVH01jPYaoMYelHzFNiIArThcI/l06pMMWUbwkqbmv21dJJcDkPGe84veeURO5MoaHbYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777721158; c=relaxed/simple;
-	bh=yy4XsArtrRKT1S4NqDorZmcv3l5hi/sC0S2OZixkReU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=B4M6f8tU2VvC2wWO6QPoAYLved2RPoulK4s2nwSwM2oN/y5+NmBTio45lgqP5t1ZhFHqE4MpdgVRSPihDt9CYITJUD2syYyiF7uoppH3jFxSw1YZURNDztbBuV7A/bhu1IXiVbUANSl6nw9wQrFf+HBcHWU0j0pTAyHV48bubZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=4kWdCnv1; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1777725678; c=relaxed/simple;
+	bh=bzK7TuhI7iXeChjCRE/yKbFe3uEBIwi8ReixnO3VzD0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=G1npZdSyzlibzEVuG7tQDHf48vr3XuE4G0umHBmufIu5gNa4iB42zW6PcJ9VITH6PnHntE4AmNuEkmIH7wlkFEqR6gxfITJTyT5Qc48AtXpxVmjLwDR+any0izhV5qRkVyAFAxxfatkCy3gj/wU/XJdHGRgPZEZGCFxGAX5darU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=szC/F6aa; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="4kWdCnv1"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=References:In-Reply-To:Cc:From:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID;
-	bh=mp2uv9vTZo+OgUQ47UKR0UnUqpelJsUJ4sj0/ejeCDo=; b=4kWdCnv11IhiuaMGXm7Bptl8S7
-	l8/FXW8H/uW2suvDmzSIIqW3z0cdVb6jzM3NadvQJxRpTJchcUwqfRfKt6dTmSmb/H64cVh/13HmN
-	VdOi45BuKpTEOWU/BPwsCE8Nx2Hug5h+GVUGOaGAK6tjGUGP5Y7WQfQZQa3NegHsyIANXeBr/OgKR
-	X/n/Nj/i+D/JXENW/WrlQ96+vCplX9CMF64BiQHix/QV/amtMOxJNOI5k61Qa/zznlqHbeINwNHZZ
-	PKN5h1RiznG7Z0NQdlocsrxl5cdwajtL9IWEdakKtvkzpEskw5LOrmyhWapD89+TwS16x2v5Xkpco
-	wKNO1WGQ==;
-Date: Sat, 2 May 2026 12:53:13 +0200
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yuki Horii <yuuki198708@gmail.com>, clamor95@gmail.com,
- johannes.kirchmair@skidata.com, linux-input@vger.kernel.org
-Subject: Re: [PATCH] Input: touchscreen: tsc2007: Reduce I2C transactions
- for Z2 read
-Message-ID: <20260502125313.3e1c296a@kemnade.info>
-In-Reply-To: <aeVwUKCQmTmn3OnY@google.com>
-References: <20260410074100.1660-1-horiiyuk@ishida.co.jp>
-	<aeVwUKCQmTmn3OnY@google.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="szC/F6aa"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-67b6da5a618so4341511a12.2
+        for <linux-input@vger.kernel.org>; Sat, 02 May 2026 05:41:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777725674; x=1778330474; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HBPNRk7v8mm7QEjJvKG3bZ2ji7O0ntCyzGjvZOc47Jg=;
+        b=szC/F6aaQSGgS0XWpir9o5lO6cfT0oCt/xvdG5zbZfgRpZRZRei1DER181TJBgW3kZ
+         HG2LQMX5Wh0nqXLmesIugpj+EaiV8Z8LkjgHgMonkEl+f8c84+dc8A+K4WNaaNPfFTPz
+         2z5bnoHs8lDj0Xpg7hKi9GpAYaypNrUNNiNZ8oIwv6M2l8icQTeM9XGorcwjHzVL85n0
+         S5W1N77C0pkKYzK6FUHO092IDvVSJw4AyT6aFFkq3GGXHkOD1RaPEgOX8vXNoxSE4QGy
+         fx4oq0Vb1MVgIAs9zLRBMUobAs5IcXvdDRiyKiXAqsQSi2oTpViCsOKceO0LYYPD1xgR
+         T7xw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777725674; x=1778330474;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HBPNRk7v8mm7QEjJvKG3bZ2ji7O0ntCyzGjvZOc47Jg=;
+        b=Ds2hQ0nslDZJqsxJVEU7tWSlRnt8pDaGKgvC+wwwV1XQ2zbxR9vmrRH75oXBtfftB9
+         XGBY+tHFJVznWWVsE4mIGY03JIzz0Ri76ggcniqJF21zxf4ojOY5VfZfhLN/JbrufOii
+         pYC025WLYoWiRJ7gi7grS55fRFVLu+tbbvnbYoqL+rTWLSEIHczFkgn+Ha+ueVG8KmO/
+         r29i89wqQuswD+iYGaeXlQPNlgyGhgMIrUsdI39XiZNsQbj8i1Wpe0Ybrb7onmNA81HQ
+         xPOXTsCUqugf8J468j8jBE62kCWTjjh2dO1u574Sn+9bXQOhJZbsQJ6QJUralxi6taKr
+         ITTw==
+X-Forwarded-Encrypted: i=1; AFNElJ80HhDLDMOSFriTTtFDxWy8nbillnnI1z2bX8mBnPc4kS36nn3tzTqaSo8skJyld0+68oUEM37YZg3cmQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzoJinYfDvQvlEjeNU7xJWbn31HUsEp4+xnMV7bxh+AqUr+1xWK
+	+f4cNbZ51R0KIlyZWYuOqeFvzEf04EMFeZYGh8xX0/PFiNDV7c6kSvK4
+X-Gm-Gg: AeBDieuBtBVat8ENi59ErtQQsGhr09udf0eHstH2SNhbzlsv6LfaI9iT7N8kWut/BBn
+	AnLyHLoEbIy3sx+5hzkOMoB5CH6p5vXbx5xTqJtsWE9jJL77fLDFYKYekNKdymgBlYVe6lly0VA
+	VvyzHiysztdPpaAcj/865TQXZBJ31W6SOHYQxyM+SiH2+NhAIxmCFuUiJDKl0zvmvqXLKk/hsJm
+	zAZFN+EmdR/VIYP20Ds81ToZsWGAkXRvGKlLDy26UOg+tkiJ93wusC5oXqagZWM8dehqwidFpk0
+	7RLi3JKg8wl08o4VJemg93Zpetm3k3M9I7fuWMUjlRz8opGHO1TAYAE8l6uBUwCY533LLdnK5XG
+	iSewRt73BH1YU1RRyYLi0vymkwco2WtWDtSgYPYRce7Ww2CRqTwZp1feq4mXhrf+adjD9EKCRTw
+	vKJiTuAM6ptpSptzCrvTaKxX8=
+X-Received: by 2002:a05:6402:1209:b0:665:3d68:c46c with SMTP id 4fb4d7f45d1cf-67c1ada368fmr865771a12.14.1777725674231;
+        Sat, 02 May 2026 05:41:14 -0700 (PDT)
+Received: from xeon ([188.163.112.56])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-67b85e281cdsm1649649a12.3.2026.05.02.05.41.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 02 May 2026 05:41:13 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Ion Agorria <ion@agorria.com>,
+	=?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Cc: devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: [PATCH v6 0/7] mfd: Add support for Asus Transformer embedded controller
+Date: Sat,  2 May 2026 15:40:48 +0300
+Message-ID: <20260502124055.22475-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi,
+Add support for embedded controller used in Asus Transformers for
+managing power and input functions.
 
-On Sun, 19 Apr 2026 17:18:23 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+---
+Changes in v2:
+- converted sysfs debug exports into debugfs
+- added kernel-doc comments for exposed functions
+- fixed minor typos and inconsistencies
 
-> Hi Yuki,
-> 
-> On Fri, Apr 10, 2026 at 04:41:00PM +0900, Yuki Horii wrote:
-> > From: Yuki Horii <yuuki198708@gmail.com>
-> > 
-> > The current implementation sends a separate power-down command
-> > after reading the Z2 value, resulting in an extra I2C
-> > transaction per measurement cycle.
-> > 
-> > The TSC2007 command byte contains a 2-bit power-down mode
-> > selection field. By selecting the power-down state in the Z2
-> > measurement command, the device powers down after the Z2 A/D
-> > conversion completes, eliminating the subsequent power-down
-> > transaction.
-> > 
-> > This reduces the number of I2C transactions by one per touch
-> > measurement cycle, decreasing I2C bus overhead and improving
-> > touch sampling performance.
-> > 
-> > Signed-off-by: Yuki Horii <yuuki198708@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/tsc2007_core.c | 6 ++----
-> >  1 file changed, 2 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
-> > index 948935de894b..ff60245baa96 100644
-> > --- a/drivers/input/touchscreen/tsc2007_core.c
-> > +++ b/drivers/input/touchscreen/tsc2007_core.c
-> > @@ -61,10 +61,8 @@ static void tsc2007_read_values(struct tsc2007 *tsc, struct ts_event *tc)
-> >  
-> >  	/* turn y+ off, x- on; we'll use formula #1 */
-> >  	tc->z1 = tsc2007_xfer(tsc, READ_Z1);
-> > -	tc->z2 = tsc2007_xfer(tsc, READ_Z2);
-> > -
-> > -	/* Prepare for next touch reading - power down ADC, enable PENIRQ */
-> > -	tsc2007_xfer(tsc, PWRDOWN);
-> > +	/* Read Z2 and power down ADC after A/D conversion, enable PENIRQ */
-> > +	tc->z2 = tsc2007_xfer(tsc, (TSC2007_POWER_OFF_IRQ_EN | TSC2007_MEASURE_Z2));
-> >  }
-> >  
-> >  u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, struct ts_event *tc)  
-> 
-> Thank you for the patch.
-> 
-> I'd like people using this part to chime in (CCed).
-> 
-This looks like that there might be some reason behind it. But I cannot find any.
-Either by reading the datasheet nor by testing.
+Changes in v3:
+- dropped DockRAM commits (both schema and driver)
+- integrated DockRAM functionality directly into the controller driver
+- EC schema moved to embedded controllers folder
+- removed all cell descriptions from the schema
+- removed all compatibles from the cell drivers
+- adjusted naming conventions to better align with the ASUS Transformers
+- defined EC variant sets to provide coverage for all known devices
 
-I have checked the interrupt counter. Output seems still be same.
-Interrupts appear when finger is moving.
+Changes in v4:
+- grouped known programming models of EC chronologically (both schema
+  and driver)
+- call debugfs init only if CONFIG_DEBUG_FS is enabled
 
-So 
-Tested-by: Andreas Kemnade <andreas@kemnade.info> # GTA04
+Changes in v5:
+- added asus,tf600t-ec-dock compatible to schema
+- rebased on top of v7.0
+- kzalloc > kzalloc_obj in keys and kbc
 
+Changes in v6:
+- removed asus_ec_handle_smi casting
+- asus_dockram_access_ctl > asus_ec_get_ctl in control_reg_*
+- fixed battery Kconfig description
+---
 
+Michał Mirosław (6):
+  mfd: Add driver for ASUS Transformer embedded controller
+  input: serio: Add driver for ASUS Transformer dock keyboard and
+    touchpad
+  input: keyboard: Add driver for ASUS Transformer dock multimedia keys
+  leds: Add driver for ASUS Transformer LEDs
+  power: supply: Add driver for ASUS Transformer battery
+  power: supply: Add charger driver for Asus Transformers
 
-> Thanks.
-> 
+Svyatoslav Ryhel (1):
+  dt-bindings: embedded-controller: document ASUS Transformer EC
+
+ .../asus,tf201-ec-pad.yaml                    | 119 +++
+ drivers/input/keyboard/Kconfig                |  10 +
+ drivers/input/keyboard/Makefile               |   1 +
+ .../input/keyboard/asus-transformer-ec-keys.c | 272 +++++++
+ drivers/input/serio/Kconfig                   |  15 +
+ drivers/input/serio/Makefile                  |   1 +
+ drivers/input/serio/asus-transformer-ec-kbc.c | 147 ++++
+ drivers/leds/Kconfig                          |  11 +
+ drivers/leds/Makefile                         |   1 +
+ drivers/leds/leds-asus-transformer-ec.c       |  79 ++
+ drivers/mfd/Kconfig                           |  14 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/asus-transformer-ec.c             | 762 ++++++++++++++++++
+ drivers/power/supply/Kconfig                  |  22 +
+ drivers/power/supply/Makefile                 |   2 +
+ .../supply/asus-transformer-ec-battery.c      | 272 +++++++
+ .../supply/asus-transformer-ec-charger.c      | 193 +++++
+ include/linux/mfd/asus-transformer-ec.h       | 162 ++++
+ 18 files changed, 2084 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/embedded-controller/asus,tf201-ec-pad.yaml
+ create mode 100644 drivers/input/keyboard/asus-transformer-ec-keys.c
+ create mode 100644 drivers/input/serio/asus-transformer-ec-kbc.c
+ create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+ create mode 100644 drivers/mfd/asus-transformer-ec.c
+ create mode 100644 drivers/power/supply/asus-transformer-ec-battery.c
+ create mode 100644 drivers/power/supply/asus-transformer-ec-charger.c
+ create mode 100644 include/linux/mfd/asus-transformer-ec.h
+
+-- 
+2.51.0
 

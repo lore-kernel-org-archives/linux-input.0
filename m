@@ -1,62 +1,62 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77CF335F612
-	for <linux-input@vger.kernel.org>; Sun,  3 May 2026 07:26:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6546E35F612
+	for <linux-input@vger.kernel.org>; Sun,  3 May 2026 07:27:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777793219; cv=none; b=C2HnLTPwmd8NNzCcuZcdAVQ6O1XdSPtyMUI2FddCBsTLqoBNmIlpZTOxVb6PNcrsTdoo1St7LatYM9/EMSzbVtDTgfDx10sVGm5ndNRnkHitD2WVgtccklLGgMFiFUecvFluHEycJvwezmwatPuaDAVpvjkeYMr9aYKoxfWMGK4=
+	t=1777793224; cv=none; b=d5Ie+usFc5NlRUxOmWlw3a83RQkGWHegwwpP21m3RMyXw1+ypQ1A6vm1oIY21pSWQ0Be/dY5YpdIo/xxiHu1c+Gb+A1D9sFYwXWukjCu79cnNd3xnqzGCpJu22zy/0xsjFq709JDBlTaHHmvZmn32+IsTYHv0s7SEik4uBuK/1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777793219; c=relaxed/simple;
-	bh=MAnhnGSHDh4DLEx17HlkmYqXOA6wnOEn0B10wMuS0ok=;
+	s=arc-20240116; t=1777793224; c=relaxed/simple;
+	bh=vfVmkzd8A0z6HncLF1fH136j0IdduRSTxvmyw33nVC0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DL0S+0cicjxKRDN4YQcH0rZwATbCx5xunLpjcLM5VQtn12+3a8HqBsoTcXlPisVFu384lZ8Sa3FZXbb1Kh0oibnlU0ZyXrEQAVM4QfHmPfL9ChU7zToCAio84TE1garzgF+v4RVLXqfUgOQrIjwQWhheP4ZznOw59Zw5Ypzm/Mk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MViRjv7S; arc=none smtp.client-ip=209.85.214.173
+	 MIME-Version; b=h7AmJBTAAfIKmsycj7oDcMY7Y9KX/bBcEjVk9eD03n1yU7kIePuLdFw6zyjLhFwz/N3l5F4uTn6Xs1z/osalW25ZyE3RzNaJeJOhxlvJ4MkjbfxlA3DEZGm2OMrQj9uGh/K8glkHfBTWs3/ycpkmYkVRCjjNih/HvSGw3OJt4PA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KdC82Uc4; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MViRjv7S"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2ba17c8cfacso2176775ad.2
-        for <linux-input@vger.kernel.org>; Sun, 03 May 2026 00:26:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KdC82Uc4"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b9705613ddso18091895ad.1
+        for <linux-input@vger.kernel.org>; Sun, 03 May 2026 00:27:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777793218; x=1778398018; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1777793223; x=1778398023; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SOg4qBHTe+7jqP3ABxr8VsEBH6RAq2wSVE0e7j4wKpE=;
-        b=MViRjv7SDWq3aY+LO6csNEAFE/EMgX3BjBmRvQs2aumUWOAwoAWTwyRzHVTlSccXJV
-         BLeItDqqWMkgWml9P2ij0j8A8jgtORErzUMjCEm/KPayo4aGaOcogBFJRHOh56YKPBtj
-         tQGQXrwNvVP5t8OItb0ow3GxyyCMFdS6xvjFl+v9mfnOE6Vt5JgP9FJtK02ZtwFvO4tL
-         dRRxY4KxiMGgq1LeMCCdRoskjHKWGCZ42nE6F1q+ABefbgWsDW72U7Karz9WB4P4aXRO
-         5XbBLkOtwN7vSmHusbQkTvVTSrN1pP23GEfxYyrumdesNqk5/CoSnJcJR2wifoZw98qx
-         fj9w==
+        bh=jIb+W7y+bKsv9LM1iUZJZSIdILe100/J90mWVD85NJc=;
+        b=KdC82Uc4RxV63zouQlJBoAiLSlIbk+EHp9xVB6Y9Lmr+4Wew9bv3DToJo2Vfg7J1A7
+         gecK7yQP6B1CqUb4VPIQsj82S+YtQ+W8859htiC0oTo76vl3+v9rE94MuFFWH9WEOkhe
+         az3KiZZspxvT2IKn4Bkp4nYdoqorePoR80gzVtnqDthqB1Urg7ipUxY5fbSd9SH+gXDj
+         Oo9e7C/ixr6wUNuwY2AaszwnvT0/fVBoeXSGIVxB+/PdlVQR3INhuuys+IFighvgt0fu
+         sBr8xVDASg3bhoNVoV4b2ytLdvv5zi7Od5eYtHVvg3VCU6wLS8q2c8a2+krC1ku5TycP
+         Vp9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777793218; x=1778398018;
+        d=1e100.net; s=20251104; t=1777793223; x=1778398023;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=SOg4qBHTe+7jqP3ABxr8VsEBH6RAq2wSVE0e7j4wKpE=;
-        b=YlZSzjRtt2qLunRg2gDaV9tAh/zQj9Bl+evuAvSbcJWRyzuO8G9zfk6S1ZnB5m+sY1
-         JA5puOBWcSkpplyiJZz85CAKR3vjbx2PtkEFmZe0cqaz+OBHl4/PblTzk5oHouacO0Uc
-         iRc76vROBeyL4QC/7RyM6rp+sFEV4l5jGU9ZlJXHQsBgrloTZMuQYd7lvnE1AfGXjgdn
-         6Rbpszw0Wsrsn5BRB1feOGgHgi2l1vGG82t4NW9KOnM5Ayi6/4dwBSutVV2x/g9xipxZ
-         M1qTShOQDuAMo8ZmrdBfSob9a/4CIIrOka3kjg8gwSmZ/uDXodv/n6Nd8x+iC1LIBi+r
-         oNZA==
-X-Gm-Message-State: AOJu0YwRRHG/V3qLWdicAM0xI9Ym751lwoiE5J/uh1qFJSaB/J4y/gnB
-	99xGkBYO4FoEH4WW9F+C46eXKBiCiAGR5+GGPNMGkZGDbB10mzDiOKp+
-X-Gm-Gg: AeBDieuwIvnprc6C3gdT1Q9n3uSvPyxSocct2OL6M9hpwRykL54OYqvYaeRf7yVEPwF
-	hyI260F6wNYunggKkPXiCJ2ilHmwlJmvxmpaOJIiYLg3TqTIk+NSB0qy6dS/yyqyF/8NCISsGAI
-	5hTAHMqRQdj54u3BoR57cs4hxkaHBws83jkGMXEnFr3FLmXObRF4pI645lhExA5yqIDyaTJ6A8o
-	IM8N5Ql8DyrPCmxVRj5NYhAs/3RkAYwT3YQbbCFLMFAArlS9fR1tN78XOw7Ij9BFnpY/FP9G0bp
-	RZRdGjosKn3b0mftPgAtesSd6TnxjlS3z822wleKF8t1EJISYzoXKe+04tjvaGN7Wp54cd+2rQY
-	YFapWcphI9uvN2rBYWjMkg6gASiqBpj3srpWwe4SigQ1OwgBbQDV7V2Q7gZnpF8/jMlfEXH8Vgt
-	EdCocuNfDpsJ/HgFNlsDPttj9iy3h2SqdV2MSSBfzTxE/sumvyM0D+IHv2VparjHW8jJyzgA==
-X-Received: by 2002:a17:902:e548:b0:2b0:6e60:9586 with SMTP id d9443c01a7336-2b9f2579a38mr55557645ad.17.1777793217743;
-        Sun, 03 May 2026 00:26:57 -0700 (PDT)
+        bh=jIb+W7y+bKsv9LM1iUZJZSIdILe100/J90mWVD85NJc=;
+        b=ppBW+GA6TBG+NzV370unX9o3Tfx9AvRQZXfORsRL7BVRvydQWrcKy1wqOoFqkMuAg6
+         /VCS2/NFCeqZgUKhoTJTUcU0Tg2SFxTA+3P3fzqwLUosU2CSvukOvDmwauqBcKUgSeCw
+         o/rlXEk5WycvKXNplp/WlaUvMWNoCpa0+7ytaDgJRjklByPVn5cgEGdKZNseSikIy8vj
+         p1jihuBSuTcv+J6f3trliNYvK+j7lpG2VoS9+adW2vx3tCbU3P2QNZ3IytBGh1bWpyYp
+         PU8om8jXnzg5BI0qf3+9FKQet3/6bvowAmlJdv3K/PQS+pAftpYWwb/oaT2Rwp87oBbc
+         zsEg==
+X-Gm-Message-State: AOJu0YxA+w/thjlvmWBCbTJEemcxWvcLnc427b5o0LQAAxjvjLEmYrTj
+	PQ3mR7iknHZ5wbfG7HKKtuFmlUwkgkzDNSfie6YFftPyMuuuYAMsR8Rm
+X-Gm-Gg: AeBDies5P+csBcH0LyFCaDyCtnQ9MIUhPxcyi2gklHYUhC9Sx4+M38zI4RTX6V5KlYO
+	GrjknSqk1r7sinyn+33EnLl/RXfPZ28ROuNUJvJv/2S16uETaIWQ/gHUIqLGkEsh555umuuDP7F
+	9q/syzmu8G8TiqoHMGIDH9RxCSSUDqtOYaJICjISkm6bcQtO7vSEYaKaCLd3I+7FWB152sUS3rW
+	EBVSAVmqNldPCrty91ivPys3vpZiUmxYMYfVL9XBWQXY9DQKbM1FUxtdxZNPTf5FNJDJ5PYw0Dm
+	fP+pIMyQJuK0bOeadSONLXmTgrUPL+G1CrN87RAw0zZXiwj1+SiGC0KQxFrovbyswJTtgufmpZ/
+	2s0sRWcNzFVyP9FhCMcONFNbxb1rVBgdYL3ZBiED9LmJQ3G64U3Pa7TFiuk1FYfzymUyqWrA9p8
+	jxgtDpkaIk6cWrgeWg9b5vQ1uJ4AzQrEJXdsWj4SMgF0/gdViUtLbFlTXLesXC5DPEKAfNig==
+X-Received: by 2002:a17:903:3c43:b0:2b0:41bf:ca83 with SMTP id d9443c01a7336-2b9f260d7b2mr55819115ad.23.1777793222705;
+        Sun, 03 May 2026 00:27:02 -0700 (PDT)
 Received: from tranquility.wa.lan (60-241-74-71.static.tpgi.com.au. [60.241.74.71])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9cae16a9esm64942945ad.50.2026.05.03.00.26.53
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9cae16a9esm64942945ad.50.2026.05.03.00.26.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 May 2026 00:26:57 -0700 (PDT)
+        Sun, 03 May 2026 00:27:02 -0700 (PDT)
 From: James Ye <jye836@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org,
@@ -67,9 +67,9 @@ Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	denis.benato@linux.dev,
 	James Ye <jye836@gmail.com>
-Subject: [PATCH 1/6] HID: input: delete hid_battery on disconnect
-Date: Sun,  3 May 2026 17:26:38 +1000
-Message-ID: <20260503072643.2774762-2-jye836@gmail.com>
+Subject: [PATCH 2/6] HID: asus: check feature reports when determining is_vendor
+Date: Sun,  3 May 2026 17:26:39 +1000
+Message-ID: <20260503072643.2774762-3-jye836@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260503072643.2774762-1-jye836@gmail.com>
 References: <20260503072643.2774762-1-jye836@gmail.com>
@@ -81,40 +81,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This fixes a use-after-free when an HID device containing a battery is
-disconnected then reconnected, such as due to binding to a different
-driver.
-
-    BUG: KASAN: slab-use-after-free in hidinput_setup_battery.isra.0+0x15a/0x9db [hid]
+ASUS T3304 Soft Keyboard has these reports on its touchpad interface,
+which will be bound to hid_multitouch. To support a quirk allowing
+hid_asus to configure the keyboard interface, feature reports should be
+checked in addition to input reports, as is already the case in
+asus_has_report_id.
 
 Signed-off-by: James Ye <jye836@gmail.com>
 ---
- drivers/hid/hid-input.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-asus.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d73cfa2e73d3..ae0e11c61eb8 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -2408,6 +2408,7 @@ EXPORT_SYMBOL_GPL(hidinput_connect);
- void hidinput_disconnect(struct hid_device *hid)
- {
- 	struct hid_input *hidinput, *next;
-+	struct hid_battery *bat, *bat_next;
- 
- 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
- 		list_del(&hidinput->list);
-@@ -2419,6 +2420,10 @@ void hidinput_disconnect(struct hid_device *hid)
- 		kfree(hidinput);
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 3f5e96900b67..ef9d5eba4dc9 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1282,10 +1282,12 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	}
  
-+	list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-+		list_del(&bat->list);
-+	}
-+
- 	/* led_work is spawned by input_dev callbacks, but doesn't access the
- 	 * parent input_dev at all. Once all input devices are removed, we
- 	 * know that led_work will never get restarted, so we can cancel it
+ 	/* Check for vendor for RGB init and handle generic devices properly. */
+-	rep_enum = &hdev->report_enum[HID_INPUT_REPORT];
+-	list_for_each_entry(rep, &rep_enum->report_list, list) {
+-		if ((rep->application & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR)
+-			is_vendor = true;
++	for (int t = HID_INPUT_REPORT; t <= HID_FEATURE_REPORT; t++) {
++		rep_enum = &hdev->report_enum[t];
++		list_for_each_entry(rep, &rep_enum->report_list, list) {
++			if ((rep->application & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR)
++				is_vendor = true;
++		}
+ 	}
+ 
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 -- 
 2.54.0
 

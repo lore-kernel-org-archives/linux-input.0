@@ -1,78 +1,74 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2961B36E473
-	for <linux-input@vger.kernel.org>; Sun,  3 May 2026 07:27:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D2737C90D
+	for <linux-input@vger.kernel.org>; Sun,  3 May 2026 16:52:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777793243; cv=none; b=ahN5JdHS/dQXiv89rcswJfkzoItjKp6nxzqZXQsLzMSbiaV6ts5FpeqIyCTb6NdAXGfcp6y8lVniKRveQXUXX159vIl24WEhS5IYcZPmFMhqsUHgNrcLDFs7s4+B8BMLJn4tEuuhg7JLDmDunKsWoEu9PxEw6wwEEKGXNrSjb8s=
+	t=1777827178; cv=none; b=Zhy+qK/bNsKYU9sqi+iYS6v1EzCO4eyKg+0W2wTlzbYvhCIHPkCLp07fipaDq/OufaGem+Lhej4fSMuXXRQFwEhHWF6TTGiCqt9WU2QUkQ9MgiicfBllXAG3YYrrDC61dpfUoKgUiNHsbydbSDamRFkZJi0MeXp1rPwf5bpomJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777793243; c=relaxed/simple;
-	bh=BmEGzsHJ8K+3+vN7Jro/PlahKcA+d5OK7rUba+0zggo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lIkGDzQwp3NE5iE7zqQhPP2IhTceZNIhPABThGgHG6Th4S3OD8R1ukGPULUOlM9XUTJDzoeoB7I9CthDBY9RRnnNZ2n+calBCGQOabhUO9eGfzBk9N/utprOiCNsV5/cCA2kl0KRv51Eyb1QzmUa109gx7nB2O4wnu2rrZMspc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CRDzQElm; arc=none smtp.client-ip=209.85.214.180
+	s=arc-20240116; t=1777827178; c=relaxed/simple;
+	bh=otc+OpkaiKiBwUF+tcUidC95oQ2tFxa+9cKGsKaCglI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cHB8kAXcHXrhf0GL33oUTOhvNFBJ9PwbivLmTKC17DFcaGPOmNICOYykQv6EdCpEbtKBnqi3PLSpDq+rtMOWURzv+OcYQIYdxKIWR/K4kSiSE2rDGlFfvrBCSjREN3DNOLqbm3RTC7CGhJRCWKM+Nb2fwO9YFAftEMv3+dUe1Yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KDTHcUjh; arc=none smtp.client-ip=209.85.218.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CRDzQElm"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2b4583f0a1aso18348845ad.3
-        for <linux-input@vger.kernel.org>; Sun, 03 May 2026 00:27:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KDTHcUjh"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-bc188a20e0aso58134166b.0
+        for <linux-input@vger.kernel.org>; Sun, 03 May 2026 09:52:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777793241; x=1778398041; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OHEBdikQ6bf/NgnoLrg9r5ETcVwJT7U135E6QfMQij0=;
-        b=CRDzQElmSnOLZ20jG9/rdGe/kRwaBZPJGYouCXNUEkPI9SE0Uka0IIivsKi92U6QmK
-         J9AOgM169KZ/U3Qk2vFOpmQZ3OjKqZIKz6pKkFwvbK1MPI3ivdLd6H6mZT45rsIuVKn5
-         FimPOKoY8fv+9RMN9JVFYWV1whFX1KWdmuJjJgQFkl1VatdePS9psMRHHIDDlubujLUl
-         oUTl78/ww1ktq5r2/y+gI+V6gL9xqaGATYL9nIDLf4URlrurQ2PNVmNZVjK9Dv7Z9Gdi
-         BkxtynNIjP3CQv/t0VLauSd4Fm/ZprEloVzd+iQFR8eUDI1jbxCpeikLK+Z4+60G+kgM
-         mN0w==
+        d=gmail.com; s=20251104; t=1777827172; x=1778431972; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7Wottvwh2F068u0uO4a2RGm+BqrKKg4sWw04x7ifouY=;
+        b=KDTHcUjh7LgoxOkPrkoK1I9RuOAl4OAhKfealjOJ381/qsIyyMJfq3dLdUjfzDmHZS
+         PACtTqztKocVZqHkEy/akoViFEc7aBN78adt6PQErjT7NK54CWPgsAJj0tW79iQX0kwQ
+         41aQ+SlP8Sj9iRm/VWjH770eJyqLWIt3EdzJdac/bzZp4IVKT5n/OTISSHVsONnXrw3N
+         trSUdBTy6Jg853YHnpZToXZTiy1hoYoniZpoM7ROb4omK08lH8Ju5Uyj6oAcMrIFcHqO
+         I5Iuc5aOsxbj+ZQbi8jFGe7MD0AocjoKrc9Y4Cq4l9xc+qsSevOHThfuD0RwkJ0UClrF
+         YAUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777793241; x=1778398041;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OHEBdikQ6bf/NgnoLrg9r5ETcVwJT7U135E6QfMQij0=;
-        b=IZc8dgh0ZPBCg/sGRZMkWwbVAxCafFYADthSJfHSQvWCvzkrWj0pDWB34SyOMnfxdC
-         B61YrzpfBTdjCEMk7900mokLXxwZT0g5DqxeXeD50BpoIVyEPvx5F781p6+Rqdcu9rve
-         324jjAw14tjWtx2VzCRjObekkqz9aHGQsQ5dki0RUcGR60RDXsvGfwVX+0XIdQBuuWDK
-         p212muCqZmgKeWPjSpOueqbpATkQRcmWzF+JQRUKOyWZAbe4KKbYU7V2Kpm58I81ovwJ
-         Uld7+7PsKtOeZcWZ8JMe/FGX/QjmNz/EzeS398LO4V2qCXRqZ/LU3k1Rrtz3kB62ieIl
-         pFsQ==
-X-Gm-Message-State: AOJu0Yzv7U4cExnFdfSniB+dtt/0/PPejyvZEo6IKaqLalyRpKGTukbI
-	ZO0PDw92d8eA8kjVvVNcfS5ho/sSpriuf1uRod98CbjL5EIwUk0LJFkU
-X-Gm-Gg: AeBDievM+ymrSPh+Mw9McFSzhfU7bXk/oSm50IzwZR0KcjJUwuB4DAKH6y6MQXoc/HQ
-	FqVPoRzYbHoNlN/ydbKJHhi0nh9QGIbawUVSstntd21dShnoY2t84D42pTPcgSF7zQQlI8s8jwh
-	E1TTySLB4J0lMp/uJhcRcXayD6TpeZql2aVVRWlg9j+TwHjH0qeh7AUns3TqADIe4fXpEd4P5K0
-	6mHFsoUNd736eIIdoChDmjx0zc3yvhTZqwn3MhlKBSbPmzb/KeoZuPMdh2tmta7QTa4WqQCuebh
-	+F25si2pb8zHiabhbSeai6dWttbXjJS52wmiypS3SrROmJoOrs7HZxKcXbKJd1TM/3LWzLBi+fg
-	ud0bcXQMrlDwsEnmDrOLkYd3P2gADMcGvCV35ooEjAKHY3iaSWxWOr4GIwDcQrVMuDZ0205HG4J
-	foapfDykk5fqIzfabRk+pmX7GhBPfJkV/da9C1r0eYWc1US2oDasMBaBUal5nfZngUxxB55A==
-X-Received: by 2002:a17:902:cecd:b0:2b0:ba14:fc55 with SMTP id d9443c01a7336-2b9f2837cdfmr53882545ad.29.1777793241487;
-        Sun, 03 May 2026 00:27:21 -0700 (PDT)
-Received: from tranquility.wa.lan (60-241-74-71.static.tpgi.com.au. [60.241.74.71])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9cae16a9esm64942945ad.50.2026.05.03.00.27.17
+        d=1e100.net; s=20251104; t=1777827172; x=1778431972;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7Wottvwh2F068u0uO4a2RGm+BqrKKg4sWw04x7ifouY=;
+        b=gcCZxZqE//l7k6FwdMWpRPXjIpngzlFRSugfUkVYCvOUEY2PHNAoeeqFbRaY1he0fP
+         h4CBQa0pXY8oVMEM0RYcoEjVbUho2RI+5Y4sA/hyH0q2+u84QyRdst5OjbOdmkAkwkku
+         tKqjd2D8g8l2pbu3yoays9PXE7LVp7CM9Zb9ZvyPNI9ixM2IS93Uh7nluhVz3hiQIQf9
+         fdOcuZUfr0+miIdlgPWA7ZqWZsn7dDVktDZz7oxEvCehwHCoWI5yBpy1GIf7ZGD71L9K
+         0zokdpDinsT27JYb8sacrixZrwT2chdyzUkB3BVsSYWbhoBIauH9sHdIofX4L4KJe9wD
+         LIRA==
+X-Gm-Message-State: AOJu0Yz3cN+j16rSbtmN2kpVsCN1xo9tnzep0kpT+K9mRuvKx9jKW4S1
+	CbQROIM3VWHmJJ5ERYiqa/XMyMaZrRTT/4rtUUTQ5awVEx7KJm3aQg0Y
+X-Gm-Gg: AeBDietbVobGFdQJHHhxFnW4tFYetfp5OtfeJJ6MUHNmQ1+G2MVmllhQ2BnfBEpwdr/
+	UD3YqAFfC/ENr7YuAAhc9VH54nqRInbHtN7uqk2TtuW0Xl/CEDAEKcX85cp2bmuz32/nMQIIaGQ
+	2J2P6u2MUf9lFcK/qmYEp3qJ77sq9+zKXQy0nxplPBQoh+YA6MIHcgUIrI/qEZB+a/EIwawKQcJ
+	jO0XO+o52vmcYh167AVc08dK7jsfeVZOer3hOwGOMzBbbWyFEGeLg9m//0bLzeWgxIeKBo1non4
+	iyRMXS044PiJDEJ3ClMRsqgUEH3pgMHTJkSrW0n8VFKMa5+aNWwpNQUE21GNF2hgAaD8g3naZCe
+	WDwFj3BbrT0AUA+lyrIm4CTydPC9jzrlDowNNcu0O4FZ7rMVzdrgmOz0E+dBOg5IXBN4EdeTorv
+	gcrPGoH2GL2zX2vImE/NMS6+0=
+X-Received: by 2002:a17:907:3f8c:b0:bc1:606b:1198 with SMTP id a640c23a62f3a-bc1606b1341mr133515966b.10.1777827172110;
+        Sun, 03 May 2026 09:52:52 -0700 (PDT)
+Received: from xeon ([188.163.112.56])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bbe69f6b7f6sm316772566b.3.2026.05.03.09.52.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 May 2026 00:27:21 -0700 (PDT)
-From: James Ye <jye836@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	lee@kernel.org,
-	pavel@kernel.org
+        Sun, 03 May 2026 09:52:51 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>
 Cc: linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	denis.benato@linux.dev,
-	James Ye <jye836@gmail.com>
-Subject: [PATCH 6/6] leds: led-class: mark classdev as unregistering early
-Date: Sun,  3 May 2026 17:26:43 +1000
-Message-ID: <20260503072643.2774762-7-jye836@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260503072643.2774762-1-jye836@gmail.com>
-References: <20260503072643.2774762-1-jye836@gmail.com>
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/2] input: misc: add support for Imagis ISA1200 haptic motor driver
+Date: Sun,  3 May 2026 19:52:41 +0300
+Message-ID: <20260503165243.215979-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,38 +77,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The classdev was marked as unregistering after disabling the trigger.
-Disabling the trigger attempts to turn the LED off, and the device may
-already be inaccessible. This generates a "Setting an LED's brightness
-failed" log, which is avoided by changing this order.
+The ISA1200 is a haptic feedback unit from Imagis Technology using two
+motors for haptic feedback in mobile phones. Used in many mobile devices
+c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
+GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
 
-Signed-off-by: James Ye <jye836@gmail.com>
+The exact datasheet for the ISA1200 is not available; all data was modeled
+based on available downstream kernel sources for various devices and
+fragments of information scattered across the internet.
+
 ---
- drivers/leds/led-class.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changes in v3:
+- added clock state tracking
+- dropped level check in vibrator close
+- added clkdiv clamping
+- added comments regarding registers 5 and 6
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index 9e14ae588f78..a00986ffd9f6 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -601,6 +601,8 @@ void led_classdev_unregister(struct led_classdev *led_cdev)
- 	if (IS_ERR_OR_NULL(led_cdev->dev))
- 		return;
- 
-+	led_cdev->flags |= LED_UNREGISTERING;
-+
- #ifdef CONFIG_LEDS_TRIGGERS
- 	down_write(&led_cdev->trigger_lock);
- 	if (led_cdev->trigger)
-@@ -608,8 +610,6 @@ void led_classdev_unregister(struct led_classdev *led_cdev)
- 	up_write(&led_cdev->trigger_lock);
- #endif
- 
--	led_cdev->flags |= LED_UNREGISTERING;
--
- 	/* Stop blinking */
- 	led_stop_software_blink(led_cdev);
- 
+Changes in v2:
+- imagis,clk-div switched to accept actual divider value
+- dropped DT header
+- adjusted imagis,period-ns range
+- initiated hctrl0 and hctrl1 values in isa1200_start
+- fixed situation when PWM might return -EPROBE_DEFER to be
+  treated properly
+- added chech a clock or PWM is available
+- fixed regulator voltages check being off by 10
+- added chech if state.period is not zero
+- added action call to disable clock and gpios on error
+- used managed version of work init
+- added work cancel on suspend
+- PW calls are done under mutex lock
+---
+
+Linus Walleij (1):
+  Input: isa1200 - new driver for Imagis ISA1200
+
+Svyatoslav Ryhel (1):
+  dt-bindings: input: Document Imagis ISA1200 haptic motor driver
+
+ .../bindings/input/imagis,isa1200.yaml        | 140 +++++
+ drivers/input/misc/Kconfig                    |  11 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/isa1200.c                  | 535 ++++++++++++++++++
+ 4 files changed, 687 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+ create mode 100644 drivers/input/misc/isa1200.c
+
 -- 
-2.54.0
+2.51.0
 

@@ -1,192 +1,174 @@
-Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
+Received: from out-184.mta0.migadu.com (out-184.mta0.migadu.com [91.218.175.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91B93307AE3;
-	Sun,  3 May 2026 22:23:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD3C9463
+	for <linux-input@vger.kernel.org>; Sun,  3 May 2026 22:45:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777847004; cv=none; b=XHOw+ZRth8NnqrqFrhiHH/mGEZWf5qQtfhSHGFgMDionNvhTAYEW6M0/417eVlTRdyuDTSkflqwmBdpAdRxP0QNlgC7ZnUF/I33ETpSZJS+jPgslG84W7r54fxKqgFtBA31Zm6DzIC5hsDr1fTJQowzYOLhlQPtVYwwxXJj5T5s=
+	t=1777848308; cv=none; b=APgla9fHalkfUcP9upAaamZ7C3y/knvj0Tu55eBvbpHKrbGLQsOUf4Etkc4Bd9Y4pyLXu6vizeS9aZJXMKo8vKjpGT2R78Jeu5fXPLv4fzeF4hPq095bkvVPz7AB31lrhRqJvtSH5UBrM4ZtsbY21qTsMhNYaXbm3pArK1FOMYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777847004; c=relaxed/simple;
-	bh=9fhISSEjEljI+YFj2CEgMlJYTahbYUFiMYNtnnbK9xM=;
+	s=arc-20240116; t=1777848308; c=relaxed/simple;
+	bh=jEBnJL30isogjB1gWG2CwQutedg1PqXtxnHBHMZXP4k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RaF4T3nxVvwsBAGy126YOl8RIc6QxqKXR3FLmjeVHY/+wLF4e+2m0xpeKxLWZ9fSPVsGV6eSEqrm7j7sJmKEBkH9fLctA0yuLIGYG82UcG7JwEYZEIDAJO8FdJNKUPTQH49QmANRv/NxjdwdycsHtVrpFaVKvIj1RaSpJ4uuHRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=dcQlmnOq; arc=none smtp.client-ip=91.218.175.171
+	 In-Reply-To:Content-Type; b=RJxbxgrpPCn6nJopFFqrSKzSAXyGyjhba85NQ03PZiNxTssuDZTxuqvfUL1NOSfEibZi4I5f72ALYf6LnKIcvwbrGcQzA/WRo0hRmcoaq+pEzA1ZfuHgbY1/w3TLuuxaveDSLJh8UX5pcqpdAeCZWczFtevveXXx2j+jaeMZ4rY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TYh54jYt; arc=none smtp.client-ip=91.218.175.184
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="dcQlmnOq"
-Message-ID: <2974e45f-24ff-4999-be0e-02cf2e00ed59@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TYh54jYt"
+Message-ID: <769ce05a-3148-408f-b012-74a85c1a2343@linux.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1777846999;
+	t=1777848303;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NJy9agwAL2TNxkPqvEGKUYqRpmr/ZbXYC7ogel4yNy4=;
-	b=dcQlmnOqURdSyOFWBwF5URbFd+zJvlItR/pqLEIXBQboCqflAtH9yJsmWG08AYMgMlr1Zb
-	knv+DRFz3+bgCKCEiEU4Ug95Bqmb2WAF1o18HlIU7x4onJJyMaoFD6d8osN7JqGlyAd0oZ
-	Q4JEwSUkrAzCWQVT5lfvtC4K28BFtn0=
-Date: Mon, 4 May 2026 00:23:17 +0200
+	bh=09YnTtSFx5JEHn5ZHH5nW53KtVkIO6gYciU7VNJW1rg=;
+	b=TYh54jYtmIXvyXtVidvFYKWnJRszjGA/Qmx4+W/JnE1W8MsVE2w77CbS7B1vtM/lQKUPho
+	n2ggteMmZsdspDqihgSi0Zw/mY+l7fwwnq4G6oIolQrdO0WGWZ1Erm1H1EmkWMGhqjtA8J
+	mZlpifPe+GU0n+I8MSv4x5yOfYOUdvs=
+Date: Mon, 4 May 2026 00:45:01 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 3/6] HID: asus: add support for T3304 detachable keyboard
+Subject: Re: [PATCH 5/6] HID: asus: add microphone mute LED support for T3304
 To: James Ye <jye836@gmail.com>, jikos@kernel.org, bentiss@kernel.org,
  lee@kernel.org, pavel@kernel.org
 Cc: linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260503072643.2774762-1-jye836@gmail.com>
- <20260503072643.2774762-4-jye836@gmail.com>
+ <20260503072643.2774762-6-jye836@gmail.com>
 Content-Language: en-US, it-IT, en-US-large
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20260503072643.2774762-4-jye836@gmail.com>
+In-Reply-To: <20260503072643.2774762-6-jye836@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
 
 On 5/3/26 09:26, James Ye wrote:
-> ASUSTek Computer, Inc. T3304 Soft Keyboard [0b05:1aad] is the detachable
-> keyboard of the ASUS Vivobook 13 Slate OLED (T3304). It presents as a
-> USB device with two interfaces: a keyboard and a pointing device
-> (touchpad).
+> T3304 keyboard has a microphone mute LED indicator on the same key
+> (Fn+F9). Look this up with a led_classdev.
 >
-> Basic keyboard and full touchpad functionality work out-of-the-box with
-> hid-generic and hid-multitouch, but function key combos e.g. volume,
-> brightness control, home/end/pgup/pgdown require initialization.
+> It does not have backlight LEDs, so return without failure from
+> asus_kbd_register_leds if backlight support is not present.
 >
-> Bind the keyboard interface to hid-asus for initialization. The
-> OEM-specific report descriptors required for this are present only on
-> the touchpad interface, not the keyboard, so a quirk is used to add the
-> required feature descriptor.
-Reviewed-By: Denis Benato <denis.benato@linux.dev>
 > Signed-off-by: James Ye <jye836@gmail.com>
 > ---
->  drivers/hid/hid-asus.c | 58 +++++++++++++++++++++++++++++++++++++++---
->  drivers/hid/hid-ids.h  |  1 +
->  2 files changed, 56 insertions(+), 3 deletions(-)
+>  drivers/hid/hid-asus.c | 51 +++++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 48 insertions(+), 3 deletions(-)
 >
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index ef9d5eba4dc9..e4c97fddfaf1 100644
+> index e4c97fddfaf1..4f68bc40b8bf 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -99,6 +99,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->  #define QUIRK_ROG_CLAYMORE_II_KEYBOARD	BIT(12)
+> @@ -100,6 +100,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
 >  #define QUIRK_ROG_ALLY_XPAD		BIT(13)
 >  #define QUIRK_HID_FN_LOCK		BIT(14)
-> +#define QUIRK_T3304_KEYBOARD		BIT(15)
->
+>  #define QUIRK_T3304_KEYBOARD		BIT(15)
+> +#define QUIRK_HID_MICMUTE		BIT(16)
+>  
+Isn't QUIRK_T3304_KEYBOARD enough? Or are you saying you know there is more than one keyboard
+model that requires this?
 >  #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
 >  						 QUIRK_NO_INIT_REPORTS | \
-> @@ -494,6 +495,14 @@ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
->  		return ret;
->  	}
->
+> @@ -144,6 +145,7 @@ struct asus_drvdata {
+>  	unsigned long battery_next_query;
+>  	struct work_struct fn_lock_sync_work;
+>  	bool fn_lock;
+> +	struct led_classdev led_micmute;
+>  };
+>  
+>  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
+> @@ -578,6 +580,26 @@ static int asus_kbd_disable_oobe(struct hid_device *hdev)
+>  	return 0;
+>  }
+>  
+> +static int asus_kbd_set_micmute_led(struct hid_device *hdev, bool enabled)
+> +{
+> +	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x7c, enabled };
+> +
+> +	return asus_kbd_set_report(hdev, buf, sizeof(buf));
+> +}
+> +
+> +static int asus_led_brightness_set(struct led_classdev *led_cdev,
+> +		enum led_brightness value)
+> +{
+> +	struct device *dev = led_cdev->dev->parent;
+> +	struct hid_device *hdev = to_hid_device(dev);
 > +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
 > +
-> +	/* T3304 keyboard always replies with 16 0xff bytes. Don't check for
-> +	 * acknowledgment.
-> +	 */
-> +	if (drvdata->quirks & QUIRK_T3304_KEYBOARD)
-> +		return 0;
+> +	if (led_cdev == &drvdata->led_micmute)
+> +		return asus_kbd_set_micmute_led(hdev, !!value);
 > +
->  	u8 *readbuf __free(kfree) = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
->  	if (!readbuf)
->  		return -ENOMEM;
-> @@ -1312,10 +1321,12 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		hid_warn(hdev, "Failed to initialize backlight.\n");
->
->  	/*
-> -	 * For ROG keyboards, skip rename for consistency and ->input check as
-> -	 * some devices do not have inputs.
-> +	 * For ROG and T3304 keyboards, skip rename for consistency.
-> +	 * For ROG keyboards, skip ->input check as some devices do not have
-> +	 * inputs.
->  	 */
-> -	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD)
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD ||
-> +	    drvdata->quirks & QUIRK_T3304_KEYBOARD)
->  		return 0;
->
->  	/*
-> @@ -1369,6 +1380,22 @@ static const __u8 asus_g752_fixed_rdesc[] = {
->          0x2A, 0xFF, 0x00,		/*   Usage Maximum (0xFF)       */
->  };
->
-> +static const __u8 asus_t3304_fixed_rdesc[] = {
-> +	0x06, 0x31, 0xff,              // Usage Page (Vendor Usage Page 0xff31)
-> +	0x09, 0x76,                    // Usage (Vendor Usage 0x76)
-> +	0xa1, 0x01,                    // Collection (Application)
-> +	0x05, 0xff,                    //  Usage Page (Vendor Usage Page 0xff)
-> +	0x85, 0x5a,                    //  Report ID (90)
-> +	0x19, 0x00,                    //  Usage Minimum (0)
-> +	0x2a, 0xff, 0x00,              //  Usage Maximum (255)
-> +	0x15, 0x00,                    //  Logical Minimum (0)
-> +	0x26, 0xff, 0x00,              //  Logical Maximum (255)
-> +	0x75, 0x08,                    //  Report Size (8)
-> +	0x95, 0x0f,                    //  Report Count (15)
-> +	0xb1, 0x02,                    //  Feature (Data,Var,Abs)
-> +	0xc0,                          // End Collection
-> +};
+> +	return -ENODEV;
+> +}
 > +
->  static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  		unsigned int *rsize)
+>  static int asus_kbd_set_fn_lock(struct hid_device *hdev, bool enabled)
 >  {
-> @@ -1473,6 +1500,28 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  		}
->  	}
->
-> +	/* T3304 keyboard's vendor descriptors are on the touchpad interface,
-> +	 * not the keyboard. But we need hid-multitouch to handle the touchpad,
-> +	 * Add a descriptor with only the config report so that this driver can
-> +	 * perform initialization.
-> +	 */
-> +	if (drvdata->quirks & QUIRK_T3304_KEYBOARD) {
-> +		__u8 *new_rdesc;
-> +		size_t new_size = *rsize + sizeof(asus_t3304_fixed_rdesc);
+>  	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x4e, !!enabled };
+> @@ -752,9 +774,31 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+>  	if (ret < 0)
+>  		return ret;
+>  
+> +	if (drvdata->quirks & QUIRK_HID_MICMUTE) {
+> +		char *name_micmute;
+> +		size_t name_sz = strlen(dev_name(&hdev->dev)) + 16;
 > +
-> +		new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
-> +		if (new_rdesc == NULL)
-> +			return rdesc;
+Do we really want to use strlen?
+
+Do we really want to use strlen on the result of a function without additional checks?
+> +		name_micmute = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
+> +		if (name_micmute == NULL)
+> +			return -ENOMEM;
 > +
-> +		hid_info(hdev, "Fixing up Asus T3304 keyboard report descriptor\n");
-> +		memcpy(new_rdesc, rdesc, *rsize);
-> +		memcpy(new_rdesc + *rsize, asus_t3304_fixed_rdesc,
-> +		       sizeof(asus_t3304_fixed_rdesc));
-> +
-> +		*rsize = new_size;
-> +		rdesc = new_rdesc;
+> +		snprintf(name_micmute, name_sz, "%s::micmute", dev_name(&hdev->dev));
+> +		drvdata->led_micmute.name = name_micmute;
+> +		drvdata->led_micmute.default_trigger = "audio-micmute";
+> +		drvdata->led_micmute.brightness_set_blocking = asus_led_brightness_set;
+> +		drvdata->led_micmute.max_brightness = 1;
+> +		drvdata->led_micmute.flags = LED_CORE_SUSPENDRESUME | LED_HW_PLUGGABLE;
+> +		drvdata->led_micmute.dev = &hdev->dev;
+> +		ret = devm_led_classdev_register(&hdev->dev, &drvdata->led_micmute);
+> +		if (ret < 0) {
+> +			hid_err(hdev, "Failed to register LED: %d.\n", ret);
+> +			return ret;
+> +		}
 > +	}
 > +
->  	return rdesc;
->  }
->
-> @@ -1536,6 +1585,9 @@ static const struct hid_device_id asus_devices[] = {
->  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
->  	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>  	/* Check for backlight support */
+>  	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
+> -		return -ENODEV;
+> +		return 0;
+>  
+This doesn't look like a good idea to change this for all laptops under the sun...
+
+
+Perhaps might make sense to move this check before? Maybe not?
+
+Denis
+>  	if (dmi_match(DMI_PRODUCT_FAMILY, "ProArt P16")) {
+>  		ret = asus_kbd_disable_oobe(hdev);
+> @@ -1315,7 +1359,8 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	}
+>  
+>  	/* Laptops keyboard backlight is always at 0x5a */
+> -	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+> +	if (is_vendor &&
+> +	    (drvdata->quirks & (QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_MICMUTE)) &&
+>  	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
+>  		(asus_kbd_register_leds(hdev)))
+>  		hid_warn(hdev, "Failed to initialize backlight.\n");
+> @@ -1587,7 +1632,7 @@ static const struct hid_device_id asus_devices[] = {
 >  		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
-> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-> +		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T3304_KEYBOARD),
-> +	  QUIRK_T3304_KEYBOARD },
+>  	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>  		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T3304_KEYBOARD),
+> -	  QUIRK_T3304_KEYBOARD },
+> +	  QUIRK_T3304_KEYBOARD | QUIRK_HID_MICMUTE },
 >  	{ }
 >  };
 >  MODULE_DEVICE_TABLE(hid, asus_devices);
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 0cf63742315b..ecf30e36a99d 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -219,6 +219,7 @@
->  #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
->  #define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD	0x183d
->  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
-> +#define USB_DEVICE_ID_ASUSTEK_T3304_KEYBOARD	0x1aad
->  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
->  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
-> --
-> 2.54.0

@@ -1,63 +1,72 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA98D364029;
-	Mon,  4 May 2026 21:49:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D00D37C930
+	for <linux-input@vger.kernel.org>; Mon,  4 May 2026 22:59:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777931389; cv=none; b=NY4yH7N3ZViFxn7Oh57Chd/4hXj75us6m01h969szP8tEkCWo8gjjtbeHNyV0fr4gdHKHkggQMlPHj9TuFkU1iXSOukaA7iOzWBx16ZIbZpcbNiL/rJ9Naji2GMDU0YgiLgnyQFjPef/UMTp9Qu83ksQux4BWwz1cJR0hdGIgNc=
+	t=1777935561; cv=none; b=P+vQVuCSvU6wKajNMTpfTjCY/Z5VzRsyhedJBLC8HQLw3PPt/98/GQp5xaQtI9LxSo7zDmAQWKpwj/ubjPYPId8n7sNvCLQrWsoS7RkpCD3N6LELerI04H/FrKc+RjjW5OqsoXra/owaa7eIw8khAMuEWf17NBTxC5Ca7CaJiy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777931389; c=relaxed/simple;
-	bh=cbnU6gj7O0ry9v8dc64v8x0h01WyetZZ+GqiP32svHw=;
+	s=arc-20240116; t=1777935561; c=relaxed/simple;
+	bh=DYXqtLPkW8GiozUA9ulomWRE1772fMlMeuQLWdk3w6E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o9TX6DUgeTGKjjYxSUMrVDrkxfvACIGxBllij3GTd9Rwz99FiGHBrMWCG2azScFm3wwWLju1Y94p6l9+Y29gGKSsOxrT4DwgKJ88QNDei0bLFjUusZjA2RMEuwLbMVXN5K/tmkejKZenNyCaaKUI/fbboIzPwoIWqp54658s1KA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aCM2vi2q; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=atRmqPRjq3/HR/nYFU6phKVfv5ZYLmcgvs+yU7GB2S0R0ENW98SD4jVXXe35g9bfIrqB7mWyh+I3XdJfYuGFblecph1wnLsTmBhqiMGzyU1sr6pLsdPaZmi4M/MU1KRDrhqi1/s3NfCOQJHz5I7dFTeo015bcW3mY9xwfhu8ZtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VgrBE9Nx; arc=none smtp.client-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aCM2vi2q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1777931388; x=1809467388;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=cbnU6gj7O0ry9v8dc64v8x0h01WyetZZ+GqiP32svHw=;
-  b=aCM2vi2qEx5MWlQE4d9f+4k1unqOpsWb26QnNglIrHFOuZ9gl445UtPY
-   hTTgk8kn62yFSj23akBkx/UYVAIWxL1mD7MTMRWqI/CDwf24aROS6Aiaf
-   XeurpeoRymz9BlXbtQvKhbNQ8PwfbB258EocXOXo1Dp/JCW0CTyUP3fJL
-   XFj6aAlgnE0taxj7ZcIEZiKhKtKsBUrf5LfwzMfV1yLj1Y8tPV4yxUa2G
-   Q1rtJIwmyWbWgB3DxwCTUX5ARNcdTlr9CXiDJbMnsoFi6PlP9OAffSzTg
-   f5bgYNrNpCyKMeD0jyi68iFx5/eJLXCEkFDI/zM51eWzLnch0hl8hYqZP
-   g==;
-X-CSE-ConnectionGUID: hs7IP025TiyV+3RULHZdcA==
-X-CSE-MsgGUID: F6GiE9l8RP6MK0Q7NJkYXg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11776"; a="78698824"
-X-IronPort-AV: E=Sophos;i="6.23,216,1770624000"; 
-   d="scan'208";a="78698824"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2026 14:49:47 -0700
-X-CSE-ConnectionGUID: dRKqUbYQQWuKkdWo+jsxiA==
-X-CSE-MsgGUID: X6zScUrHRR+LKzFLUZum9g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,216,1770624000"; 
-   d="scan'208";a="232492386"
-Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
-  by fmviesa007.fm.intel.com with ESMTP; 04 May 2026 14:49:45 -0700
-Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wK1Ac-000000005yv-3Mng;
-	Mon, 04 May 2026 21:49:42 +0000
-Date: Mon, 4 May 2026 23:49:38 +0200
-From: kernel test robot <lkp@intel.com>
-To: James Ye <jye836@gmail.com>, jikos@kernel.org, bentiss@kernel.org,
-	lee@kernel.org, pavel@kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-kernel@vger.kernel.org, denis.benato@linux.dev,
-	James Ye <jye836@gmail.com>
-Subject: Re: [PATCH 6/6] leds: led-class: mark classdev as unregistering early
-Message-ID: <202605042355.hVEd8jjX-lkp@intel.com>
-References: <20260503072643.2774762-7-jye836@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VgrBE9Nx"
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1305908ae11so349086c88.1
+        for <linux-input@vger.kernel.org>; Mon, 04 May 2026 15:59:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777935558; x=1778540358; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FjpnivPTd8dUU1OqTpo4s29OS+HjXTKGkTIY4MRmY14=;
+        b=VgrBE9NxfjssdTQVblRcFQHm83G3QmZtUT3lBzq5GOmhuEkZACX0FnwnWfRLgjRC83
+         yt3Wod5lnEWfKWTh2X7eprmGI8dpuKz9s3ayuc2g2LTaJICVeo1jukgLl6OKSL/BaZsq
+         hotQLH1VtIlFCj2/g6R03BvYRbkgOD6WVqG4WVe6w8OTVVUfmciyDnLsW6uEfZPdtbMd
+         a/V3ETZDdhzzsVU3q0XqISygUc4TZihhED6OE/7PKb+EkZe6Xggc3cP5FQD9OxYLHZOf
+         fKNREXXf5jDV1XGQVZX9e0Dt+WycPtZuDaHwQs6lD3ehw/pNJcVRGKS8lgf6c7nCWoQ9
+         lq9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777935558; x=1778540358;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FjpnivPTd8dUU1OqTpo4s29OS+HjXTKGkTIY4MRmY14=;
+        b=lO7dxwzbDGDFK8i1yzRV6ZPVXe9AuE6NzBuEQEto418OjEOAt3irFQJ3weiXIDWvkD
+         wOzLYqIXnGfYB2bQ/L0EycjOkeenEKQV3Co1DCsYbyHvJvBGV6ylR/UrvWgL2kwJzr14
+         3lEUATgzbvjs/FXZzQrXsdQKfa/ddozSrsIA+Mz8HstEs9I7tQd+lc+4VN8WEZ/W9sb3
+         fZGxaW+stZXGjMzKgj6zD78DLWjnxKtX8uNFm6dzu1qUdY4kJ77H5VpMxAp93oXxxu5A
+         EC6uBu+wqeLtxHnjFp9bqOXdynyY7mfSKyQfnSPmW3LDvRnRb46HxW2tnhvu5+Kjt6Jv
+         Nfog==
+X-Forwarded-Encrypted: i=1; AFNElJ/GiNtQBy6si9lHKSRnPG7ApqEFwwI5k+lKOcxNpzu+Js+J7XlnY1NUfHJEGHkbulumkzMgvZJYYl2zjQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzn7R3gdg5N61+Hs865Ginb3+n4C5spXPdlB16T2GEJOKpXgmHw
+	sSF8y1YajCLBeNA1qPqHK/bSO1R7W2vhCpeTpf9ODZsW4wWW4cXl4vHA
+X-Gm-Gg: AeBDievIY7bkvTS8FYIppBApPZSDLMTKJdtSRkmSRXK7li44S9SXtLU39+vtg/ccYay
+	j9CDy4mI2qCv8WaHuv0uyoj/mGa5Yr4Y5HexFdCSO8tZOCtdMRHsS6s+YP5SXkuwKeRIDBAHIko
+	AneOZ5htBplKFYXiy2frBI8JDr1m7KnTmvJI12S9nkLp/kZIeBixIj42yezhCJrRSBFCb/sI8qT
+	HTJ1wAc5dLTkHcuZtJgA7KcuGtvWaxDPcYS0OLQOckAuNmDorct2kU1QycewO3HK9/Yu/Ve9Tgy
+	acplAd3TZqIBKQ97/G/B3c+ylrfHRFZAZtykkJoqAGLlgfzjTlMN1l697BIKYcgAEtROdluXLog
+	CvWLecQp1VO9LgYm7+6NogeVpNkosU6hpm0GPd3DNX0GZsdQ75Jycacmx0XN9cbPFw3/mAZ1Bzm
+	ON8QsuuDgOCpPQGzq2yEbm+1HOP6yAfsLsmN75qUM74MHg4PmmqEcy+Mgkur5IrL5LyeW7TqLxy
+	p8=
+X-Received: by 2002:a05:7022:f94:b0:12d:f0e8:9696 with SMTP id a92af1059eb24-130b15419e8mr456572c88.4.1777935557665;
+        Mon, 04 May 2026 15:59:17 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:5b87:9b19:32e2:2981])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee38e71bccsm17138842eec.11.2026.05.04.15.59.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2026 15:59:17 -0700 (PDT)
+Date: Mon, 4 May 2026 15:59:14 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org
+Cc: Ricardo Ribalda <ribalda@chromium.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] Input: atmel_mxt_ts - check mem_size before
+ calculating config memory size
+Message-ID: <afkko_we5fAgmKxg@google.com>
+References: <20260504185448.4055973-1-dmitry.torokhov@gmail.com>
+ <20260504185448.4055973-2-dmitry.torokhov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -66,135 +75,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260503072643.2774762-7-jye836@gmail.com>
+In-Reply-To: <20260504185448.4055973-2-dmitry.torokhov@gmail.com>
 
-Hi James,
+On Mon, May 04, 2026 at 11:54:46AM -0700, Dmitry Torokhov wrote:
+> In mxt_update_cfg(), the driver calculates the memory size needed to store
+> the configuration as data->mem_size - cfg.start_ofs. If data->mem_size is
+> less than or equal to cfg.start_ofs, this calculation will underflow or
+> result in a zero-size buffer, neither of which is valid for a configuration
+> update.
+> 
+> Add a check to return -EINVAL if data->mem_size is too small. While at it,
+> change the types of start_ofs and mem_size in struct mxt_cfg to u16 to
+> match the device address space.
+> 
+> Assisted-by: Gemini:gemini-3.1-pro
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 28b2bd889c70..d660cc5b5fe3 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -275,8 +275,8 @@ struct mxt_cfg {
+>  	off_t raw_pos;
+>  
+>  	u8 *mem;
+> -	size_t mem_size;
+> -	int start_ofs;
+> +	u16 mem_size;
+> +	u16 start_ofs;
+>  
+>  	struct mxt_info info;
+>  };
+> @@ -1657,6 +1657,13 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+>  	cfg.start_ofs = MXT_OBJECT_START +
+>  			data->info->object_num * sizeof(struct mxt_object) +
+>  			MXT_INFO_CHECKSUM_SIZE;
+> +
+> +	if (data->mem_size < cfg.start_ofs) {
 
-kernel test robot noticed the following build errors:
+This is supposed to be "<=", like the commit message says.
 
-[auto build test ERROR on hid/for-next]
-[also build test ERROR on lee-leds/for-leds-next linus/master v6.16-rc1 next-20260430]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> +		dev_err(dev, "Memory size too small: %u < %u\n",
+> +			data->mem_size, cfg.start_ofs);
+> +		return -EINVAL;
+> +	}
+> +
+>  	cfg.mem_size = data->mem_size - cfg.start_ofs;
+>  
+>  	u8 *mem_buf __free(kfree) = cfg.mem = kzalloc(cfg.mem_size, GFP_KERNEL);
 
-url:    https://github.com/intel-lab-lkp/linux/commits/James-Ye/HID-input-delete-hid_battery-on-disconnect/20260504-013406
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20260503072643.2774762-7-jye836%40gmail.com
-patch subject: [PATCH 6/6] leds: led-class: mark classdev as unregistering early
-config: x86_64-kexec (https://download.01.org/0day-ci/archive/20260504/202605042355.hVEd8jjX-lkp@intel.com/config)
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260504/202605042355.hVEd8jjX-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605042355.hVEd8jjX-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> drivers/hid/hid-input.c:2423:48: error: no member named 'batteries' in 'struct hid_device'
-    2423 |         list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-         |                                                  ~~~  ^
-   include/linux/list.h:869:30: note: expanded from macro 'list_for_each_entry_safe'
-     869 |         for (pos = list_first_entry(head, typeof(*pos), member),        \
-         |                                     ^~~~
-   include/linux/list.h:620:14: note: expanded from macro 'list_first_entry'
-     620 |         list_entry((ptr)->next, type, member)
-         |                     ^~~
-   include/linux/list.h:609:15: note: expanded from macro 'list_entry'
-     609 |         container_of(ptr, type, member)
-         |                      ^~~
-   include/linux/container_of.h:20:26: note: expanded from macro 'container_of'
-      20 |         void *__mptr = (void *)(ptr);                                   \
-         |                                 ^~~
->> drivers/hid/hid-input.c:2423:48: error: no member named 'batteries' in 'struct hid_device'
-    2423 |         list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-         |                                                  ~~~  ^
-   include/linux/list.h:869:30: note: expanded from macro 'list_for_each_entry_safe'
-     869 |         for (pos = list_first_entry(head, typeof(*pos), member),        \
-         |                                     ^~~~
-   include/linux/list.h:620:14: note: expanded from macro 'list_first_entry'
-     620 |         list_entry((ptr)->next, type, member)
-         |                     ^~~
-   include/linux/list.h:609:15: note: expanded from macro 'list_entry'
-     609 |         container_of(ptr, type, member)
-         |                      ^~~
-   note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
-   include/linux/compiler_types.h:610:63: note: expanded from macro '__same_type'
-     610 | #define __same_type(a, b) __builtin_types_compatible_p(typeof(a), typeof(b))
-         |                                                               ^
-   include/linux/build_bug.h:79:50: note: expanded from macro 'static_assert'
-      79 | #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
-         |                                                  ^~~~
-   include/linux/build_bug.h:80:56: note: expanded from macro '__static_assert'
-      80 | #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
-         |                                                        ^~~~
->> drivers/hid/hid-input.c:2423:48: error: no member named 'batteries' in 'struct hid_device'
-    2423 |         list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-         |                                                  ~~~  ^
-   include/linux/list.h:869:30: note: expanded from macro 'list_for_each_entry_safe'
-     869 |         for (pos = list_first_entry(head, typeof(*pos), member),        \
-         |                                     ^~~~
-   include/linux/list.h:620:14: note: expanded from macro 'list_first_entry'
-     620 |         list_entry((ptr)->next, type, member)
-         |                     ^~~
-   include/linux/list.h:609:15: note: expanded from macro 'list_entry'
-     609 |         container_of(ptr, type, member)
-         |                      ^~~
-   note: (skipping 1 expansions in backtrace; use -fmacro-backtrace-limit=0 to see all)
-   include/linux/compiler_types.h:610:63: note: expanded from macro '__same_type'
-     610 | #define __same_type(a, b) __builtin_types_compatible_p(typeof(a), typeof(b))
-         |                                                               ^
-   include/linux/build_bug.h:79:50: note: expanded from macro 'static_assert'
-      79 | #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
-         |                                                  ^~~~
-   include/linux/build_bug.h:80:56: note: expanded from macro '__static_assert'
-      80 | #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
-         |                                                        ^~~~
->> drivers/hid/hid-input.c:2423:48: error: no member named 'batteries' in 'struct hid_device'
-    2423 |         list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-         |                                                  ~~~  ^
-   include/linux/list.h:871:32: note: expanded from macro 'list_for_each_entry_safe'
-     871 |              !list_entry_is_head(pos, head, member);                    \
-         |                                       ^~~~
-   include/linux/list.h:773:30: note: expanded from macro 'list_entry_is_head'
-     773 |         list_is_head(&pos->member, (head))
-         |                                     ^~~~
-   4 errors generated.
-
-
-vim +2423 drivers/hid/hid-input.c
-
-  2407	
-  2408	void hidinput_disconnect(struct hid_device *hid)
-  2409	{
-  2410		struct hid_input *hidinput, *next;
-  2411		struct hid_battery *bat, *bat_next;
-  2412	
-  2413		list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-  2414			list_del(&hidinput->list);
-  2415			if (hidinput->registered)
-  2416				input_unregister_device(hidinput->input);
-  2417			else
-  2418				input_free_device(hidinput->input);
-  2419			kfree(hidinput->name);
-  2420			kfree(hidinput);
-  2421		}
-  2422	
-> 2423		list_for_each_entry_safe(bat, bat_next, &hid->batteries, list) {
-  2424			list_del(&bat->list);
-  2425		}
-  2426	
-  2427		/* led_work is spawned by input_dev callbacks, but doesn't access the
-  2428		 * parent input_dev at all. Once all input devices are removed, we
-  2429		 * know that led_work will never get restarted, so we can cancel it
-  2430		 * synchronously and are safe. */
-  2431		cancel_work_sync(&hid->led_work);
-  2432	}
-  2433	EXPORT_SYMBOL_GPL(hidinput_disconnect);
-  2434	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+-- 
+Dmitry

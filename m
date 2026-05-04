@@ -1,153 +1,135 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D432C17B50F
-	for <linux-input@vger.kernel.org>; Mon,  4 May 2026 01:27:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777858042; cv=pass; b=KUtxS/PvQJyIPzZrk498RaZVqmw8tgBm/K8H16tw8HVXmIKWWXEYYpKv8vz3C+Mebyf5uqim0V44nbMA328nMXz4VCiupKxCVUQGZ4n4NyMMEyni9fV4cYRxAIuywf+baDiYUun0jz1n0fzk/qAedBqIzskMv3dfbtkj50BeLwc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777858042; c=relaxed/simple;
-	bh=l4g5Cnxwyg4GB/mKplMPUSrP+qwGfFb0vQX7A+4hzBw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XOOGZUSkYwWD68/r+Y6sa3Yli3cKklV9tzEu1NMiJrNRXDpyl3xgQdt34HGxeiTkgnxjvIn8i74sGN4zIYyChUxEoUeRTB3oOHXwhPlefJWYrO2PiAi8MSI781b9XX400mSROB65KJLstjViwhB54b1mNzuhVcKRIeK3iBw3u/s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XrlJO5CX; arc=pass smtp.client-ip=209.85.219.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DCEF289E13;
+	Mon,  4 May 2026 08:47:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777884463; cv=none; b=UyAYe2YZCK785Kqn3kuDJRKzV07uC4J/kKZiQRHcCyYW7rLetvW773ZZt2equZl/jADp4DYnydkGL08e65DJL+vqgUVhue2ysMFBXNPH7aJG0/qeScHbcsOia6P8dY2uW/JQ/4YABUG0zqVKuwFQx3A9AvM+0Mqzpl3/YmLNjvU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777884463; c=relaxed/simple;
+	bh=b3z35is89oPXeENyhLsF89vCn8J4SZIObLZfQ01bcQA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=TTlvadZaChKEjuiJpRKLudYcbZcX8XATQ1sCcaXqRmrlPJCVBr6RLpfudlP4/kiS3iL18TuSLUrJ5OVyefMZ0IkDJ30h298in3mBj0kx4/vFWSK25j34kjToBFm3+EdPVyzhn6STNKIIkOEyRX+G7vTlnLwGJyYOBYiXOgN1M68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RnsNA/ma; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XrlJO5CX"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-899a9f445cbso39074186d6.0
-        for <linux-input@vger.kernel.org>; Sun, 03 May 2026 18:27:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777858040; cv=none;
-        d=google.com; s=arc-20240605;
-        b=gena1O2QrVgtlm2LDSUaXZtfvGXpDSyKoadHNbg/ACvPcV8h8kw+kivXHLFRpR3a+u
-         iqVtaKhN/l3khXuI3AVILiMTIm1l8R6tj3pst6p1ppETnrd5Gt4ddvPnuUzHr3BNDduO
-         UR1Sup3IHRZa2gv/lNlZymgiv2kcaIIqNmjIqQInMf+J+2T2Ck0DlLx4G0p/LiCQGjGz
-         xeCaIjsSgCLTZosmVkEUzDaOm1aDfKv/7N0vgtAXZlw5t7Ofe9K+7xkE63l8V9IhiaxJ
-         1EVEOeoZmBSIJUx/cM8x/PP7t66mpMlxm1xE+zqySdSpxRDqMjsEYt+SeiANNE2j09qj
-         evnw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=l4g5Cnxwyg4GB/mKplMPUSrP+qwGfFb0vQX7A+4hzBw=;
-        fh=VnX4c4MeEOQ0SRXlMUwd4rpFdcjlWExAR+BmAyo1xcs=;
-        b=UryWJBEYpmY6Z+0QlhpZEMmDZN4S/7+eR37Ub7l7mZxS14xRW7F4SnEnx7XobZRCz3
-         cgHHCplFPp++3GzyZCv8xIhrBYALSyibVFEmQiyiNg0Bti21kQ40PkwSKEoVufkp0AoE
-         TbMr+WJPc7R6dDc/4Bqno5lXBDC4OGUgauSR57VOjaM7p4IA/J1uiHC6niqbTLiSsk0D
-         iRydq4iWK4cVKDdcXyZ02uN/Fwwppjq9QyQGs/mk4JfVEAYQtzEjMJAuagu4V9aCg/lx
-         bQSLd90rGdoZymsiuhrvpefZpKBh0UmOH40Z2GcQmvnEs0BvJaCWJLt0JBGTnZO0CSEw
-         bOgg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777858040; x=1778462840; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=l4g5Cnxwyg4GB/mKplMPUSrP+qwGfFb0vQX7A+4hzBw=;
-        b=XrlJO5CXaOkziiuRwTlDtkA2zp0FZ6YKZlOFOoce3oN82OIQcVc7aGHg6vduL+vnIS
-         LxqGG1/CF5XVbTjSJDZ6dPOt/zZiRWNR4zx8RwLMg2Yn5QYwBXQw94GdPSiLQzsSn89+
-         7X6ODesCH6h+yiy24XZA9hFkthVcHYSv+9o5UM4JhDooSkEwKhoSMLZbsKYf3tdaeVMC
-         0aDIHNdqJvhabYOLjHzBOKNDfYYyvqSbx2DbcOfDIc/OvWVtsYdmscio+bYqQw/O8i69
-         fwEyzibP21/h1BDhiW1vr62w/axi8qGB6sD+p0ZbR9DymPkk1hGHrA66rDXzgvW4ma+j
-         oOSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777858040; x=1778462840;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=l4g5Cnxwyg4GB/mKplMPUSrP+qwGfFb0vQX7A+4hzBw=;
-        b=XcdNWEyFUBbq1ck+/S4x250i8zDVu9hwixlSV3j8tVV4aaiPcEJcgfGk+cDsAS7XmH
-         uGZSRGVRakZFYki9EqlbVeDcE7EDLvwJbtyFhk6E3+tnXIfCJPdu2A8xoULR8zPJGDOE
-         +8VYVOPxc3bpb3XTe01i8usioVtFtNhCXf17ewNSdZt4oaOazAwMmsU+oUxlbLuh/TW3
-         VjBIEIlD6yJTSMsu+o4i5bKAR2y8oevnmeMGfAIeq/etTzNcyXFS/mju3gaHx3HXpG3i
-         E7ZY6CPQHaSSpAH8kbMXluc5W142+U14KACKGpofAoVSAsdh1UbJ0+OWUlZYjWWlkvUY
-         KBQg==
-X-Forwarded-Encrypted: i=1; AFNElJ+J/wLYQcV7OCCG2H5VJbBVp7yoDD9vNyJFOUGbP9ToWZPES811G6NgIl+xBm8BauYJ8Xo+voWWRQFjaQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzh6HcdvEUawcEF4uwEQVPv8IXJU77VcrRbaZPbR27/kKjbOMEI
-	UyOlYRrIV13UBe2+OjuPl8H4PAt/Qugw0ogLB8O8ao1xW7NITCzXsqdg6G4AUhUUmRWr+FXFed1
-	WIzb558O8V/0J7LtjchfHWkgCLcgUzE0=
-X-Gm-Gg: AeBDievwvmXHXcg5TLi0NySpx++XYf7ZVBLEkWAs9+VTY1M8ztuYdJWUcgCose7UJWC
-	tQPw3mrNBd7VtDGO58341TysmzR13mmCv3PPewAp0dgcR5vCjB8ri+/9cp90RHA2FLM/eT8nlV1
-	36+eIonwlEQ2a/FahY93FQvxZHdm7iZqmKCOOkBh6Ep7a6k69iq3Y0m+vY6Tt55lxocNqfzEnGQ
-	7uPkafrK9eP0ye/tbAzaDfQd/aL+Bx0Esy7FiXsknDbvUiNf8y2SI7afdcWUaXTRnRrFsJ3z7R2
-	jMvByxh4VCBA8a+u
-X-Received: by 2002:a05:6214:8014:b0:89c:e5f0:8f33 with SMTP id
- 6a1803df08f44-8b665c16b14mr121335896d6.10.1777858039703; Sun, 03 May 2026
- 18:27:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RnsNA/ma"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EABCAC2BCB8;
+	Mon,  4 May 2026 08:47:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777884463;
+	bh=b3z35is89oPXeENyhLsF89vCn8J4SZIObLZfQ01bcQA=;
+	h=From:Subject:Date:To:Cc:From;
+	b=RnsNA/makSoQ3GKhXZ7RamY3KP4fb8iU5LMyDvdMQsxTKLLeDPRHlrZSrSPddgJHn
+	 qnq1kwn9KqDwoQ3rotidKz4FMqAI6ZTRFhuT9XUZzFH4fxOChmXwsl4ApBLqUrXmck
+	 6O2PLa1RUlnArZtLAU/ONFSlc7pFJExQ00y7JShaqYdjV/EgEK1I0cDG3b/jslwdHD
+	 OsyJclo1/rt58u3Raq6zeWnDCZI0K/VleAQUmTFfYGf1zkwCvLpiI86wOHkRfSoWlW
+	 j3C+UPWpyUysZ1gN8uaJWq/uZ4NKidN08hpHk2UnDS99U+PWH+5f/Q1FYsllbXKv/q
+	 Xtrum7QyJyacg==
+From: Benjamin Tissoires <bentiss@kernel.org>
+Subject: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
+Date: Mon, 04 May 2026 10:47:21 +0200
+Message-Id: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260503072643.2774762-1-jye836@gmail.com> <20260503072643.2774762-6-jye836@gmail.com>
- <769ce05a-3148-408f-b012-74a85c1a2343@linux.dev>
-In-Reply-To: <769ce05a-3148-408f-b012-74a85c1a2343@linux.dev>
-From: James Ye <jye836@gmail.com>
-Date: Mon, 4 May 2026 11:27:08 +1000
-X-Gm-Features: AVHnY4KOOclnC_MZbxgLb-vdcjxHx60EFQt1kvDovJkmfkC6hle_r_NMWoYF9V0
-Message-ID: <CAEV1_7FPDWxgSqtxCCVbgjXeOO+pBK4ki0Ac+WagVX1pRPrG6A@mail.gmail.com>
-Subject: Re: [PATCH 5/6] HID: asus: add microphone mute LED support for T3304
-To: Denis Benato <denis.benato@linux.dev>
-Cc: jikos@kernel.org, bentiss@kernel.org, lee@kernel.org, pavel@kernel.org, 
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WMQQ7CIBBFr2JmLQamBaor72FcKIwt0ZRmMKhpe
+ ndpV2ri8v2f90ZIxIES7FYjMOWQQuwLVOsVuO7UtySCLwwo0chaafEIg7iEp3CRSVjfaNdoZch
+ LKMrAVL4ldzgW7kK6R34t9azm9U8oKyEF+crVrsFKWb2/Evd020RuYS5l/LTNj43FPtMWtZWkD
+ dove5qmN9NKrg3nAAAA
+X-Change-ID: 20260415-wip-fix-core-7d85c8516ed0
+To: Jiri Kosina <jikos@kernel.org>, 
+ =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
+ Bastien Nocera <hadess@hadess.net>, Ping Cheng <ping.cheng@wacom.com>, 
+ Jason Gerecke <jason.gerecke@wacom.com>, Viresh Kumar <vireshk@kernel.org>, 
+ Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lee Jones <lee@kernel.org>
+Cc: Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, greybus-dev@lists.linaro.org, 
+ linux-staging@lists.linux.dev, linux-usb@vger.kernel.org, 
+ Benjamin Tissoires <bentiss@kernel.org>, stable@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1777884459; l=3032;
+ i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
+ bh=b3z35is89oPXeENyhLsF89vCn8J4SZIObLZfQ01bcQA=;
+ b=TQu4P6b/RpFFvIMfL1ijYih/MvkNRh3fGMcO4Ui85Axyhiy6Mph0TvOIA5M5ZUHVq7eeGevLa
+ ZMI+iRgeurEBZPCLqYX6YRidM81bx1IftPpaEpZ8G6P4UNKjQPfQCFz
+X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
+ pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-On Mon, 4 May 2026 at 08:45, Denis Benato <denis.benato@linux.dev> wrote:
-> Isn't QUIRK_T3304_KEYBOARD enough? Or are you saying you know there is more than one keyboard
-> model that requires this?
+Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+bogus memset()") enforced the provided data to be at least the size of
+the declared buffer in the report descriptor to prevent a buffer
+overflow.
 
-I don't know for certain if there are any other such keyboards with
-LEDs that need to be handled like this, but I can imagine that there
-are.
+We only had corner cases of malicious devices exposing the OOM because
+in most cases, the buffer provided by the transport layer needs to be
+allocated at probe time and is large enough to handle all the possible
+reports.
 
-I decided to introduce an additional quirk because:
-- I don't know how to detect if a micmute LED is present.
-- The quirk could be used to implement support in other devices.
-- asus_kbd_register_leds is also gated by QUIRK_USE_KBD_BACKLIGHT,
-adding a device-specific quirk didn't feel appropriate.
+However, the patch from above, which enforces the spec a little bit more
+introduced both regressions for devices not following the spec (not
+necesserally malicious), but also a stream of errors for those devices.
 
-If there turns out to be a widely-supported detection method and T330
-doesn't support this, then just QUIRK_T3304_KEYBOARD would be better.
+Let's revert to the old behavior by giving more information to HID core
+to be able to decide whether it can or not memset the rest of the buffer
+to 0 and continue the processing.
 
-If you would prefer then I shall remove QUIRK_HID_MICMUTE. This can be
-revisited when more than one device uses this code.
+Note that the first commit makes an API change, but the callers are
+relatively limited, so it should be fine on its own. The second patch
+can't really make the same kind of API change because we have too many
+callers in various subsystems. We can switch them one by one to the safe
+approach when needed.
 
->
-> Do we really want to use strlen?
->
-> Do we really want to use strlen on the result of a function without additional checks?
-
-My understanding is that this is safe, as this name is set by the
-kernel. Existing use of dev_name appears to not involve additional
-checks.
-
-> This doesn't look like a good idea to change this for all laptops under the sun...
->
->
-> Perhaps might make sense to move this check before? Maybe not?
-
-Returning an error from asus_kbd_register_leds is currently non-fatal,
-so the only difference in behaviour is that devices with
-QUIRK_USE_KBD_BACKLIGHT that do not report supporting a backlight will
-no longer log a warning.
-
-T3304 indeed lacks a backlight, so we can't proceed with the backlight
-setup code, but asus_kbd_get_functions() is still a prerequisite for
-the micmute LED.
-
-I think the alternative is:
-- Move the asus_kbd_get_functions() call site from
-asus_kbd_register_leds() to asus_probe(), and
-- Separate asus_kbd_register_leds() into two functions for backlight
-and micmute LEDs respectively, keeping the current behaviour for
-backlight registration.
-
-Your thoughts?
+The last 2 patches are small cleanups I initially put together with the
+2 first patches, but they can be applied on their own and don't need to
+be pulled in stable like the first 2.
 
 Cheers,
-James
+Benjamin
 
->
-> Denis
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+---
+Changes in v3:
+- fixed ghib -> ghid in greybus
+- fixed i386 size_t debug size reported by kernel-bot
+- Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
+
+Changes in v2:
+- added a small blurb explaining the difference between the safe and the
+  non safe version of hid_safe_input_report
+- Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
+
+---
+Benjamin Tissoires (4):
+      HID: pass the buffer size to hid_report_raw_event
+      HID: core: introduce hid_safe_input_report()
+      HID: multitouch: use __free(kfree) to clean up temporary buffers
+      HID: wacom: use __free(kfree) to clean up temporary buffers
+
+ drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
+ drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
+ drivers/hid/hid-gfrm.c             |  4 +--
+ drivers/hid/hid-logitech-hidpp.c   |  2 +-
+ drivers/hid/hid-multitouch.c       | 18 ++++------
+ drivers/hid/hid-primax.c           |  2 +-
+ drivers/hid/hid-vivaldi-common.c   |  2 +-
+ drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
+ drivers/hid/usbhid/hid-core.c      | 11 ++++---
+ drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
+ drivers/staging/greybus/hid.c      |  2 +-
+ include/linux/hid.h                |  6 ++--
+ include/linux/hid_bpf.h            | 14 +++++---
+ 13 files changed, 109 insertions(+), 78 deletions(-)
+---
+base-commit: 7df6572f1cb381d6b89ceed58e3b076c233c2cd0
+change-id: 20260415-wip-fix-core-7d85c8516ed0
+
+Best regards,
+-- 
+Benjamin Tissoires <bentiss@kernel.org>
+

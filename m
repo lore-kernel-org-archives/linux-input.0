@@ -1,187 +1,125 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C4048A2CC
-	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 16:21:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED92D48C41D;
+	Tue,  5 May 2026 16:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777998116; cv=none; b=QEi6aeBaf+KPWpiiS+SNTVaTpqmK4vVAx6zESe48CdoinY7B8p9SHajq82L4hVexhxVnp8b4anxmUqKdR1ps0juqv7dMDo4fTEQxrcKwjsccoGjOey+nIXaNuAEhRhCbKVgEyVqys16I7CFlEYf9iOLVXYdIHEhjzMFHF7LA+qM=
+	t=1777998762; cv=none; b=K3+pPvlXq5K0HI2PidEqt4XS6c9Ei6bFUG0WXsQk6Ptc2uBrbDqXiFbIgKIOKykAElKuxtM0F/DD4Ykpb4gZ+XamneIxVC3g8jnW5jaMo0Jrk813iC0czGyoI/PQITbwXp8Mt6bHpq9SngrhUMEzhlh1MTOndDC+dXAdPWAH+xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777998116; c=relaxed/simple;
-	bh=MhVhqytDBsoXqrV7yikqRH2U/UkDGacf8smarcWqBEc=;
-	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Im5IcAqp8u0OgJ4dLuS1B9Ve6CfaPgbvUyJev8EbmJR4TcvQ0yebBUaD25PuqsdVR/dtQh0PV2vZvAl0CJWpxwl1aOTC+oRiEbimXDqWbPrScnrJbGaQdQ3U4N2Mk9ieQ/Q53YtNUmIU4sQh+sZHrw1FbvaoLqCJNsQ69Y2VLwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com; spf=pass smtp.mailfrom=embeddedts.com; dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b=FZn1cz7S; arc=none smtp.client-ip=74.125.82.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedts.com
+	s=arc-20240116; t=1777998762; c=relaxed/simple;
+	bh=TZ41cIBjsX6I4sUdbZ6JVvTnjKVYGi3njK3h98YNW2I=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=RCwVY6WuzhWalX8vxOqSJfhIXPR3ZtTDAikKa0cNIdl66iT5pMqG9rJ9SnULv39j+va48u0vE0fzIQ+SuVkt1sL0e2rGp1zz/y7rzKTwZdIqQ5OKtiVDULstXCwxusnJHDVEHqOlBj3dbo8AYrENIEfvjlo8El6XaRTC4pY6aZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BjGKVp1Q; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b="FZn1cz7S"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2bdd40d3c61so6954973eec.1
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 09:21:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=embeddedts.com; s=google; t=1777998113; x=1778602913; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=AV/YmfGA78g8SATWPQgqplca6ENgzk/z9se3dsK0CGU=;
-        b=FZn1cz7SvlGEETLWUcGy+QBY1LRaOujalecHshojAwoL2v5m+RKUrBUWRX1ZAMa0vo
-         yk1lHtLNEmEVw8RjVuct+co/TuMyAkkzDKl12AH6wQSto+kUHuzk6XuBCp4oPFmOZsIt
-         EO19/kJ1LT6dzPC9OZmcfZVL8W5ks3Hv5Khmg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777998113; x=1778602913;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AV/YmfGA78g8SATWPQgqplca6ENgzk/z9se3dsK0CGU=;
-        b=kzPWlimhVzE4YsoLWIcMq0l4Bao67pgF8TaG1KKty/nDcagmxEI9lNrGAh+gipJXWr
-         Gxr/YrMFen27/M3stlMibjS2Nm2lDnD1XbgS8wfpvd+Kk5Jchb0rlfQeY27IzGfyzuGE
-         uA0xAzj0+zHtc4yAppXb+hFFbufd/1evDTFxcBi7Uf0xA1ba9GM7UAedJJJyMfBj+Z2Y
-         JhpyG2TDC2IkIx5KfBdEpxQCtwkqfUzAIXy8tpzEiuEzvyOFzUOWdcr5mqOc4NZ+6M/b
-         Tibkku78x7nTknTCM+GJKNOXaQoy7HccKk+tdNQVatmt0VMxi8hdxbBQE0vljqq/GziK
-         Y89Q==
-X-Forwarded-Encrypted: i=1; AFNElJ8fmz+zLZ8mFKiL7NhfTXdAJj1jujDz/r02gVyL1JFlGly3LWODkANDd4PoHpepbLR8HNX5iTqLeg2klA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwoW4NNZOZgld/mMQV1R49/71dYJAY/1OzR3s82wYgdkuWsPTpB
-	JhIe0YeDZiCpupW9/XXAsD5ZkIqZHap5o65zQ4HGjfSCMy8XAakRHhe3uAJ0rVpc7js=
-X-Gm-Gg: AeBDietSRKIKxkppqf21s+j4blfCa9xteH7pNSi95xtpY/5X0SxTmAmCrp5Co6lXlON
-	h0VUHJMRS38MGAuUpZX4Og9Y6eE92mDf5verd7ARoILcaiEb1ZBeOCvwGe8Z6xzD3VbTVerXeBE
-	4l4eKJf8632bHMEZJigdEhTt6btLB9BowYa9CYIhSnkeY3eiECUaBRS+y8NFsSwanbYxDZDktc2
-	WdfDOnyShaMPcQWZAs1yz6bJyiUT/qhXU73jDEDQBXwRlTEe6iFBux+HM7ESHoGFTWUqks0QkLn
-	k/2UHvbxEQPn09C9WZnf2+n6vGFMyeyKUwT92KdS/csDeHIhoqlKiRQbBMNW2snVCGYF2ipE/1d
-	Mkzoe9N5X8VHgxVHaZ19j/TEjtArWLNsWzf03TxzNdbi71mPeVDhUuLAVFqoAZniqJrjh5mGmj1
-	eZV1qbOl1aj3V6b8PtpYpJpRWy68wSmq7bcnnAGf6BMcIc1cZqDmvOkDs6zsTVbEjOSOqq65NOQ
-	8KQEn55ByAaktTQW62bF4Shr59bMhjl2j/rxJcTxqP58HThFMDq8QZWKQS7qpona8pVAnSwZQUb
-	91IFgk6kQXtPUv0=
-X-Received: by 2002:a05:7301:3d06:b0:2c1:7793:7bbb with SMTP id 5a478bee46e88-2f409cb094fmr1796691eec.27.1777998113220;
-        Tue, 05 May 2026 09:21:53 -0700 (PDT)
-Received: from [10.10.10.191] ([184.3.231.126])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3b29b2casm21012701eec.14.2026.05.05.09.21.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 May 2026 09:21:52 -0700 (PDT)
-From: Kris Bahnsen <kris@embeddedts.com>
-X-Google-Original-From: Kris Bahnsen <kris@embeddedTS.com>
-Message-ID: <c49600c3-a78d-4d74-82bd-7f95328388a5@embeddedTS.com>
-Date: Tue, 5 May 2026 09:21:50 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BjGKVp1Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11D4C2BCB4;
+	Tue,  5 May 2026 16:32:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777998761;
+	bh=TZ41cIBjsX6I4sUdbZ6JVvTnjKVYGi3njK3h98YNW2I=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=BjGKVp1Q3uQ13tFVsUqfRrsOkOe72qGvDvGmogjIry7VLRE/SmhvSRZQJ7m30ZZNP
+	 Z6Kp31CEAMnGSQKFV8vheh59R3Ic9uW213WOxLKNPHmestdkq0C4DF6n7sFTnAJOpK
+	 jqBJWw1z5mfB9FJuRfdh8hk+wlJz985qtRXfD88UPI5pczfXkf3UyWisFSQtrVr1e6
+	 JfwvdkqKz7QEtlMtRW3jZzln3dIakVTGD7IFK9I0+EnS3X7KPTesIl3ZcrIYC4PM5H
+	 j/ehgRW3ucHsK/pR6KvODZXSzQ9i7DrthU3l9J0yr0nRGYk1c85Ky6XyDW8ZqJoiJG
+	 xak4UCF4W9sOA==
+Date: Tue, 5 May 2026 17:32:33 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Sanjay Chitroda <sanjayembeddedse@gmail.com>, Andy Shevchenko
+ <andriy.shevchenko@intel.com>, jikos@kernel.org,
+ srinivas.pandruvada@linux.intel.com, dlechner@baylibre.com,
+ nuno.sa@analog.com, andy@kernel.org, sakari.ailus@linux.intel.com,
+ linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 4/4] iio: humidity: drop hid_sensor_remove_trigger()
+ using devm API
+Message-ID: <20260505173233.0b83f93c@jic23-huawei>
+In-Reply-To: <CAHp75VdzPr+SLCPT85zw6aK8pSueBHr-OFpJ1Vmsow61e8=p4w@mail.gmail.com>
+References: <20260429175918.2541914-1-sanjayembedded@gmail.com>
+	<20260429175918.2541914-5-sanjayembedded@gmail.com>
+	<afJdJIQS1vwOcaGT@ashevche-desk.local>
+	<12C22ED3-20F9-401C-ACC9-D666393B292A@gmail.com>
+	<CAHp75VdzPr+SLCPT85zw6aK8pSueBHr-OFpJ1Vmsow61e8=p4w@mail.gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] Input: ads7846 - don't use scratch for tx_buf when
- clearing register
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org,
- Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260430173739.3843425-1-kris@embeddedTS.com>
- <aflcL6y_ugHV5p8s@google.com>
-Content-Language: en-US
-In-Reply-To: <aflcL6y_ugHV5p8s@google.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
-Dmitry,
+On Fri, 1 May 2026 21:25:35 +0300
+Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
 
-On 5/4/26 8:01 PM, Dmitry Torokhov wrote:
-> Hi Kris,
-> 
-> On Thu, Apr 30, 2026 at 05:37:38PM +0000, Kris Bahnsen wrote:
->> The workaround for XPT2046 clears the command register, giving the
->> touchscreen controller a NOP. The change incorrectly re-uses the
->> req->scratch variable which is used as rx_buf for xfer[5], so by
->> the time xfer[6] occurs, the contents of req->scratch may not be
->> 0. It was found that the touchscreen controller can end up in
->> a completely unresponsive state due to it being given a command
->> the driver does not expect.
->>
->> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
->> transmit all 0 bits and use the scratch variable for the rx_buf for
->> both the 1 byte command to and 2 byte response from the controller.
->>
->> This change was tested on real TSC2046 and ADS7843 controllers,
->> but not the XPT2046 the workaround was originally created for.
->> Confirming that the original modification to clear the command
->> register does not impact either real controller.
->>
->> Fixes: 781a07da9bb94 ("Input: ads7846 - add dummy command register clearing cycle")
->> Cc: stable@vger.kernel.org
->> Co-developed-by: Mark Featherston <mark@embeddedTS.com>
->> Signed-off-by: Mark Featherston <mark@embeddedTS.com>
->> Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
->> ---
->>
->> V1 -> V2: Don't use rx_buf when clearing command reg
->> V2 -> V3: Modify original 2 xfer command to eliminate dev_err()
->>           output on xfer with len and NULL buffers
->>
->>  drivers/input/touchscreen/ads7846.c | 3 +--
->>  1 file changed, 1 insertion(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
->> index 4b39f7212d35c..488bcc8393293 100644
->> --- a/drivers/input/touchscreen/ads7846.c
->> +++ b/drivers/input/touchscreen/ads7846.c
->> @@ -403,8 +403,7 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
->>  	spi_message_add_tail(&req->xfer[5], &req->msg);
->>  
->>  	/* clear the command register */
->> -	req->scratch = 0;
->> -	req->xfer[6].tx_buf = &req->scratch;
->> +	req->xfer[6].rx_buf = &req->scratch;
-> 
-> Sashiko (I believe correctly) pointed out that by doing this "scratch"
-> is now write only and this may cause DMA from the device stomp on
-> message status and other unrelated data that shares the same cacheline
-> with scracth. While it was already a problem before now it is even more
-> likely.
-> 
-> Since scratch is now write-only I believe moving it below "sample"
-> forces it into separate cacheline and fixes this problem. Could you
-> please try making this change?
+> On Thu, Apr 30, 2026 at 10:21=E2=80=AFPM Sanjay Chitroda
+> <sanjayembeddedse@gmail.com> wrote:
+> > On 30 April 2026 1:03:56=E2=80=AFam IST, Andy Shevchenko <andriy.shevch=
+enko@intel.com> wrote: =20
+> > >On Wed, Apr 29, 2026 at 11:29:18PM +0530, Sanjay Chitroda wrote:
+> > > =20
+> > >> Use devm_hid_sensor_setup_trigger() to automatically release resourc=
+e =20
+>=20
+> resources
+>=20
+> > >> during fail, unbind or removal of driver using devres framework. =20
+>=20
+> failure
+>=20
+> > >>
+> > >> This simplify the setup, remove goto, avoid manual resource cleanup =
+in =20
+>=20
+> simplifies
+> removes
+> and avoids
+>=20
+> OR
+>=20
+> "This is done in a way to simplify..."
+>=20
+> > >> teardown path. =20
+>=20
+> ...
+>=20
+> > >> +    ret =3D devm_hid_sensor_setup_trigger(&indio_dev->dev, indio_de=
+v, name,
+> > >> +                                        &humid_st->common_attribute=
+s); =20
+> > >
+> > >I believe the first parameter is utterly wrong here.
+> > >Or other way around, same issue but in the previous patch.
+> > > =20
+> > Thank you Andy for the review comment.
+> >
+> > It looks in same humidity probe of hid sensor with devm API two device =
+pointer are used &pdev->dev and &indio_dev->dev; ideally all devm should ha=
+ve same parent device for devres resource framework and over here preferabl=
+e and consistent device should be &pdev->dev;
+> >
+> > I would first update existing devm_* API to have consistent device and =
+on top of that will use same device in devm conversation.
+> >
+> > While for gyro change device is consistent as &pdev->dev across all dev=
+m API. =20
+>=20
+> The idea is that you have to go deeply understanding the object
+> lifetimes for the cases of different device instances along with
+> userspace communication channels (all possible ABIs the driver uses).
+> With only that the proper parameter may be chosen or even confirmed
+> that device managed resources must not be used. Yeah, this is one of
+> the downsides of devm_*() APIs.
+>=20
+FWIW it's always wrong from a design point of view to use iio_dev->dev
+for devm.  It works but leaves us open to getting the ordering wrong
+as some other stuff (including things you can't necessarily see explicitly
+in a driver) will be using the parent device.
 
-Apologies, I'm not quite certain I understand what you mean by
-"moving it below sample." Do you mean relocating the xfer[6] block
-immediately below the xfer[3] block like so? If yes, I can get this
-tested and a v4 patch together. If not, can you please clarify?
-
-
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 4b39f7212d35..6d57865ff505 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -390,6 +390,11 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
-        req->xfer[3].len = 2;
-        spi_message_add_tail(&req->xfer[3], &req->msg);
- 
-+       /* clear the command register */
-+       req->xfer[6].rx_buf = &req->scratch;
-+       req->xfer[6].len = 1;
-+       spi_message_add_tail(&req->xfer[6], &req->msg);
-+
-        /* REVISIT:  take a few more samples, and compare ... */
- 
-        /* converter in low power mode & enable PENIRQ */
-@@ -402,12 +407,6 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
-        req->xfer[5].len = 2;
-        spi_message_add_tail(&req->xfer[5], &req->msg);
- 
--       /* clear the command register */
--       req->scratch = 0;
--       req->xfer[6].tx_buf = &req->scratch;
--       req->xfer[6].len = 1;
--       spi_message_add_tail(&req->xfer[6], &req->msg);
--
-        req->xfer[7].rx_buf = &req->scratch;
-        req->xfer[7].len = 2;
-        CS_CHANGE(req->xfer[7]);
-
-> 
-> Thanks.
-> 
-
--- 
-Kris Bahnsen
-Software Engineer
-embeddedTS
+Jonathan
 

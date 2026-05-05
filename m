@@ -1,112 +1,187 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D824D39B952
-	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 15:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C4048A2CC
+	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 16:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777993393; cv=none; b=bihKpwTluS/ar6Fa8b+liRU6iLAUr8xvZZMeAN6jHn/cPh06VI+AbC6RT+hiKe1eXIPRe9Rlw8XaL5SKJLc71M3ozSXAFMEa6Ly/EH11VGfs/75Q0PO02nWf+N0pg8RPuJvh/qBSjmU/T/7D6bb8Q+3x/sKj7+ak7ru2zJCw1Ow=
+	t=1777998116; cv=none; b=QEi6aeBaf+KPWpiiS+SNTVaTpqmK4vVAx6zESe48CdoinY7B8p9SHajq82L4hVexhxVnp8b4anxmUqKdR1ps0juqv7dMDo4fTEQxrcKwjsccoGjOey+nIXaNuAEhRhCbKVgEyVqys16I7CFlEYf9iOLVXYdIHEhjzMFHF7LA+qM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777993393; c=relaxed/simple;
-	bh=A9wpaSBbR1ublzL/Sy2zUllnDSEWVh69TzLmMcbXZ9A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nMm6VLOafNfSIUzvzrINjuEXquvpV7avE/Z5oK+tDuK8gU/HjpocURSzHxEIOv/D2TjoGyc9U6/eOqoGLUwI4vY2lEBFYvy5NVjlRxGXdTq0BIcoIYNaptgb5yGXMD12q0hgyAA6f1fGFP0WGDx0XYP7zMxQoThUjCECiYir7Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OsHsKd8r; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777998116; c=relaxed/simple;
+	bh=MhVhqytDBsoXqrV7yikqRH2U/UkDGacf8smarcWqBEc=;
+	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Im5IcAqp8u0OgJ4dLuS1B9Ve6CfaPgbvUyJev8EbmJR4TcvQ0yebBUaD25PuqsdVR/dtQh0PV2vZvAl0CJWpxwl1aOTC+oRiEbimXDqWbPrScnrJbGaQdQ3U4N2Mk9ieQ/Q53YtNUmIU4sQh+sZHrw1FbvaoLqCJNsQ69Y2VLwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com; spf=pass smtp.mailfrom=embeddedts.com; dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b=FZn1cz7S; arc=none smtp.client-ip=74.125.82.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedts.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OsHsKd8r"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ad21f437eeso33340015ad.0
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 08:03:11 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b="FZn1cz7S"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2bdd40d3c61so6954973eec.1
+        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 09:21:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777993391; x=1778598191; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UKYwXEKBkfxrwukpDctwnP55c5ugAMD8+9dw4QCucpc=;
-        b=OsHsKd8rK5oIhfHwRZbAUsyG9x1n8Qa724mT5Cj8TJHExm2iYXMRQaT5D1Z77hDyTI
-         xA4cM1J85Eabfc1x8G8kOucgIS5NLfQLIfFzDZuHZmGvelW+kQzEXIZ/p7RjLRVhWVb6
-         H+GoFgOgt8N/IosJ7YGaivt8IaSVi67n4at9NhoTVeDxF8jLcQFBrm0dI85pTeGD8xw8
-         73jZP3RRLPr2uciV9Yuwyr6g7XVzgEEs8iLJbJRzRNnQ3/gpE1WzT3EClnD3GOt0xpY9
-         e72MJQ1xsCVfrVBPtlB8w+J232SS/XyBASUgjkrQtX7pdbRZFl489eRAQQ4x954YnNvr
-         lsUA==
+        d=embeddedts.com; s=google; t=1777998113; x=1778602913; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=AV/YmfGA78g8SATWPQgqplca6ENgzk/z9se3dsK0CGU=;
+        b=FZn1cz7SvlGEETLWUcGy+QBY1LRaOujalecHshojAwoL2v5m+RKUrBUWRX1ZAMa0vo
+         yk1lHtLNEmEVw8RjVuct+co/TuMyAkkzDKl12AH6wQSto+kUHuzk6XuBCp4oPFmOZsIt
+         EO19/kJ1LT6dzPC9OZmcfZVL8W5ks3Hv5Khmg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777993391; x=1778598191;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UKYwXEKBkfxrwukpDctwnP55c5ugAMD8+9dw4QCucpc=;
-        b=kgqtUvWNVGOV/2pYl4blde6aakYE0A1BPPFmO0f2hN+euXcKn1Ah81hrmg9uR53vFC
-         kxuXESbOZyziY4Eju8RxUUj+cD0/9798hvPfqVgzdoT0A7vWx7yFjOVirqzLMOx2sLAv
-         /PMIVmVDKeG/LVOTXs+e4+kuEcNk6tLmdEImNaHvm2lc7gQxJT8xZdWpZlnesi4KJo2z
-         bKagQErufs19woeEs8z1DgApODjvcjRYKpoGvFQeDC5jg48xvaNga210XXYrRWIo/Ui1
-         qW8d0eB5duB1qnqhfxMtpPpPU9By1yw3MaS8KP2JcjShUtyqjyHnOnIonDxD18ND6zH6
-         6LxQ==
-X-Forwarded-Encrypted: i=1; AFNElJ93hmQ+kD8VL8Hnp2xmLlBhe389YsZ7YHIqAkF1QL4/ueMuJB3i/la2mw9yRCVYs6mA1AEQIBkBZquKZA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzJ0NYlvQ8SkxrX/kIwAfKAqAsez28VkGeQcqF4zXUK+8WC3/cf
-	fPl8E9zU9yLDuKq+zL5PfKOTGQhCyjvN78Hs3X5mBKBNT9wL13MF4oXo
-X-Gm-Gg: AeBDiesaVzZhqzHVTn8KNYlzg6bEFvApRm2k5z7HPAygXX5vlB58QAjsJcE9Y3DE7uj
-	83mL2w78WaMLwPnWzXwoQz43De4sPl1OFM2VWJmxP7bjRVPagGJWHKgglZ9U75m5clFaaQDMKvW
-	auy7UweUmtgeoaONRM3N1y1tzzx++xgzHaLonzDfjyH/T/3R1HZBnydCKj654nIFJstP03QSZZa
-	Y8etO4085l/lMjizj9a9IxgGNXH03lRqjaHPJst2P+gSbpEAXICrLX4b49mnvXokiSWlQEyjPZm
-	1c8YQYAQIp5AI9qdI+KYpKRHJfApaZogSyLgdpzWo15E3MOFsvjtiQeInN9qmzgR6dcovQvY78q
-	BgDYeEsnEpHJDHEkvFTWtmq5fs70j1vY5PArochpZ3Z8hkmOEyhtIaoBMq16lljOH3F+n2mswu+
-	KWzGOpXpJ7CFixST8eB/BZcWiUsB1JJYMsWhrJM+hIjynMJhkQojFHXj9eeVhsXzaNhHw4tzAFQ
-	bE=
-X-Received: by 2002:a17:903:3c47:b0:2ae:47b0:dc80 with SMTP id d9443c01a7336-2ba4d7aadebmr32397605ad.11.1777993389459;
-        Tue, 05 May 2026 08:03:09 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:94ef:a6f3:2c96:2d58])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b9cae366c7sm143554025ad.55.2026.05.05.08.03.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 08:03:08 -0700 (PDT)
-Date: Tue, 5 May 2026 08:03:03 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ricardo Ribalda <ribalda@chromium.org>
-Cc: Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] Input: atmel_mxt_ts - fix boundary check in
- mxt_prepare_cfg_mem
-Message-ID: <afoFzH1RvBwUajER@google.com>
-References: <20260504185448.4055973-1-dmitry.torokhov@gmail.com>
- <CANiDSCv+h_ry7W1e1mFNLhont-1xigEZj6jL3m=FVgv2UC+KzQ@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1777998113; x=1778602913;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=AV/YmfGA78g8SATWPQgqplca6ENgzk/z9se3dsK0CGU=;
+        b=kzPWlimhVzE4YsoLWIcMq0l4Bao67pgF8TaG1KKty/nDcagmxEI9lNrGAh+gipJXWr
+         Gxr/YrMFen27/M3stlMibjS2Nm2lDnD1XbgS8wfpvd+Kk5Jchb0rlfQeY27IzGfyzuGE
+         uA0xAzj0+zHtc4yAppXb+hFFbufd/1evDTFxcBi7Uf0xA1ba9GM7UAedJJJyMfBj+Z2Y
+         JhpyG2TDC2IkIx5KfBdEpxQCtwkqfUzAIXy8tpzEiuEzvyOFzUOWdcr5mqOc4NZ+6M/b
+         Tibkku78x7nTknTCM+GJKNOXaQoy7HccKk+tdNQVatmt0VMxi8hdxbBQE0vljqq/GziK
+         Y89Q==
+X-Forwarded-Encrypted: i=1; AFNElJ8fmz+zLZ8mFKiL7NhfTXdAJj1jujDz/r02gVyL1JFlGly3LWODkANDd4PoHpepbLR8HNX5iTqLeg2klA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwoW4NNZOZgld/mMQV1R49/71dYJAY/1OzR3s82wYgdkuWsPTpB
+	JhIe0YeDZiCpupW9/XXAsD5ZkIqZHap5o65zQ4HGjfSCMy8XAakRHhe3uAJ0rVpc7js=
+X-Gm-Gg: AeBDietSRKIKxkppqf21s+j4blfCa9xteH7pNSi95xtpY/5X0SxTmAmCrp5Co6lXlON
+	h0VUHJMRS38MGAuUpZX4Og9Y6eE92mDf5verd7ARoILcaiEb1ZBeOCvwGe8Z6xzD3VbTVerXeBE
+	4l4eKJf8632bHMEZJigdEhTt6btLB9BowYa9CYIhSnkeY3eiECUaBRS+y8NFsSwanbYxDZDktc2
+	WdfDOnyShaMPcQWZAs1yz6bJyiUT/qhXU73jDEDQBXwRlTEe6iFBux+HM7ESHoGFTWUqks0QkLn
+	k/2UHvbxEQPn09C9WZnf2+n6vGFMyeyKUwT92KdS/csDeHIhoqlKiRQbBMNW2snVCGYF2ipE/1d
+	Mkzoe9N5X8VHgxVHaZ19j/TEjtArWLNsWzf03TxzNdbi71mPeVDhUuLAVFqoAZniqJrjh5mGmj1
+	eZV1qbOl1aj3V6b8PtpYpJpRWy68wSmq7bcnnAGf6BMcIc1cZqDmvOkDs6zsTVbEjOSOqq65NOQ
+	8KQEn55ByAaktTQW62bF4Shr59bMhjl2j/rxJcTxqP58HThFMDq8QZWKQS7qpona8pVAnSwZQUb
+	91IFgk6kQXtPUv0=
+X-Received: by 2002:a05:7301:3d06:b0:2c1:7793:7bbb with SMTP id 5a478bee46e88-2f409cb094fmr1796691eec.27.1777998113220;
+        Tue, 05 May 2026 09:21:53 -0700 (PDT)
+Received: from [10.10.10.191] ([184.3.231.126])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3b29b2casm21012701eec.14.2026.05.05.09.21.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 May 2026 09:21:52 -0700 (PDT)
+From: Kris Bahnsen <kris@embeddedts.com>
+X-Google-Original-From: Kris Bahnsen <kris@embeddedTS.com>
+Message-ID: <c49600c3-a78d-4d74-82bd-7f95328388a5@embeddedTS.com>
+Date: Tue, 5 May 2026 09:21:50 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANiDSCv+h_ry7W1e1mFNLhont-1xigEZj6jL3m=FVgv2UC+KzQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] Input: ads7846 - don't use scratch for tx_buf when
+ clearing register
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marek Vasut <marex@denx.de>, stable@vger.kernel.org,
+ Mark Featherston <mark@embeddedts.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260430173739.3843425-1-kris@embeddedTS.com>
+ <aflcL6y_ugHV5p8s@google.com>
+Content-Language: en-US
+In-Reply-To: <aflcL6y_ugHV5p8s@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Ricardo,
+Dmitry,
 
-On Tue, May 05, 2026 at 11:08:15AM +0200, Ricardo Ribalda wrote:
-> HI Dmitry
+On 5/4/26 8:01 PM, Dmitry Torokhov wrote:
+> Hi Kris,
 > 
-> FWIW this patch looks correct to me...
+> On Thu, Apr 30, 2026 at 05:37:38PM +0000, Kris Bahnsen wrote:
+>> The workaround for XPT2046 clears the command register, giving the
+>> touchscreen controller a NOP. The change incorrectly re-uses the
+>> req->scratch variable which is used as rx_buf for xfer[5], so by
+>> the time xfer[6] occurs, the contents of req->scratch may not be
+>> 0. It was found that the touchscreen controller can end up in
+>> a completely unresponsive state due to it being given a command
+>> the driver does not expect.
+>>
+>> Instead, rely on the spi_transfer behavior of tx_buf being NULL to
+>> transmit all 0 bits and use the scratch variable for the rx_buf for
+>> both the 1 byte command to and 2 byte response from the controller.
+>>
+>> This change was tested on real TSC2046 and ADS7843 controllers,
+>> but not the XPT2046 the workaround was originally created for.
+>> Confirming that the original modification to clear the command
+>> register does not impact either real controller.
+>>
+>> Fixes: 781a07da9bb94 ("Input: ads7846 - add dummy command register clearing cycle")
+>> Cc: stable@vger.kernel.org
+>> Co-developed-by: Mark Featherston <mark@embeddedTS.com>
+>> Signed-off-by: Mark Featherston <mark@embeddedTS.com>
+>> Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
+>> ---
+>>
+>> V1 -> V2: Don't use rx_buf when clearing command reg
+>> V2 -> V3: Modify original 2 xfer command to eliminate dev_err()
+>>           output on xfer with len and NULL buffers
+>>
+>>  drivers/input/touchscreen/ads7846.c | 3 +--
+>>  1 file changed, 1 insertion(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+>> index 4b39f7212d35c..488bcc8393293 100644
+>> --- a/drivers/input/touchscreen/ads7846.c
+>> +++ b/drivers/input/touchscreen/ads7846.c
+>> @@ -403,8 +403,7 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+>>  	spi_message_add_tail(&req->xfer[5], &req->msg);
+>>  
+>>  	/* clear the command register */
+>> -	req->scratch = 0;
+>> -	req->xfer[6].tx_buf = &req->scratch;
+>> +	req->xfer[6].rx_buf = &req->scratch;
+> 
+> Sashiko (I believe correctly) pointed out that by doing this "scratch"
+> is now write only and this may cause DMA from the device stomp on
+> message status and other unrelated data that shares the same cacheline
+> with scracth. While it was already a problem before now it is even more
+> likely.
+> 
+> Since scratch is now write-only I believe moving it below "sample"
+> forces it into separate cacheline and fixes this problem. Could you
+> please try making this change?
 
-Thank you for looking this over.
+Apologies, I'm not quite certain I understand what you mean by
+"moving it below sample." Do you mean relocating the xfer[6] block
+immediately below the xfer[3] block like so? If yes, I can get this
+tested and a v4 patch together. If not, can you please clarify?
+
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 4b39f7212d35..6d57865ff505 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -390,6 +390,11 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+        req->xfer[3].len = 2;
+        spi_message_add_tail(&req->xfer[3], &req->msg);
+ 
++       /* clear the command register */
++       req->xfer[6].rx_buf = &req->scratch;
++       req->xfer[6].len = 1;
++       spi_message_add_tail(&req->xfer[6], &req->msg);
++
+        /* REVISIT:  take a few more samples, and compare ... */
+ 
+        /* converter in low power mode & enable PENIRQ */
+@@ -402,12 +407,6 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+        req->xfer[5].len = 2;
+        spi_message_add_tail(&req->xfer[5], &req->msg);
+ 
+-       /* clear the command register */
+-       req->scratch = 0;
+-       req->xfer[6].tx_buf = &req->scratch;
+-       req->xfer[6].len = 1;
+-       spi_message_add_tail(&req->xfer[6], &req->msg);
+-
+        req->xfer[7].rx_buf = &req->scratch;
+        req->xfer[7].len = 2;
+        CS_CHANGE(req->xfer[7]);
 
 > 
-> Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
+> Thanks.
 > 
-> But there are a couple of things that look weird.
-> 
-> 1) The patch line (1503) does not seem to match your tree
-> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/tree/drivers/input/touchscreen/atmel_mxt_ts.c#n1503
-
-Yeah, I have an unrelated path in my queue that affects line offsets,
-
-> 
-> 2) The sscanf just before this check has two conversions (val and
-> offset), but you only check for ret != 1. Should't it be ret !=2? or I
-> am missing something?
-
-"%n" format specifier does not increment number of successfully parsed
-elements returned by sscanf(). It kind of makes sense although may look
-surprising.
-
-Thanks.
 
 -- 
-Dmitry
+Kris Bahnsen
+Software Engineer
+embeddedTS
+

@@ -1,140 +1,80 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A9AC3DCDB0
-	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 09:10:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF585402BB1
+	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 10:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777972248; cv=none; b=ZvgCaNou0jAwvSBvmozcJREC452cxMVOW1F0BO8xA/tAU2q1mYO6xPUM3ev41hitik5kjAj7whb7QtOmwzw7450dT8KolLfQwEFntGFAY/4wLYW8ciPWTFYpO6ZrUfKIgXpR47z6jNmU3tpLYFwEpLfnDpsHEzKzaP6z+laKeGg=
+	t=1777977598; cv=none; b=mFAsXvkc8kLC32XhUUz7fREpVVqmGRvQFYNS2OB4Znqr9DY5arurRUEIh+8Wh7hgadDh8jBk9Vy+D6TM/U7cLOiGvduun4F0rR7gWF+vxAMPfBMfbvEcY473wVZm7RKS1aAxcWjMQZsipz7iBO6int7owsSj6EBe0tqH/gbd4tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777972248; c=relaxed/simple;
-	bh=14DO9U4ZByT2mMLX/faRIDllnJShplwGSpW5i/RfZvs=;
+	s=arc-20240116; t=1777977598; c=relaxed/simple;
+	bh=5R6SFlz/bfx5XQ7wxa5PSrekDt/yAtW9RF4cfWCQgyQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P9NwvNWXXwyYf0bhEDSOBLMZ8zefdbwwHlmPVDQ3eI2U5giK7z4hF24sfUUgB7e8s0TzdLgNwKhpYDnCBpaKv8eTj4iQq+tpOHMbT110SPbVNLSWWAvMHUHXgYP+K3wQJYaXnyXRgD1LVar0X0zONHgH+HfvlSw2nqrIvX4hMbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=j6tbPbvL; arc=none smtp.client-ip=209.85.218.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	 To:Cc:Content-Type; b=JaI719/LOv4JvOnaPNas/Fk4qDTNhzLbId9z5fJ6C0e2boAF+tsDXJCBeGEpP+4DlqO1xsBmLGa5/riq/vSh+lBLn97mNHkw+qU/JnnBQJNYp+OszgsjSCSRiENYDwz71jjm/lQpBJ89Ch0D+WVKtVAXokpnQlbyCyytUzKuC3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fWZc6OTo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="j6tbPbvL"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-ba7a1cc0380so844598766b.2
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 02:10:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1777972244; x=1778577044; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=BKVuC8P0D/n2pZsdliIu0oHoVTQb3ML0sBjQuAlRidA=;
-        b=j6tbPbvLYgIenKIux9ifzQ2b0l/+1IjKdtmS6n1aufnzt+ssF9tEA95gpomnSu1CNI
-         JgR+jJvFK3y8orFOyY03tsMWQfCefdft091IyP1WQ4bdwU8IbeBKW3SWnawrnKTi84Pe
-         kmOiAgDAk+gYuyLhok5SPSDZ6ds/UlAxmtqz8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777972244; x=1778577044;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BKVuC8P0D/n2pZsdliIu0oHoVTQb3ML0sBjQuAlRidA=;
-        b=CuwimqmTWTgqXe/P086tNHEA2X8XQiBiKlFzUmT+wntjdBLxcxL7ZNwXUAlVkZAr+V
-         luBPNsvxJ9i+FDRzdecr7obrVF7WE8h5tbeDpt9ULzleSCl6nOPQdIeAPpliEIbD7n70
-         ZYQTlFTOafC/omyci/O8Qnj5416rYHlHhWPkYKeVnc9PKCetoKdNq1OFRnpe2xwP/jxr
-         39jufilCxmN7Ui1XiGX547DC7C84gfKpYs//2dvLnxi/8+rVtN+l2YiBjAbQz2WFix/K
-         BgfCcF9ds+75iQjgX+WnCTY4bTXgZmz6uSqr5JAJyBzOHiAea4yUn1gT83l0OpjicRHI
-         XZUA==
-X-Forwarded-Encrypted: i=1; AFNElJ+/f1uPkXqjIOODuXN9ujs9NB/tdDzYAXFsIXJ0almTAElhYIem1lBxxpeybmA03nrX4944+LAYXavR0Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyTCTSvtN8U518V8shI6++iyZMQsMJiTyeNm4BPY2Z6ubD4puTj
-	7L96/oZhcsQNvZeRdm/Pe/DT7CPgaMDJlFrtqJZVSKEUV7QbRzJzJOMK3mEMjmZh0tBlxzxIvrV
-	+5ssXu9XH
-X-Gm-Gg: AeBDiethAErqKxROyJF0/VQCrxvvP1qAOwzgJZvZHpJQ1/iVX56f/LreUfiM/cD3dBw
-	Ir6wYfVo87imRXSY0m8Pta0FH77zgHbahu+6B3c7N6AMJTKwVg7IVNmANnPjh8taDdkXsgz/bTh
-	Iv1dVRFKcZjvS6RGbSfAZ4PC081gcR1N6dJ0I81Wjj2DC6LsxKYH6UZVE8zRedKlqju36jnpJdY
-	ytJ+nh/CFu82Ta4XL2nx+NEfNy8EpM0KaPPbD+1dmL3qJPH4kVHjh7F+R+5ycKCcpVGKs/banC2
-	OS+JLYwDXFe245UL6Acp1GsHADhwunJpJdHkNZxvTfBM7jb2wAKI6pnU7z4uIE8tOcGVRFrPUQr
-	iWkYEa02HkFypbNG5CWReRxhT3uUnNs3Kx/akPOdUnlMJIfiFO+RjWlvTNUe3sypqrOGvzs+lIu
-	d+98lPfpvgaToJ6T1XTKzQ8oYui01qeScrFeraIEizUq5nBkt5FHstyYU2WrDUbkVisfmX4qU=
-X-Received: by 2002:a17:907:5c1:b0:bc3:6b0e:1686 with SMTP id a640c23a62f3a-bc411c2bb66mr106122766b.37.1777972244505;
-        Tue, 05 May 2026 02:10:44 -0700 (PDT)
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com. [209.85.218.48])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bc1a0abebe1sm230983566b.16.2026.05.05.02.10.43
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 May 2026 02:10:43 -0700 (PDT)
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b8f9568e074so748164266b.0
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 02:10:43 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/6dX8xRfwlC2TOpaxodjTnO496Nep5YXfLje/CMFYIUtxjUrB3lBEvS7WX5Zn6ANWXdBMTZW1AUXMAlg==@vger.kernel.org
-X-Received: by 2002:a17:907:a06:b0:bc3:a4cf:aecd with SMTP id
- a640c23a62f3a-bc40f91f749mr115011666b.14.1777972242226; Tue, 05 May 2026
- 02:10:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fWZc6OTo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BD7C2BCF7
+	for <linux-input@vger.kernel.org>; Tue,  5 May 2026 10:39:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777977598;
+	bh=5R6SFlz/bfx5XQ7wxa5PSrekDt/yAtW9RF4cfWCQgyQ=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=fWZc6OToKu/yoYoTf5W9dTK/aDelutXzPYtDe5gXWl4ry0PiqtmviIVeOZnP379VG
+	 QpbzGXSdl+YeH1mvQ8lSd8MufHcpG5ij7uyILbrlskt5SDh2j9w85cf3Y4YUzR+Rqu
+	 FdCY3iZdB29qYZxOxy+KN985LCUHEWHxBJzqFe3Tj7D8NwW2WWU/zmBYCr5MqAAHrJ
+	 TD5EQZ8zybb7DqsIMl/PVaZXg21c8ooizyBeq6wr3E8SLOlYrRx44kr1/RRjiXr4jQ
+	 jtPV1IUO1BQcbyvBJIWZnGE0dr+/M+ArI/varG+j1QKaDCIDESY4LZUaDRt6MEiiZa
+	 ohM0mc2ZIeCLA==
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-38e7b0903cdso51312461fa.3
+        for <linux-input@vger.kernel.org>; Tue, 05 May 2026 03:39:58 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ9HyJxg7cRcYY6saEGxD+kS2r/1pG/Y6rrTM1dEUlA+DVniVceCYwacpGd4cmZTC2zXXRHG1MhbOZ675w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yye3UA+R4x/0gexFz41ZaEVemfQLPqQDltcWXg15+nV35uB1xeh
+	SJvjfOn/L82C0k2Qwjtf0cZvNYOI+AexMv6kjRYArxh2CqWiYTiIL7vkN2MgANcPfCNVjiI1IKQ
+	JGB2gilBeVVsiQigosvdscohIJ2B35z0=
+X-Received: by 2002:a05:6512:68f:b0:5a8:73c3:f270 with SMTP id
+ 2adb3069b0e04-5a873c3f40dmr2568123e87.8.1777977597130; Tue, 05 May 2026
+ 03:39:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260504185448.4055973-1-dmitry.torokhov@gmail.com> <20260504185448.4055973-3-dmitry.torokhov@gmail.com>
-In-Reply-To: <20260504185448.4055973-3-dmitry.torokhov@gmail.com>
-From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Tue, 5 May 2026 11:10:30 +0200
-X-Gmail-Original-Message-ID: <CANiDSCsctO2BhVe8gFy+O24Nn_KSBZTogCr0VvcbXVov90==pw@mail.gmail.com>
-X-Gm-Features: AVHnY4IqjqOL-bBF8rRuHihOXEZZZwMzOeq9kALdcyH4xyt3I8rVUobKwGo9N7M
-Message-ID: <CANiDSCsctO2BhVe8gFy+O24Nn_KSBZTogCr0VvcbXVov90==pw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] Input: atmel_mxt_ts - use __free() for obuf in mxt_object_show
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+References: <20260428114308.113253-1-clamor95@gmail.com> <20260428114308.113253-3-clamor95@gmail.com>
+ <CAD++jLkU-G38xtzzfAV_otiYuM2G5NHdCdtjFjsy2AjpG22_rg@mail.gmail.com> <CAPVz0n3h+zWi-b-ZTLqwXR-9JNGcUgVodUgo+ywhBfK-UDQJAw@mail.gmail.com>
+In-Reply-To: <CAPVz0n3h+zWi-b-ZTLqwXR-9JNGcUgVodUgo+ywhBfK-UDQJAw@mail.gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Tue, 5 May 2026 12:39:45 +0200
+X-Gmail-Original-Message-ID: <CAD++jLk_SojErY4gxjixzwEF3sfSownH=jBYaoPD2LeoxibhWw@mail.gmail.com>
+X-Gm-Features: AVHnY4KHuhdjhUS5hnVh3matnEBusZqUnHj1GhrxmfNfdL0iJx6VhTo5biYlmW0
+Message-ID: <CAD++jLk_SojErY4gxjixzwEF3sfSownH=jBYaoPD2LeoxibhWw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] Input: isa1200 - new driver for Imagis ISA1200
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 4 May 2026 at 20:54, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> Use the __free(kfree) macro for the obuf allocation in mxt_object_show()
-> to simplify the code.
->
-> Assisted-by: Gemini:gemini-3.1-pro
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index d660cc5b5fe3..6af4db5ed117 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -2870,14 +2870,12 @@ static ssize_t mxt_object_show(struct device *dev,
->         int count = 0;
->         int i, j;
->         int error;
-> -       u8 *obuf;
->
->         /* Pre-allocate buffer large enough to hold max sized object. */
-> -       obuf = kmalloc(256, GFP_KERNEL);
-> +       u8 *obuf __free(kfree) = kmalloc(256, GFP_KERNEL);
->         if (!obuf)
->                 return -ENOMEM;
->
-> -       error = 0;
->         for (i = 0; i < data->info->object_num; i++) {
->                 object = data->object_table + i;
->
-> @@ -2892,15 +2890,13 @@ static ssize_t mxt_object_show(struct device *dev,
->
->                         error = __mxt_read_reg(data->client, addr, size, obuf);
->                         if (error)
-> -                               goto done;
-> +                               return error;
->
->                         count = mxt_show_instance(buf, count, object, j, obuf);
->                 }
->         }
->
-> -done:
-> -       kfree(obuf);
-> -       return error ?: count;
-> +       return count;
->  }
->
->  static int mxt_check_firmware_format(struct device *dev,
-> --
-> 2.54.0.545.g6539524ca2-goog
->
+On Thu, Apr 30, 2026 at 11:46=E2=80=AFAM Svyatoslav Ryhel <clamor95@gmail.c=
+om> wrote:
+> =D1=87=D1=82, 30 =D0=BA=D0=B2=D1=96=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 12=
+:22 Linus Walleij <linusw@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
 
+> In you original code
+> /*
+> * This is done in the vendor tree with the commment
+> * "Duty 0x64 =3D=3D nForce 90", and no force feedback happens
+> * unless we do this.
+> */
+> if (isa->clk)
+> regmap_write(isa->map, ISA1200_HCTRL5, 0x64);
+>
+> 0x64 is actually some conversion of duty cycle, you got this accurately.
 
--- 
-Ricardo Ribalda
+I wonder if 0x64 =3D 100 is simply 100% duty cycle?
+So the value in this register can only be 0..100.
+
+Yours,
+Linus Walleij

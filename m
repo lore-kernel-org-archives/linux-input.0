@@ -1,127 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0E162D1907;
-	Wed,  6 May 2026 09:16:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778058973; cv=none; b=dEn6sNO2N2z7FuM+DnT8YXYROZl01c8w0KdtC1lPJrQir04WQfoXfA0KpIXB6ns4ADZoIOEYLlzUMEpcUh9MhQtizSwdsNGF/7Tz1G+K0jhFOI8/SkRNi3b03ZcXOefhOS4ktOzGjcrUzUkW4n+jlInvvVJ6gyePhC0wi/3+Mgs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778058973; c=relaxed/simple;
-	bh=1kYG0k2tEVtubWrZEIB0wmkkpyz8/sB/Ms4TujhtBms=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Od47OfNcEOSbfDXj6S3X3FFHn6/jgxSjKfDu2waOBcBTd7VGRv70a6Yz9vliEWiOxRU1Lp09rJTEjWmvmifCltWdGhCRFLJuTRSjjEWBRMhVvH0b2/8OhPAT2hS29f4xK79ERBe+f5u79aUBxfbQMcs5NnRil1k/CKsjUAtkofk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ODNh/plo; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 758BB48096F
+	for <linux-input@vger.kernel.org>; Wed,  6 May 2026 14:41:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778078472; cv=pass; b=iN1vDct1iN7W19w6XJXlzjx7sOb3/kalvn3B2MSTLmfqvmXPPpH7rhBNNb9yO3CUYpr2htMZxfBm8SJI0ZiFfxKNcN0l5tdstC6OII6ZIv6KIRaoBZSJsJc4LQyibYNHYxsMxmjUW7NwU5yyP6e09o7vE+BMlT/UytPUi8hrAeA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778078472; c=relaxed/simple;
+	bh=GuK1QnuCV7KWvUKnbJetsZrammaRRqdMrHwOLDsjneM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tAcVV4SGs20aU28EQNrv/+dhNABfxp0MnQK8RV6DFz9luFsklJq7mysd+XawhV4hLF9oCoyD4bcIh+AtZSLQkfaX0LHKCM7Aifpz3wodxHmsklb+uZa6FW0Kr6wogm6MwsAtK8mqZLcHH3B6BdrlDmDq00ogLRoKgf/flgAr2nI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=G4RzOK1j; arc=pass smtp.client-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ODNh/plo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C31C2BCB8;
-	Wed,  6 May 2026 09:16:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778058972;
-	bh=1kYG0k2tEVtubWrZEIB0wmkkpyz8/sB/Ms4TujhtBms=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ODNh/plooM7UycNr844RLfOUm4vHHusx1hm5rm4AUkC6eJPcnunHvk/oYolPGPgUy
-	 GOMQ7hZKjVwa7/+hCQpFJEdyTVtgPoXdQ7KlU+KUtrfVwZa/qAltkSRBpFgZ2ADB4y
-	 s2VflufvWVXD9/rV5Seoh0IDCoCvjHLFnRyQ2kkoEfIGYI8/yE5GhZbWa7CZ7jiPha
-	 FVIyhNSMz90vdixi2FrlM7gxP1ui0UXK240uOhqoTWMCoh1ySdL9vB9R41qk6AFkdK
-	 KsUbHQCKyYP7d/nKwe9WDG2OX5XRWcfrwHNG6jfoVOzCIXAAaDaBX5NPzUlumDI90L
-	 fg5P606Bw1d9g==
-Date: Wed, 6 May 2026 10:16:06 +0100
-From: Lee Jones <lee@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>,
-	Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>,
-	Alex Elder <elder@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, greybus-dev@lists.linaro.org,
-	linux-staging@lists.linux.dev, linux-usb@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
-Message-ID: <20260506091606.GB305027@google.com>
-References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="G4RzOK1j"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-8b821f39a12so29731296d6.2
+        for <linux-input@vger.kernel.org>; Wed, 06 May 2026 07:41:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778078464; cv=none;
+        d=google.com; s=arc-20240605;
+        b=MmjOrKe0CU2TPHOHLi+VJlNS3FQOv8WhCU9XTZ8TZQlsrf8LqTYMJmtHwFRRGh4UXP
+         pWWQLbK63o79dLQ0XMMkH85HedBjfduSkNGtckY1t5XfTmqTG4vI/4FwMTPqJyTZzAEb
+         cu3234A43Tz701L0jewCf8FksDfachaZJeRg+z54ss7zMGd20ACYLK4bzuuIoZ9Y+Kd1
+         27YGu5iOioo0OZNfnhOi3rQC0XqNsUsmc/E6aMRlqz6S3yNsvHLffR6hx1xtzCBDYTEN
+         Q+T9yfZjdkL4R5E5YQNPM3WtGvfoxZF0lmIL5fK6keazpqJCXTsF9QWuDGjHdeha2ekm
+         1CDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=GuK1QnuCV7KWvUKnbJetsZrammaRRqdMrHwOLDsjneM=;
+        fh=ZEXZGH7iSmELqjZbnbyUse4PnSHF7CrDGSS9V2zQpaY=;
+        b=EOoZJxsb+eVquwpJKaYwGqrKVHC++pRxouSHtL+PvGEp+dENC5p0sE8G/9NbHL4QX0
+         rbtonctp71MZfPBnfkeFy+ck1nFDJiiWvIm3uzQkRf308tC5sC4AGeE+amFHRDWFflWo
+         xiLHxCsTS9gBvXmhtBJ1VtYmq1OfEmalgrXM2P0IdgF3Z61lF7KPu6g7v5jrRgSB6cA1
+         ju5ZpJuagK4AeuhFKCBufA8VhQWx1WStMzFZQxWmH6fgGinSaLm7D4/TUR6u0f0ZySFH
+         U9g9ZlFwBaYMg7lTjpsSxyY55l3C3Or/GtNYpXDkeuWoXBjfuHyn5bUUtPlbxLgU3ynQ
+         y/xA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1778078464; x=1778683264; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=GuK1QnuCV7KWvUKnbJetsZrammaRRqdMrHwOLDsjneM=;
+        b=G4RzOK1jPvFj16I4JBAoLV7wEu8ZC5fzzMQHl/bCkqLBnOAzzuGNSmeJf8nSC+1TpM
+         gmt0jlDriRemYfWrW2vsqk9e3x69kmh/W9HuH/HlbHAMYvV7ArKU8ov3A4cdt62+XWjm
+         Iss/Em+w7Fi+CEVEUBR30xyDvrDVvIMOJixAIPaAqsYOvzUHQc3b+t6lvD4MqAG1LYZD
+         7JxOoF3KkVxB66VXZOP2bgV2p6LMWTCbZJe/Zc2qIL3g4eGHUmizWFCbZIdDcQxWlVs4
+         pIiTF88IhOcH+3NCSJcjyMbOXi9UFqFlv/wlxPp6jMWjASbtQKu+Wqhu8ljF2KioRmyG
+         jWZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778078464; x=1778683264;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GuK1QnuCV7KWvUKnbJetsZrammaRRqdMrHwOLDsjneM=;
+        b=VDYkn36U4BUNsWETN7X8geKaXT4RU3TQ81KW5UD3xsXJwBbDKMHIeTuOzHGd1Suqab
+         JErLrpsTs3XKmDHvxwnyb7FtG42i/YrJ6ntGLXWQvu2Us909OdCl9syvAKuzyjyhujnn
+         8DF4AbZv8MOcg4ZAgPddD8D/ie1gjElwAs57k2ZOA/FGOddWkbU5jgAV2kVALTN9mXdF
+         T1Mp5BFIIXXqBthhBYMdj61tB3yGSXbJ6BlKUhXAptdtpv+lYZBLY8f3ibSwkshx5N5P
+         1CjP5pzetfpn466LvQd/bBJo4PTBAdrtJoqKZv6FpnWrQiQ76fbEuVdYtWQB+vIsJZZT
+         Rm2g==
+X-Forwarded-Encrypted: i=1; AFNElJ9u1k3vtRGPc0acg2p+xt+XyOnrPDd6UFxxjLu6W02x1siXmKFbMxQD7ftr3b0xnfc6itaCpihrs4DsjQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwXrE6WNf7Ly9aLbcExfkb2lN2+ZGLOfF7VF/fsQU9m1YYEQcE2
+	BIiwRT+Ajno/c7VYScARwF2rJ9BczDJ9xAp71/w+sCZpSI+I1jgqmjh7CBbul6j5mZQvCcDESKP
+	z3fcdolmvZn8PXJ8EHZjNZNzbqCR2L+7jcN9p5YyJ
+X-Gm-Gg: AeBDieu26YxyepHYxnsUauccTsCzrPVymAOhQVXpWIOrHyi8uDL/GrAp2iCUtgRz5cG
+	NbDCi3mvJqA2SiVUoBKgh2/qH0OI3z66zl3x3lo37A8X9lDImmOL/xrn0VNebmttTCJDn934+Lk
+	QbOSOKqVZTkHpg2GFt0KEVXbCFP1PtvxV4F+R8yYPjGLhe9xAdYw15xfLKdfdeRTuw+r7dupO4b
+	TeKHd/oxexLZyVPoXtoCj8lGA6J/Fk0+R9NCNsVYmdCxH7hjsNNuR9t8PLY3iTmwG3PnmJ2I8od
+	LxmxmjqkJ73VY3J2IZJp3eHXC0jYQhovirbuGGjpsRZYlERtwpShcVNyRojiDQ==
+X-Received: by 2002:ad4:5d4a:0:b0:8ba:7e7f:956 with SMTP id
+ 6a1803df08f44-8bc43df4e67mr53101336d6.26.1778078463580; Wed, 06 May 2026
+ 07:41:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
+References: <20260415114752.1181079-1-bsevens@google.com>
+In-Reply-To: <20260415114752.1181079-1-bsevens@google.com>
+From: =?UTF-8?Q?Beno=C3=AEt_Sevens?= <bsevens@google.com>
+Date: Wed, 6 May 2026 16:40:52 +0200
+X-Gm-Features: AVHnY4Jo39U_2RZihXMgVdQ4rhs9ShEG8ptg7JggISStymij-sTqDRWTDgcuu_A
+Message-ID: <CAGCho0VO4kcYRkHhTH9qV6c_8xsKXX=t9YK_oLcUtUpDNDTPtA@mail.gmail.com>
+Subject: Re: [PATCH] HID: mcp2221: Fix heap buffer overflow in mcp2221_raw_event()
+To: Rishi Gupta <gupt21@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, 04 May 2026, Benjamin Tissoires wrote:
+Hi,
 
-> Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> bogus memset()") enforced the provided data to be at least the size of
-> the declared buffer in the report descriptor to prevent a buffer
-> overflow.
-> 
-> We only had corner cases of malicious devices exposing the OOM because
-> in most cases, the buffer provided by the transport layer needs to be
-> allocated at probe time and is large enough to handle all the possible
-> reports.
-> 
-> However, the patch from above, which enforces the spec a little bit more
-> introduced both regressions for devices not following the spec (not
-> necesserally malicious), but also a stream of errors for those devices.
-> 
-> Let's revert to the old behavior by giving more information to HID core
-> to be able to decide whether it can or not memset the rest of the buffer
-> to 0 and continue the processing.
-> 
-> Note that the first commit makes an API change, but the callers are
-> relatively limited, so it should be fine on its own. The second patch
-> can't really make the same kind of API change because we have too many
-> callers in various subsystems. We can switch them one by one to the safe
-> approach when needed.
-> 
-> The last 2 patches are small cleanups I initially put together with the
-> 2 first patches, but they can be applied on their own and don't need to
-> be pulled in stable like the first 2.
-> 
-> Cheers,
-> Benjamin
-> 
-> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
-> ---
-> Changes in v3:
-> - fixed ghib -> ghid in greybus
-> - fixed i386 size_t debug size reported by kernel-bot
-> - Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
-> 
-> Changes in v2:
-> - added a small blurb explaining the difference between the safe and the
->   non safe version of hid_safe_input_report
-> - Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
-> 
-> ---
-> Benjamin Tissoires (4):
->       HID: pass the buffer size to hid_report_raw_event
->       HID: core: introduce hid_safe_input_report()
->       HID: multitouch: use __free(kfree) to clean up temporary buffers
->       HID: wacom: use __free(kfree) to clean up temporary buffers
-> 
->  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
->  drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
->  drivers/hid/hid-gfrm.c             |  4 +--
->  drivers/hid/hid-logitech-hidpp.c   |  2 +-
->  drivers/hid/hid-multitouch.c       | 18 ++++------
->  drivers/hid/hid-primax.c           |  2 +-
->  drivers/hid/hid-vivaldi-common.c   |  2 +-
->  drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
->  drivers/hid/usbhid/hid-core.c      | 11 ++++---
->  drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
->  drivers/staging/greybus/hid.c      |  2 +-
->  include/linux/hid.h                |  6 ++--
->  include/linux/hid_bpf.h            | 14 +++++---
->  13 files changed, 109 insertions(+), 78 deletions(-)
+Just checking in to see if anyone had a chance to look at this patch,
+or if there is any feedback I can address.
 
-What's the plan for this set Benjamin? -rcs or -next?
-
--- 
-Lee Jones
+Thanks!

@@ -1,40 +1,40 @@
 Received: from smtp-out1.simply.com (smtp-out1.simply.com [94.231.106.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4115D37BE8A;
-	Thu,  7 May 2026 09:29:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68A4C396B96;
+	Thu,  7 May 2026 09:29:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778146158; cv=none; b=Dfqt0UNBb7b2DvSyQtUAcUuZcfhNEjZwonn9d2jJkTqosCSY0ghJ9GFsMzenMiy65SlGJ4JKKXvui7FbZ66CVvZ1CkOHD2Ec7tQnJ0GE6v7L5qWyfSu7PvVvda7ToT/kSlyMvZhx5IXfpl85N0qyn+PAUFb4Wk5373V5X4cV5Xs=
+	t=1778146158; cv=none; b=dDCL7WUHAef3WUagbGGw0Tb/EVeCZCZuRVEOP7ZiOuoia5JQisySfmWusXRGy0MGPLyWICpjysf3zEsW6WiR08Cz2U9USdb3esP69p+bKTj0akCVk9Dq8URZGUwN+1FJXAw8NJBeJpuB7eefMUJPvnS+Eq8sPTugcxHaTM/22Fw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778146158; c=relaxed/simple;
-	bh=VHu51KCain/DYYn3gz1hBFd8nOopB5zUykVRUjuUlzQ=;
+	bh=WmBA/cdts7TpWshnugPsPP4SKjn7Xg2bogioVbUvU1M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Lz8mGiSjl+m/Ix7cyZv7ejJwwPESUfYAbZaYtSrIfa2TJ9G43ZITTL9MLd7odh498H9HFJJczMFg/o5iR3JGJK5J3lndSJZuDHnkV2xBP5+xUSHlfE91oMlFrnAcBw5D1hIA7fQhN2Y+1/eEhtIkn+SY9PMLru8jYjC4cLAaePg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grenangen.se; spf=pass smtp.mailfrom=grenangen.se; dkim=pass (2048-bit key) header.d=grenangen.se header.i=@grenangen.se header.b=O0ZNERNp; arc=none smtp.client-ip=94.231.106.240
+	 MIME-Version:Content-Type; b=LIO6Enn7O1X6PqZlotE1r9EGrJiCDSjndnRONY1kSDlNyHsfVtyNFt7rECWIJrZMchBRsU/83K9wJOeHSJibvNq240c4nTeD1LDpXnajqONgpe4LHfI1kzTiy2MZvRTNs2b333/h3BRe92ZajcLawSNvPRuy4lczJ1uVLsMKCdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grenangen.se; spf=pass smtp.mailfrom=grenangen.se; dkim=pass (2048-bit key) header.d=grenangen.se header.i=@grenangen.se header.b=CsB14cwp; arc=none smtp.client-ip=94.231.106.240
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=grenangen.se
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=grenangen.se
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=grenangen.se header.i=@grenangen.se header.b="O0ZNERNp"
+	dkim=pass (2048-bit key) header.d=grenangen.se header.i=@grenangen.se header.b="CsB14cwp"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp.simply.com (Simply.com) with ESMTP id 4gB6QK5Jl4z1FXZw;
-	Thu,  7 May 2026 11:29:13 +0200 (CEST)
+	by smtp.simply.com (Simply.com) with ESMTP id 4gB6QJ4Ymvz1FXZf;
+	Thu,  7 May 2026 11:29:12 +0200 (CEST)
 Received: from localhost (h-217-27-171-125.A498.priv.bahnhof.se [217.27.171.125])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(Client did not present a certificate)
-	by smtp.simply.com (Simply.com) with ESMTPSA id 4gB6QK25Kwz1FXZy;
-	Thu,  7 May 2026 11:29:13 +0200 (CEST)
+	by smtp.simply.com (Simply.com) with ESMTPSA id 4gB6QJ1n7Rz1FXZc;
+	Thu,  7 May 2026 11:29:12 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=grenangen.se;
-	s=simplycom2; t=1778146153;
-	bh=GofJ4cjc5NMrTAg/sjY16rkR1YSplZlsMbdB5r1HUwo=;
+	s=simplycom2; t=1778146152;
+	bh=aiQQKgFgDvBFT8PPKxdPbvvpVBQA2jWnQMNIjzW2a7E=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=O0ZNERNpcCslwTmEtsKj6m0xfuOh3TC7RQ0SMgXfkMNsBmtAZ4eoCfeXPVxuDdEbS
-	 E7kQ+Z8S2lEVeRPOiP6dFJwBEPfK60y+IGixlcL7nyTmtKVXKOJmRgJNJrtAEE9Frf
-	 5NCGOoDSCuqPFbLIVWOXAc7f3TgqVt3+crCM7Qxjn01yz9NQtT3CQGqL0hnPafPxWD
-	 ypn59k3e4jyuhoZCtlgpVAy4H6WzdHA8Lf+4XLBNstWAsMXOnA193lQsVrI2w9rDqx
-	 Anzjsqqoc7d9MGU+CfM8uqadCU0GCN7e9utcOg8O6BkCFEbXw74t6nrW/YwLxQl20a
-	 8D3pL21vLZGdQ==
+	b=CsB14cwpFGsT1317COWITaK+M3BdN4oKMha0SgjMhX/Am1RSO7faBcddLXxuYip8s
+	 1kS1mZgtka8v7n2crkYRzG3VG9atakzB1cqMAMi3mr77MyrJShwYVZZhBc3/7bzopX
+	 i3ZsmjnetTGXj5PSDTqUp0Oavd/adITvD/opO0N1ZbPd4ccsOBoNKDsl0206I4IIgF
+	 Z4+x1RadcAPPZDI3e0ZESN+nNXP4Z7yl2COflgY2QKwbmwIxXlobkFiD4tfNl5f5mr
+	 iI3ecOE4gdZFj3MGpsZPyVNsxRnv3zbj1Y0PbvFKbu7UcdkkXAyxbI7O2ZEv+daXDx
+	 oCRdVIYf3Wbkw==
 From: =?UTF-8?q?Marcus=20Gren=C3=A4ngen?= <marcus@grenangen.se>
 To: platform-driver-x86@vger.kernel.org,
 	denis.benato@linux.dev
@@ -47,9 +47,9 @@ Cc: linux-input@vger.kernel.org,
 	bentiss@kernel.org,
 	corentin.chary@gmail.com,
 	marcus@grenangen.se
-Subject: [PATCH v3 3/3] platform/x86: asus-armoury: add fn_lock firmware attribute
-Date: Thu,  7 May 2026 11:29:11 +0200
-Message-ID: <20260507092911.8855-4-marcus@grenangen.se>
+Subject: [PATCH v3 1/3] HID: asus: export asus_hid_fnlock_set() for direct fn-lock control
+Date: Thu,  7 May 2026 11:29:09 +0200
+Message-ID: <20260507092911.8855-2-marcus@grenangen.se>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260507092911.8855-1-marcus@grenangen.se>
 References: <9b568ce0-93f7-4a7f-98e4-625e910f8a1d@linux.dev>
@@ -63,136 +63,137 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add a fn_lock attribute to the asus-armoury firmware-attributes interface,
-allowing userspace to read and set the Fn-lock state (whether F1-F12 keys
-are primary or media/system keys are primary).
+Some ASUS platforms cannot control fn-lock via WMI DEVS and must send a
+HID feature report directly to the N-Key keyboard device instead.
 
-On most ASUS laptops fn-lock is backed by WMI DEVID 0x00100023. On
-platforms where that DEVS call is a no-op (fnlock_use_hid quirk), the
-store path dispatches via asus_wmi_fnlock_set(), which selects the HID
-feature-report path internally. The show path returns -EOPNOTSUPP on
-such platforms as the hardware provides no readback.
-
-The attribute is only registered when the platform actually supports
-fn-lock, either via the HID quirk (asus_wmi_fnlock_use_hid()) or a
-functional WMI DEVID (armoury_has_devstate(ASUS_WMI_DEVID_FNLOCK)).
-Registration state is tracked in fn_lock_registered so that removal
-in the exit path is symmetric.
+Add a module-level fnlock_hdev pointer (protected by a mutex) that is set
+at probe time for devices with QUIRK_HID_FN_LOCK and cleared at remove.
+Export asus_hid_fnlock_set(bool) so that asus-armoury can call into
+hid-asus without a circular dependency.
 
 Signed-off-by: Marcus Grenängen <marcus@grenangen.se>
 ---
- drivers/platform/x86/asus-armoury.c | 70 +++++++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/hid/hid-asus.c                     | 44 +++++++++++++++++++++-
+ include/linux/platform_data/x86/asus-wmi.h | 15 ++++++++
+ 2 files changed, 58 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/asus-armoury.c b/drivers/platform/x86/asus-armoury.c
-index 5b0987ccc270..fb8ad3b14aad 100644
---- a/drivers/platform/x86/asus-armoury.c
-+++ b/drivers/platform/x86/asus-armoury.c
-@@ -93,6 +93,7 @@ struct asus_armoury_priv {
- 
- 	u32 mini_led_dev_id;
- 	u32 gpu_mux_dev_id;
-+	bool fn_lock_registered;
- };
- 
- static struct asus_armoury_priv asus_armoury = {
-@@ -778,6 +779,58 @@ ASUS_ATTR_GROUP_ROG_TUNABLE(nv_tgp, "nv_tgp", ASUS_WMI_DEVID_DGPU_SET_TGP,
- ASUS_ATTR_GROUP_INT_VALUE_ONLY_RO(nv_base_tgp, ATTR_NV_BASE_TGP, ASUS_WMI_DEVID_DGPU_BASE_TGP,
- 				  "Read the base TGP value");
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index d34d74df3dc0..402ba9d5e982 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -584,6 +584,39 @@ static void asus_sync_fn_lock(struct work_struct *work)
+ 	asus_kbd_set_fn_lock(drvdata->hdev, drvdata->fn_lock);
+ }
  
 +/*
-+ * fn_lock: toggle whether Fn key is locked (F1-F12 primary) or unlocked
-+ * (media/system keys primary).
-+ *
-+ * On most ASUS laptops this is backed by WMI DEVID 0x00100023. On some
-+ * platforms (e.g. ProArt P16) that DEVS call is a no-op and the state must
-+ * be sent as a HID feature report to the N-Key keyboard via hid-asus.
++ * Module-level reference to the HID device that handles fn-lock via feature
++ * report. Set at probe and cleared at remove for QUIRK_HID_FN_LOCK devices.
++ * Protected by fnlock_hdev_lock.
 + */
-+static ssize_t fn_lock_current_value_show(struct kobject *kobj,
-+					  struct kobj_attribute *attr, char *buf)
++static DEFINE_MUTEX(fnlock_hdev_lock);
++static struct hid_device *fnlock_hdev;
++
++/**
++ * asus_hid_fnlock_set() - Set fn-lock state directly via HID feature report.
++ * @enabled: true to lock fn (F1-F12 primary), false to unlock.
++ *
++ * Called by asus-armoury on platforms where the WMI DEVS path for fn-lock is
++ * non-functional (e.g. ASUS ProArt P16, N-Key keyboard product ID 0x19B6).
++ *
++ * Returns: 0 on success, -ENODEV if no fn-lock capable HID device is present.
++ */
++int asus_hid_fnlock_set(bool enabled)
 +{
-+	u32 result;
-+	int err;
++	int ret;
 +
-+	if (asus_wmi_fnlock_use_hid())
-+		return -EOPNOTSUPP;
++	guard(mutex)(&fnlock_hdev_lock);
++	if (!fnlock_hdev)
++		return -ENODEV;
 +
-+	err = armoury_get_devstate(attr, &result, ASUS_WMI_DEVID_FNLOCK);
-+	if (err)
-+		return err;
++	ret = asus_kbd_set_fn_lock(fnlock_hdev, enabled);
++	if (ret < 0)
++		return ret;
 +
-+	return sysfs_emit(buf, "%u\n", result & 1);
++	return 0;
 +}
++EXPORT_SYMBOL_GPL(asus_hid_fnlock_set);
 +
-+static ssize_t fn_lock_current_value_store(struct kobject *kobj,
-+					   struct kobj_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	bool enable;
-+	int err;
-+
-+	err = kstrtobool(buf, &enable);
-+	if (err)
-+		return err;
-+
-+	if (asus_wmi_fnlock_use_hid()) {
-+		err = asus_hid_fnlock_set(enable);
-+		if (err)
-+			return err;
-+	} else {
-+		err = armoury_set_devstate(attr, enable ? 1 : 0, NULL,
-+					   ASUS_WMI_DEVID_FNLOCK);
-+		if (err)
-+			return err;
-+	}
-+
-+	sysfs_notify(kobj, NULL, attr->attr.name);
-+	return count;
-+}
-+
-+ASUS_ATTR_GROUP_BOOL(fn_lock, "fn_lock", "Set the Fn-lock state");
-+
- /* If an attribute does not require any special case handling add it here */
- static const struct asus_attr_group armoury_attr_groups[] = {
- 	{ &egpu_connected_attr_group, ASUS_WMI_DEVID_EGPU_CONNECTED },
-@@ -926,6 +979,17 @@ static int asus_fw_attr_add(void)
- 		}
+ static void asus_schedule_work(struct asus_kbd_leds *led)
+ {
+ 	unsigned long flags;
+@@ -969,6 +1002,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		drvdata->fn_lock = true;
+ 		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
+ 		asus_kbd_set_fn_lock(hdev, true);
++		guard(mutex)(&fnlock_hdev_lock);
++		fnlock_hdev = hdev;
  	}
  
-+	if (asus_wmi_fnlock_use_hid() ||
-+	    armoury_has_devstate(ASUS_WMI_DEVID_FNLOCK)) {
-+		err = sysfs_create_group(&asus_armoury.fw_attr_kset->kobj,
-+					 &fn_lock_attr_group);
-+		if (err) {
-+			pr_err("Failed to create sysfs-group for fn_lock\n");
-+			goto err_remove_gpu_mux_group;
+ 	if (drvdata->tp) {
+@@ -1008,6 +1043,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		drvdata->fn_lock = true;
+ 		INIT_WORK(&drvdata->fn_lock_sync_work, asus_sync_fn_lock);
+ 		asus_kbd_set_fn_lock(hdev, true);
++		guard(mutex)(&fnlock_hdev_lock);
++		fnlock_hdev = hdev;
+ 	}
+ 
+ 	return 0;
+@@ -1362,8 +1399,13 @@ static void asus_remove(struct hid_device *hdev)
+ 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	}
+ 
+-	if (drvdata->quirks & QUIRK_HID_FN_LOCK)
++	if (drvdata->quirks & QUIRK_HID_FN_LOCK) {
++		scoped_guard(mutex, &fnlock_hdev_lock) {
++			if (fnlock_hdev == hdev)
++				fnlock_hdev = NULL;
 +		}
-+		asus_armoury.fn_lock_registered = true;
+ 		cancel_work_sync(&drvdata->fn_lock_sync_work);
 +	}
-+
- 	for (i = 0; i < ARRAY_SIZE(armoury_attr_groups); i++) {
- 		if (!armoury_has_devstate(armoury_attr_groups[i].wmi_devid))
- 			continue;
-@@ -963,6 +1027,9 @@ static int asus_fw_attr_add(void)
- 			sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj,
- 					   armoury_attr_groups[i].attr_group);
- 	}
-+	if (asus_armoury.fn_lock_registered)
-+		sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj, &fn_lock_attr_group);
-+err_remove_gpu_mux_group:
- 	if (asus_armoury.gpu_mux_dev_id)
- 		sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj, &gpu_mux_mode_attr_group);
- err_remove_mini_led_group:
-@@ -1138,6 +1205,9 @@ static void __exit asus_fw_exit(void)
- 	if (asus_armoury.gpu_mux_dev_id)
- 		sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj, &gpu_mux_mode_attr_group);
  
-+	if (asus_armoury.fn_lock_registered)
-+		sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj, &fn_lock_attr_group);
-+
- 	if (asus_armoury.mini_led_dev_id)
- 		sysfs_remove_group(&asus_armoury.fw_attr_kset->kobj, &mini_led_mode_attr_group);
+ 	hid_hw_stop(hdev);
+ }
+diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/linux/platform_data/x86/asus-wmi.h
+index 554f41b827e1..a88bf03f9c4d 100644
+--- a/include/linux/platform_data/x86/asus-wmi.h
++++ b/include/linux/platform_data/x86/asus-wmi.h
+@@ -187,6 +187,15 @@ enum asus_hid_event {
  
+ #define ASUS_EV_MAX_BRIGHTNESS 3
+ 
++#if IS_REACHABLE(CONFIG_HID_ASUS)
++int asus_hid_fnlock_set(bool enabled);
++#else
++static inline int asus_hid_fnlock_set(bool enabled)
++{
++	return -ENODEV;
++}
++#endif
++
+ #if IS_REACHABLE(CONFIG_ASUS_WMI)
+ void set_ally_mcu_hack(enum asus_ally_mcu_hack status);
+ void set_ally_mcu_powersave(bool enabled);
+@@ -196,6 +205,7 @@ int asus_wmi_evaluate_method(u32 method_id, u32 arg0, u32 arg1, u32 *retval);
+ int asus_hid_register_listener(struct asus_hid_listener *cdev);
+ void asus_hid_unregister_listener(struct asus_hid_listener *cdev);
+ int asus_hid_event(enum asus_hid_event event);
++int asus_hid_fnlock_set(bool enabled);
+ #else
+ static inline void set_ally_mcu_hack(enum asus_ally_mcu_hack status)
+ {
+@@ -227,6 +237,11 @@ static inline int asus_hid_event(enum asus_hid_event event)
+ {
+ 	return -ENODEV;
+ }
++
++static inline int asus_hid_fnlock_set(bool enabled)
++{
++	return -ENODEV;
++}
+ #endif
+ 
+ #endif	/* __PLATFORM_DATA_X86_ASUS_WMI_H */
 -- 
 2.54.0
 

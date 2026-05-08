@@ -1,166 +1,122 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D65202F12B3;
-	Fri,  8 May 2026 21:36:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B9032BF5D;
+	Fri,  8 May 2026 21:56:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778276181; cv=none; b=H2N/Yg83AukQauJGnrIMXpEiZx/u3uw9VYzxf/h3JTaqdO4naPXWR4z8tUA+DuRlfYLKbYgoszXVlPJzhqNlk/dHvJTGsyG/2Zz3RMFvTtq4nmG1pxaRqZH3ZGaDovTymcvTFRcPTQf5Kv0VALgw1o+hlUZRhAdwhYBzCvEbTh4=
+	t=1778277400; cv=none; b=sNp7haAXLrUR+o14Dt5crXvkeOEnXaR2RhzSJQJ8B85MTCmB4mifGJMYkSCzG9Lvr6rjNqoLmR5m1fefd1KAI+LgFqnFRuZ/ge0mBKo/4460LLBzBuvcxrqYGKTOuF3c6GyRE/aDL9cd0i7Qe8qEIBxcTBIe+/b3MN/GVeJ70W0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778276181; c=relaxed/simple;
-	bh=QKkSFmJ43pWVZN55bbO0tUPPVmaGghyU5KTj2RxXGzo=;
+	s=arc-20240116; t=1778277400; c=relaxed/simple;
+	bh=q0+SHY0qC73hOivLZwbohhJ7pN7Lc5aNx5dZo3S2pxc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=q6MWegFt/X+J/knIz7Pt2hvKoTxNq1P5uWDp8tiJPnjtH9I7ofDUcpcTj9uL9qlPavsopDOvHr5S4FW0SHdqEhwYVxxdQxIFop+4d+JZ4cgyCaYlUtqbOeRpyEmpIYbSgV5q4UbhvQqrnckJmV+4TNkcbJw7wXC1lrlGa8R3TN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H+x3ApsA; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=hkpCuL0WmpLo6YWwwGkj/kiOLgHKgP3gI8eLU4zNfZxaSvf4E0d0n2eZCCdOU6kwk7lnfqbmVAtMUCx48FkL2WGCGNBaVBS7ivjVz3uTo07nHvQ4b+W/7ZPMc514GlrwmCg4pUThBWTv5+eFrwwmQC4PEEMNqJNKCHCh90wLwdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SbfFULzW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H+x3ApsA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6B6C2BCB0;
-	Fri,  8 May 2026 21:36:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SbfFULzW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6746FC2BCB4;
+	Fri,  8 May 2026 21:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778276181;
-	bh=QKkSFmJ43pWVZN55bbO0tUPPVmaGghyU5KTj2RxXGzo=;
+	s=k20201202; t=1778277399;
+	bh=q0+SHY0qC73hOivLZwbohhJ7pN7Lc5aNx5dZo3S2pxc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=H+x3ApsAeIh9z4CmnJmnH/F4ltP9A29tTOlprgNOLjV10Fx8iIEs3m3IlMvvGYI//
-	 BOxVjYeAnASDreChZRoXCsph6m8P0RostE4nlsIyGRELUn8U+yWtnx2i2uAx/sVV67
-	 obnLjaYF0glbaDRepJwFTZqfw5Fv9Obfu7DJGTyDFwKN6HI9H6V7kJmgrDGwyWHk9k
-	 VyIuS2CIxLyDXUPI3Iz5DJ08polx8WTtAqC70A4z6SCnQCfURGAxlbW77PfFj6qvXs
-	 pBKlEPBsRY4ilkqXUj/xT3rK+CT74vUo2pbzlId1GsBmAy0i8y2ZKQEtPD2hZOegvi
-	 QwmyW2rFCpyLg==
+	b=SbfFULzWH0kXgp60gI9S45O/epTnQ939THlybn3iDROKZ7+e0cZnw9MeOs/wPyJhQ
+	 5c6Wp6+dFUWfaCfUvJZfk+l1c1lq9G3FQcN09agTHY+nHw0m/6c5Yy20yFUR2OVWuM
+	 KTFHoFZak9B5+eYl+w4ckxkk4o/RFGJSp+/6RxAI490XSBpLtO1pCmuzLTb6gLunDq
+	 iPB2eMR+QlBXYRmck1+o2ikt27TmZkWtcZdUzH7vfwRglrevyrgc6ZYNsP/OGwDnuw
+	 RElzgK+RLsre99isML9t/qu2o+zca5auv81eSGO/3xwwuHUT8XlmRe0fUHYchujy5H
+	 5RP30DhPbXJpQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 3/4] Input: gpio-keys - add regulator to gpio_keys
+Subject: Re: [PATCH RFC 4/4] arm64: dts: qcom: milos-fairphone-fp6: add
+ supply for Hall Effect sensor
 Reply-To: sashiko@lists.linux.dev
 To: "Griffin Kroah-Hartman" <griffin.kroah@fairphone.com>
-Cc: linux-input@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260508-gpiokeys-vdd-supply-v1-3-0bb32e8e6428@fairphone.com>
-References: <20260508-gpiokeys-vdd-supply-v1-3-0bb32e8e6428@fairphone.com>
+Cc: robh@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, krzk+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260508-gpiokeys-vdd-supply-v1-4-0bb32e8e6428@fairphone.com>
+References: <20260508-gpiokeys-vdd-supply-v1-4-0bb32e8e6428@fairphone.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 08 May 2026 21:36:20 +0000
-Message-Id: <20260508213621.2E6B6C2BCB0@smtp.kernel.org>
+Date: Fri, 08 May 2026 21:56:38 +0000
+Message-Id: <20260508215639.6746FC2BCB4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Tying the regulator's power state to the input device's open()/clo=
-se() lifecycle leaves interrupts active while the hardware is unpowered, ca=
-using an interrupt storm.
-- [Medium] System wakeup functionality is broken because regulators are dis=
-abled if the input device is closed.
-- [Medium] Unsafe hardware access during system resume causes spurious key =
-events.
-- [Medium] Missing pdata->disable() in the gpio_keys_open() error path lead=
-s to a resource leak.
-- [Low] Incorrect teardown order in gpio_keys_close() violates LIFO symmetr=
-y.
+- [High] Removing `regulator-always-on` from the Hall sensor's supply cause=
+s interrupt storms, spurious events, and broken system wakeup when the inpu=
+t device is closed.
 --
 
-commit d47e6012a488ac21d0005ba6dd4aa95a285831d3
+commit 35bf0d08eef4da2139153f5425e351a93d9d591d
 Author: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
 
-Input: gpio-keys - add regulator to gpio_keys
+arm64: dts: qcom: milos-fairphone-fp6: add supply for Hall Effect sensor
 
-This commit allows gpio-keys to have a vdd power supply managed through
-regulators.
+This commit adds a vdd-supply property to the Hall Effect sensor and removes
+the regulator-always-on property from vreg_l10b, relying on the gpio-keys
+driver to manage power.
 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/=
-gpio_keys.c
-> index e196174856796..2199ce7455cfc 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
+> diff --git a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts b/arch/arm6=
+4/boot/dts/qcom/milos-fairphone-fp6.dts
+> index c1899db46e714..ae6900c3f75c6 100644
+> --- a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
+> +++ b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
+> @@ -32,13 +32,13 @@ gpio-keys {
+>  		pinctrl-0 =3D <&volume_up_default>, <&hall_sensor_default>;
+>  		pinctrl-names =3D "default";
+> =20
+> -		/* Powered by the always-on vreg_l10b */
+>  		event-hall-sensor {
+>  			label =3D "Hall Effect Sensor";
+>  			gpios =3D <&tlmm 70 GPIO_ACTIVE_LOW>;
+>  			linux,input-type =3D <EV_SW>;
+>  			linux,code =3D <SW_LID>;
+>  			linux,can-disable;
+> +			vdd-supply =3D <&vreg_l10b>;
 
+When the device is opened, the driver reads the GPIO state immediately after
+enabling the regulator. Without a startup-delay-us property on the regulator
+to allow the voltage to stabilize, could this read an uninitialized state a=
+nd
+generate spurious lid events?
+
+>  			wakeup-source;
+>  		};
+> =20
 [ ... ]
+> @@ -326,8 +326,6 @@ vreg_l10b: ldo10 {
+>  			regulator-min-microvolt =3D <1800000>;
+>  			regulator-max-microvolt =3D <1800000>;
+>  			regulator-initial-mode =3D <RPMH_REGULATOR_MODE_HPM>;
+> -			/* Hall sensor VDD */
+> -			regulator-always-on;
+>  		};
 
-> @@ -729,6 +730,7 @@ static int gpio_keys_open(struct input_dev *input)
->  	struct gpio_keys_drvdata *ddata =3D input_get_drvdata(input);
->  	const struct gpio_keys_platform_data *pdata =3D ddata->pdata;
->  	int error;
-> +	int i;
-> =20
->  	if (pdata->enable) {
->  		error =3D pdata->enable(input->dev.parent);
-> @@ -736,19 +738,48 @@ static int gpio_keys_open(struct input_dev *input)
->  			return error;
->  	}
-> =20
-> +	for (i =3D 0; i < pdata->nbuttons; i++) {
-> +		const struct gpio_keys_button *button =3D &pdata->buttons[i];
-> +
-> +		if (!button->regulator)
-> +			continue;
-> +		error =3D regulator_enable(button->regulator);
-> +		if (error)
-> +			goto reg_err;
-> +	}
+Could removing this property cause an interrupt storm?
 
-Because interrupts are requested unconditionally in gpio_keys_probe() and
-remain unmasked, tying the regulator power state to the input device's
-open()/close() lifecycle leaves the physical button unpowered when the devi=
-ce
-is closed. Could this allow the GPIO pin to float and trigger an interrupt
-storm?
+The gpio-keys driver requests and unmasks the GPIO interrupt during probe, =
+but
+only enables the vdd-supply regulator when the input device is explicitly
+opened by userspace.
 
-Also, if the input device is closed before suspend, the regulator remains
-disabled. Does this prevent an unpowered physical button from generating the
-electrical signal required to trigger a wakeup interrupt?
+If the device is closed, the regulator is disabled. Cutting power to the Ha=
+ll
+sensor while its edge-triggered interrupt remains active might cause the GP=
+IO
+line to float. A floating line can pick up electrical noise and trigger a
+continuous interrupt storm.
 
-Additionally, gpio_keys_resume() unconditionally calls
-gpio_keys_report_state(), which reads the current state of all GPIOs. If the
-device is closed, the regulators are powered off. Can reading unpowered GPI=
-Os
-return floating states that inject spurious phantom key press events on eve=
-ry
-resume?
+Additionally, does this break the system's ability to wake up?
 
-> +
->  	/* Report current state of buttons that are connected to GPIOs */
->  	gpio_keys_report_state(ddata);
-> =20
->  	return 0;
-> +
-> +reg_err:
-> +	for (--i; i >=3D 0; i--) {
-> +		const struct gpio_keys_button *button =3D &pdata->buttons[i];
-> +
-> +		if (!button->regulator)
-> +			continue;
-> +		regulator_disable(button->regulator);
-> +	}
-> +	return error;
-
-If regulator_enable() fails and we jump to reg_err, we return the error but
-fail to call pdata->disable(). Does this leave the platform state permanent=
-ly
-active and leak resources since pdata->enable() was called earlier?
-
->  }
-> =20
->  static void gpio_keys_close(struct input_dev *input)
->  {
->  	struct gpio_keys_drvdata *ddata =3D input_get_drvdata(input);
->  	const struct gpio_keys_platform_data *pdata =3D ddata->pdata;
-> +	int i;
-> =20
->  	if (pdata->disable)
->  		pdata->disable(input->dev.parent);
-> +
-> +	for (i =3D 0; i < pdata->nbuttons; i++) {
-> +		const struct gpio_keys_button *button =3D &pdata->buttons[i];
-> +
-> +		if (!button->regulator)
-> +			continue;
-> +		regulator_disable(button->regulator);
-> +	}
->  }
-
-Is the teardown order correct here? In gpio_keys_open(), pdata->enable() is
-called before the regulators are enabled. Should gpio_keys_close() reverse
-this sequence by disabling the regulators before calling pdata->disable() to
-maintain LIFO symmetry?
+If the system suspends while the device is closed, the sensor remains
+unpowered. Even though the wake IRQ is armed due to the wakeup-source
+property, an unpowered sensor wouldn't be able to detect lid events to wake
+the system.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260508-gpiokeys-v=
-dd-supply-v1-0-0bb32e8e6428@fairphone.com?part=3D3
+dd-supply-v1-0-0bb32e8e6428@fairphone.com?part=3D4

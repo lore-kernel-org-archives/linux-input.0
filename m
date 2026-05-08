@@ -1,64 +1,64 @@
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 563203328FD;
-	Fri,  8 May 2026 04:55:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD488286A7;
+	Fri,  8 May 2026 05:04:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778216154; cv=none; b=Thkxb8aLbR1eJwlAbJRAuzGP/GfGySGa+vD4VUeF0fPFt9uSV3kUrcP6IUu3n+lnPkAeRHCT3lCc1dEky2W16cGlQiJIYYnZwlAXAGZgGQRPCydghc7LePlubOvdDL/dyBOJH3f+S3aFI+zyKF1zSTEDZx1nfKw5K2WHw3hr6pw=
+	t=1778216652; cv=none; b=pt07+n6R1QcNL120X3ba/KCrV252/UDrdrMV6E3NHfGgF/2AgXwX0Y7pvP2mxcYS5Dme2p/kGLOPvnEZd6kNt6IUB5G5s+p2pXiq395Ilkjr1rz0fyCyUCLl8zCrcn8dKv3PJKgZ1THMOoeLkAuAxn+MP1OE4Ry8GaawaWK3Qec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778216154; c=relaxed/simple;
-	bh=MbHsw42samx2xH/ZKW+PoB6rmQm91u1z7BybUDOTVuA=;
+	s=arc-20240116; t=1778216652; c=relaxed/simple;
+	bh=OQiQk5FKeVvhPZ1ZyAmGFF1PrRpfkCIJ0cxb9YtkaeQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YP33+vtd+fSppwK9VeQ+O7OZOruE58jM8wiAaV6ybQwxKvJIGpHwvYaXqSSzCpnZliOzUgx8y37xss7GLwbfaCr+Dg0Y0dJRHySa/iavKQAbX1uYUuM7mihIWYTLQggIvNhSuLIbnrjr+F/RJ4ake0lJhVKlMaow+tKEdXapwdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=NiWa0XcE; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=fi2ktFLx; arc=none smtp.client-ip=80.241.56.172
+	 MIME-Version; b=PVPYsCwaDaox6qTn4xm9hIYTAcaWZw3N5STW3Z+pTdcyWJ8iIt9ppqHqwSTz9oK25WlPoH4tIykgRf5PJ0cnjke/Jm5EIPeSPPAPMyoIxePJMUbUKqNXHaIkkbHjKusKXQBJr1BHz+lqgBHBWEezCmMOmPf+gtotKWAMpxPUYD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=kLFSHKTI; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=Ub4YF8At; arc=none smtp.client-ip=80.241.56.151
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="NiWa0XcE";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="fi2ktFLx"
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="kLFSHKTI";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="Ub4YF8At"
 Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4gBcJG39l1z9tPs;
-	Fri,  8 May 2026 06:55:42 +0200 (CEST)
+	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4gBcJH3plmz9t8p;
+	Fri,  8 May 2026 06:55:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1778216143;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XJG5z4yGA2fTT6p9RAokKoGIXdOZMaoZ/gCQfQ8Jr8I=;
+	b=kLFSHKTIYXMJFL6bZRv5xpJ8TPnYqv5HIZdwtGZaryPN8nprn0N3AVPbuzwzT0whpv4Ssd
+	9J2kU5O+8vuROKsC0b9J1btBf8mBcX/cQOiiG9RjpF8FdzuAGpumhoBw9fGqRl/BiF54nN
+	mlTVFu20vwnKBGr3hC1sR8eHyCtcYKbQMD+BQzrRsFgbGyMrQ7nNShiDzOKcH4Vja+9eSC
+	yqsP/7jqPi8V+D0kHBFLKx5RW2LMu0fnDE7XadEnzJXyY33xhqOjBI3PNE6Xb204xqMsax
+	q8MbK1AFYGYYh1us9V/U573kEb0uCQKQMJEAHQ+3q6Ger6qUDAwSeVMr4DYjkw==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=Ub4YF8At;
+	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
+From: Rosalie Wanders <rosalie@mailbox.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
 	t=1778216142;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=T/sbe5AapSrG6r3iBm0A/wH45Y9WOVkUdoSa3TP9fwo=;
-	b=NiWa0XcEpndm/mJgP1rGjlgdy0NoiWz4gstvbhbH8xPvmXGkmgxAyYldx59DDzOOPoQLmO
-	iqw+zQfZPsWTGy1xieLSNmgWBw83R6VTeJ8JOEUG9h5mo5LD3uvGsfWY+PfjTXCHpJDzVe
-	cULqOtVlKFPw815PFmYamtww/wFPrzp8Bi+DFM5JmrRXOVX6iQROtDx7fcjtK4M/xVcrfm
-	TX4Mc+O7ws0WtYEVjM37Bfi6WLS9HoCex5u61ZlYLUcFpPy2duAbY4WIujt0PL/GCfI4Cn
-	ts/gujtERy41CL3T9LtlTamSqaoZDPbyey1sn9bVtK9f0IjAcXKvr22wwwE60Q==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=pass header.d=mailbox.org header.s=mail20150812 header.b=fi2ktFLx;
-	spf=pass (outgoing_mbo_mout: domain of rosalie@mailbox.org designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=rosalie@mailbox.org
-From: Rosalie Wanders <rosalie@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1778216140;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=T/sbe5AapSrG6r3iBm0A/wH45Y9WOVkUdoSa3TP9fwo=;
-	b=fi2ktFLx1FOFzMWEdMnlf6EMBgI/XMAi7dOZL2SvzD8L94J6Xm+VrBRc9G91vb8ZvVHrUm
-	zbvTZ18+UsmHePyxs2/4PiKJfhfQyFIrPUchx3xKWKfu0+FltvyIWiomgIl7TEDej05PX5
-	gWokyanJ0/N8ctJI2bYDsr5ZC/So/v7e6GpwWsBI8kCOVOQQMU/rLPDapCN+EA4FgRadQ3
-	qJg+udEu4ieq6ZPufQYkj7T6i4xQp433pLqMZDBiYzgNnCzbpwhqR1yh8nhUsAVn4X+czC
-	WsWMSqmM5ouakgC2Qrb5yqfyoS1HKrFAczrt4diZHq1+HbrxIpK1OG+OlyHs0Q==
+	bh=XJG5z4yGA2fTT6p9RAokKoGIXdOZMaoZ/gCQfQ8Jr8I=;
+	b=Ub4YF8At/C5uUtFY3kFOq28dXblhDBgFVSW84hpqP0M8PMC90vcK7vfN5CW1Yvcc7cuc4U
+	bPsGjqjs43xP+9PselbaeT1SQ1/7eTq1Jtf7kSKrWKOBajra0fEhZmKn5uZWPOxYxaBReS
+	qVCuzRrcOqmhVGQuBHCl8Szi8o17C93zRi/BNc6/Pv0R/f4T05VzRK/KWQBgEaHm0Tfgvu
+	8ATXcUhToVTg5XGRzVzGq7z3p5ejKZfHQ4WFl6zUR3qnH2h06nSy+vPr1eCnC80n2O0r7S
+	OL9C304/WdkhIeya42Q3lergr4YeOoW2EWXjhoRenFE0twCgImtokwHBx/R8XQ==
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Rosalie Wanders <rosalie@mailbox.org>
-Subject: [PATCH 1/3] HID: sony: use guard() and scoped_guard()
-Date: Fri,  8 May 2026 06:51:09 +0200
-Message-ID: <20260508045111.495032-2-rosalie@mailbox.org>
+Subject: [PATCH 2/3] HID: sony: remove unneeded which argument from sony_schedule_work()
+Date: Fri,  8 May 2026 06:51:10 +0200
+Message-ID: <20260508045111.495032-3-rosalie@mailbox.org>
 In-Reply-To: <20260508045111.495032-1-rosalie@mailbox.org>
 References: <20260508045111.495032-1-rosalie@mailbox.org>
 Precedence: bulk
@@ -68,175 +68,91 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: x3wgyrxkodmdirwwngupchguuij6w66o
-X-MBO-RS-ID: 1cc791608521597bc42
-X-Rspamd-Queue-Id: 4gBcJG39l1z9tPs
+X-MBO-RS-META: jnafdcrjf6ihkhd8wxgeqm7wiqrp5dk8
+X-MBO-RS-ID: af7852410ad091bbfba
+X-Rspamd-Queue-Id: 4gBcJH3plmz9t8p
 
-This replaces the spin_lock_irqsave() and spin_unlock_irqrestore() calls
-with the RAII guard() and scoped_guard().
+The sony_worker enum only had a single member, so removing it simplifies
+sony_schedule_work().
 
 Signed-off-by: Rosalie Wanders <rosalie@mailbox.org>
 ---
- drivers/hid/hid-sony.c | 62 ++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 36 deletions(-)
+ drivers/hid/hid-sony.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 2d9a5261b63f..84df55c3cbe1 100644
+index 84df55c3cbe1..ff681ebc76ce 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -29,6 +29,7 @@
-  * There will be no PIN request from the device.
-  */
+@@ -523,10 +523,6 @@ static DEFINE_SPINLOCK(sony_dev_list_lock);
+ static LIST_HEAD(sony_device_list);
+ static DEFINE_IDA(sony_device_id_allocator);
  
-+#include <linux/cleanup.h>
- #include <linux/device.h>
- #include <linux/hid.h>
- #include <linux/module.h>
-@@ -571,14 +572,12 @@ static void sony_set_leds(struct sony_sc *sc);
- static inline void sony_schedule_work(struct sony_sc *sc,
- 				      enum sony_worker which)
- {
--	unsigned long flags;
+-enum sony_worker {
+-	SONY_WORKER_STATE
+-};
 -
- 	switch (which) {
- 	case SONY_WORKER_STATE:
--		spin_lock_irqsave(&sc->lock, flags);
--		if (!sc->defer_initialization && sc->state_worker_initialized)
--			schedule_work(&sc->state_worker);
--		spin_unlock_irqrestore(&sc->lock, flags);
-+		scoped_guard(spinlock_irqsave, &sc->lock) {
-+			if (!sc->defer_initialization && sc->state_worker_initialized)
-+				schedule_work(&sc->state_worker);
-+		}
- 		break;
- 	}
- }
-@@ -951,7 +950,6 @@ static const u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
- static int sixaxis_raw_event(struct sony_sc *sc, u8 *rd, int size)
+ struct sony_sc {
+ 	spinlock_t lock;
+ 	struct list_head list_node;
+@@ -569,17 +565,11 @@ struct sony_sc {
+ 
+ static void sony_set_leds(struct sony_sc *sc);
+ 
+-static inline void sony_schedule_work(struct sony_sc *sc,
+-				      enum sony_worker which)
++static inline void sony_schedule_work(struct sony_sc *sc)
  {
- 	static const u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
--	unsigned long flags;
- 	int offset;
- 	u8 index;
- 	u8 battery_capacity;
-@@ -999,10 +997,10 @@ static int sixaxis_raw_event(struct sony_sc *sc, u8 *rd, int size)
- 		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
+-	switch (which) {
+-	case SONY_WORKER_STATE:
+-		scoped_guard(spinlock_irqsave, &sc->lock) {
+-			if (!sc->defer_initialization && sc->state_worker_initialized)
+-				schedule_work(&sc->state_worker);
+-		}
+-		break;
+-	}
++	guard(spinlock_irqsave)(&sc->lock);
++	if (!sc->defer_initialization && sc->state_worker_initialized)
++		schedule_work(&sc->state_worker);
+ }
+ 
+ static void ghl_magic_poke_cb(struct urb *urb)
+@@ -1211,7 +1201,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	if (unlikely(sc->defer_initialization)) {
+ 		sc->defer_initialization = 0;
+-		sony_schedule_work(sc, SONY_WORKER_STATE);
++		sony_schedule_work(sc);
  	}
  
--	spin_lock_irqsave(&sc->lock, flags);
--	sc->battery_capacity = battery_capacity;
--	sc->battery_status = battery_status;
--	spin_unlock_irqrestore(&sc->lock, flags);
-+	scoped_guard(spinlock_irqsave, &sc->lock) {
-+		sc->battery_capacity = battery_capacity;
-+		sc->battery_status = battery_status;
-+	}
- 
- 	if (sc->quirks & SIXAXIS_CONTROLLER) {
- 		int val;
-@@ -1148,7 +1146,6 @@ static int rb4_ps5_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- 	u8 battery_data;
- 	u8 battery_capacity;
- 	u8 battery_status;
--	unsigned long flags;
- 
- 	if (unlikely(size != 64 || rd[0] != 0x01))
- 		return 0;
-@@ -1191,10 +1188,10 @@ static int rb4_ps5_guitar_raw_event(struct sony_sc *sc, u8 *rd, int size)
- 		break;
- 	}
- 
--	spin_lock_irqsave(&sc->lock, flags);
--	sc->battery_capacity = battery_capacity;
--	sc->battery_status = battery_status;
--	spin_unlock_irqrestore(&sc->lock, flags);
-+	scoped_guard(spinlock_irqsave, &sc->lock) {
-+		sc->battery_capacity = battery_capacity;
-+		sc->battery_status = battery_status;
-+	}
- 
- 	input_sync(sc->input_dev);
  	return 0;
-@@ -1885,15 +1882,14 @@ static int sony_battery_get_property(struct power_supply *psy,
- 				     union power_supply_propval *val)
+@@ -1520,7 +1510,7 @@ static void buzz_set_leds(struct sony_sc *sc)
+ static void sony_set_leds(struct sony_sc *sc)
  {
- 	struct sony_sc *sc = power_supply_get_drvdata(psy);
--	unsigned long flags;
- 	int ret = 0;
- 	u8 battery_capacity;
- 	int battery_status;
- 
--	spin_lock_irqsave(&sc->lock, flags);
--	battery_capacity = sc->battery_capacity;
--	battery_status = sc->battery_status;
--	spin_unlock_irqrestore(&sc->lock, flags);
-+	scoped_guard(spinlock_irqsave, &sc->lock) {
-+		battery_capacity = sc->battery_capacity;
-+		battery_status = sc->battery_status;
-+	}
- 
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_PRESENT:
-@@ -1975,10 +1971,9 @@ static inline int sony_compare_connection_type(struct sony_sc *sc0,
- static int sony_check_add_dev_list(struct sony_sc *sc)
- {
- 	struct sony_sc *entry;
--	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&sony_dev_list_lock, flags);
-+	guard(spinlock_irqsave)(&sony_dev_list_lock);
- 
- 	list_for_each_entry(entry, &sony_device_list, list_node) {
- 		ret = memcmp(sc->mac_address, entry->mac_address,
-@@ -1992,26 +1987,23 @@ static int sony_check_add_dev_list(struct sony_sc *sc)
- 				"controller with MAC address %pMR already connected\n",
- 				sc->mac_address);
- 			}
--			goto unlock;
-+			goto out;
- 		}
+ 	if (!(sc->quirks & BUZZ_CONTROLLER))
+-		sony_schedule_work(sc, SONY_WORKER_STATE);
++		sony_schedule_work(sc);
+ 	else
+ 		buzz_set_leds(sc);
+ }
+@@ -1631,7 +1621,7 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
+ 		new_off != drv_data->led_delay_off[n]) {
+ 		drv_data->led_delay_on[n] = new_on;
+ 		drv_data->led_delay_off[n] = new_off;
+-		sony_schedule_work(drv_data, SONY_WORKER_STATE);
++		sony_schedule_work(drv_data);
  	}
  
- 	ret = 0;
- 	list_add(&(sc->list_node), &sony_device_list);
+ 	return 0;
+@@ -1859,7 +1849,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
+ 	sc->left = effect->u.rumble.strong_magnitude / 256;
+ 	sc->right = effect->u.rumble.weak_magnitude / 256;
  
--unlock:
--	spin_unlock_irqrestore(&sony_dev_list_lock, flags);
-+out:
- 	return ret;
+-	sony_schedule_work(sc, SONY_WORKER_STATE);
++	sony_schedule_work(sc);
+ 	return 0;
  }
  
- static void sony_remove_dev_list(struct sony_sc *sc)
- {
--	unsigned long flags;
--
- 	if (sc->list_node.next) {
--		spin_lock_irqsave(&sony_dev_list_lock, flags);
--		list_del(&(sc->list_node));
--		spin_unlock_irqrestore(&sony_dev_list_lock, flags);
-+		scoped_guard(spinlock_irqsave, &sony_dev_list_lock) {
-+			list_del(&(sc->list_node));
-+		}
- 	}
- }
- 
-@@ -2145,12 +2137,10 @@ static inline void sony_init_output_report(struct sony_sc *sc,
- 
- static inline void sony_cancel_work_sync(struct sony_sc *sc)
- {
--	unsigned long flags;
--
- 	if (sc->state_worker_initialized) {
--		spin_lock_irqsave(&sc->lock, flags);
--		sc->state_worker_initialized = 0;
--		spin_unlock_irqrestore(&sc->lock, flags);
-+		scoped_guard(spinlock_irqsave, &sc->lock) {
-+			sc->state_worker_initialized = 0;
-+		}
- 		cancel_work_sync(&sc->state_worker);
- 	}
- }
 -- 
 2.54.0
 

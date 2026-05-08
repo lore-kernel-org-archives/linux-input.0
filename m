@@ -1,112 +1,89 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DEF118C02E
-	for <linux-input@vger.kernel.org>; Fri,  8 May 2026 13:03:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E60873E4C9A;
+	Fri,  8 May 2026 13:31:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778245423; cv=none; b=lQLBE84DGrs4X4V+AjzPJAwNS6UccgVrDG+sRvBhTic/iODBE+r5g/6320uvLhSnUoGSv+nmpcWp3AhEp8fgSxA4buGp/cltOPde32geg6hrJqTsm51RucWUdwt7gehxyiKj3h9vsbWnCPyW2DpT3lzmmR+3vcOss2fRjfv6dTs=
+	t=1778247088; cv=none; b=mf7OKWHDOPUUbVxrfR5O9lE1JXXBhiOTk9WCbk4udZeJX1hZDowrbBUsh8vwbJC7dMVzVWXnrYGZxjkJ6r6c7nocACJ/xaqXtjZSxdp2EUVMSnhs9MKwUudAj+WIbtTsrpvDppcUevYAnlr010GVSV53NwCnp92XBD2tlQtaI+M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778245423; c=relaxed/simple;
-	bh=8BRSIfNuxasrs+np4/zGL0jN85kmQfFIyqaMO8Ngz6Y=;
+	s=arc-20240116; t=1778247088; c=relaxed/simple;
+	bh=2F1QozlQG7T09kRSpbf+cVE38mgMF7pF8fSdN6iJDHY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lAploj8PLwsjoKhXk9Ccmtbl//aVNNiwnwzZSUmE4cfU1piUic+O9d2xkiwK/h0FdkH/t16/CoxyU4Exaldcb8oXZklj7ffGQr14uuN/uOiDMeZ5Q3r9zmmP4VWaiehj4QNJqNbbParL8911O8p5t/VHMHk6LWfmW1gwkp5qwOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=W5iiCME5; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=NZvHuwesHonhCsIEY/DcmIIzkNymUBselSltdpE3QLKcnF1aWoaTNGD91R9lBeBN7GxY7IJD++HuOl1NG9M1SOnVEBpL27iW60tBNilV7iO5fkQynaANFrDCpzKTIXbcmIxOcaDiAzBIhMp9O77ArqV4qXrQa3vPl2RV+mi0fPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hQeKVyBq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="W5iiCME5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331EDC2BCB0;
-	Fri,  8 May 2026 13:03:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1778245422;
-	bh=8BRSIfNuxasrs+np4/zGL0jN85kmQfFIyqaMO8Ngz6Y=;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hQeKVyBq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71663C2BCB0;
+	Fri,  8 May 2026 13:31:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778247086;
+	bh=2F1QozlQG7T09kRSpbf+cVE38mgMF7pF8fSdN6iJDHY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=W5iiCME5SxssVVyErsOgt+4n7fqykccteYL5YGDVYp2qc6HH/YHfSGEsXAZFPv6ZC
-	 IpXh1v8VBHa/ZsQ3rTRMIFR+l0f7FfMc1qvhmoH2oVdkWycwVmfkA/+MgZnLUmvBXa
-	 mZGtk3jspLdat/BxJYO6yl92uDRlLlu9DgbfpVbA=
-Date: Fri, 8 May 2026 15:03:40 +0200
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To: "nsa@linux.do" <nsa@linux.do>
-Cc: "gupt21@gmail.com" <gupt21@gmail.com>,
-	"jikos@kernel.org" <jikos@kernel.org>,
-	"bentiss@kernel.org" <bentiss@kernel.org>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Subject: Re: [RFC PATCH] HID: mcp2221: bound I2C readback copies to the
- receive buffer
-Message-ID: <2026050806-repeal-unpledged-4cc2@gregkh>
-References: <KL1PR02MB68008465E12BC2D8449F3D6EF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
- <2026050815-guide-skater-a292@gregkh>
- <KL1PR02MB6800676A9E8DCB6454F59B6DF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
+	b=hQeKVyBqTs7KE2qNbk1uC4Rzcs/YG2OwSwWDS4g19ozR51U2JOUQqcWZx0DV0v6Px
+	 W1jfdvA39ttzChD9WABRxO3XBPld2NHC6NtIkRvmOAcpBHEA1gzDJwZssJMvGrMbtk
+	 5ihebRHR6IEeOMLr52VTmAp9haSSAZNZu6bXH74c0+OHJ9hU9JTOur8XtlU3kZQwdL
+	 ECzKeAXP7jCuUuxXq0BWEVb4d3KRgFkZGaf9UXfjaY4WocQw3zDB/L/nu1CMmnLXFb
+	 yyBJgFRLJolGWPGiG5otrLlyb9o3P4De9/1dy8GFDopl8dbP6H+F3yhEeex93pXlT/
+	 qhRAvIVUZfAQQ==
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+	id 682A51AC5895; Fri, 08 May 2026 14:31:24 +0100 (BST)
+Date: Fri, 8 May 2026 22:31:24 +0900
+From: Mark Brown <broonie@kernel.org>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Luca Weiss <luca.weiss@fairphone.com>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH RFC 1/4] regulator: add devm_fwnode family of functions
+Message-ID: <af3lrPf3Mc7xf4A2@sirena.co.uk>
+References: <20260508-gpiokeys-vdd-supply-v1-0-0bb32e8e6428@fairphone.com>
+ <20260508-gpiokeys-vdd-supply-v1-1-0bb32e8e6428@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="4buaXrfzRTzWsrHF"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <KL1PR02MB6800676A9E8DCB6454F59B6DF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
+In-Reply-To: <20260508-gpiokeys-vdd-supply-v1-1-0bb32e8e6428@fairphone.com>
+X-Cookie: Truckers welcome.
 
-On Fri, May 08, 2026 at 12:45:44PM +0000, nsa@linux.do wrote:
-> The MCP2221 I2C readback path copies data[3] bytes from the incoming HID
-> report into mcp->rxbuf at mcp->rxbuf_idx:
-> 
->       memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-> 
-> The current checks only reject a NULL rxbuf, a negative rxbuf_idx, and
-> chunks larger than 60 bytes. They do not verify that the reported chunk
-> still fits in the destination buffer for the current transaction.
-> 
-> As a result, a device response can claim a chunk length that exceeds the
-> remaining space in the caller-provided receive buffer. For example, a
-> 1-byte read request may still return data[3] == 60, which would cause a
-> write past the end of the target buffer in the unpatched code.
-> 
-> Track the receive buffer length for the active transaction and reject
-> MCP2221_I2C_GET_DATA responses whose chunk would exceed the remaining
-> space.bang
-> 
-> This seems security-relevant to me, similar in kind to CVE-2022-50131,
-> although it affects a different path.
-> 
-> I also validated this change on a Raspberry Pi system with an actual
-> MCP2221 device attached, where the oversized readback chunks were rejected
-> and the original out-of-bounds write path was no longer reached.
-> 
-> I am primarily approaching this from the vulnerability research side, so I
-> would appreciate maintainer review on the overall fix quality and whether
-> this is the preferred way to address it.
-> 
-> Signed-off-by: Lexpl0it<nsa@linux.do>bi
 
-Hi,
+--4buaXrfzRTzWsrHF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+On Fri, May 08, 2026 at 02:53:13PM +0200, Griffin Kroah-Hartman wrote:
+> Add devm_fwnode_regulator_get and variants.
+>=20
+> These function wrappers allow regulators to be accessed from the fwnode
+> struct without any casts.
 
-You are receiving this message because of the following common error(s)
-as indicated below:
+Why?
 
-- Your patch is malformed (tabs converted to spaces, linewrapped, etc.)
-  and can not be applied.  Please read the file,
-  Documentation/process/email-clients.rst in order to fix this.
+--4buaXrfzRTzWsrHF
+Content-Type: application/pgp-signature; name="signature.asc"
 
-- It looks like you did not use your "real" name for the patch on either
-  the Signed-off-by: line, or the From: line (both of which have to
-  match).  Please read the kernel file,
-  Documentation/process/submitting-patches.rst for how to do this
-  correctly.
+-----BEGIN PGP SIGNATURE-----
 
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmn95asACgkQJNaLcl1U
+h9AKSgf8DQ01KnkkqxDIQTlrHuCkEn16D+Yr4k9m4rmRwL4e7A47S7WKsH9DjRRD
+f4cRTZmvm5al8qv/3cWT6hZ+y6PwQ/NCY01JaPF+N3quqISkZoQvrHxt5Ms7dNQl
+ndM1zQ09iyUlenJASTMv4d3qzkwU4++gnQiSauEFUGyxWmlE5SvASuUs/dv2GvgK
+mC8LYWLlatTvP2Jr+avWDesJJlRQO2vxJEIK1fUH1BMJmINABotmY9OvG8arS06a
+ZwSIDuawL5GLo5KgmFemxDGaewKBK+XWPLIZ3OmqKXY0assRepeQYzAobqNeYDjm
+Mtvpn7Ei0chyE52y0f+hfx9DWmPHYQ==
+=RGuJ
+-----END PGP SIGNATURE-----
 
-thanks,
-
-greg k-h's patch email bot
+--4buaXrfzRTzWsrHF--

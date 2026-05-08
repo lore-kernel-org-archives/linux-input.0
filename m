@@ -1,135 +1,112 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D9133E0C68
-	for <linux-input@vger.kernel.org>; Fri,  8 May 2026 12:53:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DEF118C02E
+	for <linux-input@vger.kernel.org>; Fri,  8 May 2026 13:03:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778244812; cv=none; b=l/JJLJlZq9NjH3JuVTM4DHMOA0HlUzpByaBv/+ZwSYBl2Cg1iMf5E+hcjeZh+CDuhwG2clMGxMqCNV8egU8bnX2UoRda9B0yDUpjJqDzQ0GTFzo/rFQO3Z18Wt6fWibWPRLbXBzNx08AfG0qJhLevr4R/wdCY8EkvYsLeHKVPIs=
+	t=1778245423; cv=none; b=lQLBE84DGrs4X4V+AjzPJAwNS6UccgVrDG+sRvBhTic/iODBE+r5g/6320uvLhSnUoGSv+nmpcWp3AhEp8fgSxA4buGp/cltOPde32geg6hrJqTsm51RucWUdwt7gehxyiKj3h9vsbWnCPyW2DpT3lzmmR+3vcOss2fRjfv6dTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778244812; c=relaxed/simple;
-	bh=tIDX7JUVBtImT75drxZOT43afatjq2eglYC9uyAHIeQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Pyus8CXRkJdhnNoWgYJn9A5CW7xv/XEk/59m6H0FDQdj7kqDwSgoSvhLG8AtlZU39FU4K5649zND4Z9v8yGNT9H9mK9xYRmuXFfblB+QxUQc7V4KNJVV6YOu01DRoEzDKl9bFp8pMYq+SzHea5KNchuPT45hXAyP9VMLhmLfcvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=cEcX/+L+; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
+	s=arc-20240116; t=1778245423; c=relaxed/simple;
+	bh=8BRSIfNuxasrs+np4/zGL0jN85kmQfFIyqaMO8Ngz6Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lAploj8PLwsjoKhXk9Ccmtbl//aVNNiwnwzZSUmE4cfU1piUic+O9d2xkiwK/h0FdkH/t16/CoxyU4Exaldcb8oXZklj7ffGQr14uuN/uOiDMeZ5Q3r9zmmP4VWaiehj4QNJqNbbParL8911O8p5t/VHMHk6LWfmW1gwkp5qwOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=W5iiCME5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="cEcX/+L+"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-bc2a455fd55so282164866b.2
-        for <linux-input@vger.kernel.org>; Fri, 08 May 2026 05:53:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1778244810; x=1778849610; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iH/xL0hFptFpdB14N/xJEwQzcQQr4/b2TTbHc4T4Jhk=;
-        b=cEcX/+L+g5ORSMeyQLW6lp1Ef/OqGNZsYt0zrqfPkq5DXVDyRlKfHLii4fwVuawRtv
-         NxLwffnwWNa5OssvUelV6bhOnVj0DLL+N7hLWvVz5/8RKLv2ZyByO82NvUYVnYrWlcx2
-         Pl18QswAYqEME8d4zn5FaFdYL5BiqhC+oJ08Pmawl35ma9+nx2hYRAg2i+3574B8zXt4
-         hdLKCgfwzlT1scygv5/gFVqobxxPo8c5jHBhqkUV8CU0ILfQiH487w88/d59VhnSkvIu
-         eOz3cVwtupsqIAgf0QKD/ucDUnbWo7gcBMt87Gx5bCtrTG5UvqK5YUi8HIYUibu5uk29
-         hkpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778244810; x=1778849610;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=iH/xL0hFptFpdB14N/xJEwQzcQQr4/b2TTbHc4T4Jhk=;
-        b=j3N6IRZQyRvRB3+hkgGNXh2yugXOqHUCEYyzqF1RcEA9EO60yQLt76RngQy/95U83L
-         7q6wApsRK/nDFWvmCy3tHmb2G5m/QqAeNu3C3wvmzN0+dsHWSJR14SEOsUurxDB6Xk2Z
-         lC54QEjt/Q2YccgrkXYupMkgDAfXYwS6qUn8SXANAcuwaKcQ7/X8SKtjk04ONOMyUFHl
-         yn8OfKLd1sO/PL4zA2++I8YCRHkMG+mnfoWp1UCvaPG0HrFRYhsXhLqUrBgwOOvlF9vF
-         k5n/QGYg2XUxZhcXQwDmH1ehmY32PTL1IGHb0Dt4RvXEekOlhCF1sc84V8vxFtt9qQYG
-         znhg==
-X-Gm-Message-State: AOJu0YzPZTQuzraecV4xwX7FcBvy2jetOjJtp3w3u6uG2zDqMTUOuc49
-	3K59GF+snuHPkI06dtYoLcXk2pgOpj3eVhNxFH155j1q7b1vpOuMcOJvR972kVgw6TE=
-X-Gm-Gg: AeBDievjEfcpUUFbOnuDMKDUcvpH1zt7FrqAmGB3g6ZTD6iOmd/XzjTkQI2TRWpNToh
-	D6f7Jlt7kaNId18zfg5PcgWWM6lgWWOV/wMB6cOCGG2spLGaNGs4o3BsOWVDuuzC2i3iZWpMGjo
-	HD49X/mZNyci7O92obYt9FfmuByYLtMXJPJhGZIXys4omz1wTVZJzelwmI+D5KT+O6m2dE6qpXw
-	r7ity/8jkFM3sV8mSTOHRRts/rcrrH0dO/eRfftMIg6wf07fgcLcNh/ryK5pzG5RNxRof/vtI9M
-	HX2ZpksNID5GyrfWtpic8TGruYohS1uwyR64Q4xj4gAEbp/vfOlKBEVu0hXPNxeUTqfaou3yOBk
-	bxd2Q965cITB5ubt2y+/wJl1hT3doSMDQKDWin6txfh/lnwLv5iDvUSeFhVn22AHMHT94vybFdk
-	mPNBZ9cUzv0A/gYMULsejVOczlP/h6hPLrvWNlb4fIv0Sz1bQqzMoN7rMQdRxIzRFfZ0VT38C/d
-	FL+5/RqKw==
-X-Received: by 2002:a17:907:fd8a:b0:bba:3bd7:17c7 with SMTP id a640c23a62f3a-bc56ac3654amr669181666b.7.1778244809659;
-        Fri, 08 May 2026 05:53:29 -0700 (PDT)
-Received: from [172.16.220.224] (144-178-202-139.static.ef-service.nl. [144.178.202.139])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bcb94415c94sm800266b.53.2026.05.08.05.53.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 May 2026 05:53:29 -0700 (PDT)
-From: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Date: Fri, 08 May 2026 14:53:16 +0200
-Subject: [PATCH RFC 4/4] arm64: dts: qcom: milos-fairphone-fp6: add supply
- for Hall Effect sensor
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="W5iiCME5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331EDC2BCB0;
+	Fri,  8 May 2026 13:03:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1778245422;
+	bh=8BRSIfNuxasrs+np4/zGL0jN85kmQfFIyqaMO8Ngz6Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=W5iiCME5SxssVVyErsOgt+4n7fqykccteYL5YGDVYp2qc6HH/YHfSGEsXAZFPv6ZC
+	 IpXh1v8VBHa/ZsQ3rTRMIFR+l0f7FfMc1qvhmoH2oVdkWycwVmfkA/+MgZnLUmvBXa
+	 mZGtk3jspLdat/BxJYO6yl92uDRlLlu9DgbfpVbA=
+Date: Fri, 8 May 2026 15:03:40 +0200
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To: "nsa@linux.do" <nsa@linux.do>
+Cc: "gupt21@gmail.com" <gupt21@gmail.com>,
+	"jikos@kernel.org" <jikos@kernel.org>,
+	"bentiss@kernel.org" <bentiss@kernel.org>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: Re: [RFC PATCH] HID: mcp2221: bound I2C readback copies to the
+ receive buffer
+Message-ID: <2026050806-repeal-unpledged-4cc2@gregkh>
+References: <KL1PR02MB68008465E12BC2D8449F3D6EF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
+ <2026050815-guide-skater-a292@gregkh>
+ <KL1PR02MB6800676A9E8DCB6454F59B6DF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260508-gpiokeys-vdd-supply-v1-4-0bb32e8e6428@fairphone.com>
-References: <20260508-gpiokeys-vdd-supply-v1-0-0bb32e8e6428@fairphone.com>
-In-Reply-To: <20260508-gpiokeys-vdd-supply-v1-0-0bb32e8e6428@fairphone.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Luca Weiss <luca.weiss@fairphone.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
- Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1778244804; l=1397;
- i=griffin.kroah@fairphone.com; s=20250804; h=from:subject:message-id;
- bh=tIDX7JUVBtImT75drxZOT43afatjq2eglYC9uyAHIeQ=;
- b=KT7bF/QDdLpdfF7n1XKRTlGsLTboMP/ClM4Ln/rj5O8mk+AT0De3KpscYOUGknrVFyaVp40Vd
- MR0dqPY85ufC++wlLpRWg937MPDzmsW/GsazLjn2qSNoZCrgHWb1vNG
-X-Developer-Key: i=griffin.kroah@fairphone.com; a=ed25519;
- pk=drSBvqKFiR+xucmLWONHSq/wGrW+YvcVtBXFYnYzn8U=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <KL1PR02MB6800676A9E8DCB6454F59B6DF73D2@KL1PR02MB6800.apcprd02.prod.outlook.com>
 
-Add vdd-supply for the Hall Effect sensor in gpio-keys so that power for
-the sensor will be enabled when it's in use.
+On Fri, May 08, 2026 at 12:45:44PM +0000, nsa@linux.do wrote:
+> The MCP2221 I2C readback path copies data[3] bytes from the incoming HID
+> report into mcp->rxbuf at mcp->rxbuf_idx:
+> 
+>       memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+> 
+> The current checks only reject a NULL rxbuf, a negative rxbuf_idx, and
+> chunks larger than 60 bytes. They do not verify that the reported chunk
+> still fits in the destination buffer for the current transaction.
+> 
+> As a result, a device response can claim a chunk length that exceeds the
+> remaining space in the caller-provided receive buffer. For example, a
+> 1-byte read request may still return data[3] == 60, which would cause a
+> write past the end of the target buffer in the unpatched code.
+> 
+> Track the receive buffer length for the active transaction and reject
+> MCP2221_I2C_GET_DATA responses whose chunk would exceed the remaining
+> space.bang
+> 
+> This seems security-relevant to me, similar in kind to CVE-2022-50131,
+> although it affects a different path.
+> 
+> I also validated this change on a Raspberry Pi system with an actual
+> MCP2221 device attached, where the oversized readback chunks were rejected
+> and the original out-of-bounds write path was no longer reached.
+> 
+> I am primarily approaching this from the vulnerability research side, so I
+> would appreciate maintainer review on the overall fix quality and whether
+> this is the preferred way to address it.
+> 
+> Signed-off-by: Lexpl0it<nsa@linux.do>bi
 
-With this, we can drop the regulator-always-on for vreg_l10b.
+Hi,
 
-Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
----
- arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
 
-diff --git a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-index c1899db46e714137d7849b3b043062fe8b05cc42..ae6900c3f75c64ea5b4feadf38df101abb43c1ea 100644
---- a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-+++ b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-@@ -32,13 +32,13 @@ gpio-keys {
- 		pinctrl-0 = <&volume_up_default>, <&hall_sensor_default>;
- 		pinctrl-names = "default";
- 
--		/* Powered by the always-on vreg_l10b */
- 		event-hall-sensor {
- 			label = "Hall Effect Sensor";
- 			gpios = <&tlmm 70 GPIO_ACTIVE_LOW>;
- 			linux,input-type = <EV_SW>;
- 			linux,code = <SW_LID>;
- 			linux,can-disable;
-+			vdd-supply = <&vreg_l10b>;
- 			wakeup-source;
- 		};
- 
-@@ -326,8 +326,6 @@ vreg_l10b: ldo10 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
--			/* Hall sensor VDD */
--			regulator-always-on;
- 		};
- 
- 		vreg_l11b: ldo11 {
+You are receiving this message because of the following common error(s)
+as indicated below:
 
--- 
-2.43.0
+- Your patch is malformed (tabs converted to spaces, linewrapped, etc.)
+  and can not be applied.  Please read the file,
+  Documentation/process/email-clients.rst in order to fix this.
 
+- It looks like you did not use your "real" name for the patch on either
+  the Signed-off-by: line, or the From: line (both of which have to
+  match).  Please read the kernel file,
+  Documentation/process/submitting-patches.rst for how to do this
+  correctly.
+
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
+
+thanks,
+
+greg k-h's patch email bot

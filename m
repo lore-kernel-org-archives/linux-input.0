@@ -1,63 +1,63 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2078539EF2A
-	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:10:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DAB939EF2A
+	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:10:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778321457; cv=none; b=B7MDFtWf3c8RV+BDcFF2obKs7otScXoIPVi2ZbFpodW+6MKyawmSUI27u7DO9PfXXrbUbxpjZb83Li4yI04aBbNE8/asJgma4aFqyod53KNvy18+UtoY/xcP02UJGAVWNK99Rr4IdhGX6WI/J78tor+dQkbc00e+8zrjNGfH8+M=
+	t=1778321461; cv=none; b=fPPTHtJL7XTnA02Lfgo4ZoXLW45kjXkpgRU9s1HeCgf1JFEPD8QlA5c7d2UZLgVGJXmERmNm5S2PCnR0WNpRMpiR2ABNeJ3UFON+tkB/50Bczz5O3OJdkTknAYGm9o6IpW1u1sWrEkhvZT4LMIxIbSSm/ZsE5NBt6455uotiz6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778321457; c=relaxed/simple;
-	bh=tPWcv1jECZQQd9JlDny4sLxfDxzU2UCtd4V+vUCcfMg=;
+	s=arc-20240116; t=1778321461; c=relaxed/simple;
+	bh=fDDowIRabahRP7ZRMJkG11Sb9EjOwHHgjbqpVpODPyA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pJrMF1dV7Ctt80T4gvyIDqzKIDijQkWq9Imq9ajpadA2bkNOSLPAk1R2VJywISchC6a4VNZYiwp18eEbdFiBraXmlLHA40zm5KPL+qsxC6f21E1dHaHfCAuXupqkeIPzFn5jqMqeAIPj+kcpFHSPvuxMHVaQuEV3R7MqQ8kXB2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i8+SXQpx; arc=none smtp.client-ip=209.85.214.171
+	 MIME-Version; b=SDawpz7g2ZrrItbGfM8VseTel97B4RW6juOhiVcycSxwg77VF4AePFbX5ygAUGI4WU8eJ4JOplqyQcoIqVhvSrRf5TAAp0Y/xN0dUxOWMXhfS0Yne9V2bBSbKluS1LBRnrmNvNH0QjAd2Zk+O40OsGgxA3N47fUlZTSYrxipPFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MORvAHNY; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i8+SXQpx"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ba928852a5so19052255ad.1
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 03:10:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MORvAHNY"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2adff872068so15320985ad.1
+        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 03:10:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778321455; x=1778926255; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778321459; x=1778926259; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JkFhHabJLImjsw5jAKHOTDz0VLKOY6FhmBrPls4dhd8=;
-        b=i8+SXQpx1PKKFWK0+os+QQWDUi3jJ5RYXDE2fYqwC1lEo05WfTF23/yyXn+t/Lv5v3
-         IQAa9be8g6velieS5mf/DgjiLo89UvH9AIE00+gQirsz7k8VGmfV8RBNlWRG17IN1EWj
-         k8IFvz99LNtT9ZvdSGbk8XwJcs6QYAf5TUIrI+BcWIgfrraMPQmiz3NbNW8jl3HbFcKf
-         l8LfvhrlkD8SBCU6h6qMETYI1cnm7MIRGqa2z5On8sy88dv9NW4WSeMLqAZpVFs+f8zo
-         wl3+HGXXBjV71xVICP986VyI/7t5ioHJK9bOSfbtJFtH7Aioq+drpvavLvFZ88DF5dAW
-         mScw==
+        bh=ABvgg+B1vj+fw2JrPeoeBLI2umPERJ7N6KddlE6yxNo=;
+        b=MORvAHNYKmhv4Ki0BPUS/doKVEdmQ2vjBYaI83x/DrW2jFtBvWXvsgIQNrzomvVQLQ
+         K9024TMLQW/QE0W1AtYbOuZx7AXzcHFUOwbo1kkpBmvchu2MFjAatyFXaxMqswTeBnde
+         gTp4QHdGQ2Nxn3OaC5V10lR6aUEQ2WnrHhod9xpnhYTMCgIUNxFVCEGJmYIKhWKIR2PT
+         h4FV3RRMTkSdEyxsbP6Cm/enNyl/RLoiJF41QTtzeRrEZbV7H47bB6YukW7upOZbubBj
+         aZ9x5A73zESlSFnzOu1SRntaRbpkFpbPj3CjgCqC7P2n9WVuWJB4vyKGCVGi2yP8Qbg7
+         kFtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778321455; x=1778926255;
+        d=1e100.net; s=20251104; t=1778321459; x=1778926259;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=JkFhHabJLImjsw5jAKHOTDz0VLKOY6FhmBrPls4dhd8=;
-        b=Dw6WBiiqB5NryrZqK2xW7FHR5FMY3fy12tTnxFKIYEHWnjP5gbK7ROM4M6a/fyUSWa
-         Ju0T0Ft6tM5C6i/6MxqISqmc9ITOfDVxfmhmjfemuFhIdeczg9RzGHiNCtUI6xnMFKrs
-         s1zCJ4uAT6/EpBmjdKB9NM/hwoMdOpfrItR+fd7bhGwSVl9+lm4MNFObixEBU1EuQp1E
-         i8KIB6VW51UDl4eRr2VEo/DwbmZHgf43AadtzML97A+5hC7nSCmR+FoUteHV7Ktb3Gfj
-         M7g8Wiutt3EmY5Sae2qhTT5tM0tUUmHPByDgt014/RN5qe8D0M7NlcnyD1EXKLGfWxXb
-         jkDw==
-X-Forwarded-Encrypted: i=1; AFNElJ9l1l7UAxEjUTFr0qF2MuzRp4Bgj2l2m5En9KG5pAebVzRK39RylsXfTgB5PmsvdrTbWyfTX+mbRxN6WQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx0n8pWax+NqGDjFoiDNJgUwpCv9LWTcEq3b5t2CPupSVwCiITf
-	L/2FzatrQHqS/8hKIQRJ4TkU2qhNpOMg0z6eTCGo+z/tNOSdamcGBiND
-X-Gm-Gg: Acq92OGT/PZKE61U/ZIBvDC9bwVoHDlKKls/n6I4mbg8bs2apAyeLnyHe6Xr/m0wuJO
-	1LKqUmDc8gtIE0BUokLm5UX1bIr9qhOvqab8lQgOucIm7bIWa1L7vlX6Fqgrh+s7cDUDASNGa4/
-	7Pf10o0blO2SArFKcpN0jITAWoLL1PGkSSOJhx6dUIy7kjDKE764Iy35kJlEIsjWT4mhykMNvMj
-	TKxBfAsLbbjxaRZDferWL6XlbmwuA7nKy63tr1v1QYROFc+Qlg0lDbVecd4KkOBj250NDYCYDsj
-	cH0ZcjTnMBdjge7RJe7KDqHLjxnuzVukdT5/es4JNdFrl/87ipz6bcugLtkGBmXKey3mzYxa7sT
-	jN3tpjKF+sjg2RiQ41gHPzfseMuw6cmE9keOoKm1dMd6WctlKim9/eyn7oBUpCBpJiuacO7PpWc
-	V+xOQfgUp7WDb1BTJmsP0TFWPJOF4nK29dQaitJkayeORYBiQ+
-X-Received: by 2002:a17:903:1ab0:b0:2b2:a267:784a with SMTP id d9443c01a7336-2bc7aa20417mr19618195ad.24.1778321455274;
-        Sat, 09 May 2026 03:10:55 -0700 (PDT)
+        bh=ABvgg+B1vj+fw2JrPeoeBLI2umPERJ7N6KddlE6yxNo=;
+        b=fNPnqkcmsf07nezYxvlUb+2vlbyGJg+PsqQi/0AHSSJgzgNKyAv0qP8YpPzgzYmlKz
+         clArHLjP+ePM3KUZOi9Pmk6b1ezfpE792k9U02cwj5qe+U3j1DWhgedihnUAKxkIXD32
+         eXz2MVL6lXspqMhPuToEGOWI6DGXQMgHyDHNEYC98mcWBqATiJ1PERXDGfHr6t0Wut/W
+         WUsKt3eVWyqi8AtgIn4usSwOQLr1RxaiLiwl/SdUBJ8Y7o8zU6E74VVUDLpSSBaanV3k
+         fZnWKyfFI2rTBj8chrpO+/uo3rsYobjJdfzU5MP74ALg2XYHxQ5IXn9+VL30eJoUlAvS
+         +GGA==
+X-Forwarded-Encrypted: i=1; AFNElJ/C9pqlcWcIV6jXjb3Vbfzq89x1f2qKL+qhIixSsrlTtD4+Eqe2Pr2PPQTmcfsQvKIg1KDzfgIVbipwag==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwZyu4kzs4VZrdwzE0UW813jZNEGptKP7aA64/zviTonAm8OZYo
+	HQ9+sf3LJc+oB/rmPwD2DRc7WB/vNVb3gn+aJpJ01m7m9SPk7Cqz68QC
+X-Gm-Gg: Acq92OGfLauoHpBCdHQYlYSybwh2rPfStKqXXujgmiD3fcIR62sT/w/E6veaZLeCqp6
+	0Z/5HoMBGWArSkX9R9FHmOLEY6rlQ3PUXTvgYAhTn5YNrfqbIHaG1ucU54bO2WGbrNFssUY+Vcr
+	Vz6r2rEmVV4V+iBjF2Dr3urbSlvNhoBYV6pMo51dCyWHjM0knj6aOxoiArXaHkkKIjSXKQ7mUhi
+	Jzn4h3ycVgBcXI3mY9ZkeISDI3QXhVWk45nkOUjNIu7arq0mIpYQ5y4XmW2y9G+gpE7wlwRdbjv
+	/2XRdmnk5eFqxdjs7V5kX8BVr8A6l7tv+TxFoFyAmUZ5AekPfhRVLwKxgvVqESph9oIrY6Vcdwf
+	L9PTRb8y8zzHofV3ARvrf+fzUHPDEkbfH9t+2zzcOqGMY94JZEuOpU/kY2D+LpvzimYeiCbDzbR
+	57uiualiM67Jyb2C6bplmvyoyM6qj+Ij0PfYGDdHOo/3nNMyZCyT4GgmHJkbT3lYtS+ofwHg==
+X-Received: by 2002:a17:902:db12:b0:2b4:5cea:f619 with SMTP id d9443c01a7336-2ba79c10b84mr178754585ad.22.1778321459383;
+        Sat, 09 May 2026 03:10:59 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e83084sm47335365ad.61.2026.05.09.03.10.51
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e83084sm47335365ad.61.2026.05.09.03.10.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 03:10:54 -0700 (PDT)
+        Sat, 09 May 2026 03:10:59 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
 To: jikos@kernel.org,
@@ -71,9 +71,9 @@ Cc: dlechner@baylibre.com,
 	linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/9] iio: hid-sensors: cleanup codestyle warning
-Date: Sat,  9 May 2026 15:40:33 +0530
-Message-Id: <20260509101040.791404-3-sanjayembedded@gmail.com>
+Subject: [PATCH v3 3/9] iio: hid-sensors: introduce device managed API
+Date: Sat,  9 May 2026 15:40:34 +0530
+Message-Id: <20260509101040.791404-4-sanjayembedded@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260509101040.791404-1-sanjayembedded@gmail.com>
 References: <20260509101040.791404-1-sanjayembedded@gmail.com>
@@ -87,38 +87,66 @@ Content-Transfer-Encoding: 8bit
 
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-Reported by checkpatch:
-FILE: drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+hid_sensor_setup_trigger() is common API used for the HID IIO drivers,
+prepare devm API devm_hid_sensor_setup_trigger() to acquire resource
+during setup and release using device managed framework during drivers
+fail, unbind or remove path.
 
-WARNING: Missing a blank line after declarations
+Register action with devm_add_action_or_reset() to release resource with
+devres framework.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 3 +++
- 1 file changed, 3 insertions(+)
+Changes in v3:
+- Remove cast and update function based on review comment from Andy
+- v2 link -> https://lore.kernel.org/all/20260429175918.2541914-3-sanjayembedded@gmail.com/
+---
+ .../common/hid-sensors/hid-sensor-trigger.c    | 18 ++++++++++++++++++
+ .../common/hid-sensors/hid-sensor-trigger.h    |  2 ++
+ 2 files changed, 20 insertions(+)
 
 diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-index 28d050b45c74..98fadc61a68a 100644
+index 98fadc61a68a..fb6a4587ae03 100644
 --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
 +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-@@ -313,7 +313,9 @@ static int __maybe_unused hid_sensor_resume(struct device *dev)
+@@ -301,6 +301,24 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
+ }
+ EXPORT_SYMBOL_NS(hid_sensor_setup_trigger, "IIO_HID");
+ 
++static void hid_sensor_remove_trigger_action(void *attrb)
++{
++	hid_sensor_remove_trigger(attrb);
++}
++
++int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *indio_dev,
++				  const char *name, struct hid_sensor_common *attrb)
++{
++	int ret;
++
++	ret = hid_sensor_setup_trigger(indio_dev, name, attrb);
++	if (ret)
++		return ret;
++
++	return devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, attrb);
++}
++EXPORT_SYMBOL_NS(devm_hid_sensor_setup_trigger, "IIO_HID");
++
+ static int __maybe_unused hid_sensor_suspend(struct device *dev)
  {
  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
- 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
-+
- 	schedule_work(&attrb->work);
-+
- 	return 0;
- }
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.h b/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
+index afec46ecbe71..6fd7c39a240d 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
+@@ -17,6 +17,8 @@ extern const struct dev_pm_ops hid_sensor_pm_ops;
+ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
+ 				struct hid_sensor_common *attrb);
+ void hid_sensor_remove_trigger(struct hid_sensor_common *attrb);
++int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *indio_dev,
++				  const char *name, struct hid_sensor_common *attrb);
+ int hid_sensor_power_state(struct hid_sensor_common *st, bool state);
  
-@@ -321,6 +323,7 @@ static int __maybe_unused hid_sensor_runtime_resume(struct device *dev)
- {
- 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
- 	struct hid_sensor_common *attrb = iio_device_get_drvdata(indio_dev);
-+
- 	return _hid_sensor_power_state(attrb, true);
- }
- 
+ #endif
 -- 
 2.34.1
 

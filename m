@@ -1,69 +1,46 @@
-Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6A1033A70E
-	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 02:41:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661FA282F30;
+	Sat,  9 May 2026 08:22:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.92.39.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778294483; cv=none; b=uco8j0qa1DnrLGtTbIhvUZAaA7228ZbkAxkDlkSdRE+HDR6MaLJGQQdpviHrqPN2bYCZUSShS8Sg7/PNBi1wfrxhn/C4Y6SCDhNyHs9j6Pp0WZEbOJDcjXa9IpohjmaIzH5NLMn2D3X+FCtziZ7JoJ68RQkkl918xaZiGTu5VwI=
+	t=1778314942; cv=none; b=oHkoelTd9ThOFF1I67fn+0z8Mm/BzXq6BgxLbtbr7QO4jMigU48GrY/X7HlBHAtpXqxyXeS8L3GJASPoETIjqtOlY2nlD1uem1ahe/0R9tv1L7L0B6Lvdc1CmNQPULNtZ/p2/Fjf5JQjkzNNWUpn5vnjcpVEqh6QlGjl/ctjLLI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778294483; c=relaxed/simple;
-	bh=DHJVPLU+Df97l7KRCQLbL3vW/Qr4GYO94betjeY9UNA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V0NYWsxb7pFkPMBBBeZ8BOUPpKMINUTJWXb6fbpTauWxiLK66WcPvKjSr83pT7jMWDLuK46UwbDNneVGb5EfRRVk9z2nP2xAvUNnDHNBPLhrm9wseUguubzWacdA5D7DejNhtuXmNqM2nKoeXerA613vVOrjcZIs6WbNzXBSxRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZPy8fI1X; arc=none smtp.client-ip=209.85.210.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778314942; c=relaxed/simple;
+	bh=TBneldTY+F1jLhmgUfcH7ezAZjnvTXi0aOth5dzlcPc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nulMQNsdYkp2hcA5XiEilPHzYREf2E1LrxvenagEXsYRaMHv7aOnEMk4VY2owtc+nR/OVVUBxvslv7gA9OoJ9NQ1XE3Nog+18kBmJyZlGUN212OP5pxu8BaVMbL7JyD87IBWkynozxOA1HgOp+3cSMqPvDzYKx/FHJ3UKATtqQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=nwKHKg2C; arc=none smtp.client-ip=54.92.39.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZPy8fI1X"
-Received: by mail-ot1-f47.google.com with SMTP id 46e09a7af769-7de4ed0593fso1366653a34.1
-        for <linux-input@vger.kernel.org>; Fri, 08 May 2026 19:41:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778294480; x=1778899280; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=pKs3dD3OUU41UF/yUteowq5619hsqPe2p4DfPDuMepY=;
-        b=ZPy8fI1XjCRA9SMUbt8iqJM4/W2M21JWnC0YGt+d3eBdh3vC2VZ8Zw7ZTMOp3EbIan
-         dYdK+nxRsvxZIq69J1/7LGxUwUW14D+xi48fuNjAjep7vAdE66W5ViFkY0Jocsi0I8LQ
-         IxVIrsHbl042/9d1fRcBK8SrwvOXnK2AEPTavzOXWtPfdf5z8k6KD8lmP60EqA7A80+6
-         7/0XR7LObha6P5X6JbkpJBJemHuLCAOZUTiJq9lTB7jDQBmL6qxUKBblnrDqyK9qNY2G
-         iui4ZhcegmMw+MCuQl1mhbTZd5rS036kr516kIw5KoQgRGqXSliP8kf/O0hwztOM0RLe
-         7sCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778294480; x=1778899280;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pKs3dD3OUU41UF/yUteowq5619hsqPe2p4DfPDuMepY=;
-        b=Pgr++ZN3Nx3zABBLegdcQAJB/xM7rVjfVt8jld4r2PXOJA2IHVlx6jIyjDMz0kSfjM
-         67RpF8vyePaBl1ytOK5XmNvo20JnL1Gghlue/P88hj3bSledD7zXGQKUiCg6Sz/5odnT
-         3C5hjJxwWIc8msKaKlC0vYQW1nseTPIbUJRZZozJYq1yw/kvIKWX4d8oRs/B+4dtxu9I
-         W0sapnC7aIv1jhn5CZX7UUnz7wEtd7yia7Ui1XwR669zFxIjnMcUn8JW13h4cbjkDJJT
-         5eKOJGuIECe8jjDPx6PylicdwfXjbQQGi3LCYw/HMcvou4GidIVeas+Qv/BMDPJKFQQ7
-         1Tqw==
-X-Gm-Message-State: AOJu0YxgnKwvEW95IVnJqFwGXmE0pl4jssgC0RlMofEl9Jgj5MfUqXNw
-	HybR/VYysSwjxjAWzoCUAhhzXSt4bntC+88UgJjO4euD0kQ2qPwz6D2H
-X-Gm-Gg: AeBDievkA+ayrat6yLby3H3r+Yuih2785R9sBvYKKZeoXyC8KyLMDJytVCqgFnJyYQg
-	ieaIskorm0EPlpbIG6Cirwso80nXdIo8OG4gbp5M41uIL2ICgRUSp6l8gHmAONF4Qi4Rx74yzR9
-	Iiie8dQtk17T3JS1nqvzfbGZ6PPdPS4fL+2/LJISy6KKkj4T5UmMV5HKA+sSMvNU5TgXKJycLaJ
-	HIdjSYpJrZCwKALxs1PbSn2Vb/8p17kPgHqLSF662apxp5tgmzEPjCG7+H6S/vCk+g8kaEBHcWH
-	HsB/9UADXb9Zg93RhorEruh2wRO4D0nAQ0Xmg9q1nTZ4GxhMZb+2udf0Bm0qXl/pUCuHxQhOoS2
-	M7ejPYBWUrqLZzeoVj3/d4vEZrMeOA87SbXJFIe9pH+dM19M5q/gR36OMI1nngGoUcA+oCui2rS
-	Ozvlo7YkUzhNDinnsyNFIJ9iDHc93mD94ghMLCUwk=
-X-Received: by 2002:a05:6820:161f:b0:694:6acf:a420 with SMTP id 006d021491bc7-69998cc4661mr8167883eaf.15.1778294480626;
-        Fri, 08 May 2026 19:41:20 -0700 (PDT)
-Received: from Dell.attlocal.net ([108.243.219.47])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4355736dbc0sm3443464fac.11.2026.05.08.19.41.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 May 2026 19:41:19 -0700 (PDT)
-From: Akash Sukhavasi <akash.sukhavasi@gmail.com>
-To: dmitry.torokhov@gmail.com
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="nwKHKg2C"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1778314910;
+	bh=mpiyPm5hIKxyUSOwINxXUdjQSMzoKliJjuBIXtHcXYY=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=nwKHKg2Cwk12WlcI9JvBDsRsr7vkzne52NiMZscx/CqeRVDrZpyB9qGYIsD+hDsiK
+	 d028wqIAC+KBw2CRMK+NwNNhUmpLL6ZI6CJc6koLJ7gfIq5krs+DDLZ658rk1naa5g
+	 x6myZmFwXTvT2gL6EbdKTQugKLKNpwIxARp8tmDk=
+X-QQ-mid: zesmtpip2t1778314895t56bd8620
+X-QQ-Originating-IP: A33mfvdNSoccIiZuTgrBJOZ1A99y+m/LqVls1tDXXaM=
+Received: from PEN202512010004 ( [localhost])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Sat, 09 May 2026 16:21:33 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 14727995001244344790
+EX-QQ-RecipientCnt: 5
+From: Xu Rao <raoxu@uniontech.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Akash Sukhavasi <akash.sukhavasi@gmail.com>
-Subject: [PATCH] Input: analog: replace deprecated simple_strtoul() with kstrtouint()
-Date: Fri,  8 May 2026 21:40:48 -0500
-Message-ID: <20260509024048.46132-1-akash.sukhavasi@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	raoxu@uniontech.com
+Subject: [PATCH] HID: i2c-hid: add reset quirk for BLTP7853 touchpad
+Date: Sat,  9 May 2026 16:21:32 +0800
+Message-ID: <882C8FD17740299C+20260509082132.2188313-1-raoxu@uniontech.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,50 +48,74 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpip:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: Mmv6ZbnMzK1tz8De4TwiQppr4LSVy8epNBIOKhj+fdbzoehpBwxiAgrw
+	YoC0Alw2XZTPfWN+qE8MQXOGvN851wnDqKWoHpw8JbJ6v0AeT0WpiVFO4pCcWKAxqnWfqXP
+	QuUwVEpldt6xXnIVjer4ZvShEbXeEXi5PjXkvZ0ePhJKEbD7pll8nXYmiChK0EQWImtiA/H
+	OtNVlVE4tdLef6YHN6kGwFrBzEjxwR4Zclg5hw1IKAOahyOMuH/2eln7SaR6h1ZXjPeJYGo
+	y5910FHIvCh92etEWiUOuSQ0UkwMD4AIjCAY3IoV2BySM5lcHJ15VLJiKyrPIidI/oyIO2u
+	UaGjTozFjJRXv7F7FRgGokuNHIjNGjwEnafa5ljJPpBsmopZDbfzRKpCTZ1yJ304aJ7n9u8
+	2nSGwC06l1Te7Sc42P2l7+kb72q9fnEwxyQa+5vi4zcCjQU1GDIddV5p0GSwwN0hG0ZPQPV
+	97TMLi1hAj9Dceh5gWbCPuqZEYkeRiBfGyp5zP1gHMPtlTaphdxXXyKGDMXSGXi4VWBmbIG
+	rfRPjEY0bEitBVZIzQHN5SgGanoLrqOrg+y16ajnCm2lIyVfOUkk9czeaP8N5kfvB5qAiri
+	AGL31vQuMFMDqa8Mja+lJXTWjCAiUsXLl6m2MsZfT7T+3r1/0UEMa/QUwsY7S8KZ3R/lvEE
+	a+gICXMWzzHqEbR1uasjJ58iV/8ybfKT5qqR05U744qKFl6wI42NR/T7+QXLyq9Gq2NY96q
+	1TMsXm1Ypqer5jvb9iSUiYlmFZwcswL8E6lUcRQEv3z/1mDuH9ZZXeHsab8hHN0zgL21kLO
+	gvmZnTiUJDIfwKLQTBQYbLD/PzGt5tDfjHxUMVBNLRiPXtRH8mfIUxXh1cidG7BZCl7gz3j
+	cL6HsYr/0MSWFbws+ydmNUHlaAl6jyvVmKOB093eY2AkdOLBBS3nt85xIUqG84q+99fm4da
+	L7ewncMbqD6paqvgsigRxuggvOKquMzDYgUJTlA/trroaUIiQ0Y5Ij+38lPf2vdJHl4wjo5
+	paP7aaRC1DCQO7lzGGDWadESYZkzPMO1cILZo5JXR1T6hbsyd2q2ufEXWjAfIO6ki7mnmOm
+	w==
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
+X-QQ-RECHKSPAM: 0
 
-The simple_strtoul() function is deprecated because it ignores
-trailing garbage characters, which can mask typos in input.
+The BLTP7853 I2C HID touchpad may fail to probe after reboot or
+reprobe because reset completion is not signalled to the host. The
+driver then waits for the reset-complete interrupt until it times out
+and the device probe fails:
 
-Replace it with kstrtouint() in analog_parse_options() to enforce
-strict input parsing.
+  i2c_hid i2c-BLTP7853:00: failed to reset device.
+  i2c_hid i2c-BLTP7853:00: can't add hid device: -61
+  i2c_hid: probe of i2c-BLTP7853:00 failed with error -61
 
-Note that this introduces a minor, intended behavior change: while
-the old code would silently parse a malformed string like "12abc"
-as 12, the new code will reject it entirely and fall back to the
-unconfigured state (0xff). This strict parsing is the preferred
-modern behavior for kernel parameters.
+Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for the device so i2c-hid does
+not wait for a reset interrupt that may never arrive.
 
-Signed-off-by: Akash Sukhavasi <akash.sukhavasi@gmail.com>
+Signed-off-by: Xu Rao <raoxu@uniontech.com>
 ---
- drivers/input/joystick/analog.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hid/hid-ids.h              | 3 +++
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
-index b6f7bce1c..07ad360f8 100644
---- a/drivers/input/joystick/analog.c
-+++ b/drivers/input/joystick/analog.c
-@@ -653,7 +653,7 @@ static struct analog_types analog_types[] = {
- static void analog_parse_options(void)
- {
- 	int i, j;
--	char *end;
-+	unsigned int parsed_val;
- 
- 	for (i = 0; i < js_nargs; i++) {
- 
-@@ -664,8 +664,10 @@ static void analog_parse_options(void)
- 			}
- 		if (analog_types[j].name) continue;
- 
--		analog_options[i] = simple_strtoul(js[i], &end, 0);
--		if (end != js[i]) continue;
-+		if (kstrtouint(js[i], 0, &parsed_val) == 0) {
-+			analog_options[i] = parsed_val;
-+			continue;
-+		}
- 
- 		analog_options[i] = 0xff;
- 		if (!strlen(js[i])) continue;
--- 
-2.54.0
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0cf63742315b..dcb0b34cd069 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -277,6 +277,9 @@
+ #define USB_VENDOR_ID_BIGBEN	0x146b
+ #define USB_DEVICE_ID_BIGBEN_PS3OFMINIPAD	0x0902
+
++#define I2C_VENDOR_ID_BLTP		0x36b6
++#define I2C_PRODUCT_ID_BLTP7853		0xc001
++
+ #define USB_VENDOR_ID_BTC		0x046e
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE	0x5578
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE_2	0x5577
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 5a183af3d5c6..baff2728603e 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -149,6 +149,8 @@ static const struct i2c_hid_quirks {
+ 		 I2C_HID_QUIRK_BOGUS_IRQ },
+ 	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_0D42,
+ 		 I2C_HID_QUIRK_DELAY_WAKEUP_AFTER_RESUME },
++	{ I2C_VENDOR_ID_BLTP, I2C_PRODUCT_ID_BLTP7853,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	{ 0, 0 }
+ };
+
+--
+2.50.1
+
 

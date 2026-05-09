@@ -1,127 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2756F2F8EB0
-	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:42:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D25D42050
+	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 13:06:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778323326; cv=none; b=LptDRBohFSzKqW3ojFHPToZCRjDu8Q+v26/vcTc45OvEjiw952m0qL3A5UZtTFBh6q0uSbWGfGOKVWB4bqtfjdJfh/7zVN5rIJDeWn0wJLXEbT9XN421bJrlMF3RsM8gT29DXWL5hgWJ+GVXOMUNggGmks463hN36gFu51Ts8SE=
+	t=1778331982; cv=none; b=YqWVVpB+YK+e/qHfOR9jouBiGEqSTHrnQmkKYq8qJ4iVug2jfu50oBhe2NwFnqIgLaKRaVlvOF9BmwUBx+4y05hbgCWlhRlOJAfN3CUvyOpFv13XTn5zdbH3eRsEvIRGlFPdo/hZ56xCnzlFgegSTEE+O1dP3xGiVbzD9o4C8OQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778323326; c=relaxed/simple;
-	bh=uGq97I5yLbhVgUspJJy0tRliJ3fSrYaEROeknBIeV6Y=;
+	s=arc-20240116; t=1778331982; c=relaxed/simple;
+	bh=A1GL/pha6K0jyc1DFWZ5gc1PvKbxLIcbkqp8wLrFGJY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=trPcn7qF0whoQaJ0fgsxmpAXVysEvye5JbUJID+Ci7RZUyf5QXJDbFSJXjXVj2nNHz/FeiuFOg6XcwMD3n3/48oV68fvRv1Yd+pK2XJ4ZipqN6e/iIInV/VgQTxjoMGOthCdWPhVU83SJuY8ymNGpDHP72KF5vrLC2At5Q9LW3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bsZi/7+2; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=sW2dhnwNWklbrKHOH2JhOTNhaMWzsOsDJCuVlqsdo01csfZFwn8IAOXuoFtIpTJMiAUNVdec3pw0ou5XgI6vhBc5CkQcdQOQzPQZ0WpIrMJvJtCU04xDIVknl3IyMignqnWRZj6p0OLHcEhw75qjmliBKBr0Tihaqna6xTapFIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wm5fiRgb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bsZi/7+2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51481C2BCB2;
-	Sat,  9 May 2026 10:42:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wm5fiRgb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7770C4AF0D;
+	Sat,  9 May 2026 13:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778323325;
-	bh=uGq97I5yLbhVgUspJJy0tRliJ3fSrYaEROeknBIeV6Y=;
+	s=k20201202; t=1778331982;
+	bh=A1GL/pha6K0jyc1DFWZ5gc1PvKbxLIcbkqp8wLrFGJY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=bsZi/7+2UHEPFayFZsKN/CxACL76gxh943YVajZwZO0clOPAZ7cTpctG/u+KT6N+A
-	 ZCGTOYiGrwNUHFoETGhyA78lKUw0tcqKEQB2JZETt1pVOuaEcMIshe/dlFLQqHp/yy
-	 n/nwXvUrVKzO1p46iRIAd17ZBGwU052XZaRYr66CTGVI2Tro4fCLu+jw+vvXU/9xmC
-	 vpf3wufbRtlHMqxC1thblb0NzHNQtmmdLuPV7+exN4LClH7MDYbp/0AQAH37LttEA3
-	 HGepQdbVlIvN2Nz/TkIq+Q4C2+3uc758TOEqwdZ4rDWBekVV1ykJp4eVhPSwMsRKWj
-	 UNucbSRxParBA==
+	b=Wm5fiRgb2x5TwIO1zrk/92GDzSaJorSFpWOxTUCaAzwTRz+1PckNA1WPdBSVr6FNy
+	 RTQYUkPldGaUs1fIqcpYhsD10EwxGEYPt5snu6HHhOOf22D463ETSfEfni3xfVnt+Z
+	 C3FB1RwmYKuPqPC7XMlCxwa1WhH5B3vWIQbz957ZvgZ+GaIjc1OxjyEAtKImmn2nzS
+	 BNJGYvT97KBvHD0B2OnzlWgmMp+G4uv3gDAZ9BxeQZ7FXjlFPZyiO+IMHOEJQnk/1q
+	 bsua/etbnCCwbx4EbdW0nJFrMCUktSaOFOFUgy5c8w9WroXnA1i8u6xNL9qQmnqMte
+	 vHIAn1H8QLdvg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/9] iio: hid-sensors: drop redundant iio_dev
- argument
+Subject: Re: [PATCH v3 7/9] iio: humidity: hid-sensor-humidity: use common
+ device for devres
 Reply-To: sashiko@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260509101040.791404-2-sanjayembedded@gmail.com>
-References: <20260509101040.791404-2-sanjayembedded@gmail.com>
+In-Reply-To: <20260509101040.791404-8-sanjayembedded@gmail.com>
+References: <20260509101040.791404-8-sanjayembedded@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 09 May 2026 10:42:04 +0000
-Message-Id: <20260509104205.51481C2BCB2@smtp.kernel.org>
+Date: Sat, 09 May 2026 13:06:21 +0000
+Message-Id: <20260509130621.D7770C4AF0D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] This problem wasn't introduced by this patch, but the removal sequ=
-ence across HID IIO drivers cancels asynchronous suspend requests, leaving =
-the hardware powered on, which violates PM subsystem guidelines.
-- [High] This problem wasn't introduced by this patch, but in `hid-sensor-t=
-emperature.c`, the trigger is manually unregistered and freed in the `remov=
-e` callback while the IIO device is still active and registered, creating a=
- use-after-free vulnerability.
+- [High] Use-After-Free due to lifetime mismatch between IIO device and pla=
+tform device devres
 --
 
-commit 774f02b73d8b538afc5af51312b8682afec55f98
+commit 2edcf899b7cb430d80f56a0ef1506dd20ea46d9d
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: hid-sensors: drop redundant iio_dev argument
+iio: humidity: hid-sensor-humidity: use common device for devres
 
-This commit removes the unused iio_dev argument from
-hid_sensor_remove_trigger() across all HID IIO drivers, adapting the
-function prototype to simplify the API for a future devm-based conversion.
+This commit changes the devres allocation of humidity channels to use the
+platform device instead of the IIO device. The goal is to have a single,
+well-defined parent device for devres ownership.
 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/=
-hid-sensor-accel-3d.c
-> index 2ff591b3458f7..a63dae90dadc5 100644
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-[ ... ]
-> @@ -429,7 +429,7 @@ static void hid_accel_3d_remove(struct platform_devic=
-e *pdev)
+> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/hum=
+idity/hid-sensor-humidity.c
+> --- a/drivers/iio/humidity/hid-sensor-humidity.c
+> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
+> @@ -215,7 +215,7 @@ static int hid_humidity_probe(struct platform_device =
+*pdev)
+>  	if (ret)
+>  		return ret;
 > =20
->  	sensor_hub_remove_callback(hsdev, hsdev->usage);
->  	iio_device_unregister(indio_dev);
-> -	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
-> +	hid_sensor_remove_trigger(&accel_state->common_attributes);
->  }
+> -	humid_chans =3D devm_kmemdup(&indio_dev->dev, humidity_channels,
+> +	humid_chans =3D devm_kmemdup(&pdev->dev, humidity_channels,
+>  				   sizeof(humidity_channels), GFP_KERNEL);
 
-This problem wasn't introduced by this patch, but could this removal sequen=
-ce
-leave the hardware powered on?
+Could this change introduce a use-after-free if the IIO device outlives the
+driver binding?
 
-Looking at the removal path across these drivers, iio_device_unregister()
-disables the IIO buffers, which eventually calls hid_sensor_power_state()
-and queues an asynchronous suspend via pm_runtime_put_autosuspend().
+The indio_dev object is allocated using devm_iio_device_alloc(), meaning it=
+ is
+reference-counted and its lifetime can exceed the platform device binding if
+consumers hold a reference.
 
-Immediately afterward, hid_sensor_remove_trigger() calls
-pm_runtime_disable(). Does calling pm_runtime_disable() immediately after an
-async put cancel the pending suspend work, leaving the physical device acti=
-ve
-while marking it suspended in the PM core?
+If the driver unbinds, the pdev devres callbacks will execute and free the
+humid_chans memory. However, indio_dev->channels still points to this freed
+array.
 
-[ ... ]
-> diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/i=
-io/temperature/hid-sensor-temperature.c
-> index 9f628a8e5cfbe..60d4fcc8043b6 100644
-> --- a/drivers/iio/temperature/hid-sensor-temperature.c
-> +++ b/drivers/iio/temperature/hid-sensor-temperature.c
-[ ... ]
-> @@ -265,7 +265,7 @@ static void hid_temperature_remove(struct platform_de=
-vice *pdev)
->  	struct temperature_state *temp_st =3D iio_priv(indio_dev);
-> =20
->  	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
-> -	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
-> +	hid_sensor_remove_trigger(&temp_st->common_attributes);
->  }
+If a consumer later calls IIO APIs like iio_read_channel_ext_info(), they
+will dereference the freed humid_chans memory.
 
-This problem also wasn't introduced by this patch, but is there a
-use-after-free risk in this specific driver's removal sequence?
-
-The temperature driver uses devm_iio_device_register() to register the IIO
-device, which means the device unregistration is deferred until the devres
-cleanup phase after hid_temperature_remove() returns.
-
-However, hid_sensor_remove_trigger() is called manually here and it calls
-iio_trigger_free(). Since the IIO device remains fully registered and expos=
-ed
-to user-space until devres runs, could concurrent sysfs access or buffer
-operations dereference the freed trigger pointer?
+>  	if (!humid_chans)
+>  		return -ENOMEM;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260509101040.7914=
-04-1-sanjayembedded@gmail.com?part=3D1
+04-1-sanjayembedded@gmail.com?part=3D7

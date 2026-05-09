@@ -1,63 +1,63 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543A039EF0A
-	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:11:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DBFC39EF0A
+	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:11:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778321469; cv=none; b=sUEC3oDcVdiSI5eqaaBxyG0a1Rz/Bh9EILYOiLuN6RmqTbr9jhjqzbhRPtrQpPz2+lH8R9SHpQ+8Lb7EBdHIZGjc+TTe0NMrFXbPHpAX8sWO8//xZDM+63sDlA5shrOxCMy5MIHz2mUiZiTxM3zOVnHjilZXVdYtBZIkAzw7wyI=
+	t=1778321473; cv=none; b=nm0lDpj8XSiUPN60v/BoS4py9Fv4nH9ZPXcbG50OHbKTe9M4iGF5V3qp3wEy+PHWBojLftPKP8i0w55cj57NDLoBz7jc1YXl445NZUlIcOWnV9qG0XlOWyz0mDzZk3cILXtfAT2+7XXH5V+LsKOJYlEnl+MgTlqr+b0bi0RtC74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778321469; c=relaxed/simple;
-	bh=OXbE0hHG264Jq5RuBE0XlsR247e4tE58gxyxm5gN62M=;
+	s=arc-20240116; t=1778321473; c=relaxed/simple;
+	bh=q+dOw9JIxaH4UadvQHCm3a9EV/WB+WLCsK+NOBMLDn4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bcF3b5GiRzdMlnsZm9ebTr2aGa54SAUprCJkz+ASAhAKn8MD7q0CT8EKh2RCCenBCUedZJlKKJn2usjgR28UwLcuGHiODwyMR5I2XibFJHCuwG4AGGjv/20g4eFTZqSzlQeFjhEcmv5N0dWOQ91nKq1IHCgMzdpno04IY6UrHgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RUygEjOI; arc=none smtp.client-ip=209.85.214.180
+	 MIME-Version; b=sTzVJ7YVO/okC8CiWU7xLPkPqA33/An7ScscS2Kr5ByBSihvWpYQiI+zQ3iwfHZKTFWBAqvOxE9UH7Xl28+yp3G06USx6F6f4gV1JbkJrZAVBPWWmgPuhkdVdm4JRQJdcFeri1OVmPQNomXTL9LCUG9S/Q/Orky0vjqPXjX5xNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oOi22OTR; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RUygEjOI"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2baca4df358so16853745ad.2
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 03:11:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oOi22OTR"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2b4650d5f5cso10849425ad.0
+        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 03:11:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778321468; x=1778926268; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778321472; x=1778926272; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9EOX8xMuI5acwbxKOg+QC2TTMrkRYYm6GWsY8rfp+3c=;
-        b=RUygEjOI5CWh4K5d7GTulc+D/7vP0cIsNNe/HMo248buNJIM3UBm6oPG/bamQxvibS
-         maAIxwaqQOPWy1ztrLC6fnIEfLHZ9ZbQKNTyEev+ZnSkEcW0wrhdk4G1VMwoAigiYseE
-         iY6PwXhDvlNF17vGy6bl0QGNhkoHf/ImUGHQwIRL/wflV78fPdlodxK0NrCB2BIIHa1f
-         mw98U6Tlb9f05OdE5fAjnyAILwFn9ZUFoPJotDxu/Zvx5cyNDJY/hdO+PYgoHaCYbvV3
-         17AGRJazsdzfylyDcCdtEMiAhygJ/xbSmJGnuZiKtLrEFP7fz5OXw523M75JVgpq/mgm
-         WSgQ==
+        bh=QZy8osW6ZxoFBcwJGDv5RLWlWq8U4K/6eriZ633rrUU=;
+        b=oOi22OTRulSOhM/5Mir17nGm10LCJ8shftEm2EErlf8TfhdiaDKMrcbH52w/hBCzTl
+         WPZmflndNfWlEAoa2xubUeWQ7qDqWtyGiXyw5i46ZIaBk8oL2YSCsCCP6AYpzLz7m9i7
+         DAKuhPZQXqsaty6wxPZhwewn9snpeGhXa4++7LRCENzMB7UUDu+ecy+bIF1xLuHVQY4I
+         V3Hkjrvy2aH4MW5GqHAT8KK0k0FCXBTH0MUt4XdOFZZ0Yy+1hYQvp/ol+cfR8h+3LZVS
+         fNg+HbFIq46zyOB30raOygEkKUS5LKzZHISrHBryLDc/ut7q/IS1NP0+kDfowNKEK2SF
+         Uxvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778321468; x=1778926268;
+        d=1e100.net; s=20251104; t=1778321472; x=1778926272;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=9EOX8xMuI5acwbxKOg+QC2TTMrkRYYm6GWsY8rfp+3c=;
-        b=piAHCJKtRBgLZmMt5bJao3ffxDSWKUc2DZRpRJX9wNMojJsGkcCrxfFnNw26Hr4vPH
-         OKkOnb+nq4COJR5LL/1EfMtMb3bi58IcmM7YDxtOGHR4cPNYD3ekid+mAHK79ckVE47K
-         tNPvgc1Guomh6/5ZGnwAztQnsnTVpA8FjSaan+rZudbf32dzPlgQD7FCTFCXg2/yXhEw
-         PUzMLjI5P6kE0btZWx9QeaM94T6J2edAnIam5KmTnp84rG0u9DeCrBbVY+2ufk4P4aqz
-         w3Sun1iw2jL6U8Iocf02kQiaa9LAovizZCN+eWGhevx27NNgbMsYyjPftCLqhhpEr4cp
-         Jl7g==
-X-Forwarded-Encrypted: i=1; AFNElJ/e/7OZeF0L9ztDe8vK2srSrJzVeS+1HFdokZkbbcIemFytSEPD72Xb5407MxlOGIKQyTjbSZ1JsCoWoA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQPFGyIw5GAIMeluhs1zfZAJjD2dmwm0LCg7IXEz2C24YtbIId
-	Q7Oedkdgfy0rjLAUVdflxkaEzZsf5YBgsste67XTjMEt/e3Ou0jKcfme
-X-Gm-Gg: Acq92OEHL+D3s56foEPL+RZqtbFlYDf6C0CBt/6MRh2sLnVBq6H5IIx7GefBhKg8qYy
-	tzdFU8MhXw/h3xtioJJ5CAXkXZ9gW2yJcRnZFWbTd9GlzXu9iBmJb1VrNrvJE1EJRPW1UG6jzwy
-	kj+UoH/32ZSg7iT/+phJ3KTuxDwVVxH6w96LSYlVN5JrPeNlq2WIyem9X/I1mfAHgFgSv1C4Bo3
-	3xm1WLjWjj/zgC4nNfilPngmULGX7QZO7Trg3dZLhAmMuN/b7Pqa81SOkcca3Y7pBbWf+S+FHR6
-	Te1B9aqK/XliZWXDZ56Y48QwayCZjHLPfTZu55HHfGn3KP/OA78caBXG4YsNEoMkfRA8xp9LI0m
-	xal+06CpTeSleHmzJ87p+V0W25P8QFspsNzQD1jS2PEYhZaTi0jNo7MLyY3GtyMaSXstKlqlehQ
-	6odCKlEB8u0bnmv7XK5tWSZ7b2XQV/n/yxulqbIXdUWEhZuPDm
-X-Received: by 2002:a17:902:8b84:b0:2b4:6d92:b002 with SMTP id d9443c01a7336-2ba7a343404mr117379655ad.37.1778321467655;
-        Sat, 09 May 2026 03:11:07 -0700 (PDT)
+        bh=QZy8osW6ZxoFBcwJGDv5RLWlWq8U4K/6eriZ633rrUU=;
+        b=eqMJd7M7fw6gS+38Fk6MC13VjvWK/9OAlmn0M36sy7ZAfs8wnSmDxwS0uNiHTIPbJl
+         lvJVhKjw2ilzmtUL1g8tybDG2mI50bdaA85nxNxCX9JyE5VrNgEhD/Pfmf4zcTx0vvTM
+         drshGM9Qsl1pi+tOI/HLv+XsYdDitFbd+GjaYaiNwFvgeGFnQl91P5wr1yq4bsXmBnRW
+         EwF1HfL/2beEq2bo3ODTnIBrM6VIFMQgvn+TuqQSTSiAsHZA05OU0L9VQj+19CDUJPZu
+         Dyw2l8n5Vz3QGycFd0wvKlNsnl+juhQvyq4s2Th2D/rA6+h9J+UqKAR6828Ecg+yaoIU
+         pK4Q==
+X-Forwarded-Encrypted: i=1; AFNElJ/xFNs072M58f7ydq3lJF5cwqIB4+uZ0Slu7zKH6Np2IcipmjzKSU2ACt6NdZDJAYM9bDdWfVrAFUBpeA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxh2EfpmSqs2SG772QBFQaGET0q+MANg3RuM27h5r1ohgdix5/Q
+	CMyOBR48JlSukrGlbNKlZ69M7aCDMLerDfT2O8IVdu0DiENzIlxtzmkf
+X-Gm-Gg: Acq92OEDWPXBgdyV5blmkBRM1ODnKVnbDipH1h5GS/wo2kblh9nWN0ao1kA0tN1hHd9
+	//pjrDc3sJfNEbGzWdN4nVGRBCDzRfACX35z80+HRIvyYn/YyX3DfylfOBQ1oltJQvE+7Duhj4r
+	tZ7A2WQ+0Ki7VY4gNSXLmxieIpM9wpBsmqmuRdQSFH6d4qY7nih31BykEPZNKaPD4QGyBfJybt+
+	0lWKn7S5y1fludzBEoo18atg/eh1esa3Mw/MS6V+uzOx7WvR4F4HZPB1kL3ughaobpZFCikutoI
+	2ArH2yhbEokVZNlNoaR5xrlZCa7jlUxajDOsh1nrpxd6NetBwQHW6/PmzIt95zCMp0MbySKNCyB
+	4haaIllL00JZtYTtB16S3MjzqyoD6fv1Py0JXU/bhFNXX9BG/qrVwEldzVgRKpL9u2KEto70DW7
+	s3ifDLAiwmCwQojOpC4ealHA7Qk89qDWRgzUawNkE4QrFKmu08
+X-Received: by 2002:a17:903:845:b0:2ba:bfc:76a8 with SMTP id d9443c01a7336-2ba79290621mr119308095ad.16.1778321471744;
+        Sat, 09 May 2026 03:11:11 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e83084sm47335365ad.61.2026.05.09.03.11.03
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e83084sm47335365ad.61.2026.05.09.03.11.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 03:11:07 -0700 (PDT)
+        Sat, 09 May 2026 03:11:11 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
 To: jikos@kernel.org,
@@ -71,9 +71,9 @@ Cc: dlechner@baylibre.com,
 	linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 5/9] iio: gyro: hid-sensor-gyro-3d: drop hid_sensor_remove_trigger() using devm API
-Date: Sat,  9 May 2026 15:40:36 +0530
-Message-Id: <20260509101040.791404-6-sanjayembedded@gmail.com>
+Subject: [PATCH v3 6/9] iio: humidity: hid-sensor-humidity: cleanup codestyle check
+Date: Sat,  9 May 2026 15:40:37 +0530
+Message-Id: <20260509101040.791404-7-sanjayembedded@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260509101040.791404-1-sanjayembedded@gmail.com>
 References: <20260509101040.791404-1-sanjayembedded@gmail.com>
@@ -87,62 +87,141 @@ Content-Transfer-Encoding: 8bit
 
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-Use devm_hid_sensor_setup_trigger() to automatically release resource
-during fail, unbind or removal of driver using devres framework.
+Reported by checkpatch:
+FILE: drivers/iio/humidity/hid-sensor-humidity.c
 
-This simplify the setup, remove goto, avoid manual resource cleanup in
-teardown path.
+CHECK: Alignment should match open parenthesis
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/iio/humidity/hid-sensor-humidity.c | 46 +++++++++++-----------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index 87537f9c58fb..72e7db8ce3b2 100644
---- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-+++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-@@ -326,8 +326,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
+index e580a2af9562..968dd8d4bb35 100644
+--- a/drivers/iio/humidity/hid-sensor-humidity.c
++++ b/drivers/iio/humidity/hid-sensor-humidity.c
+@@ -45,7 +45,7 @@ static const struct iio_chan_spec humidity_channels[] = {
  
- 	atomic_set(&gyro_state->common_attributes.data_ready, 0);
- 
--	ret = hid_sensor_setup_trigger(indio_dev, name,
--					&gyro_state->common_attributes);
-+	ret = devm_hid_sensor_setup_trigger(&pdev->dev, indio_dev, name,
-+					    &gyro_state->common_attributes);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "trigger setup failed\n");
- 		return ret;
-@@ -336,7 +336,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- 	ret = iio_device_register(indio_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "device register failed\n");
--		goto error_remove_trigger;
-+		return ret;
- 	}
- 
- 	gyro_state->callbacks.send_event = gyro_3d_proc_event;
-@@ -353,8 +353,6 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- 
- error_iio_unreg:
- 	iio_device_unregister(indio_dev);
--error_remove_trigger:
--	hid_sensor_remove_trigger(&gyro_state->common_attributes);
- 	return ret;
- }
- 
-@@ -363,11 +361,9 @@ static void hid_gyro_3d_remove(struct platform_device *pdev)
+ /* Adjust channel real bits based on report descriptor */
+ static void humidity_adjust_channel_bit_mask(struct iio_chan_spec *channels,
+-					int channel, int size)
++					     int channel, int size)
  {
- 	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct gyro_3d_state *gyro_state = iio_priv(indio_dev);
- 
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
- 	iio_device_unregister(indio_dev);
--	hid_sensor_remove_trigger(&gyro_state->common_attributes);
+ 	channels[channel].scan_type.sign = 's';
+ 	/* Real storage bits will change based on the report desc. */
+@@ -55,8 +55,8 @@ static void humidity_adjust_channel_bit_mask(struct iio_chan_spec *channels,
  }
  
- static const struct platform_device_id hid_gyro_3d_ids[] = {
+ static int humidity_read_raw(struct iio_dev *indio_dev,
+-				struct iio_chan_spec const *chan,
+-				int *val, int *val2, long mask)
++			     struct iio_chan_spec const *chan,
++			     int *val, int *val2, long mask)
+ {
+ 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+ 
+@@ -101,8 +101,8 @@ static int humidity_read_raw(struct iio_dev *indio_dev,
+ }
+ 
+ static int humidity_write_raw(struct iio_dev *indio_dev,
+-				struct iio_chan_spec const *chan,
+-				int val, int val2, long mask)
++			      struct iio_chan_spec const *chan,
++			      int val, int val2, long mask)
+ {
+ 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+ 
+@@ -127,7 +127,7 @@ static const struct iio_info humidity_info = {
+ 
+ /* Callback handler to send event after all samples are received and captured */
+ static int humidity_proc_event(struct hid_sensor_hub_device *hsdev,
+-				unsigned int usage_id, void *pdev)
++			       unsigned int usage_id, void *pdev)
+ {
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+@@ -141,8 +141,8 @@ static int humidity_proc_event(struct hid_sensor_hub_device *hsdev,
+ 
+ /* Capture samples in local storage */
+ static int humidity_capture_sample(struct hid_sensor_hub_device *hsdev,
+-				unsigned int usage_id, size_t raw_len,
+-				char *raw_data, void *pdev)
++				   unsigned int usage_id, size_t raw_len,
++				   char *raw_data, void *pdev)
+ {
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+@@ -159,17 +159,17 @@ static int humidity_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 
+ /* Parse report which is specific to an usage id */
+ static int humidity_parse_report(struct platform_device *pdev,
+-				struct hid_sensor_hub_device *hsdev,
+-				struct iio_chan_spec *channels,
+-				unsigned int usage_id,
+-				struct hid_humidity_state *st)
++				 struct hid_sensor_hub_device *hsdev,
++				 struct iio_chan_spec *channels,
++				 unsigned int usage_id,
++				 struct hid_humidity_state *st)
+ {
+ 	int ret;
+ 
+ 	ret = sensor_hub_input_get_attribute_info(hsdev, HID_INPUT_REPORT,
+-					usage_id,
+-					HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
+-					&st->humidity_attr);
++						  usage_id,
++						  HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
++						  &st->humidity_attr);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -208,20 +208,20 @@ static int hid_humidity_probe(struct platform_device *pdev)
+ 	humid_st->common_attributes.pdev = pdev;
+ 
+ 	ret = hid_sensor_parse_common_attributes(hsdev,
+-					HID_USAGE_SENSOR_HUMIDITY,
+-					&humid_st->common_attributes,
+-					humidity_sensitivity_addresses,
+-					ARRAY_SIZE(humidity_sensitivity_addresses));
++						 HID_USAGE_SENSOR_HUMIDITY,
++						 &humid_st->common_attributes,
++						 humidity_sensitivity_addresses,
++						 ARRAY_SIZE(humidity_sensitivity_addresses));
+ 	if (ret)
+ 		return ret;
+ 
+ 	humid_chans = devm_kmemdup(&indio_dev->dev, humidity_channels,
+-					sizeof(humidity_channels), GFP_KERNEL);
++				   sizeof(humidity_channels), GFP_KERNEL);
+ 	if (!humid_chans)
+ 		return -ENOMEM;
+ 
+ 	ret = humidity_parse_report(pdev, hsdev, humid_chans,
+-				HID_USAGE_SENSOR_HUMIDITY, humid_st);
++				    HID_USAGE_SENSOR_HUMIDITY, humid_st);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -234,7 +234,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
+ 	atomic_set(&humid_st->common_attributes.data_ready, 0);
+ 
+ 	ret = hid_sensor_setup_trigger(indio_dev, name,
+-				&humid_st->common_attributes);
++				       &humid_st->common_attributes);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -242,7 +242,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
+ 
+ 	humidity_callbacks.pdev = pdev;
+ 	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
+-					&humidity_callbacks);
++					   &humidity_callbacks);
+ 	if (ret)
+ 		goto error_remove_trigger;
+ 
 -- 
 2.34.1
 

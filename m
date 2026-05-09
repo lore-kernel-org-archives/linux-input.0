@@ -1,46 +1,72 @@
-Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661FA282F30;
-	Sat,  9 May 2026 08:22:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.92.39.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42C53A1C9
+	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 09:46:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778314942; cv=none; b=oHkoelTd9ThOFF1I67fn+0z8Mm/BzXq6BgxLbtbr7QO4jMigU48GrY/X7HlBHAtpXqxyXeS8L3GJASPoETIjqtOlY2nlD1uem1ahe/0R9tv1L7L0B6Lvdc1CmNQPULNtZ/p2/Fjf5JQjkzNNWUpn5vnjcpVEqh6QlGjl/ctjLLI=
+	t=1778319973; cv=none; b=kM3S0Abb/tYEI2+KFbCcYa4Vzqa1w+lWET2bZesGqKfN/69HIT+08z5Kn2mOUQycoc92Ilgo7rUlA8w55/mAibIgW+bpyk2/i6zFgRU8ygYY+KVQlBwiEumsmLq1PtayOSHB4h8iliD/jgd6oS80ocw8D7Zqe/bBl8rVwYYrtfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778314942; c=relaxed/simple;
-	bh=TBneldTY+F1jLhmgUfcH7ezAZjnvTXi0aOth5dzlcPc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nulMQNsdYkp2hcA5XiEilPHzYREf2E1LrxvenagEXsYRaMHv7aOnEMk4VY2owtc+nR/OVVUBxvslv7gA9OoJ9NQ1XE3Nog+18kBmJyZlGUN212OP5pxu8BaVMbL7JyD87IBWkynozxOA1HgOp+3cSMqPvDzYKx/FHJ3UKATtqQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=nwKHKg2C; arc=none smtp.client-ip=54.92.39.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	s=arc-20240116; t=1778319973; c=relaxed/simple;
+	bh=6hSvrC6JqtJ3Ll+ikYPnEBdS7T/Rm4O1cnmAAUY5IGo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ipWCFmnw2wNTsZ10GVnDITnJFeMVJ6eWe9lrymEJKYBcfsUQl5TVuJyFu9fEP7eLcDMDkmr9J8SSG4cA1jXL0Wo4edOVfb6QE3YPfIB+fYGEopjVH244YmssKBaloB/A2Gonl16hsXU2CkZhCgmX9JeF6tSwtSIc4duvXpnT6NY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h+FuX61f; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="nwKHKg2C"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1778314910;
-	bh=mpiyPm5hIKxyUSOwINxXUdjQSMzoKliJjuBIXtHcXYY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=nwKHKg2Cwk12WlcI9JvBDsRsr7vkzne52NiMZscx/CqeRVDrZpyB9qGYIsD+hDsiK
-	 d028wqIAC+KBw2CRMK+NwNNhUmpLL6ZI6CJc6koLJ7gfIq5krs+DDLZ658rk1naa5g
-	 x6myZmFwXTvT2gL6EbdKTQugKLKNpwIxARp8tmDk=
-X-QQ-mid: zesmtpip2t1778314895t56bd8620
-X-QQ-Originating-IP: A33mfvdNSoccIiZuTgrBJOZ1A99y+m/LqVls1tDXXaM=
-Received: from PEN202512010004 ( [localhost])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Sat, 09 May 2026 16:21:33 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 14727995001244344790
-EX-QQ-RecipientCnt: 5
-From: Xu Rao <raoxu@uniontech.com>
-To: jikos@kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h+FuX61f"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4891f625344so27907495e9.0
+        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 02:46:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778319970; x=1778924770; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=P7U/T5gN+6tbPfvjxQ18soHxdaMsEpG40WbKeR8e5d4=;
+        b=h+FuX61fPQHt0vJlFlHoj9721+CKDqKOPvCSDgwm5GhtigYjQ/tphPAeIQbM0tCcj7
+         rYPD1unMBX82/TPlEzKrxb9IjjGaSXejSEIk175fA3Hi+38CEVK+LIqLMFLFBlEIWXiB
+         xtlp3veZ+rbjJg0UsLspwnLoalvxb1PToxAFFaqshdwFBz9JGaRHS3TNEpRBpd2WZ+Zi
+         GMcFRrdZq/Gw7F2+xTMX/1A1xv7HP89y6cefCy4kEumi8blGgLtuSa6sTQ1Cv1HKyE6y
+         WnY/1IYj9g2z9tWcGsYuuVS//wio47fYeFowdup4crSSntNLikrB2gwNo+8MY4u3eRw2
+         4Ojg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778319970; x=1778924770;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=P7U/T5gN+6tbPfvjxQ18soHxdaMsEpG40WbKeR8e5d4=;
+        b=IG9FPT7t9HBRbegk+uxWiFpLY64qAxq7yn/vR+Exfl+cwFR5JWT0VUEjyTWrp0W7L4
+         XwIFH2Un2IJRoLBQYeI/lDQK3ZarLGPzhR8uh6nISDaSrOjISj0ff0MNOKdGHaqqU0Ce
+         GCwZ1SWls9z2nklv1f8O1iab7eRz3ME7maM+ZILtto4eYENQ4JWP7wr43kCHB9oK4BrR
+         LY/Z3RlcMxElxWwxNKTtMDMnQrRmUihCuoaPvecwehO69urHRVVBtqoZkkR/xPFkErp/
+         SFU6FHWX27k6roAQM3hU9XLGdamWzHoHWqNYgexFGPp+uW+ULZmX7+L7qEbuE/NpsDVy
+         Gp9g==
+X-Forwarded-Encrypted: i=1; AFNElJ93m9/cAfjslY7pXDrT5Dw5hgVF9mw5b2xvb3Q5b4nCRTTiiITb4FNPKKyoreQn3T9QSPXKd2bDNu0Vvg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8abQIRbLMEUWEkRd+fcjZgQ3hdHUdtoRs89qBcC1RJwuMZZR0
+	tHFxmH0SPCyUESqzCSouSOCuP3+uVIPce93QUfsuiMBPH7sHyTj5euSc
+X-Gm-Gg: Acq92OEndNexZDJgtYyz/dBDbiy6DLXHCUxpX0ym0dmRoH/KnkIUdo2uP8Y4+CdK6az
+	cerl0wvo4rA8nFQgn3MFdwCkmbRt+zI8kH9ED+qUtRfapmlCxRXHfF12AXKVSdmI5z2UryqLuXW
+	+F0HuLBif4buuG1GAVfwUtGoqRRBdGZgWZ3MgbOhVVhxZlTRYmHDlZl1uCOb8yY/lXyXawI2iAJ
+	8cn7knFsqGYusAu1lKefgiFdqurt/8PY3SquvpAxTwY+ECGVNwZ2ITFpUGoaYlDyeItFIsUD7wH
+	IRn7sZDJrS1mOI3b157n7tYFwa0jV9k9FgIibO8xTSq2TrEVCzFEgcBF0gGFksBko78eLGOW9bA
+	ByGMDxyutR4Tn8/gUDEOe+agkTvjNe9VxAL3zLLvIz7g98EYJsHH1B+iB569JDzIVW6JUFFcoWI
+	KiJsIf9z61AA==
+X-Received: by 2002:a05:600c:2219:b0:48a:5ee0:7781 with SMTP id 5b1f17b1804b1-48e5e007218mr123817685e9.16.1778319969794;
+        Sat, 09 May 2026 02:46:09 -0700 (PDT)
+Received: from ns3242901.. ([2001:41d0:a04:2e00::])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45491ca2fd6sm11224669f8f.30.2026.05.09.02.46.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 09 May 2026 02:46:09 -0700 (PDT)
+From: Florian Pradines <florian.pradines@gmail.com>
+To: gupt21@gmail.com,
+	jikos@kernel.org,
 	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	raoxu@uniontech.com
-Subject: [PATCH] HID: i2c-hid: add reset quirk for BLTP7853 touchpad
-Date: Sat,  9 May 2026 16:21:32 +0800
-Message-ID: <882C8FD17740299C+20260509082132.2188313-1-raoxu@uniontech.com>
-X-Mailer: git-send-email 2.50.1
+Cc: linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	Florian Pradines <florian.pradines@gmail.com>
+Subject: [PATCH] HID: mcp2221: fix OOB write in mcp2221_raw_event()
+Date: Sat,  9 May 2026 09:45:17 +0000
+Message-ID: <20260509094517.2691246-1-florian.pradines@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,74 +74,59 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpip:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: Mmv6ZbnMzK1tz8De4TwiQppr4LSVy8epNBIOKhj+fdbzoehpBwxiAgrw
-	YoC0Alw2XZTPfWN+qE8MQXOGvN851wnDqKWoHpw8JbJ6v0AeT0WpiVFO4pCcWKAxqnWfqXP
-	QuUwVEpldt6xXnIVjer4ZvShEbXeEXi5PjXkvZ0ePhJKEbD7pll8nXYmiChK0EQWImtiA/H
-	OtNVlVE4tdLef6YHN6kGwFrBzEjxwR4Zclg5hw1IKAOahyOMuH/2eln7SaR6h1ZXjPeJYGo
-	y5910FHIvCh92etEWiUOuSQ0UkwMD4AIjCAY3IoV2BySM5lcHJ15VLJiKyrPIidI/oyIO2u
-	UaGjTozFjJRXv7F7FRgGokuNHIjNGjwEnafa5ljJPpBsmopZDbfzRKpCTZ1yJ304aJ7n9u8
-	2nSGwC06l1Te7Sc42P2l7+kb72q9fnEwxyQa+5vi4zcCjQU1GDIddV5p0GSwwN0hG0ZPQPV
-	97TMLi1hAj9Dceh5gWbCPuqZEYkeRiBfGyp5zP1gHMPtlTaphdxXXyKGDMXSGXi4VWBmbIG
-	rfRPjEY0bEitBVZIzQHN5SgGanoLrqOrg+y16ajnCm2lIyVfOUkk9czeaP8N5kfvB5qAiri
-	AGL31vQuMFMDqa8Mja+lJXTWjCAiUsXLl6m2MsZfT7T+3r1/0UEMa/QUwsY7S8KZ3R/lvEE
-	a+gICXMWzzHqEbR1uasjJ58iV/8ybfKT5qqR05U744qKFl6wI42NR/T7+QXLyq9Gq2NY96q
-	1TMsXm1Ypqer5jvb9iSUiYlmFZwcswL8E6lUcRQEv3z/1mDuH9ZZXeHsab8hHN0zgL21kLO
-	gvmZnTiUJDIfwKLQTBQYbLD/PzGt5tDfjHxUMVBNLRiPXtRH8mfIUxXh1cidG7BZCl7gz3j
-	cL6HsYr/0MSWFbws+ydmNUHlaAl6jyvVmKOB093eY2AkdOLBBS3nt85xIUqG84q+99fm4da
-	L7ewncMbqD6paqvgsigRxuggvOKquMzDYgUJTlA/trroaUIiQ0Y5Ij+38lPf2vdJHl4wjo5
-	paP7aaRC1DCQO7lzGGDWadESYZkzPMO1cILZo5JXR1T6hbsyd2q2ufEXWjAfIO6ki7mnmOm
-	w==
-X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
-X-QQ-RECHKSPAM: 0
 
-The BLTP7853 I2C HID touchpad may fail to probe after reboot or
-reprobe because reset completion is not signalled to the host. The
-driver then waits for the reset-complete interrupt until it times out
-and the device probe fails:
+mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
+offset rxbuf_idx without checking that the copy fits within the
+destination buffer. A device responding with up to 60 bytes to a
+small I2C/SMBus read can overflow the buffer.
 
-  i2c_hid i2c-BLTP7853:00: failed to reset device.
-  i2c_hid i2c-BLTP7853:00: can't add hid device: -61
-  i2c_hid: probe of i2c-BLTP7853:00 failed with error -61
+Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
+mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
+before the memcpy.
 
-Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for the device so i2c-hid does
-not wait for a reset interrupt that may never arrive.
-
-Signed-off-by: Xu Rao <raoxu@uniontech.com>
+Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
 ---
- drivers/hid/hid-ids.h              | 3 +++
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/hid/hid-mcp2221.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0cf63742315b..dcb0b34cd069 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -277,6 +277,9 @@
- #define USB_VENDOR_ID_BIGBEN	0x146b
- #define USB_DEVICE_ID_BIGBEN_PS3OFMINIPAD	0x0902
-
-+#define I2C_VENDOR_ID_BLTP		0x36b6
-+#define I2C_PRODUCT_ID_BLTP7853		0xc001
-+
- #define USB_VENDOR_ID_BTC		0x046e
- #define USB_DEVICE_ID_BTC_EMPREX_REMOTE	0x5578
- #define USB_DEVICE_ID_BTC_EMPREX_REMOTE_2	0x5577
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 5a183af3d5c6..baff2728603e 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -149,6 +149,8 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_0D42,
- 		 I2C_HID_QUIRK_DELAY_WAKEUP_AFTER_RESUME },
-+	{ I2C_VENDOR_ID_BLTP, I2C_PRODUCT_ID_BLTP7853,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ 0, 0 }
- };
-
---
-2.50.1
-
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index be80970ab48e..e4ddd8e9293b 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -128,6 +128,7 @@ struct mcp2221 {
+ 	u8 *rxbuf;
+ 	u8 txbuf[64];
+ 	int rxbuf_idx;
++	int rxbuf_size;
+ 	int status;
+ 	u8 cur_i2c_clk_div;
+ 	struct gpio_chip *gc;
+@@ -330,12 +331,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
+ 		mcp->txbuf[3] = (u8)(msg->addr << 1);
+ 		total_len = msg->len;
+ 		mcp->rxbuf = msg->buf;
++		mcp->rxbuf_size = msg->len;
+ 	} else {
+ 		mcp->txbuf[1] = smbus_len;
+ 		mcp->txbuf[2] = 0;
+ 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
+ 		total_len = smbus_len;
+ 		mcp->rxbuf = smbus_buf;
++		mcp->rxbuf_size = smbus_len;
+ 	}
+ 
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
+@@ -919,6 +922,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 					mcp->status = -EINVAL;
+ 					break;
+ 				}
++				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
++					mcp->status = -EINVAL;
++					break;
++				}
+ 				buf = mcp->rxbuf;
+ 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+ 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
+-- 
+2.47.3
 

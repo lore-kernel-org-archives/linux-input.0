@@ -1,154 +1,159 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D137E39E164
-	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:11:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20A602F8E8A
+	for <linux-input@vger.kernel.org>; Sat,  9 May 2026 10:36:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778321486; cv=none; b=VMSYCgazTMp2AVJx8Jzpan5uB9T+axnEocYJllw2rB2UhZ+ZTY0/8hMfLCO0+wC/SK5HzHa++n9+dqnZQapXo8q9k87hBmycbb3DVceIpxUDoFmI8Qy75BTujTY7jhNMtTCKB6WIjimJcRx2IMsDt+RcRpjCGMEQFPJb0yPijfQ=
+	t=1778322988; cv=none; b=oX5YUqQnKPSDG59ITDgO5c72x4+Qi4DOXxRGpKNetAmPLtGjTl9/48hNBjj++cr6FwcBbIbAgYb6utJYZDHWo+wpZGdVNvF51t83UP+48d3twHNfOhcj3V/CL5GXoCyaoxNtPulrr9uBv0ncnebLwPh3qw4Y6kt78KgWr2Utn9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778321486; c=relaxed/simple;
-	bh=/ypM8gwlCiAeCIMJp+GRH1JKDXxEaGiFEs725h5oIl8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Qe7CYZGKg1TrpPenwoAJaru1OWT4Kex3DWRdorSt5jMrYQcd61jST0QUXKjkT/4vZuOSb+wBGQxkD2Yoha7spDBBSY06SFll/rY0yUS4lCUrsGuBAP25J+3/4kjpiYnnbF8AC5EHlIDcgsy3ODGXGd4wcMpkY2613rJhE4svyro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ku0O9Kab; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778322988; c=relaxed/simple;
+	bh=IGCLS6xpr+/8KUB9mGkyP/zPyaYg5p/dfxzTCklEaDM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jPEvgK9onK4ryyGWtDlrJJ6SBG4MaDvxmSvQJr03C6rObiyrr0C3jY8nZ65AkJh6vgLJdDQafcnLMVbtYNa33OA6hZG3tJPSKnjqsJ6ToKOzm16IhwTuUNBObAuBChrEBpxA9UUMDts4VvnA3men0xt91PQgTLO+5zd3ILzj3aU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cLKDpEQx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ku0O9Kab"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ba928852a5so19053765ad.1
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 03:11:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778321484; x=1778926284; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YxEj5NvBAWz6r+Pm4CowXogfvDTiNULt7IFl/LWJs1M=;
-        b=ku0O9KabwFNfEXhEDmk4E5umbV+EVBGQybz+RG5IRB961Bt/uhVCgb1iFurwzxqXwi
-         6rB8nxIzfp48jn7JCo0biv5sCJBHWHnbuCpKjzBn/0EPtEvlhXvdJQxlLLNC4s1oFx+q
-         CvAbf8Ptv0yNSd8EggetIKklX4cZEuyh1dzc+iNvsDyOSqVe6/mtawIBCAD9PA1VBq7y
-         MOxkPGntyzlCZB8YkHYl9Y1TC+K3WcKzxi/3OmvFGl7Wg338RbCkIQR5wbqNdGoTqBCr
-         05UpS/oh+ZzELhToE88oFwGuEbViqznxYZnXG0rKVznimYGljigIXNQ2wKFk9YysCEKG
-         2HSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778321484; x=1778926284;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=YxEj5NvBAWz6r+Pm4CowXogfvDTiNULt7IFl/LWJs1M=;
-        b=nQDO/cqC/lj6FG24drsPIl/zdw30gP+q7GoCkMrzmbwpYGYNfr2u861bOcmRUBE2tz
-         fTng4jcy5BUiIxmzAYvyQZ/hGLCgl7Dv+cNPRnnaRY1LwyMg5Ov4KKYdABECbgETegp7
-         Lf5SMPPWoau7sDJCt7xh+l1Cp5fkd5TBqerDbo6WHRpwSP2I5r3t4Fww+BGDhc7/zajR
-         FWp0VuOMbtpAirbIdRx9gSdAM3OZvXZkr/M9jHgNCuorHEkOv61MCtnYCk/oUKoqcYPJ
-         emet1k0HOWh3FOM+kRl+Mk+Ep3QNrNNfDcqhzeyh9hMv9gMyMFkFvCM6Psd6Y4nWtGwS
-         gMGg==
-X-Forwarded-Encrypted: i=1; AFNElJ/5eQCXxZns/HxojM05s1EpGqKzRNUJVfXp5iVZFQl4xJDh02+erz85Ywn3PHV+h/oikCiq5U7Ud1tTfg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLuFCb1nbrYzVu/KnsQi6odsQ+cxCVBWL3UZxW31sRLm8+MoZ2
-	0GGkS1AS+Bkw7iXP8rhtAQfRQpMymuaReFNwBu4ScmBLn4YoMwBr2+XR
-X-Gm-Gg: Acq92OHnH33TI1nPvEG+e5j6wml3Vvu5zEFs0x6wIbQJK0Ndz6kLUOvc2h7x/NSWvc0
-	nUDytzMc2M2qXkL9UQY0al3sLhyVoUgBJ/lVEfFv9LmUn5cj4H6boCdiVcu3iS5Iacr+ovHnASp
-	wIOxoxWLmrpsc3bj/qSCe1WDrUzWfAmjTlKRHd0zzsGbhGX0eYFQcoB7uKr/fOqBzh7QumVE+fb
-	fCKjsJvVoYJkfq2pvt3+mcylQ79oMaaj0nmUKvcpMPtPbZoLEOBDbiJHEl2Eq1S/yeNk6zjnxjC
-	VPbLIp0xbbrYCU07+uCwSyQZOa/09AiSWTHcNGwJQe8JLeZMXY1ymKorIpJ9EVZhoIS4CIgZH69
-	HCP/f1zA7QHDow0hm4nJTrH3Dn8jMAPkl5BoKTZyWKmM6zFM/EuclqSka46MJoJbvBAjTSJ8FHH
-	FBmJuEMcV2BzQMo0TWuoGHHEdoufX6+MxUApufZlNQ+nihC7A7
-X-Received: by 2002:a17:902:d588:b0:2b9:cd2d:6f13 with SMTP id d9443c01a7336-2bc7a9a62ccmr21182805ad.10.1778321484030;
-        Sat, 09 May 2026 03:11:24 -0700 (PDT)
-Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e83084sm47335365ad.61.2026.05.09.03.11.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 03:11:23 -0700 (PDT)
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
-To: jikos@kernel.org,
-	jic23@kernel.org,
-	srinivas.pandruvada@linux.intel.com
-Cc: dlechner@baylibre.com,
-	nuno.sa@analog.com,
-	andy@kernel.org,
-	sanjayembeddedse@gmail.com,
-	sakari.ailus@linux.intel.com,
-	linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 9/9] iio: humidity: hid-sensor-humidity: drop hid_sensor_remove_trigger() using devm API
-Date: Sat,  9 May 2026 15:40:40 +0530
-Message-Id: <20260509101040.791404-10-sanjayembedded@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260509101040.791404-1-sanjayembedded@gmail.com>
-References: <20260509101040.791404-1-sanjayembedded@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cLKDpEQx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC90C2BCB2;
+	Sat,  9 May 2026 10:36:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778322987;
+	bh=IGCLS6xpr+/8KUB9mGkyP/zPyaYg5p/dfxzTCklEaDM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=cLKDpEQxXF6f/00pQUD+hkRvi9MW619yKJGjZy3cS1nwlU+Ru/VYwut93v6ZZNhvw
+	 NJFfHolQmjSwe2aPaLQnqubAZv2Ryo0omDAy6tT0EQ3nr9eSvsF+GN/2Mv6B3YAlfc
+	 ln/9yXtZp29Tf38LkaUfVhZ1hBbU7MRNBIuJjaD7NYaHCVa7VCPmV3VEV1mb9Sp42a
+	 TOC8o+kvpK8dEXtAhleWUlt5bosRVxtfAPLCkFti5SyA8+6JKdxj1Rg6GxG39ufBgs
+	 Wus3kvM67teQiJdNyCHeJKeFCN2XCBDD92EMflAncWCdisora0RbPpJ4IelC+J75pM
+	 hzSXjP0lmHzVQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: mcp2221: fix OOB write in mcp2221_raw_event()
+Reply-To: sashiko@lists.linux.dev
+To: "Florian Pradines" <florian.pradines@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260509094517.2691246-1-florian.pradines@gmail.com>
+References: <20260509094517.2691246-1-florian.pradines@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 09 May 2026 10:36:26 +0000
+Message-Id: <20260509103627.8AC90C2BCB2@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] The patch adds a size bound but leaves a dangling pointer in `=
+mcp->rxbuf` when a read times out, resulting in a Use-After-Free.
+- [High] Unsynchronized updates to `mcp->rxbuf` and `mcp->rxbuf_size` allow=
+ an attacker to bypass the new bounds check completely, causing an Out-Of-B=
+ounds (OOB) write.
+- [High] The patch fails to prevent stack buffer overflows for `I2C_SMBUS_B=
+LOCK_DATA` reads because it bases `mcp->rxbuf_size` on uninitialized stack =
+memory.
+- [High] The raw event handler blindly accesses payload data without valida=
+ting against the actual received HID report size, leading to out-of-bounds =
+kernel heap reads.
+--
 
-Use devm_hid_sensor_setup_trigger() to automatically release resources
-during failure, unbind or removal of driver using devres framework.
+commit 2cea5cadcf6c54079354cc3c519d5621e3b06d74
+Author: Florian Pradines <florian.pradines@gmail.com>
 
-This is done in a way to simplify the setup, remove goto and avoid manual
-resource cleanup in teardown path.
+HID: mcp2221: fix OOB write in mcp2221_raw_event()
 
-Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
----
-changes in v3:
-- Update commit message based on review comment from Andy
-- Based on discussion using parent device of HID platform driver used
-  with devres framework for this driver
-- v2 link -> https://lore.kernel.org/all/20260429175918.2541914-5-sanjayembedded@gmail.com/
----
- drivers/iio/humidity/hid-sensor-humidity.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+This commit attempts to fix an out-of-bounds write in mcp2221_raw_event()
+by adding a rxbuf_size field. It sets this field alongside rxbuf in
+mcp_i2c_smbus_read() and validates the incoming data length against it
+before copying.
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index d310ec43a118..4d4282e4b6e4 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -234,8 +234,8 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 
- 	atomic_set(&humid_st->common_attributes.data_ready, 0);
- 
--	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &humid_st->common_attributes);
-+	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &humid_st->common_attributes);
- 	if (ret)
- 		return ret;
- 
-@@ -245,7 +245,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
- 					   &humidity_callbacks);
- 	if (ret)
--		goto error_remove_trigger;
-+		return ret;
- 
- 	ret = iio_device_register(indio_dev);
- 	if (ret)
-@@ -255,8 +255,6 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--error_remove_trigger:
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
- 	return ret;
- }
- 
-@@ -265,11 +263,9 @@ static void hid_humidity_remove(struct platform_device *pdev)
- {
- 	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
- }
- 
- static const struct platform_device_id hid_humidity_ids[] = {
--- 
-2.34.1
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index be80970ab48e2..e4ddd8e9293b6 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
+[ ... ]
+> @@ -330,12 +331,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
+>  		mcp->txbuf[3] =3D (u8)(msg->addr << 1);
+>  		total_len =3D msg->len;
+>  		mcp->rxbuf =3D msg->buf;
+> +		mcp->rxbuf_size =3D msg->len;
+>  	} else {
+>  		mcp->txbuf[1] =3D smbus_len;
+>  		mcp->txbuf[2] =3D 0;
+>  		mcp->txbuf[3] =3D (u8)(smbus_addr << 1);
+>  		total_len =3D smbus_len;
+>  		mcp->rxbuf =3D smbus_buf;
+> +		mcp->rxbuf_size =3D smbus_len;
 
+Does this code fail to prevent stack buffer overflows for
+I2C_SMBUS_BLOCK_DATA reads?
+
+In i2c_smbus_read_block_data(), the i2c_smbus_data union is allocated
+on the stack but its first byte (data.block[0]) is not initialized before
+the read. In mcp_smbus_xfer(), the driver uses data->block[0] + 1 to
+determine the read length, which is then assigned here to mcp->rxbuf_size.
+
+If this uninitialized stack memory contains a large value (e.g., 255), the
+new bounds check will pass for large responses, and memcpy can write past
+the 34-byte data->block array, overflowing the stack.
+
+Also, are these updates to mcp->rxbuf and mcp->rxbuf_size safe from
+concurrent access?
+
+These are updated non-atomically in process context, while
+mcp2221_raw_event() runs asynchronously.
+
+If a previous read timed out leaving rxbuf_idx =3D 0 and rxbuf_size =3D 60,
+could a late 60-byte response arrive just after mcp->rxbuf is assigned a new
+2-byte buffer but before mcp->rxbuf_size is updated to 2?
+
+This would cause the event handler to read the old rxbuf_size (60), pass the
+check, and copy 60 bytes into the 2-byte buffer, bypassing the protection.
+
+>  	}
+> =20
+>  	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 4);
+
+If mcp_send_data_req_status() times out, it returns -ETIMEDOUT without
+setting mcp->rxbuf to NULL.
+
+If the caller then frees or pops the buffer, and a delayed or malicious
+MCP2221_I2C_GET_DATA report is processed by mcp2221_raw_event(), could this
+result in a use-after-free?
+
+Since rxbuf is not NULL and rxbuf_idx < rxbuf_size, the new check passes,
+and memcpy would write data directly into the freed memory.
+
+[ ... ]
+> @@ -919,6 +922,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+>  					mcp->status =3D -EINVAL;
+>  					break;
+>  				}
+> +				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
+> +					mcp->status =3D -EINVAL;
+> +					break;
+> +				}
+>  				buf =3D mcp->rxbuf;
+>  				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+
+This isn't a regression from this patch, but does the raw event handler
+blindly access payload data without validating against the actual received
+HID report size?
+
+The mcp2221_raw_event() function receives a size parameter representing the
+length of the HID report but ignores it.
+
+If a malicious USB device presents a HID report descriptor with a small
+maximum report size (e.g., 4 bytes), the HID core will allocate a 4-byte
+buffer.
+
+If the device then sends data[3] =3D 60, this memcpy will read 60 bytes past
+the end of the 4-byte kernel heap buffer, potentially leaking adjacent
+kernel memory to user-space.
+
+>  				mcp->rxbuf_idx =3D mcp->rxbuf_idx + data[3];
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260509094517.2691=
+246-1-florian.pradines@gmail.com?part=3D1

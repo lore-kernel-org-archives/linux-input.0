@@ -1,77 +1,81 @@
-Received: from mail-dy1-f196.google.com (mail-dy1-f196.google.com [74.125.82.196])
+Received: from mail-dy1-f193.google.com (mail-dy1-f193.google.com [74.125.82.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0C8B256C6C
-	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 03:11:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE54B4A32
+	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 03:47:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778382673; cv=none; b=uxbwutXtOXuETEhbBao5gjUJzOvOzIUatpuwwtN6H1PKeFU+ysFumToqPKgwa0SBLIz/Vpua6Zt4oa5Q+jGQ5pMg69rgmbfOWqQDqPOuofJYjAnWGgy6LUOXyAG5fgne79yCBsZupNo5qPwv2LOpJ9lKeBxqIiU881RnxQ4w6Zk=
+	t=1778384854; cv=none; b=fiEGTdGfWUq+Y7q2ErJIQsTGxw9mzdZIcz7u3uIqcYe9RUvHeZyIN2lQlwL2oPaTpybh3rsGSyrSPmW1RgXhp11lSD5cMpraowduVBpEPrZEJF/u1nh6F1FOza/Q++GgM2LeJIetLoGNOw+RemLHCcieIC/wY0l4rFNJkd7un+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778382673; c=relaxed/simple;
-	bh=gQA4Z0I4dAD3lpM3WcSiD7Z4kubZPjVnKPmZMkhI4ag=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IWY/xZ3mXn7jubz5egOfYz8qGknwdPuTWljk8qI/nWPaqTZankK6aOmVk+1KAPvzXEUeZsJB6JCuefIimK++1hmdAV1Lo3rdgt85I1uJJveDjNJ1O1VeAqXNVPvcpaHP/Ihrx3FvVeTxH8A+QRYy0dwh5HnDb6TB85FVUbA3gr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n1nf/1s/; arc=none smtp.client-ip=74.125.82.196
+	s=arc-20240116; t=1778384854; c=relaxed/simple;
+	bh=NAeBQlp71txohAsdixn1n5ccPw1C8ZGUtMXPDF5y/1A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T0T9+8DEa4y3Po7SSX/ThmpgeiG5mvNpFO0aZic71eb2qJ1CzVbD9jqC/GRRoJmog/SrkMSFODa22GedbuX+0eVFiQQYF07RbpheDCEdzeH3cPnuOqWW3O9CwFyKh/aWU/dvwARXgmVTxBHX9K07ktQ9MLbDNpNz6tuxUzpzMiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZbHrkIpC; arc=none smtp.client-ip=74.125.82.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n1nf/1s/"
-Received: by mail-dy1-f196.google.com with SMTP id 5a478bee46e88-2f7ca62a3c4so2868336eec.0
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 20:11:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZbHrkIpC"
+Received: by mail-dy1-f193.google.com with SMTP id 5a478bee46e88-2ee990e8597so5724134eec.1
+        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 20:47:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778382671; x=1778987471; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778384852; x=1778989652; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Fk9eeAKn3FhBbqVLjcl9tAfYozaTPwOkZxBuF5GgNhQ=;
-        b=n1nf/1s/mmOfVkB99s2fuIwoBaOBAhPFqdR1w8kElU8IlrnF7QZQxLf0HBuu4iC8Gi
-         DGdtnEzOe1PcJBiz+ijnoOZzpxIOpgqh8KOq8UlRxQsSjnZGkEQuLYRdaQu9y+unlq/s
-         ThopCnq2h1dDW5+fWQQrgCP2xD+x4Fmw+wMS7fJaofkgfeQNAw7KFDYscrhpAO4RRArR
-         56XEGFXzjd6unfVJYv+mHx9gGNw0p5dMCaVQyZwztflXvK02e8uHbFsQRXDJfx9qAmts
-         QqDq2Mdr0i159/CTYGooGsS558V23XUyxWezosfU9KaTW8xgDzktzFRVPrFu/0z/msC1
-         X1zA==
+        bh=k6rTrBmT6FLZY33HULT543YLCfwvj9/dpCgMERdcga8=;
+        b=ZbHrkIpC77RhkMIknmvmPXBS2k6YcyQpYQuBrTAZ2/1oPakUA5ZgdBwdU0v5Ii9P1x
+         Wr8oAZ304mPWPonvNLOoOalSHhthl+eJgyFBAVogwOK7TeFn48yzhaGCC/eHaAa4V3vv
+         a6JVUZHoAqv4+LgFdGsQ529gCrQO1nIB0q4KpKCrW6nChWmV8NiwCwUJTo7fWcl0Qsyh
+         Mw5aWZEOVxgW+bIrY8WXSxh9rbZ7CHrqji/4NPPhOb6LpAO2gD1PP+rjrtNjnRASb6v/
+         gfydpUXF+08NgzQOe97y3B1yqUQng5/QIWmnsbV9yIY312Nf4w9gE0eCGD8hfGGfLYgo
+         yKUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778382671; x=1778987471;
+        d=1e100.net; s=20251104; t=1778384852; x=1778989652;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Fk9eeAKn3FhBbqVLjcl9tAfYozaTPwOkZxBuF5GgNhQ=;
-        b=iaruYbvhNkMEOrQlIQoqz7vQ+hwuK+OofUO3KsZ7q2IHuKhlenJdQJ+PDQBMwdXLrE
-         Yo3+xqvnC1Z13OWh7MhKf+AYHTp3Qg+6VBKgBg080n5WktPi6D1BzzSwFArawlkczVmS
-         Sfu9+xaI3FuC2xrwLco8HQA49rFFxtZ8KO+jsPkAOplV95yFtRY6yE7tbpJgSUql7RZO
-         mvQe/8AEfM0WVJ1851FhhJPQ2rw3D2IP9zl9mBDKfLlrFEic0N+WW8OodMwSbuifG17g
-         DhLpWGTlOTzc9f66EYorst1hRtYPFP29RL7663EZxzdHN50T8ko0k8+jFlCHjcClsnQe
-         M0vQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+9rD9T00WBhddFeZ2/UAgvNMJoFoMPPHH1lMh2dvOHLN9/h5wDml5+F4O4NMPXOmvwz7cQHirTCqDAmA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy52+IAr6IBtNb1iLOE/C2P5XWkQFng9AkgxyGf7a4pm2aMR8RW
-	kqDA8hAYjLUS+zzj7sG2gxygP347lxBMEXEUS/F9GlPmlcvGMnmOGArQ
-X-Gm-Gg: Acq92OE5sd+F2ZFBjCB2UBJO5jnmCKijKWUy+duTNxsUIdsEEUmDWNaT8ra94UNMo5P
-	V+iWfc4qSv+3H/3MsZ9ygF9T2YRWfxJneBd3MoKHjH9Dkw2TxJLnbbaDNdO80V6KxzCVBD+2E+0
-	zdEL053GplxpAWGLSruAXzVWGGCJ0zXI7Ta3p5TPYiBiSSUJQh9NMpyQ9oLSsF5HJjVQvKICWnh
-	2rMim4dX/Mo2QHCj0zGwh8v9CbNyT3ZeXG3EZCejut3FHBkUjnnZ1HFEtjmuMtUnCWUbx5ygVBR
-	DaP39fiv0NW1nKFxDttatliQswVzn0U1wjrpvq9aTaTj+RQv4vJMIf6c1D82qn3YOkMj7fXKjUc
-	d8fbOlBKA2Oh5durSlcwZWAmqgtXIBes8rAq1E37ZX+hUnqHz64Kmh88oBmxvIwG0apc2Wn8c1X
-	3iezddNncyWEngzbR/Qrk5hYNmY9sE41aTvtx9ueAXcxZqLrjRdlT1MCiGj/U0oPZgi188/oE2s
-	cG/0lAWfM23nbETA8ErG8DUw2iqBvEacsLBNHsRE7iclszV1r+5+lBdEGi4ksszLOU3D+bnLRTP
-	zbDIzXrppJ3IwPDQOg==
-X-Received: by 2002:a05:7300:a987:b0:2df:c5bb:3720 with SMTP id 5a478bee46e88-2f54c587faemr9231006eec.15.1778382670966;
-        Sat, 09 May 2026 20:11:10 -0700 (PDT)
+        bh=k6rTrBmT6FLZY33HULT543YLCfwvj9/dpCgMERdcga8=;
+        b=JfDP14oF/VlEMZXmmG8Cw5qmPyXFC9BGFzY4o5I+Yyd4e7di+cK1sCePXAiwzPlASW
+         3Gh9wcplEQMFjsknpxjI4OZNVRhHRVxYHsInR2/MRKVepTjuIsD120XEcY3sDjIY8xhR
+         6w0yqpp0MJleGraybSdVEC3m+nvVDo5o5sju/VZ9U1FMqSvEXfNzE2FTyokHu0qIemjE
+         yF/oPq/51yJaDqMmLIyEbR9B6y7iV3iKFPjZkOzFvOV+SmSZFabX7CNiBH3y0KeFTFwe
+         8TX4Oy9LYErfyYi6GWrCPi1WmgSva6O/xqP/TnEUre/R1MI2WBk+UIQyTqlftLB+I7ZP
+         5xYw==
+X-Forwarded-Encrypted: i=1; AFNElJ9rbHoWVdbb3Ht+g7Ks57WnkVh2MS+FOFW9I1u3vZtz2vmF1qe5OW8mkvhzVFLCmZL0jzmqLa57CK3LNw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQmkAVO0JHvU7xgy1zlP4OcACOdRhEK+s1wyQXfG4qtn2+jYiq
+	mYY0oF5milF5rSbXAwHsP0phbBUYduOToHBG+jkWH+yY1zjlu+VhsNNX
+X-Gm-Gg: Acq92OFLHsrEGSzHmby4t7q0K68qRiWHwLxbveMx/bBzsa1dUrjbOG4CAl9hfgG2Dhs
+	37tcqNKQ1oGVp21CU2gCr1rmh55lYL9hmo9rj/+RiId5gusnY8uvX+rVXE8PCvO+RNBIZwK4ffM
+	u+5GxfT2uUyo10HeDSGWnocGcY7pUTpHTzjgdjVsEfwabny9IiuQaOr+ZbBgdmDfQbix4s0Cy7X
+	yduzj7ADK9iOfnxi+B5acM30MjqleX1INhNSVZJknqIMV6d889ETE8XIx7b0AJSkgIdm6dg9CKA
+	ybmaIcjTiazO4DKQom7IT6mT2StfmClCojXvzRWtJUBGTtJfaKt2TPgzkR9hkdx6sZOfjrzGHHr
+	81H5pEFSAJbikwBo+m96F6uzdi9EtH4u5EJaTIShDVH+/8bRQnTD1lGdNg37Wqhd0oBznBeYQOw
+	V8GOWFATXviR6HNhTKtH2I+mAhq7HfjUxLVNM5fnxw4P9vRt5qoCs07NjxVYiqmkAi0S+zEW//R
+	tfahmWkHcfwJYpjXkCD56CVMceQ5GEg8xRhnm6XY0BAnLMZPwksIgQ68sfkEHvGdCfQ2Rxj2xqc
+	xUayAbnDSafYhWjmwuU5r3bNkCS1
+X-Received: by 2002:a05:7300:818d:b0:2e5:8ec2:82c9 with SMTP id 5a478bee46e88-2f54b57e91amr9832824eec.26.1778384851712;
+        Sat, 09 May 2026 20:47:31 -0700 (PDT)
 Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f888c469b6sm8433793eec.24.2026.05.09.20.11.09
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8884750ffsm8368768eec.19.2026.05.09.20.47.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 20:11:10 -0700 (PDT)
+        Sat, 09 May 2026 20:47:31 -0700 (PDT)
 From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 To: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-fbdev@vger.kernel.org
-Cc: Russell King <linux@armlinux.org.uk>,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Helge Deller <deller@gmx.de>,
-	Kees Cook <kees@kernel.org>
-Subject: [PATCH] ARM: move Risc PC-specific <asm/hardware/iomd.h> header into mach-rpc
-Date: Sat,  9 May 2026 20:10:36 -0700
-Message-ID: <20260510031100.255248-1-enelsonmoore@gmail.com>
+	"Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Linus Walleij <linusw@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Weissschuh <thomas.weissschuh@linutronix.de>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH] ARM: riscpc: convert to sparse IRQs
+Date: Sat,  9 May 2026 20:46:38 -0700
+Message-ID: <20260510034652.349166-1-enelsonmoore@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -81,159 +85,166 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The <asm/hardware/iomd.h> header is specific to the IOMD chip used on
-the Risc PC. Move it into mach-rpc to avoid polluting asm/hardware/
-with machine-specific headers.
+To improve future maintainability, change the interrupt handling for
+mach-rpc to use sparse IRQs.
 
-Also take the opportunity to remove a comment with the file path from
-the header, which is bad style.
+Since the number of possible interrupts is already fixed and relatively
+small, just make it use all legacy interrupts preallocated using the
+.nr_irqs field in the machine descriptor, rather than actually
+allocating domains on the fly.
+
+Several files had to be adjusted to include <mach/irqs.h>
+explicitly because it is no longer implicitly included with sparse
+IRQs.
+
+Description adapted from commit c78a41fc04f0 ("ARM: s3c24xx: convert
+to sparse-irq").
 
 Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 ---
- MAINTAINERS                                                     | 1 -
- arch/arm/mach-rpc/dma.c                                         | 2 +-
- arch/arm/{include/asm/hardware => mach-rpc/include/mach}/iomd.h | 2 --
- arch/arm/mach-rpc/irq.c                                         | 2 +-
- arch/arm/mach-rpc/riscpc.c                                      | 2 +-
- arch/arm/mach-rpc/time.c                                        | 2 +-
- drivers/i2c/busses/i2c-acorn.c                                  | 2 +-
- drivers/input/mouse/rpcmouse.c                                  | 2 +-
- drivers/input/serio/rpckbd.c                                    | 2 +-
- drivers/video/fbdev/acornfb.h                                   | 2 +-
- 10 files changed, 8 insertions(+), 11 deletions(-)
- rename arch/arm/{include/asm/hardware => mach-rpc/include/mach}/iomd.h (98%)
+This commit depends on my previous submission "ARM: <asm/floppy.h>: fix
+build with sparse IRQs".
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 211cc683e25b..6a1da8903c04 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3398,7 +3398,6 @@ M:	Russell King <linux@armlinux.org.uk>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
- W:	http://www.armlinux.org.uk/
--F:	arch/arm/include/asm/hardware/iomd.h
- F:	arch/arm/mach-rpc/
- F:	drivers/net/ethernet/8390/etherh.c
- F:	drivers/net/ethernet/i825xx/ether1*
+ arch/arm/Kconfig                      | 2 +-
+ arch/arm/mach-rpc/dma.c               | 1 +
+ arch/arm/mach-rpc/ecard.c             | 2 +-
+ arch/arm/mach-rpc/include/mach/irqs.h | 2 +-
+ arch/arm/mach-rpc/irq.c               | 3 ++-
+ arch/arm/mach-rpc/riscpc.c            | 2 ++
+ arch/arm/mach-rpc/time.c              | 1 +
+ drivers/input/mouse/rpcmouse.c        | 2 +-
+ drivers/input/serio/rpckbd.c          | 1 +
+ 9 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 71fc5dd4123f..09b2767fee0f 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -153,7 +153,7 @@ config ARM
+ 	select PCI_SYSCALL if PCI
+ 	select PERF_USE_VMALLOC
+ 	select RTC_LIB
+-	select SPARSE_IRQ if !(ARCH_FOOTBRIDGE || ARCH_RPC)
++	select SPARSE_IRQ if !ARCH_FOOTBRIDGE
+ 	select SYS_SUPPORTS_APM_EMULATION
+ 	select THREAD_INFO_IN_TASK
+ 	select TIMER_OF if OF
 diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
-index 50e0f97afd75..717a81475670 100644
+index 717a81475670..238aa59612a8 100644
 --- a/arch/arm/mach-rpc/dma.c
 +++ b/arch/arm/mach-rpc/dma.c
-@@ -20,7 +20,7 @@
+@@ -17,6 +17,7 @@
+ #include <asm/fiq.h>
+ #include <asm/irq.h>
+ #include <mach/hardware.h>
++#include <mach/irqs.h>
  #include <linux/uaccess.h>
  
  #include <asm/mach/dma.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+diff --git a/arch/arm/mach-rpc/ecard.c b/arch/arm/mach-rpc/ecard.c
+index 972465840548..27af35bd6a79 100644
+--- a/arch/arm/mach-rpc/ecard.c
++++ b/arch/arm/mach-rpc/ecard.c
+@@ -46,9 +46,9 @@
+ #include <asm/dma.h>
+ #include <asm/ecard.h>
+ #include <mach/hardware.h>
++#include <mach/irqs.h>
+ #include <asm/irq.h>
+ #include <asm/mmu_context.h>
+-#include <asm/mach/irq.h>
+ #include <asm/tlbflush.h>
  
- struct iomd_dma {
- 	struct dma_struct	dma;
-diff --git a/arch/arm/include/asm/hardware/iomd.h b/arch/arm/mach-rpc/include/mach/iomd.h
-similarity index 98%
-rename from arch/arm/include/asm/hardware/iomd.h
-rename to arch/arm/mach-rpc/include/mach/iomd.h
-index e3f130345ebc..2a3f4a5f3fd9 100644
---- a/arch/arm/include/asm/hardware/iomd.h
-+++ b/arch/arm/mach-rpc/include/mach/iomd.h
-@@ -1,7 +1,5 @@
- /* SPDX-License-Identifier: GPL-2.0-only */
- /*
-- *  arch/arm/include/asm/hardware/iomd.h
-- *
-  *  Copyright (C) 1999 Russell King
-  *
-  *  This file contains information out the IOMD ASIC used in the
+ #include "ecard.h"
+diff --git a/arch/arm/mach-rpc/include/mach/irqs.h b/arch/arm/mach-rpc/include/mach/irqs.h
+index 0c3428fd9729..738a9457c473 100644
+--- a/arch/arm/mach-rpc/include/mach/irqs.h
++++ b/arch/arm/mach-rpc/include/mach/irqs.h
+@@ -39,4 +39,4 @@
+  */
+ #define FIQ_START		64
+ 
+-#define NR_IRQS			128
++#define RPC_NR_IRQS		128
 diff --git a/arch/arm/mach-rpc/irq.c b/arch/arm/mach-rpc/irq.c
-index e924c9b813ab..649d81874c86 100644
+index 649d81874c86..5e3414fc3657 100644
 --- a/arch/arm/mach-rpc/irq.c
 +++ b/arch/arm/mach-rpc/irq.c
-@@ -4,7 +4,7 @@
- #include <linux/io.h>
+@@ -5,6 +5,7 @@
  
  #include <asm/mach/irq.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+ #include <mach/iomd.h>
++#include <mach/irqs.h>
  #include <asm/irq.h>
  #include <asm/fiq.h>
  
+@@ -177,7 +178,7 @@ void __init rpc_init_irq(void)
+ 
+ 	set_handle_irq(iomd_handle_irq);
+ 
+-	for (irq = 0; irq < NR_IRQS; irq++) {
++	for (irq = 0; irq < RPC_NR_IRQS; irq++) {
+ 		clr = IRQ_NOREQUEST;
+ 		set = 0;
+ 
 diff --git a/arch/arm/mach-rpc/riscpc.c b/arch/arm/mach-rpc/riscpc.c
-index f70fb9c4b0cb..d068f5e4873d 100644
+index d068f5e4873d..bdad13226c6d 100644
 --- a/arch/arm/mach-rpc/riscpc.c
 +++ b/arch/arm/mach-rpc/riscpc.c
-@@ -22,7 +22,7 @@
- #include <asm/elf.h>
+@@ -23,6 +23,7 @@
  #include <asm/mach-types.h>
  #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+ #include <mach/iomd.h>
++#include <mach/irqs.h>
  #include <asm/page.h>
  #include <asm/domain.h>
  #include <asm/setup.h>
+@@ -219,6 +220,7 @@ MACHINE_START(RISCPC, "Acorn-RiscPC")
+ 	.reserve_lp0	= 1,
+ 	.reserve_lp1	= 1,
+ 	.map_io		= rpc_map_io,
++	.nr_irqs	= RPC_NR_IRQS,
+ 	.init_irq	= rpc_init_irq,
+ 	.init_time	= ioc_timer_init,
+ 	.restart	= rpc_restart,
 diff --git a/arch/arm/mach-rpc/time.c b/arch/arm/mach-rpc/time.c
-index ad93c4dfafcd..566113f9774f 100644
+index 566113f9774f..02f0fd58c7da 100644
 --- a/arch/arm/mach-rpc/time.c
 +++ b/arch/arm/mach-rpc/time.c
-@@ -17,7 +17,7 @@
- #include <linux/io.h>
+@@ -18,6 +18,7 @@
  
  #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+ #include <mach/iomd.h>
++#include <mach/irqs.h>
  
  #include <asm/mach/time.h>
  
-diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acorn.c
-index 99b6b1c3fd9e..703b4a42f466 100644
---- a/drivers/i2c/busses/i2c-acorn.c
-+++ b/drivers/i2c/busses/i2c-acorn.c
-@@ -13,7 +13,7 @@
+diff --git a/drivers/input/mouse/rpcmouse.c b/drivers/input/mouse/rpcmouse.c
+index 475c3ca22fd4..cead12069319 100644
+--- a/drivers/input/mouse/rpcmouse.c
++++ b/drivers/input/mouse/rpcmouse.c
+@@ -22,8 +22,8 @@
  #include <linux/io.h>
  
  #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- #define FORCE_ONES	0xdc
- #define SCL		0x02
-diff --git a/drivers/input/mouse/rpcmouse.c b/drivers/input/mouse/rpcmouse.c
-index 6774029e0a1a..475c3ca22fd4 100644
---- a/drivers/input/mouse/rpcmouse.c
-+++ b/drivers/input/mouse/rpcmouse.c
-@@ -23,7 +23,7 @@
- 
- #include <mach/hardware.h>
- #include <asm/irq.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+-#include <asm/irq.h>
+ #include <mach/iomd.h>
++#include <mach/irqs.h>
  
  MODULE_AUTHOR("Vojtech Pavlik, Russell King");
  MODULE_DESCRIPTION("Acorn RiscPC mouse driver");
 diff --git a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
-index 4d817850ba3b..e452ad07e2fa 100644
+index e452ad07e2fa..7bcaed28c7a4 100644
 --- a/drivers/input/serio/rpckbd.c
 +++ b/drivers/input/serio/rpckbd.c
-@@ -17,7 +17,7 @@
- #include <linux/slab.h>
+@@ -18,6 +18,7 @@
  
  #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
+ #include <mach/iomd.h>
++#include <mach/irqs.h>
  
  MODULE_AUTHOR("Vojtech Pavlik, Russell King");
  MODULE_DESCRIPTION("Acorn RiscPC PS/2 keyboard controller driver");
-diff --git a/drivers/video/fbdev/acornfb.h b/drivers/video/fbdev/acornfb.h
-index f8df4ecb4fd7..e65388587f80 100644
---- a/drivers/video/fbdev/acornfb.h
-+++ b/drivers/video/fbdev/acornfb.h
-@@ -7,7 +7,7 @@
-  *  Frame buffer code for Acorn platforms
-  */
- #if defined(HAS_VIDC20)
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- #define VIDC_PALETTE_SIZE	256
- #define VIDC_NAME		"VIDC20"
- #endif
 -- 
 2.43.0
 

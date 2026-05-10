@@ -1,666 +1,100 @@
-Received: from mail-oo1-f66.google.com (mail-oo1-f66.google.com [209.85.161.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A4A35A3B1
-	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 06:36:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.66
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778394998; cv=pass; b=dd7XIBHLC4O4GqlV4DwbGJlAFzO4ConY1xLGd0HYUc4ABQLQirV8z5lO3pNXHSwX2LQlSY4PseT36ACJFcZheZRc/xwlZspYUCKRw+QcAudi/i/O50Lk5/O/QOW32x6xRLQWfL6rGEGv+QXAee1f7SwmMHPUJI22PJU5qRAhgkA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778394998; c=relaxed/simple;
-	bh=45wdc24ETueNKqY2A+om6fa/V0F5NKjmfmtcWImr+N4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qaVEXxp5cLWj93TBRP5k/e0kBa75pNTreQHAlBazksIG+ZAo3QP+yp19TckgSc4DbyBLe1pAN027UMTq5c/LsCx0EwkvY50kxGa6UUAeP9gb6EyDz6PPXzyykjhzTsJh6MYzYwPeixbHSC8Ir1wPl8GWWz2mbs8ct+i2Mh/rwmc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hLaP0mkw; arc=pass smtp.client-ip=209.85.161.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4B634F48F;
+	Sun, 10 May 2026 06:36:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778395017; cv=none; b=XLOpSZjKWJfo7NRFYv6azdH9P0M+1oLFOqhD2rLMQH0ZjnyTegoLfp48fN+Jkovp1uQeH7Mah3Sx7QLleusuTbhCNfVAilhATpnmGFSeAC4bl0xwX9/l1WFItDepSQHwkxC/LrFWi9nnGB0qZUjiBVxk91C7mLxNNcXJmV6J520=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778395017; c=relaxed/simple;
+	bh=tP/+7Cn/qRh71QVtnjkemGxDTY7scoYRh5eAYpe3vTI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mH1XujosbOSyFTrRO9M650hS2iZEM8OZ4IpbzMG7KHgrnK8DUmduie9XNBlvLhuP3bK5YSVluWOIMbZlDoES4JjU22ofGu0sr+aBI+VTS2hzlCXAssDBM9yxsfQWea2V6eXu7dzshUwumt5ApNXEr/gYthav5fwyQFRx7IK2VD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DX1ul8m1; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hLaP0mkw"
-Received: by mail-oo1-f66.google.com with SMTP id 006d021491bc7-66f747175d8so1950801eaf.0
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 23:36:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778394995; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ExSrLp3Jk9po09UOtBQuRuPwfE8AlgeQjvv4bC41x5BI1dT0mFWMolCuzN2luHX+JE
-         41V4zx47qSAHV9jBKzmmTz6Y99asslIFjI1l8/tVdu8cQR7nszVogVtfef9/Zzlb8/zm
-         8nma3v3otzwhZhMksL4lP8WEO+Ue76PPzCHJNC0uzztuLTefIvQmSvXmIwhfAfwDd7Ql
-         OSiaaXNGeKEyExwoFaeYKGg+JpXwfP2JZr3RZtkOOCJEsGA040vZRS6lQOA4j9lLE62i
-         JcD4oT38HQjkVRR3gNTiirW6I+sV5ADJiBYZhDZrQ1RFJhaq4+pZGPuYsOhAfyt2tW72
-         MBZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=pXXtDBTCKCVGdz98Y6oWtNOUnLTWu+N/y2Rahqp5+dU=;
-        fh=G8h0ojCGYU53nUx57VuiWme2x8OPUpQQUpBjBJOTSio=;
-        b=KHVqNalKhR/uBC6WhMj3JQ1MiH1wa5GUAzdJqUoT4sVlpUUMOPNajp+HnujkdMfaMZ
-         FuuoeP50SyFqd/GDl9kd/eL3GWhY95lCsXO0Ew6Xss6PH/DbvCr2ogdWy+guEB/uslPM
-         N8bIur8WLZSe1mRKh0ZTQ5nkTx4hD11xipQISSKPVLlRAna6iQdggiybB8c1HcsWDeG1
-         eZnblJpRVl8QaUzQaKBmP4a9LmvTIDOYfb6vX6mwfUNanhhaTpxPJwdNyHsC3krurWPs
-         59+i785qXBcbkC3ExJk4YmZO/K91yY/0AV4YuHeRLP4kFPOU8IjkMgYrd0Y/K05O403r
-         twPw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778394995; x=1778999795; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pXXtDBTCKCVGdz98Y6oWtNOUnLTWu+N/y2Rahqp5+dU=;
-        b=hLaP0mkwBB2Hybn30u0CnEie+DW/ECW1NQK8x1Dct7UxE6wL+P8xXq3c9auHKWmq6N
-         lqWadQrFrcagzuVjMyXSf0ARaMWDzCOn71MJzNa1g8hcU+W+q8uLL/CKxYGUNJ+166nk
-         s8p0cduXqbz4HUtuHIdSkqrwcr/rXp+A61l/4QswUpk5wdjYQEBsZOcsPN6KFcYNGRh7
-         MQwrHG9AETNghyjIS4rBnpwjmSl8/JS4eyZI0cOamW/hOv65hIxSI0qZCnINmL1o/+fX
-         0R4sQW5jBfKWBb851nfIkdTo6tfwzahRhDG9xyssJPeTziTmE8uNzIbtOwCCY0X3PiyR
-         +MYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778394995; x=1778999795;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pXXtDBTCKCVGdz98Y6oWtNOUnLTWu+N/y2Rahqp5+dU=;
-        b=lYzwaZwKkqTpQc2/V0w9zEfgHqFOn6921TI4+NIRvSlQveVdR4pjegr2DpeDuOqOwg
-         DleKCwL6LCL4eKyWW1HO35qpQJYRgicPiyk8Py2DF+duX74YdKrHKAKuRwaIk2HWk6uS
-         CFiiNE2uCl0pY3kLmFp35CnAsx39oQ19hsIPwNisqcZF7PMFKwDHDdoSpKSL1aAY1J9G
-         IEPtb+P7PDmvbcUsDnAWLqlFzZ5rNSQdx/x8wRQBuz1iRgjS5aWGlJQ+xdY8aPgFilbf
-         60ofz4yJXsWbUjzgBQl82BGXvnfexKk/SuxkI832i4pob4WyNUDeClMj/mA4Z0xVQjT+
-         B9Bw==
-X-Forwarded-Encrypted: i=1; AFNElJ/9HhGUN4dx0VDKOoFCRtClTlcYsW5+zic6z1bXhqTU/S0Fq42t417aAflVl0zaPnU5DJVuA85pGvhe0Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwEr7f+iHhsmbS/kv+5BIHOdIWjw82DIvJPzu6C2TsWjR8O+aMq
-	tX+9IZ9Mqqvdi5wRbQn6mfiQ8pDIMhCP2uo95NQWhSdXnJ8TPFRqUbnRT6H94d5xHcka3r7Jp+W
-	6ewV5cd2/GZmXkhSTDbAbyta1DZToItU=
-X-Gm-Gg: Acq92OF43adpd2GDn4A7emu8vi1rWsNqD8wQMDfKhyOtBC3VSGFap5oAPhcSoorqpQa
-	729YBYeRNR35DqRAnPt+8F7Amc4mbhC9XNTnHapF/fOtCAqolCkQ39S9QCP1UHQLDO0nnYNhM18
-	Zqjg66NN9NCirv32hlSVqwaK8F3rOhIc6Q9FcdNcf0hCQU+jEzdbU+kQKXr4UL3VJtZ6vomStYX
-	HaITIC6FI+YHVx663w/duRpOVLUo1LMhGBL4qBdc4bmpdWqzOxQltMXd5sHSuc6znvGwUfpFm8M
-	ef1BJLg=
-X-Received: by 2002:a05:6820:1897:b0:688:2480:7fa8 with SMTP id
- 006d021491bc7-69998cbdb5bmr11053130eaf.21.1778394995347; Sat, 09 May 2026
- 23:36:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DX1ul8m1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778395016; x=1809931016;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=tP/+7Cn/qRh71QVtnjkemGxDTY7scoYRh5eAYpe3vTI=;
+  b=DX1ul8m1HzwFAjMXMkpgcJoZVc516LtAnNGOdZoDN7uYn5Ihv8hVbxEd
+   RgRpqs5843a3Sj9fQrRra7tgtUFSX+o4GTGhZRL9nn27up1O+l5X/S796
+   7sgB05lu6/Tcx/MWynaHVddu/lYTlm2dkF8DfLHewKvglZn1xRkVFcCko
+   LosBh8l24n9EhlunWIBw1GmbhIwyOKancEtdghclXt9ZjSaRck2eMIkO3
+   rhBEZPHus/WQ+VtJL+uTkBJHa1zfjk040lUlbMYkusgmZhPPJArs2dBQZ
+   fSICRPWnwvv1ilsNP414S8t10yDdf5o7w+t1KX7vtiyizWyS7ek7X5Ls8
+   g==;
+X-CSE-ConnectionGUID: 8J8o8CWzTGKDW/EpWkI++A==
+X-CSE-MsgGUID: 0SMiuwWoQtyxkemjh5VIUQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11781"; a="79340700"
+X-IronPort-AV: E=Sophos;i="6.23,227,1770624000"; 
+   d="scan'208";a="79340700"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2026 23:36:55 -0700
+X-CSE-ConnectionGUID: FdNnHhcEShG4bkhriIBGCA==
+X-CSE-MsgGUID: uBIM/BhQQyKfZojlnW6uCQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,227,1770624000"; 
+   d="scan'208";a="237254665"
+Received: from dhhellew-desk2.ger.corp.intel.com (HELO localhost) ([10.245.244.171])
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2026 23:36:52 -0700
+Date: Sun, 10 May 2026 09:36:49 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com,
+	dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
+	sakari.ailus@linux.intel.com, linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 3/9] iio: hid-sensors: introduce device managed API
+Message-ID: <agAngXqFb5L2--AN@ashevche-desk.local>
+References: <20260509101040.791404-1-sanjayembedded@gmail.com>
+ <20260509101040.791404-4-sanjayembedded@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251215125319.33261-1-exalt.dev.team@gmail.com>
- <b1a7b5ab35c5dc16753e6a4ce98837d26c0eb98a.camel@hadess.net> <CAJaUH_-0vDrXTr==n=eKJH+BmhDRjzpd6s9by2yTMJH9VuD+gA@mail.gmail.com>
-In-Reply-To: <CAJaUH_-0vDrXTr==n=eKJH+BmhDRjzpd6s9by2yTMJH9VuD+gA@mail.gmail.com>
-From: dev exalt <exalt.dev.team@gmail.com>
-Date: Sun, 10 May 2026 09:36:24 +0300
-X-Gm-Features: AVHnY4JZ75ErYkF3JhmmcE53k8s_1M85WXsLGapZYtauCzC2DI9rDsTBzvgCfsU
-Message-ID: <CAJaUH_-aPMopA90xthPMVhktyyL6WHJPgn748yQ95UAVgaaaFQ@mail.gmail.com>
-Subject: Re: [PATCH] HID: logitech-hidpp: Add support for HID++ Multi-Platform
- feature (0x4531)
-To: Bastien Nocera <hadess@hadess.net>
-Cc: jikos@kernel.org, bentiss@kernel.org, lains@riseup.net, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	sari.kreitem@exalt.corp-partner.google.com, hbarnor@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260509101040.791404-4-sanjayembedded@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Bastien,
+On Sat, May 09, 2026 at 03:40:34PM +0530, Sanjay Chitroda wrote:
 
-Just following up on this thread in case you had a chance to review
-our latest response.
+> hid_sensor_setup_trigger() is common API used for the HID IIO drivers,
+> prepare devm API devm_hid_sensor_setup_trigger() to acquire resource
+> during setup and release using device managed framework during drivers
+> fail, unbind or remove path.
+> 
+> Register action with devm_add_action_or_reset() to release resource with
+> devres framework.
 
-Would you be OK with us proceeding with the implementation and
-preparing a v2 patch based on it?
+...
 
-Thanks,
-Baraa
+> +int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *indio_dev,
+> +				  const char *name, struct hid_sensor_common *attrb)
 
-On Thu, Mar 19, 2026 at 12:05=E2=80=AFPM dev exalt <exalt.dev.team@gmail.co=
-m> wrote:
->
-> Hi Bastien,
->
-> Thanks for the review. Please see our responses inline below.
->
-> On Mon, Mar 9, 2026 at 11:53=E2=80=AFAM Bastien Nocera <hadess@hadess.net=
-> wrote:
-> >
-> > Hey,
-> >
-> > Sorry for not looking at this earlier, it slipped through the cracks as
-> > it arrived on the mailing-list as I was away.
-> >
-> > On Mon, 2025-12-15 at 14:53 +0200, DevExalt wrote:
-> > > From: "Baraa Atta (Dev Exalt)" <exalt.dev.team@gmail.com>
-> > >
-> > > Add support in the Logitech HID++ driver for the HID++ Multi-Platform
-> > > feature (0x4531), which enables HID++ devices to adjust their
-> > > behavior
-> > > based on the host operating system (Linux, ChromeOS, Android).
-> >
-> > Can you please explain what the feature actually does ? (the Logitech
-> > docs say "Set the right keyboard layout for your computer operating
-> > system" and mention that some multimedia keys are inoperable unless a
-> > compatible OS is set).
->
-> The HID++ Multi-Platform feature (0x4531) allows a device to select a
-> platform profile that determines how the device firmware behaves for a
-> specific operating system.
->
-> In practice, this affects how certain keys and functions are exposed
-> to the host. Depending on the selected platform, the device may emit
-> different HID usages or key combinations for the same physical key.
->
-> For example, on the Logitech MX Keys S keyboard a specific key
-> produces different events depending on the configured platform. When
-> the platform is set to Linux the key generates the combination Shift +
-> Ctrl + Alt + Meta + Space, while when the platform is set to Chrome
-> the same key generates a dedicated Emoji key event (HID usage code
-> 585).
->
-> The exact behavioral differences are device-specific and defined by
-> the device firmware.
->
-> >
-> > >
-> > > This patch:
-> > >  * Adds device IDs for MX Keys S (046d:b378) and Casa Keys
-> > > (046d:b371).
-> > >  * Introduces the module parameter "hidpp_platform" to allow
-> > > selecting a
-> > >    target platform.
-> > >  * Detects whether a device implements feature 0x4531.
-> > >  * Validates that the requested platform is supported by the device.
-> > >  * Applies the platform index when valid, otherwise leaves the device
-> > >    unchanged.
-> > >  * Keeps default behavior when "hidpp_platform" is unset or invalid.
-> >
-> > Can you explain the benefits of setting this module parameter, compared
-> > to using the keyboard shortcuts to switch to a specific OS
-> > configuration?
->
-> The distribution can configure the parameter and have the OS configure
-> the device automatically without user interaction. Devices will just
-> work as expected out of the box. Users can still override it using the
-> keyboard shortcut.
->
-> >
-> > What happens when 2 Logitech devices with different supported OSes are
-> > used?
->
-> If a device does not support the platform specified through the module
-> parameter, the driver does not modify that device and its default
-> platform configuration remains unchanged.
->
-> During initialization, the driver queries the device for the list of
-> supported platform descriptors exposed by the HID++ Multi-Platform
-> feature (0x4531). The requested platform is only applied if the device
-> advertises support for a compatible descriptor.
->
-> For example, if two devices are connected and the module parameter is
-> set to linux, a device that supports the Linux platform descriptor
-> will have its platform updated accordingly, causing its firmware
-> behavior to switch to the Linux profile. A device that does not
-> advertise support for the Linux platform will not be modified and will
-> continue operating on its default configuration.
->
-> >
-> > > Supported values for hidpp_platform:
-> > >    Android, Linux, Chrome
-> >
-> > Any reason why there aren't more supported OSes?
-> >
-> > The Logitech docs[1] lists:
-> > WebOS iOS MacOS Android Chrome Linux WinEmb Windows Tizen
-> > as possible values.
-> >
-> > [1]:
-> > https://drive.google.com/file/d/1KyiBA5m_5V1s6jQ9eQrgRJN0SbbbI9_I/view
-> >
-> > I recently got a K980 which has this functionality, it only documents
-> > Windows, macOS and Chrome, but Solaar also lists Linux as an option.
-> >
-> > So my questions would be:
-> > - why not support the whole range of possible OSes in this option?
->
-> Our initial focus during development was primarily on Android, and we
-> subsequently added Linux and Chrome. However, if it is preferred for
-> completeness, we are happy to add the rest of supported OS platforms
-> listed in the documentation.
->
-> > - why is it a module option instead of, say, a sysfs attribute that
-> > could be changed per device?
-> > - why not implement this in user-space through a udev callout?
->
-> The module parameter was initially chosen to provide a simple,
-> system-wide default that distributions can configure at boot. This
-> ensures the devices work out of the box without relying on user
-> interaction.
->
-> Following your question, we can also add a per-device sysfs attribute
-> alongside the module parameter. This hybrid approach accommodates
-> compatibility with all systems, since udev is not supported by all
-> distributions.
->
-> >
-> > Cheers
-> >
-> > >
-> > > TEST=3DPair MX Keys S and Casa Keys over Bluetooth and verify:
-> > >      * Feature 0x4531 is detected.
-> > >      * Valid platform values are accepted and applied.
-> > >      * Invalid platform values result in no update.
-> > >      * Devices without 0x4531 retain default behavior.
-> > >      * Platform-specific key behavior is observed once applied.
-> > >
-> > > Signed-off-by: Baraa Atta (Dev Exalt) <exalt.dev.team@gmail.com>
-> > > ---
-> > >  drivers/hid/hid-ids.h            |   2 +
-> > >  drivers/hid/hid-logitech-hidpp.c | 280
-> > > +++++++++++++++++++++++++++++++
-> > >  drivers/hid/hid-quirks.c         |   2 +
-> > >  3 files changed, 284 insertions(+)
-> > >
-> > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > > index d31711f1aaec..12de1194d7fa 100644
-> > > --- a/drivers/hid/hid-ids.h
-> > > +++ b/drivers/hid/hid-ids.h
-> > > @@ -866,6 +866,8 @@
-> > >  #define USB_DEVICE_ID_LOGITECH_T651  0xb00c
-> > >  #define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD       0xb309
-> > >  #define USB_DEVICE_ID_LOGITECH_CASA_TOUCHPAD 0xbb00
-> > > +#define USB_DEVICE_ID_LOGITECH_CASA_KEYS_KEYBOARD    0xb371
-> > > +#define USB_DEVICE_ID_LOGITECH_MX_KEYS_S_KEYBOARD    0xb378
-> > >  #define USB_DEVICE_ID_LOGITECH_C007  0xc007
-> > >  #define USB_DEVICE_ID_LOGITECH_C077  0xc077
-> > >  #define USB_DEVICE_ID_LOGITECH_RECEIVER      0xc101
-> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
-> > > logitech-hidpp.c
-> > > index d5011a5d0890..e94daed31981 100644
-> > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > @@ -4373,6 +4373,280 @@ static bool hidpp_application_equals(struct
-> > > hid_device *hdev,
-> > >       return report && report->application =3D=3D application;
-> > >  }
-> > >
-> > > +/* -----------------------------------------------------------------
-> > > --------- */
-> > > +/* 0x4531: Multi-Platform
-> > > Support                                             */
-> > > +/* -----------------------------------------------------------------
-> > > --------- */
-> > > +
-> > > +/*
-> > > + * Some Logitech devices expose the HID++ feature 0x4531 (Multi-
-> > > Platform) allowing
-> > > + * the host to specify which operating system platform to use on the
-> > > device. Changing device's
-> > > + * platform may alter the behavior of the device to match the
-> > > specified platform.
-> > > + */
-> > > +
-> > > +static char *hidpp_platform;
-> > > +module_param(hidpp_platform, charp, 0644);
-> > > +MODULE_PARM_DESC(hidpp_platform, "Select host platform type for
-> > > Logitech HID++ Multi-Platform feature "
-> > > +              "0x4531, valid values: (linux|chrome|android).  If
-> > > unset, no "
-> > > +              "change is applied.");
-> > > +
-> > > +#define HIDPP_MULTIPLATFORM_FEAT_ID                  0x4531
-> > > +#define HIDPP_MULTIPLATFORM_GET_FEATURE_INFO         0x0F
-> > > +#define HIDPP_MULTIPLATFORM_GET_PLATFORM_DESCRIPTOR  0x1F
-> > > +#define HIDPP_MULTIPLATFORM_SET_CURRENT_PLATFORM     0x3F
-> > > +
-> > > +#define
-> > > HIDPP_MULTIPLATFORM_PLATFORM_MASK_LINUX               BIT(10)
-> > > +#define HIDPP_MULTIPLATFORM_PLATFORM_MASK_CHROME     BIT(11)
-> > > +#define HIDPP_MULTIPLATFORM_PLATFORM_MASK_ANDROID    BIT(12)
-> > > +
-> > > +struct hidpp_platform_desc {
-> > > +     u8 plat_idx;
-> > > +     u8 desc_idx;
-> > > +     u16 plat_mask;
-> > > +};
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_mask_from_str() - Convert platform name to an
-> > > HID++ platform mask
-> > > + * @pname: Platform name string
-> > > + *
-> > > + * Converts a platform name string to its corresponding HID++
-> > > platform mask based on
-> > > + * the Multi-Platform feature specification.
-> > > + *
-> > > + * Return: Platform mask corresponding to @pname on success,
-> > > + * or 0 if @pname is NULL or unsupported.
-> > > + */
-> > > +static u16 hidpp_multiplatform_mask_from_str(const char *pname)
-> > > +{
-> > > +     if (!pname)
-> > > +             return 0;
-> > > +
-> > > +     if (!strcasecmp(pname, "linux"))
-> > > +             return HIDPP_MULTIPLATFORM_PLATFORM_MASK_LINUX;
-> > > +     if (!strcasecmp(pname, "chrome"))
-> > > +             return HIDPP_MULTIPLATFORM_PLATFORM_MASK_CHROME;
-> > > +     if (!strcasecmp(pname, "android"))
-> > > +             return HIDPP_MULTIPLATFORM_PLATFORM_MASK_ANDROID;
-> > > +
-> > > +     return 0;
-> > > +}
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_get_num_pdesc() - Retrieve number of platform
-> > > descriptors
-> > > + * @hidpp: Pointer to the hidpp_device instance
-> > > + * @feat_index: Feature index of the Multi-Platform feature
-> > > + * @num_desc: Pointer to store the number of platform descriptors
-> > > + *
-> > > + * Retrieves the number of platform descriptors supported by the
-> > > device through
-> > > + * the Multi-Platform feature and stores it in @num_desc.
-> > > + *
-> > > + * Return: 0 on success, or non-zero on failure.
-> > > + */
-> > > +static int hidpp_multiplatform_get_num_pdesc(struct hidpp_device
-> > > *hidpp,
-> > > +                                          u8 feat_index, u8
-> > > *num_desc)
-> > > +{
-> > > +     int ret;
-> > > +     struct hidpp_report response;
-> > > +     struct hid_device *hdev =3D hidpp->hid_dev;
-> > > +
-> > > +     ret =3D hidpp_send_fap_command_sync(hidpp, feat_index,
-> > > +
-> > > HIDPP_MULTIPLATFORM_GET_FEATURE_INFO,
-> > > +                                       NULL, 0, &response);
-> > > +     if (ret) {
-> > > +             hid_warn(hdev, "Multiplatform: GET_FEATURE_INFO
-> > > failed (err=3D%d)", ret);
-> > > +             return ret;
-> > > +     }
-> > > +
-> > > +     *num_desc =3D response.fap.params[3];
-> > > +     hid_dbg(hdev, "Multiplatform: Device supports %d platform
-> > > descriptors", *num_desc);
-> > > +
-> > > +     return 0;
-> > > +}
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_get_platform_desc() - Retrieve a platform
-> > > descriptor entry
-> > > + * @hidpp: Pointer to the hidpp_device instance
-> > > + * @feat_index: Feature index of the Multi-Platform feature
-> > > + * @platform_idx: Index of the platform descriptor to retrieve
-> > > + * @pdesc: Pointer to store the retrieved platform descriptor
-> > > + *
-> > > + * Retrieves a single platform descriptor identified by
-> > > @platform_idx from the
-> > > + * device and stores the parsed descriptor fields in @pdesc.
-> > > + *
-> > > + * Return: 0 on success, or non-zero on failure.
-> > > + */
-> > > +static int hidpp_multiplatform_get_platform_desc(struct hidpp_device
-> > > *hidpp, u8 feat_index,
-> > > +                                              u8 platform_idx,
-> > > struct hidpp_platform_desc *pdesc)
-> > > +{
-> > > +     int ret;
-> > > +     struct hidpp_report response;
-> > > +     u8 params[1] =3D { platform_idx };
-> > > +     struct hid_device *hdev =3D hidpp->hid_dev;
-> > > +
-> > > +     ret =3D hidpp_send_fap_command_sync(hidpp, feat_index,
-> > > +
-> > > HIDPP_MULTIPLATFORM_GET_PLATFORM_DESCRIPTOR,
-> > > +                                       params, sizeof(params),
-> > > &response);
-> > > +
-> > > +     if (ret) {
-> > > +             hid_warn(hdev,
-> > > +                      "Multiplatform: GET_PLATFORM_DESCRIPTOR
-> > > failed for index %d (err=3D%d)",
-> > > +                      platform_idx, ret);
-> > > +             return ret;
-> > > +     }
-> > > +
-> > > +     pdesc->plat_idx =3D response.fap.params[0];
-> > > +     pdesc->desc_idx =3D response.fap.params[1];
-> > > +     pdesc->plat_mask =3D
-> > > get_unaligned_be16(&response.fap.params[2]);
-> > > +
-> > > +     hid_dbg(hdev,
-> > > +             "Multiplatform: descriptor %d: plat_idx=3D%d,
-> > > desc_idx=3D%d, plat_mask=3D0x%04x",
-> > > +             platform_idx, pdesc->plat_idx, pdesc->desc_idx,
-> > > pdesc->plat_mask);
-> > > +
-> > > +     return 0;
-> > > +}
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_get_platform_index() - Find platform index
-> > > for a mask
-> > > + * @hidpp: Pointer to the hidpp_device instance
-> > > + * @feat_index: Feature index of the Multi-Platform feature
-> > > + * @plat_mask: Platform mask to search for
-> > > + * @plat_index: Pointer to store the matched platform index
-> > > + *
-> > > + * Iterates through all platform descriptors exposed by the device
-> > > via the
-> > > + * Multi-Platform feature, retrieving each descriptor and comparing
-> > > its
-> > > + * platform mask to @plat_mask. A descriptor matches if its mask
-> > > overlaps with
-> > > + * the requested @plat_mask (i.e. (pdesc.plat_mask & plat_mask) is
-> > > non-zero).
-> > > + *
-> > > + * When a matching descriptor is found, its platform index
-> > > (plat_idx) is
-> > > + * written to @plat_index and the function returns success.
-> > > + *
-> > > + * If no descriptor matches, -ENOENT is returned.
-> > > + *
-> > > + * Return: 0 on success; -ENOENT if no matching descriptor exists;
-> > > + *         or non-zero on failure.
-> > > + */
-> > > +static int hidpp_multiplatform_get_platform_index(struct
-> > > hidpp_device *hidpp,
-> > > +                                               u8 feat_index, u16
-> > > plat_mask,
-> > > +                                               u8 *plat_index)
-> > > +{
-> > > +     int i;
-> > > +     int ret;
-> > > +     u8 num_desc;
-> > > +     struct hidpp_platform_desc pdesc;
-> > > +     struct hid_device *hdev =3D hidpp->hid_dev;
-> > > +
-> > > +     ret =3D hidpp_multiplatform_get_num_pdesc(hidpp, feat_index,
-> > > &num_desc);
-> > > +     if (ret)
-> > > +             return ret;
-> > > +
-> > > +     for (i =3D 0; i < num_desc; i++) {
-> > > +             ret =3D hidpp_multiplatform_get_platform_desc(hidpp,
-> > > feat_index, i, &pdesc);
-> > > +             if (ret)
-> > > +                     return ret;
-> > > +
-> > > +             if (pdesc.plat_mask & plat_mask) {
-> > > +                     *plat_index =3D pdesc.plat_idx;
-> > > +                     hid_dbg(hdev,
-> > > +                             "Multiplatform: Selected platform
-> > > index %d for platform '%s'",
-> > > +                             *plat_index, hidpp_platform);
-> > > +                     return 0;
-> > > +             }
-> > > +     }
-> > > +
-> > > +     hid_dbg(hdev,
-> > > +             "Multiplatform: No matching platform descriptor
-> > > found for platform '%s'",
-> > > +             hidpp_platform);
-> > > +     return -ENOENT;
-> > > +}
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_update_device_platform() - Update the device
-> > > platform
-> > > + * @hidpp: Pointer to the hidpp_device instance
-> > > + * @feat_index: Feature index of the Multi-Platform feature
-> > > + * @plat_index: Platform index to set on the device
-> > > + *
-> > > + * Sends the HID++ Multi-Platform 'SET_CURRENT_PLATFORM' command to
-> > > the device to
-> > > + * update its platform index to @plat_index.
-> > > + *
-> > > + * Return: 0 on success, or non-zero on failure.
-> > > + */
-> > > +static int hidpp_multiplatform_update_device_platform(struct
-> > > hidpp_device *hidpp,
-> > > +                                                   u8 feat_index,
-> > > u8 plat_index)
-> > > +{
-> > > +     int ret;
-> > > +     struct hidpp_report response;
-> > > +     /* Byte 0 (hostIndex): 0xFF selects the current host. */
-> > > +     u8 params[2] =3D { 0xFF, plat_index };
-> > > +
-> > > +     ret =3D hidpp_send_fap_command_sync(hidpp, feat_index,
-> > > +
-> > > HIDPP_MULTIPLATFORM_SET_CURRENT_PLATFORM,
-> > > +                                       params, sizeof(params),
-> > > &response);
-> > > +
-> > > +     if (ret)
-> > > +             hid_warn(hidpp->hid_dev,
-> > > +                      "Multiplatform: SET_CURRENT_PLATFORM failed
-> > > for index %d (err=3D%d)",
-> > > +                      plat_index, ret);
-> > > +
-> > > +     return ret;
-> > > +}
-> > > +
-> > > +/**
-> > > + * hidpp_multiplatform_init() - Apply the HID++ Multi-Platform
-> > > (0x4531) feature
-> > > + * @hidpp: Pointer to the hidpp_device instance
-> > > + *
-> > > + * Initializes the Multi-Platform feature by selecting the device
-> > > platform
-> > > + * corresponding to the module parameter @hidpp_platform, if
-> > > provided.
-> > > + *
-> > > + * The function performs the following steps:
-> > > + *   1. Convert the @hidpp_platform string into a platform mask.
-> > > + *   2. Check whether the device supports the Multi-Platform feature
-> > > (0x4531).
-> > > + *   3. Look up the device's platform index whose mask matches the
-> > > host
-> > > + *      platform mask.
-> > > + *   4. Apply that platform index to the device via
-> > > 'SET_CURRENT_PLATFORM'.
-> > > + *
-> > > + * If the module parameter is unset or invalid, or the device does
-> > > not support
-> > > + * the feature, or no matching platform descriptor is found, the
-> > > function exits
-> > > + * silently without modifying the device state.
-> > > + *
-> > > + * On success, the device's platform configuration is updated.
-> > > + */
-> > > +static void hidpp_multiplatform_init(struct hidpp_device *hidpp)
-> > > +{
-> > > +     int ret;
-> > > +     u8 feat_index;
-> > > +     u8 plat_index;
-> > > +     u16 host_plat_mask;
-> > > +     struct hid_device *hdev =3D hidpp->hid_dev;
-> > > +
-> > > +     if (!hidpp_platform)
-> > > +             return;
-> > > +
-> > > +     host_plat_mask =3D
-> > > hidpp_multiplatform_mask_from_str(hidpp_platform);
-> > > +     if (!host_plat_mask) {
-> > > +             hid_warn(hdev,
-> > > +                      "Multiplatform: Invalid or unsupported
-> > > platform name '%s'",
-> > > +                      hidpp_platform);
-> > > +             return;
-> > > +     }
-> > > +
-> > > +     ret =3D hidpp_root_get_feature(hidpp,
-> > > HIDPP_MULTIPLATFORM_FEAT_ID, &feat_index);
-> > > +     if (ret) {
-> > > +             hid_warn(hdev,
-> > > +                      "Multiplatform: Failed to get the HID++
-> > > multiplatform feature 0x4531");
-> > > +             return;
-> > > +     }
-> > > +
-> > > +     ret =3D hidpp_multiplatform_get_platform_index(hidpp,
-> > > feat_index, host_plat_mask,
-> > > +                                                  &plat_index);
-> > > +     if (ret)
-> > > +             return;
-> > > +
-> > > +     ret =3D hidpp_multiplatform_update_device_platform(hidpp,
-> > > feat_index, plat_index);
-> > > +     if (ret)
-> > > +             return;
-> > > +
-> > > +     hid_info(hdev,
-> > > +              "Multiplatform: Device platform successfully set to
-> > > '%s'", hidpp_platform);
-> > > +}
-> > > +
-> > >  static int hidpp_probe(struct hid_device *hdev, const struct
-> > > hid_device_id *id)
-> > >  {
-> > >       struct hidpp_device *hidpp;
-> > > @@ -4467,6 +4741,8 @@ static int hidpp_probe(struct hid_device *hdev,
-> > > const struct hid_device_id *id)
-> > >       if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
-> > >               connect_mask &=3D ~HID_CONNECT_HIDINPUT;
-> > >
-> > > +     hidpp_multiplatform_init(hidpp);
-> > > +
-> > >       /* Now export the actual inputs and hidraw nodes to the
-> > > world */
-> > >       hid_device_io_stop(hdev);
-> > >       ret =3D hid_connect(hdev, connect_mask);
-> > > @@ -4664,6 +4940,10 @@ static const struct hid_device_id
-> > > hidpp_devices[] =3D {
-> > >         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb034) },
-> > >       { /* MX Anywhere 3SB mouse over Bluetooth */
-> > >         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb038) },
-> > > +     { /* Casa Keys keyboard over Bluetooth */
-> > > +       HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > USB_DEVICE_ID_LOGITECH_CASA_KEYS_KEYBOARD) },
-> > > +     { /* MX Keys S keyboard over Bluetooth */
-> > > +       HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > USB_DEVICE_ID_LOGITECH_MX_KEYS_S_KEYBOARD) },
-> > >       {}
-> > >  };
-> > >
-> > > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> > > index c89a015686c0..99ca04b61bda 100644
-> > > --- a/drivers/hid/hid-quirks.c
-> > > +++ b/drivers/hid/hid-quirks.c
-> > > @@ -520,6 +520,8 @@ static const struct hid_device_id
-> > > hid_have_special_driver[] =3D {
-> > >  #endif
-> > >  #if IS_ENABLED(CONFIG_HID_LOGITECH_HIDPP)
-> > >       { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > USB_DEVICE_ID_LOGITECH_G920_WHEEL) },
-> > > +     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > USB_DEVICE_ID_LOGITECH_CASA_KEYS_KEYBOARD) },
-> > > +     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > USB_DEVICE_ID_LOGITECH_MX_KEYS_S_KEYBOARD) },
-> > >  #endif
-> > >  #if IS_ENABLED(CONFIG_HID_MAGICMOUSE)
-> > >       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-> > > USB_DEVICE_ID_APPLE_MAGICMOUSE) },
->
-> Thanks,
->
-> Baraa Atta (Dev Exalt) <exalt.dev.team@gmail.com>
+At this point don't we have indio_dev->dev.parent == dev?
+
+> +{
+> +	int ret;
+> +
+> +	ret = hid_sensor_setup_trigger(indio_dev, name, attrb);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, attrb);
+> +}
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+

@@ -1,80 +1,85 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+Received: from mail-dy1-f194.google.com (mail-dy1-f194.google.com [74.125.82.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8AB92C375E
-	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 04:35:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0759A313E00
+	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 05:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778387722; cv=none; b=BjUBEXYK/PFdY7mDNd1YiD99dh2K6ayKTwRW+dAX4rXF1HQtybUB6ffXSp2+tufhXnyn6XHv8wKwNOCgk2MIG2j1l8vWYPbVx11sEXvoHrsbkeyQ0FjD6AcU0cktPkFBFQFrSMzRL//Zo6T1LpVu2QuoxBVCf/bCKGSC/QV3ldQ=
+	t=1778390501; cv=none; b=UN1XCJm3DsQ5vPDJrsv4p3guuOmGYlhBqdBEJQVEFe5UgWbZOc1HPBPfs0nUNcx8Soyh35YZmvZrJeGTvmP2lg4nVtXO78ctwjGgs/sVEoEQ9mncW8fhbBkgaDn1ju3eJSfEE/U8CdgWy6H7Mc43na6MqOY2yaI24/8zcS5z2B4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778387722; c=relaxed/simple;
-	bh=FAOkFs8X/R5/5IEnqSvNpaSToQ1zQw0+Tg6WMsit6LU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pA/w/LQUU5AltqCKM7lizEn1Fe/1eI+nJlSBVkVkr/TLGemmnC2aHp2BAYQLhdE7TcH6eX8PqI1xbwpzBZg+kLoLqi2rG9ifUeih9baRQa57e63HJJulygNWUOIYu6kWEsJQG9vsCLxXFzJpZMi+T/DOT5X4dUUH81a7NQ25icA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xq219Q/D; arc=none smtp.client-ip=74.125.82.174
+	s=arc-20240116; t=1778390501; c=relaxed/simple;
+	bh=iyfgSATq+jlurSkwX0XjsG0MidymjoDXh1Dg0XL0i60=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AGwkXz1buJan7+WfUB8+vy8hXLJAWta440G4y7srjWFAOoz/1gvaw70umrX7cRNoyPYRWSh/TX4H1X/F0m2wBzYUWqlybHlnVyovplR1vFbacR9s77LKZGmWMbp+0yhBwwCh3p2wc9aAnCvNI14AISl4GTHnfOlqbj8y9j53tjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G5ByJJtU; arc=none smtp.client-ip=74.125.82.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xq219Q/D"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-2ee990e8597so5754630eec.1
-        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 21:35:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G5ByJJtU"
+Received: by mail-dy1-f194.google.com with SMTP id 5a478bee46e88-2ecf9e398f4so8768759eec.1
+        for <linux-input@vger.kernel.org>; Sat, 09 May 2026 22:21:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778387719; x=1778992519; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/EGUJdZkAXTYXhJtuXt7hGQ/eEs1hEecVhStNhxjmFI=;
-        b=Xq219Q/DLpuwrJlIQlszjgYKKFAiThqflisJUy/EpW+G6P3Nbkro5b8wz/SRxhhS5y
-         5cvNJx/RaottwaV6B5TzthRG3B+FvXp/Fa4rrQEnwI/7EsF+0dfrY65lhuE5thaxYl4W
-         zzG5ogyZFoVqa5gIvYtjl8/M1Rn4maXCYZwD4RJn7emnVxL+DeIdAjH0EePGNiSE/cw+
-         tkI6zAAXGBpVwUwpgjwbAusIv8hcJwVIy/qVgIctJf6aZMQ1O7+GygJOK7Vbe/n5+i9U
-         zb+KmCkuy5KayAQyrIe0nm/BqcsowhYKddi0v0/1P3pHZA2tarLfbCIvs1VO7y/g/HLP
-         8dsw==
+        d=gmail.com; s=20251104; t=1778390499; x=1778995299; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ByD/C9lLdqNb5sEC4Ll4SpfSx43c4fiEK3gBugZ/0MQ=;
+        b=G5ByJJtU6fzeIpeX1Y3ul3tMQ7eM5e9YXANyFZy1bC91eqckFJD4ECzkulv9uz70/u
+         /YieCODTTVFzDIyi6QRlrOHw1SYAnETGMBlWEcHy4DVOwoX0sQ3OqDPCjoEIliUHRQc/
+         LwKa2uI8KE+0TFnccN7x9nWPajI/yQUGtS8UKFbYGWq5PAD6NbjC658cwhkUsEZlIv3b
+         3EQQq+5PMQ3fiAci39RIjrSie+45kkpP9GAes0IdgNKShfmEitN1BmNtueptSJqzHLUi
+         xRLMKMNaZnqn+eexOJq/vWKRwlwgv08xFUFaImRipI7vQyOnb4AZjcm6ztpaITpYOU69
+         JOmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778387719; x=1778992519;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=/EGUJdZkAXTYXhJtuXt7hGQ/eEs1hEecVhStNhxjmFI=;
-        b=mIjc+6sHKtsl7Y1bD46QeMkELrCVnM9d+blBFd9HKRUI8XEIitsXpgD7SvFoi0Nry2
-         v+SY0oEfVCAhD4bX+0P7TeA1pqssOVdlNEs4CQXHrGOT+4GlPtDMIOswc3gXBRXrq35m
-         9/M08adnbtp9CQk9gWe1WUSU4yUhQU6xOVClBmL6DQC69rKFGlcUjdJ0b/NCbZgf/d0M
-         D2iUDzTUVaxJc4MWJ6iv2HrPwehnRn2IIcYlvGQptgetwpgl8uf+aM1UX5f06//w6opm
-         NFm7FCvyuX2Mj1bkwpttzCC3W4Xh1BsS6TRgpDVqTUsRYWNnDW43VQFco+auQKqRXFy1
-         N4mg==
-X-Forwarded-Encrypted: i=1; AFNElJ/f4B0W9sSgtDpPpuYPHleDHmnAi36GfDTXVp+Det7Y3kjBbzfgogRw/hFE9pBiv9RGYkqUxCSAVCTo3g==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyAfzyIAyIJ1kr44/hexcNbIUq0vP7klROlTjlDgtvtAkVdlFG4
-	v1xtoHWx+cSsJx28R6AK4PT1ciH91Vy0IwlO4ezDATu/Vz5e5P3xioQS
-X-Gm-Gg: Acq92OGy1K1VpVLkl61SL5Bsh7EFFtlGUGGksrlSmjxGgJ0Z8ZUbgShXmK2OZBF54Au
-	oUInXabAKUNhFmO18dpNMp73etCz+MMvrspxGWVzf7NRPTgfXgs+hl4DlSoYrSme66ZTYYnRC7o
-	cDDNjgNE59pUdx/eKqlbj8yOH+IrnpI7IywA6+pf5c5XJAzQAzBQjZnEscCb01xjzjJLED4Nbhj
-	TNECoI1CjUZ9U7Jz6sDShSO70KTtXh+cnH4N4oRMz7dB4Ard4fxLJCuAOlql55xVjJIc1C60R06
-	iTEpEtNCh9sQRQ1TfooylCHH1VZLz/VJYpYFAmxbxNqwQFFQXzLe8LVQgk2e8V04Kqi5rTB2P7Q
-	MUpo9izpzcPyWQX4iVtxMG7jRRAVBLwTUk90TgRf/iRy7JHGHBe4SREw/AF1yiHVMhw6h4FW1NS
-	m8yAYD0iZylECPaYij3c5WJShUIJ1tbJeTkXRYXnNYbRyHMyOJ9eU4j+rUdEdYFnQQbqBA5Y+H8
-	BKL6ys5BUFRr9U=
-X-Received: by 2002:a05:693c:2c97:b0:2ed:e15:c926 with SMTP id 5a478bee46e88-2f54be949a5mr10343672eec.34.1778387718923;
-        Sat, 09 May 2026 21:35:18 -0700 (PDT)
-Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f88885be8esm8667953eec.22.2026.05.09.21.35.18
+        d=1e100.net; s=20251104; t=1778390499; x=1778995299;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ByD/C9lLdqNb5sEC4Ll4SpfSx43c4fiEK3gBugZ/0MQ=;
+        b=VEoGGdFWZIKNQCNfhGpDvlJxh2Y/wOTbHf27yZs3vxlXkuSu/W3rg9oYsgK1UwTEFI
+         G1/HjRYdqeihFco+0rrGpekB7DS2lU7bj3ETKI066hRYNMM03WLyKpFffGlfKV6wkV0n
+         QLTwD53BWacY8v1ytReZZm8wEH9xiQ98u3UKmBMdKqtbCOaMPTlCBXSu6s0gzyLEV2sF
+         gY2TQ4KXw7YJ0FeDefyspZxhfSRh4cdyjBI9v4JDt9j3DzdQf72lPIpQCscgFzdVM/9b
+         ptJnlb7gIozpQDgaWnUGZMbUh1Af7fs0H/U95e39Id609zxeFPd4mqWlB7hHfasTYw7o
+         PttA==
+X-Forwarded-Encrypted: i=1; AFNElJ98KersCNymRxhj4JjmJ3zJ7HrW70QdB5HPfoYIPu90+QtFzETd1+L6PKacn+FxABB8wAtUsHZlZ/YLHw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy5HKLfUDyjhYS5icncih6puD7SL4ZQyZg2p4SbPtCE1yFZIqoC
+	qGyrvNHEmIygOrr7lNTPHreE0MG/V2JmKhma6GG0sH358d9WvpwS01c+
+X-Gm-Gg: Acq92OFmg9TCaB45VajN6DQGHHS1S7zNhBUxJAFVrW9BfU0ehSk/OO20ZN73h4bmNEy
+	Wonyzk00k1UE+kry7af/vW+zRhexasMSEoyLEFZb0L4dARo+HKeZMeBtZLfTnCk/A/qQWpjg9pn
+	lRNACOuq4TCXBCMMjKO18SYb1eJkEYrg3H9IrfvYXlaVEmU4unyKCyOO6/sXavfgv/rky7EO5/O
+	jVvLoZyWmqrcK588S9XivXaTE8ltQwZbguLEiu9Q3kV/sbssbEXU5unUB2+alS1GMTb99I8+et2
+	p1uVtqpoTcl2OOLaDDU7BzBuUtvGOtq9pQmqi1QoSFakOjQoogrVEEBOT40Deu0a+6hRq8ELGY9
+	ru1zfWcBukBp4rnRytt0UBCFY7ATuUk/Y/fg9mk0LzHBv+OJCEEjL9ub6nOe6YX/M2YYFvuxTcd
+	fBD9Mt0ra5GML6/cyUYAd0H0TKD63hq3q6qjDeLOCE7VuvoJdg799TxALSsdIeu+LXhFIXLfQ0T
+	qKu/YGhcWRFlHlUTsJnLUSdf1JAfwc9x7dOMiEU0GPbcCgaNLsrPpVuAJCrQ9arjWb5WaF2EjKV
+	h/h/V5Us7pkh5NvJMQ==
+X-Received: by 2002:a05:7301:7c12:b0:2d8:df01:d9f7 with SMTP id 5a478bee46e88-2f54b891fd0mr10659278eec.15.1778390498897;
+        Sat, 09 May 2026 22:21:38 -0700 (PDT)
+Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f888c469b6sm8749587eec.24.2026.05.09.22.21.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 21:35:18 -0700 (PDT)
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Zhouwang Huang <honjow311@gmail.com>,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+        Sat, 09 May 2026 22:21:38 -0700 (PDT)
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+To: linux-arm-kernel@lists.infradead.org,
 	linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] HID: hid-msi-claw: Add Rumble Intensity Attributes
-Date: Sun, 10 May 2026 04:35:10 +0000
-Message-ID: <20260510043510.442807-5-derekjohn.clark@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260510043510.442807-1-derekjohn.clark@gmail.com>
-References: <20260510043510.442807-1-derekjohn.clark@gmail.com>
+	linux-serial@vger.kernel.org
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	"Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+	Linus Walleij <linusw@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Weissschuh <thomas.weissschuh@linutronix.de>,
+	Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH] ARM: footbridge: convert to sparse IRQs
+Date: Sat,  9 May 2026 22:20:49 -0700
+Message-ID: <20260510052107.555825-1-enelsonmoore@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -83,238 +88,269 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds intensity adjustment for the left and right rumble motors.
+To improve future maintainability, change the interrupt handling for
+mach-footbridge to use sparse IRQs.
 
-Claude was used during the reverse-engineering data gathering for this
-feature done by Zhouwang Huang. As the code had already been affected,
-I used Claude to create the initial framing for the feature, then did
-manual cleanup of the _show and _store functions afterwards to fix bugs
-and keep the coding style consistent. Claude was also used as an initial
-reviewer of this patch.
+Since the number of possible interrupts is already fixed and relatively
+small, just make it use all legacy interrupts preallocated using the
+.nr_irqs field in the machine descriptor, rather than actually
+allocating domains on the fly.
 
-Assisted-by: Claude:claude-sonnet-4-6
-Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+Many files had to be adjusted to include <mach/irqs.h>
+explicitly because it is no longer implicitly included with sparse
+IRQs.
+
+Description adapted from commit c78a41fc04f0 ("ARM: s3c24xx: convert
+to sparse-irq").
+
+Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 ---
- drivers/hid/hid-msi-claw.c | 139 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 139 insertions(+)
+This commit depends on my previous submission "ARM: <asm/floppy.h>: fix
+build with sparse IRQs".
 
-diff --git a/drivers/hid/hid-msi-claw.c b/drivers/hid/hid-msi-claw.c
-index f4fe74a784c2..6d089f49abdb 100644
---- a/drivers/hid/hid-msi-claw.c
-+++ b/drivers/hid/hid-msi-claw.c
-@@ -76,6 +76,8 @@ enum claw_profile_ack_pending {
- 	CLAW_M1_PENDING,
- 	CLAW_M2_PENDING,
- 	CLAW_RGB_PENDING,
-+	CLAW_RUMBLE_LEFT_PENDING,
-+	CLAW_RUMBLE_RIGHT_PENDING,
- };
+ arch/arm/Kconfig                             | 2 +-
+ arch/arm/include/asm/irq.h                   | 4 +++-
+ arch/arm/mach-footbridge/dc21285-timer.c     | 2 +-
+ arch/arm/mach-footbridge/dc21285.c           | 2 +-
+ arch/arm/mach-footbridge/ebsa285-pci.c       | 2 +-
+ arch/arm/mach-footbridge/ebsa285.c           | 2 ++
+ arch/arm/mach-footbridge/include/mach/irqs.h | 4 +---
+ arch/arm/mach-footbridge/isa-irq.c           | 2 +-
+ arch/arm/mach-footbridge/isa-timer.c         | 2 +-
+ arch/arm/mach-footbridge/isa.c               | 2 +-
+ arch/arm/mach-footbridge/netwinder-hw.c      | 2 ++
+ arch/arm/mach-footbridge/netwinder-pci.c     | 2 +-
+ drivers/char/nwbutton.c                      | 2 +-
+ drivers/input/serio/i8042-io.h               | 6 +++---
+ drivers/tty/serial/21285.c                   | 2 +-
+ 15 files changed, 21 insertions(+), 17 deletions(-)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 09b2767fee0f..1155c78bb6aa 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -153,7 +153,7 @@ config ARM
+ 	select PCI_SYSCALL if PCI
+ 	select PERF_USE_VMALLOC
+ 	select RTC_LIB
+-	select SPARSE_IRQ if !ARCH_FOOTBRIDGE
++	select SPARSE_IRQ
+ 	select SYS_SUPPORTS_APM_EMULATION
+ 	select THREAD_INFO_IN_TASK
+ 	select TIMER_OF if OF
+diff --git a/arch/arm/include/asm/irq.h b/arch/arm/include/asm/irq.h
+index 26c1d2ced4ce..08589b88c3b9 100644
+--- a/arch/arm/include/asm/irq.h
++++ b/arch/arm/include/asm/irq.h
+@@ -10,7 +10,9 @@
+ #define NR_IRQS NR_IRQS_LEGACY
+ #endif
  
- enum claw_key_index {
-@@ -262,6 +264,11 @@ static const u16 button_mapping_addr_new[] = {
- static const u16 rgb_addr_old = 0x01fa;
- static const u16 rgb_addr_new = 0x024a;
+-#ifndef irq_canonicalize
++#ifdef CONFIG_ARCH_FOOTBRIDGE
++#define irq_canonicalize(i)	(((i) == 2) ? 9 : i)
++#else
+ #define irq_canonicalize(i)	(i)
+ #endif
  
-+static const u16 rumble_addr[] = {
-+	0x0022,  /* left  */
-+	0x0023,  /* right */
-+};
-+
- struct claw_command_report {
- 	u8 report_id;
- 	u8 padding[2];
-@@ -308,7 +315,10 @@ struct claw_drvdata {
- 	enum claw_gamepad_mode_index gamepad_mode;
- 	u8 m1_codes[CLAW_KEYS_MAX];
- 	u8 m2_codes[CLAW_KEYS_MAX];
-+	u8 rumble_intensity_right;
-+	u8 rumble_intensity_left;
- 	const u16 *bmap_addr;
-+	bool rumble_support;
- 	bool bmap_support;
+diff --git a/arch/arm/mach-footbridge/dc21285-timer.c b/arch/arm/mach-footbridge/dc21285-timer.c
+index 2908c9ef3c9b..7d7ad1c1ef3f 100644
+--- a/arch/arm/mach-footbridge/dc21285-timer.c
++++ b/arch/arm/mach-footbridge/dc21285-timer.c
+@@ -12,7 +12,7 @@
+ #include <linux/irq.h>
+ #include <linux/sched_clock.h>
  
- 	/* RGB Variables */
-@@ -396,6 +406,12 @@ static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_command_
- 		memcpy(&drvdata->rgb_frames[f_idx], &frame->zone_data,
- 		       sizeof(struct rgb_frame));
+-#include <asm/irq.h>
++#include <mach/irqs.h>
  
-+		break;
-+	case CLAW_RUMBLE_LEFT_PENDING:
-+		drvdata->rumble_intensity_left = cmd_rep->data[4];
-+		break;
-+	case CLAW_RUMBLE_RIGHT_PENDING:
-+		drvdata->rumble_intensity_right = cmd_rep->data[4];
- 		break;
- 	default:
- 		dev_warn(&drvdata->hdev->dev,
-@@ -795,6 +811,116 @@ static ssize_t button_mapping_options_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(button_mapping_options);
+ #include <asm/hardware/dec21285.h>
+ #include <asm/mach/time.h>
+diff --git a/arch/arm/mach-footbridge/dc21285.c b/arch/arm/mach-footbridge/dc21285.c
+index e1b336624883..ffdecfadc9e2 100644
+--- a/arch/arm/mach-footbridge/dc21285.c
++++ b/arch/arm/mach-footbridge/dc21285.c
+@@ -17,7 +17,7 @@
+ #include <linux/io.h>
+ #include <linux/spinlock.h>
  
-+static ssize_t rumble_intensity_left_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	u8 data[] = { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0xff, 0x01, 0x00 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	u8 val;
-+	int ret;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > 100)
-+		return -EINVAL;
-+
-+	data[4] = val;
-+
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
-+			       data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, 0);
-+	if (ret)
-+		return ret;
-+
-+	drvdata->rumble_intensity_left = val;
-+
-+	return count;
-+}
-+
-+static ssize_t rumble_intensity_left_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	u8 data[4] = { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0xff, 0x01 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	drvdata->profile_pending = CLAW_RUMBLE_LEFT_PENDING;
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_left);
-+}
-+static DEVICE_ATTR_RW(rumble_intensity_left);
-+
-+static ssize_t rumble_intensity_right_store(struct device *dev,
-+					    struct device_attribute *attr,
-+					    const char *buf, size_t count)
-+{
-+	u8 data[] = { 0x01, (rumble_addr[1] >> 8) & 0xff, rumble_addr[1] & 0xff, 0x01, 0x00 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	u8 val;
-+	int ret;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > 100)
-+		return -EINVAL;
-+
-+	data[4] = val;
-+
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
-+			       data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, 0);
-+	if (ret)
-+		return ret;
-+
-+	drvdata->rumble_intensity_right = val;
-+
-+	return count;
-+}
-+
-+static ssize_t rumble_intensity_right_show(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	u8 data[4] = { 0x01, (rumble_addr[1] >> 8) & 0xff, rumble_addr[1] & 0xff, 0x01 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	drvdata->profile_pending = CLAW_RUMBLE_RIGHT_PENDING;
-+	ret = mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_right);
-+}
-+static DEVICE_ATTR_RW(rumble_intensity_right);
-+
-+static ssize_t rumble_intensity_range_show(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	return sysfs_emit(buf, "0-100\n");
-+}
-+static DEVICE_ATTR_RO(rumble_intensity_range);
-+
- static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct attribute *attr,
- 					    int n)
- {
-@@ -815,6 +941,12 @@ static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct attribu
- 	    attr == &dev_attr_reset.attr)
- 		return attr->mode;
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/mach/pci.h>
+ #include <asm/hardware/dec21285.h>
  
-+	/* Hide rumble attrs if not supported */
-+	if (attr == &dev_attr_rumble_intensity_left.attr ||
-+	    attr == &dev_attr_rumble_intensity_right.attr ||
-+	    attr == &dev_attr_rumble_intensity_range.attr)
-+		return drvdata->rumble_support ? attr->mode : 0;
-+
- 	/* Hide button mapping attrs if it isn't supported */
- 	return drvdata->bmap_support ? attr->mode : 0;
- }
-@@ -828,6 +960,9 @@ static struct attribute *claw_gamepad_attrs[] = {
- 	&dev_attr_mkeys_function.attr,
- 	&dev_attr_mkeys_function_index.attr,
- 	&dev_attr_reset.attr,
-+	&dev_attr_rumble_intensity_left.attr,
-+	&dev_attr_rumble_intensity_right.attr,
-+	&dev_attr_rumble_intensity_range.attr,
- 	NULL,
- };
+diff --git a/arch/arm/mach-footbridge/ebsa285-pci.c b/arch/arm/mach-footbridge/ebsa285-pci.c
+index c3f280d08fa7..d2168660dd01 100644
+--- a/arch/arm/mach-footbridge/ebsa285-pci.c
++++ b/arch/arm/mach-footbridge/ebsa285-pci.c
+@@ -10,7 +10,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
  
-@@ -1286,9 +1421,11 @@ static void claw_features_supported(struct claw_drvdata *drvdata)
- 		drvdata->bmap_support = true;
- 		if (minor >= 0x66) {
- 			drvdata->bmap_addr = button_mapping_addr_new;
-+			drvdata->rumble_support = true;
- 			drvdata->rgb_addr = rgb_addr_new;
- 		} else {
- 			drvdata->bmap_addr = button_mapping_addr_old;
-+			drvdata->rumble_support = false;
- 			drvdata->rgb_addr = rgb_addr_old;
- 		}
- 		return;
-@@ -1297,11 +1434,13 @@ static void claw_features_supported(struct claw_drvdata *drvdata)
- 	if ((major == 0x02 && minor >= 0x17) || major >= 0x03) {
- 		drvdata->bmap_support = true;
- 		drvdata->bmap_addr = button_mapping_addr_new;
-+		drvdata->rumble_support = true;
- 		drvdata->rgb_addr = rgb_addr_new;
- 		return;
- 	}
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/mach/pci.h>
+ #include <asm/mach-types.h>
  
- 	drvdata->bmap_support = false;
-+	drvdata->rumble_support = false;
- 	drvdata->rgb_addr = rgb_addr_old;
- }
+diff --git a/arch/arm/mach-footbridge/ebsa285.c b/arch/arm/mach-footbridge/ebsa285.c
+index 1cb7d674bc81..a820f7467468 100644
+--- a/arch/arm/mach-footbridge/ebsa285.c
++++ b/arch/arm/mach-footbridge/ebsa285.c
+@@ -10,6 +10,7 @@
+ #include <linux/slab.h>
+ #include <linux/leds.h>
+ 
++#include <mach/irqs.h>
+ #include <asm/hardware/dec21285.h>
+ #include <asm/mach-types.h>
+ 
+@@ -117,6 +118,7 @@ MACHINE_START(EBSA285, "EBSA285")
+ 	.video_end	= 0x000bffff,
+ 	.map_io		= footbridge_map_io,
+ 	.init_early	= footbridge_sched_clock,
++	.nr_irqs	= FOOTBRIDGE_NR_IRQS,
+ 	.init_irq	= footbridge_init_irq,
+ 	.init_time	= footbridge_timer_init,
+ 	.restart	= footbridge_restart,
+diff --git a/arch/arm/mach-footbridge/include/mach/irqs.h b/arch/arm/mach-footbridge/include/mach/irqs.h
+index a5f41846ab9c..10f1fbc24012 100644
+--- a/arch/arm/mach-footbridge/include/mach/irqs.h
++++ b/arch/arm/mach-footbridge/include/mach/irqs.h
+@@ -11,7 +11,7 @@
+  */
+ #include <asm/mach-types.h>
+ 
+-#define NR_IRQS			36
++#define FOOTBRIDGE_NR_IRQS	36
+ #define NR_DC21285_IRQS		16
+ 
+ #define _ISA_IRQ(x)		(0 + (x))
+@@ -93,5 +93,3 @@
+ #define I8042_KBD_IRQ	IRQ_ISA_KEYBOARD
+ #define I8042_AUX_IRQ	(machine_is_netwinder() ? IRQ_NETWINDER_PS2MOUSE : IRQ_ISA_PS2MOUSE)
+ #define IRQ_FLOPPYDISK	IRQ_ISA_FLOPPY
+-
+-#define irq_canonicalize(_i)	(((_i) == IRQ_ISA_CASCADE) ? IRQ_ISA_2 : _i)
+diff --git a/arch/arm/mach-footbridge/isa-irq.c b/arch/arm/mach-footbridge/isa-irq.c
+index 842ddb4121ef..e4e71bdf1dc7 100644
+--- a/arch/arm/mach-footbridge/isa-irq.c
++++ b/arch/arm/mach-footbridge/isa-irq.c
+@@ -21,8 +21,8 @@
+ #include <asm/mach/irq.h>
+ 
+ #include <mach/hardware.h>
++#include <mach/irqs.h>
+ #include <asm/hardware/dec21285.h>
+-#include <asm/irq.h>
+ #include <asm/mach-types.h>
+ 
+ #include "common.h"
+diff --git a/arch/arm/mach-footbridge/isa-timer.c b/arch/arm/mach-footbridge/isa-timer.c
+index 723e3eae995d..07dee61b0b03 100644
+--- a/arch/arm/mach-footbridge/isa-timer.c
++++ b/arch/arm/mach-footbridge/isa-timer.c
+@@ -13,7 +13,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/timex.h>
+ 
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/mach/time.h>
+ 
+ #include "common.h"
+diff --git a/arch/arm/mach-footbridge/isa.c b/arch/arm/mach-footbridge/isa.c
+index 84caccddce44..1e7b0f5fb111 100644
+--- a/arch/arm/mach-footbridge/isa.c
++++ b/arch/arm/mach-footbridge/isa.c
+@@ -7,7 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/serial_8250.h>
+ 
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/hardware/dec21285.h>
+ 
+ #include "common.h"
+diff --git a/arch/arm/mach-footbridge/netwinder-hw.c b/arch/arm/mach-footbridge/netwinder-hw.c
+index c024eefd4978..ab17ba916d47 100644
+--- a/arch/arm/mach-footbridge/netwinder-hw.c
++++ b/arch/arm/mach-footbridge/netwinder-hw.c
+@@ -16,6 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/leds.h>
+ 
++#include <mach/irqs.h>
+ #include <asm/hardware/dec21285.h>
+ #include <asm/mach-types.h>
+ #include <asm/setup.h>
+@@ -766,6 +767,7 @@ MACHINE_START(NETWINDER, "Rebel-NetWinder")
+ 	.reserve_lp2	= 1,
+ 	.fixup		= fixup_netwinder,
+ 	.map_io		= footbridge_map_io,
++	.nr_irqs	= FOOTBRIDGE_NR_IRQS,
+ 	.init_irq	= footbridge_init_irq,
+ 	.init_time	= isa_timer_init,
+ 	.restart	= netwinder_restart,
+diff --git a/arch/arm/mach-footbridge/netwinder-pci.c b/arch/arm/mach-footbridge/netwinder-pci.c
+index e8304392074b..bfd5c0606c71 100644
+--- a/arch/arm/mach-footbridge/netwinder-pci.c
++++ b/arch/arm/mach-footbridge/netwinder-pci.c
+@@ -10,7 +10,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ 
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/mach/pci.h>
+ #include <asm/mach-types.h>
+ 
+diff --git a/drivers/char/nwbutton.c b/drivers/char/nwbutton.c
+index 92cee5717237..99819b184aac 100644
+--- a/drivers/char/nwbutton.c
++++ b/drivers/char/nwbutton.c
+@@ -18,7 +18,7 @@
+ #include <linux/init.h>
+ 
+ #include <linux/uaccess.h>
+-#include <asm/irq.h>
++#include <mach/irqs.h>
+ #include <asm/mach-types.h>
+ 
+ #define __NWBUTTON_C		/* Tell the header file who we are */
+diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
+index a8f4b2d70e59..cea72bd888af 100644
+--- a/drivers/input/serio/i8042-io.h
++++ b/drivers/input/serio/i8042-io.h
+@@ -15,9 +15,9 @@
+  * IRQs.
+  */
+ 
+-#if defined(__arm__)
+-/* defined in include/asm-arm/arch-xxx/irqs.h */
+-#include <asm/irq.h>
++#ifdef CONFIG_ARCH_FOOTBRIDGE
++/* defined in arch/arm/mach-footbridge/include/mach/irqs.h */
++#include <mach/irqs.h>
+ #elif defined(CONFIG_PPC)
+ extern int of_i8042_kbd_irq;
+ extern int of_i8042_aux_irq;
+diff --git a/drivers/tty/serial/21285.c b/drivers/tty/serial/21285.c
+index 4de0c975ebdc..f0c63875912e 100644
+--- a/drivers/tty/serial/21285.c
++++ b/drivers/tty/serial/21285.c
+@@ -15,11 +15,11 @@
+ #include <linux/serial.h>
+ #include <linux/io.h>
+ 
+-#include <asm/irq.h>
+ #include <asm/mach-types.h>
+ #include <asm/system_info.h>
+ #include <asm/hardware/dec21285.h>
+ #include <mach/hardware.h>
++#include <mach/irqs.h>
+ 
+ #define BAUD_BASE		(mem_fclk_21285/64)
  
 -- 
-2.53.0
+2.43.0
 

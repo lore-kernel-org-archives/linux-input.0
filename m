@@ -1,173 +1,128 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EE7B37F756
-	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 11:08:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F28C372B50
+	for <linux-input@vger.kernel.org>; Sun, 10 May 2026 12:23:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778411323; cv=none; b=SAQp9OIkOtcmvSOlRGzzDLly1naXSIN/9X1BAoX7mtOFe8unJPRnGZO8ZXRXkTt/Bzc0IZ+RTSXtA3Y765rRZAbFasqt3lqunIC5EXOU1rukvdZYPfJ5jp/mUb8oA8/8oefM2NJZH8U5XqJjST+VxaqTWRyjxERqgxoyuEWtK9k=
+	t=1778415840; cv=none; b=aiOPTnHAaC9Ggmbb9Xe1carjwTNF9uG04giBN7qbnR5YColfUbjfXV+1nFxAWKQbEaWo4u23f1Ouoaa4V1l8u+/0P9nAz9RKWw9+z02iCo9wy9Mf8cv8bFj2TamnKqolW1u8euNj6nODHVCcO2rtFg3hyoWHPOnPzfwcHpJM35M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778411323; c=relaxed/simple;
-	bh=VWNSeXLpRAe/celgCxjIoqvqXwbqAv0wT7y/dppOsEI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Fg4fJwjZ04o7Th9Vcug3tZxqaIOcIegO48204MPW51upUEF0GBM0njkFBzBjXmy+Yds0dtl/Nus8Mpa9fvfC6KM9JM5M3V+5CTIpouGgxdhd89TVYBGGIu1O/YXu7sYxWr42OO6zifmOZLaUL+DNI+vT05oid9rslTQoLLp6OrM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nQGubsfo; arc=none smtp.client-ip=209.85.208.42
+	s=arc-20240116; t=1778415840; c=relaxed/simple;
+	bh=hkAEcL6nfvQODU2P0IFadfabnehkvacnCGHyVpjrIGY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=C+P3VqJpY4L7lwsBTOohrcKXDW3Wfetydi5CDl4g+2Sm59lQ0vqQEwf9A/jy2F1vPeArYX0otujEtYWvpcze3pU1IVYPQwR3hkLd92BA3MvFCxK+o1LNdTdeuu+1HVkub6JvE6wu11I3dq1lh31a0gpDFyvsp/nFBXi2a2/zyF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=axlC8UC5; arc=none smtp.client-ip=209.85.218.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nQGubsfo"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-67fd8befac7so268785a12.2
-        for <linux-input@vger.kernel.org>; Sun, 10 May 2026 04:08:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="axlC8UC5"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-bcbf867a77eso17219766b.3
+        for <linux-input@vger.kernel.org>; Sun, 10 May 2026 05:23:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778411319; x=1779016119; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t1KCdtbuRFFxdaXY/A3Jna+lCae9dBlkmFTwEdkEb4o=;
-        b=nQGubsfou3ClYBu3/P4QGarS7yV8KMiiaMc8doQVWYXnu6BKfXgv+VYb3IEgUMXxTQ
-         20JcD18wb1Ay2TUg/L3glAKx1wBH+reWA6tFgRELgYKP+FSZTUWrVdMJ+mp1xotEF+EC
-         zF/E8/xZJidEv1azSL+rp9GZijFV3rc9CH3kQg2Z63Qyfmo8xDchakDgL1qONWe1RoQQ
-         tAPfKqxOdp+dLFSSR8KKZ7x5GNu1ulTHp3qN4R6exZTtgVElhWbNqVHNFFCRG7OBx+jM
-         O953MUg9iWU8NRsJ6aEm219F3o05vW3E1/IQlR+WfWymIlCrFaWplSvBxwEODi8RtQkj
-         mlmQ==
+        d=gmail.com; s=20251104; t=1778415836; x=1779020636; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8AtQVnnlrxzq6LC48B19jdYIcKO6FStZOhWhuwmTDN4=;
+        b=axlC8UC5U1u6nE2hoPg9XQCWls8NeZw1vPQekRWilTfkqt4+LxddMkmEUYKWnG+hy0
+         y280iZ8BTY4Lal/TVSy0v+3cXbeeizmJBVvNJ8EZboYUt9KEGfZPkV6KvREwHsRX9J7A
+         BglcvuwCuKyaVdrHs9zIDJ5pjwA3wRc1docp3BZlirdHNeSnoyvnGZx8uBFo1clz20xN
+         jz7VU+eX7/7ISZ8jn8/AMiseMJvtTWh5dhvB1ngNhr70b/fb00ubDiHWSk3lgDxoh/yo
+         nKGkPk6AS4+/32ULsPHTBUWoxXP3gLXj9cxfi7M7yUo2GCLy+fKn82MkA2qkUkBf1Rds
+         lqdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778411319; x=1779016119;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=t1KCdtbuRFFxdaXY/A3Jna+lCae9dBlkmFTwEdkEb4o=;
-        b=X4xggpCgmWI0Bbe7v6ytMPyiZp8usHIF9kr/r1YgLAx4Pl+6NMY8m+3scXfULR6PrO
-         RARSAa+WVROf8upAsxY1LshaE8kTcV9HPv427hNVuKgSkx2/E7SHuIj6wBMb1xZf4u5f
-         2JSFXGq+kY5CXnk1tlN+9fFKxgUkF43nd6ez2ItUKeCKTwd+7mo4MgRcNXZUgLfKIcwu
-         oJ+V7ZRGutpt1Ojf80lQLDTdOQy9tlXmcsoSHWyeBt9pAhuQ3qtRzfJwGx9Yl/JZIZr7
-         eepaFIo6EDDVMdpw7WV0v3z/NtSi0OHLFc7BvLV6SEmQlFnpT42jfhD0u+kRActCTAgV
-         T/9w==
-X-Gm-Message-State: AOJu0Yyno0PSLuo8HwZiV1WCaD705BfB5qWIKJLqRPjHE641fyDs7T/F
-	0jmqqXZkSMngpK9x2AQjid/BEEfKnhh6BBGC84/tv0ThBRQpzGwCL138
-X-Gm-Gg: Acq92OFPYGZuggdPm3uP/8/X9YdSQdH4EH5/XIaYF1DlDkVWHjPCejpjkGjP1LPIuU1
-	PPuYTISuNmWJcNIp8kwNur0EWQe8Q9IeDOhEwVOqXp4/AnBpKKipqO/LUvo1FkLjwI6TxqqG1hA
-	9UlCK2d/CuWNt0cFsc4Fhy4m222IRm3z0dsKCqhmR9mvH3VNmRCqafz7vZfw9S+0uhEWFykhI8J
-	wgRAcfhVdJLBOCJs0eb+Cgq8BJEkWPQPNtUCtfBGFL8g4tpTCGtNcgjc5XmjYr0OKR54snX1ByL
-	Rhg2GTx4HQeqbv7KX8SnvaQ5sI0R+KTbM7L4fmi/1DWukc/5BzVZS/I+IY9W/UUOoOSJRBM4WwH
-	hd1wYVg0Rb6aErAAvn2PxzkVxTDTIBBkpAFQjY8ZJ176L5X9Cf4NrcDcs65JIhTsJJ3V6XQ7RKb
-	zWsG7vg1xZ3VUO
-X-Received: by 2002:a17:907:868a:b0:bcb:ea69:39c8 with SMTP id a640c23a62f3a-bcbea694c4fmr319764566b.38.1778411319038;
-        Sun, 10 May 2026 04:08:39 -0700 (PDT)
-Received: from xeon ([188.163.112.56])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bce7a3fcb57sm68146866b.60.2026.05.10.04.08.36
+        d=1e100.net; s=20251104; t=1778415836; x=1779020636;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8AtQVnnlrxzq6LC48B19jdYIcKO6FStZOhWhuwmTDN4=;
+        b=VPYg30DBT0ODdpNtsXzNDIY//3l68MPWFh2MwbXHjf1tp+BDnYBqfYvh2TcU/oGzAf
+         9PZmT9hzcwFIzPhouNO1PUTIbDO5bP5lY56mjTiXiXAls90d6V33RBHYDo53pV/U/b+1
+         Ae00x3II1StVh1RJm8UMzkmiUgoSWJoJPjAenF5oBlXOH9VxqWB37auMlcWegdyBZPUT
+         SJnnrCN2jiw6yYwozYXjlTPbAfZxvgfwA5r4YIxbUN18faCIchOg1vIMfEyYSpJf7H61
+         3yw6awFf1KIE9esn1nX5Mv54TLjZY4J3R6N1wUVMDD88eBMpe5AHnUlVOIhpb7OV2Tne
+         vh8A==
+X-Forwarded-Encrypted: i=1; AFNElJ+Gyt6VIgTJ9VgD1WnzvHcxb57NEFaU8Y4IBp5UDdO5xyJwJGy0ENiH7NXDtPtXb+JEzJSfA4VLSqo+Lw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwAgSAVwbhqeR5UY2T0tAAJ5+zw5wdckA6R9EMAyp3psVpNj0Lg
+	VZF7BO/7jb1aH9d819ZzH87DhH42SI9dsEpa7+gfzYUnAbLKnXXeSf+1wxkN3w==
+X-Gm-Gg: Acq92OEAZLRKinsxDTvP7eJjzCvJKIpA4VTBUJR5pr9Do7EQuf5+9zsEWa2MAU1mDQf
+	WTZ++naRw6xQ1+/KBVc8VUgwd7YYgemRuNEKRtObzseyW7ymxrsatxfLq+loA4yKBGunGI72698
+	rwZkWVhRRX6SQ5ImTDGe5vtiAUEtc2GYAFTmJaLiVx+QZT4fz+s38QnKHUgi64xOWe4PtgJJkGd
+	zD2dBtim2Ku5JgbvDCGkagMTYdnLNrOQ5iQuxpmntibc4q70mtD0QaeSVBBCWt1FCtRJbtzprI+
+	8L5kb1kZ2I1+C4V1ym4mbz4/rGZ/H5mtjLBjoFPdjTaUb/Xf+WMwYrhWxLFM7qSXo+3NzyzBD2b
+	tNwSDHfWez7ZHnoPnWZTLJV/nIXLsJHpTCxlk0OVD0euUdySqwkIpqKUfV1IpJahyZHEQS+7grW
+	XcYjft1bt/DNLQi0coglcGOFXVKEGSlJz0MEjaC/B9W6ugtNlPKpJTrbLCtxH2hszeFx8v5YVFR
+	zYf3tEhFFayRJE=
+X-Received: by 2002:a17:907:3f1b:b0:bcc:9150:213d with SMTP id a640c23a62f3a-bcc91502b69mr101154166b.4.1778415835290;
+        Sun, 10 May 2026 05:23:55 -0700 (PDT)
+Received: from laptok.lan (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bcabd5cef81sm350990266b.0.2026.05.10.05.23.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 May 2026 04:08:37 -0700 (PDT)
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Svyatoslav Ryhel <clamor95@gmail.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Tony Lindgren <tony@atomide.com>
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
+        Sun, 10 May 2026 05:23:55 -0700 (PDT)
+From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: oleg@makarenk.ooo,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: [PATCH v5 6/6] mfd: motorola-cpcap: add support for Mot CPCAP composition
-Date: Sun, 10 May 2026 14:08:04 +0300
-Message-ID: <20260510110804.33045-7-clamor95@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260510110804.33045-1-clamor95@gmail.com>
-References: <20260510110804.33045-1-clamor95@gmail.com>
+	tomasz.pakula.oficjalny@gmail.com
+Subject: [PATCH v2] HID: pidff: Fix integer overflow in pidff_rescale
+Date: Sun, 10 May 2026 14:23:52 +0200
+Message-ID: <20260510122352.1161826-1-tomasz.pakula.oficjalny@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add a MFD subdevice composition used in Tegra20 based Mot board
-(Motorola Atrix 4G and Droid X2).
+Rescaling values close to the max (U16_MAX) temporarily creates values
+that exceed the s32 range. This caused value overflow in case when, for
+example, a periodic effect phase was higer than 180 degrees. In turn,
+rescale function could return values outised of the logical range of the
+HID field.
 
-Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+Fix by using 64 bit signed integer to store the value during calculation
+but still return only 32 bit integer.
+
+Closes: https://github.com/JacKeTUs/universal-pidff/issues/116
+Fixes: 224ee88fe395 ("Input: add force feedback driver for PID devices")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 ---
- drivers/mfd/motorola-cpcap.c       | 30 ++++++++++++++++++++++++++++++
- include/linux/mfd/motorola-cpcap.h |  1 +
- 2 files changed, 31 insertions(+)
+For inclusion in 7.1 RC period.
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index f5a7fdd89dd5..bd9fb0d61ba6 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -270,6 +270,28 @@ static const struct mfd_cell cpcap_mapphone_mfd_devices[] = {
- 	MFD_CELL_NAME("cpcap-codec"),
- };
- 
-+/*
-+ * The Mot board features a USB-PHY and charger similar to the ones in
-+ * Mapphone; however, because Mot is based on Tegra20, it is incompatible
-+ * with the existing implementation, which is tightly interconnected with
-+ * the OMAP USB PHY.
-+ */
-+static const struct mfd_cell cpcap_mot_mfd_devices[] = {
-+	MFD_CELL_OF("cpcap_adc", NULL, NULL, 0, 0, "motorola,mot-cpcap-adc"),
-+	MFD_CELL_OF("cpcap_battery", NULL, NULL, 0, 0,
-+		    "motorola,cpcap-battery"),
-+	MFD_CELL_OF("cpcap-regulator", NULL, NULL, 0, 0,
-+		    "motorola,mot-cpcap-regulator"),
-+	MFD_CELL_OF("cpcap-rtc", NULL, NULL, 0, 0, "motorola,cpcap-rtc"),
-+	MFD_CELL_OF("cpcap-pwrbutton", NULL, NULL, 0, 0,
-+		    "motorola,cpcap-pwrbutton"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 0, "motorola,cpcap-led-red"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 1, "motorola,cpcap-led-green"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 2, "motorola,cpcap-led-blue"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 3, "motorola,cpcap-led-adl"),
-+	MFD_CELL_NAME("cpcap-codec"),
-+};
-+
- static int cpcap_probe(struct spi_device *spi)
+v2: use div_s64() instead of plain division
+
+ drivers/hid/usbhid/hid-pidff.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index aee8a4443305..c45f182d0448 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -11,6 +11,7 @@
+ #include "hid-pidff.h"
+ #include <linux/hid.h>
+ #include <linux/input.h>
++#include <linux/math64.h>
+ #include <linux/minmax.h>
+ #include <linux/slab.h>
+ #include <linux/stringify.h>
+@@ -326,8 +327,10 @@ static s32 pidff_clamp(s32 i, struct hid_field *field)
+  */
+ static int pidff_rescale(int i, int max, struct hid_field *field)
  {
- 	struct cpcap_ddata *cpcap;
-@@ -294,6 +316,10 @@ static int cpcap_probe(struct spi_device *spi)
- 		cells = cpcap_mapphone_mfd_devices;
- 		num_cells = ARRAY_SIZE(cpcap_mapphone_mfd_devices);
- 		break;
-+	case CPCAP_MOT:
-+		cells = cpcap_mot_mfd_devices;
-+		num_cells = ARRAY_SIZE(cpcap_mot_mfd_devices);
-+		break;
- 	default:
- 		return dev_err_probe(&spi->dev, -EINVAL,
- 				     "Unknown device %d\n", cpcap->variant);
-@@ -343,6 +369,9 @@ static const struct of_device_id cpcap_of_match[] = {
- 	}, {
- 		.compatible = "motorola,mapphone-cpcap",
- 		.data = (void *)CPCAP_MAPPHONE
-+	}, {
-+		.compatible = "motorola,mot-cpcap",
-+		.data = (void *)CPCAP_MOT
- 	},
- 	{ /* sentinel */ }
- };
-@@ -351,6 +380,7 @@ MODULE_DEVICE_TABLE(of, cpcap_of_match);
- static const struct spi_device_id cpcap_spi_ids[] = {
- 	{ "cpcap", CPCAP_DEFAULT },
- 	{ "mapphone-cpcap", CPCAP_MAPPHONE },
-+	{ "mot-cpcap", CPCAP_MOT },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(spi, cpcap_spi_ids);
-diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-index 1a85b06272c8..bb23363eeccd 100644
---- a/include/linux/mfd/motorola-cpcap.h
-+++ b/include/linux/mfd/motorola-cpcap.h
-@@ -28,6 +28,7 @@
- enum cpcap_variant {
- 	CPCAP_DEFAULT = 1,
- 	CPCAP_MAPPHONE,
-+	CPCAP_MOT,
- 	CPCAP_MAX
- };
+-	return i * (field->logical_maximum - field->logical_minimum) / max +
+-	       field->logical_minimum;
++	/* 64 bits needed for big values during rescale */
++	s64 result = field->logical_maximum - field->logical_minimum;
++
++	return div_s64(result * i, max) + field->logical_minimum;
+ }
  
+ /*
 -- 
-2.51.0
+2.54.0
 

@@ -1,133 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4444537B007;
-	Mon, 11 May 2026 22:08:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39AE847CC96
+	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 22:09:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778537282; cv=none; b=Y4Ws81q8ahwhJNUXonUdvwqhOAr/kyhAjF0G85u9JnR9MUiwnyn7XwpZ0sKJX7wClSnn/Ul3+/XIZ3XheOGKhs+FYEhF2QtCXWKkq4gYUSF0E5H31+mYB5j28mC9y3pIiu8QmB78oRZcbJRkdmy2fSYi1SUwfVnNkjmTe0tlT0Y=
+	t=1778537364; cv=none; b=WjD6LRNh58aPwkVBbrIga9YigTwvtbkzycJ4BlnX4oJXltS4dNg7KAZU4yVaU6kbpW7Eb9FvoBrPNUwAD5PSj2mMycVceghlmxQp5g9h2K5ccIBZfN4J0vCzZUys6pRB1U4ro9E7ZqjZ/sSMxvM7oqCliJjuWhOCKf7gz6+xqD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778537282; c=relaxed/simple;
-	bh=qV+sEcyheN+xpq669VQMOYxgIVmRunOC0yhExfObnl8=;
+	s=arc-20240116; t=1778537364; c=relaxed/simple;
+	bh=cu1gkt4vdTqXkCWUH+ckP9XNzBS77GdCLpSo9ojeLSs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=vBWzNtxzVSh0SSj5qZ+Ojg4QWdEVF6P+7UGjoHsPmrAF3Yjz3F0MNvhc0Q3KFAE6STaAlG4Mmvf44Z0TmafjJwXxoJvar9s9VR8k7GmRmriYchG4RqAaashw/mfKSYdoaKE4B5o87XpWYZAKTAznGM+ySko8AccKp/WjuTXatPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vh+WWvNJ; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=ViE0ZlAgRZZ13YDmfaOuR5p6MJu8W4eAlH5JSmz9wT7FDw5dHGfZApUFNwf6Wn1rIoJOKWUQ+qrEme0ew6lp5udBFS62HiwULh1y9CebIUvNyXCWc+ZcBOAgfaIwd2uGOi8ViDsZCaTcGEfNT77xH6vICqzOBDy6pdD7IuzP4JA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JnFSg2tp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vh+WWvNJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 875A5C2BCB0;
-	Mon, 11 May 2026 22:08:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JnFSg2tp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98E62C2BCB0;
+	Mon, 11 May 2026 22:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778537281;
-	bh=qV+sEcyheN+xpq669VQMOYxgIVmRunOC0yhExfObnl8=;
+	s=k20201202; t=1778537363;
+	bh=cu1gkt4vdTqXkCWUH+ckP9XNzBS77GdCLpSo9ojeLSs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=Vh+WWvNJMogwXJshzBy7sqOMRsr4IKVAPJ2TxvHV6FyEmufLE3l/L8veSnSsGIscT
-	 KYQ+gjKnsCw0fDPxTzfulPhVDSpJlWkXqZKyZxMqE8pHfzXJUcb1gVPHw+lvUyNIPD
-	 hyjp/1LO7pedh7/O/IY5FXzSMzMT+qn2bdjoJGM2RB5Px5AuU94SkJAfjOeOLwqqKz
-	 LjIFNFFX8G6q9XuJFONUV5l8HhBgCyECZd/U7dl0mAEXOmZ26zGva1E/pLhrIuGCt8
-	 JxAtMvobGsCJSb9kGKrXnt1WQQris57gbJjdje8Iflty3yLJNDuULwN31ZRg++qiUF
-	 QwMzqhd4FOkhQ==
+	b=JnFSg2tp/NNKjme16zJvOMlYHB9WTXFZQpg3wgQqE4SivnKMnemQMEwYiSbR7ZRRh
+	 u5QmlPRNAX1eOTtaWPo9vvJfmWCuT+wq9ArxqKfghJv5iVUWpvNv6LanqlhX3dyxAw
+	 +NPCmcLHz8hJPKtHiQv+SR7ry4rrkUWEzYnXakKgecysNeBEBoHh99H+DH0AT5MAO8
+	 j0+5LdjEVccWlK/lv+615Fm67PId6b4UUZWzold20mFI0UXp1e+6Zxs/zgYPrQwtuw
+	 xAr21mxiahzLoV/FkI3rJgKVhGvF37GrEj0CZR4tkvY39afanBPsTRppH9tlkiKMWY
+	 cTDYc/FACnQ0w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 5/6] mfd: motorola-cpcap: diverge configuration
- per-board
+Subject: Re: [PATCH 4/4] HID: hid-msi-claw: Add Rumble Intensity Attributes
 Reply-To: sashiko@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, krzk+dt@kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260510110804.33045-6-clamor95@gmail.com>
-References: <20260510110804.33045-6-clamor95@gmail.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260510043510.442807-5-derekjohn.clark@gmail.com>
+References: <20260510043510.442807-5-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 11 May 2026 22:08:01 +0000
-Message-Id: <20260511220801.875A5C2BCB0@smtp.kernel.org>
+Date: Mon, 11 May 2026 22:09:23 +0000
+Message-Id: <20260511220923.98E62C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Device Tree ABI breakage for existing Mapphone boards and legacy c=
-ompatibles
-- [Low] Compiler warning (-Wpointer-to-int-cast) on 64-bit architectures du=
-e to direct pointer-to-enum cast
+- [Critical] The underlying `mcu_property_out()` function uses an improperl=
+y scoped `guard(mutex)`, breaking all driver synchronization.
+- [High] Unprotected modification of `drvdata->profile_pending` causes race=
+ conditions during concurrent sysfs reads.
+- [High] Torn transactions in sysfs store handlers lead to state mismatch b=
+etween hardware and software.
+- [Medium] Failure to reset `drvdata->profile_pending` on `mcu_property_out=
+()` error paths corrupts state machine.
 --
 
-commit 31f4e82a2615f7d51f1707bf1ca43b9d741b3c90
-Author: Svyatoslav Ryhel <clamor95@gmail.com>
+commit 2a92587430af9e91f5af5fbf2205fea99b2d1000
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-mfd: motorola-cpcap: diverge configuration per-board
+HID: hid-msi-claw: Add Rumble Intensity Attributes
 
-This commit separates the CPCAP subdevice configuration to support
-different board-specific settings. It introduces a default composition
-and renames the existing one for Mapphone boards.
+This commit adds intensity adjustment for the left and right rumble motors
+via new sysfs attributes.
 
-> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-> index d8243b956f875..f5a7fdd89dd5e 100644
-> --- a/drivers/mfd/motorola-cpcap.c
-> +++ b/drivers/mfd/motorola-cpcap.c
-> @@ -195,20 +197,6 @@ static int cpcap_init_irq(struct cpcap_ddata *cpcap)
->  	return 0;
+> diff --git a/drivers/hid/hid-msi-claw.c b/drivers/hid/hid-msi-claw.c
+> index f4fe74a784c29..6d089f49abdb4 100644
+> --- a/drivers/hid/hid-msi-claw.c
+> +++ b/drivers/hid/hid-msi-claw.c
+
+[ ... ]
+
+> @@ -795,6 +811,116 @@ static ssize_t button_mapping_options_show(struct d=
+evice *dev,
 >  }
+>  static DEVICE_ATTR_RO(button_mapping_options);
 > =20
-> -static const struct of_device_id cpcap_of_match[] =3D {
-> -	{ .compatible =3D "motorola,cpcap", },
-> -	{ .compatible =3D "st,6556002", },
-> -	{},
-> -};
-
-Will existing device trees relying on the st,6556002 compatible string
-fail to probe since it was removed from the match tables?
+> +static ssize_t rumble_intensity_left_store(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   const char *buf, size_t count)
+> +{
 
 [ ... ]
 
->  static int cpcap_probe(struct spi_device *spi)
->  {
->  	struct cpcap_ddata *cpcap;
-> +	const struct mfd_cell *cells;
-> +	unsigned int num_cells;
->  	int ret;
-> =20
->  	cpcap =3D devm_kzalloc(&spi->dev, sizeof(*cpcap), GFP_KERNEL);
->  	if (!cpcap)
->  		return -ENOMEM;
-> =20
-> +	cpcap->variant =3D (enum cpcap_variant)spi_get_device_match_data(spi);
+> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
+> +			       data, ARRAY_SIZE(data), 8);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, =
+0);
+> +	if (ret)
+> +		return ret;
+> +
+> +	drvdata->rumble_intensity_left =3D val;
+> +
+> +	return count;
+> +}
 
-Could this direct cast from a pointer to an enum cause a compiler warning
-(-Wpointer-to-int-cast) on 64-bit architectures?
+Could this sequence introduce a regression if interrupted by concurrent sys=
+fs
+stores?
 
-spi_get_device_match_data() returns a const void *, which is 64 bits wide on
-architectures like arm64, while enum cpcap_variant is typically a 32-bit
-integer. Casting through a pointer-sized integer first might prevent this.
+Since there doesn't appear to be a lock held across this sequence, concurre=
+nt
+writes could interleave their WRITE_PROFILE_DATA and SYNC_TO_ROM commands.
+This could cause the hardware to synchronize an unintended state or cause t=
+he
+local driver state to fall out of sync with the actual hardware value.
+
+Also, regarding the underlying mcu_property_out() function: does it use an
+improperly scoped guard(mutex)? If the configuration mutex is acquired
+strictly inside a limited scope, the lock would be released before
+hid_hw_output_report() and wait_for_completion_interruptible_timeout() are
+executed. This could leave all concurrent sysfs calls unprotected, causing a
+regression with overlapping USB output reports.
+
+> +static ssize_t rumble_intensity_left_show(struct device *dev,
+> +					  struct device_attribute *attr,
+> +					  char *buf)
+> +{
 
 [ ... ]
 
-> +static const struct of_device_id cpcap_of_match[] =3D {
-> +	{
-> +		.compatible =3D "motorola,cpcap",
-> +		.data =3D (void *)CPCAP_DEFAULT
-> +	}, {
+> +	drvdata->profile_pending =3D CLAW_RUMBLE_LEFT_PENDING;
+> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, AR=
+RAY_SIZE(data), 8);
+> +	if (ret)
+> +		return ret;
 
-Will this mapping break backwards compatibility for existing Mapphone board=
-s?
+Is it possible for concurrent sysfs reads to cause a regression here?
 
-Existing device trees use compatible =3D "motorola,cpcap" for the parent MFD
-node, but define their child nodes with Mapphone-specific compatibles like
-motorola,mapphone-cpcap-adc.
+Since drvdata->profile_pending is modified without any locking, if two sysfs
+attributes are read concurrently, one thread's modification could overwrite
+the other's state. When the asynchronous USB response later arrives,
+claw_profile_event() might rely on this clobbered value to route the incomi=
+ng
+data, which could result in userspace reading incorrect data.
 
-By mapping motorola,cpcap to CPCAP_DEFAULT, the driver now expects child
-cells to use motorola,cpcap-adc. This means mfd_add_devices() might fail
-to bind child platform devices to their DT nodes since
-of_device_is_compatible() won't match.
-
-If this happens, the child platform devices will be created with
-pdev->dev.of_node =3D=3D NULL, completely breaking driver probing for subde=
-vices
-on existing boards.
-
-Could motorola,cpcap continue to map to the historical CPCAP_MAPPHONE
-configuration to preserve the ABI?
+Additionally, if mcu_property_out() returns an error, the function returns
+immediately but leaves drvdata->profile_pending set to the pending state.
+Could this stale state cause a regression where a subsequent unrelated
+asynchronous profile event is incorrectly intercepted by claw_profile_event=
+()?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510110804.3304=
-5-1-clamor95@gmail.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510043510.4428=
+07-1-derekjohn.clark@gmail.com?part=3D4

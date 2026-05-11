@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CA6C449EB1;
-	Mon, 11 May 2026 16:33:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 457E42ED860;
+	Mon, 11 May 2026 16:41:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778517216; cv=none; b=hbocwnZe09Aaijx0mFDJGyeB1pfpY/X8OE+eRD/D9wf2ttaPHjNhvy/acB56z+mKssHzZiMDSFDEaldDhfvnQQU5PgcxhTtk4i60qf9+J2Lctrqy4hTQkTh0s0iV2G0d3+FrmKj19aWjzCzzqknXIuCA0wpD0OztzjwAPNIWj28=
+	t=1778517719; cv=none; b=oNhKt0Q3VdWFCQtkej+FZx+VMNDCg2U8b+NHB4gWxFRp/yMOifmoIl4BorSFy3hfPG4JBAOwBl202kOT4t4uIaTBTcXdBaQfoioas/I1FnfeuteX1mkepVBR2ChrFmh4b870KzuLj1TijB6gIq8LoF9Drg0z7hQCqD1cT7IyvO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778517216; c=relaxed/simple;
-	bh=SOwEkbBowDZlhVzF1T/3EQ1uclyN57I12KvaaCTOE44=;
+	s=arc-20240116; t=1778517719; c=relaxed/simple;
+	bh=CxVp0plSHEIQhkQveZ6NYMKan6gU1ZXBE0U7Sguh0oQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nGwlovGJJaXduVSXV4mmRpS0B3n72HixlIBzIpUN1wQbeFvKm10XOLzkeEHPt5RhhxupcQDwFyyzp/ULBl+zN0st2MPZbiYvt1OiAicrP43Jdc6N51NAr/7Gct+0056vUx8Toc0sMPTuzFnXsh2vFHp7oiSptzRHbsBlDvBF2KM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qdmCV3tl; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=tlCyqKm9HaGEAT80Phz+SPyL7IVtRvb/ciWHz8rdBU9gDKRdbpCLQQzi80UL+NKBVSt3OoRCMJhVOQ/skkcO8vyQUY72GxOJWjHA7cYny9VbtgaxM1I8Q5DTMcUDRQgTn864ogK0B51c8gcpJ5E0raEzPVVqYW4ys1X3TZSXSWU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p4vkgSNp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qdmCV3tl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8EF0C2BCB0;
-	Mon, 11 May 2026 16:33:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p4vkgSNp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF85C2BCB0;
+	Mon, 11 May 2026 16:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778517216;
-	bh=SOwEkbBowDZlhVzF1T/3EQ1uclyN57I12KvaaCTOE44=;
+	s=k20201202; t=1778517718;
+	bh=CxVp0plSHEIQhkQveZ6NYMKan6gU1ZXBE0U7Sguh0oQ=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=qdmCV3tlO+JaMuEJ8L74dOvkTUhErNxeb1AxaBeSBvRBD746LPxXqgapZM4i1YsLM
-	 3PIqxDdJ63x8CK/FR08SZqFnr3xslRF5pjtC2kqxjn2I15pIMT5sV6lkJG3vPpaH0q
-	 wZ1g655gvCJIPO9ZVR2BILeTQOH27uYgOHo5dBur6Y11Y56ersEBqhoG7Wf7RnWssj
-	 HSNBtV8M3lBbTcJPAw+c63ygpPbmT/m7Zf8ldqQ0AV0HeezG2BzbQJbt31Zg6UxrG6
-	 E5H2zYLUgapmzQCx7hpF/R2epZqAKyDauT+/XPtMUWMvBYTmy3XFkX0YLIRg9jsnea
-	 M4/Ufebj6J3LA==
-Date: Mon, 11 May 2026 17:33:26 +0100
+	b=p4vkgSNp3q3SucHxljXAtT/daJvNrjkDyeTr2YbJ05CAxRN8ykRTqSxzaohl2GqJ+
+	 ll3VCajnkgV+3/95oPLGfGXyaWlPgrTce3HbvqaOSNmNPu9MpiBidy4azk2LJAPP4/
+	 YBLptyrMDT129XckVmyUIU2xPcW9GhpR5YDuTDhwwzgO6D3By3pCaM1n8pPyMdn5Ui
+	 5tUw5tEZc84FI6CSdGV7j/eS/0d+pUhSO48PbT7a8RBJ8QG4k26EvRJG5Kx/TOeLu7
+	 FIwcp5aHOK2HR+4IEaqwra2KsBQ7cgyWWpVzualvn4FHbPt0Ox5eKNhNIFT55PvrBR
+	 3SeTateAZKUeg==
+Date: Mon, 11 May 2026 17:41:49 +0100
 From: Jonathan Cameron <jic23@kernel.org>
 To: Andy Shevchenko <andriy.shevchenko@intel.com>
 Cc: Sanjay Chitroda <sanjayembeddedse@gmail.com>, jikos@kernel.org,
@@ -34,12 +34,13 @@ Cc: Sanjay Chitroda <sanjayembeddedse@gmail.com>, jikos@kernel.org,
  nuno.sa@analog.com, andy@kernel.org, sakari.ailus@linux.intel.com,
  linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
  linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 3/9] iio: hid-sensors: introduce device managed API
-Message-ID: <20260511173326.7fbab0eb@jic23-huawei>
-In-Reply-To: <agAngXqFb5L2--AN@ashevche-desk.local>
+Subject: Re: [PATCH v3 7/9] iio: humidity: hid-sensor-humidity: use common
+ device for devres
+Message-ID: <20260511174149.37f5eacb@jic23-huawei>
+In-Reply-To: <agAo6fXUaoTwl326@ashevche-desk.local>
 References: <20260509101040.791404-1-sanjayembedded@gmail.com>
-	<20260509101040.791404-4-sanjayembedded@gmail.com>
-	<agAngXqFb5L2--AN@ashevche-desk.local>
+	<20260509101040.791404-8-sanjayembedded@gmail.com>
+	<agAo6fXUaoTwl326@ashevche-desk.local>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -47,41 +48,49 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 10 May 2026 09:36:49 +0300
+On Sun, 10 May 2026 09:42:49 +0300
 Andy Shevchenko <andriy.shevchenko@intel.com> wrote:
 
-> On Sat, May 09, 2026 at 03:40:34PM +0530, Sanjay Chitroda wrote:
-> 
-> > hid_sensor_setup_trigger() is common API used for the HID IIO drivers,
-> > prepare devm API devm_hid_sensor_setup_trigger() to acquire resource
-> > during setup and release using device managed framework during drivers
-> > fail, unbind or remove path.
-> > 
-> > Register action with devm_add_action_or_reset() to release resource with
-> > devres framework.  
-> 
-> ...
-> 
-> > +int devm_hid_sensor_setup_trigger(struct device *dev, struct iio_dev *indio_dev,
-> > +				  const char *name, struct hid_sensor_common *attrb)  
-> 
-> At this point don't we have indio_dev->dev.parent == dev?
+> On Sat, May 09, 2026 at 03:40:38PM +0530, Sanjay Chitroda wrote:
+>=20
+> > kmemdup() is used for memory that is logically tied to the HID
+> > platform device, even though the driver binds into the IIO framework.
+> >=20
+> > Using &indio_dev->dev for devres allocations works functionally, but it
+> > results in two separate devres ownership trees=E2=80=94one for the HID
+> > platform device (pdev) and another for the IIO device (indio_dev).
+> >=20
+> > The devres framework is intended to have a single, well-defined parent
+> > device. Since the memory originates from HID sensor probing and is not
+> > IIO-specific, &pdev->dev is the correct and logical owner.
+> >=20
+> > Switch to using the platform device for devm_kmemdup() so that all
+> > resources are released deterministically and consistently. =20
+>=20
+> This patch sounds like a required fix and has to be placed in the beginni=
+ng of
+> the series along with the Fixes tag.
 
-yes probably but I'd rather we didn't use that.  For devm calls it's nicer to have the
-owner device explicit. 
+Hmm. I always find these hard to prove...=20
+Ultimately for a device for which no driver is ever bound I believe
+the call to devres_release_all() in device_release() catches these.
 
-> 
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = hid_sensor_setup_trigger(indio_dev, name, attrb);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	return devm_add_action_or_reset(dev, hid_sensor_remove_trigger_action, attrb);
-> > +}  
-> 
+That should I think happen when the last reference to the iio_dev->dev
+is dropped (for the device we care about in the 'buggy' code).
+Now that may well be at a different time to when it would happen on
+the underlying bus device unbind.  However here we are talking about
+an allocation so as long as we release it at somepoint and that's late
+enough (which it will be either way) then it's not a bug - it just makes
+the code harder to reason about.
+
+Jonathan
+
+p.s. I remember testing the releases on some other drivers years ago
+     to figure out if they had an actual bug based on the pattern we have
+     here. It 'works' but yuk.
+
+
 

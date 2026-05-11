@@ -1,98 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E919F38AC9C;
-	Sun, 10 May 2026 12:44:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E822C318EDC
+	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 05:40:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778417050; cv=none; b=O9j1EK0KZ6jTC3kyj7KDPCgkb8FumKDoMKK8qDARuOQnNqfG4b+ou76oroBQbvDvtl/tW+LWfmEAGhYfUREAGAG6l8LDngY+n3jHhYrID9TeRvT8pd3BuOROAJvsZE4YTmWLvMCDr/KsFzrZfmNOPH1baHoLCULYx0c0/03jT84=
+	t=1778478050; cv=none; b=Wx9FLgEt9IssLnF7OQRMlxyGfEOpbbHs7jBmU/2EXdTJ+I5epny2ifGcMyGle++yqpTYSIAglI4Ghf4gtqbDzch9TY2gUk4d4MMTYp62uCRMQdiiSyzJ5ZOhQpXewDsFtVpLwRtiOkITryeeGLb+EHDNoIGkHQHCtkipJcAeY0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778417050; c=relaxed/simple;
-	bh=XkYjtqEh0x+qK52nljp6z/uh2YBu0HkoogSh7JLdHhA=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=ND+Iro7vaNmJgxfE//YXFj0q5GeAmPCEyBvGxNoertKfZWGYI9IUMu1q+ICB8zCty0W5HSBg5bcjdImTD7q7Cymb1qkMYfjoOCk5+0dnNQETkIjQ9LQn0B8qpzkRZxXGvEPtomrfWNUnXai51pM+YDoYztThK8u9+yKA7rJXcGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZM4Wx9lt; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778478050; c=relaxed/simple;
+	bh=zx04FKYj2eO0IdnDMSTWzwGM+GIhYvkHy1gr8MVSzzU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hIGTCCokCRkGPFV0I2ETsWtQoTuoYSlYX5uG1S5vqe4eelY0rWbrU8ATIqDe0G8I6KU22opbNpeh7su60bsif/G86CK7GLLU5WXHygutwvi5I/w0gjOZqy9djnGIBRmVc0XggFbuZBJSpdEmYQq1xx3DwNQFZSnwKRNJL+3hXjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EAH0uxw+; arc=none smtp.client-ip=209.85.210.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZM4Wx9lt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A082FC2BCFC;
-	Sun, 10 May 2026 12:44:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778417049;
-	bh=XkYjtqEh0x+qK52nljp6z/uh2YBu0HkoogSh7JLdHhA=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=ZM4Wx9ltXjHetKNHgYmbKtVGDYpzJMfgMaMAgulQbTNCk31hyKQ4s/chANuHttg37
-	 bn7UE3CQYqU3wXwUigO5++P5BD+RLmY61ZL0eaY2PMUxWbzHcp9sv0ROAmvxuEu2Sb
-	 Es0uPSw9MITwC8Nv4CcIZI6XqeVyeM3OVOwAkpe13/5hahCJmvuSxtMaxxAp732zs3
-	 iAv4UNqzFbyura10sQ3Soe/Lv+vTClL+/jEH6NExurmPvEmbyFJpYu6ec3EjG4PSPf
-	 Lgo9E1m77xjyQee8DEIieUYCq2MTS5c5FjwXCzTNOlOdPbaqCyTWCseM5iMftAXs6y
-	 R4NuZqxW2gshg==
-Date: Sun, 10 May 2026 07:44:08 -0500
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EAH0uxw+"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-838d0b7c950so2647875b3a.3
+        for <linux-input@vger.kernel.org>; Sun, 10 May 2026 22:40:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778478048; x=1779082848; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KRo/zL8lcbk775YFV/kXBbQEwWE9HD7jqnCbZs9KJSM=;
+        b=EAH0uxw+PEuGHq0fVq69nke+wF8WQIHY3vOSe0DqK6VktixVytHF9NA1QLwz+AFOtZ
+         Y93kMZqJCcLIouvMGLQxs4XRqZec9CSwRRRgXGuRhL6LQVhc52H2VuG1ucMwBRAVopAx
+         bCcolMo5nzf8Av58ROr7QlKF01nQX96tnl2oMeFkZyunaVnCkPGxvZhV+Bse7GIxIl1B
+         ffWTpi2Y+3r2PLU0gCvbJxqLUkjiiBSi96QCzPBZJ/qiSbYT2HlZLQzipKCrojBNZWBy
+         MQp6sUYSmlbO/AXxbqfiQaaLg00DAeatQ1BU/GcxTN8vY88D/4yp1s1QuLl8DkSEx1Yy
+         kZhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778478048; x=1779082848;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KRo/zL8lcbk775YFV/kXBbQEwWE9HD7jqnCbZs9KJSM=;
+        b=hadfHtKBYbr+dWtUX5BYsPwFTPGMf8dRcu5lWtRTVjSyF0l8GNIHRlHjYPyLm4LWHN
+         Pf6oir+JCYs1g0wALdHbEE933n6i1JzmnJog5hcd3Y30AXYwI8iHcfFcGVkzdn2dfWwP
+         TwNrf7j7GOaegi6TGjeZRED6iX/qWP4ifYm9/3z4vcVqIfe5qcLuA/rY70O3CuKBixaF
+         oWGhHuJpjvHpIm5qBhJQYeEbpVb3BWdsZ3oro3JuHVby7WLFO/j0pFNU+4Vkn4yBJFZE
+         TkudTSrCRLia2F/+DEJDrtMQNf8qBdH7jSZdcIhmwtrB0HYWqqi788hWgtYuyE1dzmyG
+         mxnw==
+X-Forwarded-Encrypted: i=1; AFNElJ+bvDQv+eqGnaaXYq/PKLaSOLjwhQiWPBzxBWjbtN3kJZZ8rC3ePlrHhhaUy8OaHyl4hFqWwqmJbL9h/Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwFHMZ1epGREmAiDMidTEeNgHd9Q/z0x5g/SAhvdq5C9IAn5+Hh
+	rx+Fm2slmauXtaURlpbwNq3VhllWiKDgo2pRrtgG5okvFbBZegbxwbKh
+X-Gm-Gg: Acq92OHjczwQLyLJoKPgc4ILNTYWwLWP+c7wi8OY03QMuc8ZDOdWrwEbMCNd4LHtW/x
+	avbGXWB7Z8+FMF+OFdl6DzYVg+3nxgGI7ndul7P00lcB2pHcvGthh2WJElvNIs+5FUjBU3yEKb2
+	IDhH23YPdFENjGlN3kxN1IHKLcVTXs9gjaOuVUpyeEPrZgmciDhosLco9raEVRIK4G5x1MOqBF7
+	0S7rTHuWyzt97FDRJsMuSXpxcgHZ5yKLCUjgnrpH3B/IJZSIV7VJp9B/JmVd2duKyUwVeA5v+I3
+	q4RudUmx3vD53VENOdQfezyJLrwbBsDnjE5KxHcHW878s0PkYs8imdfFMmhUqfbrOkshR27smo+
+	SvytKaW8Faqeax4ME1dXjyt8ZnyCDBVufipReufhE+eLthIfF8HJTsa/pg8e+AF/BSxTN1TYmRR
+	0A2KkJVWk8EC4wcQPLrkaOBB1sd0/MP4PhNr5r80/UORnjvYhMa4XlFRsngqK3I1pbRmQcTyWRR
+	HH5FQ==
+X-Received: by 2002:a05:6a00:f04:b0:83e:c8f8:cec7 with SMTP id d2e1a72fcca58-83ec8f8d219mr2280567b3a.35.1778478045878;
+        Sun, 10 May 2026 22:40:45 -0700 (PDT)
+Received: from isd22-5290.dc-ishida.ishida.co.jp ([60.36.185.152])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-839679c80e7sm23180139b3a.31.2026.05.10.22.40.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 10 May 2026 22:40:45 -0700 (PDT)
+From: Yuki Horii <yuuki198708@gmail.com>
+X-Google-Original-From: Yuki Horii <horiiyuk@ishida.co.jp>
+To: dmitry.torokhov@gmail.com
+Cc: andreas@kemnade.info,
+	clamor95@gmail.com,
+	linux-input@vger.kernel.org,
+	yuuki198708@gmail.com,
+	Yuki Horii <horiiyuk@ishida.co.jp>
+Subject: [PATCH] Input: tsc2007 - fix resistance calculation when A/D value is saturated
+Date: Mon, 11 May 2026 14:40:03 +0900
+Message-ID: <20260511054003.1205-1-horiiyuk@ishida.co.jp>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-leds@vger.kernel.org, 
- Tony Lindgren <tony@atomide.com>, Lee Jones <lee@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, David Lechner <dlechner@baylibre.com>, 
- Pavel Machek <pavel@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-In-Reply-To: <20260510110804.33045-3-clamor95@gmail.com>
-References: <20260510110804.33045-1-clamor95@gmail.com>
- <20260510110804.33045-3-clamor95@gmail.com>
-Message-Id: <177841704588.2552439.17208885457870143080.robh@kernel.org>
-Subject: Re: [PATCH v5 2/6] dt-bindings: input: cpcap-pwrbutton: convert to
- DT schema
+Content-Transfer-Encoding: 8bit
 
+The A/D conversion sequence starts with reading the Y position
+immediately after the A/D converter is powered on. This makes
+the Y position measurement more susceptible to instability due
+to noise and mechanical bounce compared to the X position, and
+may result in a saturated value (MAX_12BIT = 0xFFF).
 
-On Sun, 10 May 2026 14:08:00 +0300, Svyatoslav Ryhel wrote:
-> Convert power button devicetree bindings for the Motorola CPCAP MFD from
-> TXT to YAML format. This patch does not change any functionality; the
-> bindings remain the same.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  .../bindings/input/cpcap-pwrbutton.txt        | 20 ------------
->  .../input/motorola,cpcap-pwrbutton.yaml       | 32 +++++++++++++++++++
->  2 files changed, 32 insertions(+), 20 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
-> 
+While the Y position is not used in equation #1 of the datasheet
+for touch resistance calculation, it is required for equation #2.
+A saturated Y A/D value, like a saturated X A/D value, indicates
+that the touch resistance calculation is invalid.
 
-My bot found errors running 'make dt_binding_check' on your patch:
+Only the saturation of the X A/D value was checked, while the
+saturation of the Y A/D value was not. Additionally, modifying
+tc->x directly had an unintended side effect of corrupting the
+caller's data.
 
-yamllint warnings/errors:
+The function now returns 0 when either X or Y A/D value is
+saturated to indicate that the touch resistance calculation
+is invalid.
 
-dtschema/dtc warnings/errors:
+Signed-off-by: Yuki Horii <horiiyuk@ishida.co.jp>
+---
+ drivers/input/touchscreen/tsc2007_core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
-doc reference errors (make refcheckdocs):
-Warning: Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260510110804.33045-3-clamor95@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
+diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
+index 524f14eb3da2..ce82163da4ff 100644
+--- a/drivers/input/touchscreen/tsc2007_core.c
++++ b/drivers/input/touchscreen/tsc2007_core.c
+@@ -71,9 +71,9 @@ u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, struct ts_event *tc)
+ {
+ 	u64 rt = 0;
+ 
+-	/* range filtering */
+-	if (tc->x == MAX_12BIT)
+-		tc->x = 0;
++	/* invalidate touch resistance if X or Y coordinate is saturated */
++	if (tc->x == MAX_12BIT || tc->y == MAX_12BIT)
++		return 0;
+ 
+ 	if (likely(tc->x && tc->z1)) {
+ 		/* compute touch resistance using equation #1 */
+-- 
+2.51.0
 

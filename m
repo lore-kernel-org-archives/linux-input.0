@@ -1,117 +1,151 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96DBC3B27C3
-	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 20:51:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B40E82E03E4
+	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 20:56:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778532668; cv=none; b=TqJYZ6dgO1yosQ5l5alhSTYwPSclZ4+M/GDiOCUeJbJLpje9l7jB/RBpglNuTBkM5F1Da+SVr+Nl3k/dHsz48CUsgrevonFSUYjoSrETi1V3RAn8SqF+gSscRfaHJz+Bnk7agOgBOL40LKd3fzIn1QHNm4oB9b3nlKNtz6FYlHk=
+	t=1778533011; cv=none; b=WWNRvqAKQAbUM4G8NDe8XSlLNq2/0yu//ASQ7kBwfUbnvHYPkZ7pO8p2PfSnT5aB7AOuZVUPzzM4zgZfknwsQ1lASrxTaY4uHlwJG6vt014uPDDccVG7mYZApmC4CwNW+wRYbsqipdlDx2E+A47FLp5fo/i8czq5qjNC+ZOofKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778532668; c=relaxed/simple;
-	bh=arUP1fJPGfwt5TO8jvEcNY7jV2fxP6JUu8bX9760ziQ=;
+	s=arc-20240116; t=1778533011; c=relaxed/simple;
+	bh=jvCcs63hvWyrQ7uQVbBYJY7X0D5ONTg6zfD80oYfw48=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SxxuHyplq/Z1QZaasw79BT+nkx33mCVKu8794kqDU6v3PiEhFzMT/bCxPenrEYshCprT4imkAd6Dentv+8yWiWdU6TX3P72AUPwrAb9ahPRdU6xqjhYkN9Ewx7N77Zvw+mQbdGAw7SFO2RW8TPzs9rl7JdYhtenO4xU0DZkoM1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QvOvhn1l; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=pGXEMWunN0RDOdwxX0TxJuIExaMl3E29W1aaG2ZlBUSLofRqVGPLCVWIm2RXPK3/VxuwWiJ4YcIC1XsA0xMwx417QMVFT0giNglAqQgy5rrtVzbVh0a4Dk8PkGRlEn6jHqZcnn0KrPbwt0VjLAPNfgbTy7UESA683JHR9Ly99pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O599YG5O; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QvOvhn1l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2030C2BCB0;
-	Mon, 11 May 2026 20:51:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O599YG5O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4A9C2BCF5;
+	Mon, 11 May 2026 20:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778532668;
-	bh=arUP1fJPGfwt5TO8jvEcNY7jV2fxP6JUu8bX9760ziQ=;
+	s=k20201202; t=1778533011;
+	bh=jvCcs63hvWyrQ7uQVbBYJY7X0D5ONTg6zfD80oYfw48=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=QvOvhn1lgjUTZkKiqHuehZofUJ7YfU8GgheVvobpL5aKEA12aWs9nfgpVWHiKCUr4
-	 SiWd0mjeHwhgp1/HZANFJ5sefluIUIYPStnpbRAbvoIVM6PfUvQauWwl+fMVR4zo+g
-	 RzxuknUl4yKse8/OsN3r+2U2AoMUhdtDEmP6S87lLu9BvTE+rTOK9Ui2Khzw4WiuCk
-	 CiR9oJHDXb5ud2N6/zPajLB9sC6VZQJgVSgNt9Xf/+8FOvhGwbe8Catl8htPQN0sfY
-	 8pADqJNoD0nWwttafb47DJuHW6E6f36FI4jMI0UkNfFBPPjRMjCdQKZVlU5ck0soeK
-	 Ex9A3rXbQZB2A==
+	b=O599YG5OV+5auqosQoO4nwY+kkJHCn+uIErc1jfxVdHgv5FnVcDpyu7+lOX4hmULG
+	 Kaf7R/uDpt2RrLalu7WljaZgRDDL8OglFI91rl3NbmMTks0Bp6ZQms7ui91ZD0AQS7
+	 9ZNdhIAIvuM/daPvzhEho9sdzECoMCxnfdqz4w/tLdXuQZrd9mRQ4tW6g57I/T4Au3
+	 ew1DtjrBAdPOe5BTvi8N6V58Nz2rR2DnJLRxqim9n2URqzXtCnmEkvrysRvtwAoNHo
+	 OIdQpiwFjwhWdXYiewuntJPzsO0TaGw2ESk2nZ/AYs6YxxXSNssARQbPngIStYVoJZ
+	 53uhB/VbyJFgg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/4] HID: hid-msi-claw: Add M-key mapping attributes
+Subject: Re: [PATCH v2] HID: pidff: Fix integer overflow in pidff_rescale
 Reply-To: sashiko@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: =?utf-8?b?VG9tYXN6IFBha3XFgmE=?= <tomasz.pakula.oficjalny@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260510043510.442807-3-derekjohn.clark@gmail.com>
-References: <20260510043510.442807-3-derekjohn.clark@gmail.com>
+In-Reply-To: <20260510122352.1161826-1-tomasz.pakula.oficjalny@gmail.com>
+References: <20260510122352.1161826-1-tomasz.pakula.oficjalny@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 11 May 2026 20:51:07 +0000
-Message-Id: <20260511205107.C2030C2BCB0@smtp.kernel.org>
+Date: Mon, 11 May 2026 20:56:50 +0000
+Message-Id: <20260511205651.7B4A9C2BCF5@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] Data race on `drvdata->profile_pending` and lack of transaction at=
-omicity during concurrent sysfs accesses.
+- [High] The subtraction `field->logical_maximum - field->logical_minimum` =
+is evaluated in 32-bit arithmetic, allowing it to overflow before being pro=
+moted to `s64`.
+- [High] The adjacent function `pidff_rescale_signed()` suffers from the ex=
+act same integer overflow vulnerability but was completely missed by the pa=
+tch.
+- [High] This problem wasn't introduced by this patch, but missing bounds c=
+heck on `unit_exponent` in `pidff_rescale_time()` allows a kernel stall via=
+ a malicious HID descriptor.
 --
 
-commit b9bc6d29326e3dd3ed065aca7059668a1b674bc8
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+commit d365813aa395ac1ce1eeffd147aa3beb65aba60b
+Author: Tomasz Paku=C5=82a <tomasz.pakula.oficjalny@gmail.com>
+HID: pidff: Fix integer overflow in pidff_rescale
 
-HID: hid-msi-claw: Add M-key mapping attributes
+This commit attempts to fix an integer overflow in pidff_rescale by using a
+64-bit signed integer for calculations. It addresses an issue where rescali=
+ng
+values close to the maximum could temporarily exceed the 32-bit signed
+integer range.
 
-Adds sysfs attributes to remap the M1 and M2 rear buttons to up to 5 events
-(gamepad, keyboard, or mouse) when in macro mode.
+Closes: https://github.com/JacKeTUs/universal-pidff/issues/116
 
-> diff --git a/drivers/hid/hid-msi-claw.c b/drivers/hid/hid-msi-claw.c
-> index 7a3cd940ec49e..60694d075d56f 100644
-> --- a/drivers/hid/hid-msi-claw.c
-> +++ b/drivers/hid/hid-msi-claw.c
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidf=
+f.c
+> index aee8a44433059..c45f182d04480 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+
 [ ... ]
-> +static int claw_buttons_store(struct device *dev, const char *buf, u8 mk=
-ey_idx)
-> +{
-[ ... ]
-> +set_buttons:
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA, da=
-ta, len, 8);
-> +	if (ret < 0)
-> +		goto err_free;
+
+> @@ -326,8 +327,10 @@ static s32 pidff_clamp(s32 i, struct hid_field *fiel=
+d)
+>   */
+>  static int pidff_rescale(int i, int max, struct hid_field *field)
+>  {
+> -	return i * (field->logical_maximum - field->logical_minimum) / max +
+> -	       field->logical_minimum;
+> +	/* 64 bits needed for big values during rescale */
+> +	s64 result =3D field->logical_maximum - field->logical_minimum;
+
+Since both logical_maximum and logical_minimum are 32-bit signed integers,
+does the subtraction field->logical_maximum - field->logical_minimum evalua=
+te
+in 32-bit arithmetic and potentially overflow before being promoted to s64?
+
+If an untrusted USB device provides a descriptor with extreme limits,
+this difference could exceed the capacity of a 32-bit signed integer and wr=
+ap
+around to a negative value. Should at least one operand be explicitly cast
+to s64 before the subtraction?
+
 > +
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, =
-0);
+> +	return div_s64(result * i, max) + field->logical_minimum;
+>  }
+> =20
+>  /*
 
-Is it possible for concurrent writers to interleave these commands?
+This isn't a regression introduced by this patch, but looking at the
+adjacent pidff_rescale_signed() function:
 
-Looking at mcu_property_out(), it takes the cfg_mutex internally, but there
-is no lock held across both calls here. If a second writer executes its
-WRITE_PROFILE_DATA before the first writer executes SYNC_TO_ROM, could the =
-MCU
-be left in an inconsistent state?
+drivers/hid/usbhid/hid-pidff.c:pidff_rescale_signed() {
+...
+	if (i > 0)
+		return i * field->logical_maximum / S16_MAX;
+...
+}
 
-[ ... ]
-> +static int claw_buttons_show(struct device *dev, char *buf, enum claw_ke=
-y_index m_key)
-> +{
-[ ... ]
-> +	codes =3D (m_key =3D=3D CLAW_KEY_M1) ? drvdata->m1_codes : drvdata->m2_=
-codes;
-> +	drvdata->profile_pending =3D (m_key =3D=3D CLAW_KEY_M1) ? CLAW_M1_PENDI=
-NG : CLAW_M2_PENDING;
-> +
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, le=
-n, 8);
+Does the multiplication i * field->logical_maximum suffer from a similar
+overflow?
 
-Can concurrent reads of button_m1 and button_m2 race and corrupt the
-profile_pending state?
+Since both operands fit into an int, they evaluate in 32-bit signed
+arithmetic. If a device advertises a logical_maximum greater than 65535,
+could this multiplication silently overflow yielding a wrapped-around
+negative value before the division takes place?
 
-If Thread A and Thread B access the sysfs attributes simultaneously,
-profile_pending is updated locklessly here before mcu_property_out() takes
-the cfg_mutex.
+Also not introduced by this patch, but looking at pidff_rescale_time():
 
-Could Thread B overwrite profile_pending to CLAW_M2_PENDING before Thread A=
-'s
-command executes? If so, when the hardware replies to Thread A's M1 command,
-claw_profile_event() might route Thread A's data into Thread B's m2_codes
-buffer and clear the state to CLAW_NO_PENDING.
+drivers/hid/usbhid/hid-pidff.c:pidff_rescale_time() {
+...
+	int exponent =3D field->unit_exponent;
 
-This would cause Thread B's subsequent reply to be dropped and trigger the
-"Got profile event without changes pending" warning.
+	pr_debug("time field exponent: %d\n", exponent);
+	for (; exponent < FF_TIME_EXPONENT; exponent++)
+		scaled_time *=3D 10;
+	for (; exponent > FF_TIME_EXPONENT; exponent--)
+		scaled_time /=3D 10;
+...
+}
+
+Are there any bounds checks on field->unit_exponent before it is used
+in these loops?
+
+The field->unit_exponent is parsed from untrusted USB device descriptors.
+If a USB device provides a large 32-bit exponent value, could
+this execute up to 2.14 billion iterations doing multiplications or
+divisions without any early break checks?
+
+Could this trigger a kernel stall or soft lockup when a user uploads a
+force-feedback effect?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510043510.4428=
-07-1-derekjohn.clark@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510122352.1161=
+826-1-tomasz.pakula.oficjalny@gmail.com?part=3D1

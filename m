@@ -1,166 +1,172 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 759A137DE9E;
-	Mon, 11 May 2026 21:19:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A967F32AADC
+	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 21:22:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778534371; cv=none; b=dWR0IYvVZEnyKtwXgZeefjEBmDmc7xJRA6b22myk0Q2vxJhNnCebQMQEJp18qNNK0d7tLHELAiIHTJoifu4uXywMcfUvhNQLQVceBQpLiBWcvE0qNPnpHhSSrc9WuJsi4pFt0vBUh9VNCav9rFzZNX2kLFuVG8YMpYTDQNTml64=
+	t=1778534550; cv=none; b=kX+Qm9bPfnZzt3G6eorgjNZ5f/qTDmOYafVKFYeWicAtNS0hWl8FUv/KXvywkdg4ynK0sKmB3bi3hEgn7CvJyt+/t+GUhmoA8Ya+PwG7WMDqIS61J9y9B9YI41uelQWO/BghpQOjImQ1BlIRal0hu2rwNEAO8/TYkTRVxXHeE9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778534371; c=relaxed/simple;
-	bh=LXBf47To4tnnDhxhX4YEmxV8WIrotm8e5nYJ3ROVLZU=;
+	s=arc-20240116; t=1778534550; c=relaxed/simple;
+	bh=c2T4+7se8GQ0dOHl4xZ6SQxG/SRZon5xN4pyA3kVHWU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TeZs8iAMYJIdbkmLlAeOCo5+KP0aQQwhGHbPISqQesOV7bQPguQtAlLVPDqqbWKhWn17HvgdsPMSCC+crQguaUfs17JPgeqhGX5BAginh0/9jMk2R3z8LmGhtLbSQkQvIRB7yL8FXYoxh2vnRjrknmPA+CuXZFS7ZfZ/Lm1Qq94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=teTCDRYN; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=NoznQTJW4tHDp8e4j/pNJbVyoICA+86GnuJoh1jADkcKcN0mfVoqab5sdL9ETsG23qXdLeP3FlRGXZBewu80qHCv1uZ3KnWrQUM7z1/j5Bxt1g65ZyXy0LbzjmnurCZTSV5yvPxeEEL7gwW+owXbX3XIPYAwFB2IDH7F78H2Cuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cUmcMdII; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="teTCDRYN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93014C2BCB0;
-	Mon, 11 May 2026 21:19:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cUmcMdII"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21800C2BCB0;
+	Mon, 11 May 2026 21:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778534371;
-	bh=LXBf47To4tnnDhxhX4YEmxV8WIrotm8e5nYJ3ROVLZU=;
+	s=k20201202; t=1778534550;
+	bh=c2T4+7se8GQ0dOHl4xZ6SQxG/SRZon5xN4pyA3kVHWU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=teTCDRYNxnLrGzTHwPC5EZ5OP9++K5zhfHPiQGTQ5CBLFoVa/B+Hw5DSdTblbEjLa
-	 RVDz0OAZuTTdQ0eeAiQeBtFZTre2rSxCELgteAwF5gV8t+3OovmEzYw8BLUQq0YgGY
-	 Sfv043oX0GqaMCZ8v9g3Yx7Xb5oYWkgLwdxvn0BhoPVHxb8iljamyntzWItyTcefz2
-	 jfzNzey21u5Q15cOyacQv754ty+AG3tQwqUMwR33hfcuAZzWeXjBNSGiOoe0jSdzY+
-	 lN0ArvYEcYbLvWMmTf9+UFP9fYZcBRk8knkyUuTC9D/zzlZ075+odRff4XVBt7ilrJ
-	 hWchlqrb4JrYQ==
+	b=cUmcMdII+JEJVg9HZdpEWn/uyjxlCw8yg2dOVBoggZK1TYv/PV1EjgLCpU2J5xEXG
+	 PPD1reNh/SSw9n7vG7ZKoCo5HndJNTqT2/3oM+j8D+tIOYoSUIPU7G5ZUQ6vS3jKAD
+	 6vSFkhIPNtDIHzkZzj2+0DXMgm+KsYJUGSoIy+inW2xazZLx9rUcZdvptvMYVyaOzL
+	 CjMoyt6gDEYG8W8gtnFu9YbzLszD/87q8rdmzMJgZoHlM7/RkxO93IdDzfmLQQKTK/
+	 FnXyWaM73hkJ+WKbVfEfVvs2s0nGmlwdUmSlzhLjbH79cwnMXe4PA8YmsoD19JK1Xu
+	 Q4Qra1tP5YEmA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/6] dt-bindings: mfd: motorola-cpcap: convert to DT
- schema
+Subject: Re: [PATCH 3/4] HID: hid-msi-claw: Add RGB control interface
 Reply-To: sashiko@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260510110804.33045-4-clamor95@gmail.com>
-References: <20260510110804.33045-4-clamor95@gmail.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260510043510.442807-4-derekjohn.clark@gmail.com>
+References: <20260510043510.442807-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 11 May 2026 21:19:29 +0000
-Message-Id: <20260511211930.93014C2BCB0@smtp.kernel.org>
+Date: Mon, 11 May 2026 21:22:29 +0000
+Message-Id: <20260511212230.21800C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Medium] The YAML schema enforces a `ports` wrapper node for `audio-codec=
-`, breaking validation for existing device trees.
-- [Medium] The power button subnode name `key-power` conflicts with existin=
-g device trees, causing validation failures.
-- [Medium] The `spi-cs-high` property was dropped from the `required` list =
-during YAML conversion.
-- [Low] The schema uses `additionalProperties: false` alongside a `$ref` in=
- `allOf`, which is a dt-schema anti-pattern.
+- [High] `speed_show()` incorrectly casts the LED class device pointer to a=
+ `hid_device`, leading to an out-of-bounds memory read and kernel crash.
+- [High] Deadlock and missing return in `cfg_setup_fn` when handling initia=
+lization errors.
+- [High] Sysfs attributes re-arm the cancelled delayed work after device te=
+ardown, leading to a Use-After-Free.
+- [High] Racy nullification of `brightness_set` causes a TOCTOU NULL pointe=
+r dereference.
+- [Medium] Communication failure in `claw_read_rgb_config` leaves the profi=
+le parser in a corrupted state.
 --
 
-commit f0e021d94a5e3dc2af4a93b58f8cc3b052099a76
-Author: Svyatoslav Ryhel <clamor95@gmail.com>
+commit 9663adbabcba6be0b443e7073133d650a790c871
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-dt-bindings: mfd: motorola-cpcap: convert to DT schema
+HID: hid-msi-claw: Add RGB control interface
+   =20
+Adds RGB control interface for MSI Claw devices with 9 total zones and
+supports up to 8 sequential frames of RGB zone data.
 
-Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAML.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml b/=
-Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> new file mode 100644
-> index 0000000000000..7f257f3a1a5a2
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> @@ -0,0 +1,414 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mfd/motorola,cpcap.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Motorola CPCAP PMIC MFD
-> +
-> +maintainers:
-> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> +
-> +properties:
+> diff --git a/drivers/hid/hid-msi-claw.c b/drivers/hid/hid-msi-claw.c
+> index 60694d075d56f..f4fe74a784c29 100644
+> --- a/drivers/hid/hid-msi-claw.c
+> +++ b/drivers/hid/hid-msi-claw.c
 
 [ ... ]
 
-> +  audio-codec:
-> +    type: object
-> +    additionalProperties: false
+> @@ -743,6 +836,389 @@ static const struct attribute_group claw_gamepad_at=
+tr_group =3D {
+>  	.is_visible =3D claw_gamepad_attr_is_visible,
+>  };
+> =20
+> +/* Read RGB config from device */
+> +static int claw_read_rgb_config(struct hid_device *hdev)
+> +{
+> +	u8 data[4] =3D { 0x01, 0x00, 0x00, CLAW_RGB_FRAME_OFFSET };
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	u16 read_addr =3D drvdata->rgb_addr;
+> +	size_t len =3D ARRAY_SIZE(data);
+> +	int ret, i;
 > +
-> +    properties:
+> +	if (!drvdata->rgb_addr)
+> +		return -ENODEV;
+> +
+> +	/* Loop through all 8 pages of RGB data */
+> +	for (i =3D 0; i < 8; i++) {
+> +		drvdata->profile_pending =3D CLAW_RGB_PENDING;
+> +		data[1] =3D (read_addr >> 8) & 0xff;
+> +		data[2] =3D read_addr & 0x00ff;
+> +		ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, l=
+en, 8);
+> +		if (ret)
+> +			return ret;
+
+If mcu_property_out() fails here, does drvdata->profile_pending remain set
+to CLAW_RGB_PENDING? If a subsequent unrelated profile event or stray ACK
+arrives, could claw_profile_event() incorrectly parse its payload as an RGB
+frame?
 
 [ ... ]
 
-> +      ports:
-> +        $ref: /schemas/graph.yaml#/properties/ports
-> +
-> +        properties:
-> +          port@0:
-> +            $ref: /schemas/graph.yaml#/properties/port
-> +            description: port connected to the Stereo HiFi DAC
-> +
-> +          port@1:
-> +            $ref: /schemas/graph.yaml#/properties/port
-> +            description: port connected to the Voice DAC
+> +static ssize_t speed_show(struct device *dev, struct device_attribute *a=
+ttr,
+> +			  char *buf)
+> +{
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
 
-Will this cause validation failures for existing device trees?
-
-The new YAML schema defines additionalProperties: false on the
-audio-codec node and expects OF graph ports to be nested strictly
-inside a ports child node. The original TXT binding example and existing
-device trees place port@0 directly under the audio-codec node without
-a ports wrapper.
+Since the rgb_attr_group attributes are attached to the LED class device
+rather than the HID device, does to_hid_device(dev) result in an invalid
+pointer dereference here? Other sysfs functions in this patch seem to
+correctly use dev_get_drvdata(dev) to retrieve the led_classdev.
 
 [ ... ]
 
-> +  battery:
-> +    $ref: /schemas/power/supply/cpcap-battery.yaml#
-> +
-> +  charger:
-> +    $ref: /schemas/power/supply/cpcap-charger.yaml#
-> +
-> +  key-power:
-> +    $ref: /schemas/input/motorola,cpcap-pwrbutton.yaml#
+> @@ -758,6 +1234,13 @@ static void cfg_setup_fn(struct work_struct *work)
+>  		claw_remove(drvdata->hdev);
+>  	}
+> =20
+> +	ret =3D claw_read_rgb_config(drvdata->hdev);
+> +	if (ret) {
+> +		dev_err(drvdata->led_mc.led_cdev.dev,
+> +			"Failed to setup device, can't read RGB config: %d\n", ret);
+> +		claw_remove(drvdata->hdev);
+> +	}
 
-Is this node name conflict expected?
+If claw_remove() is called from within the cfg_setup worker thread, and
+claw_remove() calls cancel_delayed_work_sync(&drvdata->cfg_setup), won't
+this deadlock waiting for itself to complete?
 
-The schema strictly defines the power button child node as key-power,
-but existing upstream device trees name this node button. Since button
-is not explicitly defined in the YAML properties, will it be rejected by
-dtbs_check?
+Also, since there is no return statement after claw_remove() is called in
+these error blocks, will this proceed to execute the rest of the function on
+a stopped device?
 
 [ ... ]
 
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - interrupt-controller
-> +  - "#interrupt-cells"
-> +  - spi-max-frequency
-> +  - "#address-cells"
-> +  - "#size-cells"
+> @@ -881,6 +1405,9 @@ static void claw_remove(struct hid_device *hdev)
+> =20
+>  	if (drvdata->endpoint =3D=3D CLAW_XINPUT_CFG_INTF_IN ||
+>  	    drvdata->endpoint =3D=3D CLAW_DINPUT_CFG_INTF_IN) {
+> +		/* Block writes to brightness/multi_intensity during teardown */
+> +		drvdata->led_mc.led_cdev.brightness_set =3D NULL;
 
-Was spi-cs-high intentionally omitted from the required list?
+Is it safe to dynamically nullify the brightness_set callback here? If a
+concurrent brightness update in the LED core checks the pointer, sees it as
+valid, and then this nullification happens before the actual function call,
+could it result in a NULL pointer dereference?
 
-The original TXT binding explicitly listed it under required properties,
-and the hardware requires an active-high SPI chip select to function
-correctly.
+> +		cancel_delayed_work_sync(&drvdata->rgb_queue);
 
-> +
-> +additionalProperties: false
+Since the LED class device is registered with devres
+(devm_led_classdev_multicolor_register), the sysfs attributes like effect,
+speed, and enabled remain accessible until after claw_remove() completes.
 
-Should this be unevaluatedProperties: false instead?
+If userspace writes to any of those attributes in this window, could
+mod_delayed_work() re-arm rgb_queue, leading to a use-after-free when
+drvdata is subsequently freed?
 
-In JSON schema, additionalProperties: false ignores properties inherited
-from $ref inclusions inside allOf. This rejects standard SPI properties
-unless they are manually duplicated in the local properties block.
+>  		sysfs_remove_group(&hdev->dev.kobj, &claw_gamepad_attr_group);
+>  		cancel_delayed_work_sync(&drvdata->cfg_setup);
+>  		cancel_delayed_work_sync(&drvdata->cfg_resume);
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510110804.3304=
-5-1-clamor95@gmail.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510043510.4428=
+07-1-derekjohn.clark@gmail.com?part=3D3

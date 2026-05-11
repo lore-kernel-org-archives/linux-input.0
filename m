@@ -1,164 +1,217 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD34F4DA55F
-	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 21:59:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778536794; cv=none; b=rXLqfCyN3B0BR9MlOYcGp1xq+C6XkGNfAEG2sdae4hjd3tjURH4WCBFrqCKGRg1xe65t+Mh9FYcz7EpM/X2MthCRQlnfWrvKPSMRLJFnVreb6uFTMcXo2O8hI1VSHBwZjXKhlOChXUqiVFd/lMCjsAgONlxAv2Q0tPv4ji0KUVU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778536794; c=relaxed/simple;
-	bh=PaQlJJH+b7e+/sFYjOpkFY//rP69dq1K/SjdJHxvTMQ=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=AICH74zhsrbOpws+WkLQVvWtldm/rE4OKwsXHNOkJRJIkCAgWB0mJs9EUC7iZfmrjD/LzBUNO30pbZNpb7Feu4cVHir83c9owbyFJGMPL1/Zt8A9Y7CK9gAbDNEfV2/HRncMFutPElyvAT6qucgw/mVPxWD1mP5dgBHtwUWLdp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FgxaXDsI; arc=none smtp.client-ip=74.125.82.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C914D9913;
+	Mon, 11 May 2026 21:59:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778536798; cv=pass; b=uctoGgbY68Umw4lq+4WV7ZhdXewMc1+e6Nokv2s9CRO/vqR0prL3wlXie+fMr0y+7EeDAYf2bu4yD/FeIpqz6de4k/PEBMN2kQZjbB5JrlU4hLk98iYoU7TBiU+aw2+c+7hNU2BSItfxAnBDef2kdTVky3ze6MU2WohnOpkCaII=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778536798; c=relaxed/simple;
+	bh=Phz6Xxlfb3d0IUFFCQMNCNI6hQ9U1/xKGaCprxgq5aQ=;
+	h=Message-ID:Date:MIME-Version:From:To:Cc:Subject:Content-Type; b=Sj4D2d0tqXQGqN1MVwKK1w0u8kaEEswwweNeyQ4GKnSVzUJ5imlcpMQA1+Xy4y0+MWVxIL1SuoiAd5TFrwTSpMpy+Ptoc2uMSLh0iZhxUPZEDuZbUt/SCp8kKv15r/M8X7/wM0dtStuLTlH1o4TfXvgq2pU3mI8/AL5EFajvufg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seanbrar.com; spf=pass smtp.mailfrom=seanbrar.com; dkim=pass (1024-bit key) header.d=seanbrar.com header.i=hello@seanbrar.com header.b=PJrwUMtl; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seanbrar.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seanbrar.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FgxaXDsI"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2ff5472f263so739196eec.1
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 14:59:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778536792; x=1779141592; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=HGG70aLyZXbkyXVoX5cx1ZHQlf1r1TQ7U3Duak5bUAQ=;
-        b=FgxaXDsI/i/0ekIWpg/Vk42Etzl8WawW+xrFrCncL9u5bouCf15qd9O0L2to4t0uzu
-         XJzss1wZ827LR70ci3KuNKNS8NOz9xsgaUavwuyYTsnxwzqRYVI434waCobWRXvQIRUh
-         4JMphWOa5NVpJ9CeKWQ1St8nhQw3CCHg3+vLslz9xQyaWLnf9zqq7uHVSZXX92MxWmM0
-         SAtENr+PXTS/7DGVLhEQgk2wBu7AuttPzSa7mcZWdkkAJ1UomqUvn3oC2DOW0r8nevR+
-         1sDkNWlT5IFAs+j/UgCBPQawG9Mh/7iKu7+9bjwRletrc7bhP6cxoiBXlQfIJYW/+iSb
-         dKHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778536792; x=1779141592;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HGG70aLyZXbkyXVoX5cx1ZHQlf1r1TQ7U3Duak5bUAQ=;
-        b=R1Z7ktD3bMuV4DoiAx9I0+HXRKQlRM4Vtc5gCQ/QVchAYOTOnTAsyYaSJ08eb+8usf
-         rY2eMvsHNrNxeqTypyCcBwesTnT5vn+wjk9B4LnUdW78D/9E3anqzHpWSmn7YvbMkE/6
-         2VcwTOyZy0Jyl8M8kx/y3pY+WXt47ZsjWeoo4+bZiro/R8+Jkef1SGWWSyJLzCTlnPaW
-         Ui6lRPi4a46XBSL6hH79sN+ewvEznP5sNHpp5OqYucRAK39jJXOgxW7/N3uZV1U1nmqU
-         WUgBNc8Ec4828w6MyECknAW6rFmbj9OpJahvOOa9SZtH5mEbMiM5LZX7rRqr6VFtpaxi
-         kiIg==
-X-Gm-Message-State: AOJu0Yxeevxkv+zCMy1FTxtFbtJccFZt+r0XEUXxkzmHuSV4aTpwkByh
-	k19PVa12dqwv5ESDRA9IhprmPpH9qwopVq1C699pAkfFGVfD9X3dgPanOW1Ypg==
-X-Gm-Gg: Acq92OE+GERTbJUNO2qm3qSTsFl1+ZFbq2YyZT/HQw+sHUotDcUinXnr6axvAWQ104q
-	Z1CO+MR1vZGjLH5vS2HyiuNd+hwYcTEApJHhqCPTOHn7+kiVu0zNB0zY5IX3aBUiX6q3egJebiy
-	svF0CRqrxXCqQrf7B2ff15FjJixxwDqdxAGEuElmzli4MJroSleE40hb4dMLPKc47BsEjOVHON2
-	XzK6ryJ+b5bswvMMNAvIA8y0vLDULG+k05bw5wpgmZClrhNzL4XqVHDPx8LWbhtj2b6xwt7V1OH
-	vzqrZvamdGwLMLwtNYLXQffzM7oMn/0ZYiucakx4w9nmc3W+64Y4ctMjcw7ItwDRnjLXbiUi9+j
-	H8W40NpGqwNRlXdKTcIJHiz48l4SyhH/kke8csg/LPuQZy9CNrS/h2bsCRsyjePUcbUyrAceo6D
-	tI8nXD7sZgRe4c6KW+r4rxH2FN2fVE92qCPX5X3qLs2XQnpfa/aRuu0AaahoeQcWt8NtfuzCzd/
-	cEKrHZzk392D93kqmFH6A==
-X-Received: by 2002:a05:7301:4b18:b0:2ed:e14:42e9 with SMTP id 5a478bee46e88-2ffd88bcd1amr222141eec.34.1778536791780;
-        Mon, 11 May 2026 14:59:51 -0700 (PDT)
-Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8859eafacsm15107022eec.1.2026.05.11.14.59.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 May 2026 14:59:51 -0700 (PDT)
-Date: Mon, 11 May 2026 14:59:52 -0700
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: sashiko@lists.linux.dev, sashiko-bot@kernel.org
-CC: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH 2/4] HID: hid-msi-claw: Add M-key mapping attributes
-User-Agent: Thunderbird for Android
-In-Reply-To: <20260511205107.C2030C2BCB0@smtp.kernel.org>
-References: <20260510043510.442807-3-derekjohn.clark@gmail.com> <20260511205107.C2030C2BCB0@smtp.kernel.org>
-Message-ID: <70F3879B-AEFF-4CFD-9CC3-2BA477D97D9F@gmail.com>
+	dkim=pass (1024-bit key) header.d=seanbrar.com header.i=hello@seanbrar.com header.b="PJrwUMtl"
+ARC-Seal: i=1; a=rsa-sha256; t=1778536787; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=ccha1UEbzJpbdu2G1emnelh29EfTWv1RU33ouJxfewBCNV36DGJqkfbc8pVXS9KiLGk1TEHyghY8GqBu7+cW1WdtQ0+OcRNO4mhQi8xYpM+xihSQyll4UYlZNvl2Mld70WLagWocqJtzaeXerqQqHuyfrekG47euxreY18Q5hRE=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1778536787; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=mKcO1By3Rx7/K+xjO9536EewRIAVvzfiD5RjLwoi0V8=; 
+	b=aCdrAA6v6/AC2lPh0dxZEvkWh7NDFXpABoyQFTZgbO+G2kfMdmj4QdJsBPrLVQZu0WAKgKA+9VkkGYnuSOphatJ969P13crrLG3ylpFI8i413wEYfR1Dgs0J/RzBR8ccuaje9SomFzc5srytaZzuqAnzlD2Yrtga+4VcZ0gzvuw=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=seanbrar.com;
+	spf=pass  smtp.mailfrom=hello@seanbrar.com;
+	dmarc=pass header.from=<hello@seanbrar.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778536786;
+	s=zmail; d=seanbrar.com; i=hello@seanbrar.com;
+	h=Message-ID:Date:Date:MIME-Version:From:From:To:To:Cc:Cc:Subject:Subject:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=mKcO1By3Rx7/K+xjO9536EewRIAVvzfiD5RjLwoi0V8=;
+	b=PJrwUMtly64tmsS7BF8cUCEUz5umzRcMIEitr86iFgFDN4o+jDWNn4/iEVMk3qLI
+	TQm07VAI1YrSXrT/w9JKXsDDrxesYG/X6XzxEYG3HEZmiROJmpFNr1HnYwy05mWJaVp
+	1QGx4l6EKym1yub3pj0E7POgrbBTixrObeZVA7M8=
+Received: by mx.zohomail.com with SMTPS id 1778536783779690.4321626851674;
+	Mon, 11 May 2026 14:59:43 -0700 (PDT)
+Message-ID: <909876aa-7498-4ca4-b3a6-6618fbc6209d@seanbrar.com>
+Date: Mon, 11 May 2026 14:58:30 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Sean Brar <hello@seanbrar.com>
+Content-Language: en-US
+To: linux-input@vger.kernel.org, linux-sound@vger.kernel.org
+Cc: roderick.colenbrander@sony.com, jikos@kernel.org, bentiss@kernel.org,
+ perex@perex.cz, tiwai@suse.com
+Subject: [BUG] ALSA: usb-audio: use-after-free in snd_dualsense_ih_match
+ during rapid USB reconnect
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On May 11, 2026 1:51:07 PM PDT, sashiko-bot@kernel=2Eorg wrote:
->Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
->- [High] Data race on `drvdata->profile_pending` and lack of transaction =
-atomicity during concurrent sysfs accesses=2E
->--
->
->commit b9bc6d29326e3dd3ed065aca7059668a1b674bc8
->Author: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>
->
->HID: hid-msi-claw: Add M-key mapping attributes
->
->Adds sysfs attributes to remap the M1 and M2 rear buttons to up to 5 even=
-ts
->(gamepad, keyboard, or mouse) when in macro mode=2E
->
->> diff --git a/drivers/hid/hid-msi-claw=2Ec b/drivers/hid/hid-msi-claw=2E=
-c
->> index 7a3cd940ec49e=2E=2E60694d075d56f 100644
->> --- a/drivers/hid/hid-msi-claw=2Ec
->> +++ b/drivers/hid/hid-msi-claw=2Ec
->[ =2E=2E=2E ]
->> +static int claw_buttons_store(struct device *dev, const char *buf, u8 =
-mkey_idx)
->> +{
->[ =2E=2E=2E ]
->> +set_buttons:
->> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA, =
-data, len, 8);
->> +	if (ret < 0)
->> +		goto err_free;
->> +
->> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0=
-, 0);
->
->Is it possible for concurrent writers to interleave these commands?
->
->Looking at mcu_property_out(), it takes the cfg_mutex internally, but the=
-re
->is no lock held across both calls here=2E If a second writer executes its
->WRITE_PROFILE_DATA before the first writer executes SYNC_TO_ROM, could th=
-e MCU
->be left in an inconsistent state?
->
+A rapid USB disconnect/reconnect cycle on a DualSense controller
+(054c:0ce6) triggers a use-after-free in snd_dualsense_ih_match()
+(sound/usb/mixer_quirks.c), resulting in a general protection fault
+and leaving the USB subsystem in an unrecoverable state requiring a
+hard reboot.
 
-No, the sync to rom simply writes the state to permanent memory so it rema=
-ins in the same configuration after a power cycle=2E The first call writes =
-it to temporary storage=2E
+Kernel version: 7.0.5-arch1-1 (also reproduced the trigger on
+7.0.3-arch1-2; affected code in sound/usb/mixer_quirks.c is
+unchanged on current mainline)
 
->[ =2E=2E=2E ]
->> +static int claw_buttons_show(struct device *dev, char *buf, enum claw_=
-key_index m_key)
->> +{
->[ =2E=2E=2E ]
->> +	codes =3D (m_key =3D=3D CLAW_KEY_M1) ? drvdata->m1_codes : drvdata->m=
-2_codes;
->> +	drvdata->profile_pending =3D (m_key =3D=3D CLAW_KEY_M1) ? CLAW_M1_PEN=
-DING : CLAW_M2_PENDING;
->> +
->> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, =
-len, 8);
->
->Can concurrent reads of button_m1 and button_m2 race and corrupt the
->profile_pending state?
->
->If Thread A and Thread B access the sysfs attributes simultaneously,
->profile_pending is updated locklessly here before mcu_property_out() take=
-s
->the cfg_mutex=2E
->
->Could Thread B overwrite profile_pending to CLAW_M2_PENDING before Thread=
- A's
->command executes? If so, when the hardware replies to Thread A's M1 comma=
-nd,
->claw_profile_event() might route Thread A's data into Thread B's m2_codes
->buffer and clear the state to CLAW_NO_PENDING=2E
->
->This would cause Thread B's subsequent reply to be dropped and trigger th=
-e
->"Got profile event without changes pending" warning=2E
->
-Possible=2E I'll look at improving this pattern by managing the pending fl=
-ag with a mutex=2E
-- Derek
+Hardware:
+   - Sony DualSense Wireless Controller (054c:0ce6, bcdDevice=1.00)
+   - hw_version=0x00000711, fw_version=0x0110002a
+   - Host: Gigabyte B550 AORUS PRO AC, BIOS F17 03/22/2024
 
+Trigger condition:
+
+When connected to a degraded USB port (intermittent electrical
+contact), the DualSense enters a rapid disconnect/reconnect cycle.
+snd_usb_audio times out (ETIMEDOUT, -110) querying mixer controls
+during probe, each timeout triggers a USB reset, and the device
+reconnects every 1–2 seconds. This is not a driver bug, it's the
+expected kernel behavior when USB communication is unreliable, but
+it creates a race window for the use-after-free described below.
+
+The bug:
+
+In sound/usb/mixer_quirks.c, snd_dualsense_ih_match() is invoked as
+an input handler match callback from input_register_device() during
+ps_probe() (hid_playstation). At line 575, it obtains a pointer to
+the USB device struct:
+
+     snd_dev = mei->info.head.mixer->chip->dev;
+
+It then uses this pointer in dev_warn() calls at lines 579 and 585:
+
+     dev_warn(&snd_dev->dev, "Failed to get input dev path\n");
+     dev_warn(&snd_dev->dev, "Failed to get USB dev path\n");
+
+No reference is taken on snd_dev. If the USB device is concurrently
+disconnected and freed while snd_dualsense_ih_match() is executing,
+snd_dev becomes a dangling pointer. The dev_warn() call dereferences
+snd_dev->dev.kobj.name via dev_vprintk_emit() → strnlen(), faulting
+on the freed memory.
+
+The OOPS offset (snd_dualsense_ih_match.cold+0xf/0x2b) corresponds
+to the first dev_warn() at line 579. The compiler placed both error
+branches in a cold section, and the offset is consistent with the
+earlier branch.
+
+OOPS:
+
+   Oops: general protection fault, probably for non-canonical address 
+0x441f0ffa1e0ff3: 0000 [#1] SMP NOPTI
+   CPU: 14 UID: 0 PID: 108 Comm: kworker/14:0 Not tainted 7.0.5-arch1-1 
+#1 PREEMPT(full)
+   Hardware name: Gigabyte Technology Co., Ltd. B550 AORUS PRO AC/B550 
+AORUS PRO AC, BIOS F17 03/22/2024
+   Workqueue: usb_hub_wq hub_event
+   RIP: 0010:strnlen+0x29/0x40
+   RSP: 0018:ffffce3f40537378 EFLAGS: 00010202
+   RAX: 00441f0ffa1e0ff3 RBX: 00441f0ffa1e0ff3 RCX: 0000000000000000
+   RDX: 00441f0ffa1e1003 RSI: 0000000000000010 RDI: 00441f0ffa1e0ff3
+   RBP: ffffce3f40537408 R08: 0000000000000000 R09: ffffce3f40537478
+   R10: 0000000000000004 R11: ffffffffc20ebe12 R12: ffff8943511c80b0
+   R13: ffff8943511c80b0 R14: ffff894345daf028 R15: ffffce3f40537418
+   FS:  0000000000000000(0000) GS:ffff8962144e7000(0000) 
+knlGS:0000000000000000
+   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   CR2: 000055e7f9dc3c18 CR3: 0000000135ffe000 CR4: 0000000000f50ef0
+
+Stack trace:
+
+   Call Trace:
+    <TASK>
+    dev_vprintk_emit+0x70/0x1b0
+    dev_printk_emit+0x61/0x7b
+    __dev_printk+0x2d/0x70
+    _dev_warn+0x7f/0x99
+    snd_dualsense_ih_match.cold+0xf/0x2b [snd_usb_audio 
+a3e71fdbdb8c7ccfdfdb57dadc854b1d1e18445c]
+    input_attach_handler.isra.0+0x4b/0xa0
+    input_register_device.cold+0xf8/0x1f0
+    ps_probe+0xf79/0x10dc [hid_playstation 
+0cc5feea5231aa914fe418c8a06b14588cd5f064]
+    hid_device_probe+0x1b8/0x270
+    hid_add_device+0xcd/0x130
+    usbhid_probe+0x49b/0x6c0
+    usb_probe_interface+0xf8/0x2f0
+    usb_set_configuration+0x738/0x920
+    usb_generic_driver_probe+0x4a/0x70
+    usb_probe_device+0x44/0x170
+    usb_new_device.cold+0x154/0x3fd
+    hub_event+0x129d/0x1ad0
+    process_one_work+0x19c/0x3a0
+    worker_thread+0x1b1/0x310
+    kthread+0xe1/0x120
+    ret_from_fork+0x2bc/0x350
+    ret_from_fork_asm+0x1a/0x30
+    </TASK>
+   ---[ end trace 0000000000000000 ]---
+
+Analysis:
+
+The race is between two concurrent paths:
+
+   1. Probe: hub_event → usb_new_device → ... → ps_probe →
+      input_register_device → input_attach_handler →
+      snd_dualsense_ih_match (accesses USB device struct at line 575)
+
+   2. Disconnect: hub_event → usb_disconnect → ... → USB device
+      struct freed
+
+snd_dualsense_ih_match() retrieves snd_dev via the mixer→chip→dev
+chain at line 575 without taking a reference. A concurrent disconnect
+can free the USB device struct before the subsequent dev_warn() call
+dereferences it. The faulting RDI value (0x441f0ffa1e0ff3) is
+non-canonical and consistent with SLUB freed-object poisoning,
+confirming a use-after-free.
+
+Impact:
+
+After the OOPS, the USB subsystem is left in an unrecoverable state:
+all USB ports stop enumerating devices (including ports not involved
+in the reconnect cycle), and a clean shutdown hangs in USB driver
+teardown. A hard reset is required. The trigger condition (rapid USB
+reconnection due to a degraded port) is a normal hardware failure
+mode.
+
+Workaround:
+
+   # /etc/modprobe.d/dualsense.conf
+   options snd_usb_audio ignore_ctl_error=1
+
+This suppresses the mixer control timeouts that drive the reconnect
+cycle, preventing the race window from opening. DualSense headphone
+jack audio controls may not function correctly with this option.
+
+Steps to reproduce:
+
+   Disconnect/reconnect loop (the trigger condition):
+   1. Load hid_playstation and snd_usb_audio (default on standard
+      desktop kernels)
+   2. Connect a DualSense (054c:0ce6) via USB to a port with
+      unreliable electrical contact
+   3. Observe rapid disconnect/reconnect in dmesg -w, with device
+      number incrementing each cycle
+
+   The OOPS:
+   The OOPS was observed after the loop ran for several minutes. Exact
+   timing-dependent reproduction beyond triggering the loop is not
+   confirmed; this was observed once and not retested to avoid the
+   unrecoverable USB hang.
+
+Kernel .config (7.0.5-arch1-1): 
+https://gist.github.com/seanbrar/d97a577efc3f48098d300105c4de398b
+dmesg with OOPS (7.0.5-arch1-1): 
+https://gist.github.com/seanbrar/994ed882ca6f25b93e4763a8906d0fd5
+dmesg with reconnect loop (7.0.3-arch1-2): 
+https://gist.github.com/seanbrar/188a75bf69fffe0d089f7aa82c6aebb6

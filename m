@@ -1,40 +1,40 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C32CA3BADAA;
-	Mon, 11 May 2026 09:25:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 188841E49F;
+	Mon, 11 May 2026 09:25:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778491532; cv=none; b=j/+iXb17TH4PZrhwVArm6gl5bkClQGuS3maBqItzmyvi+ZEaJ7eLq/JRNCRObqv7LR4pjrBSRY15SzmkSw6GqOM9P3LPpWXUrpfKp5WMRSdSJKbsRcSd0Gpb222JOvues3gEvGnOCOZFvfOhcDnd40wdMiSPC8Z473IDEmdT13E=
+	t=1778491533; cv=none; b=j/fIjdLm0Q1T/RO5vczs9I2BRTARGPRAYYktnb34ZqsOYLewcHothDNPP8+NkBP5bvt8EWjBuP6tYGXVBjohP7NbOv9IQoizTEtIZV1twAcQNRleNayh/kF66hBskdPWkrsxVVhRiF04zU2F98YHCjCfyilk+3WZ55OBQ9vzZrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778491532; c=relaxed/simple;
-	bh=8PIQl5kfuVwdt+Cq8giu426qIR0fILebOJgQCKdgTVQ=;
+	s=arc-20240116; t=1778491533; c=relaxed/simple;
+	bh=aLvBg8yakBBMO6jq6pG8SoxUD30ySkKq3+Kw9lSTjlw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WfDEupSVotcq95o3SfZ6KN/C1wH9VXM6ida1WVLAgm7XDQ8uSARrzU8SVAWREu5po5IXVwn9yJC23IpT/TLDWNPqS+dDorITUIK4VTEviY3H/N2D1aGyjMUTIExGAn7i0opGDa8uiRrGgo+W0VF0YRTtXvHNKAYccvf8rtWFXA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=iqv1Ihmq; arc=none smtp.client-ip=148.251.105.195
+	 In-Reply-To:Content-Type; b=hExAhLdTEUz2PlIj7m7EzTFOblYLYOC4uBGcu94XRt+yptxhsuo2uwdO9RfJbt5wxtH3K5+47oEgjpLKbBNYz9nDQ1WvUlr6uS93KUGHRHZTiaLvc2dIIcP3/De51NFS5yBjrTRU5a5S2ZSU3jHLQ8EAUcTBxJKGGtZhYbSRQh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=nYYFs+JY; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="iqv1Ihmq"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="nYYFs+JY"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1778491529;
-	bh=8PIQl5kfuVwdt+Cq8giu426qIR0fILebOJgQCKdgTVQ=;
+	s=mail; t=1778491530;
+	bh=aLvBg8yakBBMO6jq6pG8SoxUD30ySkKq3+Kw9lSTjlw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=iqv1Ihmq5waow1+PsNta2unPX8dsTUvNCl4sbOSxHj1t0IJt2Mz1hIVxuSdJHqoGC
-	 KM9DC1j9TqXzCJa8Z75IhkacpuA1x9kzXaoLvkS4Absp07V6naYUfJDeuz2tSECxsp
-	 ha2lHQb9naIgbtuGvIwV7MyuvTpXkjg/yLt1NmFTOQ78iJ6QVMiT/7rg1IDRApRUsu
-	 WGWpepR7HBy4zJswqhHyLxT3WH11Kz1xhDKhq8DOidR0MFh5srquI+U+u5/hxXXxrW
-	 UV5VcFjRQ0K8g9879OMZsytWxfZX7yQgWL5j6TxD4+CMrBOMPBggiSfHC83Lfehgli
-	 FIirnlbJVY+vA==
+	b=nYYFs+JYZ7yl0vgORaPPmITEPFJc9Ey/HOy94txswRMCib3V8Oa6QC//hS6w8/X4Z
+	 RK0Rb4qKgLtjFsKjjcPbZu2xpGZj41eV2rSa6A56habCn7DBX01c+FVI8GiqsVf9PG
+	 mfifi16uj9LZMrDCzE4mRwUyelZ0vB1gP7PCAMvhWhoKzQrPuA6tKEN96hY55tL0BR
+	 QgMtjQ2ou717SLBBzXKwCXmCrPS2FdyONMDRmIJxUPo8TW99pcvVUdlWMxLDwxUMo+
+	 e+Uzmxah+DjDET66i0R1L+mvSGLUOx/wdS3kzSvmkpqVNIJQLjS2e9TCHMwNnpRC07
+	 yFAq9HieUtrPg==
 Received: from [100.64.1.21] (unknown [100.64.1.21])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 1A17D17E138B;
-	Mon, 11 May 2026 11:25:28 +0200 (CEST)
-Message-ID: <b3a07a46-ea7b-48f3-b7d3-0ec7f644a2df@collabora.com>
-Date: Mon, 11 May 2026 11:25:27 +0200
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 6B79B17E139E;
+	Mon, 11 May 2026 11:25:29 +0200 (CEST)
+Message-ID: <37cbdf51-46c7-4cc2-a213-74dfdd604cb1@collabora.com>
+Date: Mon, 11 May 2026 11:25:28 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,7 +42,7 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/9] dt-bindings: mfd: mediatek: mt6397: Add MT6365 PMIC
+Subject: Re: [PATCH 3/9] dt-bindings: input: mediatek,pmic-keys: Add MT6365
  support
 To: Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>,
  Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>,
@@ -58,18 +58,19 @@ Cc: kernel@collabora.com, linux-pm@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
  linux-input@vger.kernel.org, linux-iio@vger.kernel.org
 References: <20260429-mediatek-genio-mt6365-cleanup-v1-0-6f43838be92f@collabora.com>
- <20260429-mediatek-genio-mt6365-cleanup-v1-2-6f43838be92f@collabora.com>
+ <20260429-mediatek-genio-mt6365-cleanup-v1-3-6f43838be92f@collabora.com>
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Content-Language: en-US
-In-Reply-To: <20260429-mediatek-genio-mt6365-cleanup-v1-2-6f43838be92f@collabora.com>
+In-Reply-To: <20260429-mediatek-genio-mt6365-cleanup-v1-3-6f43838be92f@collabora.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 4/29/26 11:44, Louis-Alexis Eyraud wrote:
-> MT6365 PMIC is compatible with MT6359, so add the compatible strings
-> for the main and sub devices (regulator, rtc, audio codec).
+> Add compatible string for the pmic keys block found on the MT6365 PMIC,
+> that is compatible with the one found in MT6359.
 > 
 > Signed-off-by: Louis-Alexis Eyraud <louisalexis.eyraud@collabora.com>
 
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+
 

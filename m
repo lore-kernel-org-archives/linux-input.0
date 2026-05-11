@@ -1,150 +1,252 @@
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-a7-smtp.messagingengine.com (fout-a7-smtp.messagingengine.com [103.168.172.150])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 317A737F8AF
-	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 20:20:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4C923A0EAF;
+	Mon, 11 May 2026 20:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778530813; cv=none; b=eGGMrOef7H9EO/mD+TRsBU8u8StiT4+35uTx3c+4DxF61xZKtxxvZt+JfvVuBCC3N6XHU5Yz9EOCT+UnEfxWGHOiJEpSk60GRA7FxCxoAn7pzaGhMFvJ7r8F3j2yYK27qQ63CiepxUKOIAY6cS4cgpIqYc0+uZDe+JVdHrxNOfQ=
+	t=1778531595; cv=none; b=dEAPbxvhhLwFbDhbXNIdzq/IglGJdsK4S6oGnSVWxYjyZZcrSjGH5X+Vl90FeAUS3IKyB5cYVtrSo32wiJnt7HEiUPSrrnO8/cY1TbejIryUcvCta+fiKd4ImSbnQy3NnfniXGipuU0CvI0J5DV9oHmvMJZ7VV/SB3EWETxF6yk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778530813; c=relaxed/simple;
-	bh=QlCoJgzFuDkzKyD4vPssOlod5ioow6DwDwHxhzMVUXk=;
-	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=VN7TRM4u4H36P3oYQGn/WT9dDfoFcf+Pwa2atRSBvNBwDEbaYcjgC7MRv8/VC22P3RZ2iAUUk6ld+AcBP6ybRbAULU3q/cV/CVM9OXHlE2vRBc4KxghZTDuUmqk3MOLzN2GKcEbzoxG2bm0njBYEqHItOOh57uXZq53JQUp/AGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com; spf=pass smtp.mailfrom=embeddedts.com; dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b=gN/k7MhQ; arc=none smtp.client-ip=74.125.82.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=embeddedts.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedts.com
+	s=arc-20240116; t=1778531595; c=relaxed/simple;
+	bh=/ZFnQ7h5d1rmY6bMZub6uFSkgjI6FCdPzgQCAWChS4M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TWUSzbfaXxEBVz3fR97nt3CGer0BQy8Wls6hjxTagXNeZtIZ/yqzV/2K3VXgtWxbUNJle81G4HKQE4cVlPj7tyYn1cvfSlFFqBbx7gjsmfDc2htZ6D0nsWW1fzr4QteA+g1XRNKH1FGWWbDBWTVTc3vROoQlz/zPB4YgD9OxwBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fressl.at; spf=pass smtp.mailfrom=fressl.at; dkim=pass (2048-bit key) header.d=fressl.at header.i=@fressl.at header.b=Ank2/Xq0; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=dWuTjt2x; arc=none smtp.client-ip=103.168.172.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fressl.at
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fressl.at
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=embeddedts.com header.i=@embeddedts.com header.b="gN/k7MhQ"
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2ef2a1cc06dso8081685eec.0
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 13:20:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=embeddedts.com; s=google; t=1778530811; x=1779135611; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=qQPJFpBF/Y6ESwRVchtItkryNrsx2h5o1QJ9xXHHvWE=;
-        b=gN/k7MhQZlmt+HmCJ0h5lM7ah0m+TNKxkHec5B9x5z9zDBX+GEXUGOTyE06eNQR2VL
-         omWFOzsRu3y2yo9m50iC7xrYL+ti5gNXvbvh03dFhyyX/hA1QixcOFFTPhtwik2N3Ug3
-         qARBstLTu5cfdz0Dqwx3x90+IprJ6axjvQRGA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778530811; x=1779135611;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qQPJFpBF/Y6ESwRVchtItkryNrsx2h5o1QJ9xXHHvWE=;
-        b=XSmkRWAW7Z9Abn+SoIQQXeyMgHk7JnN6gnWBSqplCwEZfagIue6HIumISqMwASETzh
-         j6A3fb6HLmUFKazn03d479Yo8JhCyypKqrSq/C6Wv8OkaB5CE+cwrig8A9tV09zuirfG
-         Yire9UaHodu2GE61Kb68QpbEXte0i0VXXaipHPfFXzGZ9/u6OIM4tvrmEQ01CJe/KVKe
-         mjt9uPLnIIJnlo1Xgn7FdUp7AD/P44ityAEKOQyVHuv8UIJpnqKCFIVGywlMPsBGJiZX
-         cTpHR/nKYji9f7jDPHSsRrpp4pXLEWYhQXg0LfBpD+amvXCreaLKOg87ifZDEezd0JOu
-         cOaA==
-X-Gm-Message-State: AOJu0YwO8ngAg8V1Vm4f10fdsnjPn0/JPUJqOEpuQC3D/80udeU3FTHa
-	mFH0mtCArghD4/mZZ9iMnHGfTql4gJsauwFhrlUog+7H4HZVxD5BOgR1E3y/NBccmeY=
-X-Gm-Gg: Acq92OGE4yON+UA6NI1ZKgv9KucJTBRXgqbxT6c1UPE154tnOFnT5x3esyEUhGuRvP3
-	u227zBtbXjcWmbFigeqfjzEJUloFW3ICppUnu+Zb9spqKrsxKbxHVihzKaF40TE6P7qSVCuV2us
-	npw+aBgldtZQYAIcZFCqOEcwmBZ5FW2+wMH+byN+AHl/KcX5FRorCMdnXmty5vyrtUFY1/9FtDJ
-	mZfMRAg9HOe3Bzq5bhJL9lSsY4mBKOPcDZiJ8pa8Sq9G3IjKH4nwpJdiZGSq44WED/iu0U1LjoS
-	QN32RC5OaMmMm3jxy2GthwaC2gilqXYOCXmKq7DqZ9VEcK87ye1Qt593FhwTgH+gJlY3T4L7lkm
-	EjkVtWK2S4UIfaSIjKCgftEtuTALuBrEQrhcwi/RtO7dK960Xset7GDcfentvT2yr9wgyL38SjA
-	tdm5bi4qUN7mPsPJS52fgh91cw+GXTHVDGpa/NAM5JPuhAxx8irkA0VlCl8+7l8CuPSe1wtTpO8
-	i8xi5k9tSGYVkhZku6aIxOPHP86paI94+I46Iqc7ohNy1sNfU/2jQNaEjeRowJrBD5Tig==
-X-Received: by 2002:a05:7301:1008:b0:2d9:b466:5e19 with SMTP id 5a478bee46e88-2fb4b733d76mr5616023eec.21.1778530811190;
-        Mon, 11 May 2026 13:20:11 -0700 (PDT)
-Received: from [10.10.10.191] ([184.3.231.126])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8860ce1bfsm15471585eec.9.2026.05.11.13.20.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 May 2026 13:20:10 -0700 (PDT)
-From: Kris Bahnsen <kris@embeddedts.com>
-X-Google-Original-From: Kris Bahnsen <kris@embeddedTS.com>
-Message-ID: <cfe31865-021f-4c8b-b307-b6ba9bb7c3d6@embeddedTS.com>
-Date: Mon, 11 May 2026 13:20:08 -0700
+	dkim=pass (2048-bit key) header.d=fressl.at header.i=@fressl.at header.b="Ank2/Xq0";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dWuTjt2x"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfout.phl.internal (Postfix) with ESMTP id D0CEDEC006C;
+	Mon, 11 May 2026 16:33:11 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-06.internal (MEProxy); Mon, 11 May 2026 16:33:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fressl.at; h=cc
+	:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to; s=fm3; t=1778531591; x=1778617991; bh=nA4wPNAJbmjgbmwn5BCRi
+	aCJim7nlvv96FAHBgXYspY=; b=Ank2/Xq0XFJ7Y/S+az15SCNHAG4xVqQNMJSFQ
+	uDBUraSqS5FcusNWobimSCg+Iik+EH0q98zHlkXVjUSYISGm3z7LQweEuBh7zK7L
+	nJ9zWKZ3tFKoacP7/c2xPqpgbFQnYuGUwBbLviPoGAABaQystiV3Kp3Ws6/Im8B0
+	AwdqKdDrjzCs7+6NpNCeXtQ3jSG6SuQzX0O5bEAFNrHYx0on3175X9jlaYaUgoAs
+	KF/I0oCqkmFbQwjxSERFOUxcjc0zOFCyIluUNM2M9kq9iX6jv4TdzFQzLLhFtlPz
+	e4KU7SehjCVqaG9rJukx+n8Mn3DIoNPdwhq1aZAl0ZHZTKQPA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1778531591; x=1778617991; bh=nA4wPNAJbmjgbmwn5BCRiaCJim7nlvv96FA
+	HBgXYspY=; b=dWuTjt2xTDC4N+/YeuwxQy5k51CqkRe/rpZmohdVAKvtKQPhERQ
+	90aphMT1ZRWmXSLkpW43ucfsAruUbY+XQvyeIVTQRK9SslEYC2I+K+CHtyOjXn/5
+	01mPy/aX2o5NgFO2TnnAG1Un7W/pWkmGvVxlFFcEA4H61ZoFfocNmE8sn1UInpwR
+	lMbNIAlHhYjQBJg3INz3SSgwshXlWq6dC9kROAtPjccgJNa+Pnfvk//GLjr2x0Mx
+	ioVUeSpGTGucnw1bSh9xG3mw2bJhHT7LwDgCPBKvT6j+UnCNze1jbIU/CqGJ7yiN
+	iaZNR3HBrkyBeEqszjq5Rm7MyNDZF2SE9Gg==
+X-ME-Sender: <xms:Bz0Cau8f-Ras_z1hESYauQtZSTwz42BXvXLpKbhG8ebm7gIojREDnw>
+    <xme:Bz0CagN9uNLDr94zVGf32Y214JPaGsha-kb2chfgqbImMmvKYUw9P2YqJ_rwaTgIL
+    zn3v3_eyOAPkq1dDlm0iG4ZQpCLZcAGGubBAV_jqrV6rgpzJUPusAA>
+X-ME-Received: <xmr:Bz0CakGpt4aWBAIh1ia2hiqU-CWktNZDzyxHL6wX1AkTTCjRZbAC7YTlQ-7XgpuxypQbLwqJfQDxe6m_HlKD9IeYI4oyuzir6ISRNHiEo1fjU7oReHc>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduudelledtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepvehhrhhishhtihgr
+    nhcuhfhrvghsshhluceotghhrhhishhtihgrnhesfhhrvghsshhlrdgrtheqnecuggftrf
+    grthhtvghrnhepleevfeeiheejhfdujedukeffgeelleevhfefvdekieejkedthfffvedu
+    heeuhedvnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegthhhrihhsthhirghnsehfrhgvshhs
+    lhdrrghtpdhnsggprhgtphhtthhopeehpdhmohguvgepshhmthhpohhuthdprhgtphhtth
+    hopehjihhkohhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopegsvghnthhishhssehk
+    vghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkh
+    gvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdr
+    khgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghhrhhishhtihgrnhesfhhrvghsshhlrd
+    grth
+X-ME-Proxy: <xmx:Bz0CamTQK8j11DwQ__UGkDglQfbxqEk1luwTX4hG0Vyw8KI1zKGfAQ>
+    <xmx:Bz0CapvaSsLlDorYst1x6S1ozLwx8-6k69p-eRd6ez5KmZ-oqHEhMQ>
+    <xmx:Bz0CamKXm-KLAIBMxDmq1X9uea_EkEyekwpQa9JUYIin2Yrah-xjmg>
+    <xmx:Bz0CamnbXBkEUuL4thwqxzw6k394Tu0VUB6nmDPV0Be5Ludfq_Apyw>
+    <xmx:Bz0CamX7GHDT_T0VqtorgeOY18K_Lu5otDeFfPeRrqslERgQUgQrOyea>
+Feedback-ID: i6b4e4bd3:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 11 May 2026 16:33:10 -0400 (EDT)
+From: Christian Fressl <christian@fressl.at>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Christian Fressl <christian@fressl.at>
+Subject: [PATCH] HID: magicmouse: add haptic click configuration for Magic Trackpad 2
+Date: Mon, 11 May 2026 22:31:15 +0200
+Message-ID: <20260511203115.104087-1-christian@fressl.at>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: ads7846 - consolidate coordinate filtering logic
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
- Mark Featherston <mark@embeddedts.com>, Marek Vasut <marex@nabladev.com>,
- linux-kernel@vger.kernel.org
-References: <afl3WtbabMFNjE24@google.com>
- <cf9e30d8-f51b-4a19-ae7d-914e6bccb265@embeddedTS.com>
- <afzo03UP-shPfNMe@google.com>
-Content-Language: en-US
-In-Reply-To: <afzo03UP-shPfNMe@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Dmitry,
+Apple Magic Trackpad 2 devices support persistent haptic feedback
+configuration through feature reports 0x22 and 0x23. Add an opt-in
+module parameter to select either the verified silent-low profile or to
+disable haptic feedback.
 
-On 5/7/26 12:35 PM, Dmitry Torokhov wrote:
-> Hi Kris,
-> 
-> On Thu, May 07, 2026 at 10:48:57AM -0700, Kris Bahnsen wrote:
->> On 5/4/26 9:54 PM, Dmitry Torokhov wrote:
->>> The ads7846 driver has two separate filtering functions,
->>> ads7846_filter() and ads7846_filter_one(), for the full-duplex and
->>> half-duplex SPI paths, respectively.
->>>
->>> They can be consolidated by extracting the core filtering logic for a
->>> single command into a helper function, ads7846_filter_cmd(), which
->>> iterates from l->skip to l->count. The half-duplex setup function is
->>> updated to set l->skip = l->count - 1 so that the helper only processes
->>> the last sample, preserving the original half-duplex behavior.
->>>
->>> Assisted-by: Gemini:gemini-3.1-pro
->>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> ---
->>>
->>> Not tested so will appreciate if someone could give it a spin.
->>
->> Forgive my ignorance, but I am unsure of the base commit this applies
->> to and I'm unable to apply it to current HEAD of linux, linux-next,
->> or your input tree.
->>
->> I also am not easily able to test this if it doesn't cleanly apply
->> to the latest LTS, but will do what I can once I know what other
->> patches I would need to pull in to our tree.
-> 
-> I think if you pull 'next' branch of my tree, then the following patches
-> seem to apply cleanly on 7.0:
-> 
-> c68bc840f06c ("Input: ads7846 - restore half-duplex support")
-> 011bdf9f3a9d ("Input: ads7846 - consolidate coordinate filtering logic")
+The default remains unchanged. The report payload format is
+reverse-engineered, so keep the existing payload bytes fixed and vary
+only the known 24-bit feedback value.
 
+The USB-C Trackpad exposes multiple HID interfaces. Use the one-shot
+actuator output report 0x53 only to identify the interface that accepts
+the persistent configuration reports; do not use it for the persistent
+setting itself.
 
-Please confirm that the referenced commits are pushed and that I
-am using the correct remote URLs. I am unable to find the referenced
-commits still:
+Tested on Apple Magic Trackpad USB-C 05ac:0324 with Ubuntu
+6.17.0-23-generic. Compile-tested against HID for-next.
 
-$ git remote -v
-input   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git (fetch)
-input   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git (push)
-next    git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git (fetch)
-next    git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git (push)
-[...]
-$ git fetch next
-$ git fetch input 
-$ git show c68bc840f06c
-fatal: ambiguous argument 'c68bc840f06c': unknown revision or path not in the working tree.
-$ git show 011bdf9f3a9d
-fatal: ambiguous argument '011bdf9f3a9d': unknown revision or path not in the working tree.
+Protocol information was derived from public reverse-engineering notes,
+then independently tested with local hardware.
 
-Apologies in advance if I am missing something obvious.
+Link: https://github.com/mwyborski/Linux-Magic-Trackpad-2-Driver/issues/28#issuecomment-451625504
+Signed-off-by: Christian Fressl <christian@fressl.at>
+---
+ drivers/hid/hid-magicmouse.c | 101 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 100 insertions(+), 1 deletion(-)
 
-> I hope they also build ;)
-> 
-> c68bc840f06c should appear in linux-next soon too.
-> 
-> Thanks.
-> 
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index e70bd3dc07ab..31002cb1f108 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -51,6 +51,10 @@ static bool report_undeciphered;
+ module_param(report_undeciphered, bool, 0644);
+ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
+ 
++static unsigned int haptic_click;
++module_param(haptic_click, uint, 0644);
++MODULE_PARM_DESC(haptic_click, "Haptic click feedback: 0=unchanged, 1=silent-low, 2=off");
++
+ #define TRACKPAD2_2021_BT_VERSION 0x110
+ #define TRACKPAD_2024_BT_VERSION 0x314
+ 
+@@ -62,6 +66,17 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+ #define DOUBLE_REPORT_ID   0xf7
+ #define USB_BATTERY_TIMEOUT_SEC 60
+ 
++#define TRACKPAD2_HAPTIC_CLICK_REPORT_ID     0x22
++#define TRACKPAD2_HAPTIC_RELEASE_REPORT_ID   0x23
++#define TRACKPAD2_HAPTIC_ACTUATOR_REPORT_ID  0x53
++#define TRACKPAD2_HAPTIC_REPORT_LEN          14
++#define TRACKPAD2_HAPTIC_CLICK_UNCHANGED     0
++#define TRACKPAD2_HAPTIC_CLICK_SILENT_LOW    1
++#define TRACKPAD2_HAPTIC_CLICK_OFF           2
++#define TRACKPAD2_HAPTIC_SILENT_CLICK        0x000015
++#define TRACKPAD2_HAPTIC_SILENT_RELEASE      0x000010
++#define TRACKPAD2_HAPTIC_OFF                 0x000000
++
+ /* These definitions are not precise, but they're close enough.  (Bits
+  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
+  * to be some kind of bit mask -- 0x20 may be a near-field reading,
+@@ -812,6 +827,81 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u32 product)
+ 	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
+ }
+ 
++static bool magicmouse_is_haptic_interface(struct hid_device *hdev)
++{
++	struct hid_report_enum *report_enum;
++
++	report_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
++
++	/*
++	 * The persistent haptic configuration reports are accepted as feature
++	 * reports, but are not advertised in the feature report descriptor.
++	 * Report 0x53 is the one-shot actuator output report and identifies
++	 * the HID interface that accepts the persistent reports.
++	 */
++	return report_enum->report_id_hash[TRACKPAD2_HAPTIC_ACTUATOR_REPORT_ID];
++}
++
++static int magicmouse_send_haptic_report(struct hid_device *hdev, u8 report_id,
++					 u32 feedback)
++{
++	static const u8 report_template[TRACKPAD2_HAPTIC_REPORT_LEN] = {
++		0x00, 0x01, 0x00, 0x78, 0x02, 0x00, 0x24,
++		0x30, 0x06, 0x01, 0x00, 0x18, 0x48, 0x13,
++	};
++	u8 *buf;
++	int ret;
++
++	buf = kmemdup(report_template, sizeof(report_template), GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = report_id;
++	buf[2] = feedback & 0xff;
++	buf[5] = (feedback >> 8) & 0xff;
++	buf[10] = (feedback >> 16) & 0xff;
++
++	ret = hid_hw_raw_request(hdev, buf[0], buf, TRACKPAD2_HAPTIC_REPORT_LEN,
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	kfree(buf);
++
++	return ret;
++}
++
++static int magicmouse_apply_haptic_click(struct hid_device *hdev)
++{
++	u32 click_feedback;
++	u32 release_feedback;
++	int ret;
++
++	if (haptic_click == TRACKPAD2_HAPTIC_CLICK_UNCHANGED)
++		return 0;
++
++	switch (haptic_click) {
++	case TRACKPAD2_HAPTIC_CLICK_SILENT_LOW:
++		click_feedback = TRACKPAD2_HAPTIC_SILENT_CLICK;
++		release_feedback = TRACKPAD2_HAPTIC_SILENT_RELEASE;
++		break;
++	case TRACKPAD2_HAPTIC_CLICK_OFF:
++		click_feedback = TRACKPAD2_HAPTIC_OFF;
++		release_feedback = TRACKPAD2_HAPTIC_OFF;
++		break;
++	default:
++		hid_warn(hdev, "invalid haptic_click value %u\n", haptic_click);
++		return -EINVAL;
++	}
++
++	ret = magicmouse_send_haptic_report(hdev,
++					    TRACKPAD2_HAPTIC_CLICK_REPORT_ID,
++					    click_feedback);
++	if (ret < 0)
++		return ret;
++
++	return magicmouse_send_haptic_report(hdev,
++					     TRACKPAD2_HAPTIC_RELEASE_REPORT_ID,
++					     release_feedback);
++}
++
+ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ {
+ #ifdef CONFIG_HID_BATTERY_STRENGTH
+@@ -894,8 +984,17 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 
+ 	if (is_usb_magicmouse2(id->vendor, id->product) ||
+ 	    (is_usb_magictrackpad2(id->vendor, id->product) &&
+-	     hdev->type != HID_TYPE_USBMOUSE))
++	     hdev->type != HID_TYPE_USBMOUSE)) {
++		if (is_usb_magictrackpad2(id->vendor, id->product) &&
++		    magicmouse_is_haptic_interface(hdev)) {
++			ret = magicmouse_apply_haptic_click(hdev);
++			if (ret < 0)
++				hid_warn(hdev,
++					 "unable to apply haptic click setting (%d)\n",
++					 ret);
++		}
+ 		return 0;
++	}
+ 
+ 	if (!msc->input) {
+ 		hid_err(hdev, "magicmouse input not registered\n");
 -- 
-Kris Bahnsen
-Software Engineer
-embeddedTS
+2.43.0
 

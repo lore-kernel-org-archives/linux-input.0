@@ -1,40 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5398B3CAA2E;
-	Tue, 12 May 2026 16:11:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA9B83CC316;
+	Tue, 12 May 2026 16:13:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778602318; cv=none; b=VxKEaUdp5cFYNwHeaI48p4SuZrJVGHUHmazjn1cD8J04d14by5vUwbzQUObWy2Cv/Wsnh9gZmBIDWJtIXnHQ0vLjFVTf9zB6MUy8elQL3oSfWVnxcK8FXqxYRzCZoJ5LOoUoAU9LZUIwZ6bU5xtITMViD4iUFM9C4QfA3KhVeNc=
+	t=1778602390; cv=none; b=YQ/TaaOK+OC+zA0+ku19LB2ku0I3tqOzVIR8qtX3AJ+zqHO2J0jmgZDwMc8Rmxzm5AKxJ7nSyZIm1SbLRNnnkK/QNwzHaawhLTJuE7kZKrIPt9M9/zTGgpiT/GSSqLmRLqinyHNFY7jXPl4GEPwUhS7Th/2eQ4CkVy/TvQ/rqDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778602318; c=relaxed/simple;
-	bh=ia+qKRrCXglO+20uOarFjQ6i5urSzNUA0J09VcrbhcE=;
+	s=arc-20240116; t=1778602390; c=relaxed/simple;
+	bh=aW7ED6qTn/z0l8eu4OvO0G5sEE4weAz9OFO+rdRexK8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=iksHmxOttDy4VjpBLyjHEc7SoEngaazsQY6jscAS6iexxUVECLDOc6tO02ScpFHjVUS8cwtPukj/Gc90o5lJ4ydiMCk2s34bWlu2T52E8vYtJYps2Iw820ochRKQb2YfztQfPzjEf7yUdcVcDUpKz1HEPd/3w/wE0WwakZLDEJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z+CSx7Na; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=bC/EKoF31iR1zpJT1Rqu4EW1sKE3VQkbBR7wrMyAPddq8sopAJRi+EevB817C/yKPV1RHGDh+7f7bmxl1m8d+oTgxl1eoRb82QlcBQR6xr3e7eoPkS3VwdDdc9gb70flWlTOpjtfoVcCMCgBYc1v3wIzg0NK4b7pER2iAVN8NNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lmXCyWMQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z+CSx7Na"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65036C2BCB0;
-	Tue, 12 May 2026 16:11:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lmXCyWMQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D91BC2BCC7;
+	Tue, 12 May 2026 16:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778602317;
-	bh=ia+qKRrCXglO+20uOarFjQ6i5urSzNUA0J09VcrbhcE=;
+	s=k20201202; t=1778602388;
+	bh=aW7ED6qTn/z0l8eu4OvO0G5sEE4weAz9OFO+rdRexK8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Z+CSx7NazrtB0VBk8G0LsBmjXuOv+6NL4ELLUUnXkwARA+7FOo6C1sUDHUFcVPO5m
-	 Lc/sjfLIueo2jFn7GU2JWLpOi3qB/a5V7bFuo1sdzZ/4JePiIVvfH1mIlda99z3ZCV
-	 bHbfGBFZKz3VOyAFfwTevmX39dDemM0fzs1KQ0M+qtuBhBR7S8SF0WcF9g5NQl42T+
-	 ZUw4B5Rv0Wpqf7ws9nyA23mifyZvXVUnPz9B1hxBPbgSuKL40zTT8aYxFUY387IHD3
-	 b7COk8Q2nq/Xm/MaZGmyeeFMOrZC0FNE32gqHix8ag3LAltOunpNgOrFN2AnSYoQLc
-	 d51gShKzHmK1g==
-Date: Tue, 12 May 2026 18:11:55 +0200 (CEST)
+	b=lmXCyWMQDPWkvmG/q09a1kdw3z9hRJmi1VdEo6oClUBrP14YXCV3nuUp+koxIGJxo
+	 TBwzZJCw4vX6zp0QJhwOEylUi7T1Priz8aNpwMEl30e+pREjtJN7KgXVFOp8XZIFc0
+	 tP8rD3/Hk2zZI5tkHjuvNnPqJGmSWtatHjYKtRWQKhsNRrK4i4G5uEYert7wPe6sqq
+	 J7TtQ9hWYLdNLZVb616PnEtQi9dYzJwsq06t+8NneKvK8sHC0nPpGrQfiIGKp/U9Wk
+	 kKaJSdr73nXBRdh/gQfL7C25V/QImfhXPDjPtWer4cu//sHudfmp2T91mhbxQ0NbQc
+	 lIJeYK13GnzyA==
+Date: Tue, 12 May 2026 18:13:06 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Xu Rao <raoxu@uniontech.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: add reset quirk for BLTP7853 touchpad
-In-Reply-To: <882C8FD17740299C+20260509082132.2188313-1-raoxu@uniontech.com>
-Message-ID: <nn4o9no1-rr48-6s31-65o6-so87pq782286@xreary.bet>
-References: <882C8FD17740299C+20260509082132.2188313-1-raoxu@uniontech.com>
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
+    Denis Benato <denis.benato@linux.dev>, 
+    Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, 
+    linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] Add MSI Claw HID Configuration Driver
+In-Reply-To: <20260510043510.442807-1-derekjohn.clark@gmail.com>
+Message-ID: <n533qs94-7o4r-p5r0-04p1-68q1398n5785@xreary.bet>
+References: <20260510043510.442807-1-derekjohn.clark@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,23 +46,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 9 May 2026, Xu Rao wrote:
+On Sun, 10 May 2026, Derek J. Clark wrote:
 
-> The BLTP7853 I2C HID touchpad may fail to probe after reboot or
-> reprobe because reset completion is not signalled to the host. The
-> driver then waits for the reset-complete interrupt until it times out
-> and the device probe fails:
+> This series adds and HID Configuration driver for the MSI Claw line of
+> Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+> features, such as the ability to switch between xinput, dinput, and a
+> desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
+> keys. There are additional gamepad modes that are not included in this
+> driver as they appear to be used in assembly line testing or are
+> incomplete in the firmware. During my testing I found them to be unstable.
 > 
->   i2c_hid i2c-BLTP7853:00: failed to reset device.
->   i2c_hid i2c-BLTP7853:00: can't add hid device: -61
->   i2c_hid: probe of i2c-BLTP7853:00 failed with error -61
+> The initial version of this driver was written by Denis Benato, which
+> contained the initial reverse-engineering and implementation for the
+> gamepad mode switching. This work was later expanded by Zhouwang Huang
+> to include more gamepad modes and additional features. Finally, I
+> refactored the entire driver, fixed multiple bugs, and refined the overall
+> format to conform to kernel driver best practices and style guide.
 > 
-> Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for the device so i2c-hid does
-> not wait for a reset interrupt that may never arrive.
+> Claude was used initially by Zhouwang Huang to quickly parse HID captures
+> during the reverse-engineering of some of the features. Since Claude had
+> already been used, as a test of its capabilities I had it implement the
+> rumble intensity attribute after I had already rewritten most of the
+> driver, which I then manually edited to fix some mistakes. I also used
+> Claude to review the driver and these patches for any mistakes and bugs.
 > 
-> Signed-off-by: Xu Rao <raoxu@uniontech.com>
+> Assisted-by: Claude:claude-sonnet-4-6
+> Co-developed-by: Denis Benato <denis.benato@linux.dev>
+> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+> Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+> 
+> Derek J. Clark (4):
+>   HID: hid-msi-claw: Add MSI Claw configuration driver
+>   HID: hid-msi-claw: Add M-key mapping attributes
+>   HID: hid-msi-claw: Add RGB control interface
+>   HID: hid-msi-claw: Add Rumble Intensity Attributes
 
-Applied, thank you.
+The driver looks reasonable, I'd just like to propose that we name it just 
+hid-msi to follow the usual HID subsystem driver naming standards, so that 
+it can later be extended with supporting other MSI devices.
+
+Thanks,
 
 -- 
 Jiri Kosina

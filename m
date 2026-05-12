@@ -1,39 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA93B36A345
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 15:27:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A44530674C;
+	Tue, 12 May 2026 15:29:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778599637; cv=none; b=mObtL19pUZNo+1GDfxL4i+LRKyE7uJw3ZXREU/UfPfVNfKDb5+1GRR4MKZojIktSozbqRet1Lm3BSbOsZkW8vAmUeBmtgppGZNTFhNzDP2MaFwt2szI0EyvNxABcRo49KWim2MBiuMjORsglpIvLf1KDlFHvoPAqM+zeWZ4zhsA=
+	t=1778599747; cv=none; b=M65Kt2Ve+l5R+okE3XPgEBnwoUqh3/z97NpZN/19EJnqTcNrMQlswh1iCAkERn91jcBrkrYStFxiG/CatdDwybrjKOYipbqnEKZGkDYHnvoGdgIhSqOmYg9rIc8BiJv15WdLxjbQO0LAozPJIER4f/QClKU9JAl/Dat6pLrQhxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778599637; c=relaxed/simple;
-	bh=ESMpgHOLVTfa11US9oHtsMZNl/4T5NjyIcWyyRcgmNA=;
+	s=arc-20240116; t=1778599747; c=relaxed/simple;
+	bh=VLlzTDKqENcf2nY/tZLWi3K6BDkHIlu04ZtK/m/xTZ0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=HQxVvQlIo0r16EkLHTAzDit3SHA/qF+avsMwv/7TE3OLTpmnM9Ch/JXpyhqsPXPjsCL7Vp2bZI3OwP8qzClPLw0KvNf7WuBzJlHheDi8YHXBNJwwW+utGvYZLft7gB2OI1yAZw0OqvBd/sxdov+EiHas9ze1/QZd4Cxubum9bcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IUjf6C59; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=McYBf6lNCPwx1Tidh+gCPsqQtrgTfGm3k/KEX77D4RJl6mQxm2V/UuLRU07xuZ/xpcSnCmWsLjweOPxCZYaVOKDfYQh3exV2QHzjVsI4OuDPQiOIugVb7S25czQapbqgU6XchKL99ytmVWTbxozPPvcYPSWhXeT+1a91IauppCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hqv0fucY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IUjf6C59"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DFBC2BCB0;
-	Tue, 12 May 2026 15:27:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hqv0fucY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE16C2BCB0;
+	Tue, 12 May 2026 15:29:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778599637;
-	bh=ESMpgHOLVTfa11US9oHtsMZNl/4T5NjyIcWyyRcgmNA=;
+	s=k20201202; t=1778599747;
+	bh=VLlzTDKqENcf2nY/tZLWi3K6BDkHIlu04ZtK/m/xTZ0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=IUjf6C59nHtZbpCGBnJMfNtOqjKgoFMJOvU0JEg+cKAP8vaJq6V3FK2M3yFNR0Zf+
-	 XBfWb73xdbqoUokfFRlbRO0PuuQNBJJE5INoSXysMy2p0BHH5RAHLevJ29pLE4MfpI
-	 9G5qhJHJ+jVW5tgVycC6LxMAcqcvMB66t6IROBF3Y0jecH1398Az/xSPMR0BoAWNSH
-	 MwtXUW3lSeWSo/++JnnOKDHFb694aRvHhp5M/ybSwTHG432Kq6S49lFnPkMVUN3QZv
-	 9Zcer5NoDSf9+3C7V0qI17afpRGB9hYZtXLRnIFhj6g9jKiVBEbcMOejoWfMwMQQQK
-	 ucmL1EUOsJ2Ug==
-Date: Tue, 12 May 2026 17:27:14 +0200 (CEST)
+	b=Hqv0fucYtqkikpabrT+b2wdp1tTi7Q2FKmY0mHokaKsBIQxHXTrdoApHG+5nbaJ8n
+	 vo5d2Fv5gy4uohBeKSZ0h+64EDjhL+ZCj/xEsPZCgxy9eOoVhutZTwmwJqEwF7IB88
+	 mISbjXolEg/WMsCGcmZbrL4f130ZK5FZgSUBuzZFcJczwSxmyA763q566E4BUVynxq
+	 PKZnIVv7NJLGWQD0guS5Gki/ypf9buQMo+atnvhS0G+fDGNdLNor9UTIXUfRlbD2bO
+	 Z46kJdUWGH4XuVSMK2jLfIe7ek327/ciH6TPrkymmhAaW5d7J3y1WDHYb88bq5wJDQ
+	 0qMsH7ApkQpzA==
+Date: Tue, 12 May 2026 17:29:04 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Andrew Maney <andrewmaney05@gmail.com>
-cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
-Subject: Re: [RFC PATCH] HID: iota-ups: add driver for LattePanda IOTA UPS
-In-Reply-To: <20260316072034.56694-1-andrewmaney05@gmail.com>
-Message-ID: <s1oso970-sn51-p676-6p61-4p2rq4459sso@xreary.bet>
-References: <20260316072034.56694-1-andrewmaney05@gmail.com>
+To: Karl Cayme <kcayme@gmail.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, linuxhid@cosmicgizmosystems.com
+Subject: Re: [PATCH v2] HID: rakk: add support for Rakk Dasig X side
+ buttons
+In-Reply-To: <20260321124759.608492-1-kcayme@gmail.com>
+Message-ID: <n647pn1p-o32o-68r1-ssnq-81sop7527onn@xreary.bet>
+References: <3284f00a-bea0-4141-a009-b367f527c466@cosmicgizmosystems.com> <20260321124759.608492-1-kcayme@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,48 +44,29 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 16 Mar 2026, Andrew Maney wrote:
+On Sat, 21 Mar 2026, Karl Cayme wrote:
 
-> This driver exposes the DFRobot LattePanda IOTA UPS board as a standard
-> power_supply device, allowing desktop environments and power management
-> tools such as UPower and systemd-logind to display battery status,
-> remaining capacity, and charging status without any special
-> configuration. It also enables automatic suspend or shutdown on low
-> battery and power profile configuration via any tool that supports the
-> standard power_supply interface.
+> The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
+> declares USAGE_MAXIMUM=3 (buttons 1-3) while actually sending 5 button
+> bits (REPORT_COUNT=5). This causes the kernel to ignore side buttons
+> (buttons 4 and 5).
 > 
-> The UPS presents itself as an Arduino Leonardo HID device running custom
-> firmware (VID 0x2341, PID 0x8036). It reports status and capacity via
-> HID reports 0x07 and 0x0C respectively.
+> Fix by patching the descriptor to set USAGE_MAXIMUM=5 in the
+> report_fixup callback.
 > 
-> The charge limit (80% or 100%) is configured via a physical DIP switch
-> on the UPS board and cannot be detected automatically. Userspace can
-> inform the driver of the configured limit via
-> charge_control_end_threshold.
+> The mouse uses Telink vendor ID 0x248a with three product IDs for USB
+> direct (0xfb01), wireless dongle (0xfa02), and Bluetooth (0x8266)
+> connection modes. All three variants have the same bug at byte offset 17.
 > 
-> Known issue: the driver occasionally reports 0% capacity briefly on
-> initial load before the first valid HID report is received. I am
-> investigating the cause.
-> 
-> Signed-off-by: Andrew Maney <andrewmaney05@gmail.com>
+> Suggested-by: Terry Junge <linuxhid@cosmicgizmosystems.com> 
+> Signed-off-by: Karl Cayme <kcayme@gmail.com>
 > ---
->  iota-ups.c | 355 +++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 355 insertions(+)
->  create mode 100644 iota-ups.c
+> Hi,
 > 
-> diff --git a/iota-ups.c b/iota-ups.c
-> new file mode 100644
-> index 0000000..df334b2
-> --- /dev/null
-> +++ b/iota-ups.c
+> Thanks for the feedback. I updated the patch with your suggestion to
+> check PIDs.
 
-You seem to have generated this patch in a strange way, so that it can't 
-be applied on top of the tree (i.e. in a standard 'patch -p1' way that 
-all the tools default to).
-
-Could you please re-generate it properly and resend?
-
-Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

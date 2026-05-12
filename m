@@ -1,148 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39AE847CC96
-	for <linux-input@vger.kernel.org>; Mon, 11 May 2026 22:09:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89AD82E413
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 00:04:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778537364; cv=none; b=WjD6LRNh58aPwkVBbrIga9YigTwvtbkzycJ4BlnX4oJXltS4dNg7KAZU4yVaU6kbpW7Eb9FvoBrPNUwAD5PSj2mMycVceghlmxQp5g9h2K5ccIBZfN4J0vCzZUys6pRB1U4ro9E7ZqjZ/sSMxvM7oqCliJjuWhOCKf7gz6+xqD4=
+	t=1778544295; cv=none; b=FN9POR8EyBAbquoZ+eVu4wYm4lgsPTRqOg8Vhp8BsnjxJep7F4Y1MYpXv57UFQNeKeFtBUusSCyiDYmA8dNhroeIxzrp6H/f0vrFb1+jyfLvN8zUDrqJ6x7vTW0OmGUqxpRhkeA6s6pEwMtBDtBrxPMWFNxSZOhHNnoz98GiZUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778537364; c=relaxed/simple;
-	bh=cu1gkt4vdTqXkCWUH+ckP9XNzBS77GdCLpSo9ojeLSs=;
+	s=arc-20240116; t=1778544295; c=relaxed/simple;
+	bh=syDMp2Xmca3gvRoU20qXKQKz1mHtPNSYB9h64pPtsxY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ViE0ZlAgRZZ13YDmfaOuR5p6MJu8W4eAlH5JSmz9wT7FDw5dHGfZApUFNwf6Wn1rIoJOKWUQ+qrEme0ew6lp5udBFS62HiwULh1y9CebIUvNyXCWc+ZcBOAgfaIwd2uGOi8ViDsZCaTcGEfNT77xH6vICqzOBDy6pdD7IuzP4JA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JnFSg2tp; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=Fznys/dchG8Yh8apPi4IRLOJDyUe1q2pLlSUXMJlhocC7xF+6gyk2oOJgiAQEYoP6ldsBFUwcnmKq7EXL1r8vbJ9/ToUjX7pPYclYqZUCdP+aiANWKdHud2aQW3kBnvhPBvb+rS7FGkG+wb+mMmYxybKnj0+r0UJs/PKfbZbYR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m/DbpET8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JnFSg2tp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98E62C2BCB0;
-	Mon, 11 May 2026 22:09:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m/DbpET8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44AB2C2BCB0;
+	Tue, 12 May 2026 00:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778537363;
-	bh=cu1gkt4vdTqXkCWUH+ckP9XNzBS77GdCLpSo9ojeLSs=;
+	s=k20201202; t=1778544295;
+	bh=syDMp2Xmca3gvRoU20qXKQKz1mHtPNSYB9h64pPtsxY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=JnFSg2tp/NNKjme16zJvOMlYHB9WTXFZQpg3wgQqE4SivnKMnemQMEwYiSbR7ZRRh
-	 u5QmlPRNAX1eOTtaWPo9vvJfmWCuT+wq9ArxqKfghJv5iVUWpvNv6LanqlhX3dyxAw
-	 +NPCmcLHz8hJPKtHiQv+SR7ry4rrkUWEzYnXakKgecysNeBEBoHh99H+DH0AT5MAO8
-	 j0+5LdjEVccWlK/lv+615Fm67PId6b4UUZWzold20mFI0UXp1e+6Zxs/zgYPrQwtuw
-	 xAr21mxiahzLoV/FkI3rJgKVhGvF37GrEj0CZR4tkvY39afanBPsTRppH9tlkiKMWY
-	 cTDYc/FACnQ0w==
+	b=m/DbpET8aj0HkfRh0PQa7t0I9+7gdX0MvREVk2nyGqU9iKc4BKPbme/SsSOUHiB1g
+	 yE3VVYKSycOQ2EVFCWa1wsLgcmq4RRRx8CGEnQEnInYr/OuuVRerJMssTOCfPeXOb5
+	 1BuZ4a/cg7h1xVkUqWrOGynXepRtWiIrDwlozjVS7ULPh8bFYavPuIBz/6cWsnx7J3
+	 qA8bfnOyebOCQ9BHTtSU7/wvR712JrgNQu0iF1Yd3DjcpcvubRT1RR2V2Vn/k8ZuV+
+	 8s73vp1H7+4scfOAgPbDAxh1nFcUVd3AMuspC4Q+s6zp/Fm+PUWGF55cjPSx+KK+P1
+	 3y8g6XPjtq+aA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] HID: hid-msi-claw: Add Rumble Intensity Attributes
+Subject: Re: [PATCH] Input: tsc2007 - fix resistance calculation when A/D
+ value is saturated
 Reply-To: sashiko@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: "Yuki Horii" <yuuki198708@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260510043510.442807-5-derekjohn.clark@gmail.com>
-References: <20260510043510.442807-5-derekjohn.clark@gmail.com>
+In-Reply-To: <20260511054003.1205-1-horiiyuk@ishida.co.jp>
+References: <20260511054003.1205-1-horiiyuk@ishida.co.jp>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 11 May 2026 22:09:23 +0000
-Message-Id: <20260511220923.98E62C2BCB0@smtp.kernel.org>
+Date: Tue, 12 May 2026 00:04:51 +0000
+Message-Id: <20260512000455.44AB2C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] The underlying `mcu_property_out()` function uses an improperl=
-y scoped `guard(mutex)`, breaking all driver synchronization.
-- [High] Unprotected modification of `drvdata->profile_pending` causes race=
- conditions during concurrent sysfs reads.
-- [High] Torn transactions in sysfs store handlers lead to state mismatch b=
-etween hardware and software.
-- [Medium] Failure to reset `drvdata->profile_pending` on `mcu_property_out=
-()` error paths corrupts state machine.
+- [High] Uninitialized stack variable read in the IIO raw read path.
+- [High] Returning 0 to invalidate saturated A/D values causes phantom touc=
+hes with maximum pressure or premature pen-up events.
 --
 
-commit 2a92587430af9e91f5af5fbf2205fea99b2d1000
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+commit 8a6bcc1904d4e8b8d9d219e6c086925c53bfc4cb
+Author: Yuki Horii <yuuki198708@gmail.com>
 
-HID: hid-msi-claw: Add Rumble Intensity Attributes
+Input: tsc2007 - fix resistance calculation when A/D value is saturated
 
-This commit adds intensity adjustment for the left and right rumble motors
-via new sysfs attributes.
+This patch modifies the touch resistance calculation to return 0 when either
+the X or Y A/D value is saturated. This is intended to indicate that the
+touch resistance calculation is invalid.
 
-> diff --git a/drivers/hid/hid-msi-claw.c b/drivers/hid/hid-msi-claw.c
-> index f4fe74a784c29..6d089f49abdb4 100644
-> --- a/drivers/hid/hid-msi-claw.c
-> +++ b/drivers/hid/hid-msi-claw.c
-
-[ ... ]
-
-> @@ -795,6 +811,116 @@ static ssize_t button_mapping_options_show(struct d=
-evice *dev,
->  }
->  static DEVICE_ATTR_RO(button_mapping_options);
+> diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/tou=
+chscreen/tsc2007_core.c
+> index f9b3d2598933c..7d3bc0c396113 100644
+> --- a/drivers/input/touchscreen/tsc2007_core.c
+> +++ b/drivers/input/touchscreen/tsc2007_core.c
+> @@ -69,9 +69,9 @@ u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, s=
+truct ts_event *tc)
+>  {
+>  	u64 rt =3D 0;
 > =20
-> +static ssize_t rumble_intensity_left_store(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   const char *buf, size_t count)
-> +{
+> -	/* range filtering */
+> -	if (tc->x =3D=3D MAX_12BIT)
+> -		tc->x =3D 0;
+> +	/* invalidate touch resistance if X or Y coordinate is saturated */
+> +	if (tc->x =3D=3D MAX_12BIT || tc->y =3D=3D MAX_12BIT)
 
-[ ... ]
+Does this code read uninitialized stack memory? The IIO path initializes
+tc.x, tc.z1, and tc.z2, but it does not initialize tc.y before passing the
+struct to tsc2007_calculate_resistance():
 
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
-> +			       data, ARRAY_SIZE(data), 8);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, =
-0);
-> +	if (ret)
-> +		return ret;
-> +
-> +	drvdata->rumble_intensity_left =3D val;
-> +
-> +	return count;
-> +}
+drivers/input/touchscreen/tsc2007_iio.c:tsc2007_read_raw() {
+	...
+	case 5: {
+		struct ts_event tc;
 
-Could this sequence introduce a regression if interrupted by concurrent sys=
-fs
-stores?
+		tc.x =3D tsc2007_xfer(tsc, READ_X);
+		tc.z1 =3D tsc2007_xfer(tsc, READ_Z1);
+		tc.z2 =3D tsc2007_xfer(tsc, READ_Z2);
+		*val =3D tsc2007_calculate_resistance(tsc, &tc);
+		break;
+	}
+	...
+}
 
-Since there doesn't appear to be a lock held across this sequence, concurre=
-nt
-writes could interleave their WRITE_PROFILE_DATA and SYNC_TO_ROM commands.
-This could cause the hardware to synchronize an unintended state or cause t=
-he
-local driver state to fall out of sync with the actual hardware value.
+> +		return 0;
 
-Also, regarding the underlying mcu_property_out() function: does it use an
-improperly scoped guard(mutex)? If the configuration mutex is acquired
-strictly inside a limited scope, the lock would be released before
-hid_hw_output_report() and wait_for_completion_interruptible_timeout() are
-executed. This could leave all concurrent sysfs calls unprotected, causing a
-regression with overlapping USB output reports.
+Is it safe to return 0 to invalidate the sample?
 
-> +static ssize_t rumble_intensity_left_show(struct device *dev,
-> +					  struct device_attribute *attr,
-> +					  char *buf)
-> +{
+In tsc2007_soft_irq(), if there is no pendown GPIO, !rt evaluates to true
+and prematurely breaks the polling loop, causing an early pen-up event.
 
-[ ... ]
+If there is a pendown GPIO, rt <=3D ts->max_rt evaluates to true. Then the
+driver calculates pressure as ts->max_rt - rt, which maps rt =3D 0 to the
+maximum possible pressure. This results in a valid touch being reported at
+the saturated coordinates with maximum pressure, rather than ignoring the
+sample.
 
-> +	drvdata->profile_pending =3D CLAW_RUMBLE_LEFT_PENDING;
-> +	ret =3D mcu_property_out(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data, AR=
-RAY_SIZE(data), 8);
-> +	if (ret)
-> +		return ret;
+Should this instead return a value strictly greater than ts->max_rt (such as
+U32_MAX) so the debouncing logic safely ignores the invalid sample?
 
-Is it possible for concurrent sysfs reads to cause a regression here?
-
-Since drvdata->profile_pending is modified without any locking, if two sysfs
-attributes are read concurrently, one thread's modification could overwrite
-the other's state. When the asynchronous USB response later arrives,
-claw_profile_event() might rely on this clobbered value to route the incomi=
-ng
-data, which could result in userspace reading incorrect data.
-
-Additionally, if mcu_property_out() returns an error, the function returns
-immediately but leaves drvdata->profile_pending set to the pending state.
-Could this stale state cause a regression where a subsequent unrelated
-asynchronous profile event is incorrectly intercepted by claw_profile_event=
-()?
+> =20
+>  	if (likely(tc->x && tc->z1)) {
+>  		/* compute touch resistance using equation #1 */
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260510043510.4428=
-07-1-derekjohn.clark@gmail.com?part=3D4
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260511054003.1205=
+-1-horiiyuk@ishida.co.jp?part=3D1

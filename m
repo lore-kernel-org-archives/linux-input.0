@@ -1,61 +1,63 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B181D5CC9
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 01:23:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 614C822D4C3
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 01:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778549008; cv=none; b=NGYniGfny+xPQO1MH4NvoKhK1sAOvL9Hp3/MOcGb41QsKkqohlzX/6SoyeHwXd/1d7NaoNyKcKSgSSFrRQUquCSFiEz3XNCgTvU1qrla6kgjhbx187ef9+cydYzrPFd+0r7apt8wczVWqiqis0NrGagNvj5FekZNirgm3dymS0g=
+	t=1778549009; cv=none; b=lyWh1T6Pmlb3LIn1zTy5V042Xv3Td86jqj/07cwy7HsNZ4llCIjGj+L0sbJDklv71uOonNDN7R0vqxMPa2O9NDy7hymGlQYV4qgos3LyHc2D+D5+iRzJEuppq/eot/KaX5D8nUG/jZJH0pqB5IyXCM0yjYf4gVa+O4aK4sFi4qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778549008; c=relaxed/simple;
-	bh=OVbT7GrjO4bw54kW6wWdnEsBmgKNZjPUqoLO1KwrOgs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pzblXxUjVgGGHodybtXENSGbJDodS6Cb35v86SRN3KNZOQCxWlmGiWQr+woHjkxas556EXCBgzQkrDXd7M7uzdAKHVO6Dlvl4L3P67bxGubb478VrIS1qiz9rV4JLloD0hn4cHIpU9HGDvAeHkPWhCHFAHLmHTC0A+94RSYR/yA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=eXfew3S5; arc=none smtp.client-ip=74.125.82.171
+	s=arc-20240116; t=1778549009; c=relaxed/simple;
+	bh=bGF3SOQGWINSFtgAIzXnB14gPqPP8mmWpdvWHwpXStc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=V0ZuhkuFmstVzyqMnbMj/RachXl3luPfUz3jiaIHs7cKORIZ5EeKXAWeavmbFoB3/u4G0FwNUmmlhWs4WjV26k+uGHkdekT5xzzEEAw5T3w8+nmwjMVrmlvMBMILOTnHjLwV/8ArNzDTnFSIWaaFHSPyYdEp85KJpdqLJCrca1A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=RFLxmv+V; arc=none smtp.client-ip=74.125.82.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="eXfew3S5"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2f33ae12f97so6064961eec.1
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 18:23:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="RFLxmv+V"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-2f3c623322bso8329213eec.0
+        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 18:23:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=usp.br; s=usp-google; t=1778549003; x=1779153803; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=bWaS1RB5JDYayjocwxCsK8mCDmJHUShMMBNotDmrnWA=;
-        b=eXfew3S5BQ3LZrSOxBKdmrBqwLaxgKODfVruqdWB+jobv2hEaGgwaU89DNouwpDobb
-         cmGdbpbD7oZ6VK9h8sIbqa238vlkHhJhjKKzn49dkg786P9E6fCp1KcHu+w6Oz6BlFkE
-         BdCHooY1Fqc2MVfYgd90VlCsnZ/uRPhlqmVT3YjeSMNAgKFh45gqRRP3m26Ffgf0DkRI
-         YlzYSky6V+sWAmeEjY9kXaiwV2wu8X7WYFsXdayZor4NgkYY+RZzBeHZaJvypUKVnIWk
-         ml2zOuNUfBBYrE0iijEQFEj3LvguFSO5wpokvU5zarOlqYk70v5tpMeu9d537Fw2ctLB
-         Ui6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778549003; x=1779153803;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=usp.br; s=usp-google; t=1778549006; x=1779153806; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bWaS1RB5JDYayjocwxCsK8mCDmJHUShMMBNotDmrnWA=;
-        b=oRD+Q4sH1RxF7vqObZJS/8T8JUrpcBcrNQH/UEc0223vNWJ16avWLfkJbyn3+p37W0
-         ozkgYX5Ya2l0VM5Hb6gafRWQkihcvcL3BprojYeii4I54v6y7FvOGdaZrFzOWvMIxVBB
-         h6KKt37j79d5Rb2KNIhDExBynCTWHyioeMqC+hCbMXdh55vu5exBKkAIUY/bJ/YHm/Le
-         Gbxqe0cWlb8bJpKFiKX/yV/MUE7lb5YV4ffWRnKqtbSUFJOV+b1vXprFDHfer33xNAO8
-         MmUJJYiyxqUps28VnT52LHaoZYa0tajjig6cSWTusQyxC9QB+ubSet0V33B68CHNANht
-         2r1w==
-X-Forwarded-Encrypted: i=1; AFNElJ/RTh6J4uaGgCwHlw4QkxxvP4XXOxIDzkT2W2SIyuV7spHy9ISrM7SEfUx3Rq1tIt23pSW81QQtYdpvCg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYQZCTkkfIGmoanWsZYM1WmWFn98m2t2ZjUNd7pbOuNy6juhUn
-	NIwUROvlQqT6fmbTvbUg+ywMCiefdws1QfzWIVs8RvC46lnpaVMc6iNM02M1ofhmJoI=
-X-Gm-Gg: Acq92OEzSC7vl/ihrDv7WX+R669RX5MUsYMcViQQS/RyQLbbKV/zo66suDg9sSqQuDW
-	s51xWY/EWF6oVHznh+s6pUVVuN3Xit0QAlOhyIj5ZbJyvqejd9Fs/Bml1Cg42KAjznHmHrBrFV7
-	HtoeZyZJCvBO4IPduLtCEv6HhXSZqyvG7SgmfA0X14/iYUEFOc0ztXY3Cpawgr+5FH/9+jtVHUq
-	zPPk46NRdE5njVRgh/JxZoKLz563ZDk0wV/u8KCusvdhsb/J/9tnJ3YxdERJgZ1YgCcXUlSZ95g
-	gem9iYG1Xlibgepm5OAKjLEAoIxJKOpRdn0pdLMdmNwPaf05pl96+WNlWju+GQwTlQFvJ2dwNvZ
-	GkmAaygzLsbMkDDMMMvqssLZF7BShgtkAmZmaFUM04DMx+tnw9CbzHWKP8Etd6eZSSqqTPWXtTd
-	ind6O2GIywpk/uFmihJA702zWznVN8Ag==
-X-Received: by 2002:a05:7300:bc0c:b0:2c5:ed1b:ca9 with SMTP id 5a478bee46e88-2f85bb72d01mr8468512eec.1.1778549003223;
-        Mon, 11 May 2026 18:23:23 -0700 (PDT)
+        bh=bGAP2uNSb2ABD3/WN+PryrBLAUiNs2d2P0FijTLRFBw=;
+        b=RFLxmv+Vla5cRgPtXEFHZjpLPxkjczIuTWVZtVbjURYeM9OgjbFGkkcMHzjisS7MgA
+         l54tLPS+/a0Yaf6Am4ILYYTp4LrYrEvEvePLCoxe4Fr6OuBJTZ+4fbOTPUJcwZfWpOeG
+         7D9hE2TgNWXf5lhkimrx2bUYpUIHDvkq/GHLur8J6hVyLB+2s4zLzzrjAIxL+pLEGi1J
+         zptYlp/6TP+WZQzk5etRp7wWkIPR3GT/oCjImtUfGOegyOkYp9+r2Dk0FQLgG4cP5/ti
+         9GZHUR7tDXzhGaJVLJnljdZQzf4cTZoWGjwP8jkRSx0fietqlfeAcS9WFKcOTln6axeN
+         IYqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778549006; x=1779153806;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bGAP2uNSb2ABD3/WN+PryrBLAUiNs2d2P0FijTLRFBw=;
+        b=cg1HxoZU7Kt3ylXvHI/qiIQbbgy4/DlAtzlILNP/dEUxEOCFomy6AUw/2HTtoRRAgU
+         Pddx+7DPeB9T2YSeYh1kLawgVs78fsss4iN6j0s7zwp5GtnF+kTICfTSRPhgWpGMa6NQ
+         zdIPE4fdINxggXB40FxrFvx2YUh7kA7i1mqZDV8wa+AxNIHQx/vwz/5NCOpldnDsz1yI
+         lYPRmJYQqohaLFSdQPKr7yMqfNES3XYLFG8AeBjcJ4MDN0afSR2WEDvHUr7JWOnT1Ro2
+         yd9U8vwbb6ije/gpSbN8IlS4m/C+GlDsIVr0j/oPBUdyix3pLhmnjF/a+xO8jOP7lX6t
+         +xBg==
+X-Forwarded-Encrypted: i=1; AFNElJ8WGG71k4uQaTaR2t2WUhHHVJNlPfCtBPs9ebbCykH773Z3xEvDAOQ7UzQ9Lsj7tDksH0lnGCES4/74UQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxkfCJCAJiOj6gg4niJ/1eNwbYf90BZ+l/axOEiPsrMGHhDIdWX
+	v6BwEthJRohWMaB/Hgucck5vNZKp/+3XzQ4QyO9TCSRsCa9l497YbH4yhnWn4RdOCbE=
+X-Gm-Gg: Acq92OEHx/cS5Me/APZ5ELhBI7Y6J47vKxA1TtJmGdhCYM/xMaObDGNtc1XZsh9f0nZ
+	kzNS7Jgh5cqIUtmc9HKHu3ZqXyhreFuF9RjeTndJ1aHorZ4pQgsHnkAMoAqSnHOQy7JFOwvp2O8
+	mHedaqgLvnB7WAR0V9eHKw6mN/KW6kFsz3/t9B7PfeGPOL/sj/CUZwmKDZVF1NMOUGxpR6Rruut
+	9zMV+OlKVvJXyggMPunFKnTNBuKzUwVsmoIuxPyM6u0aYlm6Q2MSPrVQoUHX5PvxJXu09JNp8Jt
+	b9IAH9AuZPDYQQwCcHvqgA5VEyEIvzFNpnA3f4IVd7mr888X75t0t2d06yfNsQ81oho6qBdOqfX
+	k+f/uAqj/vV3Rm10aydtaBqHv11CLZz2Oq/9pZARjgh5x6QQuaaQzGQPivaZUEXN3bK23mvB8V2
+	hUV0lkadfBDW3FFVRJ7Y2qY/YQvE0s+O30UPHZF+yD
+X-Received: by 2002:a05:7301:3f16:b0:2c8:6361:ab2e with SMTP id 5a478bee46e88-2f54b35faf5mr12485989eec.8.1778549006517;
+        Mon, 11 May 2026 18:23:26 -0700 (PDT)
 Received: from natalia-pc ([191.205.196.185])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f88847506fsm19484481eec.18.2026.05.11.18.23.20
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f88847506fsm19484481eec.18.2026.05.11.18.23.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 18:23:22 -0700 (PDT)
+        Mon, 11 May 2026 18:23:26 -0700 (PDT)
 From: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>
 To: andy@kernel.org,
 	dlechner@baylibre.com,
@@ -64,12 +66,15 @@ To: andy@kernel.org,
 	nuno.sa@analog.com,
 	srinivas.pandruvada@linux.intel.com
 Cc: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>,
+	Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>,
 	linux-iio@vger.kernel.org,
 	linux-input@vger.kernel.org
-Subject: [PATCH v3 0/6] iio: hid-sensor: standardize scan_type initialization
-Date: Mon, 11 May 2026 22:16:16 -0300
-Message-ID: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+Subject: [PATCH v3 1/6] iio: accel: HID: hid-sensor-accel-3d: Refactor channel initialization
+Date: Mon, 11 May 2026 22:16:17 -0300
+Message-ID: <20260512012302.20883-2-natalia.andre@ime.usp.br>
 X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+References: <20260512012302.20883-1-natalia.andre@ime.usp.br>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,33 +84,75 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This series refactors the HID sensor drivers to standardize the
-initialization of the iio_chan_spec scan_type structure.
-Direct initialization using compound literals was used.
+Clean up the channel initialization loop and replace the local
+accel_3d_adjust_channel_bit_mask() function with a compound literal
+to improve code readability.
 
-This change improves code readability and ensures that all fields
-of the scan_type structure are properly zero-initialized.
-Additionally, for the hid-sensor-accel-3d driver, the channel
-initialization loop was refactored to iterate directly over the
-scan indices, eliminating redundant logic.
+Signed-off-by: Natália Salvino André <natalia.andre@ime.usp.br>
+Co-developed-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+Signed-off-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+---
+ drivers/iio/accel/hid-sensor-accel-3d.c | 27 +++++++++----------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
 
-Natália Salvino André (6):
-  iio: accel: HID: hid-sensor-accel-3d: Refactor channel initialization
-  iio: gyro: HID: hid-sensor-gyro-3d: Refactor channel initialization
-  iio: light: HID: hid-sensor-als: Refactor channel initialization
-  iio: light: HID: hid-sensor-prox: Refactor channel initialization
-  iio: magnetometer: HID: hid-sensor-magn-3d: Refactor channel
-    initialization
-  iio: pressure: HID: hid-sensor-press: Refactor channel initialization
-
- drivers/iio/accel/hid-sensor-accel-3d.c       | 27 +++++++------------
- drivers/iio/gyro/hid-sensor-gyro-3d.c         | 24 +++++++----------
- drivers/iio/light/hid-sensor-als.c            | 18 +++++--------
- drivers/iio/light/hid-sensor-prox.c           | 19 +++++--------
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 +++++---------
- drivers/iio/pressure/hid-sensor-press.c       | 19 +++++--------
- 6 files changed, 42 insertions(+), 85 deletions(-)
-
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 2ff591b3458f..99ca67732bbe 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -3,6 +3,7 @@
+  * HID Sensors Driver
+  * Copyright (c) 2012, Intel Corporation.
+  */
++#include <linux/bitops.h>
+ #include <linux/device.h>
+ #include <linux/platform_device.h>
+ #include <linux/module.h>
+@@ -119,17 +120,6 @@ static const struct iio_chan_spec gravity_channels[] = {
+ 	IIO_CHAN_SOFT_TIMESTAMP(CHANNEL_SCAN_INDEX_TIMESTAMP),
+ };
+ 
+-/* Adjust channel real bits based on report descriptor */
+-static void accel_3d_adjust_channel_bit_mask(struct iio_chan_spec *channels,
+-						int channel, int size)
+-{
+-	channels[channel].scan_type.sign = 's';
+-	/* Real storage bits will change based on the report desc. */
+-	channels[channel].scan_type.realbits = size * 8;
+-	/* Maximum size of a sample to capture is u32 */
+-	channels[channel].scan_type.storagebits = sizeof(u32) * 8;
+-}
+-
+ /* Channel read_raw handler */
+ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+ 			      struct iio_chan_spec const *chan,
+@@ -297,19 +287,20 @@ static int accel_3d_parse_report(struct platform_device *pdev,
+ 				struct accel_3d_state *st)
+ {
+ 	int ret;
+-	int i;
+ 
+-	for (i = 0; i <= CHANNEL_SCAN_INDEX_Z; ++i) {
++	for (unsigned int ch = CHANNEL_SCAN_INDEX_X; ch <= CHANNEL_SCAN_INDEX_Z; ch++) {
+ 		ret = sensor_hub_input_get_attribute_info(hsdev,
+ 				HID_INPUT_REPORT,
+ 				usage_id,
+-				HID_USAGE_SENSOR_ACCEL_X_AXIS + i,
+-				&st->accel[CHANNEL_SCAN_INDEX_X + i]);
++				ch,
++				&st->accel[ch]);
+ 		if (ret < 0)
+ 			break;
+-		accel_3d_adjust_channel_bit_mask(channels,
+-				CHANNEL_SCAN_INDEX_X + i,
+-				st->accel[CHANNEL_SCAN_INDEX_X + i].size);
++		channels[ch].scan_type = (struct iio_scan_type) {
++			.format = 's',
++			.realbits = BYTES_TO_BITS(st->accel[ch].size),
++			.storagebits = BITS_PER_TYPE(u32),
++		};
+ 	}
+ 	dev_dbg(&pdev->dev, "accel_3d %x:%x, %x:%x, %x:%x\n",
+ 			st->accel[0].index,
 -- 
 2.51.0
 

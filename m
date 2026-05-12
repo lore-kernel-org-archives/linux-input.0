@@ -1,221 +1,143 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4394239B964
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 22:11:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778623872; cv=none; b=KpA8dzZVZAbh9pU0LaKpfjHlL7Yfs7FqlECsPOcDSwphumRFBK4dsKuR8qj4uFryHWj9DmhMClppeKjw2/5cICxq+S16EQRKxaRIqKF2gHcz5lzsJwvVRjXbRzTWUg9Xe6rdMIQpMQugyY96fWDIIYyW7OA9mSfTxGmlAvN7elc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778623872; c=relaxed/simple;
-	bh=sTfY+TbLiEI19mCEeQj1xd4ACM74qvNvLPCWOv0FG+4=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=LhSCros/BHasgJZIotxu7wgvFwitunOlnNTmucEheQtGEIXgy+eCXz/fAzHYv/iAWvuouzEhjm3ijWPvoTvUwGSK2xZHfY7l/FzoXlZcfr3JBsU1OLp5qLYlInYpGNU5BEX273dSbPfaHG4mhXmOC5K31wZPJXLhi+/o77cpbXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kOj6Zpar; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6AE356777
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 23:04:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778627095; cv=pass; b=CfLUr5qPKBPE++ucMim6V7ZV000rwZ3UNxW84Jt7AjIY0IMd1TaJzdEtJt8rSeh9rGKGRFkVP6ZgKiKs/qocpD7If0QglcrUSNsTSzH1ZK2W5dkLUZH8AOe9UQgLjhU3LwhYSAOMN+iGzjnrdOEBfdNCcBG4UIO/+gL+VgbiY/A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778627095; c=relaxed/simple;
+	bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hXxML7HBV2Iye8Tgg8jagZHfYyl6WNNmcr5pXJgdumuIZ6GuciIEopFIikhwVPhBXcor3PHraLr5/1vwTy8E1i8NhzP/4vM65yhYYjFY7Jn0+3CgOxLHDo4LuVYaOclodsw0x5eKkh2zIBJQt/NhSnvnttmK9UWNcMaDNPemzIc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=El6s+MY0; arc=pass smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kOj6Zpar"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778623871; x=1810159871;
-  h=date:from:to:cc:subject:message-id;
-  bh=sTfY+TbLiEI19mCEeQj1xd4ACM74qvNvLPCWOv0FG+4=;
-  b=kOj6ZparYCr2dGZrUXJ78XQ026aiDHmM4b5WY+cQ6wrqv+d/H0qVX4ly
-   R1GeR2wr1yrGbm/mtPJod3jrPWIpDgEzcemGiRMcsrUmw8u7k57uIGZW0
-   +aaOBvY/BG0iZWDJRkNBolhbPMA/chMx2kq7lmLhhAb/pj5tDxjMMdcUE
-   Ln0gziyPbzVZKB6XuaMvrAHWPpQX9YrSxSvUevQGPeepzyPxcvUe9a7Zk
-   7DuOaoa7In7q6ObjIdKEP6g8Ou8FeWOUvII/9WksW8xFm04li6UTTiVeZ
-   rgXrEXKjSDtnW9E3m7n9CIXpZ9BgG25RFesFfHebfuEoHvmWev9Dbc4z0
-   Q==;
-X-CSE-ConnectionGUID: zGxE8uOPS3SoOXTmc2izRg==
-X-CSE-MsgGUID: QkexcxSZSkenkv2P0Lip2w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11784"; a="79494713"
-X-IronPort-AV: E=Sophos;i="6.23,231,1770624000"; 
-   d="scan'208";a="79494713"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2026 15:11:11 -0700
-X-CSE-ConnectionGUID: GTRD6UKBSKKKGJ1TK+P/Tg==
-X-CSE-MsgGUID: oin+gVBxSjq1xVwJbIfe6w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,231,1770624000"; 
-   d="scan'208";a="237984930"
-Received: from lkp-server01.sh.intel.com (HELO dca79079c3eb) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 12 May 2026 15:11:09 -0700
-Received: from kbuild by dca79079c3eb with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wMvJi-000000002tD-0XpA;
-	Tue, 12 May 2026 22:11:06 +0000
-Date: Wed, 13 May 2026 06:10:25 +0800
-From: kernel test robot <lkp@intel.com>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
- Jiri Kosina <jikos@kernel.org>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Subject: [hid:for-next 9/14] drivers/hid/hid-core.c:2053:43: warning:
- format '%ld' expects argument of type 'long int', but argument 5 has type
- 'size_t' {aka 'unsigned int'}
-Message-ID: <202605130624.FPpzDGhD-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="El6s+MY0"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-488940ccfa6so795e9.1
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 16:04:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778627093; cv=none;
+        d=google.com; s=arc-20240605;
+        b=j70SZg+8dbjzyxAOytAD6kWWZNA997Xyu9V9bwK0SWDngUuP/m/pXKMtlMCKMcjYey
+         kY7LkQngAjQ3qqrsEOrdFXOIVIbProqOFnQifygGoD0At06vQrfqqngCPXc0K46/gJv3
+         2iUmsQTjI5tDxm59h5iZRs8V/At7auwxtMCXi43JApd2DmakmrgVoZ8MWbqxAxdY9l8i
+         b/pUOK09gc6d6ZfACtPmg9zc8jPmhtkweS7mArwHpGiIbw0YOVyDX165RgLZzcwWzVWO
+         eJO2lkoqgdmLQOag6V59VfXoyZKTUYDrUaECsNZojE+O+tO7lpC+qv917Zb5wCkKIoQQ
+         cV1w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
+        fh=Cus7tSA+wGUABmAtQobAyZRgEQP9kVOsr4+OL9xC9As=;
+        b=UZJsqI0wKoblWC6bnp8Q7aW0GSBPU1O/JXhf78rJmSGuSVH00UKi0b66mzBLfzIlhG
+         DyLl1+WSmpU1N33eGkzIoAiffuAJwDxyAIGu6POkuom7ejWu0aHosME2jMs3BkVT7RpM
+         +C6kZaasQSWxNqzOV0pPcC63t+RJM2GD384x/X8O+SzWl3oX/75yTQ6kryM3JC8D3BrN
+         2oBPNBOk9aQR4YKEeTXmtkvydNcMc7gtJb5+NK03avYZGelCIegKlv6+zoqdR/9Os73U
+         z3LWgpdrHXnhtPlVYoGTKjGAL01UUimKXTGXlkwNoqbphqAtD/rCC9P2lGfM3nX9IdMq
+         KrjQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1778627093; x=1779231893; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
+        b=El6s+MY0RwRfrcvMJFu1fCTk7Gl6iq1K8hWq2suS/LAXuE/Bt9BjKyHGPYtJOevaID
+         Qovmfm5WT+OfuBhPCaBHz44y+ogRsCxYXdgHftm4iz5+cqzCDaLz7KTrPoNwPHD8NqO0
+         bD33SnixcpGpqmGq+d3W8VqkvnM81aE/WcaMbCaYG7bOctLWDJjHSJhLh3wXm4fAq1vs
+         vWHjBWBTsn+nlVUfCHqmMk2pn4A8KHcgZi5W9BU55Kz7jkMWS0kND6gGBBSvMFi/AVup
+         A8CpL6a5nA9VA/rx1NY1K7mRtMqr65/ZDglauSdfArN9KS6vKR5F0prWudFS7/MsKEf0
+         QuJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778627093; x=1779231893;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
+        b=clYwkISB7EPVoBevNCIBsta3RAYS1rXV6LFhydKb2QOFuUTKzK97xJQdgwjP62ZUIQ
+         fi+B1wN/q9Xihva592I8rl01y/gClsRIitWY73Q4Krmxh14OFATU2WbhDXhkbB0zU+qS
+         CYiuuxdmnGmYSz0Kyn50lh6LzyiMYH+glnDUmBElzBimggBhZMiBU2SIICcbjTIA1YRH
+         ng3m+h1Je0A6ZGdJJ1hMMT3tB+Q4yZYrutY6XkbnfkWde2yIW4avYmiXdTJwjEPv00Dh
+         7uH0Xvve7jUuBqiwyEfu877etwOv9WHJrSkR4Qj2kGIo8iuUVhqFiH3DcETuNd1LoAjU
+         zW6g==
+X-Forwarded-Encrypted: i=1; AFNElJ+7DPMDVvDxmVZUAPigvT8YVI4WzWS1wT32EXWa2WAi0Knm8/PqeGnOm5Ct9YOPqldMQNA0sIDkcEgVHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyXqOS2+jy/n9pjGEJ6ywjTGVu9Y/e9VKDcblyKD0GNBBZVFkZu
+	Sh6su+C14W0B/LH/b6TphY6ntbq9dMR0I7C0TLvLdOmlkjSNKc0d8D8q5Ce0VGrPQrseVj0t70C
+	TI+q5EhscSRfrYCH6qbOhK103kSogtZrifW/JEl9j
+X-Gm-Gg: Acq92OGGbEB++wxvYdFUy72IyXKLA68Q83hoMaLj2igMxldMzIYZfWRnNFitS7nEFQR
+	HkVMI/xh+wJ9PhO4i0PUSYArO+z+wpFxIuqjyz/dLa5cWNyBwVEte0F4CK1QTG3dFYhB6vhCIFA
+	S1WQUiu/1UOvuIovrTeuxw+Qwaf/LFYznzVpfg4u0ax7seYuLqCma8tFHgBWw5RVxoTMR44aFsQ
+	MC1Kfbrn+8in/NF4Yz4kQCj4dSuCnlVyyUbTKITswl1YywjUbEmtvitrQWH1N/jvhHYBPXQ95ov
+	0tnx6FuEWYP41ThKlu0vyR47HJcbB9vfIFD2LzBM26us8AUpWFO65izA4AilnheQeyzHfdB4OXE
+	gzZbOug2yBQ/04r0=
+X-Received: by 2002:a7b:c455:0:b0:48a:56fa:36dd with SMTP id
+ 5b1f17b1804b1-48fcaebf3b3mr120885e9.11.1778627092566; Tue, 12 May 2026
+ 16:04:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260417154704.1186803-1-tjmercier@google.com> <89s27nso-4053-p971-4q69-p4nqo5n7p65q@xreary.bet>
+In-Reply-To: <89s27nso-4053-p971-4q69-p4nqo5n7p65q@xreary.bet>
+From: "T.J. Mercier" <tjmercier@google.com>
+Date: Tue, 12 May 2026 16:04:37 -0700
+X-Gm-Features: AVHnY4LH5AHtFpO25VgzAeX3k2o7aRw38Q8TFmJHj5_FfZZxyPG2XicnoUV5PV8
+Message-ID: <CABdmKX2sLGEFZDziwKG3rJOYQsdyUVUxM68xbLe5WGAPoy0AYQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: playstation: Clamp num_touch_reports
+To: Jiri Kosina <jikos@kernel.org>
+Cc: roderick.colenbrander@sony.com, linux-input@vger.kernel.org, 
+	Benjamin Tissoires <bentiss@kernel.org>, stable@vger.kernel.org, 
+	Xingyu Jin <xingyuj@google.com>, Roderick Colenbrander <roderick@gaikai.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-head:   5d1aae9252b4632ef942017fdd18b9993a5a22ef
-commit: 2c85c61d1332e1e16f020d76951baf167dcb6f7a [9/14] HID: pass the buffer size to hid_report_raw_event
-config: nios2-defconfig (https://download.01.org/0day-ci/archive/20260513/202605130624.FPpzDGhD-lkp@intel.com/config)
-compiler: nios2-linux-gcc (GCC) 11.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260513/202605130624.FPpzDGhD-lkp@intel.com/reproduce)
+On Tue, May 12, 2026 at 8:55=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wrot=
+e:
+>
+> On Fri, 17 Apr 2026, T.J. Mercier wrote:
+>
+> > A device would never lie about the number of touch reports would it?
+> >
+> > If it does the loop in dualshock4_parse_report will read off the end of
+> > the touch_reports array, up to about 2 KiB for the maximum number of 25=
+6
+> > loop iteraions. The data that is read is emitted via evdev if the
+> > DS4_TOUCH_POINT_INACTIVE bit happens to be set. Protect against this by
+> > clamping the num_touch_reports value provided by the device to the
+> > maximum size of the touch_reports array.
+> >
+> > Fixes: 752038248808 ("HID: playstation: add DualShock4 touchpad support=
+.")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Xingyu Jin <xingyuj@google.com>
+> > Signed-off-by: T.J. Mercier <tjmercier@google.com>
+>
+> Applied, thanks.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605130624.FPpzDGhD-lkp@intel.com/
+Hi Jiri,
 
-All warnings (new ones prefixed by >>):
+Thanks for applying this. However now I see that a different fix from
+Beno=C3=AEt Sevens from around the same time has landed:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
+id=3D82a4fc46330910b4c1d9b189561439d468e3ff11
 
-   In file included from include/linux/device.h:15,
-                    from include/linux/input.h:19,
-                    from drivers/hid/hid-core.c:25:
-   drivers/hid/hid-core.c: In function 'hid_report_raw_event':
->> drivers/hid/hid-core.c:2053:43: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'size_t' {aka 'unsigned int'} [-Wformat=]
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-         |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ^~~
-   include/linux/dev_printk.h:156:61: note: in expansion of macro 'dev_fmt'
-     156 |         dev_printk_index_wrap(_dev_warn, KERN_WARNING, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                             ^~~~~~~
-   include/linux/dev_printk.h:215:17: note: in expansion of macro 'dev_warn'
-     215 |                 dev_level(dev, fmt, ##__VA_ARGS__);                     \
-         |                 ^~~~~~~~~
-   include/linux/dev_printk.h:227:9: note: in expansion of macro 'dev_level_ratelimited'
-     227 |         dev_level_ratelimited(dev_warn, dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:1340:9: note: in expansion of macro 'dev_warn_ratelimited'
-    1340 |         dev_warn_ratelimited(&(hid)->dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2053:17: note: in expansion of macro 'hid_warn_ratelimited'
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-         |                 ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2053:91: note: format string is defined here
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-         |                                                                                         ~~^
-         |                                                                                           |
-         |                                                                                           long int
-         |                                                                                         %d
-   In file included from include/linux/device.h:15,
-                    from include/linux/input.h:19,
-                    from drivers/hid/hid-core.c:25:
-   drivers/hid/hid-core.c:2075:43: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'size_t' {aka 'unsigned int'} [-Wformat=]
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-         |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ^~~
-   include/linux/dev_printk.h:156:61: note: in expansion of macro 'dev_fmt'
-     156 |         dev_printk_index_wrap(_dev_warn, KERN_WARNING, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                             ^~~~~~~
-   include/linux/dev_printk.h:215:17: note: in expansion of macro 'dev_warn'
-     215 |                 dev_level(dev, fmt, ##__VA_ARGS__);                     \
-         |                 ^~~~~~~~~
-   include/linux/dev_printk.h:227:9: note: in expansion of macro 'dev_level_ratelimited'
-     227 |         dev_level_ratelimited(dev_warn, dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:1340:9: note: in expansion of macro 'dev_warn_ratelimited'
-    1340 |         dev_warn_ratelimited(&(hid)->dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2075:17: note: in expansion of macro 'hid_warn_ratelimited'
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-         |                 ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2075:92: note: format string is defined here
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-         |                                                                                          ~~^
-         |                                                                                            |
-         |                                                                                            long int
-         |                                                                                          %d
+That fix was not yet present at
+3cd8b194bf3428dfa53120fee47e827a7c495815 which I used as my base.
 
+His patch prints and returns an error in this situation while mine
+silently avoids the OOB read.
 
-vim +2053 drivers/hid/hid-core.c
+So I think it probably makes sense to keep Beno=C3=AEt's patch, and drop
+mine since his code means mine will never be reached.
 
-  2035	
-  2036	int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *data,
-  2037				 size_t bufsize, u32 size, int interrupt)
-  2038	{
-  2039		struct hid_report_enum *report_enum = hid->report_enum + type;
-  2040		struct hid_report *report;
-  2041		struct hid_driver *hdrv;
-  2042		int max_buffer_size = HID_MAX_BUFFER_SIZE;
-  2043		u32 rsize, csize = size;
-  2044		size_t bsize = bufsize;
-  2045		u8 *cdata = data;
-  2046		int ret = 0;
-  2047	
-  2048		report = hid_get_report(report_enum, data);
-  2049		if (!report)
-  2050			return 0;
-  2051	
-  2052		if (unlikely(bsize < csize)) {
-> 2053			hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-  2054					     report->id, csize, bsize);
-  2055			return -EINVAL;
-  2056		}
-  2057	
-  2058		if (report_enum->numbered) {
-  2059			cdata++;
-  2060			csize--;
-  2061			bsize--;
-  2062		}
-  2063	
-  2064		rsize = hid_compute_report_size(report);
-  2065	
-  2066		if (hid->ll_driver->max_buffer_size)
-  2067			max_buffer_size = hid->ll_driver->max_buffer_size;
-  2068	
-  2069		if (report_enum->numbered && rsize >= max_buffer_size)
-  2070			rsize = max_buffer_size - 1;
-  2071		else if (rsize > max_buffer_size)
-  2072			rsize = max_buffer_size;
-  2073	
-  2074		if (bsize < rsize) {
-  2075			hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-  2076					     report->id, rsize, bsize);
-  2077			return -EINVAL;
-  2078		}
-  2079	
-  2080		if (csize < rsize) {
-  2081			dbg_hid("report %d is too short, (%d < %d)\n", report->id,
-  2082				csize, rsize);
-  2083			memset(cdata + csize, 0, rsize - csize);
-  2084		}
-  2085	
-  2086		if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
-  2087			hid->hiddev_report_event(hid, report);
-  2088		if (hid->claimed & HID_CLAIMED_HIDRAW) {
-  2089			ret = hidraw_report_event(hid, data, size);
-  2090			if (ret)
-  2091				return ret;
-  2092		}
-  2093	
-  2094		if (hid->claimed != HID_CLAIMED_HIDRAW && report->maxfield) {
-  2095			hid_process_report(hid, report, cdata, interrupt);
-  2096			hdrv = hid->driver;
-  2097			if (hdrv && hdrv->report)
-  2098				hdrv->report(hid, report);
-  2099		}
-  2100	
-  2101		if (hid->claimed & HID_CLAIMED_INPUT)
-  2102			hidinput_report_event(hid, report);
-  2103	
-  2104		return ret;
-  2105	}
-  2106	EXPORT_SYMBOL_GPL(hid_report_raw_event);
-  2107	
-  2108	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks,
+T.J.

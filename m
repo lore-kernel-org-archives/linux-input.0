@@ -1,105 +1,91 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EBE30674C;
-	Tue, 12 May 2026 14:23:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C735397338;
+	Tue, 12 May 2026 14:42:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778595826; cv=none; b=LMoz01UgiXZm5ExRquD4Kx42fbT1C9z5KMLIk44lwhYpZqWn9ULnffhaXt12FvKdNrzEZvC1jdhUfIPXtjOXSFEoaHzfk8KN+mhJ0NYba9yyKXBJkZuciBd+F9CBdOin1/ch9RkFXC06IvPKLLkKKlFOMlK0Nu1NHxDTLbez32o=
+	t=1778596933; cv=none; b=M2x6I8J9c7vVzyBeXiE4+ulmhHegX2G/i7v+wyQrm4jz6O2Tr682rg/JW0uLAUhu7/rLkJk/8Ct9l/C/2hf9hjAt4lxQemCKQ+ewltJtk+WQSZRbzz0qIygm9pZwlJRHMDbofoduf2B7lKphWHPT4VHqzkD567M90lKXcj6z9hQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778595826; c=relaxed/simple;
-	bh=y8mAbnfihQlbn5KIg2BP/pMGPicJRvRywvyZkkl/7gI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dEbE9b/zEFQ6rCXwNztCuT7qt1aN51Q+1W3sLcn+/5qbFCGUed5/f5GVhZuACCyznpYzXxaJvXGUMTLC1vVy5fY0rFy8h82dPEskZFfreYMNtKvfDuCAUyc5dnJW/HJrZf0F3z9Bm1IdiHzhwqbZNoKA1cd98Z0oYTH6VjPo90M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=nRuctoCq; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1778596933; c=relaxed/simple;
+	bh=XhldWkwLybGtIRmwWQW/hSgfW/uayjDVD1tfLLqTL9w=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YjGNVQvKAMdxbFgDnk53TiV2msxL3nMEuq5uI72gbQX45Z3PGRhZh6ZXJHRUCoy+H/z/mWTejEwudkDUiDvjudmNpBBgQiDXAv9p4J1jNtc0Hz8QYYaaeRR3lxOavYEao248dQR6OOHGutx8WMJCTXQ4c7zHlaEI1zxZH4jj5ao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dKc96mLY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="nRuctoCq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=DL
-	u5/4I32U0g3yDdgFjqxLbxkDhEBZD8jR1ow/3kSZM=; b=nRuctoCqivuWkS64ey
-	j6SY39o5ytQjijZL4EHakoR1cxOUmmhYcBT2wJkfxA9vH5Nlzw5KD5U7CCDuuqkF
-	SLvFYjgHpsOcICXPhOoTviu6k/bWLbsOuSSd30S6SuHlycdFl7sANXJNJmPMQCn/
-	5bYpYQqxfB4k78tp7Cx4dwjaQ=
-Received: from debian (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wDnr6PDNwNqKznVAw--.15816S2;
-	Tue, 12 May 2026 22:22:59 +0800 (CST)
-From: Kean <rh_king@163.com>
-To: derekjohn.clark@gmail.com,
-	mpearson-lenovo@squebb.ca
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Kean <rh_king@163.com>
-Subject: [PATCH] HID: lenovo: Restore Fn-lock LED state on resume for tp10ubkbd devices
-Date: Tue, 12 May 2026 22:22:29 +0800
-Message-ID: <20260512142229.4098386-1-rh_king@163.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dKc96mLY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB059C2BCB0;
+	Tue, 12 May 2026 14:42:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778596933;
+	bh=XhldWkwLybGtIRmwWQW/hSgfW/uayjDVD1tfLLqTL9w=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=dKc96mLYrdKgvd6SkS0yFp4N/l0dvPFEtnA/6+9WFp4Cv+Nqqfd4ehiG1LMGGttCB
+	 wMaDOZlfS3IChcs/YwY1FbBW79AklLGvv9G8qN+ep+vd+ijka0ctgr0FFPA1gLrghv
+	 AlHwg0W4iKPyPohd8zjegRwcSlwtAsJbdkLvD0KkCeQJ6TBWucpthGLuY5+M6ovNzH
+	 HazCfJ15qszNirY16xf5KNACY8b4jrOFQxj6+VsG5pev9IcD5bBD40D5+PLcknRAYC
+	 AdfwWDsxD0cYXgy24/Mk+TwSuHyDf2SvW21RR2/K35dGZ7F2/XRL34hWi1yDRVrxX5
+	 jZu6HAVAiKPXg==
+Date: Tue, 12 May 2026 15:42:04 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: =?UTF-8?B?TmF0w6FsaWE=?= Salvino =?UTF-8?B?QW5kcsOp?=
+ <natalia.andre@ime.usp.br>
+Cc: andy@kernel.org, dlechner@baylibre.com, jikos@kernel.org,
+ nuno.sa@analog.com, srinivas.pandruvada@linux.intel.com,
+ linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v3 0/6] iio: hid-sensor: standardize scan_type
+ initialization
+Message-ID: <20260512154204.0052b352@jic23-huawei>
+In-Reply-To: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+References: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnr6PDNwNqKznVAw--.15816S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxJr1UAr13tFWDKrWfXrW8WFg_yoW8Ar4rpF
-	1UXF4FvFZFgw17Cr4Svw4v9a45AayrJr4xurW3K3Z29as3tryDJrW2ya1Yyr15tFykJryf
-	WF4UJrWUWFWktwUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pKjg2gUUUUU=
-X-CM-SenderInfo: 5ukbyxlqj6il2tof0z/xtbC4ANZCGoDN8MIoQAA3G
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-The reset_resume callback only restores trackpoint settings for compact
-USB keyboards (CUSBKBD, TPIIUSBKBD) but omits the tp10ubkbd device
-family: X12_TAB, X12_TAB2, TP10UBKBD, X1_TAB, X1_TAB2, X1_TAB3.
+On Mon, 11 May 2026 22:16:16 -0300
+Nat=C3=A1lia Salvino Andr=C3=A9 <natalia.andre@ime.usp.br> wrote:
 
-If these devices lose power during suspend, the Fn-lock state reverts
-to the hardware default but the driver's cached state and the keyboard
-LED are not restored, causing the LED to show the wrong state after
-resume.
+> This series refactors the HID sensor drivers to standardize the
+> initialization of the iio_chan_spec scan_type structure.
+> Direct initialization using compound literals was used.
+>=20
+> This change improves code readability and ensures that all fields
+> of the scan_type structure are properly zero-initialized.
+> Additionally, for the hid-sensor-accel-3d driver, the channel
+> initialization loop was refactored to iterate directly over the
+> scan indices, eliminating redundant logic.
+Hi Nat=C3=A1lia,
 
-Add the missing device cases to restore the Fn-lock LED on resume.
+I'm a little confused.  How is this v3?  Where is the change log?
 
-Tested:
-This patch works on ThinkPad X12_TAB.
+I'll review it as a fresh series.
 
-Signed-off-by: Kean <rh_king@163.com>
----
- drivers/hid/hid-lenovo.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+thanks
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index a6b73e03c16b..4c9fb163b6d6 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -1424,6 +1424,8 @@ static int lenovo_probe(struct hid_device *hdev,
- 
- static int lenovo_reset_resume(struct hid_device *hdev)
- {
-+	struct lenovo_drvdata *data;
-+
- 	switch (hdev->product) {
- 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
- 	case USB_DEVICE_ID_LENOVO_TPIIUSBKBD:
-@@ -1431,6 +1433,17 @@ static int lenovo_reset_resume(struct hid_device *hdev)
- 			lenovo_features_set_cptkbd(hdev);
- 
- 		break;
-+	case USB_DEVICE_ID_LENOVO_X12_TAB:
-+	case USB_DEVICE_ID_LENOVO_X12_TAB2:
-+	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB2:
-+	case USB_DEVICE_ID_LENOVO_X1_TAB3:
-+		data = hid_get_drvdata(hdev);
-+		if (data)
-+			lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED,
-+						 data->fn_lock ? LED_ON : LED_OFF);
-+		break;
- 	default:
- 		break;
- 	}
--- 
-2.53.0
+Jonathan
+
+>=20
+> Nat=C3=A1lia Salvino Andr=C3=A9 (6):
+>   iio: accel: HID: hid-sensor-accel-3d: Refactor channel initialization
+>   iio: gyro: HID: hid-sensor-gyro-3d: Refactor channel initialization
+>   iio: light: HID: hid-sensor-als: Refactor channel initialization
+>   iio: light: HID: hid-sensor-prox: Refactor channel initialization
+>   iio: magnetometer: HID: hid-sensor-magn-3d: Refactor channel
+>     initialization
+>   iio: pressure: HID: hid-sensor-press: Refactor channel initialization
+>=20
+>  drivers/iio/accel/hid-sensor-accel-3d.c       | 27 +++++++------------
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 24 +++++++----------
+>  drivers/iio/light/hid-sensor-als.c            | 18 +++++--------
+>  drivers/iio/light/hid-sensor-prox.c           | 19 +++++--------
+>  drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 +++++---------
+>  drivers/iio/pressure/hid-sensor-press.c       | 19 +++++--------
+>  6 files changed, 42 insertions(+), 85 deletions(-)
+>=20
 

@@ -1,94 +1,247 @@
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 816AC3EDE55
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 17:57:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8C8136C9D0
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 19:42:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778608667; cv=none; b=IlV5pqB5j7/9cpkuJt2L6jcP3FkzqfvXQpebmeQNHvjX9iFBKotyiIN6DvzqphHOfSEMBqdKQrzCtmSBFj5wi3Onp5slpWODByICkv9RAkV2RTRKn+hxPC0Aph71/648NZuOi44qIP2YjdsoOVagQptIus77tXqxmpehwt6sxo4=
+	t=1778614950; cv=none; b=bZtBshlxTzmY/WkSI5zyw6TbbIj8gUki8M5C65GLCB2GLMNxoePiPJcjiAz34ncruKcJzptIF030CCMBkzsD3JDcNz+pacWuqA5TWAdJw7O5Da1uKVml9Ui10nCyv60Cng7b0/XSJqZocElo8OnRQ9MsnVxLuwB9UKFZZQynPyE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778608667; c=relaxed/simple;
-	bh=DbC0giau3tkuoc9dJAE1gGKTry0Z6rr8t2gh69mnvFI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pAPVekgt7WmQrbzpJ+uqnYGTNjPGYrdMpVwvbVGPzxS6OEgYkClCXtGlGLh428lzZYt/6wvfYYPLdfHXNyOYfx82RBSEdA1JA6A/xCQWhTMkohFhw9xXWl+pivypYuJbr6z1ETXrdhtTkhyoZtaLpav7A5A+RxqIALgdd9UkwvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e+ivjFLt; arc=none smtp.client-ip=74.125.82.50
+	s=arc-20240116; t=1778614950; c=relaxed/simple;
+	bh=2yDjn/mPjYhoF47aYYve4JaLOl4qQZFKvb74hkBb4dU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=JbHdu/EbVjF2wdf5wVusYQdx2R58alJ4degPeRe56dxx+uJyWTWI9KjkSMz3OH5SVzK9mt6Hiw+WmgaQsYRZiciy/cTj+h7o5bSwVrm1CLqHi30GKY72zUn5GFoit333uo6nT/a9m7VsPagU4KXN1qy6SGSOHo5MMQzUaUQzlM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=URtDK6vt; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e+ivjFLt"
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-132d1b2519eso4114534c88.0
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 10:57:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="URtDK6vt"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-488ad135063so48302275e9.0
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 12:42:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778608666; x=1779213466; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dAT7x8PLis38MYgBl49P0EwUw9EMtbiaXZUfAfDowGo=;
-        b=e+ivjFLtq5sJ8wRVzdzV5yw2kQA1Ss8iHkg++dzeRGiIpHo14E7Q27vVyCgtW0gDQY
-         iwI0fus2QiD1PJHwld4YBpbVMm7y3fNIlSFgQEq/FsfuzZpMvxvY0RdnInyUG5CQDr0S
-         cnCalAcFoDc66HKG8Xx92eF0DpTEZapWOYfxMUNhWlKdS4RehlphIedt+aa7tE5vDeIM
-         XBZnSeCOpaSDxJ9GPe4NwT0fJhr9bqk8g9EwzlW+HaqSE8nBXKgpq2FjbuKPyk2CNkaB
-         l9+3xOoMGk9QPa5QjcV7OEOXQmjrxIyfcC/Mqpd2G0UvSF4vdDy1+I4ZC1agdMJWNhJb
-         wCHw==
+        d=gmail.com; s=20251104; t=1778614947; x=1779219747; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BssEr2hsUTBZdPDbGY3lvasib/t48VWuCs3XjnpwqR4=;
+        b=URtDK6vtu+zKwq52fHeGv6ivrhmjExasItIPWCqlsY+LdCi51Q6MviRtpug8BY51c/
+         jiBcQB0HBFdaVrJjfq62PQUwyMo8aBEDNVehy2ypkYbdf9mXNC3PGy+Z3IY0FE/1P/et
+         mSsC/zUMBTNnLbcsNJerqAFKKFUwgcY90jSNGoX09vYQN2MgNOQvHypgCGAftqDwZMHi
+         HrheWTZeg89BlC2cTFxMe7OVEhNJVDlgjiXGW+jzHatqCkHkrtR7XzmU0w9iLcl2dNsL
+         0yIenQI36xboSLjj0p3h4sU6Lb21bFoOVjYXOCqO8jj4ig/4Ax155xKpKjj+GszkYOST
+         Q7qA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778608666; x=1779213466;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dAT7x8PLis38MYgBl49P0EwUw9EMtbiaXZUfAfDowGo=;
-        b=b7uFDKl8hW5JFyMMCzuDA9hRUSB7P99w6NpZ7B0p1hkDnSZaQPp0E9On9Kk/sTV/ik
-         exxBswksQUxqgZC/wARPD4Tca6hjMFp5apsDSOgEzl3ZLAZ5ijeGspS8ksVgPYZEZP46
-         W1XI+wstWJcaWSjx8dc0NYi8d9eDoLqg+QXfnIqQC/MoJIxhFk4AvlPKtvQ1IKwcZ/n6
-         ycXzQ1ABkv/jPC2QbyjY68tVxZNmYKsKg/V7Rf4GIkYpxzZkLMQwXpprfOURdfXlR5Nz
-         JP+eiZ49be9rVjroEDwRiCXkYuLVeMxHFf7xTxOdPwXujWGjdP6L3n9oWKOox3BZtyKq
-         7eYw==
-X-Gm-Message-State: AOJu0YzzKgHkPqS0lrTiE7FffqIB3XMzecb0aaBnnCh9R7TqD07sWQox
-	Qh/N/P3N1AKJLB5gg4rKuHzwR30BofNQ92C9bfe4F1jQcmNu84pL9WMq
-X-Gm-Gg: Acq92OGoIUvOqufmpG94BxOu9NIA4RtZ5wo5cCszwCoRGAsChnYhFqD4iG5M/P0IBn1
-	RufmxpTHoyEhP1DLAdBnA0IM9y4cxbUMhQOR0+60QFfoaKYNN8KS7TNPR9MuP3YvN1nBRrPyOKA
-	JfCicS2sDb+ruKxYQgu+fSynZz3NbUcEAxuNqu49AUVJk6fbHhrt4z64iElZuwn6Ocbl9JZmO/v
-	OP72w1qkRs1SuTtZgrv3rAkQ+jD5sVjlyY859zN91L1QCl7bmiUxUhTQhVq62mXy3w7zZNhbutU
-	5GD3cdDxYb3rTCh/F6YjyV4dJvci5Q7RaRhnQaHdTspKQteGvtMdPD4dqSfIlCHiVbJD4iXfqB4
-	TRSlq+n5HztPu+qg/P2VdIvvadhqmdPv+cnW5XzlWf+c8VfudgEQJGCikAfIjMSycfkq+ZByxiy
-	aedR0XxLZA2X02R7TeC3gO6UwrPk79/87WG5QzzhgL7Pn5jRjMP0ZwyhgVW0ySyGE9
-X-Received: by 2002:a05:7022:221d:b0:130:9f2d:ff99 with SMTP id a92af1059eb24-1319cd26692mr16497110c88.20.1778608665652;
-        Tue, 12 May 2026 10:57:45 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:84ac:d22c:b037:1a93])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-132781103e7sm24271153c88.1.2026.05.12.10.57.44
+        d=1e100.net; s=20251104; t=1778614947; x=1779219747;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=BssEr2hsUTBZdPDbGY3lvasib/t48VWuCs3XjnpwqR4=;
+        b=fgBGbXkNe83dvC1dgBkeSoSjL6wnQK3EsKi6GIYZe43tFBSA+XWWvj8B+mtFFwd/OV
+         yX+Z9hLw7UrXhJ/3hovRYQgHDeHtiulqAo2nIpvI6m8ZpJ9YDzSyWr4W3CDn30hmCRGf
+         Qf4dvVPGKqZ3PNJVzLExSJitt/tJgNEZd0d2neG+lZTrW5kZrZSUMVj19IYLUUEfhrYh
+         uRjiv8KbiHdhxd9KxMiidZHWA1I30gn3V3hA42GbCZdBVX8Ucoo58iiMYKDHWYpZJTBw
+         9k9mpiQudaD+lTkRsWFXxiaIDPS+7kZu5aMWJIwZ6KFz4mOHe8gsxSf4w0em3NKbWCeX
+         2qQA==
+X-Gm-Message-State: AOJu0Yyck2ypbmYVC9y7xq5VreQLebtwYN59JmFYjnQnFFEB+FNV5CO2
+	caJJLoo/NCPRk3B2AMg0l7CLqJpEAfGreSR6hYOAvDbfvkr/ZLBI8uVynmdtYL3F
+X-Gm-Gg: Acq92OG/BrGqzyP+u9dGOcIxGxeMKwB0c5yNo8VGF98ph5iAHH7+hxsxCgVnsDfWqjT
+	B0PLTA04owNxEQIt+2owUKEOWfe8U1bGp1hmgSkKM1l74MqbxFDqtmdDwUsnNQjwJrB0zaWaBMw
+	uZ6OpWun2g6IdIog2y8lMQpLWv5yarfBK2Mc5OGFnNgKME/NN/gztro+/QGb8ClmgivugjO2W+P
+	71qlLfqmvPGIcomgibZs0uMVvSTsepfPKB/svthmJ7FTk4T4FZJWkJA1hsPuybuSs012uFkCEYS
+	UsPhNYcbE9Dryi0LDfd3F+Zpuv4kjuEGdm+ywXFCkK8SRhl4FoP1Qa/jBQYam0MkK3h4ufAGZ4b
+	13rxCU+NqE/b3wnYObyG9PZ3XgLyEi0QxhUwYe3Pj1sRHZdsYZTIOAkaFRsxj/8jNLEekqUN/h5
+	nis2zMPwV9rDsrk+aHb1Gb5NScLuVo
+X-Received: by 2002:a05:600c:a4b:b0:48e:7f1c:8776 with SMTP id 5b1f17b1804b1-48fc9a516e3mr3923975e9.25.1778614946925;
+        Tue, 12 May 2026 12:42:26 -0700 (PDT)
+Received: from laptop ([2a07:7e81:6fe7:0:52c8:3131:c313:3115])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fc8d625basm15726755e9.9.2026.05.12.12.42.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 10:57:45 -0700 (PDT)
-Date: Tue, 12 May 2026 10:57:41 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
-	Linux ACPI <linux-acpi@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1] Input: atlas - Check ACPI_COMPANION() against NULL
-Message-ID: <agNqEisfkJds-8yy@google.com>
-References: <8696590.T7Z3S40VBb@rafael.j.wysocki>
+        Tue, 12 May 2026 12:42:26 -0700 (PDT)
+From: Dmitri Ollari <dimoolla200@gmail.com>
+X-Google-Original-From: Dmitri Ollari <dmitri.ollari@protonmail.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	Dmitri Ollari <dmitri.ollari@protonmail.com>
+Subject: [PATCH v2] HID: magicmouse: fix battery reporting for 2024 Magic Trackpad USB-C
+Date: Tue, 12 May 2026 21:36:56 +0200
+Message-ID: <20260512194150.227920-1-dmitri.ollari@protonmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260411163806.35759-1-dmitri.ollari@protonmail.com>
+References: <20260411163806.35759-1-dmitri.ollari@protonmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8696590.T7Z3S40VBb@rafael.j.wysocki>
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 12, 2026 at 06:26:54PM +0200, Rafael J. Wysocki wrote:
-> From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-> 
-> Every platform driver can be forced to match a device that doesn't match
-> its list of device IDs because of device_match_driver_override(), so
-> platform drivers that rely on the existence of a device's ACPI companion
-> object need to verify its presence.
-> 
-> Accordingly, add a requisite ACPI_COMPANION() check against NULL to the
-> atlas_btns driver.
-> 
-> Fixes: b8303880b641 ("Input: atlas - convert ACPI driver to a platform one")
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The 2024 Magic Trackpad USB-C (PID 0x0324) does not report battery
+strength via HID descriptor fields over Bluetooth. Instead it requires
+an explicit HID_REQ_GET_REPORT request to retrieve the battery level.
 
-Applied, thank you.
+Replace the battery_timer (timer_list) with battery_work (delayed_work)
+so that HID_REQ_GET_REPORT can be issued from a sleepable context.
+Timers run in atomic context and cannot block, which caused deadlocks
+on the Bluetooth transport path.
 
+Extend the fetch guard and probe scheduling block to include the 2024
+Magic Trackpad USB-C when connected over Bluetooth.
+
+Schedule battery_work immediately at probe (delay=0) instead of
+issuing a direct magicmouse_fetch_battery() call. The direct call
+bypassed the cold-start correction logic and could publish a stale
+value before the work handler had a chance to validate it.
+
+Add a cold-start double-poll: the device may return a stale battery
+value (e.g. 4%) on the very first GET_REPORT after power-on. On the
+first successful poll battery_validated is set and a second poll is
+scheduled 3 seconds later to obtain the real value. Subsequent polls
+use the normal 60-second interval.
+
+Remove the early-return guard that skipped polling when
+battery_capacity equalled battery_max. This prevented the second
+corrective poll from firing when the first stale response happened
+to equal 100.
+
+Signed-off-by: Dmitri Ollari <dmitri.ollari@protonmail.com>
+---
+v2:
+  - Rebased onto v7.1-rc3
+  - Fixed email line-wrapping and whitespace damage
+  - Removed PGP signing
+
+ drivers/hid/hid-magicmouse.c | 57 ++++++++++++++++++++++--------------
+ 1 file changed, 35 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index e70bd3dc07ab..1d7c84ecadbb 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -123,7 +123,10 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+  * @tracking_ids: Mapping of current touch input data to @touches.
+  * @hdev: Pointer to the underlying HID device.
+  * @work: Workqueue to handle initialization retry for quirky devices.
+- * @battery_timer: Timer for obtaining battery level information.
++ * @battery_work: Delayed work for periodic battery level polling.
++ * @battery_validated: Set after the first successful poll; gates the
++ *	second poll that corrects the stale value the device may report
++ *	on cold start.
+  */
+ struct magicmouse_sc {
+ 	struct input_dev *input;
+@@ -148,7 +151,8 @@ struct magicmouse_sc {
+ 
+ 	struct hid_device *hdev;
+ 	struct delayed_work work;
+-	struct timer_list battery_timer;
++	struct delayed_work battery_work;
++	bool battery_validated;
+ };
+ 
+ static int magicmouse_firm_touch(struct magicmouse_sc *msc)
+@@ -822,7 +826,8 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ 	bat = hid_get_battery(hdev);
+ 	if (!bat ||
+ 	    (!is_usb_magicmouse2(hdev->vendor, hdev->product) &&
+-	     !is_usb_magictrackpad2(hdev->vendor, hdev->product)))
++	     !is_usb_magictrackpad2(hdev->vendor, hdev->product) &&
++	     hdev->product != USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC))
+ 		return -1;
+ 
+ 	report_enum = &hdev->report_enum[bat->report_type];
+@@ -831,9 +836,6 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ 	if (!report || report->maxfield < 1)
+ 		return -1;
+ 
+-	if (bat->capacity == bat->max)
+-		return -1;
+-
+ 	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
+ 	return 0;
+ #else
+@@ -841,14 +843,25 @@ static int magicmouse_fetch_battery(struct hid_device *hdev)
+ #endif
+ }
+ 
+-static void magicmouse_battery_timer_tick(struct timer_list *t)
++static void magicmouse_battery_work(struct work_struct *work)
+ {
+-	struct magicmouse_sc *msc = timer_container_of(msc, t, battery_timer);
++	struct magicmouse_sc *msc = container_of(work, struct magicmouse_sc, battery_work.work);
+ 	struct hid_device *hdev = msc->hdev;
+ 
+ 	if (magicmouse_fetch_battery(hdev) == 0) {
+-		mod_timer(&msc->battery_timer,
+-			  jiffies + secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
++		if (!msc->battery_validated) {
++			/*
++			 * The device may return a stale value (e.g. 4%) on the
++			 * first GET_REPORT after cold start. Schedule a second
++			 * poll shortly after to get the real value, then settle
++			 * into the normal 60s interval.
++			 */
++			msc->battery_validated = true;
++			schedule_delayed_work(&msc->battery_work, secs_to_jiffies(3));
++		} else {
++			schedule_delayed_work(&msc->battery_work,
++					      secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
++		}
+ 	}
+ }
+ 
+@@ -868,6 +881,7 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	msc->scroll_accel = SCROLL_ACCEL_DEFAULT;
+ 	msc->hdev = hdev;
+ 	INIT_DEFERRABLE_WORK(&msc->work, magicmouse_enable_mt_work);
++	INIT_DELAYED_WORK(&msc->battery_work, magicmouse_battery_work);
+ 
+ 	msc->quirks = id->driver_data;
+ 	hid_set_drvdata(hdev, msc);
+@@ -885,11 +899,15 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	}
+ 
+ 	if (is_usb_magicmouse2(id->vendor, id->product) ||
+-	    is_usb_magictrackpad2(id->vendor, id->product)) {
+-		timer_setup(&msc->battery_timer, magicmouse_battery_timer_tick, 0);
+-		mod_timer(&msc->battery_timer,
+-			  jiffies + secs_to_jiffies(USB_BATTERY_TIMEOUT_SEC));
+-		magicmouse_fetch_battery(hdev);
++	    is_usb_magictrackpad2(id->vendor, id->product) ||
++	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC) {
++		/*
++		 * Schedule immediately so battery_work runs ASAP, sets
++		 * battery_validated, then reschedules every 60s. Avoids
++		 * direct fetch which bypasses battery_validated and would
++		 * publish a stale startup value.
++		 */
++		schedule_delayed_work(&msc->battery_work, 0);
+ 	}
+ 
+ 	if (is_usb_magicmouse2(id->vendor, id->product) ||
+@@ -957,10 +975,7 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 
+ 	return 0;
+ err_stop_hw:
+-	if (is_usb_magicmouse2(id->vendor, id->product) ||
+-	    is_usb_magictrackpad2(id->vendor, id->product))
+-		timer_delete_sync(&msc->battery_timer);
+-
++	cancel_delayed_work_sync(&msc->battery_work);
+ 	hid_hw_stop(hdev);
+ 	return ret;
+ }
+@@ -971,9 +986,7 @@ static void magicmouse_remove(struct hid_device *hdev)
+ 
+ 	if (msc) {
+ 		cancel_delayed_work_sync(&msc->work);
+-		if (is_usb_magicmouse2(hdev->vendor, hdev->product) ||
+-		    is_usb_magictrackpad2(hdev->vendor, hdev->product))
+-			timer_delete_sync(&msc->battery_timer);
++		cancel_delayed_work_sync(&msc->battery_work);
+ 	}
+ 
+ 	hid_hw_stop(hdev);
 -- 
-Dmitry
+2.54.0
+

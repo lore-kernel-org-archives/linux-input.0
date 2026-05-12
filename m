@@ -1,75 +1,83 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FB383CDBD0;
-	Tue, 12 May 2026 16:16:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D96AE3128B8;
+	Tue, 12 May 2026 16:26:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778602620; cv=none; b=oQt9ETJmFEWk5sKaELRpZouW0oVhfs+hGbkNgUGI+9weG9bG2OcfXMK/xJb0AU6VMvo4Q6aDbmEp/eRA1R9wjp/lf7Qjk8bIH5iT3zmiP0r5Pj1Js/rPoN2oAK4mii8zk+ONNMKD7+VGSN8RmViJVtQfN6Qq0b+jDNW6t5mjKNY=
+	t=1778603217; cv=none; b=kmKFJY8Ln00omjUOY/IvHMgMX03FLCctV/MG3em3AGShvguIMHc2giIluBXzmRskljtCyVUd2Hco3tDjsAu6hA9meZdQB9MeYtYohI6YL39eGVB+gCJI++PwXDIVjp2dgn8MXez7oK2Mo2kRiP8k2JO9OGzdwJO7ng8pxcywoXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778602620; c=relaxed/simple;
-	bh=gHDAWMpHyHTKSTzONNPbab/Z7G8nlVd8T0Y5EqVrmO8=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=S4wAMjAbAY5Jyk/jVSAXtVKnBrvmA9xivisVcMK438ZKyCvpx0otkm0llt0fyTDU1+KQMlIRUgKs8WQrRufTcNV6GLhOfw0kjixP0tdvf9joqST2c2y/+MFijDTtH6juPdXsloItEbtGLYzLGM3O+K7Uwa+03hcHziqpDNRfuAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=odT8rMHF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778603217; c=relaxed/simple;
+	bh=CrjnqKrl9EXY2GuxK9ACnCl+sFPD2qsuimDGOTo/0sw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WHMczZ9mGneQuInR6FFzWiYOCvXwVn1+QU+lrzxw7kkjxmUi5A8Ak1cWsviERURb1UxJ1nHnCwvHkkJIhsznws97AOZAN3aFhGjtE53lujmuLbNsqaZL9shjQm05IP0JBQX5dz4YMyX/puxLYcoFQFXJ/SZ/dYHnHY5b92T85kc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PKg2CEOj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="odT8rMHF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AB8BC2BCB0;
-	Tue, 12 May 2026 16:16:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PKg2CEOj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C057C2BCB0;
+	Tue, 12 May 2026 16:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778602619;
-	bh=gHDAWMpHyHTKSTzONNPbab/Z7G8nlVd8T0Y5EqVrmO8=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=odT8rMHFXl6oHFl9os6nHa6dvfCW2BbI4GYEWcK54GGPiRZSz58t9BQtxAmwHPRRm
-	 qYliMDMjYyV42Xsh8I9y5BTeWx2hfFzz1evDrCQiWuvq+BlX2R6pLr1QOCiPUd5NyJ
-	 H6fxh4pbY5GzGQctAp8uWzv4ykvvVobF62VaD4ptJUgDSCAn+u7POi9tB6VWjydzW/
-	 5FxlSllsC3i6IPTjxHx1awXEp6IYuW112f2Dx2bNYgosoi8pKDoJPpQaRsIxxVqqwy
-	 K585n+sz5jJQFY49mjYj+7Z8QDtXtwKc9bDm/Cj+rBvilHsqrynTjtGnpcROW+k2kD
-	 0Fv+xmAF8gSlA==
-Date: Tue, 12 May 2026 18:16:57 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Alain Michaud <alainmichaud@google.com>
-cc: bentiss@kernel.org, lains@riseup.net, hadess@hadess.net, ogay@logitech.com, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: Add support for newer Bluetooth
- keyboards
-In-Reply-To: <20260512132244.2194556-1-alainmichaud@google.com>
-Message-ID: <2697o725-qp83-qs87-o747-nr03q3s485r9@xreary.bet>
-References: <20260512132244.2194556-1-alainmichaud@google.com>
+	s=k20201202; t=1778603217;
+	bh=CrjnqKrl9EXY2GuxK9ACnCl+sFPD2qsuimDGOTo/0sw=;
+	h=From:To:Cc:Subject:Date:From;
+	b=PKg2CEOjUacZ1A7y5f9DRbkRnSGk9J/2hyDSrR6qDNeoJIAAdfdieRjGgsIxjddSj
+	 Po9ZqdaTmRwZC0bsm6ukcYUM1idnWKHp1XsAZfv/3KCHiMGES0omnb8oOc2sVfTVt1
+	 FLLgCRZH/GX7uHrnY/EA3V2A0c5szABQoNq70Q1nOEl95sdOsA0DpUrss0CQNv9NBp
+	 pZFSGtHZow25Q/VFg6uiS3QaQV5k1mJoxBLuSnMKBQYyC4iIgNAJoWGxPyc1YSZ+C9
+	 Otf0AD4aaQ5b2xxTgye1rSf8I5P8xTLjwAyexavDtOSEm84YEDyF61d3pPelJB+IMQ
+	 9zdFEg/fYK2aA==
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+ Linux ACPI <linux-acpi@vger.kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] Input: atlas - Check ACPI_COMPANION() against NULL
+Date: Tue, 12 May 2026 18:26:54 +0200
+Message-ID: <8696590.T7Z3S40VBb@rafael.j.wysocki>
+Organization: Linux Kernel Development
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, 12 May 2026, Alain Michaud wrote:
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-> Add product IDs (PIDs) for several newer Logitech Bluetooth keyboards
-> to the hidpp_devices matching table, enabling full HID++ support for
-> them.
-> 
-> The added keyboards are:
-> - Logitech Signature K650 & B2B
-> - Logitech Pebble Keys 2 K380S
-> - Logitech Casa Pop-Up Desk & B2B
-> - Logitech Wave Keys & B2B
-> - Logitech Signature Slim K950 & B2B
-> - Logitech MX Keys S & B2B
-> - Logitech Keys-To-Go 2
-> - Logitech Pop Icon Keys
-> - Logitech MX Keys Mini & B2B
-> - Logitech Signature Slim Solar+ K980 B2B
-> - Logitech Bluetooth Keyboard K250/K251
-> - Logitech Signature Comfort K880 & B2B
-> 
-> Signed-off-by: Alain Michaud <alainmichaud@google.com>
-> Reviewed-by: Olivier Gay <ogay@logitech.com>
+Every platform driver can be forced to match a device that doesn't match
+its list of device IDs because of device_match_driver_override(), so
+platform drivers that rely on the existence of a device's ACPI companion
+object need to verify its presence.
 
-Applied, thanks.
+Accordingly, add a requisite ACPI_COMPANION() check against NULL to the
+atlas_btns driver.
 
--- 
-Jiri Kosina
-SUSE Labs
+Fixes: b8303880b641 ("Input: atlas - convert ACPI driver to a platform one")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/input/misc/atlas_btns.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/drivers/input/misc/atlas_btns.c
++++ b/drivers/input/misc/atlas_btns.c
+@@ -60,11 +60,15 @@ static acpi_status acpi_atlas_button_han
+ 
+ static int atlas_acpi_button_probe(struct platform_device *pdev)
+ {
+-	struct acpi_device *device = ACPI_COMPANION(&pdev->dev);
++	struct acpi_device *device;
+ 	acpi_status status;
+ 	int i;
+ 	int err;
+ 
++	device = ACPI_COMPANION(&pdev->dev);
++	if (!device)
++		return -ENODEV;
++
+ 	input_dev = input_allocate_device();
+ 	if (!input_dev) {
+ 		pr_err("unable to allocate input device\n");
+
+
 

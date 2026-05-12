@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A44530674C;
-	Tue, 12 May 2026 15:29:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 114773905E7;
+	Tue, 12 May 2026 15:30:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778599747; cv=none; b=M65Kt2Ve+l5R+okE3XPgEBnwoUqh3/z97NpZN/19EJnqTcNrMQlswh1iCAkERn91jcBrkrYStFxiG/CatdDwybrjKOYipbqnEKZGkDYHnvoGdgIhSqOmYg9rIc8BiJv15WdLxjbQO0LAozPJIER4f/QClKU9JAl/Dat6pLrQhxY=
+	t=1778599804; cv=none; b=P1Wxf38qmoHkTlfPlG7F8KUEZ2jNtaY1G4DOkfwNvO0LvTNWTFwS5kDE3g0lFNlOsC7AyXs485tpShnhEFXN/SW5Uyf6m5HpeIa/8ro2CLfX4+9+7eTP6hGayM7/1DUK0Dy7lWDTcMuIFK1YNLIs+IoarDGGXrNSsl97nJ7T0Y4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778599747; c=relaxed/simple;
-	bh=VLlzTDKqENcf2nY/tZLWi3K6BDkHIlu04ZtK/m/xTZ0=;
+	s=arc-20240116; t=1778599804; c=relaxed/simple;
+	bh=uo+QRBH9al1GE4xPuYymyuvD5ZQZ9Cyw7WRYQqtouH8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=McYBf6lNCPwx1Tidh+gCPsqQtrgTfGm3k/KEX77D4RJl6mQxm2V/UuLRU07xuZ/xpcSnCmWsLjweOPxCZYaVOKDfYQh3exV2QHzjVsI4OuDPQiOIugVb7S25czQapbqgU6XchKL99ytmVWTbxozPPvcYPSWhXeT+1a91IauppCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hqv0fucY; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=lP40n0pB/i2pSDkXkt6YwzuXhNG3byM8RL/a582KQhcs12VLnMqZu0XpqE+R2H1uUL7RRlHMpQo0wyfpAjgSz725nl+zCY/Z8y2aClnd5yEjRQKAclrZbKa98vFQVeuqhweKxBynQmE+ZrNk1OZ99alut9ZmBL6awvz4t3+8uBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k4NVowMI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hqv0fucY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE16C2BCB0;
-	Tue, 12 May 2026 15:29:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k4NVowMI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549E6C2BCB0;
+	Tue, 12 May 2026 15:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778599747;
-	bh=VLlzTDKqENcf2nY/tZLWi3K6BDkHIlu04ZtK/m/xTZ0=;
+	s=k20201202; t=1778599803;
+	bh=uo+QRBH9al1GE4xPuYymyuvD5ZQZ9Cyw7WRYQqtouH8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Hqv0fucYtqkikpabrT+b2wdp1tTi7Q2FKmY0mHokaKsBIQxHXTrdoApHG+5nbaJ8n
-	 vo5d2Fv5gy4uohBeKSZ0h+64EDjhL+ZCj/xEsPZCgxy9eOoVhutZTwmwJqEwF7IB88
-	 mISbjXolEg/WMsCGcmZbrL4f130ZK5FZgSUBuzZFcJczwSxmyA763q566E4BUVynxq
-	 PKZnIVv7NJLGWQD0guS5Gki/ypf9buQMo+atnvhS0G+fDGNdLNor9UTIXUfRlbD2bO
-	 Z46kJdUWGH4XuVSMK2jLfIe7ek327/ciH6TPrkymmhAaW5d7J3y1WDHYb88bq5wJDQ
-	 0qMsH7ApkQpzA==
-Date: Tue, 12 May 2026 17:29:04 +0200 (CEST)
+	b=k4NVowMIz56adJ49hdhWEpZYP6EBeL+jjm0iuCG6FpYDmFw8HCIBIxkF8PzFlvc6w
+	 g89Hu3DDlCjzaVCpTD/aEp3gKRI/gNqwhRGX1x1l2NF0aBNVKGkSN3PU+X19poo6b7
+	 Q3HTK9YvBr4Dwp++Kh84O6VjmXMw5AhGMLsalo2PdSX59J/46L9NkB6UCoisc4+ThO
+	 azQrhUBP4FZ8l8DCyOZXfJM2lngRnAI1nkZw2kwUNvnzW8ocaUd3spYW47X5WMDImi
+	 9vOw2EcCuBjOdf02lBQQ/AZmXagvznhU7k9BzcXlO6gZgU9xO/s0l3W7NvwRWns5Xc
+	 o57Iq6BkrNrZA==
+Date: Tue, 12 May 2026 17:30:01 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Karl Cayme <kcayme@gmail.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, linuxhid@cosmicgizmosystems.com
-Subject: Re: [PATCH v2] HID: rakk: add support for Rakk Dasig X side
- buttons
-In-Reply-To: <20260321124759.608492-1-kcayme@gmail.com>
-Message-ID: <n647pn1p-o32o-68r1-ssnq-81sop7527onn@xreary.bet>
-References: <3284f00a-bea0-4141-a009-b367f527c466@cosmicgizmosystems.com> <20260321124759.608492-1-kcayme@gmail.com>
+To: Aaron Webster <awebster@gmail.com>
+cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: playstation: Add DualSense Edge extra button
+ support
+In-Reply-To: <20260407044008.40222-1-awebster@gmail.com>
+Message-ID: <n72ss355-o0rr-1p03-69p6-038r7sn23n45@xreary.bet>
+References: <20260407044008.40222-1-awebster@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,27 +45,23 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 21 Mar 2026, Karl Cayme wrote:
+On Mon, 6 Apr 2026, Aaron Webster wrote:
 
-> The Rakk Dasig X gaming mouse has a faulty HID report descriptor that
-> declares USAGE_MAXIMUM=3 (buttons 1-3) while actually sending 5 button
-> bits (REPORT_COUNT=5). This causes the kernel to ignore side buttons
-> (buttons 4 and 5).
+> The DualSense Edge controller (product ID 0x0df2) has four additional
+> buttons compared to the standard DualSense: two front function buttons
+> (Fn1 and Fn2) and two rear paddles (left and right). These are reported
+> in bits 4-7 of buttons[2] in the input report.
 > 
-> Fix by patching the descriptor to set USAGE_MAXIMUM=5 in the
-> report_fixup callback.
+> Map them to BTN_TRIGGER_HAPPY1 through BTN_TRIGGER_HAPPY4 so that
+> userspace applications can use these extra inputs. An is_edge flag
+> gates the extra button handling based on the product ID.
 > 
-> The mouse uses Telink vendor ID 0x248a with three product IDs for USB
-> direct (0xfb01), wireless dongle (0xfa02), and Bluetooth (0x8266)
-> connection modes. All three variants have the same bug at byte offset 17.
-> 
-> Suggested-by: Terry Junge <linuxhid@cosmicgizmosystems.com> 
-> Signed-off-by: Karl Cayme <kcayme@gmail.com>
+> Signed-off-by: Aaron Webster <awebster@gmail.com>
 > ---
-> Hi,
-> 
-> Thanks for the feedback. I updated the patch with your suggestion to
-> check PIDs.
+> Tested with a DualSense Edge controller (Hardware: 1000208, Firmware:
+> 1000087 type 3, Fw version: 20 131082 6, Sw series: 68, Update version:
+> 0213, build date Jul 4 2025) on Debian 13 (trixie) with kernel
+> 6.12.74+deb13+1-amd64 (x86_64) via Bluetooth.
 
 Applied, thanks.
 

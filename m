@@ -1,120 +1,117 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5602E413
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 01:58:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778551112; cv=none; b=sbBwBZ1Obd7aIGXa5ocyge3RVr2zsksRqF3w/rIETpzykfFWszOoUyYyEEkHxALbA9w9A18NwW8fzur8yHD3dgECFKwARITU/RonE6jPpx6vCGqnodF8gjRJaQNtTmDlj5NnxI+CEEk9Mjam5mreoM+KsITTX6C+e+q+fft7Ff0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778551112; c=relaxed/simple;
-	bh=xAs7soMkHl5ZEqelkAMU+KxZY7zEQ+JNb1bToXX50h8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q0q+KJ5jTaAefsL3KL+Kg+iOiiRmoD9mqDyUTnrS9huHG07hmjds8TVXlGBy6JOfuvzLyC92Wh4IGTPBxvyWzT3+z3wZMtnOG3IEr6/OhiO9x7EaXDKMxE0lraMI3EqlEmywGbIV0JcVZztjRYIlwBdd4Iqg9GgXix+GmtknKNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WR/7129v; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF33A19CD03
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 03:23:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778556195; cv=pass; b=f5IEw+jML6OZP34FyPAE8m086PYTBh3TuDoci1lVaazDixFLimKuPjI+IOBj/WV9P7ibBKzrwTbUwLXaC98T0f0aUul+g9+ND6NQbw6B2eblAuNZS8S3QqpB07dKV2XdBokojGvktcnT7CUJ5PF9BQwtInfaLV5bqel6kMYRyRc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778556195; c=relaxed/simple;
+	bh=E7iq/aL/xgpSFvAV8M6VI0zRLxJN22qDfKQRNMALdHc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=suwV2VFe80Acn/2Dy/zAuSk1yr+BLBK+D9IEAY7KO7RsrDAXtYIBnJCjvRqQwxd7JoK5iENzG1gp4CWZeckIdorE3VuHWaiBhPYu4DG1IoVNfa9V0Tg8CW96fRR8DzzRDBB2OvSRqKTheqUC+L0pGlm0Xp7Ym1N7Z4obgIetvq4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ut9LKsgO; arc=pass smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WR/7129v"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-365f36d7b88so716693a91.0
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 18:58:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ut9LKsgO"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-452169ae568so3742297f8f.3
+        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 20:23:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778556193; cv=none;
+        d=google.com; s=arc-20240605;
+        b=lP73WYEZ6+LzCRmVW1AHOH8Mw5ahHRr2zkRxuijY0IAq6jxT4EOkJZ3+2QJvqPUABo
+         OKqj3LRXo+noBESc7kH39Nzlz+bwp3XyuqVP1WPEhEcHbwGU4O0G1gOVxA05Uk6o8uGG
+         TSg3mFpWOok/TdIrdpz8kkPCUUgqcDgsQQ4qY7S9VVWnXT8QwEd5GebICNNzQYNzgewN
+         SUvn269+kxQcs57f7xRETmdmtnXGeOuHFmydqPYtxWTFMVvaV/XgJwufcGLPmiU6SOcJ
+         xyJ+rulSbxhyr1uDhFcfv2ugrgpRsbs6x0Fb0xCpZedVB6Ffbwl9OAKDBMKSY6ID5G9n
+         oXhQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=E7iq/aL/xgpSFvAV8M6VI0zRLxJN22qDfKQRNMALdHc=;
+        fh=uMg/krFhgBJOkuZC2XLMtWBqebliJQJqp2DWI9MmUSA=;
+        b=fsjctrKaMQOudJxDPBS4Z2nDLuGWrQ30pn58jLaWlzCnvW9+twYhvaw8RerM+BIi9a
+         7SIktjG82QEZ5E9FB/nyW7fRC0pEZMd7clIhjHTtMqO+jxUnDBJ9yLHImgTYcbTxTM5C
+         3RdwcMct1knolYjr0eSjKHrrbSu/ubrf0VuOKdlqtXMz48uBqMrL+960r750MJKt1pgy
+         ZU9sncc6RnmZRPf8Q63fpdoq1oy/2idI5raPnzqp5h7nTRnvGf9qeY5EI32ESWnqUGeX
+         Mgk4f+Gqtv0A47fGed5USexV0VSOPod94tKODnyjsVfWY2Jh/GyMBYH8CwzvVANEL4L/
+         2j9Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778551110; x=1779155910; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=bv5IUYRwwH6Sa8774zC9j8VUEUymXFEHfk8vFZ4aRM8=;
-        b=WR/7129vb+jWv3QWTRw9pmZzSjj346vj3/fEyUDHArsUiAfEHec9+2W6PwSOg9Ln7M
-         5VDv7M8bgaa51u58vqz+cwgJcML719XAqTg5dzhtf4Esq/3lMt8lALx60uhlcim/8qyq
-         7tyWASGeT8gJwf00KxeGtZzKm89BCptyr22h0+CY8hRt6Oa0mMHAHXokGhZWOKn/zire
-         mA94RPjfsNlrSPuUlVuteCqpZIM3OSykADQYmobyp0HNA5h0KF0oHqF3QPFtm+Xoml4Z
-         87RNG3uxJuk5UmOZZ3hXvkokUb6PHp4FSqJEkbcQdC37Cdb7OZefcRQW4b091vKLyitL
-         UlTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778551110; x=1779155910;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1778556193; x=1779160993; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bv5IUYRwwH6Sa8774zC9j8VUEUymXFEHfk8vFZ4aRM8=;
-        b=L+CcYE3w2pOvBaBh3aXKEY7OnxnzJGWRfpP4Ns2ILmdYwxvFrRf7/Qa/QObdA2POmv
-         FBMZRKYgm1TaATnf5VTyE1AIEbuc89ojpxkeGbopFKQjnoZkDksHO4ASiWu1CnM7wZga
-         vnFhVCSvLWlEhoBPO00ONfxEHjuaKqQfZ5l3Zbo3YyF/JT9G+VIPfobsRonqjUZbwo1+
-         lfooZ8t7xymbEFlSYUT8qAkaYR7Xb+ERM+SvZGwjDbQeUBYzyfdNesjdelun04XUzBfj
-         xD4FPPzLcfUDnhr3NCNl/rWHrfmF0FV6/TUyI4+6CknjkYAjhq7GFHJU53INs/tkVe8P
-         2XoA==
-X-Gm-Message-State: AOJu0YzUsBdcpk3z6KSF++vCVUoVQ5Dz/j0j51HNJbFoJJHJrVZfjsjD
-	vGFrMNfxa89JLmdqyvEv/7VrO47dyud707GQUD2sYFM9ZkUSWCGp026f
-X-Gm-Gg: Acq92OEBCv3R1Sqvxy8DhXCpe4Z1+QBxTEZE51tDS15VsQQcWwOWfm+Z9KB2jaq6FlP
-	VQMyUpvIi72Wup1lCp9OuHeqTWsQSDSf2zWey28jW+CTdg6ePAMlV/C7J+/8mOPAjEzfMLAEsBK
-	knLHvZ6p/qCNL8k+Kjbr05AZww2ULhGt/F9+QKfi+UD+yeSma+ycxoopkIJnsYKwdxSHHaI27h/
-	WJcefNoPGbxvURqOigeF0BzPPP1l+/yic5doxQnzptvrOOLDoTcfLqO9kzKn3TowKpdbuNKD0Oz
-	7kB7TC4GaWzv45zYJ6u8KqioDFc1RM9hIwXfFb7n3SBuwlBndgGz8tIVEBOz4doYzoXed0/tv1d
-	WYT3tBYZTX0neQEUgVf5qe0E3PJ2J6h7pfrAJriX1/xStXpHa4F2ONAYXmbHN+zW5gf5FI3QXcu
-	pEE30jU9MI0Fy9fStVw2FvNiTBxBVoBpH1yoznjI2372U=
-X-Received: by 2002:a17:903:457:b0:2bc:ee93:ddc1 with SMTP id d9443c01a7336-2bcee93e22amr13323735ad.4.1778551110341;
-        Mon, 11 May 2026 18:58:30 -0700 (PDT)
-Received: from SH-7N5RBY3.aixin-chip.com ([113.106.167.250])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1d27055sm117932915ad.6.2026.05.11.18.58.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 18:58:29 -0700 (PDT)
-From: hlleng <a909204013@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	hlleng <a909204013@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: quirks: Add ALWAYS_POLL quirk for SIGMACHIP USB mouse
-Date: Tue, 12 May 2026 09:57:37 +0800
-Message-ID: <20260512015737.8919-1-a909204013@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=E7iq/aL/xgpSFvAV8M6VI0zRLxJN22qDfKQRNMALdHc=;
+        b=Ut9LKsgORuc0Ty4zdiCxgpfLFfkMr+H7KJ+bp6QoKC1HI7RwZZNQgmrTWk2bEheTtv
+         H3nIQXJDuK54DbQGESPybRE54J9EX9HLrK2mbHIrr7WC4L+WS3pxBWrxCF5aTfv+ir4e
+         VjOev9yduEkzsdpbH7kH9L0g4xXww7Mr2DZKKo75VTqerllxbujqhYpPyt2Y/jr1VGjf
+         rtgLFvYSl613kgi/kFmfgiM71hsxFL3FieIAw4791kMLWXSqxaWpZj7xxfhA9GHAZadI
+         +EZsAI4/qUAwW865rmwU6CxUU1/3Xg8xyv6gRo/RUz5HfvgOXGo1ePVWzT9EE+mpqq5S
+         X+SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778556193; x=1779160993;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=E7iq/aL/xgpSFvAV8M6VI0zRLxJN22qDfKQRNMALdHc=;
+        b=JLtFV1BGi2CZxYBfBZxhFYEKAAVMa1VUMXdEegc/eOhy7VkbVc7P2dMP7rrYcHJgRK
+         orAY7EFizRKVxmkyxDH3sVyhUknL7w5LEdQk/+ufzYs4CbbI/54KHaF/B+eX+6t3ruzx
+         LpyHgKevDVx3Uh0K0kxK/Q1e689PNFyhKQDrnMPmbkHN4jdKBqWt0nrMZFyPGKR7D7n5
+         wc2eK0HJuo9MO3SLTXMhFFPhFpBrc+xAlYKoFlxkH2Vx7UTSweghXR3GfeNpTSbk6uVV
+         7XLLbdLoYVhJJWZCwReZj/kR9oTCupSg11NfLL8YE9fBx2V5J6LHFnpzwka8A6o+GyT7
+         SdjQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8+1fxjquQZ9AEtO/MeWI+ETWCIMFhVe4BrGTeO5bTm68R8pCJi/ndOuFx9wqQ7CVKaXpZOXx91VrxNwQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyjK11PbBkkDF3FBoGeXRprK7iWV2QSykn+K/wssOU5jYq+gwUA
+	HEkLMzRMijyL69nBb4o0VbeVVFvA3PU66RIMKKBMgBHQO6u/D4gj20+gVxFc5lfKeuQQ7vwoBIT
+	buXlnkSW1DFAsAxJN+1XGGd67tacPfIs=
+X-Gm-Gg: Acq92OHg0VcqArCnz1T0CBYqntIxsHCziGKBo1sDZPLFSNc7sx+W/ISBXF7aO+MMK1s
+	suIveWiYkdUKjq9aqZhABhLMMO4ChDkJk+FNmLEg295oTtGrgRmrJDJSO1ukdd8l3IFZXtmwDrR
+	H7LNFWJU3zK9NyBCBBc+F2ajbJfdSgbcvNjEgbbv14IT90SA/g8NYKCWGgYkbVDEKDahs9WPmbO
+	K0rucxQX7qBCy5KKk84Rorbv2QRODdHvrdvfQy1lEArm1gQt7oLNa9mqfqwnW6C6wag8G8awozt
+	r2TyvRc=
+X-Received: by 2002:a05:6000:22c6:b0:437:711c:8754 with SMTP id
+ ffacd0b85a97d-4515b056c9bmr41045834f8f.7.1778556192946; Mon, 11 May 2026
+ 20:23:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260511054003.1205-1-horiiyuk@ishida.co.jp> <20260512000455.44AB2C2BCB0@smtp.kernel.org>
+In-Reply-To: <20260512000455.44AB2C2BCB0@smtp.kernel.org>
+From: =?UTF-8?B?5aCA5LqV6KOV5qi5?= <yuuki198708@gmail.com>
+Date: Tue, 12 May 2026 12:23:01 +0900
+X-Gm-Features: AVHnY4JXqiCbgcaO0dSCCIbA4hH7sZTeBdkheQnG2w7s9AJy_5G5rzjIoxrlA38
+Message-ID: <CAMARicOm-QwVrBnR+giVjzqfJ4hZP5PwZO7+o9o_SkLhEtxUZw@mail.gmail.com>
+Subject: Re: [PATCH] Input: tsc2007 - fix resistance calculation when A/D
+ value is saturated
+To: sashiko@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	andreas@kemnade.info
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The SIGMACHIP USB mouse with VID/PID 1c4f:0034 can disconnect and
-re-enumerate repeatedly after it has been enumerated if its interrupt
-endpoint is not continuously polled.
+Thank you for AI review
 
-This was observed with the device reporting itself as "SIGMACHIP Usb
-Mouse". Keeping the input event device open avoids the disconnects.
+> Does this code read uninitialized stack memory? The IIO path initializes
+> tc.x, tc.z1, and tc.z2, but it does not initialize tc.y before passing th=
+e
+> struct to tsc2007_calculate_resistance():
 
-Add HID_QUIRK_ALWAYS_POLL for this device so the HID core keeps polling
-it even when there is no userspace input consumer.
+I knew this code existed, but I didn't realize it hadn't been initialized.
+I'll fix it.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: hlleng <a909204013@gmail.com>
----
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+> Is it safe to return 0 to invalidate the sample?
+>
+> In tsc2007_soft_irq(), if there is no pendown GPIO, !rt evaluates to true
+> and prematurely breaks the polling loop, causing an early pen-up event.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0cf637423..c07e90dbd 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1280,6 +1280,7 @@
- 
- #define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
- #define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
-+#define USB_DEVICE_ID_SIGMA_MICRO_USB_MOUSE	0x0034
- #define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD2	0x0059
- 
- #define USB_VENDOR_ID_SIGMATEL		0x066F
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 9e88c9d6c..800b8f76d 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -187,6 +187,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_USB_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SIGMATEL, USB_DEVICE_ID_SIGMATEL_STMP3780), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS1030_TOUCH), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS817_TOUCH), HID_QUIRK_NOGET },
--- 
-2.54.0
-
+I'll fix it.
+In the original code, I had set touch input to be disabled when the
+value was 0, but after submitting the patch,
+I realized that setting the resistance to infinity=E2=80=94rather than
+disabling it at 0=E2=80=94would allow the interrupt handling to continue.

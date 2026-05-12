@@ -1,120 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446893E1737;
-	Tue, 12 May 2026 14:12:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EBE30674C;
+	Tue, 12 May 2026 14:23:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778595168; cv=none; b=dkFv3TPtiYnWS5MJIRuc/VCPVNN+BNLjqUZbehCxqcMocLWvnH4yM4s/MFIQSMjZsftLNBVGB+RMkdErdVaGro6YqGWC4LiB+K1FYdU5lCriOByGmYU0WQFJfdRlYrYJuUXH4fW3g/XGEXuQtCuDqsdrAEDew/W4SJKCWfioVlw=
+	t=1778595826; cv=none; b=LMoz01UgiXZm5ExRquD4Kx42fbT1C9z5KMLIk44lwhYpZqWn9ULnffhaXt12FvKdNrzEZvC1jdhUfIPXtjOXSFEoaHzfk8KN+mhJ0NYba9yyKXBJkZuciBd+F9CBdOin1/ch9RkFXC06IvPKLLkKKlFOMlK0Nu1NHxDTLbez32o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778595168; c=relaxed/simple;
-	bh=B6uFFKDPzxb1EnLNbahZuQNNPv+O32wyp/noeJIB2EU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bbcPt/dE+iQYZmN9ZzqQQllvWoliEKhCMCfscUlemXoOE30dPOs5tiGStB1xF8BpPFAafjXmLKkpLX59vd42u4h5Ypmc1DhdtxxEyOJUrhhuWkmeEzHZ5Iy6bjykJmH5Xjq4s0LDAQJ5ra1U/0S+9Ip0dzmhRu+1q67QR5cON6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G9ksS8zI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778595826; c=relaxed/simple;
+	bh=y8mAbnfihQlbn5KIg2BP/pMGPicJRvRywvyZkkl/7gI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dEbE9b/zEFQ6rCXwNztCuT7qt1aN51Q+1W3sLcn+/5qbFCGUed5/f5GVhZuACCyznpYzXxaJvXGUMTLC1vVy5fY0rFy8h82dPEskZFfreYMNtKvfDuCAUyc5dnJW/HJrZf0F3z9Bm1IdiHzhwqbZNoKA1cd98Z0oYTH6VjPo90M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=nRuctoCq; arc=none smtp.client-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G9ksS8zI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC720C2BCF5;
-	Tue, 12 May 2026 14:12:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778595168;
-	bh=B6uFFKDPzxb1EnLNbahZuQNNPv+O32wyp/noeJIB2EU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=G9ksS8zIeFzWqQYUPwKFUab1U/aim+ew/q+yFvW3WG7kCffS0O8VGZZLoAcLC7GKs
-	 e+LEXrtEJF7v0PX0xIeRLi+cqx6neb0nS8bjFCrc1jNP1iQ/YsHJCwdyEHZWLu1Pot
-	 ardEKZ5RXDce+Bp4njc/xvZcy4BcTt6WOL7EAO69xhXxjdomgkwfTAFOBsQfCp4x2C
-	 uO8ropFRYKcJ39TiMx2cWPXx4oA0qRoH3RPTS/Y7cGD6b9g4/1fs4usFao7+zqTajF
-	 ygVI6mMd1uws4tyDlm4x1mDaNwUn2X+TWIHfH3Om2jsXUsQFqvMxdZYVWdGkP0Yczw
-	 lIfb2TyLunH2g==
-Date: Tue, 12 May 2026 15:12:43 +0100
-From: Lee Jones <lee@kernel.org>
-To: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/1] HID: magicmouse: Prevent out-of-bounds (OOB) read
- during DOUBLE_REPORT_ID
-Message-ID: <20260512141243.GV305027@google.com>
-References: <20260416131655.2279756-1-lee@kernel.org>
- <aeDwkQ-S6QQuK_RL@google.com>
- <20260430140148.GJ1806155@google.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="nRuctoCq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=DL
+	u5/4I32U0g3yDdgFjqxLbxkDhEBZD8jR1ow/3kSZM=; b=nRuctoCqivuWkS64ey
+	j6SY39o5ytQjijZL4EHakoR1cxOUmmhYcBT2wJkfxA9vH5Nlzw5KD5U7CCDuuqkF
+	SLvFYjgHpsOcICXPhOoTviu6k/bWLbsOuSSd30S6SuHlycdFl7sANXJNJmPMQCn/
+	5bYpYQqxfB4k78tp7Cx4dwjaQ=
+Received: from debian (unknown [])
+	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wDnr6PDNwNqKznVAw--.15816S2;
+	Tue, 12 May 2026 22:22:59 +0800 (CST)
+From: Kean <rh_king@163.com>
+To: derekjohn.clark@gmail.com,
+	mpearson-lenovo@squebb.ca
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kean <rh_king@163.com>
+Subject: [PATCH] HID: lenovo: Restore Fn-lock LED state on resume for tp10ubkbd devices
+Date: Tue, 12 May 2026 22:22:29 +0800
+Message-ID: <20260512142229.4098386-1-rh_king@163.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260430140148.GJ1806155@google.com>
+X-CM-TRANSID:_____wDnr6PDNwNqKznVAw--.15816S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxJr1UAr13tFWDKrWfXrW8WFg_yoW8Ar4rpF
+	1UXF4FvFZFgw17Cr4Svw4v9a45AayrJr4xurW3K3Z29as3tryDJrW2ya1Yyr15tFykJryf
+	WF4UJrWUWFWktwUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pKjg2gUUUUU=
+X-CM-SenderInfo: 5ukbyxlqj6il2tof0z/xtbC4ANZCGoDN8MIoQAA3G
 
-On Thu, 30 Apr 2026, Lee Jones wrote:
+The reset_resume callback only restores trackpoint settings for compact
+USB keyboards (CUSBKBD, TPIIUSBKBD) but omits the tp10ubkbd device
+family: X12_TAB, X12_TAB2, TP10UBKBD, X1_TAB, X1_TAB2, X1_TAB3.
 
-> On Thu, 16 Apr 2026, Günther Noack wrote:
-> 
-> > On Thu, Apr 16, 2026 at 02:16:54PM +0100, Lee Jones wrote:
-> > > It is currently possible for a malicious or misconfigured USB device to
-> > > cause an out-of-bounds (OOB) read when submitting reports using
-> > > DOUBLE_REPORT_ID by specifying a large report length and providing a
-> > > smaller one.
-> > > 
-> > > Let's prevent that by comparing the specified report length with the
-> > > actual size of the data read in from userspace.  If the actual data
-> > > length ends up being smaller than specified, we'll politely warn the
-> > > user and prevent any further processing.
-> > > 
-> > > Signed-off-by: Lee Jones <lee@kernel.org>
-> > > ---
-> > > v1 => v2: Add more size checks to protect against issues during recursion
-> > > 
-> > >  drivers/hid/hid-magicmouse.c | 16 ++++++++++++++++
-> > >  1 file changed, 16 insertions(+)
-> > > 
-> > > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> > > index 91f621ceb924..e84e6b21d113 100644
-> > > --- a/drivers/hid/hid-magicmouse.c
-> > > +++ b/drivers/hid/hid-magicmouse.c
-> > > @@ -390,6 +390,10 @@ static int magicmouse_raw_event(struct hid_device *hdev,
-> > >  	struct input_dev *input = msc->input;
-> > >  	int x = 0, y = 0, ii, clicks = 0, npoints;
-> > >  
-> > > +	/* Protect against zero sized recursive calls from DOUBLE_REPORT_ID */
-> > > +	if (size < 1)
-> > > +		return 0;
-> > > +
-> > >  	switch (data[0]) {
-> > >  	case TRACKPAD_REPORT_ID:
-> > >  	case TRACKPAD2_BT_REPORT_ID:
-> > > @@ -490,6 +494,18 @@ static int magicmouse_raw_event(struct hid_device *hdev,
-> > >  		/* Sometimes the trackpad sends two touch reports in one
-> > >  		 * packet.
-> > >  		 */
-> > > +
-> > > +		/* Ensure that we have at least 2 elements (report type and size) */
-> > > +		if (size < 2)
-> > > +			return 0;
-> > > +
-> > > +		if (size < data[1] + 2) {
-> > > +			hid_warn(hdev,
-> > > +				 "received report length (%d) was smaller than specified (%d)",
-> > > +				 size, data[1] + 2);
-> > > +			return 0;
-> > > +		}
-> > > +
-> > >  		magicmouse_raw_event(hdev, report, data + 2, data[1]);
-> > >  		magicmouse_raw_event(hdev, report, data + 2 + data[1],
-> > >  			size - 2 - data[1]);
-> > > -- 
-> > > 2.54.0.rc1.513.gad8abe7a5a-goog
-> > > 
-> > 
-> > Thank you! This looks correct now.
-> > 
-> > Reviewed-by: Günther Noack <gnoack@google.com>
-> 
-> Contentless ping. =:-)
+If these devices lose power during suspend, the Fn-lock state reverts
+to the hardware default but the driver's cached state and the keyboard
+LED are not restored, causing the LED to show the wrong state after
+resume.
 
-Biweekly ping on this please - if you'd prefer a [RESEND], let me know.
+Add the missing device cases to restore the Fn-lock LED on resume.
 
+Tested:
+This patch works on ThinkPad X12_TAB.
+
+Signed-off-by: Kean <rh_king@163.com>
+---
+ drivers/hid/hid-lenovo.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index a6b73e03c16b..4c9fb163b6d6 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -1424,6 +1424,8 @@ static int lenovo_probe(struct hid_device *hdev,
+ 
+ static int lenovo_reset_resume(struct hid_device *hdev)
+ {
++	struct lenovo_drvdata *data;
++
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+ 	case USB_DEVICE_ID_LENOVO_TPIIUSBKBD:
+@@ -1431,6 +1433,17 @@ static int lenovo_reset_resume(struct hid_device *hdev)
+ 			lenovo_features_set_cptkbd(hdev);
+ 
+ 		break;
++	case USB_DEVICE_ID_LENOVO_X12_TAB:
++	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
++	case USB_DEVICE_ID_LENOVO_X1_TAB:
++	case USB_DEVICE_ID_LENOVO_X1_TAB2:
++	case USB_DEVICE_ID_LENOVO_X1_TAB3:
++		data = hid_get_drvdata(hdev);
++		if (data)
++			lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED,
++						 data->fn_lock ? LED_ON : LED_OFF);
++		break;
+ 	default:
+ 		break;
+ 	}
 -- 
-Lee Jones
+2.53.0
+

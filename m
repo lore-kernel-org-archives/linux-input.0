@@ -1,84 +1,64 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CA2C3C4171;
-	Tue, 12 May 2026 15:47:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4003A3C4B71;
+	Tue, 12 May 2026 15:48:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778600859; cv=none; b=DcLp2gjYpE3pcNmKdzpYPMEXtkyAnCgKpGYkgwKW5F0+JY9ADsbnWj7Wsn/3/qaEBoKIm+okwam3oxXnVijuu0ghKW0g6hHok0mu4g5OgM60ofReuTcWHt/ZDX5HhM8oqU6CauZF7vT7iJS2jha4bi2oEtFZK753g6RJOv+SK8k=
+	t=1778600916; cv=none; b=GB8PP7aofBiu5f5eGcu6tnnllhK6u/q2zPC3M1Fih3+q4Ih9frTiRqXj2XAneuAjXvUxvIVh4GfURM+Z3FBUlYScmxmYd4K1p97kwMKLnknb6Z4EJ7nJd2MVJhP18pAmOZh/Sg+URpcJDlF0A1HsELeEJaQ8A4ZiLCVs/JxlYD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778600859; c=relaxed/simple;
-	bh=IOsakCQ+qk3eSp+Q4Jr6hE4lY3rxIYDpHQ08sUyxto8=;
+	s=arc-20240116; t=1778600916; c=relaxed/simple;
+	bh=h6TI3fRYcu7jE1vMi+cETt5NPGKT82lG9BXPRnALDs8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=CGfqL0wEanBqCQXcw+R5HP2NVuT28Y7cS1NrEAkiM8hWh2KNuP1N2Yk3OBhDul1avy0JTrqAw+du220rKlwcLbivYi7BUThpzVxVpUSVapVAQZQhOrFUVd0Is8bRS/XUeIWkscXTWy92XFHNyN1v1uJ4MO2yC46Xew4YFvTOS/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mx9g2jUI; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=eGnbPzvOqxISZN6XNLLxWCZb3xPb4eCrMxancsKlrB6yuErHEzeP5yzeZHnrmU4J96tqRedHCAWLwvgBZWhKVC3Brmk7exJQq514WBEKpBXtSBRCidSEtK3NzT5kFO9cf7I5vu76tXiC2ljkCKoAjRhXSBY/345UB69my6rWBkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pGITHCPB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mx9g2jUI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B141C2BCB0;
-	Tue, 12 May 2026 15:47:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pGITHCPB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCA7C2BCF6;
+	Tue, 12 May 2026 15:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778600858;
-	bh=IOsakCQ+qk3eSp+Q4Jr6hE4lY3rxIYDpHQ08sUyxto8=;
+	s=k20201202; t=1778600915;
+	bh=h6TI3fRYcu7jE1vMi+cETt5NPGKT82lG9BXPRnALDs8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Mx9g2jUIsn94WPpB2pRJyZUdFSAT81QJ68MpEUyHQEThnmYgXo0uletOsySGNXX7D
-	 sJJjIhuzJr5GXnitzTj8/jrDIosBxq8Ke2A6VbOYSXu252xKY7RgvMr9eRLst5EEii
-	 bHs0K69W2fYijnblpTpIc+MDsJH/xNbOLktTArBjbHpjgTpSVjBvKKoA0faWYLleKf
-	 FtY0yDIgHaQSrSPYQW7q/HhIPgKx8rrekVqT0D6svykSvsCbmCGNJf3zf64Iq8kQT3
-	 CKn5dtX1nbhHUjOKJosvnSk6aZlBow8J+stZHVwSFFBqnXFodPC8L6+HPUcJkkDvvv
-	 pTjTXEyJ5e4Fw==
-Date: Tue, 12 May 2026 17:47:35 +0200 (CEST)
+	b=pGITHCPBeKroLqfSFSiRiHq3VKYoA538+WbuOPTO4btQcwC9WAOTvDX9YFY+KEcYf
+	 7O6h3XQfuxjYx2l51Kasqztn8c/r/WQqv9KGHNacuzZbZm45mX7Hqe6MzkIneNdsue
+	 jHgvXsphmZkQ9dYffH1WNzgoDqXap4RZGOMXZVIa1oSbECTV+kenrtTJPjD1EO8/Yg
+	 9swlgyCt5jA6bCigvxBt2CqRJGTDdHqmRD/+3lM9hTV1H7S+R7ReYv9a2Hdx6sZNW1
+	 G1ZgACrONRS6t+ASQSIGm+5i+cTG/2hepvfzNppMvNbG7dc3OJXK4hM4qP9oxnSwcP
+	 1rIXOtgPKmP8A==
+Date: Tue, 12 May 2026 17:48:33 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Benoit Sevens <bsevens@google.com>
-cc: Rishi Gupta <gupt21@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>, 
-    linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: mcp2221: Fix heap buffer overflow in
- mcp2221_raw_event()
-In-Reply-To: <20260415114752.1181079-1-bsevens@google.com>
-Message-ID: <417rqoq0-1q2q-r96q-p258-240n74nr3n14@xreary.bet>
-References: <20260415114752.1181079-1-bsevens@google.com>
+To: Florian Pradines <florian.pradines@gmail.com>
+cc: gupt21@gmail.com, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
+    linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: mcp2221: fix OOB write in mcp2221_raw_event()
+In-Reply-To: <20260509094517.2691246-1-florian.pradines@gmail.com>
+Message-ID: <623310q7-r14n-ro96-0rnn-op811r21s2sp@xreary.bet>
+References: <20260509094517.2691246-1-florian.pradines@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 15 Apr 2026, Benoit Sevens wrote:
+On Sat, 9 May 2026, Florian Pradines wrote:
 
-> From: Beno=EEt Sevens <bsevens@google.com>
->=20
-> A heap buffer overflow can occur in the mcp2221_raw_event() function
-> when handling I2C read responses. The driver failed to check if the
-> total incoming data length fits within the originally allocated buffer
-> `mcp->rxbuf`.
->=20
-> Fix this by introducing `rxbuf_len` to `struct mcp2221` to keep track
-> of the allocated buffer size. Initialize it in `mcp_i2c_smbus_read()`
-> and `mcp_smbus_xfer()`, and ensure the copied data length combined with
-> the current index does not exceed this length in `mcp2221_raw_event()`.
->=20
-> Signed-off-by: Beno=EEt Sevens <bsevens@google.com>
+> mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
+> offset rxbuf_idx without checking that the copy fits within the
+> destination buffer. A device responding with up to 60 bytes to a
+> small I2C/SMBus read can overflow the buffer.
+> 
+> Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
+> mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
+> before the memcpy.
+> 
+> Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
 
-Unfortunately the patch seems to have been somehow mangled by your mail=20
-client:
+Applied, thanks.
 
-=09patching file drivers/hid/hid-mcp2221.c
-=09Hunk #1 succeeded at 126 (offset 7 lines).
-=09Hunk #2 FAILED at 324.
-=09patch: **** malformed patch at line 173: u16 addr,
-
-Fix for the same issue has later been submitted by Florian Pradines [1],=20
-so I will be taking that one and adding you as Reported-by: or so, ok?
-
-Thanks.
-
-[1] https://lore.kernel.org/all/20260509094517.2691246-1-florian.pradines@g=
-mail.com/
-
---=20
+-- 
 Jiri Kosina
 SUSE Labs
 

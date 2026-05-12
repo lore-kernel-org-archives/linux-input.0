@@ -1,142 +1,120 @@
-Received: from mail-qt1-f201.google.com (mail-qt1-f201.google.com [209.85.160.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94D3C39E9B6
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 13:22:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446893E1737;
+	Tue, 12 May 2026 14:12:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778592174; cv=none; b=bOZ3A0JSPZJsb1vTANsH7lUC/kdHuWUi0wh6Ng0Uwm2lZDVsLEIAJM5NkH7V7MjPyA3J3ypD7LIt4UkDzWrRHDMB/7dK21ZG1iq8aucF+tfdr3jGvqVWlin2pUO9ZUheArXzwJrKlKJN9t/09f1sqkqFDA43V3ZMh0krHiO0f4Q=
+	t=1778595168; cv=none; b=dkFv3TPtiYnWS5MJIRuc/VCPVNN+BNLjqUZbehCxqcMocLWvnH4yM4s/MFIQSMjZsftLNBVGB+RMkdErdVaGro6YqGWC4LiB+K1FYdU5lCriOByGmYU0WQFJfdRlYrYJuUXH4fW3g/XGEXuQtCuDqsdrAEDew/W4SJKCWfioVlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778592174; c=relaxed/simple;
-	bh=eXajPHBFh/ViJTg3RRVlgjudzn1KXcoIliYn3vy936M=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=QuZJ+KRl4piG68xTpbHwl8ErYfvM063fPaz0yNs5uTneS7d8uWvhHgP5tEnZfQXdJ+NqkOhK6g2q/gs8dsc86fa335ccpIyQC1la9HyrnYOv+LM1R7zG03kKzuGiIH3s9rBVDbG6RF2mcgLUetCwetjuyvUJLvdXcUtAHcDmlYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--alainmichaud.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cyfFZRgL; arc=none smtp.client-ip=209.85.160.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--alainmichaud.bounces.google.com
+	s=arc-20240116; t=1778595168; c=relaxed/simple;
+	bh=B6uFFKDPzxb1EnLNbahZuQNNPv+O32wyp/noeJIB2EU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bbcPt/dE+iQYZmN9ZzqQQllvWoliEKhCMCfscUlemXoOE30dPOs5tiGStB1xF8BpPFAafjXmLKkpLX59vd42u4h5Ypmc1DhdtxxEyOJUrhhuWkmeEzHZ5Iy6bjykJmH5Xjq4s0LDAQJ5ra1U/0S+9Ip0dzmhRu+1q67QR5cON6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G9ksS8zI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cyfFZRgL"
-Received: by mail-qt1-f201.google.com with SMTP id d75a77b69052e-50b220c72bbso101010091cf.1
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 06:22:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778592171; x=1779196971; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=o6XVF4h8qLb1Bk959d18rlYU+hOmfT5HVAyvAGLw3pI=;
-        b=cyfFZRgLZpWh088Y/UzAaiZzm+ouTLmbucQnkYWTYDga2PiBgWG4rV6rZjT8Y53DSi
-         /x5wj7esu9/EoWbhPNmF+hUUS1Kt693TvLT/pRDH1KAieb3AfPB8c/Sj0PbDr3Mvi9B4
-         aptUpuazzlhKBJfQS30/lOu4/O0ajOoQC2u1PrWg+72E/QUReKSMvyUrXhEnY4kb6iyH
-         r2g/A46J7kooh0iLJLgVjVIFUaemL9NlihQj4VSPkQVz8dkNLRIGBnNUiSk8tCvfTOl4
-         ub9NACZjcOQnRHv4wLi10hTmG/z3/WajMWiktwbiAa6AMz97bLFgpvzPs05tQTWYNr5i
-         UFkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778592171; x=1779196971;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=o6XVF4h8qLb1Bk959d18rlYU+hOmfT5HVAyvAGLw3pI=;
-        b=VYA+1kaewAo8+N9glvByd0/EQfx8h0DMnY18Ze7DM0xiSJD7A+rGub9KqCC6KCKIGc
-         sXMQI1DTKNeoyGrlGeh1wyZrCph+GEhBjntt63hHMSuufUX7uo0s/95Kzin/niJkjLtp
-         ko1fweRD+JASH5Wvu9RY4xnSM3tj4gcLGe1WmH34TrZU4HkhQhtlGg+Zz9JHYwaYdthD
-         6LpqO6XCLcsA8on5iO+58ne/xai+megQ7ekGg38Ous5nsj42I+UmR7a+0nmkCYsGK0Zs
-         eqB0Fps26QATGORsSUKHOb/rR68PHU8Tsoun3LvmLYvdZZHQDL5GLN/Kad5mKpy8LC38
-         I/PQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9x/LSH4u4yvYdGfJSf8a68eFYeujg6byt/db6GMKW/Cz+O8/m0DIHciuf4+4R9EmaGGtEUOqAlYsP2ow==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2fJqDuGiM16Awl9BnXlh4mnGZuH4wDa+dsH7kR/9/Cl19cbhz
-	cLCn8npjELnrteNm1x4Bc5Z5V2B+SGpYGuDhLcjCBF6NACqUa5ii6m39A5MKaE2gUcfaDCUvDi/
-	s0f4UOOCwPoCB4QREQHMUnTkhN98mZg==
-X-Received: from qvhc13.prod.google.com ([2002:ad4:5aed:0:b0:8c0:528e:4d45])
- (user=alainmichaud job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:622a:5c1a:b0:50f:b9e7:3031 with SMTP id d75a77b69052e-514d1c45140mr35336421cf.7.1778592171230;
- Tue, 12 May 2026 06:22:51 -0700 (PDT)
-Date: Tue, 12 May 2026 13:22:44 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G9ksS8zI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC720C2BCF5;
+	Tue, 12 May 2026 14:12:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778595168;
+	bh=B6uFFKDPzxb1EnLNbahZuQNNPv+O32wyp/noeJIB2EU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=G9ksS8zIeFzWqQYUPwKFUab1U/aim+ew/q+yFvW3WG7kCffS0O8VGZZLoAcLC7GKs
+	 e+LEXrtEJF7v0PX0xIeRLi+cqx6neb0nS8bjFCrc1jNP1iQ/YsHJCwdyEHZWLu1Pot
+	 ardEKZ5RXDce+Bp4njc/xvZcy4BcTt6WOL7EAO69xhXxjdomgkwfTAFOBsQfCp4x2C
+	 uO8ropFRYKcJ39TiMx2cWPXx4oA0qRoH3RPTS/Y7cGD6b9g4/1fs4usFao7+zqTajF
+	 ygVI6mMd1uws4tyDlm4x1mDaNwUn2X+TWIHfH3Om2jsXUsQFqvMxdZYVWdGkP0Yczw
+	 lIfb2TyLunH2g==
+Date: Tue, 12 May 2026 15:12:43 +0100
+From: Lee Jones <lee@kernel.org>
+To: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] HID: magicmouse: Prevent out-of-bounds (OOB) read
+ during DOUBLE_REPORT_ID
+Message-ID: <20260512141243.GV305027@google.com>
+References: <20260416131655.2279756-1-lee@kernel.org>
+ <aeDwkQ-S6QQuK_RL@google.com>
+ <20260430140148.GJ1806155@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
-Message-ID: <20260512132244.2194556-1-alainmichaud@google.com>
-Subject: [PATCH] HID: logitech-hidpp: Add support for newer Bluetooth keyboards
-From: Alain Michaud <alainmichaud@google.com>
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: lains@riseup.net, hadess@hadess.net, ogay@logitech.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Alain Michaud <alainmichaud@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260430140148.GJ1806155@google.com>
 
-Add product IDs (PIDs) for several newer Logitech Bluetooth keyboards
-to the hidpp_devices matching table, enabling full HID++ support for
-them.
+On Thu, 30 Apr 2026, Lee Jones wrote:
 
-The added keyboards are:
-- Logitech Signature K650 & B2B
-- Logitech Pebble Keys 2 K380S
-- Logitech Casa Pop-Up Desk & B2B
-- Logitech Wave Keys & B2B
-- Logitech Signature Slim K950 & B2B
-- Logitech MX Keys S & B2B
-- Logitech Keys-To-Go 2
-- Logitech Pop Icon Keys
-- Logitech MX Keys Mini & B2B
-- Logitech Signature Slim Solar+ K980 B2B
-- Logitech Bluetooth Keyboard K250/K251
-- Logitech Signature Comfort K880 & B2B
+> On Thu, 16 Apr 2026, Günther Noack wrote:
+> 
+> > On Thu, Apr 16, 2026 at 02:16:54PM +0100, Lee Jones wrote:
+> > > It is currently possible for a malicious or misconfigured USB device to
+> > > cause an out-of-bounds (OOB) read when submitting reports using
+> > > DOUBLE_REPORT_ID by specifying a large report length and providing a
+> > > smaller one.
+> > > 
+> > > Let's prevent that by comparing the specified report length with the
+> > > actual size of the data read in from userspace.  If the actual data
+> > > length ends up being smaller than specified, we'll politely warn the
+> > > user and prevent any further processing.
+> > > 
+> > > Signed-off-by: Lee Jones <lee@kernel.org>
+> > > ---
+> > > v1 => v2: Add more size checks to protect against issues during recursion
+> > > 
+> > >  drivers/hid/hid-magicmouse.c | 16 ++++++++++++++++
+> > >  1 file changed, 16 insertions(+)
+> > > 
+> > > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> > > index 91f621ceb924..e84e6b21d113 100644
+> > > --- a/drivers/hid/hid-magicmouse.c
+> > > +++ b/drivers/hid/hid-magicmouse.c
+> > > @@ -390,6 +390,10 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+> > >  	struct input_dev *input = msc->input;
+> > >  	int x = 0, y = 0, ii, clicks = 0, npoints;
+> > >  
+> > > +	/* Protect against zero sized recursive calls from DOUBLE_REPORT_ID */
+> > > +	if (size < 1)
+> > > +		return 0;
+> > > +
+> > >  	switch (data[0]) {
+> > >  	case TRACKPAD_REPORT_ID:
+> > >  	case TRACKPAD2_BT_REPORT_ID:
+> > > @@ -490,6 +494,18 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+> > >  		/* Sometimes the trackpad sends two touch reports in one
+> > >  		 * packet.
+> > >  		 */
+> > > +
+> > > +		/* Ensure that we have at least 2 elements (report type and size) */
+> > > +		if (size < 2)
+> > > +			return 0;
+> > > +
+> > > +		if (size < data[1] + 2) {
+> > > +			hid_warn(hdev,
+> > > +				 "received report length (%d) was smaller than specified (%d)",
+> > > +				 size, data[1] + 2);
+> > > +			return 0;
+> > > +		}
+> > > +
+> > >  		magicmouse_raw_event(hdev, report, data + 2, data[1]);
+> > >  		magicmouse_raw_event(hdev, report, data + 2 + data[1],
+> > >  			size - 2 - data[1]);
+> > > -- 
+> > > 2.54.0.rc1.513.gad8abe7a5a-goog
+> > > 
+> > 
+> > Thank you! This looks correct now.
+> > 
+> > Reviewed-by: Günther Noack <gnoack@google.com>
+> 
+> Contentless ping. =:-)
 
-Signed-off-by: Alain Michaud <alainmichaud@google.com>
-Reviewed-by: Olivier Gay <ogay@logitech.com>
----
- drivers/hid/hid-logitech-hidpp.c | 38 ++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+Biweekly ping on this please - if you'd prefer a [RESEND], let me know.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index b1330d23bd2d..b740dcd60b2f 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4685,6 +4685,44 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb391) },
- 	{ /* MX Master 4 mouse over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb042) },
-+	{ /* Logitech Signature K650 over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb36f) },
-+	{ /* Logitech Signature K650 B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb370) },
-+	{ /* Logitech Pebble Keys 2 K380S over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb377) },
-+	{ /* Logitech Casa Pop-Up Desk over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb371) },
-+	{ /* Logitech Casa Pop-Up Desk B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb374) },
-+	{ /* Logitech Wave Keys over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb383) },
-+	{ /* Logitech Wave Keys B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb384) },
-+	{ /* Logitech Signature Slim K950 over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb386) },
-+	{ /* Logitech Signature Slim K950 B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb388) },
-+	{ /* Logitech MX Keys S over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb378) },
-+	{ /* Logitech MX Keys S B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb380) },
-+	{ /* Logitech Keys-To-Go 2 over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb38c) },
-+	{ /* Logitech Pop Icon Keys over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb38f) },
-+	{ /* Logitech MX Keys Mini over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb369) },
-+	{ /* Logitech MX Keys Mini B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb36e) },
-+	{ /* Logitech Signature Slim Solar+ K980 B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb394) },
-+	{ /* Logitech Bluetooth Keyboard K250/K251 over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb397) },
-+	{ /* Logitech Signature Comfort K880 over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb39c) },
-+	{ /* Logitech Signature Comfort K880 B2B over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb39d) },
- 	{}
- };
- 
 -- 
-2.54.0.563.g4f69b47b94-goog
-
+Lee Jones

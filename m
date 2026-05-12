@@ -1,122 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26FA61DF980
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 04:49:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D44A7453497
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 06:07:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778561352; cv=none; b=YwiaR4C93MWXFTLQWl3nMhurj82Hm1F6/VbQDK6uP112wGg+iegs9FNA+vUnUhXgkfq9uIwmJzhfWu7ahtunKWHZoKLp7pPNTq9oVHYirTK7HCO2pEYTZXkeXlJpfbrdQpQhsB7RHlowcUJYqVjsE9i12+FynH4D/A+k8dm1U1I=
+	t=1778566076; cv=none; b=EqDxLgtPM/q4322j88Ph5CcH6BI7qSPlQM1AvvnyJ+lEVh1HS898PXVmoCTIqG7iJJKhPq3OcG/bgcyVY9yVhlFKlXRkm6o750MpiutUKYbjr3Z+/D2VFo6RQb7eV6MP5F93JzzleQlDrJJvcIo9JscLPAkpUvRvHudQ8AvJTHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778561352; c=relaxed/simple;
-	bh=l/A0MrAnueFRpVKHAoze+aRjzn5Deisud2OPwmesoO8=;
+	s=arc-20240116; t=1778566076; c=relaxed/simple;
+	bh=RA3fn/9t5pxWnMYFdn6IeYak1A2TAUUyhNtU8rlB9DY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HMKqtV490DdmT12M8B+vGMxh+ZEnb3DiNBIV7eTLvg5zCO/4wS9cME4yRT3TEmdMLFRgEZ3alNCL8vfNAg46/PNGgej5XvGZdk84uwpVYNAXaeEQEaXhG3AvAy9MrvJCWIQkd7i8yLuA7brISYE26Zl+C4yd3FqagTgzYT09q64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kk206cnF; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=oCIHc1CkNasUp7qdH1ZGf5YqprN38iAG0phUco8DdXL67qQwXQiaNtmzDze/tlZ5zImQIVGuIJ8NZiC8vVjFEL+CHD0glsDvYnv9h/TCoyJfI64tuhS7DNmuq67UdUftokwdAK1t8cYlXjq4nNv4XaDc7nFzjh/pULeQWJ+bn2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bDeFUd4e; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kk206cnF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B6DC2BCB0;
-	Tue, 12 May 2026 04:49:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bDeFUd4e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AD0C2BCB0;
+	Tue, 12 May 2026 06:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778561351;
-	bh=l/A0MrAnueFRpVKHAoze+aRjzn5Deisud2OPwmesoO8=;
+	s=k20201202; t=1778566075;
+	bh=RA3fn/9t5pxWnMYFdn6IeYak1A2TAUUyhNtU8rlB9DY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=Kk206cnFgPQjfb8zgWTVq1Mt0x912I12Wyr6GxZyGFhc5eDJ+626ZfCQvHEr1HyQg
-	 JXhNvHa9zGHrJOZm2WXXiqXmnbOVPno6zAVTuQ2Fk0o+N60Gzr+/f666Q1X+yr9jlk
-	 1oqgbMSm6Q6Ap10RUtxdgv9hLkOK0QspA+826c3tyX01AvUlhHUJgqbZqVQrbY2jRa
-	 k0PHHzgnTbZwGqs/L1L0szB8BH3KKKSK0L/MZyuRLIjMvfjps4P1/48yLG6vg7uhZj
-	 mqTY4jSXaTIZHL3OJEwXJR32gO/3ZM+fZYeh4ALAc+NWnmjRmhg0AQ0S0Yr9mFPp4p
-	 bllWe9yPuvxSQ==
+	b=bDeFUd4eT72BDqDQYx9hG4zSQq/z7mfzKFp2Gl9NoaMxBwndvlyBUqbvZ0laRxYWv
+	 UpWctT6nRztxHjAGa13EsLu5QbjiGwhetQjYSU02P+dvKKiWckAxg7C7rmW9ZBmkcW
+	 BFuIKKFJA4DdtZrHg3b0focDHG1/6gseld7uEKILVvrYicEQwKN6dFNvfD12mHiM0G
+	 a3xmszXZ0OotKdi2oGNPOwCJHc8VcNZ3WLCZealj91CeY+RGHngRDRNJv459Omo8RQ
+	 WvCr9ZCi7+sZxOul5/0GBMRv3uejc51DtFzjAzFookuGw1uLFBbKMgnOqB/T2F9bgZ
+	 ZSptDFF7Cb3YA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: lenovo: Fix buffer over-read in X12 Tab raw_event
-  handler
+Subject: Re: [PATCH v1 5/8] hid: Pen battery quirk for Surface Pro 12in
 Reply-To: sashiko@lists.linux.dev
-To: Kean <rh_king@163.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260511132854.1351379-1-rh_king@163.com>
-References: <20260511132854.1351379-1-rh_king@163.com>
+To: "Harrison Vanderbyl" <harrison.vanderbyl@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <2702fbde567457ea0835ba12cc29421590e688aa.1778498477.git.harrison.vanderbyl@gmail.com>
+References: <2702fbde567457ea0835ba12cc29421590e688aa.1778498477.git.harrison.vanderbyl@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 12 May 2026 04:49:11 +0000
-Message-Id: <20260512044911.99B6DC2BCB0@smtp.kernel.org>
+Date: Tue, 12 May 2026 06:07:54 +0000
+Message-Id: <20260512060755.18AD0C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Unaligned memory access via direct pointer cast in raw event handl=
-er.
-- [High] Missing input capability registration causes hotkey events to be s=
-ilently dropped.
+- [Low] Macro value alignment uses spaces instead of a tab.
 --
 
-commit a1525e53f7f5fe161ed804808d59755ff69c771f
-Author: Kean <rh_king@163.com>
+commit c48c3082a15452ea3cc6ed81c88834aa52ab9d60
+Author: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
 
-HID: lenovo: Fix buffer over-read in X12 Tab raw_event handler
+hid: Pen battery quirk for Surface Pro 12in
 
-In lenovo_raw_event(), the X12 Tab keyboard handler reads a 4-byte
-little-endian value via *(__le32 *)data but only guards the access
-with a size >=3D 3 check. If a 3-byte report with ID 0x03 is received,
-the code reads one byte beyond the end of the buffer.
-   =20
-Change the size check to >=3D 4 to match the actual access width.
+This commit adds a quirk to ignore the battery on the Surface Pro 12in
+pen, which uses Bluetooth for battery reporting instead of I2C. This
+prevents a phantom battery or device hang.
 
-> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-> index a6b73e03c16b3..4686ecb6cfa8e 100644
-> --- a/drivers/hid/hid-lenovo.c
-> +++ b/drivers/hid/hid-lenovo.c
-> @@ -793,7 +793,7 @@ static int lenovo_raw_event(struct hid_device *hdev,
->  	 */
->  	if (unlikely((hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB
->  			|| hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB2)
-> -			&& size >=3D 3 && report->id =3D=3D 0x03))
-> +			&& size >=3D 4 && report->id =3D=3D 0x03))
->  		return lenovo_raw_event_TP_X12_tab(hdev, le32_to_cpu(*(__le32 *)data));
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -459,6 +459,7 @@
+>  #define USB_DEVICE_ID_HP_X2		0x074d
+>  #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
+>  #define I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM	0x2F81
+> +#define I2C_DEVICE_ID_SURFACE_PRO_12IN  0x4376
 
-This isn't a regression from this patch, but could this direct pointer cast
-lead to unaligned memory access exceptions?
-
-The data pointer provided by the HID core can have arbitrary alignment
-depending on the transport layer. For instance, if injected via uhid using
-UHID_INPUT2, the payload data starts at an offset of 6 bytes from the start
-of the uhid_event struct, which is 2-byte aligned but not 4-byte aligned.
-
-On architectures that do not natively support unaligned memory access,
-dereferencing an unaligned pointer triggers an unaligned access exception.
-
-Would it be safer to use get_unaligned_le32(data) to safely extract the
-value?
-
-Also, another issue not introduced by this patch: do the hotkey events
-processed by lenovo_raw_event_TP_X12_tab() get silently dropped by the input
-core?
-
-The lenovo_raw_event_TP_X12_tab() handler reports events for keys like
-KEY_RFKILL, KEY_PERFORMANCE, and KEY_BOOKMARKS:
-
-drivers/hid/hid-lenovo.c:lenovo_raw_event_TP_X12_tab() {
-	...
-	case TP_X12_RAW_HOTKEY_FN_F8:
-		if (hdev->product =3D=3D USB_DEVICE_ID_LENOVO_X12_TAB) {
-			report_key_event(input, KEY_RFKILL);
-			return 1;
-		}
-		report_key_event(input, KEY_PERFORMANCE);
-		return 1;
-	...
-}
-
-However, if these key capabilities are not registered in the input_dev's
-keybit array during device initialization, the kernel's input core checks
-is_event_supported(code, dev->keybit, KEY_MAX) and drops the events when
-report_key_event() is called.
-
-Are these custom hotkey capabilities properly registered during device setup
-to prevent them from being filtered out?
+This isn't a bug, but it looks like spaces were used here instead of a tab
+to align the macro value.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260511132854.1351=
-379-1-rh_king@163.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1778498477.gi=
+t.harrison.vanderbyl@gmail.com?part=3D5

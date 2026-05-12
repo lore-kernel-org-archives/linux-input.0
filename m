@@ -1,99 +1,84 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBD7338E8D2;
-	Tue, 12 May 2026 15:58:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FE63A59BC;
+	Tue, 12 May 2026 16:01:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601481; cv=none; b=ksqmbQT1TKNPdkO6LtU5Y8+3eJtPVwJTRVQFWeHh/5ASybiZXaAGWZEhynPTAxOUKlSDOyXXEs8t/N7jwk91WdoRTEoPjjvEDNztuqry9RjbLVsRU367tb6DTz+sw+DOef2mudwRInrabDVepUSsoFSRebGCdfG0RVq7NcOzEy0=
+	t=1778601680; cv=none; b=lcbcQZwagqyFGvVWF4QQ36dbyuGLVCAKJD8j4wRNSHLI+rlD1lmLMVryb/MSvCtsCgHrXJ4DojIOhIwgkA2fVVk3FdQ0ZucncZO5gtyw3x6O0ogmfU0pkfAqyFM/nkvAN1/Cz6gMDnKp3Fm9yES7abbpYOMowwOOqxLAeOR/QSA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601481; c=relaxed/simple;
-	bh=Y6IcuyhXRDfs6AJDoMN/xWrVYOOiTEHwmAUTk8WPC+E=;
+	s=arc-20240116; t=1778601680; c=relaxed/simple;
+	bh=tMDdrST2+MqJfp4GnEJfnV05SbobE0mVhowzdQ04JD0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=RoNJdbTBp7QgV7U3FrlZiQzJpefNLV2W+dGIQFdsslVDKgZ6xaA9T78PL2mLX7kwstXoNG8f0hicXaWu7hlJJvo/k4H09kRgxM2Hz4igG13tGw4gYHIA7YouoXrAFCpQ1+igZTRNSdArCtREKzlgT1Kmt1uwy+I0IIDSJHYLyyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nSn+gwYO; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=CCU2ei7NcIOH1IrBKcaqlMZd5geF7Sj1KNDwS8RYsOpKTSIjuT6niNaxlNL4MjBrxm13QhbjEzQ0s9o8JCg/D/IGrta6utShOq140EimxHr2gegkzoPe8gcvVElA3owEvkzOtimvtQn5gTaBK1X/Dk1T8Y5LA1eCA0MEuYSslvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KUw6IM7D; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nSn+gwYO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463A4C2BCB0;
-	Tue, 12 May 2026 15:58:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KUw6IM7D"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83C4FC2BCB0;
+	Tue, 12 May 2026 16:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778601480;
-	bh=Y6IcuyhXRDfs6AJDoMN/xWrVYOOiTEHwmAUTk8WPC+E=;
+	s=k20201202; t=1778601679;
+	bh=tMDdrST2+MqJfp4GnEJfnV05SbobE0mVhowzdQ04JD0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=nSn+gwYOCz4BXkbiWXykO9U3xxzEW4MbLz2JWx8vFqZ3+miyb36yHs6ji35Cph6Ud
-	 I0yjMmhDO4orBzcRRnal5hnqe+pnMu1G9ySM2RGJq2OQpI2FDgld4cCpYjVvjIFDlY
-	 05AqRZ8Rb6HnwmZLJjeLrurzl4EiPcQiBYZ6N1ZuxE3W5JkBk2lWhuKYkCA2S/Rqa/
-	 EGXYm7nHOpwViCKcXM02vOWe4VqzRtrCCADYZAkKy4NdcPoz7x3Fx9r9Q0hiZ525+8
-	 +OOs6lEBcZG/kzQdHXyKu5QV+2yMq6hABhu/P4X4Zy1zJ4QpXVHyL911QMq+wpCm2C
-	 sKlUzGmgFPzEA==
-Date: Tue, 12 May 2026 17:57:58 +0200 (CEST)
+	b=KUw6IM7DScIaUiiKa07oG+vCzNsgjj8aq1uU4Sv3TtRZ4a/0gGS8zAVrIQ+YFFafF
+	 fphURbnCKHJDYUI5qw11lToWuBXjHSaU0AwW6XumnR5JfsTSqB8F6+5RdXEmPFOYof
+	 nlR1YXwd8n4GZd8HxheIGhXZx1rQH8tslJCS5heH2im/OyIWz+hKYDh6QaGXmczQy3
+	 kA6G4Yuj1jPIW41eH3RRfjN4nzws4MQyRflGaV6xuMtJ74kUwF/527cnZUgxwIRjbq
+	 JlHVqXoqMbysUXY/C01VL/aFR3LNBTbkwtMya5Cx5uBQdpMQ95R1Ub44bfJYHNi8Xc
+	 26I29cr2ARUng==
+Date: Tue, 12 May 2026 18:01:17 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Sangyun Kim <sangyun.kim@snu.ac.kr>
-cc: bentiss@kernel.org, qasdev00@gmail.com, gargaditya08@live.com, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] HID: appletb-kbd: fix UAF and mutex-in-atomic in
- inactivity timer
-In-Reply-To: <20260420051318.1411671-1-sangyun.kim@snu.ac.kr>
-Message-ID: <po64s18s-27rr-9o3q-0pqo-2552nn6448sp@xreary.bet>
-References: <20260420051318.1411671-1-sangyun.kim@snu.ac.kr>
+To: =?EUC-KR?B?udq47cjG?= <mhun512@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: google: hammer: stop hardware on devres action
+ failure
+In-Reply-To: <20260424125043.52639-1-pakmyeonghun@bagmyeonghun-ui-MacBookPro.local>
+Message-ID: <42o9po52-64po-n8o8-or3q-q439o09s2p0p@xreary.bet>
+References: <20260424125043.52639-1-pakmyeonghun@bagmyeonghun-ui-MacBookPro.local>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Mon, 20 Apr 2026, Sangyun Kim wrote:
+On Fri, 24 Apr 2026, =B9=DA=B8=ED=C8=C6 wrote:
 
-> This series addresses two defects in hid-appletb-kbd's inactivity
-> timer subsystem.  The two patches target different bugs and are
-> logically independent; they are sent together because they touch the
-> same tear-down code and because the same maintainer will review both.
-> 
-> Patch 1 fixes a slab use-after-free with two related tear-down windows
-> introduced by commit 38224c472a03 ("HID: appletb-kbd: fix slab
-> use-after-free bug in appletb_kbd_probe"):
-> 
->   A) Within "if (kbd->backlight_dev)" the order was
->      put_device() then timer_delete_sync().  A concurrent
->      hid_appletb_bl unbind between those two calls can drop the last
->      devm reference and free the backlight_device; the still-armed
->      inactivity timer softirq then dereferences the freed object
->      through backlight_device_set_brightness() -> mutex_lock(&ops_lock).
-> 
->   B) The "if (kbd->backlight_dev)" block ran before
->      hid_hw_close()/hid_hw_stop(), so even after window A is closed a
->      late ".event" callback from the HID core (USB URB completion on
->      real hardware) can arrive between timer_delete_sync() and
->      put_device(), reach reset_inactivity_timer(), re-arm the timer
->      via mod_timer(), and reopen the same UAF.
-> 
-> Both windows produce the same KASAN slab-use-after-free on the object
-> allocated by devm_backlight_device_register().  Patch 1 closes them
-> together by moving hid_hw_close()/hid_hw_stop() before the backlight
-> cleanup and, inside that cleanup block, calling timer_delete_sync()
-> before put_device().  Shipping both as one commit avoids leaving
-> stable kernels in a half-fixed state where only window A is closed.
-> 
-> Patch 2 fixes a separate "sleeping function called from invalid
-> context" bug in the same subsystem.  The inactivity timer is a
-> struct timer_list, so the callback runs in softirq context and calls
-> backlight_device_set_brightness() -> mutex_lock() from atomic
-> context; reset_inactivity_timer() has the same issue on the
-> brightness-restore path (it is called from appletb_kbd_hid_event()
-> and appletb_kbd_inp_event(), which run in softirq/IRQ context on
-> real USB hardware).  Convert the inactivity timer to a delayed_work
-> and defer the brightness-restore call to a dedicated work_struct so
-> both sleeping calls run in process context.
-> 
-> Sangyun Kim (2):
->   HID: appletb-kbd: fix UAF in inactivity-timer cleanup path
->   HID: appletb-kbd: run inactivity autodim from workqueues
+> From: Myeonghun Pak <mhun512@gmail.com>
+>=20
+> hammer_probe() starts the HID hardware before registering the devres
+> action that stops it. If devm_add_action() fails, probe returns an
+> error with the hardware still started because the cleanup action was
+> never registered and the driver's remove callback is not called after a
+> failed probe.
+>=20
+> Use devm_add_action_or_reset() so the stop action runs immediately on
+> registration failure while preserving the existing devres-managed cleanup
+> path for later probe failures and remove.
+>=20
+> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+> ---
+>  drivers/hid/hid-google-hammer.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-ham=
+mer.c
+> index 1af477e584..c99c3c0d44 100644
+> --- a/drivers/hid/hid-google-hammer.c
+> +++ b/drivers/hid/hid-google-hammer.c
+> @@ -496,7 +496,7 @@ static int hammer_probe(struct hid_device *hdev,
+>  =09if (error)
+>  =09=09return error;
+> =20
+> -=09error =3D devm_add_action(&hdev->dev, hammer_stop, hdev);
+> +=09error =3D devm_add_action_or_reset(&hdev->dev, hammer_stop, hdev);
 
-Both applied to hid.git#for-7.1/upstream-fixes, thanks.
+Makes sense, thanks for catching it. Applied.
 
--- 
+--=20
 Jiri Kosina
 SUSE Labs
 

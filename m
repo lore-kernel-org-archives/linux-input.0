@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C735397338;
-	Tue, 12 May 2026 14:42:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D568346A04;
+	Tue, 12 May 2026 14:49:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778596933; cv=none; b=M2x6I8J9c7vVzyBeXiE4+ulmhHegX2G/i7v+wyQrm4jz6O2Tr682rg/JW0uLAUhu7/rLkJk/8Ct9l/C/2hf9hjAt4lxQemCKQ+ewltJtk+WQSZRbzz0qIygm9pZwlJRHMDbofoduf2B7lKphWHPT4VHqzkD567M90lKXcj6z9hQ=
+	t=1778597343; cv=none; b=DU7Ojq2KmmVYu5z9OmqGjHpmAuS9MXtkjsYZw/CZj6MX7Yf6aKHavRmq73KenD+CMgIncd3b8auKj8Na5iO+3l8SVzp4lMQ14kLb/588LOU0eFd8F6/7a37uHBk9mI20juk3FZIBSMirBlYlZg/uwY9ZlD1XMf6Y6whRNwhXtJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778596933; c=relaxed/simple;
-	bh=XhldWkwLybGtIRmwWQW/hSgfW/uayjDVD1tfLLqTL9w=;
+	s=arc-20240116; t=1778597343; c=relaxed/simple;
+	bh=HqMWsj5xhVtEVnrADxvN0x0WXP1ecXU7oSbUzyMJ87M=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YjGNVQvKAMdxbFgDnk53TiV2msxL3nMEuq5uI72gbQX45Z3PGRhZh6ZXJHRUCoy+H/z/mWTejEwudkDUiDvjudmNpBBgQiDXAv9p4J1jNtc0Hz8QYYaaeRR3lxOavYEao248dQR6OOHGutx8WMJCTXQ4c7zHlaEI1zxZH4jj5ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dKc96mLY; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=uiKan9VzObWGWrv1rEV1ZdK2yK2GMRfxBbXq2uE8DaXZT4YKWdV3u82/aGQMuzxbV7f0vhlQXOJhDrPX1G7pjRY58NDxUL8qaaY/qzHpbN11x47IWuhlWLe1cvD6nEef8IGVgeUP0AUQyDLGvnVIuGLdJhcE95P+q5ryP7BAFJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iE/5yAkl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dKc96mLY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB059C2BCB0;
-	Tue, 12 May 2026 14:42:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iE/5yAkl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB8BC2BCB0;
+	Tue, 12 May 2026 14:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778596933;
-	bh=XhldWkwLybGtIRmwWQW/hSgfW/uayjDVD1tfLLqTL9w=;
+	s=k20201202; t=1778597342;
+	bh=HqMWsj5xhVtEVnrADxvN0x0WXP1ecXU7oSbUzyMJ87M=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=dKc96mLYrdKgvd6SkS0yFp4N/l0dvPFEtnA/6+9WFp4Cv+Nqqfd4ehiG1LMGGttCB
-	 wMaDOZlfS3IChcs/YwY1FbBW79AklLGvv9G8qN+ep+vd+ijka0ctgr0FFPA1gLrghv
-	 AlHwg0W4iKPyPohd8zjegRwcSlwtAsJbdkLvD0KkCeQJ6TBWucpthGLuY5+M6ovNzH
-	 HazCfJ15qszNirY16xf5KNACY8b4jrOFQxj6+VsG5pev9IcD5bBD40D5+PLcknRAYC
-	 AdfwWDsxD0cYXgy24/Mk+TwSuHyDf2SvW21RR2/K35dGZ7F2/XRL34hWi1yDRVrxX5
-	 jZu6HAVAiKPXg==
-Date: Tue, 12 May 2026 15:42:04 +0100
+	b=iE/5yAkltDhxuPVUcng64WH8yyhDz/sAKT1fBdOmrvmx/LNih1u4QUqcrcynoolrE
+	 p++udCnlcA6f4zjfUYcmxRL2FDmcUmMyiVjWIhnjRuLifc/vt+e/iSe+DfaEui1tqc
+	 7TcW8imBKHR1GPvde3R4KbPdIL3t1u5OCBBQAZHdZPSmtV+n4mzG23M4CROqQR1GI4
+	 uh1QF96qLu6Vm9BeF7ToPxLdrPvef9rckW+MAhRh9NP7V9I3SqMy/z4QY22xWV5NDJ
+	 4A2zPkA05hApRvstKMLG6UN3XnwD6aooZ7idiR0EcTxKIIJ/iFlbcNHsji0YhGMYP3
+	 HUc1m+9zMx2Rg==
+Date: Tue, 12 May 2026 15:48:53 +0100
 From: Jonathan Cameron <jic23@kernel.org>
 To: =?UTF-8?B?TmF0w6FsaWE=?= Salvino =?UTF-8?B?QW5kcsOp?=
  <natalia.andre@ime.usp.br>
 Cc: andy@kernel.org, dlechner@baylibre.com, jikos@kernel.org,
  nuno.sa@analog.com, srinivas.pandruvada@linux.intel.com,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+ linux-iio@vger.kernel.org, linux-input@vger.kernel.org, "Zhang, Lixu"
+ <lixu.zhang@intel.com>
 Subject: Re: [PATCH v3 0/6] iio: hid-sensor: standardize scan_type
  initialization
-Message-ID: <20260512154204.0052b352@jic23-huawei>
+Message-ID: <20260512154853.10aa2902@jic23-huawei>
 In-Reply-To: <20260512012302.20883-1-natalia.andre@ime.usp.br>
 References: <20260512012302.20883-1-natalia.andre@ime.usp.br>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
@@ -60,15 +61,21 @@ Nat=C3=A1lia Salvino Andr=C3=A9 <natalia.andre@ime.usp.br> wrote:
 > Additionally, for the hid-sensor-accel-3d driver, the channel
 > initialization loop was refactored to iterate directly over the
 > scan indices, eliminating redundant logic.
-Hi Nat=C3=A1lia,
 
-I'm a little confused.  How is this v3?  Where is the change log?
+Series looks good to me but I'll leave it on the list a while to
+both let sashiko catch up and anyone else who wants to can have time
+to look.  Also ideally get some testing.
 
-I'll review it as a fresh series.
+Lixu, if you don't mind, please can you give this a test on top
+of the more radical refactor patches?
 
-thanks
+To me it looks safe enough but this is the sort of series that subtle
+typos can hide in!
+
+Thanks,
 
 Jonathan
+
 
 >=20
 > Nat=C3=A1lia Salvino Andr=C3=A9 (6):

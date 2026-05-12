@@ -1,119 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89AD82E413
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 00:04:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B181D5CC9
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 01:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778544295; cv=none; b=FN9POR8EyBAbquoZ+eVu4wYm4lgsPTRqOg8Vhp8BsnjxJep7F4Y1MYpXv57UFQNeKeFtBUusSCyiDYmA8dNhroeIxzrp6H/f0vrFb1+jyfLvN8zUDrqJ6x7vTW0OmGUqxpRhkeA6s6pEwMtBDtBrxPMWFNxSZOhHNnoz98GiZUo=
+	t=1778549008; cv=none; b=NGYniGfny+xPQO1MH4NvoKhK1sAOvL9Hp3/MOcGb41QsKkqohlzX/6SoyeHwXd/1d7NaoNyKcKSgSSFrRQUquCSFiEz3XNCgTvU1qrla6kgjhbx187ef9+cydYzrPFd+0r7apt8wczVWqiqis0NrGagNvj5FekZNirgm3dymS0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778544295; c=relaxed/simple;
-	bh=syDMp2Xmca3gvRoU20qXKQKz1mHtPNSYB9h64pPtsxY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Fznys/dchG8Yh8apPi4IRLOJDyUe1q2pLlSUXMJlhocC7xF+6gyk2oOJgiAQEYoP6ldsBFUwcnmKq7EXL1r8vbJ9/ToUjX7pPYclYqZUCdP+aiANWKdHud2aQW3kBnvhPBvb+rS7FGkG+wb+mMmYxybKnj0+r0UJs/PKfbZbYR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m/DbpET8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778549008; c=relaxed/simple;
+	bh=OVbT7GrjO4bw54kW6wWdnEsBmgKNZjPUqoLO1KwrOgs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pzblXxUjVgGGHodybtXENSGbJDodS6Cb35v86SRN3KNZOQCxWlmGiWQr+woHjkxas556EXCBgzQkrDXd7M7uzdAKHVO6Dlvl4L3P67bxGubb478VrIS1qiz9rV4JLloD0hn4cHIpU9HGDvAeHkPWhCHFAHLmHTC0A+94RSYR/yA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=eXfew3S5; arc=none smtp.client-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m/DbpET8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44AB2C2BCB0;
-	Tue, 12 May 2026 00:04:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778544295;
-	bh=syDMp2Xmca3gvRoU20qXKQKz1mHtPNSYB9h64pPtsxY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=m/DbpET8aj0HkfRh0PQa7t0I9+7gdX0MvREVk2nyGqU9iKc4BKPbme/SsSOUHiB1g
-	 yE3VVYKSycOQ2EVFCWa1wsLgcmq4RRRx8CGEnQEnInYr/OuuVRerJMssTOCfPeXOb5
-	 1BuZ4a/cg7h1xVkUqWrOGynXepRtWiIrDwlozjVS7ULPh8bFYavPuIBz/6cWsnx7J3
-	 qA8bfnOyebOCQ9BHTtSU7/wvR712JrgNQu0iF1Yd3DjcpcvubRT1RR2V2Vn/k8ZuV+
-	 8s73vp1H7+4scfOAgPbDAxh1nFcUVd3AMuspC4Q+s6zp/Fm+PUWGF55cjPSx+KK+P1
-	 3y8g6XPjtq+aA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: tsc2007 - fix resistance calculation when A/D
- value is saturated
-Reply-To: sashiko@lists.linux.dev
-To: "Yuki Horii" <yuuki198708@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260511054003.1205-1-horiiyuk@ishida.co.jp>
-References: <20260511054003.1205-1-horiiyuk@ishida.co.jp>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 12 May 2026 00:04:51 +0000
-Message-Id: <20260512000455.44AB2C2BCB0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="eXfew3S5"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2f33ae12f97so6064961eec.1
+        for <linux-input@vger.kernel.org>; Mon, 11 May 2026 18:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=usp.br; s=usp-google; t=1778549003; x=1779153803; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bWaS1RB5JDYayjocwxCsK8mCDmJHUShMMBNotDmrnWA=;
+        b=eXfew3S5BQ3LZrSOxBKdmrBqwLaxgKODfVruqdWB+jobv2hEaGgwaU89DNouwpDobb
+         cmGdbpbD7oZ6VK9h8sIbqa238vlkHhJhjKKzn49dkg786P9E6fCp1KcHu+w6Oz6BlFkE
+         BdCHooY1Fqc2MVfYgd90VlCsnZ/uRPhlqmVT3YjeSMNAgKFh45gqRRP3m26Ffgf0DkRI
+         YlzYSky6V+sWAmeEjY9kXaiwV2wu8X7WYFsXdayZor4NgkYY+RZzBeHZaJvypUKVnIWk
+         ml2zOuNUfBBYrE0iijEQFEj3LvguFSO5wpokvU5zarOlqYk70v5tpMeu9d537Fw2ctLB
+         Ui6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778549003; x=1779153803;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bWaS1RB5JDYayjocwxCsK8mCDmJHUShMMBNotDmrnWA=;
+        b=oRD+Q4sH1RxF7vqObZJS/8T8JUrpcBcrNQH/UEc0223vNWJ16avWLfkJbyn3+p37W0
+         ozkgYX5Ya2l0VM5Hb6gafRWQkihcvcL3BprojYeii4I54v6y7FvOGdaZrFzOWvMIxVBB
+         h6KKt37j79d5Rb2KNIhDExBynCTWHyioeMqC+hCbMXdh55vu5exBKkAIUY/bJ/YHm/Le
+         Gbxqe0cWlb8bJpKFiKX/yV/MUE7lb5YV4ffWRnKqtbSUFJOV+b1vXprFDHfer33xNAO8
+         MmUJJYiyxqUps28VnT52LHaoZYa0tajjig6cSWTusQyxC9QB+ubSet0V33B68CHNANht
+         2r1w==
+X-Forwarded-Encrypted: i=1; AFNElJ/RTh6J4uaGgCwHlw4QkxxvP4XXOxIDzkT2W2SIyuV7spHy9ISrM7SEfUx3Rq1tIt23pSW81QQtYdpvCg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYQZCTkkfIGmoanWsZYM1WmWFn98m2t2ZjUNd7pbOuNy6juhUn
+	NIwUROvlQqT6fmbTvbUg+ywMCiefdws1QfzWIVs8RvC46lnpaVMc6iNM02M1ofhmJoI=
+X-Gm-Gg: Acq92OEzSC7vl/ihrDv7WX+R669RX5MUsYMcViQQS/RyQLbbKV/zo66suDg9sSqQuDW
+	s51xWY/EWF6oVHznh+s6pUVVuN3Xit0QAlOhyIj5ZbJyvqejd9Fs/Bml1Cg42KAjznHmHrBrFV7
+	HtoeZyZJCvBO4IPduLtCEv6HhXSZqyvG7SgmfA0X14/iYUEFOc0ztXY3Cpawgr+5FH/9+jtVHUq
+	zPPk46NRdE5njVRgh/JxZoKLz563ZDk0wV/u8KCusvdhsb/J/9tnJ3YxdERJgZ1YgCcXUlSZ95g
+	gem9iYG1Xlibgepm5OAKjLEAoIxJKOpRdn0pdLMdmNwPaf05pl96+WNlWju+GQwTlQFvJ2dwNvZ
+	GkmAaygzLsbMkDDMMMvqssLZF7BShgtkAmZmaFUM04DMx+tnw9CbzHWKP8Etd6eZSSqqTPWXtTd
+	ind6O2GIywpk/uFmihJA702zWznVN8Ag==
+X-Received: by 2002:a05:7300:bc0c:b0:2c5:ed1b:ca9 with SMTP id 5a478bee46e88-2f85bb72d01mr8468512eec.1.1778549003223;
+        Mon, 11 May 2026 18:23:23 -0700 (PDT)
+Received: from natalia-pc ([191.205.196.185])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f88847506fsm19484481eec.18.2026.05.11.18.23.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 18:23:22 -0700 (PDT)
+From: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>
+To: andy@kernel.org,
+	dlechner@baylibre.com,
+	jic23@kernel.org,
+	jikos@kernel.org,
+	nuno.sa@analog.com,
+	srinivas.pandruvada@linux.intel.com
+Cc: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>,
+	linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCH v3 0/6] iio: hid-sensor: standardize scan_type initialization
+Date: Mon, 11 May 2026 22:16:16 -0300
+Message-ID: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Uninitialized stack variable read in the IIO raw read path.
-- [High] Returning 0 to invalidate saturated A/D values causes phantom touc=
-hes with maximum pressure or premature pen-up events.
---
+This series refactors the HID sensor drivers to standardize the
+initialization of the iio_chan_spec scan_type structure.
+Direct initialization using compound literals was used.
 
-commit 8a6bcc1904d4e8b8d9d219e6c086925c53bfc4cb
-Author: Yuki Horii <yuuki198708@gmail.com>
+This change improves code readability and ensures that all fields
+of the scan_type structure are properly zero-initialized.
+Additionally, for the hid-sensor-accel-3d driver, the channel
+initialization loop was refactored to iterate directly over the
+scan indices, eliminating redundant logic.
 
-Input: tsc2007 - fix resistance calculation when A/D value is saturated
+Natália Salvino André (6):
+  iio: accel: HID: hid-sensor-accel-3d: Refactor channel initialization
+  iio: gyro: HID: hid-sensor-gyro-3d: Refactor channel initialization
+  iio: light: HID: hid-sensor-als: Refactor channel initialization
+  iio: light: HID: hid-sensor-prox: Refactor channel initialization
+  iio: magnetometer: HID: hid-sensor-magn-3d: Refactor channel
+    initialization
+  iio: pressure: HID: hid-sensor-press: Refactor channel initialization
 
-This patch modifies the touch resistance calculation to return 0 when either
-the X or Y A/D value is saturated. This is intended to indicate that the
-touch resistance calculation is invalid.
+ drivers/iio/accel/hid-sensor-accel-3d.c       | 27 +++++++------------
+ drivers/iio/gyro/hid-sensor-gyro-3d.c         | 24 +++++++----------
+ drivers/iio/light/hid-sensor-als.c            | 18 +++++--------
+ drivers/iio/light/hid-sensor-prox.c           | 19 +++++--------
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 +++++---------
+ drivers/iio/pressure/hid-sensor-press.c       | 19 +++++--------
+ 6 files changed, 42 insertions(+), 85 deletions(-)
 
-> diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/tou=
-chscreen/tsc2007_core.c
-> index f9b3d2598933c..7d3bc0c396113 100644
-> --- a/drivers/input/touchscreen/tsc2007_core.c
-> +++ b/drivers/input/touchscreen/tsc2007_core.c
-> @@ -69,9 +69,9 @@ u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, s=
-truct ts_event *tc)
->  {
->  	u64 rt =3D 0;
-> =20
-> -	/* range filtering */
-> -	if (tc->x =3D=3D MAX_12BIT)
-> -		tc->x =3D 0;
-> +	/* invalidate touch resistance if X or Y coordinate is saturated */
-> +	if (tc->x =3D=3D MAX_12BIT || tc->y =3D=3D MAX_12BIT)
+-- 
+2.51.0
 
-Does this code read uninitialized stack memory? The IIO path initializes
-tc.x, tc.z1, and tc.z2, but it does not initialize tc.y before passing the
-struct to tsc2007_calculate_resistance():
-
-drivers/input/touchscreen/tsc2007_iio.c:tsc2007_read_raw() {
-	...
-	case 5: {
-		struct ts_event tc;
-
-		tc.x =3D tsc2007_xfer(tsc, READ_X);
-		tc.z1 =3D tsc2007_xfer(tsc, READ_Z1);
-		tc.z2 =3D tsc2007_xfer(tsc, READ_Z2);
-		*val =3D tsc2007_calculate_resistance(tsc, &tc);
-		break;
-	}
-	...
-}
-
-> +		return 0;
-
-Is it safe to return 0 to invalidate the sample?
-
-In tsc2007_soft_irq(), if there is no pendown GPIO, !rt evaluates to true
-and prematurely breaks the polling loop, causing an early pen-up event.
-
-If there is a pendown GPIO, rt <=3D ts->max_rt evaluates to true. Then the
-driver calculates pressure as ts->max_rt - rt, which maps rt =3D 0 to the
-maximum possible pressure. This results in a valid touch being reported at
-the saturated coordinates with maximum pressure, rather than ignoring the
-sample.
-
-Should this instead return a value strictly greater than ts->max_rt (such as
-U32_MAX) so the debouncing logic safely ignores the invalid sample?
-
-> =20
->  	if (likely(tc->x && tc->z1)) {
->  		/* compute touch resistance using equation #1 */
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260511054003.1205=
--1-horiiyuk@ishida.co.jp?part=3D1

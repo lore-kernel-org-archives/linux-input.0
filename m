@@ -1,136 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2641D395AD7;
-	Tue, 12 May 2026 10:17:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9366D395AC7
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 10:24:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778581050; cv=none; b=aj9JycjCs0RbTqd96k8luu3z8qCF5JEIchdmkLkI/VGxQoi+NiuM/5/sr8ptrEFJ2sPqVLCzx6PnINNzdH7o63/Euha6d6//NT3Bt6c7iVwkKgM+q8yJAlyXowWB5bps+kUhWDCzuqRTVP9tIQEuUOxsCZf4tlntgNKVE9Wit7o=
+	t=1778581498; cv=none; b=HyEzGVl22YH+LfvnwsPyMU13N+FTU7rpJfWQlT7O8rb/ifApyYBPkmK3ktwddHjYHcAB1ldS+JfWPrJoduFbMnKr3Uirv3eLlNOUBxuEjinnBJKnaQ2/gIgS6PQghO6pR+Vo9i0H8VjA772GDLif7j3FZ1wRnf/c/Lpu4Qj9ryA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778581050; c=relaxed/simple;
-	bh=Xf/dZSb4r/xorL3Z004zEE2WN5eXTDvsTSt9dICU6jU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iyOKJ8ESrTrkzSjjt/PfiHZtiHRibiAF8HJJI4f6749HrzU6VyaOMqqXgU06TJYD2FVDMV7tBMF9iqVPvEc+Pms6vVUq1WI4/c8hmUIqLeRpBBy3m1e0FKTb9sAjpgOwrL4ZkGDy5NdhE1TIy2UuBckQViRg5R4oLfMOemXPvE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WzkoRyrK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778581498; c=relaxed/simple;
+	bh=VkIQe9enrKprR/AxY6Dkc2FlX7laVOPhA0/xwB9AKbc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BUgRY7uh80Wyhw5VYaVaPv9jcxB/4Xi3JwpAV4w/JXd/BBkezXl17STNdjAANFQnYlpStLJUxwBogr7oriqhU3npj5ikxHOr+bb5J2LnrqR2fGuV6zW4Mv6E8E6P7D48pWdPRMSlurJWqm9drm3EGoSwBXg5Zm3uFbZpV71l4lw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A4Uyfgo1; arc=none smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WzkoRyrK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A7CC2BCB0;
-	Tue, 12 May 2026 10:17:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778581049;
-	bh=Xf/dZSb4r/xorL3Z004zEE2WN5eXTDvsTSt9dICU6jU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WzkoRyrKcGg/bp+KVynim/KWvs4CKaRmE/hZdfUYUA+72r/dAd7eLumhr0JGAv+Qe
-	 EoXYHrCTZw+UhQaFx4GtS873mGzEPlFbBsUufDZXNuPBEv6VXh9MNFkknk1eMq4Kqd
-	 f7N+S9WMXtfYCug6tePMzg6ZNp3gtMBy03VDcZ2H2sfaHFhY2/kGEhbBL4sNQSnKGu
-	 o2yTwb8+WxXNb3TROm0nyLJSBv6LzQUC2TAJDJltWXMbcxj/srRYIUaJZUogbogTsx
-	 ylj2LdaOyRwTTPRM1Wg5qxEy9SzwDVECR08yV2nxnKZGrCH+Mpg6UGZhkj2KNEcahZ
-	 WlV8SM5if0o/Q==
-Date: Tue, 12 May 2026 11:17:23 +0100
-From: Lee Jones <lee@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>,
-	Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>,
-	Alex Elder <elder@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, greybus-dev@lists.linaro.org,
-	linux-staging@lists.linux.dev, linux-usb@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
-Message-ID: <20260512101723.GU305027@google.com>
-References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
- <20260506091606.GB305027@google.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A4Uyfgo1"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-67e24b8ef55so7450214a12.1
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 03:24:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778581495; x=1779186295; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=/GIwyDALF/QcCK3UD/Zg1ohofSXNNGV0cy1CpSwLCB4=;
+        b=A4Uyfgo1S2Z7Am5B+0YwdeaXxU4vSiS+LPC3Q6Ijd4Y/IaV/OZUucDsDPbN0nd5MqD
+         iVrn8gJchGO6AWukYkJUg2M1HZHHt9eg1ecZ6kVwWlj/WsC0Avgv7UFlY2efTuhgMmQG
+         1NIU4qHLmA2OycBCOMXTI6V7tL03iHj2oUykpQbAAH+/Mr1i05c1gckZk3FJTELJF6hS
+         EjSNYjYeYOUV4gwwvs//DLcnQxSW2+yuvZEsgvhyOvK12aTWw3ntwiG97S1VoNn86A/F
+         Y55/udzmoEo05J1SRw45hFdjGK/eZZlGkYGA9fyf/Gog0AdhGN7JJAExu2K5BfZrikZ6
+         D3YA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778581495; x=1779186295;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/GIwyDALF/QcCK3UD/Zg1ohofSXNNGV0cy1CpSwLCB4=;
+        b=GMTzGmoTh++4OZ17Kr/3amg16RFtAUt73c15CSEJ1J2RyEBLNCNYhy74JcMnrAKydd
+         u+hmIfRI9XJfNrnJmFhBW2lt0y7jQCShUGjtlUVAEFPXDE0YC9YDHGVZgm4aMGd7B69f
+         j/Sb8p949PCDh84W12W42muUzgPLx835bz4/iV5Haa5XT//j2lM53HMTd40G3Mz2+DB/
+         EXMe5EtIdHcOzbietqPVgLinNTfeyF1+FshkpqyulLpzjGg6tKl+sr4Hx3YXJPTGYme4
+         AIHjLmpmCQy8XbgYy/opdeydhIPKLtsTSgaUiyo12Q9yxADAm/0OjgprdTLrB+spwfji
+         EuwA==
+X-Gm-Message-State: AOJu0YwQhBOABzhGUYL/HE5asUNx58HxPjkeNlN87rSEyLtccNZWvA0Z
+	iDhQZUosH1afIePKpXdUkiemGnU44IN4c/8BpoCdoC7iEOEZytriSmuc
+X-Gm-Gg: Acq92OFQKKMhuzQ7i957nQJAhyqi9emrUIcm27ctUcniEaup2i848EdhvkWiZJGd+Po
+	dkJE95un+ULCJLH3EPfUgMXmlxqwWMdZnQLksxA/kSajbNOO1+Rj9cJG+bH+tO2+v8O2oaGCbp0
+	yG2v8+QjDprJrHeTToh4iv3OAl6Ps4vy2yOnDHJ1sxStpRbvqDK25o7QTDy7FVt0iu3p9thNu0o
+	288IGUm6TXPw/RNgpksncJlgtb3Zensm6HCneW0LgYiaVRbcAdF23t+uvyJiBALhx0a8116Rsby
+	8TsSSV1dUsQKS/OaT44DnzEtyTgoEsQWOTei5eWJP2eqQLPVUscYCwVPddwIzluhQ7cBn4ocA1o
+	7uZRYsC0HofjH1Qr5teAzua/cqs21Lp/yU8oTJgpf7XyAqW4gmkOdmG6Yv7ac0huRM4jypPdcam
+	9o/15+IFw2W2+wQNn3R91Ur0M=
+X-Received: by 2002:a05:6402:158d:b0:677:15b6:4d6b with SMTP id 4fb4d7f45d1cf-680d02f613cmr1288570a12.26.1778581494941;
+        Tue, 12 May 2026 03:24:54 -0700 (PDT)
+Received: from xeon ([188.163.112.56])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-67ef0b6a534sm5032792a12.9.2026.05.12.03.24.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 03:24:54 -0700 (PDT)
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/2] input: misc: add support for Imagis ISA1200 haptic motor driver
+Date: Tue, 12 May 2026 13:24:43 +0300
+Message-ID: <20260512102445.55372-1-clamor95@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260506091606.GB305027@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, 06 May 2026, Lee Jones wrote:
+The ISA1200 is a haptic feedback unit from Imagis Technology using two
+motors for haptic feedback in mobile phones. Used in many mobile devices
+c. 2012 including Samsung Galxy S Advance GT-I9070 (Janice), Samsung Beam
+GT-I8350 (Gavini), LG Optimus 4X P880 and LG Optimus Vu P895.
 
-> On Mon, 04 May 2026, Benjamin Tissoires wrote:
-> 
-> > Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> > bogus memset()") enforced the provided data to be at least the size of
-> > the declared buffer in the report descriptor to prevent a buffer
-> > overflow.
-> > 
-> > We only had corner cases of malicious devices exposing the OOM because
-> > in most cases, the buffer provided by the transport layer needs to be
-> > allocated at probe time and is large enough to handle all the possible
-> > reports.
-> > 
-> > However, the patch from above, which enforces the spec a little bit more
-> > introduced both regressions for devices not following the spec (not
-> > necesserally malicious), but also a stream of errors for those devices.
-> > 
-> > Let's revert to the old behavior by giving more information to HID core
-> > to be able to decide whether it can or not memset the rest of the buffer
-> > to 0 and continue the processing.
-> > 
-> > Note that the first commit makes an API change, but the callers are
-> > relatively limited, so it should be fine on its own. The second patch
-> > can't really make the same kind of API change because we have too many
-> > callers in various subsystems. We can switch them one by one to the safe
-> > approach when needed.
-> > 
-> > The last 2 patches are small cleanups I initially put together with the
-> > 2 first patches, but they can be applied on their own and don't need to
-> > be pulled in stable like the first 2.
-> > 
-> > Cheers,
-> > Benjamin
-> > 
-> > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
-> > ---
-> > Changes in v3:
-> > - fixed ghib -> ghid in greybus
-> > - fixed i386 size_t debug size reported by kernel-bot
-> > - Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
-> > 
-> > Changes in v2:
-> > - added a small blurb explaining the difference between the safe and the
-> >   non safe version of hid_safe_input_report
-> > - Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
-> > 
-> > ---
-> > Benjamin Tissoires (4):
-> >       HID: pass the buffer size to hid_report_raw_event
-> >       HID: core: introduce hid_safe_input_report()
-> >       HID: multitouch: use __free(kfree) to clean up temporary buffers
-> >       HID: wacom: use __free(kfree) to clean up temporary buffers
-> > 
-> >  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
-> >  drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
-> >  drivers/hid/hid-gfrm.c             |  4 +--
-> >  drivers/hid/hid-logitech-hidpp.c   |  2 +-
-> >  drivers/hid/hid-multitouch.c       | 18 ++++------
-> >  drivers/hid/hid-primax.c           |  2 +-
-> >  drivers/hid/hid-vivaldi-common.c   |  2 +-
-> >  drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
-> >  drivers/hid/usbhid/hid-core.c      | 11 ++++---
-> >  drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
-> >  drivers/staging/greybus/hid.c      |  2 +-
-> >  include/linux/hid.h                |  6 ++--
-> >  include/linux/hid_bpf.h            | 14 +++++---
-> >  13 files changed, 109 insertions(+), 78 deletions(-)
-> 
-> What's the plan for this set Benjamin? -rcs or -next?
+The exact datasheet for the ISA1200 is not available; all data was modeled
+based on available downstream kernel sources for various devices and
+fragments of information scattered across the internet.
 
-Are there any updates on this set please?
+---
+Changes in v5:
+- added supplies to private structure
+- clk_on dropped
+- ret > err
+- added active flag to track status
+- all hardware manipulations consolidated in start/stop
+- dropped mutex from work
+- dropped active check from isa1200_vibrator_close it was
+  moved to stop directly
+- dropped hw maniplations from probe
+- bustype set to BUS_I2C
+- adjusted error strings
+- fixed cancel_work_sync in isa1200_suspend
 
-FYI, this set is still important to us.
+Changes in v4:
+- added INPUT_FF_MEMLESS option selection
+- fixed missing clock status set
+- guard start/stop calls in isa1200_play_work with lock
+- clamp ldo voltages to allowed range
+- fixed imagis,pll-div parsing
+- dropped Tested-by from schema adding commit
 
-Ideally, if all is well, it would go into the -rcs for v7.1.
+Changes in v3:
+- added clock state tracking
+- dropped level check in vibrator close
+- added clkdiv clamping
+- added comments regarding registers 5 and 6
+
+Changes in v2:
+- imagis,clk-div switched to accept actual divider value
+- dropped DT header
+- adjusted imagis,period-ns range
+- initiated hctrl0 and hctrl1 values in isa1200_start
+- fixed situation when PWM might return -EPROBE_DEFER to be
+  treated properly
+- added chech a clock or PWM is available
+- fixed regulator voltages check being off by 10
+- added chech if state.period is not zero
+- added action call to disable clock and gpios on error
+- used managed version of work init
+- added work cancel on suspend
+- PW calls are done under mutex lock
+---
+
+Linus Walleij (1):
+  Input: isa1200 - new driver for Imagis ISA1200
+
+Svyatoslav Ryhel (1):
+  dt-bindings: input: Document Imagis ISA1200 haptic motor driver
+
+ .../bindings/input/imagis,isa1200.yaml        | 140 +++++
+ drivers/input/misc/Kconfig                    |  12 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/isa1200.c                  | 524 ++++++++++++++++++
+ 4 files changed, 677 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+ create mode 100644 drivers/input/misc/isa1200.c
 
 -- 
-Lee Jones
+2.51.0
+

@@ -1,47 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B193A59A7;
-	Tue, 12 May 2026 16:04:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 792673C8C44
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 16:06:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601895; cv=none; b=t5uHkXhcVBFXJm2FeZHgCyBzcOPbFb4kERazlcY3YppZGCXTr4XE6cP28+y1QJ3D1ufYhIpObh2wViMcZGG+w+NIj4RfLKaYi+j5PHoxIx+2JYgw3gQx2p/DRaruxzvtDZWTxUNOMPWnlPE+X6+rSfkjCFgYHaBzN878mkM7Xlc=
+	t=1778601987; cv=none; b=Qu96g03GbgxUvO79LFMjUb+UW+77YeL0BEc86mRbsycIkaEPLw1Y1XA1XXoYbqVHK3M3QWe+2Gs0TgNr9lTi9srMf7OdfFW3WPEVfESEmqkk9nAbO0P38vwYTc5z9BTburxkEK2PqoVKMpSzZr3jZVyne4aDCG77awxsWMHR6SE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601895; c=relaxed/simple;
-	bh=yNslzli12YKyZvlTHWY9UvoN4jJ9sdRDmcEAHEZTQQ0=;
+	s=arc-20240116; t=1778601987; c=relaxed/simple;
+	bh=1Y5sJ9Eb6+iSmbCF8iTMfMRhMeYvwvjtBBon+q7JLE8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=q38/b8T938GxbxpA/vUzixQzmrrgeK8dArBARWUarwUyGgS6/mdE+Eo8r+uxAo2c76UMGbH+0d66KqYyWbQCd/8fgWu412IpoCCqWfnCha2vxZXAiKL6CcecSq+kksUhm7I9AhRp/7Pre6sEqT2uTndafmffvUEqJVqKsSf37FY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rvtoakmb; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=WcYCpJ1WMV+qatWIE3KSXn01n0T3eAt0VI7e4YJ8csyXuFuGLqFZ8lh1j0y4FG/D/pR60ppI1mGpROzwsAKnBVXcViaDr7ZMx6iXp31zGBAn5AwYodC1s8SVX+nUpGlC24LXFzEAHp2e2rojEYgDBFwGcAafVYPjA5NnZ9ltSAQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jLUen63t; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rvtoakmb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E61AC2BCB0;
-	Tue, 12 May 2026 16:04:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jLUen63t"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B201DC2BCB0;
+	Tue, 12 May 2026 16:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778601895;
-	bh=yNslzli12YKyZvlTHWY9UvoN4jJ9sdRDmcEAHEZTQQ0=;
+	s=k20201202; t=1778601987;
+	bh=1Y5sJ9Eb6+iSmbCF8iTMfMRhMeYvwvjtBBon+q7JLE8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Rvtoakmb0htAdo8CaX4xrzAbM8hNYEEz/rLZWgwEdvN8mYD+fJuxiqRV+mKAf0URC
-	 KtSOqk1VeAwcBMoXShBGQJraFn3cLRADuvh+XgwMEeX/vOFrL7636Gq0p1rsA0AkU6
-	 guhdqOjGfJUp4mw0eRN8SrovG5TQePor5nXmqc7yHnB/9NAbu24YRLYT9ffLXbMGIs
-	 ObLcTsT+jTSD3VJew+bWvotIn1Vh0dshpQ44Oh4kZfTYa6L0Qb+oF+dxNa5N4BKnY9
-	 Mm017n3Jx/j+ElLTvwaBtcc51UizLCSONG4bYDbpWqnUdIXztV+TvMYixhYpmAgq+N
-	 XTj2YaNC6yaBQ==
-Date: Tue, 12 May 2026 18:04:52 +0200 (CEST)
+	b=jLUen63txajJO3ZV1HY3Hd5Ua2XlgorBzV5slLHokoRAocfl5JstpbrGCpM0HnO5l
+	 TS4gftFE5o5mGziYiJYOTX9iHSkUUT7yPDiUZ8MH1Ce1UQL78Z8QRuN3YRa15FgMaJ
+	 lCsNYvlKwYmclJBWqrknrdhDT2WOhhpT8FN77DfNnQRX1o6ICmtBEQMm0Z9EywIjhA
+	 wkJHVmoEcR28gXLx+fiJNEgL95mSOpOKMdx7rJV17nbfBqRvAiEDEuwQOpNUN5bLUq
+	 5AJfEsCjiw00DSAt73lmPryXpR1xS5XPGU+43Ssf7eSSlU/mEMubSU7tU32I6lA4Qm
+	 Zb60z1HwW2dpg==
+Date: Tue, 12 May 2026 18:06:24 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-cc: =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Bastien Nocera <hadess@hadess.net>, Ping Cheng <ping.cheng@wacom.com>, 
-    Jason Gerecke <jason.gerecke@wacom.com>, Viresh Kumar <vireshk@kernel.org>, 
-    Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
-    Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-    Lee Jones <lee@kernel.org>, Icenowy Zheng <uwu@icenowy.me>, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
-    linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
-In-Reply-To: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
-Message-ID: <op9823q8-55ss-91s3-7690-q5prq170s265@xreary.bet>
-References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
+To: Helge Bahmann <hcb@chaoticmind.net>
+cc: Nehal Bakulchandra Shah <Nehal-Bakulchandra.Shah@amd.com>, 
+    Sandeep Singh <Sandeep.singh@amd.com>, 
+    Basavaraj Natikar <Basavaraj.Natikar@amd.com>, bentiss@kernel.org, 
+    linux-hid@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] amd-sfh-hid: tablet mode switch and asus quirk
+In-Reply-To: <6879487.lOV4Wx5bFT@lothlorien>
+Message-ID: <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
+References: <6879487.lOV4Wx5bFT@lothlorien>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,45 +45,20 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 4 May 2026, Benjamin Tissoires wrote:
+On Mon, 27 Apr 2026, Helge Bahmann wrote:
 
-> Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> bogus memset()") enforced the provided data to be at least the size of
-> the declared buffer in the report descriptor to prevent a buffer
-> overflow.
+> Add an input driver that interprets the "operation mode" sensor offered
+> by the amd sfh on some laptop models.
 > 
-> We only had corner cases of malicious devices exposing the OOM because
-> in most cases, the buffer provided by the transport layer needs to be
-> allocated at probe time and is large enough to handle all the possible
-> reports.
+> Add a quirk to make the driver work again with the Asus VivoBook
+> VivoBook (turn off the "disable interrupts" flag).
 > 
-> However, the patch from above, which enforces the spec a little bit more
-> introduced both regressions for devices not following the spec (not
-> necesserally malicious), but also a stream of errors for those devices.
+> Expose the intr_disable flag as a module parameter in case it turns out
+> to be needed on further laptop models.
 > 
-> Let's revert to the old behavior by giving more information to HID core
-> to be able to decide whether it can or not memset the rest of the buffer
-> to 0 and continue the processing.
-> 
-> Note that the first commit makes an API change, but the callers are
-> relatively limited, so it should be fine on its own. The second patch
-> can't really make the same kind of API change because we have too many
-> callers in various subsystems. We can switch them one by one to the safe
-> approach when needed.
-> 
-> The last 2 patches are small cleanups I initially put together with the
-> 2 first patches, but they can be applied on their own and don't need to
-> be pulled in stable like the first 2.
-> 
-> Cheers,
-> Benjamin
-> 
-> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
 
-I have now queued the first two in hid.git#for-7.1/upstream-fixes.
-
-I expect the remaining two will be applied once respun with Dmitry's 
-suggestion on proper guarding.
+Basavaraj, can you please review this one?
 
 Thanks,
 

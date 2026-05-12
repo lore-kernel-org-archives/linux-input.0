@@ -1,159 +1,165 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012044.outbound.protection.outlook.com [52.101.48.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16364385D63
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 17:09:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A373EDE6B
+	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 17:54:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778605774; cv=fail; b=dBE8W16wkRlRrQTxey/C1WnWw3k0J2LmiRy2xCJekIgFvXAG3UUYZIsx4ErvgkSig1iwHkVFEd6podBynTdU2wGn4o70yMCPnflUVAlCVft/7GlHzxQKNr99H0WQhLQw6VdFi5XxGczNptEeE4hfRYriot96o7O/F2S8Yt8g0MQ=
+	t=1778608473; cv=pass; b=TetVxu+KJERb+JJVX1bo7CSHz7HuBircUwCxMAI6kaz8e44HXOWJm/Er8snDSXFm/pdiiK4hgyINRyZmC8SOP44ZmegjOU1tQRcBiFR4JeTnWEH6wHipSCcCtWorXI54Kj3dwshVuwdSw9MktWqKq94Akb9QAp/3dDHDjas4DgY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778605774; c=relaxed/simple;
-	bh=ZygI3WIqXrDFlAy/nZci/gXSNtq6yCIjmE97RWNrcbw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=XuVI8oALCc3xyPLApAkedUqgPcuI8DCj4DAHgbVVJA+zBlQmVO70DD0kaDT2GEX/0yhDMW7eb4kpnVyIDskEKf0MGyxrx5fFCXCZOqgBkWKEm9MkLQ+WO4wpnY98SFWpn895HGrCQEjmy/NCwIYleoO8jNyxrWdv11QbGOTUGXU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YxfL/eGO; arc=fail smtp.client-ip=52.101.48.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1778608473; c=relaxed/simple;
+	bh=4pDyMhr5uGS380GtBwgN4Uu4uwMBfmqkDoD0H9P7NHs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tx4Dr1Yp9BMGI2qW644xqX1GDHTN3H9kvZQI7MNJQl57eIfs/vupwd+5kxceUFokTj365YSWNM/TxhbokgSVLQrwwKgQGHD9LIa36ewdLs28F0NkfCxGYo3Y2A/W1erd0nKqzJQpMnO962L1gO7+2UgrRCK5/IEfCxz1EO4eD/c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o6fJUvPW; arc=pass smtp.client-ip=209.85.219.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YxfL/eGO"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=FaYpnTNxv+GGjYyv9ZzBrPNSSrQFINGWh8/M6nwI/AJsyPFd4kM13KD+yNuwimAkd0nldF3kwBQgrjUkfqGjkjN+YrdWvn+ENgc/1+rIjEvDrt6WU2xh73N1lLd5xhSmSnWXMamgpS5p7Rrwa/rn1tKCNuG1gXZE23SkMaZ846WfjrJAQLSARN0Mcu3qv4ozBboKCeU1Hmm5ZM6UCkaz5M3QVTLQfATc5EEBXu4Mtu6TO+VdKxItSbGmZTN/eIAmgHpXB9Eg9lI3IW7zNAqXYuSdMoQsQgY/uYwWe6rFgJ1YSMlY37pvefUKNTEXsMM2/29hxt4dbcrr3N6yTARvOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZygI3WIqXrDFlAy/nZci/gXSNtq6yCIjmE97RWNrcbw=;
- b=TGCunQBlLYrEEemSsYZ5gjWjn+cMq5e0iXdNEGOw0Jh4hKAaacUv2sN0kNwxv76nuT4NaLbQiJk/OqLRR7hOABTzyEna/DAq0yCJaS5f80tw8EOI28oMm5ZExHdQPtIMsEGUvDlUErFZ4eEVM9eZBRxNgY9CZwo9o+WysX6XfaizCU/0HCW/3xT02hobLpZhlSjYi4kEFNH7bqRLKbs6EQXvukugprlYku+28c/52BlOM1N8QCBHpKZKf01TNR35VOQ2fOYYuhsUvBVWzft48a9n2esfiPzjJoEeoM2AwyQ9jD4B9nUGB9KcKb2slvIagkFkhtfosge346L4hzDjAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZygI3WIqXrDFlAy/nZci/gXSNtq6yCIjmE97RWNrcbw=;
- b=YxfL/eGO2rC/bjREgzfAsOAu/g4UY7TynoZ4KDo+u4r1PTAe1VySMAng34QTgAeoWQLRaw/dNXFV6D6fjuTsSS6qizSd4oKvES6yF/DEECgAjKzbKPBnzbFZGJ0mr2jo3mRjAD3IK9P5AIkYfNXjsnxi23VPlvt5mPPT4DR4+XE=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DM4PR12MB5040.namprd12.prod.outlook.com (2603:10b6:5:38b::19)
- by CH3PR12MB9147.namprd12.prod.outlook.com (2603:10b6:610:19a::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.22; Tue, 12 May
- 2026 17:09:28 +0000
-Received: from DM4PR12MB5040.namprd12.prod.outlook.com
- ([fe80::94f:c77d:ded2:28be]) by DM4PR12MB5040.namprd12.prod.outlook.com
- ([fe80::94f:c77d:ded2:28be%3]) with mapi id 15.20.9913.009; Tue, 12 May 2026
- 17:09:28 +0000
-Message-ID: <8a07b89d-564a-435e-9d71-1d7f884d1cf4@amd.com>
-Date: Tue, 12 May 2026 22:39:26 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] amd-sfh-hid: tablet mode switch and asus quirk
-To: Jiri Kosina <jikos@kernel.org>, Helge Bahmann <hcb@chaoticmind.net>
-Cc: Nehal Bakulchandra Shah <Nehal-Bakulchandra.Shah@amd.com>,
- Sandeep Singh <Sandeep.singh@amd.com>,
- Basavaraj Natikar <Basavaraj.Natikar@amd.com>, bentiss@kernel.org,
- linux-hid@vger.kernel.org, linux-input@vger.kernel.org
-References: <6879487.lOV4Wx5bFT@lothlorien>
- <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
-Content-Language: en-US
-From: Basavaraj Natikar <bnatikar@amd.com>
-In-Reply-To: <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: CH3P220CA0009.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:610:1e8::27) To DM4PR12MB5040.namprd12.prod.outlook.com
- (2603:10b6:5:38b::19)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o6fJUvPW"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8b59772d441so58129866d6.0
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 10:54:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778608471; cv=none;
+        d=google.com; s=arc-20240605;
+        b=g3Jor7omeYc5/bSWhqy00x3BiRmNvcNKu6dRMgmmNaMkXCXChMut8PDjguJqVuJc5Y
+         G78Qq7TjI4A3jSJ4DoDd02xSy5XFmTL7yZH/heoq2h9w9e56ZIuW6em4aBUeSU/kJYlp
+         /JrFA8eqRx+3ZUllZ+20Ub/hkqAVqn2YyBzRJMMJQtUrlAfbdLiOe4HJowEMhve4OVr8
+         GSPFYER4+l6SBo2SHHxav/HBF03+6I7fOlA+XnKCffnW7JVMU59WgXVjQCpIqE98K7/j
+         V3skoRlzxy1L1EbJnqJn7kFb9F66+F3/TgElY4bDvu5X5pBFx1aVjrEFyZmnqfGSVYEr
+         L+fA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=6V/dI7BfU6SQAb6qJiqMnaHDUf532gyHk6REavVdHpE=;
+        fh=pSf6W85+lWiqBqa+iiFfb2SH0P2UN1W6zXmK6Gz70eg=;
+        b=ZOb4e0Tru/xVKtODKnqmcHoBDG8SOPahec0JOuqgQsbH0n8PjuVhYvEIWuSlEE7EFM
+         T+B3MAWEybD8t43VlrDIPS7Vyol/d8JnF9fw/smWzoz/P9qgu/158//CNMCtnE3olrjV
+         WEt8KS8Ug43tgxqnmSVwT7qXKV8igNxAH7qCYBbQwfPKSo66viCCuZlozHQ9OdJPAP0q
+         TnThB3fgbSGAQNugfxvWlKjCKrRxPY4sTqSaiSfzpbJ1Eew/pRi9O7yY8Q6sRaIx9DKf
+         dk0jeo11wXl25X7x1YgWay+EwCGqkdRSd3p5El7vZkKNDn54Mgmm7ffrHpqBXaz7NlGH
+         E4kA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778608471; x=1779213271; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6V/dI7BfU6SQAb6qJiqMnaHDUf532gyHk6REavVdHpE=;
+        b=o6fJUvPWHd5vLCIEAN42w9gJlFbV29NfPcwbzbFiihGmzxPA4Ezax9NRR6/GzCDr+F
+         utQoZTs5DDWZK/Vf7BwmrW9tBPSjcnITqb0W0QOMCxGY8Z6q0FRpIgASdTuM4bhl07ku
+         I/DK+UosAwXfeHiJ4lSfruiGngmr3WdeYTIZ3vR6BdlxPc3uPiuOoWQl3ZZrnQ7a0egv
+         EjoZsi86ptZZU3JR/wl8RxCNO7t3ZfSJJjcpFdPw2WqtdE+NPSG8t8M5k2jqpz9yn53N
+         t5IlOk46QTHT1+GMFUK6fCn6EjEVq4JeiY6BIVwZAlFcmk28bzLZaWCA9rJkxrEmUmyZ
+         xaRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778608471; x=1779213271;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6V/dI7BfU6SQAb6qJiqMnaHDUf532gyHk6REavVdHpE=;
+        b=GdewU24DW2azD8tpuI7nbum/ckc3wFI6xzlTAyWvZMmExQ9xja8IQVOqd1JvttZf+C
+         mRvekurW106VikJHwjOGhD3dCZYMz+k2tKqxijtKiec8a3U4HFF0WgiVxv8/V2++e17w
+         KizhCdsbfZfkcDOvEuAgWW8fIqBg0IYfrhz0aOZrhzBOX9qYgQyuaUR2CEwaoxrXr2bp
+         wNZh8xVjqfLfl35oFcu8oQ++Hn1hvQL+REQn81wO9Un+vWF0mAqIDkCl3QJFDNJGXU0J
+         Z1izdT4Ffqo2PtoLD9ruUgHdDfXjXVJ7eqn3esc2CHB+pO1en7d3r+U+wL8dzOy9PQfq
+         BxlQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8v4SB1QiWQvQ+98U2gMEMkUWg0jRllXWvGNUSAJiG4PMrzVWiTm+u4ixLC3CF98c8uPc18tf8O0Dv4iQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxg++dtuvNihYEIzJB3Sq9s1H3HWtDwUcratp2k94k+VvJhwHKV
+	CzdvjNGtBlxSDMkEkIdUOmQsgi6mCXmaiv5yRO6KSpJV0EzkQ4/F4nQuDnT2BsDsHOQuLhkMWuo
+	wh2610vEVb5VlyZKSP9XNCgUbGXIh0p0=
+X-Gm-Gg: Acq92OEifnHc6lt1LmGOHrO2+mXtoaEu4SXqns0kur6AODuSzoRW7WfdcllMhAnobxl
+	U83HBg7X79VB7D750OoQpuDlqViAnXBuNJRGZyHKn6qbrru79DBCHL79wngZ6DYk4kaBycefTo4
+	ktvnmgpyycIxBt8cgHeElee5qF74vQIRflqHpP9+xBzjPgebeol0UkHbTVS6Ybct829bTOQEanZ
+	+MOy8S+NSWVfZhW3tAq46jkAIV7t2bcN3QUvSzIqHCn0zqS+BQDvyvmG0F1j0ll3tPmujsZSX21
+	W52LjQZB
+X-Received: by 2002:a0c:e092:0:b0:8ac:bae5:7477 with SMTP id
+ 6a1803df08f44-8c6636b53efmr52293406d6.26.1778608471093; Tue, 12 May 2026
+ 10:54:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR12MB5040:EE_|CH3PR12MB9147:EE_
-X-MS-Office365-Filtering-Correlation-Id: 05a1ddfe-29da-47a6-5a63-08deb0493979
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|1800799024|366016|56012099003|18002099003|22082099003|11063799003;
-X-Microsoft-Antispam-Message-Info:
-	UxUQtj5rd69VSyL05giK6X4IN4hi293y7q5qRe0IggBZ55dhIeAf/0Pd9ToFO13R0J2ldFRR3e+nE0BcxjdAz4kSwjEj2QRCSJXm4PmuIi1Jb4bQmzCPXT+S4dPFol5NqimviGQGLVlNgiybzLO9yqwqg3YpR/ZhZtm3oXwVSOo9IeSlnL5hPSe9adbA8ZrifYLpxYTK/NPkfs2FKNRR/QjaH5OnYf5C+eQT+7esWANdxGfDJJMdUuZvG6GPBTxw6ik4oFNdjAiJSPt0CNtebQRaVd5Gaytag1W7bAHmBohrFS1ZsoHWgWG9awWG/xaZf9DCPS+vBLxUsslCq8LJFMzWGFJQDX83GEcT5UtL5nA1mPyXEmdINwpTOg7dcywTvua94lYWHjgUhLrMF1VJHPFokn1gy6h3cNBLig+sFD1ic6fJJUuK//7bUXy2YQXatvgUYWjRvXIQFnyEICLwh9Qc+Q/9rIQi9Bke3W6/W8n9e8zG2o0zW7Vac0tkwhyd9at9VzbagToGY3ic6l/rcbl4RXoolAr7LT+KBwWEtarNdNHd/DCV6MKHVCDbB59LIHuur2pgn5WCwOr7PRKxkw2zQtCGcaVlZSMfVHbHf2AYl1kUeGvdvuureM6VwQaHAAeTWu4JLooRKRiroseoq5dNU8lEsJ9M5bpF+epVLAwo02vQcTsYo8VrZEar1IjQ
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5040.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(56012099003)(18002099003)(22082099003)(11063799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?RkVGa21HTWdHdWV0YXNxMGg5WC9JSEZyK3Y1SzN4bndlb2FEOUc5Nmd4VTBr?=
- =?utf-8?B?eDhWTGw4djg5V0hOSzhUdm5MNkNEeTJ1UFdkcy92TVUvaW9DeXlsVlZqRjU0?=
- =?utf-8?B?aWN3R254aHc4SlZsV0dKUFFkUUhTUzMzNTJxamI3QVJTQ3JPV1pzVTEzV2R4?=
- =?utf-8?B?UFpxOHlaUG1ZaUtMYnV1aklMWExjVGlidnNySVVPcldhNnJWc1ZIRmVsY0pF?=
- =?utf-8?B?My81bGZib1U3NGIwMnNDeW9vZnkza1Q1UGUyMlNhR1YwaFl4S2dPMWRVTFFT?=
- =?utf-8?B?S21rQSswM0xLSWw4VzVSZkV0VjBMM0w3djJieUNORThQR2NsTWl0b1F1b0Zj?=
- =?utf-8?B?ZFozRVNDeG5QRzRTRm55UTdsTittcUdCcFAxUDFGWG9lTUhSSFNGWjdFcWcv?=
- =?utf-8?B?ZWtMUFFLT0hEdFhWWkNTLzhrSE1mWlhRZzVtc3Z5SmRaMUV6UnltTlRuOW9T?=
- =?utf-8?B?SFRtZitLSm5CTU12RWJ6MU1TVmtpcEUrd2RjbU9iZ3N6dFNtRmFZeUtINGNM?=
- =?utf-8?B?aFNLTjhIZWtZdlNnQXdNdkRsUXM5eDQ0S1NCK0xTUUtReHBzaXBLbXV6S0hR?=
- =?utf-8?B?TXFDQTFlWTJLaVlvUTRyVXI5eHZRUzg4Z3VQRDgrQllzekpCeVdJMC9pOEZI?=
- =?utf-8?B?OHA3UkpHU0s1ZDRjOERIbU83a1RTMDdkYW5Gb0pXMldNblArSlNOOU0xWVZ2?=
- =?utf-8?B?TmdLYkdYWDVJdFZBdnd1MExMWDI4MDQxREpTSkd1c0VTR0s3azNQS1lmdmd0?=
- =?utf-8?B?V2VQeGprdW5zZmIxVDlnQk5lbVJqZWw1bzZraEJiN2FPSVpaZkZOOFVoQm1q?=
- =?utf-8?B?ZGRBdjlZUFhZUzhqbjJyZy9zSGhDYVNuZW9Ud3N6VXc0ZHFvTWxZcGVRalZR?=
- =?utf-8?B?T3BHb3IrTytWVWVtb3JtSUJldDdHdFlkZmkrVzQwdEw4WTVQMG15eXNSWmRI?=
- =?utf-8?B?NkpKQ1h0QUVrZ3NTdFUzWVlqTndadDlNMXNBMzZWMEdkWFhRZ0hoYzJTQkxi?=
- =?utf-8?B?bndaL3pLS0lobDlJdG56VTQ5alRtR1ZhYXZTYU85dUkxY29mSnNwQ0RoMnIr?=
- =?utf-8?B?UHZReXpTb1k1WGM3YXI0Z01ZK2YzSGs0WTFMQ1pMR3FhT2RYTG9EVUZzOVlz?=
- =?utf-8?B?UmF5bW5Iem1xUloxNjA1eUd3OTFlRDcxZGJGYlVsU2RyM3ZIMlZFS3pmV2tO?=
- =?utf-8?B?WUYyVVBVKzJHYmNWeDY0VUx3T3RDUS9sQVpVNkZRS2RXNnp2a1BJQVJzN2dh?=
- =?utf-8?B?ZU8xeGxGbjQ5QzdlbXZMMmczLzAxckJCRXR6UmJIbmR4bERTWHVSdk1MbXdu?=
- =?utf-8?B?NWFMdVpCZDFlYjFHV3JvL2trM1ZkYUlYajc2OE11SUQ2TTZRaGgrYnVWbUgr?=
- =?utf-8?B?eUNDb1VmZ0dJazVPa09YbEJrU3NkTGRJT0x6L1lJbzFyaGxkWHR6aE9tazBp?=
- =?utf-8?B?bkJmNWN2MjN6TjV1eFVMWXFxVVdRT05oNk5XMFhvSmNKdm9aUVlNNVplNEJC?=
- =?utf-8?B?endQSXlLMXA3NEZseVM2Snp1Y3JQYTlPOTU3cFlLTWpmL0c0TjF4QXNNTHFI?=
- =?utf-8?B?TkFOTjE3K0Uya3VEV3d4Ry80WFA1V29JdjIwM05sRWRuMWxCMVIxRTVoMEl0?=
- =?utf-8?B?ZTFkT2hRblgvNWpmRlcyZVgrL1Y1MVJBS3hWeE82VFZQeSs3b2Z3bDNQYm9J?=
- =?utf-8?B?OEtBQUw4TlU3Wk16dXZvenBGSEZ4WURySnZyKzlDUUJSY292bm5BemprdGpi?=
- =?utf-8?B?NGQ3d3dhY0J1cVB6alRTL2JxMGdvdGdPVlpEOHlGVWQ0RFdjZEdUL3FxU252?=
- =?utf-8?B?YUFpNHA2OXoxdUkvcktDV1Z1NjVoTHdtSlIyOEUxdmIwVzFpWUkwVEJaQkpG?=
- =?utf-8?B?L1RBYkhubjd0czlQcmo2U01obkdraUF3SnpYbUxpSVpHY2F4VlJxMDh6M0xq?=
- =?utf-8?B?SThFZ242eEpFNmFMVU5IMW1MMTF6Q2t0a25ETnQxdTkxeHZxVCtyRkJ2Nlhm?=
- =?utf-8?B?SXVmamMzbkgzYXFnTWgwa1dnd0tTR01nYUgzcUlpRnplMjZsRitpM3A2R1Mz?=
- =?utf-8?B?aHNsVzFtSTdDeklJblBKTTBsc3kreDVSWHdlbFhlRHREb1ltUENpa1VuUldU?=
- =?utf-8?B?WFhFakJ6K0pXL0NzaldrSHFMYjNMNzNzTGU4dEtvSGZnQ21jMkxsWjBmODU5?=
- =?utf-8?B?VmxRMXliM3cxdUF6OUtPSHVpQTBtSW4vZlZxWG1JKzVxUUliWUdLK1VWZ2Js?=
- =?utf-8?B?ZTRhZVovUkRTN0YwbmFNU1FrYXBqRDFIajRLdEswUkJZdlhPT0xQSjFZSnNj?=
- =?utf-8?Q?jwcVXUPTDjMARvvxOZ?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 05a1ddfe-29da-47a6-5a63-08deb0493979
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5040.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2026 17:09:28.0834
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: yQ8UR1BDbN+fT61WH/kZBXQtiBES9WIkR2wHX7FZq/vgCN6/rzCh72XIRzF4nMDX68EpCegKiUKbs8ma5S1AbA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9147
+References: <20260510043510.442807-1-derekjohn.clark@gmail.com> <n533qs94-7o4r-p5r0-04p1-68q1398n5785@xreary.bet>
+In-Reply-To: <n533qs94-7o4r-p5r0-04p1-68q1398n5785@xreary.bet>
+From: Derek John Clark <derekjohn.clark@gmail.com>
+Date: Tue, 12 May 2026 10:54:20 -0700
+X-Gm-Features: AVHnY4JgHMJKUiNg2AuyMgiSlUnVtaUfuAB2W9773w7jKTZlo-D2LmWGXSgL24w
+Message-ID: <CAFqHKTkkKx_3uJboGSQ3a1ukF5W8Mv0+jneuB+jxVoSUSmpTpQ@mail.gmail.com>
+Subject: Re: [PATCH 0/4] Add MSI Claw HID Configuration Driver
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, 
+	"Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Denis Benato <denis.benato@linux.dev>, 
+	Zhouwang Huang <honjow311@gmail.com>, linux-input@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On 5/12/2026 9:36 PM, Jiri Kosina wrote:
-> On Mon, 27 Apr 2026, Helge Bahmann wrote:
+On Tue, May 12, 2026 at 9:13=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wrot=
+e:
 >
->> Add an input driver that interprets the "operation mode" sensor offered
->> by the amd sfh on some laptop models.
->>
->> Add a quirk to make the driver work again with the Asus VivoBook
->> VivoBook (turn off the "disable interrupts" flag).
->>
->> Expose the intr_disable flag as a module parameter in case it turns out
->> to be needed on further laptop models.
->>
->> Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
-> Basavaraj, can you please review this one?
+> On Sun, 10 May 2026, Derek J. Clark wrote:
+>
+> > This series adds and HID Configuration driver for the MSI Claw line of
+> > Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+> > features, such as the ability to switch between xinput, dinput, and a
+> > desktop mode, RGB control, rumble intensity, and mapping of the rear "M=
+"
+> > keys. There are additional gamepad modes that are not included in this
+> > driver as they appear to be used in assembly line testing or are
+> > incomplete in the firmware. During my testing I found them to be unstab=
+le.
+> >
+> > The initial version of this driver was written by Denis Benato, which
+> > contained the initial reverse-engineering and implementation for the
+> > gamepad mode switching. This work was later expanded by Zhouwang Huang
+> > to include more gamepad modes and additional features. Finally, I
+> > refactored the entire driver, fixed multiple bugs, and refined the over=
+all
+> > format to conform to kernel driver best practices and style guide.
+> >
+> > Claude was used initially by Zhouwang Huang to quickly parse HID captur=
+es
+> > during the reverse-engineering of some of the features. Since Claude ha=
+d
+> > already been used, as a test of its capabilities I had it implement the
+> > rumble intensity attribute after I had already rewritten most of the
+> > driver, which I then manually edited to fix some mistakes. I also used
+> > Claude to review the driver and these patches for any mistakes and bugs=
+.
+> >
+> > Assisted-by: Claude:claude-sonnet-4-6
+> > Co-developed-by: Denis Benato <denis.benato@linux.dev>
+> > Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> > Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+> > Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+> > Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+> >
+> > Derek J. Clark (4):
+> >   HID: hid-msi-claw: Add MSI Claw configuration driver
+> >   HID: hid-msi-claw: Add M-key mapping attributes
+> >   HID: hid-msi-claw: Add RGB control interface
+> >   HID: hid-msi-claw: Add Rumble Intensity Attributes
+>
+> The driver looks reasonable, I'd just like to propose that we name it jus=
+t
+> hid-msi to follow the usual HID subsystem driver naming standards, so tha=
+t
+> it can later be extended with supporting other MSI devices.
+>
 
 Hi Jiri,
-
-Sure, will review. The patch has some changes that deviate from how
-other sensors are exposed in this driver, so it will take some time to
-review properly. I'll respond with detailed feedback once done.
+Sounds good. I'll do that when I fix the issues flagged by the bot in
+v2 and I'll try to have it out some time this week.
 
 Thanks,
---
-Basavaraj
+Derek
 
-
+Thanks
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

@@ -1,43 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16813A59BC;
-	Tue, 12 May 2026 15:56:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBD7338E8D2;
+	Tue, 12 May 2026 15:58:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601381; cv=none; b=YtGKlvOyMyLhOBEmR+QqMXn5OhjCCG+Glzjqo5ihbd+H+gI0Ca9IAowhFiA/OsV0rS1ihZFxMpfa6uD81AdUpWbuk4H+jxchLO/ZGXQ5sz8haEvxZatWSwmOJnDPGfo45Pgf+CAWQC7HweMs2MbG60OjxYVegZ/bst43wTFgIDk=
+	t=1778601481; cv=none; b=ksqmbQT1TKNPdkO6LtU5Y8+3eJtPVwJTRVQFWeHh/5ASybiZXaAGWZEhynPTAxOUKlSDOyXXEs8t/N7jwk91WdoRTEoPjjvEDNztuqry9RjbLVsRU367tb6DTz+sw+DOef2mudwRInrabDVepUSsoFSRebGCdfG0RVq7NcOzEy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601381; c=relaxed/simple;
-	bh=xrgY/J5okTxRzQTtXO4kQ7NHE93ddpEZa77GDFwT26w=;
+	s=arc-20240116; t=1778601481; c=relaxed/simple;
+	bh=Y6IcuyhXRDfs6AJDoMN/xWrVYOOiTEHwmAUTk8WPC+E=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=GDR0UTxXJMU/jbuZl0afliZa8ncbBHPoY6AeALe1ZeIaCzLKhEgOGeIiz5KFRTWtQvpGJFJhOGS19FvZMBy5SJy9ui9Ms4B15QibiWp92EayarD5dVQ+CGV7yMeJUfPzkGTQXWCyvtc/9qtcRL/75Z390uDmCDEqwfcp77p20r8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PFFkJpEz; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=RoNJdbTBp7QgV7U3FrlZiQzJpefNLV2W+dGIQFdsslVDKgZ6xaA9T78PL2mLX7kwstXoNG8f0hicXaWu7hlJJvo/k4H09kRgxM2Hz4igG13tGw4gYHIA7YouoXrAFCpQ1+igZTRNSdArCtREKzlgT1Kmt1uwy+I0IIDSJHYLyyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nSn+gwYO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PFFkJpEz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79253C2BCC7;
-	Tue, 12 May 2026 15:56:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nSn+gwYO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463A4C2BCB0;
+	Tue, 12 May 2026 15:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778601380;
-	bh=xrgY/J5okTxRzQTtXO4kQ7NHE93ddpEZa77GDFwT26w=;
+	s=k20201202; t=1778601480;
+	bh=Y6IcuyhXRDfs6AJDoMN/xWrVYOOiTEHwmAUTk8WPC+E=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=PFFkJpEzbLADv2hkXMSDR+GZ/2TvVvJ5/HrDZcF+1J9AuTYNSTliU9JP1Ll5p049a
-	 cgNIyaFt1t4kXmkjB7kvKyJapR6+fsaCnPAsFcz3TyAM6Ra7ti0Uc/ikEKHjeUBs/b
-	 ukf8k1snIFYdQzt9d6VUVIs0WhM65LcXlA8ZNHo7SoyDYAOBIAMhVd18nUpXNcTXh1
-	 oCofxQYIzn6/rgxENXl+JIRimPL7MlzWE0Sr7JTmUYIf+npv0rYPVSrp7KLyuonkGz
-	 fwhllDv1kz8STdH41jMculb2i9uYbuRhPwKLzK/q3qdclwIAaKRfYLIiAYcyMcbsjf
-	 j5jYjTUGgXRPw==
-Date: Tue, 12 May 2026 17:56:18 +0200 (CEST)
+	b=nSn+gwYOCz4BXkbiWXykO9U3xxzEW4MbLz2JWx8vFqZ3+miyb36yHs6ji35Cph6Ud
+	 I0yjMmhDO4orBzcRRnal5hnqe+pnMu1G9ySM2RGJq2OQpI2FDgld4cCpYjVvjIFDlY
+	 05AqRZ8Rb6HnwmZLJjeLrurzl4EiPcQiBYZ6N1ZuxE3W5JkBk2lWhuKYkCA2S/Rqa/
+	 EGXYm7nHOpwViCKcXM02vOWe4VqzRtrCCADYZAkKy4NdcPoz7x3Fx9r9Q0hiZ525+8
+	 +OOs6lEBcZG/kzQdHXyKu5QV+2yMq6hABhu/P4X4Zy1zJ4QpXVHyL911QMq+wpCm2C
+	 sKlUzGmgFPzEA==
+Date: Tue, 12 May 2026 17:57:58 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, 
-    Lambert Fan <fanzhaoming@anopc.com>, Zhouwang Huang <honjow311@gmail.com>, 
-    linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 0/5] Add OneXPlayer Configuration HID Driver
-In-Reply-To: <20260419042624.625746-1-derekjohn.clark@gmail.com>
-Message-ID: <q2nop225-7433-72qr-s720-939sr6s00p1p@xreary.bet>
-References: <20260419042624.625746-1-derekjohn.clark@gmail.com>
+To: Sangyun Kim <sangyun.kim@snu.ac.kr>
+cc: bentiss@kernel.org, qasdev00@gmail.com, gargaditya08@live.com, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] HID: appletb-kbd: fix UAF and mutex-in-atomic in
+ inactivity timer
+In-Reply-To: <20260420051318.1411671-1-sangyun.kim@snu.ac.kr>
+Message-ID: <po64s18s-27rr-9o3q-0pqo-2552nn6448sp@xreary.bet>
+References: <20260420051318.1411671-1-sangyun.kim@snu.ac.kr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,46 +44,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Sat, 18 Apr 2026, Derek J. Clark wrote:
+On Mon, 20 Apr 2026, Sangyun Kim wrote:
 
-> Adds an HID driver for OneXPlayer HID configuration devices. There are
-> currently 2 generations of OneXPlayer HID protocol. The first (OneXPlayer
-> F1 series) only provides an RGB control interface over HID. The Second
-> (X1 mini series, G1 series, AOKZOE A1X) also includes a hardware level
-> button mapping interface, vibration intensity settings, and the ability
-> to switch output between xinput and a debug mode that can be used to debug
-> the button mapping. Some devices (G1 Series, APEX) use a hybrid of Gen1
-> RGB control and Gen 2 controller settings. To ensure there is no conflicts
-> when the driver is loaded, we skip creating the RGB interface for Gen 2
-> devices if there is a DMI match.
+> This series addresses two defects in hid-appletb-kbd's inactivity
+> timer subsystem.  The two patches target different bugs and are
+> logically independent; they are sent together because they touch the
+> same tear-down code and because the same maintainer will review both.
 > 
-> I'll also add a note that Gen 1 devices also have an interface for
-> setting the key map and debug mode, but that is done entirely over a
-> serial TTY device so it is not able to be added to this driver. There
-> are also some "Gen 0" devices (OneXPlayer 2 Series) also use it, but
-> the TTY interface also handles the RGB control so no support is
-> provided by this driver for those interfaces.
+> Patch 1 fixes a slab use-after-free with two related tear-down windows
+> introduced by commit 38224c472a03 ("HID: appletb-kbd: fix slab
+> use-after-free bug in appletb_kbd_probe"):
 > 
-> Signed-off-by: Derel J. Clark <derekjohn.clark@gmail.com>
-> ---
-> v4:
->   - Make all delayed work part of drvdata & ensure they are canceled
->     during remove.
+>   A) Within "if (kbd->backlight_dev)" the order was
+>      put_device() then timer_delete_sync().  A concurrent
+>      hid_appletb_bl unbind between those two calls can drop the last
+>      devm reference and free the backlight_device; the still-armed
+>      inactivity timer softirq then dereferences the freed object
+>      through backlight_device_set_brightness() -> mutex_lock(&ops_lock).
 > 
-> v3: https://lore.kernel.org/linux-input/20260412213444.2231505-1-derekjohn.clark@gmail.com/
->   - Ensure default button map is properly init during probe.
+>   B) The "if (kbd->backlight_dev)" block ran before
+>      hid_hw_close()/hid_hw_stop(), so even after window A is closed a
+>      late ".event" callback from the HID core (USB URB completion on
+>      real hardware) can arrive between timer_delete_sync() and
+>      put_device(), reach reset_inactivity_timer(), re-arm the timer
+>      via mod_timer(), and reopen the same UAF.
 > 
-> v2: https://lore.kernel.org/linux-input/20260407041354.2283201-1-derekjohn.clark@gmail.com/
->   - Add DMI quirks for certain devices that ship with both GEN1 and GEN2
->     MCU to avoid clashing when initializing the RGB interface.
->   - Add left & right vibration intensity attributes.
->   - Add additional mappings for keyboard inputs.
->   - Add a delayed work trigger to re-apply settings after the MCU
->     completes initializing after a suspend/resume cycle.
+> Both windows produce the same KASAN slab-use-after-free on the object
+> allocated by devm_backlight_device_register().  Patch 1 closes them
+> together by moving hid_hw_close()/hid_hw_stop() before the backlight
+> cleanup and, inside that cleanup block, calling timer_delete_sync()
+> before put_device().  Shipping both as one commit avoids leaving
+> stable kernels in a half-fixed state where only window A is closed.
 > 
-> v1: https://lore.kernel.org/linux-input/20260322031615.1524307-1-derekjohn.clark@gmail.com/
+> Patch 2 fixes a separate "sleeping function called from invalid
+> context" bug in the same subsystem.  The inactivity timer is a
+> struct timer_list, so the callback runs in softirq context and calls
+> backlight_device_set_brightness() -> mutex_lock() from atomic
+> context; reset_inactivity_timer() has the same issue on the
+> brightness-restore path (it is called from appletb_kbd_hid_event()
+> and appletb_kbd_inp_event(), which run in softirq/IRQ context on
+> real USB hardware).  Convert the inactivity timer to a delayed_work
+> and defer the brightness-restore call to a dedicated work_struct so
+> both sleeping calls run in process context.
+> 
+> Sangyun Kim (2):
+>   HID: appletb-kbd: fix UAF in inactivity-timer cleanup path
+>   HID: appletb-kbd: run inactivity autodim from workqueues
 
-Now in hid.git#for-7.2/oxp, thanks.
+Both applied to hid.git#for-7.1/upstream-fixes, thanks.
 
 -- 
 Jiri Kosina

@@ -1,150 +1,316 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 896434C9569
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:33:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778689982; cv=none; b=IDebfld9GoiqxzydHayhnlPTNisD1gpbHjrL4zhdinf7GQLtbLC3G1WnbuPB+ZfvH/GrMWLCKVYPB9nhUrTim5ylDyBazwigC8xT1/qaNOERRgJ0eAG91B7ujd3N0NtffyGXj4HKIlzmk4ZB1PTP7KVwohs976N5Js3hidF71sg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778689982; c=relaxed/simple;
-	bh=/F7mkLpMSkilJ6XgDF6sYNk6aokRckj3LgTd7MUUzrE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PmrIsiFeH/an3y7gcLgdlGBNOJRl2oezaNyiA5hUNuttU4mkCpY+ffNbW88UXFefXkwtxP0OojoQrOcaphp2Y2qlR13xcPTZakX9VdyAu1/eSC1t5zZMY5Y4kQuT2PMn1zBPBMY6dDBEIdsxGVhOaVp/wtM8cuFzx6U4Q6sIU1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UCsYVqbI; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D52531B837
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:47:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778690860; cv=pass; b=PN8gFdUVf5QpkwatW6Iy/EpdQeFFFX2MxJ2shZ+WktllVGAfVps2hvNJZIcU4TM9/rGrIrQBaYOpTXwF1wkUSVFkwjcIjPr+TS7vUOg4gyUglKsRXn+kLOqC4zb96lltO491nKiTd+dc+IVtQbFSALIik80ZHg7LftzusnZ2QnE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778690860; c=relaxed/simple;
+	bh=ExnqDUkLINkKlD7+NygXVUJUo+YyZ6a9VvYiVKG7QhQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=K7B7luB17esjRPCrb5HJWGSI8bgNWTbOszk5hsw60iaf/595DUomzi2hnHG1h1+g10Q/R6AeUpKIiPTD7Bjd+3dpkfkhPPoiYwYCmOMMKAEQnepT160C0xmoLykDkF8wMKrPUIXTPycpxSbRdhNh1Es4x2njKF0o41gBI7V1Eog=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lIZ9PX2m; arc=pass smtp.client-ip=74.125.82.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UCsYVqbI"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-43d7e23defbso4221046f8f.0
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:33:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lIZ9PX2m"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2f30a4601bbso7602424eec.1
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:47:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778690858; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Uuv1CBL4AfOzgSxmvqPtdnRXiJ2QXpmobkhNv10txuNYsvmiCL5UwTC38MgYRK50bJ
+         we3YllHJUQJhklK/B8XRfETAsIwUQpnW3wKB1KThaVlO9HXPqTNKicGT2wv69+UzZ8Hq
+         flfWLZeP51Y+UTdeBJR/StWxQJpjYXXWwQH3OitTBlvsFkOMyAE7m2AdRAv0PWrp01gO
+         nOIhHxL0sJwBKMzdAU+QEZViUsc99WUsVT3x5Y+zGUpbas4eKnd3Qk9qcAt0k7qLJuJV
+         HM4NsUWtTOYAjfg88OyCMSbnVmTaaw0+ojwmiPaVxtOvUk+Bc5Fbmub42XzHWFYH1nvd
+         WLug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=JerA/KHdCfuyoaygNVbCtHqii4aEtRRNxbe67luduQk=;
+        fh=P5mNzV7q5n0hErwehoWY5RHSdwj1kFXwNS7Noi+qMuw=;
+        b=bJk4uphKzJ2Q4tjNvsVwPtn9bZ/NcrN7drLakzGANZmZ1qweoj8I0Xg6geXF+95v6v
+         1FU2iMp11NNTxOv2k9u1G6rpzaRHWMN3mYSai6dESyFDaFBRiPFlw5gL00GgxckNiQ+0
+         u4E32rp+ZcPkVxYBjKHinmANcS1cFXOY5EWvOSUXVclPl6VIrq2JgQBCafH1bg8VVoU9
+         06VjiA53/uQB3S0oS36CQIVnGYHySYeEWrbgMKuI86KiGZ+kqOQalo9tlaQIoYdFihM3
+         aBDskxDXkN3tOcn1Y45RqDi3usdBdhdaM4+JC/NUG1j6ZAdIGTD8uofXIiWqQ1bZJ2+7
+         7rqw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778689979; x=1779294779; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Lj/PBGY77hCYFHRzm2arS0qQSCxh8sdGd+dCofuJGrQ=;
-        b=UCsYVqbI8aUlCfWbFMp14YhrchuJdhsxqdOvGBxSXU2ZmZw0QLNnV9zVbZ829HNcIc
-         h/Ff4pWm7tIt+FG6DK+uHUaYvh3YjBrUXIRfglNIsCqZaHqJKC2ZhFz+6SW45YMPhYfy
-         w5VrNX96uSYzxH9zEmH8ut5QcaD039xt1Y7VYpya9ymM5BYdiDSyxh13ULiay4Ykkqup
-         IllcbCq3kpq3O++DeZk0axLZbQLdI4HfpcPATcFdf6Qlwb0kN9c3/YL3XkT0Ld3rN+4w
-         jX6cdcKJxAEx6s2TTpKSzLK51yXrVMhvjYQAlDEgMLc7eKPwlzZ5ZSOWLXuRRiB0QkAA
-         N/OQ==
+        d=gmail.com; s=20251104; t=1778690858; x=1779295658; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JerA/KHdCfuyoaygNVbCtHqii4aEtRRNxbe67luduQk=;
+        b=lIZ9PX2m+1rVFo5ukZcGjeoyRdBnG2brHCNsvJn3YrWZ0eQ29u1kRVdRQ9/aLLPa9v
+         efPhw0n2Fu2v8dULGYccwLniNlpdGlt9CWGx+JcstZ092nDRu3ecYoT60Yif/nC04Xf+
+         U8FyuDL8Jg3wxdUVPP2AevdlFjvBulirFKO7dmcUJ0jXz4CMTyDrAwcvhza0b6DzpxKm
+         9CvlWUHw+VcpNiEdNQyLQwXy+eVgZ6DU/5gLRhgwaJ303IsKIv0jTgY7TXtD3r44fAoI
+         4CLU0R/YZHMxgbNXFvWiigsLLgjn7b5vwFUSHZMBfd50D9Qiwtq7zMYrPy+XF70jQo1R
+         +4mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778689979; x=1779294779;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Lj/PBGY77hCYFHRzm2arS0qQSCxh8sdGd+dCofuJGrQ=;
-        b=TILbVuNMPnHSqyH9as1uzaZEd+mJrm3ffD+L3rCRNW7R41S8Q+TnwUcS9GvdbFuPgO
-         9RqVZoAjNdUi893enCVetJVMsC/qIsikc7gy5/dPRY7OoOPfrgCXu/xrztUOJJbVT68a
-         YW7WPpLCACGZ4CPrS3pBV8adi2b8I7/9phM90beUY4jfEnCuYkOBk71BFVHvv/w+m6Nc
-         F4z2LKHidgnt01we7cn+Ouar93y8vctwrmr3LwyLVkAhsCDtDnRdrrIVhTiCUoTyPQvK
-         rZsF7MbBGFDZDcx6A2TJZ0dbVhxHRBDLnFkkc0eVHKRYd6ADoxxS7vbCUZ/zom6x3ucp
-         scag==
-X-Forwarded-Encrypted: i=1; AFNElJ86FePdjENgfJhfcjBSwp+jzQfJ1TloS1D9dXZlup+cMlPsuh7WOTlRJFAyP4tUae7a0VQikXlXQ72wkw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx7yf4p3Jb9E3RFmyFMut1HvxCmpw9fZ9ooi3fm+mDAW4wEi7o6
-	lil1kBtm8Kas/bPpQriBhUZIaT165LxvXP62PYgKONuZhrU23DhaFjFv
-X-Gm-Gg: Acq92OEZGvhWz4FmT8mkdLU5KHvwDt6f5fgmJFnMzGIdLxlcYepTjVgjn/6WvwOKBfh
-	YWfNGLRxUxnbxXIo5kzYFuScS3PI45Z/Boo3AgiPIw7fItTb4+0SPVR8OGJAeARAxawAVaFmxuY
-	tsjFWta+sQysm/WzMf7ERvOOFrbgWhVLNvaPSASvN5Ru0pxhTlEc/nQHVCXB0MgmOPUakxL/5/I
-	fu/JWdr4T2DKynDBrpLU/ZkcQVTKZghmtOv9iFCgC0kLfSGEYGGlqj6bwjW5FpM2D5IZ0m673q8
-	ULuXH9Q26ekunx8E3B7O9g3tVaXBRxBfVxhGaj6vw760UJWgWDZBioTxhHMsD6VJWAWcq++8EQG
-	aiAQylUEeQR/f+70yaY0ENccLnmyfiHmShluYNNWCH4+zg3KVOSC48oiL1sSHNf4icmHTgedp1t
-	or8EFH+InW9jCFx0xOV0uiC/tE9xovQRdIYAKiBPNUTDJsC2UE073c44ywDXdk/CNY5axmFYg9n
-	VO3pFY=
-X-Received: by 2002:a05:600c:1d03:b0:48a:906a:9050 with SMTP id 5b1f17b1804b1-48fc9a100damr65857495e9.10.1778689978579;
-        Wed, 13 May 2026 09:32:58 -0700 (PDT)
-Received: from gmail.com ([91.126.139.18])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd6481bd6sm2301725e9.3.2026.05.13.09.32.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 09:32:58 -0700 (PDT)
-From: Paolo Pisati <p.pisati@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org
-Subject: [PATCH 7/7] hid-asus: add prod-id, quirk for Zenbook Duo keyboard
-Date: Wed, 13 May 2026 18:32:48 +0200
-Message-ID: <20260513163248.16483-8-p.pisati@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260513163248.16483-1-p.pisati@gmail.com>
-References: <20260513163248.16483-1-p.pisati@gmail.com>
+        d=1e100.net; s=20251104; t=1778690858; x=1779295658;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=JerA/KHdCfuyoaygNVbCtHqii4aEtRRNxbe67luduQk=;
+        b=q6ttCoxQULTPqXgLaMn5ChR60AobLMj26U3gP967MpD1NfDXBmbUAmUJNqDORRJTVi
+         5QiRUjT+FtK0Mgfn0RySrLXCgMzSgluKJwvT0uPgDxzlCUIv0YGnK6WBUpD4rramJ+w7
+         p39LLHULxfOLbbDX1he/iTVphcJ9fJa0TnpKsEnlJ8IBrbzMDDOXYmu/5JSYaKvv8sjo
+         Uoy4umhAZMjbXgE31dZaJgCXHr5x/8CJqoMHpmuV/nUXnSnBGTzdRD7gKQLajo7ynruo
+         mvu4Wl8yKAzQQzbTO+1b9UwHr1z/gL6ZZ+vM/SAQOqHHCPHnRrb6i3lxkK26TD/A7HYM
+         Cd/Q==
+X-Forwarded-Encrypted: i=1; AFNElJ84TODRzxThDJ27/mCpp7kdxwF1AO2rj38mK8oEcNqQejUmQVjOvMgJnU54pbL7OUXqRPKmfjA4LvLe3w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yykv5bX9vehTrP4i+jRi9abUykdSHnhqddNHLJi6XLUzqY/ca1K
+	Wy1wxvy1iKjl8qMsmdcD5wOS9HcibqOmd/tivAYY+whFgIhlYCfMMORZSRMDrFUmPtzGld1sPa/
+	JlwSwNDCV4zwnwtEPUNZmBGI4fWEiQH8=
+X-Gm-Gg: Acq92OGBMhMXTt4MxhrjppwjcbV0dq9ld+T8KAJZYVAwXBZEEpSN0NRhRf7+n2m/sN5
+	krNcZtisg5FylGHgcr1ySF3B1cJ7AZXqRzG8VyD8gLzlCPXVxN2MOXUMZprzY+8ZKOr0Q6PGU3Z
+	MHIMUzTnT7qnyFBxXr96s4VovwzPwDkpvRACtviDBwo8JD5EUELbQBIVH1WWi4smVK5sXFvroF6
+	qb9kQc7ug2M+cPSp6x/pnGZqda7sdwGHahXg5ZmWMl7D9ECrBTS0JYR8iycj9sDBOJzxHmeh1Xh
+	EMgDd5z0
+X-Received: by 2002:a05:7300:a984:b0:2dd:5641:f01 with SMTP id
+ 5a478bee46e88-30155b4d27bmr1845952eec.28.1778690857870; Wed, 13 May 2026
+ 09:47:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260428153611.142816-1-clamor95@gmail.com> <20260428153611.142816-6-clamor95@gmail.com>
+ <20260507140519.GO305027@google.com> <CAPVz0n1Ubvj9MHHMcM2BpxAcTCCheMihr3aJUqcDVoi_V0OQ5g@mail.gmail.com>
+ <20260513140550.GD305027@google.com>
+In-Reply-To: <20260513140550.GD305027@google.com>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Wed, 13 May 2026 19:47:26 +0300
+X-Gm-Features: AVHnY4L_UPed0nI0jqBJd7980GApXqp_CTeeRBwMRPJX6vgRQaMZTKXyU_fde7I
+Message-ID: <CAPVz0n0ynA-ab1Frwy2vXsrYPm+SB+0oOoKAiHw9D7BT=+ieDQ@mail.gmail.com>
+Subject: Re: [PATCH v4 5/6 RESEND] mfd: motorola-cpcap: diverge configuration per-board
+To: Lee Jones <lee@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, David Lechner <dlechner@baylibre.com>, 
+	Tony Lindgren <tony@atomide.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Luke Jones <luke@ljones.dev>
+=D1=81=D1=80, 13 =D1=82=D1=80=D0=B0=D0=B2. 2026=E2=80=AF=D1=80. =D0=BE 17:0=
+5 Lee Jones <lee@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> On Thu, 07 May 2026, Svyatoslav Ryhel wrote:
+>
+> > =D1=87=D1=82, 7 =D1=82=D1=80=D0=B0=D0=B2. 2026=E2=80=AF=D1=80. =D0=BE 1=
+7:05 Lee Jones <lee@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+> > >
+> > > On Tue, 28 Apr 2026, Svyatoslav Ryhel wrote:
+> > >
+> > > > MFD have rigid subdevice structure which does not allow flexible dy=
+namic
+> > > > subdevice linking. Address this by diverging CPCAP subdevice compos=
+ition
+> > > > to take into account board specific configuration.
+> > > >
+> > > > Create a common default subdevice composition, rename existing subd=
+evice
+> > > > composition into cpcap_mapphone_mfd_devices since it targets mainly
+> > > > Mapphone board.
+> > > >
+> > > > Removed st,6556002 as it is no longer applicable to all cases and
+> > > > duplicates motorola,cpcap, which is used as the default composition=
+.
+> > > >
+> > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > > ---
+> > >
+> > > Changelog?
+> > >
+> >
+> > Changelog is in the cover.
+> >
+> > > >  drivers/mfd/motorola-cpcap.c | 101 ++++++++++++++++++++++++++++---=
+----
+> > > >  1 file changed, 83 insertions(+), 18 deletions(-)
+> > > >
+> > > > diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cp=
+cap.c
+> > > > index d8243b956f87..516d1e33affa 100644
+> > > > --- a/drivers/mfd/motorola-cpcap.c
+> > > > +++ b/drivers/mfd/motorola-cpcap.c
+> > > > @@ -12,6 +12,7 @@
+> > > >  #include <linux/kernel.h>
+> > > >  #include <linux/module.h>
+> > > >  #include <linux/mod_devicetable.h>
+> > > > +#include <linux/property.h>
+> > > >  #include <linux/regmap.h>
+> > > >  #include <linux/sysfs.h>
+> > > >
+> > > > @@ -24,10 +25,16 @@
+> > > >  #define CPCAP_REGISTER_SIZE  4
+> > > >  #define CPCAP_REGISTER_BITS  16
+> > > >
+> > > > +struct cpcap_chip_data {
+> > > > +     const struct mfd_cell *mfd_devices;
+> > > > +     unsigned int num_devices;
+> > > > +};
+> > >
+> > > This is a red flag.
+> > >
+> > > >  struct cpcap_ddata {
+> > > >       struct spi_device *spi;
+> > > >       struct regmap_irq *irqs;
+> > > >       struct regmap_irq_chip_data *irqdata[CPCAP_NR_IRQ_CHIPS];
+> > > > +     const struct cpcap_chip_data *cdata;
+> > > >       const struct regmap_config *regmap_conf;
+> > > >       struct regmap *regmap;
+> > > >  };
+> > > > @@ -195,20 +202,6 @@ static int cpcap_init_irq(struct cpcap_ddata *=
+cpcap)
+> > > >       return 0;
+> > > >  }
+> > > >
+> > > > -static const struct of_device_id cpcap_of_match[] =3D {
+> > > > -     { .compatible =3D "motorola,cpcap", },
+> > > > -     { .compatible =3D "st,6556002", },
+> > > > -     {},
+> > > > -};
+> > > > -MODULE_DEVICE_TABLE(of, cpcap_of_match);
+> > > > -
+> > > > -static const struct spi_device_id cpcap_spi_ids[] =3D {
+> > > > -     { .name =3D "cpcap", },
+> > > > -     { .name =3D "6556002", },
+> > > > -     {},
+> > > > -};
+> > > > -MODULE_DEVICE_TABLE(spi, cpcap_spi_ids);
+> > > > -
+> > > >  static const struct regmap_config cpcap_regmap_config =3D {
+> > > >       .reg_bits =3D 16,
+> > > >       .reg_stride =3D 4,
+> > > > @@ -241,7 +234,56 @@ static int cpcap_resume(struct device *dev)
+> > > >
+> > > >  static DEFINE_SIMPLE_DEV_PM_OPS(cpcap_pm, cpcap_suspend, cpcap_res=
+ume);
+> > > >
+> > > > -static const struct mfd_cell cpcap_mfd_devices[] =3D {
+> > > > +static const struct mfd_cell cpcap_default_mfd_devices[] =3D {
+> > > > +     {
+> > > > +             .name          =3D "cpcap_adc",
+> > > > +             .of_compatible =3D "motorola,cpcap-adc",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap_battery",
+> > > > +             .of_compatible =3D "motorola,cpcap-battery",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-regulator",
+> > > > +             .of_compatible =3D "motorola,cpcap-regulator",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-rtc",
+> > > > +             .of_compatible =3D "motorola,cpcap-rtc",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-pwrbutton",
+> > > > +             .of_compatible =3D "motorola,cpcap-pwrbutton",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-usb-phy",
+> > > > +             .of_compatible =3D "motorola,cpcap-usb-phy",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-led",
+> > > > +             .id            =3D 0,
+> > > > +             .of_compatible =3D "motorola,cpcap-led-red",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-led",
+> > > > +             .id            =3D 1,
+> > > > +             .of_compatible =3D "motorola,cpcap-led-green",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-led",
+> > > > +             .id            =3D 2,
+> > > > +             .of_compatible =3D "motorola,cpcap-led-blue",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-led",
+> > > > +             .id            =3D 3,
+> > > > +             .of_compatible =3D "motorola,cpcap-led-adl",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-led",
+> > > > +             .id            =3D 4,
+> > > > +             .of_compatible =3D "motorola,cpcap-led-cp",
+> > > > +     }, {
+> > > > +             .name          =3D "cpcap-codec",
+> > > > +     },
+> > > > +};
+> > > > +
+> > > > +static const struct cpcap_chip_data cpcap_default_data =3D {
+> > > > +     .mfd_devices =3D cpcap_default_mfd_devices,
+> > > > +     .num_devices =3D ARRAY_SIZE(cpcap_default_mfd_devices),
+> > > > +};
+> > > > +
+> > > > +static const struct mfd_cell cpcap_mapphone_mfd_devices[] =3D {
+> > > >       {
+> > > >               .name          =3D "cpcap_adc",
+> > > >               .of_compatible =3D "motorola,mapphone-cpcap-adc",
+> > > > @@ -285,7 +327,12 @@ static const struct mfd_cell cpcap_mfd_devices=
+[] =3D {
+> > > >               .of_compatible =3D "motorola,cpcap-led-cp",
+> > > >       }, {
+> > > >               .name          =3D "cpcap-codec",
+> > > > -     }
+> > > > +     },
+> > > > +};
+> > > > +
+> > > > +static const struct cpcap_chip_data cpcap_mapphone_data =3D {
+> > > > +     .mfd_devices =3D cpcap_mapphone_mfd_devices,
+> > > > +     .num_devices =3D ARRAY_SIZE(cpcap_mapphone_mfd_devices),
+> > > >  };
+> > > >
+> > > >  static int cpcap_probe(struct spi_device *spi)
+> > > > @@ -297,9 +344,17 @@ static int cpcap_probe(struct spi_device *spi)
+> > > >       if (!cpcap)
+> > > >               return -ENOMEM;
+> > > >
+> > > > +     cpcap->cdata =3D device_get_match_data(&spi->dev);
+> > > > +     if (!cpcap->cdata)
+> > > > +             return -ENODEV;
+> > > > +
+> > > >       cpcap->spi =3D spi;
+> > > >       spi_set_drvdata(spi, cpcap);
+> > > >
+> > > > @@ -331,16 +382,24 @@ static int cpcap_probe(struct spi_device *spi=
+)
+> > > >       spi->dev.coherent_dma_mask =3D 0;
+> > > >       spi->dev.dma_mask =3D &spi->dev.coherent_dma_mask;
+> > > >
+> > > > -     return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
+> > > > -                                 ARRAY_SIZE(cpcap_mfd_devices), NU=
+LL, 0, NULL);
+> > > > +     return devm_mfd_add_devices(&spi->dev, 0, cpcap->cdata->mfd_d=
+evices,
+> > > > +                                 cpcap->cdata->num_devices, NULL, =
+0, NULL);
+> > > >  }
+> > > >
+> > > > +static const struct of_device_id cpcap_of_match[] =3D {
+> > > > +     { .compatible =3D "motorola,cpcap", .data =3D &cpcap_default_=
+data },
+> > > > +     { .compatible =3D "motorola,mapphone-cpcap", .data =3D &cpcap=
+_mapphone_data },
+> > >
+> > > We don't allow data from one device registration API (MFD) to be pass=
+ed
+> > > through another (OF) because it tends to lead to all sorts of "creati=
+ve
+> > > solutions".  Pass a value instead and match on that in a switch()
+> > > statement like all of the other MFD drivers do.
+> > >
+> >
+> > You don't allow this. I have not seen this enforced anywhere in the
+> > kernel except the mfd subsystem. Fine, does not matter, if this makes
+> > you happy I will adjust.
+>
+> Where else would this rule be applicable?  I can't think of anywhere.
+>
 
-The 2024/2025/2026 ASUS Zenbook Duo has a similar keyboard setup as many of the ROG
-range of laptops, with the same init sequence and control for backlight.
-Enable the keyboard control and backlight by:
-- adding the product ID for 2024/2025/2026 Zenbook Duo keyboard MCU
-- adding the Bluetooth Zenbook Duo keyboard IDs
-- use Fn-lock on Zenbook Duo keyboards
+I have adjusted as you requested and already sent v5.
 
-Intended for the UX8406-style product line with the fully removable keyboard.
-
-Signed-off-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
-Signed-off-by: Ivan Levchenko <me@livan.pro>
----
- drivers/hid/hid-asus.c | 18 ++++++++++++++++++
- drivers/hid/hid-ids.h  |  6 ++++++
- 2 files changed, 24 insertions(+)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 37e3aec612b6d..ba093f11f802f 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1583,6 +1583,24 @@ static const struct hid_device_id asus_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR),
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_HID_FN_LOCK | QUIRK_ZENBOOK_DUO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY),
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD | QUIRK_ROG_ALLY_XPAD},
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0cf63742315bf..97dc451adac5a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -227,6 +227,12 @@
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD	0x1866
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2	0x19b6
- #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_FOLIO		0x1a30
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2c
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2d
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf2
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf3
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd7
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd8
- #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR		0x18c6
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY		0x1abe
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X		0x1b4c
--- 
-2.53.0
-
+> --
+> Lee Jones

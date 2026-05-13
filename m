@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E724D24E4C3
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 03:00:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3B0394499
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 03:10:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778641245; cv=none; b=uTh+QczM2Jw5PErb+vKj0voIMo30c50lOIYDQj1ph4LUQ0GW6ltS6jCOqxMcm+aPhShe2iuoxkjgXsKpL+jKupBGWWPjo7//gQLvubcTz/Ito3hkHF2e9FsseNjoFA/e0HOhguYjwD7KtoTFQiMdmiGUNxwsYbbACtO4ihuNIa0=
+	t=1778641831; cv=none; b=dTnQqdsUAWDCuYRcXTDhEINa2sPhqe0Z/zEhOjsTYQfXqrwhhpJWKjAQKaFEy6FbY33W4FSsVQ4W4HlFB5E6gP5Uv7NsVcrKwAR/RPteaEAXvZ2EM141owoX0ehIl7r6APC2ZYiQczaX/Iopzu0J5G1llWM8dOBmioCGsOsPpbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778641245; c=relaxed/simple;
-	bh=DpPgmplkdiadkA4M8c3lmXu3uh2URJB8mvwUQQ/NuOI=;
+	s=arc-20240116; t=1778641831; c=relaxed/simple;
+	bh=/YRsbRB3fxerZSWftRjDJgBJUfH+rUDxgCuiuPtNCRo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NrlZnIYxE75Spie3cRlbeq6jDleaiRt4uLvd9iK54ml/6isrJCp/Pwhtm7L8Qafy8RIaKZJsYyouQhnkJaqFfZQT1sYkzXMl9JALiXhQ77JZlT0fVDpA3ciRoAHPTIG7vSmHAJbLvWOUvOCH4vbCuMIMttSG2wfFX1H1qZ7zDHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qo/km2jU; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=JlG+sSR3HQNuHA2W+F+L7rXwv2AcOYdEGHIF2ZuvYTX2fOQkA5JBgmxGHLAjhjH2ZKzNwaHmxShAWBVy3wEC8mmDdhoh7BKYsOo/uQMsnvqiDdLXKXBCNL5SCnI/paQwZN9QT2Txw+T0UOlVrfkH7tWzqlzmbqZ4hgEF15TNstQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gcpePR2y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qo/km2jU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A45C2BCB0;
-	Wed, 13 May 2026 03:00:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gcpePR2y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D5FC2BCF5;
+	Wed, 13 May 2026 03:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778641244;
-	bh=DpPgmplkdiadkA4M8c3lmXu3uh2URJB8mvwUQQ/NuOI=;
+	s=k20201202; t=1778641831;
+	bh=/YRsbRB3fxerZSWftRjDJgBJUfH+rUDxgCuiuPtNCRo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=qo/km2jU5GqUIa+0UqeZ0mSwXDh/+Rf1JR+tG6xBlATEvAwcSwL++ZmVol/n0P1h+
-	 fwAmYM6Sdbh1NNPwbzBCHhCJ77SiuVyrQuSIUi3AHdaBTSkej+OqPn5izRRzKkd2Yw
-	 2t+lM78sProJwZT78dqeh03IwU/pbR+cZbR2jdIC/uMnnxcgAnitQjZZUbEly93KEO
-	 GJpUJ7RYnNBvVDqd2QPzcnahqVHXWU94uGEFuVB+ySaRM/xVCDank7hervw+yASZKD
-	 ewxbufmLAEYcexKtooJQh+g8y7sturSOTYJG6zLkASSFlo7bobN4xoqzaJjfYUNJ38
-	 V/tC99lbrjm1g==
+	b=gcpePR2yf3pYoJK+GM1QA+Z5EfNVMleHp4poQFu8bT5vPpPd6rJNn07669IMs2UWK
+	 uSAQx+qUjwbeeaxpZEB7P6tHcLDFdCN7UriZWE8NdtFEGAj7nU+337D5iKKYSdsbep
+	 gObYEDoaUryjnEzZg0qgU9ybqeQpcCUGHQYXlDA5lS6GOD5+zFtWrl4xyc5e3UUmmE
+	 zTYhshd9YyxZDidr2wmcyxA8DvRfG0YS+Qc3jmTjc8+HQ23ozp4/v4nXgmrjdYd24B
+	 XMp0EQ6qXixGRLLbQP9JW/Hy33YNvREphmRDugwjx3rCPaHjnPxKEvUtyWpR+s2/fK
+	 GBfatFa59W8JQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/6] iio: light: HID: hid-sensor-als: Refactor
+Subject: Re: [PATCH v3 4/6] iio: light: HID: hid-sensor-prox: Refactor
  channel initialization
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TmF0w6FsaWEgU2FsdmlubyBBbmRyw6k=?= <natalia.andre@ime.usp.br>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260512012302.20883-4-natalia.andre@ime.usp.br>
-References: <20260512012302.20883-4-natalia.andre@ime.usp.br>
+In-Reply-To: <20260512012302.20883-5-natalia.andre@ime.usp.br>
+References: <20260512012302.20883-5-natalia.andre@ime.usp.br>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 13 May 2026 03:00:43 +0000
-Message-Id: <20260513030044.70A45C2BCB0@smtp.kernel.org>
+Date: Wed, 13 May 2026 03:10:30 +0000
+Message-Id: <20260513031031.44D5FC2BCF5@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,50 +46,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] The patch introduces a build error by initializing a non-existent `=
-.format` field in `struct iio_scan_type`.
+- [Low] The patch introduces a compilation error by incorrectly initializin=
+g a non-existent '.format' field in `struct iio_scan_type`.
 --
 
-commit 0b0eb5f75d5c3745616a7e7de9ace24a35760cff
+commit b9cbff53934f8976c34e3030a4b171bfc276e140
 Author: Nat=C3=A1lia Salvino Andr=C3=A9 <natalia.andre@ime.usp.br>
 
-iio: light: HID: hid-sensor-als: Refactor channel initialization
+iio: light: HID: hid-sensor-prox: Refactor channel initialization
 
-This commit replaces the local als_adjust_channel_bit_mask() function
-with a compound literal for scan_type initialization to improve code
-readability.
+This commit refactors the initialization of the scan_type field for proximi=
+ty
+sensor channels by replacing the prox_adjust_channel_bit_mask() function wi=
+th
+a compound literal.
 
-> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-s=
-ensor-als.c
-> index 830e5ae7f34a7..e5b4c5e80f1cf 100644
-> --- a/drivers/iio/light/hid-sensor-als.c
-> +++ b/drivers/iio/light/hid-sensor-als.c
-
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
+sensor-prox.c
+> index efa904a70d0ef..edc9274a2c076 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
 [ ... ]
-
-> @@ -334,7 +324,11 @@ static int als_parse_report(struct platform_device *=
-pdev,
-> =20
->  		channels[index] =3D als_channels[i];
->  		st->als_scan_mask[0] |=3D BIT(i);
-> -		als_adjust_channel_bit_mask(channels, index, st->als[i].size);
+> @@ -250,8 +240,11 @@ static int prox_parse_report(struct platform_device =
+*pdev,
+>  		st->scan_mask[0] |=3D BIT(index);
+>  		channels[index] =3D prox_channels[i];
+>  		channels[index].scan_index =3D index;
+> -		prox_adjust_channel_bit_mask(channels, index,
+> -					     st->prox_attr[index].size);
 > +		channels[index].scan_type =3D (struct iio_scan_type) {
 > +			.format =3D 's',
 
-Does this cause a build failure? Looking at struct iio_scan_type in
-include/linux/iio/iio.h, there is no field named format.
+Will this cause a compilation error? struct iio_scan_type does not have a
+member named format. The previous code set the sign member to 's'. Should
+this be .sign instead of .format?
 
-The removed code assigned this value to the sign field:
-
-	channels[channel].scan_type.sign =3D 's';
-
-Should this compound literal initialize .sign instead of .format?
-
-> +			.realbits =3D BYTES_TO_BITS(st->als[i].size),
+> +			.realbits =3D BYTES_TO_BITS(st->prox_attr[index].size),
 > +			.storagebits =3D BITS_PER_TYPE(u32),
 > +		};
->  		++index;
+>  		dev_dbg(&pdev->dev, "prox %x:%x\n", st->prox_attr[index].index,
+>  			st->prox_attr[index].report_id);
+>  		st->scale_precision[index] =3D
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260512012302.2088=
-3-1-natalia.andre@ime.usp.br?part=3D3
+3-1-natalia.andre@ime.usp.br?part=3D4

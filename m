@@ -1,170 +1,131 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 693EF3D47DB
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 07:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778656940; cv=pass; b=UbrVv3b+6cLk4nP0zAexnccAIqOE3JUnW7btKPVxtrrTrJV6jdVZeoQuyfPtsxHmS1UzAfroyRk63kWsafNkIdt4w7NwYm6NttahpqdIiRa/FtvMxfNXqadfWdQlNvP6IaA0RUGaHzCiHVoA5GwRXRgHVvupYUGmkD4zSQ3YwnI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778656940; c=relaxed/simple;
-	bh=fw4l6Y9kpKC050algLTER/1Mw6N22TkDOhBPegwIMFE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YKvToq1VVeSKEjwOLlvzmljfga2MfIHt5Z5gFkLe0JetoJbSBAVauC5t3gGdFM5T4LPKuwEgQxCZc+DBMbZCMWY1NIfa6qaR/pn5+ORM47kEBklVdyzLRx6AcCDrN2zbEeSkCOxe/Np3T0o7kFyWURxclwunDbUBs0sROXc+TC8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HkzzLs2D; arc=pass smtp.client-ip=209.85.219.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F74374E5A
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 07:39:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778657977; cv=none; b=ElYeNQlYe407890j+w/OMByPhucpU3rZx+wXwddRg0ZyhFGkjADYBdaUVG55CdK6dc6FkYO799hhiujXBi4i/YkKRFllkou0PmZEg15EU/g5mmh907aePk6xSrYB450wXC8sgFJvQjnu7INl6MiKUgO7BxAX3ZPVh3FdWfvmJi4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778657977; c=relaxed/simple;
+	bh=H12n7XT8L0vS9/nUJhthKydiP6KILzegUqtu7PMuprU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BuIvKJoiPAmSqD1EKxZcUWLuYvJUQlYZplMYXPADCgdUCuLwCnt977ORD/PGy2mE01uZAfVKf+skDMbifDWrZvKEImXD01GOhZKjjkCZKUYPhOCF7RM1u8oRcbkQW9b3SwC1WGa4aJAqnoe/eaF9DEqy5RsnZCiNWir4BwBXd5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Cz6QKmxq; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HkzzLs2D"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-8acb3daf2aaso84888586d6.0
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 00:22:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778656938; cv=none;
-        d=google.com; s=arc-20240605;
-        b=bIKFIHK0kBzv64sK1sqXEmHzOTJdepz6ML2Vw1vpXxWyQrye0zxi4Wu7OUSnpgDGI+
-         h3E+YPEHOWyhUShIXuLjNb3GKyg73W80CelS7iaf3K88V3BoZgcZmGz6MVpWz9w44Lo3
-         DeBAqSHDznrytlJfxnpmSdAaq+ongz11f7IyIQxNXoBLGuS1WOMSooeAJhS7uwFFFZlB
-         LIPhNV2q6VNuOmEesIFPRuM1qmHpu6wArZe5u1m/FXtTHcTKZXXNgTEWkdrv9pTk/3SI
-         jfIHzgtHVMO5J+pRiSMvwJsF0LUleqLZ8HLD1cFRa1qZRhVUw5XkFKxVC+jeT+IplXqA
-         umCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NxIsDtM+kZD8aHQyQ8BqjHfjjKGIY780pGvgJoNLbYk=;
-        fh=rNN5BMwzx0Rq+SHMLACxqj6HL7q/poqqnvglPkzWSWY=;
-        b=XMaBp5ZDP8DtLsoRA2Mo//yI/IVwTxZHAQqBBBrDMYRsjSEPkvRDVkaqv8mcPL1eCR
-         D7Dd5yl2/nUcStj1p4XvkkNg8ajuToL0jCu70oFDkxHEyAFdVZbcLJMgIfo0L41DbvUW
-         aejiMZHMAlLDI4v0ioVGQ2C9XZeDSXPxY1QP9NNF1ZjC2A3JXPRIrXyaEEtvSLyK7cc7
-         1rb8PwDNajRECVxhclgUXYgv6rV+tsi0/Kns7JdFFZpSA4yJ6/1t/99mw8JprDthFEQ3
-         cLengs2l2AYz+d6V1yeEWBGZ3e1/Q6P4xRJaJgCTGjNRzW92FSbOA4UEQu5aMlCvFNf5
-         h0zw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Cz6QKmxq"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3567e2b4159so3962041a91.0
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 00:39:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778656938; x=1779261738; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NxIsDtM+kZD8aHQyQ8BqjHfjjKGIY780pGvgJoNLbYk=;
-        b=HkzzLs2Dih+BwcgUDmz1NLZe3ljwG9wAFZC74s9bW0CJylx8Fqk0F7+wbnhpgbD8pL
-         I+T9j4UM4LkpYUEHHGIsVZlGD7aeZQo2GnBsgva/gW3d/BeNG0MWIXOn/rpCCaMeERr/
-         NestRZXOy/nv1A0AduJ/m2RkmZ+7TfBm2Q3emO2X/tsGIRTVOenuhYanrXaSrBuU2TqD
-         Mu2/VoUMQhW0rp0YG8TTa48sZnK02fuBkPHU8XcmhOfVowQ1wF7B/bci8oSuez2aqteG
-         I+tY1qqnxiHbnHsq+iZQ0HKCJgTKTV9U5s/mDwIFfyYwGlUFzI/UQEKgztBRwta5fdeN
-         DLjA==
+        d=chromium.org; s=google; t=1778657975; x=1779262775; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QQjma9I5R6nbaFglLQyZciBB/30vaX5pQDI/IG+cY1s=;
+        b=Cz6QKmxqRuVXW0+DPk2Lt81eurMBvjQlMlTLVh4MpUBUaliK6YRa+8urkMD9YeVLE8
+         ozzWZsO0fAcmPWXIVfTkrOiasWTjue1zP8HgoCh19iHlH6CCy4lAhWMayOXG+gWUOhER
+         bUvu8/b8gTSOuynzEDKunA59O0iCW2BG7VGIA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778656938; x=1779261738;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NxIsDtM+kZD8aHQyQ8BqjHfjjKGIY780pGvgJoNLbYk=;
-        b=c3ICxZ11qg/9eIINhZ5AlKUGPOjnmiX4SiH7UV+6q17lodSUTzz15jh4E8Vtyk9k/L
-         h4FPhiJ0UPO/iP/3+gplc1HvXet7+ThHYw0hRxToeV8RuRttGwGmP1hJdw2o5dFP7LcN
-         /brn2FxEitdr79v7CbgXiQaqm/Dc7dxhTt0M2oL64qkr04zUyWP1pWIJ14Fr4tkG2mFH
-         gaU3zOmPbCj/hjAyX1xM1r//0WsxOP3y31fkgnWBtX+qAw+1IeIudfznH7bL2JKL3yRu
-         mWbWKHv4zjfu1udCdep79Ui4AEj4UMbEORnV78lO3lxqiD42LCXx0/ld+VwNFyCfnC1S
-         0AgQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/QPdMMpnODcEH5NZP0rxloGvcjVOKYAnJCN4atmkOmuEJaPgiUmNMB/DVTAAc4ZJMi5QlfeBqaofQ4uQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNiPUnZ9vziFnWHNicNdbiB9nku2ZLCe6df9T9AnO6EV2jvp2K
-	NTBBmvhNPW+30qBqtc1fhrZmQatXXuujw6t8wUzaA9fsuy9YP7u9qmQViXzRiFLxAPC5E5ekEPB
-	0EzcC3QNj8cwnh2utAN+em1Cf/ciwglylF+yNUatP
-X-Gm-Gg: Acq92OGtsLTY2NTCnPERpeSpFwJdj4JWddsZY4OC6524C/ld5VEiQx2+HhqqDQ8+T4D
-	eOoO7cjhtc2YOswGmEQF2fTctw7LH/c4m6BbuVPkUj98r0FlT5SzB6faGlMme+OfsDb6QDLbp0e
-	179PjsCACWIu6jAFqnca8MqxEhqdShn0lokEN1Po3rJbGdxSzHNTZhtrvfm5rSkuF2JKSiQP8F1
-	bslRXUiW6Z0iYmvW134R8Tib7KBDYIm5xXgNCYSteiBf++Lpmvpy5QhiXtVp1cqIJO+OtqSC3kW
-	DXaWB2006oX1q9NG/ow/Rnf8a23eVb+pB6J9Q6ucHqqfbTQ=
-X-Received: by 2002:ad4:5de2:0:b0:8a4:58ff:f0f8 with SMTP id
- 6a1803df08f44-8c7bc91aee7mr39517186d6.29.1778656937884; Wed, 13 May 2026
- 00:22:17 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778657975; x=1779262775;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QQjma9I5R6nbaFglLQyZciBB/30vaX5pQDI/IG+cY1s=;
+        b=kvnE6WRqVMquG2V7K9V4UNSOcUwiPZvgkdwuPu7xJOVb6AHqVQkSyY7CohHFmWlJh2
+         R5BYSMjIbOqOEHrnNOa5ilfrza277l0ajiA87acy6IZKBoAcOpFxas4euHMQENREUEiW
+         M9thzKbbu0xSKIUSdT0ZSluzogeKLda0VGJ6Qf7t4ElQZfpbxEczz6Wl/jhmTeB7BhjJ
+         PZfZ4hJAByss7ww6kwSNPxEUwPDU1jy1EO4vH9Wy39q721oJP1uWQdFib+ZVmcdJ/+H8
+         SQ5aHBshF3DMN5VEdUDSVlFnCOpK/8lzkvhbKUW+v4gFVB562XzZBrDdj/QMmEu3+QHN
+         9SQA==
+X-Forwarded-Encrypted: i=1; AFNElJ+5H3OwNzYYXgSrQWaBwHof0w2jKAelOlEWJvdCD/QenEy9RMPMJAq5cCH1XKWxfSf2yx8oCii0lRSMRQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzJ/KQhinYGHIkrIPQ9RRIGkMhNjtQ9RetwmDOj0huOcNSjPL2z
+	rh+YKAajtH7E6U4hPWqIr5AphkDK8DFlPJZojreY3yKsaxeN35s98Euu9h+f0ferpA==
+X-Gm-Gg: Acq92OHB5f4zKN2uL3lIVobr22th8F39XLg+WlEmvk/68kXr5lA2v9RymBkf0onFIRW
+	psBniSFGdZPGB5Xc9DCoyw2gXJCaUcjFJgQZDoZv4MyjSP2CIa1j+yjk1J93+EeUH8nokaw03eE
+	Xa+V6ZvmcEkX+fNnAQHLckgts1o3QDy9P7zVCZ6OweSEIQE/xiKi0MrS7ftxh3efcN0j1MIgaXg
+	K+r6kYmvpFoyZPMI9ZH1v5HUg4Q1gcBui2P+TW7uhDfgE++IWD86QOC981qDbjkG26ksbbjGcuZ
+	kkNG/vndeQRtky3Zyvw/NEMa20uyG0E9bzv+EmVyHMm6oBwBF6bFoz+p1K06jMPSLMNB4h4JtHn
+	p+gXhZs8NSYqqMuxJQ/iL4Ead+lh2kVTbIPTrcL6H3TfzPr1RMeVThSGmZxVr8+oesqF6jvkto0
+	vIFbtQXc8qa0fY+85oC+I+RuiWu5enxBSVzEg+R9i2rQ5JNcIaVim2mbS+ySYQaCPciu/UdBBO6
+	yurlFP1PYh4BtV13uTdQ0dDQOInX4oajyM=
+X-Received: by 2002:a17:90b:3901:b0:367:bb54:8768 with SMTP id 98e67ed59e1d1-368f77c90f0mr1889106a91.4.1778657975026;
+        Wed, 13 May 2026 00:39:35 -0700 (PDT)
+Received: from ranjankumar.c.googlers.com.com (220.185.124.34.bc.googleusercontent.com. [34.124.185.220])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-368acf6ef8fsm1865760a91.3.2026.05.13.00.39.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 00:39:34 -0700 (PDT)
+From: Ranjan Kumar <kumarranja@chromium.org>
+To: dmitry.torokhov@gmail.com
+Cc: bleung@chromium.org,
+	dusonlin@emc.com.tw,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ranjan Kumar <kumarranja@chromium.org>
+Subject: [PATCH] Input: elan_i2c - prevent division by zero on invalid device parameters
+Date: Wed, 13 May 2026 07:39:08 +0000
+Message-ID: <20260513073908.3326178-1-kumarranja@chromium.org>
+X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260415114752.1181079-1-bsevens@google.com> <417rqoq0-1q2q-r96q-p258-240n74nr3n14@xreary.bet>
-In-Reply-To: <417rqoq0-1q2q-r96q-p258-240n74nr3n14@xreary.bet>
-From: =?UTF-8?Q?Beno=C3=AEt_Sevens?= <bsevens@google.com>
-Date: Wed, 13 May 2026 09:22:06 +0200
-X-Gm-Features: AVHnY4Izbu0Ai7nyIzCLs8uOUlEqsAXjajieTz9n8wj66x1tZU2-nY6BVcW8kjg
-Message-ID: <CAGCho0UsyC5-c9r-EvNE1TG-O=jQDGdSu1gz18aY1hdaKpwC9A@mail.gmail.com>
-Subject: Re: [PATCH] HID: mcp2221: Fix heap buffer overflow in mcp2221_raw_event()
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Rishi Gupta <gupt21@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, 12 May 2026 at 17:47, Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Wed, 15 Apr 2026, Benoit Sevens wrote:
->
-> > From: Beno=C3=AEt Sevens <bsevens@google.com>
-> >
-> > A heap buffer overflow can occur in the mcp2221_raw_event() function
-> > when handling I2C read responses. The driver failed to check if the
-> > total incoming data length fits within the originally allocated buffer
-> > `mcp->rxbuf`.
-> >
-> > Fix this by introducing `rxbuf_len` to `struct mcp2221` to keep track
-> > of the allocated buffer size. Initialize it in `mcp_i2c_smbus_read()`
-> > and `mcp_smbus_xfer()`, and ensure the copied data length combined with
-> > the current index does not exceed this length in `mcp2221_raw_event()`.
-> >
-> > Signed-off-by: Beno=C3=AEt Sevens <bsevens@google.com>
->
-> Unfortunately the patch seems to have been somehow mangled by your mail
-> client:
->
->         patching file drivers/hid/hid-mcp2221.c
->         Hunk #1 succeeded at 126 (offset 7 lines).
->         Hunk #2 FAILED at 324.
->         patch: **** malformed patch at line 173: u16 addr,
->
-> Fix for the same issue has later been submitted by Florian Pradines [1],
-> so I will be taking that one and adding you as Reported-by: or so, ok?
->
-> Thanks.
->
-> [1] https://lore.kernel.org/all/20260509094517.2691246-1-florian.pradines=
-@gmail.com/
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+The Elan I2C touchpad driver queries the device for its physical
+dimensions and trace counts to calculate the device resolution and width.
+However, if the device firmware or device tree provides invalid zero
+values for x_traces, y_traces, x_mm, or y_mm, it results in a fatal
+division-by-zero exception leading to a kernel panic during device probe.
 
-Hi Jiri,
+Add sanity checks to ensure these physical parameters are non-zero
+before performing the division. If invalid values are detected, log an
+error and return -EINVAL to gracefully abort the initialization and
+maintain system stability.
 
-That sounds good to me. Thanks for adding me in the Reported-by
+Fixes: 6696777c6506 ("Input: add driver for Elan I2C/SMbus touchpad")
+Fixes: e3a9a1290688 ("Input: elan_i2c - do not query the info if they are provided")
+Signed-off-by: Ranjan Kumar <kumarranja@chromium.org>
+---
+ drivers/input/mouse/elan_i2c_core.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-One thing though: Florian's patch doesn't set `mcp->rxbuf_size` in all
-places. I believe it should be set in every place where `mcp->rxbuf`
-is set. There are 2 places in `mcp_smbus_xfer` where it is missing
-(see my original patch):
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index fee1796da3d0..b5fd63928afd 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -425,6 +425,14 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
+ 		if (error)
+ 			return error;
+ 	}
++
++	if (unlikely(x_traces == 0 || y_traces == 0)) {
++		dev_err(&client->dev,
++			"Invalid trace numbers: x=%u, y=%u\n",
++			x_traces, y_traces);
++		return -EINVAL;
++	}
++
+ 	data->width_x = data->max_x / x_traces;
+ 	data->width_y = data->max_y / y_traces;
+ 
+@@ -440,6 +448,14 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
+ 		data->x_res = elan_convert_resolution(hw_x_res, data->pattern);
+ 		data->y_res = elan_convert_resolution(hw_y_res, data->pattern);
+ 	} else {
++
++		if (unlikely(x_mm == 0 || y_mm == 0)) {
++			dev_err(&client->dev,
++				"Invalid physical dimensions: x_mm=%u, y_mm=%u\n",
++				x_mm, y_mm);
++			return -EINVAL;
++		}
++
+ 		data->x_res = (data->max_x + 1) / x_mm;
+ 		data->y_res = (data->max_y + 1) / y_mm;
+ 	}
+-- 
+2.54.0.563.g4f69b47b94-goog
 
-```c
-@@ -538,6 +541,7 @@ static int mcp_smbus_xfer(struct i2c_adapter
-*adapter, u16 addr,
-
-                        mcp->rxbuf_idx =3D 0;
-                        mcp->rxbuf =3D data->block;
-+                       mcp->rxbuf_size =3D sizeof(data->block);
-                        mcp->txbuf[0] =3D MCP2221_I2C_GET_DATA;
-                        ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 1=
-);
-                        if (ret)
-@@ -561,6 +565,7 @@ static int mcp_smbus_xfer(struct i2c_adapter
-*adapter, u16 addr,
-
-                        mcp->rxbuf_idx =3D 0;
-                        mcp->rxbuf =3D data->block;
-+                       mcp->rxbuf_size =3D sizeof(data->block);
-                        mcp->txbuf[0] =3D MCP2221_I2C_GET_DATA;
-                        ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 1=
-);
-                        if (ret)
-```
-
-Thanks,
-
-Benoit

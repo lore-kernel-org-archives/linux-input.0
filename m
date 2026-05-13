@@ -1,91 +1,146 @@
-Received: from sender4-of-o55.zoho.com (sender4-of-o55.zoho.com [136.143.188.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 752503630A4;
-	Wed, 13 May 2026 04:58:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE393D34A6
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 06:52:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778648289; cv=pass; b=gtGPZwOKrOTr9mQ6Ql1DlaUaUYcFb+HzqUIETiNB/Ty4tEtSVFzxw7CmAQLDlR/KQCJHyFVu694m0r8jMwYIat7RCbl97PcYxsDNjqk+Fbwft4Gmqj5c8Yr3uziLYwkFkH5e/PV/7FNHuZ6etG++PSE8KfC1gH807mANeEAJ0v8=
+	t=1778655142; cv=pass; b=WUzV9VTLX44f03yFP7S40lPwHKD1UFKt5j7cf/PDwcYn9sWyYPEBz19cuckdxrw28qTtVdcYVm/LTzP5QL7ywD41Pyqt5g+13BpVZr/AAU1ASDMOAh068+8LI07X+bzRmArsPkV3WX3mOgviiPxOUYUgGCaBzbVpHl4ex/xdVLM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778648289; c=relaxed/simple;
-	bh=AZCppq48UTory1crM7GL0sfzkSiO4MdZtBNTkxmn1uM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=d+cAhoP7Xqx/GKldmD844f3MsVYhPcXjQ/VUwkrjMvv4H7NxvgIiEgOD1MBS9BZ84fFAZTNbCjP1tj0jC55lf3pcgH2jAf5ucZREqXmDX0wmHTV/EGbE+YrtqEwoWtctsU4y84/3NwsMMJRCihVLftXrs+J9FPlAYhMKD5E7a/w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bazaes.cl; spf=pass smtp.mailfrom=bazaes.cl; dkim=pass (1024-bit key) header.d=bazaes.cl header.i=contacto@bazaes.cl header.b=QilVpbfb; arc=pass smtp.client-ip=136.143.188.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bazaes.cl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bazaes.cl
+	s=arc-20240116; t=1778655142; c=relaxed/simple;
+	bh=lAXhm8pLEII8v+ZINmHWk1Y/ZMypKtV4TCwQgI+VZRs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HcfMQmj1YrS6znfeG+KdBqVNy0mDpgQCbs1DU3KIX66n+D8ctId8fv+rAebAs9bIVD6oQXZk1xBC0jIqe056knoPM+FlRtsYpGNLof45cZfAvCJ2n64HA1HR4chEXjbr+Vhe6OsUYiwRj3ySWfBPwqLqKPZMrGx/ps0Ykxv711I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GBxfNZg9; arc=pass smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=bazaes.cl header.i=contacto@bazaes.cl header.b="QilVpbfb"
-ARC-Seal: i=1; a=rsa-sha256; t=1778648285; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=ezmNn8m2T2ZHyWTMApPzpuz4CdeFg4PGv1lBFCBK1ueBZlShnwFafkcSZlabssQPIA3GU1Ap/QOvw82v5lzbnSwdbsGOY71e3BSJa+1Ce6t767REQoPnj1AEi+j+50nxQdzo9J1Gjilcg//NMXdSFDWAgqZLy6wu34c15aZMatc=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1778648285; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=S3hIYjkJI64zk/pzvN7o46XkZCq1j/OoVyJNpVfFn8A=; 
-	b=ePGmmCmp3eeLDA5/c8+KPStVd45VCt0djzRe00YatzGmfKW9B5sEzfYXzSnAk155IT2EprLUlJhFM9STR/RIXWNjYFKW0+q2QIAw7jvr/M+jHHQCi9ZXoVAHYw4SdpX4Z2GOoK15MWlImPNKLRlcLbcoszly+cXlzT7j4s8Drq4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=bazaes.cl;
-	spf=pass  smtp.mailfrom=contacto@bazaes.cl;
-	dmarc=pass header.from=<contacto@bazaes.cl>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778648285;
-	s=zmail; d=bazaes.cl; i=contacto@bazaes.cl;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=S3hIYjkJI64zk/pzvN7o46XkZCq1j/OoVyJNpVfFn8A=;
-	b=QilVpbfbqDGnPnQH9MIDoggRtmSGhYlcKBp2JAQiG40Ym7tcnfgRZVWoFCfqPFJG
-	w5CHFxxq9p6/ZpS9UbDo6JPR3GuxbOLpy8S+5Ath9b/d9yZy5oIkGW5Xwe4rJk9En3p
-	Jde/9KHM+m5jZqN3oiyAXhJcqOEWSR4Tb31h+mAc=
-Received: by mx.zohomail.com with SMTPS id 1778648283150804.8467399824419;
-	Tue, 12 May 2026 21:58:03 -0700 (PDT)
-From: contacto@bazaes.cl
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Nicol=C3=A1s=20Bazaes?= <contacto@bazaes.cl>
-Subject: [PATCH] Input: synaptics - add LEN2058 to SMBus passlist for ThinkPad E490
-Date: Wed, 13 May 2026 00:57:44 -0400
-Message-ID: <20260513045749.185969-1-contacto@bazaes.cl>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GBxfNZg9"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-bcc1459daddso615138366b.1
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 23:52:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778655139; cv=none;
+        d=google.com; s=arc-20240605;
+        b=GWlPbIvawu1rNvhG13fTT1j69sORSt+S4xmUPldpP1ZUa3CFGMaTIYuB6hxkb1c+8h
+         rXa4owjfgbZIkI0M7RKJiOkulhuz533+6Ujs2al/5oUzoZmRB3q323Bo8sPg+vGrrEPF
+         vmPCQ02eNrSKuAgNZwrU2VqoeJvT0wXTVnabzKBuBSZcHyGKdFr22OYjALZsjpMcHaE1
+         AKnAqggVzxtgcUc9mbBhm5lrCgltG3M8ZdzMsV82N5G3ePaMHFqVLBbqcNm/arZ11jxc
+         dCXX62UmtIxgVqRnSqLv/9BtY7qwLKz6YoeQhu2LbcjX9MtGwyMNPS/cUYeZIvC5kUE/
+         /kHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=uLXdefzcXVe7MnIsVYDrJx66lKMvUZbM4WU0L3fSWiM=;
+        fh=G6nra929vlaMzliV/X7/97Fng8G4i+tVci/hb32Hd+I=;
+        b=YvCslrHCbIU+eEdtigcQTJjvFqBXBnabLMRfptSsPqCkJNqsVvI7BSuW1ojhffBfSI
+         z3Wem1qa/EnsrHMX0WOYiBqS6FsFr7aWQS4mhDQCGIEH2NK49ffQsuR+Egzx+FepLMj5
+         YOpocAEljovZ+WdgZWCifEtuXLb5tGLQoautmVOJ4l59774dCUbYIuueYc24hreWk3uG
+         AJQLSlNq+I3yaGYKKpTTQJNhpBvf4eNyhSX/Ze2ofNzJWVZg+qyg3LIvDs+v8dbQbXU7
+         KkQ393eeTtNhGhzgPr5LfiD07a7+FgIx89Lkan4y3D201lk45L9+2DPBC3BN/Us9Jxo7
+         /xsg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778655139; x=1779259939; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uLXdefzcXVe7MnIsVYDrJx66lKMvUZbM4WU0L3fSWiM=;
+        b=GBxfNZg9AH4caWBUaAuXQrgHB34AlnkKHG5zE558W2eW53wSuzKLge0MwR3FOqgh2v
+         BPKjFEkPhRKYTmaB1sEY8lWYSHR9Tp5xWWmkFB2crzYODrtMDZy3Dr08AbYCul8tSak3
+         qORTD7XU88OMWJ4CqHLtjyFVAK27Q+K9IFOD+pz4MBbdoVZ5Ec+p8I4psw9FUgMQDXHQ
+         hiqyJKWjtPSzt4Ej7YHcKkCvUd/XBX/NhvTR9xxjJdWQ7icTZRBnaE1LhdJb9yrh51hu
+         saomdBLEdwPl9XgkyrpwxAXaoIVO/ULlCna3kuWRCm1jbbUzfDV/AzIjFBAbirSpJaHN
+         /aUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778655139; x=1779259939;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uLXdefzcXVe7MnIsVYDrJx66lKMvUZbM4WU0L3fSWiM=;
+        b=aZw7b6ZZzFoJ0uRbdcVo3MhjRWootoDK1WwZ1Xk2SUSpY26F5LwI2LUMbMA/23xha+
+         EqEUa5RZOskELeK8+F/Fo9VQduhK8yjBRybNR5o0S43wa4iyBcQXDvvP9ePvXtgaAxbO
+         o+r4guy0qzEqVLEgM6CP7z6ZiHnEEQzrdNLG21ahGcLv2kNpaNvSXeGIqYSZwm52Otf1
+         KoDwr5JeiE0+CRxyk9JAnl/BDL28HtLz/NCGqooiKSA3D7/69lswNxGMbvEELW4lbGuS
+         3/KsIDfamdShQ2KloSx+b47i+FQxT6BtYNiSDu2wR8hWMha3OAu0z2wEbmra/a7ds4Ec
+         b7dA==
+X-Forwarded-Encrypted: i=1; AFNElJ+eFxXW0NQZKsA++alfH6bJjyQC4U5zfEomoPt3Z58EdfkkY2imj2bykbUeIdYrzoz4BIoBw7KBuu40Nw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwgEdcZcuEUr3VpEm0q/Z0eVJGlRwEGK6oAxLi8maiiwZaOWji7
+	hvblNrUgHJVEsonzwceqvknSA76aT1wwb5Ais6jSdqBsweGsxvIsTcC9IDjcCHcuLOl6TciLWpQ
+	ZJDOOKW3ktaKsDsGA1g5AfZyhgQGxvA==
+X-Gm-Gg: Acq92OFZ6uBKetpMHYAIAtuYzofUKDG/MoqSrzU7TWvrp7LJTFkCvK6Z6I4M/3gmqmB
+	iNCJfBQWEPohaaMor3CVgugtzD7ZbpND0WJf+JoQ0QXYZyp+9F44wDP7bGz4oUEEcisqyJjc7dy
+	rzuUveLug2O1RS7KeAG6x+QLtH/tcEmOTkBVw+CBfZqXk7rQNR6fjGEN1hz/6kvk3lkmQnFsRLT
+	d/tiwHXxwcm0cuaXrb753yGOS+5I6spo8a23PkyNSuRjq+hsMQvFOSGQDCfZ53ZuFDbrG3I0zMs
+	RRpX6szXLREs+Q9vWO2RIaqUfIWpwblq4mx4XfAaPtufGPmjkQ==
+X-Received: by 2002:a17:906:7945:b0:ba6:8f34:b419 with SMTP id
+ a640c23a62f3a-bd3dfc6cea8mr87282366b.13.1778655139292; Tue, 12 May 2026
+ 23:52:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+References: <20260424125043.52639-1-pakmyeonghun@bagmyeonghun-ui-MacBookPro.local>
+ <42o9po52-64po-n8o8-or3q-q439o09s2p0p@xreary.bet>
+In-Reply-To: <42o9po52-64po-n8o8-or3q-q439o09s2p0p@xreary.bet>
+From: Myeonghun Pak <mhun512@gmail.com>
+Date: Wed, 13 May 2026 15:52:08 +0900
+X-Gm-Features: AVHnY4JWUsfldQtQ2PfS8jTmoY2MO5wc1JELHmkxlSsiOT6Dxc19wi5NSCsQDuc
+Message-ID: <CAGEsz8HjsBsrZUi+OETe0N3krxObyxQi5--xX4_4gkNeDVY8cw@mail.gmail.com>
+Subject: Re: [PATCH] HID: google: hammer: stop hardware on devres action failure
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Nicolás Bazaes <contacto@bazaes.cl>
+Dear Jiri,
 
-The Lenovo ThinkPad E490 (PNP ID: LEN2058) has a Synaptics TM3471-020
-touchpad that supports SMBus/RMI4 mode but is not listed in
-smbus_pnp_ids[]. Without this entry, psmouse ignores the
-synaptics_intertouch parameter and falls back to PS/2 mode even when
-explicitly requested.
+Thanks for applying the patch.
 
-Adding LEN2058 to the passlist enables RMI4 over SMBus, which provides
-better multitouch support and matches the behavior of similar ThinkPad
-models already in the list (E480/LEN2054, E580/LEN2055).
+Best regards,
+Myeonghun
 
-Tested on ThinkPad E490 with kernel 7.0.5-zen1 and Arch Linux.
-
-Signed-off-by: Nicolás Bazaes <contacto@bazaes.cl>
-Assisted-by: Claude <claude.ai>
----
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 26071128f..c70502e24 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -190,6 +190,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN2044", /* L470  */
- 	"LEN2054", /* E480 */
- 	"LEN2055", /* E580 */
-+	"LEN2058", /* E490 */
- 	"LEN2068", /* T14 Gen 1 */
- 	"SYN1221", /* TUXEDO InfinityBook Pro 14 v5 */
- 	"SYN3003", /* HP EliteBook 850 G1 */
--- 
-2.54.0
-
+2026=EB=85=84 5=EC=9B=94 13=EC=9D=BC (=EC=88=98) =EC=98=A4=EC=A0=84 1:01, J=
+iri Kosina <jikos@kernel.org>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
+>
+> On Fri, 24 Apr 2026, =EB=B0=95=EB=AA=85=ED=9B=88 wrote:
+>
+> > From: Myeonghun Pak <mhun512@gmail.com>
+> >
+> > hammer_probe() starts the HID hardware before registering the devres
+> > action that stops it. If devm_add_action() fails, probe returns an
+> > error with the hardware still started because the cleanup action was
+> > never registered and the driver's remove callback is not called after a
+> > failed probe.
+> >
+> > Use devm_add_action_or_reset() so the stop action runs immediately on
+> > registration failure while preserving the existing devres-managed clean=
+up
+> > path for later probe failures and remove.
+> >
+> > Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+> > ---
+> >  drivers/hid/hid-google-hammer.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-h=
+ammer.c
+> > index 1af477e584..c99c3c0d44 100644
+> > --- a/drivers/hid/hid-google-hammer.c
+> > +++ b/drivers/hid/hid-google-hammer.c
+> > @@ -496,7 +496,7 @@ static int hammer_probe(struct hid_device *hdev,
+> >       if (error)
+> >               return error;
+> >
+> > -     error =3D devm_add_action(&hdev->dev, hammer_stop, hdev);
+> > +     error =3D devm_add_action_or_reset(&hdev->dev, hammer_stop, hdev)=
+;
+>
+> Makes sense, thanks for catching it. Applied.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

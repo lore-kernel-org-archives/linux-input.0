@@ -1,70 +1,42 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F74374E5A
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 07:39:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A19368D77;
+	Wed, 13 May 2026 08:01:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778657977; cv=none; b=ElYeNQlYe407890j+w/OMByPhucpU3rZx+wXwddRg0ZyhFGkjADYBdaUVG55CdK6dc6FkYO799hhiujXBi4i/YkKRFllkou0PmZEg15EU/g5mmh907aePk6xSrYB450wXC8sgFJvQjnu7INl6MiKUgO7BxAX3ZPVh3FdWfvmJi4=
+	t=1778659278; cv=none; b=N4IcfNA48mqNpA/yxFa67f+psoHzZ4WShz3bH9E7f5GpC5AFsF8CVirIQXHXTWT3hlaBl1AqxgVakFnm+YpIAEoqdlIxRih9S8JVFqftlXDcQUzWeV+u//YqCEVMdfrNCGIq6o1GKSGRWPNWTWMtsX2xlkrwrPq0ygjgHfB7mQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778657977; c=relaxed/simple;
-	bh=H12n7XT8L0vS9/nUJhthKydiP6KILzegUqtu7PMuprU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BuIvKJoiPAmSqD1EKxZcUWLuYvJUQlYZplMYXPADCgdUCuLwCnt977ORD/PGy2mE01uZAfVKf+skDMbifDWrZvKEImXD01GOhZKjjkCZKUYPhOCF7RM1u8oRcbkQW9b3SwC1WGa4aJAqnoe/eaF9DEqy5RsnZCiNWir4BwBXd5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Cz6QKmxq; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1778659278; c=relaxed/simple;
+	bh=58qnot80DX+F+OvA46/Uf+lFEZfUYoIG7HZYVg2Hp9U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pUlvrxp/f7Y2h4PWYidZPuI7agIgDa5XJgm1LBlOStviX4+ciisS1ZQhefEjhgcBzNKb7Ip9RHBqrE4SHil8VPvwjF7cKMfcgzDS+rFYKSDtfuo+Thu4GdJhwr24+PadMPztzxxJaIsIsJU1LYEmqYcwIy6Q1cYbjQtzu0iFiLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t+n4kDjk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Cz6QKmxq"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3567e2b4159so3962041a91.0
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 00:39:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1778657975; x=1779262775; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QQjma9I5R6nbaFglLQyZciBB/30vaX5pQDI/IG+cY1s=;
-        b=Cz6QKmxqRuVXW0+DPk2Lt81eurMBvjQlMlTLVh4MpUBUaliK6YRa+8urkMD9YeVLE8
-         ozzWZsO0fAcmPWXIVfTkrOiasWTjue1zP8HgoCh19iHlH6CCy4lAhWMayOXG+gWUOhER
-         bUvu8/b8gTSOuynzEDKunA59O0iCW2BG7VGIA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778657975; x=1779262775;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QQjma9I5R6nbaFglLQyZciBB/30vaX5pQDI/IG+cY1s=;
-        b=kvnE6WRqVMquG2V7K9V4UNSOcUwiPZvgkdwuPu7xJOVb6AHqVQkSyY7CohHFmWlJh2
-         R5BYSMjIbOqOEHrnNOa5ilfrza277l0ajiA87acy6IZKBoAcOpFxas4euHMQENREUEiW
-         M9thzKbbu0xSKIUSdT0ZSluzogeKLda0VGJ6Qf7t4ElQZfpbxEczz6Wl/jhmTeB7BhjJ
-         PZfZ4hJAByss7ww6kwSNPxEUwPDU1jy1EO4vH9Wy39q721oJP1uWQdFib+ZVmcdJ/+H8
-         SQ5aHBshF3DMN5VEdUDSVlFnCOpK/8lzkvhbKUW+v4gFVB562XzZBrDdj/QMmEu3+QHN
-         9SQA==
-X-Forwarded-Encrypted: i=1; AFNElJ+5H3OwNzYYXgSrQWaBwHof0w2jKAelOlEWJvdCD/QenEy9RMPMJAq5cCH1XKWxfSf2yx8oCii0lRSMRQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzJ/KQhinYGHIkrIPQ9RRIGkMhNjtQ9RetwmDOj0huOcNSjPL2z
-	rh+YKAajtH7E6U4hPWqIr5AphkDK8DFlPJZojreY3yKsaxeN35s98Euu9h+f0ferpA==
-X-Gm-Gg: Acq92OHB5f4zKN2uL3lIVobr22th8F39XLg+WlEmvk/68kXr5lA2v9RymBkf0onFIRW
-	psBniSFGdZPGB5Xc9DCoyw2gXJCaUcjFJgQZDoZv4MyjSP2CIa1j+yjk1J93+EeUH8nokaw03eE
-	Xa+V6ZvmcEkX+fNnAQHLckgts1o3QDy9P7zVCZ6OweSEIQE/xiKi0MrS7ftxh3efcN0j1MIgaXg
-	K+r6kYmvpFoyZPMI9ZH1v5HUg4Q1gcBui2P+TW7uhDfgE++IWD86QOC981qDbjkG26ksbbjGcuZ
-	kkNG/vndeQRtky3Zyvw/NEMa20uyG0E9bzv+EmVyHMm6oBwBF6bFoz+p1K06jMPSLMNB4h4JtHn
-	p+gXhZs8NSYqqMuxJQ/iL4Ead+lh2kVTbIPTrcL6H3TfzPr1RMeVThSGmZxVr8+oesqF6jvkto0
-	vIFbtQXc8qa0fY+85oC+I+RuiWu5enxBSVzEg+R9i2rQ5JNcIaVim2mbS+ySYQaCPciu/UdBBO6
-	yurlFP1PYh4BtV13uTdQ0dDQOInX4oajyM=
-X-Received: by 2002:a17:90b:3901:b0:367:bb54:8768 with SMTP id 98e67ed59e1d1-368f77c90f0mr1889106a91.4.1778657975026;
-        Wed, 13 May 2026 00:39:35 -0700 (PDT)
-Received: from ranjankumar.c.googlers.com.com (220.185.124.34.bc.googleusercontent.com. [34.124.185.220])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-368acf6ef8fsm1865760a91.3.2026.05.13.00.39.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 00:39:34 -0700 (PDT)
-From: Ranjan Kumar <kumarranja@chromium.org>
-To: dmitry.torokhov@gmail.com
-Cc: bleung@chromium.org,
-	dusonlin@emc.com.tw,
-	bentiss@kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t+n4kDjk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B461C2BCB7;
+	Wed, 13 May 2026 08:01:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778659278;
+	bh=58qnot80DX+F+OvA46/Uf+lFEZfUYoIG7HZYVg2Hp9U=;
+	h=From:To:Cc:Subject:Date:From;
+	b=t+n4kDjkbd++erQODQq7cEBlevxeThPl0uBOEpZuvBX78YcbVrimzXF8zRxp5aVy7
+	 l6A+5zi+VbrZQ6coLwXp0TJd32MiO+aLFPGZcJQIWxn7vWoqs17OMDe8+IbOuPl/kV
+	 +xfUIUuVIC8KXtG2jGtTPG9BXqCpHoloKhXRGgUUQbhJEWBC0nAxkMFccnoerlfqiA
+	 lMYW7m0qgY3pZs1LfEhf46vCIO9XZRT24/0RpCeEakvcT8zX4PFEPra7zSz0GSZpXg
+	 C0R2gehIonZwRB8DWnB61vTHZR5XOoWG+qlQcc9llZ1MXEX+7UVbcF2RSi5isO1yeG
+	 HTNlxNhIEDyiw==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ranjan Kumar <kumarranja@chromium.org>
-Subject: [PATCH] Input: elan_i2c - prevent division by zero on invalid device parameters
-Date: Wed, 13 May 2026 07:39:08 +0000
-Message-ID: <20260513073908.3326178-1-kumarranja@chromium.org>
+	linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Subject: [PATCH 1/1] HID: wacom: Fix OOB write in wacom_hid_set_device_mode()
+Date: Wed, 13 May 2026 08:59:34 +0100
+Message-ID: <20260513075935.1715836-1-lee@kernel.org>
 X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -74,58 +46,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Elan I2C touchpad driver queries the device for its physical
-dimensions and trace counts to calculate the device resolution and width.
-However, if the device firmware or device tree provides invalid zero
-values for x_traces, y_traces, x_mm, or y_mm, it results in a fatal
-division-by-zero exception leading to a kernel panic during device probe.
+wacom_hid_set_device_mode() currently assumes that the HID_DG_INPUTMODE
+usage is always located in the first field (field[0]) of the feature report.
+However, a device can specify HID_DG_INPUTMODE in a different field.
 
-Add sanity checks to ensure these physical parameters are non-zero
-before performing the division. If invalid values are detected, log an
-error and return -EINVAL to gracefully abort the initialization and
-maintain system stability.
+If HID_DG_INPUTMODE is in a field other than the first one and the first
+field has a report_count smaller than the usage_index of HID_DG_INPUTMODE,
+this leads to an out-of-bounds write to r->field[0]->value.
 
-Fixes: 6696777c6506 ("Input: add driver for Elan I2C/SMbus touchpad")
-Fixes: e3a9a1290688 ("Input: elan_i2c - do not query the info if they are provided")
-Signed-off-by: Ranjan Kumar <kumarranja@chromium.org>
+Fix this by storing the field index of HID_DG_INPUTMODE in 'struct
+hid_data' during feature mapping.  In wacom_hid_set_device_mode(), use
+this stored field index to access the correct field and add bounds
+checks to ensure both the field index and the value index are within
+valid ranges before writing.
+
+Cc: stable@vger.kernel.org
+Fixes: 5ae6e89f7409 ("HID: wacom: implement the finger part of the HID generic handling")
+Signed-off-by: Lee Jones <lee@kernel.org>
 ---
- drivers/input/mouse/elan_i2c_core.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/hid/wacom_sys.c | 13 ++++++++++---
+ drivers/hid/wacom_wac.h |  1 +
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index fee1796da3d0..b5fd63928afd 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -425,6 +425,14 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
- 		if (error)
- 			return error;
- 	}
-+
-+	if (unlikely(x_traces == 0 || y_traces == 0)) {
-+		dev_err(&client->dev,
-+			"Invalid trace numbers: x=%u, y=%u\n",
-+			x_traces, y_traces);
-+		return -EINVAL;
-+	}
-+
- 	data->width_x = data->max_x / x_traces;
- 	data->width_y = data->max_y / y_traces;
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 1b1112772777..a6c5281afa06 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -341,6 +341,7 @@ static void wacom_feature_mapping(struct hid_device *hdev,
  
-@@ -440,6 +448,14 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
- 		data->x_res = elan_convert_resolution(hw_x_res, data->pattern);
- 		data->y_res = elan_convert_resolution(hw_y_res, data->pattern);
- 	} else {
+ 		hid_data->inputmode = field->report->id;
+ 		hid_data->inputmode_index = usage->usage_index;
++		hid_data->inputmode_field_index = field->index;
+ 		break;
+ 
+ 	case HID_UP_DIGITIZER:
+@@ -556,9 +557,14 @@ static int wacom_hid_set_device_mode(struct hid_device *hdev)
+ 
+ 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+ 	r = re->report_id_hash[hid_data->inputmode];
+-	if (r) {
+-		r->field[0]->value[hid_data->inputmode_index] = 2;
+-		hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
++	if (r && hid_data->inputmode_field_index >= 0 &&
++	    hid_data->inputmode_field_index < r->maxfield) {
++		struct hid_field *field = r->field[hid_data->inputmode_field_index];
 +
-+		if (unlikely(x_mm == 0 || y_mm == 0)) {
-+			dev_err(&client->dev,
-+				"Invalid physical dimensions: x_mm=%u, y_mm=%u\n",
-+				x_mm, y_mm);
-+			return -EINVAL;
++		if (field && hid_data->inputmode_index < field->report_count) {
++			field->value[hid_data->inputmode_index] = 2;
++			hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
 +		}
-+
- 		data->x_res = (data->max_x + 1) / x_mm;
- 		data->y_res = (data->max_y + 1) / y_mm;
  	}
+ 	return 0;
+ }
+@@ -2819,6 +2825,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 		return error;
+ 
+ 	wacom_wac->hid_data.inputmode = -1;
++	wacom_wac->hid_data.inputmode_field_index = -1;
+ 	wacom_wac->mode_report = -1;
+ 
+ 	if (hid_is_usb(hdev)) {
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index c8803d5c6a71..b2e74d7ab3c4 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -298,6 +298,7 @@ struct wacom_shared {
+ struct hid_data {
+ 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
+ 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
++	__s16 inputmode_field_index; /* InputMode HID feature field index in the report */
+ 	bool sense_state;
+ 	bool inrange_state;
+ 	bool invert_state;
 -- 
 2.54.0.563.g4f69b47b94-goog
 

@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3B0394499
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 03:10:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B61F2DC783
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 03:19:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778641831; cv=none; b=dTnQqdsUAWDCuYRcXTDhEINa2sPhqe0Z/zEhOjsTYQfXqrwhhpJWKjAQKaFEy6FbY33W4FSsVQ4W4HlFB5E6gP5Uv7NsVcrKwAR/RPteaEAXvZ2EM141owoX0ehIl7r6APC2ZYiQczaX/Iopzu0J5G1llWM8dOBmioCGsOsPpbI=
+	t=1778642355; cv=none; b=WpzwYhj1qAlmwFGlEZmWRhzZgBQH70mMev9Z/UCuUK0OK1mpT7KmVuTv1X0KWOxGYZBS/nSbN+T3EA6aVllYDBtuV2Uq7j1ALHtvDenA180GQX51H7mzdE+VjJHfNk7bl8fiyoXgkuYFPn/bzxOduODpCtDS+a40YJJ5/IthB+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778641831; c=relaxed/simple;
-	bh=/YRsbRB3fxerZSWftRjDJgBJUfH+rUDxgCuiuPtNCRo=;
+	s=arc-20240116; t=1778642355; c=relaxed/simple;
+	bh=K9Dahvg4DTgS3w8wqzeJmh+/BF1HjIai4XKrJqTGrGk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JlG+sSR3HQNuHA2W+F+L7rXwv2AcOYdEGHIF2ZuvYTX2fOQkA5JBgmxGHLAjhjH2ZKzNwaHmxShAWBVy3wEC8mmDdhoh7BKYsOo/uQMsnvqiDdLXKXBCNL5SCnI/paQwZN9QT2Txw+T0UOlVrfkH7tWzqlzmbqZ4hgEF15TNstQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gcpePR2y; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=SOFa+Lr/d8TttVYvUTbVyk8Cxl57o7qQn9DQug3ehqVhNqnnE/CqDWnZX84aMbe5dLvMmKCVuEuaWgSa9zKeBNHAThdWhZDmNbfgbuMlof6skpUTH83SKfDK4QXyPoE+rcqfGfXfYwEUsVZQF+iJk1GQomaNyfIjef0qgj/yRHk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mKM4Al2H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gcpePR2y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D5FC2BCF5;
-	Wed, 13 May 2026 03:10:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mKM4Al2H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE3B4C2BCB0;
+	Wed, 13 May 2026 03:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778641831;
-	bh=/YRsbRB3fxerZSWftRjDJgBJUfH+rUDxgCuiuPtNCRo=;
+	s=k20201202; t=1778642354;
+	bh=K9Dahvg4DTgS3w8wqzeJmh+/BF1HjIai4XKrJqTGrGk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=gcpePR2yf3pYoJK+GM1QA+Z5EfNVMleHp4poQFu8bT5vPpPd6rJNn07669IMs2UWK
-	 uSAQx+qUjwbeeaxpZEB7P6tHcLDFdCN7UriZWE8NdtFEGAj7nU+337D5iKKYSdsbep
-	 gObYEDoaUryjnEzZg0qgU9ybqeQpcCUGHQYXlDA5lS6GOD5+zFtWrl4xyc5e3UUmmE
-	 zTYhshd9YyxZDidr2wmcyxA8DvRfG0YS+Qc3jmTjc8+HQ23ozp4/v4nXgmrjdYd24B
-	 XMp0EQ6qXixGRLLbQP9JW/Hy33YNvREphmRDugwjx3rCPaHjnPxKEvUtyWpR+s2/fK
-	 GBfatFa59W8JQ==
+	b=mKM4Al2HwBrAfiQ8fYWhhxETUupNt3e/UaAhQyOTy4bBR8rI/PJYuDmUK/Nf3b32H
+	 qSRlKxfdvSydQ6JQ+qLroZWXUohzFehpFZpovY+tWyB8qfXsKlZY7wrIXqLdDOUtUu
+	 clsZ2z9X4PhvyOE4aJ1tBtsKTDkqX2vzWOdSZI+hWf/szOjRN0lPj+HaoBAh6iCqxN
+	 mmKHzwacX1taSMYtxx31N11vXTA9hkFZQIPn4DHZiG5r0sMHx3pNVcQXJJPeCausY6
+	 45oLMQ07BKeL7MNeIuVNUPhOh0xXd+BERyLJIm9xezvtlgDpj/8X2w+TEYvsgG3xHz
+	 HBJHEPMaEuUZQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/6] iio: light: HID: hid-sensor-prox: Refactor
- channel initialization
+Subject: Re: [PATCH v3 5/6] iio: magnetometer: HID: hid-sensor-magn-3d:
+ Refactor channel initialization
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TmF0w6FsaWEgU2FsdmlubyBBbmRyw6k=?= <natalia.andre@ime.usp.br>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260512012302.20883-5-natalia.andre@ime.usp.br>
-References: <20260512012302.20883-5-natalia.andre@ime.usp.br>
+In-Reply-To: <20260512012302.20883-6-natalia.andre@ime.usp.br>
+References: <20260512012302.20883-6-natalia.andre@ime.usp.br>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 13 May 2026 03:10:30 +0000
-Message-Id: <20260513031031.44D5FC2BCF5@smtp.kernel.org>
+Date: Wed, 13 May 2026 03:19:14 +0000
+Message-Id: <20260513031914.AE3B4C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,48 +46,65 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] The patch introduces a compilation error by incorrectly initializin=
-g a non-existent '.format' field in `struct iio_scan_type`.
+- [Low] The refactored code uses a non-existent member `.format` in `struct=
+ iio_scan_type` instead of `.sign`, leading to a compilation error.
 --
 
-commit b9cbff53934f8976c34e3030a4b171bfc276e140
+commit 579bb9f2450aced0e3f18e7e7316e70845e6e72b
 Author: Nat=C3=A1lia Salvino Andr=C3=A9 <natalia.andre@ime.usp.br>
 
-iio: light: HID: hid-sensor-prox: Refactor channel initialization
+iio: magnetometer: HID: hid-sensor-magn-3d: Refactor channel initialization
 
-This commit refactors the initialization of the scan_type field for proximi=
-ty
-sensor channels by replacing the prox_adjust_channel_bit_mask() function wi=
-th
-a compound literal.
+This commit replaces the local magn_3d_adjust_channel_bit_mask() function
+with a compound literal for scan_type initialization to improve code
+readability.
 
-> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
-sensor-prox.c
-> index efa904a70d0ef..edc9274a2c076 100644
-> --- a/drivers/iio/light/hid-sensor-prox.c
-> +++ b/drivers/iio/light/hid-sensor-prox.c
+> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/=
+magnetometer/hid-sensor-magn-3d.c
+> index c673f9323e476..3b26dc41dd4cf 100644
+> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+
 [ ... ]
-> @@ -250,8 +240,11 @@ static int prox_parse_report(struct platform_device =
-*pdev,
->  		st->scan_mask[0] |=3D BIT(index);
->  		channels[index] =3D prox_channels[i];
->  		channels[index].scan_index =3D index;
-> -		prox_adjust_channel_bit_mask(channels, index,
-> -					     st->prox_attr[index].size);
-> +		channels[index].scan_type =3D (struct iio_scan_type) {
-> +			.format =3D 's',
 
-Will this cause a compilation error? struct iio_scan_type does not have a
-member named format. The previous code set the sign member to 's'. Should
-this be .sign instead of .format?
+> @@ -418,9 +408,11 @@ static int magn_3d_parse_report(struct platform_devi=
+ce *pdev,
+>  			if (i !=3D CHANNEL_SCAN_INDEX_TIMESTAMP) {
+>  				/* Set magn_val_addr to iio value address */
+>  				st->magn_val_addr[i] =3D &st->iio_vals[*chan_count];
+> -				magn_3d_adjust_channel_bit_mask(_channels,
+> -								*chan_count,
+> -								st->magn[i].size);
+> +				_channels[*chan_count].scan_type =3D (struct iio_scan_type) {
+> +					.format =3D 's',
 
-> +			.realbits =3D BYTES_TO_BITS(st->prox_attr[index].size),
-> +			.storagebits =3D BITS_PER_TYPE(u32),
-> +		};
->  		dev_dbg(&pdev->dev, "prox %x:%x\n", st->prox_attr[index].index,
->  			st->prox_attr[index].report_id);
->  		st->scale_precision[index] =3D
+Will this regression cause a compilation error?
+
+Looking at struct iio_scan_type in include/linux/iio/iio.h, there is a memb=
+er
+named sign, but no member named format.
+
+For example, other channel setups use sign:
+
+include/linux/iio/iio.h:
+#define IIO_CHAN_SOFT_TIMESTAMP(_si) {                                  \
+        ...                                                             \
+        .scan_type =3D {                                                  \
+                .sign =3D 's',                                            \
+                .realbits =3D 64,                                         \
+                .storagebits =3D 64,                                      \
+                },                                                      \
+}
+
+Should this compound literal be updated to use .sign =3D 's' instead?
+
+> +					.realbits =3D BYTES_TO_BITS(st->magn[i].size),
+> +					.storagebits =3D BITS_PER_TYPE(u32),
+> +				};
+>  			}
+>  			(*chan_count)++;
+>  		}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260512012302.2088=
-3-1-natalia.andre@ime.usp.br?part=3D4
+3-1-natalia.andre@ime.usp.br?part=3D5

@@ -1,71 +1,71 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F2F24C9010
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:32:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4CB047DD7E
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:32:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778689976; cv=none; b=DP/k4eFd5RKxk9nxVsRQWtzlUml7yCY4qOaEyMunk/S+ZNXnLWLsnpzsNapCbeg2raqVgRLkEOXc1WK/h15dvQhTR2gmlKEWRzuI9MMNN3Ru/S9pHyZys9asfeS2XYTe3Y9u/iSs8UxTp4w8ORkmSG09crYvKgcIa0phfaekFNo=
+	t=1778689978; cv=none; b=VMTygzQGQ+CrGNAlGa9TaUcXa5CrZrDmV007/Jf21H1xsYXM05vM18bA4xZdPMa8Xv+lDR+xLQ46BSUrYsJIw2OwAy8rk3UIfbMAcI/gZRRWBFdbkYuo1dMUL6h5YSznWbNs7vWNfUsDpBezqo0Chm1rXAqMGkNvq8d6Gy7xgU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778689976; c=relaxed/simple;
-	bh=ajvzT3FAJABP6lnU7t27s0cl34JEfwHPD9klcrKUD0k=;
+	s=arc-20240116; t=1778689978; c=relaxed/simple;
+	bh=JfKFS0K9nP36IEkfYAv7a3/MHMkRmXjmrQjYbR6VFJk=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VP0JZ0MKBh0uO9+QadCvfvVvGntJ5Hlh4hq1zPEHOZOQ6Gwkg/QVLvKMYwsAABtdyVghs7T65hztFsWBlFI9LuDNxB52h5r3RA5vPg68p+HDXfnRE7oirvBcqehEiRbBwzy4neDy4anXhGR99JR3BJ34N7t36SHpqwK+eamUBcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nUWKIAGA; arc=none smtp.client-ip=209.85.128.42
+	 MIME-Version; b=njkQn0VnC6uOT4V6yr1/YMSWoZ/Vk9X8DmFPLyyFVGchiSl8mINRvX/3vDU5Zv5SxZRorwOPh4W6t2NFtSjbef80wp+3yn+x187ojKH4XysS9U9q/3Xy3srDXcjs2QOE+U6G1qHhSAF0IstDLoGrz4Ox+R6UMDd6qcNeX3KJUlk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a3MhWZe8; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nUWKIAGA"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-488b0e1b870so117553465e9.2
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:32:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a3MhWZe8"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-488b0046078so57908405e9.1
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:32:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778689974; x=1779294774; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778689975; x=1779294775; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=5lCs7KvKBdu6w6gmhm5f5iVTLTQ1eSZ/20K9FMIpChA=;
-        b=nUWKIAGAYP2X3xQWLVeWup/nEp8UALAUFy98wusCsHy11JXLzHD+0Zc/g9MNO7n/Da
-         bZaEi+wJKbqGOYBVFPLmhvXJ5blEm935/Jvgd1xzO2iknqW+v+EoQSqI9IBM/xpUcAed
-         +xv1MkPweTRBR7GyDy5lQqNRc1sPrPm9Uv5zdirSF7v7x4itMMokNJfoO8Ih7k6x4cRH
-         Ky24a8DqvnTKpX1gIHV/4CT2wTubuvF99gJ6d5mcP9/4yie//D5/f06xPS5yd4kqPVjA
-         R2KPOi4CqeisDWJG5GjxbXtd03+B+GvZW7HrLUZfg73r3pNkRsZCF+Z65Q92IuvKgkEA
-         rDeg==
+        bh=xxebvTn4pavgI/TQ478/jxnqJNji+G9FasNQPUvkkc0=;
+        b=a3MhWZe8wpDvTh+J+upkBP/W/zSs823xoJ6fEJ7o+EgmGqsmjW2qaZtVzT8HlGfKKo
+         9cyzzv5svSoyiIXRAaV6FqptpYsb3Oj1gAankzWigy9MMmk6buop5yCKxvwOze4AG2xf
+         k3YL7kPV8KLbPedEaGui0wUwgfBS6mWVjuk4TiblgLui9AhtBFH2eD4Ttb3TrlTC9tRD
+         7pm95O4ve8UN+xFhyQgKKMcZx09WpvEpqFLQnUh3RSOL7nqOBJbSLZXfHFaj5W4lo8us
+         zD+jV8HmQNxXHXhdKxnRT7y9YeI9fZAGDzlfNDR6QffJ0UFZ7X1BUCgMasakb+7Fb1Fb
+         aKCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778689974; x=1779294774;
+        d=1e100.net; s=20251104; t=1778689975; x=1779294775;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=5lCs7KvKBdu6w6gmhm5f5iVTLTQ1eSZ/20K9FMIpChA=;
-        b=j1mCfyjJYLqWSGWE20uN5WXHYgk8S1g74MiSxKI9UryVBtmyosMP49oPw8CE7XCkTO
-         GynnNuSzxl12bU598brnD8GRF53IxtoTBDslp1hIIOMrdCvu/qSN2abzgd/D07wxXvb9
-         Td1Fj8sUBBbfqXTdjIYCKfXRZF5bzlydLx0uFhQ7k45yxDPnYvnRAKZrVuihNdGJlfMf
-         8mXfyYmlEa1xJjcqwFp/gA8HMikwPORTn7WGxy6GrPk543gF9ge19oQDXD5WDk/uZMKF
-         gXm5+HuRzQHexmdC58B5YW8I9X9hNNfv7caKqqbM080ELfeklk81or2Y14+9s32otykH
-         Mwig==
-X-Forwarded-Encrypted: i=1; AFNElJ9o+sxBk4NJ8INoIdrL4fMPASA7xz56r8z4isZ1XKq9CuFy+RHdfli0xKuGJswElZdm053TVz7Ru3Ha4Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw4GIe7/ivccbq5oYUHkWtF7uB9zZ3I1wUXrv7Q+Mq4jTepmH2O
-	kDPEAEo7QpdUY0Q5cLlm47R9pBd2YpbqV5CZQs0MxT8wFFcqfH35LSXm
-X-Gm-Gg: Acq92OHoLFPJTsWlHHfmIsm0S0wgwzF8TaN8J19LxicDlZXzK4c3oMTcyLREweIq3pT
-	9iT9zo/PhZTZAek8hiU4jS0aNMiXfJvr6ID4j6exKesnw9Sm0t1jzd7CGyzvwA+zluzFQX38E9c
-	C1ize9hiY6u6Nv9LCiTy/6xtpTUzmDzlY3dGfCfO0VyZ+f8HlLojUbvXjEie6k4D2lUYW7YPc9T
-	xcbu0vcWToQ36szVqIWOZgBDL6gE4ZyfTT372h9O2qT73qnqhv6d8rugftV/Qm4xivDiCEZ8lEd
-	JAgQlMwerFl3XqVIeAqW6pIjv7LbtNPJyOQnAPdzURRvLPK6u+35y5lwKig7uLdukHmnbBa4a/t
-	aWWJD+Yda2M2p3lCPsl/tZIrfRNDNcVg9iU5YswHE8q6/MhA+zdTrLl733ERcJxZddfJ8XBvjwt
-	CZ21sAdh6n4p8TdAcjIEoCmyWZ6H6BPDEuirGblzJ8lZtfZwG5V9seOgl3DELzchMZCI+Wq5hY3
-	ak6qNwVk9GaFQiIAG2yhxekU+jB
-X-Received: by 2002:a05:600c:474a:b0:48e:6db3:ff3a with SMTP id 5b1f17b1804b1-48fce9ef211mr54399785e9.16.1778689973756;
-        Wed, 13 May 2026 09:32:53 -0700 (PDT)
+        bh=xxebvTn4pavgI/TQ478/jxnqJNji+G9FasNQPUvkkc0=;
+        b=EFoeFdqRsM5ljbbMgzM1Xo2i1ZCxPtQLdLhnKEIPS2iIqe2K6THO1prT5IXTyI1Rtz
+         m4P63cIDwp6WPIX1Wue8lcZ+evx6X1A7kSOs90aLvpSwYGHxJkfjEGsOqPwmiaqSOYE2
+         G3TYITsYkKCCEPI6aPw33rBWvDuoP5G9VNWEytZV7JFJncBJQ1g3Gx/NrFpHaVSQRoqv
+         8wzJQjwqx7E2sVwFdHg8uycDR4F7Fnb9Ca9PGN5RbdAYDHoyqMUw0IcgMCBIvrgr4iMg
+         La3nbvJqP1/Y7WaCQ+QztrTtobRee3Fp8Luv2r3Q7ETT+IJQ01dAMemJfoUg9N3BS/6C
+         H0kg==
+X-Forwarded-Encrypted: i=1; AFNElJ93rDYEYCTbWxOiISiliZBrNoG3i/K5HUgtrYGUHEPZsWHe5zU+0oHriAlXGF+gRlDLG2HgENB68lSx8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuL9xJGxF4EhLdOqSX9ajrpXs0OR5uYCJWl8sSyy7AHhgSAPiI
+	54RCWKsS2rwSqVnkQKHfsRCzWEnHekax5ZvgVyd5QPVcJkakRNmpDNsB
+X-Gm-Gg: Acq92OEem81wbJslyTJvb1xZRsTVp/QXDWCTxfLjo+AJtpVFxrvnVFOpCe/Q9j4zBYY
+	F8Xvee7UK0zmXgR16bP3MiUA0FqDgl/yIZAHZxURJtjfKO9gxHRtKrcXaLoqgaKKu4up4tL7Agp
+	doIUBU/sR0eJhVphUvYmH0METbRAZyZUJduCR4QSEKjnc9L5k8Yaqjto7G3uGg/ukOri3acPtQj
+	QL9Tu/PooR7/rxiMe5iqommtBeGzecQAweOq4Q/qamWcaPKTdxcDe6KSET2dCQjpay2QCYj83ht
+	2KgvN3PSTh/8yLPVCVR0cCYbxZrpyMnpxWcDqUpRMlcJKnVdCcF7DPVXAKL9HcRf193YLKZ+3/+
+	oP2C1Flbjaa5C4PvTqB7RDOTncd/dDuQlJC+AB1tKm/YtaFB2cR4kfSomorqor91h2JawwhqeY+
+	XPFylxJHvYUAaEG1V9XAtvQ+swy+J6stSHOgfK5wVRSIMP9BcLONqvR5E8Ipg+bcWiGBpjH46DH
+	fcCU7Y=
+X-Received: by 2002:a05:600c:468e:b0:48a:6fd4:d3d3 with SMTP id 5b1f17b1804b1-48fc9a3d8c5mr56740785e9.20.1778689975018;
+        Wed, 13 May 2026 09:32:55 -0700 (PDT)
 Received: from gmail.com ([91.126.139.18])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ec39806sm47492f8f.9.2026.05.13.09.32.53
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd648a7e5sm2258745e9.3.2026.05.13.09.32.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 09:32:53 -0700 (PDT)
+        Wed, 13 May 2026 09:32:54 -0700 (PDT)
 From: Paolo Pisati <p.pisati@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
-Subject: [PATCH 3/7] hid-asus: Add report descriptor fixup offsets for UX8406MA USB keyboard
-Date: Wed, 13 May 2026 18:32:44 +0200
-Message-ID: <20260513163248.16483-4-p.pisati@gmail.com>
+Subject: [PATCH 4/7] hid-asus: Remove more bogus zero bytes from some report descriptors
+Date: Wed, 13 May 2026 18:32:45 +0200
+Message-ID: <20260513163248.16483-5-p.pisati@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260513163248.16483-1-p.pisati@gmail.com>
 References: <20260513163248.16483-1-p.pisati@gmail.com>
@@ -81,29 +81,47 @@ From: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 
 Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 ---
- drivers/hid/hid-asus.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/hid/hid-asus.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index cba638b19465f..2a88ce695489d 100644
+index 2a88ce695489d..cf9184ed2d3ec 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1410,8 +1410,13 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			rsize_orig = 306;
- 			offs = 291;
- 		} else if (drvdata->quirks & QUIRK_ZENBOOK_DUO_KEYBOARD) {
--			rsize_orig = 257;
--			offs = 176;
-+			if (hid_is_usb(hdev)) {
-+				rsize_orig = 90;
-+				offs = 66;
-+			} else /* Bluetooth */ {
-+				rsize_orig = 257;
-+				offs = 176;
-+			}
- 		}
- 
+@@ -1422,14 +1422,19 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
  		/*
+ 		 * Change Usage (76h) to Usage Minimum (00h), Usage Maximum
+ 		 * (FFh) and clear the flags in the Input() byte.
+-		 * Note the descriptor has a bogus 0 byte at the end so we
+-		 * only need 1 extra byte.
+ 		 */
+ 		if (*rsize == rsize_orig &&
+ 			rdesc[offs] == 0x09 && rdesc[offs + 1] == 0x76) {
+ 			__u8 *new_rdesc;
++            unsigned int new_rsize = rsize_orig;
+ 
+-			new_rdesc = devm_kzalloc(&hdev->dev, rsize_orig + 1,
++			/* Clear bogus trailing zero bytes. */
++			while (rdesc[new_rsize + 1] == 0)
++				--new_rsize;
++            /* Make room for the added bytes. */
++			new_rsize += 2;
++
++            new_rdesc = devm_kzalloc(&hdev->dev, new_rsize,
+ 						 GFP_KERNEL);
+ 			if (!new_rdesc)
+ 				return rdesc;
+@@ -1439,8 +1444,8 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 				"T100CHI" : drvdata->quirks & QUIRK_T90CHI ?
+ 				"T90CHI" : "ZENBOOK DUO");
+ 
+-			memcpy(new_rdesc, rdesc, rsize_orig);
+-			*rsize = rsize_orig + 1;
++			memcpy(new_rdesc, rdesc, new_rsize);
++			*rsize = new_rsize;
+ 			rdesc = new_rdesc;
+ 
+ 			memmove(rdesc + offs + 4, rdesc + offs + 2, 12);
 -- 
 2.53.0
 

@@ -1,143 +1,117 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6AE356777
-	for <linux-input@vger.kernel.org>; Tue, 12 May 2026 23:04:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778627095; cv=pass; b=CfLUr5qPKBPE++ucMim6V7ZV000rwZ3UNxW84Jt7AjIY0IMd1TaJzdEtJt8rSeh9rGKGRFkVP6ZgKiKs/qocpD7If0QglcrUSNsTSzH1ZK2W5dkLUZH8AOe9UQgLjhU3LwhYSAOMN+iGzjnrdOEBfdNCcBG4UIO/+gL+VgbiY/A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778627095; c=relaxed/simple;
-	bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hXxML7HBV2Iye8Tgg8jagZHfYyl6WNNmcr5pXJgdumuIZ6GuciIEopFIikhwVPhBXcor3PHraLr5/1vwTy8E1i8NhzP/4vM65yhYYjFY7Jn0+3CgOxLHDo4LuVYaOclodsw0x5eKkh2zIBJQt/NhSnvnttmK9UWNcMaDNPemzIc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=El6s+MY0; arc=pass smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 443057083C
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 00:16:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778631410; cv=none; b=NDsN/VdpZuwYRE7cJqCF8anNjmqyhFpMG/xzuHxdD/cPK9celz9Eq1eGqUVm8Kn6exBRLBytMgG/yU1GjXNguXSuEdjb0Oqq8pxfa7slb756S+DzhR/W6z2UxmfwRJJZXLtb5bLLy+AYdwmqSUPzO17fQZxiZRLDTlhHarzOKx4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778631410; c=relaxed/simple;
+	bh=wp/7HKpoLGwnkwCANS4T8lYWuk514t45RnxWES5T8q4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=uL7asF0kXTDyIwBvcPpQ9G+TkvqQkgn4kTnOWev55lHw+j1ISwN2YxOK/a1yJOy5Sz1hxmiciaQkzPr39gIzyCpX6cLmstWuR48OScTtBc2v6LmU+noig/G/8DKph9bdUIbPEmj2YbcFhsP2AdUwmVOn9B/KBa96xC8WqOdW5eE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aGsmLGJc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="El6s+MY0"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-488940ccfa6so795e9.1
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2026 16:04:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778627093; cv=none;
-        d=google.com; s=arc-20240605;
-        b=j70SZg+8dbjzyxAOytAD6kWWZNA997Xyu9V9bwK0SWDngUuP/m/pXKMtlMCKMcjYey
-         kY7LkQngAjQ3qqrsEOrdFXOIVIbProqOFnQifygGoD0At06vQrfqqngCPXc0K46/gJv3
-         2iUmsQTjI5tDxm59h5iZRs8V/At7auwxtMCXi43JApd2DmakmrgVoZ8MWbqxAxdY9l8i
-         b/pUOK09gc6d6ZfACtPmg9zc8jPmhtkweS7mArwHpGiIbw0YOVyDX165RgLZzcwWzVWO
-         eJO2lkoqgdmLQOag6V59VfXoyZKTUYDrUaECsNZojE+O+tO7lpC+qv917Zb5wCkKIoQQ
-         cV1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
-        fh=Cus7tSA+wGUABmAtQobAyZRgEQP9kVOsr4+OL9xC9As=;
-        b=UZJsqI0wKoblWC6bnp8Q7aW0GSBPU1O/JXhf78rJmSGuSVH00UKi0b66mzBLfzIlhG
-         DyLl1+WSmpU1N33eGkzIoAiffuAJwDxyAIGu6POkuom7ejWu0aHosME2jMs3BkVT7RpM
-         +C6kZaasQSWxNqzOV0pPcC63t+RJM2GD384x/X8O+SzWl3oX/75yTQ6kryM3JC8D3BrN
-         2oBPNBOk9aQR4YKEeTXmtkvydNcMc7gtJb5+NK03avYZGelCIegKlv6+zoqdR/9Os73U
-         z3LWgpdrHXnhtPlVYoGTKjGAL01UUimKXTGXlkwNoqbphqAtD/rCC9P2lGfM3nX9IdMq
-         KrjQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778627093; x=1779231893; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
-        b=El6s+MY0RwRfrcvMJFu1fCTk7Gl6iq1K8hWq2suS/LAXuE/Bt9BjKyHGPYtJOevaID
-         Qovmfm5WT+OfuBhPCaBHz44y+ogRsCxYXdgHftm4iz5+cqzCDaLz7KTrPoNwPHD8NqO0
-         bD33SnixcpGpqmGq+d3W8VqkvnM81aE/WcaMbCaYG7bOctLWDJjHSJhLh3wXm4fAq1vs
-         vWHjBWBTsn+nlVUfCHqmMk2pn4A8KHcgZi5W9BU55Kz7jkMWS0kND6gGBBSvMFi/AVup
-         A8CpL6a5nA9VA/rx1NY1K7mRtMqr65/ZDglauSdfArN9KS6vKR5F0prWudFS7/MsKEf0
-         QuJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778627093; x=1779231893;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=KpOoX021JXCFcKPdmiwJvqTk4B77UB3nIONU7aqJx+I=;
-        b=clYwkISB7EPVoBevNCIBsta3RAYS1rXV6LFhydKb2QOFuUTKzK97xJQdgwjP62ZUIQ
-         fi+B1wN/q9Xihva592I8rl01y/gClsRIitWY73Q4Krmxh14OFATU2WbhDXhkbB0zU+qS
-         CYiuuxdmnGmYSz0Kyn50lh6LzyiMYH+glnDUmBElzBimggBhZMiBU2SIICcbjTIA1YRH
-         ng3m+h1Je0A6ZGdJJ1hMMT3tB+Q4yZYrutY6XkbnfkWde2yIW4avYmiXdTJwjEPv00Dh
-         7uH0Xvve7jUuBqiwyEfu877etwOv9WHJrSkR4Qj2kGIo8iuUVhqFiH3DcETuNd1LoAjU
-         zW6g==
-X-Forwarded-Encrypted: i=1; AFNElJ+7DPMDVvDxmVZUAPigvT8YVI4WzWS1wT32EXWa2WAi0Knm8/PqeGnOm5Ct9YOPqldMQNA0sIDkcEgVHA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyXqOS2+jy/n9pjGEJ6ywjTGVu9Y/e9VKDcblyKD0GNBBZVFkZu
-	Sh6su+C14W0B/LH/b6TphY6ntbq9dMR0I7C0TLvLdOmlkjSNKc0d8D8q5Ce0VGrPQrseVj0t70C
-	TI+q5EhscSRfrYCH6qbOhK103kSogtZrifW/JEl9j
-X-Gm-Gg: Acq92OGGbEB++wxvYdFUy72IyXKLA68Q83hoMaLj2igMxldMzIYZfWRnNFitS7nEFQR
-	HkVMI/xh+wJ9PhO4i0PUSYArO+z+wpFxIuqjyz/dLa5cWNyBwVEte0F4CK1QTG3dFYhB6vhCIFA
-	S1WQUiu/1UOvuIovrTeuxw+Qwaf/LFYznzVpfg4u0ax7seYuLqCma8tFHgBWw5RVxoTMR44aFsQ
-	MC1Kfbrn+8in/NF4Yz4kQCj4dSuCnlVyyUbTKITswl1YywjUbEmtvitrQWH1N/jvhHYBPXQ95ov
-	0tnx6FuEWYP41ThKlu0vyR47HJcbB9vfIFD2LzBM26us8AUpWFO65izA4AilnheQeyzHfdB4OXE
-	gzZbOug2yBQ/04r0=
-X-Received: by 2002:a7b:c455:0:b0:48a:56fa:36dd with SMTP id
- 5b1f17b1804b1-48fcaebf3b3mr120885e9.11.1778627092566; Tue, 12 May 2026
- 16:04:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aGsmLGJc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EE5C2BCB0;
+	Wed, 13 May 2026 00:16:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778631410;
+	bh=wp/7HKpoLGwnkwCANS4T8lYWuk514t45RnxWES5T8q4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=aGsmLGJcWZnoF/0QnTd881iogPCens+FCpAGLjZYlvaS4WCS8X8fpNw3O9+eDALAX
+	 DVFZQHHxOASLkvxC6ECg9Uu2Q6wR023jc69acyNf691RJWLaSGLHZg2fFiXvBFkn+0
+	 k+BiY8+U+DRlEibQX9TepetZoSuR7nAwhm0to55XzyOx9SuQulbgolqF+oODuInDVO
+	 3au26XFHNung6tTtFdVkFOu0Voeaat0PDDI/M0jqiRcvRnY6Qqyby/k5hymHLPjmKU
+	 sK2XpgQDHO0apqSO+WU+4Wh9kM5Of3BbJB/WM6niGvEZb8JrRO3YZiQhRR+M/nyYWb
+	 eeDl1u9jfoCRw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: magicmouse: add haptic click configuration for
+ Magic Trackpad 2
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christian Fressl" <christian@fressl.at>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260511203115.104087-1-christian@fressl.at>
+References: <20260511203115.104087-1-christian@fressl.at>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 13 May 2026 00:16:49 +0000
+Message-Id: <20260513001649.E9EE5C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260417154704.1186803-1-tjmercier@google.com> <89s27nso-4053-p971-4q69-p4nqo5n7p65q@xreary.bet>
-In-Reply-To: <89s27nso-4053-p971-4q69-p4nqo5n7p65q@xreary.bet>
-From: "T.J. Mercier" <tjmercier@google.com>
-Date: Tue, 12 May 2026 16:04:37 -0700
-X-Gm-Features: AVHnY4LH5AHtFpO25VgzAeX3k2o7aRw38Q8TFmJHj5_FfZZxyPG2XicnoUV5PV8
-Message-ID: <CABdmKX2sLGEFZDziwKG3rJOYQsdyUVUxM68xbLe5WGAPoy0AYQ@mail.gmail.com>
-Subject: Re: [PATCH] HID: playstation: Clamp num_touch_reports
-To: Jiri Kosina <jikos@kernel.org>
-Cc: roderick.colenbrander@sony.com, linux-input@vger.kernel.org, 
-	Benjamin Tissoires <bentiss@kernel.org>, stable@vger.kernel.org, 
-	Xingyu Jin <xingyuj@google.com>, Roderick Colenbrander <roderick@gaikai.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 12, 2026 at 8:55=E2=80=AFAM Jiri Kosina <jikos@kernel.org> wrot=
-e:
->
-> On Fri, 17 Apr 2026, T.J. Mercier wrote:
->
-> > A device would never lie about the number of touch reports would it?
-> >
-> > If it does the loop in dualshock4_parse_report will read off the end of
-> > the touch_reports array, up to about 2 KiB for the maximum number of 25=
-6
-> > loop iteraions. The data that is read is emitted via evdev if the
-> > DS4_TOUCH_POINT_INACTIVE bit happens to be set. Protect against this by
-> > clamping the num_touch_reports value provided by the device to the
-> > maximum size of the touch_reports array.
-> >
-> > Fixes: 752038248808 ("HID: playstation: add DualShock4 touchpad support=
-.")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Xingyu Jin <xingyuj@google.com>
-> > Signed-off-by: T.J. Mercier <tjmercier@google.com>
->
-> Applied, thanks.
->
-> --
-> Jiri Kosina
-> SUSE Labs
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The module parameter `haptic_click` is read multiple times without =
+being cached, resulting in a Time-of-Check to Time-of-Use (TOCTOU) race con=
+dition.
+--
 
-Hi Jiri,
+commit 160ed71822c4a0697b90debaa037251a7e50642c
+Author: Christian Fressl <christian@fressl.at>
 
-Thanks for applying this. However now I see that a different fix from
-Beno=C3=AEt Sevens from around the same time has landed:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
-id=3D82a4fc46330910b4c1d9b189561439d468e3ff11
+HID: magicmouse: add haptic click configuration for Magic Trackpad 2
 
-That fix was not yet present at
-3cd8b194bf3428dfa53120fee47e827a7c495815 which I used as my base.
+This commit adds support for configuring the haptic feedback on Apple
+Magic Trackpad 2 devices. It introduces the haptic_click module parameter
+to choose between unchanged, silent-low, or off states.
 
-His patch prints and returns an error in this situation while mine
-silently avoids the OOB read.
+Link: https://github.com/mwyborski/Linux-Magic-Trackpad-2-Driver/issues/28#=
+issuecomment-451625504
 
-So I think it probably makes sense to keep Beno=C3=AEt's patch, and drop
-mine since his code means mine will never be reached.
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index e70bd3dc07ab7..31002cb1f1089 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
 
-Thanks,
-T.J.
+[ ... ]
+
+> @@ -812,6 +827,81 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u3=
+2 product)
+
+[ ... ]
+
+> +static int magicmouse_apply_haptic_click(struct hid_device *hdev)
+> +{
+> +	u32 click_feedback;
+> +	u32 release_feedback;
+> +	int ret;
+> +
+> +	if (haptic_click =3D=3D TRACKPAD2_HAPTIC_CLICK_UNCHANGED)
+> +		return 0;
+> +
+> +	switch (haptic_click) {
+
+Since haptic_click is a module parameter with 0644 permissions, can it
+change concurrently between the if statement and the switch statement?
+
+If it changes from TRACKPAD2_HAPTIC_CLICK_SILENT_LOW (1) to
+TRACKPAD2_HAPTIC_CLICK_UNCHANGED (0) right after the early return check,
+this regression could cause the switch statement to fall through to the
+default case. This would result in an incorrect warning and return -EINVAL.
+
+Would it be safer to read the parameter into a local variable once using
+READ_ONCE() to avoid this race condition?
+
+> +	case TRACKPAD2_HAPTIC_CLICK_SILENT_LOW:
+> +		click_feedback =3D TRACKPAD2_HAPTIC_SILENT_CLICK;
+> +		release_feedback =3D TRACKPAD2_HAPTIC_SILENT_RELEASE;
+> +		break;
+> +	case TRACKPAD2_HAPTIC_CLICK_OFF:
+> +		click_feedback =3D TRACKPAD2_HAPTIC_OFF;
+> +		release_feedback =3D TRACKPAD2_HAPTIC_OFF;
+> +		break;
+> +	default:
+> +		hid_warn(hdev, "invalid haptic_click value %u\n", haptic_click);
+> +		return -EINVAL;
+> +	}
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260511203115.1040=
+87-1-christian@fressl.at?part=3D1

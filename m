@@ -1,98 +1,108 @@
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FD9C3955CE
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 20:02:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4854025B09F;
+	Wed, 13 May 2026 20:15:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778702524; cv=none; b=q5LqOAXQTBhEn9+8rvq/O0J60Q6t4ge4O4xPX9sczHG+HWO/gE+/8zGf12TILtISTBouscMbrERqT2r/R4t4FKuqyqn4OE846naeo0ymqkZDhHrUSVR6L+yP5FUGF8zwEX9za23+fFpck3a95MTfYPYvNQyxz4uHrXW0zRsZXgY=
+	t=1778703359; cv=none; b=A+8ALhQGCSyDTu83ep2Uww+pUeDOfXpoZzyMcEZwMilrvkxrZtC8P71aZFql8cDfEXVkk3QMzOC/TusJufcdXuRJyGtZBZXRTqqyVTC5KEdaoaXlzaHa761RPI8BmxMbYOHiqG3xrd5aRtTBjzy1Wxcu5hy1Q12q8DCpPMXjzTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778702524; c=relaxed/simple;
-	bh=SUzO+Goy+cHMi7LxDDffOXrvlL47rvbUGF+iLVEkU4E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NwKxzHDW662gXbNUbHHf+1slByarg4T5hY8RZNhbPPceJXOxx3hi4ZHASnfLWY2sHVuyw0dQoSBNYDDyL06dMHhkQCLh9CIiBzu9mYxnW6DfQMFTDJpFGTjpGVjViZo5H3kK3TKtPMd8xM8FJ5CZxBT9MBFP5Jd20eZNvUYtYD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LMnjTHH5; arc=none smtp.client-ip=74.125.82.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778703359; c=relaxed/simple;
+	bh=aHOn0bBj7mZeXRdPhK84nyvdj3SeN5l6Vd4SecW7ULA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=IRYHudwG7UIVJp0MvQDy/VktutUrPD0YGiiBBvDk8BsEzWx17iGi2AITE7PXWJ+lKV63HWKEPdX9q9axLX38uGzqZD69g2ZwKHugvfRcphwzK3nEgk6Q6G72LnQYLc4d0lmwe261YDzMZKaogddBJGNjuGn/dCXBq4GRUFz7eKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oi668B8r; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LMnjTHH5"
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-132830d8281so162945c88.1
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 13:02:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778702523; x=1779307323; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8ImgcLtFrpGQ9AHbrbrcH9nkVCHOcjM95JO8KGUOdcI=;
-        b=LMnjTHH5WQw1dcLvVYhul6b5qLFD1Ydpu5aKl23MA3J9GMBMo5fpnIuKnwl1pY9eTa
-         5JUmDeqCCT3v/E4CuGi2zsxsMidKRUdj6TM7Ath4KNyrJ2JnmE1sDEibkpBRHHbPPpTM
-         6tvgMfECv8zgaQJbQDwO6a3FYZ+C+W6CvqJrJlFWVdSUIF2KVAN/DpKAHiM2jw1RYI10
-         tBUdfzf+UDx5an2jldSEB1B5W63xEK0oTlxUZ+OoUaylxVdRKSMwoS7UVNgiTSXAoVWo
-         oHw6KB4g9HCs6eH+hZVDgihb8aUThC6lguTE7vSxO0dBpYclwY4NnEfSigFugDsLLSdv
-         LCiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778702523; x=1779307323;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8ImgcLtFrpGQ9AHbrbrcH9nkVCHOcjM95JO8KGUOdcI=;
-        b=oeFNILqdhILmFJ5ZfGrf1VaH8UIPD6hsHnrI81XkPd33zzM9+PP8w0/hbCZxVQmkIK
-         13gnXAEuzCgjjsFVbJzMu2GWXfNV9gcu5bSIOcgm0BpSPtvYFv+jcqnffdXCKZpgDVaH
-         Cw2c8HQ81ErLKnVKlrL6XulYjHLnBG+zwSlk/MVQuiK+g6DcX+tJJjViMiq31GBvigap
-         CSeolMOr/mKJktGyas/mvJo0XdPBCcTKEAf0ZJkAxg4WGycavACoogcX1JlIirfLajbn
-         Pyd8SXgcLbHdP+PlExPLIfJfrsOH/hjWRK+TUcLxxA7dvw0hIR0Pck326VZrFlNryH+O
-         szjA==
-X-Gm-Message-State: AOJu0YzuZZL830ac9BDLL04ViqYGFgbpnNlptKE3eeDLkC70vcpSV8EC
-	btugPBQt2XAadBraML7Oe1P4SwTjmvWb4+0VCHJhSOknYMQb8GUql4vJw0c+UA==
-X-Gm-Gg: Acq92OHQuDAHqJMVspydUV5xu/ZwRHLNOygczZ5Ls+oOMmxHyKMfaSq7YLmVImglDsK
-	ZT2f9nfD2eOkfBaZ/D8Be3MT26sWLpmB19oLBn/+oOJERk281kQLQWsiSq5cmsLSj/9mGwc6c7n
-	thv3Z4d01gZ3HZRC+QByj5/bZgbqDwLwleXXek/+VHPvLJ1cWFzLR/9WDAUoVTS1TTX4S/sFe5z
-	cwpM5maeTPjC2UfzqEFhjz9GlRKfQpCfkraFBo13spKbs+Y1s423pRyOCYSCYRDf3Y8/cubtQdb
-	ofm240M4xB97NyNWERX2OplI0/sHZ2ZlISQ5FwjzOGwwhuUqoy3roIFrLJAGJK/rGpyAoq1023i
-	6VgJVRgPwCxITuGFLFYP/w9ZS0tomigfTYXtBFRGtixpFPn1Q3ha7ayOHvGLlkQtuiJBTZhK/w7
-	oVFZUWFHjvuPNCvTZyKI2UvXZfocuqY22Yl0vfsKS9P8Qu3oVfEkMcq5rO1pA8sUBS8eHlFydv0
-	Ik=
-X-Received: by 2002:a05:7022:910:b0:12d:b6cb:bdc9 with SMTP id a92af1059eb24-1342ee3a35cmr3000459c88.9.1778702522527;
-        Wed, 13 May 2026 13:02:02 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:e25b:b38f:c027:f0cb])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cc33a618sm666176c88.12.2026.05.13.13.02.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 13:02:01 -0700 (PDT)
-Date: Wed, 13 May 2026 13:01:58 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rik van Riel <riel@surriel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	kernel-team@meta.com
-Subject: Re: [PATCH] input/evdev: move kill_fasync() outside buffer_lock to
- fix SOFTIRQ deadlock
-Message-ID: <agTXYr_fFGiJ7lAe@google.com>
-References: <20260513115000.77ec5975@fangorn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oi668B8r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 808C4C19425;
+	Wed, 13 May 2026 20:15:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778703358;
+	bh=aHOn0bBj7mZeXRdPhK84nyvdj3SeN5l6Vd4SecW7ULA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=oi668B8rAub7Now9tjX4dqNJeslMjopqsPJh+z/60aLsELNacbJekKkKQDof3yYKJ
+	 lVqzaaLkKmkPSPmTaEVE0gK9DhCvL2BFnNW3Cmxzz2Aw5wXypqpv7cjVNfBgMuYqYU
+	 mW26QJifOGJ0jf6NgYguk5uzSmt7EvlERFr4eGue7/5FmQcHn4ThmeX3JHlUh+2k5U
+	 GZcqyZcqEW3WI7i2hvYLdljd36CF805SjxWt7Q2NvDiVssxL36KwJDnrOQNTSgXoYy
+	 3EflnKEgYxbHFe+px6iiGSFVG+9+7ulGBOJt+/q40yIbikLtfSS+1CtEEqtQt7Bk5e
+	 h5uL8f+EcyxJA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 1/2] dt-bindings: input: Document Imagis ISA1200
+ haptic motor driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Svyatoslav Ryhel" <clamor95@gmail.com>
+Cc: robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, krzk+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260512102445.55372-2-clamor95@gmail.com>
+References: <20260512102445.55372-2-clamor95@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 13 May 2026 20:15:57 +0000
+Message-Id: <20260513201558.808C4C19425@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260513115000.77ec5975@fangorn>
 
-Hi Rik,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Missing scalar type definitions for `imagis,period-ns` and `imag=
+is,duty-cycle-ns` cause schema bounds validation to be silently bypassed.
+--
 
-On Wed, May 13, 2026 at 11:50:00AM -0400, Rik van Riel wrote:
-> buffer_lock is a SOFTIRQ-safe spinlock. kill_fasync() acquires fa_lock
-> (SOFTIRQ-unsafe), creating a potential SOFTIRQ-safe->SOFTIRQ-unsafe lock
-> ordering violation that lockdep flags as a deadlock.
-> 
-> Fix by moving the kill_fasync() call to evdev_pass_values() after
-> buffer_lock is released, alongside the existing wake_up_interruptible_poll().
-> 
-> The wakeup condition check is the same in __pass_event() and
-> evdev_pass_values()
+commit c2a7ef2ca3d62317c69bc5b6a450107172eeeac7
+Author: Svyatoslav Ryhel <clamor95@gmail.com>
 
-Does this really fix anything? This code is running holding
-input->event_lock with IRQs off...
+dt-bindings: input: Document Imagis ISA1200 haptic motor driver
 
-Thanks.
+This commit documents the Imagis ISA1200 haptic motor driver. It introduces
+a new YAML binding schema for the driver, specifying properties like
+control-gpios, clocks, and internal PWM configurations.
 
--- 
-Dmitry
+> diff --git a/Documentation/devicetree/bindings/input/imagis,isa1200.yaml =
+b/Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+> new file mode 100644
+> index 0000000000000..bbe6f99d39c19
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/imagis,isa1200.yaml
+[ ... ]
+> @@ -0,0 +1,140 @@
+[ ... ]
+> +  imagis,mode:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    description: |
+> +      Defines the motor type isa1200 drives
+> +      0 - LRA (Linear Resonant Actuator)
+> +      1 - ERM (Eccentric Rotating Mass)
+> +    enum: [0, 1]
+> +    default: 0
+> +
+> +  imagis,period-ns:
+> +    description:
+> +      Period of the internal PWM channel in nanoseconds.
+> +    minimum: 10000
+> +    maximum: 30000
+> +
+> +  imagis,duty-cycle-ns:
+> +    description:
+> +      Duty cycle of the external/internal PWM channel in nanoseconds,
+> +      defaults to 50% of the channel's period
+
+Will the minimum and maximum bounds on imagis,period-ns be silently ignored
+during validation?
+
+The core property-units.yaml schema automatically assigns an array type to
+properties ending in -ns. Without an explicit reference to
+/schemas/types.yaml#/definitions/uint32, these properties are evaluated as
+arrays rather than scalar integers.=20
+
+In standard JSON Schema, numeric constraints like minimum and maximum are
+ignored when applied to an array instance. Adding the uint32 type reference
+for both imagis,period-ns and imagis,duty-cycle-ns would ensure the
+constraints are properly enforced on a single scalar value.
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260512102445.5537=
+2-1-clamor95@gmail.com?part=3D1

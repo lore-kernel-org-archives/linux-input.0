@@ -1,71 +1,71 @@
 Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F040A4C9560
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:32:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EFB94C9010
+	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:32:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778689979; cv=none; b=Ec3g3IFtJHN5tv6/ObMfV49uXKIH6e+jyiut+H8veiSgMTyrqVXxydwUcSjACsuYgS5OB/IL3LRYQUOu3XOhCCHjnFW+i6ZMMHkekYgbcvkigehTq0Qd/bNNcIdYq1ldd/Qnw5joQ++ldw+NUt6d9xxT3uy5nhUKHY6/bW3/u5s=
+	t=1778689980; cv=none; b=PaL6Ebz/ENuenolgUGBdzaaPpybLXfZlAbCyGZpMBIW8an1YCCJ/d126lBo0mAbURoAeP+/VAJMdFgEWIR7jxko6JL+uCGINf1849/+vvG/Jt7qM8y6KiaWlRxZ84bpNphR6h8KlD53N7J2PX1wI82VaK2cV5G0Ibu3ZHmjYpGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778689979; c=relaxed/simple;
-	bh=9l1cf5l/s9BZh5Dj5WLjoKEWLGrfy9f+vNzsyBhdYs0=;
+	s=arc-20240116; t=1778689980; c=relaxed/simple;
+	bh=RXKqAF7NACWant2x46XcA38zp1Twa8tEEs6+YiJF5lE=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jx9vnFW0PP3cVEMtaVgbTwCN4S93J8zX2hI19Dva4ApJHBmZ+JyrWQLXqhP7V2rbduo7ZwW9Bc8JHgvkaOcRN2nWR7qK+dqSqGAw0xfyQO619n4L3ZJhTHSEr0De3k4R5GCqx1ttiu5lH4vnTl1E+VKaAzkS4qS4o5HD1J2dPwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RgmVr4kM; arc=none smtp.client-ip=209.85.128.47
+	 MIME-Version; b=j3trlMFZBjr5YljdXi/nPCNE94qMy9cNHjaTX6sCf3I+EvgbacOWUY009AM7C6xPL5SpG+IwsRrgNpxILtqy6VaOtcvk3PCZegOCqpzEzFMcvwyOLfmBtJDc56DyNleV1xztjp0JgrBGFBypObEhiaFv63pPBqAdX9FFXTChNy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gk0MN5kG; arc=none smtp.client-ip=209.85.128.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RgmVr4kM"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-48e6db3ff7eso28576615e9.0
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:32:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gk0MN5kG"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4891f625344so64193395e9.0
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 09:32:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778689976; x=1779294776; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778689978; x=1779294778; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ulEmB9xTp6jFw5NgM0gGCx+n2ddmEfGsCJtepGPqJ3I=;
-        b=RgmVr4kMcsVnNtgxlB5Cp+PGHzc20Uh8X6UdSIAKV1lOMdYHidFpWsmXqQKBv8tdEw
-         kHHBjs4+sgabPFL2O7UQzeS+L1p4t33gGwV80ExqXUQVZZwPyZ8vmD0hhnNrxMSTlZ6f
-         kvF0ICoBIlqk19dO/O2PeXRW1k93aq1kyOuaiA4WbeDJyUY4ufsCxuHIFk/zfDkex40p
-         1SJKD/O9UhAciGkE+NuOXMwFQAc6f1dMJ+fwbcCFYeYmd/5pbuOiNgTIg80NrF30JOGO
-         C6puwQXP/8Z9Cq3H/+gHvL6L1Q99DAFaUpPa8R4D7wAkQeY+qo9Pvl6uu2saLXqo6baZ
-         h+Fw==
+        bh=U+E3pHdpCC8si9eqo2CHi9ZSS8Tic6LvaRP1Yqyk6oA=;
+        b=Gk0MN5kGfYQj61ABbE7AofYYVY7kBiGV5ru9RZgahDP4bpIaUGGiD+k+ktRDR/JyJt
+         jn2/k16hzzqYf5nsl62UQBKMtadVOKZVcqkLJSvyeKFU9OVHx+/Cx3wMJ3BCsnB8ivYG
+         n80trnKFpPKtJ7HCnO08Mlbc4oXzbFH/xwM7t5f3RQLoiZ08qT6SwMQNXYtiJaSYkCIN
+         qnvA3iYezb5Qh0t+B9RCNKcggxJGtvsbpNg2CPVNwH5cX4H6HADOEG3i33K0Q4Hcw5UQ
+         Nafstzc8d2oy5YIY5G1ndDcHZuEsiMWfWYrR3dzyZz8Mp0dDgC5E8MbpQWHzHb2fWqDJ
+         3HCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778689976; x=1779294776;
+        d=1e100.net; s=20251104; t=1778689978; x=1779294778;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=ulEmB9xTp6jFw5NgM0gGCx+n2ddmEfGsCJtepGPqJ3I=;
-        b=NASSpgD6n91ZKPTScH/2rjtkwHVeVUBMvnqUGCfjnKFWpNMN/rXg6Xy9ZygqYihV7i
-         l/zUPodjHR3nBkVBitMRG8S8tLvr/ioTm4kE15ECaNPqPhkWnd9GGys3fJpjfTRLw5Fa
-         G1jkV3J2bv0mgMH0BsG9j/ek88xWtOkRZnHR+tnX4ditiblAUakqfxJZaKHcJ7UvMvOf
-         y6G8Y9wDasNzWxV6HcbCkq724R2b5aLJ3futUy7oxR27XEsjkuou/6gtWs7Ro1gXfft7
-         in6pZdY26l9zFqBcjqMSLeilLDYyGw5ed7qXxyxAA3ZzWwnrcnIpHs6YUJ43LuA3D9E3
-         +Emg==
-X-Forwarded-Encrypted: i=1; AFNElJ9gkNpdAnA6e1k5n5NWEfosyixBLk0Ffi7+//8jaaxgAhTSzM02NeziOxptR7Y1MvySDklokOsNx1apzg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxeQGtT9292QV2/jIHTIU/ANpRmOeQZe4dUm8u+2sklweW7Ow5X
-	DdC2x1oXDYiWvXDYdVpaDDsuprirDSJiWkvWUpzDJHtdahcWjQdMthnJ
-X-Gm-Gg: Acq92OHUqh6M30y+epPfMF5zMwT3nRm9fN9nJrtNmtc/uqzrZxwZC0QG4/2A2hUMiRa
-	/aIxqoHcwnvwEVKQWFnzkOfDjxY/AOMTmFBtgboHc0Q6SAYB3psgPsv/UkwxpKyQeTde7ExK5WM
-	QIW5n6w8XI5KOyMzJGbwMILO19y846PvpspiSgz1rM+aGvZMFRxltFmlqxk0tPitj8FJDL4eTIj
-	6XxAIxIiXIIxTQvBQ91If1zEyN8tPSw0HMoMB+Roahk1Na970SdkDRO4+12bfZ5H7D3hVnXQDol
-	Ebady9ZXd/lBatKX1eSbHuSFUkvO4x7ihGkvOmNU1uWk3fMvPOLYwgT2lkY2n7OK0ne7IhionS/
-	p/Gpzq0KwA9kNi/xrM01LbSRswFbXvFV6Y4WVifUTAIlHeIMJ6xF99zxypeOR5qxQrCCp1DD5a1
-	0Xv1i7YZuPd56+hRduvdAj56cxMg59gH93BqKoJCiF+ATG/V0x6P+X5eEjCHIbpcZAWzFvEb5Un
-	AlbDQo=
-X-Received: by 2002:a05:600c:45cd:b0:48e:8741:fd3d with SMTP id 5b1f17b1804b1-48fc9a2ca5amr57396405e9.14.1778689976269;
-        Wed, 13 May 2026 09:32:56 -0700 (PDT)
+        bh=U+E3pHdpCC8si9eqo2CHi9ZSS8Tic6LvaRP1Yqyk6oA=;
+        b=ZsckR6QKk7tu4CJNBerO93DS4EQh9RGMJE8R2UVXEuqE0Dsy+JAmnWuEfUvmUyAoHc
+         acvbZJA7Ne69wIYLWj7fkA7QE7dMMyBWUU4DErKfHARyUr4Rz2uvZg48TXvMqxLVFVey
+         YTdG7M9opvLwiW+BWb4zIpUbhONdxZEfRqohFoRMAQwZoHYNst0sCpGaXLJASuGuwMnI
+         oFRyyDDiFCl338u/SRwKC4b1c21fBo3kQtBz1/bdiyPay5cmfBml6F9I6c5d9538YEgr
+         iyONfUALElewQThO5UTblNffXhkzXpi3TZg1zEVqhjJO5uSAQRnw/vcLL4lOVsga9iOv
+         MgnQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8iCwp5oiM6THPGiCYdZMYLFt+hOEzFE1e9Rot61uBtgFAf4ZjWIpdcNAZS0sHTr7AWiAuT1oq/NxQ/5Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxPSKWeXQUHoD3vu6Zd/PkL9um1U3xJfyqKSGG095BQYKuDH0ee
+	B0oabKb8J5iOChXXjf2nv5Pwjhr8g5F0LtjXNIiXc8A5Ps3WXTottgrV
+X-Gm-Gg: Acq92OHcA0/XkqBQZ41lBl6t4ZrImvmX0cuCZljnwQyXW0tnrtMBV73MPlR7rpMJAqQ
+	NgGDYtkwVK3Rg3CLjOs8sF0LmsxNZOqcVkeLhLbTtYYeCtkL+KlRBO00HzgwV/SzzKLDyuqxPNn
+	1k48gGY1cDWLxhDPCEJJgpsMTYd6XoqO/ZrApC+ersi1hJvFkg1DgHhQIV5ELLjgynxxWup+2mr
+	FR1FnVc0xt9dNESZlo3sVlELjJ/1OuF/dLUyQbJW5RhUSz6kgYTL4RyQw+c8oxE1+bshMpZwHjc
+	5Gp5kT9eXhdV44eVHOpLUcMfvDEI3Vn77TkwSkqV+PfKBeq/VA8gNFA/IOUhPxfW50M0SflXSOx
+	TOWVTuLVvzNueIdwkYtNuKEQKcZpFvgeriFN0jt0c4oqhVBXsIp/SUmHICDDP/wllBYnX/GsUFL
+	DFuOsLSdmm9aGubT7BgFPQnujqZovYWDjV0UEPDpSE8c2ysJ0cWkBrPoeHBeckyBd5b8NtzIaSp
+	TuUy0o=
+X-Received: by 2002:a05:600d:3:b0:489:32b:ac0b with SMTP id 5b1f17b1804b1-48fd6341118mr2492845e9.6.1778689977482;
+        Wed, 13 May 2026 09:32:57 -0700 (PDT)
 Received: from gmail.com ([91.126.139.18])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd6498cdesm2486445e9.5.2026.05.13.09.32.55
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd62b4c56sm1232785e9.15.2026.05.13.09.32.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 09:32:55 -0700 (PDT)
+        Wed, 13 May 2026 09:32:57 -0700 (PDT)
 From: Paolo Pisati <p.pisati@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org
-Subject: [PATCH 5/7] hid-asus: Fix input mapping on dedicated vendor HID interfaces
-Date: Wed, 13 May 2026 18:32:46 +0200
-Message-ID: <20260513163248.16483-6-p.pisati@gmail.com>
+Subject: [PATCH 6/7] hid-asus: Allow adding custom hotkey handler logic
+Date: Wed, 13 May 2026 18:32:47 +0200
+Message-ID: <20260513163248.16483-7-p.pisati@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260513163248.16483-1-p.pisati@gmail.com>
 References: <20260513163248.16483-1-p.pisati@gmail.com>
@@ -79,73 +79,52 @@ Content-Transfer-Encoding: 8bit
 
 From: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 
+Respond to platform profile cycle key:
+Fn + F on UX8406MA.
+
+May vary across devices.
+
 Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 ---
- drivers/hid/hid-asus.c | 44 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/hid/hid-asus.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index cf9184ed2d3ec..fe52fd63d61c6 100644
+index fe52fd63d61c6..37e3aec612b6d 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1376,6 +1376,30 @@ static void asus_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- }
+@@ -29,6 +29,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
+ #include <linux/power_supply.h>
++#include <linux/platform_profile.h>
+ #include <linux/leds.h>
  
-+/*
-+ * Some USB keyboards, like the Zenbook Duo UX8406MA keyboard, have a dedicated
-+ * USB interface for vendor-specific reports, separate to the generic HID
-+ * keyboard or consumer control interfaces.
-+ *
-+ * The kernel does not register these vendor-specific interfaces as keyboards,
-+ * or perform input mapping on them at all.
-+ *
-+ * To work around this, a fake keyboard input can be added to the
-+ * vendor-specific interface's report descriptor. The kernel then combines it
-+ * with the vendor-specific collections, and allows the interface to be used as
-+ * a regular keyboard with our custom mappings.
-+ */
-+static const __u8 asus_fake_keyboard_rdesc[] = {
-+	0x05, 0x01, /* Usage Page (Generic Desktop) */
-+	0x09, 0x06, /* Usage (Keyboard) */
-+	0xa1, 0x01, /* Collection (Application) */
-+	0x85, 0x01, /*   Report ID (1) */
-+	0x75, 0x08, /*   Report Size (8) */
-+	0x95, 0x01, /*   Report Count (1) */
-+	0x81, 0x00, /*   Input (Data,Arr,Abs) */
-+	0xc0,       /* End Collection */
-+};
+ #include "hid-ids.h"
+@@ -362,8 +363,21 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
+ 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
+ 	    (usage->hid & HID_USAGE) != 0x00 &&
+ 	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
+-		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
+-			 usage->hid & HID_USAGE);
 +
- static const __u8 asus_g752_fixed_rdesc[] = {
-         0x19, 0x00,			/*   Usage Minimum (0x00)       */
-         0x2A, 0xFF, 0x00,		/*   Usage Maximum (0xFF)       */
-@@ -1457,6 +1481,26 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		}
++		/*
++		 * Some reports do not map directly to standard keys, and need special
++		 * handling.
++		 */
++		switch (usage->hid & HID_USAGE) {
++			case 0x9d:
++				if (!value)
++					break;
++				return platform_profile_cycle();
++				break;
++			default:
++				hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
++					 usage->hid & HID_USAGE);
++		}
  	}
  
-+	if ((drvdata->quirks & QUIRK_ZENBOOK_DUO_KEYBOARD) &&
-+	    hid_is_usb(hdev) &&
-+	    to_usb_interface(hdev->dev.parent)->altsetting->desc.bInterfaceNumber == 4) {
-+
-+		__u8 *new_rdesc;
-+		size_t new_size = *rsize + sizeof(asus_fake_keyboard_rdesc);
-+
-+		new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
-+		if (new_rdesc == NULL)
-+			return rdesc;
-+
-+		hid_info(hdev, "Injecting virtual Zenbook Duo keyboard usage page\n");
-+
-+		memcpy(new_rdesc, asus_fake_keyboard_rdesc, sizeof(asus_fake_keyboard_rdesc));
-+		memcpy(new_rdesc + sizeof(asus_fake_keyboard_rdesc), rdesc, *rsize);
-+
-+		*rsize = new_size;
-+		rdesc = new_rdesc;
-+	}
-+
- 	if (drvdata->quirks & QUIRK_G752_KEYBOARD &&
- 		 *rsize == 75 && rdesc[61] == 0x15 && rdesc[62] == 0x00) {
- 		/* report is missing usage minimum and maximum */
+ 	if (usage->type == EV_KEY && value) {
 -- 
 2.53.0
 

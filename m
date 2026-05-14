@@ -1,90 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-of-o55.zoho.com (sender4-of-o55.zoho.com [136.143.188.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF59C1E32CF
-	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 01:22:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778721742; cv=none; b=C87BGr6ROba4hvp+yLLBvsa0nwuQCeuZfJjlOQZOr24yzJ6SpDMVdAkEwiF9svIc3+DslHyMSthuFZ6nwG1IxL16bnh6fU4ENuMw61t/6YG2KrLmUB57NIjZcxHC1mgqFXdWUjnhH4onAG2NbAstmMOC4fB2HW9EO0nU1VuvOg0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778721742; c=relaxed/simple;
-	bh=0cUdKIFWlOwo3V2iOW5FnDuFjx0YXYUKmN/7/aU+WZI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nHaNZB6OtCpYYjY9LAk2pYtMvnagiDnUAOnEq9fqcar9px9SaDPoBQ+i1eqaSOY2c+WWMcFvx5ppPASGF978Uawd8CNIJe9/mrj0IgkXCD9BvSr/zEBFsYSc6o0blZzUcWOL5jfsSJqq+OIuNSYjpW6H2/EYwd8j1NNBU8MsSEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CSGCyLj1; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC33C31AA87;
+	Thu, 14 May 2026 01:36:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.55
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778722570; cv=pass; b=NNHdDpu6zM5wFt8Es2/p5nz1L8N6Am6A6Og9M8mdL+EHYpALQeN5UXEItXulEuGUlp2vFUINxufjUO5I7s5fiWkS+Bpb1mJ0LHBs//z8Mfoc2KxRA1iZZXFskLTgymhLEF9N3g8Nocs0LF1KNPQ3xLNTQcqLvlYNWmgJdKSBGHE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778722570; c=relaxed/simple;
+	bh=RWqhE1hSqheSEXoi1LbUbXqRVoURfh72r/3E+KppjO8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=tQ2LfsvRFmoIPeWWj8I7nuJmhbbb/+Ln8jsw/pr+ttvg+zjemA9KuSzi3Is5y58uEwbn39DSmXqDsFFEitJz1TDXKix12HFe1kwFrQobwGjI1YisnvaStqlmPosbsNTzaoqWR4EJLhqgaKai4lg4Qm1GHaCbpknPmYj2vJZTdsI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bazaes.cl; spf=pass smtp.mailfrom=bazaes.cl; dkim=pass (1024-bit key) header.d=bazaes.cl header.i=contacto@bazaes.cl header.b=EAoFBgbD; arc=pass smtp.client-ip=136.143.188.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bazaes.cl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bazaes.cl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CSGCyLj1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48887C19425;
-	Thu, 14 May 2026 01:22:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778721742;
-	bh=0cUdKIFWlOwo3V2iOW5FnDuFjx0YXYUKmN/7/aU+WZI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=CSGCyLj17oGqqjc2jkWP2YgPMhZepM9CKw2RFPPK4AR1IEB+QYXyxZ0m0Ps00ke30
-	 S7UcoFwINkhN6qD/Qmk/0gxWQ/yPl059EdS13HaLSdlgk6aWq2evMQ0tZxuBYjU75+
-	 fXkQxOut/mZWDbYUNRHfKfJyABsWIwIeXVTpAYUO8LQU8/eBHo3nbEjqaKyhH4SnBV
-	 RfgAKbi9pTMNMPuK070GmF17/e4/f6OHCudgDt7lVcaWTfSQ20fLBo+5YAn9JHoCdC
-	 N1I6yqyPDA6ja/8tbqwE/YKEib0K7lq4b3rnH46ZzPz5QJ1ToW8NoLcN5+y/6exmrW
-	 78yC5u49iuNeA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics - add LEN2058 to SMBus passlist for
- ThinkPad E490
-Reply-To: sashiko-reviews@lists.linux.dev
-To: contacto@bazaes.cl
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260513045749.185969-1-contacto@bazaes.cl>
-References: <20260513045749.185969-1-contacto@bazaes.cl>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 14 May 2026 01:22:21 +0000
-Message-Id: <20260514012222.48887C19425@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=bazaes.cl header.i=contacto@bazaes.cl header.b="EAoFBgbD"
+ARC-Seal: i=1; a=rsa-sha256; t=1778722566; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=TZ+oCa1B5B3SNPEwiD8z3lc1Qv0xIg6cZBA69S1LLc1FigROu3MXNwFBMgWVXC26P/kOqNZrxxy6zDXVIYe/mcippaiB5WDzPNp88XBY0rdnWnoA4i7vsgeRpuq97eYpx+auiSBOHY1NVm+0kDVVlkrnQjle1ZxJEc7GB9C9Wwg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1778722566; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=+nmHcnlybrGuEe7UvVyYC1CXsO/6l0xtUXHPCz70nGw=; 
+	b=EXmkeVK4Z5JOTOaKDTOsMj7E9jRwXriZrQsh6rmr6OmXivQiUX/5O/6pECVoqGXH7RZVVyZeVqINxP9giZCKEmRPT4OEgGTAUOV8nwsKZWDICLJxmZ9WIF6SfegzcHcG2flLeW5G9yaM/IkpFwJIGaMCLBMSe1QpUx3cJcG/dNc=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=bazaes.cl;
+	spf=pass  smtp.mailfrom=contacto@bazaes.cl;
+	dmarc=pass header.from=<contacto@bazaes.cl>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778722566;
+	s=zmail; d=bazaes.cl; i=contacto@bazaes.cl;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=+nmHcnlybrGuEe7UvVyYC1CXsO/6l0xtUXHPCz70nGw=;
+	b=EAoFBgbDvtvxYFuYbqNFlPeumCNAm8OZLEGHnh7oa58rqHtdJiOv9hAk7uKWEvVy
+	a29TGppOD0+GSKbG86zvm5uQlMB6NhGr2qj4yK1Jixbe73MSCU6zdpiKOpLHFtNhAaX
+	UL4qkPyPwnYXigYgq5nyP7qBe4xZGgT+HXP+12Ew=
+Received: by mx.zohomail.com with SMTPS id 1778722563244326.84577487932575;
+	Wed, 13 May 2026 18:36:03 -0700 (PDT)
+From: contacto@bazaes.cl
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Nicol=C3=A1s=20Bazaes?= <contacto@bazaes.cl>
+Subject: [PATCH v2] Input: synaptics - add LEN2058 to SMBus passlist for ThinkPad E490
+Date: Wed, 13 May 2026 21:35:49 -0400
+Message-ID: <20260514013552.14234-1-contacto@bazaes.cl>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <agTso46UcMSGaIYx@google.com>
+References: <agTso46UcMSGaIYx@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] The commit message incorrectly states that without the passlist =
-entry, psmouse ignores the `synaptics_intertouch` parameter and falls back =
-to PS/2 mode even when explicitly requested.
---
+From: Nicolás Bazaes <contacto@bazaes.cl>
 
-commit 18925dd22ddb975fc9e545765ec54eb77a26f6f6
-Author: Nicol=C3=A1s Bazaes <contacto@bazaes.cl>
+The Lenovo ThinkPad E490 (PNP ID: LEN2058) has a Synaptics TM3471-020
+touchpad that supports SMBus/RMI4 mode but is not listed in
+smbus_pnp_ids[]. Without this entry, RMI4 over SMBus is not enabled
+by default, and the touchpad falls back to PS/2 mode.
 
-Input: synaptics - add LEN2058 to SMBus passlist for ThinkPad E490
+Adding LEN2058 to the passlist enables automatic RMI4 detection without
+requiring the psmouse.synaptics_intertouch parameter, and matches
+the behavior of similar ThinkPad models already in the list
+(E480/LEN2054, E580/LEN2055).
 
-The Lenovo ThinkPad E490 has a Synaptics TM3471-020 touchpad that supports
-SMBus/RMI4 mode but is not listed in smbus_pnp_ids[]. Adding LEN2058 to
-the passlist enables RMI4 over SMBus, which provides better multitouch
-support and matches the behavior of similar ThinkPad models.
+Tested on ThinkPad E490 with kernel 7.0.5-zen1 and Arch Linux.
+RMI4 over SMBus is confirmed working without any kernel parameters.
 
-> Without this entry, psmouse ignores the
-> synaptics_intertouch parameter and falls back to PS/2 mode even when
-> explicitly requested.
+Signed-off-by: Nicolás Bazaes <contacto@bazaes.cl>
+Assisted-by: Claude:claude-sonnet-4-6
+---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-This isn't a bug, but is this description accurate?
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 26071128f..c70502e24 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -190,6 +190,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN2044", /* L470  */
+ 	"LEN2054", /* E480 */
+ 	"LEN2055", /* E580 */
++	"LEN2058", /* E490 */
+ 	"LEN2068", /* T14 Gen 1 */
+ 	"SYN1221", /* TUXEDO InfinityBook Pro 14 v5 */
+ 	"SYN3003", /* HP EliteBook 850 G1 */
+-- 
+2.54.0
 
-Looking at synaptics_setup_intertouch(), the passlist is only checked if
-synaptics_intertouch =3D=3D SYNAPTICS_INTERTOUCH_NOT_SET:
-
-drivers/input/mouse/synaptics.c:synaptics_setup_intertouch() {
-    ...
-	if (synaptics_intertouch =3D=3D SYNAPTICS_INTERTOUCH_NOT_SET) {
-		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids)) {
-    ...
-}
-
-If a user explicitly requests SMBus mode by passing
-psmouse.synaptics_intertouch=3D1, the condition is false, bypassing the
-passlist check entirely and honoring the user's request.
-
-Could the commit message be updated to clarify that the parameter is not
-ignored when explicitly requested?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260513045749.1859=
-69-1-contacto@bazaes.cl?part=3D1

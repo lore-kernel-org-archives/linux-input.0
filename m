@@ -1,149 +1,90 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 999AE2FD69A
-	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 01:06:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF59C1E32CF
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 01:22:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778720788; cv=none; b=GFGUTJi27js7Xn0jzXBx5cHd9SuObqkqLRH6xo/R+VyO7v1TyHZlPtb6/LtWI3OHGh1uZEvU7HqTfL8SrahXJ+0zSXnShxfXYISHIj4Ab0mimQiFI4d6+bahiHO6vxOr7iHAIWbL7qx0DqN4kmLjj5L9CrwjizSDZfHoBuJ9sw0=
+	t=1778721742; cv=none; b=C87BGr6ROba4hvp+yLLBvsa0nwuQCeuZfJjlOQZOr24yzJ6SpDMVdAkEwiF9svIc3+DslHyMSthuFZ6nwG1IxL16bnh6fU4ENuMw61t/6YG2KrLmUB57NIjZcxHC1mgqFXdWUjnhH4onAG2NbAstmMOC4fB2HW9EO0nU1VuvOg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778720788; c=relaxed/simple;
-	bh=aoWVUnrNGXrpLeSGUtzeNV0fEI905n7NsOh0XmM0u+I=;
+	s=arc-20240116; t=1778721742; c=relaxed/simple;
+	bh=0cUdKIFWlOwo3V2iOW5FnDuFjx0YXYUKmN/7/aU+WZI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=taLJ9ZAiAahkcHGnYHlJmn7i55Q/R70e5XPaTyyz1tvowRmMNwPSybCs6NINdAuN8Aag2tkq8ayu4X/zj1NfCM1665S1N4rTZMum4LlND4PaLI7ynm0TdUDnXNp+jV+u7/i/y5GA0vaxQmpAADhSJ8V8+m0BfV0ucn/mSFHoN6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tBONjtZF; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=nHaNZB6OtCpYYjY9LAk2pYtMvnagiDnUAOnEq9fqcar9px9SaDPoBQ+i1eqaSOY2c+WWMcFvx5ppPASGF978Uawd8CNIJe9/mrj0IgkXCD9BvSr/zEBFsYSc6o0blZzUcWOL5jfsSJqq+OIuNSYjpW6H2/EYwd8j1NNBU8MsSEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CSGCyLj1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tBONjtZF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F7CC19425;
-	Thu, 14 May 2026 01:06:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CSGCyLj1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48887C19425;
+	Thu, 14 May 2026 01:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778720788;
-	bh=aoWVUnrNGXrpLeSGUtzeNV0fEI905n7NsOh0XmM0u+I=;
+	s=k20201202; t=1778721742;
+	bh=0cUdKIFWlOwo3V2iOW5FnDuFjx0YXYUKmN/7/aU+WZI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=tBONjtZFXQ5ZBpAfriah3BriYmuybmV8r5/9HmfGbaEooBKQotX4e2QLs/Bj0TkA8
-	 jDIbNNY92h1YLqC7nOFnEgb2TJeX218jtiOUsWbfa/0EItvPU8Bofnv4bpJgFCYocT
-	 FS2gW/IIffh9eTlwhnpLXgsvp/6rbNkM0cx61kUyELPiSgZAtVQFukH64Sy1hYHc4N
-	 6Ixl6yNz3gm9mOvQDEnNSJL7nNlECxq7IXTTmbF9HweK1HkSkbY1dQVaiVd6+9ojWO
-	 bTxe2Bz06vvqRxoY9PaazGsPwRnfFaZrdoYL2jXNi8y4bMV9/DSg5Y8rKpo6uoM24a
-	 XTblBlQEYPHXg==
+	b=CSGCyLj17oGqqjc2jkWP2YgPMhZepM9CKw2RFPPK4AR1IEB+QYXyxZ0m0Ps00ke30
+	 S7UcoFwINkhN6qD/Qmk/0gxWQ/yPl059EdS13HaLSdlgk6aWq2evMQ0tZxuBYjU75+
+	 fXkQxOut/mZWDbYUNRHfKfJyABsWIwIeXVTpAYUO8LQU8/eBHo3nbEjqaKyhH4SnBV
+	 RfgAKbi9pTMNMPuK070GmF17/e4/f6OHCudgDt7lVcaWTfSQ20fLBo+5YAn9JHoCdC
+	 N1I6yqyPDA6ja/8tbqwE/YKEib0K7lq4b3rnH46ZzPz5QJ1ToW8NoLcN5+y/6exmrW
+	 78yC5u49iuNeA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/3] HID: nintendo: Add unified report format support
+Subject: Re: [PATCH] Input: synaptics - add LEN2058 to SMBus passlist for
+ ThinkPad E490
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260512200051.2534081-4-vi@endrift.com>
-References: <20260512200051.2534081-4-vi@endrift.com>
+To: contacto@bazaes.cl
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260513045749.185969-1-contacto@bazaes.cl>
+References: <20260513045749.185969-1-contacto@bazaes.cl>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 14 May 2026 01:06:27 +0000
-Message-Id: <20260514010628.28F7CC19425@smtp.kernel.org>
+Date: Thu, 14 May 2026 01:22:21 +0000
+Message-Id: <20260514012222.48887C19425@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Insufficient bounds checking for NS2_REPORT_UNIFIED payload leads =
-to out-of-bounds reads.
-- [High] Divide-by-zero kernel panic in switch2_report_trigger() caused by =
-attacker-controlled calibration data.
+- [Medium] The commit message incorrectly states that without the passlist =
+entry, psmouse ignores the `synaptics_intertouch` parameter and falls back =
+to PS/2 mode even when explicitly requested.
 --
 
-commit 6e45b564fde8014fc6ade8452a1b793097b3bee4
-Author: Vicki Pfau <vi@endrift.com>
-Subject: HID: nintendo: Add unified report format support
+commit 18925dd22ddb975fc9e545765ec54eb77a26f6f6
+Author: Nicol=C3=A1s Bazaes <contacto@bazaes.cl>
 
-This commit adds support for the "unified" report format to the nintendo hid
-driver. It introduces new mappings for overlapping button and axis fields
-across different controller types.
+Input: synaptics - add LEN2058 to SMBus passlist for ThinkPad E490
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index 9801799a90758..9e7eda7b70bfb 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
-[ ... ]
-> @@ -3690,11 +3791,48 @@ static int switch2_event(struct hid_device *hdev,=
- struct hid_report *report, uin
-> =20
->  	switch (report->id) {
->  	case NS2_REPORT_UNIFIED:
-> -		/*
-> -		 * TODO
-> -		 * This won't be sent unless the report type gets changed via command
-> -		 * 03-0A, but we should support it at some point regardless.
-> -		 */
-> +		switch (ns2->ctlr_type) {
-> +		case NS2_CTLR_TYPE_JCL:
-> +			switch2_report_stick(input, &ns2->stick_calib[0],
-> +				ABS_X, false, ABS_Y, true, &raw_data[11]);
-> +			switch2_report_buttons(input, &raw_data[5],
-> +				ns2_left_joycon_button_unified_mappings);
-> +			break;
-> +		case NS2_CTLR_TYPE_JCR:
-> +			switch2_report_stick(input, &ns2->stick_calib[0],
-> +				ABS_X, false, ABS_Y, true, &raw_data[14]);
+The Lenovo ThinkPad E490 has a Synaptics TM3471-020 touchpad that supports
+SMBus/RMI4 mode but is not listed in smbus_pnp_ids[]. Adding LEN2058 to
+the passlist enables RMI4 over SMBus, which provides better multitouch
+support and matches the behavior of similar ThinkPad models.
 
-Is this safe if the report size is exactly 15 bytes?
+> Without this entry, psmouse ignores the
+> synaptics_intertouch parameter and falls back to PS/2 mode even when
+> explicitly requested.
 
-Earlier in switch2_event(), there is a global size check:
+This isn't a bug, but is this description accurate?
 
-    if (size < 15)
-        return -EINVAL;
+Looking at synaptics_setup_intertouch(), the passlist is only checked if
+synaptics_intertouch =3D=3D SYNAPTICS_INTERTOUCH_NOT_SET:
 
-However, switch2_report_stick() reads up to 3 bytes from the provided data
-pointer (indices 0, 1, and 2). Passing &raw_data[14] means it will read
-raw_data[14], raw_data[15], and raw_data[16].
+drivers/input/mouse/synaptics.c:synaptics_setup_intertouch() {
+    ...
+	if (synaptics_intertouch =3D=3D SYNAPTICS_INTERTOUCH_NOT_SET) {
+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids)) {
+    ...
+}
 
-Could this cause an out-of-bounds read if an undersized report is sent?
+If a user explicitly requests SMBus mode by passing
+psmouse.synaptics_intertouch=3D1, the condition is false, bypassing the
+passlist check entirely and honoring the user's request.
 
-> +			switch2_report_buttons(input, &raw_data[5],
-> +				ns2_right_joycon_button_unified_mappings);
-> +			break;
-> +		case NS2_CTLR_TYPE_GC:
-> +			input_report_abs(input, ABS_HAT0X,
-> +				!!(raw_data[7] & NS2_BTN_U3_RIGHT) -
-> +				!!(raw_data[7] & NS2_BTN_U3_LEFT));
-> +			input_report_abs(input, ABS_HAT0Y,
-> +				!!(raw_data[7] & NS2_BTN_U3_DOWN) -
-> +				!!(raw_data[7] & NS2_BTN_U3_UP));
-> +			switch2_report_buttons(input, &raw_data[5], ns2_gccon_unified_mapping=
-s);
-> +			switch2_report_stick(input, &ns2->stick_calib[0],
-> +				ABS_X, false, ABS_Y, true, &raw_data[11]);
-> +			switch2_report_stick(input, &ns2->stick_calib[1],
-> +				ABS_RX, false, ABS_RY, true, &raw_data[14]);
-> +			switch2_report_trigger(input, ns2->lt_zero, ABS_Z, raw_data[0x3d]);
-> +			switch2_report_trigger(input, ns2->rt_zero, ABS_RZ, raw_data[0x3e]);
-
-Similarly, does this code read past the end of the buffer?
-
-Accessing raw_data[0x3d] (index 61) and raw_data[0x3e] (index 62) requires
-the report size to be at least 63 bytes, but the global check only guarante=
-es
-15 bytes.
-
-Additionally, could this new path trigger a divide-by-zero panic?
-
-While this issue pre-dates this commit, switch2_report_trigger() contains t=
-he
-following calculation:
-
-    int value =3D (NS2_TRIGGER_RANGE + 1) * (data - zero) / (232 - zero);
-
-The zero parameter here comes from the device's factory calibration data
-(ns2->lt_zero and ns2->rt_zero). If a device advertises 232 as its zero
-calibration point, this division evaluates to 0.
-
-Since this patch exposes a new way to call switch2_report_trigger(), might =
-it
-be worth adding validation to prevent a zero divisor?
-
-> +			break;
-> +		case NS2_CTLR_TYPE_PRO:
-[ ... ]
+Could the commit message be updated to clarify that the parameter is not
+ignored when explicitly requested?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260512200051.2534=
-081-1-vi@endrift.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260513045749.1859=
+69-1-contacto@bazaes.cl?part=3D1

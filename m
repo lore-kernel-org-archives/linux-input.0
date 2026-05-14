@@ -1,323 +1,342 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 300963CC7D5
-	for <linux-input@vger.kernel.org>; Wed, 13 May 2026 23:14:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 387B64C92
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 00:15:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778714095; cv=none; b=ZWC0UEffYrOt5vgmoj61d+pQr02jB7FC3gqpLP28onrRN/eZ8gMhvODxDHckhI+IUFpQZs1qUxEJAxFffqRWsIt6VTHzT9VvAFitOhaMOdIibszEXoxDYZpmiNEQEYkv3aXAAz/e9SUJ4/u8GPo+VnyQOjA9Ozrk6PUrjWGy5fI=
+	t=1778717711; cv=none; b=UZ1cHaiKcKX0z134XovP3hTp8tnJRag2GfbGw1Etq7KPGGlx+rwdZBptIAJKsqWr9JFvUjikVUoWZbyEpzbbKxLmiWOha700/Ea70rCnHcMnNySQZK4PiwN9P0RA8tyscd5U8OUCA7li02lK7A675xHGOVV5R6khO8n//TZuu/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778714095; c=relaxed/simple;
-	bh=SHihGLXgYmsJaW9i6CKwl9JKAO4sf3kSHa49mlcZ5BE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tTzx+LCIrwcmiPtFQgFMkCOEyGKz4erOAPACCov8v7v+ZaQryfJlCoiipjpaZklfJKHrqyXlgwToepudVQr3msmbmZHCwgDvrwh/Snz2AfXVMpy9YvvrxZTBY5Ekno3JxeY84pUOZQDt1Y2W/+fJwrf1jbEAY0m+sv2Kf+HbXaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=phGsSa4N; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778717711; c=relaxed/simple;
+	bh=wSyPy1AfTElWhsKYTfKk3t0KgfODG4XyMQlvlNTJLMs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=uaJvkbAklHyuoQ1oA2OF45jk2UZmrLUUZ7QYSZrzLfaX1J9gyFeGAlmvJdvWEH22wAo9wda0Jts+daQ2FJczrStepytRsF75/WWvVNpCy8Csl26k37pkod+ZD7dUnwWr8ccnORPEO54xQggh6rWdByvLdtLWhZ6/M719UXCvEFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NP4SUnpp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="phGsSa4N"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-130c9dcbd25so6757768c88.1
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2026 16:14:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778714091; x=1779318891; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1jmRXpj4cHFfB9YL53UH4jX2G42efHj1Df9QupG0QTs=;
-        b=phGsSa4NHUNNJ7kPT4tAa2A7SgX0EAOBOXiQmXqoxgx216cIpV+iSbMmFi7u8ReN13
-         OrLU1bIsUmoD/hAbiZm0FIBM6UYJyofaaH8SV6rmRE5MTg2F/zMd3MoNbnbC7ncJNOcv
-         qIUZH4f6CYGht/KYWMtkm5HOyi6mGjf7yxI4f7NT2DUh2D/hSP+Bv/D3bEYAfNZqGKoS
-         E6uaOOIyB7pC6rJfnzpdIjCwGaOPj/lBJ8JGvNyLVbniot1SyNjdzSLs9rtgErIf8QM8
-         yqSDI9GXh6IhkGXlSr4mhp1FhDPEJe6CZDnLFem1laCCpU3TLsMLH8uVkk/tHMpjjpYk
-         cWBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778714091; x=1779318891;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1jmRXpj4cHFfB9YL53UH4jX2G42efHj1Df9QupG0QTs=;
-        b=sva8gzjRHjNy0qpmKkmZzv9Bsm33Y1Km1Hz8pyanwnm4DwDOd/M2VGmFsZQVUw2QKS
-         lNC8X04IP2LEcjV8nEUijQAFDG0YGtN6P620WJ0F1bfSvP5pxCmZc//YMtd++1QnNiBR
-         qnEj/g+us63fh0/0khB7E+A7bCBoeOr4qqtHPOwUwSl9d6anyGmCNighm9SY/BsNNUMM
-         MUXWR8WBQx58EBiiY+3+siJlG+3Ym2LXBv86zTrWFo+EEf7kCUM3Vftu+hzqsTrrMkwK
-         TdyCm0PTVAUZI5zPXPwtogAGCCBukvla7XQYh/2cUgW2mkP+INuxoBcWfTmTrfpPV87I
-         B7MA==
-X-Forwarded-Encrypted: i=1; AFNElJ8WA0JYSSLljGLO0pivK5UK7YC3H+KkDDbfJMi6MfpuWZl8lKhkSV6lALWFZ078DPlMgC7JLJq4+9l9mQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1iIGRx0EAtyYTqjFgr5AVBdziNJzxXu9ZZtcw0XtwMMrJiRFF
-	3w3A0PrrxeaoMe8zphn57lClkXY9Hv3Y/pOEuNNBCZ+mF9LnM8oY8gFc
-X-Gm-Gg: Acq92OHvP3psnjxQbdGTg8AU9yFGjRw6j782cTBKVJ/86YqcE0vPreGhieztY6eneKi
-	3LtxfyIQmmxonJfiD2/dwjpnlWrHBNqSjqmBaickgL2dTpuVUUtOF90b8zh3P/wPmYweLCB2xrZ
-	ZKUypq4rYeSouD0tQLVdjGWkHRr9T4vcY0/3THBCZUKSpkUej+8yJD08ql/bL/gMUh2wu7qNCct
-	b+2O7jO6978h1gQvdlSt+j7q7PmZlZc++I5qOXKlh9gHaBhTiJHs9mcYEljaTGSMHPROEhLpEZz
-	qhLENX5vV3HPnNQeZ3OBIaV5SIt6ImWHKSLxtksD2nlFTl3WimUT7IweiBe0+PRfb8llLMUgYUn
-	LxCBQZgF9sWywOFZ2uLWuooeTtDiOWRtsgdAg6VB7k3QnsTV0KkjP1iCL8GBvZm7x+Kbt2v7eWU
-	l49HK4cZjit++hUnYIppbvC7qz+Vh9vTRZy8b0LkIWWbtYiSl8nBLmGjKas6dWJe1xHTntJRts+
-	uVZ
-X-Received: by 2002:a05:7022:90e:b0:123:3c24:b15 with SMTP id a92af1059eb24-134c8d41a3emr840976c88.19.1778714091128;
-        Wed, 13 May 2026 16:14:51 -0700 (PDT)
-Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cc2352f2sm1379258c88.10.2026.05.13.16.14.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 16:14:50 -0700 (PDT)
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Zhouwang Huang <honjow311@gmail.com>,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 4/4] HID: hid-msi: Add Rumble Intensity Attributes
-Date: Wed, 13 May 2026 23:14:45 +0000
-Message-ID: <20260513231445.3213501-5-derekjohn.clark@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260513231445.3213501-1-derekjohn.clark@gmail.com>
-References: <20260513231445.3213501-1-derekjohn.clark@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NP4SUnpp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964E7C19425;
+	Thu, 14 May 2026 00:15:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778717710;
+	bh=wSyPy1AfTElWhsKYTfKk3t0KgfODG4XyMQlvlNTJLMs=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=NP4SUnppCxwNLJEmwmvrqXS6ZW2G431i2yGy9cX19pjqWkHBeqMMBSKIDepNh2Zhr
+	 mKClGQ73mB9XGLwKxhqgqHjiTfgfLOVTXJuTmLLRfsnTPCyLgOVdVYfolrprdj7UC4
+	 57Ks9dFI+nn/kdrHqo6oZzMq0iqMZdX6LIFBcmtZfsdx0zIHsezxa2CU9kmTsC1Zn8
+	 qs6KZ8ruqYGmbDOA+55j9kQtc3nzabaYO1lcvphqC2hOgM6l1tEEukU6hsBx8YWXLc
+	 FK3DqNlzy+MAWrsMIjNRv1rrztaWFuerbgP7uxLaKK1Cr/iNBAv9dhTROFbRXdSXe+
+	 lhnxSV1x092cw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 1/3] HID: nintendo: Add preliminary Switch 2
+ controller driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vicki Pfau" <vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260512200051.2534081-2-vi@endrift.com>
+References: <20260512200051.2534081-2-vi@endrift.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 14 May 2026 00:15:10 +0000
+Message-Id: <20260514001510.964E7C19425@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Adds intensity adjustment for the left and right rumble motors.
+Thank you for your contribution! Sashiko AI review found 11 potential issue=
+(s) to consider:
+- [High] Sleeping in atomic context and AB-BA deadlock in `switch2_usb_disc=
+onnect`
+- [High] Race condition in IN URB tracking causes permanent starvation
+- [High] Dangling pointers and use-after-free on probe failure
+- [High] Memory corruption and double free due to incorrect devm input life=
+cycle management
+- [High] NULL pointer dereference in USB probe error path
+- [High] Division by zero crash from unvalidated trigger calibration data
+- [High] BUG_ON kernel panic when `ida_free` is called with U32_MAX
+- [High] Out-of-bounds read when parsing NS2_CMD_FW_INFO response
+- [High] Race condition due to URB submission before initialization of sync=
+hronization primitives
+- [Medium] Infinite USB retry storm on protocol errors
+- [Medium] Unaligned memory access on byte array casts
+--
 
-Claude was used during the reverse-engineering data gathering for this
-feature done by Zhouwang Huang. As the code had already been affected,
-I used Claude to create the initial framing for the feature, then did
-manual cleanup of the _show and _store functions afterwards to fix bugs
-and keep the coding style consistent. Claude was also used as an initial
-reviewer of this patch.
+commit 00cb7265ad5983144c6923702e2ee2c3c047d29e
+Author: Vicki Pfau <vi@endrift.com>
+Subject: HID: nintendo: Add preliminary Switch 2 controller driver
 
-Assisted-by: Claude:claude-sonnet-4-6
-Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
----
-v2:
-  - Use pending_profile and sync to rom mutexes.
----
- drivers/hid/hid-msi.c | 147 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 147 insertions(+)
+This adds a new driver for the Switch 2 controllers. The Switch 2 uses an
+unusual split-interface design such that input and rumble occur on the main
+HID interface, but all other communication occurs over a "configuration"
+interface.
 
-diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-index a628b77bfb7b5..cffd6ed253ec9 100644
---- a/drivers/hid/hid-msi.c
-+++ b/drivers/hid/hid-msi.c
-@@ -76,6 +76,8 @@ enum claw_profile_ack_pending {
- 	CLAW_M1_PENDING,
- 	CLAW_M2_PENDING,
- 	CLAW_RGB_PENDING,
-+	CLAW_RUMBLE_LEFT_PENDING,
-+	CLAW_RUMBLE_RIGHT_PENDING,
- };
- 
- enum claw_key_index {
-@@ -262,6 +264,11 @@ static const u16 button_mapping_addr_new[] = {
- static const u16 rgb_addr_old = 0x01fa;
- static const u16 rgb_addr_new = 0x024a;
- 
-+static const u16 rumble_addr[] = {
-+	0x0022,  /* left  */
-+	0x0023,  /* right */
-+};
-+
- struct claw_command_report {
- 	u8 report_id;
- 	u8 padding[2];
-@@ -310,7 +317,10 @@ struct claw_drvdata {
- 	enum claw_gamepad_mode_index gamepad_mode;
- 	u8 m1_codes[CLAW_KEYS_MAX];
- 	u8 m2_codes[CLAW_KEYS_MAX];
-+	u8 rumble_intensity_right;
-+	u8 rumble_intensity_left;
- 	const u16 *bmap_addr;
-+	bool rumble_support;
- 	bool bmap_support;
- 
- 	/* RGB Variables */
-@@ -402,6 +412,12 @@ static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_command_
- 		memcpy(&drvdata->rgb_frames[f_idx], &frame->zone_data,
- 		       sizeof(struct rgb_frame));
- 
-+		break;
-+	case CLAW_RUMBLE_LEFT_PENDING:
-+		drvdata->rumble_intensity_left = cmd_rep->data[4];
-+		break;
-+	case CLAW_RUMBLE_RIGHT_PENDING:
-+		drvdata->rumble_intensity_right = cmd_rep->data[4];
- 		break;
- 	default:
- 		dev_warn(&drvdata->hdev->dev,
-@@ -815,6 +831,126 @@ static ssize_t button_mapping_options_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(button_mapping_options);
- 
-+static ssize_t rumble_intensity_left_store(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	u8 data[] = { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0xff, 0x01, 0x00 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	u8 val;
-+	int ret;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > 100)
-+		return -EINVAL;
-+
-+	data[4] = val;
-+
-+	guard(mutex)(&drvdata->rom_mutex);
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
-+				    data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, 8);
-+	if (ret)
-+		return ret;
-+
-+	drvdata->rumble_intensity_left = val;
-+
-+	return count;
-+}
-+
-+static ssize_t rumble_intensity_left_show(struct device *dev,
-+					  struct device_attribute *attr,
-+					  char *buf)
-+{
-+	u8 data[4] = { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0xff, 0x01 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	guard(mutex)(&drvdata->profile_mutex);
-+	drvdata->profile_pending = CLAW_RUMBLE_LEFT_PENDING;
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data,
-+				    ARRAY_SIZE(data), 8);
-+	if (ret) {
-+		drvdata->profile_pending = CLAW_NO_PENDING;
-+		return ret;
-+	}
-+
-+	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_left);
-+}
-+static DEVICE_ATTR_RW(rumble_intensity_left);
-+
-+static ssize_t rumble_intensity_right_store(struct device *dev,
-+					    struct device_attribute *attr,
-+					    const char *buf, size_t count)
-+{
-+	u8 data[] = { 0x01, (rumble_addr[1] >> 8) & 0xff, rumble_addr[1] & 0xff, 0x01, 0x00 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	u8 val;
-+	int ret;
-+
-+	ret = kstrtou8(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > 100)
-+		return -EINVAL;
-+
-+	data[4] = val;
-+
-+	guard(mutex)(&drvdata->rom_mutex);
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA,
-+				    data, ARRAY_SIZE(data), 8);
-+	if (ret)
-+		return ret;
-+
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL, 0, 8);
-+	if (ret)
-+		return ret;
-+
-+	drvdata->rumble_intensity_right = val;
-+
-+	return count;
-+}
-+
-+static ssize_t rumble_intensity_right_show(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	u8 data[4] = { 0x01, (rumble_addr[1] >> 8) & 0xff, rumble_addr[1] & 0xff, 0x01 };
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	guard(mutex)(&drvdata->profile_mutex);
-+	drvdata->profile_pending = CLAW_RUMBLE_RIGHT_PENDING;
-+	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, data,
-+				    ARRAY_SIZE(data), 8);
-+	if (ret) {
-+		drvdata->profile_pending = CLAW_NO_PENDING;
-+		return ret;
-+	}
-+
-+	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_right);
-+}
-+static DEVICE_ATTR_RW(rumble_intensity_right);
-+
-+static ssize_t rumble_intensity_range_show(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	return sysfs_emit(buf, "0-100\n");
-+}
-+static DEVICE_ATTR_RO(rumble_intensity_range);
-+
- static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct attribute *attr,
- 					    int n)
- {
-@@ -835,6 +971,12 @@ static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct attribu
- 	    attr == &dev_attr_reset.attr)
- 		return attr->mode;
- 
-+	/* Hide rumble attrs if not supported */
-+	if (attr == &dev_attr_rumble_intensity_left.attr ||
-+	    attr == &dev_attr_rumble_intensity_right.attr ||
-+	    attr == &dev_attr_rumble_intensity_range.attr)
-+		return drvdata->rumble_support ? attr->mode : 0;
-+
- 	/* Hide button mapping attrs if it isn't supported */
- 	return drvdata->bmap_support ? attr->mode : 0;
- }
-@@ -848,6 +990,9 @@ static struct attribute *claw_gamepad_attrs[] = {
- 	&dev_attr_mkeys_function.attr,
- 	&dev_attr_mkeys_function_index.attr,
- 	&dev_attr_reset.attr,
-+	&dev_attr_rumble_intensity_left.attr,
-+	&dev_attr_rumble_intensity_right.attr,
-+	&dev_attr_rumble_intensity_range.attr,
- 	NULL,
- };
- 
-@@ -1312,6 +1457,7 @@ static void claw_features_supported(struct claw_drvdata *drvdata)
- 		drvdata->bmap_support = true;
- 		if (minor >= 0x66) {
- 			drvdata->bmap_addr = button_mapping_addr_new;
-+			drvdata->rumble_support = true;
- 			drvdata->rgb_addr = rgb_addr_new;
- 		} else {
- 			drvdata->bmap_addr = button_mapping_addr_old;
-@@ -1323,6 +1469,7 @@ static void claw_features_supported(struct claw_drvdata *drvdata)
- 	if ((major == 0x02 && minor >= 0x17) || major >= 0x03) {
- 		drvdata->bmap_support = true;
- 		drvdata->bmap_addr = button_mapping_addr_new;
-+		drvdata->rumble_support = true;
- 		drvdata->rgb_addr = rgb_addr_new;
- 		return;
- 	}
--- 
-2.53.0
+> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+> index 29008c2cc5304..2193afcdefabc 100644
+> --- a/drivers/hid/hid-nintendo.c
+> +++ b/drivers/hid/hid-nintendo.c
+[ ... ]
+> +static int switch2_init_input(struct switch2_controller *ns2)
+> +{
+[ ... ]
+> +	input =3D devm_input_allocate_device(&hdev->dev);
+> +	if (!input)
+> +		return -ENOMEM;
+[ ... ]
+> +	ret =3D input_register_device(input);
+> +	if (ret < 0) {
+> +		hid_err(ns2->hdev, "Failed to register input; ret=3D%d\n", ret);
+> +		input_free_device(input);
 
+Calling input_free_device or input_unregister_device on a devm-managed
+input device can cause double frees when devres cleanup fires. Can this
+lead to memory corruption?
+
+> +		return ret;
+> +	}
+[ ... ]
+> +static void switch2_controller_put(struct switch2_controller *ns2)
+> +{
+> +	struct input_dev *input;
+> +	bool do_free;
+[ ... ]
+> +	if (input)
+> +		input_unregister_device(input);
+
+Calling input_unregister_device on a devm-managed input device can cause
+issues. If the input device remains alive (tied to the HID device devres)
+and its child LEDs are not released, will reconnecting the USB cable
+allocate a new input device and corrupt the LED lists by re-registering
+the exact same ns2->leds structures?
+
+> +
+> +	if (do_free) {
+[ ... ]
+> +static void switch2_report_trigger(struct input_dev *input, uint8_t zero=
+, int abs, uint8_t data)
+> +{
+> +	int value =3D (NS2_TRIGGER_RANGE + 1) * (data - zero) / (232 - zero);
+
+The zero variable is loaded directly from the controller's factory calibrat=
+ion
+flash. If a device reports a zero point of exactly 232, will this trigger a
+division by zero exception and crash the kernel?
+
+> +
+> +	input_report_abs(input, abs, clamp(value, 0, NS2_TRIGGER_RANGE));
+> +}
+[ ... ]
+> +static int switch2_read_flash(struct switch2_controller *ns2, uint32_t a=
+ddress,
+> +	uint8_t size)
+> +{
+> +	uint8_t message[8] =3D { size, 0x7e };
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +	*(__le32 *)&message[4] =3D __cpu_to_le32(address);
+
+The driver directly casts &message[4] to __le32. Since message is a uint8_t
+array, it is only guaranteed to be 1-byte aligned. On strict architectures,
+will this unaligned memory write trigger a hardware alignment fault?
+
+> +	return ns2->cfg->send_command(NS2_CMD_FLASH, NS2_SUBCMD_FLASH_READ, mes=
+sage,
+> +		sizeof(message), ns2->cfg);
+> +}
+[ ... ]
+> +int switch2_receive_command(struct switch2_controller *ns2,
+> +	const uint8_t *message, size_t length)
+> +{
+[ ... ]
+> +	header =3D (const struct switch2_cmd_header *)message;
+> +	if (!(header->flags & NS2_FLAG_OK)) {
+> +		ret =3D -EIO;
+> +		goto exit;
+> +	}
+> +	message =3D &message[8];
+> +	switch (header->command) {
+[ ... ]
+> +	case NS2_CMD_FW_INFO:
+> +		if (header->subcommand =3D=3D NS2_SUBCMD_FW_INFO_GET) {
+> +			if (length < sizeof(ns2->version)) {
+> +				ret =3D -EINVAL;
+> +				goto exit;
+> +			}
+> +			memcpy(&ns2->version, message, sizeof(ns2->version));
+
+The message pointer is advanced by 8 bytes to skip the header, but length
+is not decremented. The bounds check compares length against
+sizeof(ns2->version). If length is exactly sizeof(ns2->version), the check
+passes, but the advanced message pointer only has length - 8 valid bytes
+remaining. Will the memcpy over-read into uninitialized memory?
+
+> +			ns2->ctlr_type =3D ns2->version.ctlr_type;
+> +			switch2_init_step_done(ns2, NS2_INIT_GET_FIRMWARE_INFO);
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +exit:
+> +	if (ns2->init_step < NS2_INIT_DONE)
+> +		switch2_init_controller(ns2);
+
+If a command response has the NACK flag set or encounters another error,
+the code jumps to exit and invokes switch2_init_controller. Since
+ns2->init_step has not advanced, the state machine will immediately re-send
+the exact same command. Can this cause an infinite tight feedback loop of
+failures and retries, flooding the USB bus?
+
+> +
+> +	return ret;
+> +}
+[ ... ]
+> +int switch2_controller_attach_cfg(const char *phys, struct switch2_cfg_i=
+ntf *cfg)
+> +{
+[ ... ]
+> +	guard(mutex)(&ns2->lock);
+> +	WARN_ON(ns2->cfg);
+> +	ns2->cfg =3D cfg;
+> +
+> +	if (ns2->hdev)
+> +		return switch2_init_controller(ns2);
+
+If switch2_init_controller fails here or in switch2_probe, the error is
+returned immediately without unrolling the state. Will ns2->cfg or ns2->hdev
+remain set, potentially leading to a use-after-free when subsequent device
+events occur?
+
+> +	return 0;
+> +}
+[ ... ]
+> +static void switch2_remove(struct hid_device *hdev)
+> +{
+> +	struct switch2_controller *ns2 =3D hid_get_drvdata(hdev);
+> +
+> +	hid_hw_close(hdev);
+> +	mutex_lock(&ns2->lock);
+> +	WARN_ON(ns2->hdev !=3D hdev);
+> +	ns2->hdev =3D NULL;
+> +	mutex_unlock(&ns2->lock);
+> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
+
+If ida_alloc fails during probe, ns2->player_id remains at its default
+value of U32_MAX. When ida_free is called, the IDA framework enforces a
+check on the ID. Casting U32_MAX to a signed integer yields -1. Will this
+trigger the BUG_ON and cause a kernel panic?
+
+> +	switch2_controller_put(ns2);
+> +	hid_hw_stop(hdev);
+> +}
+[ ... ]
+> diff --git a/drivers/input/joystick/nintendo-switch2-usb.c b/drivers/inpu=
+t/joystick/nintendo-switch2-usb.c
+> new file mode 100644
+> index 0000000000000..ebd89d852e21a
+> --- /dev/null
+> +++ b/drivers/input/joystick/nintendo-switch2-usb.c
+[ ... ]
+> +static void switch2_bulk_in(struct urb *urb)
+> +{
+[ ... ]
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	for (i =3D 0; i < NS2_IN_URBS; i++) {
+> +		int err;
+> +		struct switch2_urb *ns2_urb;
+> +
+> +		if (ns2_usb->bulk_in[i].urb =3D=3D urb) {
+> +			ns2_usb->message_in =3D i;
+
+If multiple URBs complete in quick succession before the work item executes,
+the message_in index is overwritten. Will this cause the work item to only
+process the last completed URB, leaving earlier URBs indefinitely active
+and leading to starvation of the URB pool?
+
+> +			continue;
+> +		}
+[ ... ]
+> +static int switch2_usb_probe(struct usb_interface *intf, const struct us=
+b_device_id *id)
+> +{
+[ ... ]
+> +	ns2_usb->bulk_in[0].active =3D true;
+> +	ret =3D usb_submit_urb(ns2_usb->bulk_in[0].urb, GFP_ATOMIC);
+> +	if (ret < 0)
+> +		goto err_free_out;
+> +
+> +	init_usb_anchor(&ns2_usb->bulk_out_anchor);
+> +	spin_lock_init(&ns2_usb->bulk_out_lock);
+> +	init_usb_anchor(&ns2_usb->bulk_in_anchor);
+> +	spin_lock_init(&ns2_usb->bulk_in_lock);
+> +	INIT_WORK(&ns2_usb->message_in_work, switch2_usb_message_in_work);
+
+usb_submit_urb is invoked for bulk_in[0] before the initialization of the
+spinlocks, anchors, and work struct. If the URB completes immediately, the
+completion handler will execute and attempt to use uninitialized
+synchronization primitives. Can this cause a crash?
+
+> +
+> +	usb_set_intfdata(intf, ns2_usb);
+[ ... ]
+> +err_kill_urb:
+> +	usb_kill_urb(ns2_usb->bulk_in[0].urb);
+> +err_free_out:
+> +	for (i =3D 0; i < NS2_OUT_URBS; i++) {
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, ns2_usb->bulk_out[i].d=
+ata,
+> +			ns2_usb->bulk_out[i].urb->transfer_dma);
+> +		usb_free_urb(ns2_usb->bulk_out[i].urb);
+> +	}
+> +err_free_in:
+> +	for (i =3D 0; i < NS2_IN_URBS; i++) {
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, ns2_usb->bulk_in[i].da=
+ta,
+> +			ns2_usb->bulk_in[i].urb->transfer_dma);
+
+If usb_alloc_urb fails during the loop, it jumps to err_free_in. During
+cleanup, it accesses ns2_usb->bulk_in[i].urb->transfer_dma. Since urb is
+NULL for the failed index, will this trigger a NULL pointer dereference?
+
+> +		usb_free_urb(ns2_usb->bulk_in[i].urb);
+> +	}
+> +	devm_kfree(&intf->dev, ns2_usb);
+> +
+> +	return ret;
+> +}
+> +
+> +static void switch2_usb_disconnect(struct usb_interface *intf)
+> +{
+> +	struct switch2_usb *ns2_usb =3D usb_get_intfdata(intf);
+> +	unsigned long flags;
+> +	int i;
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_out_anchor);
+
+Both usb_kill_anchored_urbs and cancel_work_sync can sleep. Is it safe to
+call them while holding a spinlock?
+
+> +	for (i =3D 0; i < NS2_OUT_URBS; i++) {
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, ns2_usb->bulk_out[i].d=
+ata,
+> +			ns2_usb->bulk_out[i].urb->transfer_dma);
+> +		usb_free_urb(ns2_usb->bulk_out[i].urb);
+> +	}
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
+> +	cancel_work_sync(&ns2_usb->message_in_work);
+
+Furthermore, cancel_work_sync waits for message_in_work which attempts to
+acquire bulk_in_lock. Does this cause a deadlock since the lock is already
+held by the disconnecting thread?
+
+> +	for (i =3D 0; i < NS2_IN_URBS; i++) {
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260512200051.2534=
+081-1-vi@endrift.com?part=3D1

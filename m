@@ -1,66 +1,66 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3E653A7858
-	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 09:32:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F0BE3A9DB1
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 09:32:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778751156; cv=none; b=MXDmtWh5fHrIuSmEOuCxxVK6AxjM/FEK/e01reG7OF1hr+Df0ehvS1rqqvwNvyBEtkwVdF/sUnMG9XTNEYxTHg9G7j2QnirqKJAF5rTOmzdpcdhCFx3LzC01ql5UdJWwO5DpE1S41vq+EQ1AREIA7kX5LM/9WuOME/LQrf1SLtc=
+	t=1778751158; cv=none; b=ItYwWVumYDUWf/cjyzSlBVULKj98Xx7BGKJfHCKWX0YVya61WjkaALa7228wxaAvBKmRPH0dMpExNroY+MUQt/+AEwHeWcYiPtB+s6qB9viteaTD0FnxnwzSXahIM+OtK2uciKq70fBQr5uspyBuaikVQoVw1CGBVHswTxKvqjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778751156; c=relaxed/simple;
-	bh=NfaBRDzFvFklhzTH9t4p9EVBdLk/XaHTDMg8o9QY524=;
+	s=arc-20240116; t=1778751158; c=relaxed/simple;
+	bh=PhCveEiZIdUmcGwyU5spejpP9AhnWoovrQrg6qXZOwg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tBXnIvv8IpRfZvq2909vuFVUxpYAVD5U3TUJz7OI2rxnRgRS7Ym/G5k9SMfYKfKJJod+JI7fkEuUaI0NAtfhUx9ErOwJeMTjLeI9/Lauuj/rxuSPt9lYT6/9TJTBOEXMKRgPWce+jZAx0BUvxThWQSXutQwNtWWpjnfbvAnh/7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ecZBH/hJ; arc=none smtp.client-ip=209.85.128.44
+	 In-Reply-To:To:Cc; b=ODJIE7YRIvcDYG9tJ+WuHVqhjflM4H89SbJ3xeqQPnMBwVKwxmLcTTk4SedajnXFMUF5yXAxrtD5YQUekCkYJgLEzsNbodN67ZH1xAv3orO/QVytf/jMFslAiBk2g5Vve+74YZXKxYDQ2gdPEFP05kMvssB2mKwy5SOYOFacfwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=SKllLdfo; arc=none smtp.client-ip=209.85.221.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ecZBH/hJ"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-48fe26a177cso271945e9.1
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 02:32:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SKllLdfo"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-44e1ebb3122so4124900f8f.2
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 02:32:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1778751153; x=1779355953; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1778751155; x=1779355955; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=o4dQGlI0To3jzdG+Zpi+3N86C8iuvnWf5obCtCx/S5c=;
-        b=ecZBH/hJkgNSVKPCTs3mdmWAxFhb2nm+bIUu81YF2oo+6gCUbI+PODuz3DDXH8LaXN
-         w7zsodEP/LOXMOYpB36om4KlkV3lhWxQRLWdU9GYq1L2BivOYHACtVMCK/Ovpl6fG6Bo
-         JfpJNs0/GJM1n21YxXlRuEyAXkv8Jqt7ST4gicMgFiqaTvPeLf91XO62mzQZ/2UyC7Yv
-         oNdPrkGDm7AARuTJ6/H1dfzYM2Dk30yDLntoEAW4NZQw2WDdhP9wE9zv1+q8BDTSpIsy
-         2BiqnJQ9h1FDJS+fTFawnyZJ1X2efdqgZbqsAc9OEmz7UcPzIBvJcpb7zLPnvjC7u8Tz
-         mNlw==
+        bh=Qi50aH0ofyIVTmJunsbTWM1jEiSwseuTv8Zx+hC3coU=;
+        b=SKllLdfoN0Y039PhFkLl9oTbjG8i/6bFqAK1ersRlrGseyUNRaCnIy9+QWfDVkY/f9
+         BWFii5iiQzPYcVx/xkhRJummjt7betIPkydGzr1pVaC3/qIgPHJhb46KsgsMBZEvoN01
+         kHbwJ/ogyi+E1e7WEdXPZwIKk98z39/WjyqvMfUCQGAQlvZZUYxWC03RNJ5OJvDFzXzn
+         ehYj5rxpQFFL1Ow1mFV24OiAPiT4qe9h9OwK6a2fV00tOSS8ThAywAsaZ9QYCCSg+EoE
+         KonrDqzE4IVe52SzdJCAZ+gG4D5p/7ugJiEOL8eeD662zovMIPy/N8Y+r/RCESH8HgAl
+         IG2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778751153; x=1779355953;
+        d=1e100.net; s=20251104; t=1778751155; x=1779355955;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=o4dQGlI0To3jzdG+Zpi+3N86C8iuvnWf5obCtCx/S5c=;
-        b=AxsjewFiVsFBeMOfSAzF0nzkfftUom/i/rzdtB1WVrJ7TgmFqgN7Pe/x09qEwAA0ld
-         GaIBDrg2yrI7VvWtXAPqsxVmAbkL2tebfCN8KqMZZzwuGg2ZGksDdBeL9QSl20g6LHNz
-         c1yvv18FVnqLo8dfzqoA4/HZZXrigFF6VTsKxM9Y/Pi4X0Nvpl1qin9oMdyJq3eV7LZN
-         Ni1QrNUorBM/yWU+Zm+wXumfIcmKlSv6pPGV7cafQ8Y78eDpqlDSNpjcmLopEw/wTFK8
-         Ie2CKO5imXVYImFKZZyHOSaSdnQrLUofx7v/6UBlTvqiNfmJNWn7DM2K66bwj/YqO7wB
-         D7gw==
-X-Forwarded-Encrypted: i=1; AFNElJ/p5l0QoW4l2w9c4LudP4b72nHHDS3r8obnhl8P2AEMOWszO0YOSVXnr2D7/ZApcHpPr/D5yRWxcuOzmw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwToa7zNFtCNSh+5s/6vbftpry3QOQ2sjx996E/P8c1PNw7z5nt
-	7+lDLsaUvekaM5ye6Ywqw21V690/w9cnWjcFBvSbZj8P/CAPXFTFUQ117yAIlDagtSQ=
-X-Gm-Gg: Acq92OGn4xAyU3kZkOLHBznqUQZkACNnDNqt1msZGCoIeGhkcqppHyOVrg6q0ofkKKn
-	NQNQIH1NtXiZPfXDMgAcSDF6quub4wUj7Q0KEcV0uZQR4wLiHqGEbE2qLvcVSbQfWOIC4OGJaZe
-	i1kRBRUMpr55Q7gDZW9Qut2ADG2avVCfR99V7GU5ko4ltB66YHuO2/elX9DgJ7138fVvRkEDcbZ
-	0KU2e+YX13IXsVH74/o6bJp8TRIOlIczLDKvyMsXUEh4MmoT+XfBzqrYZ3y25/C+VLX5qfIVV72
-	Wd1actSB+fIc+s41dpYypRT3wACPKc2VBo246dfU/+nusaa8lFTEdayg3mcWCyaD+oTXcMsmOgf
-	2g3Q+MNGaqkyMtT60GnS4ajcTO28t+8mZI77pxKydkCSvDBUmZR3xwp0+tRwyozBnGi6StVWCZP
-	f/sVYiMT6t1B2yL7TIKezV4TmpHYhHViPy
-X-Received: by 2002:a05:600c:a15:b0:48e:89f9:9408 with SMTP id 5b1f17b1804b1-48fc9a3864emr95441075e9.20.1778751153371;
-        Thu, 14 May 2026 02:32:33 -0700 (PDT)
+        bh=Qi50aH0ofyIVTmJunsbTWM1jEiSwseuTv8Zx+hC3coU=;
+        b=A5VCfGFs6GUsHgVjTW4gzUKvny2GRN4D001z/QSEtJeMCv04+4TQm4hOCp0ChsHHLK
+         i4IG5NeyNY4RmHW0/RwHxvHlRvpZTbt/vf+TMfM/9T/NWQK9BAIHPWdwEogFEsmS3Gyc
+         SkSB3wdG67u6Zt/rHBbBPcVL4bpt5UHBVlOMDT4K9L5TV8Jb3QAk/Hb0voHtJIo4141z
+         1a9NPzo5Sd8FJqbfKL0CXv8Th0RbnMgU/+SjosB+CNOhim5+MutVkFUcH8R0AkrE+G/U
+         eEf7Vbx25S1FYDVRWX8Msn6LMSVA66L6LondkB41GvtkH6ob8yU0pCwKO4M/Fb7je/Vz
+         nHGw==
+X-Forwarded-Encrypted: i=1; AFNElJ8tc2KAmCvmF/97GnIuv8rPgn0/F3dgD+s1dKioXmVPSi1XpPp/ZhX3Km91T2KU2qVIzrmuxgUbsQccig==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNPD2gQPiH34O2xlHkcO3z/CYkf++ah489EmrtDRoW7c24CErO
+	kU8jYUiomxPORflPnjQKbVHEjERyM2BiNnyS6cL/I14OCYpmiZHX6aPbBY7QIwSr7xI=
+X-Gm-Gg: Acq92OH4vwsl1kWW8aTRPgPXjgW+Xcx8igkYbJf9QYMCeroydn8ELqsP6LcyF2Cu6WW
+	VTJvaN0vGGPhVp1jposoBGel2HByN4R/vxhVgGcvkzvPQQ9Q9ZkGyjaIUntup5we0gl+dI4gev8
+	H5eZ8XF5MELt8OHR2zwRCHH+jnq0RLjfU/l2mHcizzpmDH7UbZAjEBz6xdJkqpwUEybUd9mQgba
+	b40PvKNEOe7pnWXPOHGatCEuvdkm2RaDspgLliQZY8OB6RsPLAsvre7sY+vDwmTVz6majCQBct+
+	26ixByCiVNLT5PkJ1mX0mhZTGvHDB29M0pyVUEspu+ZJFQLiWhD0k8jaOQOPTAG6yGcr+jFoCCM
+	YRXRHSidfXFmS1O171olIk6pfW9DEKe0tmiAJfDuQPbQMNTUiBmPTRLJmAZZ3dqcjbtWbDifdmb
+	dwZgBJe1KlwTRzzw7g6wDID3oK9WR3OmTW
+X-Received: by 2002:a05:6000:2882:b0:43f:ea91:63ff with SMTP id ffacd0b85a97d-45c58a70c1emr11251761f8f.10.1778751154951;
+        Thu, 14 May 2026 02:32:34 -0700 (PDT)
 Received: from ho-tower-lan.lan ([185.48.77.170])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0fe0fecsm5097164f8f.26.2026.05.14.02.32.31
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0fe0fecsm5097164f8f.26.2026.05.14.02.32.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 02:32:32 -0700 (PDT)
+        Thu, 14 May 2026 02:32:34 -0700 (PDT)
 From: James Clark <james.clark@linaro.org>
-Date: Thu, 14 May 2026 10:32:09 +0100
-Subject: [PATCH 2/6] tools/build: Indent if else blocks
+Date: Thu, 14 May 2026 10:32:10 +0100
+Subject: [PATCH 3/6] selftests: Remove unused LLD variable
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,7 +69,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260514-james-perf-llvm-version-v1-2-6cac1a9a4c8d@linaro.org>
+Message-Id: <20260514-james-perf-llvm-version-v1-3-6cac1a9a4c8d@linaro.org>
 References: <20260514-james-perf-llvm-version-v1-0-6cac1a9a4c8d@linaro.org>
 In-Reply-To: <20260514-james-perf-llvm-version-v1-0-6cac1a9a4c8d@linaro.org>
 To: Nathan Chancellor <nathan@kernel.org>, 
@@ -93,105 +93,36 @@ Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
  James Clark <james.clark@linaro.org>, leo.yan@arm.com
 X-Mailer: b4 0.14.0
 
-These blocks are quite big and unreadable without indentation. Indent
-them.
+This file was mostly copied from selftests/bpf/Makefile, but the LLD
+variable is not used here. Also, this copied block didn't get the same
+fixes as the original one did later.
 
-No functional changes intended.
+Remove it to avoid confusion and so future fixes don't have to be in two
+places.
 
 Signed-off-by: James Clark <james.clark@linaro.org>
 ---
- tools/scripts/Makefile.include | 76 +++++++++++++++++++++---------------------
- 1 file changed, 38 insertions(+), 38 deletions(-)
+ tools/testing/selftests/hid/Makefile | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
-index 7022e78208a2..e81e5b479c56 100644
---- a/tools/scripts/Makefile.include
-+++ b/tools/scripts/Makefile.include
-@@ -52,46 +52,46 @@ define allow-override
- endef
+diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftests/hid/Makefile
+index 50ec9e0406ab..96071b4800e8 100644
+--- a/tools/testing/selftests/hid/Makefile
++++ b/tools/testing/selftests/hid/Makefile
+@@ -105,13 +105,6 @@ $(MAKE_DIRS):
+ 	$(call msg,MKDIR,,$@)
+ 	$(Q)mkdir -p $@
  
- ifneq ($(LLVM),)
--ifneq ($(filter %/,$(LLVM)),)
--LLVM_PREFIX := $(LLVM)
--else ifneq ($(filter -%,$(LLVM)),)
--LLVM_SUFFIX := $(LLVM)
--else ifneq ($(LLVM),1)
--$(error Invalid value for LLVM, see Documentation/kbuild/llvm.rst)
+-# LLVM's ld.lld doesn't support all the architectures, so use it only on x86
+-ifeq ($(SRCARCH),x86)
+-LLD := lld
+-else
+-LLD := ld
 -endif
-+  ifneq ($(filter %/,$(LLVM)),)
-+    LLVM_PREFIX := $(LLVM)
-+  else ifneq ($(filter -%,$(LLVM)),)
-+    LLVM_SUFFIX := $(LLVM)
-+  else ifneq ($(LLVM),1)
-+    $(error Invalid value for LLVM, see Documentation/kbuild/llvm.rst)
-+  endif
- 
--$(call allow-override,CC,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
--$(call allow-override,CLANG,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
--$(call allow-override,HOSTCC,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
--$(call allow-override,AR,$(LLVM_PREFIX)llvm-ar$(LLVM_SUFFIX))
--$(call allow-override,HOSTAR,$(LLVM_PREFIX)llvm-ar$(LLVM_SUFFIX))
--$(call allow-override,LD,$(LLVM_PREFIX)ld.lld$(LLVM_SUFFIX))
--$(call allow-override,HOSTLD,$(LLVM_PREFIX)ld.lld$(LLVM_SUFFIX))
--$(call allow-override,CXX,$(LLVM_PREFIX)clang++$(LLVM_SUFFIX))
--$(call allow-override,STRIP,$(LLVM_PREFIX)llvm-strip$(LLVM_SUFFIX))
--$(call allow-override,LLVM_STRIP,$(LLVM_PREFIX)llvm-strip$(LLVM_SUFFIX))
--$(call allow-override,LLC,$(LLVM_PREFIX)llc$(LLVM_SUFFIX))
--$(call allow-override,LLVM_CONFIG,$(LLVM_PREFIX)llvm-config$(LLVM_SUFFIX))
--$(call allow-override,LLVM_OBJCOPY,$(LLVM_PREFIX)llvm-objcopy$(LLVM_SUFFIX))
-+  $(call allow-override,CC,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
-+  $(call allow-override,CLANG,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
-+  $(call allow-override,HOSTCC,$(LLVM_PREFIX)clang$(LLVM_SUFFIX))
-+  $(call allow-override,AR,$(LLVM_PREFIX)llvm-ar$(LLVM_SUFFIX))
-+  $(call allow-override,HOSTAR,$(LLVM_PREFIX)llvm-ar$(LLVM_SUFFIX))
-+  $(call allow-override,LD,$(LLVM_PREFIX)ld.lld$(LLVM_SUFFIX))
-+  $(call allow-override,HOSTLD,$(LLVM_PREFIX)ld.lld$(LLVM_SUFFIX))
-+  $(call allow-override,CXX,$(LLVM_PREFIX)clang++$(LLVM_SUFFIX))
-+  $(call allow-override,STRIP,$(LLVM_PREFIX)llvm-strip$(LLVM_SUFFIX))
-+  $(call allow-override,LLVM_STRIP,$(LLVM_PREFIX)llvm-strip$(LLVM_SUFFIX))
-+  $(call allow-override,LLC,$(LLVM_PREFIX)llc$(LLVM_SUFFIX))
-+  $(call allow-override,LLVM_CONFIG,$(LLVM_PREFIX)llvm-config$(LLVM_SUFFIX))
-+  $(call allow-override,LLVM_OBJCOPY,$(LLVM_PREFIX)llvm-objcopy$(LLVM_SUFFIX))
- else
--# Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
--$(call allow-override,CC,$(CROSS_COMPILE)gcc)
--$(call allow-override,AR,$(CROSS_COMPILE)ar)
--$(call allow-override,LD,$(CROSS_COMPILE)ld)
--$(call allow-override,CXX,$(CROSS_COMPILE)g++)
--$(call allow-override,STRIP,$(CROSS_COMPILE)strip)
 -
--# Host versions aren't prefixed
--$(call allow-override,HOSTAR,ar)
--$(call allow-override,HOSTCC,gcc)
--$(call allow-override,HOSTLD,ld)
--
--# Some tools still require Clang, LLC and/or LLVM utils
--$(call allow-override,CLANG,clang)
--$(call allow-override,LLC,llc)
--$(call allow-override,LLVM_CONFIG,llvm-config)
--$(call allow-override,LLVM_OBJCOPY,llvm-objcopy)
--$(call allow-override,LLVM_STRIP,llvm-strip)
-+  # Allow setting various cross-compile vars or setting CROSS_COMPILE as a prefix.
-+  $(call allow-override,CC,$(CROSS_COMPILE)gcc)
-+  $(call allow-override,AR,$(CROSS_COMPILE)ar)
-+  $(call allow-override,LD,$(CROSS_COMPILE)ld)
-+  $(call allow-override,CXX,$(CROSS_COMPILE)g++)
-+  $(call allow-override,STRIP,$(CROSS_COMPILE)strip)
-+
-+  # Host versions aren't prefixed
-+  $(call allow-override,HOSTAR,ar)
-+  $(call allow-override,HOSTCC,gcc)
-+  $(call allow-override,HOSTLD,ld)
-+
-+  # Some tools still require Clang, LLC and/or LLVM utils
-+  $(call allow-override,CLANG,clang)
-+  $(call allow-override,LLC,llc)
-+  $(call allow-override,LLVM_CONFIG,llvm-config)
-+  $(call allow-override,LLVM_OBJCOPY,llvm-objcopy)
-+  $(call allow-override,LLVM_STRIP,llvm-strip)
- endif
+ DEFAULT_BPFTOOL := $(HOST_SCRATCH_DIR)/sbin/bpftool
  
- CC_NO_CLANG := $(shell $(CC) -dM -E -x c /dev/null | grep -Fq "__clang__"; echo $$?)
+ TEST_GEN_PROGS_EXTENDED += $(DEFAULT_BPFTOOL)
 
 -- 
 2.34.1

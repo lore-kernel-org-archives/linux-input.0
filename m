@@ -1,211 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 584F0253359;
-	Thu, 14 May 2026 10:09:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E59793A168E
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 10:13:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778753376; cv=none; b=Lp7B/aqn3yuJHzoxz1Qjdir72sIMV9NsqvISGI5Cc3bas+kiroJTUTgJpTEUnJS1Tszg8akpjFOD3YfgEogdI2NOsFYuAX2H3g2AdgBRCkD0+KxfFHD/jU1hCFSeD8uiWuA5e+Wg0CHvD4JdPxM5KsnQW6IIewlSVHnxs4lZnhE=
+	t=1778753629; cv=none; b=Rcq7X2KQsbEjDVme1XBdavIi5bUpyXIdVdXmKfy2qgCaHlGxx2CL6m4m6qSrF1+UtD0mmyFtNw3zgftvb2Sc19jDGRPi65t9YuvpR/sa0+NS3NPrngswmlqPezHSL8sQfeyEVbNq1Sjq25AejVd0O0jQ4USEjTsERF98MisRbQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778753376; c=relaxed/simple;
-	bh=0KtD/0Uecz1jI/mc5X6HzYPn7Wh0zTexr/5tzN4O7hY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FF8uomPvpHUWgl6y6w9oC2U6cb/PsRJnP+SHP0RBMmPs/4OcLFT+F78LEW7QPJAnitVBdIgqELOlANJhVA9bxFtl2w3O8Nr6KoOYAveZIO66Jr/KDt8UVTNvvB0HPtwD9waD4sLR1oVwEhz5qncCheru0LJ6FTL4ivy8BVlSrJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uYCyniYj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778753629; c=relaxed/simple;
+	bh=S63hhfRsG+j7Ng7WAsaWPKCUXZm8OcvpotlPU06841E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=D4pt9yGwue4ewyXLUW8ZwWFhZGdECBUyJX2BDTcMjHc4mpsxuo4o9YssFQM1qPY3Gd6RiOwvXMQLQJs9QA1Hgn00ERlg9lrkHLuTgvy2EgoTfrg3UqsVSgXQxt7g9S/FrIOF0cawLSVd/tbEMeEj++aAdYlPB7Vk7gusge8lGbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=kXk84CXV; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uYCyniYj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA1E3C2BCB3;
-	Thu, 14 May 2026 10:09:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778753376;
-	bh=0KtD/0Uecz1jI/mc5X6HzYPn7Wh0zTexr/5tzN4O7hY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uYCyniYjeUDkYhomCfGmu5W3ZeD9RHG8wEln/mXkah67uuuTnBsQxh54ZW7jGbNMD
-	 5z5900YnMPMvA5RS+6D2ETUOCYu6AtWnZgGZBhil1py1y4QnvKg6rh5HXkspi53YXK
-	 YomH6u2m2M+0rxdlTNQSjNvNLH2/RKMhP2hsxgent+oIsrPw20AhuNyhb3pp7yonot
-	 AupUiMKne7KBo9vpTu90DF7x+zGVKH7fk3X6jiD0FKEeqUUrQ7TNwnY6Lrz4ZRetX7
-	 qSpPKN60ErHlclGYl38g6peHnmCGW7v+qgOznkO0WKAYYTSWuymJRMfwDWdHDsaj9d
-	 g1U2aNMz1Cd1A==
-Date: Thu, 14 May 2026 11:09:29 +0100
-From: Lee Jones <lee@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-	Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v6 5/7] leds: Add driver for ASUS Transformer LEDs
-Message-ID: <20260514100929.GH305027@google.com>
-References: <20260502124055.22475-1-clamor95@gmail.com>
- <20260502124055.22475-6-clamor95@gmail.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="kXk84CXV"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-488b3f8fa2bso81792885e9.1
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 03:13:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1778753626; x=1779358426; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fTuf5ZCIu9Za2DpjjkJh2zWkoI+wGsi6ZskT4v9wl4s=;
+        b=kXk84CXVoS0j6+VXmfY3VQFCK7GZbs9ylgjLfQDU6R7JQ41uHZy3ffNotVPPyA0/nK
+         AbYiURa/ZpsZ9nQGSd81+UpvEumtN0lbK8ykKrGac54BWD9z9GgT4IyiG1a2oY7UJZsH
+         104h3HC14vYrjqdHlqdvEoSxN10KXmWKaoflq3Sg4bFTZ+giIpefVI8uMfptitYOYVn9
+         iTylrU23Lr3Valt7CF/PXJa/6Ki15lONjL2usE9EGLlJCzZ3+B/1am0U6nWasuM/AXsN
+         m/cCzZSLZ9ePM3oT3Hz9g5dPNROSYLZWGoOC1AOtIyrJE7JOLSoQOMoTB+uvtSg/NtrZ
+         DiSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778753626; x=1779358426;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fTuf5ZCIu9Za2DpjjkJh2zWkoI+wGsi6ZskT4v9wl4s=;
+        b=C95m/vYZzIU14KHzpEKH3YxpSq/wmt11/PxWDyv0B8aQn1pE0Z/cRnUMnp3T0JpD6l
+         65dHNpbyI+deGHdABYJJrBcDsjPmA5Chkw/tmL520/WKQGqVGGjz0fCPa1sMjpHXMciF
+         Bz7mBupQQYKJZIEqGaOKLK2e/8ZOduFa4p2V0Gs4+iha0t4HOdNjyJGcNNZ61zSjfpFL
+         1lRdZnFhuHE455j4Uu4EfmCgTjiNVEzQ2Vf8Aac5RlbBpTBLY29ARDfBv0AN3JT9QxH2
+         2kGsaKzSBYQ1Lj5J2tXwiMfRGfV71wGa2bYhP/DPZpdtnZN4kTzYZmmf/toj/hNaO8K/
+         /GBw==
+X-Forwarded-Encrypted: i=1; AFNElJ8EuoDy7RgTXbw63FvUGSP6Vg20Aprqt4QGmhoa3oWwSh06M44j76a1zz/5dSJr6zyybjChtXSVHbSbPQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyWOCdMgrPh1m+mF9AFNqPETdVbj8SuyeG58nikaSES6oyKRey/
+	Qrg8TQ0pkaE8BQYzxKkjyoXnSTfvdgb9EDCrBW3444Sb6oQ//CzZGfW3XlTGaYSTOC4=
+X-Gm-Gg: Acq92OHlqzXG1AUQ4qCGaQYpSBF3cypR93tIKK3x+V1Z1rL/nFuvFNQKHLthJIs7Q7y
+	fGm+tugFY4JrZ+zo3wzPtvrFGfnJqH083ib+7akM4Nke/++fyGCldx6UNyHg7/NqoapzI2wABHD
+	3TW1kyY2Ts4ZyWrw36LwCEFhKG7Q6PUcadhgCb7h2zIn94QC1hymcl7BKrmLJOPnCyokxq/Btjm
+	/5Dkhz9YNt5QAr9/GcPcai9BGBMtXz21CFIvQefR0vj9dDUWiFCDg8IQAxSrR7k62AZWwtJP90F
+	fSp34V/vb57vG7jPzUKMwh6ALZqkARdiq595l1sxpaZbVl+Y+//Q4hGJeX/r0BTiWPbdEq7vnRE
+	vua6dSDhi9Sia/jqYmDZQv20guVH0SPfYBa94bGyuqkTK/5KfoyRpWSOdS1IZ+B/xrIJh5xKqn4
+	aHADdJSsRWTJf5eXk3Jo5AxuDyW8DT
+X-Received: by 2002:a05:600c:19c7:b0:48f:e044:927d with SMTP id 5b1f17b1804b1-48fe24879f6mr3970735e9.10.1778753626408;
+        Thu, 14 May 2026 03:13:46 -0700 (PDT)
+Received: from [192.168.1.3] ([185.48.77.170])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd648a7e5sm55592095e9.3.2026.05.14.03.13.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 May 2026 03:13:45 -0700 (PDT)
+Message-ID: <628c0904-08b2-4b93-a90e-456a073ecf73@linaro.org>
+Date: Thu, 14 May 2026 11:13:43 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260502124055.22475-6-clamor95@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/6] tools/build: Allow versioning of all LLVM tools
+ defined in Makefile.include
+To: bot+bpf-ci@kernel.org
+Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+ linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ bpf@vger.kernel.org, linux-perf-users@vger.kernel.org, leo.yan@arm.com,
+ martin.lau@kernel.org, clm@meta.com, ihor.solodrai@linux.dev,
+ nathan@kernel.org, nick.desaulniers+lkml@gmail.com, morbo@google.com,
+ justinstitt@google.com, jikos@kernel.org, bentiss@kernel.org,
+ shuah@kernel.org, peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
+ namhyung@kernel.org, mark.rutland@arm.com,
+ alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com,
+ adrian.hunter@intel.com, andrii@kernel.org, eddyz87@gmail.com,
+ ast@kernel.org, daniel@iogearbox.net, martin.lau@linux.dev,
+ memxor@gmail.com, song@kernel.org, yonghong.song@linux.dev
+References: <20260514-james-perf-llvm-version-v1-1-6cac1a9a4c8d@linaro.org>
+ <998802d0c3bb407e9bcc61e4fe6db2e3eed7ac06c7c6eca0ed0dd5409a8c2801@mail.kernel.org>
+Content-Language: en-US
+From: James Clark <james.clark@linaro.org>
+In-Reply-To: <998802d0c3bb407e9bcc61e4fe6db2e3eed7ac06c7c6eca0ed0dd5409a8c2801@mail.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sat, 02 May 2026, Svyatoslav Ryhel wrote:
 
-> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+
+On 14/05/2026 11:02 am, bot+bpf-ci@kernel.org wrote:
+>> tools/build: Allow versioning of all LLVM tools defined in Makefile.include
+>>
+>> The version of LLVM tools can be given on the build command with
+>> LLVM=-15, but this isn't applied to all tools. For example $(CC) gets
+>> versioned, but $(CLANG) doesn't. This causes a Perf build with LTO=1 to
+>> fail with an error about mixed clang versions:
+>>
+>>   ld.lld: error: libperf/core.o: Unknown attribute kind (86)
+>>     (Producer: 'LLVM18.1.8' Reader: 'LLVM 15.0.7')
+>>
+>> This file has two "ifneq ($(LLVM),)" blocks adjacent to each other, so
+>> merge these blocks making it obvious that all tools should be versioned
+>> consistently and there is nothing special about each block.
+>>
+>> This also reveals that ?= and "allow-override" are used inconsistently
+>> between the blocks. "allow-override" is technically only required for
+>> builtin variables, but isn't only used on them, and doesn't do any harm
+>> if used on a non-builtin. Make them all "allow-override" for
+>> consistency. The only functional difference this will cause is if there
+>> is a file level definition of one of the variables followed by an
+>> "#include of Makefile.include" which will now overwrite. But this isn't
+>> done and in a later commit some of the duplicate definitions will be
+>> removed for good measure.
+>>
+>> There are also some other LLVM tools that are not defined here and will
+>> be moved in a later commit.
+>>
+>> Signed-off-by: James Clark <james.clark@linaro.org>
 > 
-> ASUS Transformer tablets have a green and an amber LED on both the Pad
-> and the Dock. If both LEDs are enabled simultaneously, the emitted light
-> will be yellow.
+> This looks like a bug fix that corrects inconsistent LLVM tool versioning
+> introduced in an earlier commit. Should this include:
 > 
-> Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+>    Fixes: e9c281928c24 ("kbuild: Make $(LLVM) more flexible")
+> 
+> 
 > ---
->  drivers/leds/Kconfig                    | 11 ++++
->  drivers/leds/Makefile                   |  1 +
->  drivers/leds/leds-asus-transformer-ec.c | 79 +++++++++++++++++++++++++
->  3 files changed, 91 insertions(+)
->  create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+> AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+> See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
 > 
-> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> index f4a0a3c8c870..f637d23400a8 100644
-> --- a/drivers/leds/Kconfig
-> +++ b/drivers/leds/Kconfig
-> @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called leds-as3668.
->  
-> +config LEDS_ASUS_TRANSFORMER_EC
-> +	tristate "LED Support for Asus Transformer charging LED"
-> +	depends on LEDS_CLASS
-> +	depends on MFD_ASUS_TRANSFORMER_EC
-> +	help
-> +	  This option enables support for charging indicator on
-> +	  Asus Transformer's Pad and it's Dock.
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called leds-asus-transformer-ec.
-> +
->  config LEDS_AW200XX
->  	tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
->  	depends on LEDS_CLASS
-> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> index 8fdb45d5b439..d5395c3f1124 100644
-> --- a/drivers/leds/Makefile
-> +++ b/drivers/leds/Makefile
-> @@ -16,6 +16,7 @@ obj-$(CONFIG_LEDS_AN30259A)		+= leds-an30259a.o
->  obj-$(CONFIG_LEDS_APU)			+= leds-apu.o
->  obj-$(CONFIG_LEDS_ARIEL)		+= leds-ariel.o
->  obj-$(CONFIG_LEDS_AS3668)		+= leds-as3668.o
-> +obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)	+= leds-asus-transformer-ec.o
->  obj-$(CONFIG_LEDS_AW200XX)		+= leds-aw200xx.o
->  obj-$(CONFIG_LEDS_AW2013)		+= leds-aw2013.o
->  obj-$(CONFIG_LEDS_BCM6328)		+= leds-bcm6328.o
-> diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
-> new file mode 100644
-> index 000000000000..3186038e3be7
-> --- /dev/null
-> +++ b/drivers/leds/leds-asus-transformer-ec.c
-> @@ -0,0 +1,79 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +
-> +#include <linux/err.h>
-> +#include <linux/leds.h>
-> +#include <linux/mfd/asus-transformer-ec.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +
-> +static void asus_ec_led_set_brightness_amber(struct led_classdev *led,
-> +					     enum led_brightness brightness)
-> +{
-> +	const struct asusec_info *ec = dev_get_drvdata(led->dev->parent);
-> +
-> +	if (brightness)
-> +		asus_ec_set_ctl_bits(ec, ASUSEC_CTL_LED_AMBER);
+> CI run summary: https://github.com/kernel-patches/bpf/actions/runs/25853166705
 
-Why not Regmap?
+I did consider a fixes tag, but the only real bug is with Perf and 
+LTO=1, and building it in this way has obviously never worked, so you 
+could also argue this is new behavior.
 
-> +	else
-> +		asus_ec_clear_ctl_bits(ec, ASUSEC_CTL_LED_AMBER);
-> +}
-> +
-> +static void asus_ec_led_set_brightness_green(struct led_classdev *led,
-> +					     enum led_brightness brightness)
-> +{
-> +	const struct asusec_info *ec = dev_get_drvdata(led->dev->parent);
-> +
-> +	if (brightness)
-> +		asus_ec_set_ctl_bits(ec, ASUSEC_CTL_LED_GREEN);
-> +	else
-> +		asus_ec_clear_ctl_bits(ec, ASUSEC_CTL_LED_GREEN);
-> +}
+I think it's quite and edge case and has some risk to break other tools 
+if backported so I left the tag off.
 
-These are identical bar one variable.
-
-
-> +static int asus_ec_led_probe(struct platform_device *pdev)
-> +{
-> +	struct asusec_info *ec = cell_to_ec(pdev);
-> +	struct device *dev = &pdev->dev;
-> +	struct led_classdev *amber_led, *green_led;
-> +	int ret;
-> +
-> +	platform_set_drvdata(pdev, ec);
-
-This appears to be unused.
-
-> +	amber_led = devm_kzalloc(dev, sizeof(*amber_led), GFP_KERNEL);
-> +	if (!amber_led)
-> +		return -ENOMEM;
-> +
-> +	amber_led->name = devm_kasprintf(dev, GFP_KERNEL, "%s::amber", ec->name);
-> +	amber_led->max_brightness = 1;
-> +	amber_led->flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
-> +	amber_led->brightness_set = asus_ec_led_set_brightness_amber;
-> +
-> +	ret = devm_led_classdev_register(dev, amber_led);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to register amber LED\n");
-> +
-> +	green_led = devm_kzalloc(dev, sizeof(*green_led), GFP_KERNEL);
-> +	if (!green_led)
-> +		return -ENOMEM;
-> +
-> +	green_led->name = devm_kasprintf(dev, GFP_KERNEL, "%s::green", ec->name);
-> +	green_led->max_brightness = 1;
-> +	green_led->flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
-> +	green_led->brightness_set = asus_ec_led_set_brightness_green;
-> +
-> +	ret = devm_led_classdev_register(dev, green_led);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to register green LED\n");
-
-Imagine instead of 2 LEDs, you had 20.  Would you copy and paste this 20
-times?  Please re-author this as though there were many more so it
-remains efficient and scaleable.
-
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver asus_ec_led_driver = {
-> +	.driver.name = "asus-transformer-ec-led",
-> +	.probe = asus_ec_led_probe,
-> +};
-> +module_platform_driver(asus_ec_led_driver);
-> +
-> +MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
-> +MODULE_AUTHOR("Svyatoslav Ryhel <clamor95@gmail.com>");
-> +MODULE_DESCRIPTION("ASUS Transformer's charging LED driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.51.0
-> 
-> 
-
--- 
-Lee Jones

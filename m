@@ -1,105 +1,117 @@
-Received: from m65s28.vlinux.de (m65s28.vlinux.de [83.151.22.62])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE593DD524
-	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 08:39:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.151.22.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE863B19D1
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 08:57:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778747970; cv=none; b=h2u2DcjmgmwekC2PKDFv6pLrVBsM69VtcQRyp3cTjxspRcAe140LdiQswDwMJLbjRt4odpSXy6fD2B+X4XIyiIIH8ShGH/NaufMjwLjgofDsvy13KpmxYm2nzDdK0771cMtuGAva/RXyQLkkZwWYA4tm+51l5nxJdY0PNkUeE/s=
+	t=1778749031; cv=none; b=DdlQiVRwfEkc7IhBnJ+F9mO3kly82is5H7HBEqY0nIUFs1BuOcbcW+tm57HTxf7ytL46oluwDPd5ScuCRxruARbabfPicrirkBBCXU3HDaWVUECJlLkx8A6nast1JuKYwRmLCBqs6kGKs/deQQHhJc/nPUOMCroa9hYP6eKYgpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778747970; c=relaxed/simple;
-	bh=WRHSkApYVxLUfGFY+Yul5zYSbSj18nsUnTsk9gggCi4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IltzcwTgGI8Tiv5x0IS2wJ3Hzw1AcAsa4a3kCOv/bm0IEVvnJjCztT+b2WW0n2bS5Vki9lAEBfTmFtBzYvCzGU4eZdBGlk2UYMmAIwy9zEMWOE0CK54U6DED9LkHHIYGPLgZZhlWfl3Q1Awu83/TPZmAw+JZr6LwdDoxpcVh+Qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net; spf=pass smtp.mailfrom=chaoticmind.net; dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b=TrwpOTI/; arc=none smtp.client-ip=83.151.22.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=chaoticmind.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chaoticmind.net
+	s=arc-20240116; t=1778749031; c=relaxed/simple;
+	bh=2wDs8LFB/5guLmuPUXK2cv3yffmwShdRhb+XH4vdacM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=TZ/ZqsV2OCwS+yV3jYNk4yK6YnYS6CT1pbVgKquZNiIaqH9yqPokt9TtHPH4/H/O0hhM7scRvVTE002WqUWXJZv+BDKVYs8FvpPD6ZNW8Fh/BR6SJX9Now5GN+zff8kYELoiechEQ1nMJFIuOCDyrRaujWfNXBCics9RML2upCM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A5LLYuiC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=chaoticmind.net header.i=@chaoticmind.net header.b="TrwpOTI/"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=chaoticmind.net; s=default; h=Content-Type:Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=xSYmF/41OkD8laZ79A6ED8O7YHcdFKHBVo+dk0MCdaE=; b=TrwpOTI/PLjGkGpHSXYrAt3Bm1
-	UXLnx3mVa1uDjZFRSrrXAZ2WeDVBURDA44+kpe477HmuLHUcQ7+vz9YjGgTlUVU93XjbKVvtOv4mW
-	VFKh+hekFSTmNNW+7FL1NHsKrsmi+kwM341CjqEOX6+D/ArAf0tSIbnmtRc9Vt3t7ZVEvfJXuT5/k
-	NiWQZFA7oku6X9Mnmn2Dac9r+vKOUSejyWtfJwF6Sg5Gq6Xr9j96WAzYX9Py4oqU3M0s0Ay92Hnnb
-	cURsN9Um/c98SPYydl9uGiGz0Hmc7bUQIKwAGvifrD+/sJxVMlEj6k9NQgJksHwTHeakqDA9Qq4Jj
-	370Z5ELA==;
-Received: from p5de65d41.dip0.t-ipconnect.de ([93.230.93.65] helo=lothlorien.localnet)
-	by m65s28.vlinux.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <hcb@chaoticmind.net>)
-	id 1wNQyd-0005bh-KY; Thu, 14 May 2026 09:59:27 +0200
-From: Helge Bahmann <hcb@chaoticmind.net>
-To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
-Cc: Nehal Bakulchandra Shah <Nehal-Bakulchandra.Shah@amd.com>,
- Sandeep Singh <Sandeep.singh@amd.com>,
- Basavaraj Natikar <Basavaraj.Natikar@amd.com>, bentiss@kernel.org
-Subject: Re: [PATCH] amd-sfh-hid: tablet mode switch and asus quirk
-Date: Thu, 14 May 2026 09:59:26 +0200
-Message-ID: <2632507.ElGaqSPkdT@lothlorien>
-In-Reply-To: <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
-References:
- <6879487.lOV4Wx5bFT@lothlorien>
- <n0s5q66s-p747-612p-o743-pqr0q2r79448@xreary.bet>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A5LLYuiC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08664C2BCB7;
+	Thu, 14 May 2026 08:57:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778749031;
+	bh=2wDs8LFB/5guLmuPUXK2cv3yffmwShdRhb+XH4vdacM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=A5LLYuiCIltGyDi6fHvSvR8gcoJWNugG6bsCyNYHHbPhWraM9ccVBCNpgccL32qeN
+	 0rEqRVW/xULk1b9EsWITqxRfDhroHm9J78SFYaON5olWLe4BLzglFAP90rshjZjOe9
+	 cf2F/A7+tGASX3alV5he+lRgsm8ZJmTTJUZqyLcwu4aT62GUunlr1Me+viywymshs1
+	 YEPe6rsO/U17nifyIi7MaOIuxlJvsnYWPpQqbeKT9Iwc6gZnL0IgMR6RX6dhq6J0Zl
+	 IfS5HlmDIXjpaG8cOCKm2AX8osdq1ZkTSllB6seSTOYfw+muyjL6+iRek0ro3R6Dja
+	 ZPmg+2Cbe+pFA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/7] hid-asus: Remove more bogus zero bytes from some
+ report descriptors
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Paolo Pisati" <p.pisati@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260513163248.16483-5-p.pisati@gmail.com>
+References: <20260513163248.16483-5-p.pisati@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 14 May 2026 08:57:10 +0000
+Message-Id: <20260514085711.08664C2BCB7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
 
-On Tue, 12 May 2026, Jiri Kosina wrote:
-> On Mon, 27 Apr 2026, Helge Bahmann wrote:
-> 
-> > Add an input driver that interprets the "operation mode" sensor offered
-> > by the amd sfh on some laptop models.
-> > 
-> > Add a quirk to make the driver work again with the Asus VivoBook
-> > VivoBook (turn off the "disable interrupts" flag).
-> > 
-> > Expose the intr_disable flag as a module parameter in case it turns out
-> > to be needed on further laptop models.
-> > 
-> > Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
-> 
-> Basavaraj, can you please review this one?
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] The trailing zero removal loop reads past the end of the report de=
+scriptor buffer and lacks a lower bounds check.
+- [High] The `memcpy` operation copies more bytes than are available in the=
+ source `rdesc` buffer.
+- [High] Trimming trailing bytes can shrink the new buffer size below what =
+is required for subsequent fixed-offset memory operations, causing a heap b=
+uffer overflow.
+--
 
-Some additional context, maybe helpful for review:
+commit 1a97afa374b1aa0ec76a035ced7d0e6414476f71
+Author: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 
-1. The numbers and behavior were extracted from the ACPI tables
-(WMI driver of sorts) of the notebook; I don't have access to any 
-official AMD / ASUS docs or similar.
+hid-asus: Remove more bogus zero bytes from some report descriptors
 
-2. I have an alternate version of this change that is more indirect:
-- create a HID driver providing an "abstract table mode" message
-- have an input driver attaching to this newly defined HID driver
+This commit attempts to remove bogus trailing zero bytes from specific
+HID report descriptors. It adjusts the new report descriptor size by
+stripping zeroes from the end and then allocates a new buffer.
 
-While that is keeping "more in line" with the current driver
-architecture, I am not sure this indirection really helps. Particularly,
-there is no "canonical" HID tablet mode switch message defined,
-so it all remains completely bespoke. I am happy to change it if 
-you prefer, but would need your input.
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+[ ... ]
+>  		if (*rsize =3D=3D rsize_orig &&
+>  			rdesc[offs] =3D=3D 0x09 && rdesc[offs + 1] =3D=3D 0x76) {
+>  			__u8 *new_rdesc;
+> +            unsigned int new_rsize =3D rsize_orig;
+> =20
+> +			/* Clear bogus trailing zero bytes. */
+> +			while (rdesc[new_rsize + 1] =3D=3D 0)
+> +				--new_rsize;
 
-3. Since this is based on Asus VivoBook and its ACPI tables,
-there is a possibility that this "op sensor / tablet mode" behavior
-is not as universal as I surmise. A point could be made to make this
-entire behavior model-dependent (with a mod param to override
-/ activate for other models). Happy to take input / advice.
+Since the rdesc buffer contains exactly rsize_orig bytes, does evaluating
+rdesc[new_rsize + 1] read two bytes past the end of the allocation?
 
-Thanks for your work!
-Helge
+Additionally, if the adjacent memory happens to contain zeroes, could
+new_rsize decrement indefinitely and underflow since there is no lower
+bound check?
 
-> 
-> Thanks,
-> 
-> 
+> +            /* Make room for the added bytes. */
+> +			new_rsize +=3D 2;
+> +
+> +            new_rdesc =3D devm_kzalloc(&hdev->dev, new_rsize,
+>  						 GFP_KERNEL);
+>  			if (!new_rdesc)
+>  				return rdesc;
+[ ... ]
+> -			memcpy(new_rdesc, rdesc, rsize_orig);
+> -			*rsize =3D rsize_orig + 1;
+> +			memcpy(new_rdesc, rdesc, new_rsize);
 
+If no trailing zeroes were stripped, new_rsize is now rsize_orig + 2. Does
+this memcpy copy more bytes than are available in the original rdesc
+buffer, leading to an out-of-bounds read?
 
+> +			*rsize =3D new_rsize;
+>  			rdesc =3D new_rdesc;
+> =20
+>  			memmove(rdesc + offs + 4, rdesc + offs + 2, 12);
 
+If trailing zeroes were successfully removed, could new_rsize drop below the
+offsets used in this memmove and subsequent assignments?
 
+For example, if new_rsize shrinks below offs + 15, will the fixed-offset
+memmove and subsequent assignments write past the end of the newly allocated
+new_rdesc buffer?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260513163248.1648=
+3-1-p.pisati@gmail.com?part=3D4

@@ -1,260 +1,123 @@
-Received: from fout-b3-smtp.messagingengine.com (fout-b3-smtp.messagingengine.com [202.12.124.146])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5253433556D;
-	Thu, 14 May 2026 17:16:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADC0F342523;
+	Thu, 14 May 2026 18:45:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778778995; cv=none; b=CpV8gnURMxvtcVzZnavN4nzPknt9gP/8rOglUvs0NmJGRL8rjVX0ElH6wSKXbn8Yd1rDAUip7FjGk9plzHd+aApUZpYkh1O+3BmuJAg/ztIdfqeCLZ888hiz99T5ihpUvVg3TsSHItyHDCxhUUlas9sKAjjQ/Ef2NDdt7k2Szlc=
+	t=1778784344; cv=none; b=pTisklQOmDp1QInMg8n7jXItELrU5BhbadqUs2FF0V3CoDZ+dssXoDiy8V98iTZxceViI0j6UkuRxqkAQMmTdIQ92NA+CMziyYzeMzsHr2KjGe4Xh4Dj10mnu6aD7liGANfeTS7YkckUXHM2xLLw4sFcxgnoSmW//I3w3yTbytI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778778995; c=relaxed/simple;
-	bh=s0x3Of3Ott00mjF+YJ7PkSGzXwpTvoiodtYgYgaOg/w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZsZUjK7Bpa339RMiiTnTaspBfpWc8u5tDtm4oL8v/vsC6NHJRZJKQ9Pls/iOIUwIat7i1WJURbX0/9EMMf0cAwOeaY2GvgcW3bVNtm7hbL+hn9RN0D8T/btP7aqgz7diYjw8ScXauUO7JnL67RJYso2h3GAY8ht2Pnzx2DVZYM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fressl.at; spf=pass smtp.mailfrom=fressl.at; dkim=pass (2048-bit key) header.d=fressl.at header.i=@fressl.at header.b=tlCZE21V; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=pyPv7YMV; arc=none smtp.client-ip=202.12.124.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fressl.at
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fressl.at
+	s=arc-20240116; t=1778784344; c=relaxed/simple;
+	bh=h5NvIKEROpxk8tQsVZfo9Q8scTuE1PnCdvU+OQXEZmI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hJjTcL+aKtZrRWdEwW0qEyyakQauz6HUVf+s2N4VwgIB9eU0jrRS82mtu3b0c0ZDU2kct6/OCgT3BYocqcuE7zyA/us8O1zns3Oq/3XqfcmJu79frV0CTVz1YtYsTwCBF6UsC+dQnc1nYTui4TZgpUF0UtzcW39BH4bIwFCXNig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cdYwcARa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fressl.at header.i=@fressl.at header.b="tlCZE21V";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="pyPv7YMV"
-Received: from phl-compute-11.internal (phl-compute-11.internal [10.202.2.51])
-	by mailfout.stl.internal (Postfix) with ESMTP id 36C2F1D000CA;
-	Thu, 14 May 2026 13:16:31 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-11.internal (MEProxy); Thu, 14 May 2026 13:16:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fressl.at; h=cc
-	:cc:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm3; t=1778778990; x=
-	1778865390; bh=LmUz0B1oTvKXRyQFSfgyeyw5Wr6ijHk0JUVcDtCBV3U=; b=t
-	lCZE21V8O+SVFvsytWzIfUpHaE7w31Dgc0PUSrdKVBr+5CsIV9+Hi5ZUrB8DnX9Z
-	j6cZhyNePOwZeajc5ETB8h7wmzvxWU2/jlqABhRN0dX5kwI1MwpWasLyh7bGvxvj
-	vaItWK2lD0TMiKXBlTfVqwcxk1zSYlXtu0xrCqJeZb2kPqskLD4iM8aW4owaYNRl
-	s9P/n5nSvs2Jmyoj7sJ1CG3yMlVgShvtSGVpFRlwmx/Ks2fYOkTVDqx776CxXbvN
-	m/CFsibyIPSFxaEc4g8HlsWplr4l9THwfUZtcMSCRrD9aTCgNXIu/DzIwCSpVmpP
-	2AfFBPdHqyuRQAudQKI6Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
-	:x-me-sender:x-sasl-enc; s=fm3; t=1778778990; x=1778865390; bh=L
-	mUz0B1oTvKXRyQFSfgyeyw5Wr6ijHk0JUVcDtCBV3U=; b=pyPv7YMVyAuHL97vM
-	t5QzNQWuG6RrYAFStn5gnJ1+4nJkKBm46EFnfhxCGgXZBSMd1bW3EDMqNyNjgrji
-	2V00YWyH4p1Pt4T+TcV5MvyTzD/v1Sl3Kg1SWeyLryrJo2dnea7Ow8MSbzoNWlbL
-	GPj6dIr5Vq2kCKnBzbfPkj63g+MX1TgHmOPW0Li8NCmCbfz3eSTimz/BKcuUdSDa
-	NTK1I9hf+/OueHQ0JT87ZvAfmWYUgAR/BCFUgJjrBcaQnuB3cx869510wSn1VPY5
-	oK347yafl2W9b3a7z6D6nnX19bVCuBjHK3RXtnXah/QStQqlKd+Y/SNOkGJNQCU4
-	9lJ8w==
-X-ME-Sender: <xms:bgMGas3zOuSKUqjPtUHieANWH8Crx6_ygrULQrsnitnwhRJd3oqCBw>
-    <xme:bgMGaokmwTBHEsFQ3v86W5GHr2NfASf0szVQEYcHPyRbLohatBnolYw119Lz8Avwd
-    GPF2OIq_v60yV7OX-pazxCtCgmiov_A7PN9l8u07P_FPX_lj5_F4Fc>
-X-ME-Received: <xmr:bgMGak87PtQpCw1HYc2fjWpTGruG19k7BDEuZcRkybnKGH-eALoF6TSs_8kBOM28_r0daDDE3j1hdrO0GeQfgJs3YTv7UA-Wiqn4XS8RRi2DuTxdOjo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdduvdektdelucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepvehhrhhishht
-    ihgrnhcuhfhrvghsshhluceotghhrhhishhtihgrnhesfhhrvghsshhlrdgrtheqnecugg
-    ftrfgrthhtvghrnhepkeduvdejvdekleevgfekgfetvdehgfetkefgieeiledvgfevgeei
-    gfeiueeludetnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucevlhhushhtvghruf
-    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegthhhrihhsthhirghnsehfrhgv
-    shhslhdrrghtpdhnsggprhgtphhtthhopeehpdhmohguvgepshhmthhpohhuthdprhgtph
-    htthhopehjihhkohhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopegsvghnthhishhs
-    sehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrh
-    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgv
-    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghhrhhishhtihgrnhesfhhrvghssh
-    hlrdgrth
-X-ME-Proxy: <xmx:bgMGalqUmHqxStVa6d7TAGyJScW5DW7065-cC3Uo0wigByifIoiSLw>
-    <xmx:bgMGallOcW0AxrDHN3WWeP4610TgM09uPOE6lPhVIVKQbw2Az8bVEw>
-    <xmx:bgMGakiTH8UYp9b0PBfEEiQZ45ncDyPWSHfjdLHBqWztouVj65oHVw>
-    <xmx:bgMGalfA58vOmj8RxayNFseXmM6zBTO_UoEvZvjncsevR2UBzRIq-g>
-    <xmx:bgMGastntreLKjleYHSN9HdKJEjgb1pHt5Oy3WrfYezlplKVfiJFzOqL>
-Feedback-ID: i6b4e4bd3:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 14 May 2026 13:16:29 -0400 (EDT)
-From: Christian Fressl <christian@fressl.at>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Christian Fressl <christian@fressl.at>
-Subject: [PATCH v2] HID: magicmouse: add haptic click configuration for Magic Trackpad 2
-Date: Thu, 14 May 2026 19:15:24 +0200
-Message-ID: <20260514171524.110189-1-christian@fressl.at>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260513001649.E9EE5C2BCB0@smtp.kernel.org>
-References: <20260513001649.E9EE5C2BCB0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cdYwcARa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6400C2BCB3;
+	Thu, 14 May 2026 18:45:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778784344;
+	bh=h5NvIKEROpxk8tQsVZfo9Q8scTuE1PnCdvU+OQXEZmI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=cdYwcARan3Lj3haDRmDWeCqxZM0oywJC4ZdslmqOdtC7eAg9oaeR52e4spxDG5Z/g
+	 WzpaPPOlUtWCFjTqeMFncH5xxyrvyFXYkHskd1V7lY6T3F68z1HnLsxBI9DgbMWhw7
+	 Dwin+Ir+jp+C9OB+K9Fv1YYK1Qw9OgLJ2tAHwkbUd3DVBvPbAwIYXNgCcFS6CnbB8P
+	 zmA7ZBG1OSKJ9ekpZxIF4kyVi5GSlzfqWDEQ8//iTIqhwAbyNUJkZc8HUzs9e8GGN7
+	 sg5oTLVrvy2WF3uO1iJSn+xNhobDoXLM1Z2jEBkW63TqYgHIxa2cRYftTQOGmne6b0
+	 Dd5a7Ebuq1KMw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 5/6] tools/build: selftests: Allow versioning LLVM lld
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "James Clark" <james.clark@linaro.org>
+Cc: dmitry.torokhov@gmail.com, bpf@vger.kernel.org, linux-input@vger.kernel.org, linux-perf-users@vger.kernel.org
+In-Reply-To: <20260514-james-perf-llvm-version-v1-5-6cac1a9a4c8d@linaro.org>
+References: <20260514-james-perf-llvm-version-v1-5-6cac1a9a4c8d@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 14 May 2026 18:45:43 +0000
+Message-Id: <20260514184543.C6400C2BCB3@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Apple Magic Trackpad 2 devices support persistent haptic feedback
-configuration through feature reports 0x22 and 0x23. Add an opt-in
-module parameter to select either the verified silent-low profile or to
-disable haptic feedback.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Using `-fuse-ld=3Dld.lld` breaks compilation of BPF selftests with=
+ GCC.
+--
 
-The default remains unchanged. The report payload format is
-reverse-engineered, so keep the existing payload bytes fixed and vary
-only the known 24-bit feedback value.
+commit 18e1876d18fad631b521da817483ba47293a9020
+Author: James Clark <james.clark@linaro.org>
 
-The USB-C Trackpad exposes multiple HID interfaces. Use the one-shot
-actuator output report 0x53 only to identify the interface that accepts
-the persistent configuration reports; do not use it for the persistent
-setting itself.
+tools/build: selftests: Allow versioning LLVM lld
 
-Tested on Apple Magic Trackpad USB-C 05ac:0324 with Ubuntu
-6.17.0-23-generic. Compile-tested against HID for-next.
+This commit updates Makefile.include to add an LLD variable, matching the
+rest of the LLVM toolchain. It modifies the BPF selftests Makefile to use
+this new LLD variable instead of hardcoding lld.
 
-Protocol information was derived from public reverse-engineering notes,
-then independently tested with local hardware.
+> diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.incl=
+ude
+> index 380ad84ac51e6..5c2d505cba62b 100644
+> --- a/tools/scripts/Makefile.include
+> +++ b/tools/scripts/Makefile.include
+[ ... ]
+> @@ -91,6 +92,7 @@ else
+>    # Some tools still require Clang, LLC and/or LLVM utils
+>    $(call allow-override,CLANG,clang)
+>    $(call allow-override,LLC,llc)
+> +  $(call allow-override,LLD,ld.lld)
 
-Link: https://github.com/mwyborski/Linux-Magic-Trackpad-2-Driver/issues/28#issuecomment-451625504
-Signed-off-by: Christian Fressl <christian@fressl.at>
----
-Changes in v2:
-- Cache haptic_click with READ_ONCE() before applying the setting.
+Could setting LLD to ld.lld when not using LLVM cause issues for BPF
+selftests compilation with GCC?
 
- drivers/hid/hid-magicmouse.c | 102 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 101 insertions(+), 1 deletion(-)
+>    $(call allow-override,LLVM_CONFIG,llvm-config)
+>    $(call allow-override,LLVM_OBJCOPY,llvm-objcopy)
+>    $(call allow-override,LLVM_STRIP,llvm-strip)
+> diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftes=
+ts/bpf/Makefile
+> index 6ef6872adbc3e..44ba829e5d4dd 100644
+> --- a/tools/testing/selftests/bpf/Makefile
+> +++ b/tools/testing/selftests/bpf/Makefile
+> @@ -245,9 +245,9 @@ $(OUTPUT)/%:%.c
+> =20
+>  # LLVM's ld.lld doesn't support all the architectures, so use it only on=
+ x86
+>  ifeq ($(SRCARCH),$(filter $(SRCARCH),x86 riscv))
+> -LLD :=3D lld
+> +USE_LD :=3D $(LLD)
+>  else
+> -LLD :=3D $(shell command -v $(LD))
+> +USE_LD :=3D $(shell command -v $(LD))
+>  endif
+> =20
+>  # Filter out -static for liburandom_read.so and its dependent targets so=
+ that static builds
+> @@ -258,7 +258,7 @@ $(OUTPUT)/liburandom_read.so: urandom_read_lib1.c ura=
+ndom_read_lib2.c liburandom
+>  		     $(filter-out -static,$(CFLAGS) $(LDFLAGS)) \
+>  		     $(filter %.c,$^) $(filter-out -static,$(LDLIBS)) \
+>  		     -Wno-unused-command-line-argument \
+> -		     -fuse-ld=3D$(LLD) -Wl,-znoseparate-code -Wl,--build-id=3Dsha1 \
+> +		     -fuse-ld=3D$(USE_LD) -Wl,-znoseparate-code -Wl,--build-id=3Dsha1 \
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index e70bd3dc07ab..e941c95f0703 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -51,6 +51,10 @@ static bool report_undeciphered;
- module_param(report_undeciphered, bool, 0644);
- MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
- 
-+static unsigned int haptic_click;
-+module_param(haptic_click, uint, 0644);
-+MODULE_PARM_DESC(haptic_click, "Haptic click feedback: 0=unchanged, 1=silent-low, 2=off");
-+
- #define TRACKPAD2_2021_BT_VERSION 0x110
- #define TRACKPAD_2024_BT_VERSION 0x314
- 
-@@ -62,6 +66,17 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
- #define DOUBLE_REPORT_ID   0xf7
- #define USB_BATTERY_TIMEOUT_SEC 60
- 
-+#define TRACKPAD2_HAPTIC_CLICK_REPORT_ID     0x22
-+#define TRACKPAD2_HAPTIC_RELEASE_REPORT_ID   0x23
-+#define TRACKPAD2_HAPTIC_ACTUATOR_REPORT_ID  0x53
-+#define TRACKPAD2_HAPTIC_REPORT_LEN          14
-+#define TRACKPAD2_HAPTIC_CLICK_UNCHANGED     0
-+#define TRACKPAD2_HAPTIC_CLICK_SILENT_LOW    1
-+#define TRACKPAD2_HAPTIC_CLICK_OFF           2
-+#define TRACKPAD2_HAPTIC_SILENT_CLICK        0x000015
-+#define TRACKPAD2_HAPTIC_SILENT_RELEASE      0x000010
-+#define TRACKPAD2_HAPTIC_OFF                 0x000000
-+
- /* These definitions are not precise, but they're close enough.  (Bits
-  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
-  * to be some kind of bit mask -- 0x20 may be a near-field reading,
-@@ -812,6 +827,82 @@ static bool is_usb_magictrackpad2(__u32 vendor, __u32 product)
- 	       product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2_USBC;
- }
- 
-+static bool magicmouse_is_haptic_interface(struct hid_device *hdev)
-+{
-+	struct hid_report_enum *report_enum;
-+
-+	report_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
-+
-+	/*
-+	 * The persistent haptic configuration reports are accepted as feature
-+	 * reports, but are not advertised in the feature report descriptor.
-+	 * Report 0x53 is the one-shot actuator output report and identifies
-+	 * the HID interface that accepts the persistent reports.
-+	 */
-+	return report_enum->report_id_hash[TRACKPAD2_HAPTIC_ACTUATOR_REPORT_ID];
-+}
-+
-+static int magicmouse_send_haptic_report(struct hid_device *hdev, u8 report_id,
-+					 u32 feedback)
-+{
-+	static const u8 report_template[TRACKPAD2_HAPTIC_REPORT_LEN] = {
-+		0x00, 0x01, 0x00, 0x78, 0x02, 0x00, 0x24,
-+		0x30, 0x06, 0x01, 0x00, 0x18, 0x48, 0x13,
-+	};
-+	u8 *buf;
-+	int ret;
-+
-+	buf = kmemdup(report_template, sizeof(report_template), GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	buf[0] = report_id;
-+	buf[2] = feedback & 0xff;
-+	buf[5] = (feedback >> 8) & 0xff;
-+	buf[10] = (feedback >> 16) & 0xff;
-+
-+	ret = hid_hw_raw_request(hdev, buf[0], buf, TRACKPAD2_HAPTIC_REPORT_LEN,
-+				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+	kfree(buf);
-+
-+	return ret;
-+}
-+
-+static int magicmouse_apply_haptic_click(struct hid_device *hdev)
-+{
-+	unsigned int click = READ_ONCE(haptic_click);
-+	u32 click_feedback;
-+	u32 release_feedback;
-+	int ret;
-+
-+	if (click == TRACKPAD2_HAPTIC_CLICK_UNCHANGED)
-+		return 0;
-+
-+	switch (click) {
-+	case TRACKPAD2_HAPTIC_CLICK_SILENT_LOW:
-+		click_feedback = TRACKPAD2_HAPTIC_SILENT_CLICK;
-+		release_feedback = TRACKPAD2_HAPTIC_SILENT_RELEASE;
-+		break;
-+	case TRACKPAD2_HAPTIC_CLICK_OFF:
-+		click_feedback = TRACKPAD2_HAPTIC_OFF;
-+		release_feedback = TRACKPAD2_HAPTIC_OFF;
-+		break;
-+	default:
-+		hid_warn(hdev, "invalid haptic_click value %u\n", click);
-+		return -EINVAL;
-+	}
-+
-+	ret = magicmouse_send_haptic_report(hdev,
-+					    TRACKPAD2_HAPTIC_CLICK_REPORT_ID,
-+					    click_feedback);
-+	if (ret < 0)
-+		return ret;
-+
-+	return magicmouse_send_haptic_report(hdev,
-+					     TRACKPAD2_HAPTIC_RELEASE_REPORT_ID,
-+					     release_feedback);
-+}
-+
- static int magicmouse_fetch_battery(struct hid_device *hdev)
- {
- #ifdef CONFIG_HID_BATTERY_STRENGTH
-@@ -894,8 +985,17 @@ static int magicmouse_probe(struct hid_device *hdev,
- 
- 	if (is_usb_magicmouse2(id->vendor, id->product) ||
- 	    (is_usb_magictrackpad2(id->vendor, id->product) &&
--	     hdev->type != HID_TYPE_USBMOUSE))
-+	     hdev->type != HID_TYPE_USBMOUSE)) {
-+		if (is_usb_magictrackpad2(id->vendor, id->product) &&
-+		    magicmouse_is_haptic_interface(hdev)) {
-+			ret = magicmouse_apply_haptic_click(hdev);
-+			if (ret < 0)
-+				hid_warn(hdev,
-+					 "unable to apply haptic click setting (%d)\n",
-+					 ret);
-+		}
- 		return 0;
-+	}
- 
- 	if (!msc->input) {
- 		hid_err(hdev, "magicmouse input not registered\n");
--- 
-2.43.0
+When LLVM=3D1 is not set, CC defaults to gcc. The Makefile uses
+$(CC) ... -fuse-ld=3D$(USE_LD) to link liburandom_read.so.
+
+Because USE_LD evaluates to ld.lld, gcc receives -fuse-ld=3Dld.lld.
+
+However, GCC's command-line option parser is strictly hardcoded to accept
+only specific linker names (lld, bfd, gold, mold). It does not recognize
+-fuse-ld=3Dld.lld or absolute paths, and fails with an error like:
+
+gcc: error: unrecognized command-line option '-fuse-ld=3Dld.lld'; did you m=
+ean '-fuse-ld=3Dlld'?
+
+Does this regression break the default GCC build of BPF selftests on x86
+and riscv architectures?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260514-james-perf=
+-llvm-version-v1-0-6cac1a9a4c8d@linaro.org?part=3D5

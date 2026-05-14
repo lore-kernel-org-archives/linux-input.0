@@ -1,138 +1,146 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750123F4119
-	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 19:33:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778787192; cv=pass; b=lJHEDvmNbSmQe2xDDpUYZo0QNw/BmunZDoLqIpaPDmjKSuEGHXdE6wuf5oU6UDtVndNB1ejapQQzgzy6UkqF/rfAVq5ScfUeVMeW3LOBE4J5n9ZJ8v3n8YJb+klI9HZ2Dzp3M8cY89iMq3HJodPf6QXUouVeZJeR2RLlGrnjPJo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778787192; c=relaxed/simple;
-	bh=2xWUYXS3hlwSVIS600L3aJiOw1CZNmt6HrkLyNyiszs=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=OGQG2grhfUfSGcUqB9Co9eRpvNz23lBy6v2mSpIAiUlCjySvNY+qWVcQDPnTj6NGpJvpD1iTsThTH1hdf/8L2Yl0c3M+4ge/ujY1JAyvx9ixt7QmLrZ3rX8PAeYRzu8AbzgpZ8tGjW1SGb7i4y/g+qATUVAv6mikvWC4aEiy8bo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M9CGaign; arc=pass smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EB322083
+	for <linux-input@vger.kernel.org>; Thu, 14 May 2026 19:33:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778787199; cv=none; b=JQaeDPC31pcHpHMYVpmAQq8a+kXIRr24/twzm1yCRhZ5zsJHtjgk4FNrASI0rgGBiGS2vXEpJwiYRsuIUu8HKS99gAtlg9ccKdOrtACzf30+WNDMlG9+osVSB8VRY4lhFXIl5UL3TrRkKx5sBcD7SdQMTclUQfgyinZBft6HniM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778787199; c=relaxed/simple;
+	bh=GyeCB+F5S1ltXOB4E/AB6IAEsOzAtFqglRNDrUrXYZ8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jOdLoIhl/D00IvSi4V0cJMzcdSykmSi7xLvHWMNSt/s0OgC/CVYR2J6EJscsOTTdRYTSdGXPcXwODEaPhLK294SUgEE1hs6zpiYgi9OmsmIzOXEAUZg1Otk0dB/rObutPrbAFdAtVeUy2pnXgSHY9zgUzAcX3WTYKYT8No0mxZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nnhln89U; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M9CGaign"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9106ea78cd8so259456585a.3
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 12:33:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778787190; cv=none;
-        d=google.com; s=arc-20240605;
-        b=cz/N4NMM6dnwuzXt0mwcSAx7vPi7gIEGBHDdJGypMfEwwc2G23mnURg2fvki0NIzoa
-         PCU7W0ugtFgjcNIDU2nUwqQUOh1RB7yU4WogjQH8F4cTVdSGp58X6dboukVUi3t0bkpv
-         P30wstNA0qc6ORenM9QNFJcSWH3Azu0GMpbAS2L2izN8JEuEPWqq5fhx+1QcLptiQqpr
-         BUX1QtYv6i1i/5zBefQbNvF3MAYLdYr2wNJq+fn+ra0DndBigVqsfHAtwCjkPP5cw68Q
-         HcUK1WHHOryNd0Bei+hNqNNgVGW2LpQ7MKi1fyYbczaNx6eEKnKrTUeWXgxjXO8MfuaF
-         q7qA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=LgwvaeX6TmcQv5XSj0XAJqOGRyULAfeIKKElkshuWeo=;
-        fh=I5N2KTxEDKp55vczuccNG01QAsM1HI1uo2asqMFrn90=;
-        b=cbsz94X0OR1elByfXcKia1ZQfkOXfyJOPcWANrLms7cIcW5vUlD7ak+DhkwTZioTOT
-         6vh+IF6r2V1eQ4UyOo4GPgv0VR/uf5b/77TBI7PkGr92z6No9yJeF404ctoXQgi2mjBO
-         RUSugUtpnUGTNS+y9oTA1QHTeP4USQOUxuj6eywPJmsGD2y30UjjHw5tWhxKe/f/n4ql
-         8TdAU+uZBcZ9kZbcISOUfo0gohgO1FggMPEPc6+cLa58C680EVhaYKR8gtQeU1MYAzWp
-         1PfxqnUwMmOYNc/p7iZZGharMKYbRcGLQnxNsm4aK8CnKRKteK4ivA2IJll9eCfFycr5
-         dNLw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nnhln89U"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-48fde648a71so1432875e9.0
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 12:33:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778787190; x=1779391990; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=LgwvaeX6TmcQv5XSj0XAJqOGRyULAfeIKKElkshuWeo=;
-        b=M9CGaignIkgj5K1n0Xf51vmKt2QLanHHfCoiJuCpEBvAiNycSJ9WzGa/s635K3Judf
-         lbrLMSgJ0qJ3W6BtCjxhd6UO5Xs+9KLePWYwBa33WMExTnuKEa7CYU95ZmDHE7hRUcyf
-         S685XYa3N8ghV1Xhi2LZt3UArh4IUaMRnCJRkhd7e2si5OiodB9cZmZfetSTDjjGABjL
-         NZtGNclxj1nP5yeYejvgn03JAwBm1l+lqrsyCpufR1apTWSgbhSieRkJQ606k4WyTAyX
-         K3rDi4qRvQXOCyOEq1O7OHCTzYbFFHP8A7fADaZ/7TjjRwYA/eC+zc+8pqVRWWMhdjYy
-         Mq5g==
+        d=gmail.com; s=20251104; t=1778787197; x=1779391997; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=uS/vBXvCRYkbRefNnmmA7qiAQL8I0yoScXFkZuVO7v8=;
+        b=Nnhln89UMpdLfi/gsjbjAVRRxJktwlCVTod3Wrp1IXw+GQNtbljJMlR3ukudOL2Uuy
+         2nAwJmXAoMLpCeWbTXVLfY1eZqSt+lz7ZPn+2Cl6Seo5yoDtJaSNf0s+pnsxuDTBpscg
+         QVZTCBdnSOcI+px/EaCDPCgT/fDl4QZTNEYMb+ctlgAhJ5UkeF7kf4qZ8DTuSXF5U4Cs
+         xg8+6xj9pmyF/AYek3YnJr/6KM8vgK7MDMEVPrzb+ykmboHut2nMnEfvlQcY2gU++VEI
+         bCB9ek/QQWc3MQ2CSv8eSa7zp7lDhIsP7rU1YKes/MjefwcEzgX0dQVCuKUtBQ0sh/9y
+         VFyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778787190; x=1779391990;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LgwvaeX6TmcQv5XSj0XAJqOGRyULAfeIKKElkshuWeo=;
-        b=cEXcSgutt/eId7qAYooqwaIDpjaCKTWnl1Eqh6tHT42Wi2+i+Ylk2KMOHyAPt0mTlu
-         NvVGeketWTLTpGO1Pvwz1RaiL1rG8crw7IYLcXLymGeNU2AfcfEuuisFao0voRW7SoSy
-         ln7Qpu6QflAxBKyMB+1QqlNXV6vnwSi2vqOawF6S0jIQPmY3WIYyKMxLBGW7jXmA+qwP
-         0gEDL6Yg6XtJwgf/gEfLCff19vFU7VDtAHbxw9hNwyU9ZAo/LfKwGUgH0CxS/ylnpIao
-         5+YQWtpbSrqQ01YlJaYka4pFIbRYdWAitbB6jmvp05oY88SOpxs16jw7VensHTt8X54S
-         aLaw==
-X-Gm-Message-State: AOJu0Yyj78YJxHXx7D+wOZDOfzqnVv5XwfCekTQ3QhE/IPmsZEqyO0LD
-	/VGvEesIaG/YiZSXJwrKw/yHZfZdhycIouSZTuqbtXBvPsaXfQV5QxshWfUaEeunV+VFL8l1C4l
-	5iwiJoig5Es9M2seESbmy+kHbb/5yovNDKQ==
-X-Gm-Gg: Acq92OH9ayRjF+EucWC2RTaF+Y9gf3OvNZF4XwEQAdqCvqGZKCCnkhDg4xoTbEclBZw
-	wTNJ9mFAaVBqzVvesbj9txbs82nGuoXBm8wHu9/3lOZpa9DWoVH4g47Gd8ITHOJewmP8uS80oP7
-	rdZi7N0EL7Rfu/5DA4yaXKuRQEhHy+/NWMfOL46OdZCORC6ibeqVNjmryoLaooVO+h+5lx8Wkor
-	jK85hwcORZuL39X4UWKJe1NzlaRVgfGdUgKH8qFQNZJaMLRmwLVaqqSwC4uy3HM/HG9Ih9kZD+0
-	Tw7XCVWj
-X-Received: by 2002:a05:620a:2592:b0:90d:3af3:2a6f with SMTP id
- af79cd13be357-911ce90c736mr150072885a.57.1778787190237; Thu, 14 May 2026
- 12:33:10 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778787197; x=1779391997;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uS/vBXvCRYkbRefNnmmA7qiAQL8I0yoScXFkZuVO7v8=;
+        b=hujrqgNK91n6jMWJyOXkot4MB50TFoyJ3WzBsxWebwGSGbXqmz2fTUffoaUlkw+hG3
+         dLeNgmqDnl0neKJDhCi4tfpNME8+GDFVHp6vYNZarewGNHBdqSq00a1e6AwQFvxJYHdW
+         1Lgp2yTwy6UmfILad3zADuaUCazyxqQcYTadYBwvHSPURkfSs20ZdhqHTMbcFAKa1sEE
+         I5gWKPW553MK8Tli2QbBMGo6W5Sr8BME3A/CAFeF6/ZL0Um9T1/3POMqO/1BfbQwt4AB
+         x8a7NdNfHMsSPDc4DYuH37GWtIETuoS6qBgnqTSn3vSt5eYeCOYQ0lpmq6V13ZaUqXlS
+         4ldA==
+X-Gm-Message-State: AOJu0Yw84DTGwLPYnVLs7IqsaQg8Bi6MIRu8zvZct2zgqXJXRGingihz
+	oh9ewhFq9pOwJC4+uRTK4mM3oHbnduWLez41gXM6DCewY5YjBq6SZ84N
+X-Gm-Gg: Acq92OHb2xYiBcwBEovUl3Ue6McQKvNt6L8TSoo+c91MXF+ZrKVs1xIlP3+AjHVj0xv
+	lbDBAsvyDQ1u2Gm/pwsLDrXxnjaEICqRAYkbEmlJ9huouUj961XulUmLQRG8dL729KU0TitY3hK
+	4nCIgvOKcfTHR6cP8xJT34uz4iDeYOeJllpjtMR1aVew1B5m/5E0Lq/8dC1x1E4IxHBGbj2sxM/
+	XwDsC5F+516UYYvDV6UaHMOdPim9wukrscBp4+IY9trwUGYuR0Y3IFG4zCjC2Cj3VDGZdwUWRrg
+	n9UCFkanSzxy8k1KQkmnyNyoVRl3JTCZpZnWGnSNwXH1Misb3WA43eXjHB48pz0wRFtR1rQnWU1
+	8ghYRxFyQ5oTZfoxssGc0OY8BeLlwdD0WrblMn0bzA7EWv/c9omMqaonVzlRvgnoyzdK2Zemgke
+	AWzZNtAsWu82r0CIbrN4Jnihi4J3HAWQ5O+bB2eTolXU2kTt5orHKsLm5sxjUdq303SnwJz/+O4
+	A==
+X-Received: by 2002:a05:600d:8:b0:48f:e044:927d with SMTP id 5b1f17b1804b1-48fe537fa84mr11317005e9.10.1778787196903;
+        Thu, 14 May 2026 12:33:16 -0700 (PDT)
+Received: from localhost.localdomain (i59F7ABEB.versanet.de. [89.247.171.235])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fe53804aesm10968765e9.15.2026.05.14.12.33.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 12:33:16 -0700 (PDT)
+From: Elliot Tester <elliotctester1@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Elliot Tester <elliotctester1@gmail.com>
+Subject: [PATCH] input: remove changelogs, tracked in git
+Date: Thu, 14 May 2026 21:33:02 +0200
+Message-ID: <20260514193302.117488-1-elliotctester1@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Dave Carey <carvsdriver@gmail.com>
-Date: Thu, 14 May 2026 15:32:58 -0400
-X-Gm-Features: AVHnY4KeVzKrGAk34hMcBsrkJ0_q8P9Zw1fbTBxbbpm2Kg4C1pU4LWkIFBVaey4
-Message-ID: <CALPvRORBFHpbos=_xpBVchK-oSZF9EnY6n5-sAQGr=qiL13FbQ@mail.gmail.com>
-Subject: [PATCH] HID: multitouch: Honor ContactCount for Yoga Book 9 to
- suppress ghost contacts
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-The INGENIC 17EF:6161 firmware on the Lenovo Yoga Book 9 14IAH10
-does not clear stale contact slots when fingers are lifted.  Each
-HID report contains up to 10 finger slots, but only the first
-ContactCount slots represent valid contacts; the remaining slots
-retain TipSwitch=1 with positions from previous touches.
-
-Raw HID capture confirms this: across a 60-second capture with
-repeated multi-finger gestures, 90% of frames had more TipSwitch=1
-slots than the reported ContactCount.  The ContactCount field itself
-is always accurate.
-
-Add MT_QUIRK_CONTACT_CNT_ACCURATE to the MT_CLS_YOGABOOK9I class so
-the driver stops processing slots once ContactCount valid contacts
-have been consumed, discarding the stale ghost entries per HID
-specification section 17.  MT_QUIRK_NOT_SEEN_MEANS_UP (already in
-the class) ensures that any slot skipped by this guard is released
-via INPUT_MT_DROP_UNUSED at frame sync.
-
-Signed-off-by: Dave Carey <carvsdriver@gmail.com>
-Tested-by: Dave Carey <carvsdriver@gmail.com>
+Signed-off-by: Elliot Tester <elliotctester1@gmail.com>
 ---
-This follows commit 108ac841 ("HID: multitouch: Fix Yoga Book 9 14IAH10
-touchscreen misclassification"), applied to hid/for-next on 2026-05-12,
-which established MT_CLS_YOGABOOK9I and added MT_QUIRK_NOT_SEEN_MEANS_UP.
+ drivers/input/misc/yealink.c  |  9 ---------
+ drivers/input/tablet/aiptek.c | 31 -------------------------------
+ 2 files changed, 40 deletions(-)
 
-That fix made the touchscreens fully functional.  With three or more
-fingers and repeated on/off gestures, ghost contacts then began appearing
-because the firmware leaves stale TipSwitch=1 data in slots beyond
-ContactCount.  The capture showed patterns like cc=1 with 7 active slots,
-or cc=3 with 8 active slots, consistently across all gesture cycles.
-ContactCount was always the correct count.  Verified ghost-free after this
-change across 6+ repeated three-finger swipe sequences.
+diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+index 8786ed8b3..560f895a0 100644
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -22,15 +22,6 @@
+  *   - Olivier Vandorpe, for providing the usbb2k-api.
+  *   - Martin Diehl, for spotting my memory allocation bug.
+  *
+- * History:
+- *   20050527 henk	First version, functional keyboard. Keyboard events
+- *			will pop-up on the ../input/eventX bus.
+- *   20050531 henk	Added led, LCD, dialtone and sysfs interface.
+- *   20050610 henk	Cleanups, make it ready for public consumption.
+- *   20050630 henk	Cleanups, fixes in response to comments.
+- *   20050701 henk	sysfs write serialisation, fix potential unload races
+- *   20050801 henk	Added ringtone, restructure USB
+- *   20050816 henk	Merge 2.6.13-rc6
+  */
+ 
+ #include <linux/kernel.h>
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 6df24cee3..ba8109322 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -16,37 +16,6 @@
+  *
+  *  Many thanks to Oliver Kuechemann for his support.
+  *
+- *  ChangeLog:
+- *      v0.1 - Initial release
+- *      v0.2 - Hack to get around fake event 28's. (Bryan W. Headley)
+- *      v0.3 - Make URB dynamic (Bryan W. Headley, Jun-8-2002)
+- *             Released to Linux 2.4.19 and 2.5.x
+- *      v0.4 - Rewrote substantial portions of the code to deal with
+- *             corrected control sequences, timing, dynamic configuration,
+- *             support of 6000U - 12000U, procfs, and macro key support
+- *             (Jan-1-2003 - Feb-5-2003, Bryan W. Headley)
+- *      v1.0 - Added support for diagnostic messages, count of messages
+- *             received from URB - Mar-8-2003, Bryan W. Headley
+- *      v1.1 - added support for tablet resolution, changed DV and proximity
+- *             some corrections - Jun-22-2003, martin schneebacher
+- *           - Added support for the sysfs interface, deprecating the
+- *             procfs interface for 2.5.x kernel. Also added support for
+- *             Wheel command. Bryan W. Headley July-15-2003.
+- *      v1.2 - Reworked jitter timer as a kernel thread.
+- *             Bryan W. Headley November-28-2003/Jan-10-2004.
+- *      v1.3 - Repaired issue of kernel thread going nuts on single-processor
+- *             machines, introduced programmableDelay as a command line
+- *             parameter. Feb 7 2004, Bryan W. Headley.
+- *      v1.4 - Re-wire jitter so it does not require a thread. Courtesy of
+- *             Rene van Paassen. Added reporting of physical pointer device
+- *             (e.g., stylus, mouse in reports 2, 3, 4, 5. We don't know
+- *             for reports 1, 6.)
+- *             what physical device reports for reports 1, 6.) Also enabled
+- *             MOUSE and LENS tool button modes. Renamed "rubber" to "eraser".
+- *             Feb 20, 2004, Bryan W. Headley.
+- *      v1.5 - Added previousJitterable, so we don't do jitter delay when the
+- *             user is holding a button down for periods of time.
+- *
+  * NOTE:
+  *      This kernel driver is augmented by the "Aiptek" XFree86 input
+  *      driver for your X server, as well as the Gaiptek GUI Front-end
+-- 
+2.54.0
 
- drivers/hid/hid-multitouch.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 648201e..0495152 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -445,6 +445,7 @@
-                { .name = MT_CLS_YOGABOOK9I,
-                .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-                        MT_QUIRK_ALWAYS_VALID |
-+                       MT_QUIRK_CONTACT_CNT_ACCURATE |
-                        MT_QUIRK_FORCE_MULTI_INPUT |
-                        MT_QUIRK_SEPARATE_APP_REPORT |
-                        MT_QUIRK_HOVERING |
---
-2.47.0

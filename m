@@ -1,143 +1,195 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073803F99E3
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 17:53:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D28C730C165
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 18:23:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778867582; cv=none; b=Cd1PZht3CbGypaDgymw3SShyJT+ZHS8oCGvj96b0lsBc3gFEsFsyfDbd3IKlJuRh74k0qkYMkrIh2XoHVJALuePjWTuugLYNUZyGYUDjbIoxs5n5ic+BI7fHRTKdha64rScfNHMLTHoagsdbLhDBR0D/ewevDHv+6j49crTnabQ=
+	t=1778869427; cv=none; b=kxUzhPjmqDsPx7948vAR1j1V8k8nzRCg79bVy4Bi3IvyTtGb2w2qCd3sOfrbmoMC5OMCME1JACl7p7DYWG00IH+/R1EDiR+uma5fCtXyF7HWjrcpFktDYra3AfdMbm9BZjB0h0paqmORCIlGZM/RcawkRZ0PDi3v3ckpF6ehuzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778867582; c=relaxed/simple;
-	bh=9IbFdWRbgG00j/vuJuFMHwWqziCFT1z51HBBNF4JMGI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lKhs4OMQLYiuo44vZPxnYLXE54jDNSpoIUCM+opF86cjQE8SmneQI1vABYi/PlQN5LqesNXA7+AOa++hLFYAbvuhXmE9ONnlEpbEsod/lgtFVVxONJbyJsWwjVlPRLAfxHnoUGVUaV4uLpCg4yfOfUD9EZgeqS/i61ZQzqhgbYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kYggGMxh; arc=none smtp.client-ip=209.85.222.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778869427; c=relaxed/simple;
+	bh=mkCaHkp5kTYtS2H67/rCKosnb4mEHEHx7EntMRflNXc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=fsoyDtHltSUnIlioTrG23jP4NVs3I8AExoFicIMUNzifPTRRX1jhEXLqSZkaW3BMpNOa6ksOqduznSPza9IJocr8d86xSy42njRQIj39/4XpmBOACk3y1JxfDQnNxtzZLOg65SXq0/XwVeOWg03mqZJjdVa5I6XCg20kyXgRUnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P7XKAHkN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kYggGMxh"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-9103019f8c4so16490685a.3
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 10:53:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778867580; x=1779472380; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=tD25Vv+Gk5JIX9+v8rQH7uX7yAIOIf8ZKeFVzF4JIoc=;
-        b=kYggGMxhDEwmg18eCsde4Zk4SsHFF2xYnEsmo7tDSb5kYjEEgKkpgEli84Ze8q04UR
-         +2cIJ1BvOyYKF4vU9smgJUH7UeKlSdtxV/pGmfiARQ1oXkhYlSDbY0HxcaSDO9NdUBko
-         PEGxKjzeKbZJ73oCFF+OgMiTVYuRb3/luWmoSDoMEuctLlwLKzBxZDL7+EBLgxUUbqtQ
-         qjXDxovfoCI3WMU/VROvNvY2dmZy1U8jkru4FZNwBRPzHYL1/yOzMdCNeBOoxmcP3jjb
-         Cr6O+GbaubkqtmYZ0YkH/1FerO2kJGbdTG72Z5X8VwzWDJ1jECsyA4d6SgrxLLUx/C93
-         cadA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778867580; x=1779472380;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tD25Vv+Gk5JIX9+v8rQH7uX7yAIOIf8ZKeFVzF4JIoc=;
-        b=Jp2BCmiOOe8zaLkB1Sr28YbXajmOqoDz9CnCYb+XEt3uIuETb1k16PG6vSffE1ke1S
-         JFtJ3NCvgeiqYvS+kZb3lCIUzjMA68Q8pN9OMF93Cl8sCZDUbhdg5uQ8AaQT+X3WIhVp
-         QIRgqE+l+vaf9+XoiyfGXiSLltaNJGuakPTtt2wQfCbjUli/WKTzztGBtXr9bzAtwcal
-         Nw6sJ7IjAomWzCGQHkKhMBFnS+sMlPcXItZuCY6Wzs9vu5XsfBxAqdVQ493s/T1u40Wc
-         PIOBySt/fHo/wQJzbg5qja1L/XL9WvJldgof5yF4XQ5Yx6FAbCd+ReaOKDAtLvwtgxtf
-         deVw==
-X-Gm-Message-State: AOJu0YztpXYlgGCsm/+lbT2jXgfMOkW6XcvZuVG18afZUXH7yOo/GumE
-	FlKABBGBA2IV/rS0CS3EqHflPXNFSd+3k51EywLaoKAmTpHUtndsEiOMtqA4Z9c5
-X-Gm-Gg: Acq92OHRbnuvSgIj1jMqbfow5LIlMRUnP4HuDDfBN8QgW+t2PxCO8NTAZBUGuvTsRfY
-	IBIyIAOu86jjchylwq7wa08XhBKBjWO+tWptiavXhmpkzLR5ffcYa3dlmuus8JrJCeeTWojT4wI
-	SV32/Fb3YUYk1CJYBCerEVeUw6+wkGsbrz1GDS8xywk1s+OUoyJxPOmxk3WJAqcDSq6oN7cBi4V
-	OsKssfL9qKFpuUnMf/uaUdwOrDokWw86W+P8ShMC08ZjwoOtEz6xehJfPw3DNgWgppaotr/pI12
-	XIDSxGuohurtztLJjJFX+MrLtlt4jTtuxMXNSGb+c19C3lJgeyVEfeUREn+cYiFTxcGjn6W2Kj2
-	NPFmksqwtO7yejF8mfZiJgptcDN00H6LoanK4r2KBTw5100ocTJFNOBKrLVYcOpMTauTDgEguIe
-	6Vkpzsx/d3QYVC75SiZPXkxvHorR0yLS4jzoeNyjx+exH1DUCsNIXdurs1AlU9xMP1O8rMGZ+xo
-	VnIycI=
-X-Received: by 2002:a05:620a:3714:b0:90c:be8b:3676 with SMTP id af79cd13be357-911cf7e8342mr846950785a.56.1778867579529;
-        Fri, 15 May 2026 10:52:59 -0700 (PDT)
-Received: from fedora (pool-100-11-178-145.phlapa.fios.verizon.net. [100.11.178.145])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910bab3a207sm599406185a.15.2026.05.15.10.52.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 10:52:59 -0700 (PDT)
-From: Dave Carey <carvsdriver@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Dave Carey <carvsdriver@gmail.com>,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Subject: [PATCH] HID: multitouch: Fix stale MT slots when contact count drops to zero
-Date: Fri, 15 May 2026 13:52:53 -0400
-Message-ID: <20260515175253.873796-1-carvsdriver@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P7XKAHkN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C82FC2BCB0;
+	Fri, 15 May 2026 18:23:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778869427;
+	bh=mkCaHkp5kTYtS2H67/rCKosnb4mEHEHx7EntMRflNXc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=P7XKAHkNbTooTM/7IUdv2arJXJ7IOCvhL0vnR9+3xiN20Qw3dE8DVoulj7C5ZeM8h
+	 vGgwwHTqVUwYBICwjzNggTGZ+ttgz8I5ldckyCgzjx4o+J38P4+lte89jhM+HjX5Ji
+	 2lJfai4jLryg3L/8ErOOGHRRSuWXL0DPInwegcfh+cB2G3Zqt0MhfknuR+xFBdMcPk
+	 SZJGtElBhnjgFYdeTrNODxAgLqVhu/zMzMsaLe1SgyF3N6OW8Dl51+0JVZM3Nsm3dB
+	 yEsBemqF+USf0ItdA+LPBl/SK+MgKHrkgeJtlrwyf46+ffX1Qs9ni1G5aIRdKFFbkE
+	 wgKQPC4ww+d6g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: hid-lenovo-go: cancel cfg_setup work in
+ hid_go_cfg_remove()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Manish Khadka" <maskmemanish@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260515174511.78486-1-maskmemanish@gmail.com>
+References: <20260515174511.78486-1-maskmemanish@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 15 May 2026 18:23:46 +0000
+Message-Id: <20260515182347.6C82FC2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
-HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
-lift rather than omitting the frame entirely.  In mt_touch_report() the
-existing code only updates num_expected when contact_count is non-zero,
-so a zero contact count on the first packet of a new frame leaves
-num_expected at its previous value (e.g. 2 for a two-finger gesture).
-The sync check "num_received >= num_expected" then evaluates "0 >= 2"
-and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
-stale slots.  Those slots remain active in the kernel MT layer until the
-next touch, at which point they are released in a batch alongside the
-new contact — causing the userspace event consumer to miss the intervening
-finger-up sequence and corrupt its gesture session state.
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+s) to consider:
+- [Critical] Hardware state corruption and crashes due to use of a static g=
+lobal struct for device data.
+- [High] The patch provides an incomplete fix for the use-after-free and in=
+troduces a resource leak because it assumes the driver core calls remove() =
+on probe failure.
+- [High] ABBA Deadlock in `hid_go_cfg_remove()` between `cfg_mutex` and sys=
+fs kernfs removal.
+- [High] 'Scheduling while atomic' panic in the LED subsystem callback.
+- [High] Hardware event synchronization race condition permanently corrupts=
+ the command state machine.
+- [High] Resource leak on unbind if the device is operating as a generic HI=
+D device.
+- [High] Undefined behavior in `mcu_property_out()` due to passing a NULL p=
+ointer to `memcpy()`.
+--
 
-Fix by resetting num_expected to 0 when contact_count is zero and
-num_received is still 0 (i.e., this is the first and only packet of the
-frame, not a continuation packet in a multi-packet sequence).  With
-num_expected=0 the sync check "0 >= 0" fires immediately, calling
-input_mt_sync_frame() which drops the stale slots via INPUT_MT_DROP_UNUSED.
+commit 304d13b89ea5c6814d905d7149a191f0e8fad93d
+Author: Manish Khadka <maskmemanish@gmail.com>
 
-The num_received==0 guard is critical: continuation packets in a
-multi-packet frame arrive after at least one contact has already been
-processed (num_received>0), so they are correctly excluded from this
-path and the existing multi-packet logic is unaffected.
+HID: hid-lenovo-go: cancel cfg_setup work in hid_go_cfg_remove()
 
-Signed-off-by: Dave Carey <carvsdriver@gmail.com>
-Tested-by: Dave Carey <carvsdriver@gmail.com>
----
-This follows commit 108ac841 ("HID: multitouch: Fix Yoga Book 9 14IAH10
-touchscreen misclassification"), applied to hid/for-next on 2026-05-12.
-That commit established MT_CLS_YOGABOOK9I.
+This commit cancels the go_cfg_setup delayed work in hid_go_cfg_remove() to
+prevent a use-after-free if the device is unbound before the work executes.
 
-This fix is independent of the companion ghost-contacts patch ("HID:
-multitouch: Honor ContactCount for Yoga Book 9 to suppress ghost contacts",
-sent 2026-05-14), which adds MT_QUIRK_CONTACT_CNT_ACCURATE to the same
-class.  Both apply cleanly on top of 108ac841.
+> If the device is unbound within the
+> 2 ms scheduling delay (a probe failure rolling back via remove, or a
+> fast rmmod after probe), the work fires after hid_destroy_device()
 
-Tested on Lenovo Yoga Book 9 14IAH10 (83KJ).
+Is the statement about a probe failure rolling back via remove accurate?
 
- drivers/hid/hid-multitouch.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+In the Linux driver model, the core never calls remove() if probe() fails.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index ec04dba..e91ba89 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1336,6 +1336,18 @@ static void mt_touch_report(struct hid_device *hid,
- 		/* A non 0 contact count always indicates a first packet */
- 		else if (contact_count)
- 			app->num_expected = contact_count;
-+		/*
-+		 * contact_count == 0 on the first packet of a new frame means
-+		 * all contacts have lifted (the firmware sends an explicit zero
-+		 * to signal all-up rather than simply omitting the frame).
-+		 * Reset num_expected so that the sync check below fires and
-+		 * INPUT_MT_DROP_UNUSED releases any stale slots.  This is safe
-+		 * for multi-packet continuation frames because those arrive with
-+		 * num_received > 0 (at least one contact was already processed
-+		 * from the preceding first-packet in the same frame).
-+		 */
-+		else if (app->num_received == 0)
-+			app->num_expected = 0;
- 	}
- 	app->prev_scantime = scantime;
- 
--- 
-2.54.0
+If hid_go_cfg_probe() fails after scheduling the delayed work, the work
+remains pending and will dereference the freed hdev when it fires, causing
+the exact use-after-free crash this patch attempts to fix.
 
+Additionally, if hid_go_cfg_probe() fails, does hid_go_probe() return the
+error code without calling hid_hw_close() and hid_hw_stop(), permanently
+leaking the hardware session? Should explicit cleanup be added to the probe
+error paths?
+
+> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+> index d4d26c7833563..b9d8cde531365 100644
+> --- a/drivers/hid/hid-lenovo-go.c
+> +++ b/drivers/hid/hid-lenovo-go.c
+> @@ -2408,6 +2408,15 @@ static int hid_go_cfg_probe(struct hid_device *hde=
+v,
+> =20
+>  static void hid_go_cfg_remove(struct hid_device *hdev)
+>  {
+> +	/*
+> +	 * cfg_setup is scheduled from hid_go_cfg_probe() with a 2 ms delay
+> +	 * and dereferences drvdata.hdev.  Drain it here before tearing
+> +	 * down so the workqueue cannot run after hid_destroy_device()'s
+> +	 * put_device() has released the underlying hdev and dereference
+> +	 * a stale drvdata.hdev pointer.
+> +	 */
+> +	cancel_delayed_work_sync(&drvdata.go_cfg_setup);
+
+This isn't a bug introduced by this patch, but does the driver use a global
+static variable (static struct hid_go_cfg drvdata) to store device state?
+
+A second device probe would unconditionally overwrite drvdata.hdev and
+re-initialize both drvdata.cfg_mutex and drvdata.go_cfg_setup.
+
+Re-initializing an active mutex destroys its wait lists, and re-initializing
+an active delayed work overwrites its linked list pointers, leading to
+immediate memory corruption and kernel panics.
+
+Should the device state be dynamically allocated per-instance instead?
+
+> +
+>  	guard(mutex)(&drvdata.cfg_mutex);
+>  	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
+
+This is a pre-existing issue, but does this sequence cause an ABBA deadlock?
+
+sysfs_remove_groups() drains all active kernfs references, blocking until a=
+ny
+currently executing sysfs operations complete.
+
+However, the driver's sysfs callbacks internally call mcu_property_out(),
+which acquires drvdata.cfg_mutex. If a sysfs read or write races with driver
+removal, the sysfs thread holds the active kernfs reference and waits for
+cfg_mutex, while the removal thread holds cfg_mutex and waits for the kernfs
+reference.
+
+Could this result in an unrecoverable deadlock?
+
+[ ... ]
+
+This isn't a bug introduced by this patch, but does the driver assign
+hid_go_brightness_set to the led_cdev.brightness_set callback?
+
+The LED subsystem requires this callback to be non-blocking because it can
+be invoked from atomic contexts. However, hid_go_brightness_set calls
+mcu_property_out(), which allocates memory with GFP_KERNEL, locks a mutex,
+and blocks via wait_for_completion_interruptible_timeout().
+
+Will this violate the LED API contract and cause scheduling while atomic
+panics? Should the callback be assigned to .brightness_set_blocking instead?
+
+This is another pre-existing issue, but does mcu_property_out() call
+reinit_completion() after wait_for_completion_interruptible_timeout() retur=
+ns?
+
+If a command times out and the hardware response arrives shortly afterward,
+the interrupt handler signals the completion.
+
+The next call to mcu_property_out() will send a new command but fail to
+re-initialize the completion first. Its wait_for_completion will immediately
+return by consuming the stale signal, without waiting for the new response.
+
+Does this permanently desynchronize all subsequent hardware communications?
+Should reinit_completion() be called prior to sending the output report?
+
+This is also a pre-existing issue, but does hid_go_remove() bypass hardware
+cleanup if the device is operating as a generic HID device?
+
+In hid_go_probe(), if get_endpoint_address() fails (e.g., returns -ENODEV),
+the driver returns 0 to allow generic HID operation, leaving the hardware
+started and open.
+
+During unbind, hid_go_remove() calls get_endpoint_address() again. If it
+returns <=3D 0, the function returns immediately instead of falling through=
+ to
+the default case.
+
+Does this mean hid_hw_close() and hid_hw_stop() are bypassed entirely,
+permanently leaking the HID hardware session and its resources?
+
+Finally, this is a pre-existing issue, but does mcu_property_out()
+unconditionally execute memcpy(dmabuf + header_size, data, len)?
+
+Several hardware commands, such as GET_VERSION_DATA, invoke this function
+with data =3D=3D NULL and len =3D=3D 0.
+
+Under the C standard, passing a NULL pointer to memcpy() is undefined behav=
+ior
+regardless of the length. This triggers UBSAN kernel panics if enabled and
+allows aggressive compiler optimizations to discard the operation.
+
+Should the copy be conditionally guarded by if (len > 0) or if (data)?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515174511.7848=
+6-1-maskmemanish@gmail.com?part=3D1

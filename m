@@ -1,158 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAFB3AE19B
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:01:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E32BD3033FC
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:26:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778821273; cv=none; b=WbnZyVsJ9Vjk/QcPAnsX4RSdiyZ7eWurEw/paFHz0ddOTJtmG8gnwuTKAQ2PlSfmpt8poPVQ5IFLcT1vTt964RzmtR7U7HuJSv4SfDcmiNxNngngf+CYtws/+TdNZbxA9NrkEuibb3Znx+YJZ6pslGkTITVOtyJooGjZmgxu9ro=
+	t=1778822767; cv=none; b=BAMCHoDnY4TbdTiN2GCJdK2uFf8BSrPrbucxDvHzr4tcT/37VV0ZLA8nMjjtBo06vseD+DPg1UGF/49nLq3Z3790cYOKkcP16k8tNcZ6rXVjJ/ovuYaO9N9IKzyi+OQ8IODbNqripSeFFVaLBMInXXZ4d/y63l1z8enEDYlF0no=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778821273; c=relaxed/simple;
-	bh=6iZJauTgragY3M0DKfgQfjyY3uNFoDP2De+5QMImUo4=;
+	s=arc-20240116; t=1778822767; c=relaxed/simple;
+	bh=MQg3n1QlX/iZHNhADCNkz8NfFjPtHCMHoqwG41+iQBM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=R3ZDD31cXYqn0SImkhOfcwmtlwIbkPh6X+LClBI0uQYS2bvPd5Zg5UHLj9jLatbX3IuHNQL2Ya8EFlItHGuJ3cYNLKlgF/V/PiHNANGmXhpVw8GhjTIAHB/6IJLIbPc7EOwnWB2DDrB07Mm67dsJiTtmgOWBvJMUv8UYfGZIAto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KlXOOU8T; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=tgyosHNU7qsQRpE5BANVddn3rUMb6G4cEtK/ttt1C3hRbC0vT4fImF3Ch7Uz5AzD/0ZPOQoanjuGMckjnJgoCl+qyGiWxyx9+DBo68KNNaw28/NvlIwIFhRDsJYkLEoHuLUCNJegZ2qNjqZg+FXGzmcUZA5C1zWF0CsVcE3hWnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NY6mwt/Z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KlXOOU8T"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 889ADC2BCB0;
-	Fri, 15 May 2026 05:01:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NY6mwt/Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52710C2BCB0;
+	Fri, 15 May 2026 05:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778821272;
-	bh=6iZJauTgragY3M0DKfgQfjyY3uNFoDP2De+5QMImUo4=;
+	s=k20201202; t=1778822766;
+	bh=MQg3n1QlX/iZHNhADCNkz8NfFjPtHCMHoqwG41+iQBM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=KlXOOU8TX1s6SUU+XwyyTtbI0jbwaWjoiqz3QSumAmquqvrlCdkwQ2TXY1uDBzQCE
-	 SsjJ9JU7jGdDeE8MhHgeTQjnZqCaxaK7AQP5es18JLZGaKImQlX5cfE6u9lGqGi3nn
-	 lZgm/d0poriL8Pyxk81V9N/YGcz5I/cskQRoKxpT28nbeROUsJ2UGYjBI+ewHjFi5v
-	 vvm5Z8gvYQfTlP7bMV56/lNE/IuZivU+ISgJm2/6Ym1PfeR8Sizrv6NjAebhapiLMy
-	 gXMeH/dEP9wrlVPg2yaVUKEPqNAoAvu+EsxH/rP5uRJf79f9+AAZTImXMRqUxGgTWV
-	 wX10kjW0jgM8A==
+	b=NY6mwt/ZvIEEo6RaxKX7/HHdAoAglNxUl0peMe+nfsHtSAdm+Ub8zhKtH5hdUZ2hy
+	 LQNf6cQU2JgQUnOqDPHpkQg+PIwtDWFA1GoSV+0kxbquVyxNVEWChCft3qmypNOk71
+	 M9K5AQcOO48/EAMLxOromV72TXnbYJldJOsv+rMMBEHPwLf0lywrz1AI7hjvvN0iCw
+	 5NjS2Fv7qYHsst33jQ11THqfjsVDZVaZoMZwgzIjq5HzJ32OEECsmThW77+5VCVMuQ
+	 hYOBXUNHiiLrIcQ7cPXsSYMpjnmEM03/BtCPxKN0Hni8DASX34yRvLhm1mejVZj1RS
+	 CHxRjJBcLKRbA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/4] HID: hid-msi: Add RGB control interface
+Subject: Re: [PATCH v3 4/4] HID: hid-msi: Add Rumble Intensity Attributes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260515033622.2095277-4-derekjohn.clark@gmail.com>
-References: <20260515033622.2095277-4-derekjohn.clark@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260515033622.2095277-5-derekjohn.clark@gmail.com>
+References: <20260515033622.2095277-5-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 05:01:11 +0000
-Message-Id: <20260515050112.889ADC2BCB0@smtp.kernel.org>
+Date: Fri, 15 May 2026 05:26:05 +0000
+Message-Id: <20260515052606.52710C2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Out-of-bounds write in `claw_profile_event` due to an off-by-one b=
-ounds check on `frame_calc`.
-- [High] Sleeping in atomic context due to `mutex` acquisition in the HID `=
-raw_event` callback.
-- [High] Use-After-Free and data race due to devm LED unregistration happen=
-ing after `rgb_queue` is cancelled.
-- [High] Teardown order race condition causes leaked sysfs attributes and U=
-se-After-Free.
+- [High] The asynchronous request state machine lacks sequence tracking and=
+ proper synchronization, causing delayed USB events to misroute and corrupt=
+ data for subsequent operations.
 --
 
-commit 56238f43183718f9b78311c16ef55fefd8acc6e2
+commit 95ec4f316951f2159554c90bdf669eb45a19e099
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add RGB control interface
+HID: hid-msi: Add Rumble Intensity Attributes
 
-This commit adds an RGB control interface for MSI Claw devices, managing
-up to 8 sequential frames of RGB zone data. It mirrors Windows effects
-and adds sysfs/LED class interfaces for configuration.
+This commit adds sysfs attributes to control the left and right rumble motor
+intensity on MSI Claw devices. It implements store and show functions that
+communicate with the device firmware and uses a state machine to handle the
+asynchronous responses.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 6ccb9666daedf..06dc4290d2bb5 100644
+> index 06dc4290d2bb5..349a59f75e471 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
+
 [ ... ]
-> @@ -308,15 +369,46 @@ static int claw_profile_event(struct claw_drvdata *=
-drvdata, struct claw_command_
->  		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
->  			codes[i] =3D (cmd_rep->data[6 + i] !=3D 0xff) ? cmd_rep->data[6 + i] =
-: 0x00;
->  		break;
-> +	case CLAW_RGB_PENDING:
-> +		frame =3D (struct rgb_report *)cmd_rep->data;
-> +		rgb_addr =3D drvdata->rgb_addr;
-> +		read_addr =3D be16_to_cpu(frame->read_addr);
-> +		frame_calc =3D (read_addr - rgb_addr) / CLAW_RGB_FRAME_OFFSET;
-> +		if (frame_calc > CLAW_RGB_MAX_FRAMES) {
 
-Can this result in an out-of-bounds write?
-
-Since CLAW_RGB_MAX_FRAMES is 8 and the rgb_frames array is sized to 8, a
-frame_calc value of 8 would pass this check but write past the end of the
-array.
-
-Should this check be >=3D instead?
-
-> +			dev_err(drvdata->led_mc.led_cdev.dev, "Got unsupported frame index: %=
-x\n",
-> +				frame_calc);
-> +			ret =3D -EINVAL;
-> +			goto err_pending;
-> +		}
-> +		f_idx =3D frame_calc;
-> +
-> +		scoped_guard(mutex, &drvdata->frame_mutex) {
-
-Could this mutex acquisition cause a sleep-in-atomic bug?
-
-This function is called synchronously from claw_raw_event(), which is the
-HID raw_event callback and typically runs in atomic context (softirq or
-hardirq).
-
-Should this use a spinlock or defer the work to a workqueue instead?
-
-> +			memcpy(&drvdata->rgb_frames[f_idx], &frame->zone_data,
-> +			       sizeof(struct rgb_frame));
-> +
-[ ... ]
-> @@ -839,12 +1355,28 @@ static int claw_probe(struct hid_device *hdev, u8 =
-ep)
-[ ... ]
-> +	INIT_DELAYED_WORK(&drvdata->rgb_queue, &claw_rgb_queue_fn);
-> +
-> +	ret =3D devm_led_classdev_multicolor_register(&hdev->dev, &drvdata->led=
-_mc);
-> +	if (ret)
-> +		return ret;
-[ ... ]
-> @@ -906,7 +1438,11 @@ static void claw_remove(struct hid_device *hdev)
->  		return;
->  	}
+> @@ -810,6 +826,126 @@ static ssize_t button_mapping_options_show(struct d=
+evice *dev,
+>  }
+>  static DEVICE_ATTR_RO(button_mapping_options);
 > =20
-> +	/* Block writes to brightness/multi_intensity during teardown */
-> +	drvdata->led_mc.led_cdev.brightness_set =3D NULL;
-> +	device_remove_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_group);
->  	device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
-> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
->  	cancel_delayed_work_sync(&drvdata->cfg_setup);
 
-Does the order here create a race condition with the delayed work?
+[ ... ]
 
-If cfg_setup executes concurrently, it might call device_add_group()
-immediately after device_remove_group() finishes. By the time
-cancel_delayed_work_sync() runs, the setup might have already re-added
-the sysfs attributes.
+> +static ssize_t rumble_intensity_left_show(struct device *dev,
+> +					  struct device_attribute *attr,
+> +					  char *buf)
+> +{
+> +	u8 data[4] =3D { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0=
+xff, 0x01 };
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	int ret;
+> +
+> +	guard(mutex)(&drvdata->profile_mutex);
+> +	drvdata->profile_pending =3D CLAW_RUMBLE_LEFT_PENDING;
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, dat=
+a,
+> +				    ARRAY_SIZE(data), 8);
+> +	if (ret) {
+> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +		return ret;
+> +	}
 
-Would it be safer to cancel the delayed work before removing the sysfs
-groups?
+Is the state machine vulnerable to crossed data from delayed USB events?
 
-Additionally, because the LED class device is registered via devm in the
-probe function, it won't be unregistered until after claw_remove() returns.
+If claw_hw_output_report() times out (using the 8ms timeout), this function
+clears profile_pending and returns. If a subsequent read for the right
+motor then sets profile_pending to CLAW_RUMBLE_RIGHT_PENDING, could a
+delayed response from this left motor request arrive?
 
-Since brightness_set is checked by the LED core without locks, could a
-concurrent write to the brightness sysfs attribute slip past the NULL
-check and rearm rgb_queue after it has been cancelled?
+If so, claw_profile_event() would see CLAW_RUMBLE_RIGHT_PENDING,
+incorrectly save the left rumble data into drvdata->rumble_intensity_right,
+and clear the pending state. This would complete the right rumble request
+with the left motor's data.
 
-When devres later frees drvdata, could this rearmed delayed work cause
-a use-after-free?
+Similarly, could a stray ACK from a timed-out store operation prematurely
+complete a show operation, exiting without clearing profile_pending and
+permanently corrupting the state machine?
+
+> +
+> +	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_left);
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515033622.2095=
-277-1-derekjohn.clark@gmail.com?part=3D3
+277-1-derekjohn.clark@gmail.com?part=3D4

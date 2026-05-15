@@ -1,121 +1,161 @@
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 185E83E0097
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 16:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B78F3F9293
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 16:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778861513; cv=none; b=Ngo6UdUFL/XY9bGm9ssyC/Iyoa7lJtuz2KGVDGWfd9yp/1F0AmQ3GHvm78NqkuuDc59DCXojCHnQzg2GBSEv+K70yHHcuuu6UdLd0/0zs6CvUxwgKKfk9Hs7YbbE+M/8WuOGCUHf7UZDJlWpiElc6AMwCUvkhOXTMvp/24av+Do=
+	t=1778861911; cv=none; b=RT/AROTLNrE5UhoXTRR3nLuYoyPNYeD+ZqjuIvqaYFAjzSlcGN+nKPV2qbXEYWsa2yF4uN277p+GQIj3KYTEYyE28kC7CA3yO3rex9oVFJZTr6Ee1v1phAhgZtTr9CuivZPvRb4chLV1XJ/EPSm9YkS9DCrCsQaPuitBNpmNGNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778861513; c=relaxed/simple;
-	bh=m+RXjR8nAzv231UlDkcWg9DwGop1tH+x1SRV+qsOiBc=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=Apb4Qsrr4D3tz7x6W20BBxpkFTxUoRzSxrma7N8OwHRI3AqohfCnE6mI1LrZ4hiHmZqfB4VbelsAIIhM0tR8bHoIGo2eIBux74KdX+cUIaxr1IEgi2ydD+97xh5jkKjvqHK4HrPAImIhbSGfQSKXU6MlVyWo44+O35OZJ/p6Dl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D3ZAEr2y; arc=none smtp.client-ip=74.125.82.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778861911; c=relaxed/simple;
+	bh=S8xyMLM8WxSQmi0VNkR9FKw0XrTUh+VRyrz7EAv8scE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KDA4V59LrsdGuDFgl6LghNwC118e5nHqL94w/Cbylfg64YJVAFt0io6+TQI9ApW958U8KdfyMyIqm2MmrZ7NpjvPKiJMqBIAgtwYR29dKY78cMq2eUz0bKq70nTHPul/WrsqE6innbhwrFr6JwD1uGIOHelYISqX3Vnudkw+MVU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IOuIx1tx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D3ZAEr2y"
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-134fe980658so2024261c88.1
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 09:11:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778861510; x=1779466310; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=eOUGu7otXKU83Ptl5ObFnUx6XOop4vjyk0yP3QaWBlM=;
-        b=D3ZAEr2yFsKyhwIiXMFMo8q8DbGGddroHuz4TuUZKqp4a46Gj7ebCLEFtlb+KFKKe1
-         J9qti3xJgASb9RXIDIKV2qf53c+ZZbhlTzA3KYSru3PVd0q9ytu/1KAnXEpEl/NJyG+I
-         v+lw2nCTM4k1jPXa/tHiLIJPJhzVM8zZG1Vci0t89BROYbZhYcFXr+aotRoncLL6aSdv
-         k2tJkgXQe9QiMztcPudzKlNsQa2Rhq6uwnOEzpbFZ+wbAClLYDRne7T/6CmfI59uXvlL
-         dAJAdUkD+6jfVJFZIMdSRqe0lTyqPltHpvIvspk8MDs6XT+ulEmtUivq3fiVMptnfLFl
-         mimQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778861510; x=1779466310;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eOUGu7otXKU83Ptl5ObFnUx6XOop4vjyk0yP3QaWBlM=;
-        b=dibj+E9O+HW7TpzwWkGv0FlRLEO/IUgzYBKMnRA+jyHcBUkGVYXqZh7CP0sg4Z7Bwe
-         rfIAVYkBaW+X//E60wQakJSNhPAgYUqK8w6oIRZKO1A7HBp1HT240ImdS7zdASRyfEWh
-         ftOSbSdufwh2O996JHck10/iqqSHnUUaMvV+TNLwgr+NUpsgAImfrHgMoEtLDXyQgqAC
-         rrjlRkwA1jnbSeIb9a2JwMlmICmrAyxoPo8hOcdA9GvG+Z/wdszUwYto2ME3RI3Uzsbe
-         ZbfwTysmAVesQ09Keyi/IuETfg7kci3f+U5hwj3Nj+pyj/nMPFO4sxw/nPOwV1NtFnmu
-         wipQ==
-X-Gm-Message-State: AOJu0Ywq1vwohlw4p9rqoCqYqOboVq7p1q7xm63NWDqJaFo7S7PkSpf9
-	9Ltb5xR6CXNdl7mukdFLkdLsa2PJBNjdS0pa2TgxkBmqJm90j2xKLjLn
-X-Gm-Gg: Acq92OHpdEiNqdo9xQDiJ1/flevSHmL01uurUVUhF2GIP+fyjs4NeWWrlnzfmGrU6Ec
-	N3a6+jjgNsaPcHUAbpDSTH3NHV6jDyXXnPAvsgTMd58VTvmp32syATN3yrCKytdlh8d9ASgM7zQ
-	zFmntksy7Vn/cOaDm4bZro/ntW93QypZqbVgKm5IpJJ+KCjXE+8IolAt1JbWroxNkDOfDY9FYKa
-	ZI0E3UmrMAOQF2PYpw74dF06y5GBRX7BCzv8VbGukvLWCRZNrz/cL8s1oJq4BitBNRJ3BHSoMuN
-	WaaD98uuyVRTtTAUx2uISE/SjDnDCVLGxJMJ27+PLO2d2TYjUMmaOChjaMvAfWDTzuo8UkRqANY
-	YdvOiDOOz8E4OJAiv7qhOij/c7PZ62AA4wIFISp2b22sPWaJQQVt+gjs8HldVTEapej5qcKHQgj
-	QK92CQasIR3zu94bpHEFRsZfrp0UmOPkwFlojzK3cCZQ==
-X-Received: by 2002:a05:7022:69a9:b0:12d:de3e:86b9 with SMTP id a92af1059eb24-1350592f049mr2344958c88.41.1778861510101;
-        Fri, 15 May 2026 09:11:50 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2607:fb91:ae5:914c:ad3:d358:6b31:e32e])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cbed2232sm11072949c88.7.2026.05.15.09.11.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 May 2026 09:11:49 -0700 (PDT)
-Date: Fri, 15 May 2026 09:11:48 -0700
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Louis Clinckx <clinckx.louis@gmail.com>,
- Mark Pearson <mpearson-lenovo@squebb.ca>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-CC: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/2] HID: lenovo-go: clean up USB assumption
-User-Agent: Thunderbird for Android
-In-Reply-To: <cover.1778701376.git.clinckx.louis@gmail.com>
-References: <cover.1778701376.git.clinckx.louis@gmail.com>
-Message-ID: <FC8BEE5D-FE37-4CBD-BC58-F32706ADE3F6@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IOuIx1tx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E2BC2BCB3;
+	Fri, 15 May 2026 16:18:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778861911;
+	bh=S8xyMLM8WxSQmi0VNkR9FKw0XrTUh+VRyrz7EAv8scE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=IOuIx1txv/+F2CI14mG3rH1eMUK+Q0MZmvAvbPJsq0Hf1B+onQcevxQDFDRYl3kwF
+	 1MZz3PpskJ9gqvdRGTrOP27OL/KkcYbMMrhKh3tIyh2mlvEisQ9MUAcI1f13zEMV2D
+	 KOJqLCesg8YUSb8q1oz7N2tJYfu/6V4I3IX5j7jQUnaWSklMMjPk8EETlNJ8ZOWGtJ
+	 EJUs6EVqrTyw0MvNEb1lWOvAFPuJpw4wlmSMR4+HxOxoMgB+A5/sBbRxBJbsBY1tcI
+	 zY4LJvmABmsnb9VvCQ0I4oga2qfqU6uO+EXv26CQQForPfrh6FW4u+VmT64AQxnZ3T
+	 ZWTkJCcj2wcFA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: hid-lenovo-go: cancel cfg_setup work in
+ hid_go_cfg_remove()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Manish Khadka" <maskmemanish@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260515153607.76175-1-maskmemanish@gmail.com>
+References: <20260515153607.76175-1-maskmemanish@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 15 May 2026 16:18:30 +0000
+Message-Id: <20260515161830.E6E2BC2BCB3@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-On May 15, 2026 7:57:38 AM PDT, Louis Clinckx <clinckx=2Elouis@gmail=2Ecom>=
- wrote:
->These drivers' id_tables only match HID_USB_DEVICE() entries and the
->code freely assumes a USB transport (to_usb_interface() on hdev->dev=2Epa=
-rent,
->endpoint access in raw_event)=2E Make the assumption explicit at probe an=
-d
->drop a NULL check that the compiler-level definition of to_usb_interface(=
-)
->makes unreachable=2E
->
->No functional change for the supported (USB) devices=2E
->
->Louis Clinckx (2):
->  HID: lenovo-go: reject non-USB transports in probe
->  HID: lenovo-go: drop dead NULL check on to_usb_interface()
->
-> drivers/hid/hid-lenovo-go-s=2Ec | 11 ++++++-----
-> drivers/hid/hid-lenovo-go=2Ec   |  6 +++---
-> 2 files changed, 9 insertions(+), 8 deletions(-)
->
->---
->Changes since v1:
-> - Resubmitted on linux-input as a quality fix per Benjamin's review of v=
-1
->   (sent to security@kernel=2Eorg; the HID_USB_DEVICE() id_table already
->    filters BUS_USB, so no exploitable path)=2E
-> - Added patch 2 to remove the dead NULL check, at Derek's suggestion=2E
->
->base-commit: 50897c955902c93ae71c38698abb910525ebdc89
->--
->2=2E39=2E5
->
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+s) to consider:
+- [High] AB-BA deadlock between device removal and sysfs operations.
+- [High] Global state corruption due to static per-device structs.
+- [High] Use-After-Free window due to mixing devm registration with explici=
+t teardown.
+- [High] Resource leaks on probe error paths.
+- [Medium] Unconditional success return in `mcu_property_out()` masks timeo=
+ut errors.
+- [Medium] Probe arbitrarily fails due to incorrect `schedule_delayed_work(=
+)` boolean logic.
+- [Low] Commit message mechanism explanation is factually incorrect.
+--
 
-Thanks for the quick turnaround on this=2E I've already tested these chang=
-es, so for the series:
-Reviewed-by: Derek J=2E Clark <derekjoh=2Eclark@gmail=2Ecom>
-Tested-by: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>
+commit 8001481b81b1932a98238ba0e2de3079e8807d91
+Author: Manish Khadka <maskmemanish@gmail.com>
 
-Thanks,
-Derek
+HID: hid-lenovo-go: cancel cfg_setup work in hid_go_cfg_remove()
+
+This commit drains the delayed go_cfg_setup workqueue at the start of
+hid_go_cfg_remove() to prevent it from dereferencing a stale device pointer
+after teardown. It places the cancellation before the mutex acquisition to
+avoid deadlocks.
+
+Cc: stable@vger.kernel.org
+
+> If the device is unbound within the 2 ms scheduling delay (a probe
+> failure rolling back via remove, or a fast rmmod after probe), the
+> work fires after hid_set_drvdata(NULL) has cleared the back pointer,
+> leaving cfg_setup() with a NULL or stale drvdata.hdev.
+
+This isn't a bug, but the explanation of the mechanism seems slightly
+inaccurate.
+
+Does hid_set_drvdata(hdev, NULL) only clear hdev->dev.driver_data rather
+than the global drvdata.hdev variable?
+
+> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+> index d4d26c7833563..ef69869f0a009 100644
+> --- a/drivers/hid/hid-lenovo-go.c
+> +++ b/drivers/hid/hid-lenovo-go.c
+> @@ -2408,6 +2408,13 @@ static int hid_go_cfg_probe(struct hid_device *hde=
+v,
+> =20
+>  static void hid_go_cfg_remove(struct hid_device *hdev)
+>  {
+> +	/*
+> +	 * cfg_setup is scheduled from hid_go_cfg_probe() with a 2 ms delay;
+> +	 * drain it here before tearing down so the workqueue cannot run
+> +	 * after hid_set_drvdata(NULL) and dereference a stale drvdata.hdev.
+> +	 */
+> +	cancel_delayed_work_sync(&drvdata.go_cfg_setup);
+
+The driver uses static global structures for device state (drvdata) and
+LED attributes.
+
+If multiple Legion Go controllers are connected, or a device is rapidly
+re-bound, does re-initializing an active mutex or delayed workqueue, and
+re-registering an already-linked LED struct corrupt internal kernel linked
+lists and lock wait queues?
+
+> +
+>  	guard(mutex)(&drvdata.cfg_mutex);
+>  	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
+
+In hid_go_cfg_remove(), guard(mutex)(&drvdata.cfg_mutex) acquires the
+mutex before calling sysfs_remove_groups(). sysfs_remove_groups() drains
+kernfs active references, blocking until any currently executing sysfs
+operations finish.
+
+If the driver's sysfs callbacks acquire drvdata.cfg_mutex via
+mcu_property_out(), can this cause an AB-BA deadlock if a sysfs operation
+runs concurrently with device removal?
+
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+
+The RGB LED class device and RGB sysfs attributes appear to be registered
+using devm_* APIs, which clean up resources after the driver's .remove()
+callback finishes.
+
+If hid_go_cfg_remove() explicitly stops and closes the hardware here,
+could userspace accessing the LED brightness or RGB sysfs files in the
+window between hardware teardown and devres cleanup cause a use-after-free
+when the sysfs callbacks call hid_hw_output_report()?
+
+>  	hid_set_drvdata(hdev, NULL);
+>  }
+
+Looking at hid_go_cfg_probe(), if a step after sysfs_create_groups() fails,
+the function returns an error without calling sysfs_remove_groups().
+
+Does this leave dangling sysfs files that could be accessed later?
+
+Also, if hid_go_cfg_probe() returns an error, does hid_go_probe() leak the
+hardware open references by failing to call hid_hw_stop() and
+hid_hw_close()?
+
+In hid_go_cfg_probe(), the driver checks ret =3D schedule_delayed_work(...)
+and fails the probe if !ret.
+
+Since schedule_delayed_work() returns false (0) when the work is already
+pending, and the driver uses a single global workqueue structure, will a
+second device fail to probe if it connects before the first device's work
+fires?
+
+In mcu_property_out(), wait_for_completion_interruptible_timeout() is used
+to wait for hardware responses. If a timeout occurs, ret is set to -EBUSY.
+
+Because the function ends with an unconditional return 0, does this drop
+the error code and mask communication failures?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515153607.7617=
+5-1-maskmemanish@gmail.com?part=3D1

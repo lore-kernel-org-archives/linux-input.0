@@ -1,189 +1,218 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B65F48C414
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 15:21:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAFB94CA29A
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 15:35:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778858460; cv=none; b=dpm1cfX9tTJeyuGdFnvNBjMqdhUTdWOIr1ItcJuXlhZ25RDuf1rqLggEss+g3xXLiC5TDp476hufdX5eK2bIVE/3X6KyrkTUTOiMBFm9rEOKBLl7dzNS/I+sFv5e0BP548KAWI3EWm9V8JZZa0cXeJ3DntxrP2FnuzMC0hqYUrE=
+	t=1778859306; cv=none; b=dDJ/1RVN0wBE1wAsZ/qJTD3a0TIjGXn8FXnlJKHHf6QwJEFmXaQGTJa1191bWk2pbKSsoZ4LRZdFuexcZ1nVhTnB+kA2c2Dq2j0v/JGereUsLXIUYmi3cXy/Njx7pPMEVbguzqbl6i0rTQsiNquLZR9pdIQkNe4EkZrldKx5pHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778858460; c=relaxed/simple;
-	bh=nhz3/Pfvs89U0fxpwRxcdjNjUtoQH/SbVFW4Qm1rMpk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fLPFDUiHVWhgqYUGZClTFDieG0Yyq8KEJOeWz7xis3SB+gb70F8MdoBOK81z+paXll8tu+ebjGsLiL11JWcd8SvQKNY8I72WYzCY+vsLSyJs59tq7Bdnd2EwekGP5mwjge9xXnc2as15NuCMfqhQyvRd6bGCBYDDGS4Vzby7uu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nk/F33iW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778859306; c=relaxed/simple;
+	bh=v2JNmcpByx39XKC+11E6OssrXqdngtd1d7/XmxIPVxQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KRzjWOhmrcJE7gGOm3HbNa5b+wM/Tk4ypeQzQ2eck20ooc6iF6ObvamKVdonhcLCZlvNqPZ5dj5jwJ0sDEn9aP5V3+cVkHhpS9HE/K3D0+/f4QxbypkFCJcr8kxS4IHk6pMC3cQt/9JsPgb8DMLOm1F0Y8NlTjGHem+p7CB2Juo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rm6U0Tlh; arc=none smtp.client-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nk/F33iW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D38D6C2BCB0;
-	Fri, 15 May 2026 15:20:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778858460;
-	bh=nhz3/Pfvs89U0fxpwRxcdjNjUtoQH/SbVFW4Qm1rMpk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=nk/F33iWmLAL5rBT4F+BPKjjGS75ueRltpFJ8a+6h0dBz1ZhCfzzYshQUJCCo7r7F
-	 aopMLIZvT8C4Zmu9VzzfXgpJu4qijILZdiqEVgzCOCykgN3yWj6txLz4qARtybgjUS
-	 UAk61bqPvZJgPspPzSEc2df71EFdmo7qiuP/Lw77EEaBDU0DfEbYugWUVIFNYk6rEc
-	 0VwVmPS4spQKI4J2ElLZbndjEXe8/JOJ2RdmzktozcXhlcO9OQj+g4/7dMI9NSzIop
-	 mBN+912AIT/APHfxLTqTqfHylYzQ/9oKe1m4u+1IrqmebuLxNmKeykWq4wW9W7WxzW
-	 daFwi1WVsizpw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] HID: lenovo-go: reject non-USB transports in
- probe
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Louis Clinckx" <clinckx.louis@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <e8f92f07a397f39680c72ca69a5ada9882ff7212.1778701376.git.clinckx.louis@gmail.com>
-References: <e8f92f07a397f39680c72ca69a5ada9882ff7212.1778701376.git.clinckx.louis@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 15:20:59 +0000
-Message-Id: <20260515152059.D38D6C2BCB0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rm6U0Tlh"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2f7ca62a3c4so9794660eec.0
+        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 08:35:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778859301; x=1779464101; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=AA7kMpri2bwTCWgHKxeeXnaMWABeWfUan218sTmdqOU=;
+        b=Rm6U0TlhoXHaVz5C21ajYqytanLnc1vGX24tXuxGAvxbNMO93C4Wu/tQf0peSsKaUV
+         QqCBbLuTGX8pQ7o6h5Le1eorS5uPElGfFztu/Gy940gG/Ltz902SZXPIN5u9YpvPqbfG
+         ZBVNnVm65pm6cx9N/L/Dt/frh3GB+cC6TFulEVeAPcl9nXbUoXdrDgIbQyrEKXQQCz9G
+         igGPvu5N74RBrE17d5pSL7jK9TDOKjEJYxFdUP0LaaHHR7t2MIrS3yZ7xjpUonUciFKe
+         88XFSARdDFkSVvkvoDIc8oOuzTtGbRJdLOg58Lm2k/oEQunUYwqUL8mrRhuFdKa9mU5i
+         znmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778859301; x=1779464101;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AA7kMpri2bwTCWgHKxeeXnaMWABeWfUan218sTmdqOU=;
+        b=Ycb7p9ht27jfUar4J25DuVZ8tk7mLMNh9w5lQRo6G55zAyac9TjATaxELXibaAh413
+         OgDJXtRoYScfpYPVrIsT+tFufrp0E4qlY+LHrU1GiwC+QT9f1BXqI11nVASgGn3yTStu
+         UBK32R3F8Urs+K2/KFqhSQHPcZ9Sggxfigbjq3UyLc9ZR+401F2m8FvsZj8yq2WAgrtl
+         Ksh6enqYE9iqGDy4AB56boSFNTkKutFqnxV0++kV2Z74616L0gvGbuW69pDYgUQIzGJI
+         WE8e4h6DMo5nFVxSZdIStdDELcHbN0/ntnRQW74F+IKi9im79dXnlRg+2dqmrR+h2Fm8
+         /INQ==
+X-Gm-Message-State: AOJu0Yw/csfapXPhzjHqdlg43elaqaguT2Y24LnZyeCXNJRgVAu6BR/c
+	a0yVfnFVPHPTmiBX08OdzMVOFVDa1OHs9LqRw2cRLsm1QzZmuLHVM5ZLR65wndxVQc8=
+X-Gm-Gg: Acq92OHIIk62TcCuPrvaf7lirj1Opu7Bs1UX+BGiY0Wc0/zRTnuXQGE0OwBRXoTVQyD
+	gqidIbO7upOMvpn9MHMF98Dj7wkVnLniMQhggtuk+6c0RgGmDBiuTKeTrRPVZn+D62HVbAKDbyD
+	7sbFsQ+NY1ogMFxbC7ixteAYKrUp585bPHFiEs9ceDLLRPV1UsjTS/2Ztskb/Qy08w503riBETt
+	NgqCJnCb6RvTFazP+7yob714jqAeJvmXaAQjp6NqSk2J3Xp8ETWEhfMF8SXtfa8gJRTfPeLImFb
+	zPthk6BGiS3/0o4rpA4GTKgMUYJX14ef7GS0gdQWrcY/MZxOQfMyr7lD4tLJmSyYUFr15tgbagk
+	hXok+tK07W2zIQJMKr3v/V82BIrOGCkWFrw8Ku+JGRcV3GETSFD0sqNpVBLqGv1ItDNTOhnLrb3
+	oOhMlOfO7modDPt8fSCdWAAE2jZ4mXu/zHvRgQDZbvQknCR5I9MSI/fDjG+cBqk0sMY9niU1bq/
+	EDUSJXOBpiPTaIkw/zsf7hJHbQdoa7TSFegVs0hB/bGUtWR9mNN3duLmQGdb0jv7b+aE4V1BJ7v
+	Uc6KHycsb9f5oTId+N0wLNLs+x8v4AHUDJL4TWiQAQ==
+X-Received: by 2002:a05:7301:678d:b0:2f2:5726:db31 with SMTP id 5a478bee46e88-303986c518fmr2129275eec.35.1778859300400;
+        Fri, 15 May 2026 08:35:00 -0700 (PDT)
+Received: from lima-kernel-dev.google.com (ec2-13-52-214-175.us-west-1.compute.amazonaws.com. [13.52.214.175])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30293e2e686sm8470324eec.5.2026.05.15.08.34.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 08:35:00 -0700 (PDT)
+From: Manish Khadka <maskmemanish@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: appleir: fix UAF on pending key_up_timer in remove()
+Date: Fri, 15 May 2026 21:19:50 +0545
+Message-ID: <20260515153450.76146-1-maskmemanish@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
-- [High] This problem wasn't introduced by this patch, but both drivers use=
- a static global variable (`drvdata`) to store device state rather than all=
-ocating it per-device.
-- [High] This problem wasn't introduced by this patch, but multicolor LED c=
-onfiguration structs (`go_cdev_rgb` and `gos_cdev_rgb`) are declared as sta=
-tic global variables but are passed to `devm_led_classdev_multicolor_regist=
-er()`.
-- [High] This problem wasn't introduced by this patch, but in `hid-lenovo-g=
-o.c`, the removal function `hid_go_cfg_remove()` fails to cancel the delaye=
-d workqueue `go_cfg_setup`.
-- [High] This problem wasn't introduced by this patch, but probe failures d=
-o not correctly unwind started hardware states and sysfs groups.
-- [High] This problem wasn't introduced by this patch, but a NULL pointer i=
-s passed to `memcpy` in `mcu_property_out()` when performing `GET_*` proper=
-ty requests.
-- [High] This problem wasn't introduced by this patch, but completion synch=
-ronization is broken in `mcu_property_out()` due to incorrect placement of =
-`reinit_completion()`.
---
+appleir_remove() runs hid_hw_stop() before timer_delete_sync().
+hid_hw_stop() synchronously unregisters the HID input device via
+hid_disconnect() -> hidinput_disconnect() -> input_unregister_device(),
+which drops the last reference and frees the underlying input_dev when
+no userspace handle holds it open.
 
-commit 7a455849d3633575795dff10836095e31a4bbca3
-Author: Louis Clinckx <clinckx.louis@gmail.com>
+key_up_tick() reads appleir->input_dev and calls input_report_key() /
+input_sync() on it.  The timer is armed from appleir_raw_event() with
+a HZ/8 (~125 ms) timeout on every keydown and key-repeat report.  If a
+key was pressed shortly before the device is disconnected, the timer
+can fire after hid_hw_stop() has freed input_dev but before
+timer_delete_sync() drains it:
 
-HID: lenovo-go: reject non-USB transports in probe
+  CPU0                                CPU1
+  appleir_raw_event()
+    mod_timer(...)                    <- timer armed for 125 ms
+  ...
+  USB disconnect
+  appleir_remove()
+    hid_hw_stop()
+      hid_disconnect()
+        hidinput_disconnect()
+          input_unregister_device()   <- input_dev freed
+                                        key_up_tick()
+                                          key_up()
+                                            input_report_key(
+                                              appleir->input_dev, ...)
+                                                            ^^^^^^^^^ UAF
+    timer_delete_sync()               <- too late
 
-These drivers only match HID_USB_DEVICE() entries and assume the
-underlying bus is USB. Make that explicit at probe by rejecting any
-non-USB hdev.
+A simple reorder is not sufficient.  Putting timer_delete_sync() first
+still leaves a window where a USB URB completion (raw_event) running
+during hid_hw_stop() can call mod_timer() and re-arm the timer, which
+then fires after hidinput_disconnect() has freed input_dev.
 
-> diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-> index 01c7bdd4fbe04..abf477e680428 100644
-> --- a/drivers/hid/hid-lenovo-go-s.c
-> +++ b/drivers/hid/hid-lenovo-go-s.c
-> @@ -1432,6 +1432,9 @@ static int hid_gos_probe(struct hid_device *hdev,
->  {
->  	int ret, ep;
-> =20
-> +	if (!hid_is_usb(hdev))
-> +		return -EINVAL;
-> +
+Introduce a 'removing' flag on struct appleir, gated by the existing
+spinlock.  appleir_remove() sets the flag under the lock and then
+drains the timer; appleir_raw_event() and key_up_tick() bail out
+early if the flag is set, so no path can arm or run the timer after
+remove() has drained it.
 
-[ ... ]
+The keyrepeat branch of appleir_raw_event() previously called
+key_down() and mod_timer() without holding the spinlock; take it now
+so the flag check is well-defined.  This incidentally closes a
+pre-existing read-side race on appleir->current_key in that branch.
 
->  	ret =3D hid_gos_cfg_probe(hdev, id);
->  	if (ret)
->  		dev_err_probe(&hdev->dev, ret, "Failed to start configuration interfac=
-e");
+This bug is structurally a sibling of commit 4db2af929279 ("HID:
+appletb-kbd: fix UAF in inactivity-timer cleanup path") and has been
+present since the driver was introduced.
 
-This isn't a regression from this patch, but do these probe failures
-leave the hardware state active?
+Fixes: 9a4a5574ce42 ("HID: appleir: add support for Apple ir devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Manish Khadka <maskmemanish@gmail.com>
+---
+ drivers/hid/hid-appleir.c | 40 ++++++++++++++++++++++++++++++---------
+ 1 file changed, 31 insertions(+), 9 deletions(-)
 
-If hid_gos_cfg_probe() fails, the code returns the error immediately without
-calling hid_hw_close(hdev) and hid_hw_stop(hdev).
+diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+index 5e8ced7bc05a..0e51f1e16653 100644
+--- a/drivers/hid/hid-appleir.c
++++ b/drivers/hid/hid-appleir.c
+@@ -109,9 +109,10 @@ struct appleir {
+ 	struct hid_device *hid;
+ 	unsigned short keymap[ARRAY_SIZE(appleir_key_table)];
+ 	struct timer_list key_up_timer;	/* timer for key up */
+-	spinlock_t lock;		/* protects .current_key */
++	spinlock_t lock;		/* protects .current_key, .removing */
+ 	int current_key;		/* the currently pressed key */
+ 	int prev_key_idx;		/* key index in a 2 packets message */
++	bool removing;			/* set during teardown; gates input_dev access */
+ };
+ 
+ static int get_key(int data)
+@@ -172,7 +173,7 @@ static void key_up_tick(struct timer_list *t)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&appleir->lock, flags);
+-	if (appleir->current_key) {
++	if (!appleir->removing && appleir->current_key) {
+ 		key_up(hid, appleir, appleir->current_key);
+ 		appleir->current_key = 0;
+ 	}
+@@ -195,6 +196,10 @@ static int appleir_raw_event(struct hid_device *hid, struct hid_report *report,
+ 		int index;
+ 
+ 		spin_lock_irqsave(&appleir->lock, flags);
++		if (appleir->removing) {
++			spin_unlock_irqrestore(&appleir->lock, flags);
++			goto out;
++		}
+ 		/*
+ 		 * If we already have a key down, take it up before marking
+ 		 * this one down
+@@ -229,12 +234,17 @@ static int appleir_raw_event(struct hid_device *hid, struct hid_report *report,
+ 	appleir->prev_key_idx = 0;
+ 
+ 	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
+-		key_down(hid, appleir, appleir->current_key);
+-		/*
+-		 * Remote doesn't do key up, either pull them up, in the test
+-		 * above, or here set a timer which pulls them up after 1/8 s
+-		 */
+-		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
++		spin_lock_irqsave(&appleir->lock, flags);
++		if (!appleir->removing) {
++			key_down(hid, appleir, appleir->current_key);
++			/*
++			 * Remote doesn't do key up, either pull them up, in
++			 * the test above, or here set a timer which pulls them
++			 * up after 1/8 s
++			 */
++			mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
++		}
++		spin_unlock_irqrestore(&appleir->lock, flags);
+ 		goto out;
+ 	}
+ 
+@@ -318,8 +328,20 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
+ static void appleir_remove(struct hid_device *hid)
+ {
+ 	struct appleir *appleir = hid_get_drvdata(hid);
+-	hid_hw_stop(hid);
++	unsigned long flags;
++
++	/*
++	 * Mark the driver as tearing down so that any concurrent raw_event
++	 * (e.g. from a USB URB completion that hid_hw_stop() has not yet
++	 * killed) and the key_up_timer softirq stop touching input_dev
++	 * before hid_hw_stop() frees it via hidinput_disconnect().
++	 */
++	spin_lock_irqsave(&appleir->lock, flags);
++	appleir->removing = true;
++	spin_unlock_irqrestore(&appleir->lock, flags);
++
+ 	timer_delete_sync(&appleir->key_up_timer);
++	hid_hw_stop(hid);
+ }
+ 
+ static const struct hid_device_id appleir_devices[] = {
+-- 
+2.43.0
 
-Additionally, does sysfs_create_groups() need to be rolled back if later
-steps in the config probe fail?
-
->  	dev_dbg(&hdev->dev, "Started interface %x as Go S configuration interfa=
-ce\n", ep);
->  	return ret;
->  }
-
-[ ... ]
-
-> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index d4d26c7833563..3fa1fe83f7e5e 100644
-> --- a/drivers/hid/hid-lenovo-go.c
-> +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -2419,6 +2419,9 @@ static int hid_go_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
->  {
->  	int ret, ep;
-> =20
-> +	if (!hid_is_usb(hdev))
-> +		return -EINVAL;
-> +
-
-[ ... ]
-
->  	ret =3D hid_go_cfg_probe(hdev, id);
->  	if (ret)
->  		dev_err_probe(&hdev->dev, ret, "Failed to start configuration interfac=
-e\n");
-
-This isn't a regression from this patch, but does this early return
-bypass hid_hw_close(hdev) and hid_hw_stop(hdev) as well?
-
->  	dev_dbg(&hdev->dev, "Started Legion Go HID Device: %x\n", ep);
-> =20
->  	return ret;
->  }
-
-[ ... ]
-
-This isn't a regression from this patch, but does the use of a static
-global drvdata struct cause data races when multiple devices are connected?
-
-Since drvdata is shared, functions like mutex_init() and init_completion()
-called during probe() would re-execute on the same memory space. Could this
-cause type confusion over drvdata.hdev and memory corruption from concurrent
-sysfs accesses or input events?
-
-This isn't a regression from this patch, but do the static global
-go_cdev_rgb and gos_cdev_rgb structs corrupt the kernel's global leds_list?
-
-The led framework embeds a struct list_head into the led_classdev structure.
-If devm_led_classdev_multicolor_register() is called for multiple devices
-using the same static struct, it would double-add the list node.
-
-Would unbinding one device then unlink the shared struct, leading to a
-use-after-free when the other device is later accessed or removed?
-
-This isn't a regression from this patch, but does hid_go_cfg_remove()
-need to cancel the go_cfg_setup delayed workqueue?
-
-If the controller is rapidly unplugged after hid_go_cfg_probe() schedules
-drvdata.go_cfg_setup, hid_go_cfg_remove() will tear down the device.
-Without calling cancel_delayed_work_sync(), could the workqueue execute
-and dereference the freed hdev pointer in mcu_property_out()?
-
-This isn't a regression from this patch, but does mcu_property_out() pass
-a NULL pointer to memcpy() during get property commands?
-
-Callers intentionally pass NULL as the data pointer and 0 as len for these
-commands. Since passing NULL to memcpy() is undefined behavior even when
-len is 0, could this trigger sanitizer violations?
-
-This isn't a regression from this patch, but is the completion
-synchronization in mcu_property_out() susceptible to spontaneous hardware
-events?
-
-Because reinit_completion() is called at the end of mcu_property_out(), if
-hid_go_raw_event() invokes complete() due to spontaneous events or multiple
-responses, the completion object could be left in a signaled state.
-
-Would the next call to wait_for_completion_interruptible_timeout() then
-return instantly and provide stale or uninitialized memory to user-space?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1778701376.gi=
-t.clinckx.louis@gmail.com?part=3D1

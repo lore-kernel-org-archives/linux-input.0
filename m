@@ -1,193 +1,153 @@
-Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAC6D3655CC
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 16:42:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BB6D4C0408;
+	Fri, 15 May 2026 16:48:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778863333; cv=none; b=LbR3yM6HvCj4cViqEnMbf+oxFAfiAa4XIjC6M6i27y02QISZ5xnIbEou/SgNDrv/Zs4D3PPrTTRthEuLfIPkPJ5JJxtf85fXt8z2S4vuJnqW/2QKfD/s1gU3HpKvt28xBKAhBFKx2NdBi/mUHGyy11zDCbuX6OkgWdC07cHyd+A=
+	t=1778863718; cv=none; b=HVn9iFbdwX0KrRiSoCNx82/8HaqDQzaHgmbN9HkaU9S3t0e47Q7kB7/xOAoyI9sZSxR1/FJ5OV5mOHIKQ2mNRwqV2tckykqWztsRqRwXsJW0cOd3L5R6Se8AoNw0Gdh9YlO5vRFWlcBuEyRoWfYjjQ9eim4znBYxO5RRCDiE7Aw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778863333; c=relaxed/simple;
-	bh=UBE19tqIPsaTPvtDf0UHZJ6EhdOgjl0QpfDIvLv+zc4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aSaJdADxXSdP2PViBZi2a7UHvaddVpOEeZyAzCLcilvobbcLGIT+P5JDCv53deitO/pZqnUAxNmYMH3kVKW2IFjgPW3LYdiJ7FPYsdH5+3Ii89k/zf62tJTHCivXn3E/gcL4zOAdHwE+5SXWVXLkM16nhEkAjjrbUzOT4/USaw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N0gkWHTR; arc=none smtp.client-ip=74.125.82.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778863718; c=relaxed/simple;
+	bh=0z/7MPC7cDzPuD+TXUN8q2ab9tjd61U+LxsMgtE4YDU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=prTB2Sz6UVHMfbQVwhw8OaT55IO1O1GhYgCEwjxRT5FtK7dDoYCPIm157WFP8sLtJOjQhaxmkslHKqqkvlEVrSqOGwOIN4FjEYdO01f+r1zSXHn/Nnz+J2kds4iOybBPbyl6MA3mbTKwwOKZ7LDazE4snApQnF2PGFYTl4UyBpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dVC+caWY; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N0gkWHTR"
-Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-2f30a4601bbso5747eec.1
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 09:42:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778863331; x=1779468131; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TOwQSFX5w3NCPHyeBplNdTwoVIjahKIQaTVbweU0MIU=;
-        b=N0gkWHTRXiznydaxXDU/ruxNz/mPvTlSuWxs1v2vEaTPZ3upvUcQZKu1tGnavcXxgE
-         gRM0EBX1XX+LQ8CH8fykcH1NE+HykDQYBaQxEY5OZQaEk/kkCRzd+EjVELU+JaFqLY7p
-         LnjuQUbnKy+8RU35Lz5hr1VKTruwtypjsStyvjsLJZ+j9x2DelRSZzUZD1L6baPk/1is
-         m21j5WPzdwBaJKIRoUzYlbJZVX4JjMEDVQ/phr6D8sW31jXv9ULd+DQo3oLZVbTzolVn
-         xHKnfonEyjpN+Z7Ob4bsez3ZVMDp1KQJuGnUniBy5JJqYKcar86L9Z8py8VgkhEXlqso
-         XBbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778863331; x=1779468131;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=TOwQSFX5w3NCPHyeBplNdTwoVIjahKIQaTVbweU0MIU=;
-        b=Sv9CA5EBSkvZv0srgENRGI3TZPtaVYH73KYn+uuwSltvm6dyHu84DE0AMPT1JZk+v8
-         4ZwM/gJ0Sd9KsBVAgsyNKIklsGYalDMmNVJzI5FfeG1YxGwrLe6Os9K0AHXy/chm/HeZ
-         z7O0EuZ92LoJC20Gv0fzWm+54UPj8dCX2pYJRA+diSJqVrVEEFGiBHA1MijqwihtHuGi
-         oj4ba4Ad7XCOsCkKbHMA/S6S6y3EpBWFk2vOqwf7Fi27r/3/vqLE8zwfLwvt2xJ5dgug
-         /hlAn+EZMc0ZMAau633VMfzmav2ScPUcUzjiwPP9Xi1u5e/PeEwt48sM828Bc9pi+Hjh
-         cghQ==
-X-Gm-Message-State: AOJu0YxyoAE/UhyhCuflf8TXeYwIhpbu9TtDrN55gwCdDjutv6DjRdSy
-	xn+SSU57rSQhpC4bU6ZpESyhrytrWeOngPoj5uJLevuYF9/+sZCxS3YKm5xEFMHOr+c=
-X-Gm-Gg: Acq92OHHrCcnba5lyrvDG7L3oFdbHsA7Mc1AjM98yoeQBzabFluLvr1GhSx2kktGNCn
-	mr2qgTmedTYgH3J6AXJkESmd+S6At/7Wj7T3eYI/qCiC/xhWhDBxcyfOmljioivkpsJAGAkMA9u
-	rjD4hqAo6Ie48G1Wx2J5KAdn+7peZ7Ej5X/Q6SZoEZP0fe/+NAZo2teLxQxeGShgg+/lfJEbBL0
-	8nVEZujCLH8JaN9VicDzIiwkljqdX6nuMoGNFdd0mHZrEJ+4dAdXKDpSYZTR/Jf3Ul+U0UOdS2g
-	C5cRAPsy+aTViMXyE0hfGuM0Bw7aK0iOcso9k1YRZMUN5tNRrRbemwk6HnR+Djmpp4nwLzemDkv
-	1lF6ZCan2El/PojU6SlUb+ti+bvqDkmFMfTLHsRHdXRbtAHqxXKQAvUDXu9NEYDCiZ0y/Q6sXpY
-	Ey7vcS/+Euo8f19bnz4PleDqEZxUrlBCjSRkXd8jzTB285tQ+zG7LPK67NMtKuvfZCKQc4nIKRe
-	5J44AzLHkyYfaM8Uzep+TW/FkfZ3G8VrSeMt+zjltE+k9tddI7/tA8FSiQ4tchJD729t3e7HHaT
-	C+XIjP5bZT8EG6Jh3JlGyrJmZkytoaOy4ithDEjWPg==
-X-Received: by 2002:a05:7300:e430:b0:2c1:558c:16e1 with SMTP id 5a478bee46e88-303982865cfmr2294292eec.4.1778863330556;
-        Fri, 15 May 2026 09:42:10 -0700 (PDT)
-Received: from lima-kernel-dev.google.com (ec2-13-52-214-175.us-west-1.compute.amazonaws.com. [13.52.214.175])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-302973bbd50sm7423695eec.20.2026.05.15.09.42.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 09:42:10 -0700 (PDT)
-From: Manish Khadka <maskmemanish@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Hans de Goede <hansg@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] HID: letsketch: fix UAF on inrange_timer at driver unbind
-Date: Fri, 15 May 2026 22:27:00 +0545
-Message-ID: <20260515164200.77039-1-maskmemanish@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260515155838.B4247C2BCB3@smtp.kernel.org>
-References: <20260515155838.B4247C2BCB3@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dVC+caWY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778863715; x=1810399715;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=0z/7MPC7cDzPuD+TXUN8q2ab9tjd61U+LxsMgtE4YDU=;
+  b=dVC+caWYtrT2D61VI+Y4QQAclApfsyus2rCgR7UR729wtH5hoCV0QKdW
+   H1FmpB9ipJNFf2ZCaqn8XnBqANEcBDBulmswOq7sEiuJJpVvPeNwYXPcx
+   ht0uScnmgFaX/NdKW8myPro5uYGlHsKmvClAs3PbczvssmJ0Rlt30a19A
+   1TyCEELmnU52h+MlYbiyTC3538kfx1jn85lOU29Zv3RIe/ACHK/HWWUbX
+   QXfQev3jxJ/n17Y0vzEY6rpdOu0f5zBSCaN+Q5Lpq/vQ3QSpwoa9TkBMe
+   Ivfx53gepxVcZQN6WGyknoUFyb2+981V+oHbactmWJEivKdABEgqTDgBg
+   w==;
+X-CSE-ConnectionGUID: NebYlhw9RJOBp6oR1GQjRQ==
+X-CSE-MsgGUID: Fpl6V2rbQ5ODEuNiBlSsXQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11787"; a="78846428"
+X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
+   d="scan'208";a="78846428"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 09:48:34 -0700
+X-CSE-ConnectionGUID: yAd87xEVTV2VaZKwwbztUg==
+X-CSE-MsgGUID: 7NXHeSrxR0SIiOsLR69bdg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
+   d="scan'208";a="269101211"
+Received: from spandruv-desk2.jf.intel.com ([10.88.27.176])
+  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 09:48:34 -0700
+Message-ID: <873e576772dc7b283bb4f01b3c838894cc7a35de.camel@linux.intel.com>
+Subject: Re: [PATCH v3 2/6] iio: gyro: HID: hid-sensor-gyro-3d: Refactor
+ channel initialization
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: =?ISO-8859-1?Q?Nat=E1lia?= Salvino =?ISO-8859-1?Q?Andr=E9?=
+	 <natalia.andre@ime.usp.br>, andy@kernel.org, dlechner@baylibre.com, 
+	jic23@kernel.org, jikos@kernel.org, nuno.sa@analog.com
+Cc: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>, 
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Date: Fri, 15 May 2026 09:48:34 -0700
+In-Reply-To: <20260512012302.20883-3-natalia.andre@ime.usp.br>
+References: <20260512012302.20883-1-natalia.andre@ime.usp.br>
+	 <20260512012302.20883-3-natalia.andre@ime.usp.br>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-letsketch_driver does not provide a .remove callback, but
-letsketch_probe() arms a per-device timer:
+On Mon, 2026-05-11 at 22:16 -0300, Nat=C3=A1lia Salvino Andr=C3=A9 wrote:
+> Replace the local gyro_3d_adjust_channel_bit_mask() function with a
+> compound literal for scan_type initialization to improve code
+> readability.
+>=20
+> Signed-off-by: Nat=C3=A1lia Salvino Andr=C3=A9 <natalia.andre@ime.usp.br>
+> Co-developed-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+> Signed-off-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
+> ---
+> =C2=A0drivers/iio/gyro/hid-sensor-gyro-3d.c | 24 +++++++++---------------
+> =C2=A01 file changed, 9 insertions(+), 15 deletions(-)
+>=20
+> diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> index c340cc899a7c..4cbe4d93a0a1 100644
+> --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> @@ -3,6 +3,7 @@
+> =C2=A0 * HID Sensors Driver
+> =C2=A0 * Copyright (c) 2012, Intel Corporation.
+> =C2=A0 */
+> +#include <linux/bitops.h>
+> =C2=A0#include <linux/device.h>
+> =C2=A0#include <linux/platform_device.h>
+> =C2=A0#include <linux/module.h>
+> @@ -82,17 +83,6 @@ static const struct iio_chan_spec
+> gyro_3d_channels[] =3D {
+> =C2=A0	IIO_CHAN_SOFT_TIMESTAMP(CHANNEL_SCAN_INDEX_TIMESTAMP)
+> =C2=A0};
+> =C2=A0
+> -/* Adjust channel real bits based on report descriptor */
+> -static void gyro_3d_adjust_channel_bit_mask(struct iio_chan_spec
+> *channels,
+> -						int channel, int
+> size)
+> -{
+> -	channels[channel].scan_type.sign =3D 's';
+> -	/* Real storage bits will change based on the report desc.
+> */
+> -	channels[channel].scan_type.realbits =3D size * 8;
+> -	/* Maximum size of a sample to capture is u32 */
+> -	channels[channel].scan_type.storagebits =3D sizeof(u32) * 8;
+> -}
+> -
+> =C2=A0/* Channel read_raw handler */
+> =C2=A0static int gyro_3d_read_raw(struct iio_dev *indio_dev,
+> =C2=A0			=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct iio_chan_spec const *chan,
+> @@ -251,16 +241,20 @@ static int gyro_3d_parse_report(struct
+> platform_device *pdev,
+> =C2=A0	int i;
+> =C2=A0
+> =C2=A0	for (i =3D 0; i <=3D CHANNEL_SCAN_INDEX_Z; ++i) {
+> +		unsigned int ch =3D CHANNEL_SCAN_INDEX_X + i;
+> +
 
-    timer_setup(&data->inrange_timer, letsketch_inrange_timeout, 0);
+When you do code change more than what you described, then you should
+add to commit description that you are also doing this at the same
+time.
 
-The timer is re-armed from letsketch_raw_event() with a 100 ms
-timeout on every pen-in-range report, and its callback dereferences
-data->input_tablet to deliver a synthetic BTN_TOOL_PEN release.
+Thanks,
+Srinivas
 
-letsketch_data is allocated with devm_kzalloc(), and its input_dev
-fields are devm-allocated via letsketch_setup_input_tablet().  On
-device unbind (USB unplug or rmmod), the HID core runs its default
-teardown and devm cleanup frees both letsketch_data and the input
-devices.  Because no .remove callback exists, nothing drains the
-timer first: if raw_event armed it within ~100 ms of the unbind,
-the pending timer fires on freed memory.  This is a UAF read of
-data and of data->input_tablet, followed by input_report_key() /
-input_sync() into the freed input_dev.
-
-The same problem can occur on the probe error path: if
-hid_hw_start() enabled I/O on an always-poll-quirk device and then
-failed, raw_event may have armed the timer before devm releases
-data.
-
-Fix by adding a .remove callback that calls hid_hw_stop() first.
-hid_hw_stop() synchronously kills the URBs that deliver raw_event(),
-so once it returns no path can re-arm the timer.  timer_shutdown_sync()
-then drains any in-flight callback and permanently disables further
-mod_timer() calls.  Apply the same timer_shutdown_sync() in the probe
-error path so the timer is guaranteed not to outlive data.
-
-Fixes: 33a5c2793451 ("HID: Add new Letsketch tablet driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Manish Khadka <maskmemanish@gmail.com>
----
-
-v1 -> v2:
-  - Drop the spinlock_t and bool removing fields and their uses
-    (and the <linux/cleanup.h> include): hid_hw_stop() synchronously
-    kills URBs, so once it returns no raw_event can re-arm the timer
-    and an explicit gate is unnecessary.
-  - Use timer_shutdown_sync() in place of timer_delete_sync(), which
-    also makes the probe error path safe against a stray mod_timer()
-    that an always-poll-quirk hid_hw_start() failure could leave
-    behind.
-  - Drain the timer in the probe error path via a unified
-    err_shutdown_timer label.
-  Thanks to Sashiko AI review for both points.
- drivers/hid/hid-letsketch.c | 36 +++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-letsketch.c b/drivers/hid/hid-letsketch.c
-index 11e21f988723..b52e93a91ae5 100644
---- a/drivers/hid/hid-letsketch.c
-+++ b/drivers/hid/hid-letsketch.c
-@@ -296,13 +296,42 @@ static int letsketch_probe(struct hid_device *hdev, const struct hid_device_id *
- 
- 	ret = letsketch_setup_input_tablet(data);
- 	if (ret)
--		return ret;
-+		goto err_shutdown_timer;
- 
- 	ret = letsketch_setup_input_tablet_pad(data);
- 	if (ret)
--		return ret;
-+		goto err_shutdown_timer;
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret)
-+		goto err_shutdown_timer;
- 
--	return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	return 0;
-+
-+err_shutdown_timer:
-+	/*
-+	 * Drain any pending callback and permanently disable the timer
-+	 * before devm releases data: if hid_hw_start() enabled I/O on an
-+	 * always-poll-quirk device and then failed, raw_event may have
-+	 * armed the timer already.
-+	 */
-+	timer_shutdown_sync(&data->inrange_timer);
-+	return ret;
-+}
-+
-+static void letsketch_remove(struct hid_device *hdev)
-+{
-+	struct letsketch_data *data = hid_get_drvdata(hdev);
-+
-+	/*
-+	 * hid_hw_stop() synchronously kills the URBs that deliver
-+	 * raw_event(), so once it returns no path can re-arm
-+	 * inrange_timer.  timer_shutdown_sync() then drains any
-+	 * in-flight callback and permanently disables further
-+	 * mod_timer() calls before devm releases data.
-+	 */
-+	hid_hw_stop(hdev);
-+	timer_shutdown_sync(&data->inrange_timer);
- }
- 
- static const struct hid_device_id letsketch_devices[] = {
-@@ -315,6 +344,7 @@ static struct hid_driver letsketch_driver = {
- 	.name = "letsketch",
- 	.id_table = letsketch_devices,
- 	.probe = letsketch_probe,
-+	.remove = letsketch_remove,
- 	.raw_event = letsketch_raw_event,
- };
- module_hid_driver(letsketch_driver);
--- 
-2.43.0
-
+> =C2=A0		ret =3D sensor_hub_input_get_attribute_info(hsdev,
+> =C2=A0				HID_INPUT_REPORT,
+> =C2=A0				usage_id,
+> =C2=A0				HID_USAGE_SENSOR_ANGL_VELOCITY_X_AXI
+> S + i,
+> -				&st->gyro[CHANNEL_SCAN_INDEX_X +
+> i]);
+> +				&st->gyro[ch]);
+> =C2=A0		if (ret < 0)
+> =C2=A0			break;
+> -		gyro_3d_adjust_channel_bit_mask(channels,
+> -				CHANNEL_SCAN_INDEX_X + i,
+> -				st->gyro[CHANNEL_SCAN_INDEX_X +
+> i].size);
+> +		channels[ch].scan_type =3D (struct iio_scan_type) {
+> +			.format =3D 's',
+> +			.realbits =3D BYTES_TO_BITS(st-
+> >gyro[ch].size),
+> +			.storagebits =3D BITS_PER_TYPE(u32),
+> +		};
+> =C2=A0	}
+> =C2=A0	dev_dbg(&pdev->dev, "gyro_3d %x:%x, %x:%x, %x:%x\n",
+> =C2=A0			st->gyro[0].index,

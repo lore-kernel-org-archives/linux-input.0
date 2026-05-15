@@ -1,66 +1,66 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F9CA3FB7D3
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 08:25:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F13047CC99
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 11:41:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778833518; cv=none; b=axtZYeacd4vcSuEzE7uo9GJtYSFVGhw8GS11+J7EaUN6/xh7SPai2gLh4suYC1NsGeW6Vp3hZRPFrFK17u3YNWBpZh04YS9h599qc/aCBJjyPEdLBNVEjGT2ULlJCEWzvUoHwyhUhpk24F2ccPUql27IE7EpEdMH9V+pv/u8I2Q=
+	t=1778845304; cv=none; b=EuFpDoETsO0Z/YJyrbEyCrWLSa9TJzfhajR4n34OT6bNMCgPT5RSMC/DWUIMLPInuDOeUHX2PzeMZ5YL5xIw+cz20pZj9/hsnqXHKwwdj3CgtCuRu5e+Xlc6t/YuLPJEkaMjG5mDdAuKZYgkTbo3hB08dw+T4XUMvWRdCHx2cCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778833518; c=relaxed/simple;
-	bh=x7M8QMRLEdW4Rrh+jkBoFBRBtP4oSw/c9kEx6akVmCc=;
+	s=arc-20240116; t=1778845304; c=relaxed/simple;
+	bh=CTwiBTXgKo7K6y0K1Dx2UdK0JxC3dCcCpJUx4YVxSM8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DtTc1HXPtIbDCD0UH3jxo2TpUEZhU3pIO6yN6tOPPT8zC0AsuKPBSe9QNPDg+sjJawPSkkb19Dzoxct3mc0DaBPwpEZX++K1YRD0j+jFeFZrZPBjJkoq7atxSCej2TImVseS2Sh0boUv0/HP5mr+Y0xdrAnH1mTgJP7avbbXZ14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=CYGt7kLH; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	 In-Reply-To:Content-Type; b=kKi8PXVVWqk4UJLwjpbnT1D8P4PyBD1NBaL7yBobWHnsE8wSWbxAiPWrD2fUpdvx4L2x039OMnymkX6pZQ04hYPEyNST6xAw6ih/zoKUEH6u2i7vJ1t19kOrDsBROk4wC47vDsqEhvpv7Jn/6c2HgJ8QAx3vFaQuXPEBCCXx/4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=o2hkzp9L; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CYGt7kLH"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-43d7e23defbso5245935f8f.0
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 01:25:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="o2hkzp9L"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-67b6da5a618so13357869a12.2
+        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 04:41:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1778833514; x=1779438314; darn=vger.kernel.org;
+        d=fairphone.com; s=fair; t=1778845301; x=1779450101; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=B8R9wMI16Tg8iAgIRKSdM3jyUIf/EyyLOvedUo+31Xs=;
-        b=CYGt7kLHSS2S0vz6UYTjOiFc+6gmfJJuZAhKUQCpJrSGAu04qsPGT3ZjJoRYqJkC7Q
-         ZfTovfnnheBgbieDa0eF2Bd36NAYAS6Ny+pPxKPkmjCL/DX/PdaF/O1uQG4X4s1jKH3B
-         7K/4p94A8FpJVcUxpRMqsO8HQKAGvsJTUUtvYF2YZdd+rchtECuBxdYJ+t+iQ/qLEybx
-         0x7mvfS8R9W9kTzZ0573NRlV7Wxs4uqxzuvsHZBHQwB4/NQ4IAzsN7tu3/hRkghZxGFf
-         KxSAm9GGqVVrK1PISzmHGd3KNPVv3WSwlzKLdzFerikad/6W8JDjgLEp8R/aGLeYmK4n
-         Oaiw==
+        bh=d0YuC8NLk0JJSjHe3iGG0tkbsopOL75mgPP59FgiTls=;
+        b=o2hkzp9LAx5y+kXSG+qoaGv+0i7ZgiLkzhAo/CibsDYs8RQ4yq0jkysaY1lOxLzEqF
+         ccaXDINSjEbYfWdn7P4o/2NKTRkmPULCB0qG4mUSW5F227Jt9KJP/Z57nbFlHf2MaEZP
+         ptTBeMTRU003ORlt7aIVLddhZKE6AyfOlb/OJ0TcSIDsQdKq5s7Q+Fuin3C8JRr4O53h
+         feefA6yVTyH9GimKO5mMwuhhL3AMD5xfY7qtU58onbNEfNl/J+DTAPGbijWvowl4JReq
+         hvIcgf66rOiEjUkHgGY5C5Y24HRXPSS5ja+WPRBIiIvcIkd+wuVXZDYJof4Ubbhs2j4l
+         e0sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778833514; x=1779438314;
+        d=1e100.net; s=20251104; t=1778845301; x=1779450101;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=B8R9wMI16Tg8iAgIRKSdM3jyUIf/EyyLOvedUo+31Xs=;
-        b=fTfMJkHAsD2qshfn0JF69L5/iH8Kfpji7goG7bpzDOGd4tHpkCD2JWsCh9Yg/42YMr
-         2dnR/fnJSWm3nWXOo6S0GKgjM+vfgjS6qMNZn2yhaPKk1mQ7aNWsGn7x3sQJKkm+1VAI
-         ZIaBBrY9VVSnqUvZdrhBjMfqK71/1l813aefDoUBFe3JvYpuvzNd40hitTH2x7264JDt
-         UPoWr8t3D88HBwMbcfQuO0por3ZgbCpMdRLrua9QWs9IxoikwDKrW3fmr+hXs/3M1yfe
-         h9npBydWHkLdUDLz0bG/R5LC3eWpWCojWNFoU9Mc2QIqoggsHjRCdSBJllvYpts7Hiew
-         XaqQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/ZVBsejBLP1ZHNsWTZHpozoJiN5cNBJ+ApUo3D4Wo2Oe3kV3qkNO0L0ZouFXMHGtvHWgYHAohCaEi2RA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzTZI4OLobnvppJ5K/gnyNNdL1FmB6jHVsycoxsoyT3l+wRT8VI
-	T4yFgWTvY6dmwsABjdttKOZ53yJLd9MUWRp/UEan/rFNxveXORgLcHadJee999bwlCU=
-X-Gm-Gg: Acq92OHVHcNpxFpx8wi9OFWsCL+BWXRtUWJIntDHU1W+xB3Pd8nhxv6vJ7PP7u+awpA
-	8kYARjRONJ6qrNLg03rLT9RhVY2Mgu4UhK1IfC9OGhjrOHJMLZfP2+vp7GYZ3NQCKms1z7SH5/T
-	vJUWUCpZ7aQqp6g10uwgnjYC5roHqtqCVd9d56KkwUC/zyjwmfXuTKnkmY+BB53oaMK7psn6II4
-	aETXtU7CkWuOzOCMI27CySALKb4qp5cgigF4o25pv6Y3KGnv5zjh/tlvoyhB3+RNbdoO3vjbjOw
-	8rAlUZNfWOlAINhNOEwtpap6voFYDNMHwQ/lh/SgBO5u4nr4LtY89SeHrcYFDr0lUmKEilTBpJ0
-	QZCzUCKGRi1dYtAmMqQ7bouBKArAreZwlQyd+brfuzDPkBunaULax2DWu+tEcpAKL5uCv6Bzdsy
-	Uw9XJozhmCHFxyCTUddDmhS3ljl+/1ATVVdLfZu7c=
-X-Received: by 2002:a05:6000:2c12:b0:452:87de:d3a6 with SMTP id ffacd0b85a97d-45e5c6048d1mr3580229f8f.33.1778833514418;
-        Fri, 15 May 2026 01:25:14 -0700 (PDT)
-Received: from [192.168.1.3] ([185.48.77.170])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ec3ac86sm13115730f8f.14.2026.05.15.01.25.13
+        bh=d0YuC8NLk0JJSjHe3iGG0tkbsopOL75mgPP59FgiTls=;
+        b=ftnT83IugfJNKwpai8gHpgy8fF1RzhqnDSyYvqXej8OfufZINV9/nYOiIqEngFIjUt
+         sOpMG6GITThmp/Z/q9eIO3iwLobGXQ4Vag3m0gjQiE2VD95EXL3FkUA0mfIWnFPvGtjN
+         Wv5eoB47nlayH+E3y6hOZ3K3S4We5ftd5KXB7yVSp4/VKtYlSmi2XUZ3Ghs/hRIuT5K5
+         bgx/vB6GZ9Lntt3Cy2JcZvk61rFDc2EeujKC0HiQJcu0DtY8xH1aMsM4Cva3Bu7gOCDb
+         rN8bijPn5DwZpBb3wGG4mzsRyLGJtqXqfJrCqAPQoQAJzGmCod8KwUn4z76nXh2el3Gf
+         5RAg==
+X-Forwarded-Encrypted: i=1; AFNElJ8Rs/jbmktB3EWOlOFQmhYpSF2iMhhJIJgyiRcX43FwrdVTtQwyEwzEg7fjvBf8O0nzQndAIp8RJyiN/g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwVJKMpcP+XF30XF9IX91FSocM6JFgKj8F1kq0x4cwqUnhyRIDv
+	uR2cMXWRka9YBfoWXZzpq3BZ3ykc0adcCj4j9nkUM+B3hhXxdS2cry50kwhqXwotAxc=
+X-Gm-Gg: Acq92OH0aKgd/KD4iN/m8oRjtf8PWosknkieO4FYpyt0A1gper6NxvdLHE7D5mbUECX
+	1hVz0uDM26ErxvWN2Q0HoLGYmmg4mGAt8+/dgGApmX+bb4NW5jJV7EIaSj27oZu7UVhB8eoj8Af
+	H5UQT01BPMQYVSsIcV212fCnHeHeAv0kwUcD6G9xLfGcu+HR4oivZIlKfNpOkdt2BirMZiRgqx0
+	WWczezv1cc3qSk9a4v7XUKSFtPgVLKZjkKBarDCTqgJil64lXi27g5BOpWSDX360aaLkpyog7j9
+	y3ntKJGarFRrYLVNXkYPwR0b7nBWO6457ZcwSO3b7JvrXCYcxkYLcoX4PVxLTO9JBH9rbZl5E9G
+	7Rhrd2UCqyaazeNwem1yccYyEdDOck6y05c+APzErPOMCebGA46HX+3BhOqEyl51bF/DA0UYSI6
+	ExRwU3moPUJqQCxExdNLfqGTZlUtuUzrpud97GaWPmbGVs954l2DHl609zK/5tHAcV6WIUQA==
+X-Received: by 2002:a17:907:c291:b0:bd5:7a3:a58b with SMTP id a640c23a62f3a-bd517994249mr190506866b.46.1778845300966;
+        Fri, 15 May 2026 04:41:40 -0700 (PDT)
+Received: from [192.168.1.105] (164-6-132-5.ftth.glasoperator.nl. [5.132.6.164])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bd4f4c31494sm215043366b.20.2026.05.15.04.41.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 May 2026 01:25:14 -0700 (PDT)
-Message-ID: <69034d26-e886-48f2-a20b-524854a5c00f@linaro.org>
-Date: Fri, 15 May 2026 09:25:13 +0100
+        Fri, 15 May 2026 04:41:40 -0700 (PDT)
+Message-ID: <21308d1e-712b-4d3b-b083-251c8d755470@fairphone.com>
+Date: Fri, 15 May 2026 13:41:38 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -68,94 +68,48 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/6] tools/build: selftests: Allow versioning LLVM lld
-To: sashiko-reviews@lists.linux.dev
-Cc: dmitry.torokhov@gmail.com, bpf@vger.kernel.org,
- linux-input@vger.kernel.org, linux-perf-users@vger.kernel.org
-References: <20260514-james-perf-llvm-version-v1-5-6cac1a9a4c8d@linaro.org>
- <20260514184543.C6400C2BCB3@smtp.kernel.org>
+Subject: Re: [PATCH RFC 3/4] Input: gpio-keys - add regulator to gpio_keys
+To: Mark Brown <broonie@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Luca Weiss <luca.weiss@fairphone.com>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
+References: <20260508-gpiokeys-vdd-supply-v1-0-0bb32e8e6428@fairphone.com>
+ <20260508-gpiokeys-vdd-supply-v1-3-0bb32e8e6428@fairphone.com>
+ <af3oqSshbXrUYMnz@sirena.co.uk>
 Content-Language: en-US
-From: James Clark <james.clark@linaro.org>
-In-Reply-To: <20260514184543.C6400C2BCB3@smtp.kernel.org>
+From: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+In-Reply-To: <af3oqSshbXrUYMnz@sirena.co.uk>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+On 5/8/26 15:44, Mark Brown wrote:
+> On Fri, May 08, 2026 at 02:53:15PM +0200, Griffin Kroah-Hartman wrote:
+> 
+>> +		if (fwnode_property_present(child, "vdd-supply")) {
+>> +			button->regulator = devm_fwnode_regulator_get_optional(dev, child, "vdd");
+>> +			if (IS_ERR(button->regulator)) {
+> 
+> As well as the issue I mentioned on a prior thread with this assigning a
+> non-physical "vdd" name to the single supply that these components can
+> have (which has had issues in the past
 
+Our Hall Effect sensor IC does have a named "vdd" pin, but we are 
+totally open to changing this to power-supply or whatever best follows 
+the standard.
 
-On 14/05/2026 7:45 pm, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] Using `-fuse-ld=ld.lld` breaks compilation of BPF selftests with GCC.
-> --
-> 
-> commit 18e1876d18fad631b521da817483ba47293a9020
-> Author: James Clark <james.clark@linaro.org>
-> 
-> tools/build: selftests: Allow versioning LLVM lld
-> 
-> This commit updates Makefile.include to add an LLD variable, matching the
-> rest of the LLVM toolchain. It modifies the BPF selftests Makefile to use
-> this new LLD variable instead of hardcoding lld.
-> 
->> diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
->> index 380ad84ac51e6..5c2d505cba62b 100644
->> --- a/tools/scripts/Makefile.include
->> +++ b/tools/scripts/Makefile.include
-> [ ... ]
->> @@ -91,6 +92,7 @@ else
->>     # Some tools still require Clang, LLC and/or LLVM utils
->>     $(call allow-override,CLANG,clang)
->>     $(call allow-override,LLC,llc)
->> +  $(call allow-override,LLD,ld.lld)
-> 
-> Could setting LLD to ld.lld when not using LLVM cause issues for BPF
-> selftests compilation with GCC?
-> 
+> painful) the fact that this is fwnode means that this opens up support
+> for using this with ACPI which is very problematic given that ACPI has a
+> strong model of how regulators should work which is that they should not
+> be OS visible at all. 
 
-$(LLD) is only used in one place, and it's used with $(CLANG) so this is 
-impossible.
+Would it be more appropriate to drop the devm_fwnode_regulator_get() and 
+replace it with a type-casted devm_of_regulator_get()?
 
->>     $(call allow-override,LLVM_CONFIG,llvm-config)
->>     $(call allow-override,LLVM_OBJCOPY,llvm-objcopy)
->>     $(call allow-override,LLVM_STRIP,llvm-strip)
->> diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
->> index 6ef6872adbc3e..44ba829e5d4dd 100644
->> --- a/tools/testing/selftests/bpf/Makefile
->> +++ b/tools/testing/selftests/bpf/Makefile
->> @@ -245,9 +245,9 @@ $(OUTPUT)/%:%.c
->>   
->>   # LLVM's ld.lld doesn't support all the architectures, so use it only on x86
->>   ifeq ($(SRCARCH),$(filter $(SRCARCH),x86 riscv))
->> -LLD := lld
->> +USE_LD := $(LLD)
->>   else
->> -LLD := $(shell command -v $(LD))
->> +USE_LD := $(shell command -v $(LD))
->>   endif
->>   
->>   # Filter out -static for liburandom_read.so and its dependent targets so that static builds
->> @@ -258,7 +258,7 @@ $(OUTPUT)/liburandom_read.so: urandom_read_lib1.c urandom_read_lib2.c liburandom
->>   		     $(filter-out -static,$(CFLAGS) $(LDFLAGS)) \
->>   		     $(filter %.c,$^) $(filter-out -static,$(LDLIBS)) \
->>   		     -Wno-unused-command-line-argument \
->> -		     -fuse-ld=$(LLD) -Wl,-znoseparate-code -Wl,--build-id=sha1 \
->> +		     -fuse-ld=$(USE_LD) -Wl,-znoseparate-code -Wl,--build-id=sha1 \
-> 
-> When LLVM=1 is not set, CC defaults to gcc. The Makefile uses
-> $(CC) ... -fuse-ld=$(USE_LD) to link liburandom_read.so.
-> 
-> Because USE_LD evaluates to ld.lld, gcc receives -fuse-ld=ld.lld.
-> 
-> However, GCC's command-line option parser is strictly hardcoded to accept
-> only specific linker names (lld, bfd, gold, mold). It does not recognize
-> -fuse-ld=ld.lld or absolute paths, and fails with an error like:
-> 
-> gcc: error: unrecognized command-line option '-fuse-ld=ld.lld'; did you mean '-fuse-ld=lld'?
-> 
-> Does this regression break the default GCC build of BPF selftests on x86
-> and riscv architectures?
-> 
-
-Same as above. $(CC) is not used with $(LLD). You'd probably want to use 
-$(LD) in a $(CC) build command anyway.
-
-
+> That probably needs more addressing in the prior regulator patch, that 
+> needs a bit more motivation and discussion about the issues with trying
+> to do a regulator interface firmware neutrally.
+Thank you for your response and feedback!

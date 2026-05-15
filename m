@@ -1,73 +1,72 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1714481FB6
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 13:59:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8977B379C2F
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 14:57:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778853591; cv=none; b=Fxy33ZI0bxjeJoswYmaDONqoC2yIG50NVlUndTKn0+LOh9Uer14KYcRjbCWW3PTNLXyap0Mkr/fEW8OhRbRNB++l3nh3iib+Mmp0xQl/KFLiO0OTxhfGWjPVJCa9GIPZhqPqtyYEmV8hBk9RgtDughOFCABEuDeer6QGkOTcAcc=
+	t=1778857078; cv=none; b=C7MyxHHZNOX9U+bQ4G6cb+CvIxiZY+Qf8nsS7J40CPehpr5GqCZxlheAx1zZhhueup/cN8EowxhXDk+kLb39bTCHX3ecGFKza5zb3ui9jCV5Kw84pVHHHx0TXPrtRahoKAIzYZxF6CnczdGgGBAqjz27JOUR6DCMqToHMsF2y60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778853591; c=relaxed/simple;
-	bh=sYY7OW7wGR8JvWeAaeVWHuE+lAvepGIPk46p7xEPeuU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TLN0x655hNUmGDmMNd4uxSSwRw19AOTm8t8mDpRgDTXolco/EW79T7y02840XvqRUButj/wdMMpP3BB+Xz0bg6m57kxL/hidkQDvo+hhqXrPl448RaQ1pHmjP32gLm9cfO/KFtAGqoy5zYU1bsjD54viGVhnz9nfthgn9XmDMGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org; spf=pass smtp.mailfrom=bitbyteword.org; dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b=uIXocQZS; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bitbyteword.org
+	s=arc-20240116; t=1778857078; c=relaxed/simple;
+	bh=/BeQcwQJYNrXslN9NRGyRDMaaMndwm55+LKP2W2hU8w=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=NE7OTN2te97H5PF5gv7TveTO0E0TBfVRFOXeNHjRIld6jIxZSmToQ8F3yCpVFd9TL+pfPJs9M8Yi9AGjWMQ++9bXRf8equdtct+VdeqgOLCzlm55/DIFurwPV+VQuYjfejoWjhWW+uJIqr2tKPROevojbqiESPwXg8txNuYJ7ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=St9axJV4; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b="uIXocQZS"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-50e63771eb0so86050431cf.3
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 06:59:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="St9axJV4"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-488e1a8ac40so88278315e9.2
+        for <linux-input@vger.kernel.org>; Fri, 15 May 2026 07:57:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bitbyteword.org; s=google; t=1778853586; x=1779458386; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778857075; x=1779461875; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=T/1EYMrQvVHAnnWAjKGI5T7/zDsk5kW5iHbfCrzqRi8=;
-        b=uIXocQZSqjeXU3Yhg4dgzYk0G53PYXbwSbXugcs0wjhpZVeuN5Ky+EvoKvUJu9SCcv
-         2HAcgdvXBdLgXX4/GxZXDp4KRME6rOUuMMEd8UsV/FwAe7Wmyx+Ombcxa42HaxTMIYZv
-         L/lXL+o9CYlcWbceKbeuAAKXDGdie8BOCqJccW0Pod1rHCLhCNxjm25VCuVClCmU7N46
-         h+HpL354ySNaXa4iN9d7NtzIUJ62AMNWwkisLneDEPg9TK80MEPEveDCs0jK4r0QP6v8
-         RMEZcj/VCywPALCo4lYs89Dgp2bnO6XyftfyQBm3XKkg9x8zIScngFcg0614+ksshFrZ
-         bArg==
+        bh=22ZZ7DskZ3gtFB87QcSA0WEWxlxsZu8Cspyfcc0WJQQ=;
+        b=St9axJV4X09GLlqu/ZqdWhhBkaRQNV2dG4Jl5sG8fF2OfIj9oPPB5ZPEfdbLvg48Qz
+         I8NTHeVyqKm2VQIu75rjiDLwQTZ4+pO1uwhsYf2h0IMzspiOIsRxwXgQITW9CmpGlbLj
+         X93b8SvSN5p79DX10rWsDG7pyOcx4TlVPjfnyFEQ6UP8rgh/vC5yhwrYUDtEFjavkPxb
+         uzGn56r0APkCX2f7beQ1r9Unp76mBknCKYphv7B2sbttXVp+6uYBnPhLXxx1RjH5g/23
+         O43TOjL3O0kvPHfDsFfpct3WxGAU2qy52DGsivf0NpKQB2kiIxH+C7gVxibXpmWFSZPY
+         qauA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778853586; x=1779458386;
+        d=1e100.net; s=20251104; t=1778857075; x=1779461875;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=T/1EYMrQvVHAnnWAjKGI5T7/zDsk5kW5iHbfCrzqRi8=;
-        b=tTszsRxGMs0LWve1c7tyQBF9RQmWEko0AuDsmvo4hj2h2lN/FOe3+Dg0SeAmSaTwba
-         CxgCgPabqpfJFmawOlufZGUoCq9y2iWzSBSs5Md0kcAyvhWDVSHzSWW2aXTDIuYFfPq2
-         KUwNFmWoicy25Cy+nAiJSZPI5E9EOJoVewqzLpjBPmBLi1xqZEuRbrZtLbNUBmmpSuHZ
-         0UPDNiHkghTsCRvby1y3psJlDRAujNCDETF8KuBQqKTq5l/hAc8Xgpeycnb3i9k4eNhH
-         93A+BlfhomIVKstkM6KFr4P5ZG47apx4foC2BvoH1kjKWMGEDsevh3yUAelZLNwMD3EZ
-         Rx7g==
-X-Gm-Message-State: AOJu0Yz2GNIk1gGwOizMX1QkwQcukMAWoVcGd9YM1vw5pJ3DNCrPucB1
-	Ch9QRTLfXTLF2DDdrZAKV75QDQUxSZKazTo70HlD3+BVSL+OoX87UQpvVagUaNLtTwc=
-X-Gm-Gg: Acq92OEmKnW/YuqurjQrIEqHgFyfxWwGU34h9BPYWdm0TjjLyCutm1gnTf4i23Rvl/B
-	CEJNfgT+ywCi+fzsKWWIy65m95pwz6Y5jBwcYk4ddKlYK/0QBpc2LOdBhPkx29bJCYB0vteUQ82
-	IOBpvpTmJSROol/qHkYBwE8JjO6+hhZLF3LBRhii5BxvQSepv5aPCVpl9dAdco7PbAtRLHuTThH
-	3x7q7FZpaqQ+lNHM9v+04qe83VtFNDfDk+369XZoUr+/sn2J+2RuXFJk1/uBTou1bDM05V/E8E7
-	8dkGTvm/ezNltbi+2dOzGiF6DW1ObWdgJ2LbC5KKnGo7eykb/8ohjBbmoaI9s9QueD9utE6Ldiq
-	Sqs+3ZuPNP7QpEW2/PfcJf7Spw+jdfh1dDk0vwxgxhoVjF5sbeU/X1SvuGNd+DuaoRheByVJz5f
-	GKRL2Pwc0bzG+7pTvcYMeiln6gL3Go
-X-Received: by 2002:a05:622a:17c7:b0:516:508b:bf55 with SMTP id d75a77b69052e-5165a276f8cmr53859591cf.55.1778853586541;
-        Fri, 15 May 2026 06:59:46 -0700 (PDT)
-Received: from vinp2.lan ([2607:fb92:1900:6734:902:ab48:6190:9c1e])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-516460cda02sm45678421cf.18.2026.05.15.06.59.45
+        bh=22ZZ7DskZ3gtFB87QcSA0WEWxlxsZu8Cspyfcc0WJQQ=;
+        b=f72HVB9U4Q3aKTR5HC4WwTUkpYTRjWcuAbxLjfzrHHwuexDrhvL2ySKOKK5KSY1EBq
+         iTrChj7H1alkzHAcW8PwCzFzSuGfOkZIWdFs43oDszPVF3v/jf9t0NNahd2izaBmWZCI
+         eRlqNq7SSpbdxc0CjrUxM4iG/mAPyHexBXTXkEet34fV286HevTCsqJ+9BUdCRuBFoqm
+         k992Ir3amC/0g4AJoAsr2V7vpbgoTNuhDSGyb/JcAp2+Nq98MMIlL+FKRdXf2P1fVrJh
+         hFmFQ7/rVc65IxmzPyatK0tSQto9Z8i8cdkTp+qtjycvN53zU8OZvVwefkVm0Sp5scaa
+         5SHw==
+X-Gm-Message-State: AOJu0YwpI2lSACHiIwWOI/Tzksg3rT3yASXkBAFIy6V+6hNIyLv0OkbC
+	0qNTLFZS8GmFVrR+Erlhu7vuPYMtZQf+WM4nWtnHB3fC8vZL9/48OlK7
+X-Gm-Gg: Acq92OGEUcETA3l0g4fNI78pArJXiMyNDR1vhSA8m4MWakJqDSJsF8BaMi5RnoHCnbN
+	U/M4hbBsbPQM8j3nZNoJ+0BCgC7C01FjCUt6mGsel56wOI/mRwz5899AsmTSKYIaKjUE2ekvq+e
+	NLBk/uipcv45YSBdpir7HH5/5hFLC5OepfnqJgoezT82YAzoMChGOLutL2+siK93f3Tdw9na2xr
+	AmRazD7Ny4XrJSfOSz1Wqwe45h8H3WAIJL7/bOxNO1elXTq7c9tqn2MwJPzZfKH2VFUQi/tXbht
+	J+LOLTEIaJblsqVZcsQA1GmS/oCZOAQltdNA9Le68tf5mJ7/HpEs0Ph2vn4mCsorn776XT2ZhXT
+	++anlOqmqiupz5MV9eGAijNoKmvIed3nuHPKYgrJEviTKZN2QWk2cwftvWwYVhalnTvrQtxTUCM
+	Z6nt4Lh0PKPrWDyct/2srA7/nM+juitMwqDt3LrKeLfnkvnJtgahYIgbKkl+1PaaCAzkvmrBWwN
+	1/gh4cXKyS123D8LbCwgrkEpSoCItAsFHJ8xJ53UEbg69EB/mEcVXVFnOr5nwQ8Nfb31w==
+X-Received: by 2002:a05:600c:c087:b0:488:d6eb:e63c with SMTP id 5b1f17b1804b1-48fe61f2768mr47576105e9.15.1778857074555;
+        Fri, 15 May 2026 07:57:54 -0700 (PDT)
+Received: from my-vps.. (ip212-227-39-93.pbiaas.com. [212.227.39.93])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fe5ab527asm76096135e9.11.2026.05.15.07.57.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 06:59:46 -0700 (PDT)
-From: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Fri, 15 May 2026 07:57:54 -0700 (PDT)
+From: Louis Clinckx <clinckx.louis@gmail.com>
+To: "Derek J . Clark" <derekjohn.clark@gmail.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
 	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org,
-	Steven Rostedt <rostedt@goodmis.org>,
-	linux-trace-kernel@vger.kernel.org,
-	Vineeth Pillai <vineeth@bitbyteword.org>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 07/11] HID: Use trace_call__##name() at guarded tracepoint call sites
-Date: Fri, 15 May 2026 09:59:41 -0400
-Message-ID: <20260515135941.2238861-1-vineeth@bitbyteword.org>
-X-Mailer: git-send-email 2.54.0
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/2] HID: lenovo-go: clean up USB assumption
+Date: Fri, 15 May 2026 14:57:38 +0000
+Message-Id: <cover.1778701376.git.clinckx.louis@gmail.com>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -76,42 +75,30 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Vineeth Pillai <vineeth@bitbyteword.org>
+These drivers' id_tables only match HID_USB_DEVICE() entries and the
+code freely assumes a USB transport (to_usb_interface() on hdev->dev.parent,
+endpoint access in raw_event). Make the assumption explicit at probe and
+drop a NULL check that the compiler-level definition of to_usb_interface()
+makes unreachable.
 
-Replace trace_foo() with the new trace_call__foo() at sites already
-guarded by trace_foo_enabled(), avoiding a redundant
-static_branch_unlikely() re-evaluation inside the tracepoint.
-trace_call__foo() calls the tracepoint callbacks directly without
-utilizing the static branch again.
+No functional change for the supported (USB) devices.
 
-Original v2 series:
-https://lore.kernel.org/linux-trace-kernel/20260323160052.17528-1-vineeth@bitbyteword.org/
+Louis Clinckx (2):
+  HID: lenovo-go: reject non-USB transports in probe
+  HID: lenovo-go: drop dead NULL check on to_usb_interface()
 
-Parts of the original v2 series have already been merged in mainline.
-This patch is being reposted as a follow-up cleanup for the remaining
-unmerged pieces.
+ drivers/hid/hid-lenovo-go-s.c | 11 ++++++-----
+ drivers/hid/hid-lenovo-go.c   |  6 +++---
+ 2 files changed, 9 insertions(+), 8 deletions(-)
 
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Vineeth Pillai (Google) <vineeth@bitbyteword.org>
-Assisted-by: Claude:claude-sonnet-4-6
 ---
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes since v1:
+ - Resubmitted on linux-input as a quality fix per Benjamin's review of v1
+   (sent to security@kernel.org; the HID_USB_DEVICE() id_table already
+    filters BUS_USB, so no exploitable path).
+ - Added patch 2 to remove the dead NULL check, at Derek's suggestion.
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index ed3405c05e73..8d36ae96a3ee 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -110,7 +110,7 @@ void ish_event_tracer(struct ishtp_device *dev, const char *format, ...)
- 		vsnprintf(tmp_buf, sizeof(tmp_buf), format, args);
- 		va_end(args);
- 
--		trace_ishtp_dump(tmp_buf);
-+		trace_call__ishtp_dump(tmp_buf);
- 	}
- }
- 
--- 
-2.54.0
+base-commit: 50897c955902c93ae71c38698abb910525ebdc89
+--
+2.39.5
 

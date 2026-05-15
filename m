@@ -1,64 +1,64 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BBB63644D4
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:42:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776F23655EE
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:43:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778823775; cv=none; b=iQBOgGcpqLmzRaBNhLUxPv1JVYJMYE5SwCQ9uvTdZFnDSa3iXiitQmJpoJlmcJYbEq8cGMnvOig1notDIsSs58H7/8vTjexYUwlxzWlYojP1idM4xdvKHErWnXPJoYrSwiUFHnZIPEgCgq4NdwreqjhyrfQNIeRtlh97uyJxfGw=
+	t=1778823782; cv=none; b=V4ZM0S3cjKR5EBIC1KlTEFm0P1MDVNHL1gXF2uJHlptehtm8X6XgmuDKc+jJWDVlU1zBIgCUWNh4OlP70H76bfsWe9/8AOMGLI/A/yCAxRkmbROHCNVPsGLnVnsGoZXmW4XVdA5/DeiImdgsZ8qmXDsNAXTxY6X9nhEJUZ3bz/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778823775; c=relaxed/simple;
-	bh=GnGzQTNG2sWXCYiVIHV6PxxXdvgI+nP2hkQMIdexBZc=;
+	s=arc-20240116; t=1778823782; c=relaxed/simple;
+	bh=PpKTrbBM4Os8Rc8SCG+XYjDDmnVB1a2xO0tDP9ChOPs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jGvr28bCmh5pkMYo4bHTuP8R4tJ38vW6tYAwBq1FkudUZhtUE1Ef8yWubsPjmSP7+f7rIH/KQ2+ErdsosvHP04FSGPjgi4GA9iJq0LyN69dbCsK8yaxd+yd38enxsR1+Q6K2Sl3HITlGw62VYxCVy4Xr1zpf+fUpxEugpuf6MtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IeVeAtJj; arc=none smtp.client-ip=209.85.210.180
+	 MIME-Version; b=X4+PmXY9oEm2XoazGKHe879VgYDptEj8fKGeG3Sanbl6n+SSamyPrc0FJ5CCg2daq1qvn3jHa+11F2RxTkqUnkYcNjar9gS70ql0o/liy9gUwiUO75FtfuzSLQAFMeBLtAEu3G++WRVgRAT/G9tgsJjFjXA/9aCCux2mcLz7jsw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OgtS8lN+; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IeVeAtJj"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-82f9fdfc965so4034962b3a.1
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 22:42:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OgtS8lN+"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-835399c11e0so3964824b3a.0
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 22:43:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778823773; x=1779428573; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778823781; x=1779428581; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Vu8r9w9o/+B86iBJC+fZKkUwDRzmjJF1xgahG3OvjQQ=;
-        b=IeVeAtJju4/+vUQAXwnjDov4VYTPkTmxzLXBJaqJ5dVcHLFzly+VOfRY6jY4kl3Vut
-         YZ0uFVkIJw3/0tH6XOb1c+lxX+hBBjL9+0/KqENkkcLYEwsuMnvfu08U8ujHWh7UZtGF
-         vhsBZoNinnxsxp6z87QiRL/+Z1lESdhyAaztjtDrjeHLmLbOkJvK/DFrn/jBrORl0Pjk
-         zceUQdWI2nUx3Ggi5khpRYqAGOtwpJvpfgrDTQlx2Sxr/02P0mPDXBY+98IeoAA4d4dI
-         BIZwurFwOZs/Avh31IrqaImqDSFQFyby+ItLgMY0t1fpfxXbCnZRVxMLyw+LHRK7oCA/
-         wnrQ==
+        bh=L3PjlyOf8sBl8btmWeVxVjjQtlMp0Y5dRKaD1umBdh4=;
+        b=OgtS8lN+M8PI7PmackOsmBnijGCXED8pYUDNWm4hAHcxUwnaOMsSKvtOZ5/JTtuEfG
+         IlYDC/uEs4/3LlXbS+gCFlnJGBxee5RVh3NRQbpLRKDWyW/IbfhJrSpX3aB10iUWft21
+         jFIesrYPkUsGv5uSwlraY2Fl3y6Sfo8sQsinKU669Zj97qOQd8T+V4BLJVhmq7TH3Wqp
+         EF7KCylwDdhB3C3428lLZsu6sYdt7ibMvSzT6gmlBA9P87j2sBkUdifmRBjLMHWDKZln
+         7qg7dCWc0Oi7/pZWGv2yhIJBPVLoRtv0ydkxO7GgNcSZN0qfb1pogamFNmPya0RhJy/T
+         e/Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778823773; x=1779428573;
+        d=1e100.net; s=20251104; t=1778823781; x=1779428581;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Vu8r9w9o/+B86iBJC+fZKkUwDRzmjJF1xgahG3OvjQQ=;
-        b=rs2PK7zPZ8nr0TjVffjMtU/cos4jwQgL5iVIy/RGlygMj9ChBLxKrce0coD8Vire+7
-         4fuWEheKYNV71SYUmKY+yN4bY4/bQsIlRgpxsg3bQW8/YjbuRMonJd7iKxHO9HXcC5Hp
-         BBpW71t4R32DRvkj1p5PN+Ishzar1wXltDJIUSPHlg/cn0HbrkBu3FASERvMD9PXaaG6
-         bdIDZEK02qUolRYAPjl6p9IaGh0a7180fjqMAmXip1do5A4X63ccfIcgUOYWqM45VNjZ
-         39+U8zZgMjtCbHhSXiRrpWlkQg1UDBbMHvlabJ5jXxmvvzEjtxwe5CziH0s8CSVhe7bp
-         tmPw==
-X-Forwarded-Encrypted: i=1; AFNElJ92KgDIOk5hRwFKHCnmGOjwqigV69Y/Eyl+1Z1p5NsKuP33KxxDr8IVvs4moSQdIn/Fwl5qesgPQ0/jTw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw8ipE300Bxs7HH++FQVXgzofUKXQmMIX2888whjbvNJ0ngIb3e
-	rABlANiL/g2sGoiUiojaSqwX33g9pNS8ftliEgIMGBGXPZ3y5hnWjHnz
-X-Gm-Gg: Acq92OEgUs2cVzsZmWIvulv1fuG3Ltp9aBOb9dw/48VjL7SgM+t0yCXrxqVMM28mz+J
-	kFLLADDHfaTci10PW0U9okLIgHdWqQ21KWVmzkFxoS/rRX4Xek2FMMAUPWY6HqcwcWuAouQigLR
-	ynrSKVxciNi70XL8T99G61iH8/eSD3YIy3HMOQINbrSX2sqUWy8TznVk0K+dKOopKDelipox2XZ
-	1HTGMGh2SY5Sa7RUWLIsb6ygzUS0yVPzMtDLH2dsOSWxOK4Rrne7rbQGdF16ETaALB8S35+/6Iq
-	GNkbx3zfLoNq2nFcTuIKVZa1u0cpfIzyMeAjZS6pJGyjZU1S3VWZqsu4MOA+TlVv27DJ//AbSYj
-	x1C6nyF+T2C4rYRForfNC7A/M1Q6Bdp2rWlwKZ9Jg3oOk9nI+nR80mmWAWeG+lS6iQlTlOjTmlG
-	baqmLwSh/MPkcAhbwk+sB4AzHO/IHqLTntuIV8xxrtZ7q+Jv8ktCixrU/n4llWJKpdRuse7bHod
-	lxLh7DEO63oHKSb/eLhtoY8AYE=
-X-Received: by 2002:a05:6a00:ace:b0:829:8a84:b9fc with SMTP id d2e1a72fcca58-83f33ba720amr2908112b3a.8.1778823773353;
-        Thu, 14 May 2026 22:42:53 -0700 (PDT)
+        bh=L3PjlyOf8sBl8btmWeVxVjjQtlMp0Y5dRKaD1umBdh4=;
+        b=p4SpW80fP9/gCr/vivyLvZy/I8RqwihSquyA4aEqRI/MwhqKOFjveXcZhZRnWCi0QV
+         PMG5+3y1dAQLeb1RnTNH+IJN1RkllCX5SwSwCjvVi9D9uvmkfNZRs3gVCvBk/NaKf8y9
+         0GYaK4DCdf10jGeA2H9B6R82A7RgMT89wqka/dQcJK58BGxfIyoUpU0A1P5F7hkFr3wK
+         Cs9/40PnFsEtljq61Fk2CGfaCrN5QiV+OYZDqnMLuKDn1X3cBN1YqRX9p/a91gcYT8My
+         ARRNf9QFCHg9LbnlxhqGJZ3QB3JY0P3Q+IyxFuQi+a9vK1tyIXLErfGHa7djol3sQ5ho
+         OQbg==
+X-Forwarded-Encrypted: i=1; AFNElJ+d7BCChUUwOyx0CwdsJTDDZMFkkawhyNPSbBuzeVIMz5K6Unyuo52wKH9GD0pfVzJr5dQK+zUK4jhNhQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuX6rNtYQXBkLPpPwWzaHiEQFi2rs6U9fsgkO45e95DSqmJ7vy
+	bJ+e0eLYTNJ67rRg3yOKqrDI9G7t9/Y2DjmKmKuK3ccwq0fOxEWxDDnH
+X-Gm-Gg: Acq92OHn8PJpObGTo5r6DKikgzkAawizJCfn91uhF47CXdoF1RCSKVMfa0kjzT5DPWh
+	6cP0WB4BIshawCJcsxGTfX+QzGDy4PSji9whH19qg8Xp/tSHBF/aJddLqYSkLw+tq0OL21nP3KN
+	WCxFky9Eb7TDgR4hpZkJWIlJ804Vx1f7JtU6Wm8E5XEs1hifPXdif8A+hOzJzF605SeMmJsRAN8
+	Oj7q9ep3kpx321qVhyf/fxPenGuMV5YwaZ1iJ4rGw3YuWwkGAjpdmR9AGFjZraV7gt7/e72XpWp
+	k13FLar/oaxh0oREsjVVRrBQ8NG5uNENT1NsDUKq8Xjf3wTdLuAA36MQogZ9S7s1trGSsIxvJct
+	OMyKpdRyIRVOjmONK6AZtDpS5N/JiEAFuFZkHor8buPqwWUQh1jmxzFLeSCt9k3www8ZA48Iv2M
+	QiJ6nIA9Jq1TQcKmSxA6oumCfUOrdrVQz+fspCHTsMj+8lvA/+Bg/FsT2Ch67prejtrr/fReLiZ
+	ShAHZaRnkAIe7ula+xdSFpfrkf23CWrqXuSXQ==
+X-Received: by 2002:a05:6a00:3921:b0:83c:de0e:bac5 with SMTP id d2e1a72fcca58-83f33f3d3c7mr2755385b3a.49.1778823780683;
+        Thu, 14 May 2026 22:43:00 -0700 (PDT)
 Received: from harrison-Surface-Pro-12in-1st-Ed-with-Snapdragon.wework.com ([203.117.161.34])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f2b9bec8fsm3106116b3a.33.2026.05.14.22.42.46
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f2b9bec8fsm3106116b3a.33.2026.05.14.22.42.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 22:42:52 -0700 (PDT)
+        Thu, 14 May 2026 22:43:00 -0700 (PDT)
 From: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
 To: andersson@kernel.org,
 	konradybcio@kernel.org,
@@ -86,11 +86,10 @@ Cc: Douglas Anderson <dianders@chromium.org>,
 	linux-crypto@vger.kernel.org,
 	dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	Jiri Kosina <jkosina@suse.com>
-Subject: [PATCH v2 4/7] hid: Pen battery quirk for Surface Pro 12in
-Date: Fri, 15 May 2026 15:41:49 +1000
-Message-ID: <de275cc63e764d2acddf72bf3f50e89f307f41b5.1778822464.git.harrison.vanderbyl@gmail.com>
+	platform-driver-x86@vger.kernel.org
+Subject: [PATCH v2 5/7] drm/panel-edp: Add panel for Surface Pro 12in
+Date: Fri, 15 May 2026 15:41:50 +1000
+Message-ID: <9e749a3a483e4a3c684eac3ee6a4b241c94a0362.1778822464.git.harrison.vanderbyl@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <cover.1778822464.git.harrison.vanderbyl@gmail.com>
 References: <cover.1778822464.git.harrison.vanderbyl@gmail.com>
@@ -102,45 +101,40 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The pen setup for this device uses bluetooth for
-communicating battery levels and status instead of
-reporting it over i2c.
+Add an entry for the BOE NE120DRM-N28 panel,
+used in the Microsoft Surface Pro 12-inch.
 
-Without this quirk, the device either reports an
-extra, broken phantom battery, or hangs.
+The values chosen were tested to be working fine
+for wake from sleep and hibernation.
+
+Panel edid:
+
+00 ff ff ff ff ff ff 00 09 e5 c9 0c a0 06 00 07
+0a 22 01 04 a5 19 11 78 07 9f 15 a6 55 4c 9b 25
+0e 50 54 00 00 00 01 01 01 01 01 01 01 01 01 01
+01 01 01 01 01 01 62 53 94 a0 80 b8 2e 50 18 10
+3a 00 fe a9 00 00 00 1a 13 7d 94 a0 80 b8 2e 50
+18 10 3a 00 fe a9 00 00 00 1a 00 00 00 fd 00 18
+5a 5b 88 20 01 0a 20 20 20 20 20 20 00 00 00 fc
+00 4e 45 31 32 30 44 52 4d 2d 4e 32 38 0a 00 0a
 
 Signed-off-by: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
-Acked-by: Jiri Kosina <jkosina@suse.com>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/gpu/drm/panel/panel-edp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0cf63742315b..d16f55479786 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -459,6 +459,7 @@
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
- #define I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM	0x2F81
-+#define I2C_DEVICE_ID_SURFACE_PRO_12IN  0x4376
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d73cfa2e73d3..61ecd840d0bd 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -395,6 +395,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_AVOID_QUERY },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_CHROMEBOOK_TROGDOR_POMPOM),
- 	  HID_BATTERY_QUIRK_AVOID_QUERY },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_PRO_12IN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	/*
- 	 * Elan HID touchscreens seem to all report a non present battery,
- 	 * set HID_BATTERY_QUIRK_IGNORE for all Elan I2C and USB HID devices.
+diff --git a/drivers/gpu/drm/panel/panel-edp.c b/drivers/gpu/drm/panel/panel-edp.c
+index 497dcd48f57b..2cf52f03c217 100644
+--- a/drivers/gpu/drm/panel/panel-edp.c
++++ b/drivers/gpu/drm/panel/panel-edp.c
+@@ -2020,6 +2020,7 @@ static const struct edp_panel_entry edp_panels[] = {
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0c26, &delay_200_500_p2e200, "NV140WUM-T08"),
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0c93, &delay_200_500_e200, "Unknown"),
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0cb6, &delay_200_500_e200, "NT116WHM-N44"),
++	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0cc9, &delay_200_500_e50, "NE120DRM-N28"),
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0cf2, &delay_200_500_e200, "NV156FHM-N4S"),
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0cf6, &delay_200_500_e200_d100, "NV140WUM-N64"),
+ 	EDP_PANEL_ENTRY('B', 'O', 'E', 0x0cfa, &delay_200_500_e50, "NV116WHM-A4D"),
 -- 
 2.53.0
 

@@ -1,132 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11E6C383C73;
-	Fri, 15 May 2026 06:56:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 925BC318121
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 06:56:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778828171; cv=none; b=eJYZJb0zafxDXxE+eCETLnugPOlFzaVmK61eiDPiK5lVbCTnpK7zxfAwlh1bLoELPMrB2NmV7zKlW7q5GOSq0YDNz6QcM7qlx6LFLD7ZMIsXJYKTSwgEuC1/KqAlPcaLvrZfUHwAWdjalk1peKze8tURbg6xw/VOqZZH5v3MgrU=
+	t=1778828176; cv=none; b=SLFhjHLB/Pz1XGK/pdKcNzkiO+FTUJk2SNig2ALnPr789QrHhtOBMYn1GBEDdNAcCmooq/aF+kBFK/vx5kdADmORM97AOMB5nr4UpvSmQ79AO8tRNCxS0cvZS7BYGEe0hS/9bAG54cl7UmvYfBMkbnQzcOL0vG/6bT7f3Hx3e3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778828171; c=relaxed/simple;
-	bh=3MYXcY5bK69+nHsX7pMrQgWBCJmYG+C77BsrhTCHBOo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mLNITzJFAJdKvwp2opDJRGTKrhxATKvUxQB5UuIaY50rg/RtvqEM7EmGdZg4bj7Htbgdbzqz1JweB4/sKncjvRioNjutD39fYYa23ins6mj0+laRq7YJ+dNDt8WbiE1ddAb4frHASwef0vlsmIqQE02kSJSbEkrG0xImjY+ZQeQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G2KtZE3O; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778828176; c=relaxed/simple;
+	bh=6JtnPIk9pt5yNv5Zwo+M8IPxJi0/Vqhv8YUANrQafBs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=H1scXRmRTS7yeQtd3B7qsVeOmmxHUML6jhdzlyr71O4E1w9USnRWCppNrdLPY4Rfb2eBPrT3bVnqdztRxmVSzsswBxZfjMZtnE0BLOSJ3qCftHp7X7u6J4lNeIJCNHF1P4A1GqwzSCOF/LTqf91sK2WWKOb/FmopKhW2LC/xK3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Z8KWnZUi; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G2KtZE3O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C88AC2BCB0;
-	Fri, 15 May 2026 06:56:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778828170;
-	bh=3MYXcY5bK69+nHsX7pMrQgWBCJmYG+C77BsrhTCHBOo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=G2KtZE3OPF/yqXo5cP4aZDLpcxfhe0dvFzTOulquynRWItBLRNyYekMqiveJYNhiz
-	 AmS/Q5IF0oZfsa99hDritB8jjBu8ufNvpwBErs9eJywrxtsTDfZqBuYy1CB8RAyzvN
-	 0nRYYMKT+PpsEmbNZuE8pWWrs79NT8VclbNrae0kfkaIY45/vbIpu3DU2JrbCNI+Ak
-	 5UbUFXRx6Pp4vpgMtnWg39yS4UM8sb7VLLPvxJEaR/hyL+Iz0g2vBzsRzGPdsfenUa
-	 F1F98bq2AAEFIRfeO+DosLbVegx7L+s8WE0dA+bXnideovaKHqcXnoej49Pc7HqAdN
-	 eOcj3Cruc0I+A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 7/7] arm64: dts: qcom: Add Microsoft Surface Pro 12in
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harrison Vanderbyl" <harrison.vanderbyl@gmail.com>
-Cc: krzk+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <8ac29ee38ba80a3fbde8bfe43b74b9b936b31cb1.1778822464.git.harrison.vanderbyl@gmail.com>
-References: <8ac29ee38ba80a3fbde8bfe43b74b9b936b31cb1.1778822464.git.harrison.vanderbyl@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 06:56:09 +0000
-Message-Id: <20260515065610.5C88AC2BCB0@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Z8KWnZUi"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-36931e4f5e8so1553590a91.2
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 23:56:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1778828175; x=1779432975; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VL9MOgE8V1tj2rmnSqeusE5lJRxKq56SKAjQcQI/xkI=;
+        b=Z8KWnZUioj2bH44XPFv9uusEUz7u70MwyTfXThRyGfez7etfUO4JQ8WP/MGDOKTKop
+         k06Q4TSrC/9qC5Eju6SOSqJjSKcfAn6NsBYh+g8HtXOfUuNCXI5asjANMhTin2FXgEx5
+         hbwdOOMyj4ZTgF3NRF3a8I0e8zk/3GtQYlF6I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778828175; x=1779432975;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VL9MOgE8V1tj2rmnSqeusE5lJRxKq56SKAjQcQI/xkI=;
+        b=rpphS0GRUMIzZJ0lVhy0ptT+E0HSwUrLQcTf4hUGx/QewkZ5CAFzAJEv3kpLgbGDTD
+         mIbG0nHUBR2HDfnCSkYg33wJt3JYDKolLFjeO2CzH1Piz1vfLZm2oRbwJUa5rDNkMfsX
+         RfChPoK6B9PEZWoz+Jk7WReBBfTtc4uLD5t9E+e435JulbeRDE5N7Gxeoc2NOPHIrxCa
+         77bEKbE/62mfkUd1JaU7fBYRDDK7Lxko7UmMeOIDQIPw9+1VYpYfsU62o+PPjepyMYQX
+         oj6iZrXVMkIBUpjmyopyGz75gmcaK7xHIRpaXY3Sx2xDrhUoHktjSNeiOB38ymHo9cVS
+         MvuA==
+X-Forwarded-Encrypted: i=1; AFNElJ9tWSwhz+bqNIQqX2cenv9ZG6ct3zrQAMkdaXuyu+K2FA/cby5a8LQL+kNim2H6J5NAjKoyWXi+7+QYAw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxTbhXJAM8fm0PNAaAeyOOIpSEeDJZK9pfsbYlcJBsr1pVJIFk/
+	hC8jnq4m3PpAhbMJG+9FB+0bRtj+wgtmzhRs0rzvZ3Xd08HyrUJdYUAirnFiaj0WAA==
+X-Gm-Gg: Acq92OGyvUTJOAaT38943gyx7H9Qh3vPMdz3jjEZyJ0mkIT0cjZ/D5iyGmj1VGNzmJ4
+	Ighs9penpYScI//bhtKO4n/LiOr8DCBsCmPK3AMLKt7kIeEh0EISlryTzQ81cLqe5u09v1+Tx0o
+	goFsXn2lK0KHvaDdEvqJuJh1hk8U+NWLenGO4utRr2Bjrjs7sYrKZdJnkhFS0X/FzI7Rx0SqebK
+	eAkUEVG7zbb0aktR+7JYx/Vzp/au0jzhJn2ncce+1Or4rn+i9RWVTDhVpDGZPe4ECpEMacGbcGx
+	SxKA6G14h81TLIL5M2ADSMNx86jrxEKoikGCqzy5uUUExHZHZAR1REwhJJyGHc3J8XdUAAP4faA
+	FeqWcfM7oAnAeEe1yv0uaTB1N30Ln7lIPEen5luc7IwpRGuwpvRZR0qqV9T5jVtB2BMNsbjb9E5
+	i/5UlM1SdfCfuxME8snnTZ1PTKIj0Vfm9VaL4Js5wCdL72IyIGL5W+1dG9SGLbPYj7YiMmsr/zf
+	CAzX06OiqygmoufnS7fxIg2
+X-Received: by 2002:a17:90b:540d:b0:361:3224:2f65 with SMTP id 98e67ed59e1d1-369519af6d2mr2650718a91.3.1778828174112;
+        Thu, 14 May 2026 23:56:14 -0700 (PDT)
+Received: from ranjankumar.c.googlers.com.com (220.185.124.34.bc.googleusercontent.com. [34.124.185.220])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-369513fe6f2sm1688068a91.0.2026.05.14.23.56.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 23:56:13 -0700 (PDT)
+From: Ranjan Kumar <kumarranja@chromium.org>
+To: dmitry.torokhov@gmail.com
+Cc: bleung@chromium.org,
+	bentiss@kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ranjan Kumar <kumarranja@chromium.org>
+Subject: [PATCH v2] Input: elan_i2c - prevent division by zero on invalid device parameters
+Date: Fri, 15 May 2026 06:52:35 +0000
+Message-ID: <20260515065235.1913403-1-kumarranja@chromium.org>
+X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
+In-Reply-To: <agTlxHSZqSI8cnjK@google.com>
+References: <agTlxHSZqSI8cnjK@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Device Tree and Driver mismatch for WSA8845 speaker reset GPIO
-- [Low] Incorrect indentation in `&pm8550_gpios` node
---
+The Elan I2C touchpad driver queries the device for its physical
+dimensions and trace counts to calculate the device resolution and width.
+However, if the device firmware or device tree provides invalid zero
+values for x_traces, y_traces, x_mm, or y_mm, it results in a fatal
+division-by-zero exception leading to a kernel panic during device probe.
 
-commit 0876a51b5a0549c867accb3d391daa4e0f3c28b3
-Author: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+Add sanity checks to ensure these physical parameters are non-zero
+before performing the division. If invalid values are detected, log a
+warning and fall back to safe default values (1) to safely bypass the
+division.
 
-arm64: dts: qcom: Add Microsoft Surface Pro 12in
+This prevents the kernel panic while allowing the probe to complete
+successfully. Completing the probe ensures the sysfs nodes are created,
+keeping the firmware update path intact so a recovery firmware can be
+flashed to the device.
 
-This commit introduces the initial device tree for the Microsoft Surface Pro
-12in, adding support for various peripherals including UFS, touchscreen,
-USB, audio, Wi-Fi, and Bluetooth.
+Fixes: 6696777c6506 ("Input: add driver for Elan I2C/SMbus touchpad")
+Fixes: e3a9a1290688 ("Input: elan_i2c - do not query the info if they are provided")
+Signed-off-by: Ranjan Kumar <kumarranja@chromium.org>
+---
+Changes in v2:
+ - Changed error handling from aborting probe with -EINVAL to logging a
+   warning and falling back to default values (1).
+ - Bypassing the division instead of aborting preserves the sysfs
+   interface for firmware updates and keeps the pointer functional.
 
-> diff --git a/arch/arm64/boot/dts/qcom/x1p42100-microsoft-sp12in.dts b/arc=
-h/arm64/boot/dts/qcom/x1p42100-microsoft-sp12in.dts
-> new file mode 100644
-> index 0000000000000..32b8df2497913
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/x1p42100-microsoft-sp12in.dts
+ drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-[ ... ]
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index fee1796da3d0..32b2849ab36a 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -425,8 +425,17 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
+ 		if (error)
+ 			return error;
+ 	}
+-	data->width_x = data->max_x / x_traces;
+-	data->width_y = data->max_y / y_traces;
++
++	if (unlikely(x_traces == 0 || y_traces == 0)) {
++		dev_warn(&client->dev,
++			 "invalid trace numbers: x=%u, y=%u\n",
++			 x_traces, y_traces);
++		data->width_x = 1;
++		data->width_y = 1;
++	} else {
++		data->width_x = data->max_x / x_traces;
++		data->width_y = data->max_y / y_traces;
++	}
+ 
+ 	if (device_property_read_u32(&client->dev,
+ 				     "touchscreen-x-mm", &x_mm) ||
+@@ -440,8 +449,16 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
+ 		data->x_res = elan_convert_resolution(hw_x_res, data->pattern);
+ 		data->y_res = elan_convert_resolution(hw_y_res, data->pattern);
+ 	} else {
+-		data->x_res = (data->max_x + 1) / x_mm;
+-		data->y_res = (data->max_y + 1) / y_mm;
++		if (unlikely(x_mm == 0 || y_mm == 0)) {
++			dev_warn(&client->dev,
++				 "invalid physical dimensions: x_mm=%u, y_mm=%u\n",
++				 x_mm, y_mm);
++			data->x_res = 1;
++			data->y_res = 1;
++		} else {
++			data->x_res = (data->max_x + 1) / x_mm;
++			data->y_res = (data->max_y + 1) / y_mm;
++		}
+ 	}
+ 
+ 	if (device_property_read_bool(&client->dev, "elan,clickpad"))
+-- 
+2.54.0.563.g4f69b47b94-goog
 
-> +&pm8550_gpios {
-> +    vol_up_n_default: vol-up-n-state {
-> +		pins =3D "gpio8";
-> +		function =3D "normal";
-> +		power-source =3D <1>;
-> +		bias-pull-up;
-> +		input-enable;
-> +	};
-> +
-> +    vol_down_n_default: vol-down-n-state {
-
-This isn't a bug, but should these subnodes be indented with a hardware tab
-instead of spaces to match standard device tree coding guidelines?
-
-[ ... ]
-
-> +&swr0 {
-> +	pinctrl-0 =3D <&wsa_swr_active>, <&spkr_01_sd_n_active>;
-> +	pinctrl-names =3D "default";
-> +
-> +	status =3D "okay";
-> +
-> +	/* WSA8845, Left speaker */
-> +	left_spkr: speaker@0,0 {
-> +		compatible =3D "sdw20217020400";
-> +		reg =3D <0 0>;
-> +		reset-gpios =3D <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
-
-Will this prevent the speakers from enumerating on the SoundWire bus?
-
-Looking at the WSA884x codec driver in sound/soc/codecs/wsa884x.c, it
-requests this GPIO by the name "powerdown":
-
-    devm_gpiod_get_optional(dev, "powerdown", ...)
-
-Because the driver looks for the powerdown-gpios property, it will fail to
-acquire the GPIO named reset-gpios here. Concurrently, the pinctrl state
-spkr_01_sd_n_active drives this pin output-low, asserting the active-low
-reset.
-
-Since the driver never releases the reset, the speakers will stay powered
-down and audio playback will fail. Should this property be renamed to
-powerdown-gpios?
-
-> +		#sound-dai-cells =3D <0>;
-> +		sound-name-prefix =3D "SpkrLeft";
-> +		vdd-1p8-supply =3D <&vreg_l15b_1p8>;
-> +		vdd-io-supply =3D <&vreg_l12b_1p2>;
-> +		qcom,port-mapping =3D <1 2 3 7 10 13>;
-> +	};
-> +
-> +	/* WSA8845, Right speaker */
-> +	right_spkr: speaker@0,1 {
-> +		compatible =3D "sdw20217020400";
-> +		reg =3D <0 1>;
-> +		reset-gpios =3D <&lpass_tlmm 12 GPIO_ACTIVE_LOW>;
-
-Does this speaker node have the same naming issue where it should use
-powerdown-gpios instead of reset-gpios?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1778822464.gi=
-t.harrison.vanderbyl@gmail.com?part=3D7

@@ -1,176 +1,251 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EDD93CC7FD
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 04:09:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CEAE3CB918
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 04:32:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778818168; cv=none; b=YTFUFy28c32A4ohqQBeaHRrAttczBdCMKjpBnEJ8VubDrSwJ0KCnWniF8qb+aexGZQ3hKKzEjRXo4feztSlOYaunxswQ7K/xeXbDrNZ/zyF/t7PVpBtZcbnbc9PluccWGCijcifIAs0MBbNZiENfKX49Zy4O625P3IBxPYNJ3cs=
+	t=1778819541; cv=none; b=MEvx4Pw1p248KuKo3b6gxjYAJa7p0VLc/rjiAePtEgguavKRhklgSPoVvB1tNV+lNdUqkTBPlVnXUfOQCmmIJGq866+ecsfN+Pw7pnF2dyv8HXTjIHi/ViJ1jsIiyF9KEAprPpuldVM9Iv7sWJQQ6jh0Yj2Vy7e+to46ZN47eEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778818168; c=relaxed/simple;
-	bh=Dt4wc5ebkuefwtWc+t3KfLglpktSNPfGhCN6ibwh+XI=;
+	s=arc-20240116; t=1778819541; c=relaxed/simple;
+	bh=gFpIhdbamtJqtigk68eOBz86I+a8hh05iqkyq9o1uHo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OrsBWPnUnkqm6RPmD1ed1bAhvLWQON5Q1MB+qISJwFJodwHd4CZR59nw6cvl2bYx7udqDC1d7xlk6+cHFwjd7a7QECyLjLKkQMKETTIbRvIaRZcTLmO+HnZKipDvToukar+Fq5g/mC1a1TfbCuJYSRpnImZV9CCsIZOIV0Bxowg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eZe0oDfJ; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=bDd7hlGECrz5zA0enPtgZmtP5qi88HoL5GpGOJPzVZnEgkh5HpeuxuaHGW7hcIv7UeEJgA9zFsSejUnYSE9NoT2gyvtv0JG5bglD/enWLxmmw3YWyAiifhJVVgceOcBJXV8qw9FkkdMyTCPaW68piTYo3W8wrTTeiCzZcnGC4B4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ss8VhDTE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eZe0oDfJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DBF7C2BCB0;
-	Fri, 15 May 2026 04:09:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ss8VhDTE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEA3DC2BCB0;
+	Fri, 15 May 2026 04:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778818168;
-	bh=Dt4wc5ebkuefwtWc+t3KfLglpktSNPfGhCN6ibwh+XI=;
+	s=k20201202; t=1778819541;
+	bh=gFpIhdbamtJqtigk68eOBz86I+a8hh05iqkyq9o1uHo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=eZe0oDfJLGbY5lfTqbhY69NZN0P1xVLzW1LtguvVpVyHRx/8k49F/mVr9rEY+C2UR
-	 HgYvFqtc7vfWJDVk+riXIh5j18xrYJkwgmLK0FEdKDyUGImWWX3WsgSxirJqgszO4U
-	 3YPR/HyXwWvTsl1hRlD/dKejKg/kShLKvro54GaJStjZj3szapf6sFcZIdXlVSTRlq
-	 S66LbSV4kkYpKUNcrdMh976mwOdehVWV5mOH3WSnFnMKHlqMum63caloS39QBr0HC2
-	 hEj0zTjUy2R/U/8neuzACqqAyIfymLpbATZcypJl3PtGdnciC3evwsTxQArnUVHwfD
-	 Zp7IkSzL1ZyEQ==
+	b=ss8VhDTECfUINRcB44iy0A7NzyosdPLeT/mcNeEW5WCRez7qs5AyV9tLRvAd7kvse
+	 RyVqNvWVi15dDEDPnqe6lc/kjWRQsDhdreyG0A6gM5ca8WcxKcwUqHwt3IKheX6PPB
+	 8XqBIMWshDfKJGnRtRlkRpWKNzhX77x8FEOA5ghkWD/Vj3lAqDAuI+epT1GbZ0qgb6
+	 C5Wfja54ixDce2R+L8MbyKsUJYCjOoFoYdvKFjosWFR70/cUx9EqilImcKHealBRwV
+	 1RtNB1/hqGcLHF2CibxGXMYppUL4FTgVD+ngBCizBvVAybvH0vBnGAhkU7IZz8VDZG
+	 Vq1z7dhERKvpQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Subject: Re: [PATCH v3 2/4] HID: hid-msi: Add M-key mapping attributes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260515033622.2095277-2-derekjohn.clark@gmail.com>
-References: <20260515033622.2095277-2-derekjohn.clark@gmail.com>
+In-Reply-To: <20260515033622.2095277-3-derekjohn.clark@gmail.com>
+References: <20260515033622.2095277-3-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 04:09:27 +0000
-Message-Id: <20260515040928.1DBF7C2BCB0@smtp.kernel.org>
+Date: Fri, 15 May 2026 04:32:20 +0000
+Message-Id: <20260515043220.CEA3DC2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [High] Incorrect teardown order in `claw_remove()` creates a race conditi=
-on that leaks sysfs attributes and leads to a Use-After-Free.
-- [High] Unreasonably short 8ms timeout causes spurious `-EBUSY` failures o=
-n `HZ=3D100` systems.
-- [Medium] Read-modify-write race condition in sysfs configuration handlers=
- causes silent state corruption.
-- [Medium] Missing `.suspend` callback allows hardware-interacting delayed =
-works to execute during system sleep.
+- [High] Unsynchronized state machine and shared completions cause data cor=
+ruption and races.
+- [High] Blind cast of parent device to `usb_interface` causes a kernel pan=
+ic via uhid.
+- [High] 8ms timeout for hardware operations is dangerously short and will =
+cause spurious failures.
+- [Medium] Mixing goto-based cleanup with `scoped_guard` violates cleanup s=
+ubsystem guidelines.
+- [Medium] Unbounded kernel log spam on unsolicited device events.
 --
 
-commit ce9aa923d32bac6eb56e73d413c94aa753ea00cf
+commit f6e1e19ecedd5b80861e87d4606aa90bac28941a
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
-Subject: HID: hid-msi: Add MSI Claw configuration driver
 
-Adds configuration HID driver for the MSI Claw series of handheld PC's.
-In this initial patch add the initial driver outline and attributes for
-changing the gamepad mode, M-key behavior, and add a WO reset function.
+HID: hid-msi: Add M-key mapping attributes
+
+Adds attributes that allow for remapping the M-keys with up to 5 values
+when in macro mode.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> new file mode 100644
-> index 0000000000000..89bb32f00bfc3
-> --- /dev/null
+> index 89bb32f00bfc3..6ccb9666daedf 100644
+> --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
-
+> @@ -125,6 +294,31 @@ static int claw_gamepad_mode_event(struct claw_drvda=
+ta *drvdata,
 [ ... ]
+> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
+command_report *cmd_rep)
+> +{
+> +	u8 *codes;
+> +	int i;
+> +
+> +	switch (drvdata->profile_pending) {
+> +	case CLAW_M1_PENDING:
+> +	case CLAW_M2_PENDING:
+> +		codes =3D (drvdata->profile_pending =3D=3D CLAW_M1_PENDING) ?
 
-> +static ssize_t gamepad_mode_store(struct device *dev, struct device_attr=
-ibute *attr,
-> +				  const char *buf, size_t count)
+Can reading drvdata->profile_pending locklessly here cause data races?
+
+It is modified under profile_mutex in process context (e.g. in
+claw_buttons_show), which could allow a delayed response to silently
+overwrite the wrong profile's memory buffer if another thread is executing
+a new request.
+
+> +			drvdata->m1_codes : drvdata->m2_codes;
+> +		/* Extract key codes; replace disabled (0xff) with 0x00, which is (nul=
+l) in _show */
+> +		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
+> +			codes[i] =3D (cmd_rep->data[6 + i] !=3D 0xff) ? cmd_rep->data[6 + i] =
+: 0x00;
+> +		break;
+> +	default:
+> +		dev_warn(&drvdata->hdev->dev,
+> +			 "Got profile event without changes pending from command: %x\n",
+> +			 cmd_rep->cmd);
+
+Could this cause unbounded kernel log spam?
+
+Since HID devices act as untrusted input and can send up to 1000 reports
+per second, a malicious or malfunctioning device could flood the system
+and cause a local denial of service via excessive logging. Should this
+use dev_warn_ratelimited() or silently drop unsolicited packets?
+
+> +		return -EINVAL;
+> +	}
+> +	drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +
+> +	return 0;
+> +}
+> +
+>  static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_repor=
+t *report,
+>  			  u8 *data, int size)
+>  {
+> @@ -364,6 +561,163 @@ static ssize_t reset_store(struct device *dev, stru=
+ct device_attribute *attr,
+[ ... ]
+> +static int claw_buttons_store(struct device *dev, const char *buf, u8 mk=
+ey_idx)
 > +{
 > +	struct hid_device *hdev =3D to_hid_device(dev);
 > +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	u8 data[2] =3D { 0x00, drvdata->mkeys_function };
-
-Could this lead to a read-modify-write race condition if two threads write =
-to
-the sysfs attributes simultaneously?
-
-They read drvdata->mkeys_function locklessly to construct the command paylo=
-ad.
-After the payload is prepared, claw_hw_output_report() is called, which then
-acquires cfg_mutex to send the command. If two threads write concurrently,
-the second one could overwrite the first one's change because it read a sta=
-le
-state.
-
-Should the payload construction be performed inside the cfg_mutex critical
-section?
-
-[ ... ]
-
-> +static ssize_t gamepad_mode_show(struct device *dev,
-> +				 struct device_attribute *attr, char *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int ret, i;
+> +	u8 data[] =3D { 0x01, (drvdata->bmap_addr[mkey_idx] >> 8) & 0xff,
+> +		      drvdata->bmap_addr[mkey_idx] & 0xff, 0x07,
+> +		      0x04, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff };
+> +	size_t len =3D ARRAY_SIZE(data);
+> +	int ret, key_count, i;
+> +	char **raw_keys;
 > +
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE=
-, NULL, 0, 8);
-
-Will this 8 millisecond timeout cause spurious failures on systems configur=
-ed
-with a 100 hz timer tick?
-
-On such systems, msecs_to_jiffies(8) evaluates to exactly 1 jiffy. A 1-jiffy
-timeout using wait_for_completion_interruptible_timeout() can expire in und=
-er
-1 millisecond if the timer tick fires immediately after the wait is schedul=
-ed,
-which might not provide enough time for the interrupt to complete and will
-return -EBUSY.
-
-[ ... ]
-
-> +static void claw_remove(struct hid_device *hdev)
-> +{
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	raw_keys =3D argv_split(GFP_KERNEL, buf, &key_count);
+> +	if (!raw_keys)
+> +		return -ENOMEM;
 > +
-> +	if (!drvdata) {
-> +		hid_hw_stop(hdev);
-> +		return;
+> +	if (key_count > CLAW_KEYS_MAX) {
+> +		ret =3D -EINVAL;
+> +		goto err_free;
 > +	}
 > +
-> +	device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
-> +	cancel_delayed_work_sync(&drvdata->cfg_setup);
+> +	if (key_count =3D=3D 0)
+> +		goto set_buttons;
+> +
+> +	for (i =3D 0; i < key_count; i++) {
+> +		ret =3D button_mapping_name_to_code(raw_keys[i]);
+> +		if (ret < 0)
+> +			goto err_free;
+> +
+> +		data[6 + i] =3D ret;
+> +	}
+> +
+> +set_buttons:
+> +	scoped_guard(mutex, &drvdata->rom_mutex) {
+> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
+TA,
+> +					    data, len, 8);
 
-Does this teardown sequence leak sysfs attributes and cause a use-after-fre=
-e?
+Are these 8ms timeouts dangerously short?
 
-If cfg_setup_fn() is executing concurrently, device_remove_group() will do
-nothing because the sysfs group has not been added yet. Then
-cancel_delayed_work_sync() will wait for the work to finish.
+On kernel configurations where HZ=3D100, msecs_to_jiffies(8) yields 1 jiffy=
+. A
+1-jiffy timeout can expire almost immediately depending on the timing of the
+next timer tick. Will this falsely abort the wait and return -EBUSY before
+the hardware has time to process the USB HID request?
 
-Meanwhile, cfg_setup_fn() proceeds to call device_add_group(), adding the
-sysfs attributes. When the work finishes, claw_remove() completes and drvda=
-ta
-is freed. The sysfs attributes remain registered to the device, and any
-subsequent read or write from userspace will trigger a use-after-free when
-accessing the freed drvdata pointer.
+> +		if (ret < 0)
+> +			goto err_free;
+> +
+> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NUL=
+L, 0, 8);
+> +	}
+> +
+> +err_free:
 
-Should cancel_delayed_work_sync() happen before device_remove_group() to
-ensure correct teardown order?
+Does mixing goto-based cleanup labels with scoped_guard violate the cleanup
+subsystem guidelines?
 
+The kernel guidelines explicitly forbid mixing goto-based cleanups with
+scope-based cleanups in the same function, as it creates confusing ownership
+semantics and can lead to LIFO ordering bugs.
+
+> +	argv_free(raw_keys);
+> +	return ret;
+> +}
+> +
+> +static int claw_buttons_show(struct device *dev, char *buf, enum claw_ke=
+y_index m_key)
+> +{
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	u8 data[] =3D { 0x01, (drvdata->bmap_addr[m_key] >> 8) & 0xff,
+> +		      drvdata->bmap_addr[m_key] & 0xff, 0x07 };
+> +	size_t len =3D ARRAY_SIZE(data);
+> +	int i, ret, count =3D 0;
+> +	const char *name;
+> +	u8 *codes;
+> +
+> +	codes =3D (m_key =3D=3D CLAW_KEY_M1) ? drvdata->m1_codes : drvdata->m2_=
+codes;
+> +
+> +	guard(mutex)(&drvdata->profile_mutex);
+> +	drvdata->profile_pending =3D (m_key =3D=3D CLAW_KEY_M1) ? CLAW_M1_PENDI=
+NG : CLAW_M2_PENDING;
+> +
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, dat=
+a, len, 8);
+
+Because the driver uses a single shared completion (send_cmd_complete) for =
+all
+hardware responses in claw_raw_event(), could a delayed reply from an
+asynchronous command cause the wait_for_completion_interruptible_timeout() =
+in
+claw_hw_output_report() to return prematurely here?
+
+This could result in uninitialized or stale data being returned to userspac=
+e.
+
+> +	if (ret) {
+> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +		return ret;
+> +	}
 [ ... ]
+> @@ -430,8 +796,31 @@ static void cfg_resume_fn(struct work_struct *work)
+[ ... ]
+>  static int claw_probe(struct hid_device *hdev, u8 ep)
+>  {
+> +	struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
+> +	struct usb_device *udev =3D interface_to_usbdev(intf);
 
-> +static struct hid_driver msi_driver =3D {
-> +	.name		=3D "hid-msi",
-> +	.id_table	=3D msi_devices,
-> +	.raw_event	=3D msi_raw_event,
-> +	.probe		=3D msi_probe,
-> +	.remove		=3D msi_remove,
-> +	.resume		=3D msi_resume,
-> +};
+Can this blind cast cause a kernel panic?
 
-Does this driver need a suspend callback?
+If a virtual HID device is injected from user-space using the uhid subsystem
+with a matching BUS_USB identifier, the parent device is the uhid virtual
+device, not a usb_interface. Accessing udev->descriptor.bcdDevice in this c=
+ase
+would result in an out-of-bounds memory read.
 
-The cfg_setup and cfg_resume delayed works are scheduled on the standard
-non-freezable system workqueue. Without a suspend callback to cancel them,
-these works can execute while the system is asleep.
+Should this use hid_is_usb(hdev) to verify the transport before executing
+USB-specific initialization?
 
-When they fire, they will call hid_hw_output_report() on a suspended
-usb device, which could cause input/output timeouts, lockups, or inadverten=
-tly
-wake up the hardware.
+>  	struct claw_drvdata *drvdata;
+>  	int ret;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515033622.2095=
-277-1-derekjohn.clark@gmail.com?part=3D1
+277-1-derekjohn.clark@gmail.com?part=3D2

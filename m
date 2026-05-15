@@ -1,120 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E32BD3033FC
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:26:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 724A1364029
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 05:42:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778822767; cv=none; b=BAMCHoDnY4TbdTiN2GCJdK2uFf8BSrPrbucxDvHzr4tcT/37VV0ZLA8nMjjtBo06vseD+DPg1UGF/49nLq3Z3790cYOKkcP16k8tNcZ6rXVjJ/ovuYaO9N9IKzyi+OQ8IODbNqripSeFFVaLBMInXXZ4d/y63l1z8enEDYlF0no=
+	t=1778823743; cv=none; b=NW1OXp3S0mdadbgg14bV4xFfqXSsNS93NaS9b6+ZCkcKRtendqon7768Cvw1OT6gWIX04/iK66wgVRp9src2SjZy6M06WLiW5YPKOvrGCl38ddosW7gupJFi49TfTmUC2CvXLWt3hYsTrKdp/PX992be4gYIp7E5G1ylAa/rbFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778822767; c=relaxed/simple;
-	bh=MQg3n1QlX/iZHNhADCNkz8NfFjPtHCMHoqwG41+iQBM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tgyosHNU7qsQRpE5BANVddn3rUMb6G4cEtK/ttt1C3hRbC0vT4fImF3Ch7Uz5AzD/0ZPOQoanjuGMckjnJgoCl+qyGiWxyx9+DBo68KNNaw28/NvlIwIFhRDsJYkLEoHuLUCNJegZ2qNjqZg+FXGzmcUZA5C1zWF0CsVcE3hWnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NY6mwt/Z; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778823743; c=relaxed/simple;
+	bh=4ujO8YPn+C6kly/QIxgqk2+iFaoJUzR0JdPeVgifXGg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nvqinM4H8mizcQ8KgnQHPZx2Bf3SyYzQgcZ/ykhUUS4OViL2BUIikPxsusSCryH9/W7FLTHxXrZaIq9xuWBn1AGN9dPNbBG22zc86iUg6ldSzOUSZnvjRK0RN29QR1HYnM9wd1Iwm7FBbBBEiryp71vrrG1rLLg4IB4nSwCPoPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F/uTGYHL; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NY6mwt/Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52710C2BCB0;
-	Fri, 15 May 2026 05:26:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778822766;
-	bh=MQg3n1QlX/iZHNhADCNkz8NfFjPtHCMHoqwG41+iQBM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=NY6mwt/ZvIEEo6RaxKX7/HHdAoAglNxUl0peMe+nfsHtSAdm+Ub8zhKtH5hdUZ2hy
-	 LQNf6cQU2JgQUnOqDPHpkQg+PIwtDWFA1GoSV+0kxbquVyxNVEWChCft3qmypNOk71
-	 M9K5AQcOO48/EAMLxOromV72TXnbYJldJOsv+rMMBEHPwLf0lywrz1AI7hjvvN0iCw
-	 5NjS2Fv7qYHsst33jQ11THqfjsVDZVaZoMZwgzIjq5HzJ32OEECsmThW77+5VCVMuQ
-	 hYOBXUNHiiLrIcQ7cPXsSYMpjnmEM03/BtCPxKN0Hni8DASX34yRvLhm1mejVZj1RS
-	 CHxRjJBcLKRbA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/4] HID: hid-msi: Add Rumble Intensity Attributes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260515033622.2095277-5-derekjohn.clark@gmail.com>
-References: <20260515033622.2095277-5-derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 05:26:05 +0000
-Message-Id: <20260515052606.52710C2BCB0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F/uTGYHL"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-82f9fdfc965so4034817b3a.1
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2026 22:42:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778823742; x=1779428542; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5BD6jb0vjKtzgJh8F8xKpey20kEfF+Odim4ezk9P1XI=;
+        b=F/uTGYHLT8VYmGW7uUL+D8T/AA74P6prWB53VB35e1Kcxs9A1li02lUUJfl59m2XPG
+         UY9OLwSN6S+/GyHL7u9w6UurHJG2uXT6EofbCa31igySqpYGx2ecTIpBe5XaqdKQrW0c
+         zMB0Q5Vt/vCsG/kUXnNwsxqCm2edDNVb6h7iwTs6LrrYPs0mGDZOywnYqXOq//V1Xq8N
+         Z3CgISE7MVDvS/pAtRj4lRWSEYv5Mbaxe+nEhv/DucluH8eIFkne84tkuLaoGmLlu12m
+         Y6Wr6qgXaZu8EKxu1EzW/9XGVTu+kYxXKeeW/icfozYKB0+QwoxhDMuq+FGy/7nj9Oxd
+         8Z4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778823742; x=1779428542;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=5BD6jb0vjKtzgJh8F8xKpey20kEfF+Odim4ezk9P1XI=;
+        b=OcZpHvgZPqYkDjUH0LraYGRPT1m4mw3hg7W8hgVxwWat4sH9SRkapR/e8+6Wd2xh7I
+         lP6rIzXbdJV+ge1BFN3ckE5drO66t9THOyolDlim5jbNjZxoIYDQQgQBs9OPg1rOIO/Z
+         PKqmNQYU8WibjBndYI5icgWAJpModilQi76eTIm/8C8UzLp32l4zgllFHA2My9ijnm7o
+         K/vZsqimeONn6j9gXlE8YSyrA7wP/DoYU813asupaOeXmudrUZd3OZcpICMDm8hy+jML
+         AuUJ6BLOpJFVe3yzNU0GxwcHwSuAVdsqMy5CZcldVp+i8dw77AZv30lHqLF1G5FmKQTa
+         cMJQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9XSLpEhhs3pfDxTH1/cayxY2cjk9mi3ItZUijVX63IF3WXylWGexvll8qsmcFIV1uXWT4G72hujBFNfA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyAv7N97cNE+kCPyviOwvafrxygGd3m9NZ7uaQnIfZHxl37gqWd
+	a49CJPWUX0Zdw6/ixjSN/qO3nJ6CXtc/qK5rhuyJbhNFu+1waiz0OnIO
+X-Gm-Gg: Acq92OEWltHEK3zcy3nr7pyoLrnKAKeDlO6SHci+QLYx2CFXQ87C5CGfxvauclgaoiU
+	pESHZ91suKVhZZH2yN9vlZ5uVld/Xx2UFKX+LHmKftXPzAjUNVyGYPmpFRbELWU/GFa0Jv0ybEw
+	O2ayDXSWCaNJJajWQKWYIPn5rElbWSHnYllG47wx40oxF06U7VUQEoFqoMrSQLTVq/D9zpD0728
+	XxKoQegF8ogrAQNHNfNcSpkZi/CbGZygwbo3hOgck0ZUMzTZFrbJFe1b0Dun4/jexE7xpE2Dk6c
+	9qCbT+3QZv/U/xfOBz0try7dct7vqpRGtX222Ib+GYLeOZYxOPqWSpFNMduX+Wibj3jd4GkH0/+
+	KuRsgmfpnQsVrAyOpFWjG9yKd/k0M2bkrPs/fNBLDhpOH6t9Q8SuBHWLcxei4aG6TVyzRQldxxO
+	54LLONzPm+lOjijEeobIXvTkU7TsTM7xlt38UgCwtUPcBtMoNzeyFT5PwBSyIPDcTLCcIgTGO2G
+	D5ftug+ourfK5Jp3KdcahfnkEo=
+X-Received: by 2002:a05:6a00:1954:b0:835:366f:5da2 with SMTP id d2e1a72fcca58-83f33d80937mr2828691b3a.37.1778823741521;
+        Thu, 14 May 2026 22:42:21 -0700 (PDT)
+Received: from harrison-Surface-Pro-12in-1st-Ed-with-Snapdragon.wework.com ([203.117.161.34])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f2b9bec8fsm3106116b3a.33.2026.05.14.22.42.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 22:42:20 -0700 (PDT)
+From: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+To: andersson@kernel.org,
+	konradybcio@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	davem@davemloft.net,
+	neil.armstrong@linaro.org,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	simona@ffwll.ch,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	luzmaximilian@gmail.com,
+	hansg@kernel.org,
+	ilpo.jarvinen@linux.intel.com
+Cc: Douglas Anderson <dianders@chromium.org>,
+	Jessica Zhang <jesszhan0024@gmail.com>,
+	linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-crypto@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linux-input@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org
+Subject: [PATCH v2 0/7] Add support for the Microsoft Surface Pro 12in 1st Edition (Snapdragon),
+Date: Fri, 15 May 2026 15:41:45 +1000
+Message-ID: <cover.1778822464.git.harrison.vanderbyl@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <177869930359.1496076.12020223802779537187.b4-ty@kernel.org>
+References: <177869930359.1496076.12020223802779537187.b4-ty@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] The asynchronous request state machine lacks sequence tracking and=
- proper synchronization, causing delayed USB events to misroute and corrupt=
- data for subsequent operations.
---
+Changes in v2:
+Ice device tree: 
+ - Updated to use 0x0 formatting
 
-commit 95ec4f316951f2159554c90bdf669eb45a19e099
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+Panel: 
+ - Add edid to commit message
 
-HID: hid-msi: Add Rumble Intensity Attributes
+Device tree:
+ - Fixed formatting and ordering nits
+ - Removed extra dmic audio declarations
+ - Added suspected devices on i2c busses
+ - Fixed incorrect usb regulator
+ - Describe panel pin regulator
+ - Added defaults for volume button GPIOs
 
-This commit adds sysfs attributes to control the left and right rumble motor
-intensity on MSI Claw devices. It implements store and show functions that
-communicate with the device firmware and uses a state machine to handle the
-asynchronous responses.
+QSEECOM patch (4/8 in v1):
+  - Applied by Bjorn Andersson
+  
+Hid patch (5/8 in v1):
+  - Acked by Jiri Kosina, but not applied yet.
 
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 06dc4290d2bb5..349a59f75e471 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
+Link to v1:
+https://lore.kernel.org/all/cover.1778498477.git.harrison.vanderbyl@gmail.com/
 
-[ ... ]
 
-> @@ -810,6 +826,126 @@ static ssize_t button_mapping_options_show(struct d=
-evice *dev,
->  }
->  static DEVICE_ATTR_RO(button_mapping_options);
-> =20
+Currently supported:
+  - UFS (with inline crypto)
+  - Touchscreen, pen, cover keyboard and touchpad (via SAM)
+  - USB 3.2 x2 with DP Alt Mode
+  - Audio, WiFi, Bluetooth
+  - CDSP, ADSP, GPU
+  - Display (BOE NE120DRM-N28 panel)
 
-[ ... ]
+Not yet supported:
+  - Accelerometer
+  - Front, back, and IR cameras
+  - IRIS video decoder
 
-> +static ssize_t rumble_intensity_left_show(struct device *dev,
-> +					  struct device_attribute *attr,
-> +					  char *buf)
-> +{
-> +	u8 data[4] =3D { 0x01, (rumble_addr[0] >> 8) & 0xff, rumble_addr[0] & 0=
-xff, 0x01 };
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int ret;
-> +
-> +	guard(mutex)(&drvdata->profile_mutex);
-> +	drvdata->profile_pending =3D CLAW_RUMBLE_LEFT_PENDING;
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, dat=
-a,
-> +				    ARRAY_SIZE(data), 8);
-> +	if (ret) {
-> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
-> +		return ret;
-> +	}
+Note on the compatible string: unlike other Microsoft Surface devices
+upstream (denali, arcata, romulus13, blackrock), this device does not
+appear to carry an internal codename in firmware. The DSDT, SMBIOS, and
+EFI variables only refer to it as "Surface Pro 12in 1st Ed with
+Snapdragon" (SKU 2110). I have used `microsoft,surface-pro-12in` as the
+compatible. Suggestions welcome.
 
-Is the state machine vulnerable to crossed data from delayed USB events?
+Although the device is marketed as just a smaller version of the denali,
+it has enough differences that it warranted a different compatible and
+device tree.
 
-If claw_hw_output_report() times out (using the 8ms timeout), this function
-clears profile_pending and returns. If a subsequent read for the right
-motor then sets profile_pending to CLAW_RUMBLE_RIGHT_PENDING, could a
-delayed response from this left motor request arrive?
+Tested on Surface Pro 12in 1st Ed with Snapdragon (SKU 2110).
 
-If so, claw_profile_event() would see CLAW_RUMBLE_RIGHT_PENDING,
-incorrectly save the left rumble data into drvdata->rumble_intensity_right,
-and clear the pending state. This would complete the right rumble request
-with the left motor's data.
+Harrison Vanderbyl (7):
+  dt-bindings: arm: qcom: Add Microsoft Surface Pro 12in
+  dt-bindings: crypto: Add x1e80100 inline crypto
+  platform/surface: SAM: Add support for Surface Pro 12in
+  hid: Pen battery quirk for Surface Pro 12in
+  drm/panel-edp: Add panel for Surface Pro 12in
+  arm64: dts: qcom: hamoa: Add inline crypto for UFS
+  arm64: dts: qcom: Add Microsoft Surface Pro 12in
 
-Similarly, could a stray ACK from a timed-out store operation prematurely
-complete a show operation, exiting without clearing profile_pending and
-permanently corrupting the state machine?
+ .../devicetree/bindings/arm/qcom.yaml         |    4 +
+ .../crypto/qcom,inline-crypto-engine.yaml     |    1 +
+ arch/arm64/boot/dts/qcom/Makefile             |    2 +
+ arch/arm64/boot/dts/qcom/hamoa.dtsi           |   10 +
+ .../dts/qcom/x1p42100-microsoft-sp12in.dts    | 1201 +++++++++++++++++
+ drivers/gpu/drm/panel/panel-edp.c             |    1 +
+ drivers/hid/hid-ids.h                         |    1 +
+ drivers/hid/hid-input.c                       |    2 +
+ .../surface/surface_aggregator_registry.c     |   15 +
+ 9 files changed, 1237 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/qcom/x1p42100-microsoft-sp12in.dts
 
-> +
-> +	return sysfs_emit(buf, "%u\n", drvdata->rumble_intensity_left);
-> +}
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515033622.2095=
-277-1-derekjohn.clark@gmail.com?part=3D4
+base-commit: 5d6919055dec134de3c40167a490f33c74c12581
+prerequisite-patch-id: a34133ba03bd1d31c0ed08612c31131b62015654
+-- 
+2.53.0
+

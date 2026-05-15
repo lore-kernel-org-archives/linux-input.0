@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4159A305680
-	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 15:58:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD5F3BB12D
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2026 16:02:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778860719; cv=none; b=FiZBBoBJO6xuFz9xjfMH7ptW7HFST4jLXhXmPzmrjsohtHoZgW25okRzhc2NJSsX/IZ0f9ta77kKzeYe74LvjtrPh3WbuuiQCjgV31nz6WhjoTaP2bazRB5zsEZLjwUXrRQiVBaI1wP011fDIxDRMOWVVmrQLkncuGcNysU4oAE=
+	t=1778860938; cv=none; b=oaZi+iCf587poYMlk0KBolwJn09ZNJrzMrvcLsvLcAn4lfdy7l4ZKHbrUHiScB3AiBBF+BfQVU8OIOilnY0WYnh4vhC7jGpH3ZySLOx4p0f5VKJunnxFrB8cR6ziavnPksdqDVre+cXzyElBWIAbMvNQeZJqDr8V4e8hQwssCYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778860719; c=relaxed/simple;
-	bh=KL9kkaDzXsxm0abjJy55EHUNgIhoYl5OyWuF0ZLy2uo=;
+	s=arc-20240116; t=1778860938; c=relaxed/simple;
+	bh=PZp5v74HdPPMIZyTrRaWmosmqbgP5WAZUjCqdQ9/E7k=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cEahXEa1bgzG3dOKXb+xhvlz5NqL63QdCV64vc6eeGHg1IcWgHzbMHd70PvmVb6Z8folCvwXrnI+TV0DG0cMPhDOkjXLjV6nOlavT1hDNnkltvBbsVfLEtGABfdb56jphKGBt5/ktiKuQEPzRnZJZztcSakmdLSK8h3L8ZIxCbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GZA2IneC; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=PxwOiXkOP8LHJuIusaURn5Dg/Tby4xaB+bHSfH4ZHsgnXVbeIvbl0EKwBdCQCgfwewEwF1GrRalGKaMexYrXLyVR+nHcKqC2vbm6rbWDLFXroLMvtaA0zobObSplTaseORZxlgze/YxH7UbIzAALUogSiiT0gIAXRBsc/TE61pA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Chxtp+Fe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GZA2IneC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4247C2BCB3;
-	Fri, 15 May 2026 15:58:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Chxtp+Fe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D39EC2BCB0;
+	Fri, 15 May 2026 16:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778860719;
-	bh=KL9kkaDzXsxm0abjJy55EHUNgIhoYl5OyWuF0ZLy2uo=;
+	s=k20201202; t=1778860938;
+	bh=PZp5v74HdPPMIZyTrRaWmosmqbgP5WAZUjCqdQ9/E7k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=GZA2IneCu8HvqgZ1w2dXWyeu+pXhCE3B55iaFmN2oklclS+0B332Thw+I/XAEKgik
-	 eTJl88gKcbq61kxxWKDgZtH29cnU6hvQnIWD8g44GcAGAW2MxiWwHSZ1MeBscpVIKY
-	 nYgFqRzVoaBsDKasQjH6pYPZ8oNqVmhHB6lWu+G5V3PhKLDIC8xR5Cy0CHql5KkgRQ
-	 k5hKMYtJ5lhxCh+nT+LMTbUTtKqoHDX8z422zMuPHH5IFVctLG6rZFm2qWWhuxmpkh
-	 cQScu38yKeQSHG91NWOTE1gW19fD7GdSLJSDGg9A149ysNiNIdltOUs61cZzkCoUEO
-	 AzaqcO0lz5b/Q==
+	b=Chxtp+Fe1GUsQsWPIUSISEuB7ZLsMwRaRZzrlKjY0r9GkET1VKoC+Zu94fvE1xkrP
+	 EGEpXaEfsgpye9wIXoTHL3RYeTj0QRSUoGPm6FcEXsWF/Afm0Byioli96TFxsqoIcA
+	 M/zBRTct6hwKN85TelrzIFQSF7NdYQxG/phT3NcoM+1bFp5vlfdzkKbjG7I2mM7BXI
+	 7vp9p/A9I4kHfLBp5AThkFWAbdsHLXMrQWigATyeA0TQSzb76ves+Laid5Z7Kks2//
+	 0NLqxJGfLx+UFssP0iP/YoLvfRe62yAsEHF7PPQCtvNPxSH4R+971y4JSpbr14d15o
+	 Idco/9ThShJrg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: letsketch: fix UAF on inrange_timer at driver
- unbind
+Subject: Re: [PATCH] HID: appleir: fix UAF on pending key_up_timer in
+ remove()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Manish Khadka" <maskmemanish@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260515153551.76162-1-maskmemanish@gmail.com>
-References: <20260515153551.76162-1-maskmemanish@gmail.com>
+In-Reply-To: <20260515153450.76146-1-maskmemanish@gmail.com>
+References: <20260515153450.76146-1-maskmemanish@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 15 May 2026 15:58:38 +0000
-Message-Id: <20260515155838.B4247C2BCB3@smtp.kernel.org>
+Date: Fri, 15 May 2026 16:02:17 +0000
+Message-Id: <20260515160218.4D39EC2BCB0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,82 +46,94 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Missing timer cleanup on the probe error path leads to a Use-After=
--Free.
-- [Medium] Unnecessary spinlock and state flag introduced instead of using =
-`timer_shutdown_sync()`.
+- [Critical] Unprotected access to `appleir->input_dev` in the `flatbattery=
+` event path leads to a Use-After-Free during device teardown.
+- [Medium] The teardown path uses `timer_delete_sync()` instead of the mand=
+ated `timer_shutdown_sync()` API.
 --
 
-commit 2d88d7acbcf7e811559cfcb0df7e33f55178711b
+commit 85e03ec2fd55b34b6351049c19c0b16cf580e59e
 Author: Manish Khadka <maskmemanish@gmail.com>
+Subject: HID: appleir: fix UAF on pending key_up_timer in remove()
 
-HID: letsketch: fix UAF on inrange_timer at driver unbind
+This commit introduces a removing flag to prevent a use-after-free during
+device teardown. It checks this flag in the event handler to avoid arming
+the timer or accessing the input device after it has been freed by
+hid_hw_stop().
 
-This commit adds a remove callback to the letsketch driver to clean up
-the inrange_timer during device unbind. It introduces a spinlock and a
-removing flag to prevent the timer from being re-armed by in-flight
-events while teardown is occurring.
-
-> diff --git a/drivers/hid/hid-letsketch.c b/drivers/hid/hid-letsketch.c
-> index 11e21f9887232..0dc9496d05f80 100644
-> --- a/drivers/hid/hid-letsketch.c
-> +++ b/drivers/hid/hid-letsketch.c
+> diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+> index 5e8ced7bc05a3..0e51f1e166531 100644
+> --- a/drivers/hid/hid-appleir.c
+> +++ b/drivers/hid/hid-appleir.c
 
 [ ... ]
 
-> @@ -305,6 +315,23 @@ static int letsketch_probe(struct hid_device *hdev, =
-const struct hid_device_id *
->  	return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
->  }
+> @@ -229,12 +234,17 @@ static int appleir_raw_event(struct hid_device *hid=
+, struct hid_report *report,
+>  	appleir->prev_key_idx =3D 0;
+> =20
+>  	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
+> -		key_down(hid, appleir, appleir->current_key);
+> -		/*
+> -		 * Remote doesn't do key up, either pull them up, in the test
+> -		 * above, or here set a timer which pulls them up after 1/8 s
+> -		 */
+> -		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
+> +		spin_lock_irqsave(&appleir->lock, flags);
+> +		if (!appleir->removing) {
+> +			key_down(hid, appleir, appleir->current_key);
+> +			/*
+> +			 * Remote doesn't do key up, either pull them up, in
+> +			 * the test above, or here set a timer which pulls them
+> +			 * up after 1/8 s
+> +			 */
+> +			mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
+> +		}
+> +		spin_unlock_irqrestore(&appleir->lock, flags);
+>  		goto out;
+>  	}
 
-While not introduced by this patch, if hid_hw_start() fails and returns an
-error, does this leave a pending timer that will fire on freed memory?
+Does this leave the flatbattery branch unprotected?=20
 
-Looking at hid_hw_start(), it enables hardware I/O before attempting to
-connect. If the connection fails, it stops I/O and returns an error:
+If a flat battery packet is received during the teardown window, execution
+skips these guarded blocks and falls straight through to battery_flat()
+which follows immediately after this hunk.
 
-hid_hw_start() {
-        hdev->ll_driver->start(hdev);
-        if (hid_connect(hdev, connect_mask)) {
-                hdev->ll_driver->stop(hdev);
-                return error;
-        }
-}
+Looking at battery_flat(), it seems to unconditionally execute
+dev_err(&appleir->input_dev->dev, ...), which dereferences the input_dev
+pointer. Can this result in a use-after-free if it fires concurrently with
+teardown?
 
-During the window where I/O is active, an incoming event could trigger
-letsketch_raw_event() and arm the timer.
+[ ... ]
 
-When letsketch_probe() directly returns this error, devres immediately frees
-the letsketch_data structure without draining the timer.
-
-> +static void letsketch_remove(struct hid_device *hdev)
-> +{
-> +	struct letsketch_data *data =3D hid_get_drvdata(hdev);
+> @@ -318,8 +328,20 @@ static int appleir_probe(struct hid_device *hid, con=
+st struct hid_device_id *id)
+>  static void appleir_remove(struct hid_device *hid)
+>  {
+>  	struct appleir *appleir =3D hid_get_drvdata(hid);
+> -	hid_hw_stop(hid);
+> +	unsigned long flags;
 > +
 > +	/*
-> +	 * Block raw_event from arming inrange_timer during teardown so
-> +	 * timer_delete_sync() below cannot race with a fresh mod_timer()
-> +	 * issued from a URB completion handler still in flight while
-> +	 * hid_hw_stop() is running.
+> +	 * Mark the driver as tearing down so that any concurrent raw_event
+> +	 * (e.g. from a USB URB completion that hid_hw_stop() has not yet
+> +	 * killed) and the key_up_timer softirq stop touching input_dev
+> +	 * before hid_hw_stop() frees it via hidinput_disconnect().
 > +	 */
-> +	scoped_guard(spinlock_irqsave, &data->lock)
-> +		data->removing =3D true;
+> +	spin_lock_irqsave(&appleir->lock, flags);
+> +	appleir->removing =3D true;
+> +	spin_unlock_irqrestore(&appleir->lock, flags);
 > +
-> +	timer_delete_sync(&data->inrange_timer);
-> +	hid_hw_stop(hdev);
-> +}
+>  	timer_delete_sync(&appleir->key_up_timer);
 
-Could this synchronization be achieved without adding a new spinlock and st=
-ate
-flag by using timer_shutdown_sync() instead?
+Should this teardown path use timer_shutdown_sync() instead?
 
-The timer_shutdown_sync() API permanently disables the timer, ensuring that
-any subsequent mod_timer() calls are silent no-ops.
+The timer subsystem guidelines mandate using timer_shutdown_sync() in
+teardown paths to permanently prevent the timer from being re-armed.
 
-Alternatively, if hid_hw_stop() were called before cleaning up the timer, it
-would wait for all URBs to complete, which structurally guarantees no new
-events can arrive to re-arm the timer.
+> +	hid_hw_stop(hid);
+>  }
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515153551.7616=
-2-1-maskmemanish@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260515153450.7614=
+6-1-maskmemanish@gmail.com?part=3D1

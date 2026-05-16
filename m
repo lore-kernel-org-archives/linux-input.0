@@ -1,175 +1,220 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C2734F5E0
-	for <linux-input@vger.kernel.org>; Sat, 16 May 2026 05:27:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CADCD1F1534
+	for <linux-input@vger.kernel.org>; Sat, 16 May 2026 05:48:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778909247; cv=none; b=WylC4WHY1YZUluYGSInS5Q7EyVv0BzMLOkWBS8DUptFXbPu7yNybIYl3x6HEaDb+bKiqibsHpczeOG1nfQrV1M4XLv4B/vW7hVvPvnI3kHEru2kPT662uFpVt2r6yDOQmvvCdSo/bmNeK47qbUKnP45a5gVMD4uAzXFbT/jM0SA=
+	t=1778910521; cv=none; b=ZFKtIgiPeubjESgfH4rhPL4o10MHx7UAPAwhTpqv86gjmSZ8ZleVQPM3aejD1kXeipe54Zj2XdIFz1CRZe1JHkupyyIo6dt09fC/I4lZ+zGKHelzw6x3UXmx37JcWtkpiNAdmOWD+6ABCjXb/m86kyvVfneo+D0ZvxuZ8tApYtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778909247; c=relaxed/simple;
-	bh=rvtxh9fi6n3Bde7vWKdb6lMcKMCAjr3FCVJsZY08C38=;
+	s=arc-20240116; t=1778910521; c=relaxed/simple;
+	bh=RHw4/MTZsbb+9GTxJ3lqgOGr3qZj5szK5AkgMb65n24=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fzP+tzdOungASYFrBC2P4Eaxq72vqMkoqPXWl8i6qdQAg8Y1VYzRlvy8lIN2bHBz7r48eHmK9RR83sRySTlxw9j3WxnA0MvOTwg6TtxPI106SUAr2oK8r4cib3SwggAtZB3YNubyp8tdCKzg8FdWdj9mnbp8jWSg0YzOhn+XFEg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BTMsgrPu; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=IeXSH71MMmWKgqPsiYRbYilVQ5JSumzgypNVR2X2jO4PrxSQi5WyNMlfkTRmVF6RGFJS7Nq+Yxlpq0RNazE1TTY+FRGf9/Fc5cTHkGAM3M3dwQ/zc3M+79JOvDgoYIGkYazRjlKPoHsAYj6Y/jSE3a0NWOktnpen44z0SiZdPfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hNkHwUxW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BTMsgrPu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0B3C19425;
-	Sat, 16 May 2026 05:27:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hNkHwUxW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55971C19425;
+	Sat, 16 May 2026 05:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778909246;
-	bh=rvtxh9fi6n3Bde7vWKdb6lMcKMCAjr3FCVJsZY08C38=;
+	s=k20201202; t=1778910521;
+	bh=RHw4/MTZsbb+9GTxJ3lqgOGr3qZj5szK5AkgMb65n24=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=BTMsgrPuNH3WKbakztp/RhiyCdgUl1RefHUX2D/qQO1bL5zblvKc7MvhbTbE1urYw
-	 czYu202kJwKjNWlCs3Nsk31HIXAQjJbqm/4zhPxemGPv2WfYOxBLO6e02xHWfpHRUZ
-	 wXdC1D7bX6fMzJ9QkKIAiAGn6Khrq9nBHkPRaUSk/iNzNK8ABnLMmW52aFKPfk7wes
-	 K/yj//viSQ8HaJoYzAvIQAXRiHTnQLti5y++qk8jEtGsLANp+llIURNX12wjGqCczl
-	 GYWpi9Iq2cedJFPlASxJFPFHw6Xe78+IHcWe5S23XvL7eotqLfqm9Gqqkri0N4kHvS
-	 61EZUtH6AxLTA==
+	b=hNkHwUxWZTxVSWKkbGLF1bBtuPccUFeVJR9AoZPDO+rr+p69KxpJ5CnNQtodu1y9N
+	 tgcABzYJrh3vKXqA8yWKj6atjTjQw98rvUgHnyNxYvM5v3a48c/ycP0vT21tC552fV
+	 6a+Ig8S1W2mnbnT9IdsHJzkWCI1AqbXxHbK9wq7rECmNFwiiHduowLTSX/awRhhNrc
+	 EnthA3Y/uYpq9ocEmOk8ZWueBtnXsvNjRJ6APJjNj8tr5pCuKNMI055AE6cXAsQ+/6
+	 BLOilNwfLoSqohXBCM9RXw806gLuVw8puozwAZDo0tk9/0/rN7K9rdioj2kTXSc0sr
+	 owNUdN9Yc71+Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/4] HID: hid-msi: Add M-key mapping attributes
+Subject: Re: [PATCH v4 3/4] HID: hid-msi: Add RGB control interface
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260516042841.500299-3-derekjohn.clark@gmail.com>
-References: <20260516042841.500299-3-derekjohn.clark@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260516042841.500299-4-derekjohn.clark@gmail.com>
+References: <20260516042841.500299-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 16 May 2026 05:27:25 +0000
-Message-Id: <20260516052726.3F0B3C19425@smtp.kernel.org>
+Date: Sat, 16 May 2026 05:48:40 +0000
+Message-Id: <20260516054841.55971C19425@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-- [High] Incorrect error check in `claw_buttons_store()` prevents hardware =
-updates and violates sysfs contract.
-- [High] Unsynchronized request tracking and short timeouts cause cross-tal=
-k between sysfs reads and corrupt device state.
-- [Medium] Writing an empty string silently fails to clear M-key mappings.
+- [High] Holding a spinlock while calling sleeping functions causes a kerne=
+l panic.
+- [High] `frame_lock` is acquired in process context without disabling inte=
+rrupts, leading to a deadlock.
+- [High] Re-arming of workqueue during teardown leads to Use-After-Free.
+- [High] Early LED registration exposes sysfs attributes before initializat=
+ion is complete, causing NULL pointer dereferences or Use-After-Free.
+- [Medium] The `frame_lock` spinlock is never initialized.
+- [Low] Mixing `goto` and scope-based cleanup helpers in the same function =
+violates subsystem guidelines.
 --
 
-commit 437a6d2887a8ee961bc67ec5d675b041d9f3b7b4
+commit 7eda00d45299494b87bf52e044ab97d5c4a78385
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add M-key mapping attributes
+HID: hid-msi: Add RGB control interface
 
-This commit adds sysfs attributes to remap the M-keys (M1 and M2) on MSI
-devices in macro mode. It introduces functionality to parse user input,
-translate button names to codes, and synchronize these configurations
-with the hardware.
+This commit adds an RGB control interface for MSI Claw devices, supporting =
+up
+to 8 frames of sequential RGB zone data. It implements several lighting
+effects mirroring the Windows driver functionality.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 1bf1d6150f4fd..bc0169c992ae8 100644
+> index bc0169c992ae8..8ea8f551b8e43 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
+[ ... ]
+> @@ -309,15 +372,46 @@ static int claw_profile_event(struct claw_drvdata *=
+drvdata, struct claw_command_
+>  		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
+>  			codes[i] =3D (cmd_rep->data[6 + i]);
+>  		break;
+> +	case CLAW_RGB_PENDING:
+> +		frame =3D (struct rgb_report *)cmd_rep->data;
+> +		rgb_addr =3D drvdata->rgb_addr;
+> +		read_addr =3D be16_to_cpu(frame->read_addr);
+> +		frame_calc =3D (read_addr - rgb_addr) / CLAW_RGB_FRAME_OFFSET;
+> +		if (frame_calc >=3D CLAW_RGB_MAX_FRAMES) {
+> +			dev_err(drvdata->led_mc.led_cdev.dev, "Got unsupported frame index: %=
+x\n",
+> +				frame_calc);
+> +			ret =3D -EINVAL;
+> +			goto err_pending;
+> +		}
+> +		f_idx =3D frame_calc;
+> +
+> +		scoped_guard(spinlock, &drvdata->frame_lock) {
+
+This function mixes a goto-based error path (err_pending) with a
+scope-based cleanup helper (scoped_guard). Is it possible to convert the
+error handling to use cleanup helpers, or remove the scoped guard? Subsystem
+guidelines state that goto and cleanup helpers should not be mixed in the
+same function.
 
 [ ... ]
-
-> +static int claw_buttons_store(struct device *dev, const char *buf, u8 mk=
-ey_idx)
+> +/* Apply solid effect (1 frame, all zones same color) */
+> +static int claw_apply_monocolor(struct claw_drvdata *drvdata)
 > +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	u8 data[] =3D { 0x01, (drvdata->bmap_addr[mkey_idx] >> 8) & 0xff,
-> +		      drvdata->bmap_addr[mkey_idx] & 0xff, 0x07,
-> +		      0x04, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff };
-> +	char **raw_keys __free(argv) =3D NULL;
-> +	size_t len =3D ARRAY_SIZE(data);
-> +	int ret, key_count, i;
+> +	struct mc_subled *subleds =3D drvdata->led_mc.subled_info;
+> +	struct rgb_zone zone =3D { subleds[0].intensity, subleds[1].intensity,
+> +				 subleds[2].intensity };
 > +
-> +	raw_keys =3D argv_split(GFP_KERNEL, buf, &key_count);
-> +	if (!raw_keys)
+> +	guard(spinlock)(&drvdata->frame_lock);
+
+Are we acquiring the spinlock without disabling interrupts here? Since
+frame_lock is also acquired in claw_profile_event() which runs in the
+HID raw event interrupt context, could this lead to a deadlock if an
+interrupt fires while this process context holds the lock? Using
+guard(spinlock_irqsave) might be necessary to prevent this.
+
+Also, does calling claw_write_rgb_state() while holding the frame_lock
+spinlock cause an issue?
+
+Looking at claw_write_rgb_state(), it acquires a mutex, allocates memory
+with GFP_KERNEL inside claw_hw_output_report(), and can sleep via
+wait_for_completion_interruptible_timeout(). Calling these sleeping functio=
+ns
+while holding a spinlock will trigger a scheduling while atomic panic.
+
+> +	drvdata->rgb_frame_count =3D 1;
+> +	claw_frame_fill_solid(&drvdata->rgb_frames[0], zone);
+> +
+> +	return claw_write_rgb_state(drvdata);
+> +}
+[ ... ]
+>  static int claw_probe(struct hid_device *hdev, u8 ep)
+> @@ -843,12 +1361,28 @@ static int claw_probe(struct hid_device *hdev, u8 =
+ep)
+>  	if (!drvdata->bmap_support)
+>  		dev_dbg(&hdev->dev, "M-Key mapping is not supported. Update firmware t=
+o enable.\n");
+> =20
+> +	drvdata->led_mc.led_cdev.name =3D "msi_claw:rgb:joystick_rings";
+> +	drvdata->led_mc.led_cdev.brightness =3D 0x50;
+> +	drvdata->led_mc.led_cdev.max_brightness =3D 0x64;
+> +	drvdata->led_mc.led_cdev.color =3D LED_COLOR_ID_RGB;
+> +	drvdata->led_mc.led_cdev.brightness_set =3D claw_led_brightness_set;
+> +	drvdata->led_mc.num_colors =3D 3;
+> +	drvdata->led_mc.subled_info =3D devm_kmemdup(&hdev->dev, claw_rgb_suble=
+d_info,
+> +						   sizeof(claw_rgb_subled_info), GFP_KERNEL);
+> +	if (!drvdata->led_mc.subled_info)
 > +		return -ENOMEM;
 > +
-> +	if (key_count > CLAW_KEYS_MAX)
-> +		return -EINVAL;
-> +
-> +	if (key_count =3D=3D 0)
-> +		return 0;
+>  	mutex_init(&drvdata->cfg_mutex);
+>  	mutex_init(&drvdata->profile_mutex);
+>  	mutex_init(&drvdata->rom_mutex);
+>  	init_completion(&drvdata->send_cmd_complete);
 
-If a user attempts to clear the button mappings by writing an empty string,
-key_count will be 0.=20
+Is frame_lock missing an explicit initialization? It doesn't appear to be
+initialized with spin_lock_init(). Relying on devm_kzalloc
+zero-initialization for spinlocks can lead to kernel panics or lockdep
+warnings on debug kernels.
 
-Doesn't this early return prevent sending the pre-initialized data array=20
-(which is filled with 0xff to denote unmapped keys) to the hardware,=20
-effectively leaving the previous mappings active?
-
+>  	INIT_DELAYED_WORK(&drvdata->cfg_resume, &cfg_resume_fn);
+>  	INIT_DELAYED_WORK(&drvdata->cfg_setup, &cfg_setup_fn);
+> +	INIT_DELAYED_WORK(&drvdata->rgb_queue, &claw_rgb_queue_fn);
 > +
-> +	for (i =3D 0; i < key_count; i++) {
-> +		ret =3D button_mapping_name_to_code(raw_keys[i]);
-> +		if (ret)
-> +			return ret;
-
-Does this correctly handle valid button codes?
-
-button_mapping_name_to_code() returns a positive integer for valid codes=20
-(e.g., 0x01 to 0xce). Since any positive value evaluates to true, won't
-this immediately abort the loop, bypass the hardware write, and return a
-positive integer up to the VFS layer?=20
-
-Should this be checking if (ret < 0) instead?
-
-> +
-> +		data[6 + i] =3D ret;
-> +	}
-> +
-> +	scoped_guard(mutex, &drvdata->rom_mutex) {
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
-TA,
-> +					    data, len, 8);
-> +		if (ret)
-> +			return ret;
-> +
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NUL=
-L, 0, 8);
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int claw_buttons_show(struct device *dev, char *buf, enum claw_ke=
-y_index m_key)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	u8 data[] =3D { 0x01, (drvdata->bmap_addr[m_key] >> 8) & 0xff,
-> +		      drvdata->bmap_addr[m_key] & 0xff, 0x07 };
-> +	size_t len =3D ARRAY_SIZE(data);
-> +	int i, ret, count =3D 0;
-> +	const char *name;
-> +	u8 *codes;
-> +
-> +	codes =3D (m_key =3D=3D CLAW_KEY_M1) ? drvdata->m1_codes : drvdata->m2_=
-codes;
-> +
-> +	guard(mutex)(&drvdata->profile_mutex);
-> +	drvdata->profile_pending =3D (m_key =3D=3D CLAW_KEY_M1) ? CLAW_M1_PENDI=
-NG : CLAW_M2_PENDING;
-> +
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE, dat=
-a, len, 8);
-
-Is 8ms enough time for the device to respond reliably? On a system with=20
-HZ=3D100, 8ms is less than 1 jiffy.
-
-If this times out, profile_pending is reset to CLAW_NO_PENDING below and=20
-the mutex is released when the function returns. If a delayed ACK from this=
-=20
-request arrives while a subsequent sysfs read for the other M-key is=20
-pending, could claw_profile_event() mistakenly write the stale data into=20
-the new request's buffer and prematurely complete it?
-
-> +	if (ret) {
-> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +	ret =3D devm_led_classdev_multicolor_register(&hdev->dev, &drvdata->led=
+_mc);
+> +	if (ret)
 > +		return ret;
-> +	}
 
+By registering the LED device here, the sysfs attributes (like brightness)
+are exposed to userspace before hid_set_drvdata() is called later in probe.
+
+If userspace writes to brightness immediately, it will schedule rgb_queue.
+When the work executes, will it encounter a NULL pointer dereference, since
+claw_hw_output_report() relies on hid_get_drvdata() which hasn't been set
+yet?
+
+Additionally, if hid_hw_open() fails, the probe returns an error and devres
+cleans up drvdata. Since the queued work isn't canceled on this error path,
+could this result in a use-after-free when the work eventually runs?
+
+> =20
+>  	/* For control interface: open the HID transport for sending commands. =
+*/
+>  	ret =3D hid_hw_open(hdev);
 [ ... ]
+> @@ -910,10 +1444,14 @@ static void claw_remove(struct hid_device *hdev)
+>  		return;
+>  	}
+> =20
+> +	/* Block writes to brightness/multi_intensity during teardown */
+> +	drvdata->led_mc.led_cdev.brightness_set =3D NULL;
+>  	cancel_delayed_work_sync(&drvdata->cfg_setup);
+>  	cancel_delayed_work_sync(&drvdata->cfg_resume);
+> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
+> =20
+>  	guard(mutex)(&drvdata->cfg_mutex);
+> +	device_remove_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_group);
+
+Does canceling the delayed work before removing the sysfs attributes leave
+a race condition?
+
+Since device_remove_group() is called after cancel_delayed_work_sync(), the
+sysfs files (like effect or speed) are still active. If a concurrent write
+from userspace occurs, it can call mod_delayed_work() and re-queue
+rgb_queue.
+
+Once claw_remove() finishes, devres will free drvdata. When the re-queued
+work executes later, will it dereference the freed memory and cause a
+use-after-free? Removing the sysfs group before canceling the work would
+prevent this.
+
+>  	device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
+>  	hid_hw_close(hdev);
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260516042841.5002=
-99-1-derekjohn.clark@gmail.com?part=3D2
+99-1-derekjohn.clark@gmail.com?part=3D3

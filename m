@@ -1,105 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76A3F78F3A;
-	Sat, 16 May 2026 02:04:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EECE01F1534;
+	Sat, 16 May 2026 02:47:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778897086; cv=none; b=IDUfNn1crA1T6Fzuo0tHc/vc/9QPfjzIy4DC46k2EkCdSBpm289ebvcADs35bq2vQuaR9rmuk7enV7XH/+N0Yy4VwY4Cr+Ps9uRvJ9iDjeqOw7rkLMCgn5xV3A+Y+TLKvoTHjlw1r0qryhh/6QgUrpWcNq4R6dzSKzJw8UQdi1Y=
+	t=1778899627; cv=none; b=ApMHFFawcxOMEICkS1deR9o0gRBwPp49LEvv5zKvGWWxFL8jk6woANkJsvAk4VwyAsfmlLOWZt5NDCFQZKjlwFogOFTXwyHOb5rVM/FpC9b2/E2Lu4/1RvwPuiluZI6lhRYcPUPpCqgACnNmAPWGtLHW+gt9qMT6L074MQCkoUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778897086; c=relaxed/simple;
-	bh=4GgJhxCCdzcx/DNgf6atnOuUTlp/TqU3pwox6GiqoNg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CyVwztTPIJLy2Uzd2W+r5bL//KcYqB14D7KcbGt3XCJx1ByKtnkWd8YYH/J9ewt8oZOzrjlf5Qs3Nxj4Byf0nN8rq7K+k0+x8aFWk3z1q67263RFHO5U+Agw0TYJfjPpN1t2JesqPsjVvV8V6fUE2NZIYVOmSYzxJyGrMexBw1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g1BJdUr1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778899627; c=relaxed/simple;
+	bh=63M8icfMSKVH2q6Sy2tT4HIRMKohcXCKulLzUbzwl3I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ey5zO+IsGCxV+SVMkk7IOEODzuTlN8fg4uf9DbSCSmPje6MMI3Qce3U11Ih2kORfH7Rmd8UXJrIyFGTzzqxSZu0erU+o8wfKOBYcCN1DRBaBgBT3YhgRUX72lAPsgRITPx/1Kbd5aUX42wq+25NE7e57XtWlII04LldztJEYVBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EzC2RnTt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g1BJdUr1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C307C2BCB0;
-	Sat, 16 May 2026 02:04:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EzC2RnTt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59406C2BCB0;
+	Sat, 16 May 2026 02:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778897086;
-	bh=4GgJhxCCdzcx/DNgf6atnOuUTlp/TqU3pwox6GiqoNg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=g1BJdUr14RSyyqtIz8hCNuRkzaTkOsOBbJ+el5BX0Oubsos3sLma0XbETkxf+IjKP
-	 zJo5uXQjNFMaix/8BGvsMLlBykUV328ckIpPz4Z60LC3hNKMG07KQ1Ov2kP+j4Wq2k
-	 dRSIUcsK576ZjtId9CfUP91RtSywSUx0nS9goFlDHs6owCeiWFlysg18rjByue5/hp
-	 VvMWGZWr3/ZCGTAv4zTwFjjWByn7acQospFoAotz/tIH4OG0sFTJQFt+cYD26Zg1XC
-	 z3nH/phyUv8AHu5wCzkOjgtBRMKCmt6w2Wa41TgFLumA1KMfKuGhpKN9btI29dXmMU
-	 EJ353VsIvtO/A==
-From: Miguel Ojeda <ojeda@kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: achill@achill.org,
-	akpm@linux-foundation.org,
-	broonie@kernel.org,
-	conor@kernel.org,
-	f.fainelli@gmail.com,
-	hargar@microsoft.com,
-	jonathanh@nvidia.com,
-	linux-kernel@vger.kernel.org,
-	linux@roeck-us.net,
-	lkft-triage@lists.linaro.org,
-	patches@kernelci.org,
-	patches@lists.linux.dev,
-	pavel@nabladev.com,
-	rwarsow@gmx.de,
-	shuah@kernel.org,
-	sr@sladewatkins.com,
-	stable@vger.kernel.org,
-	sudipm.mukherjee@gmail.com,
-	torvalds@linux-foundation.org,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	Johan Hovold <johan@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>
-Subject: Re: [PATCH 6.18 000/188] 6.18.32-rc1 review
-Date: Sat, 16 May 2026 04:04:30 +0200
-Message-ID: <20260516020430.110135-1-ojeda@kernel.org>
-In-Reply-To: <20260515154657.309489048@linuxfoundation.org>
-References: <20260515154657.309489048@linuxfoundation.org>
+	s=k20201202; t=1778899626;
+	bh=63M8icfMSKVH2q6Sy2tT4HIRMKohcXCKulLzUbzwl3I=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=EzC2RnTtN/m0qfQSt+emZOpBvOnlFtc/EbUJHfK/nAh9dw0JOd6WIEBmKH0cdemvY
+	 UBtnIAzgShi3kTgW2yOvqUesUk4KhQlrgdyDHunytdBCgkg6c7csR4p8KhwBxVn0hE
+	 pY3qpm5sYpzQ8viaENQo7O5Er/oISfIgz6wcFvkXz1743d1tzdtkdSoRqi3BdBx2Dm
+	 evH0RFbpAwbhnUEKh9/TiNBjak38Z0I3KJZzMT9G3VoMnWiB0sFBr604/yR1fqrbiy
+	 6EYzH9rJNfA8BseAICPjcKxJcO0YmxXbhpsA9g4K7secmPjfgPeYWx0MO8JgQkcTGQ
+	 9EOxTCuBX4YOg==
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+	id 3478E1AC5A48; Sat, 16 May 2026 03:47:03 +0100 (BST)
+Date: Sat, 16 May 2026 11:47:03 +0900
+From: Mark Brown <broonie@kernel.org>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Luca Weiss <luca.weiss@fairphone.com>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH RFC 3/4] Input: gpio-keys - add regulator to gpio_keys
+Message-ID: <agfap1YZnT_DbSoc@sirena.co.uk>
+References: <20260508-gpiokeys-vdd-supply-v1-0-0bb32e8e6428@fairphone.com>
+ <20260508-gpiokeys-vdd-supply-v1-3-0bb32e8e6428@fairphone.com>
+ <af3oqSshbXrUYMnz@sirena.co.uk>
+ <21308d1e-712b-4d3b-b083-251c8d755470@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="PkL8tipO6e686OeJ"
+Content-Disposition: inline
+In-Reply-To: <21308d1e-712b-4d3b-b083-251c8d755470@fairphone.com>
+X-Cookie: Truckers welcome.
 
-On Fri, 15 May 2026 17:46:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.18.32 release.
-> There are 188 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 17 May 2026 15:46:37 +0000.
-> Anything received after that time might be too late.
 
-Boot-tested under QEMU for Rust x86_64, arm64 and riscv64; built-tested
-for loongarch64:
+--PkL8tipO6e686OeJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Tested-by: Miguel Ojeda <ojeda@kernel.org>
+On Fri, May 15, 2026 at 01:41:38PM +0200, Griffin Kroah-Hartman wrote:
+> On 5/8/26 15:44, Mark Brown wrote:
+> > On Fri, May 08, 2026 at 02:53:15PM +0200, Griffin Kroah-Hartman wrote:
 
-Via arm32 I see:
+> > > +		if (fwnode_property_present(child, "vdd-supply")) {
+> > > +			button->regulator = devm_fwnode_regulator_get_optional(dev, child, "vdd");
+> > > +			if (IS_ERR(button->regulator)) {
 
-    drivers/hid/hid-core.c:2050:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
-     2049 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-          |                                                                                         ~~~
-          |                                                                                         %zu
-     2050 |                                      report->id, csize, bsize);
-          |                                                         ^~~~~
+> > As well as the issue I mentioned on a prior thread with this assigning a
+> > non-physical "vdd" name to the single supply that these components can
+> > have (which has had issues in the past
 
-It is also reproducible in mainline, though. Cc'ing a few folks...
+> Our Hall Effect sensor IC does have a named "vdd" pin, but we are totally
+> open to changing this to power-supply or whatever best follows the standard.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
+The problem is that there is no standard here, this is not specific to a
+particular consumer device.  Your device has one supply called VDD but
+some other device might have some other name, and another might have two
+supplies.
 
-Thanks!
+> > painful) the fact that this is fwnode means that this opens up support
+> > for using this with ACPI which is very problematic given that ACPI has a
+> > strong model of how regulators should work which is that they should not
+> > be OS visible at all.
 
-Cheers,
-Miguel
+> Would it be more appropriate to drop the devm_fwnode_regulator_get() and
+> replace it with a type-casted devm_of_regulator_get()?
+
+I'd feel a lot more comfortable with that.
+
+--PkL8tipO6e686OeJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmoH2qYACgkQJNaLcl1U
+h9AxbQf/e3lrh6JHJwjEeIXtX0YE2/0n1nF8ce+0pqdWNdeuzYCeMLG5l3c/a16H
+Gpl3JRpch2QmD4nAdFMvnBkQleXAUTJTzK82OAI9wQWFoGvLLEguX6UYcPGzb5/A
+46nO3wLHPl7/3MEnG4t8ptXNCbPyQ9ssVwPeH09+b+tUZpBDt/2foANPecPe7m2x
+RBsMIqhULVuRVtDyc5UAFMsSJ2myhz6tudTzJwdUXZBKkYKciGsCjS3OOcmCZaXG
++AiWyc/Jw4jD9n3MIRZ0Eay5KnOTIZYSPD9yrqqWQuYfbQuU0ehd2yRe8Y6fJWI1
+c4ENkv9n7FDmAqHA2au23iKyZHxBsg==
+=Kh3N
+-----END PGP SIGNATURE-----
+
+--PkL8tipO6e686OeJ--

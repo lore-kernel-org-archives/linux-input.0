@@ -1,119 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.auroraos.dev (unknown [95.181.193.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8CFFC8EB;
-	Sun, 17 May 2026 04:51:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D1D7080D;
+	Sun, 17 May 2026 12:21:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.181.193.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778993468; cv=none; b=JQOgSOPJ9DDmrMMEEeGFfE5eNxVbxEN5OzMu8sSxv1DEHDhj1jjZNigg63N2/KCDutI2NNVMviTyY9V9N0+It6IgfBicLO8FfkGwEQQJ6KxvT2CLXgR7ByxhQ5gXeRcG/1E0up1iISjiQMcdSv2oRkBZjk/hnIE5QkrrWI/RUik=
+	t=1779020522; cv=none; b=D1Pnv3DwO/uR23RUzdXR4Y9sv36rlzjyeNpar3Lc0x1rvLjyZ3NZ3jg+noYcPVN2teJtxAiYfPD5D8tMaL3GUOLp8+6rR/C321uv2UMJ3YerGkDtVHMoG09Y1ldJAK1EkWsRdHbFsD2ypuxWTAXloVkj6U7PmXyVHYIU9K7VVZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778993468; c=relaxed/simple;
-	bh=ciO8vOfOu6EwzBNc5JX6xLvvZ06X1gDcGQ3IvNKZeNE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=h6ibJmsnu+RQGG7rGGEK1MU9fj1qMfpm5VIztpRWcxtfv8KmycCqT8+hjtn4pg7AekogkgUAqqzeXb+JnvYH5/Ud67HVxmVaOh1jYstHyZ2VC+OYaz0Mz7n0sqzFrQfC900XiiUYp4p+RrqhgOnV0W5LCCsEs3pdGFgZ3zUdIAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dSiXOuOF; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dSiXOuOF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D541CC2BCB0;
-	Sun, 17 May 2026 04:51:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778993467;
-	bh=ciO8vOfOu6EwzBNc5JX6xLvvZ06X1gDcGQ3IvNKZeNE=;
-	h=From:Date:Subject:To:Cc:From;
-	b=dSiXOuOFbg5ZtQcE9FsaCkDlmkuLcRsbr7GH9meRQuVh8ySVU4JgTNZo1tddSj8hl
-	 I1NEjpIMX/p90YE5/07oWMqtMtzesjgkKnL0KszoIbEeJ0mRj+WZxSLc+3YhNaR5gq
-	 6fOxNgZ4+8/K4nasJJ+B3FBLrrm6j/bODNJ4137AyDtAUikoxVVlNE+Y4OETl2jwzN
-	 CawwxZ9vnXY9Ow/fL/siIBHD6t+HqA0ox98rMhoNHA+ryJhOnhrfiWPX5eiI1mnMXq
-	 DHymhqsVjFed3nkx0VNzmP8XaWRjAL0ZnMbhy1cMElOeoaMbNfuhaA8cMwXLXIN0Ef
-	 aBQebqnFLFrrA==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Sun, 17 May 2026 13:51:01 +0900
-Subject: [PATCH] HID: core: Fix size_t specifier in hid_report_raw_event()
+	s=arc-20240116; t=1779020522; c=relaxed/simple;
+	bh=vOuSKdcD1ykP32PdF4tiCcSWJl8h/NlnD5RcMK33hE8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eMyJi1DM8gJDQBHaV2dlnI/ZDJdBdp/umZaPdxDwTr7NMuSvtRoL6QIPBl50yBP4S97ZtyNiG+x230NDfYKRVPBcCciMU7FT9C+OIS9NwgYYLBeTnbfaXQQcLTq6x175xdYCEhx+ho+YcKH0425vMNaZqVwOLOGH92p9slfBsuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=auroraos.dev; spf=pass smtp.mailfrom=auroraos.dev; arc=none smtp.client-ip=95.181.193.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=auroraos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=auroraos.dev
+Received: from nixos (77.37.240.142) by exch16.corp.auroraos.dev
+ (10.189.209.38) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1847.3; Sun, 17 May
+ 2026 15:06:44 +0300
+From: Georgiy Osokin <g.osokin@auroraos.dev>
+To: <bonbons@linux-vserver.org>, <jikos@kernel.org>, <bentiss@kernel.org>
+CC: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<lvc-project@linuxtesting.org>, <s.shtylyov@auroraos.dev>
+Subject: [PATCH] HID: picolcd: prevent NULL pointer dereference in picolcd_send_and_wait()
+Date: Sun, 17 May 2026 15:06:39 +0300
+Message-ID: <20260517120639.38003-1-g.osokin@auroraos.dev>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260517-hid-core-fix-size_t-specifier-v1-1-bfdd959ec383@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQrCMBBG4auUWTvQ1BrRq0iRJvljx0VbZqqIp
- Xc36vKDx1vJoAKjc7WS4ikm01jgdhXFoR9vYEnF1NSNrw/uyIMkjpOCs7zY5I3rwjYjShYouzb
- 1eR/akw+eymNWlO73v3R/2yPcEZfvlLbtA6pWc4uBAAAA
-X-Change-ID: 20260517-hid-core-fix-size_t-specifier-14daf3b496b6
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Johan Hovold <johan@kernel.org>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- Miguel Ojeda <ojeda@kernel.org>, Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.16-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2965; i=nathan@kernel.org;
- h=from:subject:message-id; bh=ciO8vOfOu6EwzBNc5JX6xLvvZ06X1gDcGQ3IvNKZeNE=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDFmcnpY+PaaLhIPmrlp4JdYyTKZzStX3sr6+J12ROzfnW
- 78Nenaso5SFQYyLQVZMkaX6sepxQ8M5ZxlvnJoEM4eVCWQIAxenAEzkwUyGv9KfKitTnp448tYj
- O7f7Zm7dvg9C869FXb0+i9mMcYHpBwOGfzYSd6Uu32ruKfGwzgyQefwt4af7dklN98bgZ1yL1Wt
- r+AA=
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: exch16.corp.auroraos.dev (10.189.209.38) To
+ exch16.corp.auroraos.dev (10.189.209.38)
 
-When building for 32-bit platforms, for which 'size_t' is
-'unsigned int', there are warnings around using the incorrect format
-specifier to print bsize in hid_report_raw_event():
+In picolcd_send_and_wait(), an integer overflow of the signed loop counter
+'k' can theoretically lead to a NULL pointer dereference of 'raw_data'.
+If the loop executes more than INT_MAX times, 'k' becomes negative,
+making the condition 'k < size' true even when 'size' is 0.
 
-  drivers/hid/hid-core.c:2054:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
-   2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-        |                                                                                         ~~~
-        |                                                                                         %zu
-   2054 |                                      report->id, csize, bsize);
-        |                                                         ^~~~~
-  drivers/hid/hid-core.c:2076:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
-   2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-        |                                                                                          ~~~
-        |                                                                                          %zu
-   2076 |                                      report->id, rsize, bsize);
-        |                                                         ^~~~~
+Change the type of 'k' to 'unsigned int' to prevent the overflow and
+eliminate the out-of-bounds access.
 
-Use the proper 'size_t' format specifier, '%zu', to clear up the
-warnings.
+Found by Linux Verification Center (linuxtesting.org) with the Svace static
+analysis tool.
 
-Cc: stable@vger.kernel.org
-Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
-Reported-by: Miguel Ojeda <ojeda@kernel.org>
-Closes: https://lore.kernel.org/20260516020430.110135-1-ojeda@kernel.org/
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- drivers/hid/hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index b3596851c719..41a79e43c82b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2050,7 +2050,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
- 		return 0;
- 
- 	if (unlikely(bsize < csize)) {
--		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-+		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %zu)\n",
- 				     report->id, csize, bsize);
- 		return -EINVAL;
- 	}
-@@ -2072,7 +2072,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
- 		rsize = max_buffer_size;
- 
- 	if (bsize < rsize) {
--		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-+		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %zu)\n",
- 				     report->id, rsize, bsize);
- 		return -EINVAL;
- 	}
+Fixes: fabdbf2 ("HID: picoLCD: split driver code")
+Signed-off-by: Georgiy Osokin <g.osokin@auroraos.dev>
 
 ---
-base-commit: 64ffa2e5e02ff54b23221d0282155f37283fabea
-change-id: 20260517-hid-core-fix-size_t-specifier-14daf3b496b6
+ drivers/hid/hid-picolcd_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Best regards,
---  
-Cheers,
-Nathan
+diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+index 2cc01e1bc1a8..d73e97c8b853 100644
+--- a/drivers/hid/hid-picolcd_core.c
++++ b/drivers/hid/hid-picolcd_core.c
+@@ -72,7 +72,8 @@ struct picolcd_pending *picolcd_send_and_wait(struct hid_device *hdev,
+ 	struct picolcd_pending *work;
+ 	struct hid_report *report = picolcd_out_report(report_id, hdev);
+ 	unsigned long flags;
+-	int i, j, k;
++	int i, j;
++	unsigned int k;
+ 
+ 	if (!report || !data)
+ 		return NULL;
+-- 
+2.50.1
 

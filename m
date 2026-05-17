@@ -1,226 +1,173 @@
-Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19A63254BB
-	for <linux-input@vger.kernel.org>; Sat, 16 May 2026 18:25:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778955932; cv=pass; b=g26m0n82oow01neJC4mNt3Ia1CKv5vwO3LDMezGC7O5T1GjiMrGU2B8auxKiGWZBeJYn7INJN9u91tAB6px2/9K5xC/ZsD0QLFwV4X7NobGkTuHiVKhLeNihPQI5Erk37nV5FBla2HbuKni0DSoQGXulzPHcsjP+u/4cshqflLU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778955932; c=relaxed/simple;
-	bh=rlnP6BSKk3y+57gPpnvq0Nwo15+DtNNEApQU1WzrYAw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ohx9YScfPulA86lSg+eKXvTIVEwK5sYOVDcJCiyinXHzwZdw9vMLHXnVe7A9SwkRq9pHE8K0POWpPOXD9+S/Z8YbC4pucOekzkPnl6TIsaUVhxzkJMSokYytkAJZMqG0B0VCw47J/OmAXQSJ+nGmy03VqGx+zYI3Xrnm4JzGMDU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ES+fd/9H; arc=pass smtp.client-ip=209.85.221.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C91993016E7
+	for <linux-input@vger.kernel.org>; Sun, 17 May 2026 01:39:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778981970; cv=none; b=A22REm7ZeXDdw5loB7iiA6Nj/qnYoQ+7N7rRWsuTxZg1qDS2F32e4UQVu/x+QyRF1VhJxW/V3qLMWESpaItaehU1GVx/J9AIFcfbb4pOWB+v3+nprZs4Ejkj49V3hK40cF6nCIA7efj47G2ZnFZZV80eUm5Ikrq83oEiDm4o6U4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778981970; c=relaxed/simple;
+	bh=pPbH/0fAZCTMfBo2AlodrAijJ5me0bk98Uy/Q8uG59M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b+XeRBFaq/u/uCaKZJQGViYI9IAuScVcvxg3G0N3HNao1dFTiD3BrHfcQRQtsuCFejdowvoo77KX0oOkFp9eCeOjRhP+u6KvrPG27Z24hyJspFMWRcAo7aSXLRktKvUYQ+LncI6b+u6mKLrFIIx1mQVeyBWESLsHVbi7l5tyhSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L8INou/b; arc=none smtp.client-ip=74.125.82.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ES+fd/9H"
-Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-57754ec3462so188296e0c.0
-        for <linux-input@vger.kernel.org>; Sat, 16 May 2026 11:25:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778955927; cv=none;
-        d=google.com; s=arc-20240605;
-        b=YnHIb79PgOCf18eI5fdvhVOfeEzaGS2+bNlc3jBFk1kzjdmyOLNEfsh0Ocsos/rwFb
-         AsfpWEQsMSLS4VTopuFHgVQuMy/J9HJ+bQtL3wAtPqfSV6ygBz+KtTZyYASraPlMqgdX
-         ma/evZtdcXCtD/hSbVY1e21stokYLgCyUj4z086GshY9dehyjKr/Fd5vhxyDMq7XByTR
-         RrHBLoagqVarIHvBLb0to1ofblbE7yAYw+D6gIqrWg1XMPPJP63YLWGeSw5DYAbdTIPU
-         FTu5UjlHrTW3yE44bHETepiK7N7VgH36vWlknw9hm1t4J9Rjz0QW+LES85Q7Fok+y16j
-         y1gw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=SkG/mV7/+T57gOebLhjBWLUXJSJDsOeED6RV9YmxRq0=;
-        fh=511GxFBOZUqqmDqhZNozqFalEm/icnEyfONYtWi35xs=;
-        b=itPg2s6kxxzwJ7L8kP3nIBMqnrTK+iKG1PmyccTK+xyyvWavriA0dxLPUb640aQYq6
-         jPjwfASMNjhmRJ/T9MxLox5oRr7meqI6rCq0a0qq873TIz64/ogNkf30/oxa/NAKwQeh
-         quS2EwoMvMTbjfOdJluE0cnzEveorNqeM7MFcNhyydBagxRhGKpgw3h61/J0qO7gWu5N
-         yBmfvevwBAXEhXPNExlVywB4s68S51X/AINuLcht2cxH7eqXjusS2RjrNqwVRck2K1iP
-         wRoh1r3jtEp+o66WZoOrC1Gf6SzyW/Sc0Lw8SqwpT4QwXS9vp6rbM4TwAqgg6fxhEIZf
-         4Kkw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L8INou/b"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2f7020a928eso1480701eec.1
+        for <linux-input@vger.kernel.org>; Sat, 16 May 2026 18:39:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778955927; x=1779560727; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SkG/mV7/+T57gOebLhjBWLUXJSJDsOeED6RV9YmxRq0=;
-        b=ES+fd/9HVUTBK/AFLWTqVNgFscVrwTfDjYH2vxAQ7Yzc68Gc4Qs/67E6evV0QrLa2k
-         Fo5IOxOO4kcwPuTsNxempHvhN/DZTwhMRXQgtLrxUhHz966+x40+bxFlBD+Qtf259qLg
-         nx2m5OrbtocZJqLBXmPexEwdg5JJy/3Azxux1+CUvmyq9yFrcZDaCIkSQd4UTfwX+Qz5
-         jJrO6A5JC/y579nBDV25BUKAIdmS+s48uIY0qchQ5zwcjom1Zt12PvBJOsHiYetUNayi
-         Cipahwq4tl2U4uFitIv4cZBDFz/A9JPdbm4L1DQzZijS8W1UaM1FbKWnZ1rmrSrs7O0G
-         os+g==
+        d=gmail.com; s=20251104; t=1778981968; x=1779586768; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2NlxtySzo01FfuK8dPO1udm7bJRoM/LnmyF6z8QWTE0=;
+        b=L8INou/bMHnoNRiPlCv18iM5cbNVECiVzp+WTfP3K3SsbieJYsuNOdeJDMdoYW0Ya6
+         BaRq71ieFP9PHEs2q2XswQxNPdzL+wkPt5FLvCD9IBs2s6lRqWuzZ3TvJUdU3kGM7cFj
+         2HGm+OILWeUByFbDNAGoMHB5XxHJtdCg2D28dhAOT9l5c1NEezuz2KFydpphNLZNxGOL
+         G3AkDZOHMkCpIZGRg573CWQ3fJ3eXMkykN6oFgcZl74J2xfEqapwQoAAxkA8vr2uME+x
+         7xgG7bexlsNRO+4WQOgchlsRr+jRwCWCmdeRfQXR5VPPy5lM3Xyp5Q8WLP9mYUCx0m5u
+         Z5xA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778955927; x=1779560727;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=SkG/mV7/+T57gOebLhjBWLUXJSJDsOeED6RV9YmxRq0=;
-        b=ZRrfoJurrggrtckl3czlxCoD76/5UPdr0lgNdiP0E/zIgjl5rpeRUrkraJli6aQrco
-         U5liiZX+QwOqhtibIHmKFf9WxoEyQZWY8RbMZ7NXXuLVO11NbikWZg9WeaLjx84yx0fN
-         J2q+W6BjCpJ6SdvCHpIMsbKc/6t2ZkrUv1/t/QYTlnvie8O2pFPw/JxruYLzPj52PEo7
-         EdYtOzrmG+w9+6TOzHWYahAn7hjMwx9mnJR4MUp70/fXxLOcagiJbDEumStwR9mGmMTa
-         2BUdV2dP8l6ABBmbpXjxhgY9r//kwaUMQbXYQD1aTJCM3sfYimT4tQypvSik8fXFg/Ok
-         Bwcw==
-X-Forwarded-Encrypted: i=1; AFNElJ/gDlPMvEwqmDj4tOQEw3anS6I7z7rfcaprRSHEosM0s6Ch32yK5KDxvAMEkincTrQLV5tOo2Z4PLGSiA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz08OQsvFzv4CXJLNF2/kFN4r3k74cKaFcxPAh1gPupKko2lCow
-	MjKOAowdptTwlWWT1S4y8mt1abKAs4n3HeFW3Qad+FWTDo4x8FkVP1KuLoF8n8XWj09t7ryIbjp
-	mSt3CtrIiFKNPw1RM0PxVSYfE1I/qSg==
-X-Gm-Gg: Acq92OGapqmzZUkjyHeNXOmE4NZ1hmiitf/mw4vjY48iQIa9drZM33M6XTPNmibHmTL
-	+nTNgvYgVQeuKPWyjSuux1mv1uJYhs8foV4l9STcA/KbqCqKrHf70BKN7PqLJXN2+irLQEngaFH
-	vXz72rnYoN5Md8boAPlMoge4rFo20zuVJV/pcyBCG0KEaJzKXNjOFyagH4k434RLs+XWSk9wTC2
-	XdNjm0n/w9M1yeetwr95TE5vIQy2MmtjNyh5YXGEG9JvrQ43PBatI687V/1S7KdeEDFM1MOcnTh
-	3Wj2XHYd/2/qGeVjA/xXqSDEkjETEUT5HUvSKo2n
-X-Received: by 2002:a05:6102:a4a:b0:631:3cbe:24a9 with SMTP id
- ada2fe7eead31-63a403acd61mr5104520137.31.1778955927317; Sat, 16 May 2026
- 11:25:27 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778981968; x=1779586768;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2NlxtySzo01FfuK8dPO1udm7bJRoM/LnmyF6z8QWTE0=;
+        b=UaSxYx3RLQhJZgGdRS4pQfvpXIMpHDkSgZy+e79ipTyC8riHzOrjutLcx52AhQISts
+         eUR8qVlL/M8iv/Mq2/iyDv2Tq52IrW4PTA1sTlx8SfaqM7OPLBcIlbyWKa71HaWgMvq6
+         tdcOuS5kPPPkUt0upzSCGMgHPd2BKh00Ul+oKFRXz/o35tMq2Hb5KNyin8gasAdsCUsq
+         TKFJ2kzRNPXyXocgZ4Iy8ddoPTnPBU448qYoJTJP6IhS47Gw4IeXcLR7L2JALWIou92o
+         coYalhO/7dHoGbbIBFP/S+ZyRl1YtD88RFbO2WQTCp9Yn/vhklau4xT2EXrLRe+HzGMv
+         YiDA==
+X-Forwarded-Encrypted: i=1; AFNElJ+9mi4B0uiW1OpN/RKEIacgSsDeYWUt1oaCl4zy0hJhpJDv9JQuFFbcM5pbCUfq5AqKQQAR6bT2Q9ucyw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzfh8MnQ/aX5nnMGD7+yR6fwNemzFwMUVaX7KqQ83t0CAPrzUam
+	H7BUILcbZAYDrnflW7BrFqRVJkIGdAWJW3ob0luRlFL5IzrWYAD1e4iU
+X-Gm-Gg: Acq92OEOWvvneCYWIVqCiBn/V3+QMxg6wK3canHvzmMNqYI7WqldOQO48WBQQQ4HALI
+	+YKqUdJ7MUeERyrJMNo92KvSnss5RLEK56hvCtW22vH+wyyqJmR317722dDmTe9Bmm1lYSCfU/1
+	DLEuKpPsIhQQ2CQmFOxj1q1yaRoIcHlvzlNaBCEUkpjywR6hE0w93Pl1JL/tbhzDOeR4vBq368Z
+	LG/nNW26/OoGS1ymfunoTcgLRdjJPVNGz2GnkTHn+1pKZRjRGrtXO0DAS1ql1KEjL54dpMiX1BU
+	dWLxEpLTsYcw1E7JTs6OPeQjTkeohVw/Hk0Nsy5Durlt8OWrQGz1o9lntln/l437SZ9GkR8t3TV
+	lOg8DRVA2HvTdjGvuZMIXRdWM/8K05O8sLifLj9ml/Uag5s+3jYnNfET2AmRln8bs7ZjlE0i7mo
+	SfT+z++wteP4wOo4uR0SUZsJNn/odoZ9vC5I/3nAThCG1LpwGPnM0gD4oWq09n9JPu3kpw1yVn0
+	Iyy
+X-Received: by 2002:a05:7022:4193:b0:12d:de3f:d84e with SMTP id a92af1059eb24-1350494d102mr3763558c88.39.1778981967817;
+        Sat, 16 May 2026 18:39:27 -0700 (PDT)
+Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cb5b3c20sm15898086c88.0.2026.05.16.18.39.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 16 May 2026 18:39:27 -0700 (PDT)
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+	Denis Benato <denis.benato@linux.dev>,
+	Zhouwang Huang <honjow311@gmail.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/4] Add MSI Claw HID Configuration Driver
+Date: Sun, 17 May 2026 01:39:21 +0000
+Message-ID: <20260517013925.3120314-1-derekjohn.clark@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org> <20260504-wip-fix-core-v3-1-ce1f11f4968f@kernel.org>
-In-Reply-To: <20260504-wip-fix-core-v3-1-ce1f11f4968f@kernel.org>
-From: Brian Gerst <brgerst@gmail.com>
-Date: Sat, 16 May 2026 14:25:15 -0400
-X-Gm-Features: AVHnY4Ld3uQxrMVDp5dOpfkW5jEH4X-4ObNKlmAwKJn9zSPCBkcMEhByKE4-YXg
-Message-ID: <CAMzpN2ijE3vqnh30T0ETQBp6qcVbsxNZZ32h4oEri9nBFUd-UQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/4] HID: pass the buffer size to hid_report_raw_event
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
-	Bastien Nocera <hadess@hadess.net>, Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>, Viresh Kumar <vireshk@kernel.org>, 
-	Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lee Jones <lee@kernel.org>, 
-	Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
-	linux-usb@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, May 4, 2026 at 4:48=E2=80=AFAM Benjamin Tissoires <bentiss@kernel.o=
-rg> wrote:
->
-> commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> bogus memset()") enforced the provided data to be at least the size of
-> the declared buffer in the report descriptor to prevent a buffer
-> overflow. However, we can try to be smarter by providing both the buffer
-> size and the data size, meaning that hid_report_raw_event() can make
-> better decision whether we should plaining reject the buffer (buffer
-> overflow attempt) or if we can safely memset it to 0 and pass it to the
-> rest of the stack.
->
-> Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus=
- memset()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
-> ---
->  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++++--
->  drivers/hid/hid-core.c             | 42 +++++++++++++++++++++++++-------=
-------
->  drivers/hid/hid-gfrm.c             |  4 ++--
->  drivers/hid/hid-logitech-hidpp.c   |  2 +-
->  drivers/hid/hid-multitouch.c       |  2 +-
->  drivers/hid/hid-primax.c           |  2 +-
->  drivers/hid/hid-vivaldi-common.c   |  2 +-
->  drivers/hid/wacom_sys.c            |  6 +++---
->  drivers/staging/greybus/hid.c      |  2 +-
->  include/linux/hid.h                |  4 ++--
->  include/linux/hid_bpf.h            | 14 ++++++++-----
->  11 files changed, 53 insertions(+), 33 deletions(-)
->
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index 50c7b45c59e3..d0130658091b 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -24,7 +24,8 @@ EXPORT_SYMBOL(hid_ops);
->
->  u8 *
->  dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_t=
-ype type, u8 *data,
-> -                             u32 *size, int interrupt, u64 source, bool =
-from_bpf)
-> +                             size_t *buf_size, u32 *size, int interrupt,=
- u64 source,
-> +                             bool from_bpf)
->  {
->         struct hid_bpf_ctx_kern ctx_kern =3D {
->                 .ctx =3D {
-> @@ -74,6 +75,7 @@ dispatch_hid_bpf_device_event(struct hid_device *hdev, =
-enum hid_report_type type
->                 *size =3D ret;
->         }
->
-> +       *buf_size =3D ctx_kern.ctx.allocated_size;
->         return ctx_kern.data;
->  }
->  EXPORT_SYMBOL_GPL(dispatch_hid_bpf_device_event);
-> @@ -505,7 +507,7 @@ __hid_bpf_input_report(struct hid_bpf_ctx *ctx, enum =
-hid_report_type type, u8 *b
->         if (ret)
->                 return ret;
->
-> -       return hid_ops->hid_input_report(ctx->hid, type, buf, size, 0, (u=
-64)(long)ctx, true,
-> +       return hid_ops->hid_input_report(ctx->hid, type, buf, size, size,=
- 0, (u64)(long)ctx, true,
->                                          lock_already_taken);
->  }
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 61afec5915ec..a806820df7e5 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2033,24 +2033,32 @@ int __hid_request(struct hid_device *hid, struct =
-hid_report *report,
->  }
->  EXPORT_SYMBOL_GPL(__hid_request);
->
-> -int hid_report_raw_event(struct hid_device *hid, enum hid_report_type ty=
-pe, u8 *data, u32 size,
-> -                        int interrupt)
-> +int hid_report_raw_event(struct hid_device *hid, enum hid_report_type ty=
-pe, u8 *data,
-> +                        size_t bufsize, u32 size, int interrupt)
->  {
->         struct hid_report_enum *report_enum =3D hid->report_enum + type;
->         struct hid_report *report;
->         struct hid_driver *hdrv;
->         int max_buffer_size =3D HID_MAX_BUFFER_SIZE;
->         u32 rsize, csize =3D size;
-> +       size_t bsize =3D bufsize;
->         u8 *cdata =3D data;
->         int ret =3D 0;
->
->         report =3D hid_get_report(report_enum, data);
->         if (!report)
-> -               goto out;
-> +               return 0;
-> +
-> +       if (unlikely(bsize < csize)) {
-> +               hid_warn_ratelimited(hid, "Event data for report %d is in=
-correct (%d vs %ld)\n",
-> +                                    report->id, csize, bsize);
+This series adds an HID Configuration driver for the MSI Claw line of
+Handheld Gaming PC's. The MSI Claw HID interface provides multiple
+features, such as the ability to switch between xinput, dinput, and a
+desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
+keys. There are additional gamepad modes that are not included in this
+driver as they appear to be used in assembly line testing or are
+incomplete in the firmware. During my testing I found them to be unstable.
 
-This fails to build on 32-bit with this error:
+The initial version of this driver was written by Denis Benato, which
+contained the initial reverse-engineering and implementation for the
+gamepad mode switching. This work was later expanded by Zhouwang Huang
+to include more gamepad modes and additional features. Finally, I
+refactored the entire driver, fixed multiple bugs, and refined the overall
+format to conform to kernel driver best practices and style guide.
 
-In file included from ./include/linux/device.h:15,
-                 from ./include/linux/input.h:19,
-                 from drivers/hid/hid-core.c:25:
-drivers/hid/hid-core.c: In function =E2=80=98hid_report_raw_event=E2=80=99:
-drivers/hid/hid-core.c:2053:43: error: format =E2=80=98%ld=E2=80=99 expects=
- argument
-of type =E2=80=98long int=E2=80=99, but argument 5 has type =E2=80=98size_t=
-=E2=80=99 {aka =E2=80=98unsigned
-int=E2=80=99} [-Werror=3Dformat=3D]
- 2053 |                 hid_warn_ratelimited(hid, "Event data for
-report %d is incorrect (%d vs %ld)\n",
-      |
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Claude was used initially by Zhouwang Huang to quickly parse HID captures
+during the reverse-engineering of some of the features. Since Claude had
+already been used, as a test of its capabilities I had it implement the
+rumble intensity attribute after I had already rewritten most of the
+driver, which I then manually edited to fix some mistakes. I also used
+Claude to review the driver and these patches for any mistakes and bugs.
 
-The proper format specifier for size_t is "%zu".
+Assisted-by: Claude:claude-sonnet-4-6
+Co-developed-by: Denis Benato <denis.benato@linux.dev>
+Signed-off-by: Denis Benato <denis.benato@linux.dev>
+Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
+Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
+Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+---
+v5:
+  - Swap disabled & combination mkeys_function enum values.
+  - Fix bug introduced in v5 where claw_buttons_store would return
+    -EINVAL on all valid key entries.
+  - Ensure mode_mutex is properly init.
+  - Ensure claw_remove is calling hid_hw_close and not hid_hw_stop for
+    all paths.
+  - Ensure adding "DISABLED" key to valid entries is done in the correct
+    patch.
+  - Re-enable sending an empty string to clear button mappings in
+    addition to setting DISABLED.
+  - Move adding the RGB device into cfg_setup to prevent led core
+    attributes from being written to prior to setup completing.
+  - Ensure frame_lock is properly init.
+  - Change variable names in RGB functions from frame and zone to f and
+    z respectively to fit all scoped_guard actions in 100 columns.
+v4: https://lore.kernel.org/linux-input/20260516042841.500299-1-derekjohn.clark@gmail.com/
+  - Add msi_suspend/claw_suspend.
+  - Reorder claw_remove to cancel all work before removing sysfs.
+  - Add mutex lock for removing sysfs attributes.
+  - Add mutex lock for MODE command data read/write.
+  - Change dev_warn to dev_dbg in claw_profile_event.
+  - use __free with DEFINE_FREE macro for argv instead of manually
+    running argv_free, cleaining up scoped_guard goto.
+  - Fix frame_calc validity check to use >=.
+  - Use spinlock instead of mutex in raw_event and related attribute
+    _store function.
+  - Ensure delayed work is canceled in suspend & canceled before sysfs
+    attribute removal.
+v3: https://lore.kernel.org/linux-input/20260515033622.2095277-1-derekjohn.clark@gmail.com/
+  - Add mutex for read/write if rgb frame data.
+  - Ensure claw_hw_output_report is properly guarded.
+  - Remove setting rgb_frame_count when reading rgb profiles as it always
+    returns garbage data.
+  - Ensure rgb_speed is getting drvdata from a valid lookup (not hdev).
+  - Use scoped_guard where necessary.
+  - Reoder claw_probe to ensure all mutex, completion, and variable
+    assignments are in place prior to setting drvdata.
+  - Ensure gamepad_mode is set to a valid enum value in claw_probe.
+v2: https://lore.kernel.org/linux-input/20260513231445.3213501-1-derekjohn.clark@gmail.com/
+  - Use mutexes to guard SYNC_TO_ROM calls and pending_profile calls.
+  - Rename driver to hid-msi and add generic entrypoints for
+    probe/resume/remove that call claw specific functions in order to
+    future proof the driver for other MSI HID interfaces.
+  - Fix various bugs and formatting issues.
+v1: https://lore.kernel.org/linux-input/20260510043510.442807-1-derekjohn.clark@gmail.com/
+Derek J. Clark (4):
+  HID: hid-msi: Add MSI Claw configuration driver
+  HID: hid-msi: Add M-key mapping attributes
+  HID: hid-msi: Add RGB control interface
+  HID: hid-msi: Add Rumble Intensity Attributes
 
-Brian Gerst
+ MAINTAINERS           |    6 +
+ drivers/hid/Kconfig   |   12 +
+ drivers/hid/Makefile  |    1 +
+ drivers/hid/hid-ids.h |    6 +
+ drivers/hid/hid-msi.c | 1728 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 1753 insertions(+)
+ create mode 100644 drivers/hid/hid-msi.c
+
+-- 
+2.53.0
+

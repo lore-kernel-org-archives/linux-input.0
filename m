@@ -1,134 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A3FD35C188
-	for <linux-input@vger.kernel.org>; Sun, 17 May 2026 12:51:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BAA724E4C4
+	for <linux-input@vger.kernel.org>; Sun, 17 May 2026 13:52:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779022269; cv=none; b=TtarjFKJKsS+xKdFe69Fc8hlW7oe3i+ISEUMk/0NLMhddQDHAdOXAoJ244rg8Km9NgKeYRqPRIPgC6gWvPpoLVpZmecrmsGU3RZZ8OuSxHPzvc2O1+gsqThPWvphBq0Tokig80OxnYrcatUkCWWNyclk9yMy3IrSlMbjLwRMOQ0=
+	t=1779025941; cv=none; b=Cj6YvEH55Oqs+aWOfNeUj/x1EpMPKvtNd2J3q5qR7HdBIxV6MJdtaWEbLCvzBlOM4u0ULHvYUfyP/2X+E5Nx9qjIJxumdvGemX3i41/S9Kclktb65Hz+vSUYzbZhnE/C47/iSTR79XJoCsRud9/n58j0zUaZbPK5lBch7mCyMPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779022269; c=relaxed/simple;
-	bh=C2sM/2YKZPDIfG4D2jlT8Hei2JgbUUuzC3eNWhEYRVg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mROQM5wBwCVTLGTyiqBDYxUdUHPUpmdjwaG/ucDL0PEXB6SD/Ixd1OVH2hrZBnPXxkn/dSFfxaKR52qCxpZCRVjArTqb0RaxPE4TzhAc2T9s3RKIa/xZMkm/TarcJIzHjYrg8LRGYl1onDenMlfhNheFqxLF/fHbXrevDHbKRHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vR4GKLti; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779025941; c=relaxed/simple;
+	bh=h9wtCFyFzLcO5jEPh6ZyLGnKzsR9VPlqSRMjF9S/Z5c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TKakzwqe5gtk9gyWqSJGPmWXwHN5ZoQuhsx4oRDgTJQTQi6j+pylyW24l98zGDaqCHZnJK0pktYWo8+DbEwe9fh4OpHkxL04+lZS+fulLoUTakC2uXoyFkyOO9hDVuFjge9KR6dyBQnrMuHkyykxROHAIokPP/toyyA5cNJ5YSE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AcMyu/Yi; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vR4GKLti"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3FDC2BCB0;
-	Sun, 17 May 2026 12:51:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779022268;
-	bh=C2sM/2YKZPDIfG4D2jlT8Hei2JgbUUuzC3eNWhEYRVg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=vR4GKLtiyM49CUNzK1g0Yx7TVB7k5hWhPFotKBpzRfyrCCHFCN9msCjctjhK07CkA
-	 PhiRa6vA16DUWUJZ/h4HfBB/DIpdTxExowcm2Qk5ugM/HyUP04TyEnvo1Zl6gBiOg8
-	 +r6NSgv6fpEndHHn9gXk9qv+zIORPBpv2eiPxesH4YkqjohckASsFSG6UyGcnojwyD
-	 wTpfnCXlmlc32v7TEJSkUM/N2G7Cy63ERYpSNS2KxIVfZEc83FvLFMiUx39fI7Z4Sn
-	 rNVgfiUSHDgzEoVWcSFlBpDo2UNPOSeA6bHVMmE9SDqAA6Y/rV9dMABEL6oeQ3lb5F
-	 rG9xqiA9L8tCg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: picolcd: prevent NULL pointer dereference in
- picolcd_send_and_wait()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Georgiy Osokin" <g.osokin@auroraos.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260517120639.38003-1-g.osokin@auroraos.dev>
-References: <20260517120639.38003-1-g.osokin@auroraos.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 17 May 2026 12:51:08 +0000
-Message-Id: <20260517125108.BC3FDC2BCB0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AcMyu/Yi"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2bab82d75fdso5881545ad.2
+        for <linux-input@vger.kernel.org>; Sun, 17 May 2026 06:52:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779025939; x=1779630739; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZgCyM9TX/SDLwUVzAsJaESZmJB2eQmJkR2yeVp3A4iI=;
+        b=AcMyu/YiHnuv8UHNrshBKcUHaBruU8r/Mcv/3mpYinz4ZnZkcwnmbwP78k3L1nLOSG
+         mRUHngbLMUiR180OjGSjLSqJYRNF2nBMo97GMLTN/Cbb+W3U3gePvaFnZgQp2UFdCf9r
+         hvFv/NHudjvZj4PhBnn2qtnuVZXEKbwfhJFsmHA78qYpHnG8vci8Vxo0ODMyg3S85l3H
+         ZA780cCPO1PtW/9nMoQ2RCSVynehZSsDATBhIRkKKylV1Zl8upVup62sVXpBi7GRlWUj
+         8nOT/6B0JoVivvnwsKYOtVCGv/FdH45N1h37KBikvyWr9QupLmiJOdQW0ZcoVNaiazCe
+         lj3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779025939; x=1779630739;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZgCyM9TX/SDLwUVzAsJaESZmJB2eQmJkR2yeVp3A4iI=;
+        b=SGIu3ilwcOuwn2usQvBruh/ukruZxvEzNtm2SjbUrstSEbOBRxdGN+hdZHWYsm96bG
+         3eSHm8Eih4pMLRAuh+TqVL+okfjKYw2fQxoH2mP2yTk/sDz3u5i8txAmDW5GSclf0xyP
+         liVulrIzEKT7+jh8ccGjLK73bZ8VdC3HFOvpbQrWAUE2tmITBgEJeugqao6wecO7GYkZ
+         qleJzAD8/DwHlagOzIKARMKU2o9pfgWbJk8LgxhxL1hWaipdt3ai5AhSkGupY/ZIbCed
+         sivVRHVHsQAZtLJMI2fL6jtumojyUcZLa+DIpRb7SQVAvVnSF/pI2gWx9rIClPhsGgrq
+         Jk/w==
+X-Gm-Message-State: AOJu0YzayB7qvRwvdjq3qV0jJ8/GYzaMp0/nSexGajTXL0ZBIti+0TJ3
+	j0qfBTK5NJ3cb1uxmIUmXdKV7i0wIA3GkoEQssAZc7LyIbbePmUYP47CGZtG3VeKAUdlTg==
+X-Gm-Gg: Acq92OEeklYep2osiSgppiB07rDpxQLxt06cWoRv8kljvovOloyM71xaWEKoJtwc2XC
+	JbAmQCusZ8u/aP3Ga+yEzNuwY7HVBydjrfP0lJCfSc0eQGMtYW9IPlg9ckxkKHv2ach546vy8r8
+	TzEJ/EWe1P6SHjxJBeDyu9uNABA3VbZGnD+gMzL3+fi+HKyoKFoz9RzQvMMAkzA+34xZ/OG8fBV
+	jI8N6EEF9cDvj8Vv7A5f8IfNDheA7M37jx71Eq+sNIvvLOYK1TCtZ29Vc/0DWkGshoSa/rKBZtq
+	kdUlAZTAVtnoywOaNsZ7esS+GxO4OzVKjIIhgekvtkLrW1FydwgrICmgipK0Dspi22mgpk567jp
+	+SfoNrmfmjjvruyF/NZMJJyzXxT6ygUp6d0COvPg6MYz+1DCvevXRMFJO9zk6r80mjnPg0aF+e8
+	lEtZWwYsAuJ1/4Zel5xBBJzrGz75BSuS0PolwRiwkLmM7kZLr4
+X-Received: by 2002:a17:902:8303:b0:2b9:f8e9:70e2 with SMTP id d9443c01a7336-2bd7e782ec7mr93513875ad.8.1779025939377;
+        Sun, 17 May 2026 06:52:19 -0700 (PDT)
+Received: from jmoon ([118.220.156.4])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5bd5fc47sm113873385ad.10.2026.05.17.06.52.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 17 May 2026 06:52:19 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	benjamin.tissoires@redhat.com,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Jinmo Yang <jinmo44.yang@gmail.com>
+Subject: [PATCH 0/4] HID: wacom: add report length validation in irq handlers
+Date: Sun, 17 May 2026 22:52:11 +0900
+Message-ID: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Pre-existing sleeping in atomic context due to calling `hid_hw_req=
-uest()` while holding a spinlock.
-- [Medium] Unnecessary fix for an impossible scenario introducing a latent =
-API vulnerability.
---
+Several wacom IRQ handler sub-functions access fixed offsets in the raw
+HID report buffer without validating the buffer length. wacom_wac_irq()
+receives the length from wacom_raw_event() but does not validate it
+before dispatching to the sub-functions, which do not receive the length
+parameter.
 
-commit 26db02d94328ec65757bbf69ad49450f8c2b4f46
-Author: Georgiy Osokin <g.osokin@auroraos.dev>
+A malicious USB device can declare a small HID report in its descriptor
+and send a matching short report that passes the HID core size check
+(csize >= rsize), but the driver assumes a full-size hardware report
+layout, leading to slab-out-of-bounds reads.
 
-HID: picolcd: prevent NULL pointer dereference in picolcd_send_and_wait()
+Note: this is not mitigated by the recent HID core bounds checking
+series which validates actual_size >= declared_size. An attacker
+controls both the descriptor (declared size) and the sent data (actual
+size), so the core check passes. Driver-level validation against the
+expected hardware report layout is still necessary.
 
-This commit changes the loop counter k to an unsigned int in
-picolcd_send_and_wait(). The stated goal is to prevent an integer overflow
-and a resulting out-of-bounds access.
+Tested with KASAN on Linux 7.1-rc3 (slab-out-of-bounds confirmed) and
+verified kernel panic on a production device via uhid.
 
-> In picolcd_send_and_wait(), an integer overflow of the signed loop counter
-> 'k' can theoretically lead to a NULL pointer dereference of 'raw_data'.
-> If the loop executes more than INT_MAX times, 'k' becomes negative,
-> making the condition 'k < size' true even when 'size' is 0.
+Jinmo Yang (4):
+  HID: wacom: validate report length for PL and PTU handlers
+  HID: wacom: validate report length for DTU handler
+  HID: wacom: validate report length for DTUS handler
+  HID: wacom: validate report length for 24HDT and 27QHDT handlers
 
-Is this scenario actually possible? The HID core explicitly limits
-report->maxfield to 256 (HID_MAX_FIELDS) and report->field[i]->report_count
-to 12288 (HID_MAX_USAGES).
+ drivers/hid/wacom_wac.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-The maximum possible value for the loop counter k is 3,145,728, which
-would not overflow a 32-bit signed integer.
+-- 
+2.53.0
 
-> diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_cor=
-e.c
-> index 2cc01e1bc1a84..d73e97c8b853e 100644
-> --- a/drivers/hid/hid-picolcd_core.c
-> +++ b/drivers/hid/hid-picolcd_core.c
-> @@ -72,7 +72,8 @@ struct picolcd_pending *picolcd_send_and_wait(struct hi=
-d_device *hdev,
->  	struct picolcd_pending *work;
->  	struct hid_report *report =3D picolcd_out_report(report_id, hdev);
->  	unsigned long flags;
-> -	int i, j, k;
-> +	int i, j;
-> +	unsigned int k;
-> =20
->  	if (!report || !data)
->  		return NULL;
-
-[ ... ]
-
-Does changing k to an unsigned int introduce a latent vulnerability here?
-
-drivers/hid/hid-picolcd_core.c:picolcd_send_and_wait() {
-    ...
-    for (i =3D k =3D 0; i < report->maxfield; i++)
-        for (j =3D 0; j < report->field[i]->report_count; j++) {
-            hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0);
-    ...
-}
-
-Because the size parameter passed to picolcd_send_and_wait() is still a
-signed int, the condition k < size causes an implicit signed-to-unsigned
-conversion.
-
-If a caller were to pass a negative size, it would be promoted to a large
-unsigned value, bypassing the loop bounds check and causing an out-of-bounds
-read of raw_data.
-
-While looking at this function, does the subsequent code sleep in atomic
-context?
-
-drivers/hid/hid-picolcd_core.c:picolcd_send_and_wait() {
-    ...
-    spin_lock_irqsave(&data->lock, flags);
-    ...
-    hid_hw_request(data->hdev, report, HID_REQ_SET_REPORT);
-    ...
-}
-
-If the HID device is instantiated via the user-space HID subsystem (uhid),
-hdev->ll_driver->request is not implemented.
-
-This causes hid_hw_request() to fall back to __hid_request(), which
-unconditionally calls hid_alloc_report_buf() with GFP_KERNEL. Allocating
-memory with GFP_KERNEL while holding a spinlock violates atomic context rul=
-es.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260517120639.3800=
-3-1-g.osokin@auroraos.dev?part=3D1

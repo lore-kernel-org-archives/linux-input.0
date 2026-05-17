@@ -1,122 +1,109 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A6A626B973
-	for <linux-input@vger.kernel.org>; Sun, 17 May 2026 13:52:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4663BFAEE
+	for <linux-input@vger.kernel.org>; Sun, 17 May 2026 14:22:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779025950; cv=none; b=pntNqJN1FvKp5/wGMKr4gkgUCahDqMhLChKuNgFrZJ+yHHk4n4nYVJBMdT27PeIXQV3PcIMJCFNt/SwHGY3f8FTueBo6RclzgMfCO57fhjCWNOPeBEO7s7XjEPikGFJtSJHOvULJQoLzekQEX9jB7upwMQIRkIAyZkv1h5V2d/U=
+	t=1779027766; cv=none; b=jKTytv8WqHVt+9UdAFGjs5R/gR4tQGrOu9XDHqhRPnOT+iqt8gHS6fgTS/fVm5VJvt4jtgT1+10B9u5VwmKYoTedbMdvn4F/O0v9ey+MR+2n24bhER1hGVZpNH6rF9Mo518+iMf210cPmCzsCedj2k5rCC66UC482Ut4W00NUmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779025950; c=relaxed/simple;
-	bh=7RVrmuiuxF/rWreRjusc9N9OoV45FUmambe+/N5PACw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BNTs/bNZVC8IKlDXkGEdzLaPFQOY4asvRZUP1Id1Gg97TQqBcqW4Dl/xgDyLpBOatBZqyUjKQE04dyIeIaqE+MYtiT56f1nkCYE922B1RcTTkAkSjOqE2c/WlhCkItusfH8YBpF3+7pIvu1RvHRJdSLaKqre+1EkxxbYtSc04MQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KVxsAaNX; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779027766; c=relaxed/simple;
+	bh=UoMMXpuohfl3dOzLGjXCC5E5g4QE5okvOv27Kkq4V5M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qGLoxt06c81gR+x/l9sdF14UKn7xC0MT+6qJA5uSxE+5sSXyDWHDoY6ruxZUfac/kOsGGXZfPlAUYGMjXZVcJWhLGyL1v7ntFcHZEnI88qBncNvrF4CjpatZxCXqtZOarDq4kuwsRPW6iPpvQZWTrS9TMB7rIuRt08Ti7WqEfN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mljgGpb+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KVxsAaNX"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2b9ea536877so6582895ad.1
-        for <linux-input@vger.kernel.org>; Sun, 17 May 2026 06:52:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779025946; x=1779630746; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QO75HleHGDZqT7J517EBpplpM7jMyRvzAuKel4/gPzs=;
-        b=KVxsAaNXKVd8NIY5+lfvKHLi7uvQYiPmIE3KUaqiWZ21yIgRKIf7lAigo+j030sQDJ
-         ufFWkoEYvHiCKan7aRCxV2xm66wrYvrdLtSAQQp8z9C1rjYg4PkTrr6S8/8gZt65/E4A
-         56v0hZ143Qsh8gGbrXz0qHiB68MKbBVHKCuvtk/zO/VazOe5rRfG8hIyehvaE/0noFGB
-         4w6Rz4HskipOY4q+N/VzKBJ0n31yIWQtS+hohmRCe0F182Vn+ey4AQfpYxeUnB5d9bww
-         m49X1LHP0mprsPSLDRLmGwZyl4ReINQVVNRdEOkk5qndzzZ/q1WjchUTQxWQddG4Daoa
-         Fu6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779025946; x=1779630746;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=QO75HleHGDZqT7J517EBpplpM7jMyRvzAuKel4/gPzs=;
-        b=MC/9+G1n14UuTLl0FqHLE3rKVbMeC9ce4cxT+z3eSnsLChY4yyvd/M3IpntMFGNsg+
-         allrxLHXZbg7HYO5Z70jEVeFMx0mdE3Iufj1ytxZX+KOeeblwfSrhELb3ozflsxop3xn
-         UYo4UW2fjV0zBU9iyAaoglfi1pbIw+2XOL6sG6BNB4RG8vEQ2sFDQfITukhMuLnwXIE5
-         EmedGibynC0sw1GCCn7jbS7/ahfJqPExqnHPnxCb7U78D6puUNwcG56EZUFQQ5fUydgI
-         /wdJDI+RfJqdJ64oqHGpF62M86MgLL0bK6rLL0RZvOfgcUfVyi3NoM8a2xDareBXOGRa
-         +YWg==
-X-Gm-Message-State: AOJu0YzMgmRBNb9+skL48F1YrjVK8OISS9VKcQWURMyDwsuIgj7Nuf6h
-	Y4wG9YxTXEe/6bkH4WBCkThoYWxvRuNvLM9dLRhJffh0ySNGHiqxLWZDPpfRKpRSzATFzw==
-X-Gm-Gg: Acq92OF6diqiXZnL3znyXqMBH9Kr4KSjaYaWxeVyTaIf4hdpgRjXzXBr9OEikYSwCE8
-	uTweBX5cY8RwtkIydYTlbRcch0s0ZtTZxmXSEDOM0lzovoET5ceD/h58PJD7ACaS8vbXX4ztXmw
-	x1VttTIv1+5wK/WfPxuxv/ym6MEgOACeKwmmu4Z/2DgaTrwq6Gxj7n0D4N2LUMe8OlRFFnU3BMa
-	+d5pyqbE3hqabQ7RwuXo8IPBYd0qi9UOI6aROk1JKNvebWncBIS73zqZ6plPi0cHvkCHwF4BJnf
-	L/lu/vSuTT5dc5R9iNWSQLE2o7bz0eAj/fC+TrYFZd85eTPLZCyUNBoHhINXSzQ2A4ZDdww6HqB
-	JlKCqaq2yzG8awqeLqisU5mjDDnIAqSQreIK2/WSMvOEFkIa4qQUvAMNaY9N9PzagXQhFzvelO6
-	ldSX12JJ6L7EqN2K17wbPqX6g/NOLSgihajYh/nSZCBjaWWN2c
-X-Received: by 2002:a17:903:1210:b0:2bd:c60d:2968 with SMTP id d9443c01a7336-2bdc60d2bdcmr28937195ad.12.1779025946291;
-        Sun, 17 May 2026 06:52:26 -0700 (PDT)
-Received: from jmoon ([118.220.156.4])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5bd5fc47sm113873385ad.10.2026.05.17.06.52.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 May 2026 06:52:26 -0700 (PDT)
-From: Jinmo Yang <jinmo44.yang@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org,
-	benjamin.tissoires@redhat.com,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Jinmo Yang <jinmo44.yang@gmail.com>
-Subject: [PATCH 4/4] HID: wacom: validate report length for 24HDT and 27QHDT handlers
-Date: Sun, 17 May 2026 22:52:15 +0900
-Message-ID: <20260517135215.2220117-5-jinmo44.yang@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
-References: <20260517135215.2220117-1-jinmo44.yang@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mljgGpb+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8CA4C2BCB8;
+	Sun, 17 May 2026 14:22:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779027764;
+	bh=UoMMXpuohfl3dOzLGjXCC5E5g4QE5okvOv27Kkq4V5M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=mljgGpb+02cQk0Qm84zwMk7kZmsJe6a9r7uQt4iwZ32QjMB6D89zlq1hC2/xhfKoM
+	 2ZULPqyZetpKeXISXPJpMEE8y1jAcBBJMxpgC3I2qNHoTQQiYbKMziBFlVtIKS2Iot
+	 qVchnQaSXVQWMo95o+Mq/Fc0un/ZJ2x2jCAVIOGvVzccGL4rwmfqnUE4k1jjC/+/N4
+	 a1HKBx32eD9H3apwE454HcAEpOJfOsWOQ2IL4Z6KPDge048DLtVZGiqaRc+6NtXqZR
+	 4Vh22kIMHSudxy1rR8QxM0m+zWB+uEAJT5WBdbbkROG85IQzT1KXh2GnHNXkqDlXTL
+	 BO0p4OI/J0ORQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/4] HID: wacom: validate report length for PL and PTU
+ handlers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jinmo Yang" <jinmo44.yang@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260517135215.2220117-2-jinmo44.yang@gmail.com>
+References: <20260517135215.2220117-2-jinmo44.yang@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 17 May 2026 14:22:43 +0000
+Message-Id: <20260517142244.A8CA4C2BCB8@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-wacom_24hdt_irq() accesses data[61] for WACOM_24HDT and data[63] for
-WACOM_27QHDT in the raw HID report buffer without validating the buffer
-length. This sub-function is called from wacom_wac_irq() which receives
-the length parameter but does not pass it to the handler.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Incomplete Fix / Unhandled OOB Reads for Multiple Device Types
+--
 
-A malicious USB device can declare a small HID report in its descriptor
-and send a matching short report that passes the HID core size check
-(csize >= rsize), but the driver assumes a full-size hardware report
-layout, leading to slab-out-of-bounds reads.
+commit 4ac677c30d7590ff24c2b6674eafbe8d0fff6898
+Author: Jinmo Yang <jinmo44.yang@gmail.com>
 
-Add minimum length checks in wacom_wac_irq() before dispatching to
-wacom_24hdt_irq() for both device types.
+HID: wacom: validate report length for PL and PTU handlers
 
-Fixes: b1e4279e4ef5 ("Input: wacom - add touch sensor support for Cintiq 24HD touch")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
----
- drivers/hid/wacom_wac.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+This commit adds minimum length checks before dispatching HID reports to
+the PL and PTU handlers. This prevents slab-out-of-bounds reads when a
+malicious device sends an artificially small report.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 269e8318f..2fd1c4e80 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3509,7 +3509,14 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		break;
- 
- 	case WACOM_24HDT:
-+		if (len < 62)
-+			return;
-+		sync = wacom_24hdt_irq(wacom_wac);
-+		break;
-+
- 	case WACOM_27QHDT:
-+		if (len < 64)
-+			return;
- 		sync = wacom_24hdt_irq(wacom_wac);
- 		break;
- 
--- 
-2.53.0
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index da1f0ea85625d..6d06842b64080 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -3453,6 +3453,8 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, siz=
+e_t len)
+>  		break;
+> =20
+>  	case PL:
+> +		if (len < 8)
+> +			return;
+>  		sync =3D wacom_pl_irq(wacom_wac);
+>  		break;
+> =20
 
+[ ... ]
+
+> @@ -3464,6 +3466,8 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, siz=
+e_t len)
+>  		break;
+> =20
+>  	case PTU:
+> +		if (len < 8)
+> +			return;
+>  		sync =3D wacom_ptu_irq(wacom_wac);
+>  		break;
+> =20
+
+While this successfully prevents out-of-bounds reads for PL and PTU devices,
+do other handlers called from wacom_wac_irq() remain vulnerable to the same
+issue?
+
+For example, wacom_graphire_irq() unconditionally accesses data[8] for
+WACOM_MO:
+
+wacom_wac_irq()
+  wacom_graphire_irq()
+    case WACOM_MO:
+      prox =3D (data[7] & 0xf8) || data[8];
+
+Similarly, wacom_remote_irq() ignores its len argument and accesses up to
+data[12], and wacom_intuos_pro2_bt_battery() can access data[284].
+
+If a device spoofing these other types sends an undersized report, could it
+bypass the checks added here and still trigger a slab-out-of-bounds read?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260517135215.2220=
+117-1-jinmo44.yang@gmail.com?part=3D1

@@ -1,245 +1,191 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDD833ED134;
-	Mon, 18 May 2026 10:31:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86FE3F54DF;
+	Mon, 18 May 2026 11:17:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779100268; cv=none; b=msKhopYC6Fhu2xvU2TfR3j+RyrjOD3a4El0pM3yf7IBdm2h1ktfZ3UP2St9qsHxGLwKCmWcplrV1glVaFzUfhMLjvYSQz3U2lHSWze79CQpANQUV6CnzE3GnrE300DnITv3uEMrDqU3vtlz8lUjSJ9OoRDrrJV/pRjseHICpfSU=
+	t=1779103035; cv=none; b=fCcbjNibB5p2X9SbQ6Ktb/+oXu+QiWOmc0suf3DRlEBLrFQY9rR5FbkFIGEupHWauLbpgk0s/xziNO4Jh6wUZVurCSAHwV9gpDW3X9zqdVLgnz51cmQ9/bIIfMLW9AnEDHNG5T8cBhkXID/P1kTFbyHN49Ks2h64QzL+gZW2HII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779100268; c=relaxed/simple;
-	bh=FhzxYt//Uphy9XIMcZdhMxK6XHMp+0lzc44JUU+R3NU=;
+	s=arc-20240116; t=1779103035; c=relaxed/simple;
+	bh=yQaPRqjhEAvNS2XqtXLbW3dhlWBkhQA+KcaHB3/iEPg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nKY7WRRCMx0YKet+57wDxl3ps3y0KBFb9gw0SJ9zr9xLzQbrvXgvgsm60MhKQQdX5GjkBa1PboRNGZ2BwvYDaUf4rnPu/IiejhfUPMPnOO2PszSt3dmev+YzQ82jx+Lxhb7+Z083FlbqgXFk74hngLxVcW63DKlffHUO9fam3GU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ac3nSHih; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=CL+MW4NlERTJ7jvTRRODVhJYqCF80aSgaQX0mfIE6kTkCLz+oXE5vqkA8r7LG6UVrqhj+mJ7eFDid9XUXsLvl2rhWOOpJBh5x0+asxqsQkludOjeRIdyumPpvbnXgmy2aCn373EC1sRJD8763AGxgv+nk8z4V/rIrtc5kKVXcbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JdqyWq1b; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ac3nSHih"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DE5C2BCB8;
-	Mon, 18 May 2026 10:31:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JdqyWq1b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDEF9C2BCB7;
+	Mon, 18 May 2026 11:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779100265;
-	bh=FhzxYt//Uphy9XIMcZdhMxK6XHMp+0lzc44JUU+R3NU=;
+	s=k20201202; t=1779103033;
+	bh=yQaPRqjhEAvNS2XqtXLbW3dhlWBkhQA+KcaHB3/iEPg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=Ac3nSHihohxac5PHqDzudCDR2GXQIEPgjVw7GnlzLgOvF3pt1fsK5nZy7fv/I0ZOY
-	 IEkryONTbOIDkqMcjL3HabW9KbWuXvwzzaEw4n4mzq6aRHfslKC7skhnRV1XiDvTym
-	 0+q6txvuo/d+vtN/IgcPFmAOjAIV8AgBDHZO/TIQt41TiXrWcw2qaS7JyMa4yfQzSL
-	 KqBkItR4ousgOfrmZg16MA3kgYoWBiekFlCoWv3bSB7qIxu91w2ZeVKwQvJqQNLmBP
-	 8Sxd7yJw9pUrfjeOguLBRqUOPEB2WnuI7bWvlhwhmcIrlN3lVdMhdHmk689y0j6EUu
-	 xtoW1bjg//meA==
+	b=JdqyWq1bNypXzLceBdYuWNvvYCPDNI1V4u8FgI2YnmZJQpLZNRJTaeeQD/opGv6Ra
+	 9/JnVC+WdBnHKVvhPh0ju36cEUuMZ1qTj7mnA3k2NY2/pgDtH3Ud9ovQUW9cSTIwA9
+	 ckgap2v1O1CsyUq3SVqWlVeHoH8JbxwLlWS1NcebSgQC1VoZSwMsrT6tWKCgOJQ27R
+	 B4a5bbuXRlglfmas7VN63MGHocv+b2pz3lqoN8mmp5+RPO2sMNk2ujUzX5hc+0G8Ux
+	 x167OTvHOb3N1bW5M20TVrbrLb9CuxJADynRRWQooaWwyTnKjCHxhiSZ1WFx+nLbl/
+	 CRzbaMG6X+HYA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
+Subject: Re: [PATCH v7 3/7] input: serio: Add driver for ASUS Transformer
+ dock keyboard and touchpad
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: dmitry.torokhov@gmail.com, robh@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260518095907.36158-3-clamor95@gmail.com>
-References: <20260518095907.36158-3-clamor95@gmail.com>
+Cc: linux-input@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org
+In-Reply-To: <20260518095907.36158-4-clamor95@gmail.com>
+References: <20260518095907.36158-4-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 18 May 2026 10:31:04 +0000
-Message-Id: <20260518103104.C1DE5C2BCB8@smtp.kernel.org>
+Date: Mon, 18 May 2026 11:17:12 +0000
+Message-Id: <20260518111712.BDEF9C2BCB7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] Unsynchronized reallocation of `ddata->ec.model` causes Use-After-=
-Free during interrupts.
-- [High] Stale and uninitialized data is accessed on short I2C reads.
-- [Medium] `asus_dockram_access_ctl()` silently ignores I2C write errors.
-- [Medium] Memory leak of `ddata->ec.model` upon driver unbind or probe fai=
-lure.
-- [Medium] The original IRQ event payload is corrupted before being passed =
-to child notifiers.
-- [Medium] Subsystem Guideline Violation: Mixing `goto` error handling with=
- `__free()` cleanup.
-- [Medium] Missing error check for `kstrndup()` allocation failure in `asus=
-_ec_log_info()`.
-- [Low] Incorrect length check causes string truncation in `asus_ec_log_inf=
-o()`.
+- [High] Sleeping in atomic context due to synchronous I2C transfer in seri=
+o->write callback.
+- [High] Off-by-one error in packet length calculation causes a buffer over=
+-read and breaks keycode remapping.
+- [Medium] In-place modification of a shared notifier data buffer.
 --
 
-commit d95a94a77b9b37ec021eabccb7ff81e4dd52730e
+commit 3c9b2bf0acd20a594f17d65b0d6fd9762329b3bc
 Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 
-mfd: Add driver for ASUS Transformer embedded controller
-   =20
-Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201,
-TF300T, TF300TG, TF300TL and TF700T pad and dock, as well as TF101 dock
-and TF600T, P1801-T and TF701T pad. This is a glue driver handling
-detection and common operations for EC's functions.
+input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
 
-> diff --git a/drivers/mfd/asus-transformer-ec.c b/drivers/mfd/asus-transfo=
-rmer-ec.c
+This commit adds a serio input driver for the ASUS Transformer dock keyboard
+and touchpad. It registers serio ports that act as a bridge over I2C and
+remaps specific keycodes according to their position.
+
+> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
+t/serio/asus-transformer-ec-kbc.c
 > new file mode 100644
-> index 0000000000000..18bb3e5f384d9
+> index 0000000000000..c9707c7fbede5
 > --- /dev/null
-> +++ b/drivers/mfd/asus-transformer-ec.c
+> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
 
 [ ... ]
 
-> +	if (mask || xor) {
-> +		put_unaligned_le64((val & ~mask) ^ xor, buf + 1);
-> +		ret =3D i2c_smbus_write_i2c_block_data(client,
-> +						     ASUSEC_DOCKRAM_CONTROL,
-> +						     DOCKRAM_ENTRY_SIZE, buf);
-> +	}
-> +
-> +	return 0;
-> +}
-
-Does this accidentally hide hardware write failures? Since ret is ignored,
-callers might falsely assume the I2C block write succeeded.
-
-[ ... ]
-
-> +static void asus_ec_clear_buffer(struct asus_ec_data *ddata)
+> +static int asus_ec_kbc_notify(struct notifier_block *nb,
+> +			      unsigned long action, void *data_)
 > +{
-> +	int ret, retry =3D ASUSEC_RSP_BUFFER_SIZE;
+> +	struct asus_ec_kbc_data *priv =3D container_of(nb, struct asus_ec_kbc_d=
+ata, nb);
+> +	unsigned int port_idx, n;
+> +	u8 *data =3D data_;
+> +
+> +	if (action & (ASUSEC_SMI_MASK | ASUSEC_SCI_MASK))
+> +		return NOTIFY_DONE;
+> +	else if (action & ASUSEC_AUX_MASK)
+> +		port_idx =3D 1;
+> +	else if (action & (ASUSEC_KBC_MASK | ASUSEC_KEY_MASK))
+> +		port_idx =3D 0;
+> +	else
+> +		return NOTIFY_DONE;
 > +
 > +	/*
-> +	 * Read the buffer till we get valid data by checking ASUSEC_OBF_MASK
-> +	 * of the status byte or till we reach end of the 256 byte buffer.
+> +	 * The data[0] is the length of the packet including itself. It has to
+> +	 * be at least 2 bytes (length + 1 data byte) and must not exceed
+> +	 * the EC buffer size.
 > +	 */
-> +	while (retry--) {
-> +		ret =3D i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
-> +						    sizeof(ddata->ec_buf),
-> +						    ddata->ec_buf);
-> +		if (ret < 0)
-> +			continue;
+> +	if (data[0] < 2 || data[0] > DOCKRAM_ENTRY_BUFSIZE)
+> +		return NOTIFY_BAD;
 > +
-> +		if (ddata->ec_buf[ASUSEC_IRQ_STATUS] & ASUSEC_OBF_MASK)
-> +			continue;
+> +	n =3D data[0] - 1;
+> +	data +=3D 2;
 
-Can a short read leave stale data in ddata->ec_buf? The function
-i2c_smbus_read_i2c_block_data() returns the actual number of bytes read. If=
- it
-returns a positive value less than ASUSEC_IRQ_STATUS + 1, the buffer will
-retain data from previous iterations.
+Is the payload length calculation off by one?
 
-[ ... ]
+The comment states data[0] is the length of the packet including itself.
+The code then skips two bytes (data +=3D 2), which suggests the payload
+starts at offset 2. If the payload length is data[0] - 2, will setting
+n =3D data[0] - 1 cause the loop at the end of the function to read one byte
+past the actual payload and inject garbage data into the serio port?
 
-> +static int asus_ec_log_info(struct asus_ec_data *ddata, unsigned int reg,
-> +			    const char *name, char **out)
-> +{
-> +	struct device *dev =3D &ddata->client->dev;
-> +	u8 buf[DOCKRAM_ENTRY_BUFSIZE];
-> +	int ret;
-> +
-> +	memset(buf, 0, DOCKRAM_ENTRY_BUFSIZE);
-> +	ret =3D i2c_smbus_read_i2c_block_data(ddata->ec.dockram, reg,
-> +					    DOCKRAM_ENTRY_SIZE, buf);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (buf[0] > DOCKRAM_ENTRY_SIZE) {
-> +		dev_err(dev, "bad data len; buffer: %*ph; ret: %d\n",
-> +			DOCKRAM_ENTRY_BUFSIZE, buf, ret);
-> +		return -EPROTO;
-> +	}
+If an external device sends a packet with data[0] =3D=3D DOCKRAM_ENTRY_BUFS=
+IZE,
+could this off-by-one error cause an out-of-bounds read past the end of
+the EC buffer array?
 
-Is there a risk of an out-of-bounds read here? The I2C read fills up to 32
-bytes (DOCKRAM_ENTRY_SIZE), meaning buf[0] to buf[31] are valid. If buf[0]
-equals 32, the kstrndup() below will attempt to copy 32 bytes starting from
-buf + 1, reading up to buf[32].
+Additionally, will this artificially inflated n cause the exact-length
+validation in the key remapping logic (if (n =3D=3D 2 ...) and if (n =3D=3D=
+ 3 ...))
+to always fail for valid payload sequences, breaking the layout translation?
 
 > +
-> +	if (!ddata->logging_disabled)
-> +		dev_info(dev, "%-14s: %.*s\n", name, buf[0], buf + 1);
+> +	if (port_idx =3D=3D 0) {
+> +		/*
+> +		 * Remap keyboard key codes to match AT layout:
+> +		 * SEARCH: RIGHT-META [E0 27] -> LEFT-ALT   [11]
+> +		 * MENU:   COMPOSE    [E0 2F] -> RIGHT-META [E0 27]
+> +		 */
+> +		if ((n =3D=3D 2 || (n =3D=3D 3 && data[1] =3D=3D 0xF0)) && data[0] =3D=
+=3D 0xE0) {
+> +			u8 *keycode =3D &data[n - 1];
 > +
-> +	if (out)
-> +		*out =3D kstrndup(buf + 1, buf[0], GFP_KERNEL);
-> +
-> +	return 0;
-> +}
+> +			switch (*keycode) {
+> +			case 0x27:
+> +				*keycode =3D 0x11;
 
-If kstrndup() fails and returns NULL, asus_ec_detect() will unknowingly ass=
-ign
-NULL to ddata->ec.model. Should this return -ENOMEM on allocation failure?
+Is it safe to modify the data_ buffer in place?
 
-[ ... ]
+Since data_ is passed to this function via the notifier chain, it points to=
+ a
+shared event buffer that is broadcast to all registered listeners. Will
+modifying this payload permanently corrupt the event data for any downstream
+notifiers that might inspect the packet subsequently?
 
-> +static int asus_ec_detect(struct asus_ec_data *ddata)
-> +{
-> +	char *model __free(kfree) =3D NULL;
-> +	int ret;
-> +
-> +	ret =3D asus_ec_reset(ddata);
-> +	if (ret)
-> +		goto err_exit;
-
-This isn't a bug, but mixing goto error handling with __free() cleanup in t=
-he
-same function violates the subsystem guidelines. Functions are expected to =
-use
-either scope-based cleanup or goto-based cleanup exclusively to prevent
-confusing ownership semantics.
-
-[ ... ]
-
-> +	/* Check and inform about EC firmware behavior */
-> +	ret =3D asus_ec_susb_on_status(ddata);
-> +	if (ret)
-> +		goto err_exit;
-> +
-> +	kfree(ddata->ec.model);
-> +
-> +	ddata->ec.model =3D no_free_ptr(model);
-
-Could this cause a use-after-free or a memory leak?
-
-Since asus_ec_detect() can be called from the threaded interrupt handler at
-runtime, ddata->ec.model might be freed and replaced without synchronization
-while child drivers or sysfs attributes are concurrently accessing it.
-
-Additionally, ddata->ec.model is never freed on driver unbind or probe
-failure, causing a memory leak.
-
-[ ... ]
-
-> +static irqreturn_t asus_ec_interrupt(int irq, void *dev_id)
-> +{
-> +	struct asus_ec_data *ddata =3D dev_id;
-> +	unsigned long notify_action;
-> +	int ret;
-> +
-> +	ret =3D i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
-> +					    sizeof(ddata->ec_buf), ddata->ec_buf);
-> +	if (ret <=3D 0 || !(ddata->ec_buf[ASUSEC_IRQ_STATUS] & ASUSEC_OBF_MASK))
-> +		return IRQ_NONE;
-
-Similar to asus_ec_clear_buffer(), if ret is a positive value smaller than
-the required length, this could process stale data from previous interrupt
-events.
-
-> +
-> +	notify_action =3D ddata->ec_buf[ASUSEC_IRQ_STATUS];
-> +	if (notify_action & ASUSEC_SMI_MASK) {
-> +		unsigned int code =3D ddata->ec_buf[ASUSEC_SMI_CODE];
-> +
-> +		asus_ec_handle_smi(ddata, code);
-> +
-> +		notify_action |=3D code << 8;
+> +				++data;
+> +				--n;
+> +				break;
+> +			case 0x2F:
+> +				*keycode =3D 0x27;
+> +				break;
+> +			}
+> +		}
 > +	}
 > +
-> +	blocking_notifier_call_chain(&ddata->ec.notify_list,
-> +				     notify_action, ddata->ec_buf);
+> +	while (n--)
+> +		serio_interrupt(priv->sdev[port_idx], *data++, 0);
 > +
-> +	return IRQ_HANDLED;
+> +	return NOTIFY_OK;
+> +}
+> +
+> +static int asus_ec_serio_write(struct serio *port, unsigned char data)
+> +{
+> +	struct asus_ec_kbc_data *priv =3D port->port_data;
+> +
+> +	return i2c_smbus_write_word_data(priv->parent, ASUSEC_WRITE_BUF,
+> +					 (data << 8) | port->id.extra);
+
+Can this sleep while in an atomic context?
+
+i2c_smbus_write_word_data() performs a synchronous I2C transaction which
+acquires mutexes and can sleep. However, serio->write callbacks can be
+invoked from atomic contexts.
+
+For example, asus_ec_kbc_notify() calls serio_interrupt() which acquires a
+spinlock and disables interrupts:
+
+serio_interrupt()
+  spin_lock_irqsave(&serio->lock, flags);
+  serio->drv->interrupt()
+    serio_write()
+      asus_ec_serio_write()
+        i2c_smbus_write_word_data()
+
+Will this trigger a scheduling-while-atomic panic if the input driver issues
+a command back to the port while the spinlock is held?
+
 > +}
 
-Does asus_ec_handle_smi() corrupt the event payload before it is passed to
-child notifiers?
-
-If asus_ec_handle_smi() triggers a reset, it eventually calls
-asus_ec_clear_buffer(), which performs new I2C reads directly into
-ddata->ec_buf. This overwrites the original event data, meaning
-blocking_notifier_call_chain() will pass a clobbered buffer to child
-devices.
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518095907.3615=
-8-1-clamor95@gmail.com?part=3D2
+8-1-clamor95@gmail.com?part=3D3

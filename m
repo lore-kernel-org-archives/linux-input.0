@@ -1,153 +1,260 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4373F39FB
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 16:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75169481FD7
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 16:12:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779120428; cv=none; b=m0Jx8TX7xna8fRLqE0ZGPZ9Uhl/wlKA8regufPAtqmT2kbHx17ml2nhP9wafzSLFqdQkpuz/vNYP704qIQkIM4Dk9rQpyiPfW+XzcA/luaCG3YJJ1Oqtfpix4ivhIqeJHpYZ+Hc4vt9DSvmlUvo40UY+MpOW5EPPXqmyejBaZQ4=
+	t=1779120748; cv=none; b=C/gAFg04jtjYlP7qBMYAl1vGUtfBO3+3o2532yOh9aAQE6JxXmKdwgjwaWF8VQ3ewUntTDkwz31NF1ZXEDhAzQ80gQmfiqAT6HsMLTaUWBhc/ifj8MI1B41FVK3ftCC4+QM0e0fhm5JzUy2c+TZRLvQKcVeiCzNrrTA7dpGmhPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779120428; c=relaxed/simple;
-	bh=lVYU22Y5Ir69wDkvv7hToHs50FivmWy0WICMwJWBdsE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KSLEeBp/fHlVYW+riLWd7HDSwoBXnBMpztt2z7hCkSmM7pPUmAFg5MQ6uIzQR5SyNtr7ZJNbCRS+NAMr9AZqfRIhtkrf5sXoWM1aQrfQhw6hobjOvdSmh/ggencmsqNiI7KYv/0DlMRS9HrMnsTjAN9+TH6pcd8M5a+1oruKGq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=wX7o3avh; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
+	s=arc-20240116; t=1779120748; c=relaxed/simple;
+	bh=9P3IWwsORrpb856FnfQgc+VSfCR7r+bvMpgWShWMDNM=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Thg7Zre4UGzxN4XxBG3X+k2mCugxAu3MVL7N7yKGJCjFADLUMahk40LiGsklpi9Tc/cIU5CGMCexeM9012iYcK5oS1ct6bdJ3HjLa6PdO9QIaQap7e/6RX5GEYoQiartVxXM3Sy56AEioy8DjgfJZa0V+Es1LkUC3fHjzuZFu1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aNqFq0d3; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="wX7o3avh"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-48896199cbaso19399005e9.1
-        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 09:06:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1779120411; x=1779725211; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=U1Zaaqmqxh7fW6GrkDq6rtfonmed+F1FtkVFlaeX614=;
-        b=wX7o3avhlctBtTqQxFR64drGrnjz79f4CkJnw6vZJ2xi7xqnpE/C98ZeEDubjgQpDA
-         FprbBoK786KjDzzWzI/MtEudPlM3+VIGOd4SorucMn7JjTElgTFgiLFIA7EZEJY0BaqB
-         TdVC2/TpGKqEtmG1kv7y7crvcx55jBWgrGnkxraW7Nh2j9bZrFKdNVz3uDZwq0tSJSny
-         kjWx2MSkwWkRYG/VLvG6i2P4b7cYf56FJ4DeWDCJQR6yZzYSNrfAU0NZrh90YFMnpXVK
-         +IsdZp1S8rbJPxSnzDAYkHNHEYUltsKhLR6hoO0B9BZFIOn+S9JpMZ0n3UfOPd3TtkGG
-         CqlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779120411; x=1779725211;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=U1Zaaqmqxh7fW6GrkDq6rtfonmed+F1FtkVFlaeX614=;
-        b=Lqw8mqd7wNELZgIXKufTXrLvdLsp6vi9JlkDeV6LupZi3VcXeEinq6IHMCB7O+6JRF
-         Mw5Vnrr0IPSlzWE0N9cL1sQ+lozn62/WJn4YRJHB8izBo4otuRnBrybvItVGoax+zX+u
-         MhcGylLr+pd6twBuFvVJ+ueAfS7AlBneDhdzOFeiYkTpdN7upQW2r393nl1J5ZQnuwrT
-         7SLMQtU1e1m8Qn90rQ3fsDNOEls5xjAkWqhSZr4optS3QqqLDvCmml9veB/rUwuKnSZu
-         ommvahuw7zcF7oRMkvXpTRvM58E2B/m8z9EBW/Zwva4uaLfTafWhO6A/twEXQ47A48Bb
-         e4vA==
-X-Forwarded-Encrypted: i=1; AFNElJ+wq+Vp5piBUiroFwu2LanMObaAHEggclZIjNuMKWbqB099RqZWw0HsTbiYJ+B0s1PnkdUz3kp2Q7FQ3Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyo+NTtr3P0tetQ0PKWIOlRtSZVJzCFsKkyK96ct3u7CEU6NB55
-	QYIYGK1uffNlacNv/1N7Eox4man+ldQKHMhsCdXrzXlgi2g3oybj0+uRm3VRiaViedg=
-X-Gm-Gg: Acq92OERMXPbnIxu3jDuSDEEHe+5aEfOJMIASHqWZIGBhrHnLHabnlx7QQmgAsF7PaT
-	4s2rFCdB7HnM37IWZnxcpZ38a8vybM3tRT9DlTO1AOSxjahKRv+EFdZ5VOqHL1shZtsuDoee9HE
-	BBTTdZsEMRAkNqW5BDpjG3P0+lv9lpzCKRUFOx8b2JI+bl80bq5dbAqoj9xtpyHu4kuboexfsM5
-	iAoSYHkE4GCnu/nUogZG8PcthVesOvUrXF25ZqXmGF8JmLWdRZtase3on6yC+FEfC4KrFWGjhGJ
-	SN+rJQ1HALa6vVbS58+pTPDe2zy8QiKHvpoDVCFwpdfyNW8UklIQOyy53gh5uaN6xxel/NgJlOu
-	vEqQrfNzeWRr116eCpnW3GtBqg8CBXpgf8Jfz1+IG+MZCxBN6rW+/u11rgLe690NaKHZQs9b8J6
-	NcCYuqZvh6mwUIoR2W4bgQq+WTyM+/838IPiG/OgFj
-X-Received: by 2002:a05:600c:491e:b0:48e:978f:c45a with SMTP id 5b1f17b1804b1-48fed455991mr141851495e9.19.1779120411008;
-        Mon, 18 May 2026 09:06:51 -0700 (PDT)
-Received: from [10.42.0.1] ([2a00:23c7:1d1a:9c01:de11:5404:1c7b:7b76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0fe13b4sm38867318f8f.28.2026.05.18.09.06.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 09:06:50 -0700 (PDT)
-From: "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
-Date: Mon, 18 May 2026 17:06:29 +0100
-Subject: [PATCH 10/11] HID: hid-tmff: use 'hid_device_id::driver_data_ptr'
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aNqFq0d3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCAF6C2BCB7;
+	Mon, 18 May 2026 16:12:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779120747;
+	bh=9P3IWwsORrpb856FnfQgc+VSfCR7r+bvMpgWShWMDNM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=aNqFq0d3uRNleGTTEtUK1eVpBdg3mZYOui0Kd8A+OoCShKyGR2hyE5oTHPino5Bqd
+	 PIoq9OFr7PkmuJVh2yNUfln0hyqhrkXU/Azxyo+PP4yyDn7VhtYLdX1EgXvgAedJA7
+	 J/M3vkCFTWsigGT1TSEGJFkAlsdBJYxWNTmDAMVgcl4ODlBS1Wswx0CdHFWqjBzegk
+	 gyduDeqsN1MzR9hr/26JPUgsB4biZJoiGDoRZ73LQSyfhFlQlIzG/zrSUHxJaruq4r
+	 zMHdKDbJc6KISEfxWw7d8hIs4BM1zMo5LL5QKBpwmZNyKOhUbGtLMUDR0AlXlS35WY
+	 ZHd5CKTyDtTfg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: lg-g15: Add support for the Logitech G710/G710+
+ gaming keyboards
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Xavier Bestel" <xav@bes.tel>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260518153519.605627-1-xav@bes.tel>
+References: <20260518153519.605627-1-xav@bes.tel>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 18 May 2026 16:12:19 +0000
+Message-Id: <20260518161227.BCAF6C2BCB7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260518-mod-devicetable-hid_device_id-v1-10-a08e3989c283@thegoodpenguin.co.uk>
-References: <20260518-mod-devicetable-hid_device_id-v1-0-a08e3989c283@thegoodpenguin.co.uk>
-In-Reply-To: <20260518-mod-devicetable-hid_device_id-v1-0-a08e3989c283@thegoodpenguin.co.uk>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
- "Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>, 
- "Christian A. Ehrhardt" <lk@c--e.de>, 
- "Pawel Zalewski (The Capable Hub)" <pzalewski@thegoodpenguin.co.uk>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1779120401; l=2886;
- i=pzalewski@thegoodpenguin.co.uk; s=20260430; h=from:subject:message-id;
- bh=lVYU22Y5Ir69wDkvv7hToHs50FivmWy0WICMwJWBdsE=;
- b=axjHXWupj/sZvWPxQunoWU9ThNPQmQ0wuXyYuOba1+c5zKv+Mgw+jKBb55iNiBi6eqrD3Cedg
- MCa8mObBEbvDzozSrkBl9InK+UKJM48XwDwvc1m9RHXTpsWFQYilU+j
-X-Developer-Key: i=pzalewski@thegoodpenguin.co.uk; a=ed25519;
- pk=vHq4n9IonORH2GTzLv8r6CWAFHzgfBuNkQPXA8NSly0=
 
-Remove the casts to (unsigned long) and instead assign the
-'ff_rumble' and 'ff_joystick' variables as they should, as pointers.
-Remove the cast to (void *) during probe - tmff_init() second parameter
-already accepts a const pointer, so no further action was needed here.
-These changes improve readability of the code.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
+- [Critical] Missing workqueue cancellation on module unload or device remo=
+val causes a Use-After-Free
+- [High] Missing edge detection for Game Mode and brightness buttons leads =
+to USB bus spam and state desynchronization
+- [High] Data race on `g15->transfer_buf` during device probe
+- [Medium] LED brightness callbacks violate the API contract by returning s=
+uccess on failure
+- [Medium] Hardware events arriving before LED registration trigger a kerne=
+l WARN_ON
+--
 
-Signed-off-by: Pawel Zalewski (The Capable Hub) <pzalewski@thegoodpenguin.co.uk>
----
- drivers/hid/hid-tmff.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+commit f98ec9abc4841148689435f75f93ed341ba49d7d
+Author: Xavier Bestel <xav@bes.tel>
 
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index 423f395d01ac..0d7e73fba0fa 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -226,7 +226,7 @@ static int tm_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err;
- 	}
- 
--	tmff_init(hdev, (void *)id->driver_data);
-+	tmff_init(hdev, id->driver_data_ptr);
- 
- 	return 0;
- err:
-@@ -235,25 +235,25 @@ static int tm_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- static const struct hid_device_id tm_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300),
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb605),   /* NASCAR PRO FF2 Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651),	/* FGT Rumble Force Wheel */
--		.driver_data = (unsigned long)ff_rumble },
-+		.driver_data_ptr = ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb653),	/* RGT Force Feedback CLUTCH Raging Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654),	/* FGT Force Feedback Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a),	/* F430 Force Feedback Wheel */
--		.driver_data = (unsigned long)ff_joystick },
-+		.driver_data_ptr = ff_joystick },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, tm_devices);
+HID: lg-g15: Add support for the Logitech G710/G710+ gaming keyboards
 
--- 
-2.43.0
+Add support for the Logitech G710 and G710+ gaming keyboards to the
+hid-lg-g15 driver, exposing the G-keys, M-keys, game mode toggle, and
+brightness cycle buttons.
 
+> diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
+> --- a/drivers/hid/hid-lg-g15.c
+> +++ b/drivers/hid/hid-lg-g15.c
+
+[ ... ]
+
+> @@ -597,6 +605,234 @@ static int lg_g510_mkey_led_set(struct led_classdev=
+ *led_cdev,
+>  	return ret;
+>  }
+> =20
+> +/******** G710 LED functions ********/
+
+[ ... ]
+
+> +static int lg_g710_mkey_led_set(struct led_classdev *led_cdev,
+> +			  enum led_brightness brightness)
+> +{
+
+[ ... ]
+
+> +	ret =3D hid_hw_raw_request(g15->hdev, LG_G710_FEATURE_M_KEYS_LEDS,
+> +				 g15->transfer_buf, 2,
+> +				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+> +	if (ret =3D=3D 2) {
+> +		/* Success */
+> +		g15_led->brightness =3D brightness;
+> +		ret =3D 0;
+> +	} else {
+> +		if (ret !=3D -EPIPE)
+> +			hid_err(g15->hdev, "Error setting LED brightness: %d\n", ret);
+> +		/* -EPIPE is transient (USB stall), cache is unchanged, retry next tim=
+e */
+> +		ret =3D 0;
+> +	}
+> +
+> +	mutex_unlock(&g15->mutex);
+> +
+> +	return ret;
+> +}
+
+Does returning 0 here break the LED class API contract when a hard error
+like -EIO or -ENODEV occurs?
+
+If we return success despite hardware failure, won't the internal software
+cache update while the physical hardware remains unchanged, leading to a
+permanent desynchronization between sysfs and the device?
+
+[ ... ]
+
+> @@ -890,6 +1136,71 @@ static int lg_g510_leds_event(struct lg_g15_data *g=
+15, u8 *data)
+>  	return 0;
+>  }
+> =20
+> +static int lg_g710_event(struct lg_g15_data *g15, u8 *data, int size)
+> +{
+
+[ ... ]
+
+> +	/*
+> +	 * Detect brightness key presses and schedule the work function
+> +	 * to cycle cached brightness and notify userspace.
+> +	 * Bit 10 =3D WASD backlight (maps to LG_G15_LCD_BRIGHTNESS slot).
+> +	 * Bit 11 =3D Kbd backlight (maps to LG_G15_KBD_BRIGHTNESS slot).
+> +	 */
+> +	if (pressed_keys & BIT(10)) {
+> +		set_bit(LG_G15_LCD_BRIGHTNESS, &g15->brightness_changed);
+> +		schedule_work(&g15->work);
+> +	}
+> +	if (pressed_keys & BIT(11)) {
+> +		set_bit(LG_G15_KBD_BRIGHTNESS, &g15->brightness_changed);
+> +		schedule_work(&g15->work);
+> +	}
+> +
+> +	/* Game mode toggle =E2=80=94 bit 12 is a state bit, trigger on any cha=
+nge */
+> +	if (pressed_keys & BIT(12)) {
+> +		set_bit(LG_G15_GAMEMODE, &g15->brightness_changed);
+> +		schedule_work(&g15->work);
+> +	}
+
+Could these bitwise checks cause continuous triggering on every HID report
+received?
+
+Since the game mode toggle check evaluates the absolute state, if game mode
+is enabled (for instance, while holding a macro key), won't this continuous=
+ly
+schedule the workqueue, spam the USB bus with synchronous get-report reques=
+ts,
+and flood userspace with duplicate notifications?
+
+Also, since the condition evaluates to false when game mode is disabled, wi=
+ll
+userspace ever be notified of the disabled state?
+
+Similarly for the brightness buttons, does checking the absolute state mean
+that holding the button down will rapidly decrement the software brightness
+cache and permanently desynchronize it from the physical hardware?
+
+Should the driver track previous states and trigger actions only on edge
+transitions instead?
+
+[ ... ]
+
+> @@ -1212,6 +1562,13 @@ static int lg_g15_probe(struct hid_device *hdev, c=
+onst struct hid_device_id *id)
+>  	case LG_Z10:
+>  		connect_mask =3D HID_CONNECT_HIDRAW;
+>  		break;
+> +	case LG_G710:
+> +		INIT_WORK(&g15->work, lg_g710_leds_changed_work);
+> +		hdev->quirks |=3D HID_QUIRK_NOGET;
+> +		connect_mask =3D HID_CONNECT_DEFAULT;
+> +		gkeys_settings_feature_report =3D LG_G710_FEATURE_EXTRA_KEYS;
+> +		gkeys =3D 6;
+> +		break;
+>  	}
+> =20
+>  	ret =3D hid_hw_start(hdev, connect_mask);
+
+This isn't a bug introduced exclusively by this patch, but does the lack of=
+ a
+remove callback or devres action to cancel the scheduled work risk a
+use-after-free?
+
+The driver allocates the context structure using devm_kzalloc and initializ=
+es
+the work struct, but nothing calls cancel_work_sync on shutdown. If the work
+is pending or running on the system workqueue when devm frees the memory,
+won't it dereference freed memory?
+
+[ ... ]
+
+> @@ -1234,11 +1591,13 @@ static int lg_g15_probe(struct hid_device *hdev, =
+const struct hid_device_id *id)
+>  	}
+> =20
+>  	if (gkeys_settings_feature_report) {
+> +		int report_size =3D (g15->model =3D=3D LG_G710) ? gkeys * 2 : gkeys;
+> =20
+>  		g15->transfer_buf[0] =3D gkeys_settings_feature_report;
+> -		memset(g15->transfer_buf + 1, 0, gkeys);
+> +		memset(g15->transfer_buf + 1, 0, report_size);
+>  		ret =3D hid_hw_raw_request(g15->hdev,
+>  				gkeys_settings_feature_report,
+> -				g15->transfer_buf, gkeys + 1,
+> +				g15->transfer_buf, report_size + 1,
+>  				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>  	}
+
+This isn't a new bug, but since this lockless access to the transfer buffer
+occurs right after hid_hw_start, could an incoming HID report concurrently
+schedule the work queue?
+
+The asynchronous worker safely locks the mutex before mutating the exact sa=
+me
+transfer buffer. Does this allow the workqueue to overwrite the buffer while
+the probe function is actively using it, resulting in malformed requests?
+
+[ ... ]
+
+> @@ -1327,12 +1686,18 @@ static int lg_g15_probe(struct hid_device *hdev, =
+const struct hid_device_id *id)
+>  		goto error_hw_stop;
+> =20
+>  	/* Register LED devices */
+> -	for (i =3D 0; i < LG_G15_LED_MAX; i++) {
+> +	for (i =3D 0; i <=3D LG_G15_MACRO_RECORD; i++) {
+>  		ret =3D lg_g15_register_led(g15, i, led_names[i]);
+>  		if (ret)
+>  			goto error_hw_stop;
+>  	}
+> =20
+> +	if (g15->model =3D=3D LG_G710) {
+> +		ret =3D lg_g15_register_led(g15, LG_G15_GAMEMODE, "g15::gamemode");
+> +		if (ret)
+> +			goto error_hw_stop;
+> +	}
+
+Because hid_hw_start is called earlier in the probe sequence, is it possible
+for a hardware event to trigger lg_g710_event before these LEDs are actually
+registered?
+
+If the worker thread runs and invokes the brightness hardware changed
+notification on zero-initialized, unregistered LED devices, won't the
+internal sysfs nodes be NULL, triggering a stack trace warning in the LED
+core?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518153519.6056=
+27-1-xav@bes.tel?part=3D1

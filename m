@@ -1,158 +1,129 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73260218845
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 06:37:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0BD3E0C42;
+	Mon, 18 May 2026 07:30:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779086264; cv=none; b=Cak20cb5Jvxoy9vhNYF2R0BLjKtX1VxRJGs/7dRD0JiQVwfCQEwCr+obVQfjfoLUkwLzehl6Eh7ihHaejAaqaXZ4u+bQCaoqqthl8R2/kSw5TfC8O2vNtI3HAsiVVhpM/R8JsjhlUwktAe9U12iyFlSMWNAwRO0lrnS/DyxonAo=
+	t=1779089458; cv=none; b=iTJbNVDPOBY6tEJ15+AwumeSqRDYZcfc1otL8uwOkfQhqciaIag2hiJxDi8wU2oLjQsMVLIPkXXOBc6Ga6ws8DfadpP09cyA7ltMjiI930+PftZvnJMJhKAPcVWkQ/Cd5hFnfwlftNwqXKFXue3R/JeS+j7nJfekVHKv5glLYqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779086264; c=relaxed/simple;
-	bh=4opVSGVK1pUcuw9hzNkK2EOLoJi7osP12yDz7HhOVnM=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=Q2uG2cjqFySnEGCc1QRfhYSxAlNE/HBFO/KzubGpTOnDGFJKe/VvhfHE2GveA+nVnsO4RzPmHIL1LXDncjoqGG3PWWrIxw423H2QDRnfKofN/Q4Rujh+00xKQztXJLo0H/aQ6bZu3OSmE1RMX20hCulL3ghxbakzmP9a+/pfTBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FRZ2DdO3; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779089458; c=relaxed/simple;
+	bh=UaRHwV1chvJbIFiNEZ7+ON4XkcfWZY443RzNN8Aa5wk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eNbYMqpQvXS1WOsI8g4dCrkvjpVV5e1FobiVNsryDgMPUfuIsRVVVzmhzCVR2wXKC3G4YziBJBIvmd26Z116cCJRHguWZx3fEyRZ1M/OZjnhtr0yOy1IqHx1P+6WlpnuLICoGCKxX3Isd2CeIWvEnwew/xt2yu13WIC2HuRB6f4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TwDPS1N9; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FRZ2DdO3"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-50d880e6fbbso33584071cf.0
-        for <linux-input@vger.kernel.org>; Sun, 17 May 2026 23:37:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779086256; x=1779691056; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0cE+xwVdh3twnCV3V0E994pEurq17/WwBVoFWrClUTg=;
-        b=FRZ2DdO3lFXmK9f3D5L/iMj6iEjVpWLcWvS29T0E0AhD3N7cqoBGra8UJ3pe4A2Hb0
-         XzjH76SGsgRmfTCjnNrssBlNpSeu8+AzooZTm9VVHqC4kKYTamVOoCMa8fg03q1lb+tf
-         Egy1spcQ4X6VtqRC/UgmJu8bA8KYClYVe+PZbKgfBNmApxeJwe5dAJ5TayfQooiIxJpt
-         Ernp7STdnf+WQ0n65F8aLrRcN/xfXH5Zm589GI6/uvndd+PhyJyhC3ogL9MAGZfsAQkw
-         Ct8Zm6aNfmNuxvJT3DV71MhVeCO9gY7aqwTJB8cNe5aBodYg5HZCCXcj6hGoFyUvlYlN
-         RV9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779086256; x=1779691056;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=0cE+xwVdh3twnCV3V0E994pEurq17/WwBVoFWrClUTg=;
-        b=Y85FgxZpLo3r1v5vNg22njcZxtb4EYpm3J5qYIwt1i/Ii2kNW/kDjrtgxpQBWpCrsW
-         yhePV2NzD3DLKd2GcioAd9rVYBDEVAHZQSMA22cNfrjsIb0HpowIatJQB9dwl/9KzKvl
-         b1rh4kfcLtJi6n1l1NDkwTRWA8+qJM43QCIUPNrREzs1Rbtbm4sfGV3e2LijKG4ZYWSC
-         NgXFQBhNJEkjgh6swpPV+VCkyqCizhXTUmEOW/XPv7TEFtM0SQiOpLODaBUtKTMuemxO
-         TgLGN3jvtrn5bdbrjmF/Du9E8K7VaPdDpLHE4KYBwOPmguoc6nn63x1svv6j2LawpqTS
-         sTPw==
-X-Forwarded-Encrypted: i=1; AFNElJ960tKa6R8a1XKx+Z+oi82hv68Rv86qbT57BEktyGKD0tyBXwWZ9iNRe0TU3MKt587bR+0+KeeqShOptQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx5sGBzGkfhVUnRF65CR9HLkGhRzJkKOoMVdXrzuvFRhYwB8i3t
-	KcKe39EIMG3cjeoVp/d9iC0XF1snH/739LhtlP7zseIFbdNW2tgWr7B8
-X-Gm-Gg: Acq92OGwQHRpatYlqI/B22xI+o5lJrUYUgRJ1YTqhupASaVT89OnNhfdKUgy2Vl9S0T
-	TDPXkEECVyvID4Y94sG/QS1yuOB/DMLhHG2WYY4zXRWerThVqkd3/1O9EIrq9+YvyZblOUJoI0l
-	ygbtu6FNIyDXJwibasYQYfwH01bWtnB34DQdZpARX2srpxmkgI/OPu2WLSbXnPx9S5NFTVPcrVn
-	80mo9QcX6Yk3O4vdd+2NOJNNvCgmE3v/zfPBhlghep9uBI0rdWPjHxZu5pBnhzGHFJVhNiShYdB
-	pc6a7xnwbDzUPzDnSiu+1fMbqwTdB5tkKTeok2p0OxLXCl/Xl0plGLdiBvQtBu3MlFF4t0fOc0i
-	ECMZf6aTw2wbAPYMRuN4m6UUTpxhI/k9GcLiFVonrJvn+DndE96f2qqIYwB4zYoOiH6/ll63c7w
-	79Clc8aQRIIOiQLQ/wDhDCQ52c5ASlCfIQkALIChcTxogVH4EU+VXR7R4Res0mxX7wDaUkJG6jh
-	t8IqdiLleqkGbjiCE4QS9sr/I3W5LcEia/ZnSL3QoSDPbw6oog=
-X-Received: by 2002:a05:622a:a950:b0:50e:18f9:b5e2 with SMTP id d75a77b69052e-5164155c029mr175840921cf.6.1779086256196;
-        Sun, 17 May 2026 23:37:36 -0700 (PDT)
-Received: from localhost ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca360952f9sm46958916d6.15.2026.05.17.23.37.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 17 May 2026 23:37:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TwDPS1N9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779089452; x=1810625452;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=UaRHwV1chvJbIFiNEZ7+ON4XkcfWZY443RzNN8Aa5wk=;
+  b=TwDPS1N90siKQt3usj5SRfn5wt9UU1MKAlASPvEeDzKDY8GsK6+ek6IY
+   KNYiCxfLDZfEvr5/VIlCdk5UO61QzrKfKCc4J/RrDaeDtIKUP4kycp1QV
+   7B/5SVmS9Tm1KYxgbUt6kWpGSaDSi5t5GLEwp3TTGdyeRvCtzuqj8+Zbc
+   iSq9ko4NlpTpeG6NQzPaFYEM07Ab8yVB7LwcHp1n3whe8u4yUdbSYxKtu
+   wa/3CLoSM/Bfv/IQnnW7LnSw+jTlscOr/ZYIjS3n+fPkbJ5Mu41B0GmRH
+   /inGCXmf7BS2yIkHDaXOUoHEOonIdizpYvW+Nm4vunNif5yYxbAJBztNT
+   A==;
+X-CSE-ConnectionGUID: JGp50jVSTWCH6BG/IBl7NQ==
+X-CSE-MsgGUID: AhLZ7ZbuTw29FOPoAn4kJQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11789"; a="79984136"
+X-IronPort-AV: E=Sophos;i="6.23,241,1770624000"; 
+   d="scan'208";a="79984136"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 00:30:47 -0700
+X-CSE-ConnectionGUID: 9J+sJRDISnCHuXZHDNRNVg==
+X-CSE-MsgGUID: vMqIh9JcQPuKrJHTNcXvBg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,241,1770624000"; 
+   d="scan'208";a="277446492"
+Received: from fpallare-mobl4.ger.corp.intel.com (HELO localhost) ([10.245.244.3])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 00:30:38 -0700
+Date: Mon, 18 May 2026 10:30:35 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Anshul Dalal <anshulusr@gmail.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Yassine Oudjana <y.oudjana@protonmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Nick Dyer <nick@shmanahar.org>, Hans de Goede <hansg@kernel.org>,
+	Job Noorman <job@noorman.info>,
+	Mika =?iso-8859-1?Q?Penttil=E4?= <mpenttil@redhat.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Kees Cook <kees@kernel.org>, bui duc phuc <phucduc.bui@gmail.com>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	Yauhen Kharuzhy <jekhor@gmail.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	Minseong Kim <ii4gsp@gmail.com>, Ingo Molnar <mingo@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Oleh Kuzhylnyi <kuzhylol@gmail.com>,
+	Marek Vasut <marek.vasut+renesas@mailbox.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Josua Mayer <josua@solid-run.com>,
+	Michael Tretter <m.tretter@pengutronix.de>,
+	Jeff LaBundy <jeff@labundy.com>,
+	Javier Carrasco <javier.carrasco@wolfvision.net>,
+	David Heidelberg <david@ixit.cz>,
+	Petr Hodina <petr.hodina@protonmail.com>,
+	Svyatoslav Ryhel <clamor95@gmail.com>,
+	Johannes Kirchmair <johannes.kirchmair@skidata.com>,
+	Xichao Zhao <zhao.xichao@vivo.com>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com
+Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
+ i2c_device_data
+Message-ID: <agrAG3cLjEAPV90B@ashevche-desk.local>
+References: <20260515164848.497608-2-u.kleine-koenig@baylibre.com>
+ <CAMuHMdWGSBbQtKaoFej1Qm-SUgDenLMDF0psD9o07wyHKu8A+w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 17 May 2026 23:37:33 -0700
-Message-Id: <DILLFY3D4HQN.2KOV4CVPYXTV0@gmail.com>
-Cc: <dmitry.torokhov@gmail.com>, <linux-input@vger.kernel.org>
-Subject: Re: [PATCH] Input: mtk-pmic-keys - use of_device_get_match_data()
-From: "Rosen Penev" <rosenp@gmail.com>
-To: <sashiko-reviews@lists.linux.dev>, "Rosen Penev" <rosenp@gmail.com>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260518042046.981861-1-rosenp@gmail.com>
- <20260518043409.EC97EC2BCB7@smtp.kernel.org>
-In-Reply-To: <20260518043409.EC97EC2BCB7@smtp.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAMuHMdWGSBbQtKaoFej1Qm-SUgDenLMDF0psD9o07wyHKu8A+w@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Sun May 17, 2026 at 9:34 PM PDT, sashiko-bot wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issu=
-e(s) to consider:
-> - [High] Missing NULL check for of_device_get_match_data() result leads t=
-o NULL pointer dereference.
-> - [High] Mismatch between child counting and iteration logic can cause ou=
-t-of-bounds array accesses.
-> --
->
-> commit 0ee3fee49ccf02b7e629f90533e67fc9b40d2b9e
-> Author: Rosen Penev <rosenp@gmail.com>
->
-> Input: mtk-pmic-keys - use of_device_get_match_data()
->
-> This commit simplifies the driver to fetch PMIC key register data directl=
-y
-> using of_device_get_match_data(). It also removes the unneeded of_device.=
-h
-> include.
->
->> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyb=
-oard/mtk-pmic-keys.c
->> index c78d9f6d97c4f..fd684ac169386 100644
->> --- a/drivers/input/keyboard/mtk-pmic-keys.c
->> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> [ ... ]
->> @@ -342,7 +339,7 @@ static int mtk_pmic_keys_probe(struct platform_devic=
-e *pdev)
->>
->>  	keys->dev =3D &pdev->dev;
->>  	keys->regmap =3D pmic_chip->regmap;
->> -	mtk_pmic_regs =3D of_id->data;
->> +	mtk_pmic_regs =3D of_device_get_match_data(&pdev->dev);
->
-> While this isn't a new issue introduced by this patch, can mtk_pmic_regs =
-be
-> NULL here if the device is bound manually via sysfs without a matching
-> device tree node?
->
-> If mtk_pmic_regs is NULL, it appears it is unconditionally dereferenced
-> later when calling mtk_pmic_keys_lp_reset_setup().
->
-> Would it make sense to add a check for !mtk_pmic_regs right after fetchin=
-g
-> the match data?
-No because every compatible has a non NULL data component.
->
->
-> Also, while reviewing this probe function, I noticed another pre-existing
-> issue further down:
->
-> 	keycount =3D of_get_available_child_count(node);
-> 	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-> 	    keycount > ARRAY_SIZE(irqnames)) {
-> 		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-> 		return -EINVAL;
-> 	}
->
-> 	for_each_child_of_node_scoped(node, child) {
-> 		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
->
-> Is there a mismatch between the child counting and iteration logic?
->
-> The validation check uses of_get_available_child_count(), which ignores
-> disabled nodes. But the loop uses for_each_child_of_node_scoped(), which
-> iterates over all children, including disabled ones.
->
-> If a disabled child node exists in the device tree alongside available on=
-es,
-> could the loop execute more times than the initial validation accounted f=
-or?
-> This might increment the index variable past the allocated array bounds,
-> leading to out-of-bounds accesses on irqnames[] and keys->keys[].
->
-> Would updating the loop to use for_each_available_child_of_node_scoped()
-> prevent this?
-Yes. Interesting that pre-existing issues are flagged...
+On Mon, May 18, 2026 at 09:24:35AM +0200, Geert Uytterhoeven wrote:
+> Hi Uwe,
+> 
+> On Fri, 15 May 2026 at 18:48, Uwe Kleine-König (The Capable Hub)
+> <u.kleine-koenig@baylibre.com> wrote:
+> > My additional motivation for this effort is CHERI[1]. This is a hardware
+> 
+> Nice!
+> 
+> > extension that uses 128 bit pointers but unsigned long is still 64 bit.
+> > So with CHERI you cannot store pointers in unsigned long variables.
+> 
+> Good luck fixing all implicit assumptions about this in the kernel!
+> Also, good luck convincing people to use uintptr_t instead ;-)
+> 
+> https://lore.kernel.org/all/CAHk-=wj2OHy-5e+srG1fy+ZU00TmZ1NFp6kFLbVLMXHe7A1d-g@mail.gmail.com
+
+Yeah, I believe Linus will have a strong opinion about all this CHERI stuff :-)
+But let see, it might be surprising turn around.
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 

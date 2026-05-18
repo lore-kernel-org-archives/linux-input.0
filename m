@@ -1,164 +1,143 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEEA83E0097
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 07:56:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86CD43E51D6
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 09:04:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779090970; cv=none; b=RRQFKEDEJ5zJ0DZPjmsrnXkcp60KdrzOTgLZpOiYcK2kvi/4ZShpe44cX+Q7AmJzMknQo3/58ADpenKA3H5+FD1DCl0Nu8gFqAfApHwa4vTb8qnJPfd2NYK3yvyT+1kDQTdr4C5irBJsis7E+wseddifoPR/8wgOIjOrXViZhQw=
+	t=1779095052; cv=none; b=qv1vtnPg6i+WF0FSkiSwug/Y9UpkEMVEyxfBuxekgc/AxHR/TM+IjWjAhsiidmwZVM7H7AhL3a409t1IUNAk4NDrwPH1gIn79QEi5N3O8pWQZ6sEsqQo7mnYiTVPqSlYngANJSZfFmAurbJ7aKwD5Uy8oF9OhUZy46Pb23V+MIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779090970; c=relaxed/simple;
-	bh=VJ36PRww7AW5yhifd0V7DU3h0ShfL3M0Vsq0+hXDKPs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ATWlbbeY8Ku9g8K2LREh7v6c9EUIXrf9tT23hlUt3vEoZwkl/LwEP3FRHu8H6tgJuDGorPPoV92OQcClU9dfv+avXUx6ggf0x+AxMxc8VsYQykeBwJE1A1PSARv3uHTpysC4ibJKkLcUBvqOAGmosNJsP7bKhWSaoe05Kbv2D7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b=m8CKSwu7; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779095052; c=relaxed/simple;
+	bh=Q8GbrG+ClCg94DgU9vxRlD70lv5DVCRruYHFaOZIxRk=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=CeV5aztfqhEUwnT6YzKYX+u9ikDUxOISyD7wIKGlclQLyihQTCwMeoJxJDVBqZfCdZRJBgUHVU7vYWhMV+jKOUxkuIkjxkN5Cp8fCrTb8OW41hE2DOu8eUwy06NKkJWSWEPhTxD2IvLjqPCHXwlQ5aumbf9MCCIyMzz69HtiF68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=rxBNZk5s; arc=none smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b="m8CKSwu7"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-488af9fdaa7so8168055e9.1
-        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 00:56:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="rxBNZk5s"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-45d96d21e82so1074414f8f.0
+        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 02:04:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20251104.gappssmtp.com; s=20251104; t=1779090964; x=1779695764; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ML+fhGCtqrS6nYIK3KHsCQErHIIB6z1uyNGHrfcGFy4=;
-        b=m8CKSwu7yme0IjaFscoxmnBQal7PPNhJ3wKBdxopQbmUWf7NJ2/Bmw+Z+X1cOeHTEZ
-         f0sEgPGMeCKndH/mL7UfIfd8r/rpILqYUtAusXCj5nBKhx0YChXzJ0izveNwVWovJ8uG
-         G3HHl92hQME7qA6JKhQ55637PGqPsbiiNO0qQq7HY086tGWq3AHUgxMHu3iUfXcSXlDY
-         tXV4CawNmtAyODsQQenAc8XaGyyUvZM/e9z0Qx0s/LaZ466jM0lBd5/f8wr70aZc3hO9
-         65+apnp7Sj226y6Ns5jN0wlUi90cA50Ar91W51gCcJJkIuhAWfI6tmr1krDiA5pJJF/+
-         JdVw==
+        d=linaro.org; s=google; t=1779095049; x=1779699849; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xQsc42ku8RRwWOrN3cIN44IoeSXVQzXA3f6OA5chCWI=;
+        b=rxBNZk5syvkO/IJ+yrA1ptcHiceBicKPbbTvXglLWndNUAMDvW5TFkLAfWkXPfQD5i
+         Gm6m76otuwBrINsMN5/nd89drWEogOVRiwROzV5RZIHs4YTYU07W0SE9sFbE12CT9khH
+         hS3ePx4wivzdvbVPFcCD3IRru8p9kL/3ofy32TSejawd1e9euq65oesnkbI5awAc4bJZ
+         JKj4oVWKPNswTS9zwiTLll6efUGhuQbDfwLZljs3caykCWdFZk9Tbkk4Qtrwt1gEsF4G
+         0/jLXXbpcdgi87OxO5zS2k03H39ZzQDtACh449ipI1IC4O/KNsPxwJv69L9+XtbkW6lu
+         Ypqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779090964; x=1779695764;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ML+fhGCtqrS6nYIK3KHsCQErHIIB6z1uyNGHrfcGFy4=;
-        b=cGBt/SjyJxXpckv2RK4Hx1AQXcw4F03K2DZAQqOcYRUcD9kZpq2uLmJvj5zFuLSYRb
-         cg2WCiV5Vrw7lhQvRkGu1TPkvCFeoTvolmwIWDz0EyahMfS4Q900+GiIad3+O5Er5giG
-         U23w0gg8DJ/ItTnoUynTBKzfczZQNZ6UuhkW1ymD4/belxFOm9C55ApIHSJgWOZv8yp5
-         sv0f5o/6pXYKVO6DZVVlLq/sMiWF9nww+pwd+k/vnEu560+KoksCp4+Yztse46ZOWvG2
-         OeX1vz4cWAeuY4/jn+VKXt0E3YM4mUxoR0NwdfxXvE7jRVsDgQHVoZxT7dRLlcaCcKnf
-         xnhw==
-X-Forwarded-Encrypted: i=1; AFNElJ/8J2K4aUjy6xobQomDZt13lJmJ2hAJmJJnoBc1BphJZYZOHFf+Kj9HpyH3/dGpxlJiMVpfFSzmXj7cBg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxC0zrkMkodgWMff19fWbUKtCGl8jw4PTzi95JkILcW1G09vrUj
-	d68qtgtisbLYS1aJ4CREzDYVprKQmHLRJTawTm9xTH+X/hfiS+bbzZWi7Bf2EYr6XCU=
-X-Gm-Gg: Acq92OEwtshW0v3H1Bv1mtwswroVVCR4U/34jd/xjwF6yDNcZMGoC9NRjkryQqgeKOV
-	Qa/s4tnH2+ihslUg29B7cgg4e+59c1rXsv5ehIXVQ6TX2vK0Ou4bYE8ITnVup6xI9ZJ5zzrwoQ8
-	S4DdqjIdjsiEFrPjtcCqTyUQaewnurTNUtUJ7YzgAUU3btnT1DR7Uypreb1DSTyOjYsHP1mJ6X/
-	mTrihrBCUzo7Igzq6rGpl3Osxg4hlGVfnso1WedlWOG/DGkvPEEEyAMBswYQ6BN7AumuxJBevxV
-	zP8sEQkx71Zz09K1p64a8ZL0Fu5O9pvSoG8JtDdsQ6hIbg3iiTepJ2RT4qL+zCXLYVdECJDBnPI
-	U5a5aVHCXPewssOBRwaVNofZHaZjZmF+qVWqqG5U9jGJd1+Fmv5CNBLfdmwgBwDuRjJIFpVkvwX
-	FroryqvQCueX2cCP7f1Fim/ueXQ0TE4trAtU28OEhtqif5cpQXL/NISABrU1MOr2vNPwEEbz2iz
-	EVIbBNsDyQuWaoqeXId4rnO9G+zmByfq/I1
-X-Received: by 2002:a05:600c:a406:b0:48a:599a:3716 with SMTP id 5b1f17b1804b1-48fe651487emr168781505e9.23.1779090964101;
-        Mon, 18 May 2026 00:56:04 -0700 (PDT)
-Received: from localhost (p200300f65f47db049367b55fc4056f2b.dip0.t-ipconnect.de. [2003:f6:5f47:db04:9367:b55f:c405:6f2b])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45da15a562dsm35387139f8f.33.2026.05.18.00.56.03
+        d=1e100.net; s=20251104; t=1779095049; x=1779699849;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xQsc42ku8RRwWOrN3cIN44IoeSXVQzXA3f6OA5chCWI=;
+        b=qtAp7km6nwVY3HAw3UTRLooMzQKVE4VsNKRoHvE0V9RkGZNEl8IO0PKlVGMJ5Di/0+
+         McZW+blQFAQlluxehu5R52qmcv8X7DwoxgBNhYQ/3irbh+mZgS4HfTnp1vtm7oEb6nux
+         f1GViNcy6ftrTdXwDPdozmrUnL+OcOWgzbLUv7PNdbEKqU3dzRVdm8jMtEot0aprO0WD
+         A7rCivPfX0IkwVEz4lIK5Pm4rkdiWyxFmp3EY1fU17mmecVav6aYW5AFq8vcW+Sq6Clu
+         Tm6geLGJjECOfaBbDSvZo+6nUs8lleU4JA21JXBDboptXK3joQucIJJqShJ253FG4A6r
+         xukQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+GF3LQ1WwUxgrO8UzrzPUIAVJ4WUH0eXR+wvCnsUJ5qKd7xVSHP1DxHngMTfwvyf++dxbMBH7ADXbHww==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxRmTh3YzDeydjouwqN0JzCWvm84EPwusBBrI7sXS/t2f95J2Uw
+	PNUP/pUSGT0kdH4jAt8Sl4IEIrWkmoI6ijQcyUonD/Rv0iFml5gWn8xs3EcQmxjHfiI=
+X-Gm-Gg: Acq92OGL2glvU6QYtzT5Z7whWC2XeqOIdGQgNXVh7AnXboNPcdVMVDZ3DeSq8mgASpX
+	rQ0mPrm7opBUB69znNyKrfm5YIeMyIH4i0UkidzsMmqQYgIpRcWU9igdIFNSeLcNVTA/28I6WUN
+	NE/NUW880JpB6JvuUX6gAj0YEbVcoEluk/fp4Qb0+aISvEBWLq2/YRtMKwBnxS+dwO2Yt/pWzbC
+	SOFQxtaEJCx4K7eYPpB3VIQFXDfZZzkoNGjwDkzcZQeSDH0jJ0iSF1MVGZ6zisKkviNj0W9jVUT
+	J1ceSNx4FeUxdpFLrXchN/lxSquwdQKU8MAgutJk93TSZ6Vx+1nX3eAUMBdW+AZrky9J3Fp628Y
+	8N8M5lkVqqo+BOD0yDKQfWoXycCHt5WPnNafH4GzRCV+E2CEljyxxhrsyRsSZcJd3OLDDXuShuu
+	KdmQby+m2EopX0M1zab4MkaEoRi3Ypeb76
+X-Received: by 2002:a05:6000:2902:b0:43e:a81d:c475 with SMTP id ffacd0b85a97d-45e5c58fbf9mr21710267f8f.6.1779095048668;
+        Mon, 18 May 2026 02:04:08 -0700 (PDT)
+Received: from ho-tower-lan.lan ([185.48.77.170])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9e768072sm35084436f8f.5.2026.05.18.02.04.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 00:56:03 -0700 (PDT)
-Date: Mon, 18 May 2026 09:56:02 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anshul Dalal <anshulusr@gmail.com>, 
-	Michael Hennerich <michael.hennerich@analog.com>, Yassine Oudjana <y.oudjana@protonmail.com>, 
-	Linus Walleij <linusw@kernel.org>, Nicolas Ferre <nicolas.ferre@microchip.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
-	Support Opensource <support.opensource@diasemi.com>, Nick Dyer <nick@shmanahar.org>, Hans de Goede <hansg@kernel.org>, 
-	Job Noorman <job@noorman.info>, Mika =?utf-8?B?UGVudHRpbMOk?= <mpenttil@redhat.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Kees Cook <kees@kernel.org>, bui duc phuc <phucduc.bui@gmail.com>, 
-	Thorsten Blum <thorsten.blum@linux.dev>, Yauhen Kharuzhy <jekhor@gmail.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Marco Crivellari <marco.crivellari@suse.com>, 
-	Minseong Kim <ii4gsp@gmail.com>, Ingo Molnar <mingo@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Oleh Kuzhylnyi <kuzhylol@gmail.com>, 
-	Marek Vasut <marek.vasut+renesas@mailbox.org>, Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Josua Mayer <josua@solid-run.com>, 
-	Michael Tretter <m.tretter@pengutronix.de>, Jeff LaBundy <jeff@labundy.com>, 
-	Javier Carrasco <javier.carrasco@wolfvision.net>, David Heidelberg <david@ixit.cz>, 
-	Petr Hodina <petr.hodina@protonmail.com>, Svyatoslav Ryhel <clamor95@gmail.com>, 
-	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Xichao Zhao <zhao.xichao@vivo.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	platform-driver-x86@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
-Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
- i2c_device_data
-Message-ID: <agrFDLaPu1nnLIN4@monoceros>
-References: <20260515164848.497608-2-u.kleine-koenig@baylibre.com>
- <CAMuHMdWGSBbQtKaoFej1Qm-SUgDenLMDF0psD9o07wyHKu8A+w@mail.gmail.com>
- <agrAG3cLjEAPV90B@ashevche-desk.local>
+        Mon, 18 May 2026 02:04:08 -0700 (PDT)
+From: James Clark <james.clark@linaro.org>
+Subject: [PATCH v2 0/6] tools/build: Allow versioning of all LLVM tools
+Date: Mon, 18 May 2026 10:03:06 +0100
+Message-Id: <20260518-james-perf-llvm-version-v2-0-f12cc4f031d8@linaro.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ledpsosxjgbf2xjn"
-Content-Disposition: inline
-In-Reply-To: <agrAG3cLjEAPV90B@ashevche-desk.local>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMvVCmoC/3WNSw6CQBAFr0J6bRsGAT8r72FYNEMDbYAhPWaiI
+ dzdgcSly3pJ1VvAswp7uCULKAfx4qYI2SEB29PUMUoTGbI0K9PCGHzSyB5n1haHIYwYWDcH8xP
+ VxtZFbc8NRHtWbuW9lx9V5F78y+lnPwpmW3/N/G8zGEyxtGQNXSm3l+Y+yETqjk47qNZ1/QLV3
+ 2IAvwAAAA==
+To: Nathan Chancellor <nathan@kernel.org>, 
+ Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ Shuah Khan <shuah@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+ Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+ Adrian Hunter <adrian.hunter@intel.com>, 
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Martin KaFai Lau <martin.lau@linux.dev>, 
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Song Liu <song@kernel.org>, 
+ Yonghong Song <yonghong.song@linux.dev>, ihor.solodrai@linux.dev
+Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev, 
+ linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ bpf@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+ James Clark <james.clark@linaro.org>
+X-Mailer: b4 0.14.0
 
+I ran into the build issue mentioned in the first commit, because using
+an option like LLVM=-15 is a documented way to build [1], but only
+some of the LLVM tools defined in tools/ support this.
 
---ledpsosxjgbf2xjn
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
- i2c_device_data
-MIME-Version: 1.0
+After fixing that, a lot of other tidyups fell out. I didn't go too far,
+for example some selftests include tools/testing/selftests/lib.mk which
+reimplements some of the LLVM_SUFFIX stuff, but other selftests include
+tools/scripts/Makefile.include and I stopped before touching the former.
+Some other non build scripts hard code toolchains and I didn't touch
+those either, this change is only focused on things that already
+include Makefile.include.
 
-On Mon, May 18, 2026 at 10:30:35AM +0300, Andy Shevchenko wrote:
-> On Mon, May 18, 2026 at 09:24:35AM +0200, Geert Uytterhoeven wrote:
-> > Hi Uwe,
-> >=20
-> > On Fri, 15 May 2026 at 18:48, Uwe Kleine-K=F6nig (The Capable Hub)
-> > <u.kleine-koenig@baylibre.com> wrote:
-> > > My additional motivation for this effort is CHERI[1]. This is a hardw=
-are
-> >=20
-> > Nice!
-> >=20
-> > > extension that uses 128 bit pointers but unsigned long is still 64 bi=
-t.
-> > > So with CHERI you cannot store pointers in unsigned long variables.
-> >=20
-> > Good luck fixing all implicit assumptions about this in the kernel!
-> > Also, good luck convincing people to use uintptr_t instead ;-)
-> >=20
-> > https://lore.kernel.org/all/CAHk-=3Dwj2OHy-5e+srG1fy+ZU00TmZ1NFp6kFLbVL=
-MXHe7A1d-g@mail.gmail.com
->=20
-> Yeah, I believe Linus will have a strong opinion about all this CHERI stu=
-ff :-)
-> But let see, it might be surprising turn around.
+[1]: Documentation/kbuild/llvm.rst
 
-Yeah, it's not yet the time to start that discussion, I want to have the
-patch stack in a better state before that.
+Signed-off-by: James Clark <james.clark@linaro.org>
+---
+Changes in v2:
+- Fix selftests/bpf build. LLD needs to take the full path to be used
+  with -fuse-ld=
+- Link to v1: https://lore.kernel.org/r/20260514-james-perf-llvm-version-v1-0-6cac1a9a4c8d@linaro.org
 
-I think the strongest argument will be that
+---
+James Clark (6):
+      tools/build: Allow versioning of all LLVM tools defined in Makefile.include
+      tools/build: Indent if else blocks
+      selftests: Remove unused LLD variable
+      tools/build: Allow versioning LLVM readelf
+      tools/build: selftests: Allow versioning LLVM lld
+      tools/build: selftests: Remove some duplicate toolchain definitions
 
-	"unsigned long" [...] is an integer type large enough to hold a
-	pointer.
+ tools/bpf/resolve_btfids/Makefile    |  3 --
+ tools/lib/api/Makefile               |  4 --
+ tools/lib/bpf/Makefile               |  8 ++--
+ tools/lib/subcmd/Makefile            |  4 --
+ tools/lib/symbol/Makefile            |  4 --
+ tools/perf/Makefile.perf             |  7 ----
+ tools/scripts/Makefile.include       | 77 ++++++++++++++++++++----------------
+ tools/testing/selftests/bpf/Makefile |  9 ++---
+ tools/testing/selftests/hid/Makefile |  7 ----
+ 9 files changed, 50 insertions(+), 73 deletions(-)
+---
+base-commit: 09d355618f7ccc27ffc7fc668b2e232872962079
+change-id: 20260511-james-perf-llvm-version-43ab1cb5bc7d
 
-just isn't true for CHERI.
+Best regards,
+-- 
+James Clark <james.clark@linaro.org>
 
-Best regards
-Uwe
-
---ledpsosxjgbf2xjn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoKxg8ACgkQj4D7WH0S
-/k75XQf/fJBvg+bkcjF1RD9zN6ORGpW8MCPpjekC79O2A1nW+vWJClXaxkKullcM
-RNcA6S+Y0Uw9HmLHEkyScdB1VYiKlnOw/gzCrSTCR9JK7CYN1rKq99EoMheR7+DD
-uVa7Rai/eEhJYIh7vpBfGS/QtapI3qrJCb9hfOrfkP16by8BWbMcqFzUpGd9CBPh
-pb6E63QmhOxL3fyFRcnpEzRCgyg3eTVKynQ+7tPmH2cU7leNveZhBkWfkLYDJWgM
-a6K+Do5D2xWle5UGHlxxgWvA3SdTvGEXpIXWD2JM67KsBrmKuAVx2Oxzh7rYfORT
-A1krybshSByxRK8iPTzSCW+n+EBR/A==
-=/va5
------END PGP SIGNATURE-----
-
---ledpsosxjgbf2xjn--

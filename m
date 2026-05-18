@@ -1,237 +1,177 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01DF430DD22
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 22:57:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5546E332913
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 23:30:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779145041; cv=none; b=Rugq+OcODTdSndQudlQR0XLwbst/fV14llQiaoYVPuYCHejM89NWkQGQ8LeLSZMaf3PgEL8cA0hWqtdeOFyYxqskXOOh5ZxVJX2L6/QwBDREwqsHAh8rW+pBKP+Y0ztEov18LJw25JVTliHgH9UbPwvSAJvzw7xZKNWsmI0jqU8=
+	t=1779147000; cv=none; b=GNNUksGPReFfiJO374ZYjx8levdqIcL5LEL3NuPuInq1ejBOSdHJfoEc/lZtEb8WcXciOk4FFfWT04uJszNANqUMAGeriHSMyEtaA3rK9Qcu5dGQ36h4qW8PZR4zwTgKeIejLA4Yx9xxMAyHIiwT/36fKpaD4uxU1VeQsbuGCXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779145041; c=relaxed/simple;
-	bh=kFwLJs8ExYg2KWSpFWev0k+2etrG/M2l8OpxRShJrhM=;
+	s=arc-20240116; t=1779147000; c=relaxed/simple;
+	bh=54TQNJEMX0ptLOTRvWRstOIkCrxr5T9yETrnjTAcElU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dBaDZR0o2nG/DkZyyBndLboRtVf4ISSvddataY6tFzeYv8eJeTdQQyvdKv1oGtXQvLoy2knx6qnIii5Bf+oRgFCf+OL89kDEFrhLQoqNmFLj1RMwXZkhBfRbvwRQhQLxx02gams5u2syg7aMCMbxz0Qqwliwfwb1WtBQEtX6zvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bjtm3P/f; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=f5MPqKT+SaAIHgRflIaB3HcSyBWVRNhFZGDcNh+YnyZea+VzfwMjUG7NrCqooCJyf7Qf4r1JzpR0/uP9ETL6vsleuvlxnljvWXyopNLUiL4DSXuChXtzDZm8y/8VFJNjKlL+83YwAAwSsMXwwvJcTvrDgOMx9vq2q9m+fSYIArA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1OCjWwt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bjtm3P/f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A5F0C2BCB7;
-	Mon, 18 May 2026 22:57:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1OCjWwt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69F8C2BCC7;
+	Mon, 18 May 2026 23:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779145040;
-	bh=kFwLJs8ExYg2KWSpFWev0k+2etrG/M2l8OpxRShJrhM=;
+	s=k20201202; t=1779147000;
+	bh=54TQNJEMX0ptLOTRvWRstOIkCrxr5T9yETrnjTAcElU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=Bjtm3P/fIFARSzX1cgOfLOgLI9c94wEjgIi37LnaHt10rH9SqRZNxv3v4/Nqx7BV+
-	 JNSj6nvRHyR8KDkpH0fB3ezkbvwP8DI/EUBQ7zs1MEbr1sFazhDaVLgvUxyS27iE2A
-	 ZHIzQtaoTrZGLNmSF/zyvb+kMda642bTNg+a0O9LStktB+GCnSzAFiC5iRdHGgANjR
-	 0h7a0jNYNTziq8/aQS90D/p4SbxpAE2vWhO6SUutH8MeZwWs+joVUXRd6KNgRFzn2r
-	 nM/0oEToYkwke+eqT+n2v8vinESKSv+k3P94ShXbsBZGgMu2p9+DIpPtuim/uKbVs/
-	 xeL34Oq/+xm8w==
+	b=V1OCjWwtERRtyUoZwGCz4J9rSo1Mz/2sNmplyEyt7yt1yqjOh1m9phmKTBLy3R7q6
+	 gYu88HGDINXetMHt8uYXZo5Z2LdJjtnkUUefxkLEiMsvmqnwP8SKbDgql1C4CLyPjk
+	 DLhG4D7LA67fj+Shz7NydeKTSwyPBLSljgBdR3mAI/1VW2a40ZNIWt1uziHBB40y7x
+	 PJh265v4Raylebpr6vQlr7VAn0N1QqQIubalRJqjld1w5uekxC/xbCR4FwCQG42L/x
+	 ip40SudjypkyLWEGlgJhF/+TAmgvgiYizz1WHGUwb6Q8vZ+HHHWwRM7ZM2gp2xQ3L3
+	 DvacIReKhk9rA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Subject: Re: [PATCH v6 2/4] HID: hid-msi: Add M-key mapping attributes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260518222935.1802071-2-derekjohn.clark@gmail.com>
-References: <20260518222935.1802071-2-derekjohn.clark@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260518222935.1802071-3-derekjohn.clark@gmail.com>
+References: <20260518222935.1802071-3-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 18 May 2026 22:57:20 +0000
-Message-Id: <20260518225720.7A5F0C2BCB7@smtp.kernel.org>
+Date: Mon, 18 May 2026 23:29:59 +0000
+Message-Id: <20260518232959.D69F8C2BCC7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] Inverted registration check in `gamepad_mode_show` breaks function=
-ality and allows access after device removal.
-- [High] TOCTOU race in sysfs attributes leading to Use-After-Free during d=
-evice teardown.
-- [High] Race condition with `reinit_completion` and unprotected state on e=
-rror paths in `claw_hw_output_report`.
-- [High] Incorrect cancellation order of interdependent delayed works cause=
-s a Use-After-Free.
-- [High] Brittle endpoint check in `msi_remove` bypasses teardown and cause=
-s unbalanced `hid_hw_close`.
+- [High] Data race and state desynchronization in `profile_pending` allows =
+delayed ACKs to corrupt profile data.
+- [High] Race window in `claw_hw_output_report()` causes spurious command t=
+imeouts.
+- [High] Use-After-Free during module teardown due to incorrect delayed wor=
+k cancellation order.
 --
 
-commit bae529985c447afb063f1f68fb0ebbfec812a32f
+commit d45c51fc226fdd946c2d70a93c254be199300dc7
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
-Subject: HID: hid-msi: Add MSI Claw configuration driver
+Subject: HID: hid-msi: Add M-key mapping attributes
 
-This commit adds a configuration HID driver for the MSI Claw series of
-handheld PC's. It provides an initial driver outline and attributes for
-changing the gamepad mode, M-key behavior, and handling resets.
+This commit introduces M-key mapping attributes for the MSI Claw device.
+It adds the ability to read and write profile mappings for two back buttons
+(M1 and M2) via sysfs, using custom HID commands to communicate with the
+hardware.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> new file mode 100644
-> index 0000000000000..c79eb0bfeb776
-> --- /dev/null
+> index c79eb0bfeb776..e58d35dba5b40 100644
+> --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
 
 [ ... ]
 
-> +static int claw_hw_output_report(struct hid_device *hdev, u8 index, u8 *=
-data,
-> +				 size_t len, unsigned int timeout)
+>  struct claw_drvdata {
+>  	/* MCU General Variables */
+> +	enum claw_profile_ack_pending profile_pending;
+>  	struct completion send_cmd_complete;
+>  	struct delayed_work cfg_resume;
+>  	struct delayed_work cfg_setup;
+
+This problem wasn't introduced by this patch, but does the cancellation ord=
+er
+of these delayed works cause a use-after-free regression during module
+teardown?
+
+In cfg_resume_fn(), cfg_setup is unconditionally queued via
+schedule_delayed_work(). During module removal, if
+cancel_delayed_work_sync(&drvdata->cfg_setup) is executed before
+cancel_delayed_work_sync(&drvdata->cfg_resume), and cfg_resume_fn is
+actively executing:
+
+The first cancellation would return immediately because cfg_setup is not
+yet pending. cfg_resume_fn would then queue cfg_setup. The second
+cancellation would wait for cfg_resume_fn to finish.
+
+Once the removal completes and drvdata is freed by devres, could the
+newly queued cfg_setup fire 500ms later and dereference the freed
+drvdata pointer?
+
+[ ... ]
+
+> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
+command_report *cmd_rep)
 > +{
-> +	unsigned char *dmabuf __free(kfree) =3D NULL;
-> +	u8 header[] =3D { CLAW_OUTPUT_REPORT_ID, 0, 0, 0x3c, index };
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	size_t header_size =3D ARRAY_SIZE(header);
-> +	int ret;
+> +	u8 *codes;
+> +	int i;
 > +
-> +	if (header_size + len > CLAW_PACKET_SIZE)
+> +	switch (drvdata->profile_pending) {
+> +	case CLAW_M1_PENDING:
+> +	case CLAW_M2_PENDING:
+> +		codes =3D (drvdata->profile_pending =3D=3D CLAW_M1_PENDING) ?
+> +			drvdata->m1_codes : drvdata->m2_codes;
+> +		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
+> +			codes[i] =3D (cmd_rep->data[6 + i]);
+> +		break;
+> +	default:
+> +		dev_dbg(&drvdata->hdev->dev,
+> +			"Got profile event without changes pending from command: %x\n",
+> +			cmd_rep->cmd);
 > +		return -EINVAL;
-> +
-> +	/* We can't use a devm_alloc reusable buffer without side effects durin=
-g suspend */
-> +	dmabuf =3D kzalloc(CLAW_PACKET_SIZE, GFP_KERNEL);
-> +	if (!dmabuf)
-> +		return -ENOMEM;
-> +
-> +	memcpy(dmabuf, header, header_size);
-> +	if (data && len)
-> +		memcpy(dmabuf + header_size, data, len);
-> +
-> +	guard(mutex)(&drvdata->cfg_mutex);
-> +	if (timeout) {
-> +		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
-> +			drvdata->waiting_cmd =3D index;
-> +			drvdata->waiting_for_ack =3D true;
-> +			drvdata->cmd_status =3D -ETIMEDOUT;
-> +		}
-> +		reinit_completion(&drvdata->send_cmd_complete);
-
-Could this race with an incoming ACK? Since reinit_completion() is called
-outside cmd_lock after setting waiting_for_ack =3D true, an ACK arriving in
-this window could call complete(), which would then be overwritten, causing
-a command timeout.
-
 > +	}
+> +	drvdata->profile_pending =3D CLAW_NO_PENDING;
 > +
-> +	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
-> +		CLAW_PACKET_SIZE, dmabuf);
-> +
-> +	ret =3D hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	ret =3D ret =3D=3D CLAW_PACKET_SIZE ? 0 : -EIO;
-> +	if (ret)
-> +		return ret;
-
-If hid_hw_output_report() fails or returns a partial write, the function
-returns early without resetting waiting_for_ack to false. Could this corrupt
-the state machine and cause stray ACKs to trigger spurious completions late=
-r?
-
-[ ... ]
-
-> +static ssize_t gamepad_mode_show(struct device *dev,
-> +				 struct device_attribute *attr, char *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int ret, i;
-> +
-> +	if (drvdata->gamepad_registered)
-> +		return -ENODEV;
-
-Should this be if (!drvdata->gamepad_registered)? Without the logical NOT,
-this prevents reading the mode during normal operation and allows access
-during teardown, which could lead to a use-after-free since the sysfs
-attribute can be accessed after device removal.
-
-[ ... ]
-
-> +static ssize_t mkeys_function_store(struct device *dev, struct device_at=
-tribute *attr,
-> +				    const char *buf, size_t count)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	int i, ret =3D -EINVAL;
-> +	u8 data[2];
-> +
-> +	if (!drvdata->gamepad_registered)
-> +		return -ENODEV;
-
-Is there a race condition here during device teardown? The check for
-gamepad_registered happens locklessly before cfg_mutex is acquired in
-claw_hw_output_report().
-
-If claw_remove() executes concurrently, sets gamepad_registered to false,
-and closes the hardware, could this result in calling hid_hw_output_report()
-on a stopped device and causing a use-after-free when the sysfs thread
-resumes?
-
-[ ... ]
-
-> +static void claw_remove(struct hid_device *hdev)
-> +{
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +
-> +	if (!drvdata) {
-> +		hid_hw_close(hdev);
-> +		return;
-> +	}
-> +
-> +	cancel_delayed_work_sync(&drvdata->cfg_setup);
-> +	cancel_delayed_work_sync(&drvdata->cfg_resume);
-
-Should cfg_resume be cancelled before cfg_setup? Since cfg_resume_fn() can
-schedule cfg_setup, cancelling cfg_setup first might allow cfg_resume_fn()
-to queue it again. If this happens, the newly scheduled cfg_setup work could
-access freed drvdata memory after claw_remove() finishes.
-
-> +
-> +	drvdata->gamepad_registered =3D false;
-> +
-> +	hid_hw_close(hdev);
+> +	return 0;
 > +}
-> +
-> +static void msi_remove(struct hid_device *hdev)
-> +{
-> +	int ret;
-> +	u8 ep;
-> +
-> +	ret =3D get_endpoint_address(hdev);
-> +	if (ret <=3D 0)
-> +		goto hw_stop;
-> +
-> +	ep =3D ret;
-> +	if (ep =3D=3D CLAW_XINPUT_CFG_INTF_IN || ep =3D=3D CLAW_DINPUT_CFG_INTF=
-_IN)
-> +		claw_remove(hdev);
 
-Is it safe to rely on get_endpoint_address() during removal?
+Is there a data race and potential state desynchronization with
+profile_pending here?
 
-If userspace modifies the USB alternate setting via usbfs while the driver
-is bound, the endpoint could change, causing claw_remove() to be skipped
-and leaving the workqueues running, leading to a use-after-free.
+drvdata->profile_pending is written under profile_mutex in process context
+in claw_buttons_show(), but it is read and cleared locklessly here in the
+atomic HID event handler.
 
-Conversely, if the endpoint didn't match during probe but does match during
-removal, claw_remove() might be called with a NULL drvdata and execute
-hid_hw_close() without a prior hid_hw_open(), underflowing ll_open_count.
+If a request (like an M1 read) times out, profile_pending is cleared by the
+sysfs thread. If a subsequent request then sets profile_pending to
+CLAW_M2_PENDING, could a concurrently arriving delayed ACK for the original
+M1 read cause this lockless handler to mistakenly parse the M1 payload into
+drvdata->m2_codes?
+
+This would reset profile_pending and prematurely wake the waiting thread,
+corrupting the profile data.
 
 [ ... ]
 
-> +static int claw_suspend(struct hid_device *hdev)
+> +static int claw_buttons_store(struct device *dev, const char *buf, u8 mk=
+ey_idx)
 > +{
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +
-> +	if (!drvdata)
-> +		return -ENODEV;
-> +
-> +	cancel_delayed_work_sync(&drvdata->cfg_setup);
-> +	cancel_delayed_work_sync(&drvdata->cfg_resume);
 
-Does this have the same cancellation order issue as claw_remove(), where
-cfg_resume_fn() could reschedule cfg_setup after it has been cancelled?
+[ ... ]
+
+> +set_buttons:
+> +	scoped_guard(mutex, &drvdata->rom_mutex) {
+> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
+TA,
+> +					    data, len, 25);
+
+This problem wasn't introduced by this patch, but is there a race window in
+claw_hw_output_report() that could cause spurious command timeouts?
+
+Looking at claw_hw_output_report(), drvdata->waiting_for_ack is set to
+true inside a cmd_lock critical section. Immediately after releasing the
+spinlock, it calls reinit_completion(&drvdata->send_cmd_complete).
+
+If the hardware responds exceptionally quickly, or if a delayed ACK from a
+previous timed-out command arrives in the small window between the spinlock
+release and the reinit_completion() call:
+
+Could the interrupt handler clear waiting_for_ack and call complete(),
+only for the main thread to immediately erase the completion event with
+reinit_completion()?
+
+This would cause wait_for_completion_interruptible_timeout() to block and
+incorrectly return -ETIMEDOUT to userspace.
+
+Should reinit_completion() be called before setting waiting_for_ack?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518222935.1802=
-071-1-derekjohn.clark@gmail.com?part=3D1
+071-1-derekjohn.clark@gmail.com?part=3D2

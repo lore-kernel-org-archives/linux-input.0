@@ -1,177 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9C4C40584E;
-	Mon, 18 May 2026 13:51:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CA3E3502A4
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 15:34:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779112313; cv=none; b=uLUvljsN8XdhZRQwRX6zqjR9N4dzbiZ02lypn0YzxKpf2A0DN29sdKEO+bn7rrRXD++PpYunj6lQoJI6DITp6FIDzdVLzLbsMCEVlhR7+wS7SXs054OojV0u3UM+U8NYyKOnJAA+10axM4tXHqsdg66KxX1YtWU9TFM86I5KJ/o=
+	t=1779118444; cv=none; b=FbLuKv/ttjcwb/xooszXq8AJ/No/MZUsZ952Psk3VXhgjODcnrwBFU5uJxd9x2e3+2c1ZNq+CX798CsQyaXh9cMUd/NiyHajNvLBKlriZNZtOqVkSOd8AKtAY2uQew6mizbowzC+6ZpSdmCeecNauVNZrGBkwEzpxquNi1H1GD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779112313; c=relaxed/simple;
-	bh=Ji5v3MCjimwUT7RwInhuJ/9VvzwbhkzrioR3JRlDaDw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fSHU24kMJcAWhYWqQ+iXFjoG/4ER32bkdE61WF5uTIm+dOuGbLK0LuK/L9VvQ5gZGYSQgbpZOmhpICMFRoiGrsFVmKHhkjLlBhvGgiEIe0APZICHJhYdOr6+11SkkRMgCgVkt4xL0UJFr4hhTw2+NWuo6Ic189L2ggvnG3V19qU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y5c3ZoOW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779118444; c=relaxed/simple;
+	bh=gDi+K0Hfl3aI8hiPKzXEVmQRpT3lL0dCLr646l0d9cc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=OE0DvrhTLfzUiyBRkpoKSNuTSyU45j1QJbwpEqlTi8EUnQiYQeNixF+hOYVXrMuwmGjGESJ5w79GPpqsklvtbuAbFTUGRbXTZ7iogdwCIxvggsPA/Sv4cQM10eqCkEugyAPLqliLdV2pE1yck91rtTMbyclLoOilnaCiPtENaXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bes.tel; spf=pass smtp.mailfrom=bes.tel; dkim=pass (2048-bit key) header.d=bes.tel header.i=@bes.tel header.b=NEGmblXf; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=OndSVl9k; arc=none smtp.client-ip=34.202.193.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bes.tel
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bes.tel
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y5c3ZoOW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E174C2BCB7;
-	Mon, 18 May 2026 13:51:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779112312;
-	bh=Ji5v3MCjimwUT7RwInhuJ/9VvzwbhkzrioR3JRlDaDw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Y5c3ZoOWrKzOB99N3gDQfX0gh37J2tLxuTz+j0aqZBSW3VS4BC3WKANXBxeTTpBOp
-	 rM+LHwcmUlfOGncbQVoWd7a5tsy+j6+W5194P8bPNI7msHvCjKBICFZIVxK77QgsB+
-	 TkF/TRoeysRQ+pgvqK5ImJYgttiHcYD9QioadKbKHHU+Lpgwf3fZxc36o323HDKY/q
-	 k3iswEk2BeQu1lPI294Q1E8bayX07on5tRF7M362hp8iHYcUYm5+MQ/9OaNquRYQWf
-	 11ZJ/7yXWXmCveo+blep3gwkE1mJN/df11AaVP9WJDXfbe0flWHHqEggMQAE8tOUWr
-	 rfsv5xEo/7J3g==
-Date: Mon, 18 May 2026 14:51:43 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: "Zhang, Lixu" <lixu.zhang@intel.com>, "jikos@kernel.org"
- <jikos@kernel.org>, "srinivas.pandruvada@linux.intel.com"
- <srinivas.pandruvada@linux.intel.com>, "Lechner, David"
- <dlechner@baylibre.com>, "nuno.sa@analog.com" <nuno.sa@analog.com>,
- "andy@kernel.org" <andy@kernel.org>, "sakari.ailus@linux.intel.com"
- <sakari.ailus@linux.intel.com>, "linux-input@vger.kernel.org"
- <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org"
- <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup
- and cleanup
-Message-ID: <20260518145143.63e2c570@jic23-huawei>
-In-Reply-To: <agoi55wCo//eY1YQ@hu-ckantibh-hyd.qualcomm.com>
-References: <20260509101040.791404-1-sanjayembedded@gmail.com>
-	<SJ0PR11MB5613D4ECB8081985C3F2D82293072@SJ0PR11MB5613.namprd11.prod.outlook.com>
-	<agoi55wCo//eY1YQ@hu-ckantibh-hyd.qualcomm.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=bes.tel header.i=@bes.tel header.b="NEGmblXf";
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="OndSVl9k"
+DKIM-Signature: a=rsa-sha256; b=NEGmblXfGQByOelQ5MF/xKwZEf6JyLaqqee8WNaoPYpIfMgSi0W6M2RxJ/ceYQqKGoEgmwSACgJv0GmvvRRQfTnFlMozYgDWKT4s8K6tx9HtIEtFiuPoXSGM1aX1/KHwKrGgW2fOGpSSeK8A4QIIX0wF8a5KsM5eWuUhIZEd4GWW3MDOp/OeGli/eXHYwzZmHm1FjKEKPy6nYRqkq5DGIX89trVoQqB8//BM8GAGgRHtCFJDb1pbHfTfexyMNgj4f1AeFodusjL2mQ5S6y7jT+OdFak+vmpG5j4yN67BRfnpt3YDMpfakWBtR7H/wMRIhbqkCz2guEpXzmzG95Vpiw==; s=purelymail2; d=bes.tel; v=1; bh=gDi+K0Hfl3aI8hiPKzXEVmQRpT3lL0dCLr646l0d9cc=; h=Received:Received:Subject:From:To:Date;
+DKIM-Signature: a=rsa-sha256; b=OndSVl9k0Cndxrt6qFbQdJ8Dtk0YIOsQiTqEbQoYKwS6RIEl6HKV0bFg4kCu1caRsjSTuaGe/sjBfsemXL6rBrSPQOIOcxLXQO1EMfIE9TbZ9vCe4cm6tnm3w0g3eUlE11s40OSdBecmLT5c4yfT4gwn1U+jdBmVwn3P5x67JYmglc2Nb0tZMWePi/NeVW8vwPeQIliInL7PX5UdncNk3RGgOpsE0qJy7zZYLawzwHB62Ea/ev1QMSDwZvilY+eH9U8zLzRX6wK5YiXCrDL866/aYKObIMTFUqN0ll1En+z7ZJ/ig5I0dnW+AHTiH9RUy2j4V92dYCPdFymbGjpnBg==; s=purelymail2; d=purelymail.com; v=1; bh=gDi+K0Hfl3aI8hiPKzXEVmQRpT3lL0dCLr646l0d9cc=; h=Feedback-ID:Received:Received:Subject:From:To:Date;
+Feedback-ID: 19882:3702:null:purelymail
+X-Pm-Original-To: linux-input@vger.kernel.org
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -376610946;
+          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+          Mon, 18 May 2026 15:33:47 +0000 (UTC)
+Received: from [10.2.161.35] (unknown [10.2.161.35])
+	by awak.mobi (Postfix) with ESMTPSA id 240A4362E34;
+	Mon, 18 May 2026 17:33:46 +0200 (CEST)
+Message-ID: <866798e9e270aeadf1b91f28a816914ed7abde02.camel@bes.tel>
+Subject: Re: [PATCH] HID: lg-g15: Add support for the Logitech G710/G710+
+ gaming keyboards
+From: Xavier Bestel <xav@bes.tel>
+To: Hans de Goede <hansg@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+ Benjamin Tissoires
+	 <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 18 May 2026 17:33:44 +0200
+In-Reply-To: <3a03ac01-3b82-4ad6-bd35-f91ce738847c@kernel.org>
+References: <20260402075239.3829699-1-xav@bes.tel>
+	 <094db7d8-eb0c-4103-86fb-beb11580d53b@kernel.org>
+	 <3a03ac01-3b82-4ad6-bd35-f91ce738847c@kernel.org>
+Autocrypt: addr=xav@bes.tel; prefer-encrypt=mutual;
+ keydata=mDMEaBuzUBYJKwYBBAHaRw8BAQdAGHVrbf6OLBOo4PjYPoYLSIOV+u8/rKgFlLM4pk+rj
+ eC0G1hhdmllciBCZXN0ZWwgPHhhdkBiZXMudGVsPoiWBBMWCgA+FiEEPYfp8pYhYROehNkEULR9s/
+ 9K9OgFAmgbs1ACGwMFCQWjmoAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQULR9s/9K9OgeJAD
+ /aPp0IPj5ahqo7DGo1Xk8/t7afPAHYMBeV03Fte4f57EBAPKvhRUTyR4+CrPtGERWfoYlxNkp5yKr
+ wwkjUbLon1AG
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-9 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Mon, 18 May 2026 01:49:51 +0530
-Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
+Le vendredi 15 mai 2026 =C3=A0 09:52 +0200, Hans de Goede a =C3=A9crit=C2=
+=A0:
+> Hi,
+>=20
+> On 6-Apr-26 20:50, Hans de Goede wrote:
+> > Hi Xavier,
+> >=20
+> > Thank you for your patch, it is always nice to have people helping
+> > with improving Linux support for devices like this.
+> >=20
+> > On 2-Apr-26 09:52, Xavier Bestel wrote:
+> > > Add support for the Logitech G710 and G710+ (USB ID 046d:c24d) gaming
+> > > keyboards to the hid-lg-g15 driver.
+> > >=20
+> > > These keyboards have 6 G-keys (G1-G6), M-keys (M1-M3, MR), a game mod=
+e
+> > > toggle, and two independent backlights: one for the main keyboard and=
+ one
+> > > for the WASD keys, each with a physical button to cycle brightness th=
+rough
+> > > 5 levels (0-4).
+> > >=20
+> > > Key implementation details:
+> > >=20
+> > > =C2=A0- G-keys and M-keys are reported via HID input report 0x03 (4 b=
+ytes)
+> > > =C2=A0=C2=A0 using KEY_MACRO1-6, KEY_MACRO_PRESET1-3 and KEY_MACRO_RE=
+CORD_START.
+> > >=20
+> > > =C2=A0- The WASD backlight LED is registered as
+> > > =C2=A0=C2=A0 "g15::kbd_zoned_backlight-wasd" rather than with a
+> > > =C2=A0=C2=A0 "::kbd_backlight" suffix, because UPower currently only =
+supports a
+> > > =C2=A0=C2=A0 single kbd_backlight LED per device. This follows the no=
+menclature
+> > > =C2=A0=C2=A0 from Documentation/leds/leds-class.rst
+> >=20
+> > Actually that nomenclature is something which was suggested in the past
+> > but has never been agreed upon.
+> >=20
+> > Since the discussion about how to name the LED class devices for
+> > multi-zone keyboard backlights keeps coming up I've submitted a patch
+> > now to document how these should be named:
+> >=20
+> > https://lore.kernel.org/linux-leds/20260406174638.320135-1-johannes.goe=
+de@oss.qualcomm.com/
+> >=20
+> > Since the new userspace API for this needs to be agreed upon first, tha=
+t
+> > patch should be accepted upstream first, before we can move forward wit=
+h
+> > the G710 support from this patch.
+>=20
+> My v2 patch with the LED naming scheme has been accepted into the
+> leds maintainer git tree now, so this is no longer a blocker for this
+> patch:
+>=20
+> https://lore.kernel.org/linux-leds/20260504145434.12746-1-johannes.goede@=
+oss.qualcomm.com/
+>=20
 
-> On Thu, May 14, 2026 at 02:47:52AM +0000, Zhang, Lixu wrote:
-> > Tested-by: Zhang Lixu <lixu.zhang@intel.com>  
-> 
-> Hi Zhang,
-> 
-> Thanks for the testing and validaiton.
-> I hope you validated the complete series, including the unbind flow for the
-> drivers using devm API.
-> 
-> Hi Jonathan,
-> 
-> How should we take this series forward? should I extend the series to
-> cover remaining HID IIO drivers for this devm API, or this series can
-> applied to IIO tree first and sent followup patches on top of that?
+Ok, I'm sending a new version of the patch.
 
-There is just enough minor feedback on various patches that it needs
-a v4 I think, or response to those bits of review feedback to argue
-against the requested changes.  
+Thanks,
 
-I'd like to see the new API applied everywhere unless there is a reason
-it's not suitable.  Key aim being that the last patch should remove
-the now unused non devm functions or maybe make them private if
-they are still useful from a code structure point of view.
-
-We may be waiting on testing though for some of them so make sure
-it is clear what Zhang has tested (obviously not the stuff you haven't
-sent yet :)
-
-Jonathan
-
-
-
-
-> 
-> Thanks, Sanjay
-> 
-> >   
-> > >-----Original Message-----
-> > >From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > >Sent: Saturday, May 9, 2026 6:11 PM
-> > >To: jikos@kernel.org; jic23@kernel.org; srinivas.pandruvada@linux.intel.com
-> > >Cc: Lechner, David <dlechner@baylibre.com>; nuno.sa@analog.com;
-> > >andy@kernel.org; sanjayembeddedse@gmail.com;
-> > >sakari.ailus@linux.intel.com; linux-input@vger.kernel.org; linux-
-> > >iio@vger.kernel.org; linux-kernel@vger.kernel.org
-> > >Subject: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup and
-> > >cleanup
-> > >
-> > >From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > >
-> > >Key highlights:
-> > >- Prepare change as pre-requisite for devm conversion for HID IIO
-> > >  drivers by removing redundant argument
-> > >- Add devm API to setup trigger and clenaup resource using
-> > >  devm_add_action_or_reset()
-> > >- few cleanup and prepratory changes before updating driver for devm_
-> > >- few sample driver update using devm conversion to auto release resource
-> > >
-> > >changes in v3:
-> > >- Added cleanup and prepratory changes before adding devm_ API
-> > >  conversion based on self review: 0002, 0004, 0006, 0007 and 0008
-> > >- Address andy's review comment on commit message and coding style
-> > >- v2 series -> https://lore.kernel.org/all/20260429175918.2541914-1-
-> > >sanjayembedded@gmail.com/
-> > >changes in v2:
-> > >- Following input from Jonathan and Andy, squash initial patch v1
-> > >  series in single change as individual change should not break anything
-> > >- Add devm API support and two driver using the same
-> > >- v1 series -> https://lore.kernel.org/all/20260428071613.1134053-1-
-> > >sanjayembedded@gmail.com/
-> > >
-> > >Testing:
-> > >  - Compiled with W=1
-> > >  - Build-tested on QEMU x86_64
-> > >
-> > >Based on further feedback and reviews, I would extend this series to convert all
-> > >HID IIO driver to use devm_* API.
-> > >
-> > >Thanks,
-> > >Sanjay Chitroda
-> > >
-> > >
-> > >Sanjay Chitroda (9):
-> > >  iio: hid-sensors: drop redundant iio_dev argument
-> > >  iio: hid-sensors: cleanup codestyle warning
-> > >  iio: hid-sensors: introduce device managed API
-> > >  iio: gyro: hid-sensor-gyro-3d: cleanup codestyle warning
-> > >  iio: gyro: hid-sensor-gyro-3d: drop hid_sensor_remove_trigger() using
-> > >    devm API
-> > >  iio: humidity: hid-sensor-humidity: cleanup codestyle check
-> > >  iio: humidity: hid-sensor-humidity: use common device for devres
-> > >  iio: humidity: hid-sensor-humidity: use local struct device
-> > >  iio: humidity: hid-sensor-humidity: drop hid_sensor_remove_trigger()
-> > >    using devm API
-> > >
-> > > drivers/iio/accel/hid-sensor-accel-3d.c       |  4 +-
-> > > .../common/hid-sensors/hid-sensor-trigger.c   | 24 +++++++-
-> > > .../common/hid-sensors/hid-sensor-trigger.h   |  5 +-
-> > > drivers/iio/gyro/hid-sensor-gyro-3d.c         | 16 ++---
-> > > drivers/iio/humidity/hid-sensor-humidity.c    | 61 +++++++++----------
-> > > drivers/iio/light/hid-sensor-als.c            |  4 +-
-> > > drivers/iio/light/hid-sensor-prox.c           |  4 +-
-> > > drivers/iio/magnetometer/hid-sensor-magn-3d.c |  4 +-
-> > >drivers/iio/orientation/hid-sensor-incl-3d.c  |  4 +-  drivers/iio/orientation/hid-
-> > >sensor-rotation.c |  4 +-  .../position/hid-sensor-custom-intel-hinge.c  |  4 +-
-> > > drivers/iio/pressure/hid-sensor-press.c       |  4 +-
-> > > .../iio/temperature/hid-sensor-temperature.c  |  4 +-
-> > > 13 files changed, 78 insertions(+), 64 deletions(-)
-> > >
-> > >
-> > >base-commit: 39b80c5c9830d12d2d6531059001301c4265322a
-> > >--
-> > >2.34.1
-> > >  
-> >   
-> 
-
+    Xavier

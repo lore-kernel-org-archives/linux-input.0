@@ -1,177 +1,189 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5546E332913
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 23:30:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A99D199EAD
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 23:56:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779147000; cv=none; b=GNNUksGPReFfiJO374ZYjx8levdqIcL5LEL3NuPuInq1ejBOSdHJfoEc/lZtEb8WcXciOk4FFfWT04uJszNANqUMAGeriHSMyEtaA3rK9Qcu5dGQ36h4qW8PZR4zwTgKeIejLA4Yx9xxMAyHIiwT/36fKpaD4uxU1VeQsbuGCXE=
+	t=1779148564; cv=none; b=jaUMSyICaxgkNU522/VESDFTHB47DGoun3lS7QgElR6QRZIURsT8ViwGSwIeLuTcF2+vFlGE2UnMCicmCS2pjs62V2pqaPVuGEE+DPwz0IIm+sqCIsu2aLfS2e/1BGH2YkQvyfM0KF/ymqDTq4NTFZ9D9N86Z35vwrqAyGFYpJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779147000; c=relaxed/simple;
-	bh=54TQNJEMX0ptLOTRvWRstOIkCrxr5T9yETrnjTAcElU=;
+	s=arc-20240116; t=1779148564; c=relaxed/simple;
+	bh=aTpXjJOXPjXj2yLBpQmAPp2xAH0F3qCWgIB8ObbK5Ws=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=f5MPqKT+SaAIHgRflIaB3HcSyBWVRNhFZGDcNh+YnyZea+VzfwMjUG7NrCqooCJyf7Qf4r1JzpR0/uP9ETL6vsleuvlxnljvWXyopNLUiL4DSXuChXtzDZm8y/8VFJNjKlL+83YwAAwSsMXwwvJcTvrDgOMx9vq2q9m+fSYIArA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V1OCjWwt; arc=none smtp.client-ip=10.30.226.201
+	 Message-Id; b=mPGgsrp54n5g+vy43EkTEOaCrLNjapExS3hONVcmwzOVWacjth2sPb5xd/xaz0zgRccScR05uj8UObHl8RCDC9jcpkmXE/iwZTkzt4vyTxqJ5bitRbXNMSgZsi2H74tpnVWvDfIIeQ2CcEDyDIAa5VwwXdO5KSAdUmk6SlaVFx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KawZPAiB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1OCjWwt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69F8C2BCC7;
-	Mon, 18 May 2026 23:29:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KawZPAiB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC3E9C2BCB7;
+	Mon, 18 May 2026 23:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779147000;
-	bh=54TQNJEMX0ptLOTRvWRstOIkCrxr5T9yETrnjTAcElU=;
+	s=k20201202; t=1779148564;
+	bh=aTpXjJOXPjXj2yLBpQmAPp2xAH0F3qCWgIB8ObbK5Ws=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
-	b=V1OCjWwtERRtyUoZwGCz4J9rSo1Mz/2sNmplyEyt7yt1yqjOh1m9phmKTBLy3R7q6
-	 gYu88HGDINXetMHt8uYXZo5Z2LdJjtnkUUefxkLEiMsvmqnwP8SKbDgql1C4CLyPjk
-	 DLhG4D7LA67fj+Shz7NydeKTSwyPBLSljgBdR3mAI/1VW2a40ZNIWt1uziHBB40y7x
-	 PJh265v4Raylebpr6vQlr7VAn0N1QqQIubalRJqjld1w5uekxC/xbCR4FwCQG42L/x
-	 ip40SudjypkyLWEGlgJhF/+TAmgvgiYizz1WHGUwb6Q8vZ+HHHWwRM7ZM2gp2xQ3L3
-	 DvacIReKhk9rA==
+	b=KawZPAiBjcPmmyYiKqn36nBACV56dhDyGHIbke+eqszgraGRphBrp/L8QgRNlDPar
+	 +x+F+7cLNl83tOytHm1aLIPSVv048FETZiVNF/dTOIDPgT45xBbqzn5meitskTVUo5
+	 loJK+AM5iSYfA8MtT3a3vpXsPBLNPtS4vJ+Gsvubp6X06dlooyGlf9/Gao2hWnoE85
+	 Bx74BiAdFpX8eLN30Z2+GHZVCiRxcUJsJeDOjVBM9/dR1mACeT7gNbw2uU0n5EDKn8
+	 4TD2IfN4le3LUMRAD+PTJCpeU4fE+OKxlPUnWaocpEukLinsMQjRXtJRwJZ1eaRlWR
+	 V5F8DRKGsvKNw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/4] HID: hid-msi: Add M-key mapping attributes
+Subject: Re: [PATCH v6 3/4] HID: hid-msi: Add RGB control interface
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260518222935.1802071-3-derekjohn.clark@gmail.com>
-References: <20260518222935.1802071-3-derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260518222935.1802071-4-derekjohn.clark@gmail.com>
+References: <20260518222935.1802071-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 18 May 2026 23:29:59 +0000
-Message-Id: <20260518232959.D69F8C2BCC7@smtp.kernel.org>
+Date: Mon, 18 May 2026 23:56:03 +0000
+Message-Id: <20260518235603.DC3E9C2BCB7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Data race and state desynchronization in `profile_pending` allows =
-delayed ACKs to corrupt profile data.
-- [High] Race window in `claw_hw_output_report()` causes spurious command t=
-imeouts.
-- [High] Use-After-Free during module teardown due to incorrect delayed wor=
-k cancellation order.
+- [Critical] Use-After-Free and NULL pointer dereference risks during RGB i=
+nterface teardown.
+- [High] Use-After-Free due to incorrect workqueue cancellation order.
+- [Medium] Lifecycle mismatch of sysfs groups causes kernfs warnings on dev=
+ice removal.
+- [Medium] Gamepad initialization is fully disabled if the RGB configuratio=
+n read fails.
 --
 
-commit d45c51fc226fdd946c2d70a93c254be199300dc7
+commit 1d7a0aec4b983c2c64bceb50fe253ae0e8e94c94
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
-Subject: HID: hid-msi: Add M-key mapping attributes
+HID: hid-msi: Add RGB control interface
 
-This commit introduces M-key mapping attributes for the MSI Claw device.
-It adds the ability to read and write profile mappings for two back buttons
-(M1 and M2) via sysfs, using custom HID commands to communicate with the
-hardware.
+This commit adds an RGB control interface for MSI Claw devices, parsing
+profile and effect data to mirror the RGB effects available in Windows.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index c79eb0bfeb776..e58d35dba5b40 100644
+> index e58d35dba5b40..4d267b896da72 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
 
 [ ... ]
 
->  struct claw_drvdata {
->  	/* MCU General Variables */
-> +	enum claw_profile_ack_pending profile_pending;
->  	struct completion send_cmd_complete;
->  	struct delayed_work cfg_resume;
->  	struct delayed_work cfg_setup;
+> @@ -846,16 +1372,44 @@ static void cfg_setup_fn(struct work_struct *work)
+>  		return;
+>  	}
+> =20
+> -	/* Add sysfs attributes after we get the device state */
+> -	ret =3D devm_device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr_g=
+roup);
+> +	ret =3D claw_read_rgb_config(drvdata->hdev);
+>  	if (ret) {
+>  		dev_err(&drvdata->hdev->dev,
+> -			"Failed to setup device, can't create gamepad attrs: %d\n", ret);
+> +			"Failed to setup device, can't read RGB config: %d\n", ret);
+>  		return;
+>  	}
 
-This problem wasn't introduced by this patch, but does the cancellation ord=
-er
-of these delayed works cause a use-after-free regression during module
-teardown?
+If claw_read_rgb_config() fails, it returns early and skips registering the=
+=20
+gamepad attributes. Should core gamepad functionality (like button mapping)
+break if the cosmetic RGB feature fails to initialize?
 
-In cfg_resume_fn(), cfg_setup is unconditionally queued via
-schedule_delayed_work(). During module removal, if
-cancel_delayed_work_sync(&drvdata->cfg_setup) is executed before
-cancel_delayed_work_sync(&drvdata->cfg_resume), and cfg_resume_fn is
-actively executing:
-
-The first cancellation would return immediately because cfg_setup is not
-yet pending. cfg_resume_fn would then queue cfg_setup. The second
-cancellation would wait for cfg_resume_fn to finish.
-
-Once the removal completes and drvdata is freed by devres, could the
-newly queued cfg_setup fire 500ms later and dereference the freed
-drvdata pointer?
-
-[ ... ]
-
-> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
-command_report *cmd_rep)
-> +{
-> +	u8 *codes;
-> +	int i;
+> -	drvdata->gamepad_registered =3D true;
 > +
-> +	switch (drvdata->profile_pending) {
-> +	case CLAW_M1_PENDING:
-> +	case CLAW_M2_PENDING:
-> +		codes =3D (drvdata->profile_pending =3D=3D CLAW_M1_PENDING) ?
-> +			drvdata->m1_codes : drvdata->m2_codes;
-> +		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
-> +			codes[i] =3D (cmd_rep->data[6 + i]);
-> +		break;
-> +	default:
-> +		dev_dbg(&drvdata->hdev->dev,
-> +			"Got profile event without changes pending from command: %x\n",
-> +			cmd_rep->cmd);
-> +		return -EINVAL;
+> +	/* Add sysfs attributes after we get the device state */
+> +	if (!drvdata->gamepad_registered) {
+> +		ret =3D devm_device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr_=
+group);
+> +		if (ret) {
+> +			dev_err(&drvdata->hdev->dev,
+> +				"Failed to setup device, can't create gamepad attrs: %d\n", ret);
+> +			return;
+> +		}
+> +		drvdata->gamepad_registered =3D true;
 > +	}
-> +	drvdata->profile_pending =3D CLAW_NO_PENDING;
 > +
-> +	return 0;
-> +}
+> +	/* Add and enable RGB interface once we have the device state */
+> +	if (!drvdata->rgb_registered) {
+> +		ret =3D devm_led_classdev_multicolor_register(&drvdata->hdev->dev, &dr=
+vdata->led_mc);
+> +		if (ret) {
+> +			dev_err(&drvdata->hdev->dev,
+> +				"Failed to setup device, can't create led device: %d\n", ret);
+> +			return;
+> +		}
+> +
+> +		ret =3D devm_device_add_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_=
+attr_group);
 
-Is there a data race and potential state desynchronization with
-profile_pending here?
+Will this trigger a kernfs warning on device removal?=20
 
-drvdata->profile_pending is written under profile_mutex in process context
-in claw_buttons_show(), but it is read and cleared locklessly here in the
-atomic HID event handler.
+The LED class device is unregistered via devres first, which calls=20
+device_del() and implicitly removes all sysfs entries. This makes the=20
+subsequent devres removal of claw_rgb_attr_group fail to find the directory=
+,=20
+triggering a "can not remove '...', no directory" warning.
 
-If a request (like an M1 read) times out, profile_pending is cleared by the
-sysfs thread. If a subsequent request then sets profile_pending to
-CLAW_M2_PENDING, could a concurrently arriving delayed ACK for the original
-M1 read cause this lockless handler to mistakenly parse the M1 payload into
-drvdata->m2_codes?
+Would it be safer to assign this group to drvdata->led_mc.led_cdev.groups
+before registration instead of using devm_device_add_group()?
 
-This would reset profile_pending and prematurely wake the waiting thread,
-corrupting the profile data.
+> +		if (ret) {
+> +			dev_err(&drvdata->hdev->dev,
+> +				"Failed to setup device, can't create led attributes: %d\n", ret);
+> +			return;
+> +		}
+> +		drvdata->rgb_registered =3D true;
+> +	}
+> =20
+>  	kobject_uevent(&drvdata->hdev->dev.kobj, KOBJ_CHANGE);
+> +	kobject_uevent(&drvdata->led_mc.led_cdev.dev->kobj, KOBJ_CHANGE);
+>  }
 
 [ ... ]
 
-> +static int claw_buttons_store(struct device *dev, const char *buf, u8 mk=
-ey_idx)
-> +{
+> @@ -979,10 +1553,14 @@ static void claw_remove(struct hid_device *hdev)
+>  		return;
+>  	}
+> =20
+> +	/* Block writes to brightness/multi_intensity during teardown */
+> +	drvdata->led_mc.led_cdev.brightness_set =3D NULL;
 
-[ ... ]
+Can this race with __led_set_brightness() in the LED subsystem? If the LED=
+=20
+core checks the brightness_set pointer and finds it valid, but gets preempt=
+ed
+while this runs without locking, could it then jump to a NULL pointer?
 
-> +set_buttons:
-> +	scoped_guard(mutex, &drvdata->rom_mutex) {
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
-TA,
-> +					    data, len, 25);
+>  	cancel_delayed_work_sync(&drvdata->cfg_setup);
+>  	cancel_delayed_work_sync(&drvdata->cfg_resume);
 
-This problem wasn't introduced by this patch, but is there a race window in
-claw_hw_output_report() that could cause spurious command timeouts?
+Since cfg_resume_fn() schedules cfg_setup, is it possible for cfg_setup to=
+=20
+be re-armed here?=20
 
-Looking at claw_hw_output_report(), drvdata->waiting_for_ack is set to
-true inside a cmd_lock critical section. Immediately after releasing the
-spinlock, it calls reinit_completion(&drvdata->send_cmd_complete).
+If cfg_resume is currently running, cancelling cfg_setup first does nothing=
+,=20
+and then cfg_resume will queue cfg_setup again before completing. This coul=
+d=20
+leave cfg_setup pending after the driver data is freed.
 
-If the hardware responds exceptionally quickly, or if a delayed ACK from a
-previous timed-out command arrives in the small window between the spinlock
-release and the reinit_completion() call:
+> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
+> =20
+>  	drvdata->gamepad_registered =3D false;
+> +	drvdata->rgb_enabled =3D false;
+> =20
+>  	hid_hw_close(hdev);
+>  }
 
-Could the interrupt handler clear waiting_for_ack and call complete(),
-only for the main thread to immediately erase the completion event with
-reinit_completion()?
+Because drvdata->rgb_registered remains true here, and the RGB sysfs=20
+attributes are devres-managed (meaning they persist until after claw_remove
+returns), could a concurrent userspace write pass the rgb_registered check=
+=20
+and call mod_delayed_work()?=20
 
-This would cause wait_for_completion_interruptible_timeout() to block and
-incorrectly return -ETIMEDOUT to userspace.
-
-Should reinit_completion() be called before setting waiting_for_ack?
+This would re-arm rgb_queue after it was cancelled, leading to a=20
+use-after-free when drvdata is eventually freed. Should=20
+drvdata->rgb_registered =3D false be set before cancelling the workqueue?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518222935.1802=
-071-1-derekjohn.clark@gmail.com?part=3D2
+071-1-derekjohn.clark@gmail.com?part=3D3

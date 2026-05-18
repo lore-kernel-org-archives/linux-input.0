@@ -1,121 +1,117 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 831F1376BC2
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 04:21:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E655D382296
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 04:34:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779078066; cv=none; b=OrDcnbIeyLoJwEguteFV0OLw6Uxxe6ywvnHM4Oh6Jz0KZ6SsdB3t3K4yZDmTe2Z6D4cQHF1pOrc954cSQCtqp6pUX7ALJrcJcwVhSb9hZfwSmqotZHtQa4asqSppMnu9EuU90XNalNZlC8Fau2SEzFMYR2Z7A7goG7uMxwY38LQ=
+	t=1779078851; cv=none; b=IoRUwWeM+LIcOK1M8tx+etJTVAQWQpWK2gLGMf6Is9eVJq41pSy9xVdiIJxnN+nZYwL6uE22bI3OcrUUNSly4Fx87MW2a8fbHkK3LwpyMQ0wluXdWwOYG+LJBwhJFMnJGUBXK2iBaKRxvs3sEjF6l88oTIE/9vKmCjYHJY6yGfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779078066; c=relaxed/simple;
-	bh=pGACRVAdenIM9RlN9qinva2cLK8md4MphALVdQc8S0c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=U3e43FqJcU4iW6goX6yAUGzbgzIfiWlh/soD5BpmA+U7FZDEOOJd3lDmYC9+5gM0EhgHyxtMaOnhcpk/bNXNwOA49qPf+u/AEKJWxZiIPFo0ZwdVCI4WfsvFnqTC3ZeesamOLt6odsVaXsy9wmINmybG0HP6n9098bkFAq267cE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W/04H90W; arc=none smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779078851; c=relaxed/simple;
+	bh=CR+mOzC/oxHVQFk4Oa/lwRewxf5pVdf/+YY91S1D7ic=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FddJfCAyXgh5QRId4Ip2ia+6GxTZOkFs5zLY2SyLT4Cqnw+0jwEjjnkxyTJ6I05EWtSoP1XIj4nwvP67UQdKTlVLGIIw7PURDoxuEv+G/dbGKrjup+zfR8BiG14+WvUHCCf1/hCSUF3Z8lFYvsD+Hq5wkiqra01CqrmjUS08+qg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nxDKefih; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W/04H90W"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2b9e9a6802aso6404925ad.3
-        for <linux-input@vger.kernel.org>; Sun, 17 May 2026 21:21:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779078064; x=1779682864; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=N1NeYPzkew/lg8N5iZf3wRciXirvXJuukKHofoQ/xo4=;
-        b=W/04H90W0nOkHbjbdQyE+7XcDYg6WhinnyGqJNuwr3v191GABbk6TG6Df1mYyxpjSz
-         IkmNcm5uYf5iZMfUAJqgg4QcB4zKUQ4FlvWfzBaFEobGTPPyTDc3ScC39UhI+KX4VhTd
-         20Vu7u5Q97+HfPBbPckOmOfnNSNk2h4jHvZC3ZXFcFZgP6/Bw14q1eFeleSgA/NBjOQ5
-         cXqyL++7fSDuU9b4L8oiYlBRTu/X9BLc3Elxh+roUbn2cKvBTE15J2x/JdQIhvVo2Qud
-         HwFnCQh5JtGZD9qcTAAa0t3CwI7TQWmjuGtNrZgJH0tcPS2FQjeSzF8VtntIsZ2BWYCp
-         FW5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779078064; x=1779682864;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=N1NeYPzkew/lg8N5iZf3wRciXirvXJuukKHofoQ/xo4=;
-        b=ZUDIUmUs4BNdvyaQZ0V43PzmPMQfIQSBKjivr7RpyxT6caHaO2n51MhVBTIAg5d/gl
-         Pz/rq6ql5EMiZcGHktXjFWKOyEChbAXEu7LAe00kRL27rEMxPIOaVdkSCjq67uTvt4Wc
-         6/ZOxlnHvnBu4mK6BalidpY88g/KImhOszElYtqvuPKmmjNwNe+LHkAU3HlhlkvlZyet
-         TwgAkLvggqIsPka9ozpjsTuqElDmwYiKDMxffoXOjaJWS8/fZLIH5K8X7c47kJisekI9
-         LZ5TgiEsWQUfEulTAImRbHf9444/VQi1OMU2ZzVUxoMt1RFjfC0ARyYRQcbCWQG5CM3R
-         BLMw==
-X-Gm-Message-State: AOJu0YyJ2kOjsck40MOfTWB7kZcg2tgc2qtLMAQ/UlE0V6G6zNIwzYh/
-	Q++8HNr9pNs5z58sGCqDGv6bSvMHyIb48yLWFSeZ6QEUwAkg4YTbgpKan0grTXsy
-X-Gm-Gg: Acq92OGtfRZMu4cdogmqFgf38bQwpdcwLwQC+OaKbzGUw0TQCviwE1jzPx/9UO/VcQs
-	8Tv7WYnBsuAkDYqhH6FtJ4vCExbNXMN29HxMpQHBgjSMgpLnnnBMkOJ3TPBgBIq88IJXsSW2U1i
-	mc6qVJOgbX+BK9A6uHfX/ENoH/A4zdfoykwuvaObZe8G1V+oswgqaAgBQt/RNwL+fa1c4ohAID+
-	QsTlVy5tSmV8/urA+C18E04qAhzgcl9dsVzuv1IEQzcfRPUOnyeWEZRHtd/ddTpGPNd8jXKH+Pp
-	mI0NuC7w5MCvKkMlYq3Xwq/ru8xHd8VSLXTNTVeI6v39wNEau0nhw8mankT8Cal5gdcdR4BeTWK
-	ia0LIGkjM7L4YktujJ5TDEjgQMRac1NHr/Spak+36UdVn4Jxul3xnwrlqQboxJg3nWWMW7mDcbj
-	wt6IgocBG5HaW8JkubxlksrmzwhopWR/jmxgo7J1G6w//b9dVQ66ISGoOb/iKDZsHmOnLgVA6E2
-	z6TcnQO4s0ji7sd1fZFtpzE+X7q4zdeJv0=
-X-Received: by 2002:a17:902:c194:b0:2ba:6013:eeaf with SMTP id d9443c01a7336-2bd7e8fbda6mr106088815ad.19.1779078064386;
-        Sun, 17 May 2026 21:21:04 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5bd5fe51sm130747005ad.2.2026.05.17.21.21.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 May 2026 21:21:03 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-kernel@vger.kernel.org (open list:ARM/Mediatek SoC support),
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek SoC support),
-	linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC support)
-Subject: [PATCH] Input: mtk-pmic-keys - use of_device_get_match_data()
-Date: Sun, 17 May 2026 21:20:46 -0700
-Message-ID: <20260518042046.981861-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nxDKefih"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC97EC2BCB7;
+	Mon, 18 May 2026 04:34:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779078850;
+	bh=CR+mOzC/oxHVQFk4Oa/lwRewxf5pVdf/+YY91S1D7ic=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=nxDKefih+5almxFOnFADQVdros+uRVpVOfCvW8WFgELlsVF6BA1WMoFvCmoaoYqjn
+	 LryyuP0td1zQfcDfXVCYs5xBahBHqTjPKnj5fI41TDs1mt1nQ/7+GqPFObw3xJBPRT
+	 bddnlq6qp6rNuzPZoVyis5X6aVq/sYDrMM8aSiGHqV/vUtaDcP5SDCEGZGLRIVPNxZ
+	 A1cMoAB3IvYy+UPf0/PPyAEUwF3gGy/7CZNy6BAkdFQrGdsIwYVr3fB7cWU+oMtsRQ
+	 UsxcUJWgXx9fXgAqct4bV2v9aefVrBJMk/bVjPrCKJlUGA6uFvjn8oKr9zokdq290z
+	 SkZ1ZFgcBt0Sw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: mtk-pmic-keys - use of_device_get_match_data()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rosen Penev" <rosenp@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260518042046.981861-1-rosenp@gmail.com>
+References: <20260518042046.981861-1-rosenp@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 18 May 2026 04:34:09 +0000
+Message-Id: <20260518043409.EC97EC2BCB7@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Use of_device_get_match_data() to fetch the PMIC key register data directly instead of open-coding an of_match_device() lookup.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Missing NULL check for of_device_get_match_data() result leads to =
+NULL pointer dereference.
+- [High] Mismatch between child counting and iteration logic can cause out-=
+of-bounds array accesses.
+--
 
-This also lets the driver drop the of_device.h include.
+commit 0ee3fee49ccf02b7e629f90533e67fc9b40d2b9e
+Author: Rosen Penev <rosenp@gmail.com>
 
-Assisted-by: Codex:GPT-5.5
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- drivers/input/keyboard/mtk-pmic-keys.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+Input: mtk-pmic-keys - use of_device_get_match_data()
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index c78d9f6d97c4..fd684ac16938 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -16,7 +16,6 @@
- #include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6397/registers.h>
- #include <linux/module.h>
--#include <linux/of_device.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
-@@ -333,8 +332,6 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	struct mtk_pmic_keys *keys;
- 	const struct mtk_pmic_regs *mtk_pmic_regs;
- 	struct input_dev *input_dev;
--	const struct of_device_id *of_id =
--		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
- 
- 	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
- 	if (!keys)
-@@ -342,7 +339,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 
- 	keys->dev = &pdev->dev;
- 	keys->regmap = pmic_chip->regmap;
--	mtk_pmic_regs = of_id->data;
-+	mtk_pmic_regs = of_device_get_match_data(&pdev->dev);
- 
- 	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
- 	if (!input_dev) {
--- 
-2.54.0
+This commit simplifies the driver to fetch PMIC key register data directly
+using of_device_get_match_data(). It also removes the unneeded of_device.h
+include.
 
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
+ard/mtk-pmic-keys.c
+> index c78d9f6d97c4f..fd684ac169386 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+[ ... ]
+> @@ -342,7 +339,7 @@ static int mtk_pmic_keys_probe(struct platform_device=
+ *pdev)
+> =20
+>  	keys->dev =3D &pdev->dev;
+>  	keys->regmap =3D pmic_chip->regmap;
+> -	mtk_pmic_regs =3D of_id->data;
+> +	mtk_pmic_regs =3D of_device_get_match_data(&pdev->dev);
+
+While this isn't a new issue introduced by this patch, can mtk_pmic_regs be
+NULL here if the device is bound manually via sysfs without a matching
+device tree node?
+
+If mtk_pmic_regs is NULL, it appears it is unconditionally dereferenced
+later when calling mtk_pmic_keys_lp_reset_setup().
+
+Would it make sense to add a check for !mtk_pmic_regs right after fetching
+the match data?
+
+
+Also, while reviewing this probe function, I noticed another pre-existing
+issue further down:
+
+	keycount =3D of_get_available_child_count(node);
+	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
+	    keycount > ARRAY_SIZE(irqnames)) {
+		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
+		return -EINVAL;
+	}
+
+	for_each_child_of_node_scoped(node, child) {
+		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
+
+Is there a mismatch between the child counting and iteration logic?
+
+The validation check uses of_get_available_child_count(), which ignores
+disabled nodes. But the loop uses for_each_child_of_node_scoped(), which
+iterates over all children, including disabled ones.
+
+If a disabled child node exists in the device tree alongside available ones,
+could the loop execute more times than the initial validation accounted for?
+This might increment the index variable past the allocated array bounds,
+leading to out-of-bounds accesses on irqnames[] and keys->keys[].
+
+Would updating the loop to use for_each_available_child_of_node_scoped()
+prevent this?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518042046.9818=
+61-1-rosenp@gmail.com?part=3D1

@@ -1,62 +1,64 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB023ACF11
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 22:29:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4503AD512
+	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 22:29:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779143381; cv=none; b=SJyb3TDsTlgyP0gYHwYYn7NHac+IWOlyC1XiMEBKb2dU0nUQxclTeXPZ2gTieDKRZVc9gC9FTipMyT5Qucn4m0tUNjZidzQm6asqOqOmPOCp/QIP+QbEN1GftjFmxbz3j7sA/+uYuIihpTLVBIgkYt9uEAi2VXhXtmWussQshjA=
+	t=1779143383; cv=none; b=q+J2kAB08mjtpfKwHi8+LN1Uk/UFVrFt92zGgMD3AwsuNPqhxh7wUuosqKTfySJWUrqJ5lgJORHxEB3d5F9YtE+IAMatULv4nJyjB/U54wyuRGjCoONCHaMG9P7S3Vc+UyNyCxEGjPKkhpZw8QTJttMh3rBzAUn/ANFmJug7Htc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779143381; c=relaxed/simple;
-	bh=JRGL5wZBb3oL+bnWpkoEk/q+HYrwhDzUrlKuFgdfihM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ia+ZqaePMyxbOprTzcf50lp0UqnVkJAOkc6Pd30y8qP+6sMsKDK9BNE7WZAkaghw98igItIa6Z0u1QZPJqFkrzdVlbjzWehQ/Il5F8r6m3veGpZA5J98bXDDjNHMV29D/0iOXq9dmlUBCPC9hHHUaLwm6brBWSeytOILUHkmGD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kokZpiIu; arc=none smtp.client-ip=74.125.82.179
+	s=arc-20240116; t=1779143383; c=relaxed/simple;
+	bh=Lg+/ENPqOLWS2pb0wEpdV7BDDhlMPaf6jH1F+sQXazc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Tbi6x1eG9EYuf7xcrUFNt1QTWO80IFtxXG1IXG3p1cJyoA9JYuJhgKCPjiidDfqTpQImj1iNI7yCLcfBTxaG3xE0rD5De3MgSKWbr2l++UcyHl5JLUxQcY4+mxiVGkkQa0OBochEOsrWL04bHB8pOgisi67iqJc5U1MashlZ4Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rad+M9dm; arc=none smtp.client-ip=74.125.82.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kokZpiIu"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-2f0ad52830cso3446560eec.1
-        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 15:29:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rad+M9dm"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-30246cfd41aso287767eec.1
+        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 15:29:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779143379; x=1779748179; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=mcpgSIiQdf2cAbmXhw2oCtEbUOvcbWqgvHUYe0xVm8M=;
-        b=kokZpiIub/tBlUkujSMehZwuotJE8jzHluyL7/06veA8mfKMDJlgfRv01vteXC6Etj
-         ByiwdbJFDbvaJdmh/3u2SMZoM+zJ1wgUmYMwGD1VxkE956uF1iTBR0zoJomdO+fC3Ct0
-         q19SbI/amgjoO5TQupDa+n6J8K7khkvMbsVVXXEsD6LXSRMJkBn0CUMBeJldR9tc4EWV
-         iC/P6KolRoBMOTUoH0G0DTZKlWWZQ3IPvfs2gYG9Yy9ZU9T1IHeuuNu4wPutpAgqr4RP
-         +EgnQxcGrbxUrxeThD7K9y2325BWhNnv234cXuerzuuAbvx1Bpp29E/r4KibvSxLTY+5
-         8NAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779143379; x=1779748179;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1779143380; x=1779748180; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mcpgSIiQdf2cAbmXhw2oCtEbUOvcbWqgvHUYe0xVm8M=;
-        b=nlQODtUvc7PHJ958JFbkvghJjjf1ffzmhZL5pqIBptQtSfEQBzfwqoqu08hJYg2TVU
-         R9G5rmcZNkGbhwAzPWFmPVbtLyqSKGU7V5QZgdY+GXhOi8uhCYz96ltheoewZCXgsIua
-         DQ6jQ0kLWnShtgPcFY74U630rWM/I7jAtOYcrDEdHqH6LUWTBCMLSM29ERrK+Q4tyVCT
-         ZwGTQ+1Aqn/2loiG80ZDXf9Sqp8iPEY2YNnFo96I4s94c/A6mKAdZ4Z9fElXdpAzOi96
-         SQ2857+cJFG5SNNGkulypw2TodGFpAOyHO4kBCYI50hF1c7Uy6vYCqzNEE/WlJ6dfDFi
-         JXiw==
-X-Forwarded-Encrypted: i=1; AFNElJ8Rk7Ceu/nbXa59o7YYszLcO6Dr6DXw/MxyVwNrnGzSxhPAdLHhrnMBsc7+Dx/XFag3Qq0vh/NK1c4Hbg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvOdQHa/hP9n4LXgMQmQSYC2H5vGFYuq8uUHglxL6lCTzull15
-	IlQrjW/BF9RBjj1yoShaCw7Zxs2j9RexJXfZdaCvhHVS9LbHKcN0N91k
-X-Gm-Gg: Acq92OHrcep6M2aPkixE2GUblYk5SF7ejQ+NjUYSKxt/y6uRF8dwet1GHHfJl33RhR6
-	u/23rqlwrgGMiLyPGnTJTHEVDx3Lb2+gPLEUvlK8sdLQCS7SfgI1b37wtLqRbesMpQNHwFQb6vN
-	TeaHpXWwIt6UJetbPGUM/LWXLZUhXlTgFg75QhY1os7ztY0cNuR445TfNRiVmmcT3FzN1AceXtI
-	nyJoTjzUeWuvAOjr/bVecAsBJDQvp4LnE+9ywm8P2VoOPMDFngFgHnh5+O3bO0OJm9KxPy+EMug
-	4Xy5rJ4QkaldhM5szFlQms2h6/xUVbGbETzOjBu2Qs6ClxhGwcIWq7r0DKvwLWcoWONd+pnEsM4
-	ilqQh7MTjK0zJUUjtIu/oCC7Wu+ItUC9bTHBIG/5GTM3GsvHoByZDuMYO6U6zi65qaKalcz6CcU
-	igDPydIfjnVRKS1PC+ro93CDvCCfjh50n1jenot4eAUIO9f9/J9dSYJeYPsMVoOSBjCJ/Nxt5Ub
-	th8
-X-Received: by 2002:a05:693c:2c8d:b0:2d9:6373:ad0a with SMTP id 5a478bee46e88-3039818738dmr7825863eec.11.1779143379124;
-        Mon, 18 May 2026 15:29:39 -0700 (PDT)
+        bh=TmKP+UrwVP7H1YTe7IFyq0ZDSxoxXaOZ1bAj4suWvRE=;
+        b=rad+M9dmiRPiE/UsPbTlaWyl8R/6rDtZj/1MzMhOzO6oYCTjCV1H5SM/3m9GDcqpfr
+         tRtZCUwSZXwZRpvN9cIUeTjbvVjlOLcMHfLKdx3Pdkty8VUWVJluBLxIvnkg5HkFuAD5
+         P6ratISYd8W6xfZpWXQ66r8yCitP5KbrIdTGw9ng6EJS52XBCIp1uYo//1arvt6KoSBH
+         62ERcWTm4zscyq4OmwXL73JhYe8g92fz/ZDDfpAiqPvQjExwzMCGlJYEgQIJSOsyKX76
+         hqZbggl0NR+BLSD6Ea8YOELCFsHUbv/LJH34DGugvA6isi47SrFv5Jj1oIqZBssdLits
+         5Ujg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779143380; x=1779748180;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=TmKP+UrwVP7H1YTe7IFyq0ZDSxoxXaOZ1bAj4suWvRE=;
+        b=e+2GJJCNJatupLFovhs6jQigcVgdE3DmlQjBJX4dUzu/sUOLeO/jRemv99hyccKOl8
+         fZPrBkC3i1TWi+1XTo6zAdkFnFdjT6wHr0a4YJIWbkaQVYhwFI/zYrkaT+2QD12B3duD
+         oiofGK3fktWY6Ei+L/s81nLOpQNuiLePWwPkdaCHV/oJPtwGHdpPAmGixggTXXvDNe/I
+         M3nVddRCYRmh09z0nIGPsOeHBuGm6ypgXPiHS4jyOThxYOfD+HF7uyFvCl8u2bBNhPM9
+         3xXzVK/gWGW9S8Tq+5Ke3JWdCpc8dlC3zidxejydPMCg3T3Mu87VOhSqAYmXaxp93zsy
+         uZoQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9fXp5xn4x7kzn86XoXsfIh3/tayvD26cePv/06yosY/K81rOS+86SxKNqngaJWGC1EvurlfNectN687g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzU+IRKE+mSsq6bW/Wkm/5aHZPfet59Qn6AAnDEWcgk7F5oHaOD
+	PcEJQ/pCBYuqPf39fhiSRep2KB7ikHPlY9JqZszT0eh2OXIh/oDKu0ZB
+X-Gm-Gg: Acq92OHEtsi6ybmTwq8yBKgN0m+o/JbCvhrWWqyBRC0QUeikfLWrFZYLIYFktU+Ziyx
+	5VUTIhbGMHZoi17hkNVDmD24kvqJbUv+WxPpjgduXEg2Pf7bA3U/MS6YIWcH4klNIa2gNACROl6
+	vq4QDexTILCWIwTnAzWsImmv35wxuqLvARA6cYP7A+Vekg3kZz5lV4uyKHnnfLas3XAsTJpvNkg
+	6UQFKHxNL5GEVv0s6oxPMu/66fayqDu3jVy6NF/nbX8DnV9sj4SJ/kk1h1g+ZE1+qxZLjnJsnYz
+	C6v2l79A8k01fDfJLSM4VrG8ZUBaSxl1evaZC+CAH+EK1ANyD9NQ5L5aa34PlDe/9JArXWQ4QrU
+	y+TTe8LcrXqg3phZW8wWO6gc+Gj1C2+0e/2rTT19FnQ0BGlYXW1xG0OilblfQu9gzEFm/D3SqbK
+	8f0vjEpgxJ2s8iURmDcd5drxyqpmAuGdlwnTXnueBmi/tnzJbizF/YPlm+bTAaHMEhYeZpbZHIJ
+	TFE
+X-Received: by 2002:a05:7300:8621:b0:2c9:1943:e7ff with SMTP id 5a478bee46e88-303982ac6a2mr8216285eec.10.1779143380113;
+        Mon, 18 May 2026 15:29:40 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30296dcc464sm15797095eec.14.2026.05.18.15.29.38
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30296dcc464sm15797095eec.14.2026.05.18.15.29.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 15:29:38 -0700 (PDT)
+        Mon, 18 May 2026 15:29:39 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -67,10 +69,12 @@ Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
 	linux-input@vger.kernel.org,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v6 0/4] Add MSI Claw HID Configuration Driver
-Date: Mon, 18 May 2026 22:29:31 +0000
-Message-ID: <20260518222935.1802071-1-derekjohn.clark@gmail.com>
+Subject: [PATCH v6 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Date: Mon, 18 May 2026 22:29:32 +0000
+Message-ID: <20260518222935.1802071-2-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260518222935.1802071-1-derekjohn.clark@gmail.com>
+References: <20260518222935.1802071-1-derekjohn.clark@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,27 +83,23 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series adds an HID Configuration driver for the MSI Claw line of
-Handheld Gaming PC's. The MSI Claw HID interface provides multiple
-features, such as the ability to switch between xinput, dinput, and a
-desktop mode, RGB control, rumble intensity, and mapping of the rear "M"
-keys. There are additional gamepad modes that are not included in this
-driver as they appear to be used in assembly line testing or are
-incomplete in the firmware. During my testing I found them to be unstable.
+Adds configuration HID driver for the MSI Claw series of handheld PC's.
+In this initial patch add the initial driver outline and attributes for
+changing the gamepad mode, M-key behavior, and add a WO reset function.
 
-The initial version of this driver was written by Denis Benato, which
+Sending the SWITCH_MODE and RESET commands causes a USB disconnect in
+the device. The completion will therefore never get hit and would trigger
+an -EIO. To avoid showing the user an error for every write to these
+attrs a bypass for the completion handling is introduced when timeout ==
+0.
+
+The initial version of this patch was written by Denis Benato, which
 contained the initial reverse-engineering and implementation for the
 gamepad mode switching. This work was later expanded by Zhouwang Huang
-to include more gamepad modes and additional features. Finally, I
-refactored the entire driver, fixed multiple bugs, and refined the overall
-format to conform to kernel driver best practices and style guide.
-
-Claude was used initially by Zhouwang Huang to quickly parse HID captures
-during the reverse-engineering of some of the features. Since Claude had
-already been used, as a test of its capabilities I had it implement the
-rumble intensity attribute after I had already rewritten most of the
-driver, which I then manually edited to fix some mistakes. I also used
-Claude to review the driver and these patches for any mistakes and bugs.
+to include more gamepad modes. Finally, I refactored the drivers data
+in/out flow and overall format to conform to kernel driver best
+practices and style guides. Claude was used as an initial reviewer of
+this patch.
 
 Assisted-by: Claude:claude-sonnet-4-6
 Co-developed-by: Denis Benato <denis.benato@linux.dev>
@@ -115,76 +115,793 @@ v6:
   - add select NEW_LEDS to kconfig.
   - Make all timeouts 25ms to ensure at least 2 jiffies in a 100Hz
     config.
-  - Gate all attribute show/store functions with gamepad_registered or
-    rgb_registered, enabling use of devm_device_add_group and ending
-    the need to hold a mutex during remove.
+  - Gate all attribute show/store functions with gamepad_registered,
+    enabling use of devm_device_add_group.
+  - Re-arm cfg_setup in resume if it was canceled in an early suspend.
   - Don't set gamepad_mode on resume, MCU preserves state.
   - Ensure all count variables are checked for > 0 characters before
     setting buf - 1 to \n.
-  - Re-arm cfg_setup in resume if it was canceled in an early suspend.
-  - Remove duplicated argv_free macro.
-  - Add spinlock_irqsave vice mutex for read/write access on attribute
-    variables.
-v5: https://lore.kernel.org/linux-input/20260517013925.3120314-1-derekjohn.clark@gmail.com/
+v5:
   - Swap disabled & combination mkeys_function enum values.
-  - Fix bug introduced in v5 where claw_buttons_store would return
-    -EINVAL on all valid key entries.
   - Ensure mode_mutex is properly init.
   - Ensure claw_remove is calling hid_hw_close and not hid_hw_stop for
     all paths.
-  - Ensure adding "DISABLED" key to valid entries is done in the correct
-    patch.
-  - Re-enable sending an empty string to clear button mappings in
-    addition to setting DISABLED.
-  - Move adding the RGB device into cfg_setup to prevent led core
-    attributes from being written to prior to setup completing.
-  - Ensure frame_lock is properly init.
-  - Change variable names in RGB functions from frame and zone to f and
-    z respectively to fit all scoped_guard actions in 100 columns.
-v4: https://lore.kernel.org/linux-input/20260516042841.500299-1-derekjohn.clark@gmail.com/
+v4:
   - Add msi_suspend/claw_suspend.
   - Reorder claw_remove to cancel all work before removing sysfs.
   - Add mutex lock for removing sysfs attributes.
   - Add mutex lock for MODE command data read/write.
-  - Change dev_warn to dev_dbg in claw_profile_event.
-  - use __free with DEFINE_FREE macro for argv instead of manually
-    running argv_free, cleaining up scoped_guard goto.
-  - Fix frame_calc validity check to use >=.
-  - Use spinlock instead of mutex in raw_event and related attribute
-    _store function.
-  - Ensure delayed work is canceled in suspend & canceled before sysfs
-    attribute removal.
-v3: https://lore.kernel.org/linux-input/20260515033622.2095277-1-derekjohn.clark@gmail.com/
-  - Add mutex for read/write if rgb frame data.
+v3:
   - Ensure claw_hw_output_report is properly guarded.
-  - Remove setting rgb_frame_count when reading rgb profiles as it always
-    returns garbage data.
-  - Ensure rgb_speed is getting drvdata from a valid lookup (not hdev).
-  - Use scoped_guard where necessary.
   - Reoder claw_probe to ensure all mutex, completion, and variable
     assignments are in place prior to setting drvdata.
   - Ensure gamepad_mode is set to a valid enum value in claw_probe.
-v2: https://lore.kernel.org/linux-input/20260513231445.3213501-1-derekjohn.clark@gmail.com/
-  - Use mutexes to guard SYNC_TO_ROM calls and pending_profile calls.
-  - Rename driver to hid-msi and add generic entrypoints for
-    probe/resume/remove that call claw specific functions in order to
-    future proof the driver for other MSI HID interfaces.
-  - Fix various bugs and formatting issues.
-v1: https://lore.kernel.org/linux-input/20260510043510.442807-1-derekjohn.clark@gmail.com/
-Derek J. Clark (4):
-  HID: hid-msi: Add MSI Claw configuration driver
-  HID: hid-msi: Add M-key mapping attributes
-  HID: hid-msi: Add RGB control interface
-  HID: hid-msi: Add Rumble Intensity Attributes
-
- MAINTAINERS           |    6 +
- drivers/hid/Kconfig   |   13 +
- drivers/hid/Makefile  |    1 +
- drivers/hid/hid-ids.h |    5 +
- drivers/hid/hid-msi.c | 1766 +++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 1791 insertions(+)
+v2:
+  - Rename driver to hid-msi from hid-msi-claw.
+  - Rename reusable/generic functions to msi_* from claw_*, retaining
+    claw specific functions.
+  - Add generic entrypoints for probe, remove, and raw event that route
+    to claw specific functions.
+---
+ MAINTAINERS           |   6 +
+ drivers/hid/Kconfig   |  13 +
+ drivers/hid/Makefile  |   1 +
+ drivers/hid/hid-ids.h |   5 +
+ drivers/hid/hid-msi.c | 675 ++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 700 insertions(+)
  create mode 100644 drivers/hid/hid-msi.c
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6f6517bf4f970..8e2de98b768f7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17965,6 +17965,12 @@ S:	Odd Fixes
+ F:	Documentation/devicetree/bindings/net/ieee802154/mrf24j40.txt
+ F:	drivers/net/ieee802154/mrf24j40.c
+ 
++MSI HID DRIVER
++M:	Derek J. Clark <derekjohn.clark@gmail.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-msi.c
++
+ MSI EC DRIVER
+ M:	Nikita Kravets <teackot@gmail.com>
+ L:	platform-driver-x86@vger.kernel.org
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 10c12d8e65579..7766676051a52 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -492,6 +492,19 @@ config HID_GT683R
+ 	Currently the following devices are know to be supported:
+ 	  - MSI GT683R
+ 
++config HID_MSI
++	tristate "MSI Claw Gamepad Support"
++	depends on USB_HID
++	select NEW_LEDS
++	select LEDS_CLASS
++	select LEDS_CLASS_MULTICOLOR
++	help
++	Support for the MSI Claw RGB and controller configuration
++
++	Say Y here to include configuration interface support for the MSI Claw Line
++	of Handheld Console Controllers. Say M here to compile this driver as a
++	module. The module will be called hid-msi.
++
+ config HID_KEYTOUCH
+ 	tristate "Keytouch HID devices"
+ 	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 07dfdb6a49c59..80925a17b059c 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -92,6 +92,7 @@ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
+ obj-$(CONFIG_HID_MEGAWORLD_FF)	+= hid-megaworld.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
++obj-$(CONFIG_HID_MSI)		+= hid-msi.o
+ obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
+ obj-$(CONFIG_HID_NINTENDO)	+= hid-nintendo.o
+ obj-$(CONFIG_HID_NTI)			+= hid-nti.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 933b7943bdb50..94a9b89dc240a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1047,7 +1047,12 @@
+ #define USB_DEVICE_ID_MOZA_R16_R21_2	0x0010
+ 
+ #define USB_VENDOR_ID_MSI		0x1770
++#define USB_VENDOR_ID_MSI_2		0x0db0
+ #define USB_DEVICE_ID_MSI_GT683R_LED_PANEL 0xff00
++#define USB_DEVICE_ID_MSI_CLAW_XINPUT	0x1901
++#define USB_DEVICE_ID_MSI_CLAW_DINPUT	0x1902
++#define USB_DEVICE_ID_MSI_CLAW_DESKTOP	0x1903
++#define USB_DEVICE_ID_MSI_CLAW_BIOS	0x1904
+ 
+ #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
+ #define USB_DEVICE_ID_N_S_HARMONY	0xc359
+diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+new file mode 100644
+index 0000000000000..c79eb0bfeb776
+--- /dev/null
++++ b/drivers/hid/hid-msi.c
+@@ -0,0 +1,675 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ *  HID driver for MSI Claw Handheld PC gamepads.
++ *
++ *  Provides configuration support for the MSI Claw series of handheld PC
++ *  gamepads. Multiple iterations of the device firmware has led to some
++ *  quirks for how certain attributes are handled. The original firmware
++ *  did not support remapping of the M1 (right) and M2 (left) rear paddles.
++ *  Additionally, the MCU RAM address for writing configuration data has
++ *  changed twice. Checks are done during probe to enumerate these variances.
++ *
++ *  Copyright (c) 2026 Zhouwang Huang <honjow311@gmail.com>
++ *  Copyright (c) 2026 Denis Benato <denis.benato@linux.dev>
++ *  Copyright (c) 2026 Valve Corporation
++ */
++
++#include <linux/array_size.h>
++#include <linux/cleanup.h>
++#include <linux/completion.h>
++#include <linux/container_of.h>
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/kobject.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/pm.h>
++#include <linux/spinlock.h>
++#include <linux/sysfs.h>
++#include <linux/types.h>
++#include <linux/unaligned.h>
++#include <linux/usb.h>
++#include <linux/workqueue.h>
++
++#include "hid-ids.h"
++
++#define CLAW_OUTPUT_REPORT_ID	0x0f
++#define CLAW_INPUT_REPORT_ID	0x10
++
++#define CLAW_PACKET_SIZE	64
++
++#define CLAW_DINPUT_CFG_INTF_IN	0x82
++#define CLAW_XINPUT_CFG_INTF_IN	0x83
++
++enum claw_command_index {
++	CLAW_COMMAND_TYPE_READ_PROFILE =		0x04,
++	CLAW_COMMAND_TYPE_READ_PROFILE_ACK =		0x05,
++	CLAW_COMMAND_TYPE_ACK =				0x06,
++	CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA =		0x21,
++	CLAW_COMMAND_TYPE_SYNC_TO_ROM =			0x22,
++	CLAW_COMMAND_TYPE_SWITCH_MODE =			0x24,
++	CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE =		0x26,
++	CLAW_COMMAND_TYPE_GAMEPAD_MODE_ACK =		0x27,
++	CLAW_COMMAND_TYPE_RESET_DEVICE =		0x28,
++};
++
++enum claw_gamepad_mode_index {
++	CLAW_GAMEPAD_MODE_XINPUT =	0x01,
++	CLAW_GAMEPAD_MODE_DINPUT =	0x02,
++	CLAW_GAMEPAD_MODE_DESKTOP =	0x04,
++};
++
++static const char * const claw_gamepad_mode_text[] = {
++	[CLAW_GAMEPAD_MODE_XINPUT] =	"xinput",
++	[CLAW_GAMEPAD_MODE_DINPUT] =	"dinput",
++	[CLAW_GAMEPAD_MODE_DESKTOP] =	"desktop",
++};
++
++enum claw_mkeys_function_index {
++	CLAW_MKEY_FUNCTION_MACRO,
++	CLAW_MKEY_FUNCTION_DISABLED,
++	CLAW_MKEY_FUNCTION_COMBO,
++};
++
++static const char * const claw_mkeys_function_text[] = {
++	[CLAW_MKEY_FUNCTION_MACRO] =	"macro",
++	[CLAW_MKEY_FUNCTION_DISABLED] =	"disabled",
++	[CLAW_MKEY_FUNCTION_COMBO] =	"combination",
++};
++
++struct claw_command_report {
++	u8 report_id;
++	u8 padding[2];
++	u8 header_tail;
++	u8 cmd;
++	u8 data[59];
++} __packed;
++
++struct claw_drvdata {
++	/* MCU General Variables */
++	struct completion send_cmd_complete;
++	struct delayed_work cfg_resume;
++	struct delayed_work cfg_setup;
++	struct hid_device *hdev;
++	struct mutex cfg_mutex; /* mutex for synchronous data */
++	bool waiting_for_ack;
++	spinlock_t cmd_lock; /* Lock for cmd data read/write */
++	u8 waiting_cmd;
++	int cmd_status;
++	u8 ep;
++
++	/* Gamepad Variables */
++	enum claw_mkeys_function_index mkeys_function;
++	enum claw_gamepad_mode_index gamepad_mode;
++	bool gamepad_registered;
++	spinlock_t mode_lock; /* Lock for mode data read/write */
++};
++
++static int get_endpoint_address(struct hid_device *hdev)
++{
++	struct usb_host_endpoint *ep;
++	struct usb_interface *intf;
++
++	intf = to_usb_interface(hdev->dev.parent);
++	ep = intf->cur_altsetting->endpoint;
++	if (ep)
++		return ep->desc.bEndpointAddress;
++
++	return -ENODEV;
++}
++
++static int claw_gamepad_mode_event(struct claw_drvdata *drvdata,
++				   struct claw_command_report *cmd_rep)
++{
++	if (cmd_rep->data[0] >= ARRAY_SIZE(claw_gamepad_mode_text) ||
++	    !claw_gamepad_mode_text[cmd_rep->data[0]] ||
++	    cmd_rep->data[1] >= ARRAY_SIZE(claw_mkeys_function_text))
++		return -EINVAL;
++
++	scoped_guard(spinlock_irqsave, &drvdata->mode_lock) {
++		drvdata->gamepad_mode = cmd_rep->data[0];
++		drvdata->mkeys_function = cmd_rep->data[1];
++	}
++
++	return 0;
++}
++
++static int claw_raw_event(struct claw_drvdata *drvdata, struct hid_report *report,
++			  u8 *data, int size)
++{
++	struct claw_command_report *cmd_rep;
++	int ret = 0;
++
++	if (size != CLAW_PACKET_SIZE)
++		return 0;
++
++	cmd_rep = (struct claw_command_report *)data;
++
++	if (cmd_rep->report_id != CLAW_INPUT_REPORT_ID || cmd_rep->header_tail != 0x3c)
++		return 0;
++
++	dev_dbg(&drvdata->hdev->dev, "Rx data as raw input report: [%*ph]\n",
++		CLAW_PACKET_SIZE, data);
++
++	switch (cmd_rep->cmd) {
++	case CLAW_COMMAND_TYPE_GAMEPAD_MODE_ACK:
++		ret = claw_gamepad_mode_event(drvdata, cmd_rep);
++
++		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
++			if (drvdata->waiting_for_ack &&
++			    drvdata->waiting_cmd == CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE) {
++				drvdata->cmd_status = ret;
++				drvdata->waiting_for_ack = false;
++				complete(&drvdata->send_cmd_complete);
++			}
++		}
++
++		break;
++	case CLAW_COMMAND_TYPE_ACK:
++		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
++			if (drvdata->waiting_for_ack) {
++				drvdata->cmd_status = 0;
++				drvdata->waiting_for_ack = false;
++				complete(&drvdata->send_cmd_complete);
++			}
++			dev_dbg(&drvdata->hdev->dev, "Waiting CMD: %x\n", drvdata->waiting_cmd);
++		}
++
++		break;
++	default:
++		dev_dbg(&drvdata->hdev->dev, "Unknown command: %x\n", cmd_rep->cmd);
++		return 0;
++	}
++
++	return ret;
++}
++
++static int msi_raw_event(struct hid_device *hdev, struct hid_report *report,
++			 u8 *data, int size)
++{
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (!drvdata || (drvdata->ep != CLAW_XINPUT_CFG_INTF_IN &&
++			 drvdata->ep != CLAW_DINPUT_CFG_INTF_IN))
++		return 0;
++
++	return claw_raw_event(drvdata, report, data, size);
++}
++
++static int claw_hw_output_report(struct hid_device *hdev, u8 index, u8 *data,
++				 size_t len, unsigned int timeout)
++{
++	unsigned char *dmabuf __free(kfree) = NULL;
++	u8 header[] = { CLAW_OUTPUT_REPORT_ID, 0, 0, 0x3c, index };
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	size_t header_size = ARRAY_SIZE(header);
++	int ret;
++
++	if (header_size + len > CLAW_PACKET_SIZE)
++		return -EINVAL;
++
++	/* We can't use a devm_alloc reusable buffer without side effects during suspend */
++	dmabuf = kzalloc(CLAW_PACKET_SIZE, GFP_KERNEL);
++	if (!dmabuf)
++		return -ENOMEM;
++
++	memcpy(dmabuf, header, header_size);
++	if (data && len)
++		memcpy(dmabuf + header_size, data, len);
++
++	guard(mutex)(&drvdata->cfg_mutex);
++	if (timeout) {
++		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
++			drvdata->waiting_cmd = index;
++			drvdata->waiting_for_ack = true;
++			drvdata->cmd_status = -ETIMEDOUT;
++		}
++		reinit_completion(&drvdata->send_cmd_complete);
++	}
++
++	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
++		CLAW_PACKET_SIZE, dmabuf);
++
++	ret = hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
++	if (ret < 0)
++		return ret;
++
++	ret = ret == CLAW_PACKET_SIZE ? 0 : -EIO;
++	if (ret)
++		return ret;
++
++	if (timeout) {
++		ret = wait_for_completion_interruptible_timeout(&drvdata->send_cmd_complete,
++								msecs_to_jiffies(timeout));
++
++		dev_dbg(&hdev->dev, "Remaining timeout: %u\n", ret);
++		ret = ret > 0 ? drvdata->cmd_status : ret ?: -EBUSY;
++		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock)
++			drvdata->waiting_for_ack = false;
++	}
++
++	return ret;
++}
++
++static ssize_t gamepad_mode_store(struct device *dev, struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	int i, ret = -EINVAL;
++	u8 data[2];
++
++	if (!drvdata->gamepad_registered)
++		return -ENODEV;
++
++	for (i = 0; i < ARRAY_SIZE(claw_gamepad_mode_text); i++) {
++		if (claw_gamepad_mode_text[i] && sysfs_streq(buf, claw_gamepad_mode_text[i])) {
++			ret = i;
++			break;
++		}
++	}
++	if (ret < 0)
++		return ret;
++
++	data[0] = ret;
++	scoped_guard(spinlock_irqsave, &drvdata->mode_lock)
++		data[1] = drvdata->mkeys_function;
++
++	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SWITCH_MODE, data, ARRAY_SIZE(data), 0);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t gamepad_mode_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	int ret, i;
++
++	if (drvdata->gamepad_registered)
++		return -ENODEV;
++
++	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE, NULL, 0, 25);
++	if (ret)
++		return ret;
++
++	scoped_guard(spinlock_irqsave, &drvdata->mode_lock)
++		i = drvdata->gamepad_mode;
++
++	if (!claw_gamepad_mode_text[i] || claw_gamepad_mode_text[i][0] == '\0')
++		return sysfs_emit(buf, "unsupported\n");
++
++	return sysfs_emit(buf, "%s\n", claw_gamepad_mode_text[i]);
++}
++static DEVICE_ATTR_RW(gamepad_mode);
++
++static ssize_t gamepad_mode_index_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	ssize_t count = 0;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(claw_gamepad_mode_text); i++) {
++		if (!claw_gamepad_mode_text[i] || claw_gamepad_mode_text[i][0] == '\0')
++			continue;
++		count += sysfs_emit_at(buf, count, "%s ", claw_gamepad_mode_text[i]);
++	}
++
++	if (count)
++		buf[count - 1] = '\n';
++
++	return count;
++}
++static DEVICE_ATTR_RO(gamepad_mode_index);
++
++static ssize_t mkeys_function_store(struct device *dev, struct device_attribute *attr,
++				    const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	int i, ret = -EINVAL;
++	u8 data[2];
++
++	if (!drvdata->gamepad_registered)
++		return -ENODEV;
++
++	for (i = 0; i < ARRAY_SIZE(claw_mkeys_function_text); i++) {
++		if (claw_mkeys_function_text[i] && sysfs_streq(buf, claw_mkeys_function_text[i])) {
++			ret = i;
++			break;
++		}
++	}
++	if (ret < 0)
++		return ret;
++
++	scoped_guard(spinlock_irqsave, &drvdata->mode_lock)
++		data[0] = drvdata->gamepad_mode;
++	data[1] = ret;
++
++	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SWITCH_MODE, data, ARRAY_SIZE(data), 0);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t mkeys_function_show(struct device *dev, struct device_attribute *attr,
++				   char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	int ret, i;
++
++	if (!drvdata->gamepad_registered)
++		return -ENODEV;
++
++	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE, NULL, 0, 25);
++	if (ret)
++		return ret;
++
++	scoped_guard(spinlock_irqsave, &drvdata->mode_lock)
++		i = drvdata->mkeys_function;
++
++	if (i >= ARRAY_SIZE(claw_mkeys_function_text))
++		return sysfs_emit(buf, "unsupported\n");
++
++	return sysfs_emit(buf, "%s\n", claw_mkeys_function_text[i]);
++}
++static DEVICE_ATTR_RW(mkeys_function);
++
++static ssize_t mkeys_function_index_show(struct device *dev,
++					 struct device_attribute *attr, char *buf)
++{
++	int i, count = 0;
++
++	for (i = 0; i < ARRAY_SIZE(claw_mkeys_function_text); i++)
++		count += sysfs_emit_at(buf, count, "%s ", claw_mkeys_function_text[i]);
++
++	if (count)
++		buf[count - 1] = '\n';
++
++	return count;
++}
++static DEVICE_ATTR_RO(mkeys_function_index);
++
++static ssize_t reset_store(struct device *dev, struct device_attribute *attr,
++			   const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++	bool val;
++	int ret;
++
++	if (!drvdata->gamepad_registered)
++		return -ENODEV;
++
++	ret = kstrtobool(buf, &val);
++	if (ret)
++		return ret;
++
++	if (!val)
++		return -EINVAL;
++
++	ret = claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_RESET_DEVICE, NULL, 0, 0);
++	if (ret)
++		return ret;
++
++	return count;
++}
++static DEVICE_ATTR_WO(reset);
++
++static umode_t claw_gamepad_attr_is_visible(struct kobject *kobj, struct attribute *attr,
++					    int n)
++{
++	struct hid_device *hdev = to_hid_device(kobj_to_dev(kobj));
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (!drvdata) {
++		dev_warn(&hdev->dev,
++			 "Failed to get drvdata from kobj. Gamepad attributes are not available.\n");
++		return 0;
++	}
++
++	return attr->mode;
++}
++
++static struct attribute *claw_gamepad_attrs[] = {
++	&dev_attr_gamepad_mode.attr,
++	&dev_attr_gamepad_mode_index.attr,
++	&dev_attr_mkeys_function.attr,
++	&dev_attr_mkeys_function_index.attr,
++	&dev_attr_reset.attr,
++	NULL,
++};
++
++static const struct attribute_group claw_gamepad_attr_group = {
++	.attrs = claw_gamepad_attrs,
++	.is_visible = claw_gamepad_attr_is_visible,
++};
++
++static void cfg_setup_fn(struct work_struct *work)
++{
++	struct delayed_work *dwork = container_of(work, struct delayed_work, work);
++	struct claw_drvdata *drvdata = container_of(dwork, struct claw_drvdata, cfg_setup);
++	int ret;
++
++	ret = claw_hw_output_report(drvdata->hdev, CLAW_COMMAND_TYPE_READ_GAMEPAD_MODE,
++				    NULL, 0, 25);
++	if (ret) {
++		dev_err(&drvdata->hdev->dev,
++			"Failed to setup device, can't read gamepad mode: %d\n", ret);
++		return;
++	}
++
++	/* Add sysfs attributes after we get the device state */
++	ret = devm_device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr_group);
++	if (ret) {
++		dev_err(&drvdata->hdev->dev,
++			"Failed to setup device, can't create gamepad attrs: %d\n", ret);
++		return;
++	}
++	drvdata->gamepad_registered = true;
++
++	kobject_uevent(&drvdata->hdev->dev.kobj, KOBJ_CHANGE);
++}
++
++static void cfg_resume_fn(struct work_struct *work)
++{
++	struct delayed_work *dwork = container_of(work, struct delayed_work, work);
++	struct claw_drvdata *drvdata = container_of(dwork, struct claw_drvdata, cfg_resume);
++
++	if (!drvdata->gamepad_registered)
++		schedule_delayed_work(&drvdata->cfg_setup, msecs_to_jiffies(500));
++}
++
++static int claw_probe(struct hid_device *hdev, u8 ep)
++{
++	struct claw_drvdata *drvdata;
++	int ret;
++
++	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
++	if (!drvdata)
++		return -ENOMEM;
++
++	drvdata->gamepad_mode = CLAW_GAMEPAD_MODE_XINPUT;
++	drvdata->hdev = hdev;
++	drvdata->ep = ep;
++
++	mutex_init(&drvdata->cfg_mutex);
++	spin_lock_init(&drvdata->cmd_lock);
++	spin_lock_init(&drvdata->mode_lock);
++	init_completion(&drvdata->send_cmd_complete);
++	INIT_DELAYED_WORK(&drvdata->cfg_resume, &cfg_resume_fn);
++	INIT_DELAYED_WORK(&drvdata->cfg_setup, &cfg_setup_fn);
++
++	/* For control interface: open the HID transport for sending commands. */
++	ret = hid_hw_open(hdev);
++	if (ret)
++		return ret;
++
++	hid_set_drvdata(hdev, drvdata);
++	schedule_delayed_work(&drvdata->cfg_setup, msecs_to_jiffies(500));
++
++	return 0;
++}
++
++static int msi_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	u8 ep;
++
++	if (!hid_is_usb(hdev)) {
++		ret = -ENODEV;
++		goto err_probe;
++	}
++
++	ret = hid_parse(hdev);
++	if (ret)
++		goto err_probe;
++
++	/* Set quirk to create separate input devices per HID application */
++	hdev->quirks |= HID_QUIRK_INPUT_PER_APP | HID_QUIRK_MULTI_INPUT;
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		goto err_probe;
++
++	/* For non-control interfaces (keyboard/mouse), allow userspace to grab the devices. */
++	ret = get_endpoint_address(hdev);
++	if (ret < 0)
++		goto err_stop_hw;
++
++	ep = ret;
++	if (ep == CLAW_XINPUT_CFG_INTF_IN || ep == CLAW_DINPUT_CFG_INTF_IN) {
++		ret = claw_probe(hdev, ep);
++		if (ret)
++			goto err_stop_hw;
++	}
++
++	return 0;
++
++err_stop_hw:
++	hid_hw_stop(hdev);
++err_probe:
++	return dev_err_probe(&hdev->dev, ret, "Failed to init device\n");
++}
++
++static void claw_remove(struct hid_device *hdev)
++{
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (!drvdata) {
++		hid_hw_close(hdev);
++		return;
++	}
++
++	cancel_delayed_work_sync(&drvdata->cfg_setup);
++	cancel_delayed_work_sync(&drvdata->cfg_resume);
++
++	drvdata->gamepad_registered = false;
++
++	hid_hw_close(hdev);
++}
++
++static void msi_remove(struct hid_device *hdev)
++{
++	int ret;
++	u8 ep;
++
++	ret = get_endpoint_address(hdev);
++	if (ret <= 0)
++		goto hw_stop;
++
++	ep = ret;
++	if (ep == CLAW_XINPUT_CFG_INTF_IN || ep == CLAW_DINPUT_CFG_INTF_IN)
++		claw_remove(hdev);
++
++hw_stop:
++	hid_hw_stop(hdev);
++}
++
++static int claw_resume(struct hid_device *hdev)
++{
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (!drvdata)
++		return -ENODEV;
++
++	/* MCU can take up to 500ms to be ready after resume */
++	schedule_delayed_work(&drvdata->cfg_resume, msecs_to_jiffies(500));
++	return 0;
++}
++
++static int msi_resume(struct hid_device *hdev)
++{
++	int ret;
++	u8 ep;
++
++	ret = get_endpoint_address(hdev);
++	if (ret <= 0)
++		return 0;
++
++	ep = ret;
++	if (ep == CLAW_XINPUT_CFG_INTF_IN || ep == CLAW_DINPUT_CFG_INTF_IN)
++		return claw_resume(hdev);
++
++	return 0;
++}
++
++static int claw_suspend(struct hid_device *hdev)
++{
++	struct claw_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (!drvdata)
++		return -ENODEV;
++
++	cancel_delayed_work_sync(&drvdata->cfg_setup);
++	cancel_delayed_work_sync(&drvdata->cfg_resume);
++
++	return 0;
++}
++
++static int msi_suspend(struct hid_device *hdev, pm_message_t msg)
++{
++	int ret;
++	u8 ep;
++
++	ret = get_endpoint_address(hdev);
++	if (ret <= 0)
++		return 0;
++
++	ep = ret;
++	if (ep == CLAW_XINPUT_CFG_INTF_IN || ep == CLAW_DINPUT_CFG_INTF_IN)
++		return claw_suspend(hdev);
++
++	return 0;
++}
++
++static const struct hid_device_id msi_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI_2, USB_DEVICE_ID_MSI_CLAW_XINPUT) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI_2, USB_DEVICE_ID_MSI_CLAW_DINPUT) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI_2, USB_DEVICE_ID_MSI_CLAW_DESKTOP) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI_2, USB_DEVICE_ID_MSI_CLAW_BIOS) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, msi_devices);
++
++static struct hid_driver msi_driver = {
++	.name		= "hid-msi",
++	.id_table	= msi_devices,
++	.raw_event	= msi_raw_event,
++	.probe		= msi_probe,
++	.remove		= msi_remove,
++	.resume		= msi_resume,
++	.suspend	= pm_ptr(msi_suspend),
++};
++module_hid_driver(msi_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Denis Benato <denis.benato@linux.dev>");
++MODULE_AUTHOR("Zhouwang Huang <honjow311@gmail.com>");
++MODULE_AUTHOR("Derek J. Clark <derekjohn.clark@gmail.com>");
++MODULE_DESCRIPTION("HID driver for MSI Claw Handheld PC gamepads");
 -- 
 2.53.0
 

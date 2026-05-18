@@ -1,144 +1,101 @@
-Received: from mail-vs1-f50.google.com (mail-vs1-f50.google.com [209.85.217.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20B0B389452
-	for <linux-input@vger.kernel.org>; Mon, 18 May 2026 09:11:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E50513E51E2;
+	Mon, 18 May 2026 09:32:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779095463; cv=none; b=fyV1LyqXfyZZU7gEUSeAnunLNImZFibRnJH9tN08jUUciW2Ja78YLmNGjyNnnmPlUzK4PlKD+0J1Yv3EDmxXDxVSLTkYW4TfAW+GhnVBI0beoUyxk6teG5frxVj4zIMnKDkLYFBml2RIk9CZ/iFm/mzel1fZUJ/qInyI5OO3LZc=
+	t=1779096758; cv=none; b=aAV3seLatIbaZOjR+9qZKPDS48xLe58Xpk5KgAaFd99X2iMuyW7RIrewLp2YyrW/jEiGsWU8KIdAeGUFCMXHNGKuGe2cfeCziiIeVJAzUnry7XnIDfMqP6nLxUr4OLc+dvpJUmDP1hZBPL8CKvfwZNEQh4R5XHDZzgEuucLoSOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779095463; c=relaxed/simple;
-	bh=/vPQIEV4/SgDSzC8EDs9ehJeVmZQPBn5YAqt9QP3nEg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uZTfQJ/AEQKDDkNk1d++J8KcuVogpy83rwz+cK3n3W+ERXyy75JIhPS9ADcYq7+JBUHIfQBrnrJOo5uOZYM5lTQae4weSXWaGb7Q8Vo0vL56NXZZCIZyz/lfriBthEdhG80HSw8YITYBJZPM6fRWAnShzqtLO6imE9XHBc4FjwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f50.google.com with SMTP id ada2fe7eead31-632a055fa9fso631389137.1
-        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 02:11:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779095461; x=1779700261;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SRYZ3sLzBtPinz1jCgMS2nJKx1VYP4BGEJ88Tc5uCp8=;
-        b=ecQ1TiGHyYo4pCwrSdKCvgs4aYxOi7mbbSjO7rYz/TIYcniiQQsCPxrZcRFDdmp0x8
-         0sx/8GOTFC62FHM2SGP4VZGxp2FOS+ndNjO3HCMvmSnZ16sGWOxB3yu8XR6HCpmYkKOx
-         DChbCwSQVfYKdWFzLUSC5YqJ+OQshRJ+PUjx5zr6IcZEsCx7vYhTJvANTfJArleu+Rlr
-         ndrz4uXgSuuLD2xrMZFAQyUs1zUYMiDefwfKDuE7mESTqYXze0DCKHryg0a12kNCE+zr
-         4PIVAeYLZBYoct+AnGTNSYiGp4OTw0mPFRY447xoM6LvhTZMj6PufmxT1wrX7/3NRS3h
-         A0IA==
-X-Forwarded-Encrypted: i=1; AFNElJ8LOvCiilmlt4Iwbb2dBfo3mMPr43iSS/ryxitEz3mUpKxFIhvHYm1OUN9NUfPF+uKXVyE53iOZcI/eMw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxZliRp3dl2AupqV4GE0m5R3FjThEaZLakqQrLR4LBDfKqSht/+
-	LkiJRlB7NpRvcqWKgjrWC6fhhcXgqjtOtXiG4rwSFtB6ocstyjVnTv8en35yRCku
-X-Gm-Gg: Acq92OEzAR+6F5bDHIuMELrGbf95ktPMDJqdTIBu6GcFV4fjPj79HOafxb8yd6wPh7g
-	YxpjX/iPSJ1LDXm9NOX4lWX618CuSYIdOwUy9GrQgpUvs2KRMjXH5bqRyuw7n3m3OH+blMmouZw
-	0SyvhB8vNPb87MYGppSir0+7ZqgBmPPL9u0ZBootWbftQBty50Lc7a0Pg9jZylqSSqUbR5FQxvS
-	5eSKqoWwpY+hURic1RAamPZl+9T1xLygq44DkFQPQfmuFrbnMg8YZkPh2kgd1XswEFnBAUsYtXk
-	baJ6ztzzG/6WbpPUm8QqhH4c2w0KhU8EZftxEO8Z5rMyvXQ5fRefxv+75LIHti98jukO3w9FqAW
-	/8E69WRbX7gUB2GmUstf6StSOArkuzCnrl7ubQT9G7RlXn/37hPIxAqfLIctqM1nrQM0z/LM6rX
-	uN7eM5pO6JfKC2E57hY37DXg2MVTztvJeWyckVepg2j8LYzV4TgeSfMnfOHxio
-X-Received: by 2002:a05:6102:2ad4:b0:607:4fde:1921 with SMTP id ada2fe7eead31-63a3f8989e3mr5604845137.24.1779095460891;
-        Mon, 18 May 2026 02:11:00 -0700 (PDT)
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com. [209.85.222.49])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-63ccf18bd92sm4403359137.3.2026.05.18.02.11.00
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 May 2026 02:11:00 -0700 (PDT)
-Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-95cc1a5fe9cso301237241.2
-        for <linux-input@vger.kernel.org>; Mon, 18 May 2026 02:11:00 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9Ury6PVJNBm9WSQGFvDscVJpEiv6b75esDGLaqL6zR3wl4N49ooizH4mkd2hzNUMs8+o18OBnEn4vhDg==@vger.kernel.org
-X-Received: by 2002:a05:6102:2ad4:b0:607:4fde:1921 with SMTP id
- ada2fe7eead31-63a3f8989e3mr5604834137.24.1779095460227; Mon, 18 May 2026
- 02:11:00 -0700 (PDT)
+	s=arc-20240116; t=1779096758; c=relaxed/simple;
+	bh=h8WqaqnXFVpZHJBalsPzcHPChf2cfku1qZS0RwmOeb4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=UHvgmpHu5zaiXRqepRgrdecrMxBgzN7JWSn73zHtFNU/pthMZ2xFn8b4Qy06WBCWSlMGYOwTPX5wg08qEiYdjMKoay1GOm86BaBr8uwrX3XjqdxWaLRNcSDatL3x3Sk9FYlRNI/rwl6KadaQ9xcq8U0DYWetN6x5tI2cU9E66Pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AAA3GlUI; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AAA3GlUI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90640C2BCC6;
+	Mon, 18 May 2026 09:32:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779096757;
+	bh=h8WqaqnXFVpZHJBalsPzcHPChf2cfku1qZS0RwmOeb4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date:From;
+	b=AAA3GlUI+4dzitzKp3CkdbWy2Go4AYrCNBvFT8BEaaduT8CDiBOR9iArdt59c5avP
+	 Fs3aHuk9OsiXR4c/aoHHV6HLV9JQnvJcc76iJu+S4ht4fuDyQ4jLzjO1w4CRlRENcm
+	 h+C8jJXwifG002vtAtILCMK5R1G2/U8qE/BwUawSZJbcFkpgBaiFDbbLKfMtxe/J1s
+	 Exrfr3ZEnEm+bvirlQTagEzvN8oek7sTuEtGnlqnUJJd8k9gvmKXOpHxvAFwgTxZVi
+	 uJRYl8aXsNYZFw+6bb7pxY6j7RVY5KhWC3CUvdf4GtnabP1+eojucy9zM6l15sWJHG
+	 Vyl8Aecyg6B7g==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 5/6] tools/build: selftests: Allow versioning LLVM
+ lld
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "James Clark" <james.clark@linaro.org>
+Cc: dmitry.torokhov@gmail.com, linux-perf-users@vger.kernel.org, bpf@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260518-james-perf-llvm-version-v2-5-f12cc4f031d8@linaro.org>
+References: <20260518-james-perf-llvm-version-v2-5-f12cc4f031d8@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 18 May 2026 09:32:37 +0000
+Message-Id: <20260518093237.90640C2BCC6@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260517-hid-core-fix-size_t-specifier-v1-1-bfdd959ec383@kernel.org>
-In-Reply-To: <20260517-hid-core-fix-size_t-specifier-v1-1-bfdd959ec383@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 18 May 2026 11:10:49 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVzWL0WZe6u-uY2U+uCNUKB1aNTYM3kaYkX=OJBCY9G0w@mail.gmail.com>
-X-Gm-Features: AVHnY4Id0khCZ3ZQ3Xy8VTkUfy4-pbQWwRD5BgHydP7l9eIjiP4DncTGcfkDLiI
-Message-ID: <CAMuHMdVzWL0WZe6u-uY2U+uCNUKB1aNTYM3kaYkX=OJBCY9G0w@mail.gmail.com>
-Subject: Re: [PATCH] HID: core: Fix size_t specifier in hid_report_raw_event()
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 
-Hi Nathan,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Empty USE_LD variable causes clang build failure in selftests wh=
+en ld.lld is not in PATH.
+--
 
-On Sun, 17 May 2026 at 06:51, Nathan Chancellor <nathan@kernel.org> wrote:
-> When building for 32-bit platforms, for which 'size_t' is
-> 'unsigned int', there are warnings around using the incorrect format
-> specifier to print bsize in hid_report_raw_event():
->
->   drivers/hid/hid-core.c:2054:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
->    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
->         |                                                                                         ~~~
->         |                                                                                         %zu
->    2054 |                                      report->id, csize, bsize);
->         |                                                         ^~~~~
->   drivers/hid/hid-core.c:2076:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
->    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
->         |                                                                                          ~~~
->         |                                                                                          %zu
->    2076 |                                      report->id, rsize, bsize);
->         |                                                         ^~~~~
->
-> Use the proper 'size_t' format specifier, '%zu', to clear up the
-> warnings.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
-> Reported-by: Miguel Ojeda <ojeda@kernel.org>
-> Closes: https://lore.kernel.org/20260516020430.110135-1-ojeda@kernel.org/
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+commit 371ca22c55bb0fa6502ac06f7b33d63418ad16ff
+Author: James Clark <james.clark@linaro.org>
 
-Thanks, this fixes the warnings on 32-bit for me.
+tools/build: selftests: Allow versioning LLVM lld
 
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2050,7 +2050,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
->                 return 0;
->
->         if (unlikely(bsize < csize)) {
-> -               hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-> +               hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %zu)\n",
->                                      report->id, csize, bsize);
+This commit adds an LLD variable to Makefile.include to allow versioning of
+LLVM's linker, keeping it consistent with the rest of the LLVM toolchain. It
+modifies the BPF selftests Makefile to resolve the full path of the linker
+using the command -v shell utility.
 
-Both report->id and csize are unsigned, so should use %u.
+> diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftes=
+ts/bpf/Makefile
+> index 6ef6872adbc3e..836e783f0170e 100644
+> --- a/tools/testing/selftests/bpf/Makefile
+> +++ b/tools/testing/selftests/bpf/Makefile
 
->                 return -EINVAL;
->         }
-> @@ -2072,7 +2072,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
->                 rsize = max_buffer_size;
->
->         if (bsize < rsize) {
-> -               hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-> +               hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %zu)\n",
->                                      report->id, rsize, bsize);
+[ ... ]
 
-Same here.
+> @@ -245,9 +245,9 @@ $(OUTPUT)/%:%.c
+> =20
+>  # LLVM's ld.lld doesn't support all the architectures, so use it only on=
+ x86
+>  ifeq ($(SRCARCH),$(filter $(SRCARCH),x86 riscv))
+> -LLD :=3D lld
+> +USE_LD :=3D $(shell command -v $(LLD))
 
->                 return -EINVAL;
->         }
+Does this cause the build to fail if the toolchain directory is not in the
+system PATH?
 
-And more incorrect %d outside the context!
+If a user explicitly specifies the compiler using an absolute path like
+CLANG=3D/path/to/clang, but does not add the toolchain directory to their P=
+ATH,
+the command -v utility will return an empty string.
 
-Gr{oetje,eeting}s,
+This would cause USE_LD to be empty, leading to a malformed argument like
+-fuse-ld=3D being passed to clang later in the Makefile, which then fails w=
+ith
+an invalid linker name error.
 
-                        Geert
+Previously, passing the hardcoded lld allowed clang to natively resolve the
+linker relative to its own binary location. Is there a way to support both
+versioned linker names and absolute compiler paths without relying entirely
+on the system PATH?
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+[ ... ]
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260518-james-perf=
+-llvm-version-v2-0-f12cc4f031d8@linaro.org?part=3D5

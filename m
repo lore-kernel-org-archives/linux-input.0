@@ -1,339 +1,171 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369F739D6DD
-	for <linux-input@vger.kernel.org>; Tue, 19 May 2026 13:44:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F369B3ED3BF;
+	Tue, 19 May 2026 14:00:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779198275; cv=none; b=O99gPzdMOrj89c11V2a+Osl2NT+wUQb5RTbVod8ZL2jhWmQUbNfbXCInjPV3dspwSOabcayPRNIF4Fgk5cI2QWN9NIz7vIBcCSMYb+NYYXcAPqCRzRbpjoyd+pxQBHId8D6lyLVLvmAPyhVed2GfB9fY6u+WQnW7NA0/yS6zJJ4=
+	t=1779199234; cv=none; b=YzbuqtlB0TNEHgNCcBhIcjDS3PKj4GMSlHHYvnc/WkQA5t2+Qg4fVNFQDnB+4DYC1AVr/VMjIiLGnohsyVViy6UDToVo18S3gtfska4MhPTyECN/hYC6gQOsI03QkZrwXM7E+GcbKPZr78618mWI+NgTxSd0nEeCaWs3w/DIb/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779198275; c=relaxed/simple;
-	bh=6+EpED8BgI54lFDjfE7lMDRUbz6UR474COMQ1D+gPik=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=s/sKg0qZZrrl/6w1iTzIvI1ZIZi61mmqV2UejzVHQLHurthXjI5p5YEi2M0/o2SZyqt1t/Y6naExmi7pl7YHfCtLtYFXXdYOBfp38QFBnJzsnid+fmxANivYuFY/z8qXeX8ShNM0bkQK53dlOaIM4xMPwtZxGV1awuo2RYvVBRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1r74H7k4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Dq4g0LKO; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1r74H7k4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Dq4g0LKO; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1779199234; c=relaxed/simple;
+	bh=/8BWuvBDFztKFuX/SlpiEy/37TboyiBX8PxB33yS5Z8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZB8evvQtgHC2XoIwQDAPNUJJZzWsa1gcrwIRdmp3RtYQ4B33K0/a1iWKSfW5ZWj5iczgzcz51+IGQdRy+GBSke1SEeXj7S9++mCZpQyXMiOQm1T8v3WOrZ++xyJGQRoNDo3ZVzwbm1YCmexqnX7tsaygzDE/SORmCSSpU4E86Tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M+EbYHf7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1r74H7k4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Dq4g0LKO";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1r74H7k4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Dq4g0LKO"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 7D3D76816F;
-	Tue, 19 May 2026 13:44:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1779198271; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiPB+vWfauYy2aT1mdXFpUlpbFYKlxRvswfYHykqDlQ=;
-	b=1r74H7k4pn6rrK3ctslt0dioeMlA4TEILrjuIsAXQ+xyjcSM8cOXvUg5eIwJhvJpppB5E7
-	9lULYOSFjOUU7OG0yW6QBVrSmgiquK8czRHHh3hRjjmPbrbn55uFTa4bThIifm9ZipiJcA
-	rtwM58F1GYdiEFI7LdO/7gadSQ6I+R8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1779198271;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiPB+vWfauYy2aT1mdXFpUlpbFYKlxRvswfYHykqDlQ=;
-	b=Dq4g0LKOgprIlwRE3POy9MnFGkGwjT+ElppZHK4YeuQvqng2Ll0mdcVPJiHJQ1e8Lum383
-	6gebYUsGxH5fh3Dw==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1779198271; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiPB+vWfauYy2aT1mdXFpUlpbFYKlxRvswfYHykqDlQ=;
-	b=1r74H7k4pn6rrK3ctslt0dioeMlA4TEILrjuIsAXQ+xyjcSM8cOXvUg5eIwJhvJpppB5E7
-	9lULYOSFjOUU7OG0yW6QBVrSmgiquK8czRHHh3hRjjmPbrbn55uFTa4bThIifm9ZipiJcA
-	rtwM58F1GYdiEFI7LdO/7gadSQ6I+R8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1779198271;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiPB+vWfauYy2aT1mdXFpUlpbFYKlxRvswfYHykqDlQ=;
-	b=Dq4g0LKOgprIlwRE3POy9MnFGkGwjT+ElppZHK4YeuQvqng2Ll0mdcVPJiHJQ1e8Lum383
-	6gebYUsGxH5fh3Dw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2B720593A8;
-	Tue, 19 May 2026 13:44:31 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id yPkGCj9pDGqtRgAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Tue, 19 May 2026 13:44:31 +0000
-Date: Tue, 19 May 2026 15:44:26 +0200
-Message-ID: <871pf7ms3p.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: Sean Brar <hello@seanbrar.com>
-Cc: linux-input@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	roderick.colenbrander@sony.com,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	perex@perex.cz,
-	tiwai@suse.com
-Subject: Re: [BUG] ALSA: usb-audio: use-after-free in snd_dualsense_ih_match during rapid USB reconnect
-In-Reply-To: <909876aa-7498-4ca4-b3a6-6618fbc6209d@seanbrar.com>
-References: <909876aa-7498-4ca4-b3a6-6618fbc6209d@seanbrar.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M+EbYHf7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FF3C2BCB3;
+	Tue, 19 May 2026 14:00:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779199233;
+	bh=/8BWuvBDFztKFuX/SlpiEy/37TboyiBX8PxB33yS5Z8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=M+EbYHf7BMsznMj3a5Xl5E7giYn7q7kUaN6ipT5y96pivphrWgDWhSDmJSL4DKAPn
+	 Bctqhg9ZGSIMPUx/GiOVOhLpLOm8iqGF7gQpt7zz86xFX9swArBRrEeqoZ+GOIXva8
+	 9s6cGz8cHaiey4UwgAm2Nvu+hHmh9LtRivg5X1viPxMGUZuKXR2TkqyOZjIcLjHeRg
+	 awc+ZZ6k7ccuqet3LPgJeXdzUfBLBFukgfXZtP+JqOwvY8R/Fl5+W8KiqhbBpisNKX
+	 kLWOSLOM1lVmFi2soJ6H7JHJR7P9WrYxNnAUK4j8h/+5fkwDrq+8mbdhefhhuIpg2f
+	 KnayKD8cfWDbA==
+Date: Tue, 19 May 2026 16:00:27 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Lee Jones <lee@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>, 
+	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
+	Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, linux-usb@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
+Message-ID: <agxswzzCNMcxRN1n@beelink>
+References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
+ <20260506091606.GB305027@google.com>
+ <20260512101723.GU305027@google.com>
+ <20260519111723.GU305027@google.com>
+ <agxbD6k60vQYrJ6T@beelink>
+ <2026051937-hefty-registry-37b2@gregkh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=BIG5
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -3.30
-X-Spamd-Result: default: False [-3.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
-X-Spam-Level: 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2026051937-hefty-registry-37b2@gregkh>
 
-On Mon, 11 May 2026 23:58:30 +0200,
-Sean Brar wrote:
+On May 19 2026, Greg Kroah-Hartman wrote:
+> On Tue, May 19, 2026 at 02:46:13PM +0200, Benjamin Tissoires wrote:
+> > On May 19 2026, Lee Jones wrote:
+> > > On Tue, 12 May 2026, Lee Jones wrote:
+> > > 
+> > > > On Wed, 06 May 2026, Lee Jones wrote:
+> > > > 
+> > > > > On Mon, 04 May 2026, Benjamin Tissoires wrote:
+> > > > > 
+> > > > > > Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> > > > > > bogus memset()") enforced the provided data to be at least the size of
+> > > > > > the declared buffer in the report descriptor to prevent a buffer
+> > > > > > overflow.
+> > > > > > 
+> > > > > > We only had corner cases of malicious devices exposing the OOM because
+> > > > > > in most cases, the buffer provided by the transport layer needs to be
+> > > > > > allocated at probe time and is large enough to handle all the possible
+> > > > > > reports.
+> > > > > > 
+> > > > > > However, the patch from above, which enforces the spec a little bit more
+> > > > > > introduced both regressions for devices not following the spec (not
+> > > > > > necesserally malicious), but also a stream of errors for those devices.
+> > > > > > 
+> > > > > > Let's revert to the old behavior by giving more information to HID core
+> > > > > > to be able to decide whether it can or not memset the rest of the buffer
+> > > > > > to 0 and continue the processing.
+> > > > > > 
+> > > > > > Note that the first commit makes an API change, but the callers are
+> > > > > > relatively limited, so it should be fine on its own. The second patch
+> > > > > > can't really make the same kind of API change because we have too many
+> > > > > > callers in various subsystems. We can switch them one by one to the safe
+> > > > > > approach when needed.
+> > > > > > 
+> > > > > > The last 2 patches are small cleanups I initially put together with the
+> > > > > > 2 first patches, but they can be applied on their own and don't need to
+> > > > > > be pulled in stable like the first 2.
+> > > > > > 
+> > > > > > Cheers,
+> > > > > > Benjamin
+> > > > > > 
+> > > > > > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> > > > > > ---
+> > > > > > Changes in v3:
+> > > > > > - fixed ghib -> ghid in greybus
+> > > > > > - fixed i386 size_t debug size reported by kernel-bot
+> > > > > > - Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
+> > > > > > 
+> > > > > > Changes in v2:
+> > > > > > - added a small blurb explaining the difference between the safe and the
+> > > > > >   non safe version of hid_safe_input_report
+> > > > > > - Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
+> > > > > > 
+> > > > > > ---
+> > > > > > Benjamin Tissoires (4):
+> > > > > >       HID: pass the buffer size to hid_report_raw_event
+> > > > > >       HID: core: introduce hid_safe_input_report()
+> > > > > >       HID: multitouch: use __free(kfree) to clean up temporary buffers
+> > > > > >       HID: wacom: use __free(kfree) to clean up temporary buffers
+> > > > > > 
+> > > > > >  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
+> > > > > >  drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
+> > > > > >  drivers/hid/hid-gfrm.c             |  4 +--
+> > > > > >  drivers/hid/hid-logitech-hidpp.c   |  2 +-
+> > > > > >  drivers/hid/hid-multitouch.c       | 18 ++++------
+> > > > > >  drivers/hid/hid-primax.c           |  2 +-
+> > > > > >  drivers/hid/hid-vivaldi-common.c   |  2 +-
+> > > > > >  drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
+> > > > > >  drivers/hid/usbhid/hid-core.c      | 11 ++++---
+> > > > > >  drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
+> > > > > >  drivers/staging/greybus/hid.c      |  2 +-
+> > > > > >  include/linux/hid.h                |  6 ++--
+> > > > > >  include/linux/hid_bpf.h            | 14 +++++---
+> > > > > >  13 files changed, 109 insertions(+), 78 deletions(-)
+> > > > > 
+> > > > > What's the plan for this set Benjamin? -rcs or -next?
+> > > > 
+> > > > Are there any updates on this set please?
+> > > > 
+> > > > FYI, this set is still important to us.
+> > > > 
+> > > > Ideally, if all is well, it would go into the -rcs for v7.1.
+> > > 
+> > > I'm still actively tracking these.
+> > > 
+> > > It looks like Mark has been reverting them from -next and I'm getting
+> > > complaints from the Stable folks that they are causing build errors.
+> > > 
+> > >   drivers/hid/hid-core.c: In function 'hid_safe_input_report':
+> > >   drivers/hid/hid-core.c:2195:16: error: too many arguments to function '__hid_input_report'
+> > >     2195 |         return __hid_input_report(hid, type, data, bufsize, size, interrupt, 0,
+> > > 
+> > > Are you folks still working on this set?
+> > 
+> > Well, everything is in Linus' tree:
+> > 
+> > not yet in a released rc (taken yesterday by Linus directly):
+> > 
+> > 4d3a2a466b8d HID: core: Fix size_t specifier in hid_report_raw_event()
+> > 
+> > Already in 7.1-rc4:
+> > 
+> > 206342541fc8 HID: core: introduce hid_safe_input_report()
+> > 2c85c61d1332 HID: pass the buffer size to hid_report_raw_event
+> > 
+> > Not sure why the patches don't apply to stable, but from an upstream
+> > subsystem point of view, everything is in order.
 > 
-> A rapid USB disconnect/reconnect cycle on a DualSense controller
-> (054c:0ce6) triggers a use-after-free in snd_dualsense_ih_match()
-> (sound/usb/mixer_quirks.c), resulting in a general protection fault
-> and leaving the USB subsystem in an unrecoverable state requiring a
-> hard reboot.
+> We dropped them from stable because of the build breakage :(
 > 
-> Kernel version: 7.0.5-arch1-1 (also reproduced the trigger on
-> 7.0.3-arch1-2; affected code in sound/usb/mixer_quirks.c is
-> unchanged on current mainline)
-> 
-> Hardware:
->   - Sony DualSense Wireless Controller (054c:0ce6, bcdDevice=1.00)
->   - hw_version=0x00000711, fw_version=0x0110002a
->   - Host: Gigabyte B550 AORUS PRO AC, BIOS F17 03/22/2024
-> 
-> Trigger condition:
-> 
-> When connected to a degraded USB port (intermittent electrical
-> contact), the DualSense enters a rapid disconnect/reconnect cycle.
-> snd_usb_audio times out (ETIMEDOUT, -110) querying mixer controls
-> during probe, each timeout triggers a USB reset, and the device
-> reconnects every 1¡V2 seconds. This is not a driver bug, it's the
-> expected kernel behavior when USB communication is unreliable, but
-> it creates a race window for the use-after-free described below.
-> 
-> The bug:
-> 
-> In sound/usb/mixer_quirks.c, snd_dualsense_ih_match() is invoked as
-> an input handler match callback from input_register_device() during
-> ps_probe() (hid_playstation). At line 575, it obtains a pointer to
-> the USB device struct:
-> 
->     snd_dev = mei->info.head.mixer->chip->dev;
-> 
-> It then uses this pointer in dev_warn() calls at lines 579 and 585:
-> 
->     dev_warn(&snd_dev->dev, "Failed to get input dev path\n");
->     dev_warn(&snd_dev->dev, "Failed to get USB dev path\n");
-> 
-> No reference is taken on snd_dev. If the USB device is concurrently
-> disconnected and freed while snd_dualsense_ih_match() is executing,
-> snd_dev becomes a dangling pointer. The dev_warn() call dereferences
-> snd_dev->dev.kobj.name via dev_vprintk_emit() ¡÷ strnlen(), faulting
-> on the freed memory.
-> 
-> The OOPS offset (snd_dualsense_ih_match.cold+0xf/0x2b) corresponds
-> to the first dev_warn() at line 579. The compiler placed both error
-> branches in a cold section, and the offset is consistent with the
-> earlier branch.
-> 
-> OOPS:
-> 
->   Oops: general protection fault, probably for non-canonical address
-> 0x441f0ffa1e0ff3: 0000 [#1] SMP NOPTI
->   CPU: 14 UID: 0 PID: 108 Comm: kworker/14:0 Not tainted 7.0.5-arch1-1
-> #1 PREEMPT(full)
->   Hardware name: Gigabyte Technology Co., Ltd. B550 AORUS PRO AC/B550
-> AORUS PRO AC, BIOS F17 03/22/2024
->   Workqueue: usb_hub_wq hub_event
->   RIP: 0010:strnlen+0x29/0x40
->   RSP: 0018:ffffce3f40537378 EFLAGS: 00010202
->   RAX: 00441f0ffa1e0ff3 RBX: 00441f0ffa1e0ff3 RCX: 0000000000000000
->   RDX: 00441f0ffa1e1003 RSI: 0000000000000010 RDI: 00441f0ffa1e0ff3
->   RBP: ffffce3f40537408 R08: 0000000000000000 R09: ffffce3f40537478
->   R10: 0000000000000004 R11: ffffffffc20ebe12 R12: ffff8943511c80b0
->   R13: ffff8943511c80b0 R14: ffff894345daf028 R15: ffffce3f40537418
->   FS:  0000000000000000(0000) GS:ffff8962144e7000(0000)
-> knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 000055e7f9dc3c18 CR3: 0000000135ffe000 CR4: 0000000000f50ef0
-> 
-> Stack trace:
-> 
->   Call Trace:
->    <TASK>
->    dev_vprintk_emit+0x70/0x1b0
->    dev_printk_emit+0x61/0x7b
->    __dev_printk+0x2d/0x70
->    _dev_warn+0x7f/0x99
->    snd_dualsense_ih_match.cold+0xf/0x2b [snd_usb_audio
-> a3e71fdbdb8c7ccfdfdb57dadc854b1d1e18445c]
->    input_attach_handler.isra.0+0x4b/0xa0
->    input_register_device.cold+0xf8/0x1f0
->    ps_probe+0xf79/0x10dc [hid_playstation
-> 0cc5feea5231aa914fe418c8a06b14588cd5f064]
->    hid_device_probe+0x1b8/0x270
->    hid_add_device+0xcd/0x130
->    usbhid_probe+0x49b/0x6c0
->    usb_probe_interface+0xf8/0x2f0
->    usb_set_configuration+0x738/0x920
->    usb_generic_driver_probe+0x4a/0x70
->    usb_probe_device+0x44/0x170
->    usb_new_device.cold+0x154/0x3fd
->    hub_event+0x129d/0x1ad0
->    process_one_work+0x19c/0x3a0
->    worker_thread+0x1b1/0x310
->    kthread+0xe1/0x120
->    ret_from_fork+0x2bc/0x350
->    ret_from_fork_asm+0x1a/0x30
->    </TASK>
->   ---[ end trace 0000000000000000 ]---
-> 
-> Analysis:
-> 
-> The race is between two concurrent paths:
-> 
->   1. Probe: hub_event ¡÷ usb_new_device ¡÷ ... ¡÷ ps_probe ¡÷
->      input_register_device ¡÷ input_attach_handler ¡÷
->      snd_dualsense_ih_match (accesses USB device struct at line 575)
-> 
->   2. Disconnect: hub_event ¡÷ usb_disconnect ¡÷ ... ¡÷ USB device
->      struct freed
-> 
-> snd_dualsense_ih_match() retrieves snd_dev via the mixer¡÷chip¡÷dev
-> chain at line 575 without taking a reference. A concurrent disconnect
-> can free the USB device struct before the subsequent dev_warn() call
-> dereferences it. The faulting RDI value (0x441f0ffa1e0ff3) is
-> non-canonical and consistent with SLUB freed-object poisoning,
-> confirming a use-after-free.
-> 
-> Impact:
-> 
-> After the OOPS, the USB subsystem is left in an unrecoverable state:
-> all USB ports stop enumerating devices (including ports not involved
-> in the reconnect cycle), and a clean shutdown hangs in USB driver
-> teardown. A hard reset is required. The trigger condition (rapid USB
-> reconnection due to a degraded port) is a normal hardware failure
-> mode.
-> 
-> Workaround:
-> 
->   # /etc/modprobe.d/dualsense.conf
->   options snd_usb_audio ignore_ctl_error=1
-> 
-> This suppresses the mixer control timeouts that drive the reconnect
-> cycle, preventing the race window from opening. DualSense headphone
-> jack audio controls may not function correctly with this option.
-> 
-> Steps to reproduce:
-> 
->   Disconnect/reconnect loop (the trigger condition):
->   1. Load hid_playstation and snd_usb_audio (default on standard
->      desktop kernels)
->   2. Connect a DualSense (054c:0ce6) via USB to a port with
->      unreliable electrical contact
->   3. Observe rapid disconnect/reconnect in dmesg -w, with device
->      number incrementing each cycle
-> 
->   The OOPS:
->   The OOPS was observed after the loop ran for several minutes. Exact
->   timing-dependent reproduction beyond triggering the loop is not
->   confirmed; this was observed once and not retested to avoid the
->   unrecoverable USB hang.
-> 
-> Kernel .config (7.0.5-arch1-1):
-> https://gist.github.com/seanbrar/d97a577efc3f48098d300105c4de398b
-> dmesg with OOPS (7.0.5-arch1-1):
-> https://gist.github.com/seanbrar/994ed882ca6f25b93e4763a8906d0fd5
-> dmesg with reconnect loop (7.0.3-arch1-2):
-> https://gist.github.com/seanbrar/188a75bf69fffe0d089f7aa82c6aebb6
 
-Thanks for the report.
+If that was just the i386 size_t issue, then it has been fixed in Linus'
+tree. Could you try retaking them? Please?
 
-As this is involved with two individual devices, I wonder the bug is
-triggered at which timing -- has the sound interface been already
-disconnected (or being disconnected) while the input is being probed?
-
-In such a case, does the change below help?
-
-
-Takashi
-
--- 8< --
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -705,14 +705,15 @@ static int snd_dualsense_resume_jack(struct usb_mixer_elem_list *list)
- 	return 0;
- }
- 
--static void snd_dualsense_mixer_elem_free(struct snd_kcontrol *kctl)
-+static void snd_dualsense_mixer_free(struct usb_mixer_interface *mixer)
- {
--	struct dualsense_mixer_elem_info *mei = snd_kcontrol_chip(kctl);
-+	struct dualsense_mixer_elem_info *mei = mixer->private_data;
- 
--	if (mei->ih.event)
-+	if (mei && mei->ih.event) {
- 		input_unregister_handler(&mei->ih);
--
--	snd_usb_mixer_elem_free(kctl);
-+		mei->ih.event = NULL;
-+	}
-+	mixer->private_data = NULL;
- }
- 
- static int snd_dualsense_jack_create(struct usb_mixer_interface *mixer,
-@@ -744,7 +745,7 @@ static int snd_dualsense_jack_create(struct usb_mixer_interface *mixer,
- 	}
- 
- 	strscpy(kctl->id.name, name, sizeof(kctl->id.name));
--	kctl->private_free = snd_dualsense_mixer_elem_free;
-+	kctl->private_free = snd_usb_mixer_elem_free;
- 
- 	err = snd_usb_mixer_add_control(&mei->info.head, kctl);
- 	if (err)
-@@ -774,6 +775,9 @@ static int snd_dualsense_jack_create(struct usb_mixer_interface *mixer,
- 		dev_warn(&mixer->chip->dev->dev,
- 			 "Could not register input handler: %d\n", err);
- 		mei->ih.event = NULL;
-+	} else {
-+		mixer->private_free = snd_dualsense_mixer_free;
-+		mixer->private_data = mei;
- 	}
- 
- 	return 0;
+Cheers,
+Benjamin

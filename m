@@ -1,301 +1,215 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA5332D46CE;
-	Tue, 19 May 2026 05:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.8
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779168162; cv=fail; b=r0fWq2xNhXIk0vfFem9sptDB6SblfUcfFIQr3/Cbazp57F9/caCoHOIXuxufPpPGvWb1kouhzXRfeFBXE2w3rEeJZvwxRBn2gJgRzxSBVz5U4FQh1aU+r0S5Plln20gLo6Lb/3xE0UfKYqSGdVLNasxs0O+w8MTJVERw6Ff05X4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779168162; c=relaxed/simple;
-	bh=+srNRg9eQbKuaai6hsDyezw7e+82bbzbAQUi1kAHt3w=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=EDiAGnCVs4Hp/RMTvl5aDs6XbsY67fD0MhG8Qt5xv96Z0JPmISiyy0JdS49EPcnRI+Ar8kSEjmxpS5+lKt1ampJ7qG57v9WM1408GR7xy84ALwrFZQtpJ/oOANGBjtV/BDn136WcJX86Dpo1I8tGa1cqF5wpRRnJIkngjcJzO1U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JVsuHCSq; arc=fail smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2779539EF22;
+	Tue, 19 May 2026 06:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779173518; cv=none; b=MXtOc1WK/fIVk2Hgmue6LEeZOrPqmF1UR0IIMV6G1f9Bnx/2IP5xj0cIn27BdLKc2xxVb7A35zmkT8OiXOdI+ZlJfiZr3pGEGNQzsXoFjXvCSgep+o0UBpPjV2IwPF2/KZJCfZPu5JuH5FtYCChBEJahkD/0N0CHfLruClx6r2g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779173518; c=relaxed/simple;
+	bh=0imHbSKpa0Or7EwUowbgnPxhhIXEXiHdPFiipgJwXP4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N3bx3GyvC09pOn1SJ7uJlOs8IhYGKBcns5s2GGMtJxKq7/VnaksBD1gsi5yHsRMI87q6R+Q2ZV8xoXJjOc2SDZfCPrf4fANLUXBy208ALHUnpHCyk7sEp4J8OLVB6soTCOTEQp2d22cs7Ew01ett2eBopMfPC6bSIJE+/VHxnPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b=h6repjP/; arc=none smtp.client-ip=212.227.17.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JVsuHCSq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779168161; x=1810704161;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=+srNRg9eQbKuaai6hsDyezw7e+82bbzbAQUi1kAHt3w=;
-  b=JVsuHCSq3KPoHpuhtVhHO/xiqrWspjcS4+2fJs52wQ88wd10CLB6asU+
-   kpl4a7VUsH66qXCafi2vWNCddY8KXKoLb3ixA23xMEYyJ0IgLzo2tGiDu
-   IcNQ9Lpmpd+4Pr+DYiFmrEMPR1jBTHqP4gjQKAEcySWhs/VdCCP1010+0
-   h32uM98b4/7xMEcOXmN3uDdsqYylXQLWJ9k/E8bfJI0TzpQwPvNUY/zPF
-   1mQ2EBKGIrTLhCWMGXBNwyoX9u03qi1bpfHwlWXr2kbXRK61KorpSc0Ps
-   i5Fb1+IgRilev98YS47OExsN+TNxaZT1HLsZadZo2BKRS9FSSEKuqs6/R
-   g==;
-X-CSE-ConnectionGUID: A2n2Hkt6RhqJ4sH13iBUEg==
-X-CSE-MsgGUID: f6EIEM41SIay1u1bph/3Cw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="97603959"
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="97603959"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 22:22:40 -0700
-X-CSE-ConnectionGUID: TlHrIilCTiaogygNEWIZ9w==
-X-CSE-MsgGUID: ceN92VlHTH2a1qqIYEF2oA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="243637654"
-Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
-  by orviesa003.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 22:22:40 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Mon, 18 May 2026 22:22:39 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Mon, 18 May 2026 22:22:39 -0700
-Received: from BN8PR05CU002.outbound.protection.outlook.com (52.101.57.56) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Mon, 18 May 2026 22:22:37 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=guFcBgG6e7Q4hM7bdaLwJII/3exc3PaOq/+aPkowQMq6jGJaWsiMmx9mDARWu7HdK1xMdXlxsS+brYiBhNr5lGBL4bFdmBHdOsVf0VxoxU6ajWX6oIpFNzogn6ZPNRO/e5t14lDIVYBioS0QtRMZl5FQFjkoR6FaHi4c8quNjpgxtF6WFR0tAPN5VnEqhSr5twPy8oS1lq3WSP6O2QniMwhALyHV50wFXRWvU7ajsjONT+KhDSqqrw0zlVt6Vez1xxAjlIlRm8lIO6n+0zvYst9IXioPfYVvAwqxaQEEloPhqPC7qe9o7iVpcQbz/+5q1BBQSt1isCMEP4FyART1wg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=P210ZnmA94+IgDjwwWndHANt2AVfVUyCNqKIl9hLpAM=;
- b=g7pEKlk+pRH111A5RueUPNuDV5LpSMtuSMZymWZjD5lue6M+Yq+VCM4xQMhB307CIbHG17v0ysRb3nH3YPsixP9p4FQDaJsCEuwu8xw6PeP/s5HG7KmKyOrD11g2+buTQtQrLv0xEIEyfyauAbHy6Av5Td8SvnsLBG+PJczhL2TORf1jXNZPSs4TwkxECFmVxyWSH4DXgCJT/o0m/DnA6YQpKwIwQlV/VS6D8AMLHTeK8774fL8cXauxhCWg10gDY3dcPBnZg+a12IGlPHvS6/X9gvF54RXBxgptTSQVftzDt6l68zEDTFGqlmywm3sEUdvya3r0A7K+T/mRawCBhg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from SJ0PR11MB5613.namprd11.prod.outlook.com (2603:10b6:a03:3ab::12)
- by DM6PR11MB4594.namprd11.prod.outlook.com (2603:10b6:5:2a0::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.21; Tue, 19 May
- 2026 05:22:33 +0000
-Received: from SJ0PR11MB5613.namprd11.prod.outlook.com
- ([fe80::a7ca:db6b:7913:d6ae]) by SJ0PR11MB5613.namprd11.prod.outlook.com
- ([fe80::a7ca:db6b:7913:d6ae%6]) with mapi id 15.21.0025.023; Tue, 19 May 2026
- 05:22:33 +0000
-From: "Zhang, Lixu" <lixu.zhang@intel.com>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-CC: "jikos@kernel.org" <jikos@kernel.org>, "jic23@kernel.org"
-	<jic23@kernel.org>, "srinivas.pandruvada@linux.intel.com"
-	<srinivas.pandruvada@linux.intel.com>, "Lechner, David"
-	<dlechner@baylibre.com>, "nuno.sa@analog.com" <nuno.sa@analog.com>,
-	"andy@kernel.org" <andy@kernel.org>, "sakari.ailus@linux.intel.com"
-	<sakari.ailus@linux.intel.com>, "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org"
-	<linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup and
- cleanup
-Thread-Topic: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup and
- cleanup
-Thread-Index: AQHc35wsrw3sHMeT8kKWXH7AkG49XLYM2M3AgAXdAoCAAiOBAA==
-Date: Tue, 19 May 2026 05:22:33 +0000
-Message-ID: <SJ0PR11MB56137045FBD6900E96F1CDB293002@SJ0PR11MB5613.namprd11.prod.outlook.com>
-References: <20260509101040.791404-1-sanjayembedded@gmail.com>
- <SJ0PR11MB5613D4ECB8081985C3F2D82293072@SJ0PR11MB5613.namprd11.prod.outlook.com>
- <agoi55wCo//eY1YQ@hu-ckantibh-hyd.qualcomm.com>
-In-Reply-To: <agoi55wCo//eY1YQ@hu-ckantibh-hyd.qualcomm.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SJ0PR11MB5613:EE_|DM6PR11MB4594:EE_
-x-ms-office365-filtering-correlation-id: 652e1e68-1031-4669-eee1-08deb566a167
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024|56012099003|22082099003|18002099003|38070700021|4143699003|11063799003;
-x-microsoft-antispam-message-info: 75yZMZP6yCYR8zbT3XDldABSQXfdixr5Lwf5gALVeoM4bq2mN86bZQmmCr22qLymEQob5h2G5wcIgdr4/krqwLMmdiJW9lhuPW0gSA5qnljvk9bIJ8fBS2yCl38FacAIcgvID8ssxGUsEzpGCEkJIyQvwLB4ev7VEFOLNfzUAZSZkbWsiPxNUmjsCOIyhouW8LJ9lqlYT1DquzXX8Yf9mikWjqQ7WBQmNT+NvL8HUP4nGIcr9acTyF7MYLiRhiNfHm6/ARSJWx79oEE1j6+RttZ+m7T8wg6sn3jkQkLX+kUix98HCNS5ZFYms8LYFfRj2xKJJRyBwOoehPYqJFeGgNViZ0JZp2yyY8bVpu0HqVnyDjpyN9dWBkbuBa84OREEE67laNJgwHHvoTMubohDkVKBw+6ZRVxRZ88TJEyWeYNDjmFnnEbdiHIcy/TXW4Q7qgvuyecfmy8xEz6Ieva9MUgvkD7OupwZc2IvLR7yoYLnhje1r9zkOCtNEvywlJ1Dv//jHmTniddK/kUUKTnrxmppXcfADoL75UE5xCkTCOtm7DwSG+D75bK+Jgi/KiROqRBpSdBq8WMWbYNSK9NDKeC9MeKrWM1TN2Pry7VCXYizjS+u6D8/R0+221+VD60ZXt3za3NStkATjjOQzNNAUP4ixYhBEBJjCHH8nddVsEAwfUahqKq2h1LUj59Rq5PDJKHCw8trsk+iQ7/eZuXbDEX8EYu7cgrUQHaTkCSlrC2bHUT0fKUek5jgbkANzKxG
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB5613.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(56012099003)(22082099003)(18002099003)(38070700021)(4143699003)(11063799003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?AeYtqk17hjlENjBNbukK7oxPAXESK62QUVl6fnipDl6PUGhgBNYgkHqk8gJq?=
- =?us-ascii?Q?yH12msfPxvNMpbLc3KoV1iYh/lsiyOSJASGynGoYOEIcezJh/5NF/vvhjF+3?=
- =?us-ascii?Q?3qVLNib9YjpiPtDFUEE+vGiKU8nLp6UJjtfxn9U5OTAv25qgc/RI1CQJq6ve?=
- =?us-ascii?Q?XgIJORn1v134wV8FciC4YnBXXv21v456k1vtPGEbSLYYR5EkGRucwwTtVdKi?=
- =?us-ascii?Q?Y9DAYpNBhcBbG3HOdU9F81LAZNMBhZDIZRGxaQJYPZ9U+al/PjMNM4HnHF7G?=
- =?us-ascii?Q?XHMCNGQR39reqC5RpaM3EqwRi0ejPwIMM87CvNmp2kEbmPWz8MJbgoYxQiDd?=
- =?us-ascii?Q?5sxkP1/igiiDyqp9mF7h0gzvjFV5r0XC3TbCrZbHEkEbuK5l3iL5J57PrGqn?=
- =?us-ascii?Q?0sjy/kV53/bhgupGsK+MgmF8YP2zxqAptJ6acdaZnAm6NJorzHTczJM32zJ9?=
- =?us-ascii?Q?fQtBfNVNRL89EW3+JRL2neBcG5LE2w/a1evChYaxZaPVCUUZcR8p83gnnxaj?=
- =?us-ascii?Q?oZNSRnBh6BNAsyvnuMDRs5yXSDaJMkEu6TpMFIcqJyXtVNJbWahTiVQy6JET?=
- =?us-ascii?Q?fUVUbGTrDvTdATIEYuq+/mLGwgLRK+PKvnHkbJd4vmu0tnNHl7UpF7KGLjWF?=
- =?us-ascii?Q?oU1GpxK0divjg1A3K1mM31CUYH5DEhytpG0FsToABxZ/gGdvDY+UbXEYHo4I?=
- =?us-ascii?Q?rkL9XszSHEj+nSEXu9PhyT5gwjx0AOiEHK2/Nkr+al2AbAEcdC84sInLY+92?=
- =?us-ascii?Q?IQ+DqPc0GA3edtYNcACW3QdJ6DrOknXzC2PBSf0MPIHOzPRnOGzxygzSE60H?=
- =?us-ascii?Q?UrVd92yepsBRTrISFgJkb3A0iIVYwep9ZpLXxNAO9ZKHU/psNUoepLWdDZG+?=
- =?us-ascii?Q?FMfhT8nbOIvR3BSN1ZE6+zofF/p6A/oxQNqVBRYk+IQZ9Q0Lmcr0wMregyvn?=
- =?us-ascii?Q?vYw/X3rHlB2fPP1+O/7G92ABYUJqNSnAW1aQ+xY2CQGZii+qKKwTyetXclMZ?=
- =?us-ascii?Q?qxHfjkn7SzacJltaRaGRoC8pmtnqSfL2hw/MzmMWT79yBVGNzWvtKqCa74S5?=
- =?us-ascii?Q?5uMJMC2Wu4OrnG59ANPVnkFH8YDmhNgijO6+xcPwYhRkuSWN4Pl/1ZBMtkKo?=
- =?us-ascii?Q?wxlvCEhtJw8nmWiFdWaVUNoR6pU2a1p9fM4VSfg6iU2fHINiptXOnkf905M5?=
- =?us-ascii?Q?1aP+ELxsg5EqN4QK/TvBJttb4EYrco4z8CpLyQHsaxAIY7vDgKRbCD8Hixm+?=
- =?us-ascii?Q?M9zc+UGQOH6i8blgloaPnqd28v/rssI4gELLZ97t3KCH6Op7Yl5UQxG/xG/U?=
- =?us-ascii?Q?3DN0TeNZvXPSZY3nGmz7kN8sa/hEfoltO3WTCyh7mQFDpeqKhOn/OmdiFrh2?=
- =?us-ascii?Q?RnUq5Gj74B8IlDxUio7HptnOYxLp7Xm9iALyH0o8eUF258IxF2B+nacqBHWG?=
- =?us-ascii?Q?zeltS2+0gEKLtAeNSIQ7NjP4mntn17+5bW1FxMAV/lSm7cIkdBl3mZbQSh6I?=
- =?us-ascii?Q?/nPBtEb+bbgQh8XDhaUam0ch1H6si/RDL2wjOdHhBtz5FxFHD7Yl68S9VvD7?=
- =?us-ascii?Q?ecXR68U8W6E1PM6YOG+lLGgtA5Wax1FUTMHZAikDpwE1j0sIyhnKolnm6Yw1?=
- =?us-ascii?Q?uu8UznFn92D2DWjUWprBJwUfwYs8fKY30fYd1BXC9pCLEaokttJJFUM95ByG?=
- =?us-ascii?Q?3APNAN/AeJEPb8dGL4A+UHQarWRRNIRDjz8jY3dbO9F7kp46Z436SAu1AhIl?=
- =?us-ascii?Q?gr1HKOwVAQ=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=deller@gmx.de header.b="h6repjP/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1779173509; x=1779778309; i=deller@gmx.de;
+	bh=UK/ItpVEyTSBBzGxF5aYqKYWP3SqQYef/6I0a5bxCDg=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=h6repjP/rLsu6Dqk+ru9RJC9znIRVkzfvti2ITw3JIh/ReYUznRI6nczeYMmO/hZ
+	 VGgNKZUZSTQvk6O5CQZzQqeM6sOlb6hNmtuKoKwQ5ZAjnWVq3kLpSKj6wnypzE+pM
+	 DFJOVrIjU+I3Ef/fUMGmvGK/uibmMqNTL+6DpJjlcevyBTV1FjdTG7pXGB5ZnIpWl
+	 zRgsucsADUDiGZctMy75LjcADJTWg5A5Lp4GORPBk2a8my6h8c69JvrOHh3pJeYdk
+	 pHRJEPY+myaaLWkA5NtztgVmnYocfgQmaL2MW5JNTNbhumya0KAjB3rF8ZvcFB0R7
+	 ORbc6Bs/jg+wI4/10Q==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MLzBp-1whApQ32x7-00OSyc; Tue, 19
+ May 2026 08:51:49 +0200
+Message-ID: <0f262564-5c7a-48da-a5ee-546f7271d81d@gmx.de>
+Date: Tue, 19 May 2026 08:51:48 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: W2H6fzBKkji87qvyegysF5qf9t3ZCHWhgBGGVqjxcFBOO9BvJPN4Aq/2/NLQi3SmBZAnAlhubIQh6NLWu3XjnqTQ04lzCDgRfpdv7aUElEcGaezbOg8XK9x7VN+ZyYzmOtpQzDFZeK23MQJycH+lMY7Kd/tZr5kq4jfFAb5xINBZz3XaVeUaevoI4gZmzyj+DNk3ANwXmlsTkvFHluB6hrfHhvCH0s6/Hz6lGk6+BMNKIQ6elqlgkeNfKRNz0dgLmbGFmCaVzliwrmQPeHgt1/f/UFTYgtOLX7y8Dtr30Kqlh8FjVEMrMObTWCQKCpT3GpnQix9ql8wCGld7HxyGZQ==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB5613.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 652e1e68-1031-4669-eee1-08deb566a167
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 May 2026 05:22:33.2239
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ixrhOboNIVW5N0KqBy9RGJXJhrMXurtG9f2oM7nOmXrdAK3+mR77Rj5tDUHgBYGY1FVq/aK76yGw8+rim14+hA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB4594
-X-OriginatorOrg: intel.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] ARM: move Risc PC-specific <asm/hardware/iomd.h> header
+ into mach-rpc
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: Russell King <linux@armlinux.org.uk>, Andi Shyti <andi.shyti@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kees Cook <kees@kernel.org>
+References: <20260510031100.255248-1-enelsonmoore@gmail.com>
+Content-Language: en-US
+From: Helge Deller <deller@gmx.de>
+Autocrypt: addr=deller@gmx.de; keydata=
+ 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
+In-Reply-To: <20260510031100.255248-1-enelsonmoore@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:WxHE0vKpnwnI1xiX99q0fmbRiLsc4cVC7n55CZvifq0B3rE3wl2
+ l48T6yYOH+t/M3t2pf8+DmCdG/BmY6TnonGGkqnFttvl1RTfEJ9o+oRVogHoIkGqQPy69Ye
+ RJV/6N13C9j3Hk3uJIlhh4Qzk3UXqHx/9ZBMD4KB0tVSXylnDq1Ay90qubCvLwaKLqf5sAV
+ OfHB6etGzO2vR9DrnuJ8Q==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:0SBpDGxz0YA=;BztV0POZQ0bTyCa017p1CeOc7d2
+ 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
+ m6mgxQ==
 
->-----Original Message-----
->From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->Sent: Monday, May 18, 2026 4:20 AM
->To: Zhang, Lixu <lixu.zhang@intel.com>
->Cc: jikos@kernel.org; jic23@kernel.org; srinivas.pandruvada@linux.intel.co=
-m;
->Lechner, David <dlechner@baylibre.com>; nuno.sa@analog.com;
->andy@kernel.org; sakari.ailus@linux.intel.com; linux-input@vger.kernel.org=
-;
->linux-iio@vger.kernel.org; linux-kernel@vger.kernel.org
->Subject: Re: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup =
-and
->cleanup
->
->On Thu, May 14, 2026 at 02:47:52AM +0000, Zhang, Lixu wrote:
->> Tested-by: Zhang Lixu <lixu.zhang@intel.com>
->
->Hi Zhang,
->
->Thanks for the testing and validaiton.
->I hope you validated the complete series, including the unbind flow for th=
-e
->drivers using devm API.
+On 5/10/26 05:10, Ethan Nelson-Moore wrote:
+> The <asm/hardware/iomd.h> header is specific to the IOMD chip used on
+> the Risc PC. Move it into mach-rpc to avoid polluting asm/hardware/
+> with machine-specific headers.
+>=20
+> Also take the opportunity to remove a comment with the file path from
+> the header, which is bad style.
+>=20
+> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+> ---
+>   MAINTAINERS                                                     | 1 -
+>   arch/arm/mach-rpc/dma.c                                         | 2 +-
+>   arch/arm/{include/asm/hardware =3D> mach-rpc/include/mach}/iomd.h | 2 =
+=2D-
+>   arch/arm/mach-rpc/irq.c                                         | 2 +-
+>   arch/arm/mach-rpc/riscpc.c                                      | 2 +-
+>   arch/arm/mach-rpc/time.c                                        | 2 +-
+>   drivers/i2c/busses/i2c-acorn.c                                  | 2 +-
+>   drivers/input/mouse/rpcmouse.c                                  | 2 +-
+>   drivers/input/serio/rpckbd.c                                    | 2 +-
 
-Hi Sanjay,
+>   drivers/video/fbdev/acornfb.h                                   | 2 +-
 
-Yes, I validated the complete series. The unbind flow was tested as Sriniva=
-s previously
-suggested - performing the unbind while iio-sensor-proxy has an open sessio=
-n. No
-regression issues were observed.
+Regarding the fbdev change:
+Acked-by: Helge Deller <deller@gmx.de>
 
-Since iio-sensor-proxy does not typically open a gyro session, I applied th=
-e same changes
-from hid-sensor-gyro-3d to hid-sensor-accel-3d and tested the unbind flow o=
-n that driver
-as well. Again, no regression issues were found.
+I assume this patch is pushed via the arm tree?
 
-Thanks,
-Lixu
-
->
->Hi Jonathan,
->
->How should we take this series forward? should I extend the series to cove=
-r
->remaining HID IIO drivers for this devm API, or this series can applied to=
- IIO tree
->first and sent followup patches on top of that?
->
->Thanks, Sanjay
->
->>
->> >-----Original Message-----
->> >From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->> >Sent: Saturday, May 9, 2026 6:11 PM
->> >To: jikos@kernel.org; jic23@kernel.org;
->> >srinivas.pandruvada@linux.intel.com
->> >Cc: Lechner, David <dlechner@baylibre.com>; nuno.sa@analog.com;
->> >andy@kernel.org; sanjayembeddedse@gmail.com;
->> >sakari.ailus@linux.intel.com; linux-input@vger.kernel.org; linux-
->> >iio@vger.kernel.org; linux-kernel@vger.kernel.org
->> >Subject: [PATCH v3 0/9] iio: introduce devm_ API for hid sensro setup
->> >and cleanup
->> >
->> >From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->> >
->> >Key highlights:
->> >- Prepare change as pre-requisite for devm conversion for HID IIO
->> >  drivers by removing redundant argument
->> >- Add devm API to setup trigger and clenaup resource using
->> >  devm_add_action_or_reset()
->> >- few cleanup and prepratory changes before updating driver for devm_
->> >- few sample driver update using devm conversion to auto release
->> >resource
->> >
->> >changes in v3:
->> >- Added cleanup and prepratory changes before adding devm_ API
->> >  conversion based on self review: 0002, 0004, 0006, 0007 and 0008
->> >- Address andy's review comment on commit message and coding style
->> >- v2 series -> https://lore.kernel.org/all/20260429175918.2541914-1-
->> >sanjayembedded@gmail.com/
->> >changes in v2:
->> >- Following input from Jonathan and Andy, squash initial patch v1
->> >  series in single change as individual change should not break
->> >anything
->> >- Add devm API support and two driver using the same
->> >- v1 series -> https://lore.kernel.org/all/20260428071613.1134053-1-
->> >sanjayembedded@gmail.com/
->> >
->> >Testing:
->> >  - Compiled with W=3D1
->> >  - Build-tested on QEMU x86_64
->> >
->> >Based on further feedback and reviews, I would extend this series to
->> >convert all HID IIO driver to use devm_* API.
->> >
->> >Thanks,
->> >Sanjay Chitroda
->> >
->> >
->> >Sanjay Chitroda (9):
->> >  iio: hid-sensors: drop redundant iio_dev argument
->> >  iio: hid-sensors: cleanup codestyle warning
->> >  iio: hid-sensors: introduce device managed API
->> >  iio: gyro: hid-sensor-gyro-3d: cleanup codestyle warning
->> >  iio: gyro: hid-sensor-gyro-3d: drop hid_sensor_remove_trigger() using
->> >    devm API
->> >  iio: humidity: hid-sensor-humidity: cleanup codestyle check
->> >  iio: humidity: hid-sensor-humidity: use common device for devres
->> >  iio: humidity: hid-sensor-humidity: use local struct device
->> >  iio: humidity: hid-sensor-humidity: drop hid_sensor_remove_trigger()
->> >    using devm API
->> >
->> > drivers/iio/accel/hid-sensor-accel-3d.c       |  4 +-
->> > .../common/hid-sensors/hid-sensor-trigger.c   | 24 +++++++-
->> > .../common/hid-sensors/hid-sensor-trigger.h   |  5 +-
->> > drivers/iio/gyro/hid-sensor-gyro-3d.c         | 16 ++---
->> > drivers/iio/humidity/hid-sensor-humidity.c    | 61 +++++++++----------
->> > drivers/iio/light/hid-sensor-als.c            |  4 +-
->> > drivers/iio/light/hid-sensor-prox.c           |  4 +-
->> > drivers/iio/magnetometer/hid-sensor-magn-3d.c |  4 +-
->> >drivers/iio/orientation/hid-sensor-incl-3d.c  |  4 +-
->> >drivers/iio/orientation/hid- sensor-rotation.c |  4 +-  .../position/hi=
-d-sensor-
->custom-intel-hinge.c  |  4 +-
->> > drivers/iio/pressure/hid-sensor-press.c       |  4 +-
->> > .../iio/temperature/hid-sensor-temperature.c  |  4 +-
->> > 13 files changed, 78 insertions(+), 64 deletions(-)
->> >
->> >
->> >base-commit: 39b80c5c9830d12d2d6531059001301c4265322a
->> >--
->> >2.34.1
->> >
->>
+Helge

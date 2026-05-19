@@ -1,63 +1,63 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6743A1695
-	for <linux-input@vger.kernel.org>; Tue, 19 May 2026 23:48:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10BBF35203C
+	for <linux-input@vger.kernel.org>; Tue, 19 May 2026 23:48:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779234513; cv=none; b=MX+OMAdnIMUSzaUsUyV+a8T5qg+BRebeKVv8PFKlqt9uZD3YdXTx7Q3CP+DiT0oSw5VK2kRzHVZ9yW5RtzUbNeSROqMT1/PlClNDvtwg+eYovLMQFpppzLfMjQ3Mip7kp2fIMSVbuXe8XzlxDUxhwaJV7Ohs5Fwp0XjDLkHdFFo=
+	t=1779234518; cv=none; b=XW8QyMdmRK+rabkscUo8g2ZaKKUnfHeI11p/kZXVnJLCrYqjpbscEi+9JHUVQkpc5SzWVqav69d3KovV7qotbK4j3WYh/jLEYwDlmSM0hqkddKhHr1IQCXPHrAqMNNW0aVfoGcudJxW7pPCYKl+XAxbWp1Bk5iwY/IL6B7YdXAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779234513; c=relaxed/simple;
-	bh=Dnn1CGS+4OZOJShrWTbuyQ6nfUqx5TGkH6Z+F5fnlXM=;
+	s=arc-20240116; t=1779234518; c=relaxed/simple;
+	bh=QSiv7WSpFd2YKxc//BeochhaYMtiyPIjzqQwxwybp8g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VSEv8HwF0L1ZLC9AV7/hYvxA6+pFNsffPrj1dTcBpjgvvk7vVKrbibcON7ZT4l1Ua+Iy5c2+es+xN5ZJDHeD/eQWUTisY5I/1SJ58iQ/UeAEXbAzoVnEZFNsEwKGNxBwqV9lKSnadlaxPTX05pIpkJHCl7HwZD3PXUBkSVGcV5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=qF5lczHg; arc=none smtp.client-ip=209.85.219.48
+	 MIME-Version:Content-Type; b=BGFz4Dgf6hSARpZYNRaqX0pRAB3Rz61BWaDfGUPUFzDzsDA/UZ6AoOopZb5lYFwXxbeIWyVmarI+ibMk49m1hQI2nnJGZXjifZk8tZcgMdf7RX9hU4R3OY8emahP1+yztozEYXfVtnGUIBDH/UvD+RSnpPzXNwBmXJ7HGThlijA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br; spf=pass smtp.mailfrom=ime.usp.br; dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b=kseqh+rt; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ime.usp.br
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="qF5lczHg"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8be236ce888so43128076d6.3
-        for <linux-input@vger.kernel.org>; Tue, 19 May 2026 16:48:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=usp.br header.i=@usp.br header.b="kseqh+rt"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-90caad2e944so451254185a.2
+        for <linux-input@vger.kernel.org>; Tue, 19 May 2026 16:48:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=usp.br; s=usp-google; t=1779234511; x=1779839311; darn=vger.kernel.org;
+        d=usp.br; s=usp-google; t=1779234516; x=1779839316; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=erGMYs6yW3leYyCJ6nURYYZoDVNiP3/mQp9l8F6DAlI=;
-        b=qF5lczHggrAaA4so7bhbzZ2i6Fs1gueZ7edaRB03NjIeoqrNC2tJ9qLm6I7TyXiUuD
-         LTqB+FP88fea9WVIVE4PUmjFI8Hy+JikFojbtd6KM7GgtUveqWhLvtWZP5JY2XbNam+s
-         7mSXF5GvOKVAj1XovAeBwL4CS5fhvwUuYWi2BPhtJZMVJ7tctNN5bBRywccbgCU5s6lC
-         45tNKQFxDr8rqMvimWNL2mpI7uzs4nnCnY4G7NtLiBUKQ1oK81xN4wDiANmAxzO9jBIu
-         Eno71l+lneMf6BBOL8LSZeRJ4UejugQCjUCAo/3FEv+F1qyAlzyiqo2vf/Yfwa7cOI9B
-         Qa9w==
+        bh=h0NDejsVUf9MUY06XbPz1Snkq7R09XiljUeZXWH8Ubo=;
+        b=kseqh+rtwnL9RZ0cG478Hyut6+BRTclDmn7wdOa8Jw/1umJ73pUssr1TKlPUwAwuFG
+         +0souUazjfr5mOvFiRX2t8IA1Qh7TQxmb6fqNtDXfh3OfXwdNzYigEPUqETxpUTr3Tly
+         EA2WQI1TLMpw9TsDXxmvMMwVI81hGzXmoQ1u1ROEeaKi8QXsBiu+rK1mADiUU8q/PvUZ
+         Tv8uj52z1jKF4qTfgRoodhEjVDzaFMFeCtMY2RHbS8h8iMpjg/BFuBj80OsdzkRTolsV
+         0qFALr64I3i1IqcecOej8Gy9y1q2CpEPT5YUM6QkesId2Rlbqtf+B+ek48+L3j11U6UX
+         GwuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779234511; x=1779839311;
+        d=1e100.net; s=20251104; t=1779234516; x=1779839316;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=erGMYs6yW3leYyCJ6nURYYZoDVNiP3/mQp9l8F6DAlI=;
-        b=RJrOfJI+qWiVM1QQ+q0E0IUEepmMTrDzZWRmlAgpf9WoF0go9areTVG5Yby8hLLFzF
-         mWlbpftQJpf9kEoAenRbvef5pMo5634rUO41NtGC1FT9p4SA2rCfyjm+doHfws2Xi1zj
-         XMQY0k0ppw3YyG0iPW/zLh81zOGBePZr5LBqwKrJbSvQ95+qoDnmd7LFDwU/eqUMVeqs
-         RFrwrS6/VAmEcJ5x8/xm6fzwzFJvvLt6lZ6HqJjcYai4o+iIAlQI5QYOH1uapwlIWrc8
-         /Gi4xXVMxhjMwrs1pktm5czkYGmvsjSuDMPZ11ZCWjY8TrazvLQdFOicV56lkQzxH+pi
-         GXlw==
-X-Forwarded-Encrypted: i=1; AFNElJ+W6bChxbXzbJLu7eS00hK6/hgtMPBjoxzWzfIVYosieBchulw/DKHdbx5p3h6m92PeD9mZmhg14QiZsw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLfGemrFUwszOaiMhyJBWTT6x6B+Asb0S5VzzH1PBwo37oDvoW
-	Xj61YbgbIrmOpvgARgv1PCJ+uT8F/Wa+2pYlq+FUX+I8PFi+hNlrkHrYjJhXqxKBM2Y=
-X-Gm-Gg: Acq92OEXoxNXAOEpTW+DIJUWQgkxuvfTmgKuWTOJYIVX+r1UIVxG2dq0pjIKzEwMHtM
-	oyUsbJg74sTPccUuTRBEpnq4CmvwD56lRk0/6jHRE9btFebQYpNEUbyZQdr8YRsTikBvKLZxBXe
-	E0b3peRjcMmNkfTpq9VNptFQO0sd+KnrkOzt8AiK0yqj0/aNsYUIFGlGA0LeOmaMhCXq49MrJM4
-	BIY0tqim5evau9xhX74KpCmAsJGOehP01FjAh07Us+NKWlSBvmYbVRDG+8DfW3XY+7rciivv962
-	2+U7FN6pCDBaHCcryetcq2t2emxoNkCUQjJuD0gAGybCAGg70YYuRdRP6Em5CGZ9OPEo0CczxE9
-	iakr/hziESbxGDipa8soqLlE2XarrZkzz0d7nuR+wnKUXsueI51JDuXObARKvDvWaQe16+lagke
-	/tvy7tj7ou41MVGvy6vMA3oB9ni5BCgoQ4CyZuQOI=
-X-Received: by 2002:a05:6214:33c8:b0:89c:d808:c255 with SMTP id 6a1803df08f44-8ca0f697396mr374299376d6.37.1779234511542;
-        Tue, 19 May 2026 16:48:31 -0700 (PDT)
+        bh=h0NDejsVUf9MUY06XbPz1Snkq7R09XiljUeZXWH8Ubo=;
+        b=euYdGsl0vKWK8DCuHhkPUoHC+p12O7DckwA8ddytJxFe6MTcNPxFVS8xAqYeufKh7a
+         xZKOUE6vLLRjTfmj0FI8sxQClPLajgbPwTShNUX1thYnJO6XuZCunfHm2vtmudjWUjSo
+         aioD07pzjnIlCSMkpYMZefdgcGtofn1zJ0uXm4qi8U72rdfhPPZq5a5AhCWjnVboqRgV
+         Z2UVn6iqVrrewrTXTwuSslcCAT5OG3k6SvV/CeRuRMBC96u8YyTJQfBBID3m1rh/rxKN
+         HnaPOVNrN1+JuzcO8WLrz8y7MROZ0LJ4f5Ciebjb+BVC0DmTLTP9+10akyVA3Vs+ziMP
+         Y0vw==
+X-Forwarded-Encrypted: i=1; AFNElJ/vVvqSTNVmGJaigtO8Z3RJ6CbOJdKeqSLDUeOf+t3DhLCXARRbx9d02mysCVIZN0hfGqPT1sU8pobb8Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz0ZU+cHRu/Xtiqw4vdiortp0mKkaZon+k7ExzCzF7MQT4Ttl09
+	KkA6ePSZCcwoS1H7c+5difalnUF70XOemGRcgFVXKMUP0W69stKkHcWcYqPss7OoJ3k=
+X-Gm-Gg: Acq92OFpHXrLGWL8JheoUe2j5pHIt3XCuKx2HbAhXoOiiCCsV3Hi6e2j2UMS0jvLmxe
+	60r+1iE5H3TMuNOL5UzDDtPm2Mh7HD3FNPrS8NYr5i9jsp3mlIZ813cn26AF16Wjj8aBDx02V4q
+	gg+NSGo8NrZx1WIsfT5m2BaZ6ruYpX/izmSsVYlcEZWn6dCeDiL4p6QVHm6qBlKgb08nnToQPEe
+	HWnpUCpI+UZ29cDCn3a7Pn4YbY8gHvKk8W0K22Ltwr8UfFQRaktnQrM6Rqz60EOWqreJ3pv1PVh
+	LQEPm1+se8BSXRGZEheOtB9jps/DMQSRrxl6C3UDlbVFr/ijW5RvGvvF+yr/fwIXhLWLcAJWLvu
+	DnEJMIQZZtpd7y97Qz7qlpj/Q1IvRcMJ1MFBOZNil4+4akTw+CrTh+f+bzvN0SR9X9G4/ezsi4C
+	wBMTz5F/vj9sty0LUO+3+p71QQ7kx4
+X-Received: by 2002:a05:620a:4148:b0:8cb:5176:ef8 with SMTP id af79cd13be357-911ccd8bd6amr3179246485a.8.1779234516135;
+        Tue, 19 May 2026 16:48:36 -0700 (PDT)
 Received: from natalia-pc ([179.162.246.45])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca36095326sm107301896d6.14.2026.05.19.16.48.27
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca36095326sm107301896d6.14.2026.05.19.16.48.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2026 16:48:31 -0700 (PDT)
+        Tue, 19 May 2026 16:48:35 -0700 (PDT)
 From: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>
 To: andy@kernel.org,
 	dlechner@baylibre.com,
@@ -69,9 +69,9 @@ Cc: =?UTF-8?q?Nat=C3=A1lia=20Salvino=20Andr=C3=A9?= <natalia.andre@ime.usp.br>,
 	Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>,
 	linux-iio@vger.kernel.org,
 	linux-input@vger.kernel.org
-Subject: [PATCH v4 5/6] iio: magnetometer: HID: hid-sensor-magn-3d: Refactor channel initialization
-Date: Tue, 19 May 2026 20:40:47 -0300
-Message-ID: <20260519234752.23911-6-natalia.andre@ime.usp.br>
+Subject: [PATCH v4 6/6] iio: pressure: HID: hid-sensor-press: Refactor channel initialization
+Date: Tue, 19 May 2026 20:40:48 -0300
+Message-ID: <20260519234752.23911-7-natalia.andre@ime.usp.br>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260519234752.23911-1-natalia.andre@ime.usp.br>
 References: <20260519234752.23911-1-natalia.andre@ime.usp.br>
@@ -84,7 +84,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Replace the local magn_3d_adjust_channel_bit_mask() function with a
+Replace the local press_adjust_channel_bit_mask() function with a
 compound literal for scan_type initialization to improve code
 readability.
 
@@ -92,28 +92,28 @@ Signed-off-by: Natália Salvino André <natalia.andre@ime.usp.br>
 Co-developed-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
 Signed-off-by: Pietro Di Consolo Gregorio <pietro.gregorio@usp.br>
 ---
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 20 ++++++-------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/iio/pressure/hid-sensor-press.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index c673f9323e47..3b26dc41dd4c 100644
---- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-+++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+index 5f1d6abda3e4..a039b99d9851 100644
+--- a/drivers/iio/pressure/hid-sensor-press.c
++++ b/drivers/iio/pressure/hid-sensor-press.c
 @@ -3,6 +3,7 @@
   * HID Sensors Driver
-  * Copyright (c) 2012, Intel Corporation.
+  * Copyright (c) 2014, Intel Corporation.
   */
 +#include <linux/bitops.h>
  #include <linux/device.h>
  #include <linux/platform_device.h>
  #include <linux/module.h>
-@@ -132,17 +133,6 @@ static const struct iio_chan_spec magn_3d_channels[] = {
- 	IIO_CHAN_SOFT_TIMESTAMP(7)
+@@ -53,17 +54,6 @@ static const struct iio_chan_spec press_channels[] = {
+ 
  };
  
 -/* Adjust channel real bits based on report descriptor */
--static void magn_3d_adjust_channel_bit_mask(struct iio_chan_spec *channels,
--						int channel, int size)
+-static void press_adjust_channel_bit_mask(struct iio_chan_spec *channels,
+-					int channel, int size)
 -{
 -	channels[channel].scan_type.sign = 's';
 -	/* Real storage bits will change based on the report desc. */
@@ -123,23 +123,22 @@ index c673f9323e47..3b26dc41dd4c 100644
 -}
 -
  /* Channel read_raw handler */
- static int magn_3d_read_raw(struct iio_dev *indio_dev,
+ static int press_read_raw(struct iio_dev *indio_dev,
  			      struct iio_chan_spec const *chan,
-@@ -418,9 +408,11 @@ static int magn_3d_parse_report(struct platform_device *pdev,
- 			if (i != CHANNEL_SCAN_INDEX_TIMESTAMP) {
- 				/* Set magn_val_addr to iio value address */
- 				st->magn_val_addr[i] = &st->iio_vals[*chan_count];
--				magn_3d_adjust_channel_bit_mask(_channels,
--								*chan_count,
--								st->magn[i].size);
-+				_channels[*chan_count].scan_type = (struct iio_scan_type) {
-+					.format = 's',
-+					.realbits = BYTES_TO_BITS(st->magn[i].size),
-+					.storagebits = BITS_PER_TYPE(u32),
-+				};
- 			}
- 			(*chan_count)++;
- 		}
+@@ -225,8 +215,11 @@ static int press_parse_report(struct platform_device *pdev,
+ 			&st->press_attr);
+ 	if (ret < 0)
+ 		return ret;
+-	press_adjust_channel_bit_mask(channels, CHANNEL_SCAN_INDEX_PRESSURE,
+-					st->press_attr.size);
++	channels[CHANNEL_SCAN_INDEX_PRESSURE].scan_type = (struct iio_scan_type) {
++		.format = 's',
++		.realbits = BYTES_TO_BITS(st->press_attr.size),
++		.storagebits = BITS_PER_TYPE(u32),
++	};
+ 
+ 	dev_dbg(&pdev->dev, "press %x:%x\n", st->press_attr.index,
+ 			st->press_attr.report_id);
 -- 
 2.51.0
 

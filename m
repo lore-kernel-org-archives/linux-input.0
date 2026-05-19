@@ -1,171 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F369B3ED3BF;
-	Tue, 19 May 2026 14:00:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B690306B31
+	for <linux-input@vger.kernel.org>; Tue, 19 May 2026 16:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779199234; cv=none; b=YzbuqtlB0TNEHgNCcBhIcjDS3PKj4GMSlHHYvnc/WkQA5t2+Qg4fVNFQDnB+4DYC1AVr/VMjIiLGnohsyVViy6UDToVo18S3gtfska4MhPTyECN/hYC6gQOsI03QkZrwXM7E+GcbKPZr78618mWI+NgTxSd0nEeCaWs3w/DIb/I=
+	t=1779206674; cv=none; b=fg0q3Et+TLg7humuIIREKiHlpS224Czs+BRyqMX7mcHV6zOIXZV0ogaAXNyPjuWOj2LN6th6P4S5cEZj69OvToUo+5la1q028sDo8R2ugC2m/uNZKkhzstPPgghlbw/RuchK+LKUxfb33Ac30rM/8sdszKlbzDWY82z+KJQ8dPM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779199234; c=relaxed/simple;
-	bh=/8BWuvBDFztKFuX/SlpiEy/37TboyiBX8PxB33yS5Z8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZB8evvQtgHC2XoIwQDAPNUJJZzWsa1gcrwIRdmp3RtYQ4B33K0/a1iWKSfW5ZWj5iczgzcz51+IGQdRy+GBSke1SEeXj7S9++mCZpQyXMiOQm1T8v3WOrZ++xyJGQRoNDo3ZVzwbm1YCmexqnX7tsaygzDE/SORmCSSpU4E86Tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M+EbYHf7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779206674; c=relaxed/simple;
+	bh=LhbpTciPxj0wP8t7qiwasHS6QvXT2yZAybDYkl8F7ZA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DeTPoW3qQnfHnwEZr3Yqo6frnv3ofnVgxuAn2bFXeOJM8GibxBkO1BPV4sxsfC/UF25wEM2ZW77KgTt49oubLEpXHL2KVNqDSoSus3SNAffPgCvB9xbI4G3VU12GdiFKITcd/ipF3LU28H6PWvwPeA0RQZEKPKR134+b19MF3yI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=VcOLe/Pi; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M+EbYHf7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FF3C2BCB3;
-	Tue, 19 May 2026 14:00:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779199233;
-	bh=/8BWuvBDFztKFuX/SlpiEy/37TboyiBX8PxB33yS5Z8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=M+EbYHf7BMsznMj3a5Xl5E7giYn7q7kUaN6ipT5y96pivphrWgDWhSDmJSL4DKAPn
-	 Bctqhg9ZGSIMPUx/GiOVOhLpLOm8iqGF7gQpt7zz86xFX9swArBRrEeqoZ+GOIXva8
-	 9s6cGz8cHaiey4UwgAm2Nvu+hHmh9LtRivg5X1viPxMGUZuKXR2TkqyOZjIcLjHeRg
-	 awc+ZZ6k7ccuqet3LPgJeXdzUfBLBFukgfXZtP+JqOwvY8R/Fl5+W8KiqhbBpisNKX
-	 kLWOSLOM1lVmFi2soJ6H7JHJR7P9WrYxNnAUK4j8h/+5fkwDrq+8mbdhefhhuIpg2f
-	 KnayKD8cfWDbA==
-Date: Tue, 19 May 2026 16:00:27 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lee Jones <lee@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>, 
-	Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
-	Icenowy Zheng <uwu@icenowy.me>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, linux-usb@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
-Message-ID: <agxswzzCNMcxRN1n@beelink>
-References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
- <20260506091606.GB305027@google.com>
- <20260512101723.GU305027@google.com>
- <20260519111723.GU305027@google.com>
- <agxbD6k60vQYrJ6T@beelink>
- <2026051937-hefty-registry-37b2@gregkh>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="VcOLe/Pi"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-448528f4e69so2580046f8f.3
+        for <linux-input@vger.kernel.org>; Tue, 19 May 2026 09:04:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1779206671; x=1779811471; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xbx0+aqnrkSkqh+rpmBcYUsC9GAmtR5s68W84csX/OU=;
+        b=VcOLe/Pib1mE/zWL8bsYfgKM6NST9OeKFjf/hcV1iX8zCmE53lJPYYlSbGgVKtYW0q
+         N+YN+fmBxqXgGbfbE6vcu82fPYFO+Ny7OV0H3HM4MPPvcHotAoyU8zuCoIX0AjQ066jk
+         iBWAuE9oDGWAeOQU2YTN2PKdSgZdJgLv6Y+6xUfdd31hKgxL2SvkEYD/I1Sw4R/ycqxN
+         ZvWSQ65f7sWJTFQ9xpqev3xaoX6aPs+t63XIHratM2oZyojPOtK7DhX1HPAL6llLqVNz
+         Q67lru+o1PGOuddV8vd9ElO5nBpQWiEBbbKPUwHtXTiCOBnZ2AwCeTqmTUjJ9dTWaF5O
+         ClOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779206671; x=1779811471;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xbx0+aqnrkSkqh+rpmBcYUsC9GAmtR5s68W84csX/OU=;
+        b=Two9SogtZoyrlUXMQLyaOkCHMSt4yuYG04wGkAgAByvf8g80DWMEW3dwXoHk60c8KU
+         jm30HVmb9hv8KzD8mjvKRmDrD++Qr6Op59KeGrLKINnTv5txWz9SP9xdcjkS0t75cVnM
+         isG+MnnYUiqWSPun3ilfO1CQ1GnQ1Gsd0BeymSucAGu2vfOvtVgh0j+AYtp/8Yd0MDAO
+         iv/CC2lqVJR4ziHDq6i/yYLOMzQtSXrmVLiplm2ZN3p92yWcOdlH4FNCYFzi8RLfe7FD
+         Ni3Qe3y2EM9i6s/cTeVuROivc1HxrM4cTxAsuHb/+QmImm8LnONCe06J5UuUll65GGDC
+         kQhA==
+X-Gm-Message-State: AOJu0Yzk4oUM9ivp5LC2YKER6Y8DK46gtQivTw25hvvsg5QSI+2GLEnR
+	v6WYFuOQTsRXQVQpjXuiNmWGyFE3NyoJoqRDdJVK6c3XtIm3lLULgFS6RtGwpgfjjGg=
+X-Gm-Gg: Acq92OF57VH2mv+odjL3dtS2lmGJVSG1iS1PKYzKVeMH+kxZG9DfMLWjnhrMOJNCInV
+	7SvL+dT8Irt7xsICVJocZJuB78JwG8qPT0jEFmBsQLOhjOdo2ma3t/NCJNME+/Vdm5laZajDJLz
+	tzr4geJ+e9zK4eUxxL6yGdYWUp4+jZPOi47W+oocry6js6ks2SJJIYI8ldev6EXWaH3jZhtE4zd
+	lIYOVVDdHVtEGoh7DlUMHqSgX2KsTaVLmfytZ3Duw8SLc7RFju3R9oxBED+Kfr3/h9qZb1k5v3S
+	ObU0Th7wHOH4AqoELliN6V5dHjZ2n2G/lqXp6U+thPShrRu4Rp22qicguT4GPaUUmP9iGJBA7ah
+	fRDCXBLXqslMJJmy1ei4w6ETYn8h3EJTsRWxuGoMUwngPXKj2lRYCsP4iczSeiKVYkVcOLF7YBG
+	pw9V/vVAE5T0mNNclxD4S5Er4zWqTdFprD+a5TXwzjK9XS3cvr7MBYzf91q4A+FHnt3va2i/W3u
+	0XQCyvpEPvtWjc=
+X-Received: by 2002:a05:6000:178b:b0:451:bee9:17c8 with SMTP id ffacd0b85a97d-45e5c57d3c0mr34106186f8f.6.1779206670852;
+        Tue, 19 May 2026 09:04:30 -0700 (PDT)
+Received: from localhost (p200300f65f47db048a8dfcf61053817f.dip0.t-ipconnect.de. [2003:f6:5f47:db04:8a8d:fcf6:1053:817f])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45d9ec3b18fsm43175492f8f.11.2026.05.19.09.04.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 09:04:30 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] HID: i2c-hid-of: Use named initializers for struct i2c_device_id
+Date: Tue, 19 May 2026 18:04:20 +0200
+Message-ID: <20260519160420.1597193-2-u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2026051937-hefty-registry-37b2@gregkh>
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1811; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=LhbpTciPxj0wP8t7qiwasHS6QvXT2yZAybDYkl8F7ZA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqDIoEh8IS1HwVcK+Gt3O7WoUMxeohf2NUK5/Bm d51BT5+UqCJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCagyKBAAKCRCPgPtYfRL+ TpkSB/9Rh5CbpsngE3N1vMNE8wbBycT5z68OQ82K57I/4Z+zLYC+Kt0KQ0uTtJiZY35sn338Tsf RPB8s0kiQJk+CXs3j3UnRFD6Ngt170r+c7EmGD/nTHIuHC4G6zEHO/arkv+JhNuzJm0nMec4rui f7U0xaw9dfNvr+oESToQihFvxL4Ji/5IHuE+t6Aide8xjhAPNzhmlAuMqvc3Q/ip5IKA3RMoOw2 thOfyLDjM/NI/fjrZ/G9297+4PRVkZlVardz9lPyeC5OTK+PJ9YRrg7uwqqfw41xDQFDMMOalkV wnwvV4fybrFih+azx0HcObZFGFoq3/56FJ4/7BKu2tEI8ZhG
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-On May 19 2026, Greg Kroah-Hartman wrote:
-> On Tue, May 19, 2026 at 02:46:13PM +0200, Benjamin Tissoires wrote:
-> > On May 19 2026, Lee Jones wrote:
-> > > On Tue, 12 May 2026, Lee Jones wrote:
-> > > 
-> > > > On Wed, 06 May 2026, Lee Jones wrote:
-> > > > 
-> > > > > On Mon, 04 May 2026, Benjamin Tissoires wrote:
-> > > > > 
-> > > > > > Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
-> > > > > > bogus memset()") enforced the provided data to be at least the size of
-> > > > > > the declared buffer in the report descriptor to prevent a buffer
-> > > > > > overflow.
-> > > > > > 
-> > > > > > We only had corner cases of malicious devices exposing the OOM because
-> > > > > > in most cases, the buffer provided by the transport layer needs to be
-> > > > > > allocated at probe time and is large enough to handle all the possible
-> > > > > > reports.
-> > > > > > 
-> > > > > > However, the patch from above, which enforces the spec a little bit more
-> > > > > > introduced both regressions for devices not following the spec (not
-> > > > > > necesserally malicious), but also a stream of errors for those devices.
-> > > > > > 
-> > > > > > Let's revert to the old behavior by giving more information to HID core
-> > > > > > to be able to decide whether it can or not memset the rest of the buffer
-> > > > > > to 0 and continue the processing.
-> > > > > > 
-> > > > > > Note that the first commit makes an API change, but the callers are
-> > > > > > relatively limited, so it should be fine on its own. The second patch
-> > > > > > can't really make the same kind of API change because we have too many
-> > > > > > callers in various subsystems. We can switch them one by one to the safe
-> > > > > > approach when needed.
-> > > > > > 
-> > > > > > The last 2 patches are small cleanups I initially put together with the
-> > > > > > 2 first patches, but they can be applied on their own and don't need to
-> > > > > > be pulled in stable like the first 2.
-> > > > > > 
-> > > > > > Cheers,
-> > > > > > Benjamin
-> > > > > > 
-> > > > > > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
-> > > > > > ---
-> > > > > > Changes in v3:
-> > > > > > - fixed ghib -> ghid in greybus
-> > > > > > - fixed i386 size_t debug size reported by kernel-bot
-> > > > > > - Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
-> > > > > > 
-> > > > > > Changes in v2:
-> > > > > > - added a small blurb explaining the difference between the safe and the
-> > > > > >   non safe version of hid_safe_input_report
-> > > > > > - Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
-> > > > > > 
-> > > > > > ---
-> > > > > > Benjamin Tissoires (4):
-> > > > > >       HID: pass the buffer size to hid_report_raw_event
-> > > > > >       HID: core: introduce hid_safe_input_report()
-> > > > > >       HID: multitouch: use __free(kfree) to clean up temporary buffers
-> > > > > >       HID: wacom: use __free(kfree) to clean up temporary buffers
-> > > > > > 
-> > > > > >  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
-> > > > > >  drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
-> > > > > >  drivers/hid/hid-gfrm.c             |  4 +--
-> > > > > >  drivers/hid/hid-logitech-hidpp.c   |  2 +-
-> > > > > >  drivers/hid/hid-multitouch.c       | 18 ++++------
-> > > > > >  drivers/hid/hid-primax.c           |  2 +-
-> > > > > >  drivers/hid/hid-vivaldi-common.c   |  2 +-
-> > > > > >  drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
-> > > > > >  drivers/hid/usbhid/hid-core.c      | 11 ++++---
-> > > > > >  drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
-> > > > > >  drivers/staging/greybus/hid.c      |  2 +-
-> > > > > >  include/linux/hid.h                |  6 ++--
-> > > > > >  include/linux/hid_bpf.h            | 14 +++++---
-> > > > > >  13 files changed, 109 insertions(+), 78 deletions(-)
-> > > > > 
-> > > > > What's the plan for this set Benjamin? -rcs or -next?
-> > > > 
-> > > > Are there any updates on this set please?
-> > > > 
-> > > > FYI, this set is still important to us.
-> > > > 
-> > > > Ideally, if all is well, it would go into the -rcs for v7.1.
-> > > 
-> > > I'm still actively tracking these.
-> > > 
-> > > It looks like Mark has been reverting them from -next and I'm getting
-> > > complaints from the Stable folks that they are causing build errors.
-> > > 
-> > >   drivers/hid/hid-core.c: In function 'hid_safe_input_report':
-> > >   drivers/hid/hid-core.c:2195:16: error: too many arguments to function '__hid_input_report'
-> > >     2195 |         return __hid_input_report(hid, type, data, bufsize, size, interrupt, 0,
-> > > 
-> > > Are you folks still working on this set?
-> > 
-> > Well, everything is in Linus' tree:
-> > 
-> > not yet in a released rc (taken yesterday by Linus directly):
-> > 
-> > 4d3a2a466b8d HID: core: Fix size_t specifier in hid_report_raw_event()
-> > 
-> > Already in 7.1-rc4:
-> > 
-> > 206342541fc8 HID: core: introduce hid_safe_input_report()
-> > 2c85c61d1332 HID: pass the buffer size to hid_report_raw_event
-> > 
-> > Not sure why the patches don't apply to stable, but from an upstream
-> > subsystem point of view, everything is in order.
-> 
-> We dropped them from stable because of the build breakage :(
-> 
+While being less compact, using named initializers allows to more easily
+see which members of the structs are assigned which value without having
+to lookup the declaration of the struct. And it's also more robust
+against changes to the struct definition.
 
-If that was just the i386 size_t issue, then it has been fixed in Linus'
-tree. Could you try retaking them? Please?
+This patch doesn't modify the compiled array, only its representation in
+source form benefits. The former was confirmed with x86 and arm64
+builds.
 
-Cheers,
-Benjamin
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+---
+Hello,
+
+this patch is part of a bigger quest to use named initializers for
+mainly struct i2c_device_id::driver_data to be able to modify
+i2c_device_id. See e.g.
+https://lore.kernel.org/all/20260518111203.639603-2-u.kleine-koenig@baylibre.com/
+for the details.
+
+This patch here isn't critical for this quest, as this driver doesn't
+make use of .driver_data, so apart from the better readability this is
+only about consistency with other subsystems.
+
+This is the only i2c driver under drivers/hid, so this is the only patch
+needed to adapt the whole subsystem to the new style for initializing
+i2c_device_id arrays.
+
+Best regards
+Uwe
+
+ drivers/hid/i2c-hid/i2c-hid-of.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-of.c b/drivers/hid/i2c-hid/i2c-hid-of.c
+index 57379b77e977..59393d71ddb9 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-of.c
++++ b/drivers/hid/i2c-hid/i2c-hid-of.c
+@@ -144,8 +144,8 @@ MODULE_DEVICE_TABLE(of, i2c_hid_of_match);
+ #endif
+ 
+ static const struct i2c_device_id i2c_hid_of_id_table[] = {
+-	{ "hid" },
+-	{ "hid-over-i2c" },
++	{ .name = "hid" },
++	{ .name = "hid-over-i2c" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, i2c_hid_of_id_table);
+
+base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+-- 
+2.47.3
+

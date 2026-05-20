@@ -1,125 +1,182 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45BDD3DC4A7
-	for <linux-input@vger.kernel.org>; Wed, 20 May 2026 12:24:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDF003E1232;
+	Wed, 20 May 2026 12:46:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779279872; cv=none; b=CcKnr9Kk9NJ3yPIb3Kb9sDwXpUGYhAVyAl26rKyX382aVmukAFHCiQJEkO6yKNWW9QT1ywq+ZWQiLf9r6I0JG7wkFYRB1M6VQnLctk0rEJe3LRmNdnck2c9eh+WaMmn5T3H6rEbvfyhE9PLerf76pJrb1dU4YhPOoG5s4CFQJho=
+	t=1779281178; cv=none; b=ly7kTB8NIQ2RxXe5jxhyhY+sy/TIYD5ERQqvbXcqfiUM/xw1S2G0Vm8jrudXd4MErMHdiwHbGKRzIvLDN6wyR6q5cu5HlhaDptpdtClPdowoe1L5Q08QRahkb4xr7b+YBXSY3fgNsxhv7AUtZBWXhhP0k6LWCobnHFBPLRih1jU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779279872; c=relaxed/simple;
-	bh=IYqaVtZdmlAhfNkXyuD+5GiqugKhQ4NuFuvy6bljtc0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=neheM/ZzfgWboZRoa7h01CnxFdRiuO8o1AsK1KvznhfkxR3Nvg7KneuVivXR1X1jwqZjfSoiuyxsEF/98NBZu4yiNorAEZqcu+byHxM4eouhO+EgzJVdEMWQ6TmNJuy1efEK7w/bJiRb1Hvqof/JFYBG0aNuhnSqzM5Iqmtky4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oG4jH9mr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779281178; c=relaxed/simple;
+	bh=UW1L0gVMS5PXHtlP2FSbkLQVtQNmBkwEQaK2o2VZo/A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gTkD7/f7vYbENhmEs6v64yLV5LGIj1ojQkBQ8jFdV0RRM2nO+EWHeEzWxzS5htgDKNe4lpKnYjHDdDHD3rTVE55McXpxkdrsnOo6WFLPhzpQ62sCowZUprxftFlfnnarYR/iKESh0yijeGN7mDF98UfoGEfCRii8xgtH1RRzZ0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZJDcfzLi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oG4jH9mr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E901F000E9;
-	Wed, 20 May 2026 12:24:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZJDcfzLi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4007F1F000E9;
+	Wed, 20 May 2026 12:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779279870;
-	bh=+Ef6P9iv2N9MsMnY6tT2osxs+3eSGJA2PqXVcz53OQ8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oG4jH9mrRoX0bUH9Jm4yF/X594BvuUO0s+5Yoq/gBjAGjXCXDNBwiZrN5UanI4zp1
-	 C5cWPbv99Xq+ob/V1YhCrOohnKO+/h/+W2cyDEkbx1gdBttoJjdA2oVlpc3xhY4Lbv
-	 UU4ZWxRJ0X0fwUUt73Rxkjywk+q3UVoFgoswgzJcRN/H6mZxmfYbEm+7mwKD5rAsgd
-	 LQKpeHHJdM79ppe0Q/NoVj2JCoTTEKmcgJsQiKeLGV6QRGJtuJSRPHxaffE4kX4jZ1
-	 CDESWBVC93wbnO3tHQ4wF68Y9OIX6dxlBtOTeWpzpAYXX0geIWHC86zZfRkUKtSNgY
-	 VAcmnU7yF9S4Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH AUTOSEL 7.0-5.10] HID: elan: Add support for ELAN SB974D
- touchpad
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sasha Levin" <sashal@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260520111944.3424570-28-sashal@kernel.org>
-References: <20260520111944.3424570-28-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 20 May 2026 12:24:30 +0000
-Message-Id: <20260520122430.B5E901F000E9@smtp.kernel.org>
+	s=k20260515; t=1779281176;
+	bh=kskmG5Ux8kxJLRcreVT9An1Xq94EuhLrlQ5Y5quP13Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZJDcfzLibpI18YnttQqfv2qTv7nGluvH+8+CUcYFvIHoRWg6JxjrmX6fWd8Hfm5rF
+	 RSV4Si8XPBPVV+YtGitM361GMBUAEl7qX7s858WBzcxzv+WHdrxpaF15NIUqHz6kKG
+	 Waijex4rWcgvlPQZsSYSPHvxoweTUHHxmcDO0CfvEpAYY8x2nfq2Ay7stoxEWd3WzT
+	 BtmD+5An+mZ7lYKlFKbhwPeGFMBhBe5sW74UUQZ4G5YLUXEaqUSnCdlV5S+6T/xCcG
+	 8jzSzUvqHckdwsz43ikSYPnLc+NzzZBTYDC5n3GK1JpvsEtyhqLgEJOxYHuFnOcUlD
+	 OIk65PZW7WwRw==
+Date: Wed, 20 May 2026 13:46:10 +0100
+From: Lee Jones <lee@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Kosina <jikos@kernel.org>,
+	Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
+	Bastien Nocera <hadess@hadess.net>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Viresh Kumar <vireshk@kernel.org>, Johan Hovold <johan@kernel.org>,
+	Alex Elder <elder@kernel.org>, Icenowy Zheng <uwu@icenowy.me>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev,
+	linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3 0/4] HID: Proper fix for OOM in hid-core
+Message-ID: <20260520124610.GZ305027@google.com>
+References: <20260504-wip-fix-core-v3-0-ce1f11f4968f@kernel.org>
+ <20260506091606.GB305027@google.com>
+ <20260512101723.GU305027@google.com>
+ <20260519111723.GU305027@google.com>
+ <agxbD6k60vQYrJ6T@beelink>
+ <2026051937-hefty-registry-37b2@gregkh>
+ <agxswzzCNMcxRN1n@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <agxswzzCNMcxRN1n@beelink>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Tue, 19 May 2026, Benjamin Tissoires wrote:
 
-Pre-existing issues:
-- [High] The driver fails to restore the device to multitouch mode after a =
-system suspend/resume cycle.
-- [High] In USB mode, if more than two fingers are active, the driver assig=
-ns identical coordinates to all fingers after the first one.
---
+> On May 19 2026, Greg Kroah-Hartman wrote:
+> > On Tue, May 19, 2026 at 02:46:13PM +0200, Benjamin Tissoires wrote:
+> > > On May 19 2026, Lee Jones wrote:
+> > > > On Tue, 12 May 2026, Lee Jones wrote:
+> > > > 
+> > > > > On Wed, 06 May 2026, Lee Jones wrote:
+> > > > > 
+> > > > > > On Mon, 04 May 2026, Benjamin Tissoires wrote:
+> > > > > > 
+> > > > > > > Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> > > > > > > bogus memset()") enforced the provided data to be at least the size of
+> > > > > > > the declared buffer in the report descriptor to prevent a buffer
+> > > > > > > overflow.
+> > > > > > > 
+> > > > > > > We only had corner cases of malicious devices exposing the OOM because
+> > > > > > > in most cases, the buffer provided by the transport layer needs to be
+> > > > > > > allocated at probe time and is large enough to handle all the possible
+> > > > > > > reports.
+> > > > > > > 
+> > > > > > > However, the patch from above, which enforces the spec a little bit more
+> > > > > > > introduced both regressions for devices not following the spec (not
+> > > > > > > necesserally malicious), but also a stream of errors for those devices.
+> > > > > > > 
+> > > > > > > Let's revert to the old behavior by giving more information to HID core
+> > > > > > > to be able to decide whether it can or not memset the rest of the buffer
+> > > > > > > to 0 and continue the processing.
+> > > > > > > 
+> > > > > > > Note that the first commit makes an API change, but the callers are
+> > > > > > > relatively limited, so it should be fine on its own. The second patch
+> > > > > > > can't really make the same kind of API change because we have too many
+> > > > > > > callers in various subsystems. We can switch them one by one to the safe
+> > > > > > > approach when needed.
+> > > > > > > 
+> > > > > > > The last 2 patches are small cleanups I initially put together with the
+> > > > > > > 2 first patches, but they can be applied on their own and don't need to
+> > > > > > > be pulled in stable like the first 2.
+> > > > > > > 
+> > > > > > > Cheers,
+> > > > > > > Benjamin
+> > > > > > > 
+> > > > > > > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> > > > > > > ---
+> > > > > > > Changes in v3:
+> > > > > > > - fixed ghib -> ghid in greybus
+> > > > > > > - fixed i386 size_t debug size reported by kernel-bot
+> > > > > > > - Link to v2: https://lore.kernel.org/r/20260416-wip-fix-core-v2-0-be92570e5627@kernel.org
+> > > > > > > 
+> > > > > > > Changes in v2:
+> > > > > > > - added a small blurb explaining the difference between the safe and the
+> > > > > > >   non safe version of hid_safe_input_report
+> > > > > > > - Link to v1: https://lore.kernel.org/r/20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org
+> > > > > > > 
+> > > > > > > ---
+> > > > > > > Benjamin Tissoires (4):
+> > > > > > >       HID: pass the buffer size to hid_report_raw_event
+> > > > > > >       HID: core: introduce hid_safe_input_report()
+> > > > > > >       HID: multitouch: use __free(kfree) to clean up temporary buffers
+> > > > > > >       HID: wacom: use __free(kfree) to clean up temporary buffers
+> > > > > > > 
+> > > > > > >  drivers/hid/bpf/hid_bpf_dispatch.c |  6 ++--
+> > > > > > >  drivers/hid/hid-core.c             | 67 ++++++++++++++++++++++++++++++--------
+> > > > > > >  drivers/hid/hid-gfrm.c             |  4 +--
+> > > > > > >  drivers/hid/hid-logitech-hidpp.c   |  2 +-
+> > > > > > >  drivers/hid/hid-multitouch.c       | 18 ++++------
+> > > > > > >  drivers/hid/hid-primax.c           |  2 +-
+> > > > > > >  drivers/hid/hid-vivaldi-common.c   |  2 +-
+> > > > > > >  drivers/hid/i2c-hid/i2c-hid-core.c |  7 ++--
+> > > > > > >  drivers/hid/usbhid/hid-core.c      | 11 ++++---
+> > > > > > >  drivers/hid/wacom_sys.c            | 46 +++++++++-----------------
+> > > > > > >  drivers/staging/greybus/hid.c      |  2 +-
+> > > > > > >  include/linux/hid.h                |  6 ++--
+> > > > > > >  include/linux/hid_bpf.h            | 14 +++++---
+> > > > > > >  13 files changed, 109 insertions(+), 78 deletions(-)
+> > > > > > 
+> > > > > > What's the plan for this set Benjamin? -rcs or -next?
+> > > > > 
+> > > > > Are there any updates on this set please?
+> > > > > 
+> > > > > FYI, this set is still important to us.
+> > > > > 
+> > > > > Ideally, if all is well, it would go into the -rcs for v7.1.
+> > > > 
+> > > > I'm still actively tracking these.
+> > > > 
+> > > > It looks like Mark has been reverting them from -next and I'm getting
+> > > > complaints from the Stable folks that they are causing build errors.
+> > > > 
+> > > >   drivers/hid/hid-core.c: In function 'hid_safe_input_report':
+> > > >   drivers/hid/hid-core.c:2195:16: error: too many arguments to function '__hid_input_report'
+> > > >     2195 |         return __hid_input_report(hid, type, data, bufsize, size, interrupt, 0,
+> > > > 
+> > > > Are you folks still working on this set?
+> > > 
+> > > Well, everything is in Linus' tree:
+> > > 
+> > > not yet in a released rc (taken yesterday by Linus directly):
+> > > 
+> > > 4d3a2a466b8d HID: core: Fix size_t specifier in hid_report_raw_event()
+> > > 
+> > > Already in 7.1-rc4:
+> > > 
+> > > 206342541fc8 HID: core: introduce hid_safe_input_report()
+> > > 2c85c61d1332 HID: pass the buffer size to hid_report_raw_event
+> > > 
+> > > Not sure why the patches don't apply to stable, but from an upstream
+> > > subsystem point of view, everything is in order.
+> > 
+> > We dropped them from stable because of the build breakage :(
+> > 
+> 
+> If that was just the i386 size_t issue, then it has been fixed in Linus'
+> tree. Could you try retaking them? Please?
 
-commit d5ae02b47586e24db0bca9c6a7b552b9fc7ef6e4
-Author: Damien Dejean <damiendejean@google.com>
+Thanks for following-up on this, I really appreciate it.
 
-HID: elan: Add support for ELAN SB974D touchpad
+It looks as though these are no longer reverted from today's -next. \o/
 
-This commit adds support for the ELAN SB974D touchpad by registering its
-device ID in the supported devices list so the driver can parse its
-vendor-specific formats.
-
-> diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-> index 76d93fc48f6a2..0190ad567ce4d 100644
-> --- a/drivers/hid/hid-elan.c
-> +++ b/drivers/hid/hid-elan.c
-> @@ -513,6 +513,7 @@ static const struct hid_device_id elan_devices[] =3D {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_HP_X2_10_COVER),
->  	  .driver_data =3D ELAN_HAS_LED },
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_TOSHIBA_CLICK_L9W) },
-> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_SB974D) },
-
-[Severity: High]
-This is a pre-existing issue, but does the driver fail to restore the device
-to multitouch mode after a system suspend/resume cycle?
-
-The ELAN touchpads require a vendor-specific initialization command
-(elan_start_multitouch) to disable mouse emulation and enable multitouch
-mode. This sequence is currently only executed during the initial elan_prob=
-e.
-
-The hid_driver struct for elan_driver does not provide resume or reset_resu=
-me
-callbacks. When the system suspends and the device loses power (both in USB
-and I2C modes), it reverts to its default mouse emulation mode.
-
-Upon resume, the core HID drivers call hid_driver_reset_resume(), which acts
-as a no-op since the callback is missing and returns success without rebind=
-ing.
-
-Does this leave the touchpad permanently in a degraded state after a
-suspend/resume cycle?
-
-[Severity: High]
-This is a pre-existing issue, but in USB mode, if more than two fingers are
-active, does the driver assign identical coordinates to all fingers after t=
-he
-first one?
-
-Looking at elan_usb_report_input(), when parsing the ELAN_MT_SECOND_FINGER
-packet, the driver iterates over ELAN_MAX_FINGERS to dispatch slot updates
-based on the active touch bits in prev_report[2].
-
-For the first active bit found, it correctly uses coordinates from
-prev_report + 3. For all subsequent active bits, the else branch executes:
-
-    elan_report_mt_slot(drvdata, data + 1, i);
-
-Because data + 1 is passed directly each time without incrementing any offs=
-et,
-are the exact same coordinates and pressure values assigned to all fingers
-after the first?
-
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, elan_devices);
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260520111944.3424=
-570-28-sashal@kernel.org?part=3D1
+-- 
+Lee Jones

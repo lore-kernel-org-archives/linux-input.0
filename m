@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A97A348465
-	for <linux-input@vger.kernel.org>; Wed, 20 May 2026 03:23:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2B3F3290A6
+	for <linux-input@vger.kernel.org>; Wed, 20 May 2026 03:58:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779247439; cv=none; b=DdY7J9WzvNFojYrBtXKumxLyzgfnDGihrEWQJIPMKKFPmUccg/vOBzevMSSNvuWKsFECzA6AQYwMqBQuO063DxBcXvXpcz5rMdcQpp7KnMrpP5dDdwyGUX7vlwZM1IwAOHuMXjaIWhui+uFYHTCzw3rVgjqmx81R95rtqHuY3nM=
+	t=1779249532; cv=none; b=ODGqspfBuQWw4V/69X1Kl0TsD5Pf9541JLzeQjUqm3AvSYacA1V4II+5VMm0LthyHHHmCdgzICA4H4U6jVrYYUMxVHKFYsXPgJf2Cqn9XEslb+3RlZiQUJi/6ubH20ymlF1hQD2pLo+wHU5EO1wYbqTL0BO0CTxE5MeJQc8Zu80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779247439; c=relaxed/simple;
-	bh=GtqL0f01lof5rBMmJWfkRVBNBg8ICEZ2DxMC0ywDHPk=;
+	s=arc-20240116; t=1779249532; c=relaxed/simple;
+	bh=q+2WsEb0184Pq5hwPDRixUGuBJs3xywFYmHCM+CqfKo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=A20K4CADT8ogEYjmO0ZSMSixxFSjEjYRxA5GXCMc9f7ucmwNTjv8nv/VJgd2pVkCXdeYR06X7IeihSH0Lh5SH0ahN3po2NrgIJ3XoTahKZzXsQPtNgIgz4A0qvEBsSz6+iBbfLdXCPRl7BaxfCkw6t7XtbMsJ1J7K5o12ojp+rE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VWHV/vIa; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sMTtDk+R1uNO2bcbxx6nBVJ6Rf8MHIxYwtJMsUnfk9hnwBVGacOpFiTQYwjhqPbW7xSm/NemYsl/SkXNor6CqtB+P7DQ6QmRyUhkwQxx8I2HoSuxnWwpZ65SUaVC1ckMnEqdgyvLHKNS5z8ARb9G4GtVAWl/kIpgYtE3IwG+cSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZslzXz43; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VWHV/vIa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0FB21F00893;
-	Wed, 20 May 2026 03:23:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZslzXz43"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3B41F000E9;
+	Wed, 20 May 2026 03:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779247438;
-	bh=yjUOnqsjchTs4P5i70gDs6DP+Hzz8SiITafCZd7bflA=;
+	s=k20260515; t=1779249527;
+	bh=qrNdHWzilLw27tw0x3O8MTZYAcy20MYvmwVhiAWpFqQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VWHV/vIaVzxhs0/aibSziKYzqcZqKZMcvQvlxcoW31mDA+jDZBsHx+AOuBe52Rxnd
-	 HFMgX2nfQbWv+bPp8NAlxw8w/rEr+ZlvCArjFYPXa4MSbNmED+QJsFSxImzLfszXIS
-	 3s9gGzRIEUi/eGR4JQgcaMlD66p9Ovt8cdoCHNW55nqNzh/xP1LvGrXoNX1jOMhs3G
-	 FOPXLHqTrN/x/BC4fFffaf+8zEC97h4Egbnlu8IheT9zy4N61GYYEne3niSUzdX2PP
-	 fovJCYPbiHy5j3ptCOR8m5/kvV79Psf24HWOzhCH+ZImnbiRwvjIq1C5EHlWmj8Ymf
-	 Rptcho2T2yZqw==
+	b=ZslzXz43sfyark7UbYDIB1XzANBSBUWOR0rEIy9GZwrzzzHwKtuoB4fUnw4xLmzQK
+	 3wC2XQYRc2LUkWhxJva35NUvc7NGxPU8k/Z4dFLNKwBG10mZDU2AvqDcXOhiyROmC9
+	 n5frK0XLWcjTc8xHOZxkOU6JT6FFK/4oaaVILXjjVFhbQGxPNxlMfHdU80kr7YsW1S
+	 04j9wmd7vrt2p9Kzu8GUlEAwVxOxCqhyR9UJp3ETSKNeD+hbBZ9QRz9kdlSRsLDKqJ
+	 j70XK13iNhvguI/iZkgVtMPe9Y/vOe+xRAjOf6xZQm1z6BvPq3FVQcyKDu5ldIk1lV
+	 j8DUt68SM2M7g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 3/4] HID: hid-msi: Add RGB control interface
+Subject: Re: [PATCH v7 4/4] HID: hid-msi: Add Rumble Intensity Attributes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260520013158.3633277-4-derekjohn.clark@gmail.com>
-References: <20260520013158.3633277-4-derekjohn.clark@gmail.com>
+In-Reply-To: <20260520013158.3633277-5-derekjohn.clark@gmail.com>
+References: <20260520013158.3633277-5-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 20 May 2026 03:23:57 +0000
-Message-Id: <20260520032357.F0FB21F00893@smtp.kernel.org>
+Date: Wed, 20 May 2026 03:58:46 +0000
+Message-Id: <20260520035847.2A3B41F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,124 +45,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] A race condition in `claw_remove()` allows the `rgb_queue` delayed=
- work to be re-armed after it is cancelled, leading to a Use-After-Free.
-- [High] Failing to unregister the LED class device if `device_add_group()`=
- fails leaves it registered but sets `rgb_registered =3D false`, causing li=
-st corruption upon retry.
+
+Pre-existing issues:
+- [High] Concurrent execution of sysfs attributes can lead to premature com=
+mand completion and stale reads because untracked generic ACKs from zero-ti=
+meout commands hijack pending wait completions.
+- [High] A race condition during module removal can lead to a Use-After-Fre=
+e of `drvdata` due to improper teardown ordering of the `rgb_queue` delayed=
+ work.
 --
 
-commit 35b79b95f2f2fd70b7faaa568ae55b37643edb83
+commit efccc9e9df435fd90fd3e39aab88962809dcbfde
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add RGB control interface
-   =20
-Adds RGB control interface for MSI Claw devices. The MSI Claw uses a
-fairly unique RGB interface. It has 9 total zones (4 per joystick ring
-and 1 for the ABXY buttons), and supports up to 8 sequential frames of
-RGB zone data.
+HID: hid-msi: Add Rumble Intensity Attributes
+
+Adds intensity adjustment for the left and right rumble motors.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 193435ec9386c..61917902e38d3 100644
+> index 61917902e38d3..4adc5588618df 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
 
 [ ... ]
 
-> @@ -871,31 +960,521 @@ static const struct attribute_group claw_gamepad_a=
-ttr_group =3D {
-
-[ ... ]
-
-> +try_rgb:
-> +	/* Add and enable RGB interface once we have the device state */
-> +	/* Pairs with smp_store_release from below */
-> +	if (!smp_load_acquire(&drvdata->rgb_registered) && rgb_ready) {
-> +		ret =3D devm_led_classdev_multicolor_register(&drvdata->hdev->dev, &dr=
-vdata->led_mc);
-> +		if (ret) {
-> +			dev_err(&drvdata->hdev->dev,
-> +				"Failed to create led device: %d\n", ret);
-> +			goto update_kobjects;
-> +		}
-> +
-> +		ret =3D device_add_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_=
-group);
-> +		if (ret) {
-> +			dev_err(&drvdata->hdev->dev,
-> +				"Failed to create RGB attrs: %d\n", ret);
-> +			goto update_kobjects;
-> +		}
-
-[Severity: High]
-If device_add_group() fails here, we jump to update_kobjects without rolling
-back the devm_led_classdev_multicolor_register() call, and rgb_registered
-remains false.
-
-On a subsequent system resume, cfg_resume_fn() will see rgb_registered is
-false and schedule cfg_setup_fn() again:
-
-    if (!smp_load_acquire(&drvdata->rgb_registered))
-        schedule_delayed_work(&drvdata->cfg_setup, msecs_to_jiffies(500));
-
-Will the second call to devm_led_classdev_multicolor_register() with the ex=
-act
-same drvdata->led_mc structure corrupt the leds_list, since led_cdev->node
-is already in the list from the first call?
-
-> +
-> +		/* Pairs with smp_load_acquire in attribute show/store functions */
-> +		smp_store_release(&drvdata->rgb_registered, true);
-> +	}
-
-[ ... ]
-
-> @@ -1021,11 +1622,15 @@ static void claw_remove(struct hid_device *hdev)
->  		return;
->  	}
-> =20
-> +	/* Block writes to brightness/multi_intensity during teardown */
->  	cancel_delayed_work_sync(&drvdata->cfg_resume);
->  	cancel_delayed_work_sync(&drvdata->cfg_setup);
-> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
-> =20
->  	/* Pairs with smp_load_acquire in attribute show/store functions */
->  	smp_store_release(&drvdata->gamepad_registered, false);
-> +	/* Pairs with smp_load_acquire in attribute show/store functions */
-> +	smp_store_release(&drvdata->rgb_registered, false);
-
-[Severity: High]
-Could setting rgb_registered to false after cancelling the delayed work
-cause a use-after-free here?
-
-Because sysfs attributes are managed by devres, they remain active until
-claw_remove() returns. A concurrent sysfs write could check rgb_registered
-and then get preempted:
-
-    /* in effect_store() */
-    if (!smp_load_acquire(&drvdata->rgb_registered))
-        return -ENODEV;
-    /* Preempted here */
-
-Meanwhile, claw_remove() runs:
-
-    cancel_delayed_work_sync(&drvdata->rgb_queue);
-    smp_store_release(&drvdata->rgb_registered, false);
-
-Then the sysfs writer resumes and queues the work again:
-
-    mod_delayed_work(system_wq, &drvdata->rgb_queue, msecs_to_jiffies(50));
-
-After claw_remove() returns, devres will free drvdata. When the queued work
-eventually executes claw_rgb_queue_fn(), will it access the freed drvdata?
-
-Would clearing rgb_registered before calling cancel_delayed_work_sync()
-prevent the work from being re-queued?
-
-> =20
->  	hid_hw_close(hdev);
+> @@ -919,6 +951,154 @@ static ssize_t button_mapping_options_show(struct d=
+evice *dev,
 >  }
+>  static DEVICE_ATTR_RO(button_mapping_options);
+> =20
+> +static ssize_t rumble_intensity_left_store(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   const char *buf, size_t count)
+> +{
+
+[ ... ]
+
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DAT=
+A,
+> +				    (u8 *)&report, sizeof(report), 25);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* MCU will not send ACK until the USB transaction completes. ACK is se=
+nt
+> +	 * immediately after and will hit the stale state machine, before the n=
+ext
+> +	 * command re-arms the state machine. Timeout 0 ensures no deadlock wai=
+ting
+> +	 * for ACK that ill never come.
+> +	 */
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL=
+, 0, 0);
+
+[Severity: High]
+This is a pre-existing issue, but using timeout 0 here appears to leave an
+untracked generic ACK in the hardware pipeline.
+
+If another thread concurrently triggers a hardware command (like a sysfs
+show/store) that waits for an ACK, could the claw_raw_event() handler
+unconditionally consume this delayed generic ACK to complete the new
+command's wait?
+
+Since the generic ACK handler doesn't verify drvdata->waiting_cmd, this
+might cause the new command to return prematurely before its actual data
+arrives, leading to stale sysfs reads or dropped configuration writes.
+
+> +	if (ret)
+> +		return ret;
+> +
+> +	return count;
+> +}
+
+[ ... ]
+
+> @@ -1557,6 +1748,7 @@ static int claw_probe(struct hid_device *hdev, u8 e=
+p)
+>  	spin_lock_init(&drvdata->mode_lock);
+>  	spin_lock_init(&drvdata->profile_lock);
+>  	spin_lock_init(&drvdata->frame_lock);
+> +	spin_lock_init(&drvdata->rumble_lock);
+>  	init_completion(&drvdata->send_cmd_complete);
+>  	INIT_DELAYED_WORK(&drvdata->cfg_resume, &cfg_resume_fn);
+>  	INIT_DELAYED_WORK(&drvdata->cfg_setup, &cfg_setup_fn);
+
+[Severity: High]
+This is a pre-existing issue not introduced by this patch, but while
+reviewing the driver's workqueue lifecycle, I noticed a potential race
+condition during module removal.
+
+In claw_remove(), if cancel_delayed_work_sync(&drvdata->rgb_queue) is called
+before setting drvdata->rgb_registered to false, could a concurrent sysfs
+write to the LED brightness file cause a use-after-free?
+
+Since the LED class device is managed via devres, it remains accessible. A
+write could invoke claw_led_brightness_set(), check that rgb_registered is
+still true, and re-arm the delayed work timer after it was cancelled. When
+devres later frees drvdata, the timer would fire and access freed memory.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260520013158.3633=
-277-1-derekjohn.clark@gmail.com?part=3D3
+277-1-derekjohn.clark@gmail.com?part=3D4

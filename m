@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F08CD3E92B1;
-	Wed, 20 May 2026 11:20:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90D33EBF0F;
+	Wed, 20 May 2026 11:20:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276027; cv=none; b=ZhLF7QHPGjqFQuHkbvzH6EMxVWvr1qeenv4t8HvA2ABv+nWv9DovNMTX/7ArwfrKhUgN1KuQYyPjZWdV0v+Wp+E4p7tDtTNbW/0awG1fVyF3ojJaB4ucDdu2pIjjQRZwLhgFO+sqPZwd6xDdL2xCHRZPTRzaMWZeSTE0n0Llr5c=
+	t=1779276030; cv=none; b=UDSWqAkA4S/fBBZuFyOgW6qwHjBKg8BjHPWdElUaxLXdPp7Zic5L5I0j8E+yE7iCcITeGiDP/VA7SMzBwZs1K/p+GdD/q3jg7jae9mk1DybTIlZbul4pKtXQMv/T6jRYb1TJOycJc03+/D/Gs34dpNjMEVlqshUVocUArZGSwqc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276027; c=relaxed/simple;
-	bh=Mbybqoe/DAcr0H/nDiwCoFO0HzCxS6CuRjqNYO8GzHM=;
+	s=arc-20240116; t=1779276030; c=relaxed/simple;
+	bh=KRKHu4WJoa0DmBrPO2Rq6iggehoAGmF7JjHx2Qe0fZg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=B2H9XxpAsZS1dLMln+ZAmRvMPpNMGH/TJJe8oVTMnsds1Wy1JBO4ZapjVXA1AOzXus5tSrteXWCYxbxyj+Tnbw01hO63AAjzvezS/uDNTjH5F7arhEZUtmyD4QUDBufFnZdDuXR++C4OvVgr58lQR7fUoU45rHuvvjHBUPi26zM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DzVb2QT7; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=kLzeeIjoSijCZYMDP39dQUOxLVVdoZ33Zc9T8TsJ0eCpJIOtvoM0KJvF/cpHS10wTDJ48BbbTHMiJyBgAi5KYCh5yGr+7xnPgrGjeoee6wSs2/bqdXkxXpSUQGC5+Bfe86NBmCWN6g/L03SHdPoNtanalqCqVuC3nvgpsCBQD4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ju1naoQw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DzVb2QT7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D836A1F00896;
-	Wed, 20 May 2026 11:20:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ju1naoQw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E816D1F000E9;
+	Wed, 20 May 2026 11:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276024;
-	bh=qOUwqq2SuZrhRFe3GLopBTiqUYjaGIz7bg+xEkeYtAk=;
+	s=k20260515; t=1779276027;
+	bh=TebGB/gW42Lw0MfSZeNASHalsW2sx4OdFUJ7gXRZD2s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=DzVb2QT7Wh7NvVJvQQOeY8ZqX4o6JSesZUGAadz9fSykuEuJ00ZltcxJVfyVXEu3d
-	 g0OfJpjJfINNnM9zteJ0v1liqvhqdYsiPTHvHftJIKZo1i+A8I8ZZLr/5D4oC0mnsI
-	 dyQVO/Cs7ZdX0/a8KDRZv+hczcqZFOj5+opJ1wBtuEPgZtCrH1Yk6hTKEVMmR6S7n4
-	 V8R9JCCTn7LedPbkpPqtHwe/WNzR5nc1oAJQNoVOZUOjS4ubjYRcUJfJAbM+x5xwIb
-	 H/AyFZWefg1hduzZOAAeYKYsJiAwLSajTpfF5dCakmu5ihePI8ibTlq6sZXn6JzE+8
-	 zSmz0hW+DwARQ==
+	b=ju1naoQwm2OouaUlTSYbgQFoIrSzSQpYa/PuknOE0svysQiSgAPiFd85MLfkE9LNt
+	 LMOfIgaByF5iAsQUqDnEklX2uvv5CNr6dhCj50z0aUSNWzYOZ7Y+c1Z7unAI8sZpaf
+	 hA+pfbWiygnQUfNzDMFx33d98SgavaXCk3SSrx6N+PmybwkXzMlYTRgaC3Pg22N2mb
+	 3Cgcre64+WemdOZnqdcX6f71oA19pyDkfK1MRutoMc792sll6eJQRI8Oo+92d6O95+
+	 Niwe6Ty1PhNnsjwMVLTBYVU/B7+MZFQO2gKvitmp+oi99dDQVnhlNxmY0kTaXlPH68
+	 lNIIt5YNHkRLQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Damien Dejean <damiendejean@google.com>,
-	=?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@google.com>,
+Cc: Xu Rao <raoxu@uniontech.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] HID: elan: Add support for ELAN SB974D touchpad
-Date: Wed, 20 May 2026 07:19:00 -0400
-Message-ID: <20260520111944.3424570-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-6.12] HID: i2c-hid: add reset quirk for BLTP7853 touchpad
+Date: Wed, 20 May 2026 07:19:02 -0400
+Message-ID: <20260520111944.3424570-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
 References: <20260520111944.3424570-1-sashal@kernel.org>
@@ -49,264 +48,257 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.9
 Content-Transfer-Encoding: 8bit
 
-From: Damien Dejean <damiendejean@google.com>
+From: Xu Rao <raoxu@uniontech.com>
 
-[ Upstream commit 55ce1858848132ed074fe907f00b5ce1ccab0ce1 ]
+[ Upstream commit a991aa5e89365ba1959fae6847fd288125b209e5 ]
 
-Elan SB974D touchpad uses ELAN_MT_I2C format to send HID reports. Add an
-entry to match for the device and parse its vendor specific format.
+The BLTP7853 I2C HID touchpad may fail to probe after reboot or
+reprobe because reset completion is not signalled to the host. The
+driver then waits for the reset-complete interrupt until it times out
+and the device probe fails:
 
-Signed-off-by: Damien Dejean <damiendejean@google.com>
-Signed-off-by: Kornel Dulęba <korneld@google.com>
+  i2c_hid i2c-BLTP7853:00: failed to reset device.
+  i2c_hid i2c-BLTP7853:00: can't add hid device: -61
+  i2c_hid: probe of i2c-BLTP7853:00 failed with error -61
+
+Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for the device so i2c-hid does
+not wait for a reset interrupt that may never arrive.
+
+Signed-off-by: Xu Rao <raoxu@uniontech.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase 1: Commit Message Forensics
+## Phase Walkthrough
 
-Step 1.1 Record: subsystem `HID: elan`; action verb `Add support`;
-intent is to add ELAN SB974D touchpad matching so the existing ELAN HID
-driver parses its vendor-specific I2C multitouch reports.
+### Phase 1: Commit Message Forensics
+Record: subsystem `HID: i2c-hid`; action verb `add`; intent is to add a
+reset-handling quirk for the BLTP7853 touchpad.
 
-Step 1.2 Record: tags are:
-- `Signed-off-by: Damien Dejean <damiendejean@google.com>`
-- `Signed-off-by: Kornel Dulęba <korneld@google.com>`
-- `Signed-off-by: Jiri Kosina <jkosina@suse.com>`
-No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-by:`,
-`Cc: stable`, or `Link:` tags are present.
+Record: tags present are `Signed-off-by: Xu Rao <raoxu@uniontech.com>`
+and `Signed-off-by: Jiri Kosina <jkosina@suse.com>`. No `Fixes:`,
+`Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-by:`, `Link:`, or
+`Cc: stable@vger.kernel.org` tags are present in the supplied message.
 
-Step 1.3 Record: the body says SB974D uses `ELAN_MT_I2C` report format
-and needs an ID table entry so `hid-elan` handles and parses that
-format. Symptom is unsupported or generic handling of this touchpad, not
-a crash. No affected-version statement.
+Record: the commit message describes a real probe failure: the device
+may not signal reset completion after reboot or reprobe, the driver
+waits for reset completion, and probe fails with `-61` / `-ENODATA`. The
+root cause given is missing reset-complete IRQ from the device.
 
-Step 1.4 Record: this is not a hidden memory/race/crash fix. It is a
-hardware enablement/device-ID addition to an existing driver, which is a
-stable exception category.
+Record: this is not hidden as cleanup; it is explicitly a hardware
+workaround for a probe failure.
 
-## Phase 2: Diff Analysis
+### Phase 2: Diff Analysis
+Record: files changed are `drivers/hid/hid-ids.h` with 3 additions and
+`drivers/hid/i2c-hid/i2c-hid-core.c` with 2 additions. Total scope: 5
+added lines, no removals. No function body is changed; the modified
+object is the private `i2c_hid_quirks[]` table.
 
-Step 2.1 Record: two files changed, 2 insertions total:
-- `drivers/hid/hid-elan.c`: adds one `HID_I2C_DEVICE()` entry to
-  `elan_devices`.
-- `drivers/hid/hid-ids.h`: adds `USB_DEVICE_ID_SB974D 0x0400`.
-Modified data structure: `elan_devices[]`. Scope: single-driver,
-surgical ID addition.
+Record: before the patch, vendor/product `0x36b6/0xc001` had no private
+i2c-hid quirk entry, so the reset path used normal reset-ack waiting.
+After the patch, `i2c_hid_lookup_quirk()` can match the BLTP7853 IDs and
+set `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`.
 
-Step 2.2 Record: before, ELAN I2C product `0x0400` did not match `hid-
-elan`; after, BUS_I2C vendor `0x04f3` product `0x0400` matches `hid-
-elan` and uses existing probe/raw-event paths.
+Record: in current code, `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` makes
+`i2c_hid_finish_hwreset()` sleep 100 ms and clear
+`I2C_HID_RESET_PENDING` instead of waiting for a reset IRQ. In older
+stable code, the same quirk skips the 5 second wait path that returns
+`-ENODATA`.
 
-Step 2.3 Record: bug category is hardware support/device ID addition. No
-new parser, locking, memory management, or API change. The fix works by
-routing this specific I2C HID device to already-existing `ELAN_MT_I2C`
-handling.
+Record: bug category is hardware workaround / quirk. Specific mechanism:
+a device that does not raise the expected reset-complete interrupt is
+handled through an existing no-IRQ-after-reset path.
 
-Step 2.4 Record: fix quality is high: two-line addition, localized,
-mirrors the existing Toshiba I2C ELAN entry, and has very low regression
-risk. Main possible risk is binding product `0x0400` to `hid-elan`, but
-the commit message and external fwupd discussion verify `04f3:0400` is
-an ELAN touchpad PID.
+Record: fix quality is high: tiny table-only change, uses existing
+infrastructure, no new API, no locking change, no cross-subsystem
+behavior. Regression risk is very low and limited to devices reporting
+exactly the new vendor/product pair.
 
-## Phase 3: Git History Investigation
+### Phase 3: Git History Investigation
+Record: exact candidate subject was not found in local `git log` on
+`master`, `all-next`, `fixes-next`, `input-next`, `pending-7.0`, or
+`for-greg/7.0-200`; no candidate commit hash was available to blame the
+newly added lines.
 
-Step 3.1 Record: `git blame` shows `elan_devices[]` was introduced by
-`9a6a4193d65b` in v4.17-rc1 range; the existing I2C Toshiba entry was
-introduced by `e7ad3dc9f4a2` in v4.19-rc1 range. This means the required
-driver and I2C-format support are old and present in long-term stable
-lines.
+Record: existing no-IRQ reset quirk support was introduced by
+`402946a8ef71e` (`HID: i2c-hid: Add no-irq-after-reset quirk for
+0911:5288 device`), contained since `v4.15-rc1`. Related Voyo quirk
+`fc6a31b007393` shows the same failure pattern: repeated `failed to
+reset device` and final `can't add hid device: -61`.
 
-Step 3.2 Record: no `Fixes:` tag, so no introducing bug commit to
-follow.
+Record: no `Fixes:` tag is present, so Step 3.2 is not applicable.
 
-Step 3.3 Record: recent history shows this commit is standalone; only
-later related file change found was unrelated `HID: i2c-hid: add reset
-quirk for BLTP7853 touchpad`.
+Record: recent history contains normal HID/i2c-hid quirk and fix
+activity. Relevant related changes include `7bcf9ebb50f2a` (`Turn
+missing reset ack into a warning`) and older device-specific no-IRQ
+quirks. No prerequisite was identified beyond existing
+`I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` support.
 
-Step 3.4 Record: author Damien Dejean has only this HID commit in the
-checked `origin/master` HID history. Jiri Kosina committed/applied it;
-`MAINTAINERS` lists Jiri Kosina and Benjamin Tissoires as HID core
-maintainers.
+Record: local `git log --author="Xu Rao" -- drivers/hid` found no HID
+commits on `master`. `MAINTAINERS` confirms Jiri Kosina is an HID core
+maintainer, and he signed off the supplied commit.
 
-Step 3.5 Record: no prerequisite commits found beyond the existing `hid-
-elan` driver and I2C parser, both already present in checked stable
-branches.
+### Phase 4: Mailing List And External Research
+Record: candidate `b4 dig` could not be performed because the exact
+candidate commit hash is unavailable and the subject is not present in
+local reachable history.
 
-## Phase 4: Mailing List And External Research
+Record: `b4 dig -c 402946a8ef71e` found the original related no-IRQ-
+after-reset quirk submission at
+`https://patch.msgid.link/20171107122800.23196-1-hdegoede@redhat.com`;
+`b4 dig -a` showed v1 and v2; `b4 dig -w` showed HID maintainers and
+`linux-input@vger.kernel.org` were included.
 
-Step 4.1 Record: `b4 dig -c 55ce185884813` found the original patch at `
-https://patch.msgid.link/20260414133858.3992799-1-
-damiendejean@google.com`. `b4 dig -a` showed only v1, no later
-revisions.
+Record: `b4 dig -c 7bcf9ebb50f2a` found the reset-ack warning patch as
+`[PATCH v3 5/7]`.
 
-Step 4.2 Record: `b4 dig -w` showed recipients included Jiri Kosina,
-Benjamin Tissoires, `linux-input@vger.kernel.org`, `linux-
-kernel@vger.kernel.org`, Damien Dejean, and Kornel Dulęba.
+Record: web searches for the exact BLTP7853 reset-quirk subject and
+stable-list discussion found no direct candidate thread. Searches did
+find related BLTP7853 touchpad reports, but not independent confirmation
+of this exact `0x36b6/0xc001` reset failure.
 
-Step 4.3 Record: no `Reported-by` or bug-report `Link:`. The lore thread
-mbox contains Jiri Kosina’s “Applied to hid.git#for-7.1/upstream-fixes,
-thanks.” No NAKs or concerns in the saved thread.
+### Phase 5: Code Semantic Analysis
+Record: modified key object is `i2c_hid_quirks[]`; relevant functions
+are `i2c_hid_lookup_quirk()`, `__i2c_hid_core_probe()`,
+`i2c_hid_finish_hwreset()`, and older-branch `i2c_hid_command()`
+behavior.
 
-Step 4.4 Record: no multi-patch series; standalone patch.
+Record: callers verified: `i2c_hid_core_probe()` is called from ACPI,
+OF, ELAN, and Goodix i2c-hid probe drivers. `__i2c_hid_core_probe()`
+reads HID descriptor vendor/product IDs and calls
+`i2c_hid_lookup_quirk()`.
 
-Step 4.5 Record: lore WebFetch hit Anubis, but `b4` successfully fetched
-the mbox. Stable branch grep found no existing `SB974D` backport in
-`stable/linux-7.0.y` or `stable/linux-6.19.y`.
-
-## Phase 5: Code Semantic Analysis
-
-Step 5.1 Record: modified table is `elan_devices[]`; functional paths
-affected are existing callbacks `elan_probe`, `elan_input_mapping`,
-`elan_input_configured`, and `elan_raw_event`.
-
-Step 5.2 Record: `hid_match_device()` matches `hdrv->id_table`;
-`hid_device_probe()` calls the matched driver’s `.probe`;
-`hid_input_report()` calls `.raw_event`. Thus the new ID makes this
-hardware reach existing `hid-elan` probe and report parsing.
-
-Step 5.3 Record: relevant callees include `hid_parse`, `hid_hw_start`,
-`elan_start_multitouch`, and for I2C reports `elan_i2c_report_input`.
-
-Step 5.4 Record: reachability is hardware enumeration and HID input
-report delivery. Users of the SB974D touchpad hit this during device
-probe and normal touch input.
-
-Step 5.5 Record: similar pattern exists in the same driver for
-`USB_DEVICE_ID_TOSHIBA_CLICK_L9W`, also using `HID_I2C_DEVICE()` and the
-existing `ELAN_MT_I2C` path.
-
-## Phase 6: Stable Tree Analysis
-
-Step 6.1 Record: checked stable branches `5.10.y`, `5.15.y`, `6.1.y`,
-`6.6.y`, `6.12.y`, `6.18.y`, `6.19.y`, and `7.0.y`; all contain
-`CONFIG_HID_ELAN`, `drivers/hid/hid-elan.c`, and the existing
-`TOSHIBA_CLICK_L9W` I2C ELAN entry.
-
-Step 6.2 Record: `git apply --check` succeeded on current `7.0.y`,
-`6.19.y`, and representative older stable worktrees `5.10.y`, `5.15.y`,
-`6.1.y`, `6.6.y`, `6.12.y`, `6.18.y`.
-
-Step 6.3 Record: no related `SB974D` fix already present in checked
-stable branches.
-
-## Phase 7: Subsystem Context
-
-Step 7.1 Record: subsystem is HID input driver support. Criticality is
-driver-specific/peripheral, affecting users of this ELAN SB974D touchpad
+Record: call chain is device enumeration/probe: platform driver probe ->
+`i2c_hid_core_probe()` -> `__i2c_hid_core_probe()` ->
+`i2c_hid_lookup_quirk()` -> HID registration -> reset during HID parse.
+This is reachable during boot, reboot, and reprobe for affected
 hardware.
 
-Step 7.2 Record: HID is actively maintained; this patch was applied
-through `hid.git#for-7.1/upstream-fixes` by HID maintainer Jiri Kosina.
+Record: similar patterns exist for HANTICK, ITE/Voyo, and Raydium
+devices already using `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`.
 
-## Phase 8: Impact And Risk
+### Phase 6: Stable Tree Analysis
+Record: `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` exists in active checked
+stable branches `5.10.y`, `5.15.y`, `6.1.y`, `6.6.y`, `6.12.y`,
+`6.18.y`, `6.19.y`, and `7.0.y`.
 
-Step 8.1 Record: affected population is hardware-specific: systems with
-ELAN SB974D I2C touchpad and `CONFIG_HID_ELAN`.
+Record: BLTP-specific IDs from this patch are not present in those
+checked branches or `master`.
 
-Step 8.2 Record: trigger is device enumeration and normal touchpad input
-on that hardware. No evidence found that unprivileged users can trigger
-a security issue; this is hardware functionality.
+Record: `5.10.y`, `5.15.y`, `6.1.y`, and `6.6.y` still have the reset-
+ack timeout returning `-ENODATA`, matching the commit-message failure.
+`6.12.y` and newer checked branches contain `7bcf9ebb50f2a`, where
+missing reset ack is downgraded to a warning, so the benefit there is
+mostly avoiding a delay/warning rather than fixing probe failure.
 
-Step 8.3 Record: failure mode without the patch is lack of proper `hid-
-elan` handling for this touchpad’s vendor-specific `ELAN_MT_I2C` report
-format. Severity is medium for affected hardware because touchpad
-functionality is user-visible, but not a crash/corruption/security
-issue.
+Record: patch applies cleanly to current `stable/linux-7.0.y` when
+checked with `git apply --check`. Older stable trees may need minor
+context adjustment due to file layout differences, but the required
+quirk mechanism exists.
 
-Step 8.4 Record: benefit is high for affected hardware and low globally.
-Risk is very low: two lines, no behavior change for unrelated device
-IDs, no API change, and clean apply to checked stable branches.
+### Phase 7: Subsystem And Maintainer Context
+Record: subsystem is HID/i2c-hid under `drivers/hid/`, criticality
+`IMPORTANT` for users of affected laptop touchpad hardware.
 
-## Phase 9: Final Synthesis
+Record: subsystem is actively maintained; `MAINTAINERS` lists HID core
+as maintained by Jiri Kosina and Benjamin Tissoires.
 
-Evidence for backporting: this is exactly the stable exception for
-adding a new device ID to an existing driver; the driver and parser
-already exist in stable; the patch is tiny, cleanly applies, and was
-accepted by the HID maintainer. Evidence against: it is hardware
-enablement rather than a conventional critical bug fix, and there is no
-user bug report or `Tested-by` tag in the commit.
+### Phase 8: Impact And Risk
+Record: affected population is hardware-specific: systems with an I2C
+HID device reporting the BLTP7853 IDs added by this patch.
 
-Stable rules:
-1. Obviously correct and tested? Code is obviously correct by
-   inspection; explicit testing tag absent.
-2. Fixes a real user-visible issue? Yes for affected SB974D systems:
-   proper touchpad driver binding/report parsing.
-3. Important issue? Medium hardware functionality issue, not
-   crash/corruption/security.
-4. Small and contained? Yes, 2 insertions in HID.
-5. No new APIs/features? No API; hardware ID addition only.
-6. Can apply to stable? Yes, verified across representative active
-   stable branches.
+Record: trigger condition is probe/reprobe after reboot or reprobe, as
+described by the commit message and matched to the older stable reset
+path.
 
-Exception category: new device ID added to an existing driver. This is
-stable-suitable.
+Record: failure severity is HIGH for older stable branches because the
+touchpad can fail to bind at all. For newer branches with
+`7bcf9ebb50f2a`, severity is LOW-MEDIUM because generic handling avoids
+probe failure but still waits/logs.
+
+Record: benefit is high for older stable users with this hardware; risk
+is very low because the change is a narrow hardware quirk table entry.
+
+### Phase 9: Final Synthesis
+Evidence for backporting: real device probe failure, existing quirk
+mechanism, tiny hardware-specific change, no new API, maintainer sign-
+off, and older stable branches demonstrably still have the failing reset
+timeout behavior.
+
+Evidence against backporting: no direct candidate lore thread or
+external bug report could be verified; exact hardware ID `0x36b6/0xc001`
+was only verified from the supplied patch, not an external hardware
+database. Newer stable branches already have generic missing-reset-ack
+handling, reducing urgency there.
+
+Stable rules: obviously correct by inspection, fixes a real hardware
+probe failure on older stable branches, small and contained, no new
+feature/API, and falls under the accepted hardware quirk exception.
+Backport difficulty should be clean or minor.
 
 ## Verification
-
-- Phase 1: `git show --format=fuller 55ce185884813` verified subject,
-  body, author, committer, and tags.
-- Phase 2: `git show --stat` and full diff verified exactly 2 insertions
-  in `hid-elan.c` and `hid-ids.h`.
-- Phase 3: `git blame` verified table history; `git describe --contains`
-  placed original driver support around v4.17-rc1 and I2C support around
-  v4.19-rc1.
-- Phase 3: `git log --oneline` checks found no dependent SB974D series
-  and only this author’s HID commit in the checked range.
-- Phase 4: `b4 dig`, `b4 dig -a`, and `b4 dig -w` verified original lore
-  submission, single v1, recipients, and maintainer application.
-- Phase 4: WebFetch to lore/stable was blocked by Anubis; the saved `b4`
-  mbox was used instead.
-- Phase 5: `ReadFile` and `rg` verified `elan_probe`, `elan_raw_event`,
-  `elan_i2c_report_input`, `hid_match_device`, and `hid_input_report`
-  call paths.
-- Phase 6: `git grep` verified relevant stable branches contain
-  `HID_ELAN` and the existing ELAN I2C entry.
-- Phase 6: `git apply --check` verified clean application to `7.0.y`,
-  `6.19.y`, `6.18.y`, `6.12.y`, `6.6.y`, `6.1.y`, `5.15.y`, and
-  `5.10.y`.
-- Phase 7: `MAINTAINERS` verified Jiri Kosina and Benjamin Tissoires as
-  HID maintainers.
-- Phase 8: no sanitizer report, crash report, or security impact was
-  found; decision is driven by the verified device-ID stable exception.
+- [Phase 1] Parsed supplied message and tags: only Xu Rao and Jiri
+  Kosina Signed-off-by tags present.
+- [Phase 2] Read `drivers/hid/i2c-hid/i2c-hid-core.c`: verified quirk
+  table and reset handling.
+- [Phase 3] Searched local histories without `--all`: exact candidate
+  not found; related no-IRQ quirk commits found.
+- [Phase 3] Inspected `402946a8ef71e`, `fc6a31b007393`, and
+  `7bcf9ebb50f2a`: confirmed same reset-ack quirk mechanism and later
+  generic warning behavior.
+- [Phase 4] Ran `b4 dig` for related commits; candidate `b4 dig` was not
+  possible without a candidate hash.
+- [Phase 5] Traced callers with `rg` and read ACPI/OF probe files:
+  confirmed probe-time reachability.
+- [Phase 6] Checked active stable branches: quirk support exists in all
+  checked branches; old reset failure path exists through `6.6.y`;
+  `6.12.y+` has generic warning handling.
+- [Phase 6] Ran `git apply --check` against current `7.0.y`: patch shape
+  applies cleanly.
+- UNVERIFIED: original candidate lore discussion, independent bug
+  report, and exact external hardware database confirmation for
+  `0x36b6/0xc001`.
 
 **YES**
 
- drivers/hid/hid-elan.c | 1 +
- drivers/hid/hid-ids.h  | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-ids.h              | 3 +++
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-index 76d93fc48f6a2..0190ad567ce4d 100644
---- a/drivers/hid/hid-elan.c
-+++ b/drivers/hid/hid-elan.c
-@@ -513,6 +513,7 @@ static const struct hid_device_id elan_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_HP_X2_10_COVER),
- 	  .driver_data = ELAN_HAS_LED },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_TOSHIBA_CLICK_L9W) },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_SB974D) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, elan_devices);
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c1e4a6ce96317..c371721826dcc 100644
+index c371721826dcc..559040e47f3c7 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -455,6 +455,7 @@
- #define USB_DEVICE_ID_EDIFIER_QR30	0xa101	/* EDIFIER Hal0 2.0 SE */
+@@ -277,6 +277,9 @@
+ #define USB_VENDOR_ID_BIGBEN	0x146b
+ #define USB_DEVICE_ID_BIGBEN_PS3OFMINIPAD	0x0902
  
- #define USB_VENDOR_ID_ELAN		0x04f3
-+#define USB_DEVICE_ID_SB974D            0x0400
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
++#define I2C_VENDOR_ID_BLTP		0x36b6
++#define I2C_PRODUCT_ID_BLTP7853		0xc001
++
+ #define USB_VENDOR_ID_BTC		0x046e
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE	0x5578
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE_2	0x5577
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 5a183af3d5c6a..baff2728603ec 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -149,6 +149,8 @@ static const struct i2c_hid_quirks {
+ 		 I2C_HID_QUIRK_BOGUS_IRQ },
+ 	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_0D42,
+ 		 I2C_HID_QUIRK_DELAY_WAKEUP_AFTER_RESUME },
++	{ I2C_VENDOR_ID_BLTP, I2C_PRODUCT_ID_BLTP7853,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	{ 0, 0 }
+ };
+ 
 -- 
 2.53.0
 

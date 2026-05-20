@@ -1,47 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA42B3E5A2F;
-	Wed, 20 May 2026 11:20:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F08CD3E92B1;
+	Wed, 20 May 2026 11:20:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276023; cv=none; b=YaemlcNjD4vBQ57hwKmif77QX1dYQa6K+tq6TOAEo9R+V/0lRnA4zojQmU51plwOwPgFN0gm2I5e7lyX3f87ctG5eNHx6wPRUmFnfHvo1XHQlM76RRHSSWsUv8dcCg3uzy5/3faVaQ8k8zXJMfq47tq+Hxt1DWKWNpzrvs8sm1g=
+	t=1779276027; cv=none; b=ZhLF7QHPGjqFQuHkbvzH6EMxVWvr1qeenv4t8HvA2ABv+nWv9DovNMTX/7ArwfrKhUgN1KuQYyPjZWdV0v+Wp+E4p7tDtTNbW/0awG1fVyF3ojJaB4ucDdu2pIjjQRZwLhgFO+sqPZwd6xDdL2xCHRZPTRzaMWZeSTE0n0Llr5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276023; c=relaxed/simple;
-	bh=jE/ap6AtQ4rLyz3VGPMSPdQOfMucbwTXULMeXJdwvuk=;
+	s=arc-20240116; t=1779276027; c=relaxed/simple;
+	bh=Mbybqoe/DAcr0H/nDiwCoFO0HzCxS6CuRjqNYO8GzHM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XHK2J0675Tgn9PtFcRCzYJVxIup/03az0pS4DekUMbTpJ72wS8WKYgCcyGNpdxc6fzr06eO7smZyOVco1D7fFKuaI19jBQD3cURBDKWXHBisGONQHtihZE4ZhdjrUUyp4FKhnizra/ab+/kix2TnQTLSwQr8adBOj/7Ps4AZsMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B/4weUHP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=B2H9XxpAsZS1dLMln+ZAmRvMPpNMGH/TJJe8oVTMnsds1Wy1JBO4ZapjVXA1AOzXus5tSrteXWCYxbxyj+Tnbw01hO63AAjzvezS/uDNTjH5F7arhEZUtmyD4QUDBufFnZdDuXR++C4OvVgr58lQR7fUoU45rHuvvjHBUPi26zM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DzVb2QT7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B/4weUHP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A561F0089B;
-	Wed, 20 May 2026 11:20:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DzVb2QT7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D836A1F00896;
+	Wed, 20 May 2026 11:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276020;
-	bh=nc2srJMlOO6QkJcXkXpQ/gYgy6cnV+CHKhJGFqFNrqQ=;
+	s=k20260515; t=1779276024;
+	bh=qOUwqq2SuZrhRFe3GLopBTiqUYjaGIz7bg+xEkeYtAk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=B/4weUHPpReSv0OB1ihrkk9lSXMsbhGY0y9ypctV25/gRlQrnpEzJx/D/mQGgOxdY
-	 BV0R6aIOJukhEMHMGpDH52wPge/AulHOeFjKaW1gSWc4Ilv0xgUON6WaUH5Kg2mgtU
-	 stJEX2RAXTwXVZEzQ897R882liCLDA7yp2b4v58dlyQqd1BR/i28XEGrtNHaI0LGX5
-	 ssZJscbnc2tKlM+Rer6S6gk6wxHjUTJ7Eq1pCD1s4Py7fZs9DSJ3gT+0P6h46x9ipq
-	 eMDuICF5914aUfsH9cJKq3s3SUYyjyy3vvlU3TE6SfVn4BF8RL9fJwkJOCtmUQ/tmM
-	 JK3AGJk00cR8g==
+	b=DzVb2QT7Wh7NvVJvQQOeY8ZqX4o6JSesZUGAadz9fSykuEuJ00ZltcxJVfyVXEu3d
+	 g0OfJpjJfINNnM9zteJ0v1liqvhqdYsiPTHvHftJIKZo1i+A8I8ZZLr/5D4oC0mnsI
+	 dyQVO/Cs7ZdX0/a8KDRZv+hczcqZFOj5+opJ1wBtuEPgZtCrH1Yk6hTKEVMmR6S7n4
+	 V8R9JCCTn7LedPbkpPqtHwe/WNzR5nc1oAJQNoVOZUOjS4ubjYRcUJfJAbM+x5xwIb
+	 H/AyFZWefg1hduzZOAAeYKYsJiAwLSajTpfF5dCakmu5ihePI8ibTlq6sZXn6JzE+8
+	 zSmz0hW+DwARQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Florian Pradines <florian.pradines@gmail.com>,
-	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+Cc: Damien Dejean <damiendejean@google.com>,
+	=?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@google.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
-	gupt21@gmail.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] HID: mcp2221: fix OOB write in mcp2221_raw_event()
-Date: Wed, 20 May 2026 07:18:57 -0400
-Message-ID: <20260520111944.3424570-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-5.10] HID: elan: Add support for ELAN SB974D touchpad
+Date: Wed, 20 May 2026 07:19:00 -0400
+Message-ID: <20260520111944.3424570-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
 References: <20260520111944.3424570-1-sashal@kernel.org>
@@ -57,21 +55,15 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.9
 Content-Transfer-Encoding: 8bit
 
-From: Florian Pradines <florian.pradines@gmail.com>
+From: Damien Dejean <damiendejean@google.com>
 
-[ Upstream commit f097d246677b03db814c5862f368cea341b76a00 ]
+[ Upstream commit 55ce1858848132ed074fe907f00b5ce1ccab0ce1 ]
 
-mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
-offset rxbuf_idx without checking that the copy fits within the
-destination buffer. A device responding with up to 60 bytes to a
-small I2C/SMBus read can overflow the buffer.
+Elan SB974D touchpad uses ELAN_MT_I2C format to send HID reports. Add an
+entry to match for the device and parse its vendor specific format.
 
-Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
-mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
-before the memcpy.
-
-Reported-by: Benoît Sevens <bsevens@google.com>
-Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
+Signed-off-by: Damien Dejean <damiendejean@google.com>
+Signed-off-by: Kornel Dulęba <korneld@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -79,246 +71,242 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
 LLM Generated explanations, may be completely bogus:
 
 ## Phase 1: Commit Message Forensics
-Step 1.1 Record: subsystem `HID: mcp2221`; action verb `fix`; claimed
-intent: prevent an out-of-bounds write in `mcp2221_raw_event()` when
-copying device-supplied I2C read data into `mcp->rxbuf`.
 
-Step 1.2 Record: tags found in upstream commit
-`f097d246677b03db814c5862f368cea341b76a00`: `Reported-by: Benoît Sevens
-<bsevens@google.com>`, `Signed-off-by: Florian Pradines
-<florian.pradines@gmail.com>`, `Signed-off-by: Jiri Kosina
-<jkosina@suse.com>`. No `Fixes:`, no `Cc: stable`, no `Link:` in the
-commit message.
+Step 1.1 Record: subsystem `HID: elan`; action verb `Add support`;
+intent is to add ELAN SB974D touchpad matching so the existing ELAN HID
+driver parses its vendor-specific I2C multitouch reports.
 
-Step 1.3 Record: bug description is explicit: `mcp2221_raw_event()`
-copies `data[3]` bytes into `mcp->rxbuf + rxbuf_idx` without checking
-the destination buffer size. Failure mode is kernel memory corruption
-via OOB write when a device returns up to 60 bytes for a smaller
-requested read.
+Step 1.2 Record: tags are:
+- `Signed-off-by: Damien Dejean <damiendejean@google.com>`
+- `Signed-off-by: Kornel Dulęba <korneld@google.com>`
+- `Signed-off-by: Jiri Kosina <jkosina@suse.com>`
+No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-by:`,
+`Cc: stable`, or `Link:` tags are present.
 
-Step 1.4 Record: not hidden; this is a direct memory-safety fix.
+Step 1.3 Record: the body says SB974D uses `ELAN_MT_I2C` report format
+and needs an ID table entry so `hid-elan` handles and parses that
+format. Symptom is unsupported or generic handling of this touchpad, not
+a crash. No affected-version statement.
+
+Step 1.4 Record: this is not a hidden memory/race/crash fix. It is a
+hardware enablement/device-ID addition to an existing driver, which is a
+stable exception category.
 
 ## Phase 2: Diff Analysis
-Step 2.1 Record: one file changed, `drivers/hid/hid-mcp2221.c`, 7
-insertions. Modified areas: `struct mcp2221`, `mcp_i2c_smbus_read()`,
-`mcp2221_raw_event()`. Scope: single-file surgical fix.
 
-Step 2.2 Record: before, the driver tracked `rxbuf` and `rxbuf_idx` but
-not the destination size. After, it stores `rxbuf_size` when setting
-`rxbuf`, and rejects `rxbuf_idx + data[3] > rxbuf_size` before
-`memcpy()`.
+Step 2.1 Record: two files changed, 2 insertions total:
+- `drivers/hid/hid-elan.c`: adds one `HID_I2C_DEVICE()` entry to
+  `elan_devices`.
+- `drivers/hid/hid-ids.h`: adds `USB_DEVICE_ID_SB974D 0x0400`.
+Modified data structure: `elan_devices[]`. Scope: single-driver,
+surgical ID addition.
 
-Step 2.3 Record: bug category is memory safety, specifically OOB write
-from device-controlled length and cumulative receive offset. The earlier
-`data[3] > 60` check only capped a single MCP2221 report, not the
-destination buffer size.
+Step 2.2 Record: before, ELAN I2C product `0x0400` did not match `hid-
+elan`; after, BUS_I2C vendor `0x04f3` product `0x0400` matches `hid-
+elan` and uses existing probe/raw-event paths.
 
-Step 2.4 Record: fix is minimal and locally correct for the upstream
-parent, but direct stable backports need care because older stable
-branches still have two manual `mcp_smbus_xfer()` paths that set
-`mcp->rxbuf` directly.
+Step 2.3 Record: bug category is hardware support/device ID addition. No
+new parser, locking, memory management, or API change. The fix works by
+routing this specific I2C HID device to already-existing `ELAN_MT_I2C`
+handling.
 
-## Phase 3: Git History
-Step 3.1 Record: `git blame` showed `rxbuf`, `rxbuf_idx`,
-`mcp_i2c_smbus_read()`, and the `memcpy()` path originated in
-`67a95c21463d0`, first contained in `v5.7-rc1`. The partial-read
-handling came from `2682468671aa0`, first contained in `v6.8-rc1`. The
-prior per-report `data[3] > 60` guard came from `b56cc41a3ae73`, first
-contained in `v6.17-rc4` and backported to stable equivalents.
+Step 2.4 Record: fix quality is high: two-line addition, localized,
+mirrors the existing Toshiba I2C ELAN entry, and has very low regression
+risk. Main possible risk is binding product `0x0400` to `hid-elan`, but
+the commit message and external fwupd discussion verify `04f3:0400` is
+an ELAN touchpad PID.
 
-Step 3.2 Record: no `Fixes:` tag, so no tagged introducing commit to
+## Phase 3: Git History Investigation
+
+Step 3.1 Record: `git blame` shows `elan_devices[]` was introduced by
+`9a6a4193d65b` in v4.17-rc1 range; the existing I2C Toshiba entry was
+introduced by `e7ad3dc9f4a2` in v4.19-rc1 range. This means the required
+driver and I2C-format support are old and present in long-term stable
+lines.
+
+Step 3.2 Record: no `Fixes:` tag, so no introducing bug commit to
 follow.
 
-Step 3.3 Record: recent related commits include `b56cc41a3ae73` for the
-60-byte report cap, `e31b556c0ba21` for read-error cancellation, and
-`ab05515757fcb` for using `mcp_i2c_smbus_read()` for block reads.
-`ab05515757fcb` is an important context dependency for the exact
-upstream diff.
+Step 3.3 Record: recent history shows this commit is standalone; only
+later related file change found was unrelated `HID: i2c-hid: add reset
+quirk for BLTP7853 touchpad`.
 
-Step 3.4 Record: author Florian Pradines had no other local commits
-found in `drivers/hid`; Jiri Kosina, the HID maintainer,
-committed/applied the patch.
+Step 3.4 Record: author Damien Dejean has only this HID commit in the
+checked `origin/master` HID history. Jiri Kosina committed/applied it;
+`MAINTAINERS` lists Jiri Kosina and Benjamin Tissoires as HID core
+maintainers.
 
-Step 3.5 Record: upstream parent contains `ab05515757fcb`; stable
-branches checked from `5.10.y` through `7.0.y` do not. A stable backport
-should either adapt the patch to set `rxbuf_size` in the two remaining
-manual `mcp_smbus_xfer()` paths or include an appropriate
-prerequisite/backport.
+Step 3.5 Record: no prerequisite commits found beyond the existing `hid-
+elan` driver and I2C parser, both already present in checked stable
+branches.
 
-## Phase 4: Mailing List / External Research
-Step 4.1 Record: `b4 dig -c f097d246677b03db814c5862f368cea341b76a00`
-found the lore thread: `https://patch.msgid.link/20260509094517.2691246-
-1-florian.pradines@gmail.com`. `b4 dig -a` showed only v1.
+## Phase 4: Mailing List And External Research
 
-Step 4.2 Record: `b4 dig -w` showed recipients included Florian
-Pradines, Rishi Gupta, Jiri Kosina, Benjamin Tissoires, `linux-i2c`, and
-`linux-input`.
+Step 4.1 Record: `b4 dig -c 55ce185884813` found the original patch at `
+https://patch.msgid.link/20260414133858.3992799-1-
+damiendejean@google.com`. `b4 dig -a` showed only v1, no later
+revisions.
 
-Step 4.3 Record: reporter Benoît Sevens previously submitted a similar
-heap-buffer-overflow patch. Jiri replied that Benoît’s patch was mangled
-and that Florian’s patch would be taken with Benoît added as `Reported-
-by`. Benoît then noted the missing `mcp_smbus_xfer()` assignments, which
-is relevant for older stable bases.
+Step 4.2 Record: `b4 dig -w` showed recipients included Jiri Kosina,
+Benjamin Tissoires, `linux-input@vger.kernel.org`, `linux-
+kernel@vger.kernel.org`, Damien Dejean, and Kornel Dulęba.
 
-Step 4.4 Record: not part of a multi-patch series. Related patches exist
-for report-size validation, but Jiri questioned the “MCP2221 always
-sends 64-byte reports” assumption in that separate thread.
+Step 4.3 Record: no `Reported-by` or bug-report `Link:`. The lore thread
+mbox contains Jiri Kosina’s “Applied to hid.git#for-7.1/upstream-fixes,
+thanks.” No NAKs or concerns in the saved thread.
 
-Step 4.5 Record: direct lore/stable WebFetch was blocked by Anubis, but
-web search found related stable discussion for prior mcp2221 fixes, not
-an exact stable request for `f097d246677b`.
+Step 4.4 Record: no multi-patch series; standalone patch.
 
-## Phase 5: Semantic Analysis
-Step 5.1 Record: changed function is `mcp_i2c_smbus_read()`; changed
-callback is `mcp2221_raw_event()`.
+Step 4.5 Record: lore WebFetch hit Anubis, but `b4` successfully fetched
+the mbox. Stable branch grep found no existing `SB974D` backport in
+`stable/linux-7.0.y` or `stable/linux-6.19.y`.
 
-Step 5.2 Record: callers of `mcp_i2c_smbus_read()` are `mcp_i2c_xfer()`
-and `mcp_smbus_xfer()`, wired into `mcp_i2c_algo`. `mcp2221_raw_event()`
-is called from HID core before normal raw report processing, via
-`hid_input_report()` / `__hid_input_report()`.
+## Phase 5: Code Semantic Analysis
 
-Step 5.3 Record: affected callees include `mcp_send_data_req_status()`,
-`mcp_send_report()`, `wait_for_completion_timeout()`, and the vulnerable
-`memcpy()`.
+Step 5.1 Record: modified table is `elan_devices[]`; functional paths
+affected are existing callbacks `elan_probe`, `elan_input_mapping`,
+`elan_input_configured`, and `elan_raw_event`.
 
-Step 5.4 Record: reachability is real: USB HID interrupt input reaches
-`mcp2221_raw_event()`, and I2C/SMBus transfers reach
-`mcp_i2c_smbus_read()` through the registered I2C adapter.
-Triggerability by an unprivileged local user was not verified; trigger
-by a malicious or buggy MCP2221-side device response is verified by the
-code path.
+Step 5.2 Record: `hid_match_device()` matches `hdrv->id_table`;
+`hid_device_probe()` calls the matched driver’s `.probe`;
+`hid_input_report()` calls `.raw_event`. Thus the new ID makes this
+hardware reach existing `hid-elan` probe and report parsing.
 
-Step 5.5 Record: similar pattern found in stable branches: two manual
-`mcp_smbus_xfer()` receive-buffer assignments remain in stable branches
-and must be handled in backports.
+Step 5.3 Record: relevant callees include `hid_parse`, `hid_hw_start`,
+`elan_start_multitouch`, and for I2C reports `elan_i2c_report_input`.
+
+Step 5.4 Record: reachability is hardware enumeration and HID input
+report delivery. Users of the SB974D touchpad hit this during device
+probe and normal touch input.
+
+Step 5.5 Record: similar pattern exists in the same driver for
+`USB_DEVICE_ID_TOSHIBA_CLICK_L9W`, also using `HID_I2C_DEVICE()` and the
+existing `ELAN_MT_I2C` path.
 
 ## Phase 6: Stable Tree Analysis
-Step 6.1 Record: the driver was introduced in `v5.7-rc1`; local stable
-refs `5.10.y`, `5.15.y`, `6.1.y`, `6.6.y`, `6.12.y`, `6.18.y`, `6.19.y`,
-and `7.0.y` contain the vulnerable `rxbuf`/`memcpy()` pattern. `5.4.y`
-does not contain the driver.
 
-Step 6.2 Record: `git apply --check` against current
-`stable/linux-7.0.y` succeeds syntactically, but semantic backport work
-is needed because stable lacks `ab05515757fcb`.
+Step 6.1 Record: checked stable branches `5.10.y`, `5.15.y`, `6.1.y`,
+`6.6.y`, `6.12.y`, `6.18.y`, `6.19.y`, and `7.0.y`; all contain
+`CONFIG_HID_ELAN`, `drivers/hid/hid-elan.c`, and the existing
+`TOSHIBA_CLICK_L9W` I2C ELAN entry.
 
-Step 6.3 Record: prior stable branches already contain the earlier
-60-byte cap fix or its backported equivalent, but that does not fix
-cumulative overflow into smaller destination buffers.
+Step 6.2 Record: `git apply --check` succeeded on current `7.0.y`,
+`6.19.y`, and representative older stable worktrees `5.10.y`, `5.15.y`,
+`6.1.y`, `6.6.y`, `6.12.y`, `6.18.y`.
+
+Step 6.3 Record: no related `SB974D` fix already present in checked
+stable branches.
 
 ## Phase 7: Subsystem Context
-Step 7.1 Record: subsystem is HID driver for the Microchip MCP2221 USB-
-to-I2C/SMBus bridge. Criticality: driver-specific, but memory corruption
-from USB/HID device input is high severity for affected systems.
 
-Step 7.2 Record: file history shows active recent maintenance and
-multiple security/correctness fixes in this driver.
+Step 7.1 Record: subsystem is HID input driver support. Criticality is
+driver-specific/peripheral, affecting users of this ELAN SB974D touchpad
+hardware.
+
+Step 7.2 Record: HID is actively maintained; this patch was applied
+through `hid.git#for-7.1/upstream-fixes` by HID maintainer Jiri Kosina.
 
 ## Phase 8: Impact And Risk
-Step 8.1 Record: affected population is users of MCP2221 hardware or
-systems exposed to such USB HID devices.
 
-Step 8.2 Record: trigger is an I2C/SMBus read where the MCP2221-side
-response reports more bytes than the destination buffer can hold.
-Physical/malicious-device trigger is verified; unprivileged local
-trigger depends on device-node permissions and was not verified.
+Step 8.1 Record: affected population is hardware-specific: systems with
+ELAN SB974D I2C touchpad and `CONFIG_HID_ELAN`.
 
-Step 8.3 Record: failure mode is OOB write into kernel memory, severity
-HIGH to CRITICAL due to memory corruption/crash/security risk.
+Step 8.2 Record: trigger is device enumeration and normal touchpad input
+on that hardware. No evidence found that unprivileged users can trigger
+a security issue; this is hardware functionality.
 
-Step 8.4 Record: benefit is high. Risk is low for the upstream parent
-and for correctly adapted stable backports. Risk is medium for blind
-cherry-picks into older stable branches because `rxbuf_size` would not
-be set in all stable receive-buffer paths.
+Step 8.3 Record: failure mode without the patch is lack of proper `hid-
+elan` handling for this touchpad’s vendor-specific `ELAN_MT_I2C` report
+format. Severity is medium for affected hardware because touchpad
+functionality is user-visible, but not a crash/corruption/security
+issue.
+
+Step 8.4 Record: benefit is high for affected hardware and low globally.
+Risk is very low: two lines, no behavior change for unrelated device
+IDs, no API change, and clean apply to checked stable branches.
 
 ## Phase 9: Final Synthesis
-Evidence for backporting: real OOB write, explicit reporter, small
-patch, maintainer-applied, affects stable-supported code since `5.10.y`,
-fixes a memory-corruption class bug.
 
-Evidence against or concerns: no `Fixes:`/`Cc: stable`; exact upstream
-diff assumes `ab05515757fcb`, absent from checked stable branches; blind
-cherry-pick is not sufficient for older stable trees.
+Evidence for backporting: this is exactly the stable exception for
+adding a new device ID to an existing driver; the driver and parser
+already exist in stable; the patch is tiny, cleanly applies, and was
+accepted by the HID maintainer. Evidence against: it is hardware
+enablement rather than a conventional critical bug fix, and there is no
+user bug report or `Tested-by` tag in the commit.
 
-Stable rules checklist: obviously correct on its upstream base: yes.
-Fixes a real user-affecting bug: yes. Important issue: yes, kernel
-memory corruption. Small and contained: yes, 7 insertions. No new
-feature/API: yes. Applies to stable: syntactically yes on `7.0.y`, but
-older stable needs a branch-specific backport adjustment.
+Stable rules:
+1. Obviously correct and tested? Code is obviously correct by
+   inspection; explicit testing tag absent.
+2. Fixes a real user-visible issue? Yes for affected SB974D systems:
+   proper touchpad driver binding/report parsing.
+3. Important issue? Medium hardware functionality issue, not
+   crash/corruption/security.
+4. Small and contained? Yes, 2 insertions in HID.
+5. No new APIs/features? No API; hardware ID addition only.
+6. Can apply to stable? Yes, verified across representative active
+   stable branches.
 
-Exception category: none; this is a memory-safety fix, not a device
-ID/quirk/doc/build exception.
+Exception category: new device ID added to an existing driver. This is
+stable-suitable.
 
 ## Verification
-- Phase 1: fetched and inspected upstream commit
-  `f097d246677b03db814c5862f368cea341b76a00`.
-- Phase 2: verified exact diff is 7 insertions in `drivers/hid/hid-
-  mcp2221.c`.
-- Phase 3: ran `git blame`, `git describe --contains`, and targeted `git
-  log` without `--all`; identified `67a95c21463d0`, `2682468671aa0`,
-  `b56cc41a3ae73`, and `ab05515757fcb`.
-- Phase 4: ran `b4 dig -c`, `b4 dig -a`, `b4 dig -w`, and fetched mboxes
-  with `b4 mbox`; verified Jiri’s “Applied, thanks” and Benoît’s earlier
-  report/backport-relevant concern.
-- Phase 5: used code search and file reads to verify HID and I2C/SMBus
-  call paths.
-- Phase 6: used `git grep` against stable refs to verify vulnerable
-  patterns in `5.10.y` through `7.0.y`, and absence from `5.4.y`.
-- Phase 6: verified exact patch syntactically applies to current
-  `stable/linux-7.0.y`, but `ab05515757fcb` is not an ancestor of
-  checked stable refs.
-- Phase 8: severity is based on verified device-controlled `memcpy()`
-  into kernel buffer without destination-size check.
-- UNVERIFIED: no runtime reproducer was executed; no build test was run;
-  unprivileged local triggerability was not verified.
 
-This should be backported, but stable maintainers should not blindly
-cherry-pick it into pre-`ab05515757fcb` trees without adding
-`rxbuf_size` initialization to every remaining `mcp->rxbuf` assignment.
+- Phase 1: `git show --format=fuller 55ce185884813` verified subject,
+  body, author, committer, and tags.
+- Phase 2: `git show --stat` and full diff verified exactly 2 insertions
+  in `hid-elan.c` and `hid-ids.h`.
+- Phase 3: `git blame` verified table history; `git describe --contains`
+  placed original driver support around v4.17-rc1 and I2C support around
+  v4.19-rc1.
+- Phase 3: `git log --oneline` checks found no dependent SB974D series
+  and only this author’s HID commit in the checked range.
+- Phase 4: `b4 dig`, `b4 dig -a`, and `b4 dig -w` verified original lore
+  submission, single v1, recipients, and maintainer application.
+- Phase 4: WebFetch to lore/stable was blocked by Anubis; the saved `b4`
+  mbox was used instead.
+- Phase 5: `ReadFile` and `rg` verified `elan_probe`, `elan_raw_event`,
+  `elan_i2c_report_input`, `hid_match_device`, and `hid_input_report`
+  call paths.
+- Phase 6: `git grep` verified relevant stable branches contain
+  `HID_ELAN` and the existing ELAN I2C entry.
+- Phase 6: `git apply --check` verified clean application to `7.0.y`,
+  `6.19.y`, `6.18.y`, `6.12.y`, `6.6.y`, `6.1.y`, `5.15.y`, and
+  `5.10.y`.
+- Phase 7: `MAINTAINERS` verified Jiri Kosina and Benjamin Tissoires as
+  HID maintainers.
+- Phase 8: no sanitizer report, crash report, or security impact was
+  found; decision is driven by the verified device-ID stable exception.
 
 **YES**
 
- drivers/hid/hid-mcp2221.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/hid-elan.c | 1 +
+ drivers/hid/hid-ids.h  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index ef3b5c77c38e3..badd4958bc12c 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -121,6 +121,7 @@ struct mcp2221 {
- 	u8 *rxbuf;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
-+	int rxbuf_size;
- 	int status;
- 	u8 cur_i2c_clk_div;
- 	struct gpio_chip *gc;
-@@ -323,12 +324,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		mcp->txbuf[3] = (u8)(msg->addr << 1);
- 		total_len = msg->len;
- 		mcp->rxbuf = msg->buf;
-+		mcp->rxbuf_size = msg->len;
- 	} else {
- 		mcp->txbuf[1] = smbus_len;
- 		mcp->txbuf[2] = 0;
- 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
- 		total_len = smbus_len;
- 		mcp->rxbuf = smbus_buf;
-+		mcp->rxbuf_size = smbus_len;
- 	}
+diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
+index 76d93fc48f6a2..0190ad567ce4d 100644
+--- a/drivers/hid/hid-elan.c
++++ b/drivers/hid/hid-elan.c
+@@ -513,6 +513,7 @@ static const struct hid_device_id elan_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_HP_X2_10_COVER),
+ 	  .driver_data = ELAN_HAS_LED },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_TOSHIBA_CLICK_L9W) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_SB974D) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, elan_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c1e4a6ce96317..c371721826dcc 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -455,6 +455,7 @@
+ #define USB_DEVICE_ID_EDIFIER_QR30	0xa101	/* EDIFIER Hal0 2.0 SE */
  
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
-@@ -912,6 +915,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 					mcp->status = -EINVAL;
- 					break;
- 				}
-+				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
-+					mcp->status = -EINVAL;
-+					break;
-+				}
- 				buf = mcp->rxbuf;
- 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
- 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
+ #define USB_VENDOR_ID_ELAN		0x04f3
++#define USB_DEVICE_ID_SB974D            0x0400
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+ #define USB_DEVICE_ID_HP_X2		0x074d
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
 -- 
 2.53.0
 

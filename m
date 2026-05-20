@@ -1,190 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-06.mail-europe.com (mail-06.mail-europe.com [85.9.210.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C55D3369D7E;
-	Wed, 20 May 2026 18:52:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17943F9F5E
+	for <linux-input@vger.kernel.org>; Wed, 20 May 2026 19:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.9.210.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779303141; cv=none; b=s7yGzq/KRWy+RkNrqlWkaSl8X1kElxUWBYdBbAL0sz5m01cuRDgKfA2b5EnDnyQr2hQSpq11fPgDxJuC42oLa3BAL5Tb/vc2Fh+hzRemTCiFo9jWx8buMKSe6Gg3B/FC2WoInaVLTaC3OLIftqCuxZW0kfRHh5poOYM8NXz/iMc=
+	t=1779303986; cv=none; b=gwHwFiGmvPaSXZoC6AGDTs26dySyCFNRQhS7w/R9Pjdk/YoSdVhwB35kxf2wlBPqKTQ4K84/yAe0FrKrdPXA3rvuajlx64zsrH9+ny072iSo9ojcq98O7Fg5YMKh/8fSVH1iAq+lvyFBrIWqaKmymwZMkBiJiAJBd3+rXd7Io1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779303141; c=relaxed/simple;
-	bh=D/jNgV65/ZG1ywKmbykoHTxm9c1hUZOHb7Bzk82fy0A=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cATZcMwphgIE4t3y4c2+guq8hltLEZr3Lqo6CaaRAy2JuWdOLLu9TnRKrc9oU6/xZGQjTJ1HPnaMpZYYLPo0t3zm4oGEeIwvSpTAx87mYpuGTiym/p7lGSE2S2iujADvdJndTrBIWqPTmR2/KxZkiCFPHqtHfKKjnqCEoG4DoYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mi+HonTY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779303986; c=relaxed/simple;
+	bh=RHn6R6b40XVZCeHmeSbM7xbjlot59ktq1KNBqruLBEQ=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DIgIKqJ3X3lZZPawd/sUY+XP4F6ifHRkjHlvRVOjJjbHcS3/Jl6/Ui4llbyIeNYZiijxaDT9lTQJjL1Sw/43yxzAD2QYpU+aVYRRyGKqZyih4knThgHhxLLthZYL268P0mVRClasYdXibCb1p5k32sjtLnZpqf4l6GLLRa//RnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=provdh.com; spf=pass smtp.mailfrom=provdh.com; dkim=pass (2048-bit key) header.d=provdh.com header.i=@provdh.com header.b=LBKX9x63; arc=none smtp.client-ip=85.9.210.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=provdh.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=provdh.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mi+HonTY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576501F000E9;
-	Wed, 20 May 2026 18:52:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779303139;
-	bh=0zV36OtqY2PEdcKfdB9mqH/ugGrhGsG66wuRqtE44nw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mi+HonTYTLhry+jqCa+eu+4NB5xGxyei0K+UANQjYjzQYcw9Iy4Udcks4tJmaKzgb
-	 SVJLHuGOJSNqOYA0wCSzArm9DDRARM2QnJjqXoDx1WIzDY01J/+uTSKp5s39qTVdbq
-	 isXr7sNpu8xFW8beCC50q6eg4L/hGDSTsmlwP9XYoLR9Pu9SIOUey7pS5cK1yntPGN
-	 IrZwiyZDjESjloI0D9nd8Fe9lMohKT6xWKCBtDrq7MMjl33OxFjjgUTzl77C1uFXnh
-	 gPb+qky4woEdP0GDmqJ5DKyhrelvwaV9fqapf+9QsOJDMq6TlYTYDDkdCBGDnn36KB
-	 DSAD3yhNyjD6Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 3/6] dt-bindings: mfd: motorola-cpcap: convert to DT
- schema
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260520182124.117863-4-clamor95@gmail.com>
-References: <20260520182124.117863-4-clamor95@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 20 May 2026 18:52:18 +0000
-Message-Id: <20260520185219.576501F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=provdh.com header.i=@provdh.com header.b="LBKX9x63"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=provdh.com;
+	s=protonmail; t=1779303967; x=1779563167;
+	bh=k4tON+ZnfndUQDWS7Mx69d0u+DfNHTj806P3Uo35Z74=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=LBKX9x63rFVkpI21MWkmUSSJL5dYNaSsG6fH1G3t1cA7XRe4NazJpc1CNkVpBZmwD
+	 mVO3PW5VnkpFXMs+AgwFrjRB3czRklC1MNC93XytLHL8Lg2/KeiNsne2sZYG51nWnX
+	 ozWkGSS7dyxNJKE6L0sWEe7ZiFbq1Laa4M4iew8LfNGRqYo1WvFf6I/tp+/wQJ/i0N
+	 rr1JNiYWfD0VyVOOnKUV5ReNYHL5mvclohpmp+zAejKuh3y47ymk54yNqCjUhLLIGH
+	 cnkBPBcMTsmSWXbZDqFVH6eBZAILprQjK1+j3gDmxXZBUNGkeuQOcoLQLiWMhJeSUF
+	 ic+mJwKqu3Ltw==
+Date: Wed, 20 May 2026 19:06:05 +0000
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: opinijm@provdh.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, "Luke D. Jones" <luke@ljones.dev>
+Subject: Re: Mismatched product ids for the ASUS ROG RAIKIRI PRO
+Message-ID: <qXthrkx15NUzfYKQebMAJLqDmGXrsQJYTPFko4SvPAd--C6OBfBLWc0raywIArf-MoxJlRLg1XJna4AWORI1mmYAe2eh6eaL9K15Z0zTgMQ=@provdh.com>
+In-Reply-To: <agzSfM3TH8Pg0M4I@google.com>
+References: <Zjb8RrOFLHFSk_Gv@google.com> <20260519173800.6765-1-opinijm@provdh.com> <agzSfM3TH8Pg0M4I@google.com>
+Feedback-ID: 181154076:user:proton
+X-Pm-Message-ID: 1687bd7dcd34c899947acdda764d9d363e4f1301
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] The YAML conversion introduces structural differences and omits pr=
-eviously required properties, causing schema validation to fail for existin=
-g in-tree device trees.
-- [Medium] Incorrect use of 'additionalProperties: false' in conjunction wi=
-th inherited schemas via 'allOf: - $ref', blocking standard SPI properties.
-- [Medium] The `spi-cs-high` property was required in the original TXT bind=
-ing but is missing from the YAML `required` list.
-- [Medium] The YAML binding strictly requires exactly two compatible string=
-s, contradicting the original TXT binding which allowed 'One or both'.
---
 
-commit a23d8229dfec6cdc65afe36d12b859535df8cfc9
-Author: Svyatoslav Ryhel <clamor95@gmail.com>
+On Tuesday, May 19th, 2026 at 5:19 PM, Dmitry Torokhov <dmitry.torokhov@gma=
+il.com> wrote:
 
-dt-bindings: mfd: motorola-cpcap: convert to DT schema
-   =20
-Convert devicetree bindings for the Motorola CPCAP MFD from TXT to YAML.
+> Hi Justin,
+>=20
+> On Tue, May 19, 2026 at 01:37:59PM -0400, Justin Opini wrote:
+> > Hey Dimity,
+> >
+> > I had a question on the product id,
+> > { 0x0b05, 0x1abb, "ASUS ROG RAIKIRI PRO", 0, XTYPE_XBOXONE },
+> >
+> > This doesn=E2=80=99t match both my devices so I was wondering if someho=
+w we
+> > have similar named devices with need for different product ids or if
+> > there was a mistake in the original commit?
+> >
+> > My relevant entries from lsusb are
+> > Bus 001 Device 002: ID 0b05:1a3c ASUSTek Computer, Inc. ROG RAIKIRI PRO
+> > Bus 001 Device 003: ID 0b05:1a3c ASUSTek Computer, Inc. ROG RAIKIRI PRO
+> >
+> > On my system I have ended up using this udev rule for quite some time
+> > ACTION=3D=3D"add", ATTRS{idVendor}=3D=3D"0b05", ATTRS{idProduct}=3D=3D"=
+1a3c", GROUP=3D"input", MODE=3D"0660", TAG+=3D"uaccess", TAG+=3D"seat", RUN=
++=3D"/bin/sh -c 'echo 0b05 1a3c > /sys/bus/usb/drivers/xpad/new_id'"
+>=20
+> I am CC-ing Luke who added this VID/PID comboi to double check, but it
+> looks like there are many variants of this controller using the same
+> "ROG RAIKIRI PRO" name. For example
+> https://github.com/atar-axis/xpadneo/issues/612 talks about
+> 0x0b05/0x1abd.
+>=20
 
-> diff --git a/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml b/=
-Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> new file mode 100644
-> index 0000000000000..76705ea56805a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> @@ -0,0 +1,403 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mfd/motorola,cpcap.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Motorola CPCAP PMIC MFD
-> +
-> +maintainers:
-> +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    items:
-> +      - const: motorola,cpcap
-> +      - const: st,6556002
+Ah i was thinking about this more. The device has 3 modes of connection, th=
+ere is Bluetooth(on the Github tracker), and 2.4GHz via USB receiver(which =
+is what I use) as well as USB directly to the device. Not use if this is en=
+ough to introduce variants, but I thought it was worth thinking out aloud. =
+Maybe Luke could chime in on usage? In any case is a patch appropriate here=
+ to introduce variant?
 
-[Severity: Medium]
-Does this strict array configuration restrict compatible strings too much?
-The original txt binding indicated that "One or both" strings were
-acceptable, but this yaml structure enforces exactly both strings in this
-specific order. Could this cause a regression for hardware implementations
-that only use a single compatible string, which the driver supports?
-
-> +
-> +  reg:
-> +    maxItems: 1
-
-[Severity: High]
-Are #address-cells and #size-cells missing from this top-level node?
-The original txt binding explicitly required these, and existing in-tree
-device trees (like arch/arm/boot/dts/ti/omap/motorola-cpcap-mapphone.dtsi)
-use them. With additionalProperties: false set, will this cause a regression
-where existing valid dts files fail validation?
-
-[ ... ]
-
-> +  audio-codec:
-> +    type: object
-> +    additionalProperties: false
-> +
-> +    properties:
-[ ... ]
-> +      ports:
-> +        $ref: /schemas/graph.yaml#/properties/ports
-> +
-> +        properties:
-> +          port@0:
-> +            $ref: /schemas/graph.yaml#/properties/port
-> +            description: port connected to the Stereo HiFi DAC
-> +
-> +          port@1:
-> +            $ref: /schemas/graph.yaml#/properties/port
-> +            description: port connected to the Voice DAC
-> +
-> +        required:
-> +          - port@0
-> +          - port@1
-
-[Severity: High]
-Does this structurally conflict with existing in-tree device trees?
-The new schema requires a ports container for the audio codec, but existing
-in-tree device trees define port@0 and port@1 directly under the audio-codec
-node without a wrapper. Since no patch in this series updates the
-corresponding dtsi files, won't this cause a regression where existing devi=
-ce
-trees are incorrectly rejected?
-
-[ ... ]
-
-> +  key-power:
-> +    $ref: /schemas/input/motorola,cpcap-pwrbutton.yaml#
-
-[Severity: High]
-Will this correctly match the existing device tree nodes?
-The schema expects the subnode to be named key-power, but existing in-tree
-device trees use the name button (e.g., power_button: button { ... }).
-This mismatch will likely cause a regression for the subnode validation.
-
-[ ... ]
-
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - interrupt-controller
-> +  - "#interrupt-cells"
-> +  - spi-max-frequency
-
-[Severity: Medium]
-Should spi-cs-high be included in this required list?
-The original txt binding explicitly listed spi-cs-high as a required proper=
-ty,
-and the pmic physically requires an active-high spi chip select to function.
-If it is omitted from this list, could a device tree missing this hardware
-constraint incorrectly pass schema validation?
-
-> +
-> +additionalProperties: false
-
-[Severity: Medium]
-Should this use unevaluatedProperties: false instead of
-additionalProperties: false?
-
-When inheriting from another schema like spi-peripheral-props.yaml via an
-allOf reference, additionalProperties: false will reject the inherited
-properties unless they are manually redefined in this file. Using
-unevaluatedProperties would properly handle the inherited spi properties
-and remove the need to manually declare spi-cs-high, spi-cpol, and
-spi-cpha above.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260520182124.1178=
-63-1-clamor95@gmail.com?part=3D3
+> Thanks.
+>=20
+> --
+> Dmitry
+> 

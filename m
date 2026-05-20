@@ -1,80 +1,75 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167763FE343
-	for <linux-input@vger.kernel.org>; Wed, 20 May 2026 18:23:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEBB63E2AAD;
+	Wed, 20 May 2026 18:38:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779301407; cv=none; b=N4+3gEahgW5bbo3KvP4o0iRTnUMI2miVehKFJp71JrCFJC3OYZqSZv9ELxpCn3KRQIm5gRt8llP0D33O2vGGaMFX4RYJdJIagVnhk0arFywah7hR9o2tph/RVFLtXOx6qKPNKClghbeQEWASYxRDamXEkqnSo46acdDGWHKUyrs=
+	t=1779302325; cv=none; b=H2l701+gQPfjylpw504uhLI/x+HXjdfvS7/FPcaQCtk9CKO3+PVNVdo2579NC66fOWZHTDLcVi7HeWgqF3g6bxSmz3s+iD2wilNWlZjnUcvXOLJD2t4WL+QBSxwBpspnADwpxXvNwCy73G+72OiDUkzquzsajkL48wpnn6iCK7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779301407; c=relaxed/simple;
-	bh=RIfTQDHCQ2YqnNoaJ2ewpxoWS8B+PH190RGJwefZxN4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=A4YegWLDmfwQWn24cFwwCWPYahCvjyGYxLMvDmcH6sAhO96ow0AjAa9eMHXgRhAJvm5WOcer7IPpbr1JEqCFvYuZXW9EWFaiRIsLA5sY70yn+lDNAQjXp2zdYsA+5t7oWTKAIOoLKGLzK5FBqF97UoOrp1F/vTV4aRIDa6q14JI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j7JDCgZW; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779302325; c=relaxed/simple;
+	bh=juqmQHTyXVjMADRkqpJ2wNnJxOdoGL5J5ccsiNry1Eo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=lA/kdimj8UVCrbZwFX5UNeLhdKzVtqZHARnRnvrowDSioFsMQt8V8PmARkjAA/G9nrZFbAD+G2Qm8MGwjnbc7RZY6asIlpvI8K055KrtMXGq1OumBv5oACl8BNlTRfKUBDG0uRHn3wdFwu4ll86VZnx1+22Vnyakjhy2C3Trtqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SYem8I5R; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j7JDCgZW"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49021532ebdso21106095e9.2
-        for <linux-input@vger.kernel.org>; Wed, 20 May 2026 11:23:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779301402; x=1779906202; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ODwRsMFDaNCx2SgXogkfXBT7irmxGG50JjasciSXEuM=;
-        b=j7JDCgZWMbfezpZQSKIglKcmm6N0Vj7F73wRUMn9+KwyHHnIr2G2m/uvdyx6m0oBSr
-         RBV5dOsAsbePTf0rjyP/Ur32qxrtKeeCMv2aGnuwFouHNptpt3AB+ITye5EQM7FPetki
-         G7uP2Yfq0IgAqVVZ8e9Sd5RNXqwhmp424vYwgKFQh5AmSR9FHjRBFF4aSHkuX/tMgWhZ
-         VxSQX6RxPnmswtGCXpM4YM8O5pajjKxWZGxHPy9Ht3MzWgdZZhTPvM8KhyLPWJ2iTEz/
-         dD53qRBGio+TD0YcZO0luX8R1BUkuQ06kU7lZCPneCRT7sqicimGeYWzumETl03svzc/
-         yX1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779301402; x=1779906202;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ODwRsMFDaNCx2SgXogkfXBT7irmxGG50JjasciSXEuM=;
-        b=V6wR2RCY9cR3P2t5033eIw8uj97wvexMduxRkc6h/VLvuZ0GDj2vliJ2mY3RFGOdAg
-         ew5E07DwbarsjqpMc01HIZeR3OhsEuWc9xFnwTXF3wpm6yB/ukiNyoMVUqY7+5NfI/Ef
-         J4bYedRxTkTBcOwsyp1PAlO9ygIF1ycI32AsPEi4mgiOSehh8XVPxvSzkOlc3x5w0RRH
-         bz2NjECc1tAuV2QagWJeWi/GKm1OS+ca/Avnl8tMO1ixJ1UfIx9X1LC3xPVGXtSFkHdC
-         3rDRIApqGlt4JEYX4MViST170U3X8XUgqOCDKoRXMdlpX4y7VJBwDXGboAjhZtiDO8iU
-         yRqQ==
-X-Gm-Message-State: AOJu0Yz+L7MYDJf35JVWsNqb+PEo226XNVFCkAaNIG090jim18kETrmf
-	B2lCkLPr9QK6pjRbwcD7EhLeYDbXpUfyxWrA4WdEw8DugSsW9w9HM/TN
-X-Gm-Gg: Acq92OF0/mIGuY8bCzW/+RHf0/unBkPz8B1nCp40n11ZOwOHBglVCj/t5n+6GNid91Q
-	BVFDnvx155n5fEkqvYe65chzP+EV5JYJPjxOyuYkOFk2GzXjRa0CjljpDR9HJPv0lsjkD9oRQC8
-	53QSDU65el6xtjLZAsgkJYSySoB7bjBJSg5QPrXl/NZoDcxzNhUcKPPMtAVFlNUsVQ0Rlug+i+7
-	JlummZds3z98W6XkA+KUfpHGopUD0d7lEPOJHaZXsTv6PROnxVLteZ9HYVjwYbtn/1pGtAhN6BY
-	MLOhmz+Mn8vDqykeE24rFAQuVk3AUKgv9nFBOFurpIUFjEXioEzsXvOm3BZQJS/jsi4UaZgK8AZ
-	Ymm4UZdOb29Zh9NZH/mvH0yuh7PxXyWUv6VxqBLFUoWgf5chL/wvnH7fKOEqkG0bogxmSpPsOiz
-	6wkXqdpXrjKs16
-X-Received: by 2002:a05:600c:1e24:b0:488:aa33:dcbd with SMTP id 5b1f17b1804b1-48fe63182a2mr389286225e9.26.1779301402152;
-        Wed, 20 May 2026 11:23:22 -0700 (PDT)
-Received: from xeon ([188.163.112.61])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ec3b18fsm51297739f8f.11.2026.05.20.11.23.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2026 11:23:21 -0700 (PDT)
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SYem8I5R"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98C11F00894;
+	Wed, 20 May 2026 18:38:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779302322;
+	bh=QS0tE1jq32RPknCxarjuiggmHwCM4gop6dVAw2uUqDw=;
+	h=From:To:Cc:Subject:Date;
+	b=SYem8I5RC86MwvWdXWsQ6Bgp8A0iXFMrU82tSaGTwlAWevRvRw1mI4fgTiw71nwGG
+	 TpYCkhihg/FcTxYWvLebVRpcmccAb0QIlJ3Erhm9eoYNL6hgSPDhwpiMfthUWOs+N7
+	 uDOqvOlJsj2qn4Mk9FgQR4RHeTbdGZgKjUqsRfrhRpKCLo4wVyWkBbRw7XKIDZNWN3
+	 xb+Su0YEq8Wc0mkirG4tIO7DN2LSICbOX1+H4BSK/0RdNlDIcIh6ctwgOUK3qvD3Ui
+	 o3sIJMY3PRuZCc3JVv1k5+w+a6JkVb3X+rJGutoWUld3hRXgrt8cUvFy8ei5dLVjx9
+	 qD/v5u29/g+eA==
+From: Arnd Bergmann <arnd@kernel.org>
+To: linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	Christian Lamparter <chunkeey@googlemail.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Lee Jones <lee@kernel.org>,
 	Pavel Machek <pavel@kernel.org>,
-	Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: [PATCH v6 5/6] mfd: motorola-cpcap: diverge configuration per-board
-Date: Wed, 20 May 2026 21:21:23 +0300
-Message-ID: <20260520182124.117863-6-clamor95@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260520182124.117863-1-clamor95@gmail.com>
-References: <20260520182124.117863-1-clamor95@gmail.com>
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonas Gorski <jonas.gorski@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	linux-wireless@vger.kernel.org,
+	linux-omap@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v2 00/10] gpiolib: fence off legacy interfaces
+Date: Wed, 20 May 2026 20:38:05 +0200
+Message-Id: <20260520183815.2510387-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -83,217 +78,108 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-MFD have rigid subdevice structure which does not allow flexible dynamic
-subdevice linking. Address this by diverging CPCAP subdevice composition
-to take into account board specific configuration.
+From: Arnd Bergmann <arnd@arndb.de>
 
-Create a common and default subdevice composition, rename edit existing
-subdevice composition into cpcap_mapphone_devices since it targets mainly
-Mapphone board.
+This is an update of all the patches that are still required before
+we can actually turn off CONFIG_GPIOLIB_LEGACY for most platforms
+in the final patch of this series.
 
-Removed st,6556002 as it is no longer applicable to all cases and
-duplicates motorola,cpcap, which is used as the default composition.
+I originally posted this as a series in
+https://lore.kernel.org/all/20250808151822.536879-1-arnd@kernel.org/
 
-Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
----
- drivers/mfd/motorola-cpcap.c       | 125 +++++++++++++++--------------
- include/linux/mfd/motorola-cpcap.h |   6 ++
- 2 files changed, 70 insertions(+), 61 deletions(-)
+I added more patches for the p54spi driver that I had originally
+sent separately and submitted the remaining ones separately to
+the subsystem maintainers, with about two thirds getting picked
+up so far.
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index d8243b956f87..5b6ca6b81c23 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/property.h>
- #include <linux/regmap.h>
- #include <linux/sysfs.h>
- 
-@@ -30,6 +31,7 @@ struct cpcap_ddata {
- 	struct regmap_irq_chip_data *irqdata[CPCAP_NR_IRQ_CHIPS];
- 	const struct regmap_config *regmap_conf;
- 	struct regmap *regmap;
-+	enum cpcap_variant variant;
- };
- 
- static int cpcap_sense_irq(struct regmap *regmap, int irq)
-@@ -195,20 +197,6 @@ static int cpcap_init_irq(struct cpcap_ddata *cpcap)
- 	return 0;
- }
- 
--static const struct of_device_id cpcap_of_match[] = {
--	{ .compatible = "motorola,cpcap", },
--	{ .compatible = "st,6556002", },
--	{},
--};
--MODULE_DEVICE_TABLE(of, cpcap_of_match);
--
--static const struct spi_device_id cpcap_spi_ids[] = {
--	{ .name = "cpcap", },
--	{ .name = "6556002", },
--	{},
--};
--MODULE_DEVICE_TABLE(spi, cpcap_spi_ids);
--
- static const struct regmap_config cpcap_regmap_config = {
- 	.reg_bits = 16,
- 	.reg_stride = 4,
-@@ -241,62 +229,58 @@ static int cpcap_resume(struct device *dev)
- 
- static DEFINE_SIMPLE_DEV_PM_OPS(cpcap_pm, cpcap_suspend, cpcap_resume);
- 
--static const struct mfd_cell cpcap_mfd_devices[] = {
--	{
--		.name          = "cpcap_adc",
--		.of_compatible = "motorola,mapphone-cpcap-adc",
--	}, {
--		.name          = "cpcap_battery",
--		.of_compatible = "motorola,cpcap-battery",
--	}, {
--		.name          = "cpcap-charger",
--		.of_compatible = "motorola,mapphone-cpcap-charger",
--	}, {
--		.name          = "cpcap-regulator",
--		.of_compatible = "motorola,mapphone-cpcap-regulator",
--	}, {
--		.name          = "cpcap-rtc",
--		.of_compatible = "motorola,cpcap-rtc",
--	}, {
--		.name          = "cpcap-pwrbutton",
--		.of_compatible = "motorola,cpcap-pwrbutton",
--	}, {
--		.name          = "cpcap-usb-phy",
--		.of_compatible = "motorola,mapphone-cpcap-usb-phy",
--	}, {
--		.name          = "cpcap-led",
--		.id            = 0,
--		.of_compatible = "motorola,cpcap-led-red",
--	}, {
--		.name          = "cpcap-led",
--		.id            = 1,
--		.of_compatible = "motorola,cpcap-led-green",
--	}, {
--		.name          = "cpcap-led",
--		.id            = 2,
--		.of_compatible = "motorola,cpcap-led-blue",
--	}, {
--		.name          = "cpcap-led",
--		.id            = 3,
--		.of_compatible = "motorola,cpcap-led-adl",
--	}, {
--		.name          = "cpcap-led",
--		.id            = 4,
--		.of_compatible = "motorola,cpcap-led-cp",
--	}, {
--		.name          = "cpcap-codec",
--	}
-+static const struct mfd_cell cpcap_common_devices[] = {
-+	MFD_CELL_OF("cpcap_battery", NULL, NULL, 0, 0, "motorola,cpcap-battery"),
-+	MFD_CELL_OF("cpcap-rtc", NULL, NULL, 0, 0, "motorola,cpcap-rtc"),
-+	MFD_CELL_OF("cpcap-pwrbutton", NULL, NULL, 0, 0, "motorola,cpcap-pwrbutton"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 0, "motorola,cpcap-led-red"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 1, "motorola,cpcap-led-green"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 2, "motorola,cpcap-led-blue"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 3, "motorola,cpcap-led-adl"),
-+	MFD_CELL_OF("cpcap-led", NULL, NULL, 0, 4, "motorola,cpcap-led-cp"),
-+	MFD_CELL_NAME("cpcap-codec"),
-+};
-+
-+static const struct mfd_cell cpcap_default_devices[] = {
-+	MFD_CELL_OF("cpcap_adc", NULL, NULL, 0, 0, "motorola,cpcap-adc"),
-+	MFD_CELL_OF("cpcap-regulator", NULL, NULL, 0, 0, "motorola,cpcap-regulator"),
-+	MFD_CELL_OF("cpcap-usb-phy", NULL, NULL, 0, 0, "motorola,cpcap-usb-phy"),
-+};
-+
-+static const struct mfd_cell cpcap_mapphone_devices[] = {
-+	MFD_CELL_OF("cpcap_adc", NULL, NULL, 0, 0, "motorola,mapphone-cpcap-adc"),
-+	MFD_CELL_OF("cpcap-charger", NULL, NULL, 0, 0, "motorola,mapphone-cpcap-charger"),
-+	MFD_CELL_OF("cpcap-regulator", NULL, NULL, 0, 0, "motorola,mapphone-cpcap-regulator"),
-+	MFD_CELL_OF("cpcap-usb-phy", NULL, NULL, 0, 0, "motorola,mapphone-cpcap-usb-phy"),
- };
- 
- static int cpcap_probe(struct spi_device *spi)
- {
- 	struct cpcap_ddata *cpcap;
-+	const struct mfd_cell *cells;
-+	unsigned int num_cells;
- 	int ret;
- 
- 	cpcap = devm_kzalloc(&spi->dev, sizeof(*cpcap), GFP_KERNEL);
- 	if (!cpcap)
- 		return -ENOMEM;
- 
-+	cpcap->variant = (enum cpcap_variant)spi_get_device_match_data(spi);
-+
-+	switch (cpcap->variant) {
-+	case CPCAP_DEFAULT:
-+		cells = cpcap_default_devices;
-+		num_cells = ARRAY_SIZE(cpcap_default_devices);
-+		break;
-+	case CPCAP_MAPPHONE:
-+		cells = cpcap_mapphone_devices;
-+		num_cells = ARRAY_SIZE(cpcap_mapphone_devices);
-+		break;
-+	default:
-+		return dev_err_probe(&spi->dev, -ENODEV,
-+				     "Unknown device %d\n", cpcap->variant);
-+	}
-+
- 	cpcap->spi = spi;
- 	spi_set_drvdata(spi, cpcap);
- 
-@@ -331,10 +315,29 @@ static int cpcap_probe(struct spi_device *spi)
- 	spi->dev.coherent_dma_mask = 0;
- 	spi->dev.dma_mask = &spi->dev.coherent_dma_mask;
- 
--	return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
--				    ARRAY_SIZE(cpcap_mfd_devices), NULL, 0, NULL);
-+	ret = devm_mfd_add_devices(&spi->dev, 0, cpcap_common_devices,
-+				   ARRAY_SIZE(cpcap_common_devices), NULL, 0, NULL);
-+	if (ret)
-+		return dev_err_probe(&spi->dev, ret,
-+				     "Failed to add common child devices\n");
-+
-+	return devm_mfd_add_devices(&spi->dev, 0, cells, num_cells, NULL, 0, NULL);
- }
- 
-+static const struct of_device_id cpcap_of_match[] = {
-+	{ .compatible = "motorola,cpcap", .data = (void *)CPCAP_DEFAULT },
-+	{ .compatible = "motorola,mapphone-cpcap", .data = (void *)CPCAP_MAPPHONE },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, cpcap_of_match);
-+
-+static const struct spi_device_id cpcap_spi_ids[] = {
-+	{ "cpcap", CPCAP_DEFAULT },
-+	{ "mapphone-cpcap", CPCAP_MAPPHONE },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(spi, cpcap_spi_ids);
-+
- static struct spi_driver cpcap_driver = {
- 	.driver = {
- 		.name = "cpcap-core",
-diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-index 981e5777deb7..1a85b06272c8 100644
---- a/include/linux/mfd/motorola-cpcap.h
-+++ b/include/linux/mfd/motorola-cpcap.h
-@@ -25,6 +25,12 @@
- #define CPCAP_REVISION_2_0	0x10
- #define CPCAP_REVISION_2_1	0x11
- 
-+enum cpcap_variant {
-+	CPCAP_DEFAULT = 1,
-+	CPCAP_MAPPHONE,
-+	CPCAP_MAX
-+};
-+
- /* CPCAP registers */
- #define CPCAP_REG_INT1		0x0000	/* Interrupt 1 */
- #define CPCAP_REG_INT2		0x0004	/* Interrupt 2 */
+If possible, please apply the patches to the respective
+architecture (mips, sh, x86, soc/omap) or subsystem
+(wireless, net-next, led, input) trees.
+
+      Arnd
+
+Arnd Bergmann (10):
+  [v2] [net-next] net: dsa: b53: hide legacy gpiolib usage on non-mips
+  [v3] input: gpio-keys: make legacy gpiolib optional
+  [v2] x86/olpc: select GPIOLIB_LEGACY
+  [v2] sh: select legacy gpiolib interface
+  [v2] mips: select legacy gpiolib interfaces where used
+  [v4] leds: gpio: make legacy gpiolib interface optional
+  [v6 net-next] dt-bindings: net: add st,stlc4560/p54spi binding
+  [v6 net-next] p54spi: convert to devicetree
+  [v6 omap] ARM: dts: omap2: add stlc4560 spi-wireless node
+  gpiolib: turn off legacy interface by default
+
+Cc: Christian Lamparter <chunkeey@googlemail.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Andreas Kemnade <andreas@kemnade.info>
+Cc: Kevin Hilman <khilman@baylibre.com>
+Cc: Roger Quadros <rogerq@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Thomas Gleixner <tglx@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: x86@kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linus Walleij <linusw@kernel.org>
+Cc: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lee Jones <lee@kernel.org>
+Cc: Pavel Machek <pavel@kernel.org>
+Cc: Matti Vaittinen <mazziesaccount@gmail.com>
+Cc: Florian Fainelli <florian.fainelli@broadcom.com>
+Cc: Jonas Gorski <jonas.gorski@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Vladimir Oltean <olteanv@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-wireless@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-omap@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-leds@vger.kernel.org
+Cc: netdev@vger.kernel.org
+
+ .../bindings/net/wireless/st,stlc4560.yaml    | 61 +++++++++++++++++
+ MAINTAINERS                                   |  1 +
+ arch/arm/boot/dts/ti/omap/omap2.dtsi          |  4 ++
+ .../dts/ti/omap/omap2420-n8x0-common.dtsi     | 12 ++++
+ arch/arm/mach-omap2/board-n8x0.c              | 18 -----
+ arch/mips/Kconfig                             |  5 ++
+ arch/mips/alchemy/Kconfig                     |  1 -
+ arch/mips/txx9/Kconfig                        |  1 +
+ arch/sh/Kconfig                               |  1 +
+ arch/sh/boards/Kconfig                        |  8 +++
+ arch/sh/boards/mach-highlander/Kconfig        |  1 +
+ arch/sh/boards/mach-rsk/Kconfig               |  3 +
+ arch/x86/Kconfig                              |  1 +
+ drivers/gpio/Kconfig                          |  9 ++-
+ drivers/input/keyboard/gpio_keys.c            |  7 +-
+ drivers/input/keyboard/gpio_keys_polled.c     |  2 +
+ drivers/leds/leds-gpio.c                      | 51 +++++++++-----
+ drivers/mfd/rohm-bd71828.c                    |  1 -
+ drivers/mfd/rohm-bd718x7.c                    |  1 -
+ drivers/net/dsa/b53/b53_common.c              | 17 ++---
+ drivers/net/dsa/b53/b53_priv.h                | 25 +++++--
+ drivers/net/wireless/intersil/p54/p54spi.c    | 67 +++++++------------
+ drivers/net/wireless/intersil/p54/p54spi.h    |  3 +
+ include/linux/gpio_keys.h                     |  2 +
+ include/linux/leds.h                          |  2 +
+ sound/pci/Kconfig                             |  1 +
+ 26 files changed, 201 insertions(+), 104 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/net/wireless/st,stlc4560.yaml
+
 -- 
-2.51.0
+2.39.5
 

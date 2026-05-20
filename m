@@ -1,96 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6683612F6;
-	Wed, 20 May 2026 20:13:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E806739F17F;
+	Wed, 20 May 2026 21:40:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779308021; cv=none; b=oM5za1ZlTA461miqvRRF/+ICIxwYEPWVpqjLnsKDFDaL7/H9oqGAhPnsedelMh1IlTD+zfS7cJPsQRJAAmUT347XUge742Pt8KFm7vhH5UxxzThvYnjqulfdj2AP8WR/7mbFSKBv8R1wFaZX2SSnbfXO1RjCt6hPnseqZOw9hcA=
+	t=1779313209; cv=none; b=dofH3HtUnG2kDDEAKfIbpurZyxpaMuVSTOTU/Ha0ddUPs5RHxwOhMGmkj1XQliHbOqDOMw4bt+0J7vGIW3AMLboL2f3FbnoGdD0UqW5+8KCoQommno3InTb3E+lt18PnU5L4KyHlQnpuoaKZuW03GZfRl3Q4nGivtf6PPfJVkI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779308021; c=relaxed/simple;
-	bh=euEms7TYqrmZeVjCBuiSh+bd9lVKE84VjjxrkAif1Ho=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=B2aZaNyZI75p7mojWe9CtFUe9mhbshE04X5OJhOkk8EOmacxe7h5F+HlvTeXn50DTdiBJ1gle5ucXYCnIXZ+WPE2q77OcWTPvdPVoVt4DfO0kEH6kkk66duajNPUM4wWCXsS7OJYXp5gufNSEwNeCS04mkHXIUByzCILzfSa7LY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b8gqUlyw; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779313209; c=relaxed/simple;
+	bh=0t78VNT3MDuLej6QDJZbgndGGVnTNJPx4/DHHRVrdJ4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=J/Nz5A4bdQL9g6iJh7C1ftKs1F7tY2sEOoFo84XfSfvFZxmwsrKQHFadzZ4U0s9OV5cJHN6Mu2Ffykpz49tl7SfCHndEne5Cc/3kxHgBmGlcjl6myX3bYIgzO0+Q9DaL30RmqcLLp03V2X0XlzsZgp73auyrYFdXG5Yz1sml/nQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net; spf=none smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=T4Ip8HFK; arc=none smtp.client-ip=168.119.38.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b8gqUlyw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B21A1F00A39;
-	Wed, 20 May 2026 20:13:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779308020;
-	bh=Tsdb10MCYeVuX9T+8C6WQO30wsviGsRuozwkSNDJ4+0=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject;
-	b=b8gqUlywO68AJVjSw6858va6PLMLoLRNok5oYtr2P3jDUX7fZdS9kLk+YHJ3NoM9C
-	 ZTPnveb5ii2sQq4F4InWqZxJVSkNsDBPTuqy3shqaNLlDR6ZSRIrt+F4Oi0mWbhYBx
-	 ohDSxjNHAG3K4Vioc+Z5uUj503qOK0KbRjD5a8FdIC8u/6JXZyn+V0QepoqHkYackZ
-	 fdAcd8B+H7ckm6P7I3JkElwRnr71yKYsbA4MOeeqlVLgGlum6KzkAumEVz7MxxI+5a
-	 XM/+SO2X5B/ipkw0CXNEjuVjZ54v2w+nO+poH/UyXA6bv5lJmxXkXbWU5G5bRaptye
-	 Jxdxp/5os3PBA==
-Date: Wed, 20 May 2026 15:13:39 -0500
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="T4Ip8HFK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+	Resent-Cc:Resent-Message-ID; bh=0t78VNT3MDuLej6QDJZbgndGGVnTNJPx4/DHHRVrdJ4=;
+	t=1779313208; x=1780522808; b=T4Ip8HFK+PQmwWuwHRO7aFuDMO+ieWc6xHvP/Nqj8yLfKgO
+	Wxq0L19IKJ1+XOK3peOesIGCR9zpEsR4RipIOlPhiFqIlrPMrDAxogRQQXTnIsnYtMnvzsm5NIFcx
+	BmYafn427MFoG7uc9kl7MYI6XZnpvL4XehYLtlIp/xU3OadA3Uk96C5Y/mLNGaAg3jD1OXKi7n+YT
+	neFlFmDI3T6ApVyO6hZaQvSw6REqd2zSDghVc5mw2b0zJB7I959oPmu6dlHHNuHjSCiAstIVlgfuv
+	DOKCelH4C+wQkKXsccFeTT4UDcQ9H6ivF7VTrjXvf5ThxXfXdCX5VZHLZXmJ6e9w==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.98.2)
+	(envelope-from <johannes@sipsolutions.net>)
+	id 1wPode-0000000AvjQ-04At;
+	Wed, 20 May 2026 23:39:38 +0200
+Message-ID: <01692b53456bfaa98778f3f1ab2a906bc25bad04.camel@sipsolutions.net>
+Subject: Re: [PATCH 09/10] [v6 omap] ARM: dts: omap2: add stlc4560
+ spi-wireless node
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Arnd Bergmann <arnd@kernel.org>, linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Christian
+ Lamparter <chunkeey@googlemail.com>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Andreas Kemnade	 <andreas@kemnade.info>, Kevin Hilman
+ <khilman@baylibre.com>, Roger Quadros	 <rogerq@kernel.org>, Tony Lindgren
+ <tony@atomide.com>, Thomas Bogendoerfer	 <tsbogend@alpha.franken.de>, John
+ Paul Adrian Glaubitz	 <glaubitz@physik.fu-berlin.de>, Thomas Gleixner
+ <tglx@kernel.org>, Ingo Molnar	 <mingo@redhat.com>, Borislav Petkov
+ <bp@alien8.de>, Dave Hansen	 <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>,  Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Dmitry Torokhov	
+ <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, Pavel Machek	
+ <pavel@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Florian
+ Fainelli <florian.fainelli@broadcom.com>, Jonas Gorski
+ <jonas.gorski@gmail.com>, Andrew Lunn	 <andrew@lunn.ch>, Vladimir Oltean
+ <olteanv@gmail.com>, "David S. Miller"	 <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski	 <kuba@kernel.org>, Paolo Abeni
+ <pabeni@redhat.com>, 	linux-wireless@vger.kernel.org,
+ linux-omap@vger.kernel.org, 	linux-arm-kernel@lists.infradead.org,
+ linux-mips@vger.kernel.org, 	linux-sh@vger.kernel.org,
+ linux-input@vger.kernel.org, 	linux-leds@vger.kernel.org,
+ netdev@vger.kernel.org, Krzysztof Kozlowski	 <krzk@kernel.org>
+Date: Wed, 20 May 2026 23:39:36 +0200
+In-Reply-To: <20260520183815.2510387-10-arnd@kernel.org>
+References: <20260520183815.2510387-1-arnd@kernel.org>
+	 <20260520183815.2510387-10-arnd@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Pavel Machek <pavel@kernel.org>, linux-leds@vger.kernel.org, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-input@vger.kernel.org, 
- devicetree@vger.kernel.org
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-In-Reply-To: <20260520182124.117863-3-clamor95@gmail.com>
-References: <20260520182124.117863-1-clamor95@gmail.com>
- <20260520182124.117863-3-clamor95@gmail.com>
-Message-Id: <177930801875.740485.17278647053731389937.robh@kernel.org>
-Subject: Re: [PATCH v6 2/6] dt-bindings: input: cpcap-pwrbutton: convert to
- DT schema
+X-malware-bazaar: not-scanned
 
+On Wed, 2026-05-20 at 20:38 +0200, Arnd Bergmann wrote:
+>=20
+> v1 through v5: adaptations that correspond to the binding updates
 
-On Wed, 20 May 2026 21:21:20 +0300, Svyatoslav Ryhel wrote:
-> Convert power button devicetree bindings for the Motorola CPCAP MFD from
-> TXT to YAML format. This patch does not change any functionality; the
-> bindings remain the same.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  .../bindings/input/cpcap-pwrbutton.txt        | 20 ------------
->  .../input/motorola,cpcap-pwrbutton.yaml       | 32 +++++++++++++++++++
->  2 files changed, 32 insertions(+), 20 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml
-> 
+FWIW, I had just applied v5 of these three patches today, but didn't
+send out a pull request yet. I'll do that tomorrow morning.
 
-My bot found errors running 'make dt_binding_check' on your patch:
-
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-
-
-doc reference errors (make refcheckdocs):
-Warning: Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-Documentation/devicetree/bindings/input/motorola,cpcap-pwrbutton.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260520182124.117863-3-clamor95@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+johannes

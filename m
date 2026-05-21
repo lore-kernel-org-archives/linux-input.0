@@ -1,67 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8893C2DE6F8
-	for <linux-input@vger.kernel.org>; Thu, 21 May 2026 15:35:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED86A33A6E2;
+	Thu, 21 May 2026 15:47:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779377703; cv=none; b=YXbielcSFZM4KbGd6e+SLzu+fw7AGiHcBwKgNcNqHgl3di99nAxBWRmIP2d+cErY8TBt/ifKfsNseEYRkNuP8CH1ZL7SoWymLk4cQG+FvO8hhSjfJ4bYFmkENCU/4tZ0Ncm7vsD/ec62yHbKSl77/cdzNbRmEdeuoSBpyzdezi8=
+	t=1779378474; cv=none; b=D8aXAmbehhjDULt+wcCEu3o0AxXVIYl7RTCOSbR6Bts4J/hyaLag2SyXcdRkFX/kYkyIa4MSaJa7JPjuAmIueElQBOJQvLdolNIZC8ZxtAavZfBmfCytJCIblWzRcX5XjLuZeak0rL14/oIjp48D4g751qFJtmm2hG6dVcG4Y/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779377703; c=relaxed/simple;
-	bh=S57KdUht29Har3QeI4ZVqd1QR/UQeHXjIyVB3PD/lyg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=Nx0QpjPYxF1sgsEpzBCaI+FJPDiOgPfyjG+thmtK9Iel1goO20C5aeit9nbMEp01CO4tjoBz0HMjtfl8ikZxT3xcdn9D0Xrcet/oSuGy8syMFF/H6EqRyxh+vdaMoejN1Sa0n2sGkZga46PRuxUoepyFQ/E1TpvPmdIZthIILT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fjrvec+S; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779378474; c=relaxed/simple;
+	bh=kdxdsCTJYPFCPL15txwu8YZWu+pnj+zc9d+hgV7hYv8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MFDL6FO+f3rACnSJec/LWDvk5Bc7ZD6tOQHoIUBAQ9p/Wwbe0Nw+dZueYg6UWV+GDGrBanUh4d06zobSiHN73bSnRpNBBflz6k29jMrAUC9PJEQr+NN46/sGsoucPwTs/N7oWzJ+YOyNGbS84FR6A16qRKrzB9Ol0VowQZH0xW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F7qN6/Ao; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fjrvec+S"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B3A1F000E9;
-	Thu, 21 May 2026 15:35:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F7qN6/Ao"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E7C1F000E9;
+	Thu, 21 May 2026 15:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779377702;
-	bh=ZXn/eBHKk2GIR/k22CIP4tg8odCYxYfjHDS1ZeN1mWA=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=fjrvec+SsrAxjo3cNNoT6hf+P7sn6D287lpKBRiv2iDiZ41WSKR6RV7TGxgZheVEb
-	 dU3MNq4I+dHV7UpDwD+reUVSAgHwnX7+OKdUjfCoHg19pUOrQBuGSneY7dVrawWv6T
-	 RHlWc1VFTWHonmSVU7L4nGNNJ61HRvbHDzh51ECBWNi9Qp3K7Gp+pc+lAoCW0Wx4He
-	 iRUufhLFX7Yv0ItiOqY1P77PcsqyO43odUggzbi4DjXrfHgz23ChNRjfDIe1fJbQ+M
-	 9iuPC5zC6BAnt5Zjzn1lvKTWuw0abA9lW8PVp8eu/f4+MxVVJl95qrYZ7WZvCxZqBz
-	 FlE5zIsIM/DLw==
+	s=k20260515; t=1779378472;
+	bh=UknqHVJPQzhmFNL32MPkIe/DCfPCA9va+n4v13KmBwk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=F7qN6/Ao0uZisBlQB2pr58NxM+wA5aueDDK+kFKJgBNU4JIcy7uDURb1ZgcuXdzR0
+	 +Lrf6hnSKk7VFQD9uCRl8Z6ag6wiSIge60Fr2Lq2abq4VB0vfBkSWGLPQsD8cC3XVV
+	 OPIcdzodEaau/sGoX062zkiL5QZaGn9+bkbeCnsjERyKypguzFLNxZzvCcdyd3wZXm
+	 rfCCYKC/cXX4FtnMuLm+BTbAQcOCZo3hBuDi+JIv9Rk/PhX/1mP8qr9uM0gslEdgKM
+	 6W7ixusivG2nGzwhBBqIw2eFb1PYbyVuRNFZBlYInWYODyOrOs5YCOoAupTxdksEmC
+	 CWWqmtX5Fqapg==
+Date: Thu, 21 May 2026 17:47:48 +0200
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: jikos@kernel.org, Nikhil Chatterjee <nikhilc1527@gmail.com>
-Cc: linux-input@vger.kernel.org
-In-Reply-To: <20260426031819.808555-1-nikhilc1527@gmail.com>
-References: <20260426031819.808555-1-nikhilc1527@gmail.com>
-Subject: Re: [PATCH] HID: bpf: Add Huion Inspiroy Frego M button quirk
-Message-Id: <177937770132.1123826.15993975170303420557.b4-ty@b4>
-Date: Thu, 21 May 2026 17:35:01 +0200
+To: Lee Jones <lee@kernel.org>
+Cc: Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] HID: wacom: Fix OOB write in
+ wacom_hid_set_device_mode()
+Message-ID: <ag8ozWBDSDckicSS@beelink>
+References: <20260513075935.1715836-1-lee@kernel.org>
+ <CAF8JNhKTMpT3CGq_oDqaGVygqXK0jjvrvjxbAWUerqtWzdB9+Q@mail.gmail.com>
+ <20260519111354.GT305027@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260519111354.GT305027@google.com>
 
-On Sat, 25 Apr 2026 20:18:19 -0700, Nikhil Chatterjee wrote:
-> The Huion Inspiroy Frego M pen report descriptor exposes the second
-> side button as Secondary Tip Switch instead of Secondary Barrel Switch.
-> This makes userspace see the control as the wrong pen button.
+On May 19 2026, Lee Jones wrote:
+> On Wed, 13 May 2026, Ping Cheng wrote:
 > 
-> Add a HID-BPF report descriptor fixup for the Bluetooth 256c:8251
-> device and USB 256c:2012 L610 variant. The fixup matches the expected
-> pen descriptor and rewrites the offending usage from Secondary Tip
-> Switch to Secondary Barrel Switch.
+> > On Wed, May 13, 2026 at 1:05 AM Lee Jones <lee@kernel.org> wrote:
+> > >
+> > > wacom_hid_set_device_mode() currently assumes that the HID_DG_INPUTMODE
+> > > usage is always located in the first field (field[0]) of the feature report.
+> > > However, a device can specify HID_DG_INPUTMODE in a different field.
+> > >
+> > > If HID_DG_INPUTMODE is in a field other than the first one and the first
+> > > field has a report_count smaller than the usage_index of HID_DG_INPUTMODE,
+> > > this leads to an out-of-bounds write to r->field[0]->value.
+> > >
+> > > Fix this by storing the field index of HID_DG_INPUTMODE in 'struct
+> > > hid_data' during feature mapping.  In wacom_hid_set_device_mode(), use
+> > > this stored field index to access the correct field and add bounds
+> > > checks to ensure both the field index and the value index are within
+> > > valid ranges before writing.
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: 5ae6e89f7409 ("HID: wacom: implement the finger part of the HID generic handling")
+> > > Signed-off-by: Lee Jones <lee@kernel.org>
+> > 
+> > Patch looks sensible to me. Thank you for your effort, Lee!
+> > 
+> > Tested-by: Ping Cheng <ping.cheng@wacom.com>
+> > Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
 > 
-> [...]
+> Thank you Ping, I appreciate your review.
+> 
+> HID folks - any movement on this please?
+> 
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.2/bpf), thanks!
+I wanted to apply it today, but the patch conflicts with our current
+for-7.1/upstream-fixes.
 
-[1/1] HID: bpf: Add Huion Inspiroy Frego M button quirk
-      https://git.kernel.org/hid/hid/c/857e71cb0a53
+Could you rebase on top of this branch so we can take this without me
+messing with your patch?
 
 Cheers,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
-
+Benjamin

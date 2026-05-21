@@ -1,39 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD60F349CC9;
-	Thu, 21 May 2026 14:45:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4377834A3D6;
+	Thu, 21 May 2026 14:45:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779374750; cv=none; b=LzSaT/TiaM0hcs+wPuYp9NxoRWh2cJ/wtiUSywcIWDSYa4cRvEGQMb2qo3CMKR1uBxtNRfNRp0cop0mv6ccGDhMBER1WRY6UVFUw/f9CmN0W8tw1zXgmz1huY3qaWjYjKvw/c+fvqPEUdfp3E2HZ9lsZuu9tIMfNmR0kLYn7b2Y=
+	t=1779374752; cv=none; b=EtwMen++KKkrTviUUUItCP1AM4LaKbc0aOhNUCAz/sfzDWdBWMXggUXAStgoMlTEJ2qnAsXqeBMBburi8l7nXr2WOnIkclm2Rj9+GzazkBwafbh9LpZnR9W//dq7pfa0bF2WEyT8DQbjqyZN5f8VdahF+d/pGPihhA7mwMyCSo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779374750; c=relaxed/simple;
-	bh=OWx+VqLxLnccn0uehrQRIR6uazILacnd11D89d4UWw0=;
+	s=arc-20240116; t=1779374752; c=relaxed/simple;
+	bh=FCGMzNMlnqNwjuBAE3MtGaXkVDPXh5fco7c5PJgB4gE=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=ZoGba6dAk+wUuR5ws9Gubl52uDoqNkPXuZoqxsukmBAP8SJACYFHgUhd6nlVxZNQJNdNKgm1b9TWnUZJzUOH9HmaKgPyox4qlbZ7NGEAOdrMOJnTCjDf47lANXJmpLMUYEEGfkOh6VbDet3Ju0MnBXBiV6KZo3LstjkoW+ZhQ0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aMdnDSDb; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=f25J8NGbibunQTWxnKPsJxF1/UwJ3Ra69GJYC1CX2BwSJ6fZc6F6fU0ucH6LHCnBqOCr8bpnz3tHnE7Bur+uDCgsTY0RBzEy/4cGjVqP7n4cpsSLa2Cmebby0qs2F28VFd+F8/0tDypkfDzl/Vv5xwWTN3iG5r3FAtFWzg629/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VnlDcD7w; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aMdnDSDb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5ECB1F000E9;
-	Thu, 21 May 2026 14:45:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VnlDcD7w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BDD1F00A3B;
+	Thu, 21 May 2026 14:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779374749;
-	bh=GW//fLAZT52wRl0rYe08D8pqMHxafbzouEPOK1euvTU=;
+	s=k20260515; t=1779374750;
+	bh=7EQR2eGuhn01mbWURSyEIfwo4f+H5VNxX9k7aAFO/D0=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=aMdnDSDbK3NbrVlk9FcYdHVylMlSm2mQVyC12ceA2799ek9s97W2TgQD5KEiSdmHP
-	 41/9YwzFjAX+O60grxk1kR8ewBnvNaPFcyxQWE3mCCo7oVZgLft/Pmvn+Xke5ZrNrG
-	 tQX0aqL3bzj0tjAyIUub/vOn9KVcJtqU4WhcmvCl3pzUTrlzVjD2cz3L7NBJNBMRHh
-	 wHYKWNcKdS9wcrlx7J7hcpTmdvwiyHpUreULylqTh+wjihF++g7jnO227Lz78a3GCa
-	 wvyc4VVKZI1PExVhkLGeIIoKoVCxR8F/Jdf3sq8RKtfhHIN3gn19opTFNGp3C6RdlQ
-	 7AO5C7AxwBVwA==
+	b=VnlDcD7wFlMGJlqjKcj5JVd9mrvGbTm3GZk0dGJ0rxABxeu6tAjjqNXke/LxOH/5d
+	 T5WZOlPPWuYCsfZZSK/rPGSUSK2iSKNSKvzNOu4LswxNz0hzsVjMgWWP1TvYKfw0zO
+	 ITSCYrXsvGYIbynwWNnScmVJpDoY8UUX4VJl+L+7eKYrrPzk7mu0cVJHhsXRMZKEAT
+	 V6v4opF6GYqfA/u0GmyhiGf4dJLEz3jL9KmaIHfnRrgvaZ7FY41oW4MjrSzc3zFZPN
+	 q0ngnzCk2hiCwtTpeRxqA5AscCkeFCsVdjBbb8MAYgOubUOEqq3WMyi9cPugHd0hDp
+	 aCAXCUQ0GV+tw==
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, Myeonghun Pak <mhun512@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260424-u2fzero-probe-urb-unwind-v1-1-mhun512@gmail.com>
-References: <20260424-u2fzero-probe-urb-unwind-v1-1-mhun512@gmail.com>
-Subject: Re: [PATCH] HID: u2fzero: free allocated URB on probe errors
-Message-Id: <177937474841.1109683.5109909022580410173.b4-ty@b4>
-Date: Thu, 21 May 2026 16:45:48 +0200
+To: jikos@kernel.org, 
+ =?utf-8?q?=E5=88=98_=E5=87=AF?= <lukace97@outlook.com>
+Cc: vi@endrift.com, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+In-Reply-To: <OS3PR01MB7969C09559DC6C0DCA520720C73C2@OS3PR01MB7969.jpnprd01.prod.outlook.com>
+References: <OS3PR01MB7969C09559DC6C0DCA520720C73C2@OS3PR01MB7969.jpnprd01.prod.outlook.com>
+Subject: Re: [PATCH] HID: remove duplicate hid_warn_ratelimited definition
+Message-Id: <177937474966.1109683.11669732379919404021.b4-ty@b4>
+Date: Thu, 21 May 2026 16:45:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,25 +43,23 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Mailer: b4 0.15.2
 
-On Fri, 24 Apr 2026 22:21:31 +0900, Myeonghun Pak wrote:
-> u2fzero_fill_in_urb() allocates dev->urb with usb_alloc_urb(), but
-> u2fzero_probe() ignored its return value and only freed the URB from
-> u2fzero_remove().
+On Thu, 07 May 2026 08:41:08 +0000, 刘 凯 wrote:
+> The hid_warn_ratelimited macro is defined twice in include/linux/hid.h:
+> at line 1317 (added by commit 4051ead99888) and at line 1339 (added by
+> commit 1d64624243af).
 > 
-> If LED or hwrng registration fails after the URB allocation, probe returns
-> an error and the driver core does not call .remove(), leaking the URB. A
-> failed URB setup was also allowed to continue probing with an unusable
-> device.
+> The second definition is correctly grouped with other ratelimited macros.
+> Remove the duplicate definition at line 1317.
 > 
 > [...]
 
 Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.1/upstream-fixes), thanks!
 
-[1/1] HID: u2fzero: free allocated URB on probe errors
-      https://git.kernel.org/hid/hid/c/2e78b21864dd
+[1/1] HID: remove duplicate hid_warn_ratelimited definition
+      https://git.kernel.org/hid/hid/c/dd2147375a8f
 
 Cheers,
 -- 

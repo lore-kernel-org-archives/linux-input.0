@@ -1,609 +1,98 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C2B392C2E;
-	Thu, 21 May 2026 06:54:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF699369219
+	for <linux-input@vger.kernel.org>; Thu, 21 May 2026 09:04:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779346446; cv=none; b=uPoorLCt+R+jVfkYpkaqwWYro3EFA6qNjLuDJyX0SUrmDq0hkL4XqXzzNyZq2HIvHm6EM51KSyu9CwUDiEKuKdk8MnMVO1uBje23p2ZmcdxLihjFRT2ymYcEsUWqwXuvMUwPoouKHroiTvy3aRUWf1804ykauWNYkyfl3JX1f8k=
+	t=1779354245; cv=none; b=K36fX81Z4YSQb9j6HauBdmhZ9lI+nzikW5eRlhFwP4JdJeck2lg4c08S6Np60cALEBdSdHkl5gG2w5/VwgmRV4cxXEawgtATJeDvFt5i0boKZsehaDn2ESoekXyQz6l2JYhLz+PH4y+3Tinvx/rkBFyVQVqylS+CEz+wiPvov6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779346446; c=relaxed/simple;
-	bh=rGog72Q/ajoP6dE/cXm1JuvxyWnNBa/G46mJsONehYo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MOhv31zuj1QYz3OSpo8OO6wKvR2+H4r6d/8nfPT0g/GII2cRMrIvuDwF3mI7mYUUQxCu5VlM05prSjP8RL2xzKo5jLnuMqiNZoq7/v44Sp8CMw0oWFMB4FAxHDrII6SXeCPAH9+xz14jSQ7lrMtoaVqYSQ1qHLIayf871+bFbJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SYKF5HEn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779354245; c=relaxed/simple;
+	bh=1QUNyf1+4GK6M6glNGqXfbJnZI6n5ng1QfS4YTKrhtM=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=i7ZQDoKBvCXmKlfkcRIeHw4FgX2qcZcIHfCeJ67p2ymDtVX3VDPscPp80SeJO25Z4P3X/n8Xqstq6cXo5rLROKKsh9nFpfBAES08X5Hf7FEXZFh8/AecuVcbbVLh0Dl+IXqo5ByAF1loXiOA4UTx2MzdD27rrwcu+gkKXyoAcK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U8xfN/oS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SYKF5HEn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4528F1F000E9;
-	Thu, 21 May 2026 06:54:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U8xfN/oS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3594C1F00ADF
+	for <linux-input@vger.kernel.org>; Thu, 21 May 2026 09:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779346444;
-	bh=DNUCyRZk2bCR7tiHnP9jW41CSl2QUWES/2DCdpwegVk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SYKF5HEnzbRH03lfG7X3LkunLaicuBUa1G68jSWrw/WHCp3PTDZJ8yUwdXElX6x63
-	 NkL00D6Wqzrfhuagd2j0zUxngbkQsHHlbp73DT9Tk+AePytMl/dIrqn8oG0q67qhbR
-	 MvBV9lPwBO1CqubUn4+kOfGSf4v0gbKz24eW/umcl49NK+UROl/VbNwnPzW9kXz543
-	 ypHqTkwyOZWoYYc/QbepKfF5ifFgp4Vgao96OORQu2MDltkdyhXFRoq/V5AtA+Y2ff
-	 lVpgTFEIZkz5NVktd+PtcfCGgHdil2ZbCA22mDoW37y4BOAQ2gmPxGA8bM5BcR7inX
-	 hU0K8VGf6zyHQ==
-Date: Thu, 21 May 2026 08:54:00 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Andrew Maney <andrewmaney05@gmail.com>
-Cc: jikos@kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH v3] HID: Expose LattePanda IOTA UPS as a power_supply
- device
-Message-ID: <ag6qqUZKiTlfU4Rb@beelink>
-References: <20260521031750.498110-1-andrewmaney05@gmail.com>
+	s=k20260515; t=1779354242;
+	bh=1QUNyf1+4GK6M6glNGqXfbJnZI6n5ng1QfS4YTKrhtM=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=U8xfN/oSnaOrNF+gtWDgNNJlSLhiqu7Q8UxQP2IAYfVXR5xgxWdbaVBaAzXyExy6m
+	 EiiCuk3G4CJ5/GOGGPGJAffJtx0E/wQuk3mK/TJjRlP9wLfMhSW/ggsqBOM9vvc0mJ
+	 4Q1+ZDu628ro1LYmqb+ztqMz72QHaA6fsdJrfe6qFmosM69fBhVsvkmDbR6GCCjFzr
+	 S0ofyit/qO0sxtHY0C1WlU4Xv1MWW0l23zwMhkHm/Ck0RnfSzGvkkrvPYsBRJCWr2a
+	 tN8Uht5hGv+3XNy6Y6s8OZja4tXvLwfByMASdUpbVP+Jw8XM0i8ZHc31/tsMxNxSAP
+	 tkWQifWvaOpFA==
+Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1357c851a48so6594470c88.1
+        for <linux-input@vger.kernel.org>; Thu, 21 May 2026 02:04:02 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8b46GG0DVfPBEZN95dajXgQKLXtLfGv1wL+jl5JTvQkvfUP2pNsI8tAZ+tSrPMVS8zYTqFoNe6/7P2uw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YztA38G27xdytBdgXUjlNlf/Qy8JDyYNGVJWd8ay46WwiYQAZML
+	yQYnDHmOqeie+1pv/Pk62mOK66Ruud6vUsCdTboVkFArZat9jXfOlVvNycCG4+hxVZc2JfOTwAp
+	pi/OSHE8mw1tazkl1p7tl6svh4I2eAXpf/9f5zJVgeg==
+X-Received: by 2002:a05:7022:624:b0:134:7497:2153 with SMTP id
+ a92af1059eb24-13632b19501mr1138896c88.20.1779354241319; Thu, 21 May 2026
+ 02:04:01 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 21 May 2026 02:03:57 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 21 May 2026 02:03:57 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260520183815.2510387-3-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260521031750.498110-1-andrewmaney05@gmail.com>
+References: <20260520183815.2510387-1-arnd@kernel.org> <20260520183815.2510387-3-arnd@kernel.org>
+Date: Thu, 21 May 2026 02:03:57 -0700
+X-Gmail-Original-Message-ID: <CAMRc=Mf=JGOJUfs__HxxqTkiEk5NrkMX5J6RkO+=ybHUfWGShA@mail.gmail.com>
+X-Gm-Features: AVHnY4Iwi65kxiAOYAXhfVUikEld9MZPsgLFlTgVHCPfkqhuImHkvGx_B84f6lE
+Message-ID: <CAMRc=Mf=JGOJUfs__HxxqTkiEk5NrkMX5J6RkO+=ybHUfWGShA@mail.gmail.com>
+Subject: Re: [PATCH 02/10] [v3] input: gpio-keys: make legacy gpiolib optional
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
+	Christian Lamparter <chunkeey@googlemail.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade <andreas@kemnade.info>, 
+	Kevin Hilman <khilman@baylibre.com>, Roger Quadros <rogerq@kernel.org>, 
+	Tony Lindgren <tony@atomide.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, Jonas Gorski <jonas.gorski@gmail.com>, 
+	Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <olteanv@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-wireless@vger.kernel.org, 
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On May 20 2026, Andrew Maney wrote:
-> This driver exposes the DFRobot LattePanda IOTA UPS board as a standard
-> power_supply device, allowing desktop environments and power management
-> tools such as UPower and systemd-logind to display battery status,
-> remaining capacity, and charging status without any special
-> configuration. It also enables automatic suspend or shutdown on low
-> battery and power profile configuration via any tool that supports the
-> standard power_supply interface.
-> 
-> The UPS presents itself as an Arduino Leonardo HID device running custom
-> firmware (VID 0x2341, PID 0x8036). It reports status and capacity via
-> HID reports 0x07 and 0x0C respectively.
-
-As sashiko detected, you are using a standard Arduino Leonardo and not
-making any specific detections. So I was thinking that maybe we should
-implement that feature as a HID-BPF program on top of the generic HID
-handling.
-
-However, the handling of battery supplies in the HID generic core is not
-entirely filling all of the requirements here, but that's something I
-wanted to do for a couple of month but I have been swamped with other
-projects.
-
-Anyway, I wanted to understand why this product was using a generic
-Leonardo PID, and: https://wiki.dfrobot.com/dfr1247#tech_specs
-
-"it leverages the standard HID-UPS protocol to be natively recognized by
-Windows as a battery-powered device"
-
-So. Instead of working on a custom driver, why not simply implement (or
-finish the generic implementation) of HID-UPS in hid-input.c?
-
-Cheers,
-Benjamin
-
-> 
-> The charge limit (80% or 100%) is configured via a physical DIP switch
-> on the UPS board and cannot be detected automatically. Userspace can
-> inform the driver of the configured limit via
-> charge_control_end_threshold.
-> 
+On Wed, 20 May 2026 20:38:07 +0200, Arnd Bergmann <arnd@kernel.org> said:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Most users of gpio-keys and gpio-keys-polled use modern gpiolib
+> interfaces, but there are still number of ancient sh, arm32 and x86
+> machines that have never been converted.
+>
+> Add an #ifdef block for the parts of the driver that are only used on
+> those legacy machines.
+>
+> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+> passing an IRQ number instead. In order to keep this working both with
+> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+> the gpio number if an IRQ is passed.
+>
+> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
+> Link: https://lore.kernel.org/all/afJXG4_rtaj3l2Dk@google.com/
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
-> 
-> Changes in v3:
-> - Deferred power_supply registration to workqueue to avoid blocking probe
-> - Fixed kernel panic when instantiated via uhid by checking hid_is_usb()
->   before dereferencing USB-specific structures
-> 
-> - Fixed ERR_PTR dereference in raw_event by only assigning ups->psu on
->   successful registration
-> 
-> - Fixed data race on ups->charge_limit using spin_lock_irqsave()
-> - Removed TIME_TO_EMPTY_NOW and TIME_TO_FULL_NOW properties to avoid
-> spurious shutdowns
-> 
-> - Changed plugged-in but not charging state from FULL to NOT_CHARGING
-> - Used devm_kasprintf() for a unique sysfs name in order to support
-> multiple devices
-> 
-> - Added POWER_SUPPLY and HIDRAW dependencies to Kconfig
-> - Used %pe for more human-readable error messages
-> 
-> Changes in v2:
-> - Rebased on top of the current tree
-> - Moved vendor and device IDs to drivers/hid/hid-ids.h
-> - Added Kconfig entry under HID bus support -> Special HID drivers
-> - Added build rule to drivers/hid/Makefile
-> 
-> Signed-off-by: Andrew Maney <andrewmaney05@gmail.com>
-> ---
->  MAINTAINERS                           |   6 +
->  drivers/hid/Kconfig                   |  10 +
->  drivers/hid/Makefile                  |   1 +
->  drivers/hid/hid-ids.h                 |   3 +
->  drivers/hid/hid-lattepanda-iota-ups.c | 409 ++++++++++++++++++++++++++
->  5 files changed, 429 insertions(+)
->  create mode 100644 drivers/hid/hid-lattepanda-iota-ups.c
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 10e825318..d80721c2c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -11416,6 +11416,12 @@ F:	include/uapi/linux/hid*
->  F:	samples/hid/
->  F:	tools/testing/selftests/hid/
->  
-> +HID LATTEPANDA IOTA UPS DRIVER
-> +M:	Andrew Maney <andrewmaney05@gmail.com>
-> +L:	linux-input@vger.kernel.org
-> +S:	Maintained
-> +F:	drivers/hid/hid-lattepanda-iota-ups.c
-> +
->  HID LOGITECH DRIVERS
->  R:	Filipe Laíns <lains@riseup.net>
->  L:	linux-input@vger.kernel.org
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index ff2f580b6..21ffc2fd0 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -510,6 +510,16 @@ config HID_KYSONA
->  	Say Y here if you have a Kysona M600 mouse
->  	and want to be able to read its battery capacity.
->  
-> +config HID_LATTEPANDA_IOTA_UPS
-> +	tristate "LattePanda IOTA UPS"
-> +	depends on USB_HID && USB_HIDDEV && X86 && POWER_SUPPLY
-> +	help
-> +	Support for the LattePanda IOTA UPS (DFRobot, VID 0x2341 PID 0x8036).
-> +	Exposes the battery status and capacity via the power_supply interface.
-> +
-> +	To compile as a module, choose M here: the module will be
-> +	called hid-lattepanda-iota-ups.
-> +
->  config HID_UCLOGIC
->  	tristate "UC-Logic"
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 0597fd6a4..d7ad3fc8f 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -74,6 +74,7 @@ obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
->  obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
->  obj-$(CONFIG_HID_KYE)		+= hid-kye.o
->  obj-$(CONFIG_HID_KYSONA)	+= hid-kysona.o
-> +obj-$(CONFIG_HID_LATTEPANDA_IOTA_UPS)	+= hid-lattepanda-iota-ups.o
->  obj-$(CONFIG_HID_LCPOWER)	+= hid-lcpower.o
->  obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
->  obj-$(CONFIG_HID_LENOVO_GO)	+= hid-lenovo-go.o
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 4657d96fb..6ded2c943 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -859,6 +859,9 @@
->  #define USB_DEVICE_ID_LD_HYBRID		0x2090
->  #define USB_DEVICE_ID_LD_HEATCONTROL	0x20A0
->  
-> +#define USB_VENDOR_ID_LATTEPANDA_IOTA	0x2341
-> +#define USB_DEVICE_ID_LATTEPANDA_IOTA_UPS	0x8036
-> +
->  #define USB_VENDOR_ID_LENOVO		0x17ef
->  #define USB_DEVICE_ID_LENOVO_TPKBD	0x6009
->  #define USB_DEVICE_ID_LENOVO_CUSBKBD	0x6047
-> diff --git a/drivers/hid/hid-lattepanda-iota-ups.c b/drivers/hid/hid-lattepanda-iota-ups.c
-> new file mode 100644
-> index 000000000..f5d522695
-> --- /dev/null
-> +++ b/drivers/hid/hid-lattepanda-iota-ups.c
-> @@ -0,0 +1,409 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include <linux/power_supply.h>
-> +#include <linux/completion.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/module.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/hid.h>
-> +#include <linux/usb.h>
-> +#include "hid-ids.h"
-> +
-> +#define REPORT_ID_CAPACITY	0x0C
-> +#define REPORT_ID_STATUS	0x07
-> +
-> +#define STATUS_DISCHARGING	BIT(1)
-> +#define STATUS_PLUGGED_IN	BIT(0)
-> +#define STATUS_CHARGING		BIT(2)
-> +
-> +MODULE_AUTHOR("Andrew Maney");
-> +MODULE_DESCRIPTION("LattePanda IOTA UPS power supply driver");
-> +MODULE_LICENSE("GPL");
-> +
-> +struct iota_ups {
-> +	struct power_supply_desc psu_desc;
-> +	struct power_supply *psu;
-> +	struct hid_device *hiddev;
-> +	spinlock_t lock; /* Protects cached HID report values */
-> +
-> +	/* Cached values that are updated from HID reports */
-> +	bool plugged_in;
-> +	char serial[64];
-> +	int charge_limit;
-> +	int psu_status;
-> +	int capacity;
-> +
-> +	/*
-> +	 * Wait for both status and capacity reports before registering
-> +	 * with the power_supply core, so initial values are correct and
-> +	 * not erroneous.
-> +	 */
-> +	struct completion got_initial_data;
-> +	struct work_struct register_work;
-> +	bool got_capacity;
-> +	bool data_ready;
-> +	bool got_status;
-> +};
-> +
-> +static enum power_supply_property iota_ups_properties[] = {
-> +	POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD,
-> +	POWER_SUPPLY_PROP_SERIAL_NUMBER,
-> +	POWER_SUPPLY_PROP_MANUFACTURER,
-> +	POWER_SUPPLY_PROP_MODEL_NAME,
-> +	POWER_SUPPLY_PROP_TECHNOLOGY,
-> +	POWER_SUPPLY_PROP_CAPACITY,
-> +	POWER_SUPPLY_PROP_PRESENT,
-> +	POWER_SUPPLY_PROP_ONLINE,
-> +	POWER_SUPPLY_PROP_STATUS,
-> +	POWER_SUPPLY_PROP_SCOPE,
-> +};
-> +
-> +static const struct hid_device_id iota_ups_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LATTEPANDA_IOTA,
-> +		USB_DEVICE_ID_LATTEPANDA_IOTA_UPS) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, iota_ups_devices);
-> +
-> +static int iota_ups_get_property(struct power_supply *supply,
-> +				 enum power_supply_property psp,
-> +				 union power_supply_propval *val)
-> +{
-> +	struct iota_ups *ups = power_supply_get_drvdata(supply);
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&ups->lock, flags);
-> +
-> +	switch (psp) {
-> +	case POWER_SUPPLY_PROP_STATUS:
-> +		val->intval = ups->psu_status;
-> +		break;
-> +
-> +	/* Remaining capacity as a percentage from 0 to 100 */
-> +	case POWER_SUPPLY_PROP_CAPACITY:
-> +		val->intval = ups->capacity;
-> +		break;
-> +
-> +	/* The UPS is always present if the driver is loaded */
-> +	case POWER_SUPPLY_PROP_PRESENT:
-> +		val->intval = 1;
-> +		break;
-> +
-> +	/* Whether mains power is connected */
-> +	case POWER_SUPPLY_PROP_ONLINE:
-> +		val->intval = ups->plugged_in ? 1 : 0;
-> +		break;
-> +
-> +	/*
-> +	 * The UPS board supplies power to the IOTA and any
-> +	 * peripherals connected to it, therefore its scope
-> +	 * is system-wide.
-> +	 */
-> +	case POWER_SUPPLY_PROP_SCOPE:
-> +		val->intval = POWER_SUPPLY_SCOPE_SYSTEM;
-> +		break;
-> +
-> +	/* V1.0 only accepts 18650 Li-ion cells */
-> +	case POWER_SUPPLY_PROP_TECHNOLOGY:
-> +		val->intval = POWER_SUPPLY_TECHNOLOGY_LION;
-> +		break;
-> +
-> +	/* 80% or 100%, configured via a DIP switch on the UPS board */
-> +	case POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD:
-> +		val->intval = ups->charge_limit;
-> +		break;
-> +
-> +	case POWER_SUPPLY_PROP_MANUFACTURER:
-> +		val->strval = "DFRobot";
-> +		break;
-> +
-> +	case POWER_SUPPLY_PROP_MODEL_NAME:
-> +		val->strval = "LattePanda IOTA UPS";
-> +		break;
-> +
-> +	/* Retrieved from the USB descriptor */
-> +	case POWER_SUPPLY_PROP_SERIAL_NUMBER:
-> +		val->strval = ups->serial;
-> +		break;
-> +
-> +	default:
-> +		spin_unlock_irqrestore(&ups->lock, flags);
-> +		return -EINVAL;
-> +	}
-> +
-> +	spin_unlock_irqrestore(&ups->lock, flags);
-> +	return 0;
-> +}
-> +
-> +static int iota_ups_set_property(struct power_supply *supply,
-> +				 enum power_supply_property psp,
-> +				 const union power_supply_propval *val)
-> +{
-> +	struct iota_ups *ups = power_supply_get_drvdata(supply);
-> +
-> +	if (psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD) {
-> +		unsigned long flags;
-> +
-> +		/*
-> +		 * V1.0 supports 80% and 100% charge limits only, which is
-> +		 * set via a DIP switch on the board. This property allows
-> +		 * userspace to inform the driver which limit is configured.
-> +		 */
-> +		if (val->intval != 80 && val->intval != 100)
-> +			return -EINVAL;
-> +
-> +		spin_lock_irqsave(&ups->lock, flags);
-> +		ups->charge_limit = val->intval;
-> +		spin_unlock_irqrestore(&ups->lock, flags);
-> +		return 0;
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +static int iota_ups_property_is_writable(struct power_supply *supply,
-> +					 enum power_supply_property psp)
-> +{
-> +	return psp == POWER_SUPPLY_PROP_CHARGE_CONTROL_END_THRESHOLD;
-> +}
-> +
-> +static int iota_ups_raw_event(struct hid_device *hdev,
-> +			      struct hid_report *report,
-> +			      u8 *data, int size)
-> +{
-> +	struct iota_ups *ups = hid_get_drvdata(hdev);
-> +	unsigned long flags;
-> +	bool changed = false;
-> +
-> +	/* All of the UPS's reports are at least 2 bytes */
-> +	if (size < 2)
-> +		return 0;
-> +
-> +	spin_lock_irqsave(&ups->lock, flags);
-> +
-> +	switch (data[0]) {
-> +	case REPORT_ID_STATUS: {
-> +		u8 status = data[1];
-> +		int new_status;
-> +		bool plugged_in = !!(status & STATUS_PLUGGED_IN);
-> +
-> +		/*
-> +		 * The UPS status is determined as follows:
-> +		 * Battery full:
-> +		 *	UPS is plugged in
-> +		 *	Battery is at full capacity
-> +		 *
-> +		 * Battery charging:
-> +		 *	UPS is plugged in
-> +		 *	Battery is not at full capacity
-> +		 *
-> +		 * Battery discharging:
-> +		 *	UPS is not plugged in
-> +		 *
-> +		 * Battery not charging:
-> +		 *	UPS is plugged in
-> +		 *	UPS has halted charging for some reason
-> +		 *
-> +		 * Unknown:
-> +		 *	None of the above conditions are met
-> +		 */
-> +		if (status & STATUS_CHARGING) {
-> +			if (ups->capacity >= ups->charge_limit)
-> +				new_status = POWER_SUPPLY_STATUS_FULL;
-> +			else
-> +				new_status = POWER_SUPPLY_STATUS_CHARGING;
-> +
-> +		} else if (status & STATUS_DISCHARGING) {
-> +			new_status = POWER_SUPPLY_STATUS_DISCHARGING;
-> +
-> +		} else if (plugged_in) {
-> +			new_status = POWER_SUPPLY_STATUS_NOT_CHARGING;
-> +
-> +		} else {
-> +			new_status = POWER_SUPPLY_STATUS_UNKNOWN;
-> +		}
-> +
-> +		if (new_status != ups->psu_status ||
-> +		    plugged_in != ups->plugged_in) {
-> +			ups->plugged_in = plugged_in;
-> +			ups->psu_status = new_status;
-> +			changed = true;
-> +		}
-> +
-> +		ups->got_status = true;
-> +		break;
-> +	}
-> +
-> +	case REPORT_ID_CAPACITY: {
-> +		int new_cap = clamp((int)data[1], 0, 100);
-> +
-> +		if (new_cap != ups->capacity) {
-> +			ups->capacity = new_cap;
-> +			changed = true;
-> +		}
-> +
-> +		ups->got_capacity = true;
-> +		break;
-> +	}
-> +	}
-> +
-> +	/*
-> +	 * Signal that the UPS is ready to be registered because we have
-> +	 * received both capacity and status reports.
-> +	 */
-> +	if (!ups->data_ready && ups->got_status && ups->got_capacity) {
-> +		ups->data_ready = true;
-> +		complete(&ups->got_initial_data);
-> +	}
-> +
-> +	spin_unlock_irqrestore(&ups->lock, flags);
-> +
-> +	/*
-> +	 * Notify the power_supply core outside the spinlock to avoid
-> +	 * a deadlock; power_supply_changed() may call back into
-> +	 * get_property() which acquires the same lock.
-> +	 */
-> +	if (changed && ups->psu)
-> +		power_supply_changed(ups->psu);
-> +
-> +	return 0;
-> +}
-> +
-> +static void iota_ups_register_work(struct work_struct *work)
-> +{
-> +	struct iota_ups *ups = container_of(work, struct iota_ups, register_work);
-> +	struct power_supply_config psu_config = {};
-> +	struct power_supply *psu;
-> +
-> +	/*
-> +	 * Wait for both status and capacity reports before registering.
-> +	 * The device sends reports every ~1 second, so 3 seconds is safe.
-> +	 * We wait here in order to prevent registration in an unknown
-> +	 * state, since this could cause emergency shutdowns or other
-> +	 * undesired effects.
-> +	 */
-> +	wait_for_completion_timeout(&ups->got_initial_data,
-> +				    msecs_to_jiffies(3000));
-> +
-> +	/* Configure the UPS's power supply properties */
-> +	ups->psu_desc.name = devm_kasprintf(&ups->hiddev->dev, GFP_KERNEL,
-> +					    "lattepanda-iota-ups.%s",
-> +					    dev_name(&ups->hiddev->dev));
-> +
-> +	if (!ups->psu_desc.name) {
-> +		hid_err(ups->hiddev, "failed to allocate power supply name\n");
-> +		return;
-> +	}
-> +
-> +	ups->psu_desc.property_is_writeable = iota_ups_property_is_writable;
-> +	ups->psu_desc.num_properties	    = ARRAY_SIZE(iota_ups_properties);
-> +	ups->psu_desc.get_property	    = iota_ups_get_property;
-> +	ups->psu_desc.set_property	    = iota_ups_set_property;
-> +	ups->psu_desc.properties	    = iota_ups_properties;
-> +	ups->psu_desc.type		    = POWER_SUPPLY_TYPE_BATTERY;
-> +	psu_config.drv_data		    = ups;
-> +
-> +	/* Register the UPS as a power_supply device */
-> +	psu = devm_power_supply_register(&ups->hiddev->dev, &ups->psu_desc, &psu_config);
-> +	if (IS_ERR(psu)) {
-> +		hid_err(ups->hiddev, "power supply registration failed: %pe\n", psu);
-> +		return;
-> +	}
-> +
-> +	/*
-> +	 * Finally, notify the power_supply core so userspace reads the correct
-> +	 * initial state immediately after registration.
-> +	 */
-> +	ups->psu = psu;
-> +	power_supply_changed(ups->psu);
-> +	hid_info(ups->hiddev, "LattePanda IOTA UPS registered as a power_supply device\n");
-> +}
-> +
-> +static int iota_ups_probe(struct hid_device *hdev,
-> +			  const struct hid_device_id *id)
-> +{
-> +	struct iota_ups *ups;
-> +	int ret;
-> +
-> +	ups = devm_kzalloc(&hdev->dev, sizeof(*ups), GFP_KERNEL);
-> +	if (!ups)
-> +		return -ENOMEM;
-> +
-> +	ups->hiddev = hdev;
-> +	ups->psu_status = POWER_SUPPLY_STATUS_UNKNOWN;
-> +
-> +	/* 50% is a safe default if wait_for_completion_timeout() times out. */
-> +	ups->capacity = 50;
-> +
-> +	/*
-> +	 * Default to 100% to prevent unexpected shutdowns.
-> +	 * Userspace can update this via charge_control_end_threshold.
-> +	 */
-> +	ups->charge_limit = 100;
-> +
-> +	init_completion(&ups->got_initial_data);
-> +	spin_lock_init(&ups->lock);
-> +	hid_set_drvdata(hdev, ups);
-> +
-> +	/*
-> +	 * Retrieve the UPS's serial number from the USB descriptor. If the device is not
-> +	 * a USB device, we can use the unique device identifier as the serial number.
-> +	 */
-> +	if (hid_is_usb(hdev)) {
-> +		struct usb_device *udev = to_usb_device(hdev->dev.parent->parent);
-> +
-> +		if (udev->serial)
-> +			strscpy(ups->serial, udev->serial, sizeof(ups->serial));
-> +		else
-> +			strscpy(ups->serial, "Unknown", sizeof(ups->serial));
-> +	} else {
-> +		if (*hdev->uniq)
-> +			strscpy(ups->serial, hdev->uniq, sizeof(ups->serial));
-> +		else
-> +			strscpy(ups->serial, "Unknown", sizeof(ups->serial));
-> +	}
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "HID parse failed: %pe\n", ERR_PTR(ret));
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> +	if (ret) {
-> +		hid_err(hdev, "HID hw start failed: %pe\n", ERR_PTR(ret));
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_open(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "HID hw open failed: %pe\n", ERR_PTR(ret));
-> +		goto err_stop;
-> +	}
-> +
-> +	/* Probe for the UPS in a worker queue so we don't halt the enumeration thread */
-> +	INIT_WORK(&ups->register_work, iota_ups_register_work);
-> +	schedule_work(&ups->register_work);
-> +	return 0;
-> +
-> +err_stop:
-> +	hid_hw_stop(hdev);
-> +	return ret;
-> +}
-> +
-> +static void iota_ups_remove(struct hid_device *hdev)
-> +{
-> +	struct iota_ups *ups = hid_get_drvdata(hdev);
-> +
-> +	cancel_work_sync(&ups->register_work);
-> +	hid_hw_close(hdev);
-> +	hid_hw_stop(hdev);
-> +}
-> +
-> +static struct hid_driver iota_ups_driver = {
-> +	.name = "lattepanda-iota-ups",
-> +	.id_table = iota_ups_devices,
-> +	.probe = iota_ups_probe,
-> +	.remove = iota_ups_remove,
-> +	.raw_event = iota_ups_raw_event,
-> +};
-> +module_hid_driver(iota_ups_driver);
-> -- 
-> 2.54.0
-> 
-> 
+
+Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>

@@ -1,39 +1,39 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-43167.protonmail.ch (mail-43167.protonmail.ch [185.70.43.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F046E3E0245
-	for <linux-input@vger.kernel.org>; Thu, 21 May 2026 13:17:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83DEB22332E;
+	Thu, 21 May 2026 13:25:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.167
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779369454; cv=none; b=MPrMFLDuIPWAwn1Vncq9atc0ciG4VjwI3ol87kcan9Pp5n3CcLmESBy8blgtsdSHLgeBuygtOGShAM+sDRYVhAY5OpyE5TBk+RRl5li4IoXh7EcbcpMWNL8wIXHsZgMEySl65/Lo5fK8omZFuUUMccVBWz9ircXtGPcfEbCyX+8=
+	t=1779369921; cv=none; b=ZNQHuj3t7MLIC5HQ1+GKhCXF1Y9zMBGU4/43tIKIL+th0lIIw91SdbB5lPOEPBtm4ZqGAY+GOFb4YGFqMjEKREuTSKm8OxBKOtlTRMwBDVP1aLLJ72T1BEdJj8z9ZmgT/Q6g3rf4kQEt5kXUZ4DRYbAucHRHmV2EStuWLaGQovM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779369454; c=relaxed/simple;
-	bh=Yp5BU1Qd1fn0gqqI9MjMuLG5Z5fp8Qb1HwOCTvkekpA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OpfgNGH75yWZTAsKCNxc62WJQqC10lf+dq2x9l/JkVtKSFxEnuDTCY1FO3VRgcEHkI/iCXKmRQmwdIpfr2rMt3ygatE/Sp2oXGAyTfGSo1w+tkqH/R+U3bfrQXYwuJkhZahqs1eUBNTVfVMrT8jSwVCnR0S9ADGgPkNFvMS5Coo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EN9VvypH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779369921; c=relaxed/simple;
+	bh=VvFfi/Z0PlaRHDql+ODbPozEVEaliHCi2zVUOJmivUA=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=sw3BXNoFVmClxrYdHRkTFPWFC9edExNRQm/nbIaPyyrexrROl9RQNYZ+qjAoWvnJj83aA32JnC9ePPwvgxfWbI5lwtznzfYsTKxXn6XWfDWGzUFMt1Fb8RvvWgmbznmmm8MA+2C+q5VKyr0L0ffXg17l8KSGE++9+nHGJ1SXDtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=KN59KIlS; arc=none smtp.client-ip=185.70.43.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EN9VvypH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BE61F000E9;
-	Thu, 21 May 2026 13:17:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779369452;
-	bh=e6o8nebn9T/WQnDX7gaduz2Ag1SatwlpAc5Cvoza3AA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EN9VvypHNVyIH/qrg4FzXnzYdDQU4K5Ajl23l08YBW+MtzeAqT/1FNUPy+yPgQOX7
-	 gId98wWerZF7x4kHa+xlBZJ5HHepvSGZvKQP9PyJNcOUDDZByXX3tZGhXDweI6IZnC
-	 vYf7X05VMNvlJzkNor81h9VqG9woCHHdv6BSWQgNxSpQfbQEQ+Ke0nqqeds8+shvol
-	 Xpd+IRu+rJPrCjk/lYSdnY28tjRZ0Qleir/7cOjer+/d2ToldYB7bTR47YXbI/95NJ
-	 R975hFd28oMsosFUK+4oVZ0wYU24q6gd1BoR0P4QT59/7+OIPekavd9tsW+Y3DXTNz
-	 n202MHxjUVg2g==
-Date: Thu, 21 May 2026 15:17:29 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Dave Carey <carvsdriver@gmail.com>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org
-Subject: Re: [PATCH] HID: multitouch: Fix stale MT slots when contact count
- drops to zero
-Message-ID: <ag7FhOx4kuT9QpW3@beelink>
-References: <20260515175253.873796-1-carvsdriver@gmail.com>
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="KN59KIlS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1779369907; x=1779629107;
+	bh=2T7bKXUtYhD1IVtchcvda75WFq36kL0orMmgBTH3gXI=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=KN59KIlSOs2mLWa27tA+2P5koMIOmzTe3tT1ep6CaSIwN6ngZdyz/deC0KRleS4ME
+	 EcE/WEKMr1WYWcKF7m8r7T65NTh2fAVbhmwf/vzGC8ZaMy+LJr+ziDTFixqDhaJiOh
+	 f1HmyutXvvtxcdu3nAejxbvVORBr3+0L5hXox23tp062NV+ZfbH+TKTes+7RoJlMbS
+	 1O6JwnPkoyUFSQRToiXkv02N4LfS9LTD3BC0ZEorQ3eLbIMMuk12YfQJfbJ6I1sQBT
+	 EGwXVMIsr3BUBxIGmK9eMiiOYkkMfdVgLYBdlPW3gD8YWwTJBdQE4S5hxi2a7ocI4e
+	 ALvrrRziwiZHw==
+Date: Thu, 21 May 2026 13:25:01 +0000
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+From: Aditya Garg <gargaditya08@proton.me>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aditya Garg <gargaditya08@proton.me>
+Subject: [PATCH] HID: appletb-kbd: add option to switch default layer on double pressing fn key
+Message-ID: <20260521132447.19241-1-gargaditya08@proton.me>
+Feedback-ID: 145777226:user:proton
+X-Pm-Message-ID: 1ad488701ad09236a6fe906fa6a724fd7d1ccbfa
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,110 +41,122 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260515175253.873796-1-carvsdriver@gmail.com>
+Content-Transfer-Encoding: quoted-printable
 
-On May 15 2026, Dave Carey wrote:
-> The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
-> HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
-> lift rather than omitting the frame entirely.  In mt_touch_report() the
-> existing code only updates num_expected when contact_count is non-zero,
-> so a zero contact count on the first packet of a new frame leaves
-> num_expected at its previous value (e.g. 2 for a two-finger gesture).
-> The sync check "num_received >= num_expected" then evaluates "0 >= 2"
-> and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
-> stale slots.  Those slots remain active in the kernel MT layer until the
-> next touch, at which point they are released in a batch alongside the
-> new contact — causing the userspace event consumer to miss the intervening
-> finger-up sequence and corrupt its gesture session state.
-> 
-> Fix by resetting num_expected to 0 when contact_count is zero and
-> num_received is still 0 (i.e., this is the first and only packet of the
-> frame, not a continuation packet in a multi-packet sequence).  With
-> num_expected=0 the sync check "0 >= 0" fires immediately, calling
-> input_mt_sync_frame() which drops the stale slots via INPUT_MT_DROP_UNUSED.
-> 
-> The num_received==0 guard is critical: continuation packets in a
-> multi-packet frame arrive after at least one contact has already been
-> processed (num_received>0), so they are correctly excluded from this
-> path and the existing multi-packet logic is unaffected.
+From: Aditya Garg <gargaditya08@proton.me>
 
-I've just tested the change, and the testsuite seem to still be happy
-and I can't find a flaw in the design.
-However: (inlined comment)
+This patch enables a user to switch the default layer from media to fn
+keys and vice-versa upon double pressing the fn key. This behaviour can
+be configured using the double_press_switch_time module parameter whose
+value depicts the time in milliseconds within which the fn key must be
+pressed again to switch the default layer. If set to 0, it simply
+disables this behaviour.
 
-> 
-> Signed-off-by: Dave Carey <carvsdriver@gmail.com>
-> Tested-by: Dave Carey <carvsdriver@gmail.com>
-> ---
-> This follows commit 108ac841 ("HID: multitouch: Fix Yoga Book 9 14IAH10
-> touchscreen misclassification"), applied to hid/for-next on 2026-05-12.
-> That commit established MT_CLS_YOGABOOK9I.
-> 
-> This fix is independent of the companion ghost-contacts patch ("HID:
-> multitouch: Honor ContactCount for Yoga Book 9 to suppress ghost contacts",
-> sent 2026-05-14), which adds MT_QUIRK_CONTACT_CNT_ACCURATE to the same
-> class.  Both apply cleanly on top of 108ac841.
-> 
-> Tested on Lenovo Yoga Book 9 14IAH10 (83KJ).
-> 
->  drivers/hid/hid-multitouch.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index ec04dba..e91ba89 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1336,6 +1336,18 @@ static void mt_touch_report(struct hid_device *hid,
->  		/* A non 0 contact count always indicates a first packet */
->  		else if (contact_count)
->  			app->num_expected = contact_count;
-> +		/*
-> +		 * contact_count == 0 on the first packet of a new frame means
-> +		 * all contacts have lifted (the firmware sends an explicit zero
-> +		 * to signal all-up rather than simply omitting the frame).
-> +		 * Reset num_expected so that the sync check below fires and
-> +		 * INPUT_MT_DROP_UNUSED releases any stale slots.  This is safe
-> +		 * for multi-packet continuation frames because those arrive with
-> +		 * num_received > 0 (at least one contact was already processed
-> +		 * from the preceding first-packet in the same frame).
-> +		 */
-> +		else if (app->num_received == 0)
-> +			app->num_expected = 0;
+Signed-off-by: Aditya Garg <gargaditya08@proton.me>
+---
+ drivers/hid/hid-appletb-kbd.c | 60 +++++++++++++++++++++++++++++++----
+ 1 file changed, 53 insertions(+), 7 deletions(-)
 
-this succession of if/else if makes the code harder to understand,
-especially with long blocks of comments.
+diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+index 462010a75..4f900338b 100644
+--- a/drivers/hid/hid-appletb-kbd.c
++++ b/drivers/hid/hid-appletb-kbd.c
+@@ -56,6 +56,12 @@ static int appletb_tb_idle_timeout =3D 15;
+ module_param_named(idle_timeout, appletb_tb_idle_timeout, int, 0644);
+ MODULE_PARM_DESC(idle_timeout, "Idle timeout in sec");
+=20
++static int appletb_tb_double_press_switch_layers;
++module_param_named(double_press_switch_time,
++=09=09   appletb_tb_double_press_switch_layers, int, 0644);
++MODULE_PARM_DESC(double_press_switch_time, "Time in ms within which if fn =
+key is double "
++=09=09=09=09=09   "pressed will switch layers");
++
+ struct appletb_kbd {
+ =09struct hid_field *mode_field;
+ =09struct input_handler inp_handler;
+@@ -68,6 +74,7 @@ struct appletb_kbd {
+ =09bool has_turned_off;
+ =09u8 saved_mode;
+ =09u8 current_mode;
++=09unsigned long last_fn_press;
+ };
+=20
+ static const struct key_entry appletb_kbd_keymap[] =3D {
+@@ -243,6 +250,18 @@ static int appletb_kbd_hid_event(struct hid_device *hd=
+ev, struct hid_field *fiel
+ =09return kbd->current_mode =3D=3D APPLETB_KBD_MODE_OFF;
+ }
+=20
++static u8 appletb_switch_mode(u8 mode)
++{
++=09switch (mode) {
++=09case APPLETB_KBD_MODE_SPCL:
++=09=09return APPLETB_KBD_MODE_FN;
++=09case APPLETB_KBD_MODE_FN:
++=09=09return APPLETB_KBD_MODE_SPCL;
++=09default:
++=09=09return mode;
++=09}
++}
++
+ static void appletb_kbd_inp_event(struct input_handle *handle, unsigned in=
+t type,
+ =09=09=09      unsigned int code, int value)
+ {
+@@ -250,15 +269,42 @@ static void appletb_kbd_inp_event(struct input_handle=
+ *handle, unsigned int type
+=20
+ =09reset_inactivity_timer(kbd);
+=20
+-=09if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
+-=09=09(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
+-=09=09 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
++=09if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
++=09    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
++=09     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
++
+ =09=09if (value =3D=3D 1) {
+-=09=09=09kbd->saved_mode =3D kbd->current_mode;
+-=09=09=09appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MO=
+DE_SPCL
+-=09=09=09=09=09=09? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
++=09=09=09if (appletb_tb_double_press_switch_layers) {
++=09=09=09=09unsigned long now =3D jiffies;
++
++=09=09=09=09if (time_before(now, kbd->last_fn_press +
++=09=09=09=09=09msecs_to_jiffies(appletb_tb_double_press_switch_layers))) {
++
++=09=09=09=09=09appletb_tb_def_mode =3D
++=09=09=09=09=09=09appletb_switch_mode(
++=09=09=09=09=09=09=09appletb_tb_def_mode);
++
++=09=09=09=09=09appletb_kbd_set_mode(kbd,
++=09=09=09=09=09=09appletb_tb_def_mode);
++
++=09=09=09=09=09kbd->saved_mode =3D appletb_tb_def_mode;
++=09=09=09=09=09kbd->last_fn_press =3D 0;
++
++=09=09=09=09=09return;
++=09=09=09=09}
++
++=09=09=09=09kbd->last_fn_press =3D now;
++=09=09=09}
++=09=09=09if (appletb_tb_fn_toggle) {
++=09=09=09=09kbd->saved_mode =3D kbd->current_mode;
++
++=09=09=09=09appletb_kbd_set_mode(kbd,
++=09=09=09=09=09appletb_switch_mode(kbd->current_mode));
++=09=09=09}
++
+ =09=09} else if (value =3D=3D 0) {
+-=09=09=09if (kbd->saved_mode !=3D kbd->current_mode)
++=09=09=09if (appletb_tb_fn_toggle &&
++=09=09=09    kbd->saved_mode !=3D kbd->current_mode)
+ =09=09=09=09appletb_kbd_set_mode(kbd, kbd->saved_mode);
+ =09=09}
+ =09}
+--=20
+2.53.0
 
-How about this instead (wouldn't mind a second pair of eyes):
 
-        /*
-         * Includes multi-packet support where subsequent
-         * packets are sent with zero contactcount.
-         */
-        if (contact_count > 0)
-                app->num_expected = contact_count;
-        else if (!contact_count && app->num_received == 0 &&  app->prev_scantime != scantime) {
-                /*
-                 * New multi-report frame:
-                 *
-                 * For Win8 PTPs the first packet (td->num_received == 0) may
-                 * have a contactcount of 0 if there only is a button event.
-                 *
-                 * Some other devices use a sentinel frame with 0 to release all contacts
-                 */
-                app->num_expected = 0;
-        }
-
-At least the test-suite is happy with this change.
-
-Cheers,
-Benjamin
-
->  	}
->  	app->prev_scantime = scantime;
->  
-> -- 
-> 2.54.0
-> 
-> 

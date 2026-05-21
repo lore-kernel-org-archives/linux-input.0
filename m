@@ -1,67 +1,97 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56EE133ADA9;
-	Thu, 21 May 2026 14:52:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444473546DA;
+	Thu, 21 May 2026 15:03:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779375159; cv=none; b=SUMjTrhUr4VvgndpSqf/Zgq8I2FjGSHPK6wAMl/cMqA49hb1x1Vl7WD8BMGNKUmcWLqPzk4YWbQAU5DNHeEc8w7pNuyzOONn0wEmU7UjYo697Rr946RTUzf0O0jxTtpdrw0Hrv/oZdAV/+024r5So1CcbbPCJV/dOt6IchSYRCI=
+	t=1779375781; cv=none; b=afGy7nTPlDhM6+sx6yGo1aWSK1lMHvHwjyRxXjzVSbtdGtyYOo0OYtYrScnyWhqGgM5Wzr7Zim4k2G5Y3kQNVFco0hgYBn45A34/X3kmPShhV5eoZLKN6eGbZJkhMH4x3HBJ+WIcdAk62+0kz5nL6bBerQ+2nZGylkkAqya13QU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779375159; c=relaxed/simple;
-	bh=midTYK8CfgG45v/3aUnt8+jaEyfMdWSwJzzXCxSHHu8=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=mbPTaKk0YVCeU+8Q74a12MYBgbDft83lcIuVU8zKlTCe5kONrCzTrI9IjAS6U6O59grcqyayiiGlnWuzrE0tuWqQVNWDVzZgauBw5Unmcets/pcZKWptyz7KC+X2QuP+9sC8kmiHbmBT0yHGeeVMKxbqxRckt7PsGLjiipex3aI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iHdyXCvv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779375781; c=relaxed/simple;
+	bh=CJRl0ToR0Q9ybY3jf4ZzFRmnxOLsvV8exSAf24M4hfU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VpGLThW4gQUscL2s1gMASl2rZCO4GfiPCO3XhYYsy1/uybaSs+V08g4tcX8DFjKWBVx9Bv/j2o6Y+GZAe4NtUvIif68smpRfaqCjZqTpY+BIhvyKChJNybk+nlaIPIGgqGryhIwS0dfEPg/b1O2NzkVRTlPXITWwa7OXj7NNuD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DqA52FhP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iHdyXCvv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B201F000E9;
-	Thu, 21 May 2026 14:52:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DqA52FhP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C381D1F000E9;
+	Thu, 21 May 2026 15:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779375157;
-	bh=fQIdzDmjLfSq3/uBdYOeA08Duu31vAR3BAP2lscTdXQ=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=iHdyXCvvxWVLGG8EYbcVRnGJ3Tya/b7caQf8YMCI9Fsbn7P8vwoU3pGUy9yn/xnUH
-	 Rgdj3nHSo7x2T231MhWK+2jQiIbT9GaNPFDNeLkA8FgwUNIqat128laeh0Kqz53hh9
-	 pnSqhOf8TFPHvGG5oa35o6g6PudBAEzkTGKRCrO/dkGZ5KI6+FPB68oZV5IVkPPxBn
-	 lJQvb/BsvwKu9zRKaYpwacFQa0c4DclSEmBd+IY/BQn6kPrKdl7d2Tgkm+WVgGAx5l
-	 QvBF/gKy5oKpow15lz/K6BFlE7tG/IG+pPKHIaEuoQFlgRYQv2fxCa2WQ2hirHeVZ+
-	 FV66Oc8uHK5fA==
+	s=k20260515; t=1779375780;
+	bh=/cWuyUheiqgVupDqdADyXeMh2kdtlX/VJM8MCrldY8w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=DqA52FhPDpfGGkoLdXFCouBK+prDQoGjKp+tqS+/5qpCRS6AYLFrFLjMCVMcWnin8
+	 ryTT5s0hV7vkvd6x4WrhFMIlhNEjI2esR2+9aDBjGB9Tjg2kYSPbJemWlXfuKLtOoy
+	 h/w+kVZr7+xLMCfZOaiVfyKIbDfWQ8P7N5M5D7nD4Sy9T1un3XLKuNv/7KBP38a8Qs
+	 X0gNbRpgm48/GGJNVqro5QIrihs/lstgsmcMw0m0hJkXwG753q1CCxWnSQL1nnwtHS
+	 zcRejn0GNyBqMaCgAQBSqb9uTPEKV+MomDW27g4ARiJr7UzVjXcU2ennYwlNUTqaMg
+	 y75OstU6ua0kg==
+Date: Thu, 21 May 2026 17:02:56 +0200
 From: Benjamin Tissoires <bentiss@kernel.org>
-To: jikos@kernel.org, hlleng <a909204013@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- stable@vger.kernel.org
-In-Reply-To: <20260512015737.8919-1-a909204013@gmail.com>
-References: <20260512015737.8919-1-a909204013@gmail.com>
-Subject: Re: [PATCH] HID: quirks: Add ALWAYS_POLL quirk for SIGMACHIP USB
- mouse
-Message-Id: <177937515667.1110574.14478192130328665115.b4-ty@b4>
-Date: Thu, 21 May 2026 16:52:36 +0200
+To: Guangshuo Li <lgs201920130244@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Kees Cook <kees@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: wacom_w8001 - avoid double release of pen input
+ device
+Message-ID: <ag8ehxhfrGMPcakE@beelink>
+References: <20260430071311.451957-1-lgs201920130244@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260430071311.451957-1-lgs201920130244@gmail.com>
 
-On Tue, 12 May 2026 09:57:37 +0800, hlleng wrote:
-> The SIGMACHIP USB mouse with VID/PID 1c4f:0034 can disconnect and
-> re-enumerate repeatedly after it has been enumerated if its interrupt
-> endpoint is not continuously polled.
+On Apr 30 2026, Guangshuo Li wrote:
+> When registering the touch input device fails after the pen input device
+> has already been registered, w8001_connect() jumps to fail4 and
+> unregisters w8001->pen_dev.  It then falls through to fail1 where
+> input_dev_pen is passed to input_free_device().
 > 
-> This was observed with the device reporting itself as "SIGMACHIP Usb
-> Mouse". Keeping the input event device open avoids the disconnects.
+> Once input_register_device() has succeeded, the device must be released
+> with input_unregister_device(), and input_free_device() must not be used
+> on the same object afterwards.  Since input_dev_pen still aliases
+> w8001->pen_dev, this can result in a use-after-free or kref underflow.
 > 
-> [...]
+> Clear the local and container aliases after unregistering the pen device
+> so that the common cleanup path does not try to free it again.
+> 
+> This issue was found by a static analysis tool I am developing.
+> 
+> Fixes: e0361b70175f0 ("Input: wacom_w8001 - split the touch and pen devices into two devices")
+> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.1/upstream-fixes), thanks!
-
-[1/1] HID: quirks: Add ALWAYS_POLL quirk for SIGMACHIP USB mouse
-      https://git.kernel.org/hid/hid/c/07466fc91c55
+Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
 
 Cheers,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
+Benjamin
 
+> ---
+>  drivers/input/touchscreen/wacom_w8001.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+> index 45930d731873..a3b283c59cdd 100644
+> --- a/drivers/input/touchscreen/wacom_w8001.c
+> +++ b/drivers/input/touchscreen/wacom_w8001.c
+> @@ -665,8 +665,11 @@ static int w8001_connect(struct serio *serio, struct serio_driver *drv)
+>  	return 0;
+>  
+>  fail4:
+> -	if (w8001->pen_dev)
+> +	if (w8001->pen_dev) {
+>  		input_unregister_device(w8001->pen_dev);
+> +		input_dev_pen = NULL;
+> +		w8001->pen_dev = NULL;
+> +	}
+>  fail3:
+>  	serio_close(serio);
+>  fail2:
+> -- 
+> 2.43.0
+> 
+> 

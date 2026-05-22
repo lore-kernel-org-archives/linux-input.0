@@ -1,97 +1,93 @@
-Received: from r3-17.sinamail.sina.com.cn (r3-17.sinamail.sina.com.cn [202.108.3.17])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A60B226D18
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 07:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CBB360ED6;
+	Fri, 22 May 2026 07:27:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779434537; cv=none; b=D0YscIMnHBxn2emyh9wUi6GW85n95iOBu4dVOcfqSUgj4vhQ1iCs3dHFls7rPjICuzVkbWGiMQ3QrvU9/lUNPUwgNKXP/G7OWEKFWtTl74g/PYkuogx2uMt1z7rgZapdfgs+pAn/PestM47uC8ITLlPVaOzD5+87geR4vy/TSRU=
+	t=1779434851; cv=none; b=XXBe4pGW3TcHXSNiNwoITCXRmmDfKDyqCpA8Hus5vFJXPMqsdpnCcHVGAsgFYmCKlPGeJZRRagXCtKpfH/EJL/0oh0L94aC2HEtexEAo5uG9rt6Enyao+uQbZZJDWWqCz8kE3wTXQXuZgdZe3d7aTtt7K82JvGmyHujbmfStKtg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779434537; c=relaxed/simple;
-	bh=ifDGBFABrqgJ5tv4Gpht1jfnJuGN3lDVgmj8eYXlD/M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UunsG5brSdHzhlhKj1oIjyOJxCsFc0iVPaldayP+xM0i8K9EoNy7ns+V8+RqYHrhHPVyxTOarTT50w5Pdk8PKSUWQ3euPIbj5GYFUrQ4zaVjzl31NgD5UjLgHGI3nn9IkqmQoxRO7q8gOVKKeGZwfM8yquV/ctqWTjsnLyM5Rhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=Syn5eHi0; arc=none smtp.client-ip=202.108.3.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="Syn5eHi0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1779434534;
-	bh=CqJhosHL3QuV8yTfbm714TjlLFKM8FJPFMarQlpArUU=;
-	h=From:Subject:Date:Message-ID;
-	b=Syn5eHi0Ua5AIs7MSRWMvZ856u7Iua//Z5wA2Qthf0+Lvuo385oU9hvXXx6pq4hzW
-	 3cPSfG/QBfhyvtArMYRP0QcaRzqJWDyP793UvLRTzom22HU4/wz1wxvHrbl2QlE31w
-	 IGz2lWOMicbX/RA1L/0vMxU99Hp8wIpvX3gsCrOQ=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.62.144])
-	by sina.com (10.54.253.34) with ESMTP
-	id 6A10041100003D1E; Fri, 22 May 2026 15:21:54 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 7199236291973
-X-SMAIL-UIID: 7AC66D6DBC8B4ED2BFFC2B5332317570-20260522-152154-1
-From: Hillf Danton <hdanton@sina.com>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: syzbot <syzbot+b5d7ab56d43de3fd5aac@syzkaller.appspotmail.com>,
-	dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org,
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+	s=arc-20240116; t=1779434851; c=relaxed/simple;
+	bh=yQZodkXrK9Y7IwruKslbBJ7GjGtOUMOj/wgRpfUHRvc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=sBgTjFEsyS9krdJs3eZ4ojWfF9nTnaXd5fF5rvAPAQc6bkbrE/aonx2yDdWaJmJvGz7CWy1E6JeAqq1FtLQPFcIfB458PyVlqFy4OHjqkNP5R0Cjf2H0kMQTHYBWAhNOTBg+SevhjtbZvzoR9o1+7QZDU90eLiCejHaTWtIyf0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: ac661a6255af11f1aa26b74ffac11d73-20260522
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:e448061d-c7ff-41f3-a342-0199c48a08d3,IP:0,U
+	RL:0,TC:0,Content:40,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:40
+X-CID-META: VersionHash:e7bac3a,CLOUDID:fd021f0ceefe3bba85436a022c5d2c4e,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|123|850|865|898,TC:nil,Content:4|15|
+	50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0
+	,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: ac661a6255af11f1aa26b74ffac11d73-20260522
+X-User: yaolu@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <yaolu@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1732570048; Fri, 22 May 2026 15:27:22 +0800
+From: yaolu@kylinos.cn
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot] [input?] possible deadlock in tasklet_action_common (2)
-Date: Fri, 22 May 2026 15:21:43 +0800
-Message-ID: <20260522072144.934-1-hdanton@sina.com>
-In-Reply-To: <20260522063938.ewKum8vW@linutronix.de>
-References: 
+	Lu Yao <yaolu@kylinos.cn>,
+	k2ci <kernel-bot@kylinos.cn>
+Subject: [PATCH] HID: core: Fix bsize printk specifier in hid_report_raw_event()
+Date: Fri, 22 May 2026 15:27:18 +0800
+Message-Id: <20260522072718.186707-1-yaolu@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Fri, 22 May 2026 08:39:38 +0200 Sebastian Andrzej Siewior wrote:
-> On 2026-05-22 06:35:14 [+0800], Hillf Danton wrote:
-> > input_inject_event() is invoked in the brightness_set callback [1] for
-> > example.
-> > 
-> > [1] https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/tree/drivers/input/input-leds.c#n142
-> > 
-> > > Now, input_inject_event() does spin_lock_irqsave() and alloc_skb() does
-> > > local_bh_disable()/ local_bh_enable(). On !RT this is not legal. On RT
-> > 
-> > Can you please specify why that is illegal on !RT?
-> 
-> So if you do
-> 	spin_lock_irq();
-> 	local_bh_disable();
-> 
-> then the
-> 	local_bh_enable();
-> 
-> has lockdep_assert_irqs_enabled() which will yell. Then there is also
+From: Lu Yao <yaolu@kylinos.cn>
 
-Ah got it, thanks.
+Fix the following warning during build time:
 
-> this local_irq_enable() which will enable interrupts before the unlock
-> which bad, again. Also, should softirqs been raised within this section,
-> the this enable will invoke the required callback which again, enable
-> interrupts.
-> 
-> > > it is okay but then local_bh_enable() here should not invoke any
-> > > softirqs because none were raised within the section (alloc_skb()).
-> > 
-> > On RT spinlock is replaced with mutex, and softirq can be raised in the
-> > irq that could come any moment after spin_lock_irqsave().
-> 
-> That is true on the other hand. That means having raised another tasklet
-> could lead to the backtrace. But it would have been two different locks,
-> not blocking on each other.
->
-The last question, by two different locks, do you mean that the
-tasklet_sync_callback.cb_lock is per cpu?
+  drivers/hid/hid-core.c:2053:43: error: format ‘%ld’ expects argument of type ‘long int’, but argument 5 has type ‘size_t’ {aka ‘unsigned int’} [-Werror=format=]
+  drivers/hid/hid-core.c:2075:43: error: format ‘%ld’ expects argument of type ‘long int’, but argument 5 has type ‘size_t’ {aka ‘unsigned int’} [-Werror=format=]
+
+Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
+Reported-by: k2ci <kernel-bot@kylinos.cn>
+Signed-off-by: Lu Yao <yaolu@kylinos.cn>
+---
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index b3596851c719..c21c58d7bf02 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2050,7 +2050,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
+ 		return 0;
+ 
+ 	if (unlikely(bsize < csize)) {
+-		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
++		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %u)\n",
+ 				     report->id, csize, bsize);
+ 		return -EINVAL;
+ 	}
+@@ -2072,7 +2072,7 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
+ 		rsize = max_buffer_size;
+ 
+ 	if (bsize < rsize) {
+-		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
++		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %u)\n",
+ 				     report->id, rsize, bsize);
+ 		return -EINVAL;
+ 	}
+-- 
+2.25.1
+

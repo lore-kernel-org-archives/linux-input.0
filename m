@@ -1,190 +1,226 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 866FF1DF248
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 03:27:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6A31E834E
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 04:00:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779420464; cv=none; b=J1BhljSKlP9rezVLR0cpi/ChSL4/8wQyOghlaLvYzwfIxKv5DCEt1bmV5ODxqAz6H/JY41fqPi7jmjs2V9gjsCOec2OjnNKQbGkXrbTsa7VlvFj8Vyw7S6HTlQBR7ZrprUYw1NwWrtMDogdB1oxpiWuhEPzlVdWLE7DN7VoyNWA=
+	t=1779422456; cv=none; b=OvUEST7tCrBCfnfZuqcjdOMISZIqZNr+Q5hemslZtNi/peymKH2u3k64vAIPTLcZE/zsZEdxtvYWmoRBCdYfw71CDsnGEg0upq1KeMAbesS4VaCKpAYK4j7jXgn1c+fieV5MBPRi7lMAUl9bvtTIJMXWAxHHHunFGeEYSCNZSM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779420464; c=relaxed/simple;
-	bh=hv6pM0wvSzSfeq2/6KZasTZUNCFZvAglO3VsXdLZiew=;
+	s=arc-20240116; t=1779422456; c=relaxed/simple;
+	bh=ZeQ1FpwsAlAMHaSW2w++O0fUYyAj8oAI3i3yAwG5IN4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=X3vETm2w2Y0u426I3teIkaKhcQ6k+H2/AOeY6xrWVnfPrj07ZyFjFijuZ6DkQEruzLxVS5eeHQ30JcxcaVfMWoe9DkZVrQ9K7RsCorvRZjo7tBebLcZFBEaxmdN99yu2fEzeaokHb7N6dEWafdOdAGTxzNCV9Ww3zah/WLsMiDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dZZTJeBn; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Bt6wVggCB32HOg2w4v/vkuRiHfljGD+OojD6UNWyOk1DdqdlFfZuUuEq7Da/1pEuc14X9+q8Hvfxh3UiWd7THyGxo3sAlaOqr6i9CBf5FWPBn0pnEYbdYnaivS+4vYxRjOy1v7yI6HE8DjczstnULo6JLgLXyc+QTSsNCdwe+/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aeY8Zgyb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dZZTJeBn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFA71F000E9;
-	Fri, 22 May 2026 03:27:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aeY8Zgyb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05631F000E9;
+	Fri, 22 May 2026 04:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779420463;
-	bh=tOacYG4Ijdq2HsSIHns23Fv8A4HANouPlXUIru5F+mk=;
+	s=k20260515; t=1779422455;
+	bh=a6bMZkGfr8iR8TCRykvmPSDvIFjgr28DnedmZs3S6/Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dZZTJeBnDAsBLIenODJjUXTWmq2O6i74s5F3nPKOmLh8hsjqb8IGJ4/j7eaSeMVG0
-	 qC1rKxw32fXWNgC5+LXoNM3jgbe0q8Q92nyV3T36MArpda0iCcu9IMUavXZUhXtAW6
-	 xBork6TxGQW7JY43neHM9D2Kxdzka+hjc/l1RVwAFqoWuf/GVPqJSCTSd+A8Ua+b1h
-	 6iUipBpfT4kfKr9d7FGt0vxHIPIZcCs5Ns/aeWCLX+MyZUnnB7b42ickJDyG3o+Wkb
-	 dMufLj5XlNhW+PYjgukpOFi2hcdD2krs9/n2qMNSDY3ZS6dmkcTk4afdoXwC8hI9J1
-	 JnfV6f8OCDhvg==
+	b=aeY8ZgybqEXA7u2Wj6NFP8XDeKFXKC0XgwZ5AjeP04bgmzu03UGiBr2mhsCfrGafF
+	 nn26Fg7/VYxtTzq/CSVDYIPC2pD2VG6S4eYRllSg0Y/qAU+LuIkqTFUv68CCwmsbUc
+	 U0bLj+li6vccTFYaNgsF6Qtp5FxGXmbs9C1uKaICdOX1knB+kjl7CdzyhkDRCzBGgj
+	 dwnCqOJnps9IdaYxpx+L56AdTCqiJKCNsB3V9wrI+MI2ZUTuZkO8Q3eGu8IY+lnB2e
+	 PpCuwKFJkrAPpOpC7TQd2ciWYs6Y8UdLY3w6sUzWTozzr4P4UcG3OIvNKj/u9LSNk8
+	 LtEaX7N9utFdA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 2/4] HID: hid-msi: Add M-key mapping attributes
+Subject: Re: [PATCH v8 3/4] HID: hid-msi: Add RGB control interface
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260522015518.1111290-3-derekjohn.clark@gmail.com>
-References: <20260522015518.1111290-3-derekjohn.clark@gmail.com>
+In-Reply-To: <20260522015518.1111290-4-derekjohn.clark@gmail.com>
+References: <20260522015518.1111290-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 22 May 2026 03:27:42 +0000
-Message-Id: <20260522032742.EEFA71F000E9@smtp.kernel.org>
+Date: Fri, 22 May 2026 04:00:54 +0000
+Message-Id: <20260522040054.F05631F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Command synchronization cross-talk due to unconsumed generic ACKs =
-from `SYNC_TO_ROM`
-- [Medium] TOCTOU race in `claw_profile_event` unconditionally overwrites `=
-profile_pending`
-- [Low] Invalid anonymous struct declaration in `struct claw_mkey_report`
+- [High] Explicitly unregistering a devm-managed LED class device causes a =
+double unregister and list corruption upon device teardown.
+- [High] Calling sleepable functions that allocate memory with GFP_KERNEL o=
+r take sleeping locks while holding a spinlock.
+- [High] Race condition between sysfs/LED attributes and `claw_remove()` al=
+lows `rgb_queue` to be scheduled after cancellation.
+- [High] Missing cancellation of the `rgb_queue` delayed work during system=
+ suspend can cause USB I/O to a suspended device.
 --
 
-commit b8dd002e01cbcbf34fdd54df7543cbafb1207a47
+commit 34d0916b058e394f024a63889da5c0fbe434c516
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add M-key mapping attributes
+    HID: hid-msi: Add RGB control interface
 
-This commit adds attributes that allow for remapping the M-keys with up to =
-5=20
-values when in macro mode. It adds support for mappings from the gamepad,=20
-keyboard, or mouse event devices.
+    Adds RGB control interface for MSI Claw devices. The MSI Claw uses a
+    fairly unique RGB interface with 9 total zones, supporting up to 8
+    sequential frames of RGB zone data. The driver mirrors the effects
+    available in Windows while keeping effect names consistent with Lenovo
+    drivers.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 40b16253abbb3..b9901869075f6 100644
+> index b9901869075f6..0b875603dbb32 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
 
 [ ... ]
 
-> @@ -87,25 +249,47 @@ struct claw_command_report {
->  	u8 report_id;
->  	u8 padding[2];
->  	u8 header_tail;
->  	u8 cmd;
->  	u8 data[59];
->  } __packed;
-> =20
-> +struct claw_profile_report {
-> +	u8 profile;
-> +	__be16 read_addr;
-> +} __packed;
-> +
-> +struct claw_mkey_report {
-> +	struct claw_profile_report;
-
-[Severity: Low]
-Does this act as a forward declaration rather than an embedded field? Under
-standard C11 and GNU C, a struct with a tag cannot be an anonymous embedded
-member without specific compiler extensions. Will this cause a compilation
-error when accessing fields like mkeys->read_addr later?
-
-> +	u8 padding_0;
-> +	u8 padding_1;
-> +	u8 padding_2;
-> +	u8 codes[5];
-> +} __packed;
-
-[ ... ]
-
-> @@ -137,6 +321,39 @@ static int claw_gamepad_mode_event(struct claw_drvda=
-ta *drvdata,
->  	return 0;
->  }
-> =20
-> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
-command_report *cmd_rep)
+> +static ssize_t effect_store(struct device *dev,
+> +			    struct device_attribute *attr,
+> +			    const char *buf, size_t count)
 > +{
-> +	enum claw_profile_ack_pending profile;
-> +	struct claw_mkey_report *mkeys;
-> +	u8 *codes, key;
-> +	int i;
+> +	struct led_classdev *led_cdev =3D dev_get_drvdata(dev);
+> +	struct led_classdev_mc *led_mc =3D container_of(led_cdev, struct led_cl=
+assdev_mc, led_cdev);
+> +	struct claw_drvdata *drvdata =3D container_of(led_mc, struct claw_drvda=
+ta, led_mc);
+> +	int ret;
 > +
-> +	scoped_guard(spinlock, &drvdata->profile_lock)
-> +		profile =3D drvdata->profile_pending;
-> +
-> +	switch (profile) {
-> +	case CLAW_M1_PENDING:
-> +	case CLAW_M2_PENDING:
-
-[ ... ]
-
-> +	default:
-> +		dev_dbg(&drvdata->hdev->dev,
-> +			"Got profile event without changes pending from command: %x\n",
-> +			cmd_rep->cmd);
-> +		return -EINVAL;
+> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
+> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
+ */
+> +		if (!smp_load_acquire(&drvdata->rgb_registered))
+> +			return -ENODEV;
 > +	}
-> +	scoped_guard(spinlock, &drvdata->profile_lock)
-> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
-
-[Severity: Medium]
-Could this unconditionally overwrite a new state if a timeout occurs? If a
-command times out, the waiting thread might drop profile_mutex, allowing a
-new thread to enter claw_mkey_show() and set profile_pending for a new
-operation. If the delayed ACK from the first command arrives at that moment,
-will this clear the new thread's state and cause its operation to fail?
-
 > +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> @@ -442,6 +670,177 @@ static ssize_t reset_store(struct device *dev, stru=
-ct device_attribute *attr,
-
-[ ... ]
-
-> +static int claw_mkey_store(struct device *dev, const char *buf, u8 mkey)
-> +{
-
-[ ... ]
-
-> +set_buttons:
-> +	scoped_guard(mutex, &drvdata->rom_mutex) {
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
-TA,
-> +					    (u8 *)&report, sizeof(report), 25);
-> +		if (ret)
-> +			return ret;
-> +		/* MCU will not send ACK until the USB transaction completes. ACK is s=
-ent
-> +		 * immediately after and will hit the stale state machine, before the =
-next
-> +		 * command re-arms the state machine. Timeout 0 ensures no deadlock wa=
-iting
-> +		 * for ACK that ill never come.
-> +		 */
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NUL=
-L, 0, 0);
+> +	ret =3D sysfs_match_string(claw_rgb_effect_text, buf);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	drvdata->rgb_effect =3D ret;
+> +	mod_delayed_work(system_wq, &drvdata->rgb_queue, msecs_to_jiffies(50));
 
 [Severity: High]
-Can this lead to command synchronization cross-talk? Since timeout is 0,
-the driver won't wait for the ACK. If a user rapidly issues another sysfs
-write, the next operation could take rom_mutex and send its own command.
+Can mod_delayed_work() here race with claw_remove()?
 
-Because generic ACKs appear to lack command IDs, will claw_raw_event()
-blindly consume the orphaned ACK from this command and prematurely complete
-the new command's wait before the MCU has actually processed it?
+If claw_remove() runs concurrently, it acquires the registration_lock, sets
+rgb_registered to false, drops the lock, and calls
+cancel_delayed_work_sync(&drvdata->rgb_queue).
 
-> +	}
+It then calls device_remove_group(), which blocks until this sysfs store
+completes. Once device_remove_group() returns, devres frees drvdata.
+
+However, since this sysfs store function already checked rgb_registered and
+dropped the lock, it will continue executing and call mod_delayed_work(),
+re-arming the workqueue. Will this lead to the delayed work executing on
+freed memory?
+
 > +
-> +	return ret;
+> +	return count;
 > +}
+
+[ ... ]
+
+> +static void cfg_setup_fn(struct work_struct *work)
+> +{
+[ ... ]
+> +try_gamepad:
+> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
+> +		/* Pairs with smp_store_release from below */
+> +		if (!smp_load_acquire(&drvdata->gamepad_registered) && gamepad_ready) {
+> +			ret =3D devm_device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr=
+_group);
+
+[Severity: High]
+Does devm_device_add_group() sleep?
+
+It allocates memory using GFP_KERNEL inside devres_alloc() and acquires
+the sleeping kernfs_mutex during sysfs group creation. Calling this inside a
+spinlock block with interrupts disabled will trigger a scheduling while ato=
+mic
+panic. Can this be called outside the spinlock?
+
+> +			if (ret) {
+> +				dev_err(&drvdata->hdev->dev,
+> +					"Failed to create gamepad attrs: %d\n", ret);
+> +				goto try_rgb;
+> +			}
+> +
+> +			/* Pairs with smp_load_acquire in attribute show/store functions */
+> +			smp_store_release(&drvdata->gamepad_registered, true);
+> +		}
+>  	}
+> -	scoped_guard(spinlock_irqsave, &drvdata->registration_lock)
+> -		/* Pairs with smp_load_acquire in attribute show/store functions */
+> -		smp_store_release(&drvdata->gamepad_registered, true);
+> =20
+> -	kobject_uevent(&drvdata->hdev->dev.kobj, KOBJ_CHANGE);
+> +try_rgb:
+> +	/* Add and enable RGB interface once we have the device state */
+> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
+> +		/* Pairs with smp_store_release from below */
+> +		if (!smp_load_acquire(&drvdata->rgb_registered) && rgb_ready) {
+> +			ret =3D devm_led_classdev_multicolor_register(&drvdata->hdev->dev,
+> +								    &drvdata->led_mc);
+
+[Severity: High]
+Does devm_led_classdev_multicolor_register() also sleep?
+
+Similar to devm_device_add_group(), this registers a device which takes
+sleeping locks and allocates memory with GFP_KERNEL. Should this be called
+outside of the spinlock block?
+
+> +			if (ret) {
+> +				dev_err(&drvdata->hdev->dev,
+> +					"Failed to create led device: %d\n", ret);
+> +				goto update_kobjects;
+> +			}
+> +
+> +			ret =3D device_add_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr=
+_group);
+> +			if (ret) {
+> +				dev_err(&drvdata->hdev->dev,
+> +					"Failed to create RGB attrs: %d\n", ret);
+> +				led_classdev_unregister(&drvdata->led_mc.led_cdev);
+
+[Severity: High]
+Does this manual unregister cause a double-free on device teardown?
+
+Since devm_led_classdev_multicolor_register() attaches a devres cleanup
+action, manually calling led_classdev_unregister() here leaves the devres
+action queued. When the driver is unbound, devres will execute
+led_classdev_unregister() a second time on the same LED class device pointe=
+r.
+Will this result in list corruption and use-after-free?
+
+> +				goto update_kobjects;
+> +			}
+> +
+> +				/* Pairs with smp_load_acquire in attribute show/store functions */
+> +				smp_store_release(&drvdata->rgb_registered, true);
+> +		}
+> +	}
+
+[ ... ]
+
+> @@ -971,9 +1593,11 @@ static int claw_probe(struct hid_device *hdev, u8 e=
+p)
+>  	spin_lock_init(&drvdata->cmd_lock);
+>  	spin_lock_init(&drvdata->mode_lock);
+>  	spin_lock_init(&drvdata->profile_lock);
+> +	spin_lock_init(&drvdata->frame_lock);
+>  	init_completion(&drvdata->send_cmd_complete);
+>  	INIT_DELAYED_WORK(&drvdata->cfg_resume, &cfg_resume_fn);
+>  	INIT_DELAYED_WORK(&drvdata->cfg_setup, &cfg_setup_fn);
+> +	INIT_DELAYED_WORK(&drvdata->rgb_queue, &claw_rgb_queue_fn);
+
+[Severity: High]
+Is the rgb_queue delayed work properly cancelled during system suspend?
+
+In claw_suspend(), the driver cancels cfg_resume and cfg_setup, but it does
+not appear to cancel the newly introduced rgb_queue delayed work. Because
+rgb_queue is queued on system_wq (which is not freezable), could it execute
+after the device has been suspended? This might lead to USB I/O errors and
+possible hardware lockups.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522015518.1111=
-290-1-derekjohn.clark@gmail.com?part=3D2
+290-1-derekjohn.clark@gmail.com?part=3D3

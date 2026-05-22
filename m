@@ -1,139 +1,242 @@
-Received: from mail-yw1-f195.google.com (mail-yw1-f195.google.com [209.85.128.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99C86198E91
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 02:02:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.195
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779415321; cv=pass; b=LBM7/+0q+eFnrGe0dZJ9J+VAtsJ44jn+zAM75xkncAMUB5GB9hByVSKz0S7k1begjFmogszLPjhXlc2NypmAXRVnkaIM8rJUfiktXQmfA8o6YRCkydhLVPug9kJsEvYnuWRl5etWfY7YtePQtphDyuiyZ3JOmdanPg/hMAX1vBs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779415321; c=relaxed/simple;
-	bh=K67WFn8ii9DJNcLgfm2GtQYZ2ZM4/T0NSchlV6ORpEo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uaAsCq0CNr8uMbE1e+dogLbFJuUJR6nd6zJ72W8v2LOxeE4J2GNbUmpS5h6JbwiEhjVjN4fnQROguAEpXeGN/eLqK9fLymUZCH3nyVygIxkz5P9bERFBsd8Pt7n8tgxpvDvqgoekEnpPsSNXnQp/2buixO8jSalNbWBQFR7c5cg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tBmxs5pW; arc=pass smtp.client-ip=209.85.128.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047E9347C7
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 02:33:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779417232; cv=none; b=NMZv+5wL4XXasj6VBdkBJ0Dz4KwKCZrYRcHPjGH/fX5O9oSA3mqRIwSahdsrQpDigBeES+EoJgTtWDfd6Bbk1UXz9PmJ1IIYg1fkTpBKfqq8tOpXUa6XvMtB6fLEmt7xhelDzCT3+oqQ1D4j3U6rs1LuCE05SchzCmYMnsSC8OU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779417232; c=relaxed/simple;
+	bh=Zp8qifCpRrW+6L40WP680Up1vkcfMoyLZjeNIqv7UBs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=d0lH4f6jV97DIjfmYku5v7hKh9TcFzY8eOnjyfYLIJ2lAOInLqLkTZdDw2PkV5lYs0U9ZmzdBeWlGZiFyP4GRYa1zFgthWrTwv2Kg5tnwL00lbmCUkrJRYxpv+zHIXDKCxwSi2pdAU23K9Uv7ad3XGOy6FiDN/Zya5Dm0U/+rGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UhlA9qhf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tBmxs5pW"
-Received: by mail-yw1-f195.google.com with SMTP id 00721157ae682-7bd5c773ef3so63349007b3.1
-        for <linux-input@vger.kernel.org>; Thu, 21 May 2026 19:02:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779415320; cv=none;
-        d=google.com; s=arc-20240605;
-        b=O7Mkw3QlVKmmq2cnsvlH7fSgFs70+ngoSMkiLvnpi4DYYXnOJBF07D9Zgwkpe1Re2x
-         qi14yqTMfBhCRGFbQrCHtwR7Jx6uUqMxlEZSVy4qIRmvTHD/RNCamSeNhzpEpZ66wj1G
-         u3DVoeU0x/eFBc7u4+a1VVXXMfbHIEQjbsXiYLK7W/7UnLkZCIV9JJJNUqbqW+5fRsxi
-         3bcGjzlusK7KTMdcFZGWK/WB2OzBp4AEbpfvDAH8RsRVXcyvjHGXcZjNFoLKbWaqzKtM
-         Zst1e+Vxka3bGLh9/22L2sh4bY5KRcWBbdniRSWvflMh7pBRaqZbGxP51HQEYS+FjKGc
-         Bz3g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=faTc+Swa56Dlj5XDWap+/ztpbd3S5wZXBvlPOHFWIxU=;
-        fh=qhRtUGwbPXMOJmZGeqKpX5fXoCLyrruoYXyXUMwL1ic=;
-        b=H01gek4hQVI6HYeyyEUAokAtEDCXIj+c9xCLvRfWMAjuUUIpJkQNxrcTVNK1SFjOHW
-         ramkk7p1yhGJyag7M7xfXqFMTH3mrAjir9sHykPQSBiKNlm0zKHmX0Hvm7HGc6zqTSBr
-         9tBrzu+U7YRD8nZfiP41/orVEIwKwOeVMMykK+0vwDqKuwU4Vx3BBu6LLFTu15GLl5FW
-         H+y55wZXxbhAn+4/wKLN9GYYSq/bAjT8QXDq1TS47IYkt1DFcWvuNT9uqcj4DcQJG6eY
-         mUJtDypTwDjULV50qOgTCnVXMDuK42OSYvMt4Rw9RFFr4ISH927FtOTL9XofLIYMPoym
-         wzLQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779415320; x=1780020120; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=faTc+Swa56Dlj5XDWap+/ztpbd3S5wZXBvlPOHFWIxU=;
-        b=tBmxs5pWqV8MD1GZ0NB41sO872G5/RPLWEcQ5lOFLmWZ5hB1tVtt5acaXW+Agf3i4W
-         rOtHV5aPdn1dGowsiACpMHH3oDTxS785T7IE1rPL0SdQex0iLMWlR54lPuqcqTcM1q94
-         eZjAZ2G9Pkf2+ZVPei4wBhNhWbRF8YSEm2mMVamRJdVkmZnEV2xa+tsBqsEC/kWzwQjn
-         v42zBAj0fgy8Xyf3ZoBxV5+rOAwe9b1QQax43/si1YJpC2b0SJpQIc+V83bcuLNZJfyp
-         nkX9une509w+kpkxV227sDerIkEw7w2Gd01T9Hs/VjC9GAOekaNYD7+AaMe1zOtypvSj
-         J5UQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779415320; x=1780020120;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=faTc+Swa56Dlj5XDWap+/ztpbd3S5wZXBvlPOHFWIxU=;
-        b=ARO/L8Isxdu7h178L1G2M4SdUF0XZvlNwJECBt0btN5sJ21hPhMGa419YnBNBoD1h8
-         0Y3AENz833EFZFsCc5QL6G6OU0bZADjyUHRQvJFmLMyClV01husn8VdqqZUFypizkWfI
-         1XboAb6x00mjQLkBnk5UMzyUNF6QPsesJZ4B73CN9m/iko8Mvrc+OGWmvs8ykYXAsCm0
-         NYls3DU3gOGKjGLSgyEA4HGnGYbBJxLcgwTdQHH3lezqEgJ4D8V5MUIx3tL64DdsaogF
-         voxXuAouIvlnaxqKNSKWkpHtZ3Qpj2/E1enHHy2s0d4UhrCbcoE8KnDewjILUjVNMeIG
-         C4lg==
-X-Forwarded-Encrypted: i=1; AFNElJ9peV5qPlD47PGv9p1oQ/aiFzS2Y774epFyjLjFJ7A0zAKiuEUiirDVhZbmqKIePc8e8dtps3p2G28DxA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5drnIubpAHW0JyE7hWBp7rFz2wanKRHFC4tWN1gZZMetaDPDG
-	fnEFJ4HxfFXgQMdQ/kcFwyEnM8RTcf7r6NysLPWEuR6dsZuwN2Z1Z3sWGoPl5x7F7wMLT6cA1Be
-	tD1JjRpty21ZYAmcRigGxJIVP/8OeQHSjuDIdgqdktZnL
-X-Gm-Gg: Acq92OH6VpM/DBYqXSUNBKupMdOQ59QHbntdxNl0wR9Sq98WAg628LuI58cIJJ/7Yq4
-	uUhk8b5FUW1W0k1+W2GmXA7RaW1IL7TCsk+MS8LwKSDk31CrwCWi8EqdyduLHLwssHsJWjQbotb
-	sL9slYtlRlO2uPiciYxNknUNVoGcDnGotc4CBgantl2cpZNuTUL21RikXE+TRNQry9CXMKmo1DQ
-	KGCbqwVpwyGOah0PbpdmKrEoSSuGcdBcpXOTL5FG/F+rWSuzmCIpH0WC0zdqGgI9Wxfb7z76Amb
-	lQ861Hc7SJY5nTwo
-X-Received: by 2002:a05:690c:6a89:b0:7d0:4824:6424 with SMTP id
- 00721157ae682-7d3362b179bmr22484557b3.39.1779415319587; Thu, 21 May 2026
- 19:01:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UhlA9qhf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99491F000E9;
+	Fri, 22 May 2026 02:33:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779417230;
+	bh=XKc7wYqcO9KxCq8Iaj2BK7NRnwPOjcI/pqAAm2M6+Ho=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UhlA9qhfrEWEB/qxSSXB3QGXqwRcRIeq/px2xdlDNw5Pni5xh5e0BeD+WFn+WB0lR
+	 7E9GkdvidqnBBsQnQlIIRlLzNVDPMMhitm3w9Pu6mzpIYLvxTNF5qfaEl/G3O0YF21
+	 EG0ffpbLHmot8x3lcqEVxVjBDg2K1ScTg1OMOJ4KbeS9wD7N8luNrIn/FiWDkwrciw
+	 JqSkCxVmsKYafldVzKXM++e54uqLCX0xsKgGbrXlFKBOEBw6YLsQ++mNETsv3txt+n
+	 eXv5B1n1GQcWKR88D7nbkFwBudCd16iqxC5pPQEFj2TZxhy+aYgK4wLeEYUGIlc3jP
+	 35nDJkuDcCkdQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8 1/4] HID: hid-msi: Add MSI Claw configuration driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260522015518.1111290-2-derekjohn.clark@gmail.com>
+References: <20260522015518.1111290-2-derekjohn.clark@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 22 May 2026 02:33:50 +0000
+Message-Id: <20260522023350.B99491F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260421134824.35027-1-l1za0.sec@gmail.com> <ag8UFDazSyHKR0d2@beelink>
-In-Reply-To: <ag8UFDazSyHKR0d2@beelink>
-From: Li Zao <l1za0.sec@gmail.com>
-Date: Fri, 22 May 2026 10:01:44 +0800
-X-Gm-Features: AVHnY4IcxcFZF3VDTp9Tj3eW4jBJApn1brU5YeWyPLB81JnYsGFhcae1CWUflaI
-Message-ID: <CAAwbnpf0APFBj5GDvy9-hYfQW2GUjsYk7zdZmbMquGLbrP0jQg@mail.gmail.com>
-Subject: Re: [PATCH] HID: u2fzero: fix general protection fault in u2fzero_recv
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-> Couple of things:
-> - sorry, but a couple of days later someone else send a patch to tackle
->   the same problem at a better level IMO:
->   https://lore.kernel.org/linux-input/20260424-u2fzero-probe-urb-unwind-v1-1-mhun512@gmail.com/
->   So I'm going to take this one instead of yours. I would appreciate if
->   you can confirm this fixes your current reproducer.
->
-> - Your commit description is not great. Please have a look at
->   Documentation/process/submitting-patches.rst The thing that made me
->   notice this is the non imperative form (quoting
->   submitting-patches.rst):
->   """
->   Describe your changes in imperative mood,
->   e.g. "make xyzzy do frotz" instead of "[This patch] makes xyzzy do
->   frotz" or "[I] changed xyzzy to do frotz", as if you are giving orders
->   to the codebase to change its behaviour.
->   """
->   The paragraph above is also hard to follow but valuable for
->   understanding why it needs to be fixed.
->
-> Again, in the end the problem is that is dev->urb is NULL, there are
-> little chances the system is healthy and the device will work correctly,
-> so it's best to bail out early in probe like the other patch I
-> mentioned.
->
-> Cheers,
-> Benjamin
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] Sysfs attributes remain active during and after device removal, le=
+ading to a Time-of-Check to Time-of-Use (TOCTOU) race condition and Use-Aft=
+er-Free of HID transport structures.
+- [High] Calling the sleeping function `hid_hw_close()` while holding a spi=
+nlock in `claw_remove()`, causing a kernel panic.
+- [Low] Mixing `goto` error handling with scope-based cleanups (`__free()` =
+and `guard()`) in the same function.
+--
 
+commit 76e865e5c59094dfdc13a67a7954da1cc82124bc
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
+HID: hid-msi: Add MSI Claw configuration driver
 
-Hi Benjamin,
+This commit adds a new HID configuration driver for the MSI Claw handheld P=
+C.
+It introduces the initial driver structure, including sysfs attributes to
+control the gamepad mode, M-key behavior, and device reset commands.
 
-I have verified the patch against our reproducer and can confirm that
-it indeed fixes the issue. And thanks for the guidance on the commit
-description. That's quite useful.
+> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+> new file mode 100644
+> index 0000000000000..40b16253abbb3
+> --- /dev/null
+> +++ b/drivers/hid/hid-msi.c
 
-BTW, would it be possible to add a "Reported-by" tag to the patch? I'm
-not sure about the exact convention for this situation, since the bug
-was found by our private fuzzing tool and no public report is available
-on the web.
+[ ... ]
 
-Thanks again for your time and guidance!
+> +static int claw_hw_output_report(struct hid_device *hdev, u8 index, u8 *=
+data,
+> +				 size_t len, unsigned int timeout)
+> +{
+> +	unsigned char *dmabuf __free(kfree) =3D NULL;
+> +	u8 header[] =3D { CLAW_OUTPUT_REPORT_ID, 0, 0, 0x3c, index };
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	size_t header_size =3D ARRAY_SIZE(header);
+> +	int ret;
+> +
+> +	if (header_size + len > CLAW_PACKET_SIZE)
+> +		return -EINVAL;
+> +
+> +	/* We can't use a devm_alloc reusable buffer without side effects durin=
+g suspend */
+> +	dmabuf =3D kzalloc(CLAW_PACKET_SIZE, GFP_KERNEL);
+> +	if (!dmabuf)
+> +		return -ENOMEM;
+> +
+> +	memcpy(dmabuf, header, header_size);
+> +	if (data && len)
+> +		memcpy(dmabuf + header_size, data, len);
+> +
+> +	guard(mutex)(&drvdata->cfg_mutex);
+> +	if (timeout) {
+> +		reinit_completion(&drvdata->send_cmd_complete);
+> +		scoped_guard(spinlock_irqsave, &drvdata->cmd_lock) {
+> +			drvdata->waiting_cmd =3D index;
+> +			drvdata->waiting_for_ack =3D true;
+> +			drvdata->cmd_status =3D -ETIMEDOUT;
+> +		}
+> +	}
+> +
+> +	dev_dbg(&hdev->dev, "Send data as raw output report: [%*ph]\n",
+> +		CLAW_PACKET_SIZE, dmabuf);
+> +
+> +	ret =3D hid_hw_output_report(hdev, dmabuf, CLAW_PACKET_SIZE);
+> +	if (ret < 0)
+> +		goto err_clear_state;
 
-Best regards,
-Haocheng
+[Severity: Low]
+Is it okay to mix goto error labels with scope-based cleanups in the same
+function?
+
+According to the cleanup subsystem guidelines, functions should either fully
+rely on scope-based cleanups or use manual cleanups entirely to avoid
+confusing ownership semantics.
+
+> +
+> +	ret =3D ret =3D=3D CLAW_PACKET_SIZE ? 0 : -EIO;
+> +	if (ret)
+> +		goto err_clear_state;
+> +
+> +	if (timeout) {
+> +		ret =3D wait_for_completion_interruptible_timeout(&drvdata->send_cmd_c=
+omplete,
+> +								msecs_to_jiffies(timeout));
+> +
+> +		dev_dbg(&hdev->dev, "Remaining timeout: %u\n", ret);
+> +		ret =3D ret > 0 ? drvdata->cmd_status : ret ?: -EBUSY;
+> +	}
+> +
+> +err_clear_state:
+> +	if (timeout) {
+> +		guard(spinlock_irqsave)(&drvdata->cmd_lock);
+> +		drvdata->waiting_cmd =3D CLAW_COMMAND_TYPE_NONE;
+> +		drvdata->waiting_for_ack =3D false;
+> +	}
+> +
+> +	return ret;
+> +}
+
+[ ... ]
+
+> +static ssize_t gamepad_mode_store(struct device *dev, struct device_attr=
+ibute *attr,
+> +				  const char *buf, size_t count)
+> +{
+> +	struct hid_device *hdev =3D to_hid_device(dev);
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +	int i, ret =3D -EINVAL;
+> +	u8 data[2];
+> +
+> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
+> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
+ */
+> +		if (!smp_load_acquire(&drvdata->gamepad_registered))
+> +			return -ENODEV;
+> +	}
+
+[Severity: High]
+Can this lead to a use-after-free during device disconnect?
+
+If a sysfs thread calls gamepad_mode_store() and gets preempted right after
+releasing registration_lock here, a concurrent device disconnect could
+trigger msi_remove() which clears gamepad_registered.
+
+msi_remove() will then call hid_hw_stop(), destroying the HID transport
+structures. When the sysfs thread resumes and continues execution here:
+
+> +
+> +	for (i =3D 0; i < ARRAY_SIZE(claw_gamepad_mode_text); i++) {
+> +		if (claw_gamepad_mode_text[i] && sysfs_streq(buf, claw_gamepad_mode_te=
+xt[i])) {
+> +			ret =3D i;
+> +			break;
+> +		}
+> +	}
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	data[0] =3D ret;
+> +	scoped_guard(spinlock_irqsave, &drvdata->mode_lock)
+> +		data[1] =3D drvdata->mkeys_function;
+> +
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SWITCH_MODE, data=
+, ARRAY_SIZE(data), 0);
+
+It will call claw_hw_output_report() which delegates to hid_hw_output_repor=
+t()
+and accesses the now-destroyed transport structures.
+
+Since devm_device_add_group() is used to register the sysfs attributes, the
+sysfs group remains active until after msi_remove() finishes completely.
+Should the sysfs group be removed synchronously before hid_hw_stop() is
+called to prevent this race?
+
+> +	if (ret)
+> +		return ret;
+> +
+> +	return count;
+> +}
+
+[ ... ]
+
+> +static void claw_remove(struct hid_device *hdev)
+> +{
+> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> +
+> +	if (!drvdata)
+> +		return;
+> +
+> +	cancel_delayed_work_sync(&drvdata->cfg_resume);
+> +	cancel_delayed_work_sync(&drvdata->cfg_setup);
+> +
+> +	guard(spinlock_irqsave)(&drvdata->registration_lock);
+> +	/* Pairs with smp_load_acquire in attribute show/store functions */
+> +	smp_store_release(&drvdata->gamepad_registered, false);
+> +
+> +	hid_hw_close(hdev);
+
+[Severity: High]
+Does this call a sleeping function while holding a spinlock?
+
+The guard() macro acquires registration_lock and holds it until the end of
+the function. While this spinlock is held and interrupts are disabled,
+hid_hw_close() is called, which attempts to acquire the sleeping mutex
+ll_open_lock.
+
+I noticed this is fixed in a later patch in the series by changing guard()
+to scoped_guard(), but doesn't this break bisectability by introducing a
+kernel panic in this commit?
+
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522015518.1111=
+290-1-derekjohn.clark@gmail.com?part=3D1

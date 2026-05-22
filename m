@@ -1,152 +1,192 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D104349B02
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 04:55:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3813624BC
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 05:07:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779425727; cv=none; b=j/9hnJdX3q3CBvpz6JB57Mk6cbXyu7od6vclirnyoivvx/V6siF0+8qnqOjykNpvNHG9UuuZJNEWdNQ8KNfEjGsHtGOIfM3LAPmSTwsAywZNRGv98QpFk4YBh1PAOoI6WOmh7NUZTNI+atx53vmKGI5HiFCobrJJ0a16SvuutVo=
+	t=1779426432; cv=none; b=WUcjrDzt+NAYdELHWVx26FN6yGkBSWjTF9gYPTgiKvt0tq/AAwNoRmy0s9/eBe3EGTAlGC53mhwaFhG89JcyErWN7HCr879y9uXAYdJp7DlIrSoMTdD2V5AipHSL9TBvaklFEZeNGEOQjkmgS6Rzc3PvbhdiP8PgoO5H9GYh2nI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779425727; c=relaxed/simple;
-	bh=B9CAhNAdGTp5Zt5LCmbUDLKXezoz9dQvKZMGvVbfxrs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V9+gCVj4IoPXGGKmhNTXcSI9mQSHhoVm54Rd4TQuHpE2sT+01IouSh4gDBjXkET8B4afYhAs2jlOEXHxazUf3yxdclCc7kraeRGUOuykgP0sCYNfFnfa7ViXsP9C3PvuctTBtacOyC/bvLa7GDWc77AmlMdLplIUYRL/Lyh+oQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GbeIv5MT; arc=none smtp.client-ip=209.85.167.53
+	s=arc-20240116; t=1779426432; c=relaxed/simple;
+	bh=KR0AYqG8pNoH+B43HxuRCbPqD7l3WxiqDcnRoVF6Zso=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l9aDrWSm+wX6YBqi+NJo8cEQu9BQOx1sR3Y+0QMYLJL3RRiFhojbBeejlcRBDL9oWnEotVVEb4FDrLz+ctmFZLElG6wSYSeJ/qlMP/W+/C5CcrKc90W/n+NgTOLocKY6wQPp/MU8QaLgjsQV48C8qUa259TfFh8LtaLJudZD1rM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GbeIv5MT"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5a8891febd2so9480500e87.1
-        for <linux-input@vger.kernel.org>; Thu, 21 May 2026 21:55:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779425724; x=1780030524; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=2uaBSQpnXDZ0Lr2vqL2X8w5SaBUCpNSkuNqugybr2/A=;
-        b=GbeIv5MTw2u/PaO2jrKBK2QR0+f6vbEfqatUpYeF/bCRKRhpq6G8Yn6bHVqyKbI1nO
-         6aflGJoaJ4FzfLZN2vCoCXevRZkYXwZ0ohRvtIJXvxt2FB4+k9M4FpvxB9W3y197bLcX
-         jzZOqcdFQ6HV/axNzl0q6d65TSOGZM1FYwEzSzmHuAQfon6HxozChLLd9/L69PZ6wO+o
-         BkUjjOuiW5GpBTuadz6fKqNuP3bZ2aGwkn2/iHq1LfFsfqp/JKOnGWjKayLekJ9Bk1L2
-         iKO/ICx3ULCTvLSVIqiJXbMEUeDgTJ6tlBe24etov6zbxICSiBCXgQ+LB7PjnK3fwgt5
-         V9lQ==
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-365cae89bf5so2951213a91.3
+        for <linux-input@vger.kernel.org>; Thu, 21 May 2026 22:07:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779425724; x=1780030524;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2uaBSQpnXDZ0Lr2vqL2X8w5SaBUCpNSkuNqugybr2/A=;
-        b=CJk3VrBUExweN7skYg7o+H+fa/8ndKvgmzfg6zMQ3/NkDGjVDhzkj4UwKmWWbLYGp1
-         KSoTDY2dtWq5tBtyFpEbzKN22iHT6remiu6MFlmL8zy2RpFkdq+Ol0x6Xum69sjHokFN
-         EL+tkWIJmMUTCl+H9hh2Vld/kzMn6KQHtAnxHG9MjcII5mQ0gVCoEbmnVWfmoGwMVWk2
-         BPj6jJ1+KcJQpJMMwhptru0gw/LlXsfnGFe434n86c9sB5kTs79U5/RV1bMCyfSQ0c+Z
-         On+U9S6OxmMOqDwWEvCBvz3EMTsl7K8kvbmYdzDSfpJoDJmjk01QSEDWdoKFWsyLyguh
-         zr9g==
-X-Forwarded-Encrypted: i=1; AFNElJ+V3Wu+NnxcmmY3LlrTMATpj2w5owLjsgOoUekknRuTJpoFzVSN2OISSf4xhPi/GmJiLfO0u3l7rFklrA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQJm8ZfdOi7FUY9VFNi4sLu2FM6O4KFA0wmOOn9GUcnLlZ2F9X
-	hbdzWr3jstyaORyh19lf08nOrCOT3HSvqJN3LcvkWvFEMLq5OcfMtS7H
-X-Gm-Gg: Acq92OF1LLef80oviWHlBOj5FgyFexXo61RFByV0gKfgRQDC0mZmnzQnwI2SNJD8MN9
-	S/s+ni8Y7AwrPZr9bx+mCafhsQglXFfMClWYnEkxNEJvx4v9F6T39c0Vxfxi8N6+pFxjYxYjAEL
-	XSNPWfxrAQDeJgwZvYT7F3kFXGzZmgcHsv/15POvGUl9JI0dWY3YNp3xi7rgA8liUsfnsJbQSel
-	CsinKZePgcsgdzLk91kvDXJGVRMlxiQfjcutoHjUrVcSi6Y+bimrS4ikhKAIhM9KWfKrs81ICBu
-	qGw80GdJ88LSN2SHbi+Niv4c8qJr1coV2rsr8Dk0QUBHqZGy9WmszCTSQ+iA6KK9XMq4DkRxC13
-	+1poxLYlv38fRNkKQZmd1yCKGSMr4aTdeTPLc8298dviHMiHm56hNyEpvDUCXeD5J9GNJ5gNFsb
-	tNH9Ngo7AiOL0py2eXMtXJqvCjSY7yb2TGya2NHHgdGesGwqBvBkUvhBshZZRW/txV7YMnuCTL9
-	KIpe5CZ5Eyhb9OGId8=
-X-Received: by 2002:a05:6512:2552:b0:5a8:9988:f1d5 with SMTP id 2adb3069b0e04-5aa323bc03emr387730e87.24.1779425723236;
-        Thu, 21 May 2026 21:55:23 -0700 (PDT)
-Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aa32cb36d2sm144533e87.13.2026.05.21.21.55.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 May 2026 21:55:22 -0700 (PDT)
-Message-ID: <b79d8ad9-f36e-4769-9dc2-58baefe23000@gmail.com>
-Date: Fri, 22 May 2026 07:55:19 +0300
+        d=1e100.net; s=20251104; t=1779426430; x=1780031230;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2qi4QNZE3QSAMbRWNcXu7liHx2Lp06TrOvtrVJJqyZw=;
+        b=RGZRQGRcbpf467EIXuJaz/0usy939oa5Yw0Zy1KbLO+lPz7oRTbHonqMc0YqlAwurz
+         otD0xbKRuCPiDfyaI9BoLytApFxQufku00ozhgQCZfZAaMKySpQvlgZ2H175rC7g21B2
+         XbNDLweE03+NmstLBPgOcl1YkyHdH3VEKdRod3Pmqv8IPyEd6pm3nhzFzJV9v2lRMjRf
+         RLD73mfiYoOxlR24vninGEypY2VT8XVeC1mTU6sOwwJmc5WMibSz4x3IYfKkie+A0H2z
+         umfA4rdH+j3fsiu3tPX/FMbb61vMy5dCFcJsz40mobLMWRDhVOeGPWjRaHZyPY+BkezE
+         HLDw==
+X-Forwarded-Encrypted: i=1; AFNElJ8/XYvFxHh1rpMZTPmXjbQKbGqwOikHIdf6gNp9Yb2ttpop60695O6JvQvFIhwv9e3Y+9R3pCwlz/X+ug==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyK0o/Rsf0L+6fkQ1F5XGeNlDFJZxB/FuefdC92dpH+fLYqjK5/
+	6j8ggIoTynQEzt0L+aX2JE3vZNzlD5dOmoR/7l0xmBr1b8SEd05sMGML
+X-Gm-Gg: Acq92OHBtKGDODS1HkAFtgVrKfa3GN8FXKflWuTGryM+nWLWnCF7861tsbOOH10i3+y
+	tU0aQgLq8Y50zEjz+Sd7p62b61vBWwdXG8+Cvot3qJThZ5/dWqhxfiE8L4m6xcCMDQ7QFWOxUPQ
+	lU+TA3Sdk7jVhVtMpZcGpayryynpL5zqXx8Etgtxj8wKS5oh/4IkbCYCJEuOzh+NiERJy+I88O7
+	8U/2Q5Ur+ZLfXucg+Tj86XHPicV02tTQfBGDwl+5kmkhqk7dmeCmYMMMcJU5sorjizk3+p/p8GT
+	i3lpnNCZ6j76rBhD11X2Vr3ofjnN2s1m8ZJeZQkU8OG3ADHgVuJgmJDCEtorVnxUf00EtAjkbEr
+	TIzdNbzffgPhd46UvFOCfAk/XA6A5yWzOINw5szb2SKW1tiO95SGNHgLu+Iz4qIBdv09j0nAUBV
+	xpZsYzufCxJzGscZNeILOJTH74EHWkJhjCqwe9YhoUVsB8wfaSlMLaBDJl
+X-Received: by 2002:a05:6a21:15cf:b0:3aa:f9cb:d43c with SMTP id adf61e73a8af0-3b328e7457cmr1971084637.34.1779426429588;
+        Thu, 21 May 2026 22:07:09 -0700 (PDT)
+Received: from fedora.lenovo.com (zz20234032476F6CA7C5.userreverse.dion.ne.jp. [111.108.167.197])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c85205855dasm367615a12.31.2026.05.21.22.07.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 May 2026 22:07:08 -0700 (PDT)
+From: Vishnu Sankar vishnuocv@gmail.com
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	derekjohn.clark@gmail.com,
+	mpearson-lenovo@squebb.ca
+Cc: vsankar@lenovo.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vishnu Sankar <vishnuocv@gmail.com>
+Subject: [PATCH 1/2] HID: lenovo: Add support for ThinkPad X13 Folio keyboard
+Date: Fri, 22 May 2026 14:06:31 +0900
+Message-ID: <20260522050632.8079-1-vishnuocv@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/10] [v3] input: gpio-keys: make legacy gpiolib optional
-To: Arnd Bergmann <arnd@kernel.org>, linux-gpio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- Christian Lamparter <chunkeey@googlemail.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade
- <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>,
- Pavel Machek <pavel@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonas Gorski <jonas.gorski@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
- Vladimir Oltean <olteanv@gmail.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- linux-wireless@vger.kernel.org, linux-omap@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
- linux-leds@vger.kernel.org, netdev@vger.kernel.org
-References: <20260520183815.2510387-1-arnd@kernel.org>
- <20260520183815.2510387-3-arnd@kernel.org>
-Content-Language: en-US, en-AU, en-GB, en-BW
-From: Matti Vaittinen <mazziesaccount@gmail.com>
-In-Reply-To: <20260520183815.2510387-3-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 20/05/2026 21:38, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Most users of gpio-keys and gpio-keys-polled use modern gpiolib
-> interfaces, but there are still number of ancient sh, arm32 and x86
-> machines that have never been converted.
-> 
-> Add an #ifdef block for the parts of the driver that are only used on
-> those legacy machines.
-> 
-> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
-> passing an IRQ number instead. In order to keep this working both with
-> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
-> the gpio number if an IRQ is passed.
-> 
-> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
-> Link: https://lore.kernel.org/all/afJXG4_rtaj3l2Dk@google.com/
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> v3: resend
-> v2: skip the fake GPIO number passing from mfd
-> 
-> The removal of the arm platforms using this is not yet going to happen
-> for 7.2, and Dmitry's changes for the Rohm drivers have not yet
-> made it into linux-next as of 2026-05-20, so for the moment I
-> would still like to see this patch get merged, even if we are
-> closing in on completely removing the legacy gpio support in
-> the gpio_keys driver, so we can make CONFIG_GPIOLIB_LEGACY
-> default-disabled sooner.
+From: Vishnu Sankar <vishnuocv@gmail.com>
 
-I am (still) all fine with this, even though I like Dmitry's set. I 
-suppose you already have a plan for merging this, but I still have to 
-ask - why the MFD changes aren't in own patch? I feel it would have 
-simplified merging, backporting, reviewing and reverting if needed.
+Add USB ID support for the ThinkPad X13 detachable keyboard.
+The Keyboard uses the same HID raw event protocol as the ThinkPad
+X12 Gen 2. The functionality stays the same with X12 Gen 2 Keyboards.
 
-Well, other than that:
+Also declare KEY_PERFORMANCE capability in lenovo_input_configured()
+for X13 detachable, allowing userspace to discover the key via evdev
+capability bits.
 
-Reviewed-by: Matti Vaittinen <mazziesaccount@gmail.com>
-
-Yours,
-	-- Matti
-
+Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
 ---
-Matti Vaittinen
-Linux kernel developer at ROHM Semiconductors
-Oulu Finland
+ drivers/hid/hid-ids.h    |  1 +
+ drivers/hid/hid-lenovo.c | 21 +++++++++++++++++----
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-~~ When things go utterly wrong vim users can always type :help! ~~
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4657d96fb083..064be2333a00 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -874,6 +874,7 @@
+ #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
+ #define USB_DEVICE_ID_LENOVO_X12_TAB	0x60fe
+ #define USB_DEVICE_ID_LENOVO_X12_TAB2	0x61ae
++#define USB_DEVICE_ID_LENOVO_X13_TAB	0x62af
+ #define USB_DEVICE_ID_LENOVO_YOGABOOK9I	0x6161
+ #define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index a6b73e03c16b..35b00619f045 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -504,6 +504,7 @@ static int lenovo_input_mapping(struct hid_device *hdev,
+ 							       usage, bit, max);
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB3:
+@@ -620,6 +621,7 @@ static ssize_t attr_fn_lock_store(struct device *dev,
+ 		break;
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+@@ -791,9 +793,10 @@ static int lenovo_raw_event(struct hid_device *hdev,
+ 	 * Lenovo TP X12 Tab KBD's Fn+XX is HID raw data defined. Report ID is 0x03
+ 	 * e.g.: Raw data received for MIC mute is 0x00020003.
+ 	 */
+-	if (unlikely((hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB
+-			|| hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2)
+-			&& size >= 3 && report->id == 0x03))
++	if (unlikely((hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB ||
++		      hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2 ||
++		      hdev->product == USB_DEVICE_ID_LENOVO_X13_TAB) &&
++		      size >= 3 && report->id == 0x03))
+ 		return lenovo_raw_event_TP_X12_tab(hdev, le32_to_cpu(*(__le32 *)data));
+ 
+ 	return 0;
+@@ -877,6 +880,7 @@ static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
+ 		return lenovo_event_cptkbd(hdev, field, usage, value);
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+@@ -1161,6 +1165,7 @@ static int lenovo_led_brightness_set(struct led_classdev *led_cdev,
+ 		break;
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+@@ -1355,7 +1360,8 @@ static int lenovo_probe_tp10ubkbd(struct hid_device *hdev)
+ 	 */
+ 
+ 	data->fn_lock = !(hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB ||
+-			hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2);
++			hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2 ||
++			hdev->product == USB_DEVICE_ID_LENOVO_X13_TAB);
+ 
+ 	lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED, data->fn_lock);
+ 
+@@ -1402,6 +1408,7 @@ static int lenovo_probe(struct hid_device *hdev,
+ 		break;
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+@@ -1490,6 +1497,7 @@ static void lenovo_remove(struct hid_device *hdev)
+ 		break;
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 	case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB:
+ 	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+@@ -1517,6 +1525,9 @@ static int lenovo_input_configured(struct hid_device *hdev,
+ 						hi->input->propbit);
+ 			}
+ 			break;
++		case USB_DEVICE_ID_LENOVO_X13_TAB:
++			input_set_capability(hi->input, EV_KEY, KEY_PERFORMANCE);
++			break;
+ 	}
+ 
+ 	return 0;
+@@ -1551,6 +1562,8 @@ static const struct hid_device_id lenovo_devices[] = {
+ 		     USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X12_TAB) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X12_TAB2) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X13_TAB) },
+ 	{ HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD) },
+ 	{ }
+-- 
+2.54.0
+

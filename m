@@ -1,226 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6A31E834E
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 04:00:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D104349B02
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 04:55:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779422456; cv=none; b=OvUEST7tCrBCfnfZuqcjdOMISZIqZNr+Q5hemslZtNi/peymKH2u3k64vAIPTLcZE/zsZEdxtvYWmoRBCdYfw71CDsnGEg0upq1KeMAbesS4VaCKpAYK4j7jXgn1c+fieV5MBPRi7lMAUl9bvtTIJMXWAxHHHunFGeEYSCNZSM4=
+	t=1779425727; cv=none; b=j/9hnJdX3q3CBvpz6JB57Mk6cbXyu7od6vclirnyoivvx/V6siF0+8qnqOjykNpvNHG9UuuZJNEWdNQ8KNfEjGsHtGOIfM3LAPmSTwsAywZNRGv98QpFk4YBh1PAOoI6WOmh7NUZTNI+atx53vmKGI5HiFCobrJJ0a16SvuutVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779422456; c=relaxed/simple;
-	bh=ZeQ1FpwsAlAMHaSW2w++O0fUYyAj8oAI3i3yAwG5IN4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Bt6wVggCB32HOg2w4v/vkuRiHfljGD+OojD6UNWyOk1DdqdlFfZuUuEq7Da/1pEuc14X9+q8Hvfxh3UiWd7THyGxo3sAlaOqr6i9CBf5FWPBn0pnEYbdYnaivS+4vYxRjOy1v7yI6HE8DjczstnULo6JLgLXyc+QTSsNCdwe+/8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aeY8Zgyb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779425727; c=relaxed/simple;
+	bh=B9CAhNAdGTp5Zt5LCmbUDLKXezoz9dQvKZMGvVbfxrs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V9+gCVj4IoPXGGKmhNTXcSI9mQSHhoVm54Rd4TQuHpE2sT+01IouSh4gDBjXkET8B4afYhAs2jlOEXHxazUf3yxdclCc7kraeRGUOuykgP0sCYNfFnfa7ViXsP9C3PvuctTBtacOyC/bvLa7GDWc77AmlMdLplIUYRL/Lyh+oQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GbeIv5MT; arc=none smtp.client-ip=209.85.167.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aeY8Zgyb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05631F000E9;
-	Fri, 22 May 2026 04:00:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779422455;
-	bh=a6bMZkGfr8iR8TCRykvmPSDvIFjgr28DnedmZs3S6/Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aeY8ZgybqEXA7u2Wj6NFP8XDeKFXKC0XgwZ5AjeP04bgmzu03UGiBr2mhsCfrGafF
-	 nn26Fg7/VYxtTzq/CSVDYIPC2pD2VG6S4eYRllSg0Y/qAU+LuIkqTFUv68CCwmsbUc
-	 U0bLj+li6vccTFYaNgsF6Qtp5FxGXmbs9C1uKaICdOX1knB+kjl7CdzyhkDRCzBGgj
-	 dwnCqOJnps9IdaYxpx+L56AdTCqiJKCNsB3V9wrI+MI2ZUTuZkO8Q3eGu8IY+lnB2e
-	 PpCuwKFJkrAPpOpC7TQd2ciWYs6Y8UdLY3w6sUzWTozzr4P4UcG3OIvNKj/u9LSNk8
-	 LtEaX7N9utFdA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 3/4] HID: hid-msi: Add RGB control interface
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260522015518.1111290-4-derekjohn.clark@gmail.com>
-References: <20260522015518.1111290-4-derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 22 May 2026 04:00:54 +0000
-Message-Id: <20260522040054.F05631F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GbeIv5MT"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5a8891febd2so9480500e87.1
+        for <linux-input@vger.kernel.org>; Thu, 21 May 2026 21:55:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779425724; x=1780030524; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2uaBSQpnXDZ0Lr2vqL2X8w5SaBUCpNSkuNqugybr2/A=;
+        b=GbeIv5MTw2u/PaO2jrKBK2QR0+f6vbEfqatUpYeF/bCRKRhpq6G8Yn6bHVqyKbI1nO
+         6aflGJoaJ4FzfLZN2vCoCXevRZkYXwZ0ohRvtIJXvxt2FB4+k9M4FpvxB9W3y197bLcX
+         jzZOqcdFQ6HV/axNzl0q6d65TSOGZM1FYwEzSzmHuAQfon6HxozChLLd9/L69PZ6wO+o
+         BkUjjOuiW5GpBTuadz6fKqNuP3bZ2aGwkn2/iHq1LfFsfqp/JKOnGWjKayLekJ9Bk1L2
+         iKO/ICx3ULCTvLSVIqiJXbMEUeDgTJ6tlBe24etov6zbxICSiBCXgQ+LB7PjnK3fwgt5
+         V9lQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779425724; x=1780030524;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2uaBSQpnXDZ0Lr2vqL2X8w5SaBUCpNSkuNqugybr2/A=;
+        b=CJk3VrBUExweN7skYg7o+H+fa/8ndKvgmzfg6zMQ3/NkDGjVDhzkj4UwKmWWbLYGp1
+         KSoTDY2dtWq5tBtyFpEbzKN22iHT6remiu6MFlmL8zy2RpFkdq+Ol0x6Xum69sjHokFN
+         EL+tkWIJmMUTCl+H9hh2Vld/kzMn6KQHtAnxHG9MjcII5mQ0gVCoEbmnVWfmoGwMVWk2
+         BPj6jJ1+KcJQpJMMwhptru0gw/LlXsfnGFe434n86c9sB5kTs79U5/RV1bMCyfSQ0c+Z
+         On+U9S6OxmMOqDwWEvCBvz3EMTsl7K8kvbmYdzDSfpJoDJmjk01QSEDWdoKFWsyLyguh
+         zr9g==
+X-Forwarded-Encrypted: i=1; AFNElJ+V3Wu+NnxcmmY3LlrTMATpj2w5owLjsgOoUekknRuTJpoFzVSN2OISSf4xhPi/GmJiLfO0u3l7rFklrA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxQJm8ZfdOi7FUY9VFNi4sLu2FM6O4KFA0wmOOn9GUcnLlZ2F9X
+	hbdzWr3jstyaORyh19lf08nOrCOT3HSvqJN3LcvkWvFEMLq5OcfMtS7H
+X-Gm-Gg: Acq92OF1LLef80oviWHlBOj5FgyFexXo61RFByV0gKfgRQDC0mZmnzQnwI2SNJD8MN9
+	S/s+ni8Y7AwrPZr9bx+mCafhsQglXFfMClWYnEkxNEJvx4v9F6T39c0Vxfxi8N6+pFxjYxYjAEL
+	XSNPWfxrAQDeJgwZvYT7F3kFXGzZmgcHsv/15POvGUl9JI0dWY3YNp3xi7rgA8liUsfnsJbQSel
+	CsinKZePgcsgdzLk91kvDXJGVRMlxiQfjcutoHjUrVcSi6Y+bimrS4ikhKAIhM9KWfKrs81ICBu
+	qGw80GdJ88LSN2SHbi+Niv4c8qJr1coV2rsr8Dk0QUBHqZGy9WmszCTSQ+iA6KK9XMq4DkRxC13
+	+1poxLYlv38fRNkKQZmd1yCKGSMr4aTdeTPLc8298dviHMiHm56hNyEpvDUCXeD5J9GNJ5gNFsb
+	tNH9Ngo7AiOL0py2eXMtXJqvCjSY7yb2TGya2NHHgdGesGwqBvBkUvhBshZZRW/txV7YMnuCTL9
+	KIpe5CZ5Eyhb9OGId8=
+X-Received: by 2002:a05:6512:2552:b0:5a8:9988:f1d5 with SMTP id 2adb3069b0e04-5aa323bc03emr387730e87.24.1779425723236;
+        Thu, 21 May 2026 21:55:23 -0700 (PDT)
+Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aa32cb36d2sm144533e87.13.2026.05.21.21.55.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 May 2026 21:55:22 -0700 (PDT)
+Message-ID: <b79d8ad9-f36e-4769-9dc2-58baefe23000@gmail.com>
+Date: Fri, 22 May 2026 07:55:19 +0300
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 02/10] [v3] input: gpio-keys: make legacy gpiolib optional
+To: Arnd Bergmann <arnd@kernel.org>, linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+ Christian Lamparter <chunkeey@googlemail.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade
+ <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>,
+ Pavel Machek <pavel@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonas Gorski <jonas.gorski@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+ Vladimir Oltean <olteanv@gmail.com>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ linux-wireless@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-leds@vger.kernel.org, netdev@vger.kernel.org
+References: <20260520183815.2510387-1-arnd@kernel.org>
+ <20260520183815.2510387-3-arnd@kernel.org>
+Content-Language: en-US, en-AU, en-GB, en-BW
+From: Matti Vaittinen <mazziesaccount@gmail.com>
+In-Reply-To: <20260520183815.2510387-3-arnd@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] Explicitly unregistering a devm-managed LED class device causes a =
-double unregister and list corruption upon device teardown.
-- [High] Calling sleepable functions that allocate memory with GFP_KERNEL o=
-r take sleeping locks while holding a spinlock.
-- [High] Race condition between sysfs/LED attributes and `claw_remove()` al=
-lows `rgb_queue` to be scheduled after cancellation.
-- [High] Missing cancellation of the `rgb_queue` delayed work during system=
- suspend can cause USB I/O to a suspended device.
---
+On 20/05/2026 21:38, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Most users of gpio-keys and gpio-keys-polled use modern gpiolib
+> interfaces, but there are still number of ancient sh, arm32 and x86
+> machines that have never been converted.
+> 
+> Add an #ifdef block for the parts of the driver that are only used on
+> those legacy machines.
+> 
+> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+> passing an IRQ number instead. In order to keep this working both with
+> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+> the gpio number if an IRQ is passed.
+> 
+> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gmail.com/
+> Link: https://lore.kernel.org/all/afJXG4_rtaj3l2Dk@google.com/
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> v3: resend
+> v2: skip the fake GPIO number passing from mfd
+> 
+> The removal of the arm platforms using this is not yet going to happen
+> for 7.2, and Dmitry's changes for the Rohm drivers have not yet
+> made it into linux-next as of 2026-05-20, so for the moment I
+> would still like to see this patch get merged, even if we are
+> closing in on completely removing the legacy gpio support in
+> the gpio_keys driver, so we can make CONFIG_GPIOLIB_LEGACY
+> default-disabled sooner.
 
-commit 34d0916b058e394f024a63889da5c0fbe434c516
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+I am (still) all fine with this, even though I like Dmitry's set. I 
+suppose you already have a plan for merging this, but I still have to 
+ask - why the MFD changes aren't in own patch? I feel it would have 
+simplified merging, backporting, reviewing and reverting if needed.
 
-    HID: hid-msi: Add RGB control interface
+Well, other than that:
 
-    Adds RGB control interface for MSI Claw devices. The MSI Claw uses a
-    fairly unique RGB interface with 9 total zones, supporting up to 8
-    sequential frames of RGB zone data. The driver mirrors the effects
-    available in Windows while keeping effect names consistent with Lenovo
-    drivers.
+Reviewed-by: Matti Vaittinen <mazziesaccount@gmail.com>
 
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index b9901869075f6..0b875603dbb32 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
+Yours,
+	-- Matti
 
-[ ... ]
+---
+Matti Vaittinen
+Linux kernel developer at ROHM Semiconductors
+Oulu Finland
 
-> +static ssize_t effect_store(struct device *dev,
-> +			    struct device_attribute *attr,
-> +			    const char *buf, size_t count)
-> +{
-> +	struct led_classdev *led_cdev =3D dev_get_drvdata(dev);
-> +	struct led_classdev_mc *led_mc =3D container_of(led_cdev, struct led_cl=
-assdev_mc, led_cdev);
-> +	struct claw_drvdata *drvdata =3D container_of(led_mc, struct claw_drvda=
-ta, led_mc);
-> +	int ret;
-> +
-> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
-> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
- */
-> +		if (!smp_load_acquire(&drvdata->rgb_registered))
-> +			return -ENODEV;
-> +	}
-> +
-> +	ret =3D sysfs_match_string(claw_rgb_effect_text, buf);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	drvdata->rgb_effect =3D ret;
-> +	mod_delayed_work(system_wq, &drvdata->rgb_queue, msecs_to_jiffies(50));
-
-[Severity: High]
-Can mod_delayed_work() here race with claw_remove()?
-
-If claw_remove() runs concurrently, it acquires the registration_lock, sets
-rgb_registered to false, drops the lock, and calls
-cancel_delayed_work_sync(&drvdata->rgb_queue).
-
-It then calls device_remove_group(), which blocks until this sysfs store
-completes. Once device_remove_group() returns, devres frees drvdata.
-
-However, since this sysfs store function already checked rgb_registered and
-dropped the lock, it will continue executing and call mod_delayed_work(),
-re-arming the workqueue. Will this lead to the delayed work executing on
-freed memory?
-
-> +
-> +	return count;
-> +}
-
-[ ... ]
-
-> +static void cfg_setup_fn(struct work_struct *work)
-> +{
-[ ... ]
-> +try_gamepad:
-> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
-> +		/* Pairs with smp_store_release from below */
-> +		if (!smp_load_acquire(&drvdata->gamepad_registered) && gamepad_ready) {
-> +			ret =3D devm_device_add_group(&drvdata->hdev->dev, &claw_gamepad_attr=
-_group);
-
-[Severity: High]
-Does devm_device_add_group() sleep?
-
-It allocates memory using GFP_KERNEL inside devres_alloc() and acquires
-the sleeping kernfs_mutex during sysfs group creation. Calling this inside a
-spinlock block with interrupts disabled will trigger a scheduling while ato=
-mic
-panic. Can this be called outside the spinlock?
-
-> +			if (ret) {
-> +				dev_err(&drvdata->hdev->dev,
-> +					"Failed to create gamepad attrs: %d\n", ret);
-> +				goto try_rgb;
-> +			}
-> +
-> +			/* Pairs with smp_load_acquire in attribute show/store functions */
-> +			smp_store_release(&drvdata->gamepad_registered, true);
-> +		}
->  	}
-> -	scoped_guard(spinlock_irqsave, &drvdata->registration_lock)
-> -		/* Pairs with smp_load_acquire in attribute show/store functions */
-> -		smp_store_release(&drvdata->gamepad_registered, true);
-> =20
-> -	kobject_uevent(&drvdata->hdev->dev.kobj, KOBJ_CHANGE);
-> +try_rgb:
-> +	/* Add and enable RGB interface once we have the device state */
-> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
-> +		/* Pairs with smp_store_release from below */
-> +		if (!smp_load_acquire(&drvdata->rgb_registered) && rgb_ready) {
-> +			ret =3D devm_led_classdev_multicolor_register(&drvdata->hdev->dev,
-> +								    &drvdata->led_mc);
-
-[Severity: High]
-Does devm_led_classdev_multicolor_register() also sleep?
-
-Similar to devm_device_add_group(), this registers a device which takes
-sleeping locks and allocates memory with GFP_KERNEL. Should this be called
-outside of the spinlock block?
-
-> +			if (ret) {
-> +				dev_err(&drvdata->hdev->dev,
-> +					"Failed to create led device: %d\n", ret);
-> +				goto update_kobjects;
-> +			}
-> +
-> +			ret =3D device_add_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr=
-_group);
-> +			if (ret) {
-> +				dev_err(&drvdata->hdev->dev,
-> +					"Failed to create RGB attrs: %d\n", ret);
-> +				led_classdev_unregister(&drvdata->led_mc.led_cdev);
-
-[Severity: High]
-Does this manual unregister cause a double-free on device teardown?
-
-Since devm_led_classdev_multicolor_register() attaches a devres cleanup
-action, manually calling led_classdev_unregister() here leaves the devres
-action queued. When the driver is unbound, devres will execute
-led_classdev_unregister() a second time on the same LED class device pointe=
-r.
-Will this result in list corruption and use-after-free?
-
-> +				goto update_kobjects;
-> +			}
-> +
-> +				/* Pairs with smp_load_acquire in attribute show/store functions */
-> +				smp_store_release(&drvdata->rgb_registered, true);
-> +		}
-> +	}
-
-[ ... ]
-
-> @@ -971,9 +1593,11 @@ static int claw_probe(struct hid_device *hdev, u8 e=
-p)
->  	spin_lock_init(&drvdata->cmd_lock);
->  	spin_lock_init(&drvdata->mode_lock);
->  	spin_lock_init(&drvdata->profile_lock);
-> +	spin_lock_init(&drvdata->frame_lock);
->  	init_completion(&drvdata->send_cmd_complete);
->  	INIT_DELAYED_WORK(&drvdata->cfg_resume, &cfg_resume_fn);
->  	INIT_DELAYED_WORK(&drvdata->cfg_setup, &cfg_setup_fn);
-> +	INIT_DELAYED_WORK(&drvdata->rgb_queue, &claw_rgb_queue_fn);
-
-[Severity: High]
-Is the rgb_queue delayed work properly cancelled during system suspend?
-
-In claw_suspend(), the driver cancels cfg_resume and cfg_setup, but it does
-not appear to cancel the newly introduced rgb_queue delayed work. Because
-rgb_queue is queued on system_wq (which is not freezable), could it execute
-after the device has been suspended? This might lead to USB I/O errors and
-possible hardware lockups.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522015518.1111=
-290-1-derekjohn.clark@gmail.com?part=3D3
+~~ When things go utterly wrong vim users can always type :help! ~~

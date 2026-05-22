@@ -1,111 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66BC930677D
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 07:31:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE58639D6E5;
+	Fri, 22 May 2026 07:35:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779435100; cv=none; b=C4dsluOFmS7UtazmRSrUZpp/pYfcw1o7Vf1/Syyp3VHQPuSLTUvgXwCf34VFvwAvDqVahQtbzW0Qs5264eKcxYwCDqvr8ZaiJ5jrOyHpOt+5m9ZEyOCmNjw3+cKmjrTG5RxGMRjbetoSzLbI6XrDggw7v0otkoajbdSA+vSKftQ=
+	t=1779435313; cv=none; b=gww1zpw+j6gFOlSd+f1A4sIn038tm9NLfASscy4ISGxVYPWEWzkVEkRyVLNNZKIrtKjTnJm+WDyF5SzyRnGYg8Y6V4TlBKJi1hEmBcK5iyd9SsGQ5mpA8kOrrwm4NuHlDCLGat5buLGPyX//yLT1R+qTRqagFypegWrZf72Owdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779435100; c=relaxed/simple;
-	bh=wcNWtvmG+iyHs7YM/CFArKqODU6ijW6BI3nyEBotntk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mWGmrjErK2zx+G3+h5nbyfCn2YFuaar7nssWI45SiMP7Of849CHHcaHXfjDHApAxN4AO6oJ6LPcrxA3L8d+lm7c9O442I6rgvjb1AE/rvlFRwyIsPy01VQ0Ptu0Lw8TrTo/acA34v9RshBa9xk1BW1dqPDkMK6CPsmxk/VnV9Wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ec9SS46F; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779435313; c=relaxed/simple;
+	bh=RZPkyybxnShyzTWlFTPx9yqqWtEY46+afZF7baTpOYg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NU8tB6EoTAoChwKw++K6KWQbGVaDfzfwVZOv/PH/Od/9z0YkN0i+bkQ/xv0vZufTCfrCsvVEiyl4b+t0ZF+r0z9IU1bn09AsBkHX8BtHA3U9Sru9YHy+M9MjfmSQImDVMaVg/nmsh5H05jqBOX/iZTt+D5XE0zkw3DF16y8J5/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=pnrYqqk2; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=908v2MRd; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ec9SS46F"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A96C91F000E9;
-	Fri, 22 May 2026 07:31:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779435099;
-	bh=NJiLTHVYBE3hmKp6q1PNGYVHBDH0XHCMH/jXj0Wh+go=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ec9SS46FIYmXfwlXu5RYAdQOpfBD8of6zvarN97OIikkjUrJMOly8jtaOIe+GgqfM
-	 mfU4TsQGEIn53GoXQXyg8/F8pzjodbXzCCc9E0AqDVqmvUZLwXZZ2BX622ITJTBXuQ
-	 NPfzP1WoSjVRKWmuJDriSAgcv90bMi9pnDcMcrDkrq2YjC3aQbFeeUlk0F7DgzWZze
-	 AmGaZIOVygWUwnPBMe/YQm+PcQBdy7iqlz8z6iuXEOUW44wk9yR+EVd0jYY6NxFjw4
-	 I6xrYOjrURz9Mbj+J5iYqsoAFR4NJ3aXHtulKjfnDt8VENNqNMR1utUd4RQnAFCngi
-	 hdcFiDr3lH91Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: core: Fix bsize printk specifier in
- hid_report_raw_event()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: yaolu@kylinos.cn
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260522072718.186707-1-yaolu@kylinos.cn>
-References: <20260522072718.186707-1-yaolu@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 22 May 2026 07:31:38 +0000
-Message-Id: <20260522073138.A96C91F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="pnrYqqk2";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="908v2MRd"
+Date: Fri, 22 May 2026 09:35:08 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1779435310;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YUppRxB2i4LUyyDiOz6SUGJ5H5tEZHI3ItGS3cIlnM0=;
+	b=pnrYqqk2tSWn6FinUxDFO9kSOTZiANyjV4QPowPabErhexR3FRklC57b6q3VH8dFWsECA3
+	o6EsjP3UWgRuncNqEcn7S6gXcSZ5yeBJ04fBdpwBXF1W0HFeyrAqCI3uqZXVr358u/LJNR
+	CihIn/Yg0qFLkhJUyBRZlOqNj3yqC7hwnNen6P7996Ar1Q8Eq6Oq4Q0JRFk7atfDKc3LpR
+	dfLFkOuMkGHxsCnZiTiTMkrrcQgMacYKUM/b2HWjaKbymvYAoOlBPML4zOaqCmmq4RjnM/
+	LeW5Ba43emk6awJcqwXWA942KTz0cADtmkZntWSAMiqGbZqZXLhxP17qIzKgTA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1779435310;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YUppRxB2i4LUyyDiOz6SUGJ5H5tEZHI3ItGS3cIlnM0=;
+	b=908v2MRda1rJzyDdqL9nZOsCVXdlUTcO990byVhC+y8w0RSFmm6s2fArUhhAV3d6CBuU9I
+	/TfjwdXS4TZau2BA==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Hillf Danton <hdanton@sina.com>
+Cc: syzbot <syzbot+b5d7ab56d43de3fd5aac@syzkaller.appspotmail.com>,
+	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot] [input?] possible deadlock in tasklet_action_common (2)
+Message-ID: <20260522073508.VfBubDl8@linutronix.de>
+References: <20260522063938.ewKum8vW@linutronix.de>
+ <20260522072144.934-1-hdanton@sina.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260522072144.934-1-hdanton@sina.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Incorrect format specifier for the `size_t` variable `bsize`. The p=
-atch replaces `%ld` with `%u` to fix a warning on 32-bit architectures (whe=
-re `size_t` is `unsigned int`), but this introduces a new warning on 64-bit=
- architectures (where `size_t` is `unsigned long`). The correct format spec=
-ifier for `size_t` is `%zu`.
---
+On 2026-05-22 15:21:43 [+0800], Hillf Danton wrote:
+> > > On RT spinlock is replaced with mutex, and softirq can be raised in the
+> > > irq that could come any moment after spin_lock_irqsave().
+> > 
+> > That is true on the other hand. That means having raised another tasklet
+> > could lead to the backtrace. But it would have been two different locks,
+> > not blocking on each other.
+> >
+> The last question, by two different locks, do you mean that the
+> tasklet_sync_callback.cb_lock is per cpu?
 
-commit d6a5fb9c76c9718771a50e1f79f29b3df496f869
-Author: Lu Yao <yaolu@kylinos.cn>
+Yes, it is but this does not matter. kbd_led_trigger_activate() does
+tasklet_disable(&keyboard_tasklet) so you can't have kbd_bh() running
+and led_set_brightness() which would kick the softirq again. Not from
+kbd_led_trigger_activate().
 
-HID: core: Fix bsize printk specifier in hid_report_raw_event()
+Even if another component would raise a softirq in that window, you
+could run tasklets, yes, but never kbd_bh(). Not in this window.
 
-This commit attempts to fix a build warning on 32-bit architectures by
-changing the format specifier for a size_t variable from %ld to %u.
+So the kbd_led_trigger_activate() -> input_inject_event() needs to be a
+different event device than kbd_propagate_led_state() -> event. I don't
+see how you could unfold this.
 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index b3596851c7191..c21c58d7bf02b 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2050,7 +2050,7 @@ int hid_report_raw_event(struct hid_device *hid, en=
-um hid_report_type type, u8 *
->  		return 0;
-> =20
->  	if (unlikely(bsize < csize)) {
-> -		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d v=
-s %ld)\n",
-> +		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d v=
-s %u)\n",
+I *think* lockdep observed all this possible interactions and sketched
+this possibility but it does not know about tasklet_disable().
 
-[Severity: Low]
-Will this cause a new format string warning on 64-bit architectures? bsize =
-is
-of type size_t, which is an unsigned long on 64-bit systems. Should this use
-the %zu format specifier instead to be portable across both 32-bit and 64-b=
-it
-architectures?
+I do have an idea how to avoid alloc_skb() invoking softirqs if someone
+else raised them while alloc_skb() was preempted. This could avoid this
+kind of splat.
 
->  				     report->id, csize, bsize);
->  		return -EINVAL;
->  	}
-
-[ ... ]
-
-> @@ -2072,7 +2072,7 @@ int hid_report_raw_event(struct hid_device *hid, en=
-um hid_report_type type, u8 *
->  		rsize =3D max_buffer_size;
-> =20
->  	if (bsize < rsize) {
-> -		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d =
-vs %ld)\n",
-> +		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d =
-vs %u)\n",
-
-[Severity: Low]
-Similarly here, should this also use %zu for the size_t variable bsize?
-
->  				     report->id, rsize, bsize);
->  		return -EINVAL;
->  	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522072718.1867=
-07-1-yaolu@kylinos.cn?part=3D1
+Sebastian

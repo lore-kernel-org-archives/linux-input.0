@@ -1,144 +1,162 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D72531A23A6
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 12:45:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2738C40DFB6
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 14:18:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779453932; cv=none; b=aEzm4uiAjprIwhu4q+DX/tiG0WxLuKt1/vkM0ap2EMLOUCA0gJOCSpfVN8IBqI6O+6n4DLUjphblBchw+YpStamL8lRdICnZCOkbwqvi/zOxs8P4KYqFYa3CoIytPaBFnYNKebOGBbZn0hoZfR92+L4kBIMZ75zFns4htkvKwTo=
+	t=1779459539; cv=none; b=DI3cDQ0DNoTLVlGGCmEPZs2CQU+yHrkeIhOrg5QOwkwBdmmd0J4yr2HkyX5wBDYzf1Ysl69D/BcqzZNjJ54WpuDq/kxKaEHP5sfuD77HXVa3GfnFj7pcW8Zzez/bQsT1k1Zv+DVItAplb+jz6OUUyln5IquUGAR8nNjg33DJtyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779453932; c=relaxed/simple;
-	bh=B6Wrx8wptznPEXE7GgI4oCIpRWZlbijf1SHKh604G6I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eWShlf7r/PNNUJnARAucr86B2+cdFPVGkfMDW/GWHBz/z16c/5d86Cjs7M7ONuL6NfuZS5YyoWWM1YC176iFloLmJa1GCj31uIfFBIqkH6inbY6lJ0z7lX99at60jihtwmZwU54Ar23KFdf2CKjKNaKfUe4yaqV+sIEdrz7gmdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S9TdA1s9; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779459539; c=relaxed/simple;
+	bh=ASFzXL6w2WsZgAplOOGx1hYziv4X3kzl0wx5Cv3/sh8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iVwGSHAhGmgk5ChUge7D2t6UpXMzVHkf93xA8YQ12RyAoF+5nksVNzpH/unevPxbhy8lH1qyAeDJQZnmzbSkQae79ioO02c37UcM2oNUaWhCvc8M35/tn7YbJPceboagFgokI4C0iTsoFgZPSm82KwRIutFZoZl1nhPjvSeCVBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=tA6dB+Aa; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S9TdA1s9"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5a85b30dd54so7840500e87.2
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 05:45:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="tA6dB+Aa"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-490388fd0dbso18580025e9.0
+        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 07:18:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779453928; x=1780058728; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=jEx08WhtJbuH9Jvv5ffuVG6XRuDs6AIyFWz3HRiJmYw=;
-        b=S9TdA1s9sU06k7pAAsQhZgPt6Jm2cy1jpfHiVjy/+4+phsKTB39AbQjFrUaHHvTuHa
-         7xcha/kC9qOvlrvOc+x2JTP+jZxZ/e3H1ei/X60CDqJpjGmR8Nzbf9OwEeh6jXSYmMe6
-         1lqGhLX9WLcsDUNoRDwB8RN2/7jcZGUB/8QVzZr9eANTujcgTuVz1xsDUvY1h5CzWkhw
-         CjjnUJzTgxZB4Xvh+ERZIfoeKsbVY7GHoFXwuSABK574IaI9xqc2uETLj3zU1ZFqV2YS
-         GuqN5wtrNjE3MnCX7eUhhI4j839ntAaSS2DRdL1e8/Q6vQSCXDKpTqbm32FekGdEJyes
-         Fk2g==
+        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1779459530; x=1780064330; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=yfsIKTGCS0ycxbVDfoGzWt9VpeQHek+d1SqeKmsJmic=;
+        b=tA6dB+Aa/V7LbZHltOhL3gbDI9PI/mEvBKl5MnHmR3MQT6cmW69D54+wdbKIAhvLIE
+         8d+CAhlD+mPJR00SP1IOEs18B482srXaMmh3zMZMCh+t+0NtUMRlpFNQdqOXw8EGlxLJ
+         ONWqccBaZjJqYno7jZCbHvDNciqHJFFWysyFJAVuCcdGDyi1tY2LdXSZ2hCywkALaK/O
+         /IgJZlYDny06pe+5c1yNyhVEcVhAFH5QD5oleglRtYumf9kmDkikLUdBts1H7iQFQoik
+         oD8nDDm+1TYmmHpBDRlVzThaN5toEK7HsHNLAyDEcY6kEd+Ayi1Gaqo5d189M0Eo0IPL
+         BTxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779453928; x=1780058728;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jEx08WhtJbuH9Jvv5ffuVG6XRuDs6AIyFWz3HRiJmYw=;
-        b=mg4sl+CRvZNyxVgsoerOm+VsmfQmqbZ5CJD/oxiDISOwMk8rWVL8ym4WJFcBduQqLm
-         mWaYnr9vO1TBwWsetzqYz3jeZLJmakvdhNJEsOdf5cwb0Ci2O35Jq3miH3oftw00dKeO
-         3jo2YunLjbqlJMbbscNoaAbNjFqfmHDy51HD3REpgOuWoCB9HPo/aiAwgIt4Fvd5NIba
-         BVF+1HQgu9LaMf+LhARn3FX5cYhuV3+zaFbufPFMZvB1F7cJ66ic+yew7X1y7hIiEsRZ
-         MBLd9izmkUDgcA2pcgG2KQnkQnvYvaT+95bfgylgH5aFrcHeUlbUx0u9G9uo8MHP5u/j
-         m+OA==
-X-Forwarded-Encrypted: i=1; AFNElJ8sNOojY6weeo3mSXGaGwRFz1hhKyrklzPdD1Jq4B32K3f8ByghR+9RnirxVt+3tSvd/md6k1TA4Gk3SA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YygF8Am1E9uNVpztWtbzs00E9xOChtaZgF9MjHF2j/VrTyk7Az+
-	BFROQO4VKaHVIdR0qYhR0RAJCBRlMbabJ8twaA57NMs+lJDdkXf9luGU
-X-Gm-Gg: Acq92OG00wAEYBBwAVfpP+hieCFrq0RaHLKkl672ld/RghQgLhenHdHlCNhqUhJAJzU
-	GKkJg/5FlpeF0fSCH75BCW/wi0nYIuO1/uuK2m0edxaIXHlHjjFwGiw8wfHBM2qz1CnCAem+7W3
-	5T+VFdKyqyId+T7oM8nuhEFceJLAM+xln07EZJY3fisvD6+gd9ZgkpaFn1nqFH0WB7nxmtkNdCM
-	x55Q5WjvXT43a218GoSxNuLim5W36lYnjjWSrKNBRVOhNdO9LTHaGwcF8NVWGkUE19PRZ9xxTph
-	C5+orfzMd3Xv6TO5OkGwZUTZkIV3tkwxR2SBlbfWmmMaTl1w2DtL0tMZTB+Yry4xjxTmVOG0CoJ
-	m1NQ8bAlDD32NPN7CVJu0EDOnQvv7+VGIS//7a8T3KO6TdPwnm/sFFUJY5/bU/56mZoKT6I0X8m
-	vNqQ14iZ8YOQjgd3FT81PDj6agsOYdPME0rPqtVpo3HnJkquHNVrum7Skv21VgxUH1xYOiSyp4u
-	OlacdB9
-X-Received: by 2002:a05:6512:33c9:b0:5a8:64c4:38c4 with SMTP id 2adb3069b0e04-5aa32314258mr1031399e87.8.1779453927777;
-        Fri, 22 May 2026 05:45:27 -0700 (PDT)
-Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aa32cb37bfsm401018e87.11.2026.05.22.05.45.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 May 2026 05:45:27 -0700 (PDT)
-Message-ID: <55c36da0-6cc4-4c95-88ef-3dd5b2181b0d@gmail.com>
-Date: Fri, 22 May 2026 15:45:25 +0300
+        d=1e100.net; s=20251104; t=1779459530; x=1780064330;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yfsIKTGCS0ycxbVDfoGzWt9VpeQHek+d1SqeKmsJmic=;
+        b=EsSRqL4RcrH/eZPbNF2CnJ6oJ/dg1mz2JjOd50OlMyR+ULgcp62fCfpJcq6OwFyfTh
+         eTSSzqd1SRTkuT5KpvFIi0QmYGtNsBBvXwc0cgX8682KiPPuqwrPsTTRhBu4UPEOmYrL
+         9InXtslKfzKPrAuygRK0R/+l2gYZovd7H7aeKYfzdec0dZX8TY1UHVHHC45Krjlr7Vsy
+         Fc86G260vLC1/QneYxiKb+0PplJdOPFHDPl7usPWQnfIpT1FFTmftU/XsPfzXo++bitt
+         33VL/2DvV3J0pz5jjE6u/ciEsS+uVbhe74HV0mU9GqsuE3CVy3w1/E03PQyzVUl0VudZ
+         h1KA==
+X-Forwarded-Encrypted: i=1; AFNElJ8JjHYScWQ4EkDP4ddADQhQmhSWOX+jnPkkQhGTugL2WUrkq7CWsVancFrd5lkjbfuTlMm1mEWxS3Db6Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy4BXutgMPCHvS3fBBMvYC4NqNRnmiBJkW+yuK2EetPlxuhkcoK
+	/IiBekGgKjzayqA8CTuVBR54kc4il+cpjBTDhQmnkEZZu4OjoQvQWyQqEsag/NDOOMQ=
+X-Gm-Gg: Acq92OGaJL1tC0/XtVlSM+Pg4Xn1bnt/BTzEO+8Sb2Wclt3dVSbbJMPG54ZEgE9L4eV
+	8kHHa2+PlHrRrp0oCCpgiSGZi+my0EUEfsOypEZ+gKvnAjtTPipMlWrxsGaWpbvXq4yZN9/hQxO
+	PaNJqlTh2f8hSFj/Km29psBKo6DeuiP+Cjc82k6yJ6JJ+zkT0bLp6xuzEdywnyzAPPSb3Sj9Er+
+	jAMgjbsIqAo5RT9RaKWc12j6LIc2zdPiSyCFDWgfAsai+zQVWU4nfjOSmETWCCU7uqAn8InOp72
+	UDgbS9+nM58zvyG/0VrdhUA901qkKPJL8Jgrjkdr9LYAId3wsu0dEnAzVB2u+4lV2e8BsmxDP+C
+	omwKW173xzyTjYbbol4FHL+GZVW5kKT12HB9hHqD2EyjLflFPXoz8cU3AyUC3vdguauidMoUQQS
+	OCQCwquZP14i2AjeSZVazfCS+3qBmrK7pc1Qel4N8=
+X-Received: by 2002:a05:600c:c0c3:10b0:48d:361:4df6 with SMTP id 5b1f17b1804b1-4904249af22mr42475985e9.9.1779459530342;
+        Fri, 22 May 2026 07:18:50 -0700 (PDT)
+Received: from commodore64 ([2a00:23c7:1d1a:9c01:af03:b912:2ed:4baf])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490454a0b9asm45143055e9.11.2026.05.22.07.18.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 May 2026 07:18:49 -0700 (PDT)
+Date: Fri, 22 May 2026 15:18:48 +0100
+From: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+	"Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>, "Christian A. Ehrhardt" <lk@c--e.de>
+Subject: Re: [PATCH 00/11] HID: storing pointers in
+ 'hid_device_id::driver_data'
+Message-ID: <ahBgYbMWR4VwFAy3@commodore64>
+References: <20260518-mod-devicetable-hid_device_id-v1-0-a08e3989c283@thegoodpenguin.co.uk>
+ <ag8bARsGNVqA8xbQ@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/10] [v3] input: gpio-keys: make legacy gpiolib optional
-To: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>
-Cc: linux-kernel@vger.kernel.org,
- Christian Lamparter <chunkeey@googlemail.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade
- <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>,
- Pavel Machek <pavel@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonas Gorski <jonas.gorski@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
- Vladimir Oltean <olteanv@gmail.com>, "David S . Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- linux-wireless@vger.kernel.org, Linux-OMAP <linux-omap@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-input@vger.kernel.org,
- linux-leds@vger.kernel.org, Netdev <netdev@vger.kernel.org>
-References: <20260520183815.2510387-1-arnd@kernel.org>
- <20260520183815.2510387-3-arnd@kernel.org>
- <b79d8ad9-f36e-4769-9dc2-58baefe23000@gmail.com>
- <681f328c-bc8a-4410-b876-f8c5f116325d@app.fastmail.com>
-Content-Language: en-US, en-AU, en-GB, en-BW
-From: Matti Vaittinen <mazziesaccount@gmail.com>
-In-Reply-To: <681f328c-bc8a-4410-b876-f8c5f116325d@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ag8bARsGNVqA8xbQ@beelink>
 
-On 22/05/2026 11:28, Arnd Bergmann wrote:
-> On Fri, May 22, 2026, at 06:55, Matti Vaittinen wrote:
->> On 20/05/2026 21:38, Arnd Bergmann wrote:
->>> From: Arnd Bergmann <arnd@arndb.de>
->>>
->>> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
->>> passing an IRQ number instead. In order to keep this working both with
->>> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
->>> the gpio number if an IRQ is passed.
->>>
->>
->> I am (still) all fine with this, even though I like Dmitry's set. I
->> suppose you already have a plan for merging this, but I still have to
->> ask - why the MFD changes aren't in own patch? I feel it would have
->> simplified merging, backporting, reviewing and reverting if needed.
-> 
-> Splitting it out would break bisection: The gpio-leds change without
-> the mfd change causes a build failure when assigning the .gpio
-> field, and the reverse causes a runtime failure when .gpio=0 is
-> a valid line.
+> I would agree with sashiko that the series introduces an anti-pattern by
+> allowing .driver_data to be an arbitrary pointer. The reason is that we
+> can dynamically set driver_data through the kernel command line, and
+> when it's used as a pointer, bad things will happen.
 
-Ah, yes. Thanks for explanation. (I feel a bit [a lot] stupid, as I 
-somehow missed the problem of .gpio = 0 being valid. That even though I 
-had it explicitly set to -1 myself :rolleyes: ).
+I have not considered the command line override ! This indeed would not
+be a good case for having a pointer at all in there - in the current
+form of the codebase.
 
-No further questions ;)
+The series does not introduce this anti-pattern - this is already the
+current status quo in the codebase and the problem predates the patch
+series itself. The series makes the problem more visible and validates
+the existing status quo - agreed on this.
 
-Yours,
-	-- Matti
+> I would think we should fix the 2 offenders to enforce not using a
+> direct pointer but an offset in a table of pointers.
+>
+> How does that sound for you?
 
--- 
----
-Matti Vaittinen
-Linux kernel developer at ROHM Semiconductors
-Oulu Finland
+That could work, probably via a named enum (so that the idx is bounded
+and validated to avoid out of bounds memory access) with its items mapped
+into a table of const pointers. That way the command line override still
+works as before and my goals set out in the series are met as well.
 
-~~ When things go utterly wrong vim users can always type :help! ~~
+Perhaps an alternative solution would be to sanitize the user-input instead in
+the 'hid-core::new_id_store' function, such that only 'driver_data' values
+that match an existing entry in the driver's 'id_table' are accepted, this
+is how it is done currently in the PCI subsystem in 'pci-driver::new_id_store',
+so it would be consistent as well.
+
+The bonus here is that all other drivers in the  HID subsystem benefit from
+this aproach as opposed to just the two current offenders, as providing
+'driver_data' from the command line is now mandatory and must match the
+existing table entry - which is what we want ?
+
+So something among the lines of:
+
+@hid-core::new_id_store
+
+```
+struct hid_driver *hdrv = to_hid_driver(drv);
+const struct hid_device_id *ids = hdrv->id_table;
+
+(...)
+
+/* Only accept driver_data values that match an existing id_table
+    entry */
+if (ids) {
+        ret = -EINVAL;
+        while (ids->vendor || ids->product) {
+                if (driver_data == ids->driver_data) {
+                        ret = 0;
+                        break;
+                }
+                ids++;
+        }
+        if (ret)        /* No match */
+                return ret;
+}
+```
+
+Would that approach work for you ? Do help in what is the correct
+termination for the while loop - for this demo I went with 'ids->vendor'
+and 'ids->product' fields as common-sense would indicate that quirks need
+to be device-specific by definition but that was without any actual research.
+
+The downside is that 'new_id' drivers that actually use a pointer for the
+'driver_data' will be rejected - which would be actually covered by the
+solution that you have proposed in the first place. To think of it the
+input sanitizer could work additionaly in tandem with the enum-based
+solution if this fact is an issue, so it might not be an alternative
+actually but a complement for it.
+
+In the meantime I think that patches 1-8 can be reviewed regardless
+without any changes (as they predate patch 9 that adds the union and the
+commit messages does not mention anything about it).
+
+Best regards,
+Pawel
+

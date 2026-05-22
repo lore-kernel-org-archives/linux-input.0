@@ -1,292 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E43356756
-	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 10:55:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76A2360ED1
+	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 11:15:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779447346; cv=none; b=b7ffRl3/wwAskFCLTJDiQUIA26w9y/2f4qY6ajwt4DDTwtm1yMm5To+dQxpi7FlTqSNak9xZgbp1nw+2/zwTKFdBvZNLxhUL3ioXV9JdAN+VEqgDRKmnDYRXLsKw8vLYUJBsHa4hKf24b4pcsl8n1NdQUlRQmb5orw0pDQ+rxYE=
+	t=1779448537; cv=none; b=J2ZD/3I0o5WZ4y1FiSH4UuHpI6Dhoj+7a++oAHrTDoHUn41Rg0lftvCZvqfFoV0pSPe/WFTKRGfyO78Y3CdRnSSq5eF7Femw55jN3+wL6ekAy9DtTSphARh/lmnnhKb2Q5n7y5KYzKM8Qlo7ZSlKPAE/5wNUWK5hKl8AIiY4iL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779447346; c=relaxed/simple;
-	bh=BEgQPaJxK8O1At8zCqF8rtE7r1vWUDtIBaG6lQAz7F8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=i2HQYWCnZrUGsdgWAahC/dcnfBwz1hBoYV3iq85QW2216OJ0Xi6wkLenPSjXcViONYelEbEuyym/lIWnzCVIxUj5L0vnP+ObVw7iG62V/TQVDVQpIHwGp8HMaoA6qHO8a5eV/+h9l9kqpyaZ8qEWh8vYrMDmemZrUtBmqxxo2Xg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jN5ZpAUY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779448537; c=relaxed/simple;
+	bh=AMYrxYdA9FRYv9Q3mCCMzf8djMW/KW1Qg/yUarE2AfE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JqApxbaDI0n2OyMVUCu6UawUYvUHlVj/RiooHzhdcIXl0S2bTcmhrvyxreS+oCvX+vCB9OlRBz25JGk264uCW2mCvSbhV3Sj8MTcqbGNmLXcfnj49MZXnfI7ONimE70Qo26fNSh096PTUx8tetfhqclZpQQMdw1eeNHWtbiIZlY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ew/E8gGu; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jN5ZpAUY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB461F000E9;
-	Fri, 22 May 2026 10:55:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779447345;
-	bh=4tmVyxKxbrRmi/jzN5HG/FwM4dW6fFfbjx/91/gBtlw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jN5ZpAUYOEqj8g7olUcGtrvdGCjFJFanIgYT+yQl0NcS8Z1EMAMMiGU8MDLuA9UI6
-	 hZxIQT8+K6KlHoNNRnStjuyQN/6W5pAk25gWLBllwuLow0ku626YlQDYfhIEJuOAIr
-	 XJZMHrPVc5odlChGBuaTb6LA58JKdhks9fnhOWlUS1GT45iyVrNduqgWGFOUd4Qbao
-	 b75KEwUXz7G5oVanANl6wdXWiuD+3Ojg4FrwQTieQ5MiU6wXMjW9iPPjnxW0AeAicW
-	 hqGM7Qcrb67AmtjOpywMFAq6Oqx28f8CJ10NkWo7lil8hPmoCqxi9UCpXUVNug5Q3J
-	 J7QLgtuo4cxbg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: ims-pcu - fix usb_free_coherent() size in
- ims_pcu_buffers_alloc()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Thomas Fourier" <fourier.thomas@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260522085412.45430-2-fourier.thomas@gmail.com>
-References: <20260522085412.45430-2-fourier.thomas@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 22 May 2026 10:55:44 +0000
-Message-Id: <20260522105545.0DB461F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ew/E8gGu"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-914bf8abeaeso9645485a.0
+        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 04:15:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779448535; x=1780053335; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DKJKVTseUcG8+b8RERg7E2yGGvVoPibusKcYNOJYIuM=;
+        b=ew/E8gGu5KoYUaLKairjPFQB4BdaMXpj9PQaLJzkpo+rHNJJIC6vrYjYZgA/EzSzvz
+         pYjycScG+8lTlvQxE+Zl1NSlW/vRkYv8AOSgkoRPe8Mg7u8vV54NGhvsV7jEnpGlL+GA
+         7v+RRmaBYv7pnHduwjfosZhTw5tmGk6omzSmRs2Z9pZrHwaXwewvSmVZs3cIuPfKpdFj
+         0b0GvH2NsW4l9a5I6U3qcYsN7Hoj/XZgzBEVTU0gW8kYEVFgWU5MjQ3kZKSqjkCe7F/O
+         9KgHfV75E6axt3E73+7Eg3SS8rC6pu51JARJ2ptSMZc3sBzEfzGoss//W8exNR6spmmQ
+         WjaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779448535; x=1780053335;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=DKJKVTseUcG8+b8RERg7E2yGGvVoPibusKcYNOJYIuM=;
+        b=iI6eEtsyCcNKvt1Gy1sjYQ9rEQdYDeTMhZCktJv2m40FVjB8ABNsTFXLmJMcZPPQr+
+         LRrS7ONX6LsjUaKj51pHyMw6mURm7bFXbvyseWj3kTy5Osgdv4Py67nzrBRBoy4J6HF2
+         FI7q8zvcErrY+UN89I6/ahWNloMD+kjSkRqYGjfbIusKkU1kTzGLsnRuZZsTvo/FZKVb
+         rwhT+8m7MGPcrpS41eI7MRb0eEflWvDN3kbgidgnwq18zOEd3VNtJ//gg3/cnNwuX7pN
+         d4Qm2DFrMKkK3u/fDirO4VPXe8pqGHVAyDRnBv+GIg+gip/ei8pc+yJv9zUsHztF1Iq7
+         ZzNw==
+X-Gm-Message-State: AOJu0YzdYfZUzyoobepc6ohSmB+DD9UPWnOe1MUS/+4skUeC2fTtX10y
+	xtsq2KCqucLtHFT1V5o4zKLCZWoME9xtIdXFBfj/HZlcFH87tchporPmLX1WYSBX
+X-Gm-Gg: Acq92OEckwoo1MkzQ06ja+Kx7OLjmhVyrNUkRgY0GF42A2hOsf3dEImqZpmIcWiiQPT
+	YpSfZPa95xp1jYwNqMVpMQQuC0KwaLNguFIJrsGdaXRcwqNNvPru/ToPrIST3GGLRYpyoT8agQE
+	VoqqOHk/CBq8hjv+JdAzHps7MKwz00SlFG18GDTwQgWajQbCWspCTrjVwKCfCqZKtGi5IrEDfFS
+	+rZmyxrMrLjxMvAXf3LqSTk2pz3/2QhG6pL+uqMK1VuEGsXEIc4KFfPsfYn63cXZfVos5j/EHeb
+	mWQ80dDcdGR4YR1L7suAC5nUeME9vOi99ZcQBHqUFRF9dvAMtSVNnObYaKA6rcjRrrgEgGP0PM7
+	oQpuitpBPYSepBkyQ8YlQPRAzKj0ukoQizMkC5f+Wfzkb4fzbqGpBfOw3+k3FKnLDkHfIefmGE0
+	rORZszaUcUCl5ybW8b72MeYLdEUNJCj5o/wvnNV0zwnzRmkjllvOSIgxI5CF0N2BXCowuz
+X-Received: by 2002:a05:620a:2688:b0:914:a18a:164e with SMTP id af79cd13be357-914b4970721mr452758985a.30.1779448534561;
+        Fri, 22 May 2026 04:15:34 -0700 (PDT)
+Received: from fedora (pool-100-11-178-145.phlapa.fios.verizon.net. [100.11.178.145])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-914bb397a81sm94204285a.0.2026.05.22.04.15.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 May 2026 04:15:34 -0700 (PDT)
+From: Dave Carey <carvsdriver@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	Dave Carey <carvsdriver@gmail.com>
+Subject: [PATCH 2/5] HID: multitouch: Fix stale MT slots when contact count drops to zero
+Date: Fri, 22 May 2026 07:15:27 -0400
+Message-ID: <20260522111527.69428-1-carvsdriver@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260515175253.873796-1-carvsdriver@gmail.com>
+References: <20260515175253.873796-1-carvsdriver@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 11 potential issue=
-(s) to consider:
+The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
+HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
+lift rather than omitting the frame entirely.  In mt_touch_report() the
+existing code only updates num_expected when contact_count is non-zero,
+so a zero contact count on the first packet of a new frame leaves
+num_expected at its previous value (e.g. 2 for a two-finger gesture).
+The sync check "num_received >= num_expected" then evaluates "0 >= 2"
+and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
+stale slots.  Those slots remain active in the kernel MT layer until the
+next touch, at which point they are released in a batch alongside the
+new contact — causing the userspace event consumer to miss the intervening
+finger-up sequence and corrupt its gesture session state.
 
-New issues:
-- [Low] Commit message inaccuracy regarding the fixed function.
+Fix by resetting num_expected to 0 when contact_count is zero and
+num_received is still 0 (i.e., this is the first and only packet of the
+frame, not a continuation packet in a multi-packet sequence).  With
+num_expected=0 the sync check "0 >= 0" fires immediately, calling
+input_mt_sync_frame() which drops the stale slots via INPUT_MT_DROP_UNUSED.
 
-Pre-existing issues:
-- [High] Failure to release explicitly claimed secondary data interface on =
-disconnect leaves the interface permanently claimed.
-- [High] Memory leak of firmware object in `ims_pcu_process_async_firmware(=
-)`.
-- [High] Missing interface verification in `ims_pcu_disconnect()` leads to =
-Use-After-Free and Double-Free vulnerabilities.
-- [High] Race condition in sysfs `reset_device` store callback due to missi=
-ng mutex.
-- [High] Type confusion vulnerability in CDC union descriptor parsing.
-- [Medium] Missing endpoint type validation for the control interface.
-- [Medium] Logic error in `ims_pcu_reset_packet()` breaks the parser state =
-machine.
-- [Medium] Out-of-bounds read and information leak due to missing response =
-length checks.
-- [Medium] Violation of DMA mapping rules by performing DMA on an embedded =
-structure.
-- [Low] Out-of-bounds read in `ims_pcu_irq()` debug logging.
+The num_received==0 guard is critical: continuation packets in a
+multi-packet frame arrive after at least one contact has already been
+processed (num_received>0), so they are correctly excluded from this
+path and the existing multi-packet logic is unaffected.
+
+Signed-off-by: Dave Carey <carvsdriver@gmail.com>
+Tested-by: Dave Carey <carvsdriver@gmail.com>
+---
+v2:
+- Restructured contact_count block per Benjamin Tissoires' review:
+  replace three-branch if/else-if/else-if with a cleaner two-branch
+  form, dropping the outer if (contact_count >= 0) wrapper
+- Add prev_scantime != scantime guard to the zero-contact sentinel case
+
+ drivers/hid/hid-multitouch.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index ec04dbafb..f1a2b3c4d5 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1321,21 +1321,18 @@ static void mt_touch_report(struct hid_device *hid,
+ 	 * Includes multi-packet support where subsequent
+ 	 * packets are sent with zero contactcount.
+ 	 */
+-	if (contact_count >= 0) {
++	if (contact_count > 0)
++		app->num_expected = contact_count;
++	else if (app->num_received == 0 && app->prev_scantime != scantime) {
+ 		/*
++		 * New multi-report frame:
++		 *
+ 		 * For Win8 PTPs the first packet (td->num_received == 0) may
+ 		 * have a contactcount of 0 if there only is a button event.
+-		 * We double check that this is not a continuation packet
+-		 * of a possible multi-packet frame be checking that the
+-		 * timestamp has changed.
++		 *
++		 * Some other devices use a sentinel frame with 0 to release all contacts
+ 		 */
+-		if ((app->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+-		    app->num_received == 0 &&
+-		    app->prev_scantime != scantime)
+-			app->num_expected = contact_count;
+-		/* A non 0 contact count always indicates a first packet */
+-		else if (contact_count)
+-			app->num_expected = contact_count;
++		app->num_expected = 0;
+ 	}
+ 	app->prev_scantime = scantime;
+
 --
-
-commit b02b6acbca140f2c98e04a2bf7bf5d8b5b24ae41
-Author: Thomas Fourier <fourier.thomas@gmail.com>
-
-Input: ims-pcu - fix usb_free_coherent() size in ims_pcu_buffers_alloc()
-
-This commit changes the size passed to usb_free_coherent() in
-ims_pcu_buffers_free() from max_out_size to max_in_size, properly matching
-the input buffer's allocation size.
-
-> Input: ims-pcu - fix usb_free_coherent() size in ims_pcu_buffers_alloc()
->=20
-> The input buffer size is pcu->max_in_size, but pcu->max_out_size is
-> passed to usb_free_coherent().
->=20
-> Change size to match the allocation size.
-
-[Severity: Low]
-Is the function name in the subject line accurate? This modifies
-ims_pcu_buffers_free(), but the subject mentions ims_pcu_buffers_alloc().
-The error handling path in ims_pcu_buffers_alloc() appears to already
-correctly use pcu->max_in_size.
-
->=20
-> Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Thomas Fourier <fourier.thomas@gmail.com>
-
-> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-> index 4c022a36dbe84..7a1cb9333f53c 100644
-> --- a/drivers/input/misc/ims-pcu.c
-> +++ b/drivers/input/misc/ims-pcu.c
-> @@ -1624,7 +1624,7 @@ static void ims_pcu_buffers_free(struct ims_pcu *pc=
-u)
->  	usb_kill_urb(pcu->urb_in);
->  	usb_free_urb(pcu->urb_in);
-> =20
-> -	usb_free_coherent(pcu->udev, pcu->max_out_size,
-> +	usb_free_coherent(pcu->udev, pcu->max_in_size,
->  			  pcu->urb_in_buf, pcu->read_dma);
-> =20
->  	kfree(pcu->urb_out_buf);
-
-
-[Severity: High]
-This is a pre-existing issue, but does ims_pcu_disconnect() leak the claimed
-secondary data interface?
-
-drivers/input/misc/ims-pcu.c:ims_pcu_disconnect() {
-[ ... ]
-	if (alt->desc.bInterfaceClass !=3D USB_CLASS_COMM)
-		return;
-
-	ims_pcu_stop_io(pcu);
-[ ... ]
-	ims_pcu_buffers_free(pcu);
-	kfree(pcu);
-}
-
-During ims_pcu_probe(), the driver claims the secondary data interface using
-usb_driver_claim_interface(), but ims_pcu_disconnect() never calls
-usb_driver_release_interface() for pcu->data_intf when the primary control
-interface is unbound. Does this leave the data interface permanently claime=
-d,
-causing subsequent binds to fail with -EBUSY?
-
-
-[Severity: High]
-This is a pre-existing issue, but can this logic in ims_pcu_disconnect() le=
-ad
-to a use-after-free or double-free?
-
-drivers/input/misc/ims-pcu.c:ims_pcu_disconnect() {
-[ ... ]
-	/*
-	 * See if we are dealing with control or data interface. The cleanup
-	 * happens when we unbind primary (control) interface.
-	 */
-	if (alt->desc.bInterfaceClass !=3D USB_CLASS_COMM)
-		return;
-[ ... ]
-	kfree(pcu);
-}
-
-If a malicious USB device creates a secondary data interface with the
-USB_CLASS_COMM class, and the user unbinds this malicious data interface via
-sysfs, does ims_pcu_disconnect() bypass the return statement and prematurely
-free the pcu structure while the primary interface is still active?
-Should it verify if (intf !=3D pcu->ctrl_intf) instead?
-
-
-[Severity: High]
-This is a pre-existing issue, but does this code cause a type confusion
-regression during probe?
-
-In ims_pcu_parse_cdc_data(), the driver looks up the control interface using
-union_desc->bMasterInterface0 from the untrusted CDC union descriptor, and
-assigns it to pcu->ctrl_intf without validating that pcu->ctrl_intf matches
-the interface currently being probed.
-
-drivers/input/misc/ims-pcu.c:ims_pcu_probe() {
-[ ... ]
-	error =3D ims_pcu_parse_cdc_data(intf, pcu);
-	if (error)
-		goto err_free_mem;
-[ ... ]
-	usb_set_intfdata(pcu->ctrl_intf, pcu);
-[ ... ]
-
-If a malicious device points bMasterInterface0 to an interface owned by a
-completely different driver, does usb_set_intfdata() overwrite the other
-driver's private data pointer, potentially leading to memory corruption?
-
-
-[Severity: High]
-This is a pre-existing issue, but does this error path leak the firmware
-object?
-
-If ihex_validate_fw(fw) returns an error in ims_pcu_process_async_firmware(=
-),
-the function jumps to the out label, which bypasses the release_firmware(fw)
-call. Since fw is a valid pointer when ihex_validate_fw() is called, does t=
-his
-directly leak the firmware object memory?
-
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition in the sysfs
-reset_device store callback?
-
-The ims_pcu_reset_device() sysfs callback directly calls
-ims_pcu_execute_command() without acquiring pcu->cmd_mutex. This function
-manipulates shared variables like pcu->expected_response, pcu->cmd_done, and
-pcu->cmd_buf. If triggered concurrently with other commands (such as LED
-brightness updates which properly lock the mutex), does this cause data rac=
-es
-and corruption of the shared command buffer?
-
-
-[Severity: Medium]
-This is a pre-existing issue, but does the driver validate the endpoint type
-for the control interface?
-
-In ims_pcu_parse_cdc_data(), the driver extracts the first endpoint:
-pcu->ep_ctrl =3D &alt->endpoint[0].desc
-
-Does it fail to verify that it is an IN interrupt endpoint? If a malicious
-device provides a different endpoint type (e.g., bulk OUT), which is then
-passed to usb_fill_int_urb() and usb_submit_urb(), does this trigger a
-BOGUS urb xfer kernel warning?
-
-
-[Severity: Medium]
-This is a pre-existing issue, but is there a logic error in
-ims_pcu_reset_packet() that breaks the parser state machine?
-
-ims_pcu_reset_packet() is intended to reset the protocol state machine to w=
-ait
-for the next packet, but it sets pcu->have_stx =3D true.
-
-Does this cause the state machine to bypass the wait for the next STX byte
-after the first packet is processed, and immediately accept garbage bytes? =
-When
-the actual STX byte later arrives, does the driver spam the kernel log with
-Unexpected STX at byte X, discarding old data warnings?
-
-
-[Severity: Medium]
-This is a pre-existing issue, but does this code lead to out-of-bounds reads
-and information leaks?
-
-Functions like ims_pcu_report_events() and ims_pcu_get_info() process data
-directly from the response buffers (e.g., pcu->read_buf[3] or pcu->cmd_buf)
-without checking pcu->read_pos or pcu->cmd_buf_len to ensure the device
-actually sent enough data.
-
-If a device sends a shortened response, does the driver parse stale,
-uninitialized data remaining in the buffer from previous commands?
-
-
-[Severity: Medium]
-This is a pre-existing issue, but does this code violate DMA mapping rules?
-
-In ims_pcu_line_setup(), pcu->cmd_buf is passed to usb_control_msg() for a =
-DMA
-transfer:
-
-drivers/input/misc/ims-pcu.c:ims_pcu_line_setup() {
-[ ... ]
-	struct usb_cdc_line_coding *line =3D (void *)pcu->cmd_buf;
-[ ... ]
-	error =3D usb_control_msg(pcu->udev, usb_sndctrlpipe(pcu->udev, 0),
-				USB_CDC_REQ_SET_LINE_CODING,
-				USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-				0, interface->desc.bInterfaceNumber,
-				line, sizeof(struct usb_cdc_line_coding),
-				5000);
-[ ... ]
-
-Since pcu->cmd_buf is an array embedded directly inside the struct ims_pcu
-allocation, and embedded fields are not guaranteed to be strictly cacheline
-aligned, can cache maintenance operations on this buffer corrupt adjacent
-fields in the struct ims_pcu on architectures without hardware cache cohere=
-ncy?
-
-
-[Severity: Low]
-This is a pre-existing issue, but is there an out-of-bounds read in the
-ims_pcu_irq() debug logging?
-
-In ims_pcu_irq(), the debug logging unconditionally prints data from
-pcu->urb_in_buf up to urb->actual_length bytes. If the interrupt fired for
-pcu->urb_ctrl, the actual transferred data resides in pcu->urb_ctrl_buf.
-
-Does this result in printing unrelated stale data, and if urb->actual_length
-from the control URB exceeds pcu->max_in_size, does it read out of bounds up
-to the format limit?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260522085412.4543=
-0-2-fourier.thomas@gmail.com?part=3D1
+2.53.0

@@ -1,41 +1,44 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAE732D12ED
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DADF628CF5F
 	for <linux-input@vger.kernel.org>; Fri, 22 May 2026 02:00:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779415246; cv=none; b=dIo2FFpMnWotYeU2VmdInGY34i654vguf9Zlg0OEA/CPm2KTth/VeRHOqtYmTZVof0SC5bbodzoAijrkH6O4kP6MQMZdnGsBGbPLPmefxjGY4b1w0Mn/oXfXFDaNC3DKfN9fz/5zAA/jAoI3w8fTZSCmDFWoG2lKZUKN1kSyypY=
+	t=1779415247; cv=none; b=GSdqlmYkSz/oIM+ARp/kzP7VnVstkpwfT1g7jZFlrtwNPVRH1IwTcgeAVAOw4vppSdGTwDGNp3TjaeBQUI/g+RwJMQ3pXp19GlMokrf6UbCv4oEqyMeHpanWU3iVGMq++na60cAngMw2ZjlN6YttnfgK7nEskhNa/2Wv0ng/clM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779415246; c=relaxed/simple;
-	bh=SdPwTQFii7j6XatnMh2nW+63fE6odgqTDELkj3rkM/I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rcrggx7GBClqpv/y44+9eTkIKzImYxTwlErYSpdm7BkBQJ25pqfLv/1UG6ieA3zF9QTe/RpeaZiE9XAy1aAswDQwO4MruAE32A/XrhdoHQaG/jrox9cVrHGpbCqmTyISq88ff31w4PTDYTzMlrD0z4YNjXZpeiM7rOzffwkKECs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=GvFUef6z; arc=none smtp.client-ip=173.255.198.10
+	s=arc-20240116; t=1779415247; c=relaxed/simple;
+	bh=d+TP/vV6eQPCmODq9bsBQ+d+Haq4o8ggGfF0NUoEYoo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Hf01bWiiHwFbD1kAYZruPG78gq9zc6ZrsRjZFuoaYfanRroAqGDhLPQoPOpFQW1V2o1Lkjmv7tDjnyUwileGD67vap0w+0bsWdH+FSMRVkf3LwzsdisfqX8fE5hakwysLE90id5Vp+KHgMkCfeeByvLA4MMnmbidJiIWFhIsvgc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=OJ1HJyVa; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="GvFUef6z"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="OJ1HJyVa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1779414690; bh=SdPwTQFii7j6XatnMh2nW+63fE6odgqTDELkj3rkM/I=;
-	h=From:To:Cc:Subject:Date:From;
-	b=GvFUef6zuN9bRYhSdYLh0YfBXoMJiYUep/8LlphV/LWpzoA0SCQQK/6U+4CgokfIt
-	 e3YkbSughw7l/F0Z/WLwUwD6FvTDABVTs73O34lYGalvjKupla4oOTCwQ1zSNX5t6n
-	 SWN09DEQjnxBIfU/WVucHT9FUD9l75o/fgaHYOFvzBsC6pPFS26TGKT3Wjk6RiWYXu
-	 m78wyXR8g5M1t89LOWIme+5tYUAvlZ480y9Qkgt2EAgwjWnxds9fwF5Z5kMBL+B4io
-	 xzXPJiYJS+JiJIg5z7ktocvWyXQUOQqU8zWiOCBzKmY+oDUo9D1Ex2tcogUQt2UkFn
-	 FmD3pJDhW6fcw==
+	t=1779414691; bh=d+TP/vV6eQPCmODq9bsBQ+d+Haq4o8ggGfF0NUoEYoo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=OJ1HJyVavrIeFDr/p6ytJRqpFzApQXG1wNNL+jq1rO8N4/1fs/PtXAduXBnRgx5ie
+	 QtcjUYe3/aCKNsK8ZYUCZgmw/synJoRQHIqHFoDwuDqL/M8/lU4GTz4UiDdxUmGXe6
+	 ocfZhZWihayTEoV6FWdWpFl9l0j+SDc3Hnw8bQ+HXG7Ou30fnLH6UcxNK3hFCZf6AB
+	 BijW6pnzXMuzPQXCocNWPdWGt6m9/kgAJNGnpm+D54c7cVRS3ka/V1wuL0oqxhbOlv
+	 45AbcKN7n0XorSvUTXy1ETtFmdxLfbVXqRbZOKOigyy7jTM3h+EFECHCaTtg+d8nbT
+	 5AkdQRhf27fSA==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 7643AA022;
+	by endrift.com (Postfix) with ESMTPSA id D2E8BA0EE;
 	Thu, 21 May 2026 18:51:30 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Lyude Paul <thatslyude@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH 1/2] Input: userio - Update maintainer name
-Date: Thu, 21 May 2026 18:50:39 -0700
-Message-ID: <20260522015040.3953472-1-vi@endrift.com>
+Subject: [PATCH 2/2] Input: userio - Allow setting other id values
+Date: Thu, 21 May 2026 18:50:40 -0700
+Message-ID: <20260522015040.3953472-2-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260522015040.3953472-1-vi@endrift.com>
+References: <20260522015040.3953472-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,76 +47,108 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-She's been committing under the name Lyude Paul for a while
+Previously, only the type value was settable. The proto value is used
+internally for choosing the right drivers, so we should expose it. The
+other values make sense to expose as well.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- Documentation/input/userio.rst | 2 +-
- MAINTAINERS                    | 2 +-
- drivers/input/serio/userio.c   | 4 ++--
- include/uapi/linux/userio.h    | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ Documentation/input/userio.rst | 23 +++++++++++++++++++++--
+ drivers/input/serio/userio.c   | 30 ++++++++++++++++++++++++++++++
+ include/uapi/linux/userio.h    |  5 ++++-
+ 3 files changed, 55 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/input/userio.rst b/Documentation/input/userio.rst
-index f780c77931fe..415962152815 100644
+index 415962152815..7aaaa629bde0 100644
 --- a/Documentation/input/userio.rst
 +++ b/Documentation/input/userio.rst
-@@ -5,7 +5,7 @@ The userio Protocol
- ===================
+@@ -66,8 +66,27 @@ USERIO_CMD_SET_PORT_TYPE
+ ~~~~~~~~~~~~~~~~~~~~~~~~
  
+ Sets the type of port we're emulating, where ``data`` is the port type being
+-set. Can be any of the macros from <linux/serio.h>. For example: SERIO_8042
+-would set the port type to be a normal PS/2 port.
++set. Can be any of the serio type macros from <linux/serio.h>. For example:
++SERIO_8042 would set the port type to be a normal PS/2 port.
++
++USERIO_CMD_SET_PORT_PROTO
++~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Sets the protocol of port we're emulating, where ``data`` is the protocol being
++set. Can be any of the serio proto macros from <linux/serio.h>. For example:
++SERIO_IFORCE would set the port type to be an I-Force serial joystick.
++
++USERIO_CMD_SET_PORT_ID
++~~~~~~~~~~~~~~~~~~~~~~
++
++Sets the ``id`` value on the identification of port we're emulating, where
++``data`` is the value being set.
++
++USERIO_CMD_SET_PORT_EXTRA
++~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Sets the ``extra`` value on the identification of port we're emulating, where
++``data`` is the value being set.
  
--:Copyright: |copy| 2015 Stephen Chandler Paul <thatslyude@gmail.com>
-+:Copyright: |copy| 2015 Lyude Paul <thatslyude@gmail.com>
- 
- Sponsored by Red Hat
- 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7cf5b55c5973..ceacb1c1d679 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -28105,7 +28105,7 @@ F:	sound/drivers/pcmtest.c
- F:	tools/testing/selftests/alsa/test-pcmtest-driver.c
- 
- VIRTUAL SERIO DEVICE DRIVER
--M:	Stephen Chandler Paul <thatslyude@gmail.com>
-+M:	Lyude Paul <thatslyude@gmail.com>
- S:	Maintained
- F:	drivers/input/serio/userio.c
- F:	include/uapi/linux/userio.h
+ USERIO_CMD_SEND_INTERRUPT
+ ~~~~~~~~~~~~~~~~~~~~~~~~~
 diff --git a/drivers/input/serio/userio.c b/drivers/input/serio/userio.c
-index 91cb7a177b2d..abca8cb6aca5 100644
+index abca8cb6aca5..8c19975c84bf 100644
 --- a/drivers/input/serio/userio.c
 +++ b/drivers/input/serio/userio.c
-@@ -1,7 +1,7 @@
- /*
-  * userio kernel serio device emulation module
-  * Copyright (C) 2015 Red Hat
-- * Copyright (C) 2015 Stephen Chandler Paul <thatslyude@gmail.com>
-+ * Copyright (C) 2015 Lyude Paul <thatslyude@gmail.com>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by
-@@ -278,6 +278,6 @@ module_driver(userio_misc, misc_register, misc_deregister);
- MODULE_ALIAS_MISCDEV(USERIO_MINOR);
- MODULE_ALIAS("devname:" USERIO_NAME);
+@@ -206,6 +206,36 @@ static int userio_execute_cmd(struct userio_device *userio,
+ 		userio->serio->id.type = cmd->data;
+ 		break;
  
--MODULE_AUTHOR("Stephen Chandler Paul <thatslyude@gmail.com>");
-+MODULE_AUTHOR("Lyude Paul <thatslyude@gmail.com>");
- MODULE_DESCRIPTION("Virtual Serio Device Support");
- MODULE_LICENSE("GPL");
++	case USERIO_CMD_SET_PORT_EXTRA:
++		if (userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "Can't change port extra on an already running userio instance\n");
++			return -EBUSY;
++		}
++
++		userio->serio->id.extra = cmd->data;
++		break;
++
++	case USERIO_CMD_SET_PORT_ID:
++		if (userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "Can't change port id on an already running userio instance\n");
++			return -EBUSY;
++		}
++
++		userio->serio->id.id = cmd->data;
++		break;
++
++	case USERIO_CMD_SET_PORT_PROTO:
++		if (userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "Can't change port proto on an already running userio instance\n");
++			return -EBUSY;
++		}
++
++		userio->serio->id.proto = cmd->data;
++		break;
++
+ 	case USERIO_CMD_SEND_INTERRUPT:
+ 		if (!userio->running) {
+ 			dev_warn(userio_misc.this_device,
 diff --git a/include/uapi/linux/userio.h b/include/uapi/linux/userio.h
-index 74c9951d2cd0..98fe7e9089c4 100644
+index 98fe7e9089c4..550c7465af1f 100644
 --- a/include/uapi/linux/userio.h
 +++ b/include/uapi/linux/userio.h
-@@ -2,7 +2,7 @@
+@@ -27,7 +27,10 @@
+ enum userio_cmd_type {
+ 	USERIO_CMD_REGISTER = 0,
+ 	USERIO_CMD_SET_PORT_TYPE = 1,
+-	USERIO_CMD_SEND_INTERRUPT = 2
++	USERIO_CMD_SEND_INTERRUPT = 2,
++	USERIO_CMD_SET_PORT_EXTRA = 3,
++	USERIO_CMD_SET_PORT_ID = 4,
++	USERIO_CMD_SET_PORT_PROTO = 5,
+ };
+ 
  /*
-  * userio: virtual serio device support
-  * Copyright (C) 2015 Red Hat
-- * Copyright (C) 2015 Lyude (Stephen Chandler Paul) <cpaul@redhat.com>
-+ * Copyright (C) 2015 Lyude Paul <thatslyude@gmail.com>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
 -- 
 2.54.0
 

@@ -1,164 +1,174 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBB2D24A078
-	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 15:50:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64FC9258EFF
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 16:01:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779551419; cv=none; b=gGo+CM2kxONC8e5UOXFMfz2cDV5MN4Zu34rgKqR05nsnsI+SrEFSICmC979HLrxJ1Y21mMwSz4l7GIutjizrgLXiLgyd9kt527NbytQJ5OT0naPFlSETYBKM6YyI1ZvNFhl/Q3fQhBQ5W3kYcyBBUOqHbfHc26IMsW0IN/IKVHA=
+	t=1779552083; cv=none; b=o/fGdoxR1lo4WgJPrfq07M6oWPqVHb69lMe0VZYRixBAgfVfK2qoXZjcVYxohYvPIAi9P8kSbtKH71KMb762xfvBECgiXSv3UXVpD/xLQgmIqG+gL/Z+WBG4x156HJP19cV5ehyqlt+kUOB20kFKxBaJbIebObEOfGgCThCKCok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779551419; c=relaxed/simple;
-	bh=FBhUc0OUo2IhlmpLVVSSkBpd2K3ZCKFUs0FJxE4n8v0=;
+	s=arc-20240116; t=1779552083; c=relaxed/simple;
+	bh=36Nb1YIGk1Mo9VsKIhQbLP9IvxnuvuZlwBs7iOidGbc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=W7D140lmNOidpni2OW2U+gdZCU2Azp+Stp6k7zriYstgaIryfu55V7iBzmYG3zhivzC8uhd4KDUfANV/Gc5N8TqxINEyo+fp+bz62LxAUbGPawNjpsm6/1tYFZTKbSmFLUlp2tUCABJ9Opw9u6EZz8vuNudxhaVEbEox+G3uLoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AKqgbfDz; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YPynWoSVexhNmt5HuBJ8MlMyUo7mOGgxU4vZttZAod1YGuNrQHhvcWx0/hVek8am9OT0d4Ox1XFvcgnb80PkbLrbTzZJXLZHLUlmz/xgqUM8Kiz0aXhYdiNok4v/aGDgfKT+hY+AY/o3RlGRJBRKO5MGpFXKs/Y0ATTxWM5oirc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jRimJLmi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AKqgbfDz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9AF1F000E9;
-	Sat, 23 May 2026 15:50:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jRimJLmi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E737F1F000E9;
+	Sat, 23 May 2026 16:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779551417;
-	bh=WMu15sIrOufZSPLN6W9RE/8PG9QB5zvsQeTItSn5WrA=;
+	s=k20260515; t=1779552082;
+	bh=dTjoW/CVoS8QEM5r1krrzfoQAQfAwBTGHxsreqEvhes=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AKqgbfDzUoA8Qt44eyQ74/PtFeeEChocez444lUPsQLDM9sJpXSan9hQz46H8kJR7
-	 TXLQtARjpej6TkihS9FUZXhLr++6nxMb0RWqCUmpamEXwD8ILy+ZcDeNYlt8H5BIkI
-	 /ISG9hbrbbXEvDNkeKlc+nviuHAXmUSnITCEwkUMrOeTlyF+JS9enzZHG6owsyewWm
-	 N9AoskEC3xha+W8ukQKGcMlrg6oiObhjdD01Pw3mloTYgcbGzVikput9rNPmtLVUWn
-	 h+InA8ri6SppOqVLWIsS4IY8v+bQ159recji95MJzWxb7w00AGyxYbwAnApdleGnld
-	 4JXQtRBe+tO6g==
+	b=jRimJLmi2wG4LyFi7tcTUxR9z+C1R7tQqdgVB1MtLC5U+Mkut2oSB9gD5udsoKG0m
+	 llGDEkBQ01ku5esB5q3MZjMHA8DZ6k5lygbVL4Q/2iSqPHXNL6yD21eCavR99qh6Fg
+	 wU22QkD6opE8KvK/ztHOr82La9iIG/aF51uZ54LHJ6KkJCX9K3KOEuTnr2fPAewkir
+	 wm+a3M0rkZw+Kplm53zXzmkbkTrcyL5owjtsclwzlFW9/5bsw+/OqF89XT0ZOq7v7X
+	 WnYwmf4HNNYuxS8gNyLJV3xSb+Xtm81ry/gXmGLgbsS6d5HHAgs4JzW7oyd95EHjAk
+	 uBOmE+vddmL7g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: wacom: fix NULL pointer dereference in
- wacom_intuos_pad()
+Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Fix async config
+ use-after-free
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jinmo Yang" <jinmo44.yang@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260523150619.615565-1-jinmo44.yang@gmail.com>
-References: <20260523150619.615565-1-jinmo44.yang@gmail.com>
+To: "Hendrik Noack" <hendrik-noack@gmx.de>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260523152332.86864-1-hendrik-noack@gmx.de>
+References: <20260523152332.86864-1-hendrik-noack@gmx.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 23 May 2026 15:50:16 +0000
-Message-Id: <20260523155017.6E9AF1F000E9@smtp.kernel.org>
+Date: Sat, 23 May 2026 16:01:21 +0000
+Message-Id: <20260523160121.E737F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 New issues:
-- [High] The patch's early return in `wacom_intuos_pad()` causes valid pad =
-reports to fall through to pen handlers when `pad_input` is NULL.
+- [Critical] The newly added `config_lock` mutex in `struct mxt_data` is us=
+ed without being initialized.
+- [High] If `mxt_initialize()` aborts due to `shutting_down =3D=3D true`, i=
+t consumes the completion but fails to restore it, leading to a permanent h=
+ang.
+- [High] The `config_lock` mutex is held across a potentially unbounded wai=
+t, defeating the purpose of the `shutting_down` flag.
+- [Medium] A time-of-check to time-of-use (TOCTOU) race allows asynchronous=
+ firmware loading to start after device removal has begun.
 
 Pre-existing issues:
-- [High] The patch addresses a NULL pointer dereference for `pad_input` but=
- completely misses identical vulnerabilities for `pen_input` and `touch_inp=
-ut`.
-- [High] Concurrent execution of `wacom_mode_change_work()` and `wacom_raw_=
-event()` can lead to a Use-After-Free of input devices.
-- [High] A dangling pointer in `wacom->shared->touch_input` leads to Use-Af=
-ter-Free when the Touch interface unbinds while the Pad interface remains a=
-ctive.
+- [High] Concurrent sysfs writes to the `update_fw` attribute can trigger a=
+ double free of the input device.
 --
 
-commit e74a772fd06994c14eb8d49710acd3ad8740df1f
-Author: Jinmo Yang <jinmo44.yang@gmail.com>
+commit a6627582981aef52fbfe146ee37db19f67d402dd
+Author: Hendrik Noack <hendrik-noack@gmx.de>
+Input: atmel_mxt_ts: Fix async config use-after-free
 
-HID: wacom: fix NULL pointer dereference in wacom_intuos_pad()
+This commit attempts to fix a use-after-free by adding a mutex and a
+completion to serialize the asynchronous firmware loading and the device
+removal process.
 
-This commit adds a NULL check for pad_input at the top of
-wacom_intuos_pad() to bail out early when the pad input device was not set
-up, preventing a general protection fault.
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/tou=
+chscreen/atmel_mxt_ts.c
+> index a9e86ad7ed5ef..07690c3bff06e 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index da1f0ea85625d..251ddda3ecb3d 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -515,7 +515,6 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->  	struct wacom_features *features =3D &wacom->features;
->  	unsigned char *data =3D wacom->data;
->  	struct input_dev *input =3D wacom->pad_input;
-> -	int i;
->  	int buttons =3D 0, nbuttons =3D features->numbered_buttons;
->  	int keys =3D 0, nkeys =3D 0;
->  	int ring1 =3D 0, ring2 =3D 0;
-> @@ -523,6 +522,10 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->  	bool prox =3D false;
->  	bool wrench =3D false, keyboard =3D false, mute_touch =3D false, menu =
-=3D false,
->  	     info =3D false;
-> +	int i;
-> +
-> +	if (!input)
-> +		return 0;
+[ ... ]
 
-[Severity: High]
-Does returning 0 here allow the event to fall through to other handlers?
-
-wacom_intuos_irq() relies on a non-zero return to halt processing. If this
-returns 0, a crafted pad packet might fall through to wacom_intuos_inout().
-
-Since wacom_intuos_inout() only checks data[1] and not the report ID, it
-could misinterpret a pad report as a pen proximity event. For example, if
-data[1] =3D=3D 0x80, could it trigger wacom_exit_report() and either inject=
- a
-spurious pen exit event or cause a NULL pointer dereference if pen_input
-is also NULL?
-
-Would it be better to place this check after verifying the report ID, and
-return 1 to securely drop the packet?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the same NULL pointer
-vulnerability exist for pen_input and touch_input?
-
-A crafted UHID descriptor can omit pen and touch capabilities, leaving
-wacom->pen_input and wacom->touch_input as NULL.
-
-If valid pen or touch packets are subsequently received, handlers like
-wacom_exit_report(), wacom_intuos_general(), and wacom_bpt3_touch_msg()
-appear to blindly dereference these NULL pointers.
-
-[Severity: High]
-This is a pre-existing issue, but can concurrent execution of
-wacom_mode_change_work() and wacom_raw_event() lead to a use-after-free
-of the input devices?
-
-wacom_mode_change_work() frees input devices asynchronously via
-wacom_release_resources() and devres_release_group(), without holding the
-lock that serializes input report processing.
-
-Concurrently, a raw input report could enter wacom_intuos_pad(), read the
-wacom->pad_input pointer, successfully pass this new if (!input) check,
-and then access the input device right after it gets freed.
-
+> @@ -2271,12 +2279,22 @@ static int mxt_initialize(struct mxt_data *data)
+>  	if (error)
+>  		return error;
 > =20
->  	/* pad packets. Works as a second tool and is always in prox */
->  	if (!(data[0] =3D=3D WACOM_REPORT_INTUOSPAD || data[0] =3D=3D WACOM_REP=
-ORT_INTUOS5PAD ||
+> +	scoped_guard(mutex, &data->config_lock) {
+> +		wait_for_completion(&data->config_completion);
 
 [Severity: High]
-This is a pre-existing issue, but can wacom->shared->touch_input become a
-dangling pointer if the touch interface unbinds while the pad interface
-remains active?
+Is it safe to hold the config_lock mutex across this wait_for_completion()
+call?=20
 
-When a touch interface is unbound, its input devices are freed via
-devres_release_group(), but wacom_remove_shared_data() does not appear to
-set wacom->shared->touch_input to NULL.
+Since the lock is held while waiting for a potentially long firmware load,
+and mxt_remove() needs this same lock to set shutting_down to true, would
+this cause mxt_remove() to block indefinitely, defeating the early shutdown
+check?
 
-If a pad event is received later, the pad event handler invokes
-input_report_switch() and input_sync() on the dangling pointer:
+> +
+> +		if (data->shutting_down)
+> +			return -EBUSY;
 
-    if (wacom->shared && wacom->shared->touch_input) {
-        input_report_switch(wacom->shared->touch_input,
-                            SW_MUTE_DEVICE,
-                            !wacom->shared->is_touch_on);
-        input_sync(wacom->shared->touch_input);
-    }
+[Severity: High]
+If shutting_down is true, the wait_for_completion() above has already
+decremented the completion's counter.=20
 
-Could this result in a use-after-free?
+Returning -EBUSY here without calling complete(&data->config_completion)
+leaves the completion consumed. When mxt_remove() later calls
+wait_for_completion(), will it hang forever waiting for a completion that
+is never restored?
+
+> +
+> +		reinit_completion(&data->config_completion);
+> +	}
+> +
+>  	error =3D request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
+>  					&client->dev, GFP_KERNEL, data,
+>  					mxt_config_cb);
+
+[Severity: Medium]
+Because request_firmware_nowait() is called after the config_lock is
+released, is there a race condition here?=20
+
+If mxt_remove() runs immediately after the lock is dropped, it will acquire
+the lock and set shutting_down to true, but request_firmware_nowait() will
+still be invoked, starting a new asynchronous load while the device is
+actively being removed.
+
+[ ... ]
+
+> @@ -3237,6 +3255,9 @@ static int mxt_probe(struct i2c_client *client)
+>  	init_completion(&data->bl_completion);
+>  	init_completion(&data->reset_completion);
+>  	init_completion(&data->crc_completion);
+> +	init_completion(&data->config_completion);
+> +	complete(&data->config_completion);
+> +	data->shutting_down =3D false;
+
+[Severity: Critical]
+Does the config_lock mutex need to be initialized here?=20
+
+The mxt_data structure is allocated with devm_kzalloc(), which=20
+zero-initializes the memory. Using an uninitialized mutex with=20
+scoped_guard() will cause a NULL pointer dereference when contention=20
+occurs. Should there be a call to mutex_init(&data->config_lock)?
+
+[ ... ]
+
+> @@ -3342,6 +3363,12 @@ static void mxt_remove(struct i2c_client *client)
+>  {
+>  	struct mxt_data *data =3D i2c_get_clientdata(client);
+> =20
+> +	scoped_guard(mutex, &data->config_lock) {
+> +		data->shutting_down =3D true;
+> +	}
+> +
+> +	wait_for_completion(&data->config_completion);
+> +
+>  	disable_irq(data->irq);
+>  	mxt_free_input_device(data);
+
+[Severity: High]
+This is a pre-existing issue, but looking at mxt_free_input_device(), it
+checks if data->input_dev is non-NULL and then unregisters it.
+
+If concurrent sysfs writes to the update_fw attribute occur, multiple
+threads can enter mxt_load_fw() and call mxt_free_input_device() at the
+same time. Since sysfs doesn't serialize these writes and there is no
+internal locking, could both threads pass the NULL check before either
+sets it to NULL, resulting in a use-after-free and double-free of the
+input device?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260523150619.6155=
-65-1-jinmo44.yang@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260523152332.8686=
+4-1-hendrik-noack@gmx.de?part=3D1

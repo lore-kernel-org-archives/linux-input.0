@@ -1,93 +1,104 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F07C4204E
-	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 05:05:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBB1233941
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 05:06:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779512722; cv=none; b=V6aPDxGFRf8vk5B6pvEqFpdtHEL2QwMw7oLFgCR8LpF1cYgO9FZr+GEdZbVKUuG7Pk+XqXM1m4RCZijzIkcIkcH1Z4+QCHgo0gXqGOvinbpn8HbjyTOxkeIgiL/WaZ6+WwSvIXD5SwZjrq5pB+jKmWonaNwPmLoStgL4ouBPi/s=
+	t=1779512800; cv=none; b=pN9+SMLyGDneoYqFixv7yp09MZNdyrfqXdldBEeVyX9tnezIdNa5n/8vE2iPQzMMXG/695r5lc49UV70/MX5X0OtNcsIEt3CuZ+LTGGX5KZuCMWPvK5MKbGG9XmGJy8zWbM4737XkxXjwEgDL/uSYuDteohZZ5qFC3yDVglieTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779512722; c=relaxed/simple;
-	bh=VzI9czm4MrErn/NZb7FoMdZyZZAmawQ07dwthEnYF78=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eTLJLE/Tq5zkxrZ6v7YkjG0jYO9HE1ApyS4jn8wV3N830EmFTfeoO7rigVsjjB3NK8o5dWuxVHr5HqGVe/2KWL4uc8rAtIttIlWD3dft06GfDjYaQRM2+DNRScodvYm/1/IVfeOSpriX/kb6i8Um9En4Wp6rcoflWp3kL9m/cPA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wj4xku4B; arc=none smtp.client-ip=74.125.82.176
+	s=arc-20240116; t=1779512800; c=relaxed/simple;
+	bh=0vTKycvbzbjmJvomuj/XgTFepo/EwumOAacRU/0stE0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Mlh9oYylOo/D4N69YN881R/HWQg3/NMIsmjpgUF+xLxIBCm7C/BOGiROjWv/4j9El5M6qJEyfmgaxNIMjgxDVk0JW0dY15ubh6BjsIj5nm/NH8jyuFDCrU4MHZwgn2stRKNWBttNnMBXw61TuaItAjV7Cmimga0woQmrnshScJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hucmf4cY; arc=none smtp.client-ip=74.125.82.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wj4xku4B"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-2f7020a928eso11690432eec.1
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 22:05:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hucmf4cY"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-30246cfd41aso1420949eec.1
+        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 22:06:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779512720; x=1780117520; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xYCgRM5mzTQ+ytP9QP2RFZeZNSFcBE/P+Xj1TqGJhWM=;
-        b=Wj4xku4BzVgvC83+zSmnkVKVEzkMDhXD7KwisQSqRotpqQY9n8W7ydpRQjV3Bf7Pn1
-         pIXwk2LLFenctnIPJC2qR+Jhc8/vJa7uzQlUpcfFEZw6wZnHb1pUmZvOAlEWRJdliONk
-         3p3aA8TF5t1uKO1bjKLfod1kSWMOq+yhwaB+H4InpmHD5Ejyivq+bqvS5tQuJl2aKMpj
-         Swa7tbjFrFsyyh3pzXr4Zf7g7NuyKMci5mzIk79ZKKACuQ8lkkGlxtE7I1a3mCN12L9q
-         kEgiSJjDYp5/wBaumYk4EOjoG1d1YjTxreoHm+Goqs1A7mhf5275tmEzKFKo0mmP8noY
-         mQyQ==
+        d=gmail.com; s=20251104; t=1779512798; x=1780117598; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=X19iMzf/kdWvgmUR42/6jiMH+NpAJ73uf08bFK/q95A=;
+        b=hucmf4cYYBTlZxqkQUigGRLyOCLyEKdJG3m2To+A29ZgQrEsuBMSCuOgecyNq0a3GK
+         8lAecad9hAgKWGrSQFabuO768JXj9W4KWI2QTKVk9qfAx1EUZTgP/t6ZOf18P4vMXtnv
+         Oa9UZwkwfpKKlhvRhJiUHWm0fAILIw9HRwWhc3UrEzv0Cyrsffn2wjTBXLRuuYVG1LtP
+         WcW4N/mK6h8NcUjaLJ25W0Hg0OMD0XKkZtDvAnDnGeWmdNMfWASe0deTZouwgzQluPIv
+         FL110CNJh+6k1U4W7Oqs0OEi6Bl3ws71Hdu96WgHC+4ooqLUdgAxxGSl778EipqyaYMn
+         pDLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779512720; x=1780117520;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xYCgRM5mzTQ+ytP9QP2RFZeZNSFcBE/P+Xj1TqGJhWM=;
-        b=D3YO+6fBLK/2ZK17wJZSdkSnQ1qlY0b1lUc/SVocbaimIURgO6/8l39clctr3sIBd1
-         ArffMOF9v2c8fpkcgwdz8rrrKAo/tKyw6JhPqJ0ftr7xFRx6063ddY3P83U8zxPbMiHd
-         pnwwY0Yu08S+TH1ANJd81rybTPZdCAVnDB9YS4FO1CbZ3rBDn7YrWHXuPhalL94KV9cB
-         ucSM1I/e4W548/Who3QMC6iXkh7RdLeLkq1WpIXl7tzqwm8A/Wv5P7dZs7FJxDF0WutV
-         tTHnowvXP+uk89PUEbvZlqfVl4DQ5czzHuh8irKcSZm1/13FsB6kAfWnkF+H6bY7nkUJ
-         5dhQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9BMKiJpsaOSgvHkp0NUOZBDcTpCN0whomQnNgBFqUDK/zBBhGTUhp5TopfiWGiLZ1tfHE76j6zn6Ei1w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwBPes6kwt7UZxmt9LehFVxq6PEbPsHSzK1Z8qx6DiG4heGYu6P
-	IScIQygoMJkA0PI8yhUR2TdQCWa1vZgL3GXIfm8IHt9GArA1XLF/49nd
-X-Gm-Gg: Acq92OFs7K5SRYqmtJKi4q4wChcmi3IC3CCBKGtlsoC87Rj52I4A0ivC8+KEBCES1Yh
-	+p5rhGkmC71fzpF4DtDwrD2vQmzzIUKO7OGYAEpcD7mpEmZ9uP2Xe9ewW7lcwFjz0s7l/+qqbK4
-	mdYNI3IV294LD08aep80FZX2qPH2hG+Ohrn1EK+yoLO5hA7L+kt0Q0JaJD/+55tS4DuXUvBoi5S
-	kKTm0G0V2LyBqRzEFD5Ne/P+hFU2fSgapLs2YwR8NxeCT8fzGtv0lJ7z9HyYDV3oVPFN9Ywb6gq
-	8/zFKNZkLkejml+KaQVO9jr/Qa4rVP6f2/ocrLL0BbWaxjsAs9YP9ON6v+NYwgxNSYV0z47f85g
-	jjJ/kIqeVQoJErkAuo0R4nzqnLyZWhZQENIaaUxr7PJCLz7ZKTrBHcongLOWSP9B7mts0CKxn64
-	0241APatg0ZuAYA9/0kG7amTMEOqyQjj88vBoEd2QitPxLd4KFg6mtao48jsLaMDQ=
-X-Received: by 2002:a05:7301:198f:b0:2c1:7793:7bbb with SMTP id 5a478bee46e88-304491d0c06mr3267768eec.27.1779512719620;
-        Fri, 22 May 2026 22:05:19 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:7e45:2bd:3c86:d34a])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30452259de0sm2582124eec.22.2026.05.22.22.05.17
+        d=1e100.net; s=20251104; t=1779512798; x=1780117598;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X19iMzf/kdWvgmUR42/6jiMH+NpAJ73uf08bFK/q95A=;
+        b=D7kt7NLQlS/EogJ2SyGGq0QRC2Tk61RQhMh3hmoM1VxH7KeN6zb/ZgRt+bRAXJR4zC
+         ekhVwzsq9EXEvRSZ84BU5Uh6TfZvY89kR7/l+tbYb3bKWzF2BayeojRGro053YVnR8jc
+         UnhLI1aX4HibZsm/pB7Hfl9rHjsRIFDZVSlKba8YOsmOxZbzSnAzguzEx07zHWpa22mH
+         oxKwZ5EHybpYfHdyxrSJjoKFTmCijngTwBS2aQZC8VAS/CY28HP7r1pn3n5IKXNOAE07
+         LkjIceoVlLdRdRPwzWJE0vOpcPlf8XytEEiXuImMrNgig2NuC+AYA02F1EWAGEWvbD3X
+         nHLg==
+X-Gm-Message-State: AOJu0YxfMCxdpapj042qTM4klhRBSb8jLCo7W1QHRVMLoUnuU/9+TnKP
+	y+YTVHkRS8uXt33Xf8NtEaQ1WqxUOC3jgcXnNfkwEg0tcU4UiVfVhTttov+pGA==
+X-Gm-Gg: Acq92OEhcjBB0azIDSXEsVI8TXYLRt06vHQg3kMbN5ZKD33EeEwlxgKKJQCLI/mt60u
+	qw7dBbkU4bU+li+Lib/XXGQ/7PaZhQDXZx9Er/gzjmaHmsbuJsW3yyGoAZlg1dPNA2Q1y6Rz19h
+	lZfXibBAQr+yPQh1QOxZ07DQjYiuXhYYn8Ay2PZJhiphTWq9WekJoZl33Ci4sH3WGD5WMcrcgE+
+	RcjhuXpHdqIs+g/0q6n8ZEbOak7jrAh9qc6T+FvKz06YZ1k+LuO/4OykrkyTxsdyE5GtbOwN5Hg
+	m2qx81UdbkTc12Dv781l7zLZhNBI594Xry/GktzHWU1QutpdMS6EdWaPk4aHwCl8nSGPn6I6rid
+	2cR3q4Kose8Yj+65meSYWI4TkB3o+kVWsqJo414YMXUCuT3CmVxVL3ziI0GIDCME4P98QNYKhEK
+	1HpXHkzJvqHEA7J6ncNyaJkwT2gQTB4uZzgSyen/d6+z76eVHrpnUklIHM4Crk2bE3okr43fXiQ
+	rk2neK9m5yRGQ==
+X-Received: by 2002:a05:693c:638d:20b0:304:4f23:68d3 with SMTP id 5a478bee46e88-3044f2446d3mr1548748eec.18.1779512798403;
+        Fri, 22 May 2026 22:06:38 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:7e45:2bd:3c86:d34a])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30451f3feadsm3502583eec.13.2026.05.22.22.06.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 22:05:17 -0700 (PDT)
-Date: Fri, 22 May 2026 22:05:14 -0700
+        Fri, 22 May 2026 22:06:37 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Thomas Fourier <fourier.thomas@gmail.com>
-Cc: stable@vger.kernel.org, Dan Carpenter <error27@gmail.com>, 
-	Seungjin Bae <eeodqql09@gmail.com>, Sanghoon Choi <csh0052@gmail.com>, Kees Cook <kees@kernel.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: ims-pcu - fix usb_free_coherent() size in
- ims_pcu_buffers_alloc()
-Message-ID: <ahE1hNQnHWRe3yr9@google.com>
-References: <20260522085412.45430-2-fourier.thomas@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Thomas Fourier <fourier.thomas@gmail.com>,
+	Seungjin Bae <eeodqql09@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Sashiko bot <sashiko-bot@kernel.org>
+Subject: [PATCH 01/11] Input: ims-pcu - release data interface on disconnect
+Date: Fri, 22 May 2026 22:06:19 -0700
+Message-ID: <20260523050634.501509-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260522085412.45430-2-fourier.thomas@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, May 22, 2026 at 10:54:04AM +0200, Thomas Fourier wrote:
-> The input buffer size is pcu->max_in_size, but pcu->max_out_size is
-> passed to usb_free_coherent().
-> 
-> Change size to match the allocation size.
-> 
-> Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Thomas Fourier <fourier.thomas@gmail.com>
+During probe the driver claims the data interface, but it never releases
+it. Release it in disconnect to avoid leaving it permanently claimed.
 
-Applied, thank you.
+Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko bot <sashiko-bot@kernel.org>
+Assisted-by: Gemini:gemini-3.1-pro
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/ims-pcu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index 7a1cb9333f53..57d917387544 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -2090,6 +2090,7 @@ static void ims_pcu_disconnect(struct usb_interface *intf)
+ 		ims_pcu_destroy_application_mode(pcu);
+ 
+ 	ims_pcu_buffers_free(pcu);
++	usb_driver_release_interface(&ims_pcu_driver, pcu->data_intf);
+ 	kfree(pcu);
+ }
+ 
 -- 
-Dmitry
+2.54.0.746.g67dd491aae-goog
+

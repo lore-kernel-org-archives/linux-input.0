@@ -1,108 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4000381B1B;
-	Sat, 23 May 2026 09:45:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658B12E6CCD
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 10:38:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779529537; cv=none; b=PREWrRppLW54+GsmolnWZtRrAerGZ3WvXmJg651UoeToTfEwQoxW0H01dsp1H+870MOrj96CVMYfDLBSp1ijEnvX2kvyIaB/C3I7DJpfEKf4jzlERMt1AhexPDy2sfRbSZS4Z+1Bf3z+rxxd2B7A5X7TePTg0Ah+E29zHZe2FZQ=
+	t=1779532707; cv=none; b=PIJMCC3Th8EJAY4TYKWrLQ+oiJ44BqjynuaSOd65A1ppoqCQHKk8JT75o8S67iABFKc6Mwv0YsmDZ3D6uNHR24/TIvpPDZmepvOzZqu/9vweBZHhql5E5mtPcP/hQ37YynU4jfetOjMkjfZKjJDF6sY3jNE9wHQ48KBCnyWzURg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779529537; c=relaxed/simple;
-	bh=0KtWD3IPpWmaEU9h6RkZwg+0yU/vLY50Z8txmH8tMi0=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=D2vxiO0axELc5ie0wYNV/xb8g81AKZQmWfjr4TPf9UKiP3UEvvdC8+AlsRdvIaxkLANhTKmoxk2KFs5lmu4u/SwfcfZImr6ZxiKrW6ZfIMQj0RR9Vjx9p2nDkQMoNDbCt4TDZ3Cc/ne9CWNXlK1rpLQnrdhsgDzyT76+OSutR6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OWASsaYA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779532707; c=relaxed/simple;
+	bh=Y5RigTKi0jnOF1EGyBEHsRcwaDU19A53X6y5wEjuzVk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MOhk6YmzlG8H9lhk0qz+H4Lk9LrbwlirsNThHJjjzohziGvGIRG+j293agCkgpZPrgVoOVJjGUp5xuE14xYNphjMUHfVJt7CfLMcRKOcYUIPmvDC0AVuhxoqMig74oH4ntrcdDqFEXC/Egk0rt0yfQBJFXAPa6DgWiIxJ3Rsnq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ki+6dTF1; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OWASsaYA"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8392FC2BCB0;
-	Sat, 23 May 2026 09:45:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779529536;
-	bh=0KtWD3IPpWmaEU9h6RkZwg+0yU/vLY50Z8txmH8tMi0=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=OWASsaYAs8ye8wuwt1OYX7ii2WFDZIslAWOeBI4P7MtRmz+6luyGD0UdQCfy+Qe1u
-	 gWchgZg0L7YjGtx7OhNV8otAqX7w4gGMhwQ2CzVJGTOlJNYR3G18XrA+CrKRqUQcen
-	 1+ZUvObX85cLtKj5j9TKEUoR2lDZVTTosIQBDelyaxeDr0IYk+ZonJN5NFTmbpNvzv
-	 Nm0t4PfAFGc0oFYkcUnLTkP14RIbEWogzOYmPqwpkwlqpxpPrs7qpMJi7ZIP2uVXtT
-	 nwVXSV3PH+cZHSPvEu61y0y5Qa5hPoxq82e+sd69AFIcfDzybK43fCw5CqP21yxnII
-	 N3EgpSjSr7E8A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68E76CD5BBF;
-	Sat, 23 May 2026 09:45:36 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH v2 0/2] Introduce OnePlus 6/6T touchscreen compatible
-Date: Sat, 23 May 2026 11:45:33 +0200
-Message-Id: <20260523-synaptics-rmi4-dt-v2-0-0645122babdc@ixit.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ki+6dTF1"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4891d7164ddso41102385e9.3
+        for <linux-input@vger.kernel.org>; Sat, 23 May 2026 03:38:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779532705; x=1780137505; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TLxQqOKQ+TUZXG7U+M7H68fU/cqNh/Zhj/7HxseDuUQ=;
+        b=Ki+6dTF1+SnO43XLhcoQAlowu3OoTjM84j90MRRyeq+hu8qYAq/0ffrqGNL8U77B1L
+         ptzVefGSB4PEylgWIFl3OwKDfPL6EvqK4F0tZ5Di8D69HoTAHmbt5hrkOiqq02DV28UC
+         LdeV1OiXTF/BrmX0pVdbqITPYIwnfrH9IXV5YqBX4mWgoNW7ErpkLGo4jRrF2Nxonjyh
+         B5OnWrNdJ4VPrM9FDtbJb6cFlITD+gwbA7DCg6y6M2i9ivx8nx4O2qTApcJd7lirAyHZ
+         JCKLNPEfcpzncJpgUS67VFzSETWivUWQ/Txg3I2pSLMvircJC7jh5DOBsdT/XcY9LiV9
+         w36Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779532705; x=1780137505;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TLxQqOKQ+TUZXG7U+M7H68fU/cqNh/Zhj/7HxseDuUQ=;
+        b=RUDJdB6Gb3YS9mE+UhUQ87cnECWu9INswkGSODA1t5KIS2A3W1rO7hahsKIhx4+F07
+         lcfgFH3ha6eiMVY9llEamrmI4QXu4l8L/qICaSEja0lJUn03EOeReMmayg6JFqIBNoKr
+         BaboLU8HzgKhiV523tJEKpY+ewQvnE2H1ZHjfnfv7IXGjZG3c3jLDTjuMSuwwbkxXtJX
+         lNRJZ7nxcETPM9I57gGfOMn8VAOClaBKWrjY1IfaR7SWQWo2b51iiEs7M/1fXfBZQS1A
+         HGQEP6F2xq3f3zTzc2m7FWfZUY1NLw574oF+vS0V7Xk97bZOry790stOtFUAEbphmSvd
+         KDFw==
+X-Gm-Message-State: AOJu0YwVhjVNxqgFf1V87liu2RVxeW7DHxmxnQoullbd17RjFWiAcZnS
+	ctHiN9MOxJsxRmEfHniqpbKjl1KnNHbHdK+NR5HU5DmCnWtiAUjpDakW
+X-Gm-Gg: Acq92OGSYFMGq7AWhUFQAWQzDkdPXUtzdFUNLpSNLW94Bd1TdZ5vlh6UqIiD+UMNDWP
+	ljVZaWfk4ZcD4VRk2FyobS51sKvYq5t8fPXFFLCzu2iblMVpE0GYkac5RMZxJ8cu0lLfIQ+vHcB
+	T+GAr912ZSYhjcjGvRmZRFpQB5s3jVtlP9pDuniu1WePk/iTF/dfGBzNVj3JRGN3COo85AzVOUt
+	L3JAMKNWPgPc62sdhSvwavTfokapAFcwM44C2uH8rQb8XTYQm9r9TvaBodYoQXFV+dkqq4UXVk8
+	/Dgj1scPBbA+H6SyfWBMi2Xqrro6Mafjli50Cbd1ytlH40onSTzH9Fqe9qSX/1iHpD8Mz8m9Fun
+	H11b0MdORo3Smaut4hEUCkybN/cG685ak+JzG+7GX6ZfLyPLKQtp5GFWNcGOhtqNmbj+keJ5YQQ
+	aHo7Lx+RGrMl3AQMcM4tvd8nhuX/afnrRwHZ7nXthmgbi5KVGpgui1ri3lCH4=
+X-Received: by 2002:a05:600c:c059:20b0:490:31e:d6fd with SMTP id 5b1f17b1804b1-490426d3319mr82422435e9.25.1779532704786;
+        Sat, 23 May 2026 03:38:24 -0700 (PDT)
+Received: from teknoraver-mbp.local.lan ([195.182.211.216])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6c9f58dsm10796534f8f.5.2026.05.23.03.38.23
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 23 May 2026 03:38:24 -0700 (PDT)
+From: Matteo Croce <technoboy85@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Lee Jones <lee@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Matteo Croce <teknoraver@meta.com>
+Subject: [PATCH] HID: core: demote data shortness warning to debug level
+Date: Sat, 23 May 2026 12:38:06 +0200
+Message-ID: <20260523103806.60480-1-technoboy85@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAD13EWoC/32NQQ6DIBBFr2Jm3WkQjNqueo/GBcJYZ1E0QIjWc
- PdSD9Dle8l//4BAninAvTrAU+LAiysgLxWYWbsXIdvCIIVsRSN6DLvTa2QT0L+5QRux1zROqu5
- uwhoou9XTxNvZfA6FZw5x8ft5keqf/VdLNQqUVslRG0Ntpx68cbyaDww55y9LC2BXsAAAAA==
-X-Change-ID: 20260408-synaptics-rmi4-dt-8aebf31790dc
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
- Vincent Huang <vincent.huang@tw.synaptics.com>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- phone-devel@vger.kernel.org, David Heidelberg <david@ixit.cz>, 
- Krzysztof Kozlowski <krzk@kernel.org>, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=899; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=0KtWD3IPpWmaEU9h6RkZwg+0yU/vLY50Z8txmH8tMi0=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBqEXc/xpQXnr5nOblpMjRhgj1pTYITEyEbfR/sr
- iTHshRVgBeJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCahF3PwAKCRBgAj/E00kg
- cshrEAChXOxLaXHSe0L0BcsBrcmGr6IueyaxyN9B4gXNJ5nC/Yr+Td+wgqnjF9YNeN7cXVnJDQx
- hMXYy+VVcoqtNNjy1rb3ywS6AczBDAQXembyaOFoHApv907+3NntepIRyuL6sYL41lJHzPmvx0J
- oIEF6omKTE4eqOmcKuMn2WITPrNDwYSS1BY4g4PWz0ldBEc8D8FfhmobVOlWIhnXZs6LzyezimO
- qem4Ue4NDoAAJBtGxWMegRtAQhWVlC88fzHwWNKpQSfnmEwT8qBwZjvTvEVbJqHDcwX/J2QJiYz
- +JBeZKSNCBY7qbt3OpBdeCw+5Ouy1ZZND+TskuXnCxny+EWc5gSwL6lIf3puKW8ARyADm1jpoOc
- IXNdUcyIV1d2Bxx5cNvgkv9wx9VIyIk5VSgI93bYV4ZAE901miY3HBmd0BkzPO1bWXreJw/XiVY
- itT0LbLExJya4iIJiTbf+rOQTYU9ww0YndN7xfXoDBZjcFhod1vzHbt1Rkqy0kFSPCSkFW6q2hX
- Xk6IzFZQaLtkbzFOFM31mFsty77uO5Z8nixrZ/EsVj/LD5e9sdysgxYj20miNzFzvA+pJ6JXaW7
- WYWskth7TjbX10NvN27KNJLItqUWajroB3At7pB7UOtOMO2KhLOtTK5kT7MXTxDmnqUhM9gyy1i
- QkRfKBUs748ZfMQ==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Transfer-Encoding: 8bit
 
-Mostly related to the
-  https://codeberg.org/sdm845/linux/commits/branch/b4/synaptics-rmi4
-series, but independent on other changes which I trying to upstream for
-more than one year.
+From: Matteo Croce <teknoraver@meta.com>
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
+Commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+bogus memset()") changed the log level of the short report message from
+debug to warning, flooding syslog on systems with devices that
+regularly send short reports, in my case an UPS:
+
+    $ dmesg |grep -c 'Event data for report .* was too short'
+    35
+
+Demote it back to debug level.
+
+Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus memset()")
+Signed-off-by: Matteo Croce <teknoraver@meta.com>
 ---
-Changes in v2:
-- Add R-b tag.
-- Link to v1: https://lore.kernel.org/r/20260408-synaptics-rmi4-dt-v1-0-2d32bacce673@ixit.cz
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
----
-David Heidelberg (2):
-      dt-bindings: input: syna,rmi4: Document syna,rmi4-s3706b
-      arm64: dts: qcom: sdm845-oneplus: Update compatible to include model
-
- Documentation/devicetree/bindings/input/syna,rmi4.yaml | 11 ++++++++---
- arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi    |  2 +-
- 2 files changed, 9 insertions(+), 4 deletions(-)
----
-base-commit: 5200f5f493f79f14bbdc349e402a40dfb32f23c8
-change-id: 20260408-synaptics-rmi4-dt-8aebf31790dc
-
-Best regards,
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 41a79e43c82b..76cfed8b93c1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2050,8 +2050,8 @@ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *
+ 		return 0;
+ 
+ 	if (unlikely(bsize < csize)) {
+-		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %zu)\n",
+-				     report->id, csize, bsize);
++		hid_dbg_ratelimited(hid, "Event data for report %d is incorrect (%d vs %zu)\n",
++				    report->id, csize, bsize);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
-David Heidelberg <david@ixit.cz>
-
+2.50.1
 

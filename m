@@ -1,146 +1,131 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D5838837F
-	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 12:43:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77DBA29CE1
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 15:01:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779540222; cv=none; b=IS8mH/CD4w5i0ShoP4OJbGGOYpyxu4sPMtOeKzxLtcXv5Tzni4p++Lt8YtaVhIfJ8pv2YMEWiLvFbck9zDNkedKyKo/tc4FAi/CItEPAlmxPdVJbWCXNrKOw1EQaR78lyGLY+PSxFKsiAu+zZRzo3ceAwlr0oY5BvKIPhYwPPM8=
+	t=1779548469; cv=none; b=FyT2ubP9p33EwAWqjGOBZHes12l5DqrqHOOosFk4WLeHP2Nuw88whb9g9yHC2E6Fbxqgo4HdN7QDB8xjKeWChCfUI/r8xPd2RJIe7S/NnASFH1bQnrPJvxtef8uMQxz0R8/vIhsuOF7Nu1dd09MwF3l7/Hnc2Rvu4OerpvTMTto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779540222; c=relaxed/simple;
-	bh=Zi0gb7ZfgYJeZkCmOtKahmvu7Ds8mK/tekHc9TmMxiw=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=EGDx5eEMOxQUo4y9LZXx7mGZI1lCyn3BiTSlJ88daY+QxS2hvXcK8lK7IhmjTRZeCD96roFzYOWk/3nHF9oBL9UtJHxjOafvF79YkaGtGFmnsm9ppGzENriC7EQ3G0LeefcRVJt0uFBTs+SOODsdkff3B1JGNmkxsD84Lqyljp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RgoykbQB; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1779548469; c=relaxed/simple;
+	bh=Fapa3MTveE1aKAWForPg5UO8pyPt/pLrcQ5n2r6vfGA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dMqFEj8th/t3qwf/hHPMugGRAAcZ3fS9Kv1OAZdeRHYvUQ8ag1c68/bSdoWBfIVUoXZ6HyOM4SR/uBXMqB0PEiZ2X6CwoY07qZx5OlUjDnHl8PRimsHieCVKUBHvufa7t9lwVtRsJ1f2tiesgragGgL2P15Aj+5yO0ImPTsZhRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gezPY7uo; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RgoykbQB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779540221; x=1811076221;
-  h=date:from:to:cc:subject:message-id;
-  bh=Zi0gb7ZfgYJeZkCmOtKahmvu7Ds8mK/tekHc9TmMxiw=;
-  b=RgoykbQBSFBfVgwK1lGKfhqqCE1aa63OKvLVx5E2Pu1YNO8SGcsDg/ak
-   +AHF5zSbMxnc674JZtk4aHyl8DYIlGZdCR59REqRqhT3t/PLKKkIgE7/P
-   tINOgIeJ2QPXslP1x5hkAh1jUWTQl2+BbC9mvhDyG4ylzLbsvkY1cxZMC
-   dDPLGB+L8pCZqDS2ltvPxz+WjI2i8Qgdgdlci2Hs5rq06ZdE3C2jGyOEY
-   GqzQxEwns3V2keZ06Z61Ga/6SHTppcT/Hr+0tosTT7G/0Pbsm+Ri1BGzz
-   d1+yYBJou0EfSf6DpZL3+BSIfOX4djLgkb9rAnMRx28RD4IVqoiNnzFGR
-   A==;
-X-CSE-ConnectionGUID: 8qQIJ3bjSzylFaUFrLhfVg==
-X-CSE-MsgGUID: 2m7GlSdgTDex/c/FCG+Q5g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11794"; a="84063539"
-X-IronPort-AV: E=Sophos;i="6.24,164,1774335600"; 
-   d="scan'208";a="84063539"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2026 05:43:40 -0700
-X-CSE-ConnectionGUID: +CWuv5GtRFKx+mc/wY2g+g==
-X-CSE-MsgGUID: NbhqKCsWQ6KuvO+vJ+zdZw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,164,1774335600"; 
-   d="scan'208";a="245194666"
-Received: from lkp-server02.sh.intel.com (HELO 4bc6da68457b) ([10.239.97.151])
-  by orviesa003.jf.intel.com with ESMTP; 23 May 2026 05:43:39 -0700
-Received: from kbuild by 4bc6da68457b with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wQlh4-000000000Ie-0uX1;
-	Sat, 23 May 2026 12:43:15 +0000
-Date: Sat, 23 May 2026 20:42:41 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:for-linus] BUILD SUCCESS
- dab48a7e74e6a394f3aa0461a2b1fb0c7b38fcb8
-Message-ID: <202605232032.GtKtgcm2-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gezPY7uo"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b941cd869cso53728925ad.1
+        for <linux-input@vger.kernel.org>; Sat, 23 May 2026 08:01:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779548466; x=1780153266; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BVpIs4ttWICLx4q0loWWbBkveNJdZ1S0OPQUDo6VyKU=;
+        b=gezPY7uo79erFztdQN0ZXj8CxhPOoEEn+L7KXRLDqFmmSzZ6OiKdOScdtUqy8fV3Ar
+         qXgMNfdxBbaihAFZP2mgUHINlSNCpFY6btSV4ndXzu95URZQmqXlG68AGxnyH6ouGAMH
+         R+WzagubSzQETGfBKGsa9EE6DDXT+twHuFUmfa9nVTrYOlB0v47mRHqJkreaTmCodZhc
+         SotSOLbWM61BMccVQdA/fRQSXqCQs8IFTRoYPmYLbs4KZYgS11B0Ags8Ul9SSp5qTJ58
+         Z0tFKxM1nDp/j+LhEWm2SgG4wYzlF8VvERj/gNtA0a+NaTMh4tKbWspW4YSx6spzLdx6
+         6T8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779548466; x=1780153266;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BVpIs4ttWICLx4q0loWWbBkveNJdZ1S0OPQUDo6VyKU=;
+        b=KvoHs6GAnbtzC6Y+DtWSnbU6XldGTGdfWijOjYitwOYqspdmAmrNp/M/CmV2jgyX6W
+         NyrWXIMmdXEaeW5Au68+fgxbM/N/+DDEjUDeABKeiSsL5sqZm9gDNWBz4hzuVmmuravj
+         v4MoPlm/RuBLxWMh8ljxisBBG/yKeXubZvN8ogjxreZKWqmuH18ZC5t5qatE0+AUX5Fo
+         uQxE9hrBhK4OmvAYacomJaIyPZdrjCZFtDsYoHhvxu/0RsocCujXBlStKTCqa37/85m9
+         NJJdSQefsIy74+E5xRnQYaI7ePyNa5LL8a/udchKRTsV4h4wyi0HvCMfXXpLbeXW/UAS
+         zpoA==
+X-Gm-Message-State: AOJu0YwUiz/vkBpGj0/wnrL405tsYPSY5YPrGJYGhuhhFst8ZE5yI2wJ
+	JK2Zx41AqlK5XE6ol56tHWHYbZ97BXAKLxNQNhFhTu6QDORjnUdSeqL4
+X-Gm-Gg: Acq92OEgdmpw03mx8iXfGhGBqoLxMvTc/OEmfbZYKtsYA4vzS3yjzeCxFYNEygQYUa1
+	g417qaHjOAYKsi+3WwEULBete7RyPRyAmMdG9Vr7ug7o0zlkIFbCdhbW+/4KcduKrQOovonOhBf
+	HMyRIJxfUmCNp+pMerW3F407Sg1lzmn83VwlOIYCRsGBqFJ4nYEXFwIJgSRxBLZVyCuSBnPNEFF
+	NeTA1fg15id1lc7CeX8IFoiUenk6gR4I5DZgQzFd8cXNefdu/wNPSt0EMHYLRqtbX8HeZYnEcR9
+	8bRdIJPDLX7jH3uep3wRdN4rE+DOK9lSBLC92/xn9ayscizdOY/Y8r2vu/orFtzFSJsoKjkWI2+
+	My+rNfnajRSy/aRZaALkkJVnRzDr6wAkO9CRz94hsjcpffTh/VospsBNielM8liwnZWVLseD0pK
+	z+xKuHWVx52qxgJl/+7pFYLCmoxPMkVDaddzzme0KUxTh7En+h
+X-Received: by 2002:a17:903:2b0f:b0:2bd:63dc:b7ad with SMTP id d9443c01a7336-2beb05a227emr81761355ad.2.1779548465579;
+        Sat, 23 May 2026 08:01:05 -0700 (PDT)
+Received: from jmoon ([118.220.156.4])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb5695f05sm64262405ad.6.2026.05.23.08.01.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 May 2026 08:01:05 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
+To: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jinmo Yang <jinmo44.yang@gmail.com>
+Subject: [PATCH] HID: wacom: fix NULL pointer dereference in wacom_intuos_pad()
+Date: Sun, 24 May 2026 00:01:01 +0900
+Message-ID: <20260523150101.611473-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-branch HEAD: dab48a7e74e6a394f3aa0461a2b1fb0c7b38fcb8  Input: ims-pcu - fix usb_free_coherent() size in ims_pcu_buffers_free()
+wacom_intuos_pad() dereferences wacom->pad_input without a NULL check.
+When a Wacom tablet is created via UHID with parameters that route
+through wacom_bpt_irq() -> wacom_intuos_irq() -> wacom_intuos_pad(),
+but probe did not allocate pad_input, the call to
+wacom_report_numbered_buttons() passes a NULL input_dev, causing a
+general protection fault in input_get_drvdata().
 
-elapsed time: 1166m
+Add a NULL check for pad_input at the top of wacom_intuos_pad() to
+bail out early when the pad input device was not set up.
 
-configs tested: 69
-configs skipped: 6
+The bug was found by syzkaller and confirmed on a Pixel 9 Pro
+(Android 16, kernel 6.1.124) where it causes an immediate kernel
+panic and reboot via /dev/uhid without requiring root privileges:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+  KP: Oops: Fatal exception: comm:wacom_27qhdt
+  Reboot reason: 0xbaba - Kernel PANIC
 
-tested configs:
-alpha                   allnoconfig    gcc-15.2.0
-arc                    allmodconfig    gcc-15.2.0
-arc                     allnoconfig    gcc-15.2.0
-arc                    allyesconfig    gcc-15.2.0
-arm                     allnoconfig    clang-23
-arm                    allyesconfig    gcc-15.2.0
-arm64                  allmodconfig    clang-19
-arm64                   allnoconfig    gcc-15.2.0
-csky                   allmodconfig    gcc-15.2.0
-csky                    allnoconfig    gcc-15.2.0
-hexagon                 allnoconfig    clang-23
-hexagon     randconfig-001-20260523    clang-23
-hexagon     randconfig-002-20260523    clang-23
-i386                   allmodconfig    gcc-14
-i386                    allnoconfig    gcc-14
-i386                   allyesconfig    gcc-14
-loongarch              allmodconfig    clang-19
-loongarch               allnoconfig    clang-23
-loongarch   randconfig-001-20260523    gcc-15.2.0
-loongarch   randconfig-002-20260523    gcc-15.2.0
-m68k                   allmodconfig    gcc-15.2.0
-m68k                    allnoconfig    gcc-15.2.0
-m68k                   allyesconfig    gcc-15.2.0
-microblaze              allnoconfig    gcc-15.2.0
-microblaze             allyesconfig    gcc-15.2.0
-mips                   allmodconfig    gcc-15.2.0
-mips                    allnoconfig    gcc-15.2.0
-mips                   allyesconfig    gcc-15.2.0
-nios2                  allmodconfig    gcc-11.5.0
-nios2                   allnoconfig    gcc-11.5.0
-nios2       randconfig-001-20260523    gcc-11.5.0
-nios2       randconfig-002-20260523    gcc-9.5.0
-openrisc                allnoconfig    gcc-15.2.0
-parisc                 allmodconfig    gcc-15.2.0
-parisc                  allnoconfig    gcc-15.2.0
-parisc                 allyesconfig    gcc-15.2.0
-parisc      randconfig-002-20260523    gcc-9.5.0
-powerpc                allmodconfig    gcc-15.2.0
-powerpc                 allnoconfig    gcc-15.2.0
-powerpc64   randconfig-002-20260523    clang-20
-riscv                  allmodconfig    clang-23
-riscv                   allnoconfig    gcc-15.2.0
-riscv                  allyesconfig    clang-16
-riscv       randconfig-001-20260523    gcc-8.5.0
-riscv       randconfig-002-20260523    gcc-8.5.0
-s390                   allmodconfig    clang-18
-s390                    allnoconfig    clang-23
-s390                   allyesconfig    gcc-15.2.0
-s390        randconfig-001-20260523    clang-23
-s390        randconfig-002-20260523    clang-23
-sh                      allnoconfig    gcc-15.2.0
-sh                     allyesconfig    gcc-15.2.0
-sh                        defconfig    gcc-15.2.0
-sh          randconfig-001-20260523    gcc-15.2.0
-sh          randconfig-002-20260523    gcc-11.5.0
-sparc                   allnoconfig    gcc-15.2.0
-sparc64                allmodconfig    clang-23
-sparc64                   defconfig    clang-20
-um                     allmodconfig    clang-19
-um                      allnoconfig    clang-23
-um                        defconfig    clang-23
-um                   i386_defconfig    gcc-14
-um                 x86_64_defconfig    clang-23
-x86_64                 allmodconfig    clang-20
-x86_64                  allnoconfig    clang-20
-x86_64                 allyesconfig    clang-20
-x86_64                    defconfig    gcc-14
-x86_64                rhel-9.4-rust    clang-20
-xtensa                  allnoconfig    gcc-15.2.0
+Reproducer (unprivileged):
+  open("/dev/uhid", O_RDWR)
+  write(fd, UHID_CREATE2{vendor=0x056a, product=0x0020})
+  write(fd, UHID_INPUT2{report_id=0x0c, size=10})
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
+Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
+---
+ drivers/hid/wacom_wac.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea85..251ddda3e 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -515,7 +515,6 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	struct wacom_features *features = &wacom->features;
+ 	unsigned char *data = wacom->data;
+ 	struct input_dev *input = wacom->pad_input;
+-	int i;
+ 	int buttons = 0, nbuttons = features->numbered_buttons;
+ 	int keys = 0, nkeys = 0;
+ 	int ring1 = 0, ring2 = 0;
+@@ -523,6 +522,10 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	bool prox = false;
+ 	bool wrench = false, keyboard = false, mute_touch = false, menu = false,
+ 	     info = false;
++	int i;
++
++	if (!input)
++		return 0;
+ 
+ 	/* pad packets. Works as a second tool and is always in prox */
+ 	if (!(data[0] == WACOM_REPORT_INTUOSPAD || data[0] == WACOM_REPORT_INTUOS5PAD ||
+-- 
+2.53.0
+

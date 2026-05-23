@@ -1,60 +1,62 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77DBA29CE1
-	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 15:01:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14BE82DF13E
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 15:06:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779548469; cv=none; b=FyT2ubP9p33EwAWqjGOBZHes12l5DqrqHOOosFk4WLeHP2Nuw88whb9g9yHC2E6Fbxqgo4HdN7QDB8xjKeWChCfUI/r8xPd2RJIe7S/NnASFH1bQnrPJvxtef8uMQxz0R8/vIhsuOF7Nu1dd09MwF3l7/Hnc2Rvu4OerpvTMTto=
+	t=1779548786; cv=none; b=KJPUoUIFO7RDmGGlF+jnSrtmTFncacjWzM1pkGRwBgCvSy9Z7GTsPVa42vpnonmSooQvxvQJHkIl9wbfa82/aoX0dyCK0cs8BH4EnOwQM1Vfo0ll7AtfFFMaC8e2EeJVISFwAMix1EF3/zASUIH0e+Q8gKpyyPJ6OGFFUn9QjkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779548469; c=relaxed/simple;
-	bh=Fapa3MTveE1aKAWForPg5UO8pyPt/pLrcQ5n2r6vfGA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dMqFEj8th/t3qwf/hHPMugGRAAcZ3fS9Kv1OAZdeRHYvUQ8ag1c68/bSdoWBfIVUoXZ6HyOM4SR/uBXMqB0PEiZ2X6CwoY07qZx5OlUjDnHl8PRimsHieCVKUBHvufa7t9lwVtRsJ1f2tiesgragGgL2P15Aj+5yO0ImPTsZhRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gezPY7uo; arc=none smtp.client-ip=209.85.214.182
+	s=arc-20240116; t=1779548786; c=relaxed/simple;
+	bh=MbrqTE+oeq+dgWO/Zw/DJywvgF7NBx4P8DJejtKwW3c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Xbcp9Nkdq11y09knB4QTe/Is0qSrgK4ZcXuphTrDCtMdKPXbg/JUhW2cgg0fsa900LMtNyHFe0y2cgPzUsEAe+nrXE9GEJtwnywd9NxWeHLdlXF3R2gmXd5DKXlzJgm6jSNSSFbm5VkcsugIG2oLkvTOqlDl+aWZdhyQAhUZMv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ym/pDdOe; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gezPY7uo"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b941cd869cso53728925ad.1
-        for <linux-input@vger.kernel.org>; Sat, 23 May 2026 08:01:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ym/pDdOe"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2bcd730e090so67545155ad.2
+        for <linux-input@vger.kernel.org>; Sat, 23 May 2026 08:06:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779548466; x=1780153266; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BVpIs4ttWICLx4q0loWWbBkveNJdZ1S0OPQUDo6VyKU=;
-        b=gezPY7uo79erFztdQN0ZXj8CxhPOoEEn+L7KXRLDqFmmSzZ6OiKdOScdtUqy8fV3Ar
-         qXgMNfdxBbaihAFZP2mgUHINlSNCpFY6btSV4ndXzu95URZQmqXlG68AGxnyH6ouGAMH
-         R+WzagubSzQETGfBKGsa9EE6DDXT+twHuFUmfa9nVTrYOlB0v47mRHqJkreaTmCodZhc
-         SotSOLbWM61BMccVQdA/fRQSXqCQs8IFTRoYPmYLbs4KZYgS11B0Ags8Ul9SSp5qTJ58
-         Z0tFKxM1nDp/j+LhEWm2SgG4wYzlF8VvERj/gNtA0a+NaTMh4tKbWspW4YSx6spzLdx6
-         6T8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779548466; x=1780153266;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1779548784; x=1780153584; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BVpIs4ttWICLx4q0loWWbBkveNJdZ1S0OPQUDo6VyKU=;
-        b=KvoHs6GAnbtzC6Y+DtWSnbU6XldGTGdfWijOjYitwOYqspdmAmrNp/M/CmV2jgyX6W
-         NyrWXIMmdXEaeW5Au68+fgxbM/N/+DDEjUDeABKeiSsL5sqZm9gDNWBz4hzuVmmuravj
-         v4MoPlm/RuBLxWMh8ljxisBBG/yKeXubZvN8ogjxreZKWqmuH18ZC5t5qatE0+AUX5Fo
-         uQxE9hrBhK4OmvAYacomJaIyPZdrjCZFtDsYoHhvxu/0RsocCujXBlStKTCqa37/85m9
-         NJJdSQefsIy74+E5xRnQYaI7ePyNa5LL8a/udchKRTsV4h4wyi0HvCMfXXpLbeXW/UAS
-         zpoA==
-X-Gm-Message-State: AOJu0YwUiz/vkBpGj0/wnrL405tsYPSY5YPrGJYGhuhhFst8ZE5yI2wJ
-	JK2Zx41AqlK5XE6ol56tHWHYbZ97BXAKLxNQNhFhTu6QDORjnUdSeqL4
-X-Gm-Gg: Acq92OEgdmpw03mx8iXfGhGBqoLxMvTc/OEmfbZYKtsYA4vzS3yjzeCxFYNEygQYUa1
-	g417qaHjOAYKsi+3WwEULBete7RyPRyAmMdG9Vr7ug7o0zlkIFbCdhbW+/4KcduKrQOovonOhBf
-	HMyRIJxfUmCNp+pMerW3F407Sg1lzmn83VwlOIYCRsGBqFJ4nYEXFwIJgSRxBLZVyCuSBnPNEFF
-	NeTA1fg15id1lc7CeX8IFoiUenk6gR4I5DZgQzFd8cXNefdu/wNPSt0EMHYLRqtbX8HeZYnEcR9
-	8bRdIJPDLX7jH3uep3wRdN4rE+DOK9lSBLC92/xn9ayscizdOY/Y8r2vu/orFtzFSJsoKjkWI2+
-	My+rNfnajRSy/aRZaALkkJVnRzDr6wAkO9CRz94hsjcpffTh/VospsBNielM8liwnZWVLseD0pK
-	z+xKuHWVx52qxgJl/+7pFYLCmoxPMkVDaddzzme0KUxTh7En+h
-X-Received: by 2002:a17:903:2b0f:b0:2bd:63dc:b7ad with SMTP id d9443c01a7336-2beb05a227emr81761355ad.2.1779548465579;
-        Sat, 23 May 2026 08:01:05 -0700 (PDT)
+        bh=aaop/FfELHjwH8IoIrpe22Er/LfhYbNrGdYNh4kScCs=;
+        b=Ym/pDdOePH7xlFlWMo1xSw2pGY+MBXPQA2FyNsd3fq31gTrXla8rdWwMuW+M/Zxqon
+         iSqzgaC5LlbhDXu1leSXCnNGrJO3Xhc8e0NIuS5JlfWf99Zxg1taKkr8tKsyw2M4oKrb
+         GZY0lv06+c2t3qWGj+2cr4YQS5idJ6106V9lW957IFQ/CXzBnpwJSqxHcUFpQPFJWc25
+         mJSw256PYG0Di9WLSI5xDWgSMpDo6LlOgAU4mwNnIn45iNPEFU/vEnQiAoZhyvtNi89/
+         XDd8fXHod8aDWXOOZTRVYEpRKVSImbPUtj5avdfXIx20wsAOPHckAkSMiCcA2UYopEgN
+         5rvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779548784; x=1780153584;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=aaop/FfELHjwH8IoIrpe22Er/LfhYbNrGdYNh4kScCs=;
+        b=RWRVMVHlS7BdyARy05qxX4jnyPIwXdJkiisYZpuuMjXvPgFQUUVkLL9bY6UFFJINMU
+         3SXJbDuLBxC75I+0Wd6uYop4vt2VJ6oJZDU3F7BYXWNsUEk14dUY3oppP3kMElmOBSt3
+         UV22W2ndcxhEpzsRTBctJ3+662S1jUt9dICy76REz/U2pRW+gpoH2ZG0GvW2nJOBCMRn
+         vmV/SDg8kGpiWTX03SqxbxorS1w3iG5Xeq5pwOtbEuRj9qQoEGc+oxoRbjhcNgvPbQqZ
+         zKgI81PScYES/fjnOg8FZx2o7CteOFsflvtD9msSDN4E+pNj+i/nHfaucchY/S3JQbJ8
+         vgZg==
+X-Gm-Message-State: AOJu0Yzh7Vlgrd220QY6SfxHPdPHlLU8R1u2IE4CmCu+QbHm7vzb4zaQ
+	1m9N5YSkPEqwZifVvuW5wdwnJn9OHC5bV+xO7xyLxTueKIkI02iXDAG0bHsKGkYgsZXdJg==
+X-Gm-Gg: Acq92OHi73yNSnlHqKEcUkWD6wiwJ+2U1LrAH+cZGjBaRj5QsZBLFphj0ltMWnvDDJ5
+	MQ16H6aPVgtD2c75WHNeZOHFii1PMrdmou/s9UX9iJ7khD7vV1Hitc7xXz+cdVYM5lNFwllerXP
+	x5wkwT7NTMC79QGitHCJ9mNmBTPSMFuWZ7y+h4htOubYcbVONKhhqk3IFv6cI+1xA+f9eTrBAzz
+	cyFiyhqS6A1Ce3LfWQpWnR3FAdG3KJq6gvtGUrI0OQW3BHz6//9lvjlbAF3CMUs9zDu0ma+LJXH
+	EOhBCRFxcezkpcHC7AQj7ZemUoiZNXDzU3/cTkAqC+s7lXsGI3alu2491j2a5pDW6Ir8ow0Xr4q
+	t88YTanjCa8VtYkBQ0Jc8jWLruv9ETg4DD82WV9+Hd7i2qsWzep2Ru/Et26zNvTJc6pwJh4U8W7
+	/MtOJY/t4hgxUm/3Xb3gswernR9cRleDo5hii0VDAxzrqPTjPh
+X-Received: by 2002:a17:902:ce92:b0:2b9:7ad1:bf2b with SMTP id d9443c01a7336-2beb06924e5mr91047545ad.29.1779548784174;
+        Sat, 23 May 2026 08:06:24 -0700 (PDT)
 Received: from jmoon ([118.220.156.4])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb5695f05sm64262405ad.6.2026.05.23.08.01.03
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb5695a29sm45674735ad.11.2026.05.23.08.06.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 May 2026 08:01:05 -0700 (PDT)
+        Sat, 23 May 2026 08:06:22 -0700 (PDT)
 From: Jinmo Yang <jinmo44.yang@gmail.com>
 To: Ping Cheng <ping.cheng@wacom.com>,
 	Jason Gerecke <jason.gerecke@wacom.com>,
@@ -63,10 +65,12 @@ To: Ping Cheng <ping.cheng@wacom.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Jinmo Yang <jinmo44.yang@gmail.com>
-Subject: [PATCH] HID: wacom: fix NULL pointer dereference in wacom_intuos_pad()
-Date: Sun, 24 May 2026 00:01:01 +0900
-Message-ID: <20260523150101.611473-1-jinmo44.yang@gmail.com>
+Subject: [PATCH v2] HID: wacom: fix NULL pointer dereference in wacom_intuos_pad()
+Date: Sun, 24 May 2026 00:06:19 +0900
+Message-ID: <20260523150619.615565-1-jinmo44.yang@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260523150101.611473-1-jinmo44.yang@gmail.com>
+References: <20260523150101.611473-1-jinmo44.yang@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -85,9 +89,25 @@ general protection fault in input_get_drvdata().
 Add a NULL check for pad_input at the top of wacom_intuos_pad() to
 bail out early when the pad input device was not set up.
 
-The bug was found by syzkaller and confirmed on a Pixel 9 Pro
-(Android 16, kernel 6.1.124) where it causes an immediate kernel
-panic and reboot via /dev/uhid without requiring root privileges:
+The bug was found by syzkaller on linux-next 7.1.0-rc4 (next-20260522):
+
+  Oops: general protection fault, probably for non-canonical address 0xdffffc0000000052
+  KASAN: null-ptr-deref in range [0x0000000000000290-0x0000000000000297]
+  RIP: 0010:input_get_drvdata include/linux/input.h:390 [inline]
+  RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wac.c:4210
+  Call Trace:
+   wacom_intuos_pad drivers/hid/wacom_wac.c:643 [inline]
+   wacom_intuos_irq+0x29a/0x32b0 drivers/hid/wacom_wac.c:1042
+   wacom_bpt_irq drivers/hid/wacom_wac.c:3275 [inline]
+   wacom_wac_irq+0x12ed/0xaef0 drivers/hid/wacom_wac.c:3545
+   wacom_raw_event+0x677/0xa90 drivers/hid/wacom_sys.c:184
+   __hid_input_report.constprop.0+0x39a/0x4d0 drivers/hid/hid-core.c:2161
+   uhid_dev_input2 drivers/hid/uhid.c:618 [inline]
+   uhid_char_write+0xa8a/0xfa0 drivers/hid/uhid.c:776
+
+Also confirmed on a Pixel 9 Pro (Android 16, kernel 6.1.124) where
+it causes an immediate kernel panic and reboot via /dev/uhid without
+requiring root privileges:
 
   KP: Oops: Fatal exception: comm:wacom_27qhdt
   Reboot reason: 0xbaba - Kernel PANIC

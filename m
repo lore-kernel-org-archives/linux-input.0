@@ -1,63 +1,63 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D584833065D
-	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 05:06:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E9533101C0
+	for <linux-input@vger.kernel.org>; Sat, 23 May 2026 05:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779512809; cv=none; b=Q26CjNT6Zu8QeVENCEgPlymSeRqKcqxfk/RXZ7E52Al4GeujIgx2gsMGwYll4tFbfintgZEJryyRtYA1dpIbH1e23DQbKE0i6ut88/V4CoJih+W8xEdIEEKjj/mSS7NfSklxyVY1SMEWrmZ1BGvg+gudxFFaEMu2wX11NPZrOM4=
+	t=1779512809; cv=none; b=SrzVlSeoiSqmTHFFEPXGJggR6BVNjvj9xZpKS0GMBad4LRlXfNOweVaWA5ICboen+F+BZaxwdOIjja7owlUo3oKpid4lshgyVBexGAlKACqI+sWNVlKQboh8gtl7b5r6iYqvSq1N7xGvf+dJny5TqbEZBoB5W8pJt2H2fYLR+GE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1779512809; c=relaxed/simple;
-	bh=D49s69jzBXejZo67zjSIej+Rl6VSAaM7KMlYezj0434=;
+	bh=eYtv1lkT9JAScsMqNpsnBxVKcem9nE2s9ZDyYN1kMoU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FJTdhkyVIg7KRZnDUI2wp599nKvw0GDES1sX1xyZ6rRZk68c+J/T/L/maXm2bW3Od2aBZN9TyuxceJyqQQqYVcywVZVOj836qDxrriB0pLyX3H0a23wbq2pt1Z95n4QjmGOYxAQQ14wveaWTleTMZEE/5uO3UaJ21u8wy3QUaOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z4zBCE35; arc=none smtp.client-ip=74.125.82.173
+	 MIME-Version; b=RqsBGbnMYHDy3AWuIPxO4NvYlKEGJaSL55viGf1TAIXuvgXSBsniN7dZydsPn5jKiADuTvdxNPb3R7pUZ6Ly9Bhto1Wf/paU+fnxWKvRnVdZm9WawSnoZkGOJKGWP3qXHB4TkcXRuRGUxvj0nPAZKC8Ib8sqdb6ijoe+rdWvoCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oeoP6MnF; arc=none smtp.client-ip=74.125.82.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z4zBCE35"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2f68f3b075fso2130013eec.0
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 22:06:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oeoP6MnF"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-3025d725a05so19112193eec.1
+        for <linux-input@vger.kernel.org>; Fri, 22 May 2026 22:06:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779512805; x=1780117605; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779512807; x=1780117607; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xYWslJK6SpSjatzdYnqvuc5HM66+pB8AlGJT3pjZSU0=;
-        b=Z4zBCE35xakkjGzhJNH9lSmDKEush9ifnr+m0A6lvQnRWKmTEpORwT59wEDW5afg+/
-         20NVOfFjWuaG/a08zJWPTtM90IeFYsgtHqsoRhMrVCpPoPTA1gpxUN+UzJ7j7Oq113vU
-         yWuaED4CmFOImIb1tiBtQ0e5yQc5huB84sfxwKdIx88YTZi6qycMZcZf1Njc9liP4W1b
-         F2uATUT9yh5Am4MHmkHUWQqsrbsyAz3FTkeitESOCGw0TyRZQl0aDdpY8Ub5D3/VaDzC
-         l4iCuR/CVGK4cFypT93CR5wZTTh+CCn3E6ZWBicEHc+qfYfGmgEjAePKo32Ufxm6cYj/
-         IwBg==
+        bh=dFO8Uu1VVSz//xwzZEbkB241DoN8aKb8CDZkxNZZvD8=;
+        b=oeoP6MnFHyyAeujPYmJidup4ff0OX3fylPp+YVIjNrbriZaeinYH7KKhBp9ny35JZ9
+         orWnlIbNeckDTptZOlcEpweR2tVoNQUADzCAYjSx3CW8wAwpVFeBJbvSBQVZchSIf0ul
+         qb413QzkKAHVzOC7XBE1VY1yrs77olYE4O/Y/afBBapuoY2AH6Lt8FP/kkN6vLnfNIDQ
+         oNSnTFTAk7T/al09SJ694F3CJTC58HWhwBRZF9SF3JhLaauDnbi/d3kkvmd7VJRJhdxr
+         te9WVuNWiPoq778co9VI3mzBRi/ABk7aQi7ZFmj6NexWxs3sGiS1pz/BDNRjV8cnyStU
+         4wbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779512805; x=1780117605;
+        d=1e100.net; s=20251104; t=1779512807; x=1780117607;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xYWslJK6SpSjatzdYnqvuc5HM66+pB8AlGJT3pjZSU0=;
-        b=Bt+r87LEZLCmIWDQNG2M/HHBfF5JLFFa18t5qqImj/OEzuH9CeF61TsbT4zfZW7byB
-         VbjzYKtlBS2h5lBBHEzZuT6F8oB8eCL72ok7sUz3XtACpDldt6rEUfh8APoJ+FfhG0DP
-         nMAomelUzVdHs8rL6KMPK/ZoQoLTJvcSSPv6cxdNCOISq4GLgaZPPhdrX6H2n4IUikft
-         hwADY0EGp/HqP+PDsUsLll2cXAKKGIS0whrrcDqOS1eJeA5aB5+NuBteTDcbMxqcVfa5
-         QlUpA6K1SK/ixw60GLWPixAhXK8LviGKAZl3FMkM4jw/pJW2nnr8X+LHi2S1qW1aXUSz
-         HvYQ==
-X-Gm-Message-State: AOJu0Yz7e3VEK2Ktlc8xHV7M2OKMn5kz9t21E0rHF5BaskZgzZDTPL/6
-	XfTkssOR8Is5lK2aNlire5HlfYjUbYW6NaG+QcDS8WlDX9ycyS2sx0Z+TH0zTg==
-X-Gm-Gg: Acq92OHMyjgQaYVCQCQH3X91OUz1M6KiaC7Tp2d9pKiW+JpW1kdkn58ZCc+6PI3DSBg
-	yJTpvBQPsf5AUlUCGP4Dfr2DvBprq1UUnMr6mVgGUXkGbNkmbOvzv5OtDpGv9hQRoeAvWYDdu1V
-	mKwhsOh6Si+g5xMIwH1U+jmkwR8Qv6l0mT0BWvRMb4EEwR+4ypHe7QBkonk1F81V6jeTYnWleD8
-	mJMcYMH9Wor5PeY4goA7DuT4B0DSYsiumLHif3SoC01j6e92MiXpCwwBpuMr/RFsQ7XqjNo3pah
-	KOcg8W2xv9E+xiO4h+RQVTyl1+ZlapuVTLwl0FK+qXxLY5C0N/PlkOkS6ahC7CQd6mhHaE6kRy+
-	675koHrXdcehzui9agyNqLvHJr5fUpocg8TZDrIe6/SjmOxYPCDmMNe+wjv/tUg8xbC7WSoYEWr
-	vW8YbS3CuZxZTI4L4oNVhwy4wB/YiAhHXCkUzkhNr8JQd2DKNovnYLIe/pujuI239MQbr9xs0uP
-	a1uDN8j1NUhLQ==
-X-Received: by 2002:a05:7300:cd8f:b0:2f5:3641:f10f with SMTP id 5a478bee46e88-304491ebec3mr3466361eec.31.1779512805103;
-        Fri, 22 May 2026 22:06:45 -0700 (PDT)
+        bh=dFO8Uu1VVSz//xwzZEbkB241DoN8aKb8CDZkxNZZvD8=;
+        b=Mp+9007ikw1JnU26QhJYa+fy48lmx9iuFRTYyWwmEEQYx/6jZfsQqcjGAq9QrTfun4
+         +QN2Ol98lwUR0ljV6KopZeTd9ztEnQDZRri7oqP0TOtA99/iGfJJq+GhABzlC5nkOfa/
+         Wv8djxszunGbpeeEe5AiSKTRYuDCoZiORJpq//6Rjo1HwIEcuQo4ViAELj/8iY0Y6JNs
+         G+lXhekWf1ecaiA0d/F/f+QE7mxAP+7LOjNTksyR3O/y5RdY55RUkKo+V6g0sz9WwinL
+         CuWeg+KIil6akgpm+gQXmYXTUAS9Kv51YTCuHv1cAniSelUBH1sTi6h6HYTG7f1E+yII
+         mpnQ==
+X-Gm-Message-State: AOJu0YzDGhFCJca3YT693W4OFbnmrsp+wMum6iKMsDy3+9h4PSfIUkC3
+	ahYlZl27GOcMArZ3exAq+/Y+weu5MwhqVrPH4G7Sx8wU1KY3V8yiOHoy+zskWw==
+X-Gm-Gg: Acq92OF6B6L4vW4+w3sbjLARBlcUYLO1oUTZOoYeVkUqJelhqhztvSeSSNOptyzuFeo
+	lqNutey8AoZPeVdc5O9z5CrYC2hnWfmFUPOpXt+Yn1m0kNbcZsbxkF+TaT+ChQF2G5u3X2eUkUE
+	MLtnzdnxq9MX5kqauAW+rKl/WH8qZ+KcU+x1oZj2QQXWwMgV9JrUX44ZJ0j3ulVM+4rtbJ6VXl+
+	Uvh3G5r2WXmoqZdv+l630h38qNSKDGrzT8Sy2XbMgDyrQWDYjD7klz67M9JRZP3/nGfwsZ1u+Yw
+	OEhYv58NW5UYraZ2QzqgGIHmfbWPKam76GigHVHJecYjMoMa8Qe6/ydPdcIeryc+M0CmqAIfFIW
+	BHM+N5pd8R9bwLSivMlOmfUfSZmH+PEsg1RVTFQXndxa4QDHW0eC1z0NaSmtsSPRvU+Qa4V7BBg
+	62QhDBTmtrEwsUK4e83bbel/u9NNULwR42DMK0ivj56G3cMeSJfJ0yl7aDa3sGAcb9VjGPVspgB
+	KhCs7wkjv8PRw==
+X-Received: by 2002:a05:7301:2b06:b0:2d9:6373:ad10 with SMTP id 5a478bee46e88-304490383d1mr3310920eec.7.1779512807127;
+        Fri, 22 May 2026 22:06:47 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:7e45:2bd:3c86:d34a])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30451f3feadsm3502583eec.13.2026.05.22.22.06.42
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30451f3feadsm3502583eec.13.2026.05.22.22.06.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 22:06:42 -0700 (PDT)
+        Fri, 22 May 2026 22:06:45 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: Thomas Fourier <fourier.thomas@gmail.com>,
@@ -65,9 +65,9 @@ Cc: Thomas Fourier <fourier.thomas@gmail.com>,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org,
 	Sashiko bot <sashiko-bot@kernel.org>
-Subject: [PATCH 04/11] Input: ims-pcu - fix firmware leak in async update
-Date: Fri, 22 May 2026 22:06:22 -0700
-Message-ID: <20260523050634.501509-4-dmitry.torokhov@gmail.com>
+Subject: [PATCH 05/11] Input: ims-pcu - fix race condition in reset_device sysfs callback
+Date: Fri, 22 May 2026 22:06:23 -0700
+Message-ID: <20260523050634.501509-5-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.54.0.746.g67dd491aae-goog
 In-Reply-To: <20260523050634.501509-1-dmitry.torokhov@gmail.com>
 References: <20260523050634.501509-1-dmitry.torokhov@gmail.com>
@@ -79,8 +79,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The firmware object was not being released if validation failed.
-Use __free(firmware) to ensure the firmware is always released.
+The ims_pcu_reset_device() sysfs callback calls ims_pcu_execute_command()
+without acquiring pcu->cmd_mutex. This can lead to data races and
+corruption of the shared command buffer if triggered concurrently with
+other commands.
+
+Acquire pcu->cmd_mutex before calling ims_pcu_execute_command().
 
 Fixes: 628329d52474 ("Input: add IMS Passenger Control Unit driver")
 Cc: stable@vger.kernel.org
@@ -88,34 +92,22 @@ Reported-by: Sashiko bot <sashiko-bot@kernel.org>
 Assisted-by: Gemini:gemini-3.1-pro
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/ims-pcu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/misc/ims-pcu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-index a134483e543b..f86f9a5a7564 100644
+index f86f9a5a7564..7fdff9dd1b5f 100644
 --- a/drivers/input/misc/ims-pcu.c
 +++ b/drivers/input/misc/ims-pcu.c
-@@ -934,9 +934,10 @@ static int ims_pcu_handle_firmware_update(struct ims_pcu *pcu,
- 	return retval;
- }
+@@ -1152,6 +1152,8 @@ static ssize_t ims_pcu_reset_device(struct device *dev,
  
--static void ims_pcu_process_async_firmware(const struct firmware *fw,
-+static void ims_pcu_process_async_firmware(const struct firmware *_fw,
- 					   void *context)
- {
-+	const struct firmware *fw __free(firmware) = _fw;
- 	struct ims_pcu *pcu = context;
- 	int error;
+ 	dev_info(pcu->dev, "Attempting to reset device\n");
  
-@@ -956,8 +957,6 @@ static void ims_pcu_process_async_firmware(const struct firmware *fw,
- 	scoped_guard(mutex, &pcu->cmd_mutex)
- 		ims_pcu_handle_firmware_update(pcu, fw);
- 
--	release_firmware(fw);
--
- out:
- 	complete(&pcu->async_firmware_done);
- }
++	guard(mutex)(&pcu->cmd_mutex);
++
+ 	error = ims_pcu_execute_command(pcu, PCU_RESET, &reset_byte, 1);
+ 	if (error) {
+ 		dev_info(pcu->dev,
 -- 
 2.54.0.746.g67dd491aae-goog
 

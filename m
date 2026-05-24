@@ -1,63 +1,63 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E65D93148B4
-	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 19:30:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83A1F3264FB
+	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 19:30:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779651005; cv=none; b=jR9AKLjsGazYoJxv6fpXfLbrb4yW/hUNtc+hFPo/vd53nJ84Y3KybIhPb5IGhF1aaPOScYXVNTs4nBqcBexvCc19yeUyjVROz7UamkrpSRLP77bZ4uH1HZ+SqPNPgd9zpN8Ka2hZ1XDG2sgidLXlqqbQr0kIjHvzSowNe7u0BFU=
+	t=1779651009; cv=none; b=AOCm+lUj5VVlkdMpu8f3V54BP8ZUhipWiCoidpVDM+5PstJHEQu9yT2dyt1V1Yer59Up0ndE5nW2fkFzU7+OdnsvXBwg7vBPmoNYil2dF7D4rPhYxqs1ezE2pE/gjZc+8LZz73btzjMVCWBXiAVGY3eNxYI+m++emeL01UkB4hU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779651005; c=relaxed/simple;
-	bh=M2CpJ3xtzToTWZ0nDbiz5lluQfYt2acasvX6J510RzI=;
+	s=arc-20240116; t=1779651009; c=relaxed/simple;
+	bh=aQGHbzwD8XvoBZlnyYmSpbPjlEUQmQSq7kMMzigIpcs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=f4rA235Nju++cauqaOnXeQVdXEB7i+PgbffCt1wUTDFMi2K3GMNp5MZ7eutLANzXdgJENtBvJn2SeXo5F3j8UPEXHHM1Yv5l4dh1Yjc6/ZBBn3xwXxWH/dAvwdCfOatQQnxVl/I3Pl2+8t2mf1Z+utDWccsrVC9qQPbtp9e5Ce0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WC9M9rw8; arc=none smtp.client-ip=209.85.214.182
+	 MIME-Version; b=laC60/dpD+cqiWDGncQiInyQIaSMHmJzhtPO5UIv0xCOmw+bQy8evJO9UYlRfuHgWPqLdWAzBUnf8gY7S7KLPh9CBxtRPCw1kWtCBuA/N6ctoQ/ADAme2KPKnhpgSvIhBgGXDfe2FwoD/51Y5z84duiBCy1loCqANqFgW5DQ1/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ePRiHLE5; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WC9M9rw8"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2baca4df358so55311845ad.2
-        for <linux-input@vger.kernel.org>; Sun, 24 May 2026 12:30:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ePRiHLE5"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2baca4df358so55312265ad.2
+        for <linux-input@vger.kernel.org>; Sun, 24 May 2026 12:30:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779651003; x=1780255803; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779651008; x=1780255808; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dz3QfcZjdBXZKKQx7sSsyUwoEHT5drY36P7DpKzPpO4=;
-        b=WC9M9rw8lMU/D1rq6hUdBpJI83i+GSLsRcbE++1x5wV0rNYRjlIfTH6q/vauyKw1W5
-         4VPc2hOBduUB+pEuLCKep/iRJMvxuRY3QijpQowhEe3uHN3W/j074HC91GjQId9o6GZ6
-         3k9wBdTBPsHW8tmjL6hnaKMVC+17jQr8bCyf7Rbu51+pKcQehy7s63KuCFuIkolYObws
-         9rF0yE3FIkpsuvOlrcosxwd2DhGFBzuhUvvC6/Xyfsr5hsZnXZ88mZxE3OqqPUNVXH4T
-         kV7XL2F/x5z0gb2u2qbUfXPld9m+xKje9clZNH/5t+uoUMSxy0mxZq0BLoknGSdyWvyj
-         nO4A==
+        bh=1EfWIGBBAe6WYbf3D5tIwvhwfgl7sXJJFkfUQOgxxis=;
+        b=ePRiHLE5liLJUJ4HfIOtbPthg+mqHh8hLOovXpxW3eYfJ4rVRLptKwpby1NQ+KQkV4
+         lzQTCZf5fPAAu0frBYEXml36xCdJQCIiv6O3RC+usKVFqXbmeVa6BNjgQbAsIcB7K+J/
+         Fc5HdZM/8+JPvypRDo0Usrz9D15Hdh5bwWl0IQLsozQSRI6f2yKDWEHPsOW1bzIEuG4X
+         BHG8Q/SHkVnqmu6FRDXt6sTXQosxJUPCCBVqNMPRSXTmtsUMTpbnvqqPkuMwitk+rAi9
+         p2LS4QCW+0z5hS4EK9jN4v2mB+IKWHu0IJwXCX7zogxszDj7Knt6mr/BTM6vZdDwYYep
+         morg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779651003; x=1780255803;
+        d=1e100.net; s=20251104; t=1779651008; x=1780255808;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=dz3QfcZjdBXZKKQx7sSsyUwoEHT5drY36P7DpKzPpO4=;
-        b=BbjnAlEcqcBMq5Objo5BKNbGNo2wdZwsdJph9E0/qaPQd8ayGGcdTdAPT6Jx2qaoSK
-         seB7j/frpCXGxbxIb9g9zCmoX2VRiyXL35kFWTSiZ3+q+tWkECviFjx6JDqdxIf6eQ9K
-         lkFScQ4OCKIvroAfuHWONh10lpZrkdfZ5WvSfD12Fe9z4SxLAesPoKUT3PEqBS0GRril
-         QZrbj2lk7Ab1r1vST+NQxDooe3o3LuxGAMe/m1BzRD1ThG8i4du4NQZ3P318T40GcCcj
-         l9anHl7ATUY8OiVAlLQB2xUmoDt7EEPvNT/GKwsJQLdvruxhdVeZGI0rpYMnLidRZ6Oo
-         RA7A==
-X-Forwarded-Encrypted: i=1; AFNElJ95XVgVfZvDjLGW7Q4IP0mbvQmo2JqLotyd3lSOVNh+MlhbHaUyLf2IImcofL0geD6T1G2EJ4zp3T6jEg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJK8u0mL6G8q8RCnq+Lx/CX+i55D5tpRbXBSO3fhe5HzADI9UM
-	vF1vuReCCdqax/JPnDzV7TQMGCzhUmi5YG/7Qh5u9GsmdAknbHNVcwhz
-X-Gm-Gg: Acq92OHWOOFe8uiJOKhPvSqcbT1AM9zTNUbbU8WrNxe+7ibo8JVpjIE/pSw0Qz0YYjS
-	hifzlbsP4kfVsbn5/SwD2DUygz6HP5IjoLCKilk3Dwo1XvgsP3wqHeptRtTQk45lI2h6PMTvjA4
-	ZZkwZiR1k3+mIs5Wg7I9/ZqJf/G8ave5ghqw1oz3jyJJi812kxWn4ib4INXu3F6E1DgL5cYGfSQ
-	8DEhW7EscAXPoSyu4uTvdcZp5RKVYkJGECDAI2vomyoN7TAEJLX0o0Y5Ao2rWNRTEA/AT5Mr5Q+
-	Qa9DEGZcI1INEsXlqYzlEjfwYxJ0cW8k9nAX/WOQfjZotr0/IS9VNOVqJpCMG/4/FmVv7kzHUK/
-	G2wTPfOvAFKN/cGI2JRxHNRhL1Ke+a+JWcn8W46cPlbX+PZTyYy4UjeNCE4FUelJz6YFOFaGYiz
-	hfaSnQolHR3zpbao3dZ5tkUaqsonlLAZBi+UyluGbYCLzfHUc4
-X-Received: by 2002:a17:903:2bce:b0:2b2:4260:109 with SMTP id d9443c01a7336-2beb074f776mr122688625ad.23.1779651003116;
-        Sun, 24 May 2026 12:30:03 -0700 (PDT)
+        bh=1EfWIGBBAe6WYbf3D5tIwvhwfgl7sXJJFkfUQOgxxis=;
+        b=l3G0q0+Ku0Y3/kOVZk6blYjm8/VICgmCeSCsS09BBUWV/FKCuUGXGPr2q+JOu5P+Fi
+         rwu6aUYDEf7HauvqLghJJDOOgs/0SEOfcpadjR1gAW0i+8SDzLhyWfHi0NE6NjLbkD+d
+         VqgbiHXUs0zV+69ZHgHBd9QkEZZylBnNJw/NDRGvD7VjUzT+yx12Chr6UM1rW6oZcbBg
+         5MSuFTCFZHpbgTfEBpoVpiRgSxc+KoSy0CQncs6pgEe/+Y9uJdAZeTNGNBNtnq8h5JvN
+         w5Wpaw9KYsa6ohPjvY5Sdg/1y2AFjfS0ZblRagQuLKhLAJCkzC6DAK9zEgtDHyUK/TcN
+         KTUg==
+X-Forwarded-Encrypted: i=1; AFNElJ9fKdht2gH/hoO1QFaI78NKyZoEgIV+D9qF9xBYvhjaK0xogeuaRJMxDCYfWIEdin3AfERYJrpZ2ng+ZA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQGRao3VVIJvH7bZ77w0Pd7+5svP8kmD03RNT9Q2H8EksdK1em
+	vQWxBnx/7AdMH/1IUB5gV4lFj2B6WnxpeoCSbKByukUdjYcryORtP7TJ
+X-Gm-Gg: Acq92OGKzf8jfM8QrAnNDw7ODbUi+ltodlG4wvNSBpYt/v8C0RBykgPmx5vvke7v4k8
+	oKpmMi4lBkRij3cJErxQiKQJfmkidG57ki1VQDqePNYndM75Xbti6ner0gWdcI0gVxnx033ElLy
+	90Zpu0pNwFvBGYnKYRiveeLuZ/O9jbWop3szUk3CfFqWeNXSY6ieWj8W6QTMlcZ83hAXfDlMKgd
+	b07bongxz3QcdbpAgG+ZjywQGFpjpqKTqgqL9b8miEbNO/46TbI8tOrHqH4d0KBBE3DP6SIliVR
+	T7wFANbmZGvS7ZXldq3XrTBQMdwLZPJpXoCDzKi/EVOIlYFAwHP9vP2c9qV/51vhzqLE6dY2w6l
+	Kta1MV6HdrIiHPCy0sw+U1JACJsM1PL3Pqk0+DOf9ljWJs/Gq424G0xjmTFLfndO2JNroNkCbvu
+	qLtU6y6jq+G+2A76F31LeOwSW6BOvgKhGXHNUMOfT0p7RDvPjN
+X-Received: by 2002:a17:902:e542:b0:2bd:b585:55f5 with SMTP id d9443c01a7336-2beb069c13dmr130607315ad.8.1779651007331;
+        Sun, 24 May 2026 12:30:07 -0700 (PDT)
 Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58c3168sm72555465ad.58.2026.05.24.12.29.59
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58c3168sm72555465ad.58.2026.05.24.12.30.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 May 2026 12:30:02 -0700 (PDT)
+        Sun, 24 May 2026 12:30:06 -0700 (PDT)
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
 To: jikos@kernel.org,
@@ -71,9 +71,9 @@ Cc: dlechner@baylibre.com,
 	linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4 33/36] iio: orientation: hid-sensor-rotation: drop hid_sensor_remove_trigger() using devm API
-Date: Mon, 25 May 2026 00:59:40 +0530
-Message-Id: <20260524192943.1196773-4-sanjayembedded@gmail.com>
+Subject: [PATCH v4 34/36] iio: position: hid-sensor-custom-intel-hinge: drop hid_sensor_remove_trigger() using devm API
+Date: Mon, 25 May 2026 00:59:41 +0530
+Message-Id: <20260524192943.1196773-5-sanjayembedded@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260524192943.1196773-1-sanjayembedded@gmail.com>
 References: <20260524192943.1196773-1-sanjayembedded@gmail.com>
@@ -95,54 +95,54 @@ teardown path.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/orientation/hid-sensor-rotation.c | 10 +++-------
+ drivers/iio/position/hid-sensor-custom-intel-hinge.c | 10 +++-------
  1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index cd9fe74b5b30..28336c40403b 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -325,8 +325,8 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
+index e616988fe9f4..7844ed12c030 100644
+--- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
++++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
+@@ -311,8 +311,8 @@ static int hid_hinge_probe(struct platform_device *pdev)
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
  
- 	atomic_set(&rot_state->common_attributes.data_ready, 0);
- 
--	ret = hid_sensor_setup_trigger(indio_dev, name,
--					&rot_state->common_attributes);
-+	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &rot_state->common_attributes);
- 	if (ret) {
+ 	atomic_set(&st->common_attributes.data_ready, 0);
+-	ret = hid_sensor_setup_trigger(indio_dev, indio_dev->name,
+-				       &st->common_attributes);
++	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, indio_dev->name,
++					    &st->common_attributes);
+ 	if (ret < 0) {
  		dev_err(dev, "trigger setup failed\n");
  		return ret;
-@@ -335,7 +335,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- 	ret = iio_device_register(indio_dev);
- 	if (ret) {
- 		dev_err(dev, "device register failed\n");
+@@ -324,7 +324,7 @@ static int hid_hinge_probe(struct platform_device *pdev)
+ 	ret = sensor_hub_register_callback(hsdev, hsdev->usage, &st->callbacks);
+ 	if (ret < 0) {
+ 		dev_err(dev, "callback reg failed\n");
 -		goto error_remove_trigger;
 +		return ret;
  	}
  
- 	rot_state->callbacks.send_event = dev_rot_proc_event;
-@@ -352,8 +352,6 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 	ret = iio_device_register(indio_dev);
+@@ -337,8 +337,6 @@ static int hid_hinge_probe(struct platform_device *pdev)
  
- error_iio_unreg:
- 	iio_device_unregister(indio_dev);
+ error_remove_callback:
+ 	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&rot_state->common_attributes);
+-	hid_sensor_remove_trigger(&st->common_attributes);
  	return ret;
  }
  
-@@ -362,11 +360,9 @@ static void hid_dev_rot_remove(struct platform_device *pdev)
+@@ -347,11 +345,9 @@ static void hid_hinge_remove(struct platform_device *pdev)
  {
  	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct dev_rot_state *rot_state = iio_priv(indio_dev);
+-	struct hinge_state *st = iio_priv(indio_dev);
  
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
  	iio_device_unregister(indio_dev);
--	hid_sensor_remove_trigger(&rot_state->common_attributes);
+ 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+-	hid_sensor_remove_trigger(&st->common_attributes);
  }
  
- static const struct platform_device_id hid_dev_rot_ids[] = {
+ static const struct platform_device_id hid_hinge_ids[] = {
 -- 
 2.34.1
 

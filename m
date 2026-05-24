@@ -1,235 +1,170 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E51E2E413;
-	Sun, 24 May 2026 01:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73EF7224AF9
+	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 13:52:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779584650; cv=none; b=DZof/Fh3QIGqNkIloOWJ5/mTfXB3deddqjG4rcI43gbq0TgTuw1XyOFIPhYhROQRyESdV0AGDgnSq2vR+d0z6KXLj2JboViSPZWE3fAR0T/pLpRv1MJFiteMHZvf+PrzrR6t/MB4yXvHx+cH4W539U8l/1tuAmYK6nUIXwpttWQ=
+	t=1779630729; cv=none; b=hUcwcR7ZuE9cIb22AUAHhpC5m3d0e9fmNOJGkBYSDcMb7dtwSE9gVzaE67jrRbDz/2Qj5ZZ5HYwe+rCTncKnhPj+dCaISCLsOfCvKaxIDxhcV60qjbjoeGl0KLHE77Z7d2iCocLmL2zPC2oasm0beRGpr0UVrNuY16IacPEkex8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779584650; c=relaxed/simple;
-	bh=0jxUiWpuObnUElHoR2o5w399YDk8x9hyniPquFTHWDU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wqq05+0nV+liYEpLLt05ebYbtvnLDfmARjnLk4uK5RzwFuO++1AjXDbK/oBeBJDDoT854zinBP7e4dbegoD2zJUD5B2xOq7Eu6YJATYJ/9iDf1HnoRE2Opq96/0+rOy00OxetBvzXBZz1pTJzt6ZVvlvlAt5GFt2EaOPzDsgZKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=StNpVdQC; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1779630729; c=relaxed/simple;
+	bh=fvQwEMYX6BDOUBNVbw3xkM0WWl+t9x/Se3AcK+dqC4c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AuBwcp9RveqMG/gMZQNFU5W2ejTX4aY0FTYtWAVt0tmgT7P9jGqyBJ5n7MOIjMuseZ5Mbz1naIoZjM4LzcryruitfUKBXr3+uJv8dkXsOy9UVki7kiyWPbiWmUTRRqBWPM4xrJu/SvyHaiMMUXpwvNu6sj5NGIePdY/yOX7rD/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IexDHLM6; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="StNpVdQC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779584648; x=1811120648;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=0jxUiWpuObnUElHoR2o5w399YDk8x9hyniPquFTHWDU=;
-  b=StNpVdQC/+GGa/rhIr8l8XY3+RbPsv6UeuXmxmE7QnEpoB7NN80w59Sn
-   POXG6+XKeCqXYPw1TRxTGhk2WopSYag1ht3UYTycwfO//G5LrTIO3ji3J
-   tQxE0SkE98K0mhxrRv+5qUhUhDLNB3KZpE20ncHt51oyj8lMadfG5ZRq7
-   Ds/MOji4n1Fm+GYTrcu9IoKIiyIZU/2I3mPopmc4dq5kCgAR8yjL+Osw7
-   jWlrC/Ut0jv7S8tYd+78e61Kg2ALn5iiJZethxksiSbpNREIgHiwhO/e0
-   9f0NJBm0wH32jx2NCr95NHrrWywcsiDc/bNwo6KvloamzC4efmR5tTjwd
-   Q==;
-X-CSE-ConnectionGUID: X9nbrfklS9O8gKSnM5GXBQ==
-X-CSE-MsgGUID: lwoSrLCYRuSJ9bLCs/4tOw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11795"; a="80367428"
-X-IronPort-AV: E=Sophos;i="6.24,165,1774335600"; 
-   d="scan'208";a="80367428"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2026 18:04:07 -0700
-X-CSE-ConnectionGUID: bvlitePeTACjAGGMx8n27w==
-X-CSE-MsgGUID: m09Bao3FR8KFcbqda/29Fg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,165,1774335600"; 
-   d="scan'208";a="237041489"
-Received: from lkp-server01.sh.intel.com (HELO 6ba8523b1a8f) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 23 May 2026 18:04:04 -0700
-Received: from kbuild by 6ba8523b1a8f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wQxG6-000000000WL-1TEY;
-	Sun, 24 May 2026 01:04:02 +0000
-Date: Sun, 24 May 2026 09:03:44 +0800
-From: kernel test robot <lkp@intel.com>
-To: yaolu@kylinos.cn, jikos@kernel.org, bentiss@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Lu Yao <yaolu@kylinos.cn>,
-	k2ci <kernel-bot@kylinos.cn>
-Subject: Re: [PATCH] HID: core: Fix bsize printk specifier in
- hid_report_raw_event()
-Message-ID: <202605240823.YKX23Xjr-lkp@intel.com>
-References: <20260522072718.186707-1-yaolu@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IexDHLM6"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-36608b2f2dcso5765126a91.2
+        for <linux-input@vger.kernel.org>; Sun, 24 May 2026 06:52:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779630728; x=1780235528; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LzPGquotkKW/US/d7GbfP4YoBT5ndTm9l3GA2srn+2A=;
+        b=IexDHLM6uitCis3KLrz00Eap4Vj5kLtNYuc4kqbZ7JVNq+6Ptahg2Zvkb4fNOGpkzp
+         ZU+M2rcBEpXyESXIprGHCNxVq668JJgDpL1/aJ7ce/v0bRc1VowsU5nAuIoxuRDRx8wV
+         GTKNQrF+NTWyl0i+iHd/1PLjFw9M24Ru/byYtEvcP9gS5cHiImSHL1nUx4aSnzK07Aq/
+         9Yz5egu6hmLQ81FnZphmL9l/iH/+wX3AMAfhzfn7R9X8vqF4aTI9RxXo66RDz9wFE24i
+         UFqJmxWkNopxjMMCL21DbIqJtVwYlM5oW+rrM0u6whF0T5HB9QA5ir9Y1kW8dTxQUFUp
+         3qHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779630728; x=1780235528;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LzPGquotkKW/US/d7GbfP4YoBT5ndTm9l3GA2srn+2A=;
+        b=pDRutL6NzEpvYv7dar3HPRf2nGjykPDlVhUWK7Ww4Rf0FlY/+ShnYgm+MoSFcN1/qZ
+         0yyxpW2bfyl9HXkQyBol7l9axBjW+JAQM1P15pXrs5kA1B1oArW/Sn+IoyFMUawTCka8
+         UQh+lTm0uROui6kYDkmv2/v+Ozw9b4yb6yZrsDyWE6YQ6g61W2rXx+3ybRVu2lGp8hlM
+         F3GAkSUOYJhEd0Q49gWPv2+WXn+8y3TEu4x8mKHhv8E1Xx/0jJKRR577GuANB2/3i4oM
+         ta7E18wL2T/oZ8mqPUwq4A+aI0DhCpzBSfieO71aWnYFrWD1y7fpoC4cFR6BNgpR8eWb
+         seDg==
+X-Forwarded-Encrypted: i=1; AFNElJ8iCObc8FkeGM3Ko52k4U+25ooDgVN5/lXN2DRc8A+W05E5uWg/Em09V3Z9WtcBGibjpq0Or6f16Ev1Lg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YyF8xgqnNMEvuX2e+IY0heql1MZOqLSmzidkqkktPhuSh0uRp3+
+	NEZ+MJDyinbIG7amEsQbxLP0pDeEuGV68/92ygyYwtmIkZsiIJr5i7aM
+X-Gm-Gg: Acq92OF1ANIMkr4a/IBU4ETOKvZzoVjj6YtBQeO/r0CJ2EPrj/H6djz1RR6N8AUx4Iq
+	//1OTbfgAku/IQP3BbM8m4OHwJVLaGr47sDgJBIczgUfDcl4snmqyJST7ejlXrjl9nlc61/UlVU
+	nqh0msDhHRYfKDF/kZ51cMZyGykOBty/K/rfOO2km0bVgUUd5KMhX2LEa2Ge323GL6mvxqilzRv
+	iFOf5XLWOAki2nQZxHvRdXpXlYrpgG4kraU2xo+uSeuxavt7vmo/yA+IHxqIAqDCGpRWl2NtRzo
+	O1bhRNcZBwTnGlAYo1XHnSQSVirwSKKxra1fqsueQKojjPFRAx4/IqNYEqeegfYYWgr3TIBs2s4
+	hLCwjiIUXhYg2ncaY+KbdHWG/2/7yV2x6OwW1Cm/pgs1d4+rzASxp8He2NSR0H4mVxwqBMEMVNv
+	MZH4mYJmfwisf5oHlukpAcnWuDGJvJjZNJrBofLEORNRQ9dasUwCUG8C4D3GVFvIm2shB4xg==
+X-Received: by 2002:a17:90a:d885:b0:369:e4d4:79c6 with SMTP id 98e67ed59e1d1-36a6782a785mr9844596a91.20.1779630727617;
+        Sun, 24 May 2026 06:52:07 -0700 (PDT)
+Received: from jmoon ([118.220.156.4])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36a72c4ca35sm7073833a91.9.2026.05.24.06.52.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 May 2026 06:52:07 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
+To: Jason Gerecke <jason.gerecke@wacom.com>,
+	Ping Cheng <ping.cheng@wacom.com>
+Cc: Jinmo Yang <jinmo44.yang@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH 0/1] HID: wacom: fix slab-out-of-bounds write in kfifo_copy_in
+Date: Sun, 24 May 2026 22:52:02 +0900
+Message-ID: <20260524135203.1996265-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260522072718.186707-1-yaolu@kylinos.cn>
+Content-Transfer-Encoding: 8bit
 
 Hi,
 
-kernel test robot noticed the following build warnings:
+I found the following slab-out-of-bounds write in the wacom HID driver
+while fuzzing with syzkaller on v7.1.0-rc4-next-20260522:
 
-[auto build test WARNING on hid/for-next]
-[also build test WARNING on v7.1-rc4]
-[cannot apply to linus/master next-20260522]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+  BUG: KASAN: slab-out-of-bounds in kfifo_copy_in+0xf3/0x130 lib/kfifo.c:106
+  Write of size 3842 at addr ffff888009179000 by task syz.3.9362/61135
 
-url:    https://github.com/intel-lab-lkp/linux/commits/yaolu-kylinos-cn/HID-core-Fix-bsize-printk-specifier-in-hid_report_raw_event/20260522-152828
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20260522072718.186707-1-yaolu%40kylinos.cn
-patch subject: [PATCH] HID: core: Fix bsize printk specifier in hid_report_raw_event()
-config: alpha-defconfig (https://download.01.org/0day-ci/archive/20260524/202605240823.YKX23Xjr-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 15.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260524/202605240823.YKX23Xjr-lkp@intel.com/reproduce)
+  CPU: 1 UID: 0 PID: 61135 Comm: syz.3.9362 Not tainted 7.1.0-rc4-next-20260522-dirty #3 PREEMPT(lazy)
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.17.0-debian-1.17.0-1 04/01/2014
+  Call Trace:
+   <TASK>
+   __dump_stack lib/dump_stack.c:94 [inline]
+   dump_stack_lvl+0x97/0xe0 lib/dump_stack.c:120
+   print_address_description mm/kasan/report.c:378 [inline]
+   print_report+0x157/0x4c9 mm/kasan/report.c:482
+   kasan_report+0xce/0x100 mm/kasan/report.c:595
+   check_region_inline mm/kasan/generic.c:186 [inline]
+   kasan_check_range+0x10f/0x1e0 mm/kasan/generic.c:200
+   __asan_memcpy+0x3c/0x60 mm/kasan/shadow.c:106
+   kfifo_copy_in+0xf3/0x130 lib/kfifo.c:106
+   __kfifo_in_r lib/kfifo.c:442 [inline]
+   __kfifo_in_r+0x1b2/0x230 lib/kfifo.c:434
+   wacom_wac_queue_insert drivers/hid/wacom_sys.c:65 [inline]
+   wacom_wac_pen_serial_enforce drivers/hid/wacom_sys.c:165 [inline]
+   wacom_raw_event+0x900/0xa90 drivers/hid/wacom_sys.c:179
+   __hid_input_report.constprop.0+0x39a/0x4d0 drivers/hid/hid-core.c:2161
+   uhid_dev_input2 drivers/hid/uhid.c:618 [inline]
+   uhid_char_write+0xa8a/0xfa0 drivers/hid/uhid.c:776
+   vfs_write+0x2c0/0xe40 fs/read_write.c:686
+   ksys_write+0x1f8/0x250 fs/read_write.c:740
+   do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+   do_syscall_64+0xee/0x590 arch/x86/entry/syscall_64.c:94
+   entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605240823.YKX23Xjr-lkp@intel.com/
+  Allocated by task 4174:
+   kasan_save_stack+0x30/0x50 mm/kasan/common.c:57
+   kasan_save_track+0x14/0x30 mm/kasan/common.c:78
+   poison_kmalloc_redzone mm/kasan/common.c:398 [inline]
+   __kasan_kmalloc+0x8f/0xa0 mm/kasan/common.c:415
+   kasan_kmalloc include/linux/kasan.h:263 [inline]
+   __do_kmalloc_node mm/slub.c:5309 [inline]
+   __kmalloc_node_noprof+0x19a/0x4e0 mm/slub.c:5315
+   _kmalloc_array_node_noprof include/linux/slab.h:1269 [inline]
+   __kfifo_alloc_node+0x11e/0x260 lib/kfifo.c:44
+   __kfifo_alloc include/linux/kfifo.h:932 [inline]
+   wacom_devm_kfifo_alloc drivers/hid/wacom_sys.c:1315 [inline]
+   wacom_parse_and_register+0x2b4/0x5640 drivers/hid/wacom_sys.c:2381
+   wacom_probe+0x8d5/0xc40 drivers/hid/wacom_sys.c:2880
 
-All warnings (new ones prefixed by >>):
+  The buggy address belongs to the object at ffff888009179000
+   which belongs to the cache kmalloc-256 of size 256
+  The buggy address is located 0 bytes inside of
+   allocated 256-byte region [ffff888009179000, ffff888009179100)
 
-   In file included from include/linux/device.h:15,
-                    from include/linux/input.h:19,
-                    from drivers/hid/hid-core.c:25:
-   drivers/hid/hid-core.c: In function 'hid_report_raw_event':
->> drivers/hid/hid-core.c:2053:43: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t' {aka 'long unsigned int'} [-Wformat=]
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %u)\n",
-         |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ^~~
-   include/linux/dev_printk.h:156:61: note: in expansion of macro 'dev_fmt'
-     156 |         dev_printk_index_wrap(_dev_warn, KERN_WARNING, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                             ^~~~~~~
-   include/linux/dev_printk.h:215:17: note: in expansion of macro 'dev_warn'
-     215 |                 dev_level(dev, fmt, ##__VA_ARGS__);                     \
-         |                 ^~~~~~~~~
-   include/linux/dev_printk.h:227:9: note: in expansion of macro 'dev_level_ratelimited'
-     227 |         dev_level_ratelimited(dev_warn, dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:1340:9: note: in expansion of macro 'dev_warn_ratelimited'
-    1340 |         dev_warn_ratelimited(&(hid)->dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2053:17: note: in expansion of macro 'hid_warn_ratelimited'
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %u)\n",
-         |                 ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2053:90: note: format string is defined here
-    2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %u)\n",
-         |                                                                                         ~^
-         |                                                                                          |
-         |                                                                                          unsigned int
-         |                                                                                         %lu
-   drivers/hid/hid-core.c:2075:43: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t' {aka 'long unsigned int'} [-Wformat=]
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %u)\n",
-         |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ^~~
-   include/linux/dev_printk.h:156:61: note: in expansion of macro 'dev_fmt'
-     156 |         dev_printk_index_wrap(_dev_warn, KERN_WARNING, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                             ^~~~~~~
-   include/linux/dev_printk.h:215:17: note: in expansion of macro 'dev_warn'
-     215 |                 dev_level(dev, fmt, ##__VA_ARGS__);                     \
-         |                 ^~~~~~~~~
-   include/linux/dev_printk.h:227:9: note: in expansion of macro 'dev_level_ratelimited'
-     227 |         dev_level_ratelimited(dev_warn, dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/hid.h:1340:9: note: in expansion of macro 'dev_warn_ratelimited'
-    1340 |         dev_warn_ratelimited(&(hid)->dev, fmt, ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2075:17: note: in expansion of macro 'hid_warn_ratelimited'
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %u)\n",
-         |                 ^~~~~~~~~~~~~~~~~~~~
-   drivers/hid/hid-core.c:2075:91: note: format string is defined here
-    2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %u)\n",
-         |                                                                                          ~^
-         |                                                                                           |
-         |                                                                                           unsigned int
-         |                                                                                          %lu
+  Memory state around the buggy address:
+   ffff888009179000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffff888009179080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffff888009179100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                     ^
+   ffff888009179180: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+   ffff888009179200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
+This is a regression from commit 5e013ad20689 ("HID: wacom: Remove
+static WACOM_PKGLEN_MAX limit"), first present in v6.15-rc1. Before
+that commit, wacom_raw_event() rejected reports exceeding
+WACOM_PKGLEN_MAX (361 bytes) and the kfifo was sized at 512 bytes
+(361 rounded up). After the commit, the size cap was removed and the
+kfifo is dynamically sized as min(PAGE_SIZE, 10 * pktlen), which can
+be as small as 256 bytes.
 
-vim +2053 drivers/hid/hid-core.c
+wacom_wac_queue_insert() passes the report size directly to kfifo_in()
+without validating that it fits. When a UHID_INPUT2 event delivers a
+report up to 4096 bytes (UHID_DATA_MAX), kfifo_copy_in() writes up to
+3840 bytes past the end of the kmalloc-256 slab object.
 
-  2035	
-  2036	int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *data,
-  2037				 size_t bufsize, u32 size, int interrupt)
-  2038	{
-  2039		struct hid_report_enum *report_enum = hid->report_enum + type;
-  2040		struct hid_report *report;
-  2041		struct hid_driver *hdrv;
-  2042		int max_buffer_size = HID_MAX_BUFFER_SIZE;
-  2043		u32 rsize, csize = size;
-  2044		size_t bsize = bufsize;
-  2045		u8 *cdata = data;
-  2046		int ret = 0;
-  2047	
-  2048		report = hid_get_report(report_enum, data);
-  2049		if (!report)
-  2050			return 0;
-  2051	
-  2052		if (unlikely(bsize < csize)) {
-> 2053			hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %u)\n",
-  2054					     report->id, csize, bsize);
-  2055			return -EINVAL;
-  2056		}
-  2057	
-  2058		if (report_enum->numbered) {
-  2059			cdata++;
-  2060			csize--;
-  2061			bsize--;
-  2062		}
-  2063	
-  2064		rsize = hid_compute_report_size(report);
-  2065	
-  2066		if (hid->ll_driver->max_buffer_size)
-  2067			max_buffer_size = hid->ll_driver->max_buffer_size;
-  2068	
-  2069		if (report_enum->numbered && rsize >= max_buffer_size)
-  2070			rsize = max_buffer_size - 1;
-  2071		else if (rsize > max_buffer_size)
-  2072			rsize = max_buffer_size;
-  2073	
-  2074		if (bsize < rsize) {
-  2075			hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %u)\n",
-  2076					     report->id, rsize, bsize);
-  2077			return -EINVAL;
-  2078		}
-  2079	
-  2080		if (csize < rsize) {
-  2081			dbg_hid("report %d is too short, (%d < %d)\n", report->id,
-  2082				csize, rsize);
-  2083			memset(cdata + csize, 0, rsize - csize);
-  2084		}
-  2085	
-  2086		if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
-  2087			hid->hiddev_report_event(hid, report);
-  2088		if (hid->claimed & HID_CLAIMED_HIDRAW) {
-  2089			ret = hidraw_report_event(hid, data, size);
-  2090			if (ret)
-  2091				return ret;
-  2092		}
-  2093	
-  2094		if (hid->claimed != HID_CLAIMED_HIDRAW && report->maxfield) {
-  2095			hid_process_report(hid, report, cdata, interrupt);
-  2096			hdrv = hid->driver;
-  2097			if (hdrv && hdrv->report)
-  2098				hdrv->report(hid, report);
-  2099		}
-  2100	
-  2101		if (hid->claimed & HID_CLAIMED_INPUT)
-  2102			hidinput_report_event(hid, report);
-  2103	
-  2104		return ret;
-  2105	}
-  2106	EXPORT_SYMBOL_GPL(hid_report_raw_event);
-  2107	
-  2108	
+The fix adds a bounds check in wacom_wac_queue_insert() to reject
+reports that exceed the kfifo capacity.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks,
+Jinmo
+
+Jinmo Yang (1):
+  HID: wacom: validate report size before kfifo insert
+
+ drivers/hid/wacom_sys.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+-- 
+2.53.0
+

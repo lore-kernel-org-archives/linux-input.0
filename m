@@ -1,161 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7A5F30C159
-	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 18:41:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8951168BD
+	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 18:59:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779648073; cv=none; b=PW9Qk6VRUDyaL/MOpUwK8nrfvpdCW6BAYX4c5dxTqOj0jBAV9hsW/KlEzf93Hm72sMBsGOO472rky43dWk0edqlEZ+FiZvTUchRAdKJfv7RCuAeyMNuttKUkOlgl4d+NBuDQmaefarIkSi6ARiTq0cst+/5v/Jd92Tm/MRevLlw=
+	t=1779649175; cv=none; b=IbxkQPZUVzxTR/3CI4Q8qd/CFnR7/AyaqrGvk0VbjCE3N1wPvpvHUfVty/45yNOn0jdbcYFfCWhdvZpsgzCr4LiDmWT6V3gLKbFJEaPyRlMHmbaofeXaE7l8nuZ55uS4rASu8K2e+CeJH6QT+zvfNptmqd/5ZIsO7eLXTUBtyRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779648073; c=relaxed/simple;
-	bh=WrySSnR66GAwhQT8uc9pDrdk9+7mrE/+kPFJ/CLSOtM=;
+	s=arc-20240116; t=1779649175; c=relaxed/simple;
+	bh=0/5R9PmW+mdLmDmuTC4xJw7T1AO4UVaunMhi/L0AvRA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AJ8VfnMyh9TGf/sVxpZqmVOS92+hNzGT5d5uv9kyvEvUMoIBMI2c3MN6l75b2alPlAu4JKy5nJVOtOzho+O86JZ9ObEtELqtVDW5PCZpeeD0C74LRdS1A0IqARj9exzsfei2krDTqiPclwEmvnmjvJrNzugQ7QHV7nqkwp6m8wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XQeohQ2b; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UkQIpmeC7gpqu4btrM8FxT9QagoK/e5tkdITGKX3EPFG0UdYtG26k6q0zjnZtyhdWMvEDwnzLAT4mSOsw2Ohm9WWauecOlh9eyi/4kQNuqQk2RcZaDBK2sL4Fzwg6m+pWARrcsanw/HUdDzyDhmnwOeN1oy5BxCiHpF7aHj8YnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ot5qNfkJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XQeohQ2b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1648B1F000E9;
-	Sun, 24 May 2026 18:41:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ot5qNfkJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F871F000E9;
+	Sun, 24 May 2026 18:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779648071;
-	bh=V83smv29ioc3R/Inhh25MEukr33aRKG7IpMAqOkZKyM=;
+	s=k20260515; t=1779649174;
+	bh=uoIBso1jihG1VVFdOZSNd8fQCC5mFR7PsTdOFuv9psk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XQeohQ2bLq53KnNHWs3pzEaqrTcFG2yVF7H1Eif0g36fRD/BSUide7epIII5kwe27
-	 W8Cv9CzHAyR3G2tRoqPOI+JAK598D4uwyy0hPS20oaLAU1k2po0scAH0RnBPrmdFWf
-	 S1mg9tkBp+UI8IBlhOgXTqkP6eVe7xFy1ZNuvUlhuenqsH7eutw83B+HOAvZq4evgA
-	 ObFNdKobGz2CkNFxMUOcyHjrhOZWeUAXC17QMOa19lGNpJIdRTBhAGUgDTyxpM+Pik
-	 kvygmmTnmSwhGmQgS99yj/u3UZp0r7PlCXHiGMIOWoV03AUcFQGVY0bCoq0i/5fkV7
-	 coV+c8UfqqreA==
+	b=ot5qNfkJs3gVZ6vKBq2WCNjbZTCtypHVjyWC7W/zbhM5aKQeTLJcv9/V/iaOo9bcv
+	 G1D8m33tA35RdGXmyuX0m4uLJK+ONYmhG9W/JnM6dWyIJoY0Un2J2po+UDa2gqrefy
+	 CBiz1mgd3TvxaZ7dZjKuHb7mrIjtTnNNHBSGkgWyChcYhDo6/nW4FY8+tTI8ZweydA
+	 x8gj9vXrcIamxBJ3+QL3QkDTv9GeQPwvFChxezqiFUkCajnU4ktilYPlv1LgFKbiyH
+	 zL3m5ovowCYMXxmqCaO9VVz4isbQVXPXMJ/nYzqlBeF2nK8/VXqQcxx+5GP1lPwlSe
+	 6jHCoGRSOVWWA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: wacom: stop hardware after post-start probe
- failures
+Subject: Re: [PATCH] Input: rmi4 - release F54 queue on video registration
+ failure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Myeonghun Pak" <mhun512@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260524175552.1973-1-mhun512@gmail.com>
-References: <20260524175552.1973-1-mhun512@gmail.com>
+In-Reply-To: <20260524182351.27658-1-mhun512@gmail.com>
+References: <20260524182351.27658-1-mhun512@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 24 May 2026 18:41:10 +0000
-Message-Id: <20260524184111.1648B1F000E9@smtp.kernel.org>
+Date: Sun, 24 May 2026 18:59:33 +0000
+Message-Id: <20260524185934.60F871F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The error path in `wacom_parse_and_register()` fails to cancel asy=
-nchronous works and timers, leading to a Use-After-Free when the `wacom` st=
-ructure is freed.
-- [High] Dismantling software state before the hardware is stopped on failu=
-re paths creates race conditions with active interrupt handlers, leading to=
- a NULL pointer dereference.
-- [High] Releasing driver resources before stopping HID hardware in `wacom_=
-wireless_work()` leads to a Use-After-Free on incoming events.
+- [High] Embedding `struct video_device` and `struct vb2_queue` inside a de=
+vm-managed structure causes a Use-After-Free if the device node is held ope=
+n after unbind.
+- [High] `destroy_workqueue()` is called in `rmi_f54_remove()` without firs=
+t canceling the delayed work, risking a Use-After-Free.
 --
 
-commit 6396bf377f7e81b67088a1a9500d030c3776a230
+commit f89d07a2e226d7667f0c3e90fb7262a70db54401
 Author: Myeonghun Pak <mhun512@gmail.com>
 
-HID: wacom: stop hardware after post-start probe failures
+Input: rmi4 - release F54 queue on video registration failure
 
-This commit modifies wacom_parse_and_register() to route post-hid_hw_start()
-failures through hid_hw_stop() before releasing driver resources.
+rmi_f54_probe() initializes the videobuf2 queue before registering the
+video device. If video_register_device() fails, probe only unregisters
+the V4L2 device and leaves the initialized queue unwound.
 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index a32320b351e3e..76dc833f5f2e9 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-
-[ ... ]
-
-> @@ -2456,16 +2456,16 @@ static int wacom_parse_and_register(struct wacom =
-*wacom, bool wireless)
-> =20
->  	error =3D wacom_register_inputs(wacom);
->  	if (error)
-> -		goto fail;
-> +		goto fail_hw_stop;
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index ac4041a69fcd3..d35b5164b170a 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+> @@ -722,6 +722,7 @@ static int rmi_f54_probe(struct rmi_function *fn)
+>  	ret =3D video_register_device(&f54->vdev, VFL_TYPE_TOUCH, -1);
+>  	if (ret) {
+>  		dev_err(&fn->dev, "Unable to register video subdevice.");
+> +		vb2_queue_release(&f54->queue);
 
 [Severity: High]
-This is a pre-existing issue, but does setting the input pointers to NULL
-before stopping the hardware create a race condition?
+This isn't a bug introduced by this patch, but does embedding struct
+video_device and struct vb2_queue inside the devm-managed f54_data
+structure cause a use-after-free if the device node is held open after
+unbind?
 
-When wacom_register_inputs() fails, its error path sets wacom_wac->pad_input
-to NULL. However, because hid_hw_stop() hasn't been called yet, the
-hardware can still generate interrupts:
+In rmi_f54_remove(), video_unregister_device(&f54->vdev) is called, which
+clears the registered flag and drops one reference to vdev. However, if a
+userspace process still has the character device open, the V4L2 core has
+elevated the vdev refcount.
 
-wacom_parse_and_register()
-  wacom_register_inputs()
-    fail:
-      wacom_wac->pad_input =3D NULL;
-      return error;
-  goto fail_hw_stop;
+When rmi_f54_remove() returns, f54_data is immediately freed by devres,
+even though vdev still has active references. When userspace later closes
+the file descriptor, v4l2_release() calls the driver's .release operation,
+which dereferences the already-freed vdev and vdev->queue.
 
-If an interrupt arrives before hid_hw_stop() completes, will the interrupt
-handler dereference the NULL pad_input pointer?
-
-> =20
->  	if (wacom->wacom_wac.features.device_type & WACOM_DEVICETYPE_PAD) {
->  		error =3D wacom_initialize_leds(wacom);
->  		if (error)
-> -			goto fail;
-> +			goto fail_hw_stop;
-> =20
->  		error =3D wacom_initialize_remotes(wacom);
->  		if (error)
-> -			goto fail;
-> +			goto fail_hw_stop;
+>  		goto remove_v4l2;
 >  	}
-> =20
->  	if (!wireless) {
-
-[ ... ]
-
-> @@ -2496,6 +2496,7 @@ static int wacom_parse_and_register(struct wacom *w=
-acom, bool wireless)
->  	return 0;
-> =20
->  fail_quirks:
-> +fail_hw_stop:
->  	hid_hw_stop(hdev);
 
 [Severity: High]
-This is a pre-existing issue, but does this error path leave pending
-asynchronous works and timers running?
+This is a pre-existing issue, but is there also a use-after-free risk in
+rmi_f54_remove() regarding the delayed work?
 
-While hid_hw_stop() stops new interrupts from the hardware, works like
-wireless_work, battery_work, remote_work, or timers that were already
-scheduled while the hardware was active might still be pending.=20
+destroy_workqueue(f54->workqueue) is called in rmi_f54_remove() without
+first calling cancel_delayed_work_sync(&f54->work).
 
-Because wacom_probe() will propagate this error and trigger devres cleanup
-to free the wacom structure, could these pending works execute later and
-attempt to dereference the freed wacom pointer?
+destroy_workqueue() drains pending work but does not cancel or wait for
+non-pending delayed_work that is only linked on the timer side. After
+rmi_f54_remove() completes, f54_data is freed by devres.
 
->  fail:
->  	wacom_release_resources(wacom);
-
-[Severity: High]
-This is a pre-existing issue, but does releasing resources before
-stopping the hardware in other code paths create a similar race
-condition?
-
-For example, in wacom_wireless_work(), wacom_release_resources() is
-called before stopping the HID hardware. This frees resources like
-pen_fifo via devres_release_group().
-
-If an incoming HID report arrives after devres_release_group() but
-before the hardware is stopped, could wacom_raw_event() attempt to
-push data to the freed pen_fifo via wacom_wac_queue_insert(), causing
-a use-after-free?
-
->  	return error;
->  }
+When the pending timer subsequently expires, it will attempt to access the
+freed f54->work structure and schedule work on the destroyed workqueue.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260524175552.1973=
--1-mhun512@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260524182351.2765=
+8-1-mhun512@gmail.com?part=3D1

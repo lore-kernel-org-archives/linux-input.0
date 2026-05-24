@@ -1,112 +1,194 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8951168BD
-	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 18:59:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2B4D2F25F5
+	for <linux-input@vger.kernel.org>; Sun, 24 May 2026 19:21:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779649175; cv=none; b=IbxkQPZUVzxTR/3CI4Q8qd/CFnR7/AyaqrGvk0VbjCE3N1wPvpvHUfVty/45yNOn0jdbcYFfCWhdvZpsgzCr4LiDmWT6V3gLKbFJEaPyRlMHmbaofeXaE7l8nuZ55uS4rASu8K2e+CeJH6QT+zvfNptmqd/5ZIsO7eLXTUBtyRc=
+	t=1779650470; cv=none; b=Yjvdj8K/5zO6dFMS0+4grbhXZnNJX5KvZgAv5e2yWn0B9JNjNwU400/8OUwHb2vuBM32WE1yaTGzzYMginrEH2GS6lwNTn1pbMdH7i9iwLbBcdsLcFd/pT2mZd24a8mf30rcEzzF8e88kiUTzIFIpNjrG5yzSQ0dSw+k+fQU/IY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779649175; c=relaxed/simple;
-	bh=0/5R9PmW+mdLmDmuTC4xJw7T1AO4UVaunMhi/L0AvRA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UkQIpmeC7gpqu4btrM8FxT9QagoK/e5tkdITGKX3EPFG0UdYtG26k6q0zjnZtyhdWMvEDwnzLAT4mSOsw2Ohm9WWauecOlh9eyi/4kQNuqQk2RcZaDBK2sL4Fzwg6m+pWARrcsanw/HUdDzyDhmnwOeN1oy5BxCiHpF7aHj8YnQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ot5qNfkJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779650470; c=relaxed/simple;
+	bh=3hMBMGYsZsIoB3ZnKY+/wKu1ld+B3eVxVXPDrNrmqtk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=OkCv8AkchyZ7a+gHMAv+ruyI3dRAKXPJ4BKc2i8Eu8O4Ww5guTxmqx/vha9gsHhWR4JWneqP9ctv7hhOt0GEN+U6Efq+y34JBQpfhTQp6jktjhpUSYn+4nsJI8XnilIX/VqvTgvqSzrec73zMXS0ZKbmmZRdzaopVWUI/ood760=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gCSwu8jM; arc=none smtp.client-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ot5qNfkJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F871F000E9;
-	Sun, 24 May 2026 18:59:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779649174;
-	bh=uoIBso1jihG1VVFdOZSNd8fQCC5mFR7PsTdOFuv9psk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ot5qNfkJs3gVZ6vKBq2WCNjbZTCtypHVjyWC7W/zbhM5aKQeTLJcv9/V/iaOo9bcv
-	 G1D8m33tA35RdGXmyuX0m4uLJK+ONYmhG9W/JnM6dWyIJoY0Un2J2po+UDa2gqrefy
-	 CBiz1mgd3TvxaZ7dZjKuHb7mrIjtTnNNHBSGkgWyChcYhDo6/nW4FY8+tTI8ZweydA
-	 x8gj9vXrcIamxBJ3+QL3QkDTv9GeQPwvFChxezqiFUkCajnU4ktilYPlv1LgFKbiyH
-	 zL3m5ovowCYMXxmqCaO9VVz4isbQVXPXMJ/nYzqlBeF2nK8/VXqQcxx+5GP1lPwlSe
-	 6jHCoGRSOVWWA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: rmi4 - release F54 queue on video registration
- failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Myeonghun Pak" <mhun512@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260524182351.27658-1-mhun512@gmail.com>
-References: <20260524182351.27658-1-mhun512@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 24 May 2026 18:59:33 +0000
-Message-Id: <20260524185934.60F871F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gCSwu8jM"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-836ebdeb969so4049744b3a.3
+        for <linux-input@vger.kernel.org>; Sun, 24 May 2026 12:21:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779650468; x=1780255268; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dPqO9Ba6XGtFWc34qWTyk53wz9ueUFdVwtQK5XJuQvc=;
+        b=gCSwu8jM5XezO/vOjoJMzn81SJysOb10HsEmOW/KRIun2q5XxzbqEj8cRDcq0TaIrj
+         Obds9kT+5f5k81+m/GpbhRIG1e6dcVJx/IL037EUXKa+BsZEgbieeteZpy27vWAuqSQf
+         C4WGEw85qPB6ru5ZWcGlHhoCElfnq20GwHSQPXr5GJwmB3LZxauWrpYxErka9OpWJUQF
+         uuy3Xi3EyfVlElEMZ2nwkhgpxxb2omA7qVbbllzaTwW5k2xmQRpBL6SlsrXZktuGpII/
+         6Y/mYEXbHzYu8MQg0phhvyHWC90gD+Y3SnwMKhjXQ95uCmFYmABVWr7dWS3q8aG8N5y9
+         RQHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779650468; x=1780255268;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dPqO9Ba6XGtFWc34qWTyk53wz9ueUFdVwtQK5XJuQvc=;
+        b=Oyed/GtcuGkiL54UUrUq9l30wYv/W9r9Sm/5Za8UWNOIJ8Hgu0Gs1HB5fxvn6iOBz4
+         OfkoE8tQKjlIONf3so/eV2Hs8ywZL+a35HXEgUi18/WEE7jMAtHCIkGkk/EadgYnqvDM
+         4NOdvPBt/yS/I+h7qR47CmmCExKO/dvu1KkpXeyEhPOEM5iQhDamLHoa6397LrixVdRM
+         bEpllZJ7h4atQZrge77ac/JE6RPWPRj8oDTWwsN2QACtZhAuAqJkYADXYh9B3Cno4OD0
+         lcdTOQxEF/Uk9KZbYBv9REUrHflTnGywXgDTuQ0bnvLv+M7uChH41BxSh4y9E9o/yN5N
+         0XyQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+MuZ1cxlyBAOdHl1JgoK+tU9SRFkNGxB6fIhw8AJ+X53ATvH2JldS3WRtkFHgvqlnSpXQKGRgfAcK+LA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzygGkcuZzDN68APsdByDqn0t8qiTKfgZz7dmCAr+TItFp0bvwf
+	wvsQAYm/EOP+xi16CrUsd3edkDjYjckE7sfbz7W9jnAGgBK1GTfIxjnD
+X-Gm-Gg: Acq92OEQhpSI0t5c2GpaO7uy2aEbN0wGN/JowlMxrx0ZjU9sqpk6U8bna9bCOX0c2+e
+	zToq+viS8h67dnsTt3wVGTKWLq7FHoao5EZNU7QPr2HbwICY66sC/mmO24P677HUfW3FiKRKV7E
+	dPNo7Cu6HNB2FQFe8BRu+ZVqOstwa/eH3izC3XyL1cNVQOEIORRPZsDr8JJPU9H6XnZW4AzZg/U
+	ItLu78fo62mOVZOixL6n771Cns8A3yGq0KtDM8bkXP0nMvMoyKVI91WzL+LKVThKtW6J7WtMYg4
+	/rcam4bwDCOfNaBAwHhUxoqxT/74Hr+/W66YmRhkvt+/yGwrmMqqBHAkOmZpHjJ2ph/gD1+CQ+l
+	8AnH8kIRHmYGRPC0riuQOHHjj9CiK03iTtErgUH81k50DSzU+4tzOSTKejMu/gyHsrRxgtzb2LV
+	RaSsVimeFZbGGpviMw/6vdCJiZ+mPofYcad2pwuYrSIa74Ck2t/N21SlbHL2E=
+X-Received: by 2002:a05:6a00:ad8a:b0:82f:6e7:152d with SMTP id d2e1a72fcca58-8415f1a06fdmr10580518b3a.21.1779650467975;
+        Sun, 24 May 2026 12:21:07 -0700 (PDT)
+Received: from hu-ckantibh-hyd.qualcomm.com ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84164aed7c9sm8689973b3a.13.2026.05.24.12.21.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 May 2026 12:21:07 -0700 (PDT)
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+X-Google-Original-From: Sanjay Chitroda <sanjayembedded@gmail.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	srinivas.pandruvada@linux.intel.com
+Cc: dlechner@baylibre.com,
+	nuno.sa@analog.com,
+	andy@kernel.org,
+	sanjayembeddedse@gmail.com,
+	sakari.ailus@linux.intel.com,
+	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4 00/36] HID: iio: basic clean up and introduce devm_ API for HID sensors
+Date: Mon, 25 May 2026 00:50:23 +0530
+Message-Id: <20260524192059.1193716-1-sanjayembedded@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-Pre-existing issues:
-- [High] Embedding `struct video_device` and `struct vb2_queue` inside a de=
-vm-managed structure causes a Use-After-Free if the device node is held ope=
-n after unbind.
-- [High] `destroy_workqueue()` is called in `rmi_f54_remove()` without firs=
-t canceling the delayed work, risking a Use-After-Free.
---
+Key highlights:
+- 0000-0024: General cleanup and kernel few coding style fixes across HID IIO drivers
+- 0025: Remove unused iio_dev argument from HID IIO sensor helper
+- 0026: Introduce devm_hid_sensor_setup_trigger() device-managed API
+- 0027-0036: Convert HID IIO sensor drivers to use the new devm-based trigger setup
 
-commit f89d07a2e226d7667f0c3e90fb7262a70db54401
-Author: Myeonghun Pak <mhun512@gmail.com>
+changes in v4:
+- Extend the series to cover remaining HID IIO drivers with devm API usage
+- Reorder patches to place cleanup and warning fix at beginning and,
+  devm-related changes toward the end based on feedback from David
+- v3 series -> https://lore.kernel.org/all/20260509101040.791404-1-sanjayembedded@gmail.com/
+changes in v3:
+- Added cleanup and prepratory changes before adding devm_ API
+  conversion based on self review: 0002, 0004, 0006, 0007 and 0008
+- Address andy's review comment on commit message and coding style
+- v2 series -> https://lore.kernel.org/all/20260429175918.2541914-1-sanjayembedded@gmail.com/
+changes in v2:
+- Following input from Jonathan and Andy, squash initial patch v1
+  series in single change as individual change should not break anything
+- Add devm API support and two driver using the same
+- v1 series -> https://lore.kernel.org/all/20260428071613.1134053-1-sanjayembedded@gmail.com/
 
-Input: rmi4 - release F54 queue on video registration failure
+Testing:
+  - Compiled with W=1 for each patch in series
+  - Build-tested on QEMU x86_64
 
-rmi_f54_probe() initializes the videobuf2 queue before registering the
-video device. If video_register_device() fails, probe only unregisters
-the V4L2 device and leaves the initialized queue unwound.
+P.S.
+- Sashiko reported an issue in a different driver and noted that it is not
+  introduced by this series. I have taken this feedback into account and
+  will address the actual issue in a separate series focus on that driver.
+- Once this series is merged into the IIO tree, a number of HID IIO
+  drivers will become available to fully converted to devm API usage.
+- The changes are organized across drivers to keep similar modifications
+  grouped together for consistency, making the series easier to review,
+  rather than grouping all changes per driver.
 
-> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index ac4041a69fcd3..d35b5164b170a 100644
-> --- a/drivers/input/rmi4/rmi_f54.c
-> +++ b/drivers/input/rmi4/rmi_f54.c
-> @@ -722,6 +722,7 @@ static int rmi_f54_probe(struct rmi_function *fn)
->  	ret =3D video_register_device(&f54->vdev, VFL_TYPE_TOUCH, -1);
->  	if (ret) {
->  		dev_err(&fn->dev, "Unable to register video subdevice.");
-> +		vb2_queue_release(&f54->queue);
+Thanks,
+Sanjay Chitroda
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does embedding struct
-video_device and struct vb2_queue inside the devm-managed f54_data
-structure cause a use-after-free if the device node is held open after
-unbind?
+Sanjay Chitroda (36):
+  iio: hid-sensors: add missing blank line after declarations
+  iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
+  iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
+  iio: light: hid-sensor-als: use u32 instead of unsigned
+  iio: light: hid-sensor-prox: use u32 instead of unsigned
+  iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
+  iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+  iio: pressure: hid-sensor-press: use u32 instead of unsigned
+  iio: humidity: hid-sensor-humidity: align parenthesis for readability
+  iio: gyro: hid-sensor-gyro-3d: align parenthesis for readability
+  iio: magnetometer: hid-sensor-magn-3d: align parenthesis for
+    readability
+  iio: humidity: hid-sensor-humidity: use common device for devres
+  iio: position: hid-sensor-custom-intel-hinge: use common device for
+    devres
+  iio: temperature: hid-sensor-temperature: use common device for devres
+  iio: humidity: hid-sensor-humidity: use local struct device
+  iio: gyro: hid-sensor-gyro-3d: use local struct device
+  iio: accel: hid-sensor-accel-3d: use local struct device
+  iio: light: hid-sensor-als: use local struct device
+  iio: light: hid-sensor-prox: use local struct device
+  iio: magnetometer: hid-sensor-magn-3d: use local struct device
+  iio: orientation: hid-sensor-incl-3d: use local struct device
+  iio: orientation: hid-sensor-rotation: use local struct device
+  iio: position: hid-sensor-custom-intel-hinge: use local struct device
+  iio: pressure: hid-sensor-press: use local struct device
+  iio: hid-sensors: remove unused iio_dev argument
+  iio: hid-sensors: introduce device managed API
+  iio: gyro: hid-sensor-gyro-3d: drop hid_sensor_remove_trigger() using
+    devm API
+  iio: humidity: hid-sensor-humidity: drop hid_sensor_remove_trigger()
+    using devm API
+  iio: light: hid-sensor-prox: drop hid_sensor_remove_trigger() using
+    devm API
+  iio: light: hid-sensor-als: drop hid_sensor_remove_trigger() using
+    devm API
+  iio: magnetometer: hid-sensor-magn-3d: drop
+    hid_sensor_remove_trigger() using devm API
+  iio: orientation: hid-sensor-incl-3d: drop hid_sensor_remove_trigger()
+    using devm API
+  iio: orientation: hid-sensor-rotation: drop
+    hid_sensor_remove_trigger() using devm API
+  iio: position: hid-sensor-custom-intel-hinge: drop
+    hid_sensor_remove_trigger() using devm API
+  iio: pressure: hid-sensor-press: drop hid_sensor_remove_trigger()
+    using devm API
+  iio: temperature: hid-sensor-temperature: drop
+    hid_sensor_remove_trigger() using devm API
 
-In rmi_f54_remove(), video_unregister_device(&f54->vdev) is called, which
-clears the registered flag and drops one reference to vdev. However, if a
-userspace process still has the character device open, the V4L2 core has
-elevated the vdev refcount.
+ drivers/iio/accel/hid-sensor-accel-3d.c       |  30 ++---
+ .../common/hid-sensors/hid-sensor-trigger.c   |  24 +++-
+ .../common/hid-sensors/hid-sensor-trigger.h   |   5 +-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c         |  96 ++++++++-------
+ drivers/iio/humidity/hid-sensor-humidity.c    |  61 +++++-----
+ drivers/iio/light/hid-sensor-als.c            |  31 +++--
+ drivers/iio/light/hid-sensor-prox.c           |  30 ++---
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 112 +++++++++---------
+ drivers/iio/orientation/hid-sensor-incl-3d.c  |  36 +++---
+ drivers/iio/orientation/hid-sensor-rotation.c |  38 +++---
+ .../position/hid-sensor-custom-intel-hinge.c  |  27 ++---
+ drivers/iio/pressure/hid-sensor-press.c       |  36 +++---
+ .../iio/temperature/hid-sensor-temperature.c  |  15 +--
+ 13 files changed, 264 insertions(+), 277 deletions(-)
 
-When rmi_f54_remove() returns, f54_data is immediately freed by devres,
-even though vdev still has active references. When userspace later closes
-the file descriptor, v4l2_release() calls the driver's .release operation,
-which dereferences the already-freed vdev and vdev->queue.
 
->  		goto remove_v4l2;
->  	}
+base-commit: 08297ca8422541dde6c8b7e6b1d68bd4aa4568ef
+-- 
+2.34.1
 
-[Severity: High]
-This is a pre-existing issue, but is there also a use-after-free risk in
-rmi_f54_remove() regarding the delayed work?
-
-destroy_workqueue(f54->workqueue) is called in rmi_f54_remove() without
-first calling cancel_delayed_work_sync(&f54->work).
-
-destroy_workqueue() drains pending work but does not cancel or wait for
-non-pending delayed_work that is only linked on the timer side. After
-rmi_f54_remove() completes, f54_data is freed by devres.
-
-When the pending timer subsequently expires, it will attempt to access the
-freed f54->work structure and schedule work on the destroyed workqueue.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260524182351.2765=
-8-1-mhun512@gmail.com?part=3D1

@@ -1,166 +1,157 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-08.mail-europe.com (mail-08.mail-europe.com [57.129.93.249])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096EE277C81
-	for <linux-input@vger.kernel.org>; Mon, 25 May 2026 17:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4392F33ADAF
+	for <linux-input@vger.kernel.org>; Mon, 25 May 2026 18:29:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.129.93.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779728757; cv=none; b=NYfZeXmFdYUYmiODV1qHam6YlwR+3HR/FNC2BpdgYZ2jSvYBPcZOoaplEK7wgW8VB9LtCmKEdTNrHS2EwXpVBklv7uGOXHhCsucwQplTBvtgSAWB7DT5ZSJHBvi0aCicQrVotlLR3bhHzs2UoYkuh94ojSPlkG9rQaDzjWmKi2U=
+	t=1779733773; cv=none; b=im8oaCLCEnmtlh0Ot2Pa0Yn3y8e6KH81osOdsHiB/DPyz4YNbtsQwERQ920UHAt4LVwJ7QcuRIXBDMFWmNoDqSpV8XvqbmdzGatdyFZeZhf2CtU8+uoAQLzrwdKFd2rK7kyrr2joCiTHiqfwIoo8igCEL41Q80SbqtkYYzOVwU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779728757; c=relaxed/simple;
-	bh=dNr5npzmjH5TNIPI+SiGCtlCO2PSO7e22Bm+5Tsaivk=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=bfd+U61mq0S4gi3TZZLbiuz5x39FzCWAQyrdl1TJPivp33Kg+VL592p5nx8X2KvpJu31bZG7ZjYc2OrOdb2qhqVLCm3+WECeIMePAQFTjnN3mR3N6cRNWzcs9bdR2tbaoRac9hkrMVD5MSU7VqHGikB/piFGNElazilpe++9Z1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nmdrHM+R; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779733773; c=relaxed/simple;
+	bh=y0uyQCEAM9V0NPk0kt6vbk5LGCMoiCyFoi4mUCkwdRw=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nmj2MUhsFmarb0cDPx4H3luX6G5HL0LhfyIpFum31ejqBSnW9dVKf/fHo4Fg/Xy2WC/6m/hyKalcD5qRTumY1QiCHQ9xOSP3RFpu8zIvthgYSBw5EVJ7fcPJiXKWu4aW1rZ26JlHcm2Pauc6nuY1OB1Amd1fa0AH3BL9IrdqcJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=saurla.com; spf=pass smtp.mailfrom=saurla.com; dkim=pass (2048-bit key) header.d=saurla.com header.i=@saurla.com header.b=kEo+qCjd; arc=none smtp.client-ip=57.129.93.249
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=saurla.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=saurla.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nmdrHM+R"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c827313dac0so4813051a12.1
-        for <linux-input@vger.kernel.org>; Mon, 25 May 2026 10:05:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779728755; x=1780333555; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=yQxkV4mwVmTVJQL3nPJxg1liRK7ZFd4JwILsN7OzbnU=;
-        b=nmdrHM+RtupWIFdW8aon2nnhgB1+fSdmqGzVA+PnRpqd5D5nrbCZmztAkxiOLH03ww
-         Z9jEbB/qAyRmuCiAbCYKblBXxKmiUNaC3OCB3suYhHI7wMYlE8cWXxqcHG7iwThFwdTX
-         Oc1wNkXMix99fZUv++MMfJ+bwk6OVIEXCuy6hLRrCu1VR1AX378xTvfEUYe5+EijYTGf
-         Kie+Bkm5XILZqCOLc2dEF7KND2RHIzafIeskpwkEPwtBHozJDQPp2tx2SHBhZX75QN4o
-         1fksuDwSXCENTWz7JKz6RJEqPZFF2qidTfS5MPzVOjU74Wy+LrIynCcsNHi1iWYXGTiJ
-         fWjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779728755; x=1780333555;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yQxkV4mwVmTVJQL3nPJxg1liRK7ZFd4JwILsN7OzbnU=;
-        b=JNe8IXuioh/feD8A/QAL6nfJsX0d6RJKAqUp7Pnq1hgV/gawm3aQ0UErelwEEZeTC6
-         +40X66mYylw6h+xOmVQqaaqINIuQF/57ku1kLsJNHKDCStALvSAM2agW4dMtyJhfI/v/
-         JFH04iQu+q+lFHZuyFf1en3aTIy3wVG7YpkGBMaYcLRrMlhkPAe5eX15pP9ux5MsmpLi
-         LU9+ObPk+iPzLkmGPWraCW6F09R9mchLADkkyryxswkOQFsVUOWYbbinLPSja/523Fvr
-         IrvajLS6xXg7OE9LcmRp/FF8kP//2cE5z+puySnNESikEy406bgQq+XJvgCpxlZis1YR
-         OWjg==
-X-Forwarded-Encrypted: i=1; AFNElJ8NN5aamp5mCqnro7lRGE1DmeplPjPaovHRLNf+zFlkzYRTVFbfIDwEmWJyP4ECjEqH8xoYCzNc2pZ8Uw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx7upKXmExV1KPzs+cTp93xHWIhCqKuMB9nJXUHXkqADTbwIwQB
-	STW+7kMyawkCfc3y5fu1qrlf1HC0pstUJzGuE1PMN/AGH0hv0drpAtP7
-X-Gm-Gg: Acq92OFRKifQQC4rbOd/5vHF6ViqKRG0anjspgBVUhrUeVRTDhWBucqFy4gBiH9ZbAg
-	j/1ho11MKPBrJm9N3sTMCqM3K1oabxRWUoqkVxu/HXAgNBrATOPtxAoFgJMfljhjioHn8Ynh+YZ
-	kPYXOQ6yLqxW/KRYYglyKXh7a+XLh4sZGa9snGpGSR0Ip+QHle7DrSiWN5xKeLEjeefFXqWqpPa
-	ZXKK36p2lGTrsl/bb1RJgG1yFn6tPP2CZjZvXLxuVMhOtIo4TYIawTGNXjW7qE3QL+nvXQseCNe
-	aUQwUuIPU4Kfy3Nj8wVqSE/umIv+ionMMBx89fPyLJ5e9jK5LP6O06yxlFfEtAiWmuoiPwi9TdT
-	Ya+wxmuZV43kjhEFs34YtJvHijhCGEWq5rPMKAZFMwWwtERXTFUj4WWM6OTlh+k9fiwhSuvXngz
-	qDvmiU94O/A8ppMKXZBaSWRqVVd5NgJT4HiuRPAiOL3mxFCr1TNVkXR9Pffg==
-X-Received: by 2002:a17:902:f710:b0:2ba:6601:8e3d with SMTP id d9443c01a7336-2bea21da1bbmr178325865ad.9.1779728755289;
-        Mon, 25 May 2026 10:05:55 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([2401:4900:1f3f:2c19:f0b2:176f:f0e0:aaf2])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58b2ebcsm102045615ad.49.2026.05.25.10.05.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 May 2026 10:05:54 -0700 (PDT)
-Date: Mon, 25 May 2026 22:35:50 +0530
-From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, jikos@kernel.org,
- jic23@kernel.org, srinivas.pandruvada@linux.intel.com
-CC: dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
- sakari.ailus@linux.intel.com, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v4_35/36=5D_iio=3A_pressure=3A_hid-sensor-pre?=
- =?US-ASCII?Q?ss=3A_drop_hid=5Fsensor=5Fremov?=
- =?US-ASCII?Q?e=5Ftrigger=28=29_using_devm_API?=
-User-Agent: Thunderbird for Android
-In-Reply-To: <0a8ebbd2-5de6-48d2-9218-f7b816eb3455@wanadoo.fr>
-References: <20260524192943.1196773-1-sanjayembedded@gmail.com> <20260524192943.1196773-6-sanjayembedded@gmail.com> <0a8ebbd2-5de6-48d2-9218-f7b816eb3455@wanadoo.fr>
-Message-ID: <39A229F0-436E-4AAC-82A4-9B04733E9EE3@gmail.com>
+	dkim=pass (2048-bit key) header.d=saurla.com header.i=@saurla.com header.b="kEo+qCjd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=saurla.com;
+	s=protonmail; t=1779733761; x=1779992961;
+	bh=3wlGHaJL+WtUODhc4EGv3mI8bJluO2hh4xX6ySWx0pw=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=kEo+qCjdnf2iSJi8OJvG4JjaN/2uyUSJUwy+Pc6xNz+alP79VhKI5Wvb1D1RIzLcp
+	 xXYETNRwVU87rVVzV42Woo+OvoOcB2U+L7NpTOdUkDRVBKsCfsqpWHCuh1lpJvGrNR
+	 StAJ9nWvLFQkVDbdUVGCv4JjWxNyxpKoroj/eE2z5IGP7osOfguWKWa9Ji6GvWsegR
+	 9hUaIt+iQX/QKHcR0VCIHbqFBv5DaYaws87mQs5MSDv4OyAzIm5yofXZv9zmqUhnrN
+	 6cIZXxdV0QoUxJpwr8b6vVworlh3BJidPQqfXtbVjkjaoc2U06C9Ly/URGyx87c9ej
+	 VgfrITHiOZwLQ==
+Date: Mon, 25 May 2026 18:29:15 +0000
+To: sashiko-reviews@lists.linux.dev
+From: Lauri Saurus <saurla@saurla.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: logitech-hidpp: sync wheel multiplier on wheel mode changes
+Message-ID: <2soHS09EjxVmxoRVKFjk3JBN0u9OZD6kpOQvO2D16jhPHL79xzUNJR-BMLlBTIg2KE4EDSpPJUGLO6e1Cvivzq-mEJTFjZAzRmac-kLaQAY=@saurla.com>
+In-Reply-To: <20260518201000.BBD71C2BCB7@smtp.kernel.org>
+References: <20260518192649.245691-1-saurla@saurla.com> <20260518201000.BBD71C2BCB7@smtp.kernel.org>
+Feedback-ID: 198286868:user:proton
+X-Pm-Message-ID: c86d264a5324a657c7f4efc03cba756abbcbbb0a
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-
-
-On 25 May 2026 3:39:11=E2=80=AFpm IST, Christophe JAILLET <christophe=2Eja=
-illet@wanadoo=2Efr> wrote:
->Le 24/05/2026 =C3=A0 21:29, Sanjay Chitroda a =C3=A9crit=C2=A0:
->> From: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
->>=20
->> Use devm_hid_sensor_setup_trigger() to automatically release resource
->> during fail, unbind or removal of driver using devres framework=2E
->>=20
->> This simplify the setup, remove goto, avoid manual resource cleanup in
->> teardown path=2E
->>=20
->> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
->> ---
->>   drivers/iio/pressure/hid-sensor-press=2Ec | 10 +++-------
->>   1 file changed, 3 insertions(+), 7 deletions(-)
->>=20
->> diff --git a/drivers/iio/pressure/hid-sensor-press=2Ec b/drivers/iio/pr=
-essure/hid-sensor-press=2Ec
->> index fee7dcb86801=2E=2E8438498c9aeb 100644
->> --- a/drivers/iio/pressure/hid-sensor-press=2Ec
->> +++ b/drivers/iio/pressure/hid-sensor-press=2Ec
->> @@ -291,8 +291,8 @@ static int hid_press_probe(struct platform_device *=
-pdev)
->>     	atomic_set(&press_state->common_attributes=2Edata_ready, 0);
->>   -	ret =3D hid_sensor_setup_trigger(indio_dev, name,
->> -				&press_state->common_attributes);
->> +	ret =3D devm_hid_sensor_setup_trigger(dev, indio_dev, name,
->> +					    &press_state->common_attributes);
->>   	if (ret) {
->>   		dev_err(dev, "trigger setup failed\n");
->>   		return ret;
->> @@ -301,7 +301,7 @@ static int hid_press_probe(struct platform_device *=
-pdev)
->>   	ret =3D iio_device_register(indio_dev);
+> > +static int hidpp20_hires_wheel_raw_event(struct hidpp_device *hidpp,
+> > +=09=09=09=09=09=09u8 *data, int size)
+> > +{
+> > +=09if (hidpp->hires_wheel_feature_index =3D=3D 0xff)
+> > +=09=09return 0;
+> > +
+> > +=09if (size < 5)
+> > +=09=09return 0;
+> > +
+> > +=09if (data[0] !=3D REPORT_ID_HIDPP_LONG ||
+> > +=09    data[2] !=3D hidpp->hires_wheel_feature_index)
+> > +=09=09return 0;
 >
->Hi,
+> Does this code need to handle VERY_LONG reports as well?
 >
->Looks like devm_iio_device_register() would now make sense and simplify t=
-hings even further=2E
->
->CJ
+> Userspace tools or newer devices might transmit FAP commands using
+> REPORT_ID_HIDPP_VERY_LONG (0x12). If the request is a VERY_LONG report, t=
+he
+> response will also be VERY_LONG, and this check would drop it, failing to
+> update the multiplier.
 
-Hi CJ,
-
-Yes, as mentioned in cover letter most of HID IIO drivers have potential a=
-nd will converted to devm based driver gradually=2E
-
-Welcoming all suggestions and especially if someone can validate and have =
-Tested-by tag=2E
-
-Thank, Sanjay
+I agree, it could be possible some hosts could send the command as VERY_LON=
+G report for newer devices which support that. I will change this to suppor=
+t VERY_LONG reports also.
 
 >
->>   	if (ret) {
->>   		dev_err(dev, "device register failed\n");
->> -		goto error_remove_trigger;
->> +		return ret;
->>   	}
->>     	press_state->callbacks=2Esend_event =3D press_proc_event;
->> @@ -318,8 +318,6 @@ static int hid_press_probe(struct platform_device *=
-pdev)
->>     error_iio_unreg:
->>   	iio_device_unregister(indio_dev);
->> -error_remove_trigger:
->> -	hid_sensor_remove_trigger(&press_state->common_attributes);
->>   	return ret;
->>   }
->>   @@ -328,11 +326,9 @@ static void hid_press_remove(struct platform_dev=
-ice *pdev)
->>   {
->>   	struct hid_sensor_hub_device *hsdev =3D dev_get_platdata(&pdev->dev)=
-;
->>   	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
->> -	struct press_state *press_state =3D iio_priv(indio_dev);
->>     	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_PRESSURE);
->>   	iio_device_unregister(indio_dev);
->> -	hid_sensor_remove_trigger(&press_state->common_attributes);
->>   }
->>     static const struct platform_device_id hid_press_ids[] =3D {
+> > +
+> > +=09if ((data[3] & 0xf0) =3D=3D CMD_HIRES_WHEEL_SET_WHEEL_MODE) {
+> > +=09=09u8 mode =3D data[4];
+> > +=09=09bool hires =3D (mode & 0x02) !=3D 0;
 >
+> Does the HID++ 2.0 protocol guarantee that SET command responses will ech=
+o
+> the requested mode in the payload?
+>
+> In the FAP protocol, responses to SET commands often return an empty
+> (zero-filled) payload. If the device returns a zero payload, data[4] woul=
+d
+> be 0x00. The code would then evaluate hires =3D false and forcefully set =
+the
+> multiplier to 1, even if high-resolution mode was successfully requested.
+
+As per the "Protocol HID++2.0 essential features" section in https://lekens=
+teyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pd=
+f:
+"
+All functions must respect the following rule:
+  All parameters in a request must always be repeated in the response:
+    Any parameter that is fully supported must be repeated "as is".
+    Any parameter that is only "partially supported", must be returned as s=
+upported.
+
+The following examples should help to better understand these requirement:
+  A read command where an address (i.e., memory address, register address, =
+etc.) is given as parameter must return the address and the data in the res=
+ponse (and not just the address).
+  A write command which sets a collection of bits or bit fields, should ret=
+urn the same value where all unsupported bits and bit fields have been mask=
+ed to their default values (usually 0).
+  A command such as open-lock, erase-memory, etc. should return its paramet=
+ers unchanged.
+
+Note that there is no requirement to implement partial support. Each featur=
+e designer is free to decide if "partially correct" parameters
+should return and error or be "partially supported." However, if partial su=
+pport is implemented, then the parameters must be returned
+as supported.
+"
+
+Based on the aforementioned specification, all parameters must be echoed in=
+ the response. If the SetWheelMode would not support setting hires paramete=
+r (partial support), then hires parameter would be returned as default valu=
+e 0 (low res) in the response. In that case, it is correct to set the multi=
+plier to 1, since setting hires was not supported.
+
+Unless there are verified cases of HID++ capable mouses behaving as describ=
+ed in the review comment, or knowledge of newer version of the specificatio=
+n to have changed aforementioned rule, I would assume all devices to work a=
+ccording to the specification.
+
+>
+> > +=09=09int new_multiplier =3D (hires && hidpp->hires_wheel_multiplier >=
+ 0)
+> > +=09=09=09? hidpp->hires_wheel_multiplier : 1;
+> > +=09=09hidpp->vertical_wheel_counter.wheel_multiplier =3D new_multiplie=
+r;
+>
+> Is there a potential data race on wheel_multiplier and
+> hires_wheel_multiplier here?
+>
+> Looking at hi_res_scroll_enable(), it writes to these variables from
+> process context via the workqueue. Concurrently, this event handler reads
+> and writes to them from the HID raw event delivery path in interrupt cont=
+ext.
+> There does not appear to be any synchronization protecting these shared
+> variables across contexts.
+>
+> > +=09=09return 1;
+> > +=09}
+> > +
+> > +=09return 0;
+> > +}
+>
+
+I agree that in theory there is a possible race condition. However, wheel_m=
+ultiplier was already written to from hi_res_scroll_enable, and read from t=
+he HID event handler before this patch. Not sure if this patch should addre=
+ss this issue or not.

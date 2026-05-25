@@ -1,107 +1,101 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD07126C02
-	for <linux-input@vger.kernel.org>; Mon, 25 May 2026 04:17:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 960D33CFF71
+	for <linux-input@vger.kernel.org>; Mon, 25 May 2026 08:58:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779682660; cv=none; b=mXlecm+SXjWZ0G9tknTBemVJj+0Wp3t4KedATYTci9XqHXH4QEzHBLp7JBIhrBfUe9TUbTtQRuhg9UyOsjyYWjXKwEBSYFtwNhyhVJExh1eua5LVfUsDMSTi2FOXz5AXu3OqgpVWXLv9aUWrSHKxN4Y4nIDIaPPvgVbgyGD/+BE=
+	t=1779699483; cv=none; b=Or7fo/Uq9Ynx6qvZ9OgnxwCZxmV52F+b2NuvC2hTQkfUYXnQdThT3Fz+vzZbvgvnhcRKYefZnvtHOt7VfK0pGiqp5gYsa/zf5RusRVCrYOnSfn5P8spEtD+8sQbfCRFLZaSx/acqBcoeeuVxEA20B7RydnSzZETCTNNpkX0gp78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779682660; c=relaxed/simple;
-	bh=lIrbCrSHDXBKJPnsGy0cUfyQNvXffUGPVQl5OwVHgfs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NNGpQJAxHrIAyZphQWh2B3VINomqxfOgvD7+pzja2BYflxnEl/ZTEWtO7hT23WAj+CsW7LLdNm18QNRGW4L3FSvZPqZjuXON5U/JXb++PtRuwbYCNHbjHsVSjabD6Bc4r8qfMsXo1bbad3w5ezY6GnGPc68NYKHJDOQFmFXJDRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jdfzjBlw; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779699483; c=relaxed/simple;
+	bh=xXz/GYVV9QSNbeC/HxJ0KuDPx2s68Hc+e5zq10KEVeM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oJhfU9NME2SdId/SEYFw2/BQmJd+JNg8w1ZbhSyCa2kNCspkr/a8HrbRy+00olFra/5e3FN5JJGcEjbmCtu2ZlNVPgsTGQ94TPHvPLVu2nYkNj9QgWiDHiEFnpyV+HQ6wzWi/hHSCGkZIgRmreL0w/jBmKm8vUOnEiUe7C9IWjs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PsfSJ9qs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jdfzjBlw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2EC21F000E9;
-	Mon, 25 May 2026 04:17:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PsfSJ9qs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF801F01560
+	for <linux-input@vger.kernel.org>; Mon, 25 May 2026 08:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779682658;
-	bh=vCsywREkGzPWM7Fw11jMO56tnhLL7xdp4MlmyR3WIho=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jdfzjBlwPmpACl54gGlEB1nyfpGGgUx3sQZuusaouz4AKtD8OVtxnDq0opiZjctMd
-	 m+vIWa+VE5OR9shhoX955h4Kjrk8GWcjLJ0KFIvq6odPBDdOs3PAKkaJg57EbNh5Zx
-	 1iliSIlAuTHdzDLv1IPlxQDdZG5PA61jBp06v30PJkCLns1IPOciue0/4WGOBHLYDg
-	 IAwaZ2YQwZsSuh0qTfhez4X2VaCX27+kc2Yj6a7OS1UsJ32s72nftCo8Mk2DMX9DQk
-	 iQaYdp5LhOvkKRuacgdeJFSaN6OkFhMYSWNvacfYEicCHXeLnQN1PMR6jZu1nw1MjO
-	 XLAsa9EfB6p8g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 4/4] HID: hid-msi: Add Rumble Intensity Attributes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260525020543.519082-5-derekjohn.clark@gmail.com>
-References: <20260525020543.519082-5-derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 25 May 2026 04:17:38 +0000
-Message-Id: <20260525041738.B2EC21F000E9@smtp.kernel.org>
+	s=k20260515; t=1779699482;
+	bh=xXz/GYVV9QSNbeC/HxJ0KuDPx2s68Hc+e5zq10KEVeM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=PsfSJ9qsfwUwMwGEQi9C5gkghGo00zi/UHVZXT4fQmDaGE2tbo69FkGJUMDmJx5ZP
+	 ajPVIPljZ4PYnb9NQO2JuaYOFz0uSSzjinXFbifeiuH7Y5hFnmw/pg0AbsywCXU/SD
+	 iPUkHSnbzPHqA1uoorTRRt7DninH/J/mgesmdexSXzDEg3Ao0pEGi/C476ZUYOoNjo
+	 DhVby5WWmAzJI1rJokBGqtXYfB6crSo2ze8eCNS3Z8HpmjitJ5phMuXGeqY8YpS/IE
+	 4iv+mYl92pOnQMXUwDk8yLuuzxK9SKUDmBR1sZXJrfOae8y4hAMWzbqZLbeDzEDzc2
+	 WZ12vmUy0grtA==
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7de7c57b52cso8276385a34.3
+        for <linux-input@vger.kernel.org>; Mon, 25 May 2026 01:58:02 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8bx3Hm+P/+/PfgVc7uVdrjP2t07UAK6rz2OwKSHOIWQrf+MqxewzCICOZaZkZKaJtTwiVUMBA56OdVNg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2yvyrB7rzwk2YZtVAeTKoVk89sQv1sWwnLALEcu4qb0LnhVuG
+	kx9Joyp0WNbHf8i37hNgFFRt6T/n/q49zQGGQTx1aEIMpeXEm4+QliIr3eHX1s62as5snOKCasa
+	EbgIFLRMqdIhzB1JbaEmnvr9SvX+4C0Q=
+X-Received: by 2002:a05:6830:4985:b0:7d7:fb8c:3c29 with SMTP id
+ 46e09a7af769-7e5feeb63a7mr8912823a34.14.1779699481274; Mon, 25 May 2026
+ 01:58:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260520183815.2510387-1-arnd@kernel.org> <20260520183815.2510387-3-arnd@kernel.org>
+In-Reply-To: <20260520183815.2510387-3-arnd@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 25 May 2026 10:57:44 +0200
+X-Gmail-Original-Message-ID: <CAD++jLnYeh3GfEfNXfCYdcdg_j2RAU63TYewwaTx3tm0tM531w@mail.gmail.com>
+X-Gm-Features: AVHnY4KW10_QvipgU3JqDhFdOUhRtRqnFXdZTNq6fk963CfrOH70VHOW3qgjj1k
+Message-ID: <CAD++jLnYeh3GfEfNXfCYdcdg_j2RAU63TYewwaTx3tm0tM531w@mail.gmail.com>
+Subject: Re: [PATCH 02/10] [v3] input: gpio-keys: make legacy gpiolib optional
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Arnd Bergmann <arnd@arndb.de>, Christian Lamparter <chunkeey@googlemail.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Aaro Koskinen <aaro.koskinen@iki.fi>, 
+	Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>, 
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, Jonas Gorski <jonas.gorski@gmail.com>, 
+	Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <olteanv@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, linux-wireless@vger.kernel.org, 
+	linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Wed, May 20, 2026 at 8:38=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wro=
+te:
 
-Pre-existing issues:
-- [High] Mixing goto-based error handling with scope-based cleanup (__free/=
-guard) in claw_hw_output_report().
---
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Most users of gpio-keys and gpio-keys-polled use modern gpiolib
+> interfaces, but there are still number of ancient sh, arm32 and x86
+> machines that have never been converted.
+>
+> Add an #ifdef block for the parts of the driver that are only used on
+> those legacy machines.
+>
+> The two Rohm PMIC drivers use a gpio-keys device without an actual GPIO,
+> passing an IRQ number instead. In order to keep this working both with
+> and with CONFIG_GPIOLIB_LEGACY, change the gpio-keys driver to ignore
+> the gpio number if an IRQ is passed.
+>
+> Link: https://lore.kernel.org/all/b3c94552-c104-42e3-be15-7e8362e8039e@gm=
+ail.com/
+> Link: https://lore.kernel.org/all/afJXG4_rtaj3l2Dk@google.com/
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-commit a152767539ab279fa2750588503cc5a77a8522da
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-HID: hid-msi: Add Rumble Intensity Attributes
-
-Adds intensity adjustment for the left and right rumble motors. It introduc=
-es
-new sysfs attributes for reading and writing rumble intensity.
-
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 96710d80543d4..f5c54cd62f3bb 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
-[ ... ]
-> @@ -930,6 +962,162 @@ static ssize_t button_mapping_options_show(struct d=
-evice *dev,
-[ ... ]
-> +static ssize_t rumble_intensity_left_store(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   const char *buf, size_t count)
-> +{
-[ ... ]
-> +	guard(mutex)(&drvdata->rom_mutex);
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DAT=
-A,
-> +				    (u8 *)&report, sizeof(report), 25);
-
-[Severity: High]
-This is a pre-existing issue, but does claw_hw_output_report() mix goto-bas=
-ed
-error handling with scope-based cleanup?
-
-Looking at claw_hw_output_report(), it defines dmabuf with __free(kfree)
-and uses guard(mutex), but also relies on explicit goto err_clear_state
-jumps for error handling:
-
-    unsigned char *dmabuf __free(kfree) =3D NULL;
-    ...
-    if (ret < 0)
-        goto err_clear_state;
-    ...
-    err_clear_state:
-
-According to the cleanup guidelines, functions should either convert all
-resources to scope-based cleanup, or convert none of them to avoid confusing
-ownership semantics. Could this function be updated to strictly use one
-approach?
-
-> +	if (ret)
-> +		return ret;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260525020543.5190=
-82-1-derekjohn.clark@gmail.com?part=3D4
+Yours,
+Linus Walleij

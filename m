@@ -1,172 +1,186 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0565E38E8DA;
-	Tue, 26 May 2026 15:57:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9043D3D79FE
+	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 16:51:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779811022; cv=none; b=pWWfncZAR/AwWylYxbDIe6HKRXHCX9FpAqagQ5WL2ynvKPOzC/8+wsd/r8lEoHuHKML3V94oFsd5OZNIRe/UtNERoyEmPf9l7Hps8vnv4ZwSFSbU40mjAUEVFTV/j9m1d73WFxRW9kVzJF9lTlU2QahsRM4H7XNubxCtHsxEO50=
+	t=1779814317; cv=none; b=agjQ9kluZu84JM+tDtFT6e+uuuwcySpJV23atTTYJo9YP9xAWFXmWUg4Y3pcpPdWcUKVcpVuT/2d2y0nIt7j1/lMNFdZHS1+rKakPI2WEjxL2lTxwtj+JAZ7laTpW+VScbgJdeI3vLDL3zgsvjfAcMDNhAZ2iyla8eCJ143oeYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779811022; c=relaxed/simple;
-	bh=TfMUEsq25Q93mzr9mFA1ofwJi1FfPzLGm8yvH8lCgE8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fzFEvTSQ7WppJxSPCdDJauVNxIhST2PnDfyT8M0WooUMSpZzguu5zKIG9IhyhhRWwBmiN6vg6imjlATVWHzaSdo1e5543icYB83SgCJAQkkElSIqssi8a5bZXjJdw1y0uXJQqt92c0MuU6ezL4lQ4RNRP4my8iLS+U2oXSMnpQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=duPGICa8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779814317; c=relaxed/simple;
+	bh=NlUJ3y3+1PP7yiPqdqDMbiVhcMtFKvTBo2Qt887B0gY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=fAkO1wyisbCWjJkJvTKlN8EKFOEI0h5qEChvcy3lpKQ4PNj0Rj60F749ZNMBfoyy/qws2ZHSaMWQE5h9DRhc6IPwApnuuZvYaCth2FyLiACzmmp58x6ILA54wSsY0euPSPwyGTmk3fMIYlMKdSSX+opBwM7dJDZ6J7cvay41l3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z5SQo+8Y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="duPGICa8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A00681F000E9;
-	Tue, 26 May 2026 15:56:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z5SQo+8Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BEE1F000E9;
+	Tue, 26 May 2026 16:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779811020;
-	bh=s9xqY+VFGX/9iSHd3IwkLS1Zup6Bikr9onIme4Sv80U=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=duPGICa8nsQElZrGZp1BYWnJTzuRIYQTA2yc0sO6bg6qLomL5FyVJoib/VdNVYZIv
-	 jMOwF8aoHfvTsq6NS3GSOQuMlqa6lA262Uq2NkOmUUS+Dl2j/YfojsQAhEuaASE9vm
-	 1rPqZzbe2Gc1iroIqvO3TkDXLEoWrL2pEXerl1N6g20vDFpC7O6VDgKTVwkZ7EQgiM
-	 BU6mjbfmMVqEJ5pg6xkvawhgnUEC1wXH7f6EoVH86jYGRavseCDTxDhkoENpOJVZFl
-	 YzWqpzQv1TzSV8RXOp0LDEMHgp97P4erHYrLF6/AGYXxEbuoX2av1mhoJMQ77llu4A
-	 9xRfnxcPz12CA==
-Date: Tue, 26 May 2026 16:56:51 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: jikos@kernel.org, srinivas.pandruvada@linux.intel.com,
- dlechner@baylibre.com, nuno.sa@analog.com, andy@kernel.org,
- sakari.ailus@linux.intel.com, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 00/36] HID: iio: basic clean up and introduce devm_
- API for HID sensors
-Message-ID: <20260526165639.42d6e98e@jic23-huawei>
-In-Reply-To: <20260524192059.1193716-1-sanjayembedded@gmail.com>
-References: <20260524192059.1193716-1-sanjayembedded@gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	s=k20260515; t=1779814316;
+	bh=zvZnOT/PZb2Dw4Tcz9xb+RZwftxn12CEDqWxwpHlIvk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Z5SQo+8Y2pMIOIOsh+hw91YsgJHQOQiAtTyDxTsP7v10evrfZH1/a+JmHWPK3LoSU
+	 EYXJzJ4/NrDla+ZKIx48yFbIMgEmhLKssguRxsYvfnD+0ldnvCMbFVOFHl9lkruc2X
+	 xu3gHg2bNFwhZVGh9qDC5kfncbT0BJW670xSjOfoqKwLDBV15P8t2CB/yfBSsEiNCz
+	 QIiPI5Y3+Bfk888cCQU1L2dQ/3wAk1lxZ7KgQCe+5Yb2TMLNDbJ/ZUT/og/b+kCvCU
+	 BmWg7ELEssiXS1WOIEQB9Rm0ZCck2eNL950uKWfikhf/4GcjK4ppTe4dbaQoNgnLKp
+	 tSv+Fdo3zsO3Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: appletb-kbd: add option to switch default layer
+ on double pressing fn key
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aditya Garg" <gargaditya08@proton.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260526154954.29002-1-gargaditya08@proton.me>
+References: <20260526154954.29002-1-gargaditya08@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 26 May 2026 16:51:55 +0000
+Message-Id: <20260526165156.12BEE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Mon, 25 May 2026 00:50:23 +0530
-Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> 
-> Key highlights:
-> - 0000-0024: General cleanup and kernel few coding style fixes across HID IIO drivers
-> - 0025: Remove unused iio_dev argument from HID IIO sensor helper
-> - 0026: Introduce devm_hid_sensor_setup_trigger() device-managed API
-> - 0027-0036: Convert HID IIO sensor drivers to use the new devm-based trigger setup
-> 
-> changes in v4:
-> - Extend the series to cover remaining HID IIO drivers with devm API usage
-> - Reorder patches to place cleanup and warning fix at beginning and,
->   devm-related changes toward the end based on feedback from David
-> - v3 series -> https://lore.kernel.org/all/20260509101040.791404-1-sanjayembedded@gmail.com/
-> changes in v3:
-> - Added cleanup and prepratory changes before adding devm_ API
->   conversion based on self review: 0002, 0004, 0006, 0007 and 0008
-> - Address andy's review comment on commit message and coding style
-> - v2 series -> https://lore.kernel.org/all/20260429175918.2541914-1-sanjayembedded@gmail.com/
-> changes in v2:
-> - Following input from Jonathan and Andy, squash initial patch v1
->   series in single change as individual change should not break anything
-> - Add devm API support and two driver using the same
-> - v1 series -> https://lore.kernel.org/all/20260428071613.1134053-1-sanjayembedded@gmail.com/
-> 
-> Testing:
->   - Compiled with W=1 for each patch in series
->   - Build-tested on QEMU x86_64
-> 
-> P.S.
-> - Sashiko reported an issue in a different driver and noted that it is not
->   introduced by this series. I have taken this feedback into account and
->   will address the actual issue in a separate series focus on that driver.
-> - Once this series is merged into the IIO tree, a number of HID IIO
->   drivers will become available to fully converted to devm API usage.
-> - The changes are organized across drivers to keep similar modifications
->   grouped together for consistency, making the series easier to review,
->   rather than grouping all changes per driver.
-> 
-The series is mostly fine, though not sure what happened with how you sent
-it as I have it in seperate threads of 10 patches at a time. If you are having
-email troubles with big series, use b4 to send them instead (instructions on kernel.org)
+New issues:
+- [Medium] Dynamic mutation of a read-only global module parameter from a p=
+er-device atomic event handler without synchronization.
+- [Medium] Incorrect double-press detection during early system uptime on 3=
+2-bit systems due to jiffies wrap-around with a 0-initialized timestamp.
+- [Low] Intervening non-Fn key presses do not reset the double-press detect=
+ion timer.
 
-My main concern is this is a lot of churn on a critical driver. I'd like therefore
-to be able to see the full benefit of those devm patches rather than get us
-part way as this does.
+Pre-existing issues:
+- [High] Calling sleeping functions (`hid_hw_power` and `hid_hw_request`) f=
+rom an atomic context causes a kernel panic.
+- [High] A race condition during `probe()` allows incoming HID events to tr=
+igger a NULL pointer dereference.
+--
 
-Jonathan
+commit 9461d5707b93702971195b71e23ddea06392c720
+Author: Aditya Garg <gargaditya08@proton.me>
 
-> Thanks,
-> Sanjay Chitroda
-> 
-> Sanjay Chitroda (36):
->   iio: hid-sensors: add missing blank line after declarations
->   iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
->   iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
->   iio: light: hid-sensor-als: use u32 instead of unsigned
->   iio: light: hid-sensor-prox: use u32 instead of unsigned
->   iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
->   iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
->   iio: pressure: hid-sensor-press: use u32 instead of unsigned
->   iio: humidity: hid-sensor-humidity: align parenthesis for readability
->   iio: gyro: hid-sensor-gyro-3d: align parenthesis for readability
->   iio: magnetometer: hid-sensor-magn-3d: align parenthesis for
->     readability
->   iio: humidity: hid-sensor-humidity: use common device for devres
->   iio: position: hid-sensor-custom-intel-hinge: use common device for
->     devres
->   iio: temperature: hid-sensor-temperature: use common device for devres
->   iio: humidity: hid-sensor-humidity: use local struct device
->   iio: gyro: hid-sensor-gyro-3d: use local struct device
->   iio: accel: hid-sensor-accel-3d: use local struct device
->   iio: light: hid-sensor-als: use local struct device
->   iio: light: hid-sensor-prox: use local struct device
->   iio: magnetometer: hid-sensor-magn-3d: use local struct device
->   iio: orientation: hid-sensor-incl-3d: use local struct device
->   iio: orientation: hid-sensor-rotation: use local struct device
->   iio: position: hid-sensor-custom-intel-hinge: use local struct device
->   iio: pressure: hid-sensor-press: use local struct device
->   iio: hid-sensors: remove unused iio_dev argument
->   iio: hid-sensors: introduce device managed API
->   iio: gyro: hid-sensor-gyro-3d: drop hid_sensor_remove_trigger() using
->     devm API
->   iio: humidity: hid-sensor-humidity: drop hid_sensor_remove_trigger()
->     using devm API
->   iio: light: hid-sensor-prox: drop hid_sensor_remove_trigger() using
->     devm API
->   iio: light: hid-sensor-als: drop hid_sensor_remove_trigger() using
->     devm API
->   iio: magnetometer: hid-sensor-magn-3d: drop
->     hid_sensor_remove_trigger() using devm API
->   iio: orientation: hid-sensor-incl-3d: drop hid_sensor_remove_trigger()
->     using devm API
->   iio: orientation: hid-sensor-rotation: drop
->     hid_sensor_remove_trigger() using devm API
->   iio: position: hid-sensor-custom-intel-hinge: drop
->     hid_sensor_remove_trigger() using devm API
->   iio: pressure: hid-sensor-press: drop hid_sensor_remove_trigger()
->     using devm API
->   iio: temperature: hid-sensor-temperature: drop
->     hid_sensor_remove_trigger() using devm API
-> 
->  drivers/iio/accel/hid-sensor-accel-3d.c       |  30 ++---
->  .../common/hid-sensors/hid-sensor-trigger.c   |  24 +++-
->  .../common/hid-sensors/hid-sensor-trigger.h   |   5 +-
->  drivers/iio/gyro/hid-sensor-gyro-3d.c         |  96 ++++++++-------
->  drivers/iio/humidity/hid-sensor-humidity.c    |  61 +++++-----
->  drivers/iio/light/hid-sensor-als.c            |  31 +++--
->  drivers/iio/light/hid-sensor-prox.c           |  30 ++---
->  drivers/iio/magnetometer/hid-sensor-magn-3d.c | 112 +++++++++---------
->  drivers/iio/orientation/hid-sensor-incl-3d.c  |  36 +++---
->  drivers/iio/orientation/hid-sensor-rotation.c |  38 +++---
->  .../position/hid-sensor-custom-intel-hinge.c  |  27 ++---
->  drivers/iio/pressure/hid-sensor-press.c       |  36 +++---
->  .../iio/temperature/hid-sensor-temperature.c  |  15 +--
->  13 files changed, 264 insertions(+), 277 deletions(-)
-> 
-> 
-> base-commit: 08297ca8422541dde6c8b7e6b1d68bd4aa4568ef
+HID: appletb-kbd: add option to switch default layer on double pressing fn =
+key
 
+This patch enables a user to switch the default layer from media to fn
+keys and vice-versa upon double pressing the fn key. This behaviour can
+be configured using the double_press_switch_time module parameter.
+
+> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+> index 462010a758993..34bfc595949dc 100644
+> --- a/drivers/hid/hid-appletb-kbd.c
+> +++ b/drivers/hid/hid-appletb-kbd.c
+
+[ ... ]
+
+> @@ -243,6 +250,18 @@ static int appletb_kbd_hid_event(struct hid_device *=
+hdev, struct hid_field *fiel
+>  	return kbd->current_mode =3D=3D APPLETB_KBD_MODE_OFF;
+>  }
+> =20
+
+[Severity: High]
+This is a pre-existing issue, but does a race condition during probe() allow
+incoming HID events to trigger a NULL pointer dereference?
+
+If hid_hw_start() and hid_hw_open() are called before hid_set_drvdata() is
+executed, an incoming keyboard event might invoke appletb_kbd_hid_event()
+before probe() finishes. This would call hid_get_drvdata(hdev) returning
+NULL, which is then passed to reset_inactivity_timer() and unconditionally
+dereferenced.
+
+> +static u8 appletb_switch_mode(u8 mode)
+> +{
+
+[ ... ]
+
+> @@ -250,15 +269,42 @@ static void appletb_kbd_inp_event(struct input_hand=
+le *handle, unsigned int type
+> =20
+>  	reset_inactivity_timer(kbd);
+> =20
+> -	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
+> -		(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
+> -		 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
+> +	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
+> +	    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
+> +	     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
+> +
+
+[Severity: Low]
+Is it possible that intervening non-Fn key presses should reset the
+double-press detection timer?
+
+If a user presses Fn, types another key, and then presses Fn again within
+the delay timeout, the driver might erroneously interpret this as a
+double-press and switch the layer.
+
+>  		if (value =3D=3D 1) {
+> -			kbd->saved_mode =3D kbd->current_mode;
+> -			appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MODE_S=
+PCL
+> -						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
+> +			if (appletb_tb_double_press_switch_layers > 0) {
+> +				unsigned long now =3D jiffies;
+> +
+> +				if (time_before(now, kbd->last_fn_press +
+> +					msecs_to_jiffies(appletb_tb_double_press_switch_layers))) {
+
+[Severity: Medium]
+Could this double-press detection trigger incorrectly during early system
+uptime on 32-bit systems?
+
+Since last_fn_press is zero-initialized and jiffies starts at a large
+negative value, time_before() might evaluate to true for the first 5
+minutes of uptime.
+
+This would cause any single press of the Fn key to erroneously trigger a
+double-press layer switch.
+
+> +
+> +					appletb_tb_def_mode =3D
+> +						appletb_switch_mode(
+> +							appletb_tb_def_mode);
+
+[Severity: Medium]
+Is it safe to dynamically mutate the appletb_tb_def_mode module parameter
+from a per-device atomic event handler without synchronization?
+
+Since appletb_tb_def_mode is a global variable exported as read-only,
+modifying it dynamically could violate its sysfs contract and introduce a
+data race if multiple keyboards are used concurrently.
+
+This would also improperly alter the default mode for all current and future
+connected devices.
+
+> +
+> +					appletb_kbd_set_mode(kbd,
+> +						appletb_tb_def_mode);
+
+[Severity: High]
+This is a pre-existing issue, but does calling appletb_kbd_set_mode() from
+this atomic context cause a kernel panic?
+
+The appletb_kbd_inp_event handler is invoked by the input subsystem with
+the dev->event_lock spinlock held and interrupts disabled.
+
+appletb_kbd_set_mode() calls hid_hw_power() and hid_hw_request(). For USB
+HID devices, hid_hw_power() may sleep and will warn in atomic context,
+potentially leading to a scheduling while atomic panic.
+
+> +
+> +					kbd->saved_mode =3D appletb_tb_def_mode;
+> +					kbd->last_fn_press =3D 0;
+> +
+> +					return;
+> +				}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260526154954.2900=
+2-1-gargaditya08@proton.me?part=3D1

@@ -1,186 +1,280 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9043D3D79FE
-	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 16:51:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F8038D6A4
+	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 17:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779814317; cv=none; b=agjQ9kluZu84JM+tDtFT6e+uuuwcySpJV23atTTYJo9YP9xAWFXmWUg4Y3pcpPdWcUKVcpVuT/2d2y0nIt7j1/lMNFdZHS1+rKakPI2WEjxL2lTxwtj+JAZ7laTpW+VScbgJdeI3vLDL3zgsvjfAcMDNhAZ2iyla8eCJ143oeYI=
+	t=1779815373; cv=none; b=VWLhxUPU2ayMFZWwfo3xZ9oBBKeaYpRu/gTXgdA7zgD8FgIryAOtENSrKsAPdJ3XLeI6BTuLSvy4ptY+uDjcgWg75fFWP1mVuZXAeSSxgmxcBhVyyEyfivLedIaCSCh4wwDI57FusbuW2pVyN2CU1wqunEVeRpZm0tnssqCtils=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779814317; c=relaxed/simple;
-	bh=NlUJ3y3+1PP7yiPqdqDMbiVhcMtFKvTBo2Qt887B0gY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fAkO1wyisbCWjJkJvTKlN8EKFOEI0h5qEChvcy3lpKQ4PNj0Rj60F749ZNMBfoyy/qws2ZHSaMWQE5h9DRhc6IPwApnuuZvYaCth2FyLiACzmmp58x6ILA54wSsY0euPSPwyGTmk3fMIYlMKdSSX+opBwM7dJDZ6J7cvay41l3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z5SQo+8Y; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779815373; c=relaxed/simple;
+	bh=VzJHzFzg/1E60g4KLQswhGSbY+hcwu7QxBloRiNs6F4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lZ/T7f/faSVwkpdls/7THNX2jWEhFUaRQtoC50OfAad7+5WA1xwAMPXFYAbT0Pjqjz0qdEkOwboMJCo6BUtjEvj18mWWAbsxcDSKtW0ltn6+fHUT3LNPolRWE+abjt0MWQjlunT81yZ+GewsReDV4NkzOP466POJbFiu624OTOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hectorzelaya.dev; spf=none smtp.mailfrom=hectorzelaya.dev; dkim=pass (2048-bit key) header.d=hectorzelaya.dev header.i=@hectorzelaya.dev header.b=LDEEE4vx; arc=none smtp.client-ip=209.85.128.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hectorzelaya.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=hectorzelaya.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z5SQo+8Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BEE1F000E9;
-	Tue, 26 May 2026 16:51:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779814316;
-	bh=zvZnOT/PZb2Dw4Tcz9xb+RZwftxn12CEDqWxwpHlIvk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Z5SQo+8Y2pMIOIOsh+hw91YsgJHQOQiAtTyDxTsP7v10evrfZH1/a+JmHWPK3LoSU
-	 EYXJzJ4/NrDla+ZKIx48yFbIMgEmhLKssguRxsYvfnD+0ldnvCMbFVOFHl9lkruc2X
-	 xu3gHg2bNFwhZVGh9qDC5kfncbT0BJW670xSjOfoqKwLDBV15P8t2CB/yfBSsEiNCz
-	 QIiPI5Y3+Bfk888cCQU1L2dQ/3wAk1lxZ7KgQCe+5Yb2TMLNDbJ/ZUT/og/b+kCvCU
-	 BmWg7ELEssiXS1WOIEQB9Rm0ZCck2eNL950uKWfikhf/4GcjK4ppTe4dbaQoNgnLKp
-	 tSv+Fdo3zsO3Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: appletb-kbd: add option to switch default layer
- on double pressing fn key
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aditya Garg" <gargaditya08@proton.me>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260526154954.29002-1-gargaditya08@proton.me>
-References: <20260526154954.29002-1-gargaditya08@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 26 May 2026 16:51:55 +0000
-Message-Id: <20260526165156.12BEE1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=hectorzelaya.dev header.i=@hectorzelaya.dev header.b="LDEEE4vx"
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7bd5c773ef3so100255457b3.1
+        for <linux-input@vger.kernel.org>; Tue, 26 May 2026 10:09:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=hectorzelaya.dev; s=google; t=1779815369; x=1780420169; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+u0T7GXJrDM0Fqjd6+HyunZNurtk9AZexLWmxHsqJUc=;
+        b=LDEEE4vxLK1KajiPC8GdDLq/mzJ1GCRGVKaWux1msOdGKp8wRpPqj/CQeChxvaqGGp
+         StEtK9HNLSOc4YRaHgeqm0Yikb96Lr2s4SVcMXnV0aeueP/2CJbu5GoDZgVxiVkJfm2+
+         J1Zm+54Q81GlWMU6o6+mvpAIItqB0HUKhuR7zHSS5PBe747daltj3Q3qCD84bLWOSA+s
+         +ZXORPYaeXn6Mhvqk71uAYXmC+PTfN27ejA+lIczrKmRPFX3Hgkv58AaooubmVjDL/FE
+         Y8qDp3pmPKwr005zxxh4mZTini7gBjEEkW880vbZK6VgMgRTVdczSmv12u1Mxct9kuip
+         IxUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779815369; x=1780420169;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+u0T7GXJrDM0Fqjd6+HyunZNurtk9AZexLWmxHsqJUc=;
+        b=Apc7IjIqZSpgn8fs/JR1J4065TDq3a7QacfB85WsG/wvX6lp2O3IMr7Lpl+PTpo9ym
+         EavX/2XwBSRUc4ErSbMoMTqZf2K/d13pMfdBOmCZpTNAQi2ftyMDEsKx9RizKY9z6fET
+         0NnW6mqfKdQLRjxaGK/D1eLxoAXdYve4/Aklx/g3ZkNuy7ZiQWHA8WVWpDaumt3aLFPY
+         08whaIahHif324geND4n9ZlB3ipE3lGj0M9xQdi9K34Ku/AvzwjR+JSuI5mZ31H6ChSB
+         I0jtqygMd+E+kUwTkoesYr0ogbcA81efTBifowxwJp5khMgLUKQO9DBj83F6PuRzgidV
+         hNNA==
+X-Gm-Message-State: AOJu0YyBI+B7B7/rl6XuyLR8Tw/JG3oTOGvJ0myuV+bcjS7uyRYZix0p
+	64TePAj4SPj+FTafpSV7vB4FsYCtM8bi1pAkRzbkdEQvZA74IZHOBQamTEjCK8rPFX13
+X-Gm-Gg: Acq92OE3+QOhOWFT64EWexKDPwDeKf+hNfV3aRMbGp0b7xeqAmD5uKG966MTyvnB7sB
+	YFBHBT1BnibptX+s6FQBC6vKE+BJovcXbOd6uQEireA4Biynim3y2hMtg0EpZO5715BfO6tRyi1
+	s6t7GcQScQqb4G/naOcaBMAXsH4eARaQUEXuA4gS9pN3sNsVcPyEs+bmYH+n+8jRwsDL94uQnDw
+	bDsEfy/IBbNgBuVM9lcs196DFVt1DbkrNbMQPxWEK9IByBSCmkcgCr9J+Sb3MPWSd8Sb87FLii+
+	py531UnWlGptn0N+qvtiDHLGToIHFj0DGqAqQGHTvBnoNWlri0QIfhiOPBjkkqxesxjc4/yhvOX
+	zpv6qGXp6MwD7Jp/kAaCpEboTL2AYSyCU3vqj1lHYqKHKIwuLn7eiwu73CnWC7h7/tp9MOJzyHK
+	nr+HkyTPQcrs+QcyrcgD7+v0AmrS/x5I4maE45cAM=
+X-Received: by 2002:a05:690c:d8f:b0:7ba:f3a8:7a87 with SMTP id 00721157ae682-7d3361bc2f6mr197969997b3.40.1779815369328;
+        Tue, 26 May 2026 10:09:29 -0700 (PDT)
+Received: from [127.0.0.2] ([190.150.67.183])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7d389e10546sm63777987b3.19.2026.05.26.10.09.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2026 10:09:28 -0700 (PDT)
+From: Hector Zelaya <hector@hectorzelaya.dev>
+Date: Tue, 26 May 2026 11:08:59 -0600
+Subject: [PATCH] HID: nintendo: add support for HORI Wireless Switch Pad
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
+X-B4-Tracking: v=1; b=H4sIAKrTFWoC/yXMQQ5AMBCF4avIrDWphkZcRSyooWOhzQwiEXdXJ
+ G/zLd5/gSATCjTZBYwHCYU1ocgzcL5fZ1Q0JoPRxurKWOUDk5I9xsCb0vWQ5vpSjzWkS2Sc6Px
+ ybfdb9mFBt70NuO8HymfvjnAAAAA=
+X-Change-ID: 20260526-hori-support-08b08bca40d8
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ "Daniel J. Ogorchock" <djogorchock@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Hector Zelaya <hector@hectorzelaya.dev>
+X-Mailer: b4 0.15.2
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Add support for the HORI Wireless Switch Pad (vendor 0x0f0d, product
+0x00f6), a licensed third-party Nintendo Switch Pro Controller.
 
-New issues:
-- [Medium] Dynamic mutation of a read-only global module parameter from a p=
-er-device atomic event handler without synchronization.
-- [Medium] Incorrect double-press detection during early system uptime on 3=
-2-bit systems due to jiffies wrap-around with a 0-initialized timestamp.
-- [Low] Intervening non-Fn key presses do not reset the double-press detect=
-ion timer.
+The controller reports controller type 0x06 (vs 0x03 for first-party
+Pro Controllers) and has the following quirks:
 
-Pre-existing issues:
-- [High] Calling sleeping functions (`hid_hw_power` and `hid_hw_request`) f=
-rom an atomic context causes a kernel panic.
-- [High] A race condition during `probe()` allows incoming HID events to tr=
-igger a NULL pointer dereference.
---
+ - SPI flash calibration data is incompatible; use default stick
+   calibration values instead.
+ - X and Y button bits are swapped compared to first-party controllers;
+   add a dedicated button mapping table.
+ - Rumble and IMU enable may timeout (no vibration motor in hardware);
+   treat as non-fatal for licensed controllers.
 
-commit 9461d5707b93702971195b71e23ddea06392c720
-Author: Aditya Garg <gargaditya08@proton.me>
+Tested over Bluetooth on NixOS with kernel 7.0.5 and 7.0.10:
+ - All 14 buttons map correctly
+ - Player LED sets on connect
+ - Sticks report correctly with default calibration
+ - IMU/gyro data streams at 60Hz
+ - D-pad reports on ABS_HAT0X/HAT0Y
 
-HID: appletb-kbd: add option to switch default layer on double pressing fn =
-key
+Device information:
+  Bluetooth name: Lic Pro Controller
+  Bluetooth HID:  0005:0F0D:00F6
 
-This patch enables a user to switch the default layer from media to fn
-keys and vice-versa upon double pressing the fn key. This behaviour can
-be configured using the double_press_switch_time module parameter.
+Assisted-by: Kiro:Auto [Amazon Kiro IDE]
+Signed-off-by: Hector Zelaya <hector@hectorzelaya.dev>
+---
+ drivers/hid/hid-ids.h      |  3 ++
+ drivers/hid/hid-nintendo.c | 78 +++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 69 insertions(+), 12 deletions(-)
 
-> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
-> index 462010a758993..34bfc595949dc 100644
-> --- a/drivers/hid/hid-appletb-kbd.c
-> +++ b/drivers/hid/hid-appletb-kbd.c
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a1cfa436344a..3b0767cc47fd 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -683,6 +683,9 @@
+ #define USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD	        0x3330
+ #define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE	0x3338
+ 
++#define USB_VENDOR_ID_HORI			0x0f0d
++#define USB_DEVICE_ID_HORI_WIRELESS_SWITCH_PAD	0x00f6
++
+ #define USB_VENDOR_ID_HP		0x03f0
+ #define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A		0x464a
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 29008c2cc530..b5e799ace249 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -316,6 +316,7 @@ enum joycon_ctlr_type {
+ 	JOYCON_CTLR_TYPE_JCL  = 0x01,
+ 	JOYCON_CTLR_TYPE_JCR  = 0x02,
+ 	JOYCON_CTLR_TYPE_PRO  = 0x03,
++	JOYCON_CTLR_TYPE_LIC_PRO = 0x06,
+ 	JOYCON_CTLR_TYPE_NESL = 0x09,
+ 	JOYCON_CTLR_TYPE_NESR = 0x0A,
+ 	JOYCON_CTLR_TYPE_SNES = 0x0B,
+@@ -433,6 +434,25 @@ static const struct joycon_ctlr_button_mapping procon_button_mappings[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++/* Licensed Pro Controllers (e.g. HORI) swap X/Y bits in the report */
++static const struct joycon_ctlr_button_mapping lic_procon_button_mappings[] = {
++	{ BTN_EAST,	JC_BTN_A,	},
++	{ BTN_SOUTH,	JC_BTN_B,	},
++	{ BTN_NORTH,	JC_BTN_Y,	},
++	{ BTN_WEST,	JC_BTN_X,	},
++	{ BTN_TL,	JC_BTN_L,	},
++	{ BTN_TR,	JC_BTN_R,	},
++	{ BTN_TL2,	JC_BTN_ZL,	},
++	{ BTN_TR2,	JC_BTN_ZR,	},
++	{ BTN_SELECT,	JC_BTN_MINUS,	},
++	{ BTN_START,	JC_BTN_PLUS,	},
++	{ BTN_THUMBL,	JC_BTN_LSTICK,	},
++	{ BTN_THUMBR,	JC_BTN_RSTICK,	},
++	{ BTN_MODE,	JC_BTN_HOME,	},
++	{ BTN_Z,	JC_BTN_CAP,	},
++	{ /* sentinel */ },
++};
++
+ static const struct joycon_ctlr_button_mapping nescon_button_mappings[] = {
+ 	{ BTN_SOUTH,	JC_BTN_A,	},
+ 	{ BTN_EAST,	JC_BTN_B,	},
+@@ -695,7 +715,8 @@ static inline bool joycon_type_is_right_joycon(struct joycon_ctlr *ctlr)
+ 
+ static inline bool joycon_type_is_procon(struct joycon_ctlr *ctlr)
+ {
+-	return ctlr->ctlr_type == JOYCON_CTLR_TYPE_PRO;
++	return ctlr->ctlr_type == JOYCON_CTLR_TYPE_PRO ||
++	       ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO;
+ }
+ 
+ static inline bool joycon_type_is_snescon(struct joycon_ctlr *ctlr)
+@@ -1710,7 +1731,10 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
+ 		joycon_report_left_stick(ctlr, rep);
+ 		joycon_report_right_stick(ctlr, rep);
+ 		joycon_report_dpad(ctlr, rep);
+-		joycon_report_buttons(ctlr, rep, procon_button_mappings);
++		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO)
++			joycon_report_buttons(ctlr, rep, lic_procon_button_mappings);
++		else
++			joycon_report_buttons(ctlr, rep, procon_button_mappings);
+ 	} else if (joycon_type_is_any_nescon(ctlr)) {
+ 		joycon_report_dpad(ctlr, rep);
+ 		joycon_report_buttons(ctlr, rep, nescon_button_mappings);
+@@ -2156,7 +2180,10 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 		joycon_config_left_stick(ctlr->input);
+ 		joycon_config_right_stick(ctlr->input);
+ 		joycon_config_dpad(ctlr->input);
+-		joycon_config_buttons(ctlr->input, procon_button_mappings);
++		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO)
++			joycon_config_buttons(ctlr->input, lic_procon_button_mappings);
++		else
++			joycon_config_buttons(ctlr->input, procon_button_mappings);
+ 	} else if (joycon_type_is_any_nescon(ctlr)) {
+ 		joycon_config_dpad(ctlr->input);
+ 		joycon_config_buttons(ctlr->input, nescon_button_mappings);
+@@ -2503,13 +2530,30 @@ static int joycon_init(struct hid_device *hdev)
+ 
+ 	if (joycon_has_joysticks(ctlr)) {
+ 		/* get controller calibration data, and parse it */
+-		ret = joycon_request_calibration(ctlr);
+-		if (ret) {
++		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
+ 			/*
+-			 * We can function with default calibration, but it may be
+-			 * inaccurate. Provide a warning, and continue on.
++			 * Licensed controllers may have incompatible SPI flash
++			 * layouts. Use default calibration values.
+ 			 */
+-			hid_warn(hdev, "Analog stick positions may be inaccurate\n");
++			hid_info(hdev, "using default cal for licensed controller\n");
++			joycon_use_default_calibration(hdev,
++						       &ctlr->left_stick_cal_x,
++						       &ctlr->left_stick_cal_y,
++						       "left", 0);
++			joycon_use_default_calibration(hdev,
++						       &ctlr->right_stick_cal_x,
++						       &ctlr->right_stick_cal_y,
++						       "right", 0);
++		} else {
++			ret = joycon_request_calibration(ctlr);
++			if (ret) {
++				/*
++				 * We can function with default calibration, but
++				 * it may be inaccurate. Provide a warning, and
++				 * continue on.
++				 */
++				hid_warn(hdev, "Analog stick positions may be inaccurate\n");
++			}
+ 		}
+ 	}
+ 
+@@ -2527,8 +2571,12 @@ static int joycon_init(struct hid_device *hdev)
+ 		/* Enable the IMU */
+ 		ret = joycon_enable_imu(ctlr);
+ 		if (ret) {
+-			hid_err(hdev, "Failed to enable the IMU; ret=%d\n", ret);
+-			goto out_unlock;
++			if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
++				hid_dbg(hdev, "IMU enable failed for licensed controller, continuing\n");
++			} else {
++				hid_err(hdev, "Failed to enable the IMU; ret=%d\n", ret);
++				goto out_unlock;
++			}
+ 		}
+ 	}
+ 
+@@ -2543,8 +2591,12 @@ static int joycon_init(struct hid_device *hdev)
+ 		/* Enable rumble */
+ 		ret = joycon_enable_rumble(ctlr);
+ 		if (ret) {
+-			hid_err(hdev, "Failed to enable rumble; ret=%d\n", ret);
+-			goto out_unlock;
++			if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
++				hid_dbg(hdev, "rumble enable failed for licensed controller, continuing\n");
++			} else {
++				hid_err(hdev, "Failed to enable rumble; ret=%d\n", ret);
++				goto out_unlock;
++			}
+ 		}
+ 	}
+ 
+@@ -2813,6 +2865,8 @@ static const struct hid_device_id nintendo_hid_devices[] = {
+ 			 USB_DEVICE_ID_NINTENDO_GENCON) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
+ 			 USB_DEVICE_ID_NINTENDO_N64CON) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_HORI,
++			 USB_DEVICE_ID_HORI_WIRELESS_SWITCH_PAD) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, nintendo_hid_devices);
 
-[ ... ]
+---
+base-commit: e71bac24ec1f517f399a9eb471255b8f1c330b93
+change-id: 20260526-hori-support-08b08bca40d8
 
-> @@ -243,6 +250,18 @@ static int appletb_kbd_hid_event(struct hid_device *=
-hdev, struct hid_field *fiel
->  	return kbd->current_mode =3D=3D APPLETB_KBD_MODE_OFF;
->  }
-> =20
+Best regards,
+--  
+Hector Zelaya <hector@hectorzelaya.dev>
 
-[Severity: High]
-This is a pre-existing issue, but does a race condition during probe() allow
-incoming HID events to trigger a NULL pointer dereference?
-
-If hid_hw_start() and hid_hw_open() are called before hid_set_drvdata() is
-executed, an incoming keyboard event might invoke appletb_kbd_hid_event()
-before probe() finishes. This would call hid_get_drvdata(hdev) returning
-NULL, which is then passed to reset_inactivity_timer() and unconditionally
-dereferenced.
-
-> +static u8 appletb_switch_mode(u8 mode)
-> +{
-
-[ ... ]
-
-> @@ -250,15 +269,42 @@ static void appletb_kbd_inp_event(struct input_hand=
-le *handle, unsigned int type
-> =20
->  	reset_inactivity_timer(kbd);
-> =20
-> -	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
-> -		(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> -		 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
-> +	    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
-> +	     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
-> +
-
-[Severity: Low]
-Is it possible that intervening non-Fn key presses should reset the
-double-press detection timer?
-
-If a user presses Fn, types another key, and then presses Fn again within
-the delay timeout, the driver might erroneously interpret this as a
-double-press and switch the layer.
-
->  		if (value =3D=3D 1) {
-> -			kbd->saved_mode =3D kbd->current_mode;
-> -			appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MODE_S=
-PCL
-> -						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
-> +			if (appletb_tb_double_press_switch_layers > 0) {
-> +				unsigned long now =3D jiffies;
-> +
-> +				if (time_before(now, kbd->last_fn_press +
-> +					msecs_to_jiffies(appletb_tb_double_press_switch_layers))) {
-
-[Severity: Medium]
-Could this double-press detection trigger incorrectly during early system
-uptime on 32-bit systems?
-
-Since last_fn_press is zero-initialized and jiffies starts at a large
-negative value, time_before() might evaluate to true for the first 5
-minutes of uptime.
-
-This would cause any single press of the Fn key to erroneously trigger a
-double-press layer switch.
-
-> +
-> +					appletb_tb_def_mode =3D
-> +						appletb_switch_mode(
-> +							appletb_tb_def_mode);
-
-[Severity: Medium]
-Is it safe to dynamically mutate the appletb_tb_def_mode module parameter
-from a per-device atomic event handler without synchronization?
-
-Since appletb_tb_def_mode is a global variable exported as read-only,
-modifying it dynamically could violate its sysfs contract and introduce a
-data race if multiple keyboards are used concurrently.
-
-This would also improperly alter the default mode for all current and future
-connected devices.
-
-> +
-> +					appletb_kbd_set_mode(kbd,
-> +						appletb_tb_def_mode);
-
-[Severity: High]
-This is a pre-existing issue, but does calling appletb_kbd_set_mode() from
-this atomic context cause a kernel panic?
-
-The appletb_kbd_inp_event handler is invoked by the input subsystem with
-the dev->event_lock spinlock held and interrupts disabled.
-
-appletb_kbd_set_mode() calls hid_hw_power() and hid_hw_request(). For USB
-HID devices, hid_hw_power() may sleep and will warn in atomic context,
-potentially leading to a scheduling while atomic panic.
-
-> +
-> +					kbd->saved_mode =3D appletb_tb_def_mode;
-> +					kbd->last_fn_press =3D 0;
-> +
-> +					return;
-> +				}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260526154954.2900=
-2-1-gargaditya08@proton.me?part=3D1

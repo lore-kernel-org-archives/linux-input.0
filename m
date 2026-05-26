@@ -1,261 +1,199 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E932641C31E
-	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 17:52:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC0E035A388
+	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 18:16:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779817942; cv=none; b=RaUTy0bzPw+oGqz3ErDMdd4fpO6mszNh8OLq+BN5A6RhHVtIXadmH3HgVhNvm4evWN/TSyor3bzE965nC9bX9MzqQO6UDI/3WFoHfSGWRkAlyAH0Wxt4+hTj5dBFW1H00EVXAmDW+tBtPOZyjtELU2BdapXeoBuW1aGrZxAShug=
+	t=1779819402; cv=none; b=H3LVzijcaZsLYyQS7XY1Rd7TtRIlbtZGJaP2ZZqh5PkFOsfeDShdcWJmbaGkTbhiFK6DG7YXrgEEZsNYzyziSV/xXjC+Vc+SjHKRThIvcT7h6dtu0aRYYScE1p7AqXAkC5FzB3+xH9VwrSW/P0F9AsE/rCaszYMl5Zgq66xS0bw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779817942; c=relaxed/simple;
-	bh=QCTDlT5QoOjEaxbWgZ3bESPxwXiIfYRUO72RqRjTpmk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ohclnxHMZPsKadDmTWCTebFWsrE/WOn/RpwMhALba1lzDP+I+GrWngYsvUz3bYjp3wIWeWCSDI8JKrcyxWk/aepk/jYTvk8Ch7gVA67ngWV8Cxa0ArpfEeYSmTmTU1jN3OTnm/WO3vQrMhXEVzOdiZ2KIN9X9fpijEwpsK9Dous=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ktpE93KF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779819402; c=relaxed/simple;
+	bh=IT58hLZh0CvK93y0/dQ3i9r0at7eyARp8xHHzCXTWBk=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=a1CrLWZAPXOF6jUh3UL/q5BVLRPtbUUng9YJeb8wMDVPV+fVWZfa3RYL94m/9WpTO1hz2V7zWDMzVdYYaUvxorPhmEqr+WYk7orVjvwLargakvs/GAR8yjmeo3vPzNs3pQebPnhM+bCEebodnjTsGAqqllr5ukIk2HtIsllt5J4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hTcYKA26; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ktpE93KF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C5E1F000E9;
-	Tue, 26 May 2026 17:52:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779817940;
-	bh=69NQLedV/41kwLRM2i3JaPyuvpCzwaj8QDll2Mr4ACI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ktpE93KFoSxpEEAqtgyl79XoWhS9Y8op/iXf5Zg+Olp+Xq798flyEsW0o9ShAuxMd
-	 axykU9mLw6YgJt9UCqaOmSLscUJpSrkCTGx3Mqo3LoEdaxLloGRaBveLcTAsj71Qpn
-	 2KxvbWXGnIpzYWZOzwwAdlrpqt61kWg6VmfesrLxUwWz376cguz2ZHQwM1/t1An2Wn
-	 tDgwBIgdCQ1v1Qe8o7aVpcdvzkFvgLVOCiAKK7rHCeV3NdIHj9/Qo5ovc5ufZTm5JB
-	 s6+w4jY7pW4okdqAYX0PypoAOfQ2rYv/oIwiqkUeDh22uvX2Hce2vtEGvdBv3Sjace
-	 +q6zPCoz54O6A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: nintendo: add support for HORI Wireless Switch Pad
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hector Zelaya" <hector@hectorzelaya.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
-References: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 26 May 2026 17:52:20 +0000
-Message-Id: <20260526175220.77C5E1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hTcYKA26"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3664df32e91so12572875a91.3
+        for <linux-input@vger.kernel.org>; Tue, 26 May 2026 11:16:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779819400; x=1780424200; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=s/oifU45HMXe7nUWpgXjZ4nh0ttA1REPn6O7MSo0Ir4=;
+        b=hTcYKA26DWHqML2kIUkkQnByO10ZGRpIzF0075ePkTS1MSKxPTMv9Gc6sja1FIEvYX
+         HTBroSX/mreSdv+kLypmY8wdCotpKYdIGHpJDLTc+9emfTb6bCw36QqgBeKlQJvQmBsd
+         O788lBLNb1CWdM2tulL0zU+7sL2HrYDZ1RuitZFOAnS7T1Dh8V2aX6414eI0Mkx2gLk6
+         9xLw8a16e3PCxDNbPV9bTFHi+AUaOP7qnKeRg8+0BHfHmcUrSkjSAeN+Rw35mCPo7uyF
+         PHQq91flTuQ3koAmgq8tfqIjwhwyn7PcBlQK753++hpcoS14uYs2T1JnsJl+TiC99bIE
+         b36A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779819400; x=1780424200;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=s/oifU45HMXe7nUWpgXjZ4nh0ttA1REPn6O7MSo0Ir4=;
+        b=rB5AOU60swYRXGzt8jedVMsReWerBXQL+oMAwZ4ZeQkGHg5FkecKdpqmrwzGNlJhMn
+         HpzgNTHsvJJ2ue9UsCMqQYF9API8HBfpw10qFF9QyT54s+WiMHk+pEb0bPLwY+C4IWjj
+         LzdXCFzgVOYTZzvfNIjPywP/eP3w8/v7Qnbolct9VsWzd/624cMJdc5Dr3tUYd/0yLFd
+         xrjAOqvp1u6Cj6p/ldtEdQLF4AQBtt9W6uJze4aJzNP8os4G5OgSRHKgdpynJ7jCfKfk
+         VVWI7+OnGnNfbMuyheE+tptzzmYad/uSD1vx78P34fWfO3jgvSU3fJ2tnjezkqm3koKy
+         X3mg==
+X-Forwarded-Encrypted: i=1; AFNElJ82yyG0HgxP/WF6xRBCy+S0PRrnNJ2atIzUZFuJ6NigGRRiw9T0al6RCIcLFwQAhdVnpaT+6ykV/kl6uw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxPHeMzKlRJRuW4IRijzzj75unvEFBvIRz/TQEPDJ3L53w4ga9G
+	58h5KQuf0SxJ5RI8nKA+32DxcFCboVy7RP8Tk2LWS5oIDsJ908cP2y5u
+X-Gm-Gg: Acq92OHQt+1Pbft+WKD/Q7PgEJNr+0dH3ay9zSGlH9b/Lcl5Y2Gdr1dazQUowWf+6qr
+	ZBCf3G24pwCqnHjhE5Hvib3JxNuG11DWDeuo3GIXA8sfbySMbHhlg9ocJedtI6lF+V4f9jCB1XH
+	NamhANuWO8laRUJ3/oG3jbM1VFrG8ubeuPigtwa8TKhFiskGTfS231FlMTZkn6J7T6hZOwhykMJ
+	9eiGHjVodLeqTybMK24C6xATsIUlO3oNAxOBwD9Qoq7X4l50id5xrMvSoWUoJHOh6RmKNtU6K65
+	mlEO2iOzAuUzAtwev8stlSkqSr4MLb39rQOIhhaHtBpbkyW5dPwzBi9hK8T0g6cpza2q2RQZ8pw
+	KAfynnHo7+Og48plfBFS9MPOgabTYinxj9vTi6M7qROYFdkldpLrd0RbWrX5edxuplnDz9uLKux
+	LXDb65DqY6EC2vv94q9DITkQ3iAeMU1yOg6MhS8hz/YlBzqITZxrY2WvwQ
+X-Received: by 2002:a17:903:f90:b0:2bc:dca9:f0ef with SMTP id d9443c01a7336-2beb0770a09mr232049925ad.36.1779819399983;
+        Tue, 26 May 2026 11:16:39 -0700 (PDT)
+Received: from ehlo.thunderbird.net ([2401:4900:8898:e3c9:ac78:ed2c:21ce:161])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb5903bcasm138658885ad.77.2026.05.26.11.16.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 May 2026 11:16:39 -0700 (PDT)
+Date: Tue, 26 May 2026 23:46:35 +0530
+From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+To: Jonathan Cameron <jic23@kernel.org>
+CC: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, jikos@kernel.org,
+ srinivas.pandruvada@linux.intel.com, dlechner@baylibre.com,
+ nuno.sa@analog.com, andy@kernel.org, sakari.ailus@linux.intel.com,
+ linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v4_35/36=5D_iio=3A_pressure=3A_hid-sensor-pre?=
+ =?US-ASCII?Q?ss=3A_drop_hid=5Fsensor=5Fremov?=
+ =?US-ASCII?Q?e=5Ftrigger=28=29_using_devm_API?=
+User-Agent: Thunderbird for Android
+In-Reply-To: <20260526165451.6a587221@jic23-huawei>
+References: <20260524192943.1196773-1-sanjayembedded@gmail.com> <20260524192943.1196773-6-sanjayembedded@gmail.com> <0a8ebbd2-5de6-48d2-9218-f7b816eb3455@wanadoo.fr> <39A229F0-436E-4AAC-82A4-9B04733E9EE3@gmail.com> <20260526165451.6a587221@jic23-huawei>
+Message-ID: <0ECF854F-D979-47F9-8988-3D3E1217513B@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
-s) to consider:
 
-New issues:
-- [High] Unintentional probe failure due to uncleared error codes during no=
-n-fatal IMU and Rumble timeouts for licensed controllers.
-- [High] Incompatible SPI flash data is erroneously read and parsed as IMU =
-calibration.
-- [Low] Confusing kernel warning printed when intentionally using default j=
-oystick calibration.
-- [Low] `JOYCON_CTLR_TYPE_LIC_PRO` is missing from the `jc_type_has_right()=
-` capability macro.
-- [Low] Falsely advertising hardware capabilities (Rumble and IMU) that fai=
-l to initialize.
 
-Pre-existing issues:
-- [High] The input device is registered before its capabilities and force-f=
-eedback interfaces are configured.
-- [High] Race condition in `joycon_ctlr_handle_event` reading shared state =
-locklessly.
---
+On 26 May 2026 9:24:51=E2=80=AFpm IST, Jonathan Cameron <jic23@kernel=2Eor=
+g> wrote:
+>On Mon, 25 May 2026 22:35:50 +0530
+>Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom> wrote:
+>
+>> On 25 May 2026 3:39:11=E2=80=AFpm IST, Christophe JAILLET <christophe=
+=2Ejaillet@wanadoo=2Efr> wrote:
+>> >Le 24/05/2026 =C3=A0 21:29, Sanjay Chitroda a =C3=A9crit=C2=A0: =20
+>> >> From: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
+>> >>=20
+>> >> Use devm_hid_sensor_setup_trigger() to automatically release resourc=
+e
+>> >> during fail, unbind or removal of driver using devres framework=2E
+>> >>=20
+>> >> This simplify the setup, remove goto, avoid manual resource cleanup =
+in
+>> >> teardown path=2E
+>> >>=20
+>> >> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail=2Ecom>
+>> >> ---
+>> >>   drivers/iio/pressure/hid-sensor-press=2Ec | 10 +++-------
+>> >>   1 file changed, 3 insertions(+), 7 deletions(-)
+>> >>=20
+>> >> diff --git a/drivers/iio/pressure/hid-sensor-press=2Ec b/drivers/iio=
+/pressure/hid-sensor-press=2Ec
+>> >> index fee7dcb86801=2E=2E8438498c9aeb 100644
+>> >> --- a/drivers/iio/pressure/hid-sensor-press=2Ec
+>> >> +++ b/drivers/iio/pressure/hid-sensor-press=2Ec
+>> >> @@ -291,8 +291,8 @@ static int hid_press_probe(struct platform_devic=
+e *pdev)
+>> >>     	atomic_set(&press_state->common_attributes=2Edata_ready, 0);
+>> >>   -	ret =3D hid_sensor_setup_trigger(indio_dev, name,
+>> >> -				&press_state->common_attributes);
+>> >> +	ret =3D devm_hid_sensor_setup_trigger(dev, indio_dev, name,
+>> >> +					    &press_state->common_attributes);
+>> >>   	if (ret) {
+>> >>   		dev_err(dev, "trigger setup failed\n");
+>> >>   		return ret;
+>> >> @@ -301,7 +301,7 @@ static int hid_press_probe(struct platform_devic=
+e *pdev)
+>> >>   	ret =3D iio_device_register(indio_dev); =20
+>> >
+>> >Hi,
+>> >
+>> >Looks like devm_iio_device_register() would now make sense and simplif=
+y things even further=2E
+>> >
+>> >CJ =20
+>>=20
+>> Hi CJ,
+>>=20
+>> Yes, as mentioned in cover letter most of HID IIO drivers have potentia=
+l and will converted to devm based driver gradually=2E
+>
+>This is putting a lot of churn and many patches on a critical driver
+>(given this device is in a lot of laptops)=2E As such I think it's fine
+>to do prep for devm in separate changes, but the final per driver change
+>should be one per driver to go fully devm rather than doing it in smaller
+>chunks=2E  I obviously want to see this well tested, and don't want to ha=
+ve
+>to keep asking people to test 'the next' set of changes=2E
+>
+>Jonathan
+>
 
-commit 6f0bfb377cdb5252c860b0efda09360159b62479
-Author: Hector Zelaya <hector@hectorzelaya.dev>
+Hi Jonathan,
 
-HID: nintendo: add support for HORI Wireless Switch Pad
+I understood and agreed with you=2E To add devm API support we have common=
+ separate change and on top of while updating driver instead of updating a =
+single devm, I shall update all possible driver to devm=2E I think we can k=
+eep this series for few time for the review and next series would incorpora=
+te fully devm change and also attempted to use b4 to handle long series=2E
 
-This commit adds support for the HORI Wireless Switch Pad by introducing
-the new JOYCON_CTLR_TYPE_LIC_PRO controller type. It provides a dedicated
-button mapping and handles initialization quirks for the device.
+Later in that we can plan to proceed for testing instead of partial devm d=
+river series validation=2E
 
-> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index 29008c2cc5304..b5e799ace2492 100644
-> --- a/drivers/hid/hid-nintendo.c
-> +++ b/drivers/hid/hid-nintendo.c
-> @@ -316,6 +316,7 @@ enum joycon_ctlr_type {
->  	JOYCON_CTLR_TYPE_JCL  =3D 0x01,
->  	JOYCON_CTLR_TYPE_JCR  =3D 0x02,
->  	JOYCON_CTLR_TYPE_PRO  =3D 0x03,
-> +	JOYCON_CTLR_TYPE_LIC_PRO =3D 0x06,
-
-[Severity: Low]
-Since JOYCON_CTLR_TYPE_LIC_PRO is a new controller type, does it need to be
-added to the jc_type_has_right() macro?
-
-Without it, the macro might evaluate to false, skipping the creation and
-registration of the HOME LED device in joycon_leds_create().
-
-[ ... ]
-
-> @@ -2156,7 +2180,10 @@ static int joycon_input_create(struct joycon_ctlr =
-*ctlr)
->  		joycon_config_left_stick(ctlr->input);
->  		joycon_config_right_stick(ctlr->input);
->  		joycon_config_dpad(ctlr->input);
-> -		joycon_config_buttons(ctlr->input, procon_button_mappings);
-> +		if (ctlr->ctlr_type =3D=3D JOYCON_CTLR_TYPE_LIC_PRO)
-> +			joycon_config_buttons(ctlr->input, lic_procon_button_mappings);
-> +		else
-> +			joycon_config_buttons(ctlr->input, procon_button_mappings);
-
-[Severity: High]
-This is a pre-existing issue, but is the input device registered before its
-capabilities and force-feedback interfaces are configured?
-
-Looking at joycon_input_create(), input_register_device() is called
-immediately after the input device is allocated:
-
-joycon_input_create() {
-    ...
-    ret =3D input_register_device(ctlr->input);
-    if (ret)
-        return ret;
-
-    if (joycon_type_is_right_joycon(ctlr)) {
-    ...
-}
-
-After this registration, the code proceeds to configure axis limits, set up
-button capability bits, and add the force-feedback rumble interface.
-
-Modifying an input device's capabilities after it has been registered can
-introduce race conditions where userspace reads an incomplete capability ma=
-sk
-before the driver finishes initializing it.
-
-[ ... ]
-
-> @@ -2503,13 +2530,30 @@ static int joycon_init(struct hid_device *hdev)
-> =20
->  	if (joycon_has_joysticks(ctlr)) {
->  		/* get controller calibration data, and parse it */
-> -		ret =3D joycon_request_calibration(ctlr);
-> -		if (ret) {
-> +		if (ctlr->ctlr_type =3D=3D JOYCON_CTLR_TYPE_LIC_PRO) {
->  			/*
-> -			 * We can function with default calibration, but it may be
-> -			 * inaccurate. Provide a warning, and continue on.
-> +			 * Licensed controllers may have incompatible SPI flash
-> +			 * layouts. Use default calibration values.
->  			 */
-> -			hid_warn(hdev, "Analog stick positions may be inaccurate\n");
-> +			hid_info(hdev, "using default cal for licensed controller\n");
-> +			joycon_use_default_calibration(hdev,
-> +						       &ctlr->left_stick_cal_x,
-> +						       &ctlr->left_stick_cal_y,
-> +						       "left", 0);
-
-[Severity: Low]
-Does calling joycon_use_default_calibration() with an error code of 0 cause=
- a
-confusing kernel warning to be logged on every successful connection?
-
-joycon_use_default_calibration() unconditionally prints a warning:
-
-joycon_use_default_calibration() {
-    ...
-    hid_warn(hdev,
-             "Failed to read %s stick cal, using defaults; e=3D%d\n",
-             stick, ret);
-    ...
-}
-
-This might falsely signal a hardware failure to users when the driver is
-functioning exactly as intended.
-
-> +			joycon_use_default_calibration(hdev,
-> +						       &ctlr->right_stick_cal_x,
-> +						       &ctlr->right_stick_cal_y,
-> +						       "right", 0);
-> +		} else {
-
-[ ... ]
-
-> @@ -2527,8 +2571,12 @@ static int joycon_init(struct hid_device *hdev)
->  		/* Enable the IMU */
->  		ret =3D joycon_enable_imu(ctlr);
->  		if (ret) {
-> -			hid_err(hdev, "Failed to enable the IMU; ret=3D%d\n", ret);
-> -			goto out_unlock;
-> +			if (ctlr->ctlr_type =3D=3D JOYCON_CTLR_TYPE_LIC_PRO) {
-> +				hid_dbg(hdev, "IMU enable failed for licensed controller, continuing=
-\n");
-
-[Severity: High]
-The commit message states that SPI flash calibration data is incompatible,
-but does this bypass joycon_request_imu_calibration() which is called right
-before this block?
-
-Because the controller type is treated as a Pro Controller, joycon_has_imu()
-returns true, and the driver might issue an SPI read to the incompatible
-flash layout, parsing garbage data into ctlr->accel_cal and ctlr->gyro_cal.
-This could cause incorrect IMU divisor calculations and corrupted telemetry.
-
-[Severity: Low]
-While the initialization timeouts are treated as non-fatal, does the driver
-still register the IMU device and force-feedback capabilities?
-
-If joycon_has_imu() and joycon_has_rumble() still return true, userspace
-applications might be falsely informed that the controller supports rumble
-and motion tracking.
-
-> +			} else {
-> +				hid_err(hdev, "Failed to enable the IMU; ret=3D%d\n", ret);
-> +				goto out_unlock;
-> +			}
->  		}
->  	}
-> =20
-> @@ -2543,8 +2591,12 @@ static int joycon_init(struct hid_device *hdev)
->  		/* Enable rumble */
->  		ret =3D joycon_enable_rumble(ctlr);
->  		if (ret) {
-> -			hid_err(hdev, "Failed to enable rumble; ret=3D%d\n", ret);
-> -			goto out_unlock;
-> +			if (ctlr->ctlr_type =3D=3D JOYCON_CTLR_TYPE_LIC_PRO) {
-> +				hid_dbg(hdev, "rumble enable failed for licensed controller, continu=
-ing\n");
-
-[Severity: High]
-Is it possible that ret remains set to -ETIMEDOUT after skipping the
-goto out_unlock?
-
-Since this is the last step in joycon_init(), the function might erroneously
-return the error code when it reaches the end of the function, causing the
-entire probe to fail for the newly added controller.
-
-> +			} else {
-> +				hid_err(hdev, "Failed to enable rumble; ret=3D%d\n", ret);
-> +				goto out_unlock;
-> +			}
->  		}
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but is there a race condition in
-joycon_ctlr_handle_event() when reading shared state locklessly?
-
-The interrupt handler joycon_ctlr_handle_event() checks
-mutex_is_locked(&ctlr->output_mutex) and then locklessly reads ctlr->msg_ty=
-pe
-and ctlr->subcmd_ack_match.
-
-If a delayed response arrives from an old timed-out subcommand while a thre=
-ad
-is preparing to send a new subcommand, the IRQ handler might accept the old
-packet if the subcommand IDs match. It then writes the old data to the buff=
-er
-and signals completion, prematurely waking the waitqueue and causing the new
-subcommand attempt to consume stale data.
-
-Could proper synchronization via ctlr->lock prevent this?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260526-hori-suppo=
-rt-v1-1-1861c0abc2e0@hectorzelaya.dev?part=3D1
+Thanks, Sanjay
+>>=20
+>> Welcoming all suggestions and especially if someone can validate and ha=
+ve Tested-by tag=2E
+>>=20
+>> Thank, Sanjay
+>>=20
+>> > =20
+>> >>   	if (ret) {
+>> >>   		dev_err(dev, "device register failed\n");
+>> >> -		goto error_remove_trigger;
+>> >> +		return ret;
+>> >>   	}
+>> >>     	press_state->callbacks=2Esend_event =3D press_proc_event;
+>> >> @@ -318,8 +318,6 @@ static int hid_press_probe(struct platform_devic=
+e *pdev)
+>> >>     error_iio_unreg:
+>> >>   	iio_device_unregister(indio_dev);
+>> >> -error_remove_trigger:
+>> >> -	hid_sensor_remove_trigger(&press_state->common_attributes);
+>> >>   	return ret;
+>> >>   }
+>> >>   @@ -328,11 +326,9 @@ static void hid_press_remove(struct platform_=
+device *pdev)
+>> >>   {
+>> >>   	struct hid_sensor_hub_device *hsdev =3D dev_get_platdata(&pdev->d=
+ev);
+>> >>   	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+>> >> -	struct press_state *press_state =3D iio_priv(indio_dev);
+>> >>     	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_PRESSURE);
+>> >>   	iio_device_unregister(indio_dev);
+>> >> -	hid_sensor_remove_trigger(&press_state->common_attributes);
+>> >>   }
+>> >>     static const struct platform_device_id hid_press_ids[] =3D { =20
+>> > =20
+>

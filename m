@@ -1,280 +1,118 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F8038D6A4
-	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 17:09:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28BA240B6F4
+	for <linux-input@vger.kernel.org>; Tue, 26 May 2026 17:36:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779815373; cv=none; b=VWLhxUPU2ayMFZWwfo3xZ9oBBKeaYpRu/gTXgdA7zgD8FgIryAOtENSrKsAPdJ3XLeI6BTuLSvy4ptY+uDjcgWg75fFWP1mVuZXAeSSxgmxcBhVyyEyfivLedIaCSCh4wwDI57FusbuW2pVyN2CU1wqunEVeRpZm0tnssqCtils=
+	t=1779816987; cv=none; b=bpvdsWc+MT+FfBlwyNHX5S7+Vx2VqU+c9m629ZyeuT8jSVV59JW1QBcQFaOmds3Fym5Q817wJc16fT2Gxp1lWFiK0hk4eHxX8wrRTiHmzh93YC8G3XHvAht58bVYtE3shYwXuox5P0cWQNts+i/jSjebJPm1qI4Ogc9k8RKZytw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779815373; c=relaxed/simple;
-	bh=VzJHzFzg/1E60g4KLQswhGSbY+hcwu7QxBloRiNs6F4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lZ/T7f/faSVwkpdls/7THNX2jWEhFUaRQtoC50OfAad7+5WA1xwAMPXFYAbT0Pjqjz0qdEkOwboMJCo6BUtjEvj18mWWAbsxcDSKtW0ltn6+fHUT3LNPolRWE+abjt0MWQjlunT81yZ+GewsReDV4NkzOP466POJbFiu624OTOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hectorzelaya.dev; spf=none smtp.mailfrom=hectorzelaya.dev; dkim=pass (2048-bit key) header.d=hectorzelaya.dev header.i=@hectorzelaya.dev header.b=LDEEE4vx; arc=none smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hectorzelaya.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=hectorzelaya.dev
+	s=arc-20240116; t=1779816987; c=relaxed/simple;
+	bh=itptXuNe4ygUJvTHoay1T9eFRWRgrelgdM2TdraIkac=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i9JDpLQvxs06pNwj+1Pltnzj9x0z+hC0/FFu0qbJQVQCK/CBKPvytbA2lHg72iXg5sYLpksvQxbf89LWHagezGaWMPF0mKKpFtP6b59Nvr9k8oIAJ3lgS/cVa4cWp+b+DozOYtTlWlvMTEoGDrYsd0vtM04LZqN/THU1bLYqgOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E52GbOQe; arc=none smtp.client-ip=74.125.82.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hectorzelaya.dev header.i=@hectorzelaya.dev header.b="LDEEE4vx"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7bd5c773ef3so100255457b3.1
-        for <linux-input@vger.kernel.org>; Tue, 26 May 2026 10:09:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E52GbOQe"
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-1363e78746eso6224657c88.1
+        for <linux-input@vger.kernel.org>; Tue, 26 May 2026 10:36:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=hectorzelaya.dev; s=google; t=1779815369; x=1780420169; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+u0T7GXJrDM0Fqjd6+HyunZNurtk9AZexLWmxHsqJUc=;
-        b=LDEEE4vxLK1KajiPC8GdDLq/mzJ1GCRGVKaWux1msOdGKp8wRpPqj/CQeChxvaqGGp
-         StEtK9HNLSOc4YRaHgeqm0Yikb96Lr2s4SVcMXnV0aeueP/2CJbu5GoDZgVxiVkJfm2+
-         J1Zm+54Q81GlWMU6o6+mvpAIItqB0HUKhuR7zHSS5PBe747daltj3Q3qCD84bLWOSA+s
-         +ZXORPYaeXn6Mhvqk71uAYXmC+PTfN27ejA+lIczrKmRPFX3Hgkv58AaooubmVjDL/FE
-         Y8qDp3pmPKwr005zxxh4mZTini7gBjEEkW880vbZK6VgMgRTVdczSmv12u1Mxct9kuip
-         IxUQ==
+        d=gmail.com; s=20251104; t=1779816985; x=1780421785; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=y6BSuOR6NYcvyJ2FNhs6DvFNJ6pd+/sZduNctzVkyME=;
+        b=E52GbOQevGEBxOQPl1qxQB0dUsn97zS5LR9l+3oZBlol4j1ufFoX8qVQMWTVPTpSTi
+         Wxvthh2TON2z7OYKaP7g8y8xSB3tH+LjSS0e/chjZ5e71JxKpNA/+h/oborbyd/IMy5P
+         32zDvu+5Ulf+giwNWsUceGWHmKfz0/cwdp7LFOA9kGIfyfXSwj+UFWWcfhuPpfwjUojx
+         rTzweKTQzHpQngjSflXX16ZHFWKaG4MTldw5zlHALSa/ekPldrIXlOWoOw2i0fjyD6cq
+         IlLoDvRxSRoEOxAzzPQCW78Wp3yvqovumqpMWEv7tPdHTdBsEvBH15mhjNGyyiNh2EUH
+         7oYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779815369; x=1780420169;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+u0T7GXJrDM0Fqjd6+HyunZNurtk9AZexLWmxHsqJUc=;
-        b=Apc7IjIqZSpgn8fs/JR1J4065TDq3a7QacfB85WsG/wvX6lp2O3IMr7Lpl+PTpo9ym
-         EavX/2XwBSRUc4ErSbMoMTqZf2K/d13pMfdBOmCZpTNAQi2ftyMDEsKx9RizKY9z6fET
-         0NnW6mqfKdQLRjxaGK/D1eLxoAXdYve4/Aklx/g3ZkNuy7ZiQWHA8WVWpDaumt3aLFPY
-         08whaIahHif324geND4n9ZlB3ipE3lGj0M9xQdi9K34Ku/AvzwjR+JSuI5mZ31H6ChSB
-         I0jtqygMd+E+kUwTkoesYr0ogbcA81efTBifowxwJp5khMgLUKQO9DBj83F6PuRzgidV
-         hNNA==
-X-Gm-Message-State: AOJu0YyBI+B7B7/rl6XuyLR8Tw/JG3oTOGvJ0myuV+bcjS7uyRYZix0p
-	64TePAj4SPj+FTafpSV7vB4FsYCtM8bi1pAkRzbkdEQvZA74IZHOBQamTEjCK8rPFX13
-X-Gm-Gg: Acq92OE3+QOhOWFT64EWexKDPwDeKf+hNfV3aRMbGp0b7xeqAmD5uKG966MTyvnB7sB
-	YFBHBT1BnibptX+s6FQBC6vKE+BJovcXbOd6uQEireA4Biynim3y2hMtg0EpZO5715BfO6tRyi1
-	s6t7GcQScQqb4G/naOcaBMAXsH4eARaQUEXuA4gS9pN3sNsVcPyEs+bmYH+n+8jRwsDL94uQnDw
-	bDsEfy/IBbNgBuVM9lcs196DFVt1DbkrNbMQPxWEK9IByBSCmkcgCr9J+Sb3MPWSd8Sb87FLii+
-	py531UnWlGptn0N+qvtiDHLGToIHFj0DGqAqQGHTvBnoNWlri0QIfhiOPBjkkqxesxjc4/yhvOX
-	zpv6qGXp6MwD7Jp/kAaCpEboTL2AYSyCU3vqj1lHYqKHKIwuLn7eiwu73CnWC7h7/tp9MOJzyHK
-	nr+HkyTPQcrs+QcyrcgD7+v0AmrS/x5I4maE45cAM=
-X-Received: by 2002:a05:690c:d8f:b0:7ba:f3a8:7a87 with SMTP id 00721157ae682-7d3361bc2f6mr197969997b3.40.1779815369328;
-        Tue, 26 May 2026 10:09:29 -0700 (PDT)
-Received: from [127.0.0.2] ([190.150.67.183])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7d389e10546sm63777987b3.19.2026.05.26.10.09.28
+        d=1e100.net; s=20251104; t=1779816985; x=1780421785;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=y6BSuOR6NYcvyJ2FNhs6DvFNJ6pd+/sZduNctzVkyME=;
+        b=M2Mg9HQhPAR2HpcJJqPUAoybl7cm5yjGqXE4sOzFTrhfHYqgDS7Jf2DNAPb70njdd7
+         stp3aaZOY/WDnPajY2Je2FGifMzvjPJ6k6c3mZEBkBG6JpgYQ2ho+fb5eTTKnuCsr+go
+         KKMGTKD3uTc6YiVPXo5vl647Hlp1hSGTGQHkYhdrGj7LR6hpCtqro90sRbwIt7KbM31I
+         PL7sHizXQ/GngujC6CEXHCNlaFk+tOUK/NFOM8VMTdofWyfbA97D5dll+NEHD3CJAeG+
+         QTFH04x47A8cBzvafnC6zeZCLsogVDYsR2g+EBrg11f1WUCQefd6zhRjIrl9TWKMjZ8h
+         O1hQ==
+X-Gm-Message-State: AOJu0Yzc2lIJ+wiPGAulyG/0HZ2YSVLTheiR66ZHIMBPxgS6nWviPbUB
+	Kgqjr0eDBdwUdhiLQh/k6FMdQERYK0zIJ4MGGH+6u7AQr2GSWCG+lH9j
+X-Gm-Gg: Acq92OHeTKKlDNzgZsoflMztx9O9if01jEctpF15wnQPtv73fG8qg3xXRVe10MSi95y
+	2XK+IXwvVT8RbXwdBU18ByyYekSoASCvA1yzmZg3pE9h1MfAcJMxesNukUU7A1ittcSpzkO3k5B
+	gjr7FpZm2HJhaI8pc2EePpW1DZUN7q73exnysxEOpnlElv1icrlJsgbTmHiJvOnHCXg4e7gt7Vu
+	W25BNtzVuj1T8q4XkysFApxaa1GhwSPdsfyZ4I20NaMT/dyEsppupLoIIES2nXOMgyA9sskrwcw
+	OfjXGN1Ked+2bk2yfdntQWhoiS9pQwLvCC98GcpRHe7bzAhtLh/qgwlB2Mnjvyn1FnZHuFtbza9
+	/2+5ZXgEZucuZbkB0TQMtEFIOxp4fnGL8JIwkSikqnxdXjDOXmnbh4XL+rlDWfJowkJWEwjcXZ2
+	oMGPFxJcXPLXG8Iub3weFVjLlgY+7gnpvelyEn8xHoNgZV2zBefavC1MPE0sDY68mv
+X-Received: by 2002:a05:7022:f206:b0:136:e639:9c14 with SMTP id a92af1059eb24-136e6399e60mr2835502c88.30.1779816984904;
+        Tue, 26 May 2026 10:36:24 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:912f:eb49:d713:7401])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-136b3706ad6sm6655781c88.13.2026.05.26.10.36.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 10:09:28 -0700 (PDT)
-From: Hector Zelaya <hector@hectorzelaya.dev>
-Date: Tue, 26 May 2026 11:08:59 -0600
-Subject: [PATCH] HID: nintendo: add support for HORI Wireless Switch Pad
+        Tue, 26 May 2026 10:36:24 -0700 (PDT)
+Date: Tue, 26 May 2026 10:36:08 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Myeonghun Pak <mhun512@gmail.com>, Hans Verkuil <hverkuil@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org, Ijae Kim <ae878000@gmail.com>
+Subject: Re: [PATCH] Input: rmi4 - release F54 queue on video registration
+ failure
+Message-ID: <ahXYreASLGSPuIe_@google.com>
+References: <20260524182351.27658-1-mhun512@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
-X-B4-Tracking: v=1; b=H4sIAKrTFWoC/yXMQQ5AMBCF4avIrDWphkZcRSyooWOhzQwiEXdXJ
- G/zLd5/gSATCjTZBYwHCYU1ocgzcL5fZ1Q0JoPRxurKWOUDk5I9xsCb0vWQ5vpSjzWkS2Sc6Px
- ybfdb9mFBt70NuO8HymfvjnAAAAA=
-X-Change-ID: 20260526-hori-support-08b08bca40d8
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Hector Zelaya <hector@hectorzelaya.dev>
-X-Mailer: b4 0.15.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260524182351.27658-1-mhun512@gmail.com>
 
-Add support for the HORI Wireless Switch Pad (vendor 0x0f0d, product
-0x00f6), a licensed third-party Nintendo Switch Pro Controller.
+On Mon, May 25, 2026 at 03:23:45AM +0900, Myeonghun Pak wrote:
+> rmi_f54_probe() initializes the videobuf2 queue before registering the
+> video device. If video_register_device() fails, probe only unregisters
+> the V4L2 device and leaves the initialized queue unwound by neither
+> remove nor file release paths.
+> 
+> Release the queue before continuing through the existing probe error
+> path.
+> 
+> This issue was identified during our ongoing static-analysis research while
+> reviewing kernel code.
+> 
+> Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Ijae Kim <ae878000@gmail.com>
+> Signed-off-by: Ijae Kim <ae878000@gmail.com>
+> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+> ---
+>  drivers/input/rmi4/rmi_f54.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+> index 61909e1a39..fca7b9fec5 100644
+> --- a/drivers/input/rmi4/rmi_f54.c
+> +++ b/drivers/input/rmi4/rmi_f54.c
+> @@ -722,6 +722,7 @@ static int rmi_f54_probe(struct rmi_function *fn)
+>  	ret = video_register_device(&f54->vdev, VFL_TYPE_TOUCH, -1);
+>  	if (ret) {
+>  		dev_err(&fn->dev, "Unable to register video subdevice.");
+> +		vb2_queue_release(&f54->queue);
+>  		goto remove_v4l2;
+>  	}
+>  
 
-The controller reports controller type 0x06 (vs 0x03 for first-party
-Pro Controllers) and has the following quirks:
+Hans, could you please Ack or Nak it? It is unclear to me if this
+cleanup is mandatory and whether it is also needed in rmi_f54_remove().
 
- - SPI flash calibration data is incompatible; use default stick
-   calibration values instead.
- - X and Y button bits are swapped compared to first-party controllers;
-   add a dedicated button mapping table.
- - Rumble and IMU enable may timeout (no vibration motor in hardware);
-   treat as non-fatal for licensed controllers.
+Thanks.
 
-Tested over Bluetooth on NixOS with kernel 7.0.5 and 7.0.10:
- - All 14 buttons map correctly
- - Player LED sets on connect
- - Sticks report correctly with default calibration
- - IMU/gyro data streams at 60Hz
- - D-pad reports on ABS_HAT0X/HAT0Y
-
-Device information:
-  Bluetooth name: Lic Pro Controller
-  Bluetooth HID:  0005:0F0D:00F6
-
-Assisted-by: Kiro:Auto [Amazon Kiro IDE]
-Signed-off-by: Hector Zelaya <hector@hectorzelaya.dev>
----
- drivers/hid/hid-ids.h      |  3 ++
- drivers/hid/hid-nintendo.c | 78 +++++++++++++++++++++++++++++++++++++++-------
- 2 files changed, 69 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a1cfa436344a..3b0767cc47fd 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -683,6 +683,9 @@
- #define USB_DEVICE_ID_HARMONIX_WII_RB3_KEYBOARD	        0x3330
- #define USB_DEVICE_ID_HARMONIX_WII_RB3_MPA_KEYBOARD_MODE	0x3338
- 
-+#define USB_VENDOR_ID_HORI			0x0f0d
-+#define USB_DEVICE_ID_HORI_WIRELESS_SWITCH_PAD	0x00f6
-+
- #define USB_VENDOR_ID_HP		0x03f0
- #define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A		0x464a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 29008c2cc530..b5e799ace249 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -316,6 +316,7 @@ enum joycon_ctlr_type {
- 	JOYCON_CTLR_TYPE_JCL  = 0x01,
- 	JOYCON_CTLR_TYPE_JCR  = 0x02,
- 	JOYCON_CTLR_TYPE_PRO  = 0x03,
-+	JOYCON_CTLR_TYPE_LIC_PRO = 0x06,
- 	JOYCON_CTLR_TYPE_NESL = 0x09,
- 	JOYCON_CTLR_TYPE_NESR = 0x0A,
- 	JOYCON_CTLR_TYPE_SNES = 0x0B,
-@@ -433,6 +434,25 @@ static const struct joycon_ctlr_button_mapping procon_button_mappings[] = {
- 	{ /* sentinel */ },
- };
- 
-+/* Licensed Pro Controllers (e.g. HORI) swap X/Y bits in the report */
-+static const struct joycon_ctlr_button_mapping lic_procon_button_mappings[] = {
-+	{ BTN_EAST,	JC_BTN_A,	},
-+	{ BTN_SOUTH,	JC_BTN_B,	},
-+	{ BTN_NORTH,	JC_BTN_Y,	},
-+	{ BTN_WEST,	JC_BTN_X,	},
-+	{ BTN_TL,	JC_BTN_L,	},
-+	{ BTN_TR,	JC_BTN_R,	},
-+	{ BTN_TL2,	JC_BTN_ZL,	},
-+	{ BTN_TR2,	JC_BTN_ZR,	},
-+	{ BTN_SELECT,	JC_BTN_MINUS,	},
-+	{ BTN_START,	JC_BTN_PLUS,	},
-+	{ BTN_THUMBL,	JC_BTN_LSTICK,	},
-+	{ BTN_THUMBR,	JC_BTN_RSTICK,	},
-+	{ BTN_MODE,	JC_BTN_HOME,	},
-+	{ BTN_Z,	JC_BTN_CAP,	},
-+	{ /* sentinel */ },
-+};
-+
- static const struct joycon_ctlr_button_mapping nescon_button_mappings[] = {
- 	{ BTN_SOUTH,	JC_BTN_A,	},
- 	{ BTN_EAST,	JC_BTN_B,	},
-@@ -695,7 +715,8 @@ static inline bool joycon_type_is_right_joycon(struct joycon_ctlr *ctlr)
- 
- static inline bool joycon_type_is_procon(struct joycon_ctlr *ctlr)
- {
--	return ctlr->ctlr_type == JOYCON_CTLR_TYPE_PRO;
-+	return ctlr->ctlr_type == JOYCON_CTLR_TYPE_PRO ||
-+	       ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO;
- }
- 
- static inline bool joycon_type_is_snescon(struct joycon_ctlr *ctlr)
-@@ -1710,7 +1731,10 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
- 		joycon_report_left_stick(ctlr, rep);
- 		joycon_report_right_stick(ctlr, rep);
- 		joycon_report_dpad(ctlr, rep);
--		joycon_report_buttons(ctlr, rep, procon_button_mappings);
-+		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO)
-+			joycon_report_buttons(ctlr, rep, lic_procon_button_mappings);
-+		else
-+			joycon_report_buttons(ctlr, rep, procon_button_mappings);
- 	} else if (joycon_type_is_any_nescon(ctlr)) {
- 		joycon_report_dpad(ctlr, rep);
- 		joycon_report_buttons(ctlr, rep, nescon_button_mappings);
-@@ -2156,7 +2180,10 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
- 		joycon_config_left_stick(ctlr->input);
- 		joycon_config_right_stick(ctlr->input);
- 		joycon_config_dpad(ctlr->input);
--		joycon_config_buttons(ctlr->input, procon_button_mappings);
-+		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO)
-+			joycon_config_buttons(ctlr->input, lic_procon_button_mappings);
-+		else
-+			joycon_config_buttons(ctlr->input, procon_button_mappings);
- 	} else if (joycon_type_is_any_nescon(ctlr)) {
- 		joycon_config_dpad(ctlr->input);
- 		joycon_config_buttons(ctlr->input, nescon_button_mappings);
-@@ -2503,13 +2530,30 @@ static int joycon_init(struct hid_device *hdev)
- 
- 	if (joycon_has_joysticks(ctlr)) {
- 		/* get controller calibration data, and parse it */
--		ret = joycon_request_calibration(ctlr);
--		if (ret) {
-+		if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
- 			/*
--			 * We can function with default calibration, but it may be
--			 * inaccurate. Provide a warning, and continue on.
-+			 * Licensed controllers may have incompatible SPI flash
-+			 * layouts. Use default calibration values.
- 			 */
--			hid_warn(hdev, "Analog stick positions may be inaccurate\n");
-+			hid_info(hdev, "using default cal for licensed controller\n");
-+			joycon_use_default_calibration(hdev,
-+						       &ctlr->left_stick_cal_x,
-+						       &ctlr->left_stick_cal_y,
-+						       "left", 0);
-+			joycon_use_default_calibration(hdev,
-+						       &ctlr->right_stick_cal_x,
-+						       &ctlr->right_stick_cal_y,
-+						       "right", 0);
-+		} else {
-+			ret = joycon_request_calibration(ctlr);
-+			if (ret) {
-+				/*
-+				 * We can function with default calibration, but
-+				 * it may be inaccurate. Provide a warning, and
-+				 * continue on.
-+				 */
-+				hid_warn(hdev, "Analog stick positions may be inaccurate\n");
-+			}
- 		}
- 	}
- 
-@@ -2527,8 +2571,12 @@ static int joycon_init(struct hid_device *hdev)
- 		/* Enable the IMU */
- 		ret = joycon_enable_imu(ctlr);
- 		if (ret) {
--			hid_err(hdev, "Failed to enable the IMU; ret=%d\n", ret);
--			goto out_unlock;
-+			if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
-+				hid_dbg(hdev, "IMU enable failed for licensed controller, continuing\n");
-+			} else {
-+				hid_err(hdev, "Failed to enable the IMU; ret=%d\n", ret);
-+				goto out_unlock;
-+			}
- 		}
- 	}
- 
-@@ -2543,8 +2591,12 @@ static int joycon_init(struct hid_device *hdev)
- 		/* Enable rumble */
- 		ret = joycon_enable_rumble(ctlr);
- 		if (ret) {
--			hid_err(hdev, "Failed to enable rumble; ret=%d\n", ret);
--			goto out_unlock;
-+			if (ctlr->ctlr_type == JOYCON_CTLR_TYPE_LIC_PRO) {
-+				hid_dbg(hdev, "rumble enable failed for licensed controller, continuing\n");
-+			} else {
-+				hid_err(hdev, "Failed to enable rumble; ret=%d\n", ret);
-+				goto out_unlock;
-+			}
- 		}
- 	}
- 
-@@ -2813,6 +2865,8 @@ static const struct hid_device_id nintendo_hid_devices[] = {
- 			 USB_DEVICE_ID_NINTENDO_GENCON) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
- 			 USB_DEVICE_ID_NINTENDO_N64CON) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_HORI,
-+			 USB_DEVICE_ID_HORI_WIRELESS_SWITCH_PAD) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, nintendo_hid_devices);
-
----
-base-commit: e71bac24ec1f517f399a9eb471255b8f1c330b93
-change-id: 20260526-hori-support-08b08bca40d8
-
-Best regards,
---  
-Hector Zelaya <hector@hectorzelaya.dev>
-
+-- 
+Dmitry

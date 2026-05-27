@@ -1,79 +1,73 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A694D3C1F37
-	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 22:21:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE392390223
+	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 22:39:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779920499; cv=none; b=sf7F6QulILKUiVjX3tjiDnSKl13gJki3BBbYNkX5xvQ/31PIAJMjvSnKkW5sq6rTT2BdN71KQAV9QJh8xtlIRTfuD/yQmVxANyGxhYSlkWnQYIuHOH4ydsN8oDiTSNJbfySBKCsYkYGmu704rnnbt8nxj20LcQ50+rDosybyFMc=
+	t=1779921549; cv=none; b=qdDCv0WRkHo+UxtVBn9t+d+t3S0SRGGKsvVg2LnxxiTefUWbtCgdjoCG0kvUqL3Wivru559lHfXrUVs5GZhnDL07mcm1sNHW+3kehhvLV4qAPBtp9DCtQm5k6G0TJ/zVPpjhAzkMQjjbneGbGe+Iszx/BewMmBZAHIR+oGtPUFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779920499; c=relaxed/simple;
-	bh=2fk6fhOD8x0q1aTeVxYSSNIwdBVsfgLnJrKq0BISk/o=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=F+XCI+ZC7bq+QDtK7ZbBGh95OLP332m7ac+/OfTgQtZkM0UyLOUoyGVzQc5csQsiqh4i2EPLQtiNHf/4XB5kFCUOYcElUEM2S9f4TOyZDV8GK0CA1+Edbbt+owVpyEUivMrzsY9TPcLtuuqqs1Q/fphFgJ3gKdG4D9YsoK+P/3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kYqXbpm1; arc=none smtp.client-ip=209.85.214.178
+	s=arc-20240116; t=1779921549; c=relaxed/simple;
+	bh=n8sVAquVN8BEO/fdYcbz1G1zIp28b0thF6Sl8tfgQUE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ob5KNoSdsnQcEAaqK/JkOlCky8vMmaAQU5EKoJfbbOUervCF0FLyRwZriG+2kof2rlp4bDV1cDNLN+AQR7gj7JDkYPwT56ARLmog+BmX4MRdmLZK8wmqiIdB7Vzk7vbKDojnlOYbbgtvv+ESRgbrI/G5uYguv92Lv6I6VnTAIys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jfEP7BQr; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kYqXbpm1"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2baef9f5ecdso98577485ad.1
-        for <linux-input@vger.kernel.org>; Wed, 27 May 2026 15:21:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfEP7BQr"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b458ca2296so91856915ad.0
+        for <linux-input@vger.kernel.org>; Wed, 27 May 2026 15:39:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779920497; x=1780525297; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=siYXoV5iUWIO3iQmwXOwY7S//bY4ZAgbalu7pJCn+ww=;
-        b=kYqXbpm10faSerYDpk4SstV7pAaWpDuECmny0R8ae3IOOXFG1dYGGYCUeUi9ETg8r3
-         QY2GjYoURfiR/FP30uGoiIpalSXS1DOlu2LPeG6YOVQ5Tu6hoclSzBcvTFKsIC5Oe8GA
-         0wynN3pc+iV0Y1BAeuPJbrRlhIktOhMeWmu41W0IYJs+5VjrMbbDOcmoRIWtWjiuEOwG
-         iew0uQ8iK3H/Wkxpf5heOi1JJRTUy4GSypsLY8jAQKAK6CT3uJtJihnV3QsYW2xWJgIF
-         r/gd5pAJs+dZyM3BwAfvWis7wVeTLS10x2l0q9WeHkBKRUihj+SIFbaWdchG/A5ItJMh
-         d7wg==
+        d=gmail.com; s=20251104; t=1779921547; x=1780526347; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JVybf3MGGtEv6SObEhz8sgYocMl2B9mPaPK11udoxs0=;
+        b=jfEP7BQrY8qHyDSvhSb9K910Pn/30lhJ34Qr2ik7abQzwsIgfDymvrxZySkqhU8p5F
+         PBU2DUeIscLYVi74N68jkdc5MsCzsZ+EuHd+cwnE932SB2WPlm2hOxmtKy1hwvqD4Y8t
+         jPTYy5clELOZAHXRIcEC38c1+7Lj5UL+i9QQtsHgNHFaXbijnxcjHK4ax0rCN1TEYvYs
+         9am+3Ai9C6hZ/976yISbHWzP8tQ6IIbcTdZS41kZSGRXX/lfh2hZY/17AohuEU9d7gzf
+         +WBTHWn1aX7wZYm1NsgrguqgcO5ppmYg7wI2A7ZHFxBd8SuA0BR6YAOhv6zRtSu2RS55
+         goXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779920497; x=1780525297;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=siYXoV5iUWIO3iQmwXOwY7S//bY4ZAgbalu7pJCn+ww=;
-        b=PaNRKG8cgSeQ5RBA4tbNBGxwP7OqgRfYkjaYl8feqEaOlfR++ZziFEfMp9lusNTMNr
-         PhptR1oiH2x57WLvuq6mZGlcWBKEWu3HstDMGXzZ0VPwDrkYwnzEGbMq04e6tBooFtF/
-         cb2A8aZYEAvKOPD0fH3RuryW413kibkMANDku/Enhvyo24X6gJRXHcmTl1yeJsuo+4gC
-         G5wJ8wtrnsGySHR5MSsfK1bpRxxQiUAZfVV1TWzNFhWBXWV1MdNF4OTjapIl8qeyVOBe
-         JS3ObDhd+P+yQ/HYS5ZYtBNqaovUhMI4M/alTASEFocUI/V3oh/ZHfYEOgYcIxeKwGue
-         X3Lg==
-X-Forwarded-Encrypted: i=1; AFNElJ+9UD3gqojv2n/WH8jQQc014E1y+sKRbheRxEgegvUc/NvFmEuVjhOzTLyd9HnZDCsMgAcMBSf56TnFhQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZ8iXwnGuVL3RxJy9bdBnyq6WwNKiA8f25IrJHFRftrDINiceW
-	1S2ssGcew4vAQ2mj9oumfepJf9kcKyWrD9Ux9WztOu9l+DQhv+1OIEAH
-X-Gm-Gg: Acq92OEQraM4Y2DZYFr/Plq4HDX+UsfODxSt+YMOsQZHcVtn1T4RxGznasrjn5Pomzz
-	cxVYmquZ7p95agBYSjNGfcVcZ37PQwjbstMbCGiwEVYj8Y1kuYld5uqQg05jh9cTsRFQfEpeC0K
-	7b40UXE2DdG9/bHauldAB8dS7m6WUQv/R/2YWj/MwTXafNFdJSsAz8loCWEYeWJUyvu5enGffYb
-	GqxTjPimpB6/r2cvbzFB3BE6m6+OQ5+TcAE9TFmVP6wZVxUrX38OateMiOF+NVBs/OTRq/c2Qkh
-	GkKaG6IsIp0uDtdE/a7RBUY+UJMlGi7ywO8vDotkkzFAikgUB+j7OlMen29Oyyvo9FqrqTXKFdO
-	AfwmOiVc3Zb0vQYfffp4iB653a1xiiEzlZ4ENlW1YIKCRLbXZUhJZqx3GMosEB6t9T4xlELmSf/
-	FCgu3CLWVRc2CmJIYl2XnptGhsfcyLE2a54f98+89cKWyckPmr5LwUDMw=
-X-Received: by 2002:a17:902:ebd2:b0:2bc:b141:8551 with SMTP id d9443c01a7336-2beb06f81f3mr277899805ad.19.1779920496943;
-        Wed, 27 May 2026 15:21:36 -0700 (PDT)
-Received: from lappy ([203.105.74.20])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58fd888sm167783445ad.73.2026.05.27.15.21.34
+        d=1e100.net; s=20251104; t=1779921547; x=1780526347;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JVybf3MGGtEv6SObEhz8sgYocMl2B9mPaPK11udoxs0=;
+        b=SsehgdrnkIGtzqmmCDlhK939pcpA6XtXlIJ6isAHWo/bEB1gkoXEn98FyVISpuU3sJ
+         G6q2MU3XSxAWN7cBE6F9OgflMXupCxOAFFl3JtZ61q/+lggXGVpV+1T91/d3ezjCQyPb
+         WbxN9blNVO7cIRkwMR0xOPvwS1fz2aj51yYZIg1buofX+pTh2aqWb35gqaYjMmI2R21V
+         c9DXtkQAURJgbOejvg3gnIfLI7oFxW+jrqiW+aLU0Dn9nZPnYiP18XFsjnJ+CKLW9iY6
+         Mq7YdL1Rekjxgud2pX1g+acx2xodVdU0cl3b9QO5Ufa4YfQuP/RXJXXqZMdsqEotbC48
+         Fs8w==
+X-Gm-Message-State: AOJu0YwCJDJdCxbdfAIz5Td5G5mkOpp2zmeznqvinkT6qZhKgHsOp/GK
+	f5QBkioI0+1UQX/QRAla0+B0yq+eNmUbSjguwmfK43E9bliAuiYP7ojHi19VkNCj
+X-Gm-Gg: Acq92OF+cDYTCUGbZfF+2U1i3mZEAUOsFgnDot6EHdAjUYPbKLAqZDnHumr3TVFcLey
+	qpDVjaNXmvKXoKfVp1tbD7ku7Zf+iFoaU57eNVV7aBRMvJQAVBgpbjvjxvvA/ELJ+CRJDwNohq+
+	FtQqZhKEx3yQA67ZW8a5Ogsb+5gOenAM26b9S+av4RyiplnxikFzz+txzaZ1Pt/Y6YnlPZCU2wM
+	i3ffGtoqw9llCL2hIxzUuDLeGjep07djUX2dby6y8O1dD+X6cfwHIPTWmV6YkTLczpYGGKcsDvI
+	V/Q21xf+WfS8UR8ApaAscmIdgXVa/aD6oFP0M0ekoJnnXH0PB938JIyoJwEZFZrw0gSFgdaVRER
+	Isy1lDfQ4XIv7PvtlulUMjsyi52pFGGb4mUoHu/NXaPsk/sQ6BTrbdG4rRUqkzhpQ+Uzp8exPCV
+	/LFyvoNET0e+UPBplbL3yOVqyl7NO7zs3BiiW+rn84+XHL2IzhHIgkRcO6ero1OwLmSm47Jq9NX
+	ATwHeXZvcrOk969ku51+G+NCwcJQdXMWBn186rTE0ihVA==
+X-Received: by 2002:a17:903:4405:b0:2bd:8822:d8c2 with SMTP id d9443c01a7336-2beb06bc0a9mr260255915ad.36.1779921546975;
+        Wed, 27 May 2026 15:39:06 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb56b51aesm211397955ad.19.2026.05.27.15.39.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 May 2026 15:21:36 -0700 (PDT)
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Zhouwang Huang <honjow311@gmail.com>,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v10 4/4] HID: hid-msi: Add Rumble Intensity Attributes
-Date: Wed, 27 May 2026 22:21:22 +0000
-Message-ID: <20260527222122.10620-5-derekjohn.clark@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260527222122.10620-1-derekjohn.clark@gmail.com>
-References: <20260527222122.10620-1-derekjohn.clark@gmail.com>
+        Wed, 27 May 2026 15:39:06 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	linux-kernel@vger.kernel.org (open list:ARM/Mediatek SoC support),
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek SoC support),
+	linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC support)
+Subject: [PATCH] Input: mtk-pmic-keys: Use flexible array member for keys
+Date: Wed, 27 May 2026 15:38:49 -0700
+Message-ID: <20260527223849.25139-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,84 +76,141 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds intensity adjustment for the left and right rumble motors.
+Convert the fixed-size keys array to a flexible array member and use
+struct_size() for allocation. Move the key count validation before
+allocation and use for_each_available_child_of_node_scoped() to iterate
+only over available child nodes as the allocation uses
+of_get_available_child_count.
 
-Claude was used during the reverse-engineering data gathering for this
-feature done by Zhouwang Huang. As the code had already been affected,
-I used Claude to create the initial framing for the feature, then did
-manual cleanup of the _show and _store functions afterwards to fix bugs
-and keep the coding style consistent. Claude was also used as an initial
-reviewer of this patch.
+Also use a key variable in the loop for clarity.
 
-Assisted-by: Claude:claude-sonnet-4-6
-Co-developed-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Zhouwang Huang <honjow311@gmail.com>
-Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
+Use of_device_get_match_data() to fetch the PMIC key register data directly
+instead of open-coding an of_match_device() lookup.
+
+This also lets the driver drop the of_device.h include.
+
+Remove platform_set_drvdata. Unused anywhere.
+
+Assisted-by: OpenCode:BigPickle
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
 ---
-v7:
-  - Match on write address for rumble reports to prevent late ACK
-    from causing synchronization errors.
-  - Use spinlock for read/write profile_pending.
-  - Use smp_[store_release|load_acquire] pattern for checking
-    gamepad_registered to avoid possible races during teardown.
-  - Use struct for rumble reports.
-v6:
-  - Make all timeouts 25ms to ensure at least 2 jiffies in a 100Hz
-    config.
-  - Add spinlock_irqsave for read/write access on rumble_intensity
-    variables.
-  - Gate all attribute show/store functions with gamepad_registered.
-v5:
-  - Remove mkey related changes.
-v2:
-  - Use pending_profile and sync to rom mutexes.
----
- drivers/hid/hid-msi.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/mtk-pmic-keys.c | 55 ++++++++++++--------------
+ 1 file changed, 25 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-index 96710d80543d4..17b0707ecd46d 100644
---- a/drivers/hid/hid-msi.c
-+++ b/drivers/hid/hid-msi.c
-@@ -266,6 +266,11 @@ static const u16 button_mapping_addr_new[] = {
- static const u16 rgb_addr_old = 0x01fa;
- static const u16 rgb_addr_new = 0x024a;
+diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+index c78d9f6d97c4..5b8650f46105 100644
+--- a/drivers/input/keyboard/mtk-pmic-keys.c
++++ b/drivers/input/keyboard/mtk-pmic-keys.c
+@@ -16,7 +16,6 @@
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/registers.h>
+ #include <linux/module.h>
+-#include <linux/of_device.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+@@ -147,7 +146,7 @@ struct mtk_pmic_keys {
+ 	struct input_dev *input_dev;
+ 	struct device *dev;
+ 	struct regmap *regmap;
+-	struct mtk_pmic_keys_info keys[MTK_PMIC_MAX_KEY_COUNT];
++	struct mtk_pmic_keys_info keys[];
+ };
  
-+static const u16 rumble_addr[] = {
-+	0x0022,  /* left  */
-+	0x0023,  /* right */
-+};
-+
- struct claw_command_report {
- 	u8 report_id;
- 	u8 padding[2];
-@@ -308,6 +313,12 @@ struct claw_rgb_report {
- 	struct rgb_frame zone_data;
- } __packed;
+ enum mtk_pmic_keys_lp_mode {
+@@ -332,17 +331,25 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 	static const char *const irqnames_r[] = { "powerkey_r", "homekey_r" };
+ 	struct mtk_pmic_keys *keys;
+ 	const struct mtk_pmic_regs *mtk_pmic_regs;
++	struct mtk_pmic_keys_info *key;
+ 	struct input_dev *input_dev;
+-	const struct of_device_id *of_id =
+-		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
  
-+struct claw_rumble_report {
-+	struct claw_profile_report;
-+	u8 padding;
-+	u8 intensity;
-+} __packed;
+-	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
++	keycount = of_get_available_child_count(node);
++	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
++	    keycount > ARRAY_SIZE(irqnames)) {
++		dev_err(&pdev->dev, "too many keys defined (%d)\n", keycount);
++		return -EINVAL;
++	}
 +
- struct claw_drvdata {
- 	/* MCU General Variables */
- 	enum claw_profile_ack_pending profile_pending;
-@@ -332,8 +343,12 @@ struct claw_drvdata {
- 	enum claw_gamepad_mode_index gamepad_mode;
- 	u8 m1_codes[CLAW_KEYS_MAX];
- 	u8 m2_codes[CLAW_KEYS_MAX];
--	spinlock_t mode_lock; /* Lock for mode data read/write */
-+	u8 rumble_intensity_right;
-+	u8 rumble_intensity_left;
- 	const u16 *bmap_addr;
-+	spinlock_t rumble_lock; /* lock for rumble_intensity read/write */
-+	spinlock_t mode_lock; /* Lock for mode data read/write */
-+	bool rumble_support;
- 	bool gp_registered;
- 	bool bmap_support;
++	keys = devm_kzalloc(&pdev->dev, struct_size(keys, keys, keycount), GFP_KERNEL);
+ 	if (!keys)
+ 		return -ENOMEM;
+ 
+ 	keys->dev = &pdev->dev;
+ 	keys->regmap = pmic_chip->regmap;
+-	mtk_pmic_regs = of_id->data;
++	mtk_pmic_regs = of_device_get_match_data(&pdev->dev);
++	if (!mtk_pmic_regs)
++		return -EINVAL;
+ 
+ 	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
+ 	if (!input_dev) {
+@@ -356,31 +363,21 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 	input_dev->id.product = 0x0001;
+ 	input_dev->id.version = 0x0001;
+ 
+-	keycount = of_get_available_child_count(node);
+-	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
+-	    keycount > ARRAY_SIZE(irqnames)) {
+-		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
+-		return -EINVAL;
+-	}
++	for_each_available_child_of_node_scoped(node, child) {
++		key = &keys->keys[index];
++		key->regs = &mtk_pmic_regs->keys_regs[index];
+ 
+-	for_each_child_of_node_scoped(node, child) {
+-		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
+-
+-		keys->keys[index].irq =
+-			platform_get_irq_byname(pdev, irqnames[index]);
+-		if (keys->keys[index].irq < 0)
+-			return keys->keys[index].irq;
++		key->irq = platform_get_irq_byname(pdev, irqnames[index]);
++		if (key->irq < 0)
++			return key->irq;
+ 
+ 		if (mtk_pmic_regs->key_release_irq) {
+-			keys->keys[index].irq_r = platform_get_irq_byname(pdev,
+-									  irqnames_r[index]);
+-
+-			if (keys->keys[index].irq_r < 0)
+-				return keys->keys[index].irq_r;
++			key->irq_r = platform_get_irq_byname(pdev, irqnames_r[index]);
++			if (key->irq_r < 0)
++				return key->irq_r;
+ 		}
+ 
+-		error = of_property_read_u32(child,
+-			"linux,keycodes", &keys->keys[index].keycode);
++		error = of_property_read_u32(child, "linux,keycodes", &key->keycode);
+ 		if (error) {
+ 			dev_err(keys->dev,
+ 				"failed to read key:%d linux,keycode property: %d\n",
+@@ -389,9 +386,9 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		if (of_property_read_bool(child, "wakeup-source"))
+-			keys->keys[index].wakeup = true;
++			key->wakeup = true;
+ 
+-		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
++		error = mtk_pmic_key_setup(keys, key);
+ 		if (error)
+ 			return error;
+ 
+@@ -407,8 +404,6 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 
+ 	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs);
+ 
+-	platform_set_drvdata(pdev, keys);
+-
+ 	return 0;
+ }
  
 -- 
-2.53.0
+2.54.0
 

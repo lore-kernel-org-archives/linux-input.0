@@ -1,108 +1,88 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from smtp.forwardemail.net (smtp.forwardemail.net [121.127.44.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23A82641EE
-	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 00:46:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27DC2F8EB2
+	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 01:12:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=121.127.44.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779842763; cv=none; b=OxnNyNXKn+M0TYqhWgcHeDVpZFKbRof5OQDDEhy8c9b2hlmvcbOOgm4rkQINov/kVEiUg5Mzg4xIJptsUMg0VdIsFjkVuApJB6lqE+yBTj1JyfcdEUAFeaITrAY+82HjmO/j9Fl98V/YDUcQjDWgabCFhNLIlTi/mM7QOR66TEQ=
+	t=1779844357; cv=none; b=DL7Z94mVqO4DtRsn634Eb5lFlqlDV8Ubqx3vAQXf9wd/QPzzmuwXiGMkOf0Ni403iRhaZC6Qi8K/7i4MKECdO5r4aZaE8PqyJJ0CEGGKuRNPYEDF6GkpqzHaQHV4XSEqCSmNOmgLszCmbml8TvenTJHNS3QNHKfkoZvVJJm737Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779842763; c=relaxed/simple;
-	bh=Bn1htifDFvdqLQpyJKhO0AyLQDMJSMocQOzxJZJiq5w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DHWNAu7kGvigIhLTbn3+0hXgcKXebJSorWTG20yxSyyo+jdt881l31kr1WZZQa86M1TU7jr0pjmR/N2wkHWhWI4X4Clie6e2C0bcUBM/oibiIbuB64nkLaDDp4HV0PQP46GRSocsQAbFxfwxwHjNOzZP+6iRjCfGH88URR9yuno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PI1wNtaW; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779844357; c=relaxed/simple;
+	bh=MTdKI+qSU2S1gzH85u4yMWn1TcEJ83oMMMI1SPSAYHc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=TAIoqMFM333+ESVXMxDlzyGzPZ9JikO3XMNuZquB7hS7+1wmvtAKZB21lzElRcv2qNPZcy3/TM7JdXlPUZS2bA+bU6UeAr/Z7AiLeEIsh0A+Dg4+GlCrpSdKozIk7MdY8S0zTc2IbHIc6dWWhy0IHkXG/0RZDNkiAtbFNPVUq2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com; dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b=NAofqzG7; arc=none smtp.client-ip=121.127.44.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PI1wNtaW"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3695bf7d082so9993359a91.0
-        for <linux-input@vger.kernel.org>; Tue, 26 May 2026 17:46:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779842761; x=1780447561; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=/qmpMpDGto5NskeOa7RLSttaP2uOAMocijbFFRGCfIw=;
-        b=PI1wNtaWrNhAu50nauSLNejNQYZ2tkIhd6uVy2AOr4OVvm0a/3/xg7STVNT6djurzh
-         8zuWHSdRqts8DmtKAblHTn6pg74v5Y41NRD9p/GxfOBh1nQ0/cCixNMK3+5HH3rxXPOt
-         tbNjj26S38Fqph8qjaYNnaAKM8jciwzNVzvECPB+jHzVgttu21wbztsPqZ3SqGELEqyO
-         qK+SHYKBGfE/3Z2btelGwe13U/EIBZgRvxiIvgG+mSuEYh1y+6P51EcRs4UH7zlZ9k/f
-         +IX+zKTGcj+PCtK+IWb45nCWLp4w5ZtxW2Y5/jjQjBDxOwvo10gF6gdQDWhj2RO9aANY
-         Ry9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779842761; x=1780447561;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/qmpMpDGto5NskeOa7RLSttaP2uOAMocijbFFRGCfIw=;
-        b=NbWm9ayUItXRydDU5X95kNNMAUFUz9xZTbkix8F6P0CGYl2RPckRFNFd9e7m8nHhLl
-         Dq1utt1DBMfRp4Mvpq4olax1UyhKHQTlvCVE2qOrGZbchB8Xnf+CHRjDVBSk4He+3xpX
-         WuFUtGj9YijHwYe1thXwHmuZtvcsBE3P8L+Fgu2FKp+U2knURuISVy/d1eq6Jj335j7G
-         ebGvQJ3BOcRlk84D7YHJ43OxiLLEi9zPDR+qq7sQxX70Ev0040zeZnR9tsvOFQC7h/Ix
-         OOkPPU/Hzv9dJmKDt7A74zfA+Xv2R4AVnlpoKYxebxpfcu8suNK52w7O7QrMy//lkN+3
-         R91w==
-X-Gm-Message-State: AOJu0Yzrr/jNBhT0Dd2MOG5aCLExuyU81dYSvJ4LZx2SDexX+TlAIzJ1
-	0ALCjfozhev7DvA6K47GAJ3ibJ1/KpY8w6zIRXyyrkpGV8nerN5lBO8kYdbvDg==
-X-Gm-Gg: Acq92OG6AvMGXeut+V7VltrSHHdxgkd/khJXcWFBIHJ34DfjHiEtrKKM1Ds91CiOPXY
-	LsfeHv095wD1WMG73P4sBkhocWHnjKjcOSCPyA50Py9jtb4JnE9aRbH5IibuIlJdqy8zYkA/wWC
-	I1hiKyHi2Byr5iiW1isht7ybC3ZVDYA8Mt8+3+xNcRVa0jTEi5VA0hTSeoZNp0Li0MCPP9rmUsj
-	xRpoeHQRXusibAO0H0g58mtJkaXr6gfwawNRXYqQ1M6CGUEwJzx8+IZXxE9PIt9tvoirglsNgw7
-	8DFxrKkAgZOs2y1O4yronfQYy5Z8Gy6SwkplIShTecOvatsPSTFNl/BuSdO5VS8CmT4OCE8+zQx
-	fqf6xgwRxrmNhDPxdBNFR5GSW/7jWQAo0tn53IdoxlMcsyxxXEUCL6dACbV/uAVufl6znoVRDx5
-	LLF1OUUUeTrI8zAcEXDIZR8YD+iqFSxU8FKroKjJKBe4ZoTTH31vK/9DNYjCvQO90oxLmMgZt7R
-	JDtin4QVB/wDOANvgP7FJEYXUfEo+7WNWA=
-X-Received: by 2002:a17:903:41c9:b0:2bd:5ab:af95 with SMTP id d9443c01a7336-2beb023584amr219157495ad.0.1779842761021;
-        Tue, 26 May 2026 17:46:01 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58b2ea3sm138552635ad.43.2026.05.26.17.45.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 17:46:00 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-kernel@vger.kernel.org (open list:ARM/Mediatek SoC support),
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek SoC support),
-	linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC support)
-Subject: [PATCH] Input: mtk-pmic-keys - match loop with count
-Date: Tue, 26 May 2026 17:45:43 -0700
-Message-ID: <20260527004543.22875-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b="NAofqzG7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ubuntu.com;
+ h=In-Reply-To: References: Subject: Cc: To: From: Message-Id: Date:
+ Content-Type: Content-Transfer-Encoding: Mime-Version; q=dns/txt;
+ s=fe-953a8a3ca9; t=1779844354;
+ bh=FPt1eWkrMSBT/E1sSHPRGUWsgazpOHI7E7CXkjVEzVI=;
+ b=NAofqzG7KIZkvlntcZdgk4/kLUBCH9QokInGLjEw26tH9t5g++X5UglIoB4Hc/GyimIqf+MGz
+ Y4m0dakqpbaleq1cn/mxCKhS1cPHSOD7kCpYUMeRMtKosuHG02ItA9seKYulDG8apg9IxvryZlN
+ YhCuuP5O/BPx/6XZVf3N3PaV+tqNaPr7ZxK72ZWcEnFtSCg7PZQULwJXKUouSW0peH5hPemjJLQ
+ mZIytoaVRXA7Rwh55v/5GZq7bqTvYf9tx5xk6AQ54BrU5oK09na2O/wXf8wJZIvtq2vTIyUhjzB
+ Jv0Z9Jmzixe6n92JIeidE2CE+3lFOYd9x5ayFxIEJNQA==
+X-Forward-Email-ID: 6a1644ff71ef648d15813d17
+X-Forward-Email-Sender: rfc822; jpeisach@ubuntu.com, smtp.forwardemail.net,
+ 121.127.44.66
+X-Forward-Email-Version: 2.8.15
+X-Forward-Email-Website: https://forwardemail.net
+X-Complaints-To: abuse@forwardemail.net
+X-Report-Abuse: abuse@forwardemail.net
+X-Report-Abuse-To: abuse@forwardemail.net
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8; format=Flowed
+Date: Tue, 26 May 2026 21:12:30 -0400
+Message-Id: <DIT25YW25J0G.1SUDB22TA0IKS@ubuntu.com>
+From: "Joshua Peisach" <jpeisach@ubuntu.com>
+To: "Hector Zelaya" <hector@hectorzelaya.dev>, "Jiri Kosina"
+ <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>, "Daniel J.
+ Ogorchock" <djogorchock@gmail.com>
+Cc: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] HID: nintendo: add support for HORI Wireless Switch Pad
+X-Mailer: aerc 0.21.0
+References: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
+In-Reply-To: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
 
-of_get_available_child_count is used along with
-for_each_child_of_node_scoped, which can cause a mismatch when keys have
-a disabled status.
+On Tue May 26, 2026 at 1:08 PM EDT, Hector Zelaya wrote:
+> Add support for the HORI Wireless Switch Pad (vendor 0x0f0d, product
+> 0x00f6), a licensed third-party Nintendo Switch Pro Controller.
+>
+> The controller reports controller type 0x06 (vs 0x03 for first-party
+> Pro Controllers) and has the following quirks:
+>
+>  - SPI flash calibration data is incompatible; use default stick
+>    calibration values instead.
+>  - X and Y button bits are swapped compared to first-party controllers;
+>    add a dedicated button mapping table.
+>  - Rumble and IMU enable may timeout (no vibration motor in hardware);
+>    treat as non-fatal for licensed controllers.
+>
+> Tested over Bluetooth on NixOS with kernel 7.0.5 and 7.0.10:
+>  - All 14 buttons map correctly
+>  - Player LED sets on connect
+>  - Sticks report correctly with default calibration
+>  - IMU/gyro data streams at 60Hz
+>  - D-pad reports on ABS_HAT0X/HAT0Y
+>
+> Device information:
+>   Bluetooth name: Lic Pro Controller
+>   Bluetooth HID:  0005:0F0D:00F6
+>
+> Assisted-by: Kiro:Auto [Amazon Kiro IDE]
+> Signed-off-by: Hector Zelaya <hector@hectorzelaya.dev>
+> ---
 
-If a disabled child node exists in the device tree alongside available ones,
-the loop could execute more times than the initial validation accounted for.
-This might increment the index variable past the allocated array bounds,
-leading to out-of-bounds accesses on irqnames[] and keys->keys[].
+Looks fine.
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- drivers/input/keyboard/mtk-pmic-keys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index c78d9f6d97c4..5d4ebbafd276 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -363,7 +363,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	for_each_child_of_node_scoped(node, child) {
-+	for_each_available_child_of_node_scoped(node, child) {
- 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
- 
- 		keys->keys[index].irq =
--- 
-2.54.0
-
+Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>

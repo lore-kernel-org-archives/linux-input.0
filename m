@@ -1,105 +1,133 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A30A37DE81;
-	Wed, 27 May 2026 15:57:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AF637C90B
+	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 16:00:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779897479; cv=none; b=PTKM7plMaoPiE0aSOT6E/hMmLnwgBfODpMSJnynLTzR1e8AXC9wSENbdHaXPQlamg7mEZgJZ9KmRb0/cjxuTMMj96+5Yn4xIXlF4crCIzxeSJmiWcXHHF3hAziASTjQCaRPgDoB3jTfNEIxMk3yBYzC9Kj168nH9sBEHHaIPJUc=
+	t=1779897654; cv=none; b=uVguGZuuZPfYfbu4RuIhqRP/nYQ+KTaqlun9jFSy21wWf2mijKV0bU98ETYiRmbblHqbBf+fiX7cpd4Y0ck3FzDKosQvWYZDTj5mD76CY2M0Gek3vOS1YRC98IYoPSuneAJ7XGI/SoqVq+d6f3EU3YrVHCSivXCg2Y2tvo8puGU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779897479; c=relaxed/simple;
-	bh=jnsF/1HmH4sP8ZZciZRvLh321rl0lsWb6iXusXeoass=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QT4RvczUhnNtSZY2OWudxWvvykR90LfIsSKXzt5DVJ5Ctufq0tA47+Uu+pCW1E32hpJfEXVnW23XdTzQjrNsLpU1n3MmjRgtLwZFpN/QkAYR5sVmD11ldzUGYDNXrZCUHdN+5Kb+hS0kosdOl3aAMgbh9QIxaZM+qySFLpqjLd4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JOn/zgAt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779897654; c=relaxed/simple;
+	bh=PtIBU+jnFqgk6gzLaONAhmvjU34umljFIYhfoCJp0Hs=;
+	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KXWXj5CDSkuE6bWyse7pVIESOO2RWpTlHGo0obsl4w5/5yPsIel3UiRPDINt7t+xYaFgKhlKIv7R7ROAPX/PZ0YhHZihpBOmt8WDbCiLJdvOKNq4p0hkFBhTLs5J/rFwUgTVbpJDBCIa3qUQxFsfHggB/xTcX9FqYa01bzuaHLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YUyGtNGC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JOn/zgAt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF161F00A3E;
-	Wed, 27 May 2026 15:57:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YUyGtNGC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB5EF1F000E9;
+	Wed, 27 May 2026 16:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779897478;
-	bh=+fb3tYfOzCkiGwSAAa7AVAm5JG5EVhBJnuykOmrPFLU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JOn/zgAtiWbLV0P3GNmBUW1c4iisJV+4JRuo1mAU4J3kWuEop5P14WBZxNoo1SsuN
-	 bU8RE7pIvfhugRto0XGJi+0yG2VT1KxVuAnx1g4k8lmiVN9/9fVCYrClaNhaho4S9z
-	 wa2rRfOJRj/vUNF7NGCXfOQ+PksiSi+k1LxU/YBjlGEdOOo9/8UkY8uRHiAVy3Dftx
-	 wwIDKa7oe0ppxAk18UZW4zZpu8je/LuOpYA54q9heqOJBVpV9Pg6cg7024g2RdU/Q2
-	 ckFWWZrNRQwU3eYpAla02ORsWTIX+i+S/3YgTv7C4rib0dkUBLwzlrGMEksxX+9VjL
-	 gF4X0SLBBzmzw==
-Date: Wed, 27 May 2026 16:57:53 +0100
-From: Lee Jones <lee@kernel.org>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Ping Cheng <pinglinux@gmail.com>, Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] HID: wacom: Fix OOB write in
- wacom_hid_set_device_mode()
-Message-ID: <20260527155753.GD712405@google.com>
-References: <20260513075935.1715836-1-lee@kernel.org>
- <CAF8JNhKTMpT3CGq_oDqaGVygqXK0jjvrvjxbAWUerqtWzdB9+Q@mail.gmail.com>
- <20260519111354.GT305027@google.com>
- <ag8ozWBDSDckicSS@beelink>
- <20260521162212.GF3591266@google.com>
+	s=k20260515; t=1779897653;
+	bh=tmS/TQjF7YQaIa1Gk740eqdNWZe23G4O+ACWiLAGjek=;
+	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
+	b=YUyGtNGC7aWuGWfCqwv263QIU4rTEJrkCbkji+Clok+VITui0t5KEPSSQdLu0qy1X
+	 FoIJLBaZYtoqf/h+NwD1jWl0trOIjyl0r7MdgLaFuqaYk7rGF3TlXzf5BQLQsHLi5f
+	 Os2O0d39/4BddwKB+cZH2AzJN7CjBAisWkEyuJLgVenZF5i3VF5dwnSdM00v/2L3Sr
+	 +nE6nKrTl9ENAzRl0bHjktzmrBdNSDmIzq/cC2pLLpGYmMUGd5v8Snj9i6ed0aGl51
+	 Jm8loYHMOUULN24+ilDGW1fPAexCn0FqzxzD1WQlKy61U5rfvKZ4SyEv28wJBpW8n3
+	 EEAZWuPUH3XiA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: i2c-hid-acpi: Add PRP0001 to match table and OF
+ alias
+Reply-To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <tencent_61698D7A14AC9BFE6C9F3FDB797FCA02E309@qq.com>
+References: <tencent_61698D7A14AC9BFE6C9F3FDB797FCA02E309@qq.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 27 May 2026 16:00:52 +0000
+Message-Id: <20260527160052.DB5EF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260521162212.GF3591266@google.com>
 
-On Thu, 21 May 2026, Lee Jones wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Adding `PRP0001` directly to the ACPI match table incorrectly by=
+passes `compatible` string matching, causing the driver to intercept all PR=
+P0001 I2C devices and spam the kernel log.
+--
 
-> On Thu, 21 May 2026, Benjamin Tissoires wrote:
-> 
-> > On May 19 2026, Lee Jones wrote:
-> > > On Wed, 13 May 2026, Ping Cheng wrote:
-> > > 
-> > > > On Wed, May 13, 2026 at 1:05 AM Lee Jones <lee@kernel.org> wrote:
-> > > > >
-> > > > > wacom_hid_set_device_mode() currently assumes that the HID_DG_INPUTMODE
-> > > > > usage is always located in the first field (field[0]) of the feature report.
-> > > > > However, a device can specify HID_DG_INPUTMODE in a different field.
-> > > > >
-> > > > > If HID_DG_INPUTMODE is in a field other than the first one and the first
-> > > > > field has a report_count smaller than the usage_index of HID_DG_INPUTMODE,
-> > > > > this leads to an out-of-bounds write to r->field[0]->value.
-> > > > >
-> > > > > Fix this by storing the field index of HID_DG_INPUTMODE in 'struct
-> > > > > hid_data' during feature mapping.  In wacom_hid_set_device_mode(), use
-> > > > > this stored field index to access the correct field and add bounds
-> > > > > checks to ensure both the field index and the value index are within
-> > > > > valid ranges before writing.
-> > > > >
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Fixes: 5ae6e89f7409 ("HID: wacom: implement the finger part of the HID generic handling")
-> > > > > Signed-off-by: Lee Jones <lee@kernel.org>
-> > > > 
-> > > > Patch looks sensible to me. Thank you for your effort, Lee!
-> > > > 
-> > > > Tested-by: Ping Cheng <ping.cheng@wacom.com>
-> > > > Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-> > > 
-> > > Thank you Ping, I appreciate your review.
-> > > 
-> > > HID folks - any movement on this please?
-> > > 
-> > 
-> > I wanted to apply it today, but the patch conflicts with our current
-> > for-7.1/upstream-fixes.
-> > 
-> > Could you rebase on top of this branch so we can take this without me
-> > messing with your patch?
-> 
-> Sure.  Leave it with me.  Probably be early next week.
+commit 7d0ee8c935eaadd4f5e66e197d5712a960fd31f5
+Author: =E8=B0=A2=E8=87=B4=E9=82=A6 (XIE Zhibang) <Yeking@Red54.com>
 
-Are you sure this conflicted?
+HID: i2c-hid-acpi: Add PRP0001 to match table and OF alias
 
-I just rebased it onto hid/for-7.1/upstream-fixes without issue.
+This commit adds the PRP0001 ACPI ID to the i2c-hid-acpi driver's match
+table and manually defines an OF module alias. This is intended to allow the
+driver to probe devices that declare themselves as PRP0001 with a "hid-over=
+-i2c"
+compatible string in their _DSD.
 
--- 
-Lee Jones
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c=
+-hid-acpi.c
+> index abd700a101f46..515ced22c978d 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+> @@ -119,10 +119,30 @@ static int i2c_hid_acpi_probe(struct i2c_client *cl=
+ient)
+>  static const struct acpi_device_id i2c_hid_acpi_match[] =3D {
+>  	{ "ACPI0C50" },
+>  	{ "PNP0C50" },
+> +	/*
+> +	 * Some devices, for example the Lenovo KaiTian N60d and Inspur CP300L3,
+> +	 * declare their I2C HID ACPI touchpad in the DSDT as _HID "PRP0001"
+> +	 * with _DSD compatible "hid-over-i2c" instead of the standard
+> +	 * "PNP0C50". This worked before i2c-hid was split into i2c-hid-acpi
+> +	 * and i2c-hid-of, but PRP0001 devices on the ACPI bus are no longer
+> +	 * probed after the split. The _DSM call in probe() naturally rejects
+> +	 * PRP0001 devices that are not actually I2C HID, so matching PRP0001
+> +	 * here is safe.
+> +	 */
+> +	{ "PRP0001" },
+
+[Severity: Medium]
+Does adding PRP0001 directly to the ACPI match table bypass the OF compatib=
+le
+string check in __acpi_match_device()?
+
+PRP0001 is a special identifier used by the ACPI subsystem to defer matching
+to the OF compatible string within the device's _DSD. When PRP0001 is
+explicitly added here, the match returns true immediately without checking =
+the
+compatible string.
+
+If a system has other unrelated I2C devices using PRP0001 (like temperature
+sensors or RTCs utilizing compatible strings), won't the driver core attempt
+to bind i2c-hid-acpi to all of them?
+
+Because i2c_hid_acpi_probe() unconditionally evaluates the HID _DSM which w=
+ill
+fail for these unrelated devices, does this introduce boot delays and pollu=
+te
+the kernel log with false-positive "Error _DSM call to get HID descriptor
+address failed" messages for every non-HID PRP0001 device?
+
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(acpi, i2c_hid_acpi_match);
+> =20
+> +	/*
+> +	 * When an ACPI device has a _DSD "compatible" property, the uevent
+> +	 * modalias uses the OF format (of:N<name>T<compatible>) instead of
+> +	 * the ACPI format (acpi:<HID>). Add an OF alias so udev can autoload
+> +	 * this module for such devices. probe() will reject pure DT devices
+> +	 * via the _DSM HID descriptor call.
+> +	 */
+> +MODULE_ALIAS("of:N*TChid-over-i2c");
+
+[Severity: Medium]
+Instead of manually defining this MODULE_ALIAS, could we define an
+of_device_id match table containing { .compatible =3D "hid-over-i2c" }?
+
+Using an of_device_id table would naturally solve the matching logic by
+allowing the ACPI core to correctly evaluate the _DSD compatible string.
+This prevents intercepting unrelated PRP0001 devices, and the driver core
+would automatically generate the correct, robust module alias for autoloadi=
+ng.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/tencent_61698D7A14A=
+C9BFE6C9F3FDB797FCA02E309@qq.com?part=3D1

@@ -1,88 +1,107 @@
-Received: from smtp.forwardemail.net (smtp.forwardemail.net [121.127.44.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27DC2F8EB2
-	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 01:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=121.127.44.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49B13303CAE
+	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 01:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779844357; cv=none; b=DL7Z94mVqO4DtRsn634Eb5lFlqlDV8Ubqx3vAQXf9wd/QPzzmuwXiGMkOf0Ni403iRhaZC6Qi8K/7i4MKECdO5r4aZaE8PqyJJ0CEGGKuRNPYEDF6GkpqzHaQHV4XSEqCSmNOmgLszCmbml8TvenTJHNS3QNHKfkoZvVJJm737Q=
+	t=1779844553; cv=none; b=kQu95L+rxwj9E8+ADezfg48yWB5ZU9EjIwNGiaYm/5/LuBc2Cn7BiwNNqebzknvxzU2VCDIeyFpKtOehfQqSLCRWdfAY8EiXyfppLBXuTBbI/I05ZGnFNjcfRanfqkFGQCLDGxoE+udmCfgX/SWfQEAwj3O+OHpvGUZg888XYY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779844357; c=relaxed/simple;
-	bh=MTdKI+qSU2S1gzH85u4yMWn1TcEJ83oMMMI1SPSAYHc=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=TAIoqMFM333+ESVXMxDlzyGzPZ9JikO3XMNuZquB7hS7+1wmvtAKZB21lzElRcv2qNPZcy3/TM7JdXlPUZS2bA+bU6UeAr/Z7AiLeEIsh0A+Dg4+GlCrpSdKozIk7MdY8S0zTc2IbHIc6dWWhy0IHkXG/0RZDNkiAtbFNPVUq2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com; dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b=NAofqzG7; arc=none smtp.client-ip=121.127.44.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ubuntu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fe-bounces.ubuntu.com
+	s=arc-20240116; t=1779844553; c=relaxed/simple;
+	bh=oHJOh30l2VyuiBv9AnUTKu7Y+afe86zrB0VupBeQ8JE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=kbJtmquz9mtIrwGdZpJ9BiIAchrw8QnBJqvUAkfy1fG/shccuPp315T3jvOCT2S9lk+WtqmOJ58jEEZ5hRmz9MORJmRY6OPUhumdhl/ZV9HUNnJziCV2IZVJY/yxX4SKGPUW1QOy5AvetFx3isGoPrF9Tx5DCYa9MMtygyp4cX4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=asTEqrDz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ubuntu.com header.i=@ubuntu.com header.b="NAofqzG7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ubuntu.com;
- h=In-Reply-To: References: Subject: Cc: To: From: Message-Id: Date:
- Content-Type: Content-Transfer-Encoding: Mime-Version; q=dns/txt;
- s=fe-953a8a3ca9; t=1779844354;
- bh=FPt1eWkrMSBT/E1sSHPRGUWsgazpOHI7E7CXkjVEzVI=;
- b=NAofqzG7KIZkvlntcZdgk4/kLUBCH9QokInGLjEw26tH9t5g++X5UglIoB4Hc/GyimIqf+MGz
- Y4m0dakqpbaleq1cn/mxCKhS1cPHSOD7kCpYUMeRMtKosuHG02ItA9seKYulDG8apg9IxvryZlN
- YhCuuP5O/BPx/6XZVf3N3PaV+tqNaPr7ZxK72ZWcEnFtSCg7PZQULwJXKUouSW0peH5hPemjJLQ
- mZIytoaVRXA7Rwh55v/5GZq7bqTvYf9tx5xk6AQ54BrU5oK09na2O/wXf8wJZIvtq2vTIyUhjzB
- Jv0Z9Jmzixe6n92JIeidE2CE+3lFOYd9x5ayFxIEJNQA==
-X-Forward-Email-ID: 6a1644ff71ef648d15813d17
-X-Forward-Email-Sender: rfc822; jpeisach@ubuntu.com, smtp.forwardemail.net,
- 121.127.44.66
-X-Forward-Email-Version: 2.8.15
-X-Forward-Email-Website: https://forwardemail.net
-X-Complaints-To: abuse@forwardemail.net
-X-Report-Abuse: abuse@forwardemail.net
-X-Report-Abuse-To: abuse@forwardemail.net
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="asTEqrDz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F67F1F000E9;
+	Wed, 27 May 2026 01:15:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779844550;
+	bh=7m2XRBzEW893L0c+bVyOU8W1pBpGJJu/91m577SGMJM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=asTEqrDzSy8B0Ckpw7s4icnN4zv7NjfL6+/warQwZoO698pA57JOfKWribo+Ks7nt
+	 iyzvXmQfGmnnuXu189Mjhv8ARDxyK1ilxg7bcko0+u1oMW8V2Wle2aiJ+zjour5ner
+	 ++b2w7eimQ07UYa12JZqolEM3u3AH6l6p3364EEaMQPnXoXmW3inATCfxCHrOUa9ov
+	 7LM77xqHAFi0HtvkfE7P+/QyqVr8zY5jZpqL2kDWx422RCzFF8ikjiCg2j5fCFVWal
+	 6YyBR2A1ADfEFWvB2rbwG44VqA+eqIaTbBhHF95bkCnJDopyzNCuHEIHiMoLrZ+f8L
+	 TX81OUiWJkiUQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: mtk-pmic-keys - match loop with count
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rosen Penev" <rosenp@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260527004543.22875-1-rosenp@gmail.com>
+References: <20260527004543.22875-1-rosenp@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 27 May 2026 01:15:50 +0000
+Message-Id: <20260527011550.6F67F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8; format=Flowed
-Date: Tue, 26 May 2026 21:12:30 -0400
-Message-Id: <DIT25YW25J0G.1SUDB22TA0IKS@ubuntu.com>
-From: "Joshua Peisach" <jpeisach@ubuntu.com>
-To: "Hector Zelaya" <hector@hectorzelaya.dev>, "Jiri Kosina"
- <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>, "Daniel J.
- Ogorchock" <djogorchock@gmail.com>
-Cc: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] HID: nintendo: add support for HORI Wireless Switch Pad
-X-Mailer: aerc 0.21.0
-References: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
-In-Reply-To: <20260526-hori-support-v1-1-1861c0abc2e0@hectorzelaya.dev>
 
-On Tue May 26, 2026 at 1:08 PM EDT, Hector Zelaya wrote:
-> Add support for the HORI Wireless Switch Pad (vendor 0x0f0d, product
-> 0x00f6), a licensed third-party Nintendo Switch Pro Controller.
->
-> The controller reports controller type 0x06 (vs 0x03 for first-party
-> Pro Controllers) and has the following quirks:
->
->  - SPI flash calibration data is incompatible; use default stick
->    calibration values instead.
->  - X and Y button bits are swapped compared to first-party controllers;
->    add a dedicated button mapping table.
->  - Rumble and IMU enable may timeout (no vibration motor in hardware);
->    treat as non-fatal for licensed controllers.
->
-> Tested over Bluetooth on NixOS with kernel 7.0.5 and 7.0.10:
->  - All 14 buttons map correctly
->  - Player LED sets on connect
->  - Sticks report correctly with default calibration
->  - IMU/gyro data streams at 60Hz
->  - D-pad reports on ABS_HAT0X/HAT0Y
->
-> Device information:
->   Bluetooth name: Lic Pro Controller
->   Bluetooth HID:  0005:0F0D:00F6
->
-> Assisted-by: Kiro:Auto [Amazon Kiro IDE]
-> Signed-off-by: Hector Zelaya <hector@hectorzelaya.dev>
-> ---
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Switching to `for_each_available_child_of_node_scoped` shifts the =
+hardware mapping index if a preceding node is disabled, leading to incorrec=
+t physical key configuration.
+--
 
-Looks fine.
+commit 999599e1545f7dcb987f1a3ede455f57f6a980e6
+Author: Rosen Penev <rosenp@gmail.com>
 
-Reviewed-by: Joshua Peisach <jpeisach@ubuntu.com>
+Input: mtk-pmic-keys - match loop with count
+
+This commit changes the child node iteration in mtk_pmic_keys_probe() to
+only iterate over available child nodes, preventing an out-of-bounds array
+access if a disabled node exists alongside available ones.
+
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
+ard/mtk-pmic-keys.c
+> index c78d9f6d97c4f..5d4ebbafd2765 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> @@ -363,7 +363,7 @@ static int mtk_pmic_keys_probe(struct platform_device=
+ *pdev)
+>  		return -EINVAL;
+>  	}
+> =20
+> -	for_each_child_of_node_scoped(node, child) {
+> +	for_each_available_child_of_node_scoped(node, child) {
+
+[Severity: High]
+Does this change in iteration cause a regression with the positional mapping
+of keys to hardware?
+
+The driver maps device tree child nodes to physical key hardware (IRQ and
+registers) based strictly on the loop iteration index (index =3D 0 for
+powerkey, index =3D 1 for homekey).
+
+Before this patch, for_each_child_of_node_scoped() iterated over all defined
+child nodes, ensuring that positional mapping was maintained even if the fi=
+rst
+node (e.g., powerkey) had status =3D "disabled".
+
+By changing the iterator to for_each_available_child_of_node_scoped(),
+disabled nodes are now skipped. If the powerkey node is disabled in the
+device tree, it is skipped, and the homekey node becomes the first available
+child. It is then processed with index =3D 0.
+
+Consequently, the driver would configure the powerkey hardware registers
+and request the powerkey IRQ, but bind them to the properties
+(like linux,keycodes) of the homekey node.
+
+Could this result in the physical powerkey incorrectly emitting the homekey=
+'s
+code, while the physical homekey remains uninitialized?
+
+>  		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
+> =20
+>  		keys->keys[index].irq =3D
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260527004543.2287=
+5-1-rosenp@gmail.com?part=3D1

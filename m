@@ -1,130 +1,160 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 540FB260580;
-	Thu, 28 May 2026 06:16:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B579F233923;
+	Thu, 28 May 2026 07:06:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779949019; cv=none; b=pw41pUZQm8aX5y6yGLTs71FlAoFpBVJzALQcMZGGz8HyiH9P/9MAx9lVgrP1Z3YINm62bJzRbEy5Zogz6snZmk1VH4+TVszlqa4o5EJwatVkGgwcpLhfxKfjOHW/mvBQa1r7LJ6eb4TBokyKEdR21OkHbWXL7THrmby4hkiDX4U=
+	t=1779951999; cv=none; b=tYkuR4PIP2fIcpBjM0V+1jPtkHS0WmxpPY4gOjLDibdjfoLXa3HRoF+wDZVk+qw4HM5x+Jo5rqJbR4YCabu9hzXffZv65OciLIru4x1ZFINwPs7cCCJpWf6kqeyY93dD32xnm68bXGWa5n4UrB83w2CtQwqiuAgk5oDXl8a8OaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779949019; c=relaxed/simple;
-	bh=M/275JbtxKv3PMzBOnYBjC6WcWBjJqtUTErStfpPelY=;
+	s=arc-20240116; t=1779951999; c=relaxed/simple;
+	bh=ImzjA+ndOSyft5xxUqo4XWOX7xBNtjoZeAlU/dOoYzg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gaGpuDAA2jnssSNjoAOqCw4IW/f2xlJJtvskeep4YYHiR695mRXTr+qyg+dhMSxhOdIN7DW26nTU32R6RJcbrIzq2uwWJee1mlfmH3fwBs3+hKCdhZKz+YNZ7Rw7t7mhlNjQbU44fG4Ny9U2/0i8IA47Y5IWxej7sRmzsKBWTik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AvGW7eRF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=aEDgCnCky+Xkw4SC9U9AVC69Xtkw9ej+IrCgR3yv83Pw/8RMgtl+V9tNacEavbXg5k3twbahxrkDkUkWaE5n96IQkuf7PPR5KY4CpSILDGNTgCvr5KnKm4UydIgsagm4eACd9IooW0vrA7rRT+W2sYEF0oaLEj4PM45kTNcH/8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aGehPrIA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AvGW7eRF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E6F1F000E9;
-	Thu, 28 May 2026 06:16:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aGehPrIA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD491F00A3A;
+	Thu, 28 May 2026 07:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779949017;
-	bh=wHR9TwehavIPVk4XEUhyV+PhdyIjq9pAtyQh9/9EsNk=;
+	s=k20260515; t=1779951998;
+	bh=eQLcSqgCAD4VaSYTq34s8sk7K5HMH3cQxF8L0ZA3PVU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AvGW7eRFaxVT27QIk3oPc7SHQ3PEeYCVgr8EsMz1TTqHeiC9EvtUOFwa2kANeRYBF
-	 ZlXLUrStnhyF5Vy+WHB0mr3NBtOKcEh/DvBDEHED3Wa7EsMOaOaMIR8gmSNuh4JnWg
-	 euBLjxBYiJ5jK5DAZfb3M77iLTdpPPtcXXnNdUYq5fWwLaULojBZr2BKf2QlHgl/Vh
-	 5KDZo22Cz86Z1BwC7zv0gCBeFGX4ztUwNo4EKNzaFoJEdOjro0IV4QYfRBZGDg2BTc
-	 FR0gQZxVO5KLOHbcjVke8hJd1vhuo22Dfz1gzHAHsBsR/6+TCqvYbHANPNaq8sevxj
-	 r2IlU9iFRDsDw==
+	b=aGehPrIACmVCl8lU7XL7BPfD4CxjVeLO/91LF1rWBnK+UU9bUN8cxT7Md9qDrHAFw
+	 gwqu9L9nMFGJMbi2draC2N8LR7kz+AQYSnZxdYSWsDmKdTnjYD2UXpMpqTQ+m8wtj3
+	 carU4OUBQyfAXakcbyHSnTRKy0RXvqi/WwP0tWmnPVDzXPsp7o2Zkhk7xbMGW+osbR
+	 xh83SKpbEXpGttcHY/aJEKSplz9II/3z/Vty9FHyU1pMLGvVRJRdmTm+EfKMnHmZrJ
+	 L6oumBUc0OjY2NyqTL06lQiXfRB5Na+4rTZBOEDcK7BXELMjV3yDenZ+EqKixB3wls
+	 jWbZerzeqCjiA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
+Subject: Re: [PATCH v8 3/7] input: serio: Add driver for ASUS Transformer
+ dock keyboard and touchpad
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260528053203.9339-3-clamor95@gmail.com>
-References: <20260528053203.9339-3-clamor95@gmail.com>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260528053203.9339-4-clamor95@gmail.com>
+References: <20260528053203.9339-4-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 28 May 2026 06:16:57 +0000
-Message-Id: <20260528061657.A6E6F1F000E9@smtp.kernel.org>
+Date: Thu, 28 May 2026 07:06:37 +0000
+Message-Id: <20260528070638.1AD491F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Short I2C block reads return positive values or zero, violating AP=
-I contract and causing false probe success or uninitialized variable usage.
+- [High] The serio->write callback calls a sleeping I2C API, violating the =
+atomic context requirements of the serio subsystem.
+- [High] Serio ports are registered before the EC notifier is active, which=
+ can lead to dropped hardware ACKs and driver probe timeouts.
 --
 
-commit 66708f4a4bcbbc5908e6fc11660dc174e28d7ee4
+commit c384b4357257c7b443531cb85e3b65aa83067d31
 Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 
-mfd: Add driver for ASUS Transformer embedded controller
+input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
 
-Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201,
-TF300T, TF300TG, TF300TL and TF700T pad and dock, as well as TF101 dock
-and TF600T, P1801-T and TF701T pad. This is a glue driver handling
-detection and common operations for EC's functions.
+This commit adds a serio input driver for the ASUS Transformer dock keyboard
+and touchpad. It handles incoming scancodes, remaps specific keys to match
+the standard AT layout, and forwards the data to the serio subsystem.
 
+Co-developed-by: Ion Agorria <ion@agorria.com>
+Signed-off-by: Ion Agorria <ion@agorria.com>
+Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+
+[ ... ]
+
+> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
+t/serio/asus-transformer-ec-kbc.c
+> new file mode 100644
+> index 0000000000000..6f10b7f1baae5
 > --- /dev/null
-> +++ b/drivers/mfd/asus-transformer-ec.c
-
+> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
+> @@ -0,0 +1,158 @@
 [ ... ]
-
-> +int asus_dockram_access_ctl(struct i2c_client *client, u64 *out, u64 mas=
-k,
-> +			    u64 xor)
+> +static int asus_ec_serio_write(struct serio *port, unsigned char data)
 > +{
-> +	struct dockram_ec_data *ddata =3D i2c_get_clientdata(client);
-> +	u8 *buf =3D ddata->ctl_buf;
-> +	u64 val;
-> +	int ret =3D 0;
+> +	struct asus_ec_kbc_data *priv =3D port->port_data;
 > +
-> +	guard(mutex)(&ddata->ctl_lock);
-> +
-> +	memset(buf, 0, ASUSEC_ENTRY_BUFSIZE);
-> +	ret =3D i2c_smbus_read_i2c_block_data(client, ASUSEC_DOCKRAM_CONTROL,
-> +					    ASUSEC_ENTRY_SIZE, buf);
-> +	if (ret < ASUSEC_ENTRY_SIZE) {
-> +		dev_err(&client->dev, "failed to access control buffer: %d\n",
-> +			ret);
-> +		return ret;
+> +	return i2c_smbus_write_word_data(priv->parent, ASUSEC_WRITE_BUF,
+> +					 (data << 8) | port->id.extra);
+> +}
 
 [Severity: High]
-If i2c_smbus_read_i2c_block_data() returns a positive short read, will this
-return a positive error code?
+Does this code sleep in an atomic context?
 
-This positive value could propagate up to asus_ec_probe(). Returning a
-positive value from probe causes __device_attach_driver() to interpret it
-as a successful match and probe, leaving the device in an unbound, broken
-state without a proper failure log.
+The i2c_smbus_write_word_data() function takes the I2C adapter's mutex and
+sleeps while waiting for the synchronous transaction to complete.=20
 
-Additionally, if it returns 0, the function will return success (0) without
-populating output variables, potentially leading to uninitialized memory
-usage in callers like asus_ec_susb_on_status().
+However, the serio core and keyboard/mouse drivers frequently call
+serio_write() from atomic contexts. For example, the core serio_interrupt()
+function holds the port's spinlock with interrupts disabled:
 
-> +	}
-> +
-> +	if (buf[0] !=3D ASUSEC_CTL_SIZE) {
+serio_interrupt() {
+    guard(spinlock_irqsave)(&serio->lock);
+    ...
+    serio->drv->interrupt(...) // calls driver interrupt which may write
+}
+
+If a driver like atkbd needs to resend a command or respond to a hardware
+NAK, it calls serio_write() directly from this interrupt handler.
+
+Executing a sleeping I2C write while holding a spinlock with interrupts
+disabled will trigger a "scheduling while atomic" bug or cause a system
+deadlock.
 
 [ ... ]
-
-> +static int asus_ec_log_info(struct asus_ec_data *ddata, unsigned int reg,
-> +			    const char *name, const char **out)
+> +static int asus_ec_kbc_probe(struct platform_device *pdev)
 > +{
-> +	struct device *dev =3D &ddata->client->dev;
-> +	u8 buf[ASUSEC_ENTRY_BUFSIZE];
-> +	int ret;
+> +	struct asusec_core *ec =3D dev_get_drvdata(pdev->dev.parent);
+> +	struct asus_ec_kbc_data *priv;
+> +	int error;
 > +
-> +	memset(buf, 0, ASUSEC_ENTRY_BUFSIZE);
-> +	ret =3D i2c_smbus_read_i2c_block_data(ddata->ec.dockram, reg,
-> +					    ASUSEC_ENTRY_SIZE, buf);
-> +	if (ret < ASUSEC_ENTRY_SIZE)
-> +		return ret;
+> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->ec =3D ec;
+> +	priv->parent =3D to_i2c_client(pdev->dev.parent);
+> +
+> +	error =3D asus_ec_register_serio(pdev, 0, "Keyboard", 0);
+> +	if (error)
+> +		return error;
+> +
+> +	error =3D asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEN=
+D);
+> +	if (error)
+> +		return error;
+> +
+> +	priv->nb.notifier_call =3D asus_ec_kbc_notify;
+> +
+> +	return blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
+> +}
 
 [Severity: High]
-Could this also return a positive short read or 0 to the caller?
+Can this cause driver probe timeouts by dropping hardware ACKs?
 
-Similar to asus_dockram_access_ctl(), this might propagate positive values
-to the probe function or mask zero-byte read failures.
+The asus_ec_register_serio() calls are exposing the keyboard and touchpad
+to the serio subsystem before the EC notifier is attached. The serio port
+registration asynchronously queues work on the kseriod workqueue, which
+finds and binds drivers.
 
-> +
-> +	if (buf[0] > ASUSEC_ENTRY_SIZE) {
+Since the kseriod workqueue can run concurrently on another CPU, it may send
+initialization commands and the hardware may respond before this probe
+function reaches blocking_notifier_chain_register().
+
+Because the notifier is not yet attached to receive and forward these ACKs,
+the events will be dropped. This causes the bound driver's probe to time out
+and fail, leaving the input devices non-functional.
+
+Should the notifier be fully registered before the serio ports are exposed?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260528053203.9339=
--1-clamor95@gmail.com?part=3D2
+-1-clamor95@gmail.com?part=3D3

@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5134538C42D
-	for <linux-input@vger.kernel.org>; Wed, 27 May 2026 23:34:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D8664
+	for <linux-input@vger.kernel.org>; Thu, 28 May 2026 00:03:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779924869; cv=none; b=coXX4RxpomFMo9iaP3OFECTnYXPEkTlpagGpuMCiP1M9JG0+R3IcCt57EcNwY6hMAk25K+l+YFuxzpKdweIwbmNS1Puw7g6bkh9nC8G+hkyfb/LOIE7DKj76iBMwtXA5zIgfxAVXr2LzJUf1ZpfCMbm75vyVYlTkbc9dN2/XPGk=
+	t=1779926590; cv=none; b=QeAvjSWrPlC+cAObbub9L4iIFlFB7Ug/o2UTY10MtOlZeprSlPED82AXKOcZgxmBfrvid7cdojoWiNvHIvS1OPfcdPCI+FNJ4EMeItf+47YR+EO3NZ/G6i5ZW4zI/TnrVeMn5+Ffh7pkHgTLP4fyLdyi0j5ugRRZFi9l1N6EVcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779924869; c=relaxed/simple;
-	bh=Ko6dFDxGgOD8j8STrEHtbfRrGSGM0Dm20e+de5CsjK0=;
+	s=arc-20240116; t=1779926590; c=relaxed/simple;
+	bh=yFabSLkPYtyhZmgMv8on/t37OWEmmNUqJj1FocdY/Jw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HgcVP9cLwT0hvTq+u+tL10/pPoEjewY5c0e9NtBwwz8iAHj7Q+JJE1YBqtrB6YgTFmct4r43aTOIuUtDY7SvQnTnEppjdAe8pvKpKQeWGZCnHzPpB9U3ZyFtoOveLDHocASc7Ygpm6qmGWNR7rfMgHltuSQpzyzw1oc103f9GCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iHV83bjx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=idpmzY7bD4w6/DOC9CKAWSAJmwFk+Hze8Ehat4BTG4iVQ6A0JrSj9QY+FCEodJj5O9eF5RBxHJzB6TtXMIFkGY6ynbdv1Tjlr2K+QOnKTnxNXsioIQ5goKe0/C9NJotL6peLX9oAGTR7UhthHeqBXl6YvyRLFwCFZyY6AD/I9U4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jLAWS6Cb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iHV83bjx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D33301F000E9;
-	Wed, 27 May 2026 23:34:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jLAWS6Cb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E701F000E9;
+	Thu, 28 May 2026 00:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779924868;
-	bh=p9ccS3yBC6l+2C+rRl01RqmFxlW86CDVNWGmWWDZNcQ=;
+	s=k20260515; t=1779926588;
+	bh=qj+CCBc2JmKONX82w7CO/YiBPJ2xAz8o5Kyvae9Xmd4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iHV83bjxQFaODjd8t/S16RL2jH9CtwLmTWnr+3MHWZJZjv0syK/farP3YcDkz8Glu
-	 ftiONPFooKvI5uZkQ5x0PcUTw6c9vigHh8dQV75Pp3jLHGdGe7+uB/ysoRSWamuI0q
-	 M9K012F8+VJPsCS2akclsyZzQ9+i/vzTyc7S3qY2B/SWq90ialOE1dmrNlhis1mWmh
-	 2mzNH890WOXUlA3LD//4ZA2DbZOR3SK74Q+HywmApBAXryrPdFV4KVb9ogFg+O56ob
-	 sRh+lN+wp2/bXMtHfEEFDim17TpeFPtn+/demDDvPfkgoQ01J14UD0WYU8XPaN6gYv
-	 60sMpTejawhcA==
+	b=jLAWS6Cbmy4agvnCdT7wiOREy/YzIOvo1PNwYwELmH30hzhpPIa1Z4BxB+fbDWxCu
+	 bvu22Gj0qn8EWfHZpTLpQZFD8KL7gOIwWp5iYDTmFvMdnXwYHWXrxau9WC/BVShbPo
+	 I/qsn6y3aYmbbi6Aq3S3hC1LDr/wq1rgZ7qHW1BLksLRdCzOO1aoAcw7F1Dy3iSHwv
+	 JvLiWAc0GWlFT/Ozw8j3UU0l7XJxrOS/jlKtGND6+0GMwQpk84ofDfg7Gvibhda2k4
+	 qzZatPgotlgVXb0EV9SqQntePq/iWq29Naq2uZl+/7PHdmwTtC5+ySzAuVgxRYRaEu
+	 10ps4BXhgE56A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 2/4] HID: hid-msi: Add M-key mapping attributes
+Subject: Re: [PATCH v10 3/4] HID: hid-msi: Add RGB control interface
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260527222122.10620-3-derekjohn.clark@gmail.com>
-References: <20260527222122.10620-3-derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260527222122.10620-4-derekjohn.clark@gmail.com>
+References: <20260527222122.10620-4-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 27 May 2026 23:34:27 +0000
-Message-Id: <20260527233427.D33301F000E9@smtp.kernel.org>
+Date: Thu, 28 May 2026 00:03:07 +0000
+Message-Id: <20260528000308.70E701F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,199 +45,122 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Unhandled timeouts and spurious ACKs cause the READ_PROFILE state =
-machine to desynchronize, causing legitimate reads to fail.
-- [High] `claw_profile_event` unconditionally clears `profile_pending` afte=
-r temporarily dropping the `profile_lock`, potentially overwriting concurre=
-nt state changes.
-- [High] Fire-and-forget commands with `timeout =3D 0` generate unhandled g=
-eneric ACKs that can spoof and prematurely complete unrelated blocking comm=
-ands.
-- [Low] The declaration of `struct claw_profile_report;` inside `struct cla=
-w_mkey_report` does not declare a member, causing build failures.
+- [High] Race condition during device teardown allows the `rgb_queue` delay=
+ed work to be queued after cancellation, leading to a Use-After-Free.
+- [High] Early return in `claw_profile_event()` skips state machine reset, =
+leaving the device stuck in `CLAW_RGB_PENDING` state.
+- [Medium] Incorrect suspend handling for the LED class device leads to dro=
+pped 'off' events and potential re-queuing of work during suspend.
+- [Low] RGB configuration state variables are read and modified without syn=
+chronization, leading to data races.
 --
 
-commit fdbd312ad4eb08333f93148ebf26e4c750ccb799
+commit 4395753635f4bb8533afa93923c64af621829712
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add M-key mapping attributes
+HID: hid-msi: Add RGB control interface
 
-This patch adds sysfs attributes that allow remapping the M-keys on MSI Claw
-devices when in macro mode. The mapping supports up to 5 values for the M1
-and M2 buttons.
+This patch adds an RGB control interface for MSI Claw devices. It configures
+a 9-zone multicolor LED device with up to 8 animation frames and exposes sy=
+sfs
+attributes to control the effects, speed, and enabled state.
 
-> diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
-> index 3a176f44f2c43..f099d6cb7ea8d 100644
-> --- a/drivers/hid/hid-msi.c
-> +++ b/drivers/hid/hid-msi.c
-
+diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+--- a/drivers/hid/hid-msi.c
++++ b/drivers/hid/hid-msi.c
 [ ... ]
+@@ -342,6 +403,34 @@ static int claw_profile_event(struct claw_drvdata *drv=
+data, struct claw_command_
+[ ... ]
+> +	case CLAW_RGB_PENDING:
+> +		frame =3D (struct claw_rgb_report *)cmd_rep->data;
+> +		rgb_addr =3D drvdata->rgb_addr;
+> +		read_addr =3D be16_to_cpu(frame->read_addr);
+> +		frame_calc =3D (read_addr - rgb_addr) / CLAW_RGB_FRAME_OFFSET;
+> +		if (frame_calc >=3D CLAW_RGB_MAX_FRAMES) {
+> +			dev_err(&drvdata->hdev->dev, "Got unsupported frame index: %x\n",
+> +				frame_calc);
+> +			return -EINVAL;
 
-> +struct claw_profile_report {
-> +	u8 profile;
-> +	__be16 read_addr;
-> +} __packed;
+[Severity: High]
+Does this early return skip resetting the state machine?
+
+By returning directly here, we bypass the drvdata->profile_pending assignme=
+nt
+at the bottom of the function. This appears to leave the device permanently
+locked in the CLAW_RGB_PENDING state.
+
+> +		}
+[ ... ]
+@@ -882,32 +971,553 @@ static const struct attribute_group claw_gamepad_att=
+r_group =3D {
+[ ... ]
+> +static ssize_t effect_store(struct device *dev,
+> +			    struct device_attribute *attr,
+> +			    const char *buf, size_t count)
+> +{
+[ ... ]
+> +	ret =3D sysfs_match_string(claw_rgb_effect_text, buf);
+> +	if (ret < 0)
+> +		return ret;
 > +
-> +struct claw_mkey_report {
-> +	struct claw_profile_report;
+> +	drvdata->rgb_effect =3D ret;
+> +	mod_delayed_work(system_wq, &drvdata->rgb_queue, msecs_to_jiffies(50));
+> +
+> +	return count;
+> +}
 
 [Severity: Low]
-Will this compile correctly?
+Can this modification of drvdata->rgb_effect race with reads from
+claw_apply_rgb_state()?
 
-In standard C11 and GCC (without -fms-extensions), declaring a struct tag
-without a declarator inside a struct definition only declares the tag in th=
-at
-scope, rather than creating an anonymous embedded struct member.
-
-This means struct claw_mkey_report won't have a member named read_addr, whi=
-ch
-would cause mkeys->read_addr to produce a compilation error later.
-
-> +	u8 padding_0;
-> +	u8 padding_1;
-> +	u8 padding_2;
-> +	u8 codes[5];
-> +} __packed;
+It looks like rgb_effect, rgb_enabled, and rgb_speed are being read and
+written without synchronization, which could lead to an inconsistent
+configuration state if multiple sysfs operations happen concurrently.
 
 [ ... ]
-
-> +static int claw_profile_event(struct claw_drvdata *drvdata, struct claw_=
-command_report *cmd_rep)
-> +{
-> +	enum claw_profile_ack_pending profile;
-> +	struct claw_mkey_report *mkeys;
-> +	u8 *codes, key;
-> +	int i;
-> +
-> +	scoped_guard(spinlock, &drvdata->profile_lock)
-> +		profile =3D drvdata->profile_pending;
-> +
-> +	switch (profile) {
-> +	case CLAW_M1_PENDING:
-> +	case CLAW_M2_PENDING:
-> +		key =3D (profile =3D=3D CLAW_M1_PENDING) ? CLAW_KEY_M1 : CLAW_KEY_M2;
-> +		mkeys =3D (struct claw_mkey_report *)cmd_rep->data;
-> +		if (be16_to_cpu(mkeys->read_addr) !=3D drvdata->bmap_addr[key])
-> +			return -EINVAL;
-> +		codes =3D (profile =3D=3D CLAW_M1_PENDING) ? drvdata->m1_codes : drvda=
-ta->m2_codes;
-> +		for (i =3D 0; i < CLAW_KEYS_MAX; i++)
-> +			codes[i] =3D (mkeys->codes[i]);
-> +		break;
-> +	default:
-> +		dev_dbg(&drvdata->hdev->dev,
-> +			"Got profile event without changes pending from command: %x\n",
-> +			cmd_rep->cmd);
-> +		return -EINVAL;
+@@ -1030,6 +1662,7 @@ static void claw_remove(struct hid_device *hdev)
+[ ... ]
+>  	if (gp_registered)
+>  		device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
+> =20
+> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
+> +	if (rgb_registered) {
+> +		device_remove_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_group=
+);
+> +		led_classdev_multicolor_unregister(&drvdata->led_mc);
 > +	}
-> +	scoped_guard(spinlock, &drvdata->profile_lock)
-> +		drvdata->profile_pending =3D CLAW_NO_PENDING;
+> +
+>  	hid_hw_close(hdev);
+>  }
 
 [Severity: High]
-Is it safe to unconditionally clear profile_pending here after dropping and
-reacquiring the lock?
+Could this ordering cause a use-after-free during device teardown?
 
-If a timeout occurred in claw_mkey_show() for M1 just before this function
-drops the lock, the M1 thread would release profile_mutex. A concurrent
-thread could then enter claw_mkey_show() for M2 and set profile_pending to
-CLAW_M2_PENDING.
-
-When this function reacquires the lock, it would unconditionally overwrite
-the state set by the concurrent thread, which could cause the M2 command to
-fail when its own ACK arrives.
-
-> +
-> +	return 0;
-> +}
+If a sysfs operation like effect_store() is preempted, it could complete
+after cancel_delayed_work_sync() finishes. Because device_remove_group() and
+led_classdev_multicolor_unregister() haven't removed the interfaces yet,
+the sysfs handler can still successfully call mod_delayed_work(), which will
+re-queue the work to run after drvdata has been freed.
 
 [ ... ]
+@@ -1106,6 +1749,7 @@ static int claw_suspend(struct hid_device *hdev)
+> =20
+>  	cancel_delayed_work_sync(&drvdata->cfg_resume);
+>  	cancel_delayed_work_sync(&drvdata->cfg_setup);
+> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
+> =20
+>  	return 0;
+>  }
 
-> +set_buttons:
-> +	scoped_guard(mutex, &drvdata->rom_mutex) {
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DA=
-TA,
-> +					    (u8 *)&report, sizeof(report), 25);
-> +		if (ret)
-> +			return ret;
-> +		/* MCU will not send ACK until the USB transaction completes. ACK is s=
-ent
-> +		 * immediately after and will hit the stale state machine, before the =
-next
-> +		 * command re-arms the state machine. Timeout 0 ensures no deadlock wa=
-iting
-> +		 * for ACK that ill never come.
-> +		 */
-> +		ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NUL=
-L, 0, 0);
+[Severity: Medium]
+Is this cancellation sufficient to safely suspend the LED device?
 
-[Severity: High]
-Does sending CLAW_COMMAND_TYPE_SYNC_TO_ROM with timeout 0 cause issues with
-subsequent commands?
-
-Because timeout is 0, the driver does not wait for the generic ACK that the
-MCU will eventually send. This means the ACK will be left lingering and will
-be processed asynchronously by claw_raw_event.
-
-If another thread later sends a command that waits for a generic ACK (such
-as CLAW_COMMAND_TYPE_WRITE_PROFILE_DATA), could it falsely complete early
-by consuming the lingering ACK before the MCU has actually finished process=
-ing
-its request?
-
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int claw_mkey_show(struct device *dev, char *buf, enum claw_key_i=
-ndex m_key)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct claw_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	struct claw_mkey_report report =3D { {0x01, cpu_to_be16(drvdata->bmap_a=
-ddr[m_key])}, 0x07 };
-> +	int i, ret, count =3D 0;
-> +	const char *name;
-> +	u8 *codes;
-> +
-> +	scoped_guard(spinlock_irqsave, &drvdata->registration_lock) {
-> +		/* Pairs with smp_store_release from cfg_setup_fn in system_wq context=
- */
-> +		if (!smp_load_acquire(&drvdata->gp_registered))
-> +			return -ENODEV;
-> +	}
-> +
-> +	codes =3D (m_key =3D=3D CLAW_KEY_M1) ? drvdata->m1_codes : drvdata->m2_=
-codes;
-> +
-> +	guard(mutex)(&drvdata->profile_mutex);
-> +	scoped_guard(spinlock_irqsave, &drvdata->profile_lock)
-> +		drvdata->profile_pending =3D (m_key =3D=3D CLAW_KEY_M1) ? CLAW_M1_PEND=
-ING
-> +								  : CLAW_M2_PENDING;
-> +
-> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_READ_PROFILE,
-> +				    (u8 *)&report, sizeof(report), 25);
-> +	if (ret)
-> +		return ret;
-
-[Severity: High]
-If claw_hw_output_report times out and returns early, doesn't it leave
-drvdata->profile_pending set?
-
-If another thread then initiates a READ_PROFILE for the other M-key (e.g., =
-M2),
-it will overwrite profile_pending. When the late ACK from the timed-out M1
-command eventually arrives, claw_profile_event() will read CLAW_M2_PENDING
-and compare the ACK's address (which is for M1) against M2's expected addre=
-ss.
-This would return -EINVAL and falsely complete the active M2 command with an
-error.
-
-> +
-> +	for (i =3D 0; i < CLAW_KEYS_MAX; i++) {
-> +		name =3D mkey_mapping_code_to_name(codes[i]);
+Without setting LED_CORE_SUSPENDRESUME in the LED class device flags during
+probe, the LED subsystem might not know to properly coordinate the suspend.
+This could potentially lead to dropped 'off' events or concurrent timers
+re-queuing this work after it has been cancelled here.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260527222122.1062=
-0-1-derekjohn.clark@gmail.com?part=3D2
+0-1-derekjohn.clark@gmail.com?part=3D3

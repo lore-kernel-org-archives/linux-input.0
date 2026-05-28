@@ -1,37 +1,38 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E815F27FB37;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0673133D4FB;
 	Thu, 28 May 2026 07:48:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.21
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779954505; cv=none; b=CLL1R5C6yTyAZ2PPjzs0G5jGjZ6K40jRFZ1rwzpy4KmJYikEJVc5pM9MROV4xkd3vW+lzKE56uGkdaha2EapqGvrEhfle4NXovyWvjXy+oOhrihu5l1HO3YdRloY/Moe4vV2LWntHUYylQy71z8Lte8WMTEIW63GHkBDrJgn7cA=
+	t=1779954505; cv=none; b=u3+L3RmHnsnVrbfaNJxVU5hX51aeZHe4y2YpCWDtkUG216CYJpOYmO7WZwamCgiG625dovGMu/ydiMg46NnpCfJK+ORXni1VSR08/pdVv2+dGK0ua9HQVACakCeckPrud7IR33rqy4pLP2mW3bo9rpEoXWFRbIVXUrdb5ACoKsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1779954505; c=relaxed/simple;
-	bh=X4lr4iJ7jAjklgn9XmWaDi38hkHYGW0QAK3YuQ5rWhI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n+LJtcHOHv/wAPq5ukscdcvRHhDP4ZCobV04MNrjntEG9Zi/4GMfcPHpy9l4mjoSeN0fMocpsZSZIxMUO6kMDFwTyjQVuddwRTa9vzrkosL1iUmeC2y+PhOB2BVb9Ab7Dpaco+iPp4c+S7xT5lce5Q2ZgXhQl6aKmlrE4TnYMsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b=ltWeX1oD; arc=none smtp.client-ip=212.227.17.21
+	bh=yBErcd1w2sLY3Pj7k60XMxya/r5kYyxP4AlAQq/uEYs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fJLJiNVtzvNsfXxK7a8aBsNRGq9+ibeJTBhCV4Sjk6l6XI7fMmO/8rBKGhScfGPkV2fAuBWCuJrVb3yIjnabALjxvJj8drwrlRqOs/IIXj7PcyTlSfvrbUP+cn+KLaSZxFANDTBQtPUzqYTAcPJ/v2fPVo5llzxuwwUOc+OdzBw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b=UKmZcxqR; arc=none smtp.client-ip=212.227.17.22
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b="ltWeX1oD"
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b="UKmZcxqR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1779954501; x=1780559301; i=hendrik-noack@gmx.de;
-	bh=n1UsaeBVHcgkHkYlx6rzWwiZuK7nHsF02AdKc4LLlGg=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
-	 MIME-Version:Content-Transfer-Encoding:cc:
+	s=s31663417; t=1779954502; x=1780559302; i=hendrik-noack@gmx.de;
+	bh=NtJwyLq+7H04oC+A29jbPR+8EwklJhqRBSAq1t+TQNY=;
+	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
+	 References:MIME-Version:Content-Transfer-Encoding:cc:
 	 content-transfer-encoding:content-type:date:from:message-id:
 	 mime-version:reply-to:subject:to;
-	b=ltWeX1oD3nU6IWW0h9dYJECNlziu98UOkswXmnl+YI3Oeh174GG8FlnK/zWiXaeI
-	 MRKb6Q8crVABDbxc1M/15EX5jlEvdMGSMXD9Gr8R3IHj9TPicVKgeQ07HZI20vTgU
-	 XY8SLWtwa9JsRe+DSFO0/38nQ2Oe1rf5uaz7xSfq18vqUz5vPpyijcWDnl1wY+GtA
-	 yJg9gAiMOajRQtBEDG7OubIH7OtmwzKdUnYXhXijGteSDLsL6q0nogQ7pogOWMmWK
-	 /y9ZuU9p97uBFg8/c4ggFPLq2amcS4X+JGfj7aDMeH/QeZ9lab7dVbu7t2paOm0u/
-	 9gw05UQReAv48Ei3hg==
+	b=UKmZcxqRBkBZAByx6sUBhbCjj8JW9JRCPhAIssCrON1boNAVcgJukdmxDUXWWuhk
+	 2GiEQMiH9VrgPmnwENzvcYKDM73LMoo1LVxRY2bUBe3TAf/rDOPp0XGrNn/4e2o7J
+	 7mPWzKIzHNSgsheUE/oKplakWEQaZPVZELaR/Hg7WQVRfGPWKbsldIjC2iDVfPs+a
+	 peiniiKO8PLs1jl2nd4Zh3VK5UW/ha3D8hBmi9XgCTIMqPogTqIm731P6ZMRUwxdK
+	 QqKEYCMr11t5Q7XDMbfX/FEeonrpOTOeLWnlq0UJmXQnyCKSNcETAGygoE0q4OneQ
+	 bPDcLbM86H8kAoY6og==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
 Received: from client.hidden.invalid by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1M42nY-1wSVTZ23vs-0074Iu; Thu, 28
- May 2026 09:48:21 +0200
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MLzBp-1wjlDA3yID-00OSZ3; Thu, 28
+ May 2026 09:48:22 +0200
 From: Hendrik Noack <hendrik-noack@gmx.de>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -42,10 +43,12 @@ Cc: Hendrik Noack <hendrik-noack@gmx.de>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v8 0/2] Add support for Wacom W9000-series penabled touchscreens
-Date: Thu, 28 May 2026 09:48:16 +0200
-Message-ID: <20260528074818.12151-1-hendrik-noack@gmx.de>
+Subject: [PATCH v8 1/2] dt-bindings: Input: Add Wacom W9000-series penabled touchscreens
+Date: Thu, 28 May 2026 09:48:17 +0200
+Message-ID: <20260528074818.12151-2-hendrik-noack@gmx.de>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260528074818.12151-1-hendrik-noack@gmx.de>
+References: <20260528074818.12151-1-hendrik-noack@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,152 +56,193 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:dj2rSZ4iuHdMhICkNKu8H2aMs52LJO5pMDL5F+4SSyNXVU5ir+i
- BvhI/2zKJ11Ocu1dPWPqhXZ7G0veFeSXoPW8oYRktsn6qsTsOWlbFnDevBC+CgN7sWbah4r
- h/xDb8HGJ18NIO81qvpCSm1qFkoBhD5Z69edLAaR172S84LyQ6DhOvn3SnANULu9nPd0NGv
- 8hSal4pQmbJk58LgqJX1g==
+X-Provags-ID: V03:K1:ls/dvJ4Uig7hCeA5yVNhK3yO3hSM2s5MRcK3zo1c77DLL/jY8Ew
+ jK8At2CvLt8Zcctq1kbQGXFYHXXM1qKlgK7pHhokPTs3a/ZgupfhCxnuPj9PLvuFeobAyjI
+ V0+UOoNBP3XxmCsn3yWFFq3xJmEZs1rCo35juBcYne9evHLFiqiAD1GZMkRjeDL50+3tI4E
+ D9IA3JkNZCnk69D5H3ZzQ==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:ftWNRICDy8c=;riuD+X2KAAjzwZdducapiveegSs
- GpXqBv0IjZBW7BstjVmOayhy1ayDKQIQ4MPb+0NZ4VbAqN9V/qBbIhY86Rhig3UEt1EcXv6Yx
- wwcrIo80QBuHt5WJl3o7UFlRSuJe3P2qOJsE3HAAfKpRolmsUErp6ZJMzPljYtP3vysCQ5Faq
- MkioeIqP2QgLTRN/ZIGeT2Ow5hfMjh5NkzVSOB0I2wAd9eUixKOpSxxQiCPaAw40ZVmFrv6xE
- +bQI0t/NGrMJpm9PsMAy660Ac/vQA3BiA9/i9sCzdeN7jMWs28LVrg4Fn7m1uLGl+vCiY3Co9
- XQQ3S0OvQoX8QmCzjlTt5l66SgfyNwBbF0m2j2FnmqCRtUZQfm7n2BerVpIzmS2B9WVBTLFb0
- oICHVLB1xB29+fg1yoi+TaEFNjpYZIYsI3TRF+Eo9NuOrpIyKwEi9tsDKuL7zSk397ZQpfqvU
- bZj7K+zCFVn46/ZUB4sBEULwVfLntZ2qrRhUReSULHf5+cestAK1QM0pdJJthmmYPx5eRVlnH
- b25DSVKA4jeqlIHDnGkAEZQZk/7PBBvSpeH2M01brv74tqMawqlIM0TBIBuSHrbXjBvTizfd1
- MjAX0kSKSyiPeDlTu56TC4p0tZnWC84CzgRhrpjvfmhAMR91MXEMoCqACfMiZkQHB34l2Y+HJ
- saCT3Nsoz22BqEiiS9m1IGegNbPzSYtIUjyMPqyN5RrH+4MqfRFm+cipsIkg6uJARRNlJygw/
- waEu2n3m0ajpgOfSknKh12w1BSWZS2/Ikg0kdjcvV50QnM9u3M1oTgQvhvC967GzD4c95fJS6
- Mn+xUPpR5UmrjQ4I11OHzqzgUoHXxktVkQ+q2G6yufN1oHLTIOWT8/lRNNwVOcXVwZxLMe8a9
- xF3dpk+cnako5qAl72L3nBFKQXkFhQFUwYSqW7XMbBoNWJ7OFbnWI34BAEimiUhnq1CSJvKJ1
- MlSOvbz3U5qAoXZLZJVoGqcrJ/Lr92iIIVlZC5mh/6XaEw+RDt5MjF/qxs4XYbxwFmjn3xcyw
- Jj/rGt6gZlYBFjogOwfEfh7j+pedp3Djv+2EMckJPxImCWpdGy8E+wtozs/tgAB7VTSvqUwPu
- GyRNkNahGIC8OwsUR9oraq40aFH0SDQZdlIlf5KCcRmaV9v2nyCOs+XUMbPNDeeyqiMm/D45D
- /fWdVktc33DLVcQdzDXAJ+yMIIRj8eAbBX91ze/wf6/bS9szNql9SBM8Sq+144UcdhJzU2aDO
- X7nmNgiPA74Fx+cgQQ+eU/MLkhTyE1OhzvPfK+W0duc5QLIhaUfzjV0baHoIt9uugYjiI/lU9
- j4kdM1kW2YKXa4ISj8X53O4NtPzVLtkeXwj/Ib95jPJ7vBurJcRO+OvVIbrW5S6d7bEQoDFJs
- BBGPVUG3crlyU7z/BPaMr+7aLS/Obg64k7FcVv72jh5fb7Q34gAVy/tuHQD3t7Qlmcb0/BFdF
- pVcFRp/IqMX6UFObv18y9MkCYgDjzlNbxI76+8BJBUWnPLCCvdCCUuNJoZ+s/7o95WD7yko9d
- vwMfTWHPF8zrxgT3lxKss8U1ywSHjIzmA7cIoCV5boYDLzwkUv/+DNbXGhkeqYV2lEa9v3s1b
- yRj/QV7aaJ/2vaqjC2R/Lg4HB4OKeARGnci+Z9Tro+pO0z7SsW6Sy6LMkvxc7nUr0ZPdJgY6w
- Omi9OA05JNwWJCsfskgYfLGSdV2CQe2gzWm4cjaCSWf/T6WIPIn+0x/BluLukdcOd5/Kv2+4o
- gCETgqSDzifrUUh7PDURFOcV5Ags2tduKPIuatPG9miuJgfWNFLohFkMEax7kdcayrGioWrQ/
- zVT62NyFS0K/JxgU8esVX0X4JjJusI4AxN+aiMhBtqGdilhBwEC603vWnhPiNDMNXaLle10Rr
- kgNlRHve6Ao1MYVSiqfoGfKAzqNlwb8XFw2QgAJPkGYrV3QBmRG3mO1L3Pw8ZB/BCYrhZOk2/
- YJPVzhIOFaEt1MUUGlYJDS7AkFtAzYRKO6U0cn85ipsQGKQlsQVFCE1SYlTAwOCuP0utKkBBt
- 3vJoc4/xdktinWRifakURr+rbSd3llQTsQJDpzM6SRslpxkgpNaBIVLEai8sYV/XtioFefb9+
- 4HiJAAndpBXsYdtsRqVfnC0MhRm9AJi7gy2+Pf20dgR/E7d1Uek2ZjPq8Sqd2kADiuq6y209/
- ZKzRkj9mloIJxZrUCLLV277GucJN5s/xRn/EiiXcoD0DYTAye1kLvv2NvZ697gayt1onaoxkR
- 8Xo81vg0k8zYMA37Cm+3kAvRt8RXtwx5typ613BeFa8u8JEBc/87mx58pzskbxj1aazyoABtX
- 81crH8eo32DBKDQ8COdvDcCLzzOO+4tlmD9vhQJBEjrAhMpkQIrORJ5EsjLyGNq9stw+NBuuO
- zxxY8fFvG9pYPxjSn2i1+3uZpUWI60CI4dkGDFDBZomFSNYIfiVN9h3PRuXhifVJufXhYeEuW
- OnxOK28UcCTTvrjLUYpdhqomvSm1qW6dOaAVAT93Y77IdFBDyDZNb9DS/ZwZLMzavbcCrH2Y6
- SII/v3b1LoNomB0r5xWGkmbY2qXXUQ250oiK59KwVKp3RHD3KmXsshl+pB1lTQwcvbh2vfYj2
- MZ5rvwHd2vKHb99POoXXpaKnZppMEMm06P8xO0HRYXwRODo0C3r00CLr+LWT+z6mmZwTLlpNe
- zYBooXMNFggPiLvdAb4X+ZmFFDw8AWrypQwaLZTOiPvTyOKPmtjFTzlJsSsZQW4EIRpfYCkf2
- 7vX7nB1tObVPTbSGjMadATJlmKfn8J0+nduRfr5PQOATSVPBZXk6SzkVlsOJd8rgKOVmKheRR
- 3K7A0BzhpCONmnpYZzphhEfU3I4wOMrsdAotg0zQSC7HRrN3ctpva1UD+cTtFFmWu9zyMvMSD
- iIrF4phqLH0YtVXN6p3fck3mLTk5a3t4M/8fPFkFuBLDgC9USviJDqmpOpelfnj525CDIUxwV
- iUqhtRe5HUjkzgBmeySaUxCsgqO+1DonmvOvW7hPqjSDodG026/+tHVmbDeg7g2iCzCR1jWRu
- xl6Sqn+P2WrnvaYZ+hcKMdOYAIZMHg+NWQCsCyGwo17fPCvWSWd77riInzb+mBnzZhyZ43D6h
- RAL/g1mHK7IjjvIWcSyv05lHYzKkzKtGrm0UFV/vf1NfeQCqi/u9YX5ZkV2oIQrSHBzM8HeKf
- v1kalNYoOXPTYWGSqIpJZxa11r2e+L8CjcZluL+QBMZm2MCXXdlstTxBYiD0Lk6dhmLKF6ZEK
- l26mdhVQGKz2hxsh10KuRBpcY5QjLJNbs3M7Rot57/sFfLziTt5t66Qi6Au6tARAR+SZHXy+x
- hH00jDhIcV8t3ds9UJq/HGOBZ0eRkKluo4A6p4/w0PtLqFDqpu1CFMzaj0ecplKLyBn0aeNu5
- S8VrYaa2EXwathLYYQAm6qzG7Pa+PvDO+q96cSz8u4fv3PcOoVUQgkWAAalC3KvpI+DGuvaUt
- UwiLUiwal8uOl9zkzNK6hC3uXMyLcXAGb4qkYiHe4uWxLyXAf6TkZgDw2lIlG02d1iMcISs9M
- 8CfOeIG1mrlDDr1KAygmaQ6weT1+Mn1UXDRakJYmZG/3nxD2HMONGoBSXdS+m+xT1jmFUSDUj
- WBJ/fUsdMK3bJOsujHftILdpZ4XRmZbzI8bsSAmbTybe6LpxF+hA98HEFcCmEr996hxnhwQxY
- fhzSdZEZreK4J6wn2SuP008OcsmQ/hEPQMAtcSNqYEnLTn/6+BHAlTgFFRnV2kV+vnsjwVvZW
- ltCyzGSS5dyb3Ob50n7z7jHwFbsQQxl6jkhDSiZKmnclFltg3qm8/cB6bsCbGq3btt48s0ZCd
- 59OwFQlO/tqbnO1xWF01l+oFJJOz7V9ATEQTYQlbVUozTPkBDEBwBRNWnPl9E1ncU+eFjjtUH
- Y3EHIEl8taLxOm37o0RHj2Ca4zo+M+fjYDMh0SrT7FIojXMFfOYD5X5otPzItaWtUW52FRHqz
- 0WWy8di4sXalhmpsY/ZO67MfT2yD4BOU4iDA8F35ILhThsv9OvmNwe/JCCXJoGotGsaF4Q0ut
- Ba9u85FpkClEt0fLNbaoKhWkJc3BEfHzWxLXQyvmGu6lCXg3NsBpG+FkEw3PWeNmHNagXK9LC
- Nnuf8gISLJ0M1KUioUgBiM0KwMCa/BQms/M1nQdDU4ONGckJNaI1psBLcvxAak4YziPH2gGzh
- AiqpG+j8Zce40JAMYoHrHC+qTx3VwQruUkMHas8NDA+7C7LXqcvrCanSL29zEr3H7ISGol6I9
- 7CPhSZCmKyfYIn5DltB1CfwosBHuvTmR8l7XFrU6pmhC4xNgVEZ4I9TSPJBmvtHriq95zkQC6
- MkI1v6HjypyBZOdVDHG2V8KTcbqjlDYsaY7qiOHM0j58LLISxUbNEr8krmvh9MGLdbeMXFtg1
- i6PO9VGpHHGwmXjAAc7Bp1j///660i9W5fT7zCHOVwmft9BJzETL47XvuXnU/bHjh7X1R+4nu
- 2qpuMovD2tZjIYmR4zcWMVP0B6F0nZ6qrFmx0Ihc4+ZzmVM6WbMVLqNzSMJh+x7s83ENSxvdW
- kKQXonG+xOSWMzosANBRXicY+I0a7d+gMD1g+ZFCY01R4n/4ZBdjx4XLoJLoNmf4pmf/oHC+D
- NYpZhZUPmp+m5Swbyl3JbFEyOjJX/caPUzsWDgiipgmeVZSE2eUB/TukRMI6LERblhAf6uVME
- gIpYu4/nVXcnLU3dsaGlUabfOZ9pJuhSQPiKqSM2qJp7aaNfQQoUzCAALaCO7/SqcyvGJgBz7
- e3ZHl+Bnpaguji5SJBTr2uF15NucffwkMl4mX7fxkba8tdY/mF52pB4yatIwxLVgvC5Y2sn/G
- tjA48AdJGzQ72dxT3YT5YEbUYdwbqUV1tuk0RR1hn3m+fao2YNBrlOBN38pPxwD+OVnUgyJGu
- 6Qb6IkABCky+KR7E9uy9PFfjAmkYUISn+Ci42DBbSlx73/fj5J+hDo2gVUMEMSy5gdscroyqJ
- oVWz5JAr6DRVOg2H6Bd1okFRL3paVI2pERn7/47sQdzoOWIQ2XYfhAiqLafUziExGRnGcKELU
- QSvrWNsuxJr2LWazY03vFJO42HFwxI/JIUZ7An70s+JyNT76SzBKohev18x0NlwWjRRYY3QvG
- OfTjpnKiRUzYPoE3E+nk6IjUcNYQMiYn/dCBOUqXslJPnNjnkHjyi5QoqabFQdneN3iXeGxl4
- 55ItepC7E27HkCm9sTGu7n6qylsn8v72Zy6zUrfJGbJiuKgzjXsVdw3+q8o3tayG1ioePzpek
- MBjO00syzdTvi6qthI3k+ki++48ohhs7hGAteykpNt0QoTLRMpzjMEm8/TTNvXK7a4YBjU2wy
- IAqgnEG41ky8gLsygTr14my6o7NArbdj7T4g2YYLhS2xNLttnPTmCMi6u5o5IpWBW4CAn1OJp
- PMPItAf6sUQVliYKKvixWqH1yYoF1gqdJYP29YDpNI9iVYvJ8xMstGd6SORMnLDmIJI3wNowD
- 53UmgwlgdRnJaOZInNxmv3EF1ORPoxRMtdwbpCvxbLe1RqShjmJe9Y/pvKNUkMerwrjSuDAzr
- 2G4tUYh+0+wFkGA2RKBOYh2ddHddaVbMV8hKY3shg1dgj68WQq0Z9dQpag2c76SNYNN76g==
+UI-OutboundReport: notjunk:1;M01:P0:YnTkXP5MQEU=;aUTcztpb7Ba5AwwtYfySKKK8lgh
+ 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
+ WHQiR//TQ=
 
-Add devicetree bindings and a driver for the Wacom W9000-series penabled
-touchscreens.
+Add bindings for Wacom W9002 and two Wacom W9007 variants which can be
+found in tablets.
 
-The driver currently only contains the information for the W9002 and
-W9007A, which I or Ferass could test on devices. It should also work with
-other chips, such as W9001 or W9010. However, I couldn't test it on these
-and the message length would need to be added.
+W9002, W9007A LT03, and W9007A V1 differ in the length of the return
+message containing coordinates, distance, pressure and button status.
 
+Co-developed-by: Ferass El Hafidi <funderscore@postmarketos.org>
+Signed-off-by: Ferass El Hafidi <funderscore@postmarketos.org>
 Signed-off-by: Hendrik Noack <hendrik-noack@gmx.de>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
 =2D--
-Changes in v2:
-- remove pdct-gpios, as it's unnecessary
-- fix devicetree example
-- adopt to kernel coding style
-
-=2D--
-Changes in v3:
-- fix missing include (thanks lkp@intel.com)
-
-=2D--
-Changes in v4:
-- adopt to feedback (thanks dmitry.torokhov@gmail.com)
-- add W9002 support (thanks funderscore@postmarketos.org)
-- add reset-gpios, necessary for some chips
-- remove R-b from krzk due to changes in dt-bindings
-
-=2D--
-Changes in v5:
-- adopt dt-bindings format to suggestion (thanks krzk@kernel.org)
-- remove pen-inserted functionality as suggested (thanks dmitry.torokhov@g=
-mail.com)
-
-=2D--
-Changes in v6:
-- add info on difference between variants
-- add A-b from conor
-- add warning for out of range pressure
-
-=2D--
-Changes in v7:
-- address feedback of sashiko (thanks dmitry.torokhov@gmail.com)
-
-=2D--
-Changes in v8:
-- add regulator and interrupt headers explicitely
-- adjust some data types
-
-=2D--
-Hendrik Noack (2):
-  dt-bindings: Input: Add Wacom W9000-series penabled touchscreens
-  Input: Add support for Wacom W9000-series penabled touchscreens
-
- .../input/touchscreen/wacom,w9007a-lt03.yaml  |  73 +++
- drivers/input/touchscreen/Kconfig             |  12 +
- drivers/input/touchscreen/Makefile            |   1 +
- drivers/input/touchscreen/wacom_w9000.c       | 448 ++++++++++++++++++
- 4 files changed, 534 insertions(+)
+ .../input/touchscreen/wacom,w9007a-lt03.yaml  | 73 +++++++++++++++++++
+ 1 file changed, 73 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wa=
 com,w9007a-lt03.yaml
- create mode 100644 drivers/input/touchscreen/wacom_w9000.c
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,w90=
+07a-lt03.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,=
+w9007a-lt03.yaml
+new file mode 100644
+index 000000000000..6d1da6a435d3
+=2D-- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,w9007a-lt0=
+3.yaml
+@@ -0,0 +1,73 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/wacom,w9007a-lt03.ya=
+ml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Wacom W9000-series penabled I2C touchscreen
++
++maintainers:
++  - Hendrik Noack <hendrik-noack@gmx.de>
++
++description: |
++  The W9000-series are penabled touchscreen controllers by Wacom.
++
++  The firmware of controllers in different devices may differ. This can a=
+lso
++  affect the controller's behavior.
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - wacom,w9002
++      - wacom,w9007a-lt03
++      - wacom,w9007a-v1
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  vdd-supply: true
++
++  flash-mode-gpios:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells =3D <1>;
++        #size-cells =3D <0>;
++
++        digitizer@56 {
++            compatible =3D "wacom,w9007a-lt03";
++            reg =3D <0x56>;
++            interrupt-parent =3D <&gpd1>;
++            interrupts =3D <1 IRQ_TYPE_EDGE_RISING>;
++
++            vdd-supply =3D <&stylus_reg>;
++
++            flash-mode-gpios =3D <&gpd1 3 GPIO_ACTIVE_HIGH>;
++            reset-gpios =3D <&gpx0 1 GPIO_ACTIVE_LOW>;
++
++            touchscreen-x-mm =3D <216>;
++            touchscreen-y-mm =3D <135>;
++            touchscreen-inverted-x;
++        };
++    };
 =2D-=20
 2.43.0
 

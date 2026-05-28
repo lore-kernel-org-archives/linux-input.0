@@ -1,50 +1,51 @@
 Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD410348866;
-	Thu, 28 May 2026 07:43:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E815F27FB37;
+	Thu, 28 May 2026 07:48:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779954206; cv=none; b=lxBdAYS7uTEzF2rpbJtvEg35arkD6Y0SOlXKLVjkkTHBa1Ad1BVdMX0LQab+S7tda7lcEdCXqDjE2dHJGoZ2vqCZciF5GpfAqM5ywlSxdaLqU/pOfGfe9YwsNPy4hpPSn5aD1Vd1zZTrlj8sTUYWBmvQuHm/2BFS9J6HeoDvJ3Y=
+	t=1779954505; cv=none; b=CLL1R5C6yTyAZ2PPjzs0G5jGjZ6K40jRFZ1rwzpy4KmJYikEJVc5pM9MROV4xkd3vW+lzKE56uGkdaha2EapqGvrEhfle4NXovyWvjXy+oOhrihu5l1HO3YdRloY/Moe4vV2LWntHUYylQy71z8Lte8WMTEIW63GHkBDrJgn7cA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779954206; c=relaxed/simple;
-	bh=muw7wXy++ietUI08m8k4FgBGWwgAyXKQpzthQvz/LkU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UH+A45pNP91MLY8roh/RVjmmmkPoVshTheHx7W6nVNrEPtCSBlYa/5yc0Uy0et471G5Vf/wh1xKMa+yoB41cfq+MH+/zN6gxB+Bon4jHRFthz2DcgxrVO+h8D6PnKOcZqbYVVJ7ESs8nPvykgKP/y4vOC0rvjSHTef8GPvJUSCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b=Cx8xiS4b; arc=none smtp.client-ip=212.227.17.21
+	s=arc-20240116; t=1779954505; c=relaxed/simple;
+	bh=X4lr4iJ7jAjklgn9XmWaDi38hkHYGW0QAK3YuQ5rWhI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n+LJtcHOHv/wAPq5ukscdcvRHhDP4ZCobV04MNrjntEG9Zi/4GMfcPHpy9l4mjoSeN0fMocpsZSZIxMUO6kMDFwTyjQVuddwRTa9vzrkosL1iUmeC2y+PhOB2BVb9Ab7Dpaco+iPp4c+S7xT5lce5Q2ZgXhQl6aKmlrE4TnYMsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b=ltWeX1oD; arc=none smtp.client-ip=212.227.17.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b="Cx8xiS4b"
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=hendrik-noack@gmx.de header.b="ltWeX1oD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1779954202; x=1780559002; i=hendrik-noack@gmx.de;
-	bh=oodft1en3oKtE1HTQBotWCE8sT3bYL5LTOwsGvbwKkQ=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
-	 References:MIME-Version:Content-Transfer-Encoding:cc:
+	s=s31663417; t=1779954501; x=1780559301; i=hendrik-noack@gmx.de;
+	bh=n1UsaeBVHcgkHkYlx6rzWwiZuK7nHsF02AdKc4LLlGg=;
+	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Transfer-Encoding:cc:
 	 content-transfer-encoding:content-type:date:from:message-id:
 	 mime-version:reply-to:subject:to;
-	b=Cx8xiS4bgbA0CxiuXdGJeoobe9/qN+8Lfhe/CBJPJbFMgoFZNm9OgD6eeBCB2iKR
-	 j0vNbhzwTHQFWjlE9kYTN3vOhXSdz1UuoX5IKFsIPIBUWY/qO1xSArDaiD1K/u2+s
-	 8W3qVCXOKw3/CjlvHCpPY9ENy8fi2F6jDIChH5XihkBwvaTJbOXLiFzL/4k5bq8pw
-	 bpITmS39LDvYtjwK+hhr5DB4OvEryYeuzCE14ovYIVW5jvZshxYZ1mQ0otMEVK/qi
-	 GJUcbH8Pvzi9KekY0ShEyscq8N1eEc3GEJqKW4uJSWYf1Av1mm/cbBhmYxXwCX8Gf
-	 +DLm6HeNNcId/bGHWg==
+	b=ltWeX1oD3nU6IWW0h9dYJECNlziu98UOkswXmnl+YI3Oeh174GG8FlnK/zWiXaeI
+	 MRKb6Q8crVABDbxc1M/15EX5jlEvdMGSMXD9Gr8R3IHj9TPicVKgeQ07HZI20vTgU
+	 XY8SLWtwa9JsRe+DSFO0/38nQ2Oe1rf5uaz7xSfq18vqUz5vPpyijcWDnl1wY+GtA
+	 yJg9gAiMOajRQtBEDG7OubIH7OtmwzKdUnYXhXijGteSDLsL6q0nogQ7pogOWMmWK
+	 /y9ZuU9p97uBFg8/c4ggFPLq2amcS4X+JGfj7aDMeH/QeZ9lab7dVbu7t2paOm0u/
+	 9gw05UQReAv48Ei3hg==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from client.hidden.invalid by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MMXUN-1wi78o3Ffr-00QRJz; Thu, 28
- May 2026 09:43:21 +0200
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1M42nY-1wSVTZ23vs-0074Iu; Thu, 28
+ May 2026 09:48:21 +0200
 From: Hendrik Noack <hendrik-noack@gmx.de>
-To: Nick Dyer <nick@shmanahar.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
 Cc: Hendrik Noack <hendrik-noack@gmx.de>,
+	Ferass El Hafidi <funderscore@postmarketos.org>,
 	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/2] Input: atmel_mxt_ts: Allow per-machine config via DT compatible
-Date: Thu, 28 May 2026 09:43:17 +0200
-Message-ID: <20260528074317.9604-2-hendrik-noack@gmx.de>
+Subject: [PATCH v8 0/2] Add support for Wacom W9000-series penabled touchscreens
+Date: Thu, 28 May 2026 09:48:16 +0200
+Message-ID: <20260528074818.12151-1-hendrik-noack@gmx.de>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260528074317.9604-1-hendrik-noack@gmx.de>
-References: <20260528074317.9604-1-hendrik-noack@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -52,228 +53,152 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:AqufNXXbgivjdVK27IvShlwifMTv5YqVnp5qHa9b7G+NGtYwjgc
- oBIrKfsP1SOR5jvg6ITR8eTi+oFcGkIl2SJRgQWGWa375m/x46SfKQlkBCXySk8WH2f62si
- rcS5XvvJHQzzTpF10HF6nPidHce4EnrvlEfU5I5gsqxX5EwOfBJW2Sci3O2Km3yph0ihAiZ
- kLpqi/t8kip/B/CSpSlLA==
+X-Provags-ID: V03:K1:dj2rSZ4iuHdMhICkNKu8H2aMs52LJO5pMDL5F+4SSyNXVU5ir+i
+ BvhI/2zKJ11Ocu1dPWPqhXZ7G0veFeSXoPW8oYRktsn6qsTsOWlbFnDevBC+CgN7sWbah4r
+ h/xDb8HGJ18NIO81qvpCSm1qFkoBhD5Z69edLAaR172S84LyQ6DhOvn3SnANULu9nPd0NGv
+ 8hSal4pQmbJk58LgqJX1g==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:QVaN2IXlXeM=;OlE51z+7qQsEs4k1UFXuRK/B8aD
- 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
- MBPOAKMk4=
+UI-OutboundReport: notjunk:1;M01:P0:ftWNRICDy8c=;riuD+X2KAAjzwZdducapiveegSs
+ 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
 
-The Atmel maXTouch config is machine-dependent, different panels and
-layouts require different configs even when the same controller and
-firmware is used.
+Add devicetree bindings and a driver for the Wacom W9000-series penabled
+touchscreens.
 
-Extend the driver to support per-machine config files keyed by the device
-tree compatible prop. For DT-based systems, the driver now looks up the
-primary compatible of the machine and searches for a config file named:
-
-  atmel/maxtouch.<compatible>.cfg
-
-If such a file exists, it is used as the machine-specific config. If the
-system is not DT-based or if the per-machine file is not present, the
-driver reverts to the original behaviour and searches for a config file
-named:
-
-  maxtouch.cfg
+The driver currently only contains the information for the W9002 and
+W9007A, which I or Ferass could test on devices. It should also work with
+other chips, such as W9001 or W9010. However, I couldn't test it on these
+and the message length would need to be added.
 
 Signed-off-by: Hendrik Noack <hendrik-noack@gmx.de>
 =2D--
 Changes in v2:
-- fix leak of fw_name (thanks sashiko.dev)
-- adopt to added patch
+- remove pdct-gpios, as it's unnecessary
+- fix devicetree example
+- adopt to kernel coding style
 
 =2D--
 Changes in v3:
-- fix bypass of of_node_put (thanks sashiko.dev)
+- fix missing include (thanks lkp@intel.com)
 
 =2D--
- drivers/input/touchscreen/atmel_mxt_ts.c | 69 +++++++++++++++++++++---
- 1 file changed, 63 insertions(+), 6 deletions(-)
+Changes in v4:
+- adopt to feedback (thanks dmitry.torokhov@gmail.com)
+- add W9002 support (thanks funderscore@postmarketos.org)
+- add reset-gpios, necessary for some chips
+- remove R-b from krzk due to changes in dt-bindings
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touc=
-hscreen/atmel_mxt_ts.c
-index a88dc7e6827c..0081fa5c7802 100644
-=2D-- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -36,7 +36,9 @@
-=20
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
--#define MXT_CFG_NAME		"maxtouch.cfg"
-+#define MXT_CFG_FOLDER		"atmel"
-+#define MXT_CFG_NAME		"maxtouch"
-+#define MXT_CFG_EXTENSION	".cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
-=20
- /* Registers */
-@@ -2232,6 +2234,64 @@ static void mxt_config_cb(const struct firmware *cf=
-g, void *ctx)
- 	complete(&data->config_completion);
- }
-=20
-+static int mxt_invoke_config_loader(struct mxt_data *data, bool device_sp=
-ecific);
-+
-+static void mxt_board_config_cb(const struct firmware *cfg, void *ctx)
-+{
-+	if (!cfg) {
-+		struct mxt_data *data =3D ctx;
-+		int error;
-+
-+		error =3D mxt_invoke_config_loader(data, false);
-+		/* request_firmware_nowait() succeeded and mxt_config_cb() will be call=
-ed at end */
-+		if (!error)
-+			return;
-+
-+		dev_err(&data->client->dev, "Failed to invoke general config loader: %d=
-\n", error);
-+	}
-+
-+	mxt_config_cb(cfg, ctx);
-+}
-+
-+static int mxt_invoke_config_loader(struct mxt_data *data, bool device_sp=
-ecific)
-+{
-+	struct device_node *root;
-+	char *board_type =3D NULL;
-+	char *fw_name;
-+	void (*cb)(const struct firmware *fw, void *context);
-+	int error;
-+
-+	/* Get first string of the machine compatible prop */
-+	root =3D of_find_node_by_path("/");
-+	if (device_specific && root) {
-+		const char *tmp;
-+
-+		if (!of_property_read_string_index(root, "compatible", 0, &tmp))
-+			board_type =3D kstrdup(tmp, GFP_KERNEL);
-+	}
-+	of_node_put(root);
-+
-+	if (board_type) {
-+		/* get rid of '/' in the compatible string to be able to find the FW */
-+		strreplace(board_type, '/', '-');
-+
-+		fw_name =3D kasprintf(GFP_KERNEL, "%s/%s.%s%s", MXT_CFG_FOLDER, MXT_CFG=
-_NAME,
-+				    board_type, MXT_CFG_EXTENSION);
-+		cb =3D mxt_board_config_cb;
-+		kfree(board_type);
-+	} else {
-+		fw_name =3D kasprintf(GFP_KERNEL, "%s%s", MXT_CFG_NAME, MXT_CFG_EXTENSI=
-ON);
-+		cb =3D mxt_config_cb;
-+	}
-+	if (!fw_name)
-+		return -ENOMEM;
-+
-+	error =3D request_firmware_nowait(THIS_MODULE, true, fw_name, &data->cli=
-ent->dev, GFP_KERNEL,
-+					data, cb);
-+	kfree(fw_name);
-+	return error;
-+}
-+
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client =3D data->client;
-@@ -2291,12 +2351,9 @@ static int mxt_initialize(struct mxt_data *data)
- 		return -EBUSY;
- 	}
-=20
--	error =3D request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
--					&client->dev, GFP_KERNEL, data,
--					mxt_config_cb);
-+	error =3D mxt_invoke_config_loader(data, true);
- 	if (error) {
--		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
--			error);
-+		dev_err(&client->dev, "Failed to invoke config loader: %d\n", error);
- 		complete(&data->config_completion);
- 		return error;
- 	}
+=2D--
+Changes in v5:
+- adopt dt-bindings format to suggestion (thanks krzk@kernel.org)
+- remove pen-inserted functionality as suggested (thanks dmitry.torokhov@g=
+mail.com)
+
+=2D--
+Changes in v6:
+- add info on difference between variants
+- add A-b from conor
+- add warning for out of range pressure
+
+=2D--
+Changes in v7:
+- address feedback of sashiko (thanks dmitry.torokhov@gmail.com)
+
+=2D--
+Changes in v8:
+- add regulator and interrupt headers explicitely
+- adjust some data types
+
+=2D--
+Hendrik Noack (2):
+  dt-bindings: Input: Add Wacom W9000-series penabled touchscreens
+  Input: Add support for Wacom W9000-series penabled touchscreens
+
+ .../input/touchscreen/wacom,w9007a-lt03.yaml  |  73 +++
+ drivers/input/touchscreen/Kconfig             |  12 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/wacom_w9000.c       | 448 ++++++++++++++++++
+ 4 files changed, 534 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wa=
+com,w9007a-lt03.yaml
+ create mode 100644 drivers/input/touchscreen/wacom_w9000.c
+
 =2D-=20
 2.43.0
 

@@ -1,108 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABCE43AD527
-	for <linux-input@vger.kernel.org>; Thu, 28 May 2026 09:28:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF3F3E833F;
+	Thu, 28 May 2026 12:42:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779960538; cv=none; b=mXASBU7EtoheNR8iaRfwqQItOrYTt84x6G5zEAYgdvqKriAQAybQdS1rwDgNwaBN/sg5695o80IDw9TR4V518ZmZDRYhxYR8GFMzAPIROxi8OenfKP197qUPydr84/dM18EA6P0WTrvut1n6IMPZ2rhQQWZAm/xtTXKhfVvI99Q=
+	t=1779972139; cv=none; b=cjEC8C3JgZUy+98D1TO3oeqL/PyKv3JGqAA8Km3/kr+4xUnEuHuv6NBFAzQgcB8coowuhu++cm6fWKurcQte0nkPHhm7hAauymKcKiq4v13sVWcgYEdth2pYLO1++U8sjkQHEbjB2sssJHTQ7RkGWk4UtWDkHF4UvBG8qSKVYWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779960538; c=relaxed/simple;
-	bh=HEvOfGqyG5EQ+Ecx2RI1uigcNIob/Di24SXOthxyXTA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Qm/pYVopg02h4OBitKDSTBCQL+592vItms8PYrnZj/cihoeK/Is7GeuW1P9hSOjCuvKU6GuOaPukpaWs9Kt3ya3l9a8YH4FTu/NxVJE743hTYtSp/1Y/hl/WKAxeyXvIKFV0WOsrCvBFTXdpL4x0R6cr+ixspksZJj2cxjrYsv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MYNO3m+9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779972139; c=relaxed/simple;
+	bh=KJ4bXx5Jhw4lK4DMTDthJ7vwOLfI0qyGPlE0N0k3tkE=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=Ov5BPTr5OruqaY+tJkcUhvn4s311X90n7RXyo66NGkmjKOzJY6tLaTH7HQDNvRA94//waZz6DxF7Cemfhu6Bc46tYvZvnPXp2j4WuKPlILC8qM5m6EaSsMNVs0/wUPKAiTVDFtpHvQCsk4ZCmie8qBFcpl3qgXH6q/kx67xlsMU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nnusktYs; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MYNO3m+9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D781F000E9;
-	Thu, 28 May 2026 09:28:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779960537;
-	bh=s74bflgT3syJf6CO7B9qujowTigZhScTNiAtlw3YO+o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MYNO3m+9oUT71GvoCUwPZbgtyrSQUojmIZXMK0l7WsNVn9vwwH8twow6xe2bKiyl0
-	 /DMTGiTn9aMNTl4bu3MkDGRuCxP1cZO62Uxh5bL6JhrqkLb2lcenPnQxZ8iaxTDzxZ
-	 8jOxY63SCfTGoquyMkJTiplKGWqB/846wLYS+5dWBUGlqXhEFzTSX72+J5QKGoxIIq
-	 i+AsNF927lDHP5znWAN8wnSJfpY4ENnPjVwwvWkXxRHLPifT28kvQTxWeMJM4XS8aX
-	 cmq09W4Nxug/XaI3yq5Q8yhLj+sZmVbLBT5/7OBnPbisboEpXbw32/4GltWUh+rqaG
-	 y9p1a8b0rHFxA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] Input: atmel_mxt_ts: Allow per-machine config
- via DT compatible
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hendrik Noack" <hendrik-noack@gmx.de>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260528074317.9604-2-hendrik-noack@gmx.de>
-References: <20260528074317.9604-2-hendrik-noack@gmx.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 28 May 2026 09:28:56 +0000
-Message-Id: <20260528092857.28D781F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nnusktYs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779972138; x=1811508138;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=KJ4bXx5Jhw4lK4DMTDthJ7vwOLfI0qyGPlE0N0k3tkE=;
+  b=nnusktYshzMQ94YAo/WY9vYTMd1a8k73O/tWynnaZr80teMuvPzRd58g
+   Y0FWXio5DsattbKR3+6k0K5RAz7uTNvSFl/dnqOvAdN9t7jidR8r+VmnB
+   FFMqn/McRxIgmiCl9NH8ygWSfRgiROpCdB5Rhv3rGT+gSkvcRUL+GtzyE
+   lLXliu2qniesiJcpVjGg9rJhn3G2ulhs08cjR2tj1/G+tJKE+ZnsgnlrR
+   6aJoygkIH2vbdwAcQgaQTWd21pxddfL68QQWNUniNv+7BFm3mB1oRsRSD
+   tv6ccbycFvP1MzwIRqNn0oyUun0mXTvoQ74kpe/ZdlmuIoB7M0BG/whvS
+   Q==;
+X-CSE-ConnectionGUID: bE5lkuKcTpCYnxi4BdCaDw==
+X-CSE-MsgGUID: xyShKGAGTe+iVfYRdvflWQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11799"; a="79960828"
+X-IronPort-AV: E=Sophos;i="6.24,173,1774335600"; 
+   d="scan'208";a="79960828"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2026 05:42:17 -0700
+X-CSE-ConnectionGUID: Zgvm9re8QNyOT84HzR7Xsg==
+X-CSE-MsgGUID: VOwf1bD0QlSg9PmMEtsr2w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,173,1774335600"; 
+   d="scan'208";a="242634568"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.187])
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2026 05:42:08 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Thu, 28 May 2026 15:42:04 +0300 (EEST)
+To: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+cc: andersson@kernel.org, konradybcio@kernel.org, robh@kernel.org, 
+    krzk+dt@kernel.org, conor+dt@kernel.org, 
+    Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net, 
+    neil.armstrong@linaro.org, maarten.lankhorst@linux.intel.com, 
+    mripard@kernel.org, tzimmermann@suse.de, airlied@gmail.com, 
+    simona@ffwll.ch, jikos@kernel.org, bentiss@kernel.org, 
+    luzmaximilian@gmail.com, Hans de Goede <hansg@kernel.org>, 
+    Douglas Anderson <dianders@chromium.org>, 
+    Jessica Zhang <jesszhan0024@gmail.com>, linux-arm-msm@vger.kernel.org, 
+    devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
+    linux-crypto@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+    linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH v2 3/7] platform/surface: SAM: Add support for Surface
+ Pro 12in
+In-Reply-To: <ab458aadea651396d9ea7629419a32dc7510c593.1778822464.git.harrison.vanderbyl@gmail.com>
+Message-ID: <6808166a-423c-c801-497a-ed95cccc8d0c@linux.intel.com>
+References: <cover.1778822464.git.harrison.vanderbyl@gmail.com> <ab458aadea651396d9ea7629419a32dc7510c593.1778822464.git.harrison.vanderbyl@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Fri, 15 May 2026, Harrison Vanderbyl wrote:
 
-Pre-existing issues:
-- [High] Concurrent execution of 'mxt_load_fw' via the 'update_fw' sysfs at=
-tribute lacks locking, leading to double-free of the input device, TOCTOU r=
-aces, and interleaved I2C commands.
---
+> Add a SAM client device node group and registry entry for the
+> Microsoft Surface Pro, 12-inch with Snapdragon.
+> 
+> This set enables the use of the following devices.
+> 1: cover keyboard
+> 2: cover touchpad
+> 3: pen stash events.
+> 
+> The battery info and charger info devices have been
+> purposefully omitted as they are also reported by
+> other drivers and cause conflicts.
+> 
+> Signed-off-by: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+> ---
+>  .../surface/surface_aggregator_registry.c         | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+> 
+> diff --git a/drivers/platform/surface/surface_aggregator_registry.c b/drivers/platform/surface/surface_aggregator_registry.c
+> index 0599d5adf02e..884049961415 100644
+> --- a/drivers/platform/surface/surface_aggregator_registry.c
+> +++ b/drivers/platform/surface/surface_aggregator_registry.c
+> @@ -422,6 +422,19 @@ static const struct software_node *ssam_node_group_sp11[] = {
+>  	NULL,
+>  };
+>  
+> +/* Devices for Surface Pro 12" first edition (ARM/QCOM) */
+> +static const struct software_node *ssam_node_group_sp12in[] = {
+> +	&ssam_node_root,
+> +	&ssam_node_hub_kip,
+> +	&ssam_node_tmp_sensors,
+> +	&ssam_node_hid_kip_keyboard,
+> +	&ssam_node_hid_sam_penstash,
 
-commit eb7b8b6b98800084b750dc1b902ad664e878e3d8
-Author: Hendrik Noack <hendrik-noack@gmx.de>
+Hi,
 
-Input: atmel_mxt_ts: Allow per-machine config via DT compatible
+Could you please confirm this penstash is correct (sam vs kip)?
 
-The Atmel maXTouch config is machine-dependent, different panels and
-layouts require different configs even when the same controller and
-firmware is used.
+Sashiko suggested it might be wrong but take it's report with a grain of 
+salt, it's AI after all and sometimes seems to extrapolate about HW to a 
+sibling HW without any real knowledge:
 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/tou=
-chscreen/atmel_mxt_ts.c
-> index a88dc7e6827c7..5ac123d4ed036 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-[ ... ]
-> @@ -2291,12 +2351,9 @@ static int mxt_initialize(struct mxt_data *data)
->  		return -EBUSY;
->  	}
-> =20
-> -	error =3D request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
-> -					&client->dev, GFP_KERNEL, data,
-> -					mxt_config_cb);
-> +	error =3D mxt_invoke_config_loader(data, true);
->  	if (error) {
-> -		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
-> -			error);
-> +		dev_err(&client->dev, "Failed to invoke config loader: %d\n", error);
->  		complete(&data->config_completion);
->  		return error;
->  	}
+https://sashiko.dev/#/patchset/cover.1778822464.git.harrison.vanderbyl%40gmail.com
 
-[Severity: High]
-This is a pre-existing issue, but I noticed that mxt_update_fw_store()
-invokes mxt_load_fw() without any locking to serialize concurrent execution.
+-- 
+ i.
 
-Since sysfs write operations don't hold a global lock like device_lock,
-could multiple threads concurrently writing to the update_fw attribute race
-when checking and setting data->in_bootloader?
+> +	&ssam_node_hid_kip_touchpad,
+> +	&ssam_node_hid_kip_fwupd,
+> +	&ssam_node_pos_tablet_switch,
+> +	NULL,
+> +};
+> +
+>  /* -- SSAM platform/meta-hub driver. ---------------------------------------- */
+>  
+>  static const struct acpi_device_id ssam_platform_hub_acpi_match[] = {
+> @@ -500,6 +513,8 @@ static const struct of_device_id ssam_platform_hub_of_match[] __maybe_unused = {
+>  	{ .compatible = "microsoft,arcata", (void *)ssam_node_group_sp9_5g },
+>  	/* Surface Pro 11 (ARM/QCOM) */
+>  	{ .compatible = "microsoft,denali", (void *)ssam_node_group_sp11 },
+> +	/* Surface Pro 12in First Edition (ARM/QCOM) */
+> +	{ .compatible = "microsoft,surface-pro-12in", (void *)ssam_node_group_sp12in },
+>  	/* Surface Laptop 7 */
+>  	{ .compatible = "microsoft,romulus13", (void *)ssam_node_group_sl7 },
+>  	{ .compatible = "microsoft,romulus15", (void *)ssam_node_group_sl7 },
 
-If so, could both threads concurrently execute mxt_free_input_device(),
-observe a non-null data->input_dev, and invoke input_unregister_device() on
-the same pointer before it is set to NULL?
 
-This seems like it might lead to a double-free or use-after-free since
-input_unregister_device() drops the reference count.
-
-Could this also race with PM callbacks like mxt_suspend() attempting to
-acquire input_dev->mutex, operating on freed memory if
-mxt_free_input_device() is executed concurrently?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260528074317.9604=
--1-hendrik-noack@gmx.de?part=3D2

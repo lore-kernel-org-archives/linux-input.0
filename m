@@ -1,121 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EC9938C2DE
-	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 09:13:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C15DF59
+	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 09:53:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780046014; cv=none; b=lMcBz6cgSPg5gMP+LXSyYHZO3MlQKP6oO1dWRks0qdw+5HxVjYVThiBmWYeGbbGfl8q/UsPSzGUH3BPAJS5lhf8nb+AOjrQGyUIY7ZBlNAufU/YSAriS8t9CQ448EA+1GHjF4LxjU0Jdj5/oGclHdh8Id05MZIm/NJlTXW2nBdw=
+	t=1780048398; cv=none; b=tHSh73mLv6QJtQXz508e/JA07rK6D07tgKuOpg5cTF23Rt9NxaMijtzIoWA+ZEOOpWC1YucIIEDRO7GiXv7yl8AtLEARsy3wMMZSiIt3qfp+VnXYGcI4wOmfZyZWpFRUbZEZx8fQGLdz5NgLryCoTqzw8QV4CTQp0+CB/IL/QQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780046014; c=relaxed/simple;
-	bh=QuinRr2rqXx8ebl//hINudaP/o5Vqx286nPRjwU6ras=;
+	s=arc-20240116; t=1780048398; c=relaxed/simple;
+	bh=4H4N86cEy/QyRc6iuNK7Q3ikK8aQBNEc9BlQybvOJuk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cDaDuaVaCp3rHiFKlSJJ82QPEjZIqwisJZlO7fUtWMMnNBQvRAfPseF7J+H3mSdHBniV8NkOzTO+kg7+sTltLQWF7kDQrJaAKsO5TC5LXcShFCUX+FNWTQxENTb/sF1/lOhL/L4SQIsbKsDu7Gl6WJGE0cWUpZbIKNMGFjArkjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fAak2dsE; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=m8s+o4bv6m8N5aaZKMIDjvl+ZTptdnpl4vGb5IqOZc/u2WGb2+T7rjF52qAMSNrPAaugi6KhIkTuVnTA33jVEBkpf0lQ9nLuF0v/Z09LtGoyr69Hj0N82zg1htHYYsc24/SIatzEF65vEyrNccEVcSn36yn7APc8/ky58O63R+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oT8maUfU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fAak2dsE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FB61F00893;
-	Fri, 29 May 2026 09:13:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oT8maUfU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B3BF1F00893;
+	Fri, 29 May 2026 09:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780046013;
-	bh=TYRELrrNxMSs33+UKChPGHnnVzZ7jZWIxM7LsKGoLxA=;
+	s=k20260515; t=1780048397;
+	bh=sdgq7UaB6iP4A5CZSXIx9AzNO7vHvdCQRbPQbBGY4jA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fAak2dsEOIc0JjdaFMSRPVYGMx6+yDT6j7UqonPnxmiQfDvWpFcW67He80yxHF2Hp
-	 OmHgaNWFBXT/mdII1UL//NxKjF44nibqEoTYYNDp+wWwmNthJ5KGlNkeRZKZNHOsbU
-	 K94WNTmX4VfZYI1TUFEYBbT9i9gU5kqax9ERrqFaSD+Fliee8pmcgOZN7ubGgUkxCS
-	 uwZgq2UkIUJvPUkxVA54sbPFLqjpkkeao+bRBPLmdwkARWjLe3br/IbYVY/HgHA7u6
-	 pXuaYD7ABlSpTBqyeIAbZhzarx6T9uuW82wCrrM4RRzHoRahgAVjPfCK/2OzWhqaF2
-	 EQdr8rOfD8BRA==
+	b=oT8maUfU4uviGQOISZhKt4IfksmTy3oaRTmChxXQOygj7x3aOh9liRuepu1O3296c
+	 irnjeQ0E7gvT5WG9e7BeIFluFhJZWrqPYoiBKObfEVg/U0PcJjQ3YuKBNcAbIgj/ul
+	 3+ZqgT47AHqUWP2AXjuoLkJGuQGspWw9YQms75FtZGA1gsT8go5MZx9wgnMIvJmws3
+	 gypFdYaLxXA+i/tYZX557e1u+NfLi2HH7YQrPcohstxh2vy5P+COK3Tzh2X/CZh8T+
+	 lF8cwmaHzdavDBoaaDTZKDF2c4F2420CDDOjHcjPnX78voM6Lnsus+nAD3BnU+8FXQ
+	 PsANRGXnAmDKA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 3/4] HID: hid-msi: Add RGB control interface
+Subject: Re: [PATCH v11 4/4] HID: hid-msi: Add Rumble Intensity Attributes
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260529072111.7565-4-derekjohn.clark@gmail.com>
-References: <20260529072111.7565-4-derekjohn.clark@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260529072111.7565-5-derekjohn.clark@gmail.com>
+References: <20260529072111.7565-5-derekjohn.clark@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 29 May 2026 09:13:32 +0000
-Message-Id: <20260529091332.C7FB61F00893@smtp.kernel.org>
+Date: Fri, 29 May 2026 09:53:16 +0000
+Message-Id: <20260529095317.5B3BF1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] A race condition in `claw_remove()` allows the `rgb_queue` delayed=
- work to be re-armed after it has been cancelled, leading to a Use-After-Fr=
-ee of the `drvdata` structure.
-- [Medium] A hardcoded LED class device name prevents supporting multiple c=
-onnected devices.
+
+Pre-existing issues:
+- [High] Unwaited ACKs from SYNC_TO_ROM commands can prematurely complete t=
+he waits of subsequent unrelated commands.
 --
 
-commit 151b50cdc17e18af52c3d79eb6a71e3b5e4583d8
+commit 11fcab6387a146514df018948771932cc7f57ed2
 Author: Derek J. Clark <derekjohn.clark@gmail.com>
 
-HID: hid-msi: Add RGB control interface
+HID: hid-msi: Add Rumble Intensity Attributes
 
-Adds RGB control interface for MSI Claw devices using a unique frame-based
-RGB protocol. Mirrors Windows effects using a delayed work queue to apply
-state to the device.
+This commit adds intensity adjustment attributes for the left and right
+rumble motors on MSI Claw devices.
 
 > diff --git a/drivers/hid/hid-msi.c b/drivers/hid/hid-msi.c
+> index 96710d80543d4..f5c54cd62f3bb 100644
 > --- a/drivers/hid/hid-msi.c
 > +++ b/drivers/hid/hid-msi.c
 [ ... ]
-> @@ -954,6 +1572,7 @@ static int claw_probe(struct hid_device *hdev, u8 ep)
+> @@ -930,6 +962,162 @@ static ssize_t button_mapping_options_show(struct d=
+evice *dev,
 [ ... ]
->  	if (!drvdata->bmap_support)
->  		dev_dbg(&hdev->dev, "M-Key mapping is not supported. Update firmware t=
-o enable.\n");
-> =20
-> +	drvdata->led_mc.led_cdev.name =3D "msi_claw:rgb:joystick_rings";
-
-[Severity: Medium]
-Does hardcoding the LED class device name prevent multiple MSI Claw devices
-from being connected at the same time?
-
-If two devices are connected, it seems the second one will fail to register
-its LED class device due to a sysfs name collision. Would it be safer to
-include a unique identifier like dev_name(&hdev->dev) in the string?
-
+> +static ssize_t rumble_intensity_left_store(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   const char *buf, size_t count)
+> +{
 [ ... ]
-> @@ -1030,6 +1662,7 @@ static void claw_remove(struct hid_device *hdev)
-[ ... ]
->  	if (gp_registered)
->  		device_remove_group(&hdev->dev, &claw_gamepad_attr_group);
-> =20
-> +	cancel_delayed_work_sync(&drvdata->rgb_queue);
-> +	if (rgb_registered) {
-> +		device_remove_group(drvdata->led_mc.led_cdev.dev, &claw_rgb_attr_group=
-);
-> +		led_classdev_multicolor_unregister(&drvdata->led_mc);
-> +	}
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_WRITE_PROFILE_DAT=
+A,
+> +				    (u8 *)&report, sizeof(report), 25);
+> +	if (ret)
+> +		return ret;
 > +
->  	hid_hw_close(hdev);
->  }
+> +	/* MCU will not send ACK until the USB transaction completes. ACK is se=
+nt
+> +	 * immediately after and will hit the stale state machine, before the n=
+ext
+> +	 * command re-arms the state machine. Timeout 0 ensures no deadlock wai=
+ting
+> +	 * for ACK that ill never come.
+> +	 */
+> +	ret =3D claw_hw_output_report(hdev, CLAW_COMMAND_TYPE_SYNC_TO_ROM, NULL=
+, 0, 0);
 
 [Severity: High]
-Can a race condition here lead to a use-after-free of drvdata?
+This is a pre-existing issue, but this patch propagates it to the new rumble
+attributes.
 
-In sysfs store functions like effect_store(), rgb_registered is checked
-under the registration_lock, but mod_delayed_work() is called after dropping
-the lock.
+If a SYNC_TO_ROM command is sent with a timeout of 0, the driver does not
+wait for the hardware's ACK, but the hardware still sends a generic ACK
+packet for it.
 
-If a sysfs thread is preempted right after dropping the lock, claw_remove()
-could set rgb_registered to false, execute cancel_delayed_work_sync(), and
-block on device_remove_group() waiting for the sysfs operation to finish.
+If userspace rapidly writes to multiple sysfs attributes (for example,
+rumble_intensity_left then rumble_intensity_right), the second write will
+send a WRITE_PROFILE_DATA command and wait for its ACK. Can the stray ACK
+from the first SYNC_TO_ROM command arrive during this wait window?
 
-Once the sysfs thread resumes, it would call mod_delayed_work(), effectively
-re-arming the workqueue after it was supposed to be cancelled. When
-claw_remove() completes, drvdata is freed, and the delayed work timer firing
-later would result in a use-after-free.
+Since the generic ACK doesn't indicate which command it belongs to, would
+this cause the driver to falsely assume the WRITE_PROFILE_DATA command has
+completed and prematurely wake the waiter? This could cause the driver to
+send the next command while the hardware is still processing the previous
+one, leading to dropped commands and device state desynchronization.
 
-Would moving cancel_delayed_work_sync() after the device_remove_group() and
-led_classdev_multicolor_unregister() calls prevent this race?
+> +	if (ret)
+> +		return ret;
+> +
+> +	return count;
+> +}
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260529072111.7565=
--1-derekjohn.clark@gmail.com?part=3D3
+-1-derekjohn.clark@gmail.com?part=3D4

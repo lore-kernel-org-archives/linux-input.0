@@ -1,116 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1042A3090CD
-	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 00:29:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50E282853E9
+	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 01:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780014578; cv=none; b=LJGSONmLee7hmOmPI+0L9hJAU8RXS1Megrcsht0dJTUGHMOwO/K0WnyxVp+NWjNC7/LXnTvWjueoKdubfzkEtNi+WPjPeV59pGA1Yman6PoaSi6C3nxb2ay90WV7rbwFkkFK0pW2oKeOIHa7kh+hPmIZuv3qz/eIEIAqXOS8M5g=
+	t=1780017414; cv=none; b=iC0hPzBJajkIGbToVieBbae7JdDfuAj/LYDwzFytJe5tJr7dI6BmTog+qBTq1aQs8pp3Q7weI8pVxaTMahpPpSBKVmNl4LPcrd91HFQAp8ee+001xctOiGljNWcZIKkzocJMjSsylPwz6pJxLNJ6XnxKE6YvlXxCuCq271kTI/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780014578; c=relaxed/simple;
-	bh=th9qRnXfgzUjgswjRMqhWSofabJpvU77NoC7ul6yNvE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CdwcZel2q7kZD1RhdrwI0Gqf8taGQ640n6P3R/AqK+B1Kh+TOGujyF/629+AjobLPaKynSpNaA6W+ZGTW2bSDRagL+cySUmVDs0H5yprkjI2BG5WM7aqM6VpBGXhduZGlw27T9tz6+1y6mUnaxVtgOcZMLXas5QaW9Wu8VHjyU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OIZr3iZO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780017414; c=relaxed/simple;
+	bh=sKg6xoqq2s+ZZcuSNKhLo4WCT4rISU2pWEoW2HBRb+o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OH8OGFRf5LsLKFvZDV9U6NKzOqvoN5fkniTEpxs7OFXdrS0G+aveSH4vrthaAH78Mdvu6dPELEbuekv5llXSCafkDs2hCqh200USnUIGgMbCJhAemIip6XONSl+WnSR9jO2NpnvZuOv9+BKskvItXpEhE0w5xYCKP4sOUkZroiw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o3feYz0w; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OIZr3iZO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728F11F000E9;
-	Fri, 29 May 2026 00:29:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780014576;
-	bh=CI3BWuKD2FgvXp0LNDaXFBnvqtXkzjHnNTM7kzvu4lg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OIZr3iZOujFrgeOR6CPO1E9ptldp0Ud4Sb/uSq1riA4nvfpU9wl1T/nKpROV8GJ2W
-	 kq+onUSkOqesf5j9Oy5Q2mtpYoR6gD+chUVaXJ1C4RghXa1zpVKfIiV4T1HwaT6QW0
-	 FWf3OBxlUWwnyV3yIqDfsldKiykDjGC6cpjzz3Y9ccTqkaLwnlXDlpdxVquBiJRasv
-	 B9o2Z1EtJMAuozFXSZo79WiDyN/71xPG1BAoWK+GYYMXNHxrMWVJHsiNMXHxcu53eB
-	 Ap1Ac5hbYU0WqjkJR9tpdDND+O7TKsaoRs8zxkPxhPuskITQ8Lkkz5u+Wqn8+FDKFC
-	 F/T4YzItWEVOQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: mtk-pmic-keys: Count available keys during probe
- instead of pre-counting
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260528235600.312045-1-rosenp@gmail.com>
-References: <20260528235600.312045-1-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 29 May 2026 00:29:36 +0000
-Message-Id: <20260529002936.728F11F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o3feYz0w"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-36babe2c4bdso379919a91.1
+        for <linux-input@vger.kernel.org>; Thu, 28 May 2026 18:16:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780017412; x=1780622212; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GDATUkG/OtxlAUVWKXX5mKstzpi/LS1mSaHeR98JWp0=;
+        b=o3feYz0wg0BP86kBDfLGCOfCBFcdqHotfqStAeNzeC72X7lwjKgka7e58vHi727QyS
+         74bipmcYMxQP39guIeScFgk7aXnz7ThSmZ1Oh7j5gdMapyrPJqbl89lo86+r4GXPqykl
+         uMcFBg9NAqnj5DguqbjWuB5yIegaCUquCluh1mCZSt0zLz16NP/SPHDXM0MiZi/tsmKy
+         fQXbBaMQjm7r/pLDsTI9qB4j/MIbgmUzmK8mhp8GUimYswcxktMl/IgExHkZI7T7GOUJ
+         UqwSOxYYxN0eQAzKeBKf9mfKfcWBgppCibrCVpd6bLS9loQYbzg4aCwXlKTvukff1DRQ
+         /oBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780017412; x=1780622212;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GDATUkG/OtxlAUVWKXX5mKstzpi/LS1mSaHeR98JWp0=;
+        b=ZpaVQnR8TvJbn7WIPdoeWsuRCw6mjuSeV+KnYqr/s0n7HOQ+mU6Bp1Wm3IRdaeIniv
+         BWTauxe0PJcMxRPKbJElmRdVuEkFdsBbaRCmzAXh+jJ5yjI6OoJKZwTAhCqdV8huU2xD
+         qjHKLBJVCALxv7+HtY5Dx7H5iHLY0w3KuTWfJhiIwRFWgv7iAQEuoV0CGeMmIIXcWWPo
+         WovEvor7DanGUjdLIG06D455TG1Ub3U/pIBLPJIt7AiiOXP5RnNJkitUmefisXSyRlXi
+         ARbktn/P5EHJ+yA3yprQhMW0U+i2fThPBi54X57+0xzLZXv9LvQiMEMvhMsr7TnFofVh
+         HrRg==
+X-Forwarded-Encrypted: i=1; AFNElJ/cAg/2rXudD1JsInWEfjuxBC7fv3LIN031DTlM5j/vHDSqhZCEnlZTbCckyQ7cqoWc3ngjCqJRXNpuVA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw7PxQLApfS5EdVAvvHdAR+cKANoP+H9WjmaDwqTJWaFty58k+q
+	KM1XldQ/eXwFSGgbu7/ls8ZlE940lcBN6aTdwoLrv9UnMRlvxEsRTdSp
+X-Gm-Gg: Acq92OHVuVo8N+e/Nl9D12x61reHzyJRTnsVjds5oDVFVYGrKA05vIxOVLW2gta1gD2
+	QzPk+mZY1ETKlgCoWM3dzdSh/3spq8ar29vPtAS1wzOnUPGJISrGHpTdX7jXMYNrtT1LK5UpchR
+	LZesc22Nbp2z9YVkudRfCPH7KfGEcHJEkSqL1MROjoj/K8Huhl/0K7lMMU+61tWhioBcrnKUwFP
+	TBL4VY31sDI0UHwl1ndgWbmCfCWro157h3u0n8/9nVpsL/uHcE3w1ONbwi0CbirRhGeLSPtPk9y
+	dQGY0rvrka2acIllzo3DB3ZWiG/J4/SqGd9XSrIpVkCLCrGBzw77mN9/70yLJcvQ5LA5/oXo67Z
+	rfKgiaW39bkF8sDEIAodYRasOL3zW/6pnUSuQsIaaYbvJvrmJTp7J3EVrnIy71cpJg3eMJftZ0P
+	4Olirg7ckL68F8Qs6/CIiYyXqSiNNuIYbxGZrJ5dwPOgyEnI+hs3wIuzCmYWzj62eirBQFM3KZ5
+	HuP8gN1OZOBMqD5HOXxR2lF
+X-Received: by 2002:a17:903:196b:b0:2bc:7d09:dcef with SMTP id d9443c01a7336-2bf209a2d71mr9668965ad.29.1780017411611;
+        Thu, 28 May 2026 18:16:51 -0700 (PDT)
+Received: from harrison-Surface-Pro-12in-1st-Ed-with-Snapdragon.lan ([58.164.4.185])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bf239e702fsm389235ad.4.2026.05.28.18.16.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 May 2026 18:16:51 -0700 (PDT)
+From: Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+To: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
+	andersson@kernel.org,
+	konradybcio@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	dmitry.baryshkov@oss.qualcomm.com,
+	Harrison Vanderbyl <harrison.vanderbyl@gmail.com>
+Subject: [PATCH v3 0/2] Add support for Microsoft Surface Pro 12in
+Date: Fri, 29 May 2026 11:16:14 +1000
+Message-ID: <20260529011619.9586-1-harrison.vanderbyl@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Skipping unavailable device tree child nodes shifts the loop index=
-, breaking the implicit hardware mapping and incorrectly assigning register=
-s and IRQs.
---
+Changes in v3:
 
-commit ddd98727b5f1967e1232c34c0d42b4d0d314c947
-Author: Rosen Penev <rosenp@gmail.com>
+Rebase:
+ - Rebased on next-20260528
+ - Removed ice device tree changes
 
-Input: mtk-pmic-keys: Count available keys during probe instead of pre-coun=
-ting
+Device tree:
+ - Fixed C++ style comment in &i2c9 to use /* */ style
+ - Flattened mdss_dp3 port into &mdss_dp3_out directly
+ - Whitespace and formatting nits
 
-This commit replaces the separate pre-count of available keys with a
-single pass using for_each_available_child_of_node_scoped(). It skips
-unavailable nodes and bails out if the key count exceeds the maximum.
-The match data lookup is also updated to use of_device_get_match_data().
+Changes in v2:
+Ice device tree: 
+ - Updated to use 0x0 formatting
 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
-ard/mtk-pmic-keys.c
-> index c78d9f6d97c4f..e34856693ee2c 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-[ ... ]
-> @@ -356,31 +355,26 @@ static int mtk_pmic_keys_probe(struct platform_devi=
-ce *pdev)
->  	input_dev->id.product =3D 0x0001;
->  	input_dev->id.version =3D 0x0001;
-> =20
-> -	keycount =3D of_get_available_child_count(node);
-> -	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-> -	    keycount > ARRAY_SIZE(irqnames)) {
-> -		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
-> -		return -EINVAL;
-> -	}
-> +	for_each_available_child_of_node_scoped(node, child) {
-> +		if (index >=3D MTK_PMIC_MAX_KEY_COUNT) {
-> +			dev_err(&pdev->dev, "too many keys defined\n");
-> +			return -EINVAL;
-> +		}
-> =20
-> -	for_each_child_of_node_scoped(node, child) {
-> -		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
-> +		key =3D &keys->keys[index];
-> +		key->regs =3D &mtk_pmic_regs->keys_regs[index];
-> =20
-> -		keys->keys[index].irq =3D
-> -			platform_get_irq_byname(pdev, irqnames[index]);
-> -		if (keys->keys[index].irq < 0)
-> -			return keys->keys[index].irq;
-> +		key->irq =3D platform_get_irq_byname(pdev, irqnames[index]);
+Panel: 
+ - Add edid to commit message
 
-[Severity: High]
-Does switching to for_each_available_child_of_node_scoped() break the
-strict index mapping for hardware registers and IRQs?
+Device tree:
+ - Fixed formatting and ordering nits
+ - Removed extra dmic audio declarations
+ - Added suspected devices on i2c busses
+ - Fixed incorrect usb regulator
+ - Describe panel pin regulator
+ - Added defaults for volume button GPIOs
 
-The original code iterated over all child nodes, preserving the device tree
-order index (e.g., index 0 for powerkey, index 1 for homekey).
+Already applied:
+ - dt-bindings: arm: qcom: Add Microsoft Surface Pro 12in
+   (landed in linux-next)
+ - firmware: qcom: scm: Allow QSEECOM on Surface Pro 12in
+   (applied by Bjorn Andersson, commit 667d05a09db3)
+ - platform/surface: SAM: Add support for Surface Pro 12in
+   (applied to review-ilpo-next by Ilpo Järvinen)
+ - drm/panel-edp: Add panel for Surface Pro 12in
+   (pushed to drm-misc-next by Doug Anderson, commit 02f48ffdf96c)
 
-If a device tree has a disabled node first, skipping it will shift the index
-for subsequent available nodes. For example, if the powerkey node is
-disabled, the homekey node would be processed with index 0 instead of 1,
-causing it to be incorrectly assigned the hardware IRQ and registers of the
-powerkey.
+Pending in this series:
+ - hid: Pen battery quirk for Surface Pro 12in
+   (acked by Jiri Kosina in v1, needs a tree)
+ - arm64: dts: qcom: Add Microsoft Surface Pro 12in
+   (reviewed by Dmitry Baryshkov in v2, minor style fixes applied)
 
-[ ... ]
+Will be done in future patches:
+ - Camera support (pending purwa cams patchset)
+ - IRIS jpeg decoder support (pending purwa iris patchset)
+ - Accelerometer support via ADSP (probably userspace)
+  
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260528235600.3120=
-45-1-rosenp@gmail.com?part=3D1
+(Audioreach/ucm2 changes for audio)
+https://github.com/linux-msm/audioreach-topology/pull/32
+https://github.com/alsa-project/alsa-ucm-conf/blob/9577cd31121546b288759097901025376141177b/ucm2/Qualcomm/x1e80100/Surface12in-HiFi.conf
+
+
+Link to v1:
+https://lore.kernel.org/all/cover.1778498477.git.harrison.vanderbyl@gmail.com/
+Link to v2:
+https://lore.kernel.org/all/cover.1778822464.git.harrison.vanderbyl@gmail.com/
+
+
+Harrison Vanderbyl (2):
+  hid: Pen battery quirk for Surface Pro 12in
+  arm64: dts: qcom: Add Microsoft Surface Pro 12in
+
+ arch/arm64/boot/dts/qcom/Makefile             |    2 +
+ .../dts/qcom/x1p42100-microsoft-sp12in.dts    | 1194 +++++++++++++++++
+ drivers/hid/hid-ids.h                         |    1 +
+ drivers/hid/hid-input.c                       |    2 +
+ 4 files changed, 1199 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/qcom/x1p42100-microsoft-sp12in.dts
+
+
+base-commit: f7af91adc230aa99e23330ecf85bc9badd9780ad
+-- 
+2.53.0
+

@@ -1,157 +1,171 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-wr1-f66.google.com (mail-wr1-f66.google.com [209.85.221.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 628423B9D9A
-	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 21:44:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C2E35F18B
+	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 22:22:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780091088; cv=none; b=CUtUXG1a+lXYAohtTBDppmtoXTkqSK6N+rQQKAXe0qzZw87ecejc/Tk98Gq62FcL5eBGSh2DX8qk/0qQHThF5Z+9XN+ZA/y35HlvZlvTrUcIVCCVlx7E6NYeLPMzZWkdNoW/92zt4i1E+1dYKhcpsfmcNtNZwqynJrg9oRxdJAA=
+	t=1780093349; cv=none; b=dhmZc0OyfK6OZoPFgtf7bXDXbFie32e+Vh04HPvMxxocqCapVSvy6SwhioZxnLkANfLggD+jOgqoDlWIH3XBMeZNWdcoUg+raa8g0TYpWM+1OdxsmzEmwUm2tPteaI1jrnT/fpV/XJBvbWrySQTH1Kij6iJzKr3/gpeZFkqPh8g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780091088; c=relaxed/simple;
-	bh=8YccHQpbrLbCjT6Gk5r3pmdOA2g4GZa0mWgJIHwZOUo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GIQg1ljc4W/CgjsjOQDMFrBfUoqhXtw29Zbcth3BT3XWcnLwvD8vhaZoPplOEH3rW2Aw7tPQQBBwTPK96sDva7xMjOY8u/GILXkCAnwmyMR2YUaKB3R1i0gf9YGmRmZVMtCoYhuun6xn7L0FoWs4BxUoSn3Pup/CQxaqLTsPoOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sxw43X40; arc=none smtp.client-ip=74.125.82.182
+	s=arc-20240116; t=1780093349; c=relaxed/simple;
+	bh=JEuQL2RJL9RfwrvEv1c547OKbPPTm0o029ut/0JwHsU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ibIK9so3UxvNAEW/G9nZ6nFoifF+sAULu8YaJhosHWsqwgLZ7TDvFjhRGf6oDsQWHOwlChF5mibIT+5bUlJMrdgl5O3uSIIef0unJNQWDPSAmEXXYbaFCOcJhct2iMVXMY3U/t/DRrAp2XjAQvf4iM+yo1Et9IVudYr/d1RlptA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SEiSm7a6; arc=none smtp.client-ip=209.85.221.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sxw43X40"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-304d7f31215so2169081eec.1
-        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 14:44:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SEiSm7a6"
+Received: by mail-wr1-f66.google.com with SMTP id ffacd0b85a97d-441209fb77eso8876243f8f.1
+        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 15:22:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780091085; x=1780695885; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=LSQQogjkjukCIt/ic8irOKvTJ/iFQGiGTec8jnQp53Y=;
-        b=Sxw43X40cp8+0sQDGo4m/rj2J0fgFfIhkucjnQuzOzHkQaewaSdPZKRXo1vVWRA5Ju
-         Auf9Pdvjl5rYVm0hZHyCF5BLLD1kdrpPRee0kGP4Tvj+RPxe4aGau+/Jq+CloWM42aTx
-         1HwdOMN734UoDskeqvc+57W71IAeUwERufhiYhHRAHf+LZbKd4m+l6bSAa3MDTu7CN2f
-         rn4piX/ERPrCmF83JH2s/h44NNZt8CpYG67pitZTzzKZsSKvwJR84A811weYC5IaDJ/q
-         Cs2XelDnCm+jKM5L1hhV/Ehw8p3SKuz6SV8MdF1nBL96WFmiG4mbUdy0TgvJzY22BB7I
-         X0kg==
+        d=gmail.com; s=20251104; t=1780093345; x=1780698145; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ELmzuHQxMU1Wo0i+tJpd+1vni6BbbsF517DJDCEMeA0=;
+        b=SEiSm7a68iSpsewPY8aLbRVmU2xbfSR+q1qOh1WLvNLJftVz7ZlW7fZdXY10jWbFgY
+         DYCNwIk2SFOT4nIyywd/zHmdg2cuNLl7W5iyAeCP744pA1UR9ZPtE0gxNv8enW5LpPDM
+         EmZDhxTenDrSCaBCtrHbfhW89ZNazY6/T9V0KTu6k4WR7pI4G071N/LbD02qSYUP809J
+         vpAINPq1Hc5k8fzWjUUikPkG05ab2pxwiP3jQTETA2PqKRywMhrS889yMzcn0I1JrKyW
+         7cP8PdPiFkQVtxcPjAxqJI6bf0kBskx8+zJPGBiOzxP5EvQdFuI7PS85tqdrhGr2SmoE
+         jkpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780091085; x=1780695885;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LSQQogjkjukCIt/ic8irOKvTJ/iFQGiGTec8jnQp53Y=;
-        b=Llj4Cluxsnt5bd6KF3Vw3YeLwECwJwH888Sca7lpBaPbFVHxy8bzbs5bM0hoGUnZij
-         h7hUh2triGQiPej4OtUXzEonzSSIwKUE3kXm7l3/XRDEq0hhqxHfWZtEdgtw752Gg/Zq
-         j9Zc7ctgdCbfkMC+2GZuZLeSoasNFKbhFHWgVuhBdHzXNGFCWfGw833szZ0JDxSfE772
-         Qt1rTXcYkxORl4fK9X4VIbJ36I/UUXEbrZ+bvp7pp/ClVjK0wA94aKKjjep45dSdw3SX
-         QN2jYDPhFInh8X5GMsYvNiw+w96n8wfSLj7Q9zfWjIkxnR1q3OUBWKEkJLNrg9eqg6mE
-         67Sw==
-X-Forwarded-Encrypted: i=1; AFNElJ8JWux/13wa/zvzMud9JDQFX664o4gqFSFZMoggm7eiqdZL1Do3zVT1Jsqr0cTBItXg1dxKRBjAQDo2dw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YziFY7B3Lzxd+G/IT3oTXdPpG+EQlOA/VaGyGDNgqwlci5kpEBm
-	sOW70hfexIdxrtgwHyynOwEATB5RXp5wFhdbH1zZ98MYoYG0T2F4s2GL
-X-Gm-Gg: Acq92OEc5CrafqJjOXnAlxnReMOrqVebzLHuW0zm4EtqUnxyBSjT28dtOC7DWNHWn+r
-	xBiOH1i/I8fgXgGbflvl+YyJyPATMEoCbI/lyMWv6cmbb057CIqenYS+MK6FI9UsDuDwEfHr++l
-	B+YgpG8latLCsKOfcWRSrn/l7t5CH65S/kedt5J9TCPZxsRTZzgRcybzjPxmUjg5/raLPyyYHbI
-	Cl9cV8+g2f7Dd4BXL6dkdekYj0ZvC5swU1Ngm60tgN4USKaidit/iKnUXi3iQJqdQa7WmPxWJXs
-	qO9uwyJGUUS2dIxXzz0kwjNsXxAefLoID5WpdOaBv/NB1j2pUsmYz6aA1rAZiaUZyqKCUSfPzvr
-	ITHOR/m9HbcCFB7TWsRRMwR9YQnNoqC8D7eviMLwfEpnHqDGyTCOaLC+SK8polog5Ehxq5YOwq8
-	XfvxLnLBzYJgta+gZqeL+SFU1i2GXl7yoxDpmpMtLVWBKr9B9HSd2SxpLU9VzKgGJnL105csE3k
-	ao=
-X-Received: by 2002:a05:7300:72c5:b0:2f2:6dde:df66 with SMTP id 5a478bee46e88-304fa628f82mr775971eec.22.1780091085290;
-        Fri, 29 May 2026 14:44:45 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:307d:2a52:8823:4a01])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed53f316sm2371685eec.19.2026.05.29.14.44.44
+        d=1e100.net; s=20251104; t=1780093345; x=1780698145;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ELmzuHQxMU1Wo0i+tJpd+1vni6BbbsF517DJDCEMeA0=;
+        b=T8UVMDfPMCIn2W9ayPQZfMN5g7pZL5DbRPspJWzlShTSQJLn75Z3MYq4zn6nzCX9C7
+         F8d0MI7AuQNCHSZAdaUr67NNvV/aZ4VovTFF5NlNLSo6fw9LHsN/mfzMG68GEEif5ld2
+         9rM3LTTbYuz3dAOBUNzLw4uMmbvVt1jClRl9bOEqui6qBb5J37hsyVEpnzRcOnJ71zfD
+         Qmws39WF6d6Z11el32bfBX6S3xDdQeYDDYh2p0+QQnMz8Orf5b/0JKLafX5i4Xna0hzq
+         mdX/GPBhRRQMvN230HfwuScd68D8R3nQUEZYkRKm5YBACxQTI9MZ2I5WtKVEWCeZsGWy
+         QxtQ==
+X-Gm-Message-State: AOJu0Yy0T3qsHp48+xdzyXx2nbX2Mx7+fr60Jq9r/VaukJ9djQCmIk75
+	EJETBqIilgeoKIzlgbVuODqs5+7jBejD8/90XiZrdMX1mhhgpsURHOfWvjZUuGW9Ok0=
+X-Gm-Gg: Acq92OH+7yTHTnDYEIHaVVj8ESn1tH7UDcTWR04uHZlhISeqBr1CkHNcsFZvxQAhSHb
+	ZdwaCeW7DEURf93UdFA8+bGKNCyYSLzqQb7g0GGsVQrYG34NCtlL3mxohm1OxICihScHRJfPoaH
+	FMqzUFwaiVaxkF4Kdy/YuYTvd7tz5n5WbQlQkCM4Yztl7eS4HGeu2NidVMElSdepIIWP+N+Th0r
+	OWK8MDdMWVe7rN/iOnOfwA5aYmZDWca7lvX0ZFFSc+0u07IhKdvWjkHHQB8pA0Y6+iwvbGjBrBR
+	5RLyDPbrwvpe/PpWkYVKNOb/0w01D+lfSGJb99BHPmWrNi7IrZoJuLaIVSvCXCY3bRIVCEiqqAH
+	4kyyUuFbHtJRysKWb28rFicn+tOnXWcW14z7u9UbabvIRq+5vuE7aRmdEOva9O5GFUnUfvt/iSf
+	dPvD8Ozj19/gR/Dw+tVS89HnoGu1u2bm0wP9m8GO8vFfgRz2KASGnCV9kk5nIkLprwcw==
+X-Received: by 2002:a05:6000:1869:b0:45e:8ad3:86a9 with SMTP id ffacd0b85a97d-45ef13397a5mr7475761f8f.8.1780093344577;
+        Fri, 29 May 2026 15:22:24 -0700 (PDT)
+Received: from machine (host-176-37-220-32.b025.la.net.ua. [176.37.220.32])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45ef354b5bdsm6068735f8f.21.2026.05.29.15.22.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 14:44:44 -0700 (PDT)
-Date: Fri, 29 May 2026 14:44:41 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jinmo Yang <jinmo44.yang@gmail.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: wacom: fix NULL pointer dereference in
- wacom_intuos_pad()
-Message-ID: <ahoH87pet5BUQwfD@google.com>
-References: <20260523150101.611473-1-jinmo44.yang@gmail.com>
- <20260523150619.615565-1-jinmo44.yang@gmail.com>
+        Fri, 29 May 2026 15:22:23 -0700 (PDT)
+From: d3z-the-dev <d3z.the.dev@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Abhishek Tamboli <abhishektamboli9@gmail.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	d3z-the-dev <d3z.the.dev@gmail.com>
+Subject: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on system resume
+Date: Sat, 30 May 2026 01:22:10 +0300
+Message-ID: <20260529222210.1532876-1-d3z.the.dev@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260523150619.615565-1-jinmo44.yang@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Sun, May 24, 2026 at 12:06:19AM +0900, Jinmo Yang wrote:
-> wacom_intuos_pad() dereferences wacom->pad_input without a NULL check.
-> When a Wacom tablet is created via UHID with parameters that route
-> through wacom_bpt_irq() -> wacom_intuos_irq() -> wacom_intuos_pad(),
-> but probe did not allocate pad_input, the call to
-> wacom_report_numbered_buttons() passes a NULL input_dev, causing a
-> general protection fault in input_get_drvdata().
-> 
-> Add a NULL check for pad_input at the top of wacom_intuos_pad() to
-> bail out early when the pad input device was not set up.
-> 
-> The bug was found by syzkaller on linux-next 7.1.0-rc4 (next-20260522):
-> 
->   Oops: general protection fault, probably for non-canonical address 0xdffffc0000000052
->   KASAN: null-ptr-deref in range [0x0000000000000290-0x0000000000000297]
->   RIP: 0010:input_get_drvdata include/linux/input.h:390 [inline]
->   RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wac.c:4210
->   Call Trace:
->    wacom_intuos_pad drivers/hid/wacom_wac.c:643 [inline]
->    wacom_intuos_irq+0x29a/0x32b0 drivers/hid/wacom_wac.c:1042
->    wacom_bpt_irq drivers/hid/wacom_wac.c:3275 [inline]
->    wacom_wac_irq+0x12ed/0xaef0 drivers/hid/wacom_wac.c:3545
->    wacom_raw_event+0x677/0xa90 drivers/hid/wacom_sys.c:184
->    __hid_input_report.constprop.0+0x39a/0x4d0 drivers/hid/hid-core.c:2161
->    uhid_dev_input2 drivers/hid/uhid.c:618 [inline]
->    uhid_char_write+0xa8a/0xfa0 drivers/hid/uhid.c:776
-> 
-> Also confirmed on a Pixel 9 Pro (Android 16, kernel 6.1.124) where
-> it causes an immediate kernel panic and reboot via /dev/uhid without
-> requiring root privileges:
-> 
->   KP: Oops: Fatal exception: comm:wacom_27qhdt
->   Reboot reason: 0xbaba - Kernel PANIC
-> 
-> Reproducer (unprivileged):
->   open("/dev/uhid", O_RDWR)
->   write(fd, UHID_CREATE2{vendor=0x056a, product=0x0020})
->   write(fd, UHID_INPUT2{report_id=0x0c, size=10})
-> 
-> Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
-> Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
-> ---
->  drivers/hid/wacom_wac.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index da1f0ea85..251ddda3e 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -515,7 +515,6 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->  	struct wacom_features *features = &wacom->features;
->  	unsigned char *data = wacom->data;
->  	struct input_dev *input = wacom->pad_input;
-> -	int i;
->  	int buttons = 0, nbuttons = features->numbered_buttons;
->  	int keys = 0, nkeys = 0;
->  	int ring1 = 0, ring2 = 0;
-> @@ -523,6 +522,10 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->  	bool prox = false;
->  	bool wrench = false, keyboard = false, mute_touch = false, menu = false,
->  	     info = false;
-> +	int i;
-> +
-> +	if (!input)
-> +		return 0;
->  
->  	/* pad packets. Works as a second tool and is always in prox */
->  	if (!(data[0] == WACOM_REPORT_INTUOSPAD || data[0] == WACOM_REPORT_INTUOS5PAD ||
+On the Surface Pro 10 (Meteor Lake) the touchscreen stops working after a
+suspend/resume cycle and only recovers after a reboot. The driver logs
+"GET_DEVICE_INFO: recv failed: -11" on resume.
 
-I think there are many more places in the driver where it used
-wacom->pad_input without verifying that it exists.
+The touch IC loses power during system suspend (s2idle) on this platform,
+the same way it does across hibernation. quickspi_resume() only restores
+the THC port, interrupts and DMA and sends a HIDSPI_ON command, assuming
+the touch IC kept its power and state. When it has actually lost power the
+HIDSPI_ON command is never acknowledged and the descriptor read fails,
+leaving the touchscreen dead until the module is reloaded.
 
-Thanks.
+quickspi_restore() already handles this for hibernation by running
+reset_tic() and reconfiguring the THC SPI/LTR settings. Make
+quickspi_resume() do the same: quiesce interrupts, re-select the THC port,
+reconfigure the SPI input/output addresses and read/write parameters, run
+reset_tic() to re-enumerate the device and restore the LTR configuration.
 
+Tested on a Surface Pro 10 across multiple s2idle suspend/resume cycles.
+
+Link: https://github.com/linux-surface/linux-surface/issues/1799
+
+Signed-off-by: d3z-the-dev <d3z.the.dev@gmail.com>
+---
+ .../intel-quickspi/pci-quickspi.c             | 38 +++++++++++++++++--
+ 1 file changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index f669235f1883..d59278a3e5c1 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -780,24 +780,54 @@ static int quickspi_resume(struct device *device)
+ 	if (!qsdev)
+ 		return -ENODEV;
+ 
++	ret = thc_interrupt_quiesce(qsdev->thc_hw, true);
++	if (ret)
++		return ret;
++
+ 	ret = thc_port_select(qsdev->thc_hw, THC_PORT_TYPE_SPI);
+ 	if (ret)
+ 		return ret;
+ 
++	thc_spi_input_output_address_config(qsdev->thc_hw,
++					    qsdev->input_report_hdr_addr,
++					    qsdev->input_report_bdy_addr,
++					    qsdev->output_report_addr);
++
++	ret = thc_spi_read_config(qsdev->thc_hw, qsdev->spi_freq_val,
++				  qsdev->spi_read_io_mode,
++				  qsdev->spi_read_opcode,
++				  qsdev->spi_packet_size);
++	if (ret)
++		return ret;
++
++	ret = thc_spi_write_config(qsdev->thc_hw, qsdev->spi_freq_val,
++				   qsdev->spi_write_io_mode,
++				   qsdev->spi_write_opcode,
++				   qsdev->spi_packet_size,
++				   qsdev->performance_limit);
++	if (ret)
++		return ret;
++
+ 	thc_interrupt_config(qsdev->thc_hw);
+ 
+ 	thc_interrupt_enable(qsdev->thc_hw, true);
+ 
+-	ret = thc_dma_configure(qsdev->thc_hw);
++	/* The TIC may lose power across system suspend, reset it to recover */
++	ret = reset_tic(qsdev);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = thc_interrupt_quiesce(qsdev->thc_hw, false);
++	ret = thc_dma_configure(qsdev->thc_hw);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (!device_may_wakeup(qsdev->dev))
+-		return quickspi_set_power(qsdev, HIDSPI_ON);
++	thc_ltr_config(qsdev->thc_hw,
++		       qsdev->active_ltr_val,
++		       qsdev->low_power_ltr_val);
++
++	thc_change_ltr_mode(qsdev->thc_hw, THC_LTR_MODE_ACTIVE);
++
++	qsdev->state = QUICKSPI_ENABLED;
+ 
+ 	return 0;
+ }
 -- 
-Dmitry
+2.54.0
+

@@ -1,134 +1,140 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938F83AD51F
-	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 19:31:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 743D33769ED
+	for <linux-input@vger.kernel.org>; Fri, 29 May 2026 19:36:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780083076; cv=none; b=UHIGMswQlAFyrw/wQ+E+R0hKhU7UYLM5xpiKbHFAHbVYgD+bERUjiEWxE3/BgAFZ8A3dD0WA9YjczP2zXDsHuUj1BWrDrr8hvj4a/q7qb3bE0YDQIjR21UPPE/3viwObhKi+eGZKirmSzCUNMeLYGIEETQjDE7j2fBv6TlfKt38=
+	t=1780083384; cv=none; b=QVS5RZnJDSlMmtS9UV2LV9Yj7B6NfXQfuanSfTe2GTkafStCZVaCYjf7qByH09CvVYRrGKK5npzwRxR2otzxGsz/kTsqdEDhavI0yY3S8M46N8cHAY9S4uzOXr4gxS6odFxCCGCcc17g7+GUHHrOG5UNE2FlJZxgI8Rfo0Xf2ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780083076; c=relaxed/simple;
-	bh=zSJ4kB4tDIOBKRki3ZLehnLNadR+84J/X2etwho5jMk=;
+	s=arc-20240116; t=1780083384; c=relaxed/simple;
+	bh=JvbkFXSv/cT5qrKIlh0WWS5+4L5apG4mkaH3N7WNg/Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DYHFZmfsSVMwLAOnRlQTr//TgzLevwDtx+4RkJfHLjGyTWdrYUG4mBzYbUrDvIO4qBGniRLBDycU7wRxrOLJTaaASjplfFFemtjAyMcheaMC5NkOpxsoG6FkM6lC2deubW24XS5quOMCFNJy8Eqwj/v6cGN75fg/AtncFAAyDYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mjMYfz6w; arc=none smtp.client-ip=74.125.82.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=kxwY/pDv1sHLyqJEmFrz7OuJfXwkZZQN12jWhuCNacn227BMX5vpEHUVva2mDp9ANjUcTlDuIRJDwTwQcESJeldsa+uXcHjahb20kb8/VLHTWDK3NmZ+H+mBh/D5Fxk6SgIrSQaM2BZiuyJKTzyv/sQ2kFEP3nhDWoLLaey4dSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y/MzM8WG; arc=none smtp.client-ip=74.125.82.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mjMYfz6w"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-304e6c6464dso2913212eec.1
-        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 12:31:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y/MzM8WG"
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1363fe80fe8so9477024c88.0
+        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 12:36:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780083074; x=1780687874; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6YZwbJmOdj/CzDOJRzvaxizYubzK8nMz96rk/mNhROM=;
-        b=mjMYfz6wGEPLh7wkt52IxKisSFcuB9mEu76Jck4vDbmAOZEo+1NemqRNVfwAkvEEe1
-         Ns9jLKmtUiVNOLMZ35dA8RqP7KqgzU5olzzh7IeLnRjdxh5EDUAT10UENKOYOeKIknEK
-         07q2jKz/yGNHUhXrQHwTbBey3DPgxJviEmRXMRzE8DpK4E8/+PQ0Tf2LtuoWw5Ed7Ul5
-         01RNE/99w2eVOgtw3yPwcRotMkgqAeodclzNac1AiNsGJnJVqhHIpigUxnlb3DZQdRR5
-         ciFDvVL7++9YeTaBnt/W70ecwp74xYw4oiER03Xlvm+wtia4KzQA0sVJcEjPoKg0V6UT
-         npwA==
+        d=gmail.com; s=20251104; t=1780083381; x=1780688181; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oEmz1ziTXVbcqph9Xe5tRmLXLVVNs5rWDn4AgRaCi24=;
+        b=Y/MzM8WGuNVNllfriRkcqGYHxXkxyQt76JeXTvuoxHZZCwmCikbcboaBjAz5FZ0MOm
+         k3elmxAOvFCYti7RPRtFMzBgkADOhZeHPBnUPJS5+4y16spBH5pmmTnPDGUbeFIQ05hX
+         ar1TbN7ocyhYG7R8wznTM/n5A5qe40pyTBBP2t0c6gaL+4AExg5ZxfcnmZqoloIplb5T
+         P9APWgzpkZsmOGsu9w1zsEjKJWn2pOqFf4TGXa2YFY2sQVikWnPAS3ymY5bTuf5KaNJD
+         ekiKGdfLAO0SJFNYTwsOqh09JqeGAdC9Z2yvLDb70nHMDcP5OlGsFQHkxQgdov2L3bWh
+         tMYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780083074; x=1780687874;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6YZwbJmOdj/CzDOJRzvaxizYubzK8nMz96rk/mNhROM=;
-        b=WwdMQWBn+9/yF2EDWqEib/HRzdtCF3Bdsy/UjPIBsUs9ktnNuVqpZFF4jdgzgJE7LN
-         Ri7czpDZUI+s6VCfK1/LOhv03zKPN7Lhk5qaDpJruKmlWHL7FYuu8YVF84wljVU0/PkK
-         fIftd4VMKmnWAI78ZUjmYyvZ9KcfMjz/2C8TpN0o2ieUyrXKYLfsUofBtVdsG0HLtWeB
-         B4bJt/LTSxVHaRsB4Kld3LN7TI5czrGXeUzcmDMzqPYik4fFBTkoieCQ9SakQgFemc3i
-         8cMinTnvtirBb9BQX7zRnyA/16xOzuW8n36/J4Px345UtHFP6c+IG57cqEvrCQjByqNf
-         a0lA==
-X-Forwarded-Encrypted: i=1; AFNElJ+F1rxN/atMwY6C95auBObjMvEEhrXYfct719TELT1vinAJbZ/q9R/7Kfy/tGbfsNFIl/cELgbw7FSqRw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw25sN8rKK/8AsIZNIYZlL9ZfDHy9YtHB8D8Sdzl8Ve49E1Ut4s
-	B0Qqq9u37xFrIaCu98MLjl0fAegw8Yk8dpvpXdC5fYdvGo92nMb3NcFT
-X-Gm-Gg: Acq92OHO+rCV2TWUp7mGUrdqHGQ1eJ2EIKV8FLjq4RjBRTxd/q2bit6BxJ3aq7Ixg7G
-	iV2Q8n0xdMkhgKeLY/UyO89BmYHnkGOdNWk4niIf4v5aWmxDm1xlC8UBBc2+wBJ/+lLHf80MX3t
-	CDp4W8mYnCVv3nyTkIoLTGuRGiC6e7beudKsKUTlqbQgsWt2au3XhQC+wYkYxLeS1v5TcIheBbo
-	7ulYc/zZS5cUBy7pUGkdFpf7dI8DThUm0/YKyuSav3Q8Y6sun7LrWkgW9hDRo//KbNJ4I1/zQPM
-	qxqUOy+6OYJuInV6xMifEeSvGz6K0ekB8qn6wA3cGzU1aTr6JFY0HexsshM4AXJugZYIbCH8Km8
-	maRbfjY2OKqnPq0VG10qbaBzvlE6g/2vfEnPAisixwovp709MAN0IJMdiXJ7nYlLRmITvY6aSOk
-	Vxt1ScwrIu+QYNYht06T3NO/ffPFSSkjQFvHsbXs08nOLBuk57ttbFaJI9lwOnPv/KBjtJU5Llh
-	EE=
-X-Received: by 2002:a05:7300:5726:b0:2e2:3381:2fba with SMTP id 5a478bee46e88-304fa523d3amr696259eec.3.1780083073492;
-        Fri, 29 May 2026 12:31:13 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780083381; x=1780688181;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oEmz1ziTXVbcqph9Xe5tRmLXLVVNs5rWDn4AgRaCi24=;
+        b=Y9z4APalgmIDxYgMral9flWVBROmzANl48UqDevFIEpSJjJkIXtus0tM6lxdGwFukf
+         N4w2veQe+eqEfabZWBrMeUfHnowRhK0NGptE/Fz/mov0WVAqsHXL78+LlcUfmwcjlNlh
+         R6C3fcfDJCva02LVzZ0Zmw6usItk6ijDN1Cn5+l1422lhIbC23qBa31/EcW3x+6F+T1a
+         S683ExIag9xXCPszA0ZTaRyAQ8Pr+yFtmQOvJrRaHcYEKwet6Z7bHmIwNaGjIhw4cywp
+         WmNPssUX5EBotvCXRAuhUO5a679CzB6nx7L45WnNkGo8XAEAHloMnXiYSDNji8WKLLHh
+         ecfQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9NADh6toOvhdeVbYnHjw7WnCopSeFNYqy5MX/+ec1xAuRqNc9CYkYoGPSzDsJ4cEXhqtwz+U1MncbnwQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YziGsi2LyiD1gw8/W4XqbYGD21CYZBd6j/ZzMXV8K71OLnoUlTz
+	haMTu0ehVUtkfJaegD0eKF1f6VaMj7AZGccPlfYLDhsag865Akh1qWfV
+X-Gm-Gg: Acq92OGvyBBVc1bEP/glezex3/ZbmvhufMj7YtWe6uNVrA5v6PMl+Sh28ZxMIqoP1f9
+	uWOIwe2r/3GgMRb+JiNBiwCOVOtnvq5bTKPZKuXDSKs8iQ9+ye0XnzfaEmrQk+YQzCIcm2dnxSn
+	F3f5c+BGUX/7JCpmrh+n5cDxtb0VWj+Awaj7PivOGj4pGQdC7+XU974luIOqtS/llnERT/VSBm4
+	AazZL+DqnCnZAgP8XC307hGdy4+HuiK5A23spo+8yhNO5RXa1ah9EiOWtrhDZBJWEdhLdB+bgJd
+	NtTCjzY1yd537YdHc7+L0Z2qopYHH+wJoaCJv92+xxrWuppN5ez8GqwTdg6zqFOy2CMUqrXmCwK
+	+iIHe/qvvockj6zMdNCO7UDVrGrQ5zI3f0RZfEsjDyTxxYlcr+nlGNAo9HeOhs4oio8Dr/sgk/a
+	MDTpKz7sHPR+R+KG1clfkzu7UzwoKOcx7Wy0LseGYogpQ2sUJ7e1jzAZYhAu+Xp5NuvEdumrI5/
+	59smYYH2ZVc4Q==
+X-Received: by 2002:a05:7022:11f:b0:130:73ed:214 with SMTP id a92af1059eb24-137d3bf78d8mr522232c88.1.1780083380498;
+        Fri, 29 May 2026 12:36:20 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:307d:2a52:8823:4a01])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed2efb4esm2188760eec.8.2026.05.29.12.31.12
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137b36aef95sm1766326c88.4.2026.05.29.12.36.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 12:31:12 -0700 (PDT)
-Date: Fri, 29 May 2026 12:31:09 -0700
+        Fri, 29 May 2026 12:36:19 -0700 (PDT)
+Date: Fri, 29 May 2026 12:36:17 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Tianchu Chen <tianchu.chen@linux.dev>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: hid-goodix-spi: validate report size to prevent
- stack buffer overflow
-Message-ID: <ahnn8iPJP5nbN2rS@google.com>
-References: <f7e444a3facbe5fb2627167ab205771476e46bc8@linux.dev>
+To: Hans de Goede <hansg@kernel.org>
+Cc: =?utf-8?B?6LCi6Ie06YKmIChYSUUgWmhpYmFuZyk=?= <Yeking@red54.com>, 
+	linux-input@vger.kernel.org, bentiss@kernel.org, dianders@chromium.org, jikos@kernel.org, 
+	linux-kernel@vger.kernel.org, superm1@kernel.org
+Subject: Re: [PATCH] HID: i2c-hid-of: Fall back to ACPI _DSM when
+ hid-descr-addr is missing
+Message-ID: <ahnqMMhD8jn51ch7@google.com>
+References: <9e5232a7-5b8b-4025-8a31-108eb164861e@kernel.org>
+ <tencent_ECC71F91403F5AC69E1E6B963FA667ABF607@qq.com>
+ <7c2c86d8-be10-4e8e-8e96-d22788ec488f@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <f7e444a3facbe5fb2627167ab205771476e46bc8@linux.dev>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7c2c86d8-be10-4e8e-8e96-d22788ec488f@kernel.org>
 
-On Fri, May 29, 2026 at 01:42:47PM +0000, Tianchu Chen wrote:
-> From: Tianchu Chen <flynnnchen@tencent.com>
+On Fri, May 29, 2026 at 05:00:37PM +0200, Hans de Goede wrote:
+> Hi,
 > 
-> goodix_hid_set_raw_report() builds a protocol frame in a 128-byte stack
-> buffer (tmp_buf), writing an 11-12 byte header followed by the
-> caller-supplied report data.  The HID core caps report size at
-> HID_MAX_BUFFER_SIZE (16384) by default, while the driver does not set
-> hid_ll_driver.max_buffer_size and performs no bounds checking before
-> copying the payload:
+> On 29-May-26 14:16, 谢致邦 (XIE Zhibang) wrote:
+> > Before commit b33752c30023 ("HID: i2c-hid: Reorganize so ACPI and OF are
+> > separate modules"), the unified i2c-hid driver handled both PNP0C50 ACPI
+> > devices and hid-over-i2c OF devices. After the split, devices with _HID
+> > "PRP0001" and _DSD compatible "hid-over-i2c" are only probed by
+> > i2c_hid_of, which requires "hid-descr-addr" in the _DSD. Some devices,
+> > for example the Lenovo KaiTian N60d and Inspur CP300L3, provide the HID
+> > descriptor address only through the _DSM method. Fall back to the _DSM
+> > call when the property is absent.
+> > 
+> > Fixes: b33752c30023 ("HID: i2c-hid: Reorganize so ACPI and OF are separate modules")
+> > Signed-off-by: 谢致邦 (XIE Zhibang) <Yeking@Red54.com>
 > 
->     memcpy(tmp_buf + tx_len, buf, len);
+> Thank you for the new patch, this is an interesting approach and better
+> then the modalias magic from the previous version.
 > 
-> A hidraw SET_REPORT ioctl with a report larger than ~116 bytes
-> overflows the stack buffer.
+> Note I'm not the i2c-hid maintainer, with that said I think this should
+> be acceptable. But currently it duplicates the _DSM handling code and
+> that should be fixed.
 > 
-> Add a size check after constructing the header, rejecting reports that
-> would exceed the buffer capacity.
+> I think this should be changed to a series of 3 patches:
 > 
-> Discovered by Atuin - Automated Vulnerability Discovery Engine.
+> 1. Move the i2c_hid_acpi_blacklist handling out of
+>    i2c_hid_acpi_get_descriptor() into i2c_hid_acpi_probe()
+>    to above the devm_kzalloc() call.
 > 
-> Fixes: 75e16c8ce283 ("HID: hid-goodix: Add Goodix HID-over-SPI driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tianchu Chen <flynnnchen@tencent.com>
-> ---
->  drivers/hid/hid-goodix-spi.c | 3 +++
->  1 file changed, 3 insertions(+)
+> 2. Move i2c_hid_acpi_get_descriptor() to a generic
+>    int i2c_hid_acpi_get_descriptor(struct device *dev)
+>    helper in drivers/hid/i2c-hid/i2c-hid-core.c .
+>    Wrapped in #ifdef CONFIG_ACPI and with a static inline
+>    stub in drivers/hid/i2c-hid/i2c-hid.h when CONFIG_ACPI
+>    is not set, e.g. in drivers/hid/i2c-hid/i2c-hid.h add:
 > 
-> diff --git a/drivers/hid/hid-goodix-spi.c b/drivers/hid/hid-goodix-spi.c
-> index 80c0288a3..288cb827e 100644
-> --- a/drivers/hid/hid-goodix-spi.c
-> +++ b/drivers/hid/hid-goodix-spi.c
-> @@ -520,6 +520,9 @@ static int goodix_hid_set_raw_report(struct hid_device *hid,
->  	memcpy(tmp_buf + tx_len, args, args_len);
->  	tx_len += args_len;
->  
-> +	if (tx_len + len > sizeof(tmp_buf))
-> +		return -EINVAL;
-> +
+> #ifdef CONFIG_ACPI
+> 	int i2c_hid_acpi_get_descriptor_address(struct device *dev);
+> #else
+> 	static inline int i2c_hid_acpi_get_descriptor_address(struct device *dev)
+> 	{
+> 		return -ENODEV;
+> 	}
+> #endif
+> 
+> 3. Modify i2c-hid-of.c to try i2c_hid_acpi_get_descriptor_address() as
+> fallback for the missing "hid-descr-addr" property.  Please also add
+> a comment in the code explaining that this fallback is about ACPI I2C-hid
+> devices which use a "PRP0001" ACPI _HID with an "hid-over-i2c" compatible.
 
-We can also consider returning -E2BIG here.
-
->  	memcpy(tmp_buf + tx_len, buf, len);
->  	tx_len += len;
->  
-
-In any case:
-
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-I think we can ignore Sashiko's ramblings on this patch, it needs some
-instructions detailing order of operations/timing of callbacks in HID
-subsystem.
+I think we should also stick a big fat warning if _DSM succeeds in that
+code branch: hopefully manufacturers will notice and fix the firmware on
+new devices.
 
 Thanks.
 

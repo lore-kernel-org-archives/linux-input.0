@@ -1,67 +1,65 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EB052222D0
-	for <linux-input@vger.kernel.org>; Sat, 30 May 2026 05:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8600D30EF64
+	for <linux-input@vger.kernel.org>; Sat, 30 May 2026 12:02:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780120615; cv=none; b=YtI+1G1VoQpZsWx82MlP3zxvXZ7Wq4KlcLXD88K4gK42xOhdXhY2C62rkQI27Rawz8gViqG8h0cDwZWycJ35qYa1XexneVCqhOPSqo8FzTfvE3PAfosplWxV8zaCUtrB/FY4Aur/6F2CWVPVRtvQNiEo/TFfaB4rnchKZJchtfA=
+	t=1780142547; cv=none; b=fnlliyF+cczcEsv+74NiZLu/T3hH1MfYhPjgkEH/KDDYGVtbci9jy2T2LCBNsV9xVVqDPnqkFJ1efMBxUb3xaFjAdYspRoxL7w/YdDRce4TsLdAv+ZCBbxd7OKulzT3vk/zKUfKYbIXY6YgFAyNmZIfVDHNMYP9yB+88ibHN/D0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780120615; c=relaxed/simple;
-	bh=VKlbh9zABe3hibSJP65y9fDmKIjGpOWF/vplfy6zmFI=;
+	s=arc-20240116; t=1780142547; c=relaxed/simple;
+	bh=g6tqcbL7AO7mmYTpPgLqdEp3sbUIa6noaf2JnjQy1rw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lroW7G0Xkvaw//HK6af17QzmMziIo9/iLjzRBwMvhhc0yYgMvKkMAfeWOiF5wsUxv63RMCdRw+Zydvc5jnEg4t8eLTGuxFvg5a/Nm/Aq5nt72uhrUjaRmCnDfJd2PGZrYkN12nF4YT8Lm7Lj+XsZXPUeilrXXE6l9fyIvbhqGKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IY9aLBn0; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=oGjWIfWiKTikop99L8w3zMTDj3pfvWA79BIu9YUFyrHasHrfh0Db32+eki9xc7/rc3ETc1Pi4LivW5B4e91li6uB5MaC1Z1H6ek4I9ShCOLyLR65EZecjYxRzu5Fi46OgRwni/pWOjCAq3Gb8OK3jisOCjkmuC5npx8CA9NTwJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=dBfXCJh6; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IY9aLBn0"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-304f590dd91so985298eec.0
-        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 22:56:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="dBfXCJh6"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4906238c62eso65285585e9.3
+        for <linux-input@vger.kernel.org>; Sat, 30 May 2026 05:02:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780120613; x=1780725413; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=uR8xbGosrZDiZ3bGOF/uomoehMbPSntRHGsC0W465dY=;
-        b=IY9aLBn0Y5TN6P5kMJGt0mMohZ5iKW+MXKngkZgWYnfYC8zC9Mi4iTXkoz+T1BmwJ1
-         0I/cDban2uJZVXzczDLBAlW6apmd3o2E+asFknRPRv8sBSeBeMKhDvWLGJC+e8JDMU6F
-         +Tq/N51cDIDxPDbcLgOb0LHgnPxcs3LyviHMBQQ8+5nKXgLZkQZA8D2IOmXu+1MXaLIz
-         f7vfl9swyNQGpyUtg78ewSUXeLLeXYzPjWqE+5oqhknfClnOIWALL94VwQO40iS5iAw/
-         wfcguMFr0l6vVhOHCTCaovanBC76BLNzqe20JbRo25CTf7T/bD4/rR9/wyKbYRTibduz
-         LZNA==
+        d=baylibre.com; s=google; t=1780142544; x=1780747344; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=BgNiBxvAE0zM3QGPzW0VTokh/HeWsq2F7ow5cn6lSMc=;
+        b=dBfXCJh62S2QJYjBWEvhcphjWoV2j647UB7czp5Y64Cb4tGbc57dOwT67vKoYWedpE
+         5gCi7PIA7eLEAZbHFVPOrqjOouynNFP+RThs1QMccGBpPXxAXwwG80geCn/Ipsdh5EdN
+         4W3CeYLqR7p8URPxr4u+QIjKROlV6WRrSQac2l2yl1rWYjbGUfkTpZ68etfcF9BYbpgg
+         3kO/tc5LBo/sQUeMKjOJSMXSA0haZOFxduuHZQzbhWbpM5iFoyyj97XRBDqAGxF7KdBd
+         BfZ8Ic0kLRhnym/5GPKbpLaKzoKMD/hVApHAtFV6ywOHNgrKy0/eC1kX8dAUOJHPMzLQ
+         pTkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780120613; x=1780725413;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uR8xbGosrZDiZ3bGOF/uomoehMbPSntRHGsC0W465dY=;
-        b=d8B992TsPgHp9kZZ/9De0x/w9V7XZA7oQOkV/772zNhHKl8m3s6popXi6TLfqvfA5R
-         IxFi3bHDyUCHIQ4czdKEX+7GZBw/AeukthvcJ3zcBZQs17Mey1aBfWq7JydLwEvC0RRq
-         KShA7ffKN3g1dIdQ9g/evgyQfuCQ5auLIMQKPgCsVQs4w720fm/jGOHMC1DIM3hKLOBW
-         9Q5jDs0kF8E9VcqvkNaQ68YZGCy+3bdpEg+XQG6/StTkS9rV/3hdHmAH94ScsW2zT1DJ
-         lXr8wR2mvCeur+RwJCNQ9a0TFIq0r46I5mca0QqpCfY2GmOmeIGjK3IteLVPDAkx1WjR
-         xBRA==
-X-Forwarded-Encrypted: i=1; AFNElJ8a6VwLBCZJSGCz96VuYH8rG9EHTYpMD2BmYhgPJ9DHT4w/ErgEYQouJ6TMMJIMEy86c/BHLLFz9Je5dQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxFYbjBlpQ5zlASgw2hbWJpKXHseIh4LVVPL9gZHXhy2FJ15+q0
-	+tESGx7fT7XAgYU74ZjXmYW864UiSNPKjXAwNtgTbt6nbKNUwfTMWB1n
-X-Gm-Gg: Acq92OFbLahE2OY3tBjz4KLjWvPo9y+pMXPDgFCQBrQ1weEbKNvjLkQYJ58URgtj2sQ
-	cv1SVOtevCCEi4e/2iUQC5T03bzm7vtRqi3R1YBEx9IQydCer7ZFL62VF5pxC0DJkehVPUbbYik
-	g0M6Vf5j7ZggNv6pmw+6pf0Qsqp/dKNN9c7vzZ7q1+DDacGG+kNLG8O4ThjbhkC0HmQuhJoIhP2
-	PiW073R1683ok5f6hr9SNJ24TptXhsqAD9oShkC+uIs1SJSxtf4TCETGrotR7vtz2Tsh1mtwRMe
-	eR5aHCpU6TJYQybfiT+UZYRoayrIllCg1QNraCNDBk7fWJkgiRos42u4mnKzToQIvU9V2XH50cG
-	JQPrQdgx8xbRSJNDtk1OojIfjweREx0xcpQHsqX8nwouSlZSTXm4Uc3kAft5uXuyDaFFGpFJuCG
-	oOddlEkFAJgAoe7MlXS7ajrebxLFW/nNHOOk27wA8iQ2lnkYCM3ifPf7sbmujhcuGoImU/7GStl
-	Fw=
-X-Received: by 2002:a05:7300:80c9:b0:2e0:1f09:d924 with SMTP id 5a478bee46e88-304fa526036mr1388786eec.5.1780120613171;
-        Fri, 29 May 2026 22:56:53 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:307d:2a52:8823:4a01])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed53f002sm3397737eec.18.2026.05.29.22.56.50
+        d=1e100.net; s=20251104; t=1780142544; x=1780747344;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BgNiBxvAE0zM3QGPzW0VTokh/HeWsq2F7ow5cn6lSMc=;
+        b=i9JQe/oQ8zoJxscYn6Twn9zgokHNQ7yyfT9TVRGcUo4LYnu1VWJcjez9wSyUGRqONy
+         Pl4vArpnpQ/9U8JIa8OosoJi5xD1zGbOGNmA77y30hc3qoF3L2qjARdQQOpsdj2KUYvJ
+         bgGjELmXQ5dAczGw9BM8zapdSmLtlImIVkFas8FCQ2jpqT57s/HkPzYqP7TDV5KK82Lm
+         t2trbE+CQ5gj9RH4J6AvVrHHS2ITUPBCLZIanU6C4YeuUiqIa8ZkILZ4+sHw2Hbh7GEJ
+         j33MHSbWa6AvE5SjtUQHShxGBXjxLB8ap5ykX/sCqqU2kPjWHgcZmMeRoSowzIQztLNi
+         cXDQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/KDCj+i83zsQcW94StOx0D2ibCddCkwNwdupv1vE0Iro8BpXKFVw6IoLXXmzJmvV8wYKyAvVcVWh6CnA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzeW+Z2DDkgbZjll8pMJpyap0Tcm92jqKR61Y4o4mPm9xqsUNpA
+	YvLhBuQKtJw0wH9V5Nx2ESaroFQWh8olNdouXGv+uCBRlKOMbbRwynuXxOjRQMzxo64=
+X-Gm-Gg: Acq92OG3lnF/L2sgG2vfGPes5VnkW3EDo7OU02FzzUHEHad2gw3iZ4mOxU2/cbWXCoj
+	XgR0EE5Z4GRLOjNFNpWWLzUSs+yOQER+cK1rWDxoFz81htzLFS8is3MF/cYHrC/0T04SaGJeAuH
+	pSNjy1HsLD9OTOSJTKZlC28P0ZqPxe3ejBmnAxXPEuk1R1QBeRhdeHUuHsmL3HF724g90RYUZFV
+	nAIP6OYSSdN31D8VtRHjMXWurpBYEENNyyhbFDAT7TEP5VmCU1uLkQzFWlf/Y8l8zu8S+57CZWg
+	Dbo6zmYmjnmvZczbfyboYP+vX8NoUbSFxZcr1Q0SkCHw0E/xEnywfo/ypoHu8X9tnXxT332goyS
+	bIqLezUE+PhKrlUXl7qAneoQORQo/85K64T+u5m3GMRSHqbEFZWSb5J70DURQL26w79hR0YmUit
+	pFWXxp6EXXPOQ2+3nZJTvTkgV+s4F6S1KNLEObzSOUssGcHX13aA==
+X-Received: by 2002:a05:600c:6558:b0:48f:d5a0:284e with SMTP id 5b1f17b1804b1-490a294b864mr44962555e9.28.1780142543403;
+        Sat, 30 May 2026 05:02:23 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4909caa7faasm103845575e9.11.2026.05.30.05.02.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 22:56:52 -0700 (PDT)
-Date: Fri, 29 May 2026 22:56:48 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+        Sat, 30 May 2026 05:02:22 -0700 (PDT)
+Date: Sat, 30 May 2026 14:02:20 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Anshul Dalal <anshulusr@gmail.com>, 
 	Michael Hennerich <michael.hennerich@analog.com>, Yassine Oudjana <y.oudjana@protonmail.com>, 
 	Linus Walleij <linusw@kernel.org>, Nicolas Ferre <nicolas.ferre@microchip.com>, 
@@ -85,111 +83,71 @@ Cc: Anshul Dalal <anshulusr@gmail.com>,
 	linux-stm32@st-md-mailman.stormreply.com
 Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
  i2c_device_data
-Message-ID: <ahp7WuHiPYa7Q_pX@google.com>
+Message-ID: <ahrP4STTFdUsBp0O@monoceros>
 References: <20260515164848.497608-2-u.kleine-koenig@baylibre.com>
+ <ahp7WuHiPYa7Q_pX@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="5hgmmhirtt5ohzik"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260515164848.497608-2-u.kleine-koenig@baylibre.com>
+In-Reply-To: <ahp7WuHiPYa7Q_pX@google.com>
 
-Hi Uwe,
 
-On Fri, May 15, 2026 at 06:48:47PM +0200, Uwe Kleine-König (The Capable Hub) wrote:
-> While being less compact, using named initializers allows to more easily
-> see which members of the structs are assigned which value without having
-> to lookup the declaration of the struct. And it's also more robust
-> against changes to the struct definition.
-> 
-> The mentioned robustness is relevant for a planned change to struct
-> i2c_device_id that replaces .driver_data by an anonymous union.
-> 
-> This patch doesn't modify the compiled arrays, only their representation
-> in source form benefits. The former was confirmed with x86 and arm64
-> builds.
-> 
-> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
-> ---
-> Hello,
-> 
-> the mentioned change to i2c_device_id is the following:
-> 
-> 	diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-> 	index 23ff24080dfd..aebd3a5e90af 100644
-> 	--- a/include/linux/mod_devicetable.h
-> 	+++ b/include/linux/mod_devicetable.h
-> 	@@ -477,7 +477,11 @@ struct rpmsg_device_id {
-> 	
-> 	 struct i2c_device_id {
-> 	 	char name[I2C_NAME_SIZE];
-> 	-	kernel_ulong_t driver_data;     /* Data private to the driver */
-> 	+	union {
-> 	+		/* Data private to the driver */
-> 	+		kernel_ulong_t driver_data;
-> 	+		const void *driver_data_ptr;
-> 	+	};
-> 	 };
-> 	
-> 	 /* pci_epf */
-> 
-> and this requires that .driver_data is assigned via a named initializer
-> for static data. This requirement isn't a bad one because named
-> initializers are also much better readable than list initializers.
-> 
-> The union added to struct i2c_device_id enables further cleanups like:
-> 
-> 	diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-> 	index 66ada7ffbc80..94aa4dc002c5 100644
-> 	--- a/drivers/input/touchscreen/ili210x.c
-> 	+++ b/drivers/input/touchscreen/ili210x.c
-> 	@@ -969,7 +969,7 @@ static int ili210x_i2c_probe(struct i2c_client *client)
-> 	 
-> 		chip = device_get_match_data(dev);
-> 		if (!chip && id)
-> 	-		chip = (const struct ili2xxx_chip *)id->driver_data;
-> 	+		chip = id->driver_data_ptr;
-> 		if (!chip)
-> 			return dev_err_probe(&client->dev, -ENODEV, "unknown device model\n");
-> 	 
-> 	@@ -1049,10 +1049,10 @@ static int ili210x_i2c_probe(struct i2c_client *client)
-> 	 }
-> 	 
-> 	 static const struct i2c_device_id ili210x_i2c_id[] = {
-> 	-	{ .name = "ili210x", .driver_data = (long)&ili210x_chip },
-> 	-	{ .name = "ili2117", .driver_data = (long)&ili211x_chip },
-> 	-	{ .name = "ili2120", .driver_data = (long)&ili212x_chip },
-> 	-	{ .name = "ili251x", .driver_data = (long)&ili251x_chip },
-> 	+	{ .name = "ili210x", .driver_data_ptr = &ili210x_chip },
-> 	+	{ .name = "ili2117", .driver_data_ptr = &ili211x_chip },
-> 	+	{ .name = "ili2120", .driver_data_ptr = &ili212x_chip },
-> 	+	{ .name = "ili251x", .driver_data_ptr = &ili251x_chip },
-> 		{ }
-> 	 };
-> 	 MODULE_DEVICE_TABLE(i2c, ili210x_i2c_id);
-> 
-> that are an improvement for readability (again!) and it keeps some
-> properties of the pointers (here: being const) without having to pay
-> attention for that.
-> 
-> My additional motivation for this effort is CHERI[1]. This is a hardware
-> extension that uses 128 bit pointers but unsigned long is still 64 bit.
-> So with CHERI you cannot store pointers in unsigned long variables.
+--5hgmmhirtt5ohzik
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
+ i2c_device_data
+MIME-Version: 1.0
 
-I like the ability to properly set up pointers for driver data, however
-I do not think we should use named initializers for name field. As long
-as we are not planning on moving its position I like the brevity of just
-saying
+Hello Dmitry,
 
-	{ "ili210x", .driver_data_ptr = &ili210x_chip },
+On Fri, May 29, 2026 at 10:56:48PM -0700, Dmitry Torokhov wrote:
+> I like the ability to properly set up pointers for driver data, however
+> I do not think we should use named initializers for name field. As long
+> as we are not planning on moving its position I like the brevity of just
+> saying
+>=20
+> 	{ "ili210x", .driver_data_ptr =3D &ili210x_chip },
+>=20
+> Can we keep the old style for the name field?
 
-Can we keep the old style for the name field?
+I have no strong opinion here, my patch introduces the named initializer
+for both members for consistency. Note that my patches for all the other
+subsystems (and also other *_device_id) do the same and you're the first
+maintainer with that expressed preference.
 
-Thanks.
+I even sent a few patches that adapt initializers without .driver_data
+(e.g.
+https://lore.kernel.org/all/177932943265.3832404.360063047381979287.git-pat=
+chwork-notify@kernel.org/)
+that got positive feedback so far.
 
--- 
-Dmitry
+So if you're ok with having input differ in style from (up to now) all
+other subsystems, I can rework the patch.
+
+Best regards
+Uwe
+
+--5hgmmhirtt5ohzik
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoa0coACgkQj4D7WH0S
+/k5r2ggAr649aJrsJJlkFeVB/fh8+B5LDe4ym+MWA77b0yhq2eW8wormOagLI3cS
+ZsKy4bfc4GPxEs6Hq4U1Xtb5rZQ4FZl0S07+51ZaYlq5RbMC/B/SVTiuASJVBVPZ
+B4s5kh1AWRq20efV0vpGmMVkGWdWbbWfSDJ88TI8OoCIHy0LYFyBfz9XdnD2pdag
+csvvcPKwLzXbvnQDsAb1CyMxa0P5xeJSgzH5Zq3dkY7GCsHzqv+4dmXzIRjgXwmE
+F0tGpraE9YOlHYxoqXNfPa2xIKxihaRChziJOKNt3hN9BQ75tAHWpwEFGWDYHn8c
+xpL0QD4yV6RvVsMilRsLYNC4h2ZaoA==
+=umK9
+-----END PGP SIGNATURE-----
+
+--5hgmmhirtt5ohzik--

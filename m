@@ -1,276 +1,231 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8393242D7B
-	for <linux-input@vger.kernel.org>; Sat, 30 May 2026 05:52:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A1F7E0FF
+	for <linux-input@vger.kernel.org>; Sat, 30 May 2026 05:53:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780120366; cv=none; b=fu3MOpuOhGdUCggix81RSAhJDbJf0iNMYnTPuyczB3yBxKY43GTLzqZahFXLCbym0oXVeY1HLWcMY8GSRvjhBfmLIOeBXkJjQgGvjXPivzVY+wU092ZaC7/jx+IHdfzCMLjdezQNmBst7zhSSIgJA2GWOZ8N6rNTT2oBpQQaxPI=
+	t=1780120405; cv=none; b=tSLoowoQW0iSMgRH+W2pZreWtO/vDXSPHHPGHKyz5bmBZsEQoDitM3HL4SPh0srUahR1iNw9BIawzz6xWaTdsf2Cj21+9VjHTkNI5myfIGJy3MtIu3a6wyt5g066SWtnLjO6QMjWBWNBFXAsqTZh3PwxD73jbr4f52EkvT9uG3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780120366; c=relaxed/simple;
-	bh=g7Y7oSEQhRGSn1nosiSXABfXAj+1YCyjB+H+/LK3n5M=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Frkm4uODiCVRsLLYIzJEUb0fYf3ULUf2Ktp2+Nf9Gqi9OqdlMMrzJL3P6EMWv5wbuXDHdxrMTQm3NvPeSNlj8+wun4bGEXv57RpHh8F/yPMC18B8U75Zzo4GrXzrkx7+nB2d1I4WrEzWiVk7xhYLOfhiZo3WmD3+A6oGfttW7jE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QlecdiVh; arc=none smtp.client-ip=74.125.82.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780120405; c=relaxed/simple;
+	bh=ZiCy0EGdTVySLSPVS8xt31XGhQt7VNVSuuBVRIYf7XQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Poc4RLHl0U0nAbYqRh7gGVPxVKgWncfbndFUWbyDYHCdNHnG9mULBHFiEt4x/Bs+87FABp1wLti7BSFFcIwL/ZdkY4r9a9+Ir78+N4ze2BhaXxbw+DM665xi3b2WhiZwMOWlauwiX2E6Z/4i647FgJTpjiuUsVj4Rc254/d+2jE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bcKz8y3F; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QlecdiVh"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-304c520fe9aso6708842eec.0
-        for <linux-input@vger.kernel.org>; Fri, 29 May 2026 22:52:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780120363; x=1780725163; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=qdQNgeZti+jbt/sPucXP21rO5FPFecMWYZ4eJpj7Cb8=;
-        b=QlecdiVhJNHncNOAfi0sUPK3kzzJcwNpHlIOpddU+jDEWaTtlrdGZ1GxLPVkHISvFc
-         zbU25DnFnduEliJ7OhcMeJkTGdFMfWJvr+o+DnRSlIL7tL7Tq6dG7PAKZRvTPjkvTEtt
-         zEcTIrvG1u+uxLPs4pSLFUfCwWaij++Rw+sAD9oqXAhlUgjs8nY3GrOhh6BF+Bk/IZue
-         hGTMaBRXTDaQTrgOST52UNKMHKSFppt/CvROs9MqploKi0dZILhM4p6gQGXFIvPJOPWT
-         EfeKaFmUOJwbwmKjuieeBEjoIj3ZfNtmE9PRhDfbDFIVtJi3yq06MP8bWXAZGEmJvIUl
-         /rJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780120363; x=1780725163;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qdQNgeZti+jbt/sPucXP21rO5FPFecMWYZ4eJpj7Cb8=;
-        b=o/hDBH7u2lHsXR9dVLG0AfAZTJ8OCRRJhbIqVpJjg93yCmM3G47cjzBA+qaKVcOXI3
-         f4IY3r1ZfLM1eehW6GJeBv4PCDrLxaA6ZzTQ3dmrRRLTjlpgDVlpW7ua/Zr54cyeMEMC
-         9409ETbi9EgLGnnjvh+b6lWyV/Irded3otluM18yQiuBMEfNCa1aCGZZGLus3KK1C3Cf
-         uPfy4LgydJx7fuRCyHLA7M2kbmy4GQ3jJFmZmQAYThbx63GE+D7cWvfFN+3eOvk2idGX
-         9QHLjx/ROdGO7mE2IkLZ6ceCO3ImLHYGzyjBBrJvQdcCCdrrmBSUJLHYqpk6z9QEQcE+
-         tTKw==
-X-Gm-Message-State: AOJu0YxLqC/aCVSflXRk6QVHuEW/Y8k1GEQpCMJQ5+YgJvvDhB3BTNbn
-	cujFXzvDcE0BdV2oG5Yig+5aJYsJ5YtkEXmwZSNLI6I8NhZ8qyByy5gIdk08Dw==
-X-Gm-Gg: Acq92OHqRE0R3VS6a0n+S2mLpFHy983XJYHdJCK0PoubYVrjBfjUYJnFpstY/16omH3
-	V2s/K1mx47lIswOaCWGatmiC0Lz5K8cyeDqxEUlHPBlBq3CLcgV+ke6SqDllOvZqq0TeDmCIU+a
-	QDD7UZcG6GDC3aMdJKQDUxqBvqriC5HYdUED570iVx8DZcSPrL99AgVQW1x4uRpijMeXbYx/XFb
-	buiGqVrMtcrHGhDt69mh8H3YQzje/VEnfiUsKfRugBH/53QB6kF+OMB5qm+eX5QFqt6nr1TnXbb
-	BCqNY03UGwzh0nbioACOknatGdBdT9QYkWMcrSO/ejIGDzkJT3Le9fVlIsg7GjSYhC2dH0hkKeu
-	RlIoO8HuomDbiYTwOFqOykjUx12q+Y/pK0A66WQ6Spap6FK1qjg3w9adtX9oqUmynbfOGnOnxGC
-	DhnrZPM5HH/37tA2ITN9x3LwzmRKtM6YUunuOMkk0pu2QBm5bAAw+4Z2lAmvsw0n6XsoVlgLkgU
-	HI=
-X-Received: by 2002:a05:7300:a191:b0:2f1:6252:f8fe with SMTP id 5a478bee46e88-304fa49edfcmr1238962eec.3.1780120362745;
-        Fri, 29 May 2026 22:52:42 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:307d:2a52:8823:4a01])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed5d26d1sm3293012eec.30.2026.05.29.22.52.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 22:52:42 -0700 (PDT)
-Date: Fri, 29 May 2026 22:52:39 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, 
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: atlas_btns - modernize the driver
-Message-ID: <ahp6qt_viW3l-NlX@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bcKz8y3F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5BA1F00893;
+	Sat, 30 May 2026 05:53:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780120403;
+	bh=61sShHrM8yglzxVusG0TtAp3odO6VfjDR5Ves0stwIs=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bcKz8y3FuPQNJ1/Gd14UDlbrBxz0R/R4qhrSZPpInv8oTQsZOAtRaBYlpI2BsjUIQ
+	 i1P/rD9Vdg2TtHcRo3twSIFRSFsabPgzX5M4yhJg2P3v1zd7kLYwkyEwQHJ8EIYtJY
+	 eI9p64jWNJiIF5DR7O3aBYF7NlUW5Dex6zRtC8t+L2OML0a1y35P9nOAiaftiDmEx1
+	 evuZoK83yf6XXnXfSq0fdd+AZzQ0hZzv+7YXNv/R2zDoU+Wh7aL6RGC6UI2AZKhAVC
+	 7zJGHVoeN8GRQOqtbo9MuDrD7DvCW33EedbGLTEB5nhz67RontzZXfC7pvBoSlRrxv
+	 yMGhKXV+DtcAw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: ims-pcu - only expose sysfs attributes on
+ control interface
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <ahp23lj4_vXIeUBl@google.com>
+References: <ahp23lj4_vXIeUBl@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 30 May 2026 05:53:23 +0000
+Message-Id: <20260530055323.6F5BA1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Rework the driver to use modern style:
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
 
-- Remove global state by introducing a per-device structure
-- Use devm for resource management (input device allocation)
-- Use dev_err_probe() for error reporting in the probe path
-- Clean up unused definitions and headers.
+New issues:
+- [Low] The `ims_pcu_ofn_is_attr_visible()` function introduced in the patc=
+h returns `0` when `intf !=3D pcu->ctrl_intf` for the `ofn` attribute group=
+. Because `ofn` is a named attribute group, returning `0` suppresses the in=
+dividual files but still creates an empty 'ofn' directory on the data inter=
+face.
 
-Assisted-by: Gemini:gemini-3.1-pro
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/atlas_btns.c | 109 ++++++++++++++++----------------
- 1 file changed, 55 insertions(+), 54 deletions(-)
+Pre-existing issues:
+- [High] The `buttons->input` pointer is assigned after `input_register_dev=
+ice()`, and there is no memory barrier before setting `pcu->setup_complete =
+=3D true`. On weakly ordered architectures, the CPU can reorder these store=
+s, leading to a NULL pointer dereference in the interrupt handler (`ims_pcu=
+_handle_response`) if an event arrives and observes `setup_complete =3D=3D =
+true` before `buttons->input` is initialized.
+- [High] The driver claims the secondary data interface (`pcu->data_intf`) =
+in `ims_pcu_probe` but fails to release it in `ims_pcu_disconnect` when unb=
+inding the control interface. The data interface remains bound with its `in=
+tfdata` pointing to the freed `pcu` structure. Subsequent sysfs accesses on=
+ the data interface will dereference this freed pointer, resulting in a use=
+-after-free (UAF).
+- [High] A malicious USB device can provide an incorrect master interface n=
+umber in the CDC Union descriptor. `ims_pcu_parse_cdc_data()` uses this to =
+set `pcu->ctrl_intf` and assigns `intfdata` to it. If this differs from the=
+ interface currently being probed, the probed interface will have `NULL` dr=
+iver data. When the sysfs core subsequently calls `ims_pcu_is_attr_visible(=
+)`, `usb_get_intfdata()` returns `NULL`, causing a NULL pointer dereference=
+ when accessing `pcu->ctrl_intf`.
+- [High] The sysfs attribute store function `ims_pcu_reset_device` calls `i=
+ms_pcu_execute_command()` without acquiring `pcu->cmd_mutex`. This allows c=
+oncurrent sysfs operations (e.g., setting backlight brightness or updating =
+firmware) to interleave their command preparations, causing data corruption=
+ in the shared `pcu->urb_out_buf` and race conditions on the `pcu->cmd_done=
+` completion structure.
+- [High] In `ims_pcu_buffers_free()`, the input URB DMA buffer (`pcu->urb_i=
+n_buf`) is incorrectly freed using `pcu->max_out_size` instead of the `pcu-=
+>max_in_size` used during allocation.
+--
 
-diff --git a/drivers/input/misc/atlas_btns.c b/drivers/input/misc/atlas_btns.c
-index 835ad45a9d65..5805a1a3bb05 100644
---- a/drivers/input/misc/atlas_btns.c
-+++ b/drivers/input/misc/atlas_btns.c
-@@ -15,17 +15,18 @@
- #include <linux/types.h>
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
--#include <linux/uaccess.h>
- 
- #define ACPI_ATLAS_NAME		"Atlas ACPI"
--#define ACPI_ATLAS_CLASS	"Atlas"
- 
--static unsigned short atlas_keymap[16];
--static struct input_dev *input_dev;
-+struct atlas_btns {
-+	struct input_dev *input_dev;
-+	unsigned short keymap[16];
-+};
- 
- /* button handling code */
- static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
--		    u32 function, void *handler_context, void **return_context)
-+					   u32 function, void *handler_context,
-+					   void **return_context)
- {
- 	*return_context =
- 		(function != ACPI_REGION_DEACTIVATE) ? handler_context : NULL;
-@@ -34,33 +35,37 @@ static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
- }
- 
- static acpi_status acpi_atlas_button_handler(u32 function,
--		      acpi_physical_address address,
--		      u32 bit_width, u64 *value,
--		      void *handler_context, void *region_context)
-+					     acpi_physical_address address,
-+					     u32 bit_width, u64 *value,
-+					     void *handler_context,
-+					     void *region_context)
- {
--	acpi_status status;
-+	struct atlas_btns *atlas = region_context;
- 
- 	if (function == ACPI_WRITE) {
- 		int code = address & 0x0f;
- 		int key_down = !(address & 0x10);
- 
--		input_event(input_dev, EV_MSC, MSC_SCAN, code);
--		input_report_key(input_dev, atlas_keymap[code], key_down);
--		input_sync(input_dev);
-+		input_event(atlas->input_dev, EV_MSC, MSC_SCAN, code);
-+		input_report_key(atlas->input_dev, atlas->keymap[code],
-+				 key_down);
-+		input_sync(atlas->input_dev);
- 
--		status = AE_OK;
--	} else {
--		pr_warn("shrugged on unexpected function: function=%x,address=%lx,value=%x\n",
--			function, (unsigned long)address, (u32)*value);
--		status = AE_BAD_PARAMETER;
-+		return AE_OK;
- 	}
- 
--	return status;
-+	dev_warn(atlas->input_dev->dev.parent,
-+		 "unexpected function: function=%x,address=%lx,value=%x\n",
-+		 function, (unsigned long)address, (u32)*value);
-+
-+	return AE_BAD_PARAMETER;
- }
- 
- static int atlas_acpi_button_probe(struct platform_device *pdev)
- {
- 	struct acpi_device *device;
-+	struct atlas_btns *atlas;
-+	struct input_dev *input_dev;
- 	acpi_status status;
- 	int i;
- 	int err;
-@@ -69,65 +74,62 @@ static int atlas_acpi_button_probe(struct platform_device *pdev)
- 	if (!device)
- 		return -ENODEV;
- 
--	input_dev = input_allocate_device();
--	if (!input_dev) {
--		pr_err("unable to allocate input device\n");
-+	atlas = devm_kzalloc(&pdev->dev, sizeof(*atlas), GFP_KERNEL);
-+	if (!atlas)
- 		return -ENOMEM;
--	}
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	atlas->input_dev = input_dev;
- 
- 	input_dev->name = "Atlas ACPI button driver";
- 	input_dev->phys = "ASIM0000/atlas/input0";
- 	input_dev->id.bustype = BUS_HOST;
--	input_dev->keycode = atlas_keymap;
--	input_dev->keycodesize = sizeof(unsigned short);
--	input_dev->keycodemax = ARRAY_SIZE(atlas_keymap);
-+	input_dev->keycode = atlas->keymap;
-+	input_dev->keycodesize = sizeof(atlas->keymap[0]);
-+	input_dev->keycodemax = ARRAY_SIZE(atlas->keymap);
- 
- 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
--	__set_bit(EV_KEY, input_dev->evbit);
--	for (i = 0; i < ARRAY_SIZE(atlas_keymap); i++) {
-+	for (i = 0; i < ARRAY_SIZE(atlas->keymap); i++) {
- 		if (i < 9) {
--			atlas_keymap[i] = KEY_F1 + i;
--			__set_bit(KEY_F1 + i, input_dev->keybit);
--		} else
--			atlas_keymap[i] = KEY_RESERVED;
-+			atlas->keymap[i] = KEY_F1 + i;
-+			input_set_capability(input_dev, EV_KEY, KEY_F1 + i);
-+		} else {
-+			atlas->keymap[i] = KEY_RESERVED;
-+		}
- 	}
- 
- 	err = input_register_device(input_dev);
--	if (err) {
--		pr_err("couldn't register input device\n");
--		input_free_device(input_dev);
--		return err;
--	}
-+	if (err)
-+		return dev_err_probe(&pdev->dev, err,
-+				     "couldn't register input device\n");
- 
- 	/* hookup button handler */
- 	status = acpi_install_address_space_handler(device->handle,
--				0x81, &acpi_atlas_button_handler,
--				&acpi_atlas_button_setup, device);
--	if (ACPI_FAILURE(status)) {
--		pr_err("error installing addr spc handler\n");
--		input_unregister_device(input_dev);
--		err = -EINVAL;
--	}
-+						    0x81,
-+						    &acpi_atlas_button_handler,
-+						    &acpi_atlas_button_setup,
-+						    atlas);
-+	if (ACPI_FAILURE(status))
-+		return dev_err_probe(&pdev->dev, -EINVAL,
-+				     "error installing addr spc handler\n");
- 
--	return err;
-+	return 0;
- }
- 
- static void atlas_acpi_button_remove(struct platform_device *pdev)
- {
- 	struct acpi_device *device = ACPI_COMPANION(&pdev->dev);
--	acpi_status status;
- 
--	status = acpi_remove_address_space_handler(device->handle,
--				0x81, &acpi_atlas_button_handler);
--	if (ACPI_FAILURE(status))
--		pr_err("error removing addr spc handler\n");
--
--	input_unregister_device(input_dev);
-+	acpi_remove_address_space_handler(device->handle, 0x81,
-+					  &acpi_atlas_button_handler);
- }
- 
- static const struct acpi_device_id atlas_device_ids[] = {
--	{"ASIM0000", 0},
--	{"", 0},
-+	{ "ASIM0000" },
-+	{ "" }
- };
- MODULE_DEVICE_TABLE(acpi, atlas_device_ids);
- 
-@@ -144,4 +146,3 @@ module_platform_driver(atlas_acpi_driver);
- MODULE_AUTHOR("Jaya Kumar");
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("Atlas button driver");
--
--- 
-2.54.0.823.g6e5bcc1fc9-goog
+commit e7e143a0135bed02c30cf00e17a9a25adf1ab6c4
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Input: ims-pcu - only expose sysfs attributes on control interface
+
+When the driver was converted to use the driver core to instantiate device
+attributes, they started appearing on all interfaces bound to the driver.
+This patch updates the is_visible callbacks to verify that the interface
+being accessed is indeed the control interface.
+
+> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+> index 4c022a36dbe84..7c76bc82ab703 100644
+> --- a/drivers/input/misc/ims-pcu.c
+> +++ b/drivers/input/misc/ims-pcu.c
+> @@ -1249,6 +1249,9 @@ static umode_t ims_pcu_is_attr_visible(struct kobje=
+ct *kobj,
+>  	struct ims_pcu *pcu =3D usb_get_intfdata(intf);
+>  	umode_t mode =3D attr->mode;
+> =20
+> +	if (intf !=3D pcu->ctrl_intf)
+> +		return 0;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but could pcu be NULL here?
+
+If a malicious USB device provides an incorrect master interface number in =
+the
+CDC Union descriptor, ims_pcu_parse_cdc_data() might set pcu->ctrl_intf to
+a different interface than the one being probed. When the sysfs core
+subsequently calls ims_pcu_is_attr_visible(), usb_get_intfdata() would
+return NULL, leading to a NULL pointer dereference when accessing
+pcu->ctrl_intf.
+
+[ ... ]
+
+> @@ -1488,6 +1491,9 @@ static umode_t ims_pcu_ofn_is_attr_visible(struct k=
+object *kobj,
+>  	struct ims_pcu *pcu =3D usb_get_intfdata(intf);
+>  	umode_t mode =3D attr->mode;
+> =20
+> +	if (intf !=3D pcu->ctrl_intf)
+> +		return 0;
+
+[Severity: Low]
+Since ofn is a named attribute group, does returning 0 here suppress the
+individual files but still leave an empty ofn directory on the data interfa=
+ce?
+
+According to sysfs guidelines, should this return SYSFS_GROUP_INVISIBLE
+instead to fully suppress the group directory?
 
 
--- 
-Dmitry
+I also noticed a few pre-existing issues in the surrounding code:
+
+drivers/input/misc/ims-pcu.c:ims_pcu_init_application_mode() {
+        ...
+        if (info->has_gamepad) {
+                error =3D ims_pcu_setup_gamepad(pcu);
+                if (error)
+                        goto err_destroy_buttons;
+        }
+
+        pcu->setup_complete =3D true;
+
+        return 0;
+}
+
+[Severity: High]
+This is a pre-existing issue, but should there be a memory barrier before
+setting pcu->setup_complete =3D true?
+
+On weakly ordered architectures, could the CPU reorder these stores? If an
+event arrives and ims_pcu_handle_response() observes setup_complete =3D=3D =
+true
+before buttons->input is fully initialized, it might lead to a NULL pointer
+dereference in the interrupt handler.
+
+drivers/input/misc/ims-pcu.c:ims_pcu_disconnect() {
+        ...
+        /*
+         * See if we are dealing with control or data interface. The cleanup
+         * happens when we unbind primary (control) interface.
+         */
+        if (alt->desc.bInterfaceClass !=3D USB_CLASS_COMM)
+                return;
+
+        ims_pcu_stop_io(pcu);
+        ...
+        ims_pcu_buffers_free(pcu);
+        kfree(pcu);
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this fail to release the
+claimed data interface?
+
+If the driver claims the secondary data interface (pcu->data_intf) in
+ims_pcu_probe(), failing to release it via usb_driver_release_interface()
+when unbinding the control interface results in an asymmetric teardown.
+The data interface remains bound with its intfdata pointing to the freed
+pcu structure, and reading its sysfs attributes could trigger a use-after-f=
+ree.
+
+drivers/input/misc/ims-pcu.c:ims_pcu_reset_device() {
+        ...
+        dev_info(pcu->dev, "Attempting to reset device\n");
+
+        error =3D ims_pcu_execute_command(pcu, PCU_RESET, &reset_byte, 1);
+        if (error) {
+        ...
+}
+
+[Severity: High]
+This is a pre-existing issue, but shouldn't ims_pcu_reset_device() acquire
+pcu->cmd_mutex before calling ims_pcu_execute_command()?
+
+Without acquiring the lock, concurrent sysfs operations (e.g., setting
+backlight brightness or updating firmware) could interleave their command
+preparations. This could cause data corruption in the shared
+pcu->urb_out_buf and race conditions on the pcu->cmd_done completion
+structure.
+
+drivers/input/misc/ims-pcu.c:ims_pcu_buffers_free() {
+        ...
+        usb_kill_urb(pcu->urb_in);
+        usb_free_urb(pcu->urb_in);
+
+        usb_free_coherent(pcu->udev, pcu->max_out_size,
+                          pcu->urb_in_buf, pcu->read_dma);
+        ...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is pcu->urb_in_buf being fre=
+ed
+with the wrong size?
+
+It appears the input URB DMA buffer is incorrectly freed using
+pcu->max_out_size instead of the pcu->max_in_size that was used during
+allocation. Depending on the DMA allocator, this could lead to memory
+corruption or leaks.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/ahp23lj4_vXIeUBl@go=
+ogle.com?part=3D1

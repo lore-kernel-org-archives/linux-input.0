@@ -1,92 +1,382 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABFF725FA05
-	for <linux-input@vger.kernel.org>; Sun, 31 May 2026 05:14:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D5C243951;
+	Sun, 31 May 2026 09:10:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780204486; cv=none; b=TOMaIHYVOxoLgTV69I89CGz+bH1JpR0jzH3M38t9BZgeKIo3wpaYbq31x1otR8YJLPoHh27LtcWUlrKCevETcNmtssK0+nZtMUkVfV5am5KS/w1nMp/F/gD3J1rSawWwTcLuc550HjjzJAHZYsyrH0EnpCTZ/T+gUegSavipqXk=
+	t=1780218645; cv=none; b=hJf44GwoJYV9zIAOosZZTgD3aLinGOFyj3tCbZ21KdLjf3QhLxcKwsrp1lp/0kThNmDYJ78xh0s5PJBluI8y/RrEQ3yFq+NiWTnkw+ESwSv547c+yINX7zCoyzjBH2p0u4KtQoWA+DJRzcVnJhv+ScrFZKB+tyFHph+XpwDW0R4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780204486; c=relaxed/simple;
-	bh=QAh0NQqv4JWTJbDRw1X8cJe301Xd6lXcXbV8Eb5Adxw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bsqifQKbnq9VSWetarWrLjEbbIXRaIq+rZF948lr4bxVCt+1ByHuFY07ehiMDo7ajc95dZtEG+0I7aCGcWmAN+bmtbOLbxuTQlahbq7hM5rKXaeYocXjgpoTYWGUzrYPU6bR5wNvJN3TcpTW89FmSoAD3OPTol/Mbb/ROs2L37M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WqeAOO3k; arc=none smtp.client-ip=74.125.82.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780218645; c=relaxed/simple;
+	bh=2rLn7+BL0CSKSPRXVYOwPg6tEAx5CUi5V4H8JQk/s9A=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=oZihnFn7fNphbvqU679mvGv4NnZdZA76O1cUqdlIXxj1o+GcJU4jHn4rkgrKZNdAOoWiTdVDqLUCWahBYea3RJYHLMQ5JKSOEkbFuzUrLtXSN3rkIl+4iJx7HJeGIF62E+qe6vxLsLNUwtbhii1IYsStkGdMvZZJPhOZaI2JxVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bnL+Hwuk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WqeAOO3k"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-304d7f31215so2989361eec.1
-        for <linux-input@vger.kernel.org>; Sat, 30 May 2026 22:14:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780204485; x=1780809285; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=/RQztS3i83KBFs0coHkZpTlYWE+RCzuhvN7oLI1US/Y=;
-        b=WqeAOO3kx2HkkBbnd5jVahNo75b1x/a/H9Ud7nwDTMpbO7UJ2tOyDzkXSBdxentqfO
-         1wFjUI0FeBG61lBaF1IEf8bnQumtWozLEpD1p8xBAkc1QdAwsz/nxaQzASoQMANPgB/6
-         xCoSUEyiRGDZk7JinHtjN1Jq4Rbx9I4e/NNNXOacAOqgDiuBvBRgifDBt0dlr7wv/SlV
-         s/WHtS9VbWZX7H29zt1zlfBS6Qj+H/qr4rsBt0b0qT7IQJpy90VNk9BXukOCSC2H7UFY
-         nW21dxYcwLI+HBUjRPLzLsvd3QOZmUBEaYiwiEbRM9Uy2SSSgnTdgc8SkJS6A7ZjKSOz
-         vMeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780204485; x=1780809285;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/RQztS3i83KBFs0coHkZpTlYWE+RCzuhvN7oLI1US/Y=;
-        b=F5KVrYjf7hZf8W52crL8bWAGzeIoP4ITv+bODKlVDrX1Jxj1e9ifHIebAnyO1kQYmg
-         m+vSdTGwWrhQwQOPfLP1xKPkM/GyseCzgbPDtuF9jk6StblNW0818o9kuvLzeB+2g9hI
-         LLP3l4b/rjXg5yJvITvqQG54Kk55A7BE94SqD3FWzEkQMZVf+mL5CbkyHV0Vif2rOQuV
-         3dI2FzvTYOizYphFTwvZjpD0jBr/xNiE5uJwswixVYL7kTZ2HGON2ANjCOPg0cDAt9sS
-         xa55vLVj70XieX+p42tsMP7nOIQiyuUe3ZOeX8dtIwAIDzy9SMGgylKZRNa8LSbAbEUF
-         iC3A==
-X-Forwarded-Encrypted: i=1; AFNElJ+DoDAMvzHbc9SrWhJjYU9N7dD2BgjfQesz4KTDm7Kk3KAljr7o+DZhyj1mnG1d/fa/+J4gFu+KLvAgng==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwP4CXBlx36VXzcivW607OR/CVHm4r77xxmtB6GNIPGvYIQvZ5M
-	35/CaoY7se/pUb+LiAW8II5WotCj6orxjEAVDccFEMrNbVtK319iJmTA
-X-Gm-Gg: Acq92OGpaMs+4N4DtdNZjCPVcnluEBrrNz3+iQsEbJ7+54nGgA6HLj9ZErWso+FukVH
-	M8dEixJXtLQCOLb7Z5zykOXAXihdxdwiiSoyuAwzyCl/UPiJdzQ6zsLgFxxEzovqjZXh85DyVPC
-	tn+VgtxXEU7DkZKNW6oHzpQ7P81aM3xBW1RRHJK6hWi7KnCrdrKpe29LXjgHSB6tqSj/HqCP4/i
-	qGMxF9KcX/+F22e8v6OAduZV11XBvpQNPbf7FG+4LsDy7GsJb5w+dWYWYxk4uHNqVfP8A8gHkt8
-	xn0GSz7KFwMcUZu+jB3zeqAmsB5yN6xcSAIhsNdBYzq/Eka/mAf9ojCeTUojnOrx0F6xTlCdcvl
-	xv9ls4eKNe8DVmj42cVCfWhiSsUIjpFvxv4Aw4WWnqz/fqM2uPHCy1zB9LKNCPkwMjr2l5m7xzY
-	a4+SmUN5MROCTmcTo8Ij9SqMOcylaiv/C9hMWE99QIaF0LdLaBY5OH3iq4VdyKvXUpr9B7E5NzD
-	P62OatHMESB
-X-Received: by 2002:a05:7300:f18f:b0:303:f26f:df30 with SMTP id 5a478bee46e88-304fa632e0dmr2503607eec.23.1780204484733;
-        Sat, 30 May 2026 22:14:44 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:aa7b:13a9:ea74:503])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed2c3121sm5669611eec.5.2026.05.30.22.14.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 May 2026 22:14:44 -0700 (PDT)
-Date: Sat, 30 May 2026 22:14:41 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	Randy Dunlap <rdunlap@infradead.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: iqs5xx - Drop unused i2c driver_data
-Message-ID: <ahvDvI2GZLpuOE7U@google.com>
-References: <20260515165135.498505-2-u.kleine-koenig@baylibre.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bnL+Hwuk"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 0D552C2BCF4;
+	Sun, 31 May 2026 09:10:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1780218645;
+	bh=2rLn7+BL0CSKSPRXVYOwPg6tEAx5CUi5V4H8JQk/s9A=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=bnL+HwukVlOjF5w77/U7myNt/USmXY6NRrOaZHkxRDb9M/ecMUvKzbtJIw0bi6vgY
+	 XkYoMHkL6NUvCoi9A98i1eoaeUZOuanUI52OF16fsJ3D5HusP6Az7jbq0S4O0gC7kZ
+	 13279qoa0KOS1EJPrJ5ciBbMKUMHA+febP8DCzPqidMwk7ObzB0auW1YvHbmnBEHz4
+	 A22kyMGI3OXmcE+Vmqtq/NtiMGu4fU5RSkVShpZTP44uCUQ41eoKd11BLvUVx2foOv
+	 tEJvx3k/u8XGHgstU8SXiQ8dHV6+Zud8cPXjuQIfcC4Q+UIWDjFOY1N7Q1xRQXyq7D
+	 6jO+aNmdVB34A==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07340CD6E57;
+	Sun, 31 May 2026 09:10:45 +0000 (UTC)
+From: Yassine Oudjana via B4 Relay <devnull+y.oudjana.protonmail.com@kernel.org>
+Date: Sun, 31 May 2026 11:10:43 +0200
+Subject: [PATCH v2 2/4] soc: mediatek: pwrap: Add support for MT6735 and
+ MT6328 SoC/PMIC pair
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260515165135.498505-2-u.kleine-koenig@baylibre.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260531-mt6735-pwrap-mt6328-pmic-v2-2-dac37bf92894@protonmail.com>
+References: <20260531-mt6735-pwrap-mt6328-pmic-v2-0-dac37bf92894@protonmail.com>
+In-Reply-To: <20260531-mt6735-pwrap-mt6328-pmic-v2-0-dac37bf92894@protonmail.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Flora Fu <flora.fu@mediatek.com>, Alexandre Mergnat <amergnat@baylibre.com>, 
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yassine Oudjana <y.oudjana@protonmail.com>, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, linux-input@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1780218643; l=9618;
+ i=y.oudjana@protonmail.com; s=20260531; h=from:subject:message-id;
+ bh=4sX0Mc13Y67E7+CkHSrLBQ5VssU6E+LoNwfXa6SDJOY=;
+ b=uZ2KaiWCsnQzgGRnS2AGox7rSF2hzKvF5lZ6gXm5v3a+j29oP4H4cvHKueLEKep/3BZEMeV2J
+ uV5eMgqx09iBo8Nf1Bz3VSAjqK5TqwzIf6vtFzDbWkYbavg8croRITD
+X-Developer-Key: i=y.oudjana@protonmail.com; a=ed25519;
+ pk=sr7uwnyVqGKAIhvwnIwormkDM3d2VNc3VOTEU1GmsEM=
+X-Endpoint-Received: by B4 Relay for y.oudjana@protonmail.com/20260531 with
+ auth_id=802
+X-Original-From: Yassine Oudjana <y.oudjana@protonmail.com>
+Reply-To: y.oudjana@protonmail.com
 
-On Fri, May 15, 2026 at 06:51:34PM +0200, Uwe Kleine-König (The Capable Hub) wrote:
-> The driver doesn't make use of the value that was explicitly assigned to
-> the .driver_data members. Drop the assignment. While touching the array,
-> convert it to use named initialization which is easier to understand.
-> 
-> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+From: Yassine Oudjana <y.oudjana@protonmail.com>
 
-Applied, thank you.
+Add register definitions and configuration for the MT6735 SoC and the
+MT6328 PMIC which are commonly paired and communicate through the PMIC
+wrapper.
+
+Note that the PMIC wrapper on MT6735M has a slightly different register
+map and is therefore NOT compatible with MT6735.
+
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+---
+ drivers/soc/mediatek/mtk-pmic-wrap.c | 177 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 174 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
+index 0bcd85826375..0f14dca5609d 100644
+--- a/drivers/soc/mediatek/mtk-pmic-wrap.c
++++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
+@@ -3,6 +3,7 @@
+  * Copyright (c) 2014 MediaTek Inc.
+  * Author: Flora Fu, MediaTek
+  */
++
+ #include <linux/clk.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+@@ -100,7 +101,7 @@ enum dew_regs {
+ 	PWRAP_DEW_CIPHER_MODE,
+ 	PWRAP_DEW_CIPHER_SWRST,
+ 
+-	/* MT6323 only regs */
++	/* MT6323 and MT6328 only regs */
+ 	PWRAP_DEW_CIPHER_EN,
+ 	PWRAP_DEW_RDDMY_NO,
+ 
+@@ -121,8 +122,10 @@ enum dew_regs {
+ 	PWRAP_RG_SPI_CON13,
+ 	PWRAP_SPISLV_KEY,
+ 
+-	/* MT6359 only regs */
++	/* MT6359 and MT6328 only regs */
+ 	PWRAP_DEW_CRC_SWRST,
++
++	/* MT6359 only regs */
+ 	PWRAP_DEW_RG_EN_RECORD,
+ 	PWRAP_DEW_RECORD_CMD0,
+ 	PWRAP_DEW_RECORD_CMD1,
+@@ -171,6 +174,23 @@ static const u32 mt6323_regs[] = {
+ 	[PWRAP_DEW_RDDMY_NO] =		0x01a4,
+ };
+ 
++static const u32 mt6328_regs[] = {
++	[PWRAP_DEW_DIO_EN] =		0x02d4,
++	[PWRAP_DEW_READ_TEST] =		0x02d6,
++	[PWRAP_DEW_WRITE_TEST] =	0x02d8,
++	[PWRAP_DEW_CRC_SWRST] =		0x02da,
++	[PWRAP_DEW_CRC_EN] =		0x02dc,
++	[PWRAP_DEW_CRC_VAL] =		0x02de,
++	[PWRAP_DEW_MON_GRP_SEL] =	0x02e0,
++	[PWRAP_DEW_CIPHER_KEY_SEL] =	0x02e2,
++	[PWRAP_DEW_CIPHER_IV_SEL] =	0x02e4,
++	[PWRAP_DEW_CIPHER_EN] =		0x02e6,
++	[PWRAP_DEW_CIPHER_RDY] =	0x02e8,
++	[PWRAP_DEW_CIPHER_MODE] =	0x02ea,
++	[PWRAP_DEW_CIPHER_SWRST] =	0x02ec,
++	[PWRAP_DEW_RDDMY_NO] =		0x02ee,
++};
++
+ static const u32 mt6331_regs[] = {
+ 	[PWRAP_DEW_DIO_EN] =		0x018c,
+ 	[PWRAP_DEW_READ_TEST] =		0x018e,
+@@ -394,7 +414,7 @@ enum pwrap_regs {
+ 	PWRAP_ADC_RDATA_ADDR1,
+ 	PWRAP_ADC_RDATA_ADDR2,
+ 
+-	/* MT7622 only regs */
++	/* MT7622 and MT6735 only regs */
+ 	PWRAP_STA,
+ 	PWRAP_CLR,
+ 	PWRAP_DVFS_ADR8,
+@@ -417,6 +437,8 @@ enum pwrap_regs {
+ 	PWRAP_ADC_RDATA_ADDR,
+ 	PWRAP_GPS_STA,
+ 	PWRAP_SW_RST,
++
++	/* MT7622 only regs */
+ 	PWRAP_DVFS_STEP_CTRL0,
+ 	PWRAP_DVFS_STEP_CTRL1,
+ 	PWRAP_DVFS_STEP_CTRL2,
+@@ -481,6 +503,13 @@ enum pwrap_regs {
+ 	/* MT8516 only regs */
+ 	PWRAP_OP_TYPE,
+ 	PWRAP_MSB_FIRST,
++
++	/* MT6735 only regs */
++	PWRAP_WACS3_EN,
++	PWRAP_INIT_DONE3,
++	PWRAP_WACS3_CMD,
++	PWRAP_WACS3_RDATA,
++	PWRAP_WACS3_VLDCLR,
+ };
+ 
+ static const int mt2701_regs[] = {
+@@ -569,6 +598,119 @@ static const int mt2701_regs[] = {
+ 	[PWRAP_ADC_RDATA_ADDR2] =	0x154,
+ };
+ 
++static const int mt6735_regs[] = {
++	[PWRAP_MUX_SEL] =			0x0,
++	[PWRAP_WRAP_EN] =			0x4,
++	[PWRAP_DIO_EN] =			0x8,
++	[PWRAP_SIDLY] =				0xc,
++	[PWRAP_RDDMY] =				0x10,
++	[PWRAP_SI_CK_CON] =			0x14,
++	[PWRAP_CSHEXT_WRITE] =			0x18,
++	[PWRAP_CSHEXT_READ] =			0x1c,
++	[PWRAP_CSLEXT_START] =			0x20,
++	[PWRAP_CSLEXT_END] =			0x24,
++	[PWRAP_STAUPD_PRD] =			0x28,
++	[PWRAP_STAUPD_GRPEN] =			0x2c,
++	[PWRAP_EINT_STA0_ADR] =			0x30,
++	[PWRAP_EINT_STA1_ADR] =			0x34,
++	[PWRAP_STA] =				0x38,
++	[PWRAP_CLR] =				0x3c,
++	[PWRAP_STAUPD_MAN_TRIG] =		0x40,
++	[PWRAP_STAUPD_STA] =			0x44,
++	[PWRAP_WRAP_STA] =			0x48,
++	[PWRAP_HARB_INIT] =			0x4c,
++	[PWRAP_HARB_HPRIO] =			0x50,
++	[PWRAP_HIPRIO_ARB_EN] =			0x54,
++	[PWRAP_HARB_STA0] =			0x58,
++	[PWRAP_HARB_STA1] =			0x5c,
++	[PWRAP_MAN_EN] =			0x60,
++	[PWRAP_MAN_CMD] =			0x64,
++	[PWRAP_MAN_RDATA] =			0x68,
++	[PWRAP_MAN_VLDCLR] =			0x6c,
++	[PWRAP_WACS0_EN] =			0x70,
++	[PWRAP_INIT_DONE0] =			0x74,
++	[PWRAP_WACS0_CMD] =			0x78,
++	[PWRAP_WACS0_RDATA] =			0x7c,
++	[PWRAP_WACS0_VLDCLR] =			0x80,
++	[PWRAP_WACS1_EN] =			0x84,
++	[PWRAP_INIT_DONE1] =			0x88,
++	[PWRAP_WACS1_CMD] =			0x8c,
++	[PWRAP_WACS1_RDATA] =			0x90,
++	[PWRAP_WACS1_VLDCLR] =			0x94,
++	[PWRAP_WACS2_EN] =			0x98,
++	[PWRAP_INIT_DONE2] =			0x9c,
++	[PWRAP_WACS2_CMD] =			0xa0,
++	[PWRAP_WACS2_RDATA] =			0xa4,
++	[PWRAP_WACS2_VLDCLR] =			0xa8,
++	[PWRAP_WACS3_EN] =			0xac,
++	[PWRAP_INIT_DONE3] =			0xb0,
++	[PWRAP_WACS3_CMD] =			0xb4,
++	[PWRAP_WACS3_RDATA] =			0xb8,
++	[PWRAP_WACS3_VLDCLR] =			0xbc,
++	[PWRAP_INT_EN] =			0xc0,
++	[PWRAP_INT_FLG_RAW] =			0xc4,
++	[PWRAP_INT_FLG] =			0xc8,
++	[PWRAP_INT_CLR] =			0xcc,
++	[PWRAP_SIG_ADR] =			0xd0,
++	[PWRAP_SIG_MODE] =			0xd4,
++	[PWRAP_SIG_VALUE] =			0xd8,
++	[PWRAP_SIG_ERRVAL] =			0xdc,
++	[PWRAP_CRC_EN] =			0xe0,
++	[PWRAP_TIMER_EN] =			0xe4,
++	[PWRAP_TIMER_STA] =			0xe8,
++	[PWRAP_WDT_UNIT] =			0xec,
++	[PWRAP_WDT_SRC_EN] =			0xf0,
++	[PWRAP_WDT_FLG] =			0xf4,
++	[PWRAP_DEBUG_INT_SEL] =			0xf8,
++	[PWRAP_DVFS_ADR0] =			0xfc,
++	[PWRAP_DVFS_WDATA0] =			0x100,
++	[PWRAP_DVFS_ADR1] =			0x104,
++	[PWRAP_DVFS_WDATA1] =			0x108,
++	[PWRAP_DVFS_ADR2] =			0x10c,
++	[PWRAP_DVFS_WDATA2] =			0x110,
++	[PWRAP_DVFS_ADR3] =			0x114,
++	[PWRAP_DVFS_WDATA3] =			0x118,
++	[PWRAP_DVFS_ADR4] =			0x11c,
++	[PWRAP_DVFS_WDATA4] =			0x120,
++	[PWRAP_DVFS_ADR5] =			0x124,
++	[PWRAP_DVFS_WDATA5] =			0x128,
++	[PWRAP_DVFS_ADR6] =			0x12c,
++	[PWRAP_DVFS_WDATA6] =			0x130,
++	[PWRAP_DVFS_ADR7] =			0x134,
++	[PWRAP_DVFS_WDATA7] =			0x138,
++	[PWRAP_DVFS_ADR8] =			0x13c,
++	[PWRAP_DVFS_WDATA8] =			0x140,
++	[PWRAP_DVFS_ADR9] =			0x144,
++	[PWRAP_DVFS_WDATA9] =			0x148,
++	[PWRAP_DVFS_ADR10] =			0x14c,
++	[PWRAP_DVFS_WDATA10] =			0x150,
++	[PWRAP_DVFS_ADR11] =			0x154,
++	[PWRAP_DVFS_WDATA11] =			0x158,
++	[PWRAP_DVFS_ADR12] =			0x15c,
++	[PWRAP_DVFS_WDATA12] =			0x160,
++	[PWRAP_DVFS_ADR13] =			0x164,
++	[PWRAP_DVFS_WDATA13] =			0x168,
++	[PWRAP_DVFS_ADR14] =			0x16c,
++	[PWRAP_DVFS_WDATA14] =			0x170,
++	[PWRAP_DVFS_ADR15] =			0x174,
++	[PWRAP_DVFS_WDATA15] =			0x178,
++	[PWRAP_SPMINF_STA] =			0x17c,
++	[PWRAP_CIPHER_KEY_SEL] =		0x180,
++	[PWRAP_CIPHER_IV_SEL] =			0x184,
++	[PWRAP_CIPHER_EN] =			0x188,
++	[PWRAP_CIPHER_RDY] =			0x18c,
++	[PWRAP_CIPHER_MODE] =			0x190,
++	[PWRAP_CIPHER_SWRST] =			0x194,
++	[PWRAP_DCM_EN] =			0x198,
++	[PWRAP_DCM_DBC_PRD] =			0x19c,
++	[PWRAP_EXT_CK] =			0x1a0,
++	[PWRAP_ADC_CMD_ADDR] =			0x1a4,
++	[PWRAP_PWRAP_ADC_CMD] =			0x1a8,
++	[PWRAP_ADC_RDATA_ADDR] =		0x1ac,
++	[PWRAP_GPS_STA] =			0x1b0,
++	[PWRAP_SW_RST] =			0x1b4,
++};
++
+ static const int mt6765_regs[] = {
+ 	[PWRAP_MUX_SEL] =		0x0,
+ 	[PWRAP_WRAP_EN] =		0x4,
+@@ -1302,6 +1444,7 @@ static const int mt8186_regs[] = {
+ 
+ enum pmic_type {
+ 	PMIC_MT6323,
++	PMIC_MT6328,
+ 	PMIC_MT6331,
+ 	PMIC_MT6332,
+ 	PMIC_MT6351,
+@@ -1314,6 +1457,7 @@ enum pmic_type {
+ 
+ enum pwrap_type {
+ 	PWRAP_MT2701,
++	PWRAP_MT6735,
+ 	PWRAP_MT6765,
+ 	PWRAP_MT6779,
+ 	PWRAP_MT6795,
+@@ -1733,6 +1877,10 @@ static void pwrap_init_chip_select_ext(struct pmic_wrapper *wrp, u8 hext_write,
+ static int pwrap_common_init_reg_clock(struct pmic_wrapper *wrp)
+ {
+ 	switch (wrp->master->type) {
++	case PWRAP_MT6735:
++		pwrap_write(wrp, wrp->slave->dew_regs[PWRAP_DEW_RDDMY_NO], 0x8);
++		pwrap_init_chip_select_ext(wrp, 0, 6, 0, 0);
++		break;
+ 	case PWRAP_MT6795:
+ 		if (wrp->slave->type == PMIC_MT6331) {
+ 			const u32 *dew_regs = wrp->slave->dew_regs;
+@@ -1839,6 +1987,7 @@ static int pwrap_init_cipher(struct pmic_wrapper *wrp)
+ 		pwrap_writel(wrp, 1, PWRAP_CIPHER_START);
+ 		break;
+ 	case PWRAP_MT2701:
++	case PWRAP_MT6735:
+ 	case PWRAP_MT6765:
+ 	case PWRAP_MT6779:
+ 	case PWRAP_MT6795:
+@@ -2194,6 +2343,14 @@ static const struct pwrap_slv_type pmic_mt6323 = {
+ 		PWRAP_SLV_CAP_SECURITY,
+ };
+ 
++static const struct pwrap_slv_type pmic_mt6328 = {
++	.dew_regs = mt6328_regs,
++	.type = PMIC_MT6328,
++	.regops = &pwrap_regops16,
++	.caps = PWRAP_SLV_CAP_SPI | PWRAP_SLV_CAP_DUALIO |
++		PWRAP_SLV_CAP_SECURITY,
++};
++
+ static const struct pwrap_slv_type pmic_mt6331 = {
+ 	.dew_regs = mt6331_regs,
+ 	.type = PMIC_MT6331,
+@@ -2249,6 +2406,7 @@ static const struct pwrap_slv_type pmic_mt6397 = {
+ 
+ static const struct of_device_id of_slave_match_tbl[] = {
+ 	{ .compatible = "mediatek,mt6323", .data = &pmic_mt6323 },
++	{ .compatible = "mediatek,mt6328", .data = &pmic_mt6328 },
+ 	{ .compatible = "mediatek,mt6331", .data = &pmic_mt6331 },
+ 	{ .compatible = "mediatek,mt6351", .data = &pmic_mt6351 },
+ 	{ .compatible = "mediatek,mt6357", .data = &pmic_mt6357 },
+@@ -2277,6 +2435,18 @@ static const struct pmic_wrapper_type pwrap_mt2701 = {
+ 	.init_soc_specific = pwrap_mt2701_init_soc_specific,
+ };
+ 
++static const struct pmic_wrapper_type pwrap_mt6735 = {
++	.regs = mt6735_regs,
++	.type = PWRAP_MT6735,
++	.arb_en_all = GENMASK(9, 0),
++	.int_en_all = GENMASK(31, 0),
++	.spi_w = PWRAP_MAN_CMD_SPI_WRITE,
++	.wdt_src = PWRAP_WDT_SRC_MASK_ALL,
++	.caps = PWRAP_CAP_RESET | PWRAP_CAP_DCM,
++	.init_reg_clock = pwrap_common_init_reg_clock,
++	.init_soc_specific = NULL,
++};
++
+ static const struct pmic_wrapper_type pwrap_mt6765 = {
+ 	.regs = mt6765_regs,
+ 	.type = PWRAP_MT6765,
+@@ -2446,6 +2616,7 @@ static const struct pmic_wrapper_type pwrap_mt8186 = {
+ 
+ static const struct of_device_id of_pwrap_match_tbl[] = {
+ 	{ .compatible = "mediatek,mt2701-pwrap", .data = &pwrap_mt2701 },
++	{ .compatible = "mediatek,mt6735-pwrap", .data = &pwrap_mt6735 },
+ 	{ .compatible = "mediatek,mt6765-pwrap", .data = &pwrap_mt6765 },
+ 	{ .compatible = "mediatek,mt6779-pwrap", .data = &pwrap_mt6779 },
+ 	{ .compatible = "mediatek,mt6795-pwrap", .data = &pwrap_mt6795 },
 
 -- 
-Dmitry
+2.54.0
+
+

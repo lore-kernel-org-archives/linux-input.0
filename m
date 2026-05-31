@@ -1,44 +1,44 @@
 Received: from mail.sntiq.com (mail.sntiq.com [45.149.154.214])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD07035E1B6;
-	Sun, 31 May 2026 23:25:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361F132E126;
+	Sun, 31 May 2026 23:41:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.149.154.214
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780269908; cv=none; b=WDC5Uwevq+/PU4SuGFnGeF3GzYKaiU02VfWT+dZjBQzH7t7alF8mwx6c9fTmKllGTKfT4nwPy3M3KDpL8dPEHERdUr/jTRtdPM5nQ1O4Xt1JvWG8OywWQyq4zU3et1iBHuWdkr3+Al6hqBnJvKDURDPE3PASE0wKrPGnBIMZzM4=
+	t=1780270881; cv=none; b=JkTGrbR/7SJopgh3Ed251P8Bpc3SV1nHpfgkJo0a/DCGT+Bh6aSWJ2XrPWerXnCGTLQXJx7cEgmcxJD7DNo8YVVpFPgSQr8hdiC7VsPTRCr6fmWF7L4RxDyuyqopa5IX7L2/GVbWBwv6VTK6CiVtmuPQ+KnsBzIThX8Pob/6XY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780269908; c=relaxed/simple;
-	bh=ftJyRk1sFDDwCHzzpSU7s2KUedb1Nre+y09o/y0bCEI=;
+	s=arc-20240116; t=1780270881; c=relaxed/simple;
+	bh=WhIEIBjnTjDhztpwcAtcswGjMA5UezFHtxNci4+VNIg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qRrVPCtPCEkVATfG8FIiWNh210+XdvSRU+x12iDq4c81ZpUtCpLQ/hd7aKnQBfsccjXJxn24eCIhOMRrvzUwDCfk7q99JjoAOzHhd5fxqy/XdqR69V8lH2RNcWP/sZ19yBYTW6RAMXWuqMppppesGJ3Aaw+hHmWx4883IRtrtpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntiq.com; spf=pass smtp.mailfrom=sntiq.com; dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b=f8MxNmej; arc=none smtp.client-ip=45.149.154.214
+	 MIME-Version; b=r4Mw5taKlFMP0zQwa7rbcrusuMTbP+uWSeJFOvS+hw2W3QCsFkze7rv77W3PnPTwTUXpX06ZyqmsepmdU0QbZQnAdjFJker2+eSn4+j2YnIo7ogCk2SpC+whBwfABLgAMr4hNwLJIcmvFfjIcuaCRYR+/J+Xi7/Gt/DR+ENF5jI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntiq.com; spf=pass smtp.mailfrom=sntiq.com; dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b=BuNU6z+F; arc=none smtp.client-ip=45.149.154.214
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntiq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntiq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b="f8MxNmej"
+	dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b="BuNU6z+F"
 Received: from node (unknown [209.198.153.231])
-	by mail.sntiq.com (Postfix) with ESMTPSA id C0937801E6;
-	Sun, 31 May 2026 23:23:01 +0000 (UTC)
+	by mail.sntiq.com (Postfix) with ESMTPSA id 76764801E6;
+	Sun, 31 May 2026 23:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sntiq.com; s=dkim;
-	t=1780269902;
+	t=1780270875;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MJ7af9Ndlyw7RO+ly0J+iep11uMG8yxjMfZTC2SA6c8=;
-	b=f8MxNmej+QHu1Lu5HGpL1zDvNL1Q+erY9EbiZICKDzdV6ISGcvjr+3hwqVG2rGz9M+fp8c
-	5SKk6t6NaKPehZdfmbgrztcx4UN455LjHVLP9bEC436ydgMQSyOdFJut0l11VUbl3SejPW
-	g0xkIOJ1dcYO/pE3hFIUnE9DXEhKpp4jQbgCRbXCwYjUU7FN6caP+uuB/mBzCDTjlpgDRB
-	psqevsRbC0xB6n8hlon0qsKLBFGeOIPdfnHIWygP2aiukDKIszH1fflVeUwsa0NgVwRFnR
-	XTjDLvuvyx6yyorq52VUm4DH1JblZ7kuDFfB4QaoZZTtkWD52Gjv4fz2dZ7stg==
+	bh=0162qsYtzC+E5eqWXD1AlT/6gO69YpRtWvbQIUfO0yU=;
+	b=BuNU6z+Fixkguy+Fc5KSuCdC1BNB4ykrg54ddrwQla9HFjdb8NXiqrk9txdyG5tuKKTxiL
+	jg/UKxq8ftkRQUTzqijON+BPUq1A9GF6rbLAbvGG5KXPuKZwuueAUa04O+YdINfFNLnkzf
+	ej3PA7Cl5bmSmwEJUzpS05EDfDrr1LjOa4uN0dCZPzkG5QAb1KcKO/5R0qI1ymDN6lAoz/
+	QkHatU1g20AJmzIbSjESuJXt5MPXHsbJUDKsmObotRQwo4l5nrtnPjWtlTCoQJYFlSFJvb
+	WjWICdgNCBRaq4f4Q7sUf1e0Pnhj26U+XpMec4jP3M6u3YAi/YvD3b9euJ1/tg==
 From: David Glushkov <david.glushkov@sntiq.com>
 To: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v4] HID: steelseries: Add MSI Raider A18 HX A9WJG RGB support
-Date: Mon,  1 Jun 2026 01:22:52 +0200
-Message-ID: <20260531232252.205665-1-david.glushkov@sntiq.com>
+Subject: [PATCH v5] HID: steelseries: Add MSI Raider A18 HX A9WJG RGB support
+Date: Mon,  1 Jun 2026 01:39:03 +0200
+Message-ID: <20260531233903.208321-1-david.glushkov@sntiq.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260531215204.172030-1-david.glushkov@sntiq.com>
 References: <20260531215204.172030-1-david.glushkov@sntiq.com>
@@ -74,35 +74,35 @@ colors.
 
 Signed-off-by: David Glushkov <david.glushkov@sntiq.com>
 ---
+v5:
+- Drop pm_ret handling and ignore PM_HINT_NORMAL cleanup errors.
+- Fix LED registration error handling to clean up rgb_buf on failure.
+- Fix trailing whitespaces and formatting style nits.
+- Update commit message to accurately reflect the DMI fallback behavior.
+
 v4:
 - Fix literal \n typo in C code.
-- Fix trailing whitespace and style nits.
 - Remove unused steelseries_msi_rgb_free_buf from #else block.
-- Do not fail probe on unsupported DMI/interface; clear MSI RGB quirk
-  and continue normal HID initialization.
-- Do not fail probe when RGB LED registration fails; keep the HID
-  device usable without RGB LED support.
+- Do not fail probe on unsupported DMI/interface; clear MSI RGB quirk and continue normal HID initialization.
+- Do not fail probe when RGB LED registration fails; keep the HID device usable without RGB LED support.
 - Add explicit linux/slab.h include for kzalloc/kfree.
 
 v3:
 - Fix build failure (added missing err_close label to steelseries_probe).
-- Fix DMA API violation (use kzalloc instead of devm_kzalloc for usb
-  transfer buffer).
+- Fix DMA API violation (use kzalloc instead of devm_kzalloc for usb transfer buffer).
 - Fix C syntax declaration-after-statement warning.
-- Fix type confusion for SRWS1 (add early check in raw_event before
-  hid_get_drvdata).
+- Fix type confusion for SRWS1 (add early check in raw_event before hid_get_drvdata).
 - Fix delayed_work crash (add battery_registered flag).
 
 v2:
 - Fixed unsafe to_usb_interface cast by checking hid_is_usb() first.
-- Fixed uninitialized delayed_work warning by restricting
-  cancel_delayed_work_sync to headset devices.
+- Fixed uninitialized delayed_work warning by restricting cancel_delayed_work_sync to headset devices.
 - Fixed error path leaks in probe (hid_hw_stop / hid_hw_close).
 - Added hid_hw_power PM wrappers around direct usb_control_msg transfers.
 
  drivers/hid/hid-ids.h         |   2 +
- drivers/hid/hid-steelseries.c | 265 ++++++++++++++++++++++++++++++++--
- 2 files changed, 256 insertions(+), 11 deletions(-)
+ drivers/hid/hid-steelseries.c | 277 ++++++++++++++++++++++++++++++++--
+ 2 files changed, 270 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
 index 4657d96fb..4af4397b8 100644
@@ -118,7 +118,7 @@ index 4657d96fb..4af4397b8 100644
  #define USB_VENDOR_ID_SUN		0x0430
  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
 diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index f98435631..3a4f4c2b1 100644
+index f98435631..c269db06d 100644
 --- a/drivers/hid/hid-steelseries.c
 +++ b/drivers/hid/hid-steelseries.c
 @@ -10,16 +10,26 @@
@@ -171,7 +171,7 @@ index f98435631..3a4f4c2b1 100644
  	steelseries_headset_fetch_battery(sd->hdev);
  
  	if (sd->quirks & STEELSERIES_ARCTIS_9) {
-@@ -528,6 +547,190 @@ static bool steelseries_is_vendor_usage_page(struct hid_device *hdev, uint8_t us
+@@ -528,6 +547,196 @@ static bool steelseries_is_vendor_usage_page(struct hid_device *hdev, uint8_t us
  		hdev->rdesc[2] == 0xff;
  }
  
@@ -227,9 +227,9 @@ index f98435631..3a4f4c2b1 100644
 +						    struct steelseries_device,
 +						    mc_cdev);
 +	struct hid_device *hdev = sd->hdev;
-+	struct usb_device *udev;
++	struct usb_device *udev = steelseries_hid_to_usb_dev(hdev);
++	int i, ret;
 +	u8 r, g, b;
-+	int i, ret, pm_ret;
 +
 +	static const u8 keys[] = {
 +		0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
@@ -248,7 +248,6 @@ index f98435631..3a4f4c2b1 100644
 +	};
 +	static const u8 alc_zones[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
 +
-+	udev = steelseries_hid_to_usb_dev(hdev);
 +	if (!udev)
 +		return -ENODEV;
 +
@@ -294,9 +293,7 @@ index f98435631..3a4f4c2b1 100644
 +			      sd->rgb_buf, STEELSERIES_MSI_RGB_REPORT_LEN,
 +			      USB_CTRL_SET_TIMEOUT);
 +
-+	pm_ret = hid_hw_power(hdev, PM_HINT_NORMAL);
-+	if (ret >= 0)
-+		ret = pm_ret;
++	hid_hw_power(hdev, PM_HINT_NORMAL);
 +
 +out_unlock:
 +	mutex_unlock(&sd->rgb_lock);
@@ -350,7 +347,16 @@ index f98435631..3a4f4c2b1 100644
 +	led_cdev->max_brightness = 255;
 +	led_cdev->brightness_set_blocking = steelseries_msi_rgb_set_blocking;
 +
-+	return devm_led_classdev_multicolor_register(&hdev->dev, &sd->mc_cdev);
++	ret = devm_led_classdev_multicolor_register(&hdev->dev, &sd->mc_cdev);
++	if (ret) {
++		devm_remove_action(&hdev->dev, steelseries_msi_rgb_free_buf,
++				   sd->rgb_buf);
++		kfree(sd->rgb_buf);
++		sd->rgb_buf = NULL;
++		return ret;
++	}
++
++	return 0;
 +}
 +#else
 +static int steelseries_msi_rgb_register(struct steelseries_device *sd)
@@ -362,7 +368,7 @@ index f98435631..3a4f4c2b1 100644
  static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id *id)
  {
  	struct steelseries_device *sd;
-@@ -549,6 +752,14 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
+@@ -549,6 +758,14 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
  	sd->hdev = hdev;
  	sd->quirks = id->driver_data;
  
@@ -377,14 +383,13 @@ index f98435631..3a4f4c2b1 100644
  	ret = hid_parse(hdev);
  	if (ret)
  		return ret;
-@@ -565,12 +776,30 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
+@@ -565,12 +782,28 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
  
  	ret = hid_hw_open(hdev);
  	if (ret)
 -		return ret;
 +		goto err_stop;
- 
--	if (steelseries_headset_battery_register(sd) < 0)
++
 +	if (sd->quirks & STEELSERIES_MSI_RGB) {
 +		ret = steelseries_msi_rgb_register(sd);
 +		if (ret) {
@@ -395,7 +400,8 @@ index f98435631..3a4f4c2b1 100644
 +		}
 +		return 0;
 +	}
-+
+ 
+-	if (steelseries_headset_battery_register(sd) < 0)
 +	if (sd->quirks & (STEELSERIES_ARCTIS_1 | STEELSERIES_ARCTIS_9) &&
 +	    steelseries_headset_battery_register(sd) < 0)
  		hid_err(sd->hdev,
@@ -408,7 +414,7 @@ index f98435631..3a4f4c2b1 100644
  	return ret;
  }
  
-@@ -588,12 +817,15 @@ static void steelseries_remove(struct hid_device *hdev)
+@@ -588,12 +821,15 @@ static void steelseries_remove(struct hid_device *hdev)
  	}
  
  	sd = hid_get_drvdata(hdev);
@@ -425,7 +431,7 @@ index f98435631..3a4f4c2b1 100644
  
  	hid_hw_close(hdev);
  	hid_hw_stop(hdev);
-@@ -624,20 +856,33 @@ static uint8_t steelseries_headset_map_capacity(uint8_t capacity, uint8_t min_in
+@@ -624,20 +860,33 @@ static uint8_t steelseries_headset_map_capacity(uint8_t capacity, uint8_t min_in
  	return (capacity - min_in) * 100 / (max_in - min_in);
  }
  
@@ -465,7 +471,7 @@ index f98435631..3a4f4c2b1 100644
  	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1) {
  		hid_dbg(sd->hdev,
  			"Parsing raw event for Arctis 1 headset (%*ph)\n", size, read_buf);
-@@ -732,6 +977,16 @@ static const struct hid_device_id steelseries_devices[] = {
+@@ -732,6 +981,16 @@ static const struct hid_device_id steelseries_devices[] = {
  	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9),
  	  .driver_data = STEELSERIES_ARCTIS_9 },
  
@@ -484,3 +490,4 @@ index f98435631..3a4f4c2b1 100644
  MODULE_DEVICE_TABLE(hid, steelseries_devices);
 -- 
 2.54.0
+

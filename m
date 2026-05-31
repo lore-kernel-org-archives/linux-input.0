@@ -1,158 +1,136 @@
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777C21DE4EF
-	for <linux-input@vger.kernel.org>; Sun, 31 May 2026 05:09:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD1726FD93
+	for <linux-input@vger.kernel.org>; Sun, 31 May 2026 05:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780204201; cv=none; b=J5q84O6kMycuno2Lrw7I9j2/HAmN5yJ/Ow+393babh84YzhT9+bsyM2vwiEy+S8jj8AaGT7Q76iIfW4RiDfKudGzN6e83Wdff4t3HY+BdLf4otYpwoSwM1IgDc1AZ9D+fNnB495jTW6bvEMKPIzTkyMdXkBz8z3S/Vq7lFfx2AI=
+	t=1780204434; cv=none; b=Yf1BIq84ETBA4mooqLJFKOJPJbPIv6+P/UNmvrE8NrJy94GZ5nDxGlPjsO/2oo5/hVK43CE02dZyWm+cMVwpXv5VsNR4SjlSYf2lFuS2Y1pll40hwXKiQZ4195FieXjlwVxFB1UDUx9f8qTkhGW2WTcihtv4j4mnWsTV8P5Dc5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780204201; c=relaxed/simple;
-	bh=7bR7rqL/zSf+brPmiMYKuSXmbLZKtghFr4tAb0VxLBM=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=cBgbdWSTYsisGqrhZg/LpL3TSA7cFLprhZJoxyg9//A3mmmoDty9JmEJrOEhLqbxZA48yrPh1D+3hET0MWBk+3tO/Yw5gYok1/WQpFzRN+GbmH8N2ngIS74lojNliuVDr2FXalNjzQA74aFruvshN6C6RpCbaiu2DSh9s4QXLWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q8xTR/bm; arc=none smtp.client-ip=74.125.82.53
+	s=arc-20240116; t=1780204434; c=relaxed/simple;
+	bh=LvCvl6PBBF8J/xKaNGS0MEYSeqnN/0taZuq8w2G+Az0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VkC4jGGn+T4CoodPDo+PGA6KHM6lj5PF6xc/qvwox19/eK+8LEpv1cYY8oaczilDp66zXTmoCc1GG3z6QNwBRLB2n+D8wIh8qG0cgg0iznFnDwSoQvV10qCIpTY0enHHNicBeuZwjmCgjft5OjrRJmGI78rJyrttBqdnJMUPrUo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FGVCvhaL; arc=none smtp.client-ip=74.125.82.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q8xTR/bm"
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-137dd51129bso530782c88.1
-        for <linux-input@vger.kernel.org>; Sat, 30 May 2026 22:09:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FGVCvhaL"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-304b8ced372so6479685eec.0
+        for <linux-input@vger.kernel.org>; Sat, 30 May 2026 22:13:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780204198; x=1780808998; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3IYCo3kKHlefZAl1IT6QlJ3rLTf4/OyBQiIoN/0s9Ts=;
-        b=q8xTR/bm7gp/7QK1VoLFdMsBE6mXwGEdCEjzfIOIPWAPT3NuEBNGXu9UzcTfWJ/pnI
-         +3dKa5/6b1/iUFFC9+Fp9aIknWlrd9EK5UeowpjA2dpB2X/OrpmhXjTic8lpn40TIpBR
-         6Kb/AKUj8bZ7jbKsFkw69FgtWZN3IyeC/Ki6VVVI7r1KQ5y/jMtacb6yTVNp2Z6nv8w4
-         Qhia07y+mvIhlEGvZ679CyT1SDSbwdBUFVhPvqdoC4/xMIDgBBbMLjhX3nDbpTxRsMcW
-         TJTu2JUhRa6TG5rmLqGWnarjD/2K/0TWpXExeNn5WgCprZyaXKt89sg1IKNlpE0vNndJ
-         Z5Pw==
+        d=gmail.com; s=20251104; t=1780204433; x=1780809233; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=k3pn4cuUfFSRyvhCaBTSBtnyydB0uD7dBx1ds5nx5l4=;
+        b=FGVCvhaL9eJqxsOcwkywanUWKqdXcMdyFHMj998ZD5zTv7pAGwtECxT+15k1a6qGNq
+         3qGWi/qCCHRa4tzW+7q246Dl3Rc3IKWfjiaAB8yPCpKVKCOTEmwmTwDvci4G7ZMKU2x1
+         yG6YxMRjIGesqokaQ0SBjE7YAdhiM4n7MYALHqVcFyjsHSsmnh6+7Dlt3xwFlj93Yc1x
+         JRLZzapmJ63bdcEBep0FR+nWIlAIh6P8mJVKMatOp5VzhdFaI5PY5rXXiaO/n4qmOBhm
+         ZLz5mHTCmWc1xet3BIMF8Mk7nxY5WJPKPOW1f816jdmevSbPyZrhNzvMepdJqd0H9AGc
+         nFmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780204198; x=1780808998;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3IYCo3kKHlefZAl1IT6QlJ3rLTf4/OyBQiIoN/0s9Ts=;
-        b=lmHZh2BvAdbBS2LNOHlGIOBF1Pqxe38VYIwtEMdMtF2Tw3dSrM8Oee3IjpyypOsY3R
-         Jc/joYe5MvBPqRZtPg1Btg5gD0egVZB6+iJATTI6ol0YsV9n5c40lEREUrIdw6G+SUVM
-         iDfCLFp1kW6OGCg4snx5aX4zvl2FAYQLEBqHBIXJ3TmjOuKMLphK3WuK2UvNclWr8LHT
-         QVwiR/Ud1t9xb9IMEdKdG/UluGjGjLaCG2dZEjuYXSmHN2KM377pzi/Q56euNwYe25+u
-         ARDbvYNmrzWvapEE+avCEQhGsY90hemC1bYS4uQuE6T/3WiXmjxWusstEBx0UW/Am0+a
-         4asw==
-X-Forwarded-Encrypted: i=1; AFNElJ87cHDhMlk5Wy2B9pNgz5kBPqH12k5BVdNQvOSoMwOrq+us59t/1ayC8dD64WPqkzdcoUMqIZVWPU8JpQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4XyZAOiFAb8zyZNQwA9AAwaOpxedSJdXESWurGY1mkWmLiT/d
-	T6Z9B3MZ5tTxsusoewTDD5S6o/QpSOapxdHlsIURHrd9uHu279hUGrEGdQLDgA==
-X-Gm-Gg: Acq92OHOaQunrJRTAxvb9Q83rVpzWXI/896APf0UHWu4V8fjnSLRh64TXVFjhxb/Doi
-	4G/wC2Wwugx04FJL2YIhTAKEg8vBiJy9UnzoytK6KqnYMZcbFoV+CeOIOcVDq4LFySqMfXZgI+9
-	UwCUgThAUHHG/yH9XxZjV5l7h2OIaF3eFnf7YUMXPw8WwJXWIC6wU6m48DgJ+HX5itkDIXTzFG3
-	CQ6FXDoU64bh8IEDUpvzGcCVhfHPrjPcskVdnF9Xt/B/BgOsOQby7zZYEQhEkwo+j8JNhg+wdGL
-	4DMisEqmNR2fXQFlUxZzJq7oy/mwCMTGy6i0hiCITV+UA3eRj2SYmpd+M6QLsvHgtJGgyobTjG4
-	ifUUr72ISz4oJkomiBLU8ZMQLxwFHd5mkwP6ltNfl2WtU9c+ePZNVnRY0G16QO1Dd1rvDmevr+y
-	O/N+awOPoo+DCnQv4TlM/V7RC+yXQuWLARKxGVTT6ETv152XhMqB/d37FJZpQgrpGBlFeTqjUmM
-	92Mk9Op2BTx
-X-Received: by 2002:a05:7022:661f:b0:136:36d4:3161 with SMTP id a92af1059eb24-137d401de9amr2635356c88.11.1780204198307;
-        Sat, 30 May 2026 22:09:58 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780204433; x=1780809233;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=k3pn4cuUfFSRyvhCaBTSBtnyydB0uD7dBx1ds5nx5l4=;
+        b=VQt/mzsVC3GU8j/dLEkXD/lOSbLbDzQtE/alAtrx1DdMPUGi3sVSbhmK8Ml1XeqeFG
+         TgCMkSGr7CjW6RN2HylUUh2uJfoTydTdNMWVN1AeBKYMnkMMPq+64p2D/ETEQcBHdOaF
+         PHFfTx65zAkTw/aScHp/UzYcStdSrGRgeezb2CLXxlSmKg1+Q1rQq+QRMKuWHGEqSLvW
+         8Mg5kLHLLuLi7Xdxvkvs8IIecRmzRsWsAqdyKA46iPdKLL3efePQl2McH+GKZ6lStGgg
+         lDkIrFNF4Ibr0Cz3HZYdvV1AmpJiFvcUy28CnQSvR8OHE7Nvcv8BsBT9eg/j6fvWuBfi
+         M7AQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/J6hUqbfp8vJHOSbpRu4NxP5pv7PmCbPMEhdIePlaU3yY+PiIeQB8wFhrfGzXL+cSSS3OtbehC5GnBuA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx6eKXkWkN++6YdUspIvHcHepjzLQX35mL8pRVR1VLBedOoXNRx
+	I/FwtTvDF54RKq3e9MzzsBVFxKajWERO9t3G99lMCzEfEYJ+EHmz5do0
+X-Gm-Gg: Acq92OFbjESGH+RSHBM1v/Xf6S+Ow779sLpfUaI8GGwJ2BkDeeQ67fsyd1xaq1zF1nN
+	2TGMyH9doPhHqj0D/bs6cjUC0A8rXWmjJ2UBk+dZ2vRVbh25vtLiYhV5/8RYR5D2GIRVlefSMvt
+	MA62FGyJv0CDOasKsIhmPV6Sn8uCVlwS+6wmzDymiJMkIbJsaFpUeyH5eHz5IbyuGgFL6MeaNxD
+	alwrZo/+LX6S8uHBJSXl8UExp2ypB6GMDIHVbkuGDxeS0MkhXPmNcitjl9zXPCRV24un4g9Ca6b
+	i4m40J50I0mS4mOSKL6CDNv0bkKdwMhz9j7MtMGq5YSObpvP4PWgErgEsLzs+IUngM6GJBRPKsh
+	c1kUfKw3hKpYmXoe7wWyZ208ndkUXRV6n/jP/JLv+vVfBguKoQLFj25CKmPrE8bWNRQKodZLj+w
+	FkfbIqPnuf6Qr80e5xF0XgI7WXVkGkY0lS1JKHx2ONUtAqdqvsxjACrex8KqKkenPLM38UypBW1
+	w==
+X-Received: by 2002:a05:693c:300c:b0:2d9:5cd9:b8ff with SMTP id 5a478bee46e88-304fa4a757dmr2802692eec.6.1780204432587;
+        Sat, 30 May 2026 22:13:52 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:aa7b:13a9:ea74:503])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137b3c69c0asm4594684c88.11.2026.05.30.22.09.57
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed2c3121sm5667940eec.5.2026.05.30.22.13.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 May 2026 22:09:57 -0700 (PDT)
-Date: Sat, 30 May 2026 22:09:55 -0700
+        Sat, 30 May 2026 22:13:51 -0700 (PDT)
+Date: Sat, 30 May 2026 22:13:47 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [git pull] Input updates for v7.1-rc5
-Message-ID: <ahvBdJ_vd3xuf-Rd@google.com>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Anshul Dalal <anshulusr@gmail.com>, 
+	Michael Hennerich <michael.hennerich@analog.com>, Yassine Oudjana <y.oudjana@protonmail.com>, 
+	Linus Walleij <linusw@kernel.org>, Nicolas Ferre <nicolas.ferre@microchip.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
+	Support Opensource <support.opensource@diasemi.com>, Nick Dyer <nick@shmanahar.org>, Hans de Goede <hansg@kernel.org>, 
+	Job Noorman <job@noorman.info>, Mika =?utf-8?B?UGVudHRpbMOk?= <mpenttil@redhat.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Kees Cook <kees@kernel.org>, bui duc phuc <phucduc.bui@gmail.com>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Yauhen Kharuzhy <jekhor@gmail.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, Marco Crivellari <marco.crivellari@suse.com>, 
+	Minseong Kim <ii4gsp@gmail.com>, Ingo Molnar <mingo@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Oleh Kuzhylnyi <kuzhylol@gmail.com>, 
+	Marek Vasut <marek.vasut+renesas@mailbox.org>, Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Josua Mayer <josua@solid-run.com>, 
+	Michael Tretter <m.tretter@pengutronix.de>, Jeff LaBundy <jeff@labundy.com>, 
+	Javier Carrasco <javier.carrasco@wolfvision.net>, David Heidelberg <david@ixit.cz>, 
+	Petr Hodina <petr.hodina@protonmail.com>, Svyatoslav Ryhel <clamor95@gmail.com>, 
+	Johannes Kirchmair <johannes.kirchmair@skidata.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	Xichao Zhao <zhao.xichao@vivo.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, platform-driver-x86@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com
+Subject: Re: [PATCH v1] Input: Use named initializers for arrays of
+ i2c_device_data
+Message-ID: <ahvDNu0TQKtjvmSk@google.com>
+References: <20260515164848.497608-2-u.kleine-koenig@baylibre.com>
+ <ahp7WuHiPYa7Q_pX@google.com>
+ <ahrP4STTFdUsBp0O@monoceros>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ahrP4STTFdUsBp0O@monoceros>
 
-Hi Linus,
+On Sat, May 30, 2026 at 02:02:20PM +0200, Uwe Kleine-K�nig (The Capable Hub) wrote:
+> Hello Dmitry,
+> 
+> On Fri, May 29, 2026 at 10:56:48PM -0700, Dmitry Torokhov wrote:
+> > I like the ability to properly set up pointers for driver data, however
+> > I do not think we should use named initializers for name field. As long
+> > as we are not planning on moving its position I like the brevity of just
+> > saying
+> > 
+> > 	{ "ili210x", .driver_data_ptr = &ili210x_chip },
+> > 
+> > Can we keep the old style for the name field?
+> 
+> I have no strong opinion here, my patch introduces the named initializer
+> for both members for consistency. Note that my patches for all the other
+> subsystems (and also other *_device_id) do the same and you're the first
+> maintainer with that expressed preference.
+> 
+> I even sent a few patches that adapt initializers without .driver_data
+> (e.g.
+> https://lore.kernel.org/all/177932943265.3832404.360063047381979287.git-patchwork-notify@kernel.org/)
+> that got positive feedback so far.
+> 
+> So if you're ok with having input differ in style from (up to now) all
+> other subsystems, I can rework the patch.
 
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.1-rc5
-
-to receive updates for the input subsystem. You will get:
-
-- updates to Elan I2C touchpad driver to handle a new IC type and to
-  validate size of supplied firmware to prevent OOB access
-
-- updates to Xpad controller driver to recognize ASUS ROG RAIKIRI II and
-  "Nova 2 Lite" from GameSir controllers as well as a fix to prevent a
-  potential OOB access when handling "Share" button
-
-- an update to Synaptics touchpad driver to use RMI mode for touchpad in
-  Thinkpad E490
-
-- updates to Atmel MXT driver adding checks to prevent potential OOB
-  accesses
-
-- a fix to IMS PCU driver to free correct amount of memory when
-  tearing it down
-
-- a fixup to the recent change to Atlas buttons driver
-
-- a small cleanup in fm801-fp for PCI IDs table initialisation.
-
-Changelog:
----------
-
-Dmitriy Zharov (1):
-      Input: xpad - add support for ASUS ROG RAIKIRI II
-
-Dmitry Torokhov (4):
-      Input: xpad - fix out-of-bounds access for Share button
-      Input: elan_i2c - validate firmware size before use
-      Input: atmel_mxt_ts - fix boundary check in mxt_prepare_cfg_mem
-      Input: atmel_mxt_ts - check mem_size before calculating config memory size
-
-Greg Kroah-Hartman (1):
-      Input: usbtouchscreen - clamp NEXIO data_len/x_len to URB buffer size
-
-Jingle Wu 吳金國 (2):
-      Input: elan_i2c - add ic type 0x19
-      Input: elan_i2c - increase device reset wait timeout after update FW
-
-Nicolás Bazaes (1):
-      Input: synaptics - add LEN2058 to SMBus passlist for ThinkPad E490
-
-Qbeliw Tanaka (1):
-      Input: xpad - add "Nova 2 Lite" from GameSir
-
-Rafael J. Wysocki (1):
-      Input: atlas - check ACPI_COMPANION() against NULL
-
-Thomas Fourier (1):
-      Input: ims-pcu - fix usb_free_coherent() size in ims_pcu_buffers_free()
-
-Uwe Kleine-König (The Capable Hub) (1):
-      Input: fm801-gp - simplify initialisation of pci_device_id array
-
-Diffstat:
---------
-
- drivers/input/gameport/fm801-gp.c          |  4 ++--
- drivers/input/joystick/xpad.c              | 14 ++++++++++----
- drivers/input/misc/atlas_btns.c            |  6 +++++-
- drivers/input/misc/ims-pcu.c               |  2 +-
- drivers/input/mouse/elan_i2c_core.c        |  8 ++++++++
- drivers/input/mouse/elan_i2c_i2c.c         |  2 +-
- drivers/input/mouse/synaptics.c            |  1 +
- drivers/input/touchscreen/atmel_mxt_ts.c   | 13 ++++++++++---
- drivers/input/touchscreen/usbtouchscreen.c |  5 +++++
- 9 files changed, 43 insertions(+), 12 deletions(-)
+OK, I guess I am too late to voice my opinion. I do not want to have
+different style, in this particular case at least, so I applied the
+patch.
 
 Thanks.
-
 
 -- 
 Dmitry

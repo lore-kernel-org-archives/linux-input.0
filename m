@@ -1,132 +1,154 @@
-Received: from mail-wm1-f66.google.com (mail-wm1-f66.google.com [209.85.128.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8B8C38B12E
-	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 21:31:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A777C29B228
+	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 21:31:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780349466; cv=none; b=ovrOa1WqGt2yykPdANSaZfr3bK78LTx+dPRMxNLARbaBb1hCKz0IJjA7EeB07WcRPs9ZPfXtCSv327i+jE1UXnvDk+abzkMFyQrjBugxnv2TTmTM1F/NwJM94DGW9dRV0merQXFUw+sa+LTSVzbP3Xzr/PXzkbN1zMitMcDZ13Y=
+	t=1780349515; cv=none; b=GXmfdSorgCQwj8y6EqcFFX7TH4rhiRpBnobSyX+mAyja0pB22I+E/+XACVsusTHtlwS4whxIgCSD5MEIm0eZWbqGfJJLPYq4WyBxrD3Cw9mfak6516BGg8rKS4HFZi2H8WD0s7XKWBLpd8n9v0YcR5i4oTVI6CD8YVyY8W6lB3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780349466; c=relaxed/simple;
-	bh=6MrldId2ywvvgWK0Wzo/bX3+POPDX4YKXeI/F+3Jf1k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=az573+334VL2QzCpepk9VTVV7Nu0TqiB1d8kXsI/6ptBAo6ZBbadxVd13B9cjUqXdYftbwkeqSnwZh04GdO+DFDLdiGWaF0SHkpCDe9BPYnIVfaimvk4oNkp1X0dPrXzHLVi86oQXUNoRPVgUmmqnpVfNjiwuJH7oVra8bVqflc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sc7Z/F1i; arc=none smtp.client-ip=209.85.128.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780349515; c=relaxed/simple;
+	bh=NBJv5oAnl8dqklRRLHl3KdoAh7umMRLfEEyWDf59TlY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=uWIEsVyL82gfrsenOExp+E/vdvf86Vgh+XayLoU+4q6iWYl416jXCGQwM220/jzmVUJ7WfXa4T4gLxYwdedgCiMKTaZwiIv3ToQjRX87+hV3F07qvww+QnRVuhrJ0uEo3g5+gBZyHPnV2SZZ+Fcf6t8nDI3olhO+kbIGJyBwTqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TX9xWU6J; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sc7Z/F1i"
-Received: by mail-wm1-f66.google.com with SMTP id 5b1f17b1804b1-490a7876f8cso17091365e9.3
-        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 14:31:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780349461; x=1780954261; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OrI9zRVmv7V6pta/kHysc7URPMQUcr9MORYitOpV7hQ=;
-        b=sc7Z/F1igcfrSDObNR/maw70J5GMMo6L7InBlA4c8BW6lWru63/E9ZSJ+Z9XsYMJ+s
-         Yr6fwiygl/xjq1DUAYnOgfnBTyBtDuslF5S/1pVUpeEmfQxPcWroiH/9DQTufRn9fsyh
-         DBBWEhGIVgxut9JZLcVIIc7Pg1T7GzSVgOdun3f6n6NL6OBDLgY5sw5BZ0r8hKWEH8ZR
-         irS/An9glVkOeY2HWPd3duADfr8tZRMKZwXYZlSEM1BmMkNhaGRPqPlzkqZCPhWRjb7z
-         /DgxReZ8TqUqdlO+lU5oUkyLRe7OAXqTqois4qkHPVQNA5pUkT1RBY0HUWoXoK9qIFB4
-         hPRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780349461; x=1780954261;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OrI9zRVmv7V6pta/kHysc7URPMQUcr9MORYitOpV7hQ=;
-        b=Ky0eG6cnABuv8qns7J9Tth5g6ce33JmCD1p/kz/6fJoMLV4WMlhZF+hJLLNm0Y/QnU
-         RvixYr//7LdoHUe6LQUclWxkoMq4O5g8dx45mVDYQ1saWANrGLtWTZxoTEc4TMChPYMN
-         aCmA5VgxZSXJOVKRna03QRh+Rh/GPs0aX5RzcjdIMOoo3yVw+Xd8XF+sNYYZoTkcBVhW
-         WyraB8JVFtYbzUCax02pVnw3AKtX6ZvINP9upMlpKesGzqA2qSobtVww/gCo5YZYlEa7
-         auxIOCtvEk3x7qnsKq6NYNjrcYuG0CQb2OzQZFns+XmGXgruJSbp9W9tA0U1yotYprgx
-         aWWg==
-X-Forwarded-Encrypted: i=1; AFNElJ9znhTw7Y4Z6vOUcuqBg0OFc3wgiMBOSgHBfu8E7yQV4PNHGvd9dAoGAR67lspO3T6u1GLUF5flroLIxA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxWvYifwVmMXgH+DbBX720G1gca4zit27/CFs3W9IvxIbNDG54X
-	CS6/wlYoQe0ABumom+k4TTUfzsuJ4zRMKbjf0xMb0VyXGx5hPRRmyNe0
-X-Gm-Gg: Acq92OF7pAJYcM8HvremnkF7yp9rsWFMGUDAnhvBmFKYpsfM4jovBod6UCOyTNHru7N
-	iE5YVT7jH/c6EjafKN/QMf2w7p4iVsl9vquLrUrPRkuaTwvBdvQWH/Q20odrGMpjUJww5vE+sYz
-	Hd6McKLbh0xptt4W67IWHxaYFlnKr6S85VGmLToL+YQd5cR3DPV9u59z5wBMMufjEPTvir5EDXD
-	Q1DC6WlHeXKT42QmhTecBPUu3wUW4ySezYE/B+BdhYDYMMewC6utCem73GNoi4qI1o3gyQ18E+o
-	n2f7SAoBAj2LFemua73ST7uC+vzD8RTjRmoPLNotg9Zb0z+nHyFX3RwkyE1CxqLIfI0bkkNSrZw
-	fouBHUT+eM9XtAfTLxLA1jqWeNtXt/xfcCj+jEZoABCbP4UY1Bmzrz+Hgf9olWFqWO6gWb8bQdC
-	edAyoGoDJ/uLITU7MLR42obDC4+H8xgx4tW5PwN+8Gnpa6t2iER8k1E/oJhn0zBcoxmX0AflxRz
-	w84
-X-Received: by 2002:a05:600c:1988:b0:490:845e:3a6 with SMTP id 5b1f17b1804b1-490a295013bmr227426615e9.25.1780349460880;
-        Mon, 01 Jun 2026 14:31:00 -0700 (PDT)
-Received: from machine (host-176-37-220-32.b025.la.net.ua. [176.37.220.32])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490b0e0f343sm19662735e9.1.2026.06.01.14.30.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2026 14:31:00 -0700 (PDT)
-From: d3z <d3z.the.dev@gmail.com>
-To: even.xu@intel.com,
-	xinpeng.sun@intel.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: "Danny D ." <d3z.the.dev@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	abhishektamboli9@gmail.com,
-	sakari.ailus@linux.intel.com
-Subject: Re: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on system resume
-Date: Tue,  2 Jun 2026 00:30:46 +0300
-Message-ID: <20260601213047.115271-1-d3z.the.dev@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <IA1PR11MB60985B856D77963E2DBE47F9F4152@IA1PR11MB6098.namprd11.prod.outlook.com>
-References: <20260529222210.1532876-1-d3z.the.dev@gmail.com> <IA1PR11MB60987CB2D72FD1701951DFA4F4152@IA1PR11MB6098.namprd11.prod.outlook.com> <IA1PR11MB60985B856D77963E2DBE47F9F4152@IA1PR11MB6098.namprd11.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TX9xWU6J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37AA01F00893;
+	Mon,  1 Jun 2026 21:31:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780349514;
+	bh=nPlQLS6UUNA8sFSVI2Lwh1Rdaj7WADdMdULuT0d6CKI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TX9xWU6JHocoEGKCyl0kBdqoq4EzCqpTR6WrjnSFPxLHcMWSOUjE6DZGQa24Vuo7J
+	 qgsIkNvVRouMqY7K+fmbJnFSsa2Oig0L9esejqdBbORjCrmat1IQJZWghdaRKTPwlD
+	 h/tvmmpyDqnvvx2vaEbv5hoPkdeys0SXaPGKy1Z1uFsajr4h4k3F2OwjLT7YHFn8vw
+	 hTlA22DLNv0RKHbz0VlVLQW1tOiDoot0AMA5OPdDXP6UDV6Sy2jimckLsWdrSHrrwf
+	 fNGfZ1mVxQt9fKVdIENfxK5WbtH7YvQ1AZVpRN9XFt7yiBSdiur2OCRfUS6EzzJBTc
+	 9IUegCRJIPo5Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: intel-thc-hid: intel-quickspi: reset touch IC
+ on system resume
+Reply-To: sashiko-reviews@lists.linux.dev
+To: d3z <d3z.the.dev@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260601211828.112626-1-d3z.the.dev@gmail.com>
+References: <20260601211828.112626-1-d3z.the.dev@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 01 Jun 2026 21:31:53 +0000
+Message-Id: <20260601213154.37AA01F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Danny D. <d3z.the.dev@gmail.com>
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Hi Even,
+New issues:
+- [High] Missing cleanup on error paths in `quickspi_resume()` leaves hardw=
+are interrupts enabled.
 
-Thanks for the quick reply and for sharing your patch.
+Pre-existing issues:
+- [High] Potential Use-After-Free in the IRQ handler during device removal.
+- [High] Concurrent execution of hardware initialization (`reset_tic`) betw=
+een PM callbacks and the IRQ thread.
+--
 
-First, the missing piece from your mail: my name is Danny D.
-(d3z.the.dev@gmail.com) - please use it for any
-Signed-off-by/Reported-by/Tested-by.
+commit 4380dc624b155997446c58c62fab2b9cced12a58
+Author: Danny D <d3z.the.dev@gmail.com>
 
-One note on the starting assumption, though: in its current configuration
-this Surface Pro 10 doesn't go to S3 at all. /sys/power/mem_sleep only
-offers s2idle:
+HID: intel-thc-hid: intel-quickspi: reset touch IC on system resume
 
-    $ cat /sys/power/mem_sleep
-    [s2idle]
+This commit updates quickspi_resume() to handle s2idle suspend by restoring
+the THC context and resetting the touch IC when the device is not a wake
+source. It reconfigures the THC SPI/LTR settings and runs reset_tic() to
+re-enumerate the device.
 
-There's no "deep" entry to select here, so every suspend goes through
-s2idle and never reaches PM_SUSPEND_MEM. The touch IC still loses power
-across that s2idle suspend - the same as over hibernation - which is what
-gives the "recv failed: -11" on resume.
+Closes: https://github.com/linux-surface/linux-surface/issues/1799
 
-That's the catch with the attached patch: it gates the THC reconfigure on
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index f669235f18839..4ae2e1718b30c 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -784,20 +784,72 @@ static int quickspi_resume(struct device *device)
+[ ... ]
+> +	thc_interrupt_config(qsdev->thc_hw);
+> =20
+> +	thc_interrupt_enable(qsdev->thc_hw, true);
+> =20
+> -	ret =3D thc_dma_configure(qsdev->thc_hw);
+> +	/* The touch IC may have lost power, reset it to recover */
+> +	ret =3D reset_tic(qsdev);
+> +	if (ret)
+> +		return ret;
 
-    if (last_suspend_state == PM_SUSPEND_MEM)
+[Severity: High]
+If reset_tic() or the subsequent thc_dma_configure() fails, does this
+function return without disabling the hardware interrupts?
 
-i.e. S3 only. On this machine that branch never runs, so it wouldn't bring
-the touchscreen back here. Happy to apply it and confirm on the device, but
-from the code path alone it can't help while we're s2idle-only.
+It appears thc_interrupt_enable() is called before reset_tic(), but
+the error paths directly return without undoing the interrupt enable
+or quiescing the hardware. Could this leave the device in an active
+state capable of generating unhandled interrupts?
 
-What I did instead was key off whether the device actually kept power
-rather than the suspend type: run the full reset only when the device isn't
-a wake source (device_may_wakeup() == false), mirroring quickspi_restore().
-A wake-enabled device stays on the light path so wake-on-touch is preserved;
-one that lost power goes through reset_tic() re-enumeration. That fires on
-both s2idle and S3, which is what makes it work on the SP10.
+[Severity: High]
+This is a pre-existing issue, but the patch newly introduces this
+pattern into the resume path. Is it safe to call reset_tic() here
+while hardware interrupts are actively enabled?
 
-I've tested this on the Surface Pro 10 across many s2idle suspend/resume
-cycles - touch and pen both keep working - and just posted a v2 that adds
-the device_may_wakeup() gate.
+If a fatal error interrupt occurs during the reset window, the
+threaded IRQ handler could catch it and invoke try_recover():
 
-Could we converge on the wakeup-based condition? I'm glad to test any
-revision of your patch on the hardware, and equally glad for you to carry
-the fix with my Signed-off-by/Tested-by once it handles the s2idle case.
+drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:try_recover() {
+    ...
+    ret =3D reset_tic(qsdev);
+    ...
+}
 
-Thanks,
-Danny
+Since there doesn't appear to be mutual exclusion protecting the
+device state recovery path, could both the PM callback and the IRQ
+thread execute acpi_tic_reset() concurrently and corrupt the hardware
+state?
+
+> +
+> +	ret =3D thc_dma_configure(qsdev->thc_hw);
+> +	if (ret)
+> +		return ret;
+
+[ ... ]
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the device
+removal process have a use-after-free window in the IRQ handler?
+
+In quickspi_remove(), the DMA buffers are freed before hardware
+interrupts are disabled:
+
+drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_remove() {
+    ...
+    quickspi_dma_deinit(qsdev);
+
+    pm_runtime_get_noresume(qsdev->dev);
+
+    quickspi_dev_deinit(qsdev);
+    ...
+}
+
+Because the IRQ is managed by devm_request_threaded_irq(), it isn't
+freed until after quickspi_remove() returns. If an interrupt fires
+during this window, could the threaded handler access freed memory?
+
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:read_dma_buffer() {
+    ...
+    prd_tbl =3D &read_config->prd_tbls[prd_table_index];
+    mes_len =3D calc_message_len(prd_tbl, &nent);
+    ...
+}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601211828.1126=
+26-1-d3z.the.dev@gmail.com?part=3D1

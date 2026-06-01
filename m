@@ -1,120 +1,167 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7FEB286D70
-	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 17:22:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780334533; cv=none; b=eldYjtzsmdNFoHP2FUqi2g6Z9f6YDis+cyfUnIrhHVKXl6chB6boDtRj3TYxNlHVv+gFFwKAdzVKqdtJBlt6pRFVush3P2xIrWEuxiybmp/8eZpOvac+2TUssLDuZfhYsVVfrxnzAxtjHSiKdQSRksfFZbsryaNxpJAZfTHiZsc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780334533; c=relaxed/simple;
-	bh=p0dr/0e+RMT5s/D1XookegKIZ7osYLZWSo01y86wFB8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Mha1aaLwVe+BBG1Q3qVAn8LK+bJWpng7u/nrgsHD1yj0QNwFdZ71/c9kDihL1wQBALYSWyL7uS07uQP86rfx7R4T47KChNgBLgfVUEtiJ708iakGvXTkOslMIJDKwRCSWv94wSh870ZIWc3pzlJVEDLi64dtBC3wBEn4m08uFXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kMYFVG52; arc=none smtp.client-ip=74.125.82.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF59133DEE0;
+	Mon,  1 Jun 2026 17:31:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780335073; cv=pass; b=j7MtPpu5dZ7cgHLQluLjUYIFyDRBxB2iYJHULqHKRgUwYbbopefX+oDaZZlOuaQCV3r52i6ycp3pD1vGHZr7H7YIjTs0yKrHjdPCoIDIuBNrJtXQFOHI6s2S06HfBVA+v793VHt6j8BptbWZlEEZUR9CJOImcL8biVizQJFAPyw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780335073; c=relaxed/simple;
+	bh=gVs1fQHCTMN8AaO4JEtra9mFsuHwycI0WcRQ0JYWYEw=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:Content-Type:Date:
+	 MIME-Version; b=WTEunf8MMjHbr/OVBQkosWdSzOVRfon/TC03YTPkdOIesDtH/No5Hn+hSL3W1/lT+3dMdQJYZi7WIIFp8nedjcUW7yJRF2quhTwMX/+5CwiOcakPmHsyTDNIVTKkjNrYD8mejZo2UD5R5r3H22JJVzzYfvVPtvfAap9sk5gEqDo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe; spf=pass smtp.mailfrom=rong.moe; dkim=pass (2048-bit key) header.d=rong.moe header.i=i@rong.moe header.b=Mkuc/zZb; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rong.moe
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kMYFVG52"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-304fb780deaso2538470eec.1
-        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 10:22:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780334532; x=1780939332; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NCZDq71K/7B9NPxpLRXInuFJYsdHo8MGWlsxr1hrqXI=;
-        b=kMYFVG52inQBvoGWMvnWxzhXMxwdroQ4mSQFU90irauPN9529KhtJnjYurdr/toE6k
-         hVleq7fa1d3mUCWj5X5L5VwebvKpU0z71F11GXDMssx1loyXI8T0xIrsu3iyEVf1g3+A
-         Eb4rATpsxtxpJY2xoeJWgL6OwZl5yaIEsxe/O7CDoNZlZ9irXPtFKe9E4uUmg9Eut+g8
-         VxaPIcd/Gv7Cw5COoOEgSmZY99z0GB7ddjYrgu7uqe13i6tUdlkCIekFZTMU98BX+UoT
-         3cjCVrorz/UDMM30lFx7tN1/HlS8msOX5nvb0AiFyg7/r4Hyoq/1Zglj0B/t+1vk88CR
-         Fa2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780334532; x=1780939332;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NCZDq71K/7B9NPxpLRXInuFJYsdHo8MGWlsxr1hrqXI=;
-        b=M3vXt9V0z5Cz/37SI6gmuhmyXbH1ob5nsMjolyzxsSoiGHlFoW9IiL6c2IA7XNC8g0
-         Ea+KbI7pjqoIod42UvRxfOR54I1aQLuRevRgXEL2hEHLhwMHAXcXzZnCSoaCvO6VQcnc
-         CdBSfz2ePt7FMhEJbTOmnlomJ0Mqyei3vLNSGqXUJqSB8Ct6Mqew4c7QbzPC8t9abzJN
-         g8B6OSV/ur5jy1vack/mvhzrJWak7D3JmZybHTfCf+dtS5qnMzVca9qsqnpMxUYveqB9
-         UhaJXp/Hm0opkmVdeHckXDRXVgsp1BeepLFrH5WP98MBu0FA29PsImBK42U8D/Ef9IlW
-         19iw==
-X-Gm-Message-State: AOJu0YzHvAiI6Sa9ASaKkUf0nIdRkZnyYMLjY359STU3d5LM2Q9qA2Eq
-	vFhi9/1FSPCm4ejszq2EwJHPQFwJunndyfNbPpxiAjx+C5CcNL+9+dHI
-X-Gm-Gg: Acq92OGmMWrspYtOI2dU3kIPASIZl6AjHSRU5U/1IcvU8DK4XNtVrABRCH6VGRysVia
-	JL2L6Asa6OTCJdPwU137B2zdJHyqj78mz+4HqteBZrqpJwE8g558dUI+ABy5pljA0Y6noHTOreu
-	uXTjMGLOQ00UyODK/TJ+0zOY0eHfq/OT8Q01M1wm8ij/oJIQf+mcePeG+o7Xr3QEJWloWyuGSgU
-	5V3riW8elkoC4qY4sO8u4aATJiD0BD3fuVb5wEBEmoScVVPkok3b3feCyXP2kPoHhSdIIu06+yf
-	8oF4OliDHXC1qJmKpfGzYZMhgYxYClcp7n8BTTytfKR3Tgh12GHcm+fCpYrpLdvR3+VJipW/4Zp
-	5K5/y6Ykg523UUju3otrc35voU8EqTiZSOIyk9ob++ivE+yrB+/NHhG9w5gX7i4FidkxvBPoRXz
-	0X/jXBrj6dyy/YieUVh7X34SMdhC0NSubzmh/TkQAA6PLkHH8thUKQrDTNdCR4TpLbtwp4fC75z
-	SYczqlut4qmAQ==
-X-Received: by 2002:a05:7300:724f:b0:304:4f23:457e with SMTP id 5a478bee46e88-304fa62cc9fmr6202558eec.22.1780334531524;
-        Mon, 01 Jun 2026 10:22:11 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:50da:22ff:eb92:9530])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed2c10c1sm8978536eec.1.2026.06.01.10.22.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2026 10:22:10 -0700 (PDT)
-Date: Mon, 1 Jun 2026 10:22:07 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Ginger <ginger.jzllee@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [bug report] Potential atomicity bug in drivers/input/joydev.c,
- between joydev_0x_read() and joydev_ioctl_common()
-Message-ID: <ah2-X1_innZZTAMZ@google.com>
-References: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=rong.moe header.i=i@rong.moe header.b="Mkuc/zZb"
+ARC-Seal: i=1; a=rsa-sha256; t=1780335066; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=HuTdqn9Wz6hgF79OOyZqoFGXN3/9TaodJEettxDk6mXOnaRcLyuUX0i8Rn62X5ZyNdtK5QhvIczzSZFixEFacGgwnj41HqsVoSBTB5DIghlV4F+CHTPHLnkVTRdlBO4X9AUkjo8drj6LoxfEUJvYB3s8P0QU2wW1fWOztN5AP+s=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1780335066; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=TErnEhvYQocHA/w+yxxFJm1xhoVlzroH2fCaIXyAGr4=; 
+	b=AnqnNMQEKIKQxpdZRquJl7ioOnfbdOIb0hPCyTkd2FxkmOlYcC11djQ81CMSEkqTl3PVbib5tInG9lU9gOE62FTtLFteLvH8GOYFSoM3EsS7fEqc/9eYeISIBwli/dEdo3cR4Z2qQKmiVdU3Ejr18UZORVAOX+74Toz3/3LIDGI=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=rong.moe;
+	spf=pass  smtp.mailfrom=i@rong.moe;
+	dmarc=pass header.from=<i@rong.moe>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1780335066;
+	s=zmail2048; d=rong.moe; i=i@rong.moe;
+	h=Message-ID:Subject:Subject:From:From:To:To:Cc:Cc:In-Reply-To:Content-Type:Content-Transfer-Encoding:Date:Date:MIME-Version:Message-Id:Reply-To;
+	bh=TErnEhvYQocHA/w+yxxFJm1xhoVlzroH2fCaIXyAGr4=;
+	b=Mkuc/zZbwCwH5vN1yJ1fQKgVl76/tFfAPnJUmtuxd/oP+fWaZlQ6opAJsrTTKDZO
+	AAKdHyH600dVW3IjmgfctaIzP94bfaun0YPXsbSS5HQBGPRxhOREzIdxopOuX79e8dB
+	IdQv2Tk0ymw6nsquiVvHHdhPgSYwOdv7768ll3IjpNo6wjzx/tEJ955D3ipIRA+qIdG
+	/6LxtniwtCGIqoU7Jkz80kNKqJ7OWrtR2Vm+pSRCren8du98s8Wbq9bg+DPei21JRMq
+	pfGguxzPEqe5xu1aiv/iLxYw/YxdbpDDcU4uiuYbrTVFXsoFd/gTtYkWJyj9nmxQtKb
+	7S2Wt5nu9A==
+Received: by mx.zohomail.com with SMTPS id 1780335064918433.33760150363105;
+	Mon, 1 Jun 2026 10:31:04 -0700 (PDT)
+Message-ID: <fb198851093477d958eae61665e9cfda0be5b48f.camel@rong.moe>
+Subject: Re: [PATCH v2 1/4] HID: multitouch: set INPUT_PROP_PRESSUREPAD
+ based on Digitizer/Button Type
+From: Rong Zhang <i@rong.moe>
+To: devnull+peter.hutterer.who-t.net@kernel.org
+Cc: bentiss@kernel.org, dmitry.torokhov@gmail.com, jikos@kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, peter.hutterer@who-t.net,
+ shuah@kernel.org, 	vadim@cirque.com
+In-Reply-To: <20251222-wip-hid-pressurepad-v2-1-054ac9689bb7@who-t.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 02 Jun 2026 01:25:57 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
+User-Agent: Evolution 3.56.2-9 
+X-ZohoMailClient: External
 
-Hi Ginger,
 
-On Mon, Jun 01, 2026 at 03:07:05PM +0800, Ginger wrote:
-> Dear Linux kernel maintainers,
-> 
-> My research-based static analyzer found a potential atomicity bug
-> within the 'drivers/input' subsystem, more specifically, in
-> 'drivers/input/joydev.c'.
-> 
-> This potential issue is present as of git commit
-> eb3f4b7426cfd2b79d65b7d37155480b32259a11 of the mainline kernel.
-> 
-> Potential concurrent triggering executions:
-> T0:
-> joydev_0x_read
->      --> spin_lock_irq(&input->event_lock);
->      --> read from joydev->abs
->      --> spin_unlock_irq(&input->event_lock);
-> 
-> T1:
-> joydev_ioctl_common
->     --> case JSIOCSCORR:
->     --> write to joydev->abs[i] (no unlocked)
-> 
-> The above trace is meant to demonstrate an illustrative example of the issue:
-> IMHO, in 'joydev_0x_read', the 'input->event_lock' is adopted to
-> serialize the read
-> accesses to joydev's fields like 'abs' and 'keypam' or input's fields
-> like 'input->key.
-> However, in either case, the write-side accesses to these fields are
-> not similarly
-> serialized.
+Hi all,
 
-Yes, there is lack of locking in joydev. Some of this might be OK (if
-we prevent tearing on reads/writes) since the data may actually be
-obsolete immediately after we read it, while in many places we
-actually do need consistency, especially when we adjust key and axis
-maps.
+Hopefully I'm not too late to show up here.
 
-Thanks.
+> From: Peter Hutterer <peter.hutterer@who-t.net>
+>=20
+> A Digitizer/Button Type value of 1 indicates the device is a
+> pressurepad, see
+> https://learn.microsoft.com/en-us/windows-hardware/design/component-guide=
+lines/touchpad-windows-precision-touchpad-collection#device-capabilities-fe=
+ature-report
+>=20
+> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+> ---
+>  drivers/hid/hid-multitouch.c | 12 +++++++++++-
+>  1 file changed, 11 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 179dc316b4b518d78bdc900d9fd15756c5eba83e..382e6f50c4f7e663af7d028ab=
+b8be7cb2e6e7b8e 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -81,6 +81,7 @@ MODULE_LICENSE("GPL");
+>  #define MT_INPUTMODE_TOUCHPAD		0x03
+> =20
+>  #define MT_BUTTONTYPE_CLICKPAD		0
+> +#define MT_BUTTONTYPE_PRESSUREPAD	1
+> =20
+>  enum latency_mode {
+>  	HID_LATENCY_NORMAL =3D 0,
+> @@ -179,6 +180,7 @@ struct mt_device {
+>  	__u8 inputmode_value;	/* InputMode HID feature value */
+>  	__u8 maxcontacts;
+>  	bool is_buttonpad;	/* is this device a button pad? */
+> +	bool is_pressurepad;	/* is this device a pressurepad? */
+>  	bool is_haptic_touchpad;	/* is this device a haptic touchpad? */
+>  	bool serial_maybe;	/* need to check for serial protocol */
+> =20
+> @@ -530,8 +532,14 @@ static void mt_feature_mapping(struct hid_device *hd=
+ev,
+>  		}
+> =20
+>  		mt_get_feature(hdev, field->report);
+> -		if (field->value[usage->usage_index] =3D=3D MT_BUTTONTYPE_CLICKPAD)
+> +		switch (field->value[usage->usage_index]) {
+> +		case MT_BUTTONTYPE_CLICKPAD:
+>  			td->is_buttonpad =3D true;
+> +			break;
+> +		case MT_BUTTONTYPE_PRESSUREPAD:
+> +			td->is_pressurepad =3D true;
+> +			break;
+> +		}
+> =20
+>  		break;
+>  	case 0xff0000c5:
+> @@ -1393,6 +1401,8 @@ static int mt_touch_input_configured(struct hid_dev=
+ice *hdev,
+> =20
+>  	if (td->is_buttonpad)
+>  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+> +	if (td->is_pressurepad)
+> +		__set_bit(INPUT_PROP_PRESSUREPAD, input->propbit);
 
--- 
-Dmitry
+I noticed that this leads to dual reporting on my device.
+
+Consider previous checks:
+
+	if (application =3D=3D HID_DG_TOUCHPAD) {
+		mt_application->mt_flags |=3D INPUT_MT_POINTER;
+		td->inputmode_value =3D MT_INPUTMODE_TOUCHPAD;
+	}
+
+...
+
+	/* check for clickpads */
+	if ((app->mt_flags & INPUT_MT_POINTER) &&
+	    (app->buttons_count =3D=3D 1))
+		td->is_buttonpad =3D true;
+
+... where `td->is_buttonpad' is set to true when a pressure pad has only
+one button, i.e., the "touchpad button integrated with digitizer" [1].
+Most (if not all) pressure pads fall into this category. As a result,
+the presence of INPUT_PROP_PRESSUREPAD is always accompanied by the
+presence of INPUT_PROP_BUTTONPAD.
+
+Since the corresponding testcase neither expects dual reporting nor
+prohibits it, I am confused of the intended properties to expose. Is it
+a mistake or an intended behavior? If it's the former, I am going to
+submit a patch to fix it.=20
+
+[1]: https://learn.microsoft.com/en-us/windows-hardware/design/component-gu=
+idelines/touchpad-buttons-report-level-usages
+
+Thanks,
+Rong
+
+> =20
+>  	app->pending_palm_slots =3D devm_kcalloc(&hi->input->dev,
+>  					       BITS_TO_LONGS(td->maxcontacts),
+>=20
+> --=20
+> 2.51.1
+>=20

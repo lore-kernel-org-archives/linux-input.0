@@ -1,100 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908433101A0;
-	Mon,  1 Jun 2026 16:51:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7FEB286D70
+	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 17:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780332669; cv=none; b=Lgx/eTnvN5lJ4M2YpjVDz169v2rF9WYjQGQCrPdT903ezJifpJD6W3Vj/aGHxHHSTVD6QDf4SXIcD0M+s2F27iUXcNBaGBCZwIa0vFJ73Fqv6QmeLNT8iZBAh2Gy4VUH9d64VEneA2u3rTKFJ6U6HHemAgMieX2iYTy7n4/KReE=
+	t=1780334533; cv=none; b=eldYjtzsmdNFoHP2FUqi2g6Z9f6YDis+cyfUnIrhHVKXl6chB6boDtRj3TYxNlHVv+gFFwKAdzVKqdtJBlt6pRFVush3P2xIrWEuxiybmp/8eZpOvac+2TUssLDuZfhYsVVfrxnzAxtjHSiKdQSRksfFZbsryaNxpJAZfTHiZsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780332669; c=relaxed/simple;
-	bh=mnSvAkyAKEV64YOg4TXgo6ur5+tE84mQn/kzgI2OKHc=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=mKc9rOxSpfdsgK3N3N4tlwn1Z8TzleuHOwkZg+50FxP7M+ALdREN6FhBaLDZZ1Cql3LDMSmLUydU6lq/O6jHaWYd5NlR38eEXNfhUE8LAfXYO+423x7XGPYA/dv2eGpm8NRsXoCrFpMRRgioKaluim7OeW7+lP0tOdzYJr6QS4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bPiKEsII; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780334533; c=relaxed/simple;
+	bh=p0dr/0e+RMT5s/D1XookegKIZ7osYLZWSo01y86wFB8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Mha1aaLwVe+BBG1Q3qVAn8LK+bJWpng7u/nrgsHD1yj0QNwFdZ71/c9kDihL1wQBALYSWyL7uS07uQP86rfx7R4T47KChNgBLgfVUEtiJ708iakGvXTkOslMIJDKwRCSWv94wSh870ZIWc3pzlJVEDLi64dtBC3wBEn4m08uFXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kMYFVG52; arc=none smtp.client-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bPiKEsII"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2681F00893;
-	Mon,  1 Jun 2026 16:51:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780332668;
-	bh=czmPJqXZMmdpshyUZi9ZFX1mrThHJaOUqSLQ0ZlacWI=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=bPiKEsIIjuS0SzESIHKPkLJYVfj7MY1KHTZxnFs3c/h3qZHTq+K/ph8CKPpnO0JNk
-	 +wTtvF5NY1NU4W3FWMhegKz/ptXdw+0VBbWVa5vGaX4KY6AyrDuVNzfogaGEQK3Cbe
-	 /UEjRvZ3dL6EkeDz2bGPmXzXiLimosqKCT0ZXECfs7e8Ax6EnAnWLFhnroU9wjohKx
-	 M584TOmRvptV3A/nAJZ00KCh9UaxlMscOAb08lScopeesRgy3X0KCtg+RVwntlO5rg
-	 SmNx9NQ/4Aw3lzJpAPrfNaxkIjA+zmvs8/1zTtBX0dUzPzQ0Drp/6t6/flGt1rCWiT
-	 cx3Icq083ZfBg==
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 447EFF40097;
-	Mon,  1 Jun 2026 12:51:07 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Mon, 01 Jun 2026 12:51:07 -0400
-X-ME-Sender: <xms:e7gdauhhu95keg-RXpu4IoCXpvI5L94tmu3h211J11HVdnPQziAasQ>
-    <xme:e7gdap3zLX3Racp-R-1NVSBtnEwpR_SVw3pgvs9HGzQDBmWO5d_ueM5nwzcI2jNlD
-    N0Y6mkNVXKDcCTjFf8VE9AdOgU__oITEymUAlGn90WP7227lMAtnU0>
-X-ME-Proxy-Cause: dmFkZTEsnE6xJLC9nA7G9BbfEpwnb72Uxk2msx5m6J9qRN0ZQGEThJK5Em/LgCcdV3G1LU
-    LmECNPt6iBGeBOekCeOqSK1sitRy916kTyrli8rG6nO5inRhaq/seJOyea0q8kiJtGsjur
-    FP+RE8t/zCAKSrt712azKNoZNMyWO0BYh3enlC9CetBSPyVOCC97zMCMAW4lnyBu5BEzNb
-    Mx4L9/sowFccFtJv7i8EhGqJVHPdCOX1U9qoI4QPwRekkacJdsIBGCImY7LYpllEACLYch
-    s7L0yxssXox9soXt6PLVdWkNredOEztkbU5YWdW0zENLISA02NvvC3xKJ1tPlvTUwFWzE2
-    KAvZ/yv3k+5bVMRi3+4gzQRfkk1wca5oS1YSQr3mkcNrCilseTuxTq1vGFfFbbzD1YxqHK
-    RnaMt3/Mdxfoy94VZ6UdYkOdir8auQJvUa/Njb7HRtQMhhWhUcHJMo7IDLeDjN5MP2RsIo
-    jB84ooZKq3wiVOMBauQHjTPIEJLtt8ZOhH5qO6Cij+hOYP8bFgFPGDVlL2K+O2iwG4jmj0
-    maGvMTpDWk2NDOKT+S7Peq+HkEYeIDbJ7Zu4kamxrUyJwMEPsUOg6awyqdhI276FR1QVvp
-    jKi+OPlpcgxogpA38x5VapzD/KIMlPQ/3zmbcnHZT5y2q1z48hz62bMRRA1Q
-X-ME-Proxy: <xmx:e7gdagFg4dV41RCqWbZFuB3tVhYNsuqcYYobknNbvNHIoNQDyzj7Tg>
-    <xmx:e7gdapdHtPYhFxUWpan1YDA9Q45eAd30IWoQsK5FbmY25inN7LcQxQ>
-    <xmx:e7gdaiEvG2KpXQL8UkDYEFhLIOZ7eKEzJ9eGXTI3rBXKmFovcKDPDQ>
-    <xmx:e7gdaqV3haWd0JSfKO4KJ6JeJ65kHZVOgDZVQsAw27RIsZHKPZMunQ>
-    <xmx:e7gdahI9WDOglMhvZ9xOGw04C0q6TrgX5gVszmz2u6hwsu1Klt7vKIhl>
-Feedback-ID: i36794607:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 1697F182007E; Mon,  1 Jun 2026 12:51:07 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kMYFVG52"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-304fb780deaso2538470eec.1
+        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 10:22:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780334532; x=1780939332; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=NCZDq71K/7B9NPxpLRXInuFJYsdHo8MGWlsxr1hrqXI=;
+        b=kMYFVG52inQBvoGWMvnWxzhXMxwdroQ4mSQFU90irauPN9529KhtJnjYurdr/toE6k
+         hVleq7fa1d3mUCWj5X5L5VwebvKpU0z71F11GXDMssx1loyXI8T0xIrsu3iyEVf1g3+A
+         Eb4rATpsxtxpJY2xoeJWgL6OwZl5yaIEsxe/O7CDoNZlZ9irXPtFKe9E4uUmg9Eut+g8
+         VxaPIcd/Gv7Cw5COoOEgSmZY99z0GB7ddjYrgu7uqe13i6tUdlkCIekFZTMU98BX+UoT
+         3cjCVrorz/UDMM30lFx7tN1/HlS8msOX5nvb0AiFyg7/r4Hyoq/1Zglj0B/t+1vk88CR
+         Fa2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780334532; x=1780939332;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NCZDq71K/7B9NPxpLRXInuFJYsdHo8MGWlsxr1hrqXI=;
+        b=M3vXt9V0z5Cz/37SI6gmuhmyXbH1ob5nsMjolyzxsSoiGHlFoW9IiL6c2IA7XNC8g0
+         Ea+KbI7pjqoIod42UvRxfOR54I1aQLuRevRgXEL2hEHLhwMHAXcXzZnCSoaCvO6VQcnc
+         CdBSfz2ePt7FMhEJbTOmnlomJ0Mqyei3vLNSGqXUJqSB8Ct6Mqew4c7QbzPC8t9abzJN
+         g8B6OSV/ur5jy1vack/mvhzrJWak7D3JmZybHTfCf+dtS5qnMzVca9qsqnpMxUYveqB9
+         UhaJXp/Hm0opkmVdeHckXDRXVgsp1BeepLFrH5WP98MBu0FA29PsImBK42U8D/Ef9IlW
+         19iw==
+X-Gm-Message-State: AOJu0YzHvAiI6Sa9ASaKkUf0nIdRkZnyYMLjY359STU3d5LM2Q9qA2Eq
+	vFhi9/1FSPCm4ejszq2EwJHPQFwJunndyfNbPpxiAjx+C5CcNL+9+dHI
+X-Gm-Gg: Acq92OGmMWrspYtOI2dU3kIPASIZl6AjHSRU5U/1IcvU8DK4XNtVrABRCH6VGRysVia
+	JL2L6Asa6OTCJdPwU137B2zdJHyqj78mz+4HqteBZrqpJwE8g558dUI+ABy5pljA0Y6noHTOreu
+	uXTjMGLOQ00UyODK/TJ+0zOY0eHfq/OT8Q01M1wm8ij/oJIQf+mcePeG+o7Xr3QEJWloWyuGSgU
+	5V3riW8elkoC4qY4sO8u4aATJiD0BD3fuVb5wEBEmoScVVPkok3b3feCyXP2kPoHhSdIIu06+yf
+	8oF4OliDHXC1qJmKpfGzYZMhgYxYClcp7n8BTTytfKR3Tgh12GHcm+fCpYrpLdvR3+VJipW/4Zp
+	5K5/y6Ykg523UUju3otrc35voU8EqTiZSOIyk9ob++ivE+yrB+/NHhG9w5gX7i4FidkxvBPoRXz
+	0X/jXBrj6dyy/YieUVh7X34SMdhC0NSubzmh/TkQAA6PLkHH8thUKQrDTNdCR4TpLbtwp4fC75z
+	SYczqlut4qmAQ==
+X-Received: by 2002:a05:7300:724f:b0:304:4f23:457e with SMTP id 5a478bee46e88-304fa62cc9fmr6202558eec.22.1780334531524;
+        Mon, 01 Jun 2026 10:22:11 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:50da:22ff:eb92:9530])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed2c10c1sm8978536eec.1.2026.06.01.10.22.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 10:22:10 -0700 (PDT)
+Date: Mon, 1 Jun 2026 10:22:07 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Ginger <ginger.jzllee@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: Re: [bug report] Potential atomicity bug in drivers/input/joydev.c,
+ between joydev_0x_read() and joydev_ioctl_common()
+Message-ID: <ah2-X1_innZZTAMZ@google.com>
+References: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ADJg51WCz7jo
-Date: Mon, 01 Jun 2026 18:50:16 +0200
-From: "Arnd Bergmann" <arnd@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Message-Id: <c998d342-c001-4ed9-a359-2be24984ca02@app.fastmail.com>
-In-Reply-To: <20260530004519.A9BAB1F00898@smtp.kernel.org>
-References: <20260520183815.2510387-2-arnd@kernel.org>
- <20260530004519.A9BAB1F00898@smtp.kernel.org>
-Subject: Re: [PATCH 01/10] [v2] [net-next] net: dsa: b53: hide legacy gpiolib usage on
- non-mips
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
 
-On Sat, May 30, 2026, at 02:45, sashiko-bot@kernel.org wrote:
->
-> [Severity: High]
-> Does this silently ignore probe errors like -EPROBE_DEFER?
->
-> Previously, if devm_gpio_request_one failed, the error was returned to the
-> caller. Now, b53_switch_get_reset_gpio handles the request and returns an
-> ERR_PTR on failure, but that error pointer is simply stored in dev->reset_gpio
-> while b53_switch_init unconditionally returns 0.
->
-> Later in the code, b53_switch_reset_gpio relies on IS_ERR(dev->reset_gpio)
-> to gracefully return, which would silently skip the reset sequence entirely
-> if the GPIO controller simply isn't ready yet (-EPROBE_DEFER) or if there
-> was a memory allocation failure (-ENOMEM).
+Hi Ginger,
 
-The driver already ignored errors previously on BCM47xx. and
-I can see that -EPROBE_DEFER cannot happen because the gpio
-driver is very simplistic and always built-in.
+On Mon, Jun 01, 2026 at 03:07:05PM +0800, Ginger wrote:
+> Dear Linux kernel maintainers,
+> 
+> My research-based static analyzer found a potential atomicity bug
+> within the 'drivers/input' subsystem, more specifically, in
+> 'drivers/input/joydev.c'.
+> 
+> This potential issue is present as of git commit
+> eb3f4b7426cfd2b79d65b7d37155480b32259a11 of the mainline kernel.
+> 
+> Potential concurrent triggering executions:
+> T0:
+> joydev_0x_read
+>      --> spin_lock_irq(&input->event_lock);
+>      --> read from joydev->abs
+>      --> spin_unlock_irq(&input->event_lock);
+> 
+> T1:
+> joydev_ioctl_common
+>     --> case JSIOCSCORR:
+>     --> write to joydev->abs[i] (no unlocked)
+> 
+> The above trace is meant to demonstrate an illustrative example of the issue:
+> IMHO, in 'joydev_0x_read', the 'input->event_lock' is adopted to
+> serialize the read
+> accesses to joydev's fields like 'abs' and 'keypam' or input's fields
+> like 'input->key.
+> However, in either case, the write-side accesses to these fields are
+> not similarly
+> serialized.
 
-I've updated the patch to propagate -EPROBE_DEFER anway as that
-is clearly the correct thing to do in case it ever gets used extended
-to other platforms. All other errors continue to be ignored to
-keep the current behavior of the driver.
+Yes, there is lack of locking in joydev. Some of this might be OK (if
+we prevent tearing on reads/writes) since the data may actually be
+obsolete immediately after we read it, while in many places we
+actually do need consistency, especially when we adjust key and axis
+maps.
 
-       Arnd
+Thanks.
+
+-- 
+Dmitry

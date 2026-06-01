@@ -1,493 +1,370 @@
-Received: from mail.sntiq.com (mail.sntiq.com [45.149.154.214])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361F132E126;
-	Sun, 31 May 2026 23:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.149.154.214
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780270881; cv=none; b=JkTGrbR/7SJopgh3Ed251P8Bpc3SV1nHpfgkJo0a/DCGT+Bh6aSWJ2XrPWerXnCGTLQXJx7cEgmcxJD7DNo8YVVpFPgSQr8hdiC7VsPTRCr6fmWF7L4RxDyuyqopa5IX7L2/GVbWBwv6VTK6CiVtmuPQ+KnsBzIThX8Pob/6XY0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780270881; c=relaxed/simple;
-	bh=WhIEIBjnTjDhztpwcAtcswGjMA5UezFHtxNci4+VNIg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=r4Mw5taKlFMP0zQwa7rbcrusuMTbP+uWSeJFOvS+hw2W3QCsFkze7rv77W3PnPTwTUXpX06ZyqmsepmdU0QbZQnAdjFJker2+eSn4+j2YnIo7ogCk2SpC+whBwfABLgAMr4hNwLJIcmvFfjIcuaCRYR+/J+Xi7/Gt/DR+ENF5jI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntiq.com; spf=pass smtp.mailfrom=sntiq.com; dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b=BuNU6z+F; arc=none smtp.client-ip=45.149.154.214
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntiq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntiq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 384301F0E29;
+	Mon,  1 Jun 2026 03:24:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.9
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780284298; cv=fail; b=GD4NZofzP1r51Y3QXORG/PsgkDDbnUM32otAx+pQg4IJyKv6yhrvJbk5aGmIbUuZIqmAtM1wL90j4l0cJtrFFoYLhtjgIeMj4gsChg1h3HJNOJAqYZSY48PfXDhdH5D+Hqi+A0USxnbZ9AGgKt/O5ir1pCIaEo4+vhAkEAak2MQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780284298; c=relaxed/simple;
+	bh=NmDxVhxGoju0TbmbNu+eLRSQFy3va47cB0HGK6n74hQ=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=qnvrha27no9hegI68qJhNl5h3sFRnKGLwbAB+HkdzHpuJ9/B2ApdYPJGcZEeTJSEM/izvdQtfi6dEUCpdjiQO7Lqh8fgQeagWw4k+EZxyjqcuBpwhIhF1cUZoylwAsbIf5ZmBUOPnhWRYch5dFH8qcXiQZVvMvVs5TzoJ3NKThk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mpVZjE1E; arc=fail smtp.client-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntiq.com header.i=@sntiq.com header.b="BuNU6z+F"
-Received: from node (unknown [209.198.153.231])
-	by mail.sntiq.com (Postfix) with ESMTPSA id 76764801E6;
-	Sun, 31 May 2026 23:39:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sntiq.com; s=dkim;
-	t=1780270875;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0162qsYtzC+E5eqWXD1AlT/6gO69YpRtWvbQIUfO0yU=;
-	b=BuNU6z+Fixkguy+Fc5KSuCdC1BNB4ykrg54ddrwQla9HFjdb8NXiqrk9txdyG5tuKKTxiL
-	jg/UKxq8ftkRQUTzqijON+BPUq1A9GF6rbLAbvGG5KXPuKZwuueAUa04O+YdINfFNLnkzf
-	ej3PA7Cl5bmSmwEJUzpS05EDfDrr1LjOa4uN0dCZPzkG5QAb1KcKO/5R0qI1ymDN6lAoz/
-	QkHatU1g20AJmzIbSjESuJXt5MPXHsbJUDKsmObotRQwo4l5nrtnPjWtlTCoQJYFlSFJvb
-	WjWICdgNCBRaq4f4Q7sUf1e0Pnhj26U+XpMec4jP3M6u3YAi/YvD3b9euJ1/tg==
-From: David Glushkov <david.glushkov@sntiq.com>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v5] HID: steelseries: Add MSI Raider A18 HX A9WJG RGB support
-Date: Mon,  1 Jun 2026 01:39:03 +0200
-Message-ID: <20260531233903.208321-1-david.glushkov@sntiq.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260531215204.172030-1-david.glushkov@sntiq.com>
-References: <20260531215204.172030-1-david.glushkov@sntiq.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mpVZjE1E"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780284296; x=1811820296;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:mime-version;
+  bh=NmDxVhxGoju0TbmbNu+eLRSQFy3va47cB0HGK6n74hQ=;
+  b=mpVZjE1EEFsUTT57k+vLtM4P2VR9dDB06wDAbUTuE59gvWf6QKWWB83C
+   hkvhqf093IjiTchtnXjABWv2e9fZhN1yDGAX4GGWuZEvrN7vvV+n3pj5d
+   GZ+qZMllSg+iM1uxJWFipiRTyPCOoZo0qYZJ2ManjnPJ8hplkXGW5eT2i
+   Y7TYL7H3r2e/b1sPOTMkzYE2dp1IRFF1jRPM6lDra4p7BB3SRxWxzKf4y
+   2x9EBN6BY2dOFDku6YRsqjNTMboGFDtwBF4FzLhvzj8lQ/t57NSQM+qlC
+   3+0FEFfALWWvbRDRG+UOKcGscrDftvWOJQpHBBRvSNQaIrqrICwbsq498
+   A==;
+X-CSE-ConnectionGUID: Z66KukIiSPGdMoOXSPIAgg==
+X-CSE-MsgGUID: r0ao/uPyTTe9oUVgwTIvRA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11803"; a="91719550"
+X-IronPort-AV: E=Sophos;i="6.24,180,1774335600"; 
+   d="scan'208,223";a="91719550"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 May 2026 20:24:55 -0700
+X-CSE-ConnectionGUID: IVKZTgeNRO2jZr0CBMLW3w==
+X-CSE-MsgGUID: qcgYhdIaT1a5R1G1GiJzLQ==
+X-ExtLoop1: 1
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by fmviesa003.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 May 2026 20:24:55 -0700
+Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Sun, 31 May 2026 20:24:55 -0700
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37 via Frontend Transport; Sun, 31 May 2026 20:24:55 -0700
+Received: from BYAPR05CU005.outbound.protection.outlook.com (52.101.85.47) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.37; Sun, 31 May 2026 20:24:55 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=EOzB8ihVWTOwBSB5vvIK+1cbw+S9xGkbP/IOn4RxHsOhskTDfTXh97dtqiejcdMdJ3IRbyZdQNR8EDSuPnu681iOmYHFlsw30D5rlc6QpfX2P7EPmUdN8yCS6f10SqeNBw3SiENg3pnAT3SBpafyp1E53jB8QR6WDNDlv3o9KPSk6l/9aNhjFRci37UqmY4MWdXDKB2yJpbocVIqpytgRRDkjpPgPVmuNc2tC+7Gtlkq89s03OL0HoHBWwPF/610RnPTqtb6BSW2H5f6vq175CpBcv0Oi5NXHMhAt3R7vflRJuwtEMjYYxiU9rtfZRlnknVjZmJqUi2xfh0aBDcWZw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=znZHjWJWMAk+621HreourswXnAwW7PdZZ6QkYYwxWCM=;
+ b=dkFb1C1UDrg0+bpZjvkU7T37Ks8dqIan51ODmF8+4BmCcdx3NU8I2cAYs/3WIKLOyFz7DGam3mUlzv9KnsS9ZW4+UYgc1gFtArk73zpo9+2/EfyQS+BdavEuG8WggZZjlUaxx5gBeARvObzEShxBpFzhg2wHyqNyfq8cLOTiS/lxAJPj23pEB1WfPt+fvaNMnrhDQSpYold7XFf5urL9vmVgrZXLOoqj2+ZmHE92ChBNTjdD9/W/95WH7UeFcdaB0vMw3d4VDfpVuVLXinQjJxyagjkZ+CCp4sLZVLqUrKbj/8/aSbpqvoZ8iM+WrANJ35f820sT5UBvr1GJkT1w7g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
+ by DS0PR11MB8052.namprd11.prod.outlook.com (2603:10b6:8:122::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.16; Mon, 1 Jun 2026
+ 03:24:53 +0000
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::b1d9:3282:7e31:3799%4]) with mapi id 15.21.0071.015; Mon, 1 Jun 2026
+ 03:24:53 +0000
+From: "Xu, Even" <even.xu@intel.com>
+To: d3z-the-dev <d3z.the.dev@gmail.com>, "Sun, Xinpeng"
+	<xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
+	<bentiss@kernel.org>
+CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Abhishek
+ Tamboli" <abhishektamboli9@gmail.com>, Sakari Ailus
+	<sakari.ailus@linux.intel.com>
+Subject: RE: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on
+ system resume
+Thread-Topic: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on
+ system resume
+Thread-Index: AQHc77mrUbJCsvCWBk+2B+n2qvQl/bYpBmKg
+Date: Mon, 1 Jun 2026 03:24:52 +0000
+Message-ID: <IA1PR11MB60987CB2D72FD1701951DFA4F4152@IA1PR11MB6098.namprd11.prod.outlook.com>
+References: <20260529222210.1532876-1-d3z.the.dev@gmail.com>
+In-Reply-To: <20260529222210.1532876-1-d3z.the.dev@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|DS0PR11MB8052:EE_
+x-ms-office365-filtering-correlation-id: 8f85e1d1-c418-4cd5-14f8-08debf8d5887
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|376014|366016|6049299003|6133799003|22082099003|18002099003|3023799007|11063799006|56012099006|38070700021|4053099003;
+x-microsoft-antispam-message-info: RjRbhJo1xDx08qZ5jOvQIaePkxObIuLMdKYZdPKPYY1EeWtd3qTkcdtwI4kANrz9plDcg/jGuYja8GJXQoCRDRmSl+HsgGU71NiI8o03F7bpOzTQgI5wCgQGquonhhvVSNGZSES25n2dxspbqxc9aoFfS0CpV84sajv7aomn9AIuflT2lOETrtdmN4tNf2tzn0YVUL0uv8t4OCIPpZUISVuLjvC564ogUXNXlz2pP6ur7ZKQ6RLajRSHQgBrxO53VZ8Hu+SQeMQfYiafSVyE45WhP7OqK9BDAtbHiO2Tm9cfcyssvA082jJ3NQxT5LqnI1z9WD/Gt6uHMiMGkwn97/jCNEptvav4VznIHXx+ceTBOTtJUoMx0secMquWJVW2IAs1V21apaEAQE/BRr63krZVGc+a5gD/9QEtkx4oK1GJN/LCMYzcFHF3wtOgQq1m52kMMXqKaleZRo2JYn78JX9CTkZ6ete8BiiBH96nThNlgjs9gXCzsd/5amXriq/UvquJfXPQOV+80WD65v75kl7ryrIsbqVvdymrLgeWoBRnqUYgqSTm9oz+CH29X4l198J3X8ma9BSnnb5bo43BmCjpmNG92XJcNPdXVEIHmX6uUCPjEC3lMeAyCGl3aObitY/vxcAOZpZOyFWlq07Aq/mqL4d/0XO2IXvrZPuBqllNYa+dU82PRB7fWRYCxlyZoB0crhfHtFZteyG8JzEZJ2TCNsD6ZstA8/HafJ3utdKe2DjgO/SeyDXLdiRfYcyK1ZMpx0c2eGySa8vIsalcDQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(6049299003)(6133799003)(22082099003)(18002099003)(3023799007)(11063799006)(56012099006)(38070700021)(4053099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?LMVpJD/XAGxb8+wscs7fdOMELLan8/DVHOWqxdQqnBC1Z0AyI2aEKseLNVdH?=
+ =?us-ascii?Q?NWI0UYhBRpZgHaFi7dKJyP3Hi+viV08CvEhqbzZXAFRF8I+CPvkzaB4Apof1?=
+ =?us-ascii?Q?WqhZQHOeP8IYrLxQI26lqntigZsVzK2AaG2B1s1W0PKDFXhuNPtGY+K3Dht9?=
+ =?us-ascii?Q?nOPgiBbrYfBsBg/LhH2oqSVTrPkKWwJspferBPGlE2dMxzkYuQrGH/HZoq9O?=
+ =?us-ascii?Q?hs5BsPdzhEIo5WpTR3DorKhjIu878FTaXC0zXvmt1IFjix7w2sRZ2xy05B6r?=
+ =?us-ascii?Q?ZUe1xt+DowF1w06RnKjkiogvozTLnGznWri6kzbomkDSAvYMjpGeyk+tp9v4?=
+ =?us-ascii?Q?sIhadwE3ufApxvapUsH9jiz1jAlYLNxn+8MaI1zINQHABUm65kL2HMZw6pW0?=
+ =?us-ascii?Q?Ni/jp3b2DQXGKfywf5bTYHNFmwuhsODb2n501dLtEeTX490qKHFMwZHH2o7S?=
+ =?us-ascii?Q?jditOPVbg+vgl/6BRv+DaY/T+GqohZKrFyqTCTXL1SlO4L2SUR6hNx0tlwlC?=
+ =?us-ascii?Q?xtBjbZJHHee5m64csKxsIuLS5gIvlzUvRk9z+Zro1i9nPH6Lid88aZNAs/nr?=
+ =?us-ascii?Q?VkU+kCDi5CjUKrcDpAH1ni/bMEkgILndzc69cksi4JD1pZA9P0agL96AIaQz?=
+ =?us-ascii?Q?VHj37EvjVE8dYFqGaj9KmotZL6qOvKUmPscqHGhf6mefS710HjZcET5A5FA8?=
+ =?us-ascii?Q?WtdhRffIx2gNSrvut9/5LtGCAO80WOQwVBdgN6mRFBV3kXa/bHSRiJSMc2HI?=
+ =?us-ascii?Q?GyuP01n14uxlVGGfBSUHk0D1hBSPJRbOq7KnRk0zJkEldPoQhGe/Q1z8iVR+?=
+ =?us-ascii?Q?dnEueiGpTlcqLHh2gu+SS5hoXgEb2wxg+aSOQBxHlxS9j1aBh2ftbkRPjyRm?=
+ =?us-ascii?Q?jH1YW9InxAM/u9Xi6sWbbNGFgPXTzPjtlCpSInM/e51UapGRJQryv2mHbMrr?=
+ =?us-ascii?Q?UccQkdnZm28wTW3Qr84EDVbeBTkcLbNdcKKHdvON1t3xtVV6IIrL+cQjEmx0?=
+ =?us-ascii?Q?FomVpGB3RSDn5wYiPLxA8+cSz/GEID3AM3p1uUvoKQPZx2OK1H3Reo3y22QN?=
+ =?us-ascii?Q?j5kJCJX4SUEXIjE1bCiVI+a+BpHmunCoH8SGIdpHVBQm2zf/C0VfsEwngAZz?=
+ =?us-ascii?Q?ZXRp73ssQiDfuLhogsIfKcbPO0GzAUoWndUbMpxGUb/qBznWKUS0iO2sHri5?=
+ =?us-ascii?Q?T6Ljd6PFkxSf9gQdFrk+XLKzwYWpm19OjchHdKzteHvV/Tc1pJ8YoEvtXs/K?=
+ =?us-ascii?Q?8rFT3DlkmEdZ6/a7Bu/GblFIW5YNwBbcEyvIxDOya5T+ri7hKBKqOoXNBSwf?=
+ =?us-ascii?Q?0kv32jCPkMwsMZp9qYaJV2WtmcmNGFxWAZm+Q9NPyzB5YWz/GJQPSYwwyVwN?=
+ =?us-ascii?Q?5ttJKEf9T1qLaFIEcaMAO/1nsm6FN4Gh7jhnZxzcQrElkPywa3ng7mMwUnme?=
+ =?us-ascii?Q?xYe8lZ6/NJI8vRSpBenzqyPvUIKYZddj8xcJaAl7BZZ1u7/5AjmbL0sHkBc1?=
+ =?us-ascii?Q?3N5Xf/dEPrnHUR708yi69ksNZGkw1F1B+m6cz1fk71K68CfdKCeQHul/1Jiw?=
+ =?us-ascii?Q?Egn+VG2hn2+viml6o/w9TKM2MGyyDh42dyqnE84IWJAonvTQITaYPmoW6upP?=
+ =?us-ascii?Q?6L70D6uB4P+GJ9cI4fGoQBCqc5/Udvx03IwStpoNO2BZbmbpviSiIdk//mmG?=
+ =?us-ascii?Q?U8xKukP7Up7sGlLIw0bm8MICiSDTde9rZI8ivFQ5pxBBaKZ0?=
+Content-Type: multipart/mixed;
+	boundary="_002_IA1PR11MB60987CB2D72FD1701951DFA4F4152IA1PR11MB6098namp_"
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Exchange-RoutingPolicyChecked: cuX+OWGay7FCFfhHlaF+rHInznKr9xCpB6N+xx1AZsCJhK9a4RUyXRzP4FQtKbSExsy19SnxLQHdV3oEtzafePUiT9pH4RSyU6UqzvyENa1UhLW2BDuzEr8C8u8JTSMoUjB05YN+RUQvS+1jnwrvWHirA8UDDojOZF9Fb8UZFYk5wHXPk5NW9Uodr57DBeI+/oslHEJHOoZ90lQQ/Sjzk/0Ui0B/txpDS+uySkhiUeIVhldd3YSsybbJTHfKGBTZNI+f951prSlVvsMdk7X6TN+tP0+HvE9NXA1+4ORsgQ/eQ6PKN2Yiu0kI2vDJz4Q/8yeFY1l7Nz+HwakJf0XR0w==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8f85e1d1-c418-4cd5-14f8-08debf8d5887
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jun 2026 03:24:52.8977
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MdXJ5x5w3KUFeCwpFLLNre3twvqvDivDowKt0yCJaJFaKM4Bg6H+WyXIzg5/16dNPqVxo5XQuX5l2hhm2hmsoA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB8052
+X-OriginatorOrg: intel.com
 
-The MSI Raider A18 HX A9WJG exposes two internal SteelSeries USB HID
-devices for RGB lighting: KLC (1038:1122) for the keyboard and ALC
-(1038:1161) for the lightbar/logo zones.
+--_002_IA1PR11MB60987CB2D72FD1701951DFA4F4152IA1PR11MB6098namp_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Add DMI-gated support for these devices and expose them as multicolor
-LED class devices. The driver sends the same HID class SET_REPORT
-control transfer as the tested userspace implementation for this
-machine and writes a uniform RGB value to all known keyboard keys or
-ALC zones.
+Hi,=20
 
-Limit RGB support to USB interface 0 and the tested DMI system because
-the KLC product ID is shared across MSI laptop designs and the key
-layout mapping is model-specific. If the DMI or interface check does
-not match, keep the device bound as a regular HID device instead of
-failing probe.
+Sorry, I cannot get your exact name from this patch email.
 
-Tested on MSI Raider A18 HX A9WJG. Both internal SteelSeries ALC
-(1038:1161) and KLC (1038:1122) HID devices bind on interface 0 and
-create steelseries::lightbar and steelseries::kbd_backlight. Setting
-multi_intensity and brightness changes the keyboard and lightbar
-colors.
+From your issue description, I suppose Surface Pro 10 uses "Suspend-to-RAM"=
+ instead of "Standby" or "Suspend-to-Idle" for suspend/resume.
+As this documents mentioned, driver needs to take care the suspend type the=
+n handle resume flow carefully.
 
-Signed-off-by: David Glushkov <david.glushkov@sntiq.com>
----
-v5:
-- Drop pm_ret handling and ignore PM_HINT_NORMAL cleanup errors.
-- Fix LED registration error handling to clean up rgb_buf on failure.
-- Fix trailing whitespaces and formatting style nits.
-- Update commit message to accurately reflect the DMI fallback behavior.
+Actually, I had a patch for this "Suspend-to-RAM" support several months ag=
+o, please find attached file for the patch. This patch is still under our i=
+nternal final validation.
 
-v4:
-- Fix literal \n typo in C code.
-- Remove unused steelseries_msi_rgb_free_buf from #else block.
-- Do not fail probe on unsupported DMI/interface; clear MSI RGB quirk and continue normal HID initialization.
-- Do not fail probe when RGB LED registration fails; keep the HID device usable without RGB LED support.
-- Add explicit linux/slab.h include for kzalloc/kfree.
+It will be very appreciated if you can help test attached patch on your Sur=
+face device.
+If it works, then everything is fine, I will submit this patch with your na=
+me after our final validation.
+If it doesn't work for your case, then we need to future debug on your surf=
+ace device to refine your patch to let it more standard.
 
-v3:
-- Fix build failure (added missing err_close label to steelseries_probe).
-- Fix DMA API violation (use kzalloc instead of devm_kzalloc for usb transfer buffer).
-- Fix C syntax declaration-after-statement warning.
-- Fix type confusion for SRWS1 (add early check in raw_event before hid_get_drvdata).
-- Fix delayed_work crash (add battery_registered flag).
+Thanks!
 
-v2:
-- Fixed unsafe to_usb_interface cast by checking hid_is_usb() first.
-- Fixed uninitialized delayed_work warning by restricting cancel_delayed_work_sync to headset devices.
-- Fixed error path leaks in probe (hid_hw_stop / hid_hw_close).
-- Added hid_hw_power PM wrappers around direct usb_control_msg transfers.
+Best Regards,
+Even Xu
 
- drivers/hid/hid-ids.h         |   2 +
- drivers/hid/hid-steelseries.c | 277 ++++++++++++++++++++++++++++++++--
- 2 files changed, 270 insertions(+), 9 deletions(-)
+> -----Original Message-----
+> From: d3z-the-dev <d3z.the.dev@gmail.com>
+> Sent: Saturday, May 30, 2026 6:22 AM
+> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>; J=
+iri
+> Kosina <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Abhishek T=
+amboli
+> <abhishektamboli9@gmail.com>; Sakari Ailus <sakari.ailus@linux.intel.com>=
+;
+> d3z-the-dev <d3z.the.dev@gmail.com>
+> Subject: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on sy=
+stem
+> resume
+>=20
+> On the Surface Pro 10 (Meteor Lake) the touchscreen stops working after a
+> suspend/resume cycle and only recovers after a reboot. The driver logs
+> "GET_DEVICE_INFO: recv failed: -11" on resume.
+>=20
+> The touch IC loses power during system suspend (s2idle) on this platform,=
+ the
+> same way it does across hibernation. quickspi_resume() only restores the =
+THC
+> port, interrupts and DMA and sends a HIDSPI_ON command, assuming the touc=
+h
+> IC kept its power and state. When it has actually lost power the HIDSPI_O=
+N
+> command is never acknowledged and the descriptor read fails, leaving the
+> touchscreen dead until the module is reloaded.
+>=20
+> quickspi_restore() already handles this for hibernation by running
+> reset_tic() and reconfiguring the THC SPI/LTR settings. Make
+> quickspi_resume() do the same: quiesce interrupts, re-select the THC port=
+,
+> reconfigure the SPI input/output addresses and read/write parameters, run
+> reset_tic() to re-enumerate the device and restore the LTR configuration.
+>=20
+> Tested on a Surface Pro 10 across multiple s2idle suspend/resume cycles.
+>=20
+> Link: https://github.com/linux-surface/linux-surface/issues/1799
+>=20
+> Signed-off-by: d3z-the-dev <d3z.the.dev@gmail.com>
+> ---
+>  .../intel-quickspi/pci-quickspi.c             | 38 +++++++++++++++++--
+>  1 file changed, 34 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index f669235f1883..d59278a3e5c1 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -780,24 +780,54 @@ static int quickspi_resume(struct device *device)
+>  	if (!qsdev)
+>  		return -ENODEV;
+>=20
+> +	ret =3D thc_interrupt_quiesce(qsdev->thc_hw, true);
+> +	if (ret)
+> +		return ret;
+> +
+>  	ret =3D thc_port_select(qsdev->thc_hw, THC_PORT_TYPE_SPI);
+>  	if (ret)
+>  		return ret;
+>=20
+> +	thc_spi_input_output_address_config(qsdev->thc_hw,
+> +					    qsdev->input_report_hdr_addr,
+> +					    qsdev->input_report_bdy_addr,
+> +					    qsdev->output_report_addr);
+> +
+> +	ret =3D thc_spi_read_config(qsdev->thc_hw, qsdev->spi_freq_val,
+> +				  qsdev->spi_read_io_mode,
+> +				  qsdev->spi_read_opcode,
+> +				  qsdev->spi_packet_size);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D thc_spi_write_config(qsdev->thc_hw, qsdev->spi_freq_val,
+> +				   qsdev->spi_write_io_mode,
+> +				   qsdev->spi_write_opcode,
+> +				   qsdev->spi_packet_size,
+> +				   qsdev->performance_limit);
+> +	if (ret)
+> +		return ret;
+> +
+>  	thc_interrupt_config(qsdev->thc_hw);
+>=20
+>  	thc_interrupt_enable(qsdev->thc_hw, true);
+>=20
+> -	ret =3D thc_dma_configure(qsdev->thc_hw);
+> +	/* The TIC may lose power across system suspend, reset it to recover */
+> +	ret =3D reset_tic(qsdev);
+>  	if (ret)
+>  		return ret;
+>=20
+> -	ret =3D thc_interrupt_quiesce(qsdev->thc_hw, false);
+> +	ret =3D thc_dma_configure(qsdev->thc_hw);
+>  	if (ret)
+>  		return ret;
+>=20
+> -	if (!device_may_wakeup(qsdev->dev))
+> -		return quickspi_set_power(qsdev, HIDSPI_ON);
+> +	thc_ltr_config(qsdev->thc_hw,
+> +		       qsdev->active_ltr_val,
+> +		       qsdev->low_power_ltr_val);
+> +
+> +	thc_change_ltr_mode(qsdev->thc_hw, THC_LTR_MODE_ACTIVE);
+> +
+> +	qsdev->state =3D QUICKSPI_ENABLED;
+>=20
+>  	return 0;
+>  }
+> --
+> 2.54.0
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4657d96fb..4af4397b8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1367,6 +1367,8 @@
- #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
- #define USB_DEVICE_ID_STEELSERIES_ARCTIS_1  0x12b6
- #define USB_DEVICE_ID_STEELSERIES_ARCTIS_9  0x12c2
-+#define USB_DEVICE_ID_STEELSERIES_MSI_KLC   0x1122
-+#define USB_DEVICE_ID_STEELSERIES_MSI_ALC   0x1161
- 
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
-diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index f98435631..c269db06d 100644
---- a/drivers/hid/hid-steelseries.c
-+++ b/drivers/hid/hid-steelseries.c
-@@ -10,16 +10,26 @@
-  */
- 
- #include <linux/device.h>
-+#include <linux/dmi.h>
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/usb.h>
- #include <linux/leds.h>
-+#include <linux/led-class-multicolor.h>
-+#include <linux/slab.h>
- 
- #include "hid-ids.h"
- 
- #define STEELSERIES_SRWS1		BIT(0)
- #define STEELSERIES_ARCTIS_1		BIT(1)
- #define STEELSERIES_ARCTIS_9		BIT(2)
-+#define STEELSERIES_MSI_RGB		BIT(3)
-+
-+#define STEELSERIES_MSI_RGB_REPORT_LEN 524
-+
-+#define STEELSERIES_HAS_LEDS_MULTICOLOR \
-+	(IS_BUILTIN(CONFIG_LEDS_CLASS_MULTICOLOR) || \
-+	 (IS_MODULE(CONFIG_LEDS_CLASS_MULTICOLOR) && IS_MODULE(CONFIG_HID_STEELSERIES)))
- 
- struct steelseries_device {
- 	struct hid_device *hdev;
-@@ -34,6 +44,14 @@ struct steelseries_device {
- 	uint8_t battery_capacity;
- 	bool headset_connected;
- 	bool battery_charging;
-+	bool battery_registered;
-+
-+#if STEELSERIES_HAS_LEDS_MULTICOLOR
-+	struct led_classdev_mc mc_cdev;
-+	struct mc_subled subled_info[3];
-+	struct mutex rgb_lock; /* protects rgb_buf */
-+	u8 *rgb_buf;
-+#endif
- };
- 
- #if IS_BUILTIN(CONFIG_LEDS_CLASS) || \
-@@ -510,6 +528,7 @@ static int steelseries_headset_battery_register(struct steelseries_device *sd)
- 	power_supply_powers(sd->battery, &sd->hdev->dev);
- 
- 	INIT_DELAYED_WORK(&sd->battery_work, steelseries_headset_battery_timer_tick);
-+	sd->battery_registered = true;
- 	steelseries_headset_fetch_battery(sd->hdev);
- 
- 	if (sd->quirks & STEELSERIES_ARCTIS_9) {
-@@ -528,6 +547,196 @@ static bool steelseries_is_vendor_usage_page(struct hid_device *hdev, uint8_t us
- 		hdev->rdesc[2] == 0xff;
- }
- 
-+static const struct dmi_system_id steelseries_msi_rgb_dmi_table[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Micro-Star International Co., Ltd."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Raider A18 HX A9WJG"),
-+			DMI_MATCH(DMI_BOARD_NAME, "MS-182L"),
-+		},
-+	},
-+	{ }
-+};
-+
-+static struct usb_interface *steelseries_hid_to_usb_intf(struct hid_device *hdev)
-+{
-+	if (!hid_is_usb(hdev))
-+		return NULL;
-+
-+	return to_usb_interface(hdev->dev.parent);
-+}
-+
-+static struct usb_device *steelseries_hid_to_usb_dev(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = steelseries_hid_to_usb_intf(hdev);
-+
-+	if (!intf)
-+		return NULL;
-+
-+	return interface_to_usbdev(intf);
-+}
-+
-+static bool steelseries_msi_rgb_is_interface0(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = steelseries_hid_to_usb_intf(hdev);
-+	struct usb_device *udev;
-+
-+	if (!intf)
-+		return false;
-+
-+	udev = interface_to_usbdev(intf);
-+
-+	return intf == usb_ifnum_to_if(udev, 0);
-+}
-+
-+#if STEELSERIES_HAS_LEDS_MULTICOLOR
-+
-+static int steelseries_msi_rgb_set_blocking(struct led_classdev *led_cdev,
-+					    enum led_brightness brightness)
-+{
-+	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(led_cdev);
-+	struct steelseries_device *sd = container_of(mc_cdev,
-+						    struct steelseries_device,
-+						    mc_cdev);
-+	struct hid_device *hdev = sd->hdev;
-+	struct usb_device *udev = steelseries_hid_to_usb_dev(hdev);
-+	int i, ret;
-+	u8 r, g, b;
-+
-+	static const u8 keys[] = {
-+		0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
-+		0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13,
-+		0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
-+		0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23,
-+		0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
-+		0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x33, 0x34,
-+		0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c,
-+		0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44,
-+		0x45, 0x46, 0x47, 0x49, 0x4b, 0x4c, 0x4e, 0x4f,
-+		0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
-+		0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
-+		0x60, 0x61, 0x62, 0x63, 0x64, 0x66, 0xe0, 0xe1,
-+		0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xf0
-+	};
-+	static const u8 alc_zones[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
-+
-+	if (!udev)
-+		return -ENODEV;
-+
-+	mutex_lock(&sd->rgb_lock);
-+
-+	led_mc_calc_color_components(mc_cdev, brightness);
-+
-+	r = mc_cdev->subled_info[0].brightness;
-+	g = mc_cdev->subled_info[1].brightness;
-+	b = mc_cdev->subled_info[2].brightness;
-+
-+	memset(sd->rgb_buf, 0, STEELSERIES_MSI_RGB_REPORT_LEN);
-+	sd->rgb_buf[0] = 0x0c;
-+	sd->rgb_buf[1] = 0x00;
-+	sd->rgb_buf[3] = 0x00;
-+
-+	if (hdev->product == USB_DEVICE_ID_STEELSERIES_MSI_KLC) {
-+		sd->rgb_buf[2] = 0x66;
-+		for (i = 0; i < ARRAY_SIZE(keys); i++) {
-+			sd->rgb_buf[4 + i * 4] = keys[i];
-+			sd->rgb_buf[5 + i * 4] = r;
-+			sd->rgb_buf[6 + i * 4] = g;
-+			sd->rgb_buf[7 + i * 4] = b;
-+		}
-+	} else {
-+		sd->rgb_buf[2] = 0x06;
-+		for (i = 0; i < ARRAY_SIZE(alc_zones); i++) {
-+			sd->rgb_buf[4 + i * 4] = alc_zones[i];
-+			sd->rgb_buf[5 + i * 4] = r;
-+			sd->rgb_buf[6 + i * 4] = g;
-+			sd->rgb_buf[7 + i * 4] = b;
-+		}
-+	}
-+
-+	ret = hid_hw_power(hdev, PM_HINT_FULLON);
-+	if (ret < 0)
-+		goto out_unlock;
-+
-+	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+			      HID_REQ_SET_REPORT,
-+			      USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			      0x0300, 0,
-+			      sd->rgb_buf, STEELSERIES_MSI_RGB_REPORT_LEN,
-+			      USB_CTRL_SET_TIMEOUT);
-+
-+	hid_hw_power(hdev, PM_HINT_NORMAL);
-+
-+out_unlock:
-+	mutex_unlock(&sd->rgb_lock);
-+	return ret < 0 ? ret : 0;
-+}
-+
-+static void steelseries_msi_rgb_free_buf(void *data)
-+{
-+	kfree(data);
-+}
-+
-+static int steelseries_msi_rgb_register(struct steelseries_device *sd)
-+{
-+	struct hid_device *hdev = sd->hdev;
-+	struct led_classdev *led_cdev;
-+	int ret;
-+
-+	sd->rgb_buf = kzalloc(STEELSERIES_MSI_RGB_REPORT_LEN, GFP_KERNEL);
-+	if (!sd->rgb_buf)
-+		return -ENOMEM;
-+
-+	ret = devm_add_action_or_reset(&hdev->dev,
-+				       steelseries_msi_rgb_free_buf,
-+				       sd->rgb_buf);
-+	if (ret) {
-+		sd->rgb_buf = NULL;
-+		return ret;
-+	}
-+
-+	mutex_init(&sd->rgb_lock);
-+
-+	sd->subled_info[0].color_index = LED_COLOR_ID_RED;
-+	sd->subled_info[1].color_index = LED_COLOR_ID_GREEN;
-+	sd->subled_info[2].color_index = LED_COLOR_ID_BLUE;
-+	sd->subled_info[0].intensity = 255;
-+	sd->subled_info[1].intensity = 255;
-+	sd->subled_info[2].intensity = 255;
-+	sd->subled_info[0].channel = 0;
-+	sd->subled_info[1].channel = 1;
-+	sd->subled_info[2].channel = 2;
-+
-+	sd->mc_cdev.subled_info = sd->subled_info;
-+	sd->mc_cdev.num_colors = 3;
-+
-+	led_cdev = &sd->mc_cdev.led_cdev;
-+	if (hdev->product == USB_DEVICE_ID_STEELSERIES_MSI_KLC)
-+		led_cdev->name = "steelseries::kbd_backlight";
-+	else
-+		led_cdev->name = "steelseries::lightbar";
-+
-+	led_cdev->max_brightness = 255;
-+	led_cdev->brightness_set_blocking = steelseries_msi_rgb_set_blocking;
-+
-+	ret = devm_led_classdev_multicolor_register(&hdev->dev, &sd->mc_cdev);
-+	if (ret) {
-+		devm_remove_action(&hdev->dev, steelseries_msi_rgb_free_buf,
-+				   sd->rgb_buf);
-+		kfree(sd->rgb_buf);
-+		sd->rgb_buf = NULL;
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+#else
-+static int steelseries_msi_rgb_register(struct steelseries_device *sd)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
- static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct steelseries_device *sd;
-@@ -549,6 +758,14 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
- 	sd->hdev = hdev;
- 	sd->quirks = id->driver_data;
- 
-+	if (sd->quirks & STEELSERIES_MSI_RGB) {
-+		if (!dmi_check_system(steelseries_msi_rgb_dmi_table) ||
-+		    !steelseries_msi_rgb_is_interface0(hdev)) {
-+			hid_dbg(hdev, "MSI RGB quirk not applicable, using generic HID path\n");
-+			sd->quirks &= ~STEELSERIES_MSI_RGB;
-+		}
-+	}
-+
- 	ret = hid_parse(hdev);
- 	if (ret)
- 		return ret;
-@@ -565,12 +782,28 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
- 
- 	ret = hid_hw_open(hdev);
- 	if (ret)
--		return ret;
-+		goto err_stop;
-+
-+	if (sd->quirks & STEELSERIES_MSI_RGB) {
-+		ret = steelseries_msi_rgb_register(sd);
-+		if (ret) {
-+			hid_warn(hdev,
-+				 "Failed to register MSI RGB LEDs: %d, continuing without RGB support\n",
-+				 ret);
-+			sd->quirks &= ~STEELSERIES_MSI_RGB;
-+		}
-+		return 0;
-+	}
- 
--	if (steelseries_headset_battery_register(sd) < 0)
-+	if (sd->quirks & (STEELSERIES_ARCTIS_1 | STEELSERIES_ARCTIS_9) &&
-+	    steelseries_headset_battery_register(sd) < 0)
- 		hid_err(sd->hdev,
- 			"Failed to register battery for headset\n");
- 
-+	return 0;
-+
-+err_stop:
-+	hid_hw_stop(hdev);
- 	return ret;
- }
- 
-@@ -588,12 +821,15 @@ static void steelseries_remove(struct hid_device *hdev)
- 	}
- 
- 	sd = hid_get_drvdata(hdev);
-+	if (!sd)
-+		return;
- 
- 	spin_lock_irqsave(&sd->lock, flags);
- 	sd->removed = true;
- 	spin_unlock_irqrestore(&sd->lock, flags);
- 
--	cancel_delayed_work_sync(&sd->battery_work);
-+	if (sd->battery_registered)
-+		cancel_delayed_work_sync(&sd->battery_work);
- 
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
-@@ -624,20 +860,33 @@ static uint8_t steelseries_headset_map_capacity(uint8_t capacity, uint8_t min_in
- 	return (capacity - min_in) * 100 / (max_in - min_in);
- }
- 
-+static bool steelseries_is_headset(struct hid_device *hdev)
-+{
-+	return hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1 ||
-+	       hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_9;
-+}
-+
- static int steelseries_headset_raw_event(struct hid_device *hdev,
- 					struct hid_report *report, u8 *read_buf,
- 					int size)
- {
--	struct steelseries_device *sd = hid_get_drvdata(hdev);
--	int capacity = sd->battery_capacity;
--	bool connected = sd->headset_connected;
--	bool charging = sd->battery_charging;
-+	struct steelseries_device *sd;
-+	int capacity;
-+	bool connected;
-+	bool charging;
- 	unsigned long flags;
- 
--	/* Not a headset */
--	if (hdev->product == USB_DEVICE_ID_STEELSERIES_SRWS1)
-+	if (!steelseries_is_headset(hdev))
-+		return 0;
-+
-+	sd = hid_get_drvdata(hdev);
-+	if (!sd || !sd->battery_registered)
- 		return 0;
- 
-+	capacity = sd->battery_capacity;
-+	connected = sd->headset_connected;
-+	charging = sd->battery_charging;
-+
- 	if (hdev->product == USB_DEVICE_ID_STEELSERIES_ARCTIS_1) {
- 		hid_dbg(sd->hdev,
- 			"Parsing raw event for Arctis 1 headset (%*ph)\n", size, read_buf);
-@@ -732,6 +981,16 @@ static const struct hid_device_id steelseries_devices[] = {
- 	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_9),
- 	  .driver_data = STEELSERIES_ARCTIS_9 },
- 
-+#if STEELSERIES_HAS_LEDS_MULTICOLOR
-+	{ /* MSI Raider A18 KLC */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_MSI_KLC),
-+	  .driver_data = STEELSERIES_MSI_RGB },
-+
-+	{ /* MSI Raider A18 ALC */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_MSI_ALC),
-+	  .driver_data = STEELSERIES_MSI_RGB },
-+#endif
-+
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, steelseries_devices);
--- 
-2.54.0
 
+--_002_IA1PR11MB60987CB2D72FD1701951DFA4F4152IA1PR11MB6098namp_
+Content-Type: application/octet-stream;
+	name="0001-Hid-Intel-thc-hid-Intel-quickspi-Fix-non-functional-.patch"
+Content-Description: 0001-Hid-Intel-thc-hid-Intel-quickspi-Fix-non-functional-.patch
+Content-Disposition: attachment;
+	filename="0001-Hid-Intel-thc-hid-Intel-quickspi-Fix-non-functional-.patch";
+	size=3337; creation-date="Mon, 01 Jun 2026 03:16:52 GMT";
+	modification-date="Mon, 01 Jun 2026 03:24:52 GMT"
+Content-Transfer-Encoding: base64
+
+RnJvbSA5MzllYzJjNDkxZjc4OWI1Yjc0MGE1ODkzNmZmMGUwNGNiNzFkMmE4IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBFdmVuIFh1IDxldmVuLnh1QGludGVsLmNvbT4KRGF0ZTogTW9u
+LCAxOSBKYW4gMjAyNiAxNjoxNjoxMiArMDgwMApTdWJqZWN0OiBbUEFUQ0hdIEhpZDogSW50ZWwt
+dGhjLWhpZDogSW50ZWwtcXVpY2tzcGk6IEZpeCBub24tZnVuY3Rpb25hbCB0b3VjaAogYWZ0ZXIg
+UzMgcmVzdW1lCgpUSEMgaGFyZHdhcmUgcmVnaXN0ZXJzIGxvc2UgdGhlaXIgY29udGVudCBkdXJp
+bmcgUzMgc3VzcGVuZC4gQWRkIGhhcmR3YXJlCnJlY29uZmlndXJhdGlvbiBvbiByZXN1bWUgZnJv
+bSBTMyB0byByZXN0b3JlIHRvdWNoIGZ1bmN0aW9uYWxpdHkuCgpTaWduZWQtb2ZmLWJ5OiBFdmVu
+IFh1IDxldmVuLnh1QGludGVsLmNvbT4KLS0tCiAuLi4vaW50ZWwtcXVpY2tzcGkvcGNpLXF1aWNr
+c3BpLmMgICAgICAgICAgICAgfCAzMiArKysrKysrKysrKysrKysrKysrCiAuLi4vaW50ZWwtcXVp
+Y2tzcGkvcXVpY2tzcGktZGV2LmggICAgICAgICAgICAgfCAgNCArKysKIDIgZmlsZXMgY2hhbmdl
+ZCwgMzYgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2ludGVsLXRoYy1o
+aWQvaW50ZWwtcXVpY2tzcGkvcGNpLXF1aWNrc3BpLmMgYi9kcml2ZXJzL2hpZC9pbnRlbC10aGMt
+aGlkL2ludGVsLXF1aWNrc3BpL3BjaS1xdWlja3NwaS5jCmluZGV4IDIwZThkYmYxZDMxMy4uMGQ2
+N2EwYmIyZWU3IDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9pbnRlbC10aGMtaGlkL2ludGVsLXF1
+aWNrc3BpL3BjaS1xdWlja3NwaS5jCisrKyBiL2RyaXZlcnMvaGlkL2ludGVsLXRoYy1oaWQvaW50
+ZWwtcXVpY2tzcGkvcGNpLXF1aWNrc3BpLmMKQEAgLTEwLDYgKzEwLDcgQEAKICNpbmNsdWRlIDxs
+aW51eC9pcnFyZXR1cm4uaD4KICNpbmNsdWRlIDxsaW51eC9wY2kuaD4KICNpbmNsdWRlIDxsaW51
+eC9wbV9ydW50aW1lLmg+CisjaW5jbHVkZSA8bGludXgvc3VzcGVuZC5oPgogCiAjaW5jbHVkZSA8
+bGludXgvZ3Bpby9jb25zdW1lci5oPgogCkBAIC03NjUsNiArNzY2LDggQEAgc3RhdGljIGludCBx
+dWlja3NwaV9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldmljZSkKIAogCXRoY19kbWFfdW5jb25m
+aWd1cmUocXNkZXYtPnRoY19odyk7CiAKKwlxc2Rldi0+bGFzdF9zdXNwZW5kX3N0YXRlID0gcG1f
+c3VzcGVuZF90YXJnZXRfc3RhdGU7CisKIAlyZXR1cm4gMDsKIH0KIApAQCAtNzgyLDYgKzc4NSwz
+NSBAQCBzdGF0aWMgaW50IHF1aWNrc3BpX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXZpY2UpCiAJ
+aWYgKHJldCkKIAkJcmV0dXJuIHJldDsKIAorCS8qIElmIGl0J3MgcmVzdW1lIGZyb20gUzMsIG5l
+ZWQgdG8gcmUtY29uZmlndXJlIFNQSSBwb3J0ICovCisJaWYgKHFzZGV2LT5sYXN0X3N1c3BlbmRf
+c3RhdGUgPT0gUE1fU1VTUEVORF9NRU0pIHsKKwkJdGhjX3NwaV9pbnB1dF9vdXRwdXRfYWRkcmVz
+c19jb25maWcocXNkZXYtPnRoY19odywKKwkJCQkJCSAgICBxc2Rldi0+aW5wdXRfcmVwb3J0X2hk
+cl9hZGRyLAorCQkJCQkJICAgIHFzZGV2LT5pbnB1dF9yZXBvcnRfYmR5X2FkZHIsCisJCQkJCQkg
+ICAgcXNkZXYtPm91dHB1dF9yZXBvcnRfYWRkcik7CisKKwkJcmV0ID0gdGhjX3NwaV9yZWFkX2Nv
+bmZpZyhxc2Rldi0+dGhjX2h3LCBxc2Rldi0+c3BpX2ZyZXFfdmFsLAorCQkJCQkgIHFzZGV2LT5z
+cGlfcmVhZF9pb19tb2RlLAorCQkJCQkgIHFzZGV2LT5zcGlfcmVhZF9vcGNvZGUsCisJCQkJCSAg
+cXNkZXYtPnNwaV9wYWNrZXRfc2l6ZSk7CisJCWlmIChyZXQpCisJCQlyZXR1cm4gcmV0OworCisJ
+CXJldCA9IHRoY19zcGlfd3JpdGVfY29uZmlnKHFzZGV2LT50aGNfaHcsIHFzZGV2LT5zcGlfZnJl
+cV92YWwsCisJCQkJCSAgIHFzZGV2LT5zcGlfd3JpdGVfaW9fbW9kZSwKKwkJCQkJICAgcXNkZXYt
+PnNwaV93cml0ZV9vcGNvZGUsCisJCQkJCSAgIHFzZGV2LT5zcGlfcGFja2V0X3NpemUsCisJCQkJ
+CSAgIHFzZGV2LT5wZXJmb3JtYW5jZV9saW1pdCk7CisJCWlmIChyZXQpCisJCQlyZXR1cm4gcmV0
+OworCisJCXRoY19sdHJfY29uZmlnKHFzZGV2LT50aGNfaHcsCisJCQkgICAgICAgcXNkZXYtPmFj
+dGl2ZV9sdHJfdmFsLAorCQkJICAgICAgIHFzZGV2LT5sb3dfcG93ZXJfbHRyX3ZhbCk7CisKKwkJ
+dGhjX2NoYW5nZV9sdHJfbW9kZShxc2Rldi0+dGhjX2h3LCBUSENfTFRSX01PREVfQUNUSVZFKTsK
+Kwl9CisKIAl0aGNfaW50ZXJydXB0X2NvbmZpZyhxc2Rldi0+dGhjX2h3KTsKIAogCXRoY19pbnRl
+cnJ1cHRfZW5hYmxlKHFzZGV2LT50aGNfaHcsIHRydWUpOwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9o
+aWQvaW50ZWwtdGhjLWhpZC9pbnRlbC1xdWlja3NwaS9xdWlja3NwaS1kZXYuaCBiL2RyaXZlcnMv
+aGlkL2ludGVsLXRoYy1oaWQvaW50ZWwtcXVpY2tzcGkvcXVpY2tzcGktZGV2LmgKaW5kZXggZWY0
+MzNmZTFiNDVkLi4zYmVlZWM2MmRkMDkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL2ludGVsLXRo
+Yy1oaWQvaW50ZWwtcXVpY2tzcGkvcXVpY2tzcGktZGV2LmgKKysrIGIvZHJpdmVycy9oaWQvaW50
+ZWwtdGhjLWhpZC9pbnRlbC1xdWlja3NwaS9xdWlja3NwaS1kZXYuaApAQCAtNyw2ICs3LDcgQEAK
+ICNpbmNsdWRlIDxsaW51eC9iaXRzLmg+CiAjaW5jbHVkZSA8bGludXgvaGlkLW92ZXItc3BpLmg+
+CiAjaW5jbHVkZSA8bGludXgvc2l6ZXMuaD4KKyNpbmNsdWRlIDxsaW51eC9zdXNwZW5kLmg+CiAj
+aW5jbHVkZSA8bGludXgvd2FpdC5oPgogCiAjaW5jbHVkZSAicXVpY2tzcGktcHJvdG9jb2wuaCIK
+QEAgLTEyNCw2ICsxMjUsNyBAQCBzdHJ1Y3QgYWNwaV9kZXZpY2U7CiAgKiBAZ2V0X2ZlYXR1cmVf
+Y21wbDogaW5kaWNhdGUgZ2V0IGZlYXR1cmUgcmVjZWl2ZWQgb3Igbm90CiAgKiBAc2V0X2ZlYXR1
+cmVfY21wbF93cTogd29ya3F1ZXVlIGZvciB3YWl0aW5nIHNldCBmZWF0dXJlIHRvIGRldmljZQog
+ICogQHNldF9mZWF0dXJlX2NtcGw6IGluZGljYXRlIHNldCBmZWF0dXJlIHNlbmQgY29tcGxldGUg
+b3Igbm90CisgKiBAbGFzdF9zdXNwZW5kX3N0YXRlOiBzYXZlIGxhc3Qgc3lzdGVtIHN1c3BlbmQg
+c3RhdGUKICAqLwogc3RydWN0IHF1aWNrc3BpX2RldmljZSB7CiAJc3RydWN0IGRldmljZSAqZGV2
+OwpAQCAtMTcxLDYgKzE3Myw4IEBAIHN0cnVjdCBxdWlja3NwaV9kZXZpY2UgewogCiAJd2FpdF9x
+dWV1ZV9oZWFkX3Qgc2V0X3JlcG9ydF9jbXBsX3dxOwogCWJvb2wgc2V0X3JlcG9ydF9jbXBsOwor
+CisJc3VzcGVuZF9zdGF0ZV90IGxhc3Rfc3VzcGVuZF9zdGF0ZTsKIH07CiAKICNlbmRpZiAvKiBf
+UVVJQ0tTUElfREVWX0hfICovCi0tIAoyLjQzLjAKCg==
+
+--_002_IA1PR11MB60987CB2D72FD1701951DFA4F4152IA1PR11MB6098namp_--

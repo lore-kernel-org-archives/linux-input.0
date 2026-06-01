@@ -1,123 +1,143 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC13632B10A
-	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 07:07:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780297639; cv=pass; b=lSZgEvlCkBubwZPBzUE3YCkbhwru8/XG+n6K33okKYLxWMOk/fenh0cglTgOdNFOjvSFL+MhPzdNOQubdrH5oizwWS6xlwnvd9NfMxvsZb1g6XEJ5XcqyupQUOQTwG8n9pdM3dmNAlmdm2Yt1ex0WDHsHoxz0Sbmo+hMYK+EcdE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780297639; c=relaxed/simple;
-	bh=WKBx8JvfBbjsBY1i2H+N0uRa1D9VefcAbA8vGLEQOUY=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=LZk66X6nTXADqSFNWTOh2UVg5+ZtEzVspsXr9n/bVlVCltIFKqeJn95AsGCl2uJuyRREBAdTF0iCq4nIg7FGgjOXV4NOlv8c8niQPsuQti5plnU9vXkTRUDqhvBkISzgE/vWGQx883V0lNVE21F7Svjjjy7d5HyMXhGOGRMyuRI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UBiwol+R; arc=pass smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE98B38642C;
+	Mon,  1 Jun 2026 07:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780299012; cv=none; b=kUpP8mzbPd0in6ssnyTgVHjK0ihHqpKmbQdgezqMkHN+XbsY24nBUCnirXL68SjYbj4TvPhphkiAcTjFXDy2F+6kdsR4Ye3pIjTjOLHac3DWAqQzBDyCvm/a3Jr6hrC/AL473CCZtWLyWQRzWllOmc9w+OqRtHgDV4Zm2XHDh2s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780299012; c=relaxed/simple;
+	bh=quItyXVXLVGSC6o/bMwaJUmgthrEoXAqy3yY7DAoKgU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OwniZ61nStHEJHSdVMkb4U+QuwywlFh9DxQrKS0IEJu/WdJk3Qo5uOB7LKTH9szE7cwdyxfnp+2FgGCACrHpguAnWQ+uZ1EoBKu4bXjoi1m2B62d3062QI9g55pUVPruDzP0bjRj/8AbOUtZ7C6HXIbEq2OKK2TXO0bysZ7Gc0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KPtTOlbB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UBiwol+R"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7dc67a5e102so36841887b3.1
-        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 00:07:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780297637; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Ea2F4wai45TuiCB01sO/HC2pPQ/sohuTqYIC7jDg5akEyRb3sxF+7PkF8kWttLZXix
-         TgUz/x8OvliMDGmdSrpmibySeVl7hISX0tnTJuDG5KVlggBB2UIdBPv7Zkd0myn/jXF5
-         GCpxPYiSJuojVkTRkCodNidjJxsVz2kRNaX2KJABO2XTZWpavjjXXL6FyCO4fR11e2lA
-         UOXES58LKv8WNfDrdt34w+ewgmeBJXF6KhZN0wf96+qQPg/RbscUWs456uvBGO6HIBqq
-         dJYpPWl80BtGWQcG4JmKW1wUAVPozdh2JaQ4AYeXheviayfsHIz4WWeJw7yZ75RpAvpj
-         2Pxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=Usv0YpqwITC6Q2DMgjEFBZiPSS3xNqjj1oLd5uvBiN0=;
-        fh=On0FlpeAXZW6i6EK2bPFR7t02H5LEFG7rvNLtIaW+OI=;
-        b=FtYwGj1Dvrel9ZYnSgP742SCgSkpGMG4OkTqKthbePojJlCkzuG9xaSobaRBzVTgUO
-         gwz0+QOmsM3VLPF0Tcup01QRNGHNelVc2bYHyglKK0XlljA8ZudVC3vLV8OpcLcW007n
-         bXhfZ0HELeENsUL6M64nmpRCg8qV+6Oi2icwNUKjhzWEj22M3fdxJXWTEx1BGmNdq+hE
-         ABTF6apJwhRxfBQFsXK3AJeCUopXf1VnBEwHDuAnVkh1gzQZE7rTwG75yZ2WCRaM8BeT
-         dQ8Bz/bHb23eF37p056vCCm9IY8sA7JGFfiR4C3iS3q3F1YiwVqS22TnpFrygfgmGIsk
-         3+Zw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780297637; x=1780902437; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=Usv0YpqwITC6Q2DMgjEFBZiPSS3xNqjj1oLd5uvBiN0=;
-        b=UBiwol+RAcwIayu6+GuddVR9C/v6gDQ3eCI1HmUg7xjZoQlHzGTZZ3+8cCDP3OTBll
-         U6In2XSwLmG0AltuS7bh8LInIG++o/SeJtro79y/J3Qf/lGfp4jPOw3ZZDNsn7Y0elxX
-         Hx2VGRRvEpF9TCOgOaE0aSkYvetFIX4nKipbCacYDuUcD8Yl9RgDxECBAu42pi1HpmXw
-         Z+02f3uZW6WMxkLN/enTmP4ntyYg6R9i56vZecpCJkbq+YaCoyGUDZlpvnoL41WnbfQK
-         ZDFKyFd27uudMYKXnyybK+mr/RNOXeqlNkAogRFopZzq/Fwfz0QjNWa9TSUBYiaY2A+B
-         trZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780297637; x=1780902437;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Usv0YpqwITC6Q2DMgjEFBZiPSS3xNqjj1oLd5uvBiN0=;
-        b=eL7RwJOUUL+gNCxyNXsfCU5S/xluSIkTsdZcd9aB3sUVHsA38UyKm3JGTLswyWtiYi
-         v1le/ifGwbzQ/hXy/Et3j3T0N/8CeOC8v9WnN3oDw+7wjonNkwSXsCCxqIFeKg7TXEaE
-         0VHEfm/doPGQnuSivP3h+foOyNcGaVrE2MCo9hP23rUZXAoYOkFHemh5H7bkpm5cuJvl
-         x9ZaaehCfh59weC27YL9AY+gCNcZNkv/TV3o5WcsfbDpO4jB2CB6Q/pmFOXbNwn+9aeo
-         ECZ1bGsER1i9XlvuVwpYpQ5TlgCK/FIn5sVN8aRF1bo1qFvRQ0tuHTPSYMyt5iu8Eo4G
-         j3Qw==
-X-Gm-Message-State: AOJu0Yxe80Jct9GH1vH7ZzVkkSb63rrBUPYaQuoT3IYsmoytq4OmTons
-	Eecp1DuhVsHbHc6MWRBgfLumqjdMH8zU0O6s2eydRZHrpa5ZyubJyXD+ad+IayErYYw3Vs2oEeW
-	f5kzLaVBBeLdle2QlIDL2vMQ+f9t2QFU=
-X-Gm-Gg: Acq92OHUBo3+B+A2DyEYsasyXnYcku5bHf6wcx55vGLsJdYowPQNRLVqrEu3hDM0K1T
-	AxoFTjbV5qfQVv3MOS4lUS/qyf2HWYU7OAU4M1NqmzcSkYSJMH/XrKag2NXMYR8CUBHaC0RUjLp
-	4BuNE9y6Ta5Exmz/i+3e+yAAz0xZD0gas4vBr217/+R9o8vpO3zjveQvfEua0dqGs9ejEhYKfCN
-	Sq5DDqKbpMxhqJ4txvYVcP/PKMjwrj6WIU8kqI8dwN/uvhjQ18d5kJ4x+ZySVKilHQuzqz3X+MN
-	3bES6Rq0w422MnY+EtxhsDzVcBP0cVQ=
-X-Received: by 2002:a05:690c:c52e:b0:7dd:b0b4:409c with SMTP id
- 00721157ae682-7e05c66b1admr89459607b3.25.1780297636889; Mon, 01 Jun 2026
- 00:07:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KPtTOlbB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 643151F00893;
+	Mon,  1 Jun 2026 07:30:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780299010;
+	bh=gzL2SkcPkY1ldzSUTPG15UAH/VU6zt02ppqwKAVNiNk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=KPtTOlbBxe1Yje7/O/XLhDQ1xUOBh7WMYZ0z1ajw90/Hy78HgnC0veSYnWX7n0i1Q
+	 EmmWADIPMpshoRg3Ya4GAsAgow/NXBOVd7MKyfeM8iMn+UGfrXi1BFhmmkxWnFcA8v
+	 Kv7buAIJvrNL+bra9gaS6oSrJcl8hH0nD8w7jyYIbEHvK3WUW0xe6oW6ynxnqM88or
+	 9ZDg8zZz+aMcN+QaQJwiDvEuNggHslQnH1FXnG+cwdhwPjIZ+YDWq7Mt4ZaRRWkpB8
+	 9vbeZeYJShgotMvQmg6jVXRkekg/TzHbfytrkS/NQKVXyYcbsB0nmW/OWojFhtWMKU
+	 VG126C8Kk8qqg==
+Date: Mon, 1 Jun 2026 09:30:04 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Carlos Llamas <cmllamas@google.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, 
+	Bastien Nocera <hadess@hadess.net>, Jiri Kosina <jikos@kernel.org>, 
+	Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>, Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, Viresh Kumar <vireshk@kernel.org>, 
+	Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lee Jones <lee@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, greybus-dev@lists.linaro.org, linux-staging@lists.linux.dev, 
+	linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] HID: core: introduce hid_safe_input_report()
+Message-ID: <ah00D_yttLtjlYA-@beelink>
+References: <20260415-wip-fix-core-v1-0-ed3c4c823175@kernel.org>
+ <20260415-wip-fix-core-v1-2-ed3c4c823175@kernel.org>
+ <8fedad8e9caecd379f2296562cd6abd37f7cee46.camel@hadess.net>
+ <CAO-hwJ+EgC0pM6L6vGFEaRFt2Nwj5b-CCf_5e5VkvrXgdHrjNg@mail.gmail.com>
+ <ahsh0UtTX6e0ZeHa@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Ginger <ginger.jzllee@gmail.com>
-Date: Mon, 1 Jun 2026 15:07:05 +0800
-X-Gm-Features: AVHnY4IMFidN8lpzFg9_xsnpfoUGNDTI532bY_MWtG1kpubnZso4tG0DqnureFw
-Message-ID: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
-Subject: [bug report] Potential atomicity bug in drivers/input/joydev.c,
- between joydev_0x_read() and joydev_ioctl_common()
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ahsh0UtTX6e0ZeHa@google.com>
 
-Dear Linux kernel maintainers,
+Hi Carlos,
 
-My research-based static analyzer found a potential atomicity bug
-within the 'drivers/input' subsystem, more specifically, in
-'drivers/input/joydev.c'.
+On May 30 2026, Carlos Llamas wrote:
+> On Thu, Apr 16, 2026 at 04:46:28PM +0200, Benjamin Tissoires wrote:
+> > On Thu, Apr 16, 2026 at 11:41 AM Bastien Nocera <hadess@hadess.net> wrote:
+> > >
+> > > On Wed, 2026-04-15 at 11:38 +0200, Benjamin Tissoires wrote:
+> > > > hid_input_report() is used in too many places to have a commit that
+> > > > doesn't cross subsystem borders. Instead of changing the API,
+> > > > introduce
+> > > > a new one when things matters in the transport layers:
+> > > > - usbhid
+> > > > - i2chid
+> > > >
+> > > > This effectively revert to the old behavior for those two transport
+> > > > layers.
+> > > >
+> > > > Fixes: 0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing
+> > > > bogus memset()")
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+> > > > ---
+[...]
+> 
+> Hi Benjamin, our CI started failing with commit 0a3fe972a7cb ("HID:
+> core: Mitigate potential OOB by removing bogus memset()"), so I was
+> hoping your patchset would fix this.
+> 
+> However, I just realized our call path goes through uhid precisely,
+> which still triggers the EINVAL error since uhid as not converted to
+> hid_safe_input_report().
+> 
+> My vague understanding though, is that uhid_event uses a static buffer
+> in ev->data[UHID_DATA_MAX], so maybe we can use that through
+> uhid_dev_input{2}()?
+> 
+> I ran the following path through our CI and it fixed our issue, so I
+> wanted to get your thoughts on this.
 
-This potential issue is present as of git commit
-eb3f4b7426cfd2b79d65b7d37155480b32259a11 of the mainline kernel.
+Oh, yes, you are correct. Sorry with all the back and forth on this
+paritcular topic, my brain assumed that uhid was only allocating the
+useful part of the payload and was not safe.
 
-Potential concurrent triggering executions:
-T0:
-joydev_0x_read
-     --> spin_lock_irq(&input->event_lock);
-     --> read from joydev->abs
-     --> spin_unlock_irq(&input->event_lock);
+For the future me: the problem with uhid was that we were emultaing
+devices that would trigger a bug elsewhere in the stack not in
+uhid_dev_input*().
 
-T1:
-joydev_ioctl_common
-    --> case JSIOCSCORR:
-    --> write to joydev->abs[i] (no unlocked)
+Patch looks good, please send it normally to the ML with your SoB :)
 
-The above trace is meant to demonstrate an illustrative example of the issue:
-IMHO, in 'joydev_0x_read', the 'input->event_lock' is adopted to
-serialize the read
-accesses to joydev's fields like 'abs' and 'keypam' or input's fields
-like 'input->key.
-However, in either case, the write-side accesses to these fields are
-not similarly
-serialized.
+Cheers,
+Benjamin
 
-Please kindly check at your convenience. Thank you for your time and
-consideration.
-
-Best regards,
-Ginger
+> 
+> Carlos Llamas
+> 
+> ---
+>  drivers/hid/uhid.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> index 524b53a3c87b..37b60c3aaf66 100644
+> --- a/drivers/hid/uhid.c
+> +++ b/drivers/hid/uhid.c
+> @@ -595,8 +595,8 @@ static int uhid_dev_input(struct uhid_device *uhid, struct uhid_event *ev)
+>  	if (!READ_ONCE(uhid->running))
+>  		return -EINVAL;
+>  
+> -	hid_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input.data,
+> -			 min_t(size_t, ev->u.input.size, UHID_DATA_MAX), 0);
+> +	hid_safe_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input.data, UHID_DATA_MAX,
+> +			      min_t(size_t, ev->u.input.size, UHID_DATA_MAX), 0);
+>  
+>  	return 0;
+>  }
+> @@ -606,8 +606,8 @@ static int uhid_dev_input2(struct uhid_device *uhid, struct uhid_event *ev)
+>  	if (!READ_ONCE(uhid->running))
+>  		return -EINVAL;
+>  
+> -	hid_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input2.data,
+> -			 min_t(size_t, ev->u.input2.size, UHID_DATA_MAX), 0);
+> +	hid_safe_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input2.data, UHID_DATA_MAX,
+> +			      min_t(size_t, ev->u.input2.size, UHID_DATA_MAX), 0);
+>  
+>  	return 0;
+>  }
+> 

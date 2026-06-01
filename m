@@ -1,200 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDEA334C05;
-	Mon,  1 Jun 2026 08:50:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1939E30F548;
+	Mon,  1 Jun 2026 09:05:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780303808; cv=none; b=AWBFK9kqMlbmGULY9ypdaQLrp63ozwPnASGwcezjYvtIrQ9vsao+EbabUtyf/+i/cR5FU8PF7E/CNMLGJ9XSsaT/DFC7wcO8NkcHww22Zgc8NWR8Ek4kG92M9lictokloRtBgpHTvJgxtguKlo3hVOFu/gUNuEdPe2dEGK+pGDI=
+	t=1780304736; cv=none; b=bsYOXPj/sAiAEh8sa8XIx9WJvV3AgoP9f+k5hI1CmG/MbU4FG5R1KaeZ3jq7B1LtOKX/COJB8gAVPw6UzuSlntxKoCgBk179bl3RH9iK7pfT2wn5kHu5mTTjnDj/hJ9wx5fR5ehi+LcZIzusReP86kgdbd7c4dLtqkO39ZFL0xA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780303808; c=relaxed/simple;
-	bh=wJewuAA0yHOMFk005BDaHEpaoQdFvaB9GW87xyazg2Y=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=psuJ5kg5tq/9V2zKFGb7li4kzWytVoWeGkr+rpnMxYwZbYClfBAolgScfdpdCIKUTC9wkf6cJZSuixt8sJX1BTgKFr1HRHyb26vfoSWIIIQkU0reTpElIBjS/qcxcCYZCPehGH9TE2n3JHmhT9GbjhbBnwuKj2O640ODlL8H6rw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fM3xh1R7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780304736; c=relaxed/simple;
+	bh=IDX0u5FOaWQ4XfuLbY0O9Ey4VB9kLt9xp1uvOIuH+6w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CMHmFFu8NwMS/8Zkos1RCnuFRBnwfUj9GdN2oiWyd3lDYwJcf2NkY8hzI8OgPIeVrkAoxMm1kd12/FYfd0KrF9dWN0RmtYj1jyaE0SQ0Ks4S8CoSbnA7xj2WtF8O7Rw2ohmtHmYviKOEm72sNWO3TFwaa5dBWczzt1ibdfcxEvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fbibviok; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fM3xh1R7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F18B1F00893;
-	Mon,  1 Jun 2026 08:50:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780303806;
-	bh=n1qeLdos2mO/Zv6Z2EbKt8HWwgO9dImP+jeHsNaMsr8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fM3xh1R7RsF81+mrdxb9Gcpco4PZ6A+W0O3kp/Bwp/WKVVwXM1fLxGXa/1/xuNCKV
-	 BBdPF99oEKxtBD5JMwHT4nNVNRsAFQ2SNwuFNloCrYoWFuLAB3xE7sV0tk3lYlyR44
-	 +VLyMWzLq68BJRhywVYDhK6945MNescYCPbWhEZeZ9q8FW0S5IvGezlYNsgARVsMRv
-	 49B/g73c9pGT26HMRLx6oDZUg98kGhrDwrFvwFa0NuDyiRxYkxy3jqaz3bm3t8IWM3
-	 zFK2L81QlhT0AxPEta5jNo3dFzdkBO7ELLlAZ41+6bWAdGwGm/2dWD5DkoBSpC9IR5
-	 /dE8xUdsds34Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [linux-6.12.y 2/4] HID: pass the buffer size to
- hid_report_raw_event
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lee Jones" <lee@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, bpf@vger.kernel.org
-In-Reply-To: <20260601083642.908433-2-lee@kernel.org>
-References: <20260601083642.908433-2-lee@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 01 Jun 2026 08:50:06 +0000
-Message-Id: <20260601085006.6F18B1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fbibviok"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780304736; x=1811840736;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=IDX0u5FOaWQ4XfuLbY0O9Ey4VB9kLt9xp1uvOIuH+6w=;
+  b=fbibviokuzMS+HiI/QjCKlVPYfq8/KkSlFmP884DFA46p2WNJEosZCy9
+   PdtUhIewC4EOnkXuVfeMQQ+Iuwh7RAbk3ihw3JXiFwPVvJNlPQ4PE6q/7
+   eyjYboMOJPyD0Jo35DwYvRywsbZ5hB7ccRRcde44ypdKs2hy5QOyrNeon
+   hEpz3p6mQXe76l8RDBAk/fmJV+sbGnVmIB0HrFEyW/zUtT4/hZMEUpKye
+   JIrRjky/O7WOVVfFh3RdP6yjDV1+m4yEAnbmzCJS+6MIJlTWDcLzNvk8a
+   93ecNwPkpHCSU1PIla2GnaIJBNRdKWRU0SSexy9/dACzZJ8tvsuSnWpT9
+   g==;
+X-CSE-ConnectionGUID: m4TPKo1ER/K+VpRajPIwsQ==
+X-CSE-MsgGUID: dPRZ0xAmTiOAz9kQJcSYDA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11803"; a="92535170"
+X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
+   d="scan'208";a="92535170"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2026 02:05:35 -0700
+X-CSE-ConnectionGUID: q6bn0CE3QtGSpB5O8NT7XA==
+X-CSE-MsgGUID: IZ84GNK0QWyjkaaxNyH+Qg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
+   d="scan'208";a="243634031"
+Received: from lkp-server01.sh.intel.com (HELO f0d55cb201f0) ([10.239.97.150])
+  by orviesa007.jf.intel.com with ESMTP; 01 Jun 2026 02:05:33 -0700
+Received: from kbuild by f0d55cb201f0 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wTyaQ-00000000APe-0tx7;
+	Mon, 01 Jun 2026 09:05:30 +0000
+Date: Mon, 1 Jun 2026 17:04:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: David Glushkov <david.glushkov@sntiq.com>,
+	Jiri Kosina <jikos@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5] HID: steelseries: Add MSI Raider A18 HX A9WJG RGB
+ support
+Message-ID: <202606011654.dFHta3Dw-lkp@intel.com>
+References: <20260531233903.208321-1-david.glushkov@sntiq.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260531233903.208321-1-david.glushkov@sntiq.com>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Hi David,
 
-New issues:
-- [High] The patch fails to resolve the short-report regression for standar=
-d transport drivers because APIs do not propagate the real buffer size, byp=
-assing the newly introduced padding logic.
-- [Low] Format string mismatch for `size_t` variable.
+kernel test robot noticed the following build warnings:
 
-Pre-existing issues:
-- [Critical] Heap buffer overflow in `dispatch_hid_bpf_device_event` when p=
-rocessing incoming events.
-- [High] A BPF program calling the `bpf_hid_input_report` helper causes unh=
-andled re-entrancy that silently corrupts the shared per-device BPF data bu=
-ffer.
+[auto build test WARNING on hid/for-next]
+[also build test WARNING on linus/master v7.1-rc6 next-20260529]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/David-Glushkov/HID-steelseries-Add-MSI-Raider-A18-HX-A9WJG-RGB-support/20260601-074317
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260531233903.208321-1-david.glushkov%40sntiq.com
+patch subject: [PATCH v5] HID: steelseries: Add MSI Raider A18 HX A9WJG RGB support
+config: x86_64-rhel-9.4-kunit (https://download.01.org/0day-ci/archive/20260601/202606011654.dFHta3Dw-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260601/202606011654.dFHta3Dw-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202606011654.dFHta3Dw-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/hid/hid-steelseries.c:569:27: warning: 'steelseries_hid_to_usb_dev' defined but not used [-Wunused-function]
+     569 | static struct usb_device *steelseries_hid_to_usb_dev(struct hid_device *hdev)
+         |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/steelseries_hid_to_usb_dev +569 drivers/hid/hid-steelseries.c
+
+   568	
+ > 569	static struct usb_device *steelseries_hid_to_usb_dev(struct hid_device *hdev)
+   570	{
+   571		struct usb_interface *intf = steelseries_hid_to_usb_intf(hdev);
+   572	
+   573		if (!intf)
+   574			return NULL;
+   575	
+   576		return interface_to_usbdev(intf);
+   577	}
+   578	
+
 --
-
-commit e46292c21905a8e10fe2c446a47f211679b0d355
-Author: Benjamin Tissoires <bentiss@kernel.org>
-
-HID: pass the buffer size to hid_report_raw_event
-
-This commit attempts to fix an OOB mitigation by passing both the buffer
-capacity and the actual data size to hid_report_raw_event(). The goal is
-to allow safe zero-padding of short reports if the backing buffer is large
-enough, rather than unconditionally rejecting them.
-
-[ Upstream commit 2c85c61d1332e1e16f020d76951baf167dcb6f7a ]
-[Lee: Backported to linux-6.12.y and beyond]
-
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index 284861c166d9c..b711d83dfde1d 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -24,7 +24,8 @@ EXPORT_SYMBOL(hid_ops);
-> =20
->  u8 *
->  dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_t=
-ype type, u8 *data,
-> -			      u32 *size, int interrupt, u64 source, bool from_bpf)
-> +			      size_t *buf_size, u32 *size, int interrupt, u64 source,
-> +			      bool from_bpf)
->  {
-
-[Severity: Critical]
-This is a pre-existing issue, but does dispatch_hid_bpf_device_event() lack
-bounds checking on the event size?
-
-When a HID event arrives, the function unconditionally copies the data into=
- the
-BPF context buffer:
-
-    memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
-    memcpy(ctx_kern.data, data, *size);
-
-If a malicious or compromised HID device (or userspace via uhid) sends an
-event where *size is larger than hdev->bpf.allocated_data, could this cause=
- a
-heap buffer overflow?
-
-[Severity: High]
-This is also a pre-existing issue, but does this code suffer from unhandled
-re-entrancy corrupting shared state?
-
-If a BPF program injects an input report by calling the bpf_hid_input_repor=
-t()
-helper, execution re-enters dispatch_hid_bpf_device_event(). The inner call
-will unconditionally execute the memset() and memcpy() block shown above on
-the exact same shared hdev->bpf.device_data buffer.
-
-If the injected report uses ctx->data as its buffer, the memset wipes the d=
-ata
-before it can be copied. Will this silently corrupt the execution state of =
-the
-outer BPF program upon return?
-
-[ ... ]
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 294a25330ed03..ceff91722c3c8 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-[ ... ]
-> @@ -2028,9 +2036,15 @@ int hid_report_raw_event(struct hid_device *hid, e=
-num hid_report_type type, u8 *
->  	else if (rsize > max_buffer_size)
->  		rsize =3D max_buffer_size;
-> =20
-> +	if (bsize < rsize) {
-> +		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d =
-vs %ld)\n",
-> +				     report->id, rsize, bsize);
-
-[Severity: Low]
-Can we use the %zu format specifier instead of %ld for bsize?
-
-bsize is a size_t, which might trigger a compiler warning on 32-bit platfor=
-ms
-where size_t is unsigned int.
-
-> +		return -EINVAL;
-> +	}
-> +
-[ ... ]
-> @@ -2135,7 +2150,7 @@ static int __hid_input_report(struct hid_device *hi=
-d, enum hid_report_type type,
->  int hid_input_report(struct hid_device *hid, enum hid_report_type type, =
-u8 *data, u32 size,
->  		     int interrupt)
->  {
-> -	return __hid_input_report(hid, type, data, size, interrupt, 0,
-> +	return __hid_input_report(hid, type, data, size, size, interrupt, 0,
-
-[Severity: High]
-Does this leave the short-report regression unfixed for standard transport
-drivers?
-
-By blindly passing the received data size as both the size and bufsize capa=
-city
-arguments to __hid_input_report(), bsize will always equal size.
-
-If the report is short (size < rsize), the new bsize < rsize condition in
-hid_report_raw_event() evaluates to true and the event is dropped, bypassing
-the padding logic completely.
-
->  				  false, /* from_bpf */
->  				  false /* lock_already_taken */);
->  }
-[ ... ]
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 1b1112772777c..ffcf65dcf7134 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -74,7 +74,7 @@ static void wacom_wac_queue_flush(struct hid_device *hd=
-ev,
->  		int err;
-> =20
->  		size =3D kfifo_out(fifo, buf, sizeof(buf));
-> -		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, false);
-> +		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, size, =
-false);
-
-[Severity: High]
-Does passing size instead of sizeof(buf) for the buffer capacity prevent sa=
-fe
-padding for wacom devices?
-
-Similar to the issue above, because bsize becomes equal to size, any short
-report will fail the bsize < rsize check in hid_report_raw_event() and be
-rejected instead of zeroes being safely padded to the end of the buffer.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601083642.9084=
-33-2-lee@kernel.org?part=3D1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

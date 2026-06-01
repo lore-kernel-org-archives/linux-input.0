@@ -1,158 +1,200 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F8143438AB;
-	Mon,  1 Jun 2026 08:46:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDEA334C05;
+	Mon,  1 Jun 2026 08:50:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780303595; cv=none; b=sE0LHNIvpr5E1hcZJX2xq7fAuu/4rvwq5J8FW8ougUCgRezpJUPgEaEND4OeU+x8JB3BTZeT/Bs6Yd8NF1Snh24e45dr0n0YmDFYmKYytNYrSjedOj3lyYwHvyaytuXMbO5JtrhANQCKi8ZKicl/gNeiBdl+J0zki96VTExpIY8=
+	t=1780303808; cv=none; b=AWBFK9kqMlbmGULY9ypdaQLrp63ozwPnASGwcezjYvtIrQ9vsao+EbabUtyf/+i/cR5FU8PF7E/CNMLGJ9XSsaT/DFC7wcO8NkcHww22Zgc8NWR8Ek4kG92M9lictokloRtBgpHTvJgxtguKlo3hVOFu/gUNuEdPe2dEGK+pGDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780303595; c=relaxed/simple;
-	bh=zLSCLCYSpJJa+hjDgqEHZsmiqnn1rxWi1SEStGABqyE=;
+	s=arc-20240116; t=1780303808; c=relaxed/simple;
+	bh=wJewuAA0yHOMFk005BDaHEpaoQdFvaB9GW87xyazg2Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TIDLxs7WuPaf8gqUCuKtKBxpuXdxKMK7UVmShlaqgw38WdUnDkBqq1bYWsvp+Iao48wrpnFU6qZheta+bwIAyr9qdtk4GpJC8GgY9ywB3T8F+A12tMECm0Nc02L+rPN4fyxROb5gKSDQJy2Eo7fI7Pcp9cRE5E6fJBCyIsG5wTA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A/Ji16pr; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=psuJ5kg5tq/9V2zKFGb7li4kzWytVoWeGkr+rpnMxYwZbYClfBAolgScfdpdCIKUTC9wkf6cJZSuixt8sJX1BTgKFr1HRHyb26vfoSWIIIQkU0reTpElIBjS/qcxcCYZCPehGH9TE2n3JHmhT9GbjhbBnwuKj2O640ODlL8H6rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fM3xh1R7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A/Ji16pr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC151F00893;
-	Mon,  1 Jun 2026 08:46:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fM3xh1R7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F18B1F00893;
+	Mon,  1 Jun 2026 08:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780303594;
-	bh=02m6gPeKh6gS1T2eRV6buoizcT6iQRHodyNjhht6MsM=;
+	s=k20260515; t=1780303806;
+	bh=n1qeLdos2mO/Zv6Z2EbKt8HWwgO9dImP+jeHsNaMsr8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=A/Ji16pr14bbF7ew8RN65+MkfWf+wu6uhQYHqP1709Xhc/TgxcXsXoBDU1O4DOsn0
-	 tcp25X8UlwI9+S3MDA7aAieyJkGQ5xkFomFRJlaaexY8PPqY7i1kmUpYxdQdYHcOdX
-	 3OMIpsxzZJD4cJFfyftXpQS3/c22t6x6g41BLptazbdC/lBvOianlbRbTsoaEAUdGN
-	 ME69acK9KT2jqNw7NqBEQfEO1vqY1OgMsODw1YzEsHobqJChJjfrf2HgZBIUWrNrRs
-	 qfxbfWx7cdtJztL55sovaQrY9UEOO2y/Hfo+lN0Rq3ApnZBpa8lAXBgvF+itYtAtPZ
-	 yKqFHQKVfpBWA==
+	b=fM3xh1R7RsF81+mrdxb9Gcpco4PZ6A+W0O3kp/Bwp/WKVVwXM1fLxGXa/1/xuNCKV
+	 BBdPF99oEKxtBD5JMwHT4nNVNRsAFQ2SNwuFNloCrYoWFuLAB3xE7sV0tk3lYlyR44
+	 +VLyMWzLq68BJRhywVYDhK6945MNescYCPbWhEZeZ9q8FW0S5IvGezlYNsgARVsMRv
+	 49B/g73c9pGT26HMRLx6oDZUg98kGhrDwrFvwFa0NuDyiRxYkxy3jqaz3bm3t8IWM3
+	 zFK2L81QlhT0AxPEta5jNo3dFzdkBO7ELLlAZ41+6bWAdGwGm/2dWD5DkoBSpC9IR5
+	 /dE8xUdsds34Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [linux-6.12.y 3/4] HID: core: introduce hid_safe_input_report()
+Subject: Re: [linux-6.12.y 2/4] HID: pass the buffer size to
+ hid_report_raw_event
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lee Jones" <lee@kernel.org>
-Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260601083642.908433-3-lee@kernel.org>
-References: <20260601083642.908433-3-lee@kernel.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, bpf@vger.kernel.org
+In-Reply-To: <20260601083642.908433-2-lee@kernel.org>
+References: <20260601083642.908433-2-lee@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 01 Jun 2026 08:46:33 +0000
-Message-Id: <20260601084634.1BC151F00893@smtp.kernel.org>
+Date: Mon, 01 Jun 2026 08:50:06 +0000
+Message-Id: <20260601085006.6F18B1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
 New issues:
-- [Low] The patch introduces a hard build failure by passing 9 arguments to=
- a function expecting 8.
+- [High] The patch fails to resolve the short-report regression for standar=
+d transport drivers because APIs do not propagate the real buffer size, byp=
+assing the newly introduced padding logic.
+- [Low] Format string mismatch for `size_t` variable.
 
 Pre-existing issues:
-- [High] Integer underflow in `i2c_hid_get_input()` when computing the rema=
-ining buffer size for bogus HID descriptors.
+- [Critical] Heap buffer overflow in `dispatch_hid_bpf_device_event` when p=
+rocessing incoming events.
+- [High] A BPF program calling the `bpf_hid_input_report` helper causes unh=
+andled re-entrancy that silently corrupts the shared per-device BPF data bu=
+ffer.
 --
 
-commit d54718e72e548c203a2c42b46b69bf352c081a00
+commit e46292c21905a8e10fe2c446a47f211679b0d355
 Author: Benjamin Tissoires <bentiss@kernel.org>
 
-HID: core: introduce hid_safe_input_report()
+HID: pass the buffer size to hid_report_raw_event
 
-This patch introduces hid_safe_input_report() to be used in transport
-layers like usbhid and i2chid. This provides the buffer size allowing
-the hid-core to make smarter decisions regarding incoming buffers.
+This commit attempts to fix an OOB mitigation by passing both the buffer
+capacity and the actual data size to hid_report_raw_event(). The goal is
+to allow safe zero-padding of short reports if the backing buffer is large
+enough, rather than unconditionally rejecting them.
 
+[ Upstream commit 2c85c61d1332e1e16f020d76951baf167dcb6f7a ]
+[Lee: Backported to linux-6.12.y and beyond]
+
+> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
+_dispatch.c
+> index 284861c166d9c..b711d83dfde1d 100644
+> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
+> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+> @@ -24,7 +24,8 @@ EXPORT_SYMBOL(hid_ops);
+> =20
+>  u8 *
+>  dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_t=
+ype type, u8 *data,
+> -			      u32 *size, int interrupt, u64 source, bool from_bpf)
+> +			      size_t *buf_size, u32 *size, int interrupt, u64 source,
+> +			      bool from_bpf)
+>  {
+
+[Severity: Critical]
+This is a pre-existing issue, but does dispatch_hid_bpf_device_event() lack
+bounds checking on the event size?
+
+When a HID event arrives, the function unconditionally copies the data into=
+ the
+BPF context buffer:
+
+    memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
+    memcpy(ctx_kern.data, data, *size);
+
+If a malicious or compromised HID device (or userspace via uhid) sends an
+event where *size is larger than hdev->bpf.allocated_data, could this cause=
+ a
+heap buffer overflow?
+
+[Severity: High]
+This is also a pre-existing issue, but does this code suffer from unhandled
+re-entrancy corrupting shared state?
+
+If a BPF program injects an input report by calling the bpf_hid_input_repor=
+t()
+helper, execution re-enters dispatch_hid_bpf_device_event(). The inner call
+will unconditionally execute the memset() and memcpy() block shown above on
+the exact same shared hdev->bpf.device_data buffer.
+
+If the injected report uses ctx->data as its buffer, the memset wipes the d=
+ata
+before it can be copied. Will this silently corrupt the execution state of =
+the
+outer BPF program upon return?
+
+[ ... ]
 > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 294a25330ed03..2c5583818421e 100644
+> index 294a25330ed03..ceff91722c3c8 100644
 > --- a/drivers/hid/hid-core.c
 > +++ b/drivers/hid/hid-core.c
 [ ... ]
-> @@ -2141,6 +2142,30 @@ int hid_input_report(struct hid_device *hid, enum =
-hid_report_type type, u8 *data
->  }
->  EXPORT_SYMBOL_GPL(hid_input_report);
+> @@ -2028,9 +2036,15 @@ int hid_report_raw_event(struct hid_device *hid, e=
+num hid_report_type type, u8 *
+>  	else if (rsize > max_buffer_size)
+>  		rsize =3D max_buffer_size;
 > =20
-> +/**
-> + * hid_safe_input_report - report data from lower layer (usb, bt...)
-> + *
-> + * @hid: hid device
-> + * @type: HID report type (HID_*_REPORT)
-> + * @data: report contents
-> + * @bufsize: allocated size of the data buffer
-> + * @size: useful size of data parameter
-> + * @interrupt: distinguish between interrupt and control transfers
-> + *
-> + * This is data entry for lower layers.
-> + * Please use this function instead of the non safe version because we p=
-rovide
-> + * here the size of the buffer, allowing hid-core to make smarter decisi=
-ons
-> + * regarding the incoming buffer.
-> + */
-> +int hid_safe_input_report(struct hid_device *hid, enum hid_report_type t=
-ype, u8 *data,
-> +			  size_t bufsize, u32 size, int interrupt)
-> +{
-> +	return __hid_input_report(hid, type, data, bufsize, size, interrupt, 0,
-> +				  false, /* from_bpf */
-> +				  false /* lock_already_taken */);
-> +}
+> +	if (bsize < rsize) {
+> +		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d =
+vs %ld)\n",
+> +				     report->id, rsize, bsize);
 
 [Severity: Low]
-Does this cause a build failure? Looking at the definition of
-__hid_input_report() in this file, it only accepts 8 arguments:
+Can we use the %zu format specifier instead of %ld for bsize?
 
-static int __hid_input_report(struct hid_device *hid, enum hid_report_type =
-type,
-                              u8 *data, u32 size, int interrupt, u64 source,
-                              bool from_bpf, bool lock_already_taken)
+bsize is a size_t, which might trigger a compiler warning on 32-bit platfor=
+ms
+where size_t is unsigned int.
 
-This call passes 9 arguments, including the new bufsize parameter. Were some
-prerequisite upstream patches updating the signature of __hid_input_report()
-omitted from this backport?
-
-> +EXPORT_SYMBOL_GPL(hid_safe_input_report);
+> +		return -EINVAL;
+> +	}
 > +
->  bool hid_match_one_id(const struct hid_device *hdev,
->  		      const struct hid_device_id *id)
 [ ... ]
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c=
--hid-core.c
-> index cf8ae0df0cda9..8ce0535fc42d6 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -568,9 +568,10 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->  		if (ihid->hid->group !=3D HID_GROUP_RMI)
->  			pm_wakeup_event(&ihid->client->dev, 0);
-> =20
-> -		hid_input_report(ihid->hid, HID_INPUT_REPORT,
-> -				ihid->inbuf + sizeof(__le16),
-> -				ret_size - sizeof(__le16), 1);
-> +		hid_safe_input_report(ihid->hid, HID_INPUT_REPORT,
-> +				      ihid->inbuf + sizeof(__le16),
-> +				      ihid->bufsize - sizeof(__le16),
-> +				      ret_size - sizeof(__le16), 1);
+> @@ -2135,7 +2150,7 @@ static int __hid_input_report(struct hid_device *hi=
+d, enum hid_report_type type,
+>  int hid_input_report(struct hid_device *hid, enum hid_report_type type, =
+u8 *data, u32 size,
+>  		     int interrupt)
+>  {
+> -	return __hid_input_report(hid, type, data, size, interrupt, 0,
+> +	return __hid_input_report(hid, type, data, size, size, interrupt, 0,
 
 [Severity: High]
-This is a pre-existing issue, but can this calculation underflow and pass a
-massive size to the HID core?
+Does this leave the short-report regression unfixed for standard transport
+drivers?
 
-If a device has the I2C_HID_QUIRK_BAD_INPUT_SIZE quirk and provides a bogus
-descriptor with wMaxInputLength < 2, the size variable will be < 2, and the
-code earlier in i2c_hid_get_input() forces ret_size =3D size.
+By blindly passing the received data size as both the size and bufsize capa=
+city
+arguments to __hid_input_report(), bsize will always equal size.
 
-When ret_size and ihid->bufsize are less than sizeof(__le16) (which is 2),
-subtracting sizeof(__le16) will result in an unsigned integer underflow.
-This large underflowed value would then be passed into the HID core here and
-could lead to out-of-bounds reads in functions like hid_dump_report().
+If the report is short (size < rsize), the new bsize < rsize condition in
+hid_report_raw_event() evaluates to true and the event is dropped, bypassing
+the padding logic completely.
 
->  	}
-> =20
->  	return;
+>  				  false, /* from_bpf */
+>  				  false /* lock_already_taken */);
+>  }
 [ ... ]
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 1b1112772777c..ffcf65dcf7134 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -74,7 +74,7 @@ static void wacom_wac_queue_flush(struct hid_device *hd=
+ev,
+>  		int err;
+> =20
+>  		size =3D kfifo_out(fifo, buf, sizeof(buf));
+> -		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, false);
+> +		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, size, =
+false);
+
+[Severity: High]
+Does passing size instead of sizeof(buf) for the buffer capacity prevent sa=
+fe
+padding for wacom devices?
+
+Similar to the issue above, because bsize becomes equal to size, any short
+report will fail the bsize < rsize check in hid_report_raw_event() and be
+rejected instead of zeroes being safely padded to the end of the buffer.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601083642.9084=
-33-3-lee@kernel.org?part=3D1
+33-2-lee@kernel.org?part=3D1

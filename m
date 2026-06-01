@@ -1,98 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D67357CF5
-	for <linux-input@vger.kernel.org>; Mon,  1 Jun 2026 18:47:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68DF21A6839;
+	Mon,  1 Jun 2026 19:18:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780339670; cv=none; b=Z+YMlX4q+0uRRtJZLj54qw8vmQ5ojKiwZJqkC1SDEVQkfAWCzl02IMG5sfQubT4toEVCQmjvwps8I55H2JMx5x1rThvbpMjVlTDy3jOxPqUUA9eZ7lPZYSEdUTFJq6wzEL425y0nHheLitudJ+fcxNk/6w9NzKFl1ZKwvQSZUPA=
+	t=1780341527; cv=none; b=Go/P3sqjra1tCIjsxh8aBh7Sodh3d2+EaXn8laYLZnv4DS1Gwed3CgxrrNkTdHifPeNUFCqB3Eu44Qxwh+ohTbL/QBLy/tkLmGuI4kXS+vxixi4KSazq3RcFxBpz4D6tZ7EFRqqaf8y2Dqu0PmNd/fBr2L8P1WoZMaNhn/iuqc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780339670; c=relaxed/simple;
-	bh=USeW9luT+At6uCmdYrxUTqbi1PPSYzUfxwUttQaJsm0=;
-	h=From:Subject:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KBn20Ir0L0aDF19kdAa60qshc+ZInqJqFTKe1A/6CNDnq+GHna+QPmuWcg03SXxrIznnBqpeg2Kdl95UzOcQUpZF7ukeL8km0hXMs3ZjqeryWj7kOpm6kt2w+mwuk6jPLIUE7WPMrhTph/GrcxIkv6zJz53575mzau3vrqn3mYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NO6F3uOf; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780341527; c=relaxed/simple;
+	bh=XByac4jqa9bNVJj/uf8ZToa0I4yv1Dz1L1o/ssrvxVg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I8ZFEPhzEtV74181nDolVhgbmugzXvJCUIX8YrNco8qJqa3C9TNMHs8MJlRECIb3dYDLCKpjaRhs9hGPhbSe24jbn3rynmZWgZILzXtcVf7/RRl8prEsrAzqKiUw6nM4JQnYXryE1AvDkhf2zcbxPhV1rGXlqzouMcEmc+gxMYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ccjX/1qa; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NO6F3uOf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843DB1F00893;
-	Mon,  1 Jun 2026 18:47:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780339667;
-	bh=+iTZgYGwbfVDseCR7fWNhE4/ZEBwUaT3SLgtdhn+7r0=;
-	h=From:Subject:Reply-To:Cc:In-Reply-To:References:Date;
-	b=NO6F3uOfHAXWsQsO4SKIFM3iFRfAqBAbjKXDzNyxN+hvupJ2EqFkNd3tP/0mfpXv3
-	 dgN/7hceJ92rBjDs6kPnHAYxURjoKMRn5omA1+sCN1QvGVgceDmNESIHXU0PaqpyER
-	 6N2MO8lLK0u/9wcdQxb7sJmZs4Wgi8Z+aIQwHFA0rdMCcmODOQB92K9nzpiFwG2j/y
-	 SSuXp/tESHYaOR5J7K/QZFzoG8oMVDR7XAiyyW5pdQITcsexud044zUvTb2G8zSI4X
-	 jitqKbIoCdmS9LVTcnVQls6/mSCt/inYNn5u9MP9kfcmCALkIerqgVuQ8SsA00oPs0
-	 vj17/3HK95RnQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] HID: i2c-hid-of: Fall back to ACPI _DSM when
- hid-descr-addr is missing
-Reply-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <tencent_0EE402E968E17B8EACEDFF0E9EBDDBF17E09@qq.com>
-References: <tencent_0EE402E968E17B8EACEDFF0E9EBDDBF17E09@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 01 Jun 2026 18:47:47 +0000
-Message-Id: <20260601184747.843DB1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ccjX/1qa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780341525; x=1811877525;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=XByac4jqa9bNVJj/uf8ZToa0I4yv1Dz1L1o/ssrvxVg=;
+  b=ccjX/1qaMrg6CKhl14YPXVwQLWAnQmxMqvRtiOwgj5M36qpVKCi0RLmD
+   +eTBJLTPcIufcjLeOgUK47HA+vqIy+Faii6bkFxZ4cw6ZvSVbGOlAOrH/
+   3tFp6MJTD8hZBhX5QKyHaOQ+yFIa4t4/nQPzBvvwlrveqt62EsE2oAszr
+   VvNLsBZFryZFMBgPZ4mXNAbecZ7ODJTiYIFYhPeCVYxJTvQP/kk8fjAEl
+   VPRZYMNCk7ouQJWEFjOL1yCSQRVuYQwdYe8oKgMVIaLl7lPX9p/nKIxhy
+   8RR+IlN7f2Ypegx/AUDqLX2n8lOJ3lunqPsaOL8OVDnHFp7Uw+ixljeRX
+   g==;
+X-CSE-ConnectionGUID: 2UZWEeqvSOWFtBzyMpDFlQ==
+X-CSE-MsgGUID: 4bgIcR5JSeKPwjZu+FZFbA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11804"; a="81294862"
+X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
+   d="scan'208";a="81294862"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2026 12:18:45 -0700
+X-CSE-ConnectionGUID: 6WVaCva+Sg6StVOfA0UDwg==
+X-CSE-MsgGUID: pvLmmQTOR3qfi6hWUiT8Gg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
+   d="scan'208";a="267547772"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.111])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2026 12:18:41 -0700
+Date: Mon, 1 Jun 2026 22:18:39 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Danny Kaehn <danny.kaehn@plexus.com>
+Cc: Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>,
+	Bartosz Golaszewski <brgl@kernel.org>
+Subject: Re: [PATCH v14 1/2] HID: cp2112: Add fwnode support
+Message-ID: <ah3bDxgh-r7FtdbZ@ashevche-desk.local>
+References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
+ <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] The i2c-hid-of driver uses the ACPI _DSM fallback to obtain the HI=
-D descriptor address but does not provide a restore_sequence callback to re=
--evaluate the _DSM during hibernation (S4) restore.
---
+On Wed, May 20, 2026 at 11:13:06AM -0500, Danny Kaehn wrote:
+> Support describing the CP2112's I2C and GPIO interfaces in firmware.
+> 
+> Bindings between the firmware nodes and the functions of the device
+> are distinct between ACPI and DeviceTree.
+> 
+> For ACPI, the i2c_adapter will use the child with _ADR equal to Zero
+> and the gpio_chip will use the child with _ADR equal to One.
+> 
+> For DeviceTree, the i2c_adapter will use the child with name "i2c",
+> but the gpio_chip will share a firmware node with the CP2112.
 
-commit 3ebee1e22f96c1e99e3c6adbd49d92242f2497f9
-Author: =E8=B0=A2=E8=87=B4=E9=82=A6 (XIE Zhibang) <Yeking@Red54.com>
+As we seems settled on the approaches in both cases, I think we are fine
+to go
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-HID: i2c-hid-of: Fall back to ACPI _DSM when hid-descr-addr is missing
+-- 
+With Best Regards,
+Andy Shevchenko
 
-This commit updates the i2c-hid-of driver to fall back to the ACPI _DSM
-method for obtaining the HID descriptor address when the "hid-descr-addr"
-property is missing. It specifically targets devices using the "PRP0001"
-_HID with a "hid-over-i2c" compatible string. Safe default power and reset
-delays are also configured for these devices.
 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-of.c b/drivers/hid/i2c-hid/i2c-h=
-id-of.c
-> index 57379b77e9778..e925e2d2cfe0d 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-of.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-of.c
-> @@ -92,6 +92,36 @@ static int i2c_hid_of_probe(struct i2c_client *client)
->  	ihid_of->ops.power_down =3D i2c_hid_of_power_down;
-> =20
->  	ret =3D device_property_read_u32(dev, "hid-descr-addr", &val);
-> +	if (ret) {
-> +		/*
-> +		 * Some devices, for example the Lenovo KaiTian N60d and Inspur
-> +		 * CP300L3, declare their I2C HID touchpad with _HID "PRP0001"
-> +		 * and _DSD compatible "hid-over-i2c" but lack the
-> +		 * "hid-descr-addr" property. Fall back to _DSM to obtain the
-> +		 * HID descriptor address.
-> +		 */
-> +		int dsm_ret =3D i2c_hid_core_acpi_get_descriptor(dev);
-
-[Severity: High]
-Does this missing PM callback break S4 hibernation restore?
-
-The native i2c-hid-acpi driver re-evaluates the _DSM method during hibernat=
-ion
-restore via its restore_sequence callback to reinitialize the hardware stat=
-e,
-such as switching the hardware back from PS/2 emulation to I2C-HID mode.
-
-Because this ACPI _DSM fallback is added in i2c_hid_of_probe() without also
-wiring up ops.restore_sequence in the OF driver, will these touchpads fail
-to resume correctly and become unresponsive after waking from S4?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260601181510.3870=
-5-1-Yeking@Red54.com?part=3D3

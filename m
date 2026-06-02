@@ -1,129 +1,95 @@
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BA5C285CB9
-	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 03:05:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 325543382DE
+	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 03:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780369539; cv=none; b=m7zND6OfP7RSXhM6j36PvzJa6spQ2WFCnC6BAXyXu7feSLavLrf/41KUzz+TJ0eH8Sx2oW1hX3Bnf/gZ2zy5lWY4dODYdyAc2C2XYW06PA/GLLkpgLE08FggG9I4qafYlt3iKBzB6cFOZtiO4uJj2y18YaXzW5czBUz+VBgEq/c=
+	t=1780371897; cv=none; b=Ylz2bvTmSrj9RKmvamvhlpUcxFXDi4bhy6V2fP+Kqzj0+U0MYJ6yQYu5aKioD5dHHoG+5i/+ZAqcmRfn8WsRX7biewHMQ9GdAwqpEBT5xFQHXbyzM1aikR7kSQnONyB4CYFJc8yDimKU+5I7iZb9eretI3vKOsFb0My9RAnwqfY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780369539; c=relaxed/simple;
-	bh=f3zVbPBAMrce9oSBZHsiqEpX15pcL+jBl7cA2FiUI4s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YyZ0HBm7czcJHthsmV4rJMbf45YRPs8z8iLymxf1GaFIw/btkiaIgkUDnWH6lPgUqtClwccZG/KKBjKMGau3Zi2lwsLzyGa7JdQ0YBgFpZQYeRX+qIW0mbNFoyWh/MRzeNDuNwHwUQ59B+M489MOipIfLrVVz6h3ZEjN3xWK1uc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=dZpNl4M/; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=SpzwzfS+; arc=none smtp.client-ip=34.202.193.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
+	s=arc-20240116; t=1780371897; c=relaxed/simple;
+	bh=mRYJ7PxOrFtv65CLLZ54456b0DWYC5nxECBKHwzvqXA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=uK5WG5RR8kLNc35wK/d6E61e0R6s2sVAfYun7XZys6cZVHM5U/9+b+Pwjs8FPIRvEzFFf+u7l9pOmdQLYGxaLOiy80wZIJEW5m7MVNgJrFXzt7CokNi3mTV3of8bR+GkuH0CEbv7b7kxRiJwAxUOaUXJy8HgV+5SfW/B66442bI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j56VatWv; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="dZpNl4M/";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="SpzwzfS+"
-Authentication-Results: purelymail.com; auth=pass
-DKIM-Signature: a=rsa-sha256; b=dZpNl4M/vVRayhwY2CUX4NxA5wkkCt/bf+MEyySXB0jWmQT6eejyATPA90UFy/TkY9pi4ZfkbEExViyrWZ2+uaa3YQXFpbcRDH8L9xuAGgEX1oH2uyBWy5ynWD9jgbrSk20QjVfSokagagpxVEtcEpaajf0yoW/Rog4ipcSpfFZFCsDdHFROV35hx1+xOsRxfFf7Bze5HxPFUKkM5Niup3oq49O1UPDS1F2wqCwHM+BF9+WF5udDpWKAFQBumBnMUTthXVfOMjUOwsMq7SDT+oHh+swUc0Y+4vYhAGo7Jxr95OKqV1Iy7lzELQre4DiEuNbKPBjQn9MPqHN5Zgmpkg==; s=purelymail1; d=rcpassos.me; v=1; bh=f3zVbPBAMrce9oSBZHsiqEpX15pcL+jBl7cA2FiUI4s=; h=Received:From:To:Subject:Date;
-DKIM-Signature: a=rsa-sha256; b=SpzwzfS+hiI/WR8j3bx7FQlYS1zNPs9aCD8QzW/D8WcLjQkjqoc5oO+ia0gUuRM1Xsoelv468fwFNsuwcEppv7+9sIzsYibu6V2op0fYoRo8RFBndeOpGy3UdTs7snxmXE2itJMMcXit1PBRY9swcwblYykw9zHInxq3xc4/dNtqNGQS3cPbT93qSfqJuE3i3pVODB5hf+a4/wiRM+xgb8xQqYqPaeIYvswnh9NaN5HjxOXAVu0l8EgzpPEAILUgyLkaZA4yBv+wSmAgqk/fpEUCKMZDqrGuMBb3lv6Z8WLImuf+wAVwSabD0UsqYtbYWWkpKVDHUufBuNgNEXtETA==; s=purelymail1; d=purelymail.com; v=1; bh=f3zVbPBAMrce9oSBZHsiqEpX15pcL+jBl7cA2FiUI4s=; h=Feedback-ID:Received:From:To:Subject:Date;
-Feedback-ID: 45355:7809:null:purelymail
-X-Pm-Original-To: linux-input@vger.kernel.org
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -982909124;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Tue, 02 Jun 2026 03:05:35 +0000 (UTC)
-From: Rafael Passos <rafael@rcpassos.me>
-To: linux-input@vger.kernel.org,
-	lcasmz54@gmail.com,
-	bentiss@kernel.org
-Cc: hadess@hadess.net,
-	jikos@kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j56VatWv"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-490b2903757so411505e9.1
+        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 20:44:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780371893; x=1780976693; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mRYJ7PxOrFtv65CLLZ54456b0DWYC5nxECBKHwzvqXA=;
+        b=j56VatWvGaz3veX5e2UPEkNGoQMxNYEVcdmYM/PmAY2eOZNnC1fBrD+uccJOEpZbNO
+         68yi8IttcWmqpvX8mHUuJs5Noahm7w3/z9zLSuYXpihOGXvfUM5K4tklFixKjCD1+ju/
+         daYVRKvofGTfk06qaqxXSGbJJH4R+8hn5BizMs57o/AKgQTuRBeKiwCv9PX2ZEFfKSzf
+         WwM4XR7eRV9XkraEgzOkucn9wygcxaAYaAoeREHTgo0hDo+/TW/r4kg1bsTa124ijoXR
+         U9OK0fwjHuprh4wwsCuA3vysM6s3j2wgmB5LwE3P+22b5F1js/dgIOP51SWVAdKu8qau
+         NC2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780371893; x=1780976693;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=mRYJ7PxOrFtv65CLLZ54456b0DWYC5nxECBKHwzvqXA=;
+        b=dQ7kDhQcdndGleoq6zAvZUi+kLr+wk5xTISLEgXLS6NDZUDlSJUnmVT4RPE/SL64Sr
+         2Sh2ia5FA7tOI5/mX0RWknGhXk0ZnzVQ8oDuciFfVhDZXzeP50yLBzS1xEuhcu+f8ELl
+         UJQCwz/dKAfDA/WNl3nakQxDlxHq2LK0Kipt+HImAqwsWyd6dEnypzYaKxcEKrEzqscH
+         djkMIWuE8EMn5TQ9Ax/Fwf1THG+nhyjTQ6Cil0by97uVquz2I9YQryY9clP3j6xQUAwh
+         OQj7fN3vPGgB7ppFiUd66RMpKZKNvdKJQur/0XybzAVbfMJgYcy0xDZ9b2apllPk9yp4
+         D0IQ==
+X-Gm-Message-State: AOJu0YzYs+bMrWmXSoBv1cDdSJJz0n4puUti2yNcd/wvQAUHLUViLnmw
+	OLWK5pqXOqHwhr783pcM5nghTuC+CU3FSgVPs9bGtl8dwzivWqJJDTs=
+X-Gm-Gg: Acq92OF64Hkbnoc7WNQL7hX6NBPtTnw0n9OLU6jWTcbrTpHe/YRri5T1PW1WsttTPUA
+	aSgxe/5cK00wjdVOV73DbJCgt/AiKa21bIYi8t7l8LNpzGQg3SnfN4HU75H1NhLX2BzLtzj5DIP
+	AxlMRRIjPlIhBD/4Mwa/quPKLFgme0vUrAKJ4GSopeHB3heC/V/1wrKysqHYi8HLz3weh36UHiN
+	+rePd33s/xiKItl2kkjJTrQl1kILKXuZIaU5/PNBuGHetkEDsz5BjoPrA/GmK1+xr40YI8qddy5
+	JpmB6YH6Ka77GDwQv/621n73BvdAWlcEB9TrNABJgeu2arwrJFfg7XgPpkALdsNi2tpgGfMHFdT
+	cbL7NYZi3UC5yPsMdr1LbMamvHM9hGDxmenU0N5A6lYGrLO74wd5SGrlPelgyhYWIqxHPZiy/xB
+	NXe0CjPZ7TBF2KwcW1a6Uk2PYCnz0usl93v1YiNR4dmPtFYxYB2/thVZHmVY6YZqbOodhSqNM5m
+	5OOwOmFNrANWF8DOuziiSkPevaOV70xoniPd0FydgpfS0yoIL9vnVePO5YsZradw3lj5VEJMZN9
+	x5BeEKtLgmjOKHSjBbqk16qtcQK+8sD9u1woKLhhKqQ/OGzpwqMuTg==
+X-Received: by 2002:a05:600d:6405:10b0:48f:e230:29f4 with SMTP id 5b1f17b1804b1-490b0ea300dmr21500185e9.15.1780371893353;
+        Mon, 01 Jun 2026 20:44:53 -0700 (PDT)
+Received: from dev-debian.lzampier.com (brnt-07-b2-v4wan-169550-cust456.vm7.cable.virginm.net. [82.14.129.201])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490b0daefbbsm59794995e9.0.2026.06.01.20.44.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 20:44:52 -0700 (PDT)
+From: Lucas Zampieri <lcasmz54@gmail.com>
+To: Rafael Passos <rafael@rcpassos.me>
+Cc: linux-input@vger.kernel.org,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Bastien Nocera <hadess@hadess.net>,
 	linux-kernel@vger.kernel.org,
 	linux-pm@vger.kernel.org,
-	sre@kernel.org,
-	kernel@lists.ime.usp.br,
-	Rafael Passos <rafael@rcpassos.me>
-Subject: [PATCH v2] HID: Input: Add battery list cleanup with devm action
-Date: Tue,  2 Jun 2026 00:05:19 -0300
-Message-ID: <20260602030519.3097058-1-rafael@rcpassos.me>
-X-Mailer: git-send-email 2.53.0
+	kernel@lists.ime.usp.br
+Subject: Re: [PATCH v2] HID: Input: Add battery list cleanup with devm action
+Date: Tue,  2 Jun 2026 00:44:51 -0300
+Message-ID: <20260602034451.398835-1-lcasmz54@gmail.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260602030519.3097058-1-rafael@rcpassos.me>
+References: <20260602030519.3097058-1-rafael@rcpassos.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by Purelymail
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The batteries list (hdev->batteries) is not cleaned up during
-hidinput_disconnect(), but struct hid_battery entries are allocated
-with devm_kzalloc.
-When a driver is unbound (e.g. during devicereprobe), devm frees those
-entries while their list_head nodesremain dangling in hdev->batteries,
-which persists across rebinds.
+Hi Rafael,
 
-Fixes: 4a58ae85c3f9 ("HID: input: Add support for multiple batteries per de=
-vice")
-Signed-off-by: Rafael Passos <rafael@rcpassos.me>
----
-Hi, I hope there is time to land this in this cycle.
-Tell me if I should make any changes.
-I built and tested it againts the mainline.
-I dont have devices with multiple batteries to test.
+Thanks for catching this and the quick fix. Turns out this is the
+hidinput_cleanup_battery() hunk we dropped in the devm conversion
+(patch 1/3), figuring devm would handle the cleanup. It frees the
+hid_battery structs fine, but never unlinks them from hdev->batteries,
+which outlives the devm scope, so the list dangles into freed memory on
+the next probe. My bad.
 
-Bug report link:
-    https://lore.kernel.org/all/20260602011949.2825852-1-rafael@rcpassos.me=
-/
-
-I received a sashiko review, and looked at wacom drivers for inspiration.
-
-Changes in v2:
-- removed list deletion from hidinput_disconnect
-- new hidinput_cleanup_battery method
-- register the cleanup call using devm action
-  in hidinput_setup_battery
-
-If my searching was corect, this shoul be called when devres releases its g=
-roup
-The commit message changed, because it referenced the
-hidinput_disconnect method.
-
-Original patch: https://lore.kernel.org/linux-input/20260602020352.4256D1F0=
-0893@smtp.kernel.org/T/#t
-The sashiko review: https://sashiko.dev/#/patchset/20260602015029.2838058-1=
--rafael@rcpassos.me?part=3D1
-
- drivers/hid/hid-input.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d73cfa2e73d3..c7b8c4ff7a33 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -519,6 +519,13 @@ static struct hid_battery *hidinput_find_battery(struc=
-t hid_device *dev,
- =09return NULL;
- }
-=20
-+static void hidinput_cleanup_battery(void *res)
-+{
-+=09struct hid_battery *bat =3D res;
-+
-+=09list_del(&bat->list);
-+}
-+
- static int hidinput_setup_battery(struct hid_device *dev, unsigned report_=
-type,
- =09=09=09=09  struct hid_field *field, bool is_percentage)
- {
-@@ -610,6 +617,12 @@ static int hidinput_setup_battery(struct hid_device *d=
-ev, unsigned report_type,
-=20
- =09power_supply_powers(bat->ps, &dev->dev);
- =09list_add_tail(&bat->list, &dev->batteries);
-+
-+=09error =3D devm_add_action_or_reset(&dev->dev,
-+=09=09=09=09=09 hidinput_cleanup_battery, bat);
-+=09if (error)
-+=09=09return error;
-+
- =09return 0;
-=20
- err_free_name:
---=20
-2.53.0
-
+Acked-by: Lucas Zampieri <lcasmz54@gmail.com>

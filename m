@@ -1,108 +1,139 @@
-Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34A2D377567;
-	Tue,  2 Jun 2026 07:27:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AECC2D6E66;
+	Tue,  2 Jun 2026 07:55:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780385271; cv=none; b=aQ3Rxu+O9W2yhnHYavfaFumTyM3foQUqWeZTC3w1MFFwO8t6si8rKp4FIDU00UMgP0Z3jAXTgbOP0X35dImMtIuLwcgl6DYYSzJmcKk3XIUbfLPbrNSvQpNP31RWjOBUOt/0HEcYZYwQmUVA0OSccpj3s2b6WPJP36bXbww7Fgk=
+	t=1780386923; cv=none; b=T8dcV36NyUmEhKwTgJysx8oqEXXSBpKLzXrmXJbxf4JcVaVEO8/TU802yKT3J7z+ruSy6Xy5raBYRRzrEGaFB8cdIq+Ud9ASHQpfcNVZWIEZ5+DHJgJuJyDiP4LO2fj75cL0yjpyEU2/RmJbfPQJcwTFZtzn92tmEgIvvg5Jt6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780385271; c=relaxed/simple;
-	bh=3euCun7Jp5CRBu0O+v8ACnx6GZBdjsUp/93zV0Jkqdk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o5Q/GgtWnhdo5xdkoPCXPVWqBIU2t59QnPlOc+Pn14/2zZkvprfOzdiS1U0pYdosMJzuOhk2P2HhXonAHIyZpVZDSbMjlY3uw3QKdd8GtM5G+dh++FCE6l0weik5V0hMc5VPX3JHo1u9Nvz40Lz65OINNOgV4P3TWXz/RGl0WuY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=Xm911NpV; arc=none smtp.client-ip=54.254.200.92
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	s=arc-20240116; t=1780386923; c=relaxed/simple;
+	bh=+sN6zpdyOriXPsnZU12ENPS+DNo75xefbvKGq6qCAIY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FPHfLTpY+8bgr+rh4pEVikWZTEGLVOb+DJWcaVhdUjwjUbW2vwpFwlaiQI5BgB11PFFpvMG0dC0vEr0Dq/eEWK65oz5DplTpujhcOKmXbuU9p7i6LgeGd/FwcmJCLYi/XF/XuwLFpsOP0P9WqHcnHl8MOTN64m5lXqVsk2gnZ3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=loPyPs+I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="Xm911NpV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1780385230;
-	bh=vsF8kWjgQSV1qS0tbe1TS4ygkPiCw+uDiqzC3knABzY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=Xm911NpVIVge5CC3kHPdzrBF4AwuWOo5+8nXsv8bso3/cWjHlGoyJcsaCAGQUHKhb
-	 HDrz916Pj7jwn3kcGobcDRQ3OLDjjwnEW/Y7d247i7QyljdG0NkhzEpZAubfGX41SU
-	 TIEI56egkCUwBayVxQkeXtbxk0NUH/PBAaII2qqU=
-X-QQ-mid: esmtpgz11t1780385214t2e033139
-X-QQ-Originating-IP: YkueepEfC1E+8Z0tCC5Lyrr2sBaHIPI6QH1s42k0c08=
-Received: from PEN202512010004 ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 02 Jun 2026 15:26:53 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 18430485532748447633
-EX-QQ-RecipientCnt: 7
-From: Xu Rao <raoxu@uniontech.com>
-To: gregkh@linuxfoundation.org
-Cc: bentiss@kernel.org,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	raoxu@uniontech.com
-Subject: Re: [PATCH] HID: usbhid: switch HIDBP devices to boot protocol
-Date: Tue,  2 Jun 2026 15:26:52 +0800
-Message-ID: <C8E9803E69FFBFC6+20260602072653.3053911-1-raoxu@uniontech.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <2026060216-freezable-donated-99e5@gregkh>
-References: <2026060216-freezable-donated-99e5@gregkh>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="loPyPs+I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F6A1F00893;
+	Tue,  2 Jun 2026 07:55:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780386922;
+	bh=dhcwDr+/sqdcNLo5+3Szbnc8VATvExtO2SZeE9jrkw4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=loPyPs+IW/GaVzmRT/KhS6ca2s4Wxx4sLY9Nz6Eal7ZNIKsXeOeDPzcBhpi4Zv710
+	 qwWuZq+hXCen+3WXaZ0J/Bz3mWWRaTbn+tFMa729/lJm5oq4EubIoos++D8mxXZRP+
+	 Y17yOlYwSvQ2urWU+VLyLtoqCwWqOHwAo3PD3lCGYJBeOcRNe6gMmG/ixe+lLsuNWE
+	 Hb636KUUKfmYi+X7oBzO/MOgqzSe05599QouOcabPqQAmpni4Gkmqfqls2xvabT3Qn
+	 P6ItzWtrBQ5bCyh/j+Gy6a5s0KgNuAjV/EiU3Kuc5bre8mDlkrdWifqxlclUZQNc3h
+	 duo1bXC+4fSZA==
+Date: Tue, 2 Jun 2026 09:55:18 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: Danny Kaehn <danny.kaehn@plexus.com>, dmitry.torokhov@gmail.com, 
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH v14 1/2] HID: cp2112: Add fwnode support
+Message-ID: <ah6LJw5bgVyrtnyI@beelink>
+References: <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
+ <20260520170229.CEFA31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: OOCyznbq6KdUpkzm7v6h9rLygkgDqf97HAJmFMeWZljY+5hCjePIHUD4
-	TiDAW6LrZiuCpFCPiBZ91dKh88sw2CgSrDujzkWnUzEosG7qJWY3545TZEd/8ixXBcFrnGz
-	ZUbipKAHZvFBwUqWXYVpSjuCXzVZx15+mDtkj4FBunS1mNy5ADJpfDaGa9/PajgVCpR1cX7
-	Ll2DJvJUHvQtMhvpWASc/xEn9mzRaPMW8DcaYvY2u7DKzqaEHNT49T7oTYZ5dnj918LJtQ8
-	5tEmzvuk3zprfbejUd2SFNs0IH/n8vuOtgAWJ/xW1/+WnRJBWX3JpXfvE/Q5eMfs7zoNTeP
-	UTWwzcNh4My2cl/QXN3EgIT1AOR1sbOr8qhOIQEpEEc8rkhIwldsYo8lVybQlcJfpZpY3ca
-	zj6QQi1NtrS4yET1haPq31gntOOef30J9qdTpNynmvWNnAP3pgKN9e6Fc9Jv8yqMPk9Va9c
-	BKLWwcAto8JFq++yZ/eZqTe56mDngPjTMjHDCnPJ2XZsfQm6FNZMjBTbmBKZ6F5o9J5BMdY
-	/e5PzLr9rbRtlQrbKwWs4/T99GuJKYwRfPjaaCJc0TehNPhRYlBJietccmsnhfnnnG8UmiI
-	8B5igi86J/um26idGa2BSPTAvSmbxCjhs9pvod4XnRW4Wdyt43neoJuhhOmmvtwClVszjTs
-	Oe3wVt/kQ8PPP7NgXb/c73HUh3/uLy5+gSJQ34fX15ikajJLr3UP1YCfcTAx/MNyxTBrBIh
-	h+bzcbzFz1Q+lFJtx9NQJEBv+602ixwlBV8GxZJWYSIcF125hY4bla2a5INjxCGQ5AC91Ed
-	z508NFG4hy7I4Tv62h+nRNy0JGp9+KTY9485mChowVXAp1MEAOnOnGTX56GkQOrfGtAojk4
-	2Fq3TBYa0jpjyYQfOvpTSx+Is+IpwJg/pMH0vJGg452x0CN2CfnQSsneH7GsK7Rj9uFxesG
-	LZ60FpupeJ9bkCslhrn/U4+YGyA9a3QRJz+rguHjee9Ivo5Hu53pq4GOaLF+O2yO9vQgCGP
-	iVQkRYfg==
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-X-QQ-RECHKSPAM: 0
+In-Reply-To: <20260520170229.CEFA31F000E9@smtp.kernel.org>
 
-Hi Greg,
+On May 20 2026, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] Premature release of firmware node references results in use-after-free vulnerabilities when assigning the I2C adapter and GPIO chip firmware nodes.
+> --
+> 
+> commit 3dfaf368e855835bf23009205c4b93a2a070aae1
+> Author: Danny Kaehn <danny.kaehn@plexus.com>
+> 
+> HID: cp2112: Add fwnode support
+> 
+> This commit adds firmware node support to describe the CP2112's I2C and
+> GPIO interfaces. It differentiates between ACPI and DeviceTree bindings,
+> mapping the child nodes to the respective adapter and gpio_chip devices.
+> 
+> > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> > index 803b883ae8750..e960fc988058f 100644
+> > --- a/drivers/hid/hid-cp2112.c
+> > +++ b/drivers/hid/hid-cp2112.c
+> [ ... ]
+> > @@ -1226,6 +1241,28 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >  		return ret;
+> >  	}
+> >  
+> > +	cp2112_fwnode = dev_fwnode(&hdev->dev);
+> > +	if (is_acpi_device_node(cp2112_fwnode)) {
+> > +		fwnode_for_each_child_node(cp2112_fwnode, child) {
+> > +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
+> > +			if (ret)
+> > +				continue;
+> > +
+> > +			switch (addr) {
+> > +			case CP2112_I2C_ADR:
+> > +				device_set_node(&dev->adap.dev, child);
+> > +				break;
+> > +			case CP2112_GPIO_ADR:
+> > +				dev->gc.fwnode = child;
+> > +				break;
+> > +			}
+> 
+> [Severity: High]
+> Does this code leave dangling pointers in the device structures?
+> 
+> The fwnode_for_each_child_node() macro automatically drops the reference to
+> the child node when advancing to the next node or exiting the loop.
+> 
+> Because device_set_node() and direct pointer assignments do not increment
+> the reference count, the nodes assigned here could be prematurely freed
+> resulting in a use-after-free.
 
-> > Do not depend on firmware or a previous driver to leave the
-> > interface in boot protocol. Send SET_PROTOCOL(BOOT) during probe
-> > before the interrupt URB can be opened.
-> >
-> > Keep failures non-fatal. Some devices may reject the request while
-> > still sending boot-compatible reports. For those devices, the
-> > existing driver behavior is preferable.
->
-> Do you really use these drivers for devices?  If so, why?
->
-> And shouldn't the failure be fatal?  If not, why even attempt to send
-> it?
+Sashiko is overly cautious here. ACPI handles are not refcounted, so we
+are fine.
 
-After checking the actual device path again, you are right: the devices
-I had in mind use the normal usbhid/hid-generic path, not usbkbd or
-usbmouse.
+That being said, we could unify the OF and ACPI behaviour by calling the
+noops fwnode_handle_get(child) for ACPI as well and clean them up in
+cp2112_remove(). This would also shut up the next warning from Sashiko
+below.
 
-This patch came from reading the simple HID Boot Protocol drivers and
-noticing that they decode fixed boot reports without explicitly selecting
-boot protocol first. So this was a code-inspection cleanup rather than a
-fix for a device that I can show is bound to these drivers.
+> 
+> > +		}
+> > +	} else if (is_of_node(cp2112_fwnode)) {
+> > +		child = fwnode_get_named_child_node(cp2112_fwnode, "i2c");
+> > +		device_set_node(&dev->adap.dev, child);
+> > +		fwnode_handle_put(child);
+> 
+> [Severity: High]
+> Are we releasing the firmware node prematurely here?
+> 
+> fwnode_get_named_child_node() returns a node with an incremented reference
+> count. However, since device_set_node() does not take its own reference on
+> the child node, dropping the reference immediately after could leave
+> dev->adap.dev with a dangling pointer if the node is later removed.
 
-Given that I do not have a real user of usbkbd/usbmouse to justify the
-change and test coverage properly, please ignore/drop this patch.
+OF children are tied to the lifespan of the OF device, so we are fine,
+but technically incorrect, as mentioned by Sashiko.
 
-Sorry for the noise, and thanks for pointing this out.
+If you regroup the 2 behaviours and clean them in cp2112_remove(), this
+would be cleaner IMO.
 
-thanks,
+Cheers,
+Benjamin
 
-Xu Rao
+> 
+> > +	}
+> > +
+> >  	ret = hid_parse(hdev);
+> >  	if (ret) {
+> >  		hid_err(hdev, "parse failed\n");
+> 
+> -- 
+> Sashiko AI review · https://sashiko.dev/#/patchset/20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com?part=1
+> 

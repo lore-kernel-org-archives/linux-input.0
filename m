@@ -1,139 +1,91 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-252.mail.qq.com (out162-62-57-252.mail.qq.com [162.62.57.252])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A30ED314D35
-	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 08:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780390319; cv=pass; b=ARzsLR8dhre0F9MtQAShC3b9CQM1qL5vJ4AfIty1BNCfi6R84f6IBK6HsNzmnEPF575jrgjCMIoePxpaAkOvgdH4a19POMy1aYUY5Jsv7TO6cTpYWcog8egdpGpFllF0sukabWq9EJM42fjPoW/ivCx3TxcnfQZFTzpv4X5leoI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780390319; c=relaxed/simple;
-	bh=RxPiCujPxn79Uvms71LClxshs0juU7xj4wlMJ45AAzw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZeTh95vU44FlLJl2CHLzuwIXBr28W+3OFqMtdo0qR6jqQ5swKFKir2UcC4cCpllkjiNS+1lQx1QH9oNt7VYVM2msym15zc6W65n/BnNz91IgT8p6gRrq32iwlIYa7UopjpsgDAv42YSMYs4nVD+L5dNOEUT6a701NhQLrAlEHwE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rQCmpBYd; arc=pass smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C138381B0F;
+	Tue,  2 Jun 2026 09:55:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.252
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780394118; cv=none; b=cqZThkrdeQCHFsznFhOgZCX7CVdiBvtqpXv9TUhesL9R+WBSxNZliWeC+8uT9H3LNxYOsCgx9JJd4EmuskHLqAPvyu6OeloZAJsdkvga0FaQ7vPIwh5RTKC7QSkF7aqYKF45sX6XIIG3oBqK2wrHq/bUHQ9NPGGnc2WsyUDlLbU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780394118; c=relaxed/simple;
+	bh=7uYUmkU94eEgaajyLYghCE8VnXJllTmPtKA2eCWA07I=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=DUXtqXiuHeNZYHS6UNPUP5VpneWd6+xCVd9B3t45kO0dDMOYicr8iQdN2tGPD67j4LtnMsCkD+x11iFYO5dSllXWCErMrh0aQuBkf5LsqeZnvUKTSXSEnii9fXVwXMEvCvsTGGMMhThorIBrP2erW7nQVXUvJ5MF4SzOoBjXM+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=joint-cloud.com; spf=none smtp.mailfrom=joint-cloud.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=TBVVABL3; arc=none smtp.client-ip=162.62.57.252
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=joint-cloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=joint-cloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rQCmpBYd"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6886be3d39bso17146905a12.3
-        for <linux-input@vger.kernel.org>; Tue, 02 Jun 2026 01:51:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780390316; cv=none;
-        d=google.com; s=arc-20240605;
-        b=V60MxAAXbRhp0glebAgNzeRoWrNedLKks7+t2XJy1wfQf4SE74icrsK39749wKsZgg
-         BJxLn4KUdhRBIyMSxs5b+jCQfy2mNwvlE/d9ejmYW5ZKCq+IS9sfG2SVrEEruXHVasd8
-         edKq41npa//+DkjryqltsT+1QE8FSn7Jd9nWEGmnKUXpTkWGu1Y2GCDhtr+lgFQdC31e
-         +IlQlPqvABuNqRzELQUVvJaH0PtaOBG3hW/scqqtIkDD/Iw2dxrugnNYGzeaonQKR71W
-         UaTyPyowjG+WLq9Ka6sCtnLh+Iml9GbkMWFaat9pbNPbbLumC2P5kohjcVSkbzEk7R2e
-         fYig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NiRZYLqdYuU6SFpoVEk8+QM9CW1MlZECjVChvA6J5qk=;
-        fh=uV14yPWZraFmmPFozNzeOiE8/6cGW0ct30ZOgA540AQ=;
-        b=JsBD85vtMQq3Ik65EhoDyNTjrlFUmj2m/jEuiHn0O63ozFGb2uvlu84spP23ylzcO9
-         6KNGX/a5Qvpas+5klGY4qFqsH2k85AEuCv/nZMjrcXMJzit2aQKSb/MiaVmlfSixvYwk
-         R/gFnYiQi8Vg1o/oJPZjhmpCYHcaTlJLqc/fnwKa/EgDd7RwizKP1CuF9QhYe1AnLVso
-         ddzu8uR8VU67957JLAhXdLVrfFHf24Bk3vTE9Kw5K7h88JNg8Ch2BtN2DR+364cnQUWM
-         wwtxEex3KG/i0SczisXNH+zgejoI502vGwuOXUyDPq3b3MuxRDIV8usQ947kIHa+qgId
-         PYaQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780390316; x=1780995116; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NiRZYLqdYuU6SFpoVEk8+QM9CW1MlZECjVChvA6J5qk=;
-        b=rQCmpBYd9SjvtR8druMhWY57rSUKMyjaC9LMlQZ8JRkG7vZLft+7xfzqq0uIjVRZjr
-         btT2RaZLlWrM+kvjpMZqHs2aT7XCoLF87PqD+IQfCCmiXhUfmK6CzeYPNk0leO4h1S4l
-         wBpgIi0XxijsuNwBIPuDfAAOwU7OypoN3g8nEKNx7WaYL2+8xIOvl+3UUPPLgZsA39cp
-         lr3ZvaZf92WSnKZOeCvPAIyl/XOxOTLcRpVuZDTFZ0HW3/ffbI8SvHaYqR3choFBQDp9
-         NABSchg1Q7Dh+YOEoQFsn5UdI6Lmz+C6Nzc+fWBnukcfNL+aGGjRdJtAAdS02uQdPG4i
-         Rz+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780390316; x=1780995116;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NiRZYLqdYuU6SFpoVEk8+QM9CW1MlZECjVChvA6J5qk=;
-        b=N1ozl35Z+kDYZ9ptJ7ngAAudpiDu0Qk5YA+QKKPyLoSbTD3ihHO0su5HEGmP/jOz23
-         Fzk+OYiLvww+G0NcW9nKiSNtnRcy0vlJm/TbNjktSn1cKirGZXRfGRnsHv4CHEK6Pqu3
-         oPOpQZEzG64F4puNT1wQ3wG/kcutI/RUykHljt5/GQxA0iqWgrWNXAJLYDlNtV1ZjBvt
-         iATIvtOz2CSfrYeldoboeLeAEThgnci8VtgdBjw1Hucapi5tz2rjhdfgy2Gyzt0qV6S7
-         6tFwo9GcPSYYuIvBe9chUJB8vmQypBBsTJV4Mnem5BGCwEyNkNYowlY2wlKJme6NV2rU
-         Y+2A==
-X-Gm-Message-State: AOJu0YzTThFFoT3ZJ1s+PNyp+KIrhJPgDtHrZ17h0gRV6037D7Xf+vco
-	dS3VyoWP6WutD7qv5rk8z1r+DkOI2jZcOca8u5vZa6VQJxGPEEJdeMtJ1+c6WWPmo2UlELBA00w
-	KfcbhBc52vHqzaQdXTnMTZx9q5bJA0NY=
-X-Gm-Gg: Acq92OEoH9+UdKlkAKyELuykSrnV/KHS2O37Ww9XTpmRsw4UFxuVND8y/KFenN2DQZl
-	t/S2wv1Kh/GBEWELuVUlEXe0AOvJkm3z4JwliMxsngzVsv32nYvZ4g4R7TKMEO051+hOo3Yk7NN
-	7OmV6DsTfE+5Gy5cDKr+kjmGA3It1CkuOM9QrRs+Jy/DQ12noQYGMsDuuGClDD2XaqJwX7vTD4x
-	B8cMyzv7/Et/Jo3W7tFVdnfIfzeLs5KsmwIPT2/kqp5SAG/GdLqbI18bxqmJOHsVOEBRHwujWC+
-	+9lTwTUMAxUrMmXKPfQSrPWwy0i0tEpg602THOcq0NfHgUkR7pZYb5EAwBtUDe5Hv0fLSgxhTWy
-	FlvP5+w9imnvSR0JKG/kLlpn4XljKQXSVP/ICwOd0o30l5coU/qjGXyfRc2wkC6u7US8y
-X-Received: by 2002:a05:6402:2b99:b0:68c:33e9:bf71 with SMTP id
- 4fb4d7f45d1cf-68c8ae14309mr7505543a12.11.1780390315907; Tue, 02 Jun 2026
- 01:51:55 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="TBVVABL3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1780394110; bh=D24FkV5/OjCnjuVwe9877rIb+nT9YsHiZuRnl6Qbs8A=;
+	h=From:To:Cc:Subject:Date;
+	b=TBVVABL3oCJoUazwjRFwSc+CqRSRUPLJBEyB2keVE3iELneC4nFUn9rxdEo+U2UIz
+	 IyPN0aEwDVcDHf4D30CPR6w/QfQEi4v0MS5GOT6H9H7y1SKNUp0eCMSs6K5+u/DeZL
+	 VcpkhmUMorHgaRVkS2aQxwHjnmm9bFbEYuRFu8mY=
+Received: from ASUS.localdomain ([116.21.162.60])
+	by newxmesmtplogicsvrszc50-0.qq.com (NewEsmtp) with SMTP
+	id DC63003A; Tue, 02 Jun 2026 17:55:06 +0800
+X-QQ-mid: xmsmtpt1780394106to3zhfyu6
+Message-ID: <tencent_5F1FF80489E702360F352F889570656BF608@qq.com>
+X-QQ-XMAILINFO: OJn05o3aXTi92Xp6u0FmO5yT55nYI0qT2HrVgxOVd30UbOna/cR316T0iXrd26
+	 LkpNG/ezraWI09/gr9EnbTr8BxF/2FzUsIYolmDDH3mfjYoPHCVL8gNg4x6ulwp6l2/9m//dQfw+
+	 d1s8WfM72UxrDgavAgIxM65De3qVeKsWU0W1SgNKXNZe+5ahBurRV0oQCedmMV+OfPRt6Fqt0Jyq
+	 WILfqWH7DCAodCorEfWcG6dko+vV4U7sDU7owSM+mGwLS1cfRROhgizqu+Dx33JmQnimmDVJwrKI
+	 lNouHLWnJxivWeIqOo5Qnync1yhQItQ3bZiNzsUYqSJvMWAe/3sO2aqVmWDuGLsAy31ww0dQCreT
+	 leFjYIHHyqhazDfwaMpj2Hc3t1D/vh8EXGGxQuphQ2UQKsfcT8d5kC47Lm+MiqdMolAWIK+ls8Oy
+	 kN2OkCfzgrSN+m2bZb08OR8fWaed4LZ/vNBv2nByxX6JfrdoSfoyRXpzyxdDFDzNkCVt9M5IG+vj
+	 tIB6G1MU0qi2Kdrg2RvD9XdPWegIeabWbQdMH10EKiWgJ6b10Ul/vdg/T4FUl9qDGyXuOF3N14dk
+	 1cD8opuVGnLeWT/vtzviACoZFY89uw77jnD68RSZRy0fi80UL1T2gs2SXMV2p5UaXck92kT2frRr
+	 hbFb3IoGdPtaXrN5RQm2br0e7Xhk2+d5WeW9xqdFv0HVdNzISsOvBm1nePMpnDEu851yyP+TXAlu
+	 rnwkJdC1lhfrUAjR1dnKHgx6U6dAbAi6suajVtiC6uWvrWmLzxt+rzre7Omcv+6YksKFNcqotFP9
+	 b4S6t3oUX0YGzlxyVQq+Jy3MjAKMeRaXWZ7HlOUMbeF7QZyvdt/4bhKSCJDyZMvrUcGgJDPjFmgX
+	 ZQxaCrStpcLlsAvop+lphh0BBJvsH22EcFUEBke7dfpCLAMGwsT/opVny9cayWXb5YW/gqJwVIPZ
+	 25hrw/0eNLVzyiP3Dv/YoF7Bl6SkwHh8ualQ3YpCFpGp2ys2pil04pZOZhehWlN2/RC+04onAaOB
+	 MdvOGFnUCcTUEO+l3ToCIyoithx0e87HHLZRzXDP+VWc+C5h9s
+X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
+From: steven <steven@joint-cloud.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chen-Yu Tsai <wens@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Steven Feng <steven@joint-cloud.com>
+Subject: [PATCH] Input: axp20x-pek - add support for AXP313A variant
+Date: Tue,  2 Jun 2026 17:55:02 +0800
+X-OQ-MSGID: <20260602095502.538990-1-steven@joint-cloud.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260602035907.623599-1-rosenp@gmail.com> <79ccbd62-9aa3-41a6-a8db-1737672a8aab@amd.com>
- <CAKxU2N-M+vDeDKtYa6=M-4kazOUrGTrwJfHoF6Z+od1OZ-VBpw@mail.gmail.com> <b9e06f81-2b18-4cc3-8974-6df9063b02cf@amd.com>
-In-Reply-To: <b9e06f81-2b18-4cc3-8974-6df9063b02cf@amd.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Tue, 2 Jun 2026 01:51:43 -0700
-X-Gm-Features: AVHnY4IFc2FGJF-yhzYHXra0k2OW5pWoFypg9qZSsndqoXXRhQu8ezFeHabdJu8
-Message-ID: <CAKxU2N-PVmXw3ha-W1Gs9SLpfaJea3X2dPGQYhCwEBGNtYAwYA@mail.gmail.com>
-Subject: Re: [PATCH] Input: xilinx_ps2 - replace in_be32/out_be32 with ioread32be/iowrite32be
-To: Michal Simek <michal.simek@amd.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	chleroy@kernel.org, open list <linux-kernel@vger.kernel.org>, 
-	"moderated list:ARM/ZYNQ ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 2, 2026 at 1:34=E2=80=AFAM Michal Simek <michal.simek@amd.com> =
-wrote:
->
->
->
-> On 6/2/26 10:27, Rosen Penev wrote:
-> > On Mon, Jun 1, 2026 at 11:23=E2=80=AFPM Michal Simek <michal.simek@amd.=
-com> wrote:
-> >>
-> >>
-> >>
-> >> On 6/2/26 05:59, Rosen Penev wrote:
-> >>> Mechanical conversion of the ppc4xx-specific accessors to the generic
-> >>> portable helpers.
-> >>>
-> >>> Allows enabling COMPILE_TEST for extra compile coverage.
-> >>>
-> >>> Assisted-by: opencode:big-pickle
-> >>> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> >>> ---
-> >>>    drivers/input/serio/Kconfig      |  2 +-
-> >>>    drivers/input/serio/xilinx_ps2.c | 24 ++++++++++++------------
-> >>
-> >> I don't think that anybody is really using this driver and would be be=
-tter to
-> >> just remove it.
-> >> If not, no issue with that changes.
-> > I have no problem with removing.
->
-> Can you please send a patch for it?
-Out of curiosity, I made a deep research AI prompt. Last known user it
-gave me was from 2012. Github code search however gave me a user from
-5 or 6 years ago.
+From: Steven Feng <steven@joint-cloud.com>
 
-https://github.com/danielkasza/9444/blob/master/firmware/xilinx-fpga/genesy=
-s2.dts
+Add power button support for the AXP313A PMIC. The AXP313A uses
+the same register layout and timing parameters as the AXP20X,
+so we can reuse the existing axp20x_info structure.
 
-Maybe someone knows more.
->
-> Thanks,
-> Michal
+Signed-off-by: Steven Feng <steven@joint-cloud.com>
+---
+ drivers/input/misc/axp20x-pek.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index 24f9e9d893de..d4e2fc9a937f 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -393,6 +393,10 @@ static const struct platform_device_id axp_pek_id_match[] = {
+ 		.name = "axp221-pek",
+ 		.driver_data = (kernel_ulong_t)&axp221_info,
+ 	},
++	{
++		.name = "axp313a-pek",
++		.driver_data = (kernel_ulong_t)&axp20x_info,
++	},
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
+-- 
+2.43.0
+

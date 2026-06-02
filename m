@@ -1,171 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E77A3B9929;
-	Tue,  2 Jun 2026 07:59:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780387168; cv=none; b=UmFabxH7w+DvRBW6Fwp2l4lxTfUmxfp8gHwa+Oe+2rcicF0b9s+nBvebG5CHukyDdKc3IdZ+1efiNbM3VaLOFsjs2GyHgGf3nQ0KpOovkZo4alhzXrnL5ZQ/2ov7H9IksGtmHTms8z6C6SfxUc/NJJugPhgFewhoHmBwRt6QTVU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780387168; c=relaxed/simple;
-	bh=1fInf/0Iu2rHA+I9iTiBQFUepJR8fl3xSJczy3BIwo0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t64hVVS7nUtigY4JysUNsdpuCR18h+7p0lx6x2AwGTRR2lpA3zgodDH0X1bKn7Kog1jH9VwXwbkh1ergGCL90JakfpchgDK/sNl2c7k2ntS7tO5MBfazkLGx6IkICDYizUEL5s00bSeqE2WramGLJDQ0QJs5CzGPfh7LRe2gs0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PX/ZzL7Y; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 984BF376A07
+	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 08:27:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780388859; cv=pass; b=EXZCmNg7voXlylPos7EcQP6BpZkSqxtAd7KjnJ4X5I1Kdk7menN4G/MaDoy7I7poT2kyUs7PKyGPH9JpnnL2bxkEdzGzwI7QG9sHHi6aUu6RjRRvCeSX8HBsdO63sXzAfuY3sajOl+LIH1qFMW2CS+LR5sGmCSkl1Iciu6qG1uo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780388859; c=relaxed/simple;
+	bh=YevHtGTq/kdgx7nQHMRcSZgzrC2XRHHxw6wlUJR8jHE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rd9F1EHX6j76uK3wHFy8kcAWF/5AAqEhJqvSd43K9ffe9N+R+14xg4LEB0+fCpdnemiMAQtlHBKXMzPVeHJJElAElBfddZnpbpJedc50N1iIU0OvwLgvqkoP5RcXz0eRtQvxovL86l9xyudgik2S2ide+I91Psqpry0b+NM3dpI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tluh82Nf; arc=pass smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PX/ZzL7Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3631F00893;
-	Tue,  2 Jun 2026 07:59:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780387167;
-	bh=XJ34OUFMY/bD4gOylrim+7n96gnMhVnq5U6A3Pfm7y4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=PX/ZzL7YH+MBHh+kX1zYV/v1fkdXyqwo34GEe/hZb9bCOYml+E0eaOF9smO5sGdl7
-	 qgJ5MfeIQL34ceDpbnIi13nZS09FKrLmBafVz6OpA6qwwU9t6g9Mt4lcxmAryfLh7B
-	 USaMVOdYwi/Vcf7Bp3v++UePW3ZW/wrf+J2XMFWSJ/fY6ZTLPPXnSqUyPW5iO+DAX/
-	 wRbiaD2w+GEfYuX2wk5iofXacyqZ4l9g+Bdg6XjoEluwM6MTr9K8XewQDQaBHJvfqb
-	 rkhi2+Ou74az0JVCVlEut0ZWtx9/Fogqio8CuZTHctucfzAPYBifEsSMJ99DH5iLv5
-	 gudMdefRJqs5g==
-Date: Tue, 2 Jun 2026 09:59:23 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: Danny Kaehn <danny.kaehn@plexus.com>, dmitry.torokhov@gmail.com, 
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH v14 2/2] HID: cp2112: Configure I2C bus speed from
- firmware
-Message-ID: <ah6MeSb-NlzniiCA@beelink>
-References: <20260520-cp2112-dt-v14-2-b1b4b6734b6f@plexus.com>
- <20260520174401.BDE571F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tluh82Nf"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-68ad1e513d3so8044452a12.0
+        for <linux-input@vger.kernel.org>; Tue, 02 Jun 2026 01:27:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780388857; cv=none;
+        d=google.com; s=arc-20240605;
+        b=OMwwGBnvMtXAVZE+4JlOOnJ3X3mAlfQO6JG3nh9Bz4Z9lfuBZm1GpJfcLlWA0891oJ
+         0aYBj2TvMteaVGJ8VgsteNk5vXu9lVqDLhvmFb7Y74XvpZirRdZ9G251jLfn8UOWtJ4N
+         1CCfE+lwvaVM9Wt0NhGHLrooRp7LjtSJtgA7g5xtv7dqXsCkHBfcnLLQbLzxsOV7qk7n
+         0QDgRwiLMYP1kX50EOoBqB9zW0RNoqShnyl/3Kq0zKF9wEVifpDMJW1leSvnkwtIvUBK
+         6M97vsBLeyvyHdaVLymPA3SBj/EzZTz+AydYe2CeZDkbawvb+DJUGwPmfOnKMpUrpo9d
+         iPSw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=6x+9n59m+G4YPMddG96e0z0WQ0oCZ9YtThTaG56Vp+c=;
+        fh=uV14yPWZraFmmPFozNzeOiE8/6cGW0ct30ZOgA540AQ=;
+        b=QtdY7WYKX1nZrrMxbd9Ge/N0DOOBPEOF+tmGkcI0SpGq7tBjCPNWACdf3DLKhqXqqw
+         mbmSwDqp8jvElL7pcJzmxVyQ5Q19lvNwVTXqpmBA3VABHzmMxmPGB90ZKD6+Syhykuiz
+         DyisDPRU0+BuzOAw0LRoL6oZjGGYpGkFZ445v3r6TO8Km7ZefgnQDt2FPZyVMyMJAkrQ
+         FGYCipdNhHuzozK7+NhaoA9B4dLFYeDgN7GgxlcLNeQN/2dlcyTmLOiOMgVXANW8hRIY
+         ZniE7y+U6Gqbm9WkaXaLYiUS7gddKngwCFQhywcmu/Pa34aJswuQ/goJbIslv8mNTDxi
+         BTNQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780388857; x=1780993657; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6x+9n59m+G4YPMddG96e0z0WQ0oCZ9YtThTaG56Vp+c=;
+        b=Tluh82Nfwg2dmcJX7gSuI4D9DLtFKFbeeiOD8+Vn75DTVFZTOVe+Ql1SiIuhTdbvL+
+         fVG7uQZgCBIiHz5mKbnyE/yeHFRpUd+nV6fv9WRwtBW5por2ERTC94gCJmt/2Y2QSIe8
+         T/r7eMA2OCsCiDnKXLijUtUFn74Q+HrGN/gzerL1YaOuPTP0lorgIFwK4loV6a5Mg4GP
+         zJvPnL3GZinssJw/lM39hhNeaRW/fVCcLEL13KP6jZ2TkrhcN1vZc2y/IwOLaCuThoyM
+         oFiJa1RWKWxzUSzWAHh5j3PZ0mcZ48CrzzBdi/e5RsS1K3Y5XkdNrAMMV9xATm6p11WZ
+         uwxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780388857; x=1780993657;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6x+9n59m+G4YPMddG96e0z0WQ0oCZ9YtThTaG56Vp+c=;
+        b=B4cBtGHY9WwP1zSkC+OzyuP0xm1RR0asKPeyQ/hCmfFcgNHeH1rWa1mCzoO66U5iv+
+         2sAp7JzA6cKCx9k+VFAGcZLFHOV8EqKcq4D5YVPV8OAy1szSRi+CKvH9H2uatrnU5WsK
+         yligAyD56z49uH2stoQ8980IZPGOnarDfR5yOwVWfx6kcsn2MlbZMGAYBqRN9a2ei/wa
+         9iJNvykYeDrvhdo/KfENoSMEvCtZ7RCn2BGcQcDCpR/Yg+ytlSpzewuJaBfxqxVNVv7E
+         biwRUxLaShIKLLJedmbux0WaUMQ76u8FP8WU9PGIs5Sgoybwpfl0YqBNV15vFrZ7wGSg
+         cE5A==
+X-Gm-Message-State: AOJu0YwWXCWBm6ehpxZQlngtsvyJGyE8XNayAXRNVHmnx3NYSoQGNayK
+	sOexTLPiBFIbfV21NBM86mtK6pFdwA/xiPh6gnleye569EXgqgXyvRybfEjPzbutz/niBtOVfBh
+	rA9bB7ULA7R0SjJjwhYOpaJsNDXJv1eaN5A==
+X-Gm-Gg: Acq92OFCsylNJAeLWE+NKs0jhswUfol9JSj3knvtn50naJ5WWQn46PDvZq2vmq4JzRh
+	XWC52LlWmhUfYwl1VvnXIsndHFUWDG11zEx8ofxUTbgIUOsOpeVR8JdBPi01IkCxuWuoEAZBnPV
+	1EydxoCm0uGw6zY421r4qs6VPrSVXLM1XvVl9QS+XFbr8phQEB38DSnWhgKaET78ev7+06cLS5a
+	OBgw2vtwRsl7YwNpXBO06Y84pZFS417kke4gW5TEN184vXY3Sroz2TIVM/d1BOiNm7cTEKesDFr
+	aZJQbftkJOkF1ZF0wZfvz+1T52NSa1ZUa2+ZrcfD6NWjGOjkGgYr0e2/IwrpcnbuoRqzzjYjWeA
+	MKda/PC7cf9fP1qXTtfuqCRjVbq5QUUT03Pc4SBEPOOztm+rF2wDCbOUu46oXx7KlfFSk
+X-Received: by 2002:a05:6402:28c7:b0:678:a507:e837 with SMTP id
+ 4fb4d7f45d1cf-68c8a3722damr7179822a12.1.1780388856851; Tue, 02 Jun 2026
+ 01:27:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260520174401.BDE571F00893@smtp.kernel.org>
+References: <20260602035907.623599-1-rosenp@gmail.com> <79ccbd62-9aa3-41a6-a8db-1737672a8aab@amd.com>
+In-Reply-To: <79ccbd62-9aa3-41a6-a8db-1737672a8aab@amd.com>
+From: Rosen Penev <rosenp@gmail.com>
+Date: Tue, 2 Jun 2026 01:27:25 -0700
+X-Gm-Features: AVHnY4KsYOwyoqvI0RLAKZY3JiYBVorSJpxycwWf95nSCviCf0BvSwu_qC1NswQ
+Message-ID: <CAKxU2N-M+vDeDKtYa6=M-4kazOUrGTrwJfHoF6Z+od1OZ-VBpw@mail.gmail.com>
+Subject: Re: [PATCH] Input: xilinx_ps2 - replace in_be32/out_be32 with ioread32be/iowrite32be
+To: Michal Simek <michal.simek@amd.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	chleroy@kernel.org, open list <linux-kernel@vger.kernel.org>, 
+	"moderated list:ARM/ZYNQ ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On May 20 2026, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> 
-> New issues:
-> - [Medium] The driver silently overwrites custom hardware I2C clock speeds with a 100kHz default for devices without firmware nodes.
-> 
-> Pre-existing issues:
-> - [High] Firmware nodes are attached to device structures without holding a reference, leading to a dangling pointer and use-after-free.
-> - [High] The delayed work `gpio_poll_worker` is not canceled in the probe error path, leading to a use-after-free if the probe fails.
-> --
-> 
-> commit 07ff467e4d8df706a7a27476591cd82570fb8287
-> Author: Danny Kaehn <danny.kaehn@plexus.com>
-> 
->     HID: cp2112: Configure I2C bus speed from firmware
->     
->     Now that the I2C adapter on the CP2112 can have an associated firmware
->     node, set the bus speed based on firmware configuration.
-> 
-> > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> > index e960fc988058f..04379db93571b 100644
-> > --- a/drivers/hid/hid-cp2112.c
-> > +++ b/drivers/hid/hid-cp2112.c
-> [ ... ]
-> > @@ -1308,6 +1309,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  		goto err_power_normal;
-> >  	}
-> >  
-> > +	i2c_parse_fw_timings(&dev->adap.dev, &timings, true);
-> > +
-> 
-> [Severity: High]
-> This isn't a bug introduced by this patch, but does this new call dereference
-> a dangling pointer?
-
-Cleaning up the refcounting in the previous patch would solve this
-(false positive, admitedly).
-
-> 
-> Earlier in cp2112_probe(), the reference to the child firmware node is
-> dropped either explicitly via fwnode_handle_put(child) in the OF path, or
-> implicitly when the fwnode_for_each_child_node loop iterates or completes
-> in the ACPI path:
-> 
-> 	} else if (is_of_node(cp2112_fwnode)) {
-> 		child = fwnode_get_named_child_node(cp2112_fwnode, "i2c");
-> 		device_set_node(&dev->adap.dev, child);
-> 		fwnode_handle_put(child);
-> 	}
-> 
-> device_set_node(&dev->adap.dev, child) assigns the pointer without taking
-> its own reference, leaving dev->adap.dev.fwnode as a dangling pointer.
-> 
-> This newly added i2c_parse_fw_timings() call dereferences this released
-> fwnode via device_property_read_u32().
-> 
-> Could this lead to a use-after-free?
-> 
-> > +	config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
-> 
-> [Severity: Medium]
-> Since use_defaults is set to true, does this overwrite custom hardware I2C
-> clock speeds with a 100kHz default for devices without firmware nodes?
-> 
-> Before this patch, it looks like cp2112_probe() read the current SMBus
-> configuration from the device, only modified retry_time, and wrote it back.
-> This preserved the device's original configured clock speed (which might be
-> set to 400kHz in the EEPROM).
-> 
-> By calling i2c_parse_fw_timings() with an uninitialized local timings
-> struct and use_defaults = true, timings.bus_freq_hz will be
-> unconditionally set to 100kHz if the device lacks a firmware property.
-> 
-> Is it intended to silently downgrade the speed and override user-configured
-> EEPROM settings?
-
-I think we should fix this:
-i2c_parse_fw_timings(&dev->adap.dev, &timings, false);
-if (timings.bus_freq_hz)
-    config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
-
-> 
-> [Severity: High]
-> This is a pre-existing issue, but is there a missing cancellation of the
-> delayed work in the probe error path?
-
-This one would be nice to fix in a follow up patch.
-
-> 
-> If sysfs_create_group() fails during probe, the code jumps to the
-> err_gpiochip_remove label, which calls gpiochip_remove(&dev->gc) and
-> returns:
-> 
-> 	ret = sysfs_create_group(&hdev->dev.kobj, &cp2112_attr_group);
-> 	if (ret < 0) {
-> 		...
-> 		goto err_gpiochip_remove;
-> 	}
-> 	...
-> err_gpiochip_remove:
-> 	gpiochip_remove(&dev->gc);
-> err_free_i2c:
-> 
-> Because gpiochip_add_data() was already called, an IRQ consumer could have
-> concurrently requested a GPIO line, triggering cp2112_gpio_irq_startup()
-> and queuing dev->gpio_poll_worker.
-> 
-> Unlike cp2112_remove(), the error path lacks a call to
-> cancel_delayed_work_sync(&dev->gpio_poll_worker).
-> 
-> Could this mean the queued work will execute on freed memory?
-> 
-> >  	config.retry_time = cpu_to_be16(1);
-> >  
-> >  	ret = cp2112_hid_output(hdev, (u8 *)&config, sizeof(config),
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com?part=2
-> 
-
-Cheers,
-Benjamin
+On Mon, Jun 1, 2026 at 11:23=E2=80=AFPM Michal Simek <michal.simek@amd.com>=
+ wrote:
+>
+>
+>
+> On 6/2/26 05:59, Rosen Penev wrote:
+> > Mechanical conversion of the ppc4xx-specific accessors to the generic
+> > portable helpers.
+> >
+> > Allows enabling COMPILE_TEST for extra compile coverage.
+> >
+> > Assisted-by: opencode:big-pickle
+> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> > ---
+> >   drivers/input/serio/Kconfig      |  2 +-
+> >   drivers/input/serio/xilinx_ps2.c | 24 ++++++++++++------------
+>
+> I don't think that anybody is really using this driver and would be bette=
+r to
+> just remove it.
+> If not, no issue with that changes.
+I have no problem with removing.
+>
+> Thanks,
+> Michal

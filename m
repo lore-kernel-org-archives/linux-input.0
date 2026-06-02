@@ -1,153 +1,112 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FCD317A2E8
-	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 01:50:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780365041; cv=pass; b=ZGcrwPnlCUurop/hnRDRHg5mUAP6Si+MqZFW/gO4UvklP9mONBaorQKvL9yVEPKmnHacVi7pOUatUB/rOGZCyfgpG0mirNhtJkJPJ7vfxLmh53jW4Bak9s7ChzR2Dfeg1xp5kA/ODOrri8p/72OsT0nCM6F7rJVmW8gwbqPYihA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780365041; c=relaxed/simple;
-	bh=IEMMAfJMvJo1FCYhAdFh1jB4SrG/5+lzCPsaeQfGVmQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KAMM+Um8qF/JVwyz4TLieH2GkduFaXjn0zFIJDuO3onU6D/CqFZyf7RcS/Npuv5zX8dE21fwZYvBB5u+1/fXwuEj7uQtuWeVb9eC+Rl7fWS8KVJJL0kxgAKwq3YXH0o2m3ZL3mEUTpTpE3e9nMd2LjWFESqSfFJhY4A4PasHwBY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GTpal8Nx; arc=pass smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048F5333429
+	for <linux-input@vger.kernel.org>; Tue,  2 Jun 2026 02:03:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780365834; cv=none; b=DiasZDN+u1SDPnwccfmgHhIpZXWqTST5/RPuLY7epbd4tQS7WoIX7XiCvyc4IpisTsgTuzKqsmhGumKWXpksE/dzfPWssvtlP4eWMLqNxf7Qd23nnafvwbMnuGFNknSjMKzymV6ffwqc0Jgjk+gN59gHCe3iJ41kJSdwalZg4j8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780365834; c=relaxed/simple;
+	bh=8swP5F0DUNgEv3RwL4HvOHEVmpBFX4CPn++dyuxHP8c=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ldOAGRr/TZZyOV1oLKc3HSnSLf2zhXYuZA3221fJUpPKqQGlgYOAhfkxxq4rA3uASlG7GTc6yMFyKh/h6Ol0eSQoN0lH8neDtz+MJNqD/b5uBYcVcKa2TVmxkivuEQoDltrL/+guEZB5mxTnueI8IkgkbfWt8w/+FVFmrzTPKjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gRaypwNf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GTpal8Nx"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-7e0743942f8so27997287b3.3
-        for <linux-input@vger.kernel.org>; Mon, 01 Jun 2026 18:50:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780365039; cv=none;
-        d=google.com; s=arc-20240605;
-        b=S5dVvv5PYUOFAN6T48MzkPqaxOM3t9iu4fKpVpH9IPslplbaLGXRW4kW5HnUdiFeGf
-         g5nlEOwBTBqQd9WhUWhRJ6hg0ERb8vfpra2gWAQdrDsDlyikWx2NUAUQBE8vUBJ4iOzc
-         Xg2xmrG8IuHKHNgl2rCEgVUeyIbse+nZG+sjZa2ZkJO2+mw4wKLYKtFP9FAEGtHcvPTH
-         tIxECh2dHToaYzn48CAj8yUark4xdXRDQRm++TczsmVpXxjx/d75IFlvmZdyR1Gemt6w
-         tcwGE9Wl8zXKRELA3PZeH6amw7yPgJ+GhrAbVW5xOwJLRr2bN98mYcAKCrhkLdzKNXmU
-         iUig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OI+jyiHnSoNLSnd00k7+mmnjKOTTHQJZP66lBErN93Q=;
-        fh=NSgzkeHIZ8n5u3UQTELtvs2rL2gofNpFvXaV2CQ81vA=;
-        b=azqs+YUhpuYMZ5/lIgydzD0kCYyXX1FPeaxcoEFOISj/MGOJxPW5MECm1fk/pZb8HJ
-         jCuwm/+ALGpUd3GesJW38ha8o+LDyr3dLSVrNQ7XTwpF3g20RoEKd1mMNoZZjovVFkQR
-         ZlSMfbEPp3Dsf8f5MWea6eRmtiqy4nJhv01XVddd0S90Wfgr1wq7MWZsaCmKM76sL4AC
-         96HVbC1RwAFZKAf/7YCKUhWnIT6ONhJ+0supwqwcwRIIe5z1wkFzULjBUu3mbnyfi7RP
-         ntFQFqPath6ikwG2AhpwmPBxhWXJ7vFVmNkz2JWlG7eUrTkWpxP544t6p290OPIXFul9
-         HggA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780365039; x=1780969839; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OI+jyiHnSoNLSnd00k7+mmnjKOTTHQJZP66lBErN93Q=;
-        b=GTpal8Nx+kmWWi1fkrxucdSWwmN1VNipRDjhD230tNlkBr1LqlH/uvRwVQY2y3lg+N
-         6JfapYqqqrlm+uBD7zyL3WYcB05e1qk/8i3jHH8T1eIV00O/xqFFEcvTsr2ut/Ca2rd/
-         PAUEomn/GYlYtmurVBJlkW7soDGKByVOw1C2uz7cfqjC/VcZgCZMib3cdzTX+dOILrKM
-         Zi8U3DrTauAk4ZZad9okU8rM4uyi7N25DGDCe6TTVqrWknURXn0rcqkUNKfMeDif9y4T
-         ohC4LUVKkS9wfQQCeLmIbhXwN/HCe15umWTPjEV9+kWCV4u+ELiUZGFUpGwixdJjKCec
-         VuWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780365039; x=1780969839;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OI+jyiHnSoNLSnd00k7+mmnjKOTTHQJZP66lBErN93Q=;
-        b=IPjqVzSH9Th4GJZOdQTeTbISH6dvzgKUArYtnwQY0Quote7JE0x5Vfc9BzzbNdndbc
-         6gSe9subdPb8Kll8/FAjGmeWrxtdzm5bCxcP+eFHnA8s8Dq4jz3txO9RjDA33RSZ3jMh
-         v0qJvaF9pSPNRfmFq6Owav4z5ofXVxxB+/QBWNsmRZ+bXIRlLe+AL3S+4J+qaKgUJTCn
-         syB2m3rLyNr03A9f2tKUhrKGCAq+IDGj+tlphYswHa46iIJdDEiqXEipPFoN0gu2RbCM
-         sBAK+e59mYQmqHp7e8HZ79a9dcuXVsqnyQYAU3t6PZK+aMOjNc8x5BYUx/qcxjGIcfbY
-         IE1Q==
-X-Gm-Message-State: AOJu0YwbZWMk+rsFqWXvRtgAQHRqjqpRv9lbNJ2jSMxloty687alT9W+
-	4Uxux7ODhThAfxAGEzUeeihLoGF2g3ZY5SqITOIJa/lo0hm7TSOkkn9f2JmtpcCCHnRWePSp2oS
-	2EoVbtFGL2/4XqQEOMX01i0iSbrDAKGAZLcdAzdg=
-X-Gm-Gg: Acq92OH58YXHyLDE31fBhobcdNemtms/By3wr2WJwSbO6SJTDP1cdkshoMY9piXD4io
-	HTUjeK2Eotq7sZ69j+DFUwWaqHWHOJOJKOtwObrX3wHmj096+DXITu+Uv5J29HUrdz9BZv5tgFs
-	7Gq3g+UXESRh84G0i/O2eTxVc/C1RrJ07KcUJmrKPtya1/Q+1qlhpv5f3FBg0eQt6AMXxHJX3jQ
-	aVR7rYVttGvzhreVVMSz+tJb0zTDoYYn5U7e/X1AXunjfcE/BqHBRKpnXvovZsGK9lXqYw3jE7a
-	Jv6D2xXCZERnTVNGDog=
-X-Received: by 2002:a05:690c:4b89:b0:7bd:5579:185a with SMTP id
- 00721157ae682-7e05c94e22cmr132557187b3.25.1780365039281; Mon, 01 Jun 2026
- 18:50:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gRaypwNf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4256D1F00893;
+	Tue,  2 Jun 2026 02:03:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780365832;
+	bh=tYBQf0ulx5RQobWigWGRu0TqJoEylBkJwxGkDBg3MYw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gRaypwNfivh186W4wm0N02Yfdsmc2wN9e6h/0RBYTJZYNh0plcDh0gK5jkkLIJfE/
+	 9AFqK5Mpg62LW4cv0UY9w04fMnfQW0z9BRSYcp5Qph9Pwe33grK9wGKvYtIT/FbIsS
+	 rTFQWZKDB8WAHA2jFi90SCve7Pbl4gnveEx+/q4LTDkDn9+7WoW8GtnWTEnd88xrg7
+	 lHz4T+GsaSuqVLuGPvxj2Vf8zoz4BdBT8oIzcG5bAwGOci0Pr127cFcIuhd80MQLKS
+	 VaA3rjPEDFjKGB08B19DiGaJcSJcXn/w+bKrf/WNzXCApjlHyG9yAKjVA3yOU5BIpa
+	 mgg3hCHhzMMvA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: Input: Add battery list cleanup in
+ hidinput_disconnect()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rafael Passos" <rafael@rcpassos.me>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260602015029.2838058-1-rafael@rcpassos.me>
+References: <20260602015029.2838058-1-rafael@rcpassos.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 02 Jun 2026 02:03:51 +0000
+Message-Id: <20260602020352.4256D1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <CAGp+u1YARE-sqwuNtbpG7E4TO-Nt1KQEeWiHn6pjoLz5kmt8HQ@mail.gmail.com>
- <ah2-X1_innZZTAMZ@google.com>
-In-Reply-To: <ah2-X1_innZZTAMZ@google.com>
-From: Ginger <ginger.jzllee@gmail.com>
-Date: Tue, 2 Jun 2026 09:50:28 +0800
-X-Gm-Features: AVHnY4Lk7JmtwUlLvBIBfNnrbDE_5ridLagWhnAM9SoTbzsgVz4V8nplkOhPbZY
-Message-ID: <CAGp+u1ZsBan3UmScaJbN5nD4esKCbJeft8dQWvwi_dbbc8+9yw@mail.gmail.com>
-Subject: Re: [bug report] Potential atomicity bug in drivers/input/joydev.c,
- between joydev_0x_read() and joydev_ioctl_common()
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] The patch introduces a Use-After-Free (UAF) and a soft-lockup race=
+ condition by manually unlinking `devm`-managed battery structures from `hi=
+d->batteries` during `hidinput_disconnect()`.
+--
 
-Many thanks for the clarification.
+commit f0760b781af9f4b5e629ebfa0c88970cbaaea8fe
+Author: Rafael Passos <rafael@rcpassos.me>
 
-In that case, may I kindly ask if it is necessary to fix joydev with locks,
-or we can leave it this way and let it just tolerate some inconsistencies?
+HID: Input: Add battery list cleanup in hidinput_disconnect()
 
-Regards,
-Ginger
+The batteries list (hdev->batteries) is not cleaned up during
+hidinput_disconnect(), but struct hid_battery entries are allocated
+with devm_kzalloc. When a driver is unbound, devm frees those entries
+while their list_head nodes remain dangling in hdev->batteries.
 
-On Tue, Jun 2, 2026 at 1:22=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Ginger,
->
-> On Mon, Jun 01, 2026 at 03:07:05PM +0800, Ginger wrote:
-> > Dear Linux kernel maintainers,
-> >
-> > My research-based static analyzer found a potential atomicity bug
-> > within the 'drivers/input' subsystem, more specifically, in
-> > 'drivers/input/joydev.c'.
-> >
-> > This potential issue is present as of git commit
-> > eb3f4b7426cfd2b79d65b7d37155480b32259a11 of the mainline kernel.
-> >
-> > Potential concurrent triggering executions:
-> > T0:
-> > joydev_0x_read
-> >      --> spin_lock_irq(&input->event_lock);
-> >      --> read from joydev->abs
-> >      --> spin_unlock_irq(&input->event_lock);
-> >
-> > T1:
-> > joydev_ioctl_common
-> >     --> case JSIOCSCORR:
-> >     --> write to joydev->abs[i] (no unlocked)
-> >
-> > The above trace is meant to demonstrate an illustrative example of the =
-issue:
-> > IMHO, in 'joydev_0x_read', the 'input->event_lock' is adopted to
-> > serialize the read
-> > accesses to joydev's fields like 'abs' and 'keypam' or input's fields
-> > like 'input->key.
-> > However, in either case, the write-side accesses to these fields are
-> > not similarly
-> > serialized.
->
-> Yes, there is lack of locking in joydev. Some of this might be OK (if
-> we prevent tearing on reads/writes) since the data may actually be
-> obsolete immediately after we read it, while in many places we
-> actually do need consistency, especially when we adjust key and axis
-> maps.
->
-> Thanks.
->
-> --
-> Dmitry
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index d73cfa2e73d33..95815e140fdf2 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -2408,6 +2408,15 @@ EXPORT_SYMBOL_GPL(hidinput_connect);
+>  void hidinput_disconnect(struct hid_device *hid)
+>  {
+>  	struct hid_input *hidinput, *next;
+> +#ifdef CONFIG_HID_BATTERY_STRENGTH
+> +	{
+> +		struct hid_battery *bat, *tmp;
+> +
+> +		list_for_each_entry_safe(bat, tmp, &hid->batteries, list) {
+> +			list_del_init(&bat->list);
+
+[Severity: High]
+Does this introduce a use-after-free and a race condition?
+
+If a driver releases its devres group before calling hid_hw_stop(), the
+battery structures allocated with devm_kzalloc() will be freed early. For
+example, wacom_mode_change_work() in drivers/hid/wacom_sys.c acts like
+this:
+
+wacom_mode_change_work()
+   wacom_release_resources(wacom1);
+   hid_hw_stop(wacom1->hdev);
+
+Since wacom_release_resources() releases the devres group, the battery
+memory is freed before hid_hw_stop() calls hidinput_disconnect(). When we
+reach this loop, we will iterate over and modify already-freed memory.
+
+Additionally, hid_hw_stop() can be called asynchronously without holding
+hdev->driver_input_lock. Modifying hid->batteries here can race with
+concurrent readers like hidinput_update_battery(), which iterates over
+the list, potentially causing a crash or infinite loop.
+
+Could the cleanup be handled by adding a custom action during battery setup
+via devm_add_action_or_reset(), so it is guaranteed to happen exactly when
+the devm resource is freed?
+
+> +		}
+> +	}
+> +#endif
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260602015029.2838=
+058-1-rafael@rcpassos.me?part=3D1

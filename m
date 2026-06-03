@@ -1,56 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EABF438FEF;
-	Wed,  3 Jun 2026 22:20:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50A8F472776;
+	Wed,  3 Jun 2026 22:21:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780525237; cv=none; b=m3flSFx1lvvcW9HJxc7BZP50GuSea9xW7VPR35Owcingd+sOxVvhYhU3mm0gKcZkdvcTYzlrzCph7CX4Z0bEkuDRCFK2R+WqgtGtQ6/dNgAInjhCsTPj1YlDdSXlK/DqUXM4Lp/IWP8UshW2dqUqBet9ykjquIkLK8qW4OMOxe4=
+	t=1780525309; cv=none; b=PANItH5NSuLYbkDMYx+CGV+Wvik8KMrb2VBlciIWhzkDC6hC/mw5nqxXXZ560BTNPFg4JoW+cs8tr1erFo82Dn+Bi0yfRsqXEMcRzP+06Gbew6cXyrXeRUqNYzk3OkrKsebC/BKv4tS2+HgJ+7GqqcSdpzDuhUGRTsIIwktS/hU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780525237; c=relaxed/simple;
-	bh=+tqJ7VvjI0EpIZ4rEOJSSD0tYpFIFV80Tae3omoKZ04=;
+	s=arc-20240116; t=1780525309; c=relaxed/simple;
+	bh=cbcrkyAVo7R7YIrTwCIYoGljOff0/0nntSX8Png87Rk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QqitJRqqPWG4L2dGyTpW5Dno9MqDhXIQAFSqA/LZLjfENOstofAMhBkn5UFjaJS88vE9oIzFJPoRUR6ECdUgyZNCxqINReh0j2L8VxfeL7Gk5gtyqYapToLrDadsCzyF85oRCc/MKAwxXipN6PoL4RL4K5+2f+Hp9vdlf3u0Xyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BeAvQ7WQ; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=H0QdAR5rMQQriTq5kIovZ3AWrZVOuZSXBMmv+8ytCdvgZFOwEsRC1oZS0yclYt1jQ0xm0zy/MZ0Sf2Ve7dGyupolSdSCzA9eg6XlFW0goGVGoxkBeQEZ/4gHAJpR3xLRYj71tMr3/+dy0GS0kWwj43xi26p4c9KAwMaaPGXz7Zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k3GeO6pF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BeAvQ7WQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A683E1F00893;
-	Wed,  3 Jun 2026 22:20:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k3GeO6pF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B12131F00893;
+	Wed,  3 Jun 2026 22:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780525235;
-	bh=JGNHTQ73RJVqb1W0KyxoFGA1Bc+H2MChRkwAq6lU+c8=;
+	s=k20260515; t=1780525307;
+	bh=7ZiwdJjSjUT++FcwvQEJub8dg8X972gmC/QxoFtYMik=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BeAvQ7WQY/o5EULWLEjuO8FLWOpB3WvIY9XeUH7PumxbW7XSJPDxJWSfdF1A791l4
-	 oqDPA0yekJZxdqPprxK4B/EFVYHsNc41fGRSODAtOxZB+anpRYMRitraeCPeXSxs+k
-	 VdpAtUQJDJQoAIwHSCczuBWSP6tVnVuk/mfdXyupMAs5MvxauinnqEm9f4eZTlQ2M/
-	 PoFH6qHkcp7wTBae4D6iQ1PfQsuzlV9ohOz4XT6pXJvatnHYK69YHkfCTozdZ9HGmd
-	 gZcZrbuKqGoqqw3MGOAYEmJNFBAYoeimCL0zjC/DGJ/tp9xJww6y8R1crMRG37fr75
-	 aEuoMh31nhfUg==
-Date: Wed, 3 Jun 2026 17:20:34 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
+	b=k3GeO6pF8HGEGNPckQC1LsicotRrfZ8rR3azmj32PCdJJi25UETIuUML2Hht2ZgPS
+	 LgDOPrcq3YUmSrhnM/6GjnAuiQEhX+URjgP21JQUA+uRj6a8At9wlNZO0TBhjzMfWh
+	 Z06ruTT0zhUahfnNGh0LMCT4UqNGE+r4kl/fkmOHUc+uoomDMOKsoKmzbN58jJobKE
+	 w6rGUKLwlZ0PvxN29EtFjscE2AHw4hSdainVuv3+Kw0Twh823/ftcD5ZEybLUDBekR
+	 rfkf7i/MXw/FYLUwTExMyqgjhathkdaj2eV3BSvESev2uMM/LEqQYspWplk6Rb7Vjs
+	 qeRhayafgEQNg==
+Date: Wed, 3 Jun 2026 17:21:46 -0500
+From: Rob Herring <robh@kernel.org>
 To: Akash Sukhavasi <akash.sukhavasi@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-media@vger.kernel.org,
-	Thierry Reding <thierry.reding@kernel.org>,
-	linux-input@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-	linux-tegra@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>, Simon Horman <horms@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jonathan Hunter <jonathanh@nvidia.com>, Lee Jones <lee@kernel.org>,
+Cc: Andrew Lunn <andrew@lunn.ch>, Heiner Kallweit <hkallweit1@gmail.com>,
 	Russell King <linux@armlinux.org.uk>,
-	Paolo Abeni <pabeni@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
 	Vladimir Oltean <olteanv@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] dt-bindings: net: dsa: remove obsolete dsa.txt
-Message-ID: <178052523336.2284212.2212106139200660430.robh@kernel.org>
+	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Thierry Reding <thierry.reding@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>, Lee Jones <lee@kernel.org>,
+	netdev@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-tegra@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] dt-bindings: remove redundant .txt redirect stubs
+Message-ID: <20260603222146.GA2285556-robh@kernel.org>
 References: <20260603-b4-remove-redirect-stubs-v2-0-c8c19876ab64@gmail.com>
- <20260603-b4-remove-redirect-stubs-v2-3-c8c19876ab64@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -59,28 +58,58 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260603-b4-remove-redirect-stubs-v2-3-c8c19876ab64@gmail.com>
+In-Reply-To: <20260603-b4-remove-redirect-stubs-v2-0-c8c19876ab64@gmail.com>
 
-
-On Wed, 03 Jun 2026 15:42:20 -0500, Akash Sukhavasi wrote:
-> dsa.txt has been a redirect to dsa.yaml since commit bce58590d1bd
-> ("dt-bindings: net: dsa: Add DSA yaml binding") introduced the .yaml
-> schema. The .yaml has the same filename in the same directory, making
-> this redirect unnecessary for discoverability.
+On Wed, Jun 03, 2026 at 03:42:17PM -0500, Akash Sukhavasi wrote:
+> Several .txt files under Documentation/devicetree/bindings/ contain
+> only a redirect notice pointing to a .yaml schema with the same base
+> filename in the same directory. These stubs were useful during the
+> .txt to .yaml transition but are now redundant, since the .yaml is
+> discoverable by name. Meanwhile, other documentation still references
+> some of these stubs, forcing readers through an unnecessary extra hop
+> to reach the actual schema.
 > 
-> Two files still reference dsa.txt, forcing readers through an extra
-> hop to reach the .yaml. The stub has not been touched since August
-> 2020. Update references in lan9303.txt and
-> Documentation/networking/dsa/dsa.rst to point directly to dsa.yaml
-> and remove the stub.
+> This series removes four such stubs and updates all remaining
+> cross-references to point directly to the .yaml schemas.
+> 
+> Other redirect stubs in the tree were evaluated and intentionally
+> kept:
+> 
+>  - Stubs pointing to .yaml files with different names (e.g.,
+>    spi-bus.txt -> spi-controller.yaml) serve as breadcrumbs for
+>    the renamed schema.
+> 
+>  - Stubs pointing to multiple .yaml files (e.g., nvmem.txt ->
+>    nvmem.yaml and nvmem-consumer.yaml) convey that the content
+>    was split.
+> 
+>  - Stubs pointing to .yaml files in a different directory (e.g.,
+>    reset/st,stm32-rcc.txt -> clock/st,stm32-rcc.yaml) serve as
+>    cross-directory pointers.
+> 
+> Two additional same-name, same-directory stubs (leds/common.txt,
+> regulator/regulator.txt) have significantly more cross references
+> and will be addressed in a follow-up series.
+> 
+> v2:
+> - Patch 4/4: corrected commit message (eight references in six files, not
+>   eight files), Sashiko review.
+>   https://sashiko.dev/#/patchset/20260529052246.4934-1-akash.sukhavasi@gmail.com?part=4
+> 
+> v1: https://lore.kernel.org/all/20260529052246.4934-1-akash.sukhavasi@gmail.com/
+> 
+> Patch 1 supersedes my earlier standalone submission:
+> https://lore.kernel.org/all/20260523004223.3045-1-akash.sukhavasi@gmail.com/
 > 
 > Signed-off-by: Akash Sukhavasi <akash.sukhavasi@gmail.com>
 > ---
->  Documentation/devicetree/bindings/net/dsa/dsa.txt     | 4 ----
->  Documentation/devicetree/bindings/net/dsa/lan9303.txt | 2 +-
->  Documentation/networking/dsa/dsa.rst                  | 2 +-
->  3 files changed, 2 insertions(+), 6 deletions(-)
-> 
+> Akash Sukhavasi (4):
+>       dt-bindings: net: remove obsolete mdio.txt
+>       dt-bindings: media: remove obsolete rc.txt
+>       dt-bindings: net: dsa: remove obsolete dsa.txt
+>       dt-bindings: input: remove obsolete matrix-keymap.txt
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+This goes to 3 different subsystems, so it should be 3 different series. 
+No need to resend just for that.
 
+Rob

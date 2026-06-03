@@ -1,494 +1,194 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011031.outbound.protection.outlook.com [52.101.52.31])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0DE3812E5
-	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 05:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780465358; cv=none; b=rMnCxm9T2mXe8GhrZyL0FA7iRscJqeHKFl57AatidYGRuYiO1jCWP5uK4VFa5X2Zp4umFEjAdGEOu0KKcK3y7uph8gs8ctcQ5BXBFU7zycq7dR956yAt0MpiDBnNzblUACQog4FgZFe+FWEX4W5XpcPXOsoV/TvIwh+ntJPgFVw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780465358; c=relaxed/simple;
-	bh=ae5tOE8eJzGTY0NZhCtIIUIJ7b9w6TULDtaqTd+Cd8U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JHTgrXAknEZ2BV7FCbgdye/iftfzbYkjjuMLDkSkFu8wdl1OpRUv1Qw0jo28VzhYZAM4wOPxZoppsxOEaqKE2oxrVncxxfpOz9FKHu97hTvYOaSIM6o+U74wAna67615ttTreZ5YELdhnXXpH1XJPUP6T+XpujLPQGj69X7Nl1Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BiCxidma; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C2AB33EB01;
+	Wed,  3 Jun 2026 06:20:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.31
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780467648; cv=fail; b=V4kHUHdQlRnynrf7pHvpnFcH064CHzmznCFhPyj2LUVWVeGQsmVa21kJge/biU6Xv80Rgr6kCMuuqcINBfMsRYdOOggTwb0U8exrOw0jzLUrrC3yO3Uer2Bu1BiWGmm1YtC+b54hm3ysW/DianLUaIKBEsKTc/RwrPx7IGcc7zA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780467648; c=relaxed/simple;
+	bh=pCfSYdMlitSGxntVIY4Mcj/LbUcgKWT5wPx2cn6j6WE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=cGmY1ZW5J7FQJt60ERn0gZStvth/C3VLiDIuS0TZVsxPWZae5SMvZLuyeixstc6HHxKMbgrzdIlOK26YvBMtQH5OMWulq8bqRvQYym55JKieH4DbrjpOQ41XY5AgHPJoK1+p42bUSDIGuJkFmNx3ks0RMW3ZCT3qauB3gkUgn8U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=HnE56FSZ; arc=fail smtp.client-ip=52.101.52.31
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BiCxidma"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-8422a92b6d6so152884b3a.1
-        for <linux-input@vger.kernel.org>; Tue, 02 Jun 2026 22:42:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780465355; x=1781070155; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dmM4Z/K62obQMJtoATM7dbLY0Uor4qUOBp49Ia9JKaA=;
-        b=BiCxidmazp2WjYLE9K0GwMtp7vm7TmUWmQ8DRMRJzyn4sbqJtOLDgM478xHeGmIi4y
-         olV1ipsfmIUAY8nUC/3DPf64YCsEGUOlz8bHlORACOqu4OyeMjGTfceaQfDxVPwXD21r
-         qzFBuiGuMLomDV7xJHEahY3JcUvyXORL2w1VDMmkSynFlKRvkTF2iNMuiFKSQ86jeQ79
-         2FO2C5R++HSxPEXbQMRFGzu5i5FW3bnVMp6HEugTK5JjZQv04eetaY7dxgxZcw0IjEEy
-         ydP8q31ZphWwmzd3hKvkkvsNxnxlAsMG9Zu0As5pZT2q2AspG47IVH+XbUfUT+4I3HwF
-         dClQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780465355; x=1781070155;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dmM4Z/K62obQMJtoATM7dbLY0Uor4qUOBp49Ia9JKaA=;
-        b=ONjsLsohW76ZXNPGL//6Ifb4XG74mbuQ2fsFBC+pMq7osXakCyvdUTy6GHMbREDzFL
-         MSVmntKsGrkO13UVs8F/z6+rwhKQRzZ0kFtyUP+xXcZZOoORkjkYd2kWEEytyHzs/Rx0
-         bAlZZQV9DflX95hyBGO7Fomlzp7oe0c8HSizretGBTBhrucId/66OFZ3ac3tb+/TwJLX
-         n+M14iVdDnz/RIXnz2qpiBsCxV7s+u845q5PxMsL7Ik6N5LY3JaqpcxGPUkjZjBSooNA
-         rH+o0x+pYfU0AoYLTT9NeC0AyvkMxpOQvwRdSVkiKx8lJi+woN1tBzzPgOJIZyIKwVL+
-         m8nw==
-X-Gm-Message-State: AOJu0YzVpiglpe6ep3bWC+hvqzyLTE/FySGpwgV3/h4UEwzNfyasFYgJ
-	zhiduWUB6RtgrQ7vluUowJxN2PX1O3X2/QKATfPgAlg2JVwVcnRHCzV3P4TtDxzR
-X-Gm-Gg: Acq92OGnoVKT6UdY5xo+WzTr9w0wKOdrFsJfIiJKQBYlp3aNrgE2QeKcE6jTdOK+LIL
-	vrJYtFyZ2oBgw5zIrv/XLf8RfNi3YJouM+iAcWaFsBpq4NMs9jYl02YBkH4fLPy5sByU91WGsLY
-	0RSG4Z++RqFMNOyl6qpysnZCigkktSA6jarOneZMYMy+cGBdW99aEBFJdYo/6Gm64P2rcDwgFLl
-	PCLfmoxoI5ZGPoX3MfevcLi2uHlMFj/E0Y2n1gS1G6/pSkJmWDztgH1JhJOdUaZcvke6vEOYicN
-	xbiw0PIOiCTSywryrtH+3om8743m+/5P5D4QfO1yg2X45nsLw0BCAMO966/OaloQGRaWvrBxtX4
-	/njQqwAEAOfCn2WD/ye+miUfysuG5voFSMYUPq8lJ5azsHjbQDuYH1I5f0vM+pphGAUkc/OI4bH
-	Tm5JXjZu75/opfWkK9jh7sNhk2ACgEsafZeEQKnoDgTO9m/Fur8EFP6DUPcWqvbOV0nCfw3sLeq
-	LBrhpDiKW1uJ0MJArU7nZj0073006b75BDSxp+JVw6Zmnh5bVzj46Cn
-X-Received: by 2002:a05:6a00:2e9e:b0:842:3838:cb03 with SMTP id d2e1a72fcca58-842859f9b6emr1494731b3a.11.1780465355245;
-        Tue, 02 Jun 2026 22:42:35 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8428291ed20sm1909506b3a.61.2026.06.02.22.42.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 22:42:34 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-input@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="HnE56FSZ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=H7SWcZsElTplwktRGYSvmFLIm+DCzuxOUyUMKeTErEF4NGf0ZbOT0cgv8CefJqKc50yKDj3fadI/mVL+O3Ijm+tGNFHwk9pi7lWu6g2RhRWpfOI2/1FxFNepKtucVlkMZoo7p3N0Qy+e17N9e6/ibSKfrQzo0E8BTDLAFCSihNkGMk1rxtfyOhfTIzXhNv6wRflAAwfGAY8mc92fQgIBJC/ceRL+xLiKmuO3rLjQt2lLUkYpgBNenuVvZgrpZFqryRlaGgRDOewN2oH1ukPvrvaF5cwVKEGgXzuVNYHzfHa7WEDKeXnkShHISFgdN12ZankhyzfbzizewYgl2CkIOQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KP5CuegUo0vmnUG/QwGEHmqP3FWeO3jprWizUSFfE2k=;
+ b=vdSJ4fd2MbX5B6fuLFcfPdXx3UGhY4x2TXC5VAqsOjVacVrURfaAf77Q82us/wt3T+DObdZB7HJEcKnW1MhvhMuYhrMxO0RnsNqQGtTRuilD6clSvXwbMHDLz5dPKNutSJNLlufdNv2d2fhMiTb/e0lq/Oq90LTMM5yAJg2sscZ4NbvV5XKKs391IvOzdHVkvqPiOeeOQA3qIRU8wc5z24UPgMvUlQPUVsjKxAyNjLg/quGZ0qUTURGTMde9Caz+Il8kbRkVPxpij8biQTl8qWX6xOql44WX0ArdKt40MKeVrHoNKjVC0QHyJP7vFxLw/oe+APv/qFjYDnnVo64e4w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KP5CuegUo0vmnUG/QwGEHmqP3FWeO3jprWizUSFfE2k=;
+ b=HnE56FSZZhmzJAKbXc/Njd8GjkeHzsKINnr38u860PJpgUllUTAJ1vKVvqzCWyB5Y1j+2DaDNNqfRyvh56BQy9u8UiDuJgs+KOdgDJvH9e814ryrSAWPf26Hphuwz+g1ABJOWwJCvY0uPICsxxEGgROjPI3qCOVV9smjNPWXveo=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from LV5PR12MB9779.namprd12.prod.outlook.com (2603:10b6:408:301::14)
+ by DM6PR12MB4172.namprd12.prod.outlook.com (2603:10b6:5:212::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.7; Wed, 3 Jun 2026
+ 06:20:43 +0000
+Received: from LV5PR12MB9779.namprd12.prod.outlook.com
+ ([fe80::8ac8:e862:8ae9:9287]) by LV5PR12MB9779.namprd12.prod.outlook.com
+ ([fe80::8ac8:e862:8ae9:9287%3]) with mapi id 15.21.0071.011; Wed, 3 Jun 2026
+ 06:20:43 +0000
+Message-ID: <d6f08a89-ed09-4c14-a0f8-261bc063af77@amd.com>
+Date: Wed, 3 Jun 2026 08:20:38 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: xilinx_ps2 - remove driver
+To: Rosen Penev <rosenp@gmail.com>, linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Michal Simek <michal.simek@amd.com>,
-	linux-kernel@vger.kernel.org (open list),
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/ZYNQ ARCHITECTURE)
-Subject: [PATCH] Input: xilinx_ps2 - remove driver
-Date: Tue,  2 Jun 2026 22:42:17 -0700
-Message-ID: <20260603054217.442016-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+ open list <linux-kernel@vger.kernel.org>,
+ "moderated list:ARM/ZYNQ ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+References: <20260603054217.442016-1-rosenp@gmail.com>
+Content-Language: en-US
+From: Michal Simek <michal.simek@amd.com>
+Autocrypt: addr=michal.simek@amd.com; keydata=
+ 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
+ mpwx1d8=
+In-Reply-To: <20260603054217.442016-1-rosenp@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR05CA0081.namprd05.prod.outlook.com
+ (2603:10b6:a03:332::26) To LV5PR12MB9779.namprd12.prod.outlook.com
+ (2603:10b6:408:301::14)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV5PR12MB9779:EE_|DM6PR12MB4172:EE_
+X-MS-Office365-Filtering-Correlation-Id: aa0c54a0-5636-42cd-3fff-08dec1383dcf
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|56012099006|18002099003|22082099003|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	AakEVG5MgM2vtlJhZgUIIxQtdWi/VP4xj+q/kFD0Q5ljJ7CktOLTFqMATi/IW/ccUm1boAU0HP2m6ORWdUwpt7YQMA+2+1VwyJ7SOVOmLSC03tjYovCeSII+XtrFWkQe8ED0HH2lU3ZC3BkjsLdF2nCR9ozH4+pGDvh/9Q3x6XpxhGXjCIoHKCbSLb479k/f9Rolm1U67KlMpznY1YforiZw6bsJP3y7QHfjSdEBx22Q7qF3TMaIbcXbHw3GdsnlBErQd2cwn7YgWoA15nVYIoxYwe5TKqd8WSvfwsi0vL50awY8GoXhR1Cquia6znKiAUTe+8dNlFv14LJNbZELRkHE6HTO6MdfNrirc8mJuiNf7JNfDXAQAdKozJGJzQegfAsHGDGnLCcMlhp/96yUWw+Zpq5zRvmqhLNTPdlZi5bQ/q92YwAbxKVpB2zGoKwZAN2MSkfm571t9P5IX+jc0EsIEdYYmjTUNVGK1UstYGjCwueLHEBpCykdcBASF5+dxdaQekBk1vEKovr30e/xB9wc/W0QHoOAI/LvTlyL6/HuFS7LwyWaIo5fxgqn39QZELCYv6VJzU8WOJZr29x83+5cd5R0T4sLODI5oQzZBKLoHlowHWkntRmKqnZzYi6L27D1nForuAiPObB2jxS6UiDRa5qSzKArItgLgDDefJYsSnnZkfQXDHzT+juV42A7
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV5PR12MB9779.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(56012099006)(18002099003)(22082099003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?ZEpBVjAydkxZOFQxRG1ZeWNCODJSVUs4Z3ZCZWpIWE5kYWFSenYzZkcvTVJJ?=
+ =?utf-8?B?dStxTEVGVzJSeGVnUVhUcmV5WjRWUDFjYlc1b3ZTN3E3bU9DS0h5V05BUXNN?=
+ =?utf-8?B?ZlFuSHA5Yit4Q081a3hOZ2Q4YUJZcnV5L3V0akZQVEphaDV6ZFZLSGlkSkRI?=
+ =?utf-8?B?aFFBZDNlc1h1VHVIOHRCUG5renpnY3o4R1NRYU5RZUR5YlZLeUlLNXNraFBO?=
+ =?utf-8?B?Wmd3dUU0dndGaWFSQm1hWXd6UnhDWUlqclNjUDVmMXVETFVnTXZKREFOei9s?=
+ =?utf-8?B?dzVQWUEyVlRRM1NmeVRxR1FFcUMzMDk5WEYvcVFESjd3RGQ3Vng0bVlMSDZw?=
+ =?utf-8?B?YUpLTlRzRmdmVWE0VEdUZWJHb2piUVZGQlg0d3RjamY2SjRTZm9rTElzUjJ2?=
+ =?utf-8?B?Ymw1WWVnZnVmaGUrbEpvMEI1Kzl6dDV3RGhiN0x0Yys2VzZxUnlXTEVzNHFP?=
+ =?utf-8?B?TGZoWmFTWkVCUm1GSXgvWHdXeGM0clB5Z0tRUjFDcCswbDRhVnZKcVFjTnE5?=
+ =?utf-8?B?NXNoTkNicjVsV1JJeFNqN0ZOWkpwY1lKNFJ0VzFxNllUOHVIRUZWK0wxbGdV?=
+ =?utf-8?B?cHdnT3JXTEZ6YnpTQlVkbFFYcEIzamZnZnNtV3RaMnRMcDkzem90aS80ZTky?=
+ =?utf-8?B?cEpLZHZhQTRDc0FqUVkwaG9kTU4wQitTcHYyL0JFbW9lamI0b3lBem5vSnFZ?=
+ =?utf-8?B?eThXdEcwN2VBSHFPSDExWUhlOUxVTytVYWZQT2ZNRjFBK1k3WDN6QlAzWDUr?=
+ =?utf-8?B?SUpIYVZBaHJaeGIvVFhkTzVjbEZtLzhpOHRzSUY3OWUybDZwQzZHRVdJRU1R?=
+ =?utf-8?B?MlYxVzhhSzhPejZTRFE1SGNXc3NFYW11WVl0OHQ1SGtDMXVDTVpYQk8wQWNj?=
+ =?utf-8?B?ZmtDYmIzbHUrUWlBZHh6U0FHaWd3Uy94Y0RZK20yZ0FTdC9jRkEyL01NZU9a?=
+ =?utf-8?B?ZVc5Ym1ZVGErcFYxU1pKTWV1MUFGcE9FV3BTK3FJOG1LUnh6dkxtMXBMRXZn?=
+ =?utf-8?B?ZkNHeWFPUnc3dG1KUElpN2xsQUIyeEY4UGk0cm1RT1pMVjhIdktaeVA3eFd4?=
+ =?utf-8?B?bVkyV0xZUUZVYnhaK0FtYlNnNDFWaUJKenloMGVNYnFsYm9mYzRPd1FxUUlk?=
+ =?utf-8?B?KzVXdDJ0MzRvV3ViSVgwdFJMV0F0RERtV3gwV29RQmpYU2dQdWQ5REFLbldR?=
+ =?utf-8?B?dzlPZnJTbWNLaHU3N0xqQVlIY01hMk01VGR6ZGZCZHBkS1ZUZ21lS29Jdklv?=
+ =?utf-8?B?UTJsY2h0TDZVMjkweEJLRmh5cHh0WXFkOFpzcUFkUHlRdjFZQmNFYm45ZGw0?=
+ =?utf-8?B?TjJNdVZSVzN3MXdsdzdBTWRnd2dtUFpJbTR0VnpOZWpnTVlST21yTDJEVnBj?=
+ =?utf-8?B?WjZDZnJXTHFPcG5tQ2JxK3VFQ3ZYRmd2eHRIMmFxbHdQN0NzZ0V3TE0rc204?=
+ =?utf-8?B?YWZRM29ZV2ZpbngzbS9VYTN1bnNHVXdTMTcvd0VRWWt4QU4walBHRG5GcEk1?=
+ =?utf-8?B?VFFlTFdsMUdCaWpEMXI5SjRRTnRzVEZudDJ6SjRoTStSLzZFS3BFSm03a2VM?=
+ =?utf-8?B?dnZmNkQxVlpsUnJ4Y3RDcEhWZ0g3YVpkZzhyeTZJZnkzZlJvQVZJTEdUQldj?=
+ =?utf-8?B?Q0IvQ1FtMGZzSDVNMk1PdmNzN2ZFZjFUempvVEZ3cUI2akx0SGZHaUhGUW5k?=
+ =?utf-8?B?RmM5Y2Rvd0MyM0VwYit0cWJpeTJRdUJjNmJFWnNoMDdiUkh5OXZtS1NXdTA2?=
+ =?utf-8?B?MFBobVBuc2kvVVEzSWVWNU9tOURVVFRVZ3hmRWdTTUw5akFYVUx6bWF0ajN2?=
+ =?utf-8?B?YWplNVhHR1ZVWG45SVhBb3B1QUw5K1laOUtVcUVrMEVqeDByYmdYVWRPVmNE?=
+ =?utf-8?B?ZForcGJxYXl0OGphcm5MNTJGTS91S2ZPOHU2dVhHTEszUWEzbkJIRWlWbFFM?=
+ =?utf-8?B?b2JTSDAzci9zd3N5OXFwTlh0V2NSek1uK213a2xvSW5BdGtHTTEyMTA5UTY2?=
+ =?utf-8?B?U0w5ZUdkRmQ0RlhucEM3NHUwcW1YMFJtOTNqeUNmbGFoN1BzQmNHZzBTekxQ?=
+ =?utf-8?B?V2h1bHdSdW1pbC9zTUpUdXUyNFRBaTVwbGZjMitJUnhYQW1PQVB5WlZkNHlz?=
+ =?utf-8?B?cE9QSDE3cElGcTdYTjU4U0p6aHVBRmxnV29QdTR4Q29EY203SEdFaU9uejJ2?=
+ =?utf-8?B?U0liVEEzejhnTVN1aWx0c1Z1ZWNudFUvR2ZVOWdMb3FzaDQwQmlSYk11QU5i?=
+ =?utf-8?B?TTR5cmFLODhQcEpBSEJtSGZyKzRPR2dWZklqWTdSbGlXM1FvdXR4SVRraTg0?=
+ =?utf-8?B?N2xacm0xcUVBMkZKN1cwWi85bzRTUVdUQ2Rwb3pUNWZHQ25OOEExdz09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa0c54a0-5636-42cd-3fff-08dec1383dcf
+X-MS-Exchange-CrossTenant-AuthSource: LV5PR12MB9779.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jun 2026 06:20:43.3655
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: B/3WU53yeVba7rzMPbjIsL12Q9Kh29LHOlYvSaM21SzAf4c8ogi0ovDL//CWgYJH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4172
 
-Remove the Xilinx XPS PS/2 controller driver. This driver supports an
-old Xilinx EDK IP core that is no longer in active use. The hardware
-is not available on modern platforms, and the driver has no users here.
 
-Assisted-by: opencode:big-pickle
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- drivers/input/serio/Kconfig      |  10 -
- drivers/input/serio/Makefile     |   1 -
- drivers/input/serio/xilinx_ps2.c | 363 -------------------------------
- 3 files changed, 374 deletions(-)
- delete mode 100644 drivers/input/serio/xilinx_ps2.c
 
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 5f15a6462056..bacab1f58400 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -188,16 +188,6 @@ config SERIO_RAW
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called serio_raw.
- 
--config SERIO_XILINX_XPS_PS2
--	tristate "Xilinx XPS PS/2 Controller Support"
--	depends on PPC || MICROBLAZE
--	help
--	  This driver supports XPS PS/2 IP from the Xilinx EDK on
--	  PowerPC platform.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called xilinx_ps2.
--
- config SERIO_ALTERA_PS2
- 	tristate "Altera UP PS/2 controller"
- 	depends on HAS_IOMEM
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 8ab98f4aa28d..7f5137dc02e2 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -23,7 +23,6 @@ obj-$(CONFIG_SERIO_SGI_IOC3)	+= ioc3kbd.o
- obj-$(CONFIG_SERIO_LIBPS2)	+= libps2.o
- obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
- obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
--obj-$(CONFIG_SERIO_XILINX_XPS_PS2)	+= xilinx_ps2.o
- obj-$(CONFIG_SERIO_ALTERA_PS2)	+= altera_ps2.o
- obj-$(CONFIG_SERIO_ARC_PS2)	+= arc_ps2.o
- obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
-diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-deleted file mode 100644
-index 411d55ca1a66..000000000000
---- a/drivers/input/serio/xilinx_ps2.c
-+++ /dev/null
-@@ -1,363 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
--/*
-- * Xilinx XPS PS/2 device driver
-- *
-- * (c) 2005 MontaVista Software, Inc.
-- * (c) 2008 Xilinx, Inc.
-- */
--
--
--#include <linux/module.h>
--#include <linux/serio.h>
--#include <linux/interrupt.h>
--#include <linux/errno.h>
--#include <linux/slab.h>
--#include <linux/list.h>
--#include <linux/io.h>
--#include <linux/mod_devicetable.h>
--#include <linux/of_address.h>
--#include <linux/of_irq.h>
--#include <linux/platform_device.h>
--
--#define DRIVER_NAME		"xilinx_ps2"
--
--/* Register offsets for the xps2 device */
--#define XPS2_SRST_OFFSET	0x00000000 /* Software Reset register */
--#define XPS2_STATUS_OFFSET	0x00000004 /* Status register */
--#define XPS2_RX_DATA_OFFSET	0x00000008 /* Receive Data register */
--#define XPS2_TX_DATA_OFFSET	0x0000000C /* Transmit Data register */
--#define XPS2_GIER_OFFSET	0x0000002C /* Global Interrupt Enable reg */
--#define XPS2_IPISR_OFFSET	0x00000030 /* Interrupt Status register */
--#define XPS2_IPIER_OFFSET	0x00000038 /* Interrupt Enable register */
--
--/* Reset Register Bit Definitions */
--#define XPS2_SRST_RESET		0x0000000A /* Software Reset  */
--
--/* Status Register Bit Positions */
--#define XPS2_STATUS_RX_FULL	0x00000001 /* Receive Full  */
--#define XPS2_STATUS_TX_FULL	0x00000002 /* Transmit Full  */
--
--/*
-- * Bit definitions for ISR/IER registers. Both the registers have the same bit
-- * definitions and are only defined once.
-- */
--#define XPS2_IPIXR_WDT_TOUT	0x00000001 /* Watchdog Timeout Interrupt */
--#define XPS2_IPIXR_TX_NOACK	0x00000002 /* Transmit No ACK Interrupt */
--#define XPS2_IPIXR_TX_ACK	0x00000004 /* Transmit ACK (Data) Interrupt */
--#define XPS2_IPIXR_RX_OVF	0x00000008 /* Receive Overflow Interrupt */
--#define XPS2_IPIXR_RX_ERR	0x00000010 /* Receive Error Interrupt */
--#define XPS2_IPIXR_RX_FULL	0x00000020 /* Receive Data Interrupt */
--
--/* Mask for all the Transmit Interrupts */
--#define XPS2_IPIXR_TX_ALL	(XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_TX_ACK)
--
--/* Mask for all the Receive Interrupts */
--#define XPS2_IPIXR_RX_ALL	(XPS2_IPIXR_RX_OVF | XPS2_IPIXR_RX_ERR |  \
--				 XPS2_IPIXR_RX_FULL)
--
--/* Mask for all the Interrupts */
--#define XPS2_IPIXR_ALL		(XPS2_IPIXR_TX_ALL | XPS2_IPIXR_RX_ALL |  \
--				 XPS2_IPIXR_WDT_TOUT)
--
--/* Global Interrupt Enable mask */
--#define XPS2_GIER_GIE_MASK	0x80000000
--
--struct xps2data {
--	int irq;
--	spinlock_t lock;
--	void __iomem *base_address;	/* virt. address of control registers */
--	unsigned int flags;
--	struct serio *serio;		/* serio */
--	struct device *dev;
--};
--
--/************************************/
--/* XPS PS/2 data transmission calls */
--/************************************/
--
--/**
-- * xps2_recv() - attempts to receive a byte from the PS/2 port.
-- * @drvdata:	pointer to ps2 device private data structure
-- * @byte:	address where the read data will be copied
-- *
-- * If there is any data available in the PS/2 receiver, this functions reads
-- * the data, otherwise it returns error.
-- */
--static int xps2_recv(struct xps2data *drvdata, u8 *byte)
--{
--	u32 sr;
--	int status = -1;
--
--	/* If there is data available in the PS/2 receiver, read it */
--	sr = in_be32(drvdata->base_address + XPS2_STATUS_OFFSET);
--	if (sr & XPS2_STATUS_RX_FULL) {
--		*byte = in_be32(drvdata->base_address + XPS2_RX_DATA_OFFSET);
--		status = 0;
--	}
--
--	return status;
--}
--
--/*********************/
--/* Interrupt handler */
--/*********************/
--static irqreturn_t xps2_interrupt(int irq, void *dev_id)
--{
--	struct xps2data *drvdata = dev_id;
--	u32 intr_sr;
--	u8 c;
--	int status;
--
--	/* Get the PS/2 interrupts and clear them */
--	intr_sr = in_be32(drvdata->base_address + XPS2_IPISR_OFFSET);
--	out_be32(drvdata->base_address + XPS2_IPISR_OFFSET, intr_sr);
--
--	/* Check which interrupt is active */
--	if (intr_sr & XPS2_IPIXR_RX_OVF)
--		dev_warn(drvdata->dev, "receive overrun error\n");
--
--	if (intr_sr & XPS2_IPIXR_RX_ERR)
--		drvdata->flags |= SERIO_PARITY;
--
--	if (intr_sr & (XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_WDT_TOUT))
--		drvdata->flags |= SERIO_TIMEOUT;
--
--	if (intr_sr & XPS2_IPIXR_RX_FULL) {
--		status = xps2_recv(drvdata, &c);
--
--		/* Error, if a byte is not received */
--		if (status) {
--			dev_err(drvdata->dev,
--				"wrong rcvd byte count (%d)\n", status);
--		} else {
--			serio_interrupt(drvdata->serio, c, drvdata->flags);
--			drvdata->flags = 0;
--		}
--	}
--
--	return IRQ_HANDLED;
--}
--
--/*******************/
--/* serio callbacks */
--/*******************/
--
--/**
-- * sxps2_write() - sends a byte out through the PS/2 port.
-- * @pserio:	pointer to the serio structure of the PS/2 port
-- * @c:		data that needs to be written to the PS/2 port
-- *
-- * This function checks if the PS/2 transmitter is empty and sends a byte.
-- * Otherwise it returns error. Transmission fails only when nothing is connected
-- * to the PS/2 port. Thats why, we do not try to resend the data in case of a
-- * failure.
-- */
--static int sxps2_write(struct serio *pserio, unsigned char c)
--{
--	struct xps2data *drvdata = pserio->port_data;
--	u32 sr;
--
--	guard(spinlock_irqsave)(&drvdata->lock);
--
--	/* If the PS/2 transmitter is empty send a byte of data */
--	sr = in_be32(drvdata->base_address + XPS2_STATUS_OFFSET);
--	if (sr & XPS2_STATUS_TX_FULL)
--		return -EAGAIN;
--
--	out_be32(drvdata->base_address + XPS2_TX_DATA_OFFSET, c);
--	return 0;
--}
--
--/**
-- * sxps2_open() - called when a port is opened by the higher layer.
-- * @pserio:	pointer to the serio structure of the PS/2 device
-- *
-- * This function requests irq and enables interrupts for the PS/2 device.
-- */
--static int sxps2_open(struct serio *pserio)
--{
--	struct xps2data *drvdata = pserio->port_data;
--	int error;
--	u8 c;
--
--	error = request_irq(drvdata->irq, &xps2_interrupt, 0,
--				DRIVER_NAME, drvdata);
--	if (error) {
--		dev_err(drvdata->dev,
--			"Couldn't allocate interrupt %d\n", drvdata->irq);
--		return error;
--	}
--
--	/* start reception by enabling the interrupts */
--	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, XPS2_GIER_GIE_MASK);
--	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, XPS2_IPIXR_RX_ALL);
--	(void)xps2_recv(drvdata, &c);
--
--	return 0;		/* success */
--}
--
--/**
-- * sxps2_close() - frees the interrupt.
-- * @pserio:	pointer to the serio structure of the PS/2 device
-- *
-- * This function frees the irq and disables interrupts for the PS/2 device.
-- */
--static void sxps2_close(struct serio *pserio)
--{
--	struct xps2data *drvdata = pserio->port_data;
--
--	/* Disable the PS2 interrupts */
--	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, 0x00);
--	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, 0x00);
--	free_irq(drvdata->irq, drvdata);
--}
--
--/**
-- * xps2_of_probe - probe method for the PS/2 device.
-- * @ofdev:	pointer to OF device structure
-- *
-- * This function probes the PS/2 device in the device tree.
-- * It initializes the driver data structure and the hardware.
-- * It returns 0, if the driver is bound to the PS/2 device, or a negative
-- * value if there is an error.
-- */
--static int xps2_of_probe(struct platform_device *ofdev)
--{
--	struct resource r_mem; /* IO mem resources */
--	struct xps2data *drvdata;
--	struct serio *serio;
--	struct device *dev = &ofdev->dev;
--	resource_size_t remap_size, phys_addr;
--	unsigned int irq;
--	int error;
--
--	dev_info(dev, "Device Tree Probing \'%pOFn\'\n", dev->of_node);
--
--	/* Get iospace for the device */
--	error = of_address_to_resource(dev->of_node, 0, &r_mem);
--	if (error) {
--		dev_err(dev, "invalid address\n");
--		return error;
--	}
--
--	/* Get IRQ for the device */
--	irq = irq_of_parse_and_map(dev->of_node, 0);
--	if (!irq) {
--		dev_err(dev, "no IRQ found\n");
--		return -ENODEV;
--	}
--
--	drvdata = kzalloc_obj(*drvdata);
--	serio = kzalloc_obj(*serio);
--	if (!drvdata || !serio) {
--		error = -ENOMEM;
--		goto failed1;
--	}
--
--	spin_lock_init(&drvdata->lock);
--	drvdata->irq = irq;
--	drvdata->serio = serio;
--	drvdata->dev = dev;
--
--	phys_addr = r_mem.start;
--	remap_size = resource_size(&r_mem);
--	if (!request_mem_region(phys_addr, remap_size, DRIVER_NAME)) {
--		dev_err(dev, "Couldn't lock memory region at 0x%08llX\n",
--			(unsigned long long)phys_addr);
--		error = -EBUSY;
--		goto failed1;
--	}
--
--	/* Fill in configuration data and add them to the list */
--	drvdata->base_address = ioremap(phys_addr, remap_size);
--	if (drvdata->base_address == NULL) {
--		dev_err(dev, "Couldn't ioremap memory at 0x%08llX\n",
--			(unsigned long long)phys_addr);
--		error = -EFAULT;
--		goto failed2;
--	}
--
--	/* Disable all the interrupts, just in case */
--	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, 0);
--
--	/*
--	 * Reset the PS2 device and abort any current transaction,
--	 * to make sure we have the PS2 in a good state.
--	 */
--	out_be32(drvdata->base_address + XPS2_SRST_OFFSET, XPS2_SRST_RESET);
--
--	dev_info(dev, "Xilinx PS2 at 0x%08llX mapped to 0x%p, irq=%d\n",
--		 (unsigned long long)phys_addr, drvdata->base_address,
--		 drvdata->irq);
--
--	serio->id.type = SERIO_8042;
--	serio->write = sxps2_write;
--	serio->open = sxps2_open;
--	serio->close = sxps2_close;
--	serio->port_data = drvdata;
--	serio->dev.parent = dev;
--	snprintf(serio->name, sizeof(serio->name),
--		 "Xilinx XPS PS/2 at %08llX", (unsigned long long)phys_addr);
--	snprintf(serio->phys, sizeof(serio->phys),
--		 "xilinxps2/serio at %08llX", (unsigned long long)phys_addr);
--
--	serio_register_port(serio);
--
--	platform_set_drvdata(ofdev, drvdata);
--	return 0;		/* success */
--
--failed2:
--	release_mem_region(phys_addr, remap_size);
--failed1:
--	kfree(serio);
--	kfree(drvdata);
--
--	return error;
--}
--
--/**
-- * xps2_of_remove - unbinds the driver from the PS/2 device.
-- * @of_dev:	pointer to OF device structure
-- *
-- * This function is called if a device is physically removed from the system or
-- * if the driver module is being unloaded. It frees any resources allocated to
-- * the device.
-- */
--static void xps2_of_remove(struct platform_device *of_dev)
--{
--	struct xps2data *drvdata = platform_get_drvdata(of_dev);
--	struct resource r_mem; /* IO mem resources */
--
--	serio_unregister_port(drvdata->serio);
--	iounmap(drvdata->base_address);
--
--	/* Get iospace of the device */
--	if (of_address_to_resource(of_dev->dev.of_node, 0, &r_mem))
--		dev_err(drvdata->dev, "invalid address\n");
--	else
--		release_mem_region(r_mem.start, resource_size(&r_mem));
--
--	kfree(drvdata);
--}
--
--/* Match table for of_platform binding */
--static const struct of_device_id xps2_of_match[] = {
--	{ .compatible = "xlnx,xps-ps2-1.00.a", },
--	{ /* end of list */ },
--};
--MODULE_DEVICE_TABLE(of, xps2_of_match);
--
--static struct platform_driver xps2_of_driver = {
--	.driver = {
--		.name = DRIVER_NAME,
--		.of_match_table = xps2_of_match,
--	},
--	.probe		= xps2_of_probe,
--	.remove		= xps2_of_remove,
--};
--module_platform_driver(xps2_of_driver);
--
--MODULE_AUTHOR("Xilinx, Inc.");
--MODULE_DESCRIPTION("Xilinx XPS PS/2 driver");
--MODULE_LICENSE("GPL");
--
--- 
-2.54.0
+On 6/3/26 07:42, Rosen Penev wrote:
+> Remove the Xilinx XPS PS/2 controller driver. This driver supports an
+> old Xilinx EDK IP core that is no longer in active use. The hardware
+> is not available on modern platforms, and the driver has no users here.
+> 
+> Assisted-by: opencode:big-pickle
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> ---
+>   drivers/input/serio/Kconfig      |  10 -
+>   drivers/input/serio/Makefile     |   1 -
+>   drivers/input/serio/xilinx_ps2.c | 363 -------------------------------
+>   3 files changed, 374 deletions(-)
+>   delete mode 100644 drivers/input/serio/xilinx_ps2.c
 
+Acked-by: Michal Simek <michal.simek@amd.com>
+
+Thanks,
+Michal

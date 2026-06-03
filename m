@@ -1,127 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEFA540913F
-	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 08:11:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7DCA370AE5;
+	Wed,  3 Jun 2026 08:28:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780474322; cv=none; b=LGJO8uXK9DC3IDJb0KIzjdxQrIA+UQy6qvk3mXCghCt74167NlGuf3JBi7l0mzanVYBD5hiuvdoo2KJYb8UBMsEKkp3y9pN5jLz4eUQOcY650cE9tNVncSOTGYIbxMflJ6EPRIghMObEOhVabvbQGylC2qGg+EyK7sQK0H+M7Q4=
+	t=1780475294; cv=none; b=H+VIQSFQOvdwxBcNeNZHfhryvHdyH1MxyOfAQ/BqMQ0XQ9byMUsPZtDzfXZYjgEwcBmwMsRr+/T189neyX2uVQHjreYR1f073YLQZi/4znY6AkF7IkU0dhlXaUn1f61pw934zfGWs2oFMkRHXRvFS+JjnxPo8g8X7h9h0H0TPNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780474322; c=relaxed/simple;
-	bh=Qg4qMf5j1WYe4PoW6rd6nf1YYnM7I2/1aHhet1HufVk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Z60uggc8ZU7VcVb8leP45LhxNSUQzMZWBX/+MSRHPnjKz7ZIJ/Ed9ouz+EYpgexQ7n3YbtcsIAHOqk8UNOxEV9saR5DQW/2yBDkusAHTA3hpPgc6Z5exElBgpUs7K7iOMmxeJKV9e73DqUmhmj+ftklJG53AzsMu555+nQHops8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Am8TNxJ6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780475294; c=relaxed/simple;
+	bh=oQ1JN1LApaaZyvc7zghORD483qAHTIG+BIf2SxAUwL0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RCExitbQQYpFjOIhJRxXwk2xHqy2QP/r0Hy3B4JnXTpHFQhQjUUW9ypZT19WviDBgDavt3nfITuLrKLfhyi7c3y/+UIHmIG5k5kZn9NTFSWCPqGuSDgy2RioO2IyEbR4RepTkyVcbL7u0qXKZiVdF2cZCt48hFysl3p70wpx4sc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RXf5vlZK; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Am8TNxJ6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38B31F00898;
-	Wed,  3 Jun 2026 08:11:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780474317;
-	bh=qylzIkAJHXHojSZ5oHfJIUqoj6EPVEOkFaMtwYUq7dc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Am8TNxJ6JanZzSGMg2daltb33qPP0VydI3dkPwTo5gAA4I//Kx2NS0+W/o9gRGEUw
-	 vhoWgi/fJnfk6asWtcYB+DWcJ5y2dAV7aWhWvMELrqrRy1HV6ZETot2TptBf+YqPT/
-	 izCQy3NH8rO2nB3hLp+pRoqiUTen+rYQFdHAuK0+5kafUuvu8ga80q2z6deWU/u1fa
-	 KPlZF9Mc/UaHA8ZnjWgWY1FuNZLz8p3dA/RszuTVAN49mEOEMFLPjCD/2cWpZT6KVe
-	 ipZRafV14vOkQX0pPems6oi6e2Nnh+AkQNdCDzy88fzCDe3jbEtoS1cJg2IRTcUTEY
-	 96Ez7Somnptsg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] Input: axp20x-pek - add support for AXP313A
- variant
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Steven Feng" <steven@joint-cloud.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <tencent_58979D4AAAB2237B7CFCA5445D81B687E207@qq.com>
-References: <tencent_58979D4AAAB2237B7CFCA5445D81B687E207@qq.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 03 Jun 2026 08:11:56 +0000
-Message-Id: <20260603081156.E38B31F00898@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RXf5vlZK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780475293; x=1812011293;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=oQ1JN1LApaaZyvc7zghORD483qAHTIG+BIf2SxAUwL0=;
+  b=RXf5vlZKmmyogqPfVNPeyvaPg+u6+wEbnQyZJOy69DfCBI///Y7qlwjX
+   VtIfQj8giDgW+FmwK7F1MXUvFctgr7lM5g+iZBOJLBngzPBwcsmiRD+d0
+   wesOSidadWSWEdOfTuBaDpPFTVplahVzs5M/shUpA6aNGojt6y5P2swRY
+   kk8HPCi4DMph6TcaLICzkq6Nkqwlqi+Cpzlg56QBMF193N8RZwKVysppG
+   Unb8IQMsnuFeK/zfFQvO6TY9810/g8CkfKgI+lOTwhPQOt19ip0MnbLTm
+   MYD5du3YojM35CZ4qWAcYfLw4Cd2uhlEJxwTRqf236cjSKG8P1ZfQR7Bw
+   g==;
+X-CSE-ConnectionGUID: YTNGQPG2T0C056OMMQO2wA==
+X-CSE-MsgGUID: WbuaYXLoRn2GJw4UBVe3iA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11805"; a="91588121"
+X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
+   d="scan'208";a="91588121"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2026 01:28:12 -0700
+X-CSE-ConnectionGUID: hQP/h55KSMyMynUKne0t5g==
+X-CSE-MsgGUID: RgERN4U2QsWxYGpyKaLYvg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
+   d="scan'208";a="245976389"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa004.fm.intel.com with ESMTP; 03 Jun 2026 01:28:10 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id A4F7495; Wed, 03 Jun 2026 10:28:09 +0200 (CEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	"Daniel J. Ogorchock" <djogorchock@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <bentiss@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] HID: nintendo: Use %pM format specifier for MAC addresses
+Date: Wed,  3 Jun 2026 10:28:08 +0200
+Message-ID: <20260603082808.119958-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Convert to %pM instead of using custom code.
 
-Pre-existing issues:
-- [High] Suspend and resume callbacks unconditionally disable/enable IRQs e=
-ven when the input device is not registered, potentially disabling the syst=
-em timer (IRQ 0).
-- [Low] Manual assignment of the input device's parent is redundant when us=
-ing devm_input_allocate_device().
---
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-nintendo.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-commit 54f63f8b19bf8de6d0676d801f797fd4b2f755ae
-Author: Steven Feng <steven@joint-cloud.com>
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 29008c2cc530..77b14dfdae86 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2431,14 +2431,8 @@ static int joycon_read_info(struct joycon_ctlr *ctlr)
+ 	for (i = 4, j = 0; j < 6; i++, j++)
+ 		ctlr->mac_addr[j] = report->subcmd_reply.data[i];
+ 
+-	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL,
+-					    "%02X:%02X:%02X:%02X:%02X:%02X",
+-					    ctlr->mac_addr[0],
+-					    ctlr->mac_addr[1],
+-					    ctlr->mac_addr[2],
+-					    ctlr->mac_addr[3],
+-					    ctlr->mac_addr[4],
+-					    ctlr->mac_addr[5]);
++	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL, "%pM",
++					    ctlr->mac_addr);
+ 	if (!ctlr->mac_addr_str)
+ 		return -ENOMEM;
+ 	hid_info(ctlr->hdev, "controller MAC = %s\n", ctlr->mac_addr_str);
+-- 
+2.50.1
 
-Input: axp20x-pek - add support for AXP313A variant
-
-Add power button support for the AXP313A PMIC. Creates a dedicated
-axp313a_info configuration with NULL time tables to support the
-device since it lacks the PEK_KEY register.
-
-> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-=
-pek.c
-> index c1a4e5ea1e001..964b39817af9f 100644
-> --- a/drivers/input/misc/axp20x-pek.c
-> +++ b/drivers/input/misc/axp20x-pek.c
-
-[ ... ]
-
-> @@ -414,6 +421,10 @@ static const struct platform_device_id axp_pek_id_ma=
-tch[] =3D {
->  		.name =3D "axp221-pek",
->  		.driver_data =3D (kernel_ulong_t)&axp221_info,
->  	},
-> +	{
-> +		.name =3D "axp313a-pek",
-> +		.driver_data =3D (kernel_ulong_t)&axp313a_info,
-> +	},
->  	{ /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing the driver
-I noticed an issue in the suspend and resume callbacks:
-
-drivers/input/misc/axp20x-pek.c:axp20x_pek_suspend() {
-        ...
-        disable_irq(axp20x_pek->irq_dbf);
-        disable_irq(axp20x_pek->irq_dbr);
-        ...
-}
-
-If axp20x_pek_should_register_input() returns false, the input device
-is not registered and the IRQ numbers remain initialized to 0.
-
-During suspend and resume, these callbacks unconditionally disable and
-enable the IRQs. Since device_may_wakeup() evaluates to false in this
-state, the callbacks execute disable_irq(0) and enable_irq(0).
-
-On systems where IRQ 0 is the system timer, manipulating its state
-during power transitions can lead to system hangs or kernel panics.
-
-Should these callbacks verify that the input device is actually registered
-before interacting with the IRQs?
-
-[Severity: Low]
-This is also a pre-existing issue, but I noticed a redundant assignment
-in axp20x_pek_probe_input_device():
-
-drivers/input/misc/axp20x-pek.c:axp20x_pek_probe_input_device() {
-        ...
-        idev->dev.parent =3D &pdev->dev;
-        ...
-}
-
-Since devm_input_allocate_device() automatically sets the input device's
-parent, is it necessary to manually assign it here?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260603074727.6133=
-19-1-steven@joint-cloud.com?part=3D2

@@ -1,163 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30FFC3F9F50
-	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 07:23:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 116AF3C457C;
+	Wed,  3 Jun 2026 07:47:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780471440; cv=none; b=dkNN6rQfePCfUjoBmpZqv26qdnKup4bNH+L3clBNLpNzbzCB8z+rrxKNOXy5awHjCVAOBvTuU5sOVVVbMGBt3EWmNXYjHKD4901ivGTuod5DSyqn582cDuL+lbCz7ynBq4Ts1qDMhq+tp5p0tJuc+I7oNDGA51c7hJU4EXt3WwM=
+	t=1780472879; cv=none; b=k2HjHQjPIVnfZTXVg8TgK3t4v+d6lupnZAYiOIX5wQIlwucWskCN4U5OBg9Kyo9QyYTQfSQmPukZKP/eIhHqylDWMqbt2nXTb6W3SAqXrIYG1L71O6WdI1aTUTslxaaT9+Z38xAOMuuz0i+VAMaw4MJ+LWN167wsgJooquihnEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780471440; c=relaxed/simple;
-	bh=ZBnPRC5WBPCewS8d6WEsSSKffuAPYHcpWt4bbRKEPn8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NOCNM8NZMU4n5Hikp/t1z4MImFEmGZ2fAczSc6a92Hn3MnwDrZgminclXhlp5G4q61qLzCY837OGz5k9waQRW1fv3z79ZvB5yzDecefPKKUpfFrReDmov5VWfZ4RN90R38WmDe9f9PKISJVybRVczJSGv2nG+L3WWSi7vaAgHbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JkT2VCZ4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780472879; c=relaxed/simple;
+	bh=5J+IZbovpreXkXoINP2NKD2/al0irF0lAFVjc8UfGo0=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=uPZMfGoFwKUXWPhraWoUnis+ViaRsryqVaOnF0bhHNzbDzXMWY+3AkpTC20DibVTXmoS4jGGwdVyR4rOrT4p/7HPRiihEJk88xE31uSni3jcUlFJyKtYp9u0QUPTEZyfIDrBx/fFvnFracJgKPG2SXFMETlW01Xxe8NnY5sixB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=joint-cloud.com; spf=none smtp.mailfrom=joint-cloud.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=HW8L6NoM; arc=none smtp.client-ip=162.62.57.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=joint-cloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=joint-cloud.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JkT2VCZ4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D68E31F0089C
-	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 07:23:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780471438;
-	bh=9hnBwNTxryIyDN3wnkVZ6MfI4PtQTRzH3pERe6L8LEg=;
-	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
-	b=JkT2VCZ4Lp/E4C6xMVWPpreh5B+9DG/kFEFxcMoMNg5Eeqzj9C9RCMp+9kJyiA+49
-	 7eVEPDrPsG86SiiSUq+mjukZQADyZx0mgooikqE0VojH7VrelprzCDnKpfwZjl9pg0
-	 Ft5jeuOIiEUnSs8OE2i7z6vyLUyfy0EEKcTdRBc9fIpO0U+WCzE6Xd2wzqdd/pikmh
-	 rtw1uC2fPlw5nnxWobhmQunb7CEZ4s+HwwF/qNC2k6GrUTSwg8KSTWL9VSTbswZKBr
-	 P43wXe8Uy5bXn8f1CjsiXMqxftkVbKzJbzq3nOK39vgQzTRc9TfZ6FSxUDIlBSUkkL
-	 breEK92HDdXIw==
-Received: by mail-oo1-f45.google.com with SMTP id 006d021491bc7-69e06aaf0b2so3344828eaf.1
-        for <linux-input@vger.kernel.org>; Wed, 03 Jun 2026 00:23:58 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/aasqKEFMjHi/d0/GLuH6XacK7HXP6hxW5ZXY+BwjDJ+E36qOR7TuNyJE4kG0DYmVIOjVwJdCh/kIeIA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyIjF7F5D92dgTmoabM28Pu93RFR2pjNC91tMPxfgsUngNdLiZ5
-	h7PVbGBVkvpwXcCMkj2rXQ2c4/S8dqHo/KDWUaAD4JN6vuLRQ7XdL6ddaMtiLCdisQZslUXiy4L
-	j6sq7NGFD+otnwbRZrDIYkb9i/UTvLiw=
-X-Received: by 2002:a4a:de88:0:b0:69d:81ec:1a61 with SMTP id
- 006d021491bc7-69e48090b05mr990172eaf.46.1780471438057; Wed, 03 Jun 2026
- 00:23:58 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="HW8L6NoM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1780472866; bh=Nzfbs86sMc0pUvhp8ZxqINvb2dzs4+/wHKGyetooIkU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=HW8L6NoMJGXk/kqyEFxsYxXSip2qDtZmtjVEmKHeAA8rUUncbTkiJ/KKZDzMY8wPh
+	 nG1b+m7v70N0/16mHmgkohdPq4+3yYNuBMUfGiSvuNRP0cXP2uY9yTtbtPvw4x5WDk
+	 oGk2pV50tmfiZSUGbVnKycJS/L0GRZtmmjCDBUtU=
+Received: from ASUS.localdomain ([113.65.236.26])
+	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
+	id BDF9EE4C; Wed, 03 Jun 2026 15:47:31 +0800
+X-QQ-mid: xmsmtpt1780472851tal7u47gz
+Message-ID: <tencent_DDCDBE11DF2F314E80EAA1F9C5A112A5CC05@qq.com>
+X-QQ-XMAILINFO: OPDQNGCUQ3qL3HZjiOPnRQjoIwHmD/UbOFOP2ry2Q6urqbZOFwXcYsFaXffqnf
+	 okAKosm9B6kOa4rRO+AnjkDl3YM6+15dQzgeTUYaRsEojZD492oW2K7qEqTqFD47JlUPrUEiwU7t
+	 hhwXaLwTGEinARb72b8DNSjqC4s3kBKeG73KASLXwpPO/4a9AzOZFlFTRnzKUOlpQkA3y51K5npE
+	 L9kwtCE0JgGFxgD9G+ts71Kvtyksf9/dL+zy5VtbL6QhA8sl62cEafw4HCXRnnKP2Dy9AEFh0ua9
+	 agRFNYi6YPMXC4kukHGoeAjhmlP1JnwSPkbO5UN/9Px7DgHGSuvvnq7h3q6dYygcAT+PT4UzhpIm
+	 8c03kGCQmrNh/g4EDpNMreUDX6D7RQ603O4EtzuAB7+vmGTJQy/Fr0Kn/oVpyMxaVKH3iioVbnaP
+	 jZ1/0NBbINobY1kQ1WG10vAmLleWfSCf11074blc1R80Fpgx2CBVxJbREwKKjwgDpFMyv0exljs4
+	 GmYo1p00QDc9rBDknV4T0mvP3f3NACtNJ2kKQfZyhDQECaqsyq+DNfCKi7O/5HzC16mh6Uqjvn7V
+	 xh1VxKWKqkhrNFakUyEP66Y3BfA67nlr4YHoKP6xxc4KCf5To6/Th+EgR1jwGgUc8vwS/sVM7kwc
+	 xEmB3+4w+9WB/4GW/2zt57Z80WToGi4WBvRqCoYNXtWhkmcFJphEeoLFuUVufG1xgjvjZxdNSTce
+	 sGuFVSkXNaBgbWRVFACXj2cO1b/PlDlE+xSZN5p+vNDcfRoYuHh+2VGVvGK19mEs4SU9njUqTwvW
+	 w5GTK9rmqsNq3NYzTS+G/IvM/dnMBb1ZoTVXhxS4eKBfKrJHdFPOjpEvwj6cdFcdWRt2+OktdDqR
+	 BxVLFm2nCPaI4bPM81ehCtO+/Z5kWJfDw04v7WVK0G5sFevTlIF5o02zV6Z4auEqaY0D67B8FhKe
+	 Ez2AISbL5Lhz3hoWE2+YHPIPMt7/4LTfXKKsNbUsiOO464kYDWxCitrUDUbY1IBjbr/acUIawnt5
+	 7lijOxh1bNrQpEONWnaGz2cFnauIH9VSTLXN82t6rICYnOIwxRwS/5jsR9SJObM+DmLgNMEKPOnW
+	 uNo6plGIH1q6cP8N4=
+X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+From: Steven Feng <steven@joint-cloud.com>
+To: wens@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Steven Feng <steven@joint-cloud.com>
+Subject: [PATCH v4 0/2] Input: axp20x-pek - add AXP313A support
+Date: Wed,  3 Jun 2026 15:47:25 +0800
+X-OQ-MSGID: <20260603074727.613319-1-steven@joint-cloud.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAGb2v64PLZn+VD9LdxOQxHC0FUJ=5fMrpwEyJEJHkZnUZkHRRw@mail.gmail.com>
+References: <CAGb2v64PLZn+VD9LdxOQxHC0FUJ=5fMrpwEyJEJHkZnUZkHRRw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <ZoMD9s0Xs_VBzIKC@google.com> <tencent_81FCC0443B81A3078C17F44AB4B22DFB2E07@qq.com>
-In-Reply-To: <tencent_81FCC0443B81A3078C17F44AB4B22DFB2E07@qq.com>
-Reply-To: wens@kernel.org
-From: Chen-Yu Tsai <wens@kernel.org>
-Date: Wed, 3 Jun 2026 15:23:42 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66ucD0aoHj0=RRjnHD1McVQH9S7kW-f5QG0YTkiHfMttQ@mail.gmail.com>
-X-Gm-Features: AVHnY4JdLtCywJRsQ5DE4l54G85WxbS_Gu2EXhQmDw5JWKt881BFByhQFLTD2V0
-Message-ID: <CAGb2v66ucD0aoHj0=RRjnHD1McVQH9S7kW-f5QG0YTkiHfMttQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: axp20x-pek - add support for AXP313A variant
-To: Steven Feng <steven@joint-cloud.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 3, 2026 at 11:00=E2=80=AFAM Steven Feng <steven@joint-cloud.com=
-> wrote:
->
-> Add power button support for the AXP313A PMIC. The AXP313A does not
-> have the PEK_KEY register (0x36) used to configure startup and shutdown
-> timings, unlike AXP20X and AXP221. Create a dedicated axp313a_info
-> configuration with NULL time tables to prevent regmap out-of-bounds
-> access.
->
-> For AXP313A, the sysfs attributes (startup/shutdown) are hidden using
-> the is_visible callback, as they are not supported by the hardware.
->
-> Signed-off-by: Steven Feng <steven@joint-cloud.com>
-> ---
-> Changes in v3:
-> - Use is_visible to hide attributes instead of returning -EOPNOTSUPP
+This series adds power button support for the AXP313A PMIC.
 
-Adding this should be a separate patch. In the commit message you can
-say it is needed for a future device added in the next patch.
+The AXP313A lacks the PEK_KEY register used for configuring startup
+and shutdown timings. To handle this, the first patch adds an
+is_visible callback to hide unsupported sysfs attributes, and the
+second patch adds the AXP313A device itself.
 
-> - Corrected author name from "steven" to "Steven Feng"
+Changes in v4:
+- Split into two patches 
+- First patch adds is_visible infrastructure
+- Second patch adds AXP313A device support
+- Fixed subject line to show version number
 
-Please label the version in the subject as well. The subject should
-read "[PATCH v3]" for v3. `git format-patch -vN ...` will do the right
-thing for you.
+Changes in v3:
+- Use is_visible to hide attributes instead of returning -EOPNOTSUPP
+- Corrected author name from "steven" to "Steven Feng"
 
-ChenYu
+Changes in v2:
+- Fixed regmap out-of-bounds access issue reported by Sashiko AI
+- Created dedicated axp313a_info with NULL time tables
+- AXP313A lacks PEK_KEY (0x36) per datasheet verification
 
-> Changes in v2:
-> - Fixed regmap out-of-bounds access issue reported by Sashiko AI
-> - Created dedicated axp313a_info with NULL time tables
-> - Added NULL pointer checks to prevent crashes
-> - AXP313A lacks PEK_KEY (0x36) per datasheet verification
-> - Power button still functional using hardware default timings
->
-> v2: https://lore.kernel.org/all/tencent_48A497E0CA81323CFB6C7CB84428019A8=
-707@qq.com/
-> v1: https://lore.kernel.org/all/tencent_5F1FF80489E702360F352F889570656BF=
-608@qq.com/
-> ---
->  drivers/input/misc/axp20x-pek.c | 32 ++++++++++++++++++++++++++++++--
->  1 file changed, 30 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-=
-pek.c
-> index d4e2fc9a937f..964b39817af9 100644
-> --- a/drivers/input/misc/axp20x-pek.c
-> +++ b/drivers/input/misc/axp20x-pek.c
-> @@ -85,6 +85,13 @@ static const struct axp20x_info axp221_info =3D {
->         .shutdown_mask =3D AXP20X_PEK_SHUTDOWN_MASK,
->  };
->
-> +static const struct axp20x_info axp313a_info =3D {
-> +       .startup_time =3D NULL,
-> +       .startup_mask =3D 0,
-> +       .shutdown_time =3D NULL,
-> +       .shutdown_mask =3D 0,
-> +};
-> +
->  static ssize_t axp20x_show_attr(struct device *dev,
->                                 const struct axp20x_time *time,
->                                 unsigned int mask, char *buf)
-> @@ -193,7 +200,28 @@ static struct attribute *axp20x_attrs[] =3D {
->         &dev_attr_shutdown.attr,
->         NULL,
->  };
-> -ATTRIBUTE_GROUPS(axp20x);
-> +
-> +static umode_t axp20x_attr_is_visible(struct kobject *kobj,
-> +                                     struct attribute *attr, int n)
-> +{
-> +       struct device *dev =3D kobj_to_dev(kobj);
-> +       struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
-> +
-> +       if (!axp20x_pek->info->startup_time)
-> +               return 0;
-> +
-> +       return attr->mode;
-> +}
-> +
-> +static const struct attribute_group axp20x_group =3D {
-> +       .attrs =3D axp20x_attrs,
-> +       .is_visible =3D axp20x_attr_is_visible,
-> +};
-> +
-> +static const struct attribute_group *axp20x_groups[] =3D {
-> +       &axp20x_group,
-> +       NULL,
-> +};
->
->  static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
->  {
-> @@ -395,7 +423,7 @@ static const struct platform_device_id axp_pek_id_mat=
-ch[] =3D {
->         },
->         {
->                 .name =3D "axp313a-pek",
-> -               .driver_data =3D (kernel_ulong_t)&axp20x_info,
-> +               .driver_data =3D (kernel_ulong_t)&axp313a_info,
->         },
->         { /* sentinel */ }
->  };
-> --
-> 2.43.0
->
+v3: https://lore.kernel.org/all/tencent_81FCC0443B81A3078C17F44AB4B22DFB2E07@qq.com/
+v2: https://lore.kernel.org/all/tencent_48A497E0CA81323CFB6C7CB84428019A8707@qq.com/
+v1: https://lore.kernel.org/all/tencent_5F1FF80489E702360F352F889570656BF608@qq.com/
+
+Steven Feng (2):
+  Input: axp20x-pek - add is_visible callback for sysfs attributes
+  Input: axp20x-pek - add support for AXP313A variant
+
+ drivers/input/misc/axp20x-pek.c | 34 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
+
+-- 
+2.43.0
+

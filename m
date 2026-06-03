@@ -1,57 +1,56 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AAC744102A;
-	Wed,  3 Jun 2026 22:19:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B6C744102A;
+	Wed,  3 Jun 2026 22:20:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780525189; cv=none; b=se7mJo2ZI7fT1w1VKW/PGN6z4K6k5exKcRQvGP6cid0ARcdsfHYJuCEjc5NuAo+0wUWD0K/DlMA8XAHkpvdz6eoZXR+9nt4zuAH/0ukSDIx9DMtDdJeGNIJP98iYez5b1SV6HNukMjIDbe19gWYqiciFqiHEFnqif54uRioBaqg=
+	t=1780525208; cv=none; b=sXtOTG8FXL3qN+QTIr4XRuVNiRZpF/reVXshj4ogBld8qe1OwifFertxwOOTQBu0p00Y3E9DRCze7ncFtE6cIwiJnzXlnSmPtS6mrXqFeeWeASWyBy9cEPmw/SQLqeRks4g8OLT+7bghMrjvooB4IO8IDz9fYKozlBijUf13uTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780525189; c=relaxed/simple;
-	bh=BR5aeo3iQ0JB7wmfVojceVJfH40c/dFhkFNuU0LfjOI=;
+	s=arc-20240116; t=1780525208; c=relaxed/simple;
+	bh=KIPD2k4KC841fZrtnLM0e3w75FpgOpVojJjT05J4mw8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sH7Tmksr+RTlx6BBmHP7Z3BmeUIu34+hLYSl2EjulI2aTNB9GF0eYgOE97T8dlin5SEnGL06gWDUxsDzfDY7nH95rGnEst38Uy1/1bRKsXzzbr8l2looV86qVKV0uJFIs40NkxHpwdUwB0GxVPJNkJetcqfTnc87TtXOFzdgQ/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G5rTgAy/; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=lIcBJqSO1RddINJjHNYar9uo9ozZ0pMQLisUog833BdWDL46fARglOUCjQyZr0757ZxPokTO0sA1D0QqMUcjFXqpD1EV0aoQLMI9aHdzk7fN9/LHim+SHJWCMoT8J9ANMPkV/rv8MVsng3m+Rwlj3yoZelXPXdEZxubiRWP8Y3E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R9gQ/xod; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G5rTgAy/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C23691F00893;
-	Wed,  3 Jun 2026 22:19:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R9gQ/xod"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38F21F00893;
+	Wed,  3 Jun 2026 22:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780525188;
-	bh=nCMVhv90Nn2BMuaPqjJMi+G5kJwoeTSNQGM33sLQElU=;
+	s=k20260515; t=1780525206;
+	bh=v8sHDp4ONRrp+Yvm4SPIIbT9oKkONNFZofdrX7Tp+oY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=G5rTgAy//7uZaKLPzJtZYJ9/paDknpsfZbE+ns63NecgWCdRiVDPg7O8C/y0lD0+7
-	 +MElp7RFTWuSh4RLRtuIwmQTbvgBddlv2J29IJautoRyCnKpIN4wQ1/ObCMjjTmvRR
-	 P416Nj8EMnbF9R85BnIWJyQ/3nRnrORbCp+YyQemcXcXWni5cVvUi6kdXljmOhxS/X
-	 x6v77QIam2y8zhI6kUD3lAk/q+Yi8MqRzlixk62fpKFCwKndRFDKwVop781yIgDP05
-	 wtZfrgEQHHkhSGi3HJUyGdJU5Tb7bByleViLnGteRiDqzzbp82QQoZnHr5N1fvwpXA
-	 3uQSavVfb2nDQ==
-Date: Wed, 3 Jun 2026 17:19:46 -0500
+	b=R9gQ/xodrJUI1h4vSNfSeWebqK1i1UeRekDQpBvmQOGXqpTdKBXi7WiJeFmuublS4
+	 AtmN19IRbF9/IgZMylKffAef3HOJ/b98eCqn0bYLSwr4ZJt6KBesSpxaKj6vO89OdZ
+	 xl2tlaj4p1RFhrVL0DJtok6K1UGMy6jVMQBgAjOcM6Bi0IqgypRnhTHbuUZT+4WZH6
+	 F/j7RVkUnJ/WaqMp/NygcPDIalRJDT71CcLIAlcBfECrEgh2n+kE7beQWM9j2t6hnw
+	 9f81hZGzZQTS3NVh4ljltou7wn3xUqAHXQK5OmezEi9t01tF/oKiso+exCqgNBLfRO
+	 5o2HfXLPcbmaA==
+Date: Wed, 3 Jun 2026 17:20:05 -0500
 From: "Rob Herring (Arm)" <robh@kernel.org>
 To: Akash Sukhavasi <akash.sukhavasi@gmail.com>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>,
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Paolo Abeni <pabeni@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+	Eric Dumazet <edumazet@google.com>, devicetree@vger.kernel.org,
+	Simon Horman <horms@kernel.org>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	linux-media@vger.kernel.org, linux-tegra@vger.kernel.org,
 	"David S. Miller" <davem@davemloft.net>,
-	Vladimir Oltean <olteanv@gmail.com>, linux-media@vger.kernel.org,
-	linux-tegra@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-doc@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Shuah Khan <skhan@linuxfoundation.org>,
-	linux-kernel@vger.kernel.org,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	devicetree@vger.kernel.org, Simon Horman <horms@kernel.org>,
-	Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
-	Lee Jones <lee@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, netdev@vger.kernel.org,
-	Eric Dumazet <edumazet@google.com>, linux-input@vger.kernel.org,
-	Russell King <linux@armlinux.org.uk>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH v2 1/4] dt-bindings: net: remove obsolete mdio.txt
-Message-ID: <178052518477.2276321.5278048214870332622.robh@kernel.org>
+	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Russell King <linux@armlinux.org.uk>, linux-doc@vger.kernel.org,
+	netdev@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Thierry Reding <thierry.reding@kernel.org>
+Subject: Re: [PATCH v2 2/4] dt-bindings: media: remove obsolete rc.txt
+Message-ID: <178052520503.2279647.12293343206224505400.robh@kernel.org>
 References: <20260603-b4-remove-redirect-stubs-v2-0-c8c19876ab64@gmail.com>
- <20260603-b4-remove-redirect-stubs-v2-1-c8c19876ab64@gmail.com>
+ <20260603-b4-remove-redirect-stubs-v2-2-c8c19876ab64@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -60,24 +59,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260603-b4-remove-redirect-stubs-v2-1-c8c19876ab64@gmail.com>
+In-Reply-To: <20260603-b4-remove-redirect-stubs-v2-2-c8c19876ab64@gmail.com>
 
 
-On Wed, 03 Jun 2026 15:42:18 -0500, Akash Sukhavasi wrote:
-> mdio.txt has been a single-line redirect to mdio.yaml since
-> commit 62d77ff7ecbf ("dt-bindings: net: Add a YAML schemas for the
-> generic MDIO options"), which introduced the .yaml schema and reduced
-> the .txt to a stub in the same change. The .yaml has the same filename
-> in the same directory, making this redirect unnecessary for
-> discoverability.
+On Wed, 03 Jun 2026 15:42:19 -0500, Akash Sukhavasi wrote:
+> rc.txt has been a single-line redirect to rc.yaml since
+> commit 7c31b9d67342 ("media: dt-bindings: media: Add YAML schemas for
+> the generic RC bindings"), which introduced the .yaml schema and
+> reduced the .txt to a stub in the same change. The .yaml has the same
+> filename in the same directory, making this redirect unnecessary
+> for discoverability.
 > 
-> No files in the tree reference mdio.txt and it has not been touched
-> since June 2019. Remove the obsolete stub.
+> One file still references rc.txt, forcing readers through an extra
+> hop to reach the .yaml. The stub has not been touched since August
+> 2019. Update the reference in hix5hd2-ir.txt to point directly to
+> rc.yaml and remove the stub.
 > 
 > Signed-off-by: Akash Sukhavasi <akash.sukhavasi@gmail.com>
 > ---
->  Documentation/devicetree/bindings/net/mdio.txt | 1 -
->  1 file changed, 1 deletion(-)
+>  Documentation/devicetree/bindings/media/hix5hd2-ir.txt | 2 +-
+>  Documentation/devicetree/bindings/media/rc.txt         | 1 -
+>  2 files changed, 1 insertion(+), 2 deletions(-)
 > 
 
 Acked-by: Rob Herring (Arm) <robh@kernel.org>

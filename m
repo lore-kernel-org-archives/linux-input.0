@@ -1,77 +1,171 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22555367B90;
-	Wed,  3 Jun 2026 12:24:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF97395DBF;
+	Wed,  3 Jun 2026 13:12:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780489448; cv=none; b=Q0q7Gaup7TilSdRzkZ7hFp039o3awxe6nBAkEW66/7IOYen7DuJYT/6fFEJoxAQNil7LWAdi8Nfgg632rBygylGSbD5glFgxqaD/rVk4Pqff0yNEcsrYbXqjKljWwTR2RC2IOUEVO2Lpa+VOtQfrFIKUFuAPgAdQxeLMFHmsbdk=
+	t=1780492329; cv=none; b=PncLrF8Gt7M3F8bWzfH01ZmpH1xgOLacOUPkWUjWfnJrl1azT3gk9uy6KV2o7SxOpHWa3AFC4F7vXH6DRMHWq/Ozis9vlXKMeDrq8H8q5GZsS57K2/AsKvOnMu19nFfS6Pic9YBJTYTLF3hLYszoOqWp0uhk1dCnx8wRtJAPK4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780489448; c=relaxed/simple;
-	bh=fhgpEIvNeyfQKRYomQWaRlL99rmQ0rQnJNsvUCdcMvc=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=bMfDADaDsoSAzu2IH02od/eV0UdvO9Oxh+6LnNsyrSiU6POc8ht0ZPN30K1AzykLeYqDY0rL3HLMhx44SCysdm/hzWxECMVcy8HEwXTxCUCWijNprjbK5Z8QYsJfQvBb4yYmAHDyZo5YwX4BntmFPFNpLsaWIg8KzbOdlUm6JD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iO8p5ibD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780492329; c=relaxed/simple;
+	bh=zGbTXtImyovHRSDR1Ho+sO5xbEl/W8rYqhUOLlFXSdQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VS79n7DVoRvcfX86z6bUB+7T8TZmQoPd/eSJ+xTwdXAHX+1dM5W58NR/tIN4n/c4xUc4AUWwXfbOLO9uR97EknFpoJOLE5+kGZUBwmsdX+4XMDwha5Gj2vc75pTxfe/aF7GVppNJqRcGQB9GwKO+o89N3TYyEkfF1nHmjL4m63w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=orDcu8Qs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iO8p5ibD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 346F21F00893;
-	Wed,  3 Jun 2026 12:24:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="orDcu8Qs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A61531F00893;
+	Wed,  3 Jun 2026 13:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780489446;
-	bh=hXHl2kqJr/S0Wgp1udof7iRvEicwkY2guHehFWaFpsU=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=iO8p5ibDLCSM+5JybV5K1CNtix4uAW5j922nOHf7n2wJpy1egElT+q+oQBH3H7oUu
-	 ky1Mwq6Yo2U1xISpBK7R/iS/UvldPaaw0pY7H3jWNBu3KPixstrx7lFStW0klZEQ41
-	 nsV9QJNeELkoPruc7vju0nrzMo7es36Cj3QO5OUQr9ZjLWgvSd5OS8VjkK22MOPns6
-	 BHlHj4JemmiLSu+lAgFYN8DlsL5+eF4Q+YbRsjWxO5UM9jG7fjxm/LN+0l/HiNzZ59
-	 I1WSou96FSYbmK0A9I6v8pnNTGbhTotZcVCQCGp8/2ZxpYpqBTynGRo5pAEJo6yF7v
-	 IEWpNAzMFWTsA==
-Date: Wed, 3 Jun 2026 14:24:04 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Jinmo Yang <jinmo44.yang@gmail.com>
-cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, 
-    benjamin.tissoires@redhat.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] HID: wacom: fix slab-out-of-bounds write in
- wacom_wac_queue_insert
-In-Reply-To: <20260528175945.2987781-1-jinmo44.yang@gmail.com>
-Message-ID: <7970933s-3os1-595r-54pn-s6s36n019626@xreary.bet>
-References: <20260524135203.1996265-1-jinmo44.yang@gmail.com> <20260528175945.2987781-1-jinmo44.yang@gmail.com>
+	s=k20260515; t=1780492328;
+	bh=/AJ+Ng/F9cKvqOU0o6ibcHTFrm5QGDsss/BJaa2P3qc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=orDcu8QsnNwKYqKu954HGUGy/2++TDWmvAU1SOishiDLcYYgHE0i6Ywvw+fkuR14B
+	 nRIlzMYPJPdP3ih+Wxb812dYS4H3kPWUip6T+VxZqVO3jEeXKKMgQJJXU1/JPmy0FI
+	 vEfWlc3tnTTyA7UY1qUkBrIBZNachLOHenEoLglIR0fXKeQPGjtFZLDFP5Lpe0Qes4
+	 X5Yw/3nvtNBu85F8uPz87mZ/+Z/HlcWocUyPkuFt6ISg7cKTxm4NAEG0Uzq+ffcxhm
+	 nZSeI4v+16+2URUo4AUCUsH9EthafVe7rQJZzvfsYAqNpTmSZHsq/SdZNRtcyB8Ba/
+	 zxenJPULjZDRQ==
+Message-ID: <45b88710-7c67-414d-8ebc-2abafa80a760@kernel.org>
+Date: Wed, 3 Jun 2026 15:12:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/3] HID: i2c-hid: Move common ACPI _DSM helper into
+ core
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: =?UTF-8?B?6LCi6Ie06YKmIChYSUUgWmhpYmFuZyk=?= <Yeking@red54.com>,
+ linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
+ dianders@chromium.org, jikos@kernel.org, linux-kernel@vger.kernel.org,
+ superm1@kernel.org, Pin-yen Lin <treapking@chromium.org>,
+ Xu Rao <raoxu@uniontech.com>, Kwok Kin Ming <kenkinming2002@gmail.com>,
+ Dan Carpenter <error27@gmail.com>
+References: <ahnqMMhD8jn51ch7@google.com>
+ <20260601181510.38705-1-Yeking@Red54.com>
+ <tencent_71AA07C8BAF64FE0F9B0FDFC072BB08B3605@qq.com>
+ <ah_2JXN7AAos4kjM@beelink> <7ff8529d-6b20-4088-aa10-77b304da49b4@kernel.org>
+ <aiAW9sSLVqmT6l87@beelink>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <aiAW9sSLVqmT6l87@beelink>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, 29 May 2026, Jinmo Yang wrote:
+Hi,
 
-> wacom_wac_queue_insert() calls kfifo_skip() in a loop when the kfifo
-> doesn't have enough space for the incoming report. If the kfifo is
-> empty, kfifo_skip() reads stale data left in the kmalloc'd buffer
-> via __kfifo_peek_n() and interprets it as a record length, advancing
-> fifo->out by that garbage value. This corrupts the internal kfifo
-> state, causing kfifo_unused() to return a value much larger than the
-> actual buffer size, which bypasses __kfifo_in_r()'s guard:
+On 3-Jun-26 1:59 PM, Benjamin Tissoires wrote:
+> On Jun 03 2026, Hans de Goede wrote:
+>> Hi Benjamin,
+>>
+>> On 3-Jun-26 11:43 AM, Benjamin Tissoires wrote:
+>>> On Jun 01 2026, 谢致邦 (XIE Zhibang) wrote:
+>>>> Move the _DSM call that gets the HID descriptor address from
+>>>> i2c-hid-acpi.c to a shared helper in i2c-hid-core.c so both
+>>>> i2c-hid-acpi.c and i2c-hid-of.c can use it.
+>>>>
+>>>> Signed-off-by: 谢致邦 (XIE Zhibang) <Yeking@Red54.com>
+>>>> ---
+>>>>  drivers/hid/i2c-hid/i2c-hid-acpi.c | 32 ++++-----------------------
+>>>>  drivers/hid/i2c-hid/i2c-hid-core.c | 35 ++++++++++++++++++++++++++++++
+>>>
+>>> I'm not a big fan of removing 25% of the i2c-hid-acpi.c code and inject
+>>> it in i2c-hid-core.c.
+>>
+>> It is only 35 new lines in i2c-hid-core.c, so it is not that big / much code.
 > 
->   if (len + recsize > kfifo_unused(fifo))
->       return 0;
+> My concern is not so much about these 35 lines of code, but the fact
+> that i2c-hid-acpi.c is now down to only 3 functions:
+> - i2c_hid_acpi_probe()
+> - i2c_hid_acpi_shutdown_tail()
+> - i2c_hid_acpi_restore_sequence()
 > 
-> kfifo_copy_in() then performs an out-of-bounds memcpy, writing up to
-> 3842 bytes past the 256-byte buffer.
+> So then, what's the point of keeping it as a separate driver? (more
+> rethorical question than anything).
 > 
-> Add a !kfifo_is_empty() condition to the while loop so kfifo_skip()
-> is never called on an empty fifo, and check the return value of
-> kfifo_in() to reject reports that are too large for the fifo.
+>>
+>>> There's something I can't really understand in the problem:
+>>> - we are talking about non arm architecture, which should not have OF in
+>>> 	them
+>>> - the current compatible hid-over-i2c loads the OF version?
+>>> - how can you make the device working without the couple of ACPI
+>>> 	functions that are in the i2c-hid-acpi.c driver for powering up and
+>>> 	down the device?
+>>>
+>>> If the platform is indeed ACPI + x86(_64), then shouldn't we tackle the
+>>> problem in the i2c-hid-acpi driver, or add a secondary leaf driver for
+>>> this particular platform/device? Kind of what we have with
+>>> i2c-hid-of-elan.c
+>>
+>> As part of the work to use ACPI on ARM systems, it is possible now a days
+>> to inject DT snippets into ACPI tables.
+>>
+>> The problem on these Loongson laptops is that they have created this
+>> very ugly mixed-mode where they put a PRP0001 ACPI HID on the ACPI
+>> node for the touchscreen, which means it contains an embedded DT
+>> snippet and in that snipped out "compatible=hid-over-i2c" but NOT
+>> also "i2c-hid-descr-addr=x". To get the i2c-hid descriptor address
+>> the implemented the ACPI _DSM on the same ACPI device/fwnode.
+>>
+>> The ACPI core sees HID=PRP0001 so it creates an of-compatible 
+>> modalias / match and not an ACPI one, so the i2c-hid-of driver will
+>> bind.
 > 
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Fixes: 5e013ad20689 ("HID: wacom: Remove static WACOM_PKGLEN_MAX limit")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
+> But if this fix is for just one platform, why not keeping the design
+> clean and have a dmi_match instead in a separate driver, like the
+> i2c-hid-of-elan does for Elan touchpads/touchscreens?
+> i2c-hid-acpi-loongson.c for instance.
 
-Applied, thanks.
+Ok, so let me see if I've got this right:
 
--- 
-Jiri Kosina
-SUSE Labs
+1. We create a i2c-hid-acpi-loongson.c with a DMI
+MODULE_DEVICE_TABLE() for auto-module-loading
+
+2. This will have a struct of_device_id table with
+the "hid-over-i2c" compatible. But *no* / without a
+MODULE_DEVICE_TABLE() for this so that it will not
+autoload on regular DT platforms with regular
+"hid-over-i2c" compatible touchscreens.
+
+3. We will rely on i2c-hid-of.c error-ing out
+due to the missing "hid-descr-addr" and we are ok
+with the dev_err() this logs.
+
+4. The new i2c-hid-acpi-loongson.c will in essence
+be a copy of i2c-hid-acpi.c without the acpi_match
+and with the DMI id + of match as described above.
+
+Yes I think that should work, do you want to just copy
+i2c_hid_acpi_get_descriptor() or do you want
+i2c-hid-acpi to export this and have i2c-hid-acpi-longsoon
+depend on i2c-hid-acpi for this ?
+
+>> Note these "fixed" (as in we cannot fix them) ACPI tables use
+>> the generic i2c-over-hid OF/DT compatible _not_ something
+>> more specific so we can also not do a more specific driver like
+>> i2c-hid-of-elan.c.
+> 
+> Do they use anything else than the compatible DT entry? regulators and
+> others? If not, then the device is pure ACPI, and should not be handled
+> by i2c-hid-of.c at all, no?
+
+No they don't use anything other then the compatible. This is
+really just a very bad / messy decision by whomever created
+the ACPI tables for these 2 laptops. But they are out there, so
+we somehow have to deal with them.
+
+<snip>
+
+> so far :)
+
+True, see above.
+
+Regards,
+
+Hans
+
+
 

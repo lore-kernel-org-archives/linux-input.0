@@ -1,128 +1,225 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B0D36EA82
-	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 09:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3936D3890E7;
+	Wed,  3 Jun 2026 09:43:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780477552; cv=none; b=aXANSKwvGpQrBRE0ByNOqGXSb52bV37u3fFGRv8oYweuh7nuc3orL8cOPR+29Zv5nhjuEBJE842AtZ8KaROnBK2say1iAZbvUjXmrcQE8qr03l/BucaLuE726Ro5eCgLsGIYgNVDk9FKl9ZYdyW44TUlsSWmkXeJkuCW7XOCIsc=
+	t=1780479828; cv=none; b=Vqkq9z1xI9WwutvkqOWmSf9qN2jCpSRdxYWvFZSPKDBiJdjQkllEtfFyEvMfRQjgRYPsvTHfPfF5RJm2Be/KFKHtS5NSHeXJiquAvncHpApzbl9gvzECVncdB5dIxXvDvUoImYv+oH+MAh9GGrKm6SuN72A4NnT6SOEdcdEfxKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780477552; c=relaxed/simple;
-	bh=XMrKqPPL6EnxrPNqt7DnB6/q9v2v5jYjq00A27CAQF0=;
+	s=arc-20240116; t=1780479828; c=relaxed/simple;
+	bh=dNLYixGzwusYFKspD+4ExfeSr5L/4Ze3JJQfyIasP8Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qJtX8kCyl976mEByw1OCuWNYfPELToKk21LrFTDRURE2axQTPFeY/X7T5+9myEgjsDGSZst6dc2jQNoOjTvbrIjfNf1FhtAV8DT2L458KgGlxokf+6uIxAe14jwW+5PEKxvPqAOlzgQaZhPSAeF8+ErwP3itYPqIY8HSD4Op7a0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CvW7PMCE; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=H4h1YSGQtkD34GNtLkJ4RH+7RZ5EnsWB1MygVk9qkPlJPFiemEBIzzZCE5aOSZsc7Q3/HJ+cHY0EvnM2Bn7LKLd/I/sFwVWohfPzsHCsN+XmbWOGpsoOgltXwltfqHAliMXnUEJFqwCk3X5U+LBIWwxUbKgPGUUmxoEpm8HczgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZzDC6bPD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CvW7PMCE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780477551; x=1812013551;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XMrKqPPL6EnxrPNqt7DnB6/q9v2v5jYjq00A27CAQF0=;
-  b=CvW7PMCEYKEDkuE/xaCF4V65sCbrwvjYx8AjD9cGSb31jdzIXXJI5RBg
-   cAJtkAlIGC9ES3Pa2CpaNfrGX5oeOUZ5ZPSr82uDkrUPBUjf+NIZMZxmo
-   bzy8y9gHkJOZa5ok3mAqyalGHmHnaOtS0gQ8lHdV1ullcXCiVAonfKbpv
-   XAABnSVC6qs/n9LbixyJ5ihEyePlrgJa4Qlgp/U7vAzz5o4DOfs3fTmTo
-   bHVW5Lgm2n0Klx5SU/8laOo+ND6r0kEm01PEiMZq2h479YTmjPvby86BO
-   Ah+fEBYShu72T4fAdhXCHdXoRLNKrmX8ap8ICe2/aLC/g36PMZxgW9DfG
-   g==;
-X-CSE-ConnectionGUID: GZda01leTdm7OqNAx8Q+UQ==
-X-CSE-MsgGUID: lFu6QWGjTVSQJfTI5A9L8Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11805"; a="81309713"
-X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
-   d="scan'208";a="81309713"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2026 02:05:50 -0700
-X-CSE-ConnectionGUID: 15YMYGhSTd6uyx89p/I/lQ==
-X-CSE-MsgGUID: VKzSLoGVRTWuSf4KRX9IHw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
-   d="scan'208";a="239998597"
-Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.116])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2026 02:05:49 -0700
-Date: Wed, 3 Jun 2026 12:05:46 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v1 1/1] HID: nintendo: Use %pM format specifier for MAC
- addresses
-Message-ID: <ah_uajaqNy5urdFC@ashevche-desk.local>
-References: <20260603082808.119958-1-andriy.shevchenko@linux.intel.com>
- <20260603083946.923AD1F00893@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZzDC6bPD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D8D1F00893;
+	Wed,  3 Jun 2026 09:43:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780479825;
+	bh=3zCFS97MUzGzOVy5IMRxGryfcQ3lC3oNVG85FUtfzSA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZzDC6bPDvHPFxb1Mycd57bCBl6itEAppy27mQcs9g74BETMM4lVnOVKlXAaGq6BL4
+	 J/iXfBaKvC2CxRxE25XmmpUGjJ8bRuIBPbuc9bDNB1OTyCPuqjtwpbTwy8IVvSFzJE
+	 Mp19OyfiucuA2Ew/f5UkL7KzFyiktlOkWWk6KocBHfqU54x0iXXJOP2z9RD9pkWXJo
+	 PnXMNFN3JtlDaKViLA3S4Rnc+wZnC1bzILKs5Ez5xk5lmZ1VJ5Z1BmFFLHJyUf1O04
+	 xE4CVlgB3pLGNMYrWvXatly9WtdaWw06kq0iHZ0FCF5kgOhrKFrGn7t4vWGz4gmW12
+	 1JEMHdIsXhiNA==
+Date: Wed, 3 Jun 2026 11:43:40 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: =?utf-8?B?6LCi6Ie06YKmIChYSUUgWmhpYmFuZyk=?= <Yeking@red54.com>
+Cc: linux-input@vger.kernel.org, hansg@kernel.org, 
+	dmitry.torokhov@gmail.com, dianders@chromium.org, jikos@kernel.org, 
+	linux-kernel@vger.kernel.org, superm1@kernel.org, Pin-yen Lin <treapking@chromium.org>, 
+	Xu Rao <raoxu@uniontech.com>, Kwok Kin Ming <kenkinming2002@gmail.com>, 
+	Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH v2 2/3] HID: i2c-hid: Move common ACPI _DSM helper into
+ core
+Message-ID: <ah_2JXN7AAos4kjM@beelink>
+References: <ahnqMMhD8jn51ch7@google.com>
+ <20260601181510.38705-1-Yeking@Red54.com>
+ <tencent_71AA07C8BAF64FE0F9B0FDFC072BB08B3605@qq.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260603083946.923AD1F00893@smtp.kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <tencent_71AA07C8BAF64FE0F9B0FDFC072BB08B3605@qq.com>
 
-On Wed, Jun 03, 2026 at 08:39:46AM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [Critical] ABI Breakage: The patch changes the MAC address exposed via sysfs from uppercase to lowercase, breaking userspace tools that rely on exact string matching.
-> --
+On Jun 01 2026, 谢致邦 (XIE Zhibang) wrote:
+> Move the _DSM call that gets the HID descriptor address from
+> i2c-hid-acpi.c to a shared helper in i2c-hid-core.c so both
+> i2c-hid-acpi.c and i2c-hid-of.c can use it.
 > 
-> commit 6c8c4e53eb547a4381d6f8dabe9201540c4f0168
-> Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: 谢致邦 (XIE Zhibang) <Yeking@Red54.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid-acpi.c | 32 ++++-----------------------
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 35 ++++++++++++++++++++++++++++++
+
+I'm not a big fan of removing 25% of the i2c-hid-acpi.c code and inject
+it in i2c-hid-core.c.
+
+There's something I can't really understand in the problem:
+- we are talking about non arm architecture, which should not have OF in
+	them
+- the current compatible hid-over-i2c loads the OF version?
+- how can you make the device working without the couple of ACPI
+	functions that are in the i2c-hid-acpi.c driver for powering up and
+	down the device?
+
+If the platform is indeed ACPI + x86(_64), then shouldn't we tackle the
+problem in the i2c-hid-acpi driver, or add a secondary leaf driver for
+this particular platform/device? Kind of what we have with
+i2c-hid-of-elan.c
+
+Cheers,
+Benjamin
+
+>  drivers/hid/i2c-hid/i2c-hid.h      | 11 ++++++++++
+>  3 files changed, 50 insertions(+), 28 deletions(-)
 > 
-> HID: nintendo: Use %pM format specifier for MAC addresses
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+> index f65fb6396b69..234789a07047 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+> @@ -25,12 +25,12 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/pm.h>
+> -#include <linux/uuid.h>
+>  
+>  #include "i2c-hid.h"
+>  
+>  struct i2c_hid_acpi {
+>  	struct i2chid_ops ops;
+> +	struct i2c_client *client;
+>  	struct acpi_device *adev;
+>  };
+>  
+> @@ -48,36 +48,11 @@ static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
+>  	{ }
+>  };
+>  
+> -/* HID I²C Device: 3cdff6f7-4267-4555-ad05-b30a3d8938de */
+> -static guid_t i2c_hid_guid =
+> -	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
+> -		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
+> -
+> -static int i2c_hid_acpi_get_descriptor(struct i2c_hid_acpi *ihid_acpi)
+> -{
+> -	struct acpi_device *adev = ihid_acpi->adev;
+> -	acpi_handle handle = acpi_device_handle(adev);
+> -	union acpi_object *obj;
+> -	u16 hid_descriptor_address;
+> -
+> -	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL,
+> -				      ACPI_TYPE_INTEGER);
+> -	if (!obj) {
+> -		acpi_handle_err(handle, "Error _DSM call to get HID descriptor address failed\n");
+> -		return -ENODEV;
+> -	}
+> -
+> -	hid_descriptor_address = obj->integer.value;
+> -	ACPI_FREE(obj);
+> -
+> -	return hid_descriptor_address;
+> -}
+> -
+>  static void i2c_hid_acpi_restore_sequence(struct i2chid_ops *ops)
+>  {
+>  	struct i2c_hid_acpi *ihid_acpi = container_of(ops, struct i2c_hid_acpi, ops);
+>  
+> -	i2c_hid_acpi_get_descriptor(ihid_acpi);
+> +	i2c_hid_core_acpi_get_descriptor(&ihid_acpi->client->dev);
+>  }
+>  
+>  static void i2c_hid_acpi_shutdown_tail(struct i2chid_ops *ops)
+> @@ -102,11 +77,12 @@ static int i2c_hid_acpi_probe(struct i2c_client *client)
+>  	if (!ihid_acpi)
+>  		return -ENOMEM;
+>  
+> +	ihid_acpi->client = client;
+>  	ihid_acpi->adev = adev;
+>  	ihid_acpi->ops.shutdown_tail = i2c_hid_acpi_shutdown_tail;
+>  	ihid_acpi->ops.restore_sequence = i2c_hid_acpi_restore_sequence;
+>  
+> -	ret = i2c_hid_acpi_get_descriptor(ihid_acpi);
+> +	ret = i2c_hid_core_acpi_get_descriptor(dev);
+>  	if (ret < 0)
+>  		return ret;
+>  	hid_descriptor_address = ret;
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 3adb16366e93..1e1a8df5686d 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -1405,6 +1405,41 @@ const struct dev_pm_ops i2c_hid_core_pm = {
+>  };
+>  EXPORT_SYMBOL_GPL(i2c_hid_core_pm);
+>  
+> +#ifdef CONFIG_ACPI
+> +#include <linux/acpi.h>
+> +
+> +/* HID I²C Device: 3cdff6f7-4267-4555-ad05-b30a3d8938de */
+> +static guid_t i2c_hid_guid =
+> +	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
+> +		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
+> +
+> +int i2c_hid_core_acpi_get_descriptor(struct device *dev)
+> +{
+> +	struct acpi_device *adev = ACPI_COMPANION(dev);
+> +	acpi_handle handle;
+> +	union acpi_object *obj;
+> +	u16 hid_descriptor_address;
+> +
+> +	if (!adev)
+> +		return -ENODEV;
+> +
+> +	handle = acpi_device_handle(adev);
+> +	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL,
+> +				      ACPI_TYPE_INTEGER);
+> +	if (!obj) {
+> +		acpi_handle_err(handle,
+> +				"Error _DSM call to get HID descriptor address failed\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	hid_descriptor_address = obj->integer.value;
+> +	ACPI_FREE(obj);
+> +
+> +	return hid_descriptor_address;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_hid_core_acpi_get_descriptor);
+> +#endif
+> +
+>  MODULE_DESCRIPTION("HID over I2C core driver");
+>  MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
+>  MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.h b/drivers/hid/i2c-hid/i2c-hid.h
+> index 1724a435c783..bc8661c65b1a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.h
+> +++ b/drivers/hid/i2c-hid/i2c-hid.h
+> @@ -44,4 +44,15 @@ void i2c_hid_core_shutdown(struct i2c_client *client);
+>  
+>  extern const struct dev_pm_ops i2c_hid_core_pm;
+>  
+> +#ifdef CONFIG_ACPI
+> +struct device;
+> +int i2c_hid_core_acpi_get_descriptor(struct device *dev);
+> +#else
+> +struct device;
+> +static inline int i2c_hid_core_acpi_get_descriptor(struct device *dev)
+> +{
+> +	return -ENODEV;
+> +}
+> +#endif
+> +
+>  #endif
+> -- 
+> 2.54.0
 > 
-> This commit refactors the MAC address string generation in the nintendo HID
-> driver. It replaces a custom sprintf format string with the standard %pM
-> format specifier.
 > 
-> > diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> > index 29008c2cc5304..77b14dfdae867 100644
-> > --- a/drivers/hid/hid-nintendo.c
-> > +++ b/drivers/hid/hid-nintendo.c
-> > @@ -2431,14 +2431,8 @@ static int joycon_read_info(struct joycon_ctlr *ctlr)
-> >  	for (i = 4, j = 0; j < 6; i++, j++)
-> >  		ctlr->mac_addr[j] = report->subcmd_reply.data[i];
-> >  
-> > -	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL,
-> > -					    "%02X:%02X:%02X:%02X:%02X:%02X",
-> > -					    ctlr->mac_addr[0],
-> > -					    ctlr->mac_addr[1],
-> > -					    ctlr->mac_addr[2],
-> > -					    ctlr->mac_addr[3],
-> > -					    ctlr->mac_addr[4],
-> > -					    ctlr->mac_addr[5]);
-> > +	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL, "%pM",
-> > +					    ctlr->mac_addr);
-> 
-> [Severity: Critical]
-> Does this change the sysfs output from uppercase to lowercase?
-
-I think yes, it does.
-
-> The original format string %02X explicitly generated an uppercase MAC
-> address string, while %pM delegates to hex_byte_pack() and generates a
-> lowercase string.
-> 
-> Since ctlr->mac_addr_str is exposed to userspace via the uniq attribute,
-> could this cause an ABI regression?
-
-This is a good question. This is MAC address string and conceptually the
-user space should be prepared to parse it as a mac address and not an arbitrary
-string. OTOH, the field is named something like uniq, which means the
-driver just supplies MAC as an arbitrary (unique) string.
-
-> Userspace utilities and gaming libraries (like SDL and the joycond daemon)
-> often map USB controllers to their Bluetooth pairings by performing
-> case-sensitive matching against the uppercase Bluetooth MAC addresses
-> exposed by BlueZ.
-
-Hmm... Interesting. Okay, perhaps we need to have %pMU first.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-

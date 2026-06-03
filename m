@@ -1,129 +1,108 @@
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011014.outbound.protection.outlook.com [40.107.208.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D5C3A8F7;
-	Wed,  3 Jun 2026 19:48:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780516103; cv=fail; b=cvPMo4RrlWG8QRPbU5EDe8UAg0n4pPiSaXXiBQLosvyOwWTc4dQiaUwCS0omrskiwkZcXrFC3EVAjvMrWN3UJRvLvbcHK4Z2WAd6jxJ+ApIXK7muuroE8e+lrE1b1TfgK0ef5iVHaoG4o1dEPI+8GEb/jk/JJ6y/h2ExZ2JM74Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780516103; c=relaxed/simple;
-	bh=pjEULDInti6spK1cerWn1bBB9WVo7ASBau2tEXTBfos=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jdAmJaYCTX8I9u8PNbnBuNZWqxYcRdVQ1qlm6IRwEe2/j4OkwAAlDFNUknZ2m1gMW+JCTty1nirq2zhCA3XR9b1vI7Z+/PA4xKinxl6zt/qRYiV9b+n/BUWMcLZdMcyKWEATrTUgY+pHyYwHAgiKZ6k7LEpMlg47wnLpf7dKMxs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rEaSmH12; arc=fail smtp.client-ip=40.107.208.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90BAC3D9DA0
+	for <linux-input@vger.kernel.org>; Wed,  3 Jun 2026 20:15:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780517706; cv=none; b=QxowGOoshd/N0w8+FwnW/iIPIgETd7CVyqPqTORPNyjfN+9c3zgiyIiRMguVyGANTd30K2JpeEbdc/fj/wrf5HE89do0/zagWIRLYvm8hyJYGjZMWSMshPwdq+a9o7NsYtzIYTnpFsE+2HJbB2Fywf5hffC9rhiUe6Au2SuaxI0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780517706; c=relaxed/simple;
+	bh=sO1nneZ4T7xV8Woi5b1grLQBOHrxGNQXxrPZI2WzrAU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Il16MAIwJK+KXdqjvY75GJgiwZJFY7rBlMboy1eJg4mxRYjPHTninJQtQQ1kTRPDbsKGhsDkFNbkvB6GY2LR5xNEtSl54eBiHvfKcI2UImsi2mrU6lAGih+Vz8iDI0XtLdWUQs9PKjY4AMJ34Hixq8ZUfZR7lnv7XiFWxddQ5bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L3pKSVOp; arc=none smtp.client-ip=209.85.167.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rEaSmH12"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LCu1McbAfIikZ7tzeijn760nXytIz4qbIBG1Nl8fgk27uQe88e+SKCIYcfDEbDdOvk/0Y1Q5/b91PmGXfumO6HV/N39XyvxkHkmByn+1OIaY23/ShZh0/9BpSAOmX6Rq7espCpy7BKUvxSCdyU3IOLra9aCVZQ4MQm1fE6V/0ULQ4Ju7vWhZJAhlU6uX1qC5zur2rjUfDXitUH7EHDTAa7PQT+/JEY5R4oE9XBE/1gE7je6N2JC9ndqhXKDqSPB/HO01BhVBpG8BwZSxqxlu57MNFWGXgOTIKaUe2CnWhApIpbp/5Z1u/5rgZHUkQedrrm+Q11hqk/m99Z3hadfd4g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pjEULDInti6spK1cerWn1bBB9WVo7ASBau2tEXTBfos=;
- b=Fj8WkPQnuDO1+iOLY7z+yg20fPhqIm8gxiQidUeBDyHuqQCcWWrWKJc4ruVYYLQjgJlIYuywtWBQ3x5D8797GvCACmsjaQdkGz6AROaQkrdKmlWSfoh1fjwirw6Ad/NjazC22ox0geRIYVajpxNMKzftltjPQU3r77Pfxv2nVwJq5SXjkRs6voK7sI0N6U9Eble0oEcESku+Z0wNG/0RzrNAkfAM8E3cMa8Pt2EJwYqJfdtkVQJJOpVqOs3wKFQPMKhUxMPj68c9VnCHqC+IZI0RL/wM7B0SOH6OE1kmwr0GH4Ow0R9ZCKM+kVZGGeikMFu6TPNRr1g3/kC1HTNHXA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=plexus.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pjEULDInti6spK1cerWn1bBB9WVo7ASBau2tEXTBfos=;
- b=rEaSmH12mSKYPzgpHNuQWp3UZEap2LMYdf12H7OoJzwgyeHNESOzqbh4TmE1FX4Xj4d5AJSATUN1rbb/vy5YnkY4aG/xWiIi1FOeYSrNRq1uBns7reIBDh4VJBGA+RO0c8EFRpY7KZ8N5FTqhX/JTZLAw3ktR+G45jmpEnlB8FNFfnadp1VW+U0q7Hlt9KAQRJ2FZK3DFDqddccFtyicrMe//Uc1BMtwx5LJISk9ZRTDuPK1vaNRqt8Pi64ykZ92wfB7WKAg7g98eOIJ8NBIBKlkLTGb48Z7vIXNRGWog9I+H/pNRRdHrIOyVbTl2d3cTtQaI8KKeSV8Q6+YqyV7FQ==
-Received: from SN1PR12CA0083.namprd12.prod.outlook.com (2603:10b6:802:21::18)
- by SJ2PR12MB8718.namprd12.prod.outlook.com (2603:10b6:a03:540::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.7; Wed, 3 Jun 2026
- 19:48:17 +0000
-Received: from SN1PEPF0002529E.namprd05.prod.outlook.com
- (2603:10b6:802:21:cafe::af) by SN1PR12CA0083.outlook.office365.com
- (2603:10b6:802:21::18) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.92.7 via Frontend Transport; Wed, 3
- Jun 2026 19:48:16 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SN1PEPF0002529E.mail.protection.outlook.com (10.167.242.5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.92.5 via Frontend Transport; Wed, 3 Jun 2026 19:48:16 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 3 Jun
- 2026 12:47:58 -0700
-Received: from nvidia.com (10.126.231.37) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 3 Jun
- 2026 12:47:55 -0700
-From: Jacky Huang <jackyhuang@nvidia.com>
-To: Danny Kaehn <danny.kaehn@plexus.com>
-CC: Jacky Huang <jackyhuang@nvidia.com>, Benjamin Tissoires
-	<bentiss@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>, "Jiri
- Kosina" <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	"Ethan Twardy" <ethan.twardy@plexus.com>, Bartosz Golaszewski
-	<brgl@kernel.org>, "Leo Huang" <leohu@nvidia.com>, Arun D Patil
-	<arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>, Ting-Kai Chen
-	<tingkaic@nvidia.com>, <linux-input@vger.kernel.org>,
-	<linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v14 1/2] HID: cp2112: Add fwnode support
-Date: Thu, 4 Jun 2026 04:46:53 +0900
-Message-ID: <20260603194719.403557-1-jackyhuang@nvidia.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
-References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com> <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L3pKSVOp"
+Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-48673dc56a8so34483b6e.3
+        for <linux-input@vger.kernel.org>; Wed, 03 Jun 2026 13:15:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780517704; x=1781122504; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=K/dIMvjAW3Fjg5zbaaxJs4cecWXi6epOwVSNNUQhQXU=;
+        b=L3pKSVOpLbVz+Uv2/tzNaI3QA7gUJOb1GmmM+MIXe2xc5Ujn618So0zwNh0QGbIAIF
+         Qwu3slk9yfk4W+5u/eTzohKdcfA4B7+BpeAqwKQFysjg5yDEcWHKZdy11Zd+XY+Fm6X5
+         Xl5C6MbgsHMoK6uzfKogm50e2zIzZtZgE2vC5gZw7b/nti00P5NDbem0/qKabdhrwmIG
+         /gRJ6+pcf5Jb65GdSWw0rvD7RHRjS66rMUg6JEvzF5i2lc7VTS+Teelnqlgdi92vIvAo
+         fCv1Q8ZeEI1ZdqkdA81ElzU1WgCN6k7wjmFjzGazSFbkjLfhflRNJCS7BMYEnUHIrVjz
+         rj8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780517704; x=1781122504;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=K/dIMvjAW3Fjg5zbaaxJs4cecWXi6epOwVSNNUQhQXU=;
+        b=sIY3JSlevKtavpPgfip9mCGwmYqbeXB1lUcxMn8ttqArR+YCgH4wAnWdvPjiarPJJX
+         YvhwiJ86yRnfrvofACNnyIbywJbQ9mzbk/9TIXXhBSoOb/1183Wh7btgoLtsuGu9G8Xq
+         KaJwz1scSp30Vh5CZ7iLOJGH0iSbQR1uNBbb1Umf+P66VBirC0GTTsqPJeuA7Zj4izpi
+         ePm7UtAdQgDTrzzj1yvZUdW/8prYnwWCDKew7Uoyawt0XIR+f1PFgOSUwdei3/FfwlHF
+         EwyDpdwLkHemeq8LlEfqKgcKpp7jUlsBUECmRCgKN7G1g57hidRkiCBTqh3/yUfOGxM+
+         23Fw==
+X-Forwarded-Encrypted: i=1; AFNElJ/oBj8Aph15LqPeBUZ1C8Oc8qpOfqsRzI6mK1Yd4e1jBWEsRdszUwYOJdHXa7lRlsCV7o60q7Lzq0XWRA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+CnYamfvW420ihgQPsKW2UKiEWYOL4330sEgxdYponGVUZixh
+	c1jsZFoIJXdqw/LYE6NcyrLSdYJmJmNeNO75zdDi7IoraJKVKehB8NMv
+X-Gm-Gg: Acq92OF/EpJeJkUqXUbdCkMqxCBan/VKGnSgq04AY6cfTiUgIztHDtAGe+VoB3VZ/d+
+	7E+GuJMvL/R9Xlvpr7Mq72DAfMTq/LYATgNt5JtI9a2omQiPcNsq5Y2Z581c+2RAKYl4q1hpAVj
+	HbyLyaVlM3p3hlYQQvXDsHcDlyG2sAT7cRVdakeqeCAM7IInEqjFA+5WbPW2E57DneNA3vNDW01
+	N5FSu19qwMsWOVQZX3jZJ+9Xp9slCpERC4VFUv8TftT6iv6oRDbSF+JzJPQ8Cc/hv0qC5ZFrWtz
+	5TeNYmtC80P222krHr12xfigQuKrcLggpzvqmiqxtR86K9oXFQIkqb9Q61uI9heBDWdICl72PYE
+	xIvAihrUPDAdC4Da2v4QiahdC+w9eEFPYJcShukI6xogIb1gGmCA4E9pUDAurc0Ed8UAM58j1XZ
+	J29VowPRWvzvAwIEwplMzEc0QmnOx8Oo8qeXSeTsI=
+X-Received: by 2002:a05:6808:d48:b0:479:fc87:27ee with SMTP id 5614622812f47-4865aa4f1b8mr2895892b6e.1.1780517704461;
+        Wed, 03 Jun 2026 13:15:04 -0700 (PDT)
+Received: from gmail.com ([108.243.219.47])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-440d8500f0esm3003888fac.18.2026.06.03.13.15.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2026 13:15:03 -0700 (PDT)
+Date: Wed, 3 Jun 2026 15:15:00 -0500
+From: Akash Sukhavasi <akash.sukhavasi@gmail.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, robh@kernel.org, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org
+Subject: Re: [PATCH 4/4] dt-bindings: input: remove obsolete matrix-keymap.txt
+Message-ID: <aiCKBXqvOmQ8gC_t@gmail.com>
+References: <20260529052246.4934-5-akash.sukhavasi@gmail.com>
+ <20260530052311.271791F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF0002529E:EE_|SJ2PR12MB8718:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6c100ae8-2029-47b2-bfe7-08dec1a90e38
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|30052699003|36860700016|1800799024|7416014|376014|22082099003|18002099003|11063799006|4143699003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	PvXzfewZzDqwx2QzPA9b2j2yrkZM/b6vjL9cdea1m+cHBsKvKgg7oeIqEzY/zqg6+9i4fC57lgfQ1iFAe4lB8Dd+v6fhAIBakiJ9Xc6ffqab4Co9EUZG+d4DtKv+svYlq9EsIQIPVpyt0WW1SitzG45UjB62gWSWxe0c7c8GjIUYX7NfegMzjpMrzmrEOxoxCJ/xy6pQCuyHRCxGBiMvSCBStViLok7UqZ2DhX80Wy2TKPAc0FEM7ylAzDDmaMXOxK8d1eK719yIfAQS3aNAkptKlFsHZfiFN1MvxMoygVNrDchbJeE70GriYuWcs66yw+avfAoPDizGRBL3xEqjXkX+kwwrgQLP1UYKRmQCJLpXR7dFRrFiyxx1RIMwpzx1YyYljFYN3n6XbMjgMQNbFvN+P5SNKp09CICeGEzHq7YhHZlBeqXJA2KNtipxQ72EjdA36IKl+PSbL4cGqdHMEnVwiz4ucHhaw3O3AM+hqm5plO7EZseL3sKN8D+YJBcz3Fm6GV0mOXRtVXg4wXHUvaX//6+P6hDv7trYcwunpcbsUBkg1/y4H91q+K1p9NRDP9w7Tb5IKJNDdGGxHVkNwnqbcTGhjigSQHUo/VQEB2w4uagpmMHgd2IM+Eb7Cz6KOtfHy03DshxYU/3Bd5hqu+YuNVGjX2+gL9dLl2MWylYR5oOfMongxldz3SHEaf9ltXm84KK99ire+G41Wa5g/HvtGVwyfhUIjWDws3osHZ0=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(30052699003)(36860700016)(1800799024)(7416014)(376014)(22082099003)(18002099003)(11063799006)(4143699003)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	3VGlcGOEaaUNg3iok85faf0NatW4/ZArCXftEUsJE08NmYVKCCEuIaFM5SYUtdMXjFH7+6/9zOl/MiTxjZfsTCVXV9NCH/nLAB0HOF3mtKqwraAYmWqyupWwmIZx8QjhCYw7XQ1X2Vu2fpy1QVCc+CPOVns5Pj2EEVcCis85RvwOkhmg4fHW0AU+VfgjpxoZ4LuLsuwCKkyAPL+MOgf1wRUPM+xTT8LvqA6S+cTbVP2bIag+DxxWTL1qVfDSLi/0dklEtgPx5KJHNiM2/hbXciYogfjao3EduL+TSdvb4X47zR66zyi0OJ7B4iRLDyhVrb1X2TrcT4y/S70w0at/in3ZuxEMLlOUm6Fu+F1UwVmM3OGFS4Rh3adlg4ghjE2OK9RMHXV4pJPuTqZsnvrSeSHHXq5a4mmx5ii1YGt1gENUWVZuoOb3m9Jm+XpyT0lj
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Jun 2026 19:48:16.3959
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c100ae8-2029-47b2-bfe7-08dec1a90e38
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF0002529E.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8718
+In-Reply-To: <20260530052311.271791F00893@smtp.kernel.org>
 
-Hi Danny,
+On Sat, May 30, 2026 at 05:23:10AM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Low] The commit message inaccurately claims that 'Eight files still reference matrix-keymap.txt', when only 6 files actually do.
+ 
+> This commit removes the obsolete matrix-keymap.txt stub and updates all
+> remaining references across the input and mfd binding documentation to
+> point directly to the matrix-keymap.yaml schema.
+> 
+> > Eight files still reference matrix-keymap.txt, forcing readers
+> > through an extra hop to reach the .yaml. The stub has not been
+> > touched since June 2020. Update all references across input and mfd
+> > binding documentation to point directly to matrix-keymap.yaml and
+> > remove the stub.
+> 
+> [Severity: Low]
+> This isn't a bug, but the commit message states that eight files still
+> reference the text file. Looking at the patch, there are eight total
+> references updated, but they are spread across only six files since
+> tc3589x.txt contains three of those references.
 
-Thank you for all your work bringing this through so many revisions, and
-I am glad to help by testing it.
+Yup, my bad. I counted eight and wrote that, should've said eight
+references across six files. Sending v2.
 
-I tested this on an AST2600-based OpenBMC platform (NVIDIA Vera Rubin)
-that has several CP2112s. With this patch, a CP2112 whose device-tree
-"i2c" subnode declares downstream I2C devices (PCA9555 expanders) has
-them auto-instantiated by i2c-core: they appeared on the adapter's I2C
-bus with their gpio-line-names. CP2112s with an empty "i2c" node
-registered their adapters but instantiated no children, as expected.
+> Sashiko AI review · https://sashiko.dev/#/patchset/20260529052246.4934-1-akash.sukhavasi@gmail.com?part=4
 
-Tested-by: Jacky Huang <jackyhuang@nvidia.com>
+-- 
+Thanks,
+Akash

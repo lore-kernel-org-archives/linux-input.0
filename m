@@ -1,224 +1,159 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from out203-205-221-209.mail.qq.com (out203-205-221-209.mail.qq.com [203.205.221.209])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 427441C5F27
-	for <linux-input@vger.kernel.org>; Thu,  4 Jun 2026 03:37:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C8A3812DA;
+	Thu,  4 Jun 2026 04:24:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.209
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780544259; cv=none; b=W8hyan3hm7+jbqnrUJ0m9oy2vQwtAjWdb4RgTbqEuU+E+hf0QYdwYJoZgxznDSrW/6ALcP6nOwGg8pASYIwkgLGVTU9o+xqfA+mGeizFHoGZmvCwIwvojUiB4soBYVCuIuaN4jgPLhQWmsr7Ffr2UtKXEr8CpGjsEZpePYKxMOc=
+	t=1780547054; cv=none; b=R+7cm83vEnQRIRi2VlZzQhU9qYVFxsl/jU+3qyI1byLbSszUUqY0JohUut97G2c1UHH05+Tvl2i9+qJ0UNHila6l/IFeCH4FQe+YUpPXn5+sYvvD19jYUW99NEmRQ1+mnGOQvph1JHfI4oDNASsBzsXwNYtv5Ck4wKvkv6zkC6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780544259; c=relaxed/simple;
-	bh=uqrQR9mlAKqG4V6+UI/4bqWVlfPS3e0DujZJpvqw5Hg=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=jwHCXX7JSAccXkwOs1na2Y6jMXLNB3mxSCtUM7LmOq5yhON23AVWbyXtOA5UFFJcP8NFEvCCdZFtYF/9+rUsnx/8hOX5s/M2vQOpYmqxMk3TbXi8KS/O5Gav1xeaAx7GdTXkNADVJrxcMHN8oBdxehc4Oz0fWff6szOcav+gQE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NVOdaYmM; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1780547054; c=relaxed/simple;
+	bh=MGcNiLfJ3XGigoWZsYw/BiAxd50STw8pUheOoNJNivc=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UjY5jhNw0ZPae7FawV49g/QQ37bitgzwNm+qamhoEu802VvUYmZxrm6WuzTi82Ja6HzLGqnQv50D/ov7S2D43GRUTIey/AyjyF1Ceq660N2HeassFMFJH+p2fjhSQ5tPlHf0iTbbgMbSyUk3I+zWu+LCEEN/JMzgYx2DKCx8n2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com; spf=pass smtp.mailfrom=red54.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=jJvaYan2; arc=none smtp.client-ip=203.205.221.209
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Red54.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=red54.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NVOdaYmM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780544258; x=1812080258;
-  h=date:from:to:cc:subject:message-id;
-  bh=uqrQR9mlAKqG4V6+UI/4bqWVlfPS3e0DujZJpvqw5Hg=;
-  b=NVOdaYmMytOZW+qosV+31F9peMy+exYnwZpaMhGCp6B5n3w50lK44538
-   CEimfxNJEGg0xigiS8zlVHfvUKOXc50/4J50ywFHWHImBOoWLpp2aLu24
-   u66LtRoQemYkuOIbeV3ztYsQZW4Ae23+NKSZfQUmuE3Qz/OCGgmScGN2h
-   CLHJQ57NWE27LFq1N4iUq6XiqnCulzdyQZWPRpTW5u9lc400aS9Nu6fQO
-   K6J5zyk95fsyFCThNnJx14qqQZjwoK3rG0WruMKF9VS6/kE6DC03y/4cF
-   SPO0bs0QQN/0aJlrkJ/ar+/0iW1wz3S/+avaqsijEDvZ3JNXV9Wsv1T2w
-   Q==;
-X-CSE-ConnectionGUID: aFluhdNfT3yHeZw4CysYqg==
-X-CSE-MsgGUID: KACnEgEqSJul5jNJVANN0Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11806"; a="81362501"
-X-IronPort-AV: E=Sophos;i="6.24,186,1774335600"; 
-   d="scan'208";a="81362501"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2026 20:37:38 -0700
-X-CSE-ConnectionGUID: trdhPBoSQjy6RLePQUDxLQ==
-X-CSE-MsgGUID: d8kcuCnGToqlMSsCe+ekow==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,186,1774335600"; 
-   d="scan'208";a="241920280"
-Received: from lkp-server01.sh.intel.com (HELO f0d55cb201f0) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 03 Jun 2026 20:37:36 -0700
-Received: from kbuild by f0d55cb201f0 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wUyti-00000000EEo-15Os;
-	Thu, 04 Jun 2026 03:37:34 +0000
-Date: Thu, 04 Jun 2026 11:37:04 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:for-linus] BUILD SUCCESS
- ad0979fe053e9f2db82da82188256ef6eb41095a
-Message-ID: <202606041155.QhHRXjIL-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="jJvaYan2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1780547043; bh=1SJnkhl3BWEkIOjvsSDm0RQ1U0inlB53zu64coRV9D4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=jJvaYan2o+gg+4e3cRqYq40x2w/mZ7Rset37H7meHL9CSdeYn7lzO26/+Adq2L0Wp
+	 v3ClMkRC39eaODht06yC+NBKCnhq9oZ5NnRh6DEJ6I6YqwCGBfBOKoprHr4MSjkVrf
+	 TKOJJcg793LC0O7Lk2mCAXLsHjx7kBSGiOg+LX8A=
+Received: from mail.red54.com ([139.99.8.57])
+	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
+	id 5EAA82AC; Thu, 04 Jun 2026 12:23:42 +0800
+X-QQ-mid: xmsmtpt1780547022tknmw0b2b
+Message-ID: <tencent_F6FC553D1BB737FC00062AD0FEF43C580F0A@qq.com>
+X-QQ-XMAILINFO: Md0EpfRTqfgWRBPSL8YoQXMlv+arePNSTK8kVF6ULgdZjPCmnX+fwncqOcKCL7
+	 R7qnrA7Y6z/YbNbkhlpnaGl3slYgcVJNi/2Qz3ei0eDICdxdyI5mutSIWVe1BDUbwjqvlUIGQhHZ
+	 vKIHyrxEAVKzgJvrVYP8MAtepwCpq/khUGLZkFoxmmLbzgdDgmPOXLDU1T38DIRfNm85Rod5XRGs
+	 HET1RLCuHCnTwy9Uqey198KS6spaSmUP7MGBu8SUcSk+9EYsk9ppn6Hq0dSUSOKs+24csmxEB5jR
+	 IpTGdVLV+BcGevSBThzCd8Jvsn3UTpl8Pi61xpiysAb3hf9lBPw5M+zK8if+ApEbVEjYyE9XhzjX
+	 ePSJA7qGw9sSA+2joKKAxaq7CKZ32Wt9QZMSvgfyDXDVNZM0vsB4+NsSILzxfW3MnsTKEeAOu5AA
+	 gsu3/mcRSLg2lsI9E8lZZiq2dt6C0FR5uZ0UdM6YtO9RBkrLG3QhA1lqZd1fpLgdlT5Q5GEA+C9j
+	 cWOfoiJveb4gprNTOWIHY1Xw1CsTr4jDZj942GBkFg1Hw4s76Jt96kM2BSz0sSM8shcxnFgTkYEV
+	 OIvL8MHBSyawieBXBjfIRaKoYh5FJif/Go93w0UXsrffzQjNBXdLvtYXqkyosycZvt8zzYWkO/38
+	 XG+FMHqjpImcJgZdWlCB9YcDwedBA4vEO/BTPifV9zBYVKCHBsDAwng42p1GqqnhgIQm8cIDExTl
+	 Ko8xtTK3/qtuGSb+ibiOWO/fV3xAUHXqsxjKoEV6pRwRPBXNnwsuHfhfyq3hDJz+M+ior9ETrvcP
+	 o8g0+PsroZwUkOq0Zrt5cctZ9ttwO0LU3v/OZhDaneuitFzsBpLsFIifOgGlbq43CWHjpQUy9y8U
+	 vWbnXyZOiDJ+b28MNaP/Z4ki5Dbz/7XdmbOqWvpxCWJGtg53CM8XvDNI0EFCSKZ/QESL9DyAElek
+	 OY/aI39SJ0pWBJpbODRwfJ4mnt0ZxKZ2ioHhXtHZobMDqcIFCn1sHlx23ammbc/ikRDbL1HEj66w
+	 TJlFXoMdkMIuVg1fWHlXCPdyRUDipWlXPVB4k1VD3azvP4jvLF7bdJ4i2JVazlIKR4JhMtQZxDzw
+	 OCiYmj2/o0ua/m4U6XHmn3t4+4+D8r2Lbyz1HCzRDlfD+foMb+rNaZuppqf5xG7Dlqm5U8Qn+7hi
+	 7AaCQ=
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+Sender: yeking@red54.com
+From: =?UTF-8?q?=E8=B0=A2=E8=87=B4=E9=82=A6=20=28XIE=20Zhibang=29?= <Yeking@Red54.com>
+To: linux-input@vger.kernel.org,
+	hansg@kernel.org,
+	dmitry.torokhov@gmail.com,
+	bentiss@kernel.org
+Cc: Yeking@red54.com,
+	dianders@chromium.org,
+	error27@gmail.com,
+	jikos@kernel.org,
+	kenkinming2002@gmail.com,
+	linux-kernel@vger.kernel.org,
+	raoxu@uniontech.com,
+	superm1@kernel.org,
+	treapking@chromium.org,
+	=?UTF-8?q?=E8=B0=A2=E8=87=B4=E9=82=A6=20=28XIE=20Zhibang=29?= <Yeking@Red54.com>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+Subject: Re: [PATCH v2 2/3] HID: i2c-hid: Move common ACPI _DSM helper into core
+Date: Thu,  4 Jun 2026 04:23:30 +0000
+X-OQ-MSGID: <20260604042331.36012-1-Yeking@Red54.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <aiApE2WoVitHetQv@beelink>
+References: <aiApE2WoVitHetQv@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-branch HEAD: ad0979fe053e9f2db82da82188256ef6eb41095a  Input: atkbd - add DMI quirk for Lenovo Yoga Air 14 (83QK)
+Hi Hans and Benjamin,
 
-elapsed time: 1665m
+Thank you for the constructive discussion.
 
-configs tested: 147
-configs skipped: 3
+A correction on the origin of this firmware quirk:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+This is not a Loongson platform issue. Loongson 3A5000 and
+3A6000 laptops using the EA Excelsior ODM design do not have
+this problem. The affected machines — Lenovo KaiTian N60d and
+Inspur CP300L3 — use a different ODM.
 
-tested configs:
-alpha                             allnoconfig    gcc-15.2.0
-alpha                            allyesconfig    gcc-15.2.0
-arc                              allmodconfig    gcc-15.2.0
-arc                               allnoconfig    gcc-15.2.0
-arc                              allyesconfig    gcc-15.2.0
-arc                   randconfig-001-20260604    clang-17
-arc                   randconfig-002-20260604    clang-17
-arm                               allnoconfig    clang-23
-arm                               allnoconfig    gcc-15.2.0
-arm                              allyesconfig    gcc-15.2.0
-arm                   randconfig-001-20260604    clang-17
-arm                   randconfig-002-20260604    clang-17
-arm                   randconfig-003-20260604    clang-17
-arm                   randconfig-004-20260604    clang-17
-arm64                            allmodconfig    clang-19
-arm64                             allnoconfig    gcc-15.2.0
-csky                             allmodconfig    gcc-15.2.0
-csky                             allmodconfig    gcc-16.1.0
-csky                              allnoconfig    gcc-15.2.0
-hexagon                          allmodconfig    clang-17
-hexagon                          allmodconfig    gcc-15.2.0
-hexagon                           allnoconfig    clang-23
-hexagon                           allnoconfig    gcc-15.2.0
-hexagon                        randconfig-001    gcc-11.5.0
-hexagon               randconfig-001-20260604    gcc-11.5.0
-hexagon                        randconfig-002    gcc-11.5.0
-hexagon               randconfig-002-20260604    gcc-11.5.0
-i386                              allnoconfig    gcc-14
-i386                              allnoconfig    gcc-15.2.0
-i386        buildonly-randconfig-001-20260604    clang-20
-i386        buildonly-randconfig-002-20260604    clang-20
-i386        buildonly-randconfig-003-20260604    clang-20
-i386        buildonly-randconfig-004-20260604    clang-20
-i386        buildonly-randconfig-005-20260604    clang-20
-i386        buildonly-randconfig-006-20260604    clang-20
-i386                  randconfig-011-20260604    gcc-14
-i386                  randconfig-012-20260604    gcc-14
-i386                  randconfig-013-20260604    gcc-14
-i386                  randconfig-014-20260604    gcc-14
-i386                  randconfig-015-20260604    gcc-14
-i386                  randconfig-016-20260604    gcc-14
-i386                  randconfig-017-20260604    gcc-14
-loongarch                        allmodconfig    clang-19
-loongarch                         allnoconfig    clang-23
-loongarch                         allnoconfig    gcc-15.2.0
-loongarch                           defconfig    clang-23
-loongarch                      randconfig-001    gcc-11.5.0
-loongarch             randconfig-001-20260604    gcc-11.5.0
-loongarch                      randconfig-002    gcc-11.5.0
-loongarch             randconfig-002-20260604    gcc-11.5.0
-m68k                             allmodconfig    gcc-15.2.0
-m68k                             allmodconfig    gcc-16.1.0
-m68k                              allnoconfig    gcc-15.2.0
-m68k                             allyesconfig    gcc-15.2.0
-m68k                                defconfig    clang-23
-microblaze                        allnoconfig    gcc-15.2.0
-microblaze                       allyesconfig    gcc-15.2.0
-microblaze                       allyesconfig    gcc-16.1.0
-microblaze                          defconfig    clang-23
-mips                             allmodconfig    gcc-16.1.0
-mips                              allnoconfig    gcc-15.2.0
-mips                             allyesconfig    gcc-15.2.0
-mips                             allyesconfig    gcc-16.1.0
-nios2                            allmodconfig    gcc-11.5.0
-nios2                             allnoconfig    clang-17
-nios2                             allnoconfig    gcc-11.5.0
-nios2                               defconfig    clang-23
-nios2                          randconfig-001    gcc-11.5.0
-nios2                 randconfig-001-20260604    gcc-11.5.0
-nios2                          randconfig-002    gcc-11.5.0
-nios2                 randconfig-002-20260604    gcc-11.5.0
-openrisc                         allmodconfig    gcc-15.2.0
-openrisc                          allnoconfig    clang-17
-openrisc                          allnoconfig    gcc-15.2.0
-openrisc                            defconfig    gcc-16.1.0
-parisc                           allmodconfig    gcc-16.1.0
-parisc                            allnoconfig    clang-17
-parisc                            allnoconfig    gcc-15.2.0
-parisc                           allyesconfig    clang-19
-parisc                           allyesconfig    gcc-15.2.0
-parisc                              defconfig    gcc-16.1.0
-parisc64                            defconfig    clang-23
-powerpc                          allmodconfig    gcc-16.1.0
-powerpc                           allnoconfig    clang-17
-powerpc                           allnoconfig    gcc-15.2.0
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    clang-17
-riscv                             allnoconfig    gcc-15.2.0
-riscv                            allyesconfig    clang-16
-riscv                               defconfig    gcc-16.1.0
-riscv                          randconfig-001    clang-17
-riscv                 randconfig-001-20260604    clang-17
-riscv                          randconfig-002    clang-17
-riscv                 randconfig-002-20260604    clang-17
-s390                             allmodconfig    clang-18
-s390                             allmodconfig    clang-19
-s390                              allnoconfig    clang-17
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-16.1.0
-s390                                defconfig    gcc-16.1.0
-s390                           randconfig-001    clang-17
-s390                  randconfig-001-20260604    clang-17
-s390                           randconfig-002    clang-17
-s390                  randconfig-002-20260604    clang-17
-sh                               allmodconfig    gcc-15.2.0
-sh                                allnoconfig    clang-17
-sh                                allnoconfig    gcc-15.2.0
-sh                               allyesconfig    clang-19
-sh                               allyesconfig    gcc-15.2.0
-sh                                  defconfig    gcc-14
-sh                             randconfig-001    clang-17
-sh                    randconfig-001-20260604    clang-17
-sh                             randconfig-002    clang-17
-sh                    randconfig-002-20260604    clang-17
-sh                          urquell_defconfig    gcc-16.1.0
-sparc                             allnoconfig    clang-17
-sparc                             allnoconfig    gcc-15.2.0
-sparc                               defconfig    gcc-16.1.0
-sparc64                          allmodconfig    clang-23
-sparc64                             defconfig    gcc-14
-um                               allmodconfig    clang-19
-um                                allnoconfig    clang-17
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-14
-um                               allyesconfig    gcc-15.2.0
-um                                  defconfig    gcc-14
-um                             i386_defconfig    gcc-14
-um                           x86_64_defconfig    gcc-14
-x86_64                            allnoconfig    clang-17
-x86_64                            allnoconfig    clang-20
-x86_64      buildonly-randconfig-001-20260604    gcc-14
-x86_64      buildonly-randconfig-002-20260604    gcc-14
-x86_64      buildonly-randconfig-003-20260604    gcc-14
-x86_64      buildonly-randconfig-004-20260604    gcc-14
-x86_64      buildonly-randconfig-005-20260604    gcc-14
-x86_64      buildonly-randconfig-006-20260604    gcc-14
-x86_64                              defconfig    gcc-14
-x86_64                                  kexec    clang-22
-x86_64                               rhel-9.4    clang-22
-x86_64                           rhel-9.4-bpf    gcc-14
-x86_64                          rhel-9.4-func    clang-22
-x86_64                    rhel-9.4-kselftests    clang-22
-x86_64                         rhel-9.4-kunit    gcc-14
-x86_64                           rhel-9.4-ltp    gcc-14
-x86_64                          rhel-9.4-rust    clang-22
-xtensa                            allnoconfig    clang-17
-xtensa                            allnoconfig    gcc-15.2.0
+The ODM is likely Baolongda (Bitland), based on CQC certification
+records and a design patent filing. Firmware analysis shows the
+N60d is codenamed NL296A and the CP300L3 is NL296B, and there
+may be NL296C as well. The ODM's NL296 project team likely
+lacked ACPI experience, resulting in the broken PRP0001 +
+"hid-over-i2c" + no "hid-descr-addr" but has _DSM combination.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+I will use the name i2c-hid-acpi-prp0001, without DMI matching.
+The new driver will first check whether "hid-descr-addr" is
+present and silently return -ENODEV if so, falling back to _DSM
+only when the property is missing.
+
+I am testing the new driver and will send it out once verified.
+
+The TPD0 node is identical on the N60d and CP300L3:
+
+    Device (TPD0)
+    {
+        Name (_HID, "PRP0001")
+        Name (_DSD, Package (0x02)
+        {
+            ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package (0x01)
+            {
+                Package (0x02)
+                {
+                    "compatible",
+                    "hid-over-i2c"
+                }
+            }
+        })
+        Name (_CRS, ResourceTemplate ()
+        {
+            I2cSerialBusV2 (0x002C, ControllerInitiated, 0x00061A80,
+                AddressingMode7Bit, "\\_SB.I2C1",
+                0x00, ResourceConsumer, , Exclusive,
+                )
+            Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive, ,, )
+            {
+                0x0000007F,
+            }
+        })
+        Method (_DSM, 4, Serialized)
+        {
+            Switch (Arg0)
+            {
+                Case (ToUUID ("3cdff6f7-4267-4555-ad05-b30a3d8938de"))
+                {
+                    Switch (Arg1)
+                    {
+                        Case (One)
+                        {
+                            Switch (Arg2)
+                            {
+                                Case (One)
+                                {
+                                    Return (0x20)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+Regards,
+Zhibang
+

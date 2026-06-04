@@ -1,163 +1,186 @@
-Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7133A3019C3;
-	Thu,  4 Jun 2026 14:48:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780584500; cv=none; b=nmgvq4JF3HPddsI5LU6qFusfF+WBAeSG8PqVaMKr7hu6dma+KVmvB7BMxJlK9j95uYJ6/iX9SzHWXUxxwxomfM2aoj7xwdY7l1EIHCADPty4OHwaFcjxRLr7foKzEARnR9Xzn5ZXqhYA/4RA4j8tw3kEnq6yn1iuL5900XryoGk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780584500; c=relaxed/simple;
-	bh=RbLZDymbM43CQVMhvDRhT42I4f600tPN+/juBdzGuv4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g21CBD4G5k2tE3/6rKJ71kbeYKjgYCSppx9Rg9XQvs3Fb3bgdtahdW01lMGzFbqGEJcM41Wc5OoMQ1+pUeo0mUqzMW9QGHXKZJU2M1CZ8XXUTacYqA4UHEGKM9GtKM0xhYrZoGr6yyEcmyIZJmkCS6Xt95jn8zvNjrF4zC1ic9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=XpI3Ln2d; arc=none smtp.client-ip=67.231.149.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04E337DE92
+	for <linux-input@vger.kernel.org>; Thu,  4 Jun 2026 15:43:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780587798; cv=pass; b=uI4oZCPrVvlC8jJNzxc39Pm+VftiwUV/RYtnPxuqekJ9gSH3w+W9bSZnbUjt23rCQS0gKxNiASOEQIcacSpPQ7oyXyLYnmCRgm5rWFnIBeOH1mUnr71W7iPjYnQrUfEIJOAUsUSSNlWRwqxA3kLXVCZ/zjzWl5Rs1ZLftw+hOtE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780587798; c=relaxed/simple;
+	bh=xF/xDdGLaN60v3KrZg8JRwjzS+7vle4tIji8yDZpsZo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=MPlyZYX4SO0sf0qNv4cRhPBpNPkbkU/Yzg/9ioeRQTneD9HGUYrLvszy6B0MVuMG4hdk9gxSbswPpOWBtDSTIPAsMg7hubySXvNklgC8pqZHvDwBU0YsNQdccbF6LxI5ARKE+CXmptb/AD1vnOIFfx08Ro3bgE9et4ZMfGvCPW0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JFwOrdc2; arc=pass smtp.client-ip=209.85.208.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="XpI3Ln2d"
-Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
-	by mx0a-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6546a5KY518581;
-	Thu, 4 Jun 2026 09:25:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pps1; bh=beeWq
-	Q0hxI0eg6n5fhsT/kZau9PKcyMFwfTI9cfpy5A=; b=XpI3Ln2dy9bLDSoYFLijl
-	P3kIw405YGPBqT1ix4bvBKJvgWJBF7GNwLBBNoaiF5PLg4mEpo7rTXI+cH8lEeYt
-	4RYE9fF9Y8qJLOWzb18hWUVbLM1YX3PYE3OF08oP9q1qP9TfGcFY0fpkc2dt7AhW
-	5a5WEKJ+T2ReJvY5v5yymvXtctPhgS3jKCPldgz3i4JtZmXEOeDANs2jER5Ybg2O
-	MJkWPSIedilKpHeRqWcm2e4iSoVFPCsMsFFn70hPonBzgKH5UY4r1R5nGUiBsU2f
-	Qqzg2JN1DD7GrYYnAkp/9/fVXvZ0LZhTkuMkxk6i5YJ0EQmHRh0TKZBR/O4fj0Xt
-	w==
-Received: from intranet-smtp.plexus.com ([64.215.193.254])
-	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 4eh8wsywgt-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 04 Jun 2026 09:25:27 -0500 (CDT)
-Received: from localhost (unknown [10.255.48.203])
-	by intranet-smtp.plexus.com (Postfix) with ESMTP id 5A271432DD;
-	Thu,  4 Jun 2026 09:25:26 -0500 (CDT)
-Date: Thu, 4 Jun 2026 09:23:25 -0500
-From: Danny Kaehn <danny.kaehn@plexus.com>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: sashiko-reviews@lists.linux.dev, dmitry.torokhov@gmail.com,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH v14 2/2] HID: cp2112: Configure I2C bus speed from
- firmware
-Message-ID: <20260604142325.GA1355442@LNDCL34533.neenah.na.plexus.com>
-References: <20260520-cp2112-dt-v14-2-b1b4b6734b6f@plexus.com>
- <20260520174401.BDE571F00893@smtp.kernel.org>
- <ah6MeSb-NlzniiCA@beelink>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JFwOrdc2"
+Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-68bd4aec7b0so126746a12.0
+        for <linux-input@vger.kernel.org>; Thu, 04 Jun 2026 08:43:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780587795; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ZKhT0Z2lZc3FTOVRdG+fZFAVWV435piqP54e00OScVQB3zkSmi+qcz+sNi/9Zcvt3D
+         8LyOGh8y3MNW3rx2oyOvlvPB3Ixj5D6ajUTnGD2EVaWwxsX2kUVv13qsEzcbLV/r7Rwb
+         90+YXGxOYJgdvL2Jo6g+GgoFjKykvOAWsgBwlF2YiY34kdFCJHvrdDvgsaPAkGuvwQEH
+         d0+6eeteaDi+hcUm+LkuDIQhEP13qCn2/+nFfKWfZKYTU66+dClZ8TjAVCyiZvdZSSJU
+         EjJQF1tOa0XhyVVTAC/yPD2iWmNBlYPsK48bl7X0fOnRZCflxOdich6IVv94wrkw7JbQ
+         Gy4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:dkim-signature;
+        bh=bLv6DLN3xdxjaftKSIdzPbh45mexUpP7ls3tzx5curI=;
+        fh=XwKj7gG9OVj1Dec5bs1DuxS01yfr9xd2DnJG+jlzAhs=;
+        b=TH9I1ZmbU6gEBvui4QUXZuRBYM5eC/4NXSFwk3SWy59tfEjj8pnsOckMgrrteX5HHx
+         vJiYUuJ7t1a1B6IFW96mpux7dHUpYBSnzmY8otdBEpDIphuK05wH+jWuYkPWPqkeY4cT
+         FdKkS942nP2ZLTdFrrS8R200oz5/WHrKSj/7usi1qbB0LjXq7B8Kxs/5ulituT3npqvU
+         dQ9+mMb8Lvqmhj1aHjOOSkoNNKNr/kj7o7Q912akBLIesxFwmXDroKtA+hZm7M0nVlGs
+         Ky3uZNIZaSKqy15JfIiNoJL45RNMT0/MdKCYm6eArzpJySpqctdud5juKbX8dF/uPxI+
+         7/VA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780587795; x=1781192595; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=bLv6DLN3xdxjaftKSIdzPbh45mexUpP7ls3tzx5curI=;
+        b=JFwOrdc208pTpMREhNk0yOOGsxVLjH5usjlS3YADQsi0uvqWvTZdsbEN43F+n9AwTI
+         F9kmJn/bxG6n4bLYR1Uh38qI39Epv7MSW5ttPaS8BKLD8+QC3dgmQbMitW+iJCZp8Yfl
+         xcG3PZk30QMt4IVuGet4w+kXngfqhQaNasYSwJztnPfJmdpkpNVS8k5H5mMZIRDfGALY
+         EM+7Le8octBRzlx4K9KkGnci/y1h+lmp/2MXvczPnAKlSn+HpOAmWb5MdowIWS38FBTu
+         SmdgYstP3QEEeIR1DuTQS2YPck6Mh6DI1lDDyrek3TYEwjlBVlJFbyLQXqCEzPGUKQey
+         cxxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780587795; x=1781192595;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bLv6DLN3xdxjaftKSIdzPbh45mexUpP7ls3tzx5curI=;
+        b=tNjfy84XjhDaY4CfVNyvpKxhXxcF57lH7vV7eG8qXQ8frNciUNHz5PZvssAONXe7sL
+         mvMc9hvDmNYx2jIzkTAf/3SMABpE7TO7bXua+3F27bDeBETrI2pmGSAWtJVkUxHG9lTQ
+         M03N6dXUhigvDHxlyLLe9BBMODI2w6/VTy4xvawhZKasSdjOV9Izk7Mc0ZtPxepSPHox
+         FJbgBkUgpX/yaRfDrzIStgCbzaxSp5vM93Jg4DRUdF1prNHXxbBC2p1a9mhSnbvfcyD6
+         3EcsB0RfrHaIkMUoFN0LQA5vwkUcOG0zG0z8RyU/cisgjB70tzg6TLdWPezLFE+rxFcq
+         oi7Q==
+X-Gm-Message-State: AOJu0Yw6whbdV66i0j/OHUlKX2R/8EsUtrTjPOQXdzT/0/V2JsQazWCB
+	o3/FDuvNy8KL9JVAsNsafDoPI+jEsWXQ+gajKl/7nIaCxGRn8W+HQI2IRxZ93LpSnu3cuk0tCR1
+	geeHUkoWfXFW5yClF/b/vzXRhkdViMaVwpl07
+X-Gm-Gg: Acq92OEJbHWdp5S7E7ZodG2V678VQQNbC55zrxFcsTGl1yP7UmcaStEnkymuXIhknh+
+	Yf9jyaM8216jtrnLGQwq/9PcZqxdgCJ/Ipv4WU98+N5Z7c0UHSsTEYuT4n3/UOWJdjwsQhVlIlW
+	LxFBoZYgMKf+ow8M+uLxSU+j+tSeKAmJBRYQJhAZgTGM0PGq6llGf9DneQo49WQL3+YB4lY6tBa
+	9TkopjBE7iIf08eola983c9eBuLIKdZgtTmS3NuaMfwTcu7VJwWuJkGzyiKDtfKXK3XmnQIkURS
+	adorR6DgQrsiZPZxEXY=
+X-Received: by 2002:a05:6402:4585:b0:670:8ccd:704a with SMTP id
+ 4fb4d7f45d1cf-68f3ed9e9c8mr824858a12.5.1780587795121; Thu, 04 Jun 2026
+ 08:43:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ah6MeSb-NlzniiCA@beelink>
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: Feto8lvSUlGz2k8qGvGksnJ8r7mWw3Rf
-X-Proofpoint-GUID: AN2x8W7_AuNWXD2Jt2NIYMA5XWoajtvs
-X-Authority-Analysis: v=2.4 cv=euvvCIpX c=1 sm=1 tr=0 ts=6a218ad7 cx=c_pps
- a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
- a=8nJEP1OIZ-IA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=SL0Da4cj2IsybHzvybfz:22 a=3mNqGZouX4yY8cy_l5z6:22 a=c92rfblmAAAA:8
- a=Y_joWELsAAAA:8 a=VwQbUJbxAAAA:8 a=taodae8e8x6o541nS3IA:9 a=3ZKOabzyN94A:10
- a=wPNLvfGTeEIA:10 a=GvGzcOZaWPEFPQC_NcjD:22 a=g_BQsM8wYJVSTWLOHH1t:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA0MDEzOSBTYWx0ZWRfX7fpxuUZWjfyj
- zV+1NY/w10bl2vWFwyR5fwA+/cMFegVz9tXFah1y5LKvXhvq32QbeJI1J97T7/amKbfkMH3EjtZ
- KbFt6hWixJsSHDxwVc33s5o0OwP1NtrgZDPkG6pmZOaVolf5pGEoJLGe2Rw4kQU6a/TzPZfIPM5
- 2j2NVUvbu8JZCf2yssvmwgOflp+S7vpqskzakpUp9p9qwTHJrrYeqUngE89tAESzuBx7YC7al3R
- d1UI5nFXdpkPaVYDuVisTWVPqEcwTDVN11Xb+u9aRqJqi+hUhuuf9SXDC9QnPeHKFLZ5U/S/W82
- RgTH3JLj6uyuTKBrx3Y+2nXTz5BsxTsgDoNpQ33u77M/TbhLOIj4mHGySNUxKZKGhSSdJKkgLoh
- eD4/ceWqz9iKToaPyyk05lMgjmoO/l83EqXJo+2fpaQLcMSLOW0QiXWud/yUPmh5ELeqVTfYnIe
- o5g3KTKcbKuWrzxIUxA==
-X-Proofpoint-Spam-Reason: orgsafe
+From: Orlando Ulises Aguilar Rojas <orlandoulisesit@gmail.com>
+Date: Thu, 4 Jun 2026 09:43:02 -0600
+X-Gm-Features: AVHnY4LdlNpOF7JHwNf8PU4kuakHAj_CA4_d8ht9SGOaXdiYhOTQfO2HLxfQmMU
+Message-ID: <CAE=pYEp=RZCeRbAtweZ0_zkPr7cUZUu=uoDRkqko7xduVUMEKA@mail.gmail.com>
+Subject: [REGRESSION] Sino Wealth 258a:002a keyboard enters stuck shift state
+ on USB disconnect
+To: linux-input@vger.kernel.org
+Cc: linux-usb@vger.kernel.org, benjamin.tissoires@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Benjamin,
+Hi everyone,
 
-Thanks for the review; will fix the issue pointed out here.
+I am reporting a regression that I first observed in linux-zen
+7.0.8-zen1. The zen-kernel maintainer (heftig) confirmed that the
+responsible commits also landed in upstream stable 7.0.10, so this is
+not zen-specific:
+  - HID: pass the buffer size to hid_report_raw_event
+  - HID: core: introduce hid_safe_input_report()
 
-On Tue, Jun 02, 2026 at 09:59:23AM +0200, Benjamin Tissoires wrote:
-> On May 20 2026, sashiko-bot@kernel.org wrote:
-> > Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> > 
-> > New issues:
-> > - [Medium] The driver silently overwrites custom hardware I2C clock speeds with a 100kHz default for devices without firmware nodes.
-> > 
-> > Pre-existing issues:
-> > - [High] Firmware nodes are attached to device structures without holding a reference, leading to a dangling pointer and use-after-free.
-> > - [High] The delayed work `gpio_poll_worker` is not canceled in the probe error path, leading to a use-after-free if the probe fails.
-> > --
-> > 
-> > commit 07ff467e4d8df706a7a27476591cd82570fb8287
-> > Author: Danny Kaehn <danny.kaehn@plexus.com>
-> > 
-> >     HID: cp2112: Configure I2C bus speed from firmware
-> >     
-> >     Now that the I2C adapter on the CP2112 can have an associated firmware
-> >     node, set the bus speed based on firmware configuration.
-> > 
-> > > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> > > index e960fc988058f..04379db93571b 100644
-> > > --- a/drivers/hid/hid-cp2112.c
-> > > +++ b/drivers/hid/hid-cp2112.c
-> > [ ... ]
-> > > @@ -1308,6 +1309,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
-...
-> > > +	config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
-> > 
-> > [Severity: Medium]
-> > Since use_defaults is set to true, does this overwrite custom hardware I2C
-> > clock speeds with a 100kHz default for devices without firmware nodes?
-> > 
-> > Before this patch, it looks like cp2112_probe() read the current SMBus
-> > configuration from the device, only modified retry_time, and wrote it back.
-> > This preserved the device's original configured clock speed (which might be
-> > set to 400kHz in the EEPROM).
-> > 
-> > By calling i2c_parse_fw_timings() with an uninitialized local timings
-> > struct and use_defaults = true, timings.bus_freq_hz will be
-> > unconditionally set to 100kHz if the device lacks a firmware property.
-> > 
-> > Is it intended to silently downgrade the speed and override user-configured
-> > EEPROM settings?
-> 
-> I think we should fix this:
-> i2c_parse_fw_timings(&dev->adap.dev, &timings, false);
-> if (timings.bus_freq_hz)
->     config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
->
 
-Yeah, agreed, a good find. The CP2112's default is 100kHz, but
-technically possible the bootloader or something has changed it from the
-default. Will fix.
+--- Summary ---
 
-> > 
-> > [Severity: High]
-> > This is a pre-existing issue, but is there a missing cancellation of the
-> > delayed work in the probe error path?
-> 
-> This one would be nice to fix in a follow up patch.
->
+A Sino Wealth 258a:002a generic mechanical keyboard (Machenike K500)
+enters a permanent "stuck shift" / modifier ghosting state when any
+other USB device disconnects from the host. This worked flawlessly on
+7.0.7.
 
-(Not planning to include with this patchset for sake of churn, but could
-perhaps be fixed separately in the future... I do have a handfull of
-other CP2112 patches to send on once these merge).
+--- Root cause ---
 
-> > >  
-> > >  	ret = cp2112_hid_output(hdev, (u8 *)&config, sizeof(config),
-> > 
-> > -- 
-> > Sashiko AI review · https://sashiko.dev/#/patchset/20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com?part=2
-> > 
-> 
-> Cheers,
-> Benjamin
+Before these commits, a report where csize < rsize returned -EINVAL
+and was discarded in hid_report_raw_event().
 
-Thanks,
+After the commits, the same condition is silently zero-padded and
+processed. Additionally, drivers/hid/usbhid/hid-core.c was updated to
+call hid_safe_input_report() passing urb->transfer_buffer_length as
+bufsize instead of urb->actual_length. Since the USB transfer
+buffer (typically 64 bytes) is always larger than rsize for this
+device, the new bsize < rsize early-exit guard never fires. The code
+reaches the zero-fill path unconditionally.
 
-Danny Kaehn
+This produces no kernel warnings =E2=80=94 dbg_hid is not visible in normal
+dmesg =E2=80=94 which is why the fault leaves no trace in the logs.
 
+
+--- Affected device ---
+
+Bus 001 Device XXX: ID 258a:002a Sino Wealth (Machenike K500)
+USB Host: Intel xHCI 0000:00:14.0, port 1-2.2
+
+This keyboard uses a non-compliant NKRO implementation. It registers a
+spurious mouse interface alongside its real keyboard interfaces:
+
+  SINO WEALTH Gaming Keyboard        -> input0 (interface 0)
+  SINO WEALTH Gaming Keyboard        -> input1 (interface 1)
+  SINO WEALTH Gaming Keyboard Mouse  -> input1 (interface 1) <- spurious
+
+That spurious mouse interface has always emitted short/malformed
+reports. Under 7.0.7 those reports were safely discarded. Under 7.0.8+
+they are zero-padded, processed, and produce a modifier key event with
+Shift held.
+
+
+--- Exact trigger ---
+
+The fault occurs at runtime, not at boot. Boot dmesg is structurally
+identical on both kernels.
+
+Trigger captured via udevadm monitor: when a separate Realtek wireless
+mouse receiver fires unbind -> remove on the USB bus, the Sino Wealth
+spurious mouse interface reacts to the hub topology change, emits a
+short report, and the zero-fill behavior causes the keyboard to output
+"!@#!@#" (Shift held). Physically unplugging and replugging the
+keyboard does not clear this state; a system reboot is required to
+restore normal functionality.
+
+
+--- What does NOT mitigate the issue ---
+
+  - Forcing power/control =3D on on the device USB path
+  - usbhid.quirks=3D0x258a:002a:0x00000004 boot parameter
+
+
+--- Suggested fix ---
+
+Reconsider the zero-fill path introduced in hid_report_raw_event():
+the pre-7.0.8 behavior (discard short reports with -EINVAL) was safer
+for devices with non-compliant NKRO implementations that have always
+emitted structurally invalid reports.
+
+If the zero-fill behavior is intentional, adding 258a:002a to the HID
+quirks table with a discard-on-short-report quirk would be an
+acceptable mitigation.
+
+--- System ---
+
+OS:             CachyOS x86_64
+Working kernel: Linux 7.0.7-zen2-1-zen
+Broken kernel:  Linux 7.0.8-zen1 through 7.0.11-zen (upstream: 7.0.10+)
+CPU:            Intel Core i5-13600KF
+
+dmesg (working/broken) and udev runtime event logs are available on
+request, or can be viewed in the downstream zen-kernel issue:
+https://github.com/zen-kernel/zen-kernel/issues/414
+
+Thanks for your time.

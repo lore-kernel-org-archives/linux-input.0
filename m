@@ -1,42 +1,52 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD81C480346;
-	Thu,  4 Jun 2026 14:41:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7133A3019C3;
+	Thu,  4 Jun 2026 14:48:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780584109; cv=none; b=d9PnH+Vi6DRqWtbFmStKN02IG6Jnz+nAyBDaLPp7UyM4Pqr7TopTwLKo9wiHFP8utcySKAGIrXeaP26OXsU3huqmvVQ78qRn28NGAKmT47AvxBZzqJW3M0bmCgywQlPmXUZmYQxKUl8yMS7kGqzXjABLENL/wvSE8cwt5k4a+EQ=
+	t=1780584500; cv=none; b=nmgvq4JF3HPddsI5LU6qFusfF+WBAeSG8PqVaMKr7hu6dma+KVmvB7BMxJlK9j95uYJ6/iX9SzHWXUxxwxomfM2aoj7xwdY7l1EIHCADPty4OHwaFcjxRLr7foKzEARnR9Xzn5ZXqhYA/4RA4j8tw3kEnq6yn1iuL5900XryoGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780584109; c=relaxed/simple;
-	bh=IZUyeHpEUiDBY1eTrI7fDkU8pJLG9YW9Z3nCBg2piHg=;
+	s=arc-20240116; t=1780584500; c=relaxed/simple;
+	bh=RbLZDymbM43CQVMhvDRhT42I4f600tPN+/juBdzGuv4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ebV9oW7q31LYjn0UlHQOIb2k+HgmegZcjbfpfjk71RPQTnVtu4JgtY3FneWmgr0wMuW1b3SgGjLhva8XX2BxtCVOBxYKrMe+TFjP91bgAkEdU+EGbrePohXGQiBn90C7gcbTWijn3tu3L9JiNGm3lXzKmHtMoAPDrZ15ZLrtDMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T/2IrbBC; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=g21CBD4G5k2tE3/6rKJ71kbeYKjgYCSppx9Rg9XQvs3Fb3bgdtahdW01lMGzFbqGEJcM41Wc5OoMQ1+pUeo0mUqzMW9QGHXKZJU2M1CZ8XXUTacYqA4UHEGKM9GtKM0xhYrZoGr6yyEcmyIZJmkCS6Xt95jn8zvNjrF4zC1ic9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=XpI3Ln2d; arc=none smtp.client-ip=67.231.149.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T/2IrbBC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31FC1F00893;
-	Thu,  4 Jun 2026 14:41:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780584107;
-	bh=HBDFAOUIf06+kgPr/KpezRch+RnqzzpEdLRUW3CWOoY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=T/2IrbBCCqRk8eGWYpDY8mS3C2xilWw6y9J/9+4SQIsUUqRVnF05mKwdrZi1JaW2k
-	 S68vieM8Dhy5vH+pJZfq+FADLixfKvesdJKPTHV+X89eWRi3oUhcFKvD4jQMNak0Pk
-	 12WffE1rWCtRG0eA2gJ3HC6OjPopcE7Ofm55nOGMYaVWVPfzyqM4NdK7i8p1jkX+oW
-	 hTl3QOUDXvFCn5CBwN9IkVX/z86AcR4D3O+KIuoTN2bE2kl1JN2p70xyLgLEZuwZYi
-	 vXrkRBm1HgmXHm29PmF4yEIYqVloCBabuKYlaSWC4wqQKHnfHP00OoZkUTyi370DeX
-	 Lpe4PlOW3SB+w==
-Date: Thu, 4 Jun 2026 16:41:43 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Danny Kaehn <danny.kaehn@plexus.com>
-Cc: sashiko-reviews@lists.linux.dev, dmitry.torokhov@gmail.com, 
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH v14 1/2] HID: cp2112: Add fwnode support
-Message-ID: <aiGNkO9nFF4mF7vB@beelink>
-References: <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
- <20260520170229.CEFA31F000E9@smtp.kernel.org>
- <ah6LJw5bgVyrtnyI@beelink>
- <20260604143104.GB1355442@LNDCL34533.neenah.na.plexus.com>
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="XpI3Ln2d"
+Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
+	by mx0a-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6546a5KY518581;
+	Thu, 4 Jun 2026 09:25:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pps1; bh=beeWq
+	Q0hxI0eg6n5fhsT/kZau9PKcyMFwfTI9cfpy5A=; b=XpI3Ln2dy9bLDSoYFLijl
+	P3kIw405YGPBqT1ix4bvBKJvgWJBF7GNwLBBNoaiF5PLg4mEpo7rTXI+cH8lEeYt
+	4RYE9fF9Y8qJLOWzb18hWUVbLM1YX3PYE3OF08oP9q1qP9TfGcFY0fpkc2dt7AhW
+	5a5WEKJ+T2ReJvY5v5yymvXtctPhgS3jKCPldgz3i4JtZmXEOeDANs2jER5Ybg2O
+	MJkWPSIedilKpHeRqWcm2e4iSoVFPCsMsFFn70hPonBzgKH5UY4r1R5nGUiBsU2f
+	Qqzg2JN1DD7GrYYnAkp/9/fVXvZ0LZhTkuMkxk6i5YJ0EQmHRh0TKZBR/O4fj0Xt
+	w==
+Received: from intranet-smtp.plexus.com ([64.215.193.254])
+	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 4eh8wsywgt-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 04 Jun 2026 09:25:27 -0500 (CDT)
+Received: from localhost (unknown [10.255.48.203])
+	by intranet-smtp.plexus.com (Postfix) with ESMTP id 5A271432DD;
+	Thu,  4 Jun 2026 09:25:26 -0500 (CDT)
+Date: Thu, 4 Jun 2026 09:23:25 -0500
+From: Danny Kaehn <danny.kaehn@plexus.com>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: sashiko-reviews@lists.linux.dev, dmitry.torokhov@gmail.com,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v14 2/2] HID: cp2112: Configure I2C bus speed from
+ firmware
+Message-ID: <20260604142325.GA1355442@LNDCL34533.neenah.na.plexus.com>
+References: <20260520-cp2112-dt-v14-2-b1b4b6734b6f@plexus.com>
+ <20260520174401.BDE571F00893@smtp.kernel.org>
+ <ah6MeSb-NlzniiCA@beelink>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,137 +56,108 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260604143104.GB1355442@LNDCL34533.neenah.na.plexus.com>
+In-Reply-To: <ah6MeSb-NlzniiCA@beelink>
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: Feto8lvSUlGz2k8qGvGksnJ8r7mWw3Rf
+X-Proofpoint-GUID: AN2x8W7_AuNWXD2Jt2NIYMA5XWoajtvs
+X-Authority-Analysis: v=2.4 cv=euvvCIpX c=1 sm=1 tr=0 ts=6a218ad7 cx=c_pps
+ a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
+ a=8nJEP1OIZ-IA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=SL0Da4cj2IsybHzvybfz:22 a=3mNqGZouX4yY8cy_l5z6:22 a=c92rfblmAAAA:8
+ a=Y_joWELsAAAA:8 a=VwQbUJbxAAAA:8 a=taodae8e8x6o541nS3IA:9 a=3ZKOabzyN94A:10
+ a=wPNLvfGTeEIA:10 a=GvGzcOZaWPEFPQC_NcjD:22 a=g_BQsM8wYJVSTWLOHH1t:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA0MDEzOSBTYWx0ZWRfX7fpxuUZWjfyj
+ zV+1NY/w10bl2vWFwyR5fwA+/cMFegVz9tXFah1y5LKvXhvq32QbeJI1J97T7/amKbfkMH3EjtZ
+ KbFt6hWixJsSHDxwVc33s5o0OwP1NtrgZDPkG6pmZOaVolf5pGEoJLGe2Rw4kQU6a/TzPZfIPM5
+ 2j2NVUvbu8JZCf2yssvmwgOflp+S7vpqskzakpUp9p9qwTHJrrYeqUngE89tAESzuBx7YC7al3R
+ d1UI5nFXdpkPaVYDuVisTWVPqEcwTDVN11Xb+u9aRqJqi+hUhuuf9SXDC9QnPeHKFLZ5U/S/W82
+ RgTH3JLj6uyuTKBrx3Y+2nXTz5BsxTsgDoNpQ33u77M/TbhLOIj4mHGySNUxKZKGhSSdJKkgLoh
+ eD4/ceWqz9iKToaPyyk05lMgjmoO/l83EqXJo+2fpaQLcMSLOW0QiXWud/yUPmh5ELeqVTfYnIe
+ o5g3KTKcbKuWrzxIUxA==
+X-Proofpoint-Spam-Reason: orgsafe
 
-On Jun 04 2026, Danny Kaehn wrote:
-> 
-> 
-> On Tue, Jun 02, 2026 at 09:55:18AM +0200, Benjamin Tissoires wrote:
-> > On May 20 2026, sashiko-bot@kernel.org wrote:
-> > > Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> > > - [High] Premature release of firmware node references results in use-after-free vulnerabilities when assigning the I2C adapter and GPIO chip firmware nodes.
-> > > --
-> > > 
-> > > commit 3dfaf368e855835bf23009205c4b93a2a070aae1
-> > > Author: Danny Kaehn <danny.kaehn@plexus.com>
-> > > 
-> > > HID: cp2112: Add fwnode support
-> > > 
-> > > This commit adds firmware node support to describe the CP2112's I2C and
-> > > GPIO interfaces. It differentiates between ACPI and DeviceTree bindings,
-> > > mapping the child nodes to the respective adapter and gpio_chip devices.
-> > > 
-> > > > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> > > > index 803b883ae8750..e960fc988058f 100644
-> > > > --- a/drivers/hid/hid-cp2112.c
-> > > > +++ b/drivers/hid/hid-cp2112.c
-> > > [ ... ]
-> > > > @@ -1226,6 +1241,28 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> > > >  		return ret;
-> > > >  	}
-> > > >  
-> > > > +	cp2112_fwnode = dev_fwnode(&hdev->dev);
-> > > > +	if (is_acpi_device_node(cp2112_fwnode)) {
-> > > > +		fwnode_for_each_child_node(cp2112_fwnode, child) {
-> > > > +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
-> > > > +			if (ret)
-> > > > +				continue;
-> > > > +
-> > > > +			switch (addr) {
-> > > > +			case CP2112_I2C_ADR:
-> > > > +				device_set_node(&dev->adap.dev, child);
-> > > > +				break;
-> > > > +			case CP2112_GPIO_ADR:
-> > > > +				dev->gc.fwnode = child;
-> > > > +				break;
-> > > > +			}
-> > > 
-> > > [Severity: High]
-> > > Does this code leave dangling pointers in the device structures?
-> > > 
-> > > The fwnode_for_each_child_node() macro automatically drops the reference to
-> > > the child node when advancing to the next node or exiting the loop.
-> > > 
-> > > Because device_set_node() and direct pointer assignments do not increment
-> > > the reference count, the nodes assigned here could be prematurely freed
-> > > resulting in a use-after-free.
+Hi Benjamin,
+
+Thanks for the review; will fix the issue pointed out here.
+
+On Tue, Jun 02, 2026 at 09:59:23AM +0200, Benjamin Tissoires wrote:
+> On May 20 2026, sashiko-bot@kernel.org wrote:
+> > Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
 > > 
-> > Sashiko is overly cautious here. ACPI handles are not refcounted, so we
-> > are fine.
+> > New issues:
+> > - [Medium] The driver silently overwrites custom hardware I2C clock speeds with a 100kHz default for devices without firmware nodes.
 > > 
-> > That being said, we could unify the OF and ACPI behaviour by calling the
-> > noops fwnode_handle_get(child) for ACPI as well and clean them up in
-> > cp2112_remove(). This would also shut up the next warning from Sashiko
-> > below.
+> > Pre-existing issues:
+> > - [High] Firmware nodes are attached to device structures without holding a reference, leading to a dangling pointer and use-after-free.
+> > - [High] The delayed work `gpio_poll_worker` is not canceled in the probe error path, leading to a use-after-free if the probe fails.
+> > --
 > > 
-> > > 
-> > > > +		}
-> > > > +	} else if (is_of_node(cp2112_fwnode)) {
-> > > > +		child = fwnode_get_named_child_node(cp2112_fwnode, "i2c");
-> > > > +		device_set_node(&dev->adap.dev, child);
-> > > > +		fwnode_handle_put(child);
-> > > 
-> > > [Severity: High]
-> > > Are we releasing the firmware node prematurely here?
-> > > 
-> > > fwnode_get_named_child_node() returns a node with an incremented reference
-> > > count. However, since device_set_node() does not take its own reference on
-> > > the child node, dropping the reference immediately after could leave
-> > > dev->adap.dev with a dangling pointer if the node is later removed.
+> > commit 07ff467e4d8df706a7a27476591cd82570fb8287
+> > Author: Danny Kaehn <danny.kaehn@plexus.com>
 > > 
-> > OF children are tied to the lifespan of the OF device, so we are fine,
-> > but technically incorrect, as mentioned by Sashiko.
+> >     HID: cp2112: Configure I2C bus speed from firmware
+> >     
+> >     Now that the I2C adapter on the CP2112 can have an associated firmware
+> >     node, set the bus speed based on firmware configuration.
 > > 
-> > If you regroup the 2 behaviours and clean them in cp2112_remove(), this
-> > would be cleaner IMO.
-> >
-> 
-> Ack, this is something I've gone back-and-forth on in the revisions of
-> this patch. Will update the driver to hold the fwnode reference for the
-> I2C subnode.
-> 
-> However, for the GPIO chip, DT uses the parent node (which shouldn't
-> need an increment to the refcount), while ACPI uses a child node. Given
-
-Oh, if they are different, then maybe following that advice is not such
-a good idea.
-
-> this discussion, it sounds like I ought to still increment the refcount
-> for the GPIO child node to comply to the interface, even though ACPI
-> handles aren't refcounted.
-
-Yeah, sashiko says that this is harmless and would provide symetrical
-behavior (but artificial)
-
-> This will require another bit of DT/ACPI
-> diverging behavior in _remove(), which is fine by me, just announcing
-> that intent in case it doesn't match your expectation / might appear as
-> a code smell in the follow-up patch.
-
-I thought you would just deref the stored node, so it doesn't matter
-whether the original node is a parent or a child. Especially because it
-would be a noop for ACPI.
-
-But if there are no way of having a single fwnode_handle_put(node) (per
-ref, of course), then maybe we can stick to the current code.
-
-We should probably fix the other speed downgrade from 2/2.
-
-Cheers,
-Benjamin
-
-> 
-> 
-> 
-> 
-> > Cheers,
-> > Benjamin
+> > > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> > > index e960fc988058f..04379db93571b 100644
+> > > --- a/drivers/hid/hid-cp2112.c
+> > > +++ b/drivers/hid/hid-cp2112.c
+> > [ ... ]
+> > > @@ -1308,6 +1309,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+...
+> > > +	config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
 > > 
-> > > -- 
-> > > Sashiko AI review ï¿½ https://sashiko.dev/#/patchset/20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com?part=1
+> > [Severity: Medium]
+> > Since use_defaults is set to true, does this overwrite custom hardware I2C
+> > clock speeds with a 100kHz default for devices without firmware nodes?
+> > 
+> > Before this patch, it looks like cp2112_probe() read the current SMBus
+> > configuration from the device, only modified retry_time, and wrote it back.
+> > This preserved the device's original configured clock speed (which might be
+> > set to 400kHz in the EEPROM).
+> > 
+> > By calling i2c_parse_fw_timings() with an uninitialized local timings
+> > struct and use_defaults = true, timings.bus_freq_hz will be
+> > unconditionally set to 100kHz if the device lacks a firmware property.
+> > 
+> > Is it intended to silently downgrade the speed and override user-configured
+> > EEPROM settings?
 > 
-> Thanks,
+> I think we should fix this:
+> i2c_parse_fw_timings(&dev->adap.dev, &timings, false);
+> if (timings.bus_freq_hz)
+>     config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
+>
+
+Yeah, agreed, a good find. The CP2112's default is 100kHz, but
+technically possible the bootloader or something has changed it from the
+default. Will fix.
+
+> > 
+> > [Severity: High]
+> > This is a pre-existing issue, but is there a missing cancellation of the
+> > delayed work in the probe error path?
 > 
-> Danny Kaehn
+> This one would be nice to fix in a follow up patch.
+>
+
+(Not planning to include with this patchset for sake of churn, but could
+perhaps be fixed separately in the future... I do have a handfull of
+other CP2112 patches to send on once these merge).
+
+> > >  
+> > >  	ret = cp2112_hid_output(hdev, (u8 *)&config, sizeof(config),
+> > 
+> > -- 
+> > Sashiko AI review · https://sashiko.dev/#/patchset/20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com?part=2
+> > 
 > 
-> 
+> Cheers,
+> Benjamin
+
+Thanks,
+
+Danny Kaehn
+

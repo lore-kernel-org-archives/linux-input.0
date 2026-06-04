@@ -1,57 +1,54 @@
 Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011026.outbound.protection.outlook.com [52.101.70.26])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD023CF962;
-	Thu,  4 Jun 2026 06:54:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E32EA3D9DDB;
+	Thu,  4 Jun 2026 06:54:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.26
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780556060; cv=fail; b=MQtPoNWjexr5gMKm1cm6EaxMViGoh4vmtLYc9xGRY4EgxDqmnvB/9GBJ0i4Ukrbyco3s6ULtrtp9zy1oU3r7GnNTOnriQFIEXt88M2aTqKfGWGHHGWAf2CSNsUPwE/lrVkpsW6CrFRKoYRIcfJ/hbcIoa4LNBUIOdQZStv9Vplg=
+	t=1780556062; cv=fail; b=QiO6gYxtRfjW8cmiWyU/579WB7N9eD+VRygGzFVlNVgbQ7Xr16cFvKEMqFdQcoDed5HnHB0+g/TuuFCN2aZPAM2GCzFDxoxe8DogyNlbBc9/DwklytnZwg0ClBWezrRH6clWLcUD5lfeFoAXTBOcvnGxsCZJVyMhqkKAqAIVrN4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780556060; c=relaxed/simple;
-	bh=iiP/1UobeEhE2mrOOtsg4RMYdh2JfuHxzzNfkhkXusQ=;
-	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=rsmQC0IMm7mARkVjTzsJ2suP13MOm3rOdWEi++ctKfLxk0Xr0c7c7N8ytWGjaPS9kawsFL1RAm4BmYDBrO9VoTt6lYhwt3cop2pkI57nxYpokM2KSHsuOsbU8Qc06QEvOwClyXCGU6C43EpAc7JA/aefWzntPuc4gQAvl/mZqLs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=Ui8JGFdk; arc=fail smtp.client-ip=52.101.70.26
+	s=arc-20240116; t=1780556062; c=relaxed/simple;
+	bh=yqj1H3SdQIvr/dLK8fT44xDp68Kgj8X+0xVau765Xd8=;
+	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
+	 To:Cc:MIME-Version; b=T44nGCk5SLCrPCMJZv2ykdP/jI/Nn25xr4BHlvzLffL5oFvilXWnkZII2/nSKQhBPBndV9T8mBWqPxGv4iPQCi9WrAQrUPoQd0rcLI+Fpl31d/aUrbWXTtP+51QsfD9gYnuKhDCUXIuCiS57Z8PfrJjGgp3G4/uvDbC7tEQ8y0M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=ZavVrNxn; arc=fail smtp.client-ip=52.101.70.26
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="Ui8JGFdk"
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="ZavVrNxn"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=k8R3s8vIHXSCr7aXoFoUoqx2C10aghU65jRbHXnZECJihhUsgrRhZE+++em9c96j9OfsQ9TGhsMAa7Qi8ejiJ3iABDITfq/x3jcULybms8k1EeHMuVo4rw8LieGWAvsOWJHrv87+ZhaMDMLy7dgbu/mbezIaZZxGdeeWFhHjP7gQpjpELNlp9MnHATVU24PMtq4gMoMy/dLTBEVbX9B8fQRMsr2dQdGckhD1FXYlczel29ve//pJzc/K38xS+f38lA/Acq5LHhEjPkUkMXMajBz9aV/+lfCUBVbgS1lIZ2vkileLX8QSll8+uwiuMtKypaloQP5K1qWArNp1FK9XNA==
+ b=r9lYvvHuBMU2ljZfDuDKel1eZ4Sw+b6U3ydxlF2ahbYk3t7T721cVMpvYSamfZv3I5piX0KhqCnE2TKN41XQrI2tH13m5Xh2oHzuzCYj55OddVhmVaVIn0snOguO5gGI24oogMVi5ySx1x2Z7FIUiBvc/iPzOXFOaCCbERkQp4DRiWzJIi2gcMasnwmppzALdhWbfbzBZOg9Yjq0AFY5bcuntpYvAt1Zxh+7nXX8OwTGxl2bEV+a7oT0kMYdWFdjr1NSbqaDWIDG+AdSZqSIzA6tQB17eeB/rJN+6SzuHiSl7m7FOPjDzXlh+FigkX1880Fd/S+8rAsspBtnqoKaPg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ob2FYLDQi5XZ2+KuRwunVJwE4Wd1EkJ4pZ8b5n1oCL8=;
- b=PEtGiVamENz/eKueizkRvbYybCP+ZePibyb2ZtbytVSA+ZH+FfogE9vHghknuN2F3+j9a/q3UmGbZyc3xqlzZBRzzV+y54TeAhFpzjTgqkGXEOs1u+wllm3ZGvz9NEEDnBwi0ybBwx31aZG++lwsFd2Dm3Q9ac/isuUJjPV4tQ/5hEXJDGT0rC67GWEnLgWRJDkqNCPL8T/FBP84AUBoccOt87ip1OrpSKBU+ZE2gP2iaXDXdzYQRsHYCwyVdO09uT8QmgGNuSyuWMmnocrqDtfAAwHlsjx9BRVA3+dOuUfWSxqA4RQYoyLPXvVdB9FVNdf/OIK8BGxc2wuUG5M96w==
+ bh=sulV7gfCho9FigRxDguUEhBjT3FUSJbGBHInV8RUE2Q=;
+ b=gG/PFGlFH9sz6DabYbXP9Wcg4heRLzz1M56k9x3Fqe2PZiEoyiuEDNWTjotayNKsjNZV5fzfDMHVNoT0sQF8xyxJhi+Oy2PsI3sr++vU6MEFFXwZ6MFWEVs0wl7AaX/yc6bNtuwsdGDC1gORo6vvyCdGRisr6LK++zudXA7rtDOr/5Ehf0iwSN1oX03xOU6TQfCYXai3+2ikYMfDZ1AfPlZ5PMl7NPp6JxE3w5AiG7G0YyzCsHzF0RL+hzZIC+c2T1TNdKQGT5Ihvufu2u/Ek0tc/FeRaiDH4m4S6GMYkmKTVDzHui6s4uV1MHghIoEtLtBgxLizMRuKII6mJPEoHw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
  header.d=nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ob2FYLDQi5XZ2+KuRwunVJwE4Wd1EkJ4pZ8b5n1oCL8=;
- b=Ui8JGFdkGJaom/W4OsqioB2HtDgp/uQDH9l2y2tGgYJtssz/BX1nKfSTlZz7nNuMUXXIIZFvw3d82azkaopvKSdZrWDjp/VZXkh/jzn4iyoTyi79jg8cC5QqI5gBEJe/ke4X8CyPD3DCmB6AulumYhB6SNccaRZrBqW+7eijijJSuLfGFqcvcp6v92PB2r5Jxb9ONJbM1FYI/vEOtrv0FYF32W2bNpo68a7uXbyq24MO9gzF79K9Gq/OoEQ0Kx/ac8AHNGzjSar0pXBAgCAtD13A6RtTxGzPnDCHS3nWwVWoPFtJUksMn6YWvWvUrFsNbhPYgZ57dRlAyrPSehOjEQ==
+ bh=sulV7gfCho9FigRxDguUEhBjT3FUSJbGBHInV8RUE2Q=;
+ b=ZavVrNxnc79t3OLufryUOT7zXSe73J4B3p+fJUeSwXrWz1XusevsJ33h/hAq91oVR9Yf7WniynX6r0TMKy0vYGKplU77kUX7VKy/kpDf2/canAvmNwvRvUQuRtX87lC+9IZisZbtBCJt1B8r0dpoPnd9I51AwaqOlteqw8voKNq9T1U8SB0rQBB1+T0dwOaO6Hh5l2LrtMnkCp4GRpB1bg9UghyE4//jv04+iI+1RA1B9A5eCUNy6742YVvsGDQse98DUz6Mzu0N9Vxgpp0HmWPGwP5Wh7HPoV4oP83STxIItaAE91Ok9gShzaskLTsBzUrqNCaYoObva3DShe7aMw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nxp.com;
 Received: from AM6PR04MB5765.eurprd04.prod.outlook.com (2603:10a6:20b:ae::26)
  by VI1PR04MB7184.eurprd04.prod.outlook.com (2603:10a6:800:125::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.7; Thu, 4 Jun 2026
- 06:54:15 +0000
+ 06:54:19 +0000
 Received: from AM6PR04MB5765.eurprd04.prod.outlook.com
  ([fe80::bc76:f507:9b83:9d69]) by AM6PR04MB5765.eurprd04.prod.outlook.com
  ([fe80::bc76:f507:9b83:9d69%5]) with mapi id 15.21.0071.015; Thu, 4 Jun 2026
- 06:54:15 +0000
+ 06:54:19 +0000
 From: Joy Zou <joy.zou@nxp.com>
-Subject: [PATCH v2 0/4] snvs_pwrkey - code improvements and add report
- event
-Date: Thu, 04 Jun 2026 14:56:20 +0800
-Message-Id: <20260604-pwrkey-cleanup-v2-0-59fa0ddf0d7c@nxp.com>
+Date: Thu, 04 Jun 2026 14:56:21 +0800
+Subject: [PATCH v2 1/4] Input: snvs_pwrkey - make use of dev_err_probe()
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJQhIWoC/3XMQQ6CMBCF4auQrq1ph1DAFfcwLrAzSKOWptUKI
- dzdwoaFcfle8v0zC+QNBXbKZuYpmmAGmwYcMqb71t6IG0ybgQAlclDcffydJq4f1Nq343WNOZK
- ShApZQs5TZ8YteL6k3ZvwGvy09aNc37+pKLngWBVYanHtoCwaO7qjHp5sDUXYsRLyB0PCUJOUo
- oK8U7DjZVm+BC0VX+cAAAA=
-X-Change-ID: 20260326-pwrkey-cleanup-99d3de61ed6d
+Message-Id: <20260604-pwrkey-cleanup-v2-1-59fa0ddf0d7c@nxp.com>
+References: <20260604-pwrkey-cleanup-v2-0-59fa0ddf0d7c@nxp.com>
+In-Reply-To: <20260604-pwrkey-cleanup-v2-0-59fa0ddf0d7c@nxp.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Frank Li <Frank.Li@nxp.com>, Peng Fan <peng.fan@nxp.com>, 
  Jacky Bai <ping.bai@nxp.com>, Ye Li <ye.li@nxp.com>
@@ -69,118 +66,167 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: AM6PR04MB5765:EE_|VI1PR04MB7184:EE_
-X-MS-Office365-Filtering-Correlation-Id: b670f62c-ad47-44ee-168a-08dec2061772
+X-MS-Office365-Filtering-Correlation-Id: 5c1eacf0-812d-41fa-387b-08dec2061999
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|52116014|19092799006|366016|376014|38350700014|11063799006|6133799003|56012099006|18002099003;
+	BCL:0;ARA:13230040|1800799024|52116014|19092799006|366016|376014|38350700014|11063799006|56012099006|18002099003|22082099003;
 X-Microsoft-Antispam-Message-Info:
-	XwLQp26RsvP1h6ycTZbET2Ll/mOGJPySQ+g3xR9gg/JIVBTZgXlPSfCYXB6z0N/KKr64KevfLaankV+ESq+SZu6B1V7sewK0/UhfwwKKji/QkOhixnCULfljWOqOkpwXYc7wOQc/WROdlmKdzCMxmHCWg78RZEWcvgv/KsnE+P/3kPE4iqIvN3DMAywRIHvMXFle/TP0jRwGpkbZBWS5InXCzoOwK0RDmN3naAx4XIG2PyuEP8Vx89LRrbUmn7EXg2lKFIZzeIP3Mlrfqf6v43dvD9J1YB1RzsZCFy3UEx4RRGdYliP/D7PilmVOrJfKrFjwEaBQu/o7Gc4Yx1fEUWfcsftDU4vTMYVp/kV8phtPh5Q5gJ0Vxlnt6Wq1sZbYwHzyENC2AAoAYm004GqRkQlbCvaKh7PGy4PQEn9/DXVQ8c0NA3uzuFMiwpv+nYKVOHoY/RwyVRlZgnUCeFMNptj3t+iIByACvsLdq+IKXHypFcdtv4/lRA1UlNOUdx0D7g0p8DEhu2hPGGtr0KIExYJ62yw38XjbzZRZyjQVnlZNRXkqeKQPv8UDxbEK/JY+37r9P1Dv2YYiS7nxy3ht0EQ+peXLsn/GTJE9Vkt87kfJR4kZF3lSJEb1HUYsw5DYL9OF+va5SSYPHEkg/2GydJV4llCS5AhbsJ8l7E+w3+OWZEZnJbwHmjvO/7J58BCz5//6mSrjNcGxYvAyZmXmdv3QNy73gsczkJ2NMyqkefy/X1MvFMjv6QU4olgfmu78
+	gFw/SPXu93osI2Adj1ljwBMvFdNkTHYOXHx4fznldHjQFz55rK+df0qCvTnOFLMJ32Q6AzIsn2I7xjFJ59S8Txljz96yiwT/C5UTfWkjxMOfj8qmfFnH+WF/mKCh/hSGxzWAg8+eqCXso2sKbS4S/y049vIoMrANGARCt2rNppzV4M9QSLhCX5beBZ6u3ipuLxxeV7ZL3e9pK1r/6RGdknILGmjZPqkUUTUwQfpAga+paq/yk9k/dn1l9aMBeO37F9Cxhsi1/Wt/FNkZ2133n/qEpyry3LVzpNP8nwK3ErUoDYZjfbfaCKV9Hpbr2wRr47fmvmIMgmmElGXklDzWQLtDjkG2a5teo9syaJAFcqpuQ3y8pZIH2ecP58/hBpFyOUz0Vr4Ymet377Hekt3jV/ioaKrcyyBjifK06EUrKhfR34BtTi+rSjKf4Fu0IupdUP4napIz23CSSmgLEOtXm/NiWjf940n9qu6bt6ccOwpqodR+zQX6PQxvGMiWXZBd4G21QbwHDXDHycZ1I1P9cJzZp6O0kzpv9i4WlsKZY+l29kSsJ42D/AwoJTT7pH+AgmVhEG7WNAjbJ+lnMUACWHSem6f0BlJOh5eDMyc8f2xCnD7qFMwdAuHndHdO73S6Uc0Nwi4UsOyKbp+/IF04l009FDVMl7cD6pAmBIzIz8rd7//sKDNJWddn5/r5y2yRK6y2Yyd/2F9yswY9GCt7i7y/OEIuWvpAzKonvEKn2OxDIsyJXxhnXpQk758kDymq
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR04MB5765.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(19092799006)(366016)(376014)(38350700014)(11063799006)(6133799003)(56012099006)(18002099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR04MB5765.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(19092799006)(366016)(376014)(38350700014)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?L1Z1Um1wY2IrWXo0UTFIR3RTVHJzMWZmVERDbGhiU3kraVpSaUZ6TTNVSmZk?=
- =?utf-8?B?SUVtRG44RkJmZ3d2VWw5R3hKNlI3K0tNZTgvYlQ5ZHdoK0dSMjU4dWg0eUF0?=
- =?utf-8?B?VHZjSDFGLzFsc2U0QjN3SGRhRHc0QU42WC9lZTM2WU83WlJucWtsUEpaalV1?=
- =?utf-8?B?S21admFabU56OFA5cU1CRHRzcGZ1TVdheHhFNHRmY01EMW0wTHdZcnJFMlJ3?=
- =?utf-8?B?eFFnWUNFWmxsVVlQeitIanUrYk5JdjhtYVkxTzJhQUU4VDM3OVk2V0E5TXJ3?=
- =?utf-8?B?WXN5QXppNEpjNnRiQTViSGZBVXdGWTVacUVvenE1SVdtelRHMmNlRHhKbGFz?=
- =?utf-8?B?dmFpNGw1WVhleFdyL1BRQldTYTY1aWN2SW5MdVV6WC9McnppV3ZKWG1STzZH?=
- =?utf-8?B?TksvYWx2TkRudzV4WitSVFRZRmlGQzhDT085a3hheDRRb1YweUJXMVRFdEdL?=
- =?utf-8?B?Q3hjTHRNdzRVZHpPZENVNFNVRzlWWXBOVDB0VEhrZjJkdlJpRWxoRFZwcS9P?=
- =?utf-8?B?V1o2aEhBVWZRQU5iaFc0cWpJNmlYSkpTckV4MGtWMXUwKzRBdEt2MjF4RWNs?=
- =?utf-8?B?ZEM5bVpoVzN6TXVPcnFhRUNGL2NwLzBvVFloU3B1VXRXNUJMMWgzd0tZbHlL?=
- =?utf-8?B?M0dWdmVGVUlBNDJlRzFGd0Q5aTRUWHU1N09SMG0xSHBCU1BoSHBIS1dPeU00?=
- =?utf-8?B?V29mZUIzU3UwTWYvN2FqYjNIRUJaaDFlUnczNXBZaU9TV01VSUNHclAyK0pE?=
- =?utf-8?B?bDZmWEx5NVdqekovVUUrNkJBVTVES3pIckFMeVhGN1h6RmpuU0V3dVNMWkVV?=
- =?utf-8?B?c25mTk5zRTJKeHFkL21iMU1VN3NSRk4xM3dKMS9ZWHdGeFZFQ1cxVGNiWngx?=
- =?utf-8?B?c2JmMGJqZUhhMGNBcWk1VkZwUkx6Qys1bDgwZHJnRHpwVi9nOEdvUTlsRXIy?=
- =?utf-8?B?VzlvS0JNTTV0ODRYcklTb2Fzdkh4c2pwUENyZExyS2xsclF3L254Q01lbCtj?=
- =?utf-8?B?UmEyUE1BOHo5WEE1bUIybVBJZmpBSStTWGV0U1ArcWwwVnVhS2Y3Q3ZndDJh?=
- =?utf-8?B?NXhrb0svQVkxRndZMFUzeUJ2SWhnb1lmTFRxYkpONGFGMm8rZHNNS29JeUpy?=
- =?utf-8?B?a2Uwb1Q1ellraFFkY1ltNGhnSi8zeUFwWDdMS2FJVlgvbkJwb0F1MFNWWnlC?=
- =?utf-8?B?V1lMeStjSXNYMmVQM1djSXpmOE1IRURFbG9iN1Y3VDRWQUt6V0VGMWVDaHZL?=
- =?utf-8?B?QUJDK2YyVDcwaVphOFRWaG9sZ3RlSGI1UWxvVjdqdWVYRUpYRUdIakdxS1Bx?=
- =?utf-8?B?TTNnWFRybWI2TFlHOVVraWd6Z0tNWG9Kb1lBY3RaZk9iSi81SmlzbEVrbC84?=
- =?utf-8?B?a3JiZTlCTG54Y0tSaDJVaVhEMXVkbk5vMjhzZUxGZ25uU2tRYUdIekM4UEx3?=
- =?utf-8?B?ZjNnbGc0STBqTU5kbjUwV0h0ZkJoMjJZUUV0VTZZWFNBY2NMcmJSMmxrbmNT?=
- =?utf-8?B?T1B0OXBNRGh2QWJEMWhLcDNqQyt5V1ZGVm1Ua2ZCQTluUEVMa0crMFRGbVRt?=
- =?utf-8?B?NW1XUWlhNUxnMytObkxtSG9lelVpekl3dVc3MjNyQUdITlFkWXVSVi9VTHcr?=
- =?utf-8?B?MGZUNEV5bGQ4VWlIMXdLK1VNNXBkMUkvcVRaZzZoT0VnT2U5bEczckVjNHlx?=
- =?utf-8?B?YVNxVWZScXFJUHRjT2lTeldMeXljSnlTR2hIRFlGc1VvK0lGQmNHcjk2QS81?=
- =?utf-8?B?M20weXkrelZrOER4RkhBbHd4MDhBSkc1WGwyaFVkNU5BSXlUZ1UwTXVrUDIz?=
- =?utf-8?B?eWx4WTgxbS8xckVNZ2loQmgrWUNkYmJtclYrNSs3NGZub3pDL05kUVdlWkho?=
- =?utf-8?B?QVpDWDBzTkhOckxBbVJoeEt1Snh6NVlLejdEeStFcEVjQmJkbitya0lFSkJV?=
- =?utf-8?B?NjhnVlBqVjF1c002MnBnOVB2RkQyNWM0bCs1ZnRpanRRbW9qWE1WZ0tiaVdI?=
- =?utf-8?B?YjVXVGQ4dEIwczRGMTJlVXpUcDNJYUYyb2tWN085a2dPK2xWZ05rQzVXL3hU?=
- =?utf-8?B?UjczdFlzRG14N25QS3ZTK0ZEMnVqMWVibXR5bC82NkZ2MUtqeGpxdWM0RWd5?=
- =?utf-8?B?SUxnbEViSEZpMkJpWi9rak1Nb0srZWkrUUpJSkFXcC9FUHR3d1h6cE5oNXBM?=
- =?utf-8?B?ald6RDR1OWlVVXFacHZpWXlHNEVTbXhnWmg1dHNSSW4wNGROSy9XOFI1WTRZ?=
- =?utf-8?B?SU9VK3BwM1QrazBmWkYxZlQzTjg4dDdHZ2F5K2R2Q25SblZ6alVldnQ0ZVgr?=
- =?utf-8?Q?ezrJhNyGK7JQn0vTz+?=
+	=?utf-8?B?RE5KSk9qSWM1S290a0VWTk0vempjQ2UycnhtNWhOUmZkdFBsaFI2WVdsemht?=
+ =?utf-8?B?M3lvQ2grSjY5TmJxQWdCOXF1RmRYeVRpQlFTcVZ4ZmZJdk9aejByVTAvTmNG?=
+ =?utf-8?B?MmhYK3BIUFYrT3BkUE5BVElOWW5rNVhaMGZUYnhKV3l6Y3FPMHF5ZDdabmhE?=
+ =?utf-8?B?V084NWpObUVMNko5OTB3eitZUkdpOUlRaXZwalplSTNPczVSNitNVjVpY1RB?=
+ =?utf-8?B?N1l4TWRiNG0vQlc0aE5iOE1vN2ZvNnBHKysyOGpTcGZxVnBvQi84blh2bkFl?=
+ =?utf-8?B?RVdhd0IzSHo0eG1hV2YvL0VyWXZubzBTbCswdkZLeTRkQmhIYWRqMFlNUGxM?=
+ =?utf-8?B?cjJybjF4YjljMEM5TDViM0w0UUV5RDcyL05aRnE5ODVzN29zRFkxTWNUN2NK?=
+ =?utf-8?B?em00YU0zeXBTdTgrWjB5cnNQcC9zakx1Z2J0ZnZJaC9IbDFZVWdDSk9tNkda?=
+ =?utf-8?B?S0Vua2N2VXpQZ3J3R25vMHFVQjNOM0oxMHlNSzhzVTNDWGZDTGM1L0lvME5Z?=
+ =?utf-8?B?S2ZUTzQxYkZhMllkclgwZ1lhdXVaTStxckExUW1GKytieFpYWWxoMTV4SlJD?=
+ =?utf-8?B?QkVrZzNFRDh2dkxTY2U0UjZReklnY2FYajAyRnFnOVZwS1puTEtVUElGdVp5?=
+ =?utf-8?B?N2ZqWkxXOXJVM1ZhYTNxSTVOcGJ5T0JlcG1lYXBIWklTUndmK3B0SXBmeGN2?=
+ =?utf-8?B?UFl6VS9FeWVMaVNJNHhoQXN2dzRpbWYzOTdQVmFoVVpmaUZPNWhkMS9UK3RL?=
+ =?utf-8?B?NUlBNFVqUVgxVmc4ZFl5MS91c0l5RVFHaDV3Sk5oTktTNGxUWkVWcndFelZI?=
+ =?utf-8?B?ZDEyM2Z6amk2Tk5pYjRIVFlTRGNybnNsOUlQZlJONW53am1zLzhuRHNiQnNN?=
+ =?utf-8?B?OGdlQ3J2cm11YkRxOE5ibDY5QTN0ZjRwb0FaSjhqd1lSVDdxYTZqY2FjQ3Nt?=
+ =?utf-8?B?ZWgzY1dFWGZHRzU2ZGhxR3BENnA0bFNhTnlQekF0OFVPK0FnaFlLVGFhVmFV?=
+ =?utf-8?B?aGh5eXY4M1RPaXF4ZVVLeEsvaTZyYW5DTGJPUkZUTi9rNG0rc3VxbFN0ZWMx?=
+ =?utf-8?B?bC8wWXVmVkVoZmw1V0NqdVRrUkc4dkY1clE4SHE5U1U4T1lnNW9MZjdiTHZS?=
+ =?utf-8?B?Y0pKVWVWVm5yV1R4dUFIV09qTlF4RHE3UXdxOVdRcUo4dC9IQ2ZzYmlpTE5q?=
+ =?utf-8?B?SWNMajNDbkcyZTQ5Y2JrWlJKMlFRRUxycy9SRVRHUEFRS1Mzc3pYSU1IWkZy?=
+ =?utf-8?B?T1RiNWFVRDRiZ2FKdW1zKzg2cldFSmlucCtEYnhPUkMvdW1jKzF6REhZNlNU?=
+ =?utf-8?B?MUgwRWVLampFZ2tNZVdjc3BWWTFQS3ZWZmtpNE9IRkRYNHNYMVFlUW9oY0lX?=
+ =?utf-8?B?eTYveTd4SG51OUxCT21JcmtjNjZQdU03K080ZXpTOU04VllpR3BIL3RObjNF?=
+ =?utf-8?B?K0hkdkYvTXRhZ09LNWY4M0FoblAyN1lKMFI4cEFvRWd5eks3aEwzNnVpWklO?=
+ =?utf-8?B?R09NVGhJYUFQekh3Z2pob1BhdHV6SVM0RS9zNGQ1ZzZySEt4V1o3M2NDL1pw?=
+ =?utf-8?B?TTdIMkgzTVNaSktLMGp0dmNKQ1JGQ0I0a093UHg0aEk3cXNDaDgrVWFUSWU1?=
+ =?utf-8?B?b1J1SURsUW4vMUphUzdmczNVU2YrcjcrQnlOVFR3QUIvUnB0OXJzcHhoNDBN?=
+ =?utf-8?B?dXZZa2ZHcUJzbHZTcjRPNGI0M0pXTDJLZWFSYlpScjJnQjZTY0Q2L1BUbkFT?=
+ =?utf-8?B?Sm54NmNudlJQK1ZCV3d1Tnc5ZEdXZTZXdFdvMDhmVlgxaU5vUWdPQWpWeUVB?=
+ =?utf-8?B?K3VucndZRy9kWlJnYTNHSkRmamNOZDdGcEt5TlFzT1M5d0RJOFBLQmdhQ2FU?=
+ =?utf-8?B?UXNpVG1TVGdhUHNvLzg4UURod3hZWDFvVlpTbTZPZXNVbC83d2p1eFRpSDFi?=
+ =?utf-8?B?QSthQkw1Y0k2ZytKTDdUUnI5SFZuM2RMMHlnci8wc0VNRFZiQ2pBOGkvVmxT?=
+ =?utf-8?B?ZlpqVWpTTis0TmZzdjUrdG0xb2dIUHdOY0xJYlhkbHhDZGdMN3BKTHVsQUow?=
+ =?utf-8?B?MHlNRWx6OEx0S0crWUZLWW0zNzFhZjFPMUViS1VCMVlZUTc1NkhRYWM1amN5?=
+ =?utf-8?B?UjhhZnNOdVAzb1FHblY1cjk3TEUyNzVHNEUvTk1EK1NLczBFcktqRHdUWW5i?=
+ =?utf-8?B?ZlVFVlhNd2lpcHdiZllHSStYSFZNUGxaYzNiYldKU1FXam1GZEI4aWhkOXZZ?=
+ =?utf-8?B?Mkdvelhwa2JMQkxWbkUxOEJMY3RPTjNYTXhqOWtpUjJJTC92bWpDQmtaNW52?=
+ =?utf-8?Q?ie++DINmvLeIuM+Cas?=
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b670f62c-ad47-44ee-168a-08dec2061772
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c1eacf0-812d-41fa-387b-08dec2061999
 X-MS-Exchange-CrossTenant-AuthSource: AM6PR04MB5765.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jun 2026 06:54:15.3540
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jun 2026 06:54:18.9580
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: NMeMWIqQRUcS8nuQg8aPTjyoe5Y1ph8coz+09ax3RhMLXgs2be0mIXlgk1WR/tVu
+X-MS-Exchange-CrossTenant-UserPrincipalName: bx9PI3yTpnGD8BPukv7SBYp9O8xN87oRuiw1MztDr3+KraOdUrjbX/2nwleFVFkZ
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB7184
 
-This patch series improves the snvs_pwrkey driver with better code quality
-and add report press event.
+Add dev_err_probe() at return path of probe() to support users to
+identify issues easier.
 
-The main improvements include:
-1. Clean up the code by using local device pointers and dev_err_probe() for
-better readability and easier debugging.
-
-2. Fix potential event loss during system suspend by reporting key press events
-directly in the interrupt handler.
-
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Frank Li <Frank.Li@nxp.com>
-To: Peng Fan <peng.fan@nxp.com>
-To: Jacky Bai <ping.bai@nxp.com>
-To: Ye Li <ye.li@nxp.com>
-Cc: imx@lists.linux.dev
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 Signed-off-by: Joy Zou <joy.zou@nxp.com>
 ---
 Changes in v2:
-- Drop dev_err_probe() change for platform_get_irq() per AI review comments.
-- Add new patch #2 replace hardcoding -EINVAL with original error code per
-  AI review comments.
-- Use dev instead of &pdev->dev for devm_input_allocate_device(), which was
-  missed in patch v1 per AI review comments.
-- Add a boolean variable suspended and PM callback functions to replace
-  the use of the is_suspended field per AI review comments.
-- Move event report handle to else branch in suspended state, since the
-  pdata->minor_rev == 0 branch has no debounce detection per AI review
-  comments.
-- Modify patch #3 and #4 commit message.
-- Add Reviewed-by tag for patch #1.
-- Link to v1: https://lore.kernel.org/r/20260326-pwrkey-cleanup-v1-0-d85d7c0bf275@nxp.com
-
+1. Drop dev_err_probe() change for platform_get_irq() per AI review comments.
+2. Add Reviewed-by tag.
 ---
-Joy Zou (4):
-      Input: snvs_pwrkey - make use of dev_err_probe()
-      Input: snvs_pwrkey - replace hardcoding -EINVAL with original error code
-      Input: snvs_pwrkey - use local device pointer to simple code
-      Input: snvs_pwrkey - report press event in interrupt handler
+ drivers/input/keyboard/snvs_pwrkey.c | 38 +++++++++++++-----------------------
+ 1 file changed, 14 insertions(+), 24 deletions(-)
 
- drivers/input/keyboard/snvs_pwrkey.c | 102 ++++++++++++++++++++++-------------
- 1 file changed, 64 insertions(+), 38 deletions(-)
----
-base-commit: f7af91adc230aa99e23330ecf85bc9badd9780ad
-change-id: 20260326-pwrkey-cleanup-99d3de61ed6d
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 954055aaf6e29527f22f8129fd47ca17722e2bc9..748196fcce75ba7192b1ee5fc516bdf4a9ae074d 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -124,17 +124,15 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	/* Get SNVS register Page */
+ 	np = pdev->dev.of_node;
+ 	if (!np)
+-		return -ENODEV;
++		return dev_err_probe(&pdev->dev, -ENODEV, "Device tree node not found\n");
+ 
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+ 	pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");
+-	if (IS_ERR(pdata->snvs)) {
+-		dev_err(&pdev->dev, "Can't get snvs syscon\n");
+-		return PTR_ERR(pdata->snvs);
+-	}
++	if (IS_ERR(pdata->snvs))
++		return dev_err_probe(&pdev->dev, PTR_ERR(pdata->snvs), "Can't get snvs syscon\n");
+ 
+ 	if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
+ 		pdata->keycode = KEY_POWER;
+@@ -142,10 +140,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	clk = devm_clk_get_optional_enabled(&pdev->dev, NULL);
+-	if (IS_ERR(clk)) {
+-		dev_err(&pdev->dev, "Failed to get snvs clock (%pe)\n", clk);
+-		return PTR_ERR(clk);
+-	}
++	if (IS_ERR(clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
++				     "Failed to get snvs clock (%pe)\n", clk);
+ 
+ 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
+ 
+@@ -165,9 +162,8 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 			bpt = (val / 5) - 1;
+ 			break;
+ 		default:
+-			dev_err(&pdev->dev,
+-				"power-off-time-sec %d out of range\n", val);
+-			return -EINVAL;
++			return dev_err_probe(&pdev->dev, -EINVAL,
++					     "power-off-time-sec %d out of range\n", val);
+ 		}
+ 
+ 		regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_BPT_MASK,
+@@ -198,10 +194,8 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 
+ 	/* input customer action to cancel release timer */
+ 	error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
+-	if (error) {
+-		dev_err(&pdev->dev, "failed to register remove action\n");
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(&pdev->dev, error, "failed to register remove action\n");
+ 
+ 	pdata->input = input;
+ 	platform_set_drvdata(pdev, pdata);
+@@ -209,16 +203,12 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+-	if (error) {
+-		dev_err(&pdev->dev, "interrupt not available.\n");
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(&pdev->dev, error, "interrupt not available.\n");
+ 
+ 	error = input_register_device(input);
+-	if (error < 0) {
+-		dev_err(&pdev->dev, "failed to register input device\n");
+-		return error;
+-	}
++	if (error < 0)
++		return dev_err_probe(&pdev->dev, error, "failed to register input device\n");
+ 
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 	error = dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
 
-Best regards,
 -- 
-Joy Zou <joy.zou@nxp.com>
+2.50.1
 

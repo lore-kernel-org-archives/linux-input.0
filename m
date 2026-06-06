@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15EA730CDA2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17D637B415
 	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:27:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780748831; cv=none; b=eUnXE4bjt5J2VMU9KyPFywXU61pRBvAscYmsy+2CHJmEbjAYAgahRE/UNHZv504P7n7Q+3JVEbbJ7G3n3DXohlh0+EzOcWrkzIc1/9mbRRUaeNVZsHPJyNzZNTiZGvqZ7uylPv1X4QiJJMJKzI/ZLznzy9rMX2KK+VcRYw+7+Ag=
+	t=1780748831; cv=none; b=PWvSDc4SNpI50EY9BEi4kQXDddeBKh4lnHfF8Q6QtTCyXB1UQoFRl8L2Li/4pjP3gJgpCAOC/+mZWLL/b6Tsn9tVaziyow2ImseA+i5aPWbQVeVG4L5rmQKvEU1f36rLKWbQ+CZQqGMPb7M1tXdKh76GO53nR6guHSDyKJi1d5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1780748831; c=relaxed/simple;
-	bh=zOZoTMA1fJh7IC8ByGbRQkbXmzmJX2WHAHoK6pzGU0w=;
+	bh=uG79U5xyrKm+USlTJeuwJG9MwTVCcTgl6iJEDzY2bGw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LXOWg5T58JxjAh3wguXGbjRb26KY/+wkS/2eiGFqjO+g527yD3Y6nzg5nYuJx/6+9dfuisKW6qd//49/LWvXLKihnVJLdjQYALr82UUgA28r4SJW12TNPgl1bRvhER2YD8OWz/PomaFsl3qFSWJlQeIZMNgZTfGJFOFEphUC8oM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b5douF03; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=d3Ez9BtPaWqUdgOXxGpXbBHLxcX+P7atcFV9TAHqgUUP+Giu+b2Rv9OjiHh4LRgFL1qsIJP1U7EHfNH7SyMmAhv8R+H4id50HGMQbKRwvBdYHPV/vt9TET7xKNQtcSt7YDcojkxCAq3vJ1KMrUa5FvX09sDIpUaJ3yyZEi9Yu1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WjtBd57z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b5douF03"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98EC1F00893;
-	Sat,  6 Jun 2026 12:27:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WjtBd57z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6106B1F00898;
+	Sat,  6 Jun 2026 12:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1780748830;
-	bh=zXPcUFIjpbCMlYeogyN/bQTNiBqw4BZ/aftETOo76Us=;
+	bh=Nm5RLmGWmavVx+VIceX3JCgKuam/gjsLWlswscGBjes=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b5douF03sKHDEbqjnZwqbYlEzfMnqQnK+eUnQ1EsmH1/hHmTOOIYylvO9V6rZgxLL
-	 FMoDfREdp7Eeo4aCHtWXh8YB5lzW7e4rfjLjBsk9g8GZLd+TrPUD51qPxloL/e4sAB
-	 x2FChEPLk4a2omLadfx+iVg6l5hlzEC4Xij2VbNbTSoaQXAMoUAUFVm1Tx+UjXBwaO
-	 cxoTURhicFJ2cxY04fh8NXibzSaFHoaFkDl1dSbolSFMQ3Wjg0K8mbrKbm2nZbFFf7
-	 5D9ql6DkgeTVfYZ1IUpPPVZCu2iw5QDGNEtL6tcj9nRWWA+2WDeoupnQGY7LhvwQhQ
-	 ORbZEPfTsLTdg==
+	b=WjtBd57zGs0qG3C5Sc4ICkGPNeXtRVZY/tmQv7WLa2+lwv62Iar95/kpCc9CMVQZE
+	 Uf8kC7f3Fonb0X4hzuO8mkJhRrUUS4O6G+s9onKMPi9SCvs50teivjeRQ4MkfPktPH
+	 uIJh6fS9lZ8M0287Ub+/YCc6IHTyY/ekb5lEwzHkQgsVeUiVrswGGsDNQgNubf+uD5
+	 VMHKmzz3PxLs9B88cl1a/JaHcFxBTfrSLL2kKkghJ71Wi8Fjv32/E1sFTqC0/zjzsA
+	 LZhTAPqk76wKCD5I0Trip7cfbA7CGmUmbcL5T4Ir7yUI9YGlnc7l3/I4fQ6vkfFNpM
+	 RY0QnesDljXTg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/7] iio: accel: hid-sensor-accel-3d: use u32 instead of
+Subject: Re: [PATCH 4/7] iio: light: hid-sensor-prox: use u32 instead of
  unsigned
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-2-dd4a6820b674@gmail.com>
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-2-dd4a6820b674@gmail.com>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-4-dd4a6820b674@gmail.com>
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-4-dd4a6820b674@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 06 Jun 2026 12:27:09 +0000
-Message-Id: <20260606122709.C98EC1F00893@smtp.kernel.org>
+Date: Sat, 06 Jun 2026 12:27:10 +0000
+Message-Id: <20260606122710.6106B1F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,84 +48,70 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Unsafe memory access via out-of-bounds read and unaligned derefere=
-nce.
+- [High] Direct casting of the raw HID byte stream pointer (`raw_data`) to =
+`u16 *` and `u32 *` causes unaligned memory accesses and misinterprets litt=
+le-endian HID data on big-endian architectures.
 --
 
-commit f0677ef9176d20b908a2aa7a22d8817abe7925a7
+commit e810e65c50acb8fcba7f1cd54ed67e25dac1f409
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
+iio: light: hid-sensor-prox: use u32 instead of unsigned
 
-This commit updates the hid-sensor-accel-3d driver to use u32 instead of
-unsigned for the usage_id variables. This improves code clarity and maintai=
-ns
-consistency with kernel coding styles.
+This patch updates the usage_id parameter to use u32 instead of a bare
+unsigned type. This improves code clarity and consistency with standard
+kernel style.
 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/=
-hid-sensor-accel-3d.c
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
+sensor-prox.c
+> index edc9274a2c076..9059f00f0cedf 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
 [ ... ]
-
-> @@ -247,7 +247,7 @@ static int accel_3d_proc_event(struct hid_sensor_hub_=
-device *hsdev,
+> @@ -183,7 +183,7 @@ static int prox_proc_event(struct hid_sensor_hub_devi=
+ce *hsdev,
 > =20
 >  /* Capture samples in local storage */
->  static int accel_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+>  static int prox_capture_sample(struct hid_sensor_hub_device *hsdev,
 > -				unsigned usage_id,
 > +				u32 usage_id,
 >  				size_t raw_len, char *raw_data,
 >  				void *priv)
 >  {
->  	struct iio_dev *indio_dev =3D platform_get_drvdata(priv);
->  	struct accel_3d_state *accel_state =3D iio_priv(indio_dev);
->  	int offset;
->  	int ret =3D -EINVAL;
-> =20
->  	switch (usage_id) {
->  	case HID_USAGE_SENSOR_ACCEL_X_AXIS:
->  	case HID_USAGE_SENSOR_ACCEL_Y_AXIS:
->  	case HID_USAGE_SENSOR_ACCEL_Z_AXIS:
->  		offset =3D usage_id - HID_USAGE_SENSOR_ACCEL_X_AXIS;
->  		accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =3D
->  						*(u32 *)raw_data;
 
 [Severity: High]
-This is a pre-existing issue, but I noticed a potential problem with how
-raw_data is accessed here. Does this direct cast to a 32-bit integer pointer
-assume that raw_len is always at least 4 bytes and that raw_data is always
-4-byte aligned?
+This is a pre-existing issue, but since you are updating types in this
+function, could we also address how the raw_data pointer is accessed?
 
-If a device provides a smaller report, could this result in an out-of-bounds
-read? Also, since raw_data comes from a HID report buffer, could this trigg=
-er
-an alignment fault on architectures with strict alignment requirements if t=
-he
-data is unaligned?
+Further down in prox_capture_sample(), the raw HID byte stream is directly
+cast to u16 and u32 pointers:
 
->  		ret =3D 0;
->  	break;
->  	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
->  		accel_state->timestamp =3D
->  			hid_sensor_convert_timestamp(
->  					&accel_state->common_attributes,
->  					*(int64_t *)raw_data);
+	switch (raw_len) {
+	case 1:
+		prox_state->human_presence[chan] =3D *(u8 *)raw_data * multiplier;
+		return 0;
+	case 2:
+		prox_state->human_presence[chan] =3D *(u16 *)raw_data * multiplier;
+		return 0;
+	case 4:
+		prox_state->human_presence[chan] =3D *(u32 *)raw_data * multiplier;
+		return 0;
+	}
 
-[Severity: High]
-This is also a pre-existing issue, but similar to the above, does this dire=
-ct
-cast to a 64-bit integer pointer require raw_len to be at least 8 bytes and
-raw_data to be 8-byte aligned?
+Can this sequence cause unaligned memory accesses or endianness issues?
 
-Would it be safer to use get_unaligned() and check raw_len before
-dereferencing these pointers to avoid potential slab-out-of-bounds panics
-or alignment faults?
+Because HID fields are tightly packed and can have arbitrary lengths, the
+raw_data pointer is not guaranteed to be 2-byte or 4-byte aligned.
+Dereferencing it directly could trigger unaligned access traps on
+architectures that do not natively support them.
 
->  		ret =3D 0;
->  	break;
+Additionally, HID reports are transmitted in little-endian format over the
+wire. Reading them via a direct cast evaluates them in host byte-order,
+which could yield corrupted data on big-endian architectures.
+
+Would it be better to use get_unaligned_le16() and get_unaligned_le32()
+here to safely extract the payload?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606-6-june-hid=
--iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D2
+-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D4

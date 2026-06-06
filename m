@@ -1,250 +1,111 @@
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0E1631A567
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 15:06:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8412236E3;
+	Sat,  6 Jun 2026 15:13:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780758401; cv=none; b=RJO1mPs5okbvT4/RrZNKrYcdyJK60BujgqG49iHSw24NrCHFe6M1VQLk42yyBZG8cMgxzGLMwDwUveK2HcvK3FMQETrfSC5YuWbYtXPX16S+csmtLKfhnmY6oGwaEzVGxW2aQpzvtFT+1N8WJKFxbYBijjMWj1zuYeELhK7qW6o=
+	t=1780758828; cv=none; b=s7KILQyQJaGxQSj0zFltz6PFJGdNvEO7ek0WuS+JRIpTWC76nMvqKsFY8SgiXgL5JeAFTyyekSI9NNp4+0167lg3meENojwTS05gZKDfQl3avpSoTh2fJZ4FA/kuLbKGQsUeRMX4TqqiUZgsJnjlym/X77lYH+zONMN6MuqR3wQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780758401; c=relaxed/simple;
-	bh=/iq/pKUcLd2+ZjphyoeKuDnlDKhdvKBfSeOZb+ir2LY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e6f4fbkJvRhYpH4cXLTF6dlD91Y3UURNnljtWGO0nwpjXNORngqKjZbRJfifkxwzPYSnIlW0P3SRT8dBRxuz8ysP5LfDO4w1URK8auvd4wV4AUa1Z2Tk1nWH1qXs1+32SUSNLKJc+b9vxTrQwOzxhWhgVNb55vIuVXt99e3Ftrg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O3wFSyWm; arc=none smtp.client-ip=74.125.82.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780758828; c=relaxed/simple;
+	bh=xnEf1Dd/QXaZZt2Hd/BoPNRAe3RQCfD5VQt3Jzxf0Fk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Uz1t9ZOAKT54M5uBgM+kwsop5Cj/GsGXSmgulF8n4/uO+uvPaVmv7x/UqTKjK3PX2XRHH2MUHaj7dX/xQHZIDovmtOOAKp/iu02d3L1+sXqHwkAtIEgnSIY5FbC91iYfwktwsljGmz0eVEFaQPBUvGOMtCklLn0nAdJzLNNRuUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eRiD7F8n; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O3wFSyWm"
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-13807d2f898so1617255c88.0
-        for <linux-input@vger.kernel.org>; Sat, 06 Jun 2026 08:06:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780758400; x=1781363200; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TjiWtAz+aQ4k3cgwyCNnyCozbPzrXU6EPLyKwpTDaVY=;
-        b=O3wFSyWmHKGIGAhRL8b7BYYLOhWgzib+nVF6ZTUUygNRwPyrQi/D753GTP3uRivRWH
-         NO1UiPN4BzdJCTWb6FVsqgN7PNNUxTT7i11twcMOxaxzvzU/FUdi6u0LM5UUimFdRsn2
-         OhmmgBlGHv4Y/ALzzjIGC5Tkse7u1RlMctpi6Lmt4kiTkj9+P7lhMmd5amzxSqF+rfXV
-         zxeDE9SsLbPePB520J/VGSmJBpfoSM12Ep/ohcmQj69Ta9GWdyjc9lY/kmGqpLEaBjJO
-         Vd03JfAbuFw5IPpZT2biUWnxequMYYWUeW1+xX5jZOgJzdDAwPQ9CD+NF+BZDcUqakIn
-         Hp1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780758400; x=1781363200;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=TjiWtAz+aQ4k3cgwyCNnyCozbPzrXU6EPLyKwpTDaVY=;
-        b=cZVR2XnsZwXkLM8eHY6ziCUSUOqnvDBvqlu0RVjFXoXJp+hKNY5ZGuEJTLw4kIF3i0
-         Zi3TBehrATh3C4WENAfdWP6cRI649XobCwWVN/e5DloKzvnjcvpIaPkpF1OH2etToMNe
-         iptimW+GL3E6j4qjTcf+P5gD2axJRP2vyceiEhtmh1faq1xgXpvr1GWUrgZZJedeK9fq
-         y0lt418+hPmkvOG993p8JZ/ObhlZUxykZlXepSt6SOQxEpTnXhF9U7+VObJXebFQ0AEd
-         t+tZVbzwvcQAJWmyCJ0R5738O7vmDhalZGPyu74ncEBLumUd/Xq4Jmqbc2RugrSptf3k
-         wtPw==
-X-Forwarded-Encrypted: i=1; AFNElJ8hJqQJbhLVgXtZoTR0UHfOe0DQUNOUaZcgzo63bEiCsJt0tuvF7Tkxng9W3/75XEphkaLVT+MhI40CUg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBhgMKgvqWIz8WAEQ+OZZdBYbxrc98CcBjmL7gaw1u6K4G7TWg
-	ipQf5AlPA/pScocrhVtCmTnx9FiBm/lTZFtXjWcyk9+pa2TpOynwlrOs
-X-Gm-Gg: Acq92OGnhakTeIfhhrSM9yUv60sQfmSTHe1KVbIAXgQvtFq2GKlLayyd+/Gxy0bV4ih
-	32mDxJWLInXxkMlDYvQRkrDBmJmvz5Kaz5CwqaiMgzM4/rG/wgOkS0XoMon+RxSkB2dOCqrIK5L
-	lHjCxu01I8zb/ob0jdJAq/YciQzyfWDKUooivON8M/y5cFZtNSz1C27yeZdkRH7aZfqzdePGVqc
-	2cd7UrNCQHc4flYor8udTd2UHoGQ781qSZnmvEBVpEgWUdLp/JugTspxSiFl4BvzZCm4H0gjLPF
-	NT0qo37UxNba43MK4PRaI0E8qgpL/qMIeiz1K6Ky+RxmDcfNXn8TfFqEso7T4X9oTbtibFut02S
-	+YnQhVxaB2jty95SdMU1EVubz0nosdwC44iiPzji40cdSzFuM6pnVbHIDvA4BbglRkq3CjQCymE
-	0Zos7kFJRorMKqbNzOSiaXkFDPX18X5tZw1iOqh6RD848HeWUlBq2siJhKc4Xu
-X-Received: by 2002:a05:7022:7a5:b0:137:6781:7dd4 with SMTP id a92af1059eb24-138066b5982mr4256600c88.8.1780758399496;
-        Sat, 06 Jun 2026 08:06:39 -0700 (PDT)
-Received: from arch.localdomain ([2409:8a28:a54:e741:3a5a:3245:d3dc:4b5d])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137f5539035sm8415607c88.11.2026.06.06.08.06.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Jun 2026 08:06:39 -0700 (PDT)
-From: Jun Yan <jerrysteve1101@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Cc: Jun Yan <jerrysteve1101@gmail.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 8/8] Input: cap11xx - add support for CAP1114
-Date: Sat,  6 Jun 2026 23:04:01 +0800
-Message-ID: <20260606150458.250606-9-jerrysteve1101@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260606150458.250606-1-jerrysteve1101@gmail.com>
-References: <20260606150458.250606-1-jerrysteve1101@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eRiD7F8n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5861F00893;
+	Sat,  6 Jun 2026 15:13:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780758826;
+	bh=cd+1iaicfal/M+ZhCD5v4zcUwUCKtRAm2ikxGQ1lSwM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=eRiD7F8nYYR20oWKuzHY7uVX0fEMwYPlW0cYBx/ECJ523xVtvSRee9gCTg+T3S6jt
+	 6JlthC1CegEDg7E2Cu905YDrwKNb50uyeUCD+WTnwX0/YnGqh4AEMC8aMhEyY+AwZC
+	 2uTY3LX+1C/hQksTL9amjjW7CT/VGzIW7Ie16qnUqPNr0havWEaE9+l9kguoQJz6Kd
+	 siP8Xabfba+PNkKK0vTPUqolauqs2XLcjgupJPxMuKXMH3QszmWw0meQ8FTJudGKDH
+	 iZDlDrXr+EfsGVlAR0vMLGVHSHnsvrx6aKyrAMpjI0/aAjagS9J6ryO3bfCKTeCeMD
+	 3nePg/ikyDEog==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 5/8] Input: cap11xx - add reset gpio support
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jun Yan" <jerrysteve1101@gmail.com>
+Cc: robh@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260606150458.250606-6-jerrysteve1101@gmail.com>
+References: <20260606150458.250606-6-jerrysteve1101@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 06 Jun 2026 15:13:46 +0000
+Message-Id: <20260606151346.8C5861F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
-and hardware reset support.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Low] Inefficient delay using usleep_range() for a large duration (400-50=
+0ms).
+- [Low] Missing explicit inclusion of <linux/delay.h>.
+--
 
-The CAP1114 uses two separate control registers for LED output
-management and requires two button status registers for touch input
-state reporting.
+commit 83de47341df3454fdb8216dc0a95948c3f158a40
+Author: Jun Yan <jerrysteve1101@gmail.com>
 
-By default, channels CS8~CS14 operate as a single grouped block.
-Set the corresponding register enable bit to enable these channels as
-independent touch inputs. Note these channels share the input threshold
-of the eighth entry, causing num_sensor_thresholds to differ from
-num_channels.
+Input: cap11xx - add reset gpio support
 
-Signed-off-by: Jun Yan <jerrysteve1101@gmail.com>
----
- drivers/input/keyboard/cap11xx.c | 65 +++++++++++++++++++++++++++++++-
- 1 file changed, 64 insertions(+), 1 deletion(-)
+This commit adds hardware reset support for CAP11xx devices by toggling a
+dedicated reset GPIO during the i2c probe phase. It incorporates specific
+timing requirements for the reset filter and active reset duration.
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 408880cf6516..2aba3b508947 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -17,6 +17,12 @@
- #include <linux/gpio/consumer.h>
- #include <linux/bitfield.h>
- 
-+#define CAP1114_REG_BUTTON_STATUS1	0x03
-+#define CAP1114_REG_BUTTON_STATUS2	0x04
-+#define CAP1114_REG_CONFIG2			0x40
-+#define CAP1114_REG_CONFIG2_VOL_UP_DOWN	BIT(1)
-+#define CAP1114_REG_LED_OUTPUT_CONTROL1	0x73
-+
- #define CAP11XX_REG_MAIN_CONTROL	0x00
- #define CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
- #define CAP11XX_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
-@@ -82,6 +88,7 @@ struct cap11xx_hw_model {
- 	unsigned int num_leds;
- 	unsigned int num_sensor_thresholds;
- 	bool has_gain;
-+	bool has_grouped_sensors;
- 	bool has_irq_config;
- 	bool has_repeat_en;
- 	bool has_sensitivity_control;
-@@ -98,6 +105,9 @@ static const struct reg_default cap11xx_reg_defaults[] = {
- 	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(6),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(7),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(8),		0x40 },
- 	{ CAP11XX_REG_CONFIG2,			0x40 },
- };
- 
-@@ -106,6 +116,12 @@ static bool cap11xx_volatile_reg(struct device *dev, unsigned int reg)
- 	switch (reg) {
- 	case CAP11XX_REG_MAIN_CONTROL:
- 	case CAP11XX_REG_SENSOR_INPUT:
-+	/*
-+	 * CAP1114_REG_BUTTON_STATUS1 (CAP11XX_REG_SENSOR_INPUT) and
-+	 * CAP1114_REG_BUTTON_STATUS2 is volatile for the CAP1114,
-+	 * which supports more than 8 touch channels.
-+	 */
-+	case CAP1114_REG_BUTTON_STATUS2:
- 		return true;
- 	}
- 
-@@ -283,6 +299,16 @@ static int cap11xx_init_keys(struct cap11xx_priv *priv)
- 	of_property_read_u32_array(node, "linux,keycodes",
- 				   priv->keycodes, priv->model->num_channels);
- 
-+	/*
-+	 * CAP1114 needs dedicated configuration to split grouped sensors into independent inputs.
-+	 */
-+	if (priv->model->has_grouped_sensors) {
-+		error = regmap_set_bits(priv->regmap, CAP1114_REG_CONFIG2,
-+					CAP1114_REG_CONFIG2_VOL_UP_DOWN);
-+		if (error)
-+			return error;
-+	}
-+
- 	if (priv->model->has_repeat_en) {
- 		/* Disable autorepeat. The Linux input system has its own handling. */
- 		error = regmap_write(priv->regmap, CAP11XX_REG_REPEAT_RATE, 0);
-@@ -311,6 +337,20 @@ static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
- 	if (ret < 0)
- 		goto out;
- 
-+	if (priv->model->num_channels > 8) {
-+		unsigned int status2;
-+
-+		ret = regmap_read(priv->regmap, priv->model->sensor_input_reg_base + 1, &status2);
-+		if (ret < 0)
-+			goto out;
-+
-+		/*
-+		 * CAP1114 STATUS1 register only contains data for the first 6 channels.
-+		 * the remaining channels is stored in STATUS2.
-+		 */
-+		status |= FIELD_PREP(GENMASK(13, 6), status2);
-+	}
-+
- 	for (i = 0; i < priv->idev->keycodemax; i++)
- 		input_report_key(priv->idev, priv->keycodes[i],
- 				 status & (1 << i));
-@@ -360,7 +400,13 @@ static int cap11xx_led_set(struct led_classdev *cdev,
- 	 * limitation. Brightness levels per LED are either
- 	 * 0 (OFF) and 1 (ON).
- 	 */
--	return regmap_update_bits(priv->regmap,
-+	if (led->reg >= 8)
-+		return regmap_update_bits(priv->regmap,
-+					priv->model->led_output_control_reg_base + 1,
-+					BIT(led->reg - 8),
-+					value ? BIT(led->reg - 8) : 0);
-+	else
-+		return regmap_update_bits(priv->regmap,
- 				  priv->model->led_output_control_reg_base,
- 				  BIT(led->reg),
- 				  value ? BIT(led->reg) : 0);
-@@ -393,6 +439,13 @@ static int cap11xx_init_leds(struct device *dev,
- 					GENMASK(num_leds - 1, 0), 0);
- 	if (error)
- 		return error;
-+	if (num_leds > 8) {
-+		error = regmap_update_bits(priv->regmap,
-+						priv->model->led_output_control_reg_base + 1,
-+						GENMASK(num_leds - 8 - 1, 0), 0);
-+		if (error)
-+			return error;
-+	}
- 
- 	duty_val = FIELD_PREP(CAP11XX_REG_LED_DUTY_MAX_MASK,
- 			     CAP11XX_REG_LED_DUTY_MAX_VALUE);
-@@ -572,6 +625,14 @@ static const struct cap11xx_hw_model cap1106_model = {
- 	.has_repeat_en = true,
- };
- 
-+static const struct cap11xx_hw_model cap1114_model = {
-+	.product_id = 0x3a,
-+	.led_output_control_reg_base = CAP1114_REG_LED_OUTPUT_CONTROL1,
-+	.sensor_input_reg_base = CAP1114_REG_BUTTON_STATUS1,
-+	.num_channels = 14, .num_leds = 11, .num_sensor_thresholds = 8,
-+	.has_grouped_sensors = true,
-+};
-+
- static const struct cap11xx_hw_model cap1126_model = {
- 	.product_id = 0x53,
- 	.led_output_control_reg_base = CAP11XX_REG_LED_OUTPUT_CONTROL,
-@@ -628,6 +689,7 @@ static const struct cap11xx_hw_model cap1298_model = {
- 
- static const struct of_device_id cap11xx_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", .data = &cap1106_model },
-+	{ .compatible = "microchip,cap1114", .data = &cap1114_model },
- 	{ .compatible = "microchip,cap1126", .data = &cap1126_model },
- 	{ .compatible = "microchip,cap1188", .data = &cap1188_model },
- 	{ .compatible = "microchip,cap1203", .data = &cap1203_model },
-@@ -640,6 +702,7 @@ MODULE_DEVICE_TABLE(of, cap11xx_dt_ids);
- 
- static const struct i2c_device_id cap11xx_i2c_ids[] = {
- 	{ .name = "cap1106", .driver_data = (kernel_ulong_t)&cap1106_model },
-+	{ .name = "cap1114", .driver_data = (kernel_ulong_t)&cap1114_model },
- 	{ .name = "cap1126", .driver_data = (kernel_ulong_t)&cap1126_model },
- 	{ .name = "cap1188", .driver_data = (kernel_ulong_t)&cap1188_model },
- 	{ .name = "cap1203", .driver_data = (kernel_ulong_t)&cap1203_model },
--- 
-2.54.0
+> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
+p11xx.c
+> index 686174722204c..7015aa7654ce7 100644
+> --- a/drivers/input/keyboard/cap11xx.c
+> +++ b/drivers/input/keyboard/cap11xx.c
 
+[ ... ]
+
+> @@ -452,6 +457,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_=
+client)
+>  	if (IS_ERR(priv->regmap))
+>  		return PTR_ERR(priv->regmap);
+> =20
+> +	priv->reset_gpio =3D devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LO=
+W);
+> +	if (IS_ERR(priv->reset_gpio))
+> +		return dev_err_probe(dev, PTR_ERR(priv->reset_gpio),
+> +							"Failed to get 'reset' GPIO\n");
+> +	if (priv->reset_gpio) {
+> +		gpiod_set_value_cansleep(priv->reset_gpio, 1);
+> +		usleep_range(CAP11XX_T_RST_FILT_MIN, CAP11XX_T_RST_FILT_MIN * 2);
+> +		gpiod_set_value_cansleep(priv->reset_gpio, 0);
+> +		usleep_range(CAP11XX_T_RST_ON_MIN, CAP11XX_T_RST_ON_MAX);
+
+[Severity: Low]
+Does this regression introduce unnecessary overhead by using usleep_range()
+for a 400-500ms delay in cap11xx_i2c_probe()?
+
+According to kernel timer guidelines, usleep_range() is designed for short
+delays (10us to 20ms) and sets up high-resolution timers. For delays longer
+than 20ms, using msleep() or fsleep() avoids unnecessary overhead and
+expensive CPU wakeups.
+
+[Severity: Low]
+Could this regression in header dependencies be avoided by explicitly
+including <linux/delay.h> since we are now calling usleep_range() here?
+
+While the code might compile due to implicit inclusion via other headers,
+relying on implicit includes can sometimes lead to build failures on other
+architectures or if intermediate headers are refactored in the future.
+
+> +	}
+> +
+>  	error =3D regmap_read(priv->regmap, CAP11XX_REG_PRODUCT_ID, &val);
+>  	if (error)
+>  		return dev_err_probe(dev, error, "Failed to read product ID\n");
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606150458.2506=
+06-1-jerrysteve1101@gmail.com?part=3D5

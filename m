@@ -1,74 +1,83 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 594243AEF35
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 21:01:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9DA1DB356
+	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 21:03:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780779706; cv=none; b=AbyKk7lLqYNnMO5dCC/JymLgzEelR+XA/1I3QMzINtPriiLqb7ec6j45cEJz7rdj9VEVSAVehCoHCO8XWt3/KoC1PtnyGdf4JTY63KGgJnXj8BFC/VSpzF2doYMoFacqSLFL2GmcH55eJ79vmqPO4r55I1TExfJAjMOQlvGlkzU=
+	t=1780779831; cv=none; b=qnGWA2vqFQDmxnAGzPuxPDCjmN438rDEIx6Y0iNf8qiEx5hrdJhlr9LiflVR1Mp7zIFS/lEENKjYv4Z7OQ989IVBeUKBGb0PJGVEwEiQdob/ZpNp2OMSjJswHdduhXvbG9XzYr9MSGWBkDX5B3x6b93EU38GIjq4FwcL3R6I9fM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780779706; c=relaxed/simple;
-	bh=sFHoZUB84WQUJMVXpebDMn9mFFy9QnYO3FFabZWh+zU=;
+	s=arc-20240116; t=1780779831; c=relaxed/simple;
+	bh=8aQsvQV92fCNEJtI42BLGSyXug3KVyb8/WsuBLmztq0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HmspXuCrIzWKYqkIbEhFbBCd2QHL5Oaqf3p3iacAIOfqKeD9SNBBtSiU084lC98AiQYYC0/Syuucu/HL0jdEHLmh/nY7Db3apVxfpJixDoqy9mekzOwupEDcKbXlfxF5YfDY4qv6nsjLt2hRVa+2GES1PKjh1pbuYgLA7HhzDpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ij1FATMX; arc=none smtp.client-ip=74.125.82.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=LrbpGd9oHg5cvqaxwvUxejlR8sE1JWMZ2qmpjCVjaSFc5HC/UgyPkNqHmGxCqUbC/wRNsw01ivD1zIkrDAK2w3BnkOo8HLyDKSNXWtfXdB3jyZe51wqd+UEJQ9/Tgh8TH8cVopbxdY/7CYHPV9JNv18RyvZS1WQ+DrKPoomJyNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gyC2BOm7; arc=none smtp.client-ip=74.125.82.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ij1FATMX"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-307631dbfedso6872083eec.0
-        for <linux-input@vger.kernel.org>; Sat, 06 Jun 2026 14:01:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gyC2BOm7"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-138188a7dccso961657c88.1
+        for <linux-input@vger.kernel.org>; Sat, 06 Jun 2026 14:03:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780779704; x=1781384504; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780779828; x=1781384628; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/tIW5V2iGf0T/iY4Wo1QvntK0SSmiv71FmChmR6T7j0=;
-        b=ij1FATMXnACwwedm5+OnV6V3R42KqWI6Qm/iKvMccwxQB1D0d0S4bZ78bgobPgfGzE
-         MlIj7SMQaiLU5liabK41hv9lEJQQUwJsiT8nTCma4kLsTu0hEUsvU7K8dhyETsL5U7hr
-         Xk95TD2F2DhnHHjRsvsUhI2099Oi03AYBRmlu0L4YHZ42j8NvYiML/lWsgoV6tBROEcb
-         wjy2qpFWfzFAztThbqutVhVoxNejSwJNcF3pYtENvDlvP1oONT2iIsY/ytTKY30rHafA
-         PaRc0p3vpEMGxHZTDg0eg6WM5P0Ud7ovlFr+Gg+jWN+EENLLeHtSPfI2vy6tiT+v21Aj
-         WViQ==
+        bh=IpsbdQ4HEXAu1DofK9GVpNtvbeL5V7mTYGQq3LB/EZo=;
+        b=gyC2BOm7S5VP72mgnsTuhnN9AFqyGpSdrXsm683Sebk4NIWJ7aOvSj1RrBs8RPIALg
+         ZlNdaZ6jaPPQp6+QNBHKWny3CXkarbqoUaGSz5nZFfgV0ETia4Zz6BiXd1JOg4UmlgeH
+         IuJxGxAfRFywUbRFS1iclf3mrzxm5/YMbwIWZh/Zvc2KUwvcPfGzQ1jPQS3SxbG4rzpd
+         I1JOn7YF+iLVtAt46bifoeGncS+O5KRdu/D51wKDROjvP6s93+ODmZRsr7ztmDXC/aAq
+         6gEML85fg84YhetACuEBdxXki7T3+TQ9/FzXnXlw0NSKYOaRFV/LYo5zSa/cyeDPxFUS
+         HWZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780779704; x=1781384504;
+        d=1e100.net; s=20251104; t=1780779828; x=1781384628;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/tIW5V2iGf0T/iY4Wo1QvntK0SSmiv71FmChmR6T7j0=;
-        b=QMP4AkVQ8NZ2GHTT14VKXVTJbqRtFJwMW1m25rnq3uNdEdkr56D+yfYCRhGoAKz/EQ
-         VcJ/kAxPYGMxvAuF117ZMO105CMDTVhvzMH39LLbs9AirY1cBkOhSPr2EygYGcW494Lb
-         znqDPGZYR6FsS6Jex8E99uv2/vBb02UUqAuL6RqF8szDNHS2cqqF5hifKoCPSv8qwE6R
-         5R3BS4u09fKqqXdxVG8f6OlN3h1Bd16xMUxD7xVbNl6TSGU+ear62SxVTJ5/Tm7ifKXj
-         1fRMcvvq7MuWrPclGDkB4jzRotDhNMBthrPkYlHAvtFR/C290q74Yz/AscK/QMOqx5JH
-         u5Uw==
-X-Forwarded-Encrypted: i=1; AFNElJ+iRI9JDXix5JKugMpIzBsfuw6HjUU5xEyIhI31Gri34UYt1OL/pSFy9tmcwPxXHsB1LyPXzl1Xe8GflA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzorr1RbVBIEgsvh4nlX4pg4uDZ6GfYWSAEGVNTqehTA94ahpum
-	vWy3nntiGZ70YfZuA6E3irdVtYE9IVcp4qF1T5UAvvupLkLXZjcQ6Bq+
-X-Gm-Gg: Acq92OFFowJKe9Es79eFZWmMht2DMB6Qbar2oMHjnWuQ0CfjgtURTSB75HXjrczGDb3
-	sv2xIZkcn98hTpYQr7yan5peGlPat+Jv+Xm2offeRmG6kQuT7L1AgjCQxoNQ5ywvmsCpYp07r5w
-	8w7QxenzlE8qi1GlFrCdTqA7QG1Y2KPNacO65R4xaayWXDouR+Sd+mgbLUn6WwMWOC/ZHBLA96x
-	6weCmFG0qysWPNlLw9Ks57je9i9nBL+Sssz86fQ6nqVWqnaour6dBWsoD474xHtosilQ/cDv/MR
-	Qnt/jR2GVWp9KL9k7GAqPShjgtqDr3q/yl9hALlD6UGT0RgWPjVQL+n7XsXk/w4/pVuMrWp8muJ
-	lm5FkTD/H0+N9HJu/82seRq5klVzXuNq30qRz8t5WpdRlezWuM2eLIiZ1CDSZ1B+D0jkgfv55s3
-	X5L1KriaBnlrJ/GEwCMJRvUIb64xrT8qj3PvDLMhH3UHvge6DpcpuN9ipzhEHQfjNj3Y1jyqhtb
-	zk=
-X-Received: by 2002:a05:7300:3721:b0:304:d4c0:82ea with SMTP id 5a478bee46e88-3077b47ce9dmr6055191eec.21.1780779704426;
-        Sat, 06 Jun 2026 14:01:44 -0700 (PDT)
+        bh=IpsbdQ4HEXAu1DofK9GVpNtvbeL5V7mTYGQq3LB/EZo=;
+        b=nAcXuqDJTAfLVoYesvrbyh+H4ceHpBQseiGG8OirbtoyNDTLuSSxzi8CXQ8iB96JAE
+         nqLp9T5uUXQtSwxSKkOTtcQ73k6E/CruHTf91frtPjQEjqA8iKn6At8i8kxlpFUQPEze
+         TD+ezEdyGj6rqzevEilRAlLscclXPw/FAtkqc9rGpwJfVp4MEELZsqQaGPpSicJk1YOY
+         QgItRLQR1kFyRBdcWHOXB6Gzlcz+0kWplZG03UjtCICkf7eV5DqOTLE5AKJPmVf9wko5
+         B+UDD3/Hfwi13gs5bA6JWVDgX6ArabIarGDoyMTK/JH7fKiVk0yVPAzGLpVIj7bnj4+R
+         xq+Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+uLg/onFDXFIQmYWd5DgoyK9lI04TjROPmPt2F8z1DtUI6eNvzyFi0wJfxOL1QA7K2BILQ5lSi9S6XMw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCy6r11lU1YrRL7S0EZAtU5eF4JaeBg4saWOiGQ5wPye5hngl5
+	LECdBc8CkQDnO9qs8DyWgZweXxBZqspyU8pH7K0cytn+h1Db+NI8lwcF
+X-Gm-Gg: Acq92OFQdlfSSXLYHjZkcD2O+DHwVNOYBGvboy9SosHg+TqGGdiLozUxdbVFG8wW/4A
+	JmoP47YEH80BKkS2WmrdEzTg4z7Ps270+Lb+vRr/qgvP0EO2dqEElhVnDjvHIORAKkbK1I1zeQ+
+	ET84C2WzqtoDg9B/Q1oW5YKSilCGMkdS8m8Dn2X2nO+UC5cobfCGiWtJ8E4pgYkwF30vt1S2jgj
+	3S7WZTzTYnbjhL72GLXlegZ16CcTBflzL9kJ/ylDsS0ED/oXUkPYZ7FMkMu/p2NNy57DbCohO9k
+	hh8lSg7+/zh8/0hjySL2nPXg64l+kXXha2txi9fLhJCgIH6UFs+sx+hDoZoa1KEx23B63orfTYp
+	dTERx9IrGzuGOqZYfqkho6EMtu3551QUII6haRFAWXM0muM/XlWzBRW4AzYy0M/5rD2ZR3GTBbr
+	eXPM5TZsBjY9yL3mcpFpDD8nwTcB15nIN1oWorBAw89phvVl3jw1dlXYknvCwpHU66sePCCgDNg
+	ZcrdUjK0zMNoA==
+X-Received: by 2002:a05:7301:5f0f:b0:2e6:e504:5431 with SMTP id 5a478bee46e88-3077b1de34bmr4945899eec.22.1780779827609;
+        Sat, 06 Jun 2026 14:03:47 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:bb2f:1c0b:386d:8909])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074df48671sm12017378eec.24.2026.06.06.14.01.43
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074dea9226sm11772015eec.19.2026.06.06.14.03.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Jun 2026 14:01:43 -0700 (PDT)
-Date: Sat, 6 Jun 2026 14:01:40 -0700
+        Sat, 06 Jun 2026 14:03:46 -0700 (PDT)
+Date: Sat, 6 Jun 2026 14:03:43 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Cryolitia PukNgae <cryolitia.pukngae@linux.dev>
-Cc: Hans de Goede <hansg@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, zhanjun@uniontech.com, niecheng1@uniontech.com, 
-	Mingcong Bai <jeffbai@aosc.io>, Kexy Biscuit <kexybiscuit@aosc.io>, kernel@uniontech.com, 
-	Hongfei Ren <lcrhf@outlook.com>, stable@kernel.org
-Subject: Re: [PATCH] Input: atkbd - skip deactivate for HONOR BCC-N's
- internal keyboard
-Message-ID: <aiSKsQCKmRh_FuzS@google.com>
-References: <20260605-honor-v1-1-78e05e491193@linux.dev>
+To: "Rob Herring (Arm)" <robh@kernel.org>, Lee Jones <lee@kernel.org>
+Cc: Akash Sukhavasi <akash.sukhavasi@gmail.com>, 
+	Conor Dooley <conor+dt@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Andrew Lunn <andrew@lunn.ch>, linux-tegra@vger.kernel.org, linux-input@vger.kernel.org, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Heiner Kallweit <hkallweit1@gmail.com>, 
+	Thierry Reding <thierry.reding@kernel.org>, linux-media@vger.kernel.org, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Vladimir Oltean <olteanv@gmail.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Eric Dumazet <edumazet@google.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Simon Horman <horms@kernel.org>, devicetree@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
+	netdev@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>, 
+	Russell King <linux@armlinux.org.uk>, Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v2 4/4] dt-bindings: input: remove obsolete
+ matrix-keymap.txt
+Message-ID: <aiSK6_n4ZnB_KRd8@google.com>
+References: <20260603-b4-remove-redirect-stubs-v2-0-c8c19876ab64@gmail.com>
+ <20260603-b4-remove-redirect-stubs-v2-4-c8c19876ab64@gmail.com>
+ <178052559618.2296868.8781332297681333925.robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,24 +86,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260605-honor-v1-1-78e05e491193@linux.dev>
+In-Reply-To: <178052559618.2296868.8781332297681333925.robh@kernel.org>
 
-On Fri, Jun 05, 2026 at 03:27:21PM +0800, Cryolitia PukNgae wrote:
-> After commit 9cf6e24c9fbf17e52de9fff07f12be7565ea6d61 ("Input: atkbd -
-> do not skip atkbd_deactivate() when skipping ATKBD_CMD_GETID"), HONOR
-> BCC-N, aka HONOR MagicBook 14 2026's internal keyboard stops
-> working. Adding the atkbd_deactivate_fixup quirk fixes it.
+On Wed, Jun 03, 2026 at 05:26:38PM -0500, Rob Herring (Arm) wrote:
 > 
-> DMI: HONOR BCC-N/BCC-N-PCB, BIOS 1.04 04/07/2026
+> On Wed, 03 Jun 2026 15:42:21 -0500, Akash Sukhavasi wrote:
+> > matrix-keymap.txt has been a single-line redirect to
+> > matrix-keymap.yaml since commit 639d6eda3b80 ("dt-bindings: input:
+> > Convert matrix-keymap to json-schema"), which introduced the .yaml
+> > schema and reduced the .txt to a stub in the same change. The .yaml
+> > has the same filename in the same directory, making this redirect
+> > unnecessary for discoverability.
+> > 
+> > Eight instances across six files still reference matrix-keymap.txt,
+> > forcing readers through an extra hop to reach the .yaml. The stub has
+> > not been touched since June 2020. Update all references across input
+> > and mfd binding documentation to point directly to matrix-keymap.yaml
+> > and remove the stub.
+> > 
+> > Signed-off-by: Akash Sukhavasi <akash.sukhavasi@gmail.com>
+> > ---
+> > v2:
+> > - Patch 4/4: corrected commit message (eight references in six files,
+> >   not eight files), Sashiko review.
+> >   https://sashiko.dev/#/patchset/20260529052246.4934-1-akash.sukhavasi@gmail.com?part=4
+> > 
+> > v1: https://lore.kernel.org/all/20260529052246.4934-5-akash.sukhavasi@gmail.com/
+> > ---
+> >  Documentation/devicetree/bindings/input/brcm,bcm-keypad.txt    | 2 +-
+> >  Documentation/devicetree/bindings/input/clps711x-keypad.txt    | 2 +-
+> >  Documentation/devicetree/bindings/input/matrix-keymap.txt      | 1 -
+> >  Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt | 2 +-
+> >  Documentation/devicetree/bindings/input/pxa27x-keypad.txt      | 2 +-
+> >  Documentation/devicetree/bindings/input/st-keyscan.txt         | 2 +-
+> >  Documentation/devicetree/bindings/mfd/tc3589x.txt              | 6 +++---
+> >  7 files changed, 8 insertions(+), 9 deletions(-)
+> > 
 > 
-> Fixes: 9cf6e24c9fbf17e52de9fff07f12be7565ea6d61 ("Input: atkbd - do not skip atkbd_deactivate() when skipping ATKBD_CMD_GETID")
-> Reported-by: Hongfei Ren <lcrhf@outlook.com>
-> Link: https://github.com/colorcube/Linux-on-Honor-Magicbook-14-Pro/issues/1#issuecomment-4562679891
-> Tested-by: Hongfei Ren <lcrhf@outlook.com>
-> Cc: stable@kernel.org
-> Signed-off-by: Cryolitia PukNgae <cryolitia.pukngae@linux.dev>
+> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> 
 
-Applied, thank you.
+Lee, could you please ack for MFD piece and I can take it through input?
+
+Thanks.
 
 -- 
 Dmitry

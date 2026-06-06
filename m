@@ -1,124 +1,93 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFCB7384245
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:11:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9E69CA4E
+	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:13:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780747919; cv=none; b=BDAcnZLgqdUlzTp07wj8UhjNi+LO+F3SAf+OlnAhyorynrk+NMujyJu1r6ezAtdQ+GYrAw8yZpebPdGLvBH+Rmk93THTNYvl6HsSI+/PGn6ASVHL+cDmkW5GSfNwbIlIHtSk/6nzjYJxv2Tfe5nvdfxCgOnoldTTss6AWtrTEWk=
+	t=1780747999; cv=none; b=IwWOnE2l2W8WkVflwb20hFkC43mTgOXL5ppVZiN4u0Tt7ZGnRl2fpz2UMNOHUIWv/4+G+gbdXV3lM6Xum5fOYc51mVC7I7YA0T1Hw+vlnJRblSTMbfNcTTg9KWAsGUDVPmSxE1ZG1D9OaTwxhaggEb3mjPtHSlt7D/lX7p/AwNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780747919; c=relaxed/simple;
-	bh=HYsgU/jMVv4omdfFysOPUrYlO7KenVvgbreT8U2YLsY=;
+	s=arc-20240116; t=1780747999; c=relaxed/simple;
+	bh=UUnT816vRj405F6KlXJ37mTu1B/lpPruzbISJAZ3kew=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OMyRclWIgAKYLezTdfeZ2YateiI/xY37MeIFDkwgOZPb/08OFSY75wot+f+n6BnIkENvxGvu4vRV5QwdRS7/td1iaFZ1zCs4WBxLoUkXLCUjQysBlDp7sXst/LLXLW18YbB7h20+GLglp7e/lXUZjL7ve+DT9Ibb++yt9uurARU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G/YJR7i7; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mxdn+Gjdjf7ZUkJTAD6Qz6eQgbsjj+i7oD09+Mt1X80JOqBKL3oJmqhhdPPo5/QRs/eJKUTtPc8WQ1AxaYdKmIcHNJjujtzN/TBy0uipHns4/JDjhawz1kh9oeaLRlQWWv58CfJwimO4g6jpa47uOSmlDavrLZO+sCosdIXc1EU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K7w7TniT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G/YJR7i7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A2841F00893;
-	Sat,  6 Jun 2026 12:11:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K7w7TniT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498661F00893;
+	Sat,  6 Jun 2026 12:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780747917;
-	bh=UGa+vbmQ9AVVJt4Yx1DLkTNO8uOhyeWM+ONrjy0XLH0=;
+	s=k20260515; t=1780747998;
+	bh=r7amO1AEpvHgqwoYXlPBOACRFewRss182crWUSMHr8s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=G/YJR7i7RDkr0I2aL+oso0adhvs9hBEd4bF0H6WBtI2ztaO9H/gj3ETAYzIbKdvwZ
-	 ap6tRD/4nv9ONaLGCaPuP1ALxabHCM98oB6U0tF6DVVoBImqVQUTEd43ovFmMdDbfd
-	 iamvmxcsRLGA7whaJ603DKu3n/DUevagTsOh9gAVCtt02EJ8mXaYI4l9hSnxBajwa0
-	 T2Q0bxHPuv2YeofLA3OaIYtDBjhuTKctP4pQG8BvrMJEqlqPsLDQwo9B6uocGH0fzs
-	 t1Er3CYlYvdf6VxnFnlPf5kgNmQoS1rFf4ZKQoEybGpPCtnyPiVKJ4N4FuTG4cF7tB
-	 cCp0gBazsIn+g==
+	b=K7w7TniTLBLzWDKIL2drX4EW3ta0VqFysQWml8Sq0v3pgMfqBo9bDYj32vHYUsLKM
+	 EwkOki6LFP7c7izoG7Lz2JNuiiPFonl6gCcXICbiBqCW7JUWQUQr0kAm7j+7RLOaYl
+	 AMTe8yfGiSEOhXqsCC0FzHh6nqyXyq7316+ijmtgJ0p2IlMLxGW4AGpXV3qtR9GgKk
+	 Fz4tJsMTZpC92kAOXGzW/FE4hbxUrPh27Qwt5CbHvgj+KoIhlaBP+27kZS8eL33IL0
+	 YSeMsffFFlRdsvXL05srztcixTyPlfxi3lvW4+4sudadNrPFavqdUj6q7a8/1H54pQ
+	 FaGlabF+muDag==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/9] iio: orientation: hid-sensor-rotation: Fix race
- between callback registration and device exposure
+Subject: Re: [PATCH 6/9] iio: light: hid-sensor-prox: Fix race between
+ callback registration and device exposure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260606-5-june-hid-iio-race-fixes-v1-1-27a848c5758f@gmail.com>
-References: <20260606-5-june-hid-iio-race-fixes-v1-1-27a848c5758f@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260606-5-june-hid-iio-race-fixes-v1-6-27a848c5758f@gmail.com>
+References: <20260606-5-june-hid-iio-race-fixes-v1-6-27a848c5758f@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 06 Jun 2026 12:11:56 +0000
-Message-Id: <20260606121157.5A2841F00893@smtp.kernel.org>
+Date: Sat, 06 Jun 2026 12:13:17 +0000
+Message-Id: <20260606121318.498661F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 New issues:
-- [High] Newly introduced Use-After-Free in the probe error path caused by =
-registering the callback before IIO device registration.
-- [High] Newly introduced data race leading to list corruption in the remov=
-e path by unregistering the IIO device while the sensor hub callback is sti=
-ll active.
+- [Critical] Reordering `iio_device_unregister()` before `sensor_hub_remove=
+_callback()` introduces a critical data race that can lead to an infinite l=
+oop, list corruption, or Use-After-Free during device teardown.
 
 Pre-existing issues:
-- [High] Pre-existing Use-After-Free due to a lack of synchronization in se=
-nsor hub callback removal.
-- [High] Pre-existing Out-of-Bounds Read in dev_rot_capture_sample when rea=
-ding malicious HID reports.
+- [High] Lack of synchronization in `sensor_hub_remove_callback()` fails to=
+ flush in-flight events, causing a Use-After-Free of devres-managed memory =
+during probe failure.
+- [High] Incorrect parsing of little-endian HID report data using host-endi=
+an pointer casts.
 --
 
-commit 53e3688342562957aa2297744b7cc0b03bf921af
+commit 60bbe69d1f4ccbb5130ebd8324841d9eca79e70a
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Subject: iio: orientation: hid-sensor-rotation: Fix race between callback r=
-egistration and device exposure
 
-The driver registers the IIO device before completing sensor hub callback
-registration and unregisters callbacks while the IIO device is still exposed
-during teardown. This creates race windows in both probe and remove paths.
-This patch attempts to fix this by correct ordering of callback registratio=
-n.
+iio: light: hid-sensor-prox: Fix race between callback registration and dev=
+ice exposure
 
-Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
+The driver registers the IIO device before completing sensor hub
+callback registration and unregisters callbacks while the IIO device
+is still exposed during teardown.
 
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/=
-orientation/hid-sensor-rotation.c
-> index 4a11e45550991..fd9beb93cefb1 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -332,12 +332,6 @@ static int hid_dev_rot_probe(struct platform_device =
-*pdev)
->  		return ret;
->  	}
-> =20
-> -	ret =3D iio_device_register(indio_dev);
-> -	if (ret) {
-> -		dev_err(&pdev->dev, "device register failed\n");
-> -		goto error_remove_trigger;
-> -	}
-> -
->  	rot_state->callbacks.send_event =3D dev_rot_proc_event;
->  	rot_state->callbacks.capture_sample =3D dev_rot_capture_sample;
+This creates race windows in both probe and remove paths, which can
+lead to NULL pointer dereferences or use-after-free.
 
-[Severity: High]
-This is a pre-existing issue, but can dev_rot_capture_sample() read
-out-of-bounds when handling malicious HID reports?
+Fix this by correct ordering of callback registration and
+IIO device registration in probe and remove paths.
 
-If raw_len does not correspond to an array of four 16-bit integers, the
-function unconditionally copies 16 bytes:
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
+sensor-prox.c
+> index edc9274a2c076..3df7f28d3b445 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
 
-drivers/iio/orientation/hid-sensor-rotation.c:dev_rot_capture_sample() {
-    ...
-    } else {
-        memcpy(&rot_state->scan.sampled_vals, raw_data,
-               sizeof(rot_state->scan.sampled_vals));
-    }
-    ...
-}
+[ ... ]
 
-If a malicious USB device provides a report descriptor with a field size
-smaller than 16 bytes, will this memcpy() read out-of-bounds without verify=
-ing
-that raw_len is at least 16?
-
->  	rot_state->callbacks.pdev =3D pdev;
-> @@ -345,13 +339,19 @@ static int hid_dev_rot_probe(struct platform_device=
- *pdev)
->  					&rot_state->callbacks);
->  	if (ret) {
+> @@ -325,13 +319,19 @@ static int hid_prox_probe(struct platform_device *p=
+dev)
+>  					   &prox_state->callbacks);
+>  	if (ret < 0) {
 >  		dev_err(&pdev->dev, "callback reg failed\n");
 > -		goto error_iio_unreg;
 > +		goto error_remove_trigger;
@@ -131,83 +100,104 @@ that raw_len is at least 16?
 >  	}
 
 [Severity: High]
-Is there a use-after-free introduced in this new error path?
+This is a pre-existing issue, but this patch newly exposes it in the probe
+error path by moving callback registration before iio_device_register().
 
-By registering the callback before the IIO device, if iio_device_register()
-fails, the error path removes the callback and returns, triggering devres
-cleanup.
+When hid_prox_probe() fails here and completes, devres automatically frees =
+the
+indio_dev and prox_state structures.
 
-Because sensor_hub_remove_callback() lacks execution synchronization, an ev=
-ent
-dispatched immediately after callback registration can run concurrently. Wh=
-en
-hid_dev_rot_probe() returns, the rot_state memory is freed while the event
-handler is still executing.
+sensor_hub_remove_callback() acquires pdata->dyn_callback_lock to remove the
+callback from the list, but it does not wait for currently executing callba=
+cks
+in sensor_hub_raw_event() (which run under pdata->lock) to complete.
+
+Could a still-executing event handler on another CPU dereference the freed
+memory, leading to a Use-After-Free?
+
+> =20
+>  	return ret;
+> =20
+> -error_iio_unreg:
+> -	iio_device_unregister(indio_dev);
+> +error_remove_callback:
+> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
+>  error_remove_trigger:
 
 [ ... ]
 
-> @@ -364,8 +364,8 @@ static void hid_dev_rot_remove(struct platform_device=
- *pdev)
+> @@ -344,8 +344,8 @@ static void hid_prox_remove(struct platform_device *p=
+dev)
 >  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
->  	struct dev_rot_state *rot_state =3D iio_priv(indio_dev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does hid_dev_rot_remove()
-complete teardown without synchronization, allowing devres to free memory
-while callbacks are still executing?
-
-When sensor_hub_remove_callback() removes the callback entry from the list:
-
-drivers/hid/hid-sensor-hub.c:sensor_hub_remove_callback() {
-    ...
-    list_del(&callback->list);
-    kfree(callback);
-    ...
-}
-
-It does not wait for any currently executing callback, such as
-dev_rot_proc_event(), to finish. When hid_dev_rot_remove() returns, devres
-automatically frees indio_dev and rot_state.
-
-If dev_rot_proc_event() is running concurrently on another CPU:
-
-drivers/iio/orientation/hid-sensor-rotation.c:dev_rot_proc_event() {
-    ...
-    struct iio_dev *indio_dev =3D platform_get_drvdata(priv);
-    struct dev_rot_state *rot_state =3D iio_priv(indio_dev);
-    ...
-}
-
-Could it dereference the freed indio_dev pointer?
-
+>  	struct prox_state *prox_state =3D iio_priv(indio_dev);
 > =20
 > -	sensor_hub_remove_callback(hsdev, hsdev->usage);
 >  	iio_device_unregister(indio_dev);
 > +	sensor_hub_remove_callback(hsdev, hsdev->usage);
 
-[Severity: High]
-Will moving sensor_hub_remove_callback() after iio_device_unregister()
-dismantle the buffer list concurrently with active events?
+[Severity: Critical]
+Does reordering the teardown sequence so that sensor_hub_remove_callback()
+runs after iio_device_unregister() leave the sensor hub callback fully
+active while the IIO device is being dismantled?
 
-Leaving the callback active during teardown means an incoming sensor event =
-can
-trigger dev_rot_proc_event(), which calls iio_push_to_buffers() while
-iio_device_unregister() is disabling buffers.
+iio_device_unregister() calls iio_disable_all_buffers(), which iterates over
+the buffer_list using list_del_init() and frees internal state. Concurrentl=
+y,
+incoming hardware events trigger prox_proc_event(). While
+iio_disable_all_buffers() eventually decrements data_ready to 0,
+prox_proc_event() checks data_ready without any locking.
 
-If iio_push_to_buffers() locklessly iterates over the buffer list:
+If prox_proc_event() observes data_ready > 0 and calls iio_push_to_buffers()
+concurrently with buffer teardown, will it perform a lockless list traversal
+over the actively modifying buffer_list?
 
 drivers/iio/industrialio-buffer.c:iio_push_to_buffers() {
-    ...
-    list_for_each_entry(buf, &iio_dev_opaque->buffer_list, buffer_list) {
-    ...
+	...
+	list_for_each_entry(buf, &iio_dev_opaque->buffer_list, buffer_list) {
+	...
 }
 
-And iio_device_unregister() concurrently uses list_del_init() to remove
-buffers from the list, might this cause list corruption?
+Could this concurrent modification cause the iterator's next pointer to bec=
+ome
+self-referential, resulting in an infinite loop, or access freed memory
+causing a Use-After-Free?
 
->  	hid_sensor_remove_trigger(indio_dev, &rot_state->common_attributes);
+>  	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
 >  }
+
+[Severity: High]
+This isn't a bug introduced by this patch, but looking at how raw data
+is handled in prox_capture_sample() from drivers/iio/light/hid-sensor-prox.=
+c:
+
+	switch (raw_len) {
+	case 1:
+		prox_state->human_presence[chan] =3D *(u8 *)raw_data * multiplier;
+		return 0;
+	case 2:
+		prox_state->human_presence[chan] =3D *(u16 *)raw_data * multiplier;
+		return 0;
+	case 4:
+		prox_state->human_presence[chan] =3D *(u32 *)raw_data * multiplier;
+		return 0;
+	}
+
+The raw data received from the HID sensor hub is in little-endian format as
+per the HID specification.
+
+When raw_data is directly cast to u16 * or u32 * and dereferenced on a Big
+Endian architecture, will this host-endian read result in incorrectly swapp=
+ed
+bytes, producing corrupted sensor readings?
+
+Furthermore, since raw_data points directly into the unaligned HID report b=
+yte
+array, can this cast trigger an unaligned memory access exception (kernel o=
+ops)
+on strict architectures? Should this use get_unaligned_le16() or
+get_unaligned_le32() instead to correctly parse the little-endian data stre=
+am?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606-5-june-hid=
--iio-race-fixes-v1-0-27a848c5758f@gmail.com?part=3D1
+-iio-race-fixes-v1-0-27a848c5758f@gmail.com?part=3D6

@@ -1,79 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BAD7396579
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:28:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A9A39EB47
+	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:30:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780748940; cv=none; b=uHt6xL5QHHWvry7GrdHrrZDFfONTQzaTs7GHdV/rdz0Fq5yXMD7R09FJ5qBUnTEEtKtnHHQ466F/qzgOQTjliBUo5DxmJTH6YEWE4GqnvhnnnD+sMmCUnBRxQxY0q0A1qU0RyUoCCWu5ST8Rhzz5cd7kwZWDmmj8gQ3qXCdhNyQ=
+	t=1780749007; cv=none; b=pgkvgVBKH0vctnsQM542EZNJs9V4z/S2QdZ0yL7PXGejm91BLZAvDPSH6MzedytGO2EbUFwZIbZjhes/sFaAwsw99kunzvG/slQzDjSt36w/qF1ZDuLonmnIO6JGCsZnCdEtQc2I7wY2Qk1+tXrA9qvUG9Xw6+jbTWeqv6e3Kls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780748940; c=relaxed/simple;
-	bh=L/yg3oVFD+uRVf+EEB57CtC4Qat1fg1iZQ+E15Eit/E=;
+	s=arc-20240116; t=1780749007; c=relaxed/simple;
+	bh=CsfFMI6NORtyCjAnWAcZyXLRPHs/PgsubxW0aZETi/k=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GMr1Lb+jweNpG9OS1zuYQZ2SC6AoCV8iQQxZOOr/PBPQl8Zxk1FfLai2phIAouBzp/MzxL8HQs6Yfa511xpxUD42MRtayMOxLgGW7xYy4hjirIzSTsPACz53uFh8SSDbPkGvgEIzG8s3PvjQBmpwPwzWwYD4mvCtNsHgznlycDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qs4qI6RR; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ePfjKH/Q3osfoNJu9tiYqei3qF1aKq88opfYReyrIxuJbtpT80XQP0Vyr3FdyQHoCdLgaj2xWP9Yd4gQWRngom+SvGXajG/9kAvT4HPFTIWyaCbH4O+S2vvgnOZDKRNWqsiDN34+KLe8waSivPUySVeoi6AEwUJRe5HXH1ibDok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oMvGO4sm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qs4qI6RR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 014A11F00893;
-	Sat,  6 Jun 2026 12:28:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oMvGO4sm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E56491F00893;
+	Sat,  6 Jun 2026 12:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780748939;
-	bh=Mom2Z3+G0SrxZ3CFF29NRg92B7oYgT13IiimzvYcYIQ=;
+	s=k20260515; t=1780749006;
+	bh=dej+qLKpitm34FAK9EHpS3iO/sDU1UckvfOI3PDbcMs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Qs4qI6RRA/9qwbJRW6jFGzui4jTK3JPFhF4TSWhM2r67+9Bsvdc6p4pcPFDPXNbal
-	 wAsakSVLMQk4oMEZTHkV/oRwILSSw8hsgG0Uk45ua2ApB5bww6OOeE6gdEzBOigco6
-	 ADc1PRMEy1+zQYGLmGPEPhKEfPK/3CHMGycbda/aofCA7fwSinBi+AvGRGBJgQh505
-	 hw6qSLszBqzAYgZachAHGeRJRxEmnCTsoy6Yyrgl5ytdGDLCwE4YK47rbCha7f7Ue5
-	 T5ZYj+LqR1nMiEq7qBqzoZaWOA/fhesBTWTmb2XiHGddk0qA2Sg8dTFMoKyK1eceZv
-	 JvEO0+VjSYepg==
+	b=oMvGO4smWAWfWgjuFMpDDrAVMDm7/J4UXj8RYi+IYj9CNCBDiRqLYOxEjAX/rETla
+	 Lo7/ByyWgE8Mfd/oeHj0CZA1p7uE/R6I4QrFNdWr9JaHi75yvwZXAudWEK+R9WH4Y0
+	 SopJPCZ1GeWZ7xn0JKfITBXHqaEP2F0yTZHJsQNNnpMkSSraixC4CSCx9ulMoUT8ZF
+	 AK+vOfHniQQT0n4Scx9tPzKAkzSbQh2eVnxopBc6Bcoyui281xDtmTrJ1dwoC47TLM
+	 huVhuSearXnyCk2xQSAiDqLA+KWYEJn2Qrfdto3rrM0XB5w07fifBqhx/5Om0aOy8R
+	 h85AlvjEuxfJg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/7] iio: gyro: hid-sensor-gyro-3d: use u32 instead of
- unsigned
+Subject: Re: [PATCH 5/7] iio: orientation: hid-sensor-incl-3d: use u32
+ instead of unsigned
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-1-dd4a6820b674@gmail.com>
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-1-dd4a6820b674@gmail.com>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-5-dd4a6820b674@gmail.com>
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-5-dd4a6820b674@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 06 Jun 2026 12:28:58 +0000
-Message-Id: <20260606122859.014A11F00893@smtp.kernel.org>
+Date: Sat, 06 Jun 2026 12:30:05 +0000
+Message-Id: <20260606123005.E56491F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] The capture_sample callback casts the `raw_data` pointer to `u32*`=
- and `s64*` without validating `raw_len` or pointer alignment, potentially =
-causing out-of-bounds reads, kernel memory leaks, and unaligned access faul=
-ts.
+- [High] Out-of-bounds read and information leak in `incl_3d_capture_sample=
+` due to ignored `raw_len`.
+- [High] Endianness mismatch in `incl_3d_capture_sample` due to direct poin=
+ter cast.
+- [High] Unaligned memory access in `incl_3d_capture_sample`.
 --
 
-commit e250748ae8811d708c463dcef4e525db238816e3
+commit bb48c83224153ec8c20c69c57c293183eb5211a7
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
+iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
 
-This commit replaces bare unsigned variables with the u32 type in the HID
-sensor 3D gyro driver to improve code clarity and adhere to kernel style
-guidelines.
+This patch updates the hid-sensor-incl-3d driver to use u32 instead of a
+bare unsigned type in callback signatures, improving code clarity and
+consistency.
 
-> diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid=
--sensor-gyro-3d.c
-> index e48c25c87b6d6..bbca2111e79bb 100644
-> --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-> +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/o=
+rientation/hid-sensor-incl-3d.c
+> index 4e23a598a3fb9..c7fbff498be7a 100644
+> --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
+> +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+
 [ ... ]
-> @@ -199,7 +199,7 @@ static int gyro_3d_proc_event(struct hid_sensor_hub_d=
+
+> @@ -212,7 +212,7 @@ static int incl_3d_proc_event(struct hid_sensor_hub_d=
 evice *hsdev,
 > =20
 >  /* Capture samples in local storage */
->  static int gyro_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+>  static int incl_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
 > -				unsigned usage_id,
 > +				u32 usage_id,
 >  				size_t raw_len, char *raw_data,
@@ -81,35 +84,44 @@ evice *hsdev,
 >  {
 
 [Severity: High]
-This is a pre-existing issue, but looking at the rest of this function, it
-appears we cast the raw_data pointer directly to u32* and s64* without chec=
-king
-raw_len or alignment:
+This is a pre-existing issue, but by ignoring raw_len in
+incl_3d_capture_sample(), could we read out-of-bounds if a malicious HID
+device provides a report descriptor with a smaller field size?
 
-gyro_3d_capture_sample() {
-	...
-	gyro_state->scan.gyro_val[CHANNEL_SCAN_INDEX_X + offset] =3D
-			*(u32 *)raw_data;
-	...
-	gyro_state->timestamp =3D
-		hid_sensor_convert_timestamp(&gyro_state->common_attributes,
-					     *(s64 *)raw_data);
-	...
+It appears we unconditionally cast char *raw_data to u32 * or s64 * and
+dereference it:
+
+drivers/iio/orientation/hid-sensor-incl-3d.c:incl_3d_capture_sample() {
+    ...
+    case HID_USAGE_SENSOR_ORIENT_TILT_X:
+        incl_state->scan.incl_val[CHANNEL_SCAN_INDEX_X] =3D *(u32 *)raw_dat=
+a;
+    ...
 }
 
-Could a buggy or malicious HID device supply a field size smaller than 4 or=
- 8
-bytes, leading to an out-of-bounds read that leaks kernel heap data into the
-IIO buffer?
+If the field is placed at the end of the HID report buffer, this might
+read past the allocated buffer and leak kernel heap memory into the
+sensor readings.
 
-Also, since raw_data is only guaranteed to be byte-aligned, could these nat=
-ive
-casts trigger unaligned access exceptions on architectures that do not supp=
-ort
-unaligned loads? Would it be safer to validate raw_len and use get_unaligne=
-d()
-or memcpy() here?
+[Severity: High]
+This is a pre-existing issue, but does this direct cast also cause
+incorrect sensor values on big-endian architectures?
+
+The USB HID protocol specifies that report data is strictly little-endian,
+but casting directly to u32 * and dereferencing it uses the CPU native
+byte order.
+
+[Severity: High]
+This is a pre-existing issue, but can this dereference trigger alignment
+exceptions on architectures that do not support unaligned accesses?
+
+Since the pointer passed as raw_data is iteratively incremented by the
+byte sizes of preceding fields, it might not be aligned to a 4-byte
+boundary when we cast it to u32 * and dereference it.
+
+Should we be extracting these values safely using helpers like
+get_unaligned_le32() instead?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606-6-june-hid=
--iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D1
+-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D5

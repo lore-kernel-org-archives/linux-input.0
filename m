@@ -1,141 +1,118 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED0A037B415
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:27:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379CA3A7F6B
+	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:28:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780748868; cv=none; b=cdxNU1tgcPw7SujCs2LTDUHIjWrAIeo7C0WMGDyuOcvpaEgMquFt/aWIl4FG9CGL0kZ0haBBtxWR1FBNxzqnRcI0nh3z3VX/UQSeXzxikZjX3kZaKMAH7zRgdkLGsX27INcYcCb/geWOCQDQ7lFXKsudEe0htMk7Ims7CxiUn4E=
+	t=1780748889; cv=none; b=S6/h2bLHoJAXpS3dWFFpKxZKHLIi0wlp1BO6ag6hQFFjdRaRUCp9E93eE5YEAFgdawzCSCiw9Wig/EBDdzM1Js8TBUPlWaZn0LSrbimr7Mj4p+uTJK8s0NxNDsbHbsjDIjgb2LNSlDc24YmMgbmtze56Il5VNDTwj5x8Nxmd4as=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780748868; c=relaxed/simple;
-	bh=a3KCUEgq80xu2OSHbJKXbFjT+5XGmEsjOlAKzmPOS+g=;
+	s=arc-20240116; t=1780748889; c=relaxed/simple;
+	bh=t9NQ+LEWU5qy/4Z43YDPJ4xqHXLzKkMKWnYemG/PUGY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fZtFAF7yTdNnAFw+QWUxVtK1NmkV9tTR30qaE7+2MFmBBRClj2RCJFEkG1QDYD8kmd76YqSTqLSGjePuUSHoiG86BofoHeHQnpclEsWpBKOtrg+sWZflV4/xMwUsKBEPCQo7B+sQWPtFUkKIXD7t/krI2hXZb922hPF45c1IZVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ij6J/4vD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ivedeN8Fq50v1qQSrHg9mMSYwTKnuV+Rxa0VD5IHIlNRAG9qqGSkjPpXoRjy4JHtro/REON5DB5n/1z8LFPsx2/WVaqqrP5nRSyz3DT3RXLzamgr6I1+kl/IvhEPUqsOus0Uq3tdyMxYHciibaMktaYHSu3DB/tqhi0/ZdE/KJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TfXif8tv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ij6J/4vD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F4E1F00893;
-	Sat,  6 Jun 2026 12:27:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TfXif8tv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42CC11F00893;
+	Sat,  6 Jun 2026 12:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780748866;
-	bh=sHaEXry23gMhCGH/w7hegfJAaLEK+HHxEAi3yQJAa3E=;
+	s=k20260515; t=1780748887;
+	bh=Z+X3wv1aphRZc0D6jexshD+rCDkJcEBrXtBoT7peU9U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ij6J/4vD7ksAajMPBSGn3uDfrg58vn4zNpVG1NewDboZhsBp8wt9iUEUsZKxUBqJA
-	 H1YL8w1U+lf0QswJF2jhXynENJ7Pq0VWYN3BnHPhZXTsQ3hVsijHsbUmQzCMXR7T98
-	 o8sNswI/oqhYxu30m7/KnDwJZcyznVN9R+sAYWvBCO2Knt7dxvrAPrjVT83wr8oizX
-	 CS/2fYHe8nhc3v/5ZxYUue/njozoiTpo0tEVRG+SF+dd4HsjbsIgdQfDoa26b6AsNS
-	 fsmzk5+VoR4xh8FG6RtotVS50LJYQFkJTFIV7VXufbtNbq5ubCUaa0m1bRK8ZxjKW4
-	 tUgpYr3iTni4w==
+	b=TfXif8tv+Ah7M3INrrVLljNv82N7nScuh8zVFg+yO+cAlirR0rclRiCM8a9d2itBm
+	 DG0Q1hP2//4FvUBDMCYkCkoxPtgd03CPMlO4jygJ0AHwA9chglfDznyKJgnugKSVSg
+	 B5lgOpdHQqwy+iqbMMOPf3M1XRYkA9LNcrpOUq8997jbD1P0Gmi6Z5q6iUHV2HMNHS
+	 FpVBetwzhBrvjI71Lk+7maq8k1YYSJoJN9CvQ5qt9PewVNBkz7fZpbXhlt3gssKzBH
+	 zWbpjguyhQYZ+rLnh6JOaP7qnVjFW3inG6NmyoPaf3hGcxW943m/jfD3iTnCHWu3+d
+	 1SoQtvcwmUtLw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/7] iio: orientation: hid-sensor-rotation: use u32
- instead of unsigned
+Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of
+ unsigned
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-6-dd4a6820b674@gmail.com>
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-6-dd4a6820b674@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 06 Jun 2026 12:27:45 +0000
-Message-Id: <20260606122746.57F4E1F00893@smtp.kernel.org>
+Date: Sat, 06 Jun 2026 12:28:06 +0000
+Message-Id: <20260606122807.42CC11F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Out-of-bounds read and information leak due to unverified raw_len =
-in dev_rot_capture_sample().
-- [High] Unaligned and endian-unsafe access when parsing HID raw byte strea=
-ms.
+- [High] Unconditional casting and dereferencing of `raw_data` to `u32*` an=
+d `s64*` without checking `raw_len` causes out-of-bounds reads, kernel memo=
+ry disclosure, unaligned access exceptions, and incorrect endianness handli=
+ng.
 --
 
-commit 1678aae0ba9cfb6e8824b0811f3f770a159c5a16
+commit 7ad652d49fe4e7dcab137b42945a51bbeaea25a3
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+iio: light: hid-sensor-als: use u32 instead of unsigned
 
-This commit replaces bare unsigned types with u32 for usage_id parameters
-across the HID sensor rotation driver to improve code clarity and
-consistency with kernel style.
+This commit updates the HID sensor ALS driver to use 'u32' instead of a bare
+'unsigned' variable for the usage_id parameter. This improves code clarity
+and consistency with kernel style.
 
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
+> --- a/drivers/iio/light/hid-sensor-als.c
+> +++ b/drivers/iio/light/hid-sensor-als.c
 
 [ ... ]
 
-> @@ -209,7 +209,7 @@ static int dev_rot_proc_event(struct hid_sensor_hub_d=
-evice *hsdev,
-> =20
 >  /* Capture samples in local storage */
->  static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
+>  static int als_capture_sample(struct hid_sensor_hub_device *hsdev,
 > -				unsigned usage_id,
 > +				u32 usage_id,
 >  				size_t raw_len, char *raw_data,
 >  				void *priv)
 >  {
+>  	struct iio_dev *indio_dev =3D platform_get_drvdata(priv);
+>  	struct als_state *als_state =3D iio_priv(indio_dev);
+>  	int ret =3D -EINVAL;
+>  	u32 sample_data =3D *(u32 *)raw_data;
 
 [Severity: High]
-This is a pre-existing issue, but does this function perform unaligned and
-endian-unsafe reads?
+This isn't a bug introduced by this patch, but does this direct cast cause
+out-of-bounds reads or unaligned accesses if raw_len is less than 4 or
+raw_data is unaligned?
 
-Looking further down in dev_rot_capture_sample(), when raw_data is accessed:
+Since raw_len is derived from the HID report descriptor, a malicious or
+malfunctioning device could specify a smaller field size, potentially expos=
+ing
+adjacent kernel memory. Should this code check raw_len and use something li=
+ke
+get_unaligned_le32() since HID data is little-endian?
 
-        if (raw_len / 4 =3D=3D sizeof(s16)) {
-            rot_state->scan.sampled_vals[0] =3D ((s16 *)raw_data)[0];
-            rot_state->scan.sampled_vals[1] =3D ((s16 *)raw_data)[1];
-            rot_state->scan.sampled_vals[2] =3D ((s16 *)raw_data)[2];
-            rot_state->scan.sampled_vals[3] =3D ((s16 *)raw_data)[3];
+> =20
+>  	switch (usage_id) {
+>  	case HID_USAGE_SENSOR_LIGHT_ILLUM:
 
-Since raw_data points to a byte array from a tightly packed HID report, it
-is not guaranteed to be aligned to a 2-byte boundary. Casting directly to
-s16 pointers might cause bus errors or panics on architectures that do not
-support unaligned loads.=20
+[ ... ]
 
-Also, native CPU casts will read garbage values on big-endian architectures=
-.=20
-Should this use get_unaligned_le16() instead?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but can the fallback memcpy=20
-result in an out-of-bounds read?
-
-If raw_len is not exactly 8 bytes, the code unconditionally copies 16 bytes:
-
-        } else {
-            memcpy(&rot_state->scan.sampled_vals, raw_data,
-                   sizeof(rot_state->scan.sampled_vals));
-        }
-
-If a malformed or malicious HID descriptor specifies a size smaller than
-16 bytes, this would read past the end of the raw_data buffer into adjacent
-kernel memory.=20
-
-The copied data could then be pushed to userspace via iio_push_to_buffers(),
-potentially creating an information leak.
+>  	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
+>  		als_state->timestamp =3D hid_sensor_convert_timestamp(&als_state->comm=
+on_attributes,
+>  								    *(s64 *)raw_data);
 
 [Severity: High]
-This is a pre-existing issue, but does the timestamp handling also have
-bounds checking and alignment issues?
+This is also a pre-existing issue, but does this face similar risks with
+8-byte reads from raw_data?
 
-Later in the same function:
+Could this trigger an out-of-bounds read if raw_len is less than 8, or cause
+alignment faults on strict-alignment architectures?
 
-    } else if (usage_id =3D=3D HID_USAGE_SENSOR_TIME_TIMESTAMP) {
-        rot_state->timestamp =3D hid_sensor_convert_timestamp(
-                                    &rot_state->common_attributes,
-                                    *(s64 *)raw_data);
-
-The raw_data pointer is cast directly to a 64-bit integer without verifying
-that raw_len is at least 8 bytes.=20
-
-Similar to the unaligned reads above, a direct cast to an s64 pointer on an
-unaligned buffer could cause bus errors on certain architectures, and it is
-also not endian-safe.
+>  		ret =3D 0;
+>  		break;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606-6-june-hid=
--iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D6
+-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D3

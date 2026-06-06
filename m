@@ -1,78 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17D637B415
-	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:27:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED0A037B415
+	for <linux-input@vger.kernel.org>; Sat,  6 Jun 2026 12:27:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780748831; cv=none; b=PWvSDc4SNpI50EY9BEi4kQXDddeBKh4lnHfF8Q6QtTCyXB1UQoFRl8L2Li/4pjP3gJgpCAOC/+mZWLL/b6Tsn9tVaziyow2ImseA+i5aPWbQVeVG4L5rmQKvEU1f36rLKWbQ+CZQqGMPb7M1tXdKh76GO53nR6guHSDyKJi1d5E=
+	t=1780748868; cv=none; b=cdxNU1tgcPw7SujCs2LTDUHIjWrAIeo7C0WMGDyuOcvpaEgMquFt/aWIl4FG9CGL0kZ0haBBtxWR1FBNxzqnRcI0nh3z3VX/UQSeXzxikZjX3kZaKMAH7zRgdkLGsX27INcYcCb/geWOCQDQ7lFXKsudEe0htMk7Ims7CxiUn4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780748831; c=relaxed/simple;
-	bh=uG79U5xyrKm+USlTJeuwJG9MwTVCcTgl6iJEDzY2bGw=;
+	s=arc-20240116; t=1780748868; c=relaxed/simple;
+	bh=a3KCUEgq80xu2OSHbJKXbFjT+5XGmEsjOlAKzmPOS+g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=d3Ez9BtPaWqUdgOXxGpXbBHLxcX+P7atcFV9TAHqgUUP+Giu+b2Rv9OjiHh4LRgFL1qsIJP1U7EHfNH7SyMmAhv8R+H4id50HGMQbKRwvBdYHPV/vt9TET7xKNQtcSt7YDcojkxCAq3vJ1KMrUa5FvX09sDIpUaJ3yyZEi9Yu1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WjtBd57z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fZtFAF7yTdNnAFw+QWUxVtK1NmkV9tTR30qaE7+2MFmBBRClj2RCJFEkG1QDYD8kmd76YqSTqLSGjePuUSHoiG86BofoHeHQnpclEsWpBKOtrg+sWZflV4/xMwUsKBEPCQo7B+sQWPtFUkKIXD7t/krI2hXZb922hPF45c1IZVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ij6J/4vD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WjtBd57z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6106B1F00898;
-	Sat,  6 Jun 2026 12:27:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ij6J/4vD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F4E1F00893;
+	Sat,  6 Jun 2026 12:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780748830;
-	bh=Nm5RLmGWmavVx+VIceX3JCgKuam/gjsLWlswscGBjes=;
+	s=k20260515; t=1780748866;
+	bh=sHaEXry23gMhCGH/w7hegfJAaLEK+HHxEAi3yQJAa3E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WjtBd57zGs0qG3C5Sc4ICkGPNeXtRVZY/tmQv7WLa2+lwv62Iar95/kpCc9CMVQZE
-	 Uf8kC7f3Fonb0X4hzuO8mkJhRrUUS4O6G+s9onKMPi9SCvs50teivjeRQ4MkfPktPH
-	 uIJh6fS9lZ8M0287Ub+/YCc6IHTyY/ekb5lEwzHkQgsVeUiVrswGGsDNQgNubf+uD5
-	 VMHKmzz3PxLs9B88cl1a/JaHcFxBTfrSLL2kKkghJ71Wi8Fjv32/E1sFTqC0/zjzsA
-	 LZhTAPqk76wKCD5I0Trip7cfbA7CGmUmbcL5T4Ir7yUI9YGlnc7l3/I4fQ6vkfFNpM
-	 RY0QnesDljXTg==
+	b=Ij6J/4vD7ksAajMPBSGn3uDfrg58vn4zNpVG1NewDboZhsBp8wt9iUEUsZKxUBqJA
+	 H1YL8w1U+lf0QswJF2jhXynENJ7Pq0VWYN3BnHPhZXTsQ3hVsijHsbUmQzCMXR7T98
+	 o8sNswI/oqhYxu30m7/KnDwJZcyznVN9R+sAYWvBCO2Knt7dxvrAPrjVT83wr8oizX
+	 CS/2fYHe8nhc3v/5ZxYUue/njozoiTpo0tEVRG+SF+dd4HsjbsIgdQfDoa26b6AsNS
+	 fsmzk5+VoR4xh8FG6RtotVS50LJYQFkJTFIV7VXufbtNbq5ubCUaa0m1bRK8ZxjKW4
+	 tUgpYr3iTni4w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/7] iio: light: hid-sensor-prox: use u32 instead of
- unsigned
+Subject: Re: [PATCH 6/7] iio: orientation: hid-sensor-rotation: use u32
+ instead of unsigned
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sanjay Chitroda" <sanjayembeddedse@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-4-dd4a6820b674@gmail.com>
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-4-dd4a6820b674@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-6-dd4a6820b674@gmail.com>
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-6-dd4a6820b674@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 06 Jun 2026 12:27:10 +0000
-Message-Id: <20260606122710.6106B1F00898@smtp.kernel.org>
+Date: Sat, 06 Jun 2026 12:27:45 +0000
+Message-Id: <20260606122746.57F4E1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Direct casting of the raw HID byte stream pointer (`raw_data`) to =
-`u16 *` and `u32 *` causes unaligned memory accesses and misinterprets litt=
-le-endian HID data on big-endian architectures.
+- [High] Out-of-bounds read and information leak due to unverified raw_len =
+in dev_rot_capture_sample().
+- [High] Unaligned and endian-unsafe access when parsing HID raw byte strea=
+ms.
 --
 
-commit e810e65c50acb8fcba7f1cd54ed67e25dac1f409
+commit 1678aae0ba9cfb6e8824b0811f3f770a159c5a16
 Author: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-iio: light: hid-sensor-prox: use u32 instead of unsigned
+iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
 
-This patch updates the usage_id parameter to use u32 instead of a bare
-unsigned type. This improves code clarity and consistency with standard
-kernel style.
+This commit replaces bare unsigned types with u32 for usage_id parameters
+across the HID sensor rotation driver to improve code clarity and
+consistency with kernel style.
 
-> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-=
-sensor-prox.c
-> index edc9274a2c076..9059f00f0cedf 100644
-> --- a/drivers/iio/light/hid-sensor-prox.c
-> +++ b/drivers/iio/light/hid-sensor-prox.c
+> --- a/drivers/iio/orientation/hid-sensor-rotation.c
+> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
+
 [ ... ]
-> @@ -183,7 +183,7 @@ static int prox_proc_event(struct hid_sensor_hub_devi=
-ce *hsdev,
+
+> @@ -209,7 +209,7 @@ static int dev_rot_proc_event(struct hid_sensor_hub_d=
+evice *hsdev,
 > =20
 >  /* Capture samples in local storage */
->  static int prox_capture_sample(struct hid_sensor_hub_device *hsdev,
+>  static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
 > -				unsigned usage_id,
 > +				u32 usage_id,
 >  				size_t raw_len, char *raw_data,
@@ -80,38 +80,62 @@ ce *hsdev,
 >  {
 
 [Severity: High]
-This is a pre-existing issue, but since you are updating types in this
-function, could we also address how the raw_data pointer is accessed?
+This is a pre-existing issue, but does this function perform unaligned and
+endian-unsafe reads?
 
-Further down in prox_capture_sample(), the raw HID byte stream is directly
-cast to u16 and u32 pointers:
+Looking further down in dev_rot_capture_sample(), when raw_data is accessed:
 
-	switch (raw_len) {
-	case 1:
-		prox_state->human_presence[chan] =3D *(u8 *)raw_data * multiplier;
-		return 0;
-	case 2:
-		prox_state->human_presence[chan] =3D *(u16 *)raw_data * multiplier;
-		return 0;
-	case 4:
-		prox_state->human_presence[chan] =3D *(u32 *)raw_data * multiplier;
-		return 0;
-	}
+        if (raw_len / 4 =3D=3D sizeof(s16)) {
+            rot_state->scan.sampled_vals[0] =3D ((s16 *)raw_data)[0];
+            rot_state->scan.sampled_vals[1] =3D ((s16 *)raw_data)[1];
+            rot_state->scan.sampled_vals[2] =3D ((s16 *)raw_data)[2];
+            rot_state->scan.sampled_vals[3] =3D ((s16 *)raw_data)[3];
 
-Can this sequence cause unaligned memory accesses or endianness issues?
+Since raw_data points to a byte array from a tightly packed HID report, it
+is not guaranteed to be aligned to a 2-byte boundary. Casting directly to
+s16 pointers might cause bus errors or panics on architectures that do not
+support unaligned loads.=20
 
-Because HID fields are tightly packed and can have arbitrary lengths, the
-raw_data pointer is not guaranteed to be 2-byte or 4-byte aligned.
-Dereferencing it directly could trigger unaligned access traps on
-architectures that do not natively support them.
+Also, native CPU casts will read garbage values on big-endian architectures=
+.=20
+Should this use get_unaligned_le16() instead?
 
-Additionally, HID reports are transmitted in little-endian format over the
-wire. Reading them via a direct cast evaluates them in host byte-order,
-which could yield corrupted data on big-endian architectures.
+[Severity: High]
+This isn't a bug introduced by this patch, but can the fallback memcpy=20
+result in an out-of-bounds read?
 
-Would it be better to use get_unaligned_le16() and get_unaligned_le32()
-here to safely extract the payload?
+If raw_len is not exactly 8 bytes, the code unconditionally copies 16 bytes:
+
+        } else {
+            memcpy(&rot_state->scan.sampled_vals, raw_data,
+                   sizeof(rot_state->scan.sampled_vals));
+        }
+
+If a malformed or malicious HID descriptor specifies a size smaller than
+16 bytes, this would read past the end of the raw_data buffer into adjacent
+kernel memory.=20
+
+The copied data could then be pushed to userspace via iio_push_to_buffers(),
+potentially creating an information leak.
+
+[Severity: High]
+This is a pre-existing issue, but does the timestamp handling also have
+bounds checking and alignment issues?
+
+Later in the same function:
+
+    } else if (usage_id =3D=3D HID_USAGE_SENSOR_TIME_TIMESTAMP) {
+        rot_state->timestamp =3D hid_sensor_convert_timestamp(
+                                    &rot_state->common_attributes,
+                                    *(s64 *)raw_data);
+
+The raw_data pointer is cast directly to a 64-bit integer without verifying
+that raw_len is at least 8 bytes.=20
+
+Similar to the unaligned reads above, a direct cast to an s64 pointer on an
+unaligned buffer could cause bus errors on certain architectures, and it is
+also not endian-safe.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606-6-june-hid=
--iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D4
+-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com?part=3D6

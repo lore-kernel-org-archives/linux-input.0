@@ -1,94 +1,159 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A1771A9F96;
-	Sun,  7 Jun 2026 16:03:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E5C1FFC59
+	for <linux-input@vger.kernel.org>; Sun,  7 Jun 2026 16:17:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780848211; cv=none; b=QCwk1zmntmURJ6qhmnO0zWwlm0pWzt8LGgPu2+Vhiocov+abROo7nCdGUzSNaqnmQq3A8F2eeGWczeKLYDkSD7kAMkMrm4Bn2elqtYp+bLIGj5jMStiT0sO0kKOId2YWOAX5qdeiL5YILUtDJc2Zp6bKTETvxVkAW3O8pjvhVaw=
+	t=1780849075; cv=none; b=fCmoHhnG5DaLwt7QK+0FninXWBB75mSbQzsnLJqgtsgrVZaycwqmEj30ytYBYDdSR3i56yMJPmQe/tWBHkvWGuCrqhyaJgfYHTzcF1M1IXHt8EX1UaJVLX02JQZNgp55q32JYWgKZVfX3a/pqcPAPnnpPP/LDcDXEE5Vk8Gz6LY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780848211; c=relaxed/simple;
-	bh=D+n393191TsGTgI/wtMhvoe3XTU5uih8PIf/wLuusSM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dazlpqNmG0dXnybVbYaG68wgM282l99/OucbKayBfzl1ZuY+qwwsXKkEEHUa8o/mGvwvp3FX/h0e8YM5xPkd1tb1Ngsb1vqmmyDzjhi2gzhEg8m0jv8buH8afiCIArJgqq9a5a831piCrcTlj/h8sMu1OaNdmEcb+rtPxJbIGR4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from edelgard.fodlan.icenowy.me (unknown [112.94.101.15])
-	by APP-01 (Coremail) with SMTP id qwCowAB3HdZEliVqOeXSAA--.381S2;
-	Mon, 08 Jun 2026 00:03:18 +0800 (CST)
-From: Icenowy Zheng <zhengxingda@iscas.ac.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Kees Cook <kees@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Clinton Sprain <clintonsprain@gmail.com>,
-	Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Icenowy Zheng <zhengxingda@iscas.ac.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] Input: appletouch - fix offset caused by smoothing
-Date: Mon,  8 Jun 2026 00:03:11 +0800
-Message-ID: <20260607160311.2192061-1-zhengxingda@iscas.ac.cn>
-X-Mailer: git-send-email 2.52.0
+	s=arc-20240116; t=1780849075; c=relaxed/simple;
+	bh=Q4ou13KV1MLVk4FniOyUw4K1xq6H2CKQth97q/bE96M=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=r5RtkE6m+WWCY0GT5Ffld9Ze0oXSjpcuQc11dkHqWeLij3CUhWlGQvmehFNy0ZU9TEjXKahTlugxao0ZOlssCMhaiKe3C//0RsrhgRNWiwNr00QzZLlI2fuB1ipno+66erRo5i4uCCOdHf5wtHHdKGatwIYl3iQA67mdJF8tFi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GuCdux22; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GuCdux22"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9374E1F00893;
+	Sun,  7 Jun 2026 16:17:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780849071;
+	bh=2EXccabL9SBmzk61xGbJEnyIJeMnzvDrg6C2V0bnn9Q=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GuCdux22c9f9ysqk7xHNZebOVlwugP0Sy8aMHaDGa+WjJZ2ALPDGhdE3dvNoHOzsR
+	 zmG3xjQaMv2cZ67L3WJxYqIHLNWH/7aa0KyyAve4rALLmxKwDdl3fEf5C8Y//ZnjxF
+	 LHa955DOdyuqXsjbEeD6/k5A5lUbxx8tHR59Su4v58Cn/wK/l53jOsxMdblxv8uahp
+	 eNDtHwpec+JzHAidallWc9UG9X+4S8AcytBe1rZ/Yv6gRwKtMrtPDste9Xy8ofj2yY
+	 bCDA+j7+aqsV8G9uxjG5RDZtTH8lk0mPMvKNUl21AxgDVTO1ySgxJ40UKg6VdcYEWM
+	 cuHj6OIJm3qOw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: appletouch - fix offset caused by smoothing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Icenowy Zheng" <zhengxingda@iscas.ac.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260607160311.2192061-1-zhengxingda@iscas.ac.cn>
+References: <20260607160311.2192061-1-zhengxingda@iscas.ac.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 07 Jun 2026 16:17:50 +0000
+Message-Id: <20260607161751.9374E1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowAB3HdZEliVqOeXSAA--.381S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Kw45Jw1UJrW8XFyxZryrJFb_yoW8GF18pr
-	WFgFZrKr1DJas3K3Wjqw47ZFyF9wn8Zry5KF1vgwn5Zwn8KFy0yFyktFW7XanrCw4rCF42
-	qFn0vrZ8ua97W3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkl14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-	6F4UM28EF7xvwVC2z280aVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r
-	4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
-	tVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
-	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkG
-	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
-	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7VUbGQ6JUUUU
-	U==
-X-CM-SenderInfo: x2kh0wp0lqwv3d6l2u1dvotugofq/
 
-The smoothing code introduces 4 sensors of margin on each side of the
-input, which is not compensated and leads to a offset of 4 * factor added
-to the calculated coordinate values.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-However, the maximum value reported as ABS axis parameters are
-calculated with the sensor count multiplied by the factor, which leads
-to the coordinate values going beyond the maximum value and get ignored
-by libinput.
+New issues:
+- [High] Removing the 4-sensor offset causes valid edge touches to evaluate=
+ to 0, which the caller treats as dropped events.
 
-Fix this by subtracting the index by 4 when accumlating the smoothed
-values. This makes the reported coordinates in-range again, and libinput
-stops to drop touch events in the right and down side of the trackpad.
+Pre-existing issues:
+- [High] Race condition between `atp_close()` and `atp_reinit()` causes use=
+-after-free.
+- [High] A 32-bit signed integer overflow in absolute coordinate calculatio=
+n causes negative cursor jumps.
+--
 
-Fixes: 739204bc9577 ("Input: appletouch - implement sensor data smoothing")
-Cc: stable@vger.kernel.org
-Signed-off-by: Icenowy Zheng <zhengxingda@iscas.ac.cn>
----
- drivers/input/mouse/appletouch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+commit 39d19e6e224959faeb0b8190e5d07e558b5470fe
+Author: Icenowy Zheng <zhengxingda@iscas.ac.cn>
 
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index eebeb57515e1c..174762d59f87b 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -415,7 +415,7 @@ static int atp_calculate_abs(struct atp *dev, int offset, int nb_sensors,
- 		 * by scale. Mostly noise.
- 		 */
- 		if ((dev->smooth[i] >> ATP_SCALE) > 0) {
--			pcum += dev->smooth[i] * i;
-+			pcum += dev->smooth[i] * (i - 4);
- 			psum += dev->smooth[i];
- 		}
- 	}
--- 
-2.52.0
+Input: appletouch - fix offset caused by smoothing
 
+This commit subtracts 4 from the index when accumulating smoothed values
+to compensate for the 4-sensor margin introduced by smoothing. This aims
+to keep the calculated coordinates within the maximum reported range.
+
+> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/apple=
+touch.c
+> index eebeb57515e1c..174762d59f87b 100644
+> --- a/drivers/input/mouse/appletouch.c
+> +++ b/drivers/input/mouse/appletouch.c
+> @@ -415,7 +415,7 @@ static int atp_calculate_abs(struct atp *dev, int off=
+set, int nb_sensors,
+>  		 * by scale. Mostly noise.
+>  		 */
+>  		if ((dev->smooth[i] >> ATP_SCALE) > 0) {
+> -			pcum +=3D dev->smooth[i] * i;
+> +			pcum +=3D dev->smooth[i] * (i - 4);
+
+[Severity: High]
+Does this change cause valid touches on the first sensor to be dropped?
+
+If a touch is centered exactly on the first sensor (index 4 in the smooth
+array), the smoothed values will be perfectly symmetric around index 4. The
+new (i - 4) multiplier will cause the left and right sides to cancel out
+exactly, making pcum equal 0.
+
+The callers use 0 as a sentinel for no touch:
+
+drivers/input/mouse/appletouch.c:atp_complete_geyser_3_4() {
+    ...
+    if (x && y && fingers =3D=3D dev->fingers_old) {
+    ...
+}
+
+Will this cause valid edge touches to be mistakenly treated as finger
+lift-offs and create dead zones on the trackpad edges?
+
+>  			psum +=3D dev->smooth[i];
+>  		}
+>  	}
+>=20
+>  	if (psum > 0) {
+>  		*z =3D psum >> ATP_SCALE;        /* Scale down pressure output. */
+>  		return pcum * fact / psum;
+
+[Severity: High]
+This is a pre-existing issue, but does this expression overflow a 32-bit
+signed integer?
+
+In atp_calculate_abs(), the accumulator pcum can reach large values for
+multi-finger touches at the far edges of the trackpad. If pcum reaches
+around 100,000,000, multiplying it by fact (which is 64 for xfact) yields
+over 6 billion.
+
+Does this silently wrap to a massive negative number, causing the cursor to
+violently jerk to the top or left edge when reported to userspace?
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but can a race condition between atp_close()
+and atp_reinit() cause a use-after-free?
+
+In atp_close(), usb_kill_urb() is called before cancel_work_sync():
+
+drivers/input/mouse/appletouch.c:atp_close() {
+    ...
+    usb_kill_urb(dev->urb);
+    cancel_work_sync(&dev->work);
+    ...
+}
+
+If the worker atp_reinit() is executing concurrently, can it submit the URB
+after usb_kill_urb() has finished? The cancel_work_sync() simply waits for
+the worker to finish and returns, leaving the URB actively running after
+the device is closed.
+
+Furthermore, atp_disconnect() does not call cancel_work_sync() if the
+device was already closed:
+
+drivers/input/mouse/appletouch.c:atp_disconnect() {
+    ...
+    usb_kill_urb(dev->urb);
+    input_unregister_device(dev->input);
+    usb_free_coherent(...);
+    usb_free_urb(dev->urb);
+    kfree(dev);
+}
+
+Since a running URB can schedule the work again, could atp_disconnect()
+free the dev structure while the worker or URB completion handler is still
+running?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260607160311.2192=
+061-1-zhengxingda@iscas.ac.cn?part=3D1

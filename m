@@ -1,131 +1,124 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C5071A262D
-	for <linux-input@vger.kernel.org>; Sun,  7 Jun 2026 19:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780861960; cv=none; b=jJxLZ82YT01OUKQu0eEYxs/9QcIYTTw6ZSdX0Qa9Cl9j7+MLl6WjY1/PUJd+3xRBCGT/hxt9lde+1Ro7beJCcXJYYoPCVCyxN2Sl6TPaqDrqdK62MG+qSFZNvL51D1VdpPtr2OyXeJrjm0FMXOVsa0c/Jger3+f6lEd8J149reE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780861960; c=relaxed/simple;
-	bh=R/uY9VZnl+lU4NJYikMEMgBUnWDukvX6fDP1kl8C6Qg=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=C9jmx34n0tpz7eVAp0GKyp/CLR5s08W2EmcZLcha8Goy3hAun/K8T6Zll+Iha1U49RnGGf0R8ExFDMGli2ic3Bplj+HL+U13ZUfj89nLxIJC/cF/fBqWHv70pP8Kfo74fHoh1r2pPFL3bBNSss1hWaw/1Q+FDy7eMftpWgP/XD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cSbgenMX; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2B91DE8AD
+	for <linux-input@vger.kernel.org>; Sun,  7 Jun 2026 20:52:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780865573; cv=pass; b=S7gRCKtKqFM5CdZZ7OCRR4nsp9SU593TAw9BrMfLYtMN3HsNQrNaHd7UnR/LrpQXW8x/G4E2xexCDlKWNx0Q+vVH/3KHBjpoy5s0nLd6mLULQBjPn3f7cvCbPsOcNDXa4R0ApQUBGJB+bHEJ8YBatNmSLQbPUF0ZH+MGpMhuzYo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780865573; c=relaxed/simple;
+	bh=vZoC2XCI/DGhd8gJS4Xd5Yi0S1yL043KiJVCF6eOp30=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EhiocbsRBLiayk9AQ7fFPssVwSWjandl/RqiskZ/28PyGhX4mAMJ14HnZUPhtCexjBLOdI7Fi2cwIWkPZ7I5Q5FZhA2Zw1BQVZ2dmNkwxPyeGQ8YHCo9n1VxIRrl78ZwVXGqW7iSqFuQQzoGnsf1zcP5QIKIagdtvMOeRxQf/OA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ov5Tv5mD; arc=pass smtp.client-ip=74.125.224.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cSbgenMX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780861959; x=1812397959;
-  h=date:from:to:cc:subject:message-id;
-  bh=R/uY9VZnl+lU4NJYikMEMgBUnWDukvX6fDP1kl8C6Qg=;
-  b=cSbgenMXC7nqH0jktqrTj5S6G/uIdgR/B8W7STOc1TkCVUpE54p17mCw
-   h/bIAD0agQ2oLmk4CfdcIvD47PChdh0Q9mlGA64uyYlUYjLW2NH+ab50v
-   0Ig8ybY0Niply88pESDT+ba9JXw3IyJg7Lww7EdYHAaC8NKG389LHGLg3
-   h5ctmcnLgtijrlgc69wuvEUDuM4d10kExOTJDcy4n7FIkJ+6IelXchXoy
-   hOuHHgAqUT76ssqOI5sKH6+aqKn8zjpmoSDFvBdpo9lZ8B+M0IAijCJZQ
-   msNaFXBomQ5RzN9uLegM2L8FG2slut0eVjWghornVfe8M47uoqfrhGIAA
-   Q==;
-X-CSE-ConnectionGUID: 3dA7+VggRI6D1kcx5Yqe6w==
-X-CSE-MsgGUID: ACwWxOtqSTWu2KwwKjWsKw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11810"; a="99018993"
-X-IronPort-AV: E=Sophos;i="6.24,193,1774335600"; 
-   d="scan'208";a="99018993"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2026 12:52:38 -0700
-X-CSE-ConnectionGUID: kAd2YC/YTpuJ3XYEXBCfsA==
-X-CSE-MsgGUID: hwBCE+DcQFOY9/rHIkA7xQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,193,1774335600"; 
-   d="scan'208";a="241164935"
-Received: from lkp-server01.sh.intel.com (HELO f0d55cb201f0) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 07 Jun 2026 12:52:36 -0700
-Received: from kbuild by f0d55cb201f0 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wWJXu-00000000I5u-3COD;
-	Sun, 07 Jun 2026 19:52:34 +0000
-Date: Mon, 08 Jun 2026 03:52:11 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:for-linus] BUILD SUCCESS
- fb402386af4cdce108ff991a796386de55439735
-Message-ID: <202606080303.kY1TCnUj-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ov5Tv5mD"
+Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-660323f7b27so3777900d50.3
+        for <linux-input@vger.kernel.org>; Sun, 07 Jun 2026 13:52:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780865571; cv=none;
+        d=google.com; s=arc-20240605;
+        b=S5Kt0Xm8SdQ4pvbHQiQtBlInLIRRA9mP+RVrQbGkcsVahwr1vas7jAY6fQlzNqOvje
+         ywiaF7E9Samu3Gso8fyuTP5S8uJM2O/+aQmYwuZEMHE2v2LzWqG+gP7jxzSAbnC9mH14
+         6ULjJUtjHQv8xuHBg/wBujpUodLR/xvXPOKXR2K+i5c6Ioy3iLDWRpBC6M9JAIBg2ZwI
+         2Dk5veLZsHx1qIttpfoOeDYz5v56WJQvWSMfiic7NNIKtTarFgK8vb3wr9hwLlAklphF
+         V5TbkSI0UWiL0h95syiGLhvedYPF9+aeSuFQtoI8mWwAkUx7SwSWmYRsyf7Yst2QhLh+
+         V0Ww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=/81AVja23z3xt75X8Nbqrb+cC2JxCzobXTf0PeIKB6Q=;
+        fh=NIZQZ5IPQwQOW5ZcVFjhNXb5zybDxaXpjqhFNWkRJ/M=;
+        b=QypUxq6BoSLY6+p5Fo8B0EFgMLEbdV1XbwwD0xl1sefM4IEaSO8LjK/n7V4UHgHijj
+         1+BF3Ty8CAeNw5iJA8/xUPTw0BFRx10n7zBwRh+LTJnFq4HcOik8pY836GPLAopMDHXP
+         WU8O9F84qgJ6MjUpC4r+X5AH8fv4cLXOwtZ5oi35qrmsvDZfuKaCpkLuRVKAetQTtsgj
+         Tg/QXO7TKeaz2Vu5Ry7pRx9uKDyg22rwq/TnNZJg+KOdCsAK/Iav6DIW6JOkrLmnsx9A
+         rpjWv/OGWANmPWr5+bJo2Fmy3bXYZyWJukkArWf1owXW/g+7NgXxST7FNRd7zhBoBbBb
+         ph2Q==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780865571; x=1781470371; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/81AVja23z3xt75X8Nbqrb+cC2JxCzobXTf0PeIKB6Q=;
+        b=ov5Tv5mDltavY3g13DSbbgKSMdBeT+YW9dQlBrCBKd5yLfAnQDhqXci3IFQrP9E87X
+         6Op9dvkx3Wgm1RiKM+QE2Z1ybTOMTS/gUsubszdxcFcfdxsjNKNKHRcj4YNgofdEOh5z
+         yvDNcAoBnNbyGyFxTI326be3U0Qruk2PPLpalRK8OyHgV//XV+N64D/u9eYFffyG0Jqx
+         1IL7d+XcLm18PG8vNlEdhMpkxdFSLSjKwmGPWlLOElN6QSsj6AY9GDV/V+y7HP9+inOd
+         5EYyd4AgMxUHTpfe86YisfZPm5k++78d7a68CZSYEZMLFD4KIUSVbaETnf+yYsv6XZHQ
+         mV/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780865571; x=1781470371;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=/81AVja23z3xt75X8Nbqrb+cC2JxCzobXTf0PeIKB6Q=;
+        b=j3/QsTkuU9oL6MDR/GWK9PB918Pe2NOYawJKPsWwi1Wts7ayma2ZsUVqXXKxBaGXUn
+         ZYzT74ycBfRBt9gwvRZbd79Z+5fLZsPepGqymLvLyRXWqz+VWDFaC2uPYM2xC0DC/olP
+         EcozEOsBPT1j0Ty735qkTVwAOd7ofWraSias5Zk+NCw1HlNQL4D07MrG+gQhIVbfhT6h
+         HxuLGsfUkqw01W01uoChC4/07PLeNmYki/quIKXoFkOW3htlj8pbUrcJYv+TRK4wtG1o
+         lGd2Ga6CQbA7YVVLHmJxfzFOATGqWuKKdCYKGq3Gr5Y4p0irhKoZfxc9xUrBU2/SzGoX
+         rPmw==
+X-Forwarded-Encrypted: i=1; AFNElJ9JQq+9+TQM4nSDlrdRdqkMvWlc9g7jWovI/GvSzLhcuful/eSC2xw6hDPhPPNlav7hRoJpJpapVt93Fw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YylrXPG1FB9UYrjL7sN62C0j4KMIpMWnx6d1Zaw4/qa1sy4tP0m
+	1ClC9QaOzhNak2dyHNAgQRK3U1DTl6jA935TYgD2L4/3kFigIxv3mOd9UACgmo6Xa/YKTYTf9MY
+	jSKTLqUzzyFyvMdhD7S3M3Hk5XymMGRg=
+X-Gm-Gg: Acq92OE2rkTKDIR+CVyVgh/SG0LWjRRm18KfgLZcyDcxL5A+wxm9k2EkF3D2iPCMjZy
+	u34dZ4FEnK8Jat9bVUMg4zSDnyLPoI1h3grVZUDfDD9+/crac3ZOszg25E4v5n7zpr4zFhSNcGZ
+	uG3dMHQ+hfowEFuqpzCECMxjpXTseEpSbRnmKZB9B3MFVAj4J4G4reWcT3wNgkN79YwgXdLTlP5
+	ZK1N0zJqSkUXq5I8wGOwyBQjgWq7wehMzsSvhH+smrwhvTrCdJi6lLagZcTtJFY6Hf82QjW5sZy
+	KiUBTLrd+wafZidYz6yrktZJzw==
+X-Received: by 2002:a05:690e:134b:b0:660:ec14:ef87 with SMTP id
+ 956f58d0204a3-66106f153cemr11077968d50.34.1780865571452; Sun, 07 Jun 2026
+ 13:52:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
+ <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
+From: Maxwell Doose <m32285159@gmail.com>
+Date: Sun, 7 Jun 2026 15:50:50 -0500
+X-Gm-Features: AVVi8CdYUyEsJBZuEZpF4d9hRqPKQN9LrFimrV9NNTgG4FyAsXCSjpDMM7bbtuc
+Message-ID: <CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
+Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of unsigned
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner <dlechner@baylibre.com>, 
+	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-branch HEAD: fb402386af4cdce108ff991a796386de55439735  Input: atkbd - skip deactivate for HONOR BCC-N's internal keyboard
+On Sat, Jun 6, 2026 at 7:19=E2=80=AFAM Sanjay Chitroda
+<sanjayembeddedse@gmail.com> wrote:
+>
+> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+>
+> Prefer 'u32' instead of bare 'unsigned' variable to improve code
+> clarity and consistency with kernel style.
+>
+> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> ---
+>  drivers/iio/light/hid-sensor-als.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
 
-elapsed time: 1254m
+Do we *need* u32 though? Usually these types are for places where we
+require specific bit-widths for a reason (e.g., reading a hardware
+register) but I'm not sure that's the case here. I could be totally
+wrong, in that case please correct me but otherwise I unfortunately
+don't see much value in this. That's just my personal opinion though,
+Jonathan may think otherwise.
 
-configs tested: 54
-configs skipped: 1
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-tested configs:
-alpha         allnoconfig    gcc-16.1.0
-alpha        allyesconfig    gcc-16.1.0
-arc          allmodconfig    gcc-16.1.0
-arc           allnoconfig    gcc-16.1.0
-arc          allyesconfig    gcc-16.1.0
-arm           allnoconfig    clang-23
-arm          allyesconfig    gcc-16.1.0
-arm64        allmodconfig    clang-23
-arm64         allnoconfig    gcc-16.1.0
-csky         allmodconfig    gcc-16.1.0
-csky          allnoconfig    gcc-16.1.0
-hexagon      allmodconfig    clang-23
-hexagon       allnoconfig    clang-23
-i386         allmodconfig    gcc-14
-i386          allnoconfig    gcc-14
-i386         allyesconfig    gcc-14
-loongarch    allmodconfig    clang-19
-loongarch     allnoconfig    clang-20
-m68k         allmodconfig    gcc-16.1.0
-m68k          allnoconfig    gcc-16.1.0
-m68k         allyesconfig    gcc-16.1.0
-microblaze    allnoconfig    gcc-16.1.0
-microblaze   allyesconfig    gcc-16.1.0
-mips         allmodconfig    gcc-16.1.0
-mips          allnoconfig    gcc-16.1.0
-mips         allyesconfig    gcc-16.1.0
-nios2        allmodconfig    gcc-11.5.0
-nios2         allnoconfig    gcc-11.5.0
-openrisc     allmodconfig    gcc-16.1.0
-openrisc      allnoconfig    gcc-16.1.0
-parisc       allmodconfig    gcc-16.1.0
-parisc        allnoconfig    gcc-16.1.0
-parisc       allyesconfig    gcc-16.1.0
-powerpc      allmodconfig    gcc-16.1.0
-powerpc       allnoconfig    gcc-16.1.0
-riscv        allmodconfig    clang-23
-riscv         allnoconfig    gcc-16.1.0
-riscv        allyesconfig    clang-23
-s390         allmodconfig    clang-23
-s390          allnoconfig    clang-23
-s390         allyesconfig    gcc-16.1.0
-sh           allmodconfig    gcc-16.1.0
-sh            allnoconfig    gcc-16.1.0
-sh           allyesconfig    gcc-16.1.0
-sparc         allnoconfig    gcc-16.1.0
-sparc64      allmodconfig    clang-20
-um           allmodconfig    clang-23
-um            allnoconfig    clang-16
-um           allyesconfig    gcc-14
-x86_64       allmodconfig    clang-22
-x86_64        allnoconfig    clang-22
-x86_64       allyesconfig    clang-22
-x86_64      rhel-9.4-rust    clang-22
-xtensa        allnoconfig    gcc-16.1.0
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--=20
+best regards,
+max

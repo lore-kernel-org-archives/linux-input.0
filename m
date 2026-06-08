@@ -1,114 +1,177 @@
-Received: from mail-vs1-f65.google.com (mail-vs1-f65.google.com [209.85.217.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4A3332EDE
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 17:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.65
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780938845; cv=pass; b=GentV19sbErHczQv+9gaATmjN1NgZg3oYzOrMshT3KVafMLQU2DscbPkfaVEnMV0LdgwLeLWkmBjXd3jbjGabfGRd5PSg0kWdV1nc0OXSOd4mIpw9+T1b5VFKxipVfD/jzJ/uIPU8hEPzcFtK3AwCr/Z/pgMdUCeD2wlEBrPsOM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780938845; c=relaxed/simple;
-	bh=EXY2HhbPtnWWjy9ZRBg6fDZvGucC9w5Mnr26sUiKheY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=p9Fxmh18/Io7jDMvAlryNGQfnJ7LElLtXMxEWK5mqI7EXqe10o7g60SGN09m1ADjERZnPDfZl2Y0GtAKq3Q2WuhIYNhHor4SabIX+pVhWMOm4SPfO9UvgTV5f71nkzaxmoh95z0F1OkX1OC98qJ7+uMMWTwu6rNLFTam8xaSacw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TaLmItV3; arc=pass smtp.client-ip=209.85.217.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E4773644C5;
+	Mon,  8 Jun 2026 17:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780940293; cv=none; b=dxxHzPjzFCeQoKrWC9QEJxqcnAWipmJqC4bboP8IQ9bpF+93O8yUW6Qc2l5Mh5uPotk2YpMstU5ngxFdaD5SWVzklSCWsWvqWZE0NlxFQPiQiuHhx2f7R5vVDJv0B7XYzJe3XwDEWYWg2Y/kDJABGanve0XHVtvWkCuTkZVK2vs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780940293; c=relaxed/simple;
+	bh=mtvsyRnKfyoEzfSqlInNenv9JGaRcMcZQVm/gTLc0ww=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RgEstVL1hvK5quLj8U5ui3mJUk3MZ8bsPlujLFsRwl+QwhqvDRKA0E8FhrXgH9SwOQ+Q26hn8I1VLCF7Z2lNdwck/MFi7wTMJD2c+uBXMQ+SnSMywnC6q/jbrXwYltOj2+omrghdEkZRbGEdPeO0szhrgS/rLVdmEsIy0qpzS54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNZfioV6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TaLmItV3"
-Received: by mail-vs1-f65.google.com with SMTP id ada2fe7eead31-6cfdcc79789so1707581137.3
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 10:14:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780938843; cv=none;
-        d=google.com; s=arc-20240605;
-        b=HJc7q8WwIXgAzlOx46G2/UK3+9pZCwF4i3Z/mdrOUz6VdtuGkQzzCu9eZBZ4GTg5nd
-         WOEKV54D/IdxZcEjCHPOVe+uvHI7PflRWG4mK9vGEMxHd0LVwaWZVGD2ylSjONg9L5H5
-         q+z+HAjYil5qnWtW6uO01tTILT0h5DXmbdxeErhASQdV30hjaln2zeFxR3Dk2Hn6AK/H
-         sMvVxQ88PfShnVHbK3okRyNu5p85ZxZr5/KtSkJs3alzitouaLKRx3DjnDTW7+8a50fH
-         3iGmt1SVK50JcWj4vMYf0k206yL6lat9fRfd190n9eQGvSPYGRmp4DKih00Mswvd8zj8
-         wFog==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=EXY2HhbPtnWWjy9ZRBg6fDZvGucC9w5Mnr26sUiKheY=;
-        fh=daQlDUpDJzaPlgjxG8Z12n8czdNCezgRnqZAbJTrc40=;
-        b=hXDrGjKsZpv4dGduMS12HVNSxy0YqHqsgRGL+eTfhHu3LnIwWI+/ZSXp0CiLXZ4Buh
-         9/wSL8vRcRjrzSpCAeh0OFiDb6euHhZd0dr67PkOzM8uwlu2amy8Z445y/oxrDgGf/Qq
-         eaZSfICDj5z9cJWsNF7o6ST9Mg5P3JnKW4UBdjkaj2umpXbx/vlKKMfhdUjoELk6R1zR
-         VCBvpVKo3j0R+M6ExXG3mOJuOtMaatFvnIkeVIq6OmR+PNc+20vEMRcBFlr4UNBu3cia
-         46soZBm5Ss8/BSR6Sapw6JBKXWlxFBXM+r2H6CCvrD40vuEC5TiwKnk6MV0Sc1PV+joa
-         HKag==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780938843; x=1781543643; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EXY2HhbPtnWWjy9ZRBg6fDZvGucC9w5Mnr26sUiKheY=;
-        b=TaLmItV3pzMwr5MpnxgSnNmkPat2OoIab6v6PS6WLQvUvTnuj57+fUZ0qIW1CS0XVK
-         ZLdSnvTWci7PbH3SRMMaqMhn2I6hHBe99oyItvzSeasaTBNo22CZB3jSw3kuiWPqId8Z
-         y9yk9BIqMZHT187iiuwA0zJeHlN6R6DBFYVCfatL7yxTz9cnTpMTk+LnxLrZTFqydPce
-         gWCDrfbey8Qe2BAHQLhLDP89Oq20B1jdeALdbeqCyGWRJXUoXSYrpMI0jBR6s/7ToN4K
-         ZnN1tkbWHv2y6gVZ95cQWMzIf7d+JAEgXWyQqsI+Z2hiCl7kDffhB7866iHkZ6VcR+3L
-         Rh5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780938843; x=1781543643;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EXY2HhbPtnWWjy9ZRBg6fDZvGucC9w5Mnr26sUiKheY=;
-        b=H7FDSAZCpdhxw4LiASxkuBdDhgxIE6lZ+n8OWneE+eDyO7+Pd59G+r9leJzhXSR9kE
-         u3Us4YAflPbZjSL3JK+HSBQem7uxVebpVvVVJFsQfmtng5D04VhEhN9Wt8qUz+BzGQP5
-         FBR+93NumCZv0jWapjky97hSoPERJrCcSVdfDdLDnIiwLe6a/oSTbNSCXJ9uqvy/4tuX
-         mqVcoQB9uKReCJr8ePpY1YKfWUTM9SShgTeLkZ8RWcd4NysNf6bDRye6Z9lcY0kNBP3L
-         K5GtZbXBd2FD9UWmPmvikXXf4szI82zHcQ+SyJS7IWI8EZx1IFbpWK4g1ZZhJxhl6yE5
-         m1yg==
-X-Forwarded-Encrypted: i=1; AFNElJ+H91BxxSiM/5xCxVSbLaj4c8bkXNovl03VbCY13Ne05NFvkfSldCkrLE92wMU7DEQ3fCjhrlh7Ql6rig==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzP0tUVZ7Gh+knJReh/IIhZH9wSFU/ojVLp354leiNoKWud6+gr
-	xcMG1HFj1B3Fav6/MfkdyYbR7rF1UTRHlyybaak0FFVmNGMmWnvEj4ArjFqRpxKItmoSRY1i1WD
-	k9+pdAlYxyh4eOg8M4xELds5VeQ73r5E=
-X-Gm-Gg: Acq92OG06yqXiVwqnsqTALJDsu9SQ5mtdNVgbyABVOfHJrKZVAR6PX4pryuOYKhSkN5
-	6BsudaMGom9QMaJ1Yjv6AU2iw69/vrRNwztHg0ebf090fVMpE7PlRs5iS3WzCTnqeUg/QxPCMOF
-	t7aFw+zbpS4RTDNjB42Aa53q7oIdm2sJbHC+x0gYEOf0K5x9ijpbXRuaW5/8o8Ro7A1+jBE4/4L
-	tu+MY2D52NVSeXg+ulSXKvMi/A7oO/gyDRqQezomz5zsNgq72vlUISnEP1QiVN1rShnHu+yQ6+3
-	o0nX9Z7pkeDWMseUkiQV47c9o+vbhWJuYWmlTajAwhd+X3QdNMU6fZ9ljdz+7SFbCe7fLTY9KFo
-	DmWA=
-X-Received: by 2002:a05:6102:8028:b0:659:3ae:e6d1 with SMTP id
- ada2fe7eead31-6fef194813cmr8586356137.9.1780938843197; Mon, 08 Jun 2026
- 10:14:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNZfioV6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E6F41F00893;
+	Mon,  8 Jun 2026 17:38:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780940291;
+	bh=U/pjmW4nNKfJXZiL8TPZ7CNa0CqaniLM8nnU3rLS8gI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LNZfioV6JPrXMW1zDnDKf23p5HtxpjyQJ1/USEtXJ6NPpkoO93AcSvedNgjZwXlZW
+	 gn+Ecv5vN2nSGydclInfCssBw1Nc4kOYG9fK1dnyZ4DAMYOEphCxNaysniA1jAF/iY
+	 tnXKwpRIdI1MgjFbl54PYp0B8RFyxu1mVID8bj/JODR4xTo97HdxnKfcBDbxDEBg6N
+	 kDLQdVHAq+OocB8oLuzOht5k5XeqWhH2Fp3GNVNqgYdQWn4niYHdLwlnxZlTPR+1tW
+	 Odzg4zYTyvgcUa8XQDahsDCbCj20mWHZzFjV1GEd82nfdzdAPXmMqhqYVFupn8Wd4U
+	 SzH6mgxgTWhvQ==
+Date: Mon, 8 Jun 2026 18:38:08 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Jun Yan <jerrysteve1101@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/8] dt-bindings: input: microchip,cap11xx: Add CAP1114
+ support
+Message-ID: <20260608-broadly-reunion-09fc8eca5e87@spud>
+References: <20260606150458.250606-1-jerrysteve1101@gmail.com>
+ <20260606150458.250606-8-jerrysteve1101@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260510052107.555825-1-enelsonmoore@gmail.com>
- <aibz3auoiq4CFa9l@google.com> <86765df4-0d2d-435e-85d8-b9bd4f3ea85d@app.fastmail.com>
-In-Reply-To: <86765df4-0d2d-435e-85d8-b9bd4f3ea85d@app.fastmail.com>
-From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-Date: Mon, 8 Jun 2026 10:13:50 -0700
-X-Gm-Features: AVVi8CcQLZdfGK7GkL8AIz2ceIWRoj45ZqGYOIPBttfj7m0Xg4lz5ZY8Y9K80rk
-Message-ID: <CADkSEUhh1NdOMTHVsErhqzyCpDGFA-FkNFaWp94e9LnB3njxqw@mail.gmail.com>
-Subject: Re: [PATCH] ARM: footbridge: convert to sparse IRQs
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org, 
-	linux-input@vger.kernel.org, linux-serial@vger.kernel.org, 
-	Russell King <linux@armlinux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, Russell King <rmk+kernel@armlinux.org.uk>, 
-	Linus Walleij <linusw@kernel.org>, Kees Cook <kees@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Steven Rostedt <rostedt@goodmis.org>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
-	Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="MuqtILYrLlq2z2p1"
+Content-Disposition: inline
+In-Reply-To: <20260606150458.250606-8-jerrysteve1101@gmail.com>
+
+
+--MuqtILYrLlq2z2p1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi, Arnd,
+On Sat, Jun 06, 2026 at 11:04:00PM +0800, Jun Yan wrote:
+> CAP1114 is a 14-channel capacitive touch sensor with 11 LED outputs
+> and hardware reset support.
+>=20
+> Add the compatible string for CAP1114, include its datasheet URL,
+> and update the maximum count of LED channels and linux,keycodes entries.
+>=20
+> Add description for microchip,input-threshold: CAP1114 only provides eight
+> threshold entries, which does not match its total channel count.
+>=20
+> Signed-off-by: Jun Yan <jerrysteve1101@gmail.com>
+> ---
+>  .../bindings/input/microchip,cap11xx.yaml     | 21 +++++++++++++++++--
+>  1 file changed, 19 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.ya=
+ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> index e307628350c2..08233386a433 100644
+> --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> @@ -12,6 +12,7 @@ description: |
+> =20
+>    For more product information please see the links below:
+>      CAP1106: https://ww1.microchip.com/downloads/en/DeviceDoc/00001624B.=
+pdf
+> +    CAP1114: https://ww1.microchip.com/downloads/en/DeviceDoc/00002444A.=
+pdf
+>      CAP1126: https://ww1.microchip.com/downloads/en/DeviceDoc/00001623B.=
+pdf
+>      CAP1188: https://ww1.microchip.com/downloads/en/DeviceDoc/00001620C.=
+pdf
+>      CAP1203: https://ww1.microchip.com/downloads/en/DeviceDoc/00001572B.=
+pdf
+> @@ -26,6 +27,7 @@ properties:
+>    compatible:
+>      enum:
+>        - microchip,cap1106
+> +      - microchip,cap1114
+>        - microchip,cap1126
+>        - microchip,cap1188
+>        - microchip,cap1203
+> @@ -62,7 +64,7 @@ properties:
+> =20
+>    linux,keycodes:
+>      minItems: 3
+> -    maxItems: 8
+> +    maxItems: 14
+>      description: |
+>        Specifies an array of numeric keycode values to
+>        be used for the channels. If this property is
+> @@ -122,6 +124,8 @@ properties:
+>        is required for a touch to be registered, making the touch sensor =
+less
+>        sensitive.
+>        The number of entries must correspond to the number of channels.
+> +      CAP1114 is an exception where channels 8~14 reuse the eighth entry=
+'s
+> +      threshold, so counts differ.
+> =20
+>    microchip,calib-sensitivity:
+>      $ref: /schemas/types.yaml#/definitions/uint32-array
+> @@ -149,7 +153,7 @@ patternProperties:
+>        reg:
+>          description: LED channel number
+>          minimum: 0
+> -        maximum: 7
+> +        maximum: 10
+> =20
+>      required:
+>        - reg
+> @@ -199,6 +203,19 @@ allOf:
+>              reg:
+>                maximum: 1
+> =20
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - microchip,cap1188
 
-On Mon, Jun 8, 2026 at 10:11=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrote=
-:
-> I think this is correct, as footbridge is the only one that selects
-> CONFIG_ARCH_MIGHT_HAVE_PC_SERIO and defines I8042_KBD_IRQ on arm.
+I don't understand this restriction, shouldn't this be
+if: properties: compatible: not: contains: microchip,cap1114
+so that the constraints before your change are retained?
 
-I came to the same conclusion.
+Also, you don't add a new constraint for linux,keycodes, so now it is
+permitted to have > 8 entries for existing devices.
 
-Ethan
+pw-bot: changes-requested
+
+Thanks,
+Conor.
+
+> +    then:
+> +      patternProperties:
+> +        "^led@":
+> +          properties:
+> +            reg:
+> +              maximum: 7
+> +
+>    - if:
+>        properties:
+>          compatible:
+> --=20
+> 2.54.0
+>=20
+
+--MuqtILYrLlq2z2p1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaib+AAAKCRB4tDGHoIJi
+0ol7AQCI/HJtqg0dmwEO0I49AO4x3tp+W5+SwAHU80uTtuYG7AD+KpVjeqYJUYCV
+R/Ye7802DGcWyiPUUKR93wHtfBtvCws=
+=SEWu
+-----END PGP SIGNATURE-----
+
+--MuqtILYrLlq2z2p1--

@@ -1,63 +1,63 @@
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C91372066
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 13:20:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EF04337B81
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 13:27:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780924851; cv=none; b=Rr1U939wvyy608uewt7qe07JA3ViimwLoShpXfjDZUbXZP8es1alUv0Dvo/2/6DSm/371vYPP2BkJTi+IKi1XNvv0o27atmjJyH4Idi4n4D/IlJGyZDqMRg6fghooUS+Pz8PrgoHGSM7XVw3iL01ieR7ivjZaGO+2G8ve3HCwpc=
+	t=1780925265; cv=none; b=FIotcH8w+AmQvdftx5H60qX/ViUOIVDWikHhpemPW+BoZaEStmRMntBqEcoxC71MTpwVKHPneH0DB31o2AzwGjqA9KfFN3S4iafBaFyX4406P0wRJ9ccxnlUAaqQhll0KTVHmlVrDUuHWd3AVr2lYZJTfAWDkvt2MVZ5YRaFJ+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780924851; c=relaxed/simple;
-	bh=lPHK/ihuGBPLemRU0lPXBkD1+OkfE/pRAjceTfkiS3U=;
+	s=arc-20240116; t=1780925265; c=relaxed/simple;
+	bh=yT6xHVxLZk0upCiR71weeJ3YTpFaCRjAee8PNhOeWBg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Fs8MQwMPd4+tUj1oDS5pSkib24vgdEeRfVsIag0FcokXAV1LR4hb9MS0wlpfqInCPelsLrKbFVm3gLS+GNYAgk4xwq9Iv47rnTzB3psk3QCwLxVj355hbT6qL37gN8Ae9csgtnreQK3Pd3tbD8u4j4hCe8KvEdz0BYBVg7PLX9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EnWC7rcB; arc=none smtp.client-ip=74.125.82.178
+	 MIME-Version; b=VNvB16VUBgYBVDyE+k+DJhnJq7pD7NMFAp0e1j1sjy5zLuYg19qsfWke48C9IJLkZVXI8fTHgTnYWjVP9vAoMi5nR/HSIE3Tb00LuCLN7Mz4GzW7QlRzmfyJKl3aQhuplgP9RhUU0sWHD7xe9KdXl7pkVmUVC9ApEFtlN4tbPXY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cUD99qLG; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EnWC7rcB"
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-306f36df4feso2734013eec.0
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 06:20:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cUD99qLG"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-304e83724bfso5079930eec.0
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 06:27:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780924849; x=1781529649; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780925263; x=1781530063; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wFJPSMXCi6b6l39VWDqxTROb6VoHdQrtvaD0s6OS/zU=;
-        b=EnWC7rcBXstq3BlIiVBlw2fhDGeomCPlOpNavPR48UhvixSqe57BLwH1dwWS0HerUn
-         btD4hrRmA6iR/SLA6TOueApC7Pg8sr6UUSQ2VH1C8joYw5ZQsL4ijw4vh1f0ZVrt5o3W
-         +uuO9dNUIsvltBKweUJSMRyK8t6MCYJCL82RSzSTsD3NrqY8gNyZAh9nHkBCsk8jEQa/
-         u0j8nR4+whSI3Z7xz2MCD51hYVGdMBGQ9T8Uqyg9iCQCB4TtVzqBCPwYnz0Wa90X+2Y5
-         Yg4EynD2/edj2eUrDNgpLr//8RacYeBz66j5iL8RjKYP4296PWBMI+VRM+uThX/gTUrl
-         LK5g==
+        bh=v8q9Y3dkb4+nYxO7LN8VFVjV8kgwP5XnZvXClRTD2SY=;
+        b=cUD99qLGG4ELI+fTJjEGRWmCCTdSLepoNH3rwd0G0yc5NDJSURy5UFcYfgoo0GkqjY
+         rsR3GOy/qTGCCEccRc8PHlQ9Llf9ntTUbrA/jy5gLEqj3p1w+ifo+z1c4k9qqwH3V2fU
+         NQ34N+ELJ3HZvZRfgO4LZx5/tCfsKtF1zu00JhvJ9eg59MQFaAIPCE9r6PqQ2+OnKH6B
+         i4aS7mwpqxbaZZaz/Hpueg2JS0AwOqbISCXJwYVQmv1/Jf/fzwWmUgTOFGLjMuv20VCL
+         4AAPKG99SlVmi5JgngfBgqOH6/LK7mXW3n4dPyy6cCsC4cnHGS4fwOTKGrHUauL8fC7t
+         DM4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780924849; x=1781529649;
+        d=1e100.net; s=20251104; t=1780925263; x=1781530063;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=wFJPSMXCi6b6l39VWDqxTROb6VoHdQrtvaD0s6OS/zU=;
-        b=qLNg74+plOCMdhRnZAbZYtUf0CL+8YRa9kJuQHKzg8XnCAZOEdjRLFeEUwGruiWjeC
-         eQElNC3s1db4G9yL/HCXP6v8DJ5IgNwwwjJPz4VGNyxOlKibXE0seeA7/gV9GrTPAGvZ
-         c9IwZ/iOKKauUYNQir1EOSA1Re7IYNbPzCQlh9sdtdW0I9wudRO36nyO/yioFHbzWf10
-         xDYPqKoESj6nEXXLYbTuOG248fO2xv37gLuQwNWRdvhot/Wmr7wlUYjUXf1r3Vmbw5dN
-         SZwWgy+30J8KR28lj6H9D4OLPG925Y/BW6sC+4vzoOtV63aVnqFQYWeWTkeiWvIp2+v2
-         imHA==
-X-Forwarded-Encrypted: i=1; AFNElJ/nOsPZXnkw0fR8CzC58erczdpY93jUNceopRisu9bhAqnYv/hTzkxcSwR9y/c8Pk9i3LJ4qIixocYFCg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxtK1h71rn+xEUU88avDvpH+5DY3yvmt1583Z1cfBJWWOQsx4vE
-	lZLkXsKBVAGkUiuHmDPMI+LJWYp8c0ohfvfUU7W05dT5WPzyLpEhSQcZ
-X-Gm-Gg: Acq92OFFCsxp0X6wxd8zbDnJcBqKVj7puvrt6QgJa+Yyt5b7+xNVrKeXwYc/QMnCIfT
-	ZfreMbMEukk1uVYs5xQYz5OGlqW30McvLoW2DmugM6JBrFL7vd+ofs0LKJdvJp/GAvLtwR6GzIi
-	2EiFbu6EwHSMXqfKUgL+xvj+8T5aa85As3E50PxbW5yU1LetEncgS9Q8qDyeiHKkh2dcsxWNwR5
-	WCjrbkmtqORuJFBMpjstfLd8RNFV4zK1ZAgt/pS3tgvmPYXY+fAoe/8FIkIpVJ21AP54+U2uzT3
-	m3TgG6o96LwAeP8uaSEGczpeVdcZStyteMI9b3PfoTPdKeNoESSB3/itztnNaviHlr7qDxL7Tm+
-	JX38P5YHU1PCqdyS4VopmqUDHmqJJ5jUACoMqkYyUMk0Jb4ZPSL9vjojI3YfVzShQwd0UkONsXz
-	FYOL6KqAXt+ANgyKA9Auu5xGmuHmqj86/ldItD44eRGdTND2GXkQ==
-X-Received: by 2002:a05:7301:6098:b0:2c1:67e1:61a9 with SMTP id 5a478bee46e88-3077fff14bamr6004505eec.13.1780924848991;
-        Mon, 08 Jun 2026 06:20:48 -0700 (PDT)
+        bh=v8q9Y3dkb4+nYxO7LN8VFVjV8kgwP5XnZvXClRTD2SY=;
+        b=rpVl6UJB8qLXAITgqWUzazD7Zqna+DG45+AQNW6y7mtNqU1RiTxbG4vUfxltBPOyce
+         ticghrkGeP61Dm7fcKVIokfBrzmXEv+J1gQglZX1qhWsKcFz+k4BejaZvxAKQeo4MTfW
+         by8AFPjYo4PenqXug0TtoDxxD6rR06fhLESOs1tOxEnGKplUMFCNfxdJlUVcCCYcfD8Y
+         yZTqKmDWVHs/L4G7a/kEDpqBLYMC2/5VPjhsCvIvKzxxzrbes30vB07yhX/ceoOVdlYY
+         vJaCilrfSb/JAHa6IP8C1XlIT2fyAvKoIZyzfMdjZdRGW6Tt/0GMWrPbhqA2e75El5Hy
+         GHBg==
+X-Forwarded-Encrypted: i=1; AFNElJ9wgQqsqfsHc3gQJyNLHbHunj2j1OusX1dZpOI7IB/dl/tfQLUGdVoi+62UTzufKgZjqJQim1tt2Yq/5g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz5iEFddga5fFxRB+RQjw6Tssby1wY1gQy8uhz+/6T61Grvs5Ve
+	CbYbQGcwQd4ju4ZJhasqx1n16KbA3wl8kU+RvtyIcSixdKbu08ezrCkl
+X-Gm-Gg: Acq92OHiqQ9pkqNRcux1pE4I3gWG/NyU4YLGw9UrG2q9UImxk8qAhoBF4z9EgacLZiu
+	rXHdsmRNwDC9tACm6sdGrQznH+B1QtlP7BBPf0UcubNjFewYG+80VNLvIh+fZZPfe1E/L9Y+nsy
+	MHCk70595mr5o8oAvfwnqna40VsgdG3UorVOgGIZoIhNK9ogOm9u+tfb0543Iky+gF5AcRkZZ5c
+	thsGT9JTHHWE+6HMa5wQMq2R7DnHHYLmcNoEzND3WMSTwKW1ANgeOmzKNJ65Vs1ALXKBwPgFs6U
+	fVZIc/Ijirg82GTOqWFiW8Es8utAjZrBmZhisINMSGl0VzuUOvT9gknUC1M1kAu2HGcuPUP4vm8
+	DVZn2IaNP1rfQm4UkZ5CvJeofMs99vNQlKOero41K11bJQwAac1mLxoVEvGJ6PzUJCmxM9VWu32
+	c6NChKDZmPnwP+cKr+XL0AhB/VT1WpB5fu8dUF8AZD35PGjPci5WDKssmbO0Qm
+X-Received: by 2002:a05:693c:20c5:20b0:307:287f:9bbc with SMTP id 5a478bee46e88-3077b7509d0mr3955694eec.25.1780925263157;
+        Mon, 08 Jun 2026 06:27:43 -0700 (PDT)
 Received: from arch.localdomain ([2409:8a28:a54:e741:3a5a:3245:d3dc:4b5d])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074df9bbd4sm15481288eec.30.2026.06.08.06.20.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3074db85f60sm20883832eec.8.2026.06.08.06.27.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 06:20:48 -0700 (PDT)
+        Mon, 08 Jun 2026 06:27:42 -0700 (PDT)
 From: Jun Yan <jerrysteve1101@gmail.com>
 To: sashiko-bot@kernel.org
 Cc: conor+dt@kernel.org,
@@ -67,12 +67,12 @@ Cc: conor+dt@kernel.org,
 	linux-input@vger.kernel.org,
 	robh@kernel.org,
 	sashiko-reviews@lists.linux.dev
-Subject: Re: [PATCH 5/8] Input: cap11xx - add reset gpio support
-Date: Mon,  8 Jun 2026 21:20:42 +0800
-Message-ID: <20260608132042.547421-1-jerrysteve1101@gmail.com>
+Subject: Re: [PATCH 7/8] dt-bindings: input: microchip,cap11xx: Add CAP1114 support
+Date: Mon,  8 Jun 2026 21:27:35 +0800
+Message-ID: <20260608132735.553239-1-jerrysteve1101@gmail.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260606151346.8C5861F00893@smtp.kernel.org>
-References: <20260606151346.8C5861F00893@smtp.kernel.org>
+In-Reply-To: <20260606151658.60E2C1F00893@smtp.kernel.org>
+References: <20260606151658.60E2C1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,77 +81,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 > s) to consider:
-> - [Low] Inefficient delay using usleep_range() for a large duration (400-50=
-> 0ms).
-> - [Low] Missing explicit inclusion of <linux/delay.h>.
+> - [Medium] The new `microchip,cap1114` compatible string was omitted from t=
+> he `if-then` conditional block that restricts `microchip,signal-guard` and =
+> `microchip,calib-sensitivity` for prior CAP11xx generations.
 > --
 > 
-> commit 83de47341df3454fdb8216dc0a95948c3f158a40
+> commit 5c58a6baee363da7434a9782efa913c250015130
 > Author: Jun Yan <jerrysteve1101@gmail.com>
 > 
-> Input: cap11xx - add reset gpio support
+> dt-bindings: input: microchip,cap11xx: Add CAP1114 support
 > 
-> This commit adds hardware reset support for CAP11xx devices by toggling a
-> dedicated reset GPIO during the i2c probe phase. It incorporates specific
-> timing requirements for the reset filter and active reset duration.
+> This commit adds device tree binding support for the CAP1114 capacitive
+> touch sensor. It updates the compatible string list, maximum LED channel
+> counts, and keycode entries.
 > 
-> > diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/ca=
-> p11xx.c
-> > index 686174722204c..7015aa7654ce7 100644
-> > --- a/drivers/input/keyboard/cap11xx.c
-> > +++ b/drivers/input/keyboard/cap11xx.c
-> 
+> > diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.ya=
+> ml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> > index e307628350c24..08233386a4336 100644
+> > --- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+> > +++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
 > [ ... ]
+> > @@ -26,6 +27,7 @@ properties:
+> >    compatible:
+> >      enum:
+> >        - microchip,cap1106
+> > +      - microchip,cap1114
+> >        - microchip,cap1126
+> >        - microchip,cap1188
+> >        - microchip,cap1203
 > 
-> > @@ -452,6 +457,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_=
-> client)
-> >  	if (IS_ERR(priv->regmap))
-> >  		return PTR_ERR(priv->regmap);
-> > =20
-> > +	priv->reset_gpio =3D devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LO=
-> W);
-> > +	if (IS_ERR(priv->reset_gpio))
-> > +		return dev_err_probe(dev, PTR_ERR(priv->reset_gpio),
-> > +							"Failed to get 'reset' GPIO\n");
-> > +	if (priv->reset_gpio) {
-> > +		gpiod_set_value_cansleep(priv->reset_gpio, 1);
-> > +		usleep_range(CAP11XX_T_RST_FILT_MIN, CAP11XX_T_RST_FILT_MIN * 2);
-> > +		gpiod_set_value_cansleep(priv->reset_gpio, 0);
-> > +		usleep_range(CAP11XX_T_RST_ON_MIN, CAP11XX_T_RST_ON_MAX);
+> [Severity: Medium]
+> Since microchip,cap1114 is being added here, could this validation
+> regression be avoided by also appending it to the if-then conditional
+> block further down the schema that restricts microchip,signal-guard and
+> microchip,calib-sensitivity?
 > 
-> [Severity: Low]
-> Does this regression introduce unnecessary overhead by using usleep_range()
-> for a 400-500ms delay in cap11xx_i2c_probe()?
-> 
-> According to kernel timer guidelines, usleep_range() is designed for short
-> delays (10us to 20ms) and sets up high-resolution timers. For delays longer
-> than 20ms, using msleep() or fsleep() avoids unnecessary overhead and
-> expensive CPU wakeups.
-> 
-
-Agreed. Will replace usleep_range() with msleep() in V2.
+	
+Good catch. CAP1114 doesn't support these features, so I'll add it to the if-then block in v2.
 
 >
-> [Severity: Low]
-> Could this regression in header dependencies be avoided by explicitly
-> including <linux/delay.h> since we are now calling usleep_range() here?
+> Documentation/devicetree/bindings/input/microchip,cap11xx.yaml:
+>   - if:
+>       properties:
+>         compatible:
+>           contains:
+>             enum:
+>               - microchip,cap1106
+>               - microchip,cap1126
+>               - microchip,cap1188
+>               - microchip,cap1203
+>               - microchip,cap1206
+>     then:
+>       properties:
+>         microchip,signal-guard: false
+>         microchip,calib-sensitivity: false
 > 
-> While the code might compile due to implicit inclusion via other headers,
-> relying on implicit includes can sometimes lead to build failures on other
-> architectures or if intermediate headers are refactored in the future.
-> 
-
-OK. Will add #include <linux/delay.h> in v2,
-
-> > +	}
-> > +
-> >  	error =3D regmap_read(priv->regmap, CAP11XX_REG_PRODUCT_ID, &val);
-> >  	if (error)
-> >  		return dev_err_probe(dev, error, "Failed to read product ID\n");
+> Since the maxItems for these properties remains at 8 (and CAP1114 has 14
+> channels), it appears CAP1114 does not support them either. Omitting the
+> new compatible string from this block allows device trees with these
+> unsupported properties to pass schema validation.
 > 
 > --=20
 > Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260606150458.2506=
-> 06-1-jerrysteve1101@gmail.com?part=3D5
+> 06-1-jerrysteve1101@gmail.com?part=3D7
 

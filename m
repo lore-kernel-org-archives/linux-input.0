@@ -1,185 +1,115 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f66.google.com (mail-vs1-f66.google.com [209.85.217.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AAFA38C42F;
-	Mon,  8 Jun 2026 16:33:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780936432; cv=none; b=tMK2zhdM03/R1QV3QXRuV388ymSflXRsjlILPPymU59IZ5a1ZBFPeNBCYi1UqV6Zag3Lqc0p8vVCmFw+3/CJ4iheu9bRc1VhR16YcOtJQG4o8MwvqnNLVXXb2Cicw/3XIm9mgwQ+cRpnpx4pUnotuAUtYQgsimJxIbMxUYWz7xs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780936432; c=relaxed/simple;
-	bh=vzk6nHC7HBWS3E8mqGwt2sGAoesJUsidPUiu+998yLs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=df0Xf+MnvE6QTwOmAz3Evbw3ZyGFnFzZf43h8d14r+v1r6EyMtLK79T9+UBgJ2cYsgJGODaQgKwQ+6p6TAbcG9ZM2FZQcLp64Z4NUAOL+vbF8Npx/aAk+7oUSrRy3E01OSnY5UUps4ncuB0DpwsACFK5i8/MCEyb+e2PJf/+LFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=TU0YdJ9E; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B61B3CFF65
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 16:40:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.66
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780936853; cv=pass; b=aH5YW6CddVMTBRPJDCIujPxSL9D/btQ5dzvSR+kIjhhpnsTvIkH5Bl6VfG06RRGjZqBDV/E+o03b/dqMUfVXEgitqKObfdheGBybEE8aNk3cFrLhf5kCuaOM1X1CpqahowYU8fdrAYUZnGmVRT/Gx7CqHEYT/hY+F1B+waEfgeM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780936853; c=relaxed/simple;
+	bh=rx5DadAO67UpdbFbKqO4wfxzyxKs/HiVe57B5TgYgWY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FxbkbzgmHtdRC/j2pqcdYKeJuokkc/ZwO64Btua6G0js+UtQAlWUk53tCBhS6zD444tQuzXg9hhwPaUrXeY2DOiug3X0yo5XSisEQFJDOTGEtQTf7K2ojHggolcFTOR9iNIDjghe/C6+l2WnAJtt1LTrYpRtb/Y3R3XmJovh8BE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RbTyU0BS; arc=pass smtp.client-ip=209.85.217.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="TU0YdJ9E"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From:Sender:Reply-To:Content-ID:Content-Description
-	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=veZazjgLHkJKQtJ6MkyaRVQjmX7eAEDZ/rMJq5OUpR8=; b=TU0YdJ9EJPy/q+3ssINf8tUOa3
-	OcpDK8S/x7cJs8kONT7aD+ui5Hu6+QHy613f6g3h2bgdbdlV/caBZ3FKTESsAAZ7FM56jIUQRVc+f
-	r/svE8OfZoo4YaNbUW1Rl741MEN5KBfvjcCDDucK7Saz9Qe/KgO34goGD9B7ZIm+994Omr4seKHzk
-	N2g3q10mXUCQffqtFr2z7ykZgsUFgc2zQr1yTEtJVqRorkKNN58j/goAzeoo/yM/PTGdMmlMTNkcZ
-	uxxSeLO8j1P57gAyfXqY3xnT51cD1MienoKNhyvgiT2/5ceIG7Bm1PN00eEIYk9NQdVao3PFBJT/O
-	XKpxV8fQ==;
-Received: from 177-136-90-227.vmaxnet.com.br ([177.136.90.227] helo=[192.168.1.54])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wWcv4-00ETaf-2Q; Mon, 08 Jun 2026 18:33:46 +0200
-From: Heitor Alves de Siqueira <halves@igalia.com>
-Date: Mon, 08 Jun 2026 13:33:03 -0300
-Subject: [PATCH] HID: hiddev: Use kref to track struct hiddev lifetime
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RbTyU0BS"
+Received: by mail-vs1-f66.google.com with SMTP id ada2fe7eead31-6cfdce656bfso1550894137.3
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 09:40:52 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780936851; cv=none;
+        d=google.com; s=arc-20240605;
+        b=VqytNryNYn+b7ojqD+002K2PYCgpn62FYfTxQEH5lfXLvDH9EuyoaHGOagk8swBunL
+         1dgMGjfPkhwaaoyJGY7hwmW2PH3b7ujoB7/Qg5bZ69ZyorEe5ngk8zCse6ywr+um6L50
+         PqqgUn2CHeX/G4cafm3mNcfa39NBJtoPcjsbdWvFAfbhpVmt96wE3ck3ql3TAWCvq1s4
+         a77NRCSZwj96uQsgJXVB0q+tcdz1487It+ZTRTIf5BeO9R5DfANTN8xtoFbVq9xh4tu+
+         4VyQHuoVHaZa4b3Uu0QhJwh+zmRCJXyPWVuNw5Sti8NsvAROAX1XycLQkTQTgz+dgPsh
+         RmHA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=rx5DadAO67UpdbFbKqO4wfxzyxKs/HiVe57B5TgYgWY=;
+        fh=fJ3rMqfuGBYr+xp1pIXCyrR0hXF5wqyohg9uRAGlVxw=;
+        b=ijPpHXmxu9pd1o/GACRqXnkpYPLvNY8jgov/B6+6RsfmwCNSohri2tC658q81wOSVq
+         h2Wyex5hVRR85cVCQ14yxRF6cLWF17gJNLm/s4AsE0N7VfunMBbNGJDaNd+Km9/E/Z0m
+         hbb1qONFPrHGhr1Obgu1kbwOBXboyNVYpE6f8D0uFl5aPCHePsVQoFoK/+VrP8CdgZ8r
+         cPaQDgiEjEWe1Mf5tB82KZONCCLtTH39ZFdIDFJ/YTVKkNZ5Ye4Lo+DAZX+thUweb4J5
+         9tR3ycoJb2+NZigo5ZcT7Oh5g/grw0GedU2JeVLQgZFnOMQe6T1xGPD510eksdSKj693
+         ZYzg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780936851; x=1781541651; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rx5DadAO67UpdbFbKqO4wfxzyxKs/HiVe57B5TgYgWY=;
+        b=RbTyU0BShHTU+KT9tAqrgsehEw9vlCIxxcgWC5lkKPNJ2WNaq14odqI2b7owWKiPOR
+         +/JMAOf+1OtcPmdXlaz278QwJpw99E5rOpMcOTLvZSGM/s8+Fm1KDrKX0obxFCG2KQnP
+         VXtQgvCTzwF9RcgmH1fgpieZAXRpCpKVlS9jZldxkeI97A9NN5Hral6c01CHexdxiLgo
+         s0puiRH4V4pzolW76cAgmV1CwWZUicqS5PUn9SdolFLV3CqOT6fJBw8DehGBWwOspmRf
+         2UKOfl+Y7oQAwjPR2UaDpy4+9NS2+eaVL6u1prVogVlqiBUnZZ29B1eZLuExxobztndC
+         miew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780936851; x=1781541651;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=rx5DadAO67UpdbFbKqO4wfxzyxKs/HiVe57B5TgYgWY=;
+        b=JYCOmRNQgW0Hgd0N0PmPcUMAKCSfDV2JrnEMkoZSZqlxXBpNn3hQwxbxPrVhqpjCea
+         uYGun0dC3qc3pUUHKGXkblxt7Wj/aHG8VD7QWqIpEr2qBFT0qHwkdlis4vECJaHy0Mp5
+         BoJvYBtv+EEjhGf9BXgY3jsgxbbTHUKYCm+7By4Gy470ofcSeF1ob/niRgWQqLitRjvY
+         xYQ3w4pyWoLOSxE03nIOrHeidffH2wVh+gC/krqr+l1g6Nnypm0inlDUjBVf1Ap8oJBy
+         HTqwfs+xq538Hj4VYuHZP6e7MsYfDRkwt87EZDM4DUgH0vKDYn3yuGLtk8EgYsQ1KPVg
+         UShg==
+X-Forwarded-Encrypted: i=1; AFNElJ9pjVIC9hrYyq/8JQH8CV+/XEVaTaW3jqJXytauXCLlDvbBlaMpmzfN41eNPFOi0uzAsyKm7DCb9A8fHQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZjesMT7ijNN/hUhCOQu+RvMVFI7HZE30Dx4b8ew8ggD5DxoWo
+	RIcucxmemqDJyZz1OGOEaUuQO0BSYGCt1IJex4nsqYnasm06YFMCyqD+kS8k39CT3oWQsMdwp6C
+	OsOqkED5nvAM/7s6PBhbIwsycJw83tQA=
+X-Gm-Gg: Acq92OGqLD6T7jY3zK//fYO5SZfj2+p07xwO9OGnU9mIDTTudWgvZYFwr2vZsTqzEya
+	hNHKBEXKJa8AyeqB7ZYf8HK0dWojuEdzGn1AoE5UNA0nbpJ8vFSN641wBDTw5cygunI7HMJqnKj
+	vWzeG2joffdPLyAo468SGN1f8lP7lBgicpznn2KADjvZK/6geDdxZYy2BuVGhrNAGqkvWs3W6VU
+	2jNYCZ3tMnt+IHjhyZIKJ17llTlWSSNxUYHjf2hby1V1WbZS8Vyhr/bldnzoB+0K2CZbWxeoSaP
+	Zpfvc8byWXC/xnFjjHGbzDw5i6aLY6CxLlAUJI0d4jieyqD9poIxTgaQKLt5X0wKuG91WM3xi95
+	Za8k=
+X-Received: by 2002:a05:6102:5490:b0:607:4fde:1921 with SMTP id
+ ada2fe7eead31-6fefddf2777mr7527961137.24.1780936851466; Mon, 08 Jun 2026
+ 09:40:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260608-hiddev_kref-v1-1-cd240c95423f@igalia.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXM4QpAMBSG4VvR+W01h1FuRRJ2cCi0sdRy74afz
- 1ff68GSYbJQRh4MOba8rQFJHEE/tetIgnUwoMRc5jIVE2tNrlkMDULhoJQsdEYZQnjsYeTrq1X
- 1b3t2M/XHm4D7fgDLi3QTbwAAAA==
-X-Change-ID: 20260603-hiddev_kref-52f5507d4e42
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: kernel-dev@igalia.com, linux-usb@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
-X-Mailer: b4 0.15.2
+References: <20260510052107.555825-1-enelsonmoore@gmail.com> <CAD++jLmUW4KjxEjwv7_an_dEMTSOtvG=q2MjhqKvnuGrWaaCsQ@mail.gmail.com>
+In-Reply-To: <CAD++jLmUW4KjxEjwv7_an_dEMTSOtvG=q2MjhqKvnuGrWaaCsQ@mail.gmail.com>
+From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Date: Mon, 8 Jun 2026 09:40:39 -0700
+X-Gm-Features: AVVi8CckAHRTjPznUi9TSdmF40ARXCb9sYaYjHsEIjd_pzo-q6SLDDWWJhkDXvc
+Message-ID: <CADkSEUirvwVzdmGh0bS++cy8coOiMyuHNYQrC599eyVmWMh_Hw@mail.gmail.com>
+Subject: Re: [PATCH] ARM: footbridge: convert to sparse IRQs
+To: Linus Walleij <linusw@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, 
+	linux-serial@vger.kernel.org, Russell King <linux@armlinux.org.uk>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@kernel.org>, 
+	"Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>, Kees Cook <kees@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+	Steven Rostedt <rostedt@goodmis.org>, Thomas Weissschuh <thomas.weissschuh@linutronix.de>, 
+	Peter Zijlstra <peterz@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-If a USB HID device is disconnected while userspace still holds the
-hiddev node open, hiddev_disconnect() and hiddev_release() can race on
-the embedded existancelock mutex. Syzbot has triggered this with kfree()
-happening during the mutex slow path.
+Hi, Linus,
 
-Fix by introducing a kref in struct hiddev, and moving kfree() into a
-dedicated release callback. This way, struct hiddev will only be freed
-after both hiddev_release() and hiddev_disconnect() are done.
+On Mon, Jun 8, 2026 at 1:50=E2=80=AFAM Linus Walleij <linusw@kernel.org> wr=
+ote:
+> Have you tested this on real hardware?
+> The commit doesn't really say.
 
-Fixes: 6cb4b040795c ("HID: hiddev: fix race between hiddev_disconnect and hiddev_release")
-Reported-by: syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=563191a4939ddbfe73d4
-Signed-off-by: Heitor Alves de Siqueira <halves@igalia.com>
----
- drivers/hid/usbhid/hiddev.c | 36 ++++++++++++++++++++++++------------
- include/linux/hiddev.h      |  1 +
- 2 files changed, 25 insertions(+), 12 deletions(-)
+No, I haven't. I can try to test it in GXemul, but I'm not sure if it
+can boot Linux. The developer only lists it as capable of booting
+NetBSD.
 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 6378801b22c6..1f2802920bee 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -46,6 +46,13 @@ struct hiddev_list {
- 	struct mutex thread_lock;
- };
- 
-+static void hiddev_kref_free(struct kref *kref)
-+{
-+	struct hiddev *hiddev = container_of(kref, struct hiddev, kref);
-+
-+	kfree(hiddev);
-+}
-+
- /*
-  * Find a report, given the report's type and ID.  The ID can be specified
-  * indirectly by REPORT_ID_FIRST (which returns the first report of the given
-@@ -227,15 +234,11 @@ static int hiddev_release(struct inode * inode, struct file * file)
- 		if (list->hiddev->exist) {
- 			hid_hw_close(list->hiddev->hid);
- 			hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
--		} else {
--			mutex_unlock(&list->hiddev->existancelock);
--			kfree(list->hiddev);
--			vfree(list);
--			return 0;
- 		}
- 	}
--
- 	mutex_unlock(&list->hiddev->existancelock);
-+
-+	kref_put(&list->hiddev->kref, hiddev_kref_free);
- 	vfree(list);
- 
- 	return 0;
-@@ -298,10 +301,20 @@ static int hiddev_open(struct inode *inode, struct file *file)
- 	hid = usb_get_intfdata(intf);
- 	hiddev = hid->hiddev;
- 
-+	/*
-+	 * kref_get_unless_zero() checks if we've already dropped
-+	 * the last reference; bail out early in this case
-+	 */
-+	if (!hiddev || !kref_get_unless_zero(&hiddev->kref))
-+		return -ENODEV;
-+
- 	mutex_lock(&hiddev->existancelock);
- 	res = hiddev->exist ? __hiddev_open(hiddev, file) : -ENODEV;
- 	mutex_unlock(&hiddev->existancelock);
- 
-+	if (res < 0)
-+		kref_put(&hiddev->kref, hiddev_kref_free);
-+
- 	return res;
- }
- 
-@@ -893,6 +906,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 	if (!(hiddev = kzalloc_obj(struct hiddev)))
- 		return -ENOMEM;
- 
-+	kref_init(&hiddev->kref);
- 	init_waitqueue_head(&hiddev->wait);
- 	INIT_LIST_HEAD(&hiddev->list);
- 	spin_lock_init(&hiddev->list_lock);
-@@ -904,7 +918,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 	if (retval) {
- 		hid_err(hid, "Not able to get a minor for this device\n");
- 		hid->hiddev = NULL;
--		kfree(hiddev);
-+		kref_put(&hiddev->kref, hiddev_kref_free);
- 		return retval;
- 	}
- 
-@@ -933,13 +947,11 @@ void hiddev_disconnect(struct hid_device *hid)
- 
- 	mutex_lock(&hiddev->existancelock);
- 	hiddev->exist = 0;
--
- 	if (hiddev->open) {
- 		hid_hw_close(hiddev->hid);
- 		wake_up_interruptible(&hiddev->wait);
--		mutex_unlock(&hiddev->existancelock);
--	} else {
--		mutex_unlock(&hiddev->existancelock);
--		kfree(hiddev);
- 	}
-+	mutex_unlock(&hiddev->existancelock);
-+
-+	kref_put(&hiddev->kref, hiddev_kref_free);
- }
-diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
-index 2164c03d2c72..1613c9c37ab7 100644
---- a/include/linux/hiddev.h
-+++ b/include/linux/hiddev.h
-@@ -24,6 +24,7 @@ struct hiddev {
- 	int minor;
- 	int exist;
- 	int open;
-+	struct kref kref;
- 	struct mutex existancelock;
- 	wait_queue_head_t wait;
- 	struct hid_device *hid;
-
----
-base-commit: e43ffb69e0438cddd72aaa30898b4dc446f664f8
-change-id: 20260603-hiddev_kref-52f5507d4e42
-
-Best regards,
---  
-Heitor Alves de Siqueira <halves@igalia.com>
-
+Ethan

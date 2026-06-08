@@ -1,67 +1,67 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19B1334C2E;
-	Mon,  8 Jun 2026 02:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEEAB3358C6;
+	Mon,  8 Jun 2026 02:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.19
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780886801; cv=fail; b=TtUSDaRJaz4n8DsFtSYlOD2GCYi8PDz/T3TJQSuPJt0xsnDMr5wI5oW+tlO19MgQIT1kQ0wv2gt2nl3F6QI/8WgaWdNn6dFkYDRvoBAjTb+W0eyV3rgn5B6Plc7CtxoBMjK4/BSypN/KbbE/146I1d2wKkxhyJtRn87dbOpdQ+s=
+	t=1780886924; cv=fail; b=mbbjV0OgkL72WoBBVO/WaddaGZCx1lJH2eFtEVJWqL5W+5Q9To4LfDtJR/Z6xfkS792HU3FpZyYVrSiBd/T744KJQMyAhPnfKZafdVaHpGOYB0igSqWx+SAxCZdGIsNfKb0gICnU2TxTIIKVCOAiCcPsfY74B1ISZHswO3EydeM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780886801; c=relaxed/simple;
-	bh=R6QdejsAoMJP/Pd2FOOVKLFOkUr7otCF99Yy+w6svOY=;
+	s=arc-20240116; t=1780886924; c=relaxed/simple;
+	bh=ZzbLuTi3TBKD3mnElWY+Dgpp859HQKZRqpGclDo5BS4=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=RsjiFf3RaHcychdkkB2x7ss6XZF+k21opcwr+nU+puU2qtIU42pahKyiuVISaV1VF0Zpp/YXqJf/8AQxdcOFB0BCkKnIiBxtRNUU5gshDQK9oAXi0ghFMUZ7JeFavkKfGfbo8eVLZf6S8jhGpUbZXlPaFKREmAhainh91kdvUyw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=A9bzaXE0; arc=fail smtp.client-ip=198.175.65.15
+	 Content-Type:MIME-Version; b=RgT792siDyMyFw1DEkSrzBnY0UbmwVLI+9LWrPmlXk2SCEBZ1CMcmO8jjeinrnYyhFkACz/boRoN30Ai4p9iMvTrA9XREkmWPv4IRXjRoKtJMsvF+Tha1ipHUNtHUxZgh/eglecImQUjeYy0rFDJay3XcBkE+3lAiPueOi8BgcY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cTsq2Gnt; arc=fail smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="A9bzaXE0"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cTsq2Gnt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780886799; x=1812422799;
+  t=1780886923; x=1812422923;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=R6QdejsAoMJP/Pd2FOOVKLFOkUr7otCF99Yy+w6svOY=;
-  b=A9bzaXE07HhDpjj8BYi4kUuPzxbvJFnQR+bmjHLFqBfS9tAAzR7tS5AY
-   AUVy08y3enyJIVea+egVa7hwriknbH8qzyrKTn3AElWYRNsvx88j2LJra
-   muXvYlOzaplN/Azwms/UX586AOorbYntfrhLJG378vbqBZIZCKnWQDjW9
-   58ALWVF6wmRixvj02XOfQjWlAX87AIiyrMRjj+DzDttcaX24+CHnAPL0M
-   ypkovK4/AUOpxPaKnEHju4EAroM4aR2fMXq7t0R4GBbK3LivK/ECN7+Z9
-   omqg1r5TBHYeTx/uVoTAyJdDs1DgiN/Z2ioYIFsaPmfddC4UsH/5+Pjc3
+  bh=ZzbLuTi3TBKD3mnElWY+Dgpp859HQKZRqpGclDo5BS4=;
+  b=cTsq2Gnt6c1fBv37wucudpNxRANKWtPtYu5NFMmHvlc65ZNf0UAnx95T
+   Yomtkmvhn8JawlC2SG86ZlsLJEUe0ZIBxsQ0KxBHcLCSOjOUGF8xgU5/X
+   X9keEVkJ7K02SJnwAtLJiPYFa5RBhGWyc9MBWiDO6EuKtjNiYfDfj2ti4
+   36mKcNhV3PV8bn7v1Jc8rFQUax3hk/T7BmWyPP3L651M6xXXMiownPCwT
+   hUNnDAzXLLyYqaIGUAGPNOrU+zlZ7Z0mjn0AN9ROYZ2JPobgd1BssZkR2
+   tN50SwUJLr8GXI+c+eI1wLG/A053+lCnDqzjVx6hKJD0mu7LoLC7ErDPE
    w==;
-X-CSE-ConnectionGUID: G4VH6ON/RcGp55PscSlSmg==
-X-CSE-MsgGUID: EUP8CHgESciTlcR70VNHZg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11810"; a="85241358"
+X-CSE-ConnectionGUID: 6Cg8xOCrQsyJmyfbu/6/GQ==
+X-CSE-MsgGUID: 5JG/cphaT5GJHHkVpjsk8g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11810"; a="81593135"
 X-IronPort-AV: E=Sophos;i="6.24,193,1774335600"; 
-   d="scan'208";a="85241358"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2026 19:46:39 -0700
-X-CSE-ConnectionGUID: TGOCCeIiRze4CJUi9dSKZQ==
-X-CSE-MsgGUID: Rcm3kXijR4GZw6hWkGHb3A==
+   d="scan'208";a="81593135"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2026 19:48:42 -0700
+X-CSE-ConnectionGUID: cZd+l/AETBCnViKdWElO8Q==
+X-CSE-MsgGUID: Ithyvi0GSfuoRuiIG+SAZg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,193,1774335600"; 
-   d="scan'208";a="245466084"
-Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
-  by orviesa009.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2026 19:46:38 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+   d="scan'208";a="239064398"
+Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
+  by fmviesa009.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2026 19:48:42 -0700
+Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Sun, 7 Jun 2026 19:46:38 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ 15.2.2562.37; Sun, 7 Jun 2026 19:48:41 -0700
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Sun, 7 Jun 2026 19:46:38 -0700
-Received: from PH7PR06CU001.outbound.protection.outlook.com (52.101.201.42) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ 15.2.2562.37 via Frontend Transport; Sun, 7 Jun 2026 19:48:41 -0700
+Received: from SA9PR02CU001.outbound.protection.outlook.com (40.93.196.45) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Sun, 7 Jun 2026 19:46:38 -0700
+ 15.2.2562.37; Sun, 7 Jun 2026 19:48:41 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pnk2d0XgIaCKj0LnLBBaR3+NIBAKFwhwDfDbl4EocLNxm3qMigwchyOeAWvJA6s2WWG9ieMhwtLX5+4Gcdm/WvRL5nzQV/f36T42NJqSwN6pu9RjKvEWca7QCnwaRAi5RyRbi+5vpCSQJ05sN97ppvWWDEc3Tu6yob7fDftzb7pj7TCCXg4B4m72tYedZckmpY7scmpkJyjZF7mQKJ20wwYEUpX2GMOOtyBg/voRj62lkAd4TZo70I/oImqVOEHeuy4CIfelduqK6gEEbBcFaQ5v52h86hEUYcoaMpkN04FJ0/RSmvBHBZ+NEFwkIQ+UmTjWiaCJgkDpyT19fETOmw==
+ b=ikbAW7i/ubvYjpT7jLEO4qMhRQuTXcM8SKA3yaSkApuWN+orkW9cCu6lXdy43w6Zhrd8N/5eu3Ot0AOW3UpklLn9nhWdKF1tB2PJtyPPTJzscvPSuLBySoFs3tgpXGL7/Dauzni6V3idDnZYYUcAezk7S5dM3WzePLwl79VPkese/slY+q0VmW8eplVIpurDgZhCJcu/6j4L0Arcimlkic3Bu5IQDWBo8UG7qzZaX5GjOdjeNCs/jBxBbcxeRQ9oItK80NMDjIdSgjX82BRLqqnaSCTOD/AQc8beXHANF7c88k/+9ws7XUsDVMf6qeJ06ETYNzMxKIOBOKvpTKhBDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ske4fFgiCf2i6jFtPLo2DYxVhTVoimwKWS78FKn8PAM=;
- b=TnJ3UgFxmoPeXoBLb8eZ/xpYMtFhKavbyNDWok4MkQBU0xNhGwfm6yGcnrbAWPIRK/zI3BLtC2V/WBEaWqKW3Rc0J3GN4bwb/aSdpzr+DLjMliJ1n7M5C/WI93DehBDv3JrI6jl37DlfunHPZrpsaQKnZYhmJi05QzeZDrGrfX/YQq8rKwlihjZaYt0c9jNk+VgnR+sM/daN6bstt8tLQBV2vjyTHaJHLISIgrypYDLaXuiJQkqD762ktaDOdAHbEJtd7pZZ046g5JVWrfnBwOcFm1/X6oaVXa8/lwzy8YQ1cF1y7e1gkEF0NEkPbDXhdGkNZa6E2F+fueal7B+brg==
+ bh=efsGiFBbp2Z1tAypTOnYVijSQurhMZT0NERrpNH9c0I=;
+ b=fo/heU5h3q7ypACIgRXg2wy2L0RwjP0330VqZTQ0gNhSiGrxPKoxWo499Ngx7TNmn8Kpf+rwu3tk4T+4ITC0pKhiLnZ0z/9iTzgO67BlJitzBzAZVFCa82FRMAbxnx9SK4gTEUbo/KH0WW4iHJYe9Q7aM0W4ETOj9wUKorzMd8cTTBVbJBX1isiwe1Si1Ts18l4ieGiCrBLDi6I3LO3LFcyIo2+3mNefeqPLbEigtJ4WDhAxAxvuZwGzXscCfCpEz5n8Otbqxg2Xil6+dGJ7l8KBiq9TjFfV2NOrRKReektsRs83+D7r7JUiMUxxWousUPQ9+MJ2oZEmy2aCTlQ4ZA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
  dkim=pass header.d=intel.com; arc=none
@@ -69,35 +69,29 @@ Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
  by PH8PR11MB6562.namprd11.prod.outlook.com (2603:10b6:510:1c1::8) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.12; Mon, 8 Jun 2026
- 02:46:33 +0000
+ 02:48:38 +0000
 Received: from IA1PR11MB6098.namprd11.prod.outlook.com
  ([fe80::b1d9:3282:7e31:3799]) by IA1PR11MB6098.namprd11.prod.outlook.com
  ([fe80::b1d9:3282:7e31:3799%4]) with mapi id 15.21.0092.011; Mon, 8 Jun 2026
- 02:46:33 +0000
+ 02:48:38 +0000
 From: "Xu, Even" <even.xu@intel.com>
-To: d3z <d3z.the.dev@gmail.com>, "Sun, Xinpeng" <xinpeng.sun@intel.com>,
-	"jikos@kernel.org" <jikos@kernel.org>, "bentiss@kernel.org"
-	<bentiss@kernel.org>
-CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"abhishektamboli9@gmail.com" <abhishektamboli9@gmail.com>,
-	"sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>
-Subject: RE: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on
+To: d3z <d3z.the.dev@gmail.com>, "jikos@kernel.org" <jikos@kernel.org>,
+	"bentiss@kernel.org" <bentiss@kernel.org>
+CC: "Sun, Xinpeng" <xinpeng.sun@intel.com>, "linux-input@vger.kernel.org"
+	<linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "sakari.ailus@linux.intel.com"
+	<sakari.ailus@linux.intel.com>, "abhishektamboli9@gmail.com"
+	<abhishektamboli9@gmail.com>
+Subject: RE: [PATCH v2] HID: intel-thc-hid: intel-quickspi: reset touch IC on
  system resume
-Thread-Topic: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC on
+Thread-Topic: [PATCH v2] HID: intel-thc-hid: intel-quickspi: reset touch IC on
  system resume
-Thread-Index: AQHc77mrUbJCsvCWBk+2B+n2qvQl/bYpBmKggAAG/eCAAS7+AIAAuevggABu74CAAQWkIIACdp8AgAUgSoA=
-Date: Mon, 8 Jun 2026 02:46:33 +0000
-Message-ID: <IA1PR11MB6098EABFE876D4D6197443B6F41C2@IA1PR11MB6098.namprd11.prod.outlook.com>
+Thread-Index: AQHc8gxGtEn4OJ5ccEidswczakTvzLYz/lRw
+Date: Mon, 8 Jun 2026 02:48:38 +0000
+Message-ID: <IA1PR11MB6098E927297E716FA72FDD04F41C2@IA1PR11MB6098.namprd11.prod.outlook.com>
 References: <20260529222210.1532876-1-d3z.the.dev@gmail.com>
- <IA1PR11MB60987CB2D72FD1701951DFA4F4152@IA1PR11MB6098.namprd11.prod.outlook.com>
- <IA1PR11MB60985B856D77963E2DBE47F9F4152@IA1PR11MB6098.namprd11.prod.outlook.com>
- <20260601213047.115271-1-d3z.the.dev@gmail.com>
- <IA1PR11MB60985A7B3D9EA4583C2DDBF7F4122@IA1PR11MB6098.namprd11.prod.outlook.com>
- <20260602151317.27768-1-d3z.the.dev@gmail.com>
- <IA1PR11MB60989CC8623B35747E0EFF7EF4132@IA1PR11MB6098.namprd11.prod.outlook.com>
- <20260604202647.16777-1-d3z.the.dev@gmail.com>
-In-Reply-To: <20260604202647.16777-1-d3z.the.dev@gmail.com>
+ <20260601211828.112626-1-d3z.the.dev@gmail.com>
+In-Reply-To: <20260601211828.112626-1-d3z.the.dev@gmail.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach:
@@ -106,42 +100,42 @@ authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=intel.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|PH8PR11MB6562:EE_
-x-ms-office365-filtering-correlation-id: 54c1783f-e8c5-4b63-cf0f-08dec50826d8
+x-ms-office365-filtering-correlation-id: edab8d3c-1a36-494d-be34-08dec508713a
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|56012099006|5023799004|11063799006|4143699003|3023799007|22082099003|18002099003|38070700021;
-x-microsoft-antispam-message-info: X1WESmtLhtBj2JX5kwjN4wieOWTsoWFZjvt7UPZdB3uJlKaI5sHc+B7tun7Ga932rykjrBv4jdUq06GHOYgecCaUoEos8PZeQ1CXjWlbIk/nQaStAn/Jfo75IH/HUbgj+rCekqVMsauK7PfaR0SgbwmxIqG9u6Q72NTeRQTwteJ0PJ7hU8cX26DneCmz/ETZZ74nlqmEZ1pHrm5zLYqxZVleWJVn/l3v/0WOrUkapxmvWFTGpFkCj2sfoMWMuDErxjLN9yvR9sVoIQM4lxdagcbDtMYwSYpX/Qppix1bpFZQQygJ6p/DREMEyroUR/Ygf0JQBzT6eBv7CSHZ9LbDOQeAPw4divVdFit7snerAXI3zAjGQzTaN6VbdhZjQszNDX7sWmiZiqhFAaegM5jzutV7VUYQ/pmxrWL92dNaC2kGuMyOWFWIGI4XyptB75EZXcO53QYtKC0ghhMJatWh0fe2y5hUzYf8sPAO2sGsZTTej6c55wEZLisr41FKnRWYwmm8PVYtws+zUOX17m7X6uYL6cI35YZj+DcSg5GkqNkUbZT6vEFzTSHsn7WEw6NUvX1RxVSbQfGaGHKdYqIegjl+paJj2kBgyXU/VtVS2+XR5OXeYtP2YDbWQzUmAbpgnS7E9B4PRvTb7Egmu6/zsNmp3M7+tj7xt3fzic04s3NY3U5QpqiZnBMonikG7kFdSW8YmAFM+7WCBzfCLFj/3NwOLMD8FAzMB/+Qh2Myzqdcw4G1fS7FC8wPqvFn/hqM
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(56012099006)(5023799004)(11063799006)(4143699003)(3023799007)(22082099003)(18002099003)(38070700021);DIR:OUT;SFP:1101;
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|56012099006|11063799006|4143699003|6133799003|3023799007|22082099003|18002099003|38070700021;
+x-microsoft-antispam-message-info: EAaFT0mgwpIzmlnHGTBJZrYSDrIMLVBN/5+M2jOFFDfLr6IA2otifRxpf+u+21cIsuJ0sTchb95U58wLUGb4KQuA5DigYBrtata+UhOLRHTiXCnde1kMwYGalqFRXCH2hUTqOVyD8Vpk4RjEbWgelqBVB4/eyoA3f021yRUgGdUUl4qlXwJ2jdBHQ/Yhaxa3m7oJxDv8DWPV3p5Il0XArmEJUqkWKRZHgq4iYPCyN50C8owfdYZkwqSlaPRxDh6fof1nyflfV3iXsu9lUeAz1Qhg7phuo1Khqp3vjs5OkpmavjAUxRQFja5D+SFRek7RttotkotTyU8+7IhzpAvR+uSZWsp2+SXeYBFCc2Ce/iRfYvDXuYhXZyxi1uaUDfvNwsyVUF26NOq5fknR7YDU/Pi/w0M9cFe5REkwXEGEk93EfZHBdj6VLEe4uM/UsYBcRDs2Oy4JisyTYq4h6OKe9GlMPZQ6cU+KYvR+8xj8uQxl8dYxKN7UwV+HxKSa0/7dqbKFdR7Ks9FIEEo9Qd4IxJEV3TcR7CNqGteopMb+gvGsITGLPc98BgQhaAg4bONOlyqEVSWejdJEfn6Igm0TSuQsq8I7AOWw3oMllGqGpG/S8iz4R0b6a8qSX5kvs8eCarT7A1ehgRtCO45j4nrMc87e/2p/9Sf2OKRAKpgsZAxXmqoIOUr8/9bDdOS6hCbOJvLL0N9UZpCPfm147Fz/fA7mYSHLN/642Y15q6/oete+EE+G8AhemDYCz1tISbIt
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(56012099006)(11063799006)(4143699003)(6133799003)(3023799007)(22082099003)(18002099003)(38070700021);DIR:OUT;SFP:1101;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?mBnyhC+PZKrcN3NGJVukD/dPUBW+dUgYD++rOGJfSwawFFM2a+416AempRcI?=
- =?us-ascii?Q?OnY8TQnNR02mh/oOAjJJADt9zJdrdXCVJLDpRVQP02qPAQAQYM2aMG1q24Tw?=
- =?us-ascii?Q?9pAM7FSwZn6v5Ne8NEn4d/or0C3UgAmtgXD8sN1pmcmUTOEWldUUFguRaFQh?=
- =?us-ascii?Q?sofq0W/B3swhaL6PNyUkzMoRO3GH6rgEPzcOva/tzzBx4AvG5SlyncrhGPvj?=
- =?us-ascii?Q?73cFkbJA1kUDxxCHwzDJGtSjkeh6yRHeV+VJCS3V8QDpvpUrY42/1LwGPFkf?=
- =?us-ascii?Q?mW6p/B/9PJg3RDZ2C3b1PjscsP4ZrX/y/lmHAH4RcDsLdAtoGWui527MvzAv?=
- =?us-ascii?Q?MsqkKUG6p1B3nfEOt42LiQR2TWK7iNeG/ewowkIi5Wmh7Hjlidt9yab8HYGx?=
- =?us-ascii?Q?nhrFLtnI8CldSrsa4KgO6r5Ap7A6yeDBqvqAIBRllelNRndFYlWa1F5yfuvi?=
- =?us-ascii?Q?nJvVgZ4rnK8fWxfQxYubaHAicRguTLF2f6b8mezP7dp9fhPCUZZwa6soSsFY?=
- =?us-ascii?Q?SgGhs5IdYt8t9qqXSbsrTOIjzCZ8icnjCX6GIfNklhjKrGCOH8U6eHcWNYAk?=
- =?us-ascii?Q?foC9dgITs7WvoIIb7qyS8dH3f6yRkg2oyYBIP/CVE2tKCcuJ5kJh63zZGcZv?=
- =?us-ascii?Q?ZpKQRbPcGp5IL7HLR9vgRQLBmvkd/hJrbjbtlt/PKMp5COScwJPxM/g0MlBu?=
- =?us-ascii?Q?BYxGESiAKNtc7MWrmQ3ztBc0r05f6l+BPDNRg6uXexyXknfe9nxLUKNPMjjY?=
- =?us-ascii?Q?umdnazO17nv5kpzFAqR527PF29X+/2mbXae3pGZ54fXu0pym42gB8EoDoZX/?=
- =?us-ascii?Q?fcefoSgRhnr3qnxHPVTd8K/ufaC2N1EsXilMbimEPI/AdIGBumM7LLcISZNJ?=
- =?us-ascii?Q?a7Sn2EsVVJmVeRDkPxmYvWZEZ4r7ax6szL99+KZINYyVnlVNBWNtsv+TkbNE?=
- =?us-ascii?Q?uWxztZpnYVqSmUPMR246I06X+CXIBHvAqELNLvTXMHvdApf3r5a9hOrecp3s?=
- =?us-ascii?Q?AA5ot2r9p+W+tJ62Ko2lxGoorL5IGAem+93+knbEv8yOsToYiYLuhLPChhB4?=
- =?us-ascii?Q?DHuY5niyqhEUQGBWFlUhddtcAnTevG2nzruC/GXn1BxkzEUppJ/NyopHOmP6?=
- =?us-ascii?Q?p467k69sAUPHARh0cYvrLgzk0af2d72xzJziLmRAabNB3WI2hijb5lY8e6NI?=
- =?us-ascii?Q?gMh3Ej2ko9nsX+u/uvFqw7KSwcxTi+0tIJ4RjM8cy2z7kjZoNvUSmr4Fz0q1?=
- =?us-ascii?Q?mt3267q6taO+dFWbR7/N5OA71r1/Za9OCmmNcfeuwjMk1XHWZAYZZxgA0n2E?=
- =?us-ascii?Q?19oj6seCprSWwyxIAa+4k5FTVKpZCwvN+Qn6QZktbVgIBFXYzS9UJYfVSlWs?=
- =?us-ascii?Q?i4KPD1cXPxvjX2y4V88kqKFNC5tts2Gxg8Am3vfPAIqdHrLt21vkbIrxrJXM?=
- =?us-ascii?Q?+d2BxHUWoBCBc8FETOxVBSufmpWJpwCGEz5KOEvNkfjiRTRQkJYSMSkYqHD2?=
- =?us-ascii?Q?z/gyMJIgpPpLXOQ8All59mqsuVMviI/EUgqOAXqkwtSoxCR+fI2YfdV+1wFG?=
- =?us-ascii?Q?VHeGbGSJMI2xGqmfhouu5Te2EafGH4YgpAG5dKyk+YwQZ6Z5fJf1X0MbXNbQ?=
- =?us-ascii?Q?PqYkqN7ze+pAQz7XD04wdGkADrzjcBgB+wEVtuCi2LB6hTAk6PpG3eKbOrry?=
- =?us-ascii?Q?xL5EklGPow63STNJLCxGngVcq/UR1dLHDxCJoN7YS57gAtz5?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?7ISWLoy1127Pt2sVAflxSaa6p7+mLO/EufiovZB/QZC6op+EfjrKAGCIjk1i?=
+ =?us-ascii?Q?b1cOMLnwoD860d7ASE5jvF5zOl5Pdg5QdJVTtSjhnd3kB2ef1gC9KhswdCFS?=
+ =?us-ascii?Q?rdbEEIP+Zx6cvdkZSBbPx5w+7JaUwBQeeXTs9bdXyxCnaKKEszAJsu6L/Cam?=
+ =?us-ascii?Q?eggyAw5DXtN7PMcNJtPDxGHW7UIlZ01tgnoSQh7aCgD41pXM3Zo0THSvl3bl?=
+ =?us-ascii?Q?oAqftudgWMj9/cL8SSrlTniKZDRPXuUiGWhObEhAv/xvPPjwv0u+2G3+6knX?=
+ =?us-ascii?Q?saXups3Ak+JiG8xhHXq9XqLfSss3i17rPshKyav0ShgRkYWrJaS4MRIFljvl?=
+ =?us-ascii?Q?rtJiNA+bnNGIyJ9to801BgNYMnxQpyEPip37hjP3TgexRgWvUbKxjTrABvJL?=
+ =?us-ascii?Q?JLZq+rc85rymp9B2AW6LccDawwK+hooxhqSuevbxngJxxXeyOwLzjMfBkees?=
+ =?us-ascii?Q?Gi+Zs9c2yiBVpSPMeMc06x2eOrfDv6JFTUd7ZLnE29F++Jx9JbwlPv3u8vPR?=
+ =?us-ascii?Q?Cl5VGvDgsSzG3k3BKaWQNb6Q7NznKUgq/KHFJOHrq9nb1mmXgjyW2cfWPMNq?=
+ =?us-ascii?Q?tTVSLGUnDiT4CQDqx8o4IvMOjwYB6Uu6O6jLJAmuafUfvT2qzmXj4mBBMkpu?=
+ =?us-ascii?Q?Q0Wc+6zVy6Kt0/ogjl694eki6eY0ggRak1NqSAmQ67gboBQp+VImJnKN/jej?=
+ =?us-ascii?Q?ECMDmeDceYhFlv4PaVzDzxtEE2Uvqsj6CJYFP5zW+HuzrgGO6giYjbJOsitt?=
+ =?us-ascii?Q?PAzRlZ2D5PbTQeYiTPhY4fBQnYiISaVxtNhuaB/FjjmmKitPDaGR/UFPfUGY?=
+ =?us-ascii?Q?4OiosxapeC+vpa9dpiXzv+TAlxyWWQ28FhTtnMY0158kKqHC1QZURRp6CmkB?=
+ =?us-ascii?Q?fP4dFrdc9d9U7DbgdF51nTlTPmaOlgqv4fglmQ9WKmiXzwmQaIqX25lgcLl0?=
+ =?us-ascii?Q?1d7ZMtPruhPmbbjPeNT869uhToYq2BOTgHeddTykbaySJ1EFc+xB/Cp2a3fu?=
+ =?us-ascii?Q?68XHolxRzhTBaHiSnQWer5quzNk98XxbQ6iN6zeZga2tqDcy0fOnXRE5jEV3?=
+ =?us-ascii?Q?CBH2UA8SyFwl2h4UWrH5l8w67UC+CH9/yPAr8DSd8whD75i/ghxtzL2szWHG?=
+ =?us-ascii?Q?wf6OlvdASmLlFuaqG3tdlh5lbq1Hm1AONJkmM/fL5NIYanvJ14PIMd25CrM2?=
+ =?us-ascii?Q?TKavXm4XlGyvDMkwO9o8d7GXLn1DRv/G5XD3WAJNAvAsDovpj7jG517wXlpa?=
+ =?us-ascii?Q?S9NHmj/hWOxSb9ccvNVbYCzFuSiw1W9qpia2kw0JIwsTzdwaCVEaM6lzdOKT?=
+ =?us-ascii?Q?hM3Kke07YcbUIY1tBmu7RRIQ7C3C+jIF2J5QVX3hDnnrcjtRuvclOvwIf4nZ?=
+ =?us-ascii?Q?L3lbclZRAOt/AXcn/wRMtXe39Y+39zhS3P4EzZQP8NxKRwDbQeds+4zBzTkt?=
+ =?us-ascii?Q?M99xsw1Vr6k5t/BxlgA9u+OayFEhZzh7TcfQsVPO/zJzCbiPtU24SRQXggML?=
+ =?us-ascii?Q?j+5Z58NEl2T8P+/vkolCq1iaGj5F9e5RgrPQ6E/eIuj2QkWrQ8Rlqe+WP702?=
+ =?us-ascii?Q?Ju5WP/FeysIR2TpDEcuJqfDPQeDojSTGiW/N+wuCS/GdonhE7yyzEtLpEs6C?=
+ =?us-ascii?Q?ULZsnY2rJ0VFL5hJQ080wvSPDrjS2bGyVB8EF/DRr3O3HrWqbWIlnzuE3BEQ?=
+ =?us-ascii?Q?BKORBskUyvH/djJMbZH1poZkXFTPEWAF6pBVDVAXUuylnN2s?=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -150,99 +144,177 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: L06thiCVGpK7ykwrLGpqD5f1+CbZl3XgjLE62VeRPdVxkmE0Y0i18FDbrJfUJSk0A3iVVW43317DbbKwVO+NHanPJwNPJtYFWGi5mlPxbQ+DlNz97f04aA/cMgylo2nKDjpmGJY3nD+ZZuB49zGrRpIH/z83f78T17+HiwfM1Ub9EHysc64gclH8sSOYP3emADiRdaVlTYD8YeYNf72RMSOHY0u9jrd0xfHIlnyN38jSYFg8rEu0Apyr163oCAiu2edJ1CdHGjSP73PSJh82B4vW6NdErpG09PCaJdPhutDhajPBXt8DHURs4aoL4qOCcWCvzzFixDJEOluvF2yCVw==
+X-Exchange-RoutingPolicyChecked: a6/jSu4LrTK0bl+akkqQa2qAbtbtUswIUoqiIGAB3AVlrrHn/qHTIZXdA8OnTC8MJAoqUJrOKmpMEByIHPzaI2sXWbLGIVgS6V6WjskajOoQVAfjlt4F7HuJ5o4hTyYgX4yiPo/4xvZ/XNEgkvIOvShPs7alDGjr72VVN8GvddFevpA8QV4xncysDhSN17tf0+c/F/a0oHhjXwq4WSVJQcSoH2Ld26d+yuVS1Nf3/yUjiy5/RcFQmwgnKSqg0kFf7lpoFC3jthLZuI+hRFcu8RJE0yzmpikuwAZC79Q6fiD5ikfLbXhjzelnj7jv84zoCVZvItro9v/6JPb8nWX6Tw==
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 54c1783f-e8c5-4b63-cf0f-08dec50826d8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jun 2026 02:46:33.5232
+X-MS-Exchange-CrossTenant-Network-Message-Id: edab8d3c-1a36-494d-be34-08dec508713a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jun 2026 02:48:38.2692
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: PWzBIqyh/zkWzTys0r+Ok/ozVY7Ruk61YHtGqPVse3J0ZYGluuQjeesxm09FfnWZJDIyS0O1eR+KCDKNCJNEWg==
+X-MS-Exchange-CrossTenant-userprincipalname: 6R7ZZBiV801kqsIa/KzGPrRQTpMyOR8aUd/4qfQPQ12FviEcKncM8xqvz4NO2COKKFtv2z63gGHWWzCcC8abFA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB6562
 X-OriginatorOrg: intel.com
 
-Hi, Danny,
 
-Thanks for your patient to have some many tries.
-
-According to above tests, it seems Surface Pro 10 does not only power off t=
-he TIC but also the THC for suspend.
-Then your patch is need for this case.
-I will add my review flag for your patch, thanks for your attribution!
-
-Best Regards,
-Even Xu
 
 > -----Original Message-----
 > From: d3z <d3z.the.dev@gmail.com>
-> Sent: Friday, June 5, 2026 4:27 AM
-> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>;
-> jikos@kernel.org; bentiss@kernel.org
-> Cc: Danny D . <d3z.the.dev@gmail.com>; linux-input@vger.kernel.org; linux=
--
-> kernel@vger.kernel.org; abhishektamboli9@gmail.com;
-> sakari.ailus@linux.intel.com
-> Subject: Re: [PATCH] HID: intel-thc-hid: intel-quickspi: reset touch IC o=
-n system
+> Sent: Tuesday, June 2, 2026 5:18 AM
+> To: Xu, Even <even.xu@intel.com>; jikos@kernel.org; bentiss@kernel.org
+> Cc: Sun, Xinpeng <xinpeng.sun@intel.com>; linux-input@vger.kernel.org; li=
+nux-
+> kernel@vger.kernel.org; sakari.ailus@linux.intel.com;
+> abhishektamboli9@gmail.com; Danny D . <d3z.the.dev@gmail.com>
+> Subject: [PATCH v2] HID: intel-thc-hid: intel-quickspi: reset touch IC on=
+ system
 > resume
 >=20
 > From: Danny D. <d3z.the.dev@gmail.com>
 >=20
-> Hi Even,
+> On the Surface Pro 10 (Meteor Lake) the touchscreen stops working after a
+> suspend/resume cycle and only recovers after a reboot. The driver logs
+> "GET_DEVICE_INFO: recv failed: -11" on resume.
 >=20
-> Good catch on the missing state restore. I rebuilt with your version and =
-re-ran the
-> test.
+> This platform suspends through s2idle: /sys/power/mem_sleep exposes "[s2i=
+dle]"
+> as the only state, there is no "deep"/S3 entry at all. The touch IC nonet=
+heless
+> loses power across that s2idle suspend, the same way it does across hiber=
+nation.
+> quickspi_resume() only re-selects the THC port, restores interrupts and D=
+MA and
+> sends a HIDSPI_ON command, assuming the touch IC kept its power and state=
+.
+> When it has actually lost power the HIDSPI_ON command is never acknowledg=
+ed
+> and the descriptor read fails, leaving the touchscreen dead until the mod=
+ule is
+> reloaded.
 >=20
-> This is exactly your proposal: reset_tic() after thc_dma_configure(), the=
-n qsdev-
-> >state =3D QUICKSPI_ENABLED, with no thc_spi_*_config and no thc_ltr_*. I=
- built it
-> as a module and swapped it into a clean linux-surface 6.19.8 on the Surfa=
-ce Pro
-> 10.
+> quickspi_restore() already handles this for hibernation by reconfiguring =
+the THC
+> SPI/LTR settings and running reset_tic() to re-enumerate the device. Make
+> quickspi_resume() do the same when the device is not a wake source. A wak=
+e-
+> enabled device keeps its power and state across suspend, so it stays on t=
+he light
+> restore path: resetting it would discard a pending wake touch event and b=
+reak
+> wake-on-touch.
 >=20
-> It still doesn't survive s2idle - touch is fine at probe, but after one
-> suspend/resume it's dead again. This time resume() fails outright instead=
- of
-> coming back quietly broken:
+> The non-wake path mirrors the existing quickspi_restore() sequence, inclu=
+ding
+> enabling interrupts before reset_tic(), so it introduces no new ordering =
+relative to
+> code already in the driver.
 >=20
->     intel_quickspi 0000:00:10.0: Wait DEVICE_DESCRIPTOR timeout, ret:0
->     intel_quickspi 0000:00:10.0: PM: dpm_run_callback(): pci_pm_resume re=
-turns
-> -110
->     intel_quickspi 0000:00:10.0: PM: failed to resume async: error -110
+> This change has been validated on a Surface Pro 10 running the linux-surf=
+ace
+> kernel across multiple s2idle suspend/resume cycles; it has not been test=
+ed on a
+> mainline build.
 >=20
-> So reset_tic() can't complete here. It clears the reset handshake, then t=
-imes out
-> in quickspi_get_device_descriptor() and the whole resume bails with -
-> ETIMEDOUT. The device isn't a wake source on this box - "Can't find wake =
-GPIO
-> resource" - so device_may_wakeup() is false and we're on the reset path, =
-as
-> expected.
+> Closes: https://github.com/linux-surface/linux-surface/issues/1799
+> Signed-off-by: Danny D. <d3z.the.dev@gmail.com>
+> ---
+> v1 -> v2:
+>  - Only run the full reset when the device is not a wake source
+>    (device_may_wakeup()), so wake-on-touch is no longer disturbed.
+>  - Reword the changelog around s2idle: the SP10 has no "deep"/S3 state, t=
+he
+>    touch IC loses power across s2idle.
 >=20
-> And the timeout is the THC, not the touch IC: across s2idle its SPI input=
-/output
-> address and read/write config are gone, so reset_tic()'s descriptor excha=
-nge has
-> nothing valid to run against. Reprogram those first - the
-> thc_spi_input_output_address_config + read_config + write_config block, s=
-ame
-> as quickspi_restore(), same as v2 on the no-wake path - and reset_tic() c=
-ompletes
-> and touch comes back. That's exactly why
-> v2 reconfigures the THC instead of only resetting the IC.
+>  .../hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 60 +++++++++++++++=
+++--
+>  1 file changed, 56 insertions(+), 4 deletions(-)
 >=20
-> One more platform note: the SP10 never reaches S3. Firmware only offers s=
-2idle -
-> mem_sleep is just "[s2idle]", with no "deep" entry to select - yet the TH=
-C still
-> loses its context across plain s2idle. So a reset gated on S3 would never=
- fire here,
-> which is why it has to run on the ordinary resume path.
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -784,20 +784,72 @@ static int quickspi_resume(struct device
+>  	if (ret)
+>  		return ret;
 >=20
-> Thanks,
-> Danny
+> +	/*
+> +	 * A wake-enabled device keeps its power and state across suspend, so
+> +	 * only restore the THC context. Resetting it here would discard a
+> +	 * pending wake touch event and break wake-on-touch.
+> +	 */
+> +	if (device_may_wakeup(qsdev->dev)) {
+> +		thc_interrupt_config(qsdev->thc_hw);
+> +
+> +		thc_interrupt_enable(qsdev->thc_hw, true);
+> +
+> +		ret =3D thc_dma_configure(qsdev->thc_hw);
+> +		if (ret)
+> +			return ret;
+> +
+> +		return thc_interrupt_quiesce(qsdev->thc_hw, false);
+> +	}
+> +
+> +	/*
+> +	 * Otherwise the touch IC may have lost power across suspend. On
+> +	 * platforms that suspend through s2idle (for example the Surface Pro
+> +	 * 10, whose firmware exposes s2idle as the only mem_sleep state) the
+> +	 * IC loses power the same way it does across hibernation. A plain
+> +	 * HIDSPI_ON is then not acknowledged and the descriptor read fails, so
+> +	 * re-enumerate the device through the full reset flow already used by
+> +	 * quickspi_restore().
+> +	 */
+> +	thc_spi_input_output_address_config(qsdev->thc_hw,
+> +					    qsdev->input_report_hdr_addr,
+> +					    qsdev->input_report_bdy_addr,
+> +					    qsdev->output_report_addr);
+> +
+> +	ret =3D thc_spi_read_config(qsdev->thc_hw, qsdev->spi_freq_val,
+> +				  qsdev->spi_read_io_mode,
+> +				  qsdev->spi_read_opcode,
+> +				  qsdev->spi_packet_size);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D thc_spi_write_config(qsdev->thc_hw, qsdev->spi_freq_val,
+> +				   qsdev->spi_write_io_mode,
+> +				   qsdev->spi_write_opcode,
+> +				   qsdev->spi_packet_size,
+> +				   qsdev->performance_limit);
+> +	if (ret)
+> +		return ret;
+> +
+>  	thc_interrupt_config(qsdev->thc_hw);
+>=20
+>  	thc_interrupt_enable(qsdev->thc_hw, true);
+>=20
+> -	ret =3D thc_dma_configure(qsdev->thc_hw);
+> +	/* The touch IC may have lost power, reset it to recover */
+> +	ret =3D reset_tic(qsdev);
+>  	if (ret)
+>  		return ret;
+>=20
+> -	ret =3D thc_interrupt_quiesce(qsdev->thc_hw, false);
+> +	ret =3D thc_dma_configure(qsdev->thc_hw);
+>  	if (ret)
+>  		return ret;
+>=20
+> -	if (!device_may_wakeup(qsdev->dev))
+> -		return quickspi_set_power(qsdev, HIDSPI_ON);
+> +	thc_ltr_config(qsdev->thc_hw,
+> +		       qsdev->active_ltr_val,
+> +		       qsdev->low_power_ltr_val);
+> +
+> +	thc_change_ltr_mode(qsdev->thc_hw, THC_LTR_MODE_ACTIVE);
+> +
+> +	qsdev->state =3D QUICKSPI_ENABLED;
+>=20
+>  	return 0;
+>  }
+
+Thanks for your patch!
+
+Reviewed-by: Even Xu <even.xu@intel.com>
+
+> --
+> 2.43.0

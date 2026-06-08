@@ -1,100 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43C133E00A8;
-	Mon,  8 Jun 2026 18:41:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E822A3E3153
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 18:44:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780944121; cv=none; b=uOzyWentjNEB95fecvdgjz5PDT29xMuS6YVRsI81+/V+mrAV+rjNqzZ6QWENRDia3DqZSxJXcozwhA9VMvM5dHlkv3cFKfLsSr64o6IBnJU+r0OABB+blOf07DI8LNNtph5k0i1Oyj2jBbiD2SJ+V+042mcZTwhPFNavhWXc+Q4=
+	t=1780944283; cv=none; b=mTbnyYgRb27paM7FQRNPzR8dScHI9z5WtGizbFKUdO4JL1BMGA9nV7u7KEhcygh2Acc28bDtoN1uSJh6boVm/0LET2hQnfkus1YCXPiKdUClZ510jdAXSLbIPPp0NUOFXetGJIYxt8yL65wylIAYxv/GA++Pus6QkQC9SZVuBzg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780944121; c=relaxed/simple;
-	bh=oeVa9ABLJlnIRPZxCrtOS2iHpQJNZHKn94cg1yiokyY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Q+QjDO+XWInTpb+I9icEvx3D9TvUppK2xquae8e+8tz2dY5ki6QIiNryqYJc4PRtwF1BEYuUpShWqNn2ctckMm04hGhj0HhBUfjG8qldTWql34Iw8kbS1vxvYkg6M+0QuTiebxAy9e+Fx8cxNIqUqiLvpdIVoraE2MWaWxwVJqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ru37uSnF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780944283; c=relaxed/simple;
+	bh=j8DzpVzKCPohAN4GIc9hsJHXHEG3dHjrBsy5G02GDKE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AerTHKCtpGgVF5IkKLyWxd+ZVn9Mtxyonn0uJpgiP2FxMEJZd+/JdLpgR5StOrm7sU3mpaOqM2Z+HtGmKXYN5ioDuJsG8cLXvN1cnjdtNMKnJKQgjyp+YedRNtS6/RfoTPzAKqTyN65ZyFiX3DZTx38VAG+uXOuVNuEkXNwr66U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LcYFd4cl; arc=none smtp.client-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ru37uSnF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EA81F00893;
-	Mon,  8 Jun 2026 18:41:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780944119;
-	bh=r054IIi4uHrItpFohYYN+G7pKeDbGo3cxOJu4v4px8o=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Ru37uSnFj5D1QpTP2pO32R6Sf9990GFQScwljXd0UPo12MNi4oN0K8ru0G6tI232X
-	 ntX8kWIpsOH1Mq6pSliAjPc1Q/Ao/SpeuFtkw11vuBkHDZ8UFp5VtEZnK0/CkWtwUf
-	 6IUXcN8B3SukLj0hdf3oX1Cep1AisxHR21OeVheBme8H9Yt+5+mg9pCObsjQKzKo9X
-	 y7dZkg3YmqdeGalz/nj3C8sUSWr/0aBIwXfHud/iapoHnnTlb77WL1pAHr3BFzDPCv
-	 RyaFscnuOeAQoyn+G/FGgBJsBMNUlx3+ieFuTRmdlvxW2DWicOt/j/ClR4crEDnUVR
-	 TF8U8KTYfpiWw==
-Date: Mon, 8 Jun 2026 19:41:53 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, David Lechner
- <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
- Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] HID: iio: basic clean up for usage_id
-Message-ID: <20260608194153.2531cbff@jic23-huawei>
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LcYFd4cl"
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-137335bc3caso5673560c88.0
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 11:44:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780944281; x=1781549081; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FxyBcgcYevr6p5KeSHkchlx6TrrFrr/53KeZylT/cHk=;
+        b=LcYFd4cl7pfMUlRn/vLBMRCl+AMX5+N2e2KIkEIXm7dm4cFIfTozzW0b0LGuBoMAsv
+         3FDbi7lcd6d9B4b4zODXga3XAyl7w7JsNKlGikNpK6pxbjUgjCQdmwVoQVqSQkNKUmx7
+         JDJ5p6tcq9UzoAsNrXW3/wnHHUIcNG5NpKwf7wju5tY1AGYg3vol7TLMOQZtJejbmOu9
+         UrWvUejMueR9Pf/Zjr0UESSokrEiG4NNqzZQZ4znl31VCjgx/jDj3QyUt1i/Xf+IPUKH
+         /zfVr+90ccz+VKpeMSU7JYLufYbQ+sk9FazW9g4F5pmCeS+UoJX35TJuf5Xv//ofSmdb
+         izIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780944281; x=1781549081;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FxyBcgcYevr6p5KeSHkchlx6TrrFrr/53KeZylT/cHk=;
+        b=WctZBMicDe/vSSu9mungcKVCfynYxtZxGKMsS7Nd6Y4HUPxjP6E27tCs1lDmcblsx/
+         OBrFO9QXQKfqwIyD/YzItk0pW+Zl/ZePu1vvjt6KID2xILzi35fbllI3UZIvzWh09syN
+         xHgQMAhN8CUGt7S+fd24zNNQh6FwngjdH7Kc1F1S0cUzmu3S4+p2Nw459JRXzc01Y5tq
+         KEclz/PagRMCH+fqCxZ0K/5011Qco6GlEf3qSHFxmSTk5IO1/uZ88BGaTDnNZU8JXGzZ
+         2/dhBzFVklaUici2/pp04ootHUsKC/ljG7zLJBUJGg30eqqg3OnB6qwpS84+yKTIMRmO
+         OV0g==
+X-Forwarded-Encrypted: i=1; AFNElJ83aKxFw9bVr5WI/xeBL+NLm2tSBuc7Oi7RNNJTtFm+sox401ORgrkg6ACZMQOKnc+gJf4reGmLHQOFDg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0Ffu3vb/Lk9h5RA+ZkrXndEHj9GKh3sJ2fdv5/CWsqMWh4w80
+	vw+7WR5U0AYh6lDIWz+F+Xpwu1bHw4W8QuxMqpwoYWnyWvT+Qf6VFHHE
+X-Gm-Gg: Acq92OGZSM10wMs18ZQej7SqPtPEgoOGseO+HGsrlDxjpVJ2r91jVbzpFckFuPpFju3
+	nvDuyCLInVpm9AbUUUGjEMbb9kET/qlj8by/RanV0yr1fl0y4xfWRsJE4Fgx8jHYPskmLDIjnie
+	5AJFfb9KqwQxfMrBPcQUzrV+MGrHfbVYfSnM47bSHBJOi4mYo46j1ya2vk9rPj/YrBpk3FGoILI
+	pnwRPUPMQot2rtC4cCK0tKYyLWasXGjzytQLHGGYZ5oAxJ4Ar+sj0BiKjHlwqO5uEWvDKIWgddJ
+	c8eN4GIAkqtlROs4Ji7jh2CHQmO8+MSTKWnu7qsj4c+dIvl3x7a0RSnD4DTMxQmneg79q7ToJ49
+	Uo+NrxBcZm7tYAo1ibgCQsbdm0Dpd9aL5wIL3npdp3jZ1/AV9I3P2YzzcLUyPMoidoIHHZsQMNg
+	WDPiRrVvh+kpHKjWLtGD8dO/jtFtpl4x36xb3JUTW1235BlYbYqJAFZTfAzZgQYSm5LUHwvA1s4
+	8c=
+X-Received: by 2002:a05:7022:6b84:b0:136:9ebf:3bf4 with SMTP id a92af1059eb24-138066e025emr8220847c88.26.1780944280825;
+        Mon, 08 Jun 2026 11:44:40 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:355d:c69b:fe36:8969])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-138173e5b47sm5980727c88.8.2026.06.08.11.44.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jun 2026 11:44:40 -0700 (PDT)
+Date: Mon, 8 Jun 2026 11:44:36 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Heitor Alves de Siqueira <halves@igalia.com>
+Cc: Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, kernel-dev@igalia.com, linux-usb@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+Subject: Re: [PATCH] HID: hiddev: Use kref to track struct hiddev lifetime
+Message-ID: <aib06cgHVLIb9vtl@google.com>
+References: <20260608-hiddev_kref-v1-1-cd240c95423f@igalia.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260608-hiddev_kref-v1-1-cd240c95423f@igalia.com>
 
-On Sat, 06 Jun 2026 17:47:41 +0530
-Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
+Hi Heitor,
 
-> Hi all,
+On Mon, Jun 08, 2026 at 01:33:03PM -0300, Heitor Alves de Siqueira wrote:
+> If a USB HID device is disconnected while userspace still holds the
+> hiddev node open, hiddev_disconnect() and hiddev_release() can race on
+> the embedded existancelock mutex. Syzbot has triggered this with kfree()
+> happening during the mutex slow path.
 > 
-> This series updates all HID IIO drivers to use 'u32' instead of
-> bare 'unsigned' for the usage_id parameter.
-> 
-> This improves type clarity and ensures consistency with kernel
-> coding style, as HID usage IDs are defined as 32-bit values.
+> Fix by introducing a kref in struct hiddev, and moving kfree() into a
+> dedicated release callback. This way, struct hiddev will only be freed
+> after both hiddev_release() and hiddev_disconnect() are done.
 
-Other than adding some more detail to the consistency part
-(make sure to mention the callback signatures), this looks fine to
-me.
+This looks like a common issue with usb_register_dev() that does not
+allow tying the lifetime of the created device, lifetime of user of the
+created device, and userspace accessing it. Ideally the class device
+would be embedded into struct hiddev, and tie its lifetime with lifetime
+of the chardev associated with it and userspace accessors using it. tie
+its lifetime with lifetime of the chardev associated with it and
+userspace accessors using it. See cdev_device_add() and how it is being
+used by multiple subsystems and how they handle class devices. 
 
-Jonathan
+Thanks.
 
-> 
-> No functional changes are introduced.
-> 
-> Testing:
->   - Compiled with W=1 for each patch in the series
-> 
-> ---
-> Sanjay Chitroda (7):
->       iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
->       iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
->       iio: light: hid-sensor-als: use u32 instead of unsigned
->       iio: light: hid-sensor-prox: use u32 instead of unsigned
->       iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
->       iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
->       iio: pressure: hid-sensor-press: use u32 instead of unsigned
-> 
->  drivers/iio/accel/hid-sensor-accel-3d.c       | 6 +++---
->  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 6 +++---
->  drivers/iio/light/hid-sensor-als.c            | 6 +++---
->  drivers/iio/light/hid-sensor-prox.c           | 4 ++--
->  drivers/iio/orientation/hid-sensor-incl-3d.c  | 6 +++---
->  drivers/iio/orientation/hid-sensor-rotation.c | 6 +++---
->  drivers/iio/pressure/hid-sensor-press.c       | 6 +++---
->  7 files changed, 20 insertions(+), 20 deletions(-)
-> ---
-> base-commit: ae696dfa47c30016cd429b9db5e70b259b8f509e
-> change-id: 20260606-6-june-hid-iio-correct-usage-id-57ce92cb102b
-> 
-> Best regards,
-> --  
-> Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> 
-
+-- 
+Dmitry

@@ -1,125 +1,195 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0B03CF96B;
-	Mon,  8 Jun 2026 10:02:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB953B7B8E
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 10:30:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780912977; cv=none; b=Tjy1SrJjZp9D8r+H1EtV3UWAfG7MEC/LT9WHWfgaDrAuVhCd8/en7em/0NOOjrbMBMwYzjJmhfnPL14r9iyGq47MX8F9UqieoquhTD+F+x+9nH6QYd+izVcM/pGsQYdOPNPY7D7c8SZ08P8+i2Nn/LbwYttHtAguvSwrTOJR+2Y=
+	t=1780914624; cv=none; b=ghNISEvrM1QqNhKBtxTmmtrQwy7xQ3j6DSWnWK0koljhpAFuJ4N49OMsCriJTW6jzu10L1QCXbFq9/76hPTUFcMp7Wej3OhAqxg4l0alRIUNAXpTHDkoEPxrX4T9Wroqzt1KkIQl1bRfAmcYUy4/PBrsQsduUGjL4A3xniZWqAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780912977; c=relaxed/simple;
-	bh=YxtLRgwLaHrh2NKtEkwKJFIIFMvFZNT6m7aIjkRuOIQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fVF77OKhS82w5ma02q+vCNwZedf4IumbuBjcT/M5u6g3U/ayX9uscL4w/rwJ+1aLq89bmHgM2K1umoQeUtMMXDVkyOGLFKdPFA8Y1MJufr5VFmxtQw47a2L7AFa6XW5mKqzSBneRkfd9rXooa1JUjV50xAznK7QDJenp87e98UI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CRuzUw5E; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780914624; c=relaxed/simple;
+	bh=gdBgLZjEDaZ9A/8soNi2cgYvrCLvrT5HCwnHJkQl154=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dGyGpoZYHoOokcyU7pEbRE4xZBRPyEenznl5ISfR7yqqg51Yp4J39GiyEWqkhG/o8Z/CEe93UsqEIrwn03ZC9yCF8qtE7BcxTnT+YrBsKLX+UEtyNQ+npuyr64Y5s6c1NfRLmRVej0mSlJbxP4VRfWp0w6uhNg5nfcxFzt/zyck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eEp/vslF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CRuzUw5E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95031F00898;
-	Mon,  8 Jun 2026 10:02:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eEp/vslF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C6C41F00893;
+	Mon,  8 Jun 2026 10:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780912976;
-	bh=/QXrcAW+83usX+8UQmHsCIedtLj7Ml5HD0UO3OewzHE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=CRuzUw5E5kK23gYjHONHF/5fKIKdNq6KyWHV3OpH9LCJWys9GBkVft7AmvNxr+xKv
-	 Qmizj8ZGZ8pBU01R31KT1lyNIHv0gRXgVQ0mTVUiTP0FDQCOZn+Y2GIe3VYg8NFIVC
-	 jGJ4UdI0eFD9x+JBliqYuHsvO8ROfPueB1zMCYVXxJ7YDAxXSkIEMp4n3rchQL5l3e
-	 hujUkPbuYhHoa5huvU4ndfr0AWEtYwpbqsIF/vqh4imYy1y3SURGrz4XMSsknObCDU
-	 dMopxT0yntsoAWsxOjMmEksRZvC9VnpYjZfsSn70xshA3pZfzjKqQGOBp5JCsNh/o7
-	 Hn0zxH8sc22jw==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Alex Elder <elder@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	greybus-dev@lists.linaro.org,
-	linux-staging@lists.linux.dev
-Cc: stable@vger.kernel.org,
-	Nathan Chancellor <nathan@kernel.org>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Sasha Levin <sashal@kernel.org>
-Subject: [linux-5.10.y 3/3] HID: core: Fix size_t specifier in hid_report_raw_event()
-Date: Mon,  8 Jun 2026 11:02:25 +0100
-Message-ID: <20260608100236.2781796-3-lee@kernel.org>
-X-Mailer: git-send-email 2.54.0.1032.g2f8565e1d1-goog
-In-Reply-To: <20260608100236.2781796-1-lee@kernel.org>
-References: <20260608100236.2781796-1-lee@kernel.org>
+	s=k20260515; t=1780914622;
+	bh=0RRfszK7QYllV4TRfOh7nzgPR7iz4kgqR6aggooB+tw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=eEp/vslFlGg2tT6o8OuzP1qI0nmVK/ro/SpV1/UCi/py/KvXNvcB20KhJatDMsfIh
+	 MnFKFWwV+oDoDxyAUUl5hEnmhEPCcSm5SkJCfzYBJY3speaPgAUIbw15wy0hZP/Bgj
+	 S/vM2DZF7rXKaHen/FXWqEKMOHp1OyB1sOcdRVV0DsHqLrFd2e3VUkw03ISHjeNtjr
+	 nU32+q0s+cEGcX1kLuVTXOtFL1A5wKr98Jz6xGZbh8yf+jGr3hJNtWvrSGrn4ruJ/k
+	 2n/wFbS7ZzhX+RSu8Y/46igcMCa6qHHKrhTbYxxY5t2r0a4u1w0oqZsF32q24VK4f7
+	 c5wyGRxJDBOEQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [linux-5.10.y 2/3] HID: pass the buffer size to
+ hid_report_raw_event
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Lee Jones" <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260608100236.2781796-2-lee@kernel.org>
+References: <20260608100236.2781796-2-lee@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 08 Jun 2026 10:30:21 +0000
+Message-Id: <20260608103022.1C6C41F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Nathan Chancellor <nathan@kernel.org>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] The patch introduces `bufsize` to `hid_report_raw_event` to allow =
+safe zero-padding of short reports. However, it passes `size` (the received=
+ data length) instead of the actual buffer capacity in key call sites. Most=
+ notably, in `wacom_wac_queue_flush()`, the buffer has a fixed capacity (`u=
+8 buf[WACOM_PKGLEN_MAX]`), but `size` is incorrectly passed as `bufsize`. I=
+n `hid_input_report()`, `bufsize` is hardcoded to `size`. This guarantees t=
+hat `bsize =3D=3D csize`, meaning any short report (`csize < rsize`) will u=
+nconditionally trigger the `if (bsize < rsize)` error check and be dropped =
+with `-EINVAL`. The intended zero-padding mitigation (`memset`) is therefor=
+e completely unreachable for these paths.
+- [Low] Format specifier mismatch in error logs: `bsize` is of type `size_t=
+` but is printed using `%ld` instead of `%zu`. Additionally, unsigned 32-bi=
+t variables (`report->id`, `csize`, `rsize`) are printed using the signed `=
+%d` specifier instead of `%u`.
+--
 
-[ Upstream commit 4d3a2a466b8d68d852a1f3bbf11204b718428dc4 ]
+commit acf01e17656800b6ab94002473e3b03a8259b323
+Author: Benjamin Tissoires <bentiss@kernel.org>
 
-When building for 32-bit platforms, for which 'size_t' is
-'unsigned int', there are warnings around using the incorrect format
-specifier to print bsize in hid_report_raw_event():
+HID: pass the buffer size to hid_report_raw_event
 
-  drivers/hid/hid-core.c:2054:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
-   2053 |                 hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-        |                                                                                         ~~~
-        |                                                                                         %zu
-   2054 |                                      report->id, csize, bsize);
-        |                                                         ^~~~~
-  drivers/hid/hid-core.c:2076:29: error: format specifies type 'long' but the argument has type 'size_t' (aka 'unsigned int') [-Werror,-Wformat]
-   2075 |                 hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-        |                                                                                          ~~~
-        |                                                                                          %zu
-   2076 |                                      report->id, rsize, bsize);
-        |                                                         ^~~~~
+This commit updates hid_report_raw_event to accept both the buffer size and
+the data size. This allows the function to make a better decision about
+whether to reject a buffer to prevent an overflow, or to safely pad it with
+zeroes.
 
-Use the proper 'size_t' format specifier, '%zu', to clear up the
-warnings.
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index aa9ae6ccb28a8..c73f4ac16fdf2 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1784,16 +1784,24 @@ int hid_report_raw_event(struct hid_device *hid, =
+int type, u8 *data, u32 size,
+>  	int max_buffer_size =3D HID_MAX_BUFFER_SIZE;
+>  	unsigned int a;
+>  	u32 rsize, csize =3D size;
+> +	size_t bsize =3D bufsize;
+>  	u8 *cdata =3D data;
+>  	int ret =3D 0;
+> =20
+>  	report =3D hid_get_report(report_enum, data);
+>  	if (!report)
+> -		goto out;
+> +		return 0;
+> +
+> +	if (unlikely(bsize < csize)) {
+> +		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d v=
+s %ld)\n",
+> +				     report->id, csize, bsize);
 
-Cc: stable@vger.kernel.org
-Fixes: 2c85c61d1332 ("HID: pass the buffer size to hid_report_raw_event")
-Reported-by: Miguel Ojeda <ojeda@kernel.org>
-Closes: https://lore.kernel.org/20260516020430.110135-1-ojeda@kernel.org/
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-(cherry picked from commit 3ab135238832446399614e7a4bb796d620717806)
-Signed-off-by: Lee Jones <lee@kernel.org>
-(cherry picked from commit 0f77a993b5426cca1b046c9ab4b2f8355a4d45dc)
-Signed-off-by: Lee Jones <lee@kernel.org>
-(cherry picked from commit 70333a8f866aad8cbd6956e2ec4ace159fa4243b)
-Signed-off-by: Lee Jones <lee@kernel.org>
----
- drivers/hid/hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+[Severity: Low]
+This isn't a bug, but could the format specifiers cause compiler warnings on
+32-bit architectures? bsize is a size_t and csize and report->id are unsign=
+ed,
+so should they use %zu and %u instead of %ld and %d?
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c73f4ac16fdf..918c66d5bc93 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1793,7 +1793,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data,
- 		return 0;
- 
- 	if (unlikely(bsize < csize)) {
--		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %ld)\n",
-+		hid_warn_ratelimited(hid, "Event data for report %d is incorrect (%d vs %zu)\n",
- 				     report->id, csize, bsize);
- 		return -EINVAL;
- 	}
-@@ -1815,7 +1815,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data,
- 		rsize = max_buffer_size;
- 
- 	if (bsize < rsize) {
--		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %ld)\n",
-+		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d vs %zu)\n",
- 				     report->id, rsize, bsize);
- 		return -EINVAL;
- 	}
--- 
-2.54.0.1032.g2f8565e1d1-goog
+> +		return -EINVAL;
+> +	}
+> =20
+>  	if (report_enum->numbered) {
+>  		cdata++;
+>  		csize--;
+> +		bsize--;
+>  	}
+> =20
+>  	rsize =3D hid_compute_report_size(report);
+> @@ -1806,9 +1814,15 @@ int hid_report_raw_event(struct hid_device *hid, i=
+nt type, u8 *data, u32 size,
+>  	else if (rsize > max_buffer_size)
+>  		rsize =3D max_buffer_size;
+> =20
+> +	if (bsize < rsize) {
+> +		hid_warn_ratelimited(hid, "Event data for report %d was too short (%d =
+vs %ld)\n",
+> +				     report->id, rsize, bsize);
 
+[Severity: Low]
+Similarly here, should this use %u for report->id and rsize, and %zu for
+bsize instead of %d and %ld?
+
+> +		return -EINVAL;
+> +	}
+
+[Severity: High]
+If callers pass the incoming data length as both the size and bufsize
+arguments, does this mean bsize will equal csize?
+
+If bsize =3D=3D csize, and we receive a short report where csize < rsize,
+wouldn't the bsize < rsize check just above this evaluate to true and return
+-EINVAL? Does this make the memset padding logic unreachable for those path=
+s?
+
+> +
+>  	if (csize < rsize) {
+>  		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+> -				csize, rsize);
+> +			csize, rsize);
+>  		memset(cdata + csize, 0, rsize - csize);
+>  	}
+> =20
+> @@ -1851,6 +1865,7 @@ int hid_input_report(struct hid_device *hid, int ty=
+pe, u8 *data, u32 size, int i
+>  	struct hid_report_enum *report_enum;
+>  	struct hid_driver *hdrv;
+>  	struct hid_report *report;
+> +	size_t bufsize =3D size;
+>  	int ret =3D 0;
+> =20
+>  	if (!hid)
+> @@ -1889,7 +1904,7 @@ int hid_input_report(struct hid_device *hid, int ty=
+pe, u8 *data, u32 size, int i
+>  			goto unlock;
+>  	}
+> =20
+> -	ret =3D hid_report_raw_event(hid, type, data, size, interrupt);
+> +	ret =3D hid_report_raw_event(hid, type, data, bufsize, size, interrupt);
+
+[Severity: High]
+Does setting bufsize directly to size here defeat the padding mitigation?
+
+This hardcodes bufsize to the received payload length, which propagates the
+drop behavior to all transport drivers relying on hid_input_report().
+
+[ ... ]
+
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index abbfb53bb7dc9..09b513812fff1 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -79,7 +79,7 @@ static void wacom_wac_queue_flush(struct hid_device *hd=
+ev,
+>  		int err;
+> =20
+>  		size =3D kfifo_out(fifo, buf, sizeof(buf));
+> -		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, false);
+> +		err =3D hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, size, =
+false);
+
+[Severity: High]
+Could we pass sizeof(buf) here instead of size?
+
+Since buf has a fixed capacity of WACOM_PKGLEN_MAX, passing size for
+bufsize prevents the core from safely padding short reports and will
+instead cause them to be dropped.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260608100236.2781=
+796-2-lee@kernel.org?part=3D1

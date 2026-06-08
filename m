@@ -1,48 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8E13E3D89;
-	Mon,  8 Jun 2026 18:40:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43C133E00A8;
+	Mon,  8 Jun 2026 18:41:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780944058; cv=none; b=HfyCfOyu4R1Ksrgt+e3sC48hpQyfDY3SZE6CiOkUNcVTj+we/ctLeQO2KgA9hyFbvCBMtnJWA5o+8ogLRb8T4nhPNqboDrxKIeMkcneGS+qsxfzqTfmVUaJW6VWRVcwYBUxXNndbHA+1lIJkwLqIXP2sGzrPWV10cFOkj1cI5/8=
+	t=1780944121; cv=none; b=uOzyWentjNEB95fecvdgjz5PDT29xMuS6YVRsI81+/V+mrAV+rjNqzZ6QWENRDia3DqZSxJXcozwhA9VMvM5dHlkv3cFKfLsSr64o6IBnJU+r0OABB+blOf07DI8LNNtph5k0i1Oyj2jBbiD2SJ+V+042mcZTwhPFNavhWXc+Q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780944058; c=relaxed/simple;
-	bh=hww+0nzPaYQNNBwn308mXPko8sVoF6+TGzYZwHLqcZM=;
+	s=arc-20240116; t=1780944121; c=relaxed/simple;
+	bh=oeVa9ABLJlnIRPZxCrtOS2iHpQJNZHKn94cg1yiokyY=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jB+r9xzirGiAaqnJ/VDSBBF2kTCqJjSEdarPhkvXIep/Nj9oo5ivjRGsbid3vEzGNZQzgK4EDFE5nSMFexkoOrJ+mg+lfXWHGGRO17CV6i7Qo6cS5yNmwzjHhKqAhY7rD9ATOY9qTj8+FBaPx9ZaiKEdiVe8KkuWNOvN1fUgrfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ln99pKfA; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Q+QjDO+XWInTpb+I9icEvx3D9TvUppK2xquae8e+8tz2dY5ki6QIiNryqYJc4PRtwF1BEYuUpShWqNn2ctckMm04hGhj0HhBUfjG8qldTWql34Iw8kbS1vxvYkg6M+0QuTiebxAy9e+Fx8cxNIqUqiLvpdIVoraE2MWaWxwVJqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ru37uSnF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ln99pKfA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E56E1F00893;
-	Mon,  8 Jun 2026 18:40:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ru37uSnF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EA81F00893;
+	Mon,  8 Jun 2026 18:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780944057;
-	bh=bkBT+xLfdcJa63DssQ5/pB11Zbz3hCWoviUlrnmHGKI=;
+	s=k20260515; t=1780944119;
+	bh=r054IIi4uHrItpFohYYN+G7pKeDbGo3cxOJu4v4px8o=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Ln99pKfAHI9Qu/4qFQMLmtOq4AuCzwDAkKmEkgzJ3RrI3rh9M3wW5o6cKzc96bTwN
-	 3n4WaJh2SbKKmVYzlrYmi9XlDuOlGyoJLa+H+e2fw665A0Qv8n4vf2RhBh4fvZVSDo
-	 a+u5MudU3Prc1BbWPGqX2ktiTZ5s30yRmS8guQC/XGW/0LUN8TZRqdCJOu71xokwzn
-	 LCvqHTRavJlfrlvnxx3Q02iLZTTr35W/sc/+uiG65LyEsOP/v3RxJa6Z1JifjX8M1I
-	 IdfC3IaJAjNOmhot27DHLmoLwy0jLY9d73yoxRxerSoCN/CJBQwfmev49KfvrBHbKZ
-	 cmx4SKsGRGCeg==
-Date: Mon, 8 Jun 2026 19:40:47 +0100
+	b=Ru37uSnFj5D1QpTP2pO32R6Sf9990GFQScwljXd0UPo12MNi4oN0K8ru0G6tI232X
+	 ntX8kWIpsOH1Mq6pSliAjPc1Q/Ao/SpeuFtkw11vuBkHDZ8UFp5VtEZnK0/CkWtwUf
+	 6IUXcN8B3SukLj0hdf3oX1Cep1AisxHR21OeVheBme8H9Yt+5+mg9pCObsjQKzKo9X
+	 y7dZkg3YmqdeGalz/nj3C8sUSWr/0aBIwXfHud/iapoHnnTlb77WL1pAHr3BFzDPCv
+	 RyaFscnuOeAQoyn+G/FGgBJsBMNUlx3+ieFuTRmdlvxW2DWicOt/j/ClR4crEDnUVR
+	 TF8U8KTYfpiWw==
+Date: Mon, 8 Jun 2026 19:41:53 +0100
 From: Jonathan Cameron <jic23@kernel.org>
-To: Joshua Crofts <joshua.crofts1@gmail.com>
-Cc: Maxwell Doose <m32285159@gmail.com>, Sanjay Chitroda
- <sanjayembeddedse@gmail.com>, Jiri Kosina <jikos@kernel.org>, Srinivas
- Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, David Lechner
  <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
  Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
  linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of
- unsigned
-Message-ID: <20260608194047.23791938@jic23-huawei>
-In-Reply-To: <CALoEA-yiDwjkKxUE3B=qiTdBhbvinfq-UN8h1H-HysXGm0prSg@mail.gmail.com>
+Subject: Re: [PATCH 0/7] HID: iio: basic clean up for usage_id
+Message-ID: <20260608194153.2531cbff@jic23-huawei>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
 References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
-	<20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
-	<CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
-	<CALoEA-yiDwjkKxUE3B=qiTdBhbvinfq-UN8h1H-HysXGm0prSg@mail.gmail.com>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -50,60 +45,56 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, 8 Jun 2026 08:37:38 +0200
-Joshua Crofts <joshua.crofts1@gmail.com> wrote:
+On Sat, 06 Jun 2026 17:47:41 +0530
+Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
 
-> On Sun, 7 Jun 2026 at 22:54, Maxwell Doose <m32285159@gmail.com> wrote:
-> >
-> > On Sat, Jun 6, 2026 at 7:19=E2=80=AFAM Sanjay Chitroda
-> > <sanjayembeddedse@gmail.com> wrote: =20
-> > >
-> > > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > >
-> > > Prefer 'u32' instead of bare 'unsigned' variable to improve code
-> > > clarity and consistency with kernel style.
-> > >
-> > > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > > ---
-> > >  drivers/iio/light/hid-sensor-als.c | 6 +++---
-> > >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > > =20
-> >
-> > Do we *need* u32 though? Usually these types are for places where we
-> > require specific bit-widths for a reason (e.g., reading a hardware
-> > register) but I'm not sure that's the case here. I could be totally
-> > wrong, in that case please correct me but otherwise I unfortunately
-> > don't see much value in this. That's just my personal opinion though,
-> > Jonathan may think otherwise. =20
->=20
-> Aside from the array of usage ids that are u32 defined here:
-> https://elixir.bootlin.com/linux/v7.1-rc6/source/drivers/iio/light/hid-se=
-nsor-als.c#L46
->=20
-> there are additional structs used in the HID drivers that take u32 (I
-> had a similar
-> patch moving `unsigned` to `unsigned int`, but it was recommended to use =
-the
-> types that the structs use, hence u32).
->=20
-Here the reason for the change is even simpler. These are callbacks assigne=
-d to:
+> Hi all,
+> 
+> This series updates all HID IIO drivers to use 'u32' instead of
+> bare 'unsigned' for the usage_id parameter.
+> 
+> This improves type clarity and ensures consistency with kernel
+> coding style, as HID usage IDs are defined as 32-bit values.
 
-struct hid_sensor_hub_callbacks {
-	struct platform_device *pdev;
-	int (*suspend)(struct hid_sensor_hub_device *hsdev, void *priv);
-	int (*resume)(struct hid_sensor_hub_device *hsdev, void *priv);
-	int (*capture_sample)(struct hid_sensor_hub_device *hsdev,
-			u32 usage_id, size_t raw_len, char *raw_data,
-			void *priv);
-	int (*send_event)(struct hid_sensor_hub_device *hsdev, u32 usage_id,
-			 void *priv);
-};
+Other than adding some more detail to the consistency part
+(make sure to mention the callback signatures), this looks fine to
+me.
 
-So given those signatures, these should always have been u32.
+Jonathan
 
-I would like that clearly stated in the patch descriptions. Consistency
-is a bit too vague.
+> 
+> No functional changes are introduced.
+> 
+> Testing:
+>   - Compiled with W=1 for each patch in the series
+> 
+> ---
+> Sanjay Chitroda (7):
+>       iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
+>       iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
+>       iio: light: hid-sensor-als: use u32 instead of unsigned
+>       iio: light: hid-sensor-prox: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+>       iio: pressure: hid-sensor-press: use u32 instead of unsigned
+> 
+>  drivers/iio/accel/hid-sensor-accel-3d.c       | 6 +++---
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 6 +++---
+>  drivers/iio/light/hid-sensor-als.c            | 6 +++---
+>  drivers/iio/light/hid-sensor-prox.c           | 4 ++--
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  | 6 +++---
+>  drivers/iio/orientation/hid-sensor-rotation.c | 6 +++---
+>  drivers/iio/pressure/hid-sensor-press.c       | 6 +++---
+>  7 files changed, 20 insertions(+), 20 deletions(-)
+> ---
+> base-commit: ae696dfa47c30016cd429b9db5e70b259b8f509e
+> change-id: 20260606-6-june-hid-iio-correct-usage-id-57ce92cb102b
+> 
+> Best regards,
+> --  
+> Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> 
+

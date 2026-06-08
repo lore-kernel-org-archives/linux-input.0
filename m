@@ -1,149 +1,159 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083FB38C2C6
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 20:20:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780950051; cv=pass; b=ZsF15dXfTh9qO3KO8u4WeIXokbowex9eIv4MjqAC0BTF9rVB4LAt6zdu3/Pr7TWWLoKieRJGncf4a+pGTZyE3gomem5McQFKaJZd9LzG7tKbsbnRPZX50H4G+v9y0yYm4/NRozQDekejtU25QW9Oa5iVsmBCWQO0dU32MuM1gFw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780950051; c=relaxed/simple;
-	bh=vV3Cys6b1uPIizdYBnb6UdHneJnd3MHnFo8LjuTeFww=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=REEfrKDe5dbexM/jEm5TgujnVRl54wa7vzPWxYRkEra38EOoyiWlO+BGgeGqgYhcpXLHR6mMHuyBmQ3FNQXuzmZqBn7uENFj6cfb33yUU+y1AabUL69UoqLXswACcl0oYAlBaKygEtB2AQjMSE2uIq4ASiTN0H50mUwRH7Ur2hg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cgWLMn+U; arc=pass smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D463AFD0A
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 22:02:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780956123; cv=none; b=CM2ZhFFTZb5LVAFY04e2nir9E9F6fi29DWkoMRpQXsl31+Q8FaRPlyo+gKoNndA0zSUO4ujdxVimKbgQibcPksumserCK4R2dUustCib9TTA3o+NCVhhiqJRfXPuiZp4Hvuc3q904N0wLR14zd1ZBRuBl5y8of36+7HSv1IMjX4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780956123; c=relaxed/simple;
+	bh=aO4kFWNpehGDtdrzHRertaCSVfudQ0Ged89ZpzBeIng=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ItXKEHSrG3Qcroy+SfJK1CHcyb70gOFhuZUAx5R/bw1eY3sGCZPtPWWdO8WgRW3PH8sdo7zUit0M7NPBVNHxu3mpePbcbSL1rvo5t4fbuyS3jRL5g2jHE9tyENMEnAiTmydELj4JyueLhJx/kOWRH9r6OGJWDhLhIOApkiNReLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kAGEsw7e; arc=none smtp.client-ip=209.85.210.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgWLMn+U"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-68bfcf11050so8621104a12.0
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 13:20:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780950048; cv=none;
-        d=google.com; s=arc-20240605;
-        b=jXXUyAZza3qcBgOgb0H7YjokK/jz2ZZGbwTuZsZzKFwK1PnhXhpsfqax5D+NquGwOo
-         iAPhGvBFT3FuDbQYtwsFno7gIj6MdP2bulLTCYPHlVGmFFypN6M1jXx3Ng/mbYzL7go6
-         yi/Piq7fY7662p1OBrQGSfX80w7nIPsRdQNXSm0bRRblx7PGIg3PKtRKJLRNuz8BvdXz
-         9VM1qkbf0UkwPj0O/3xF0sRQlL+Acmb/tk1MUA9xXV7+eXTqrIXbQbdu19W63cYX5tBD
-         d5QZ54YPj0iSA7qvUhKCXkwmqpIlktyY+rINxHdVqlXg6iIiCQHNeys26Y/6JMWrEv6/
-         5iQw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=4RHUt2a3tGK9rkXId5mJpPnrZX4F2h+VjNJpe7zp9xs=;
-        fh=gZYnotoHaRxE7sjsTLrRkxpyPQEcJhlNgrpxw5agc40=;
-        b=a9OGxGDyK2yNG2DmZ5forUu0jRj1HZ3e6OCem2AECqlZIkKMq/u7yOqp7791cK1Q+1
-         Fc79uH75DEQ+cskWvfhGiPZMhz9GhYEZrg8E4t446Yik+e+6ZDNh1azGBGyZUkcGuuiN
-         7Vse+I4onBmUiJKbFYVpz0CM4EZTWb+A/6vSOGkODHuk1xSyMR2zJAitY6FCvx12hYIy
-         HD3Kqg7+rj/Tb/VkrnM0rJZpKHh7zCs4AH8JHcxPPYtdepErZsoHuOTr/ju8iil+YnXs
-         b7COehaO7rHYG7z5B1fN0hgKQL9gdsVVXmRLdNzkkDAQh+JiNIrguuW10DPV+aVAKr6O
-         nc1Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kAGEsw7e"
+Received: by mail-ot1-f47.google.com with SMTP id 46e09a7af769-7e6d14aaef8so2161579a34.3
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 15:02:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780950048; x=1781554848; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780956121; x=1781560921; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4RHUt2a3tGK9rkXId5mJpPnrZX4F2h+VjNJpe7zp9xs=;
-        b=cgWLMn+UirGhxjI1Ynedv7URDXymcrilnkRyNUlNEdoaJk85kR1IjCMA39FxeK8Xhq
-         AarERpCuXNFFxdlJFT4PKIscbymERQWS45tLnVpW03aOSd6aQ7jd6ME6RJ+QG7Mq8C8Z
-         cb33CFX0ZXljg08IdtjVhIgFH8cH+B5TDEetvtBfiKz30MuMYY4TbweWQEXXygrM74Rs
-         zu47as0tPtS7X+JlfNpp7TRKQ+bTzP2taBzbdfd9SfcTMqj0rc5Ql5+qgM0jfFH7UbPp
-         PQhWb+oPXWyevEngzK800hFvZBfFl8Ma2JhhZ+wIeeKV4+n4P1+O/QMknqrQg1JIHY7J
-         B3OA==
+        bh=mLteftMqxSBpz8vFkaLokh0cQ8MaetWNL6B6He495r8=;
+        b=kAGEsw7e8X7Z7cL+qxt/UsaXovjQ7gJmT87Pe8KVi+N5EcIQQOEwesEAlNPM2Goo1H
+         I3l5ZOtIPlinv50YeVCWbczv8EmwBASx6EyCIXi3YmrSi+JpjdAi2Y3t9jtChhVuEF5b
+         eZRQOsfoFpbzFLHMx2MhOI/Axc5kK3zTjyl22sr+ub4pDoUkw3s4cBc1OfO/k0Z5OfKa
+         /Ra7PJswQrlOkkxTtXL7W7Y7iVVC0DXMg0gpJsyTd1zsx9IgIlU81UWapfGpC1sBqfow
+         Yr9KrdjcEX0cukI+GtYghT9PcKGicJnZJahXcM7isa5CWELLuGUbl69SFi1KVWtdharc
+         75hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780950048; x=1781554848;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1780956121; x=1781560921;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=4RHUt2a3tGK9rkXId5mJpPnrZX4F2h+VjNJpe7zp9xs=;
-        b=CjPL5ZHcRmwKQWHKs8+dJ+/4OeVvyC/c2gBBmGgWuMnms7CeZp22HD7zMPrlJ6ccmR
-         adfwTUz9TbNHd2ArCkMTkqdoK8OFstlBKPTbWuH/zGv9d8IGx903PAEc+O6bQ6RkQkLu
-         iJj4Wdue0YMY30XerPVuglwOg7aUTfhc3Yd/KioIEKvIK6s3d4O8LRf6TD6EnusokVoX
-         /V/iiRHX1+1PHFa2ktT3NxA+8c3VeqdCSntvoVuAJABAuEi7iRrDVLx/zzh/XjIF2/UQ
-         FgAPKPquhFqIHN0GrUrJEW5ho+1sWxYqN8vuyMwp6Prj94c4GZN5sZb+v3VNxV1y6UmB
-         TXNw==
-X-Gm-Message-State: AOJu0YzQRL2hH0F60JmiF3q21fGxtHCjKjEglrsvHC1c1s3DeTU9GGp/
-	JB9M0egWQxLmrV2Z9NRYO/XGEQFOZ+VxkIcnLNHAZIRjRuszPuQnoL4gmkVt6LwIYh4u+o65+/8
-	K4PHyRsd+1dnhkADM0vkpBdjr9jVcWB3iesO/tYY=
-X-Gm-Gg: Acq92OEAQx3luVC4hfD3yZhtOixXNBSnPkgVdkMKXtYFtEIdazuG07a5jIh4E6exOoZ
-	IOFXBw1QsOWetU00ZaruxNppg/LHj+wHzdgdyvyBP5ZEkRbxCIIvTqiR5vENm0DpZMLrNv2XHkJ
-	YLa1Jf6Emky4LuoaVvmfgebnqaquNBdVKnYmtc0OTjKNebtGCtO5DXwaqPpLau7HV5NfXSz9lgn
-	TS/D2qn8tZsUWmh5ySoSsa/3b1RLgVkTQGEzV0PKKL+k/P+0IDuqBumsP+ewc/NJQjMaSWGTplq
-	nrs5jSWcXSY57o9vAwZD4Pd80Dk5ewBRw6h4bU625xbuSqzgeUMnXtu57VcKtDFN4OSvutn8b5t
-	WFSXvnfL2Tuq94CJ+wZmaXOprtEwir+uvan0D/On1HtPU9wXiEddaJy3WRmm6kkC9ycU8
-X-Received: by 2002:a17:906:cc59:b0:bee:215e:5486 with SMTP id
- a640c23a62f3a-bf3725405f2mr614443366b.36.1780950048416; Mon, 08 Jun 2026
- 13:20:48 -0700 (PDT)
+        bh=mLteftMqxSBpz8vFkaLokh0cQ8MaetWNL6B6He495r8=;
+        b=S2NRe7D72Q9KV/u1m1vCWd+LC7xYp9hHNTz70vabgz8uxiDVqTDhhRQpo/bwFHDh88
+         HbLPY0VU5dcPGB/PESezcr1sq0OpSZbEpWZD0dc6C66y7X8AbntQesdYBdjJIBIoopfF
+         cVundKuOmT+CJ8QTYZdhAJPoUyZ55kjbAzyehG4bMFtBAfsa+kahDoTJPDy9YNdd5iN6
+         m3Css8fh8qc0nVVnhqrlf+Y1vfbscfhn0Br9D1X5Fys60O9EVmJCudiP/rnBl7F6J8WD
+         lQjzR/KeL91l+OF7VHBapx8Q7GQWrEttx37bkydnDhLAGqpdipv7r1kSgaumZ75cBnvJ
+         hkxA==
+X-Forwarded-Encrypted: i=1; AFNElJ+EqyHm3L4daPLYILQ/aQFOdumDBoH1/KSde5cWsI6+AzrJug9FlqF4I/g83dEqUcl3RSjbYMN0eITEOQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzEFg7/7eCm+hHfTE6jHW2EObJTefseu4VVVkOTQDvg5yrF5L6d
+	BVH6ezMljLQ/98fpI7oIM8Mvsyz/M8gzKOMf41dKCdc6Lj5+zkc16wou
+X-Gm-Gg: Acq92OFxzegAYbxkkGDNJZdkq2O1J+GEFhXXoYrkKytJbWIbeTCculSqa6FSfHfjaBk
+	PueHSPWjec9dsui8PMzgUKvw3XaIDTsmKs6hgQA3T5hdl3wvRy2hFsm4G1vurOZhZ7yzGf7y+Kb
+	mfkTbAKAMbiCiGdhEqi334q47gQEbiFjW7n7MaNlBmBFJJdCiuQAlVbMxGoTFIB8a5/ifQQ26BW
+	NsRH3xVCsMcLJw4xtZgQiIYhlT8G8XGe+LHjR+PUYVwtym+AZ9tpV/U1fatnt4THu2PFu3qUVRJ
+	/zSShjc4x43cqQ5+jMVrLvOKS8Q5e6wk3ONbLGP2v8d3oDbNc/qXMGlkTihw4R4oqvvcVnERMcb
+	BOKFNIhRQEOfir7OKBzgMZq3kXAPPG3TW9fMNJQDFhU5O+7txSa6rD5EbY7y7MMApWtBEIlTb1t
+	UoM4zk9VHXQOV5F1fe4wRYnZmOFfrO31xcwRLbQMi+rJ8d8ApefyzkflhCoFuf/l4=
+X-Received: by 2002:a05:6830:7010:b0:7e6:d54e:8fe3 with SMTP id 46e09a7af769-7e70c68cd34mr11040068a34.9.1780956120909;
+        Mon, 08 Jun 2026 15:02:00 -0700 (PDT)
+Received: from linuxescape (23-88-128-2.fttp.usinternet.com. [23.88.128.2])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7e6e71fe69esm13605574a34.0.2026.06.08.15.01.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jun 2026 15:02:00 -0700 (PDT)
+Date: Mon, 8 Jun 2026 17:01:58 -0500
+From: Maxwell Doose <m32285159@gmail.com>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Joshua Crofts <joshua.crofts1@gmail.com>, Sanjay Chitroda
+ <sanjayembeddedse@gmail.com>, Jiri Kosina <jikos@kernel.org>, Srinivas
+ Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner
+ <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
+ Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of
+ unsigned
+Message-ID: <20260608170158.3e3b5512@linuxescape>
+In-Reply-To: <20260608194047.23791938@jic23-huawei>
+References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
+	<20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
+	<CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
+	<CALoEA-yiDwjkKxUE3B=qiTdBhbvinfq-UN8h1H-HysXGm0prSg@mail.gmail.com>
+	<20260608194047.23791938@jic23-huawei>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260608045041.4664-1-rosenp@gmail.com> <aibx1y8ANiZoMHyY@google.com>
-In-Reply-To: <aibx1y8ANiZoMHyY@google.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Mon, 8 Jun 2026 13:20:36 -0700
-X-Gm-Features: AVVi8CdX_rrC5xztWw5gXaZRacCnczIxXwJC1OV5Ze93V6neo92G2KtI55OaleA
-Message-ID: <CAKxU2N8s8z5jD2JVU4b166jQYsUjWMj4Q5a-B6vkX7-fhCK8LQ@mail.gmail.com>
-Subject: Re: [PATCH] input: ipaq-micro-keys: simplify allocation
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 8, 2026 at 9:49=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Rosen,
->
-> On Sun, Jun 07, 2026 at 09:50:41PM -0700, Rosen Penev wrote:
-> > Use a flexible array member to have a single allocation.
->
-> Why does it have to be flexible? The size is known.
-From a quick glance, that would be a compilation error. micro_keycodes
-gets declared after ipaq_micro_keys
+On Mon, 8 Jun 2026 19:40:47 +0100
+Jonathan Cameron <jic23@kernel.org> wrote:
 
-From looking at a bunch of struct definitions, [ARRAY_SIZE(foo)] seems
-to be atypical.
+> On Mon, 8 Jun 2026 08:37:38 +0200
+> Joshua Crofts <joshua.crofts1@gmail.com> wrote:
+>=20
+> > On Sun, 7 Jun 2026 at 22:54, Maxwell Doose <m32285159@gmail.com> wrote:=
+ =20
+> > >
+> > > On Sat, Jun 6, 2026 at 7:19=E2=80=AFAM Sanjay Chitroda
+> > > <sanjayembeddedse@gmail.com> wrote:   =20
+> > > >
+> > > > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> > > >
+> > > > Prefer 'u32' instead of bare 'unsigned' variable to improve code
+> > > > clarity and consistency with kernel style.
+> > > >
+> > > > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> > > > ---
+> > > >  drivers/iio/light/hid-sensor-als.c | 6 +++---
+> > > >  1 file changed, 3 insertions(+), 3 deletions(-)
+> > > >   =20
+> > >
+> > > Do we *need* u32 though? Usually these types are for places where we
+> > > require specific bit-widths for a reason (e.g., reading a hardware
+> > > register) but I'm not sure that's the case here. I could be totally
+> > > wrong, in that case please correct me but otherwise I unfortunately
+> > > don't see much value in this. That's just my personal opinion though,
+> > > Jonathan may think otherwise.   =20
+> >=20
+> > Aside from the array of usage ids that are u32 defined here:
+> > https://elixir.bootlin.com/linux/v7.1-rc6/source/drivers/iio/light/hid-=
+sensor-als.c#L46
+> >=20
+> > there are additional structs used in the HID drivers that take u32 (I
+> > had a similar
+> > patch moving `unsigned` to `unsigned int`, but it was recommended to us=
+e the
+> > types that the structs use, hence u32).
+> >  =20
+> Here the reason for the change is even simpler. These are callbacks assig=
+ned to:
+>=20
+> struct hid_sensor_hub_callbacks {
+> 	struct platform_device *pdev;
+> 	int (*suspend)(struct hid_sensor_hub_device *hsdev, void *priv);
+> 	int (*resume)(struct hid_sensor_hub_device *hsdev, void *priv);
+> 	int (*capture_sample)(struct hid_sensor_hub_device *hsdev,
+> 			u32 usage_id, size_t raw_len, char *raw_data,
+> 			void *priv);
+> 	int (*send_event)(struct hid_sensor_hub_device *hsdev, u32 usage_id,
+> 			 void *priv);
+> };
+>=20
+> So given those signatures, these should always have been u32.
 >
-> >
-> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> > ---
-> >  drivers/input/keyboard/ipaq-micro-keys.c | 9 +++------
-> >  1 file changed, 3 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/input/keyboard/ipaq-micro-keys.c b/drivers/input/k=
-eyboard/ipaq-micro-keys.c
-> > index ca7ec054b1ce..0fc5b5dcdef5 100644
-> > --- a/drivers/input/keyboard/ipaq-micro-keys.c
-> > +++ b/drivers/input/keyboard/ipaq-micro-keys.c
-> > @@ -23,7 +23,7 @@
-> >  struct ipaq_micro_keys {
-> >       struct ipaq_micro *micro;
-> >       struct input_dev *input;
-> > -     u16 *codes;
-> > +     u16 codes[];
-> >  };
-> >
-> >  static const u16 micro_keycodes[] =3D {
-> > @@ -90,10 +90,11 @@ static int micro_key_probe(struct platform_device *=
-pdev)
-> >       int error;
-> >       int i;
-> >
-> > -     keys =3D devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
-> > +     keys =3D devm_kzalloc(&pdev->dev, struct_size(keys, codes, ARRAY_=
-SIZE(micro_keycodes)), GFP_KERNEL);
+
+Ah then perhaps I was a bit harsh on Sanjay.
+
 >
-> Please keep to the limits for the kernel. 100 columns is acceptable when
-> leads to better readability, but I prefer 80 when it makes sense.
-Seems I forgot to run git clang-format here. Will resend.
+> I would like that clearly stated in the patch descriptions. Consistency
+> is a bit too vague.
 >
-> checkpatch.pl would have warned you.
->
-> Thanks.
->
-> --
-> Dmitry
+
+Agree though. But given this
+
+Reviewed-by: Maxwell Doose <m32285159@gmail.com>
+
+--=20
+best regards,
+max

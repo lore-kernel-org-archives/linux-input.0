@@ -1,81 +1,76 @@
-Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
+Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D463AFD0A
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 22:02:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2616D3AFD05
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 22:03:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780956123; cv=none; b=CM2ZhFFTZb5LVAFY04e2nir9E9F6fi29DWkoMRpQXsl31+Q8FaRPlyo+gKoNndA0zSUO4ujdxVimKbgQibcPksumserCK4R2dUustCib9TTA3o+NCVhhiqJRfXPuiZp4Hvuc3q904N0wLR14zd1ZBRuBl5y8of36+7HSv1IMjX4=
+	t=1780956236; cv=none; b=o6WGS98k4oF4tso9XsZHYAuFdqMPBk4EFUuH7lQvu0cAx/TyXhCcuDK59++Y4cynBrtsIHEHM40lv5uLy0vywWQC92WnGCG36uSYUhZx6/GcswG6D6/k1BZLbI7yz15/bRNE0V0KoFDlZA/HTDbotSJpxo+By/chvkjraKIyKJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780956123; c=relaxed/simple;
-	bh=aO4kFWNpehGDtdrzHRertaCSVfudQ0Ged89ZpzBeIng=;
+	s=arc-20240116; t=1780956236; c=relaxed/simple;
+	bh=JlBnF56ZRWnzHd6GxrSk+oSNEixwMBnfd+3FNnXVXE0=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ItXKEHSrG3Qcroy+SfJK1CHcyb70gOFhuZUAx5R/bw1eY3sGCZPtPWWdO8WgRW3PH8sdo7zUit0M7NPBVNHxu3mpePbcbSL1rvo5t4fbuyS3jRL5g2jHE9tyENMEnAiTmydELj4JyueLhJx/kOWRH9r6OGJWDhLhIOApkiNReLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kAGEsw7e; arc=none smtp.client-ip=209.85.210.47
+	 MIME-Version:Content-Type; b=XeLRRbmwtNHGtsGd1pEWBwb+SJinGIeKo2Ij9cLeKwZ3ZZ5S892fIGyrhC9woUq/Z+katIifSBvNtXxaOe2RYoJC6k1aRGlVHRHDdyFBnTQseqCkz8zNu4iS87CL2TRhFP44aQ1vAQKn/+NRLNnT4x37tt7K/iVT5ZW8nsb1SgY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gUpBx5EV; arc=none smtp.client-ip=209.85.167.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kAGEsw7e"
-Received: by mail-ot1-f47.google.com with SMTP id 46e09a7af769-7e6d14aaef8so2161579a34.3
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 15:02:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gUpBx5EV"
+Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-486852c7b68so2981571b6e.2
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 15:03:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780956121; x=1781560921; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1780956234; x=1781561034; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mLteftMqxSBpz8vFkaLokh0cQ8MaetWNL6B6He495r8=;
-        b=kAGEsw7e8X7Z7cL+qxt/UsaXovjQ7gJmT87Pe8KVi+N5EcIQQOEwesEAlNPM2Goo1H
-         I3l5ZOtIPlinv50YeVCWbczv8EmwBASx6EyCIXi3YmrSi+JpjdAi2Y3t9jtChhVuEF5b
-         eZRQOsfoFpbzFLHMx2MhOI/Axc5kK3zTjyl22sr+ub4pDoUkw3s4cBc1OfO/k0Z5OfKa
-         /Ra7PJswQrlOkkxTtXL7W7Y7iVVC0DXMg0gpJsyTd1zsx9IgIlU81UWapfGpC1sBqfow
-         Yr9KrdjcEX0cukI+GtYghT9PcKGicJnZJahXcM7isa5CWELLuGUbl69SFi1KVWtdharc
-         75hw==
+        bh=ZrvtrOj9d26ipp+5hv4zWK+nSNPtOXlbAt1AUwvEX2s=;
+        b=gUpBx5EVFJN2cDP+Fpa8zl1A0xgI06Jad+XQ/5OSbyuw75UDBVxW937arNREWROTOF
+         90Y708oZJNzvHbEWxpx9s4og88g48TQatRsK49EO7xNjJm2m3dyM1CmscWKH0JglP7O5
+         FuRCeI1Suv63boMsYauA6gl+KuA14bMqmGdLorSkxon7WDysrvKIWDUox7CSOoLWZqhS
+         X4obP46R3y9+8bbh2w5yUGaJG8jgEEpf+hGfC67pFXhl3QyPsIy7hKVKjzG9pCFS/DMJ
+         j9/533ypyk+bMJuieqmus56s8QflFHnJHyqMWjx/M2wnfL80agyt7fRiJf1nGNBwlSbM
+         gSNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780956121; x=1781560921;
+        d=1e100.net; s=20251104; t=1780956234; x=1781561034;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=mLteftMqxSBpz8vFkaLokh0cQ8MaetWNL6B6He495r8=;
-        b=S2NRe7D72Q9KV/u1m1vCWd+LC7xYp9hHNTz70vabgz8uxiDVqTDhhRQpo/bwFHDh88
-         HbLPY0VU5dcPGB/PESezcr1sq0OpSZbEpWZD0dc6C66y7X8AbntQesdYBdjJIBIoopfF
-         cVundKuOmT+CJ8QTYZdhAJPoUyZ55kjbAzyehG4bMFtBAfsa+kahDoTJPDy9YNdd5iN6
-         m3Css8fh8qc0nVVnhqrlf+Y1vfbscfhn0Br9D1X5Fys60O9EVmJCudiP/rnBl7F6J8WD
-         lQjzR/KeL91l+OF7VHBapx8Q7GQWrEttx37bkydnDhLAGqpdipv7r1kSgaumZ75cBnvJ
-         hkxA==
-X-Forwarded-Encrypted: i=1; AFNElJ+EqyHm3L4daPLYILQ/aQFOdumDBoH1/KSde5cWsI6+AzrJug9FlqF4I/g83dEqUcl3RSjbYMN0eITEOQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzEFg7/7eCm+hHfTE6jHW2EObJTefseu4VVVkOTQDvg5yrF5L6d
-	BVH6ezMljLQ/98fpI7oIM8Mvsyz/M8gzKOMf41dKCdc6Lj5+zkc16wou
-X-Gm-Gg: Acq92OFxzegAYbxkkGDNJZdkq2O1J+GEFhXXoYrkKytJbWIbeTCculSqa6FSfHfjaBk
-	PueHSPWjec9dsui8PMzgUKvw3XaIDTsmKs6hgQA3T5hdl3wvRy2hFsm4G1vurOZhZ7yzGf7y+Kb
-	mfkTbAKAMbiCiGdhEqi334q47gQEbiFjW7n7MaNlBmBFJJdCiuQAlVbMxGoTFIB8a5/ifQQ26BW
-	NsRH3xVCsMcLJw4xtZgQiIYhlT8G8XGe+LHjR+PUYVwtym+AZ9tpV/U1fatnt4THu2PFu3qUVRJ
-	/zSShjc4x43cqQ5+jMVrLvOKS8Q5e6wk3ONbLGP2v8d3oDbNc/qXMGlkTihw4R4oqvvcVnERMcb
-	BOKFNIhRQEOfir7OKBzgMZq3kXAPPG3TW9fMNJQDFhU5O+7txSa6rD5EbY7y7MMApWtBEIlTb1t
-	UoM4zk9VHXQOV5F1fe4wRYnZmOFfrO31xcwRLbQMi+rJ8d8ApefyzkflhCoFuf/l4=
-X-Received: by 2002:a05:6830:7010:b0:7e6:d54e:8fe3 with SMTP id 46e09a7af769-7e70c68cd34mr11040068a34.9.1780956120909;
-        Mon, 08 Jun 2026 15:02:00 -0700 (PDT)
+        bh=ZrvtrOj9d26ipp+5hv4zWK+nSNPtOXlbAt1AUwvEX2s=;
+        b=hLAdX3FEMTJvdIeVLvGgobw7bzZDjY/+zZe5WTz/av9XBgCa1QS8zDKdN4cpqz1EXY
+         MW0Qu445z9BsDYdNtt6SjytWP78KtmSRbFOgevody45O6Fus56mD9Dfiq6bWggbO/+QV
+         5D3VaqQa/609ExsBDu1L3s//zHXnkH4DEl2tNqUkYK/kQslefBCoqsTTQS7FEC3BCrKq
+         JNM6MyWwK/JC7YA2HWsITrden77BxmM7HQs4q7BiYaKYgcXRBr5lUbHOwDUUG4hNhhMY
+         fp3rlpsXraDbfKoq+DHPycArSJwERitSoFNkkf+DHYQoAaHXzR3zFVOH5tMc916MJKwW
+         vb6g==
+X-Forwarded-Encrypted: i=1; AFNElJ+Ucies+nuZWS3R/abacYVnA8P105sgiZXWmQ47mmwZysRzlkbXVODrCg6cU9cXtVHjEvCXpP01O+QeYQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwCwGPLW8GuUbI/d5FUX1IjNvgveTgq1+yDzb+cv7nkorpYwvu2
+	4B5Wkph0X3rPx756d8jLNFkSpcVfZoh3RTVUZFDsS8KpB8H2CKwI4MLh
+X-Gm-Gg: Acq92OEs9dNnk4rFG5NI4w61qCHM4ZB0QpgfJ1XJ1mHh0ZzxRsUBWGs97ikQ8mSWHln
+	srTrT9Ft3VohYFVA6wG2wY5iLuUBXkg37r1vD3VWGnbntLsjURU7d9jumb7t3uNr/ZKvZyydwUA
+	Q96Wfp3GJ34JINTpJjd9EL48Tu4tQ7fZpeh3gFZlVqHhxGbmN5hmFdywt2WtkZgjNEXsEcami4+
+	Ym3MDB3EPvCFqiyGEf5TDb8ePCMRg0S7Updw89GKweX/J9QoBb6fzWsekYPHHKwLyQPO/pq+kSU
+	Wq576A62kqGpxkmUFbZ+B6or3M8W3MW5W+NmFEbx8EI9coI0qf8+00ILs9XAm5MtmZW3TEka4D8
+	vsVb8NOQ+r74FM1tghtB+SIRRO10Btk+hL+AuFReYffX/HJ/5PBfuit/GrVOZPvpsnP+ALiOG9Q
+	fFCe09UF2o/hkUsPgicPpMv067bsCPsj63ISZFjNfvbNF0iqjjvmjFPXOM6y/0hfJReRNeXUMgl
+	Q==
+X-Received: by 2002:a05:6808:221d:b0:485:4441:721a with SMTP id 5614622812f47-4868df0305emr10961379b6e.36.1780956234026;
+        Mon, 08 Jun 2026 15:03:54 -0700 (PDT)
 Received: from linuxescape (23-88-128-2.fttp.usinternet.com. [23.88.128.2])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7e6e71fe69esm13605574a34.0.2026.06.08.15.01.59
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4865b91a9d2sm14484863b6e.12.2026.06.08.15.03.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 15:02:00 -0700 (PDT)
-Date: Mon, 8 Jun 2026 17:01:58 -0500
+        Mon, 08 Jun 2026 15:03:53 -0700 (PDT)
+Date: Mon, 8 Jun 2026 17:03:51 -0500
 From: Maxwell Doose <m32285159@gmail.com>
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Joshua Crofts <joshua.crofts1@gmail.com>, Sanjay Chitroda
- <sanjayembeddedse@gmail.com>, Jiri Kosina <jikos@kernel.org>, Srinivas
- Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner
+To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner
  <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
  Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org,
  linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of
- unsigned
-Message-ID: <20260608170158.3e3b5512@linuxescape>
-In-Reply-To: <20260608194047.23791938@jic23-huawei>
+Subject: Re: [PATCH 0/7] HID: iio: basic clean up for usage_id
+Message-ID: <20260608170351.6f0fa693@linuxescape>
+In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
 References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
-	<20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
-	<CAKqfh0Efa1+VShSW76tqaV8XtAZToRfsCy0cTi5sXOUm_nwLiw@mail.gmail.com>
-	<CALoEA-yiDwjkKxUE3B=qiTdBhbvinfq-UN8h1H-HysXGm0prSg@mail.gmail.com>
-	<20260608194047.23791938@jic23-huawei>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -83,77 +78,57 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, 8 Jun 2026 19:40:47 +0100
-Jonathan Cameron <jic23@kernel.org> wrote:
+On Sat, 06 Jun 2026 17:47:41 +0530
+Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
 
-> On Mon, 8 Jun 2026 08:37:38 +0200
-> Joshua Crofts <joshua.crofts1@gmail.com> wrote:
->=20
-> > On Sun, 7 Jun 2026 at 22:54, Maxwell Doose <m32285159@gmail.com> wrote:=
- =20
-> > >
-> > > On Sat, Jun 6, 2026 at 7:19=E2=80=AFAM Sanjay Chitroda
-> > > <sanjayembeddedse@gmail.com> wrote:   =20
-> > > >
-> > > > From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > > >
-> > > > Prefer 'u32' instead of bare 'unsigned' variable to improve code
-> > > > clarity and consistency with kernel style.
-> > > >
-> > > > Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> > > > ---
-> > > >  drivers/iio/light/hid-sensor-als.c | 6 +++---
-> > > >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > > >   =20
-> > >
-> > > Do we *need* u32 though? Usually these types are for places where we
-> > > require specific bit-widths for a reason (e.g., reading a hardware
-> > > register) but I'm not sure that's the case here. I could be totally
-> > > wrong, in that case please correct me but otherwise I unfortunately
-> > > don't see much value in this. That's just my personal opinion though,
-> > > Jonathan may think otherwise.   =20
-> >=20
-> > Aside from the array of usage ids that are u32 defined here:
-> > https://elixir.bootlin.com/linux/v7.1-rc6/source/drivers/iio/light/hid-=
-sensor-als.c#L46
-> >=20
-> > there are additional structs used in the HID drivers that take u32 (I
-> > had a similar
-> > patch moving `unsigned` to `unsigned int`, but it was recommended to us=
-e the
-> > types that the structs use, hence u32).
-> >  =20
-> Here the reason for the change is even simpler. These are callbacks assig=
-ned to:
->=20
-> struct hid_sensor_hub_callbacks {
-> 	struct platform_device *pdev;
-> 	int (*suspend)(struct hid_sensor_hub_device *hsdev, void *priv);
-> 	int (*resume)(struct hid_sensor_hub_device *hsdev, void *priv);
-> 	int (*capture_sample)(struct hid_sensor_hub_device *hsdev,
-> 			u32 usage_id, size_t raw_len, char *raw_data,
-> 			void *priv);
-> 	int (*send_event)(struct hid_sensor_hub_device *hsdev, u32 usage_id,
-> 			 void *priv);
-> };
->=20
-> So given those signatures, these should always have been u32.
->
+> Hi all,
+> 
+> This series updates all HID IIO drivers to use 'u32' instead of
+> bare 'unsigned' for the usage_id parameter.
+> 
+> This improves type clarity and ensures consistency with kernel
+> coding style, as HID usage IDs are defined as 32-bit values.
+> 
+> No functional changes are introduced.
+> 
+> Testing:
+>   - Compiled with W=1 for each patch in the series
+> 
+> ---
+> Sanjay Chitroda (7):
+>       iio: gyro: hid-sensor-gyro-3d: use u32 instead of unsigned
+>       iio: accel: hid-sensor-accel-3d: use u32 instead of unsigned
+>       iio: light: hid-sensor-als: use u32 instead of unsigned
+>       iio: light: hid-sensor-prox: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-incl-3d: use u32 instead of unsigned
+>       iio: orientation: hid-sensor-rotation: use u32 instead of unsigned
+>       iio: pressure: hid-sensor-press: use u32 instead of unsigned
+> 
+>  drivers/iio/accel/hid-sensor-accel-3d.c       | 6 +++---
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 6 +++---
+>  drivers/iio/light/hid-sensor-als.c            | 6 +++---
+>  drivers/iio/light/hid-sensor-prox.c           | 4 ++--
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  | 6 +++---
+>  drivers/iio/orientation/hid-sensor-rotation.c | 6 +++---
+>  drivers/iio/pressure/hid-sensor-press.c       | 6 +++---
+>  7 files changed, 20 insertions(+), 20 deletions(-)
+> ---
+> base-commit: ae696dfa47c30016cd429b9db5e70b259b8f509e
+> change-id: 20260606-6-june-hid-iio-correct-usage-id-57ce92cb102b
+> 
+> Best regards,
+> --  
+> Sanjay Chitroda <sanjayembeddedse@gmail.com>
+> 
+> 
 
-Ah then perhaps I was a bit harsh on Sanjay.
-
->
-> I would like that clearly stated in the patch descriptions. Consistency
-> is a bit too vague.
->
-
-Agree though. But given this
+This series:
 
 Reviewed-by: Maxwell Doose <m32285159@gmail.com>
 
---=20
+-- 
 best regards,
 max

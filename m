@@ -1,133 +1,90 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0517632F765
-	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 06:41:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780900880; cv=pass; b=ptIqN63pRdkcf+yQ/OwklxVJ5Jw2ClQ5tloX22bSqSK8f9kD18IoXSY6Tf/P2nYPOduEaydJd+q9nyeulHKA4y15V+jAiF25NPq4bUsEgKTfSF1B6/4IHsJsWcB031bpPQivHl7oaHiC62nayHj9MyZNXhVuI0BM2kqbIjiqGo0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780900880; c=relaxed/simple;
-	bh=OQM/JImcjfi7wjn+4RAr7hfALL5l2/w4sROJP8Xbv6s=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 675053AF677
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 08:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780908604; cv=none; b=MKS0apFO64Bdxz3A0O0Qrx6D1aj5wI0CL1okIv+irtusLkdMd6bIUb49LB695a2PY2b0S+ET9pz2vkL5WMeto/lRQFzIECvp8HLhv3NFmjOPSFXPH6nf3S4L4cBHVeyj83XCJwYjSyua4HLcgICEGxWhKwLF9VIERxSewxSrLAc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780908604; c=relaxed/simple;
+	bh=owPp2WTGol85f4Xo6sbmSK2j2EOjrf4lzpS/gogNVkA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BKg8DA+RMVRu9Q3lpsVvR4sNrNx2O6G/4pnQ6bfI++k6rgLt3vISqoH0KiiuLUswVUVpA+lwL9adIHL0tRIGjCrbpDrs7YCSW0L4yXLpjhlyUasG3gFO6/zNhYa8+kKhDNomrLaLfEnWB/CAi7Ixk8mdE8Uo/7CFmoJ3asn31sw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QmAG50nz; arc=pass smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=MWYyg9drVrIpX4s/mZcKPkHLyjrAuhu/5FawQTnWNw5J/SX0yWKD+/n1umfqMIfxsKDwUckw4rTPh9YuavHTzOtSICPRAGEEcCIKq5J9k/vLE6Ku6bWEqZthaT0BufKwqpm7iIDez5ofSvNMkqAxp3YNOIFanLlre8fRXlsniwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SIS5Kc3I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QmAG50nz"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-490c1915793so22582535e9.2
-        for <linux-input@vger.kernel.org>; Sun, 07 Jun 2026 23:41:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780900877; cv=none;
-        d=google.com; s=arc-20240605;
-        b=P0TwITAE2noJsxG1BBS1DyKw7IEt7wZfzjTN+G3GcjoRBXJdblKZnWnYh8iUH9TPzH
-         Bn0Pb0ZNVq0Ksqt2a35sJWC5oQk7PLO+QVQSz5AieDIsrxxyfVwRZsqF36Yfo3joRHPV
-         qnWr+YDPqNv8UDf+5TFC7srTe9XDtbeEVNJLZboqi/JSgGSBtJyA60hVEayEuHFqwXAn
-         i3X/3z88TfmW7iXU92GZTqFLZuZuqlxjKj4xwqcTAdzDzbvVYky6DzioUB5AFBA2O6qO
-         fDjY9OMdSTsN+OiosgdvA/oLyUsoV6O72TjcEzJhzA0yRtWpmAwFfMXlDr5a/6eP5KOR
-         2PoQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
-        fh=XK+Z+4XQ9f0xzi+QH/n7PYPNngsoj1sw83l1C9geJu8=;
-        b=KUe7FEkTKP3iw4bOMWY5QKej2EnvfTEKVvExIMt6m4XHUsqhR4IrW9XKZx14NtaiLT
-         BN+Mz7EBj2uQ60nP1P6RXu1tp5CWWXAyAyz1lZT2ekpBcrLPoFqYLNnV5euQ5LXQJJ0l
-         txmjUcRwQ0hbubkzqkHqjKrCts4/WRMKwPFOD/BpGRZpqiwtsrpQlGFgq/ixKy15zTvn
-         G4xToJLwJoyFSfWVCTiPptXaLDOVQI6yMs96RPlqOU/hvSjq4lvV/RDPBG5IcJwEdHnt
-         nEOxbAz3acxOj5Xfq6yx12MlMGgCF90GaeE6B3qdRDQ+YCH53aPxsweke8q4kENkk+6d
-         iI4A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780900877; x=1781505677; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
-        b=QmAG50nz/M9yYl3c9417dWgUDXkoEY2kppsMO4BL6CjqCHOOkr19dh93S/hwB3l3RY
-         ioI7Af0aqZzludJp8OwmFKzVJi6R3Bk25BdGOtryDLyjZ0HVqIey3Qguol8/zIOmQzv1
-         0WfheI8eiDrW6Khaoqp3amDlVLo4EKQocJj/G4P2gqXyAXpTYyB62D5V5ELquXR+rqlo
-         LukXM7ca9mD/lycW7f0gqoYcfVrj7PS55cXNy+c4c1mWilH89xWMHI/8q8xJ/PFY5bSx
-         uuWCaj7yaYNJPuL2HGFyzGc0Mqk6OTlKb/jfGtLfw5De5vl0WBZd83GLG6Q1tGprHqvV
-         SdsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780900877; x=1781505677;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X0TaOt7Y/rToPgZKPJf/wU2SzirryT8Q6bE6xjghko4=;
-        b=QUoTxZRexFI5fBEhzPfSv135FHUwZTkeQpnYtAdndaxdwHJNDz63t66OdyP+iIZc86
-         U7um6QZzzizfpkxFx/07toRi1zfpNDoZzlP1btyJn5LzAX+L8zWd8TXA2uEts+7pF159
-         vfbqMJIxrBeI8U7JnFFoAJAIo4OArt68cBc4d1ubQS4js49r/nlhTZoKah8NkVupj+DF
-         vgmr+4of0YhIqZOISjM4bKnqdOO3KJkIEFsestC+K6yOLTdXQMNbJjg8qqmWoPWeDqyn
-         E4CmZWKGOetlnj2yR9wtmUJVmu+6B0he5QEp5WRifaOu+5A813KObrnM0UPIpoEh05m0
-         E8qA==
-X-Forwarded-Encrypted: i=1; AFNElJ+dIXdDXqePHtV+srMzpv9zadLtGXin6q7aGhlliSWMhAuA9eGgM/NdzaTKzucBKmcVMa/oQcGe5S8UTA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxgwTY1W9XKTZumEs4n0lWBSY0cKPBDKF7Ju1eI3LeeC7K9jmG
-	5cWd/bj/HkYDrwKxqjTzlowarnnYz8pCIstUAEbFKOWDgStnhchj3G1tlF0XkJ/JkjnY/6lf/6T
-	3Geid8bhiJRrBBgTe223vqDlcUMW1DzE=
-X-Gm-Gg: Acq92OHSf4l63HhBMwWnGLTIZXh5b/XdLydLR5R+LfLGFMw0KXaoZEW2iO05SUl/PM9
-	78ov33ElghUj788REwz08GwTIApug2V6kWtX5mPZVPLQ7RqpbiHXSx6Lqfh4sUQHTJlfBKcr5jF
-	TOdguQrqvoFTHHknyN6t8jgAwoEER2nPfGMiv5lyXDEIzZ4+RRP90NuOL8SMLYZAuEojQ28/5D0
-	8GX6nEHy9lmWRVXqKx7JwCgXhf0kwB4Kf+MHvz69Kvh12cMYbkEY702lQa29icEUoDoJ/aeA/iD
-	ZyXrpKE5aI2Hw6yWQR1/AwN7SNkEkkJppq80fX1dQyyehrpR0xbKoRkgR6rNgy0O/cY4mL3KbuJ
-	irf5p0jUYoaEbmGNKRENm57WAC5kAmqpDyAI9xHBWHPpDXr3at9hDXzjGOCvWDeIyiYIJUiq8s9
-	dSVRKyvyMvRjtQYgeF
-X-Received: by 2002:a05:600c:1d12:b0:490:7227:100 with SMTP id
- 5b1f17b1804b1-490c26049a0mr234289415e9.18.1780900877418; Sun, 07 Jun 2026
- 23:41:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SIS5Kc3I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 140771F0089F
+	for <linux-input@vger.kernel.org>; Mon,  8 Jun 2026 08:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780908603;
+	bh=owPp2WTGol85f4Xo6sbmSK2j2EOjrf4lzpS/gogNVkA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=SIS5Kc3IYXhIUfGMmiqxWA37iMFrW+SwkXaNwQ1Iw87hV+MIOO0MctDudcevSgbdN
+	 QY/Y/y2v1YzHLmsSypDxBw87Nc650CEIGXvsowx884hbNiPKgI1wQYgS7SNIPSisub
+	 JMR1ACC9bIemHY8aIwumQqLIJ6fYZuw0NWotH4qQflGeAIxtJWts6ypoWJIieP/Wjw
+	 ukjSa0Nljr7DzifdGe2eXeLm9na6kJf1WyfdULMHkF0BmKxE7LsgN9KU0uP76EX7zB
+	 RGrLmAvSmQ8OYBq2aRQUQm9fbAMimSKY8/xJ5OMHmv7d6lXIPTHYIAa0hexOSLnrWm
+	 9hOlOZWPpOOug==
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3967725a77fso40699061fa.1
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2026 01:50:02 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ9z2Asr4NzeyjkcUhVR69s2w94e3vvsjdd0y4g1BoQZzKvMwJS55dV7qiDy3YF25eJGU/vImKJM3R9Ktg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwP+3QgOeP3xmPsdU0XoAWFOZ3ZtEIkDmS9LR9KiBUG9KqJc7XA
+	OvVqj+JNUFAZSb6+xVCho1eoSPg5vhpodCvaJbyCN84RFWoBESJvEVGH6bWOlROh4sgJV3/af15
+	/EB3nloZLzV8OsKhsaoQ8wSGDdn4xM3U=
+X-Received: by 2002:a05:651c:2128:b0:396:73ed:695d with SMTP id
+ 38308e7fff4ca-396d0836ea3mr43576871fa.11.1780908601609; Mon, 08 Jun 2026
+ 01:50:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260606-6-june-hid-iio-correct-usage-id-v1-0-dd4a6820b674@gmail.com>
- <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
-In-Reply-To: <20260606-6-june-hid-iio-correct-usage-id-v1-3-dd4a6820b674@gmail.com>
-From: Joshua Crofts <joshua.crofts1@gmail.com>
-Date: Mon, 8 Jun 2026 08:41:07 +0200
-X-Gm-Features: AVVi8CdSwGkE7drW8dMoDRs5NIyQb5y_X45ROHHEWLYjV4XMOXGvV8vHbLCYnWY
-Message-ID: <CALoEA-yasQhXE9o-iYL5h8w0wPMrP4f-iva-YOJ2KZV9UuGe3g@mail.gmail.com>
-Subject: Re: [PATCH 3/7] iio: light: hid-sensor-als: use u32 instead of unsigned
-To: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+References: <20260510052107.555825-1-enelsonmoore@gmail.com>
+In-Reply-To: <20260510052107.555825-1-enelsonmoore@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 8 Jun 2026 10:49:49 +0200
+X-Gmail-Original-Message-ID: <CAD++jLmUW4KjxEjwv7_an_dEMTSOtvG=q2MjhqKvnuGrWaaCsQ@mail.gmail.com>
+X-Gm-Features: AVVi8Cey8G22PfktZkGwHwtR7mCZO1YUzasXgiZ-WMqXRZAcQy-0NUYhP4onn0k
+Message-ID: <CAD++jLmUW4KjxEjwv7_an_dEMTSOtvG=q2MjhqKvnuGrWaaCsQ@mail.gmail.com>
+Subject: Re: [PATCH] ARM: footbridge: convert to sparse IRQs
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, 
+	linux-serial@vger.kernel.org, Russell King <linux@armlinux.org.uk>, 
+	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@kernel.org>, 
+	"Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>, Kees Cook <kees@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+	Steven Rostedt <rostedt@goodmis.org>, Thomas Weissschuh <thomas.weissschuh@linutronix.de>, 
+	Peter Zijlstra <peterz@infradead.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 6 Jun 2026 at 14:19, Sanjay Chitroda <sanjayembeddedse@gmail.com> wrote:
->
-> From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
->
-> Prefer 'u32' instead of bare 'unsigned' variable to improve code
-> clarity and consistency with kernel style.
->
-> Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-> ---
->  drivers/iio/light/hid-sensor-als.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-> index d72e260b8266..ae2fda8dc500 100644
-> --- a/drivers/iio/light/hid-sensor-als.c
-> +++ b/drivers/iio/light/hid-sensor-als.c
-> @@ -241,7 +241,7 @@ static const struct iio_info als_info = {
->
->  /* Callback handler to send event after all samples are received and captured */
->  static int als_proc_event(struct hid_sensor_hub_device *hsdev,
-> -                               unsigned usage_id,
-> +                               u32 usage_id,
->                                 void *priv)
+On Sun, May 10, 2026 at 7:21=E2=80=AFAM Ethan Nelson-Moore
+<enelsonmoore@gmail.com> wrote:
 
-Code-wise fine, however looking at this function, usage_id is never
-actually used,
-though not sure whether removing it would break the ABI... up to you
-to check it.
+> To improve future maintainability, change the interrupt handling for
+> mach-footbridge to use sparse IRQs.
+>
+> Since the number of possible interrupts is already fixed and relatively
+> small, just make it use all legacy interrupts preallocated using the
+> .nr_irqs field in the machine descriptor, rather than actually
+> allocating domains on the fly.
+>
+> Many files had to be adjusted to include <mach/irqs.h>
+> explicitly because it is no longer implicitly included with sparse
+> IRQs.
+>
+> Description adapted from commit c78a41fc04f0 ("ARM: s3c24xx: convert
+> to sparse-irq").
+>
+> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 
--- 
-Kind regards
+Have you tested this on real hardware?
+The commit doesn't really say.
 
-CJD
+I might have to dig out my NetWinder to test this.
+
+Yours,
+Linus Walleij
